@@ -18,10 +18,12 @@
 
 /*
  This firmware is a mashup between Sprinter and grbl.
+  (https://github.com/kliment/Sprinter)
+  (https://github.com/simen/grbl/tree)
+ 
  It has preliminary support for Matthew Roberts advance algorithm 
     http://reprap.org/pipermail/reprap-dev/2011-May/003323.html
- (https://github.com/kliment/Sprinter)
- (https://github.com/simen/grbl/tree)
+
  This firmware is optimized for gen6 electronics.
  */
 
@@ -35,12 +37,12 @@ char version_string[] = "0.9.0";
 
 #ifdef SDSUPPORT
 #include "SdFat.h"
-#endif
+#endif //SDSUPPORT
 
 #ifndef CRITICAL_SECTION_START
 #define CRITICAL_SECTION_START  unsigned char _sreg = SREG; cli()
 #define CRITICAL_SECTION_END    SREG = _sreg
-#endif
+#endif //CRITICAL_SECTION_START
 
 // look here for descriptions of gcodes: http://linuxcnc.org/handbook/gcode/g-code.html
 // http://objects.reprap.org/wiki/Mendel_User_Manual:_RepRapGCodes
@@ -138,18 +140,18 @@ unsigned char temp_meas_ready = false;
   double pid_input;
   double pid_output;
   bool pid_reset;
-#endif
+#endif //PIDTEMP
 
 #ifdef WATCHPERIOD
 int watch_raw = -1000;
 unsigned long watchmillis = 0;
-#endif
+#endif //WATCHPERIOD
 #ifdef MINTEMP
 int minttemp = temp2analogh(MINTEMP);
-#endif
+#endif //MINTEMP
 #ifdef MAXTEMP
 int maxttemp = temp2analogh(MAXTEMP);
-#endif
+#endif //MAXTEMP
 
 //Inactivity shutdown variables
 unsigned long previous_millis_cmd = 0;
@@ -183,7 +185,7 @@ void initsd(){
     Serial.println("openRoot failed");
   else 
     sdactive = true;
-#endif
+#endif //SDSS
 }
 
 inline void write_command(char *buf){
@@ -205,7 +207,7 @@ inline void write_command(char *buf){
     Serial.println("error writing to file");
   }
 }
-#endif
+#endif //SDSUPPORT
 
 
 void setup()
@@ -278,7 +280,7 @@ void setup()
   SET_INPUT(Z_MAX_PIN); 
   WRITE(Z_MAX_PIN,HIGH);
 #endif
-#else
+#else //ENDSTOPPULLUPS
 #if X_MIN_PIN > -1
   SET_INPUT(X_MIN_PIN); 
 #endif
@@ -297,7 +299,7 @@ void setup()
 #if Z_MAX_PIN > -1
   SET_INPUT(Z_MAX_PIN); 
 #endif
-#endif
+#endif //ENDSTOPPULLUPS
 
 #if (HEATER_0_PIN > -1) 
   SET_OUTPUT(HEATER_0_PIN);
@@ -333,10 +335,10 @@ void setup()
 #if SDPOWER > -1
   SET_OUTPUT(SDPOWER); 
   WRITE(SDPOWER,HIGH);
-#endif
+#endif //SDPOWER
   initsd();
 
-#endif
+#endif //SDSUPPORT
   plan_init();  // Initialize planner;
   st_init();    // Initialize stepper;
   tp_init();    // Initialize temperature loop
@@ -367,7 +369,7 @@ void loop()
     }
 #else
     process_commands();
-#endif
+#endif //SDSUPPORT
     buflen = (buflen-1);
     bufindr = (bufindr + 1)%BUFSIZE;
   }
@@ -446,7 +448,7 @@ inline void get_command()
 #ifdef SDSUPPORT
             if(savetosd)
               break;
-#endif
+#endif //SDSUPPORT
             Serial.println("ok"); 
             break;
           default:
@@ -497,7 +499,7 @@ inline void get_command()
       if(!comment_mode) cmdbuffer[bufindw][serial_count++] = serial_char;
     }
   }
-#endif
+#endif //SDSUPPORT
 
 }
 
@@ -751,7 +753,7 @@ inline void process_commands()
       //processed in write to file routine above
       //savetosd = false;
       break;
-#endif
+#endif //SDSUPPORT
     case 104: // M104
 #ifdef PID_OPENLOOP
       if (code_seen('S')) PidTemp_Output = code_value() * (PID_MAX/100.0);
@@ -790,7 +792,7 @@ inline void process_commands()
       else{
         watchmillis = 0;
       }
-#endif
+#endif //WATCHERPERIOD
       codenum = millis(); 
       while(current_raw < target_raw) {
         if( (millis() - codenum) > 1000 ) //Print Temp Reading every 1 second while heating up.
@@ -922,7 +924,7 @@ void ClearToSend()
 #ifdef SDSUPPORT
   if(fromsd[bufindr])
     return;
-#endif
+#endif //SDSUPPORT
   Serial.println("ok"); 
 }
 
@@ -958,7 +960,7 @@ CRITICAL_SECTION_START;
 CRITICAL_SECTION_END;
 
 #ifdef PIDTEMP
-  pid_input = analog2temp(current_raw);//ACT
+  pid_input = analog2temp(current_raw);
 
 #ifndef PID_OPENLOOP
   pid_error = pid_setpoint - pid_input;
@@ -1000,7 +1002,7 @@ CRITICAL_SECTION_END;
    Serial.println();
 #endif //PID_DEBUG
   OCR2B = pid_output;
-#endif
+#endif //PIDTEMP
 }
 
 
@@ -1051,7 +1053,7 @@ inline void kill()
   target_raw=0;
 #ifdef PIDTEMP
   pid_setpoint = 0.0;
-#endif PIDTEMP
+#endif //PIDTEMP
   OCR2B = 0;
   WRITE(HEATER_0_PIN,LOW);
 
@@ -1465,7 +1467,7 @@ void plan_buffer_line(float x, float y, float z, float e, float feed_rate) {
   float speed_factor = 1;
   float tmp_speed_factor;
   if(abs(block->speed_x) > max_feedrate[X_AXIS]) {
-    speed_factor = max_feedrate[Y_AXIS] / abs(block->speed_x);
+    speed_factor = max_feedrate[X_AXIS] / abs(block->speed_x);
   }
   if(abs(block->speed_y) > max_feedrate[Y_AXIS]){
     tmp_speed_factor = max_feedrate[Y_AXIS] / abs(block->speed_y);
@@ -1473,11 +1475,11 @@ void plan_buffer_line(float x, float y, float z, float e, float feed_rate) {
   }
   if(abs(block->speed_z) > max_feedrate[Z_AXIS]){
     tmp_speed_factor = max_feedrate[Z_AXIS] / abs(block->speed_z);
-    if(tmp_speed_factor < speed_factor) speed_factor = tmp_speed_factor;
+    if(speed_factor > tmp_speed_factor) speed_factor = tmp_speed_factor;
   }
   if(abs(block->speed_e) > max_feedrate[E_AXIS]){
     tmp_speed_factor = max_feedrate[E_AXIS] / abs(block->speed_e);
-    if(tmp_speed_factor < speed_factor) speed_factor = tmp_speed_factor;
+    if(speed_factor > tmp_speed_factor) speed_factor = tmp_speed_factor;
   }
   multiplier = multiplier * speed_factor;
   block->speed_z = delta_z_mm * multiplier; 
@@ -1910,8 +1912,6 @@ ISR(TIMER0_COMPA_vect)
   // Critical section needed because Timer 1 interrupt has higher priority. 
   // The pin set functions are placed on trategic position to comply with the stepper driver timing.
   WRITE(E_STEP_PIN, LOW);
-  // e_steps is changed in timer 1 interrupt
-  CRITICAL_SECTION_START;
   // Set E direction (Depends on E direction + advance)
   if (e_steps < 0) {
     WRITE(E_DIR_PIN,INVERT_E_DIR);    
@@ -1923,7 +1923,6 @@ ISR(TIMER0_COMPA_vect)
     e_steps--;
     WRITE(E_STEP_PIN, HIGH);
   }
-  CRITICAL_SECTION_END;
   old_OCR0A += 25; // 10kHz interrupt
   OCR0A = old_OCR0A;
 }
@@ -1974,7 +1973,7 @@ void tp_init()
   TCCR2A = 0x23;  //OC2A disable; FastPWM noninverting; FastPWM mode 7
 #else
   TCCR2A = 0x03;  //OC2A disable; FastPWM noninverting; FastPWM mode 7
-#endif
+#endif //PIDTEMP
   OCR2A = 156;    //Period is ~10ms
   OCR2B = 0;      //Duty Cycle for heater pin is 0 (startup)
   TIMSK2 = 0x01;  //Enable overflow interrupt
@@ -2009,9 +2008,9 @@ ISR(TIMER2_OVF_vect)
       OCR2B = 0;
 #else
       WRITE(HEATER_0_PIN,LOW);
-#endif
+#endif //PIDTEMP
     }
-#endif
+#endif //MAXTEMP
 #ifdef MINTEMP
     if(current_raw <= minttemp) {
       target_raw = 0;
@@ -2019,9 +2018,9 @@ ISR(TIMER2_OVF_vect)
       OCR2B = 0;
 #else
       WRITE(HEATER_0_PIN,LOW);
-#endif
+#endif //PIDTEMP
     }
-#endif
+#endif //MAXTEMP
 #ifndef PIDTEMP
     if(current_raw >= target_raw)
     {
@@ -2031,7 +2030,7 @@ ISR(TIMER2_OVF_vect)
     {
       WRITE(HEATER_0_PIN,HIGH);
     }
-#endif
+#endif //PIDTEMP
   }
 }
 

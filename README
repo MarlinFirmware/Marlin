@@ -1,0 +1,56 @@
+This firmware is a mashup between Sprinter, grbl and many original parts.
+ (https://github.com/kliment/Sprinter)
+ (https://github.com/simen/grbl/tree)
+
+Features:
+ - Interrupt based movement with real linear acceleration
+ - High steprate
+ - Look ahead (Keep the speed high when possible. High cornering speed)
+ - Interrupt based temperature protection
+ - preliminary support for Matthew Roberts advance algorithm 
+   For more info see: http://reprap.org/pipermail/reprap-dev/2011-May/003323.html
+
+This firmware is optimized for gen6 electronics.
+
+The default baudrate is 250000. 
+This gives less communication errors then regular baudrates.
+
+========================================================================================
+
+Configuring and compilation
+
+
+Install the arduino software version 0018
+   http://www.arduino.cc/en/Main/Software
+
+Install the sanguino software, version 0018
+   http://sanguino.cc/useit
+
+Install pronterface
+   https://github.com/kliment/Printrun
+
+Copy the Marlin firmware
+   https:/github.com/ErikZalm/Marlin
+   (Use the download button)
+
+Start the arduino IDE.
+Select Tools -> Board -> Sanguino 
+Select the correct serial port in Tools ->Serial Port
+Open Marlin.pde
+
+Change the printer specific setting in Configuration.h to the correct values.
+
+The following values are the most important:
+ - float axis_steps_per_unit[]....         // Set the correct steps / mm in the corresponding field
+ - const bool ENDSTOPS_INVERTING = false;  // Change if only positive moves are executed
+ - #define INVERT_x_DIR true               // Change if the motor direction is wrong
+
+Click the Upload button
+If all goes well the firmware is uploading
+
+Start pronterface
+
+Select the correct Serial Port. Type 250000 in the baudrate field.
+Press the Connect button.
+
+

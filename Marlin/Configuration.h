@@ -13,26 +13,6 @@
 // 3 is mendel-parts thermistor
 #define THERMISTORHEATER 3
 
-// extruder advance constant (s2/mm3)
-//
-// advance (steps) = STEPS_PER_CUBIC_MM_E * EXTUDER_ADVANCE_K * cubic mm per second ^ 2
-//
-// hooke's law says:		force = k * distance
-// bernoulli's priniciple says:	v ^ 2 / 2 + g . h + pressure / density = constant
-// so: v ^ 2 is proportional to number of steps we advance the extruder
-//#define ADVANCE
-
-#ifdef ADVANCE
-#define EXTRUDER_ADVANCE_K 0.02
-
-#define D_FILAMENT 1.7
-#define STEPS_MM_E 65
-//#define D_FILAMENT 2.85
-//#define STEPS_MM_E 367.35
-#define EXTRUTION_AREA (0.25 * D_FILAMENT * D_FILAMENT * 3.14159)
-#define STEPS_PER_CUBIC_MM_E (axis_steps_per_unit[E_AXIS]/ EXTRUTION_AREA)
-
-#endif // ADVANCE
 
 //// Calibration variables
 // X, Y, Z, E steps per unit - Metric Prusa Mendel with V9 extruder:
@@ -94,10 +74,10 @@ bool axis_relative_modes[] = {false, false, false, false};
 
 //// Acceleration settings
 // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for skeinforge 40+, for older versions raise them a lot.
-float acceleration = 3000;         // Normal acceleration mm/s^2
+float acceleration = 2000;         // Normal acceleration mm/s^2
 float retract_acceleration = 7000; // Normal acceleration mm/s^2
 float max_jerk = 20*60;
-long max_acceleration_units_per_sq_second[] = {7000,7000,20,10000}; // X, Y, Z and E max acceleration in mm/s^2 for printing moves or retracts
+long max_acceleration_units_per_sq_second[] = {7000,7000,100,10000}; // X, Y, Z and E max acceleration in mm/s^2 for printing moves or retracts
 // Not used long max_travel_acceleration_units_per_sq_second[] = {500,500,50,500}; // X, Y, Z max acceleration in mm/s^2 for travel moves
 
 
@@ -129,5 +109,24 @@ double Ki = 1.5*PID_dT;
 double Kd = 80/PID_dT;
 #endif // PIDTEMP
 
+
+// extruder advance constant (s2/mm3)
+//
+// advance (steps) = STEPS_PER_CUBIC_MM_E * EXTUDER_ADVANCE_K * cubic mm per second ^ 2
+//
+// hooke's law says:		force = k * distance
+// bernoulli's priniciple says:	v ^ 2 / 2 + g . h + pressure / density = constant
+// so: v ^ 2 is proportional to number of steps we advance the extruder
+//#define ADVANCE
+
+#ifdef ADVANCE
+#define EXTRUDER_ADVANCE_K 0.02
+
+#define D_FILAMENT 1.7
+#define STEPS_MM_E 65
+#define EXTRUTION_AREA (0.25 * D_FILAMENT * D_FILAMENT * 3.14159)
+#define STEPS_PER_CUBIC_MM_E (axis_steps_per_unit[E_AXIS]/ EXTRUTION_AREA)
+
+#endif // ADVANCE
 
 #endif
