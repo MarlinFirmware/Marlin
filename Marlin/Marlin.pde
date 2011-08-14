@@ -33,7 +33,7 @@
 #include "Marlin.h"
 #include "speed_lookuptable.h"
 
-char version_string[] = "0.9.0";
+char version_string[] = "0.9.1";
 
 #ifdef SDSUPPORT
 #include "SdFat.h"
@@ -783,7 +783,12 @@ inline void process_commands()
       return;
       //break;
     case 109: // M109 - Wait for extruder heater to reach target.
-      if (code_seen('S')) target_raw = temp2analogh(code_value());
+      if (code_seen('S')) {
+        target_raw = temp2analogh(code_value());
+#ifdef PIDTEMP
+        pid_setpoint = code_value();
+#endif //PIDTEMP
+      }
 #ifdef WATCHPERIOD
       if(target_raw>current_raw){
         watchmillis = max(1,millis());
