@@ -33,7 +33,7 @@
 #include "Marlin.h"
 #include "speed_lookuptable.h"
 
-char version_string[] = "0.9.1";
+char version_string[] = "0.9.2";
 
 #ifdef SDSUPPORT
 #include "SdFat.h"
@@ -1163,8 +1163,8 @@ void calculate_trapezoid_for_block(block_t *block, float entry_speed, float exit
 #endif // ADVANCE
 
   // Limit minimal step rate (Otherwise the timer will overflow.)
-  if(initial_rate <32) initial_rate=32;
-  if(final_rate < 32) final_rate=32;
+  if(initial_rate <120) initial_rate=120;
+  if(final_rate < 120) final_rate=120;
   
   // Calculate the acceleration steps
   long acceleration = block->acceleration;
@@ -1213,10 +1213,9 @@ inline float max_allowable_speed(float acceleration, float target_velocity, floa
 // velocities of the respective blocks.
 inline float junction_jerk(block_t *before, block_t *after) {
   return(sqrt(
-  pow((before->speed_x-after->speed_x), 2)+
+    pow((before->speed_x-after->speed_x), 2)+
     pow((before->speed_y-after->speed_y), 2)+
-    pow((before->speed_z-after->speed_z)*axis_steps_per_unit[Z_AXIS]/axis_steps_per_unit[X_AXIS], 2))
-    );
+    pow((before->speed_z-after->speed_z)*axis_steps_per_unit[Z_AXIS]/axis_steps_per_unit[X_AXIS], 2)));
 }
 
 // Return the safe speed which is max_jerk/2, e.g. the 
@@ -1494,7 +1493,7 @@ void plan_buffer_line(float x, float y, float z, float e, float feed_rate) {
 
   block->nominal_speed = block->millimeters * multiplier;
   block->nominal_rate = ceil(block->step_event_count * multiplier / 60);  
-  if(block->nominal_rate < 32) block->nominal_rate = 32;
+  if(block->nominal_rate < 120) block->nominal_rate = 120;
   block->entry_speed = safe_speed(block);
 
   // Compute the acceleration rate for the trapezoid generator. 
@@ -1603,7 +1602,7 @@ asm volatile ( \
 "d" (charIn1), \
 "d" (intIn2) \
 : \
-"r26" , "r27" \
+"r26" \
 )
 
 // intRes = longIn1 * longIn2 >> 24
@@ -1670,7 +1669,7 @@ static short old_advance = 0;
 static short e_steps;
 static unsigned char busy = false; // TRUE when SIG_OUTPUT_COMPARE1A is being serviced. Used to avoid retriggering that handler.
 static long acceleration_time, deceleration_time;
-static long accelerate_until, decelerate_after, acceleration_rate, initial_rate, final_rate;
+static long accelerate_until, decelerate_after, acceleration_rate, initial_rate, final_rate, nominal_rate;
 static unsigned short acc_step_rate; // needed for deccelaration start point
 
 
@@ -1700,7 +1699,7 @@ inline unsigned short calc_timer(unsigned short step_rate) {
   unsigned short timer;
   if(step_rate < 32) step_rate = 32;
   step_rate -= 32; // Correct for minimal speed
-  if(step_rate > (8*256)){ // higher step rate 
+  if(step_rate >= (8*256)){ // higher step rate 
     unsigned short table_address = (unsigned short)&speed_lookuptable_fast[(unsigned char)(step_rate>>8)][0];
     unsigned char tmp_step_rate = (step_rate & 0x00ff);
     unsigned short gain = (unsigned short)pgm_read_word_near(table_address+2);
@@ -1725,6 +1724,7 @@ inline void trapezoid_generator_reset() {
   acceleration_rate = current_block->acceleration_rate;
   initial_rate = current_block->initial_rate;
   final_rate = current_block->final_rate;
+  nominal_rate = current_block->nominal_rate;
   advance = current_block->initial_advance;
   final_advance = current_block->final_advance;
   deceleration_time = 0;
@@ -1864,8 +1864,8 @@ ISR(TIMER1_COMPA_vect)
       acc_step_rate += initial_rate;
       
       // upper limit
-      if(acc_step_rate > current_block->nominal_rate)
-        acc_step_rate = current_block->nominal_rate;
+      if(acc_step_rate > nominal_rate)
+        acc_step_rate = nominal_rate;
 
       // step_rate to timer interval
       timer = calc_timer(acc_step_rate);
@@ -1873,7 +1873,7 @@ ISR(TIMER1_COMPA_vect)
       acceleration_time += timer;
       OCR1A = timer;
     } 
-    else if (step_events_completed > decelerate_after) {   
+    else if (step_events_completed >= decelerate_after) {   
       MultiU24X24toH16(step_rate, deceleration_time, acceleration_rate);
       
       if(step_rate > acc_step_rate) { // Check step_rate stays positive
