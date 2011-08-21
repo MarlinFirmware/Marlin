@@ -33,7 +33,7 @@
 #include "Marlin.h"
 #include "speed_lookuptable.h"
 
-char version_string[] = "0.9.2";
+char version_string[] = "0.9.3";
 
 #ifdef SDSUPPORT
 #include "SdFat.h"
@@ -947,7 +947,7 @@ inline void get_coordinates()
 
 void prepare_move()
 {
-  plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate/60);
+  plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate/60.0);
   for(int i=0; i < NUM_AXIS; i++) {
     current_position[i] = destination[i];
   }
@@ -1490,9 +1490,9 @@ void plan_buffer_line(float x, float y, float z, float e, float feed_rate) {
   block->speed_x = delta_x_mm * multiplier;
   block->speed_y = delta_y_mm * multiplier;
   block->speed_e = delta_e_mm * multiplier; 
-
   block->nominal_speed = block->millimeters * multiplier;
   block->nominal_rate = ceil(block->step_event_count * multiplier / 60);  
+
   if(block->nominal_rate < 120) block->nominal_rate = 120;
   block->entry_speed = safe_speed(block);
 

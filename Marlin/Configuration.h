@@ -15,15 +15,17 @@
 
 
 //// Calibration variables
-// X, Y, Z, E steps per unit - Metric Prusa Mendel with V9 extruder:
-float axis_steps_per_unit[] = {40, 40, 3333.92,76.2}; 
+// X, Y, Z, E steps per unit - Metric Mendel / Orca with V9 extruder:
+float axis_steps_per_unit[] = {40, 40, 3333.92, 67}; 
+// For E steps per unit = 67 for v9 with direct drive (needs finetuning) for other extruders this needs to be changed 
 // Metric Prusa Mendel with Makergear geared stepper extruder:
 //float axis_steps_per_unit[] = {80,80,3200/1.25,1380}; 
 
 //// Endstop Settings
 #define ENDSTOPPULLUPS // Comment this out (using // at the start of the line) to disable the endstop pullup resistors
 // The pullups are needed if you directly connect a mechanical endswitch between the signal and ground pins.
-const bool ENDSTOPS_INVERTING = false; //set to true to invert the logic of the endstops
+const bool ENDSTOPS_INVERTING = false; // set to true to invert the logic of the endstops. 
+// For optos H21LOB set to true, for Mendel-Parts newer optos TCST2103 set to false
 
 // This determines the communication speed of the printer
 #define BAUDRATE 250000
@@ -49,10 +51,10 @@ const bool ENDSTOPS_INVERTING = false; //set to true to invert the logic of the 
 #define DISABLE_E false
 
 // Inverting axis direction
-#define INVERT_X_DIR false
-#define INVERT_Y_DIR true
-#define INVERT_Z_DIR false
-#define INVERT_E_DIR true
+#define INVERT_X_DIR true    // for Mendel set to false, for Orca set to true
+#define INVERT_Y_DIR false   // for Mendel set to true, for Orca set to false
+#define INVERT_Z_DIR true    // for Mendel set to false, for Orca set to true
+#define INVERT_E_DIR true   // for direct drive extruder v9 set to true, for geared extruder set to false
 
 //// ENDSTOP SETTINGS:
 // Sets direction of endstops when homing; 1=MAX, -1=MIN
@@ -68,8 +70,8 @@ const bool ENDSTOPS_INVERTING = false; //set to true to invert the logic of the 
 
 //// MOVEMENT SETTINGS
 #define NUM_AXIS 4 // The axis order in all axis related arrays is X, Y, Z, E
-float max_feedrate[] = {60000, 60000, 170, 500000};
-float homing_feedrate[] = {1500,1500,120,0};
+float max_feedrate[] = {60000, 60000, 100, 500000}; // set the max speeds
+float homing_feedrate[] = {2400, 2400, 80, 0};  // set the homing speeds
 bool axis_relative_modes[] = {false, false, false, false};
 
 //// Acceleration settings
