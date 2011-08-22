@@ -1455,7 +1455,11 @@ void plan_buffer_line(float x, float y, float z, float e, float feed_rate) {
   float delta_y_mm = (target[Y_AXIS]-position[Y_AXIS])/axis_steps_per_unit[Y_AXIS];
   float delta_z_mm = (target[Z_AXIS]-position[Z_AXIS])/axis_steps_per_unit[Z_AXIS];
   float delta_e_mm = (target[E_AXIS]-position[E_AXIS])/axis_steps_per_unit[E_AXIS];
-  block->millimeters = sqrt(square(delta_x_mm) + square(delta_y_mm) + square(delta_z_mm) + square(delta_e_mm));
+  if ( block->steps_x == 0 && block->steps_y == 0 && block->steps_z == 0 ) {
+    block->millimeters = delta_e_mm;
+  } else {
+    block->millimeters = sqrt(square(delta_x_mm) + square(delta_y_mm) + square(delta_z_mm));
+  }
 
   unsigned long microseconds;
   microseconds = lround((block->millimeters/feed_rate)*1000000);
