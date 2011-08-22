@@ -5,7 +5,7 @@
 
 //// The following define selects which electronics board you have. Please choose the one that matches your setup
 // Gen6 = 5, 
-#define MOTHERBOARD 5 
+#define MOTHERBOARD 7
 
 //// Thermistor settings:
 // 1 is 100k thermistor
@@ -28,7 +28,7 @@ const bool ENDSTOPS_INVERTING = false; // set to true to invert the logic of the
 // For optos H21LOB set to true, for Mendel-Parts newer optos TCST2103 set to false
 
 // This determines the communication speed of the printer
-#define BAUDRATE 250000
+#define BAUDRATE 115200
 
 // Comment out (using // at the start of the line) to disable SD support:
 //#define SDSUPPORT

@@ -1,3 +1,10 @@
+#include "Marlin.h"
+// This struct is used when buffering the setup for each linear movement "nominal" values are as specified in 
+// the source g-code and may never actually be reached if acceleration management is active.
+
+
+#include "speed_lookuptable.h"
+
 /*
     Reprap firmware based on Sprinter and grbl.
  Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
@@ -27,11 +34,11 @@
  This firmware is optimized for gen6 electronics.
  */
 
+
+
 #include "fastio.h"
 #include "Configuration.h"
 #include "pins.h"
-#include "Marlin.h"
-#include "speed_lookuptable.h"
 
 char version_string[] = "0.9.3";
 
@@ -220,6 +227,7 @@ void setup()
   for(int i = 0; i < BUFSIZE; i++){
     fromsd[i] = false;
   }
+  
 
   //Initialize Dir Pins
 #if X_DIR_PIN > -1
@@ -1195,7 +1203,7 @@ void calculate_trapezoid_for_block(block_t *block, float entry_speed, float exit
 #ifdef ADVANCE
     block->initial_advance = initial_advance;
     block->final_advance = final_advance;
-#endif ADVANCE
+#endif //ADVANCE
   }
   CRITICAL_SECTION_END;
 }                    
