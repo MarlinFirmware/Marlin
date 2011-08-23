@@ -11,8 +11,20 @@
 // 1 is 100k thermistor
 // 2 is 200k thermistor
 // 3 is mendel-parts thermistor
-#define THERMISTORHEATER 3
+#define THERMISTORHEATER 2
+// Select one of these only to define how the nozzle temp is read.
+//#define HEATER_USES_THERMISTOR
+#define HEATER_USES_AD595
+//#define HEATER_USES_MAX6675
 
+// Select one of these only to define how the bed temp is read.
+//#define BED_USES_THERMISTOR
+//#define BED_USES_AD595
+
+#define HEATER_CHECK_INTERVAL 50
+#define BED_CHECK_INTERVAL 5000
+#define BNUMTEMPS NUMTEMPS
+#define bedtemptable temptable
 
 //// Calibration variables
 // X, Y, Z, E steps per unit - Metric Mendel / Orca with V9 extruder:
@@ -54,7 +66,7 @@ const bool ENDSTOPS_INVERTING = true; // set to true to invert the logic of the 
 #define INVERT_X_DIR true    // for Mendel set to false, for Orca set to true
 #define INVERT_Y_DIR false   // for Mendel set to true, for Orca set to false
 #define INVERT_Z_DIR true    // for Mendel set to false, for Orca set to true
-#define INVERT_E_DIR true   // for direct drive extruder v9 set to true, for geared extruder set to false
+#define INVERT_E_DIR false   // for direct drive extruder v9 set to true, for geared extruder set to false
 
 //// ENDSTOP SETTINGS:
 // Sets direction of endstops when homing; 1=MAX, -1=MIN
@@ -70,8 +82,8 @@ const bool ENDSTOPS_INVERTING = true; // set to true to invert the logic of the 
 
 //// MOVEMENT SETTINGS
 #define NUM_AXIS 4 // The axis order in all axis related arrays is X, Y, Z, E
-float max_feedrate[] = {60000, 60000, 100, 500000}; // set the max speeds
-float homing_feedrate[] = {2400, 2400, 80, 0};  // set the homing speeds
+float max_feedrate[] = {60000, 60000, 500, 500000}; // set the max speeds
+float homing_feedrate[] = {2400, 2400, 150, 0};  // set the homing speeds
 bool axis_relative_modes[] = {false, false, false, false};
 
 //// Acceleration settings

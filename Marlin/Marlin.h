@@ -42,8 +42,12 @@ void process_commands();
 void manage_inactivity(byte debug);
 
 void manage_heater();
-int temp2analogu(int celsius, const short table[][2], int numtemps);
-float analog2tempu(int raw, const short table[][2], int numtemps);
+//int temp2analogu(int celsius, const short table[][2], int numtemps);
+//float analog2tempu(int raw, const short table[][2], int numtemps);
+float temp2analog(int celsius);
+float temp2analogBed(int celsius);
+float analog2temp(int raw);
+float analog2tempBed(int raw);
 
 #ifdef HEATER_USES_THERMISTOR
     #define HEATERSOURCE 1
@@ -52,11 +56,11 @@ float analog2tempu(int raw, const short table[][2], int numtemps);
     #define BEDSOURCE 1
 #endif
 
-#define temp2analogh( c ) temp2analogu((c),temptable,NUMTEMPS)
-#define analog2temp( c ) analog2tempu((c),temptable,NUMTEMPS)
+//#define temp2analogh( c ) temp2analogu((c),temptable,NUMTEMPS)
+//#define analog2temp( c ) analog2tempu((c),temptable,NUMTEMPS)
 
 #if X_ENABLE_PIN > -1
-	#define  enable_x() WRITE(X_ENABLE_PIN, X_ENABLE_ON)
+        #define  enable_x() WRITE(X_ENABLE_PIN, X_ENABLE_ON)
 	#define disable_x() WRITE(X_ENABLE_PIN,!X_ENABLE_ON)
 #else
 	#define enable_x() ;
