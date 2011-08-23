@@ -18,7 +18,7 @@
 //#define HEATER_USES_MAX6675
 
 // Select one of these only to define how the bed temp is read.
-//#define BED_USES_THERMISTOR
+#define BED_USES_THERMISTOR
 //#define BED_USES_AD595
 
 #define HEATER_CHECK_INTERVAL 50
@@ -43,7 +43,10 @@ const bool ENDSTOPS_INVERTING = true; // set to true to invert the logic of the 
 #define BAUDRATE 115200
 
 // Comment out (using // at the start of the line) to disable SD support:
-//#define SDSUPPORT
+#define SDSUPPORT
+#define FANCY_LCD
+#define LCD_UPDATE_INTERVAL 400
+
 
 
 //// ADVANCED SETTINGS - to tweak parameters
@@ -83,15 +86,15 @@ const bool ENDSTOPS_INVERTING = true; // set to true to invert the logic of the 
 //// MOVEMENT SETTINGS
 #define NUM_AXIS 4 // The axis order in all axis related arrays is X, Y, Z, E
 float max_feedrate[] = {60000, 60000, 500, 500000}; // set the max speeds
-float homing_feedrate[] = {2400, 2400, 150, 0};  // set the homing speeds
+float homing_feedrate[] = {2400, 2400, 200, 0};  // set the homing speeds
 bool axis_relative_modes[] = {false, false, false, false};
 
 //// Acceleration settings
 // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for skeinforge 40+, for older versions raise them a lot.
-float acceleration = 2000;         // Normal acceleration mm/s^2
+float acceleration = 3000;         // Normal acceleration mm/s^2
 float retract_acceleration = 7000; // Normal acceleration mm/s^2
 float max_jerk = 20*60;
-long max_acceleration_units_per_sq_second[] = {7000,7000,100,10000}; // X, Y, Z and E max acceleration in mm/s^2 for printing moves or retracts
+long max_acceleration_units_per_sq_second[] = {7000,7000,200,10000}; // X, Y, Z and E max acceleration in mm/s^2 for printing moves or retracts
 // Not used long max_travel_acceleration_units_per_sq_second[] = {500,500,50,500}; // X, Y, Z max acceleration in mm/s^2 for travel moves
 
 
@@ -136,8 +139,8 @@ double Kd = 80/PID_dT;
 #ifdef ADVANCE
 #define EXTRUDER_ADVANCE_K 0.02
 
-#define D_FILAMENT 1.7
-#define STEPS_MM_E 65
+#define D_FILAMENT 2.75
+#define STEPS_MM_E 600
 #define EXTRUTION_AREA (0.25 * D_FILAMENT * D_FILAMENT * 3.14159)
 #define STEPS_PER_CUBIC_MM_E (axis_steps_per_unit[E_AXIS]/ EXTRUTION_AREA)
 

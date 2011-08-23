@@ -39,6 +39,8 @@
 #include "fastio.h"
 #include "Configuration.h"
 #include "pins.h"
+#include "lcd.h"
+//extern LiquidCrystal lcd;
 
 char version_string[] = "0.9.3";
 
@@ -227,7 +229,9 @@ void setup()
   Serial.print("Marlin ");
   Serial.println(version_string);
   Serial.println("start");
-
+#ifdef FANCY_LCD
+  lcd_init();
+#endif
   for(int i = 0; i < BUFSIZE; i++){
     fromsd[i] = false;
   }
@@ -359,8 +363,6 @@ void setup()
 
 void loop()
 {
-	//check heater every n milliseconds
-  manage_heater();
   if(buflen<3)
     get_command();
 
@@ -387,8 +389,10 @@ void loop()
     buflen = (buflen-1);
     bufindr = (bufindr + 1)%BUFSIZE;
   }
-  
+  //check heater every n milliseconds
+  manage_heater();
   manage_inactivity(1);
+        LCD_STATUS;
 }
 
 
@@ -805,7 +809,7 @@ inline void process_commands()
         return;
         //break;
       case 109: // M109 - Wait for extruder heater to reach target.
-				//LCD_MESSAGE("Heating...");
+                                LCD_MESSAGE("Heating...");
         if (code_seen('S')) target_raw = temp2analog(code_value());
         #ifdef WATCHPERIOD
             if(target_raw>current_raw){
@@ -821,7 +825,7 @@ inline void process_commands()
           {
             Serial.print("T:");
             Serial.println( analog2temp(current_raw) ); 
-         //   LCD_STATUS;
+            LCD_STATUS;
             codenum = millis();
           }
           manage_heater();
@@ -847,6 +851,20 @@ inline void process_commands()
         }
       #endif
       break;
+      case 106: //M106 Fan On
+        if (code_seen('S')){
+            digitalWrite(FAN_PIN, HIGH);
+            analogWrite(FAN_PIN, constrain(code_value(),0,255) );
+        }
+        else
+            digitalWrite(FAN_PIN, HIGH);
+        break;
+      case 107: //M107 Fan Off
+        analogWrite(FAN_PIN, 0);
+        
+        digitalWrite(FAN_PIN, LOW);
+        break;
+      
     case 82:
       axis_relative_modes[3] = false;
       break;
@@ -1117,8 +1135,7 @@ void manage_heater()
 #ifdef USE_WATCHDOG
   wd_reset();
 #endif
-	//there is noanalogRead FANCY_LCD here, because this routine is called within moves, and delays them. one could loose steps.
-		
+                
   if((millis() - previous_millis_heater) < HEATER_CHECK_INTERVAL )
     return;
   previous_millis_heater = millis();
