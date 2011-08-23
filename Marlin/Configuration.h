@@ -61,7 +61,7 @@ const bool ENDSTOPS_INVERTING = true; // set to true to invert the logic of the 
 // Disables axis when it's not being used.
 #define DISABLE_X false
 #define DISABLE_Y false
-#define DISABLE_Z true
+#define DISABLE_Z false
 #define DISABLE_E false
 
 // Inverting axis direction
@@ -84,16 +84,16 @@ const bool ENDSTOPS_INVERTING = true; // set to true to invert the logic of the 
 
 //// MOVEMENT SETTINGS
 #define NUM_AXIS 4 // The axis order in all axis related arrays is X, Y, Z, E
-float max_feedrate[] = {60000, 60000, 500, 500000}; // set the max speeds
+float max_feedrate[] = {60000, 60000, 50000, 500000}; // set the max speeds
 float homing_feedrate[] = {2400, 2400, 200, 0};  // set the homing speeds
 bool axis_relative_modes[] = {false, false, false, false};
 
 //// Acceleration settings
 // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for skeinforge 40+, for older versions raise them a lot.
-float acceleration = 6000;         // Normal acceleration mm/s^2
-float retract_acceleration = 7000; // Normal acceleration mm/s^2
+float acceleration = 4000;         // Normal acceleration mm/s^2
+float retract_acceleration = 10000; // Normal acceleration mm/s^2
 float max_jerk = 20*60;
-long max_acceleration_units_per_sq_second[] = {15000,15000,15000,15000}; // X, Y, Z and E max acceleration in mm/s^2 for printing moves or retracts
+long max_acceleration_units_per_sq_second[] = {15000,15000,150000,15000}; // X, Y, Z and E max acceleration in mm/s^2 for printing moves or retracts
 // Not used long max_travel_acceleration_units_per_sq_second[] = {500,500,50,500}; // X, Y, Z max acceleration in mm/s^2 for travel moves
 
 
