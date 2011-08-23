@@ -2,6 +2,7 @@
 #define __LCDH
 
 #ifdef FANCY_LCD
+  #define LCD_UPDATE_INTERVAL 400
 
 	#include "Configuration.h"
 

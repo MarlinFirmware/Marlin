@@ -18,7 +18,7 @@
 //#define HEATER_USES_MAX6675
 
 // Select one of these only to define how the bed temp is read.
-#define BED_USES_THERMISTOR
+//#define BED_USES_THERMISTOR
 //#define BED_USES_AD595
 
 #define HEATER_CHECK_INTERVAL 50
@@ -45,7 +45,6 @@ const bool ENDSTOPS_INVERTING = true; // set to true to invert the logic of the 
 // Comment out (using // at the start of the line) to disable SD support:
 #define SDSUPPORT
 //#define FANCY_LCD
-#define LCD_UPDATE_INTERVAL 400
 
 
 
@@ -91,10 +90,10 @@ bool axis_relative_modes[] = {false, false, false, false};
 
 //// Acceleration settings
 // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for skeinforge 40+, for older versions raise them a lot.
-float acceleration = 3000;         // Normal acceleration mm/s^2
+float acceleration = 6000;         // Normal acceleration mm/s^2
 float retract_acceleration = 7000; // Normal acceleration mm/s^2
 float max_jerk = 20*60;
-long max_acceleration_units_per_sq_second[] = {7000,7000,200,10000}; // X, Y, Z and E max acceleration in mm/s^2 for printing moves or retracts
+long max_acceleration_units_per_sq_second[] = {15000,15000,15000,15000}; // X, Y, Z and E max acceleration in mm/s^2 for printing moves or retracts
 // Not used long max_travel_acceleration_units_per_sq_second[] = {500,500,50,500}; // X, Y, Z max acceleration in mm/s^2 for travel moves
 
 
