@@ -1135,6 +1135,7 @@ void manage_heater()
 #ifdef USE_WATCHDOG
   wd_reset();
 #endif
+        //there is no FANCY_LCD here, because this routine is called within moves, and delays them. one could loose steps.
                 
   if((millis() - previous_millis_heater) < HEATER_CHECK_INTERVAL )
     return;
