@@ -36,7 +36,7 @@ Install Ultimaker's RepG 25 build
 (or alternatively install Kliment's printrun/pronterface  https://github.com/kliment/Printrun_)
 
 Copy the Ultimaker Marlin firmware
-   https:/github.com/ErikZalm/Marlin
+   https:/github.com/bkubicek/Marlin
    (Use the download button)
 
 Start the arduino IDE.
