@@ -485,10 +485,81 @@
 #define SDPOWER          -1
 #define SDSS          31
 
+
+
+
+
+
+
+#endif
+
+
+#if MOTHERBOARD == 7
+#define KNOWN_BOARD
+/*****************************************************************
+* Ultimaker pin assignment
+******************************************************************/
+
+#ifndef __AVR_ATmega1280__
+ #ifndef __AVR_ATmega2560__
+ #error Oops!  Make sure you have 'Arduino Mega' selected from the 'Tools -> Boards' menu.
+ #endif
+#endif
+
+#define X_STEP_PIN 25
+#define X_DIR_PIN 23
+#define X_MIN_PIN 22
+#define X_MAX_PIN 24
+#define X_ENABLE_PIN 27
+
+#define Y_STEP_PIN 31
+#define Y_DIR_PIN 33
+#define Y_MIN_PIN 26
+#define Y_MAX_PIN 28
+#define Y_ENABLE_PIN 29
+
+#define Z_STEP_PIN 37 
+#define Z_DIR_PIN 39
+#define Z_MIN_PIN 30
+#define Z_MAX_PIN 32
+#define Z_ENABLE_PIN 35
+
+#define HEATER_1_PIN 4 
+#define TEMP_1_PIN 11  
+
+#define EXTRUDER_0_STEP_PIN 43 
+#define EXTRUDER_0_DIR_PIN 45
+#define EXTRUDER_0_ENABLE_PIN 41
+#define HEATER_0_PIN  2
+#define TEMP_0_PIN 8   
+
+#define EXTRUDER_1_STEP_PIN 49 
+#define EXTRUDER_1_DIR_PIN 47
+#define EXTRUDER_1_ENABLE_PIN 51
+#define EXTRUDER_1_HEATER_PIN 3
+#define EXTRUDER_1_TEMPERATURE_PIN 10 
+
+#define LCD_PINS_RS 16 
+#define LCD_PINS_ENABLE 5
+#define LCD_PINS_D4 6
+#define LCD_PINS_D5 21 
+#define LCD_PINS_D6 20
+#define LCD_PINS_D7 19
+
+#define E_STEP_PIN         EXTRUDER_0_STEP_PIN
+#define E_DIR_PIN          EXTRUDER_0_DIR_PIN
+#define E_ENABLE_PIN       EXTRUDER_0_ENABLE_PIN
+
+#define SDPOWER            -1
+#define SDSS               53
+#define LED_PIN            13
+#define FAN_PIN            7
+#define PS_ON_PIN          12
+#define KILL_PIN           -1
+#endif
+
+
 #ifndef KNOWN_BOARD
 #error Unknown MOTHERBOARD value in configuration.h
 #endif
-
-#endif
-
 #endif
