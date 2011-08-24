@@ -1,9 +1,9 @@
-This firmware is a mashup between Sprinter, grbl and many original parts.
+This RepRap firmware is a mashup between Sprinter, grbl and many original parts.
  (https://github.com/kliment/Sprinter)
  (https://github.com/simen/grbl/tree)
 
 It has been adapted to the Ultimaker Printer by:
-	Bernhard Kubicek, Bradley Feldman, and others
+	Bernhard Kubicek, Bradley Feldman, and others...
 
 
 Features:
@@ -30,9 +30,6 @@ Configuring and compilation
 
 Install the latest arduino software IDE/toolset (currently 0022)
    http://www.arduino.cc/en/Main/Software
-
-Install the sanguino software, version 0018
-   http://sanguino.cc/useit
 
 Install Ultimaker's RepG 25 build
     http://software.ultimaker.com
