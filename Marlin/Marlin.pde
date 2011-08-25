@@ -811,6 +811,14 @@ inline void process_commands()
       break;
     case 190:
       break;
+    #if (PS_ON_PIN > -1)
+    case 80: // M81 - ATX Power On
+      SET_OUTPUT(PS_ON_PIN); //GND
+      break;
+    case 81: // M81 - ATX Power Off
+      SET_INPUT(PS_ON_PIN); //Floating
+      break;
+    #endif
     case 82:
       axis_relative_modes[3] = false;
       break;
