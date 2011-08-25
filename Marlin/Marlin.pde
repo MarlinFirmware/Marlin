@@ -85,8 +85,6 @@ char version_string[] = "0.9.3";
 // M85  - Set inactivity shutdown timer with parameter S<seconds>. To disable set zero (default)
 // M92  - Set axis_steps_per_unit - same syntax as G92
 // M115	- Capabilities string
-// M140 - Set bed target temp
-// M190 - Wait for bed current temp to reach target temp.
 // M201 - Set max acceleration in units/s^2 for print moves (M201 X1000 Y1000)
 // M202 - Set max acceleration in units/s^2 for travel moves (M202 X1000 Y1000)
 // M301 - Set PID parameters P I and D
