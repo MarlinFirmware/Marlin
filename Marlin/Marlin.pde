@@ -106,6 +106,10 @@ bool relative_mode = false;  //Determines Absolute or Relative Coordinates
 bool relative_mode_e = false;  //Determines Absolute or Relative E Codes while in Absolute Coordinates mode. E is always relative in Relative Coordinates mode.
 unsigned long axis_steps_per_sqr_second[NUM_AXIS];
 
+// 100us between pulses
+#define MAX_STEP_RATE 20000
+float firmware_max_feedrate[NUM_AXIS];
+
 // comm variables
 #define MAX_CMD_SIZE 96
 #define BUFSIZE 8
@@ -323,6 +327,7 @@ void setup()
 #endif  
   for(int i=0; i < NUM_AXIS; i++){
     axis_steps_per_sqr_second[i] = max_acceleration_units_per_sq_second[i] * axis_steps_per_unit[i];
+    firmware_max_feedrate[i] = fmin(max_feedrate[i], MAX_STEP_RATE / axis_steps_per_unit[i] * 60.0);
   }
 
 #ifdef PIDTEMP
@@ -840,7 +845,17 @@ inline void process_commands()
 
       break;
     case 115: // M115
-      Serial.println("FIRMWARE_NAME:Sprinter/grbl mashup for gen6 FIRMWARE_URL:http://www.mendel-parts.com PROTOCOL_VERSION:1.0 MACHINE_TYPE:Mendel EXTRUDER_COUNT:1");
+      Serial.print("FIRMWARE_NAME:Sprinter/grbl mashup for gen6 FIRMWARE_URL:http://www.mendel-parts.com PROTOCOL_VERSION:1.0 MACHINE_TYPE:Mendel EXTRUDER_COUNT:1");
+      Serial.print(" MAX_STEP_RATE:");
+      Serial.print(MAX_STEP_RATE);
+      Serial.print(" MAX_FEEDRATE_X:");
+      Serial.print(firmware_max_feedrate[X_AXIS]);
+      Serial.print(" MAX_FEEDRATE_Y:");
+      Serial.print(firmware_max_feedrate[Y_AXIS]);
+      Serial.print(" MAX_FEEDRATE_Z:");
+      Serial.print(firmware_max_feedrate[Z_AXIS]);
+      Serial.print(" MAX_FEEDRATE_E:");
+      Serial.println(firmware_max_feedrate[E_AXIS]);
       break;
     case 114: // M114
       Serial.print("X:");
@@ -1474,19 +1489,19 @@ void plan_buffer_line(float x, float y, float z, float e, float feed_rate) {
   // Limit speed per axis
   float speed_factor = 1;
   float tmp_speed_factor;
-  if(abs(block->speed_x) > max_feedrate[X_AXIS]) {
-    speed_factor = max_feedrate[X_AXIS] / abs(block->speed_x);
+  if(abs(block->speed_x) > firmware_max_feedrate[X_AXIS]) {
+    speed_factor = firmware_max_feedrate[X_AXIS] / abs(block->speed_x);
   }
-  if(abs(block->speed_y) > max_feedrate[Y_AXIS]){
-    tmp_speed_factor = max_feedrate[Y_AXIS] / abs(block->speed_y);
+  if(abs(block->speed_y) > firmware_max_feedrate[Y_AXIS]){
+    tmp_speed_factor = firmware_max_feedrate[Y_AXIS] / abs(block->speed_y);
     if(speed_factor > tmp_speed_factor) speed_factor = tmp_speed_factor;
   }
-  if(abs(block->speed_z) > max_feedrate[Z_AXIS]){
-    tmp_speed_factor = max_feedrate[Z_AXIS] / abs(block->speed_z);
+  if(abs(block->speed_z) > firmware_max_feedrate[Z_AXIS]){
+    tmp_speed_factor = firmware_max_feedrate[Z_AXIS] / abs(block->speed_z);
     if(speed_factor > tmp_speed_factor) speed_factor = tmp_speed_factor;
   }
-  if(abs(block->speed_e) > max_feedrate[E_AXIS]){
-    tmp_speed_factor = max_feedrate[E_AXIS] / abs(block->speed_e);
+  if(abs(block->speed_e) > firmware_max_feedrate[E_AXIS]){
+    tmp_speed_factor = firmware_max_feedrate[E_AXIS] / abs(block->speed_e);
     if(speed_factor > tmp_speed_factor) speed_factor = tmp_speed_factor;
   }
   multiplier = multiplier * speed_factor;
@@ -1700,6 +1715,9 @@ void st_wake_up() {
 }
 
 inline unsigned short calc_timer(unsigned short step_rate) {
+  if (step_rate >= MAX_STEP_RATE) {
+    return (2000000/MAX_STEP_RATE);
+  }
   unsigned short timer;
   if(step_rate < 32) step_rate = 32;
   step_rate -= 32; // Correct for minimal speed
