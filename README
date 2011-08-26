@@ -2,8 +2,9 @@ This RepRap firmware is a mashup between Sprinter, grbl and many original parts.
  (https://github.com/kliment/Sprinter)
  (https://github.com/simen/grbl/tree)
 
-Derived from Sprinter by Erik Zalm.
+Derived from Sprinter and Grbl by Erik van der Zalm.
 Sprinters lead developers are Kliment and caru.
+Grbls lead developer is Simen Svale Skogsrud.
 It has been adapted to the Ultimaker Printer by:
 Bernhard Kubicek, Matthijs Keuper, Bradley Feldman, and others...
 
