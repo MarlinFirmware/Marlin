@@ -12,7 +12,7 @@ unsigned long previous_millis_lcd=0;
 
 #include "menu_base.h"
 
-char messagetext[20]="";
+char messagetext[LCD_WIDTH]="";
 
 
 
@@ -114,7 +114,7 @@ void PageWatch::activate()
   (!digitalRead(Z_MAX_PIN))? 'Z':' ');
 
   lcd.setCursor(0,0); 
-  lcd.print(fillto(20,line1));
+  lcd.print(fillto(LCD_WIDTH,line1));
 #if 0
   lcd.setCursor(0, 1); 
   //copy last printed gcode line from the buffer onto the lcd
@@ -126,7 +126,7 @@ void PageWatch::activate()
 
   if(1&&print)
   {
-    lcd.print(fillto(20,cline2));
+    lcd.print(fillto(LCD_WIDTH,cline2));
   }
   if(LCD_HEIGHT>2)
   {
@@ -137,10 +137,10 @@ void PageWatch::activate()
     
     if(1&&print)
     {
-      lcd.print(fillto(20,cline2));
+      lcd.print(fillto(LCD_WIDTH,cline2));
     } 
     lcd.setCursor(0,3);
-		lcd.print(fillto(20,messagetext));
+		lcd.print(fillto(LCD_WIDTH,messagetext));
 
   }
 
@@ -269,13 +269,13 @@ void PageHome::update()
 void PageHome::activate()
 {
  lcd.setCursor(0,0);
- lcd.print(fillto(20,"Home"));
+ lcd.print(fillto(LCD_WIDTH,"Home"));
  lcd.setCursor(0,1);
- lcd.print(fillto(20," X         ZERO"));
+ lcd.print(fillto(LCD_WIDTH," X         ZERO"));
  lcd.setCursor(0,2);
- lcd.print(fillto(20," Y         ZERO"));
+ lcd.print(fillto(LCD_WIDTH," Y         ZERO"));
  lcd.setCursor(0,3);
- lcd.print(fillto(20," Z         ZERO"));
+ lcd.print(fillto(LCD_WIDTH," Z         ZERO"));
 	fillline();
 }
 
@@ -407,7 +407,7 @@ void lcd_status(const char* message)
 //   if(missing>0)
 //     for(int i=0;i<missing;i++)
 //       lcd.print(" ");
-	strncpy(messagetext,message,20);
+	strncpy(messagetext,message,LCD_WIDTH);
 }
 
 long previous_millis_buttons=0;
@@ -416,11 +416,13 @@ void lcd_status()
 {
   
 #ifdef FANCY_LCD
+#ifdef FANCY_BUTTONS
   if(millis() - previous_millis_buttons<5)
     return;
   buttons_check();
 	buttons_process();
   previous_millis_buttons=millis();
+#endif //FANCY_BUTTONS
   if(  ((millis() - previous_millis_lcd) < LCD_UPDATE_INTERVAL)  &&  !force_lcd_update  )
     return;
 	previous_millis_lcd=millis();
@@ -431,7 +433,9 @@ void lcd_status()
 
 void lcd_init()
 {
+#ifdef FANCY_BUTTONS
   buttons_init();
+#endif
 #ifdef FANCY_LCD
   byte Degree[8] =
   {
@@ -460,16 +464,18 @@ void lcd_init()
   lcd.createChar(1,Degree);
   lcd.createChar(2,Thermometer);
   lcd.clear();
-  lcd.print(fillto(20,"booting!"));
+  lcd.print(fillto(LCD_WIDTH,"Booting!"));
   lcd.setCursor(0, 1);
-  lcd.print("lets Marlin!");
+  lcd.print("* MARLIN *");
 #endif
 	menu.addMenuPage(&pagewatch);
+#ifdef FANCY_BUTTONS
 	menu.addMenuPage(&pagemove);
 		menu.addMenuPage(&pagehome);
 #ifdef SDSUPPORT
 		menu.addMenuPage(&pagesd);
 #endif
+#endif //FANCY+BUTTONS
 
 }
 
