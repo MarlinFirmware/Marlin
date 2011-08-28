@@ -2,6 +2,7 @@
 #include "pins.h"
 
 #ifdef FANCY_LCD
+extern volatile int feedmultiply;
 
 #include <LiquidCrystal.h>
 LiquidCrystal lcd(LCD_PINS_RS, LCD_PINS_ENABLE, LCD_PINS_D4, LCD_PINS_D5,LCD_PINS_D6,LCD_PINS_D7);  //RS,Enable,D4,D5,D6,D7 
@@ -87,6 +88,7 @@ public:
 
   virtual void activate();
 	virtual void update();
+	int lastencoder;
 };
 
 PageWatch::PageWatch()
@@ -96,12 +98,27 @@ PageWatch::PageWatch()
 
 void PageWatch::update()
 {
-  activate();
-}
-
-void PageWatch::activate()
-{
-  char line1[25];
+	if(messagetext[0])
+	{
+		lcd.setCursor(0,1); 
+		lcd.print(fillto(LCD_WIDTH,messagetext));
+		messagetext[0]=0;
+	}
+	if(encoderpos!=lastencoder)
+	{
+		lcd.setCursor(0,2);
+		lcd.print("Speed: ");
+		if(encoderpos<5) encoderpos=5;
+		if(encoderpos>600) encoderpos=600;
+		feedmultiply=encoderpos;
+		lcd.print(encoderpos);
+		lcd.print("  ");
+		lastencoder=encoderpos;
+	}
+	static int n=0;
+	if(n++%4)
+		return; //slower updates
+	char line1[25];
   static char blink=0;
   sprintf(line1,"%c%3i/%3i\1%c%c%c%c%c%c", ((blink++)%2==0)? (char)2:' ',
   int(analog2temp(current_raw)),
@@ -115,6 +132,14 @@ void PageWatch::activate()
 
   lcd.setCursor(0,0); 
   lcd.print(fillto(LCD_WIDTH,line1));
+	
+}
+
+void PageWatch::activate()
+{
+	encoderpos=feedmultiply;
+	lcd.setCursor(0,0);
+  lcd.print(fillto(LCD_WIDTH," "));
 #if 0
   lcd.setCursor(0, 1); 
   //copy last printed gcode line from the buffer onto the lcd
@@ -143,9 +168,13 @@ void PageWatch::activate()
 		lcd.print(fillto(LCD_WIDTH,messagetext));
 
   }
-
+#else
+	lcd.setCursor(0,1);lcd.print(fillto(LCD_WIDTH," "));
+	lcd.setCursor(0,2);lcd.print(fillto(LCD_WIDTH," "));
+	lcd.setCursor(0,3);lcd.print(fillto(LCD_WIDTH," "));
 #endif
 	fillline();
+	update();
 }
 
 
@@ -269,13 +298,13 @@ void PageHome::update()
 void PageHome::activate()
 {
  lcd.setCursor(0,0);
- lcd.print(fillto(LCD_WIDTH,"Home"));
+ lcd.print(fillto(20,"Home"));
  lcd.setCursor(0,1);
- lcd.print(fillto(LCD_WIDTH," X         ZERO"));
+ lcd.print(fillto(20," X         ZERO"));
  lcd.setCursor(0,2);
- lcd.print(fillto(LCD_WIDTH," Y         ZERO"));
+ lcd.print(fillto(20," Y         ZERO"));
  lcd.setCursor(0,3);
- lcd.print(fillto(LCD_WIDTH," Z         ZERO"));
+ lcd.print(fillto(20," Z         ZERO"));
 	fillline();
 }
 
@@ -289,58 +318,72 @@ public:
 
   virtual void activate();
 	virtual void update();
+	int fileoffset,nrfiles;
 };
 
 PageSd::PageSd()
 {
   xshift=10;items=7;firstline=0;
+	fileoffset=0;
+	nrfiles=0;
 }
 
 void PageSd::update()
 {
-	if(buttons&B_MI)
+	if(encoderpos!=lastencoder) //scoll through files
+	{
+		fileoffset=encoderpos%nrfiles;
+		if(fileoffset>nrfiles-8) fileoffset=nrfiles-8;
+		if(fileoffset<0) fileoffset=0;
+		activate();
+		lastencoder=encoderpos;
+		
+	}
+	if(buttons&B_MI) //start print
   {
     blocking[BL_MI]=millis()+blocktime;
 		
 		dir_t p;
 
-  root.rewind();
-  char filename[11];
-	int cnt=0;
-  while (root.readDir(p) > 0) 
-  {
-    // done if past last used entry 
-    if (p.name[0] == DIR_NAME_FREE) break;
+		root.rewind();
+		char filename[11];
+		int cnt=0;
+		lastencoder=encoderpos;
+		while (root.readDir(p) > 0) 
+		{
+			// done if past last used entry 
+			if (p.name[0] == DIR_NAME_FREE) break;
 
-    // skip deleted entry and entries for . and  ..
-    if (p.name[0] == DIR_NAME_DELETED || p.name[0] == '.') continue;
+			// skip deleted entry and entries for . and  ..
+			if (p.name[0] == DIR_NAME_DELETED || p.name[0] == '.') continue;
 
-    // only list subdirectories and files
-    if (!DIR_IS_FILE_OR_SUBDIR(&p)) continue;
+			// only list subdirectories and files
+			if (!DIR_IS_FILE_OR_SUBDIR(&p)) continue;
 
-    uint8_t writepos=0;
-    for (uint8_t i = 0; i < 11; i++) {
+			uint8_t writepos=0;
+			for (uint8_t i = 0; i < 11; i++) {
 
-      if (p.name[i] == ' ') continue;
-      if (i == 8) {
-        filename[writepos++]='.';
-      }
-      filename[writepos++]=p.name[i];
-    }
-    filename[writepos++]=0;
-		if(cnt==line)
-			break;
-     cnt++;  
+				if (p.name[i] == ' ') continue;
+				if (i == 8) {
+					filename[writepos++]='.';
+				}
+				filename[writepos++]=p.name[i];
+			}
+			filename[writepos++]=0;
+			if(cnt==line)
+				break;
+			cnt++;  
 
-  }
-  char cmd[50];
-	for(int i=0;i<strlen(filename);i++)
-		filename[i]=tolower(filename[i]);
-	sprintf(cmd,"M23 %s",filename);
-	//sprintf(cmd,"M115");
-	enquecommand(cmd);
-	enquecommand("M24");
-		
+		}
+		char cmd[50];
+		for(int i=0;i<strlen(filename);i++)
+			filename[i]=tolower(filename[i]);
+		sprintf(cmd,"M23 %s",filename);
+		//sprintf(cmd,"M115");
+		enquecommand(cmd);
+		enquecommand("M24");
+		beep();
+			
 	}
   //activate();
 }
@@ -352,6 +395,23 @@ void PageSd::activate()
   root.rewind();
   char filename[11];
 	int cnt=0;
+	nrfiles=0;
+	encoderpos=0;
+	while (root.readDir(p) > 0) 
+  {
+    // done if past last used entry 
+    if (p.name[0] == DIR_NAME_FREE) break;
+
+    // skip deleted entry and entries for . and  ..
+    if (p.name[0] == DIR_NAME_DELETED || p.name[0] == '.') continue;
+
+    // only list subdirectories and files
+    if (!DIR_IS_FILE_OR_SUBDIR(&p)) continue;
+		nrfiles++;
+	}
+	root.rewind();
+	cnt=0;
+	int precount=0;
   while (root.readDir(p) > 0) 
   {
     // done if past last used entry 
@@ -362,26 +422,35 @@ void PageSd::activate()
 
     // only list subdirectories and files
     if (!DIR_IS_FILE_OR_SUBDIR(&p)) continue;
-   
+		if(precount++<fileoffset)
+			continue;
+		
 
-    uint8_t writepos=0;
-    for (uint8_t i = 0; i < 11; i++) {
+		uint8_t writepos=0;
+		for (uint8_t i = 0; i < 11; i++) {
 
-      if (p.name[i] == ' ') continue;
-      if (i == 8) {
-        filename[writepos++]='.';
-      }
-      filename[writepos++]=p.name[i];
-    }
-    filename[writepos++]=0;
+			if (p.name[i] == ' ') continue;
+			if (i == 8) {
+				filename[writepos++]='.';
+			}
+			filename[writepos++]=p.name[i];
+		}
+		filename[writepos++]=0;
 		if(cnt>8)
 			break;
 		lcd.setCursor(0+10*(cnt/4),cnt%4);
 		lcd.print(" ");
-		lcd.print(fillto(9,filename));
-     cnt++;  
+		lcd.print(fillto(9,filename));cnt++; 
+		
+      
 
   }
+  for(;cnt<9;cnt++)
+	{
+		lcd.setCursor(0+10*(cnt/4),cnt%4);
+		lcd.print(fillto(9," "));
+	}
+		
 	fillline();
 }
 
@@ -407,7 +476,7 @@ void lcd_status(const char* message)
 //   if(missing>0)
 //     for(int i=0;i<missing;i++)
 //       lcd.print(" ");
-	strncpy(messagetext,message,LCD_WIDTH);
+	strncpy(messagetext,message,20);
 }
 
 long previous_millis_buttons=0;
@@ -416,13 +485,11 @@ void lcd_status()
 {
   
 #ifdef FANCY_LCD
-#ifdef FANCY_BUTTONS
   if(millis() - previous_millis_buttons<5)
     return;
   buttons_check();
 	buttons_process();
   previous_millis_buttons=millis();
-#endif //FANCY_BUTTONS
   if(  ((millis() - previous_millis_lcd) < LCD_UPDATE_INTERVAL)  &&  !force_lcd_update  )
     return;
 	previous_millis_lcd=millis();
@@ -433,9 +500,8 @@ void lcd_status()
 
 void lcd_init()
 {
-#ifdef FANCY_BUTTONS
   buttons_init();
-#endif
+	beep();
 #ifdef FANCY_LCD
   byte Degree[8] =
   {
@@ -464,18 +530,17 @@ void lcd_init()
   lcd.createChar(1,Degree);
   lcd.createChar(2,Thermometer);
   lcd.clear();
-  lcd.print(fillto(LCD_WIDTH,"Booting!"));
-  lcd.setCursor(0, 1);
-  lcd.print("* MARLIN *");
+  //lcd.print(fillto(20,"booting!"));
+  //lcd.setCursor(0, 1);
+  //lcd.print("lets Marlin!");
+	LCD_MESSAGE(fillto(LCD_WIDTH,"Marlin ready."));
 #endif
 	menu.addMenuPage(&pagewatch);
-#ifdef FANCY_BUTTONS
 	menu.addMenuPage(&pagemove);
 		menu.addMenuPage(&pagehome);
 #ifdef SDSUPPORT
 		menu.addMenuPage(&pagesd);
 #endif
-#endif //FANCY+BUTTONS
 
 }
 

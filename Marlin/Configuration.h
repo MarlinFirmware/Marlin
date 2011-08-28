@@ -43,8 +43,8 @@ const bool ENDSTOPS_INVERTING = true; // set to true to invert the logic of the 
 #define BAUDRATE 115200
 
 // Comment out (using // at the start of the line) to disable SD support:
-//#define SDSUPPORT
-#define FANCY_LCD
+#define SDSUPPORT
+//#define FANCY_LCD
 //#define FANCY_BUTTONS
 
 
@@ -85,7 +85,7 @@ const bool ENDSTOPS_INVERTING = true; // set to true to invert the logic of the 
 
 //// MOVEMENT SETTINGS
 #define NUM_AXIS 4 // The axis order in all axis related arrays is X, Y, Z, E
-float max_feedrate[] = {60000, 60000, 50000, 500000}; // set the max speeds
+float max_feedrate[] = {60000, 60000, 300, 500000}; // set the max speeds
 float homing_feedrate[] = {2400, 2400, 200, 0};  // set the homing speeds
 bool axis_relative_modes[] = {false, false, false, false};
 
@@ -134,13 +134,13 @@ double Kd = 80/PID_dT;
 // hooke's law says:		force = k * distance
 // bernoulli's priniciple says:	v ^ 2 / 2 + g . h + pressure / density = constant
 // so: v ^ 2 is proportional to number of steps we advance the extruder
-//#define ADVANCE
+#define ADVANCE
 
 #ifdef ADVANCE
 #define EXTRUDER_ADVANCE_K 0.02
 
 #define D_FILAMENT 2.75
-#define STEPS_MM_E 600
+//#define STEPS_MM_E 600 //this seems uncessesary
 #define EXTRUTION_AREA (0.25 * D_FILAMENT * D_FILAMENT * 3.14159)
 #define STEPS_PER_CUBIC_MM_E (axis_steps_per_unit[E_AXIS]/ EXTRUTION_AREA)
 

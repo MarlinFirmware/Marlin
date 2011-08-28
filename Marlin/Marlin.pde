@@ -116,6 +116,7 @@ bool relative_mode = false;  //Determines Absolute or Relative Coordinates
 bool relative_mode_e = false;  //Determines Absolute or Relative E Codes while in Absolute Coordinates mode. E is always relative in Relative Coordinates mode.
 unsigned long axis_steps_per_sqr_second[NUM_AXIS];
 
+volatile int feedmultiply=100; //100->1 200->2
 // comm variables
 #define MAX_CMD_SIZE 96
 #define BUFSIZE 8
@@ -825,9 +826,10 @@ inline void process_commands()
           {
             Serial.print("T:");
             Serial.println( analog2temp(current_raw) ); 
-            LCD_STATUS;
+            
             codenum = millis();
           }
+          LCD_STATUS;
           manage_heater();
         }
         break;
@@ -871,6 +873,7 @@ inline void process_commands()
     case 83:
       axis_relative_modes[3] = true;
       break;
+		case 18:
     case 84:
       if(code_seen('S')){ 
         stepper_inactive_time = code_value() * 1000; 
@@ -1001,7 +1004,7 @@ inline void get_coordinates()
 
 void prepare_move()
 {
-  plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate/60.0);
+  plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate*feedmultiply/60.0/100.);
   for(int i=0; i < NUM_AXIS; i++) {
     current_position[i] = destination[i];
   }
@@ -2106,16 +2109,12 @@ ISR(TIMER1_COMPA_vect)
     // Set direction en check limit switches
     if ((out_bits & (1<<X_AXIS)) != 0) {   // -direction
       WRITE(X_DIR_PIN, INVERT_X_DIR);
-      if(READ(X_MIN_PIN) != ENDSTOPS_INVERTING){
+      if(READ(X_MIN_PIN) != ENDSTOPS_INVERTING) {
         step_events_completed = current_block->step_event_count;
       }
     }
-    else { // +direction 
-    	WRITE(X_DIR_PIN,!INVERT_X_DIR);
-      	if((READ(X_MAX_PIN) != ENDSTOPS_INVERTING)  && (current_block->steps_x >0)){
-        	step_events_completed = current_block->step_event_count;
-	}
-    }
+    else // +direction
+    WRITE(X_DIR_PIN,!INVERT_X_DIR);
 
     if ((out_bits & (1<<Y_AXIS)) != 0) {   // -direction
       WRITE(Y_DIR_PIN,INVERT_Y_DIR);
@@ -2123,12 +2122,8 @@ ISR(TIMER1_COMPA_vect)
         step_events_completed = current_block->step_event_count;
       }
     }
-    else { // +direction
+    else // +direction
     WRITE(Y_DIR_PIN,!INVERT_Y_DIR);
-    if((READ(Y_MAX_PIN) != ENDSTOPS_INVERTING) && (current_block->steps_y >0)){
-    	step_events_completed = current_block->step_event_count;
-      }
-    }
 
     if ((out_bits & (1<<Z_AXIS)) != 0) {   // -direction
       WRITE(Z_DIR_PIN,INVERT_Z_DIR);
@@ -2136,12 +2131,8 @@ ISR(TIMER1_COMPA_vect)
         step_events_completed = current_block->step_event_count;
       }
     }
-    else { // +direction
-    	WRITE(Z_DIR_PIN,!INVERT_Z_DIR);
-    	if((READ(Z_MAX_PIN) != ENDSTOPS_INVERTING)  && (current_block->steps_z >0)){
-        	step_events_completed = current_block->step_event_count;
-    	}
-    }
+    else // +direction
+    WRITE(Z_DIR_PIN,!INVERT_Z_DIR);
 
 #ifndef ADVANCE
     if ((out_bits & (1<<E_AXIS)) != 0)   // -direction

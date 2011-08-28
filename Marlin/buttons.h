@@ -11,7 +11,7 @@ extern volatile int encoderpos;
 #define SHIFT_EN  17
 
 // blocking time for recognizing a new keypress of one key, ms
-#define blocktime 1000 
+#define blocktime 500 
 
 
 //bits in the shift register that carry the buttons for:
