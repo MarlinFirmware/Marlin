@@ -42,7 +42,7 @@
 #include "lcd.h"
 //extern LiquidCrystal lcd;
 
-char version_string[] = "0.9.3";
+char version_string[] = "U0.9.3.1";
 
 #ifdef SDSUPPORT
 #include "SdFat.h"
