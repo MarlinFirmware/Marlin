@@ -1,4 +1,6 @@
 #include "buttons.h"
+#ifdef FANCY_BUTTONS
+
 
 long blocking[8]={
   0,0,0,0,0,0,0,0};
@@ -13,13 +15,16 @@ extern bool force_lcd_update;
 void buttons_check()
 {
   //read it from the shift register
+  volatile static bool busy=false;
+	if(busy) return;
+	busy=true;
   digitalWrite(SHIFT_LD,LOW);
   delayMicroseconds(20);
   digitalWrite(SHIFT_LD,HIGH);
   buttons=0;
+	long ms=millis();
   for(short i=0;i<8;i++)
-  {
-    long ms=millis();
+  { 
     if((blocking[i]<ms))
     {
       if(digitalRead(SHIFT_OUT))
@@ -35,7 +40,7 @@ void buttons_check()
   }
   buttons=~buttons; //invert it, because a pressed switch produces a logical 0
 	//Serial.println((int)buttons);
-#ifdef	BUTTONS_HAVEENCODER
+		#ifdef	BUTTONS_HAVEENCODER
   char enc=0;
   if(buttons&EN_A)
     enc|=(1<<0);
@@ -79,6 +84,7 @@ void buttons_check()
 	}
   lastenc=enc;
 #endif
+	busy=false;
 }
 
 
@@ -92,5 +98,6 @@ void buttons_init()
   digitalWrite(SHIFT_EN,LOW);  //low active
 }
 
+#endif
 
 

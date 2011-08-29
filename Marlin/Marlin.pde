@@ -2060,6 +2060,11 @@ ISR(TIMER1_COMPA_vect)
 
   busy = true;
   sei(); // Re enable interrupts (normally disabled while inside an interrupt handler)
+#ifdef FANCY_BUTTONS
+  static int breakdown=0;
+	if((breakdown++)%1000==0)
+   buttons_check();
+#endif
 
   // If there is no current block, attempt to pop one from the buffer
   if (current_block == NULL) {

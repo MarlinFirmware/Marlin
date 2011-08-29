@@ -391,6 +391,10 @@ void PageSd::update()
 void PageSd::activate()
 {
 	dir_t p;
+	sdactive = false;
+	sdmode = false;
+	initsd();
+     
 
   root.rewind();
   char filename[11];

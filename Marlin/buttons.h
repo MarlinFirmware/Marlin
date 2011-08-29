@@ -1,3 +1,4 @@
+#ifdef FANCY_BUTTONS
 
 #define BUTTONS_HAVEENCODER
 
@@ -58,3 +59,4 @@ void buttons_init();
 void buttons_check();
 
 
+#endif

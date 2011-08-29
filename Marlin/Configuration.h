@@ -79,9 +79,9 @@ const bool ENDSTOPS_INVERTING = true; // set to true to invert the logic of the 
 
 #define min_software_endstops false //If true, axis won't move to coordinates less than zero.
 #define max_software_endstops true  //If true, axis won't move to coordinates greater than the defined lengths below.
-#define X_MAX_LENGTH 200
-#define Y_MAX_LENGTH 200
-#define Z_MAX_LENGTH 100
+#define X_MAX_LENGTH 210
+#define Y_MAX_LENGTH 210
+#define Z_MAX_LENGTH 210
 
 //// MOVEMENT SETTINGS
 #define NUM_AXIS 4 // The axis order in all axis related arrays is X, Y, Z, E
