@@ -330,6 +330,12 @@ PageSd::PageSd()
 
 void PageSd::update()
 {
+	if(buttons&B_ST) //reset sd card
+	{
+		sdactive = false;
+		sdmode = false;
+		initsd(); 
+	}
 	if(encoderpos!=lastencoder) //scoll through files
 	{
 		fileoffset=encoderpos%nrfiles;
@@ -390,11 +396,7 @@ void PageSd::update()
 
 void PageSd::activate()
 {
-	dir_t p;
-	sdactive = false;
-	sdmode = false;
-	initsd();
-     
+	dir_t p;   
 
   root.rewind();
   char filename[11];
@@ -559,9 +561,9 @@ void buttons_process()
 
   if(buttons&B_ST)
   {
-    Serial.println("Red");
+    //Serial.println("Red");
     blocking[BL_ST]=millis()+blocktime;
-    enquecommand("M115\n");
+    //enquecommand("M115\n");
   }
   if(buttons&B_LE)
   {
