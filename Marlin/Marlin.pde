@@ -2118,8 +2118,12 @@ ISR(TIMER1_COMPA_vect)
         step_events_completed = current_block->step_event_count;
       }
     }
-    else // +direction
-    WRITE(X_DIR_PIN,!INVERT_X_DIR);
+    else { // +direction 
+    	WRITE(X_DIR_PIN,!INVERT_X_DIR);
+      	if((READ(X_MAX_PIN) != ENDSTOPS_INVERTING)  && (current_block->steps_x >0)){
+        	step_events_completed = current_block->step_event_count;
+		}
+    }
 
     if ((out_bits & (1<<Y_AXIS)) != 0) {   // -direction
       WRITE(Y_DIR_PIN,INVERT_Y_DIR);
@@ -2127,8 +2131,12 @@ ISR(TIMER1_COMPA_vect)
         step_events_completed = current_block->step_event_count;
       }
     }
-    else // +direction
+    else { // +direction
     WRITE(Y_DIR_PIN,!INVERT_Y_DIR);
+    if((READ(Y_MAX_PIN) != ENDSTOPS_INVERTING) && (current_block->steps_y >0)){
+    	step_events_completed = current_block->step_event_count;
+      }
+    }
 
     if ((out_bits & (1<<Z_AXIS)) != 0) {   // -direction
       WRITE(Z_DIR_PIN,INVERT_Z_DIR);
@@ -2136,8 +2144,12 @@ ISR(TIMER1_COMPA_vect)
         step_events_completed = current_block->step_event_count;
       }
     }
-    else // +direction
-    WRITE(Z_DIR_PIN,!INVERT_Z_DIR);
+    else { // +direction
+    	WRITE(Z_DIR_PIN,!INVERT_Z_DIR);
+    	if((READ(Z_MAX_PIN) != ENDSTOPS_INVERTING)  && (current_block->steps_z >0)){
+        	step_events_completed = current_block->step_event_count;
+    	}
+    }
 
 #ifndef ADVANCE
     if ((out_bits & (1<<E_AXIS)) != 0)   // -direction
