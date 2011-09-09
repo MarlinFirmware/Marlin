@@ -172,6 +172,8 @@ unsigned long previous_millis_cmd = 0;
 unsigned long max_inactive_time = 0;
 unsigned long stepper_inactive_time = 0;
 
+unsigned long starttime=0;
+unsigned long stoptime=0;
 #ifdef SDSUPPORT
 Sd2Card card;
 SdVolume volume;
@@ -500,6 +502,15 @@ inline void get_command()
       if(sdpos >= filesize){
         sdmode = false;
         Serial.println("Done printing file");
+				stoptime=millis();
+				char time[30];
+				unsigned long t=(stoptime-starttime)/1000;
+				int sec,min;
+				min=t/60;
+				sec=t%60;
+				sprintf(time,"Time: %i:%i ",min,sec);
+				Serial.println(time);
+				LCD_MESSAGE(time);
       }
       if(!serial_count) return; //if empty line
       cmdbuffer[bufindw][serial_count] = 0; //terminate string
@@ -719,6 +730,7 @@ inline void process_commands()
     case 24: //M24 - Start SD print
       if(sdactive){
         sdmode = true;
+				starttime=millis();
       }
       break;
     case 25: //M25 - Pause SD print
