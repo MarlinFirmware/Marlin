@@ -855,16 +855,18 @@ inline void process_commands()
       break;
       case 106: //M106 Fan On
         if (code_seen('S')){
-            digitalWrite(FAN_PIN, HIGH);
+						digitalWrite(FAN_PIN,HIGH);
             analogWrite(FAN_PIN, constrain(code_value(),0,255) );
         }
         else
-            digitalWrite(FAN_PIN, HIGH);
+				{
+					digitalWrite(FAN_PIN,HIGH);
+					analogWrite(FAN_PIN, 255);
+				}
         break;
       case 107: //M107 Fan Off
+				digitalWrite(FAN_PIN,LOW);
         analogWrite(FAN_PIN, 0);
-        
-        digitalWrite(FAN_PIN, LOW);
         break;
       
     case 82:
@@ -2062,7 +2064,7 @@ ISR(TIMER1_COMPA_vect)
   sei(); // Re enable interrupts (normally disabled while inside an interrupt handler)
 #ifdef FANCY_BUTTONS
   static int breakdown=0;
-	if((breakdown++)%1000==0)
+	if((breakdown++)%100==0)
    buttons_check();
 #endif
 

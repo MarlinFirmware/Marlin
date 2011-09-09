@@ -539,7 +539,7 @@ void lcd_init()
   //lcd.print(fillto(20,"booting!"));
   //lcd.setCursor(0, 1);
   //lcd.print("lets Marlin!");
-	LCD_MESSAGE(fillto(LCD_WIDTH,"Marlin ready."));
+	LCD_MESSAGE(fillto(LCD_WIDTH,"UltiMarlin ready."));
 #endif
 	menu.addMenuPage(&pagewatch);
 	menu.addMenuPage(&pagemove);
