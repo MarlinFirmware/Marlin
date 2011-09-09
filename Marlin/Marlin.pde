@@ -228,6 +228,7 @@ inline void write_command(char *buf){
 
 void setup()
 { 
+	
   Serial.begin(BAUDRATE);
   Serial.print("Marlin ");
   Serial.println(version_string);
@@ -361,7 +362,60 @@ void setup()
   plan_init();  // Initialize planner;
   st_init();    // Initialize stepper;
 //  tp_init();    // Initialize temperature loop
+	checkautostart();
 }
+
+#ifdef SDSUPPORT
+void checkautostart()
+{
+	if(!sdactive)
+		return;
+	static int lastnr=0;
+	char autoname[30];
+	sprintf(autoname,"auto%i.g",lastnr);
+	for(int i=0;i<strlen(autoname);i++)
+		autoname[i]=tolower(autoname[i]);
+	dir_t p;
+
+	root.rewind();
+	char filename[11];
+	int cnt=0;
+
+	bool found=false;
+	while (root.readDir(p) > 0) 
+	{
+		for(int i=0;i<strlen((char*)p.name);i++)
+			p.name[i]=tolower(p.name[i]);
+		//Serial.print((char*)p.name);
+		//Serial.print(" ");
+		//Serial.println(autoname);
+		
+		if(strncmp((char*)p.name,autoname,5)==0)
+		{
+			char cmd[30];
+			
+			sprintf(cmd,"M23 %s",autoname);
+			//sprintf(cmd,"M115");
+			//enquecommand("G92 Z0");
+			//enquecommand("G1 Z10 F2000");
+			//enquecommand("G28 X-105 Y-105");
+			enquecommand(cmd);
+			enquecommand("M24");
+			found=true;
+			
+		}
+	}
+	if(!found)
+		lastnr=-1;
+	else
+		lastnr++;
+	
+}
+#else
+void checkautostart()
+{
+}
+#endif
 
 
 void loop()
@@ -508,9 +562,10 @@ inline void get_command()
 				int sec,min;
 				min=t/60;
 				sec=t%60;
-				sprintf(time,"Time: %i:%i ",min,sec);
+				sprintf(time,"%i min, %i sec",min,sec);
 				Serial.println(time);
 				LCD_MESSAGE(time);
+				checkautostart();
       }
       if(!serial_count) return; //if empty line
       cmdbuffer[bufindw][serial_count] = 0; //terminate string
