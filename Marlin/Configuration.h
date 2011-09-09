@@ -134,7 +134,7 @@ double Kd = 80/PID_dT;
 // hooke's law says:		force = k * distance
 // bernoulli's priniciple says:	v ^ 2 / 2 + g . h + pressure / density = constant
 // so: v ^ 2 is proportional to number of steps we advance the extruder
-#define ADVANCE
+//#define ADVANCE
 
 #ifdef ADVANCE
 #define EXTRUDER_ADVANCE_K 0.02

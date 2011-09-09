@@ -94,6 +94,7 @@ void buttons_init()
   pinMode(SHIFT_LD,OUTPUT); 
   pinMode(SHIFT_EN,OUTPUT);
   pinMode(SHIFT_OUT,INPUT); 
+	digitalWrite(SHIFT_OUT,HIGH);
   digitalWrite(SHIFT_LD,HIGH);  //load has inverse logic
   digitalWrite(SHIFT_EN,LOW);  //low active
 }
