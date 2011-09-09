@@ -225,7 +225,6 @@ inline void write_command(char *buf){
 }
 #endif //SDSUPPORT
 
-
 void setup()
 { 
 	
