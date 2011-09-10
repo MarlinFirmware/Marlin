@@ -837,6 +837,19 @@ inline void process_commands()
       //processed in write to file routine above
       //savetosd = false;
       break;
+		case 30:
+		{
+			stoptime=millis();
+				char time[30];
+				unsigned long t=(stoptime-starttime)/1000;
+				int sec,min;
+				min=t/60;
+				sec=t%60;
+				sprintf(time,"%i min, %i sec",min,sec);
+				Serial.println(time);
+				LCD_MESSAGE(time);
+		}
+				break;
 #endif //SDSUPPORT
       case 104: // M104
         if (code_seen('S')) target_raw = temp2analog(code_value());
@@ -887,6 +900,7 @@ inline void process_commands()
             }
         #endif
         codenum = millis(); 
+				starttime=millis();
         while(current_raw < target_raw) {
           if( (millis() - codenum) > 1000 ) //Print Temp Reading every 1 second while heating up.
           {
