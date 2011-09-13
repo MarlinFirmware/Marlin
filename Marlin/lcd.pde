@@ -22,6 +22,7 @@ bool force_lcd_update=false;
 
 extern LiquidCrystal lcd;
 
+
 //return for string conversion routines
 char conv[8];
 
@@ -321,6 +322,7 @@ public:
 	int fileoffset,nrfiles;
 };
 
+#define FILTERSD  if (p.name[0] == DIR_NAME_FREE) break;if (p.name[0] == DIR_NAME_DELETED || p.name[0] == '.') continue;if (!DIR_IS_FILE_OR_SUBDIR(&p)) continue;if(p.name[8]!='G')	continue;if(p.name[9]=='~')	continue;
 PageSd::PageSd()
 {
   xshift=10;items=7;firstline=0;
@@ -357,15 +359,7 @@ void PageSd::update()
 		lastencoder=encoderpos;
 		while (root.readDir(p) > 0) 
 		{
-			// done if past last used entry 
-			if (p.name[0] == DIR_NAME_FREE) break;
-
-			// skip deleted entry and entries for . and  ..
-			if (p.name[0] == DIR_NAME_DELETED || p.name[0] == '.') continue;
-
-			// only list subdirectories and files
-			if (!DIR_IS_FILE_OR_SUBDIR(&p)) continue;
-
+			FILTERSD
 			uint8_t writepos=0;
 			for (uint8_t i = 0; i < 11; i++) {
 
@@ -406,13 +400,11 @@ void PageSd::activate()
 	while (root.readDir(p) > 0) 
   {
     // done if past last used entry 
-    if (p.name[0] == DIR_NAME_FREE) break;
-
-    // skip deleted entry and entries for . and  ..
-    if (p.name[0] == DIR_NAME_DELETED || p.name[0] == '.') continue;
-
-    // only list subdirectories and files
-    if (!DIR_IS_FILE_OR_SUBDIR(&p)) continue;
+    FILTERSD
+		Serial.println((char*)p.name);
+		Serial.println(strlen((char*)p.name));
+		Serial.println((char)p.name[strlen((char*)p.name)-1]);
+		
 		nrfiles++;
 	}
 	root.rewind();
@@ -420,14 +412,7 @@ void PageSd::activate()
 	int precount=0;
   while (root.readDir(p) > 0) 
   {
-    // done if past last used entry 
-    if (p.name[0] == DIR_NAME_FREE) break;
-
-    // skip deleted entry and entries for . and  ..
-    if (p.name[0] == DIR_NAME_DELETED || p.name[0] == '.') continue;
-
-    // only list subdirectories and files
-    if (!DIR_IS_FILE_OR_SUBDIR(&p)) continue;
+    FILTERSD
 		if(precount++<fileoffset)
 			continue;
 		

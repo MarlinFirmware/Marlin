@@ -1,6 +1,7 @@
 #include "Marlin.h"
 // This struct is used when buffering the setup for each linear movement "nominal" values are as specified in 
 // the source g-code and may never actually be reached if acceleration management is active.
+#define DEBUG_STEPS
 
 
 #include "speed_lookuptable.h"
@@ -53,6 +54,10 @@ char version_string[] = "U0.9.3.1";
 #define CRITICAL_SECTION_END    SREG = _sreg
 #endif //CRITICAL_SECTION_START
 
+
+#ifdef DEBUG_STEPS
+volatile long stepstaken[4];
+#endif
 // look here for descriptions of gcodes: http://linuxcnc.org/handbook/gcode/g-code.html
 // http://objects.reprap.org/wiki/Mendel_User_Manual:_RepRapGCodes
 
@@ -1843,6 +1848,15 @@ void plan_buffer_line(float x, float y, float z, float e, float feed_rate) {
   block->steps_e = labs(target[E_AXIS]-position[E_AXIS]);
   block->step_event_count = max(block->steps_x, max(block->steps_y, max(block->steps_z, block->steps_e)));
 
+#ifdef DEBUG_STEPS
+	Serial.print("(Planned: ");
+	Serial.print(abs(block->steps_x));Serial.print(" ");
+	Serial.print(abs(block->steps_y));Serial.print(" ");
+	Serial.print(abs(block->steps_z));Serial.print(" ");
+	Serial.print(abs(block->steps_e));Serial.print(" ");
+	Serial.println();
+	
+#endif
   // Bail if this is a zero-length block
   if (block->step_event_count == 0) { 
     return; 
@@ -2132,6 +2146,7 @@ inline void trapezoid_generator_reset() {
   OCR1A = acceleration_time;
 }
 
+
 // "The Stepper Driver Interrupt" - This timer interrupt is the workhorse.  
 // It pops blocks from the block_buffer and executes them by pulsing the stepper pins appropriately. 
 ISR(TIMER1_COMPA_vect)
@@ -2160,6 +2175,9 @@ ISR(TIMER1_COMPA_vect)
       counter_e = counter_x;
       step_events_completed = 0;
       e_steps = 0;
+#ifdef DEBUG_STEPS
+			stepstaken[0]=0;stepstaken[1]=0;stepstaken[2]=0;stepstaken[3]=0;
+#endif
     } 
     else {
       DISABLE_STEPPER_DRIVER_INTERRUPT();
@@ -2245,6 +2263,9 @@ ISR(TIMER1_COMPA_vect)
       WRITE(X_STEP_PIN, HIGH);
       counter_x -= current_block->step_event_count;
       WRITE(X_STEP_PIN, LOW);
+			#ifdef DEBUG_STEPS
+			stepstaken[0]++;
+			#endif
     }
 
     counter_y += current_block->steps_y;
@@ -2252,6 +2273,9 @@ ISR(TIMER1_COMPA_vect)
       WRITE(Y_STEP_PIN, HIGH);
       counter_y -= current_block->step_event_count;
       WRITE(Y_STEP_PIN, LOW);
+			#ifdef DEBUG_STEPS
+			stepstaken[1]++;
+			#endif
     }
 
     counter_z += current_block->steps_z;
@@ -2259,6 +2283,9 @@ ISR(TIMER1_COMPA_vect)
       WRITE(Z_STEP_PIN, HIGH);
       counter_z -= current_block->step_event_count;
       WRITE(Z_STEP_PIN, LOW);
+			#ifdef DEBUG_STEPS
+			stepstaken[2]++;
+			#endif
     }
 
 #ifndef ADVANCE
@@ -2316,9 +2343,16 @@ ISR(TIMER1_COMPA_vect)
     if (step_events_completed >= current_block->step_event_count) {
       current_block = NULL;
       plan_discard_current_block();
+#ifdef DEBUG_STEPS
+				Serial.print("(Steps done: ");
+	Serial.print(stepstaken[0]);Serial.print(" ");
+	Serial.print(stepstaken[1]);Serial.print(" ");
+	Serial.print(stepstaken[2]);Serial.println(" ");
+#endif
     }   
   } 
   busy=false;
+	
 }
 
 #ifdef ADVANCE
