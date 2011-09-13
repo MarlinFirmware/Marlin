@@ -1606,7 +1606,7 @@ void calculate_trapezoid_for_block(block_t *block, float entry_speed, float exit
 // acceleration within the allotted distance.
 inline float max_allowable_speed(float acceleration, float target_velocity, float distance) {
   return(
-  sqrt(target_velocity*target_velocity-2*acceleration*60*60*distance)
+  sqrt(target_velocity*target_velocity-2*acceleration*60.0*60.0*distance)
     );
 }
 
@@ -1869,7 +1869,7 @@ void plan_buffer_line(float x, float y, float z, float e, float feed_rate) {
   block->millimeters = sqrt(square(delta_x_mm) + square(delta_y_mm) + square(delta_z_mm) + square(delta_e_mm));
 
   unsigned long microseconds;
-  microseconds = lround((block->millimeters/feed_rate)*1000000);
+  microseconds = lround((block->millimeters/feed_rate)*1000000.0);
   
   // Calculate speed in mm/minute for each axis
   float multiplier = 60.0*1000000.0/microseconds;
@@ -1879,7 +1879,7 @@ void plan_buffer_line(float x, float y, float z, float e, float feed_rate) {
   block->speed_e = delta_e_mm * multiplier; 
 
   // Limit speed per axis
-  float speed_factor = 1;
+  float speed_factor = 1.0;
   float tmp_speed_factor;
   if(abs(block->speed_x) > max_feedrate[X_AXIS]) {
     speed_factor = max_feedrate[X_AXIS] / abs(block->speed_x);
@@ -1902,9 +1902,9 @@ void plan_buffer_line(float x, float y, float z, float e, float feed_rate) {
   block->speed_y = delta_y_mm * multiplier;
   block->speed_e = delta_e_mm * multiplier; 
   block->nominal_speed = block->millimeters * multiplier;
-  block->nominal_rate = ceil(block->step_event_count * multiplier / 60);  
+  block->nominal_rate = ceil(block->step_event_count * multiplier / 60.0);  
 
-  if(block->nominal_rate < 120) block->nominal_rate = 120;
+  if(block->nominal_rate < 120.0) block->nominal_rate = 120.0;
   block->entry_speed = safe_speed(block);
 
   // Compute the acceleration rate for the trapezoid generator. 
@@ -1928,16 +1928,16 @@ void plan_buffer_line(float x, float y, float z, float e, float feed_rate) {
 #ifdef ADVANCE
   // Calculate advance rate
   if((block->steps_e == 0) || (block->steps_x == 0 && block->steps_y == 0 && block->steps_z == 0)) {
-    block->advance_rate = 0;
-    block->advance = 0;
+    block->advance_rate = 0.0;
+    block->advance = 0.0;
   }
   else {
     long acc_dist = estimate_acceleration_distance(0, block->nominal_rate, block->acceleration);
     float advance = (STEPS_PER_CUBIC_MM_E * EXTRUDER_ADVANCE_K) * 
-      (block->speed_e * block->speed_e * EXTRUTION_AREA * EXTRUTION_AREA / 3600.0)*65536;
+      (block->speed_e * block->speed_e * EXTRUTION_AREA * EXTRUTION_AREA / 3600.0)*65536.0;
     block->advance = advance;
     if(acc_dist == 0) {
-      block->advance_rate = 0;
+      block->advance_rate = 0.0;
     } 
     else {
       block->advance_rate = advance / (float)acc_dist;
