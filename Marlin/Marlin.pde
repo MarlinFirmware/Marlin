@@ -1,7 +1,8 @@
 #include "Marlin.h"
 // This struct is used when buffering the setup for each linear movement "nominal" values are as specified in 
 // the source g-code and may never actually be reached if acceleration management is active.
-#define DEBUG_STEPS
+
+//#define DEBUG_STEPS
 
 
 #include "speed_lookuptable.h"
