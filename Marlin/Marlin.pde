@@ -33,7 +33,7 @@
 #include "Marlin.h"
 #include "speed_lookuptable.h"
 
-char version_string[] = "0.9.3";
+char version_string[] = "0.9.8";
 
 #ifdef SDSUPPORT
 #include "SdFat.h"
@@ -1167,10 +1167,9 @@ void calculate_trapezoid_for_block(block_t *block, float entry_speed, float exit
   if(final_rate < 120) final_rate=120;
   
   // Calculate the acceleration steps
-  long acceleration = block->acceleration;
+  long acceleration = block->acceleration_st;
   long accelerate_steps = estimate_acceleration_distance(initial_rate, block->nominal_rate, acceleration);
   long decelerate_steps = estimate_acceleration_distance(final_rate, block->nominal_rate, acceleration);
-
   // Calculate the size of Plateau of Nominal Rate. 
   long plateau_steps = block->step_event_count-accelerate_steps-decelerate_steps;
 
@@ -1214,15 +1213,15 @@ inline float max_allowable_speed(float acceleration, float target_velocity, floa
 inline float junction_jerk(block_t *before, block_t *after) {
   return(sqrt(
     pow((before->speed_x-after->speed_x), 2)+
-    pow((before->speed_y-after->speed_y), 2)+
-    pow((before->speed_z-after->speed_z)*axis_steps_per_unit[Z_AXIS]/axis_steps_per_unit[X_AXIS], 2)));
+    pow((before->speed_y-after->speed_y), 2)));
 }
 
 // Return the safe speed which is max_jerk/2, e.g. the 
 // speed under which you cannot exceed max_jerk no matter what you do.
 float safe_speed(block_t *block) {
   float safe_speed;
-  safe_speed = max_jerk/2;  
+  safe_speed = max_xy_jerk/2;  
+  if(abs(block->speed_z) > max_z_jerk/2) safe_speed = max_z_jerk/2;
   if (safe_speed > block->nominal_speed) safe_speed = block->nominal_speed;
   return safe_speed;  
 }
@@ -1250,12 +1249,15 @@ void planner_reverse_pass_kernel(block_t *previous, block_t *current, block_t *n
     if((previous->steps_x == 0) && (previous->steps_y == 0)) {
       entry_speed = safe_speed(current);
     }
-    else if (jerk > max_jerk) {
-      entry_speed = (max_jerk/jerk) * entry_speed;
+    else if (jerk > max_xy_jerk) {
+      entry_speed = (max_xy_jerk/jerk) * entry_speed;
     } 
+    if(abs(previous->speed_z - current->speed_z) > max_z_jerk) {
+      entry_speed = (max_z_jerk/abs(previous->speed_z - current->speed_z)) * entry_speed;
+    }
     // If the required deceleration across the block is too rapid, reduce the entry_factor accordingly.
     if (entry_speed > exit_speed) {
-      float max_entry_speed = max_allowable_speed(-acceleration,exit_speed, current->millimeters);
+      float max_entry_speed = max_allowable_speed(-current->acceleration,exit_speed, current->millimeters);
       if (max_entry_speed < entry_speed) {
         entry_speed = max_entry_speed;
       }
@@ -1275,16 +1277,16 @@ void planner_reverse_pass() {
   block_t *block[3] = {
     NULL, NULL, NULL  };
   while(block_index != block_buffer_tail) {    
-    block_index--;
-    if(block_index < 0) {
-      block_index = BLOCK_BUFFER_SIZE-1;
-    }
     block[2]= block[1];
     block[1]= block[0];
     block[0] = &block_buffer[block_index];
     planner_reverse_pass_kernel(block[0], block[1], block[2]);
+    block_index--;
+    if(block_index < 0) {
+      block_index = BLOCK_BUFFER_SIZE-1;
+    }
   }
-  planner_reverse_pass_kernel(NULL, block[0], block[1]);
+//  planner_reverse_pass_kernel(NULL, block[0], block[1]);
 }
 
 // The kernel called by planner_recalculate() when scanning the plan from first to last entry.
@@ -1298,7 +1300,7 @@ void planner_forward_pass_kernel(block_t *previous, block_t *current, block_t *n
     // speed accordingly. Remember current->entry_factor equals the exit factor of 
     // the previous block.
     if(previous->entry_speed < current->entry_speed) {
-      float max_entry_speed = max_allowable_speed(-acceleration, previous->entry_speed, previous->millimeters);
+      float max_entry_speed = max_allowable_speed(-previous->acceleration, previous->entry_speed, previous->millimeters);
       if (max_entry_speed < current->entry_speed) {
         current->entry_speed = max_entry_speed;
       }
@@ -1422,7 +1424,7 @@ void plan_buffer_line(float x, float y, float z, float e, float feed_rate) {
   target[Y_AXIS] = lround(y*axis_steps_per_unit[Y_AXIS]);
   target[Z_AXIS] = lround(z*axis_steps_per_unit[Z_AXIS]);     
   target[E_AXIS] = lround(e*axis_steps_per_unit[E_AXIS]);     
-
+  
   // Calculate the buffer head after we push this byte
   int next_buffer_head = (block_buffer_head + 1) & BLOCK_BUFFER_MASK;	
 
@@ -1450,6 +1452,12 @@ void plan_buffer_line(float x, float y, float z, float e, float feed_rate) {
   if (block->step_event_count == 0) { 
     return; 
   };
+  
+  //enable active axes
+  if(block->steps_x != 0) enable_x();
+  if(block->steps_y != 0) enable_y();
+  if(block->steps_z != 0) enable_z();
+  if(block->steps_e != 0) enable_e();
 
   float delta_x_mm = (target[X_AXIS]-position[X_AXIS])/axis_steps_per_unit[X_AXIS];
   float delta_y_mm = (target[Y_AXIS]-position[Y_AXIS])/axis_steps_per_unit[Y_AXIS];
@@ -1492,7 +1500,7 @@ void plan_buffer_line(float x, float y, float z, float e, float feed_rate) {
   block->speed_e = delta_e_mm * multiplier; 
   block->nominal_speed = block->millimeters * multiplier;
   block->nominal_rate = ceil(block->step_event_count * multiplier / 60);  
-
+  
   if(block->nominal_rate < 120) block->nominal_rate = 120;
   block->entry_speed = safe_speed(block);
 
@@ -1502,18 +1510,19 @@ void plan_buffer_line(float x, float y, float z, float e, float feed_rate) {
     block->acceleration = ceil( (retract_acceleration)/travel_per_step); // convert to: acceleration steps/sec^2
   }
   else {
-    block->acceleration = ceil( (acceleration)/travel_per_step);      // convert to: acceleration steps/sec^2
+    block->acceleration_st = ceil( (acceleration)/travel_per_step);      // convert to: acceleration steps/sec^2
     // Limit acceleration per axis
-    if((block->acceleration * block->steps_x / block->step_event_count) > axis_steps_per_sqr_second[X_AXIS])
-      block->acceleration = axis_steps_per_sqr_second[X_AXIS];
-    if((block->acceleration * block->steps_y / block->step_event_count) > axis_steps_per_sqr_second[Y_AXIS])
-      block->acceleration = axis_steps_per_sqr_second[Y_AXIS];
-    if((block->acceleration * block->steps_e / block->step_event_count) > axis_steps_per_sqr_second[E_AXIS])
-      block->acceleration = axis_steps_per_sqr_second[E_AXIS];
-    if((block->acceleration * block->steps_z / block->step_event_count) > axis_steps_per_sqr_second[Z_AXIS])
-      block->acceleration = axis_steps_per_sqr_second[Z_AXIS];
+    if((block->acceleration_st * block->steps_x / block->step_event_count) > axis_steps_per_sqr_second[X_AXIS])
+      block->acceleration_st = axis_steps_per_sqr_second[X_AXIS];
+    if((block->acceleration_st * block->steps_y / block->step_event_count) > axis_steps_per_sqr_second[Y_AXIS])
+      block->acceleration_st = axis_steps_per_sqr_second[Y_AXIS];
+    if((block->acceleration_st * block->steps_e / block->step_event_count) > axis_steps_per_sqr_second[E_AXIS])
+      block->acceleration_st = axis_steps_per_sqr_second[E_AXIS];
+    if(((block->acceleration_st / block->step_event_count) * block->steps_z ) > axis_steps_per_sqr_second[Z_AXIS])
+      block->acceleration_st = axis_steps_per_sqr_second[Z_AXIS];
   }
-
+  block->acceleration = block->acceleration_st * travel_per_step;
+  
 #ifdef ADVANCE
   // Calculate advance rate
   if((block->steps_e == 0) || (block->steps_x == 0 && block->steps_y == 0 && block->steps_z == 0)) {
@@ -1521,7 +1530,7 @@ void plan_buffer_line(float x, float y, float z, float e, float feed_rate) {
     block->advance = 0;
   }
   else {
-    long acc_dist = estimate_acceleration_distance(0, block->nominal_rate, block->acceleration);
+    long acc_dist = estimate_acceleration_distance(0, block->nominal_rate, block->acceleration_st);
     float advance = (STEPS_PER_CUBIC_MM_E * EXTRUDER_ADVANCE_K) * 
       (block->speed_e * block->speed_e * EXTRUTION_AREA * EXTRUTION_AREA / 3600.0)*65536;
     block->advance = advance;
@@ -1553,12 +1562,6 @@ void plan_buffer_line(float x, float y, float z, float e, float feed_rate) {
   if (target[E_AXIS] < position[E_AXIS]) { 
     block->direction_bits |= (1<<E_AXIS); 
   }
-
-  //enable active axes
-  if(block->steps_x != 0) enable_x();
-  if(block->steps_y != 0) enable_y();
-  if(block->steps_z != 0) enable_z();
-  if(block->steps_e != 0) enable_e();
 
   // Move buffer head
   block_buffer_head = next_buffer_head;     
@@ -1729,6 +1732,7 @@ inline void trapezoid_generator_reset() {
   final_advance = current_block->final_advance;
   deceleration_time = 0;
   advance_rate = current_block->advance_rate;
+  
   // step_rate to timer interval
   acc_step_rate = initial_rate;
   acceleration_time = calc_timer(acc_step_rate);

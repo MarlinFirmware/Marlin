@@ -86,12 +86,13 @@ typedef struct {
   float nominal_speed;                               // The nominal speed for this block in mm/min  
   float millimeters;                                 // The total travel of this block in mm
   float entry_speed;
+  float acceleration;                                // acceleration mm/sec^2
 
   // Settings for the trapezoid generator
   long nominal_rate;                                 // The nominal step rate for this block in step_events/sec 
-  volatile long initial_rate;                                 // The jerk-adjusted step rate at start of block  
-  volatile long final_rate;                                   // The minimal rate at exit
-  long acceleration;                                 // acceleration mm/sec^2
+  volatile long initial_rate;                        // The jerk-adjusted step rate at start of block  
+  volatile long final_rate;                          // The minimal rate at exit
+  long acceleration_st;                              // acceleration steps/sec^2
   volatile char busy;
 } block_t;
 
@@ -103,5 +104,4 @@ void plan_buffer_line(float x, float y, float z, float e, float feed_rate);
 void plan_set_position(float x, float y, float z, float e);
 void st_wake_up();
 void st_synchronize();
-
 

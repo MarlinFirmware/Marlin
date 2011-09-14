@@ -78,10 +78,9 @@ bool axis_relative_modes[] = {false, false, false, false};
 // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for skeinforge 40+, for older versions raise them a lot.
 float acceleration = 2000;         // Normal acceleration mm/s^2
 float retract_acceleration = 7000; // Normal acceleration mm/s^2
-float max_jerk = 20*60;
+float max_xy_jerk = 20.0*60;
+float max_z_jerk = 0.4*60;
 long max_acceleration_units_per_sq_second[] = {7000,7000,100,10000}; // X, Y, Z and E max acceleration in mm/s^2 for printing moves or retracts
-// Not used long max_travel_acceleration_units_per_sq_second[] = {500,500,50,500}; // X, Y, Z max acceleration in mm/s^2 for travel moves
-
 
 // The watchdog waits for the watchperiod in milliseconds whenever an M104 or M109 increases the target temperature
 // If the temperature has not increased at the end of that period, the target temperature is set to zero. It can be reset with another M104/M109
