@@ -51,6 +51,20 @@ If all goes well the firmware is uploading
 Start pronterface
 
 Select the correct Serial Port. Type 250000 in the baudrate field.
-Press the Connect button.
+Press the Connect button
+
+===============================================================================================
+Known issues
+
+On some systems we get compilation errors.
+
+This is caused by the "wiring_serial.c" and "wiring.c".
+The simple fix is to delete these files but this may have a performance impact.
+
+The best workaround is to move these files to sanguino directory. 
+(".../arduino-0018/hardware/Sanguino/cores/arduino/" on windows systems)
+
+
+
 
 
