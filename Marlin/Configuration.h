@@ -49,6 +49,7 @@ const bool ENDSTOPS_INVERTING = true; // set to true to invert the logic of the 
 
 
 
+
 //// ADVANCED SETTINGS - to tweak parameters
 
 #include "thermistortables.h"
@@ -85,7 +86,7 @@ const bool ENDSTOPS_INVERTING = true; // set to true to invert the logic of the 
 
 //// MOVEMENT SETTINGS
 #define NUM_AXIS 4 // The axis order in all axis related arrays is X, Y, Z, E
-float max_feedrate[] = {120*60, 120*60, 200*60, 500000}; // set the max speeds
+float max_feedrate[] = {240*60, 240*60, 350*60, 500000}; // set the max speeds
 float homing_feedrate[] = {2400, 2400, 200, 0};  // set the homing speeds
 bool axis_relative_modes[] = {false, false, false, false};
 
