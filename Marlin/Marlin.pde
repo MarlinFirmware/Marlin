@@ -41,10 +41,11 @@
 #include "fastio.h"
 #include "Configuration.h"
 #include "pins.h"
+#include "Marlin.h"
+#include "speed_lookuptable.h"
 #include "lcd.h"
-//extern LiquidCrystal lcd;
 
-char version_string[] = "U0.9.3.1";
+char version_string[] = "U0.9.3.2";
 
 #ifdef SDSUPPORT
 #include "SdFat.h"
@@ -923,10 +924,11 @@ inline void process_commands()
       #if TEMP_1_PIN > -1
         if (code_seen('S')) target_bed_raw = temp2analog(code_value());
         codenum = millis(); 
-        while(current_bed_raw < target_bed_raw) {
+        while(current_bed_raw < target_bed_raw) 
+                                {
           if( (millis()-codenum) > 1000 ) //Print Temp Reading every 1 second while heating up.
           {
-            tt=analog2temp(current_raw);
+            float tt=analog2temp(current_raw);
             Serial.print("T:");
             Serial.println( tt );
             Serial.print("ok T:");
@@ -1570,10 +1572,9 @@ void calculate_trapezoid_for_block(block_t *block, float entry_speed, float exit
   if(final_rate < 120) final_rate=120;
   
   // Calculate the acceleration steps
-  long acceleration = block->acceleration;
+  long acceleration = block->acceleration_st;
   long accelerate_steps = estimate_acceleration_distance(initial_rate, block->nominal_rate, acceleration);
   long decelerate_steps = estimate_acceleration_distance(final_rate, block->nominal_rate, acceleration);
-
   // Calculate the size of Plateau of Nominal Rate. 
   long plateau_steps = block->step_event_count-accelerate_steps-decelerate_steps;
 
@@ -1617,15 +1618,15 @@ inline float max_allowable_speed(float acceleration, float target_velocity, floa
 inline float junction_jerk(block_t *before, block_t *after) {
   return(sqrt(
     pow((before->speed_x-after->speed_x), 2)+
-    pow((before->speed_y-after->speed_y), 2)+
-    pow((before->speed_z-after->speed_z)*axis_steps_per_unit[Z_AXIS]/axis_steps_per_unit[X_AXIS], 2)));
+    pow((before->speed_y-after->speed_y), 2)));
 }
 
 // Return the safe speed which is max_jerk/2, e.g. the 
 // speed under which you cannot exceed max_jerk no matter what you do.
 float safe_speed(block_t *block) {
   float safe_speed;
-  safe_speed = max_jerk/2;  
+  safe_speed = max_xy_jerk/2;  
+  if(abs(block->speed_z) > max_z_jerk/2) safe_speed = max_z_jerk/2;
   if (safe_speed > block->nominal_speed) safe_speed = block->nominal_speed;
   return safe_speed;  
 }
@@ -1653,12 +1654,15 @@ void planner_reverse_pass_kernel(block_t *previous, block_t *current, block_t *n
     if((previous->steps_x == 0) && (previous->steps_y == 0)) {
       entry_speed = safe_speed(current);
     }
-    else if (jerk > max_jerk) {
-      entry_speed = (max_jerk/jerk) * entry_speed;
+    else if (jerk > max_xy_jerk) {
+      entry_speed = (max_xy_jerk/jerk) * entry_speed;
+    } 
+    if(abs(previous->speed_z - current->speed_z) > max_z_jerk) {
+      entry_speed = (max_z_jerk/abs(previous->speed_z - current->speed_z)) * entry_speed;
     } 
     // If the required deceleration across the block is too rapid, reduce the entry_factor accordingly.
     if (entry_speed > exit_speed) {
-      float max_entry_speed = max_allowable_speed(-acceleration,exit_speed, current->millimeters);
+      float max_entry_speed = max_allowable_speed(-current->acceleration,exit_speed, current->millimeters);
       if (max_entry_speed < entry_speed) {
         entry_speed = max_entry_speed;
       }
@@ -1678,16 +1682,16 @@ void planner_reverse_pass() {
   block_t *block[3] = {
     NULL, NULL, NULL  };
   while(block_index != block_buffer_tail) {    
-    block_index--;
-    if(block_index < 0) {
-      block_index = BLOCK_BUFFER_SIZE-1;
-    }
     block[2]= block[1];
     block[1]= block[0];
     block[0] = &block_buffer[block_index];
     planner_reverse_pass_kernel(block[0], block[1], block[2]);
+    block_index--;
+    if(block_index < 0) {
+      block_index = BLOCK_BUFFER_SIZE-1;
   }
-  planner_reverse_pass_kernel(NULL, block[0], block[1]);
+  }
+//  planner_reverse_pass_kernel(NULL, block[0], block[1]);
 }
 
 // The kernel called by planner_recalculate() when scanning the plan from first to last entry.
@@ -1701,7 +1705,7 @@ void planner_forward_pass_kernel(block_t *previous, block_t *current, block_t *n
     // speed accordingly. Remember current->entry_factor equals the exit factor of 
     // the previous block.
     if(previous->entry_speed < current->entry_speed) {
-      float max_entry_speed = max_allowable_speed(-acceleration, previous->entry_speed, previous->millimeters);
+      float max_entry_speed = max_allowable_speed(-previous->acceleration, previous->entry_speed, previous->millimeters);
       if (max_entry_speed < current->entry_speed) {
         current->entry_speed = max_entry_speed;
       }
@@ -1849,11 +1853,16 @@ void plan_buffer_line(float x, float y, float z, float e, float feed_rate) {
   block->steps_e = labs(target[E_AXIS]-position[E_AXIS]);
   block->step_event_count = max(block->steps_x, max(block->steps_y, max(block->steps_z, block->steps_e)));
 
-
   // Bail if this is a zero-length block
   if (block->step_event_count == 0) { 
     return; 
   };
+
+  //enable active axes
+  if(block->steps_x != 0) enable_x();
+  if(block->steps_y != 0) enable_y();
+  if(block->steps_z != 0) enable_z();
+  if(block->steps_e != 0) enable_e();
 
   float delta_x_mm = (target[X_AXIS]-position[X_AXIS])/axis_steps_per_unit[X_AXIS];
   float delta_y_mm = (target[Y_AXIS]-position[Y_AXIS])/axis_steps_per_unit[Y_AXIS];
@@ -1863,6 +1872,14 @@ void plan_buffer_line(float x, float y, float z, float e, float feed_rate) {
 
   unsigned long microseconds;
   microseconds = lround((block->millimeters/feed_rate)*1000000);
+	//added my lampmaker to slow down rather than wait at the corner for a buffer refill
+	// turns corner blobs into more dissapated blobs
+	int blockcount=block_buffer_head-block_buffer_tail;
+	//blockcount=8;
+	while(blockcount<0) blockcount+=BLOCK_BUFFER_SIZE;
+	 if ((blockcount<=2)&&(microseconds<50000)) microseconds=50000;
+  else if ((blockcount<=4)&&(microseconds<20000)) microseconds=20000;
+  else if ((blockcount<=8)&&(microseconds<10000)) microseconds=10000;
   
   // Calculate speed in mm/minute for each axis
   float multiplier = 60.0*1000000.0/microseconds;
@@ -1875,7 +1892,10 @@ void plan_buffer_line(float x, float y, float z, float e, float feed_rate) {
   float speed_factor = 1;
   float tmp_speed_factor;
   if(abs(block->speed_x) > max_feedrate[X_AXIS]) {
-    speed_factor = max_feedrate[X_AXIS] / abs(block->speed_x);
+    //// [ErikDeBruijn] IS THIS THE BUG WE'RE LOOING FOR????
+    // it used to be just this line: speed_factor = max_feedrate[X_AXIS] / abs(block->speed_x);
+    tmp_speed_factor = max_feedrate[X_AXIS] / abs(block->speed_x);
+    if(speed_factor > tmp_speed_factor) speed_factor = tmp_speed_factor;
   }
   if(abs(block->speed_y) > max_feedrate[Y_AXIS]){
     tmp_speed_factor = max_feedrate[Y_AXIS] / abs(block->speed_y);
@@ -1906,17 +1926,18 @@ void plan_buffer_line(float x, float y, float z, float e, float feed_rate) {
     block->acceleration = ceil( (retract_acceleration)/travel_per_step); // convert to: acceleration steps/sec^2
   }
   else {
-    block->acceleration = ceil( (acceleration)/travel_per_step);      // convert to: acceleration steps/sec^2
+    block->acceleration_st = ceil( (acceleration)/travel_per_step);      // convert to: acceleration steps/sec^2
     // Limit acceleration per axis
-    if((block->acceleration * block->steps_x / block->step_event_count) > axis_steps_per_sqr_second[X_AXIS])
-      block->acceleration = axis_steps_per_sqr_second[X_AXIS];
-    if((block->acceleration * block->steps_y / block->step_event_count) > axis_steps_per_sqr_second[Y_AXIS])
-      block->acceleration = axis_steps_per_sqr_second[Y_AXIS];
-    if((block->acceleration * block->steps_e / block->step_event_count) > axis_steps_per_sqr_second[E_AXIS])
-      block->acceleration = axis_steps_per_sqr_second[E_AXIS];
-    if((block->acceleration * block->steps_z / block->step_event_count) > axis_steps_per_sqr_second[Z_AXIS])
-      block->acceleration = axis_steps_per_sqr_second[Z_AXIS];
+    if((block->acceleration_st * block->steps_x / block->step_event_count) > axis_steps_per_sqr_second[X_AXIS])
+      block->acceleration_st = axis_steps_per_sqr_second[X_AXIS];
+    if((block->acceleration_st * block->steps_y / block->step_event_count) > axis_steps_per_sqr_second[Y_AXIS])
+      block->acceleration_st = axis_steps_per_sqr_second[Y_AXIS];
+    if((block->acceleration_st * block->steps_e / block->step_event_count) > axis_steps_per_sqr_second[E_AXIS])
+      block->acceleration_st = axis_steps_per_sqr_second[E_AXIS];
+    if(((block->acceleration_st / block->step_event_count) * block->steps_z ) > axis_steps_per_sqr_second[Z_AXIS])
+      block->acceleration_st = axis_steps_per_sqr_second[Z_AXIS];
   }
+  block->acceleration = block->acceleration_st * travel_per_step;
 
 #ifdef ADVANCE
   // Calculate advance rate
@@ -1925,7 +1946,7 @@ void plan_buffer_line(float x, float y, float z, float e, float feed_rate) {
     block->advance = 0;
   }
   else {
-    long acc_dist = estimate_acceleration_distance(0, block->nominal_rate, block->acceleration);
+    long acc_dist = estimate_acceleration_distance(0, block->nominal_rate, block->acceleration_st);
     float advance = (STEPS_PER_CUBIC_MM_E * EXTRUDER_ADVANCE_K) * 
       (block->speed_e * block->speed_e * EXTRUTION_AREA * EXTRUTION_AREA / 3600.0)*65536;
     block->advance = advance;
@@ -1957,12 +1978,6 @@ void plan_buffer_line(float x, float y, float z, float e, float feed_rate) {
   if (target[E_AXIS] < position[E_AXIS]) { 
     block->direction_bits |= (1<<E_AXIS); 
   }
-
-  //enable active axes
-  if(block->steps_x != 0) enable_x();
-  if(block->steps_y != 0) enable_y();
-  if(block->steps_z != 0) enable_z();
-  if(block->steps_e != 0) enable_e();
 
   // Move buffer head
   block_buffer_head = next_buffer_head;     
@@ -2139,7 +2154,6 @@ inline void trapezoid_generator_reset() {
   OCR1A = acceleration_time;
 }
 
-
 // "The Stepper Driver Interrupt" - This timer interrupt is the workhorse.  
 // It pops blocks from the block_buffer and executes them by pulsing the stepper pins appropriately. 
 ISR(TIMER1_COMPA_vect)
@@ -2154,6 +2168,14 @@ ISR(TIMER1_COMPA_vect)
   static int breakdown=0;
 	if((breakdown++)%100==0)
    buttons_check();
+/* [ErikDeBruijn] Perhaps it would be nice to use a piece of code like this (adapted from process_g_code), to create a nice progress bar!
+      if(sdactive){
+        sprintf("SD printing byte %i%",(int) (sdpos/filesize*100)); // perhaps a fraction of a percent is also nice, 0.03%, progress bar even better.
+        Serial.print(sdpos);
+        Serial.print("/");
+        Serial.println(filesize);
+      }
+*/
 #endif
 
   // If there is no current block, attempt to pop one from the buffer
@@ -2169,13 +2191,13 @@ ISR(TIMER1_COMPA_vect)
       step_events_completed = 0;
       e_steps = 0;
 #ifdef DEBUG_STEPS
-			stepstaken[0]=0;stepstaken[1]=0;stepstaken[2]=0;stepstaken[3]=0;
-	Serial.print("(Planned: ");
-	Serial.print(abs(current_block->steps_x));Serial.print(" ");
-	Serial.print(abs(current_block->steps_y));Serial.print(" ");
-	Serial.print(abs(current_block->steps_z));Serial.print(" ");
-	//Serial.print(abs(current_block->steps_e));Serial.print(" ");
-	Serial.println();
+                        stepstaken[0]=0;stepstaken[1]=0;stepstaken[2]=0;stepstaken[3]=0;
+        Serial.print("(Planned: ");
+        Serial.print(abs(current_block->steps_x));Serial.print(" ");
+        Serial.print(abs(current_block->steps_y));Serial.print(" ");
+        Serial.print(abs(current_block->steps_z));Serial.print(" ");
+        //Serial.print(abs(current_block->steps_e));Serial.print(" ");
+        Serial.println();
 #endif
     } 
     else {
@@ -2262,9 +2284,9 @@ ISR(TIMER1_COMPA_vect)
       WRITE(X_STEP_PIN, HIGH);
       counter_x -= current_block->step_event_count;
       WRITE(X_STEP_PIN, LOW);
-			#ifdef DEBUG_STEPS
-			stepstaken[0]++;
-			#endif
+                        #ifdef DEBUG_STEPS
+                        stepstaken[0]++;
+                        #endif
     }
 
     counter_y += current_block->steps_y;
@@ -2272,9 +2294,9 @@ ISR(TIMER1_COMPA_vect)
       WRITE(Y_STEP_PIN, HIGH);
       counter_y -= current_block->step_event_count;
       WRITE(Y_STEP_PIN, LOW);
-			#ifdef DEBUG_STEPS
-			stepstaken[1]++;
-			#endif
+                        #ifdef DEBUG_STEPS
+                        stepstaken[1]++;
+                        #endif
     }
 
     counter_z += current_block->steps_z;
@@ -2282,9 +2304,9 @@ ISR(TIMER1_COMPA_vect)
       WRITE(Z_STEP_PIN, HIGH);
       counter_z -= current_block->step_event_count;
       WRITE(Z_STEP_PIN, LOW);
-			#ifdef DEBUG_STEPS
-			stepstaken[2]++;
-			#endif
+                        #ifdef DEBUG_STEPS
+                        stepstaken[2]++;
+                        #endif
     }
 
 #ifndef ADVANCE
@@ -2343,15 +2365,14 @@ ISR(TIMER1_COMPA_vect)
       current_block = NULL;
       plan_discard_current_block();
 #ifdef DEBUG_STEPS
-				Serial.print("(Steps done: ");
-	Serial.print(stepstaken[0]);Serial.print(" ");
-	Serial.print(stepstaken[1]);Serial.print(" ");
-	Serial.print(stepstaken[2]);Serial.println(" ");
+                                Serial.print("(Steps done: ");
+        Serial.print(stepstaken[0]);Serial.print(" ");
+        Serial.print(stepstaken[1]);Serial.print(" ");
+        Serial.print(stepstaken[2]);Serial.println(" ");
 #endif
     }   
   } 
   busy=false;
-	
 }
 
 #ifdef ADVANCE

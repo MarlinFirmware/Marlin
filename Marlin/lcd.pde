@@ -589,9 +589,14 @@ void enquecommand(const char *cmd)
 
 void beep()
 {
+  // [ErikDeBruijn] changed to two short beeps, more friendly
   pinMode(BEEPER,OUTPUT);
   digitalWrite(BEEPER,HIGH);
-  delay(1000);
+  delay(200);
+  digitalWrite(BEEPER,LOW);
+  delay(200);
+  digitalWrite(BEEPER,HIGH);
+  delay(200);
   digitalWrite(BEEPER,LOW);
 
 }

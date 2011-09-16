@@ -43,9 +43,9 @@ const bool ENDSTOPS_INVERTING = true; // set to true to invert the logic of the 
 #define BAUDRATE 115200
 
 // Comment out (using // at the start of the line) to disable SD support:
-#define SDSUPPORT
-#define FANCY_LCD
-#define FANCY_BUTTONS
+//#define SDSUPPORT
+//#define FANCY_LCD
+//#define FANCY_BUTTONS
 
 
 
@@ -86,18 +86,17 @@ const bool ENDSTOPS_INVERTING = true; // set to true to invert the logic of the 
 
 //// MOVEMENT SETTINGS
 #define NUM_AXIS 4 // The axis order in all axis related arrays is X, Y, Z, E
-float max_feedrate[] = {240*60, 240*60, 350*60, 500000}; // set the max speeds
-float homing_feedrate[] = {2400, 2400, 200, 0};  // set the homing speeds
+float max_feedrate[] = {240*60, 240*60, 500*60, 500000}; // set the max speeds
+float homing_feedrate[] = {3400, 3400, 60*500, 0};  // set the homing speeds
 bool axis_relative_modes[] = {false, false, false, false};
 
 //// Acceleration settings
 // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for skeinforge 40+, for older versions raise them a lot.
 float acceleration = 4000;         // Normal acceleration mm/s^2
-float retract_acceleration = 10000; // Normal acceleration mm/s^2
-float max_jerk = 20*60;
-long max_acceleration_units_per_sq_second[] = {15000,15000,150000,15000}; // X, Y, Z and E max acceleration in mm/s^2 for printing moves or retracts
-// Not used long max_travel_acceleration_units_per_sq_second[] = {500,500,50,500}; // X, Y, Z max acceleration in mm/s^2 for travel moves
-
+float retract_acceleration = 7000; // Normal acceleration mm/s^2
+float max_xy_jerk = 20.0*60;
+float max_z_jerk = 0.4*60;
+long max_acceleration_units_per_sq_second[] = {7000,7000,15000,10000}; // X, Y, Z and E max acceleration in mm/s^2 for printing moves or retracts
 
 // The watchdog waits for the watchperiod in milliseconds whenever an M104 or M109 increases the target temperature
 // If the temperature has not increased at the end of that period, the target temperature is set to zero. It can be reset with another M104/M109
@@ -140,8 +139,8 @@ double Kd = 80/PID_dT;
 #ifdef ADVANCE
 #define EXTRUDER_ADVANCE_K 0.02
 
-#define D_FILAMENT 2.75
-//#define STEPS_MM_E 600 //this seems uncessesary
+#define D_FILAMENT 1.7
+#define STEPS_MM_E 65
 #define EXTRUTION_AREA (0.25 * D_FILAMENT * D_FILAMENT * 3.14159)
 #define STEPS_PER_CUBIC_MM_E (axis_steps_per_unit[E_AXIS]/ EXTRUTION_AREA)
 
