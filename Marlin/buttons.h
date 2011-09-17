@@ -1,4 +1,4 @@
-#ifdef FANCY_BUTTONS
+#ifdef FANCY_LCD
 
 #define BUTTONS_HAVEENCODER
 

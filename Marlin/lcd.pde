@@ -1,7 +1,7 @@
 #include "lcd.h"
 #include "pins.h"
 
-#ifdef FANCY_LCD
+#if defined FANCY_LCD || defined SIMPLE_LCD
 extern volatile int feedmultiply;
 
 #include <LiquidCrystal.h>
@@ -9,7 +9,10 @@ LiquidCrystal lcd(LCD_PINS_RS, LCD_PINS_ENABLE, LCD_PINS_D4, LCD_PINS_D5,LCD_PIN
 
 unsigned long previous_millis_lcd=0;
 
+
+#ifdef FANCY_LCD
 #include "buttons.h"
+#endif //FANCY_LCD
 
 #include "menu_base.h"
 
@@ -79,6 +82,7 @@ char *fillto(int8_t n,char *c)
 	
 }
 
+
 #include "menu_base.h"
 MenuBase menu;
 
@@ -105,6 +109,7 @@ void PageWatch::update()
 		lcd.print(fillto(LCD_WIDTH,messagetext));
 		messagetext[0]=0;
 	}
+#ifdef FANCY_LCD
 	if(encoderpos!=lastencoder)
 	{
 		lcd.setCursor(0,2);
@@ -116,6 +121,7 @@ void PageWatch::update()
 		lcd.print("  ");
 		lastencoder=encoderpos;
 	}
+#endif FANCY_LCD
 	static int n=0;
 	if(n++%4)
 		return; //slower updates
@@ -138,7 +144,9 @@ void PageWatch::update()
 
 void PageWatch::activate()
 {
+#ifdef FANCY_LCD
 	encoderpos=feedmultiply;
+#endif
 	lcd.setCursor(0,0);
   lcd.print(fillto(LCD_WIDTH," "));
 #if 0
@@ -178,6 +186,7 @@ void PageWatch::activate()
 	update();
 }
 
+#ifdef FANCY_LCD
 
 
 class PageMove:public MenuPage
@@ -447,13 +456,12 @@ void PageSd::activate()
 
 PageSd pagesd;
 
-#endif
-
-
-
-PageWatch pagewatch;
+#endif // SD_SUPPORT 
 PageMove pagemove;
 PageHome pagehome;
+#endif // FANCY_LCD
+PageWatch pagewatch;
+
 
 
 void lcd_status(const char* message)
@@ -467,7 +475,7 @@ void lcd_status(const char* message)
 //   if(missing>0)
 //     for(int i=0;i<missing;i++)
 //       lcd.print(" ");
-	strncpy(messagetext,message,20);
+	strncpy(messagetext,message,LCD_WIDTH);
 }
 
 long previous_millis_buttons=0;
@@ -481,19 +489,20 @@ void lcd_status()
   buttons_check();
 	buttons_process();
   previous_millis_buttons=millis();
+#endif //FANCY_LCD
   if(  ((millis() - previous_millis_lcd) < LCD_UPDATE_INTERVAL)  &&  !force_lcd_update  )
     return;
 	previous_millis_lcd=millis();
   force_lcd_update=false;
 	menu.update();
-#endif
 }
 
 void lcd_init()
 {
+#ifdef FANCY_LCD
   buttons_init();
 	beep();
-#ifdef FANCY_LCD
+#endif //FANCY LCD
   byte Degree[8] =
   {
     B01100,
@@ -521,25 +530,22 @@ void lcd_init()
   lcd.createChar(1,Degree);
   lcd.createChar(2,Thermometer);
   lcd.clear();
-  //lcd.print(fillto(20,"booting!"));
+  lcd.print(fillto(LCD_WIDTH,"booting!"));
   //lcd.setCursor(0, 1);
   //lcd.print("lets Marlin!");
 	LCD_MESSAGE(fillto(LCD_WIDTH,"UltiMarlin ready."));
-#endif
 	menu.addMenuPage(&pagewatch);
+#ifdef FANCY_LCD
 	menu.addMenuPage(&pagemove);
 		menu.addMenuPage(&pagehome);
+#endif //FANCY_LCD
 #ifdef SDSUPPORT
 		menu.addMenuPage(&pagesd);
-#endif
-
+#endif //SDSUPPORT
 }
 
 
-
-
-
-
+#ifdef FANCY_LCD
 
 void buttons_process()
 {
@@ -587,6 +593,8 @@ void enquecommand(const char *cmd)
   }
 }
 
+#endif // FANCY_LCD
+
 void beep()
 {
   // [ErikDeBruijn] changed to two short beeps, more friendly
@@ -601,6 +609,5 @@ void beep()
 
 }
 
-
-
 #endif
+

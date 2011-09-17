@@ -1,7 +1,7 @@
 #ifndef __LCDH
 #define __LCDH
 
-#ifdef FANCY_LCD
+#if defined FANCY_LCD || defined SIMPLE_LCD
   #define LCD_UPDATE_INTERVAL 400
 
 	#include "Configuration.h"
@@ -10,8 +10,13 @@
 	extern LiquidCrystal lcd;
 
 	//lcd display size
-	#define LCD_WIDTH 20
-	#define LCD_HEIGHT 4
+	#ifdef FANCY_LCD
+		#define LCD_WIDTH 20
+		#define LCD_HEIGHT 4
+	#else
+		#define LCD_WIDTH 16
+		#define LCD_HEIGHT 2
+	#endif
 
 	//arduino pin witch triggers an piezzo beeper
 	#define BEEPER 18

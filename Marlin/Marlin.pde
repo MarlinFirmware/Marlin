@@ -45,7 +45,7 @@
 #include "speed_lookuptable.h"
 #include "lcd.h"
 
-char version_string[] = "U0.9.3.2";
+char version_string[] = "U0.9.3.3-BK";
 
 #ifdef SDSUPPORT
 #include "SdFat.h"
@@ -57,13 +57,16 @@ char version_string[] = "U0.9.3.2";
 #endif //CRITICAL_SECTION_START
 
 
-#if defined SDSUPPORT || defined FANCY_LCD || defined FANCY_BUTTONS
+#if defined SDSUPPORT || defined FANCY_LCD 
 // The number of linear motions that can be in the plan at any give time.  
   #define BLOCK_BUFFER_SIZE 16   // SD,LCD,Buttons take more memory, block buffer needs to be smaller
 #else
   #define BLOCK_BUFFER_SIZE 40 // maximize block buffer
 #endif
 
+#ifdef SIMPLE_LCD
+  #define BLOCK_BUFFER_SIZE 32 // A little less buffer for just a simple LCD
+#endif
 
 // if DEBUG_STEPS is enabled, M114 can be used to compare two methods of determining the X,Y,Z position of the printer.
 // for debugging purposes only, should be disabled by default
@@ -250,7 +253,7 @@ void setup()
   Serial.print("Marlin ");
   Serial.println(version_string);
   Serial.println("start");
-#ifdef FANCY_LCD
+#if defined FANCY_LCD || defined SIMPLE_LCD
   lcd_init();
 #endif
   for(int i = 0; i < BUFSIZE; i++){
@@ -2183,7 +2186,7 @@ ISR(TIMER1_COMPA_vect)
 
   busy = true;
   sei(); // Re enable interrupts (normally disabled while inside an interrupt handler)
-#ifdef FANCY_BUTTONS
+#ifdef FANCY_LCD
   static int breakdown=0;
 	if((breakdown++)%100==0)
    buttons_check();

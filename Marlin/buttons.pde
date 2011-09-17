@@ -1,5 +1,5 @@
 #include "buttons.h"
-#ifdef FANCY_BUTTONS
+#ifdef FANCY_LCD
 
 
 long blocking[8]={
