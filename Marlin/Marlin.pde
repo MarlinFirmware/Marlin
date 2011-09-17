@@ -57,8 +57,19 @@ char version_string[] = "U0.9.3.2";
 #endif //CRITICAL_SECTION_START
 
 
+#if defined SDSUPPORT || defined FANCY_LCD || defined FANCY_BUTTONS
+// The number of linear motions that can be in the plan at any give time.  
+  #define BLOCK_BUFFER_SIZE 16   // SD,LCD,Buttons take more memory, block buffer needs to be smaller
+#else
+  #define BLOCK_BUFFER_SIZE 40 // maximize block buffer
+#endif
+
+
+// if DEBUG_STEPS is enabled, M114 can be used to compare two methods of determining the X,Y,Z position of the printer.
+// for debugging purposes only, should be disabled by default
 #ifdef DEBUG_STEPS
-long stepstaken[4];
+volatile long count_position[NUM_AXIS] = { 0, 0, 0, 0};
+volatile int count_direction[NUM_AXIS] = { 1, 1, 1, 1};
 #endif
 // look here for descriptions of gcodes: http://linuxcnc.org/handbook/gcode/g-code.html
 // http://objects.reprap.org/wiki/Mendel_User_Manual:_RepRapGCodes
@@ -996,8 +1007,17 @@ inline void process_commands()
       Serial.print(current_position[Y_AXIS]);
       Serial.print("Z:");
       Serial.print(current_position[Z_AXIS]);
-      Serial.print("E:");
-      Serial.println(current_position[E_AXIS]);
+      Serial.print("E:");      
+      Serial.print(current_position[E_AXIS]);
+      #ifdef DEBUG_STEPS
+        Serial.print(" Count X:");
+        Serial.print(float(count_position[X_AXIS])/axis_steps_per_unit[X_AXIS]);
+        Serial.print("Y:");
+        Serial.print(float(count_position[Y_AXIS])/axis_steps_per_unit[Y_AXIS]);
+        Serial.print("Z:");
+        Serial.println(float(count_position[Z_AXIS])/axis_steps_per_unit[Z_AXIS]);
+      #endif
+      Serial.println("");
       break;
     case 119: // M119
 #if (X_MIN_PIN > -1)
@@ -1519,9 +1539,7 @@ inline void manage_inactivity(byte debug) {
  */
 
 
-// The number of linear motions that can be in the plan at any give time
-#define BLOCK_BUFFER_SIZE 16
-#define BLOCK_BUFFER_MASK 0x0f
+
 
 static block_t block_buffer[BLOCK_BUFFER_SIZE];            // A ring buffer for motion instructions
 static volatile unsigned char block_buffer_head;           // Index of the next block to be pushed
@@ -1725,7 +1743,7 @@ void planner_forward_pass() {
     block[1] = block[2];
     block[2] = &block_buffer[block_index];
     planner_forward_pass_kernel(block[0],block[1],block[2]);
-    block_index = (block_index+1) & BLOCK_BUFFER_MASK;
+    block_index = (block_index+1) %BLOCK_BUFFER_SIZE;
   }
   planner_forward_pass_kernel(block[1], block[2], NULL);
 }
@@ -1743,7 +1761,7 @@ void planner_recalculate_trapezoids() {
     if (current) {
       calculate_trapezoid_for_block(current, current->entry_speed, next->entry_speed);      
     }
-    block_index = (block_index+1) & BLOCK_BUFFER_MASK;
+    block_index = (block_index+1) %BLOCK_BUFFER_SIZE;
   }
   calculate_trapezoid_for_block(next, next->entry_speed, safe_speed(next));
 }
@@ -1780,7 +1798,7 @@ void plan_init() {
 
 inline void plan_discard_current_block() {
   if (block_buffer_head != block_buffer_tail) {
-    block_buffer_tail = (block_buffer_tail + 1) & BLOCK_BUFFER_MASK;  
+    block_buffer_tail = (block_buffer_tail + 1) %BLOCK_BUFFER_SIZE;  
   }
 }
 
@@ -1808,7 +1826,7 @@ void check_axes_activity() {
       if(block->steps_y != 0) y_active++;
       if(block->steps_z != 0) z_active++;
       if(block->steps_e != 0) e_active++;
-      block_index = (block_index+1) & BLOCK_BUFFER_MASK;
+      block_index = (block_index+1) %BLOCK_BUFFER_SIZE;
     }
   }
   if((DISABLE_X) && (x_active == 0)) disable_x();
@@ -1831,7 +1849,7 @@ void plan_buffer_line(float x, float y, float z, float e, float feed_rate) {
   target[E_AXIS] = lround(e*axis_steps_per_unit[E_AXIS]);     
 
   // Calculate the buffer head after we push this byte
-  int next_buffer_head = (block_buffer_head + 1) & BLOCK_BUFFER_MASK;	
+  int next_buffer_head = (block_buffer_head + 1) %BLOCK_BUFFER_SIZE;
 
   // If the buffer is full: good! That means we are well ahead of the robot. 
   // Rest here until there is room in the buffer.
@@ -1872,15 +1890,16 @@ void plan_buffer_line(float x, float y, float z, float e, float feed_rate) {
 
   unsigned long microseconds;
   microseconds = lround((block->millimeters/feed_rate)*1000000);
-	//added my lampmaker to slow down rather than wait at the corner for a buffer refill
-	// turns corner blobs into more dissapated blobs
-	int blockcount=block_buffer_head-block_buffer_tail;
-	//blockcount=8;
-	while(blockcount<0) blockcount+=BLOCK_BUFFER_SIZE;
-	 if ((blockcount<=2)&&(microseconds<50000)) microseconds=50000;
-  else if ((blockcount<=4)&&(microseconds<20000)) microseconds=20000;
-  else if ((blockcount<=8)&&(microseconds<10000)) microseconds=10000;
   
+  // added by lampmaker to slow down when de buffer starts to empty, rather than wait at the corner for a buffer refill
+  // reduces/removes corner blobs as the machine won't come to a full stop.
+  int blockcount=block_buffer_head-block_buffer_tail;
+  //blockcount=8;
+  while(blockcount<0) blockcount+=BLOCK_BUFFER_SIZE;
+  if ((blockcount<=2)&&(microseconds<(MIN_SEGMENT_TIME))) microseconds=MIN_SEGMENT_TIME;
+  else if ((blockcount<=4)&&(microseconds<(MIN_SEGMENT_TIME/2))) microseconds=MIN_SEGMENT_TIME/2;
+  else if ((blockcount<=8)&&(microseconds<(MIN_SEGMENT_TIME/5))) microseconds=MIN_SEGMENT_TIME/5;   
+
   // Calculate speed in mm/minute for each axis
   float multiplier = 60.0*1000000.0/microseconds;
   block->speed_z = delta_z_mm * multiplier; 
@@ -2190,15 +2209,6 @@ ISR(TIMER1_COMPA_vect)
       counter_e = counter_x;
       step_events_completed = 0;
       e_steps = 0;
-#ifdef DEBUG_STEPS
-                        stepstaken[0]=0;stepstaken[1]=0;stepstaken[2]=0;stepstaken[3]=0;
-        Serial.print("(Planned: ");
-        Serial.print(abs(current_block->steps_x));Serial.print(" ");
-        Serial.print(abs(current_block->steps_y));Serial.print(" ");
-        Serial.print(abs(current_block->steps_z));Serial.print(" ");
-        //Serial.print(abs(current_block->steps_e));Serial.print(" ");
-        Serial.println();
-#endif
     } 
     else {
       DISABLE_STEPPER_DRIVER_INTERRUPT();
@@ -2233,14 +2243,20 @@ ISR(TIMER1_COMPA_vect)
 #endif //ADVANCE
 
     // Set direction en check limit switches
-    if ((out_bits & (1<<X_AXIS)) != 0) {   // -direction
+if ((out_bits & (1<<X_AXIS)) != 0) {   // -direction
       WRITE(X_DIR_PIN, INVERT_X_DIR);
+      #ifdef DEBUG_STEPS
+      count_direction[X_AXIS]=-1;
+      #endif
       if(READ(X_MIN_PIN) != ENDSTOPS_INVERTING) {
         step_events_completed = current_block->step_event_count;
       }
     }
     else { // +direction 
     	WRITE(X_DIR_PIN,!INVERT_X_DIR);
+        #ifdef DEBUG_STEPS
+        count_direction[X_AXIS]=1;
+        #endif
       	if((READ(X_MAX_PIN) != ENDSTOPS_INVERTING)  && (current_block->steps_x >0)){
         	step_events_completed = current_block->step_event_count;
 		}
@@ -2248,12 +2264,18 @@ ISR(TIMER1_COMPA_vect)
 
     if ((out_bits & (1<<Y_AXIS)) != 0) {   // -direction
       WRITE(Y_DIR_PIN,INVERT_Y_DIR);
+      #ifdef DEBUG_STEPS
+      count_direction[Y_AXIS]=-1;
+      #endif
       if(READ(Y_MIN_PIN) != ENDSTOPS_INVERTING) {
         step_events_completed = current_block->step_event_count;
       }
     }
     else { // +direction
     WRITE(Y_DIR_PIN,!INVERT_Y_DIR);
+      #ifdef DEBUG_STEPS
+      count_direction[Y_AXIS]=1;
+      #endif
     if((READ(Y_MAX_PIN) != ENDSTOPS_INVERTING) && (current_block->steps_y >0)){
     	step_events_completed = current_block->step_event_count;
       }
@@ -2261,12 +2283,18 @@ ISR(TIMER1_COMPA_vect)
 
     if ((out_bits & (1<<Z_AXIS)) != 0) {   // -direction
       WRITE(Z_DIR_PIN,INVERT_Z_DIR);
+      #ifdef DEBUG_STEPS
+      count_direction[Z_AXIS]=-1;
+      #endif
       if(READ(Z_MIN_PIN) != ENDSTOPS_INVERTING) {
         step_events_completed = current_block->step_event_count;
       }
     }
     else { // +direction
     	WRITE(Z_DIR_PIN,!INVERT_Z_DIR);
+        #ifdef DEBUG_STEPS
+        count_direction[Z_AXIS]=1;
+        #endif
     	if((READ(Z_MAX_PIN) != ENDSTOPS_INVERTING)  && (current_block->steps_z >0)){
         	step_events_completed = current_block->step_event_count;
     	}
@@ -2284,9 +2312,9 @@ ISR(TIMER1_COMPA_vect)
       WRITE(X_STEP_PIN, HIGH);
       counter_x -= current_block->step_event_count;
       WRITE(X_STEP_PIN, LOW);
-                        #ifdef DEBUG_STEPS
-                        stepstaken[0]++;
-                        #endif
+      #ifdef DEBUG_STEPS
+      count_position[X_AXIS]+=count_direction[X_AXIS];   
+      #endif
     }
 
     counter_y += current_block->steps_y;
@@ -2294,9 +2322,9 @@ ISR(TIMER1_COMPA_vect)
       WRITE(Y_STEP_PIN, HIGH);
       counter_y -= current_block->step_event_count;
       WRITE(Y_STEP_PIN, LOW);
-                        #ifdef DEBUG_STEPS
-                        stepstaken[1]++;
-                        #endif
+      #ifdef DEBUG_STEPS
+      count_position[Y_AXIS]+=count_direction[Y_AXIS];
+      #endif
     }
 
     counter_z += current_block->steps_z;
@@ -2304,9 +2332,9 @@ ISR(TIMER1_COMPA_vect)
       WRITE(Z_STEP_PIN, HIGH);
       counter_z -= current_block->step_event_count;
       WRITE(Z_STEP_PIN, LOW);
-                        #ifdef DEBUG_STEPS
-                        stepstaken[2]++;
-                        #endif
+      #ifdef DEBUG_STEPS
+      count_position[Z_AXIS]+=count_direction[Z_AXIS];
+      #endif
     }
 
 #ifndef ADVANCE
@@ -2364,12 +2392,6 @@ ISR(TIMER1_COMPA_vect)
     if (step_events_completed >= current_block->step_event_count) {
       current_block = NULL;
       plan_discard_current_block();
-#ifdef DEBUG_STEPS
-                                Serial.print("(Steps done: ");
-        Serial.print(stepstaken[0]);Serial.print(" ");
-        Serial.print(stepstaken[1]);Serial.print(" ");
-        Serial.print(stepstaken[2]);Serial.println(" ");
-#endif
     }   
   } 
   busy=false;

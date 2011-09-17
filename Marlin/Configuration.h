@@ -112,6 +112,10 @@ long max_acceleration_units_per_sq_second[] = {7000,7000,15000,10000}; // X, Y, 
 #define MAXTEMP 275
 
 
+// minimum time in microseconds that a movement needs to take if the buffer is emptied.   Increase this number if you see blobs while printing high speed & high detail.  It will slowdown on the detailed stuff.
+#define MIN_SEGMENT_TIME 50000
+
+
 /// PID settings:
 // Uncomment the following line to enable PID support.
 //#define PIDTEMP
