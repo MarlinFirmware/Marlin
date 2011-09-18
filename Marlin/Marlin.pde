@@ -2017,6 +2017,9 @@ void plan_set_position(float x, float y, float z, float e)
   position[Y_AXIS] = lround(y*axis_steps_per_unit[Y_AXIS]);
   position[Z_AXIS] = lround(z*axis_steps_per_unit[Z_AXIS]);     
   position[E_AXIS] = lround(e*axis_steps_per_unit[E_AXIS]);     
+  count_position[X_AXIS]=  position[X_AXIS];
+  count_position[Y_AXIS]=  position[Y_AXIS];
+  count_position[Z_AXIS]=  position[Z_AXIS];
 }
 
 // Stepper
