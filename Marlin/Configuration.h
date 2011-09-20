@@ -84,17 +84,22 @@ const bool ENDSTOPS_INVERTING = true; // set to true to invert the logic of the 
 
 //// MOVEMENT SETTINGS
 #define NUM_AXIS 4 // The axis order in all axis related arrays is X, Y, Z, E
-float max_feedrate[] = {240*60, 240*60, 500*60, 500000}; // set the max speeds
-float homing_feedrate[] = {3400, 3400, 60*500, 0};  // set the homing speeds
+float max_feedrate[] = {200*60, 200*60, 500*60, 500000}; // set the max speeds
+float homing_feedrate[] = {70*60, 70*60, 500*60, 0};  // set the homing speeds
+//the followint checks if an extrusion is existent in the move. if _not_, the speed of the move is set to the maximum speed. 
+//!!!!!!Use only if you know that your printer works at the maximum declared speeds.
+// works around the skeinforge cool-bug. There all moves are slowed to have a minimum layer time. However slow travel moves= ooze
+//#define TRAVELING_AT_MAXSPEED  
 bool axis_relative_modes[] = {false, false, false, false};
 
 //// Acceleration settings
 // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for skeinforge 40+, for older versions raise them a lot.
-float acceleration = 4000;         // Normal acceleration mm/s^2
-float retract_acceleration = 7000; // Normal acceleration mm/s^2
-float max_xy_jerk = 20.0*60;
+float acceleration = 4000;         // Normal acceleration mm/s^2  THIS IS THE DEFAULT ACCELERATION for all moves. M204 SXXXX
+float retract_acceleration = 7000; //  mm/s^2   filament pull-pack and push-forward  while standing still in the other axis M204 TXXXX
+float max_xy_jerk = 50.0*60; //speed than can be stopped at once, if i understand correctly.
 float max_z_jerk = 0.4*60;
-long max_acceleration_units_per_sq_second[] = {7000,7000,15000,10000}; // X, Y, Z and E max acceleration in mm/s^2 for printing moves or retracts
+// X, Y, Z and E max acceleration in mm/s^2 for printing moves or retracts
+long max_acceleration_units_per_sq_second[] = {9000,9000,15000,10000}; // Use M201 to override by software
 
 // The watchdog waits for the watchperiod in milliseconds whenever an M104 or M109 increases the target temperature
 // If the temperature has not increased at the end of that period, the target temperature is set to zero. It can be reset with another M104/M109
