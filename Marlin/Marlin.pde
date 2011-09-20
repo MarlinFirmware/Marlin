@@ -208,6 +208,7 @@ bool sdmode = false;
 bool sdactive = false;
 bool savetosd = false;
 int16_t n;
+long autostart_atmillis=0;
 
 void initsd(){
   sdactive = false;
@@ -225,6 +226,11 @@ void initsd(){
   else 
     sdactive = true;
 #endif //SDSS
+}
+
+void quickinitsd(){
+	sdactive=false;
+	autostart_atmillis=millis()+3000;
 }
 
 inline void write_command(char *buf){
@@ -247,6 +253,20 @@ inline void write_command(char *buf){
   }
 }
 #endif //SDSUPPORT
+
+
+///adds an command to the main command buffer
+void enquecommand(const char *cmd)
+{
+  if(buflen < BUFSIZE)
+  {
+    //this is dangerous if a mixing of serial and this happsens
+    strcpy(&(cmdbuffer[bufindw][0]),cmd);
+    Serial.print("en:");Serial.println(cmdbuffer[bufindw]);
+    bufindw= (bufindw + 1)%BUFSIZE;
+    buflen += 1;
+  }
+}
 
 void setup()
 { 
@@ -378,20 +398,33 @@ void setup()
   SET_OUTPUT(SDPOWER); 
   WRITE(SDPOWER,HIGH);
 #endif //SDPOWER
-  initsd();
+  quickinitsd();
 
 #endif //SDSUPPORT
   plan_init();  // Initialize planner;
   st_init();    // Initialize stepper;
 //  tp_init();    // Initialize temperature loop
-	checkautostart();
+	//checkautostart();
 }
 
 #ifdef SDSUPPORT
+bool autostart_stilltocheck=true;
+
 void checkautostart()
 {
-	if(!sdactive)
+	//this is to delay autostart and hence the initialisaiton of the sd card to some seconds after the normal init, so the device is available quick after a reset
+	if(!autostart_stilltocheck)
 		return;
+	if(autostart_atmillis<millis())
+		return;
+	autostart_stilltocheck=false;
+	
+	if(!sdactive)
+	{
+		initsd();
+		if(!sdactive) //fail
+		return;
+	}
 	static int lastnr=0;
 	char autoname[30];
 	sprintf(autoname,"auto%i.g",lastnr);
@@ -434,7 +467,8 @@ void checkautostart()
 	
 }
 #else
-void checkautostart()
+
+inline void checkautostart()
 {
 }
 #endif
@@ -445,7 +479,8 @@ void loop()
   if(buflen<3)
     get_command();
 
-  if(buflen){
+  if(buflen)
+  {
 #ifdef SDSUPPORT
     if(savetosd){
       if(strstr(cmdbuffer[bufindr],"M29") == NULL){
@@ -471,7 +506,7 @@ void loop()
   //check heater every n milliseconds
   manage_heater();
   manage_inactivity(1);
-        LCD_STATUS;
+  LCD_STATUS;
 }
 
 

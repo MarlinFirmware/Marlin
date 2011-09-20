@@ -188,7 +188,7 @@ void PageWatch::activate()
 
 #ifdef FANCY_LCD
 
-
+#ifdef PAGEMOVE
 class PageMove:public MenuPage
 {
 public:
@@ -269,7 +269,7 @@ void PageMove::activate()
  lcd.print(" Z");lcd.print(ftostr31(current_position[Z_AXIS]));lcd.print("            ");
  fillline();
 }
-
+#endif
 class PageHome:public MenuPage
 {
 public:
@@ -455,9 +455,12 @@ void PageSd::activate()
 }
 
 PageSd pagesd;
-
 #endif // SD_SUPPORT 
+
+#ifdef PAGEMOVE
 PageMove pagemove;
+#endif
+
 PageHome pagehome;
 #endif // FANCY_LCD
 PageWatch pagewatch;
@@ -536,8 +539,10 @@ void lcd_init()
 	LCD_MESSAGE(fillto(LCD_WIDTH,"UltiMarlin ready."));
 	menu.addMenuPage(&pagewatch);
 #ifdef FANCY_LCD
+#ifdef PAGEMOVE
 	menu.addMenuPage(&pagemove);
-		menu.addMenuPage(&pagehome);
+#endif
+	menu.addMenuPage(&pagehome);
 #endif //FANCY_LCD
 #ifdef SDSUPPORT
 		menu.addMenuPage(&pagesd);
@@ -580,18 +585,7 @@ void buttons_process()
 }
 
 
-///adds an command to the main command buffer
-void enquecommand(const char *cmd)
-{
-  if(buflen < BUFSIZE)
-  {
-    //this is dangerous if a mixing of serial and this happsens
-    strcpy(&(cmdbuffer[bufindw][0]),cmd);
-    Serial.print("en:");Serial.println(cmdbuffer[bufindw]);
-    bufindw= (bufindw + 1)%BUFSIZE;
-    buflen += 1;
-  }
-}
+
 
 #endif // FANCY_LCD
 

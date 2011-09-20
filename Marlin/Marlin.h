@@ -118,6 +118,7 @@ void plan_buffer_line(float x, float y, float z, float e, float feed_rate);
 void plan_set_position(float x, float y, float z, float e);
 void st_wake_up();
 void st_synchronize();
+void enquecommand(const char *cmd);
 
 
 #endif
