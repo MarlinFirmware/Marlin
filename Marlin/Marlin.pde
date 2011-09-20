@@ -1071,8 +1071,8 @@ inline void process_commands()
       break;
     case 204: // M204 acclereration S normal moves T filmanent only moves
       {
-        if(code_seen('S') acceleration = code_value() ;
-        if(code_seen('T') acceleration_retract = code_value() ;
+        if(code_seen('S')) acceleration = code_value() ;
+        if(code_seen('T')) retract_acceleration = code_value() ;
       }
       break;
 #ifdef PIDTEMP
