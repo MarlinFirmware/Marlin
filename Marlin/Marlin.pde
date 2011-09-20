@@ -118,7 +118,9 @@ volatile int count_direction[NUM_AXIS] = { 1, 1, 1, 1};
 // M140 - Set bed target temp
 // M190 - Wait for bed current temp to reach target temp.
 // M201 - Set max acceleration in units/s^2 for print moves (M201 X1000 Y1000)
-// M202 - Set max acceleration in units/s^2 for travel moves (M202 X1000 Y1000)
+// M202 - Set max acceleration in units/s^2 for travel moves (M202 X1000 Y1000) Unused in Marlin!!
+// M203 - Set maximum feedrate that your machine can sustain (M203 X200 Y200 Z300 E10000) in mm/sec
+// M204 - Set default acceleration: S normal moves T filament only moves (M204 S3000 T7000) im mm/sec^2
 // M301 - Set PID parameters P I and D
 
 //Stepper Movement Variables
@@ -1062,6 +1064,17 @@ inline void process_commands()
       }
       break;
 #endif
+    case 203: // M203 max feedrate mm/sec
+      for(int i=0; i < NUM_AXIS; i++) {
+        if(code_seen(axis_codes[i])) max_feedrate[i] = code_value()*60 ;
+      }
+      break;
+    case 204: // M204 acclereration S normal moves T filmanent only moves
+      {
+        if(code_seen('S') acceleration = code_value() ;
+        if(code_seen('T') acceleration_retract = code_value() ;
+      }
+      break;
 #ifdef PIDTEMP
     case 301: // M301
       if(code_seen('P')) Kp = code_value();
@@ -1893,7 +1906,12 @@ void plan_buffer_line(float x, float y, float z, float e, float feed_rate) {
 
   unsigned long microseconds;
   microseconds = lround((block->millimeters/feed_rate)*1000000);
-  
+#ifdef TRAVELING_AT_MAXSPEED
+	if(delta_e_mm==0) //no extrusion
+	{
+		microseconds*=0.001; // speed limits then should get working
+	}
+#endif  
   // added by lampmaker to slow down when de buffer starts to empty, rather than wait at the corner for a buffer refill
   // reduces/removes corner blobs as the machine won't come to a full stop.
   int blockcount=block_buffer_head-block_buffer_tail;
@@ -1910,25 +1928,26 @@ void plan_buffer_line(float x, float y, float z, float e, float feed_rate) {
   block->speed_y = delta_y_mm * multiplier;
   block->speed_e = delta_e_mm * multiplier; 
 
+
   // Limit speed per axis
-  float speed_factor = 1;
-  float tmp_speed_factor;
+  float speed_factor = 1; //factor <=1 do decrease speed
   if(abs(block->speed_x) > max_feedrate[X_AXIS]) {
     //// [ErikDeBruijn] IS THIS THE BUG WE'RE LOOING FOR????
-    // it used to be just this line: speed_factor = max_feedrate[X_AXIS] / abs(block->speed_x);
-    tmp_speed_factor = max_feedrate[X_AXIS] / abs(block->speed_x);
-    if(speed_factor > tmp_speed_factor) speed_factor = tmp_speed_factor;
+    //// [bernhard] No its not, according to Zalm.
+		//// the if would always be true, since tmp_speedfactor <=0 due the inial if, so its safe to set. the next lines actually compare.
+    speed_factor = max_feedrate[X_AXIS] / abs(block->speed_x);
+    //if(speed_factor > tmp_speed_factor) speed_factor = tmp_speed_factor;
   }
   if(abs(block->speed_y) > max_feedrate[Y_AXIS]){
-    tmp_speed_factor = max_feedrate[Y_AXIS] / abs(block->speed_y);
+    float tmp_speed_factor = max_feedrate[Y_AXIS] / abs(block->speed_y);
     if(speed_factor > tmp_speed_factor) speed_factor = tmp_speed_factor;
   }
   if(abs(block->speed_z) > max_feedrate[Z_AXIS]){
-    tmp_speed_factor = max_feedrate[Z_AXIS] / abs(block->speed_z);
+    float tmp_speed_factor = max_feedrate[Z_AXIS] / abs(block->speed_z);
     if(speed_factor > tmp_speed_factor) speed_factor = tmp_speed_factor;
   }
   if(abs(block->speed_e) > max_feedrate[E_AXIS]){
-    tmp_speed_factor = max_feedrate[E_AXIS] / abs(block->speed_e);
+    float tmp_speed_factor = max_feedrate[E_AXIS] / abs(block->speed_e);
     if(speed_factor > tmp_speed_factor) speed_factor = tmp_speed_factor;
   }
   multiplier = multiplier * speed_factor;
