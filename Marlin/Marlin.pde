@@ -65,7 +65,7 @@ char version_string[] = "U0.9.3.3-BK";
 #endif
 
 #ifdef SIMPLE_LCD
-  #define BLOCK_BUFFER_SIZE 32 // A little less buffer for just a simple LCD
+  #define BLOCK_BUFFER_SIZE 24 // A little less buffer for just a simple LCD
 #endif
 
 // if DEBUG_STEPS is enabled, M114 can be used to compare two methods of determining the X,Y,Z position of the printer.
@@ -947,7 +947,7 @@ inline void process_commands()
         return;
         //break;
       case 109: // M109 - Wait for extruder heater to reach target.
-                                LCD_MESSAGE("Heating...");
+        LCD_MESSAGE("Heating...");
         if (code_seen('S')) target_raw = temp2analog(code_value());
         #ifdef WATCHPERIOD
             if(target_raw>current_raw){
@@ -970,6 +970,7 @@ inline void process_commands()
           LCD_STATUS;
           manage_heater();
         }
+        LCD_MESSAGE("UltiMarlin ready.");
         break;
       case 190: // M190 - Wait bed for heater to reach target.
       #if TEMP_1_PIN > -1
