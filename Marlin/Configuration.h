@@ -84,7 +84,7 @@ const int dropsegments=2; //everything with this number of steps  will be ignore
 
 //// MOVEMENT SETTINGS
 #define NUM_AXIS 4 // The axis order in all axis related arrays is X, Y, Z, E
-float max_feedrate[] = {200*60, 200*60, 12*60, 500000}; // set the max speeds
+float max_feedrate[] = {190*60, 190*60, 10*60, 500000}; // set the max speeds
 //note: on bernhards ultimaker 200 200 12 are working well.
 float homing_feedrate[] = {70*60, 70*60, 12*60, 0};  // set the homing speeds
 //the followint checks if an extrusion is existent in the move. if _not_, the speed of the move is set to the maximum speed. 
