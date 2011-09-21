@@ -413,7 +413,7 @@ void setup()
 #ifdef SDSUPPORT
 bool autostart_stilltocheck=true;
 
-void checkautostart(bool force=false); //f*** u preprocessor
+
 void checkautostart(bool force)
 {
 	//this is to delay autostart and hence the initialisaiton of the sd card to some seconds after the normal init, so the device is available quick after a reset
@@ -484,7 +484,7 @@ void loop()
 {
   if(buflen<3)
     get_command();
-	checkautostart();
+	checkautostart(false);
   if(buflen)
   {
 #ifdef SDSUPPORT
