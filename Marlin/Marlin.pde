@@ -230,7 +230,7 @@ void initsd(){
 
 void quickinitsd(){
 	sdactive=false;
-	autostart_atmillis=millis()+3000;
+	autostart_atmillis=millis()+5000;
 }
 
 inline void write_command(char *buf){
@@ -417,6 +417,7 @@ void checkautostart()
 		return;
 	if(autostart_atmillis<millis())
 		return;
+	
 	autostart_stilltocheck=false;
 	
 	if(!sdactive)
@@ -478,7 +479,7 @@ void loop()
 {
   if(buflen<3)
     get_command();
-
+	checkautostart();
   if(buflen)
   {
 #ifdef SDSUPPORT
@@ -1941,6 +1942,7 @@ void plan_buffer_line(float x, float y, float z, float e, float feed_rate) {
 
   unsigned long microseconds;
   microseconds = lround((block->millimeters/feed_rate)*1000000);
+	
 #ifdef TRAVELING_AT_MAXSPEED
 	if(delta_e_mm==0) //no extrusion
 	{

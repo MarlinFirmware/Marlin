@@ -188,6 +188,10 @@ void PageWatch::activate()
 
 #ifdef FANCY_LCD
 
+int lastline=-1;
+int lastencoder=0;
+int step=2;
+
 #ifdef PAGEMOVE
 class PageMove:public MenuPage
 {
@@ -209,9 +213,7 @@ PageMove::PageMove()
   xshift=10;items=4;
 }
 
-int lastline=-1;
-int lastencoder=0;
-int step=2;
+
 void PageMove::update()
 {
 	
@@ -593,14 +595,13 @@ void beep()
 {
   // [ErikDeBruijn] changed to two short beeps, more friendly
   pinMode(BEEPER,OUTPUT);
+	for(int i=0;i<20;i++){
   digitalWrite(BEEPER,HIGH);
-  delay(200);
+  delay(5);
   digitalWrite(BEEPER,LOW);
-  delay(200);
-  digitalWrite(BEEPER,HIGH);
-  delay(200);
-  digitalWrite(BEEPER,LOW);
-
+  delay(5);
+	}
+  
 }
 
 #endif
