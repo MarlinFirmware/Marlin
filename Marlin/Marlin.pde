@@ -224,7 +224,10 @@ void initsd(){
   else if (!root.openRoot(&volume)) 
     Serial.println("openRoot failed");
   else 
+	{
     sdactive = true;
+		Serial.println("SD card ok");
+	}
 #endif //SDSS
 }
 
@@ -410,16 +413,18 @@ void setup()
 #ifdef SDSUPPORT
 bool autostart_stilltocheck=true;
 
-void checkautostart()
+void checkautostart(bool force=false); //f*** u preprocessor
+void checkautostart(bool force)
 {
 	//this is to delay autostart and hence the initialisaiton of the sd card to some seconds after the normal init, so the device is available quick after a reset
-	if(!autostart_stilltocheck)
-		return;
-	if(autostart_atmillis<millis())
-		return;
-	
+	if(!force)
+	{
+		if(!autostart_stilltocheck)
+			return;
+		if(autostart_atmillis<millis())
+			return;
+	}
 	autostart_stilltocheck=false;
-	
 	if(!sdactive)
 	{
 		initsd();
@@ -445,7 +450,7 @@ void checkautostart()
 		//Serial.print((char*)p.name);
 		//Serial.print(" ");
 		//Serial.println(autoname);
-		
+		if(p.name[9]!='~') //skip safety copies
 		if(strncmp((char*)p.name,autoname,5)==0)
 		{
 			char cmd[30];
@@ -469,7 +474,7 @@ void checkautostart()
 }
 #else
 
-inline void checkautostart()
+inline void checkautostart(bool x)
 {
 }
 #endif
@@ -623,7 +628,7 @@ inline void get_command()
 				sprintf(time,"%i min, %i sec",min,sec);
 				Serial.println(time);
 				LCD_MESSAGE(time);
-				checkautostart();
+				checkautostart(true);
       }
       if(!serial_count) return; //if empty line
       cmdbuffer[bufindw][serial_count] = 0; //terminate string
@@ -1594,7 +1599,7 @@ inline void manage_inactivity(byte debug) {
 
 
 
-static block_t block_buffer[BLOCK_BUFFER_SIZE];            // A ring buffer for motion instructions
+static block_t block_buffer[BLOCK_BUFFER_SIZE];            // A ring buffer for motion instfructions
 static volatile unsigned char block_buffer_head;           // Index of the next block to be pushed
 static volatile unsigned char block_buffer_tail;           // Index of the block to process now
 
@@ -1925,7 +1930,7 @@ void plan_buffer_line(float x, float y, float z, float e, float feed_rate) {
   block->step_event_count = max(block->steps_x, max(block->steps_y, max(block->steps_z, block->steps_e)));
 
   // Bail if this is a zero-length block
-  if (block->step_event_count == 0) { 
+  if (block->step_event_count <=dropsegments) { 
     return; 
   };
 
@@ -1944,20 +1949,31 @@ void plan_buffer_line(float x, float y, float z, float e, float feed_rate) {
   unsigned long microseconds;
   microseconds = lround((block->millimeters/feed_rate)*1000000);
 	
-#ifdef TRAVELING_AT_MAXSPEED
-	if(delta_e_mm==0) //no extrusion
-	{
-		microseconds*=0.001; // speed limits then should get working
-	}
-#endif  
+
   // added by lampmaker to slow down when de buffer starts to empty, rather than wait at the corner for a buffer refill
   // reduces/removes corner blobs as the machine won't come to a full stop.
   int blockcount=block_buffer_head-block_buffer_tail;
   //blockcount=8;
   while(blockcount<0) blockcount+=BLOCK_BUFFER_SIZE;
-  if ((blockcount<=2)&&(microseconds<(MIN_SEGMENT_TIME))) microseconds=MIN_SEGMENT_TIME;
-  else if ((blockcount<=4)&&(microseconds<(MIN_SEGMENT_TIME/2))) microseconds=MIN_SEGMENT_TIME/2;
-  else if ((blockcount<=8)&&(microseconds<(MIN_SEGMENT_TIME/5))) microseconds=MIN_SEGMENT_TIME/5;   
+  if ((blockcount<=2)&&(microseconds<(MIN_SEGMENT_TIME))) 
+		microseconds=MIN_SEGMENT_TIME;
+  else 
+		if ((blockcount<=4)&&(microseconds<(MIN_SEGMENT_TIME/2))) 
+			microseconds=MIN_SEGMENT_TIME/2;
+  else 
+		if ((blockcount<=8)&&(microseconds<(MIN_SEGMENT_TIME/5))) 
+			microseconds=MIN_SEGMENT_TIME/5;
+	else
+	{
+#ifdef TRAVELING_AT_MAXSPEED
+	//only do this if the buffer is actually full enough. Otherwise, a smallsegmented crop-travel move causes a lot of buffer underruns and jerking
+	if(delta_e_mm==0) //if no extrusion
+	{
+		microseconds*=0.5; // speed limits then should get working
+	}
+#endif  	
+		
+	}
 
   // Calculate speed in mm/minute for each axis
   float multiplier = 60.0*1000000.0/microseconds;
@@ -2013,7 +2029,7 @@ void plan_buffer_line(float x, float y, float z, float e, float feed_rate) {
       block->acceleration_st = axis_steps_per_sqr_second[Y_AXIS];
     if((block->acceleration_st * block->steps_e / block->step_event_count) > axis_steps_per_sqr_second[E_AXIS])
       block->acceleration_st = axis_steps_per_sqr_second[E_AXIS];
-    if(((block->acceleration_st / block->step_event_count) * block->steps_z ) > axis_steps_per_sqr_second[Z_AXIS])
+    if((block->acceleration_st * block->steps_z / block->step_event_count) > axis_steps_per_sqr_second[Z_AXIS])
       block->acceleration_st = axis_steps_per_sqr_second[Z_AXIS];
   }
   block->acceleration = block->acceleration_st * travel_per_step;

@@ -46,7 +46,7 @@ const bool ENDSTOPS_INVERTING = true; // set to true to invert the logic of the 
 #define SDSUPPORT // Enable SD Card Support in Hardware Console
 #define FANCY_LCD  // Hardware Console with 20x4 multipage LCD
 //#define SIMPLE_LCD  // 16x2 Simple LCD Display (Bootup, Temp Monitoring only)
-
+const int dropsegments=2; //everything with this number of steps  will be ignored as move
 
 //// ADVANCED SETTINGS - to tweak parameters
 
@@ -84,23 +84,23 @@ const bool ENDSTOPS_INVERTING = true; // set to true to invert the logic of the 
 
 //// MOVEMENT SETTINGS
 #define NUM_AXIS 4 // The axis order in all axis related arrays is X, Y, Z, E
-float max_feedrate[] = {200*60, 200*60, 500*60, 500000}; // set the max speeds
-float homing_feedrate[] = {70*60, 70*60, 100*60, 0};  // set the homing speeds
+float max_feedrate[] = {200*60, 200*60, 12*60, 500000}; // set the max speeds
+//note: on bernhards ultimaker 200 200 12 are working well.
+float homing_feedrate[] = {70*60, 70*60, 12*60, 0};  // set the homing speeds
 //the followint checks if an extrusion is existent in the move. if _not_, the speed of the move is set to the maximum speed. 
 //!!!!!!Use only if you know that your printer works at the maximum declared speeds.
 // works around the skeinforge cool-bug. There all moves are slowed to have a minimum layer time. However slow travel moves= ooze
-//#define TRAVELING_AT_MAXSPEED  
+#define TRAVELING_AT_MAXSPEED  
 bool axis_relative_modes[] = {false, false, false, false};
 
 //// Acceleration settings
 // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for skeinforge 40+, for older versions raise them a lot.
-float acceleration = 4000;         // Normal acceleration mm/s^2  THIS IS THE DEFAULT ACCELERATION for all moves. M204 SXXXX
-#define INSTANTZ
+float acceleration = 4600;         // Normal acceleration mm/s^2  THIS IS THE DEFAULT ACCELERATION for all moves. M204 SXXXX
 float retract_acceleration = 7000; //  mm/s^2   filament pull-pack and push-forward  while standing still in the other axis M204 TXXXX
-float max_xy_jerk = 50.0*60; //speed than can be stopped at once, if i understand correctly.
-float max_z_jerk = 0.4*60;
+float max_xy_jerk = 5.0*60; //speed than can be stopped at once, if i understand correctly.
+float max_z_jerk = 1*60;
 // X, Y, Z and E max acceleration in mm/s^2 for printing moves or retracts
-long max_acceleration_units_per_sq_second[] = {9000,9000,2000,10000}; // Use M201 to override by software
+long max_acceleration_units_per_sq_second[] = {9000,9000,150,10000}; // Use M201 to override by software
 
 // The watchdog waits for the watchperiod in milliseconds whenever an M104 or M109 increases the target temperature
 // If the temperature has not increased at the end of that period, the target temperature is set to zero. It can be reset with another M104/M109
@@ -117,7 +117,7 @@ long max_acceleration_units_per_sq_second[] = {9000,9000,2000,10000}; // Use M20
 
 
 // minimum time in microseconds that a movement needs to take if the buffer is emptied.   Increase this number if you see blobs while printing high speed & high detail.  It will slowdown on the detailed stuff.
-#define MIN_SEGMENT_TIME 50000
+#define MIN_SEGMENT_TIME 60000
 
 
 /// PID settings:
