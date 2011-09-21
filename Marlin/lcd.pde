@@ -127,19 +127,27 @@ void PageWatch::update()
 		return; //slower updates
 	char line1[25];
   static char blink=0;
-  sprintf(line1,"%c%3i/%3i\1%c%c%c%c%c%c", ((blink++)%2==0)? (char)2:' ',
-  int(analog2temp(current_raw)),
-  int(analog2temp(target_raw)),
-  (!digitalRead(X_MIN_PIN))? 'x':' ',
-  (!digitalRead(X_MAX_PIN))? 'X':' ',
-  (!digitalRead(Y_MIN_PIN))? 'y':' ',
-  (!digitalRead(Y_MAX_PIN))? 'Y':' ',
-  (!digitalRead(Z_MIN_PIN))? 'z':' ',
-  (!digitalRead(Z_MAX_PIN))? 'Z':' ');
+  if (blink == 0)
+  {
+  	lcd.setCursor(0,0);
+  	lcd.print(fillto(LCD_WIDTH,"booting..."));
+  	blink++;
+  } 
+  else
+  {
+	  sprintf(line1,"%c%3i/%3i\1%c%c%c%c%c%c", ((blink++)%2==0)? (char)2:' ',
+	  int(analog2temp(current_raw)),
+	  int(analog2temp(target_raw)),
+	  (!digitalRead(X_MIN_PIN))? 'x':' ',
+	  (!digitalRead(X_MAX_PIN))? 'X':' ',
+	  (!digitalRead(Y_MIN_PIN))? 'y':' ',
+	  (!digitalRead(Y_MAX_PIN))? 'Y':' ',
+	  (!digitalRead(Z_MIN_PIN))? 'z':' ',
+	  (!digitalRead(Z_MAX_PIN))? 'Z':' ');
 
-  lcd.setCursor(0,0); 
-  lcd.print(fillto(LCD_WIDTH,line1));
-	
+	lcd.setCursor(0,0); 
+	lcd.print(fillto(LCD_WIDTH,line1));
+  }	
 }
 
 void PageWatch::activate()
@@ -534,10 +542,6 @@ void lcd_init()
   lcd.begin(LCD_WIDTH, LCD_HEIGHT);
   lcd.createChar(1,Degree);
   lcd.createChar(2,Thermometer);
-  lcd.clear();
-  lcd.print(fillto(LCD_WIDTH,"booting!"));
-  //lcd.setCursor(0, 1);
-  //lcd.print("lets Marlin!");
 	LCD_MESSAGE(fillto(LCD_WIDTH,"UltiMarlin ready."));
 	menu.addMenuPage(&pagewatch);
 #ifdef FANCY_LCD
