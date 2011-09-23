@@ -153,6 +153,7 @@ char serial_char;
 int serial_count = 0;
 boolean comment_mode = false;
 char *strchr_pointer; // just a pointer to find chars in the cmd string like X, Y, Z, E, etc
+unsigned long minsegmenttime=MIN_SEGMENT_TIME;
 
 // Manage heater variables.
 
@@ -1115,6 +1116,7 @@ inline void process_commands()
       {
         if(code_seen('S')) acceleration = code_value() ;
         if(code_seen('T')) retract_acceleration = code_value() ;
+        if(code_seen('B')) minsegmenttime = code_value() ;
       }
       break;
 #ifdef PIDTEMP
@@ -1953,16 +1955,11 @@ void plan_buffer_line(float x, float y, float z, float e, float feed_rate) {
   // added by lampmaker to slow down when de buffer starts to empty, rather than wait at the corner for a buffer refill
   // reduces/removes corner blobs as the machine won't come to a full stop.
   int blockcount=block_buffer_head-block_buffer_tail;
-  //blockcount=8;
   while(blockcount<0) blockcount+=BLOCK_BUFFER_SIZE;
-  if ((blockcount<=2)&&(microseconds<(MIN_SEGMENT_TIME))) 
-		microseconds=MIN_SEGMENT_TIME;
-  else 
-		if ((blockcount<=4)&&(microseconds<(MIN_SEGMENT_TIME/2))) 
-			microseconds=MIN_SEGMENT_TIME/2;
-  else 
-		if ((blockcount<=8)&&(microseconds<(MIN_SEGMENT_TIME/5))) 
-			microseconds=MIN_SEGMENT_TIME/5;
+  
+    if (microseconds<minsegmenttime)  { // buffer is draining, add time.  The amount of time added increases if the buffer is still emptied more.
+        microseconds=microseconds+lround(2*(minsegmenttime-microseconds)/blockcount);
+    }
 	else
 	{
 #ifdef TRAVELING_AT_MAXSPEED

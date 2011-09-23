@@ -28,7 +28,8 @@
 
 //// Calibration variables
 // X, Y, Z, E steps per unit - Metric Mendel / Orca with V9 extruder:
-float axis_steps_per_unit[] = {79.87220447, 79.87220447,  200*8/3., 14}; 
+//float axis_steps_per_unit[] = {79.87220447, 79.87220447,  200*8/3., 14}; 
+float axis_steps_per_unit[] = {40,40,200*8/3,310};
 // For E steps per unit = 67 for v9 with direct drive (needs finetuning) for other extruders this needs to be changed 
 // Metric Prusa Mendel with Makergear geared stepper extruder:
 //float axis_steps_per_unit[] = {80,80,3200/1.25,1380}; 
@@ -90,7 +91,7 @@ float homing_feedrate[] = {70*60, 70*60, 12*60, 0};  // set the homing speeds
 //the followint checks if an extrusion is existent in the move. if _not_, the speed of the move is set to the maximum speed. 
 //!!!!!!Use only if you know that your printer works at the maximum declared speeds.
 // works around the skeinforge cool-bug. There all moves are slowed to have a minimum layer time. However slow travel moves= ooze
-#define TRAVELING_AT_MAXSPEED  
+//#define TRAVELING_AT_MAXSPEED  
 bool axis_relative_modes[] = {false, false, false, false};
 
 //// Acceleration settings
@@ -116,9 +117,8 @@ long max_acceleration_units_per_sq_second[] = {9000,9000,150,10000}; // Use M201
 #define MAXTEMP 275
 
 
-// minimum time in microseconds that a movement needs to take if the buffer is emptied.   Increase this number if you see blobs while printing high speed & high detail.  It will slowdown on the detailed stuff.
-#define MIN_SEGMENT_TIME 60000
-
+// minimum time in microseconds that a movement needs to take to prevent the buffer from being emptied.   Higher baudrates might reduce this number.
+#define MIN_SEGMENT_TIME 20000
 
 /// PID settings:
 // Uncomment the following line to enable PID support.
