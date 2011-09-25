@@ -1956,11 +1956,11 @@ void plan_buffer_line(float x, float y, float z, float e, float feed_rate) {
   // reduces/removes corner blobs as the machine won't come to a full stop.
   int blockcount=block_buffer_head-block_buffer_tail;
   while(blockcount<0) blockcount+=BLOCK_BUFFER_SIZE;
-  
+  if (blockcount>0) {
     if (microseconds<minsegmenttime)  { // buffer is draining, add time.  The amount of time added increases if the buffer is still emptied more.
         microseconds=microseconds+lround(2*(minsegmenttime-microseconds)/blockcount);
     }
-	else
+ 	else
 	{
 #ifdef TRAVELING_AT_MAXSPEED
 	//only do this if the buffer is actually full enough. Otherwise, a smallsegmented crop-travel move causes a lot of buffer underruns and jerking
@@ -1971,7 +1971,10 @@ void plan_buffer_line(float x, float y, float z, float e, float feed_rate) {
 #endif  	
 		
 	}
-
+  }
+  else {
+  microseconds=minsegmenttime;
+  }
   // Calculate speed in mm/minute for each axis
   float multiplier = 60.0*1000000.0/microseconds;
   block->speed_z = delta_z_mm * multiplier; 
