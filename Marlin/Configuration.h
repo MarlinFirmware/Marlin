@@ -43,8 +43,8 @@ const bool ENDSTOPS_INVERTING = true; // set to true to invert the logic of the 
 #define BAUDRATE 115200
 
 // Comment out (using // at the start of the line) to disable SD support:
-#define SDSUPPORT // Enable SD Card Support in Hardware Console
-#define FANCY_LCD  // Hardware Console with 20x4 multipage LCD
+//#define SDSUPPORT // Enable SD Card Support in Hardware Console
+//#define FANCY_LCD  // Hardware Console with 20x4 multipage LCD
 //#define SIMPLE_LCD  // 16x2 Simple LCD Display (Bootup, Temp Monitoring only)
 const int dropsegments=2; //everything with this number of steps  will be ignored as move
 
