@@ -46,6 +46,7 @@ const bool ENDSTOPS_INVERTING = true; // set to true to invert the logic of the 
 //#define SDSUPPORT // Enable SD Card Support in Hardware Console
 //#define FANCY_LCD  // Hardware Console with 20x4 multipage LCD
 //#define SIMPLE_LCD  // 16x2 Simple LCD Display (Bootup, Temp Monitoring only)
+#define ULTRA_LCD  //improved 3 button or clickencoder interface
 const int dropsegments=2; //everything with this number of steps  will be ignored as move
 
 //// ADVANCED SETTINGS - to tweak parameters

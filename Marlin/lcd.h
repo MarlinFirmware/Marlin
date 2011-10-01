@@ -1,7 +1,7 @@
 #ifndef __LCDH
 #define __LCDH
 
-#if defined FANCY_LCD || defined SIMPLE_LCD
+#ifdef ULTRA_LCD
   #define LCD_UPDATE_INTERVAL 400
 
 	#include "Configuration.h"
