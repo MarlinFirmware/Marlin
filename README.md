@@ -1,7 +1,8 @@
+Donate via:
 [![Flattr this git repo](http://api.flattr.com/button/flattr-badge-large.png)](https://flattr.com/submit/auto?user_id=bkubicek&url=https://github.com/bkubicek/Marlin&title=Marlin&language=en_GB&tags=github&category=software) 
-This RepRap firmware is a mashup between Sprinter, grbl and many original parts.
- (https://github.com/kliment/Sprinter)
- (https://github.com/simen/grbl/tree)
+or <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=kubicek%40gmx%2eat&lc=US&item_name=Open%20Source%20developments&currency_code=EUR&bn=PP%2dDonationsBF%3abtn_donate_LG%2egif%3aNonHosted">Paypal</a> 
+
+This RepRap firmware is a mashup between <a href="https://github.com/kliment/Sprinter">Sprinter</a>, <a href="https://github.com/simen/grbl/tree">grbl</a> and many original parts.
 
 Derived from Sprinter and Grbl by Erik van der Zalm.
 Sprinters lead developers are Kliment and caru.
