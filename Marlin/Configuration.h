@@ -43,8 +43,8 @@ const bool ENDSTOPS_INVERTING = true; // set to true to invert the logic of the 
 #define BAUDRATE 115200
 
 // Comment out (using // at the start of the line) to disable SD support:
-//#define SDSUPPORT // Enable SD Card Support in Hardware Console
-//#define FANCY_LCD  // Hardware Console with 20x4 multipage LCD
+#define SDSUPPORT // Enable SD Card Support in Hardware Console
+#define FANCY_LCD  // Hardware Console with 20x4 multipage LCD
 //#define SIMPLE_LCD  // 16x2 Simple LCD Display (Bootup, Temp Monitoring only)
 const int dropsegments=2; //everything with this number of steps  will be ignored as move
 
@@ -101,6 +101,7 @@ float max_xy_jerk = 5.0*60; //speed than can be stopped at once, if i understand
 float max_z_jerk = 1*60;
 // X, Y, Z and E max acceleration in mm/s^2 for printing moves or retracts
 long max_acceleration_units_per_sq_second[] = {9000,9000,150,10000}; // Use M201 to override by software
+float minimumfeedrate=20;
 
 // The watchdog waits for the watchperiod in milliseconds whenever an M104 or M109 increases the target temperature
 // If the temperature has not increased at the end of that period, the target temperature is set to zero. It can be reset with another M104/M109
@@ -145,7 +146,7 @@ double Kd = 80/PID_dT;
 //#define ADVANCE
 
 #ifdef ADVANCE
-#define EXTRUDER_ADVANCE_K 0.02
+#define EXTRUDER_ADVANCE_K .3
 
 #define D_FILAMENT 1.7
 #define STEPS_MM_E 65

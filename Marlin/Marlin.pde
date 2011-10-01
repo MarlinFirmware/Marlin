@@ -1947,6 +1947,8 @@ void plan_buffer_line(float x, float y, float z, float e, float feed_rate) {
   block->millimeters = sqrt(square(delta_x_mm) + square(delta_y_mm) + square(delta_z_mm) + square(delta_e_mm));
 
   unsigned long microseconds;
+	if(feedrate<minimumfeedrate)
+		feedrate=minimumfeedrate;
   microseconds = lround((block->millimeters/feed_rate)*1000000);
 	
 
