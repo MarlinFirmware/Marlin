@@ -43,7 +43,7 @@
 #include "pins.h"
 #include "Marlin.h"
 #include "speed_lookuptable.h"
-#include "lcd.h"
+#include "ultralcd.h"
 
 char version_string[] = "U0.9.3.3-BK";
 
