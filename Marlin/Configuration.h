@@ -92,8 +92,8 @@ bool axis_relative_modes[] = {false, false, false, false};
 #define DEFAULT_ACCELERATION          4600;    // X, Y, Z and E max acceleration in mm/s^2 for printing moves 
 #define DEFAULT_RETRACT_ACCELERATION  7000;   // X, Y, Z and E max acceleration in mm/s^2 for r retracts
 
-#define DEFAULT_MINIMUMFEEDRATE       20*60;      // minimum feedrate
-#define DEFAULT_MINTRAVELFEEDRATE     20*60;
+#define DEFAULT_MINIMUMFEEDRATE       00*60;      // minimum feedrate
+#define DEFAULT_MINTRAVELFEEDRATE     00*60;
 #define DEFAULT_MINSEGMENTTIME        20000;    // minimum segmenttime to prevent buffer underruns
 #define DEFAULT_XYJERK                5.0*60;    
 #define DEFAULT_ZJERK                 1.0*60;
