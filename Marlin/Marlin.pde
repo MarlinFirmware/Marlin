@@ -37,13 +37,14 @@
  */
 
 
-
+#include <EEPROM.h>
 #include "fastio.h"
 #include "Configuration.h"
 #include "pins.h"
 #include "Marlin.h"
 #include "speed_lookuptable.h"
 #include "lcd.h"
+
 
 char version_string[] = "U0.9.3.3-BK";
 
@@ -120,8 +121,12 @@ volatile int count_direction[NUM_AXIS] = { 1, 1, 1, 1};
 // M201 - Set max acceleration in units/s^2 for print moves (M201 X1000 Y1000)
 // M202 - Set max acceleration in units/s^2 for travel moves (M202 X1000 Y1000) Unused in Marlin!!
 // M203 - Set maximum feedrate that your machine can sustain (M203 X200 Y200 Z300 E10000) in mm/sec
-// M204 - Set default acceleration: S normal moves T filament only moves (M204 S3000 T7000) im mm/sec^2
+// M204 - Set default acceleration: S normal moves T filament only moves (M204 S3000 T7000) im mm/sec^2  also sets minimum segment time in ms (B20000) to prevent buffer underruns and M20 minimum feedrate
+// M205 -  advanced settings:  minimum travel speed S=while printing T=travel only,  B=minimum segment time X= maximum xy jerk, Z=maximum Z jerk
 // M301 - Set PID parameters P I and D
+// M500 - stores paramters in EEPROM
+// M501 - reads parameters from EEPROM (if you need reset them after you changed them temporarily).  D
+// M502 - reverts to the default "factory settings".  You still need to store them in EEPROM afterwards if you want to.
 
 //Stepper Movement Variables
 
@@ -153,9 +158,23 @@ char serial_char;
 int serial_count = 0;
 boolean comment_mode = false;
 char *strchr_pointer; // just a pointer to find chars in the cmd string like X, Y, Z, E, etc
-unsigned long minsegmenttime=MIN_SEGMENT_TIME;
 
+
+unsigned long minsegmenttime;
+float max_feedrate[4]; // set the max speeds
+float axis_steps_per_unit[4];
+long max_acceleration_units_per_sq_second[4]; // Use M201 to override by software
+float minimumfeedrate;
+float acceleration;         // Normal acceleration mm/s^2  THIS IS THE DEFAULT ACCELERATION for all moves. M204 SXXXX
+float retract_acceleration; //  mm/s^2   filament pull-pack and push-forward  while standing still in the other axis M204 TXXXX
+float max_xy_jerk; //speed than can be stopped at once, if i understand correctly.
+float max_z_jerk;
+float mintravelfeedrate;
 // Manage heater variables.
+
+#include "EEPROM.h"
+
+
 
 int target_bed_raw = 0;
 int current_bed_raw = 0;
@@ -286,6 +305,7 @@ void setup()
     fromsd[i] = false;
   }
   
+  RetrieveSettings(); // loads data from EEPROM if available
 
   //Initialize Dir Pins
 #if X_DIR_PIN > -1
@@ -1116,7 +1136,15 @@ inline void process_commands()
       {
         if(code_seen('S')) acceleration = code_value() ;
         if(code_seen('T')) retract_acceleration = code_value() ;
+      }
+      break;
+      case 205: //M205 advanced settings:  minimum travel speed S=while printing T=travel only,  B=minimum segment time X= maximum xy jerk, Z=maximum Z jerk
+      {
+        if(code_seen('S')) minimumfeedrate = code_value()*60 ;
+        if(code_seen('T')) mintravelfeedrate = code_value()*60 ;
         if(code_seen('B')) minsegmenttime = code_value() ;
+        if(code_seen('X')) max_xy_jerk = code_value()*60 ;
+        if(code_seen('Z')) max_z_jerk = code_value()*60 ;
       }
       break;
 #ifdef PIDTEMP
@@ -1131,6 +1159,22 @@ inline void process_commands()
       temp_iState_max = PID_INTEGRAL_DRIVE_MAX / Ki;
       break;
 #endif //PIDTEMP
+      case 500: // Store settings in EEPROM
+      {
+          StoreSettings();
+      }
+      break;
+      case 501: // Read settings from EEPROM
+      {
+        RetrieveSettings();
+      }
+      break;
+      case 502: // Revert to default settings
+      {
+        RetrieveSettings(true);
+      }
+      break;
+
     }
   }
   else{
@@ -1613,10 +1657,15 @@ static long position[4];
 // Calculates the distance (not time) it takes to accelerate from initial_rate to target_rate using the 
 // given acceleration:
 inline long estimate_acceleration_distance(long initial_rate, long target_rate, long acceleration) {
+  if (acceleration!=0) {
   return(
   (target_rate*target_rate-initial_rate*initial_rate)/
     (2L*acceleration)
     );
+  }
+  else {
+    return 0;  // acceleration was 0, set acceleration distance to 0
+  }
 }
 
 // This function gives you the point at which you must start braking (at the rate of -acceleration) if 
@@ -1625,10 +1674,15 @@ inline long estimate_acceleration_distance(long initial_rate, long target_rate, 
 // deceleration in the cases where the trapezoid has no plateau (i.e. never reaches maximum speed)
 
 inline long intersection_distance(long initial_rate, long final_rate, long acceleration, long distance) {
+ if (acceleration!=0) {
   return(
   (2*acceleration*distance-initial_rate*initial_rate+final_rate*final_rate)/
     (4*acceleration)
     );
+  }
+  else {
+    return 0;  // acceleration was 0, set intersection distance to 0
+  }
 }
 
 // Calculates trapezoid parameters so that the entry- and exit-speed is compensated by the provided factors.
@@ -1949,34 +2003,32 @@ void plan_buffer_line(float x, float y, float z, float e, float feed_rate) {
   block->millimeters = sqrt(square(delta_x_mm) + square(delta_y_mm) + square(delta_z_mm) + square(delta_e_mm));
 
   unsigned long microseconds;
-	if(feedrate<minimumfeedrate)
-		feedrate=minimumfeedrate;
-  microseconds = lround((block->millimeters/feed_rate)*1000000);
-	
 
-  // added by lampmaker to slow down when de buffer starts to empty, rather than wait at the corner for a buffer refill
+  if (delta_e_mm==0) {
+	if(feedrate<mintravelfeedrate) feed_rate=mintravelfeedrate;
+  }
+  else {
+    	if(feedrate<minimumfeedrate) feed_rate=minimumfeedrate;
+  } 
+
+  microseconds = lround((block->millimeters/feed_rate)*1000000);
+
+  // slow down when de buffer starts to empty, rather than wait at the corner for a buffer refill
   // reduces/removes corner blobs as the machine won't come to a full stop.
   int blockcount=block_buffer_head-block_buffer_tail;
   while(blockcount<0) blockcount+=BLOCK_BUFFER_SIZE;
+  
   if (blockcount>0) {
-    if (microseconds<minsegmenttime)  { // buffer is draining, add time.  The amount of time added increases if the buffer is still emptied more.
+    if (microseconds<minsegmenttime)  { // buffer is draining, add extra time.  The amount of time added increases if the buffer is still emptied more.
         microseconds=microseconds+lround(2*(minsegmenttime-microseconds)/blockcount);
     }
- 	else
-	{
-#ifdef TRAVELING_AT_MAXSPEED
-	//only do this if the buffer is actually full enough. Otherwise, a smallsegmented crop-travel move causes a lot of buffer underruns and jerking
-	if(delta_e_mm==0) //if no extrusion
-	{
-		microseconds*=0.5; // speed limits then should get working
-	}
-#endif  	
-		
-	}
   }
   else {
-  microseconds=minsegmenttime;
+    if (microseconds<minsegmenttime) microseconds=minsegmenttime;
   }
+  //  END OF SLOW DOWN SECTION  
+  
+  
   // Calculate speed in mm/minute for each axis
   float multiplier = 60.0*1000000.0/microseconds;
   block->speed_z = delta_z_mm * multiplier; 
