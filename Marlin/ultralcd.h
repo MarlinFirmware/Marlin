@@ -10,7 +10,8 @@
   void beep();
   #define LCDSTATUSRIGHT
 
-  #define LCD_UPDATE_INTERVAL 400
+  #define LCD_UPDATE_INTERVAL 100
+  #define STATUSTIMEOUT 15000
 
   #include "Configuration.h"
 
@@ -61,22 +62,29 @@
   #define B_ST (1<<BL_ST)
   #define EN_B (1<<BLEN_B)
   #define EN_A (1<<BLEN_A)
+  
+#define CLICKED ((buttons&B_MI)||(buttons&B_ST))
 
 
-
+  enum MainStatus{Main_Status, Main_Menu, Main_Prepare, Main_Control, Main_SD};
 
   class MainMenu{
   public:
     MainMenu();
     void update();
     
-    uint8_t activemenu;
-    bool subactive;
+    uint8_t activeline;
+    MainStatus status;
     uint8_t displayStartingRow;
     
-    void showStatusRight();
-    void showSubTemperature();
-    void showSubTune();
+    void showStatus();
+    void showMainMenu();
+    void showPrepare();
+    void showControl();
+    void showSD();
+    bool force_lcd_update;
+    int lastencoderpos;
+    uint8_t lineoffset;
   };
 
   char *fillto(int8_t n,char *c);

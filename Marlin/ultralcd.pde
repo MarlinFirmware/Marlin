@@ -28,7 +28,7 @@ long previous_millis_buttons=0;
 
 void lcd_init()
 {
-  beep();
+  //beep();
   byte Degree[8] =
   {
     B01100,
@@ -71,7 +71,6 @@ void beep()
   }
   
 }
-bool force_lcd_update=false;
 
 void lcd_status()
 {
@@ -81,10 +80,10 @@ void lcd_status()
   buttons_check();
   previous_millis_buttons=millis();
 
-  if(  ((millis() - previous_millis_lcd) < LCD_UPDATE_INTERVAL)  &&  !force_lcd_update  )
+  if(  ((millis() - previous_millis_lcd) < LCD_UPDATE_INTERVAL)   )
     return;
   previous_millis_lcd=millis();
-  force_lcd_update=false;
+  
   menu.update();
 }
 
@@ -172,72 +171,218 @@ void buttons_check()
 
 MainMenu::MainMenu()
 {
-  activemenu=0;
-  subactive=false;
+  status=Main_Status;
   displayStartingRow=0;
-  buttonlcd_inits_init();
+  activeline=0;
+  force_lcd_update=true;
+  buttons_init();
   lcd_init();
 }
-
-void MainMenu::showStatusRight()
+void clearLcd()
 {
-#ifdef LCDSTATUSRIGHT
+  
+}
+void MainMenu::showStatus()
+{ 
   static int oldcurrentraw=-1;
   static int oldtargetraw=-1;
-  if(current_raw!=oldcurrentraw)
+  if(force_lcd_update)  //initial display of content
   {
-    lcd.setCursor(LCD_WIDTH-4,0);
-    lcd.print('H');
+    encoderpos=feedmultiply;
+    lcd.setCursor(0,0);lcd.print("\002123/567\001 ");
+#if defined BED_USES_THERMISTOR || defined BED_USES_AD595 
+    lcd.setCursor(10,0);lcd.print("B123/567\001 ");
+#endif
+  }
+    
+
+  if((current_raw!=oldcurrentraw)||force_lcd_update)
+  {
+    lcd.setCursor(1,0);
     lcd.print(ftostr3(analog2temp(current_raw)));
     oldcurrentraw=current_raw;
   }
-  if(target_raw!=oldtargetraw)
+  if((target_raw!=oldtargetraw)||force_lcd_update)
   {
-    lcd.setCursor(LCD_WIDTH-4,1);
-    lcd.print('T');
+    lcd.setCursor(5,0);
     lcd.print(ftostr3(analog2temp(target_raw)));
     oldtargetraw=target_raw;
   }
+#if defined BED_USES_THERMISTOR || defined BED_USES_AD595 
+ static int oldcurrentbedraw=-1;
+ static int oldtargetbedraw=-1; 
+ if((current_bed_raw!=oldcurrentbedraw)||force_lcd_update)
+  {
+    lcd.setCursor(1,0);
+    lcd.print(ftostr3(analog2temp(current_bed_raw)));
+    oldcurrentraw=current_raw;
+  }
+  if((target_bed_raw!=oldtargebedtraw)||force_lcd_update)
+  {
+    lcd.setCursor(5,0);
+    lcd.print(ftostr3(analog2temp(target_bed_raw)));
+    oldtargetraw=target_bed_raw;
+  }
 #endif
-}
-void MainMenu::showSubTemperature()
-{
+  //starttime=2;
+  if(starttime!=0)
+  {
+    lcd.setCursor(0,1);
+    uint16_t time=millis()/60000-starttime/60000;
+    lcd.print(itostr2(time/60));lcd.print("h ");lcd.print(itostr2(time%60));lcd.print("m");
+  }
+  static int oldzpos=0;
+  int currentz=current_position[3]*10;
+  if((currentz!=oldzpos)||force_lcd_update)
+  {
+    lcd.setCursor(10,1);
+    lcd.print("Z:");lcd.print(itostr31(currentz));
+    oldzpos=currentz;
+  }
+  static int oldfeedmultiply=0;
+  int curfeedmultiply=feedmultiply;
+  if((encoderpos!=curfeedmultiply)||force_lcd_update)
+  {
+   curfeedmultiply=encoderpos;
+   if(curfeedmultiply<10)
+     curfeedmultiply=10;
+   if(curfeedmultiply>999)
+     curfeedmultiply=999;
+   feedmultiply=curfeedmultiply;
+   encoderpos=curfeedmultiply;
+  }
+  if((curfeedmultiply!=oldfeedmultiply)||force_lcd_update)
+  {
+   oldfeedmultiply=curfeedmultiply;
+   lcd.setCursor(0,2);
+   lcd.print(itostr3(curfeedmultiply));lcd.print("% ");
+  }
+  if(messagetext[0]!='\0')
+  {
+    lcd.setCursor(0,3);
+    lcd.print(messagetext);
+    messagetext[0]='\0';
+  }
   
 }
-void MainMenu::showSubTune()
+
+void MainMenu::showPrepare()
 {
-  
-}
-void MainMenu::update()
-{
-  showStatusRight();
- if(!subactive)
+ lcd.setCursor(0,0);lcd.print("Prepare");
+ lineoffset=0;
+ return;
+ uint8_t line=0;
+ for(uint8_t i=lineoffset;i<lineoffset+LCD_HEIGHT;i++)
  {
-   
-  for(short line=0;line<LCD_HEIGHT;line++)
+  switch(i)
+  {
+    case 0:
+      {
+        lcd.setCursor(0,line);lcd.print(" Auto Home");
+      }break;
+    case 1:
+      {
+        lcd.setCursor(0,line);lcd.print(" Set Origin");
+      }break;
+    case 2:
+      {
+        lcd.setCursor(0,line);lcd.print(" Preheat");
+      }break;
+    case 3:
+      {
+        lcd.setCursor(0,line);lcd.print(" Extrude");
+      }break;
+    case 4:
+      {
+        lcd.setCursor(0,line);lcd.print(" Disable Steppers");
+      }break;
+    default:   
+      break;
+  }
+  line++;
+ }
+}
+void MainMenu::showControl()
+{
+  
+}
+
+void MainMenu::showSD()
+{
+  
+}
+
+void MainMenu::showMainMenu()
+{
+  
+  
+  for(short line=0;line<3;line++)
   {
     switch(line)
-    {
-      case 0:    lcd.setCursor(0,line);lcd.print("Alles");break;
-      case 1:    lcd.setCursor(0,line);lcd.print("bute");break;
-      case 2:    lcd.setCursor(0,line);lcd.print("commt");break;
+    { 
+      case 0:
+        if(force_lcd_update) {lcd.setCursor(0,0);lcd.print(" Prepare \x7E");}
+        if(CLICKED)
+          status=Main_Prepare;
+        break;
+      case 1:
+        if(force_lcd_update) {lcd.setCursor(0,1);lcd.print(" Control \x7E");}
+        if(CLICKED)
+          status=Main_Control;
+        break;
+      case 2:    
+        if(force_lcd_update) {lcd.setCursor(0,2);lcd.print(" File    \x7E");}
+        if(CLICKED)
+          status=Main_SD;
+        break;
       default: break;
     }
-    
   }
- }//subactive
- else
- {
-   switch(activemenu)
-   {
-     case 0: showSubTemperature();break;
-     case 1: showSubTune();break;
-     default:
-     break;
-   }
-   
- }
+  
+  
+  if(encoderpos!=lastencoderpos)
+  {
+    lcd.setCursor(0,activeline);lcd.print(' ');
+    activeline=encoderpos%3;
+    lastencoderpos=encoderpos;
+    lcd.setCursor(0,activeline);lcd.print('>');
+  }
+  
+  
+}
 
+void MainMenu::update()
+{
+  static MainStatus oldstatus=Main_Menu;  //init automatically causes foce_lcd_update=true
+  if(status!=oldstatus)
+  {
+    lcd.clear();
+    force_lcd_update=true;
+    lineoffset=0;
+    
+    oldstatus=status;
+  }
+  static long timeoutToStatus=0;
+  switch(status)
+  { 
+      case Main_Status: 
+        showStatus();
+        if(CLICKED)
+        {
+           status=Main_Menu;
+           timeoutToStatus=millis()+STATUSTIMEOUT;
+        }
+        break;
+      case Main_Menu: 
+        showMainMenu(); 
+        break;
+      case Main_Prepare: showPrepare(); break;
+      case Main_Control: showControl(); break;
+      case Main_SD: showSD(); break;
+  }
+  if(timeoutToStatus<millis())
+    status=Main_Status;
+  force_lcd_update=false;
 }
 
 
@@ -257,7 +402,15 @@ char *ftostr3(const float &x)
   conv[3]=0;
   return conv;
 }
-
+char *itostr2(const uint8_t &x)
+{
+  //sprintf(conv,"%5.1f",x);
+  int xx=x;
+  conv[0]=(xx/10)%10+'0';
+  conv[1]=(xx)%10+'0';
+  conv[2]=0;
+  return conv;
+}
 ///  convert float to string with +123.4 format
 char *ftostr31(const float &x)
 {
@@ -271,6 +424,27 @@ char *ftostr31(const float &x)
   conv[4]='.';
   conv[5]=(xx)%10+'0';
   conv[6]=0;
+  return conv;
+}
+
+char *itostr31(const int &xx)
+{
+  //sprintf(conv,"%5.1f",x);
+  conv[0]=(xx>=0)?'+':'-';
+  conv[1]=(xx/1000)%10+'0';
+  conv[2]=(xx/100)%10+'0';
+  conv[3]=(xx/10)%10+'0';
+  conv[4]='.';
+  conv[5]=(xx)%10+'0';
+  conv[6]=0;
+  return conv;
+}
+char *itostr3(const int &xx)
+{
+  conv[0]=(xx/100)%10+'0';
+  conv[1]=(xx/10)%10+'0';
+  conv[2]=(xx)%10+'0';
+  conv[3]=0;
   return conv;
 }
 
