@@ -268,9 +268,9 @@ void MainMenu::showStatus()
 
 void MainMenu::showPrepare()
 {
- lcd.setCursor(0,0);lcd.print("Prepare");
+ //lcd.setCursor(0,0);lcd.print("Prepare");
  lineoffset=0;
- return;
+ //return;
  uint8_t line=0;
  for(uint8_t i=lineoffset;i<lineoffset+LCD_HEIGHT;i++)
  {
@@ -304,49 +304,55 @@ void MainMenu::showPrepare()
 }
 void MainMenu::showControl()
 {
-  
+  status=Main_Menu;
 }
 
 void MainMenu::showSD()
 {
-  
+  status=Main_Menu;
 }
 
 void MainMenu::showMainMenu()
 {
   
-  
-  for(short line=0;line<3;line++)
-  {
-    switch(line)
-    { 
-      case 0:
-        if(force_lcd_update) {lcd.setCursor(0,0);lcd.print(" Prepare \x7E");}
-        if(CLICKED)
-          status=Main_Prepare;
-        break;
-      case 1:
-        if(force_lcd_update) {lcd.setCursor(0,1);lcd.print(" Control \x7E");}
-        if(CLICKED)
-          status=Main_Control;
-        break;
-      case 2:    
-        if(force_lcd_update) {lcd.setCursor(0,2);lcd.print(" File    \x7E");}
-        if(CLICKED)
-          status=Main_SD;
-        break;
-      default: break;
-    }
-  }
-  
-  
-  if(encoderpos!=lastencoderpos)
+    if(encoderpos!=lastencoderpos)
   {
     lcd.setCursor(0,activeline);lcd.print(' ');
     activeline=encoderpos%3;
     lastencoderpos=encoderpos;
     lcd.setCursor(0,activeline);lcd.print('>');
   }
+  
+  for(short line=0;line<3;line++)
+  {
+    switch(line)
+    { 
+      case 0:
+      {
+        if(force_lcd_update) {lcd.setCursor(0,0);lcd.print(" Prepare \x7E");}
+        if((activeline==line)&&CLICKED)
+          status=Main_Prepare;
+      } break;
+       
+      case 1:
+      {
+        if(force_lcd_update) {lcd.setCursor(0,1);lcd.print(" Control \x7E");}
+        if((activeline==line)&&CLICKED)
+          status=Main_Control;
+      }break;
+      case 2:    
+      {
+        if(force_lcd_update) {lcd.setCursor(0,2);lcd.print(" File    \x7E");}
+        if((activeline==line)&&CLICKED)
+          status=Main_SD;
+      }break;
+      default: 
+      break;
+    }
+  }
+  
+  
+
   
   
 }
@@ -356,29 +362,42 @@ void MainMenu::update()
   static MainStatus oldstatus=Main_Menu;  //init automatically causes foce_lcd_update=true
   if(status!=oldstatus)
   {
+    Serial.println(status);
     lcd.clear();
     force_lcd_update=true;
     lineoffset=0;
     
     oldstatus=status;
   }
+  
   static long timeoutToStatus=0;
   switch(status)
   { 
       case Main_Status: 
+      {  
         showStatus();
         if(CLICKED)
         {
            status=Main_Menu;
            timeoutToStatus=millis()+STATUSTIMEOUT;
         }
-        break;
+      }break;
       case Main_Menu: 
+      {
         showMainMenu(); 
-        break;
-      case Main_Prepare: showPrepare(); break;
-      case Main_Control: showControl(); break;
-      case Main_SD: showSD(); break;
+      }break;
+      case Main_Prepare: 
+      {
+        showPrepare(); 
+      }break;
+      case Main_Control:
+      {
+        showControl(); 
+      }break;
+      case Main_SD: 
+      {
+        showSD();
+      }break;
   }
   if(timeoutToStatus<millis())
     status=Main_Status;
