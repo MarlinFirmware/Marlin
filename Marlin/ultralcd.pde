@@ -241,7 +241,7 @@ void MainMenu::showStatus()
   }
   static int oldfeedmultiply=0;
   int curfeedmultiply=feedmultiply;
-  if((encoderpos!=curfeedmultiply)||force_lcd_update)
+  if(encoderpos!=curfeedmultiply)
   {
    curfeedmultiply=encoderpos;
    if(curfeedmultiply<10)
@@ -268,61 +268,380 @@ void MainMenu::showStatus()
 
 void MainMenu::showPrepare()
 {
- //lcd.setCursor(0,0);lcd.print("Prepare");
- lineoffset=0;
- //return;
  uint8_t line=0;
+ if(lastlineoffset!=lineoffset)
+ {
+   force_lcd_update=true;
+   lcd.clear(); 
+ }
  for(uint8_t i=lineoffset;i<lineoffset+LCD_HEIGHT;i++)
  {
+   //Serial.println((int)(line-lineoffset));
   switch(i)
   {
     case 0:
       {
-        lcd.setCursor(0,line);lcd.print(" Auto Home");
+        if(force_lcd_update)
+        {
+          lcd.setCursor(0,line);lcd.print(" Exit \"Prepare\"");
+        }
+        if((activeline==line) && CLICKED)
+        {
+          status=Main_Menu;
+        }
       }break;
     case 1:
       {
-        lcd.setCursor(0,line);lcd.print(" Set Origin");
+        if(force_lcd_update)
+        {
+          lcd.setCursor(0,line);lcd.print(" Auto Home");
+        }
+        if((activeline==line) && CLICKED)
+        {
+          enquecommand("G28 X-105 Y-105 Z0");
+        }
       }break;
     case 2:
       {
-        lcd.setCursor(0,line);lcd.print(" Preheat");
+        if(force_lcd_update)
+        {
+          lcd.setCursor(0,line);lcd.print(" Set Origin");
+          
+        }
+        if((activeline==line) && CLICKED)
+        {
+          enquecommand("G92 X0 Y0 Z0");
+        }
       }break;
     case 3:
       {
-        lcd.setCursor(0,line);lcd.print(" Extrude");
+        if(force_lcd_update)
+        {
+          lcd.setCursor(0,line);lcd.print(" Preheat"); 
+        }
+        if((activeline==line) && CLICKED)
+        {
+          target_raw = temp2analog(170);
+        }
       }break;
     case 4:
       {
-        lcd.setCursor(0,line);lcd.print(" Disable Steppers");
+        if(force_lcd_update)
+        {
+          lcd.setCursor(0,line);lcd.print(" Extrude");
+        }
+        if((activeline==line) && CLICKED)
+        {
+          enquecommand("G92 E0");
+          enquecommand("G1 F700 E50");
+        }
+      }break;
+    case 5:
+      {
+        if(force_lcd_update)
+        {
+          lcd.setCursor(0,line);lcd.print(" Disable Steppers");
+        }
+        if((activeline==line) && CLICKED)
+        {
+          enquecommand("M84");
+        }
       }break;
     default:   
       break;
   }
   line++;
  }
+ lastlineoffset=lineoffset;
+ if((encoderpos/lcdslow!=lastencoderpos/lcdslow)||force_lcd_update)
+ {
+   
+    lcd.setCursor(0,activeline);lcd.print(' ');
+    
+    if(encoderpos<0)
+    {
+     lineoffset--;
+     if(lineoffset<0)
+       lineoffset=0;
+     encoderpos=0;
+     force_lcd_update=true;
+    }
+    if(encoderpos/lcdslow>3)
+    {
+     lineoffset++;
+     encoderpos=3*lcdslow;
+     if(lineoffset>(5+1-LCD_HEIGHT))
+       lineoffset=5+1-LCD_HEIGHT;
+     force_lcd_update=true;
+    }
+    //encoderpos=encoderpos%LCD_HEIGHT;
+    lastencoderpos=encoderpos;
+    activeline=encoderpos/lcdslow;
+    lcd.setCursor(0,activeline);lcd.print('>');   
+  } 
 }
 void MainMenu::showControl()
 {
-  status=Main_Menu;
+   uint8_t line=0;
+ if(lastlineoffset!=lineoffset)
+ {
+   force_lcd_update=true;
+   lcd.clear(); 
+ }
+ for(uint8_t i=lineoffset;i<lineoffset+LCD_HEIGHT;i++)
+ {
+  switch(i)
+  {
+    case 0:
+      {
+        if(force_lcd_update)
+        {
+          lcd.setCursor(0,line);lcd.print(" Exit \"Control\"");
+        }
+        if((activeline==line) && CLICKED)
+        {
+          status=Main_Menu;
+        }
+      }break;
+    case 1:
+      {
+        if(force_lcd_update)
+        {
+          lcd.setCursor(0,line);lcd.print(" Nozzle:");
+        }
+        if((activeline==line) && CLICKED)
+        {
+        }
+      }break;
+    case 2:
+      {
+        if(force_lcd_update)
+        {
+          lcd.setCursor(0,line);lcd.print(" a:");
+          
+        }
+        if((activeline==line) && CLICKED)
+        {
+          enquecommand("G92 X0 Y0 Z0");
+        }
+      }break;
+    case 3:
+      {
+        if(force_lcd_update)
+        {
+          lcd.setCursor(0,line);lcd.print(" v-max x:"); 
+        }
+        if((activeline==line) && CLICKED)
+        {
+          //target_raw = temp2analog(170);
+        }
+      }break;
+    case 4:
+      {
+        if(force_lcd_update)
+        {
+          lcd.setCursor(0,line);lcd.print(" v-max y:");
+        }
+        if((activeline==line) && CLICKED)
+        {
+          //enquecommand("G92 E0");
+          //enquecommand("G1 F700 E50");
+        }
+      }break;
+    case 5:
+      {
+        if(force_lcd_update)
+        {
+          lcd.setCursor(0,line);lcd.print(" v-max z:");
+        }
+        if((activeline==line) && CLICKED)
+        {
+          //enquecommand("M84");
+        }
+      }break;
+    case 6:
+      {
+        if(force_lcd_update)
+        {
+          lcd.setCursor(0,line);lcd.print(" v-max e:");
+        }
+        if((activeline==line) && CLICKED)
+        {
+          //enquecommand("M84");
+        }
+      }break;
+    
+    case 7:
+    {
+      if(force_lcd_update)
+      {
+        lcd.setCursor(0,line);lcd.print(" v-min:");
+      }
+      if((activeline==line) && CLICKED)
+      {
+        //enquecommand("M84");
+      }
+    }break;
+    case 8:
+      {
+        if(force_lcd_update)
+        {
+          lcd.setCursor(0,line);lcd.print(" a-max x:"); 
+        }
+        if((activeline==line) && CLICKED)
+        {
+          //target_raw = temp2analog(170);
+        }
+      }break;
+    case 9:
+      {
+        if(force_lcd_update)
+        {
+          lcd.setCursor(0,line);lcd.print(" a-max y:");
+        }
+        if((activeline==line) && CLICKED)
+        {
+          //enquecommand("G92 E0");
+          //enquecommand("G1 F700 E50");
+        }
+      }break;
+    case 10:
+      {
+        if(force_lcd_update)
+        {
+          lcd.setCursor(0,line);lcd.print(" a-max z:");
+        }
+        if((activeline==line) && CLICKED)
+        {
+          //enquecommand("M84");
+        }
+      }break;
+    case 11:
+    {
+      if(force_lcd_update)
+      {
+        lcd.setCursor(0,line);lcd.print(" Store EPROM");
+      }
+      if((activeline==line) && CLICKED)
+      {
+        //enquecommand("M84");
+      }
+    }break;
+    case 12:
+    {
+      if(force_lcd_update)
+      {
+        lcd.setCursor(0,line);lcd.print(" Restore Failsafe");
+      }
+      if((activeline==line) && CLICKED)
+      {
+        //enquecommand("M84");
+      }
+    }break;
+    default:   
+      break;
+  }
+  line++;
+ }
+ lastlineoffset=lineoffset;
+ if((encoderpos/lcdslow!=lastencoderpos/lcdslow)||force_lcd_update)
+ {
+   
+    lcd.setCursor(0,activeline);lcd.print(' ');
+    
+    if(encoderpos<0)
+    {
+     lineoffset--;
+     if(lineoffset<0)
+       lineoffset=0;
+     encoderpos=0;
+     force_lcd_update=true;
+    }
+    if(encoderpos/lcdslow>3)
+    {
+     lineoffset++;
+     encoderpos=3;
+     if(lineoffset>(12+1-LCD_HEIGHT))
+       lineoffset=12+1-LCD_HEIGHT;
+     force_lcd_update=true;
+    }
+    //encoderpos=encoderpos%LCD_HEIGHT;
+    lastencoderpos=encoderpos;
+    activeline=encoderpos/lcdslow;
+    lcd.setCursor(0,activeline);lcd.print('>');   
+  } 
 }
 
 void MainMenu::showSD()
 {
-  status=Main_Menu;
+ uint8_t line=0;
+ if(lastlineoffset!=lineoffset)
+ {
+   force_lcd_update=true;
+   lcd.clear(); 
+ }
+ for(uint8_t i=lineoffset;i<lineoffset+LCD_HEIGHT;i++)
+ {
+  switch(i)
+  {
+    case 0:
+      {
+        if(force_lcd_update)
+        {
+          lcd.setCursor(0,line);lcd.print(" Exit \"File\"");
+        }
+        if((activeline==line) && CLICKED)
+        {
+          status=Main_Menu;
+        }
+      }break;
+    case 1:
+      {
+        if(force_lcd_update)
+        {
+          lcd.setCursor(0,line);lcd.print(" Refresh");
+        }
+        if((activeline==line) && CLICKED)
+        {
+        }
+      }break;
+    default:   
+      break;
+  }
+  line++;
+ }
+ lastlineoffset=lineoffset;
+ if((encoderpos!=lastencoderpos)||force_lcd_update)
+ {
+   
+    lcd.setCursor(0,activeline);lcd.print(' ');
+    
+    if(encoderpos<0)
+    {
+     lineoffset--;
+     if(lineoffset<0)
+       lineoffset=0;
+     encoderpos=0;
+     force_lcd_update=true;
+    }
+    if(encoderpos>3)
+    {
+     lineoffset++;
+     encoderpos=3*lcdslow;
+     if(lineoffset>(2+1-LCD_HEIGHT))
+       lineoffset=2+1-LCD_HEIGHT;
+     force_lcd_update=true;
+     lineoffset=0;
+    }
+    //encoderpos=encoderpos%LCD_HEIGHT;
+    lastencoderpos=encoderpos;
+    activeline=encoderpos;
+    lcd.setCursor(0,activeline);lcd.print('>');   
+  } 
 }
 
 void MainMenu::showMainMenu()
 {
-  
-    if(encoderpos!=lastencoderpos)
-  {
-    lcd.setCursor(0,activeline);lcd.print(' ');
-    activeline=encoderpos%3;
-    lastencoderpos=encoderpos;
-    lcd.setCursor(0,activeline);lcd.print('>');
-  }
-  
   for(short line=0;line<3;line++)
   {
     switch(line)
@@ -351,7 +670,13 @@ void MainMenu::showMainMenu()
     }
   }
   
-  
+  if((encoderpos!=lastencoderpos)||force_lcd_update)
+  {
+    lcd.setCursor(0,activeline);lcd.print(' ');
+    activeline=abs(encoderpos/lcdslow)%3;
+    lastencoderpos=encoderpos;
+    lcd.setCursor(0,activeline);lcd.print('>');
+  }
 
   
   
@@ -360,17 +685,21 @@ void MainMenu::showMainMenu()
 void MainMenu::update()
 {
   static MainStatus oldstatus=Main_Menu;  //init automatically causes foce_lcd_update=true
+  static long timeoutToStatus=0;
+
   if(status!=oldstatus)
   {
     Serial.println(status);
     lcd.clear();
     force_lcd_update=true;
+    encoderpos=0;
     lineoffset=0;
     
     oldstatus=status;
   }
-  
-  static long timeoutToStatus=0;
+  if( (encoderpos!=lastencoderpos) || CLICKED)
+    timeoutToStatus=millis()+STATUSTIMEOUT;
+
   switch(status)
   { 
       case Main_Status: 
@@ -399,6 +728,7 @@ void MainMenu::update()
         showSD();
       }break;
   }
+  
   if(timeoutToStatus<millis())
     status=Main_Status;
   force_lcd_update=false;

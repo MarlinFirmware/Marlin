@@ -11,7 +11,7 @@
   #define LCDSTATUSRIGHT
 
   #define LCD_UPDATE_INTERVAL 100
-  #define STATUSTIMEOUT 15000
+  #define STATUSTIMEOUT 5000
 
   #include "Configuration.h"
 
@@ -33,6 +33,7 @@
 
   // blocking time for recognizing a new keypress of one key, ms
   #define blocktime 500
+  #define lcdslow 4
 
 
   //bits in the shift register that carry the buttons for:
@@ -84,7 +85,8 @@
     void showSD();
     bool force_lcd_update;
     int lastencoderpos;
-    uint8_t lineoffset;
+    int8_t lineoffset;
+    int8_t lastlineoffset;
   };
 
   char *fillto(int8_t n,char *c);

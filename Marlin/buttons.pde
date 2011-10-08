@@ -84,6 +84,11 @@ void buttons_check()
 	}
   lastenc=enc;
 #endif
+  if(CLICKED)
+  {
+    blocking[BL_MI]=ms+blocktime;
+    blocking[BL_ST]=ms+blocktime;
+  }
 	busy=false;
 }
 
