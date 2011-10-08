@@ -560,7 +560,7 @@ void MainMenu::showControl()
     if(encoderpos/lcdslow>3)
     {
      lineoffset++;
-     encoderpos=3;
+     encoderpos=3*lcdslow;
      if(lineoffset>(12+1-LCD_HEIGHT))
        lineoffset=12+1-LCD_HEIGHT;
      force_lcd_update=true;
@@ -624,7 +624,7 @@ void MainMenu::showSD()
      encoderpos=0;
      force_lcd_update=true;
     }
-    if(encoderpos>3)
+    if(encoderpos/lcdslow>3)
     {
      lineoffset++;
      encoderpos=3*lcdslow;
