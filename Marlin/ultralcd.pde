@@ -71,7 +71,18 @@ void beep()
   }
   
 }
-
+void smallbeep()
+{
+  // [ErikDeBruijn] changed to two short beeps, more friendly
+  pinMode(BEEPER,OUTPUT);
+  for(int i=0;i<10;i++){
+  digitalWrite(BEEPER,HIGH);
+  delay(3);
+  digitalWrite(BEEPER,LOW);
+  delay(3);
+  }
+  
+}
 void lcd_status()
 {
   static long previous_millis_buttons=0;
@@ -79,9 +90,10 @@ void lcd_status()
     return;
   buttons_check();
   previous_millis_buttons=millis();
-
-  if(  ((millis() - previous_millis_lcd) < LCD_UPDATE_INTERVAL)   )
+  static uint8_t oldbuttons=0;
+  if((buttons==oldbuttons) &&  ((millis() - previous_millis_lcd) < LCD_UPDATE_INTERVAL)   )
     return;
+  oldbuttons=buttons;
   previous_millis_lcd=millis();
   
   menu.update();
@@ -196,7 +208,7 @@ void MainMenu::showStatus()
   }
     
 
-  if((current_raw!=oldcurrentraw)||force_lcd_update)
+  if((abs(current_raw-oldcurrentraw)>3)||force_lcd_update)
   {
     lcd.setCursor(1,0);
     lcd.print(ftostr3(analog2temp(current_raw)));
@@ -225,14 +237,20 @@ void MainMenu::showStatus()
   }
 #endif
   //starttime=2;
+  static uint16_t oldtime=0;
   if(starttime!=0)
   {
     lcd.setCursor(0,1);
     uint16_t time=millis()/60000-starttime/60000;
-    lcd.print(itostr2(time/60));lcd.print("h ");lcd.print(itostr2(time%60));lcd.print("m");
+    
+    if(starttime!=oldtime)
+    {
+      lcd.print(itostr2(time/60));lcd.print("h ");lcd.print(itostr2(time%60));lcd.print("m");
+      oldtime=time;
+    }
   }
   static int oldzpos=0;
-  int currentz=current_position[3]*10;
+  int currentz=current_position[2]*10;
   if((currentz!=oldzpos)||force_lcd_update)
   {
     lcd.setCursor(10,1);
@@ -287,6 +305,7 @@ void MainMenu::showPrepare()
         }
         if((activeline==line) && CLICKED)
         {
+          BLOCK
           status=Main_Menu;
         }
       }break;
@@ -298,7 +317,9 @@ void MainMenu::showPrepare()
         }
         if((activeline==line) && CLICKED)
         {
+          BLOCK
           enquecommand("G28 X-105 Y-105 Z0");
+          smallbeep();
         }
       }break;
     case 2:
@@ -310,7 +331,9 @@ void MainMenu::showPrepare()
         }
         if((activeline==line) && CLICKED)
         {
+          BLOCK
           enquecommand("G92 X0 Y0 Z0");
+          smallbeep();
         }
       }break;
     case 3:
@@ -321,7 +344,9 @@ void MainMenu::showPrepare()
         }
         if((activeline==line) && CLICKED)
         {
+          BLOCK
           target_raw = temp2analog(170);
+          smallbeep();
         }
       }break;
     case 4:
@@ -332,8 +357,10 @@ void MainMenu::showPrepare()
         }
         if((activeline==line) && CLICKED)
         {
+          BLOCK
           enquecommand("G92 E0");
           enquecommand("G1 F700 E50");
+          smallbeep();
         }
       }break;
     case 5:
@@ -344,7 +371,9 @@ void MainMenu::showPrepare()
         }
         if((activeline==line) && CLICKED)
         {
+          BLOCK
           enquecommand("M84");
+          smallbeep();
         }
       }break;
     default:   
@@ -382,7 +411,7 @@ void MainMenu::showPrepare()
 }
 void MainMenu::showControl()
 {
-   uint8_t line=0;
+ uint8_t line=0;
  if(lastlineoffset!=lineoffset)
  {
    force_lcd_update=true;
@@ -400,6 +429,7 @@ void MainMenu::showControl()
         }
         if((activeline==line) && CLICKED)
         {
+          BLOCK
           status=Main_Menu;
         }
       }break;
@@ -411,6 +441,7 @@ void MainMenu::showControl()
         }
         if((activeline==line) && CLICKED)
         {
+          BLOCK
         }
       }break;
     case 2:
@@ -422,7 +453,7 @@ void MainMenu::showControl()
         }
         if((activeline==line) && CLICKED)
         {
-          enquecommand("G92 X0 Y0 Z0");
+          enquecommand("G92 X0 Y0 Z0");smallbeep();
         }
       }break;
     case 3:
@@ -568,8 +599,56 @@ void MainMenu::showControl()
     //encoderpos=encoderpos%LCD_HEIGHT;
     lastencoderpos=encoderpos;
     activeline=encoderpos/lcdslow;
+    if(activeline>3) activeline=3;
     lcd.setCursor(0,activeline);lcd.print('>');   
   } 
+}
+
+#include "SdFat.h"
+
+void MainMenu::getfilename(const uint8_t nr)
+{
+  dir_t p;
+  root.rewind();
+  uint8_t cnt=0;
+  filename[0]='\0';
+  while (root.readDir(p) > 0)
+  {
+    if (p.name[0] == DIR_NAME_FREE) break;
+    if (p.name[0] == DIR_NAME_DELETED || p.name[0] == '.') continue;
+    if (!DIR_IS_FILE_OR_SUBDIR(&p)) continue;
+    if(p.name[8]!='G') continue;
+    if(p.name[9]=='~') continue;
+    if(cnt++!=nr) continue;
+    //Serial.println((char*)p.name);
+    uint8_t writepos=0;
+    for (uint8_t i = 0; i < 11; i++) 
+    {
+      if (p.name[i] == ' ') continue;
+      if (i == 8) {
+        filename[writepos++]='.';
+      }
+      filename[writepos++]=p.name[i];
+    }
+    filename[writepos++]=0;
+  }
+}
+
+uint8_t getnrfilenames()
+{
+  dir_t p;
+  root.rewind();
+  uint8_t cnt=0;
+  while (root.readDir(p) > 0)
+  {
+    if (p.name[0] == DIR_NAME_FREE) break;
+    if (p.name[0] == DIR_NAME_DELETED || p.name[0] == '.') continue;
+    if (!DIR_IS_FILE_OR_SUBDIR(&p)) continue;
+    if(p.name[8]!='G') continue;
+    if(p.name[9]=='~') continue;
+    cnt++;
+  }
+  return cnt;
 }
 
 void MainMenu::showSD()
@@ -580,6 +659,13 @@ void MainMenu::showSD()
    force_lcd_update=true;
    lcd.clear(); 
  }
+ static uint8_t nrfiles;
+ if(force_lcd_update)
+ {
+  nrfiles=getnrfilenames();
+  //Serial.print("Nr files:"); Serial.println((int)nrfiles);
+ }
+ 
  for(uint8_t i=lineoffset;i<lineoffset+LCD_HEIGHT;i++)
  {
   switch(i)
@@ -592,6 +678,7 @@ void MainMenu::showSD()
         }
         if((activeline==line) && CLICKED)
         {
+          BLOCK
           status=Main_Menu;
         }
       }break;
@@ -603,9 +690,35 @@ void MainMenu::showSD()
         }
         if((activeline==line) && CLICKED)
         {
+          BLOCK
         }
       }break;
-    default:   
+    default:
+    {
+      if(i-2<nrfiles)
+      {
+        if(force_lcd_update)
+        {
+          getfilename(i-2);
+          //Serial.print("Filenr:");Serial.println(i-2);
+          lcd.setCursor(0,line);lcd.print(" ");lcd.print(filename);
+        }
+        if((activeline==line) && CLICKED)
+        {
+          BLOCK
+          getfilename(i-2);
+          char cmd[30];
+          for(int i=0;i<strlen(filename);i++)
+            filename[i]=tolower(filename[i]);
+          sprintf(cmd,"M23 %s",filename);
+          //sprintf(cmd,"M115");
+          enquecommand(cmd);
+          enquecommand("M24");
+          beep(); 
+        }
+      }
+      
+    }
       break;
   }
   line++;
@@ -628,16 +741,21 @@ void MainMenu::showSD()
     {
      lineoffset++;
      encoderpos=3*lcdslow;
-     if(lineoffset>(2+1-LCD_HEIGHT))
-       lineoffset=2+1-LCD_HEIGHT;
+     //Serial.println((int)lineoffset);
+     //Serial.println((int)(2+nrfiles+1-LCD_HEIGHT));
+     if(lineoffset>(2+nrfiles+1-LCD_HEIGHT))
+       lineoffset=2+nrfiles+1-LCD_HEIGHT;
      force_lcd_update=true;
-     lineoffset=0;
+     
     }
     //encoderpos=encoderpos%LCD_HEIGHT;
     lastencoderpos=encoderpos;
     activeline=encoderpos;
+    if(activeline>3) activeline=3;
+    if(activeline<0) activeline=0;
     lcd.setCursor(0,activeline);lcd.print('>');   
-  } 
+  }
+  
 }
 
 void MainMenu::showMainMenu()
@@ -650,20 +768,29 @@ void MainMenu::showMainMenu()
       {
         if(force_lcd_update) {lcd.setCursor(0,0);lcd.print(" Prepare \x7E");}
         if((activeline==line)&&CLICKED)
+        {
+          BLOCK
           status=Main_Prepare;
+        }
       } break;
        
       case 1:
       {
         if(force_lcd_update) {lcd.setCursor(0,1);lcd.print(" Control \x7E");}
         if((activeline==line)&&CLICKED)
+        {
+          BLOCK
           status=Main_Control;
+        }
       }break;
       case 2:    
       {
         if(force_lcd_update) {lcd.setCursor(0,2);lcd.print(" File    \x7E");}
         if((activeline==line)&&CLICKED)
+        {
+          BLOCK
           status=Main_SD;
+        }
       }break;
       default: 
       break;
@@ -689,7 +816,7 @@ void MainMenu::update()
 
   if(status!=oldstatus)
   {
-    Serial.println(status);
+    //Serial.println(status);
     lcd.clear();
     force_lcd_update=true;
     encoderpos=0;
@@ -707,6 +834,7 @@ void MainMenu::update()
         showStatus();
         if(CLICKED)
         {
+           BLOCK
            status=Main_Menu;
            timeoutToStatus=millis()+STATUSTIMEOUT;
         }

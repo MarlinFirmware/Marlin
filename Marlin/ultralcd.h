@@ -65,7 +65,7 @@
   #define EN_A (1<<BLEN_A)
   
 #define CLICKED ((buttons&B_MI)||(buttons&B_ST))
-
+#define BLOCK {blocking[BL_MI]=millis()+blocktime;blocking[BL_ST]=millis()+blocktime;}
 
   enum MainStatus{Main_Status, Main_Menu, Main_Prepare, Main_Control, Main_SD};
 
@@ -73,7 +73,7 @@
   public:
     MainMenu();
     void update();
-    
+    void getfilename(const uint8_t nr);
     uint8_t activeline;
     MainStatus status;
     uint8_t displayStartingRow;
@@ -87,6 +87,7 @@
     int lastencoderpos;
     int8_t lineoffset;
     int8_t lastlineoffset;
+    char filename[11];
   };
 
   char *fillto(int8_t n,char *c);
