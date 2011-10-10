@@ -970,6 +970,7 @@ void MainMenu::update()
         showStatus();
         if(CLICKED)
         {
+           linechanging=false;
            BLOCK
            status=Main_Menu;
            timeoutToStatus=millis()+STATUSTIMEOUT;
@@ -977,7 +978,8 @@ void MainMenu::update()
       }break;
       case Main_Menu: 
       {
-        showMainMenu(); 
+        showMainMenu();
+        linechanging=false;
       }break;
       case Main_Prepare: 
       {
