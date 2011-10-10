@@ -88,6 +88,7 @@
     int8_t lineoffset;
     int8_t lastlineoffset;
     char filename[11];
+    bool linechanging;
   };
 
   char *fillto(int8_t n,char *c);

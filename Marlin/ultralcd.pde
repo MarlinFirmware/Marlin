@@ -189,6 +189,7 @@ MainMenu::MainMenu()
   force_lcd_update=true;
   buttons_init();
   lcd_init();
+  linechanging=false;
 }
 void clearLcd()
 {
@@ -441,7 +442,8 @@ void MainMenu::showControl()
         }
         if((activeline==line) && CLICKED)
         {
-          BLOCK
+          BLOCK;
+          
         }
       }break;
     case 2:
@@ -575,7 +577,8 @@ void MainMenu::showControl()
   line++;
  }
  lastlineoffset=lineoffset;
- if((encoderpos/lcdslow!=lastencoderpos/lcdslow)||force_lcd_update)
+
+ if(!linechanging &&  ((encoderpos/lcdslow!=lastencoderpos/lcdslow)||force_lcd_update))
  {
    
     lcd.setCursor(0,activeline);lcd.print(' ');
@@ -743,8 +746,8 @@ void MainMenu::showSD()
      encoderpos=3*lcdslow;
      //Serial.println((int)lineoffset);
      //Serial.println((int)(2+nrfiles+1-LCD_HEIGHT));
-     if(lineoffset>(2+nrfiles+1-LCD_HEIGHT))
-       lineoffset=2+nrfiles+1-LCD_HEIGHT;
+     if(lineoffset>(1+nrfiles+1-LCD_HEIGHT))
+       lineoffset=1+nrfiles+1-LCD_HEIGHT;
      force_lcd_update=true;
      
     }
