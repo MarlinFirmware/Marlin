@@ -95,9 +95,9 @@ bool axis_relative_modes[] = {false, false, false, false};
 
 //// Acceleration settings
 // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for skeinforge 40+, for older versions raise them a lot.
-float acceleration = 4600;         // Normal acceleration mm/s^2  THIS IS THE DEFAULT ACCELERATION for all moves. M204 SXXXX
+float acceleration = 4500;         // Normal acceleration mm/s^2  THIS IS THE DEFAULT ACCELERATION for all moves. M204 SXXXX
 float retract_acceleration = 7000; //  mm/s^2   filament pull-pack and push-forward  while standing still in the other axis M204 TXXXX
-float max_xy_jerk = 5.0*60; //speed than can be stopped at once, if i understand correctly.
+float max_xy_jerk = 30*60; //speed than can be stopped at once, if i understand correctly.
 float max_z_jerk = 1*60;
 // X, Y, Z and E max acceleration in mm/s^2 for printing moves or retracts
 long max_acceleration_units_per_sq_second[] = {9000,9000,150,10000}; // Use M201 to override by software

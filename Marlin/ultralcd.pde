@@ -438,118 +438,251 @@ void MainMenu::showControl()
       {
         if(force_lcd_update)
         {
-          lcd.setCursor(0,line);lcd.print(" Nozzle:");
+          lcd.setCursor(0,line);lcd.print(" \002Nozzle:");
+          lcd.setCursor(13,line);lcd.print(ftostr3(analog2temp(target_raw)));
         }
-        if((activeline==line) && CLICKED)
+        
+        if((activeline==line) )
         {
-          BLOCK;
-          
+          if(CLICKED)
+          {
+            linechanging=!linechanging;
+            if(linechanging)
+            {
+               encoderpos=(int)analog2temp(target_raw);
+            }
+            else
+            {
+              target_raw = temp2analog(encoderpos);
+              encoderpos=activeline*lcdslow;
+                
+            }
+            BLOCK;
+          }
+          if(linechanging)
+          {
+            if(encoderpos<0) encoderpos=0;
+            if(encoderpos>260) encoderpos=260;
+            lcd.setCursor(13,line);lcd.print(itostr3(encoderpos));
+          }
         }
       }break;
     case 2:
-      {
-        if(force_lcd_update)
+    {
+      if(force_lcd_update)
         {
-          lcd.setCursor(0,line);lcd.print(" a:");
-          
+          lcd.setCursor(0,line);lcd.print(" Acc:");
+          lcd.setCursor(13,line);lcd.print(itostr3(acceleration/100));lcd.print("00");
         }
-        if((activeline==line) && CLICKED)
+        
+        if((activeline==line) )
         {
-          enquecommand("G92 X0 Y0 Z0");smallbeep();
+          if(CLICKED)
+          {
+            linechanging=!linechanging;
+            if(linechanging)
+            {
+               encoderpos=(int)acceleration/100;
+            }
+            else
+            {
+              acceleration= encoderpos*100;
+              encoderpos=activeline*lcdslow;
+                
+            }
+            BLOCK;
+          }
+          if(linechanging)
+          {
+            if(encoderpos<5) encoderpos=5;
+            if(encoderpos>990) encoderpos=990;
+            lcd.setCursor(13,line);lcd.print(itostr3(encoderpos));lcd.print("00");
+          }
         }
       }break;
-    case 3:
+    case 3: //max_xy_jerk
       {
-        if(force_lcd_update)
+      if(force_lcd_update)
         {
-          lcd.setCursor(0,line);lcd.print(" v-max x:"); 
+          lcd.setCursor(0,line);lcd.print(" Vxy-jerk: ");
+          lcd.setCursor(13,line);lcd.print(itostr3(max_xy_jerk/60));
         }
-        if((activeline==line) && CLICKED)
+        
+        if((activeline==line) )
         {
-          //target_raw = temp2analog(170);
+          if(CLICKED)
+          {
+            linechanging=!linechanging;
+            if(linechanging)
+            {
+               encoderpos=(int)max_xy_jerk/60;
+            }
+            else
+            {
+              max_xy_jerk= encoderpos*60;
+              encoderpos=activeline*lcdslow;
+                
+            }
+            BLOCK;
+          }
+          if(linechanging)
+          {
+            if(encoderpos<1) encoderpos=1;
+            if(encoderpos>990) encoderpos=990;
+            lcd.setCursor(13,line);lcd.print(itostr3(encoderpos));
+          }
         }
       }break;
     case 4:
-      {
-        if(force_lcd_update)
-        {
-          lcd.setCursor(0,line);lcd.print(" v-max y:");
-        }
-        if((activeline==line) && CLICKED)
-        {
-          //enquecommand("G92 E0");
-          //enquecommand("G1 F700 E50");
-        }
-      }break;
     case 5:
-      {
-        if(force_lcd_update)
-        {
-          lcd.setCursor(0,line);lcd.print(" v-max z:");
-        }
-        if((activeline==line) && CLICKED)
-        {
-          //enquecommand("M84");
-        }
-      }break;
     case 6:
+    case 7:
       {
-        if(force_lcd_update)
+      if(force_lcd_update)
         {
-          lcd.setCursor(0,line);lcd.print(" v-max e:");
+          lcd.setCursor(0,line);lcd.print(" Vmax ");
+          if(i==4)lcd.print("x:");
+          if(i==5)lcd.print("y:");
+          if(i==6)lcd.print("z:");
+          if(i==7)lcd.print("e:");
+          lcd.setCursor(13,line);lcd.print(itostr3(max_feedrate[i-3]/60));
         }
-        if((activeline==line) && CLICKED)
+        
+        if((activeline==line) )
         {
-          //enquecommand("M84");
+          if(CLICKED)
+          {
+            linechanging=!linechanging;
+            if(linechanging)
+            {
+               encoderpos=(int)max_feedrate[i-3]/60;
+            }
+            else
+            {
+              max_feedrate[i-3]= encoderpos*60;
+              encoderpos=activeline*lcdslow;
+                
+            }
+            BLOCK;
+          }
+          if(linechanging)
+          {
+            if(encoderpos<1) encoderpos=1;
+            if(encoderpos>990) encoderpos=990;
+            lcd.setCursor(13,line);lcd.print(itostr3(encoderpos));
+          }
         }
       }break;
     
-    case 7:
+    case 8:
     {
       if(force_lcd_update)
-      {
-        lcd.setCursor(0,line);lcd.print(" v-min:");
-      }
-      if((activeline==line) && CLICKED)
-      {
-        //enquecommand("M84");
-      }
-    }break;
-    case 8:
-      {
-        if(force_lcd_update)
         {
-          lcd.setCursor(0,line);lcd.print(" a-max x:"); 
+          lcd.setCursor(0,line);lcd.print(" Vmin:");
+          lcd.setCursor(13,line);lcd.print(itostr3(minimumfeedrate/60));
         }
-        if((activeline==line) && CLICKED)
+        
+        if((activeline==line) )
         {
-          //target_raw = temp2analog(170);
+          if(CLICKED)
+          {
+            linechanging=!linechanging;
+            if(linechanging)
+            {
+               encoderpos=(int)minimumfeedrate/60;
+            }
+            else
+            {
+              minimumfeedrate= encoderpos*60;
+              encoderpos=activeline*lcdslow;
+                
+            }
+            BLOCK;
+          }
+          if(linechanging)
+          {
+            if(encoderpos<0) encoderpos=0;
+            if(encoderpos>990) encoderpos=990;
+            lcd.setCursor(13,line);lcd.print(itostr3(encoderpos));
+          }
         }
       }break;
-    case 9:
-      {
-        if(force_lcd_update)
-        {
-          lcd.setCursor(0,line);lcd.print(" a-max y:");
-        }
-        if((activeline==line) && CLICKED)
-        {
-          //enquecommand("G92 E0");
-          //enquecommand("G1 F700 E50");
-        }
-      }break;
+    
+    case 9:      
     case 10:
-      {
-        if(force_lcd_update)
+    case 11:
+    case 12:
+    {
+      if(force_lcd_update)
         {
-          lcd.setCursor(0,line);lcd.print(" a-max z:");
+          lcd.setCursor(0,line);lcd.print(" Amax ");
+          if(i==9)lcd.print("x:");
+          if(i==10)lcd.print("y:");
+          if(i==11)lcd.print("z:");
+          if(i==12)lcd.print("e:");
+          lcd.setCursor(13,line);lcd.print(itostr3(max_acceleration_units_per_sq_second[i-8]/100));lcd.print("00");
         }
-        if((activeline==line) && CLICKED)
+        
+        if((activeline==line) )
         {
-          //enquecommand("M84");
+          if(CLICKED)
+          {
+            linechanging=!linechanging;
+            if(linechanging)
+            {
+               encoderpos=(int)max_acceleration_units_per_sq_second[i-8]/100;
+            }
+            else
+            {
+              max_acceleration_units_per_sq_second[i-8]= encoderpos*100;
+              encoderpos=activeline*lcdslow;
+                
+            }
+            BLOCK;
+          }
+          if(linechanging)
+          {
+            if(encoderpos<1) encoderpos=1;
+            if(encoderpos>990) encoderpos=990;
+            lcd.setCursor(13,line);lcd.print(itostr3(encoderpos));lcd.print("00");
+          }
         }
       }break;
-    case 11:
+    case 13://float retract_acceleration = 7000;
+    {
+        if(force_lcd_update)
+        {
+          lcd.setCursor(0,line);lcd.print(" Aretra:");
+          lcd.setCursor(13,line);lcd.print(ftostr3(retract_acceleration/100));lcd.print("00");
+        }
+        
+        if((activeline==line) )
+        {
+          if(CLICKED)
+          {
+            linechanging=!linechanging;
+            if(linechanging)
+            {
+               encoderpos=(int)retract_acceleration/100;
+            }
+            else
+            {
+              retract_acceleration= encoderpos*100;
+              encoderpos=activeline*lcdslow;
+                
+            }
+            BLOCK;
+          }
+          if(linechanging)
+          {
+            if(encoderpos<10) encoderpos=10;
+            if(encoderpos>990) encoderpos=990;
+            lcd.setCursor(13,line);lcd.print(itostr3(encoderpos));lcd.print("00");
+          }
+        }
+      }break;
+      
+    case 14:
     {
       if(force_lcd_update)
       {
@@ -560,7 +693,7 @@ void MainMenu::showControl()
         //enquecommand("M84");
       }
     }break;
-    case 12:
+    case 15:
     {
       if(force_lcd_update)
       {
@@ -595,8 +728,8 @@ void MainMenu::showControl()
     {
      lineoffset++;
      encoderpos=3*lcdslow;
-     if(lineoffset>(12+1-LCD_HEIGHT))
-       lineoffset=12+1-LCD_HEIGHT;
+     if(lineoffset>(13+1-LCD_HEIGHT))
+       lineoffset=13+1-LCD_HEIGHT;
      force_lcd_update=true;
     }
     //encoderpos=encoderpos%LCD_HEIGHT;
@@ -863,6 +996,7 @@ void MainMenu::update()
   if(timeoutToStatus<millis())
     status=Main_Status;
   force_lcd_update=false;
+  lastencoderpos=encoderpos;
 }
 
 
