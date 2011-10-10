@@ -545,7 +545,7 @@ void MainMenu::showControl()
           if(i==5)lcd.print("y:");
           if(i==6)lcd.print("z:");
           if(i==7)lcd.print("e:");
-          lcd.setCursor(13,line);lcd.print(itostr3(max_feedrate[i-3]/60));
+          lcd.setCursor(13,line);lcd.print(itostr3(max_feedrate[i-4]/60));
         }
         
         if((activeline==line) )
@@ -555,11 +555,11 @@ void MainMenu::showControl()
             linechanging=!linechanging;
             if(linechanging)
             {
-               encoderpos=(int)max_feedrate[i-3]/60;
+               encoderpos=(int)max_feedrate[i-4]/60;
             }
             else
             {
-              max_feedrate[i-3]= encoderpos*60;
+              max_feedrate[i-4]= encoderpos*60;
               encoderpos=activeline*lcdslow;
                 
             }
@@ -620,7 +620,7 @@ void MainMenu::showControl()
           if(i==10)lcd.print("y:");
           if(i==11)lcd.print("z:");
           if(i==12)lcd.print("e:");
-          lcd.setCursor(13,line);lcd.print(itostr3(max_acceleration_units_per_sq_second[i-8]/100));lcd.print("00");
+          lcd.setCursor(13,line);lcd.print(itostr3(max_acceleration_units_per_sq_second[i-9]/100));lcd.print("00");
         }
         
         if((activeline==line) )
@@ -630,11 +630,11 @@ void MainMenu::showControl()
             linechanging=!linechanging;
             if(linechanging)
             {
-               encoderpos=(int)max_acceleration_units_per_sq_second[i-8]/100;
+               encoderpos=(int)max_acceleration_units_per_sq_second[i-9]/100;
             }
             else
             {
-              max_acceleration_units_per_sq_second[i-8]= encoderpos*100;
+              max_acceleration_units_per_sq_second[i-9]= encoderpos*100;
               encoderpos=activeline*lcdslow;
                 
             }
