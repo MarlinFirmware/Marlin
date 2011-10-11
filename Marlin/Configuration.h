@@ -95,8 +95,8 @@ bool axis_relative_modes[] = {false, false, false, false};
 #define DEFAULT_MINIMUMFEEDRATE       00*60;      // minimum feedrate
 #define DEFAULT_MINTRAVELFEEDRATE     00*60;
 #define DEFAULT_MINSEGMENTTIME        20000;    // minimum segmenttime to prevent buffer underruns
-#define DEFAULT_XYJERK                5.0*60;    
-#define DEFAULT_ZJERK                 1.0*60;
+#define DEFAULT_XYJERK                25.0*60;    
+#define DEFAULT_ZJERK                 10.0*60;
 
 
 // The watchdog waits for the watchperiod in milliseconds whenever an M104 or M109 increases the target temperature
