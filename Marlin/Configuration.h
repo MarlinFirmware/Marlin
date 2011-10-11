@@ -84,7 +84,7 @@ const int dropsegments=2; //everything with this number of steps  will be ignore
 
 //// MOVEMENT SETTINGS
 #define NUM_AXIS 4 // The axis order in all axis related arrays is X, Y, Z, E
-float max_feedrate[] = {190*60, 190*60, 10*60, 500000}; // set the max speeds
+float max_feedrate[] = {190*60, 190*60, 10*60, 100*60}; // set the max speeds
 //note: on bernhards ultimaker 200 200 12 are working well.
 float homing_feedrate[] = {70*60, 70*60, 12*60, 0};  // set the homing speeds
 //the followint checks if an extrusion is existent in the move. if _not_, the speed of the move is set to the maximum speed. 
@@ -98,7 +98,7 @@ bool axis_relative_modes[] = {false, false, false, false};
 float acceleration = 4500;         // Normal acceleration mm/s^2  THIS IS THE DEFAULT ACCELERATION for all moves. M204 SXXXX
 float retract_acceleration = 7000; //  mm/s^2   filament pull-pack and push-forward  while standing still in the other axis M204 TXXXX
 float max_xy_jerk = 30*60; //speed than can be stopped at once, if i understand correctly.
-float max_z_jerk = 1*60;
+float max_z_jerk = 5*60;
 // X, Y, Z and E max acceleration in mm/s^2 for printing moves or retracts
 long max_acceleration_units_per_sq_second[] = {9000,9000,150,10000}; // Use M201 to override by software
 float minimumfeedrate=20;
