@@ -91,7 +91,7 @@ void lcd_status()
 #ifdef ULTIPANEL
   static long previous_millis_buttons=0;
   buttons_check();
-  previous_millis_buttons=millis();
+  //previous_millis_buttons=millis();
   static uint8_t oldbuttons=0;
   if((buttons==oldbuttons) &&  ((millis() - previous_millis_lcd) < LCD_UPDATE_INTERVAL)   )
     return;
@@ -869,6 +869,7 @@ uint8_t getnrfilenames()
 
 void MainMenu::showSD()
 {
+#ifdef SDSUPPORT
  uint8_t line=0;
  if(lastlineoffset!=lineoffset)
  {
@@ -989,12 +990,14 @@ void MainMenu::showSD()
     lcd.setCursor(0,activeline);lcd.print((activeline+lineoffset)?'>':'\003');   
     
   }
-  
+#endif
 }
 
 enum {ItemM_watch, ItemM_prepare, ItemM_control, ItemM_file };
 void MainMenu::showMainMenu()
 {
+   if(encoderpos/lcdslow!=lastencoderpos/lcdslow)
+     force_lcd_update=true;
   for(short line=0;line<4;line++)
   {
     switch(line)
@@ -1030,6 +1033,7 @@ void MainMenu::showMainMenu()
           beepshort();
         }
       }break;
+#ifdef SDSUPPORT
       case ItemM_file:    
       {
         if(force_lcd_update) 
@@ -1050,6 +1054,7 @@ void MainMenu::showMainMenu()
           beepshort();
         }
       }break;
+#endif
       default: 
       break;
     }
@@ -1059,7 +1064,7 @@ void MainMenu::showMainMenu()
   {
     lcd.setCursor(0,activeline);lcd.print(activeline?' ':' ');
     if(encoderpos<0) encoderpos=0;
-    if(encoderpos>4*lcdslow) encoderpos=4*lcdslow;
+    if(encoderpos>3*lcdslow) encoderpos=3*lcdslow;
     activeline=abs(encoderpos/lcdslow)%4;
     
     lastencoderpos=encoderpos;
