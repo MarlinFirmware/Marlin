@@ -40,6 +40,7 @@ const bool ENDSTOPS_INVERTING = true; // set to true to invert the logic of the 
 #define SDSUPPORT // Enable SD Card Support in Hardware Console
 
 #define ULTRA_LCD  //improved 3 button or clickencoder interface
+#define ULTIPANEL
 const int dropsegments=2; //everything with this number of steps  will be ignored as move
 
 //// ADVANCED SETTINGS - to tweak parameters

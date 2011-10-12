@@ -51,11 +51,13 @@ void lcd_init()
     B10001,
     B01110
   };
-  byte uplevel[8]={0x04, 0x0e, 0x1f, 0x04, 0x1c, 0x00, 0x00, 0x00};
+  byte uplevel[8]={0x04, 0x0e, 0x1f, 0x04, 0x1c, 0x00, 0x00, 0x00};//thanks joris
+  byte refresh[8]={0x00, 0x06, 0x19, 0x18, 0x03, 0x13, 0x0c, 0x00}; //thanks joris
   lcd.begin(LCD_WIDTH, LCD_HEIGHT);
   lcd.createChar(1,Degree);
   lcd.createChar(2,Thermometer);
   lcd.createChar(3,uplevel);
+  lcd.createChar(4,refresh);
   LCD_MESSAGE(fillto(LCD_WIDTH,"UltiMarlin ready."));
 }
 
@@ -86,20 +88,24 @@ void beepshort()
 }
 void lcd_status()
 {
+#ifdef ULTIPANEL
   static long previous_millis_buttons=0;
-  if(millis() - previous_millis_buttons<3)
-    return;
   buttons_check();
   previous_millis_buttons=millis();
   static uint8_t oldbuttons=0;
   if((buttons==oldbuttons) &&  ((millis() - previous_millis_lcd) < LCD_UPDATE_INTERVAL)   )
     return;
   oldbuttons=buttons;
-  previous_millis_lcd=millis();
+#else
   
+  if(((millis() - previous_millis_lcd) < LCD_UPDATE_INTERVAL)   )
+    return;
+#endif
+  
+  previous_millis_lcd=millis();
   menu.update();
 }
-
+#ifdef ULTIPANEL  
 void buttons_init()
 {
   pinMode(SHIFT_CLK,OUTPUT); 
@@ -182,13 +188,17 @@ void buttons_check()
   busy=false;
 }
 
+#endif
+
 MainMenu::MainMenu()
 {
   status=Main_Status;
   displayStartingRow=0;
   activeline=0;
   force_lcd_update=true;
+#ifdef ULTIPANEL
   buttons_init();
+#endif
   lcd_init();
   linechanging=false;
 }
@@ -883,7 +893,7 @@ void MainMenu::showSD()
       {
         if(force_lcd_update)
         {
-          lcd.setCursor(0,line);lcd.print(" Refresh");
+          lcd.setCursor(0,line);lcd.print(" \004Refresh");
         }
         if((activeline==line) && CLICKED)
         {
@@ -916,6 +926,8 @@ void MainMenu::showSD()
           enquecommand(cmd);
           enquecommand("M24");
           beep(); 
+          status=Main_Status;
+          lcd_status(filename);
         }
       }
       

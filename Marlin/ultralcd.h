@@ -33,7 +33,8 @@
 
   // blocking time for recognizing a new keypress of one key, ms
   #define blocktime 500
-  #define lcdslow 4
+  #define lcdslow 5
+#ifdef ULTIPANEL
 
 
   //bits in the shift register that carry the buttons for:
@@ -66,7 +67,7 @@
   
 #define CLICKED ((buttons&B_MI)||(buttons&B_ST))
 #define BLOCK {blocking[BL_MI]=millis()+blocktime;blocking[BL_ST]=millis()+blocktime;}
-
+#endif
   enum MainStatus{Main_Status, Main_Menu, Main_Prepare, Main_Control, Main_SD};
 
   class MainMenu{
@@ -105,5 +106,9 @@
   #define LCD_MESSAGE(x)
 #endif
   
+#ifndef ULTIPANEL  
+ #define CLICKED true
+#define BLOCK ;
+#endif 
 #endif //ULTRALCD
 
