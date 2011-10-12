@@ -38,9 +38,10 @@ const bool ENDSTOPS_INVERTING = true; // set to true to invert the logic of the 
 
 // Comment out (using // at the start of the line) to disable SD support:
 //#define SDSUPPORT // Enable SD Card Support in Hardware Console
-
 //#define ULTRA_LCD  //improved 3 button or clickencoder interface
 //#define ULTIPANEL
+//#define SIMPLE_LCD  // 16x2 Simple LCD Display (Bootup, Temp Monitoring only)
+
 const int dropsegments=2; //everything with this number of steps  will be ignored as move
 
 //// ADVANCED SETTINGS - to tweak parameters

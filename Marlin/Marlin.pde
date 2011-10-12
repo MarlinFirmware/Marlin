@@ -44,7 +44,9 @@
 #include "Marlin.h"
 #include "speed_lookuptable.h"
 #include "ultralcd.h"
-
+#ifdef SIMPLE_LCD
+  #include "Simplelcd.h"
+#endif
 
 char version_string[] = "U0.9.3.3-BK";
 
@@ -58,7 +60,7 @@ char version_string[] = "U0.9.3.3-BK";
 #endif //CRITICAL_SECTION_START
 
 
-#if defined SDSUPPORT || defined FANCY_LCD 
+#if defined SDSUPPORT
 // The number of linear motions that can be in the plan at any give time.  
   #define BLOCK_BUFFER_SIZE 16   // SD,LCD,Buttons take more memory, block buffer needs to be smaller
 #else
@@ -66,7 +68,7 @@ char version_string[] = "U0.9.3.3-BK";
 #endif
 
 #ifdef SIMPLE_LCD
-  #define BLOCK_BUFFER_SIZE 24 // A little less buffer for just a simple LCD
+  #define BLOCK_BUFFER_SIZE 30 // A little less buffer for just a simple LCD
 #endif
 
 // if DEBUG_STEPS is enabled, M114 can be used to compare two methods of determining the X,Y,Z position of the printer.
