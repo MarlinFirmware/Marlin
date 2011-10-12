@@ -26,12 +26,6 @@
 #define BNUMTEMPS NUMTEMPS
 #define bedtemptable temptable
 
-//// Calibration variables
-// X, Y, Z, E steps per unit - Metric Mendel / Orca with V9 extruder:
-float axis_steps_per_unit[] = {79.87220447, 79.87220447,  200*8/3., 14}; 
-// For E steps per unit = 67 for v9 with direct drive (needs finetuning) for other extruders this needs to be changed 
-// Metric Prusa Mendel with Makergear geared stepper extruder:
-//float axis_steps_per_unit[] = {80,80,3200/1.25,1380}; 
 
 //// Endstop Settings
 #define ENDSTOPPULLUPS // Comment this out (using // at the start of the line) to disable the endstop pullup resistors
@@ -43,8 +37,8 @@ const bool ENDSTOPS_INVERTING = true; // set to true to invert the logic of the 
 #define BAUDRATE 115200
 
 // Comment out (using // at the start of the line) to disable SD support:
-//#define SDSUPPORT // Enable SD Card Support in Hardware Console
-//#define FANCY_LCD  // Hardware Console with 20x4 multipage LCD
+#define SDSUPPORT // Enable SD Card Support in Hardware Console
+#define FANCY_LCD  // Hardware Console with 20x4 multipage LCD
 //#define SIMPLE_LCD  // 16x2 Simple LCD Display (Bootup, Temp Monitoring only)
 const int dropsegments=2; //everything with this number of steps  will be ignored as move
 
@@ -84,7 +78,6 @@ const int dropsegments=2; //everything with this number of steps  will be ignore
 
 //// MOVEMENT SETTINGS
 #define NUM_AXIS 4 // The axis order in all axis related arrays is X, Y, Z, E
-float max_feedrate[] = {190*60, 190*60, 10*60, 500000}; // set the max speeds
 //note: on bernhards ultimaker 200 200 12 are working well.
 float homing_feedrate[] = {70*60, 70*60, 12*60, 0};  // set the homing speeds
 //the followint checks if an extrusion is existent in the move. if _not_, the speed of the move is set to the maximum speed. 
@@ -93,15 +86,22 @@ float homing_feedrate[] = {70*60, 70*60, 12*60, 0};  // set the homing speeds
 #define TRAVELING_AT_MAXSPEED  
 bool axis_relative_modes[] = {false, false, false, false};
 
-//// Acceleration settings
-// X, Y, Z, E maximum start speed for accelerated moves. E default values are good for skeinforge 40+, for older versions raise them a lot.
-float acceleration = 4600;         // Normal acceleration mm/s^2  THIS IS THE DEFAULT ACCELERATION for all moves. M204 SXXXX
-float retract_acceleration = 7000; //  mm/s^2   filament pull-pack and push-forward  while standing still in the other axis M204 TXXXX
-float max_xy_jerk = 25.0*60; //speed than can be stopped at once, if i understand correctly.
-float max_z_jerk = 10*60;
-// X, Y, Z and E max acceleration in mm/s^2 for printing moves or retracts
-long max_acceleration_units_per_sq_second[] = {9000,9000,150,10000}; // Use M201 to override by software
-float minimumfeedrate=20;
+
+// default settings 
+
+#define DEFAULT_AXIS_STEPS_PER_UNIT   {80,80,200*8/3,14};                    // default steps per unit for ultimaker 
+#define DEFAULT_MAX_FEEDRATE          {190*60, 190*60, 10*60, 500000}        
+#define DEFAULT_MAX_ACCELERATION      {9000,9000,150,10000}    // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for skeinforge 40+, for older versions raise them a lot.
+
+#define DEFAULT_ACCELERATION          4600;    // X, Y, Z and E max acceleration in mm/s^2 for printing moves 
+#define DEFAULT_RETRACT_ACCELERATION  7000;   // X, Y, Z and E max acceleration in mm/s^2 for r retracts
+
+#define DEFAULT_MINIMUMFEEDRATE       00*60;      // minimum feedrate
+#define DEFAULT_MINTRAVELFEEDRATE     00*60;
+#define DEFAULT_MINSEGMENTTIME        20000;    // minimum segmenttime to prevent buffer underruns
+#define DEFAULT_XYJERK                25.0*60;    
+#define DEFAULT_ZJERK                 10.0*60;
+
 
 // The watchdog waits for the watchperiod in milliseconds whenever an M104 or M109 increases the target temperature
 // If the temperature has not increased at the end of that period, the target temperature is set to zero. It can be reset with another M104/M109
@@ -117,6 +117,7 @@ float minimumfeedrate=20;
 #define MAXTEMP 275
 
 
+// minimum time in microseconds that a movement needs to take to prevent the buffer from being emptied.   Higher baudrates might reduce this number.
 // minimum time in microseconds that a movement needs to take if the buffer is emptied.   Increase this number if you see blobs while printing high speed & high detail.  It will slowdown on the detailed stuff.
 #define MIN_SEGMENT_TIME 60000
 
