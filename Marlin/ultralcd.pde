@@ -1041,6 +1041,7 @@ void MainMenu::showMainMenu()
   {
     lcd.setCursor(0,activeline);lcd.print(activeline?' ':' ');
     if(encoderpos<0) encoderpos=0;
+    if(encoderpos>4*lcdslow) encoderpos=4*lcdslow;
     activeline=abs(encoderpos/lcdslow)%4;
     
     lastencoderpos=encoderpos;

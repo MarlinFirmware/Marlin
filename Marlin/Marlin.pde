@@ -2313,7 +2313,7 @@ ISR(TIMER1_COMPA_vect)
 
   busy = true;
   sei(); // Re enable interrupts (normally disabled while inside an interrupt handler)
-#ifdef FANCY_LCD
+#ifdef ULTIPANEL
   static int breakdown=0;
 	if((breakdown++)%100==0)
    buttons_check();
