@@ -429,7 +429,7 @@ enum {
   ItemC_vmaxx, ItemC_vmaxy, ItemC_vmaxz, ItemC_vmaxe, 
   ItemC_vmin,  
   ItemC_amaxx, ItemC_amaxy, ItemC_amaxz, ItemC_amaxe, 
-  ItemC_aret,ItemC_esteps, ItemC_store, ItemC_load
+  ItemC_aret,ItemC_esteps, ItemC_store, ItemC_load,ItemC_failsafe
 };
 
 void MainMenu::showControl()
@@ -752,9 +752,25 @@ void MainMenu::showControl()
       {
         //enquecommand("M84");
         beepshort();
+        BLOCK;
+        StoreSettings();
       }
     }break;
     case ItemC_load:
+    {
+      if(force_lcd_update)
+      {
+        lcd.setCursor(0,line);lcd.print(" Load EPROM");
+      }
+      if((activeline==line) && CLICKED)
+      {
+        //enquecommand("M84");
+        beepshort();
+        BLOCK;
+        RetrieveSettings();
+      }
+    }break;
+    case ItemC_failsafe:
     {
       if(force_lcd_update)
       {
@@ -764,6 +780,8 @@ void MainMenu::showControl()
       {
         //enquecommand("M84");
         beepshort();
+        BLOCK;
+        RetrieveSettings(true);
       }
     }break;
     default:   
@@ -790,8 +808,8 @@ void MainMenu::showControl()
     {
      lineoffset++;
      encoderpos=3*lcdslow;
-     if(lineoffset>(ItemC_esteps+1-LCD_HEIGHT))
-       lineoffset=ItemC_esteps+1-LCD_HEIGHT;
+     if(lineoffset>(ItemC_failsafe+1-LCD_HEIGHT))
+       lineoffset=ItemC_failsafe+1-LCD_HEIGHT;
      force_lcd_update=true;
     }
     //encoderpos=encoderpos%LCD_HEIGHT;

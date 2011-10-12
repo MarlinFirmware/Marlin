@@ -37,10 +37,10 @@ const bool ENDSTOPS_INVERTING = true; // set to true to invert the logic of the 
 #define BAUDRATE 115200
 
 // Comment out (using // at the start of the line) to disable SD support:
-#define SDSUPPORT // Enable SD Card Support in Hardware Console
+//#define SDSUPPORT // Enable SD Card Support in Hardware Console
 
-#define ULTRA_LCD  //improved 3 button or clickencoder interface
-#define ULTIPANEL
+//#define ULTRA_LCD  //improved 3 button or clickencoder interface
+//#define ULTIPANEL
 const int dropsegments=2; //everything with this number of steps  will be ignored as move
 
 //// ADVANCED SETTINGS - to tweak parameters
@@ -90,8 +90,8 @@ bool axis_relative_modes[] = {false, false, false, false};
 
 // default settings 
 
-#define DEFAULT_AXIS_STEPS_PER_UNIT   {80,80,200*8/3,14};                    // default steps per unit for ultimaker 
-#define DEFAULT_MAX_FEEDRATE          {190*60, 190*60, 10*60, 500000}        
+#define DEFAULT_AXIS_STEPS_PER_UNIT   {79.87220447,79.87220447,200*8/3,14};                    // default steps per unit for ultimaker 
+#define DEFAULT_MAX_FEEDRATE          {160*60, 160*60, 10*60, 500000}        
 #define DEFAULT_MAX_ACCELERATION      {9000,9000,150,10000}    // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for skeinforge 40+, for older versions raise them a lot.
 
 #define DEFAULT_ACCELERATION          4600;    // X, Y, Z and E max acceleration in mm/s^2 for printing moves 
@@ -100,7 +100,7 @@ bool axis_relative_modes[] = {false, false, false, false};
 #define DEFAULT_MINIMUMFEEDRATE       00*60;      // minimum feedrate
 #define DEFAULT_MINTRAVELFEEDRATE     00*60;
 #define DEFAULT_MINSEGMENTTIME        20000;    // minimum segmenttime to prevent buffer underruns
-#define DEFAULT_XYJERK                25.0*60;    
+#define DEFAULT_XYJERK                30.0*60;    
 #define DEFAULT_ZJERK                 10.0*60;
 
 
