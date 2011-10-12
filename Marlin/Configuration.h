@@ -37,10 +37,23 @@ const bool ENDSTOPS_INVERTING = true; // set to true to invert the logic of the 
 #define BAUDRATE 115200
 
 // Comment out (using // at the start of the line) to disable SD support:
-//#define SDSUPPORT // Enable SD Card Support in Hardware Console
-//#define ULTRA_LCD  //improved 3 button or clickencoder interface
+
+//#define ULTRA_LCD  //any lcd 
+#define LCD_WIDTH 20
+#define LCD_HEIGHT 4
+
 //#define ULTIPANEL
-//#define SIMPLE_LCD  // 16x2 Simple LCD Display (Bootup, Temp Monitoring only)
+#ifdef ULTIPANEL
+ #define SDSUPPORT
+ #define ULTRA_LCD
+ #define LCD_WIDTH 20
+#define LCD_HEIGHT 4
+#endif
+
+
+//#define SDSUPPORT // Enable SD Card Support in Hardware Console
+
+
 
 const int dropsegments=2; //everything with this number of steps  will be ignored as move
 

@@ -64,6 +64,7 @@ void lcd_init()
 
 void beep()
 {
+#ifdef ULTIPANEL
   // [ErikDeBruijn] changed to two short beeps, more friendly
   pinMode(BEEPER,OUTPUT);
   for(int i=0;i<20;i++){
@@ -72,10 +73,11 @@ void beep()
   digitalWrite(BEEPER,LOW);
   delay(5);
   }
-  
+#endif
 }
 void beepshort()
 {
+#ifdef ULTIPANEL
   // [ErikDeBruijn] changed to two short beeps, more friendly
   pinMode(BEEPER,OUTPUT);
   for(int i=0;i<10;i++){
@@ -84,7 +86,7 @@ void beepshort()
   digitalWrite(BEEPER,LOW);
   delay(3);
   }
-  
+#endif  
 }
 void lcd_status()
 {
@@ -208,6 +210,7 @@ void clearLcd()
 }
 void MainMenu::showStatus()
 { 
+#if LCD_HEIGHT==4
   static int oldcurrentraw=-1;
   static int oldtargetraw=-1;
   if(force_lcd_update)  //initial display of content
@@ -232,7 +235,7 @@ void MainMenu::showStatus()
     lcd.print(ftostr3(analog2temp(target_raw)));
     oldtargetraw=target_raw;
   }
-#if defined BED_USES_THERMISTOR || defined BED_USES_AD595 
+  #if defined BED_USES_THERMISTOR || defined BED_USES_AD595 
  static int oldcurrentbedraw=-1;
  static int oldtargetbedraw=-1; 
  if((current_bed_raw!=oldcurrentbedraw)||force_lcd_update)
@@ -247,7 +250,7 @@ void MainMenu::showStatus()
     lcd.print(ftostr3(analog2temp(target_bed_raw)));
     oldtargetraw=target_bed_raw;
   }
-#endif
+  #endif
   //starttime=2;
   static uint16_t oldtime=0;
   if(starttime!=0)
@@ -293,7 +296,33 @@ void MainMenu::showStatus()
     lcd.print(fillto(LCD_WIDTH,messagetext));
     messagetext[0]='\0';
   }
-  
+#else //smaller LCDS----------------------------------
+  static int oldcurrentraw=-1;
+  static int oldtargetraw=-1;
+  if(force_lcd_update)  //initial display of content
+  {
+    encoderpos=feedmultiply;
+    lcd.setCursor(0,0);lcd.print("\002123/567\001 ");
+    #if defined BED_USES_THERMISTOR || defined BED_USES_AD595 
+    lcd.setCursor(10,0);lcd.print("B123/567\001 ");
+    #endif
+  }
+    
+
+  if((abs(current_raw-oldcurrentraw)>3)||force_lcd_update)
+  {
+    lcd.setCursor(1,0);
+    lcd.print(ftostr3(analog2temp(current_raw)));
+    oldcurrentraw=current_raw;
+  }
+  if((target_raw!=oldtargetraw)||force_lcd_update)
+  {
+    lcd.setCursor(5,0);
+    lcd.print(ftostr3(analog2temp(target_raw)));
+    oldtargetraw=target_raw;
+  }
+
+#endif
 }
 
 enum {ItemP_exit, ItemP_home, ItemP_origin, ItemP_preheat, ItemP_extrude, ItemP_disstep};
@@ -998,7 +1027,10 @@ void MainMenu::showMainMenu()
 {
    if(encoderpos/lcdslow!=lastencoderpos/lcdslow)
      force_lcd_update=true;
-  for(short line=0;line<4;line++)
+#ifndef ULTIPANEL
+   force_lcd_update=false;
+#endif
+  for(short line=0;line<LCD_HEIGHT;line++)
   {
     switch(line)
     { 
@@ -1065,7 +1097,7 @@ void MainMenu::showMainMenu()
     lcd.setCursor(0,activeline);lcd.print(activeline?' ':' ');
     if(encoderpos<0) encoderpos=0;
     if(encoderpos>3*lcdslow) encoderpos=3*lcdslow;
-    activeline=abs(encoderpos/lcdslow)%4;
+    activeline=abs(encoderpos/lcdslow)%LCD_HEIGHT;
     
     lastencoderpos=encoderpos;
     lcd.setCursor(0,activeline);lcd.print(activeline?'>':'\003');

@@ -19,8 +19,7 @@
   extern LiquidCrystal lcd;
 
   //lcd display size
-  #define LCD_WIDTH 20
-  #define LCD_HEIGHT 4
+
 
   //arduino pin witch triggers an piezzo beeper
   #define BEEPER 18
@@ -107,7 +106,7 @@
 #endif
   
 #ifndef ULTIPANEL  
- #define CLICKED true
+ #define CLICKED false
 #define BLOCK ;
 #endif 
 #endif //ULTRALCD
