@@ -847,14 +847,22 @@ void MainMenu::showSD()
    force_lcd_update=true;
    lcd.clear(); 
  }
- static uint8_t nrfiles;
+ static uint8_t nrfiles=0;
  if(force_lcd_update)
  {
-  nrfiles=getnrfilenames();
+  if(sdactive)
+  {
+    nrfiles=getnrfilenames();
+  }
+  else
+  {
+    nrfiles=0;
+    lineoffset=0;
+  }
   //Serial.print("Nr files:"); Serial.println((int)nrfiles);
  }
  
- for(uint8_t i=lineoffset;i<lineoffset+LCD_HEIGHT;i++)
+ for(int8_t i=lineoffset;i<lineoffset+LCD_HEIGHT;i++)
  {
   switch(i)
   {
@@ -881,6 +889,9 @@ void MainMenu::showSD()
         {
           BLOCK;
           beepshort();
+          initsd();
+          force_lcd_update=true;
+           nrfiles=getnrfilenames();
         }
       }break;
     default:
@@ -943,7 +954,10 @@ void MainMenu::showSD()
     activeline=encoderpos;
     if(activeline>3) activeline=3;
     if(activeline<0) activeline=0;
+    if(activeline>1+nrfiles) activeline=1+nrfiles;
+    if(lineoffset>1+nrfiles) lineoffset=1+nrfiles;
     lcd.setCursor(0,activeline);lcd.print((activeline+lineoffset)?'>':'\003');   
+    
   }
   
 }
