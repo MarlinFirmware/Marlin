@@ -292,7 +292,7 @@ void MainMenu::showStatus()
   }
   if(messagetext[0]!='\0')
   {
-    lcd.setCursor(0,3);
+    lcd.setCursor(0,LCD_HEIGHT-1);
     lcd.print(fillto(LCD_WIDTH,messagetext));
     messagetext[0]='\0';
   }
@@ -320,6 +320,13 @@ void MainMenu::showStatus()
     lcd.setCursor(5,0);
     lcd.print(ftostr3(analog2temp(target_raw)));
     oldtargetraw=target_raw;
+  }
+
+  if(messagetext[0]!='\0')
+  {
+    lcd.setCursor(0,LCD_HEIGHT-1);
+    lcd.print(fillto(LCD_WIDTH,messagetext));
+    messagetext[0]='\0';
   }
 
 #endif
