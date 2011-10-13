@@ -853,6 +853,7 @@ void MainMenu::showControl()
 
 void MainMenu::getfilename(const uint8_t nr)
 {
+#ifdef SDSUPPORT  
   dir_t p;
   root.rewind();
   uint8_t cnt=0;
@@ -877,10 +878,12 @@ void MainMenu::getfilename(const uint8_t nr)
     }
     filename[writepos++]=0;
   }
+#endif  
 }
 
 uint8_t getnrfilenames()
 {
+#ifdef SDSUPPORT
   dir_t p;
   root.rewind();
   uint8_t cnt=0;
@@ -894,6 +897,7 @@ uint8_t getnrfilenames()
     cnt++;
   }
   return cnt;
+#endif
 }
 
 void MainMenu::showSD()
