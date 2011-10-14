@@ -197,6 +197,7 @@ unsigned char temp_meas_ready = false;
   double pid_input;
   double pid_output;
   bool pid_reset;
+  float HeaterPower;
 #endif //PIDTEMP
 float tt = 0, bt = 0;
 #ifdef WATCHPERIOD
@@ -964,7 +965,7 @@ inline void process_commands()
             Serial.print(current_raw);       
           #if TEMP_1_PIN > -1
             Serial.print(" B:");
-            Serial.println(bt); 
+            Serial.println(HeaterPower); 
           #else
             Serial.println();
           #endif
@@ -1156,7 +1157,10 @@ inline void process_commands()
       Serial.print("Ki ");Serial.println(Ki/PID_dT);
       Serial.print("Kd ");Serial.println(Kd*PID_dT);
       temp_iState_min = 0.0;
+      if (Ki!=0) {
       temp_iState_max = PID_INTEGRAL_DRIVE_MAX / Ki;
+      }
+      else       temp_iState_max = 1.0e10;
       break;
 #endif //PIDTEMP
       case 500: // Store settings in EEPROM
@@ -1393,14 +1397,15 @@ void manage_heater()
   #endif
   #if (TEMP_0_PIN > -1) || defined (HEATER_USES_MAX66675)
     #ifdef PIDTEMP
-      error = target_raw - current_raw;
-      pTerm = (PID_PGAIN * error) / 100;
+      float error = target_raw - current_raw;
+      pTerm = (Kp * error) / 100;
       temp_iState += error;
       temp_iState = constrain(temp_iState, temp_iState_min, temp_iState_max);
-      iTerm = (PID_IGAIN * temp_iState) / 100;
-      dTerm = (PID_DGAIN * (current_raw - temp_dState)) / 100;
+      iTerm = (Ki * temp_iState) / 100;
+      dTerm = (Kd * (current_raw - temp_dState)) / 100;
       temp_dState = current_raw;
-      analogWrite(HEATER_0_PIN, constrain(pTerm + iTerm - dTerm, 0, PID_MAX));
+      HeaterPower= constrain(pTerm + iTerm - dTerm, 0, PID_MAX);
+      analogWrite(HEATER_0_PIN,HeaterPower);
     #else
       if(current_raw >= target_raw)
       {

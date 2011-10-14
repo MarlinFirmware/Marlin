@@ -117,16 +117,16 @@ bool axis_relative_modes[] = {false, false, false, false};
 
 /// PID settings:
 // Uncomment the following line to enable PID support.
-//#define PIDTEMP
+#define PIDTEMP
 #ifdef PIDTEMP
 //#define PID_DEBUG 1 // Sends debug data to the serial port. 
 //#define PID_OPENLOOP 1 // Puts PID in open loop. M104 sets the output power in %
-#define PID_MAX 156 // limits current to nozzle
+#define PID_MAX 255 // limits current to nozzle
 #define PID_INTEGRAL_DRIVE_MAX 156.0
 #define PID_dT 0.16
-double Kp = 20.0;
-double Ki = 1.5*PID_dT;
-double Kd = 80/PID_dT;
+double Kp = 1000; //20.0;
+double Ki = 0;  //1.5*PID_dT;
+double Kd = 0;  //80/PID_dT;
 #endif // PIDTEMP
 
 
