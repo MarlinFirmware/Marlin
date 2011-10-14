@@ -21,7 +21,7 @@ template <class T> int EEPROM_readAnything(int &ee, T& value)
 
 #define EEPROM_OFFSET 100
 
-#define EEPROM_VERSION "V03"  // IMPORTANT:  Whenever there are changes made to the variables stored in EEPROM
+#define EEPROM_VERSION "V04"  // IMPORTANT:  Whenever there are changes made to the variables stored in EEPROM
                               // in the functions below, also increment the version number. This makes sure that
                               // the default values are used whenever there is a change to the data, to prevent
                               // wrong data being written to the variables.
@@ -40,6 +40,9 @@ void StoreSettings() {
   EEPROM_writeAnything(i,minsegmenttime);
   EEPROM_writeAnything(i,max_xy_jerk);
   EEPROM_writeAnything(i,max_z_jerk);
+  EEPROM_writeAnything(i,Kp);
+  EEPROM_writeAnything(i,Ki);
+  EEPROM_writeAnything(i,Kd);
   char ver2[4]=EEPROM_VERSION;
   i=EEPROM_OFFSET;
   EEPROM_writeAnything(i,ver2); // validate data
@@ -64,6 +67,9 @@ void RetrieveSettings(bool def=false){  // if def=true, the default values will 
       EEPROM_readAnything(i,minsegmenttime);
       EEPROM_readAnything(i,max_xy_jerk);
       EEPROM_readAnything(i,max_z_jerk);
+      EEPROM_readAnything(i,Kp);
+      EEPROM_readAnything(i,Ki);
+      EEPROM_readAnything(i,Kd);
       Serial.println("Stored settings retreived:");
   }
   else {
@@ -113,6 +119,11 @@ void RetrieveSettings(bool def=false){  // if def=true, the default values will 
   Serial.print(" B");Serial.print(minsegmenttime);
   Serial.print(" X");Serial.print(max_xy_jerk/60);
   Serial.print(" Z");Serial.println(max_z_jerk/60);
+  Serial.println("PID settings:");
+  Serial.print("   M301"); 
+  Serial.print(" P");Serial.print(Kp);
+  Serial.print(" I");Serial.print(Ki);
+  Serial.print(" D");Serial.println(Kd);
   
 }  
 
