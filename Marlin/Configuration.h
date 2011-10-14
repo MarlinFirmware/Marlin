@@ -117,6 +117,10 @@ bool axis_relative_modes[] = {false, false, false, false};
 
 /// PID settings:
 // Uncomment the following line to enable PID support.
+#define SMOOTHING
+#define SMOOTHFACTOR 5.0
+float current_raw_average=0;
+
 #define PIDTEMP
 #ifdef PIDTEMP
 //#define PID_DEBUG 1 // Sends debug data to the serial port. 

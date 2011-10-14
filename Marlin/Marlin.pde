@@ -1372,12 +1372,13 @@ void manage_heater()
     current_raw = read_max6675();
   #endif
   #ifdef SMOOTHING
-  nma = (nma + current_raw) - (nma / SMOOTHFACTOR);
-  current_raw = nma / SMOOTHFACTOR;
+  
+  current_raw_average=(current_raw_average*(SMOOTHFACTOR-1)+current_raw)/SMOOTHFACTOR;
+
   #endif
   #ifdef WATCHPERIOD
     if(watchmillis && millis() - watchmillis > WATCHPERIOD){
-        if(watch_raw + 1 >= current_raw){
+        if(watch_raw + 1 >= current_raw_average){
             target_raw = 0;
             digitalWrite(HEATER_0_PIN,LOW);
             digitalWrite(LED_PIN,LOW);
@@ -1396,18 +1397,25 @@ void manage_heater()
     }
   #endif
   #if (TEMP_0_PIN > -1) || defined (HEATER_USES_MAX66675)
+    
     #ifdef PIDTEMP
-      float error = target_raw - current_raw;
-      pTerm = (Kp * error) / 100;
+    HeaterPower=0;
+    if (current_raw_average<temp2analog(analog2temp(target_raw)+15)) { // only enable PID if temperature is less than target_temperature+15
+      if (Kp>=0) {
+      float error = target_raw - current_raw_average;
+      pTerm = (Kp * error) / 100.0;
       temp_iState += error;
       temp_iState = constrain(temp_iState, temp_iState_min, temp_iState_max);
       iTerm = (Ki * temp_iState);
-      dTerm = (Kd * (current_raw - temp_dState)) / 100;
-      temp_dState = current_raw;
-      HeaterPower= constrain(pTerm + iTerm - dTerm, 0, PID_MAX);
-      analogWrite(HEATER_0_PIN,HeaterPower);
+      dTerm = (Kd * (current_raw_average - temp_dState)) / 100.0;
+      temp_dState = current_raw_average;
+      HeaterPower= constrain(pTerm + iTerm - dTerm, 0, PID_MAX);      
+      }
+      else  HeaterPower= constrain(-Kp,0, 255);      // 
+    }
+    analogWrite(HEATER_0_PIN,HeaterPower);
     #else
-      if(current_raw >= target_raw)
+      if(current_raw_average >= target_raw)
       {
         digitalWrite(HEATER_0_PIN,LOW);
         digitalWrite(LED_PIN,LOW);
