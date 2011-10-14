@@ -1401,7 +1401,7 @@ void manage_heater()
       pTerm = (Kp * error) / 100;
       temp_iState += error;
       temp_iState = constrain(temp_iState, temp_iState_min, temp_iState_max);
-      iTerm = (Ki * temp_iState) / 100;
+      iTerm = (Ki * temp_iState);
       dTerm = (Kd * (current_raw - temp_dState)) / 100;
       temp_dState = current_raw;
       HeaterPower= constrain(pTerm + iTerm - dTerm, 0, PID_MAX);

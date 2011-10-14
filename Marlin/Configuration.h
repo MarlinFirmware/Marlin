@@ -122,7 +122,7 @@ bool axis_relative_modes[] = {false, false, false, false};
 //#define PID_DEBUG 1 // Sends debug data to the serial port. 
 //#define PID_OPENLOOP 1 // Puts PID in open loop. M104 sets the output power in %
 #define PID_MAX 255 // limits current to nozzle
-#define PID_INTEGRAL_DRIVE_MAX 156.0
+#define PID_INTEGRAL_DRIVE_MAX 255
 #define PID_dT 0.16
 double Kp = 1000; //20.0;
 double Ki = 0;  //1.5*PID_dT;
