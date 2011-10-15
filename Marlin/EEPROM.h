@@ -52,7 +52,7 @@ void RetrieveSettings(bool def=false){  // if def=true, the default values will 
   char stored_ver[4];
   char ver[4]=EEPROM_VERSION;
   EEPROM_readAnything(i,stored_ver); //read stored version
-  Serial.print("Version: [");Serial.print(ver);Serial.print("] Stored version: [");Serial.print(stored_ver);Serial.println("]");
+//  Serial.print("Version: [");Serial.print(ver);Serial.print("] Stored version: [");Serial.print(stored_ver);Serial.println("]");
   if ((!def)&&(strncmp(ver,stored_ver,3)==0)) {   // version number match
       EEPROM_readAnything(i,axis_steps_per_unit);  
       EEPROM_readAnything(i,max_feedrate);  
