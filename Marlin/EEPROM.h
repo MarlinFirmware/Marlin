@@ -43,7 +43,7 @@ void StoreSettings() {
   char ver2[4]=EEPROM_VERSION;
   i=EEPROM_OFFSET;
   EEPROM_writeAnything(i,ver2); // validate data
-   Serial.println("Settings Stored");
+ //  Serial.println("Settings Stored");
 
 }
 
@@ -64,7 +64,7 @@ void RetrieveSettings(bool def=false){  // if def=true, the default values will 
       EEPROM_readAnything(i,minsegmenttime);
       EEPROM_readAnything(i,max_xy_jerk);
       EEPROM_readAnything(i,max_z_jerk);
-      Serial.println("Stored settings retreived:");
+   //   Serial.println("Stored settings retreived:");
   }
   else {
     float tmp1[]=DEFAULT_AXIS_STEPS_PER_UNIT;
@@ -82,8 +82,9 @@ void RetrieveSettings(bool def=false){  // if def=true, the default values will 
     mintravelfeedrate=DEFAULT_MINTRAVELFEEDRATE
     max_xy_jerk=DEFAULT_XYJERK;
     max_z_jerk=DEFAULT_ZJERK;
-    Serial.println("Using Default settings:");
+ //   Serial.println("Using Default settings:");
   }
+ /*
   Serial.println("Steps per unit:");
   Serial.print("   M92");
   Serial.print(" X");Serial.print(axis_steps_per_unit[0]);
@@ -113,7 +114,7 @@ void RetrieveSettings(bool def=false){  // if def=true, the default values will 
   Serial.print(" B");Serial.print(minsegmenttime);
   Serial.print(" X");Serial.print(max_xy_jerk/60);
   Serial.print(" Z");Serial.println(max_z_jerk/60);
-  
+  */
 }  
 
 
