@@ -539,12 +539,7 @@
 #define EXTRUDER_1_HEATER_PIN 3
 #define EXTRUDER_1_TEMPERATURE_PIN 10 
 
-#define LCD_PINS_RS 16 
-#define LCD_PINS_ENABLE 5
-#define LCD_PINS_D4 6
-#define LCD_PINS_D5 21 
-#define LCD_PINS_D6 20
-#define LCD_PINS_D7 19
+
 
 #define E_STEP_PIN         EXTRUDER_0_STEP_PIN
 #define E_DIR_PIN          EXTRUDER_0_DIR_PIN

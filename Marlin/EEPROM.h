@@ -52,7 +52,7 @@ void RetrieveSettings(bool def=false){  // if def=true, the default values will 
   char stored_ver[4];
   char ver[4]=EEPROM_VERSION;
   EEPROM_readAnything(i,stored_ver); //read stored version
-  Serial.print("Version: [");Serial.print(ver);Serial.print("] Stored version: [");Serial.print(stored_ver);Serial.println("]");
+  //Serial.print("Version: [");Serial.print(ver);Serial.print("] Stored version: [");Serial.print(stored_ver);Serial.println("]");
   if ((!def)&&(strncmp(ver,stored_ver,3)==0)) {   // version number match
       EEPROM_readAnything(i,axis_steps_per_unit);  
       EEPROM_readAnything(i,max_feedrate);  
@@ -64,7 +64,7 @@ void RetrieveSettings(bool def=false){  // if def=true, the default values will 
       EEPROM_readAnything(i,minsegmenttime);
       EEPROM_readAnything(i,max_xy_jerk);
       EEPROM_readAnything(i,max_z_jerk);
-      Serial.println("Stored settings retreived:");
+      //Serial.println("Stored settings retreived:");
   }
   else {
     float tmp1[]=DEFAULT_AXIS_STEPS_PER_UNIT;
@@ -82,38 +82,38 @@ void RetrieveSettings(bool def=false){  // if def=true, the default values will 
     mintravelfeedrate=DEFAULT_MINTRAVELFEEDRATE
     max_xy_jerk=DEFAULT_XYJERK;
     max_z_jerk=DEFAULT_ZJERK;
-    Serial.println("Using Default settings:");
+    //Serial.println("Using Default settings:");
   }
-  Serial.println("Steps per unit:");
-  Serial.print("   M92");
-  Serial.print(" X");Serial.print(axis_steps_per_unit[0]);
-  Serial.print(" Y");Serial.print(axis_steps_per_unit[1]);
-  Serial.print(" Z");Serial.print(axis_steps_per_unit[2]);
-  Serial.print(" E");Serial.println(axis_steps_per_unit[3]);
-  Serial.println("Maximum feedrates (mm/s):");
-  Serial.print ("   M203");
-  Serial.print(" X");Serial.print(max_feedrate[0]/60);
-  Serial.print(" Y");Serial.print(max_feedrate[1]/60);
-  Serial.print(" Z");Serial.print(max_feedrate[2]/60);
-  Serial.print(" E");Serial.println(max_feedrate[3]/60);
-  Serial.println("Maximum Acceleration (mm/s2):");
-  Serial.print("   M201");
-  Serial.print(" X");Serial.print(max_acceleration_units_per_sq_second[0]);
-  Serial.print(" Y");Serial.print(max_acceleration_units_per_sq_second[1]);
-  Serial.print(" Z");Serial.print(max_acceleration_units_per_sq_second[2]);
-  Serial.print(" E");Serial.println(max_acceleration_units_per_sq_second[3]);
-  Serial.println("Acceleration: S=acceleration, T=retract acceleration");
-  Serial.print("   M204");
-  Serial.print(" S");Serial.print(acceleration);
-  Serial.print(" T");Serial.println(retract_acceleration);
-  Serial.println("Advanced variables: S=Min feedrate (mm/s), T=Min travel feedrate (mm/s), B=minimum segment time (ms), X=maximum xY jerk (mm/s),  Z=maximum Z jerk (mm/s)");
-  Serial.print("   M205");
-  Serial.print(" S");Serial.print(minimumfeedrate/60);
-  Serial.print(" T");Serial.print(mintravelfeedrate/60);
-  Serial.print(" B");Serial.print(minsegmenttime);
-  Serial.print(" X");Serial.print(max_xy_jerk/60);
-  Serial.print(" Z");Serial.println(max_z_jerk/60);
-  
+  //Serial.println("Steps per unit:");
+  //Serial.print("   M92");
+  //Serial.print(" X");Serial.print(axis_steps_per_unit[0]);
+  //Serial.print(" Y");Serial.print(axis_steps_per_unit[1]);
+  //Serial.print(" Z");Serial.print(axis_steps_per_unit[2]);
+  //Serial.print(" E");Serial.println(axis_steps_per_unit[3]);
+  //Serial.println("Maximum feedrates (mm/s):");
+  //Serial.print ("   M203");
+//   Serial.print(" X");Serial.print(max_feedrate[0]/60);
+//   Serial.print(" Y");Serial.print(max_feedrate[1]/60);
+//   Serial.print(" Z");Serial.print(max_feedrate[2]/60);
+//   Serial.print(" E");Serial.println(max_feedrate[3]/60);
+//   Serial.println("Maximum Acceleration (mm/s2):");
+//   Serial.print("   M201");
+//   Serial.print(" X");Serial.print(max_acceleration_units_per_sq_second[0]);
+//   Serial.print(" Y");Serial.print(max_acceleration_units_per_sq_second[1]);
+//   Serial.print(" Z");Serial.print(max_acceleration_units_per_sq_second[2]);
+//   Serial.print(" E");Serial.println(max_acceleration_units_per_sq_second[3]);
+//   Serial.println("Acceleration: S=acceleration, T=retract acceleration");
+//   Serial.print("   M204");
+//   Serial.print(" S");Serial.print(acceleration);
+//   Serial.print(" T");Serial.println(retract_acceleration);
+//   Serial.println("Advanced variables: S=Min feedrate (mm/s), T=Min travel feedrate (mm/s), B=minimum segment time (ms), X=maximum xY jerk (mm/s),  Z=maximum Z jerk (mm/s)");
+//   Serial.print("   M205");
+//   Serial.print(" S");Serial.print(minimumfeedrate/60);
+//   Serial.print(" T");Serial.print(mintravelfeedrate/60);
+//   Serial.print(" B");Serial.print(minsegmenttime);
+//   Serial.print(" X");Serial.print(max_xy_jerk/60);
+//   Serial.print(" Z");Serial.println(max_z_jerk/60);
+//   
 }  
 
 

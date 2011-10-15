@@ -15,8 +15,13 @@ unsigned long previous_millis_lcd=0;
 volatile char buttons=0;  //the last checked buttons in a bit array.
 int encoderpos=0;
 short lastenc=0;
+#ifdef NEWPANEL
+
+long blocking=0;
+#else
 long blocking[8]={
   0,0,0,0,0,0,0,0};
+#endif
 MainMenu menu;
 
 void lcd_status(const char* message)
@@ -24,6 +29,12 @@ void lcd_status(const char* message)
   strncpy(messagetext,message,LCD_WIDTH);
 }
 
+void clear()
+{
+  //lcd.setCursor(0,0);
+  lcd.clear();
+  delay(1);
+}
 long previous_millis_buttons=0;
 
 void lcd_init()
@@ -64,6 +75,7 @@ void lcd_init()
 
 void beep()
 {
+  return;
 #ifdef ULTIPANEL
   // [ErikDeBruijn] changed to two short beeps, more friendly
   pinMode(BEEPER,OUTPUT);
@@ -77,6 +89,7 @@ void beep()
 }
 void beepshort()
 {
+    return;
 #ifdef ULTIPANEL
   // [ErikDeBruijn] changed to two short beeps, more friendly
   pinMode(BEEPER,OUTPUT);
@@ -91,10 +104,11 @@ void beepshort()
 void lcd_status()
 {
 #ifdef ULTIPANEL
+  static uint8_t oldbuttons=0;
   static long previous_millis_buttons=0;
   buttons_check();
   //previous_millis_buttons=millis();
-  static uint8_t oldbuttons=0;
+  
   if((buttons==oldbuttons) &&  ((millis() - previous_millis_lcd) < LCD_UPDATE_INTERVAL)   )
     return;
   oldbuttons=buttons;
@@ -110,18 +124,36 @@ void lcd_status()
 #ifdef ULTIPANEL  
 void buttons_init()
 {
-  pinMode(SHIFT_CLK,OUTPUT); 
-  pinMode(SHIFT_LD,OUTPUT); 
+#ifdef NEWPANEL
+  pinMode(BTN_EN1,OUTPUT);
+  pinMode(BTN_EN2,OUTPUT); 
+  pinMode(BTN_ENC,OUTPUT); 
+  digitalWrite(BTN_EN1,HIGH);
+  digitalWrite(BTN_EN2,HIGH);
+  digitalWrite(BTN_ENC,HIGH);
+#else
+    pinMode(SHIFT_CLK,OUTPUT);
+  pinMode(SHIFT_LD,OUTPUT);
   pinMode(SHIFT_EN,OUTPUT);
-  pinMode(SHIFT_OUT,INPUT); 
+  pinMode(SHIFT_OUT,INPUT);
   digitalWrite(SHIFT_OUT,HIGH);
-  digitalWrite(SHIFT_LD,HIGH);  //load has inverse logic
-  digitalWrite(SHIFT_EN,LOW);  //low active
+  digitalWrite(SHIFT_LD,HIGH); //load has inverse logic
+  digitalWrite(SHIFT_EN,LOW); //low active
+#endif
 }
 
 
 void buttons_check()
 {
+#ifdef NEWPANEL
+  uint8_t newbutton=0;
+  if(digitalRead(BTN_EN1)==0)  newbutton|=EN_A;
+  if(digitalRead(BTN_EN2)==0)  newbutton|=EN_B;
+  if((blocking<millis()) &&(digitalRead(BTN_ENC)==0))
+    newbutton|=EN_C;
+  buttons=newbutton;
+  Serial.println((int)newbutton);
+#else
   //read it from the shift register
   volatile static bool busy=false;
 	if(busy) 
@@ -148,6 +180,7 @@ void buttons_check()
 		delayMicroseconds(5);
   }
   buttons=~buttons; //invert it, because a pressed switch produces a logical 0
+#endif
   char enc=0;
   if(buttons&EN_A)
     enc|=(1<<0);
@@ -213,6 +246,7 @@ void MainMenu::showStatus()
 #if LCD_HEIGHT==4
   static int oldcurrentraw=-1;
   static int oldtargetraw=-1;
+  //force_lcd_update=true;
   if(force_lcd_update)  //initial display of content
   {
     encoderpos=feedmultiply;
@@ -340,7 +374,8 @@ void MainMenu::showPrepare()
  if(lastlineoffset!=lineoffset)
  {
    force_lcd_update=true;
-   lcd.clear(); 
+   clear(); 
+   delay(1);
  }
  for(uint8_t i=lineoffset;i<lineoffset+LCD_HEIGHT;i++)
  {
@@ -474,7 +509,8 @@ void MainMenu::showControl()
  if(lastlineoffset!=lineoffset)
  {
    force_lcd_update=true;
-   lcd.clear(); 
+   clear();
+   delay(1);
  }
  for(uint8_t i=lineoffset;i<lineoffset+LCD_HEIGHT;i++)
  {
@@ -914,7 +950,8 @@ void MainMenu::showSD()
  if(lastlineoffset!=lineoffset)
  {
    force_lcd_update=true;
-   lcd.clear(); 
+   clear(); 
+   delay(1);
  }
  static uint8_t nrfiles=0;
  if(force_lcd_update)
@@ -1126,7 +1163,8 @@ void MainMenu::update()
   if(status!=oldstatus)
   {
     //Serial.println(status);
-    lcd.clear();
+    clear();
+    delay(1);
     force_lcd_update=true;
     encoderpos=0;
     lineoffset=0;

@@ -1,5 +1,6 @@
 #ifndef __ULTRALCDH
 #define __ULTRALCDH
+//#define NEWPANEL
 
 
 #ifdef ULTRA_LCD
@@ -20,7 +21,40 @@
 
   //lcd display size
 
+#ifdef NEWPANEL
+ //arduino pin witch triggers an piezzo beeper
+  #define BEEPER 18
 
+  #define LCD_PINS_RS 20 
+#define LCD_PINS_ENABLE 17
+#define LCD_PINS_D4 16
+#define LCD_PINS_D5 21 
+#define LCD_PINS_D6 5
+#define LCD_PINS_D7 6
+  
+  //buttons are directly attached
+  #define BTN_EN1 40
+  #define BTN_EN2 42
+  #define BTN_ENC 19  //the click
+  
+  #define BLEN_C 2
+  #define BLEN_B 1
+  #define BLEN_A 0
+  
+  #define EN_C (1<<BLEN_C)
+  #define EN_B (1<<BLEN_B)
+  #define EN_A (1<<BLEN_A)
+  
+   //encoder rotation values
+  #define encrot0 0
+  #define encrot1 2
+  #define encrot2 3
+  #define encrot3 1
+ #define CLICKED (buttons&EN_C)
+ #define BLOCK {blocking=millis()+blocktime;}
+  
+  
+#else
   //arduino pin witch triggers an piezzo beeper
   #define BEEPER 18
 
@@ -29,14 +63,15 @@
   #define SHIFT_LD 42
   #define SHIFT_OUT 40
   #define SHIFT_EN 17
-
-  // blocking time for recognizing a new keypress of one key, ms
-  #define blocktime 500
-  #define lcdslow 5
-#ifdef ULTIPANEL
-
-
-  //bits in the shift register that carry the buttons for:
+  
+  #define LCD_PINS_RS 16 
+#define LCD_PINS_ENABLE 5
+#define LCD_PINS_D4 6
+#define LCD_PINS_D5 21 
+#define LCD_PINS_D6 20
+#define LCD_PINS_D7 19
+  
+   //bits in the shift register that carry the buttons for:
   // left up center down right red
   #define BL_LE 7
   #define BL_UP 6
@@ -64,9 +99,13 @@
   #define EN_B (1<<BLEN_B)
   #define EN_A (1<<BLEN_A)
   
-#define CLICKED ((buttons&B_MI)||(buttons&B_ST))
-#define BLOCK {blocking[BL_MI]=millis()+blocktime;blocking[BL_ST]=millis()+blocktime;}
+  #define CLICKED ((buttons&B_MI)||(buttons&B_ST))
+  #define BLOCK {blocking[BL_MI]=millis()+blocktime;blocking[BL_ST]=millis()+blocktime;}
+  
 #endif
+  // blocking time for recognizing a new keypress of one key, ms
+#define blocktime 500
+#define lcdslow 5
   enum MainStatus{Main_Status, Main_Menu, Main_Prepare, Main_Control, Main_SD};
 
   class MainMenu{

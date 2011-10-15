@@ -42,7 +42,7 @@ const bool ENDSTOPS_INVERTING = true; // set to true to invert the logic of the 
 #define LCD_WIDTH 16
 #define LCD_HEIGHT 2
 
-//#define ULTIPANEL
+#define ULTIPANEL
 #ifdef ULTIPANEL
  #define SDSUPPORT
  #define ULTRA_LCD
@@ -51,7 +51,7 @@ const bool ENDSTOPS_INVERTING = true; // set to true to invert the logic of the 
 #endif
 
 
-//#define SDSUPPORT // Enable SD Card Support in Hardware Console
+#define SDSUPPORT // Enable SD Card Support in Hardware Console
 
 
 
