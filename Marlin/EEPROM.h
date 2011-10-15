@@ -43,7 +43,7 @@ void StoreSettings() {
   char ver2[4]=EEPROM_VERSION;
   i=EEPROM_OFFSET;
   EEPROM_writeAnything(i,ver2); // validate data
-   Serial.println("Settings Stored");
+ //  Serial.println("Settings Stored");
 
 }
 
@@ -52,7 +52,7 @@ void RetrieveSettings(bool def=false){  // if def=true, the default values will 
   char stored_ver[4];
   char ver[4]=EEPROM_VERSION;
   EEPROM_readAnything(i,stored_ver); //read stored version
-  //Serial.print("Version: [");Serial.print(ver);Serial.print("] Stored version: [");Serial.print(stored_ver);Serial.println("]");
+//  Serial.print("Version: [");Serial.print(ver);Serial.print("] Stored version: [");Serial.print(stored_ver);Serial.println("]");
   if ((!def)&&(strncmp(ver,stored_ver,3)==0)) {   // version number match
       EEPROM_readAnything(i,axis_steps_per_unit);  
       EEPROM_readAnything(i,max_feedrate);  
@@ -64,7 +64,7 @@ void RetrieveSettings(bool def=false){  // if def=true, the default values will 
       EEPROM_readAnything(i,minsegmenttime);
       EEPROM_readAnything(i,max_xy_jerk);
       EEPROM_readAnything(i,max_z_jerk);
-      //Serial.println("Stored settings retreived:");
+   //   Serial.println("Stored settings retreived:");
   }
   else {
     float tmp1[]=DEFAULT_AXIS_STEPS_PER_UNIT;
@@ -82,9 +82,9 @@ void RetrieveSettings(bool def=false){  // if def=true, the default values will 
     mintravelfeedrate=DEFAULT_MINTRAVELFEEDRATE
     max_xy_jerk=DEFAULT_XYJERK;
     max_z_jerk=DEFAULT_ZJERK;
-    //Serial.println("Using Default settings:");
+ //   Serial.println("Using Default settings:");
   }
-  //Serial.println("Steps per unit:");
+ /*
   //Serial.print("   M92");
   //Serial.print(" X");Serial.print(axis_steps_per_unit[0]);
   //Serial.print(" Y");Serial.print(axis_steps_per_unit[1]);
@@ -114,6 +114,7 @@ void RetrieveSettings(bool def=false){  // if def=true, the default values will 
 //   Serial.print(" X");Serial.print(max_xy_jerk/60);
 //   Serial.print(" Z");Serial.println(max_z_jerk/60);
 //   
+  */
 }  
 
 
