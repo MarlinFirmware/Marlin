@@ -55,7 +55,7 @@ const bool ENDSTOPS_INVERTING = true; // set to true to invert the logic of the 
 
 
 
-const int dropsegments=2; //everything with this number of steps  will be ignored as move
+const int dropsegments=5; //everything with this number of steps  will be ignored as move
 
 //// ADVANCED SETTINGS - to tweak parameters
 
@@ -104,18 +104,20 @@ bool axis_relative_modes[] = {false, false, false, false};
 
 // default settings 
 
-#define DEFAULT_AXIS_STEPS_PER_UNIT   {79.87220447,79.87220447,200*8/3,14};                    // default steps per unit for ultimaker 
+#define DEFAULT_AXIS_STEPS_PER_UNIT   {79.87220447,79.87220447,200*8/3,14}                    // default steps per unit for ultimaker 
 #define DEFAULT_MAX_FEEDRATE          {160*60, 160*60, 10*60, 500000}        
 #define DEFAULT_MAX_ACCELERATION      {9000,9000,150,10000}    // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for skeinforge 40+, for older versions raise them a lot.
 
-#define DEFAULT_ACCELERATION          4600;    // X, Y, Z and E max acceleration in mm/s^2 for printing moves 
-#define DEFAULT_RETRACT_ACCELERATION  7000;   // X, Y, Z and E max acceleration in mm/s^2 for r retracts
+#define DEFAULT_ACCELERATION          4600    // X, Y, Z and E max acceleration in mm/s^2 for printing moves 
+#define DEFAULT_RETRACT_ACCELERATION  7000   // X, Y, Z and E max acceleration in mm/s^2 for r retracts
 
-#define DEFAULT_MINIMUMFEEDRATE       10*60;      // minimum feedrate
-#define DEFAULT_MINTRAVELFEEDRATE     140*60;
-#define DEFAULT_MINSEGMENTTIME        20000;    // minimum segmenttime to prevent buffer underruns
-#define DEFAULT_XYJERK                30.0*60;    
-#define DEFAULT_ZJERK                 10.0*60;
+#define DEFAULT_MINIMUMFEEDRATE       10*60      // minimum feedrate
+#define DEFAULT_MINTRAVELFEEDRATE     140*60
+
+// minimum time in microseconds that a movement needs to take if the buffer is emptied.   Increase this number if you see blobs while printing high speed & high detail.  It will slowdown on the detailed stuff.
+#define DEFAULT_MINSEGMENTTIME        20000
+#define DEFAULT_XYJERK                30.0*60    
+#define DEFAULT_ZJERK                 10.0*60
 
 
 // The watchdog waits for the watchperiod in milliseconds whenever an M104 or M109 increases the target temperature
@@ -132,9 +134,7 @@ bool axis_relative_modes[] = {false, false, false, false};
 #define MAXTEMP 275
 
 
-// minimum time in microseconds that a movement needs to take to prevent the buffer from being emptied.   Higher baudrates might reduce this number.
-// minimum time in microseconds that a movement needs to take if the buffer is emptied.   Increase this number if you see blobs while printing high speed & high detail.  It will slowdown on the detailed stuff.
-#define MIN_SEGMENT_TIME 60000
+
 
 
 /// PID settings:
