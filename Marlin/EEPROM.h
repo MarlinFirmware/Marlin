@@ -77,9 +77,9 @@ void RetrieveSettings(bool def=false){  // if def=true, the default values will 
     }
     acceleration=DEFAULT_ACCELERATION;
     retract_acceleration=DEFAULT_RETRACT_ACCELERATION;
-    minimumfeedrate=DEFAULT_MINIMUMFEEDRATE
+    minimumfeedrate=DEFAULT_MINIMUMFEEDRATE;
     minsegmenttime=DEFAULT_MINSEGMENTTIME;       
-    mintravelfeedrate=DEFAULT_MINTRAVELFEEDRATE
+    mintravelfeedrate=DEFAULT_MINTRAVELFEEDRATE;
     max_xy_jerk=DEFAULT_XYJERK;
     max_z_jerk=DEFAULT_ZJERK;
  //   Serial.println("Using Default settings:");
