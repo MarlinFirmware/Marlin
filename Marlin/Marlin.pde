@@ -36,7 +36,6 @@
  This firmware is optimized for gen6 electronics.
  */
 
-
 #include <EEPROM.h>
 #include "fastio.h"
 #include "Configuration.h"
@@ -44,7 +43,7 @@
 #include "Marlin.h"
 #include "speed_lookuptable.h"
 #include "lcd.h"
-
+#include "streaming.h"
 
 char version_string[] = "U0.9.3.3-BK";
 
@@ -296,8 +295,7 @@ void setup()
 { 
 	
   Serial.begin(BAUDRATE);
-  Serial.print("Marlin ");
-  Serial.println(version_string);
+  ECHOLN("Marlin "<<version_string);
   Serial.println("start");
 #if defined FANCY_LCD || defined SIMPLE_LCD
   lcd_init();
@@ -1158,7 +1156,7 @@ inline void process_commands()
       Serial.print("Kd ");Serial.println(Kd*PID_dT);
       temp_iState_min = 0.0;
       if (Ki!=0) {
-      temp_iState_max = PID_INTEGRAL_DRIVE_MAX / Ki;
+      temp_iState_max = PID_INTEGRAL_DRIVE_MAX / (Ki/100.0);
       }
       else       temp_iState_max = 1.0e10;
       break;
@@ -1406,7 +1404,7 @@ void manage_heater()
       pTerm = (Kp * error) / 100.0;
       temp_iState += error;
       temp_iState = constrain(temp_iState, temp_iState_min, temp_iState_max);
-      iTerm = (Ki * temp_iState);
+      iTerm = (Ki * temp_iState)/100.0;
       dTerm = (Kd * (current_raw_average - temp_dState)) / 100.0;
       temp_dState = current_raw_average;
       HeaterPower= constrain(pTerm + iTerm - dTerm, 0, PID_MAX);      
