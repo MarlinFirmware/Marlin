@@ -7,6 +7,10 @@
 #include "fastio.h"
 
 
+#define ECHO(x) Serial << "echo: " << x;
+#define ECHOLN(x) Serial << "echo: "<<x<<endl;
+
+
 // This struct is used when buffering the setup for each linear movement "nominal" values are as specified in 
 // the source g-code and may never actually be reached if acceleration management is active.
 typedef struct {

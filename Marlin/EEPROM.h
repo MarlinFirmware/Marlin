@@ -1,5 +1,3 @@
-#define ECHO(x) Serial << "echo: " << x;
-#define ECHOLN(x) Serial << "echo: "<<x<<endl;
 
 //======================================================================================
 template <class T> int EEPROM_writeAnything(int &ee, const T& value)
@@ -103,7 +101,7 @@ void RetrieveSettings(bool def=false){  // if def=true, the default values will 
   ECHOLN("Advanced variables: S=Min feedrate (mm/s), T=Min travel feedrate (mm/s), B=minimum segment time (ms), X=maximum xY jerk (mm/s),  Z=maximum Z jerk (mm/s)");
   ECHOLN("   M205 S"  <<_FLOAT(minimumfeedrate/60,2) << " T" << _FLOAT(mintravelfeedrate/60,2) << " B" << _FLOAT(minsegmenttime,2) << " X" << _FLOAT(max_xy_jerk/60,2) << " Z" << _FLOAT(max_z_jerk/60,2));
   ECHOLN("PID settings:");
-  ECHOLN("   M301 P"  << _FLOAT(Kp,3) << " I" <<_ FLOAT(Ki,3) << " D" << _FLOAT(Kd,3));  
+  ECHOLN("   M301 P"  << _FLOAT(Kp,3) << " I" << _FLOAT(Ki,3) << " D" << _FLOAT(Kd,3));  
 }  
 
 

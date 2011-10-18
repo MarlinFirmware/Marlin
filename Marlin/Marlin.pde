@@ -1151,9 +1151,10 @@ inline void process_commands()
       if(code_seen('P')) Kp = code_value();
       if(code_seen('I')) Ki = code_value()*PID_dT;
       if(code_seen('D')) Kd = code_value()/PID_dT;
-      Serial.print("Kp ");Serial.println(Kp);
-      Serial.print("Ki ");Serial.println(Ki/PID_dT);
-      Serial.print("Kd ");Serial.println(Kd*PID_dT);
+      ECHOLN("Kp "<<_FLOAT(Kp,2));
+      ECHOLN("Ki "<<_FLOAT(Ki/PID_dT,2));
+      ECHOLN("Kd "<<_FLOAT(Kd*PID_dT,2));
+
       temp_iState_min = 0.0;
       if (Ki!=0) {
       temp_iState_max = PID_INTEGRAL_DRIVE_MAX / (Ki/100.0);
