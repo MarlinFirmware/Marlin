@@ -153,7 +153,7 @@ float current_raw_average=0;
 #define PID_MAX 255 // limits current to nozzle
 #define PID_INTEGRAL_DRIVE_MAX 255
 #define PID_dT 0.16
-double Kp = 1000; //20.0;
+double Kp = 3000; //20.0;
 double Ki = 0;  //1.5*PID_dT;
 double Kd = 0;  //80/PID_dT;
 #endif // PIDTEMP
