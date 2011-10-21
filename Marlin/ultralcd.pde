@@ -75,7 +75,7 @@ void lcd_init()
 
 void beep()
 {
-  return;
+  //return;
 #ifdef ULTIPANEL
   pinMode(BEEPER,OUTPUT);
   for(int i=0;i<20;i++){
@@ -89,7 +89,7 @@ void beep()
 
 void beepshort()
 {
-  return;
+  //return;
 #ifdef ULTIPANEL
   pinMode(BEEPER,OUTPUT);
   for(int i=0;i<10;i++){
@@ -105,6 +105,7 @@ void lcd_status()
 #ifdef ULTIPANEL
   static uint8_t oldbuttons=0;
   static long previous_millis_buttons=0;
+  static long previous_lcdinit=0;
   buttons_check();
   //previous_millis_buttons=millis();
   
@@ -116,7 +117,7 @@ void lcd_status()
   if(((millis() - previous_millis_lcd) < LCD_UPDATE_INTERVAL)   )
     return;
 #endif
-  
+    
   previous_millis_lcd=millis();
   menu.update();
 }
