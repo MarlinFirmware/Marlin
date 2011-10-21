@@ -145,6 +145,7 @@ unsigned long previous_millis_heater, previous_millis_bed_heater;
 bool relative_mode = false;  //Determines Absolute or Relative Coordinates
 bool relative_mode_e = false;  //Determines Absolute or Relative E Codes while in Absolute Coordinates mode. E is always relative in Relative Coordinates mode.
 unsigned long axis_steps_per_sqr_second[NUM_AXIS];
+uint8_t fanpwm=0;
 
 volatile int feedmultiply=100; //100->1 200->2
 // comm variables
@@ -1027,12 +1028,14 @@ inline void process_commands()
       case 106: //M106 Fan On
         if (code_seen('S')){
 						digitalWrite(FAN_PIN,HIGH);
-            analogWrite(FAN_PIN, constrain(code_value(),0,255) );
+            fanpwm=constrain(code_value(),0,255);
+            analogWrite(FAN_PIN,  fanpwm);
         }
         else
 				{
 					digitalWrite(FAN_PIN,HIGH);
-					analogWrite(FAN_PIN, 255);
+          fanpwm=255;
+					analogWrite(FAN_PIN, fanpwm);
 				}
         break;
       case 107: //M107 Fan Off

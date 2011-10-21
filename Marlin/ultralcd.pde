@@ -495,7 +495,7 @@ void MainMenu::showPrepare()
   } 
 }
 enum {
-  ItemC_exit, ItemC_nozzle, ItemC_acc, ItemC_xyjerk, 
+  ItemC_exit, ItemC_nozzle, ItemC_fan, ItemC_acc, ItemC_xyjerk, 
   ItemC_vmaxx, ItemC_vmaxy, ItemC_vmaxz, ItemC_vmaxe, 
   ItemC_vmin,  
   ItemC_amaxx, ItemC_amaxy, ItemC_amaxz, ItemC_amaxe, 
@@ -556,6 +556,44 @@ void MainMenu::showControl()
           {
             if(encoderpos<0) encoderpos=0;
             if(encoderpos>260) encoderpos=260;
+            lcd.setCursor(13,line);lcd.print(itostr3(encoderpos));
+          }
+        }
+      }break;
+      
+      case ItemC_fan:
+      {
+        if(force_lcd_update)
+        {
+          lcd.setCursor(0,line);lcd.print(" Fan speed:");
+          lcd.setCursor(13,line);lcd.print(ftostr3(fanpwm));
+        }
+        
+        if((activeline==line) )
+        {
+          if(CLICKED) //nalogWrite(FAN_PIN,  fanpwm);
+          {
+            linechanging=!linechanging;
+            if(linechanging)
+            {
+               encoderpos=fanpwm;
+            }
+            else
+            {
+              fanpwm = constrain(encoderpos,0,255);
+              encoderpos=fanpwm;
+              analogWrite(FAN_PIN,  fanpwm);
+
+              beepshort();
+            }
+            BLOCK;
+          }
+          if(linechanging)
+          {
+            if(encoderpos<0) encoderpos=0;
+            if(encoderpos>255) encoderpos=255;
+            fanpwm=encoderpos;
+              analogWrite(FAN_PIN,  fanpwm);
             lcd.setCursor(13,line);lcd.print(itostr3(encoderpos));
           }
         }

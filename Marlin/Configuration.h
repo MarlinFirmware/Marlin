@@ -146,7 +146,7 @@ bool axis_relative_modes[] = {false, false, false, false};
 #define SMOOTHFACTOR 5.0
 float current_raw_average=0;
 
-#define PIDTEMP
+//#define PIDTEMP
 #ifdef PIDTEMP
 //#define PID_DEBUG 1 // Sends debug data to the serial port. 
 //#define PID_OPENLOOP 1 // Puts PID in open loop. M104 sets the output power in %
