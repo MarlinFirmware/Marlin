@@ -36,7 +36,6 @@
  This firmware is optimized for gen6 electronics.
  */
 
-
 #include <EEPROM.h>
 #include "fastio.h"
 #include "Configuration.h"
@@ -44,6 +43,7 @@
 #include "Marlin.h"
 #include "speed_lookuptable.h"
 #include "ultralcd.h"
+#include "streaming.h"
 #ifdef SIMPLE_LCD
   #include "Simplelcd.h"
 #endif
@@ -199,6 +199,7 @@ unsigned char temp_meas_ready = false;
   double pid_input;
   double pid_output;
   bool pid_reset;
+  float HeaterPower;
 #endif //PIDTEMP
 float tt = 0, bt = 0;
 #ifdef WATCHPERIOD
@@ -297,8 +298,7 @@ void setup()
 { 
 	
   Serial.begin(BAUDRATE);
-  Serial.print("Marlin ");
-  Serial.println(version_string);
+  ECHOLN("Marlin "<<version_string);
   Serial.println("start");
 #if defined FANCY_LCD || defined SIMPLE_LCD
   lcd_init();
@@ -966,7 +966,7 @@ inline void process_commands()
             Serial.print(current_raw);       
           #if TEMP_1_PIN > -1
             Serial.print(" B:");
-            Serial.println(bt); 
+            Serial.println(HeaterPower); 
           #else
             Serial.println();
           #endif
@@ -1154,11 +1154,15 @@ inline void process_commands()
       if(code_seen('P')) Kp = code_value();
       if(code_seen('I')) Ki = code_value()*PID_dT;
       if(code_seen('D')) Kd = code_value()/PID_dT;
-      Serial.print("Kp ");Serial.println(Kp);
-      Serial.print("Ki ");Serial.println(Ki/PID_dT);
-      Serial.print("Kd ");Serial.println(Kd*PID_dT);
+      ECHOLN("Kp "<<_FLOAT(Kp,2));
+      ECHOLN("Ki "<<_FLOAT(Ki/PID_dT,2));
+      ECHOLN("Kd "<<_FLOAT(Kd*PID_dT,2));
+
       temp_iState_min = 0.0;
-      temp_iState_max = PID_INTEGRAL_DRIVE_MAX / Ki;
+      if (Ki!=0) {
+      temp_iState_max = PID_INTEGRAL_DRIVE_MAX / (Ki/100.0);
+      }
+      else       temp_iState_max = 1.0e10;
       break;
 #endif //PIDTEMP
       case 500: // Store settings in EEPROM
@@ -1371,12 +1375,13 @@ void manage_heater()
     current_raw = read_max6675();
   #endif
   #ifdef SMOOTHING
-  nma = (nma + current_raw) - (nma / SMOOTHFACTOR);
-  current_raw = nma / SMOOTHFACTOR;
+  
+  current_raw_average=(current_raw_average*(SMOOTHFACTOR-1)+current_raw)/SMOOTHFACTOR;
+
   #endif
   #ifdef WATCHPERIOD
     if(watchmillis && millis() - watchmillis > WATCHPERIOD){
-        if(watch_raw + 1 >= current_raw){
+        if(watch_raw + 1 >= current_raw_average){
             target_raw = 0;
             digitalWrite(HEATER_0_PIN,LOW);
             digitalWrite(LED_PIN,LOW);
@@ -1395,17 +1400,25 @@ void manage_heater()
     }
   #endif
   #if (TEMP_0_PIN > -1) || defined (HEATER_USES_MAX66675)
+    
     #ifdef PIDTEMP
-      error = target_raw - current_raw;
-      pTerm = (PID_PGAIN * error) / 100;
+    HeaterPower=0;
+    if (current_raw_average<temp2analog(analog2temp(target_raw)+15)) { // only enable PID if temperature is less than target_temperature+15
+      if (Kp>=0) {
+      float error = target_raw - current_raw_average;
+      pTerm = (Kp * error) / 100.0;
       temp_iState += error;
       temp_iState = constrain(temp_iState, temp_iState_min, temp_iState_max);
-      iTerm = (PID_IGAIN * temp_iState) / 100;
-      dTerm = (PID_DGAIN * (current_raw - temp_dState)) / 100;
-      temp_dState = current_raw;
-      analogWrite(HEATER_0_PIN, constrain(pTerm + iTerm - dTerm, 0, PID_MAX));
+      iTerm = (Ki * temp_iState)/100.0;
+      dTerm = (Kd * (current_raw_average - temp_dState)) / 100.0;
+      temp_dState = current_raw_average;
+      HeaterPower= constrain(pTerm + iTerm - dTerm, 0, PID_MAX);      
+      }
+      else  HeaterPower= constrain(-Kp,0, 255);      // 
+    }
+    analogWrite(HEATER_0_PIN,HeaterPower);
     #else
-      if(current_raw >= target_raw)
+      if(current_raw_average >= target_raw)
       {
         digitalWrite(HEATER_0_PIN,LOW);
         digitalWrite(LED_PIN,LOW);
