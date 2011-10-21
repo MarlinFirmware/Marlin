@@ -1,7 +1,6 @@
 #ifndef __ULTRALCDH
 #define __ULTRALCDH
-//#define NEWPANEL
-
+#include "Configuration.h"
 
 #ifdef ULTRA_LCD
 
@@ -26,11 +25,11 @@
   #define BEEPER 18
 
   #define LCD_PINS_RS 20 
-#define LCD_PINS_ENABLE 17
-#define LCD_PINS_D4 16
-#define LCD_PINS_D5 21 
-#define LCD_PINS_D6 5
-#define LCD_PINS_D7 6
+  #define LCD_PINS_ENABLE 17
+  #define LCD_PINS_D4 16
+  #define LCD_PINS_D5 21 
+  #define LCD_PINS_D6 5
+  #define LCD_PINS_D7 6
   
   //buttons are directly attached
   #define BTN_EN1 40
@@ -50,8 +49,9 @@
   #define encrot1 2
   #define encrot2 3
   #define encrot3 1
- #define CLICKED (buttons&EN_C)
- #define BLOCK {blocking=millis()+blocktime;}
+  
+  #define CLICKED (buttons&EN_C)
+  #define BLOCK {blocking=millis()+blocktime;}
   
   
 #else
@@ -65,11 +65,11 @@
   #define SHIFT_EN 17
   
   #define LCD_PINS_RS 16 
-#define LCD_PINS_ENABLE 5
-#define LCD_PINS_D4 6
-#define LCD_PINS_D5 21 
-#define LCD_PINS_D6 20
-#define LCD_PINS_D7 19
+  #define LCD_PINS_ENABLE 5
+  #define LCD_PINS_D4 6
+  #define LCD_PINS_D5 21 
+  #define LCD_PINS_D6 20
+  #define LCD_PINS_D7 19
   
    //bits in the shift register that carry the buttons for:
   // left up center down right red

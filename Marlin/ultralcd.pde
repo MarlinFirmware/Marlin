@@ -16,11 +16,9 @@ volatile char buttons=0;  //the last checked buttons in a bit array.
 int encoderpos=0;
 short lastenc=0;
 #ifdef NEWPANEL
-
-long blocking=0;
+ long blocking=0;
 #else
-long blocking[8]={
-  0,0,0,0,0,0,0,0};
+ long blocking[8]={0,0,0,0,0,0,0,0};
 #endif
 MainMenu menu;
 
@@ -33,7 +31,9 @@ void clear()
 {
   //lcd.setCursor(0,0);
   lcd.clear();
-  delay(1);
+  //delay(1);
+ // lcd.begin(LCD_WIDTH,LCD_HEIGHT);
+  //lcd_init();
 }
 long previous_millis_buttons=0;
 
@@ -77,27 +77,26 @@ void beep()
 {
   return;
 #ifdef ULTIPANEL
-  // [ErikDeBruijn] changed to two short beeps, more friendly
   pinMode(BEEPER,OUTPUT);
   for(int i=0;i<20;i++){
-  digitalWrite(BEEPER,HIGH);
-  delay(5);
-  digitalWrite(BEEPER,LOW);
-  delay(5);
+    digitalWrite(BEEPER,HIGH);
+    delay(5);
+    digitalWrite(BEEPER,LOW);
+    delay(5);
   }
 #endif
 }
+
 void beepshort()
 {
-    return;
+  return;
 #ifdef ULTIPANEL
-  // [ErikDeBruijn] changed to two short beeps, more friendly
   pinMode(BEEPER,OUTPUT);
   for(int i=0;i<10;i++){
-  digitalWrite(BEEPER,HIGH);
-  delay(3);
-  digitalWrite(BEEPER,LOW);
-  delay(3);
+    digitalWrite(BEEPER,HIGH);
+    delay(3);
+    digitalWrite(BEEPER,LOW);
+    delay(3);
   }
 #endif  
 }
@@ -125,26 +124,31 @@ void lcd_status()
 void buttons_init()
 {
 #ifdef NEWPANEL
-  pinMode(BTN_EN1,OUTPUT);
-  pinMode(BTN_EN2,OUTPUT); 
-  pinMode(BTN_ENC,OUTPUT); 
+  pinMode(BTN_EN1,INPUT);
+  pinMode(BTN_EN2,INPUT); 
+  pinMode(BTN_ENC,INPUT); 
   digitalWrite(BTN_EN1,HIGH);
   digitalWrite(BTN_EN2,HIGH);
   digitalWrite(BTN_ENC,HIGH);
 #else
-    pinMode(SHIFT_CLK,OUTPUT);
+  pinMode(SHIFT_CLK,OUTPUT);
   pinMode(SHIFT_LD,OUTPUT);
   pinMode(SHIFT_EN,OUTPUT);
   pinMode(SHIFT_OUT,INPUT);
   digitalWrite(SHIFT_OUT,HIGH);
-  digitalWrite(SHIFT_LD,HIGH); //load has inverse logic
-  digitalWrite(SHIFT_EN,LOW); //low active
+  digitalWrite(SHIFT_LD,HIGH); 
+  digitalWrite(SHIFT_EN,LOW); 
 #endif
 }
 
 
 void buttons_check()
 {
+  volatile static bool busy=false;
+  if(busy) 
+    return;
+  busy=true;
+  
 #ifdef NEWPANEL
   uint8_t newbutton=0;
   if(digitalRead(BTN_EN1)==0)  newbutton|=EN_A;
@@ -152,13 +156,8 @@ void buttons_check()
   if((blocking<millis()) &&(digitalRead(BTN_ENC)==0))
     newbutton|=EN_C;
   buttons=newbutton;
-  Serial.println((int)newbutton);
 #else
   //read it from the shift register
-  volatile static bool busy=false;
-	if(busy) 
-		return;
-	busy=true;
   digitalWrite(SHIFT_LD,LOW);
   delayMicroseconds(20);
   digitalWrite(SHIFT_LD,HIGH);
@@ -237,10 +236,7 @@ MainMenu::MainMenu()
   lcd_init();
   linechanging=false;
 }
-void clearLcd()
-{
-  
-}
+
 void MainMenu::showStatus()
 { 
 #if LCD_HEIGHT==4
@@ -250,6 +246,7 @@ void MainMenu::showStatus()
   if(force_lcd_update)  //initial display of content
   {
     encoderpos=feedmultiply;
+    clear();
     lcd.setCursor(0,0);lcd.print("\002123/567\001 ");
 #if defined BED_USES_THERMISTOR || defined BED_USES_AD595 
     lcd.setCursor(10,0);lcd.print("B123/567\001 ");
@@ -375,7 +372,6 @@ void MainMenu::showPrepare()
  {
    force_lcd_update=true;
    clear(); 
-   delay(1);
  }
  for(uint8_t i=lineoffset;i<lineoffset+LCD_HEIGHT;i++)
  {
@@ -510,7 +506,6 @@ void MainMenu::showControl()
  {
    force_lcd_update=true;
    clear();
-   delay(1);
  }
  for(uint8_t i=lineoffset;i<lineoffset+LCD_HEIGHT;i++)
  {
@@ -951,7 +946,6 @@ void MainMenu::showSD()
  {
    force_lcd_update=true;
    clear(); 
-   delay(1);
  }
  static uint8_t nrfiles=0;
  if(force_lcd_update)
@@ -1073,11 +1067,14 @@ void MainMenu::showSD()
 enum {ItemM_watch, ItemM_prepare, ItemM_control, ItemM_file };
 void MainMenu::showMainMenu()
 {
-   if(encoderpos/lcdslow!=lastencoderpos/lcdslow)
-     force_lcd_update=true;
+   //if(int(encoderpos/lcdslow)!=int(lastencoderpos/lcdslow))
+   //  force_lcd_update=true;
 #ifndef ULTIPANEL
    force_lcd_update=false;
 #endif
+   //Serial.println((int)activeline);
+   if(force_lcd_update)
+     clear();
   for(short line=0;line<LCD_HEIGHT;line++)
   {
     switch(line)
@@ -1136,17 +1133,20 @@ void MainMenu::showMainMenu()
       }break;
 #endif
       default: 
+        Serial.println('NEVER say never');
       break;
     }
   }
-  
+  if(activeline<0) activeline=0;
+  if(activeline>=LCD_HEIGHT) activeline=LCD_HEIGHT-1;
   if((encoderpos!=lastencoderpos)||force_lcd_update)
   {
     lcd.setCursor(0,activeline);lcd.print(activeline?' ':' ');
     if(encoderpos<0) encoderpos=0;
     if(encoderpos>3*lcdslow) encoderpos=3*lcdslow;
     activeline=abs(encoderpos/lcdslow)%LCD_HEIGHT;
-    
+     if(activeline<0) activeline=0;
+  if(activeline>=LCD_HEIGHT) activeline=LCD_HEIGHT-1;
     lastencoderpos=encoderpos;
     lcd.setCursor(0,activeline);lcd.print(activeline?'>':'\003');
   }
@@ -1163,8 +1163,7 @@ void MainMenu::update()
   if(status!=oldstatus)
   {
     //Serial.println(status);
-    clear();
-    delay(1);
+    //clear();
     force_lcd_update=true;
     encoderpos=0;
     lineoffset=0;
