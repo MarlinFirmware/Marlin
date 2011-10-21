@@ -127,9 +127,11 @@ void buttons_init()
   pinMode(BTN_EN1,INPUT);
   pinMode(BTN_EN2,INPUT); 
   pinMode(BTN_ENC,INPUT); 
+  pinMode(SDCARDDETECT,INPUT);
   digitalWrite(BTN_EN1,HIGH);
   digitalWrite(BTN_EN2,HIGH);
   digitalWrite(BTN_ENC,HIGH);
+  digitalWrite(SDCARDDETECT,HIGH);
 #else
   pinMode(SHIFT_CLK,OUTPUT);
   pinMode(SHIFT_LD,OUTPUT);
@@ -940,16 +942,18 @@ uint8_t getnrfilenames()
 
 void MainMenu::showSD()
 {
+
 #ifdef SDSUPPORT
  uint8_t line=0;
+
  if(lastlineoffset!=lineoffset)
  {
-   force_lcd_update=true;
-   clear(); 
+   force_lcd_update=true; 
  }
  static uint8_t nrfiles=0;
  if(force_lcd_update)
  {
+   clear();
   if(sdactive)
   {
     nrfiles=getnrfilenames();
@@ -983,7 +987,20 @@ void MainMenu::showSD()
       {
         if(force_lcd_update)
         {
-          lcd.setCursor(0,line);lcd.print(" \004Refresh");
+          lcd.setCursor(0,line);
+#ifdef CARDINSERTED
+          if(CARDINSERTED)
+#else
+          if(true)
+#endif
+          {
+            lcd.print(" \004Refresh");
+          }
+          else
+          {
+            lcd.print(" \004Insert Card");
+          }
+          
         }
         if((activeline==line) && CLICKED)
         {
@@ -1044,18 +1061,21 @@ void MainMenu::showSD()
     {
      lineoffset++;
      encoderpos=3*lcdslow;
-     //Serial.println((int)lineoffset);
-     //Serial.println((int)(2+nrfiles+1-LCD_HEIGHT));
      if(lineoffset>(1+nrfiles+1-LCD_HEIGHT))
        lineoffset=1+nrfiles+1-LCD_HEIGHT;
      force_lcd_update=true;
      
     }
-    //encoderpos=encoderpos%LCD_HEIGHT;
     lastencoderpos=encoderpos;
     activeline=encoderpos;
-    if(activeline>3) activeline=3;
-    if(activeline<0) activeline=0;
+    if(activeline>3) 
+    {
+      activeline=3;
+    }
+    if(activeline<0) 
+    {
+      activeline=0;
+    }
     if(activeline>1+nrfiles) activeline=1+nrfiles;
     if(lineoffset>1+nrfiles) lineoffset=1+nrfiles;
     lcd.setCursor(0,activeline);lcd.print((activeline+lineoffset)?'>':'\003');   
@@ -1116,16 +1136,28 @@ void MainMenu::showMainMenu()
         if(force_lcd_update) 
         {
           lcd.setCursor(0,line);
-          if(sdmode)
-            lcd.print(" Stop    \x7E");
+#ifdef CARDINSERTED
+          if(CARDINSERTED)
+#else
+          if(true)
+#endif
+          {
+            if(sdmode)
+              lcd.print(" Stop Print   \x7E");
+            else
+              lcd.print(" Card Menu    \x7E");
+          }
           else
-            lcd.print(" Card    \x7E");
-          
+          {
+           lcd.print(" No Card"); 
+          }
         }
+        #ifdef CARDINSERTED
+        if(CARDINSERTED)
+        #endif
         if((activeline==line)&&CLICKED)
         {
           sdmode = false;
-
           BLOCK;
           status=Main_SD;
           beepshort();
@@ -1159,7 +1191,27 @@ void MainMenu::update()
 {
   static MainStatus oldstatus=Main_Menu;  //init automatically causes foce_lcd_update=true
   static long timeoutToStatus=0;
-
+  static bool oldcardstatus=false;
+#ifdef CARDINSERTED
+  if((CARDINSERTED != oldcardstatus))
+  {
+    force_lcd_update=true;
+    oldcardstatus=CARDINSERTED;
+    //Serial.println("SD CHANGE");
+    if(CARDINSERTED)
+    {
+      initsd();
+      lcd_status("Card inserted");
+    }
+    else
+    {
+      sdactive=false;
+      lcd_status("Card removed");
+      
+    }
+  }
+#endif
+ 
   if(status!=oldstatus)
   {
     //Serial.println(status);

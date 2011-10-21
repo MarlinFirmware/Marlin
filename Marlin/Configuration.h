@@ -44,6 +44,7 @@ const bool ENDSTOPS_INVERTING = true; // set to true to invert the logic of the 
 
 //#define ULTIPANEL
 #ifdef ULTIPANEL
+ #define NEWPANEL  //enable this if you have a click-encoder panel
  #define SDSUPPORT
  #define ULTRA_LCD
  #define LCD_WIDTH 20

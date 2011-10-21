@@ -11,7 +11,7 @@
   #define LCDSTATUSRIGHT
 
   #define LCD_UPDATE_INTERVAL 100
-  #define STATUSTIMEOUT 5000
+  #define STATUSTIMEOUT 15000
 
   #include "Configuration.h"
 
@@ -40,6 +40,8 @@
   #define BLEN_B 1
   #define BLEN_A 0
   
+  #define SDCARDDETECT 38
+  
   #define EN_C (1<<BLEN_C)
   #define EN_B (1<<BLEN_B)
   #define EN_A (1<<BLEN_A)
@@ -49,10 +51,11 @@
   #define encrot1 2
   #define encrot2 3
   #define encrot3 1
+
   
   #define CLICKED (buttons&EN_C)
   #define BLOCK {blocking=millis()+blocktime;}
-  
+  #define CARDINSERTED (digitalRead(SDCARDDETECT)==0)
   
 #else
   //arduino pin witch triggers an piezzo beeper
