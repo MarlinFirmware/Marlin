@@ -964,9 +964,11 @@ inline void process_commands()
             Serial.print(tt); 
             Serial.print(", raw:");
             Serial.print(current_raw);       
-          #if TEMP_1_PIN > -1
+          #if TEMP_1_PIN > -1 
+#ifdef PIDTEMP
             Serial.print(" B:");
             Serial.println(HeaterPower); 
+#endif
           #else
             Serial.println();
           #endif

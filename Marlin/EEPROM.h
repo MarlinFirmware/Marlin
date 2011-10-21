@@ -40,9 +40,15 @@ void StoreSettings() {
   EEPROM_writeAnything(i,minsegmenttime);
   EEPROM_writeAnything(i,max_xy_jerk);
   EEPROM_writeAnything(i,max_z_jerk);
+  #ifdef PIDTEMP
   EEPROM_writeAnything(i,Kp);
   EEPROM_writeAnything(i,Ki);
   EEPROM_writeAnything(i,Kd);
+#else
+  EEPROM_writeAnything(i,3000);
+  EEPROM_writeAnything(i,0);
+  EEPROM_writeAnything(i,0);
+#endif
   char ver2[4]=EEPROM_VERSION;
   i=EEPROM_OFFSET;
   EEPROM_writeAnything(i,ver2); // validate data
@@ -67,9 +73,13 @@ void RetrieveSettings(bool def=false){  // if def=true, the default values will 
       EEPROM_readAnything(i,minsegmenttime);
       EEPROM_readAnything(i,max_xy_jerk);
       EEPROM_readAnything(i,max_z_jerk);
+#ifndef PIDTEMP
+      float Kp,Ki,Kd;
+#endif
       EEPROM_readAnything(i,Kp);
       EEPROM_readAnything(i,Ki);
       EEPROM_readAnything(i,Kd);
+
       ECHOLN("Stored settings retreived:");
   }
   else {
@@ -100,8 +110,10 @@ void RetrieveSettings(bool def=false){  // if def=true, the default values will 
   ECHOLN("   M204 S"  <<_FLOAT(acceleration,2) << " T" << _FLOAT(retract_acceleration,2));
   ECHOLN("Advanced variables: S=Min feedrate (mm/s), T=Min travel feedrate (mm/s), B=minimum segment time (ms), X=maximum xY jerk (mm/s),  Z=maximum Z jerk (mm/s)");
   ECHOLN("   M205 S"  <<_FLOAT(minimumfeedrate/60,2) << " T" << _FLOAT(mintravelfeedrate/60,2) << " B" << _FLOAT(minsegmenttime,2) << " X" << _FLOAT(max_xy_jerk/60,2) << " Z" << _FLOAT(max_z_jerk/60,2));
+#ifdef PIDTEMP
   ECHOLN("PID settings:");
   ECHOLN("   M301 P"  << _FLOAT(Kp,3) << " I" << _FLOAT(Ki,3) << " D" << _FLOAT(Kd,3));  
+#endif
   
 }  
 
