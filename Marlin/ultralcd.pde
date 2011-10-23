@@ -371,7 +371,7 @@ enum {ItemP_exit, ItemP_home, ItemP_origin, ItemP_preheat, ItemP_extrude, ItemP_
 void MainMenu::showPrepare()
 {
  uint8_t line=0;
- if(lastlineoffset!=lineoffset)
+ if((lastlineoffset!=lineoffset)  || force_lcd_update)
  {
    force_lcd_update=true;
    clear(); 
@@ -505,7 +505,7 @@ enum {
 void MainMenu::showControl()
 {
  uint8_t line=0;
- if(lastlineoffset!=lineoffset)
+ if((lastlineoffset!=lineoffset)||force_lcd_update)
  {
    force_lcd_update=true;
    clear();
@@ -940,7 +940,7 @@ void MainMenu::getfilename(const uint8_t nr)
   while (root.readDir(p) > 0)
   {
     if (p.name[0] == DIR_NAME_FREE) break;
-    if (p.name[0] == DIR_NAME_DELETED || p.name[0] == '.') continue;
+    if (p.name[0] == DIR_NAME_DELETED || p.name[0] == '.'|| p.name[0] == '_') continue;
     if (!DIR_IS_FILE_OR_SUBDIR(&p)) continue;
     if(p.name[8]!='G') continue;
     if(p.name[9]=='~') continue;
@@ -969,7 +969,7 @@ uint8_t getnrfilenames()
   while (root.readDir(p) > 0)
   {
     if (p.name[0] == DIR_NAME_FREE) break;
-    if (p.name[0] == DIR_NAME_DELETED || p.name[0] == '.') continue;
+    if (p.name[0] == DIR_NAME_DELETED || p.name[0] == '.'|| p.name[0] == '_') continue;
     if (!DIR_IS_FILE_OR_SUBDIR(&p)) continue;
     if(p.name[8]!='G') continue;
     if(p.name[9]=='~') continue;
