@@ -969,6 +969,8 @@ inline void process_commands()
 #ifdef PIDTEMP
             Serial.print(" B:");
             Serial.println(HeaterPower); 
+#else
+            Serial.println();
 #endif
           #else
             Serial.println();
