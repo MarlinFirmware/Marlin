@@ -158,7 +158,6 @@ double Ki = 0;  //1.5*PID_dT;
 double Kd = 0;  //80/PID_dT;
 #endif // PIDTEMP
 
-
 // extruder advance constant (s2/mm3)
 //
 // advance (steps) = STEPS_PER_CUBIC_MM_E * EXTUDER_ADVANCE_K * cubic mm per second ^ 2

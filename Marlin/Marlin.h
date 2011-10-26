@@ -10,7 +10,6 @@
 #define ECHO(x) Serial << "echo: " << x;
 #define ECHOLN(x) Serial << "echo: "<<x<<endl;
 
-
 // This struct is used when buffering the setup for each linear movement "nominal" values are as specified in 
 // the source g-code and may never actually be reached if acceleration management is active.
 typedef struct {
@@ -21,11 +20,12 @@ typedef struct {
   volatile long decelerate_after;                    // The index of the step event on which to start decelerating
   volatile long acceleration_rate;                   // The acceleration rate used for acceleration calculation
   unsigned char direction_bits;             // The direction bit set for this block (refers to *_DIRECTION_BIT in config.h)
-
+#ifdef ADVANCE
   long advance_rate;
   volatile long initial_advance;
   volatile long final_advance;
   float advance;
+#endif
 
   // Fields used by the motion planner to manage acceleration
   float speed_x, speed_y, speed_z, speed_e;          // Nominal mm/minute for each axis

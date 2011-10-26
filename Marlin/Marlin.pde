@@ -2316,10 +2316,15 @@ inline void trapezoid_generator_reset() {
   initial_rate = current_block->initial_rate;
   final_rate = current_block->final_rate;
   nominal_rate = current_block->nominal_rate;
+#ifdef ADVANCE
   advance = current_block->initial_advance;
   final_advance = current_block->final_advance;
+#endif
+  
   deceleration_time = 0;
+#ifdef ADVANCE
   advance_rate = current_block->advance_rate;
+#endif
   // step_rate to timer interval
   acc_step_rate = initial_rate;
   acceleration_time = calc_timer(acc_step_rate);
