@@ -1356,7 +1356,48 @@ inline void kill()
 }
 */
 
+#ifdef USE_WATCHDOG
 
+#include  <avr/wdt.h>
+#include  <avr/interrupt.h>
+
+volatile uint8_t timeout_seconds=0;
+
+void(* ctrlaltdelete) (void) = 0;
+
+ISR(WDT_vect) { //Watchdog timer interrupt, called if main program blocks >1sec
+  if(timeout_seconds++ >= WATCHDOG_TIMEOUT)
+  {
+   kill();
+#ifdef RESET_MANUAL
+    LCD_MESSAGE("Please Reset!");
+    ECHOLN("echo_: Something is wrong, please turn off the printer.");
+#else
+    LCD_MESSAGE("Timeout, resetting!");
+#endif 
+    //disable watchdog, it will survife reboot.
+    WDTCSR |= (1<<WDCE) | (1<<WDE);
+    WDTCSR = 0;
+#ifdef RESET_MANUAL
+    while(1); //wait for user or serial reset
+#else
+    ctrlaltdelete();
+#endif
+  }
+}
+
+/// intialise watch dog with a 1 sec interrupt time
+void wd_init() {
+  WDTCSR = (1<<WDCE )|(1<<WDE ); //allow changes
+  WDTCSR = (1<<WDIF)|(1<<WDIE)| (1<<WDCE )|(1<<WDE )|  (1<<WDP2 )|(1<<WDP1)|(0<<WDP0);
+}
+
+/// reset watchdog. MUST be called every 1s after init or avr will reset.
+void wd_reset() {
+  wdt_reset();
+  timeout_seconds=0; //reset counter for resets
+}
+#endif /* USE_WATCHDOG */
 
 //####################################################################################################################
 //####################################################################################################################
@@ -1415,7 +1456,8 @@ void manage_heater()
       float error = target_raw - current_raw_average;
       pTerm = (Kp * error) / 100.0;
       temp_iState += error;
-      temp_iState = constrain(temp_iState, temp_iState_min, temp_iState_max);
+      //temp_iState = constrain(temp_iState, temp_iState_min, temp_iState_max);
+      temp_iState = constrain(temp_iState, -1000, 1000);
       iTerm = (Ki * temp_iState)/100.0;
       dTerm = (Kd * (current_raw_average - temp_dState)) / 100.0;
       temp_dState = current_raw_average;

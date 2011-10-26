@@ -122,8 +122,15 @@ bool axis_relative_modes[] = {false, false, false, false};
 #define DEFAULT_XYJERK                30.0*60    
 #define DEFAULT_ZJERK                 10.0*60
 
-
 // The watchdog waits for the watchperiod in milliseconds whenever an M104 or M109 increases the target temperature
+//this enables the watchdog interrupt.
+#define USE_WATCHDOG
+//you cannot reboot on a mega2560 due to a bug in he bootloader. Hence, you have to reset manually, and this is done hereby:
+#define RESET_MANUAL
+
+#define WATCHDOG_TIMEOUT 4
+
+
 // If the temperature has not increased at the end of that period, the target temperature is set to zero. It can be reset with another M104/M109
 //#define WATCHPERIOD 5000 //5 seconds
 
@@ -146,15 +153,15 @@ bool axis_relative_modes[] = {false, false, false, false};
 #define SMOOTHFACTOR 5.0
 float current_raw_average=0;
 
-//#define PIDTEMP
+#define PIDTEMP
 #ifdef PIDTEMP
 //#define PID_DEBUG 1 // Sends debug data to the serial port. 
 //#define PID_OPENLOOP 1 // Puts PID in open loop. M104 sets the output power in %
 #define PID_MAX 255 // limits current to nozzle
 #define PID_INTEGRAL_DRIVE_MAX 255
-#define PID_dT 0.16
-double Kp = 3000; //20.0;
-double Ki = 0;  //1.5*PID_dT;
+#define PID_dT 0.05
+double Kp = 750; //20.0;
+double Ki =10*PID_dT;  //1.5*PID_dT;
 double Kd = 0;  //80/PID_dT;
 #endif // PIDTEMP
 
