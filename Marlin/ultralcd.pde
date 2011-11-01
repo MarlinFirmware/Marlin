@@ -240,14 +240,17 @@ MainMenu::MainMenu()
   linechanging=false;
 }
 
+extern volatile bool feedmultiplychanged;
+
 void MainMenu::showStatus()
 { 
 #if LCD_HEIGHT==4
   static int oldcurrentraw=-1;
   static int oldtargetraw=-1;
   //force_lcd_update=true;
-  if(force_lcd_update)  //initial display of content
+  if(force_lcd_update||feedmultiplychanged)  //initial display of content
   {
+    feedmultiplychanged=false;
     encoderpos=feedmultiply;
     clear();
     lcd.setCursor(0,0);lcd.print("\002123/567\001 ");

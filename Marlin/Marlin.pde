@@ -149,6 +149,7 @@ unsigned long axis_steps_per_sqr_second[NUM_AXIS];
 uint8_t fanpwm=0;
 
 volatile int feedmultiply=100; //100->1 200->2
+volatile bool feedmultiplychanged=false;
 // comm variables
 #define MAX_CMD_SIZE 96
 #define BUFSIZE 8
@@ -1159,13 +1160,11 @@ inline void process_commands()
       break;
       case 220: // M220 S<factor in percent>- set speed factor override percentage
       {
-        if(code_seen('S')) feedmultiply = code_value() ;
-#ifdef ULTRALCD
-        if(menu.status==Main_Status)
+        if(code_seen('S')) 
         {
-          encoderpos=feedmultiply;
+          feedmultiply = code_value() ;
+          feedmultiplychanged=true;
         }
-#endif
       }
       break;
 #ifdef PIDTEMP
