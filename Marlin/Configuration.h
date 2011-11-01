@@ -44,9 +44,9 @@ const bool ENDSTOPS_INVERTING = true; // set to true to invert the logic of the 
 #define LCD_WIDTH 16
 #define LCD_HEIGHT 2
 
-//#define ULTIPANEL
+#define ULTIPANEL
 #ifdef ULTIPANEL
- #define NEWPANEL  //enable this if you have a click-encoder panel
+ //#define NEWPANEL  //enable this if you have a click-encoder panel
  #define SDSUPPORT
  #define ULTRA_LCD
  #define LCD_WIDTH 20
@@ -153,6 +153,7 @@ bool axis_relative_modes[] = {false, false, false, false};
 #define SMOOTHFACTOR 5.0
 float current_raw_average=0;
 
+#define GRACETEMP 0  //temperature which already counts as reached for M109
 #define PIDTEMP
 #ifdef PIDTEMP
 //#define PID_DEBUG 1 // Sends debug data to the serial port. 
@@ -160,8 +161,9 @@ float current_raw_average=0;
 #define PID_MAX 255 // limits current to nozzle
 #define PID_INTEGRAL_DRIVE_MAX 255
 #define PID_dT 0.05
-double Kp = 750; //20.0;
-double Ki =10*PID_dT;  //1.5*PID_dT;
+
+double Kp = 1000; //20.0;
+double Ki =100*PID_dT;  //1.5*PID_dT;
 double Kd = 0;  //80/PID_dT;
 #endif // PIDTEMP
 
@@ -177,7 +179,7 @@ double Kd = 0;  //80/PID_dT;
 #ifdef ADVANCE
 #define EXTRUDER_ADVANCE_K .3
 
-#define D_FILAMENT 1.7
+#define D_FILAMENT 2.8
 #define STEPS_MM_E 65
 #define EXTRUTION_AREA (0.25 * D_FILAMENT * D_FILAMENT * 3.14159)
 #define STEPS_PER_CUBIC_MM_E (axis_steps_per_unit[E_AXIS]/ EXTRUTION_AREA)

@@ -125,6 +125,7 @@ volatile int count_direction[NUM_AXIS] = { 1, 1, 1, 1};
 // M203 - Set maximum feedrate that your machine can sustain (M203 X200 Y200 Z300 E10000) in mm/sec
 // M204 - Set default acceleration: S normal moves T filament only moves (M204 S3000 T7000) im mm/sec^2  also sets minimum segment time in ms (B20000) to prevent buffer underruns and M20 minimum feedrate
 // M205 -  advanced settings:  minimum travel speed S=while printing T=travel only,  B=minimum segment time X= maximum xy jerk, Z=maximum Z jerk
+// M220 - set speed factor override percentage S:factor in percent
 // M301 - Set PID parameters P I and D
 // M500 - stores paramters in EEPROM
 // M501 - reads parameters from EEPROM (if you need reset them after you changed them temporarily).  D
@@ -993,7 +994,7 @@ inline void process_commands()
         #endif
         codenum = millis(); 
 				starttime=millis();
-        while(current_raw < target_raw) {
+        while(analog2temp(current_raw)< analog2temp(target_raw)-GRACETEMP) {
           if( (millis() - codenum) > 1000 ) //Print Temp Reading every 1 second while heating up.
           {
             Serial.print("T:");
@@ -1154,6 +1155,11 @@ inline void process_commands()
         if(code_seen('B')) minsegmenttime = code_value() ;
         if(code_seen('X')) max_xy_jerk = code_value()*60 ;
         if(code_seen('Z')) max_z_jerk = code_value()*60 ;
+      }
+      break;
+      case 220: // M220 S<factor in percent>- set speed factor override percentage
+      {
+        if(code_seen('S')) feedmultiply = code_value() ;
       }
       break;
 #ifdef PIDTEMP
@@ -1457,7 +1463,7 @@ void manage_heater()
       pTerm = (Kp * error) / 100.0;
       temp_iState += error;
       //temp_iState = constrain(temp_iState, temp_iState_min, temp_iState_max);
-      temp_iState = constrain(temp_iState, -1000, 1000);
+      temp_iState = constrain(temp_iState, -2000, 2000);
       iTerm = (Ki * temp_iState)/100.0;
       dTerm = (Kd * (current_raw_average - temp_dState)) / 100.0;
       temp_dState = current_raw_average;
