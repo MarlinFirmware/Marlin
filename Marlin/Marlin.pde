@@ -1160,6 +1160,12 @@ inline void process_commands()
       case 220: // M220 S<factor in percent>- set speed factor override percentage
       {
         if(code_seen('S')) feedmultiply = code_value() ;
+#ifdef ULTRALCD
+        if(menu.status==Main_Status)
+        {
+          encoderpos=feedmultiply;
+        }
+#endif
       }
       break;
 #ifdef PIDTEMP
