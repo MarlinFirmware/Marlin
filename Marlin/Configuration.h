@@ -1,5 +1,4 @@
 
-
 #ifndef CONFIGURATION_H
 #define CONFIGURATION_H
 
@@ -152,6 +151,7 @@ bool axis_relative_modes[] = {false, false, false, false};
 #define SMOOTHING
 #define SMOOTHFACTOR 5.0
 float current_raw_average=0;
+
 
 #define GRACETEMP 0  //temperature which already counts as reached for M109
 #define PIDTEMP
