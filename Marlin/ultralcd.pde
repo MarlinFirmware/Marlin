@@ -311,7 +311,7 @@ void MainMenu::showStatus()
   }
   static int oldfeedmultiply=0;
   int curfeedmultiply=feedmultiply;
-  if(encoderpos!=curfeedmultiply)
+  if(encoderpos!=curfeedmultiply||force_lcd_update)
   {
    curfeedmultiply=encoderpos;
    if(curfeedmultiply<10)
