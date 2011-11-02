@@ -164,7 +164,7 @@ float current_raw_average=0;
   #define PID_dT 0.05
  //machine with red silicon: 1950:45 second ; with fan fully blowin 3000:47
  
-  #define PID_CRITIAL_GAIN 2800
+  #define PID_CRITIAL_GAIN 3000
   #define PID_SWING_AT_CRITIAL 45 //seconds
 
   double Kp = 0.6*PID_CRITIAL_GAIN; //20.0;
