@@ -45,7 +45,7 @@ const bool ENDSTOPS_INVERTING = true; // set to true to invert the logic of the 
 
 //#define ULTIPANEL
 #ifdef ULTIPANEL
- //#define NEWPANEL  //enable this if you have a click-encoder panel
+ #define NEWPANEL  //enable this if you have a click-encoder panel
  #define SDSUPPORT
  #define ULTRA_LCD
  #define LCD_WIDTH 20
@@ -155,16 +155,22 @@ float current_raw_average=0;
 
 #define GRACETEMP 0  //temperature which already counts as reached for M109
 #define PIDTEMP
-#ifdef PIDTEMP
-//#define PID_DEBUG 1 // Sends debug data to the serial port. 
-//#define PID_OPENLOOP 1 // Puts PID in open loop. M104 sets the output power in %
-#define PID_MAX 255 // limits current to nozzle
-#define PID_INTEGRAL_DRIVE_MAX 255
-#define PID_dT 0.05
 
-double Kp = 1000; //20.0;
-double Ki =100*PID_dT;  //1.5*PID_dT;
-double Kd = 0;  //80/PID_dT;
+#ifdef PIDTEMP
+  //#define PID_DEBUG 1 // Sends debug data to the serial port. 
+  //#define PID_OPENLOOP 1 // Puts PID in open loop. M104 sets the output power in %
+  #define PID_MAX 255 // limits current to nozzle
+  #define PID_INTEGRAL_DRIVE_MAX 255
+  #define PID_dT 0.05
+ //machine with red silicon: 1950:45 second ; with fan fully blowin 3000:47
+ 
+  #define PID_CRITIAL_GAIN 2800
+  #define PID_SWING_AT_CRITIAL 45 //seconds
+
+  double Kp = 0.6*PID_CRITIAL_GAIN; //20.0;
+  double Ki =2*Kp/PID_SWING_AT_CRITIAL*PID_dT;  //1.5*PID_dT;
+  double Kd = Kp*PID_SWING_AT_CRITIAL/8./PID_dT;  //80/PID_dT;
+  double Kc = 9; //heatingpower=Kc*(e_speed)
 #endif // PIDTEMP
 
 // extruder advance constant (s2/mm3)

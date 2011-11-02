@@ -498,7 +498,10 @@ void MainMenu::showPrepare()
   } 
 }
 enum {
-  ItemC_exit, ItemC_nozzle, ItemC_fan, ItemC_acc, ItemC_xyjerk, 
+  ItemC_exit, ItemC_nozzle, 
+  ItemC_PID_P,ItemC_PID_I,ItemC_PID_D,ItemC_PID_C,
+  ItemC_fan, 
+  ItemC_acc, ItemC_xyjerk, 
   ItemC_vmaxx, ItemC_vmaxy, ItemC_vmaxz, ItemC_vmaxe, 
   ItemC_vmin,  
   ItemC_amaxx, ItemC_amaxy, ItemC_amaxz, ItemC_amaxe, 
@@ -663,6 +666,145 @@ void MainMenu::showControl()
           if(linechanging)
           {
             if(encoderpos<1) encoderpos=1;
+            if(encoderpos>990) encoderpos=990;
+            lcd.setCursor(13,line);lcd.print(itostr3(encoderpos));
+          }
+        }
+      }break;
+      case ItemC_PID_P: 
+      {
+      if(force_lcd_update)
+        {
+          lcd.setCursor(0,line);lcd.print(" PID-P: ");
+          lcd.setCursor(13,line);lcd.print(itostr4(Kp));
+        }
+        
+        if((activeline==line) )
+        {
+          if(CLICKED)
+          {
+            linechanging=!linechanging;
+            if(linechanging)
+            {
+               encoderpos=(int)Kp/5;
+            }
+            else
+            {
+              Kp= encoderpos*5;
+              encoderpos=activeline*lcdslow;
+                
+            }
+            BLOCK;
+            beepshort();
+          }
+          if(linechanging)
+          {
+            if(encoderpos<1) encoderpos=1;
+            if(encoderpos>9990/5) encoderpos=9990/5;
+            lcd.setCursor(13,line);lcd.print(itostr4(encoderpos*5));
+          }
+        }
+      }break;
+    case ItemC_PID_I: 
+      {
+      if(force_lcd_update)
+        {
+          lcd.setCursor(0,line);lcd.print(" PID-I: ");
+          lcd.setCursor(13,line);lcd.print(itostr4(Ki));
+        }
+        
+        if((activeline==line) )
+        {
+          if(CLICKED)
+          {
+            linechanging=!linechanging;
+            if(linechanging)
+            {
+               encoderpos=(int)Ki/5;
+            }
+            else
+            {
+              Ki= encoderpos*5;
+              encoderpos=activeline*lcdslow;
+                
+            }
+            BLOCK;
+            beepshort();
+          }
+          if(linechanging)
+          {
+            if(encoderpos<0) encoderpos=0;
+            if(encoderpos>9990/5) encoderpos=9990/5;
+            lcd.setCursor(13,line);lcd.print(itostr4(encoderpos*5));
+          }
+        }
+      }break;
+      case ItemC_PID_D: 
+      {
+      if(force_lcd_update)
+        {
+          lcd.setCursor(0,line);lcd.print(" PID-D: ");
+          lcd.setCursor(13,line);lcd.print(itostr4(Kd));
+        }
+        
+        if((activeline==line) )
+        {
+          if(CLICKED)
+          {
+            linechanging=!linechanging;
+            if(linechanging)
+            {
+               encoderpos=(int)Kd/5;
+            }
+            else
+            {
+              Kd= encoderpos*5;
+              encoderpos=activeline*lcdslow;
+                
+            }
+            BLOCK;
+            beepshort();
+          }
+          if(linechanging)
+          {
+            if(encoderpos<0) encoderpos=0;
+            if(encoderpos>9990/5) encoderpos=9990/5;
+            lcd.setCursor(13,line);lcd.print(itostr4(encoderpos*5));
+          }
+        }
+      }break;
+    
+    
+      
+    case ItemC_PID_C: 
+      {
+      if(force_lcd_update)
+        {
+          lcd.setCursor(0,line);lcd.print(" PID-C: ");
+          lcd.setCursor(13,line);lcd.print(itostr3(Kc));
+        }
+        
+        if((activeline==line) )
+        {
+          if(CLICKED)
+          {
+            linechanging=!linechanging;
+            if(linechanging)
+            {
+               encoderpos=(int)Kc;
+            }
+            else
+            {
+              Kc= encoderpos;
+              encoderpos=activeline*lcdslow;
+                
+            }
+            BLOCK;
+            beepshort();
+          }
+          if(linechanging)
+          {
+            if(encoderpos<0) encoderpos=0;
             if(encoderpos>990) encoderpos=990;
             lcd.setCursor(13,line);lcd.print(itostr3(encoderpos));
           }
@@ -1365,6 +1507,16 @@ char *itostr3(const int &xx)
   conv[1]=(xx/10)%10+'0';
   conv[2]=(xx)%10+'0';
   conv[3]=0;
+  return conv;
+}
+
+char *itostr4(const int &xx)
+{
+  conv[0]=(xx/1000)%10+'0';
+  conv[1]=(xx/100)%10+'0';
+  conv[2]=(xx/10)%10+'0';
+  conv[3]=(xx)%10+'0';
+  conv[4]=0;
   return conv;
 }
 

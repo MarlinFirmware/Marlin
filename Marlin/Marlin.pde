@@ -180,6 +180,7 @@ float mintravelfeedrate;
 #include "EEPROM.h"
 
 
+static block_t *current_block;  // A pointer to the block currently being traced
 
 int target_bed_raw = 0;
 int current_bed_raw = 0;
@@ -1472,6 +1473,8 @@ void manage_heater()
       iTerm = (Ki * temp_iState)/100.0;
       dTerm = (Kd * (current_raw_average - temp_dState)) / 100.0;
       temp_dState = current_raw_average;
+      pTerm+=Kc*current_block->speed_e; //additional heating if extrusion speed is high
+     
       HeaterPower= constrain(pTerm + iTerm - dTerm, 0, PID_MAX);      
       }
       else  HeaterPower= constrain(-Kp,0, 255);      // 
@@ -2299,7 +2302,7 @@ asm volatile ( \
 #define ENABLE_STEPPER_DRIVER_INTERRUPT()  TIMSK1 |= (1<<OCIE1A)
 #define DISABLE_STEPPER_DRIVER_INTERRUPT() TIMSK1 &= ~(1<<OCIE1A)
 
-static block_t *current_block;  // A pointer to the block currently being traced
+
 
 // Variables used by The Stepper Driver Interrupt
 static unsigned char out_bits;        // The next stepping-bits to be output
