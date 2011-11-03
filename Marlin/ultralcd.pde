@@ -503,7 +503,7 @@ enum {
   ItemC_fan, 
   ItemC_acc, ItemC_xyjerk, 
   ItemC_vmaxx, ItemC_vmaxy, ItemC_vmaxz, ItemC_vmaxe, 
-  ItemC_vmin,  
+  ItemC_vtravmin,ItemC_vmin,  
   ItemC_amaxx, ItemC_amaxy, ItemC_amaxz, ItemC_amaxe, 
   ItemC_aret,ItemC_esteps, ItemC_store, ItemC_load,ItemC_failsafe
 };
@@ -710,7 +710,7 @@ void MainMenu::showControl()
       if(force_lcd_update)
         {
           lcd.setCursor(0,line);lcd.print(" PID-I: ");
-          lcd.setCursor(13,line);lcd.print(itostr4(Ki));
+          lcd.setCursor(13,line);lcd.print(ftostr51(Ki));
         }
         
         if((activeline==line) )
@@ -720,11 +720,11 @@ void MainMenu::showControl()
             linechanging=!linechanging;
             if(linechanging)
             {
-               encoderpos=(int)Ki/5;
+               encoderpos=(int)(Ki*10);
             }
             else
             {
-              Ki= encoderpos*5;
+              Ki= encoderpos/10.;
               encoderpos=activeline*lcdslow;
                 
             }
@@ -734,8 +734,8 @@ void MainMenu::showControl()
           if(linechanging)
           {
             if(encoderpos<0) encoderpos=0;
-            if(encoderpos>9990/5) encoderpos=9990/5;
-            lcd.setCursor(13,line);lcd.print(itostr4(encoderpos*5));
+            if(encoderpos>9990) encoderpos=9990;
+            lcd.setCursor(13,line);lcd.print(ftostr51(encoderpos/10.));
           }
         }
       }break;
@@ -867,11 +867,45 @@ void MainMenu::showControl()
             linechanging=!linechanging;
             if(linechanging)
             {
-               encoderpos=(int)minimumfeedrate/60;
+               encoderpos=(int)(minimumfeedrate/60.);
             }
             else
             {
               minimumfeedrate= encoderpos*60;
+              encoderpos=activeline*lcdslow;
+                
+            }
+            BLOCK;
+            beepshort();
+          }
+          if(linechanging)
+          {
+            if(encoderpos<0) encoderpos=0;
+            if(encoderpos>990) encoderpos=990;
+            lcd.setCursor(13,line);lcd.print(itostr3(encoderpos));
+          }
+        }
+      }break;
+    case ItemC_vtravmin:
+    {
+      if(force_lcd_update)
+        {
+          lcd.setCursor(0,line);lcd.print(" VTrav min:");
+          lcd.setCursor(13,line);lcd.print(itostr3(mintravelfeedrate/60));
+        }
+        
+        if((activeline==line) )
+        {
+          if(CLICKED)
+          {
+            linechanging=!linechanging;
+            if(linechanging)
+            {
+               encoderpos=(int)mintravelfeedrate/60;
+            }
+            else
+            {
+              mintravelfeedrate= encoderpos*60;
               encoderpos=activeline*lcdslow;
                 
             }
@@ -966,7 +1000,7 @@ void MainMenu::showControl()
       if(force_lcd_update)
         {
           lcd.setCursor(0,line);lcd.print(" Esteps/mm:");
-          lcd.setCursor(13,line);lcd.print(itostr3(axis_steps_per_unit[3]));
+          lcd.setCursor(13,line);lcd.print(itostr4(axis_steps_per_unit[3]));
         }
         
         if((activeline==line) )
@@ -980,7 +1014,10 @@ void MainMenu::showControl()
             }
             else
             {
-              axis_steps_per_unit[3]= encoderpos;
+              float factor=float(encoderpos)/float(axis_steps_per_unit[3]);
+              position[E_AXIS]=lround(position[E_AXIS]*factor);
+              //current_position[3]*=factor;
+              axis_steps_per_unit[E_AXIS]= encoderpos;
               encoderpos=activeline*lcdslow;
                 
             }
@@ -990,8 +1027,8 @@ void MainMenu::showControl()
           if(linechanging)
           {
             if(encoderpos<5) encoderpos=5;
-            if(encoderpos>990) encoderpos=990;
-            lcd.setCursor(13,line);lcd.print(itostr3(encoderpos));
+            if(encoderpos>9999) encoderpos=9999;
+            lcd.setCursor(13,line);lcd.print(itostr4(encoderpos));
           }
         }
       }break; 

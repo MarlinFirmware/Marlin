@@ -178,6 +178,7 @@ float mintravelfeedrate;
 // Manage heater variables.
 
 #include "EEPROM.h"
+static long position[4];   //in steps 
 
 
 static block_t *current_block;  // A pointer to the block currently being traced
@@ -1073,7 +1074,12 @@ inline void process_commands()
       break;
     case 92: // M92
       for(int i=0; i < NUM_AXIS; i++) {
-        if(code_seen(axis_codes[i])) axis_steps_per_unit[i] = code_value();
+        if(code_seen(axis_codes[i]))
+        {
+          float factor=float(code_value())/float(axis_steps_per_unit[3]);
+          position[E_AXIS]=lround(position[E_AXIS]*factor);
+          axis_steps_per_unit[i] = code_value();
+        }
       }
 
       break;
@@ -1729,7 +1735,6 @@ static volatile unsigned char block_buffer_head;           // Index of the next 
 static volatile unsigned char block_buffer_tail;           // Index of the block to process now
 
 // The current position of the tool in absolute steps
-static long position[4];   
 
 #define ONE_MINUTE_OF_MICROSECONDS 60000000.0
 
@@ -2032,14 +2037,7 @@ void check_axes_activity() {
 // mm. Microseconds specify how many microseconds the move should take to perform. To aid acceleration
 // calculation the caller must also provide the physical length of the line in millimeters.
 void plan_buffer_line(float x, float y, float z, float e, float feed_rate) {
-
-  // The target position of the tool in absolute steps
-  // Calculate target position in absolute steps
-  long target[4];
-  target[X_AXIS] = lround(x*axis_steps_per_unit[X_AXIS]);
-  target[Y_AXIS] = lround(y*axis_steps_per_unit[Y_AXIS]);
-  target[Z_AXIS] = lround(z*axis_steps_per_unit[Z_AXIS]);     
-  target[E_AXIS] = lround(e*axis_steps_per_unit[E_AXIS]);     
+    
 
   // Calculate the buffer head after we push this byte
   int next_buffer_head = (block_buffer_head + 1) %BLOCK_BUFFER_SIZE;
@@ -2051,6 +2049,14 @@ void plan_buffer_line(float x, float y, float z, float e, float feed_rate) {
     manage_inactivity(1); 
   }
 
+  // The target position of the tool in absolute steps
+  // Calculate target position in absolute steps
+  long target[4];
+  target[X_AXIS] = lround(x*axis_steps_per_unit[X_AXIS]);
+  target[Y_AXIS] = lround(y*axis_steps_per_unit[Y_AXIS]);
+  target[Z_AXIS] = lround(z*axis_steps_per_unit[Z_AXIS]);     
+  target[E_AXIS] = lround(e*axis_steps_per_unit[E_AXIS]); 
+  
   // Prepare to set up new block
   block_t *block = &block_buffer[block_buffer_head];
   
