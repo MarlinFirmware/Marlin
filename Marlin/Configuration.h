@@ -167,10 +167,16 @@ float current_raw_average=0;
   #define PID_CRITIAL_GAIN 3000
   #define PID_SWING_AT_CRITIAL 45 //seconds
   #define PIDIADD 5
-
-  float Kp = 0.6*PID_CRITIAL_GAIN; //20.0;
-  float Ki =PIDIADD+2*Kp/PID_SWING_AT_CRITIAL*PID_dT;  //1.5*PID_dT;
-  float Kd = Kp*PID_SWING_AT_CRITIAL/8./PID_dT;  //80/PID_dT;
+/*
+  //PID according to Ziegler-Nichols method
+  float Kp = 0.6*PID_CRITIAL_GAIN; 
+  float Ki =PIDIADD+2*Kp/PID_SWING_AT_CRITIAL*PID_dT;  
+  float Kd = Kp*PID_SWING_AT_CRITIAL/8./PID_dT;  
+*/
+  //PI according to Ziegler-Nichols method
+  float Kp = PID_CRITIAL_GAIN/2.2; 
+  float Ki =1.2*Kp/PID_SWING_AT_CRITIAL*PID_dT;  
+  float Kd = 0;
   float Kc = 9; //heatingpower=Kc*(e_speed)
 #endif // PIDTEMP
 
