@@ -168,10 +168,10 @@ float current_raw_average=0;
   #define PID_SWING_AT_CRITIAL 45 //seconds
   #define PIDIADD 5
 
-  double Kp = 0.6*PID_CRITIAL_GAIN; //20.0;
-  double Ki =PIDIADD+2*Kp/PID_SWING_AT_CRITIAL*PID_dT;  //1.5*PID_dT;
-  double Kd = Kp*PID_SWING_AT_CRITIAL/8./PID_dT;  //80/PID_dT;
-  double Kc = 9; //heatingpower=Kc*(e_speed)
+  float Kp = 0.6*PID_CRITIAL_GAIN; //20.0;
+  float Ki =PIDIADD+2*Kp/PID_SWING_AT_CRITIAL*PID_dT;  //1.5*PID_dT;
+  float Kd = Kp*PID_SWING_AT_CRITIAL/8./PID_dT;  //80/PID_dT;
+  float Kc = 9; //heatingpower=Kc*(e_speed)
 #endif // PIDTEMP
 
 // extruder advance constant (s2/mm3)
