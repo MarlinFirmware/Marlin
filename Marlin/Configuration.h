@@ -146,8 +146,15 @@ const int dropsegments=5; //everything with this number of steps  will be ignore
 #define WATCHDOG_TIMEOUT 4
 
 
+
+//// Experimental watchdog and minimal temp
+// The watchdog waits for the watchperiod in milliseconds whenever an M104 or M109 increases the target temperature
 // If the temperature has not increased at the end of that period, the target temperature is set to zero. It can be reset with another M104/M109
 //#define WATCHPERIOD 5000 //5 seconds
+
+// Actual temperature must be close to target for this long before M109 returns success
+//#define TEMP_RESIDENCY_TIME 20  // (seconds)
+//#define TEMP_HYSTERESIS 5       // (C°) range of +/- temperatures considered "close" to the target one
 
 //// The minimal temperature defines the temperature below which the heater will not be enabled
 #define MINTEMP 5

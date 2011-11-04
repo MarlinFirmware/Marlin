@@ -780,7 +780,7 @@ inline void process_commands()
         #ifdef WATCHPERIOD
             if(target_raw[0] > current_raw[0]){
                 watchmillis = max(1,millis());
-                watch_raw[0] = current_raw[0];
+                watch_raw = current_raw[0];
             }else{
                 watchmillis = 0;
             }
@@ -820,32 +820,54 @@ inline void process_commands()
         #endif
         return;
         //break;
-      case 109: // M109 - Wait for extruder heater to reach target.
-        LCD_MESSAGE("Heating...");
-               if (code_seen('S')) target_raw[0] = temp2analog(code_value());
-#ifdef PIDTEMP
-               pid_setpoint = code_value();
-#endif //PIDTEM
-        #ifdef WATCHPERIOD
-          if(target_raw[0]>current_raw[0]){
+      case 109: {// M109 - Wait for extruder heater to reach target.
+            LCD_MESSAGE("Heating...");
+            if (code_seen('S')) target_raw[0] = temp2analog(code_value());
+            #ifdef PIDTEMP
+            pid_setpoint = code_value();
+            #endif //PIDTEM
+            #ifdef WATCHPERIOD
+            if(target_raw[0]>current_raw[0]) {
               watchmillis = max(1,millis());
-              watch_raw[0] = current_raw[0];
-          }else{
+              watch_raw = current_raw[0];
+            } else {
               watchmillis = 0;
-          }
-        #endif
-          codenum = millis(); 
-          starttime=millis();
-          while(current_raw[0] < target_raw[0]) {
-            if( (millis() - codenum) > 1000 ) { //Print Temp Reading every 1 second while heating up.
-              Serial.print("T:");
-              Serial.println( analog2temp(current_raw[0]) ); 
-              codenum = millis();
             }
-            LCD_STATUS;
-            manage_heater();
+            #endif //WATCHPERIOD
+            codenum = millis(); 
+     
+               /* See if we are heating up or cooling down */
+              bool target_direction = (current_raw[0] < target_raw[0]); // true if heating, false if cooling
+
+            #ifdef TEMP_RESIDENCY_TIME
+            long residencyStart;
+            residencyStart = -1;
+            /* continue to loop until we have reached the target temp   
+              _and_ until TEMP_RESIDENCY_TIME hasn't passed since we reached it */
+            while((target_direction ? (current_raw[0] < target_raw[0]) : (current_raw[0] > target_raw[0])) ||
+                    (residencyStart > -1 && (millis() - residencyStart) < TEMP_RESIDENCY_TIME*1000) ) {
+            #else
+            while ( target_direction ? (current_raw[0] < target_raw[0]) : (current_raw[0] > target_raw[0]) ) {
+            #endif //TEMP_RESIDENCY_TIME
+              if( (millis() - codenum) > 1000 ) { //Print Temp Reading every 1 second while heating up/cooling down
+                Serial.print("T:");
+                Serial.println( analog2temp(current_raw[0]) );
+                codenum = millis();
+              }
+              manage_heater();
+              LCD_STATUS;
+              #ifdef TEMP_RESIDENCY_TIME
+               /* start/restart the TEMP_RESIDENCY_TIME timer whenever we reach target temp for the first time
+                  or when current temp falls outside the hysteresis after target temp was reached */
+              if ((residencyStart == -1 &&  target_direction && current_raw[0] >= target_raw[0]) ||
+                  (residencyStart == -1 && !target_direction && current_raw[0] <= target_raw[0]) ||
+                  (residencyStart > -1 && labs(analog2temp(current_raw[0]) - analog2temp(target_raw[0])) > TEMP_HYSTERESIS) ) {
+                residencyStart = millis();
+              }
+              #endif //TEMP_RESIDENCY_TIME
+	    }
+            LCD_MESSAGE("Marlin ready.");
           }
-          LCD_MESSAGE("UltiMarlin ready.");
           break;
       case 190: // M190 - Wait bed for heater to reach target.
       #if TEMP_1_PIN > -1
