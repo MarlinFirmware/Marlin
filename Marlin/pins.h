@@ -60,8 +60,8 @@
 
 #define HEATER_0_PIN        6
 #define TEMP_0_PIN          0    // MUST USE ANALOG INPUT NUMBERING NOT DIGITAL OUTPUT NUMBERING!!!!!!!!!
-
-
+#define HEATER_1_PIN        -1
+#define HEATER_2_PIN        -1
 #endif
 
 
@@ -133,7 +133,8 @@
 
 #define HEATER_0_PIN       14
 #define TEMP_0_PIN          4 //D27   // MUST USE ANALOG INPUT NUMBERING NOT DIGITAL OUTPUT NUMBERING!!!!!!!!!
-
+#define HEATER_1_PIN        -1
+#define HEATER_2_PIN        -1
 /*  Unused (1) (2) (3) 4 5 6 7 8 9 10 11 12 13 (14) (15) (16) 17 (18) (19) (20) (21) (22) (23) 24 (25) (26) (27) 28 (29) (30) (31)  */
 
 
@@ -194,7 +195,8 @@
 
 #define HEATER_0_PIN    -1
 #define TEMP_0_PIN      -1    // MUST USE ANALOG INPUT NUMBERING NOT DIGITAL OUTPUT NUMBERING!!!!!!!!!
-
+#define HEATER_1_PIN        -1
+#define HEATER_2_PIN        -1
 
 
 
@@ -255,8 +257,10 @@
 
 #define HEATER_0_PIN       10
 #define HEATER_1_PIN       8
+#define HEATER_2_PIN        -1
 #define TEMP_0_PIN         13   // ANALOG NUMBERING
 #define TEMP_1_PIN         14   // ANALOG NUMBERING
+#define TEMP_2_PIN         -1   // ANALOG NUMBERING
 
 
 #else // RAMPS_V_1_1 or RAMPS_V_1_2 as default
@@ -301,9 +305,10 @@
   #define HEATER_1_PIN      8    // RAMPS 1.1
   #define FAN_PIN           9    // RAMPS 1.1
 #endif
-
+#define HEATER_2_PIN        -1
 #define TEMP_0_PIN          2    // MUST USE ANALOG INPUT NUMBERING NOT DIGITAL OUTPUT NUMBERING!!!!!!!!!
 #define TEMP_1_PIN          1    // MUST USE ANALOG INPUT NUMBERING NOT DIGITAL OUTPUT NUMBERING!!!!!!!!!
+#define TEMP_2_PIN          -1    // MUST USE ANALOG INPUT NUMBERING NOT DIGITAL OUTPUT NUMBERING!!!!!!!!!
 #endif
 
 // SPI for Max6675 Thermocouple 
@@ -361,7 +366,8 @@
 
 #define HEATER_0_PIN        6
 #define TEMP_0_PIN          0    // MUST USE ANALOG INPUT NUMBERING NOT DIGITAL OUTPUT NUMBERING!!!!!!!!!
-
+#define HEATER_1_PIN        -1
+#define HEATER_2_PIN        -1
 
 #endif
 
@@ -404,12 +410,13 @@
     #define TEMP_0_PIN      5     //changed @ rkoeppl 20110410
     #define HEATER_0_PIN    14    //changed @ rkoeppl 20110410
     #define HEATER_1_PIN    -1    //changed @ rkoeppl 20110410
-    
+    #define HEATER_2_PIN        -1
     
     #define SDPOWER          -1
     #define SDSS          17
     #define LED_PIN         -1    //changed @ rkoeppl 20110410
     #define TEMP_1_PIN      -1    //changed @ rkoeppl 20110410
+    #define TEMP_2_PIN      -1
     #define FAN_PIN         -1    //changed @ rkoeppl 20110410
     #define PS_ON_PIN       -1    //changed @ rkoeppl 20110410
     //our pin for debugging.
@@ -421,6 +428,7 @@
     #define RX_ENABLE_PIN	13
 
 #endif
+
 /****************************************************************************************
 * Sanguinololu pin assignment
 *
@@ -482,13 +490,77 @@
 
 #define TEMP_0_PIN          7   // MUST USE ANALOG INPUT NUMBERING NOT DIGITAL OUTPUT NUMBERING!!!!!!!!! (pin 33 extruder)
 #define TEMP_1_PIN          6   // MUST USE ANALOG INPUT NUMBERING NOT DIGITAL OUTPUT NUMBERING!!!!!!!!! (pin 34 bed)
-#define SDPOWER          -1
-#define SDSS          31
+#define TEMP_2_PIN         -1
+#define SDPOWER            -1
+#define SDSS               31
+#define HEATER_2_PIN       -1
+
+#endif
+
+
+#if MOTHERBOARD == 7
+#define KNOWN_BOARD
+/*****************************************************************
+* Ultimaker pin assignment
+******************************************************************/
+
+#ifndef __AVR_ATmega1280__
+ #ifndef __AVR_ATmega2560__
+ #error Oops!  Make sure you have 'Arduino Mega' selected from the 'Tools -> Boards' menu.
+ #endif
+#endif
+
+#define X_STEP_PIN 25
+#define X_DIR_PIN 23
+#define X_MIN_PIN 22
+#define X_MAX_PIN 24
+#define X_ENABLE_PIN 27
+
+#define Y_STEP_PIN 31
+#define Y_DIR_PIN 33
+#define Y_MIN_PIN 26
+#define Y_MAX_PIN 28
+#define Y_ENABLE_PIN 29
+
+#define Z_STEP_PIN 37 
+#define Z_DIR_PIN 39
+#define Z_MIN_PIN 30
+#define Z_MAX_PIN 32
+#define Z_ENABLE_PIN 35
+
+#define HEATER_1_PIN 4 
+#define TEMP_1_PIN 11  
+
+#define EXTRUDER_0_STEP_PIN 43 
+#define EXTRUDER_0_DIR_PIN 45
+#define EXTRUDER_0_ENABLE_PIN 41
+#define HEATER_0_PIN  2
+#define TEMP_0_PIN 8   
+
+#define EXTRUDER_1_STEP_PIN 49 
+#define EXTRUDER_1_DIR_PIN 47
+#define EXTRUDER_1_ENABLE_PIN 51
+#define EXTRUDER_1_HEATER_PIN 3
+#define EXTRUDER_1_TEMPERATURE_PIN 10 
+#define HEATER_2_PIN 51
+#define TEMP_2_PIN 3
+
+
+
+#define E_STEP_PIN         EXTRUDER_0_STEP_PIN
+#define E_DIR_PIN          EXTRUDER_0_DIR_PIN
+#define E_ENABLE_PIN       EXTRUDER_0_ENABLE_PIN
+
+#define SDPOWER            -1
+#define SDSS               53
+#define LED_PIN            13
+#define FAN_PIN            7
+#define PS_ON_PIN          12
+#define KILL_PIN           -1
+#endif
+
 
 #ifndef KNOWN_BOARD
 #error Unknown MOTHERBOARD value in configuration.h
 #endif
-
-#endif
-
 #endif

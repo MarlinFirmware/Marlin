@@ -1,247 +1,274 @@
-# Marlin Arduino Project Makefile
-# 
-# Makefile Based on:
-# Arduino 0011 Makefile
-# Arduino adaptation by mellis, eighthave, oli.keller
 #
-# This has been tested with Arduino 0022.
-# 
-# This makefile allows you to build sketches from the command line
-# without the Arduino environment (or Java).
+# Arduino 0022 Makefile 
+# Uno with DOGS102 Shield
 #
-# Detailed instructions for using the makefile:
+# written by olikraus@gmail.com
 #
-#  1. Modify the line containg "INSTALL_DIR" to point to the directory that
-#     contains the Arduino installation (for example, under Mac OS X, this
-#     might be /Applications/arduino-0012).
+# Features:
+#   - boards.txt is used to derive parameters
+#   - All intermediate files are put into a separate directory (TMPDIRNAME)
+#   - Simple use: Copy Makefile into the same directory of the .pde file
 #
-#  2. Modify the line containing "PORT" to refer to the filename
-#     representing the USB or serial connection to your Arduino board
-#     (e.g. PORT = /dev/tty.USB0).  If the exact name of this file
-#     changes, you can use * as a wildcard (e.g. PORT = /dev/tty.usb*).
+# Limitations:
+#   - requires UNIX environment
+#   - TMPDIRNAME must be subdirectory of the current directory.
 #
-#  3. Set the line containing "MCU" to match your board's processor. 
-#     Older one's are atmega8 based, newer ones like Arduino Mini, Bluetooth
-#     or Diecimila have the atmega168.  If you're using a LilyPad Arduino,
-#     change F_CPU to 8000000.
+# Targets
+# 	all		build everything
+#	upload	build and upload to arduino
+#	clean	remove all temporary files (includes final hex file)
 #
-#  4. Type "make" and press enter to compile/verify your program.
+# History
+#	001	28 Apr 2010	first  release
+#	002  05 Oct 2010	added 'uno'
 #
-#  5. Type "make upload", reset your Arduino board, and press enter to
-#     upload your program to the Arduino board.
-#
-# $Id$
 
-TARGET = Marlin
-INSTALL_DIR = ../../Desktop/arduino-0018/
-UPLOAD_RATE = 38400
-AVRDUDE_PROGRAMMER = stk500v1
-PORT = /dev/ttyUSB0
-#MCU = atmega2560
-#For "old" Arduino Mega
-#MCU = atmega1280
-#For Sanguinololu
-MCU = atmega644p 
-F_CPU = 16000000
+#=== user configuration ===
+# All ...PATH variables must have a '/' at the end
 
+# Board (and prozessor) information: see $(ARDUINO_PATH)hardware/arduino/boards.txt
+# Some examples:
+#	BOARD		DESCRIPTION
+#	uno			Arduino Uno
+#	atmega328	Arduino Duemilanove or Nano w/ ATmega328
+#	diecimila		Arduino Diecimila, Duemilanove, or Nano w/ ATmega168
+#	mega		Arduino Mega
+#	mini			Arduino Mini
+#	lilypad328	LilyPad Arduino w/ ATmega328  
+BOARD:=mega
 
-############################################################################
-# Below here nothing should be changed...
+# additional (comma separated) defines 
+# -DDOGM128_HW		board is connected to DOGM128 display
+# -DDOGM132_HW		board is connected to DOGM132 display
+# -DDOGS102_HW		board is connected to DOGS102 display
+# -DDOG_REVERSE		180 degree rotation
+# -DDOG_SPI_SW_ARDUINO	force SW shiftOut
+DEFS=-DDOGS102_HW -DDOG_DOUBLE_MEMORY -DDOG_SPI_SW_ARDUINO
 
-ARDUINO = $(INSTALL_DIR)/hardware/Sanguino/cores/arduino
-AVR_TOOLS_PATH = $(INSTALL_DIR)/hardware/tools/avr/bin
-SRC =  $(ARDUINO)/pins_arduino.c wiring.c wiring_serial.c \
-$(ARDUINO)/wiring_analog.c $(ARDUINO)/wiring_digital.c \
-$(ARDUINO)/wiring_pulse.c \
-$(ARDUINO)/wiring_shift.c $(ARDUINO)/WInterrupts.c
-CXXSRC = $(ARDUINO)/HardwareSerial.cpp $(ARDUINO)/WMath.cpp \
-$(ARDUINO)/Print.cpp ./SdFile.cpp ./SdVolume.cpp ./Sd2Card.cpp
-FORMAT = ihex
+# The location where the avr tools (e.g. avr-gcc) are located. Requires a '/' at the end.
+# Can be empty if all tools are accessable through the search path
+AVR_TOOLS_PATH:=/usr/bin/
 
+# Install path of the arduino software. Requires a '/' at the end.
+ARDUINO_PATH:=/home/bkubicek/software/arduino-0022/
 
-# Name of this Makefile (used for "make depend").
-MAKEFILE = Makefile
+# Install path for avrdude. Requires a '/' at the end. Can be empty if avrdude is in the search path.
+AVRDUDE_PATH:= 
 
-# Debugging format.
-# Native formats for AVR-GCC's -g are stabs [default], or dwarf-2.
-# AVR (extended) COFF requires stabs, plus an avr-objcopy run.
-DEBUG = stabs
+# The unix device where we can reach the arduino board
+# Uno: /dev/ttyACM0
+# Duemilanove: /dev/ttyUSB0
+AVRDUDE_PORT:=/dev/ttyACM0
 
-OPT = s
+# List of all libaries which should be included.
+#EXTRA_DIRS=$(ARDUINO_PATH)libraries/LiquidCrystal/
+#EXTRA_DIRS+=$(ARDUINO_PATH)libraries/Dogm/
+#EXTRA_DIRS+=/home/kraus/src/arduino/dogm128/hg/libraries/Dogm/
 
-# Place -D or -U options here
-CDEFS = -DF_CPU=$(F_CPU)
-CXXDEFS = -DF_CPU=$(F_CPU)
+#=== fetch parameter from boards.txt processor parameter ===
+# the basic idea is to get most of the information from boards.txt
 
-# Place -I options here
-CINCS = -I$(ARDUINO)
-CXXINCS = -I$(ARDUINO)
+BOARDS_TXT:=$(ARDUINO_PATH)hardware/arduino/boards.txt
 
-# Compiler flag to set the C Standard level.
-# c89   - "ANSI" C
-# gnu89 - c89 plus GCC extensions
-# c99   - ISO C99 standard (not yet fully implemented)
-# gnu99 - c99 plus GCC extensions
-#CSTANDARD = -std=gnu99
-CDEBUG = -g$(DEBUG)
-CWARN = -Wall -Wunused-variable
-CTUNING = -funsigned-char -funsigned-bitfields -fpack-struct -fshort-enums -w -ffunction-sections -fdata-sections -DARDUINO=22
-#CEXTRA = -Wa,-adhlns=$(<:.c=.lst)
+# get the MCU value from the $(BOARD).build.mcu variable. For the atmega328 board this is atmega328p
+MCU:=$(shell sed -n -e "s/$(BOARD).build.mcu=\(.*\)/\1/p" $(BOARDS_TXT))
+# get the F_CPU value from the $(BOARD).build.f_cpu variable. For the atmega328 board this is 16000000
+F_CPU:=$(shell sed -n -e "s/$(BOARD).build.f_cpu=\(.*\)/\1/p" $(BOARDS_TXT))
 
-CFLAGS = $(CDEBUG) $(CDEFS) $(CINCS) -O$(OPT) $(CWARN) $(CEXTRA) $(CTUNING)
-CXXFLAGS = $(CDEFS) $(CINCS) -O$(OPT) -Wall $(CEXTRA) $(CTUNING)
-#ASFLAGS = -Wa,-adhlns=$(<:.S=.lst),-gstabs 
-LDFLAGS = -lm
+# avrdude
+# get the AVRDUDE_UPLOAD_RATE value from the $(BOARD).upload.speed variable. For the atmega328 board this is 57600
+AVRDUDE_UPLOAD_RATE:=$(shell sed -n -e "s/$(BOARD).upload.speed=\(.*\)/\1/p" $(BOARDS_TXT))
+# get the AVRDUDE_PROGRAMMER value from the $(BOARD).upload.protocol variable. For the atmega328 board this is stk500
+# AVRDUDE_PROGRAMMER:=$(shell sed -n -e "s/$(BOARD).upload.protocol=\(.*\)/\1/p" $(BOARDS_TXT))
+# use stk500v1, because stk500 will default to stk500v2
+AVRDUDE_PROGRAMMER:=stk500v1
 
+#=== identify user files ===
+PDESRC:=$(shell ls *.pde)
+TARGETNAME=$(basename $(PDESRC))
 
-# Programming support using avrdude. Settings and variables.
-AVRDUDE_PORT = $(PORT)
-AVRDUDE_WRITE_FLASH = -U flash:w:applet/$(TARGET).hex:i
-AVRDUDE_FLAGS = -D -C $(INSTALL_DIR)/hardware/tools/avrdude.conf \
--p $(MCU) -P $(AVRDUDE_PORT) -c $(AVRDUDE_PROGRAMMER) \
--b $(UPLOAD_RATE)
+CDIRS:=$(EXTRA_DIRS) $(addsuffix utility/,$(EXTRA_DIRS))
+CDIRS:=*.c utility/*.c $(addsuffix *.c,$(CDIRS)) $(ARDUINO_PATH)hardware/arduino/cores/arduino/*.c
+CSRC:=$(shell ls $(CDIRS) 2>/dev/null)
 
-# Program settings
-CC = $(AVR_TOOLS_PATH)/avr-gcc
-CXX = $(AVR_TOOLS_PATH)/avr-g++
-OBJCOPY = $(AVR_TOOLS_PATH)/avr-objcopy
-OBJDUMP = $(AVR_TOOLS_PATH)/avr-objdump
-AR  = $(AVR_TOOLS_PATH)/avr-ar
-SIZE = $(AVR_TOOLS_PATH)/avr-size
-NM = $(AVR_TOOLS_PATH)/avr-nm
-AVRDUDE = $(INSTALL_DIR)/hardware/tools/avrdude
-REMOVE = rm -f
-MV = mv -f
+CCSRC:=$(shell ls *.cc 2>/dev/null)
 
-# Define all object files.
-OBJ = $(SRC:.c=.o) $(CXXSRC:.cpp=.o) $(ASRC:.S=.o) 
+CPPDIRS:=$(EXTRA_DIRS) $(addsuffix utility/,$(EXTRA_DIRS))
+CPPDIRS:=*.cpp utility/*.cpp $(addsuffix *.cpp,$(CPPDIRS)) $(ARDUINO_PATH)hardware/arduino/cores/arduino/*.cpp 
+CPPSRC:=$(shell ls $(CPPDIRS) 2>/dev/null)
 
-# Define all listing files.
-LST = $(ASRC:.S=.lst) $(CXXSRC:.cpp=.lst) $(SRC:.c=.lst)
+#=== build internal variables ===
 
-# Combine all necessary flags and optional flags.
-# Add target processor to flags.
-ALL_CFLAGS = -mmcu=$(MCU) -I. $(CFLAGS)
-ALL_CXXFLAGS = -mmcu=$(MCU) -I. $(CXXFLAGS)
-ALL_ASFLAGS = -mmcu=$(MCU) -I. -x assembler-with-cpp $(ASFLAGS)
+# the name of the subdirectory where everything is stored
+TMPDIRNAME:=tmp
+TMPDIRPATH:=$(TMPDIRNAME)/
 
+AVRTOOLSPATH:=$(AVR_TOOLS_PATH)
 
-# Default target.
-all: applet_files_ez build sizeafter
+OBJCOPY:=$(AVRTOOLSPATH)avr-objcopy
+OBJDUMP:=$(AVRTOOLSPATH)avr-objdump
+SIZE:=$(AVRTOOLSPATH)avr-size
 
-build: elf hex 
+CPPSRC:=$(addprefix $(TMPDIRPATH),$(PDESRC:.pde=.cpp)) $(CPPSRC)
 
-applet_files_ez: $(TARGET).pde
-	# Here is the "preprocessing".
-	# It creates a .cpp file based with the same name as the .pde file.
-	# On top of the new .cpp file comes the WProgram.h header.
-	# At the end there is a generic main() function attached.
-	# Then the .cpp file will be compiled. Errors during compile will
-	# refer to this new, automatically generated, file. 
-	# Not the original .pde file you actually edit...
-	test -d applet || mkdir applet
-	echo '#include "WProgram.h"' > applet/$(TARGET).cpp
-	cat $(TARGET).pde >> applet/$(TARGET).cpp
-	cat $(ARDUINO)/main.cpp >> applet/$(TARGET).cpp
+COBJ:=$(CSRC:.c=.o)
+CCOBJ:=$(CCSRC:.cc=.o)
+CPPOBJ:=$(CPPSRC:.cpp=.o)
 
-elf: applet/$(TARGET).elf
-hex: applet/$(TARGET).hex
-eep: applet/$(TARGET).eep
-lss: applet/$(TARGET).lss 
-sym: applet/$(TARGET).sym
+OBJFILES:=$(COBJ)  $(CCOBJ)  $(CPPOBJ)
+DIRS:= $(dir $(OBJFILES))
 
-# Program the device.  
-upload: applet/$(TARGET).hex
-	$(AVRDUDE) $(AVRDUDE_FLAGS) $(AVRDUDE_WRITE_FLASH)
+DEPFILES:=$(OBJFILES:.o=.d)
+# assembler files from avr-gcc -S
+ASSFILES:=$(OBJFILES:.o=.s)
+# disassembled object files with avr-objdump -S
+DISFILES:=$(OBJFILES:.o=.dis)
 
 
-	# Display size of file.
-HEXSIZE = $(SIZE) --target=$(FORMAT) applet/$(TARGET).hex
-ELFSIZE = $(SIZE)  applet/$(TARGET).elf
-sizebefore:
-	@if [ -f applet/$(TARGET).elf ]; then echo; echo $(MSG_SIZE_BEFORE); $(HEXSIZE); echo; fi
+LIBNAME:=$(TMPDIRPATH)$(TARGETNAME).a
+ELFNAME:=$(TMPDIRPATH)$(TARGETNAME).elf
+HEXNAME:=$(TMPDIRPATH)$(TARGETNAME).hex
 
-sizeafter:
-	@if [ -f applet/$(TARGET).elf ]; then echo; echo $(MSG_SIZE_AFTER); $(HEXSIZE); echo; fi
+AVRDUDE_FLAGS = -V -F
+AVRDUDE_FLAGS += -C $(ARDUINO_PATH)/hardware/tools/avrdude.conf 
+AVRDUDE_FLAGS += -p $(MCU)
+AVRDUDE_FLAGS += -P $(AVRDUDE_PORT)
+AVRDUDE_FLAGS += -c $(AVRDUDE_PROGRAMMER) 
+AVRDUDE_FLAGS += -b $(AVRDUDE_UPLOAD_RATE)
+AVRDUDE_FLAGS += -U flash:w:$(HEXNAME)
+
+AVRDUDE = avrdude
+
+#=== predefined variable override ===
+# use "make -p -f/dev/null" to see the default rules and definitions
+
+# Build C and C++ flags. Include path information must be placed here
+COMMON_FLAGS = -DF_CPU=$(F_CPU) -mmcu=$(MCU) $(DEFS)
+# COMMON_FLAGS += -gdwarf-2
+COMMON_FLAGS += -Os
+COMMON_FLAGS += -Wall -funsigned-char -funsigned-bitfields -fpack-struct -fshort-enums
+COMMON_FLAGS += -I. 
+COMMON_FLAGS += -I$(ARDUINO_PATH)hardware/arduino/cores/arduino
+COMMON_FLAGS += $(addprefix -I,$(EXTRA_DIRS))
+COMMON_FLAGS += -ffunction-sections -fdata-sections -Wl,--gc-sections
+COMMON_FLAGS += -Wl,--relax
+COMMON_FLAGS += -mcall-prologues
+
+CFLAGS = $(COMMON_FLAGS) -std=gnu99 -Wstrict-prototypes  
+CXXFLAGS = $(COMMON_FLAGS) 
+
+# Replace standard build tools by avr tools
+CC = $(AVRTOOLSPATH)avr-gcc
+CXX = $(AVRTOOLSPATH)avr-g++
+AR  = @$(AVRTOOLSPATH)avr-ar
 
 
-# Convert ELF to COFF for use in debugging / simulating in AVR Studio or VMLAB.
-COFFCONVERT=$(OBJCOPY) --debugging \
---change-section-address .data-0x800000 \
---change-section-address .bss-0x800000 \
---change-section-address .noinit-0x800000 \
---change-section-address .eeprom-0x810000 
+# "rm" must be able to delete a directory tree
+RM = rm -rf 
 
+#=== rules ===
 
-coff: applet/$(TARGET).elf
-	$(COFFCONVERT) -O coff-avr applet/$(TARGET).elf $(TARGET).cof
+# add rules for the C/C++ files where the .o file is placed in the TMPDIRPATH
+# reuse existing variables as far as possible
 
+$(TMPDIRPATH)%.o: %.c
+	@echo compile $<
+	@$(COMPILE.c) $(OUTPUT_OPTION) $<
 
-extcoff: $(TARGET).elf
-	$(COFFCONVERT) -O coff-ext-avr applet/$(TARGET).elf $(TARGET).cof
+$(TMPDIRPATH)%.o: %.cc
+	@echo compile $< 
+	@$(COMPILE.cc) $(OUTPUT_OPTION) $<
 
+$(TMPDIRPATH)%.o: %.cpp
+	@echo compile $<
+	@$(COMPILE.cpp) $(OUTPUT_OPTION) $<
 
-.SUFFIXES: .elf .hex .eep .lss .sym
+$(TMPDIRPATH)%.s: %.c
+	@$(COMPILE.c) $(OUTPUT_OPTION) -S $<
+
+$(TMPDIRPATH)%.s: %.cc
+	@$(COMPILE.cc) $(OUTPUT_OPTION) -S $<
+
+$(TMPDIRPATH)%.s: %.cpp
+	@$(COMPILE.cpp) $(OUTPUT_OPTION) -S $<
+
+$(TMPDIRPATH)%.dis: $(TMPDIRPATH)%.o
+	@$(OBJDUMP) -S $< > $@
+
+.SUFFIXES: .elf .hex .pde
 
 .elf.hex:
-	$(OBJCOPY) -O $(FORMAT) -R .eeprom $< $@
-
-.elf.eep:
-	-$(OBJCOPY) -j .eeprom --set-section-flags=.eeprom="alloc,load" \
-	--change-section-lma .eeprom=0 -O $(FORMAT) $< $@
-
-# Create extended listing file from ELF output file.
-.elf.lss:
-	$(OBJDUMP) -h -S $< > $@
-
-# Create a symbol table from ELF output file.
-.elf.sym:
-	$(NM) -n $< > $@
-
-	# Link: create ELF output file from library.
-applet/$(TARGET).elf: $(TARGET).pde applet/core.a 
-	$(CC) $(ALL_CFLAGS) -Wl,--gc-sections -o $@ applet/$(TARGET).cpp -L. applet/core.a $(LDFLAGS)
-
-applet/core.a: $(OBJ)
-	@for i in $(OBJ); do echo $(AR) rcs applet/core.a $$i; $(AR) rcs applet/core.a $$i; done
+	@$(OBJCOPY) -O ihex -R .eeprom $< $@
+	
+$(TMPDIRPATH)%.cpp: %.pde
+	@cat $(ARDUINO_PATH)hardware/arduino/cores/arduino/main.cpp > $@
+	@cat $< >> $@
+	@echo >> $@
+	@echo 'extern "C" void __cxa_pure_virtual() { while (1); }' >> $@
 
 
+.PHONY: all
+all: tmpdir $(HEXNAME) assemblersource showsize
+	ls -al $(HEXNAME) $(ELFNAME)
 
-# Compile: create object files from C++ source files.
-.cpp.o:
-	$(CXX) -c $(ALL_CXXFLAGS) $< -o $@ 
+$(ELFNAME): $(LIBNAME)($(addprefix $(TMPDIRPATH),$(OBJFILES))) 
+	$(LINK.o) $(COMMON_FLAGS) $(LIBNAME) $(LOADLIBES) $(LDLIBS) -o $@
 
-# Compile: create object files from C source files.
-.c.o:
-	$(CC) -c $(ALL_CFLAGS) $< -o $@ 
+$(LIBNAME)(): $(addprefix $(TMPDIRPATH),$(OBJFILES))
 
+#=== create temp directory ===
+# not really required, because it will be also created during the dependency handling
+.PHONY: tmpdir
+tmpdir:
+	@test -d $(TMPDIRPATH) || mkdir $(TMPDIRPATH)
 
-# Compile: create assembler files from C source files.
-.c.s:
-	$(CC) -S $(ALL_CFLAGS) $< -o $@
-
-
-# Assemble: create object files from assembler source files.
-.S.o:
-	$(CC) -c $(ALL_ASFLAGS) $< -o $@
+#=== create assembler files for each C/C++ file ===
+.PHONY: assemblersource
+assemblersource: $(addprefix $(TMPDIRPATH),$(ASSFILES)) $(addprefix $(TMPDIRPATH),$(DISFILES))
 
 
+#=== show the section sizes of the ELF file ===
+.PHONY: showsize
+showsize: $(ELFNAME)
+	$(SIZE) $<
 
-# Target: clean project.
+#=== clean up target ===
+# this is simple: the TMPDIRPATH is removed
+.PHONY: clean
 clean:
-	$(REMOVE) applet/$(TARGET).hex applet/$(TARGET).eep applet/$(TARGET).cof applet/$(TARGET).elf \
-	applet/$(TARGET).map applet/$(TARGET).sym applet/$(TARGET).lss applet/core.a \
-	$(OBJ) $(LST) $(SRC:.c=.s) $(SRC:.c=.d) $(CXXSRC:.cpp=.s) $(CXXSRC:.cpp=.d)
+	$(RM) $(TMPDIRPATH)
 
-depend:
-	if grep '^# DO NOT DELETE' $(MAKEFILE) >/dev/null; \
-	then \
-		sed -e '/^# DO NOT DELETE/,$$d' $(MAKEFILE) > \
-			$(MAKEFILE).$$$$ && \
-		$(MV) $(MAKEFILE).$$$$ $(MAKEFILE); \
-	fi
-	echo '# DO NOT DELETE THIS LINE -- make depend depends on it.' \
-		>> $(MAKEFILE); \
-	$(CC) -M -mmcu=$(MCU) $(CDEFS) $(CINCS) $(SRC) $(ASRC) >> $(MAKEFILE)
+# Program the device.  
+# step 1: reset the arduino board with the stty command
+# step 2: user avrdude to upload the software
+.PHONY: upload
+upload: $(HEXNAME)
+	stty -F $(AVRDUDE_PORT) hupcl
+	$(AVRDUDE) $(AVRDUDE_FLAGS)
 
-.PHONY:	all build elf hex eep lss sym program coff extcoff clean depend applet_files sizebefore sizeafter
+
+# === dependency handling ===
+# From the gnu make manual (section 4.14, Generating Prerequisites Automatically)
+# Additionally (because this will be the first executed rule) TMPDIRPATH is created here.
+# Instead of "sed" the "echo" command is used
+# cd $(TMPDIRPATH); mkdir -p $(DIRS) 2> /dev/null; cd ..
+DEPACTION=test -d $(TMPDIRPATH) || mkdir $(TMPDIRPATH);\
+mkdir -p $(addprefix $(TMPDIRPATH),$(DIRS));\
+set -e; echo -n $@ $(dir $@) > $@; $(CC) -MM $(COMMON_FLAGS) $< >> $@
+
+
+$(TMPDIRPATH)%.d: %.c
+	@$(DEPACTION)
+
+$(TMPDIRPATH)%.d: %.cc
+	@$(DEPACTION)
+
+
+$(TMPDIRPATH)%.d: %.cpp
+	@$(DEPACTION)
+
+# Include dependency files. If a .d file is missing, a warning is created and the .d file is created
+# This warning is not a problem (gnu make manual, section 3.3 Including Other Makefiles)
+-include $(addprefix $(TMPDIRPATH),$(DEPFILES))
+
+

@@ -23,26 +23,29 @@
  
  It has preliminary support for Matthew Roberts advance algorithm 
     http://reprap.org/pipermail/reprap-dev/2011-May/003323.html
-
- This firmware is optimized for gen6 electronics.
  */
 
+#include <EEPROM.h>
 #include "fastio.h"
 #include "Configuration.h"
 #include "pins.h"
 #include "Marlin.h"
-#include "speed_lookuptable.h"
+#include "ultralcd.h"
+#include "streaming.h"
+#include "planner.h"
+#include "stepper.h"
+#include "temperature.h"
 
-char version_string[] = "0.9.10";
+#ifdef SIMPLE_LCD
+  #include "Simplelcd.h"
+#endif
+
+char version_string[] = "1.0.0 Alpha 1";
 
 #ifdef SDSUPPORT
 #include "SdFat.h"
 #endif //SDSUPPORT
 
-#ifndef CRITICAL_SECTION_START
-#define CRITICAL_SECTION_START  unsigned char _sreg = SREG; cli()
-#define CRITICAL_SECTION_END    SREG = _sreg
-#endif //CRITICAL_SECTION_START
 
 // look here for descriptions of gcodes: http://linuxcnc.org/handbook/gcode/g-code.html
 // http://objects.reprap.org/wiki/Mendel_User_Manual:_RepRapGCodes
@@ -87,9 +90,17 @@ char version_string[] = "0.9.10";
 // M115	- Capabilities string
 // M140 - Set bed target temp
 // M190 - Wait for bed current temp to reach target temp.
+// M200 - Set filament diameter
 // M201 - Set max acceleration in units/s^2 for print moves (M201 X1000 Y1000)
-// M202 - Set max acceleration in units/s^2 for travel moves (M202 X1000 Y1000)
+// M202 - Set max acceleration in units/s^2 for travel moves (M202 X1000 Y1000) Unused in Marlin!!
+// M203 - Set maximum feedrate that your machine can sustain (M203 X200 Y200 Z300 E10000) in mm/sec
+// M204 - Set default acceleration: S normal moves T filament only moves (M204 S3000 T7000) im mm/sec^2  also sets minimum segment time in ms (B20000) to prevent buffer underruns and M20 minimum feedrate
+// M205 -  advanced settings:  minimum travel speed S=while printing T=travel only,  B=minimum segment time X= maximum xy jerk, Z=maximum Z jerk
+// M220 - set speed factor override percentage S:factor in percent
 // M301 - Set PID parameters P I and D
+// M500 - stores paramters in EEPROM
+// M501 - reads parameters from EEPROM (if you need reset them after you changed them temporarily).  D
+// M502 - reverts to the default "factory settings".  You still need to store them in EEPROM afterwards if you want to.
 
 //Stepper Movement Variables
 
@@ -100,15 +111,23 @@ float destination[NUM_AXIS] = {
 float current_position[NUM_AXIS] = {
   0.0, 0.0, 0.0, 0.0};
 bool home_all_axis = true;
-long feedrate = 1500, next_feedrate, saved_feedrate;
+float feedrate = 1500.0, next_feedrate, saved_feedrate;
 long gcode_N, gcode_LastN;
+
+float homing_feedrate[] = HOMING_FEEDRATE;
+bool axis_relative_modes[] = AXIS_RELATIVE_MODES;
+
 bool relative_mode = false;  //Determines Absolute or Relative Coordinates
 bool relative_mode_e = false;  //Determines Absolute or Relative E Codes while in Absolute Coordinates mode. E is always relative in Relative Coordinates mode.
-unsigned long axis_steps_per_sqr_second[NUM_AXIS];
 
+uint8_t fanpwm=0;
+
+volatile int feedmultiply=100; //100->1 200->2
+int saved_feedmultiply;
+volatile bool feedmultiplychanged=false;
 // comm variables
 #define MAX_CMD_SIZE 96
-#define BUFSIZE 8
+#define BUFSIZE 4
 char cmdbuffer[BUFSIZE][MAX_CMD_SIZE];
 bool fromsd[BUFSIZE];
 int bufindr = 0;
@@ -119,45 +138,23 @@ char serial_char;
 int serial_count = 0;
 boolean comment_mode = false;
 char *strchr_pointer; // just a pointer to find chars in the cmd string like X, Y, Z, E, etc
+extern float HeaterPower;
 
-// Manage heater variables.
+#include "EEPROM.h"
 
-int target_raw = 0;
-int current_raw = 0;
-unsigned char temp_meas_ready = false;
-
-#ifdef PIDTEMP
-  double temp_iState = 0;
-  double temp_dState = 0;
-  double pTerm;
-  double iTerm;
-  double dTerm;
-      //int output;
-  double pid_error;
-  double temp_iState_min;
-  double temp_iState_max;
-  double pid_setpoint = 0.0;
-  double pid_input;
-  double pid_output;
-  bool pid_reset;
-#endif //PIDTEMP
-
+float tt = 0, bt = 0;
 #ifdef WATCHPERIOD
 int watch_raw = -1000;
 unsigned long watchmillis = 0;
 #endif //WATCHPERIOD
-#ifdef MINTEMP
-int minttemp = temp2analogh(MINTEMP);
-#endif //MINTEMP
-#ifdef MAXTEMP
-int maxttemp = temp2analogh(MAXTEMP);
-#endif //MAXTEMP
 
 //Inactivity shutdown variables
 unsigned long previous_millis_cmd = 0;
 unsigned long max_inactive_time = 0;
 unsigned long stepper_inactive_time = 0;
 
+unsigned long starttime=0;
+unsigned long stoptime=0;
 #ifdef SDSUPPORT
 Sd2Card card;
 SdVolume volume;
@@ -169,6 +166,7 @@ bool sdmode = false;
 bool sdactive = false;
 bool savetosd = false;
 int16_t n;
+long autostart_atmillis=0;
 
 void initsd(){
   sdactive = false;
@@ -184,8 +182,16 @@ void initsd(){
   else if (!root.openRoot(&volume)) 
     Serial.println("openRoot failed");
   else 
+	{
     sdactive = true;
+		Serial.println("SD card ok");
+	}
 #endif //SDSS
+}
+
+void quickinitsd(){
+	sdactive=false;
+	autostart_atmillis=millis()+5000;
 }
 
 inline void write_command(char *buf){
@@ -210,125 +216,38 @@ inline void write_command(char *buf){
 #endif //SDSUPPORT
 
 
+///adds an command to the main command buffer
+void enquecommand(const char *cmd)
+{
+  if(buflen < BUFSIZE)
+  {
+    //this is dangerous if a mixing of serial and this happsens
+    strcpy(&(cmdbuffer[bufindw][0]),cmd);
+    Serial.print("en:");Serial.println(cmdbuffer[bufindw]);
+    bufindw= (bufindw + 1)%BUFSIZE;
+    buflen += 1;
+  }
+}
+
 void setup()
 { 
+	
   Serial.begin(BAUDRATE);
-  Serial.print("Marlin ");
-  Serial.println(version_string);
+  ECHOLN("Marlin "<<version_string);
   Serial.println("start");
-
+#if defined FANCY_LCD || defined SIMPLE_LCD
+  lcd_init();
+#endif
   for(int i = 0; i < BUFSIZE; i++){
     fromsd[i] = false;
   }
+  
+  RetrieveSettings(); // loads data from EEPROM if available
 
-  //Initialize Dir Pins
-#if X_DIR_PIN > -1
-  SET_OUTPUT(X_DIR_PIN);
-#endif
-#if Y_DIR_PIN > -1 
-  SET_OUTPUT(Y_DIR_PIN);
-#endif
-#if Z_DIR_PIN > -1 
-  SET_OUTPUT(Z_DIR_PIN);
-#endif
-#if E_DIR_PIN > -1 
-  SET_OUTPUT(E_DIR_PIN);
-#endif
 
-  //Initialize Enable Pins - steppers default to disabled.
-
-#if (X_ENABLE_PIN > -1)
-  SET_OUTPUT(X_ENABLE_PIN);
-  if(!X_ENABLE_ON) WRITE(X_ENABLE_PIN,HIGH);
-#endif
-#if (Y_ENABLE_PIN > -1)
-  SET_OUTPUT(Y_ENABLE_PIN);
-  if(!Y_ENABLE_ON) WRITE(Y_ENABLE_PIN,HIGH);
-#endif
-#if (Z_ENABLE_PIN > -1)
-  SET_OUTPUT(Z_ENABLE_PIN);
-  if(!Z_ENABLE_ON) WRITE(Z_ENABLE_PIN,HIGH);
-#endif
-#if (E_ENABLE_PIN > -1)
-  SET_OUTPUT(E_ENABLE_PIN);
-  if(!E_ENABLE_ON) WRITE(E_ENABLE_PIN,HIGH);
-#endif
-
-  //endstops and pullups
-#ifdef ENDSTOPPULLUPS
-#if X_MIN_PIN > -1
-  SET_INPUT(X_MIN_PIN); 
-  WRITE(X_MIN_PIN,HIGH);
-#endif
-#if X_MAX_PIN > -1
-  SET_INPUT(X_MAX_PIN); 
-  WRITE(X_MAX_PIN,HIGH);
-#endif
-#if Y_MIN_PIN > -1
-  SET_INPUT(Y_MIN_PIN); 
-  WRITE(Y_MIN_PIN,HIGH);
-#endif
-#if Y_MAX_PIN > -1
-  SET_INPUT(Y_MAX_PIN); 
-  WRITE(Y_MAX_PIN,HIGH);
-#endif
-#if Z_MIN_PIN > -1
-  SET_INPUT(Z_MIN_PIN); 
-  WRITE(Z_MIN_PIN,HIGH);
-#endif
-#if Z_MAX_PIN > -1
-  SET_INPUT(Z_MAX_PIN); 
-  WRITE(Z_MAX_PIN,HIGH);
-#endif
-#else //ENDSTOPPULLUPS
-#if X_MIN_PIN > -1
-  SET_INPUT(X_MIN_PIN); 
-#endif
-#if X_MAX_PIN > -1
-  SET_INPUT(X_MAX_PIN); 
-#endif
-#if Y_MIN_PIN > -1
-  SET_INPUT(Y_MIN_PIN); 
-#endif
-#if Y_MAX_PIN > -1
-  SET_INPUT(Y_MAX_PIN); 
-#endif
-#if Z_MIN_PIN > -1
-  SET_INPUT(Z_MIN_PIN); 
-#endif
-#if Z_MAX_PIN > -1
-  SET_INPUT(Z_MAX_PIN); 
-#endif
-#endif //ENDSTOPPULLUPS
-
-#if (HEATER_0_PIN > -1) 
-  SET_OUTPUT(HEATER_0_PIN);
-#endif  
-#if (HEATER_1_PIN > -1) 
-  SET_OUTPUT(HEATER_1_PIN);
-#endif  
-
-  //Initialize Step Pins
-#if (X_STEP_PIN > -1) 
-  SET_OUTPUT(X_STEP_PIN);
-#endif  
-#if (Y_STEP_PIN > -1) 
-  SET_OUTPUT(Y_STEP_PIN);
-#endif  
-#if (Z_STEP_PIN > -1) 
-  SET_OUTPUT(Z_STEP_PIN);
-#endif  
-#if (E_STEP_PIN > -1) 
-  SET_OUTPUT(E_STEP_PIN);
-#endif  
   for(int i=0; i < NUM_AXIS; i++){
     axis_steps_per_sqr_second[i] = max_acceleration_units_per_sq_second[i] * axis_steps_per_unit[i];
   }
-
-#ifdef PIDTEMP
-  temp_iState_min = 0.0;
-  temp_iState_max = PID_INTEGRAL_DRIVE_MAX / Ki;
-#endif //PIDTEMP
 
 #ifdef SDSUPPORT
   //power to SD reader
@@ -336,21 +255,92 @@ void setup()
   SET_OUTPUT(SDPOWER); 
   WRITE(SDPOWER,HIGH);
 #endif //SDPOWER
-  initsd();
+  quickinitsd();
 
 #endif //SDSUPPORT
   plan_init();  // Initialize planner;
   st_init();    // Initialize stepper;
   tp_init();    // Initialize temperature loop
+	//checkautostart();
 }
+
+#ifdef SDSUPPORT
+bool autostart_stilltocheck=true;
+
+
+void checkautostart(bool force)
+{
+	//this is to delay autostart and hence the initialisaiton of the sd card to some seconds after the normal init, so the device is available quick after a reset
+	if(!force)
+	{
+		if(!autostart_stilltocheck)
+			return;
+		if(autostart_atmillis<millis())
+			return;
+	}
+	autostart_stilltocheck=false;
+	if(!sdactive)
+	{
+		initsd();
+		if(!sdactive) //fail
+		return;
+	}
+	static int lastnr=0;
+	char autoname[30];
+	sprintf(autoname,"auto%i.g",lastnr);
+	for(int i=0;i<strlen(autoname);i++)
+		autoname[i]=tolower(autoname[i]);
+	dir_t p;
+
+	root.rewind();
+	char filename[11];
+	int cnt=0;
+
+	bool found=false;
+	while (root.readDir(p) > 0) 
+	{
+		for(int i=0;i<strlen((char*)p.name);i++)
+			p.name[i]=tolower(p.name[i]);
+		//Serial.print((char*)p.name);
+		//Serial.print(" ");
+		//Serial.println(autoname);
+		if(p.name[9]!='~') //skip safety copies
+		if(strncmp((char*)p.name,autoname,5)==0)
+		{
+			char cmd[30];
+			
+			sprintf(cmd,"M23 %s",autoname);
+			//sprintf(cmd,"M115");
+			//enquecommand("G92 Z0");
+			//enquecommand("G1 Z10 F2000");
+			//enquecommand("G28 X-105 Y-105");
+			enquecommand(cmd);
+			enquecommand("M24");
+			found=true;
+			
+		}
+	}
+	if(!found)
+		lastnr=-1;
+	else
+		lastnr++;
+	
+}
+#else
+
+inline void checkautostart(bool x)
+{
+}
+#endif
 
 
 void loop()
 {
   if(buflen<3)
     get_command();
-
-  if(buflen){
+	checkautostart(false);
+  if(buflen)
+  {
 #ifdef SDSUPPORT
     if(savetosd){
       if(strstr(cmdbuffer[bufindr],"M29") == NULL){
@@ -376,6 +366,7 @@ void loop()
   //check heater every n milliseconds
   manage_heater();
   manage_inactivity(1);
+  LCD_STATUS;
 }
 
 
@@ -482,6 +473,16 @@ inline void get_command()
       if(sdpos >= filesize){
         sdmode = false;
         Serial.println("Done printing file");
+				stoptime=millis();
+				char time[30];
+				unsigned long t=(stoptime-starttime)/1000;
+				int sec,min;
+				min=t/60;
+				sec=t%60;
+				sprintf(time,"%i min, %i sec",min,sec);
+				Serial.println(time);
+				LCD_MESSAGE(time);
+				checkautostart(true);
       }
       if(!serial_count) return; //if empty line
       cmdbuffer[bufindw][serial_count] = 0; //terminate string
@@ -548,38 +549,41 @@ inline void process_commands()
       break;
     case 28: //G28 Home all Axis one at a time
       saved_feedrate = feedrate;
+      saved_feedmultiply = feedmultiply;
+      feedmultiply = 100;
+      
       for(int i=0; i < NUM_AXIS; i++) {
         destination[i] = current_position[i];
       }
-      feedrate = 0;
+      feedrate = 0.0;
 
       home_all_axis = !((code_seen(axis_codes[0])) || (code_seen(axis_codes[1])) || (code_seen(axis_codes[2])));
 
       if((home_all_axis) || (code_seen(axis_codes[X_AXIS]))) {
         if ((X_MIN_PIN > -1 && X_HOME_DIR==-1) || (X_MAX_PIN > -1 && X_HOME_DIR==1)){
-          st_synchronize();
+//          st_synchronize();
           current_position[X_AXIS] = 0;
           plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
           destination[X_AXIS] = 1.5 * X_MAX_LENGTH * X_HOME_DIR;
           feedrate = homing_feedrate[X_AXIS];
           prepare_move();
-
-          st_synchronize();        
+          
+//          st_synchronize();        
           current_position[X_AXIS] = 0;
           plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
           destination[X_AXIS] = -5 * X_HOME_DIR;
           prepare_move();
-
-          st_synchronize();         
+          
+//          st_synchronize();         
           destination[X_AXIS] = 10 * X_HOME_DIR;
           feedrate = homing_feedrate[X_AXIS]/2 ;
           prepare_move();
-          st_synchronize();
-
+          
+//          st_synchronize();
           current_position[X_AXIS] = (X_HOME_DIR == -1) ? 0 : X_MAX_LENGTH;
           plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
           destination[X_AXIS] = current_position[X_AXIS];
-          feedrate = 0;
+          feedrate = 0.0;
         }
       }
 
@@ -590,23 +594,23 @@ inline void process_commands()
           destination[Y_AXIS] = 1.5 * Y_MAX_LENGTH * Y_HOME_DIR;
           feedrate = homing_feedrate[Y_AXIS];
           prepare_move();
-          st_synchronize();
+//          st_synchronize();
 
           current_position[Y_AXIS] = 0;
           plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
           destination[Y_AXIS] = -5 * Y_HOME_DIR;
           prepare_move();
-          st_synchronize();
+//          st_synchronize();
 
           destination[Y_AXIS] = 10 * Y_HOME_DIR;
           feedrate = homing_feedrate[Y_AXIS]/2;
           prepare_move();
-          st_synchronize();
+//          st_synchronize();
 
           current_position[Y_AXIS] = (Y_HOME_DIR == -1) ? 0 : Y_MAX_LENGTH;
           plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
           destination[Y_AXIS] = current_position[Y_AXIS];
-          feedrate = 0;
+          feedrate = 0.0;
         }
       }
 
@@ -617,26 +621,27 @@ inline void process_commands()
           destination[Z_AXIS] = 1.5 * Z_MAX_LENGTH * Z_HOME_DIR;
           feedrate = homing_feedrate[Z_AXIS];
           prepare_move();
-          st_synchronize();
+//          st_synchronize();
 
           current_position[Z_AXIS] = 0;
           plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
           destination[Z_AXIS] = -2 * Z_HOME_DIR;
           prepare_move();
-          st_synchronize();
+//          st_synchronize();
 
           destination[Z_AXIS] = 3 * Z_HOME_DIR;
           feedrate = homing_feedrate[Z_AXIS]/2;
           prepare_move();
-          st_synchronize();
+//          st_synchronize();
 
           current_position[Z_AXIS] = (Z_HOME_DIR == -1) ? 0 : Z_MAX_LENGTH;
           plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
           destination[Z_AXIS] = current_position[Z_AXIS];
-          feedrate = 0;         
+          feedrate = 0.0;         
         }
       }       
       feedrate = saved_feedrate;
+      feedmultiply = saved_feedmultiply;
       previous_millis_cmd = millis();
       break;
     case 90: // G90
@@ -653,7 +658,6 @@ inline void process_commands()
       }
       plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
       break;
-
     }
   }
 
@@ -701,6 +705,7 @@ inline void process_commands()
     case 24: //M24 - Start SD print
       if(sdactive){
         sdmode = true;
+				starttime=millis();
       }
       break;
     case 25: //M25 - Pause SD print
@@ -753,70 +758,141 @@ inline void process_commands()
       //processed in write to file routine above
       //savetosd = false;
       break;
+		case 30:
+		{
+			stoptime=millis();
+				char time[30];
+				unsigned long t=(stoptime-starttime)/1000;
+				int sec,min;
+				min=t/60;
+				sec=t%60;
+				sprintf(time,"%i min, %i sec",min,sec);
+				Serial.println(time);
+				LCD_MESSAGE(time);
+		}
+				break;
 #endif //SDSUPPORT
-    case 104: // M104
-#ifdef PID_OPENLOOP
-      if (code_seen('S')) PidTemp_Output = code_value() * (PID_MAX/100.0);
-      if(pid_output > PID_MAX) pid_output = PID_MAX;
-      if(pid_output < 0) pid_output = 0;
-#else //PID_OPENLOOP
-      if (code_seen('S')) {
-        target_raw = temp2analogh(code_value());
+      case 104: // M104
+                if (code_seen('S')) target_raw[0] = temp2analog(code_value());
 #ifdef PIDTEMP
-        pid_setpoint = code_value();
-#endif //PIDTEMP
-      }
-#ifdef WATCHPERIOD
-      if(target_raw > current_raw){
-        watchmillis = max(1,millis());
-        watch_raw = current_raw;
-      }
-      else{
-        watchmillis = 0;
-      }
-#endif //WATCHPERIOD
-#endif //PID_OPENLOOP
-      break;
-    case 105: // M105
-      Serial.print("ok T:");
-      Serial.println(analog2temp(current_raw)); 
-      return;
-      //break;
-    case 109: // M109 - Wait for extruder heater to reach target.
-      if (code_seen('S')) {
-        target_raw = temp2analogh(code_value());
+                pid_setpoint = code_value();
+#endif //PIDTEM
+        #ifdef WATCHPERIOD
+            if(target_raw[0] > current_raw[0]){
+                watchmillis = max(1,millis());
+                watch_raw[0] = current_raw[0];
+            }else{
+                watchmillis = 0;
+            }
+        #endif
+        break;
+      case 140: // M140 set bed temp
+                if (code_seen('S')) target_raw[1] = temp2analogBed(code_value());
+        break;
+      case 105: // M105
+        #if (TEMP_0_PIN > -1) || defined (HEATER_USES_AD595)
+                tt = analog2temp(current_raw[0]);
+        #endif
+        #if TEMP_1_PIN > -1
+                bt = analog2tempBed(current_raw[1]);
+        #endif
+        #if (TEMP_0_PIN > -1) || defined (HEATER_USES_AD595)
+            Serial.print("ok T:");
+            Serial.print(tt); 
+//            Serial.print(", raw:");
+//            Serial.print(current_raw);       
+          #if TEMP_1_PIN > -1 
 #ifdef PIDTEMP
-        pid_setpoint = code_value();
-#endif //PIDTEMP
-      }
-#ifdef WATCHPERIOD
-      if(target_raw>current_raw){
-        watchmillis = max(1,millis());
-        watch_raw = current_raw;
-      }
-      else{
-        watchmillis = 0;
-      }
-#endif //WATCHERPERIOD
-      codenum = millis(); 
-      while(current_raw < target_raw) {
-        if( (millis() - codenum) > 1000 ) //Print Temp Reading every 1 second while heating up.
-        {
-          Serial.print("T:");
-          Serial.println( analog2temp(current_raw)); 
+            Serial.print(" B:");
+            #if TEMP_1_PIN > -1
+            Serial.println(bt); 
+            #else
+            Serial.println(HeaterPower); 
+            #endif
+#else
+            Serial.println();
+#endif
+          #else
+            Serial.println();
+          #endif
+        #else
+          Serial.println("No thermistors - no temp");
+        #endif
+        return;
+        //break;
+      case 109: // M109 - Wait for extruder heater to reach target.
+        LCD_MESSAGE("Heating...");
+               if (code_seen('S')) target_raw[0] = temp2analog(code_value());
+#ifdef PIDTEMP
+               pid_setpoint = code_value();
+#endif //PIDTEM
+        #ifdef WATCHPERIOD
+          if(target_raw[0]>current_raw[0]){
+              watchmillis = max(1,millis());
+              watch_raw[0] = current_raw[0];
+          }else{
+              watchmillis = 0;
+          }
+        #endif
           codenum = millis(); 
+          starttime=millis();
+          while(current_raw[0] < target_raw[0]) {
+            if( (millis() - codenum) > 1000 ) { //Print Temp Reading every 1 second while heating up.
+              Serial.print("T:");
+              Serial.println( analog2temp(current_raw[0]) ); 
+              codenum = millis();
+            }
+            LCD_STATUS;
+            manage_heater();
+          }
+          LCD_MESSAGE("UltiMarlin ready.");
+          break;
+      case 190: // M190 - Wait bed for heater to reach target.
+      #if TEMP_1_PIN > -1
+          if (code_seen('S')) target_raw[1] = temp2analog(code_value());
+        codenum = millis(); 
+          while(current_raw[1] < target_raw[1]) 
+                                {
+          if( (millis()-codenum) > 1000 ) //Print Temp Reading every 1 second while heating up.
+          {
+            float tt=analog2temp(current_raw[0]);
+            Serial.print("T:");
+            Serial.println( tt );
+            Serial.print("ok T:");
+            Serial.print( tt ); 
+            Serial.print(" B:");
+            Serial.println( analog2temp(current_raw[1]) ); 
+            codenum = millis(); 
+          }
+            manage_heater();
         }
-        manage_heater();
-      }
+      #endif
       break;
-    case 190:
-      break;
+#if FAN_PIN > -1
+      case 106: //M106 Fan On
+        if (code_seen('S')){
+            WRITE(FAN_PIN,HIGH);
+            fanpwm=constrain(code_value(),0,255);
+            analogWrite(FAN_PIN,  fanpwm);
+        }
+        else {
+          WRITE(FAN_PIN,HIGH);
+          fanpwm=255;
+          analogWrite(FAN_PIN, fanpwm);			
+        }
+        break;
+      case 107: //M107 Fan Off
+        WRITE(FAN_PIN,LOW);
+        analogWrite(FAN_PIN, 0);
+        break;
+#endif
     case 82:
       axis_relative_modes[3] = false;
       break;
     case 83:
       axis_relative_modes[3] = true;
       break;
+		case 18:
     case 84:
       if(code_seen('S')){ 
         stepper_inactive_time = code_value() * 1000; 
@@ -849,8 +925,17 @@ inline void process_commands()
       Serial.print(current_position[Y_AXIS]);
       Serial.print("Z:");
       Serial.print(current_position[Z_AXIS]);
-      Serial.print("E:");
-      Serial.println(current_position[E_AXIS]);
+      Serial.print("E:");      
+      Serial.print(current_position[E_AXIS]);
+      #ifdef DEBUG_STEPS
+        Serial.print(" Count X:");
+        Serial.print(float(count_position[X_AXIS])/axis_steps_per_unit[X_AXIS]);
+        Serial.print("Y:");
+        Serial.print(float(count_position[Y_AXIS])/axis_steps_per_unit[Y_AXIS]);
+        Serial.print("Z:");
+        Serial.println(float(count_position[Z_AXIS])/axis_steps_per_unit[Z_AXIS]);
+      #endif
+      Serial.println("");
       break;
     case 119: // M119
 #if (X_MIN_PIN > -1)
@@ -892,18 +977,67 @@ inline void process_commands()
       }
       break;
 #endif
+    case 203: // M203 max feedrate mm/sec
+      for(int i=0; i < NUM_AXIS; i++) {
+        if(code_seen(axis_codes[i])) max_feedrate[i] = code_value()*60 ;
+      }
+      break;
+    case 204: // M204 acclereration S normal moves T filmanent only moves
+      {
+        if(code_seen('S')) acceleration = code_value() ;
+        if(code_seen('T')) retract_acceleration = code_value() ;
+      }
+      break;
+      case 205: //M205 advanced settings:  minimum travel speed S=while printing T=travel only,  B=minimum segment time X= maximum xy jerk, Z=maximum Z jerk
+      {
+        if(code_seen('S')) minimumfeedrate = code_value()*60 ;
+        if(code_seen('T')) mintravelfeedrate = code_value()*60 ;
+        if(code_seen('B')) minsegmenttime = code_value() ;
+        if(code_seen('X')) max_xy_jerk = code_value()*60 ;
+        if(code_seen('Z')) max_z_jerk = code_value()*60 ;
+      }
+      break;
+      case 220: // M220 S<factor in percent>- set speed factor override percentage
+      {
+        if(code_seen('S')) 
+        {
+          feedmultiply = code_value() ;
+          feedmultiplychanged=true;
+        }
+      }
+      break;
 #ifdef PIDTEMP
     case 301: // M301
       if(code_seen('P')) Kp = code_value();
       if(code_seen('I')) Ki = code_value()*PID_dT;
       if(code_seen('D')) Kd = code_value()/PID_dT;
-      Serial.print("Kp ");Serial.println(Kp);
-      Serial.print("Ki ");Serial.println(Ki/PID_dT);
-      Serial.print("Kd ");Serial.println(Kd*PID_dT);
-      temp_iState_min = 0.0;
-      temp_iState_max = PID_INTEGRAL_DRIVE_MAX / Ki;
+//      ECHOLN("Kp "<<_FLOAT(Kp,2));
+//      ECHOLN("Ki "<<_FLOAT(Ki/PID_dT,2));
+//      ECHOLN("Kd "<<_FLOAT(Kd*PID_dT,2));
+
+//      temp_iState_min = 0.0;
+//      if (Ki!=0) {
+//      temp_iState_max = PID_INTEGRAL_DRIVE_MAX / (Ki/100.0);
+//      }
+//      else       temp_iState_max = 1.0e10;
       break;
 #endif //PIDTEMP
+      case 500: // Store settings in EEPROM
+      {
+          StoreSettings();
+      }
+      break;
+      case 501: // Read settings from EEPROM
+      {
+        RetrieveSettings();
+      }
+      break;
+      case 502: // Revert to default settings
+      {
+        RetrieveSettings(true);
+      }
+      break;
+
     }
   }
   else{
@@ -947,141 +1081,89 @@ inline void get_coordinates()
 
 void prepare_move()
 {
-  if (min_software_endstops) {
-    if (destination[X_AXIS] < 0) destination[X_AXIS] = 0.0;
-    if (destination[Y_AXIS] < 0) destination[Y_AXIS] = 0.0;
-    if (destination[Z_AXIS] < 0) destination[Z_AXIS] = 0.0;
-  }
-
-  if (max_software_endstops) {
-    if (destination[X_AXIS] > X_MAX_LENGTH) destination[X_AXIS] = X_MAX_LENGTH;
-    if (destination[Y_AXIS] > Y_MAX_LENGTH) destination[Y_AXIS] = Y_MAX_LENGTH;
-    if (destination[Z_AXIS] > Z_MAX_LENGTH) destination[Z_AXIS] = Z_MAX_LENGTH;
-  }
-
-  plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate/60.0);
+  plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate*feedmultiply/60.0/100.0);
   for(int i=0; i < NUM_AXIS; i++) {
     current_position[i] = destination[i];
   }
 }
 
-void manage_heater()
-{
-  float pid_input;
-  float pid_output;
-  if(temp_meas_ready != true)
-    return;
 
-CRITICAL_SECTION_START;
-  temp_meas_ready = false;
-CRITICAL_SECTION_END;
 
-#ifdef PIDTEMP
-  pid_input = analog2temp(current_raw);
+#ifdef USE_WATCHDOG
 
-#ifndef PID_OPENLOOP
-  pid_error = pid_setpoint - pid_input;
-  if(pid_error > 10){
-    pid_output = PID_MAX;
-    pid_reset = true;
+#include  <avr/wdt.h>
+#include  <avr/interrupt.h>
+
+volatile uint8_t timeout_seconds=0;
+
+void(* ctrlaltdelete) (void) = 0;
+
+ISR(WDT_vect) { //Watchdog timer interrupt, called if main program blocks >1sec
+  if(timeout_seconds++ >= WATCHDOG_TIMEOUT)
+  {
+   kill();
+#ifdef RESET_MANUAL
+    LCD_MESSAGE("Please Reset!");
+    ECHOLN("echo_: Something is wrong, please turn off the printer.");
+#else
+    LCD_MESSAGE("Timeout, resetting!");
+#endif 
+    //disable watchdog, it will survife reboot.
+    WDTCSR |= (1<<WDCE) | (1<<WDE);
+    WDTCSR = 0;
+#ifdef RESET_MANUAL
+    while(1); //wait for user or serial reset
+#else
+    ctrlaltdelete();
+#endif
   }
-  else if(pid_error < -10) {
-    pid_output = 0;
-    pid_reset = true;
-  }
-  else {
-    if(pid_reset == true) {
-      temp_iState = 0.0;
-      pid_reset = false;
-    }
-    pTerm = Kp * pid_error;
-    temp_iState += pid_error;
-    temp_iState = constrain(temp_iState, temp_iState_min, temp_iState_max);
-    iTerm = Ki * temp_iState;
-    #define K1 0.8
-    #define K2 (1.0-K1)
-    dTerm = (Kd * (pid_input - temp_dState))*K2 + (K1 * dTerm);
-    temp_dState = pid_input;
-    pid_output = constrain(pTerm + iTerm - dTerm, 0, PID_MAX);
-  }
-#endif //PID_OPENLOOP
-#ifdef PID_DEBUG
-   Serial.print(" Input ");
-   Serial.print(pid_input);
-   Serial.print(" Output ");
-   Serial.print(pid_output);    
-   Serial.print(" pTerm ");
-   Serial.print(pTerm); 
-   Serial.print(" iTerm ");
-   Serial.print(iTerm); 
-   Serial.print(" dTerm ");
-   Serial.print(dTerm); 
-   Serial.println();
-#endif //PID_DEBUG
-  OCR2B = pid_output;
-#endif //PIDTEMP
 }
 
-
-int temp2analogu(int celsius, const short table[][2], int numtemps) {
-  int raw = 0;
-  byte i;
-
-  for (i=1; i<numtemps; i++) {
-    if (table[i][1] < celsius) {
-      raw = table[i-1][0] + 
-           (celsius - table[i-1][1]) * 
-           (table[i][0] - table[i-1][0]) /
-           (table[i][1] - table[i-1][1]);
-
-    break;
-    }
-  }
-  // Overflow: Set to last value in the table
-  if (i == numtemps) raw = table[i-1][0];
-
-  return 16383 - raw;
+/// intialise watch dog with a 1 sec interrupt time
+void wd_init() {
+  WDTCSR = (1<<WDCE )|(1<<WDE ); //allow changes
+  WDTCSR = (1<<WDIF)|(1<<WDIE)| (1<<WDCE )|(1<<WDE )|  (1<<WDP2 )|(1<<WDP1)|(0<<WDP0);
 }
 
-float analog2tempu(int raw,const short table[][2], int numtemps) {
-  float celsius = 0.0;
-  byte i;
-
-  raw = 16383 - raw;
-  for (i=1; i<numtemps; i++) {
-    if (table[i][0] > raw) {
-       celsius  = (float)table[i-1][1] + 
-                  (float)(raw - table[i-1][0]) * 
-                  (float)(table[i][1] - table[i-1][1]) /
-                 (float)(table[i][0] - table[i-1][0]);
-
-      break;
-    }
-  }
-  // Overflow: Set to last value in the table
-  if (i == numtemps) celsius = table[i-1][1];
-
-  return celsius;
+/// reset watchdog. MUST be called every 1s after init or avr will reset.
+void wd_reset() {
+  wdt_reset();
+  timeout_seconds=0; //reset counter for resets
 }
+#endif /* USE_WATCHDOG */
 
 
 inline void kill()
 {
-  target_raw=0;
-#ifdef PIDTEMP
-  pid_setpoint = 0.0;
-#endif //PIDTEMP
-  OCR2B = 0;
-  WRITE(HEATER_0_PIN,LOW);
-
+  #if TEMP_0_PIN > -1
+  target_raw[0]=0;
+   #if HEATER_0_PIN > -1  
+     WRITE(HEATER_0_PIN,LOW);
+   #endif
+  #endif
+  #if TEMP_1_PIN > -1
+  target_raw[1]=0;
+  #if HEATER_1_PIN > -1 
+    WRITE(HEATER_1_PIN,LOW);
+  #endif
+  #endif
+  #if TEMP_2_PIN > -1
+  target_raw[2]=0;
+  #if HEATER_2_PIN > -1  
+    WRITE(HEATER_2_PIN,LOW);
+  #endif
+  #endif
   disable_x();
   disable_y();
   disable_z();
   disable_e();
-
+  
+  if(PS_ON_PIN > -1) pinMode(PS_ON_PIN,INPUT);
+  Serial.println("!! Printer halted. kill() called!!");
+  while(1); // Wait for reset
 }
 
-inline void manage_inactivity(byte debug) { 
+void manage_inactivity(byte debug) { 
   if( (millis()-previous_millis_cmd) >  max_inactive_time ) if(max_inactive_time) kill(); 
   if( (millis()-previous_millis_cmd) >  stepper_inactive_time ) if(stepper_inactive_time) { 
     disable_x(); 
@@ -1091,965 +1173,3 @@ inline void manage_inactivity(byte debug) {
   }
   check_axes_activity();
 }
-
-// Planner
-
-/*  
- Reasoning behind the mathematics in this module (in the key of 'Mathematica'):
- 
- s == speed, a == acceleration, t == time, d == distance
- 
- Basic definitions:
- 
- Speed[s_, a_, t_] := s + (a*t) 
- Travel[s_, a_, t_] := Integrate[Speed[s, a, t], t]
- 
- Distance to reach a specific speed with a constant acceleration:
- 
- Solve[{Speed[s, a, t] == m, Travel[s, a, t] == d}, d, t]
- d -> (m^2 - s^2)/(2 a) --> estimate_acceleration_distance()
- 
- Speed after a given distance of travel with constant acceleration:
- 
- Solve[{Speed[s, a, t] == m, Travel[s, a, t] == d}, m, t]
- m -> Sqrt[2 a d + s^2]    
- 
- DestinationSpeed[s_, a_, d_] := Sqrt[2 a d + s^2]
- 
- When to start braking (di) to reach a specified destionation speed (s2) after accelerating
- from initial speed s1 without ever stopping at a plateau:
- 
- Solve[{DestinationSpeed[s1, a, di] == DestinationSpeed[s2, a, d - di]}, di]
- di -> (2 a d - s1^2 + s2^2)/(4 a) --> intersection_distance()
- 
- IntersectionDistance[s1_, s2_, a_, d_] := (2 a d - s1^2 + s2^2)/(4 a)
- */
-
-
-// The number of linear motions that can be in the plan at any give time
-#define BLOCK_BUFFER_SIZE 16
-#define BLOCK_BUFFER_MASK 0x0f
-
-static block_t block_buffer[BLOCK_BUFFER_SIZE];            // A ring buffer for motion instructions
-static volatile unsigned char block_buffer_head;           // Index of the next block to be pushed
-static volatile unsigned char block_buffer_tail;           // Index of the block to process now
-
-// The current position of the tool in absolute steps
-static long position[4];   
-
-#define ONE_MINUTE_OF_MICROSECONDS 60000000.0
-
-// Calculates the distance (not time) it takes to accelerate from initial_rate to target_rate using the 
-// given acceleration:
-inline long estimate_acceleration_distance(long initial_rate, long target_rate, long acceleration) {
-  return(
-  (target_rate*target_rate-initial_rate*initial_rate)/
-    (2L*acceleration)
-    );
-}
-
-// This function gives you the point at which you must start braking (at the rate of -acceleration) if 
-// you started at speed initial_rate and accelerated until this point and want to end at the final_rate after
-// a total travel of distance. This can be used to compute the intersection point between acceleration and
-// deceleration in the cases where the trapezoid has no plateau (i.e. never reaches maximum speed)
-
-inline long intersection_distance(long initial_rate, long final_rate, long acceleration, long distance) {
-  return(
-  (2*acceleration*distance-initial_rate*initial_rate+final_rate*final_rate)/
-    (4*acceleration)
-    );
-}
-
-// Calculates trapezoid parameters so that the entry- and exit-speed is compensated by the provided factors.
-
-void calculate_trapezoid_for_block(block_t *block, float entry_speed, float exit_speed) {
-  if(block->busy == true) return; // If block is busy then bail out.
-  float entry_factor = entry_speed / block->nominal_speed;
-  float exit_factor = exit_speed / block->nominal_speed;
-  long initial_rate = ceil(block->nominal_rate*entry_factor);
-  long final_rate = ceil(block->nominal_rate*exit_factor);
-  
-#ifdef ADVANCE
-  long initial_advance = block->advance*entry_factor*entry_factor;
-  long final_advance = block->advance*exit_factor*exit_factor;
-#endif // ADVANCE
-
-  // Limit minimal step rate (Otherwise the timer will overflow.)
-  if(initial_rate <120) initial_rate=120;
-  if(final_rate < 120) final_rate=120;
-  
-  // Calculate the acceleration steps
-  long acceleration = block->acceleration_st;
-  long accelerate_steps = estimate_acceleration_distance(initial_rate, block->nominal_rate, acceleration);
-  long decelerate_steps = estimate_acceleration_distance(final_rate, block->nominal_rate, acceleration);
-  // Calculate the size of Plateau of Nominal Rate. 
-  long plateau_steps = block->step_event_count-accelerate_steps-decelerate_steps;
-
-  // Is the Plateau of Nominal Rate smaller than nothing? That means no cruising, and we will
-  // have to use intersection_distance() to calculate when to abort acceleration and start braking 
-  // in order to reach the final_rate exactly at the end of this block.
-  if (plateau_steps < 0) {  
-    accelerate_steps = intersection_distance(initial_rate, final_rate, acceleration, block->step_event_count);
-    plateau_steps = 0;
-  }  
-
-  long decelerate_after = accelerate_steps+plateau_steps;
-  long acceleration_rate = (long)((float)acceleration * 8.388608);
-
-  CRITICAL_SECTION_START;  // Fill variables used by the stepper in a critical section
-  if(block->busy == false) { // Don't update variables if block is busy.
-    block->accelerate_until = accelerate_steps;
-    block->decelerate_after = decelerate_after;
-    block->acceleration_rate = acceleration_rate;
-    block->initial_rate = initial_rate;
-    block->final_rate = final_rate;
-#ifdef ADVANCE
-    block->initial_advance = initial_advance;
-    block->final_advance = final_advance;
-#endif ADVANCE
-  }
-  CRITICAL_SECTION_END;
-}                    
-
-// Calculates the maximum allowable speed at this point when you must be able to reach target_velocity using the 
-// acceleration within the allotted distance.
-inline float max_allowable_speed(float acceleration, float target_velocity, float distance) {
-  return(
-  sqrt(target_velocity*target_velocity-2*acceleration*60*60*distance)
-    );
-}
-
-// "Junction jerk" in this context is the immediate change in speed at the junction of two blocks.
-// This method will calculate the junction jerk as the euclidean distance between the nominal 
-// velocities of the respective blocks.
-inline float junction_jerk(block_t *before, block_t *after) {
-  return(sqrt(
-    pow((before->speed_x-after->speed_x), 2)+
-    pow((before->speed_y-after->speed_y), 2)));
-}
-
-// Return the safe speed which is max_jerk/2, e.g. the 
-// speed under which you cannot exceed max_jerk no matter what you do.
-float safe_speed(block_t *block) {
-  float safe_speed;
-  safe_speed = max_xy_jerk/2;  
-  if(abs(block->speed_z) > max_z_jerk/2) safe_speed = max_z_jerk/2;
-  if (safe_speed > block->nominal_speed) safe_speed = block->nominal_speed;
-  return safe_speed;  
-}
-
-// The kernel called by planner_recalculate() when scanning the plan from last to first entry.
-void planner_reverse_pass_kernel(block_t *previous, block_t *current, block_t *next) {
-  if(!current) { 
-    return; 
-  }
-
-  float entry_speed = current->nominal_speed;
-  float exit_factor;
-  float exit_speed;
-  if (next) {
-    exit_speed = next->entry_speed;
-  } 
-  else {
-    exit_speed = safe_speed(current);
-  }
-
-  // Calculate the entry_factor for the current block. 
-  if (previous) {
-    // Reduce speed so that junction_jerk is within the maximum allowed
-    float jerk = junction_jerk(previous, current);
-    if((previous->steps_x == 0) && (previous->steps_y == 0)) {
-      entry_speed = safe_speed(current);
-    }
-    else if (jerk > max_xy_jerk) {
-      entry_speed = (max_xy_jerk/jerk) * entry_speed;
-    } 
-    if(abs(previous->speed_z - current->speed_z) > max_z_jerk) {
-      entry_speed = (max_z_jerk/abs(previous->speed_z - current->speed_z)) * entry_speed;
-    }
-    // If the required deceleration across the block is too rapid, reduce the entry_factor accordingly.
-    if (entry_speed > exit_speed) {
-      float max_entry_speed = max_allowable_speed(-current->acceleration,exit_speed, current->millimeters);
-      if (max_entry_speed < entry_speed) {
-        entry_speed = max_entry_speed;
-      }
-    }    
-  } 
-  else {
-    entry_speed = safe_speed(current);
-  }
-  // Store result
-  current->entry_speed = entry_speed;
-}
-
-// planner_recalculate() needs to go over the current plan twice. Once in reverse and once forward. This 
-// implements the reverse pass.
-void planner_reverse_pass() {
-  char block_index = block_buffer_head;
-  block_index--;
-  block_t *block[3] = { NULL, NULL, NULL };
-  while(block_index != block_buffer_tail) {  
-    block_index--;
-    if(block_index < 0) block_index = BLOCK_BUFFER_SIZE-1;  
-    block[2]= block[1];
-    block[1]= block[0];
-    block[0] = &block_buffer[block_index];
-    planner_reverse_pass_kernel(block[0], block[1], block[2]);
-  }
-  planner_reverse_pass_kernel(NULL, block[0], block[1]);
-}
-
-// The kernel called by planner_recalculate() when scanning the plan from first to last entry.
-void planner_forward_pass_kernel(block_t *previous, block_t *current, block_t *next) {
-  if(!current) { 
-    return; 
-  }
-  if(previous) {
-    // If the previous block is an acceleration block, but it is not long enough to 
-    // complete the full speed change within the block, we need to adjust out entry
-    // speed accordingly. Remember current->entry_factor equals the exit factor of 
-    // the previous block.
-    if(previous->entry_speed < current->entry_speed) {
-      float max_entry_speed = max_allowable_speed(-previous->acceleration, previous->entry_speed, previous->millimeters);
-      if (max_entry_speed < current->entry_speed) {
-        current->entry_speed = max_entry_speed;
-      }
-    }
-  }
-}
-
-// planner_recalculate() needs to go over the current plan twice. Once in reverse and once forward. This 
-// implements the forward pass.
-void planner_forward_pass() {
-  char block_index = block_buffer_tail;
-  block_t *block[3] = {
-    NULL, NULL, NULL  };
-
-  while(block_index != block_buffer_head) {
-    block[0] = block[1];
-    block[1] = block[2];
-    block[2] = &block_buffer[block_index];
-    planner_forward_pass_kernel(block[0],block[1],block[2]);
-    block_index = (block_index+1) & BLOCK_BUFFER_MASK;
-  }
-  planner_forward_pass_kernel(block[1], block[2], NULL);
-}
-
-// Recalculates the trapezoid speed profiles for all blocks in the plan according to the 
-// entry_factor for each junction. Must be called by planner_recalculate() after 
-// updating the blocks.
-void planner_recalculate_trapezoids() {
-  char block_index = block_buffer_tail;
-  block_t *current;
-  block_t *next = NULL;
-  while(block_index != block_buffer_head) {
-    current = next;
-    next = &block_buffer[block_index];
-    if (current) {
-      calculate_trapezoid_for_block(current, current->entry_speed, next->entry_speed);      
-    }
-    block_index = (block_index+1) & BLOCK_BUFFER_MASK;
-  }
-  calculate_trapezoid_for_block(next, next->entry_speed, safe_speed(next));
-}
-
-// Recalculates the motion plan according to the following algorithm:
-//
-//   1. Go over every block in reverse order and calculate a junction speed reduction (i.e. block_t.entry_factor) 
-//      so that:
-//     a. The junction jerk is within the set limit
-//     b. No speed reduction within one block requires faster deceleration than the one, true constant 
-//        acceleration.
-//   2. Go over every block in chronological order and dial down junction speed reduction values if 
-//     a. The speed increase within one block would require faster accelleration than the one, true 
-//        constant acceleration.
-//
-// When these stages are complete all blocks have an entry_factor that will allow all speed changes to 
-// be performed using only the one, true constant acceleration, and where no junction jerk is jerkier than 
-// the set limit. Finally it will:
-//
-//   3. Recalculate trapezoids for all blocks.
-
-void planner_recalculate() {   
-  planner_reverse_pass();
-  planner_forward_pass();
-  planner_recalculate_trapezoids();
-}
-
-void plan_init() {
-  block_buffer_head = 0;
-  block_buffer_tail = 0;
-  memset(position, 0, sizeof(position)); // clear position
-}
-
-
-inline void plan_discard_current_block() {
-  if (block_buffer_head != block_buffer_tail) {
-    block_buffer_tail = (block_buffer_tail + 1) & BLOCK_BUFFER_MASK;  
-  }
-}
-
-inline block_t *plan_get_current_block() {
-  if (block_buffer_head == block_buffer_tail) { 
-    return(NULL); 
-  }
-  block_t *block = &block_buffer[block_buffer_tail];
-  block->busy = true;
-  return(block);
-}
-
-void check_axes_activity() {
-  unsigned char x_active = 0;
-  unsigned char y_active = 0;  
-  unsigned char z_active = 0;
-  unsigned char e_active = 0;
-  block_t *block;
-
-  if(block_buffer_tail != block_buffer_head) {
-    char block_index = block_buffer_tail;
-    while(block_index != block_buffer_head) {
-      block = &block_buffer[block_index];
-      if(block->steps_x != 0) x_active++;
-      if(block->steps_y != 0) y_active++;
-      if(block->steps_z != 0) z_active++;
-      if(block->steps_e != 0) e_active++;
-      block_index = (block_index+1) & BLOCK_BUFFER_MASK;
-    }
-  }
-  if((DISABLE_X) && (x_active == 0)) disable_x();
-  if((DISABLE_Y) && (y_active == 0)) disable_y();
-  if((DISABLE_Z) && (z_active == 0)) disable_z();
-  if((DISABLE_E) && (e_active == 0)) disable_e();
-}
-
-// Add a new linear movement to the buffer. steps_x, _y and _z is the absolute position in 
-// mm. Microseconds specify how many microseconds the move should take to perform. To aid acceleration
-// calculation the caller must also provide the physical length of the line in millimeters.
-void plan_buffer_line(float x, float y, float z, float e, float feed_rate) {
-  // The target position of the tool in absolute steps
-  // Calculate target position in absolute steps
-  long target[4];
-  target[X_AXIS] = lround(x*axis_steps_per_unit[X_AXIS]);
-  target[Y_AXIS] = lround(y*axis_steps_per_unit[Y_AXIS]);
-  target[Z_AXIS] = lround(z*axis_steps_per_unit[Z_AXIS]);     
-  target[E_AXIS] = lround(e*axis_steps_per_unit[E_AXIS]);     
-  
-  // Calculate the buffer head after we push this byte
-  int next_buffer_head = (block_buffer_head + 1) & BLOCK_BUFFER_MASK;	
-
-  // If the buffer is full: good! That means we are well ahead of the robot. 
-  // Rest here until there is room in the buffer.
-  while(block_buffer_tail == next_buffer_head) { 
-    manage_heater(); 
-    manage_inactivity(1); 
-  }
-
-  // Prepare to set up new block
-  block_t *block = &block_buffer[block_buffer_head];
-  
-  // Mark block as not busy (Not executed by the stepper interrupt)
-  block->busy = false;
-
-  // Number of steps for each axis
-  block->steps_x = labs(target[X_AXIS]-position[X_AXIS]);
-  block->steps_y = labs(target[Y_AXIS]-position[Y_AXIS]);
-  block->steps_z = labs(target[Z_AXIS]-position[Z_AXIS]);
-  block->steps_e = labs(target[E_AXIS]-position[E_AXIS]);
-  block->step_event_count = max(block->steps_x, max(block->steps_y, max(block->steps_z, block->steps_e)));
-
-  // Bail if this is a zero-length block
-  if (block->step_event_count == 0) { 
-    return; 
-  };
-  
-  //enable active axes
-  if(block->steps_x != 0) enable_x();
-  if(block->steps_y != 0) enable_y();
-  if(block->steps_z != 0) enable_z();
-  if(block->steps_e != 0) enable_e();
-
-  float delta_x_mm = (target[X_AXIS]-position[X_AXIS])/axis_steps_per_unit[X_AXIS];
-  float delta_y_mm = (target[Y_AXIS]-position[Y_AXIS])/axis_steps_per_unit[Y_AXIS];
-  float delta_z_mm = (target[Z_AXIS]-position[Z_AXIS])/axis_steps_per_unit[Z_AXIS];
-  float delta_e_mm = (target[E_AXIS]-position[E_AXIS])/axis_steps_per_unit[E_AXIS];
-  block->millimeters = sqrt(square(delta_x_mm) + square(delta_y_mm) + square(delta_z_mm) + square(delta_e_mm));
-
-  unsigned long microseconds;
-  microseconds = lround((block->millimeters/feed_rate)*1000000);
-  
-  // Calculate speed in mm/minute for each axis
-  float multiplier = 60.0*1000000.0/microseconds;
-  block->speed_z = delta_z_mm * multiplier; 
-  block->speed_x = delta_x_mm * multiplier;
-  block->speed_y = delta_y_mm * multiplier;
-  block->speed_e = delta_e_mm * multiplier; 
-
-  // Limit speed per axis
-  float speed_factor = 1;
-  float tmp_speed_factor;
-  if(abs(block->speed_x) > max_feedrate[X_AXIS]) {
-    speed_factor = max_feedrate[X_AXIS] / abs(block->speed_x);
-  }
-  if(abs(block->speed_y) > max_feedrate[Y_AXIS]){
-    tmp_speed_factor = max_feedrate[Y_AXIS] / abs(block->speed_y);
-    if(speed_factor > tmp_speed_factor) speed_factor = tmp_speed_factor;
-  }
-  if(abs(block->speed_z) > max_feedrate[Z_AXIS]){
-    tmp_speed_factor = max_feedrate[Z_AXIS] / abs(block->speed_z);
-    if(speed_factor > tmp_speed_factor) speed_factor = tmp_speed_factor;
-  }
-  if(abs(block->speed_e) > max_feedrate[E_AXIS]){
-    tmp_speed_factor = max_feedrate[E_AXIS] / abs(block->speed_e);
-    if(speed_factor > tmp_speed_factor) speed_factor = tmp_speed_factor;
-  }
-  multiplier = multiplier * speed_factor;
-  block->speed_z = delta_z_mm * multiplier; 
-  block->speed_x = delta_x_mm * multiplier;
-  block->speed_y = delta_y_mm * multiplier;
-  block->speed_e = delta_e_mm * multiplier; 
-  block->nominal_speed = block->millimeters * multiplier;
-  block->nominal_rate = ceil(block->step_event_count * multiplier / 60);  
-  
-  if(block->nominal_rate < 120) block->nominal_rate = 120;
-  block->entry_speed = safe_speed(block);
-
-  // Compute the acceleration rate for the trapezoid generator. 
-  float travel_per_step = block->millimeters/block->step_event_count;
-  if(block->steps_x == 0 && block->steps_y == 0 && block->steps_z == 0) {
-    block->acceleration_st = ceil( (retract_acceleration)/travel_per_step); // convert to: acceleration steps/sec^2
-  }
-  else {
-    block->acceleration_st = ceil( (acceleration)/travel_per_step);      // convert to: acceleration steps/sec^2
-    // Limit acceleration per axis
-    if((block->acceleration_st * block->steps_x / block->step_event_count) > axis_steps_per_sqr_second[X_AXIS])
-      block->acceleration_st = axis_steps_per_sqr_second[X_AXIS];
-    if((block->acceleration_st * block->steps_y / block->step_event_count) > axis_steps_per_sqr_second[Y_AXIS])
-      block->acceleration_st = axis_steps_per_sqr_second[Y_AXIS];
-    if((block->acceleration_st * block->steps_e / block->step_event_count) > axis_steps_per_sqr_second[E_AXIS])
-      block->acceleration_st = axis_steps_per_sqr_second[E_AXIS];
-    if(((block->acceleration_st / block->step_event_count) * block->steps_z ) > axis_steps_per_sqr_second[Z_AXIS])
-      block->acceleration_st = axis_steps_per_sqr_second[Z_AXIS];
-  }
-  block->acceleration = block->acceleration_st * travel_per_step;
-  
-#ifdef ADVANCE
-  // Calculate advance rate
-  if((block->steps_e == 0) || (block->steps_x == 0 && block->steps_y == 0 && block->steps_z == 0)) {
-    block->advance_rate = 0;
-    block->advance = 0;
-  }
-  else {
-    long acc_dist = estimate_acceleration_distance(0, block->nominal_rate, block->acceleration_st);
-    float advance = (STEPS_PER_CUBIC_MM_E * EXTRUDER_ADVANCE_K) * 
-      (block->speed_e * block->speed_e * EXTRUTION_AREA * EXTRUTION_AREA / 3600.0)*65536;
-    block->advance = advance;
-    if(acc_dist == 0) {
-      block->advance_rate = 0;
-    } 
-    else {
-      block->advance_rate = advance / (float)acc_dist;
-    }
-  }
-
-#endif // ADVANCE
-
-  // compute a preliminary conservative acceleration trapezoid
-  float safespeed = safe_speed(block);
-  calculate_trapezoid_for_block(block, safespeed, safespeed); 
-
-  // Compute direction bits for this block
-  block->direction_bits = 0;
-  if (target[X_AXIS] < position[X_AXIS]) { 
-    block->direction_bits |= (1<<X_AXIS); 
-  }
-  if (target[Y_AXIS] < position[Y_AXIS]) { 
-    block->direction_bits |= (1<<Y_AXIS); 
-  }
-  if (target[Z_AXIS] < position[Z_AXIS]) { 
-    block->direction_bits |= (1<<Z_AXIS); 
-  }
-  if (target[E_AXIS] < position[E_AXIS]) { 
-    block->direction_bits |= (1<<E_AXIS); 
-  }
-
-  // Move buffer head
-  block_buffer_head = next_buffer_head;     
-
-  // Update position 
-  memcpy(position, target, sizeof(target)); // position[] = target[]
-
-  planner_recalculate();
-  st_wake_up();
-}
-
-void plan_set_position(float x, float y, float z, float e)
-{
-  position[X_AXIS] = lround(x*axis_steps_per_unit[X_AXIS]);
-  position[Y_AXIS] = lround(y*axis_steps_per_unit[Y_AXIS]);
-  position[Z_AXIS] = lround(z*axis_steps_per_unit[Z_AXIS]);     
-  position[E_AXIS] = lround(e*axis_steps_per_unit[E_AXIS]);     
-}
-
-// Stepper
-
-// intRes = intIn1 * intIn2 >> 16
-// uses:
-// r26 to store 0
-// r27 to store the byte 1 of the 24 bit result
-#define MultiU16X8toH16(intRes, charIn1, intIn2) \
-asm volatile ( \
-"clr r26 \n\t" \
-"mul %A1, %B2 \n\t" \
-"movw %A0, r0 \n\t" \
-"mul %A1, %A2 \n\t" \
-"add %A0, r1 \n\t" \
-"adc %B0, r26 \n\t" \
-"lsr r0 \n\t" \
-"adc %A0, r26 \n\t" \
-"adc %B0, r26 \n\t" \
-"clr r1 \n\t" \
-: \
-"=&r" (intRes) \
-: \
-"d" (charIn1), \
-"d" (intIn2) \
-: \
-"r26" \
-)
-
-// intRes = longIn1 * longIn2 >> 24
-// uses:
-// r26 to store 0
-// r27 to store the byte 1 of the 48bit result
-#define MultiU24X24toH16(intRes, longIn1, longIn2) \
-asm volatile ( \
-"clr r26 \n\t" \
-"mul %A1, %B2 \n\t" \
-"mov r27, r1 \n\t" \
-"mul %B1, %C2 \n\t" \
-"movw %A0, r0 \n\t" \
-"mul %C1, %C2 \n\t" \
-"add %B0, r0 \n\t" \
-"mul %C1, %B2 \n\t" \
-"add %A0, r0 \n\t" \
-"adc %B0, r1 \n\t" \
-"mul %A1, %C2 \n\t" \
-"add r27, r0 \n\t" \
-"adc %A0, r1 \n\t" \
-"adc %B0, r26 \n\t" \
-"mul %B1, %B2 \n\t" \
-"add r27, r0 \n\t" \
-"adc %A0, r1 \n\t" \
-"adc %B0, r26 \n\t" \
-"mul %C1, %A2 \n\t" \
-"add r27, r0 \n\t" \
-"adc %A0, r1 \n\t" \
-"adc %B0, r26 \n\t" \
-"mul %B1, %A2 \n\t" \
-"add r27, r1 \n\t" \
-"adc %A0, r26 \n\t" \
-"adc %B0, r26 \n\t" \
-"lsr r27 \n\t" \
-"adc %A0, r26 \n\t" \
-"adc %B0, r26 \n\t" \
-"clr r1 \n\t" \
-: \
-"=&r" (intRes) \
-: \
-"d" (longIn1), \
-"d" (longIn2) \
-: \
-"r26" , "r27" \
-)
-
-// Some useful constants
-
-#define ENABLE_STEPPER_DRIVER_INTERRUPT()  TIMSK1 |= (1<<OCIE1A)
-#define DISABLE_STEPPER_DRIVER_INTERRUPT() TIMSK1 &= ~(1<<OCIE1A)
-
-static block_t *current_block;  // A pointer to the block currently being traced
-
-// Variables used by The Stepper Driver Interrupt
-static unsigned char out_bits;        // The next stepping-bits to be output
-static long counter_x,       // Counter variables for the bresenham line tracer
-            counter_y, 
-            counter_z,       
-            counter_e;
-static unsigned long step_events_completed; // The number of step events executed in the current block
-static long advance_rate, advance, final_advance = 0;
-static short old_advance = 0;
-static short e_steps;
-static unsigned char busy = false; // TRUE when SIG_OUTPUT_COMPARE1A is being serviced. Used to avoid retriggering that handler.
-static long acceleration_time, deceleration_time;
-static long accelerate_until, decelerate_after, acceleration_rate, initial_rate, final_rate, nominal_rate;
-static unsigned short acc_step_rate; // needed for deccelaration start point
-
-
-
-//         __________________________
-//        /|                        |\     _________________         ^
-//       / |                        | \   /|               |\        |
-//      /  |                        |  \ / |               | \       s
-//     /   |                        |   |  |               |  \      p
-//    /    |                        |   |  |               |   \     e
-//   +-----+------------------------+---+--+---------------+----+    e
-//   |               BLOCK 1            |      BLOCK 2          |    d
-//
-//                           time ----->
-// 
-//  The trapezoid is the shape the speed curve over time. It starts at block->initial_rate, accelerates 
-//  first block->accelerate_until step_events_completed, then keeps going at constant speed until 
-//  step_events_completed reaches block->decelerate_after after which it decelerates until the trapezoid generator is reset.
-//  The slope of acceleration is calculated with the leib ramp alghorithm.
-
-void st_wake_up() {
-  //  TCNT1 = 0;
-  ENABLE_STEPPER_DRIVER_INTERRUPT();  
-}
-
-inline unsigned short calc_timer(unsigned short step_rate) {
-  unsigned short timer;
-  if(step_rate < 32) step_rate = 32;
-  step_rate -= 32; // Correct for minimal speed
-  if(step_rate >= (8*256)){ // higher step rate 
-    unsigned short table_address = (unsigned short)&speed_lookuptable_fast[(unsigned char)(step_rate>>8)][0];
-    unsigned char tmp_step_rate = (step_rate & 0x00ff);
-    unsigned short gain = (unsigned short)pgm_read_word_near(table_address+2);
-    MultiU16X8toH16(timer, tmp_step_rate, gain);
-    timer = (unsigned short)pgm_read_word_near(table_address) - timer;
-  }
-  else { // lower step rates
-    unsigned short table_address = (unsigned short)&speed_lookuptable_slow[0][0];
-    table_address += ((step_rate)>>1) & 0xfffc;
-    timer = (unsigned short)pgm_read_word_near(table_address);
-    timer -= (((unsigned short)pgm_read_word_near(table_address+2) * (unsigned char)(step_rate & 0x0007))>>3);
-  }
-  if(timer < 100) timer = 100;
-  return timer;
-}
-
-// Initializes the trapezoid generator from the current block. Called whenever a new 
-// block begins.
-inline void trapezoid_generator_reset() {
-  accelerate_until = current_block->accelerate_until;
-  decelerate_after = current_block->decelerate_after;
-  acceleration_rate = current_block->acceleration_rate;
-  initial_rate = current_block->initial_rate;
-  final_rate = current_block->final_rate;
-  nominal_rate = current_block->nominal_rate;
-  advance = current_block->initial_advance;
-  final_advance = current_block->final_advance;
-  deceleration_time = 0;
-  advance_rate = current_block->advance_rate;
-  
-  // step_rate to timer interval
-  acc_step_rate = initial_rate;
-  acceleration_time = calc_timer(acc_step_rate);
-  OCR1A = acceleration_time;
-}
-
-// "The Stepper Driver Interrupt" - This timer interrupt is the workhorse.  
-// It pops blocks from the block_buffer and executes them by pulsing the stepper pins appropriately. 
-ISR(TIMER1_COMPA_vect)
-{        
-  if(busy){ /*Serial.println("BUSY")*/; 
-    return; 
-  } // The busy-flag is used to avoid reentering this interrupt
-
-  busy = true;
-  sei(); // Re enable interrupts (normally disabled while inside an interrupt handler)
-
-  // If there is no current block, attempt to pop one from the buffer
-  if (current_block == NULL) {
-    // Anything in the buffer?
-    current_block = plan_get_current_block();
-    if (current_block != NULL) {
-      trapezoid_generator_reset();
-      counter_x = -(current_block->step_event_count >> 1);
-      counter_y = counter_x;
-      counter_z = counter_x;
-      counter_e = counter_x;
-      step_events_completed = 0;
-      e_steps = 0;
-    } 
-    else {
-      DISABLE_STEPPER_DRIVER_INTERRUPT();
-    }    
-  } 
-
-  if (current_block != NULL) {
-    // Set directions TO DO This should be done once during init of trapezoid. Endstops -> interrupt
-    out_bits = current_block->direction_bits;
-
-#ifdef ADVANCE
-    // Calculate E early.
-    counter_e += current_block->steps_e;
-    if (counter_e > 0) {
-      counter_e -= current_block->step_event_count;
-      if ((out_bits & (1<<E_AXIS)) != 0) { // - direction
-        CRITICAL_SECTION_START;
-        e_steps--;
-        CRITICAL_SECTION_END;
-      }
-      else {
-        CRITICAL_SECTION_START;
-        e_steps++;
-        CRITICAL_SECTION_END;
-      }
-    }    
-    // Do E steps + advance steps
-    CRITICAL_SECTION_START;
-    e_steps += ((advance >> 16) - old_advance);
-    CRITICAL_SECTION_END;
-    old_advance = advance >> 16;  
-#endif //ADVANCE
-
-    // Set direction en check limit switches
-    if ((out_bits & (1<<X_AXIS)) != 0) {   // -direction
-      WRITE(X_DIR_PIN, INVERT_X_DIR);
-      if(READ(X_MIN_PIN) != ENDSTOPS_INVERTING) {
-        step_events_completed = current_block->step_event_count;
-      }
-    }
-    else // +direction
-    WRITE(X_DIR_PIN,!INVERT_X_DIR);
-
-    if ((out_bits & (1<<Y_AXIS)) != 0) {   // -direction
-      WRITE(Y_DIR_PIN,INVERT_Y_DIR);
-      if(READ(Y_MIN_PIN) != ENDSTOPS_INVERTING) {
-        step_events_completed = current_block->step_event_count;
-      }
-    }
-    else // +direction
-    WRITE(Y_DIR_PIN,!INVERT_Y_DIR);
-
-    if ((out_bits & (1<<Z_AXIS)) != 0) {   // -direction
-      WRITE(Z_DIR_PIN,INVERT_Z_DIR);
-      if(READ(Z_MIN_PIN) != ENDSTOPS_INVERTING) {
-        step_events_completed = current_block->step_event_count;
-      }
-    }
-    else // +direction
-    WRITE(Z_DIR_PIN,!INVERT_Z_DIR);
-
-#ifndef ADVANCE
-    if ((out_bits & (1<<E_AXIS)) != 0)   // -direction
-      WRITE(E_DIR_PIN,INVERT_E_DIR);
-    else // +direction
-      WRITE(E_DIR_PIN,!INVERT_E_DIR);
-#endif //!ADVANCE
-
-    counter_x += current_block->steps_x;
-    if (counter_x > 0) {
-      WRITE(X_STEP_PIN, HIGH);
-      counter_x -= current_block->step_event_count;
-      WRITE(X_STEP_PIN, LOW);
-    }
-
-    counter_y += current_block->steps_y;
-    if (counter_y > 0) {
-      WRITE(Y_STEP_PIN, HIGH);
-      counter_y -= current_block->step_event_count;
-      WRITE(Y_STEP_PIN, LOW);
-    }
-
-    counter_z += current_block->steps_z;
-    if (counter_z > 0) {
-      WRITE(Z_STEP_PIN, HIGH);
-      counter_z -= current_block->step_event_count;
-      WRITE(Z_STEP_PIN, LOW);
-    }
-
-#ifndef ADVANCE
-    counter_e += current_block->steps_e;
-    if (counter_e > 0) {
-      WRITE(E_STEP_PIN, HIGH);
-      counter_e -= current_block->step_event_count;
-      WRITE(E_STEP_PIN, LOW);
-    }
-#endif //!ADVANCE
-
-    // Calculare new timer value
-    unsigned short timer;
-    unsigned short step_rate;
-    if (step_events_completed < accelerate_until) {
-      MultiU24X24toH16(acc_step_rate, acceleration_time, acceleration_rate);
-      acc_step_rate += initial_rate;
-      
-      // upper limit
-      if(acc_step_rate > nominal_rate)
-        acc_step_rate = nominal_rate;
-
-      // step_rate to timer interval
-      timer = calc_timer(acc_step_rate);
-      advance += advance_rate;
-      acceleration_time += timer;
-      OCR1A = timer;
-    } 
-    else if (step_events_completed >= decelerate_after) {   
-      MultiU24X24toH16(step_rate, deceleration_time, acceleration_rate);
-      
-      if(step_rate > acc_step_rate) { // Check step_rate stays positive
-        step_rate = final_rate;
-      }
-      else {
-        step_rate = acc_step_rate - step_rate; // Decelerate from aceleration end point.
-      }
-
-      // lower limit
-      if(step_rate < final_rate)
-        step_rate = final_rate;
-
-      // step_rate to timer interval
-      timer = calc_timer(step_rate);
-#ifdef ADVANCE
-      advance -= advance_rate;
-      if(advance < final_advance)
-        advance = final_advance;
-#endif //ADVANCE
-      deceleration_time += timer;
-      OCR1A = timer;
-    }       
-    // If current block is finished, reset pointer 
-    step_events_completed += 1;  
-    if (step_events_completed >= current_block->step_event_count) {
-      current_block = NULL;
-      plan_discard_current_block();
-    }   
-  } 
-  busy=false;
-}
-
-#ifdef ADVANCE
-
-unsigned char old_OCR0A;
-// Timer interrupt for E. e_steps is set in the main routine;
-// Timer 0 is shared with millies
-ISR(TIMER0_COMPA_vect)
-{
-  // Critical section needed because Timer 1 interrupt has higher priority. 
-  // The pin set functions are placed on trategic position to comply with the stepper driver timing.
-  WRITE(E_STEP_PIN, LOW);
-  // Set E direction (Depends on E direction + advance)
-  if (e_steps < 0) {
-    WRITE(E_DIR_PIN,INVERT_E_DIR);    
-    e_steps++;
-    WRITE(E_STEP_PIN, HIGH);
-  } 
-  if (e_steps > 0) {
-    WRITE(E_DIR_PIN,!INVERT_E_DIR);
-    e_steps--;
-    WRITE(E_STEP_PIN, HIGH);
-  }
-  old_OCR0A += 25; // 10kHz interrupt
-  OCR0A = old_OCR0A;
-}
-#endif // ADVANCE
-
-void st_init()
-{
-  // waveform generation = 0100 = CTC
-  TCCR1B &= ~(1<<WGM13);
-  TCCR1B |=  (1<<WGM12);
-  TCCR1A &= ~(1<<WGM11); 
-  TCCR1A &= ~(1<<WGM10);
-
-  // output mode = 00 (disconnected)
-  TCCR1A &= ~(3<<COM1A0); 
-  TCCR1A &= ~(3<<COM1B0); 
-  TCCR1B = (TCCR1B & ~(0x07<<CS10)) | (2<<CS10); // 2MHz timer
-
-  OCR1A = 0x4000;
-  DISABLE_STEPPER_DRIVER_INTERRUPT();  
-
-#ifdef ADVANCE
-  e_steps = 0;
-  TIMSK0 |= (1<<OCIE0A);
-#endif //ADVANCE
-  sei();
-}
-
-// Block until all buffered steps are executed
-void st_synchronize()
-{
-  while(plan_get_current_block()) {
-    manage_heater();
-    manage_inactivity(1);
-  }   
-}
-
-// Temperature loop
-
-void tp_init()
-{
-  DIDR0 = 1<<5; // TEMP_0_PIN for GEN6
-  ADMUX = ((1 << REFS0) | (5 & 0x07));
-  ADCSRA = 1<<ADEN | 1<<ADSC | 1<<ADIF | 0x07; // ADC enable, Clear interrupt, 1/128 prescaler.
-  TCCR2B = 0;     //Stop timer in case of running
-
-#ifdef PIDTEMP
-  TCCR2A = 0x23;  //OC2A disable; FastPWM noninverting; FastPWM mode 7
-#else
-  TCCR2A = 0x03;  //OC2A disable; FastPWM noninverting; FastPWM mode 7
-#endif //PIDTEMP
-  OCR2A = 156;    //Period is ~10ms
-  OCR2B = 0;      //Duty Cycle for heater pin is 0 (startup)
-  TIMSK2 = 0x01;  //Enable overflow interrupt
-  TCCR2B = 0x0F;  //1/1024 prescaler, start
-}
-
-static unsigned char temp_count = 0;
-static unsigned long raw_temp_value = 0;
-
-ISR(TIMER2_OVF_vect)
-{
-  //  uint8_t low, high;
-
-  //  low = ADCL;
-  //  high = ADCH;
-  raw_temp_value += ADC;
-  //  raw_temp_value = (ADCH <<8) | ADCL;
-  ADCSRA = 1<<ADEN | 1<<ADSC | 1<<ADIF | 0x07; // ADC enable, Clear interrupt, Enable Interrupt, 1/128 prescaler.
-  //  raw_temp_value += (high <<8) | low;
-  temp_count++;
-
-  if(temp_count >= 16)
-  {
-    current_raw = 16383 - raw_temp_value;
-    temp_meas_ready = true;
-    temp_count = 0;
-    raw_temp_value = 0;
-#ifdef MAXTEMP
-    if(current_raw >= maxttemp) {
-      target_raw = 0;
-#ifdef PIDTEMP
-      OCR2B = 0;
-#else
-      WRITE(HEATER_0_PIN,LOW);
-#endif //PIDTEMP
-    }
-#endif //MAXTEMP
-#ifdef MINTEMP
-    if(current_raw <= minttemp) {
-      target_raw = 0;
-#ifdef PIDTEMP
-      OCR2B = 0;
-#else
-      WRITE(HEATER_0_PIN,LOW);
-#endif //PIDTEMP
-    }
-#endif //MAXTEMP
-#ifndef PIDTEMP
-    if(current_raw >= target_raw)
-    {
-      WRITE(HEATER_0_PIN,LOW);
-    }
-    else 
-    {
-      WRITE(HEATER_0_PIN,HIGH);
-    }
-#endif //PIDTEMP
-  }
-}
-
-
