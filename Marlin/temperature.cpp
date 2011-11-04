@@ -174,28 +174,28 @@ CRITICAL_SECTION_END;
 // This is needed because PID in hydra firmware hovers around a given analog value, not a temp value.
 // This function is derived from inversing the logic from a portion of getTemperature() in FiveD RepRap firmware.
 float temp2analog(int celsius) {
-  #ifdef HEATER_USES_THERMISTOR
+  #ifdef HEATER_USES_THERMISTOR_1
     int raw = 0;
     byte i;
     
-    for (i=1; i<NUMTEMPS; i++)
+    for (i=1; i<NUMTEMPS_HEATER_1; i++)
     {
-      if (temptable[i][1] < celsius)
+      if (temptable_1[i][1] < celsius)
       {
-        raw = temptable[i-1][0] + 
-          (celsius - temptable[i-1][1]) * 
-          (temptable[i][0] - temptable[i-1][0]) /
-          (temptable[i][1] - temptable[i-1][1]);
+        raw = temptable_1[i-1][0] + 
+          (celsius - temptable_1[i-1][1]) * 
+          (temptable_1[i][0] - temptable_1[i-1][0]) /
+          (temptable_1[i][1] - temptable_1[i-1][1]);
       
         break;
       }
     }
 
     // Overflow: Set to last value in the table
-    if (i == NUMTEMPS) raw = temptable[i-1][0];
+    if (i == NUMTEMPS_1) raw = temptable_1[i-1][0];
 
     return (1023 * OVERSAMPLENR) - raw;
-  #elif defined HEATER_USES_AD595
+  #elif defined HEATER_1_USES_AD595
     return celsius * (1024.0 / (5.0 * 100.0) ) * OVERSAMPLENR;
   #endif
 }
@@ -235,28 +235,28 @@ float temp2analogBed(int celsius) {
 // Derived from RepRap FiveD extruder::getTemperature()
 // For hot end temperature measurement.
 float analog2temp(int raw) {
-  #ifdef HEATER_USES_THERMISTOR
+  #ifdef HEATER_1_USES_THERMISTOR
     int celsius = 0;
     byte i;  
     raw = (1023 * OVERSAMPLENR) - raw;
-    for (i=1; i<NUMTEMPS; i++)
+    for (i=1; i<NUMTEMPS_HEATER_1; i++)
     {
-      if (temptable[i][0] > raw)
+      if (temptable_1[i][0] > raw)
       {
-        celsius  = temptable[i-1][1] + 
-          (raw - temptable[i-1][0]) * 
-          (temptable[i][1] - temptable[i-1][1]) /
-          (temptable[i][0] - temptable[i-1][0]);
+        celsius  = temptable_1[i-1][1] + 
+          (raw - temptable_1[i-1][0]) * 
+          (temptable_1[i][1] - temptable_1[i-1][1]) /
+          (temptable_1[i][0] - temptable_1[i-1][0]);
 
         break;
       }
     }
 
     // Overflow: Set to last value in the table
-    if (i == NUMTEMPS) celsius = temptable[i-1][1];
+    if (i == NUMTEMPS_HEATER_1) celsius = temptable_1[i-1][1];
 
     return celsius;
-  #elif defined HEATER_USES_AD595
+  #elif defined HEATER_1_USES_AD595
     return raw * ((5.0 * 100.0) / 1024.0) / OVERSAMPLENR;
   #endif
 }
@@ -270,7 +270,7 @@ float analog2tempBed(int raw) {
 
     raw = (1023 * OVERSAMPLENR) - raw;
 
-    for (i=1; i<NUMTEMPS; i++)
+    for (i=1; i<BNUMTEMPS; i++)
     {
       if (bedtemptable[i][0] > raw)
       {
@@ -284,7 +284,7 @@ float analog2tempBed(int raw) {
     }
 
     // Overflow: Set to last value in the table
-    if (i == NUMTEMPS) celsius = bedtemptable[i-1][1];
+    if (i == BNUMTEMPS) celsius = bedtemptable[i-1][1];
 
     return celsius;
     
@@ -403,11 +403,15 @@ ISR(TIMER0_COMPB_vect)
     
   if(temp_count >= 16) // 6 ms * 16 = 96ms.
   {
-    #ifdef HEATER_USES_AD595
+    #ifdef HEATER_1_USES_AD595
       current_raw[0] = raw_temp_0_value;
-      current_raw[2] = raw_temp_2_value;
     #else
       current_raw[0] = 16383 - raw_temp_0_value;
+    #endif
+    
+    #ifdef HEATER_2_USES_AD595
+      current_raw[2] = raw_temp_2_value;
+    #else
       current_raw[2] = 16383 - raw_temp_2_value;
     #endif
     

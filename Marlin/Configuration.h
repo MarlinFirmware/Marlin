@@ -14,14 +14,23 @@
 #define MOTHERBOARD 7
 //#define MOTHERBOARD 5
 
+
 //// Thermistor settings:
 // 1 is 100k thermistor
 // 2 is 200k thermistor
 // 3 is mendel-parts thermistor
-#define THERMISTORHEATER 3
-// Select one of these only to define how the nozzle temp is read.
-//#define HEATER_USES_THERMISTOR
-#define HEATER_USES_AD595
+// 4 is 10k thermistor
+// 5 is ParCan supplied 104GT-2 100K
+// 6 is EPCOS 100k
+// 7 is 100k Honeywell thermistor 135-104LAG-J01
+#define THERMISTORHEATER_1 3
+#define THERMISTORHEATER_2 3
+#define THERMISTORBED 3
+
+//#define HEATER_1_USES_THERMISTOR
+//#define HEATER_2_USES_THERMISTOR
+#define HEATER_1_USES_AD595
+//#define HEATER_2_USES_AD595
 
 // Select one of these only to define how the bed temp is read.
 //#define BED_USES_THERMISTOR
@@ -29,8 +38,6 @@
 
 #define HEATER_CHECK_INTERVAL 50
 #define BED_CHECK_INTERVAL 5000
-#define BNUMTEMPS NUMTEMPS
-#define bedtemptable temptable
 
 
 //// Endstop Settings
@@ -50,7 +57,7 @@ const bool ENDSTOPS_INVERTING = true; // set to true to invert the logic of the 
 #define LCD_WIDTH 16
 #define LCD_HEIGHT 2
 
-#define ULTIPANEL
+//#define ULTIPANEL
 #ifdef ULTIPANEL
  //#define NEWPANEL  //enable this if you have a click-encoder panel
  #define SDSUPPORT
