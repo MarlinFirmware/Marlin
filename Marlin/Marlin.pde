@@ -803,14 +803,14 @@ inline void process_commands()
         }
         break;
       case 104: // M104
-                if (code_seen('S')) target_raw[TEMPSENSOR_HOTEND] = temp2analog(code_value());
+                if (code_seen('S')) target_raw[TEMPSENSOR_HOTEND_0] = temp2analog(code_value());
 #ifdef PIDTEMP
                 pid_setpoint = code_value();
 #endif //PIDTEM
         #ifdef WATCHPERIOD
-            if(target_raw[TEMPSENSOR_HOTEND] > current_raw[TEMPSENSOR_HOTEND]){
+            if(target_raw[TEMPSENSOR_HOTEND_0] > current_raw[TEMPSENSOR_HOTEND_0]){
                 watchmillis = max(1,millis());
-                watch_raw[TEMPSENSOR_HOTEND] = current_raw[TEMPSENSOR_HOTEND];
+                watch_raw[TEMPSENSOR_HOTEND_0] = current_raw[TEMPSENSOR_HOTEND_0];
             }else{
                 watchmillis = 0;
             }
@@ -821,7 +821,7 @@ inline void process_commands()
         break;
       case 105: // M105
         #if (TEMP_0_PIN > -1) || defined (HEATER_USES_AD595)
-                tt = analog2temp(current_raw[TEMPSENSOR_HOTEND]);
+                tt = analog2temp(current_raw[TEMPSENSOR_HOTEND_0]);
         #endif
         #if TEMP_1_PIN > -1
                 bt = analog2tempBed(current_raw[TEMPSENSOR_BED]);
@@ -852,14 +852,14 @@ inline void process_commands()
         //break;
       case 109: {// M109 - Wait for extruder heater to reach target.
             LCD_MESSAGE("Heating...");
-               if (code_seen('S')) target_raw[TEMPSENSOR_HOTEND] = temp2analog(code_value());
+               if (code_seen('S')) target_raw[TEMPSENSOR_HOTEND_0] = temp2analog(code_value());
             #ifdef PIDTEMP
             pid_setpoint = code_value();
             #endif //PIDTEM
             #ifdef WATCHPERIOD
-          if(target_raw[TEMPSENSOR_HOTEND]>current_raw[TEMPSENSOR_HOTEND]){
+          if(target_raw[TEMPSENSOR_HOTEND_0]>current_raw[TEMPSENSOR_HOTEND_0]){
               watchmillis = max(1,millis());
-              watch_raw[TEMPSENSOR_HOTEND] = current_raw[TEMPSENSOR_HOTEND];
+              watch_raw[TEMPSENSOR_HOTEND_0] = current_raw[TEMPSENSOR_HOTEND_0];
             } else {
               watchmillis = 0;
             }
@@ -867,21 +867,21 @@ inline void process_commands()
             codenum = millis(); 
      
                /* See if we are heating up or cooling down */
-              bool target_direction = (current_raw[0] < target_raw[0]); // true if heating, false if cooling
+              bool target_direction = (current_raw[TEMPSENSOR_HOTEND_0] < target_raw[TEMPSENSOR_HOTEND_0]); // true if heating, false if cooling
 
             #ifdef TEMP_RESIDENCY_TIME
             long residencyStart;
             residencyStart = -1;
             /* continue to loop until we have reached the target temp   
               _and_ until TEMP_RESIDENCY_TIME hasn't passed since we reached it */
-            while((target_direction ? (current_raw[0] < target_raw[0]) : (current_raw[0] > target_raw[0])) ||
+            while((target_direction ? (current_raw[TEMPSENSOR_HOTEND_0] < target_raw[TEMPSENSOR_HOTEND_0]) : (current_raw[TEMPSENSOR_HOTEND_0] > target_raw[TEMPSENSOR_HOTEND_0])) ||
                     (residencyStart > -1 && (millis() - residencyStart) < TEMP_RESIDENCY_TIME*1000) ) {
             #else
-            while ( target_direction ? (current_raw[0] < target_raw[0]) : (current_raw[0] > target_raw[0]) ) {
+            while ( target_direction ? (current_raw[TEMPSENSOR_HOTEND_0] < target_raw[TEMPSENSOR_HOTEND_0]) : (current_raw[TEMPSENSOR_HOTEND_0] > target_raw[TEMPSENSOR_HOTEND_0]) ) {
             #endif //TEMP_RESIDENCY_TIME
               if( (millis() - codenum) > 1000 ) { //Print Temp Reading every 1 second while heating up/cooling down
                 Serial.print("T:");
-              Serial.println( analog2temp(current_raw[TEMPSENSOR_HOTEND]) ); 
+              Serial.println( analog2temp(current_raw[TEMPSENSOR_HOTEND_0]) ); 
                 codenum = millis();
               }
               manage_heater();
@@ -889,9 +889,9 @@ inline void process_commands()
               #ifdef TEMP_RESIDENCY_TIME
                /* start/restart the TEMP_RESIDENCY_TIME timer whenever we reach target temp for the first time
                   or when current temp falls outside the hysteresis after target temp was reached */
-              if ((residencyStart == -1 &&  target_direction && current_raw[0] >= target_raw[0]) ||
-                  (residencyStart == -1 && !target_direction && current_raw[0] <= target_raw[0]) ||
-                  (residencyStart > -1 && labs(analog2temp(current_raw[0]) - analog2temp(target_raw[0])) > TEMP_HYSTERESIS) ) {
+              if ((residencyStart == -1 &&  target_direction && current_raw[TEMPSENSOR_HOTEND_0] >= target_raw[TEMPSENSOR_HOTEND_0]) ||
+                  (residencyStart == -1 && !target_direction && current_raw[TEMPSENSOR_HOTEND_0] <= target_raw[TEMPSENSOR_HOTEND_0]) ||
+                  (residencyStart > -1 && labs(analog2temp(current_raw[TEMPSENSOR_HOTEND_0]) - analog2temp(target_raw[TEMPSENSOR_HOTEND_0])) > TEMP_HYSTERESIS) ) {
                 residencyStart = millis();
               }
               #endif //TEMP_RESIDENCY_TIME
@@ -907,7 +907,7 @@ inline void process_commands()
                                 {
           if( (millis()-codenum) > 1000 ) //Print Temp Reading every 1 second while heating up.
           {
-            float tt=analog2temp(current_raw[TEMPSENSOR_HOTEND]);
+            float tt=analog2temp(current_raw[TEMPSENSOR_HOTEND_0]);
             Serial.print("T:");
             Serial.println( tt );
             Serial.print("ok T:");
@@ -1232,4 +1232,4 @@ void manage_inactivity(byte debug) {
     disable_e(); 
   }
   check_axes_activity();
-}
+}

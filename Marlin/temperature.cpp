@@ -105,7 +105,7 @@ CRITICAL_SECTION_START;
 CRITICAL_SECTION_END;
 
 #ifdef PIDTEMP
-    pid_input = analog2temp(current_raw[TEMPSENSOR_HOTEND]);
+    pid_input = analog2temp(current_raw[TEMPSENSOR_HOTEND_0]);
 
 #ifndef PID_OPENLOOP
     pid_error = pid_setpoint - pid_input;
@@ -440,16 +440,18 @@ ISR(TIMER0_COMPB_vect)
     raw_temp_2_value = 0;
 #ifdef HEATER_0_MAXTEMP
   #if (HEATER_0_PIN > -1)
-    if(current_raw[TEMPSENSOR_HOTEND] >= maxttemp) {
-      target_raw[TEMPSENSOR_HOTEND] = 0;
+    if(current_raw[TEMPSENSOR_HOTEND_0] >= maxttemp_0) {
+      target_raw[TEMPSENSOR_HOTEND_0] = 0;
       analogWrite(HEATER_0_PIN, 0);
       Serial.println("!! Temperature extruder 0 switched off. MAXTEMP triggered !!");
       kill();
     }
   #endif
 #endif
-    if(current_raw[TEMPSENSOR_AUX] >= maxttemp) {
-      target_raw[TEMPSENSOR_AUX] = 0;
+#ifdef HEATER_1_MAXTEMP
+  #if (HEATER_1_PIN > -1)
+    if(current_raw[TEMPSENSOR_HOTEND_1] >= maxttemp_1) {
+      target_raw[TEMPSENSOR_HOTEND_1] = 0;
     if(current_raw[2] >= maxttemp_1) {
       analogWrite(HEATER_2_PIN, 0);
       Serial.println("!! Temperature extruder 1 switched off. MAXTEMP triggered !!");
@@ -459,8 +461,8 @@ ISR(TIMER0_COMPB_vect)
 #endif //MAXTEMP
 #ifdef HEATER_0_MINTEMP
   #if (HEATER_0_PIN > -1)
-    if(current_raw[TEMPSENSOR_HOTEND] <= minttemp) {
-      target_raw[TEMPSENSOR_HOTEND] = 0;
+    if(current_raw[TEMPSENSOR_HOTEND_0] <= minttemp_0) {
+      target_raw[TEMPSENSOR_HOTEND_0] = 0;
       analogWrite(HEATER_0_PIN, 0);
       Serial.println("!! Temperature extruder 0 switched off. MINTEMP triggered !!");
       kill();
@@ -469,8 +471,8 @@ ISR(TIMER0_COMPB_vect)
 #endif
 #ifdef HEATER_1_MINTEMP
   #if (HEATER_2_PIN > -1)
-    if(current_raw[TEMPSENSOR_AUX] <= minttemp) {
-      target_raw[TEMPSENSOR_AUX] = 0;
+    if(current_raw[TEMPSENSOR_HOTEND_1] <= minttemp_1) {
+      target_raw[TEMPSENSOR_HOTEND_1] = 0;
       analogWrite(HEATER_2_PIN, 0);
       Serial.println("!! Temperature extruder 1 switched off. MINTEMP triggered !!");
       kill();
@@ -498,4 +500,4 @@ ISR(TIMER0_COMPB_vect)
   #endif
 #endif
   }
-}
+}

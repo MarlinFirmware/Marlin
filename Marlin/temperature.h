@@ -34,7 +34,7 @@ int temp2analogBed(int celsius);
 float analog2temp(int raw);
 float analog2tempBed(int raw);
 
-#ifdef HEATER_USES_THERMISTOR
+#ifdef HEATER_0_USES_THERMISTOR
     #define HEATERSOURCE 1
 #endif
 #ifdef BED_USES_THERMISTOR
@@ -50,9 +50,9 @@ extern float Ki;
 extern float Kd;
 extern float Kc;
 
-enum {TEMPSENSOR_HOTEND=0,TEMPSENSOR_BED=1, TEMPSENSOR_AUX=2};
+enum {TEMPSENSOR_HOTEND_0=0,TEMPSENSOR_BED=1, TEMPSENSOR_HOTEND_1=2};
 extern int target_raw[3];
 extern int current_raw[3];
 extern double pid_setpoint;
 
-#endif
+#endif
