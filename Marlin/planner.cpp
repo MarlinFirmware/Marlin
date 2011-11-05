@@ -388,7 +388,7 @@ void plan_buffer_line(float x, float y, float z, float e, float feed_rate) {
   // If the buffer is full: good! That means we are well ahead of the robot. 
   // Rest here until there is room in the buffer.
   while(block_buffer_tail == next_buffer_head) { 
-    manage_heater(); 
+    htr.manage_heater(); 
     manage_inactivity(1); 
     LCD_STATUS;
   }

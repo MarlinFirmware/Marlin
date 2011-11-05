@@ -48,9 +48,9 @@ void StoreSettings() {
   EEPROM_writeAnything(i,max_xy_jerk);
   EEPROM_writeAnything(i,max_z_jerk);
   #ifdef PIDTEMP
-  EEPROM_writeAnything(i,Kp);
-  EEPROM_writeAnything(i,Ki);
-  EEPROM_writeAnything(i,Kd);
+  EEPROM_writeAnything(i,Heater::Kp);
+  EEPROM_writeAnything(i,Heater::Ki);
+  EEPROM_writeAnything(i,Heater::Kd);
 #else
   EEPROM_writeAnything(i,3000);
   EEPROM_writeAnything(i,0);
@@ -81,11 +81,11 @@ void RetrieveSettings(bool def=false){  // if def=true, the default values will 
       EEPROM_readAnything(i,max_xy_jerk);
       EEPROM_readAnything(i,max_z_jerk);
 #ifndef PIDTEMP
-      float Kp,Ki,Kd;
+      float Kp,Ki,Kd; //read and ignore..
 #endif
-      EEPROM_readAnything(i,Kp);
-      EEPROM_readAnything(i,Ki);
-      EEPROM_readAnything(i,Kd);
+      EEPROM_readAnything(i,Heater::Kp);
+      EEPROM_readAnything(i,Heater::Ki);
+      EEPROM_readAnything(i,Heater::Kd);
 
       ECHOLN("Stored settings retreived:");
   }
@@ -119,7 +119,7 @@ void RetrieveSettings(bool def=false){  // if def=true, the default values will 
   ECHOLN("   M205 S"  <<_FLOAT(minimumfeedrate/60,2) << " T" << _FLOAT(mintravelfeedrate/60,2) << " B" << _FLOAT(minsegmenttime,2) << " X" << _FLOAT(max_xy_jerk/60,2) << " Z" << _FLOAT(max_z_jerk/60,2));
 #ifdef PIDTEMP
   ECHOLN("PID settings:");
-  ECHOLN("   M301 P"  << _FLOAT(Kp,3) << " I" << _FLOAT(Ki,3) << " D" << _FLOAT(Kd,3));  
+  ECHOLN("   M301 P"  << _FLOAT(Heater::Kp,3) << " I" << _FLOAT(Heater::Ki,3) << " D" << _FLOAT(Heater::Kd,3));  
 #endif
   
 }  
