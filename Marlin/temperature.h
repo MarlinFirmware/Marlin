@@ -27,8 +27,8 @@ void tp_init();
 void manage_heater();
 //int temp2analogu(int celsius, const short table[][2], int numtemps);
 //float analog2tempu(int raw, const short table[][2], int numtemps);
-float temp2analog(int celsius);
-float temp2analogBed(int celsius);
+int temp2analog(int celsius);
+int temp2analogBed(int celsius);
 float analog2temp(int raw);
 float analog2tempBed(int raw);
 

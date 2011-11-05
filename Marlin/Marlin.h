@@ -57,7 +57,7 @@ void ClearToSend();
 
 void get_coordinates();
 void prepare_move();
-void kill(byte debug);
+void kill();
 
 //void check_axes_activity();
 //void plan_init();

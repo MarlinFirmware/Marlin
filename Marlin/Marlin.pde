@@ -54,6 +54,8 @@ char version_string[] = "1.0.0 Alpha 1";
 //-------------------
 // G0  -> G1
 // G1  - Coordinated Movement X Y Z E
+// G2  - CW ARC
+// G3  - CCW ARC
 // G4  - Dwell S<seconds> or P<milliseconds>
 // G28 - Home all Axis
 // G90 - Use Absolute Coordinates

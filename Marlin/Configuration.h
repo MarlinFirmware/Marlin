@@ -27,10 +27,10 @@
 #define THERMISTORHEATER_2 3
 #define THERMISTORBED 3
 
+//#define HEATER_0_USES_THERMISTOR
 //#define HEATER_1_USES_THERMISTOR
-//#define HEATER_2_USES_THERMISTOR
-#define HEATER_1_USES_AD595
-//#define HEATER_2_USES_AD595
+#define HEATER_0_USES_AD595
+//#define HEATER_1_USES_AD595
 
 // Select one of these only to define how the bed temp is read.
 //#define BED_USES_THERMISTOR
@@ -47,8 +47,8 @@ const bool ENDSTOPS_INVERTING = true; // set to true to invert the logic of the 
 // For optos H21LOB set to true, for Mendel-Parts newer optos TCST2103 set to false
 
 // This determines the communication speed of the printer
-//#define BAUDRATE 250000
-#define BAUDRATE 115200
+#define BAUDRATE 250000
+//#define BAUDRATE 115200
 //#define BAUDRATE 230400
 
 // Comment out (using // at the start of the line) to disable SD support:
@@ -57,7 +57,7 @@ const bool ENDSTOPS_INVERTING = true; // set to true to invert the logic of the 
 #define LCD_WIDTH 16
 #define LCD_HEIGHT 2
 
-//#define ULTIPANEL
+#define ULTIPANEL
 #ifdef ULTIPANEL
  //#define NEWPANEL  //enable this if you have a click-encoder panel
  #define SDSUPPORT
@@ -157,15 +157,17 @@ const int dropsegments=5; //everything with this number of steps  will be ignore
 //#define TEMP_HYSTERESIS 5       // (C°) range of +/- temperatures considered "close" to the target one
 
 //// The minimal temperature defines the temperature below which the heater will not be enabled
-#define MINTEMP 5
-#define BED_MINTEMP 5
+#define HEATER_0_MINTEMP 5
+//#define HEATER_1_MINTEMP 5
+//#define BED_MINTEMP 5
 
 
 // When temperature exceeds max temp, your heater will be switched off.
 // This feature exists to protect your hotend from overheating accidentally, but *NOT* from thermistor short/failure!
 // You should use MINTEMP for thermistor short/failure protection.
-#define MAXTEMP 275
-#define BED_MAXTEMP 150
+#define HEATER_0_MAXTEMP 275
+//#define_HEATER_1_MAXTEMP 275
+//#define BED_MAXTEMP 150
 
 /// PID settings:
 // Uncomment the following line to enable PID support.
