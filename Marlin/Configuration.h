@@ -54,9 +54,8 @@ const bool ENDSTOPS_INVERTING = true; // set to true to invert the logic of the 
 // Comment out (using // at the start of the line) to disable SD support:
 
 // #define ULTRA_LCD  //any lcd 
-#define LCD_WIDTH 16
-#define LCD_HEIGHT 2
 
+#define ULTIPANEL
 #define ULTIPANEL
 #ifdef ULTIPANEL
  //#define NEWPANEL  //enable this if you have a click-encoder panel
@@ -64,6 +63,11 @@ const bool ENDSTOPS_INVERTING = true; // set to true to invert the logic of the 
  #define ULTRA_LCD
  #define LCD_WIDTH 20
 #define LCD_HEIGHT 4
+#else //no panel but just lcd 
+  #ifdef ULTRA_LCD
+    #define LCD_WIDTH 16
+    #define LCD_HEIGHT 2
+  #endif
 #endif
 
 
@@ -169,25 +173,46 @@ const int dropsegments=5; //everything with this number of steps  will be ignore
 //#define_HEATER_1_MAXTEMP 275
 //#define BED_MAXTEMP 150
 
-/// PID settings:
-// Uncomment the following line to enable PID support.
-//#define SMOOTHING
-//#define SMOOTHFACTOR 5.0
-//float current_raw_average=0;
+
+
+
+
+
 
 #define PIDTEMP
 #ifdef PIDTEMP
-//#define PID_DEBUG // Sends debug data to the serial port. 
-//#define PID_OPENLOOP 1 // Puts PID in open loop. M104 sets the output power in %
-#define PID_MAX 255 // limits current to nozzle
-#define PID_INTEGRAL_DRIVE_MAX 255
-#define PID_dT 0.10 // 100ms sample time
-#define DEFAULT_Kp 20.0
-#define DEFAULT_Ki 1.5*PID_dT
-#define DEFAULT_Kd 80/PID_dT
-#define DEFAULT_Kc 0
-#endif // PIDTEMP
+  /// PID settings:
+  // Uncomment the following line to enable PID support.
+  //#define SMOOTHING
+  //#define SMOOTHFACTOR 5.0
+  //float current_raw_average=0;
+    #define K1 0.95 //smoothing of the PID
+  //#define PID_DEBUG // Sends debug data to the serial port. 
+  //#define PID_OPENLOOP 1 // Puts PID in open loop. M104 sets the output power in %
+  #define PID_MAX 255 // limits current to nozzle
+  #define PID_INTEGRAL_DRIVE_MAX 255
+  #define PID_dT 0.1
+ //machine with red silicon: 1950:45 second ; with fan fully blowin 3000:47
 
+  #define PID_CRITIAL_GAIN 3000
+  #define PID_SWING_AT_CRITIAL 45 //seconds
+  #define PIDIADD 5
+  /*
+  //PID according to Ziegler-Nichols method
+  float Kp = 0.6*PID_CRITIAL_GAIN; 
+  float Ki =PIDIADD+2*Kp/PID_SWING_AT_CRITIAL*PID_dT;  
+  float Kd = Kp*PID_SWING_AT_CRITIAL/8./PID_dT;  
+  */
+  //PI according to Ziegler-Nichols method
+  #define  DEFAULT_Kp (PID_CRITIAL_GAIN/2.2) 
+  #define  DEFAULT_Ki (1.2*Kp/PID_SWING_AT_CRITIAL*PID_dT)
+  #define  DEFAULT_Kd (0)
+  
+  #define PID_ADD_EXTRUSION_RATE  
+  #ifdef PID_ADD_EXTRUSION_RATE
+    #define  DEFAULT_Kc (5) //heatingpower=Kc*(e_speed)
+  #endif
+#endif // PIDTEMP
 
 // extruder advance constant (s2/mm3)
 //
@@ -208,6 +233,7 @@ const int dropsegments=5; //everything with this number of steps  will be ignore
 
 #endif // ADVANCE
 
+// THE BLOCK_BUFFER_SIZE NEEDS TO BE A POWER OF 2, e.g. 8,16,32 
 #if defined SDSUPPORT
 // The number of linear motions that can be in the plan at any give time.  
   #define BLOCK_BUFFER_SIZE 16   // SD,LCD,Buttons take more memory, block buffer needs to be smaller
@@ -215,8 +241,5 @@ const int dropsegments=5; //everything with this number of steps  will be ignore
   #define BLOCK_BUFFER_SIZE 16 // maximize block buffer
 #endif
 
-#ifdef SIMPLE_LCD
-  #define BLOCK_BUFFER_SIZE 16 // A little less buffer for just a simple LCD
-#endif
 
 #endif

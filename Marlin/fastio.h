@@ -24,12 +24,12 @@
 */
 
 /// Read a pin
-#define		_READ(IO)					((bool)(DIO ## IO ## _RPORT & MASK(DIO ## IO ## _PIN)))
+#define         _READ(IO)                                       ((bool)(DIO ## IO ## _RPORT & MASK(DIO ## IO ## _PIN)))
 /// write to a pin
-#define		_WRITE(IO, v)			do { if (v) {DIO ##  IO ## _WPORT |= MASK(DIO ## IO ## _PIN); } else {DIO ##  IO ## _WPORT &= ~MASK(DIO ## IO ## _PIN); }; } while (0)
-//#define		_WRITE(IO, v)	do { #if (DIO ##  IO ## _WPORT >= 0x100) CRITICAL_SECTION_START; if (v) {DIO ##  IO ## _WPORT |= MASK(DIO ## IO ## _PIN); } else {DIO ##  IO ## _WPORT &= ~MASK(DIO ## IO ## _PIN); };#if (DIO ##  IO ## _WPORT >= 0x100) CRITICAL_SECTION_END; } while (0)
+#define         _WRITE(IO, v)                   do { if (v) {DIO ##  IO ## _WPORT |= MASK(DIO ## IO ## _PIN); } else {DIO ##  IO ## _WPORT &= ~MASK(DIO ## IO ## _PIN); }; } while (0)
+//#define               _WRITE(IO, v)   do { #if (DIO ##  IO ## _WPORT >= 0x100) CRITICAL_SECTION_START; if (v) {DIO ##  IO ## _WPORT |= MASK(DIO ## IO ## _PIN); } else {DIO ##  IO ## _WPORT &= ~MASK(DIO ## IO ## _PIN); };#if (DIO ##  IO ## _WPORT >= 0x100) CRITICAL_SECTION_END; } while (0)
 /// toggle a pin
-#define		_TOGGLE(IO)				do {DIO ##  IO ## _RPORT = MASK(DIO ## IO ## _PIN); } while (0)
+#define         _TOGGLE(IO)                             do {DIO ##  IO ## _RPORT = MASK(DIO ## IO ## _PIN); } while (0)
 
 /// set pin as input
 #define		_SET_INPUT(IO)		do {DIO ##  IO ## _DDR &= ~MASK(DIO ## IO ## _PIN); } while (0)

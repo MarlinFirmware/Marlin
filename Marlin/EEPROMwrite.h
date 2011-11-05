@@ -1,13 +1,17 @@
-
+#ifndef __EEPROMH
+#define __EEPROMH
 #include "planner.h"
 #include "temperature.h"
+#include <EEPROM.h>
+#include "Marlin.h"
+#include "streaming.h"
 
 //======================================================================================
 template <class T> int EEPROM_writeAnything(int &ee, const T& value)
 {
     const byte* p = (const byte*)(const void*)&value;
     int i;
-    for (i = 0; i < sizeof(value); i++)
+    for (i = 0; i < (int)sizeof(value); i++)
 	  EEPROM.write(ee++, *p++);
     return i;
 }
@@ -16,7 +20,7 @@ template <class T> int EEPROM_readAnything(int &ee, T& value)
 {
     byte* p = (byte*)(void*)&value;
     int i;
-    for (i = 0; i < sizeof(value); i++)
+    for (i = 0; i < (int)sizeof(value); i++)
 	  *p++ = EEPROM.read(ee++);
     return i;
 }
@@ -119,5 +123,7 @@ void RetrieveSettings(bool def=false){  // if def=true, the default values will 
 #endif
   
 }  
+
+#endif
 
 

@@ -381,13 +381,6 @@ void check_axes_activity() {
 // calculation the caller must also provide the physical length of the line in millimeters.
 void plan_buffer_line(float x, float y, float z, float e, float feed_rate) {
 
-  // The target position of the tool in absolute steps
-  // Calculate target position in absolute steps
-  long target[4];
-  target[X_AXIS] = lround(x*axis_steps_per_unit[X_AXIS]);
-  target[Y_AXIS] = lround(y*axis_steps_per_unit[Y_AXIS]);
-  target[Z_AXIS] = lround(z*axis_steps_per_unit[Z_AXIS]);     
-  target[E_AXIS] = lround(e*axis_steps_per_unit[E_AXIS]);     
 
   // Calculate the buffer head after we push this byte
   int next_buffer_head = (block_buffer_head + 1) & (BLOCK_BUFFER_SIZE - 1);
@@ -400,6 +393,15 @@ void plan_buffer_line(float x, float y, float z, float e, float feed_rate) {
     LCD_STATUS;
   }
 
+  // The target position of the tool in absolute steps
+  // Calculate target position in absolute steps
+  //this should be done after the wait, because otherwise a M92 code within the gcode disrupts this calculation somehow
+  long target[4];
+  target[X_AXIS] = lround(x*axis_steps_per_unit[X_AXIS]);
+  target[Y_AXIS] = lround(y*axis_steps_per_unit[Y_AXIS]);
+  target[Z_AXIS] = lround(z*axis_steps_per_unit[Z_AXIS]);     
+  target[E_AXIS] = lround(e*axis_steps_per_unit[E_AXIS]); 
+  
   // Prepare to set up new block
   block_t *block = &block_buffer[block_buffer_head];
   
@@ -433,7 +435,7 @@ void plan_buffer_line(float x, float y, float z, float e, float feed_rate) {
   unsigned long microseconds;
 
   if (block->steps_e == 0) {
-	if(feed_rate<mintravelfeedrate) feed_rate=mintravelfeedrate;
+        if(feed_rate<mintravelfeedrate) feed_rate=mintravelfeedrate;
   }
   else {
     	if(feed_rate<minimumfeedrate) feed_rate=minimumfeedrate;

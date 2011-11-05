@@ -1,11 +1,14 @@
-This RepRap firmware is a mashup between Sprinter, grbl and many original parts.
- (https://github.com/kliment/Sprinter)
- (https://github.com/simen/grbl/tree)
+WARNING: THIS IN A PROCESS OF HEAVY OVERWORKING.
+DO NOT USE THIS ON YOUR MACHINE UNTIL FURTHER NOTICE!!!
+
+===========================================
+
+This RepRap firmware is a mashup between <a href="https://github.com/kliment/Sprinter">Sprinter</a>, <a href="https://github.com/simen/grbl/tree">grbl</a> and many original parts.
 
 Derived from Sprinter and Grbl by Erik van der Zalm.
 Sprinters lead developers are Kliment and caru.
 Grbls lead developer is Simen Svale Skogsrud.
-It has been adapted to the Ultimaker Printer by:
+Some features have been added by and configuration has been added by:
 Bernhard Kubicek, Matthijs Keuper, Bradley Feldman, and others...
 
 
@@ -61,4 +64,6 @@ Press the Connect button.
 KNOWN ISSUES: RepG will display:  Unknown: marlin x.y.z
 
 That's ok.  Enjoy Silky Smooth Printing.
+
+
 
