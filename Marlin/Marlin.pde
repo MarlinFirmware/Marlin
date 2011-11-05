@@ -69,7 +69,6 @@ char version_string[] = "1.0.0 Alpha 1";
 // M114 - Display current position
 
 //Custom M Codes
-// M80  - Turn on Power Supply
 // M20  - List SD card
 // M21  - Init SD card
 // M22  - Release SD card
@@ -80,6 +79,8 @@ char version_string[] = "1.0.0 Alpha 1";
 // M27  - Report SD print status
 // M28  - Start SD write (M28 filename.g)
 // M29  - Stop SD write
+// M42  - Change pin status via gcode
+// M80  - Turn on Power Supply
 // M81  - Turn off Power Supply
 // M82  - Set E codes absolute (default)
 // M83  - Set E codes relative while in Absolute Coordinates (G90) mode
@@ -141,6 +142,8 @@ char *strchr_pointer; // just a pointer to find chars in the cmd string like X, 
 extern float HeaterPower;
 
 #include "EEPROM.h"
+
+const int sensitive_pins[] = SENSITIVE_PINS; // Sensitive pin list for M42
 
 float tt = 0, bt = 0;
 #ifdef WATCHPERIOD
@@ -772,6 +775,31 @@ inline void process_commands()
 		}
 				break;
 #endif //SDSUPPORT
+      case 42: //M42 -Change pin status via gcode
+        if (code_seen('S'))
+        {
+          int pin_status = code_value();
+          if (code_seen('P') && pin_status >= 0 && pin_status <= 255)
+          {
+            int pin_number = code_value();
+            for(int i = 0; i < sizeof(sensitive_pins); i++)
+            {
+              if (sensitive_pins[i] == pin_number)
+              {
+                pin_number = -1;
+                break;
+              }
+            }
+            
+            if (pin_number > -1)
+            {              
+              pinMode(pin_number, OUTPUT);
+              digitalWrite(pin_number, pin_status);
+              analogWrite(pin_number, pin_status);
+            }
+          }
+        }
+        break;
       case 104: // M104
                 if (code_seen('S')) target_raw[0] = temp2analog(code_value());
 #ifdef PIDTEMP
@@ -906,6 +934,14 @@ inline void process_commands()
       case 107: //M107 Fan Off
         WRITE(FAN_PIN,LOW);
         analogWrite(FAN_PIN, 0);
+        break;
+#endif
+#if (PS_ON_PIN > -1)
+      case 80: // M80 - ATX Power On
+        SET_OUTPUT(PS_ON_PIN); //GND
+        break;
+      case 81: // M81 - ATX Power Off
+        SET_INPUT(PS_ON_PIN); //Floating
         break;
 #endif
     case 82:
