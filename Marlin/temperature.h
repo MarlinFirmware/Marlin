@@ -25,116 +25,14 @@
 #ifdef PID_ADD_EXTRUSION_RATE
   #include "stepper.h"
 #endif
-
-enum TempSensor {TEMPSENSOR_HOTEND=0,TEMPSENSOR_BED=1, TEMPSENSOR_AUX=2};
-
-// ther must be only one instance of this class, and it is created in temperature.cpp by itself and is called "htr".
-// all the variables are static, so that of the compiler optimization is more easy.
-// I honestly hope that this increases readability and structure.
-// none of the variables or routines should be called from an secondary process/interrupt with the exceptino of current_raw[].
-
-class Heater
-{
-public:
-  Heater(); //treplaces tp_init();
-  ~Heater(); 
-  
-  void static manage_heater(); /// it is critical that this is called continously. 
-  
-  // conversion routines, const since they don't change any class variables.
-  float const static temp2analog(const int celsius);
-  float const static temp2analogBed(const int celsius);
-  float const static analog2temp(const int raw);
-  float const static analog2tempBed(const int raw);
-  
-  inline float const static celsius(const TempSensor s) 
-    {
-      if(s==TEMPSENSOR_BED) 
-	return analog2tempBed(Heater::current_raw[s]); 
-      else 
-	return analog2temp(Heater::current_raw[s]);
-    };
-  inline float const static celsiusTarget(const TempSensor s) 
-    {
-      if(s==TEMPSENSOR_BED) 
-	return analog2tempBed(Heater::target_raw[s]); 
-      else 
-	return analog2temp(Heater::target_raw[s]);
-    };
-  inline float static setCelsius(const TempSensor s, const int celsius) 
-    {
-      #ifdef PIDTEMP
-	if(s==TEMPSENSOR_HOTEND)
-            Heater::pid_setpoint = celsius;
-      #endif //PIDTEM
-      if(s==TEMPSENSOR_BED) 
-	Heater::target_raw[s] = temp2analog(celsius); 
-      else 
-	Heater::target_raw[s] = temp2analogBed(celsius); 
-    };
-
-   inline bool const static isHeating(TempSensor s)
-   { return (Heater::target_raw[s]>Heater::current_raw[s]);};
-   inline bool const static isCooling(TempSensor s)
-   { return (Heater::target_raw[s]<Heater::current_raw[s]);};
-
-public:
-  #ifdef PIDTEMP
-    static float Kp;
-    static float Ki;
-    static float Kd;
-    static float Kc;
-  #endif
-  
-  static int target_raw[3];
-  static float pid_setpoint;
-  
-  volatile static int current_raw[3]; //this are written by an ISR, so volatile.
-  volatile static bool temp_meas_ready ; //also this is set by the ISR
-  
-  
-private:
- 
-  
-
-  static unsigned long previous_millis_heater, previous_millis_bed_heater;
-
-  #ifdef PIDTEMP
-    static float temp_iState;
-    static float temp_dState;
-    static float pTerm;
-    static float iTerm;
-    static float dTerm;
-	//int output;
-    static float pid_error;
-    static float temp_iState_min;
-    static float temp_iState_max;
-    static float pid_input;
-    static float pid_output;
-    
-    static bool pid_reset;
-    static float HeaterPower;
-    
-  #endif //PIDTEMP
-
-public: //but only accesed from the ISR hence not volatile
-   #ifdef MINTEMP
-  static int minttemp;
-  #endif //MINTEMP
-  #ifdef MAXTEMP
-  static int maxttemp;
-  #endif //MAXTEMP
-
-  #ifdef BED_MINTEMP
-  static int bed_minttemp ;
-  #endif //BED_MINTEMP
-  #ifdef BED_MAXTEMP
-  static int bed_maxttemp;
-  #endif //BED_MAXTEMP
-  
-};
-
-extern Heater htr; //this creates the single, global instance 
+void tp_init();
+void manage_heater();
+//int temp2analogu(int celsius, const short table[][2], int numtemps);
+//float analog2tempu(int raw, const short table[][2], int numtemps);
+float temp2analog(int celsius);
+float temp2analogBed(int celsius);
+float analog2temp(int raw);
+float analog2tempBed(int raw);
 
 #ifdef HEATER_USES_THERMISTOR
     #define HEATERSOURCE 1
@@ -143,5 +41,18 @@ extern Heater htr; //this creates the single, global instance
     #define BEDSOURCE 1
 #endif
 
+//#define temp2analogh( c ) temp2analogu((c),temptable,NUMTEMPS)
+//#define analog2temp( c ) analog2tempu((c),temptable,NUMTEMPS
+
+
+extern float Kp;
+extern float Ki;
+extern float Kd;
+extern float Kc;
+
+enum {TEMPSENSOR_HOTEND=0,TEMPSENSOR_BED=1, TEMPSENSOR_AUX=2};
+extern int target_raw[3];
+extern int current_raw[3];
+extern double pid_setpoint;
 
 #endif

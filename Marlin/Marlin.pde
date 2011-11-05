@@ -40,7 +40,6 @@
   #include "Simplelcd.h"
 #endif
 
-Heater htr;
 char version_string[] = "1.0.0 Alpha 1";
 
 #ifdef SDSUPPORT
@@ -264,7 +263,7 @@ void setup()
 #endif //SDSUPPORT
   plan_init();  // Initialize planner;
   st_init();    // Initialize stepper;
-  //tp_init();    // Initialize temperature loop is now done by the constructor of the Heater class
+  tp_init();    // Initialize temperature loop
 	//checkautostart();
 }
 
@@ -368,7 +367,7 @@ void loop()
     bufindr = (bufindr + 1)%BUFSIZE;
   }
   //check heater every n milliseconds
-  Heater::manage_heater();
+  manage_heater();
   manage_inactivity(1);
   LCD_STATUS;
 }
@@ -548,7 +547,7 @@ inline void process_commands()
       if(code_seen('S')) codenum = code_value() * 1000; // seconds to wait
       codenum += millis();  // keep track of when we started waiting
       while(millis()  < codenum ){
-        Heater::manage_heater();
+        manage_heater();
       }
       break;
     case 28: //G28 Home all Axis one at a time
@@ -802,9 +801,12 @@ inline void process_commands()
         }
         break;
       case 104: // M104
-        if (code_seen('S')) Heater::setCelsius(TEMPSENSOR_HOTEND,code_value());
+                if (code_seen('S')) target_raw[TEMPSENSOR_HOTEND] = temp2analog(code_value());
+#ifdef PIDTEMP
+                pid_setpoint = code_value();
+#endif //PIDTEM
         #ifdef WATCHPERIOD
-            if(Heater::isHeating(TEMPSENSOR_HOTEND)){
+            if(target_raw[TEMPSENSOR_HOTEND] > current_raw[TEMPSENSOR_HOTEND]){
                 watchmillis = max(1,millis());
                 watch_raw[TEMPSENSOR_HOTEND] = current_raw[TEMPSENSOR_HOTEND];
             }else{
@@ -813,14 +815,14 @@ inline void process_commands()
         #endif
         break;
       case 140: // M140 set bed temp
-                if (code_seen('S')) Heater::setCelsius(TEMPSENSOR_BED,code_value());
+                if (code_seen('S')) target_raw[TEMPSENSOR_BED] = temp2analogBed(code_value());
         break;
       case 105: // M105
         #if (TEMP_0_PIN > -1) || defined (HEATER_USES_AD595)
-                tt = Heater::celsius(TEMPSENSOR_HOTEND);
+                tt = analog2temp(current_raw[TEMPSENSOR_HOTEND]);
         #endif
         #if TEMP_1_PIN > -1
-                bt = Heater::celsius(TEMPSENSOR_BED);
+                bt = analog2tempBed(current_raw[TEMPSENSOR_BED]);
         #endif
         #if (TEMP_0_PIN > -1) || defined (HEATER_USES_AD595)
             Serial.print("ok T:");
@@ -831,14 +833,14 @@ inline void process_commands()
 #ifdef PIDTEMP
             Serial.print(" B:");
             #if TEMP_1_PIN > -1
-	      Serial.println(bt); 
+            Serial.println(bt); 
             #else
-	      Serial.println(Heater::HeaterPower); 
+            Serial.println(HeaterPower); 
             #endif
 #else
             Serial.println();
 #endif
-          #else<
+          #else
             Serial.println();
           #endif
         #else
@@ -848,12 +850,14 @@ inline void process_commands()
         //break;
       case 109: {// M109 - Wait for extruder heater to reach target.
             LCD_MESSAGE("Heating...");
-               if (code_seen('S')) Heater::setCelsius(TEMPSENSOR_HOTEND,code_value());
-            
+               if (code_seen('S')) target_raw[TEMPSENSOR_HOTEND] = temp2analog(code_value());
+            #ifdef PIDTEMP
+            pid_setpoint = code_value();
+            #endif //PIDTEM
             #ifdef WATCHPERIOD
-          if(Heater::isHeating(TEMPSENSOR_HOTEND)){
+          if(target_raw[TEMPSENSOR_HOTEND]>current_raw[TEMPSENSOR_HOTEND]){
               watchmillis = max(1,millis());
-              watch_raw[TEMPSENSOR_HOTEND] = Heater::current_raw[TEMPSENSOR_HOTEND];
+              watch_raw[TEMPSENSOR_HOTEND] = current_raw[TEMPSENSOR_HOTEND];
             } else {
               watchmillis = 0;
             }
@@ -861,31 +865,31 @@ inline void process_commands()
             codenum = millis(); 
      
                /* See if we are heating up or cooling down */
-              bool target_direction = Heater::isHeating(TEMPSENSOR_HOTEND); // true if heating, false if cooling
+              bool target_direction = (current_raw[0] < target_raw[0]); // true if heating, false if cooling
 
             #ifdef TEMP_RESIDENCY_TIME
             long residencyStart;
             residencyStart = -1;
             /* continue to loop until we have reached the target temp   
               _and_ until TEMP_RESIDENCY_TIME hasn't passed since we reached it */
-            while((target_direction ? Heater::isHeating(TEMPSENSOR_HOTEND) : Heater::isCooling(TEMPSENSOR_HOTEND)) ||
+            while((target_direction ? (current_raw[0] < target_raw[0]) : (current_raw[0] > target_raw[0])) ||
                     (residencyStart > -1 && (millis() - residencyStart) < TEMP_RESIDENCY_TIME*1000) ) {
             #else
-            while ( target_direction ? Heater::isHeating(TEMPSENSOR_HOTEND) : Heater::isCooling(TEMPSENSOR_HOTEND) ) {
+            while ( target_direction ? (current_raw[0] < target_raw[0]) : (current_raw[0] > target_raw[0]) ) {
             #endif //TEMP_RESIDENCY_TIME
               if( (millis() - codenum) > 1000 ) { //Print Temp Reading every 1 second while heating up/cooling down
                 Serial.print("T:");
-              Serial.println( Heater::celsius(TEMPSENSOR_HOTEND) ); 
+              Serial.println( analog2temp(current_raw[TEMPSENSOR_HOTEND]) ); 
                 codenum = millis();
               }
-              Heater::manage_heater();
+              manage_heater();
               LCD_STATUS;
               #ifdef TEMP_RESIDENCY_TIME
                /* start/restart the TEMP_RESIDENCY_TIME timer whenever we reach target temp for the first time
                   or when current temp falls outside the hysteresis after target temp was reached */
-              if ((residencyStart == -1 &&  target_direction && !Heater::isHeating(TEMPSENSOR_HOTEND)) ||
-                  (residencyStart == -1 && !target_direction && !Heater::isCooling(TEMPSENSOR_HOTEND)) ||
-                  (residencyStart > -1 && labs(Heater::celsius(TEMPSENSOR_HOTEND) - Heater::celsiusTarget(TEMPSENSOR_HOTEND)) > TEMP_HYSTERESIS) ) {
+              if ((residencyStart == -1 &&  target_direction && current_raw[0] >= target_raw[0]) ||
+                  (residencyStart == -1 && !target_direction && current_raw[0] <= target_raw[0]) ||
+                  (residencyStart > -1 && labs(analog2temp(current_raw[0]) - analog2temp(target_raw[0])) > TEMP_HYSTERESIS) ) {
                 residencyStart = millis();
               }
               #endif //TEMP_RESIDENCY_TIME
@@ -895,22 +899,22 @@ inline void process_commands()
           break;
       case 190: // M190 - Wait bed for heater to reach target.
       #if TEMP_1_PIN > -1
-          if (code_seen('S')) Heater::setCelsius(TEMPSENSOR_BED,code_value());
+          if (code_seen('S')) target_raw[TEMPSENSOR_BED] = temp2analog(code_value());
         codenum = millis(); 
-          while(Heater::isHeating(TEMPSENSOR_BED)) 
-          {
+          while(current_raw[TEMPSENSOR_BED] < target_raw[TEMPSENSOR_BED]) 
+                                {
           if( (millis()-codenum) > 1000 ) //Print Temp Reading every 1 second while heating up.
           {
-            float tt=Heater::celsius(TEMPSENSOR_HOTEND);
+            float tt=analog2temp(current_raw[TEMPSENSOR_HOTEND]);
             Serial.print("T:");
             Serial.println( tt );
             Serial.print("ok T:");
             Serial.print( tt ); 
             Serial.print(" B:");
-            Serial.println( Heater::celsius(TEMPSENSOR_BED) ); 
+            Serial.println( analog2temp(current_raw[TEMPSENSOR_BED]) ); 
             codenum = millis(); 
           }
-            Heater::manage_heater();
+            manage_heater();
         }
       #endif
       break;
@@ -1062,13 +1066,9 @@ inline void process_commands()
       break;
 #ifdef PIDTEMP
     case 301: // M301
-      if(code_seen('P')) Heater::Kp = code_value();
-      if(code_seen('I')) Heater::Ki = code_value()*PID_dT;
-      if(code_seen('D')) Heater::Kd = code_value()/PID_dT;
-      #ifdef PID_ADD_EXTRUSION_RATE
-	 if(code_seen('C')) Heater::Kc = code_value();
-      #endif
-
+      if(code_seen('P')) Kp = code_value();
+      if(code_seen('I')) Ki = code_value()*PID_dT;
+      if(code_seen('D')) Kd = code_value()/PID_dT;
 //      ECHOLN("Kp "<<_FLOAT(Kp,2));
 //      ECHOLN("Ki "<<_FLOAT(Ki/PID_dT,2));
 //      ECHOLN("Kd "<<_FLOAT(Kd*PID_dT,2));
@@ -1194,19 +1194,19 @@ void wd_reset() {
 inline void kill()
 {
   #if TEMP_0_PIN > -1
-  Heater::setCelsius(TEMPSENSOR_HOTEND,0);
+  target_raw[0]=0;
    #if HEATER_0_PIN > -1  
      WRITE(HEATER_0_PIN,LOW);
    #endif
   #endif
   #if TEMP_1_PIN > -1
-  Heater::setCelsius(TEMPSENSOR_BED,0);
+  target_raw[1]=0;
   #if HEATER_1_PIN > -1 
     WRITE(HEATER_1_PIN,LOW);
   #endif
   #endif
   #if TEMP_2_PIN > -1
-  Heater::setCelsius(TEMPSENSOR_AUX,0);
+  target_raw[2]=0;
   #if HEATER_2_PIN > -1  
     WRITE(HEATER_2_PIN,LOW);
   #endif

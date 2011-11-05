@@ -10,7 +10,6 @@
 #define ECHO(x) Serial << "echo: " << x;
 #define ECHOLN(x) Serial << "echo: "<<x<<endl;
 
-
 void get_command();
 void process_commands();
 

@@ -37,11 +37,52 @@
 #include "streaming.h"
 #include "temperature.h"
 
+int target_bed_raw = 0;
+int current_bed_raw = 0;
 
+int target_raw[3] = {0, 0, 0};
+int current_raw[3] = {0, 0, 0};
+unsigned char temp_meas_ready = false;
 
+unsigned long previous_millis_heater, previous_millis_bed_heater;
 
+#ifdef PIDTEMP
+  double temp_iState = 0;
+  double temp_dState = 0;
+  double pTerm;
+  double iTerm;
+  double dTerm;
+      //int output;
+  double pid_error;
+  double temp_iState_min;
+  double temp_iState_max;
+  double pid_setpoint = 0.0;
+  double pid_input;
+  double pid_output;
+  bool pid_reset;
+  float HeaterPower;
+  
+  float Kp=DEFAULT_Kp;
+  float Ki=DEFAULT_Ki;
+  float Kd=DEFAULT_Kd;
+  float Kc=DEFAULT_Kc;
+#endif //PIDTEMP
 
-void static Heater::manage_heater()
+#ifdef MINTEMP
+int minttemp = temp2analog(MINTEMP);
+#endif //MINTEMP
+#ifdef MAXTEMP
+int maxttemp = temp2analog(MAXTEMP);
+#endif //MAXTEMP
+
+#ifdef BED_MINTEMP
+int bed_minttemp = temp2analog(BED_MINTEMP);
+#endif //BED_MINTEMP
+#ifdef BED_MAXTEMP
+int bed_maxttemp = temp2analog(BED_MAXTEMP);
+#endif //BED_MAXTEMP
+
+void manage_heater()
 {
 #ifdef USE_WATCHDOG
   wd_reset();
@@ -49,11 +90,11 @@ void static Heater::manage_heater()
   
   float pid_input;
   float pid_output;
-  if(htr.temp_meas_ready != true)   //better readability
+  if(temp_meas_ready != true)   //better readability
     return; 
 
 CRITICAL_SECTION_START;
-    htr.temp_meas_ready = false;
+    temp_meas_ready = false;
 CRITICAL_SECTION_END;
 
 #ifdef PIDTEMP
@@ -135,8 +176,7 @@ CRITICAL_SECTION_END;
 // For a thermistor, it uses the RepRap thermistor temp table.
 // This is needed because PID in hydra firmware hovers around a given analog value, not a temp value.
 // This function is derived from inversing the logic from a portion of getTemperature() in FiveD RepRap firmware.
-float const static temp2analog(const int celsius)
-{
+float temp2analog(int celsius) {
   #ifdef HEATER_USES_THERMISTOR_1
     int raw = 0;
     byte i;
@@ -167,8 +207,7 @@ float const static temp2analog(const int celsius)
 // For a thermistor, it uses the RepRap thermistor temp table.
 // This is needed because PID in hydra firmware hovers around a given analog value, not a temp value.
 // This function is derived from inversing the logic from a portion of getTemperature() in FiveD RepRap firmware.
-float const static temp2analogBed(const int celsius)
-{
+float temp2analogBed(int celsius) {
   #ifdef BED_USES_THERMISTOR
 
     int raw = 0;
@@ -198,7 +237,7 @@ float const static temp2analogBed(const int celsius)
 
 // Derived from RepRap FiveD extruder::getTemperature()
 // For hot end temperature measurement.
-float const static Heater::analog2temp(const int raw) {
+float analog2temp(int raw) {
   #ifdef HEATER_1_USES_THERMISTOR
     int celsius = 0;
     byte i;  
@@ -227,7 +266,7 @@ float const static Heater::analog2temp(const int raw) {
 
 // Derived from RepRap FiveD extruder::getTemperature()
 // For bed temperature measurement.
-float const static Heater::analog2tempBed(const int raw) {
+float analog2tempBed(int raw) {
   #ifdef BED_USES_THERMISTOR
     int celsius = 0;
     byte i;
@@ -257,28 +296,8 @@ float const static Heater::analog2tempBed(const int raw) {
   #endif
 }
 
-Heater::Heater()
+void tp_init()
 {
-  for(short i=0;i<3;i++)
-  {
-    target_raw[i]=0;
-    current_raw[i] =0;
-  }
-  htr.temp_meas_ready = false;
-  #ifdef MINTEMP
-  minttemp = temp2analog(MINTEMP);
-  #endif //MINTEMP
-  #ifdef MAXTEMP
-  maxttemp = temp2analog(MAXTEMP);
-  #endif //MAXTEMP
-
-  #ifdef BED_MINTEMP
-  bed_minttemp = temp2analog(BED_MINTEMP);
-  #endif //BED_MINTEMP
-  #ifdef BED_MAXTEMP
-  bed_maxttemp = temp2analog(BED_MAXTEMP);
-  #endif //BED_MAXTEMP
-  
 #if (HEATER_0_PIN > -1) 
   SET_OUTPUT(HEATER_0_PIN);
 #endif  
@@ -292,14 +311,6 @@ Heater::Heater()
 #ifdef PIDTEMP
   temp_iState_min = 0.0;
   temp_iState_max = PID_INTEGRAL_DRIVE_MAX / Ki;
-  temp_iState = 0;
-  temp_dState = 0;
-  Kp=DEFAULT_Kp;
-  Ki=DEFAULT_Ki;
-  Kd=DEFAULT_Kd;
-  Kc=DEFAULT_Kc;
-  pid_setpoint = 0.0;
-
 #endif //PIDTEMP
 
 // Set analog inputs
@@ -396,39 +407,39 @@ ISR(TIMER0_COMPB_vect)
   if(temp_count >= 16) // 6 ms * 16 = 96ms.
   {
     #ifdef HEATER_1_USES_AD595
-      htr.current_raw[0] = raw_temp_0_value;
+      current_raw[0] = raw_temp_0_value;
     #else
-      htr.current_raw[0] = 16383 - raw_temp_0_value;
+      current_raw[0] = 16383 - raw_temp_0_value;
     #endif
     
     #ifdef HEATER_2_USES_AD595
-      htr.current_raw[2] = raw_temp_2_value;
+      current_raw[2] = raw_temp_2_value;
     #else
-      htr.current_raw[2] = 16383 - raw_temp_2_value;
+      current_raw[2] = 16383 - raw_temp_2_value;
     #endif
     
     #ifdef BED_USES_AD595
-      htr.current_raw[1] = raw_temp_1_value;
+      current_raw[1] = raw_temp_1_value;
     #else
-      htr.current_raw[1] = 16383 - raw_temp_1_value;
+      current_raw[1] = 16383 - raw_temp_1_value;
     #endif
     
-   htr.temp_meas_ready = true;
+    temp_meas_ready = true;
     temp_count = 0;
     raw_temp_0_value = 0;
     raw_temp_1_value = 0;
     raw_temp_2_value = 0;
 #ifdef MAXTEMP
   #if (HEATER_0_PIN > -1)
-    if(htr.current_raw[TEMPSENSOR_HOTEND] >= htr.maxttemp) {
-      htr.target_raw[TEMPSENSOR_HOTEND] = 0;
+    if(current_raw[TEMPSENSOR_HOTEND] >= maxttemp) {
+      target_raw[TEMPSENSOR_HOTEND] = 0;
       analogWrite(HEATER_0_PIN, 0);
       Serial.println("!! Temperature extruder 0 switched off. MAXTEMP triggered !!");
     }
   #endif
   #if (HEATER_2_PIN > -1)
-    if(htr.current_raw[TEMPSENSOR_AUX] >= htr.maxttemp) {
-      htr.target_raw[TEMPSENSOR_AUX] = 0;
+    if(current_raw[TEMPSENSOR_AUX] >= maxttemp) {
+      target_raw[TEMPSENSOR_AUX] = 0;
       analogWrite(HEATER_2_PIN, 0);
       Serial.println("!! Temperature extruder 1 switched off. MAXTEMP triggered !!");
     }
@@ -436,15 +447,15 @@ ISR(TIMER0_COMPB_vect)
 #endif //MAXTEMP
 #ifdef MINTEMP
   #if (HEATER_0_PIN > -1)
-    if(htr.current_raw[TEMPSENSOR_HOTEND] <= htr.minttemp) {
-      htr.target_raw[TEMPSENSOR_HOTEND] = 0;
+    if(current_raw[TEMPSENSOR_HOTEND] <= minttemp) {
+      target_raw[TEMPSENSOR_HOTEND] = 0;
       analogWrite(HEATER_0_PIN, 0);
       Serial.println("!! Temperature extruder 0 switched off. MINTEMP triggered !!");
     }
   #endif
   #if (HEATER_2_PIN > -1)
-    if(htr.current_raw[TEMPSENSOR_AUX] <= htr.minttemp) {
-      htr.target_raw[TEMPSENSOR_AUX] = 0;
+    if(current_raw[TEMPSENSOR_AUX] <= minttemp) {
+      target_raw[TEMPSENSOR_AUX] = 0;
       analogWrite(HEATER_2_PIN, 0);
       Serial.println("!! Temperature extruder 1 switched off. MINTEMP triggered !!");
     }
@@ -452,8 +463,8 @@ ISR(TIMER0_COMPB_vect)
 #endif //MAXTEMP
 #ifdef BED_MINTEMP
   #if (HEATER_1_PIN > -1)
-    if(htr.current_raw[1] <= htr.bed_minttemp) {
-      htr.target_raw[1] = 0;
+    if(current_raw[1] <= bed_minttemp) {
+      target_raw[1] = 0;
       WRITE(HEATER_1_PIN, 0);
       Serial.println("!! Temperatur heated bed switched off. MINTEMP triggered !!");
     }
@@ -461,8 +472,8 @@ ISR(TIMER0_COMPB_vect)
 #endif
 #ifdef BED_MAXTEMP
   #if (HEATER_1_PIN > -1)
-    if(htr.current_raw[1] >= htr.bed_maxttemp) {
-      htr.target_raw[1] = 0;
+    if(current_raw[1] >= bed_maxttemp) {
+      target_raw[1] = 0;
       WRITE(HEATER_1_PIN, 0);
       Serial.println("!! Temperature heated bed switched off. MAXTEMP triggered !!");
     }
@@ -470,6 +481,3 @@ ISR(TIMER0_COMPB_vect)
 #endif
   }
 }
-
-//Heater htr;
-

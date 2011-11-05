@@ -1,5 +1,5 @@
 #include "ultralcd.h"
-#include "temperature.h"
+
 
 #ifdef ULTRA_LCD
 extern volatile int feedmultiply;
@@ -238,8 +238,8 @@ extern volatile bool feedmultiplychanged;
 void MainMenu::showStatus()
 { 
 #if LCD_HEIGHT==4
-  static int oldcurrent=-1;
-  static int oldtarget=-1;
+  static int oldcurrentraw=-1;
+  static int oldtargetraw=-1;
   //force_lcd_update=true;
   if(force_lcd_update||feedmultiplychanged)  //initial display of content
   {
@@ -252,36 +252,33 @@ void MainMenu::showStatus()
 #endif
   }
     
-  int tt=Heater::celsius(TEMPSENSOR_HOTEND);
-  if((abs(tt-oldcurrent)>1)||force_lcd_update)
+
+  if((abs(current_raw[TEMPSENSOR_HOTEND]-oldcurrentraw)>3)||force_lcd_update)
   {
     lcd.setCursor(1,0);
-    lcd.print(ftostr3(tt));
-    oldcurrent=tt;
+    lcd.print(ftostr3(analog2temp(current_raw[TEMPSENSOR_HOTEND])));
+    oldcurrentraw=current_raw[TEMPSENSOR_HOTEND];
   }
-  int ttg=Heater::celsiusTarget(TEMPSENSOR_HOTEND);
-  if((ttg!=oldtarget)||force_lcd_update)
+  if((target_raw[TEMPSENSOR_HOTEND]!=oldtargetraw)||force_lcd_update)
   {
     lcd.setCursor(5,0);
-    lcd.print(ftostr3(ttg));
-    oldtarget=ttg;
+    lcd.print(ftostr3(analog2temp(target_raw[TEMPSENSOR_HOTEND])));
+    oldtargetraw=target_raw[TEMPSENSOR_HOTEND];
   }
   #if defined BED_USES_THERMISTOR || defined BED_USES_AD595 
-  static int oldcurrentbed=-1;
-  static int oldtargetbed=-1;
-  int tb=Heater::celsius(TEMPSENSOR_BED);
-  if((tb!=oldcurrentbed)||force_lcd_update)
+  static int oldcurrentbedraw=-1;
+  static int oldtargetbedraw=-1; 
+  if((current_bed_raw!=oldcurrentbedraw)||force_lcd_update)
   {
     lcd.setCursor(1,0);
-    lcd.print(ftostr3(tb));
-    oldcurrentbed=tb;
+    lcd.print(ftostr3(analog2temp(current_bed_raw)));
+    oldcurrentraw=current_raw[TEMPSENSOR_BED];
   }
-  int tg=Heater::celsiusTarget(TEMPSENSOR_BED);
-  if((tg!=oldtargebed)||force_lcd_update)
+  if((target_bed_raw!=oldtargebedtraw)||force_lcd_update)
   {
     lcd.setCursor(5,0);
-    lcd.print(Heater::celsiusTarget(TEMPSENSOR_BED));
-    oldtargebed=tg;
+    lcd.print(ftostr3(analog2temp(target_bed_raw)));
+    oldtargetraw=target_bed_raw;
   }
   #endif
   //starttime=2;
@@ -330,8 +327,8 @@ void MainMenu::showStatus()
     messagetext[0]='\0';
   }
 #else //smaller LCDS----------------------------------
-  static int oldcurrent=-1;
-  static int oldtarget=-1;
+  static int oldcurrentraw=-1;
+  static int oldtargetraw=-1;
   if(force_lcd_update)  //initial display of content
   {
     encoderpos=feedmultiply;
@@ -341,19 +338,18 @@ void MainMenu::showStatus()
     #endif
   }
     
-  int tt=Heater::celsius(TEMPSENSOR_HOTEND);
-  if((abs(tt-oldcurrent)>1)||force_lcd_update)
+
+  if((abs(current_raw[TEMPSENSOR_HOTEND]-oldcurrentraw)>3)||force_lcd_update)
   {
     lcd.setCursor(1,0);
-    lcd.print(ftostr3(tt));
-    oldcurrent=tt;
+    lcd.print(ftostr3(analog2temp(current_raw[TEMPSENSOR_HOTEND])));
+    oldcurrentraw=current_raw[TEMPSENSOR_HOTEND];
   }
-  int ttg=Heater::celsiusTarget(TEMPSENSOR_HOTEND);
-  if((ttg!=oldtarget)||force_lcd_update)
+  if((target_raw[TEMPSENSOR_HOTEND]!=oldtargetraw)||force_lcd_update)
   {
     lcd.setCursor(5,0);
-    lcd.print(ftostr3(ttg));
-    oldtarge=ttg;
+    lcd.print(ftostr3(analog2temp(target_raw[TEMPSENSOR_HOTEND])));
+    oldtargetraw=target_raw[TEMPSENSOR_HOTEND];
   }
 
   if(messagetext[0]!='\0')
@@ -430,7 +426,7 @@ void MainMenu::showPrepare()
         if((activeline==line) && CLICKED)
         {
           BLOCK
-          Heater::setCelsius(TEMPSENSOR_HOTEND, 170);
+          target_raw[TEMPSENSOR_HOTEND] = temp2analog(170);
           beepshort();
         }
       }break;
@@ -535,7 +531,7 @@ void MainMenu::showControl()
         if(force_lcd_update)
         {
           lcd.setCursor(0,line);lcd.print(" \002Nozzle:");
-          lcd.setCursor(13,line);lcd.print(ftostr3(Heater::celsiusTarget(TEMPSENSOR_HOTEND)));
+          lcd.setCursor(13,line);lcd.print(ftostr3(analog2temp(target_raw[TEMPSENSOR_HOTEND])));
         }
         
         if((activeline==line) )
@@ -545,11 +541,11 @@ void MainMenu::showControl()
             linechanging=!linechanging;
             if(linechanging)
             {
-               encoderpos=(int)Heater::celsiusTarget(TEMPSENSOR_HOTEND);
+               encoderpos=(int)analog2temp(target_raw[TEMPSENSOR_HOTEND]);
             }
             else
             {
-              Heater::setCelsius(TEMPSENSOR_HOTEND,encoderpos);
+              target_raw[TEMPSENSOR_HOTEND] = temp2analog(encoderpos);
               encoderpos=activeline*lcdslow;
               beepshort();
             }
@@ -673,7 +669,7 @@ void MainMenu::showControl()
       if(force_lcd_update)
         {
           lcd.setCursor(0,line);lcd.print(" PID-P: ");
-          lcd.setCursor(13,line);lcd.print(itostr4(Heater::Kp));
+          lcd.setCursor(13,line);lcd.print(itostr4(Kp));
         }
         
         if((activeline==line) )
@@ -683,11 +679,11 @@ void MainMenu::showControl()
             linechanging=!linechanging;
             if(linechanging)
             {
-               encoderpos=(int)Heater::Kp/5;
+               encoderpos=(int)Kp/5;
             }
             else
             {
-              Heater::Kp= encoderpos*5;
+              Kp= encoderpos*5;
               encoderpos=activeline*lcdslow;
                 
             }
@@ -707,7 +703,7 @@ void MainMenu::showControl()
       if(force_lcd_update)
         {
           lcd.setCursor(0,line);lcd.print(" PID-I: ");
-          lcd.setCursor(13,line);lcd.print(ftostr51(Heater::Ki));
+          lcd.setCursor(13,line);lcd.print(ftostr51(Ki));
         }
         
         if((activeline==line) )
@@ -717,11 +713,11 @@ void MainMenu::showControl()
             linechanging=!linechanging;
             if(linechanging)
             {
-               encoderpos=(int)(Heater::Ki*10);
+               encoderpos=(int)(Ki*10);
             }
             else
             {
-              Heater::Ki= encoderpos/10.;
+              Ki= encoderpos/10.;
               encoderpos=activeline*lcdslow;
                 
             }
@@ -741,7 +737,7 @@ void MainMenu::showControl()
       if(force_lcd_update)
         {
           lcd.setCursor(0,line);lcd.print(" PID-D: ");
-          lcd.setCursor(13,line);lcd.print(itostr4(Heater::Kd));
+          lcd.setCursor(13,line);lcd.print(itostr4(Kd));
         }
         
         if((activeline==line) )
@@ -751,11 +747,11 @@ void MainMenu::showControl()
             linechanging=!linechanging;
             if(linechanging)
             {
-               encoderpos=(int)(Heater::Kd/5.);
+               encoderpos=(int)Kd/5;
             }
             else
             {
-              Heater::Kd= encoderpos*5;
+              Kd= encoderpos*5;
               encoderpos=activeline*lcdslow;
                 
             }
@@ -778,7 +774,7 @@ void MainMenu::showControl()
       if(force_lcd_update)
         {
           lcd.setCursor(0,line);lcd.print(" PID-C: ");
-          lcd.setCursor(13,line);lcd.print(itostr3(Heater::Kc));
+          lcd.setCursor(13,line);lcd.print(itostr3(Kc));
         }
         
         if((activeline==line) )
@@ -788,11 +784,11 @@ void MainMenu::showControl()
             linechanging=!linechanging;
             if(linechanging)
             {
-               encoderpos=(int)Heater::Kc;
+               encoderpos=(int)Kc;
             }
             else
             {
-              Heater::Kc= encoderpos;
+              Kc= encoderpos;
               encoderpos=activeline*lcdslow;
                 
             }

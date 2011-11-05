@@ -585,7 +585,7 @@ void st_init()
 void st_synchronize()
 {
   while(plan_get_current_block()) {
-    htr.manage_heater();
+    manage_heater();
     manage_inactivity(1);
     LCD_STATUS;
   }   
