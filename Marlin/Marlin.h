@@ -57,7 +57,7 @@ void ClearToSend();
 
 void get_coordinates();
 void prepare_move();
-void kill(byte debug);
+void kill();
 
 //void check_axes_activity();
 //void plan_init();
@@ -68,7 +68,7 @@ void kill(byte debug);
 //void st_wake_up();
 //void st_synchronize();
 void enquecommand(const char *cmd);
-void wd_reset();
+
 
 #ifndef CRITICAL_SECTION_START
 #define CRITICAL_SECTION_START  unsigned char _sreg = SREG; cli();
@@ -78,6 +78,5 @@ void wd_reset();
 extern float homing_feedrate[];
 extern bool axis_relative_modes[];
 
-void manage_inactivity(byte debug);
-
+void wd_reset() ;
 #endif

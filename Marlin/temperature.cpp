@@ -90,14 +90,15 @@ void manage_heater()
   
   float pid_input;
   float pid_output;
-  if(temp_meas_ready == true) {
+  if(temp_meas_ready != true)   //better readability
+    return; 
 
 CRITICAL_SECTION_START;
     temp_meas_ready = false;
 CRITICAL_SECTION_END;
 
 #ifdef PIDTEMP
-    pid_input = analog2temp(current_raw[0]);
+    pid_input = analog2temp(current_raw[TEMPSENSOR_HOTEND]);
 
 #ifndef PID_OPENLOOP
     pid_error = pid_setpoint - pid_input;
@@ -118,10 +119,13 @@ CRITICAL_SECTION_END;
       temp_iState += pid_error;
       temp_iState = constrain(temp_iState, temp_iState_min, temp_iState_max);
       iTerm = Ki * temp_iState;
-      #define K1 0.95
+      //K1 defined in Configuration.h in the PID settings
       #define K2 (1.0-K1)
       dTerm = (Kd * (pid_input - temp_dState))*K2 + (K1 * dTerm);
       temp_dState = pid_input;
+      #ifdef PID_ADD_EXTRUSION_RATE
+        pTerm+=Kc*current_block->speed_e; //additional heating if extrusion speed is high
+      #endif
       pid_output = constrain(pTerm + iTerm - dTerm, 0, PID_MAX);
     }
 #endif //PID_OPENLOOP
@@ -157,7 +161,7 @@ CRITICAL_SECTION_END;
   previous_millis_bed_heater = millis();
   
   #if TEMP_1_PIN > -1
-    if(current_raw[1] >= target_raw[1])
+    if(current_raw[TEMPSENSOR_BED] >= target_raw[TEMPSENSOR_BED])
     {
       WRITE(HEATER_1_PIN,LOW);
     }
@@ -167,7 +171,6 @@ CRITICAL_SECTION_END;
     }
   #endif
   }
-}
 
 // Takes hot end temperature value as input and returns corresponding raw value. 
 // For a thermistor, it uses the RepRap thermistor temp table.
@@ -428,15 +431,15 @@ ISR(TIMER0_COMPB_vect)
     raw_temp_2_value = 0;
 #ifdef MAXTEMP
   #if (HEATER_0_PIN > -1)
-    if(current_raw[0] >= maxttemp) {
-      target_raw[0] = 0;
+    if(current_raw[TEMPSENSOR_HOTEND] >= maxttemp) {
+      target_raw[TEMPSENSOR_HOTEND] = 0;
       analogWrite(HEATER_0_PIN, 0);
       Serial.println("!! Temperature extruder 0 switched off. MAXTEMP triggered !!");
     }
   #endif
   #if (HEATER_2_PIN > -1)
-    if(current_raw[2] >= maxttemp) {
-      target_raw[2] = 0;
+    if(current_raw[TEMPSENSOR_AUX] >= maxttemp) {
+      target_raw[TEMPSENSOR_AUX] = 0;
       analogWrite(HEATER_2_PIN, 0);
       Serial.println("!! Temperature extruder 1 switched off. MAXTEMP triggered !!");
     }
@@ -444,15 +447,15 @@ ISR(TIMER0_COMPB_vect)
 #endif //MAXTEMP
 #ifdef MINTEMP
   #if (HEATER_0_PIN > -1)
-    if(current_raw[0] <= minttemp) {
-      target_raw[0] = 0;
+    if(current_raw[TEMPSENSOR_HOTEND] <= minttemp) {
+      target_raw[TEMPSENSOR_HOTEND] = 0;
       analogWrite(HEATER_0_PIN, 0);
       Serial.println("!! Temperature extruder 0 switched off. MINTEMP triggered !!");
     }
   #endif
   #if (HEATER_2_PIN > -1)
-    if(current_raw[2] <= minttemp) {
-      target_raw[2] = 0;
+    if(current_raw[TEMPSENSOR_AUX] <= minttemp) {
+      target_raw[TEMPSENSOR_AUX] = 0;
       analogWrite(HEATER_2_PIN, 0);
       Serial.println("!! Temperature extruder 1 switched off. MINTEMP triggered !!");
     }

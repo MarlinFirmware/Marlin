@@ -253,17 +253,17 @@ void MainMenu::showStatus()
   }
     
 
-  if((abs(current_raw[0]-oldcurrentraw)>3)||force_lcd_update)
+  if((abs(current_raw[TEMPSENSOR_HOTEND]-oldcurrentraw)>3)||force_lcd_update)
   {
     lcd.setCursor(1,0);
-    lcd.print(ftostr3(analog2temp(current_raw[0])));
-    oldcurrentraw=current_raw[0];
+    lcd.print(ftostr3(analog2temp(current_raw[TEMPSENSOR_HOTEND])));
+    oldcurrentraw=current_raw[TEMPSENSOR_HOTEND];
   }
-  if((target_raw[0]!=oldtargetraw)||force_lcd_update)
+  if((target_raw[TEMPSENSOR_HOTEND]!=oldtargetraw)||force_lcd_update)
   {
     lcd.setCursor(5,0);
-    lcd.print(ftostr3(analog2temp(target_raw[0])));
-    oldtargetraw=target_raw[0];
+    lcd.print(ftostr3(analog2temp(target_raw[TEMPSENSOR_HOTEND])));
+    oldtargetraw=target_raw[TEMPSENSOR_HOTEND];
   }
   #if defined BED_USES_THERMISTOR || defined BED_USES_AD595 
   static int oldcurrentbedraw=-1;
@@ -272,7 +272,7 @@ void MainMenu::showStatus()
   {
     lcd.setCursor(1,0);
     lcd.print(ftostr3(analog2temp(current_bed_raw)));
-    oldcurrentraw=current_raw[1];
+    oldcurrentraw=current_raw[TEMPSENSOR_BED];
   }
   if((target_bed_raw!=oldtargebedtraw)||force_lcd_update)
   {
@@ -339,17 +339,17 @@ void MainMenu::showStatus()
   }
     
 
-  if((abs(current_raw[0]-oldcurrentraw)>3)||force_lcd_update)
+  if((abs(current_raw[TEMPSENSOR_HOTEND]-oldcurrentraw)>3)||force_lcd_update)
   {
     lcd.setCursor(1,0);
-    lcd.print(ftostr3(analog2temp(current_raw[0])));
-    oldcurrentraw=current_raw[0];
+    lcd.print(ftostr3(analog2temp(current_raw[TEMPSENSOR_HOTEND])));
+    oldcurrentraw=current_raw[TEMPSENSOR_HOTEND];
   }
-  if((target_raw[0]!=oldtargetraw)||force_lcd_update)
+  if((target_raw[TEMPSENSOR_HOTEND]!=oldtargetraw)||force_lcd_update)
   {
     lcd.setCursor(5,0);
-    lcd.print(ftostr3(analog2temp(target_raw[0])));
-    oldtargetraw=target_raw[0];
+    lcd.print(ftostr3(analog2temp(target_raw[TEMPSENSOR_HOTEND])));
+    oldtargetraw=target_raw[TEMPSENSOR_HOTEND];
   }
 
   if(messagetext[0]!='\0')
@@ -426,7 +426,7 @@ void MainMenu::showPrepare()
         if((activeline==line) && CLICKED)
         {
           BLOCK
-          target_raw[0] = temp2analog(170);
+          target_raw[TEMPSENSOR_HOTEND] = temp2analog(170);
           beepshort();
         }
       }break;
@@ -531,7 +531,7 @@ void MainMenu::showControl()
         if(force_lcd_update)
         {
           lcd.setCursor(0,line);lcd.print(" \002Nozzle:");
-          lcd.setCursor(13,line);lcd.print(ftostr3(analog2temp(target_raw[0])));
+          lcd.setCursor(13,line);lcd.print(ftostr3(analog2temp(target_raw[TEMPSENSOR_HOTEND])));
         }
         
         if((activeline==line) )
@@ -541,11 +541,11 @@ void MainMenu::showControl()
             linechanging=!linechanging;
             if(linechanging)
             {
-               encoderpos=(int)analog2temp(target_raw[0]);
+               encoderpos=(int)analog2temp(target_raw[TEMPSENSOR_HOTEND]);
             }
             else
             {
-              target_raw[0] = temp2analog(encoderpos);
+              target_raw[TEMPSENSOR_HOTEND] = temp2analog(encoderpos);
               encoderpos=activeline*lcdslow;
               beepshort();
             }

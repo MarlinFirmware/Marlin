@@ -25,7 +25,7 @@
     http://reprap.org/pipermail/reprap-dev/2011-May/003323.html
  */
 
-#include <EEPROM.h>
+#include "EEPROMwrite.h"
 #include "fastio.h"
 #include "Configuration.h"
 #include "pins.h"
@@ -169,7 +169,7 @@ bool sdmode = false;
 bool sdactive = false;
 bool savetosd = false;
 int16_t n;
-long autostart_atmillis=0;
+unsigned long autostart_atmillis=0;
 
 void initsd(){
   sdactive = false;
@@ -288,24 +288,24 @@ void checkautostart(bool force)
 		if(!sdactive) //fail
 		return;
 	}
-	static int lastnr=0;
-	char autoname[30];
-	sprintf(autoname,"auto%i.g",lastnr);
-	for(int i=0;i<strlen(autoname);i++)
-		autoname[i]=tolower(autoname[i]);
-	dir_t p;
+        static int lastnr=0;
+        char autoname[30];
+        sprintf(autoname,"auto%i.g",lastnr);
+        for(int i=0;i<(int)strlen(autoname);i++)
+                autoname[i]=tolower(autoname[i]);
+        dir_t p;
 
-	root.rewind();
-	char filename[11];
-	int cnt=0;
+        root.rewind();
+        //char filename[11];
+        //int cnt=0;
 
-	bool found=false;
-	while (root.readDir(p) > 0) 
-	{
-		for(int i=0;i<strlen((char*)p.name);i++)
-			p.name[i]=tolower(p.name[i]);
-		//Serial.print((char*)p.name);
-		//Serial.print(" ");
+        bool found=false;
+        while (root.readDir(p) > 0) 
+        {
+                for(int i=0;i<(int)strlen((char*)p.name);i++)
+                        p.name[i]=tolower(p.name[i]);
+                //Serial.print((char*)p.name);
+                //Serial.print(" ");
 		//Serial.println(autoname);
 		if(p.name[9]!='~') //skip safety copies
 		if(strncmp((char*)p.name,autoname,5)==0)
@@ -772,8 +772,8 @@ inline void process_commands()
 				sprintf(time,"%i min, %i sec",min,sec);
 				Serial.println(time);
 				LCD_MESSAGE(time);
-		}
-				break;
+                }
+                                break;
 #endif //SDSUPPORT
       case 42: //M42 -Change pin status via gcode
         if (code_seen('S'))
@@ -782,7 +782,7 @@ inline void process_commands()
           if (code_seen('P') && pin_status >= 0 && pin_status <= 255)
           {
             int pin_number = code_value();
-            for(int i = 0; i < sizeof(sensitive_pins); i++)
+            for(int i = 0; i < (int)sizeof(sensitive_pins); i++)
             {
               if (sensitive_pins[i] == pin_number)
               {
@@ -801,28 +801,28 @@ inline void process_commands()
         }
         break;
       case 104: // M104
-                if (code_seen('S')) target_raw[0] = temp2analog(code_value());
+                if (code_seen('S')) target_raw[TEMPSENSOR_HOTEND] = temp2analog(code_value());
 #ifdef PIDTEMP
                 pid_setpoint = code_value();
 #endif //PIDTEM
         #ifdef WATCHPERIOD
-            if(target_raw[0] > current_raw[0]){
+            if(target_raw[TEMPSENSOR_HOTEND] > current_raw[TEMPSENSOR_HOTEND]){
                 watchmillis = max(1,millis());
-                watch_raw = current_raw[0];
+                watch_raw[TEMPSENSOR_HOTEND] = current_raw[TEMPSENSOR_HOTEND];
             }else{
                 watchmillis = 0;
             }
         #endif
         break;
       case 140: // M140 set bed temp
-                if (code_seen('S')) target_raw[1] = temp2analogBed(code_value());
+                if (code_seen('S')) target_raw[TEMPSENSOR_BED] = temp2analogBed(code_value());
         break;
       case 105: // M105
         #if (TEMP_0_PIN > -1) || defined (HEATER_USES_AD595)
-                tt = analog2temp(current_raw[0]);
+                tt = analog2temp(current_raw[TEMPSENSOR_HOTEND]);
         #endif
         #if TEMP_1_PIN > -1
-                bt = analog2tempBed(current_raw[1]);
+                bt = analog2tempBed(current_raw[TEMPSENSOR_BED]);
         #endif
         #if (TEMP_0_PIN > -1) || defined (HEATER_USES_AD595)
             Serial.print("ok T:");
@@ -850,14 +850,14 @@ inline void process_commands()
         //break;
       case 109: {// M109 - Wait for extruder heater to reach target.
             LCD_MESSAGE("Heating...");
-            if (code_seen('S')) target_raw[0] = temp2analog(code_value());
+               if (code_seen('S')) target_raw[TEMPSENSOR_HOTEND] = temp2analog(code_value());
             #ifdef PIDTEMP
             pid_setpoint = code_value();
             #endif //PIDTEM
             #ifdef WATCHPERIOD
-            if(target_raw[0]>current_raw[0]) {
+          if(target_raw[TEMPSENSOR_HOTEND]>current_raw[TEMPSENSOR_HOTEND]){
               watchmillis = max(1,millis());
-              watch_raw = current_raw[0];
+              watch_raw[TEMPSENSOR_HOTEND] = current_raw[TEMPSENSOR_HOTEND];
             } else {
               watchmillis = 0;
             }
@@ -879,7 +879,7 @@ inline void process_commands()
             #endif //TEMP_RESIDENCY_TIME
               if( (millis() - codenum) > 1000 ) { //Print Temp Reading every 1 second while heating up/cooling down
                 Serial.print("T:");
-                Serial.println( analog2temp(current_raw[0]) );
+              Serial.println( analog2temp(current_raw[TEMPSENSOR_HOTEND]) ); 
                 codenum = millis();
               }
               manage_heater();
@@ -893,25 +893,25 @@ inline void process_commands()
                 residencyStart = millis();
               }
               #endif //TEMP_RESIDENCY_TIME
-	    }
+            }
             LCD_MESSAGE("Marlin ready.");
           }
           break;
       case 190: // M190 - Wait bed for heater to reach target.
       #if TEMP_1_PIN > -1
-          if (code_seen('S')) target_raw[1] = temp2analog(code_value());
+          if (code_seen('S')) target_raw[TEMPSENSOR_BED] = temp2analog(code_value());
         codenum = millis(); 
-          while(current_raw[1] < target_raw[1]) 
+          while(current_raw[TEMPSENSOR_BED] < target_raw[TEMPSENSOR_BED]) 
                                 {
           if( (millis()-codenum) > 1000 ) //Print Temp Reading every 1 second while heating up.
           {
-            float tt=analog2temp(current_raw[0]);
+            float tt=analog2temp(current_raw[TEMPSENSOR_HOTEND]);
             Serial.print("T:");
             Serial.println( tt );
             Serial.print("ok T:");
             Serial.print( tt ); 
             Serial.print(" B:");
-            Serial.println( analog2temp(current_raw[1]) ); 
+            Serial.println( analog2temp(current_raw[TEMPSENSOR_BED]) ); 
             codenum = millis(); 
           }
             manage_heater();

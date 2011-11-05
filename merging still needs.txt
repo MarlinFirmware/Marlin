@@ -1,0 +1,58 @@
+files to compare manually:
+planner.cpp
+stepper.cpp
+temperature.cpp
+
+---
+things that changed:
+* planner.cpp
+estimate_acc_distance now works with floats.
+in calculate_trapezoid:for_block
+ long acceleration_rate=(long)((float)acceleration*8.388608) is gone
+ so is block_>acceleration_rate
+void planner_reverse_pass:
+ some stuff I don't understand right now changed
+in planner_forward_pass:
+ done: BLOCK_BUFFER_SIZE is now necessarily power of 2 (aka 8 16, 32). Inportant to document this somewhere.
+no more inline in void plan_discard_current_block()
+no more inline in plan_get_current_block()
+in plan_buffer_line(...)
+ the long target[4]; and calculations of thoose should go after the while(block_buffer_tail==..). if the axis_steps_per_unit are changed from the gcode (M92) the calculation for the currently planned buffer move will be corrupt, because Target is calculated with one value, and the stuff afterwards with another. At least this solved the problem I had with the M92 E* changes in the code. Very sure about this, I took me 20min to find this as the solution for the bug I was hunting.
+around if(feed_rate<minimumfeedrate) this only should be done if it is not a pure extrusion. I think there is a bug right now.
+~line 447 blockcount= 
+ not sure if this also works if the difference is negative, as it would happen if the ringbuffer runs over the end and start at 0.
+~line 507 tmp_aceleration. not sure whats going on, but a lot changed.
+
+
+* stepper.cpp
+~214: if (busy) should be a echoln, maybe
+~331: great, The Z_M_PIN checks are in :)
+
+*temperature.cpp
+done: enum for heater, bed,
+manage_heater() is seriously different.
+  done: if tem_meas_ready ==true->!true+return?
+done #define K1 0.95 maybe in the configuration.h?
+semi-done: PID-C checking needed. Untested but added.
+----
+
+still needed to finish the merge, before testin!
+
+ manage_heater
+ ISR
+ movement planner
+
+TODO:
+
+remove traveling at maxpseed
+remove Simplelcd
+
+remove DEBUG_STEPS?
+
+block_t
+pid_dt ->0.1  whats the changes to the PID, checking needed
+
+
+----
+second merge saturday morning:
+done: PID_dt->0.1

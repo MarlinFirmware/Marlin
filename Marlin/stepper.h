@@ -20,6 +20,9 @@
 
 #ifndef stepper_h
 #define stepper_h 
+
+#include "planner.h"
+
 // Initialize and start the stepper motor subsystem
 void st_init();
 
@@ -37,4 +40,5 @@ extern volatile long count_position[NUM_AXIS];
 extern volatile int count_direction[NUM_AXIS];
 #endif
 
+extern block_t *current_block;  // A pointer to the block currently being traced
 #endif

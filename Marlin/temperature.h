@@ -21,8 +21,10 @@
 #ifndef temperature_h
 #define temperature_h 
 
-void manage_inactivity(byte debug);
-
+#include "Marlin.h"
+#ifdef PID_ADD_EXTRUSION_RATE
+  #include "stepper.h"
+#endif
 void tp_init();
 void manage_heater();
 //int temp2analogu(int celsius, const short table[][2], int numtemps);
@@ -48,6 +50,7 @@ extern float Ki;
 extern float Kd;
 extern float Kc;
 
+enum {TEMPSENSOR_HOTEND=0,TEMPSENSOR_BED=1, TEMPSENSOR_AUX=2};
 extern int target_raw[3];
 extern int current_raw[3];
 extern double pid_setpoint;
