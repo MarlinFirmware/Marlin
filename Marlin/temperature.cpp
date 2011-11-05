@@ -322,15 +322,18 @@ void tp_init()
   TIMSK0 |= (1<<OCIE0B);  
 }
 
-static unsigned char temp_count = 0;
-static unsigned long raw_temp_0_value = 0;
-static unsigned long raw_temp_1_value = 0;
-static unsigned long raw_temp_2_value = 0;
-static unsigned char temp_state = 0;
+
 
 // Timer 0 is shared with millies
 ISR(TIMER0_COMPB_vect)
 {
+  //these variables are only accesible from the ISR, but static, so they don't loose their value
+  static unsigned char temp_count = 0;
+  static unsigned long raw_temp_0_value = 0;
+  static unsigned long raw_temp_1_value = 0;
+  static unsigned long raw_temp_2_value = 0;
+  static unsigned char temp_state = 0;
+  
   switch(temp_state) {
     case 0: // Prepare TEMP_0
             #if (TEMP_0_PIN > -1)
