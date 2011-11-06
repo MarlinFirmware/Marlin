@@ -200,7 +200,7 @@ int temp2analog(int celsius) {
     }
 
     // Overflow: Set to last value in the table
-    if (i == NUMTEMPS_0) raw = heater_0_temptable[i-1][0];
+    if (i == NUMTEMPS_HEATER_0) raw = heater_0_temptable[i-1][0];
 
     return (1023 * OVERSAMPLENR) - raw;
   #elif defined HEATER_0_USES_AD595
@@ -544,4 +544,4 @@ ISR(TIMER0_COMPB_vect)
   #endif
   }
 }
-
+
