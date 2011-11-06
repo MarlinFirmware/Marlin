@@ -14,6 +14,7 @@ UPLOAD_SPEED = 115200
 UPLOAD_PROTOCOL = stk500v2
 BUILD_MCU = atmega2560
 BUILD_F_CPU = 16000000L
+TERM=bash
 
 # getting undefined reference to `__cxa_pure_virtual'
 #~ [http://www.arduino.cc/cgi-bin/yabb2/YaBB.pl?num=1254180518 Arduino Forum - Makefile]

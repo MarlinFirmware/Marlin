@@ -82,6 +82,7 @@ char version_string[] = "1.0.0 Alpha 1";
 // M27  - Report SD print status
 // M28  - Start SD write (M28 filename.g)
 // M29  - Stop SD write
+// M30  - Output time since last M109 or SD card start to serial
 // M42  - Change pin status via gcode
 // M80  - Turn on Power Supply
 // M81  - Turn off Power Supply
@@ -172,24 +173,30 @@ bool savetosd = false;
 int16_t n;
 unsigned long autostart_atmillis=0;
 
-void initsd(){
+void initsd()
+{
   sdactive = false;
 #if SDSS >- 1
   if(root.isOpen())
     root.close();
-  if (!card.init(SPI_FULL_SPEED,SDSS)){
+  if (!card.init(SPI_FULL_SPEED,SDSS))
+  {
     //if (!card.init(SPI_HALF_SPEED,SDSS))
-    Serial.println("SD init fail");
+    SERIAL_ECHOLN("SD init fail");
   }
   else if (!volume.init(&card))
-    Serial.println("volume.init failed");
+  {
+    SERIAL_ERRORLN("volume.init failed");
+  }
   else if (!root.openRoot(&volume)) 
-    Serial.println("openRoot failed");
+  {
+    SERIAL_ERRORLN("openRoot failed");
+  }
   else 
-	{
+  {
     sdactive = true;
-		Serial.println("SD card ok");
-	}
+    SERIAL_ECHOLN("SD card ok");
+  }
 #endif //SDSS
 }
 
@@ -214,7 +221,7 @@ inline void write_command(char *buf){
   //Serial.println(begin);
   file.write(begin);
   if (file.writeError){
-    Serial.println("error writing to file");
+    SERIAL_ERRORLN("error writing to file");
   }
 }
 #endif //SDSUPPORT
@@ -227,7 +234,7 @@ void enquecommand(const char *cmd)
   {
     //this is dangerous if a mixing of serial and this happsens
     strcpy(&(cmdbuffer[bufindw][0]),cmd);
-    Serial.print("en:");Serial.println(cmdbuffer[bufindw]);
+    SERIAL_ECHOLN("enqueing \""<<cmdbuffer[bufindw]<<"\"");
     bufindw= (bufindw + 1)%BUFSIZE;
     buflen += 1;
   }
@@ -237,7 +244,7 @@ void setup()
 { 
 	
   Serial.begin(BAUDRATE);
-  ECHOLN("Marlin "<<version_string);
+  SERIAL_ECHOLN("Marlin "<<version_string);
   Serial.println("start");
 #if defined FANCY_LCD || defined SIMPLE_LCD
   lcd_init();
@@ -478,17 +485,17 @@ inline void get_command()
       sdpos = file.curPosition();
       if(sdpos >= filesize){
         sdmode = false;
-        Serial.println("Done printing file");
-				stoptime=millis();
-				char time[30];
-				unsigned long t=(stoptime-starttime)/1000;
-				int sec,min;
-				min=t/60;
-				sec=t%60;
-				sprintf(time,"%i min, %i sec",min,sec);
-				Serial.println(time);
-				LCD_MESSAGE(time);
-				checkautostart(true);
+        Serial.println("echo: Done printing file");
+	stoptime=millis();
+	char time[30];
+	unsigned long t=(stoptime-starttime)/1000;
+	int sec,min;
+	min=t/60;
+	sec=t%60;
+	sprintf(time,"echo: %i min, %i sec",min,sec);
+	Serial.println(time);
+	LCD_MESSAGE(time);
+	checkautostart(true);
       }
       if(!serial_count) return; //if empty line
       cmdbuffer[bufindw][serial_count] = 0; //terminate string
@@ -721,7 +728,7 @@ inline void process_commands()
     case 24: //M24 - Start SD print
       if(sdactive){
         sdmode = true;
-				starttime=millis();
+	starttime=millis();
       }
       break;
     case 25: //M25 - Pause SD print
@@ -774,19 +781,19 @@ inline void process_commands()
       //processed in write to file routine above
       //savetosd = false;
       break;
-		case 30:
-		{
-			stoptime=millis();
-				char time[30];
-				unsigned long t=(stoptime-starttime)/1000;
-				int sec,min;
-				min=t/60;
-				sec=t%60;
-				sprintf(time,"%i min, %i sec",min,sec);
-				Serial.println(time);
-				LCD_MESSAGE(time);
-                }
-                                break;
+    case 30: //M30 take time since the start of the SD print or an M109 command
+    {
+      stoptime=millis();
+      char time[30];
+      unsigned long t=(stoptime-starttime)/1000;
+      int sec,min;
+      min=t/60;
+      sec=t%60;
+      sprintf(time,"echo: time needed %i min, %i sec",min,sec);
+      Serial.println(time);
+      LCD_MESSAGE(time);
+    }
+    break;
 #endif //SDSUPPORT
       case 42: //M42 -Change pin status via gcode
         if (code_seen('S'))
@@ -847,7 +854,7 @@ inline void process_commands()
             Serial.println();
           #endif
         #else
-          Serial.println("No thermistors - no temp");
+          Serial.println("echo: No thermistors - no temp");
         #endif
         return;
         //break;
@@ -888,7 +895,8 @@ inline void process_commands()
               }
               #endif //TEMP_RESIDENCY_TIME
             }
-            LCD_MESSAGE("Marlin ready.");
+            LCD_MESSAGE("Heating done.");
+	    starttime=millis();
           }
           break;
       case 190: // M190 - Wait bed for heater to reach target.
@@ -1063,9 +1071,9 @@ inline void process_commands()
       if(code_seen('P')) Kp = code_value();
       if(code_seen('I')) Ki = code_value()*PID_dT;
       if(code_seen('D')) Kd = code_value()/PID_dT;
-//      ECHOLN("Kp "<<_FLOAT(Kp,2));
-//      ECHOLN("Ki "<<_FLOAT(Ki/PID_dT,2));
-//      ECHOLN("Kd "<<_FLOAT(Kd*PID_dT,2));
+//      SERIAL_ECHOLN("Kp "<<_FLOAT(Kp,2));
+//      SERIAL_ECHOLN("Ki "<<_FLOAT(Ki/PID_dT,2));
+//      SERIAL_ECHOLN("Kd "<<_FLOAT(Kd*PID_dT,2));
 
 //      temp_iState_min = 0.0;
 //      if (Ki!=0) {
@@ -1093,8 +1101,9 @@ inline void process_commands()
     }
   }
   else{
-    Serial.println("Unknown command:");
-    Serial.println(cmdbuffer[bufindr]);
+    Serial.print("echo: Unknown command:\"");
+    Serial.print(cmdbuffer[bufindr]);
+    Serial.println("\"");
   }
 
   ClearToSend();
@@ -1288,7 +1297,7 @@ void kill()
   disable_e();
   
   if(PS_ON_PIN > -1) pinMode(PS_ON_PIN,INPUT);
-  Serial.println("!! Printer halted. kill() called !!");
+  SERIAL_ERRORLN("Printer halted. kill() called !!");
   while(1); // Wait for reset
 }
 

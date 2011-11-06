@@ -1382,7 +1382,7 @@ void MainMenu::showMainMenu()
       }break;
 #endif
       default: 
-        Serial.println('NEVER say never');
+        SERIAL_ERRORLN("Something is wrong in the MenuStructure.");
       break;
     }
   }
@@ -1414,7 +1414,7 @@ void MainMenu::update()
   {
     force_lcd_update=true;
     oldcardstatus=CARDINSERTED;
-    //Serial.println("SD CHANGE");
+    //Serial.println("echo: SD CHANGE");
     if(CARDINSERTED)
     {
       initsd();

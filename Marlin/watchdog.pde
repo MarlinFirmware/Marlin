@@ -15,7 +15,7 @@ ISR(WDT_vect)
  
     #ifdef RESET_MANUAL
       LCD_MESSAGE("Please Reset!");
-      ECHOLN("echo_: Something is wrong, please turn off the printer.");
+      SERIAL_ERRORLN("Something is wrong, please turn off the printer.");
     #else
       LCD_MESSAGE("Timeout, resetting!");
     #endif 

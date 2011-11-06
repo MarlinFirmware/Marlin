@@ -6,9 +6,11 @@
 #include <WProgram.h>
 #include "fastio.h"
 
-
-#define ECHO(x) Serial << "echo: " << x;
-#define ECHOLN(x) Serial << "echo: "<<x<<endl;
+#include "streaming.h"
+#define SERIAL_ECHO(x) Serial << "echo: " << x;
+#define SERIAL_ECHOLN(x) Serial << "echo: "<<x<<endl;
+#define SERIAL_ERROR(x) Serial << "echo: ERROR: " << x;
+#define SERIAL_ERRORLN(x) Serial << "echo: ERROR: " << x<<endl;
 
 void get_command();
 void process_commands();
@@ -67,7 +69,7 @@ void kill();
 //void plan_set_position(float x, float y, float z, float e);
 //void st_wake_up();
 //void st_synchronize();
-void enquecommand(const char *cmd);
+void enquecommand(const char *cmd); //put an ascii command at the end of the current buffer.
 
 
 #ifndef CRITICAL_SECTION_START

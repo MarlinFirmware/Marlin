@@ -35,7 +35,7 @@ void mc_arc(float *position, float *target, float *offset, uint8_t axis_0, uint8
 {      
 //   int acceleration_manager_was_enabled = plan_is_acceleration_manager_enabled();
 //   plan_set_acceleration_manager_enabled(false); // disable acceleration management for the duration of the arc
-  Serial.println("mc_arc");
+  SERIAL_ECHOLN("mc_arc.");
   float center_axis0 = position[axis_0] + offset[axis_0];
   float center_axis1 = position[axis_1] + offset[axis_1];
   float linear_travel = target[axis_linear] - position[axis_linear];

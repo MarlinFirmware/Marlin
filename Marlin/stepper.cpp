@@ -211,7 +211,7 @@ inline void trapezoid_generator_reset() {
 // It pops blocks from the block_buffer and executes them by pulsing the stepper pins appropriately. 
 ISR(TIMER1_COMPA_vect)
 {        
-  if(busy){ Serial.print(*(unsigned short *)OCR1A); Serial.println(" BUSY");
+  if(busy){ SERIAL_ERRORLN(*(unsigned short *)OCR1A<< " ISR overtaking itself.");
     return; 
   } // The busy-flag is used to avoid reentering this interrupt
 

@@ -59,7 +59,7 @@ void StoreSettings() {
   char ver2[4]=EEPROM_VERSION;
   i=EEPROM_OFFSET;
   EEPROM_writeAnything(i,ver2); // validate data
-   ECHOLN("Settings Stored");
+   SERIAL_ECHOLN("Settings Stored");
 
 }
 
@@ -68,7 +68,7 @@ void RetrieveSettings(bool def=false){  // if def=true, the default values will 
   char stored_ver[4];
   char ver[4]=EEPROM_VERSION;
   EEPROM_readAnything(i,stored_ver); //read stored version
-//  ECHOLN("Version: [" << ver << "] Stored version: [" << stored_ver << "]");
+//  SERIAL_ECHOLN("Version: [" << ver << "] Stored version: [" << stored_ver << "]");
   if ((!def)&&(strncmp(ver,stored_ver,3)==0)) {   // version number match
       EEPROM_readAnything(i,axis_steps_per_unit);  
       EEPROM_readAnything(i,max_feedrate);  
@@ -87,7 +87,7 @@ void RetrieveSettings(bool def=false){  // if def=true, the default values will 
       EEPROM_readAnything(i,Ki);
       EEPROM_readAnything(i,Kd);
 
-      ECHOLN("Stored settings retreived:");
+      SERIAL_ECHOLN("Stored settings retreived:");
   }
   else {
     float tmp1[]=DEFAULT_AXIS_STEPS_PER_UNIT;
@@ -105,21 +105,21 @@ void RetrieveSettings(bool def=false){  // if def=true, the default values will 
     mintravelfeedrate=DEFAULT_MINTRAVELFEEDRATE;
     max_xy_jerk=DEFAULT_XYJERK;
     max_z_jerk=DEFAULT_ZJERK;
-    ECHOLN("Using Default settings:");
+    SERIAL_ECHOLN("Using Default settings:");
   }
-  ECHOLN("Steps per unit:");
-  ECHOLN("   M92 X"   <<_FLOAT(axis_steps_per_unit[0],3) << " Y" <<  _FLOAT(axis_steps_per_unit[1],3) << " Z" << _FLOAT(axis_steps_per_unit[2],3) << " E" << _FLOAT(axis_steps_per_unit[3],3));
-  ECHOLN("Maximum feedrates (mm/s):");
-  ECHOLN("   M203 X"  <<_FLOAT(max_feedrate[0]/60,2)<<" Y" << _FLOAT(max_feedrate[1]/60,2) << " Z" << _FLOAT(max_feedrate[2]/60,2) << " E" << _FLOAT(max_feedrate[3]/60,2));
-  ECHOLN("Maximum Acceleration (mm/s2):");
-  ECHOLN("   M201 X"  <<_FLOAT(max_acceleration_units_per_sq_second[0],0) << " Y" << _FLOAT(max_acceleration_units_per_sq_second[1],0) << " Z" << _FLOAT(max_acceleration_units_per_sq_second[2],0) << " E" << _FLOAT(max_acceleration_units_per_sq_second[3],0));
-  ECHOLN("Acceleration: S=acceleration, T=retract acceleration");
-  ECHOLN("   M204 S"  <<_FLOAT(acceleration,2) << " T" << _FLOAT(retract_acceleration,2));
-  ECHOLN("Advanced variables: S=Min feedrate (mm/s), T=Min travel feedrate (mm/s), B=minimum segment time (ms), X=maximum xY jerk (mm/s),  Z=maximum Z jerk (mm/s)");
-  ECHOLN("   M205 S"  <<_FLOAT(minimumfeedrate/60,2) << " T" << _FLOAT(mintravelfeedrate/60,2) << " B" << _FLOAT(minsegmenttime,2) << " X" << _FLOAT(max_xy_jerk/60,2) << " Z" << _FLOAT(max_z_jerk/60,2));
+  SERIAL_ECHOLN("Steps per unit:");
+  SERIAL_ECHOLN("   M92 X"   <<_FLOAT(axis_steps_per_unit[0],3) << " Y" <<  _FLOAT(axis_steps_per_unit[1],3) << " Z" << _FLOAT(axis_steps_per_unit[2],3) << " E" << _FLOAT(axis_steps_per_unit[3],3));
+  SERIAL_ECHOLN("Maximum feedrates (mm/s):");
+  SERIAL_ECHOLN("   M203 X"  <<_FLOAT(max_feedrate[0]/60,2)<<" Y" << _FLOAT(max_feedrate[1]/60,2) << " Z" << _FLOAT(max_feedrate[2]/60,2) << " E" << _FLOAT(max_feedrate[3]/60,2));
+  SERIAL_ECHOLN("Maximum Acceleration (mm/s2):");
+  SERIAL_ECHOLN("   M201 X"  <<_FLOAT(max_acceleration_units_per_sq_second[0],0) << " Y" << _FLOAT(max_acceleration_units_per_sq_second[1],0) << " Z" << _FLOAT(max_acceleration_units_per_sq_second[2],0) << " E" << _FLOAT(max_acceleration_units_per_sq_second[3],0));
+  SERIAL_ECHOLN("Acceleration: S=acceleration, T=retract acceleration");
+  SERIAL_ECHOLN("   M204 S"  <<_FLOAT(acceleration,2) << " T" << _FLOAT(retract_acceleration,2));
+  SERIAL_ECHOLN("Advanced variables: S=Min feedrate (mm/s), T=Min travel feedrate (mm/s), B=minimum segment time (ms), X=maximum xY jerk (mm/s),  Z=maximum Z jerk (mm/s)");
+  SERIAL_ECHOLN("   M205 S"  <<_FLOAT(minimumfeedrate/60,2) << " T" << _FLOAT(mintravelfeedrate/60,2) << " B" << _FLOAT(minsegmenttime,2) << " X" << _FLOAT(max_xy_jerk/60,2) << " Z" << _FLOAT(max_z_jerk/60,2));
 #ifdef PIDTEMP
-  ECHOLN("PID settings:");
-  ECHOLN("   M301 P"  << _FLOAT(Kp,3) << " I" << _FLOAT(Ki,3) << " D" << _FLOAT(Kd,3));  
+  SERIAL_ECHOLN("PID settings:");
+  SERIAL_ECHOLN("   M301 P"  << _FLOAT(Kp,3) << " I" << _FLOAT(Ki,3) << " D" << _FLOAT(Kd,3));  
 #endif
   
 }  
