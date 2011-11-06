@@ -1,7 +1,7 @@
 #include "ultralcd.h"
-
-
 #ifdef ULTRA_LCD
+
+
 extern volatile int feedmultiply;
 extern long position[4];   
 
@@ -122,58 +122,57 @@ void lcd_status()
   menu.update();
 }
 #ifdef ULTIPANEL  
+
+
 void buttons_init()
 {
-#ifdef NEWPANEL
-  pinMode(BTN_EN1,INPUT);
-  pinMode(BTN_EN2,INPUT); 
-  pinMode(BTN_ENC,INPUT); 
-  pinMode(SDCARDDETECT,INPUT);
-  WRITE(BTN_EN1,HIGH);
-  WRITE(BTN_EN2,HIGH);
-  WRITE(BTN_ENC,HIGH);
-  WRITE(SDCARDDETECT,HIGH);
-#else
-  pinMode(SHIFT_CLK,OUTPUT);
-  pinMode(SHIFT_LD,OUTPUT);
-  pinMode(SHIFT_EN,OUTPUT);
-  pinMode(SHIFT_OUT,INPUT);
-  WRITE(SHIFT_OUT,HIGH);
-  WRITE(SHIFT_LD,HIGH); 
-  WRITE(SHIFT_EN,LOW); 
-#endif
+  #ifdef NEWPANEL
+    pinMode(BTN_EN1,INPUT);
+    pinMode(BTN_EN2,INPUT); 
+    pinMode(BTN_ENC,INPUT); 
+    pinMode(SDCARDDETECT,INPUT);
+    WRITE(BTN_EN1,HIGH);
+    WRITE(BTN_EN2,HIGH);
+    WRITE(BTN_ENC,HIGH);
+    WRITE(SDCARDDETECT,HIGH);
+  #else
+    pinMode(SHIFT_CLK,OUTPUT);
+    pinMode(SHIFT_LD,OUTPUT);
+    pinMode(SHIFT_EN,OUTPUT);
+    pinMode(SHIFT_OUT,INPUT);
+    WRITE(SHIFT_OUT,HIGH);
+    WRITE(SHIFT_LD,HIGH); 
+    WRITE(SHIFT_EN,LOW); 
+  #endif
 }
 
 
 void buttons_check()
 {
-//  volatile static bool busy=false;
-//  if(busy) 
-//    return;
-//  busy=true;
   
-#ifdef NEWPANEL
-  uint8_t newbutton=0;
-  if(READ(BTN_EN1)==0)  newbutton|=EN_A;
-  if(READ(BTN_EN2)==0)  newbutton|=EN_B;
-  if((blocking<millis()) &&(READ(BTN_ENC)==0))
-    newbutton|=EN_C;
-  buttons=newbutton;
-#else   //read it from the shift register
-  uint8_t newbutton=0;
-  WRITE(SHIFT_LD,LOW);
-  WRITE(SHIFT_LD,HIGH);
-  unsigned char tmp_buttons=0;
-  for(unsigned char i=0;i<8;i++)
-  { 
-    newbutton = newbutton>>1;
-    if(READ(SHIFT_OUT))
-      newbutton|=(1<<7);
-    WRITE(SHIFT_CLK,HIGH);
-    WRITE(SHIFT_CLK,LOW);
-  }
-  buttons=~newbutton; //invert it, because a pressed switch produces a logical 0
-#endif
+  #ifdef NEWPANEL
+    uint8_t newbutton=0;
+    if(READ(BTN_EN1)==0)  newbutton|=EN_A;
+    if(READ(BTN_EN2)==0)  newbutton|=EN_B;
+    if((blocking<millis()) &&(READ(BTN_ENC)==0))
+      newbutton|=EN_C;
+    buttons=newbutton;
+  #else   //read it from the shift register
+    uint8_t newbutton=0;
+    WRITE(SHIFT_LD,LOW);
+    WRITE(SHIFT_LD,HIGH);
+    unsigned char tmp_buttons=0;
+    for(unsigned char i=0;i<8;i++)
+    { 
+      newbutton = newbutton>>1;
+      if(READ(SHIFT_OUT))
+        newbutton|=(1<<7);
+      WRITE(SHIFT_CLK,HIGH);
+      WRITE(SHIFT_CLK,LOW);
+    }
+    buttons=~newbutton; //invert it, because a pressed switch produces a logical 0
+  #endif
+  
   char enc=0;
   if(buttons&EN_A)
     enc|=(1<<0);
@@ -212,7 +211,6 @@ void buttons_check()
     }
   }
   lastenc=enc;
-//  busy=false;
 }
 
 #endif
@@ -223,9 +221,9 @@ MainMenu::MainMenu()
   displayStartingRow=0;
   activeline=0;
   force_lcd_update=true;
-#ifdef ULTIPANEL
-  buttons_init();
-#endif
+  #ifdef ULTIPANEL
+    buttons_init();
+  #endif
   lcd_init();
   linechanging=false;
 }
@@ -1154,12 +1152,13 @@ uint8_t getnrfilenames()
     cnt++;
   }
   return cnt;
+#else
+  return 0;
 #endif
 }
 
 void MainMenu::showSD()
 {
-
 #ifdef SDSUPPORT
  uint8_t line=0;
 
@@ -1205,11 +1204,11 @@ void MainMenu::showSD()
         if(force_lcd_update)
         {
           lcd.setCursor(0,line);
-#ifdef CARDINSERTED
+           #ifdef CARDINSERTED
           if(CARDINSERTED)
-#else
+          #else
           if(true)
-#endif
+          #endif
           {
             lcd.print(" \004Refresh");
           }
@@ -1306,9 +1305,9 @@ void MainMenu::showMainMenu()
 {
    //if(int(encoderpos/lcdslow)!=int(lastencoderpos/lcdslow))
    //  force_lcd_update=true;
-#ifndef ULTIPANEL
-   force_lcd_update=false;
-#endif
+  #ifndef ULTIPANEL
+    force_lcd_update=false;
+  #endif
    //Serial.println((int)activeline);
    if(force_lcd_update)
      clear();
@@ -1347,17 +1346,17 @@ void MainMenu::showMainMenu()
           beepshort();
         }
       }break;
-#ifdef SDSUPPORT
+      #ifdef SDSUPPORT
       case ItemM_file:    
       {
         if(force_lcd_update) 
         {
           lcd.setCursor(0,line);
-#ifdef CARDINSERTED
-          if(CARDINSERTED)
-#else
-          if(true)
-#endif
+          #ifdef CARDINSERTED
+            if(CARDINSERTED)
+          #else
+            if(true)
+          #endif
           {
             if(sdmode)
               lcd.print(" Stop Print   \x7E");
@@ -1370,7 +1369,7 @@ void MainMenu::showMainMenu()
           }
         }
         #ifdef CARDINSERTED
-        if(CARDINSERTED)
+          if(CARDINSERTED)
         #endif
         if((activeline==line)&&CLICKED)
         {
@@ -1380,28 +1379,30 @@ void MainMenu::showMainMenu()
           beepshort();
         }
       }break;
-#endif
+      #endif
       default: 
         SERIAL_ERRORLN("Something is wrong in the MenuStructure.");
       break;
     }
   }
-  if(activeline<0) activeline=0;
-  if(activeline>=LCD_HEIGHT) activeline=LCD_HEIGHT-1;
+  if(activeline<0) 
+    activeline=0;
+  if(activeline>=LCD_HEIGHT) 
+    activeline=LCD_HEIGHT-1;
   if((encoderpos!=lastencoderpos)||force_lcd_update)
   {
     lcd.setCursor(0,activeline);lcd.print(activeline?' ':' ');
     if(encoderpos<0) encoderpos=0;
-    if(encoderpos>3*lcdslow) encoderpos=3*lcdslow;
+    if(encoderpos>3*lcdslow) 
+      encoderpos=3*lcdslow;
     activeline=abs(encoderpos/lcdslow)%LCD_HEIGHT;
-     if(activeline<0) activeline=0;
-  if(activeline>=LCD_HEIGHT) activeline=LCD_HEIGHT-1;
+    if(activeline<0) 
+      activeline=0;
+    if(activeline>=LCD_HEIGHT) 
+      activeline=LCD_HEIGHT-1;
     lastencoderpos=encoderpos;
     lcd.setCursor(0,activeline);lcd.print(activeline?'>':'\003');
   }
-
-  
-  
 }
 
 void MainMenu::update()
@@ -1409,25 +1410,24 @@ void MainMenu::update()
   static MainStatus oldstatus=Main_Menu;  //init automatically causes foce_lcd_update=true
   static long timeoutToStatus=0;
   static bool oldcardstatus=false;
-#ifdef CARDINSERTED
-  if((CARDINSERTED != oldcardstatus))
-  {
-    force_lcd_update=true;
-    oldcardstatus=CARDINSERTED;
-    //Serial.println("echo: SD CHANGE");
-    if(CARDINSERTED)
+  #ifdef CARDINSERTED
+    if((CARDINSERTED != oldcardstatus))
     {
-      initsd();
-      lcd_status("Card inserted");
+      force_lcd_update=true;
+      oldcardstatus=CARDINSERTED;
+      //Serial.println("echo: SD CHANGE");
+      if(CARDINSERTED)
+      {
+        initsd();
+        lcd_status("Card inserted");
+      }
+      else
+      {
+        sdactive=false;
+        lcd_status("Card removed");
+      }
     }
-    else
-    {
-      sdactive=false;
-      lcd_status("Card removed");
-      
-    }
-  }
-#endif
+  #endif
  
   if(status!=oldstatus)
   {
@@ -1484,9 +1484,9 @@ void MainMenu::update()
 
 
 //return for string conversion routines
-char conv[8];
+static char conv[8];
 
-///  convert float to string with +123.4 format
+//  convert float to string with +123.4 format
 char *ftostr3(const float &x)
 {
   //sprintf(conv,"%5.1f",x);
@@ -1497,6 +1497,7 @@ char *ftostr3(const float &x)
   conv[3]=0;
   return conv;
 }
+
 char *itostr2(const uint8_t &x)
 {
   //sprintf(conv,"%5.1f",x);
@@ -1506,10 +1507,10 @@ char *itostr2(const uint8_t &x)
   conv[2]=0;
   return conv;
 }
-///  convert float to string with +123.4 format
+
+//  convert float to string with +123.4 format
 char *ftostr31(const float &x)
 {
-  //sprintf(conv,"%5.1f",x);
   int xx=x*10;
   conv[0]=(xx>=0)?'+':'-';
   xx=abs(xx);
@@ -1524,7 +1525,6 @@ char *ftostr31(const float &x)
 
 char *itostr31(const int &xx)
 {
-  //sprintf(conv,"%5.1f",x);
   conv[0]=(xx>=0)?'+':'-';
   conv[1]=(xx/1000)%10+'0';
   conv[2]=(xx/100)%10+'0';
@@ -1534,6 +1534,7 @@ char *itostr31(const int &xx)
   conv[6]=0;
   return conv;
 }
+
 char *itostr3(const int &xx)
 {
   conv[0]=(xx/100)%10+'0';
@@ -1553,7 +1554,7 @@ char *itostr4(const int &xx)
   return conv;
 }
 
-///  convert float to string with +1234.5 format
+//  convert float to string with +1234.5 format
 char *ftostr51(const float &x)
 {
   int xx=x*10;
@@ -1587,11 +1588,9 @@ char *fillto(int8_t n,char *c)
   }
   ret[n]=0;
   return ret;
-  
 }
 
-#else
-inline void lcd_status() {};
-#endif
+
+#endif //ULTRA_LCD
 
 

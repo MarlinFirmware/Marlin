@@ -74,24 +74,24 @@ unsigned long previous_millis_heater, previous_millis_bed_heater;
 #endif //WATCHPERIOD
 
 #ifdef HEATER_0_MINTEMP
-int minttemp_0 = temp2analog(HEATER_0_MINTEMP);
+  int minttemp_0 = temp2analog(HEATER_0_MINTEMP);
 #endif //MINTEMP
 #ifdef HEATER_0_MAXTEMP
-int maxttemp_0 = temp2analog(HEATER_0_MAXTEMP);
+  int maxttemp_0 = temp2analog(HEATER_0_MAXTEMP);
 #endif //MAXTEMP
 
 #ifdef HEATER_1_MINTEMP
-int minttemp_1 = temp2analog(HEATER_1_MINTEMP);
+  int minttemp_1 = temp2analog(HEATER_1_MINTEMP);
 #endif //MINTEMP
 #ifdef HEATER_1_MAXTEMP
-int maxttemp_1 = temp2analog(HEATER_1_MAXTEMP);
+  int maxttemp_1 = temp2analog(HEATER_1_MAXTEMP);
 #endif //MAXTEMP
 
 #ifdef BED_MINTEMP
-int bed_minttemp = temp2analog(BED_MINTEMP);
+  int bed_minttemp = temp2analog(BED_MINTEMP);
 #endif //BED_MINTEMP
 #ifdef BED_MAXTEMP
-int bed_maxttemp = temp2analog(BED_MAXTEMP);
+  int bed_maxttemp = temp2analog(BED_MAXTEMP);
 #endif //BED_MAXTEMP
 
 void manage_heater()
@@ -105,50 +105,49 @@ void manage_heater()
   if(temp_meas_ready != true)   //better readability
     return; 
 
-CRITICAL_SECTION_START;
+  CRITICAL_SECTION_START;
     temp_meas_ready = false;
-CRITICAL_SECTION_END;
+  CRITICAL_SECTION_END;
 
-#ifdef PIDTEMP
+  #ifdef PIDTEMP
     pid_input = analog2temp(current_raw[TEMPSENSOR_HOTEND_0]);
 
-#ifndef PID_OPENLOOP
-    pid_error = pid_setpoint - pid_input;
-    if(pid_error > 10){
-      pid_output = PID_MAX;
-      pid_reset = true;
-    }
-    else if(pid_error < -10) {
-      pid_output = 0;
-      pid_reset = true;
-    }
-    else {
-      if(pid_reset == true) {
-        temp_iState = 0.0;
-        pid_reset = false;
-      }
-      pTerm = Kp * pid_error;
-      temp_iState += pid_error;
-      temp_iState = constrain(temp_iState, temp_iState_min, temp_iState_max);
-      iTerm = Ki * temp_iState;
-      //K1 defined in Configuration.h in the PID settings
-      #define K2 (1.0-K1)
-      dTerm = (Kd * (pid_input - temp_dState))*K2 + (K1 * dTerm);
-      temp_dState = pid_input;
-      #ifdef PID_ADD_EXTRUSION_RATE
-        pTerm+=Kc*current_block->speed_e; //additional heating if extrusion speed is high
-      #endif
-      pid_output = constrain(pTerm + iTerm - dTerm, 0, PID_MAX);
-    }
-#endif //PID_OPENLOOP
-#ifdef PID_DEBUG
-     SERIAL_ECHOLN(" PIDDEBUG Input "<<pid_input<<" Output "<<pid_output" pTerm "<<pTerm<<" iTerm "<<iTerm<<" dTerm "<<dTerm); 
-     
-#endif //PID_DEBUG
+    #ifndef PID_OPENLOOP
+        pid_error = pid_setpoint - pid_input;
+        if(pid_error > 10){
+          pid_output = PID_MAX;
+          pid_reset = true;
+        }
+        else if(pid_error < -10) {
+          pid_output = 0;
+          pid_reset = true;
+        }
+        else {
+          if(pid_reset == true) {
+            temp_iState = 0.0;
+            pid_reset = false;
+          }
+          pTerm = Kp * pid_error;
+          temp_iState += pid_error;
+          temp_iState = constrain(temp_iState, temp_iState_min, temp_iState_max);
+          iTerm = Ki * temp_iState;
+          //K1 defined in Configuration.h in the PID settings
+          #define K2 (1.0-K1)
+          dTerm = (Kd * (pid_input - temp_dState))*K2 + (K1 * dTerm);
+          temp_dState = pid_input;
+          #ifdef PID_ADD_EXTRUSION_RATE
+            pTerm+=Kc*current_block->speed_e; //additional heating if extrusion speed is high
+          #endif
+          pid_output = constrain(pTerm + iTerm - dTerm, 0, PID_MAX);
+        }
+    #endif //PID_OPENLOOP
+    #ifdef PID_DEBUG
+     SERIAL_ECHOLN(" PIDDEBUG Input "<<pid_input<<" Output "<<pid_output" pTerm "<<pTerm<<" iTerm "<<iTerm<<" dTerm "<<dTerm);  
+    #endif //PID_DEBUG
     analogWrite(HEATER_0_PIN, pid_output);
-#endif //PIDTEMP
+  #endif //PIDTEMP
 
-#ifndef PIDTEMP
+  #ifndef PIDTEMP
     if(current_raw[0] >= target_raw[0])
     {
       WRITE(HEATER_0_PIN,LOW);
@@ -157,7 +156,7 @@ CRITICAL_SECTION_END;
     {
       WRITE(HEATER_0_PIN,HIGH);
     }
-#endif
+  #endif
     
   if(millis() - previous_millis_bed_heater < BED_CHECK_INTERVAL)
     return;
@@ -173,7 +172,7 @@ CRITICAL_SECTION_END;
       WRITE(HEATER_1_PIN,HIGH);
     }
   #endif
-  }
+}
 
 // Takes hot end temperature value as input and returns corresponding raw value. 
 // For a thermistor, it uses the RepRap thermistor temp table.
@@ -300,26 +299,26 @@ float analog2tempBed(int raw) {
 
 void tp_init()
 {
-#if (HEATER_0_PIN > -1) 
-  SET_OUTPUT(HEATER_0_PIN);
-#endif  
-#if (HEATER_1_PIN > -1) 
-  SET_OUTPUT(HEATER_1_PIN);
-#endif  
-#if (HEATER_2_PIN > -1) 
-  SET_OUTPUT(HEATER_2_PIN);
-#endif  
+  #if (HEATER_0_PIN > -1) 
+    SET_OUTPUT(HEATER_0_PIN);
+  #endif  
+  #if (HEATER_1_PIN > -1) 
+    SET_OUTPUT(HEATER_1_PIN);
+  #endif  
+  #if (HEATER_2_PIN > -1) 
+    SET_OUTPUT(HEATER_2_PIN);
+  #endif  
 
-#ifdef PIDTEMP
-  temp_iState_min = 0.0;
-  temp_iState_max = PID_INTEGRAL_DRIVE_MAX / Ki;
-#endif //PIDTEMP
+  #ifdef PIDTEMP
+    temp_iState_min = 0.0;
+    temp_iState_max = PID_INTEGRAL_DRIVE_MAX / Ki;
+  #endif //PIDTEMP
 
-// Set analog inputs
+  // Set analog inputs
   ADCSRA = 1<<ADEN | 1<<ADSC | 1<<ADIF | 0x07;
   
-// Use timer0 for temperature measurement
-// Interleave temperature interrupt with millies interrupt
+  // Use timer0 for temperature measurement
+  // Interleave temperature interrupt with millies interrupt
   OCR0B = 128;
   TIMSK0 |= (1<<OCIE0B);  
 }
@@ -344,23 +343,25 @@ void setWatch()
 
 void disable_heater()
 {
-   #if TEMP_0_PIN > -1
+  #if TEMP_0_PIN > -1
   target_raw[0]=0;
    #if HEATER_0_PIN > -1  
      WRITE(HEATER_0_PIN,LOW);
    #endif
   #endif
+     
   #if TEMP_1_PIN > -1
-  target_raw[1]=0;
-  #if HEATER_1_PIN > -1 
-    WRITE(HEATER_1_PIN,LOW);
+    target_raw[1]=0;
+    #if HEATER_1_PIN > -1 
+      WRITE(HEATER_1_PIN,LOW);
+    #endif
   #endif
-  #endif
+      
   #if TEMP_2_PIN > -1
-  target_raw[2]=0;
-  #if HEATER_2_PIN > -1  
-    WRITE(HEATER_2_PIN,LOW);
-  #endif
+    target_raw[2]=0;
+    #if HEATER_2_PIN > -1  
+      WRITE(HEATER_2_PIN,LOW);
+    #endif
   #endif 
 }
 
@@ -376,75 +377,75 @@ ISR(TIMER0_COMPB_vect)
   
   switch(temp_state) {
     case 0: // Prepare TEMP_0
-            #if (TEMP_0_PIN > -1)
-              #if TEMP_0_PIN < 8
-                DIDR0 = 1 << TEMP_0_PIN; 
-              #else
-                DIDR2 = 1<<(TEMP_0_PIN - 8); 
-                ADCSRB = 1<<MUX5;
-              #endif
-              ADMUX = ((1 << REFS0) | (TEMP_0_PIN & 0x07));
-              ADCSRA |= 1<<ADSC; // Start conversion
-            #endif
-            #ifdef ULTIPANEL
-              buttons_check();
-            #endif
-            temp_state = 1;
-            break;
+      #if (TEMP_0_PIN > -1)
+        #if TEMP_0_PIN < 8
+          DIDR0 = 1 << TEMP_0_PIN; 
+        #else
+          DIDR2 = 1<<(TEMP_0_PIN - 8); 
+          ADCSRB = 1<<MUX5;
+        #endif
+        ADMUX = ((1 << REFS0) | (TEMP_0_PIN & 0x07));
+        ADCSRA |= 1<<ADSC; // Start conversion
+      #endif
+      #ifdef ULTIPANEL
+        buttons_check();
+      #endif
+      temp_state = 1;
+      break;
     case 1: // Measure TEMP_0
-            #if (TEMP_0_PIN > -1)
-              raw_temp_0_value += ADC;
-            #endif
-            temp_state = 2;
-            break;
+      #if (TEMP_0_PIN > -1)
+        raw_temp_0_value += ADC;
+      #endif
+      temp_state = 2;
+      break;
     case 2: // Prepare TEMP_1
-            #if (TEMP_1_PIN > -1)
-              #if TEMP_1_PIN < 7
-                DIDR0 = 1<<TEMP_1_PIN; 
-              #else
-                DIDR2 = 1<<(TEMP_1_PIN - 8); 
-                ADCSRB = 1<<MUX5;
-              #endif
-              ADMUX = ((1 << REFS0) | (TEMP_1_PIN & 0x07));
-              ADCSRA |= 1<<ADSC; // Start conversion
-            #endif
-            #ifdef ULTIPANEL
-              buttons_check();
-            #endif
-            temp_state = 3;
-            break;
+      #if (TEMP_1_PIN > -1)
+        #if TEMP_1_PIN < 7
+          DIDR0 = 1<<TEMP_1_PIN; 
+        #else
+          DIDR2 = 1<<(TEMP_1_PIN - 8); 
+          ADCSRB = 1<<MUX5;
+        #endif
+        ADMUX = ((1 << REFS0) | (TEMP_1_PIN & 0x07));
+        ADCSRA |= 1<<ADSC; // Start conversion
+      #endif
+      #ifdef ULTIPANEL
+        buttons_check();
+      #endif
+      temp_state = 3;
+      break;
     case 3: // Measure TEMP_1
-            #if (TEMP_1_PIN > -1)
-              raw_temp_1_value += ADC;
-            #endif
-            temp_state = 4;
-            break;
+      #if (TEMP_1_PIN > -1)
+        raw_temp_1_value += ADC;
+      #endif
+      temp_state = 4;
+      break;
     case 4: // Prepare TEMP_2
-            #if (TEMP_2_PIN > -1)
-              #if TEMP_2_PIN < 7
-                DIDR0 = 1 << TEMP_2_PIN; 
-              #else
-                DIDR2 = 1<<(TEMP_2_PIN - 8); 
-                ADCSRB = 1<<MUX5;
-              #endif
-              ADMUX = ((1 << REFS0) | (TEMP_2_PIN & 0x07));
-              ADCSRA |= 1<<ADSC; // Start conversion
-            #endif
-            #ifdef ULTIPANEL
-              buttons_check();
-            #endif
-            temp_state = 5;
-            break;
+      #if (TEMP_2_PIN > -1)
+        #if TEMP_2_PIN < 7
+          DIDR0 = 1 << TEMP_2_PIN; 
+        #else
+          DIDR2 = 1<<(TEMP_2_PIN - 8); 
+          ADCSRB = 1<<MUX5;
+        #endif
+        ADMUX = ((1 << REFS0) | (TEMP_2_PIN & 0x07));
+        ADCSRA |= 1<<ADSC; // Start conversion
+      #endif
+      #ifdef ULTIPANEL
+        buttons_check();
+      #endif
+      temp_state = 5;
+      break;
     case 5: // Measure TEMP_2
-            #if (TEMP_2_PIN > -1)
-              raw_temp_2_value += ADC;
-            #endif
-            temp_state = 0;
-            temp_count++;
-            break;
+      #if (TEMP_2_PIN > -1)
+        raw_temp_2_value += ADC;
+      #endif
+      temp_state = 0;
+      temp_count++;
+      break;
     default:
-            SERIAL_ERRORLN("Temp measurement error!");
-            break;
+      SERIAL_ERRORLN("Temp measurement error!");
+      break;
   }
     
   if(temp_count >= 16) // 6 ms * 16 = 96ms.
@@ -472,67 +473,71 @@ ISR(TIMER0_COMPB_vect)
     raw_temp_0_value = 0;
     raw_temp_1_value = 0;
     raw_temp_2_value = 0;
-#ifdef HEATER_0_MAXTEMP
-  #if (HEATER_0_PIN > -1)
-    if(current_raw[TEMPSENSOR_HOTEND_0] >= maxttemp_0) {
-      target_raw[TEMPSENSOR_HOTEND_0] = 0;
-      analogWrite(HEATER_0_PIN, 0);
-      SERIAL_ERRORLN("Temperature extruder 0 switched off. MAXTEMP triggered !!");
-      kill();
-    }
+    #ifdef HEATER_0_MAXTEMP
+      #if (HEATER_0_PIN > -1)
+        if(current_raw[TEMPSENSOR_HOTEND_0] >= maxttemp_0) {
+          target_raw[TEMPSENSOR_HOTEND_0] = 0;
+          analogWrite(HEATER_0_PIN, 0);
+          SERIAL_ERRORLN("Temperature extruder 0 switched off. MAXTEMP triggered !!");
+          kill();
+        }
+      #endif
+    #endif
+  #ifdef HEATER_1_MAXTEMP
+    #if (HEATER_1_PIN > -1)
+      if(current_raw[TEMPSENSOR_HOTEND_1] >= maxttemp_1) {
+        target_raw[TEMPSENSOR_HOTEND_1] = 0;
+      if(current_raw[2] >= maxttemp_1) {
+        analogWrite(HEATER_2_PIN, 0);
+        SERIAL_ERRORLN("Temperature extruder 1 switched off. MAXTEMP triggered !!");
+        kill()
+      }
+    #endif
+  #endif //MAXTEMP
+  
+  #ifdef HEATER_0_MINTEMP
+    #if (HEATER_0_PIN > -1)
+      if(current_raw[TEMPSENSOR_HOTEND_0] <= minttemp_0) {
+        target_raw[TEMPSENSOR_HOTEND_0] = 0;
+        analogWrite(HEATER_0_PIN, 0);
+        SERIAL_ERRORLN("Temperature extruder 0 switched off. MINTEMP triggered !!");
+        kill();
+      }
+    #endif
   #endif
-#endif
-#ifdef HEATER_1_MAXTEMP
-  #if (HEATER_1_PIN > -1)
-    if(current_raw[TEMPSENSOR_HOTEND_1] >= maxttemp_1) {
-      target_raw[TEMPSENSOR_HOTEND_1] = 0;
-    if(current_raw[2] >= maxttemp_1) {
-      analogWrite(HEATER_2_PIN, 0);
-      SERIAL_ERRORLN("Temperature extruder 1 switched off. MAXTEMP triggered !!");
-      kill()
-    }
+  
+  #ifdef HEATER_1_MINTEMP
+    #if (HEATER_2_PIN > -1)
+      if(current_raw[TEMPSENSOR_HOTEND_1] <= minttemp_1) {
+        target_raw[TEMPSENSOR_HOTEND_1] = 0;
+        analogWrite(HEATER_2_PIN, 0);
+        SERIAL_ERRORLN("Temperature extruder 1 switched off. MINTEMP triggered !!");
+        kill();
+      }
+    #endif
+  #endif //MAXTEMP
+  
+  #ifdef BED_MINTEMP
+    #if (HEATER_1_PIN > -1)
+      if(current_raw[1] <= bed_minttemp) {
+        target_raw[1] = 0;
+        WRITE(HEATER_1_PIN, 0);
+        SERIAL_ERRORLN("Temperatur heated bed switched off. MINTEMP triggered !!");
+        kill();
+      }
+    #endif
   #endif
-#endif //MAXTEMP
-#ifdef HEATER_0_MINTEMP
-  #if (HEATER_0_PIN > -1)
-    if(current_raw[TEMPSENSOR_HOTEND_0] <= minttemp_0) {
-      target_raw[TEMPSENSOR_HOTEND_0] = 0;
-      analogWrite(HEATER_0_PIN, 0);
-      SERIAL_ERRORLN("Temperature extruder 0 switched off. MINTEMP triggered !!");
-      kill();
-    }
+  
+  #ifdef BED_MAXTEMP
+    #if (HEATER_1_PIN > -1)
+      if(current_raw[1] >= bed_maxttemp) {
+        target_raw[1] = 0;
+        WRITE(HEATER_1_PIN, 0);
+        SERIAL_ERRORLN("Temperature heated bed switched off. MAXTEMP triggered !!");
+        kill();
+      }
+    #endif
   #endif
-#endif
-#ifdef HEATER_1_MINTEMP
-  #if (HEATER_2_PIN > -1)
-    if(current_raw[TEMPSENSOR_HOTEND_1] <= minttemp_1) {
-      target_raw[TEMPSENSOR_HOTEND_1] = 0;
-      analogWrite(HEATER_2_PIN, 0);
-      SERIAL_ERRORLN("Temperature extruder 1 switched off. MINTEMP triggered !!");
-      kill();
-    }
-  #endif
-#endif //MAXTEMP
-#ifdef BED_MINTEMP
-  #if (HEATER_1_PIN > -1)
-    if(current_raw[1] <= bed_minttemp) {
-      target_raw[1] = 0;
-      WRITE(HEATER_1_PIN, 0);
-      SERIAL_ERRORLN("Temperatur heated bed switched off. MINTEMP triggered !!");
-      kill();
-    }
-  #endif
-#endif
-#ifdef BED_MAXTEMP
-  #if (HEATER_1_PIN > -1)
-    if(current_raw[1] >= bed_maxttemp) {
-      target_raw[1] = 0;
-      WRITE(HEATER_1_PIN, 0);
-      SERIAL_ERRORLN("Temperature heated bed switched off. MAXTEMP triggered !!");
-      kill();
-    }
-  #endif
-#endif
   }
 }
 

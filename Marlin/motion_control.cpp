@@ -33,8 +33,8 @@
 void mc_arc(float *position, float *target, float *offset, uint8_t axis_0, uint8_t axis_1, 
   uint8_t axis_linear, float feed_rate, float radius, uint8_t isclockwise)
 {      
-//   int acceleration_manager_was_enabled = plan_is_acceleration_manager_enabled();
-//   plan_set_acceleration_manager_enabled(false); // disable acceleration management for the duration of the arc
+  //   int acceleration_manager_was_enabled = plan_is_acceleration_manager_enabled();
+  //   plan_set_acceleration_manager_enabled(false); // disable acceleration management for the duration of the arc
   SERIAL_ECHOLN("mc_arc.");
   float center_axis0 = position[axis_0] + offset[axis_0];
   float center_axis1 = position[axis_1] + offset[axis_1];
@@ -52,12 +52,12 @@ void mc_arc(float *position, float *target, float *offset, uint8_t axis_0, uint8
   float millimeters_of_travel = hypot(angular_travel*radius, fabs(linear_travel));
   if (millimeters_of_travel == 0.0) { return; }
   uint16_t segments = floor(millimeters_of_travel/MM_PER_ARC_SEGMENT);
-/*  
-  // Multiply inverse feed_rate to compensate for the fact that this movement is approximated
-  // by a number of discrete segments. The inverse feed_rate should be correct for the sum of 
-  // all segments.
-  if (invert_feed_rate) { feed_rate *= segments; }
-*/
+  /*  
+    // Multiply inverse feed_rate to compensate for the fact that this movement is approximated
+    // by a number of discrete segments. The inverse feed_rate should be correct for the sum of 
+    // all segments.
+    if (invert_feed_rate) { feed_rate *= segments; }
+  */
   float theta_per_segment = angular_travel/segments;
   float linear_per_segment = linear_travel/segments;
   
@@ -128,6 +128,6 @@ void mc_arc(float *position, float *target, float *offset, uint8_t axis_0, uint8
   // Ensure last segment arrives at target location.
   plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], feed_rate);
 
-//   plan_set_acceleration_manager_enabled(acceleration_manager_was_enabled);
+  //   plan_set_acceleration_manager_enabled(acceleration_manager_was_enabled);
 }
 

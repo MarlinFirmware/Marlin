@@ -1,5 +1,5 @@
-#ifndef CONFIGURATION_H
-#define CONFIGURATION_H
+#ifndef __CONFIGURATION_H
+#define __CONFIGURATION_H
 
 //#define DEBUG_STEPS
 
@@ -118,10 +118,7 @@ const int dropsegments=5; //everything with this number of steps  will be ignore
 #define NUM_AXIS 4 // The axis order in all axis related arrays is X, Y, Z, E
 //note: on bernhards ultimaker 200 200 12 are working well.
 #define HOMING_FEEDRATE {50*60, 50*60, 12*60, 0}  // set the homing speeds
-//the followint checks if an extrusion is existent in the move. if _not_, the speed of the move is set to the maximum speed. 
-//!!!!!!Use only if you know that your printer works at the maximum declared speeds.
-// works around the skeinforge cool-bug. There all moves are slowed to have a minimum layer time. However slow travel moves= ooze
-#define TRAVELING_AT_MAXSPEED  
+
 #define AXIS_RELATIVE_MODES {false, false, false, false}
 
 #define MAX_STEP_FREQUENCY 40000 // Max step frequency for Ultimaker (5000 pps / half step)
@@ -177,41 +174,50 @@ const int dropsegments=5; //everything with this number of steps  will be ignore
 //#define_HEATER_1_MAXTEMP 275
 //#define BED_MAXTEMP 150
 
-
-
-
-
-
-
+/// PID settings:
+// Uncomment the following line to enable PID support.
+  
 #define PIDTEMP
 #ifdef PIDTEMP
-  /// PID settings:
-  // Uncomment the following line to enable PID support.
-  //#define SMOOTHING
-  //#define SMOOTHFACTOR 5.0
-  //float current_raw_average=0;
-    #define K1 0.95 //smoothing of the PID
   //#define PID_DEBUG // Sends debug data to the serial port. 
   //#define PID_OPENLOOP 1 // Puts PID in open loop. M104 sets the output power in %
-  #define PID_MAX 255 // limits current to nozzle
-  #define PID_INTEGRAL_DRIVE_MAX 255
-  #define PID_dT 0.1
- //machine with red silicon: 1950:45 second ; with fan fully blowin 3000:47
+  
+  #define PID_MAX 255 // limits current to nozzle; 255=full current
+  #define PID_INTEGRAL_DRIVE_MAX 255  //limit for the integral term
+  #define K1 0.95 //smoothing factor withing the PID
+  #define PID_dT 0.1 //sampling period of the PID
+
+  //To develop some PID settings for your machine, you can initiall follow 
+  // the Ziegler-Nichols method.
+  // set Ki and Kd to zero. 
+  // heat with a defined Kp and see if the temperature stabilizes
+  // ideally you do this graphically with repg.
+  // the PID_CRITIAL_GAIN should be the Kp at which temperature oscillatins are not dampned out/decreas in amplitutde
+  // PID_SWING_AT_CRITIAL is the time for a full period of the oscillations at the critical Gain
+  // usually further manual tunine is necessary.
 
   #define PID_CRITIAL_GAIN 3000
   #define PID_SWING_AT_CRITIAL 45 //seconds
-  #define PIDIADD 5
-  /*
-  //PID according to Ziegler-Nichols method
-  float Kp = 0.6*PID_CRITIAL_GAIN; 
-  float Ki =PIDIADD+2*Kp/PID_SWING_AT_CRITIAL*PID_dT;  
-  float Kd = Kp*PID_SWING_AT_CRITIAL/8./PID_dT;  
-  */
-  //PI according to Ziegler-Nichols method
-  #define  DEFAULT_Kp (PID_CRITIAL_GAIN/2.2) 
-  #define  DEFAULT_Ki (1.2*Kp/PID_SWING_AT_CRITIAL*PID_dT)
-  #define  DEFAULT_Kd (0)
   
+  #define PID_PI    //no differentail term
+  //#define PID_PID //normal PID
+
+  #ifdef PID_PID
+    //PID according to Ziegler-Nichols method
+    #define  DEFAULT_Kp  (0.6*PID_CRITIAL_GAIN)
+    #define  DEFAULT_Ki (2*Kp/PID_SWING_AT_CRITIAL*PID_dT)  
+    #define  DEFAULT_Kd (PID_SWING_AT_CRITIAL/8./PID_dT)  
+  #endif
+ 
+  #ifdef PID_PI
+    //PI according to Ziegler-Nichols method
+    #define  DEFAULT_Kp (PID_CRITIAL_GAIN/2.2) 
+    #define  DEFAULT_Ki (1.2*Kp/PID_SWING_AT_CRITIAL*PID_dT)
+    #define  DEFAULT_Kd (0)
+  #endif
+  
+  // this adds an experimental additional term to the heatingpower, proportional to the extrusion speed.
+  // if Kc is choosen well, the additional required power due to increased melting should be compensated.
   #define PID_ADD_EXTRUSION_RATE  
   #ifdef PID_ADD_EXTRUSION_RATE
     #define  DEFAULT_Kc (5) //heatingpower=Kc*(e_speed)
@@ -228,22 +234,21 @@ const int dropsegments=5; //everything with this number of steps  will be ignore
 //#define ADVANCE
 
 #ifdef ADVANCE
-#define EXTRUDER_ADVANCE_K .3
+  #define EXTRUDER_ADVANCE_K .3
 
-#define D_FILAMENT 1.7
-#define STEPS_MM_E 65
-#define EXTRUTION_AREA (0.25 * D_FILAMENT * D_FILAMENT * 3.14159)
-#define STEPS_PER_CUBIC_MM_E (axis_steps_per_unit[E_AXIS]/ EXTRUTION_AREA)
+  #define D_FILAMENT 1.7
+  #define STEPS_MM_E 65
+  #define EXTRUTION_AREA (0.25 * D_FILAMENT * D_FILAMENT * 3.14159)
+  #define STEPS_PER_CUBIC_MM_E (axis_steps_per_unit[E_AXIS]/ EXTRUTION_AREA)
 
 #endif // ADVANCE
 
-// THE BLOCK_BUFFER_SIZE NEEDS TO BE A POWER OF 2, e.g. 8,16,32 
-#if defined SDSUPPORT
 // The number of linear motions that can be in the plan at any give time.  
+// THE BLOCK_BUFFER_SIZE NEEDS TO BE A POWER OF 2, i.g. 8,16,32 because shifts and ors are used to do the ringbuffering.
+#if defined SDSUPPORT
   #define BLOCK_BUFFER_SIZE 16   // SD,LCD,Buttons take more memory, block buffer needs to be smaller
 #else
   #define BLOCK_BUFFER_SIZE 16 // maximize block buffer
 #endif
 
-
-#endif
+#endif //__CONFIGURATION_H

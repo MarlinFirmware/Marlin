@@ -27,8 +27,10 @@
   #include "stepper.h"
 #endif
 
+// public functions
 void tp_init();  //initialise the heating
 void manage_heater(); //it is critical that this is called periodically.
+
 
 enum TempSensor {TEMPSENSOR_HOTEND_0=0,TEMPSENSOR_BED=1, TEMPSENSOR_HOTEND_1=2};
 
@@ -41,9 +43,11 @@ float analog2tempBed(int raw);
 extern int target_raw[3];  
 extern int current_raw[3];
 extern float Kp,Ki,Kd,Kc;
+
 #ifdef PIDTEMP
   extern float pid_setpoint ;
 #endif
+  
 #ifdef WATCHPERIOD
   extern int watch_raw[3] ;
   extern unsigned long watchmillis;
@@ -63,15 +67,15 @@ inline float degTargetHotend0() {  return analog2temp(target_raw[TEMPSENSOR_HOTE
 inline float degTargetHotend1() {  return analog2temp(target_raw[TEMPSENSOR_HOTEND_1]);};
 inline float degTargetBed() {   return analog2tempBed(target_raw[TEMPSENSOR_BED]);};
 
-inline void setTargetHotend0(float celsius) 
+inline void setTargetHotend0(const float &celsius) 
 {  
   target_raw[TEMPSENSOR_HOTEND_0]=temp2analog(celsius);
   #ifdef PIDTEMP
     pid_setpoint = celsius;
   #endif //PIDTEMP
 };
-inline void setTargetHotend1(float celsius) {  target_raw[TEMPSENSOR_HOTEND_1]=temp2analog(celsius);};
-inline void setTargetBed(float celsius)     {  target_raw[TEMPSENSOR_BED     ]=temp2analogBed(celsius);};
+inline void setTargetHotend1(const float &celsius) {  target_raw[TEMPSENSOR_HOTEND_1]=temp2analog(celsius);};
+inline void setTargetBed(const float &celsius)     {  target_raw[TEMPSENSOR_BED     ]=temp2analogBed(celsius);};
 
 inline bool isHeatingHotend0() {return target_raw[TEMPSENSOR_HOTEND_0] > current_raw[TEMPSENSOR_HOTEND_0];};
 inline bool isHeatingHotend1() {return target_raw[TEMPSENSOR_HOTEND_1] > current_raw[TEMPSENSOR_HOTEND_1];};
@@ -83,17 +87,6 @@ inline bool isCoolingBed() {return target_raw[TEMPSENSOR_BED] < current_raw[TEMP
 
 void disable_heater();
 void setWatch();
-
-#ifdef HEATER_0_USES_THERMISTOR
-    #define HEATERSOURCE 1
-#endif
-#ifdef BED_USES_THERMISTOR
-    #define BEDSOURCE 1
-#endif
-
-
-
-
 
 #endif
 

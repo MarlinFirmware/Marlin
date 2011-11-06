@@ -36,8 +36,8 @@ void st_wake_up();
 // if DEBUG_STEPS is enabled, M114 can be used to compare two methods of determining the X,Y,Z position of the printer.
 // for debugging purposes only, should be disabled by default
 #ifdef DEBUG_STEPS
-extern volatile long count_position[NUM_AXIS];
-extern volatile int count_direction[NUM_AXIS];
+  extern volatile long count_position[NUM_AXIS];
+  extern volatile int count_direction[NUM_AXIS];
 #endif
 
 extern block_t *current_block;  // A pointer to the block currently being traced

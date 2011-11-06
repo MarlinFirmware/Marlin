@@ -35,8 +35,8 @@
 // if DEBUG_STEPS is enabled, M114 can be used to compare two methods of determining the X,Y,Z position of the printer.
 // for debugging purposes only, should be disabled by default
 #ifdef DEBUG_STEPS
-volatile long count_position[NUM_AXIS] = { 0, 0, 0, 0};
-volatile int count_direction[NUM_AXIS] = { 1, 1, 1, 1};
+  volatile long count_position[NUM_AXIS] = { 0, 0, 0, 0};
+  volatile int count_direction[NUM_AXIS] = { 1, 1, 1, 1};
 #endif
 
 
@@ -117,6 +117,8 @@ asm volatile ( \
 
 block_t *current_block;  // A pointer to the block currently being traced
 
+//static makes it inpossible to be called from outside of this file by extern.!
+
 // Variables used by The Stepper Driver Interrupt
 static unsigned char out_bits;        // The next stepping-bits to be output
 static long counter_x,       // Counter variables for the bresenham line tracer
@@ -125,9 +127,9 @@ static long counter_x,       // Counter variables for the bresenham line tracer
             counter_e;
 static unsigned long step_events_completed; // The number of step events executed in the current block
 #ifdef ADVANCE
-static long advance_rate, advance, final_advance = 0;
-static short old_advance = 0;
-static short e_steps;
+  static long advance_rate, advance, final_advance = 0;
+  static short old_advance = 0;
+  static short e_steps;
 #endif
 static unsigned char busy = false; // TRUE when SIG_OUTPUT_COMPARE1A is being serviced. Used to avoid retriggering that handler.
 static long acceleration_time, deceleration_time;
@@ -195,10 +197,10 @@ inline unsigned short calc_timer(unsigned short step_rate) {
 // Initializes the trapezoid generator from the current block. Called whenever a new 
 // block begins.
 inline void trapezoid_generator_reset() {
-#ifdef ADVANCE
-  advance = current_block->initial_advance;
-  final_advance = current_block->final_advance;
-#endif
+  #ifdef ADVANCE
+    advance = current_block->initial_advance;
+    final_advance = current_block->final_advance;
+  #endif
   deceleration_time = 0;
   // advance_rate = current_block->advance_rate;
   // step_rate to timer interval
@@ -211,7 +213,8 @@ inline void trapezoid_generator_reset() {
 // It pops blocks from the block_buffer and executes them by pulsing the stepper pins appropriately. 
 ISR(TIMER1_COMPA_vect)
 {        
-  if(busy){ SERIAL_ERRORLN(*(unsigned short *)OCR1A<< " ISR overtaking itself.");
+  if(busy){ 
+    SERIAL_ERRORLN(*(unsigned short *)OCR1A<< " ISR overtaking itself.");
     return; 
   } // The busy-flag is used to avoid reentering this interrupt
 
@@ -242,74 +245,74 @@ ISR(TIMER1_COMPA_vect)
     // Set directions TO DO This should be done once during init of trapezoid. Endstops -> interrupt
     out_bits = current_block->direction_bits;
 
-#ifdef ADVANCE
-    // Calculate E early.
-    counter_e += current_block->steps_e;
-    if (counter_e > 0) {
-      counter_e -= current_block->step_event_count;
-      if ((out_bits & (1<<E_AXIS)) != 0) { // - direction
+    #ifdef ADVANCE
+        // Calculate E early.
+        counter_e += current_block->steps_e;
+        if (counter_e > 0) {
+          counter_e -= current_block->step_event_count;
+          if ((out_bits & (1<<E_AXIS)) != 0) { // - direction
+            CRITICAL_SECTION_START;
+            e_steps--;
+            CRITICAL_SECTION_END;
+          }
+          else {
+            CRITICAL_SECTION_START;
+            e_steps++;
+            CRITICAL_SECTION_END;
+          }
+        }    
+        // Do E steps + advance steps
         CRITICAL_SECTION_START;
-        e_steps--;
+        e_steps += ((advance >> 16) - old_advance);
         CRITICAL_SECTION_END;
-      }
-      else {
-        CRITICAL_SECTION_START;
-        e_steps++;
-        CRITICAL_SECTION_END;
-      }
-    }    
-    // Do E steps + advance steps
-    CRITICAL_SECTION_START;
-    e_steps += ((advance >> 16) - old_advance);
-    CRITICAL_SECTION_END;
-    old_advance = advance >> 16;  
-#endif //ADVANCE
+        old_advance = advance >> 16;  
+    #endif //ADVANCE
 
     // Set direction en check limit switches
-if ((out_bits & (1<<X_AXIS)) != 0) {   // -direction
+    if ((out_bits & (1<<X_AXIS)) != 0) {   // -direction
       WRITE(X_DIR_PIN, INVERT_X_DIR);
       #ifdef DEBUG_STEPS
-      count_direction[X_AXIS]=-1;
+        count_direction[X_AXIS]=-1;
       #endif
-#if X_MIN_PIN > -1
-      if(READ(X_MIN_PIN) != ENDSTOPS_INVERTING) {
-        step_events_completed = current_block->step_event_count;
-      }
-#endif
+      #if X_MIN_PIN > -1
+            if(READ(X_MIN_PIN) != ENDSTOPS_INVERTING) {
+              step_events_completed = current_block->step_event_count;
+            }
+      #endif
     }
     else { // +direction 
-        WRITE(X_DIR_PIN,!INVERT_X_DIR);
-        #ifdef DEBUG_STEPS
+      WRITE(X_DIR_PIN,!INVERT_X_DIR);
+      #ifdef DEBUG_STEPS
         count_direction[X_AXIS]=1;
-        #endif
-#if X_MAX_PIN > -1
+      #endif
+      #if X_MAX_PIN > -1
         if((READ(X_MAX_PIN) != ENDSTOPS_INVERTING)  && (current_block->steps_x >0)){
           step_events_completed = current_block->step_event_count;
         }
-#endif
+        #endif
     }
 
     if ((out_bits & (1<<Y_AXIS)) != 0) {   // -direction
       WRITE(Y_DIR_PIN,INVERT_Y_DIR);
       #ifdef DEBUG_STEPS
-      count_direction[Y_AXIS]=-1;
+        count_direction[Y_AXIS]=-1;
       #endif
-#if Y_MIN_PIN > -1
-      if(READ(Y_MIN_PIN) != ENDSTOPS_INVERTING) {
-        step_events_completed = current_block->step_event_count;
-      }
-#endif
+      #if Y_MIN_PIN > -1
+        if(READ(Y_MIN_PIN) != ENDSTOPS_INVERTING) {
+          step_events_completed = current_block->step_event_count;
+        }
+      #endif
     }
     else { // +direction
     WRITE(Y_DIR_PIN,!INVERT_Y_DIR);
       #ifdef DEBUG_STEPS
-      count_direction[Y_AXIS]=1;
+        count_direction[Y_AXIS]=1;
       #endif
-#if Y_MAX_PIN > -1
-    if((READ(Y_MAX_PIN) != ENDSTOPS_INVERTING) && (current_block->steps_y >0)){
-        step_events_completed = current_block->step_event_count;
-      }
-#endif
+      #if Y_MAX_PIN > -1
+      if((READ(Y_MAX_PIN) != ENDSTOPS_INVERTING) && (current_block->steps_y >0)){
+          step_events_completed = current_block->step_event_count;
+        }
+      #endif
     }
 
     if ((out_bits & (1<<Z_AXIS)) != 0) {   // -direction
@@ -317,30 +320,30 @@ if ((out_bits & (1<<X_AXIS)) != 0) {   // -direction
       #ifdef DEBUG_STEPS
       count_direction[Z_AXIS]=-1;
       #endif
-#if Z_MIN_PIN > -1
-      if(READ(Z_MIN_PIN) != ENDSTOPS_INVERTING) {
-        step_events_completed = current_block->step_event_count;
-      }
-#endif
+      #if Z_MIN_PIN > -1
+        if(READ(Z_MIN_PIN) != ENDSTOPS_INVERTING) {
+          step_events_completed = current_block->step_event_count;
+        }
+      #endif
     }
     else { // +direction
-        WRITE(Z_DIR_PIN,!INVERT_Z_DIR);
-        #ifdef DEBUG_STEPS
+      WRITE(Z_DIR_PIN,!INVERT_Z_DIR);
+      #ifdef DEBUG_STEPS
         count_direction[Z_AXIS]=1;
-        #endif
-#if Z_MAX_PIN > -1
+      #endif
+      #if Z_MAX_PIN > -1
         if((READ(Z_MAX_PIN) != ENDSTOPS_INVERTING)  && (current_block->steps_z >0)){
           step_events_completed = current_block->step_event_count;
         }
-#endif
+      #endif
     }
 
-#ifndef ADVANCE
-    if ((out_bits & (1<<E_AXIS)) != 0)   // -direction
-      WRITE(E_DIR_PIN,INVERT_E_DIR);
-    else // +direction
-      WRITE(E_DIR_PIN,!INVERT_E_DIR);
-#endif //!ADVANCE
+    #ifndef ADVANCE
+      if ((out_bits & (1<<E_AXIS)) != 0)   // -direction
+        WRITE(E_DIR_PIN,INVERT_E_DIR);
+      else // +direction
+        WRITE(E_DIR_PIN,!INVERT_E_DIR);
+    #endif //!ADVANCE
 
     for(char i=0; i < step_loops; i++) { // Take multiple steps per interrupt (For high speed moves) 
       counter_x += current_block->steps_x;
@@ -349,7 +352,7 @@ if ((out_bits & (1<<X_AXIS)) != 0) {   // -direction
         counter_x -= current_block->step_event_count;
         WRITE(X_STEP_PIN, LOW);
         #ifdef DEBUG_STEPS
-        count_position[X_AXIS]+=count_direction[X_AXIS];   
+          count_position[X_AXIS]+=count_direction[X_AXIS];   
         #endif
       }
 
@@ -359,7 +362,7 @@ if ((out_bits & (1<<X_AXIS)) != 0) {   // -direction
         counter_y -= current_block->step_event_count;
         WRITE(Y_STEP_PIN, LOW);
         #ifdef DEBUG_STEPS
-        count_position[Y_AXIS]+=count_direction[Y_AXIS];
+          count_position[Y_AXIS]+=count_direction[Y_AXIS];
         #endif
       }
 
@@ -369,18 +372,18 @@ if ((out_bits & (1<<X_AXIS)) != 0) {   // -direction
         counter_z -= current_block->step_event_count;
         WRITE(Z_STEP_PIN, LOW);
         #ifdef DEBUG_STEPS
-        count_position[Z_AXIS]+=count_direction[Z_AXIS];
+          count_position[Z_AXIS]+=count_direction[Z_AXIS];
         #endif
       }
 
-#ifndef ADVANCE
-      counter_e += current_block->steps_e;
-      if (counter_e > 0) {
-        WRITE(E_STEP_PIN, HIGH);
-        counter_e -= current_block->step_event_count;
-        WRITE(E_STEP_PIN, LOW);
-      }
-#endif //!ADVANCE
+      #ifndef ADVANCE
+        counter_e += current_block->steps_e;
+        if (counter_e > 0) {
+          WRITE(E_STEP_PIN, HIGH);
+          counter_e -= current_block->step_event_count;
+          WRITE(E_STEP_PIN, LOW);
+        }
+      #endif //!ADVANCE
       step_events_completed += 1;  
       if(step_events_completed >= current_block->step_event_count) break;
     }
@@ -397,9 +400,9 @@ if ((out_bits & (1<<X_AXIS)) != 0) {   // -direction
 
       // step_rate to timer interval
       timer = calc_timer(acc_step_rate);
-#ifdef ADVANCE
-      advance += advance_rate;
-#endif
+      #ifdef ADVANCE
+        advance += advance_rate;
+      #endif
       acceleration_time += timer;
       OCR1A = timer;
     } 
@@ -419,11 +422,11 @@ if ((out_bits & (1<<X_AXIS)) != 0) {   // -direction
 
       // step_rate to timer interval
       timer = calc_timer(step_rate);
-#ifdef ADVANCE
-      advance -= advance_rate;
-      if(advance < final_advance)
-        advance = final_advance;
-#endif //ADVANCE
+      #ifdef ADVANCE
+        advance -= advance_rate;
+        if(advance < final_advance)
+          advance = final_advance;
+      #endif //ADVANCE
       deceleration_time += timer;
       OCR1A = timer;
     }       
@@ -438,127 +441,126 @@ if ((out_bits & (1<<X_AXIS)) != 0) {   // -direction
 }
 
 #ifdef ADVANCE
-
-unsigned char old_OCR0A;
-// Timer interrupt for E. e_steps is set in the main routine;
-// Timer 0 is shared with millies
-ISR(TIMER0_COMPA_vect)
-{
-  // Critical section needed because Timer 1 interrupt has higher priority. 
-  // The pin set functions are placed on trategic position to comply with the stepper driver timing.
-  WRITE(E_STEP_PIN, LOW);
-  // Set E direction (Depends on E direction + advance)
-  if (e_steps < 0) {
-    WRITE(E_DIR_PIN,INVERT_E_DIR);    
-    e_steps++;
-    WRITE(E_STEP_PIN, HIGH);
-  } 
-  if (e_steps > 0) {
-    WRITE(E_DIR_PIN,!INVERT_E_DIR);
-    e_steps--;
-    WRITE(E_STEP_PIN, HIGH);
+  unsigned char old_OCR0A;
+  // Timer interrupt for E. e_steps is set in the main routine;
+  // Timer 0 is shared with millies
+  ISR(TIMER0_COMPA_vect)
+  {
+    // Critical section needed because Timer 1 interrupt has higher priority. 
+    // The pin set functions are placed on trategic position to comply with the stepper driver timing.
+    WRITE(E_STEP_PIN, LOW);
+    // Set E direction (Depends on E direction + advance)
+    if (e_steps < 0) {
+      WRITE(E_DIR_PIN,INVERT_E_DIR);    
+      e_steps++;
+      WRITE(E_STEP_PIN, HIGH);
+    } 
+    if (e_steps > 0) {
+      WRITE(E_DIR_PIN,!INVERT_E_DIR);
+      e_steps--;
+      WRITE(E_STEP_PIN, HIGH);
+    }
+    old_OCR0A += 25; // 10kHz interrupt
+    OCR0A = old_OCR0A;
   }
-  old_OCR0A += 25; // 10kHz interrupt
-  OCR0A = old_OCR0A;
-}
 #endif // ADVANCE
 
 void st_init()
 {
     //Initialize Dir Pins
-#if X_DIR_PIN > -1
-  SET_OUTPUT(X_DIR_PIN);
-#endif
-#if Y_DIR_PIN > -1 
-  SET_OUTPUT(Y_DIR_PIN);
-#endif
-#if Z_DIR_PIN > -1 
-  SET_OUTPUT(Z_DIR_PIN);
-#endif
-#if E_DIR_PIN > -1 
-  SET_OUTPUT(E_DIR_PIN);
-#endif
+  #if X_DIR_PIN > -1
+    SET_OUTPUT(X_DIR_PIN);
+  #endif
+  #if Y_DIR_PIN > -1 
+    SET_OUTPUT(Y_DIR_PIN);
+  #endif
+  #if Z_DIR_PIN > -1 
+    SET_OUTPUT(Z_DIR_PIN);
+  #endif
+  #if E_DIR_PIN > -1 
+    SET_OUTPUT(E_DIR_PIN);
+  #endif
 
   //Initialize Enable Pins - steppers default to disabled.
 
-#if (X_ENABLE_PIN > -1)
-  SET_OUTPUT(X_ENABLE_PIN);
-  if(!X_ENABLE_ON) WRITE(X_ENABLE_PIN,HIGH);
-#endif
-#if (Y_ENABLE_PIN > -1)
-  SET_OUTPUT(Y_ENABLE_PIN);
-  if(!Y_ENABLE_ON) WRITE(Y_ENABLE_PIN,HIGH);
-#endif
-#if (Z_ENABLE_PIN > -1)
-  SET_OUTPUT(Z_ENABLE_PIN);
-  if(!Z_ENABLE_ON) WRITE(Z_ENABLE_PIN,HIGH);
-#endif
-#if (E_ENABLE_PIN > -1)
-  SET_OUTPUT(E_ENABLE_PIN);
-  if(!E_ENABLE_ON) WRITE(E_ENABLE_PIN,HIGH);
-#endif
+  #if (X_ENABLE_PIN > -1)
+    SET_OUTPUT(X_ENABLE_PIN);
+    if(!X_ENABLE_ON) WRITE(X_ENABLE_PIN,HIGH);
+  #endif
+  #if (Y_ENABLE_PIN > -1)
+    SET_OUTPUT(Y_ENABLE_PIN);
+    if(!Y_ENABLE_ON) WRITE(Y_ENABLE_PIN,HIGH);
+  #endif
+  #if (Z_ENABLE_PIN > -1)
+    SET_OUTPUT(Z_ENABLE_PIN);
+    if(!Z_ENABLE_ON) WRITE(Z_ENABLE_PIN,HIGH);
+  #endif
+  #if (E_ENABLE_PIN > -1)
+    SET_OUTPUT(E_ENABLE_PIN);
+    if(!E_ENABLE_ON) WRITE(E_ENABLE_PIN,HIGH);
+  #endif
 
   //endstops and pullups
-#ifdef ENDSTOPPULLUPS
-#if X_MIN_PIN > -1
-  SET_INPUT(X_MIN_PIN); 
-  WRITE(X_MIN_PIN,HIGH);
-#endif
-#if X_MAX_PIN > -1
-  SET_INPUT(X_MAX_PIN); 
-  WRITE(X_MAX_PIN,HIGH);
-#endif
-#if Y_MIN_PIN > -1
-  SET_INPUT(Y_MIN_PIN); 
-  WRITE(Y_MIN_PIN,HIGH);
-#endif
-#if Y_MAX_PIN > -1
-  SET_INPUT(Y_MAX_PIN); 
-  WRITE(Y_MAX_PIN,HIGH);
-#endif
-#if Z_MIN_PIN > -1
-  SET_INPUT(Z_MIN_PIN); 
-  WRITE(Z_MIN_PIN,HIGH);
-#endif
-#if Z_MAX_PIN > -1
-  SET_INPUT(Z_MAX_PIN); 
-  WRITE(Z_MAX_PIN,HIGH);
-#endif
-#else //ENDSTOPPULLUPS
-#if X_MIN_PIN > -1
-  SET_INPUT(X_MIN_PIN); 
-#endif
-#if X_MAX_PIN > -1
-  SET_INPUT(X_MAX_PIN); 
-#endif
-#if Y_MIN_PIN > -1
-  SET_INPUT(Y_MIN_PIN); 
-#endif
-#if Y_MAX_PIN > -1
-  SET_INPUT(Y_MAX_PIN); 
-#endif
-#if Z_MIN_PIN > -1
-  SET_INPUT(Z_MIN_PIN); 
-#endif
-#if Z_MAX_PIN > -1
-  SET_INPUT(Z_MAX_PIN); 
-#endif
-#endif //ENDSTOPPULLUPS
+  #ifdef ENDSTOPPULLUPS
+    #if X_MIN_PIN > -1
+      SET_INPUT(X_MIN_PIN); 
+      WRITE(X_MIN_PIN,HIGH);
+    #endif
+    #if X_MAX_PIN > -1
+      SET_INPUT(X_MAX_PIN); 
+      WRITE(X_MAX_PIN,HIGH);
+    #endif
+    #if Y_MIN_PIN > -1
+      SET_INPUT(Y_MIN_PIN); 
+      WRITE(Y_MIN_PIN,HIGH);
+    #endif
+    #if Y_MAX_PIN > -1
+      SET_INPUT(Y_MAX_PIN); 
+      WRITE(Y_MAX_PIN,HIGH);
+    #endif
+    #if Z_MIN_PIN > -1
+      SET_INPUT(Z_MIN_PIN); 
+      WRITE(Z_MIN_PIN,HIGH);
+    #endif
+    #if Z_MAX_PIN > -1
+      SET_INPUT(Z_MAX_PIN); 
+      WRITE(Z_MAX_PIN,HIGH);
+    #endif
+  #else //ENDSTOPPULLUPS
+    #if X_MIN_PIN > -1
+      SET_INPUT(X_MIN_PIN); 
+    #endif
+    #if X_MAX_PIN > -1
+      SET_INPUT(X_MAX_PIN); 
+    #endif
+    #if Y_MIN_PIN > -1
+      SET_INPUT(Y_MIN_PIN); 
+    #endif
+    #if Y_MAX_PIN > -1
+      SET_INPUT(Y_MAX_PIN); 
+    #endif
+    #if Z_MIN_PIN > -1
+      SET_INPUT(Z_MIN_PIN); 
+    #endif
+    #if Z_MAX_PIN > -1
+      SET_INPUT(Z_MAX_PIN); 
+    #endif
+  #endif //ENDSTOPPULLUPS
  
 
   //Initialize Step Pins
-#if (X_STEP_PIN > -1) 
-  SET_OUTPUT(X_STEP_PIN);
-#endif  
-#if (Y_STEP_PIN > -1) 
-  SET_OUTPUT(Y_STEP_PIN);
-#endif  
-#if (Z_STEP_PIN > -1) 
-  SET_OUTPUT(Z_STEP_PIN);
-#endif  
-#if (E_STEP_PIN > -1) 
-  SET_OUTPUT(E_STEP_PIN);
-#endif  
+  #if (X_STEP_PIN > -1) 
+    SET_OUTPUT(X_STEP_PIN);
+  #endif  
+  #if (Y_STEP_PIN > -1) 
+    SET_OUTPUT(Y_STEP_PIN);
+  #endif  
+  #if (Z_STEP_PIN > -1) 
+    SET_OUTPUT(Z_STEP_PIN);
+  #endif  
+  #if (E_STEP_PIN > -1) 
+    SET_OUTPUT(E_STEP_PIN);
+  #endif  
 
   // waveform generation = 0100 = CTC
   TCCR1B &= ~(1<<WGM13);
@@ -574,10 +576,10 @@ void st_init()
   OCR1A = 0x4000;
   DISABLE_STEPPER_DRIVER_INTERRUPT();  
 
-#ifdef ADVANCE
-  e_steps = 0;
-  TIMSK0 |= (1<<OCIE0A);
-#endif //ADVANCE
+  #ifdef ADVANCE
+    e_steps = 0;
+    TIMSK0 |= (1<<OCIE0A);
+  #endif //ADVANCE
   sei();
 }
 

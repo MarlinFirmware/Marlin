@@ -3,7 +3,7 @@
 #include  <avr/wdt.h>
 #include  <avr/interrupt.h>
 
-volatile uint8_t timeout_seconds=0;
+static volatile uint8_t timeout_seconds=0;
 
 void(* ctrlaltdelete) (void) = 0; //does not work on my atmega2560
 

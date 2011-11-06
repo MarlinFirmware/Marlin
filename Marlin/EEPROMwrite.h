@@ -1,39 +1,42 @@
 #ifndef __EEPROMH
 #define __EEPROMH
+
+#include "Marlin.h"
 #include "planner.h"
 #include "temperature.h"
 #include <EEPROM.h>
-#include "Marlin.h"
-#include "streaming.h"
 
-//======================================================================================
 template <class T> int EEPROM_writeAnything(int &ee, const T& value)
 {
-    const byte* p = (const byte*)(const void*)&value;
-    int i;
-    for (i = 0; i < (int)sizeof(value); i++)
-	  EEPROM.write(ee++, *p++);
-    return i;
+  const byte* p = (const byte*)(const void*)&value;
+  int i;
+  for (i = 0; i < (int)sizeof(value); i++)
+    EEPROM.write(ee++, *p++);
+  return i;
 }
-//======================================================================================
+
 template <class T> int EEPROM_readAnything(int &ee, T& value)
 {
-    byte* p = (byte*)(void*)&value;
-    int i;
-    for (i = 0; i < (int)sizeof(value); i++)
-	  *p++ = EEPROM.read(ee++);
-    return i;
+  byte* p = (byte*)(void*)&value;
+  int i;
+  for (i = 0; i < (int)sizeof(value); i++)
+    *p++ = EEPROM.read(ee++);
+  return i;
 }
 //======================================================================================
 
 #define EEPROM_OFFSET 100
 
-#define EEPROM_VERSION "V04"  // IMPORTANT:  Whenever there are changes made to the variables stored in EEPROM
-                              // in the functions below, also increment the version number. This makes sure that
-                              // the default values are used whenever there is a change to the data, to prevent
-                              // wrong data being written to the variables.
-                              // ALSO:  always make sure the variables in the Store and retrieve sections are in the same order.
-void StoreSettings() {
+
+// IMPORTANT:  Whenever there are changes made to the variables stored in EEPROM
+// in the functions below, also increment the version number. This makes sure that
+// the default values are used whenever there is a change to the data, to prevent
+// wrong data being written to the variables.
+// ALSO:  always make sure the variables in the Store and retrieve sections are in the same order.
+#define EEPROM_VERSION "V04"  
+
+void StoreSettings() 
+{
   char ver[4]= "000";
   int i=EEPROM_OFFSET;
   EEPROM_writeAnything(i,ver); // invalidate data first 
@@ -48,52 +51,55 @@ void StoreSettings() {
   EEPROM_writeAnything(i,max_xy_jerk);
   EEPROM_writeAnything(i,max_z_jerk);
   #ifdef PIDTEMP
-  EEPROM_writeAnything(i,Kp);
-  EEPROM_writeAnything(i,Ki);
-  EEPROM_writeAnything(i,Kd);
-#else
-  EEPROM_writeAnything(i,3000);
-  EEPROM_writeAnything(i,0);
-  EEPROM_writeAnything(i,0);
-#endif
+    EEPROM_writeAnything(i,Kp);
+    EEPROM_writeAnything(i,Ki);
+    EEPROM_writeAnything(i,Kd);
+  #else
+    EEPROM_writeAnything(i,3000);
+    EEPROM_writeAnything(i,0);
+    EEPROM_writeAnything(i,0);
+  #endif
   char ver2[4]=EEPROM_VERSION;
   i=EEPROM_OFFSET;
   EEPROM_writeAnything(i,ver2); // validate data
-   SERIAL_ECHOLN("Settings Stored");
-
+  SERIAL_ECHOLN("Settings Stored");
 }
 
-void RetrieveSettings(bool def=false){  // if def=true, the default values will be used
+void RetrieveSettings(bool def=false)
+{  // if def=true, the default values will be used
   int i=EEPROM_OFFSET;
   char stored_ver[4];
   char ver[4]=EEPROM_VERSION;
   EEPROM_readAnything(i,stored_ver); //read stored version
-//  SERIAL_ECHOLN("Version: [" << ver << "] Stored version: [" << stored_ver << "]");
-  if ((!def)&&(strncmp(ver,stored_ver,3)==0)) {   // version number match
-      EEPROM_readAnything(i,axis_steps_per_unit);  
-      EEPROM_readAnything(i,max_feedrate);  
-      EEPROM_readAnything(i,max_acceleration_units_per_sq_second);
-      EEPROM_readAnything(i,acceleration);
-      EEPROM_readAnything(i,retract_acceleration);
-      EEPROM_readAnything(i,minimumfeedrate);
-      EEPROM_readAnything(i,mintravelfeedrate);
-      EEPROM_readAnything(i,minsegmenttime);
-      EEPROM_readAnything(i,max_xy_jerk);
-      EEPROM_readAnything(i,max_z_jerk);
-#ifndef PIDTEMP
+  //  SERIAL_ECHOLN("Version: [" << ver << "] Stored version: [" << stored_ver << "]");
+  if ((!def)&&(strncmp(ver,stored_ver,3)==0)) 
+  {   // version number match
+    EEPROM_readAnything(i,axis_steps_per_unit);  
+    EEPROM_readAnything(i,max_feedrate);  
+    EEPROM_readAnything(i,max_acceleration_units_per_sq_second);
+    EEPROM_readAnything(i,acceleration);
+    EEPROM_readAnything(i,retract_acceleration);
+    EEPROM_readAnything(i,minimumfeedrate);
+    EEPROM_readAnything(i,mintravelfeedrate);
+    EEPROM_readAnything(i,minsegmenttime);
+    EEPROM_readAnything(i,max_xy_jerk);
+    EEPROM_readAnything(i,max_z_jerk);
+    #ifndef PIDTEMP
       float Kp,Ki,Kd;
-#endif
-      EEPROM_readAnything(i,Kp);
-      EEPROM_readAnything(i,Ki);
-      EEPROM_readAnything(i,Kd);
+    #endif
+    EEPROM_readAnything(i,Kp);
+    EEPROM_readAnything(i,Ki);
+    EEPROM_readAnything(i,Kd);
 
-      SERIAL_ECHOLN("Stored settings retreived:");
+    SERIAL_ECHOLN("Stored settings retreived:");
   }
-  else {
+  else 
+  {
     float tmp1[]=DEFAULT_AXIS_STEPS_PER_UNIT;
     float tmp2[]=DEFAULT_MAX_FEEDRATE;
     long tmp3[]=DEFAULT_MAX_ACCELERATION;
-    for (int i=0;i<4;i++) {
+    for (short i=0;i<4;i++) 
+    {
       axis_steps_per_unit[i]=tmp1[i];  
       max_feedrate[i]=tmp2[i];  
       max_acceleration_units_per_sq_second[i]=tmp3[i];
@@ -117,11 +123,10 @@ void RetrieveSettings(bool def=false){  // if def=true, the default values will 
   SERIAL_ECHOLN("   M204 S"  <<_FLOAT(acceleration,2) << " T" << _FLOAT(retract_acceleration,2));
   SERIAL_ECHOLN("Advanced variables: S=Min feedrate (mm/s), T=Min travel feedrate (mm/s), B=minimum segment time (ms), X=maximum xY jerk (mm/s),  Z=maximum Z jerk (mm/s)");
   SERIAL_ECHOLN("   M205 S"  <<_FLOAT(minimumfeedrate/60,2) << " T" << _FLOAT(mintravelfeedrate/60,2) << " B" << _FLOAT(minsegmenttime,2) << " X" << _FLOAT(max_xy_jerk/60,2) << " Z" << _FLOAT(max_z_jerk/60,2));
-#ifdef PIDTEMP
-  SERIAL_ECHOLN("PID settings:");
-  SERIAL_ECHOLN("   M301 P"  << _FLOAT(Kp,3) << " I" << _FLOAT(Ki,3) << " D" << _FLOAT(Kd,3));  
-#endif
-  
+  #ifdef PIDTEMP
+    SERIAL_ECHOLN("PID settings:");
+    SERIAL_ECHOLN("   M301 P"  << _FLOAT(Kp,3) << " I" << _FLOAT(Ki,3) << " D" << _FLOAT(Kd,3));  
+  #endif
 }  
 
 #endif
