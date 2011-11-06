@@ -37,13 +37,11 @@
 #include "stepper.h"
 #include "temperature.h"
 #include "motion_control.h"
+#include "cardreader.h"
 
 
 char version_string[] = "1.0.0 Alpha 1";
 
-#ifdef SDSUPPORT
-  #include "SdFat.h"
-#endif //SDSUPPORT
 
 
 // look here for descriptions of gcodes: http://linuxcnc.org/handbook/gcode/g-code.html
@@ -112,7 +110,11 @@ char version_string[] = "1.0.0 Alpha 1";
 //===========================================================================
 extern float HeaterPower;
 
-//public variables
+
+//===========================================================================
+//=============================public variables=============================
+//===========================================================================
+CardReader card;
 float homing_feedrate[] = HOMING_FEEDRATE;
 bool axis_relative_modes[] = AXIS_RELATIVE_MODES;
 volatile int feedmultiply=100; //100->1 200->2
@@ -138,7 +140,6 @@ static bool relative_mode_e = false;  //Determines Absolute or Relative E Codes 
 static uint8_t fanpwm=0;
 
 
-// comm variables
 
 static char cmdbuffer[BUFSIZE][MAX_CMD_SIZE];
 static bool fromsd[BUFSIZE];
@@ -163,140 +164,12 @@ static unsigned long stepper_inactive_time = 0;
 static unsigned long starttime=0;
 static unsigned long stoptime=0;
 
-#ifdef SDSUPPORT
-  static Sd2Card card;
-  static SdVolume volume;
-  static SdFile root;
-  static SdFile file;
-  static uint32_t filesize = 0;
-  static uint32_t sdpos = 0;
-  static bool sdmode = false;
-  static bool sdactive = false;
-  static bool savetosd = false;
-  static int16_t n;
-  static unsigned long autostart_atmillis=0;
-  
-  static bool autostart_stilltocheck=true; //the sd start is delayed, because otherwise the serial cannot answer fast enought to make contact with the hostsoftware.
-#endif //SDSUPPORT
+
 
 //===========================================================================
 //=============================ROUTINES=============================
 //===========================================================================
-#ifdef SDSUPPORT
-  void initsd()
-  {
-    sdactive = false;
-    #if SDSS >- 1
-      if(root.isOpen())
-	root.close();
-      if (!card.init(SPI_FULL_SPEED,SDSS))
-      {
-	//if (!card.init(SPI_HALF_SPEED,SDSS))
-	SERIAL_ECHOLN("SD init fail");
-      }
-      else if (!volume.init(&card))
-      {
-	SERIAL_ERRORLN("volume.init failed");
-      }
-      else if (!root.openRoot(&volume)) 
-      {
-	SERIAL_ERRORLN("openRoot failed");
-      }
-      else 
-      {
-	sdactive = true;
-	SERIAL_ECHOLN("SD card ok");
-      }
-    #endif //SDSS
-  }
 
-  void quickinitsd()
-  {
-    sdactive=false;
-    autostart_atmillis=millis()+5000;
-  }
-
-  inline void write_command(char *buf)
-  {
-    char* begin = buf;
-    char* npos = 0;
-    char* end = buf + strlen(buf) - 1;
-
-    file.writeError = false;
-    if((npos = strchr(buf, 'N')) != NULL)
-    {
-      begin = strchr(npos, ' ') + 1;
-      end = strchr(npos, '*') - 1;
-    }
-    end[1] = '\r';
-    end[2] = '\n';
-    end[3] = '\0';
-    file.write(begin);
-    if (file.writeError)
-    {
-      SERIAL_ERRORLN("error writing to file");
-    }
-  }
-  
-
-  void checkautostart(bool force)
-  {
-  //this is to delay autostart and hence the initialisaiton of the sd card to some seconds after the normal init, so the device is available quick after a reset
-    if(!force)
-    {
-      if(!autostart_stilltocheck)
-        return;
-      if(autostart_atmillis<millis())
-        return;
-    }
-    autostart_stilltocheck=false;
-    if(!sdactive)
-    {
-      initsd();
-      if(!sdactive) //fail
-        return;
-    }
-    static int lastnr=0;
-    char autoname[30];
-    sprintf(autoname,"auto%i.g",lastnr);
-    for(int i=0;i<(int)strlen(autoname);i++)
-      autoname[i]=tolower(autoname[i]);
-    dir_t p;
-
-    root.rewind();
-    
-    bool found=false;
-    while (root.readDir(p) > 0) 
-    {
-      for(int i=0;i<(int)strlen((char*)p.name);i++)
-      p.name[i]=tolower(p.name[i]);
-      //Serial.print((char*)p.name);
-      //Serial.print(" ");
-      //Serial.println(autoname);
-      if(p.name[9]!='~') //skip safety copies
-      if(strncmp((char*)p.name,autoname,5)==0)
-      {
-        char cmd[30];
-
-        sprintf(cmd,"M23 %s",autoname);
-        //sprintf(cmd,"M115");
-        //enquecommand("G92 Z0");
-        //enquecommand("G1 Z10 F2000");
-        //enquecommand("G28 X-105 Y-105");
-        enquecommand(cmd);
-        enquecommand("M24");
-        found=true;
-      }
-    }
-    if(!found)
-      lastnr=-1;
-    else
-      lastnr++;
-  }
-#else  //NO SD SUPORT
-  inline void checkautostart(bool x){};
-  
-#endif //SDSUPPORT
 
 
 //adds an command to the main command buffer
@@ -331,14 +204,6 @@ void setup()
     axis_steps_per_sqr_second[i] = max_acceleration_units_per_sq_second[i] * axis_steps_per_unit[i];
   }
 
-  #ifdef SDSUPPORT
-    //power to SD reader
-    #if SDPOWER > -1
-      SET_OUTPUT(SDPOWER); 
-      WRITE(SDPOWER,HIGH);
-    #endif //SDPOWER
-    quickinitsd();
-  #endif //SDSUPPORT
   
   plan_init();  // Initialize planner;
   st_init();    // Initialize stepper;
@@ -350,22 +215,20 @@ void loop()
 {
   if(buflen<3)
     get_command();
-  checkautostart(false);
+  card.checkautostart(false);
   if(buflen)
   {
     #ifdef SDSUPPORT
-      if(savetosd)
+      if(card.savetosd)
       {
 	if(strstr(cmdbuffer[bufindr],"M29") == NULL)
 	{
-	  write_command(cmdbuffer[bufindr]);
+	  card.write_command(cmdbuffer[bufindr]);
 	  Serial.println("ok");
 	}
 	else
 	{
-	  file.sync();
-	  file.close();
-	  savetosd = false;
+	  card.closefile();
 	  Serial.println("Done saving file.");
 	}
       }
@@ -455,7 +318,7 @@ inline void get_command()
           case 2:
           case 3:
 	    #ifdef SDSUPPORT
-            if(savetosd)
+            if(card.savetosd)
               break;
 	    #endif //SDSUPPORT
             Serial.println("ok"); 
@@ -479,17 +342,17 @@ inline void get_command()
     }
   }
   #ifdef SDSUPPORT
-  if(!sdmode || serial_count!=0){
+  if(!card.sdmode || serial_count!=0){
     return;
   }
-  while( filesize > sdpos  && buflen < BUFSIZE) {
-    n = file.read();
+  while( card.filesize > card.sdpos  && buflen < BUFSIZE) {
+    short n = card.file.read();
     serial_char = (char)n;
     if(serial_char == '\n' || serial_char == '\r' || serial_char == ':' || serial_count >= (MAX_CMD_SIZE - 1) || n == -1) 
     {
-      sdpos = file.curPosition();
-      if(sdpos >= filesize){
-        sdmode = false;
+      card.sdpos = card.file.curPosition();
+      if(card.sdpos >= card.filesize){
+        card.sdmode = false;
         Serial.println("echo: Done printing file");
         stoptime=millis();
         char time[30];
@@ -500,7 +363,7 @@ inline void get_command()
         sprintf(time,"echo: %i min, %i sec",min,sec);
         Serial.println(time);
         LCD_MESSAGE(time);
-        checkautostart(true);
+        card.checkautostart(true);
       }
       if(!serial_count) 
 	return; //if empty line
@@ -702,31 +565,31 @@ inline void process_commands()
 
     case 20: // M20 - list SD card
       Serial.println("Begin file list");
-      root.ls();
+      card.root.ls();
       Serial.println("End file list");
       break;
     case 21: // M21 - init SD card
-      sdmode = false;
-      initsd();
+      card.sdmode = false;
+      card.initsd();
       break;
     case 22: //M22 - release SD card
-      sdmode = false;
-      sdactive = false;
+      card.sdmode = false;
+      card.sdactive = false;
       break;
     case 23: //M23 - Select file
-      if(sdactive){
-        sdmode = false;
-        file.close();
+      if(card.sdactive){
+        card.sdmode = false;
+        card.file.close();
         starpos = (strchr(strchr_pointer + 4,'*'));
         if(starpos!=NULL)
           *(starpos-1)='\0';
-        if (file.open(&root, strchr_pointer + 4, O_READ)) {
+        if (card.file.open(&card.root, strchr_pointer + 4, O_READ)) {
           Serial.print("File opened:");
           Serial.print(strchr_pointer + 4);
           Serial.print(" Size:");
-          Serial.println(file.fileSize());
-          sdpos = 0;
-          filesize = file.fileSize();
+          Serial.println(card.file.fileSize());
+          card.sdpos = 0;
+          card.filesize = card.file.fileSize();
           Serial.println("File selected");
         }
         else{
@@ -735,52 +598,52 @@ inline void process_commands()
       }
       break;
     case 24: //M24 - Start SD print
-      if(sdactive){
-        sdmode = true;
+      if(card.sdactive){
+        card.sdmode = true;
 	starttime=millis();
       }
       break;
     case 25: //M25 - Pause SD print
-      if(sdmode){
-        sdmode = false;
+      if(card.sdmode){
+        card.sdmode = false;
       }
       break;
     case 26: //M26 - Set SD index
-      if(sdactive && code_seen('S')){
-        sdpos = code_value_long();
-        file.seekSet(sdpos);
+      if(card.sdactive && code_seen('S')){
+        card.sdpos = code_value_long();
+        card.file.seekSet(card.sdpos);
       }
       break;
     case 27: //M27 - Get SD status
-      if(sdactive){
+      if(card.sdactive){
         Serial.print("SD printing byte ");
-        Serial.print(sdpos);
+        Serial.print(card.sdpos);
         Serial.print("/");
-        Serial.println(filesize);
+        Serial.println(card.filesize);
       }
       else{
         Serial.println("Not SD printing");
       }
       break;
     case 28: //M28 - Start SD write
-      if(sdactive){
+      if(card.sdactive){
         char* npos = 0;
-        file.close();
-        sdmode = false;
+        card.file.close();
+        card.sdmode = false;
         starpos = (strchr(strchr_pointer + 4,'*'));
         if(starpos != NULL){
           npos = strchr(cmdbuffer[bufindr], 'N');
           strchr_pointer = strchr(npos,' ') + 1;
           *(starpos-1) = '\0';
         }
-        if (!file.open(&root, strchr_pointer+4, O_CREAT | O_APPEND | O_WRITE | O_TRUNC))
+        if (!card.file.open(&card.root, strchr_pointer+4, O_CREAT | O_APPEND | O_WRITE | O_TRUNC))
         {
           Serial.print("open failed, File: ");
           Serial.print(strchr_pointer + 4);
           Serial.print(".");
         }
         else{
-          savetosd = true;
+          card.savetosd = true;
           Serial.print("Writing to file: ");
           Serial.println(strchr_pointer + 4);
         }

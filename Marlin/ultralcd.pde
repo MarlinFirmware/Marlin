@@ -6,6 +6,7 @@ extern volatile int feedmultiply;
 extern volatile bool feedmultiplychanged;
 
 extern long position[4];   
+extern CardReader card;
 
 static char messagetext[LCD_WIDTH]="";
 
@@ -1107,56 +1108,8 @@ void MainMenu::showControl()
 
 #include "SdFat.h"
 
-void MainMenu::getfilename(const uint8_t nr)
-{
-#ifdef SDSUPPORT  
-  dir_t p;
-  root.rewind();
-  uint8_t cnt=0;
-  filename[0]='\0';
-  while (root.readDir(p) > 0)
-  {
-    if (p.name[0] == DIR_NAME_FREE) break;
-    if (p.name[0] == DIR_NAME_DELETED || p.name[0] == '.'|| p.name[0] == '_') continue;
-    if (!DIR_IS_FILE_OR_SUBDIR(&p)) continue;
-    if(p.name[8]!='G') continue;
-    if(p.name[9]=='~') continue;
-    if(cnt++!=nr) continue;
-    //Serial.println((char*)p.name);
-    uint8_t writepos=0;
-    for (uint8_t i = 0; i < 11; i++) 
-    {
-      if (p.name[i] == ' ') continue;
-      if (i == 8) {
-        filename[writepos++]='.';
-      }
-      filename[writepos++]=p.name[i];
-    }
-    filename[writepos++]=0;
-  }
-#endif  
-}
 
-uint8_t getnrfilenames()
-{
-#ifdef SDSUPPORT
-  dir_t p;
-  root.rewind();
-  uint8_t cnt=0;
-  while (root.readDir(p) > 0)
-  {
-    if (p.name[0] == DIR_NAME_FREE) break;
-    if (p.name[0] == DIR_NAME_DELETED || p.name[0] == '.'|| p.name[0] == '_') continue;
-    if (!DIR_IS_FILE_OR_SUBDIR(&p)) continue;
-    if(p.name[8]!='G') continue;
-    if(p.name[9]=='~') continue;
-    cnt++;
-  }
-  return cnt;
-#else
-  return 0;
-#endif
-}
+
 
 void MainMenu::showSD()
 {
@@ -1171,9 +1124,9 @@ void MainMenu::showSD()
  if(force_lcd_update)
  {
    clear();
-  if(sdactive)
+  if(card.sdactive)
   {
-    nrfiles=getnrfilenames();
+    nrfiles=card.getnrfilenames();
   }
   else
   {
@@ -1223,9 +1176,9 @@ void MainMenu::showSD()
         {
           BLOCK;
           beepshort();
-          initsd();
+          card.initsd();
           force_lcd_update=true;
-           nrfiles=getnrfilenames();
+           nrfiles=card.getnrfilenames();
         }
       }break;
     default:
@@ -1234,24 +1187,24 @@ void MainMenu::showSD()
       {
         if(force_lcd_update)
         {
-          getfilename(i-2);
+          card.getfilename(i-2);
           //Serial.print("Filenr:");Serial.println(i-2);
-          lcd.setCursor(0,line);lcd.print(" ");lcd.print(filename);
+          lcd.setCursor(0,line);lcd.print(" ");lcd.print(card.filename);
         }
         if((activeline==line) && CLICKED)
         {
           BLOCK
-          getfilename(i-2);
+          card.getfilename(i-2);
           char cmd[30];
-          for(int i=0;i<strlen(filename);i++)
-            filename[i]=tolower(filename[i]);
-          sprintf(cmd,"M23 %s",filename);
+          for(int i=0;i<strlen(card.filename);i++)
+            card.filename[i]=tolower(card.filename[i]);
+          sprintf(cmd,"M23 %s",card.filename);
           //sprintf(cmd,"M115");
           enquecommand(cmd);
           enquecommand("M24");
           beep(); 
           status=Main_Status;
-          lcd_status(filename);
+          lcd_status(card.filename);
         }
       }
       
@@ -1359,7 +1312,7 @@ void MainMenu::showMainMenu()
             if(true)
           #endif
           {
-            if(sdmode)
+            if(card.sdmode)
               lcd.print(" Stop Print   \x7E");
             else
               lcd.print(" Card Menu    \x7E");
@@ -1374,7 +1327,7 @@ void MainMenu::showMainMenu()
         #endif
         if((activeline==line)&&CLICKED)
         {
-          sdmode = false;
+          card.sdmode = false;
           BLOCK;
           status=Main_SD;
           beepshort();
@@ -1419,12 +1372,12 @@ void MainMenu::update()
       //Serial.println("echo: SD CHANGE");
       if(CARDINSERTED)
       {
-        initsd();
+        card.initsd();
         lcd_status("Card inserted");
       }
       else
       {
-        sdactive=false;
+        card.sdactive=false;
         lcd_status("Card removed");
       }
     }

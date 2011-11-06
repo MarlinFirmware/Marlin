@@ -57,7 +57,6 @@
   public:
     MainMenu();
     void update();
-    void getfilename(const uint8_t nr);
     uint8_t activeline;
     MainStatus status;
     uint8_t displayStartingRow;
@@ -71,7 +70,7 @@
     int lastencoderpos;
     int8_t lineoffset;
     int8_t lastlineoffset;
-    char filename[11];
+    
     bool linechanging;
   };
 
