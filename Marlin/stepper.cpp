@@ -345,7 +345,7 @@ ISR(TIMER1_COMPA_vect)
         WRITE(E_DIR_PIN,!INVERT_E_DIR);
     #endif //!ADVANCE
 
-    for(char i=0; i < step_loops; i++) { // Take multiple steps per interrupt (For high speed moves) 
+    for(int8_t i=0; i < step_loops; i++) { // Take multiple steps per interrupt (For high speed moves) 
       counter_x += current_block->steps_x;
       if (counter_x > 0) {
         WRITE(X_STEP_PIN, HIGH);

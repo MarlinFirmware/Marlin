@@ -80,7 +80,7 @@ void beep()
   //return;
   #ifdef ULTIPANEL
     pinMode(BEEPER,OUTPUT);
-    for(int i=0;i<20;i++){
+    for(int8_t i=0;i<20;i++){
       WRITE(BEEPER,HIGH);
       delay(5);
       WRITE(BEEPER,LOW);
@@ -94,7 +94,7 @@ void beepshort()
   //return;
   #ifdef ULTIPANEL
     pinMode(BEEPER,OUTPUT);
-    for(int i=0;i<10;i++){
+    for(int8_t i=0;i<10;i++){
       WRITE(BEEPER,HIGH);
       delay(3);
       WRITE(BEEPER,LOW);
@@ -165,7 +165,7 @@ void buttons_check()
     WRITE(SHIFT_LD,LOW);
     WRITE(SHIFT_LD,HIGH);
     unsigned char tmp_buttons=0;
-    for(unsigned char i=0;i<8;i++)
+    for(int8_t i=0;i<8;i++)
     { 
       newbutton = newbutton>>1;
       if(READ(SHIFT_OUT))
@@ -375,7 +375,7 @@ void MainMenu::showPrepare()
    force_lcd_update=true;
    clear(); 
  }
- for(uint8_t i=lineoffset;i<lineoffset+LCD_HEIGHT;i++)
+ for(int8_t i=lineoffset;i<lineoffset+LCD_HEIGHT;i++)
  {
    //Serial.println((int)(line-lineoffset));
   switch(i)
@@ -512,7 +512,7 @@ void MainMenu::showControl()
    force_lcd_update=true;
    clear();
  }
- for(uint8_t i=lineoffset;i<lineoffset+LCD_HEIGHT;i++)
+ for(int8_t i=lineoffset;i<lineoffset+LCD_HEIGHT;i++)
  {
   switch(i)
   {
@@ -1196,7 +1196,7 @@ void MainMenu::showSD()
           BLOCK
           card.getfilename(i-2);
           char cmd[30];
-          for(int i=0;i<strlen(card.filename);i++)
+          for(int8_t i=0;i<strlen(card.filename);i++)
             card.filename[i]=tolower(card.filename[i]);
           sprintf(cmd,"M23 %s",card.filename);
           //sprintf(cmd,"M115");
@@ -1265,7 +1265,7 @@ void MainMenu::showMainMenu()
    //Serial.println((int)activeline);
    if(force_lcd_update)
      clear();
-  for(short line=0;line<LCD_HEIGHT;line++)
+  for(int8_t line=0;line<LCD_HEIGHT;line++)
   {
     switch(line)
     { 

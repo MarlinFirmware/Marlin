@@ -192,14 +192,14 @@ void setup()
   Serial.begin(BAUDRATE);
   SERIAL_ECHOLN("Marlin "<<version_string);
   Serial.println("start");
-  for(int i = 0; i < BUFSIZE; i++)
+  for(int8_t i = 0; i < BUFSIZE; i++)
   {
     fromsd[i] = false;
   }
   
   RetrieveSettings(); // loads data from EEPROM if available
 
-  for(int i=0; i < NUM_AXIS; i++)
+  for(int8_t i=0; i < NUM_AXIS; i++)
   {
     axis_steps_per_sqr_second[i] = max_acceleration_units_per_sq_second[i] * axis_steps_per_unit[i];
   }
@@ -470,7 +470,7 @@ inline void process_commands()
       saved_feedmultiply = feedmultiply;
       feedmultiply = 100;
       
-      for(int i=0; i < NUM_AXIS; i++) {
+      for(int8_t i=0; i < NUM_AXIS; i++) {
         destination[i] = current_position[i];
       }
       feedrate = 0.0;
@@ -501,7 +501,7 @@ inline void process_commands()
     case 92: // G92
       if(!code_seen(axis_codes[E_AXIS])) 
         st_synchronize();
-      for(int i=0; i < NUM_AXIS; i++) {
+      for(int8_t i=0; i < NUM_AXIS; i++) {
         if(code_seen(axis_codes[i])) current_position[i] = code_value();  
       }
       plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
@@ -587,7 +587,7 @@ inline void process_commands()
         if (code_seen('P') && pin_status >= 0 && pin_status <= 255)
         {
           int pin_number = code_value();
-          for(int i = 0; i < (int)sizeof(sensitive_pins); i++)
+          for(int8_t i = 0; i < (int8_t)sizeof(sensitive_pins); i++)
           {
             if (sensitive_pins[i] == pin_number)
             {
@@ -759,7 +759,7 @@ inline void process_commands()
       max_inactive_time = code_value() * 1000; 
       break;
     case 92: // M92
-      for(int i=0; i < NUM_AXIS; i++) 
+      for(int8_t i=0; i < NUM_AXIS; i++) 
       {
         if(code_seen(axis_codes[i])) 
           axis_steps_per_unit[i] = code_value();
@@ -816,20 +816,20 @@ inline void process_commands()
       break;
       //TODO: update for all axis, use for loop
     case 201: // M201
-      for(int i=0; i < NUM_AXIS; i++) 
+      for(int8_t i=0; i < NUM_AXIS; i++) 
       {
         if(code_seen(axis_codes[i])) axis_steps_per_sqr_second[i] = code_value() * axis_steps_per_unit[i];
       }
       break;
     #if 0 // Not used for Sprinter/grbl gen6
     case 202: // M202
-      for(int i=0; i < NUM_AXIS; i++) {
+      for(int8_t i=0; i < NUM_AXIS; i++) {
         if(code_seen(axis_codes[i])) axis_travel_steps_per_sqr_second[i] = code_value() * axis_steps_per_unit[i];
       }
       break;
     #endif
     case 203: // M203 max feedrate mm/sec
-      for(int i=0; i < NUM_AXIS; i++) {
+      for(int8_t i=0; i < NUM_AXIS; i++) {
         if(code_seen(axis_codes[i])) max_feedrate[i] = code_value()*60 ;
       }
       break;
@@ -914,7 +914,7 @@ void ClearToSend()
 
 inline void get_coordinates()
 {
-  for(int i=0; i < NUM_AXIS; i++) {
+  for(int8_t i=0; i < NUM_AXIS; i++) {
     if(code_seen(axis_codes[i])) destination[i] = (float)code_value() + (axis_relative_modes[i] || relative_mode)*current_position[i];
     else destination[i] = current_position[i]; //Are these else lines really needed?
   }
@@ -934,7 +934,7 @@ inline void get_arc_coordinates()
 void prepare_move()
 {
   plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate*feedmultiply/60.0/100.0);
-  for(int i=0; i < NUM_AXIS; i++) {
+  for(int8_t i=0; i < NUM_AXIS; i++) {
     current_position[i] = destination[i];
   }
 }
@@ -948,7 +948,7 @@ void prepare_arc_move(char isclockwise) {
   // As far as the parser is concerned, the position is now == target. In reality the
   // motion control system might still be processing the action and the real tool position
   // in any intermediate location.
-  for(int i=0; i < NUM_AXIS; i++) {
+  for(int8_t i=0; i < NUM_AXIS; i++) {
     current_position[i] = destination[i];
   }
 }

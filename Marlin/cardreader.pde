@@ -167,7 +167,7 @@ void CardReader::checkautostart(bool force)
   static int lastnr=0;
   char autoname[30];
   sprintf(autoname,"auto%i.g",lastnr);
-  for(int i=0;i<(int)strlen(autoname);i++)
+  for(int8_t i=0;i<(int)strlen(autoname);i++)
     autoname[i]=tolower(autoname[i]);
   dir_t p;
 
@@ -176,7 +176,7 @@ void CardReader::checkautostart(bool force)
   bool found=false;
   while (root.readDir(p) > 0) 
   {
-    for(int i=0;i<(int)strlen((char*)p.name);i++)
+    for(int8_t i=0;i<(int)strlen((char*)p.name);i++)
     p.name[i]=tolower(p.name[i]);
     //Serial.print((char*)p.name);
     //Serial.print(" ");
@@ -222,7 +222,7 @@ void CardReader::getfilename(const uint8_t nr)
     if(cnt++!=nr) continue;
     //Serial.println((char*)p.name);
     uint8_t writepos=0;
-    for (uint8_t i = 0; i < 11; i++) 
+    for (int8_t i = 0; i < 11; i++) 
     {
       if (p.name[i] == ' ') continue;
       if (i == 8) {
