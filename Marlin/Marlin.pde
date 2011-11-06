@@ -35,6 +35,7 @@
 #include "planner.h"
 #include "stepper.h"
 #include "temperature.h"
+#include "motion_control.h"
 
 #ifdef SIMPLE_LCD
   #include "Simplelcd.h"
@@ -113,6 +114,7 @@ float destination[NUM_AXIS] = {
   0.0, 0.0, 0.0, 0.0};
 float current_position[NUM_AXIS] = {
   0.0, 0.0, 0.0, 0.0};
+float offset[3] = {0.0, 0.0, 0.0};
 bool home_all_axis = true;
 float feedrate = 1500.0, next_feedrate, saved_feedrate;
 long gcode_N, gcode_LastN;
@@ -441,6 +443,8 @@ inline void get_command()
           switch((int)((strtod(&cmdbuffer[bufindw][strchr_pointer - cmdbuffer[bufindw] + 1], NULL)))){
           case 0:
           case 1:
+          case 2:
+          case 3:
 #ifdef SDSUPPORT
             if(savetosd)
               break;
@@ -543,6 +547,16 @@ inline void process_commands()
       //ClearToSend();
       return;
       //break;
+    case 2: // G2  - CW ARC
+      get_arc_coordinates();
+      prepare_arc_move(true);
+      previous_millis_cmd = millis();
+      return;
+    case 3: // G3  - CCW ARC
+      get_arc_coordinates();
+      prepare_arc_move(false);
+      previous_millis_cmd = millis();
+      return;
     case 4: // G4 dwell
       codenum = 0;
       if(code_seen('P')) codenum = code_value(); // milliseconds to wait
@@ -1139,6 +1153,13 @@ inline void get_coordinates()
   }
 }
 
+inline void get_arc_coordinates()
+{
+   get_coordinates();
+   if(code_seen("I")) offset[0] = code_value();
+   if(code_seen("J")) offset[1] = code_value();
+}
+
 void prepare_move()
 {
   plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate*feedmultiply/60.0/100.0);
@@ -1147,7 +1168,122 @@ void prepare_move()
   }
 }
 
+void prepare_arc_move(char isclockwise) {
+#if 0
+  if (radius_mode) {
+    /* 
+      We need to calculate the center of the circle that has the designated radius and passes
+      through both the current position and the target position. This method calculates the following
+      set of equations where [x,y] is the vector from current to target position, d == magnitude of 
+      that vector, h == hypotenuse of the triangle formed by the radius of the circle, the distance to
+      the center of the travel vector. A vector perpendicular to the travel vector [-y,x] is scaled to the 
+      length of h [-y/d*h, x/d*h] and added to the center of the travel vector [x/2,y/2] to form the new point 
+      [i,j] at [x/2-y/d*h, y/2+x/d*h] which will be the center of our arc.
+      
+      d^2 == x^2 + y^2
+      h^2 == r^2 - (d/2)^2
+      i == x/2 - y/d*h
+      j == y/2 + x/d*h
+      
+                                                           O <- [i,j]
+                                                        -  |
+                                              r      -     |
+                                                  -        |
+                                               -           | h
+                                            -              |
+                              [0,0] ->  C -----------------+--------------- T  <- [x,y]
+                                        | <------ d/2 ---->|
+                
+      C - Current position
+      T - Target position
+      O - center of circle that pass through both C and T
+      d - distance from C to T
+      r - designated radius
+      h - distance from center of CT to O
+      
+      Expanding the equations:
 
+      d -> sqrt(x^2 + y^2)
+      h -> sqrt(4 * r^2 - x^2 - y^2)/2
+      i -> (x - (y * sqrt(4 * r^2 - x^2 - y^2)) / sqrt(x^2 + y^2)) / 2 
+      j -> (y + (x * sqrt(4 * r^2 - x^2 - y^2)) / sqrt(x^2 + y^2)) / 2
+     
+      Which can be written:
+      
+      i -> (x - (y * sqrt(4 * r^2 - x^2 - y^2))/sqrt(x^2 + y^2))/2
+      j -> (y + (x * sqrt(4 * r^2 - x^2 - y^2))/sqrt(x^2 + y^2))/2
+      
+      Which we for size and speed reasons optimize to:
+
+      h_x2_div_d = sqrt(4 * r^2 - x^2 - y^2)/sqrt(x^2 + y^2)
+      i = (x - (y * h_x2_div_d))/2
+      j = (y + (x * h_x2_div_d))/2
+      
+    */
+    
+    // Calculate the change in position along each selected axis
+    double x = target[gc.plane_axis_0]-gc.position[gc.plane_axis_0];
+    double y = target[gc.plane_axis_1]-gc.position[gc.plane_axis_1];
+    
+    clear_vector(offset);
+    double h_x2_div_d = -sqrt(4 * r*r - x*x - y*y)/hypot(x,y); // == -(h * 2 / d)
+    // If r is smaller than d, the arc is now traversing the complex plane beyond the reach of any
+    // real CNC, and thus - for practical reasons - we will terminate promptly:
+    if(isnan(h_x2_div_d)) { FAIL(STATUS_FLOATING_POINT_ERROR); return(gc.status_code); }
+    // Invert the sign of h_x2_div_d if the circle is counter clockwise (see sketch below)
+    if (gc.motion_mode == MOTION_MODE_CCW_ARC) { h_x2_div_d = -h_x2_div_d; }
+    
+    /* The counter clockwise circle lies to the left of the target direction. When offset is positive,
+       the left hand circle will be generated - when it is negative the right hand circle is generated.
+       
+       
+                                                         T  <-- Target position
+                                                         
+                                                         ^ 
+              Clockwise circles with this center         |          Clockwise circles with this center will have
+              will have > 180 deg of angular travel      |          < 180 deg of angular travel, which is a good thing!
+                                               \         |          /   
+  center of arc when h_x2_div_d is positive ->  x <----- | -----> x <- center of arc when h_x2_div_d is negative
+                                                         |
+                                                         |
+                                                         
+                                                         C  <-- Current position                                 */
+                
+
+    // Negative R is g-code-alese for "I want a circle with more than 180 degrees of travel" (go figure!), 
+    // even though it is advised against ever generating such circles in a single line of g-code. By 
+    // inverting the sign of h_x2_div_d the center of the circles is placed on the opposite side of the line of
+    // travel and thus we get the unadvisably long arcs as prescribed.
+    if (r < 0) { 
+        h_x2_div_d = -h_x2_div_d; 
+        r = -r; // Finished with r. Set to positive for mc_arc
+    }        
+    // Complete the operation by calculating the actual center of the arc
+    offset[gc.plane_axis_0] = 0.5*(x-(y*h_x2_div_d));
+    offset[gc.plane_axis_1] = 0.5*(y+(x*h_x2_div_d));
+
+  } else { // Offset mode specific computations
+#endif
+    float r = hypot(offset[X_AXIS], offset[Y_AXIS]); // Compute arc radius for mc_arc
+
+//  }
+  
+  // Set clockwise/counter-clockwise sign for mc_arc computations
+//  uint8_t isclockwise = false;
+//  if (gc.motion_mode == MOTION_MODE_CW_ARC) { isclockwise = true; }
+
+  // Trace the arc
+  mc_arc(current_position, destination, offset, X_AXIS, Y_AXIS, Z_AXIS, feedrate*feedmultiply/60.0/100.0, r, isclockwise);
+    
+//  }
+  
+  // As far as the parser is concerned, the position is now == target. In reality the
+  // motion control system might still be processing the action and the real tool position
+  // in any intermediate location.
+  for(int ii=0; ii < NUM_AXIS; ii++) {
+    current_position[ii] = destination[ii];
+  }
+}
 
 #ifdef USE_WATCHDOG
 
@@ -1219,7 +1355,7 @@ inline void kill()
   disable_e();
   
   if(PS_ON_PIN > -1) pinMode(PS_ON_PIN,INPUT);
-  Serial.println("!! Printer halted. kill() called!!");
+  Serial.println("!! Printer halted. kill() called !!");
   while(1); // Wait for reset
 }
 
@@ -1232,4 +1368,5 @@ void manage_inactivity(byte debug) {
     disable_e(); 
   }
   check_axes_activity();
-}
+}
+
