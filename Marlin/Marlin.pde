@@ -1263,63 +1263,9 @@ void prepare_arc_move(char isclockwise) {
   }
 }
 
-#ifdef USE_WATCHDOG
-
-#include  <avr/wdt.h>
-#include  <avr/interrupt.h>
-
-volatile uint8_t timeout_seconds=0;
-
-void(* ctrlaltdelete) (void) = 0;
-
-ISR(WDT_vect) { //Watchdog timer interrupt, called if main program blocks >1sec
-  if(timeout_seconds++ >= WATCHDOG_TIMEOUT)
-  {
-   kill();
-#ifdef RESET_MANUAL
-    LCD_MESSAGE("Please Reset!");
-    ECHOLN("echo_: Something is wrong, please turn off the printer.");
-#else
-    LCD_MESSAGE("Timeout, resetting!");
-#endif 
-    //disable watchdog, it will survife reboot.
-    WDTCSR |= (1<<WDCE) | (1<<WDE);
-    WDTCSR = 0;
-#ifdef RESET_MANUAL
-    while(1); //wait for user or serial reset
-#else
-    ctrlaltdelete();
-#endif
-  }
-}
-
-/// intialise watch dog with a 1 sec interrupt time
-void wd_init() {
-  WDTCSR = (1<<WDCE )|(1<<WDE ); //allow changes
-  WDTCSR = (1<<WDIF)|(1<<WDIE)| (1<<WDCE )|(1<<WDE )|  (1<<WDP2 )|(1<<WDP1)|(0<<WDP0);
-}
-
-/// reset watchdog. MUST be called every 1s after init or avr will reset.
-void wd_reset() {
-  wdt_reset();
-  timeout_seconds=0; //reset counter for resets
-}
-#endif /* USE_WATCHDOG */
 
 
-inline void kill()
-{
-  disable_heater();
 
-  disable_x();
-  disable_y();
-  disable_z();
-  disable_e();
-  
-  if(PS_ON_PIN > -1) pinMode(PS_ON_PIN,INPUT);
-  Serial.println("!! Printer halted. kill() called !!");
-  while(1); // Wait for reset
-}
 
 void manage_inactivity(byte debug) { 
   if( (millis()-previous_millis_cmd) >  max_inactive_time ) if(max_inactive_time) kill(); 

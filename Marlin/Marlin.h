@@ -78,5 +78,19 @@ void enquecommand(const char *cmd);
 extern float homing_feedrate[];
 extern bool axis_relative_modes[];
 
-void wd_reset() ;
+
+inline void kill()
+{
+  disable_heater();
+
+  disable_x();
+  disable_y();
+  disable_z();
+  disable_e();
+  
+  if(PS_ON_PIN > -1) pinMode(PS_ON_PIN,INPUT);
+  Serial.println("!! Printer halted. kill() called !!");
+  while(1); // Wait for reset
+}
+
 #endif
