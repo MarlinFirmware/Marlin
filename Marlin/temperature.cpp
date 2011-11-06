@@ -38,10 +38,29 @@
 #include "temperature.h"
 #include "watchdog.h"
 
-
+//===========================================================================
+//=============================public variables============================
+//===========================================================================
 int target_raw[3] = {0, 0, 0};
 int current_raw[3] = {0, 0, 0};
 
+#ifdef PIDTEMP
+  
+  // probably used external
+  float HeaterPower;
+  float pid_setpoint = 0.0;
+
+  
+  float Kp=DEFAULT_Kp;
+  float Ki=DEFAULT_Ki;
+  float Kd=DEFAULT_Kd;
+  float Kc=DEFAULT_Kc;
+#endif //PIDTEMP
+  
+  
+//===========================================================================
+//=============================private variables============================
+//===========================================================================
 static bool temp_meas_ready = false;
 
 static unsigned long previous_millis_heater, previous_millis_bed_heater;
@@ -53,23 +72,14 @@ static unsigned long previous_millis_heater, previous_millis_bed_heater;
   static float pTerm;
   static float iTerm;
   static float dTerm;
-      //int output;
+  //int output;
   static float pid_error;
   static float temp_iState_min;
   static float temp_iState_max;
   static float pid_input;
   static float pid_output;
   static bool pid_reset;
-  
-  // probably used external
-  float HeaterPower;
-  float pid_setpoint = 0.0;
-
-  
-  float Kp=DEFAULT_Kp;
-  float Ki=DEFAULT_Ki;
-  float Kd=DEFAULT_Kd;
-  float Kc=DEFAULT_Kc;
+ 
 #endif //PIDTEMP
   
 #ifdef WATCHPERIOD
@@ -98,6 +108,10 @@ static unsigned long previous_millis_heater, previous_millis_bed_heater;
   static int bed_maxttemp = temp2analog(BED_MAXTEMP);
 #endif //BED_MAXTEMP
 
+//===========================================================================
+//=============================functions         ============================
+//===========================================================================
+  
 void manage_heater()
 {
   #ifdef USE_WATCHDOG
@@ -544,4 +558,5 @@ ISR(TIMER0_COMPB_vect)
   #endif
   }
 }
-
+
+

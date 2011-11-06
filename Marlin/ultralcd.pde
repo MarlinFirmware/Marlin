@@ -1,6 +1,9 @@
 #include "ultralcd.h"
 #ifdef ULTRA_LCD
 
+//===========================================================================
+//=============================imported variables============================
+//===========================================================================
 
 extern volatile int feedmultiply;
 extern volatile bool feedmultiplychanged;
@@ -8,7 +11,21 @@ extern volatile bool feedmultiplychanged;
 extern long position[4];   
 extern CardReader card;
 
+//===========================================================================
+//=============================public variables============================
+//===========================================================================
+volatile char buttons=0;  //the last checked buttons in a bit array.
+int encoderpos=0;
+short lastenc=0;
+
+
+//===========================================================================
+//=============================private  variables============================
+//===========================================================================
 static char messagetext[LCD_WIDTH]="";
+
+//return for string conversion routines
+static char conv[8];
 
 #include <LiquidCrystal.h>
 LiquidCrystal lcd(LCD_PINS_RS, LCD_PINS_ENABLE, LCD_PINS_D4, LCD_PINS_D5,LCD_PINS_D6,LCD_PINS_D7);  //RS,Enable,D4,D5,D6,D7 
@@ -16,17 +33,21 @@ LiquidCrystal lcd(LCD_PINS_RS, LCD_PINS_ENABLE, LCD_PINS_D4, LCD_PINS_D5,LCD_PIN
 static unsigned long previous_millis_lcd=0;
 static long previous_millis_buttons=0;
 
-inline int intround(const float &x){return int(0.5+x);}
 
-volatile char buttons=0;  //the last checked buttons in a bit array.
-int encoderpos=0;
-short lastenc=0;
 #ifdef NEWPANEL
  static long blocking=0;
 #else
  static long blocking[8]={0,0,0,0,0,0,0,0};
 #endif
-MainMenu menu;
+ 
+static MainMenu menu;
+
+
+//===========================================================================
+//=============================functions         ============================
+//===========================================================================
+
+inline int intround(const float &x){return int(0.5+x);}
 
 void lcd_status(const char* message)
 {
@@ -1106,7 +1127,7 @@ void MainMenu::showControl()
   } 
 }
 
-#include "SdFat.h"
+
 
 
 
@@ -1437,8 +1458,7 @@ void MainMenu::update()
 
 
 
-//return for string conversion routines
-static char conv[8];
+
 
 //  convert float to string with +123.4 format
 char *ftostr3(const float &x)

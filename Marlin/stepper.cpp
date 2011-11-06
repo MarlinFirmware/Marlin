@@ -32,6 +32,38 @@
 
 #include "speed_lookuptable.h"
 
+
+//===========================================================================
+//=============================public variables  ============================
+//===========================================================================
+block_t *current_block;  // A pointer to the block currently being traced
+
+
+//===========================================================================
+//=============================private variables ============================
+//===========================================================================
+//static makes it inpossible to be called from outside of this file by extern.!
+
+// Variables used by The Stepper Driver Interrupt
+static unsigned char out_bits;        // The next stepping-bits to be output
+static long counter_x,       // Counter variables for the bresenham line tracer
+            counter_y, 
+            counter_z,       
+            counter_e;
+static unsigned long step_events_completed; // The number of step events executed in the current block
+#ifdef ADVANCE
+  static long advance_rate, advance, final_advance = 0;
+  static short old_advance = 0;
+  static short e_steps;
+#endif
+static unsigned char busy = false; // TRUE when SIG_OUTPUT_COMPARE1A is being serviced. Used to avoid retriggering that handler.
+static long acceleration_time, deceleration_time;
+//static unsigned long accelerate_until, decelerate_after, acceleration_rate, initial_rate, final_rate, nominal_rate;
+static unsigned short acc_step_rate; // needed for deccelaration start point
+static char step_loops;
+
+
+
 // if DEBUG_STEPS is enabled, M114 can be used to compare two methods of determining the X,Y,Z position of the printer.
 // for debugging purposes only, should be disabled by default
 #ifdef DEBUG_STEPS
@@ -39,6 +71,10 @@
   volatile int count_direction[NUM_AXIS] = { 1, 1, 1, 1};
 #endif
 
+//===========================================================================
+//=============================functions         ============================
+//===========================================================================
+  
 
 // intRes = intIn1 * intIn2 >> 16
 // uses:
@@ -115,27 +151,9 @@ asm volatile ( \
 #define ENABLE_STEPPER_DRIVER_INTERRUPT()  TIMSK1 |= (1<<OCIE1A)
 #define DISABLE_STEPPER_DRIVER_INTERRUPT() TIMSK1 &= ~(1<<OCIE1A)
 
-block_t *current_block;  // A pointer to the block currently being traced
 
-//static makes it inpossible to be called from outside of this file by extern.!
 
-// Variables used by The Stepper Driver Interrupt
-static unsigned char out_bits;        // The next stepping-bits to be output
-static long counter_x,       // Counter variables for the bresenham line tracer
-            counter_y, 
-            counter_z,       
-            counter_e;
-static unsigned long step_events_completed; // The number of step events executed in the current block
-#ifdef ADVANCE
-  static long advance_rate, advance, final_advance = 0;
-  static short old_advance = 0;
-  static short e_steps;
-#endif
-static unsigned char busy = false; // TRUE when SIG_OUTPUT_COMPARE1A is being serviced. Used to avoid retriggering that handler.
-static long acceleration_time, deceleration_time;
-//static unsigned long accelerate_until, decelerate_after, acceleration_rate, initial_rate, final_rate, nominal_rate;
-static unsigned short acc_step_rate; // needed for deccelaration start point
-static char step_loops;
+
 
 
 //         __________________________
