@@ -1,5 +1,5 @@
 #ifdef USE_WATCHDOG
-
+#include "watchdog.h"
 #include  <avr/wdt.h>
 #include  <avr/interrupt.h>
 

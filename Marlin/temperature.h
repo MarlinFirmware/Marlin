@@ -42,7 +42,7 @@ extern int target_raw[3];
 extern int current_raw[3];
 extern float Kp,Ki,Kd,Kc;
 #ifdef PIDTEMP
-  float pid_setpoint = 0.0;
+  extern float pid_setpoint ;
 #endif
 #ifdef WATCHPERIOD
   extern int watch_raw[3] ;
@@ -81,38 +81,9 @@ inline bool isCoolingHotend0() {return target_raw[TEMPSENSOR_HOTEND_0] < current
 inline bool isCoolingHotend1() {return target_raw[TEMPSENSOR_HOTEND_1] < current_raw[TEMPSENSOR_HOTEND_1];};
 inline bool isCoolingBed() {return target_raw[TEMPSENSOR_BED] < current_raw[TEMPSENSOR_BED];};
 
-inline void disable_heater()
-{
-   #if TEMP_0_PIN > -1
-  target_raw[0]=0;
-   #if HEATER_0_PIN > -1  
-     WRITE(HEATER_0_PIN,LOW);
-   #endif
-  #endif
-  #if TEMP_1_PIN > -1
-  target_raw[1]=0;
-  #if HEATER_1_PIN > -1 
-    WRITE(HEATER_1_PIN,LOW);
-  #endif
-  #endif
-  #if TEMP_2_PIN > -1
-  target_raw[2]=0;
-  #if HEATER_2_PIN > -1  
-    WRITE(HEATER_2_PIN,LOW);
-  #endif
-  #endif 
-}
-void setWatch() {  
-  if(isHeatingHotend0())
-  {
-    watchmillis = max(1,millis());
-    watch_raw[TEMPSENSOR_HOTEND_0] = current_raw[TEMPSENSOR_HOTEND_0];
-  }
-  else
-  {
-    watchmillis = 0;
-  } 
-}
+void disable_heater();
+void setWatch();
+
 #ifdef HEATER_0_USES_THERMISTOR
     #define HEATERSOURCE 1
 #endif

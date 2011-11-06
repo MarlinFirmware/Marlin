@@ -36,6 +36,7 @@
 #include "ultralcd.h"
 #include "streaming.h"
 #include "temperature.h"
+#include "watchdog.h"
 
 
 int target_raw[3] = {0, 0, 0};
@@ -349,6 +350,28 @@ void setWatch()
 #endif 
 }
 
+
+void disable_heater()
+{
+   #if TEMP_0_PIN > -1
+  target_raw[0]=0;
+   #if HEATER_0_PIN > -1  
+     WRITE(HEATER_0_PIN,LOW);
+   #endif
+  #endif
+  #if TEMP_1_PIN > -1
+  target_raw[1]=0;
+  #if HEATER_1_PIN > -1 
+    WRITE(HEATER_1_PIN,LOW);
+  #endif
+  #endif
+  #if TEMP_2_PIN > -1
+  target_raw[2]=0;
+  #if HEATER_2_PIN > -1  
+    WRITE(HEATER_2_PIN,LOW);
+  #endif
+  #endif 
+}
 
 // Timer 0 is shared with millies
 ISR(TIMER0_COMPB_vect)
