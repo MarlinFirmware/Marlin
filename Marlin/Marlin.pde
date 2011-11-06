@@ -219,7 +219,7 @@ void loop()
   if(buflen)
   {
     #ifdef SDSUPPORT
-      if(card.savetosd)
+      if(card.saving)
       {
 	if(strstr(cmdbuffer[bufindr],"M29") == NULL)
 	{
@@ -318,7 +318,7 @@ inline void get_command()
           case 2:
           case 3:
 	    #ifdef SDSUPPORT
-            if(card.savetosd)
+            if(card.saving)
               break;
 	    #endif //SDSUPPORT
             Serial.println("ok"); 
@@ -342,17 +342,17 @@ inline void get_command()
     }
   }
   #ifdef SDSUPPORT
-  if(!card.sdmode || serial_count!=0){
+  if(!card.sdprinting || serial_count!=0){
     return;
   }
-  while( card.filesize > card.sdpos  && buflen < BUFSIZE) {
-    short n = card.file.read();
-    serial_char = (char)n;
-    if(serial_char == '\n' || serial_char == '\r' || serial_char == ':' || serial_count >= (MAX_CMD_SIZE - 1) || n == -1) 
+  while( !card.eof()  && buflen < BUFSIZE) {
+    
+    serial_char = card.get();
+    if(serial_char == '\n' || serial_char == '\r' || serial_char == ':' || serial_count >= (MAX_CMD_SIZE - 1)) 
     {
-      card.sdpos = card.file.curPosition();
-      if(card.sdpos >= card.filesize){
-        card.sdmode = false;
+     
+      if(card.eof()){
+        card.sdprinting = false;
         Serial.println("echo: Done printing file");
         stoptime=millis();
         char time[30];
@@ -565,93 +565,52 @@ inline void process_commands()
 
     case 20: // M20 - list SD card
       Serial.println("Begin file list");
-      card.root.ls();
+      card.ls();
       Serial.println("End file list");
       break;
     case 21: // M21 - init SD card
-      card.sdmode = false;
+      
       card.initsd();
       break;
     case 22: //M22 - release SD card
-      card.sdmode = false;
-      card.sdactive = false;
+      card.release();
+
       break;
     case 23: //M23 - Select file
-      if(card.sdactive){
-        card.sdmode = false;
-        card.file.close();
-        starpos = (strchr(strchr_pointer + 4,'*'));
-        if(starpos!=NULL)
-          *(starpos-1)='\0';
-        if (card.file.open(&card.root, strchr_pointer + 4, O_READ)) {
-          Serial.print("File opened:");
-          Serial.print(strchr_pointer + 4);
-          Serial.print(" Size:");
-          Serial.println(card.file.fileSize());
-          card.sdpos = 0;
-          card.filesize = card.file.fileSize();
-          Serial.println("File selected");
-        }
-        else{
-          Serial.println("file.open failed");
-        }
-      }
+      starpos = (strchr(strchr_pointer + 4,'*'));
+      if(starpos!=NULL)
+        *(starpos-1)='\0';
+      card.selectFile(strchr_pointer + 4);
       break;
     case 24: //M24 - Start SD print
-      if(card.sdactive){
-        card.sdmode = true;
-	starttime=millis();
-      }
+      card.startFileprint();
+      starttime=millis();
       break;
     case 25: //M25 - Pause SD print
-      if(card.sdmode){
-        card.sdmode = false;
-      }
+      card.pauseSDPrint();
       break;
     case 26: //M26 - Set SD index
-      if(card.sdactive && code_seen('S')){
-        card.sdpos = code_value_long();
-        card.file.seekSet(card.sdpos);
+      if(card.cardOK && code_seen('S')){
+        card.setIndex(code_value_long());
+        
       }
       break;
     case 27: //M27 - Get SD status
-      if(card.sdactive){
-        Serial.print("SD printing byte ");
-        Serial.print(card.sdpos);
-        Serial.print("/");
-        Serial.println(card.filesize);
-      }
-      else{
-        Serial.println("Not SD printing");
-      }
+      card.getStatus();
       break;
     case 28: //M28 - Start SD write
-      if(card.sdactive){
-        char* npos = 0;
-        card.file.close();
-        card.sdmode = false;
-        starpos = (strchr(strchr_pointer + 4,'*'));
-        if(starpos != NULL){
-          npos = strchr(cmdbuffer[bufindr], 'N');
-          strchr_pointer = strchr(npos,' ') + 1;
-          *(starpos-1) = '\0';
-        }
-        if (!card.file.open(&card.root, strchr_pointer+4, O_CREAT | O_APPEND | O_WRITE | O_TRUNC))
-        {
-          Serial.print("open failed, File: ");
-          Serial.print(strchr_pointer + 4);
-          Serial.print(".");
-        }
-        else{
-          card.savetosd = true;
-          Serial.print("Writing to file: ");
-          Serial.println(strchr_pointer + 4);
-        }
+      starpos = (strchr(strchr_pointer + 4,'*'));
+      if(starpos != NULL){
+        char* npos = strchr(cmdbuffer[bufindr], 'N');
+        strchr_pointer = strchr(npos,' ') + 1;
+        *(starpos-1) = '\0';
       }
+      card.startFilewrite(strchr_pointer+4);
+      
       break;
     case 29: //M29 - Stop SD write
       //processed in write to file routine above
-      //savetosd = false;
+      //card,saving = false;
       break;
     #endif //SDSUPPORT
 

@@ -5,9 +5,9 @@ CardReader::CardReader()
 {
    filesize = 0;
    sdpos = 0;
-   sdmode = false;
-   sdactive = false;
-   savetosd = false;
+   sdprinting = false;
+   cardOK = false;
+   saving = false;
    autostart_atmillis=0;
 
    autostart_stilltocheck=true; //the sd start is delayed, because otherwise the serial cannot answer fast enought to make contact with the hostsoftware.
@@ -22,7 +22,7 @@ CardReader::CardReader()
 
 void CardReader::initsd()
 {
-  sdactive = false;
+  cardOK = false;
   #if SDSS >- 1
     if(root.isOpen())
       root.close();
@@ -41,12 +41,90 @@ void CardReader::initsd()
     }
     else 
     {
-      sdactive = true;
+      cardOK = true;
       SERIAL_ECHOLN("SD card ok");
     }
   #endif //SDSS
 }
+void CardReader::release()
+{
+  sdprinting = false;
+  cardOK = false;
+}
 
+void CardReader::startFileprint()
+{
+  if(cardOK)
+  {
+    sdprinting = true;
+    
+  }
+}
+
+void CardReader::pauseSDPrint()
+{
+  if(sdprinting)
+  {
+    sdprinting = false;
+  }
+}
+
+void CardReader::selectFile(char* name)
+{
+  if(cardOK){
+    sdprinting = false;
+    file.close();
+   
+    if (file.open(&root, name, O_READ)) {
+      Serial.print("File opened:");
+      Serial.print(name);
+      Serial.print(" Size:");
+      filesize = file.fileSize();
+      Serial.println(filesize);
+      sdpos = 0;
+      
+      Serial.println("File selected");
+    }
+    else{
+      Serial.println("file.open failed");
+    }
+  }
+}
+
+void CardReader::startFilewrite(char *name)
+{
+  if(cardOK)
+  {
+    
+    file.close();
+    sdprinting = false;
+    
+    if (!file.open(&root, name, O_CREAT | O_APPEND | O_WRITE | O_TRUNC))
+    {
+      Serial.print("open failed, File: ");
+      Serial.print(name);
+      Serial.print(".");
+    }
+    else{
+      saving = true;
+      Serial.print("Writing to file: ");
+      Serial.println(name);
+    }
+  }
+}
+
+void CardReader::getStatus()
+{
+  if(cardOK){
+    Serial.print("SD printing byte ");
+    Serial.print(sdpos);
+    Serial.print("/");
+    Serial.println(filesize);
+  }
+  else{
+    Serial.println("Not SD printing");
+  }
+}
 void CardReader::write_command(char *buf)
 {
   char* begin = buf;
@@ -80,10 +158,10 @@ void CardReader::checkautostart(bool force)
       return;
   }
   autostart_stilltocheck=false;
-  if(!sdactive)
+  if(!cardOK)
   {
     initsd();
-    if(!sdactive) //fail
+    if(!cardOK) //fail
       return;
   }
   static int lastnr=0;
@@ -122,9 +200,9 @@ void CardReader::checkautostart(bool force)
 
 void CardReader::closefile()
 {
- file.sync();
+  file.sync();
   file.close();
-  savetosd = false; 
+  saving = false; 
 }
 
 void CardReader::getfilename(const uint8_t nr)

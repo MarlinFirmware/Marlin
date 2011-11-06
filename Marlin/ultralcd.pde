@@ -1124,7 +1124,7 @@ void MainMenu::showSD()
  if(force_lcd_update)
  {
    clear();
-  if(card.sdactive)
+  if(card.cardOK)
   {
     nrfiles=card.getnrfilenames();
   }
@@ -1312,7 +1312,7 @@ void MainMenu::showMainMenu()
             if(true)
           #endif
           {
-            if(card.sdmode)
+            if(card.sdprinting)
               lcd.print(" Stop Print   \x7E");
             else
               lcd.print(" Card Menu    \x7E");
@@ -1327,7 +1327,7 @@ void MainMenu::showMainMenu()
         #endif
         if((activeline==line)&&CLICKED)
         {
-          card.sdmode = false;
+          card.sdprinting = false;
           BLOCK;
           status=Main_SD;
           beepshort();
@@ -1377,7 +1377,7 @@ void MainMenu::update()
       }
       else
       {
-        card.sdactive=false;
+        card.release();
         lcd_status("Card removed");
       }
     }
