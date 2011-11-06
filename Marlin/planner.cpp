@@ -65,6 +65,7 @@
 #include "temperature.h"
 #include "ultralcd.h"
 
+//public variables
 unsigned long minsegmenttime;
 float max_feedrate[4]; // set the max speeds
 float axis_steps_per_unit[4];
@@ -76,14 +77,16 @@ float max_xy_jerk; //speed than can be stopped at once, if i understand correctl
 float max_z_jerk;
 float mintravelfeedrate;
 unsigned long axis_steps_per_sqr_second[NUM_AXIS];
-// Manage heater variables.
+long position[4];   //rescaled from extern when axis_steps_per_unit are changed by gcode
 
+
+//private variables
 static block_t block_buffer[BLOCK_BUFFER_SIZE];            // A ring buffer for motion instfructions
 static volatile unsigned char block_buffer_head;           // Index of the next block to be pushed
 static volatile unsigned char block_buffer_tail;           // Index of the block to process now
 
 // The current position of the tool in absolute steps
-long position[4];   
+
 
 #define ONE_MINUTE_OF_MICROSECONDS 60000000.0
 

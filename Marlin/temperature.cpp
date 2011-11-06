@@ -42,25 +42,29 @@
 int target_raw[3] = {0, 0, 0};
 int current_raw[3] = {0, 0, 0};
 
-bool temp_meas_ready = false;
+static bool temp_meas_ready = false;
 
-unsigned long previous_millis_heater, previous_millis_bed_heater;
+static unsigned long previous_millis_heater, previous_millis_bed_heater;
 
 #ifdef PIDTEMP
-  float temp_iState = 0;
-  float temp_dState = 0;
-  float pTerm;
-  float iTerm;
-  float dTerm;
+  //static cannot be external:
+  static float temp_iState = 0;
+  static float temp_dState = 0;
+  static float pTerm;
+  static float iTerm;
+  static float dTerm;
       //int output;
-  float pid_error;
-  float temp_iState_min;
-  float temp_iState_max;
-  float pid_setpoint = 0.0;
-  float pid_input;
-  float pid_output;
-  bool pid_reset;
+  static float pid_error;
+  static float temp_iState_min;
+  static float temp_iState_max;
+  static float pid_input;
+  static float pid_output;
+  static bool pid_reset;
+  
+  // probably used external
   float HeaterPower;
+  float pid_setpoint = 0.0;
+
   
   float Kp=DEFAULT_Kp;
   float Ki=DEFAULT_Ki;
@@ -69,29 +73,29 @@ unsigned long previous_millis_heater, previous_millis_bed_heater;
 #endif //PIDTEMP
   
 #ifdef WATCHPERIOD
-  int watch_raw[3] = {-1000,-1000,-1000};
-  unsigned long watchmillis = 0;
+  static int watch_raw[3] = {-1000,-1000,-1000};
+  static unsigned long watchmillis = 0;
 #endif //WATCHPERIOD
 
 #ifdef HEATER_0_MINTEMP
-  int minttemp_0 = temp2analog(HEATER_0_MINTEMP);
+  static int minttemp_0 = temp2analog(HEATER_0_MINTEMP);
 #endif //MINTEMP
 #ifdef HEATER_0_MAXTEMP
-  int maxttemp_0 = temp2analog(HEATER_0_MAXTEMP);
+  static int maxttemp_0 = temp2analog(HEATER_0_MAXTEMP);
 #endif //MAXTEMP
 
 #ifdef HEATER_1_MINTEMP
-  int minttemp_1 = temp2analog(HEATER_1_MINTEMP);
+  static int minttemp_1 = temp2analog(HEATER_1_MINTEMP);
 #endif //MINTEMP
 #ifdef HEATER_1_MAXTEMP
-  int maxttemp_1 = temp2analog(HEATER_1_MAXTEMP);
+  static int maxttemp_1 = temp2analog(HEATER_1_MAXTEMP);
 #endif //MAXTEMP
 
 #ifdef BED_MINTEMP
-  int bed_minttemp = temp2analog(BED_MINTEMP);
+  static int bed_minttemp = temp2analog(BED_MINTEMP);
 #endif //BED_MINTEMP
 #ifdef BED_MAXTEMP
-  int bed_maxttemp = temp2analog(BED_MAXTEMP);
+  static int bed_maxttemp = temp2analog(BED_MAXTEMP);
 #endif //BED_MAXTEMP
 
 void manage_heater()
