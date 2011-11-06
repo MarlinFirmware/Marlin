@@ -37,28 +37,27 @@
 #include "streaming.h"
 #include "temperature.h"
 
-int target_bed_raw = 0;
-int current_bed_raw = 0;
 
 int target_raw[3] = {0, 0, 0};
 int current_raw[3] = {0, 0, 0};
-unsigned char temp_meas_ready = false;
+
+bool temp_meas_ready = false;
 
 unsigned long previous_millis_heater, previous_millis_bed_heater;
 
 #ifdef PIDTEMP
-  double temp_iState = 0;
-  double temp_dState = 0;
-  double pTerm;
-  double iTerm;
-  double dTerm;
+  float temp_iState = 0;
+  float temp_dState = 0;
+  float pTerm;
+  float iTerm;
+  float dTerm;
       //int output;
-  double pid_error;
-  double temp_iState_min;
-  double temp_iState_max;
-  double pid_setpoint = 0.0;
-  double pid_input;
-  double pid_output;
+  float pid_error;
+  float temp_iState_min;
+  float temp_iState_max;
+  float pid_setpoint = 0.0;
+  float pid_input;
+  float pid_output;
   bool pid_reset;
   float HeaterPower;
   
@@ -67,6 +66,11 @@ unsigned long previous_millis_heater, previous_millis_bed_heater;
   float Kd=DEFAULT_Kd;
   float Kc=DEFAULT_Kc;
 #endif //PIDTEMP
+  
+#ifdef WATCHPERIOD
+  int watch_raw[3] = {-1000,-1000,-1000};
+  unsigned long watchmillis = 0;
+#endif //WATCHPERIOD
 
 #ifdef HEATER_0_MINTEMP
 int minttemp_0 = temp2analog(HEATER_0_MINTEMP);
@@ -91,9 +95,9 @@ int bed_maxttemp = temp2analog(BED_MAXTEMP);
 
 void manage_heater()
 {
-#ifdef USE_WATCHDOG
-  wd_reset();
-#endif
+  #ifdef USE_WATCHDOG
+    wd_reset();
+  #endif
   
   float pid_input;
   float pid_output;
@@ -330,6 +334,22 @@ void tp_init()
 
 
 
+void setWatch() 
+{  
+#ifdef WATCHPERIOD
+  if(isHeatingHotend0())
+  {
+    watchmillis = max(1,millis());
+    watch_raw[TEMPSENSOR_HOTEND_0] = current_raw[TEMPSENSOR_HOTEND_0];
+  }
+  else
+  {
+    watchmillis = 0;
+  } 
+#endif 
+}
+
+
 // Timer 0 is shared with millies
 ISR(TIMER0_COMPB_vect)
 {
@@ -500,4 +520,5 @@ ISR(TIMER0_COMPB_vect)
   #endif
 #endif
   }
-}
+}
+

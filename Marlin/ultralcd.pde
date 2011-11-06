@@ -12,7 +12,7 @@ LiquidCrystal lcd(LCD_PINS_RS, LCD_PINS_ENABLE, LCD_PINS_D4, LCD_PINS_D5,LCD_PIN
 
 unsigned long previous_millis_lcd=0;
 
-
+inline int intround(const float &x){return int(0.5+x);}
 
 volatile char buttons=0;  //the last checked buttons in a bit array.
 int encoderpos=0;
@@ -29,13 +29,10 @@ void lcd_status(const char* message)
   strncpy(messagetext,message,LCD_WIDTH);
 }
 
-void clear()
+inline void clear()
 {
-  //lcd.setCursor(0,0);
+  
   lcd.clear();
-  //delay(1);
- // lcd.begin(LCD_WIDTH,LCD_HEIGHT);
-  //lcd_init();
 }
 long previous_millis_buttons=0;
 
@@ -78,47 +75,48 @@ void lcd_init()
 void beep()
 {
   //return;
-#ifdef ULTIPANEL
-  pinMode(BEEPER,OUTPUT);
-  for(int i=0;i<20;i++){
-    WRITE(BEEPER,HIGH);
-    delay(5);
-    WRITE(BEEPER,LOW);
-    delay(5);
-  }
-#endif
+  #ifdef ULTIPANEL
+    pinMode(BEEPER,OUTPUT);
+    for(int i=0;i<20;i++){
+      WRITE(BEEPER,HIGH);
+      delay(5);
+      WRITE(BEEPER,LOW);
+      delay(5);
+    }
+  #endif
 }
 
 void beepshort()
 {
   //return;
-#ifdef ULTIPANEL
-  pinMode(BEEPER,OUTPUT);
-  for(int i=0;i<10;i++){
-    WRITE(BEEPER,HIGH);
-    delay(3);
-    WRITE(BEEPER,LOW);
-    delay(3);
-  }
-#endif  
+  #ifdef ULTIPANEL
+    pinMode(BEEPER,OUTPUT);
+    for(int i=0;i<10;i++){
+      WRITE(BEEPER,HIGH);
+      delay(3);
+      WRITE(BEEPER,LOW);
+      delay(3);
+    }
+  #endif  
 }
+
 void lcd_status()
 {
-#ifdef ULTIPANEL
-  static uint8_t oldbuttons=0;
-  static long previous_millis_buttons=0;
-  static long previous_lcdinit=0;
-//  buttons_check(); // Done in temperature interrupt
-  //previous_millis_buttons=millis();
+  #ifdef ULTIPANEL
+    static uint8_t oldbuttons=0;
+    static long previous_millis_buttons=0;
+    static long previous_lcdinit=0;
+  //  buttons_check(); // Done in temperature interrupt
+    //previous_millis_buttons=millis();
+    
+    if((buttons==oldbuttons) &&  ((millis() - previous_millis_lcd) < LCD_UPDATE_INTERVAL)   )
+      return;
+    oldbuttons=buttons;
+  #else
   
-  if((buttons==oldbuttons) &&  ((millis() - previous_millis_lcd) < LCD_UPDATE_INTERVAL)   )
-    return;
-  oldbuttons=buttons;
-#else
-  
-  if(((millis() - previous_millis_lcd) < LCD_UPDATE_INTERVAL)   )
-    return;
-#endif
+    if(((millis() - previous_millis_lcd) < LCD_UPDATE_INTERVAL)   )
+      return;
+  #endif
     
   previous_millis_lcd=millis();
   menu.update();
@@ -161,8 +159,7 @@ void buttons_check()
   if((blocking<millis()) &&(READ(BTN_ENC)==0))
     newbutton|=EN_C;
   buttons=newbutton;
-#else
-  //read it from the shift register
+#else   //read it from the shift register
   uint8_t newbutton=0;
   WRITE(SHIFT_LD,LOW);
   WRITE(SHIFT_LD,HIGH);
@@ -238,8 +235,8 @@ extern volatile bool feedmultiplychanged;
 void MainMenu::showStatus()
 { 
 #if LCD_HEIGHT==4
-  static int oldcurrentraw=-1;
-  static int oldtargetraw=-1;
+  static int olddegHotEnd0=-1;
+  static int oldtargetHotEnd0=-1;
   //force_lcd_update=true;
   if(force_lcd_update||feedmultiplychanged)  //initial display of content
   {
@@ -247,38 +244,41 @@ void MainMenu::showStatus()
     encoderpos=feedmultiply;
     clear();
     lcd.setCursor(0,0);lcd.print("\002123/567\001 ");
-#if defined BED_USES_THERMISTOR || defined BED_USES_AD595 
-    lcd.setCursor(10,0);lcd.print("B123/567\001 ");
-#endif
+    #if defined BED_USES_THERMISTOR || defined BED_USES_AD595 
+      lcd.setCursor(10,0);lcd.print("B123/567\001 ");
+    #endif
   }
     
-
-  if((abs(current_raw[TEMPSENSOR_HOTEND_0]-oldcurrentraw)>3)||force_lcd_update)
+  int tHotEnd0=intround(degHotend0());
+  if((abs(tHotEnd0-olddegHotEnd0)>1)||force_lcd_update) //>1 because otherwise the lcd is refreshed to often.
   {
     lcd.setCursor(1,0);
-    lcd.print(ftostr3(analog2temp(current_raw[TEMPSENSOR_HOTEND_0])));
-    oldcurrentraw=current_raw[TEMPSENSOR_HOTEND_0];
+    lcd.print(ftostr3(tHotEnd0));
+    olddegHotEnd0=tHotEnd0;
   }
-  if((target_raw[TEMPSENSOR_HOTEND_0]!=oldtargetraw)||force_lcd_update)
+  int ttHotEnd0=intround(degTargetHotend0());
+  if((ttHotEnd0!=oldtargetHotEnd0)||force_lcd_update)
   {
     lcd.setCursor(5,0);
-    lcd.print(ftostr3(analog2temp(target_raw[TEMPSENSOR_HOTEND_0])));
-    oldtargetraw=target_raw[TEMPSENSOR_HOTEND_0];
+    lcd.print(ftostr3(ttHotEnd0));
+    oldtargetHotEnd0=ttHotEnd0;
   }
   #if defined BED_USES_THERMISTOR || defined BED_USES_AD595 
-  static int oldcurrentbedraw=-1;
-  static int oldtargetbedraw=-1; 
-  if((current_bed_raw!=oldcurrentbedraw)||force_lcd_update)
+  static int oldtBed=-1;
+  static int oldtargetBed=-1; 
+  int tBed=intround(degBed());
+  if((tBed!=oldtBed)||force_lcd_update)
   {
     lcd.setCursor(1,0);
-    lcd.print(ftostr3(analog2temp(current_bed_raw)));
-    oldcurrentraw=current_raw[TEMPSENSOR_BED];
+    lcd.print(ftostr3(tBed));
+    olddegHotEnd0=tBed;
   }
-  if((target_bed_raw!=oldtargebedtraw)||force_lcd_update)
+  int targetBed=intround(degTargetBed());
+  if((targetBed!=oldtargetBed)||force_lcd_update)
   {
     lcd.setCursor(5,0);
-    lcd.print(ftostr3(analog2temp(target_bed_raw)));
-    oldtargetraw=target_bed_raw;
+    lcd.print(ftostr3(targetBed));
+    oldtargetBed=targetBed;
   }
   #endif
   //starttime=2;
@@ -327,8 +327,8 @@ void MainMenu::showStatus()
     messagetext[0]='\0';
   }
 #else //smaller LCDS----------------------------------
-  static int oldcurrentraw=-1;
-  static int oldtargetraw=-1;
+  static int olddegHotEnd0=-1;
+  static int oldtargetHotEnd0=-1;
   if(force_lcd_update)  //initial display of content
   {
     encoderpos=feedmultiply;
@@ -338,18 +338,21 @@ void MainMenu::showStatus()
     #endif
   }
     
+  int tHotEnd0=intround(degHotend0());
+  int ttHotEnd0=intround(degTargetHotend0());
 
-  if((abs(current_raw[TEMPSENSOR_HOTEND]-oldcurrentraw)>3)||force_lcd_update)
+
+  if((abs(tHotEnd0-olddegHotEnd0)>1)||force_lcd_update)
   {
     lcd.setCursor(1,0);
-    lcd.print(ftostr3(analog2temp(current_raw[TEMPSENSOR_HOTEND])));
-    oldcurrentraw=current_raw[TEMPSENSOR_HOTEND];
+    lcd.print(ftostr3(tHotEnd0));
+    olddegHotEnd0=tHotEnd0;
   }
-  if((target_raw[TEMPSENSOR_HOTEND]!=oldtargetraw)||force_lcd_update)
+  if((ttHotEnd0!=oldtargetHotEnd0)||force_lcd_update)
   {
     lcd.setCursor(5,0);
-    lcd.print(ftostr3(analog2temp(target_raw[TEMPSENSOR_HOTEND])));
-    oldtargetraw=target_raw[TEMPSENSOR_HOTEND];
+    lcd.print(ftostr3(ttHotEnd0));
+    oldtargetHotEnd0=ttHotEnd0;
   }
 
   if(messagetext[0]!='\0')
@@ -426,7 +429,7 @@ void MainMenu::showPrepare()
         if((activeline==line) && CLICKED)
         {
           BLOCK
-          target_raw[TEMPSENSOR_HOTEND_0] = temp2analog(170);
+          setTargetHotend0(170);
           beepshort();
         }
       }break;
@@ -531,7 +534,7 @@ void MainMenu::showControl()
         if(force_lcd_update)
         {
           lcd.setCursor(0,line);lcd.print(" \002Nozzle:");
-          lcd.setCursor(13,line);lcd.print(ftostr3(analog2temp(target_raw[TEMPSENSOR_HOTEND_0])));
+          lcd.setCursor(13,line);lcd.print(ftostr3(intround(degHotend0())));
         }
         
         if((activeline==line) )
@@ -541,11 +544,11 @@ void MainMenu::showControl()
             linechanging=!linechanging;
             if(linechanging)
             {
-               encoderpos=(int)analog2temp(target_raw[TEMPSENSOR_HOTEND_0]);
+               encoderpos=intround(degHotend0());
             }
             else
             {
-              target_raw[TEMPSENSOR_HOTEND_0] = temp2analog(encoderpos);
+              setTargetHotend0(encoderpos);
               encoderpos=activeline*lcdslow;
               beepshort();
             }
@@ -1590,4 +1593,5 @@ char *fillto(int8_t n,char *c)
 #else
 inline void lcd_status() {};
 #endif
-
+
+
