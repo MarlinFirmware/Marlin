@@ -107,68 +107,82 @@ char version_string[] = "1.0.0 Alpha 1";
 
 //Stepper Movement Variables
 
-const char axis_codes[NUM_AXIS] = {'X', 'Y', 'Z', 'E'};
-float destination[NUM_AXIS] = {  0.0, 0.0, 0.0, 0.0};
-float current_position[NUM_AXIS] = {  0.0, 0.0, 0.0, 0.0};
-float offset[3] = {0.0, 0.0, 0.0};
-bool home_all_axis = true;
-float feedrate = 1500.0, next_feedrate, saved_feedrate;
-long gcode_N, gcode_LastN;
+//===========================================================================
+//=============================imported variables============================
+//===========================================================================
+extern float HeaterPower;
 
+//public variables
 float homing_feedrate[] = HOMING_FEEDRATE;
 bool axis_relative_modes[] = AXIS_RELATIVE_MODES;
-
-bool relative_mode = false;  //Determines Absolute or Relative Coordinates
-bool relative_mode_e = false;  //Determines Absolute or Relative E Codes while in Absolute Coordinates mode. E is always relative in Relative Coordinates mode.
-
-uint8_t fanpwm=0;
-
 volatile int feedmultiply=100; //100->1 200->2
 int saved_feedmultiply;
 volatile bool feedmultiplychanged=false;
 
+//===========================================================================
+//=============================private variables=============================
+//===========================================================================
+const char axis_codes[NUM_AXIS] = {'X', 'Y', 'Z', 'E'};
+static float destination[NUM_AXIS] = {  0.0, 0.0, 0.0, 0.0};
+static float current_position[NUM_AXIS] = {  0.0, 0.0, 0.0, 0.0};
+static float offset[3] = {0.0, 0.0, 0.0};
+static bool home_all_axis = true;
+static float feedrate = 1500.0, next_feedrate, saved_feedrate;
+static long gcode_N, gcode_LastN;
+
+
+
+static bool relative_mode = false;  //Determines Absolute or Relative Coordinates
+static bool relative_mode_e = false;  //Determines Absolute or Relative E Codes while in Absolute Coordinates mode. E is always relative in Relative Coordinates mode.
+
+static uint8_t fanpwm=0;
+
+
 // comm variables
-#define MAX_CMD_SIZE 96
-#define BUFSIZE 4
-char cmdbuffer[BUFSIZE][MAX_CMD_SIZE];
-bool fromsd[BUFSIZE];
-int bufindr = 0;
-int bufindw = 0;
-int buflen = 0;
-int i = 0;
-char serial_char;
-int serial_count = 0;
-boolean comment_mode = false;
-char *strchr_pointer; // just a pointer to find chars in the cmd string like X, Y, Z, E, etc
-extern float HeaterPower;
+
+static char cmdbuffer[BUFSIZE][MAX_CMD_SIZE];
+static bool fromsd[BUFSIZE];
+static int bufindr = 0;
+static int bufindw = 0;
+static int buflen = 0;
+static int i = 0;
+static char serial_char;
+static int serial_count = 0;
+static boolean comment_mode = false;
+static char *strchr_pointer; // just a pointer to find chars in the cmd string like X, Y, Z, E, etc
 
 const int sensitive_pins[] = SENSITIVE_PINS; // Sensitive pin list for M42
 
-float tt = 0, bt = 0;
+static float tt = 0, bt = 0;
 
 //Inactivity shutdown variables
-unsigned long previous_millis_cmd = 0;
-unsigned long max_inactive_time = 0;
-unsigned long stepper_inactive_time = 0;
+static unsigned long previous_millis_cmd = 0;
+static unsigned long max_inactive_time = 0;
+static unsigned long stepper_inactive_time = 0;
 
-unsigned long starttime=0;
-unsigned long stoptime=0;
+static unsigned long starttime=0;
+static unsigned long stoptime=0;
+
 #ifdef SDSUPPORT
-  Sd2Card card;
-  SdVolume volume;
-  SdFile root;
-  SdFile file;
-  uint32_t filesize = 0;
-  uint32_t sdpos = 0;
-  bool sdmode = false;
-  bool sdactive = false;
-  bool savetosd = false;
-  int16_t n;
-  unsigned long autostart_atmillis=0;
+  static Sd2Card card;
+  static SdVolume volume;
+  static SdFile root;
+  static SdFile file;
+  static uint32_t filesize = 0;
+  static uint32_t sdpos = 0;
+  static bool sdmode = false;
+  static bool sdactive = false;
+  static bool savetosd = false;
+  static int16_t n;
+  static unsigned long autostart_atmillis=0;
   
-  bool autostart_stilltocheck=true; //the sd start is delayed, because otherwise the serial cannot answer fast enought to make contact with the hostsoftware.
+  static bool autostart_stilltocheck=true; //the sd start is delayed, because otherwise the serial cannot answer fast enought to make contact with the hostsoftware.
+#endif //SDSUPPORT
 
-
+//===========================================================================
+//=============================ROUTINES=============================
+//===========================================================================
+#ifdef SDSUPPORT
   void initsd()
   {
     sdactive = false;
@@ -223,6 +237,65 @@ unsigned long stoptime=0;
       SERIAL_ERRORLN("error writing to file");
     }
   }
+  
+
+  void checkautostart(bool force)
+  {
+  //this is to delay autostart and hence the initialisaiton of the sd card to some seconds after the normal init, so the device is available quick after a reset
+    if(!force)
+    {
+      if(!autostart_stilltocheck)
+        return;
+      if(autostart_atmillis<millis())
+        return;
+    }
+    autostart_stilltocheck=false;
+    if(!sdactive)
+    {
+      initsd();
+      if(!sdactive) //fail
+        return;
+    }
+    static int lastnr=0;
+    char autoname[30];
+    sprintf(autoname,"auto%i.g",lastnr);
+    for(int i=0;i<(int)strlen(autoname);i++)
+      autoname[i]=tolower(autoname[i]);
+    dir_t p;
+
+    root.rewind();
+    
+    bool found=false;
+    while (root.readDir(p) > 0) 
+    {
+      for(int i=0;i<(int)strlen((char*)p.name);i++)
+      p.name[i]=tolower(p.name[i]);
+      //Serial.print((char*)p.name);
+      //Serial.print(" ");
+      //Serial.println(autoname);
+      if(p.name[9]!='~') //skip safety copies
+      if(strncmp((char*)p.name,autoname,5)==0)
+      {
+        char cmd[30];
+
+        sprintf(cmd,"M23 %s",autoname);
+        //sprintf(cmd,"M115");
+        //enquecommand("G92 Z0");
+        //enquecommand("G1 Z10 F2000");
+        //enquecommand("G28 X-105 Y-105");
+        enquecommand(cmd);
+        enquecommand("M24");
+        found=true;
+      }
+    }
+    if(!found)
+      lastnr=-1;
+    else
+      lastnr++;
+  }
+#else  //NO SD SUPORT
+  inline void checkautostart(bool x){};
+  
 #endif //SDSUPPORT
 
 
@@ -271,66 +344,6 @@ void setup()
   st_init();    // Initialize stepper;
   tp_init();    // Initialize temperature loop
 }
-
-#ifdef SDSUPPORT
-
-void checkautostart(bool force)
-{
-//this is to delay autostart and hence the initialisaiton of the sd card to some seconds after the normal init, so the device is available quick after a reset
-  if(!force)
-  {
-    if(!autostart_stilltocheck)
-      return;
-    if(autostart_atmillis<millis())
-      return;
-  }
-  autostart_stilltocheck=false;
-  if(!sdactive)
-  {
-    initsd();
-    if(!sdactive) //fail
-      return;
-  }
-  static int lastnr=0;
-  char autoname[30];
-  sprintf(autoname,"auto%i.g",lastnr);
-  for(int i=0;i<(int)strlen(autoname);i++)
-    autoname[i]=tolower(autoname[i]);
-  dir_t p;
-
-  root.rewind();
-  
-  bool found=false;
-  while (root.readDir(p) > 0) 
-  {
-    for(int i=0;i<(int)strlen((char*)p.name);i++)
-    p.name[i]=tolower(p.name[i]);
-    //Serial.print((char*)p.name);
-    //Serial.print(" ");
-    //Serial.println(autoname);
-    if(p.name[9]!='~') //skip safety copies
-    if(strncmp((char*)p.name,autoname,5)==0)
-    {
-      char cmd[30];
-
-      sprintf(cmd,"M23 %s",autoname);
-      //sprintf(cmd,"M115");
-      //enquecommand("G92 Z0");
-      //enquecommand("G1 Z10 F2000");
-      //enquecommand("G28 X-105 Y-105");
-      enquecommand(cmd);
-      enquecommand("M24");
-      found=true;
-    }
-  }
-  if(!found)
-    lastnr=-1;
-  else
-    lastnr++;
-}
-#else  //NO SD SUPORT
-  inline void checkautostart(bool x){}
-#endif
 
 
 void loop()

@@ -61,11 +61,11 @@ const bool ENDSTOPS_INVERTING = true; // set to true to invert the logic of the 
 #define ULTIPANEL
 #define ULTIPANEL
 #ifdef ULTIPANEL
- //#define NEWPANEL  //enable this if you have a click-encoder panel
- #define SDSUPPORT
- #define ULTRA_LCD
- #define LCD_WIDTH 20
-#define LCD_HEIGHT 4
+  //#define NEWPANEL  //enable this if you have a click-encoder panel
+  #define SDSUPPORT
+  #define ULTRA_LCD
+  #define LCD_WIDTH 20
+  #define LCD_HEIGHT 4
 #else //no panel but just lcd 
   #ifdef ULTRA_LCD
     #define LCD_WIDTH 16
@@ -250,5 +250,9 @@ const int dropsegments=5; //everything with this number of steps  will be ignore
 #else
   #define BLOCK_BUFFER_SIZE 16 // maximize block buffer
 #endif
+
+//The ASCII buffer for recieving from the serial:
+#define MAX_CMD_SIZE 96
+#define BUFSIZE 4
 
 #endif //__CONFIGURATION_H
