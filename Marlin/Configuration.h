@@ -14,8 +14,9 @@
 // Gen6 = 5,
 // Sanguinololu 1.2 and above = 62
 // Ultimaker = 7,
+// Teensylu = 8
 #define MOTHERBOARD 7
-//#define MOTHERBOARD 5
+
 
 
 //// Thermistor settings:
@@ -58,7 +59,6 @@ const bool ENDSTOPS_INVERTING = true; // set to true to invert the logic of the 
 
 // #define ULTRA_LCD  //any lcd 
 
-#define ULTIPANEL
 #define ULTIPANEL
 #ifdef ULTIPANEL
   //#define NEWPANEL  //enable this if you have a click-encoder panel

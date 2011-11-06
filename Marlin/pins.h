@@ -627,6 +627,62 @@
 
 #endif
 
+/****************************************************************************************
+* Teensylu 0.7 pin assingments (ATMEGA90USB)
+* Requires the Teensyduino software with Teensy2.0++ selected in arduino IDE!
+****************************************************************************************/
+#if MOTHERBOARD == 8
+#define MOTHERBOARD 8
+#define KNOWN_BOARD 1
+
+
+#define X_STEP_PIN          0  
+#define X_DIR_PIN           1  
+#define X_ENABLE_PIN       39 
+#define X_MIN_PIN          13 
+#define X_MAX_PIN          -1    
+
+#define Y_STEP_PIN          2  
+#define Y_DIR_PIN           3 
+#define Y_ENABLE_PIN       38 
+#define Y_MIN_PIN          14 
+#define Y_MAX_PIN          -1    
+
+#define Z_STEP_PIN          4
+#define Z_DIR_PIN           5 
+#define Z_ENABLE_PIN       23 
+#define Z_MIN_PIN          15 
+#define Z_MAX_PIN          -1    
+
+#define E_STEP_PIN          6  
+#define E_DIR_PIN           7 
+#define E_ENABLE_PIN       19 
+
+
+
+#define HEATER_0_PIN       21  // Extruder
+#define HEATER_1_PIN       20  // Bed
+#define HEATER_2_PIN       -1
+#define FAN_PIN            22  // Fan   
+
+#define TEMP_0_PIN          7  // Extruder
+#define TEMP_1_PIN          6  // Bed
+#define TEMP_2_PIN         -1
+
+#define SDPOWER            -1
+#define SDSS                8
+#define LED_PIN            -1
+#define PS_ON_PIN          -1
+#define KILL_PIN           -1 
+#define ALARM_PIN          -1
+
+#ifndef SDSUPPORT
+// these pins are defined in the SD library if building with SD support  
+  #define SCK_PIN           9 
+  #define MISO_PIN         11 
+  #define MOSI_PIN         10 
+#endif
+#endif
 
 #ifndef KNOWN_BOARD
 #error Unknown MOTHERBOARD value in configuration.h
