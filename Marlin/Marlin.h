@@ -9,8 +9,10 @@
 #include "streaming.h"
 #define SERIAL_ECHO(x) Serial << "echo: " << x;
 #define SERIAL_ECHOLN(x) Serial << "echo: "<<x<<endl;
-#define SERIAL_ERROR(x) Serial << "echo: ERROR: " << x;
-#define SERIAL_ERRORLN(x) Serial << "echo: ERROR: " << x<<endl;
+#define SERIAL_ERROR(x) Serial << "Error: " << x;
+#define SERIAL_ERRORLN(x) Serial << "Error: " << x<<endl;
+#define SERIAL_PROTOCOL(x) Serial << x;
+#define SERIAL_PROTOCOLLN(x) Serial << x<<endl;
 
 void get_command();
 void process_commands();

@@ -31,7 +31,7 @@ public:
 
   inline void ls() {root.ls();};
   inline bool eof() { sdpos = file.curPosition();return sdpos>=filesize ;};
-  inline char get() {  int16_t n = file.read(); return (n!=-1)?(char)n:'\n';};
+  inline char get() {  int16_t n = file.read(); return (n==-1)?'\n':(char)n;};
   inline void setIndex(long index) {sdpos = index;file.seekSet(index);};
 
 public:
@@ -52,6 +52,35 @@ private:
   bool autostart_stilltocheck; //the sd start is delayed, because otherwise the serial cannot answer fast enought to make contact with the hostsoftware.
 };
   
+
+#else
+class CardReader
+{
+public:
+  inline CardReader(){};
+  
+  inline static void initsd(){};
+  inline static void write_command(char *buf){};
+  
+  inline static void checkautostart(bool x) {}; 
+  
+  inline static void closefile() {};
+  inline static void release(){};
+  inline static void startFileprint(){};
+  inline static void startFilewrite(char *name){};
+  inline static void pauseSDPrint(){};
+  inline static void getStatus(){};
+  
+  inline static void selectFile(char* name){};
+  inline static void getfilename(const uint8_t nr){};
+  inline static uint8_t getnrfilenames(){return 0;};
+  
+
+  inline static void ls() {};
+  inline static bool eof() {return true;};
+  inline static char get() {return 0;};
+  inline static void setIndex(){};
+};
 #endif //SDSUPPORT
   
   

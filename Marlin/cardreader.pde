@@ -76,17 +76,14 @@ void CardReader::selectFile(char* name)
     file.close();
    
     if (file.open(&root, name, O_READ)) {
-      Serial.print("File opened:");
-      Serial.print(name);
-      Serial.print(" Size:");
       filesize = file.fileSize();
-      Serial.println(filesize);
+      SERIAL_PROTOCOLLN("File opened:"<<name<<" Size:"<<filesize);
       sdpos = 0;
       
-      Serial.println("File selected");
+      SERIAL_PROTOCOLLN("File selected");
     }
     else{
-      Serial.println("file.open failed");
+      SERIAL_PROTOCOLLN("file.open failed");
     }
   }
 }
@@ -101,14 +98,11 @@ void CardReader::startFilewrite(char *name)
     
     if (!file.open(&root, name, O_CREAT | O_APPEND | O_WRITE | O_TRUNC))
     {
-      Serial.print("open failed, File: ");
-      Serial.print(name);
-      Serial.print(".");
+      SERIAL_PROTOCOLLN("open failed, File: "<<name<<".");
     }
     else{
       saving = true;
-      Serial.print("Writing to file: ");
-      Serial.println(name);
+      SERIAL_PROTOCOLLN("Writing to file: "<<name);
     }
   }
 }
@@ -116,13 +110,10 @@ void CardReader::startFilewrite(char *name)
 void CardReader::getStatus()
 {
   if(cardOK){
-    Serial.print("SD printing byte ");
-    Serial.print(sdpos);
-    Serial.print("/");
-    Serial.println(filesize);
+    SERIAL_PROTOCOLLN("SD printing byte "<<sdpos<<"/"<<filesize);
   }
   else{
-    Serial.println("Not SD printing");
+    SERIAL_PROTOCOLLN("Not SD printing");
   }
 }
 void CardReader::write_command(char *buf)
