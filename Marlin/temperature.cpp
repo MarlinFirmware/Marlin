@@ -160,7 +160,7 @@ void manage_heater()
         }
     #endif //PID_OPENLOOP
     #ifdef PID_DEBUG
-     SERIAL_ECHOLN(" PIDDEBUG Input "<<pid_input<<" Output "<<pid_output" pTerm "<<pTerm<<" iTerm "<<iTerm<<" dTerm "<<dTerm);  
+     //SERIAL_ECHOLN(" PIDDEBUG Input "<<pid_input<<" Output "<<pid_output" pTerm "<<pTerm<<" iTerm "<<iTerm<<" dTerm "<<dTerm);  
     #endif //PID_DEBUG
     analogWrite(HEATER_0_PIN, pid_output);
   #endif //PIDTEMP
@@ -462,7 +462,8 @@ ISR(TIMER0_COMPB_vect)
       temp_count++;
       break;
     default:
-      SERIAL_ERRORLN("Temp measurement error!");
+      SERIAL_ERROR_START;
+      SERIAL_ERRORLNPGM("Temp measurement error!");
       break;
   }
     
@@ -496,7 +497,8 @@ ISR(TIMER0_COMPB_vect)
         if(current_raw[TEMPSENSOR_HOTEND_0] >= maxttemp_0) {
           target_raw[TEMPSENSOR_HOTEND_0] = 0;
           analogWrite(HEATER_0_PIN, 0);
-          SERIAL_ERRORLN("Temperature extruder 0 switched off. MAXTEMP triggered !!");
+          SERIAL_ERROR_START;
+          SERIAL_ERRORLNPGM("Temperature extruder 0 switched off. MAXTEMP triggered !!");
           kill();
         }
       #endif
@@ -507,7 +509,8 @@ ISR(TIMER0_COMPB_vect)
         target_raw[TEMPSENSOR_HOTEND_1] = 0;
       if(current_raw[2] >= maxttemp_1) {
         analogWrite(HEATER_2_PIN, 0);
-        SERIAL_ERRORLN("Temperature extruder 1 switched off. MAXTEMP triggered !!");
+        SERIAL_ERROR_START;
+        SERIAL_ERRORLNPGM("Temperature extruder 1 switched off. MAXTEMP triggered !!");
         kill()
       }
     #endif
@@ -518,7 +521,8 @@ ISR(TIMER0_COMPB_vect)
       if(current_raw[TEMPSENSOR_HOTEND_0] <= minttemp_0) {
         target_raw[TEMPSENSOR_HOTEND_0] = 0;
         analogWrite(HEATER_0_PIN, 0);
-        SERIAL_ERRORLN("Temperature extruder 0 switched off. MINTEMP triggered !!");
+        SERIAL_ERROR_START;
+        SERIAL_ERRORLNPGM("Temperature extruder 0 switched off. MINTEMP triggered !!");
         kill();
       }
     #endif
@@ -529,7 +533,8 @@ ISR(TIMER0_COMPB_vect)
       if(current_raw[TEMPSENSOR_HOTEND_1] <= minttemp_1) {
         target_raw[TEMPSENSOR_HOTEND_1] = 0;
         analogWrite(HEATER_2_PIN, 0);
-        SERIAL_ERRORLN("Temperature extruder 1 switched off. MINTEMP triggered !!");
+        SERIAL_ERROR_START;
+        SERIAL_ERRORLNPGM("Temperature extruder 1 switched off. MINTEMP triggered !!");
         kill();
       }
     #endif
@@ -540,7 +545,8 @@ ISR(TIMER0_COMPB_vect)
       if(current_raw[1] <= bed_minttemp) {
         target_raw[1] = 0;
         WRITE(HEATER_1_PIN, 0);
-        SERIAL_ERRORLN("Temperatur heated bed switched off. MINTEMP triggered !!");
+        SERIAL_ERROR_START;
+        SERIAL_ERRORLNPGM("Temperatur heated bed switched off. MINTEMP triggered !!");
         kill();
       }
     #endif
@@ -551,7 +557,8 @@ ISR(TIMER0_COMPB_vect)
       if(current_raw[1] >= bed_maxttemp) {
         target_raw[1] = 0;
         WRITE(HEATER_1_PIN, 0);
-        SERIAL_ERRORLN("Temperature heated bed switched off. MAXTEMP triggered !!");
+        SERIAL_ERROR_START;
+        SERIAL_ERRORLNPGM("Temperature heated bed switched off. MAXTEMP triggered !!");
         kill();
       }
     #endif

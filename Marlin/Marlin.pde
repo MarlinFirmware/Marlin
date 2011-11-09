@@ -101,7 +101,7 @@ char version_string[] = "1.0.0 Alpha 1";
 // M220 - set speed factor override percentage S:factor in percent
 // M301 - Set PID parameters P I and D
 // M500 - stores paramters in EEPROM
-// M501 - reads parameters from EEPROM (if you need reset them after you changed them temporarily).  D
+// M501 - reads parameters from EEPROM (if you need reset them after you changed them temporarily).  
 // M502 - reverts to the default "factory settings".  You still need to store them in EEPROM afterwards if you want to.
 
 //Stepper Movement Variables
@@ -199,7 +199,10 @@ void enquecommand(const char *cmd)
   {
     //this is dangerous if a mixing of serial and this happsens
     strcpy(&(cmdbuffer[bufindw][0]),cmd);
-    SERIAL_ECHOLN("enqueing \""<<cmdbuffer[bufindw]<<"\"");
+    SERIAL_ECHO_START;
+    SERIAL_ECHOPGM("enqueing \"");
+    SERIAL_ECHO(cmdbuffer[bufindw]);
+    SERIAL_ECHOLNPGM("\"");
     bufindw= (bufindw + 1)%BUFSIZE;
     buflen += 1;
   }
@@ -208,10 +211,13 @@ void enquecommand(const char *cmd)
 void setup()
 { 
   Serial.begin(BAUDRATE);
-  SERIAL_ECHOLN("Marlin "<<version_string);
-  SERIAL_PROTOCOLLN("start");
-  Serial.print("echo: Free Memory:");
-  serial.println(freeMemory());
+  SERIAL_ECHO_START;
+  SERIAL_ECHOPGM("Marlin ");
+  SERIAL_ECHOLN(version_string);
+  SERIAL_PROTOCOLLNPGM("start");
+  SERIAL_ECHO_START;
+  SERIAL_ECHOPGM("Free Memory:");
+  SERIAL_ECHOLN(freeMemory());
   for(int8_t i = 0; i < BUFSIZE; i++)
   {
     fromsd[i] = false;
@@ -244,12 +250,12 @@ void loop()
 	if(strstr(cmdbuffer[bufindr],"M29") == NULL)
 	{
 	  card.write_command(cmdbuffer[bufindr]);
-	  SERIAL_PROTOCOLLN("ok");
+	  SERIAL_PROTOCOLLNPGM("ok");
 	}
 	else
 	{
 	  card.closefile();
-	  SERIAL_PROTOCOLLN("Done saving file.");
+	  SERIAL_PROTOCOLLNPGM("Done saving file.");
 	}
       }
       else
@@ -284,7 +290,9 @@ inline void get_command()
           strchr_pointer = strchr(cmdbuffer[bufindw], 'N');
           gcode_N = (strtol(&cmdbuffer[bufindw][strchr_pointer - cmdbuffer[bufindw] + 1], NULL, 10));
           if(gcode_N != gcode_LastN+1 && (strstr(cmdbuffer[bufindw], "M110") == NULL) ) {
-            SERIAL_ERRORLN("Line Number is not Last Line Number+1, Last Line:"<<gcode_LastN);
+            SERIAL_ERROR_START;
+            SERIAL_ERRORPGM("Line Number is not Last Line Number+1, Last Line:");
+            SERIAL_ERRORLN(gcode_LastN);
             //Serial.println(gcode_N);
             FlushSerialRequestResend();
             serial_count = 0;
@@ -299,7 +307,9 @@ inline void get_command()
             strchr_pointer = strchr(cmdbuffer[bufindw], '*');
 
             if( (int)(strtod(&cmdbuffer[bufindw][strchr_pointer - cmdbuffer[bufindw] + 1], NULL)) != checksum) {
-              SERIAL_ERRORLN("checksum mismatch, Last Line:"<<gcode_LastN);
+              SERIAL_ERROR_START;
+              SERIAL_ERRORPGM("checksum mismatch, Last Line:");
+              SERIAL_ERRORLN(gcode_LastN);
               FlushSerialRequestResend();
               serial_count = 0;
               return;
@@ -308,7 +318,9 @@ inline void get_command()
           }
           else 
           {
-            SERIAL_ERRORLN("No Checksum with line number, Last Line:"<<gcode_LastN);
+            SERIAL_ERROR_START;
+            SERIAL_ERRORPGM("No Checksum with line number, Last Line:");
+            SERIAL_ERRORLN(gcode_LastN);
             FlushSerialRequestResend();
             serial_count = 0;
             return;
@@ -321,7 +333,9 @@ inline void get_command()
         {
           if((strstr(cmdbuffer[bufindw], "*") != NULL))
           {
-            SERIAL_ERRORLN("No Line Number with checksum, Last Line:"<<gcode_LastN);
+            SERIAL_ERROR_START;
+            SERIAL_ERRORPGM("No Line Number with checksum, Last Line:");
+            SERIAL_ERRORLN(gcode_LastN);
             serial_count = 0;
             return;
           }
@@ -337,7 +351,7 @@ inline void get_command()
             if(card.saving)
               break;
 	    #endif //SDSUPPORT
-            SERIAL_PROTOCOLLN("ok"); 
+            SERIAL_PROTOCOLLNPGM("ok"); 
             break;
           default:
             break;
@@ -362,14 +376,14 @@ inline void get_command()
     return;
   }
   while( !card.eof()  && buflen < BUFSIZE) {
-    
-    serial_char = card.get();
-    if(serial_char == '\n' || serial_char == '\r' || serial_char == ':' || serial_count >= (MAX_CMD_SIZE - 1)) 
+    int16_t n=card.get();
+    serial_char = (char)n;
+    if(serial_char == '\n' || serial_char == '\r' || serial_char == ':' || serial_count >= (MAX_CMD_SIZE - 1)||n==-1) 
     {
      
       if(card.eof()){
         card.sdprinting = false;
-        SERIAL_PROTOCOL("Done printing file");
+        SERIAL_PROTOCOLLNPGM("Done printing file");
         stoptime=millis();
         char time[30];
         unsigned long t=(stoptime-starttime)/1000;
@@ -377,6 +391,7 @@ inline void get_command()
         min=t/60;
         sec=t%60;
         sprintf(time,"%i min, %i sec",min,sec);
+        SERIAL_ECHO_START;
         SERIAL_ECHOLN(time);
         LCD_MESSAGE(time);
         card.checkautostart(true);
@@ -398,6 +413,7 @@ inline void get_command()
       if(!comment_mode) cmdbuffer[bufindw][serial_count++] = serial_char;
     }
   }
+  
   #endif //SDSUPPORT
 
 }
@@ -473,6 +489,7 @@ inline void process_commands()
       previous_millis_cmd = millis();
       return;
     case 4: // G4 dwell
+      LCD_MESSAGEPGM("DWELL...");
       codenum = 0;
       if(code_seen('P')) codenum = code_value(); // milliseconds to wait
       if(code_seen('S')) codenum = code_value() * 1000; // seconds to wait
@@ -533,13 +550,14 @@ inline void process_commands()
     #ifdef SDSUPPORT
 
     case 20: // M20 - list SD card
-      SERIAL_PROTOCOLLN("Begin file list");
+      SERIAL_PROTOCOLLNPGM("Begin file list");
       card.ls();
-      SERIAL_PROTOCOLLN("End file list");
+      SERIAL_PROTOCOLLNPGM("End file list");
       break;
     case 21: // M21 - init SD card
       
       card.initsd();
+      
       break;
     case 22: //M22 - release SD card
       card.release();
@@ -592,7 +610,8 @@ inline void process_commands()
       min=t/60;
       sec=t%60;
       sprintf(time,"%i min, %i sec",min,sec);
-      SERIAL_ERRORLN(time);
+      SERIAL_ECHO_START;
+      SERIAL_ECHOLN(time);
       LCD_MESSAGE(time);
     }
     break;
@@ -637,7 +656,7 @@ inline void process_commands()
           bt = degBed();
       #endif
       #if (TEMP_0_PIN > -1) || defined (HEATER_USES_AD595)
-        SERIAL_PROTOCOL("ok T:");
+        SERIAL_PROTOCOLPGM("ok T:");
         SERIAL_PROTOCOL(tt); 
         #if TEMP_1_PIN > -1 
           #ifdef PIDTEMP
@@ -654,13 +673,14 @@ inline void process_commands()
             SERIAL_PROTOCOLLN("");
           #endif //TEMP_1_PIN
         #else
-          SERIAL_ERRORLN("No thermistors - no temp");
+          SERIAL_ERROR_START;
+          SERIAL_ERRORLNPGM("No thermistors - no temp");
       #endif
       return;
       break;
     case 109: 
     {// M109 - Wait for extruder heater to reach target.
-        LCD_MESSAGE("Heating...");
+        LCD_MESSAGEPGM("Heating...");
         if (code_seen('S')) setTargetHotend0(code_value());
         
         setWatch();
@@ -681,7 +701,8 @@ inline void process_commands()
         #endif //TEMP_RESIDENCY_TIME
         if( (millis() - codenum) > 1000 ) 
         { //Print Temp Reading every 1 second while heating up/cooling down
-          SERIAL_PROTOCOLLN("T:"<< degHotend0() ); 
+          SERIAL_PROTOCOLPGM("T:");
+          SERIAL_PROTOCOLLN( degHotend0() ); 
           codenum = millis();
         }
         manage_heater();
@@ -697,12 +718,13 @@ inline void process_commands()
           }
         #endif //TEMP_RESIDENCY_TIME
         }
-        LCD_MESSAGE("Heating done.");
+        LCD_MESSAGEPGM("Heating done.");
         starttime=millis();
       }
       break;
     case 190: // M190 - Wait bed for heater to reach target.
     #if TEMP_1_PIN > -1
+        LCD_MESSAGEPGM("Bed Heating.");
         if (code_seen('S')) setTargetBed(code_value());
         codenum = millis(); 
         while(isHeatingBed()) 
@@ -710,12 +732,17 @@ inline void process_commands()
           if( (millis()-codenum) > 1000 ) //Print Temp Reading every 1 second while heating up.
           {
             float tt=degHotend0();
-            SERIAL_PROTOCOLLN("T:"<<tt );
-            SERIAL_PROTOCOLLN("ok T:"<<tt <<" B:"<<degBed() ); 
+            SERIAL_PROTOCOLPGM("T:");
+            SERIAL_PROTOCOLLN(tt );
+            SERIAL_PROTOCOLPGM("ok T:");
+            SERIAL_PROTOCOL(tt );
+            SERIAL_PROTOCOLPGM(" B:");
+            SERIAL_PROTOCOLLN(degBed() ); 
             codenum = millis(); 
           }
           manage_heater();
         }
+        LCD_MESSAGEPGM("Bed done.");
     #endif
     break;
 
@@ -759,6 +786,7 @@ inline void process_commands()
       }
       else
       { 
+        LCD_MESSAGEPGM("Free move.");
         st_synchronize(); 
         disable_x(); 
         disable_y(); 
@@ -778,50 +806,50 @@ inline void process_commands()
       }
       break;
     case 115: // M115
-      SERIAL_PROTOCOLLN("FIRMWARE_NAME:Marlin; Sprinter/grbl mashup for gen6 FIRMWARE_URL:http://www.mendel-parts.com PROTOCOL_VERSION:1.0 MACHINE_TYPE:Mendel EXTRUDER_COUNT:1");
+      SerialprintPGM("FIRMWARE_NAME:Marlin; Sprinter/grbl mashup for gen6 FIRMWARE_URL:http://www.mendel-parts.com PROTOCOL_VERSION:1.0 MACHINE_TYPE:Mendel EXTRUDER_COUNT:1");
       break;
     case 114: // M114
-      SERIAL_PROTOCOL("X:");
+      SERIAL_PROTOCOLPGM("X:");
       SERIAL_PROTOCOL(current_position[X_AXIS]);
-      SERIAL_PROTOCOL("Y:");
+      SERIAL_PROTOCOLPGM("Y:");
       SERIAL_PROTOCOL(current_position[Y_AXIS]);
-      SERIAL_PROTOCOL("Z:");
+      SERIAL_PROTOCOLPGM("Z:");
       SERIAL_PROTOCOL(current_position[Z_AXIS]);
-      SERIAL_PROTOCOL("E:");      
+      SERIAL_PROTOCOLPGM("E:");      
       SERIAL_PROTOCOL(current_position[E_AXIS]);
       #ifdef DEBUG_STEPS
-        SERIAL_PROTOCOL(" Count X:");
+        SERIAL_PROTOCOLPGM(" Count X:");
         SERIAL_PROTOCOL(float(count_position[X_AXIS])/axis_steps_per_unit[X_AXIS]);
-        SERIAL_PROTOCOL("Y:");
+        SERIAL_PROTOCOLPGM("Y:");
         SERIAL_PROTOCOL(float(count_position[Y_AXIS])/axis_steps_per_unit[Y_AXIS]);
-        SERIAL_PROTOCOL("Z:");
+        SERIAL_PROTOCOLPGM("Z:");
         SERIAL_PROTOCOL(float(count_position[Z_AXIS])/axis_steps_per_unit[Z_AXIS]);
       #endif
       SERIAL_PROTOCOLLN("");
       break;
     case 119: // M119
       #if (X_MIN_PIN > -1)
-        SERIAL_PROTOCOL("x_min:");
+        SERIAL_PROTOCOLPGM("x_min:");
         SERIAL_PROTOCOL(((READ(X_MIN_PIN)^ENDSTOPS_INVERTING)?"H ":"L "));
       #endif
       #if (X_MAX_PIN > -1)
-        SERIAL_PROTOCOL("x_max:");
+        SERIAL_PROTOCOLPGM("x_max:");
         SERIAL_PROTOCOL(((READ(X_MAX_PIN)^ENDSTOPS_INVERTING)?"H ":"L "));
       #endif
       #if (Y_MIN_PIN > -1)
-        SERIAL_PROTOCOL("y_min:");
+        SERIAL_PROTOCOLPGM("y_min:");
         SERIAL_PROTOCOL(((READ(Y_MIN_PIN)^ENDSTOPS_INVERTING)?"H ":"L "));
       #endif
       #if (Y_MAX_PIN > -1)
-        SERIAL_PROTOCOL("y_max:");
+        SERIAL_PROTOCOLPGM("y_max:");
         SERIAL_PROTOCOL(((READ(Y_MAX_PIN)^ENDSTOPS_INVERTING)?"H ":"L "));
       #endif
       #if (Z_MIN_PIN > -1)
-        SERIAL_PROTOCOL("z_min:");
+        SERIAL_PROTOCOLPGM("z_min:");
         SERIAL_PROTOCOL(((READ(Z_MIN_PIN)^ENDSTOPS_INVERTING)?"H ":"L "));
       #endif
       #if (Z_MAX_PIN > -1)
-        SERIAL_PROTOCOL("z_max:");
+        SERIAL_PROTOCOLPGM("z_max:");
         SERIAL_PROTOCOL(((READ(Z_MAX_PIN)^ENDSTOPS_INVERTING)?"H ":"L "));
       #endif
       SERIAL_PROTOCOLLN("");
@@ -897,7 +925,10 @@ inline void process_commands()
   }
   else
   {
-    SERIAL_ECHOLN("Unknown command:\""<<cmdbuffer[bufindr]<<"\"");
+    SERIAL_ECHO_START;
+    SERIAL_ECHOPGM("Unknown command:\"");
+    SERIAL_ECHO(cmdbuffer[bufindr]);
+    SERIAL_ECHOLNPGM("\"");
   }
 
   ClearToSend();
@@ -907,7 +938,8 @@ void FlushSerialRequestResend()
 {
   //char cmdbuffer[bufindr][100]="Resend:";
   Serial.flush();
-  SERIAL_PROTOCOLLN("Resend:"<<gcode_LastN + 1);
+  SERIAL_PROTOCOLPGM("Resend:");
+  SERIAL_PROTOCOLLN(gcode_LastN + 1);
   ClearToSend();
 }
 
@@ -918,7 +950,7 @@ void ClearToSend()
   if(fromsd[bufindr])
     return;
   #endif //SDSUPPORT
-  SERIAL_PROTOCOLLN("ok"); 
+  SERIAL_PROTOCOLLNPGM("ok"); 
 }
 
 inline void get_coordinates()
@@ -992,7 +1024,9 @@ void kill()
   disable_e();
   
   if(PS_ON_PIN > -1) pinMode(PS_ON_PIN,INPUT);
-  SERIAL_ERRORLN("Printer halted. kill() called !!");
+  SERIAL_ERROR_START;
+  SERIAL_ERRORLNPGM("Printer halted. kill() called !!");
+  LCD_MESSAGEPGM("KILLED. ");
   while(1); // Wait for reset
 }
 

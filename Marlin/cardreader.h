@@ -30,8 +30,8 @@ public:
   
 
   inline void ls() {root.ls();};
-  inline bool eof() { sdpos = file.curPosition();return sdpos>=filesize ;};
-  inline char get() {  int16_t n = file.read(); return (n==-1)?'\n':(char)n;};
+  inline bool eof() { return sdpos>=filesize ;};
+  inline int16_t get() {  sdpos = file.curPosition();return (int16_t)file.read();};
   inline void setIndex(long index) {sdpos = index;file.seekSet(index);};
 
 public:

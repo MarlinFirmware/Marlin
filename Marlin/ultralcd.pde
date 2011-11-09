@@ -67,6 +67,18 @@ void lcd_status(const char* message)
   strncpy(messagetext,message,LCD_WIDTH);
 }
 
+void lcd_statuspgm(const char* message)
+{
+  char ch=pgm_read_byte(message);
+  char *target=messagetext;
+  while(ch)
+  {
+    *target=ch;
+    target++;
+    ch=pgm_read_byte(++message);
+  }
+}
+
 inline void clear()
 {
   lcd.clear();
@@ -105,7 +117,7 @@ void lcd_init()
   lcd.createChar(2,Thermometer);
   lcd.createChar(3,uplevel);
   lcd.createChar(4,refresh);
-  LCD_MESSAGE(fillto(LCD_WIDTH,"UltiMarlin ready."));
+  LCD_MESSAGEPGM("UltiMarlin ready.");
 }
 
 
@@ -1369,7 +1381,8 @@ void MainMenu::showMainMenu()
       }break;
       #endif
       default: 
-        SERIAL_ERRORLN("Something is wrong in the MenuStructure.");
+        SERIAL_ERROR_START;
+        SERIAL_ERRORLNPGM("Something is wrong in the MenuStructure.");
       break;
     }
   }

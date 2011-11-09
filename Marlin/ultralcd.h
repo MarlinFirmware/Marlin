@@ -83,6 +83,7 @@
 
 
   #define LCD_MESSAGE(x) lcd_status(x);
+  #define LCD_MESSAGEPGM(x) lcd_statuspgm(PSTR(x));
   #define LCD_STATUS lcd_status()
 #else //no lcd
   #define LCD_STATUS

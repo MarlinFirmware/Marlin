@@ -232,7 +232,9 @@ inline void trapezoid_generator_reset() {
 ISR(TIMER1_COMPA_vect)
 {        
   if(busy){ 
-    SERIAL_ERRORLN(*(unsigned short *)OCR1A<< " ISR overtaking itself.");
+    SERIAL_ERROR_START
+    SERIAL_ERROR(*(unsigned short *)OCR1A);
+    SERIAL_ERRORLNPGM(" ISR overtaking itself.");
     return; 
   } // The busy-flag is used to avoid reentering this interrupt
 
