@@ -211,7 +211,6 @@ void setup()
 { 
   Serial.begin(BAUDRATE);
   SERIAL_ECHO_START;
-  SERIAL_ECHOPGM("Marlin ");
   SERIAL_ECHOLN(version_string);
   SERIAL_PROTOCOLLNPGM("start");
   SERIAL_ECHO_START;
@@ -785,8 +784,8 @@ inline void process_commands()
       }
       else
       { 
-        LCD_MESSAGEPGM("Free move.");
         st_synchronize(); 
+        LCD_MESSAGEPGM("Free move.");
         disable_x(); 
         disable_y(); 
         disable_z(); 

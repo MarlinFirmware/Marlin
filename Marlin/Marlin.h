@@ -35,6 +35,9 @@ const char echomagic[] PROGMEM ="echo:";
 #define SERIAL_ECHOLN(x) SERIAL_PROTOCOLLN(x)
 #define SERIAL_ECHOLNPGM(x) SERIAL_PROTOCOLLNPGM(x)
 
+#define SERIAL_ECHOPAIR(name,value) {SERIAL_ECHOPGM(name);SERIAL_ECHO(value);}
+
+
 //things to write to serial from Programmemory. saves 400 to 2k of RAM.
 #define SerialprintPGM(x) serialprintPGM(PSTR(x))
 inline void serialprintPGM(const char *str)

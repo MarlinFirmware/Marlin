@@ -25,7 +25,6 @@ template <class T> int EEPROM_readAnything(int &ee, T& value)
 }
 //======================================================================================
 
-#define SERIAL_ECHOPAIR(name,value) {SERIAL_ECHOPGM(name);SERIAL_ECHO(value);}
 
 
 

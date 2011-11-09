@@ -119,7 +119,7 @@
   // if Kc is choosen well, the additional required power due to increased melting should be compensated.
   #define PID_ADD_EXTRUSION_RATE  
   #ifdef PID_ADD_EXTRUSION_RATE
-    #define  DEFAULT_Kc (5) //heatingpower=Kc*(e_speed)
+    #define  DEFAULT_Kc (3) //heatingpower=Kc*(e_speed)
   #endif
 #endif // PIDTEMP
 
@@ -273,6 +273,16 @@ const bool ENDSTOPS_INVERTING = true; // set to true to invert the logic of the 
 // Arc interpretation settings:
 #define MM_PER_ARC_SEGMENT 1
 #define N_ARC_CORRECTION 25
+
+
+//automatic temperature: just for testing, this is very dangerous, keep disabled!
+// not working yet.
+//Erik: the settings currently depend dramatically on skeinforge39 or 41.
+//#define AUTOTEMP
+#define AUTOTEMP_MIN 190
+#define AUTOTEMP_MAX 260
+#define AUTOTEMP_FACTOR 1000.  //current target temperature= min+largest buffered espeeds)*FACTOR
+
 
 
 const int dropsegments=0; //everything with less than this number of steps  will be ignored as move and joined with the next movement

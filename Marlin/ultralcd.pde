@@ -71,10 +71,12 @@ void lcd_statuspgm(const char* message)
 {
   char ch=pgm_read_byte(message);
   char *target=messagetext;
-  while(ch)
+  uint8_t cnt=0;
+  while(ch &&cnt<LCD_WIDTH)
   {
     *target=ch;
     target++;
+    cnt++;
     ch=pgm_read_byte(++message);
   }
 }
