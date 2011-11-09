@@ -1,10 +1,13 @@
 #ifndef __CONFIGURATION_H
 #define __CONFIGURATION_H
 
-//#define DEBUG_STEPS
 
-#define MM_PER_ARC_SEGMENT 1
-#define N_ARC_CORRECTION 25
+
+// This determines the communication speed of the printer
+//#define BAUDRATE 250000
+#define BAUDRATE 115200
+//#define BAUDRATE 230400
+
 
 // BASIC SETTINGS: select your board type, thermistor type, axis scaling, and endstop configuration
 
@@ -17,7 +20,9 @@
 // Teensylu = 8
 #define MOTHERBOARD 7
 
-
+//===========================================================================
+//=============================Thermal Settings  ============================
+//===========================================================================
 
 //// Thermistor settings:
 // 1 is 100k thermistor
@@ -40,49 +45,103 @@
 //#define BED_USES_THERMISTOR
 //#define BED_USES_AD595
 
-#define HEATER_CHECK_INTERVAL 50
-#define BED_CHECK_INTERVAL 5000
+#define HEATER_CHECK_INTERVAL 50 //ms
+#define BED_CHECK_INTERVAL 5000 //ms
+
+//// Experimental watchdog and minimal temp
+// The watchdog waits for the watchperiod in milliseconds whenever an M104 or M109 increases the target temperature
+// If the temperature has not increased at the end of that period, the target temperature is set to zero. It can be reset with another M104/M109
+/// CURRENTLY NOT IMPLEMENTED AND UNUSEABLE
+//#define WATCHPERIOD 5000 //5 seconds
+
+// Actual temperature must be close to target for this long before M109 returns success
+//#define TEMP_RESIDENCY_TIME 20  // (seconds)
+//#define TEMP_HYSTERESIS 5       // (C°) range of +/- temperatures considered "close" to the target one
+
+//// The minimal temperature defines the temperature below which the heater will not be enabled
+#define HEATER_0_MINTEMP 5
+//#define HEATER_1_MINTEMP 5
+//#define BED_MINTEMP 5
 
 
-//// Endstop Settings
+// When temperature exceeds max temp, your heater will be switched off.
+// This feature exists to protect your hotend from overheating accidentally, but *NOT* from thermistor short/failure!
+// You should use MINTEMP for thermistor short/failure protection.
+#define HEATER_0_MAXTEMP 275
+//#define_HEATER_1_MAXTEMP 275
+//#define BED_MAXTEMP 150
+
+
+
+// PID settings:
+// Uncomment the following line to enable PID support.
+  
+#define PIDTEMP
+#ifdef PIDTEMP
+  //#define PID_DEBUG // Sends debug data to the serial port. 
+  //#define PID_OPENLOOP 1 // Puts PID in open loop. M104 sets the output power in %
+  
+  #define PID_MAX 255 // limits current to nozzle; 255=full current
+  #define PID_INTEGRAL_DRIVE_MAX 255  //limit for the integral term
+  #define K1 0.95 //smoothing factor withing the PID
+  #define PID_dT 0.1 //sampling period of the PID
+
+  //To develop some PID settings for your machine, you can initiall follow 
+  // the Ziegler-Nichols method.
+  // set Ki and Kd to zero. 
+  // heat with a defined Kp and see if the temperature stabilizes
+  // ideally you do this graphically with repg.
+  // the PID_CRITIAL_GAIN should be the Kp at which temperature oscillatins are not dampned out/decreas in amplitutde
+  // PID_SWING_AT_CRITIAL is the time for a full period of the oscillations at the critical Gain
+  // usually further manual tunine is necessary.
+
+  #define PID_CRITIAL_GAIN 3000
+  #define PID_SWING_AT_CRITIAL 45 //seconds
+  
+  #define PID_PI    //no differentail term
+  //#define PID_PID //normal PID
+
+  #ifdef PID_PID
+    //PID according to Ziegler-Nichols method
+    #define  DEFAULT_Kp  (0.6*PID_CRITIAL_GAIN)
+    #define  DEFAULT_Ki (2*Kp/PID_SWING_AT_CRITIAL*PID_dT)  
+    #define  DEFAULT_Kd (PID_SWING_AT_CRITIAL/8./PID_dT)  
+  #endif
+ 
+  #ifdef PID_PI
+    //PI according to Ziegler-Nichols method
+    #define  DEFAULT_Kp (PID_CRITIAL_GAIN/2.2) 
+    #define  DEFAULT_Ki (1.2*Kp/PID_SWING_AT_CRITIAL*PID_dT)
+    #define  DEFAULT_Kd (0)
+  #endif
+  
+  // this adds an experimental additional term to the heatingpower, proportional to the extrusion speed.
+  // if Kc is choosen well, the additional required power due to increased melting should be compensated.
+  #define PID_ADD_EXTRUSION_RATE  
+  #ifdef PID_ADD_EXTRUSION_RATE
+    #define  DEFAULT_Kc (5) //heatingpower=Kc*(e_speed)
+  #endif
+#endif // PIDTEMP
+
+
+
+
+
+
+
+
+
+//===========================================================================
+//=============================Mechanical Settings===========================
+//===========================================================================
+
+
+// Endstop Settings
 #define ENDSTOPPULLUPS // Comment this out (using // at the start of the line) to disable the endstop pullup resistors
 // The pullups are needed if you directly connect a mechanical endswitch between the signal and ground pins.
 const bool ENDSTOPS_INVERTING = true; // set to true to invert the logic of the endstops. 
 // For optos H21LOB set to true, for Mendel-Parts newer optos TCST2103 set to false
 
-// This determines the communication speed of the printer
-#define BAUDRATE 250000
-//#define BAUDRATE 115200
-//#define BAUDRATE 230400
-
-// Comment out (using // at the start of the line) to disable SD support:
-
-// #define ULTRA_LCD  //any lcd 
-
-#define ULTIPANEL
-#ifdef ULTIPANEL
-  //#define NEWPANEL  //enable this if you have a click-encoder panel
-  #define SDSUPPORT
-  #define ULTRA_LCD
-  #define LCD_WIDTH 20
-  #define LCD_HEIGHT 4
-#else //no panel but just lcd 
-  #ifdef ULTRA_LCD
-    #define LCD_WIDTH 16
-    #define LCD_HEIGHT 2
-  #endif
-#endif
-
-
-//#define SDSUPPORT // Enable SD Card Support in Hardware Console
-
-
-
-const int dropsegments=5; //everything with this number of steps  will be ignored as move
-
-//// ADVANCED SETTINGS - to tweak parameters
-
-#include "thermistortables.h"
 
 // For Inverting Stepper Enable Pins (Active Low) use 0, Non Inverting (Active High) use 1
 #define X_ENABLE_ON 0
@@ -141,88 +200,33 @@ const int dropsegments=5; //everything with this number of steps  will be ignore
 #define DEFAULT_ZJERK                 10.0*60
 
 
+
+
+//===========================================================================
+//=============================Additional Features===========================
+//===========================================================================
+
+// EEPROM
+// the microcontroller can store settings in the EEPROM, e.g. max velocity...
+// M500 - stores paramters in EEPROM
+// M501 - reads parameters from EEPROM (if you need reset them after you changed them temporarily).  
+// M502 - reverts to the default "factory settings".  You still need to store them in EEPROM afterwards if you want to.
+//define this to enable eeprom support
+#define EEPROM_SETTINGS
+//to disable EEPROM Serial responses and decrease program space by ~1700 byte: comment this out:
+// please keep turned on if you can.
+#define EEPROM_CHITCHAT
+
+
 // The watchdog waits for the watchperiod in milliseconds whenever an M104 or M109 increases the target temperature
-//this enables the watchdog interrupt.
+// this enables the watchdog interrupt.
 #define USE_WATCHDOG
-//you cannot reboot on a mega2560 due to a bug in he bootloader. Hence, you have to reset manually, and this is done hereby:
+// you cannot reboot on a mega2560 due to a bug in he bootloader. Hence, you have to reset manually, and this is done hereby:
 #define RESET_MANUAL
-
-#define WATCHDOG_TIMEOUT 4
-
+#define WATCHDOG_TIMEOUT 4  //seconds
 
 
-//// Experimental watchdog and minimal temp
-// The watchdog waits for the watchperiod in milliseconds whenever an M104 or M109 increases the target temperature
-// If the temperature has not increased at the end of that period, the target temperature is set to zero. It can be reset with another M104/M109
-/// CURRENTLY NOT IMPLEMENTED AND UNUSEABLE
-//#define WATCHPERIOD 5000 //5 seconds
 
-// Actual temperature must be close to target for this long before M109 returns success
-//#define TEMP_RESIDENCY_TIME 20  // (seconds)
-//#define TEMP_HYSTERESIS 5       // (C°) range of +/- temperatures considered "close" to the target one
-
-//// The minimal temperature defines the temperature below which the heater will not be enabled
-#define HEATER_0_MINTEMP 5
-//#define HEATER_1_MINTEMP 5
-//#define BED_MINTEMP 5
-
-
-// When temperature exceeds max temp, your heater will be switched off.
-// This feature exists to protect your hotend from overheating accidentally, but *NOT* from thermistor short/failure!
-// You should use MINTEMP for thermistor short/failure protection.
-#define HEATER_0_MAXTEMP 275
-//#define_HEATER_1_MAXTEMP 275
-//#define BED_MAXTEMP 150
-
-/// PID settings:
-// Uncomment the following line to enable PID support.
-  
-#define PIDTEMP
-#ifdef PIDTEMP
-  //#define PID_DEBUG // Sends debug data to the serial port. 
-  //#define PID_OPENLOOP 1 // Puts PID in open loop. M104 sets the output power in %
-  
-  #define PID_MAX 255 // limits current to nozzle; 255=full current
-  #define PID_INTEGRAL_DRIVE_MAX 255  //limit for the integral term
-  #define K1 0.95 //smoothing factor withing the PID
-  #define PID_dT 0.1 //sampling period of the PID
-
-  //To develop some PID settings for your machine, you can initiall follow 
-  // the Ziegler-Nichols method.
-  // set Ki and Kd to zero. 
-  // heat with a defined Kp and see if the temperature stabilizes
-  // ideally you do this graphically with repg.
-  // the PID_CRITIAL_GAIN should be the Kp at which temperature oscillatins are not dampned out/decreas in amplitutde
-  // PID_SWING_AT_CRITIAL is the time for a full period of the oscillations at the critical Gain
-  // usually further manual tunine is necessary.
-
-  #define PID_CRITIAL_GAIN 3000
-  #define PID_SWING_AT_CRITIAL 45 //seconds
-  
-  #define PID_PI    //no differentail term
-  //#define PID_PID //normal PID
-
-  #ifdef PID_PID
-    //PID according to Ziegler-Nichols method
-    #define  DEFAULT_Kp  (0.6*PID_CRITIAL_GAIN)
-    #define  DEFAULT_Ki (2*Kp/PID_SWING_AT_CRITIAL*PID_dT)  
-    #define  DEFAULT_Kd (PID_SWING_AT_CRITIAL/8./PID_dT)  
-  #endif
- 
-  #ifdef PID_PI
-    //PI according to Ziegler-Nichols method
-    #define  DEFAULT_Kp (PID_CRITIAL_GAIN/2.2) 
-    #define  DEFAULT_Ki (1.2*Kp/PID_SWING_AT_CRITIAL*PID_dT)
-    #define  DEFAULT_Kd (0)
-  #endif
-  
-  // this adds an experimental additional term to the heatingpower, proportional to the extrusion speed.
-  // if Kc is choosen well, the additional required power due to increased melting should be compensated.
-  #define PID_ADD_EXTRUSION_RATE  
-  #ifdef PID_ADD_EXTRUSION_RATE
-    #define  DEFAULT_Kc (5) //heatingpower=Kc*(e_speed)
-  #endif
-#endif // PIDTEMP
 
 // extruder advance constant (s2/mm3)
 //
@@ -243,6 +247,42 @@ const int dropsegments=5; //everything with this number of steps  will be ignore
 
 #endif // ADVANCE
 
+
+//LCD and SD support
+//#define ULTRA_LCD  //general lcd support, also 16x2
+//#define SDSUPPORT // Enable SD Card Support in Hardware Console
+
+#define ULTIPANEL
+#ifdef ULTIPANEL
+  #define NEWPANEL  //enable this if you have a click-encoder panel
+  #define SDSUPPORT
+  #define ULTRA_LCD
+  #define LCD_WIDTH 20
+  #define LCD_HEIGHT 4
+#else //no panel but just lcd 
+  #ifdef ULTRA_LCD
+    #define LCD_WIDTH 16
+    #define LCD_HEIGHT 2
+  #endif
+#endif
+
+// A debugging feature to compare calculated vs performed steps, to see if steps are lost by the software.
+//#define DEBUG_STEPS
+
+
+// Arc interpretation settings:
+#define MM_PER_ARC_SEGMENT 1
+#define N_ARC_CORRECTION 25
+
+
+const int dropsegments=0; //everything with less than this number of steps  will be ignored as move and joined with the next movement
+
+//===========================================================================
+//=============================Buffers           ============================
+//===========================================================================
+
+
+
 // The number of linear motions that can be in the plan at any give time.  
 // THE BLOCK_BUFFER_SIZE NEEDS TO BE A POWER OF 2, i.g. 8,16,32 because shifts and ors are used to do the ringbuffering.
 #if defined SDSUPPORT
@@ -251,8 +291,12 @@ const int dropsegments=5; //everything with this number of steps  will be ignore
   #define BLOCK_BUFFER_SIZE 16 // maximize block buffer
 #endif
 
+
 //The ASCII buffer for recieving from the serial:
 #define MAX_CMD_SIZE 96
 #define BUFSIZE 4
+
+
+#include "thermistortables.h"
 
 #endif //__CONFIGURATION_H
