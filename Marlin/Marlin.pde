@@ -32,7 +32,6 @@
 #include "pins.h"
 #include "Marlin.h"
 #include "ultralcd.h"
-#include "streaming.h"
 #include "planner.h"
 #include "stepper.h"
 #include "temperature.h"

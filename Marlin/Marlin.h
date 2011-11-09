@@ -5,7 +5,6 @@
 // Licence: GPL
 #include <WProgram.h>
 #include "fastio.h"
-#include "streaming.h"
 #include <avr/pgmspace.h>
 
 //#define SERIAL_ECHO(x) Serial << "echo: " << x;
