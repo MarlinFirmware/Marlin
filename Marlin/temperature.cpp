@@ -156,12 +156,13 @@ void manage_heater()
             pTerm+=Kc*current_block->speed_e; //additional heating if extrusion speed is high
           #endif
           pid_output = constrain(pTerm + iTerm - dTerm, 0, PID_MAX);
-          HeaterPower=pid_output;
+          
         }
     #endif //PID_OPENLOOP
     #ifdef PID_DEBUG
      //SERIAL_ECHOLN(" PIDDEBUG Input "<<pid_input<<" Output "<<pid_output" pTerm "<<pTerm<<" iTerm "<<iTerm<<" dTerm "<<dTerm);  
     #endif //PID_DEBUG
+    HeaterPower=pid_output;
     analogWrite(HEATER_0_PIN, pid_output);
   #endif //PIDTEMP
 
@@ -250,7 +251,7 @@ int temp2analogBed(int celsius) {
 
     return (1023 * OVERSAMPLENR) - raw;
   #elif defined BED_USES_AD595
-    return celsius * (1024.0 / (5.0 * 100.0) ) * OVERSAMPLENR;
+    return lround(celsius * (1024.0 * OVERSAMPLENR/ (5.0 * 100.0) ) );
   #endif
 }
 
