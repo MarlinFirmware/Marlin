@@ -647,33 +647,24 @@ inline void process_commands()
       break;
     case 105: // M105
       //SERIAL_ECHOLN(freeMemory());
-      #if (TEMP_0_PIN > -1) || defined (HEATER_USES_AD595)
-        tt = degHotend0();
-      #endif
-      #if TEMP_1_PIN > -1
-          bt = degBed();
-      #endif
+          
       #if (TEMP_0_PIN > -1) || defined (HEATER_USES_AD595)
         SERIAL_PROTOCOLPGM("ok T:");
-        SERIAL_PROTOCOL(tt); 
+        SERIAL_PROTOCOL( degHotend0()); 
         #if TEMP_1_PIN > -1 
-          #ifdef PIDTEMP
-            SERIAL_PROTOCOL(" B:");
-            #if TEMP_1_PIN > -1
-              SERIAL_PROTOCOLLN(bt); 
-            #else
-              SERIAL_PROTOCOLLN(HeaterPower); 
-            #endif
-          #else //not PIDTEMP
-            SERIAL_PROTOCOLLN("");
-           #endif //PIDTEMP
-         #else
-            SERIAL_PROTOCOLLN("");
-          #endif //TEMP_1_PIN
-        #else
-          SERIAL_ERROR_START;
-          SERIAL_ERRORLNPGM("No thermistors - no temp");
+          SERIAL_PROTOCOLPGM(" B:");  
+          SERIAL_PROTOCOL(degBed());
+        #endif //TEMP_1_PIN
+      #else
+        SERIAL_ERROR_START;
+        SERIAL_ERRORLNPGM("No thermistors - no temp");
       #endif
+      #ifdef PIDTEMP
+        SERIAL_PROTOCOLPGM(" @:");
+        SERIAL_PROTOCOL( HeaterPower); 
+       
+      #endif
+        SERIAL_PROTOCOLLN("");
       return;
       break;
     case 109: 
@@ -901,6 +892,21 @@ inline void process_commands()
       if(code_seen('P')) Kp = code_value();
       if(code_seen('I')) Ki = code_value()*PID_dT;
       if(code_seen('D')) Kd = code_value()/PID_dT;
+      #ifdef PID_ADD_EXTRUSION_RATE
+      if(code_seen('C')) Kc = code_value();
+      #endif
+      SERIAL_PROTOCOL("ok p:");
+      SERIAL_PROTOCOL(Kp);
+      SERIAL_PROTOCOL(" i:");
+      SERIAL_PROTOCOL(Ki/PID_dT);
+      SERIAL_PROTOCOL(" d:");
+      SERIAL_PROTOCOL(Kd*PID_dT);
+      #ifdef PID_ADD_EXTRUSION_RATE
+      SERIAL_PROTOCOL(" c:");
+      SERIAL_PROTOCOL(Kc*PID_dT);
+      #endif
+      SERIAL_PROTOCOLLN("");
+      
       break;
     #endif //PIDTEMP
     case 500: // Store settings in EEPROM

@@ -156,6 +156,7 @@ void manage_heater()
             pTerm+=Kc*current_block->speed_e; //additional heating if extrusion speed is high
           #endif
           pid_output = constrain(pTerm + iTerm - dTerm, 0, PID_MAX);
+          HeaterPower=pid_output;
         }
     #endif //PID_OPENLOOP
     #ifdef PID_DEBUG
