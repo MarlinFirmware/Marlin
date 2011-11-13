@@ -6,6 +6,15 @@
 #define MM_PER_ARC_SEGMENT 1
 #define N_ARC_CORRECTION 25
 
+// Frequency limit
+// See nophead's blog for more info
+#define XY_FREQUENCY_LIMIT  15
+
+// Minimum planner junction speed. Sets the default minimum speed the planner plans for at the end
+// of the buffer and all stops. This should not be much greater than zero and should only be changed
+// if unwanted behavior is observed on a user's machine when running at very slow speeds.
+#define MINIMUM_PLANNER_SPEED 2.0 // (mm/sec)
+
 // BASIC SETTINGS: select your board type, thermistor type, axis scaling, and endstop configuration
 
 //// The following define selects which electronics board you have. Please choose the one that matches your setup
@@ -97,6 +106,11 @@ const int dropsegments=5; //everything with this number of steps  will be ignore
 #define DISABLE_E false
 
 // Inverting axis direction
+//#define INVERT_X_DIR false    // for Mendel set to false, for Orca set to true
+//#define INVERT_Y_DIR true   // for Mendel set to true, for Orca set to false
+//#define INVERT_Z_DIR false    // for Mendel set to false, for Orca set to true
+//#define INVERT_E_DIR true   // for direct drive extruder v9 set to true, for geared extruder set to false
+
 #define INVERT_X_DIR true    // for Mendel set to false, for Orca set to true
 #define INVERT_Y_DIR false   // for Mendel set to true, for Orca set to false
 #define INVERT_Z_DIR true    // for Mendel set to false, for Orca set to true
@@ -117,7 +131,7 @@ const int dropsegments=5; //everything with this number of steps  will be ignore
 //// MOVEMENT SETTINGS
 #define NUM_AXIS 4 // The axis order in all axis related arrays is X, Y, Z, E
 //note: on bernhards ultimaker 200 200 12 are working well.
-#define HOMING_FEEDRATE {50*60, 50*60, 12*60, 0}  // set the homing speeds
+#define HOMING_FEEDRATE {50*60, 50*60, 4*60, 0}  // set the homing speeds (mm/min)
 
 #define AXIS_RELATIVE_MODES {false, false, false, false}
 
@@ -126,19 +140,20 @@ const int dropsegments=5; //everything with this number of steps  will be ignore
 // default settings 
 
 #define DEFAULT_AXIS_STEPS_PER_UNIT   {79.87220447,79.87220447,200*8/3,14}                    // default steps per unit for ultimaker 
-#define DEFAULT_MAX_FEEDRATE          {160*60, 160*60, 10*60, 500000}        
-#define DEFAULT_MAX_ACCELERATION      {9000,9000,150,10000}    // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for skeinforge 40+, for older versions raise them a lot.
+//#define DEFAULT_AXIS_STEPS_PER_UNIT   {40, 40, 3333.92, 67} 
+#define DEFAULT_MAX_FEEDRATE          {500, 500, 10, 500000}    // (mm/min)    
+#define DEFAULT_MAX_ACCELERATION      {9000,9000,100,10000}    // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for skeinforge 40+, for older versions raise them a lot.
 
 #define DEFAULT_ACCELERATION          3000    // X, Y, Z and E max acceleration in mm/s^2 for printing moves 
 #define DEFAULT_RETRACT_ACCELERATION  7000   // X, Y, Z and E max acceleration in mm/s^2 for r retracts
 
-#define DEFAULT_MINIMUMFEEDRATE       10     // minimum feedrate
-#define DEFAULT_MINTRAVELFEEDRATE     10
+#define DEFAULT_MINIMUMFEEDRATE       0     // minimum feedrate
+#define DEFAULT_MINTRAVELFEEDRATE     0
 
 // minimum time in microseconds that a movement needs to take if the buffer is emptied.   Increase this number if you see blobs while printing high speed & high detail.  It will slowdown on the detailed stuff.
 #define DEFAULT_MINSEGMENTTIME        20000
-#define DEFAULT_XYJERK                30.0*60    
-#define DEFAULT_ZJERK                 10.0*60
+#define DEFAULT_XYJERK                30.0    // (mm/sec)
+#define DEFAULT_ZJERK                 0.4     // (mm/sec)
 
 
 // The watchdog waits for the watchperiod in milliseconds whenever an M104 or M109 increases the target temperature
@@ -162,7 +177,7 @@ const int dropsegments=5; //everything with this number of steps  will be ignore
 //#define TEMP_HYSTERESIS 5       // (C°) range of +/- temperatures considered "close" to the target one
 
 //// The minimal temperature defines the temperature below which the heater will not be enabled
-#define HEATER_0_MINTEMP 5
+//#define HEATER_0_MINTEMP 5
 //#define HEATER_1_MINTEMP 5
 //#define BED_MINTEMP 5
 
@@ -170,7 +185,7 @@ const int dropsegments=5; //everything with this number of steps  will be ignore
 // When temperature exceeds max temp, your heater will be switched off.
 // This feature exists to protect your hotend from overheating accidentally, but *NOT* from thermistor short/failure!
 // You should use MINTEMP for thermistor short/failure protection.
-#define HEATER_0_MAXTEMP 275
+//#define HEATER_0_MAXTEMP 275
 //#define_HEATER_1_MAXTEMP 275
 //#define BED_MAXTEMP 150
 
@@ -246,9 +261,9 @@ const int dropsegments=5; //everything with this number of steps  will be ignore
 // The number of linear motions that can be in the plan at any give time.  
 // THE BLOCK_BUFFER_SIZE NEEDS TO BE A POWER OF 2, i.g. 8,16,32 because shifts and ors are used to do the ringbuffering.
 #if defined SDSUPPORT
-  #define BLOCK_BUFFER_SIZE 16   // SD,LCD,Buttons take more memory, block buffer needs to be smaller
+  #define BLOCK_BUFFER_SIZE 8   // SD,LCD,Buttons take more memory, block buffer needs to be smaller
 #else
-  #define BLOCK_BUFFER_SIZE 16 // maximize block buffer
+  #define BLOCK_BUFFER_SIZE 8 // maximize block buffer
 #endif
 
 //The ASCII buffer for recieving from the serial:

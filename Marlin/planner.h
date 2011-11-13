@@ -37,18 +37,21 @@ typedef struct {
   volatile long acceleration_rate;          // The acceleration rate used for acceleration calculation
   unsigned char direction_bits;             // The direction bit set for this block (refers to *_DIRECTION_BIT in config.h)
   #ifdef ADVANCE
-    long advance_rate;
-    volatile long initial_advance;
-    volatile long final_advance;
-    float advance;
+//    long advance_rate;
+//    volatile long initial_advance;
+//    volatile long final_advance;
+//    float advance;
   #endif
 
   // Fields used by the motion planner to manage acceleration
-  float speed_x, speed_y, speed_z, speed_e;          // Nominal mm/minute for each axis
+//  float speed_x, speed_y, speed_z, speed_e;        // Nominal mm/minute for each axis
   float nominal_speed;                               // The nominal speed for this block in mm/min  
+  float entry_speed;                                 // Entry speed at previous-current junction in mm/min
+  float max_entry_speed;                             // Maximum allowable junction entry speed in mm/min
   float millimeters;                                 // The total travel of this block in mm
-  float entry_speed;
   float acceleration;                                // acceleration mm/sec^2
+  unsigned char recalculate_flag;                          // Planner flag to recalculate trapezoids on entry junction
+  unsigned char nominal_length_flag;                       // Planner flag for nominal speed always reached
 
   // Settings for the trapezoid generator
   long nominal_rate;                                 // The nominal step rate for this block in step_events/sec 

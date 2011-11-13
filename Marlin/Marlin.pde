@@ -114,7 +114,9 @@ extern float HeaterPower;
 //===========================================================================
 //=============================public variables=============================
 //===========================================================================
+#ifdef SDSUPPORT
 CardReader card;
+#endif
 float homing_feedrate[] = HOMING_FEEDRATE;
 bool axis_relative_modes[] = AXIS_RELATIVE_MODES;
 volatile int feedmultiply=100; //100->1 200->2
@@ -215,7 +217,9 @@ void loop()
 {
   if(buflen<3)
     get_command();
+  #ifdef SDSUPPORT
   card.checkautostart(false);
+  #endif
   if(buflen)
   {
     #ifdef SDSUPPORT
@@ -933,7 +937,7 @@ inline void get_arc_coordinates()
 
 void prepare_move()
 {
-  plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate*feedmultiply/60.0/100.0);
+  plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate*feedmultiply/60/100.0);
   for(int8_t i=0; i < NUM_AXIS; i++) {
     current_position[i] = destination[i];
   }
@@ -943,7 +947,7 @@ void prepare_arc_move(char isclockwise) {
   float r = hypot(offset[X_AXIS], offset[Y_AXIS]); // Compute arc radius for mc_arc
 
   // Trace the arc
-  mc_arc(current_position, destination, offset, X_AXIS, Y_AXIS, Z_AXIS, feedrate*feedmultiply/60.0/100.0, r, isclockwise);
+  mc_arc(current_position, destination, offset, X_AXIS, Y_AXIS, Z_AXIS, feedrate*feedmultiply/60/100.0, r, isclockwise);
   
   // As far as the parser is concerned, the position is now == target. In reality the
   // motion control system might still be processing the action and the real tool position

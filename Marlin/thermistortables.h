@@ -1,12 +1,14 @@
 #ifndef THERMISTORTABLES_H_
 #define THERMISTORTABLES_H_
 
+#include <avr/pgmspace.h>
+
 #define OVERSAMPLENR 16
 
 #if (THERMISTORHEATER_0 == 1) || (THERMISTORHEATER_1 == 1) || (THERMISTORBED == 1) //100k bed thermistor
 
 #define NUMTEMPS_1 61
-const short temptable_1[NUMTEMPS_1][2] = {
+const short temptable_1[NUMTEMPS_1][2] PROGMEM = {
 {       23*OVERSAMPLENR ,       300     },
 {       25*OVERSAMPLENR ,       295     },
 {       27*OVERSAMPLENR ,       290     },
@@ -72,7 +74,7 @@ const short temptable_1[NUMTEMPS_1][2] = {
 #endif
 #if (THERMISTORHEATER_0 == 2) || (THERMISTORHEATER_1 == 2) || (THERMISTORBED == 2) //200k bed thermistor
 #define NUMTEMPS_2 21
-const short temptable_2[NUMTEMPS_2][2] = {
+const short temptable_2[NUMTEMPS_2][2] PROGMEM = {
    {1*OVERSAMPLENR, 848},
    {54*OVERSAMPLENR, 275},
    {107*OVERSAMPLENR, 228},
@@ -99,7 +101,7 @@ const short temptable_2[NUMTEMPS_2][2] = {
 #endif
 #if (THERMISTORHEATER_0 == 3) || (THERMISTORHEATER_1 == 3) || (THERMISTORBED == 3) //mendel-parts
 #define NUMTEMPS_3 28
-const short temptable_3[NUMTEMPS_3][2] = {
+const short temptable_3[NUMTEMPS_3][2] PROGMEM = {
                 {1*OVERSAMPLENR,864},
                 {21*OVERSAMPLENR,300},
                 {25*OVERSAMPLENR,290},
@@ -134,7 +136,7 @@ const short temptable_3[NUMTEMPS_3][2] = {
 #if (THERMISTORHEATER_0 == 4) || (THERMISTORHEATER_1 == 4) || (THERMISTORBED == 4) //10k thermistor
 
 #define NUMTEMPS_4 20
-short temptable_4[NUMTEMPS_4][2] = {
+const short temptable_4[NUMTEMPS_4][2] PROGMEM = {
    {1*OVERSAMPLENR, 430},
    {54*OVERSAMPLENR, 137},
    {107*OVERSAMPLENR, 107},
@@ -161,7 +163,7 @@ short temptable_4[NUMTEMPS_4][2] = {
 #if (THERMISTORHEATER_0 == 5) || (THERMISTORHEATER_1 == 5) || (THERMISTORBED == 5) //100k ParCan thermistor (104GT-2)
 
 #define NUMTEMPS_5 61
-const short temptable_5[NUMTEMPS_5][2] = {
+const short temptable_5[NUMTEMPS_5][2] PROGMEM = {
 {1*OVERSAMPLENR, 713},
 {18*OVERSAMPLENR, 316},
 {35*OVERSAMPLENR, 266},
@@ -228,7 +230,7 @@ const short temptable_5[NUMTEMPS_5][2] = {
 
 #if (THERMISTORHEATER_0 == 6) || (THERMISTORHEATER_1 == 6) || (THERMISTORBED == 6) // 100k Epcos thermistor
 #define NUMTEMPS_6 36
-const short temptable_6[NUMTEMPS_6][2] = {
+const short temptable_6[NUMTEMPS_6][2] PROGMEM = {
    {28*OVERSAMPLENR, 250},
    {31*OVERSAMPLENR, 245},
    {35*OVERSAMPLENR, 240},
@@ -270,7 +272,7 @@ const short temptable_6[NUMTEMPS_6][2] = {
 
 #if (THERMISTORHEATER_0 == 7) || (THERMISTORHEATER_1 == 7) || (THERMISTORBED == 7) // 100k Honeywell 135-104LAG-J01
 #define NUMTEMPS_7 54
-const short temptable_7[NUMTEMPS_7][2] = {
+const short temptable_7[NUMTEMPS_7][2] PROGMEM = {
    {46*OVERSAMPLENR, 270},
    {50*OVERSAMPLENR, 265},
    {54*OVERSAMPLENR, 260},

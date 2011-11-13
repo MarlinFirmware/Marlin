@@ -28,6 +28,7 @@
 
  This firmware is optimized for gen6 electronics.
  */
+#include <avr/pgmspace.h>
 
 #include "fastio.h"
 #include "Configuration.h"
@@ -54,7 +55,9 @@ int current_raw[3] = {0, 0, 0};
   float Kp=DEFAULT_Kp;
   float Ki=DEFAULT_Ki;
   float Kd=DEFAULT_Kd;
-  float Kc=DEFAULT_Kc;
+  #ifdef PID_ADD_EXTRUSION_RATE
+    float Kc=DEFAULT_Kc;
+  #endif
 #endif //PIDTEMP
   
   
@@ -153,9 +156,9 @@ void manage_heater()
           #define K2 (1.0-K1)
           dTerm = (Kd * (pid_input - temp_dState))*K2 + (K1 * dTerm);
           temp_dState = pid_input;
-          #ifdef PID_ADD_EXTRUSION_RATE
-            pTerm+=Kc*current_block->speed_e; //additional heating if extrusion speed is high
-          #endif
+//          #ifdef PID_ADD_EXTRUSION_RATE
+//            pTerm+=Kc*current_block->speed_e; //additional heating if extrusion speed is high
+//          #endif
           pid_output = constrain(pTerm + iTerm - dTerm, 0, PID_MAX);
         }
     #endif //PID_OPENLOOP
@@ -200,21 +203,21 @@ int temp2analog(int celsius) {
   #ifdef HEATER_0_USES_THERMISTOR
     int raw = 0;
     byte i;
-    
+
     for (i=1; i<NUMTEMPS_HEATER_0; i++)
     {
-      if (heater_0_temptable[i][1] < celsius)
+      if (pgm_read_word(&(heater_0_temptable[i][1])) < celsius)
       {
-        raw = heater_0_temptable[i-1][0] + 
-          (celsius - heater_0_temptable[i-1][1]) * 
-          (heater_0_temptable[i][0] - heater_0_temptable[i-1][0]) /
-          (heater_0_temptable[i][1] - heater_0_temptable[i-1][1]);  
+        raw = pgm_read_word(&(heater_0_temptable[i-1][0])) + 
+          (celsius - pgm_read_word(&(heater_0_temptable[i-1][1]))) * 
+          (pgm_read_word(&(heater_0_temptable[i][0])) - pgm_read_word(&(heater_0_temptable[i-1][0]))) /
+          (pgm_read_word(&(heater_0_temptable[i][1])) - pgm_read_word(&(heater_0_temptable[i-1][1])));  
         break;
       }
     }
 
     // Overflow: Set to last value in the table
-    if (i == NUMTEMPS_HEATER_0) raw = heater_0_temptable[i-1][0];
+    if (i == NUMTEMPS_HEATER_0) raw = pgm_read_word(&(heater_0_temptable[i-1][0]));
 
     return (1023 * OVERSAMPLENR) - raw;
   #elif defined HEATER_0_USES_AD595
@@ -234,19 +237,19 @@ int temp2analogBed(int celsius) {
     
     for (i=1; i<BNUMTEMPS; i++)
     {
-      if (bedtemptable[i][1] < celsius)
+      if (pgm_read_word(&)bedtemptable[i][1])) < celsius)
       {
-        raw = bedtemptable[i-1][0] + 
-          (celsius - bedtemptable[i-1][1]) * 
-          (bedtemptable[i][0] - bedtemptable[i-1][0]) /
-          (bedtemptable[i][1] - bedtemptable[i-1][1]);
+        raw = pgm_read_word(&(bedtemptable[i-1][0])) + 
+          (celsius - pgm_read_word(&(bedtemptable[i-1][1]))) * 
+          (pgm_read_word(&(bedtemptable[i][0])) - pgm_read_word(&(bedtemptable[i-1][0]))) /
+          (pgm_read_word(&(bedtemptable[i][1])) - pgm_read_word(&(bedtemptable[i-1][1])));
       
         break;
       }
     }
 
     // Overflow: Set to last value in the table
-    if (i == BNUMTEMPS) raw = bedtemptable[i-1][0];
+    if (i == BNUMTEMPS) raw = pgm_read_word(&(bedtemptable[i-1][0]));
 
     return (1023 * OVERSAMPLENR) - raw;
   #elif defined BED_USES_AD595
@@ -263,19 +266,18 @@ float analog2temp(int raw) {
     raw = (1023 * OVERSAMPLENR) - raw;
     for (i=1; i<NUMTEMPS_HEATER_0; i++)
     {
-      if (heater_0_temptable[i][0] > raw)
+      if ((short)pgm_read_word(&heater_0_temptable[i][0]) > raw)
       {
-        celsius  = heater_0_temptable[i-1][1] + 
-          (raw - heater_0_temptable[i-1][0]) * 
-          (float)(heater_0_temptable[i][1] - heater_0_temptable[i-1][1]) /
-          (float)(heater_0_temptable[i][0] - heater_0_temptable[i-1][0]);
-
+        celsius  = (short)pgm_read_word(&heater_0_temptable[i-1][1]) + 
+          (raw - (short)pgm_read_word(&heater_0_temptable[i-1][0])) * 
+          (float)((short)pgm_read_word(&heater_0_temptable[i][1]) - (short)pgm_read_word(&heater_0_temptable[i-1][1])) /
+          (float)((short)pgm_read_word(&heater_0_temptable[i][0]) - (short)pgm_read_word(&heater_0_temptable[i-1][0]));
         break;
       }
     }
 
     // Overflow: Set to last value in the table
-    if (i == NUMTEMPS_HEATER_0) celsius = heater_0_temptable[i-1][1];
+    if (i == NUMTEMPS_HEATER_0) celsius = (short)pgm_read_word(&(heater_0_temptable[i-1][1]));
 
     return celsius;
   #elif defined HEATER_0_USES_AD595
@@ -294,19 +296,19 @@ float analog2tempBed(int raw) {
 
     for (i=1; i<BNUMTEMPS; i++)
     {
-      if (bedtemptable[i][0] > raw)
+      if (pgm_read_word(&(bedtemptable[i][0])) > raw)
       {
-        celsius  = bedtemptable[i-1][1] + 
-          (raw - bedtemptable[i-1][0]) * 
-          (bedtemptable[i][1] - bedtemptable[i-1][1]) /
-          (bedtemptable[i][0] - bedtemptable[i-1][0]);
+        celsius  = pgm_read_word(&(bedtemptable[i-1][1])) + 
+          (raw - pgm_read_word(&(bedtemptable[i-1][0]))) * 
+          (pgm_read_word(&(bedtemptable[i][1])) - pgm_read_word(&(bedtemptable[i-1][1]))) /
+          (pgm_read_word(&(bedtemptable[i][0])) - pgm_read_word(&(bedtemptable[i-1][0])));
 
         break;
       }
     }
 
     // Overflow: Set to last value in the table
-    if (i == BNUMTEMPS) celsius = bedtemptable[i-1][1];
+    if (i == BNUMTEMPS) celsius = pgm_read_word(&(bedtemptable[i-1][1]));
 
     return celsius;
     

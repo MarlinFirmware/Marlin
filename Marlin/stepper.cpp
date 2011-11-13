@@ -174,6 +174,7 @@ asm volatile ( \
 
 void st_wake_up() {
   //  TCNT1 = 0;
+  if(busy == false) 
   ENABLE_STEPPER_DRIVER_INTERRUPT();  
 }
 
@@ -208,7 +209,7 @@ inline unsigned short calc_timer(unsigned short step_rate) {
     timer = (unsigned short)pgm_read_word_near(table_address);
     timer -= (((unsigned short)pgm_read_word_near(table_address+2) * (unsigned char)(step_rate & 0x0007))>>3);
   }
-  if(timer < 100) timer = 100;
+  //if(timer < 100) timer = 100;
   return timer;
 }
 
@@ -220,7 +221,6 @@ inline void trapezoid_generator_reset() {
     final_advance = current_block->final_advance;
   #endif
   deceleration_time = 0;
-  // advance_rate = current_block->advance_rate;
   // step_rate to timer interval
   acc_step_rate = current_block->initial_rate;
   acceleration_time = calc_timer(acc_step_rate);
@@ -232,7 +232,7 @@ inline void trapezoid_generator_reset() {
 ISR(TIMER1_COMPA_vect)
 {        
   if(busy){ 
-    SERIAL_ERRORLN(*(unsigned short *)OCR1A<< " ISR overtaking itself.");
+/*    SERIAL_ERRORLN(*(unsigned short *)OCR1A<< " ISR overtaking itself.");*/
     return; 
   } // The busy-flag is used to avoid reentering this interrupt
 
@@ -447,7 +447,12 @@ ISR(TIMER1_COMPA_vect)
       #endif //ADVANCE
       deceleration_time += timer;
       OCR1A = timer;
-    }       
+    }
+    else {
+      timer = calc_timer(current_block->nominal_rate);
+      OCR1A = timer;
+    }
+    
     // If current block is finished, reset pointer 
     if (step_events_completed >= current_block->step_event_count) {
       current_block = NULL;
