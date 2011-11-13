@@ -86,6 +86,10 @@ long position[4];   //rescaled from extern when axis_steps_per_unit are changed 
 static float previous_speed[4]; // Speed of previous path line segment
 static float previous_nominal_speed; // Nominal speed of previous path line segment
 
+#ifdef AUTOTEMP
+float high_e_speed=0;
+#endif
+
 
 //===========================================================================
 //=============================private variables ============================
@@ -371,6 +375,34 @@ block_t *plan_get_current_block() {
   block->busy = true;
   return(block);
 }
+
+#ifdef AUTOTEMP
+void getHighESpeed()
+{
+  if(degTargetHotend0()+2<AUTOTEMP_MIN)  //probably temperature set to zero.
+    return; //do nothing
+  float high=0;
+  char block_index = block_buffer_tail;
+  
+  while(block_index != block_buffer_head) {
+    float se=block_buffer[block_index].speed_e;
+    if(se>high)
+    {
+      high=se;
+    }
+    block_index = (block_index+1) & (BLOCK_BUFFER_SIZE - 1);
+  }
+  high_e_speed=high*axis_steps_per_unit[E_AXIS]/(1000000.0);  //so it is independent of the esteps/mm. before 
+   
+  float g=AUTOTEMP_MIN+high_e_speed*AUTOTEMP_FACTOR;
+  float t=constrain(AUTOTEMP_MIN,g,AUTOTEMP_MAX);
+  setTargetHotend0(t);
+  SERIAL_ECHO_START;
+  SERIAL_ECHOPAIR("highe",high_e_speed);
+  SERIAL_ECHOPAIR(" t",t);
+  SERIAL_ECHOLN("");
+}
+#endif
 
 void check_axes_activity() {
   unsigned char x_active = 0;
@@ -686,7 +718,9 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
   memcpy(position, target, sizeof(target)); // position[] = target[]
 
   planner_recalculate();
-  
+  #ifdef AUTOTEMP
+    getHighESpeed();
+  #endif
   st_wake_up();
 }
 

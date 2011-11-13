@@ -5,12 +5,52 @@
 // Licence: GPL
 #include <WProgram.h>
 #include "fastio.h"
+#include <avr/pgmspace.h>
+#include "Configuration.h"
 
-#include "streaming.h"
-#define SERIAL_ECHO(x) Serial << "echo: " << x;
-#define SERIAL_ECHOLN(x) Serial << "echo: "<<x<<endl;
-#define SERIAL_ERROR(x) Serial << "echo: ERROR: " << x;
-#define SERIAL_ERRORLN(x) Serial << "echo: ERROR: " << x<<endl;
+//#define SERIAL_ECHO(x) Serial << "echo: " << x;
+//#define SERIAL_ECHOLN(x) Serial << "echo: "<<x<<endl;
+//#define SERIAL_ERROR(x) Serial << "Error: " << x;
+//#define SERIAL_ERRORLN(x) Serial << "Error: " << x<<endl;
+//#define SERIAL_PROTOCOL(x) Serial << x;
+//#define SERIAL_PROTOCOLLN(x) Serial << x<<endl;
+
+
+
+#define SERIAL_PROTOCOL(x) Serial.print(x);
+#define SERIAL_PROTOCOLPGM(x) serialprintPGM(PSTR(x));
+#define SERIAL_PROTOCOLLN(x) {Serial.print(x);Serial.write('\n');}
+#define SERIAL_PROTOCOLLNPGM(x) {serialprintPGM(PSTR(x));Serial.write('\n');}
+
+const char errormagic[] PROGMEM ="Error:";
+const char echomagic[] PROGMEM ="echo:";
+#define SERIAL_ERROR_START serialprintPGM(errormagic);
+#define SERIAL_ERROR(x) SERIAL_PROTOCOL(x)
+#define SERIAL_ERRORPGM(x) SERIAL_PROTOCOLPGM(x)
+#define SERIAL_ERRORLN(x) SERIAL_PROTOCOLLN(x)
+#define SERIAL_ERRORLNPGM(x) SERIAL_PROTOCOLLNPGM(x)
+
+#define SERIAL_ECHO_START serialprintPGM(echomagic);
+#define SERIAL_ECHO(x) SERIAL_PROTOCOL(x)
+#define SERIAL_ECHOPGM(x) SERIAL_PROTOCOLPGM(x)
+#define SERIAL_ECHOLN(x) SERIAL_PROTOCOLLN(x)
+#define SERIAL_ECHOLNPGM(x) SERIAL_PROTOCOLLNPGM(x)
+
+#define SERIAL_ECHOPAIR(name,value) {SERIAL_ECHOPGM(name);SERIAL_ECHO(value);}
+
+
+//things to write to serial from Programmemory. saves 400 to 2k of RAM.
+#define SerialprintPGM(x) serialprintPGM(PSTR(x))
+inline void serialprintPGM(const char *str)
+{
+  char ch=pgm_read_byte(str);
+  while(ch)
+  {
+    Serial.write(ch);
+    ch=pgm_read_byte(++str);
+  }
+}
+
 
 void get_command();
 void process_commands();
@@ -69,5 +109,6 @@ void enquecommand(const char *cmd); //put an ascii command at the end of the cur
 
 extern float homing_feedrate[];
 extern bool axis_relative_modes[];
+extern float current_position[NUM_AXIS] ;
 
 #endif

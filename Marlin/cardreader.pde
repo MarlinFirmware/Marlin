@@ -29,20 +29,24 @@ void CardReader::initsd()
     if (!card.init(SPI_FULL_SPEED,SDSS))
     {
       //if (!card.init(SPI_HALF_SPEED,SDSS))
-      SERIAL_ECHOLN("SD init fail");
+      SERIAL_ECHO_START;
+      SERIAL_ECHOLNPGM("SD init fail");
     }
     else if (!volume.init(&card))
     {
-      SERIAL_ERRORLN("volume.init failed");
+      SERIAL_ERROR_START;
+      SERIAL_ERRORLNPGM("volume.init failed");
     }
     else if (!root.openRoot(&volume)) 
     {
-      SERIAL_ERRORLN("openRoot failed");
+      SERIAL_ERROR_START;
+      SERIAL_ERRORLNPGM("openRoot failed");
     }
     else 
     {
       cardOK = true;
-      SERIAL_ECHOLN("SD card ok");
+      SERIAL_ECHO_START;
+      SERIAL_ECHOLNPGM("SD card ok");
     }
   #endif //SDSS
 }
@@ -76,17 +80,17 @@ void CardReader::selectFile(char* name)
     file.close();
    
     if (file.open(&root, name, O_READ)) {
-      Serial.print("File opened:");
-      Serial.print(name);
-      Serial.print(" Size:");
       filesize = file.fileSize();
-      Serial.println(filesize);
+      SERIAL_PROTOCOLPGM("File opened:");
+      SERIAL_PROTOCOL(name);
+      SERIAL_PROTOCOLPGM(" Size:");
+      SERIAL_PROTOCOLLN(filesize);
       sdpos = 0;
       
-      Serial.println("File selected");
+      SERIAL_PROTOCOLLNPGM("File selected");
     }
     else{
-      Serial.println("file.open failed");
+      SERIAL_PROTOCOLLNPGM("file.open failed");
     }
   }
 }
@@ -101,14 +105,14 @@ void CardReader::startFilewrite(char *name)
     
     if (!file.open(&root, name, O_CREAT | O_APPEND | O_WRITE | O_TRUNC))
     {
-      Serial.print("open failed, File: ");
-      Serial.print(name);
-      Serial.print(".");
+      SERIAL_PROTOCOLPGM("open failed, File: ");
+      SERIAL_PROTOCOL(name);
+      SERIAL_PROTOCOLLNPGM(".");
     }
     else{
       saving = true;
-      Serial.print("Writing to file: ");
-      Serial.println(name);
+      SERIAL_PROTOCOLPGM("Writing to file: ");
+      SERIAL_PROTOCOLLN(name);
     }
   }
 }
@@ -116,13 +120,13 @@ void CardReader::startFilewrite(char *name)
 void CardReader::getStatus()
 {
   if(cardOK){
-    Serial.print("SD printing byte ");
-    Serial.print(sdpos);
-    Serial.print("/");
-    Serial.println(filesize);
+    SERIAL_PROTOCOLPGM("SD printing byte ");
+    SERIAL_PROTOCOL(sdpos);
+    SERIAL_PROTOCOLPGM("/");
+    SERIAL_PROTOCOLLN(filesize);
   }
   else{
-    Serial.println("Not SD printing");
+    SERIAL_PROTOCOLLNPGM("Not SD printing");
   }
 }
 void CardReader::write_command(char *buf)
@@ -143,7 +147,8 @@ void CardReader::write_command(char *buf)
   file.write(begin);
   if (file.writeError)
   {
-    SERIAL_ERRORLN("error writing to file");
+    SERIAL_ERROR_START;
+    SERIAL_ERRORLNPGM("error writing to file");
   }
 }
 

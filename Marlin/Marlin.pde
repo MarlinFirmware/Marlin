@@ -32,7 +32,6 @@
 #include "pins.h"
 #include "Marlin.h"
 #include "ultralcd.h"
-#include "streaming.h"
 #include "planner.h"
 #include "stepper.h"
 #include "temperature.h"
@@ -40,7 +39,8 @@
 #include "cardreader.h"
 
 
-char version_string[] = "1.0.0 Alpha 1";
+#define VERSION_STRING  "1.0.0 Alpha 1"
+
 
 
 
@@ -99,8 +99,9 @@ char version_string[] = "1.0.0 Alpha 1";
 // M205 -  advanced settings:  minimum travel speed S=while printing T=travel only,  B=minimum segment time X= maximum xy jerk, Z=maximum Z jerk
 // M220 - set speed factor override percentage S:factor in percent
 // M301 - Set PID parameters P I and D
+// M400 - Finish all moves
 // M500 - stores paramters in EEPROM
-// M501 - reads parameters from EEPROM (if you need reset them after you changed them temporarily).  D
+// M501 - reads parameters from EEPROM (if you need reset them after you changed them temporarily).  
 // M502 - reverts to the default "factory settings".  You still need to store them in EEPROM afterwards if you want to.
 
 //Stepper Movement Variables
@@ -122,13 +123,14 @@ bool axis_relative_modes[] = AXIS_RELATIVE_MODES;
 volatile int feedmultiply=100; //100->1 200->2
 int saved_feedmultiply;
 volatile bool feedmultiplychanged=false;
+float current_position[NUM_AXIS] = {  0.0, 0.0, 0.0, 0.0};
+
 
 //===========================================================================
 //=============================private variables=============================
 //===========================================================================
 const char axis_codes[NUM_AXIS] = {'X', 'Y', 'Z', 'E'};
 static float destination[NUM_AXIS] = {  0.0, 0.0, 0.0, 0.0};
-static float current_position[NUM_AXIS] = {  0.0, 0.0, 0.0, 0.0};
 static float offset[3] = {0.0, 0.0, 0.0};
 static bool home_all_axis = true;
 static float feedrate = 1500.0, next_feedrate, saved_feedrate;
@@ -173,6 +175,23 @@ static unsigned long stoptime=0;
 //===========================================================================
 
 
+extern "C"{
+  extern unsigned int __bss_end;
+  extern unsigned int __heap_start;
+  extern void *__brkval;
+
+  int freeMemory() {
+    int free_memory;
+
+    if((int)__brkval == 0)
+      free_memory = ((int)&free_memory) - ((int)&__bss_end);
+    else
+      free_memory = ((int)&free_memory) - ((int)__brkval);
+
+    return free_memory;
+  }
+}
+
 
 //adds an command to the main command buffer
 //thats really done in a non-safe way.
@@ -183,7 +202,10 @@ void enquecommand(const char *cmd)
   {
     //this is dangerous if a mixing of serial and this happsens
     strcpy(&(cmdbuffer[bufindw][0]),cmd);
-    SERIAL_ECHOLN("enqueing \""<<cmdbuffer[bufindw]<<"\"");
+    SERIAL_ECHO_START;
+    SERIAL_ECHOPGM("enqueing \"");
+    SERIAL_ECHO(cmdbuffer[bufindw]);
+    SERIAL_ECHOLNPGM("\"");
     bufindw= (bufindw + 1)%BUFSIZE;
     buflen += 1;
   }
@@ -192,8 +214,12 @@ void enquecommand(const char *cmd)
 void setup()
 { 
   Serial.begin(BAUDRATE);
-  SERIAL_ECHOLN("Marlin "<<version_string);
-  Serial.println("start");
+  SERIAL_ECHO_START;
+  SERIAL_ECHOLNPGM(VERSION_STRING);
+  SERIAL_PROTOCOLLNPGM("start");
+  SERIAL_ECHO_START;
+  SERIAL_ECHOPGM("Free Memory:");
+  SERIAL_ECHOLN(freeMemory());
   for(int8_t i = 0; i < BUFSIZE; i++)
   {
     fromsd[i] = false;
@@ -228,12 +254,12 @@ void loop()
 	if(strstr(cmdbuffer[bufindr],"M29") == NULL)
 	{
 	  card.write_command(cmdbuffer[bufindr]);
-	  Serial.println("ok");
+	  SERIAL_PROTOCOLLNPGM("ok");
 	}
 	else
 	{
 	  card.closefile();
-	  Serial.println("Done saving file.");
+	  SERIAL_PROTOCOLLNPGM("Done saving file.");
 	}
       }
       else
@@ -249,6 +275,7 @@ void loop()
   //check heater every n milliseconds
   manage_heater();
   manage_inactivity(1);
+  checkHitEndstops();
   LCD_STATUS;
 }
 
@@ -268,8 +295,9 @@ inline void get_command()
           strchr_pointer = strchr(cmdbuffer[bufindw], 'N');
           gcode_N = (strtol(&cmdbuffer[bufindw][strchr_pointer - cmdbuffer[bufindw] + 1], NULL, 10));
           if(gcode_N != gcode_LastN+1 && (strstr(cmdbuffer[bufindw], "M110") == NULL) ) {
-            Serial.print("Serial Error: Line Number is not Last Line Number+1, Last Line:");
-            Serial.println(gcode_LastN);
+            SERIAL_ERROR_START;
+            SERIAL_ERRORPGM("Line Number is not Last Line Number+1, Last Line:");
+            SERIAL_ERRORLN(gcode_LastN);
             //Serial.println(gcode_N);
             FlushSerialRequestResend();
             serial_count = 0;
@@ -284,8 +312,9 @@ inline void get_command()
             strchr_pointer = strchr(cmdbuffer[bufindw], '*');
 
             if( (int)(strtod(&cmdbuffer[bufindw][strchr_pointer - cmdbuffer[bufindw] + 1], NULL)) != checksum) {
-              Serial.print("Error: checksum mismatch, Last Line:");
-              Serial.println(gcode_LastN);
+              SERIAL_ERROR_START;
+              SERIAL_ERRORPGM("checksum mismatch, Last Line:");
+              SERIAL_ERRORLN(gcode_LastN);
               FlushSerialRequestResend();
               serial_count = 0;
               return;
@@ -294,8 +323,9 @@ inline void get_command()
           }
           else 
           {
-            Serial.print("Error: No Checksum with line number, Last Line:");
-            Serial.println(gcode_LastN);
+            SERIAL_ERROR_START;
+            SERIAL_ERRORPGM("No Checksum with line number, Last Line:");
+            SERIAL_ERRORLN(gcode_LastN);
             FlushSerialRequestResend();
             serial_count = 0;
             return;
@@ -308,8 +338,9 @@ inline void get_command()
         {
           if((strstr(cmdbuffer[bufindw], "*") != NULL))
           {
-            Serial.print("Error: No Line Number with checksum, Last Line:");
-            Serial.println(gcode_LastN);
+            SERIAL_ERROR_START;
+            SERIAL_ERRORPGM("No Line Number with checksum, Last Line:");
+            SERIAL_ERRORLN(gcode_LastN);
             serial_count = 0;
             return;
           }
@@ -325,7 +356,7 @@ inline void get_command()
             if(card.saving)
               break;
 	    #endif //SDSUPPORT
-            Serial.println("ok"); 
+            SERIAL_PROTOCOLLNPGM("ok"); 
             break;
           default:
             break;
@@ -350,22 +381,23 @@ inline void get_command()
     return;
   }
   while( !card.eof()  && buflen < BUFSIZE) {
-    
-    serial_char = card.get();
-    if(serial_char == '\n' || serial_char == '\r' || serial_char == ':' || serial_count >= (MAX_CMD_SIZE - 1)) 
+    int16_t n=card.get();
+    serial_char = (char)n;
+    if(serial_char == '\n' || serial_char == '\r' || serial_char == ':' || serial_count >= (MAX_CMD_SIZE - 1)||n==-1) 
     {
      
       if(card.eof()){
         card.sdprinting = false;
-        Serial.println("echo: Done printing file");
+        SERIAL_PROTOCOLLNPGM("Done printing file");
         stoptime=millis();
         char time[30];
         unsigned long t=(stoptime-starttime)/1000;
         int sec,min;
         min=t/60;
         sec=t%60;
-        sprintf(time,"echo: %i min, %i sec",min,sec);
-        Serial.println(time);
+        sprintf(time,"%i min, %i sec",min,sec);
+        SERIAL_ECHO_START;
+        SERIAL_ECHOLN(time);
         LCD_MESSAGE(time);
         card.checkautostart(true);
       }
@@ -386,6 +418,7 @@ inline void get_command()
       if(!comment_mode) cmdbuffer[bufindw][serial_count++] = serial_char;
     }
   }
+  
   #endif //SDSUPPORT
 
 }
@@ -417,20 +450,25 @@ inline bool code_seen(char code)
     destination[LETTER##_AXIS] = 1.5 * LETTER##_MAX_LENGTH * LETTER##_HOME_DIR; \
     feedrate = homing_feedrate[LETTER##_AXIS]; \
     prepare_move(); \
+    st_synchronize();\
     \
     current_position[LETTER##_AXIS] = 0;\
     plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);\
     destination[LETTER##_AXIS] = -5 * LETTER##_HOME_DIR;\
     prepare_move(); \
+    st_synchronize();\
     \
     destination[LETTER##_AXIS] = 10 * LETTER##_HOME_DIR;\
     feedrate = homing_feedrate[LETTER##_AXIS]/2 ;  \
     prepare_move(); \
+    st_synchronize();\
     \
     current_position[LETTER##_AXIS] = (LETTER##_HOME_DIR == -1) ? 0 : LETTER##_MAX_LENGTH;\
     plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);\
     destination[LETTER##_AXIS] = current_position[LETTER##_AXIS];\
     feedrate = 0.0;\
+    st_synchronize();\
+    endstops_hit_on_purpose();\
   }
 
 inline void process_commands()
@@ -461,6 +499,7 @@ inline void process_commands()
       previous_millis_cmd = millis();
       return;
     case 4: // G4 dwell
+      LCD_MESSAGEPGM("DWELL...");
       codenum = 0;
       if(code_seen('P')) codenum = code_value(); // milliseconds to wait
       if(code_seen('S')) codenum = code_value() * 1000; // seconds to wait
@@ -495,6 +534,7 @@ inline void process_commands()
       feedrate = saved_feedrate;
       feedmultiply = saved_feedmultiply;
       previous_millis_cmd = millis();
+      endstops_hit_on_purpose();
       break;
     case 90: // G90
       relative_mode = false;
@@ -521,13 +561,14 @@ inline void process_commands()
     #ifdef SDSUPPORT
 
     case 20: // M20 - list SD card
-      Serial.println("Begin file list");
+      SERIAL_PROTOCOLLNPGM("Begin file list");
       card.ls();
-      Serial.println("End file list");
+      SERIAL_PROTOCOLLNPGM("End file list");
       break;
     case 21: // M21 - init SD card
       
       card.initsd();
+      
       break;
     case 22: //M22 - release SD card
       card.release();
@@ -579,8 +620,9 @@ inline void process_commands()
       int sec,min;
       min=t/60;
       sec=t%60;
-      sprintf(time,"echo: time needed %i min, %i sec",min,sec);
-      Serial.println(time);
+      sprintf(time,"%i min, %i sec",min,sec);
+      SERIAL_ECHO_START;
+      SERIAL_ECHOLN(time);
       LCD_MESSAGE(time);
     }
     break;
@@ -617,37 +659,30 @@ inline void process_commands()
       if (code_seen('S')) setTargetBed(code_value());
       break;
     case 105: // M105
+      //SERIAL_ECHOLN(freeMemory());
+          
       #if (TEMP_0_PIN > -1) || defined (HEATER_USES_AD595)
-        tt = degHotend0();
-      #endif
-      #if TEMP_1_PIN > -1
-          bt = degBed();
-      #endif
-      #if (TEMP_0_PIN > -1) || defined (HEATER_USES_AD595)
-        Serial.print("ok T:");
-        Serial.print(tt); 
+        SERIAL_PROTOCOLPGM("ok T:");
+        SERIAL_PROTOCOL( degHotend0()); 
         #if TEMP_1_PIN > -1 
-          #ifdef PIDTEMP
-            Serial.print(" B:");
-            #if TEMP_1_PIN > -1
-              Serial.println(bt); 
-            #else
-              Serial.println(HeaterPower); 
-            #endif
-          #else //not PIDTEMP
-            Serial.println();
-           #endif //PIDTEMP
-         #else
-            Serial.println();
-          #endif //TEMP_1_PIN
-        #else
-          SERIAL_ERRORLN("No thermistors - no temp");
+          SERIAL_PROTOCOLPGM(" B:");  
+          SERIAL_PROTOCOL(degBed());
+        #endif //TEMP_1_PIN
+      #else
+        SERIAL_ERROR_START;
+        SERIAL_ERRORLNPGM("No thermistors - no temp");
       #endif
+      #ifdef PIDTEMP
+        SERIAL_PROTOCOLPGM(" @:");
+        SERIAL_PROTOCOL( HeaterPower); 
+       
+      #endif
+        SERIAL_PROTOCOLLN("");
       return;
       break;
     case 109: 
     {// M109 - Wait for extruder heater to reach target.
-        LCD_MESSAGE("Heating...");
+        LCD_MESSAGEPGM("Heating...");
         if (code_seen('S')) setTargetHotend0(code_value());
         
         setWatch();
@@ -668,8 +703,8 @@ inline void process_commands()
         #endif //TEMP_RESIDENCY_TIME
         if( (millis() - codenum) > 1000 ) 
         { //Print Temp Reading every 1 second while heating up/cooling down
-          Serial.print("T:");
-        Serial.println( degHotend0() ); 
+          SERIAL_PROTOCOLPGM("T:");
+          SERIAL_PROTOCOLLN( degHotend0() ); 
           codenum = millis();
         }
         manage_heater();
@@ -685,12 +720,13 @@ inline void process_commands()
           }
         #endif //TEMP_RESIDENCY_TIME
         }
-        LCD_MESSAGE("Heating done.");
+        LCD_MESSAGEPGM("Heating done.");
         starttime=millis();
       }
       break;
     case 190: // M190 - Wait bed for heater to reach target.
     #if TEMP_1_PIN > -1
+        LCD_MESSAGEPGM("Bed Heating.");
         if (code_seen('S')) setTargetBed(code_value());
         codenum = millis(); 
         while(isHeatingBed()) 
@@ -698,16 +734,17 @@ inline void process_commands()
           if( (millis()-codenum) > 1000 ) //Print Temp Reading every 1 second while heating up.
           {
             float tt=degHotend0();
-            Serial.print("T:");
-            Serial.println( tt );
-            Serial.print("ok T:");
-            Serial.print( tt ); 
-            Serial.print(" B:");
-            Serial.println( degBed() ); 
+            SERIAL_PROTOCOLPGM("T:");
+            SERIAL_PROTOCOLLN(tt );
+            SERIAL_PROTOCOLPGM("ok T:");
+            SERIAL_PROTOCOL(tt );
+            SERIAL_PROTOCOLPGM(" B:");
+            SERIAL_PROTOCOLLN(degBed() ); 
             codenum = millis(); 
           }
           manage_heater();
         }
+        LCD_MESSAGEPGM("Bed done.");
     #endif
     break;
 
@@ -752,6 +789,7 @@ inline void process_commands()
       else
       { 
         st_synchronize(); 
+        LCD_MESSAGEPGM("Free move.");
         disable_x(); 
         disable_y(); 
         disable_z(); 
@@ -770,53 +808,53 @@ inline void process_commands()
       }
       break;
     case 115: // M115
-      Serial.println("FIRMWARE_NAME:Marlin; Sprinter/grbl mashup for gen6 FIRMWARE_URL:http://www.mendel-parts.com PROTOCOL_VERSION:1.0 MACHINE_TYPE:Mendel EXTRUDER_COUNT:1");
+      SerialprintPGM("FIRMWARE_NAME:Marlin; Sprinter/grbl mashup for gen6 FIRMWARE_URL:http://www.mendel-parts.com PROTOCOL_VERSION:1.0 MACHINE_TYPE:Mendel EXTRUDER_COUNT:1");
       break;
     case 114: // M114
-      Serial.print("X:");
-      Serial.print(current_position[X_AXIS]);
-      Serial.print("Y:");
-      Serial.print(current_position[Y_AXIS]);
-      Serial.print("Z:");
-      Serial.print(current_position[Z_AXIS]);
-      Serial.print("E:");      
-      Serial.print(current_position[E_AXIS]);
+      SERIAL_PROTOCOLPGM("X:");
+      SERIAL_PROTOCOL(current_position[X_AXIS]);
+      SERIAL_PROTOCOLPGM("Y:");
+      SERIAL_PROTOCOL(current_position[Y_AXIS]);
+      SERIAL_PROTOCOLPGM("Z:");
+      SERIAL_PROTOCOL(current_position[Z_AXIS]);
+      SERIAL_PROTOCOLPGM("E:");      
+      SERIAL_PROTOCOL(current_position[E_AXIS]);
       #ifdef DEBUG_STEPS
-        Serial.print(" Count X:");
-        Serial.print(float(count_position[X_AXIS])/axis_steps_per_unit[X_AXIS]);
-        Serial.print("Y:");
-        Serial.print(float(count_position[Y_AXIS])/axis_steps_per_unit[Y_AXIS]);
-        Serial.print("Z:");
-        Serial.println(float(count_position[Z_AXIS])/axis_steps_per_unit[Z_AXIS]);
+        SERIAL_PROTOCOLPGM(" Count X:");
+        SERIAL_PROTOCOL(float(count_position[X_AXIS])/axis_steps_per_unit[X_AXIS]);
+        SERIAL_PROTOCOLPGM("Y:");
+        SERIAL_PROTOCOL(float(count_position[Y_AXIS])/axis_steps_per_unit[Y_AXIS]);
+        SERIAL_PROTOCOLPGM("Z:");
+        SERIAL_PROTOCOL(float(count_position[Z_AXIS])/axis_steps_per_unit[Z_AXIS]);
       #endif
-      Serial.println("");
+      SERIAL_PROTOCOLLN("");
       break;
     case 119: // M119
       #if (X_MIN_PIN > -1)
-        Serial.print("x_min:");
-        Serial.print((READ(X_MIN_PIN)^ENDSTOPS_INVERTING)?"H ":"L ");
+        SERIAL_PROTOCOLPGM("x_min:");
+        SERIAL_PROTOCOL(((READ(X_MIN_PIN)^ENDSTOPS_INVERTING)?"H ":"L "));
       #endif
       #if (X_MAX_PIN > -1)
-        Serial.print("x_max:");
-        Serial.print((READ(X_MAX_PIN)^ENDSTOPS_INVERTING)?"H ":"L ");
+        SERIAL_PROTOCOLPGM("x_max:");
+        SERIAL_PROTOCOL(((READ(X_MAX_PIN)^ENDSTOPS_INVERTING)?"H ":"L "));
       #endif
       #if (Y_MIN_PIN > -1)
-        Serial.print("y_min:");
-        Serial.print((READ(Y_MIN_PIN)^ENDSTOPS_INVERTING)?"H ":"L ");
+        SERIAL_PROTOCOLPGM("y_min:");
+        SERIAL_PROTOCOL(((READ(Y_MIN_PIN)^ENDSTOPS_INVERTING)?"H ":"L "));
       #endif
       #if (Y_MAX_PIN > -1)
-        Serial.print("y_max:");
-        Serial.print((READ(Y_MAX_PIN)^ENDSTOPS_INVERTING)?"H ":"L ");
+        SERIAL_PROTOCOLPGM("y_max:");
+        SERIAL_PROTOCOL(((READ(Y_MAX_PIN)^ENDSTOPS_INVERTING)?"H ":"L "));
       #endif
       #if (Z_MIN_PIN > -1)
-        Serial.print("z_min:");
-        Serial.print((READ(Z_MIN_PIN)^ENDSTOPS_INVERTING)?"H ":"L ");
+        SERIAL_PROTOCOLPGM("z_min:");
+        SERIAL_PROTOCOL(((READ(Z_MIN_PIN)^ENDSTOPS_INVERTING)?"H ":"L "));
       #endif
       #if (Z_MAX_PIN > -1)
-        Serial.print("z_max:");
-        Serial.print((READ(Z_MAX_PIN)^ENDSTOPS_INVERTING)?"H ":"L ");
+        SERIAL_PROTOCOLPGM("z_max:");
+        SERIAL_PROTOCOL(((READ(Z_MAX_PIN)^ENDSTOPS_INVERTING)?"H ":"L "));
       #endif
-      Serial.println("");
+      SERIAL_PROTOCOLLN("");
       break;
       //TODO: update for all axis, use for loop
     case 201: // M201
@@ -867,8 +905,28 @@ inline void process_commands()
       if(code_seen('P')) Kp = code_value();
       if(code_seen('I')) Ki = code_value()*PID_dT;
       if(code_seen('D')) Kd = code_value()/PID_dT;
+      #ifdef PID_ADD_EXTRUSION_RATE
+      if(code_seen('C')) Kc = code_value();
+      #endif
+      SERIAL_PROTOCOL("ok p:");
+      SERIAL_PROTOCOL(Kp);
+      SERIAL_PROTOCOL(" i:");
+      SERIAL_PROTOCOL(Ki/PID_dT);
+      SERIAL_PROTOCOL(" d:");
+      SERIAL_PROTOCOL(Kd*PID_dT);
+      #ifdef PID_ADD_EXTRUSION_RATE
+      SERIAL_PROTOCOL(" c:");
+      SERIAL_PROTOCOL(Kc*PID_dT);
+      #endif
+      SERIAL_PROTOCOLLN("");
+      
       break;
     #endif //PIDTEMP
+    case 400: // finish all moves
+    {
+      st_synchronize();
+    }
+    break;
     case 500: // Store settings in EEPROM
     {
         StoreSettings();
@@ -889,9 +947,10 @@ inline void process_commands()
   }
   else
   {
-    Serial.print("echo: Unknown command:\"");
-    Serial.print(cmdbuffer[bufindr]);
-    Serial.println("\"");
+    SERIAL_ECHO_START;
+    SERIAL_ECHOPGM("Unknown command:\"");
+    SERIAL_ECHO(cmdbuffer[bufindr]);
+    SERIAL_ECHOLNPGM("\"");
   }
 
   ClearToSend();
@@ -901,8 +960,8 @@ void FlushSerialRequestResend()
 {
   //char cmdbuffer[bufindr][100]="Resend:";
   Serial.flush();
-  Serial.print("Resend:");
-  Serial.println(gcode_LastN + 1);
+  SERIAL_PROTOCOLPGM("Resend:");
+  SERIAL_PROTOCOLLN(gcode_LastN + 1);
   ClearToSend();
 }
 
@@ -913,7 +972,7 @@ void ClearToSend()
   if(fromsd[bufindr])
     return;
   #endif //SDSUPPORT
-  Serial.println("ok"); 
+  SERIAL_PROTOCOLLNPGM("ok"); 
 }
 
 inline void get_coordinates()
@@ -987,7 +1046,9 @@ void kill()
   disable_e();
   
   if(PS_ON_PIN > -1) pinMode(PS_ON_PIN,INPUT);
-  SERIAL_ERRORLN("Printer halted. kill() called !!");
+  SERIAL_ERROR_START;
+  SERIAL_ERRORLNPGM("Printer halted. kill() called !!");
+  LCD_MESSAGEPGM("KILLED. ");
   while(1); // Wait for reset
 }
 
