@@ -39,7 +39,7 @@
 #include "cardreader.h"
 
 
-char version_string[] = "1.0.0 Alpha 1";
+#define VERSION_STRING  "1.0.0 Alpha 1"
 
 
 
@@ -99,6 +99,7 @@ char version_string[] = "1.0.0 Alpha 1";
 // M205 -  advanced settings:  minimum travel speed S=while printing T=travel only,  B=minimum segment time X= maximum xy jerk, Z=maximum Z jerk
 // M220 - set speed factor override percentage S:factor in percent
 // M301 - Set PID parameters P I and D
+// M400 - Finish all moves
 // M500 - stores paramters in EEPROM
 // M501 - reads parameters from EEPROM (if you need reset them after you changed them temporarily).  
 // M502 - reverts to the default "factory settings".  You still need to store them in EEPROM afterwards if you want to.
@@ -120,13 +121,14 @@ bool axis_relative_modes[] = AXIS_RELATIVE_MODES;
 volatile int feedmultiply=100; //100->1 200->2
 int saved_feedmultiply;
 volatile bool feedmultiplychanged=false;
+float current_position[NUM_AXIS] = {  0.0, 0.0, 0.0, 0.0};
+
 
 //===========================================================================
 //=============================private variables=============================
 //===========================================================================
 const char axis_codes[NUM_AXIS] = {'X', 'Y', 'Z', 'E'};
 static float destination[NUM_AXIS] = {  0.0, 0.0, 0.0, 0.0};
-static float current_position[NUM_AXIS] = {  0.0, 0.0, 0.0, 0.0};
 static float offset[3] = {0.0, 0.0, 0.0};
 static bool home_all_axis = true;
 static float feedrate = 1500.0, next_feedrate, saved_feedrate;
@@ -211,7 +213,7 @@ void setup()
 { 
   Serial.begin(BAUDRATE);
   SERIAL_ECHO_START;
-  SERIAL_ECHOLN(version_string);
+  SERIAL_ECHOLNPGM(VERSION_STRING);
   SERIAL_PROTOCOLLNPGM("start");
   SERIAL_ECHO_START;
   SERIAL_ECHOPGM("Free Memory:");
@@ -269,6 +271,7 @@ void loop()
   //check heater every n milliseconds
   manage_heater();
   manage_inactivity(1);
+  checkHitEndstops();
   LCD_STATUS;
 }
 
@@ -443,20 +446,25 @@ inline bool code_seen(char code)
     destination[LETTER##_AXIS] = 1.5 * LETTER##_MAX_LENGTH * LETTER##_HOME_DIR; \
     feedrate = homing_feedrate[LETTER##_AXIS]; \
     prepare_move(); \
+    st_synchronize();\
     \
     current_position[LETTER##_AXIS] = 0;\
     plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);\
     destination[LETTER##_AXIS] = -5 * LETTER##_HOME_DIR;\
     prepare_move(); \
+    st_synchronize();\
     \
     destination[LETTER##_AXIS] = 10 * LETTER##_HOME_DIR;\
     feedrate = homing_feedrate[LETTER##_AXIS]/2 ;  \
     prepare_move(); \
+    st_synchronize();\
     \
     current_position[LETTER##_AXIS] = (LETTER##_HOME_DIR == -1) ? 0 : LETTER##_MAX_LENGTH;\
     plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);\
     destination[LETTER##_AXIS] = current_position[LETTER##_AXIS];\
     feedrate = 0.0;\
+    st_synchronize();\
+    endstops_hit_on_purpose();\
   }
 
 inline void process_commands()
@@ -522,6 +530,7 @@ inline void process_commands()
       feedrate = saved_feedrate;
       feedmultiply = saved_feedmultiply;
       previous_millis_cmd = millis();
+      endstops_hit_on_purpose();
       break;
     case 90: // G90
       relative_mode = false;
@@ -909,6 +918,11 @@ inline void process_commands()
       
       break;
     #endif //PIDTEMP
+    case 400: // finish all moves
+    {
+      st_synchronize();
+    }
+    break;
     case 500: // Store settings in EEPROM
     {
         StoreSettings();

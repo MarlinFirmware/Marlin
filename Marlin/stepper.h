@@ -39,6 +39,13 @@ void st_wake_up();
   extern volatile long count_position[NUM_AXIS];
   extern volatile int count_direction[NUM_AXIS];
 #endif
+  
+void checkHitEndstops(); //call from somwhere to create an serial error message with the locations the endstops where hit, in case they were triggered
+void endstops_hit_on_purpose(); //avoid creation of the message, i.e. after homeing and before a routine call of checkHitEndstops();
+
+
 
 extern block_t *current_block;  // A pointer to the block currently being traced
+
+
 #endif

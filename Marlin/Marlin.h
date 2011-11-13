@@ -6,6 +6,7 @@
 #include <WProgram.h>
 #include "fastio.h"
 #include <avr/pgmspace.h>
+#include "Configuration.h"
 
 //#define SERIAL_ECHO(x) Serial << "echo: " << x;
 //#define SERIAL_ECHOLN(x) Serial << "echo: "<<x<<endl;
@@ -108,5 +109,6 @@ void enquecommand(const char *cmd); //put an ascii command at the end of the cur
 
 extern float homing_feedrate[];
 extern bool axis_relative_modes[];
+extern float current_position[NUM_AXIS] ;
 
 #endif

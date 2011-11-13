@@ -33,10 +33,12 @@
 #include "speed_lookuptable.h"
 
 
+
 //===========================================================================
 //=============================public variables  ============================
 //===========================================================================
 block_t *current_block;  // A pointer to the block currently being traced
+
 
 
 //===========================================================================
@@ -62,7 +64,9 @@ static long acceleration_time, deceleration_time;
 static unsigned short acc_step_rate; // needed for deccelaration start point
 static char step_loops;
 
-
+volatile long endstops_trigsteps[3]={0,0,0};
+volatile long endstops_stepsTotal,endstops_stepsDone;
+static volatile bool endstops_hit=false;
 
 // if DEBUG_STEPS is enabled, M114 can be used to compare two methods of determining the X,Y,Z position of the printer.
 // for debugging purposes only, should be disabled by default
@@ -152,9 +156,49 @@ asm volatile ( \
 #define DISABLE_STEPPER_DRIVER_INTERRUPT() TIMSK1 &= ~(1<<OCIE1A)
 
 
+void endstops_triggered(const unsigned long &stepstaken)  
+{
+  //this will only work if there is no bufferig
+  //however, if you perform a move at which the endstops should be triggered, and wait for it to complete, i.e. by blocking command, it should work
+  //yes, it uses floats, but: if endstops are triggered, thats hopefully not critical anymore anyways.
+  //endstops_triggerpos;
+  
+  if(endstops_hit) //hitting a second time while the first hit is not reported
+    return;
+  if(current_block == NULL)
+    return;
+  endstops_stepsTotal=current_block->step_event_count;
+  endstops_stepsDone=stepstaken;
+  endstops_trigsteps[0]=current_block->steps_x;
+  endstops_trigsteps[1]=current_block->steps_y;
+  endstops_trigsteps[2]=current_block->steps_z;
 
+  endstops_hit=true;
+}
 
+void checkHitEndstops()
+{
+  if( !endstops_hit)
+   return;
+  float endstops_triggerpos[3]={0,0,0};
+  float ratiodone=endstops_stepsDone/float(endstops_stepsTotal);  //ratio of current_block thas was performed
+  
+  endstops_triggerpos[0]=current_position[0]-(endstops_trigsteps[0]*ratiodone)/float(axis_steps_per_unit[0]);
+  endstops_triggerpos[1]=current_position[1]-(endstops_trigsteps[1]*ratiodone)/float(axis_steps_per_unit[1]);
+  endstops_triggerpos[2]=current_position[2]-(endstops_trigsteps[2]*ratiodone)/float(axis_steps_per_unit[2]);
+ SERIAL_ECHO_START;
+ SERIAL_ECHOPGM("endstops hit: ");
+ SERIAL_ECHOPAIR(" X:",endstops_triggerpos[0]);
+ SERIAL_ECHOPAIR(" Y:",endstops_triggerpos[1]);
+ SERIAL_ECHOPAIR(" Z:",endstops_triggerpos[2]);
+ SERIAL_ECHOLN("");
+ endstops_hit=false;
+}
 
+void endstops_hit_on_purpose()
+{
+  endstops_hit=false;
+}
 
 //         __________________________
 //        /|                        |\     _________________         ^
@@ -296,6 +340,7 @@ ISR(TIMER1_COMPA_vect)
       #endif
       #if X_MIN_PIN > -1
             if(READ(X_MIN_PIN) != ENDSTOPS_INVERTING) {
+              endstops_triggered(step_events_completed);
               step_events_completed = current_block->step_event_count;
             }
       #endif
@@ -307,6 +352,7 @@ ISR(TIMER1_COMPA_vect)
       #endif
       #if X_MAX_PIN > -1
         if((READ(X_MAX_PIN) != ENDSTOPS_INVERTING)  && (current_block->steps_x >0)){
+          endstops_triggered(step_events_completed);
           step_events_completed = current_block->step_event_count;
         }
         #endif
@@ -319,6 +365,7 @@ ISR(TIMER1_COMPA_vect)
       #endif
       #if Y_MIN_PIN > -1
         if(READ(Y_MIN_PIN) != ENDSTOPS_INVERTING) {
+          endstops_triggered(step_events_completed);
           step_events_completed = current_block->step_event_count;
         }
       #endif
@@ -330,6 +377,7 @@ ISR(TIMER1_COMPA_vect)
       #endif
       #if Y_MAX_PIN > -1
       if((READ(Y_MAX_PIN) != ENDSTOPS_INVERTING) && (current_block->steps_y >0)){
+          endstops_triggered(step_events_completed);
           step_events_completed = current_block->step_event_count;
         }
       #endif
@@ -342,6 +390,7 @@ ISR(TIMER1_COMPA_vect)
       #endif
       #if Z_MIN_PIN > -1
         if(READ(Z_MIN_PIN) != ENDSTOPS_INVERTING) {
+          endstops_triggered(step_events_completed);
           step_events_completed = current_block->step_event_count;
         }
       #endif
@@ -353,6 +402,7 @@ ISR(TIMER1_COMPA_vect)
       #endif
       #if Z_MAX_PIN > -1
         if((READ(Z_MAX_PIN) != ENDSTOPS_INVERTING)  && (current_block->steps_z >0)){
+          endstops_triggered(step_events_completed);
           step_events_completed = current_block->step_event_count;
         }
       #endif
