@@ -87,6 +87,7 @@ inline bool isCoolingBed() {return target_raw[TEMPSENSOR_BED] < current_raw[TEMP
 
 void disable_heater();
 void setWatch();
+void updatePID();
 
 #endif
 

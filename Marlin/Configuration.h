@@ -95,11 +95,11 @@
   // PID_SWING_AT_CRITIAL is the time for a full period of the oscillations at the critical Gain
   // usually further manual tunine is necessary.
 
-  #define PID_CRITIAL_GAIN 3000
-  #define PID_SWING_AT_CRITIAL 45 //seconds
+  #define PID_CRITIAL_GAIN 50
+  #define PID_SWING_AT_CRITIAL 47 //seconds
   
-  #define PID_PI    //no differentail term
-  //#define PID_PID //normal PID
+  //#define PID_PI    //no differentail term
+  #define PID_PID //normal PID
 
   #ifdef PID_PID
     //PID according to Ziegler-Nichols method

@@ -898,24 +898,28 @@ inline void process_commands()
 
     #ifdef PIDTEMP
     case 301: // M301
-      if(code_seen('P')) Kp = code_value();
-      if(code_seen('I')) Ki = code_value()*PID_dT;
-      if(code_seen('D')) Kd = code_value()/PID_dT;
-      #ifdef PID_ADD_EXTRUSION_RATE
-      if(code_seen('C')) Kc = code_value();
-      #endif
-      SERIAL_PROTOCOL("ok p:");
-      SERIAL_PROTOCOL(Kp);
-      SERIAL_PROTOCOL(" i:");
-      SERIAL_PROTOCOL(Ki/PID_dT);
-      SERIAL_PROTOCOL(" d:");
-      SERIAL_PROTOCOL(Kd*PID_dT);
-      #ifdef PID_ADD_EXTRUSION_RATE
-      SERIAL_PROTOCOL(" c:");
-      SERIAL_PROTOCOL(Kc*PID_dT);
-      #endif
-      SERIAL_PROTOCOLLN("");
-      
+      {
+        
+       
+        if(code_seen('P')) Kp = code_value();
+        if(code_seen('I')) Ki = code_value()*PID_dT;
+        if(code_seen('D')) Kd = code_value()/PID_dT;
+        #ifdef PID_ADD_EXTRUSION_RATE
+        if(code_seen('C')) Kc = code_value();
+        #endif
+        updatePID();
+        SERIAL_PROTOCOL("ok p:");
+        SERIAL_PROTOCOL(Kp);
+        SERIAL_PROTOCOL(" i:");
+        SERIAL_PROTOCOL(Ki/PID_dT);
+        SERIAL_PROTOCOL(" d:");
+        SERIAL_PROTOCOL(Kd*PID_dT);
+        #ifdef PID_ADD_EXTRUSION_RATE
+        SERIAL_PROTOCOL(" c:");
+        SERIAL_PROTOCOL(Kc*PID_dT);
+        #endif
+        SERIAL_PROTOCOLLN("");
+      }
       break;
     #endif //PIDTEMP
     case 400: // finish all moves
