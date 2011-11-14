@@ -4,8 +4,8 @@
 
 
 // This determines the communication speed of the printer
-//#define BAUDRATE 250000
-#define BAUDRATE 115200
+#define BAUDRATE 250000
+//#define BAUDRATE 115200
 //#define BAUDRATE 230400
 
 
