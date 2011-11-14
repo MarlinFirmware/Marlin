@@ -499,31 +499,37 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
   block->nominal_speed = block->millimeters * inverse_second; // (mm/sec) Always > 0
   block->nominal_rate = ceil(block->step_event_count * inverse_second); // (step/sec) Always > 0
 
-//  unsigned long microseconds;
-#if 0
+  //  segment time im micro seconds
+  long segment_time = lround(1000000.0/inverse_second);
+ 
+ 
   if (block->steps_e == 0) {
         if(feed_rate<mintravelfeedrate) feed_rate=mintravelfeedrate;
   }
   else {
     	if(feed_rate<minimumfeedrate) feed_rate=minimumfeedrate;
   } 
-
-  microseconds = lround((block->millimeters/feed_rate)*1000000);
-
+  
+#ifdef SLOWDOWN
   // slow down when de buffer starts to empty, rather than wait at the corner for a buffer refill
-  // reduces/removes corner blobs as the machine won't come to a full stop.
-  int blockcount=(block_buffer_head-block_buffer_tail + BLOCK_BUFFER_SIZE) & (BLOCK_BUFFER_SIZE - 1);
+  int moves_queued=(block_buffer_head-block_buffer_tail + BLOCK_BUFFER_SIZE) & (BLOCK_BUFFER_SIZE - 1);
+  
+  if(moves_queued < (BLOCK_BUFFER_SIZE * 0.5)) feed_rate = feed_rate / ((BLOCK_BUFFER_SIZE * 0.5)/moves_queued); 
+#endif
+
+/*
+
   
   if ((blockcount>0) && (blockcount < (BLOCK_BUFFER_SIZE - 4))) {
-    if (microseconds<minsegmenttime)  { // buffer is draining, add extra time.  The amount of time added increases if the buffer is still emptied more.
-        microseconds=microseconds+lround(2*(minsegmenttime-microseconds)/blockcount);
+    if (segment_time<minsegmenttime)  { // buffer is draining, add extra time.  The amount of time added increases if the buffer is still emptied more.
+        segment_time=segment_time+lround(2*(minsegmenttime-segment_time)/blockcount);
     }
   }
   else {
-    if (microseconds<minsegmenttime) microseconds=minsegmenttime;
+    if (segment_time<minsegmenttime) segment_time=minsegmenttime;
   }
-  //  END OF SLOW DOWN SECTION  
-#endif  
+  //  END OF SLOW DOWN SECTION    
+*/
 
  // Calculate speed in mm/sec for each axis
   float current_speed[4];
@@ -546,7 +552,7 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
   // Check and limit the xy direction change frequency
   unsigned char direction_change = block->direction_bits ^ old_direction_bits;
   old_direction_bits = block->direction_bits;
-  long segment_time = lround(1000000.0/inverse_second);
+
   if((direction_change & (1<<X_AXIS)) == 0) {
      x_segment_time[0] += segment_time;
   }

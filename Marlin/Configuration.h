@@ -18,6 +18,9 @@
 // if unwanted behavior is observed on a user's machine when running at very slow speeds.
 #define MINIMUM_PLANNER_SPEED 2.0 // (mm/sec)
 
+// If defined the movements slow down when the look ahead buffer is only half full
+#define SLOWDOWN
+
 // BASIC SETTINGS: select your board type, thermistor type, axis scaling, and endstop configuration
 
 //// The following define selects which electronics board you have. Please choose the one that matches your setup
@@ -210,7 +213,7 @@ const bool ENDSTOPS_INVERTING = true; // set to true to invert the logic of the 
 #define DEFAULT_MINTRAVELFEEDRATE     0
 
 // minimum time in microseconds that a movement needs to take if the buffer is emptied.   Increase this number if you see blobs while printing high speed & high detail.  It will slowdown on the detailed stuff.
-#define DEFAULT_MINSEGMENTTIME        20000
+#define DEFAULT_MINSEGMENTTIME        20000   // Obsolete delete this
 #define DEFAULT_XYJERK                30.0    // (mm/sec)
 #define DEFAULT_ZJERK                 0.4     // (mm/sec)
 
@@ -269,7 +272,7 @@ const bool ENDSTOPS_INVERTING = true; // set to true to invert the logic of the 
 
 #define ULTIPANEL
 #ifdef ULTIPANEL
-  #define NEWPANEL  //enable this if you have a click-encoder panel
+//  #define NEWPANEL  //enable this if you have a click-encoder panel
   #define SDSUPPORT
   #define ULTRA_LCD
   #define LCD_WIDTH 20
