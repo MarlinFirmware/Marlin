@@ -114,6 +114,13 @@ static unsigned long previous_millis_heater, previous_millis_bed_heater;
 //=============================functions         ============================
 //===========================================================================
   
+void updatePID()
+{
+#ifdef PIDTEMP
+  temp_iState_max = PID_INTEGRAL_DRIVE_MAX / Ki;
+#endif
+}
+  
 void manage_heater()
 {
   #ifdef USE_WATCHDOG
