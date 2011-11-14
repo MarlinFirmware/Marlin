@@ -115,11 +115,15 @@
 
   #ifdef PID_PID
     //PID according to Ziegler-Nichols method
-    #define  DEFAULT_Kp  (0.6*PID_CRITIAL_GAIN)
-    #define  DEFAULT_Ki (2*Kp/PID_SWING_AT_CRITIAL*PID_dT)  
-    #define  DEFAULT_Kd (PID_SWING_AT_CRITIAL/8./PID_dT)  
+//    #define  DEFAULT_Kp  (0.6*PID_CRITIAL_GAIN)
+//    #define  DEFAULT_Ki (2*Kp/PID_SWING_AT_CRITIAL*PID_dT)  
+//    #define  DEFAULT_Kd (PID_SWING_AT_CRITIAL/8./PID_dT)  
+
+    #define  DEFAULT_Kp  22.2
+    #define  DEFAULT_Ki (1.25*PID_dT)  
+    #define  DEFAULT_Kd (99/PID_dT)  
   #endif
- 
+   
   #ifdef PID_PI
     //PI according to Ziegler-Nichols method
     #define  DEFAULT_Kp (PID_CRITIAL_GAIN/2.2) 
@@ -197,20 +201,20 @@ const bool ENDSTOPS_INVERTING = true; // set to true to invert the logic of the 
 
 #define AXIS_RELATIVE_MODES {false, false, false, false}
 
-#define MAX_STEP_FREQUENCY 40000 // Max step frequency for Ultimaker (5000 pps / half step)
+#define MAX_STEP_FREQUENCY 40000L // Max step frequency for Ultimaker (5000 pps / half step)
 
 // default settings 
 
-#define DEFAULT_AXIS_STEPS_PER_UNIT   {79.87220447,79.87220447,200*8/3,14}                    // default steps per unit for ultimaker 
+#define DEFAULT_AXIS_STEPS_PER_UNIT   {79.87220447,79.87220447,200*8/3,760*1.1}                    // default steps per unit for ultimaker 
 //#define DEFAULT_AXIS_STEPS_PER_UNIT   {40, 40, 3333.92, 67} 
-#define DEFAULT_MAX_FEEDRATE          {500, 500, 10, 500000}    // (mm/min)    
+#define DEFAULT_MAX_FEEDRATE          {500, 500, 5, 200000}    // (mm/sec)    
 #define DEFAULT_MAX_ACCELERATION      {9000,9000,100,10000}    // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for skeinforge 40+, for older versions raise them a lot.
 
 #define DEFAULT_ACCELERATION          3000    // X, Y, Z and E max acceleration in mm/s^2 for printing moves 
 #define DEFAULT_RETRACT_ACCELERATION  7000   // X, Y, Z and E max acceleration in mm/s^2 for r retracts
 
-#define DEFAULT_MINIMUMFEEDRATE       0     // minimum feedrate
-#define DEFAULT_MINTRAVELFEEDRATE     0
+#define DEFAULT_MINIMUMFEEDRATE       0.0     // minimum feedrate
+#define DEFAULT_MINTRAVELFEEDRATE     0.0
 
 // minimum time in microseconds that a movement needs to take if the buffer is emptied.   Increase this number if you see blobs while printing high speed & high detail.  It will slowdown on the detailed stuff.
 #define DEFAULT_MINSEGMENTTIME        20000   // Obsolete delete this

@@ -490,7 +490,7 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
   delta_mm[Z_AXIS] = (target[Z_AXIS]-position[Z_AXIS])/axis_steps_per_unit[Z_AXIS];
   delta_mm[E_AXIS] = (target[E_AXIS]-position[E_AXIS])/axis_steps_per_unit[E_AXIS];
   block->millimeters = sqrt(square(delta_mm[X_AXIS]) + square(delta_mm[Y_AXIS]) +
-                            square(delta_mm[Z_AXIS]));
+                            square(delta_mm[Z_AXIS]) + square(delta_mm[E_AXIS]));
   float inverse_millimeters = 1.0/block->millimeters;  // Inverse millimeters to remove multiple divides 
   
   // Calculate speed in mm/second for each axis. No divide by zero due to previous checks.
@@ -502,7 +502,7 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
   //  segment time im micro seconds
   long segment_time = lround(1000000.0/inverse_second);
  
- 
+
   if (block->steps_e == 0) {
         if(feed_rate<mintravelfeedrate) feed_rate=mintravelfeedrate;
   }
@@ -518,8 +518,6 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
 #endif
 
 /*
-
-  
   if ((blockcount>0) && (blockcount < (BLOCK_BUFFER_SIZE - 4))) {
     if (segment_time<minsegmenttime)  { // buffer is draining, add extra time.  The amount of time added increases if the buffer is still emptied more.
         segment_time=segment_time+lround(2*(minsegmenttime-segment_time)/blockcount);
@@ -530,6 +528,7 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
   }
   //  END OF SLOW DOWN SECTION    
 */
+
 
  // Calculate speed in mm/sec for each axis
   float current_speed[4];
@@ -545,7 +544,6 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
   }
 
 // Max segement time in us.
-
 #ifdef XY_FREQUENCY_LIMIT
 #define MAX_FREQ_TIME (1000000.0/XY_FREQUENCY_LIMIT)
 
@@ -574,7 +572,6 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
   long min_xy_segment_time =min(max_x_segment_time, max_y_segment_time);
   if(min_xy_segment_time < MAX_FREQ_TIME) speed_factor = min(speed_factor, (float)min_xy_segment_time / (float)MAX_FREQ_TIME);
 #endif
-
 
   // Correct the speed  
   if( speed_factor < 1.0) {

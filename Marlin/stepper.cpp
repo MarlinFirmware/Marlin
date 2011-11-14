@@ -227,11 +227,11 @@ inline unsigned short calc_timer(unsigned short step_rate) {
   if(step_rate > MAX_STEP_FREQUENCY) step_rate = MAX_STEP_FREQUENCY;
   
   if(step_rate > 20000) { // If steprate > 20kHz >> step 4 times
-    step_rate = step_rate >> 2;
+    step_rate = (step_rate >> 2)&0x3fff;
     step_loops = 4;
   }
   else if(step_rate > 10000) { // If steprate > 10kHz >> step 2 times
-    step_rate = step_rate >> 1;
+    step_rate = (step_rate >> 1)&0x7fff;
     step_loops = 2;
   }
   else {
@@ -253,7 +253,7 @@ inline unsigned short calc_timer(unsigned short step_rate) {
     timer = (unsigned short)pgm_read_word_near(table_address);
     timer -= (((unsigned short)pgm_read_word_near(table_address+2) * (unsigned char)(step_rate & 0x0007))>>3);
   }
-  //if(timer < 100) timer = 100;
+  if(timer < 100) timer = 100; //(20kHz this should never happen)
   return timer;
 }
 
@@ -340,7 +340,7 @@ ISR(TIMER1_COMPA_vect)
       #endif
       #if X_MIN_PIN > -1
             if(READ(X_MIN_PIN) != ENDSTOPS_INVERTING) {
-              endstops_triggered(step_events_completed);
+ //             endstops_triggered(step_events_completed);
               step_events_completed = current_block->step_event_count;
             }
       #endif
@@ -352,7 +352,7 @@ ISR(TIMER1_COMPA_vect)
       #endif
       #if X_MAX_PIN > -1
         if((READ(X_MAX_PIN) != ENDSTOPS_INVERTING)  && (current_block->steps_x >0)){
-          endstops_triggered(step_events_completed);
+ //         endstops_triggered(step_events_completed);
           step_events_completed = current_block->step_event_count;
         }
         #endif
@@ -365,7 +365,7 @@ ISR(TIMER1_COMPA_vect)
       #endif
       #if Y_MIN_PIN > -1
         if(READ(Y_MIN_PIN) != ENDSTOPS_INVERTING) {
-          endstops_triggered(step_events_completed);
+ //         endstops_triggered(step_events_completed);
           step_events_completed = current_block->step_event_count;
         }
       #endif
@@ -377,7 +377,7 @@ ISR(TIMER1_COMPA_vect)
       #endif
       #if Y_MAX_PIN > -1
       if((READ(Y_MAX_PIN) != ENDSTOPS_INVERTING) && (current_block->steps_y >0)){
-          endstops_triggered(step_events_completed);
+ //         endstops_triggered(step_events_completed);
           step_events_completed = current_block->step_event_count;
         }
       #endif
@@ -402,7 +402,7 @@ ISR(TIMER1_COMPA_vect)
       #endif
       #if Z_MAX_PIN > -1
         if((READ(Z_MAX_PIN) != ENDSTOPS_INVERTING)  && (current_block->steps_z >0)){
-          endstops_triggered(step_events_completed);
+ //         endstops_triggered(step_events_completed);
           step_events_completed = current_block->step_event_count;
         }
       #endif
