@@ -203,6 +203,7 @@ void manage_heater()
   #endif
 }
 
+#define PGM_RD_W(x)   (short)pgm_read_word(&x)
 // Takes hot end temperature value as input and returns corresponding raw value. 
 // For a thermistor, it uses the RepRap thermistor temp table.
 // This is needed because PID in hydra firmware hovers around a given analog value, not a temp value.
@@ -214,18 +215,18 @@ int temp2analog(int celsius) {
 
     for (i=1; i<NUMTEMPS_HEATER_0; i++)
     {
-      if (pgm_read_word(&(heater_0_temptable[i][1])) < celsius)
+      if (PGM_RD_W(heater_0_temptable[i][1]) < celsius)
       {
-        raw = pgm_read_word(&(heater_0_temptable[i-1][0])) + 
-          (celsius - pgm_read_word(&(heater_0_temptable[i-1][1]))) * 
-          (pgm_read_word(&(heater_0_temptable[i][0])) - pgm_read_word(&(heater_0_temptable[i-1][0]))) /
-          (pgm_read_word(&(heater_0_temptable[i][1])) - pgm_read_word(&(heater_0_temptable[i-1][1])));  
+        raw = PGM_RD_W(heater_0_temptable[i-1][0]) + 
+          (celsius - PGM_RD_W(heater_0_temptable[i-1][1])) * 
+          (PGM_RD_W(heater_0_temptable[i][0]) - PGM_RD_W(heater_0_temptable[i-1][0])) /
+          (PGM_RD_W(heater_0_temptable[i][1]) - PGM_RD_W(heater_0_temptable[i-1][1]));  
         break;
       }
     }
 
     // Overflow: Set to last value in the table
-    if (i == NUMTEMPS_HEATER_0) raw = pgm_read_word(&(heater_0_temptable[i-1][0]));
+    if (i == NUMTEMPS_HEATER_0) raw = PGM_RD_W(heater_0_temptable[i-1][0]);
 
     return (1023 * OVERSAMPLENR) - raw;
   #elif defined HEATER_0_USES_AD595
@@ -245,19 +246,19 @@ int temp2analogBed(int celsius) {
     
     for (i=1; i<BNUMTEMPS; i++)
     {
-      if (pgm_read_word(&)bedtemptable[i][1])) < celsius)
+      if (PGM_RD_W(bedtemptable[i][1]) < celsius)
       {
-        raw = pgm_read_word(&(bedtemptable[i-1][0])) + 
-          (celsius - pgm_read_word(&(bedtemptable[i-1][1]))) * 
-          (pgm_read_word(&(bedtemptable[i][0])) - pgm_read_word(&(bedtemptable[i-1][0]))) /
-          (pgm_read_word(&(bedtemptable[i][1])) - pgm_read_word(&(bedtemptable[i-1][1])));
+        raw = PGM_RD_W(bedtemptable[i-1][0]) + 
+          (celsius - PGM_RD_W(bedtemptable[i-1][1])) * 
+          (PGM_RD_W(bedtemptable[i][0]) - PGM_RD_W(bedtemptable[i-1][0])) /
+          (PGM_RD_W(bedtemptable[i][1]) - PGM_RD_W(bedtemptable[i-1][1]));
       
         break;
       }
     }
 
     // Overflow: Set to last value in the table
-    if (i == BNUMTEMPS) raw = pgm_read_word(&(bedtemptable[i-1][0]));
+    if (i == BNUMTEMPS) raw = PGM_RD_W(bedtemptable[i-1][0]);
 
     return (1023 * OVERSAMPLENR) - raw;
   #elif defined BED_USES_AD595
@@ -274,18 +275,18 @@ float analog2temp(int raw) {
     raw = (1023 * OVERSAMPLENR) - raw;
     for (i=1; i<NUMTEMPS_HEATER_0; i++)
     {
-      if ((short)pgm_read_word(&heater_0_temptable[i][0]) > raw)
+      if (PGM_RD_W(heater_0_temptable[i][0]) > raw)
       {
-        celsius  = (short)pgm_read_word(&heater_0_temptable[i-1][1]) + 
-          (raw - (short)pgm_read_word(&heater_0_temptable[i-1][0])) * 
-          (float)((short)pgm_read_word(&heater_0_temptable[i][1]) - (short)pgm_read_word(&heater_0_temptable[i-1][1])) /
-          (float)((short)pgm_read_word(&heater_0_temptable[i][0]) - (short)pgm_read_word(&heater_0_temptable[i-1][0]));
+        celsius  = PGM_RD_W(heater_0_temptable[i-1][1]) + 
+          (raw - PGM_RD_W(heater_0_temptable[i-1][0])) * 
+          (float)(PGM_RD_W(heater_0_temptable[i][1]) - PGM_RD_W(heater_0_temptable[i-1][1])) /
+          (float)(PGM_RD_W(heater_0_temptable[i][0]) - PGM_RD_W(heater_0_temptable[i-1][0]));
         break;
       }
     }
 
     // Overflow: Set to last value in the table
-    if (i == NUMTEMPS_HEATER_0) celsius = (short)pgm_read_word(&(heater_0_temptable[i-1][1]));
+    if (i == NUMTEMPS_HEATER_0) celsius = PGM_RD_W(heater_0_temptable[i-1][1]);
 
     return celsius;
   #elif defined HEATER_0_USES_AD595
@@ -304,19 +305,19 @@ float analog2tempBed(int raw) {
 
     for (i=1; i<BNUMTEMPS; i++)
     {
-      if (pgm_read_word(&(bedtemptable[i][0])) > raw)
+      if (PGM_RD_W(bedtemptable[i][0]) > raw)
       {
-        celsius  = pgm_read_word(&(bedtemptable[i-1][1])) + 
-          (raw - pgm_read_word(&(bedtemptable[i-1][0]))) * 
-          (pgm_read_word(&(bedtemptable[i][1])) - pgm_read_word(&(bedtemptable[i-1][1]))) /
-          (pgm_read_word(&(bedtemptable[i][0])) - pgm_read_word(&(bedtemptable[i-1][0])));
+        celsius  = PGM_RD_W(bedtemptable[i-1][1]) + 
+          (raw - PGM_RD_W(bedtemptable[i-1][0])) * 
+          (PGM_RD_W(bedtemptable[i][1]) - PGM_RD_W(bedtemptable[i-1][1])) /
+          (PGM_RD_W(bedtemptable[i][0]) - PGM_RD_W(bedtemptable[i-1][0]));
 
         break;
       }
     }
 
     // Overflow: Set to last value in the table
-    if (i == BNUMTEMPS) celsius = pgm_read_word(&(bedtemptable[i-1][1]));
+    if (i == BNUMTEMPS) celsius = PGM_RD_W(bedtemptable[i-1][1]);
 
     return celsius;
     
