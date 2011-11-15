@@ -377,11 +377,12 @@ void MainMenu::showStatus()
   
   static uint8_t oldpercent=101;
   uint8_t percent=card.percentDone();
-  if(oldpercent!=percent)
+  if(oldpercent!=percent ||force_lcd_update)
   {
-     lcd.setCursor(6,3);
-    lcd.print(oldpercent);
-    lcdprintPGM("done");
+     lcd.setCursor(7,2);
+    lcd.print(itostr3((int)percent));
+    lcdprintPGM("%SD");
+    
   }
   
 #else //smaller LCDS----------------------------------
