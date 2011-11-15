@@ -697,7 +697,7 @@ void MainMenu::showControl()
       if(force_lcd_update)
         {
           lcd.setCursor(0,line);lcdprintPGM(" Vxy-jerk: ");
-          lcd.setCursor(13,line);lcd.print(itostr3(max_xy_jerk/60));
+          lcd.setCursor(13,line);lcd.print(itostr3(max_xy_jerk));
         }
         
         if((activeline==line) )
@@ -707,11 +707,11 @@ void MainMenu::showControl()
             linechanging=!linechanging;
             if(linechanging)
             {
-               encoderpos=(int)max_xy_jerk/60;
+               encoderpos=(int)max_xy_jerk;
             }
             else
             {
-              max_xy_jerk= encoderpos*60;
+              max_xy_jerk= encoderpos;
               encoderpos=activeline*lcdslow;
                 
             }
@@ -877,7 +877,7 @@ void MainMenu::showControl()
           if(i==ItemC_vmaxy)lcdprintPGM("y:");
           if(i==ItemC_vmaxz)lcdprintPGM("z:");
           if(i==ItemC_vmaxe)lcdprintPGM("e:");
-          lcd.setCursor(13,line);lcd.print(itostr3(max_feedrate[i-ItemC_vmaxx]/60));
+          lcd.setCursor(13,line);lcd.print(itostr3(max_feedrate[i-ItemC_vmaxx]));
         }
         
         if((activeline==line) )
@@ -887,11 +887,11 @@ void MainMenu::showControl()
             linechanging=!linechanging;
             if(linechanging)
             {
-               encoderpos=(int)max_feedrate[i-ItemC_vmaxx]/60;
+               encoderpos=(int)max_feedrate[i-ItemC_vmaxx];
             }
             else
             {
-              max_feedrate[i-ItemC_vmaxx]= encoderpos*60;
+              max_feedrate[i-ItemC_vmaxx]= encoderpos;
               encoderpos=activeline*lcdslow;
                 
             }
@@ -912,7 +912,7 @@ void MainMenu::showControl()
       if(force_lcd_update)
         {
           lcd.setCursor(0,line);lcdprintPGM(" Vmin:");
-          lcd.setCursor(13,line);lcd.print(itostr3(minimumfeedrate/60));
+          lcd.setCursor(13,line);lcd.print(itostr3(minimumfeedrate));
         }
         
         if((activeline==line) )
@@ -922,11 +922,11 @@ void MainMenu::showControl()
             linechanging=!linechanging;
             if(linechanging)
             {
-               encoderpos=(int)(minimumfeedrate/60.);
+               encoderpos=(int)(minimumfeedrate);
             }
             else
             {
-              minimumfeedrate= encoderpos*60;
+              minimumfeedrate= encoderpos;
               encoderpos=activeline*lcdslow;
                 
             }
@@ -946,7 +946,7 @@ void MainMenu::showControl()
       if(force_lcd_update)
         {
           lcd.setCursor(0,line);lcdprintPGM(" VTrav min:");
-          lcd.setCursor(13,line);lcd.print(itostr3(mintravelfeedrate/60));
+          lcd.setCursor(13,line);lcd.print(itostr3(mintravelfeedrate));
         }
         
         if((activeline==line) )
@@ -956,11 +956,11 @@ void MainMenu::showControl()
             linechanging=!linechanging;
             if(linechanging)
             {
-               encoderpos=(int)mintravelfeedrate/60;
+               encoderpos=(int)mintravelfeedrate;
             }
             else
             {
-              mintravelfeedrate= encoderpos*60;
+              mintravelfeedrate= encoderpos;
               encoderpos=activeline*lcdslow;
                 
             }

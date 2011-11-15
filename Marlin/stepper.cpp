@@ -218,6 +218,7 @@ void endstops_hit_on_purpose()
 
 void st_wake_up() {
   //  TCNT1 = 0;
+  if(busy == false) 
   ENABLE_STEPPER_DRIVER_INTERRUPT();  
 }
 
@@ -226,11 +227,11 @@ inline unsigned short calc_timer(unsigned short step_rate) {
   if(step_rate > MAX_STEP_FREQUENCY) step_rate = MAX_STEP_FREQUENCY;
   
   if(step_rate > 20000) { // If steprate > 20kHz >> step 4 times
-    step_rate = step_rate >> 2;
+    step_rate = (step_rate >> 2)&0x3fff;
     step_loops = 4;
   }
   else if(step_rate > 10000) { // If steprate > 10kHz >> step 2 times
-    step_rate = step_rate >> 1;
+    step_rate = (step_rate >> 1)&0x7fff;
     step_loops = 2;
   }
   else {
@@ -252,7 +253,7 @@ inline unsigned short calc_timer(unsigned short step_rate) {
     timer = (unsigned short)pgm_read_word_near(table_address);
     timer -= (((unsigned short)pgm_read_word_near(table_address+2) * (unsigned char)(step_rate & 0x0007))>>3);
   }
-  if(timer < 100) timer = 100;
+  if(timer < 100) { timer = 100; Serial.print("Steprate to high : "); Serial.println(step_rate); }//(20kHz this should never happen)
   return timer;
 }
 
@@ -264,7 +265,6 @@ inline void trapezoid_generator_reset() {
     final_advance = current_block->final_advance;
   #endif
   deceleration_time = 0;
-  // advance_rate = current_block->advance_rate;
   // step_rate to timer interval
   acc_step_rate = current_block->initial_rate;
   acceleration_time = calc_timer(acc_step_rate);
@@ -340,7 +340,7 @@ ISR(TIMER1_COMPA_vect)
       #endif
       #if X_MIN_PIN > -1
             if(READ(X_MIN_PIN) != ENDSTOPS_INVERTING) {
-              endstops_triggered(step_events_completed);
+ //             endstops_triggered(step_events_completed);
               step_events_completed = current_block->step_event_count;
             }
       #endif
@@ -352,7 +352,7 @@ ISR(TIMER1_COMPA_vect)
       #endif
       #if X_MAX_PIN > -1
         if((READ(X_MAX_PIN) != ENDSTOPS_INVERTING)  && (current_block->steps_x >0)){
-          endstops_triggered(step_events_completed);
+ //         endstops_triggered(step_events_completed);
           step_events_completed = current_block->step_event_count;
         }
         #endif
@@ -365,7 +365,7 @@ ISR(TIMER1_COMPA_vect)
       #endif
       #if Y_MIN_PIN > -1
         if(READ(Y_MIN_PIN) != ENDSTOPS_INVERTING) {
-          endstops_triggered(step_events_completed);
+ //         endstops_triggered(step_events_completed);
           step_events_completed = current_block->step_event_count;
         }
       #endif
@@ -377,7 +377,7 @@ ISR(TIMER1_COMPA_vect)
       #endif
       #if Y_MAX_PIN > -1
       if((READ(Y_MAX_PIN) != ENDSTOPS_INVERTING) && (current_block->steps_y >0)){
-          endstops_triggered(step_events_completed);
+ //         endstops_triggered(step_events_completed);
           step_events_completed = current_block->step_event_count;
         }
       #endif
@@ -402,7 +402,7 @@ ISR(TIMER1_COMPA_vect)
       #endif
       #if Z_MAX_PIN > -1
         if((READ(Z_MAX_PIN) != ENDSTOPS_INVERTING)  && (current_block->steps_z >0)){
-          endstops_triggered(step_events_completed);
+ //         endstops_triggered(step_events_completed);
           step_events_completed = current_block->step_event_count;
         }
       #endif
@@ -499,7 +499,12 @@ ISR(TIMER1_COMPA_vect)
       #endif //ADVANCE
       deceleration_time += timer;
       OCR1A = timer;
-    }       
+    }
+    else {
+      timer = calc_timer(current_block->nominal_rate);
+      OCR1A = timer;
+    }
+    
     // If current block is finished, reset pointer 
     if (step_events_completed >= current_block->step_event_count) {
       current_block = NULL;

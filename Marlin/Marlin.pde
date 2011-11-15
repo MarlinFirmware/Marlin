@@ -116,7 +116,9 @@ extern float HeaterPower;
 //===========================================================================
 //=============================public variables=============================
 //===========================================================================
+#ifdef SDSUPPORT
 CardReader card;
+#endif
 float homing_feedrate[] = HOMING_FEEDRATE;
 bool axis_relative_modes[] = AXIS_RELATIVE_MODES;
 volatile int feedmultiply=100; //100->1 200->2
@@ -193,32 +195,8 @@ extern "C"{
 
 
 
-inline void get_coordinates()
-{
-  for(int8_t i=0; i < NUM_AXIS; i++) {
-    if(code_seen(axis_codes[i])) destination[i] = (float)code_value() + (axis_relative_modes[i] || relative_mode)*current_position[i];
-    else destination[i] = current_position[i]; //Are these else lines really needed?
-  }
-  if(code_seen('F')) {
-    next_feedrate = code_value();
-    if(next_feedrate > 0.0) feedrate = next_feedrate;
-  }
-}
 
-inline void get_arc_coordinates()
-{
-   get_coordinates();
-   if(code_seen('I')) offset[0] = code_value();
-   if(code_seen('J')) offset[1] = code_value();
-}
 
-void prepare_move()
-{
-  plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate*feedmultiply/60.0/100.0);
-  for(int8_t i=0; i < NUM_AXIS; i++) {
-    current_position[i] = destination[i];
-  }
-}
 
 
 
@@ -273,7 +251,9 @@ void loop()
 {
   if(buflen<3)
     get_command();
+  #ifdef SDSUPPORT
   card.checkautostart(false);
+  #endif
   if(buflen)
   {
     #ifdef SDSUPPORT
@@ -1008,13 +988,38 @@ void ClearToSend()
   SERIAL_PROTOCOLLNPGM("ok"); 
 }
 
+inline void get_coordinates()
+{
+  for(int8_t i=0; i < NUM_AXIS; i++) {
+    if(code_seen(axis_codes[i])) destination[i] = (float)code_value() + (axis_relative_modes[i] || relative_mode)*current_position[i];
+    else destination[i] = current_position[i]; //Are these else lines really needed?
+  }
+  if(code_seen('F')) {
+    next_feedrate = code_value();
+    if(next_feedrate > 0.0) feedrate = next_feedrate;
+  }
+}
 
+inline void get_arc_coordinates()
+{
+   get_coordinates();
+   if(code_seen('I')) offset[0] = code_value();
+   if(code_seen('J')) offset[1] = code_value();
+}
+
+void prepare_move()
+{
+  plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate*feedmultiply/60/100.0);
+  for(int8_t i=0; i < NUM_AXIS; i++) {
+    current_position[i] = destination[i];
+  }
+}
 
 void prepare_arc_move(char isclockwise) {
   float r = hypot(offset[X_AXIS], offset[Y_AXIS]); // Compute arc radius for mc_arc
 
   // Trace the arc
-  mc_arc(current_position, destination, offset, X_AXIS, Y_AXIS, Z_AXIS, feedrate*feedmultiply/60.0/100.0, r, isclockwise);
+  mc_arc(current_position, destination, offset, X_AXIS, Y_AXIS, Z_AXIS, feedrate*feedmultiply/60/100.0, r, isclockwise);
   
   // As far as the parser is concerned, the position is now == target. In reality the
   // motion control system might still be processing the action and the real tool position

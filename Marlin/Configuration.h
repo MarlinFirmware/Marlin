@@ -9,6 +9,19 @@
 //#define BAUDRATE 230400
 
 
+// Frequency limit
+// See nophead's blog for more info
+// Not working OK
+//#define XY_FREQUENCY_LIMIT  15
+
+// Minimum planner junction speed. Sets the default minimum speed the planner plans for at the end
+// of the buffer and all stops. This should not be much greater than zero and should only be changed
+// if unwanted behavior is observed on a user's machine when running at very slow speeds.
+#define MINIMUM_PLANNER_SPEED 2.0 // (mm/sec)
+
+// If defined the movements slow down when the look ahead buffer is only half full
+#define SLOWDOWN
+
 // BASIC SETTINGS: select your board type, thermistor type, axis scaling, and endstop configuration
 
 //// The following define selects which electronics board you have. Please choose the one that matches your setup
@@ -45,7 +58,6 @@
 //#define BED_USES_THERMISTOR
 //#define BED_USES_AD595
 
-#define HEATER_CHECK_INTERVAL 50 //ms
 #define BED_CHECK_INTERVAL 5000 //ms
 
 //// Experimental watchdog and minimal temp
@@ -103,11 +115,15 @@
 
   #ifdef PID_PID
     //PID according to Ziegler-Nichols method
-    #define  DEFAULT_Kp  (0.6*PID_CRITIAL_GAIN)
-    #define  DEFAULT_Ki (2*Kp/PID_SWING_AT_CRITIAL*PID_dT)  
-    #define  DEFAULT_Kd (PID_SWING_AT_CRITIAL/8./PID_dT)  
+//    #define  DEFAULT_Kp  (0.6*PID_CRITIAL_GAIN)
+//    #define  DEFAULT_Ki (2*Kp/PID_SWING_AT_CRITIAL*PID_dT)  
+//    #define  DEFAULT_Kd (PID_SWING_AT_CRITIAL/8./PID_dT)  
+
+    #define  DEFAULT_Kp  22.2
+    #define  DEFAULT_Ki (1.25*PID_dT)  
+    #define  DEFAULT_Kd (99/PID_dT)  
   #endif
- 
+   
   #ifdef PID_PI
     //PI according to Ziegler-Nichols method
     #define  DEFAULT_Kp (PID_CRITIAL_GAIN/2.2) 
@@ -156,6 +172,11 @@ const bool ENDSTOPS_INVERTING = true; // set to true to invert the logic of the 
 #define DISABLE_E false
 
 // Inverting axis direction
+//#define INVERT_X_DIR false    // for Mendel set to false, for Orca set to true
+//#define INVERT_Y_DIR true   // for Mendel set to true, for Orca set to false
+//#define INVERT_Z_DIR false    // for Mendel set to false, for Orca set to true
+//#define INVERT_E_DIR true   // for direct drive extruder v9 set to true, for geared extruder set to false
+
 #define INVERT_X_DIR true    // for Mendel set to false, for Orca set to true
 #define INVERT_Y_DIR false   // for Mendel set to true, for Orca set to false
 #define INVERT_Z_DIR true    // for Mendel set to false, for Orca set to true
@@ -176,7 +197,7 @@ const bool ENDSTOPS_INVERTING = true; // set to true to invert the logic of the 
 //// MOVEMENT SETTINGS
 #define NUM_AXIS 4 // The axis order in all axis related arrays is X, Y, Z, E
 //note: on bernhards ultimaker 200 200 12 are working well.
-#define HOMING_FEEDRATE {50*60, 50*60, 12*60, 0}  // set the homing speeds
+#define HOMING_FEEDRATE {50*60, 50*60, 4*60, 0}  // set the homing speeds (mm/min)
 
 #define AXIS_RELATIVE_MODES {false, false, false, false}
 
@@ -184,20 +205,21 @@ const bool ENDSTOPS_INVERTING = true; // set to true to invert the logic of the 
 
 // default settings 
 
-#define DEFAULT_AXIS_STEPS_PER_UNIT   {79.87220447,79.87220447,200*8/3,14}                    // default steps per unit for ultimaker 
-#define DEFAULT_MAX_FEEDRATE          {160*60, 160*60, 10*60, 500000}        
-#define DEFAULT_MAX_ACCELERATION      {9000,9000,150,10000}    // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for skeinforge 40+, for older versions raise them a lot.
+#define DEFAULT_AXIS_STEPS_PER_UNIT   {79.87220447,79.87220447,200*8/3,760*1.1}                    // default steps per unit for ultimaker 
+//#define DEFAULT_AXIS_STEPS_PER_UNIT   {40, 40, 3333.92, 67} 
+#define DEFAULT_MAX_FEEDRATE          {500, 500, 5, 200000}    // (mm/sec)    
+#define DEFAULT_MAX_ACCELERATION      {9000,9000,100,10000}    // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for skeinforge 40+, for older versions raise them a lot.
 
 #define DEFAULT_ACCELERATION          3000    // X, Y, Z and E max acceleration in mm/s^2 for printing moves 
 #define DEFAULT_RETRACT_ACCELERATION  7000   // X, Y, Z and E max acceleration in mm/s^2 for r retracts
 
-#define DEFAULT_MINIMUMFEEDRATE       10     // minimum feedrate
-#define DEFAULT_MINTRAVELFEEDRATE     10
+#define DEFAULT_MINIMUMFEEDRATE       0.0     // minimum feedrate
+#define DEFAULT_MINTRAVELFEEDRATE     0.0
 
 // minimum time in microseconds that a movement needs to take if the buffer is emptied.   Increase this number if you see blobs while printing high speed & high detail.  It will slowdown on the detailed stuff.
-#define DEFAULT_MINSEGMENTTIME        20000
-#define DEFAULT_XYJERK                30.0*60    
-#define DEFAULT_ZJERK                 10.0*60
+#define DEFAULT_MINSEGMENTTIME        20000   // Obsolete delete this
+#define DEFAULT_XYJERK                30.0    // (mm/sec)
+#define DEFAULT_ZJERK                 0.4     // (mm/sec)
 
 
 

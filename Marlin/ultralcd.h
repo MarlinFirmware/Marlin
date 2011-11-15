@@ -88,6 +88,7 @@
 #else //no lcd
   #define LCD_STATUS
   #define LCD_MESSAGE(x)
+  #define LCD_MESSAGEPGM(x)
   inline void lcd_status() {};
 #endif
   
