@@ -37,6 +37,7 @@
 #include "temperature.h"
 #include "motion_control.h"
 #include "cardreader.h"
+#include "watchdog.h"
 
 
 #define VERSION_STRING  "1.0.0 Alpha 1"
@@ -191,6 +192,36 @@ extern "C"{
 }
 
 
+
+inline void get_coordinates()
+{
+  for(int8_t i=0; i < NUM_AXIS; i++) {
+    if(code_seen(axis_codes[i])) destination[i] = (float)code_value() + (axis_relative_modes[i] || relative_mode)*current_position[i];
+    else destination[i] = current_position[i]; //Are these else lines really needed?
+  }
+  if(code_seen('F')) {
+    next_feedrate = code_value();
+    if(next_feedrate > 0.0) feedrate = next_feedrate;
+  }
+}
+
+inline void get_arc_coordinates()
+{
+   get_coordinates();
+   if(code_seen('I')) offset[0] = code_value();
+   if(code_seen('J')) offset[1] = code_value();
+}
+
+void prepare_move()
+{
+  plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate*feedmultiply/60.0/100.0);
+  for(int8_t i=0; i < NUM_AXIS; i++) {
+    current_position[i] = destination[i];
+  }
+}
+
+
+
 //adds an command to the main command buffer
 //thats really done in a non-safe way.
 //needs overworking someday
@@ -234,6 +265,7 @@ void setup()
   plan_init();  // Initialize planner;
   st_init();    // Initialize stepper;
   tp_init();    // Initialize temperature loop
+  wd_init();
 }
 
 
@@ -656,7 +688,8 @@ inline void process_commands()
       break;
     case 105: // M105
       //SERIAL_ECHOLN(freeMemory());
-          
+       //test watchdog:
+       //delay(20000);
       #if (TEMP_0_PIN > -1) || defined (HEATER_USES_AD595)
         SERIAL_PROTOCOLPGM("ok T:");
         SERIAL_PROTOCOL( degHotend0()); 
@@ -975,32 +1008,7 @@ void ClearToSend()
   SERIAL_PROTOCOLLNPGM("ok"); 
 }
 
-inline void get_coordinates()
-{
-  for(int8_t i=0; i < NUM_AXIS; i++) {
-    if(code_seen(axis_codes[i])) destination[i] = (float)code_value() + (axis_relative_modes[i] || relative_mode)*current_position[i];
-    else destination[i] = current_position[i]; //Are these else lines really needed?
-  }
-  if(code_seen('F')) {
-    next_feedrate = code_value();
-    if(next_feedrate > 0.0) feedrate = next_feedrate;
-  }
-}
 
-inline void get_arc_coordinates()
-{
-   get_coordinates();
-   if(code_seen('I')) offset[0] = code_value();
-   if(code_seen('J')) offset[1] = code_value();
-}
-
-void prepare_move()
-{
-  plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate*feedmultiply/60.0/100.0);
-  for(int8_t i=0; i < NUM_AXIS; i++) {
-    current_position[i] = destination[i];
-  }
-}
 
 void prepare_arc_move(char isclockwise) {
   float r = hypot(offset[X_AXIS], offset[Y_AXIS]); // Compute arc radius for mc_arc

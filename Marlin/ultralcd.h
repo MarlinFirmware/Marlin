@@ -96,7 +96,7 @@
   #define BLOCK ;
 #endif 
   
-  
+void lcd_statuspgm(const char* message);
   
 #endif //ULTRALCD
 

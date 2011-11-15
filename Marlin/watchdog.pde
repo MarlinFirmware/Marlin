@@ -42,10 +42,12 @@ ISR(WDT_vect)
  
     #ifdef RESET_MANUAL
       LCD_MESSAGEPGM("Please Reset!");
+      LCD_STATUS;
       SERIAL_ERROR_START;
       SERIAL_ERRORLNPGM("Something is wrong, please turn off the printer.");
     #else
       LCD_MESSAGEPGM("Timeout, resetting!");
+      LCD_STATUS;
     #endif 
     //disable watchdog, it will survife reboot.
     WDTCSR |= (1<<WDCE) | (1<<WDE);

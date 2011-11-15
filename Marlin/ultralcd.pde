@@ -374,6 +374,16 @@ void MainMenu::showStatus()
     lcd.print(fillto(LCD_WIDTH,messagetext));
     messagetext[0]='\0';
   }
+  
+  static uint8_t oldpercent=101;
+  uint8_t percent=card.percentDone();
+  if(oldpercent!=percent)
+  {
+     lcd.setCursor(6,3);
+    lcd.print(oldpercent);
+    lcdprintPGM("done");
+  }
+  
 #else //smaller LCDS----------------------------------
   static int olddegHotEnd0=-1;
   static int oldtargetHotEnd0=-1;
