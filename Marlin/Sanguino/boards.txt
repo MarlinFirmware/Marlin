@@ -1,0 +1,16 @@
+##############################################################
+
+sanguino.name=Sanguino
+sanguino.upload.protocol=stk500
+sanguino.upload.maximum_size=63488
+sanguino.upload.speed=38400
+sanguino.bootloader.low_fuses=0xFF
+sanguino.bootloader.high_fuses=0xDC
+sanguino.bootloader.extended_fuses=0xFD
+sanguino.bootloader.path=atmega644p
+sanguino.bootloader.file=ATmegaBOOT_644P.hex
+sanguino.bootloader.unlock_bits=0x3F
+sanguino.bootloader.lock_bits=0x0F
+sanguino.build.mcu=atmega644p
+sanguino.build.f_cpu=16000000L
+sanguino.build.core=arduino
