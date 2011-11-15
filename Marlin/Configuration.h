@@ -11,7 +11,8 @@
 
 // Frequency limit
 // See nophead's blog for more info
-#define XY_FREQUENCY_LIMIT  15
+// Not working OK
+//#define XY_FREQUENCY_LIMIT  15
 
 // Minimum planner junction speed. Sets the default minimum speed the planner plans for at the end
 // of the buffer and all stops. This should not be much greater than zero and should only be changed
@@ -201,7 +202,7 @@ const bool ENDSTOPS_INVERTING = true; // set to true to invert the logic of the 
 
 #define AXIS_RELATIVE_MODES {false, false, false, false}
 
-#define MAX_STEP_FREQUENCY 40000L // Max step frequency for Ultimaker (5000 pps / half step)
+#define MAX_STEP_FREQUENCY 40000 // Max step frequency for Ultimaker (5000 pps / half step)
 
 // default settings 
 

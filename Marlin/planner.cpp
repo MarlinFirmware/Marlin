@@ -72,7 +72,7 @@
 unsigned long minsegmenttime;
 float max_feedrate[4]; // set the max speeds
 float axis_steps_per_unit[4];
-long max_acceleration_units_per_sq_second[4]; // Use M201 to override by software
+unsigned long max_acceleration_units_per_sq_second[4]; // Use M201 to override by software
 float minimumfeedrate;
 float acceleration;         // Normal acceleration mm/s^2  THIS IS THE DEFAULT ACCELERATION for all moves. M204 SXXXX
 float retract_acceleration; //  mm/s^2   filament pull-pack and push-forward  while standing still in the other axis M204 TXXXX
@@ -153,8 +153,8 @@ inline float intersection_distance(float initial_rate, float final_rate, float a
 // Calculates trapezoid parameters so that the entry- and exit-speed is compensated by the provided factors.
 
 void calculate_trapezoid_for_block(block_t *block, float entry_factor, float exit_factor) {
-  long initial_rate = ceil(block->nominal_rate*entry_factor); // (step/min)
-  long final_rate = ceil(block->nominal_rate*exit_factor); // (step/min)
+  unsigned long initial_rate = ceil(block->nominal_rate*entry_factor); // (step/min)
+  unsigned long final_rate = ceil(block->nominal_rate*exit_factor); // (step/min)
 
   // Limit minimal step rate (Otherwise the timer will overflow.)
   if(initial_rate <120) {initial_rate=120; }
@@ -570,7 +570,7 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
   long max_x_segment_time = max(x_segment_time[0], max(x_segment_time[1], x_segment_time[2]));
   long max_y_segment_time = max(y_segment_time[0], max(y_segment_time[1], y_segment_time[2]));
   long min_xy_segment_time =min(max_x_segment_time, max_y_segment_time);
-  if(min_xy_segment_time < MAX_FREQ_TIME) speed_factor = min(speed_factor, (float)min_xy_segment_time / (float)MAX_FREQ_TIME);
+  if(min_xy_segment_time < MAX_FREQ_TIME) speed_factor = min(speed_factor, speed_factor * (float)min_xy_segment_time / (float)MAX_FREQ_TIME);
 #endif
 
   // Correct the speed  
@@ -579,7 +579,12 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
     for(int i=0; i < 4; i++) {
     if(abs(current_speed[i]) > max_feedrate[i])
       speed_factor = min(speed_factor, max_feedrate[i] / abs(current_speed[i]));
-//      Serial.print("current_speed"); Serial.print(i); Serial.print(" : "); Serial.println(current_speed[i]);
+ /*     
+      if(speed_factor < 0.1) {
+        Serial.print("speed factor : "); Serial.println(speed_factor);
+        Serial.print("current_speed"); Serial.print(i); Serial.print(" : "); Serial.println(current_speed[i]);
+      }
+ */
   }
     for(unsigned char i=0; i < 4; i++) {
       current_speed[i] *= speed_factor;

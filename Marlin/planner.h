@@ -32,9 +32,9 @@ typedef struct {
   // Fields used by the bresenham algorithm for tracing the line
   long steps_x, steps_y, steps_z, steps_e;  // Step count along each axis
   long step_event_count;                    // The number of step events required to complete this block
-  volatile long accelerate_until;           // The index of the step event on which to stop acceleration
-  volatile long decelerate_after;           // The index of the step event on which to start decelerating
-  volatile long acceleration_rate;          // The acceleration rate used for acceleration calculation
+  long accelerate_until;                    // The index of the step event on which to stop acceleration
+  long decelerate_after;                    // The index of the step event on which to start decelerating
+  long acceleration_rate;                   // The acceleration rate used for acceleration calculation
   unsigned char direction_bits;             // The direction bit set for this block (refers to *_DIRECTION_BIT in config.h)
   #ifdef ADVANCE
 //    long advance_rate;
@@ -50,14 +50,14 @@ typedef struct {
   float max_entry_speed;                             // Maximum allowable junction entry speed in mm/min
   float millimeters;                                 // The total travel of this block in mm
   float acceleration;                                // acceleration mm/sec^2
-  unsigned char recalculate_flag;                          // Planner flag to recalculate trapezoids on entry junction
-  unsigned char nominal_length_flag;                       // Planner flag for nominal speed always reached
+  unsigned char recalculate_flag;                    // Planner flag to recalculate trapezoids on entry junction
+  unsigned char nominal_length_flag;                 // Planner flag for nominal speed always reached
 
   // Settings for the trapezoid generator
-  long nominal_rate;                                 // The nominal step rate for this block in step_events/sec 
-  volatile long initial_rate;                        // The jerk-adjusted step rate at start of block  
-  volatile long final_rate;                          // The minimal rate at exit
-  long acceleration_st;                              // acceleration steps/sec^2
+  unsigned long nominal_rate;                        // The nominal step rate for this block in step_events/sec 
+  unsigned long initial_rate;                        // The jerk-adjusted step rate at start of block  
+  unsigned long final_rate;                          // The minimal rate at exit
+  unsigned long acceleration_st;                     // acceleration steps/sec^2
   volatile char busy;
 } block_t;
 
@@ -84,7 +84,7 @@ void check_axes_activity();
 extern unsigned long minsegmenttime;
 extern float max_feedrate[4]; // set the max speeds
 extern float axis_steps_per_unit[4];
-extern long max_acceleration_units_per_sq_second[4]; // Use M201 to override by software
+extern unsigned long max_acceleration_units_per_sq_second[4]; // Use M201 to override by software
 extern float minimumfeedrate;
 extern float acceleration;         // Normal acceleration mm/s^2  THIS IS THE DEFAULT ACCELERATION for all moves. M204 SXXXX
 extern float retract_acceleration; //  mm/s^2   filament pull-pack and push-forward  while standing still in the other axis M204 TXXXX
