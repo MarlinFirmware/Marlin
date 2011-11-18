@@ -11,7 +11,7 @@
 
 // Frequency limit
 // See nophead's blog for more info
-// Not working OK
+// Not working O
 //#define XY_FREQUENCY_LIMIT  15
 
 // Minimum planner junction speed. Sets the default minimum speed the planner plans for at the end
@@ -31,7 +31,7 @@
 // Sanguinololu 1.2 and above = 62
 // Ultimaker = 7,
 // Teensylu = 8
-#define MOTHERBOARD 7
+#define MOTHERBOARD 5
 
 //===========================================================================
 //=============================Thermal Settings  ============================
@@ -45,9 +45,9 @@
 // 5 is ParCan supplied 104GT-2 100K
 // 6 is EPCOS 100k
 // 7 is 100k Honeywell thermistor 135-104LAG-J01
-#define THERMISTORHEATER_0 3
-#define THERMISTORHEATER_1 3
-#define THERMISTORBED 3
+//#define THERMISTORHEATER_0 3
+//#define THERMISTORHEATER_1 3
+//#define THERMISTORBED 3
 
 //#define HEATER_0_USES_THERMISTOR
 //#define HEATER_1_USES_THERMISTOR
@@ -120,9 +120,15 @@
 //    #define  DEFAULT_Ki (2*Kp/PID_SWING_AT_CRITIAL*PID_dT)  
 //    #define  DEFAULT_Kd (PID_SWING_AT_CRITIAL/8./PID_dT)  
 
+// Ultitmaker
     #define  DEFAULT_Kp  22.2
     #define  DEFAULT_Ki (1.25*PID_dT)  
     #define  DEFAULT_Kd (99/PID_dT)  
+
+// Mendel Parts V9 on 12V    
+//    #define  DEFAULT_Kp  63.0
+//    #define  DEFAULT_Ki (2.25*PID_dT)  
+//    #define  DEFAULT_Kd (440/PID_dT)  
   #endif
    
   #ifdef PID_PI
@@ -139,13 +145,6 @@
     #define  DEFAULT_Kc (3) //heatingpower=Kc*(e_speed)
   #endif
 #endif // PIDTEMP
-
-
-
-
-
-
-
 
 
 //===========================================================================
@@ -178,10 +177,10 @@ const bool ENDSTOPS_INVERTING = true; // set to true to invert the logic of the 
 //#define INVERT_Z_DIR false    // for Mendel set to false, for Orca set to true
 //#define INVERT_E_DIR true   // for direct drive extruder v9 set to true, for geared extruder set to false
 
-#define INVERT_X_DIR true    // for Mendel set to false, for Orca set to true
-#define INVERT_Y_DIR false   // for Mendel set to true, for Orca set to false
-#define INVERT_Z_DIR true    // for Mendel set to false, for Orca set to true
-#define INVERT_E_DIR false   // for direct drive extruder v9 set to true, for geared extruder set to false
+//#define INVERT_X_DIR true    // for Mendel set to false, for Orca set to true
+//#define INVERT_Y_DIR false   // for Mendel set to true, for Orca set to false
+//#define INVERT_Z_DIR true    // for Mendel set to false, for Orca set to true
+//#define INVERT_E_DIR false   // for direct drive extruder v9 set to true, for geared extruder set to false
 
 //// ENDSTOP SETTINGS:
 // Sets direction of endstops when homing; 1=MAX, -1=MIN
@@ -243,13 +242,10 @@ const bool ENDSTOPS_INVERTING = true; // set to true to invert the logic of the 
 
 // The watchdog waits for the watchperiod in milliseconds whenever an M104 or M109 increases the target temperature
 // this enables the watchdog interrupt.
-#define USE_WATCHDOG
+//#define USE_WATCHDOG
 // you cannot reboot on a mega2560 due to a bug in he bootloader. Hence, you have to reset manually, and this is done hereby:
-#define RESET_MANUAL
-#define WATCHDOG_TIMEOUT 4  //seconds
-
-
-
+//#define RESET_MANUAL
+//#define WATCHDOG_TIMEOUT 4  //seconds
 
 // extruder advance constant (s2/mm3)
 //
@@ -275,7 +271,7 @@ const bool ENDSTOPS_INVERTING = true; // set to true to invert the logic of the 
 //#define ULTRA_LCD  //general lcd support, also 16x2
 //#define SDSUPPORT // Enable SD Card Support in Hardware Console
 
-#define ULTIPANEL
+//#define ULTIPANEL
 #ifdef ULTIPANEL
 //  #define NEWPANEL  //enable this if you have a click-encoder panel
   #define SDSUPPORT
@@ -307,8 +303,7 @@ const bool ENDSTOPS_INVERTING = true; // set to true to invert the logic of the 
 #define AUTOTEMP_FACTOR 1000.  //current target temperature= min+largest buffered espeeds)*FACTOR
 
 
-
-const int dropsegments=0; //everything with less than this number of steps  will be ignored as move and joined with the next movement
+const int dropsegments=5; //everything with less than this number of steps will be ignored as move and joined with the next movement
 
 //===========================================================================
 //=============================Buffers           ============================

@@ -232,10 +232,9 @@ void setup()
     axis_steps_per_sqr_second[i] = max_acceleration_units_per_sq_second[i] * axis_steps_per_unit[i];
   }
 
-  
+  tp_init();    // Initialize temperature loop 
   plan_init();  // Initialize planner;
   st_init();    // Initialize stepper;
-  tp_init();    // Initialize temperature loop
 }
 
 
