@@ -37,6 +37,7 @@
 #include "temperature.h"
 #include "motion_control.h"
 #include "cardreader.h"
+#include "watchdog.h"
 
 
 #define VERSION_STRING  "1.0.0 Alpha 1"
@@ -193,6 +194,12 @@ extern "C"{
 }
 
 
+
+
+
+
+
+
 //adds an command to the main command buffer
 //thats really done in a non-safe way.
 //needs overworking someday
@@ -235,6 +242,7 @@ void setup()
   tp_init();    // Initialize temperature loop 
   plan_init();  // Initialize planner;
   st_init();    // Initialize stepper;
+  wd_init();
 }
 
 
@@ -659,7 +667,8 @@ inline void process_commands()
       break;
     case 105: // M105
       //SERIAL_ECHOLN(freeMemory());
-          
+       //test watchdog:
+       //delay(20000);
       #if (TEMP_0_PIN > -1) || defined (HEATER_USES_AD595)
         SERIAL_PROTOCOLPGM("ok T:");
         SERIAL_PROTOCOL( degHotend0()); 

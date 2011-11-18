@@ -58,7 +58,6 @@
 //#define BED_USES_THERMISTOR
 //#define BED_USES_AD595
 
-#define HEATER_CHECK_INTERVAL 50 //ms
 #define BED_CHECK_INTERVAL 5000 //ms
 
 //// Experimental watchdog and minimal temp
@@ -243,9 +242,11 @@ const bool ENDSTOPS_INVERTING = true; // set to true to invert the logic of the 
 // The watchdog waits for the watchperiod in milliseconds whenever an M104 or M109 increases the target temperature
 // this enables the watchdog interrupt.
 //#define USE_WATCHDOG
-// you cannot reboot on a mega2560 due to a bug in he bootloader. Hence, you have to reset manually, and this is done hereby:
+#ifdef USE_WATCHDOG
+  // you cannot reboot on a mega2560 due to a bug in he bootloader. Hence, you have to reset manually, and this is done hereby:
 //#define RESET_MANUAL
 //#define WATCHDOG_TIMEOUT 4  //seconds
+
 
 // extruder advance constant (s2/mm3)
 //

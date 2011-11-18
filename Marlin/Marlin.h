@@ -100,7 +100,7 @@ void prepare_move();
 void kill();
 
 void enquecommand(const char *cmd); //put an ascii command at the end of the current buffer.
-
+void prepare_arc_move(char isclockwise);
 
 #ifndef CRITICAL_SECTION_START
   #define CRITICAL_SECTION_START  unsigned char _sreg = SREG; cli();
