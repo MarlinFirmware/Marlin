@@ -56,8 +56,8 @@ static unsigned long step_events_completed; // The number of step events execute
 #ifdef ADVANCE
   static long advance_rate, advance, final_advance = 0;
   static short old_advance = 0;
-  static short e_steps;
 #endif
+static short e_steps;
 static unsigned char busy = false; // TRUE when SIG_OUTPUT_COMPARE1A is being serviced. Used to avoid retriggering that handler.
 static long acceleration_time, deceleration_time;
 //static unsigned long accelerate_until, decelerate_after, acceleration_rate, initial_rate, final_rate, nominal_rate;
@@ -156,7 +156,7 @@ asm volatile ( \
 #define DISABLE_STEPPER_DRIVER_INTERRUPT() TIMSK1 &= ~(1<<OCIE1A)
 
 
-void endstops_triggered(const unsigned long &stepstaken)  
+inline void endstops_triggered(const unsigned long &stepstaken)  
 {
   //this will only work if there is no bufferig
   //however, if you perform a move at which the endstops should be triggered, and wait for it to complete, i.e. by blocking command, it should work
@@ -296,9 +296,9 @@ ISR(TIMER1_COMPA_vect)
       counter_z = counter_x;
       counter_e = counter_x;
       step_events_completed = 0;
-      #ifdef ADVANCE
+ //     #ifdef ADVANCE
       e_steps = 0;
-      #endif
+//      #endif
     } 
     else {
 //      DISABLE_STEPPER_DRIVER_INTERRUPT();
@@ -309,29 +309,6 @@ ISR(TIMER1_COMPA_vect)
     // Set directions TO DO This should be done once during init of trapezoid. Endstops -> interrupt
     out_bits = current_block->direction_bits;
 
-    #ifdef ADVANCE
-        // Calculate E early.
-        counter_e += current_block->steps_e;
-        if (counter_e > 0) {
-          counter_e -= current_block->step_event_count;
-          if ((out_bits & (1<<E_AXIS)) != 0) { // - direction
-            CRITICAL_SECTION_START;
-            e_steps--;
-            CRITICAL_SECTION_END;
-          }
-          else {
-            CRITICAL_SECTION_START;
-            e_steps++;
-            CRITICAL_SECTION_END;
-          }
-        }    
-        // Do E steps + advance steps
-        CRITICAL_SECTION_START;
-        e_steps += ((advance >> 16) - old_advance);
-        CRITICAL_SECTION_END;
-        old_advance = advance >> 16;  
-    #endif //ADVANCE
-
     // Set direction en check limit switches
     if ((out_bits & (1<<X_AXIS)) != 0) {   // -direction
       WRITE(X_DIR_PIN, INVERT_X_DIR);
@@ -339,10 +316,10 @@ ISR(TIMER1_COMPA_vect)
         count_direction[X_AXIS]=-1;
       #endif
       #if X_MIN_PIN > -1
-            if(READ(X_MIN_PIN) != ENDSTOPS_INVERTING) {
- //             endstops_triggered(step_events_completed);
-              step_events_completed = current_block->step_event_count;
-            }
+        if(READ(X_MIN_PIN) != ENDSTOPS_INVERTING) {
+ //         endstops_triggered(step_events_completed);
+          step_events_completed = current_block->step_event_count;
+        }
       #endif
     }
     else { // +direction 
@@ -355,7 +332,7 @@ ISR(TIMER1_COMPA_vect)
  //         endstops_triggered(step_events_completed);
           step_events_completed = current_block->step_event_count;
         }
-        #endif
+      #endif
     }
 
     if ((out_bits & (1<<Y_AXIS)) != 0) {   // -direction
@@ -365,7 +342,7 @@ ISR(TIMER1_COMPA_vect)
       #endif
       #if Y_MIN_PIN > -1
         if(READ(Y_MIN_PIN) != ENDSTOPS_INVERTING) {
- //         endstops_triggered(step_events_completed);
+//          endstops_triggered(step_events_completed);
           step_events_completed = current_block->step_event_count;
         }
       #endif
@@ -390,7 +367,7 @@ ISR(TIMER1_COMPA_vect)
       #endif
       #if Z_MIN_PIN > -1
         if(READ(Z_MIN_PIN) != ENDSTOPS_INVERTING) {
-          endstops_triggered(step_events_completed);
+ //         endstops_triggered(step_events_completed);
           step_events_completed = current_block->step_event_count;
         }
       #endif
@@ -416,6 +393,30 @@ ISR(TIMER1_COMPA_vect)
     #endif //!ADVANCE
 
     for(int8_t i=0; i < step_loops; i++) { // Take multiple steps per interrupt (For high speed moves) 
+    /*
+      counter_e += current_block->steps_e;
+      if (counter_e > 0) {
+        counter_e -= current_block->step_event_count;
+        if ((out_bits & (1<<E_AXIS)) != 0) { // - direction
+          CRITICAL_SECTION_START;
+          e_steps--;
+          CRITICAL_SECTION_END;
+        }
+        else {
+          CRITICAL_SECTION_START;
+          e_steps++;
+          CRITICAL_SECTION_END;
+        }
+      }    
+      */
+      /*
+      // Do E steps + advance steps
+      CRITICAL_SECTION_START;
+      e_steps += ((advance >> 16) - old_advance);
+      CRITICAL_SECTION_END;
+      old_advance = advance >> 16;  
+      */
+        
       counter_x += current_block->steps_x;
       if (counter_x > 0) {
         WRITE(X_STEP_PIN, HIGH);
@@ -649,7 +650,8 @@ void st_init()
   TCCR1B = (TCCR1B & ~(0x07<<CS10)) | (2<<CS10); // 2MHz timer
 
   OCR1A = 0x4000;
-  DISABLE_STEPPER_DRIVER_INTERRUPT();  
+  TCNT1 = 0;
+  ENABLE_STEPPER_DRIVER_INTERRUPT();  
 
   #ifdef ADVANCE
     e_steps = 0;

@@ -19,15 +19,15 @@ void(* ctrlaltdelete) (void) = 0; //does not work on my atmega2560
 /// intialise watch dog with a 1 sec interrupt time
 void wd_init() 
 {
-  WDTCSR = (1<<WDCE )|(1<<WDE ); //allow changes
-  WDTCSR = (1<<WDIF)|(1<<WDIE)| (1<<WDCE )|(1<<WDE )|  (1<<WDP2 )|(1<<WDP1)|(0<<WDP0);
+  WDTCSR |= (1<<WDCE )|(1<<WDE ); //allow changes
+  WDTCSR = (1<<WDCE )|(1<<WDE )|(1<<WDP3 )|(1<<WDP0); // Reset after 8 sec.
+//  WDTCSR = (1<<WDIF)|(1<<WDIE)| (1<<WDCE )|(1<<WDE )|  (1<<WDP3) | (1<<WDP0);
 }
 
 /// reset watchdog. MUST be called every 1s after init or avr will reset.
 void wd_reset() 
 {
   wdt_reset();
-  timeout_seconds=0; //reset counter for resets
 }
 
 //===========================================================================
