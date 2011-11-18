@@ -26,6 +26,7 @@
  */
 
 #include <EEPROM.h>
+
 #include "EEPROMwrite.h"
 #include "fastio.h"
 #include "Configuration.h"
@@ -391,9 +392,15 @@ inline void get_command()
   while( !card.eof()  && buflen < BUFSIZE) {
     int16_t n=card.get();
     serial_char = (char)n;
+//     Serial.print((char)serial_char);
+//     Serial.print(" ");
+//     Serial.println((int)serial_count);
     if(serial_char == '\n' || serial_char == '\r' || serial_char == ':' || serial_count >= (MAX_CMD_SIZE - 1)||n==-1) 
     {
-     
+//       if(serial_char == '\n' || serial_char == '\r' )
+//         Serial.println("newline or :");
+//       if(serial_count >= (MAX_CMD_SIZE - 1))
+//         Serial.println("too long line");
       if(card.eof()){
         card.sdprinting = false;
         SERIAL_PROTOCOLLNPGM("Done printing file");
@@ -409,15 +416,20 @@ inline void get_command()
         LCD_MESSAGE(time);
         card.checkautostart(true);
       }
-      if(!serial_count) 
-	return; //if empty line
+      if(serial_char=='\n')
+         comment_mode = false; //for new command
+      if(!serial_count)
+      {
+// 	Serial.println("empty line");
+        return; //if empty line
+      }
       cmdbuffer[bufindw][serial_count] = 0; //terminate string
       if(!comment_mode){
         fromsd[bufindw] = true;
         buflen += 1;
         bufindw = (bufindw + 1)%BUFSIZE;
       }
-      comment_mode = false; //for new command
+     
       serial_count = 0; //clear buffer
     }
     else
