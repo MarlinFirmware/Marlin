@@ -31,7 +31,7 @@
 // Sanguinololu 1.2 and above = 62
 // Ultimaker = 7,
 // Teensylu = 8
-#define MOTHERBOARD 5
+#define MOTHERBOARD 7
 
 //===========================================================================
 //=============================Thermal Settings  ============================
@@ -176,10 +176,10 @@ const bool ENDSTOPS_INVERTING = true; // set to true to invert the logic of the 
 //#define INVERT_Z_DIR false    // for Mendel set to false, for Orca set to true
 //#define INVERT_E_DIR true   // for direct drive extruder v9 set to true, for geared extruder set to false
 
-//#define INVERT_X_DIR true    // for Mendel set to false, for Orca set to true
-//#define INVERT_Y_DIR false   // for Mendel set to true, for Orca set to false
-//#define INVERT_Z_DIR true    // for Mendel set to false, for Orca set to true
-//#define INVERT_E_DIR false   // for direct drive extruder v9 set to true, for geared extruder set to false
+#define INVERT_X_DIR true     // for Mendel set to false, for Orca set to true
+#define INVERT_Y_DIR false    // for Mendel set to true, for Orca set to false
+#define INVERT_Z_DIR true     // for Mendel set to false, for Orca set to true
+#define INVERT_E_DIR false    // for direct drive extruder v9 set to true, for geared extruder set to false
 
 //// ENDSTOP SETTINGS:
 // Sets direction of endstops when homing; 1=MAX, -1=MIN
@@ -242,11 +242,11 @@ const bool ENDSTOPS_INVERTING = true; // set to true to invert the logic of the 
 // The watchdog waits for the watchperiod in milliseconds whenever an M104 or M109 increases the target temperature
 // this enables the watchdog interrupt.
 //#define USE_WATCHDOG
-#ifdef USE_WATCHDOG
+//#ifdef USE_WATCHDOG
   // you cannot reboot on a mega2560 due to a bug in he bootloader. Hence, you have to reset manually, and this is done hereby:
 //#define RESET_MANUAL
 //#define WATCHDOG_TIMEOUT 4  //seconds
-
+//#endif
 
 // extruder advance constant (s2/mm3)
 //
@@ -272,7 +272,7 @@ const bool ENDSTOPS_INVERTING = true; // set to true to invert the logic of the 
 //#define ULTRA_LCD  //general lcd support, also 16x2
 //#define SDSUPPORT // Enable SD Card Support in Hardware Console
 
-//#define ULTIPANEL
+#define ULTIPANEL
 #ifdef ULTIPANEL
 //  #define NEWPANEL  //enable this if you have a click-encoder panel
   #define SDSUPPORT
