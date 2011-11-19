@@ -1024,6 +1024,18 @@ inline void get_arc_coordinates()
 
 void prepare_move()
 {
+  if (min_software_endstops) {
+    if (destination[X_AXIS] < 0) destination[X_AXIS] = 0.0;
+    if (destination[Y_AXIS] < 0) destination[Y_AXIS] = 0.0;
+    if (destination[Z_AXIS] < 0) destination[Z_AXIS] = 0.0;
+  }
+
+  if (max_software_endstops) {
+    if (destination[X_AXIS] > X_MAX_LENGTH) destination[X_AXIS] = X_MAX_LENGTH;
+    if (destination[Y_AXIS] > Y_MAX_LENGTH) destination[Y_AXIS] = Y_MAX_LENGTH;
+    if (destination[Z_AXIS] > Z_MAX_LENGTH) destination[Z_AXIS] = Z_MAX_LENGTH;
+  }
+
   plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate*feedmultiply/60/100.0);
   for(int8_t i=0; i < NUM_AXIS; i++) {
     current_position[i] = destination[i];
