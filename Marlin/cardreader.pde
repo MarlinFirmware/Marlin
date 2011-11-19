@@ -192,41 +192,43 @@ void CardReader::openFile(char* name,bool read)
   char *fname=name;
   
   char *dirname_start,*dirname_end;
-  dirname_start=strchr(name,'/')+1;
-  while(dirname_start!=NULL)
+  if(name[0]=='/')
   {
-    dirname_end=strchr(dirname_start,'/');
-    //SERIAL_ECHO("start:");SERIAL_ECHOLN((int)(dirname_start-name));
-    //SERIAL_ECHO("end  :");SERIAL_ECHOLN((int)(dirname_end-name));
-    if(dirname_end!=NULL && dirname_end>dirname_start)
+    dirname_start=strchr(name,'/')+1;
+    while(dirname_start>0)
     {
-      char subdirname[13];
-      strncpy(subdirname, dirname_start, dirname_end-dirname_start);
-      subdirname[dirname_end-dirname_start]=0;
-      SERIAL_ECHOLN(subdirname);
-      if(!myDir.open(curDir,subdirname,O_READ))
+      dirname_end=strchr(dirname_start,'/');
+      //SERIAL_ECHO("start:");SERIAL_ECHOLN((int)(dirname_start-name));
+      //SERIAL_ECHO("end  :");SERIAL_ECHOLN((int)(dirname_end-name));
+      if(dirname_end>0 && dirname_end>dirname_start)
       {
-        SERIAL_PROTOCOLPGM("open failed, File: ");
-        SERIAL_PROTOCOL(subdirname);
-        SERIAL_PROTOCOLLNPGM(".");
-        return;
+        char subdirname[13];
+        strncpy(subdirname, dirname_start, dirname_end-dirname_start);
+        subdirname[dirname_end-dirname_start]=0;
+        SERIAL_ECHOLN(subdirname);
+        if(!myDir.open(curDir,subdirname,O_READ))
+        {
+          SERIAL_PROTOCOLPGM("open failed, File: ");
+          SERIAL_PROTOCOL(subdirname);
+          SERIAL_PROTOCOLLNPGM(".");
+          return;
+        }
+        else
+          ;//SERIAL_ECHOLN("dive ok");
+          
+        curDir=&myDir; 
+        dirname_start=dirname_end+1;
       }
-      else
-        SERIAL_ECHOLN("dive ok");
-        
-      curDir=&myDir; 
-      dirname_start=dirname_end+1;
+      else // the reminder after all /fsa/fdsa/ is the filename
+      {
+        fname=dirname_start;
+        //SERIAL_ECHOLN("remaider");
+        //SERIAL_ECHOLN(fname);
+        break;
+      }
+      
     }
-    else // the reminder after all /fsa/fdsa/ is the filename
-    {
-      fname=dirname_start;
-      //SERIAL_ECHOLN("remaider");
-      //SERIAL_ECHOLN(fname);
-      break;
-    }
-    
   }
- 
   if(read)
   {
     if (file.open(curDir, fname, O_READ)) 
@@ -242,7 +244,9 @@ void CardReader::openFile(char* name,bool read)
     }
     else
     {
-      SERIAL_PROTOCOLLNPGM("file.open failed");
+     SERIAL_PROTOCOLPGM("open failed, File: ");
+      SERIAL_PROTOCOL(fname);
+      SERIAL_PROTOCOLLNPGM(".");
     }
   }
   else 
