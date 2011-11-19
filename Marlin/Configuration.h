@@ -297,11 +297,10 @@ const bool ENDSTOPS_INVERTING = true; // set to true to invert the logic of the 
 
 //automatic temperature: just for testing, this is very dangerous, keep disabled!
 // not working yet.
-//Erik: the settings currently depend dramatically on skeinforge39 or 41.
 //#define AUTOTEMP
-#define AUTOTEMP_MIN 190
-#define AUTOTEMP_MAX 260
-#define AUTOTEMP_FACTOR 1000.  //current target temperature= min+largest buffered espeeds)*FACTOR
+#ifdef AUTOTEMP
+  #define AUTOTEMP_OLDWEIGHT 0.98
+#endif
 
 
 const int dropsegments=5; //everything with less than this number of steps will be ignored as move and joined with the next movement
