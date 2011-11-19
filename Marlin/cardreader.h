@@ -3,9 +3,8 @@
 
 #ifdef SDSUPPORT
  
-
-#include "SdFat.h"
-
+#include "SdFile.h"
+enum LsAction {LS_SerialPrint,LS_Count,LS_GetFilename};
 class CardReader
 {
 public:
@@ -17,20 +16,22 @@ public:
   //this is to delay autostart and hence the initialisaiton of the sd card to some seconds after the normal init, so the device is available quick after a reset
 
   void checkautostart(bool x); 
-  
+  void openFile(char* name,bool read);
   void closefile();
   void release();
   void startFileprint();
-  void startFilewrite(char *name);
+  //void startFilewrite(char *name);
   void pauseSDPrint();
   void getStatus();
-  
-  void selectFile(char* name);
+  void cd(char * absolutPath);
+  //void selectFile(char* name);
   void getfilename(const uint8_t nr);
-  uint8_t getnrfilenames();
+  uint16_t getnrfilenames();
   
 
-  inline void ls() {root.ls();};
+  void ls();
+  void lsDive(char *prepend,SdFile parent);
+
   inline bool eof() { return sdpos>=filesize ;};
   inline int16_t get() {  sdpos = file.curPosition();return (int16_t)file.read();};
   inline void setIndex(long index) {sdpos = index;file.seekSet(index);};
@@ -42,7 +43,7 @@ public:
   bool cardOK ;
   char filename[11];
 private:
-  SdFile root;
+  SdFile root,*curDir;
   Sd2Card card;
   SdVolume volume;
   SdFile file;
@@ -52,6 +53,10 @@ private:
   uint32_t sdpos ;
 
   bool autostart_stilltocheck; //the sd start is delayed, because otherwise the serial cannot answer fast enought to make contact with the hostsoftware.
+  
+  LsAction lsAction; //stored for recursion.
+  int16_t nrFiles; //counter for the files in the current directory and recycled as position counter for getting the nrFiles'th name in the directory.
+  char* diveDirName;
 };
   
 
