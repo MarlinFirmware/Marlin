@@ -90,6 +90,9 @@
   
 #define PIDTEMP
 #ifdef PIDTEMP
+  #if MOTHERBOARD == 62
+    #error Sanguinololu does not support PID, sorry. Please disable it.
+  #endif
   //#define PID_DEBUG // Sends debug data to the serial port. 
   //#define PID_OPENLOOP 1 // Puts PID in open loop. M104 sets the output power in %
   
@@ -195,7 +198,6 @@ const bool ENDSTOPS_INVERTING = true; // set to true to invert the logic of the 
 
 //// MOVEMENT SETTINGS
 #define NUM_AXIS 4 // The axis order in all axis related arrays is X, Y, Z, E
-//note: on bernhards ultimaker 200 200 12 are working well.
 #define HOMING_FEEDRATE {50*60, 50*60, 4*60, 0}  // set the homing speeds (mm/min)
 
 #define AXIS_RELATIVE_MODES {false, false, false, false}
@@ -205,7 +207,7 @@ const bool ENDSTOPS_INVERTING = true; // set to true to invert the logic of the 
 // default settings 
 
 #define DEFAULT_AXIS_STEPS_PER_UNIT   {78.7402,78.7402,200*8/3,760*1.1}                    // default steps per unit for ultimaker 
-//#define DEFAULT_AXIS_STEPS_PER_UNIT   {40, 40, 3333.92, 67} 
+//#define DEFAULT_AXIS_STEPS_PER_UNIT   {40, 40, 3333.92, 67} //sells mendel with v9 extruder
 #define DEFAULT_MAX_FEEDRATE          {500, 500, 5, 200000}    // (mm/sec)    
 #define DEFAULT_MAX_ACCELERATION      {9000,9000,100,10000}    // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for skeinforge 40+, for older versions raise them a lot.
 
@@ -239,7 +241,8 @@ const bool ENDSTOPS_INVERTING = true; // set to true to invert the logic of the 
 #define EEPROM_CHITCHAT
 
 
-// The watchdog waits for the watchperiod in milliseconds whenever an M104 or M109 increases the target temperature
+// The hardware watchdog should halt the Microcontroller, in case the firmware gets stuck somewhere. However:
+// the Watchdog is not working well, so please only enable this for testing
 // this enables the watchdog interrupt.
 //#define USE_WATCHDOG
 //#ifdef USE_WATCHDOG
@@ -272,7 +275,7 @@ const bool ENDSTOPS_INVERTING = true; // set to true to invert the logic of the 
 //#define ULTRA_LCD  //general lcd support, also 16x2
 //#define SDSUPPORT // Enable SD Card Support in Hardware Console
 
-#define ULTIPANEL
+//#define ULTIPANEL
 #ifdef ULTIPANEL
   //#define NEWPANEL  //enable this if you have a click-encoder panel
   #define SDSUPPORT
@@ -295,8 +298,13 @@ const bool ENDSTOPS_INVERTING = true; // set to true to invert the logic of the 
 #define N_ARC_CORRECTION 25
 
 
-//automatic temperature: just for testing, this is very dangerous, keep disabled!
-// not working yet.
+//automatic temperature: The hot end target temperature is calculated by all the buffered lines of gcode.
+//The maximum buffered steps/sec of the extruder motor are called "se".
+//You enter the autotemp mode by a M109 S<mintemp> T<maxtemp> F<factor>
+// the target temperature is set to mintemp+factor*se[steps/sec] and limited by mintemp and maxtemp
+// you exit the value by any M109 without F*
+// Also, if the temperature is set to a value <mintemp, it is not changed by autotemp.
+// on an ultimaker, some initial testing worked with M109 S215 T260 F0.1 in the start.gcode
 //#define AUTOTEMP
 #ifdef AUTOTEMP
   #define AUTOTEMP_OLDWEIGHT 0.98
