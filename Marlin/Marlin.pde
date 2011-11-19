@@ -71,7 +71,7 @@
 
 //Custom M Codes
 // M17  - Enable/Power all stepper motors
-// M18  - Disaable all stepper motors; same as M84
+// M18  - Disable all stepper motors; same as M84
 // M20  - List SD card
 // M21  - Init SD card
 // M22  - Release SD card
@@ -92,7 +92,9 @@
 //        or use S<seconds> to specify an inactivity timeout, after which the steppers will be disabled.  S0 to disable the timeout.
 // M85  - Set inactivity shutdown timer with parameter S<seconds>. To disable set zero (default)
 // M92  - Set axis_steps_per_unit - same syntax as G92
+// M114 - Output current position to serial port 
 // M115	- Capabilities string
+// M119 - Output Endstop status to serial port
 // M140 - Set bed target temp
 // M190 - Wait for bed current temp to reach target temp.
 // M200 - Set filament diameter
