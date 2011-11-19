@@ -89,25 +89,50 @@ static unsigned long previous_millis_heater, previous_millis_bed_heater;
   static unsigned long watchmillis = 0;
 #endif //WATCHPERIOD
 
+// Init min and max temp with extreme values to prevent false errors during startup
 #ifdef HEATER_0_MINTEMP
-  static int minttemp_0 = temp2analog(HEATER_0_MINTEMP);
+  #ifdef HEATER_0_USES_AD595
+    static int minttemp_0 = 0;
+  #else
+    static int minttemp_0 = 16383;
+  #endif
 #endif //MINTEMP
 #ifdef HEATER_0_MAXTEMP
-  static int maxttemp_0 = temp2analog(HEATER_0_MAXTEMP);
+  #ifdef HEATER_0_USES_AD595
+    static int maxttemp_0 = 0;
+  #else
+    static int maxttemp_0 = 16383;
+  #endif
 #endif //MAXTEMP
 
 #ifdef HEATER_1_MINTEMP
-  static int minttemp_1 = temp2analog(HEATER_1_MINTEMP);
+  #ifdef HEATER_1_USES_AD595
+    static int minttemp_1 = 0;
+  #else
+    static int minttemp_1 = 16383;
+  #endif
 #endif //MINTEMP
 #ifdef HEATER_1_MAXTEMP
-  static int maxttemp_1 = temp2analog(HEATER_1_MAXTEMP);
+  #ifdef HEATER_1_USES_AD595
+    static int maxttemp_1 = 0;
+  #else
+    static int maxttemp_1 = 16383;
+  #endif
 #endif //MAXTEMP
 
 #ifdef BED_MINTEMP
-  static int bed_minttemp = temp2analog(BED_MINTEMP);
+  #ifdef BED_USES_AD595
+    static int bed_minttemp = 0;
+  #else
+    static int bed_minttemp = 16383;
+  #endif
 #endif //BED_MINTEMP
 #ifdef BED_MAXTEMP
-  static int bed_maxttemp = temp2analog(BED_MAXTEMP);
+  #ifdef BED_USES_AD595
+    static int bed_maxttemp = 0;
+  #else
+    static int bed_maxttemp = 16383;
+  #endif
 #endif //BED_MAXTEMP
 
 //===========================================================================
@@ -350,6 +375,30 @@ void tp_init()
   // Interleave temperature interrupt with millies interrupt
   OCR0B = 128;
   TIMSK0 |= (1<<OCIE0B);  
+  
+  // Wait for temperature measurement to settle
+  delay(500);
+
+#ifdef HEATER_0_MINTEMP
+  minttemp_0 = temp2analog(HEATER_0_MINTEMP);
+#endif //MINTEMP
+#ifdef HEATER_0_MAXTEMP
+  maxttemp_0 = temp2analog(HEATER_0_MAXTEMP);
+#endif //MAXTEMP
+
+#ifdef HEATER_1_MINTEMP
+  minttemp_1 = temp2analog(HEATER_1_MINTEMP);
+#endif //MINTEMP
+#ifdef HEATER_1_MAXTEMP
+  maxttemp_1 = temp2analog(HEATER_1_MAXTEMP);
+#endif //MAXTEMP
+
+#ifdef BED_MINTEMP
+  bed_minttemp = temp2analog(BED_MINTEMP);
+#endif //BED_MINTEMP
+#ifdef BED_MAXTEMP
+  bed_maxttemp = temp2analog(BED_MAXTEMP);
+#endif //BED_MAXTEMP
 }
 
 
