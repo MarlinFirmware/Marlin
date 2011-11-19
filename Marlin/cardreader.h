@@ -20,17 +20,15 @@ public:
   void closefile();
   void release();
   void startFileprint();
-  //void startFilewrite(char *name);
   void pauseSDPrint();
   void getStatus();
-  void cd(char * absolutPath);
-  //void selectFile(char* name);
+
   void getfilename(const uint8_t nr);
   uint16_t getnrfilenames();
   
 
   void ls();
-  void lsDive(char *prepend,SdFile parent);
+  
 
   inline bool eof() { return sdpos>=filesize ;};
   inline int16_t get() {  sdpos = file.curPosition();return (int16_t)file.read();};
@@ -57,10 +55,13 @@ private:
   LsAction lsAction; //stored for recursion.
   int16_t nrFiles; //counter for the files in the current directory and recycled as position counter for getting the nrFiles'th name in the directory.
   char* diveDirName;
+  void lsDive(char *prepend,SdFile parent);
 };
   
 
 #else
+
+#define dir_t bool 
 class CardReader
 {
 public:
@@ -71,6 +72,7 @@ public:
   
   inline static void checkautostart(bool x) {}; 
   
+  inline static void openFile(char* name,bool read){};
   inline static void closefile() {};
   inline static void release(){};
   inline static void startFileprint(){};
@@ -87,9 +89,7 @@ public:
   inline static bool eof() {return true;};
   inline static char get() {return 0;};
   inline static void setIndex(){};
+  inline uint8_t percentDone(){return 0;};
 };
 #endif //SDSUPPORT
-  
-  
-  
 #endif

@@ -1,5 +1,5 @@
-#ifdef SDSUPPORT
 #include "cardreader.h"
+#ifdef SDSUPPORT
 
 CardReader::CardReader()
 {
@@ -378,9 +378,5 @@ uint16_t CardReader::getnrfilenames()
   return nrFiles;
 }
 
-void CardReader::cd(char * absolutPath)
-{
-  
-}
 
 #endif //SDSUPPORT
