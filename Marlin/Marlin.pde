@@ -70,6 +70,8 @@
 // M114 - Display current position
 
 //Custom M Codes
+// M17  - Enable/Power all stepper motors
+// M18  - Disaable all stepper motors; same as M84
 // M20  - List SD card
 // M21  - Init SD card
 // M22  - Release SD card
@@ -569,6 +571,13 @@ inline void process_commands()
 
     switch( (int)code_value() ) 
     {
+       case 17:
+        LCD_MESSAGEPGM("No move.");
+        enable_x(); 
+        enable_y(); 
+        enable_z(); 
+        enable_e(); 
+      break;
     #ifdef SDSUPPORT
 
     case 20: // M20 - list SD card
