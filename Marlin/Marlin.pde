@@ -176,6 +176,7 @@ static unsigned long stoptime=0;
 //=============================ROUTINES=============================
 //===========================================================================
 
+void get_arc_coordinates();
 
 extern "C"{
   extern unsigned int __bss_end;
@@ -588,7 +589,7 @@ inline void process_commands()
       starpos = (strchr(strchr_pointer + 4,'*'));
       if(starpos!=NULL)
         *(starpos-1)='\0';
-      card.selectFile(strchr_pointer + 4);
+      card.openFile(strchr_pointer + 4,true);
       break;
     case 24: //M24 - Start SD print
       card.startFileprint();
@@ -613,7 +614,7 @@ inline void process_commands()
         strchr_pointer = strchr(npos,' ') + 1;
         *(starpos-1) = '\0';
       }
-      card.startFilewrite(strchr_pointer+4);
+      card.openFile(strchr_pointer+4,false);
       
       break;
     case 29: //M29 - Stop SD write
@@ -694,7 +695,17 @@ inline void process_commands()
     case 109: 
     {// M109 - Wait for extruder heater to reach target.
         LCD_MESSAGEPGM("Heating...");
+        autotemp_enabled=false;
         if (code_seen('S')) setTargetHotend0(code_value());
+        #ifdef AUTOTEMP
+          if (code_seen('S')) autotemp_min=code_value();
+          if (code_seen('T')) autotemp_max=code_value();
+          if (code_seen('F')) 
+          {
+            autotemp_factor=code_value();
+            autotemp_enabled=true;
+          }
+        #endif
         
         setWatch();
         codenum = millis(); 
