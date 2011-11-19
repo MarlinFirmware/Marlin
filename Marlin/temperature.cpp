@@ -99,9 +99,9 @@ static unsigned long previous_millis_heater, previous_millis_bed_heater;
 #endif //MINTEMP
 #ifdef HEATER_0_MAXTEMP
   #ifdef HEATER_0_USES_AD595
-    static int maxttemp_0 = 0;
-  #else
     static int maxttemp_0 = 16383;
+  #else
+    static int maxttemp_0 = 0;
   #endif
 #endif //MAXTEMP
 
@@ -114,9 +114,9 @@ static unsigned long previous_millis_heater, previous_millis_bed_heater;
 #endif //MINTEMP
 #ifdef HEATER_1_MAXTEMP
   #ifdef HEATER_1_USES_AD595
-    static int maxttemp_1 = 0;
-  #else
     static int maxttemp_1 = 16383;
+  #else
+    static int maxttemp_1 = 0;
   #endif
 #endif //MAXTEMP
 
@@ -129,9 +129,9 @@ static unsigned long previous_millis_heater, previous_millis_bed_heater;
 #endif //BED_MINTEMP
 #ifdef BED_MAXTEMP
   #ifdef BED_USES_AD595
-    static int bed_maxttemp = 0;
-  #else
     static int bed_maxttemp = 16383;
+  #else
+    static int bed_maxttemp = 0;
   #endif
 #endif //BED_MAXTEMP
 
@@ -377,7 +377,7 @@ void tp_init()
   TIMSK0 |= (1<<OCIE0B);  
   
   // Wait for temperature measurement to settle
-  delay(500);
+  delay(200);
 
 #ifdef HEATER_0_MINTEMP
   minttemp_0 = temp2analog(HEATER_0_MINTEMP);
