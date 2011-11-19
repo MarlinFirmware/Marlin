@@ -695,7 +695,17 @@ inline void process_commands()
     case 109: 
     {// M109 - Wait for extruder heater to reach target.
         LCD_MESSAGEPGM("Heating...");
+        autotemp_enabled=false;
         if (code_seen('S')) setTargetHotend0(code_value());
+        #ifdef AUTOTEMP
+          if (code_seen('S')) autotemp_min=code_value();
+          if (code_seen('T')) autotemp_max=code_value();
+          if (code_seen('F')) 
+          {
+            autotemp_factor=code_value();
+            autotemp_enabled=true;
+          }
+        #endif
         
         setWatch();
         codenum = millis(); 

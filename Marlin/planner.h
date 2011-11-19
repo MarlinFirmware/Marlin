@@ -92,7 +92,13 @@ extern float max_xy_jerk; //speed than can be stopped at once, if i understand c
 extern float max_z_jerk;
 extern float mintravelfeedrate;
 extern unsigned long axis_steps_per_sqr_second[NUM_AXIS];
+
+
 #ifdef AUTOTEMP
-extern float high_e_speed;
+    extern bool autotemp_enabled;
+    extern float autotemp_max;
+    extern float autotemp_min;
+    extern float autotemp_factor;
 #endif
+
 #endif
