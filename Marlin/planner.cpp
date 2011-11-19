@@ -382,6 +382,7 @@ block_t *plan_get_current_block() {
 #ifdef AUTOTEMP
 void getHighESpeed()
 {
+  static float oldt=0;
   if(!autotemp_enabled)
     return;
   if(degTargetHotend0()+2<autotemp_min)  //probably temperature set to zero.
@@ -401,12 +402,21 @@ void getHighESpeed()
   }
    
   float g=autotemp_min+high*autotemp_factor;
-  float t=constrain(autotemp_min,g,autotemp_max);
+  float t=g;
+  if(t<autotemp_min)
+    t=autotemp_min;
+  if(t>autotemp_max)
+    t=autotemp_max;
+  if(oldt>t)
+  {
+    t=AUTOTEMP_OLDWEIGHT*oldt+(1-AUTOTEMP_OLDWEIGHT)*t;
+  }
+  oldt=t;
   setTargetHotend0(t);
-  SERIAL_ECHO_START;
-  SERIAL_ECHOPAIR("highe",high);
-  SERIAL_ECHOPAIR(" t",t);
-  SERIAL_ECHOLN("");
+//   SERIAL_ECHO_START;
+//   SERIAL_ECHOPAIR("highe",high);
+//   SERIAL_ECHOPAIR(" t",t);
+//   SERIAL_ECHOLN("");
 }
 #endif
 
