@@ -41,7 +41,7 @@
 #include "watchdog.h"
 
 
-#define VERSION_STRING  "1.0.0 Alpha 1"
+#define VERSION_STRING  "1.0.0 Beta 1"
 
 
 

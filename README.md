@@ -1,8 +1,7 @@
 
 WARNING: 
 --------
-THIS IN A PROCESS OF HEAVY OVERWORKING.
-DO NOT USE THIS ON YOUR MACHINE UNTIL FURTHER NOTICE!!!
+THIS IS THE BETA 1 FOR MARLIN 1.0.0
 
 Quick Information
 ===================
@@ -150,6 +149,7 @@ Advance:
 *   M205 -  advanced settings:  minimum travel speed S=while printing T=travel only,  B=minimum segment time X= maximum xy jerk, Z=maximum Z jerk
 
 EEPROM:
+
 *   M500 - stores paramters in EEPROM
 *   M501 - reads parameters from EEPROM (if you need reset them after you changed them temporarily).  
 *   M502 - reverts to the default "factory settings".  You still need to store them in EEPROM afterwards if you want to.
