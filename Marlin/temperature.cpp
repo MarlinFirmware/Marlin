@@ -430,21 +430,21 @@ void disable_heater()
   #if TEMP_0_PIN > -1
   target_raw[0]=0;
    #if HEATER_0_PIN > -1  
-     WRITE(HEATER_0_PIN,LOW);
+     digitalWrite(HEATER_0_PIN,LOW);
    #endif
   #endif
      
   #if TEMP_1_PIN > -1
     target_raw[1]=0;
     #if HEATER_1_PIN > -1 
-      WRITE(HEATER_1_PIN,LOW);
+      digitalWrite(HEATER_1_PIN,LOW);
     #endif
   #endif
       
   #if TEMP_2_PIN > -1
     target_raw[2]=0;
     #if HEATER_2_PIN > -1  
-      WRITE(HEATER_2_PIN,LOW);
+      digitalWrite(HEATER_2_PIN,LOW);
     #endif
   #endif 
 }
