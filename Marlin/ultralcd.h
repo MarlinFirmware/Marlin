@@ -113,7 +113,7 @@
           activeline=maxlines;
           curencoderpos=maxlines*lcdslow;
         }
-        if(lastactiveline!=activeline ||lastlineoffset!=lineoffset)
+        if(lastlineoffset!=lineoffset)
           force_lcd_update=true;
         lcd.setCursor(0,activeline);lcd.print((activeline+lineoffset)?'>':'\003');    
       } 
