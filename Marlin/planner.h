@@ -80,6 +80,7 @@ void plan_discard_current_block();
 block_t *plan_get_current_block();
 
 void check_axes_activity();
+uint8_t movesplanned();
 
 extern unsigned long minsegmenttime;
 extern float max_feedrate[4]; // set the max speeds

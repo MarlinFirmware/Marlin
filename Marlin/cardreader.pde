@@ -252,10 +252,11 @@ void CardReader::openFile(char* name,bool read)
       sdpos = 0;
       
       SERIAL_PROTOCOLLNPGM("File selected");
+      LCD_MESSAGE(fname);
     }
     else
     {
-     SERIAL_PROTOCOLPGM("open failed, File: ");
+      SERIAL_PROTOCOLPGM("open failed, File: ");
       SERIAL_PROTOCOL(fname);
       SERIAL_PROTOCOLLNPGM(".");
     }
@@ -273,6 +274,7 @@ void CardReader::openFile(char* name,bool read)
       saving = true;
       SERIAL_PROTOCOLPGM("Writing to file: ");
       SERIAL_PROTOCOLLN(name);
+      LCD_MESSAGE(fname);
     }
   }
   

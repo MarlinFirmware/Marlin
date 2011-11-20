@@ -64,6 +64,7 @@
     void showStatus();
     void showMainMenu();
     void showPrepare();
+    void showTune();
     void showControl();
     void showControlMotion();
     void showControlTemp();
@@ -74,6 +75,8 @@
     int8_t lastlineoffset;
     
     bool linechanging;
+    
+    bool tune;
     
   private:
     inline void updateActiveLines(const uint8_t &maxlines,volatile int &encoderpos)
@@ -89,8 +92,7 @@
         {  
           lineoffset--; 
           if(lineoffset<0) lineoffset=0; 
-          curencoderpos=lcdslow-1; 
-          force_lcd_update=true; 
+          curencoderpos=lcdslow-1;
         } 
         if(curencoderpos>(LCD_HEIGHT-1+1)*lcdslow) 
         { 
@@ -100,9 +102,9 @@
             lineoffset=maxlines+1-LCD_HEIGHT; 
           if(curencoderpos>maxlines*lcdslow) 
             curencoderpos=maxlines*lcdslow; 
-          force_lcd_update=true; 
         } 
-        lastencoderpos=encoderpos=curencoderpos; 
+        lastencoderpos=encoderpos=curencoderpos;
+        int lastactiveline=activeline;
         activeline=curencoderpos/lcdslow;
         if(activeline<0) activeline=0;
         if(activeline>LCD_HEIGHT-1) activeline=LCD_HEIGHT-1;
@@ -111,6 +113,8 @@
           activeline=maxlines;
           curencoderpos=maxlines*lcdslow;
         }
+        if(lastactiveline!=activeline ||lastlineoffset!=lineoffset)
+          force_lcd_update=true;
         lcd.setCursor(0,activeline);lcd.print((activeline+lineoffset)?'>':'\003');    
       } 
     }
@@ -126,7 +130,6 @@
   };
 
   //conversion routines, could need some overworking
-  char *fillto(int8_t n,char *c);
   char *ftostr51(const float &x);
   char *ftostr31(const float &x);
   char *ftostr3(const float &x);

@@ -65,6 +65,7 @@ inline int intround(const float &x){return int(0.5+x);}
 void lcd_status(const char* message)
 {
   strncpy(messagetext,message,LCD_WIDTH);
+  messagetext[strlen(message)]=0;
 }
 
 void lcd_statuspgm(const char* message)
@@ -79,6 +80,7 @@ void lcd_statuspgm(const char* message)
     cnt++;
     ch=pgm_read_byte(++message);
   }
+  *target=0;
 }
 
 inline void clear()
@@ -280,6 +282,7 @@ MainMenu::MainMenu()
   #endif
   lcd_init();
   linechanging=false;
+  tune=false;
 }
 
 void MainMenu::showStatus()
@@ -373,7 +376,11 @@ void MainMenu::showStatus()
   if(messagetext[0]!='\0')
   {
     lcd.setCursor(0,LCD_HEIGHT-1);
-    lcd.print(fillto(LCD_WIDTH,messagetext));
+    lcd.print(messagetext);
+    uint8_t n=strlen(messagetext);
+    for(int8_t i=0;i<LCD_WIDTH-n;i++)
+      lcd.print(" ");
+    
     messagetext[0]='\0';
   }
   
@@ -419,7 +426,10 @@ void MainMenu::showStatus()
   if(messagetext[0]!='\0')
   {
     lcd.setCursor(0,LCD_HEIGHT-1);
-    lcd.print(fillto(LCD_WIDTH,messagetext));
+    lcd.print(messagetext);
+    uint8_t n=strlen(messagetext);
+    for(int8_t i=0;i<LCD_WIDTH-n;i++)
+      lcd.print(" ");
     messagetext[0]='\0';
   }
 
@@ -471,6 +481,166 @@ void MainMenu::showPrepare()
  updateActiveLines(ItemP_disstep,encoderpos);
 }
 
+enum {ItemT_exit,ItemT_speed,ItemT_flow,ItemT_nozzle,ItemT_fan};
+
+void MainMenu::showTune()
+{ 
+  uint8_t line=0;
+  clearIfNecessary();
+ for(int8_t i=lineoffset;i<lineoffset+LCD_HEIGHT;i++)
+ {
+   //Serial.println((int)(line-lineoffset));
+  switch(i)
+  {
+  case ItemT_exit:
+      MENUITEM(  lcdprintPGM(" Tune")  ,  BLOCK;status=Main_Menu;beepshort(); ) ;
+      break;
+  case ItemT_speed:
+    {
+      if(force_lcd_update)
+      {
+        lcd.setCursor(0,line);lcdprintPGM(" Speed:");
+        lcd.setCursor(13,line);lcd.print(ftostr3(feedmultiply));
+      }
+      
+      if((activeline==line) )
+      {
+        if(CLICKED) //nalogWrite(FAN_PIN,  fanpwm);
+        {
+          linechanging=!linechanging;
+          if(linechanging)
+          {
+              encoderpos=feedmultiply;
+          }
+          else
+          {
+            encoderpos=activeline*lcdslow;
+            beepshort();
+          }
+          BLOCK;
+        }
+        if(linechanging)
+        {
+          if(encoderpos<1) encoderpos=1;
+          if(encoderpos>400) encoderpos=400;
+          feedmultiply = encoderpos;
+          feedmultiplychanged=true;
+          lcd.setCursor(13,line);lcd.print(itostr3(encoderpos));
+        }
+      }
+    }break;
+    case ItemT_nozzle:
+      {
+        if(force_lcd_update)
+        {
+          lcd.setCursor(0,line);lcdprintPGM(" \002Nozzle:");
+          lcd.setCursor(13,line);lcd.print(ftostr3(intround(degTargetHotend0())));
+        }
+        
+        if((activeline==line) )
+        {
+          if(CLICKED)
+          {
+            linechanging=!linechanging;
+            if(linechanging)
+            {
+               encoderpos=intround(degTargetHotend0());
+            }
+            else
+            {
+              setTargetHotend0(encoderpos);
+              encoderpos=activeline*lcdslow;
+              beepshort();
+            }
+            BLOCK;
+          }
+          if(linechanging)
+          {
+            if(encoderpos<0) encoderpos=0;
+            if(encoderpos>260) encoderpos=260;
+            lcd.setCursor(13,line);lcd.print(itostr3(encoderpos));
+          }
+        }
+      }break;
+      
+      case ItemT_fan:
+      {
+        if(force_lcd_update)
+        {
+          lcd.setCursor(0,line);lcdprintPGM(" Fan speed:");
+          lcd.setCursor(13,line);lcd.print(ftostr3(fanpwm));
+        }
+        
+        if((activeline==line) )
+        {
+          if(CLICKED) //nalogWrite(FAN_PIN,  fanpwm);
+          {
+            linechanging=!linechanging;
+            if(linechanging)
+            {
+               encoderpos=fanpwm;
+            }
+            else
+            {
+              encoderpos=activeline*lcdslow;
+              beepshort();
+            }
+            BLOCK;
+          }
+          if(linechanging)
+          {
+            if(encoderpos<0) encoderpos=0;
+            if(encoderpos>255) encoderpos=255;
+            fanpwm=encoderpos;
+              analogWrite(FAN_PIN,  fanpwm);
+            lcd.setCursor(13,line);lcd.print(itostr3(encoderpos));
+          }
+        }
+      }break;
+      case ItemT_flow://axis_steps_per_unit[i] = code_value();
+         {
+      if(force_lcd_update)
+        {
+          lcd.setCursor(0,line);lcdprintPGM(" Flow:");
+          lcd.setCursor(13,line);lcd.print(itostr4(axis_steps_per_unit[3]));
+        }
+        
+        if((activeline==line) )
+        {
+          if(CLICKED)
+          {
+            linechanging=!linechanging;
+            if(linechanging)
+            {
+               encoderpos=(int)axis_steps_per_unit[3];
+            }
+            else
+            {
+              float factor=float(encoderpos)/float(axis_steps_per_unit[3]);
+              position[E_AXIS]=lround(position[E_AXIS]*factor);
+              //current_position[3]*=factor;
+              axis_steps_per_unit[E_AXIS]= encoderpos;
+              encoderpos=activeline*lcdslow;
+                
+            }
+            BLOCK;
+            beepshort();
+          }
+          if(linechanging)
+          {
+            if(encoderpos<5) encoderpos=5;
+            if(encoderpos>9999) encoderpos=9999;
+            lcd.setCursor(13,line);lcd.print(itostr4(encoderpos));
+          }
+        }
+      }break; 
+    default:   
+      break;
+  }
+  line++;
+ }
+ updateActiveLines(ItemT_fan,encoderpos);
+}
 
 //does not work
 // #define MENUCHANGEITEM(repaint_action,  enter_action, accept_action,  change_action) \
@@ -510,7 +680,7 @@ void MainMenu::showControlTemp()
         if(force_lcd_update)
         {
           lcd.setCursor(0,line);lcdprintPGM(" \002Nozzle:");
-          lcd.setCursor(13,line);lcd.print(ftostr3(intround(degHotend0())));
+          lcd.setCursor(13,line);lcd.print(ftostr3(intround(degTargetHotend0())));
         }
         
         if((activeline==line) )
@@ -520,7 +690,7 @@ void MainMenu::showControlTemp()
             linechanging=!linechanging;
             if(linechanging)
             {
-               encoderpos=intround(degHotend0());
+               encoderpos=intround(degTargetHotend0());
             }
             else
             {
@@ -558,10 +728,7 @@ void MainMenu::showControlTemp()
             }
             else
             {
-              fanpwm = constrain(encoderpos,0,255);
-              encoderpos=fanpwm;
-              analogWrite(FAN_PIN,  fanpwm);
-
+              encoderpos=activeline*lcdslow;
               beepshort();
             }
             BLOCK;
@@ -1246,7 +1413,22 @@ void MainMenu::showMainMenu()
   #ifndef ULTIPANEL
     force_lcd_update=false;
   #endif
-   
+  if(tune)
+  {
+    if(!(movesplanned() ||card.sdprinting))
+    {
+      force_lcd_update=true;
+      tune=false;
+    }
+  }
+  else 
+  {
+    if(movesplanned() ||card.sdprinting)
+    {
+      force_lcd_update=true;
+      tune=true;
+    }
+  } 
   clearIfNecessary();
   for(int8_t line=0;line<LCD_HEIGHT;line++)
   {
@@ -1256,7 +1438,7 @@ void MainMenu::showMainMenu()
         MENUITEM(  lcdprintPGM(" Watch")  ,  BLOCK;status=Main_Status;beepshort(); ) ;
        break;
       case ItemM_prepare:
-        MENUITEM(  lcdprintPGM(" Prepare \x7E")  ,  BLOCK;status=Main_Prepare;beepshort(); ) ;
+        MENUITEM(  if(!tune) lcdprintPGM(" Prepare \x7E");else  lcdprintPGM(" Tune \x7E"); ,  BLOCK;status=Main_Prepare;beepshort(); ) ;
       break;
        
       case ItemM_control:
@@ -1363,7 +1545,14 @@ void MainMenu::update()
       }break;
       case Main_Prepare: 
       {
-        showPrepare(); 
+        if(tune)
+        {
+          showTune();
+        }
+        else
+        {
+          showPrepare(); 
+        }
       }break;
       case Main_Control:
       {
@@ -1476,26 +1665,6 @@ char *ftostr51(const float &x)
   conv[6]=(xx)%10+'0';
   conv[7]=0;
   return conv;
-}
-
-char *fillto(int8_t n,char *c)
-{
-  static char ret[25];
-  bool endfound=false;
-  for(int8_t i=0;i<n;i++)
-  {
-    ret[i]=c[i];
-    if(c[i]==0)
-    {
-      endfound=true;
-    }
-    if(endfound)
-    {
-      ret[i]=' ';
-    }
-  }
-  ret[n]=0;
-  return ret;
 }
 
 
