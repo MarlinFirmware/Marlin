@@ -465,24 +465,22 @@ inline bool code_seen(char code)
     destination[LETTER##_AXIS] = 1.5 * LETTER##_MAX_LENGTH * LETTER##_HOME_DIR; \
     feedrate = homing_feedrate[LETTER##_AXIS]; \
     prepare_move(); \
-    st_synchronize();\
     \
     current_position[LETTER##_AXIS] = 0;\
     plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);\
     destination[LETTER##_AXIS] = -5 * LETTER##_HOME_DIR;\
     prepare_move(); \
-    st_synchronize();\
     \
     destination[LETTER##_AXIS] = 10 * LETTER##_HOME_DIR;\
     feedrate = homing_feedrate[LETTER##_AXIS]/2 ;  \
     prepare_move(); \
-    st_synchronize();\
     \
     current_position[LETTER##_AXIS] = (LETTER##_HOME_DIR == -1) ? 0 : LETTER##_MAX_LENGTH;\
     plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);\
     destination[LETTER##_AXIS] = current_position[LETTER##_AXIS];\
     feedrate = 0.0;\
     st_synchronize();\
+    plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);\
     endstops_hit_on_purpose();\
   }
 
@@ -680,7 +678,7 @@ inline void process_commands()
     case 140: // M140 set bed temp
       if (code_seen('S')) setTargetBed(code_value());
       break;
-    case 105: // M105
+    case 105 : // M105
       //SERIAL_ECHOLN(freeMemory());
        //test watchdog:
        //delay(20000);
@@ -817,7 +815,7 @@ inline void process_commands()
       axis_relative_modes[3] = true;
       break;
     case 18: //compatibility
-    case 84:
+    case 84: // M84
       if(code_seen('S')){ 
         stepper_inactive_time = code_value() * 1000; 
       }
@@ -854,14 +852,14 @@ inline void process_commands()
       SERIAL_PROTOCOL(current_position[Z_AXIS]);
       SERIAL_PROTOCOLPGM("E:");      
       SERIAL_PROTOCOL(current_position[E_AXIS]);
-      #ifdef DEBUG_STEPS
-        SERIAL_PROTOCOLPGM(" Count X:");
-        SERIAL_PROTOCOL(float(count_position[X_AXIS])/axis_steps_per_unit[X_AXIS]);
-        SERIAL_PROTOCOLPGM("Y:");
-        SERIAL_PROTOCOL(float(count_position[Y_AXIS])/axis_steps_per_unit[Y_AXIS]);
-        SERIAL_PROTOCOLPGM("Z:");
-        SERIAL_PROTOCOL(float(count_position[Z_AXIS])/axis_steps_per_unit[Z_AXIS]);
-      #endif
+      
+      SERIAL_PROTOCOLPGM(" Count X:");
+      SERIAL_PROTOCOL(float(st_get_position(X_AXIS))/axis_steps_per_unit[X_AXIS]);
+      SERIAL_PROTOCOLPGM("Y:");
+      SERIAL_PROTOCOL(float(st_get_position(Y_AXIS))/axis_steps_per_unit[Y_AXIS]);
+      SERIAL_PROTOCOLPGM("Z:");
+      SERIAL_PROTOCOL(float(st_get_position(Z_AXIS))/axis_steps_per_unit[Z_AXIS]);
+      
       SERIAL_PROTOCOLLN("");
       break;
     case 119: // M119

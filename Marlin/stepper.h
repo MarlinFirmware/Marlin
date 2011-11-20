@@ -29,16 +29,16 @@ void st_init();
 // Block until all buffered steps are executed
 void st_synchronize();
 
+// Set current position in steps
+void st_set_position(const long &x, const long &y, const long &z, const long &e);
+
+// Get current position in steps
+long st_get_position(char axis);
+
 // The stepper subsystem goes to sleep when it runs out of things to execute. Call this
 // to notify the subsystem that it is time to go to work.
 void st_wake_up();
 
-// if DEBUG_STEPS is enabled, M114 can be used to compare two methods of determining the X,Y,Z position of the printer.
-// for debugging purposes only, should be disabled by default
-#ifdef DEBUG_STEPS
-  extern volatile long count_position[NUM_AXIS];
-  extern volatile int count_direction[NUM_AXIS];
-#endif
   
 void checkHitEndstops(); //call from somwhere to create an serial error message with the locations the endstops where hit, in case they were triggered
 void endstops_hit_on_purpose(); //avoid creation of the message, i.e. after homeing and before a routine call of checkHitEndstops();
