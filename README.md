@@ -1,8 +1,11 @@
-WARNING: THIS IN A PROCESS OF HEAVY OVERWORKING.
+
+WARNING: 
+--------
+THIS IN A PROCESS OF HEAVY OVERWORKING.
 DO NOT USE THIS ON YOUR MACHINE UNTIL FURTHER NOTICE!!!
 
-===========================================
-
+Quick Information
+===================
 This RepRap firmware is a mashup between <a href="https://github.com/kliment/Sprinter">Sprinter</a>, <a href="https://github.com/simen/grbl/tree">grbl</a> and many original parts.
 
 Derived from Sprinter and Grbl by Erik van der Zalm.
@@ -14,33 +17,32 @@ Lampmaker, Bradley Feldman, and others...
 
 
 Features:
-* Interrupt based movement with real linear acceleration
-* High steprate
-* Look ahead (Keep the speed high when possible. High cornering speed)
-* Interrupt based temperature protection
-* preliminary support for Matthew Roberts advance algorithm 
-* For more info see: http://reprap.org/pipermail/reprap-dev/2011-May/003323.html
-* Full endstop support
-* SD Card support
-* SD Card folders (works in pronterface)
-* LCD support (ideally 20x4) 
-* LCD menu system for autonomous SD card printing, controlled by an click-encoder. 
-* EEPROM storage of e.g. max-velocity, max-acceleration, and similar variables
-* many small but handy things originating from bkubicek's fork.
-* Arc support
-* Temperature oversampling
-* Dynamic Temperature setpointing aka "AutoTemp"
-* Support for QTMarlin, a very beta GUI for PID-tuning and velocity-acceleration testing. https://github.com/bkubicek/QTMarlin
-* Endstop trigger reporting to the host software.
-* Updated sdcardlib
-* Heater power reporting. Useful for PID monitoring.
+*   Interrupt based movement with real linear acceleration
+*   High steprate
+*   Look ahead (Keep the speed high when possible. High cornering speed)
+*   Interrupt based temperature protection
+*   preliminary support for Matthew Roberts advance algorithm 
+*   For more info see: http://reprap.org/pipermail/reprap-dev/2011-May/003323.html
+*   Full endstop support
+*   SD Card support
+*   SD Card folders (works in pronterface)
+*   LCD support (ideally 20x4) 
+*   LCD menu system for autonomous SD card printing, controlled by an click-encoder. 
+*   EEPROM storage of e.g. max-velocity, max-acceleration, and similar variables
+*   many small but handy things originating from bkubicek's fork.
+*   Arc support
+*   Temperature oversampling
+*   Dynamic Temperature setpointing aka "AutoTemp"
+*   Support for QTMarlin, a very beta GUI for PID-tuning and velocity-acceleration testing. https://github.com/bkubicek/QTMarlin
+*   Endstop trigger reporting to the host software.
+*   Updated sdcardlib
+*   Heater power reporting. Useful for PID monitoring.
 
 This firmware is optimized for Ultimaker's gen6 electronics (including the Ultimaker 1.5.x daughterboard and Arduino Mega 2560).
 
 The default baudrate is 250000. This baudrate has less jitter and hence errors than the usual 115200 baud, but is less supported by drivers and host-environments.
 
 
-========================================================================================
 Differences and additions to the already good Sprinter firmware:
 ================================================================
 
@@ -114,7 +116,6 @@ Interrupt based temperature measurements:
 An interrupt is used to manage ADC conversions, and enforce checking for critical temperatures.
 This leads to less blocking in the heater management routine.
 
-========================================================================================
 Non-standard M-Codes, different to an old version of sprinter:
 ==============================================================
 G2  - CW ARC
