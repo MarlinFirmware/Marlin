@@ -1,4 +1,5 @@
 #include "cardreader.h"
+//#include <unistd.h>
 #ifdef SDSUPPORT
 
 CardReader::CardReader()
@@ -36,11 +37,7 @@ char *createFilename(char *buffer,const dir_t &p) //buffer>12characters
   return buffer;
 }
 
-// bool SdFat::chdir(bool set_cwd) {
-//   if (set_cwd) SdBaseFile::cwd_ = &vwd_;
-//   vwd_.close();
-//   return vwd_.openRoot(&vol_);
-// }
+
 void  CardReader::lsDive(char *prepend,SdFile parent)
 {
   dir_t p;
@@ -85,11 +82,19 @@ void  CardReader::lsDive(char *prepend,SdFile parent)
     {
       if (p.name[0] == DIR_NAME_FREE) break;
       if (p.name[0] == DIR_NAME_DELETED || p.name[0] == '.'|| p.name[0] == '_') continue;
+      if ( p.name[0] == '.')
+      {
+        if ( p.name[1] != '.')
+        continue;
+      }
       if (!DIR_IS_FILE_OR_SUBDIR(&p)) continue;
+      filenameIsDir=DIR_IS_SUBDIR(&p);
       
-      
-      if(p.name[8]!='G') continue;
-      if(p.name[9]=='~') continue;
+      if(!filenameIsDir)
+      {
+        if(p.name[8]!='G') continue;
+        if(p.name[9]=='~') continue;
+      }
       //if(cnt++!=nr) continue;
       createFilename(filename,p);
       if(lsAction==LS_SerialPrint)
@@ -126,33 +131,35 @@ void CardReader::ls()
 void CardReader::initsd()
 {
   cardOK = false;
-  #if SDSS >- 1
-    if(root.isOpen())
-      root.close();
-    if (!card.init(SPI_FULL_SPEED,SDSS))
-    {
-      //if (!card.init(SPI_HALF_SPEED,SDSS))
-      SERIAL_ECHO_START;
-      SERIAL_ECHOLNPGM("SD init fail");
-    }
-    else if (!volume.init(&card))
-    {
-      SERIAL_ERROR_START;
-      SERIAL_ERRORLNPGM("volume.init failed");
-    }
-    else if (!root.openRoot(&volume)) 
-    {
-      SERIAL_ERROR_START;
-      SERIAL_ERRORLNPGM("openRoot failed");
-    }
-    else 
-    {
-      cardOK = true;
-      SERIAL_ECHO_START;
-      SERIAL_ECHOLNPGM("SD card ok");
-    }
-    curDir=&root;
-  #endif //SDSS
+  if(root.isOpen())
+    root.close();
+  if (!card.init(SPI_FULL_SPEED,SDSS))
+  {
+    //if (!card.init(SPI_HALF_SPEED,SDSS))
+    SERIAL_ECHO_START;
+    SERIAL_ECHOLNPGM("SD init fail");
+  }
+  else if (!volume.init(&card))
+  {
+    SERIAL_ERROR_START;
+    SERIAL_ERRORLNPGM("volume.init failed");
+  }
+  else if (!root.openRoot(&volume)) 
+  {
+    SERIAL_ERROR_START;
+    SERIAL_ERRORLNPGM("openRoot failed");
+  }
+  else 
+  {
+    cardOK = true;
+    SERIAL_ECHO_START;
+    SERIAL_ECHOLNPGM("SD card ok");
+  }
+  curDir=&root;
+  if(!workDir.openRoot(&volume))
+  {
+    SERIAL_ECHOLNPGM("workDir open failed");
+  }
 }
 void CardReader::release()
 {
@@ -228,6 +235,10 @@ void CardReader::openFile(char* name,bool read)
       }
       
     }
+  }
+  else //relative path
+  {
+    curDir=&workDir;
   }
   if(read)
   {
@@ -362,6 +373,7 @@ void CardReader::closefile()
 
 void CardReader::getfilename(const uint8_t nr)
 {
+  curDir=&workDir;
   lsAction=LS_GetFilename;
   nrFiles=nr;
   curDir->rewind();
@@ -371,12 +383,45 @@ void CardReader::getfilename(const uint8_t nr)
 
 uint16_t CardReader::getnrfilenames()
 {
+  curDir=&workDir;
   lsAction=LS_Count;
   nrFiles=0;
   curDir->rewind();
   lsDive("",*curDir);
+  //SERIAL_ECHOLN(nrFiles);
   return nrFiles;
 }
 
+void CardReader::chdir(const char * relpath)
+{
+  SdFile newfile;
+  SdFile *parent=&root;
+  
+  if(workDir.isOpen())
+    parent=&workDir;
+  
+  if(!newfile.open(*parent,relpath, O_READ))
+  {
+   SERIAL_ECHO_START;
+   SERIAL_ECHOPGM("Cannot enter subdir:");
+   SERIAL_ECHOLN(relpath);
+  }
+  else
+  {
+    workDirParentParent=workDirParent;
+    workDirParent=*parent;
+    
+    workDir=newfile;
+  }
+}
+
+void CardReader::updir()
+{
+  if(!workDir.isRoot())
+  {
+    workDir=workDirParent;
+    workDirParent=workDirParentParent;
+  }
+}
 
 #endif //SDSUPPORT

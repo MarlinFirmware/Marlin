@@ -28,7 +28,8 @@ public:
   
 
   void ls();
-  
+  void chdir(const char * relpath);
+  void updir();
 
   inline bool eof() { return sdpos>=filesize ;};
   inline int16_t get() {  sdpos = file.curPosition();return (int16_t)file.read();};
@@ -40,8 +41,9 @@ public:
   bool sdprinting ;  
   bool cardOK ;
   char filename[11];
+  bool filenameIsDir;
 private:
-  SdFile root,*curDir;
+  SdFile root,*curDir,workDir,workDirParent,workDirParentParent;
   Sd2Card card;
   SdVolume volume;
   SdFile file;
