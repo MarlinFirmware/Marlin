@@ -10,7 +10,7 @@ This RepRap firmware is a mashup between <a href="https://github.com/kliment/Spr
 
 Derived from Sprinter and Grbl by Erik van der Zalm.
 Sprinters lead developers are Kliment and caru.
-Grbls lead developer is Simen Svale Skogsrud.
+Grbls lead developer is Simen Svale Skogsrud. Sonney Jeon (Chamnit) improved some parts of grbl
 A fork by bkubicek for the Ultimaker was merged, and further development was aided by him.
 Some features have been added by:
 Lampmaker, Bradley Feldman, and others...
@@ -23,7 +23,7 @@ Features:
 *   Look ahead (Keep the speed high when possible. High cornering speed)
 *   Interrupt based temperature protection
 *   preliminary support for Matthew Roberts advance algorithm 
-*   For more info see: http://reprap.org/pipermail/reprap-dev/2011-May/003323.html
+    For more info see: http://reprap.org/pipermail/reprap-dev/2011-May/003323.html
 *   Full endstop support
 *   SD Card support
 *   SD Card folders (works in pronterface)
@@ -38,8 +38,6 @@ Features:
 *   Endstop trigger reporting to the host software.
 *   Updated sdcardlib
 *   Heater power reporting. Useful for PID monitoring.
-
-This firmware is optimized for Ultimaker's gen6 electronics (including the Ultimaker 1.5.x daughterboard and Arduino Mega 2560).
 
 The default baudrate is 250000. This baudrate has less jitter and hence errors than the usual 115200 baud, but is less supported by drivers and host-environments.
 
@@ -156,12 +154,15 @@ EEPROM:
 *   M501 - reads parameters from EEPROM (if you need reset them after you changed them temporarily).  
 *   M502 - reverts to the default "factory settings".  You still need to store them in EEPROM afterwards if you want to.
 
+
 Configuring and compilation:
 ============================
 
-
 Install the arduino software IDE/toolset v22
    http://www.arduino.cc/en/Main/Software
+
+For gen6 and sanguinololu the Sanguino directory in the Marlin dir needs to be copied to the arduino environment.
+  copy Marlin\sanguino <arduino home>\hardware\Sanguino
 
 Install Ultimaker's RepG 25 build
     http://software.ultimaker.com
