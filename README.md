@@ -17,6 +17,7 @@ Lampmaker, Bradley Feldman, and others...
 
 
 Features:
+
 *   Interrupt based movement with real linear acceleration
 *   High steprate
 *   Look ahead (Keep the speed high when possible. High cornering speed)
@@ -146,7 +147,7 @@ EEPROM:
 M500 - stores paramters in EEPROM
 M501 - reads parameters from EEPROM (if you need reset them after you changed them temporarily).  
 M502 - reverts to the default "factory settings".  You still need to store them in EEPROM afterwards if you want to.
-========================================================================================
+
 Configuring and compilation:
 ============================
 
