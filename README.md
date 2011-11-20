@@ -54,6 +54,7 @@ This is only possible, if some future moves are already processed, hence the nam
 It leads to less over-deposition at corners, especially at flat angles.
 
 *Arc support:*
+
 Splic3r can find curves that, although broken into segments, were ment to describe an arc.
 Marlin is able to print those arcs. The advantage is the firmware can choose the resolution,
 and can perform the arc with nearly constant velocity, resulting in a nice finish. 
@@ -118,13 +119,15 @@ This leads to less blocking in the heater management routine.
 
 Non-standard M-Codes, different to an old version of sprinter:
 ==============================================================
+Movement:
+
 *   G2  - CW ARC
 *   G3  - CCW ARC
 
 General:
 
-*   M17  - Enable/Power all stepper motors
-*   M18  - Disable all stepper motors; same as M84
+*   M17  - Enable/Power all stepper motors. Compatibility to ReplicatorG.
+*   M18  - Disable all stepper motors; same as M84.Compatibility to ReplicatorG.
 *   M30  - Print time since last M109 or SD card start to serial
 *   M42  - Change pin status via gcode
 *   M80  - Turn on Power Supply
@@ -137,9 +140,9 @@ Movement variables:
 *   M202 - Set max acceleration in units/s^2 for travel moves (M202 X1000 Y1000) Unused in Marlin!!
 *   M203 - Set maximum feedrate that your machine can sustain (M203 X200 Y200 Z300 E10000) in mm/sec
 *   M204 - Set default acceleration: S normal moves T filament only moves (M204 S3000 T7000) im mm/sec^2  also sets minimum segment time in ms (B20000) to prevent buffer underruns and M20 minimum feedrate
-*   M220 - set build speed factor override percentage S:factor in percent ; aka "realtime tuneing in the gcode"
+*   M220 - set build speed mulitplying S:factor in percent ; aka "realtime tuneing in the gcode". So you can slow down if you have islands in one height-range, and speed up otherwise.
 *   M301 - Set PID parameters P I and D
-*   M400 - Finish all moves
+*   M400 - Finish all buffered moves.
 
 Advance:
 
