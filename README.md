@@ -1,4 +1,3 @@
-
 WARNING: 
 --------
 THIS IS THE BETA 1 FOR MARLIN 1.0.0
@@ -54,7 +53,7 @@ It leads to less over-deposition at corners, especially at flat angles.
 
 *Arc support:*
 
-Splic3r can find curves that, although broken into segments, were ment to describe an arc.
+Slic3r can find curves that, although broken into segments, were ment to describe an arc.
 Marlin is able to print those arcs. The advantage is the firmware can choose the resolution,
 and can perform the arc with nearly constant velocity, resulting in a nice finish. 
 Also, less serial communication is needed.
