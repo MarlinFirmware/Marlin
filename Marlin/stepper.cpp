@@ -78,7 +78,8 @@ static bool old_z_min_endstop=false;
 static bool old_z_max_endstop=false;
 
 static bool bussy_error=false;
-unsigned char OCR1A_error=12345;
+unsigned short OCR1A_error=12345;
+unsigned short OCR1A_nominal;
 
 volatile long count_position[NUM_AXIS] = { 0, 0, 0, 0};
 volatile char count_direction[NUM_AXIS] = { 1, 1, 1, 1};
@@ -270,6 +271,7 @@ inline void trapezoid_generator_reset() {
   acc_step_rate = current_block->initial_rate;
   acceleration_time = calc_timer(acc_step_rate);
   OCR1A = acceleration_time;
+  OCR1A_nominal = calc_timer(current_block->nominal_rate);
 }
 
 // "The Stepper Driver Interrupt" - This timer interrupt is the workhorse.  
@@ -477,11 +479,11 @@ ISR(TIMER1_COMPA_vect)
 
       // step_rate to timer interval
       timer = calc_timer(acc_step_rate);
+      OCR1A = timer;
+      acceleration_time += timer;
       #ifdef ADVANCE
         advance += advance_rate;
       #endif
-      acceleration_time += timer;
-      OCR1A = timer;
     } 
     else if (step_events_completed > current_block->decelerate_after) {   
       MultiU24X24toH16(step_rate, deceleration_time, current_block->acceleration_rate);
@@ -499,17 +501,16 @@ ISR(TIMER1_COMPA_vect)
 
       // step_rate to timer interval
       timer = calc_timer(step_rate);
+      OCR1A = timer;
+      deceleration_time += timer;
       #ifdef ADVANCE
         advance -= advance_rate;
         if(advance < final_advance)
           advance = final_advance;
       #endif //ADVANCE
-      deceleration_time += timer;
-      OCR1A = timer;
     }
     else {
-      timer = calc_timer(current_block->nominal_rate);
-      OCR1A = timer;
+      OCR1A = OCR1A_nominal;
     }
     
     // If current block is finished, reset pointer 
