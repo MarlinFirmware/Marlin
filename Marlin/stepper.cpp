@@ -77,7 +77,7 @@ static bool old_y_max_endstop=false;
 static bool old_z_min_endstop=false;
 static bool old_z_max_endstop=false;
 
-static bool bussy_error=false;
+static bool busy_error=false;
 unsigned short OCR1A_error=12345;
 unsigned short OCR1A_nominal;
 
@@ -166,11 +166,11 @@ asm volatile ( \
 
 void checkStepperErrors()
 {
-  if(bussy_error) {
+  if(busy_error) {
     SERIAL_ERROR_START
     SERIAL_ERROR(OCR1A_error);
     SERIAL_ERRORLNPGM(" ISR overtaking itself.");
-    bussy_error = false;
+    busy_error = false;
   }
 }
 
@@ -280,7 +280,7 @@ ISR(TIMER1_COMPA_vect)
 {        
   if(busy){ 
     OCR1A_error = OCR1A;
-    bussy_error = true;
+    busy_error = true;
     OCR1A = 30000;
     return; 
   } // The busy-flag is used to avoid reentering this interrupt
