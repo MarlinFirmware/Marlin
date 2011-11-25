@@ -758,11 +758,11 @@ void MainMenu::showControlTemp()
             linechanging=!linechanging;
             if(linechanging)
             {
-               encoderpos=(int)Kp/5;
+               encoderpos=(int)Kp;
             }
             else
             {
-              Kp= encoderpos*5;
+              Kp= encoderpos;
               encoderpos=activeline*lcdslow;
                 
             }
@@ -772,8 +772,8 @@ void MainMenu::showControlTemp()
           if(linechanging)
           {
             if(encoderpos<1) encoderpos=1;
-            if(encoderpos>9990/5) encoderpos=9990/5;
-            lcd.setCursor(13,line);lcd.print(itostr4(encoderpos*5));
+            if(encoderpos>9990) encoderpos=9990;
+            lcd.setCursor(13,line);lcd.print(itostr4(encoderpos));
           }
         }
       }break;
@@ -782,7 +782,7 @@ void MainMenu::showControlTemp()
       if(force_lcd_update)
         {
           lcd.setCursor(0,line);lcdprintPGM(" PID-I: ");
-          lcd.setCursor(13,line);lcd.print(ftostr51(Ki));
+          lcd.setCursor(13,line);lcd.print(ftostr51(Ki/PID_dT));
         }
         
         if((activeline==line) )
@@ -792,11 +792,11 @@ void MainMenu::showControlTemp()
             linechanging=!linechanging;
             if(linechanging)
             {
-               encoderpos=(int)(Ki*10);
+               encoderpos=(int)(Ki*10/PID_dT);
             }
             else
             {
-              Ki= encoderpos/10.;
+              Ki= encoderpos/10.*PID_dT;
               encoderpos=activeline*lcdslow;
                 
             }
@@ -816,7 +816,7 @@ void MainMenu::showControlTemp()
       if(force_lcd_update)
         {
           lcd.setCursor(0,line);lcdprintPGM(" PID-D: ");
-          lcd.setCursor(13,line);lcd.print(itostr4(Kd));
+          lcd.setCursor(13,line);lcd.print(itostr4(Kd*PID_dT));
         }
         
         if((activeline==line) )
@@ -826,11 +826,11 @@ void MainMenu::showControlTemp()
             linechanging=!linechanging;
             if(linechanging)
             {
-               encoderpos=(int)Kd/5;
+               encoderpos=(int)(Kd/5./PID_dT);
             }
             else
             {
-              Kd= encoderpos*5;
+              Kd= encoderpos;
               encoderpos=activeline*lcdslow;
                 
             }
@@ -840,8 +840,8 @@ void MainMenu::showControlTemp()
           if(linechanging)
           {
             if(encoderpos<0) encoderpos=0;
-            if(encoderpos>9990/5) encoderpos=9990/5;
-            lcd.setCursor(13,line);lcd.print(itostr4(encoderpos*5));
+            if(encoderpos>9990) encoderpos=9990;
+            lcd.setCursor(13,line);lcd.print(itostr4(encoderpos));
           }
         }
       }break;   

@@ -136,10 +136,10 @@ inline void RetrieveSettings(bool def=false)
     SERIAL_ECHO_START;
       SERIAL_ECHOLNPGM("Maximum feedrates (mm/s):");
       SERIAL_ECHO_START;
-      SERIAL_ECHOPAIR("  M203 X",max_feedrate[0]/60);
-      SERIAL_ECHOPAIR(" Y",max_feedrate[1]/60 ); 
-      SERIAL_ECHOPAIR(" Z", max_feedrate[2]/60 ); 
-      SERIAL_ECHOPAIR(" E", max_feedrate[3]/60);
+      SERIAL_ECHOPAIR("  M203 X",max_feedrate[0]);
+      SERIAL_ECHOPAIR(" Y",max_feedrate[1] ); 
+      SERIAL_ECHOPAIR(" Z", max_feedrate[2] ); 
+      SERIAL_ECHOPAIR(" E", max_feedrate[3]);
       SERIAL_ECHOLN("");
     SERIAL_ECHO_START;
       SERIAL_ECHOLNPGM("Maximum Acceleration (mm/s2):");
@@ -158,19 +158,19 @@ inline void RetrieveSettings(bool def=false)
     SERIAL_ECHO_START;
       SERIAL_ECHOLNPGM("Advanced variables: S=Min feedrate (mm/s), T=Min travel feedrate (mm/s), B=minimum segment time (ms), X=maximum xY jerk (mm/s),  Z=maximum Z jerk (mm/s)");
       SERIAL_ECHO_START;
-      SERIAL_ECHOPAIR("  M205 S",minimumfeedrate/60 ); 
-      SERIAL_ECHOPAIR(" T" ,mintravelfeedrate/60 ); 
+      SERIAL_ECHOPAIR("  M205 S",minimumfeedrate ); 
+      SERIAL_ECHOPAIR(" T" ,mintravelfeedrate ); 
       SERIAL_ECHOPAIR(" B" ,minsegmenttime ); 
-      SERIAL_ECHOPAIR(" X" ,max_xy_jerk/60 ); 
-      SERIAL_ECHOPAIR(" Z" ,max_z_jerk/60);
+      SERIAL_ECHOPAIR(" X" ,max_xy_jerk ); 
+      SERIAL_ECHOPAIR(" Z" ,max_z_jerk);
       SERIAL_ECHOLN(""); 
     #ifdef PIDTEMP
       SERIAL_ECHO_START;
       SERIAL_ECHOLNPGM("PID settings:");
       SERIAL_ECHO_START;
-      SERIAL_ECHOPAIR("   M301 P",Kp ); 
-      SERIAL_ECHOPAIR(" I" ,Ki ); 
-      SERIAL_ECHOPAIR(" D" ,Kd);
+      SERIAL_ECHOPAIR("   M301 P",Kp); 
+      SERIAL_ECHOPAIR(" I" ,Ki/PID_dT); 
+      SERIAL_ECHOPAIR(" D" ,Kd*PID_dT);
       SERIAL_ECHOLN(""); 
     #endif
   #endif
