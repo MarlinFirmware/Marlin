@@ -913,7 +913,7 @@ inline void process_commands()
     #endif
     case 203: // M203 max feedrate mm/sec
       for(int8_t i=0; i < NUM_AXIS; i++) {
-        if(code_seen(axis_codes[i])) max_feedrate[i] = code_value()*60 ;
+        if(code_seen(axis_codes[i])) max_feedrate[i] = code_value();
       }
       break;
     case 204: // M204 acclereration S normal moves T filmanent only moves
@@ -924,11 +924,11 @@ inline void process_commands()
       break;
     case 205: //M205 advanced settings:  minimum travel speed S=while printing T=travel only,  B=minimum segment time X= maximum xy jerk, Z=maximum Z jerk
     {
-      if(code_seen('S')) minimumfeedrate = code_value()*60 ;
-      if(code_seen('T')) mintravelfeedrate = code_value()*60 ;
+      if(code_seen('S')) minimumfeedrate = code_value();
+      if(code_seen('T')) mintravelfeedrate = code_value();
       if(code_seen('B')) minsegmenttime = code_value() ;
-      if(code_seen('X')) max_xy_jerk = code_value()*60 ;
-      if(code_seen('Z')) max_z_jerk = code_value()*60 ;
+      if(code_seen('X')) max_xy_jerk = code_value() ;
+      if(code_seen('Z')) max_z_jerk = code_value()s ;
     }
     break;
     case 220: // M220 S<factor in percent>- set speed factor override percentage
