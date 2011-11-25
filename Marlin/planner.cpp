@@ -530,7 +530,7 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
   // slow down when de buffer starts to empty, rather than wait at the corner for a buffer refill
   int moves_queued=(block_buffer_head-block_buffer_tail + BLOCK_BUFFER_SIZE) & (BLOCK_BUFFER_SIZE - 1);
   
-  if(moves_queued < (BLOCK_BUFFER_SIZE * 0.5)) feed_rate = feed_rate / ((BLOCK_BUFFER_SIZE * 0.5)/moves_queued); 
+  if(moves_queued < (BLOCK_BUFFER_SIZE * 0.5)) feed_rate = feed_rate*moves_queued / (BLOCK_BUFFER_SIZE * 0.5); 
 #endif
 
 /*

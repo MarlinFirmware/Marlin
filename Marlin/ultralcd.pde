@@ -1435,7 +1435,7 @@ void MainMenu::showMainMenu()
     switch(line)
     { 
       case ItemM_watch:
-        MENUITEM(  lcdprintPGM(" Watch \003")  ,  BLOCK;status=Main_Status;beepshort(); ) ;
+        MENUITEM(  lcdprintPGM(" Watch   \003")  ,  BLOCK;status=Main_Status;beepshort(); ) ;
        break;
       case ItemM_prepare:
         MENUITEM(  if(!tune) lcdprintPGM(" Prepare \x7E");else  lcdprintPGM(" Tune    \x7E"); ,  BLOCK;status=Main_Prepare;beepshort(); ) ;
