@@ -31,6 +31,7 @@ void st_synchronize();
 
 // Set current position in steps
 void st_set_position(const long &x, const long &y, const long &z, const long &e);
+void st_set_e_position(const long &e);
 
 // Get current position in steps
 long st_get_position(char axis);

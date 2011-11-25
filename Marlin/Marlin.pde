@@ -556,12 +556,19 @@ inline void process_commands()
       relative_mode = true;
       break;
     case 92: // G92
-      if(!code_seen(axis_codes[E_AXIS])) 
+      if(!code_seen(axis_codes[E_AXIS]))
         st_synchronize();
       for(int8_t i=0; i < NUM_AXIS; i++) {
-        if(code_seen(axis_codes[i])) current_position[i] = code_value();  
+        if(code_seen(axis_codes[i])) { 
+           current_position[i] = code_value();  
+           if(i == E_AXIS) {
+             plan_set_e_position(current_position[E_AXIS]);
+           }
+           else {
+             plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+           }
+        }
       }
-      plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
       break;
     }
   }
@@ -865,27 +872,27 @@ inline void process_commands()
     case 119: // M119
       #if (X_MIN_PIN > -1)
         SERIAL_PROTOCOLPGM("x_min:");
-        SERIAL_PROTOCOL(((READ(X_MIN_PIN)^ENDSTOPS_INVERTING)?"H ":"L "));
+        SERIAL_PROTOCOL(((READ(X_MIN_PIN)^X_ENDSTOPS_INVERTING)?"H ":"L "));
       #endif
       #if (X_MAX_PIN > -1)
         SERIAL_PROTOCOLPGM("x_max:");
-        SERIAL_PROTOCOL(((READ(X_MAX_PIN)^ENDSTOPS_INVERTING)?"H ":"L "));
+        SERIAL_PROTOCOL(((READ(X_MAX_PIN)^X_ENDSTOPS_INVERTING)?"H ":"L "));
       #endif
       #if (Y_MIN_PIN > -1)
         SERIAL_PROTOCOLPGM("y_min:");
-        SERIAL_PROTOCOL(((READ(Y_MIN_PIN)^ENDSTOPS_INVERTING)?"H ":"L "));
+        SERIAL_PROTOCOL(((READ(Y_MIN_PIN)^Y_ENDSTOPS_INVERTING)?"H ":"L "));
       #endif
       #if (Y_MAX_PIN > -1)
         SERIAL_PROTOCOLPGM("y_max:");
-        SERIAL_PROTOCOL(((READ(Y_MAX_PIN)^ENDSTOPS_INVERTING)?"H ":"L "));
+        SERIAL_PROTOCOL(((READ(Y_MAX_PIN)^Y_ENDSTOPS_INVERTING)?"H ":"L "));
       #endif
       #if (Z_MIN_PIN > -1)
         SERIAL_PROTOCOLPGM("z_min:");
-        SERIAL_PROTOCOL(((READ(Z_MIN_PIN)^ENDSTOPS_INVERTING)?"H ":"L "));
+        SERIAL_PROTOCOL(((READ(Z_MIN_PIN)^Z_ENDSTOPS_INVERTING)?"H ":"L "));
       #endif
       #if (Z_MAX_PIN > -1)
         SERIAL_PROTOCOLPGM("z_max:");
-        SERIAL_PROTOCOL(((READ(Z_MAX_PIN)^ENDSTOPS_INVERTING)?"H ":"L "));
+        SERIAL_PROTOCOL(((READ(Z_MAX_PIN)^Z_ENDSTOPS_INVERTING)?"H ":"L "));
       #endif
       SERIAL_PROTOCOLLN("");
       break;

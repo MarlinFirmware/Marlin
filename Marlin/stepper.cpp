@@ -70,6 +70,13 @@ static volatile bool endstop_x_hit=false;
 static volatile bool endstop_y_hit=false;
 static volatile bool endstop_z_hit=false;
 
+static bool old_x_min_endstop=false;
+static bool old_x_max_endstop=false;
+static bool old_y_min_endstop=false;
+static bool old_y_max_endstop=false;
+static bool old_z_min_endstop=false;
+static bool old_z_max_endstop=false;
+
 volatile long count_position[NUM_AXIS] = { 0, 0, 0, 0};
 volatile char count_direction[NUM_AXIS] = { 1, 1, 1, 1};
 
@@ -260,6 +267,7 @@ ISR(TIMER1_COMPA_vect)
     SERIAL_ERROR_START
     SERIAL_ERROR(*(unsigned short *)OCR1A);
     SERIAL_ERRORLNPGM(" ISR overtaking itself.");
+    OCR1A = 0x30000;
     return; 
   } // The busy-flag is used to avoid reentering this interrupt
 
@@ -295,22 +303,26 @@ ISR(TIMER1_COMPA_vect)
       WRITE(X_DIR_PIN, INVERT_X_DIR);
       count_direction[X_AXIS]=-1;
       #if X_MIN_PIN > -1
-        if((READ(X_MIN_PIN) != ENDSTOPS_INVERTING) && (current_block->steps_x > 0)) {
+        bool x_min_endstop=(READ(X_MIN_PIN) != X_ENDSTOPS_INVERTING);
+        if(x_min_endstop && old_x_min_endstop && (current_block->steps_x > 0)) {
           endstops_trigsteps[X_AXIS] = count_position[X_AXIS];
           endstop_x_hit=true;
           step_events_completed = current_block->step_event_count;
         }
+        old_x_min_endstop = x_min_endstop;
       #endif
     }
     else { // +direction 
       WRITE(X_DIR_PIN,!INVERT_X_DIR);
       count_direction[X_AXIS]=1;
       #if X_MAX_PIN > -1
-        if((READ(X_MAX_PIN) != ENDSTOPS_INVERTING) && (current_block->steps_x > 0)){
+        bool x_max_endstop=(READ(X_MAX_PIN) != X_ENDSTOPS_INVERTING);
+        if(x_max_endstop && old_x_max_endstop && (current_block->steps_x > 0)){
           endstops_trigsteps[X_AXIS] = count_position[X_AXIS];
           endstop_x_hit=true;
           step_events_completed = current_block->step_event_count;
         }
+        old_x_max_endstop = x_max_endstop;
       #endif
     }
 
@@ -318,22 +330,26 @@ ISR(TIMER1_COMPA_vect)
       WRITE(Y_DIR_PIN,INVERT_Y_DIR);
       count_direction[Y_AXIS]=-1;
       #if Y_MIN_PIN > -1
-        if((READ(Y_MIN_PIN) != ENDSTOPS_INVERTING) && (current_block->steps_y > 0)) {
+        bool y_min_endstop=(READ(Y_MIN_PIN) != Y_ENDSTOPS_INVERTING);
+        if(y_min_endstop && old_y_min_endstop && (current_block->steps_y > 0)) {
           endstops_trigsteps[Y_AXIS] = count_position[Y_AXIS];
           endstop_y_hit=true;
           step_events_completed = current_block->step_event_count;
         }
+        old_y_min_endstop = y_min_endstop;
       #endif
     }
     else { // +direction
     WRITE(Y_DIR_PIN,!INVERT_Y_DIR);
       count_direction[Y_AXIS]=1;
       #if Y_MAX_PIN > -1
-      if((READ(Y_MAX_PIN) != ENDSTOPS_INVERTING) && (current_block->steps_y > 0)){
+        bool y_max_endstop=(READ(Y_MAX_PIN) != Y_ENDSTOPS_INVERTING);
+        if(y_max_endstop && old_y_max_endstop && (current_block->steps_y > 0)){
           endstops_trigsteps[Y_AXIS] = count_position[Y_AXIS];
           endstop_y_hit=true;
           step_events_completed = current_block->step_event_count;
         }
+        old_y_max_endstop = y_max_endstop;
       #endif
     }
 
@@ -341,22 +357,26 @@ ISR(TIMER1_COMPA_vect)
       WRITE(Z_DIR_PIN,INVERT_Z_DIR);
       count_direction[Z_AXIS]=-1;
       #if Z_MIN_PIN > -1
-        if((READ(Z_MIN_PIN) != ENDSTOPS_INVERTING) && (current_block->steps_z > 0)) {
+        bool z_min_endstop=(READ(Z_MIN_PIN) != Z_ENDSTOPS_INVERTING);
+        if(z_min_endstop && old_z_min_endstop && (current_block->steps_z > 0)) {
           endstops_trigsteps[Z_AXIS] = count_position[Z_AXIS];
           endstop_z_hit=true;
           step_events_completed = current_block->step_event_count;
         }
+        old_z_min_endstop = z_min_endstop;
       #endif
     }
     else { // +direction
       WRITE(Z_DIR_PIN,!INVERT_Z_DIR);
         count_direction[Z_AXIS]=1;
       #if Z_MAX_PIN > -1
-        if((READ(Z_MAX_PIN) != ENDSTOPS_INVERTING)  && (current_block->steps_z > 0)){
+        bool z_max_endstop=(READ(Z_MAX_PIN) != Z_ENDSTOPS_INVERTING);
+        if(z_max_endstop && old_z_max_endstop && (current_block->steps_z > 0)) {
           endstops_trigsteps[Z_AXIS] = count_position[Z_AXIS];
           endstop_z_hit=true;
           step_events_completed = current_block->step_event_count;
         }
+        old_z_max_endstop = z_max_endstop;
       #endif
     }
 
@@ -650,6 +670,13 @@ void st_set_position(const long &x, const long &y, const long &z, const long &e)
   count_position[X_AXIS] = x;
   count_position[Y_AXIS] = y;
   count_position[Z_AXIS] = z;
+  count_position[E_AXIS] = e;
+  CRITICAL_SECTION_END;
+}
+
+void st_set_e_position(const long &e)
+{
+  CRITICAL_SECTION_START;
   count_position[E_AXIS] = e;
   CRITICAL_SECTION_END;
 }

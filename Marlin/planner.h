@@ -70,7 +70,7 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
 
 // Set position. Used for G92 instructions.
 void plan_set_position(const float &x, const float &y, const float &z, const float &e);
-
+void plan_set_e_position(const float &e);
 
 // Called when the current block is no longer needed. Discards the block and makes the memory
 // availible for new blocks.

@@ -762,7 +762,14 @@ void plan_set_position(const float &x, const float &y, const float &z, const flo
   previous_speed[3] = 0.0;
 }
 
+void plan_set_e_position(const float &e)
+{
+  position[E_AXIS] = lround(e*axis_steps_per_unit[E_AXIS]);  
+  st_set_e_position(position[E_AXIS]);
+}
+
 uint8_t movesplanned()
 {
  return (block_buffer_head-block_buffer_tail + BLOCK_BUFFER_SIZE) & (BLOCK_BUFFER_SIZE - 1);
 }
+
