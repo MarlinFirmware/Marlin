@@ -281,7 +281,7 @@ ISR(TIMER1_COMPA_vect)
   if(busy){ 
     OCR1A_error = OCR1A;
     bussy_error = true;
-    OCR1A = 0x30000;
+    OCR1A = 30000;
     return; 
   } // The busy-flag is used to avoid reentering this interrupt
 
