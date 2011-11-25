@@ -35,6 +35,7 @@ public:
   inline int16_t get() {  sdpos = file.curPosition();return (int16_t)file.read();};
   inline void setIndex(long index) {sdpos = index;file.seekSet(index);};
   inline uint8_t percentDone(){if(!sdprinting) return 0; if(filesize) return sdpos*100/filesize; else return 0;};
+  inline char* getWorkDirName(){workDir.getFilename(filename);return filename;};
 
 public:
   bool saving;
