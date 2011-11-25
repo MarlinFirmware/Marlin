@@ -102,6 +102,7 @@ inline void RetrieveSettings(bool def=false)
       SERIAL_ECHOLNPGM("Stored settings retreived:");
     }
     else 
+  #endif
     {
       float tmp1[]=DEFAULT_AXIS_STEPS_PER_UNIT;
       float tmp2[]=DEFAULT_MAX_FEEDRATE;
@@ -173,8 +174,6 @@ inline void RetrieveSettings(bool def=false)
       SERIAL_ECHOLN(""); 
     #endif
   #endif
-    
-  #endif //EEPROM_SETTINGS
 }  
 
 #endif
