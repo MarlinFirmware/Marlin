@@ -928,7 +928,7 @@ inline void process_commands()
       if(code_seen('T')) mintravelfeedrate = code_value();
       if(code_seen('B')) minsegmenttime = code_value() ;
       if(code_seen('X')) max_xy_jerk = code_value() ;
-      if(code_seen('Z')) max_z_jerk = code_value()s ;
+      if(code_seen('Z')) max_z_jerk = code_value() ;
     }
     break;
     case 220: // M220 S<factor in percent>- set speed factor override percentage
