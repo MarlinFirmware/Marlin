@@ -77,6 +77,9 @@ static bool old_y_max_endstop=false;
 static bool old_z_min_endstop=false;
 static bool old_z_max_endstop=false;
 
+static bool bussy_error=false;
+unsigned char OCR1A_error=12345;
+
 volatile long count_position[NUM_AXIS] = { 0, 0, 0, 0};
 volatile char count_direction[NUM_AXIS] = { 1, 1, 1, 1};
 
@@ -159,6 +162,16 @@ asm volatile ( \
 
 #define ENABLE_STEPPER_DRIVER_INTERRUPT()  TIMSK1 |= (1<<OCIE1A)
 #define DISABLE_STEPPER_DRIVER_INTERRUPT() TIMSK1 &= ~(1<<OCIE1A)
+
+void checkStepperErrors()
+{
+  if(bussy_error) {
+    SERIAL_ERROR_START
+    SERIAL_ERROR(OCR1A_error);
+    SERIAL_ERRORLNPGM(" ISR overtaking itself.");
+    bussy_error = false;
+  }
+}
 
 void checkHitEndstops()
 {
@@ -264,9 +277,8 @@ inline void trapezoid_generator_reset() {
 ISR(TIMER1_COMPA_vect)
 {        
   if(busy){ 
-    SERIAL_ERROR_START
-    SERIAL_ERROR(*(unsigned short *)OCR1A);
-    SERIAL_ERRORLNPGM(" ISR overtaking itself.");
+    OCR1A_error = OCR1A;
+    bussy_error = true;
     OCR1A = 0x30000;
     return; 
   } // The busy-flag is used to avoid reentering this interrupt

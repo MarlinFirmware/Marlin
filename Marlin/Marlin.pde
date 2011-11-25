@@ -289,6 +289,7 @@ void loop()
   manage_heater();
   manage_inactivity(1);
   checkHitEndstops();
+  checkStepperErrors();
   LCD_STATUS;
 }
 

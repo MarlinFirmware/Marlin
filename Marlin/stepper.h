@@ -44,7 +44,7 @@ void st_wake_up();
 void checkHitEndstops(); //call from somwhere to create an serial error message with the locations the endstops where hit, in case they were triggered
 void endstops_hit_on_purpose(); //avoid creation of the message, i.e. after homeing and before a routine call of checkHitEndstops();
 
-
+void checkStepperErrors(); //Print errors detected by the stepper
 
 extern block_t *current_block;  // A pointer to the block currently being traced
 
