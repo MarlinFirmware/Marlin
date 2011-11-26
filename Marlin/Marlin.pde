@@ -517,7 +517,10 @@ inline void process_commands()
       codenum = 0;
       if(code_seen('P')) codenum = code_value(); // milliseconds to wait
       if(code_seen('S')) codenum = code_value() * 1000; // seconds to wait
+      
+      st_synchronize();
       codenum += millis();  // keep track of when we started waiting
+      
       while(millis()  < codenum ){
         manage_heater();
       }
@@ -579,7 +582,7 @@ inline void process_commands()
 
     switch( (int)code_value() ) 
     {
-       case 17:
+    case 17:
         LCD_MESSAGEPGM("No move.");
         enable_x(); 
         enable_y(); 
@@ -740,7 +743,7 @@ inline void process_commands()
           while((target_direction ? (isHeatingHotend0()) : (isCoolingHotend0())) ||
                   (residencyStart > -1 && (millis() - residencyStart) < TEMP_RESIDENCY_TIME*1000) ) {
         #else
-          while ( target_direction ? (isHeatingHotend0()) : (isCoolingHotend0()) ) {
+          while ( target_direction ? (isHeatingHotend0()) : (isCoolingHotend0()&&(CooldownNoWait==false)) ) {
         #endif //TEMP_RESIDENCY_TIME
         if( (millis() - codenum) > 1000 ) 
         { //Print Temp Reading every 1 second while heating up/cooling down

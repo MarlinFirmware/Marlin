@@ -84,6 +84,11 @@
 //#define BED_MAXTEMP 150
 
 
+// Wait for Cooldown
+// This defines if the M109 call should not block if it is cooling down.
+// example: From a current temp of 220, you set M109 S200. 
+// if CooldownNoWait is defined M109 will not wait for the cooldown to finish
+#define CooldownNoWait true
 
 // PID settings:
 // Uncomment the following line to enable PID support.
