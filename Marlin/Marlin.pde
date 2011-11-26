@@ -469,10 +469,10 @@ inline bool code_seen(char code)
     \
     current_position[LETTER##_AXIS] = 0;\
     plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);\
-    destination[LETTER##_AXIS] = -5 * LETTER##_HOME_DIR;\
+    destination[LETTER##_AXIS] = -LETTER##_HOME_RETRACT_MM * LETTER##_HOME_DIR;\
     prepare_move(); \
     \
-    destination[LETTER##_AXIS] = 10 * LETTER##_HOME_DIR;\
+    destination[LETTER##_AXIS] = 2*LETTER##_HOME_RETRACT_MM * LETTER##_HOME_DIR;\
     feedrate = homing_feedrate[LETTER##_AXIS]/2 ;  \
     prepare_move(); \
     \

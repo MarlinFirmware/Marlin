@@ -207,6 +207,11 @@ const bool Z_ENDSTOPS_INVERTING = true; // set to true to invert the logic of th
 #define NUM_AXIS 4 // The axis order in all axis related arrays is X, Y, Z, E
 #define HOMING_FEEDRATE {50*60, 50*60, 4*60, 0}  // set the homing speeds (mm/min)
 
+//homing hits the endstop, then retracts by this distance, before it tries to slowly bump again:
+#define X_HOME_RETRACT_MM 5 
+#define Y_HOME_RETRACT_MM 5 
+#define Z_HOME_RETRACT_MM 1 
+
 #define AXIS_RELATIVE_MODES {false, false, false, false}
 
 #define MAX_STEP_FREQUENCY 40000 // Max step frequency for Ultimaker (5000 pps / half step)
