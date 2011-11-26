@@ -2,6 +2,8 @@
 //#include <unistd.h>
 #ifdef SDSUPPORT
 
+#include "Configuration.h"
+
 CardReader::CardReader()
 {
    filesize = 0;
@@ -426,4 +428,13 @@ void CardReader::updir()
   }
 }
 
+
+void CardReader::printingHasFinished()
+{
+ sdprinting = false;
+ if(SD_FINISHED_STEPPERRELEASE)
+ {
+   finishAndDisableSteppers();
+ }
+}
 #endif //SDSUPPORT

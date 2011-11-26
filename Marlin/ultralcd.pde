@@ -1471,7 +1471,7 @@ void MainMenu::showMainMenu()
         #endif
         if((activeline==line)&&CLICKED)
         {
-          card.sdprinting = false;
+          card.printingHasFinished();
           BLOCK;
           status=Main_SD;
           beepshort();

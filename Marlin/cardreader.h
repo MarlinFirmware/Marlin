@@ -2,7 +2,7 @@
 #define __CARDREADERH
 
 #ifdef SDSUPPORT
- 
+
 #include "SdFile.h"
 enum LsAction {LS_SerialPrint,LS_Count,LS_GetFilename};
 class CardReader
@@ -22,6 +22,7 @@ public:
   void startFileprint();
   void pauseSDPrint();
   void getStatus();
+  void printingHasFinished();
 
   void getfilename(const uint8_t nr);
   uint16_t getnrfilenames();
