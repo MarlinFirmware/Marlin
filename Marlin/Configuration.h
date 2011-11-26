@@ -8,6 +8,7 @@
 //#define BAUDRATE 115200
 //#define BAUDRATE 230400
 
+#define EXTRUDERS 1
 
 // Frequency limit
 // See nophead's blog for more info

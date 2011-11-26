@@ -62,9 +62,18 @@ extern float Kp,Ki,Kd,Kc;
 inline float degHotend0(){  return analog2temp(current_raw[TEMPSENSOR_HOTEND_0]);};
 inline float degHotend1(){  return analog2temp(current_raw[TEMPSENSOR_HOTEND_1]);};
 inline float degBed() {  return analog2tempBed(current_raw[TEMPSENSOR_BED]);};
+inline float degHotend(uint8_t extruder){  
+  if(extruder == 0) return analog2temp(current_raw[TEMPSENSOR_HOTEND_0]);
+  if(extruder == 1) return analog2temp(current_raw[TEMPSENSOR_HOTEND_1]);
+};
 
 inline float degTargetHotend0() {  return analog2temp(target_raw[TEMPSENSOR_HOTEND_0]);};
 inline float degTargetHotend1() {  return analog2temp(target_raw[TEMPSENSOR_HOTEND_1]);};
+inline float degTargetHotend(uint8_t extruder){  
+  if(extruder == 0) return analog2temp(target_raw[TEMPSENSOR_HOTEND_0]);
+  if(extruder == 1) return analog2temp(target_raw[TEMPSENSOR_HOTEND_1]);
+};
+
 inline float degTargetBed() {   return analog2tempBed(target_raw[TEMPSENSOR_BED]);};
 
 inline void setTargetHotend0(const float &celsius) 
@@ -75,14 +84,26 @@ inline void setTargetHotend0(const float &celsius)
   #endif //PIDTEMP
 };
 inline void setTargetHotend1(const float &celsius) {  target_raw[TEMPSENSOR_HOTEND_1]=temp2analog(celsius);};
+inline float setTargetHotend(const float &celcius, uint8_t extruder){  
+  if(extruder == 0) setTargetHotend0(celcius);
+  if(extruder == 1) setTargetHotend1(celcius);
+};
 inline void setTargetBed(const float &celsius)     {  target_raw[TEMPSENSOR_BED     ]=temp2analogBed(celsius);};
 
 inline bool isHeatingHotend0() {return target_raw[TEMPSENSOR_HOTEND_0] > current_raw[TEMPSENSOR_HOTEND_0];};
 inline bool isHeatingHotend1() {return target_raw[TEMPSENSOR_HOTEND_1] > current_raw[TEMPSENSOR_HOTEND_1];};
+inline float isHeatingHotend(uint8_t extruder){  
+  if(extruder == 0) return target_raw[TEMPSENSOR_HOTEND_0] > current_raw[TEMPSENSOR_HOTEND_0];
+  if(extruder == 1) return target_raw[TEMPSENSOR_HOTEND_1] > current_raw[TEMPSENSOR_HOTEND_1];
+};
 inline bool isHeatingBed() {return target_raw[TEMPSENSOR_BED] > current_raw[TEMPSENSOR_BED];};
 
 inline bool isCoolingHotend0() {return target_raw[TEMPSENSOR_HOTEND_0] < current_raw[TEMPSENSOR_HOTEND_0];};
 inline bool isCoolingHotend1() {return target_raw[TEMPSENSOR_HOTEND_1] < current_raw[TEMPSENSOR_HOTEND_1];};
+inline float isCoolingHotend(uint8_t extruder){  
+  if(extruder == 0) return target_raw[TEMPSENSOR_HOTEND_0] < current_raw[TEMPSENSOR_HOTEND_0];
+  if(extruder == 1) return target_raw[TEMPSENSOR_HOTEND_1] < current_raw[TEMPSENSOR_HOTEND_1];
+};
 inline bool isCoolingBed() {return target_raw[TEMPSENSOR_BED] < current_raw[TEMPSENSOR_BED];};
 
 void disable_heater();

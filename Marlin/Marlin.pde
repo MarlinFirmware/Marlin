@@ -174,7 +174,7 @@ static unsigned long stepper_inactive_time = 0;
 static unsigned long starttime=0;
 static unsigned long stoptime=0;
 
-
+static uint8_t tmp_extruder;
 
 //===========================================================================
 //=============================ROUTINES=============================
@@ -641,7 +641,6 @@ inline void process_commands()
       //processed in write to file routine above
       //card,saving = false;
       break;
-      
     #endif //SDSUPPORT
 
     case 30: //M30 take time since the start of the SD print or an M109 command
@@ -684,19 +683,36 @@ inline void process_commands()
       }
      break;
     case 104: // M104
-      if (code_seen('S')) setTargetHotend0(code_value());
+      tmp_extruder = active_extruder;
+      if(code_seen('T')) {
+        tmp_extruder = code_value();
+        if(tmp_extruder >= EXTRUDERS) {
+          SERIAL_ECHO_START;
+          SERIAL_ECHO("M104 Invalid extruder ");
+          SERIAL_ECHOLN(tmp_extruder);
+          break;
+        }
+      }
+      if (code_seen('S')) setTargetHotend(code_value(), tmp_extruder);
       setWatch();
       break;
     case 140: // M140 set bed temp
       if (code_seen('S')) setTargetBed(code_value());
       break;
     case 105 : // M105
-      //SERIAL_ECHOLN(freeMemory());
-       //test watchdog:
-       //delay(20000);
-      #if (TEMP_0_PIN > -1) || defined (HEATER_USES_AD595)
+      tmp_extruder = active_extruder;
+      if(code_seen('T')) {
+        tmp_extruder = code_value();
+        if(tmp_extruder >= EXTRUDERS) {
+          SERIAL_ECHO_START;
+          SERIAL_ECHO("M105 Invalid extruder ");
+          SERIAL_ECHOLN(tmp_extruder);
+          break;
+        }
+      }
+      #if (TEMP_0_PIN > -1) || (TEMP_2_PIN > -1)
         SERIAL_PROTOCOLPGM("ok T:");
-        SERIAL_PROTOCOL( degHotend0()); 
+        SERIAL_PROTOCOL( degHotend(tmp_extruder)); 
         #if TEMP_1_PIN > -1 
           SERIAL_PROTOCOLPGM(" B:");  
           SERIAL_PROTOCOL(degBed());
@@ -715,41 +731,51 @@ inline void process_commands()
       break;
     case 109: 
     {// M109 - Wait for extruder heater to reach target.
-        LCD_MESSAGEPGM("Heating...");   
-        #ifdef AUTOTEMP
-          autotemp_enabled=false;
-        #endif
-        if (code_seen('S')) setTargetHotend0(code_value());
-        #ifdef AUTOTEMP
-          if (code_seen('S')) autotemp_min=code_value();
-          if (code_seen('T')) autotemp_max=code_value();
-          if (code_seen('F')) 
-          {
-            autotemp_factor=code_value();
-            autotemp_enabled=true;
-          }
-        #endif
-        
-        setWatch();
-        codenum = millis(); 
+      tmp_extruder = active_extruder;
+      if(code_seen('T')) {
+        tmp_extruder = code_value();
+        if(tmp_extruder >= EXTRUDERS) {
+          SERIAL_ECHO_START;
+          SERIAL_ECHO("M109 Invalid extruder ");
+          SERIAL_ECHOLN(tmp_extruder);
+          break;
+        }
+      }
+      LCD_MESSAGEPGM("Heating...");   
+      #ifdef AUTOTEMP
+        autotemp_enabled=false;
+      #endif
+      if (code_seen('S')) setTargetHotend(code_value(), tmp_extruder);
+      #ifdef AUTOTEMP
+        if (code_seen('S')) autotemp_min=code_value();
+        if (code_seen('G')) autotemp_max=code_value();
+        if (code_seen('F')) 
+        {
+          autotemp_factor=code_value();
+          autotemp_enabled=true;
+        }
+      #endif
+      
+      setWatch();
+      codenum = millis(); 
 
-        /* See if we are heating up or cooling down */
-        bool target_direction = isHeatingHotend0(); // true if heating, false if cooling
+      /* See if we are heating up or cooling down */
+      bool target_direction = isHeatingHotend(tmp_extruder); // true if heating, false if cooling
 
-        #ifdef TEMP_RESIDENCY_TIME
-          long residencyStart;
-          residencyStart = -1;
-          /* continue to loop until we have reached the target temp   
-            _and_ until TEMP_RESIDENCY_TIME hasn't passed since we reached it */
-          while((target_direction ? (isHeatingHotend0()) : (isCoolingHotend0())) ||
-                  (residencyStart > -1 && (millis() - residencyStart) < TEMP_RESIDENCY_TIME*1000) ) {
-        #else
-          while ( target_direction ? (isHeatingHotend0()) : (isCoolingHotend0()&&(CooldownNoWait==false)) ) {
-        #endif //TEMP_RESIDENCY_TIME
+      #ifdef TEMP_RESIDENCY_TIME
+        long residencyStart;
+        residencyStart = -1;
+        /* continue to loop until we have reached the target temp   
+          _and_ until TEMP_RESIDENCY_TIME hasn't passed since we reached it */
+        while((target_direction ? (isHeatingHotend(tmp_extruder)) : (isCoolingHotend(tmp_extruder))) ||
+                (residencyStart > -1 && (millis() - residencyStart) < TEMP_RESIDENCY_TIME*1000) ) {
+      #else
+        while ( target_direction ? (isHeatingHotend(tmp_extruder)) : (isCoolingHotend(tmp_extruder)&&(CooldownNoWait==false)) ) {
+      #endif //TEMP_RESIDENCY_TIME
         if( (millis() - codenum) > 1000 ) 
         { //Print Temp Reading every 1 second while heating up/cooling down
           SERIAL_PROTOCOLPGM("T:");
-          SERIAL_PROTOCOLLN( degHotend0() ); 
+          SERIAL_PROTOCOLLN( degHotend(tmp_extruder) ); 
           codenum = millis();
         }
         manage_heater();
@@ -757,9 +783,9 @@ inline void process_commands()
         #ifdef TEMP_RESIDENCY_TIME
             /* start/restart the TEMP_RESIDENCY_TIME timer whenever we reach target temp for the first time
               or when current temp falls outside the hysteresis after target temp was reached */
-          if ((residencyStart == -1 &&  target_direction && !isHeatingHotend0()) ||
-              (residencyStart == -1 && !target_direction && !isCoolingHotend0()) ||
-              (residencyStart > -1 && labs(degHotend0() - degTargetHotend0()) > TEMP_HYSTERESIS) ) 
+          if ((residencyStart == -1 &&  target_direction && !isHeatingHotend(tmp_extruder)) ||
+              (residencyStart == -1 && !target_direction && !isCoolingHotend(tmp_extruder)) ||
+              (residencyStart > -1 && labs(degHotend(tmp_extruder) - degTargetHotend(tmp_extruder)) > TEMP_HYSTERESIS) ) 
           {
             residencyStart = millis();
           }
@@ -943,8 +969,6 @@ inline void process_commands()
     #ifdef PIDTEMP
     case 301: // M301
       {
-        
-       
         if(code_seen('P')) Kp = code_value();
         if(code_seen('I')) Ki = code_value()*PID_dT;
         if(code_seen('D')) Kd = code_value()/PID_dT;
@@ -987,6 +1011,18 @@ inline void process_commands()
     }
     break;
 
+    }
+  }
+  else if(code_seen('T')) {
+    tmp_extruder = code_value();
+    if(tmp_extruder >= EXTRUDERS) {
+      SERIAL_ECHO_START;
+      SERIAL_ECHO("T");
+      SERIAL_ECHO(tmp_extruder);
+      SERIAL_ECHOLN("Invalid extruder");
+    }
+    else {
+      active_extruder = tmp_extruder;
     }
   }
   else

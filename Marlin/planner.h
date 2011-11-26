@@ -94,6 +94,7 @@ extern float max_z_jerk;
 extern float mintravelfeedrate;
 extern unsigned long axis_steps_per_sqr_second[NUM_AXIS];
 
+extern uint8_t active_extruder;
 
 #ifdef AUTOTEMP
     extern bool autotemp_enabled;
