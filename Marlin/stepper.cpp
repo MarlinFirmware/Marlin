@@ -702,3 +702,13 @@ long st_get_position(char axis)
   CRITICAL_SECTION_END;
   return count_pos;
 }
+
+void finishAndDisableSteppers()
+{
+  st_synchronize(); 
+  LCD_MESSAGEPGM("Released.");
+  disable_x(); 
+  disable_y(); 
+  disable_z(); 
+  disable_e(); 
+}

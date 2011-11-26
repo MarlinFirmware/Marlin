@@ -46,6 +46,8 @@ void endstops_hit_on_purpose(); //avoid creation of the message, i.e. after home
 
 void checkStepperErrors(); //Print errors detected by the stepper
 
+void finishAndDisableSteppers();
+
 extern block_t *current_block;  // A pointer to the block currently being traced
 
 

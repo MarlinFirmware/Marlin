@@ -641,6 +641,7 @@ inline void process_commands()
       //processed in write to file routine above
       //card,saving = false;
       break;
+      
     #endif //SDSUPPORT
 
     case 30: //M30 take time since the start of the SD print or an M109 command
@@ -832,12 +833,7 @@ inline void process_commands()
       }
       else
       { 
-        st_synchronize(); 
-        LCD_MESSAGEPGM("Free move.");
-        disable_x(); 
-        disable_y(); 
-        disable_z(); 
-        disable_e(); 
+        finishAndDisableSteppers();
       }
       break;
     case 85: // M85
