@@ -72,12 +72,7 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
 void plan_set_position(const float &x, const float &y, const float &z, const float &e);
 void plan_set_e_position(const float &e);
 
-// Called when the current block is no longer needed. Discards the block and makes the memory
-// availible for new blocks.
-void plan_discard_current_block();
 
-// Gets the current block. Returns NULL if buffer empty
-block_t *plan_get_current_block();
 
 void check_axes_activity();
 uint8_t movesplanned(); //return the nr of buffered moves
@@ -102,4 +97,28 @@ extern unsigned long axis_steps_per_sqr_second[NUM_AXIS];
     extern float autotemp_factor;
 #endif
 
+    
+/////semi-private stuff
+#include <WProgram.h>
+
+extern block_t block_buffer[BLOCK_BUFFER_SIZE];            // A ring buffer for motion instfructions
+extern volatile unsigned char block_buffer_head;           // Index of the next block to be pushed
+extern volatile unsigned char block_buffer_tail; 
+// Called when the current block is no longer needed. Discards the block and makes the memory
+// availible for new blocks.    
+inline void plan_discard_current_block() {
+  if (block_buffer_head != block_buffer_tail) {
+    block_buffer_tail = (block_buffer_tail + 1) & (BLOCK_BUFFER_SIZE - 1);  
+  }
+}
+
+// Gets the current block. Returns NULL if buffer empty
+inline block_t *plan_get_current_block() {
+  if (block_buffer_head == block_buffer_tail) { 
+    return(NULL); 
+  }
+  block_t *block = &block_buffer[block_buffer_tail];
+  block->busy = true;
+  return(block);
+}
 #endif

@@ -93,13 +93,17 @@ static float previous_nominal_speed; // Nominal speed of previous path line segm
     bool autotemp_enabled=false;
 #endif
 
+    
+//===========================================================================
+//=================semi-private variables, used in inline  functions    =====
+//===========================================================================
+block_t block_buffer[BLOCK_BUFFER_SIZE];            // A ring buffer for motion instfructions
+volatile unsigned char block_buffer_head;           // Index of the next block to be pushed
+volatile unsigned char block_buffer_tail;           // Index of the block to process now
 
 //===========================================================================
 //=============================private variables ============================
 //===========================================================================
-static block_t block_buffer[BLOCK_BUFFER_SIZE];            // A ring buffer for motion instfructions
-static volatile unsigned char block_buffer_head;           // Index of the next block to be pushed
-static volatile unsigned char block_buffer_tail;           // Index of the block to process now
 
 // Used for the frequency limit
 static unsigned char old_direction_bits = 0;               // Old direction bits. Used for speed calculations
@@ -364,20 +368,7 @@ void plan_init() {
 }
 
 
-void plan_discard_current_block() {
-  if (block_buffer_head != block_buffer_tail) {
-    block_buffer_tail = (block_buffer_tail + 1) & (BLOCK_BUFFER_SIZE - 1);  
-  }
-}
 
-block_t *plan_get_current_block() {
-  if (block_buffer_head == block_buffer_tail) { 
-    return(NULL); 
-  }
-  block_t *block = &block_buffer[block_buffer_tail];
-  block->busy = true;
-  return(block);
-}
 
 #ifdef AUTOTEMP
 void getHighESpeed()
