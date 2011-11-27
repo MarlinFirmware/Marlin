@@ -660,7 +660,12 @@ void MainMenu::showTune()
 //   
 
 enum {
-  ItemCT_exit, ItemCT_nozzle, ItemCT_fan,
+  ItemCT_exit,ItemCT_nozzle,
+#ifdef AUTOTEMP
+  ItemCT_autotempactive,
+  ItemCT_autotempmin,ItemCT_autotempmax,ItemCT_autotempfact,
+#endif
+  ItemCT_fan,
   ItemCT_PID_P,ItemCT_PID_I,ItemCT_PID_D,ItemCT_PID_C
 };
 
@@ -708,7 +713,128 @@ void MainMenu::showControlTemp()
           }
         }
       }break;
-      
+      #ifdef AUTOTEMP
+      case ItemCT_autotempmin:
+      {
+        if(force_lcd_update)
+        {
+          lcd.setCursor(0,line);lcdprintPGM(" \002 Min:");
+          lcd.setCursor(13,line);lcd.print(ftostr3(autotemp_max));
+        }
+        
+        if((activeline==line) )
+        {
+          if(CLICKED)
+          {
+            linechanging=!linechanging;
+            if(linechanging)
+            {
+               encoderpos=intround(autotemp_max);
+            }
+            else
+            {
+              autotemp_max=encoderpos;
+              encoderpos=activeline*lcdslow;
+              beepshort();
+            }
+            BLOCK;
+          }
+          if(linechanging)
+          {
+            if(encoderpos<0) encoderpos=0;
+            if(encoderpos>260) encoderpos=260;
+            lcd.setCursor(13,line);lcd.print(itostr3(encoderpos));
+          }
+        }
+      }break;  
+      case ItemCT_autotempmax:
+      {
+        if(force_lcd_update)
+        {
+          lcd.setCursor(0,line);lcdprintPGM(" \002 Max:");
+          lcd.setCursor(13,line);lcd.print(ftostr3(autotemp_max));
+        }
+        
+        if((activeline==line) )
+        {
+          if(CLICKED)
+          {
+            linechanging=!linechanging;
+            if(linechanging)
+            {
+               encoderpos=intround(autotemp_max);
+            }
+            else
+            {
+              autotemp_max=encoderpos;
+              encoderpos=activeline*lcdslow;
+              beepshort();
+            }
+            BLOCK;
+          }
+          if(linechanging)
+          {
+            if(encoderpos<0) encoderpos=0;
+            if(encoderpos>260) encoderpos=260;
+            lcd.setCursor(13,line);lcd.print(itostr3(encoderpos));
+          }
+        }
+      }break;  
+      case ItemCT_autotempfact:
+      {
+        if(force_lcd_update)
+        {
+          lcd.setCursor(0,line);lcdprintPGM(" \002 Fact:");
+          lcd.setCursor(13,line);lcd.print(ftostr32(autotemp_factor));
+        }
+        
+        if((activeline==line) )
+        {
+          if(CLICKED)
+          {
+            linechanging=!linechanging;
+            if(linechanging)
+            {
+               encoderpos=intround(autotemp_factor*100);
+            }
+            else
+            {
+              autotemp_max=encoderpos;
+              encoderpos=activeline*lcdslow;
+              beepshort();
+            }
+            BLOCK;
+          }
+          if(linechanging)
+          {
+            if(encoderpos<0) encoderpos=0;
+            if(encoderpos>99) encoderpos=99;
+            lcd.setCursor(13,line);lcd.print(ftostr32(encoderpos/100.));
+          }
+        }
+      }break;
+      case ItemCT_autotempactive:
+      {
+        if(force_lcd_update)
+        {
+          lcd.setCursor(0,line);lcdprintPGM(" Autotemp:");
+          lcd.setCursor(13,line);
+	  if(autotemp_enabled)
+	    lcdprintPGM("On");
+	  else
+	    lcdprintPGM("Off");
+        }
+        
+        if((activeline==line) )
+        {
+          if(CLICKED)
+          {
+            autotemp_enabled=!autotemp_enabled;
+            BLOCK;
+          }
+        }
+      }break;  
+      #endif //autotemp
       case ItemCT_fan:
       {
         if(force_lcd_update)
@@ -1616,6 +1742,19 @@ char *ftostr31(const float &x)
   conv[3]=(xx/10)%10+'0';
   conv[4]='.';
   conv[5]=(xx)%10+'0';
+  conv[6]=0;
+  return conv;
+}
+
+char *ftostr32(const float &x)
+{
+  int xx=x*100;
+  conv[0]=(xx>=0)?'+':'-';
+  xx=abs(xx);
+  conv[1]=(xx/100)%10+'0';
+  conv[2]='.';
+  conv[3]=(xx/10)%10+'0';
+  conv[4]=(xx)%10+'0';
   conv[6]=0;
   return conv;
 }
