@@ -94,6 +94,7 @@
 // M92  - Set axis_steps_per_unit - same syntax as G92
 // M114 - Output current position to serial port 
 // M115	- Capabilities string
+// M117 - display message
 // M119 - Output Endstop status to serial port
 // M140 - Set bed target temp
 // M190 - Wait for bed current temp to reach target temp.
@@ -849,6 +850,9 @@ inline void process_commands()
       break;
     case 115: // M115
       SerialprintPGM("FIRMWARE_NAME:Marlin; Sprinter/grbl mashup for gen6 FIRMWARE_URL:http://www.mendel-parts.com PROTOCOL_VERSION:1.0 MACHINE_TYPE:Mendel EXTRUDER_COUNT:1");
+      break;
+    case 117: // M117 display message
+      LCD_MESSAGE(cmdbuffer[bufindr]+5);
       break;
     case 114: // M114
       SERIAL_PROTOCOLPGM("X:");
