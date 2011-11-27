@@ -25,6 +25,7 @@
 #define planner_h
 
 #include "Configuration.h"
+#include "Marlin.h"
 
 // This struct is used when buffering the setup for each linear movement "nominal" values are as specified in 
 // the source g-code and may never actually be reached if acceleration management is active.
@@ -106,14 +107,16 @@ extern volatile unsigned char block_buffer_head;           // Index of the next 
 extern volatile unsigned char block_buffer_tail; 
 // Called when the current block is no longer needed. Discards the block and makes the memory
 // availible for new blocks.    
-inline void plan_discard_current_block() {
+FORCE_INLINE void plan_discard_current_block()  
+{
   if (block_buffer_head != block_buffer_tail) {
     block_buffer_tail = (block_buffer_tail + 1) & (BLOCK_BUFFER_SIZE - 1);  
   }
 }
 
 // Gets the current block. Returns NULL if buffer empty
-inline block_t *plan_get_current_block() {
+FORCE_INLINE block_t *plan_get_current_block() 
+{
   if (block_buffer_head == block_buffer_tail) { 
     return(NULL); 
   }

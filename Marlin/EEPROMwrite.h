@@ -38,7 +38,7 @@ template <class T> int EEPROM_readAnything(int &ee, T& value)
 // ALSO:  always make sure the variables in the Store and retrieve sections are in the same order.
 #define EEPROM_VERSION "V04"  
 
-inline void StoreSettings() 
+FORCE_INLINE void StoreSettings() 
 {
 #ifdef EEPROM_SETTINGS
   char ver[4]= "000";
@@ -71,7 +71,7 @@ inline void StoreSettings()
 #endif //EEPROM_SETTINGS
 }
 
-inline void RetrieveSettings(bool def=false)
+FORCE_INLINE void RetrieveSettings(bool def=false)
 {  // if def=true, the default values will be used
   #ifdef EEPROM_SETTINGS
     int i=EEPROM_OFFSET;
