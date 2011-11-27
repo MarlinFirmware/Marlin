@@ -224,7 +224,7 @@ void st_wake_up() {
   ENABLE_STEPPER_DRIVER_INTERRUPT();  
 }
 
-inline unsigned short calc_timer(unsigned short step_rate) {
+FORCE_INLINE unsigned short calc_timer(unsigned short step_rate) {
   unsigned short timer;
   if(step_rate > MAX_STEP_FREQUENCY) step_rate = MAX_STEP_FREQUENCY;
   
@@ -261,7 +261,7 @@ inline unsigned short calc_timer(unsigned short step_rate) {
 
 // Initializes the trapezoid generator from the current block. Called whenever a new 
 // block begins.
-inline void trapezoid_generator_reset() {
+FORCE_INLINE void trapezoid_generator_reset() {
   #ifdef ADVANCE
     advance = current_block->initial_advance;
     final_advance = current_block->final_advance;
