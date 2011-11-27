@@ -18,6 +18,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 #if ARDUINO < 100
+#define  HardwareSerial_h // trick to disable the standard HWserial
 #include <WProgram.h>
 #else  // ARDUINO
 #include <Arduino.h>

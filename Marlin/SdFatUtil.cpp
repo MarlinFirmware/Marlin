@@ -62,7 +62,7 @@ void SdFatUtil::println_P(Print* pr, PGM_P str) {
  * \param[in] str Pointer to string stored in flash memory.
  */
 void SdFatUtil::SerialPrint_P(PGM_P str) {
-  print_P(&Serial, str);
+  print_P(&MSerial, str);
 }
 //------------------------------------------------------------------------------
 /** %Print a string in flash memory to Serial followed by a CR/LF.
@@ -70,5 +70,5 @@ void SdFatUtil::SerialPrint_P(PGM_P str) {
  * \param[in] str Pointer to string stored in flash memory.
  */
 void SdFatUtil::SerialPrintln_P(PGM_P str) {
-  println_P(&Serial, str);
+  println_P(&MSerial, str);
 }

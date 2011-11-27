@@ -25,7 +25,9 @@
  */
 #include <avr/pgmspace.h>
 #if ARDUINO < 100
+#define  HardwareSerial_h // trick to disable the standard HWserial
 #include <WProgram.h>
+#include "MarlinSerial.h"
 #else  // ARDUINO
 #include <Arduino.h>
 #endif  // ARDUINO

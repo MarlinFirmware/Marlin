@@ -306,7 +306,7 @@ void SdBaseFile::getpos(fpos_t* pos) {
  * LS_R - Recursive list of subdirectories.
  */
 void SdBaseFile::ls(uint8_t flags) {
-  ls(&Serial, flags, 0);
+  ls(&MSerial, flags, 0);
 }
 //------------------------------------------------------------------------------
 /** List directory contents.
@@ -949,7 +949,7 @@ int SdBaseFile::peek() {
  */
 void SdBaseFile::printDirName(const dir_t& dir,
   uint8_t width, bool printSlash) {
-  printDirName(&Serial, dir, width, printSlash);
+  printDirName(&MSerial, dir, width, printSlash);
 }
 //------------------------------------------------------------------------------
 /** %Print the name field of a directory entry in 8.3 format.
@@ -993,7 +993,7 @@ static void print2u(Print* pr, uint8_t v) {
  * \param[in] fatDate The date field from a directory entry.
  */
 void SdBaseFile::printFatDate(uint16_t fatDate) {
-  printFatDate(&Serial, fatDate);
+  printFatDate(&MSerial, fatDate);
 }
 //------------------------------------------------------------------------------
 /** %Print a directory date field.
@@ -1018,7 +1018,7 @@ void SdBaseFile::printFatDate(Print* pr, uint16_t fatDate) {
  * \param[in] fatTime The time field from a directory entry.
  */
 void SdBaseFile::printFatTime(uint16_t fatTime) {
-  printFatTime(&Serial, fatTime);
+  printFatTime(&MSerial, fatTime);
 }
 //------------------------------------------------------------------------------
 /** %Print a directory time field.
@@ -1044,7 +1044,7 @@ void SdBaseFile::printFatTime(Print* pr, uint16_t fatTime) {
 bool SdBaseFile::printName() {
   char name[13];
   if (!getFilename(name)) return false;
-  Serial.print(name);
+  MSerial.print(name);
   return true;
 }
 //------------------------------------------------------------------------------

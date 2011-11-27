@@ -176,6 +176,7 @@ static unsigned long stoptime=0;
 
 static uint8_t tmp_extruder;
 
+
 //===========================================================================
 //=============================ROUTINES=============================
 //===========================================================================
@@ -199,13 +200,6 @@ extern "C"{
   }
 }
 
-
-
-
-
-
-
-
 //adds an command to the main command buffer
 //thats really done in a non-safe way.
 //needs overworking someday
@@ -226,7 +220,7 @@ void enquecommand(const char *cmd)
 
 void setup()
 { 
-  Serial.begin(BAUDRATE);
+  MSerial.begin(BAUDRATE);
   SERIAL_ECHO_START;
   SERIAL_ECHOLNPGM(VERSION_STRING);
   SERIAL_PROTOCOLLNPGM("start");
@@ -289,15 +283,14 @@ void loop()
   manage_heater();
   manage_inactivity(1);
   checkHitEndstops();
-  checkStepperErrors();
   LCD_STATUS;
 }
 
 
 inline void get_command() 
 { 
-  while( Serial.available() > 0  && buflen < BUFSIZE) {
-    serial_char = Serial.read();
+  while( MSerial.available() > 0  && buflen < BUFSIZE) {
+    serial_char = MSerial.read();
     if(serial_char == '\n' || serial_char == '\r' || serial_char == ':' || serial_count >= (MAX_CMD_SIZE - 1) ) 
     {
       if(!serial_count) return; //if empty line
@@ -1039,7 +1032,7 @@ inline void process_commands()
 void FlushSerialRequestResend()
 {
   //char cmdbuffer[bufindr][100]="Resend:";
-  Serial.flush();
+  MSerial.flush();
   SERIAL_PROTOCOLPGM("Resend:");
   SERIAL_PROTOCOLLN(gcode_LastN + 1);
   ClearToSend();
@@ -1088,7 +1081,7 @@ void prepare_move()
     if (destination[Z_AXIS] > Z_MAX_LENGTH) destination[Z_AXIS] = Z_MAX_LENGTH;
   }
 
-  plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate*feedmultiply/60/100.0);
+  plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate*feedmultiply/60/100.0, active_extruder);
   for(int8_t i=0; i < NUM_AXIS; i++) {
     current_position[i] = destination[i];
   }
@@ -1098,7 +1091,7 @@ void prepare_arc_move(char isclockwise) {
   float r = hypot(offset[X_AXIS], offset[Y_AXIS]); // Compute arc radius for mc_arc
 
   // Trace the arc
-  mc_arc(current_position, destination, offset, X_AXIS, Y_AXIS, Z_AXIS, feedrate*feedmultiply/60/100.0, r, isclockwise);
+  mc_arc(current_position, destination, offset, X_AXIS, Y_AXIS, Z_AXIS, feedrate*feedmultiply/60/100.0, r, isclockwise, active_extruder);
   
   // As far as the parser is concerned, the position is now == target. In reality the
   // motion control system might still be processing the action and the real tool position
@@ -1107,10 +1100,6 @@ void prepare_arc_move(char isclockwise) {
     current_position[i] = destination[i];
   }
 }
-
-
-
-
 
 void manage_inactivity(byte debug) 
 { 

@@ -451,7 +451,7 @@ float junction_deviation = 0.1;
 // Add a new linear movement to the buffer. steps_x, _y and _z is the absolute position in 
 // mm. Microseconds specify how many microseconds the move should take to perform. To aid acceleration
 // calculation the caller must also provide the physical length of the line in millimeters.
-void plan_buffer_line(const float &x, const float &y, const float &z, const float &e,  float feed_rate)
+void plan_buffer_line(const float &x, const float &y, const float &z, const float &e,  float feed_rate, const uint8_t &extruder)
 {
   // Calculate the buffer head after we push this byte
   int next_buffer_head = next_block_index(block_buffer_head);
@@ -527,12 +527,12 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
   else {
     	if(feed_rate<minimumfeedrate) feed_rate=minimumfeedrate;
   } 
-  
+
 #ifdef SLOWDOWN
   // slow down when de buffer starts to empty, rather than wait at the corner for a buffer refill
   int moves_queued=(block_buffer_head-block_buffer_tail + BLOCK_BUFFER_SIZE) & (BLOCK_BUFFER_SIZE - 1);
   
-  if(moves_queued < (BLOCK_BUFFER_SIZE * 0.5)) feed_rate = feed_rate*moves_queued / (BLOCK_BUFFER_SIZE * 0.5); 
+  if(moves_queued < (BLOCK_BUFFER_SIZE * 0.5) && moves_queued > 1) feed_rate = feed_rate*moves_queued / (BLOCK_BUFFER_SIZE * 0.5); 
 #endif
 
 /*

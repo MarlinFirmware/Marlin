@@ -52,7 +52,7 @@ static long counter_x,       // Counter variables for the bresenham line tracer
             counter_y, 
             counter_z,       
             counter_e;
-static unsigned long step_events_completed; // The number of step events executed in the current block
+volatile static unsigned long step_events_completed; // The number of step events executed in the current block
 #ifdef ADVANCE
   static long advance_rate, advance, final_advance = 0;
   static short old_advance = 0;
@@ -63,6 +63,7 @@ static long acceleration_time, deceleration_time;
 //static unsigned long accelerate_until, decelerate_after, acceleration_rate, initial_rate, final_rate, nominal_rate;
 static unsigned short acc_step_rate; // needed for deccelaration start point
 static char step_loops;
+static unsigned short OCR1A_nominal;
 
 volatile long endstops_trigsteps[3]={0,0,0};
 volatile long endstops_stepsTotal,endstops_stepsDone;
@@ -76,10 +77,6 @@ static bool old_y_min_endstop=false;
 static bool old_y_max_endstop=false;
 static bool old_z_min_endstop=false;
 static bool old_z_max_endstop=false;
-
-static bool busy_error=false;
-unsigned short OCR1A_error=12345;
-unsigned short OCR1A_nominal;
 
 volatile long count_position[NUM_AXIS] = { 0, 0, 0, 0};
 volatile char count_direction[NUM_AXIS] = { 1, 1, 1, 1};
@@ -164,15 +161,6 @@ asm volatile ( \
 #define ENABLE_STEPPER_DRIVER_INTERRUPT()  TIMSK1 |= (1<<OCIE1A)
 #define DISABLE_STEPPER_DRIVER_INTERRUPT() TIMSK1 &= ~(1<<OCIE1A)
 
-void checkStepperErrors()
-{
-  if(busy_error) {
-    SERIAL_ERROR_START
-    SERIAL_ERROR(OCR1A_error);
-    SERIAL_ERRORLNPGM(" ISR overtaking itself.");
-    busy_error = false;
-  }
-}
 
 void checkHitEndstops()
 {
@@ -255,7 +243,7 @@ inline unsigned short calc_timer(unsigned short step_rate) {
     timer = (unsigned short)pgm_read_word_near(table_address);
     timer -= (((unsigned short)pgm_read_word_near(table_address+2) * (unsigned char)(step_rate & 0x0007))>>3);
   }
-  if(timer < 100) { timer = 100; Serial.print("Steprate to high : "); Serial.println(step_rate); }//(20kHz this should never happen)
+  if(timer < 100) { timer = 100; MSerial.print("Steprate to high : "); MSerial.println(step_rate); }//(20kHz this should never happen)
   return timer;
 }
 
@@ -277,17 +265,7 @@ inline void trapezoid_generator_reset() {
 // "The Stepper Driver Interrupt" - This timer interrupt is the workhorse.  
 // It pops blocks from the block_buffer and executes them by pulsing the stepper pins appropriately. 
 ISR(TIMER1_COMPA_vect)
-{        
-  if(busy){ 
-    OCR1A_error = OCR1A;
-    busy_error = true;
-    OCR1A = 30000;
-    return; 
-  } // The busy-flag is used to avoid reentering this interrupt
-
-  busy = true;
-  sei(); // Re enable interrupts (normally disabled while inside an interrupt handler)
-
+{    
   // If there is no current block, attempt to pop one from the buffer
   if (current_block == NULL) {
     // Anything in the buffer?
@@ -304,7 +282,7 @@ ISR(TIMER1_COMPA_vect)
 //      #endif
     } 
     else {
-//      DISABLE_STEPPER_DRIVER_INTERRUPT();
+        OCR1A=2000; // 1kHz.
     }    
   } 
 
@@ -404,8 +382,8 @@ ISR(TIMER1_COMPA_vect)
         count_direction[E_AXIS]=-1;
       }
     #endif //!ADVANCE
-
     for(int8_t i=0; i < step_loops; i++) { // Take multiple steps per interrupt (For high speed moves) 
+    MSerial.checkRx();
     /*
       counter_e += current_block->steps_e;
       if (counter_e > 0) {
@@ -470,6 +448,7 @@ ISR(TIMER1_COMPA_vect)
     unsigned short timer;
     unsigned short step_rate;
     if (step_events_completed <= current_block->accelerate_until) {
+      
       MultiU24X24toH16(acc_step_rate, acceleration_time, current_block->acceleration_rate);
       acc_step_rate += current_block->initial_rate;
       
@@ -519,8 +498,6 @@ ISR(TIMER1_COMPA_vect)
       plan_discard_current_block();
     }   
   } 
-  cli(); // disable interrupts
-  busy=false;
 }
 
 #ifdef ADVANCE

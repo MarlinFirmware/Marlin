@@ -3,10 +3,12 @@
 
 // Tonokip RepRap firmware rewrite based off of Hydra-mmm firmware.
 // Licence: GPL
+#define  HardwareSerial_h // trick to disable the standard HWserial
 #include <WProgram.h>
 #include "fastio.h"
 #include <avr/pgmspace.h>
 #include "Configuration.h"
+#include "MarlinSerial.h"
 
 //#define SERIAL_ECHO(x) Serial << "echo: " << x;
 //#define SERIAL_ECHOLN(x) Serial << "echo: "<<x<<endl;
@@ -17,10 +19,10 @@
 
 
 
-#define SERIAL_PROTOCOL(x) Serial.print(x);
+#define SERIAL_PROTOCOL(x) MSerial.print(x);
 #define SERIAL_PROTOCOLPGM(x) serialprintPGM(PSTR(x));
-#define SERIAL_PROTOCOLLN(x) {Serial.print(x);Serial.write('\n');}
-#define SERIAL_PROTOCOLLNPGM(x) {serialprintPGM(PSTR(x));Serial.write('\n');}
+#define SERIAL_PROTOCOLLN(x) {MSerial.print(x);MSerial.write('\n');}
+#define SERIAL_PROTOCOLLNPGM(x) {serialprintPGM(PSTR(x));MSerial.write('\n');}
 
 const char errormagic[] PROGMEM ="Error:";
 const char echomagic[] PROGMEM ="echo:";
@@ -46,7 +48,7 @@ inline void serialprintPGM(const char *str)
   char ch=pgm_read_byte(str);
   while(ch)
   {
-    Serial.write(ch);
+    MSerial.write(ch);
     ch=pgm_read_byte(++str);
   }
 }
