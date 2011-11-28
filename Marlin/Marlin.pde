@@ -858,7 +858,18 @@ inline void process_commands()
       }
       else
       { 
-        finishAndDisableSteppers();
+        #if ((E_ENABLE_PIN != X_ENABLE_PIN) && (E_ENABLE_PIN != Y_ENABLE_PIN)) // Only enable on boards that have seperate ENABLE_PINS
+        if(code_seen('E')) {
+          st_synchronize()
+          LCD_MESSAGEPGM("Free Move");
+          disable_e();
+        }
+        else {
+          finishAndDisableSteppers();
+        }
+        #else
+          finishAndDisableSteppers();
+        #endif
       }
       break;
     case 85: // M85
