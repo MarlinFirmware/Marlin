@@ -46,23 +46,9 @@ struct ring_buffer
 
 class MarlinSerial //: public Stream
 {
-  private:
-    volatile uint8_t *_ubrrh;
-    volatile uint8_t *_ubrrl;
-    volatile uint8_t *_ucsra;
-    volatile uint8_t *_ucsrb;
-    volatile uint8_t *_udr;
-    uint8_t _rxen;
-    uint8_t _txen;
-    uint8_t _rxcie;
-    uint8_t _udre;
-    uint8_t _u2x;
+
   public:
-    MarlinSerial(
-      volatile uint8_t *ubrrh, volatile uint8_t *ubrrl,
-      volatile uint8_t *ucsra, volatile uint8_t *ucsrb,
-      volatile uint8_t *udr,
-      uint8_t rxen, uint8_t txen, uint8_t rxcie, uint8_t udre, uint8_t u2x);
+    MarlinSerial();
     void begin(long);
     void end();
     inline int available(void)
@@ -74,10 +60,10 @@ class MarlinSerial //: public Stream
     void flush(void);
     inline void write(uint8_t c)
     {
-      while (!((*_ucsra) & (1 << _udre)))
+      while (!((UCSR0A) & (1 << UDRE0)))
         ;
 
-      *_udr = c;
+      UDR0 = c;
     }
     
     

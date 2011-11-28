@@ -75,22 +75,9 @@ inline void store_char(unsigned char c)
 
 // Constructors ////////////////////////////////////////////////////////////////
 
-MarlinSerial::MarlinSerial(
-  volatile uint8_t *ubrrh, volatile uint8_t *ubrrl,
-  volatile uint8_t *ucsra, volatile uint8_t *ucsrb,
-  volatile uint8_t *udr,
-  uint8_t rxen, uint8_t txen, uint8_t rxcie, uint8_t udre, uint8_t u2x)
+MarlinSerial::MarlinSerial()
 {
-  _ubrrh = ubrrh;
-  _ubrrl = ubrrl;
-  _ucsra = ucsra;
-  _ucsrb = ucsrb;
-  _udr = udr;
-  _rxen = rxen;
-  _txen = txen;
-  _rxcie = rxcie;
-  _udre = udre;
-  _u2x = u2x;
+
 }
 
 // Public Methods //////////////////////////////////////////////////////////////
@@ -98,39 +85,39 @@ MarlinSerial::MarlinSerial(
 void MarlinSerial::begin(long baud)
 {
   uint16_t baud_setting;
-  bool use_u2x = true;
+  bool useU2X0 = true;
 
 #if F_CPU == 16000000UL
   // hardcoded exception for compatibility with the bootloader shipped
   // with the Duemilanove and previous boards and the firmware on the 8U2
   // on the Uno and Mega 2560.
   if (baud == 57600) {
-    use_u2x = false;
+    useU2X0 = false;
   }
 #endif
   
-  if (use_u2x) {
-    *_ucsra = 1 << _u2x;
+  if (useU2X0) {
+    UCSR0A = 1 << U2X0;
     baud_setting = (F_CPU / 4 / baud - 1) / 2;
   } else {
-    *_ucsra = 0;
+    UCSR0A = 0;
     baud_setting = (F_CPU / 8 / baud - 1) / 2;
   }
 
   // assign the baud_setting, a.k.a. ubbr (USART Baud Rate Register)
-  *_ubrrh = baud_setting >> 8;
-  *_ubrrl = baud_setting;
+  UBRR0H = baud_setting >> 8;
+  UBRR0L = baud_setting;
 
-  sbi(*_ucsrb, _rxen);
-  sbi(*_ucsrb, _txen);
-  sbi(*_ucsrb, _rxcie);
+  sbi(UCSR0B, RXEN0);
+  sbi(UCSR0B, TXEN0);
+  sbi(UCSR0B, RXCIE0);
 }
 
 void MarlinSerial::end()
 {
-  cbi(*_ucsrb, _rxen);
-  cbi(*_ucsrb, _txen);
-  cbi(*_ucsrb, _rxcie);  
+  cbi(UCSR0B, RXEN0);
+  cbi(UCSR0B, TXEN0);
+  cbi(UCSR0B, RXCIE0);  
 }
 
 
@@ -367,7 +354,7 @@ void MarlinSerial::printFloat(double number, uint8_t digits)
 // Preinstantiate Objects //////////////////////////////////////////////////////
 
 #if defined(UBRR0H) && defined(UBRR0L)
-  MarlinSerial MSerial( &UBRR0H, &UBRR0L, &UCSR0A, &UCSR0B, &UDR0, RXEN0, TXEN0, RXCIE0, UDRE0, U2X0);
+  MarlinSerial MSerial;
 #else
   #error no serial port defined  (port 0)
 #endif
