@@ -32,6 +32,7 @@
 #if defined(UBRRH) || defined(UBRR0H) || defined(UBRR1H) || defined(UBRR2H) || defined(UBRR3H)
 
 #include "MarlinSerial.h"
+#include "Marlin.h"
 
 
 
@@ -41,7 +42,7 @@
 #endif
 
 
-inline void store_char(unsigned char c)
+FORCE_INLINE void store_char(unsigned char c)
 {
   int i = (unsigned int)(rx_buffer.head + 1) % RX_BUFFER_SIZE;
 

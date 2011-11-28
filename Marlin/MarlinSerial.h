@@ -24,6 +24,8 @@
 
 #include <inttypes.h>
 #include <Stream.h>
+#define  FORCE_INLINE __attribute__((always_inline)) inline
+
 
 
 // Define constants and variables for buffering incoming serial data.  We're
@@ -55,12 +57,12 @@ class MarlinSerial //: public Stream
     int read(void);
     void flush(void);
     
-    inline int available(void)
+    FORCE_INLINE int available(void)
     {
       return (unsigned int)(RX_BUFFER_SIZE + rx_buffer.head - rx_buffer.tail) % RX_BUFFER_SIZE;
     }
     
-    inline void write(uint8_t c)
+    FORCE_INLINE void write(uint8_t c)
     {
       while (!((UCSR0A) & (1 << UDRE0)))
         ;
@@ -69,7 +71,7 @@ class MarlinSerial //: public Stream
     }
     
     
-    inline void checkRx(void)
+    FORCE_INLINE void checkRx(void)
     {
       if((UCSR0A & (1<<RXC0)) != 0) {
         unsigned char c  =  UDR0;
@@ -94,27 +96,27 @@ class MarlinSerial //: public Stream
     
   public:
     
-    inline void write(const char *str)
+    FORCE_INLINE void write(const char *str)
     {
       while (*str)
         write(*str++);
     }
 
 
-    inline void write(const uint8_t *buffer, size_t size)
+    FORCE_INLINE void write(const uint8_t *buffer, size_t size)
     {
       while (size--)
         write(*buffer++);
     }
 
-    inline void print(const String &s)
+    FORCE_INLINE void print(const String &s)
     {
       for (int i = 0; i < s.length(); i++) {
         write(s[i]);
       }
     }
     
-    inline void print(const char *str)
+    FORCE_INLINE void print(const char *str)
     {
       write(str);
     }
