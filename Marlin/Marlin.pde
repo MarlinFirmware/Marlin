@@ -852,7 +852,18 @@ inline void process_commands()
       }
       else
       { 
-        finishAndDisableSteppers();
+        #if ((E_ENABLE_PIN != X_ENABLE_PIN) && (E_ENABLE_PIN != Y_ENABLE_PIN)) // Only enable on boards that have seperate ENABLE_PINS
+        if(code_seen('E')) {
+          st_synchronize()
+          LCD_MESSAGEPGM("Free Move");
+          disable_e();
+        }
+        else {
+          finishAndDisableSteppers();
+        }
+        #else
+          finishAndDisableSteppers();
+        #endif
       }
       break;
     case 85: // M85
@@ -865,21 +876,6 @@ inline void process_commands()
         if(code_seen(axis_codes[i])) 
           axis_steps_per_unit[i] = code_value();
       }
-      break;
-    case 88: //M88
-      #if ((E_ENABLE_PIN != X_ENABLE_PIN) && (E_ENABLE_PIN != Y_ENABLE_PIN)) // Only enable on boards that have seperate ENABLE_PINS
-        if(code_seen('S')) {
-          stepper_inactive_time = code_value() * 1000;
-        }
-        else {
-          st_synchronize()
-          LCD_MESSAGEPGM("Free Move");
-          disable_e();
-        }
-      #else
-        SERIAL_ECHO_START;
-        SERIAL_ECHOLN("M88 not supported");
-      #endif
       break;
     case 115: // M115
       SerialprintPGM("FIRMWARE_NAME:Marlin; Sprinter/grbl mashup for gen6 FIRMWARE_URL:http://www.mendel-parts.com PROTOCOL_VERSION:1.0 MACHINE_TYPE:Mendel EXTRUDER_COUNT:1");
