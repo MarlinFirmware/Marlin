@@ -866,6 +866,16 @@ inline void process_commands()
           axis_steps_per_unit[i] = code_value();
       }
       break;
+    case 88: //M88
+      if(code_seen('S')) {
+        stepper_inactive_time = code_value() * 1000;
+      }
+      else {
+        st_synchronize()
+        LCD_MESSAGEPGM("Free Move");
+        disable_e();
+      }
+      break;
     case 115: // M115
       SerialprintPGM("FIRMWARE_NAME:Marlin; Sprinter/grbl mashup for gen6 FIRMWARE_URL:http://www.mendel-parts.com PROTOCOL_VERSION:1.0 MACHINE_TYPE:Mendel EXTRUDER_COUNT:1");
       break;
