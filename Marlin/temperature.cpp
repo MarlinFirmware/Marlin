@@ -464,6 +464,8 @@ ISR(TIMER0_COMPB_vect)
       #if (TEMP_0_PIN > -1)
         #if TEMP_0_PIN > 7
           ADCSRB = 1<<MUX5;
+        #else
+          ADCSRB = 0;
         #endif
         ADMUX = ((1 << REFS0) | (TEMP_0_PIN & 0x07));
         ADCSRA |= 1<<ADSC; // Start conversion
@@ -483,6 +485,8 @@ ISR(TIMER0_COMPB_vect)
       #if (TEMP_1_PIN > -1)
         #if TEMP_1_PIN > 7
           ADCSRB = 1<<MUX5;
+        #else
+          ADCSRB = 0;
         #endif
         ADMUX = ((1 << REFS0) | (TEMP_1_PIN & 0x07));
         ADCSRA |= 1<<ADSC; // Start conversion
@@ -502,6 +506,8 @@ ISR(TIMER0_COMPB_vect)
       #if (TEMP_2_PIN > -1)
         #if TEMP_2_PIN > 7
           ADCSRB = 1<<MUX5;
+        #else
+          ADCSRB = 0;
         #endif
         ADMUX = ((1 << REFS0) | (TEMP_2_PIN & 0x07));
         ADCSRA |= 1<<ADSC; // Start conversion
