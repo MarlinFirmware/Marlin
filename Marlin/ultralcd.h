@@ -79,7 +79,7 @@
     bool tune;
     
   private:
-    inline void updateActiveLines(const uint8_t &maxlines,volatile int &encoderpos)
+    FORCE_INLINE void updateActiveLines(const uint8_t &maxlines,volatile int &encoderpos)
     {
       if(linechanging) return; // an item is changint its value, do not switch lines hence
       lastlineoffset=lineoffset; 
@@ -119,7 +119,7 @@
       } 
     }
     
-    inline void clearIfNecessary()
+    FORCE_INLINE void clearIfNecessary()
     {
       if(lastlineoffset!=lineoffset ||force_lcd_update)
       {
@@ -143,7 +143,7 @@
   #define LCD_STATUS
   #define LCD_MESSAGE(x)
   #define LCD_MESSAGEPGM(x)
-  inline void lcd_status() {};
+  FORCE_INLINE void lcd_status() {};
 #endif
   
 #ifndef ULTIPANEL  

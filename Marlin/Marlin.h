@@ -10,6 +10,8 @@
 #include "Configuration.h"
 #include "MarlinSerial.h"
 
+
+#define  FORCE_INLINE __attribute__((always_inline)) inline
 //#define SERIAL_ECHO(x) Serial << "echo: " << x;
 //#define SERIAL_ECHOLN(x) Serial << "echo: "<<x<<endl;
 //#define SERIAL_ERROR(x) Serial << "Error: " << x;
@@ -43,7 +45,7 @@ const char echomagic[] PROGMEM ="echo:";
 
 //things to write to serial from Programmemory. saves 400 to 2k of RAM.
 #define SerialprintPGM(x) serialprintPGM(PSTR(x))
-inline void serialprintPGM(const char *str)
+FORCE_INLINE void serialprintPGM(const char *str)
 {
   char ch=pgm_read_byte(str);
   while(ch)
@@ -112,5 +114,6 @@ void prepare_arc_move(char isclockwise);
 extern float homing_feedrate[];
 extern bool axis_relative_modes[];
 extern float current_position[NUM_AXIS] ;
+extern float add_homeing[3];
 
 #endif

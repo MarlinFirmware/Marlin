@@ -9,8 +9,8 @@
   void wd_reset();
 
 #else
-  inline void wd_init() {};
-  inline void wd_reset() {};
+  FORCE_INLINE void wd_init() {};
+  FORCE_INLINE void wd_reset() {};
 #endif
 
 #endif

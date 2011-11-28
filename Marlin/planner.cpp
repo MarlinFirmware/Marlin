@@ -95,13 +95,17 @@ static float previous_nominal_speed; // Nominal speed of previous path line segm
     bool autotemp_enabled=false;
 #endif
 
+    
+//===========================================================================
+//=================semi-private variables, used in inline  functions    =====
+//===========================================================================
+block_t block_buffer[BLOCK_BUFFER_SIZE];            // A ring buffer for motion instfructions
+volatile unsigned char block_buffer_head;           // Index of the next block to be pushed
+volatile unsigned char block_buffer_tail;           // Index of the block to process now
 
 //===========================================================================
 //=============================private variables ============================
 //===========================================================================
-static block_t block_buffer[BLOCK_BUFFER_SIZE];            // A ring buffer for motion instfructions
-static volatile unsigned char block_buffer_head;           // Index of the next block to be pushed
-static volatile unsigned char block_buffer_tail;           // Index of the block to process now
 
 // Used for the frequency limit
 static unsigned char old_direction_bits = 0;               // Old direction bits. Used for speed calculations
@@ -130,7 +134,8 @@ static int8_t prev_block_index(int8_t block_index) {
 
 // Calculates the distance (not time) it takes to accelerate from initial_rate to target_rate using the 
 // given acceleration:
-inline float estimate_acceleration_distance(float initial_rate, float target_rate, float acceleration) {
+FORCE_INLINE float estimate_acceleration_distance(float initial_rate, float target_rate, float acceleration)
+{
   if (acceleration!=0) {
   return((target_rate*target_rate-initial_rate*initial_rate)/
          (2.0*acceleration));
@@ -145,7 +150,8 @@ inline float estimate_acceleration_distance(float initial_rate, float target_rat
 // a total travel of distance. This can be used to compute the intersection point between acceleration and
 // deceleration in the cases where the trapezoid has no plateau (i.e. never reaches maximum speed)
 
-inline float intersection_distance(float initial_rate, float final_rate, float acceleration, float distance) {
+FORCE_INLINE float intersection_distance(float initial_rate, float final_rate, float acceleration, float distance) 
+{
  if (acceleration!=0) {
   return((2.0*acceleration*distance-initial_rate*initial_rate+final_rate*final_rate)/
          (4.0*acceleration) );
@@ -209,7 +215,7 @@ void calculate_trapezoid_for_block(block_t *block, float entry_factor, float exi
 
 // Calculates the maximum allowable speed at this point when you must be able to reach target_velocity using the 
 // acceleration within the allotted distance.
-inline float max_allowable_speed(float acceleration, float target_velocity, float distance) {
+FORCE_INLINE float max_allowable_speed(float acceleration, float target_velocity, float distance) {
   return  sqrt(target_velocity*target_velocity-2*acceleration*distance);
 }
 
@@ -366,20 +372,7 @@ void plan_init() {
 }
 
 
-void plan_discard_current_block() {
-  if (block_buffer_head != block_buffer_tail) {
-    block_buffer_tail = (block_buffer_tail + 1) & (BLOCK_BUFFER_SIZE - 1);  
-  }
-}
 
-block_t *plan_get_current_block() {
-  if (block_buffer_head == block_buffer_tail) { 
-    return(NULL); 
-  }
-  block_t *block = &block_buffer[block_buffer_tail];
-  block->busy = true;
-  return(block);
-}
 
 #ifdef AUTOTEMP
 void getHighESpeed()

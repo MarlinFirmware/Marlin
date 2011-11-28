@@ -94,6 +94,7 @@
 // M92  - Set axis_steps_per_unit - same syntax as G92
 // M114 - Output current position to serial port 
 // M115	- Capabilities string
+// M117 - display message
 // M119 - Output Endstop status to serial port
 // M140 - Set bed target temp
 // M190 - Wait for bed current temp to reach target temp.
@@ -103,6 +104,7 @@
 // M203 - Set maximum feedrate that your machine can sustain (M203 X200 Y200 Z300 E10000) in mm/sec
 // M204 - Set default acceleration: S normal moves T filament only moves (M204 S3000 T7000) im mm/sec^2  also sets minimum segment time in ms (B20000) to prevent buffer underruns and M20 minimum feedrate
 // M205 -  advanced settings:  minimum travel speed S=while printing T=travel only,  B=minimum segment time X= maximum xy jerk, Z=maximum Z jerk
+// M206 - set additional homeing offset
 // M220 - set speed factor override percentage S:factor in percent
 // M301 - Set PID parameters P I and D
 // M400 - Finish all moves
@@ -130,7 +132,7 @@ volatile int feedmultiply=100; //100->1 200->2
 int saved_feedmultiply;
 volatile bool feedmultiplychanged=false;
 float current_position[NUM_AXIS] = {  0.0, 0.0, 0.0, 0.0};
-
+float add_homeing[3]={0,0,0};
 
 //===========================================================================
 //=============================private variables=============================
@@ -528,19 +530,23 @@ inline void process_commands()
       }
       feedrate = 0.0;
       home_all_axis = !((code_seen(axis_codes[0])) || (code_seen(axis_codes[1])) || (code_seen(axis_codes[2])));
-
+      
       if((home_all_axis) || (code_seen(axis_codes[X_AXIS]))) 
       {
         HOMEAXIS(X);
+	current_position[0]=code_value()+add_homeing[0];
       }
 
       if((home_all_axis) || (code_seen(axis_codes[Y_AXIS]))) {
        HOMEAXIS(Y);
+       current_position[1]=code_value()+add_homeing[1];
       }
 
       if((home_all_axis) || (code_seen(axis_codes[Z_AXIS]))) {
         HOMEAXIS(Z);
+	current_position[2]=code_value()+add_homeing[2];
       }       
+      
       feedrate = saved_feedrate;
       feedmultiply = saved_feedmultiply;
       previous_millis_cmd = millis();
@@ -557,7 +563,7 @@ inline void process_commands()
         st_synchronize();
       for(int8_t i=0; i < NUM_AXIS; i++) {
         if(code_seen(axis_codes[i])) { 
-           current_position[i] = code_value();  
+           current_position[i] = code_value()+add_homeing[i];  
            if(i == E_AXIS) {
              plan_set_e_position(current_position[E_AXIS]);
            }
@@ -869,6 +875,9 @@ inline void process_commands()
     case 115: // M115
       SerialprintPGM("FIRMWARE_NAME:Marlin; Sprinter/grbl mashup for gen6 FIRMWARE_URL:http://www.mendel-parts.com PROTOCOL_VERSION:1.0 MACHINE_TYPE:Mendel EXTRUDER_COUNT:1");
       break;
+    case 117: // M117 display message
+      LCD_MESSAGE(cmdbuffer[bufindr]+5);
+      break;
     case 114: // M114
       SERIAL_PROTOCOLPGM("X:");
       SERIAL_PROTOCOL(current_position[X_AXIS]);
@@ -949,6 +958,12 @@ inline void process_commands()
       if(code_seen('Z')) max_z_jerk = code_value() ;
     }
     break;
+    case 206: // M206 additional homeing offset
+      for(int8_t i=0; i < 3; i++) 
+      {
+        if(code_seen(axis_codes[i])) add_homeing[i] = code_value();
+      }
+      break;
     case 220: // M220 S<factor in percent>- set speed factor override percentage
     {
       if(code_seen('S')) 
