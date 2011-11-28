@@ -17,6 +17,8 @@
  * along with the Arduino SdFat Library.  If not, see
  * <http://www.gnu.org/licenses/>.
  */
+
+#define SERIAL MSerial
 #include "SdBaseFile.h"
 //------------------------------------------------------------------------------
 // pointer to cwd directory
@@ -294,20 +296,7 @@ void SdBaseFile::getpos(fpos_t* pos) {
   pos->position = curPosition_;
   pos->cluster = curCluster_;
 }
-//------------------------------------------------------------------------------
-/** List directory contents to Serial.
- *
- * \param[in] flags The inclusive OR of
- *
- * LS_DATE - %Print file modification date
- *
- * LS_SIZE - %Print file size.
- *
- * LS_R - Recursive list of subdirectories.
- */
-void SdBaseFile::ls(uint8_t flags) {
-  ls(&MSerial, flags, 0);
-}
+
 //------------------------------------------------------------------------------
 /** List directory contents.
  *
@@ -324,14 +313,14 @@ void SdBaseFile::ls(uint8_t flags) {
  * \param[in] indent Amount of space before file name. Used for recursive
  * list to indicate subdirectory level.
  */
-void SdBaseFile::ls(Print* pr, uint8_t flags, uint8_t indent) {
+void SdBaseFile::ls(uint8_t flags, uint8_t indent) {
   rewind();
   int8_t status;
-  while ((status = lsPrintNext(pr, flags, indent))) {
+  while ((status = lsPrintNext( flags, indent))) {
     if (status > 1 && (flags & LS_R)) {
       uint16_t index = curPosition()/32 - 1;
       SdBaseFile s;
-      if (s.open(this, index, O_READ)) s.ls(pr, flags, indent + 2);
+      if (s.open(this, index, O_READ)) s.ls( flags, indent + 2);
       seekSet(32 * (index + 1));
     }
   }
@@ -339,7 +328,7 @@ void SdBaseFile::ls(Print* pr, uint8_t flags, uint8_t indent) {
 //------------------------------------------------------------------------------
 // saves 32 bytes on stack for ls recursion
 // return 0 - EOF, 1 - normal file, or 2 - directory
-int8_t SdBaseFile::lsPrintNext(Print *pr, uint8_t flags, uint8_t indent) {
+int8_t SdBaseFile::lsPrintNext( uint8_t flags, uint8_t indent) {
   dir_t dir;
   uint8_t w = 0;
 
@@ -352,38 +341,38 @@ int8_t SdBaseFile::lsPrintNext(Print *pr, uint8_t flags, uint8_t indent) {
       && DIR_IS_FILE_OR_SUBDIR(&dir)) break;
   }
   // indent for dir level
-  for (uint8_t i = 0; i < indent; i++) pr->write(' ');
+  for (uint8_t i = 0; i < indent; i++) MSerial.write(' ');
 
   // print name
   for (uint8_t i = 0; i < 11; i++) {
     if (dir.name[i] == ' ')continue;
     if (i == 8) {
-      pr->write('.');
+      MSerial.write('.');
       w++;
     }
-    pr->write(dir.name[i]);
+    MSerial.write(dir.name[i]);
     w++;
   }
   if (DIR_IS_SUBDIR(&dir)) {
-    pr->write('/');
+    MSerial.write('/');
     w++;
   }
   if (flags & (LS_DATE | LS_SIZE)) {
-    while (w++ < 14) pr->write(' ');
+    while (w++ < 14) MSerial.write(' ');
   }
   // print modify date/time if requested
   if (flags & LS_DATE) {
-    pr->write(' ');
-    printFatDate(pr, dir.lastWriteDate);
-    pr->write(' ');
-    printFatTime(pr, dir.lastWriteTime);
+    MSerial.write(' ');
+    printFatDate( dir.lastWriteDate);
+    MSerial.write(' ');
+    printFatTime( dir.lastWriteTime);
   }
   // print size if requested
   if (!DIR_IS_SUBDIR(&dir) && (flags & LS_SIZE)) {
-    pr->write(' ');
-    pr->print(dir.fileSize);
+    MSerial.write(' ');
+    MSerial.print(dir.fileSize);
   }
-  pr->println();
+  MSerial.println();
   return DIR_IS_FILE(&dir) ? 1 : 2;
 }
 //------------------------------------------------------------------------------
@@ -940,17 +929,7 @@ int SdBaseFile::peek() {
   if (c >= 0) setpos(&pos);
   return c;
 }
-//------------------------------------------------------------------------------
-/** %Print the name field of a directory entry in 8.3 format to Serial.
- *
- * \param[in] dir The directory structure containing the name.
- * \param[in] width Blank fill name if length is less than \a width.
- * \param[in] printSlash Print '/' after directory names if true.
- */
-void SdBaseFile::printDirName(const dir_t& dir,
-  uint8_t width, bool printSlash) {
-  printDirName(&MSerial, dir, width, printSlash);
-}
+
 //------------------------------------------------------------------------------
 /** %Print the name field of a directory entry in 8.3 format.
  * \param[in] pr Print stream for output.
@@ -958,32 +937,32 @@ void SdBaseFile::printDirName(const dir_t& dir,
  * \param[in] width Blank fill name if length is less than \a width.
  * \param[in] printSlash Print '/' after directory names if true.
  */
-void SdBaseFile::printDirName(Print* pr, const dir_t& dir,
+void SdBaseFile::printDirName(const dir_t& dir,
   uint8_t width, bool printSlash) {
   uint8_t w = 0;
   for (uint8_t i = 0; i < 11; i++) {
     if (dir.name[i] == ' ')continue;
     if (i == 8) {
-      pr->write('.');
+      MSerial.write('.');
       w++;
     }
-    pr->write(dir.name[i]);
+    MSerial.write(dir.name[i]);
     w++;
   }
   if (DIR_IS_SUBDIR(&dir) && printSlash) {
-    pr->write('/');
+    MSerial.write('/');
     w++;
   }
   while (w < width) {
-    pr->write(' ');
+    MSerial.write(' ');
     w++;
   }
 }
 //------------------------------------------------------------------------------
 // print uint8_t with width 2
-static void print2u(Print* pr, uint8_t v) {
-  if (v < 10) pr->write('0');
-  pr->print(v, DEC);
+static void print2u( uint8_t v) {
+  if (v < 10) MSerial.write('0');
+  MSerial.print(v, DEC);
 }
 //------------------------------------------------------------------------------
 /** %Print a directory date field to Serial.
@@ -992,9 +971,7 @@ static void print2u(Print* pr, uint8_t v) {
  *
  * \param[in] fatDate The date field from a directory entry.
  */
-void SdBaseFile::printFatDate(uint16_t fatDate) {
-  printFatDate(&MSerial, fatDate);
-}
+
 //------------------------------------------------------------------------------
 /** %Print a directory date field.
  *
@@ -1003,23 +980,14 @@ void SdBaseFile::printFatDate(uint16_t fatDate) {
  * \param[in] pr Print stream for output.
  * \param[in] fatDate The date field from a directory entry.
  */
-void SdBaseFile::printFatDate(Print* pr, uint16_t fatDate) {
-  pr->print(FAT_YEAR(fatDate));
-  pr->write('-');
-  print2u(pr, FAT_MONTH(fatDate));
-  pr->write('-');
-  print2u(pr, FAT_DAY(fatDate));
+void SdBaseFile::printFatDate(uint16_t fatDate) {
+  MSerial.print(FAT_YEAR(fatDate));
+  MSerial.write('-');
+  print2u( FAT_MONTH(fatDate));
+  MSerial.write('-');
+  print2u( FAT_DAY(fatDate));
 }
-//------------------------------------------------------------------------------
-/** %Print a directory time field to Serial.
- *
- * Format is hh:mm:ss.
- *
- * \param[in] fatTime The time field from a directory entry.
- */
-void SdBaseFile::printFatTime(uint16_t fatTime) {
-  printFatTime(&MSerial, fatTime);
-}
+
 //------------------------------------------------------------------------------
 /** %Print a directory time field.
  *
@@ -1028,12 +996,12 @@ void SdBaseFile::printFatTime(uint16_t fatTime) {
  * \param[in] pr Print stream for output.
  * \param[in] fatTime The time field from a directory entry.
  */
-void SdBaseFile::printFatTime(Print* pr, uint16_t fatTime) {
-  print2u(pr, FAT_HOUR(fatTime));
-  pr->write(':');
-  print2u(pr, FAT_MINUTE(fatTime));
-  pr->write(':');
-  print2u(pr, FAT_SECOND(fatTime));
+void SdBaseFile::printFatTime( uint16_t fatTime) {
+  print2u( FAT_HOUR(fatTime));
+  MSerial.write(':');
+  print2u( FAT_MINUTE(fatTime));
+  MSerial.write(':');
+  print2u( FAT_SECOND(fatTime));
 }
 //------------------------------------------------------------------------------
 /** Print a file's name to Serial

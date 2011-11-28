@@ -23,15 +23,30 @@
 #define MarlinSerial_h
 
 #include <inttypes.h>
+#include <Stream.h>
 
-#include "Stream.h"
 
-struct ring_buffer;
+// Define constants and variables for buffering incoming serial data.  We're
+// using a ring buffer (I think), in which rx_buffer_head is the index of the
+// location to which to write the next incoming character and rx_buffer_tail
+// is the index of the location from which to read.
+#define RX_BUFFER_SIZE 128
 
-class MarlinSerial : public Stream
+
+struct ring_buffer
+{
+  unsigned char buffer[RX_BUFFER_SIZE];
+  int head;
+  int tail;
+};
+
+#if defined(UBRRH) || defined(UBRR0H)
+  extern ring_buffer rx_buffer;
+#endif
+
+class MarlinSerial //: public Stream
 {
   private:
-    ring_buffer *_rx_buffer;
     volatile uint8_t *_ubrrh;
     volatile uint8_t *_ubrrl;
     volatile uint8_t *_ucsra;
@@ -43,20 +58,76 @@ class MarlinSerial : public Stream
     uint8_t _udre;
     uint8_t _u2x;
   public:
-    MarlinSerial(ring_buffer *rx_buffer,
+    MarlinSerial(
       volatile uint8_t *ubrrh, volatile uint8_t *ubrrl,
       volatile uint8_t *ucsra, volatile uint8_t *ucsrb,
       volatile uint8_t *udr,
       uint8_t rxen, uint8_t txen, uint8_t rxcie, uint8_t udre, uint8_t u2x);
     void begin(long);
     void end();
-    virtual int available(void);
-    virtual int peek(void);
-    virtual int read(void);
-    virtual void flush(void);
-    virtual void write(uint8_t);
-    virtual void checkRx(void);
-    using Print::write; // pull in write(str) and write(buf, size) from Print
+    inline int available(void)
+    {
+      return (unsigned int)(RX_BUFFER_SIZE + rx_buffer.head - rx_buffer.tail) % RX_BUFFER_SIZE;
+    }
+    int peek(void);
+    int read(void);
+    void flush(void);
+    inline void write(uint8_t c)
+    {
+      while (!((*_ucsra) & (1 << _udre)))
+        ;
+
+      *_udr = c;
+    }
+    
+    
+    inline void checkRx(void)
+    {
+      if((UCSR0A & (1<<RXC0)) != 0) {
+        unsigned char c  =  UDR0;
+        int i = (unsigned int)(rx_buffer.head + 1) % RX_BUFFER_SIZE;
+
+        // if we should be storing the received character into the location
+        // just before the tail (meaning that the head would advance to the
+        // current location of the tail), we're about to overflow the buffer
+        // and so we don't write the character or advance the head.
+        if (i != rx_buffer.tail) {
+          rx_buffer.buffer[rx_buffer.head] = c;
+          rx_buffer.head = i;
+        }
+      }
+    }
+    
+    
+    private:
+    void printNumber(unsigned long, uint8_t);
+    void printFloat(double, uint8_t);
+    
+    
+  public:
+    void write(const char *str);
+    void write( const uint8_t *buffer, size_t size);
+    
+    void print(const String &);
+    void print(const char[]);
+    void print(char, int = BYTE);
+    void print(unsigned char, int = BYTE);
+    void print(int, int = DEC);
+    void print(unsigned int, int = DEC);
+    void print(long, int = DEC);
+    void print(unsigned long, int = DEC);
+    void print(double, int = 2);
+
+    void println(const String &s);
+    void println(const char[]);
+    void println(char, int = BYTE);
+    void println(unsigned char, int = BYTE);
+    void println(int, int = DEC);
+    void println(unsigned int, int = DEC);
+    void println(long, int = DEC);
+    void println(unsigned long, int = DEC);
+    void println(double, int = 2);
+    void println(void);
 };
 
 #if defined(UBRRH) || defined(UBRR0H)

@@ -43,8 +43,8 @@ int SdFatUtil::FreeRam() {
  * \param[in] pr Print object for output.
  * \param[in] str Pointer to string stored in flash memory.
  */
-void SdFatUtil::print_P(Print* pr, PGM_P str) {
-  for (uint8_t c; (c = pgm_read_byte(str)); str++) pr->write(c);
+void SdFatUtil::print_P( PGM_P str) {
+  for (uint8_t c; (c = pgm_read_byte(str)); str++) MSerial.write(c);
 }
 //------------------------------------------------------------------------------
 /** %Print a string in flash memory followed by a CR/LF.
@@ -52,9 +52,9 @@ void SdFatUtil::print_P(Print* pr, PGM_P str) {
  * \param[in] pr Print object for output.
  * \param[in] str Pointer to string stored in flash memory.
  */
-void SdFatUtil::println_P(Print* pr, PGM_P str) {
-  print_P(pr, str);
-  pr->println();
+void SdFatUtil::println_P( PGM_P str) {
+  print_P( str);
+  MSerial.println();
 }
 //------------------------------------------------------------------------------
 /** %Print a string in flash memory to Serial.
@@ -62,7 +62,7 @@ void SdFatUtil::println_P(Print* pr, PGM_P str) {
  * \param[in] str Pointer to string stored in flash memory.
  */
 void SdFatUtil::SerialPrint_P(PGM_P str) {
-  print_P(&MSerial, str);
+  print_P(str);
 }
 //------------------------------------------------------------------------------
 /** %Print a string in flash memory to Serial followed by a CR/LF.
@@ -70,5 +70,5 @@ void SdFatUtil::SerialPrint_P(PGM_P str) {
  * \param[in] str Pointer to string stored in flash memory.
  */
 void SdFatUtil::SerialPrintln_P(PGM_P str) {
-  println_P(&MSerial, str);
+  println_P( str);
 }

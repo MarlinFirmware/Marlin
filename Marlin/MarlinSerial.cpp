@@ -33,35 +33,25 @@
 
 #include "MarlinSerial.h"
 
-// Define constants and variables for buffering incoming serial data.  We're
-// using a ring buffer (I think), in which rx_buffer_head is the index of the
-// location to which to write the next incoming character and rx_buffer_tail
-// is the index of the location from which to read.
-#define RX_BUFFER_SIZE 128
 
-struct ring_buffer
-{
-  unsigned char buffer[RX_BUFFER_SIZE];
-  int head;
-  int tail;
-};
+
 
 #if defined(UBRRH) || defined(UBRR0H)
   ring_buffer rx_buffer  =  { { 0 }, 0, 0 };
 #endif
 
 
-inline void store_char(unsigned char c, ring_buffer *rx_buffer)
+inline void store_char(unsigned char c)
 {
-  int i = (unsigned int)(rx_buffer->head + 1) % RX_BUFFER_SIZE;
+  int i = (unsigned int)(rx_buffer.head + 1) % RX_BUFFER_SIZE;
 
   // if we should be storing the received character into the location
   // just before the tail (meaning that the head would advance to the
   // current location of the tail), we're about to overflow the buffer
   // and so we don't write the character or advance the head.
-  if (i != rx_buffer->tail) {
-    rx_buffer->buffer[rx_buffer->head] = c;
-    rx_buffer->head = i;
+  if (i != rx_buffer.tail) {
+    rx_buffer.buffer[rx_buffer.head] = c;
+    rx_buffer.head = i;
   }
 }
 
@@ -79,19 +69,18 @@ inline void store_char(unsigned char c, ring_buffer *rx_buffer)
   #else
     #error UDR not defined
   #endif
-    store_char(c, &rx_buffer);
+    store_char(c);
   }
 #endif
 
 // Constructors ////////////////////////////////////////////////////////////////
 
-MarlinSerial::MarlinSerial(ring_buffer *rx_buffer,
+MarlinSerial::MarlinSerial(
   volatile uint8_t *ubrrh, volatile uint8_t *ubrrl,
   volatile uint8_t *ucsra, volatile uint8_t *ucsrb,
   volatile uint8_t *udr,
   uint8_t rxen, uint8_t txen, uint8_t rxcie, uint8_t udre, uint8_t u2x)
 {
-  _rx_buffer = rx_buffer;
   _ubrrh = ubrrh;
   _ubrrl = ubrrl;
   _ucsra = ucsra;
@@ -144,28 +133,25 @@ void MarlinSerial::end()
   cbi(*_ucsrb, _rxcie);  
 }
 
-int MarlinSerial::available(void)
-{
-  return (unsigned int)(RX_BUFFER_SIZE + _rx_buffer->head - _rx_buffer->tail) % RX_BUFFER_SIZE;
-}
+
 
 int MarlinSerial::peek(void)
 {
-  if (_rx_buffer->head == _rx_buffer->tail) {
+  if (rx_buffer.head == rx_buffer.tail) {
     return -1;
   } else {
-    return _rx_buffer->buffer[_rx_buffer->tail];
+    return rx_buffer.buffer[rx_buffer.tail];
   }
 }
 
 int MarlinSerial::read(void)
 {
   // if the head isn't ahead of the tail, we don't have any characters
-  if (_rx_buffer->head == _rx_buffer->tail) {
+  if (rx_buffer.head == rx_buffer.tail) {
     return -1;
   } else {
-    unsigned char c = _rx_buffer->buffer[_rx_buffer->tail];
-    _rx_buffer->tail = (unsigned int)(_rx_buffer->tail + 1) % RX_BUFFER_SIZE;
+    unsigned char c = rx_buffer.buffer[rx_buffer.tail];
+    rx_buffer.tail = (unsigned int)(rx_buffer.tail + 1) % RX_BUFFER_SIZE;
     return c;
   }
 }
@@ -181,29 +167,207 @@ void MarlinSerial::flush()
   // the value to rx_buffer_tail; the previous value of rx_buffer_head
   // may be written to rx_buffer_tail, making it appear as if the buffer
   // were full, not empty.
-  _rx_buffer->head = _rx_buffer->tail;
+  rx_buffer.head = rx_buffer.tail;
 }
 
-void MarlinSerial::write(uint8_t c)
-{
-  while (!((*_ucsra) & (1 << _udre)))
-    ;
 
-  *_udr = c;
+
+
+/// imports from print.h
+/* default implementation: may be overridden */
+void MarlinSerial::write(const char *str)
+{
+  while (*str)
+    write(*str++);
 }
 
-void MarlinSerial::checkRx()
+/* default implementation: may be overridden */
+void MarlinSerial::write(const uint8_t *buffer, size_t size)
 {
-  if((UCSR0A & (1<<RXC0)) != 0) {
-    unsigned char c  =  UDR0;
-    store_char(c, &rx_buffer);
+  while (size--)
+    write(*buffer++);
+}
+
+void MarlinSerial::print(const String &s)
+{
+  for (int i = 0; i < s.length(); i++) {
+    write(s[i]);
   }
+}
+
+void MarlinSerial::print(const char str[])
+{
+  write(str);
+}
+
+void MarlinSerial::print(char c, int base)
+{
+  print((long) c, base);
+}
+
+void MarlinSerial::print(unsigned char b, int base)
+{
+  print((unsigned long) b, base);
+}
+
+void MarlinSerial::print(int n, int base)
+{
+  print((long) n, base);
+}
+
+void MarlinSerial::print(unsigned int n, int base)
+{
+  print((unsigned long) n, base);
+}
+
+void MarlinSerial::print(long n, int base)
+{
+  if (base == 0) {
+    write(n);
+  } else if (base == 10) {
+    if (n < 0) {
+      print('-');
+      n = -n;
+    }
+    printNumber(n, 10);
+  } else {
+    printNumber(n, base);
+  }
+}
+
+void MarlinSerial::print(unsigned long n, int base)
+{
+  if (base == 0) write(n);
+  else printNumber(n, base);
+}
+
+void MarlinSerial::print(double n, int digits)
+{
+  printFloat(n, digits);
+}
+
+void MarlinSerial::println(void)
+{
+  print('\r');
+  print('\n');  
+}
+
+void MarlinSerial::println(const String &s)
+{
+  print(s);
+  println();
+}
+
+void MarlinSerial::println(const char c[])
+{
+  print(c);
+  println();
+}
+
+void MarlinSerial::println(char c, int base)
+{
+  print(c, base);
+  println();
+}
+
+void MarlinSerial::println(unsigned char b, int base)
+{
+  print(b, base);
+  println();
+}
+
+void MarlinSerial::println(int n, int base)
+{
+  print(n, base);
+  println();
+}
+
+void MarlinSerial::println(unsigned int n, int base)
+{
+  print(n, base);
+  println();
+}
+
+void MarlinSerial::println(long n, int base)
+{
+  print(n, base);
+  println();
+}
+
+void MarlinSerial::println(unsigned long n, int base)
+{
+  print(n, base);
+  println();
+}
+
+void MarlinSerial::println(double n, int digits)
+{
+  print(n, digits);
+  println();
+}
+
+// Private Methods /////////////////////////////////////////////////////////////
+
+void MarlinSerial::printNumber(unsigned long n, uint8_t base)
+{
+  unsigned char buf[8 * sizeof(long)]; // Assumes 8-bit chars. 
+  unsigned long i = 0;
+
+  if (n == 0) {
+    print('0');
+    return;
+  } 
+
+  while (n > 0) {
+    buf[i++] = n % base;
+    n /= base;
+  }
+
+  for (; i > 0; i--)
+    print((char) (buf[i - 1] < 10 ?
+      '0' + buf[i - 1] :
+      'A' + buf[i - 1] - 10));
+}
+
+void MarlinSerial::printFloat(double number, uint8_t digits) 
+{ 
+  // Handle negative numbers
+  if (number < 0.0)
+  {
+     print('-');
+     number = -number;
+  }
+
+  // Round correctly so that print(1.999, 2) prints as "2.00"
+  double rounding = 0.5;
+  for (uint8_t i=0; i<digits; ++i)
+    rounding /= 10.0;
+  
+  number += rounding;
+
+  // Extract the integer part of the number and print it
+  unsigned long int_part = (unsigned long)number;
+  double remainder = number - (double)int_part;
+  print(int_part);
+
+  // Print the decimal point, but only if there are digits beyond
+  if (digits > 0)
+    print("."); 
+
+  // Extract digits from the remainder one at a time
+  while (digits-- > 0)
+  {
+    remainder *= 10.0;
+    int toPrint = int(remainder);
+    print(toPrint);
+    remainder -= toPrint; 
+  } 
 }
 
 // Preinstantiate Objects //////////////////////////////////////////////////////
 
 #if defined(UBRR0H) && defined(UBRR0L)
-  MarlinSerial MSerial(&rx_buffer, &UBRR0H, &UBRR0L, &UCSR0A, &UCSR0B, &UDR0, RXEN0, TXEN0, RXCIE0, UDRE0, U2X0);
+  MarlinSerial MSerial( &UBRR0H, &UBRR0L, &UCSR0A, &UCSR0B, &UDR0, RXEN0, TXEN0, RXCIE0, UDRE0, U2X0);
 #else
   #error no serial port defined  (port 0)
 #endif
