@@ -51,13 +51,15 @@ class MarlinSerial //: public Stream
     MarlinSerial();
     void begin(long);
     void end();
+    int peek(void);
+    int read(void);
+    void flush(void);
+    
     inline int available(void)
     {
       return (unsigned int)(RX_BUFFER_SIZE + rx_buffer.head - rx_buffer.tail) % RX_BUFFER_SIZE;
     }
-    int peek(void);
-    int read(void);
-    void flush(void);
+    
     inline void write(uint8_t c)
     {
       while (!((UCSR0A) & (1 << UDRE0)))
@@ -91,11 +93,31 @@ class MarlinSerial //: public Stream
     
     
   public:
-    void write(const char *str);
-    void write( const uint8_t *buffer, size_t size);
     
-    void print(const String &);
-    void print(const char[]);
+    inline void write(const char *str)
+    {
+      while (*str)
+        write(*str++);
+    }
+
+
+    inline void write(const uint8_t *buffer, size_t size)
+    {
+      while (size--)
+        write(*buffer++);
+    }
+
+    inline void print(const String &s)
+    {
+      for (int i = 0; i < s.length(); i++) {
+        write(s[i]);
+      }
+    }
+    
+    inline void print(const char *str)
+    {
+      write(str);
+    }
     void print(char, int = BYTE);
     void print(unsigned char, int = BYTE);
     void print(int, int = DEC);

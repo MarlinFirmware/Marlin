@@ -161,31 +161,9 @@ void MarlinSerial::flush()
 
 
 /// imports from print.h
-/* default implementation: may be overridden */
-void MarlinSerial::write(const char *str)
-{
-  while (*str)
-    write(*str++);
-}
 
-/* default implementation: may be overridden */
-void MarlinSerial::write(const uint8_t *buffer, size_t size)
-{
-  while (size--)
-    write(*buffer++);
-}
 
-void MarlinSerial::print(const String &s)
-{
-  for (int i = 0; i < s.length(); i++) {
-    write(s[i]);
-  }
-}
 
-void MarlinSerial::print(const char str[])
-{
-  write(str);
-}
 
 void MarlinSerial::print(char c, int base)
 {
@@ -353,11 +331,7 @@ void MarlinSerial::printFloat(double number, uint8_t digits)
 
 // Preinstantiate Objects //////////////////////////////////////////////////////
 
-#if defined(UBRR0H) && defined(UBRR0L)
-  MarlinSerial MSerial;
-#else
-  #error no serial port defined  (port 0)
-#endif
+MarlinSerial MSerial;
 
 
 #endif // whole file
