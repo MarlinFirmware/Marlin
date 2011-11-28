@@ -60,7 +60,7 @@ void lcdProgMemprint(const char *str)
 //=============================functions         ============================
 //===========================================================================
 
-inline int intround(const float &x){return int(0.5+x);}
+FORCE_INLINE int intround(const float &x){return int(0.5+x);}
 
 void lcd_status(const char* message)
 {
@@ -83,7 +83,7 @@ void lcd_statuspgm(const char* message)
   *target=0;
 }
 
-inline void clear()
+FORCE_INLINE void clear()
 {
   lcd.clear();
 }

@@ -69,7 +69,7 @@ FORCE_INLINE float degHotend(uint8_t extruder){
 
 FORCE_INLINE float degTargetHotend0() {  return analog2temp(target_raw[TEMPSENSOR_HOTEND_0]);};
 FORCE_INLINE float degTargetHotend1() {  return analog2temp(target_raw[TEMPSENSOR_HOTEND_1]);};
-inline float degTargetHotend(uint8_t extruder){  
+FORCE_INLINE float degTargetHotend(uint8_t extruder){  
   if(extruder == 0) return analog2temp(target_raw[TEMPSENSOR_HOTEND_0]);
   if(extruder == 1) return analog2temp(target_raw[TEMPSENSOR_HOTEND_1]);
 };
