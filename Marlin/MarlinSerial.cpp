@@ -24,6 +24,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <inttypes.h>
+#include <math.h>
 #include "wiring.h"
 #include "wiring_private.h"
 
