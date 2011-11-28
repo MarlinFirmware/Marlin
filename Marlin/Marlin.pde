@@ -395,7 +395,6 @@ inline void get_command()
     if(serial_char == '\n' || serial_char == '\r' || serial_char == ':' || serial_count >= (MAX_CMD_SIZE - 1)||n==-1) 
     {
       if(card.eof()){
-        card.sdprinting = false;
         SERIAL_PROTOCOLLNPGM("Done printing file");
         stoptime=millis();
         char time[30];
@@ -407,7 +406,9 @@ inline void get_command()
         SERIAL_ECHO_START;
         SERIAL_ECHOLN(time);
         LCD_MESSAGE(time);
+        card.printingHasFinished();
         card.checkautostart(true);
+        
       }
       if(serial_char=='\n')
          comment_mode = false; //for new command
@@ -860,7 +861,7 @@ inline void process_commands()
       { 
         #if ((E_ENABLE_PIN != X_ENABLE_PIN) && (E_ENABLE_PIN != Y_ENABLE_PIN)) // Only enable on boards that have seperate ENABLE_PINS
         if(code_seen('E')) {
-          st_synchronize()
+          st_synchronize();
           LCD_MESSAGEPGM("Free Move");
           disable_e();
         }
