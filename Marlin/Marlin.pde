@@ -532,6 +532,19 @@ FORCE_INLINE void process_commands()
       feedrate = 0.0;
       home_all_axis = !((code_seen(axis_codes[0])) || (code_seen(axis_codes[1])) || (code_seen(axis_codes[2])));
       
+      if( code_seen(axis_codes[0]) && code_seen(axis_codes[1]) )  //first diagonal move
+      {
+        current_position[X_AXIS] = 0; current_position[Y_AXIS] = 0;
+        plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]); 
+        destination[X_AXIS] = 1.5 * X_MAX_LENGTH * X_HOME_DIR;
+        destination[Y_AXIS] = 1.5 * Y_MAX_LENGTH * Y_HOME_DIR; 
+        feedrate =homing_feedrate[X_AXIS]; 
+        if(homing_feedrate[Y_AXIS]<feedrate)
+          feedrate =homing_feedrate[Y_AXIS]; 
+        prepare_move();
+        current_position[X_AXIS] = 0; current_position[Y_AXIS] = 0;
+      }
+      
       if((home_all_axis) || (code_seen(axis_codes[X_AXIS]))) 
       {
         HOMEAXIS(X);
