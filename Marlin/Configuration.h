@@ -91,6 +91,8 @@
 // if CooldownNoWait is defined M109 will not wait for the cooldown to finish
 #define CooldownNoWait true
 
+// Heating is finished if a temperature close to this degree shift is reached
+#define HEATING_EARLY_FINISH_DEG_OFFSET 1 //Degree
 // PID settings:
 // Uncomment the following line to enable PID support.
   

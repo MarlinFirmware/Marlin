@@ -41,6 +41,7 @@ int temp2analogBed(int celsius);
 float analog2temp(int raw);
 float analog2tempBed(int raw);
 extern int target_raw[3];  
+extern int heatingtarget_raw[3];
 extern int current_raw[3];
 extern float Kp,Ki,Kd,Kc;
 
@@ -79,6 +80,7 @@ FORCE_INLINE float degTargetBed() {   return analog2tempBed(target_raw[TEMPSENSO
 FORCE_INLINE void setTargetHotend0(const float &celsius) 
 {  
   target_raw[TEMPSENSOR_HOTEND_0]=temp2analog(celsius);
+  heatingtarget_raw[TEMPSENSOR_HOTEND_0]=temp2analog(celsius-HEATING_EARLY_FINISH_DEG_OFFSET);
   #ifdef PIDTEMP
     pid_setpoint = celsius;
   #endif //PIDTEMP
@@ -90,10 +92,10 @@ FORCE_INLINE float setTargetHotend(const float &celcius, uint8_t extruder){
 };
 FORCE_INLINE void setTargetBed(const float &celsius)     {  target_raw[TEMPSENSOR_BED     ]=temp2analogBed(celsius);};
 
-FORCE_INLINE bool isHeatingHotend0() {return target_raw[TEMPSENSOR_HOTEND_0] > current_raw[TEMPSENSOR_HOTEND_0];};
+FORCE_INLINE bool isHeatingHotend0() {return heatingtarget_raw[TEMPSENSOR_HOTEND_0] > current_raw[TEMPSENSOR_HOTEND_0];};
 FORCE_INLINE bool isHeatingHotend1() {return target_raw[TEMPSENSOR_HOTEND_1] > current_raw[TEMPSENSOR_HOTEND_1];};
 FORCE_INLINE float isHeatingHotend(uint8_t extruder){  
-  if(extruder == 0) return target_raw[TEMPSENSOR_HOTEND_0] > current_raw[TEMPSENSOR_HOTEND_0];
+  if(extruder == 0) return heatingtarget_raw[TEMPSENSOR_HOTEND_0] > current_raw[TEMPSENSOR_HOTEND_0];
   if(extruder == 1) return target_raw[TEMPSENSOR_HOTEND_1] > current_raw[TEMPSENSOR_HOTEND_1];
 };
 FORCE_INLINE bool isHeatingBed() {return target_raw[TEMPSENSOR_BED] > current_raw[TEMPSENSOR_BED];};
