@@ -24,7 +24,7 @@
 
 #ifndef WiringPrivate_h
 #define WiringPrivate_h
-
+#include <math.h>
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include <avr/delay.h>

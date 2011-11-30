@@ -23,7 +23,7 @@
 
 #ifndef planner_h
 #define planner_h
-
+#include <math.h>
 #include "Configuration.h"
 #include "Marlin.h"
 
