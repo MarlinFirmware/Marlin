@@ -23,7 +23,7 @@
 #define MarlinSerial_h
 
 #include <inttypes.h>
-#include <Stream.h>
+//#include <Stream.h>
 #include <string.h>
 #define  FORCE_INLINE __attribute__((always_inline)) inline
 

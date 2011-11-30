@@ -22,6 +22,7 @@
  * \brief SdFile class
  */
 #include "SdBaseFile.h"
+#include <Print.h>
 #ifndef SdFile_h
 #define SdFile_h
 //------------------------------------------------------------------------------
