@@ -24,13 +24,14 @@
  * \brief Useful utility functions.
  */
 #include <avr/pgmspace.h>
-#if ARDUINO < 100
+
 #define  HardwareSerial_h // trick to disable the standard HWserial
+#if ARDUINO < 100
 #include <WProgram.h>
-#include "MarlinSerial.h"
 #else  // ARDUINO
 #include <Arduino.h>
 #endif  // ARDUINO
+#include "MarlinSerial.h"
 /** Store and print a string in flash memory.*/
 #define PgmPrint(x) SerialPrint_P(PSTR(x))
 /** Store and print a string in flash memory followed by a CR/LF.*/

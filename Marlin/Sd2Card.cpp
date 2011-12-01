@@ -17,8 +17,8 @@
  * along with the Arduino Sd2Card Library.  If not, see
  * <http://www.gnu.org/licenses/>.
  */
-#if ARDUINO < 100
 #define  HardwareSerial_h // trick to disable the standard HWserial
+#if ARDUINO < 100
 #include <WProgram.h>
 #else  // ARDUINO
 #include <Arduino.h>

@@ -51,7 +51,12 @@ int16_t SdFile::write(const void* buf, uint16_t nbyte) {
  * \param[in] b the byte to be written.
  * Use writeError to check for errors.
  */
-void SdFile::write(uint8_t b) {
+#if ARDUINO >= 100
+  size_t SdFile::write(uint8_t b)
+#else
+  void SdFile::write(uint8_t b)
+#endif
+{
   SdBaseFile::write(&b, 1);
 }
 //------------------------------------------------------------------------------

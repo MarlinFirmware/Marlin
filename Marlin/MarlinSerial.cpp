@@ -25,7 +25,11 @@
 #include <string.h>
 #include <inttypes.h>
 #include <math.h>
-#include "wiring.h"
+#if ARDUINO >= 100
+  #include "Arduino.h"
+#else
+   #include "wiring.h"
+#endif
 #include "wiring_private.h"
 
 // this next line disables the entire HardwareSerial.cpp, 

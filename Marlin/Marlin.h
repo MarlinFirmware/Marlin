@@ -5,7 +5,12 @@
 // Licence: GPL
 #define  HardwareSerial_h // trick to disable the standard HWserial
 #include <math.h>
-#include <WProgram.h>
+#if ARDUINO >= 100
+  #include "Arduino.h"
+#else
+   #include "WProgram.h"
+#endif
+
 #include "fastio.h"
 #include <avr/pgmspace.h>
 #include "Configuration.h"
