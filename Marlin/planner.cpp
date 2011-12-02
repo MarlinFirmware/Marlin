@@ -489,12 +489,21 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
   if (target[Z_AXIS] < position[Z_AXIS]) { block->direction_bits |= (1<<Z_AXIS); }
   if (target[E_AXIS] < position[E_AXIS]) { block->direction_bits |= (1<<E_AXIS); }
   
+  block->active_extruder = extruder;
+  
   //enable active axes
   if(block->steps_x != 0) enable_x();
   if(block->steps_y != 0) enable_y();
   if(block->steps_z != 0) enable_z();
-  if(block->steps_e != 0) enable_e();
-
+  if(extruder == 0) {
+    if(block->steps_e != 0) enable_e();
+  }
+  #if (EXTRUDERS > 1)
+  if(extruder == 1) {
+    if(block->steps_e != 0) enable_e1();
+  }
+  #endif
+  
   float delta_mm[4];
   delta_mm[X_AXIS] = (target[X_AXIS]-position[X_AXIS])/axis_steps_per_unit[X_AXIS];
   delta_mm[Y_AXIS] = (target[Y_AXIS]-position[Y_AXIS])/axis_steps_per_unit[Y_AXIS];
@@ -713,7 +722,7 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
     else {
       long acc_dist = estimate_acceleration_distance(0, block->nominal_rate, block->acceleration_st);
       float advance = (STEPS_PER_CUBIC_MM_E * EXTRUDER_ADVANCE_K) * 
-        (block->speed_e * block->speed_e * EXTRUTION_AREA * EXTRUTION_AREA / 3600.0)*65536;
+        (current_speed[E_AXIS] * current_speed[E_AXIS] * EXTRUTION_AREA * EXTRUTION_AREA / 3600.0)*65536;
       block->advance = advance;
       if(acc_dist == 0) {
         block->advance_rate = 0;

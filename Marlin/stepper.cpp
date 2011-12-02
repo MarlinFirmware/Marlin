@@ -383,8 +383,9 @@ ISR(TIMER1_COMPA_vect)
       }
     #endif //!ADVANCE
     for(int8_t i=0; i < step_loops; i++) { // Take multiple steps per interrupt (For high speed moves) 
-    MSerial.checkRx();
-    /*
+      MSerial.checkRx(); // Check for serial chars. 
+      
+      #ifdef ADVANCE
       counter_e += current_block->steps_e;
       if (counter_e > 0) {
         counter_e -= current_block->step_event_count;
@@ -399,15 +400,11 @@ ISR(TIMER1_COMPA_vect)
           CRITICAL_SECTION_END;
         }
       }    
-      */
-      /*
       // Do E steps + advance steps
-      CRITICAL_SECTION_START;
       e_steps += ((advance >> 16) - old_advance);
-      CRITICAL_SECTION_END;
       old_advance = advance >> 16;  
-      */
-        
+      #endif //ADVANCE
+      
       counter_x += current_block->steps_x;
       if (counter_x > 0) {
         WRITE(X_STEP_PIN, HIGH);
@@ -461,7 +458,9 @@ ISR(TIMER1_COMPA_vect)
       OCR1A = timer;
       acceleration_time += timer;
       #ifdef ADVANCE
-        advance += advance_rate;
+        for(int8_t i=0; i < step_loops; i++) {
+          advance += advance_rate;
+        }
       #endif
     } 
     else if (step_events_completed > current_block->decelerate_after) {   
@@ -483,7 +482,9 @@ ISR(TIMER1_COMPA_vect)
       OCR1A = timer;
       deceleration_time += timer;
       #ifdef ADVANCE
-        advance -= advance_rate;
+        for(int8_t i=0; i < step_loops; i++) {
+          advance -= advance_rate;
+        }
         if(advance < final_advance)
           advance = final_advance;
       #endif //ADVANCE
@@ -491,7 +492,7 @@ ISR(TIMER1_COMPA_vect)
     else {
       OCR1A = OCR1A_nominal;
     }
-    
+
     // If current block is finished, reset pointer 
     if (step_events_completed >= current_block->step_event_count) {
       current_block = NULL;
@@ -506,22 +507,24 @@ ISR(TIMER1_COMPA_vect)
   // Timer 0 is shared with millies
   ISR(TIMER0_COMPA_vect)
   {
-    // Critical section needed because Timer 1 interrupt has higher priority. 
-    // The pin set functions are placed on trategic position to comply with the stepper driver timing.
-    WRITE(E_STEP_PIN, LOW);
-    // Set E direction (Depends on E direction + advance)
-    if (e_steps < 0) {
-      WRITE(E_DIR_PIN,INVERT_E_DIR);    
-      e_steps++;
-      WRITE(E_STEP_PIN, HIGH);
-    } 
-    if (e_steps > 0) {
-      WRITE(E_DIR_PIN,!INVERT_E_DIR);
-      e_steps--;
-      WRITE(E_STEP_PIN, HIGH);
-    }
-    old_OCR0A += 25; // 10kHz interrupt
+    old_OCR0A += 25; // ~10kHz interrupt
     OCR0A = old_OCR0A;
+    // Set E direction (Depends on E direction + advance)
+    for(unsigned char i=0; i<4;) {
+      WRITE(E_STEP_PIN, LOW);
+      if (e_steps == 0) break;
+      i++;
+      if (e_steps < 0) {
+        WRITE(E_DIR_PIN,INVERT_E_DIR);    
+        e_steps++;
+        WRITE(E_STEP_PIN, HIGH);
+      } 
+      if (e_steps > 0) {
+        WRITE(E_DIR_PIN,!INVERT_E_DIR);
+        e_steps--;
+        WRITE(E_STEP_PIN, HIGH);
+      }
+    }
   }
 #endif // ADVANCE
 
@@ -638,6 +641,10 @@ void st_init()
   ENABLE_STEPPER_DRIVER_INTERRUPT();  
 
   #ifdef ADVANCE
+  #if defined(TCCR0A) && defined(WGM01)
+    TCCR0A &= ~(1<<WGM01);
+    TCCR0A &= ~(1<<WGM00);
+  #endif  
     e_steps = 0;
     TIMSK0 |= (1<<OCIE0A);
   #endif //ADVANCE
