@@ -112,6 +112,7 @@
 // M500 - stores paramters in EEPROM
 // M501 - reads parameters from EEPROM (if you need reset them after you changed them temporarily).  
 // M502 - reverts to the default "factory settings".  You still need to store them in EEPROM afterwards if you want to.
+// M503 - print the current settings (from memory not from eeprom)
 
 //Stepper Movement Variables
 
@@ -236,7 +237,7 @@ void setup()
     fromsd[i] = false;
   }
   
-  RetrieveSettings(); // loads data from EEPROM if available
+  EEPROM_RetrieveSettings(); // loads data from EEPROM if available
 
   for(int8_t i=0; i < NUM_AXIS; i++)
   {
@@ -1034,17 +1035,22 @@ FORCE_INLINE void process_commands()
     break;
     case 500: // Store settings in EEPROM
     {
-        StoreSettings();
+        EEPROM_StoreSettings();
     }
     break;
     case 501: // Read settings from EEPROM
     {
-      RetrieveSettings();
+      EEPROM_RetrieveSettings();
     }
     break;
     case 502: // Revert to default settings
     {
-      RetrieveSettings(true);
+      EEPROM_RetrieveSettings(true);
+    }
+    break;
+    case 503: // print settings currently in memory
+    {
+      EEPROM_printSettings();
     }
     break;
 

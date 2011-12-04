@@ -39,7 +39,7 @@ template <class T> int EEPROM_readAnything(int &ee, T& value)
 // ALSO:  always make sure the variables in the Store and retrieve sections are in the same order.
 #define EEPROM_VERSION "V04"  
 
-FORCE_INLINE void StoreSettings() 
+inline void EEPROM_StoreSettings() 
 {
 #ifdef EEPROM_SETTINGS
   char ver[4]= "000";
@@ -72,7 +72,64 @@ FORCE_INLINE void StoreSettings()
 #endif //EEPROM_SETTINGS
 }
 
-FORCE_INLINE void RetrieveSettings(bool def=false)
+
+inline void EEPROM_printSettings()
+{  // if def=true, the default values will be used
+  #ifdef EEPROM_SETTINGS  
+      SERIAL_ECHO_START;
+      SERIAL_ECHOLNPGM("Steps per unit:");
+      SERIAL_ECHO_START;
+      SERIAL_ECHOPAIR("  M92 X",axis_steps_per_unit[0]);
+      SERIAL_ECHOPAIR(" Y",axis_steps_per_unit[1]);
+      SERIAL_ECHOPAIR(" Z",axis_steps_per_unit[2]);
+      SERIAL_ECHOPAIR(" E",axis_steps_per_unit[3]);
+      SERIAL_ECHOLN("");
+      
+    SERIAL_ECHO_START;
+      SERIAL_ECHOLNPGM("Maximum feedrates (mm/s):");
+      SERIAL_ECHO_START;
+      SERIAL_ECHOPAIR("  M203 X",max_feedrate[0]);
+      SERIAL_ECHOPAIR(" Y",max_feedrate[1] ); 
+      SERIAL_ECHOPAIR(" Z", max_feedrate[2] ); 
+      SERIAL_ECHOPAIR(" E", max_feedrate[3]);
+      SERIAL_ECHOLN("");
+    SERIAL_ECHO_START;
+      SERIAL_ECHOLNPGM("Maximum Acceleration (mm/s2):");
+      SERIAL_ECHO_START;
+      SERIAL_ECHOPAIR("  M201 X" ,max_acceleration_units_per_sq_second[0] ); 
+      SERIAL_ECHOPAIR(" Y" , max_acceleration_units_per_sq_second[1] ); 
+      SERIAL_ECHOPAIR(" Z" ,max_acceleration_units_per_sq_second[2] );
+      SERIAL_ECHOPAIR(" E" ,max_acceleration_units_per_sq_second[3]);
+      SERIAL_ECHOLN("");
+    SERIAL_ECHO_START;
+      SERIAL_ECHOLNPGM("Acceleration: S=acceleration, T=retract acceleration");
+      SERIAL_ECHO_START;
+      SERIAL_ECHOPAIR("  M204 S",acceleration ); 
+      SERIAL_ECHOPAIR(" T" ,retract_acceleration);
+      SERIAL_ECHOLN("");
+    SERIAL_ECHO_START;
+      SERIAL_ECHOLNPGM("Advanced variables: S=Min feedrate (mm/s), T=Min travel feedrate (mm/s), B=minimum segment time (ms), X=maximum xY jerk (mm/s),  Z=maximum Z jerk (mm/s)");
+      SERIAL_ECHO_START;
+      SERIAL_ECHOPAIR("  M205 S",minimumfeedrate ); 
+      SERIAL_ECHOPAIR(" T" ,mintravelfeedrate ); 
+      SERIAL_ECHOPAIR(" B" ,minsegmenttime ); 
+      SERIAL_ECHOPAIR(" X" ,max_xy_jerk ); 
+      SERIAL_ECHOPAIR(" Z" ,max_z_jerk);
+      SERIAL_ECHOLN(""); 
+    #ifdef PIDTEMP
+      SERIAL_ECHO_START;
+      SERIAL_ECHOLNPGM("PID settings:");
+      SERIAL_ECHO_START;
+      SERIAL_ECHOPAIR("   M301 P",Kp); 
+      SERIAL_ECHOPAIR(" I" ,Ki/PID_dT); 
+      SERIAL_ECHOPAIR(" D" ,Kd*PID_dT);
+      SERIAL_ECHOLN(""); 
+    #endif
+  #endif
+} 
+
+
+inline void EEPROM_RetrieveSettings(bool def=false)
 {  // if def=true, the default values will be used
   #ifdef EEPROM_SETTINGS
     int i=EEPROM_OFFSET;
@@ -125,55 +182,7 @@ FORCE_INLINE void RetrieveSettings(bool def=false)
       SERIAL_ECHOLN("Using Default settings:");
     }
   #ifdef EEPROM_CHITCHAT
-    SERIAL_ECHO_START;
-      SERIAL_ECHOLNPGM("Steps per unit:");
-      SERIAL_ECHO_START;
-      SERIAL_ECHOPAIR("  M92 X",axis_steps_per_unit[0]);
-      SERIAL_ECHOPAIR(" Y",axis_steps_per_unit[1]);
-      SERIAL_ECHOPAIR(" Z",axis_steps_per_unit[2]);
-      SERIAL_ECHOPAIR(" E",axis_steps_per_unit[3]);
-      SERIAL_ECHOLN("");
-      
-    SERIAL_ECHO_START;
-      SERIAL_ECHOLNPGM("Maximum feedrates (mm/s):");
-      SERIAL_ECHO_START;
-      SERIAL_ECHOPAIR("  M203 X",max_feedrate[0]);
-      SERIAL_ECHOPAIR(" Y",max_feedrate[1] ); 
-      SERIAL_ECHOPAIR(" Z", max_feedrate[2] ); 
-      SERIAL_ECHOPAIR(" E", max_feedrate[3]);
-      SERIAL_ECHOLN("");
-    SERIAL_ECHO_START;
-      SERIAL_ECHOLNPGM("Maximum Acceleration (mm/s2):");
-      SERIAL_ECHO_START;
-      SERIAL_ECHOPAIR("  M201 X" ,max_acceleration_units_per_sq_second[0] ); 
-      SERIAL_ECHOPAIR(" Y" , max_acceleration_units_per_sq_second[1] ); 
-      SERIAL_ECHOPAIR(" Z" ,max_acceleration_units_per_sq_second[2] );
-      SERIAL_ECHOPAIR(" E" ,max_acceleration_units_per_sq_second[3]);
-      SERIAL_ECHOLN("");
-    SERIAL_ECHO_START;
-      SERIAL_ECHOLNPGM("Acceleration: S=acceleration, T=retract acceleration");
-      SERIAL_ECHO_START;
-      SERIAL_ECHOPAIR("  M204 S",acceleration ); 
-      SERIAL_ECHOPAIR(" T" ,retract_acceleration);
-      SERIAL_ECHOLN("");
-    SERIAL_ECHO_START;
-      SERIAL_ECHOLNPGM("Advanced variables: S=Min feedrate (mm/s), T=Min travel feedrate (mm/s), B=minimum segment time (ms), X=maximum xY jerk (mm/s),  Z=maximum Z jerk (mm/s)");
-      SERIAL_ECHO_START;
-      SERIAL_ECHOPAIR("  M205 S",minimumfeedrate ); 
-      SERIAL_ECHOPAIR(" T" ,mintravelfeedrate ); 
-      SERIAL_ECHOPAIR(" B" ,minsegmenttime ); 
-      SERIAL_ECHOPAIR(" X" ,max_xy_jerk ); 
-      SERIAL_ECHOPAIR(" Z" ,max_z_jerk);
-      SERIAL_ECHOLN(""); 
-    #ifdef PIDTEMP
-      SERIAL_ECHO_START;
-      SERIAL_ECHOLNPGM("PID settings:");
-      SERIAL_ECHO_START;
-      SERIAL_ECHOPAIR("   M301 P",Kp); 
-      SERIAL_ECHOPAIR(" I" ,Ki/PID_dT); 
-      SERIAL_ECHOPAIR(" D" ,Kd*PID_dT);
-      SERIAL_ECHOLN(""); 
-    #endif
+    EEPROM_printSettings();
   #endif
 }  
 

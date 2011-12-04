@@ -1402,7 +1402,7 @@ void MainMenu::showControl()
         //enquecommand("M84");
         beepshort();
         BLOCK;
-        StoreSettings();
+        EEPROM_StoreSettings();
       }
     }break;
     case ItemC_load:
@@ -1416,7 +1416,7 @@ void MainMenu::showControl()
         //enquecommand("M84");
         beepshort();
         BLOCK;
-        RetrieveSettings();
+        EEPROM_RetrieveSettings();
       }
     }break;
     case ItemC_failsafe:
@@ -1430,7 +1430,7 @@ void MainMenu::showControl()
         //enquecommand("M84");
         beepshort();
         BLOCK;
-        RetrieveSettings(true);
+        EEPROM_RetrieveSettings(true);
       }
     }break;
     default:   
