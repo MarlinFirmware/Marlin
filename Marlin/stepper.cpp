@@ -55,9 +55,9 @@ static long counter_x,       // Counter variables for the bresenham line tracer
 volatile static unsigned long step_events_completed; // The number of step events executed in the current block
 #ifdef ADVANCE
   static long advance_rate, advance, final_advance = 0;
-  static short old_advance = 0;
+  static long old_advance = 0;
 #endif
-static short e_steps;
+static long e_steps;
 static unsigned char busy = false; // TRUE when SIG_OUTPUT_COMPARE1A is being serviced. Used to avoid retriggering that handler.
 static long acceleration_time, deceleration_time;
 //static unsigned long accelerate_until, decelerate_after, acceleration_rate, initial_rate, final_rate, nominal_rate;
@@ -253,6 +253,9 @@ FORCE_INLINE void trapezoid_generator_reset() {
   #ifdef ADVANCE
     advance = current_block->initial_advance;
     final_advance = current_block->final_advance;
+    // Do E steps + advance steps
+    e_steps += ((advance >>8) - old_advance);
+    old_advance = advance >>8;  
   #endif
   deceleration_time = 0;
   // step_rate to timer interval
@@ -260,6 +263,17 @@ FORCE_INLINE void trapezoid_generator_reset() {
   acceleration_time = calc_timer(acc_step_rate);
   OCR1A = acceleration_time;
   OCR1A_nominal = calc_timer(current_block->nominal_rate);
+  
+//    SERIAL_ECHO_START;
+//    SERIAL_ECHOPGM("advance :");
+//    SERIAL_ECHO(current_block->advance/256.0);
+//    SERIAL_ECHOPGM("advance rate :");
+//    SERIAL_ECHO(current_block->advance_rate/256.0);
+//    SERIAL_ECHOPGM("initial advance :");
+//  SERIAL_ECHO(current_block->initial_advance/256.0);
+//    SERIAL_ECHOPGM("final advance :");
+//    SERIAL_ECHOLN(current_block->final_advance/256.0);
+    
 }
 
 // "The Stepper Driver Interrupt" - This timer interrupt is the workhorse.  
@@ -382,6 +396,9 @@ ISR(TIMER1_COMPA_vect)
         count_direction[E_AXIS]=-1;
       }
     #endif //!ADVANCE
+    
+
+    
     for(int8_t i=0; i < step_loops; i++) { // Take multiple steps per interrupt (For high speed moves) 
       MSerial.checkRx(); // Check for serial chars. 
       
@@ -390,19 +407,12 @@ ISR(TIMER1_COMPA_vect)
       if (counter_e > 0) {
         counter_e -= current_block->step_event_count;
         if ((out_bits & (1<<E_AXIS)) != 0) { // - direction
-          CRITICAL_SECTION_START;
           e_steps--;
-          CRITICAL_SECTION_END;
         }
         else {
-          CRITICAL_SECTION_START;
           e_steps++;
-          CRITICAL_SECTION_END;
         }
       }    
-      // Do E steps + advance steps
-      e_steps += ((advance >> 16) - old_advance);
-      old_advance = advance >> 16;  
       #endif //ADVANCE
       
       counter_x += current_block->steps_x;
@@ -461,6 +471,11 @@ ISR(TIMER1_COMPA_vect)
         for(int8_t i=0; i < step_loops; i++) {
           advance += advance_rate;
         }
+        //if(advance > current_block->advance) advance = current_block->advance;
+        // Do E steps + advance steps
+        e_steps += ((advance >>8) - old_advance);
+        old_advance = advance >>8;  
+        
       #endif
     } 
     else if (step_events_completed > current_block->decelerate_after) {   
@@ -485,8 +500,10 @@ ISR(TIMER1_COMPA_vect)
         for(int8_t i=0; i < step_loops; i++) {
           advance -= advance_rate;
         }
-        if(advance < final_advance)
-          advance = final_advance;
+        if(advance < final_advance) advance = final_advance;
+        // Do E steps + advance steps
+        e_steps += ((advance >>8) - old_advance);
+        old_advance = advance >>8;  
       #endif //ADVANCE
     }
     else {
@@ -507,7 +524,7 @@ ISR(TIMER1_COMPA_vect)
   // Timer 0 is shared with millies
   ISR(TIMER0_COMPA_vect)
   {
-    old_OCR0A += 25; // ~10kHz interrupt
+    old_OCR0A += 52; // ~10kHz interrupt (250000 / 26 = 9615kHz)
     OCR0A = old_OCR0A;
     // Set E direction (Depends on E direction + advance)
     for(unsigned char i=0; i<4;) {
@@ -519,7 +536,7 @@ ISR(TIMER1_COMPA_vect)
         e_steps++;
         WRITE(E_STEP_PIN, HIGH);
       } 
-      if (e_steps > 0) {
+      else if (e_steps > 0) {
         WRITE(E_DIR_PIN,!INVERT_E_DIR);
         e_steps--;
         WRITE(E_STEP_PIN, HIGH);
