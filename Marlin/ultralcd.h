@@ -1,7 +1,7 @@
 #ifndef __ULTRALCDH
 #define __ULTRALCDH
 #include "Configuration.h"
-
+#include "Marlin.h"
 #ifdef ULTRA_LCD
 
   void lcd_status();
@@ -104,7 +104,6 @@
             curencoderpos=maxlines*lcdslow; 
         } 
         lastencoderpos=encoderpos=curencoderpos;
-        int lastactiveline=activeline;
         activeline=curencoderpos/lcdslow;
         if(activeline<0) activeline=0;
         if(activeline>LCD_HEIGHT-1) activeline=LCD_HEIGHT-1;
@@ -137,7 +136,7 @@
 
 
   #define LCD_MESSAGE(x) lcd_status(x);
-  #define LCD_MESSAGEPGM(x) lcd_statuspgm(PSTR(x));
+  #define LCD_MESSAGEPGM(x) lcd_statuspgm(MYPGM(x));
   #define LCD_STATUS lcd_status()
 #else //no lcd
   #define LCD_STATUS

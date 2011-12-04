@@ -120,7 +120,7 @@ class MarlinSerial //: public Stream
 
     FORCE_INLINE void print(const String &s)
     {
-      for (int i = 0; i < s.length(); i++) {
+      for (int i = 0; i < (int)s.length(); i++) {
         write(s[i]);
       }
     }

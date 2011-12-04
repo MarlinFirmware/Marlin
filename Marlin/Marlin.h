@@ -16,7 +16,6 @@
 #include "Configuration.h"
 #include "MarlinSerial.h"
 
-
 #define  FORCE_INLINE __attribute__((always_inline)) inline
 //#define SERIAL_ECHO(x) Serial << "echo: " << x;
 //#define SERIAL_ECHOLN(x) Serial << "echo: "<<x<<endl;
@@ -25,15 +24,25 @@
 //#define SERIAL_PROTOCOL(x) Serial << x;
 //#define SERIAL_PROTOCOLLN(x) Serial << x<<endl;
 
+//this is a unfinsihed attemp to removes a lot of warning messages, see:
+// http://www.avrfreaks.net/index.php?name=PNphpBB2&file=printview&t=57011
+//typedef char prog_char PROGMEM; 
+// //#define PSTR    (s )        ((const PROGMEM char *)(s))
+// //# define MYPGM(s) (__extension__({static prog_char __c[] = (s); &__c[0];})) 
+// //#define MYPGM(s) ((const prog_char *g PROGMEM=s))
+// //#define MYPGM(s) PSTR(s)
+#define MYPGM(s)  (__extension__({static char __c[] __attribute__((__progmem__)) = (s); &__c[0];}))  //This is the normal behaviour
+//#define MYPGM(s)  (__extension__({static prog_char __c[]  = (s); &__c[0];})) //this does not work but hides the warnings
 
 
 #define SERIAL_PROTOCOL(x) MSerial.print(x);
-#define SERIAL_PROTOCOLPGM(x) serialprintPGM(PSTR(x));
+#define SERIAL_PROTOCOLPGM(x) serialprintPGM(MYPGM(x));
 #define SERIAL_PROTOCOLLN(x) {MSerial.print(x);MSerial.write('\n');}
-#define SERIAL_PROTOCOLLNPGM(x) {serialprintPGM(PSTR(x));MSerial.write('\n');}
+#define SERIAL_PROTOCOLLNPGM(x) {serialprintPGM(MYPGM(x));MSerial.write('\n');}
 
-const char errormagic[] PROGMEM ="Error:";
-const char echomagic[] PROGMEM ="echo:";
+
+const prog_char errormagic[] PROGMEM ="Error:";
+const prog_char echomagic[] PROGMEM ="echo:";
 #define SERIAL_ERROR_START serialprintPGM(errormagic);
 #define SERIAL_ERROR(x) SERIAL_PROTOCOL(x)
 #define SERIAL_ERRORPGM(x) SERIAL_PROTOCOLPGM(x)
@@ -50,7 +59,7 @@ const char echomagic[] PROGMEM ="echo:";
 
 
 //things to write to serial from Programmemory. saves 400 to 2k of RAM.
-#define SerialprintPGM(x) serialprintPGM(PSTR(x))
+#define SerialprintPGM(x) serialprintPGM(MYPGM(x))
 FORCE_INLINE void serialprintPGM(const char *str)
 {
   char ch=pgm_read_byte(str);

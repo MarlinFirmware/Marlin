@@ -21,6 +21,7 @@
 /* The timer calculations of this module informed by the 'RepRap cartesian firmware' by Zack Smith
    and Philipp Tiefenbacher. */
 
+
 #include "stepper.h"
 #include "Configuration.h"
 #include "Marlin.h"
@@ -444,7 +445,7 @@ ISR(TIMER1_COMPA_vect)
     // Calculare new timer value
     unsigned short timer;
     unsigned short step_rate;
-    if (step_events_completed <= current_block->accelerate_until) {
+    if (step_events_completed <= (unsigned long int)current_block->accelerate_until) {
       
       MultiU24X24toH16(acc_step_rate, acceleration_time, current_block->acceleration_rate);
       acc_step_rate += current_block->initial_rate;
@@ -463,7 +464,7 @@ ISR(TIMER1_COMPA_vect)
         }
       #endif
     } 
-    else if (step_events_completed > current_block->decelerate_after) {   
+    else if (step_events_completed > (unsigned long int)current_block->decelerate_after) {   
       MultiU24X24toH16(step_rate, deceleration_time, current_block->acceleration_rate);
       
       if(step_rate > acc_step_rate) { // Check step_rate stays positive
@@ -678,7 +679,7 @@ void st_set_e_position(const long &e)
   CRITICAL_SECTION_END;
 }
 
-long st_get_position(char axis)
+long st_get_position(uint8_t axis)
 {
   long count_pos;
   CRITICAL_SECTION_START;

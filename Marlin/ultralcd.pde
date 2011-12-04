@@ -53,7 +53,7 @@ void lcdProgMemprint(const char *str)
     ch=pgm_read_byte(++str);
   }
 }
-#define lcdprintPGM(x) lcdProgMemprint(PSTR(x))
+#define lcdprintPGM(x) lcdProgMemprint(MYPGM(x))
 
 
 //===========================================================================
@@ -159,8 +159,8 @@ void lcd_status()
 {
   #ifdef ULTIPANEL
     static uint8_t oldbuttons=0;
-    static long previous_millis_buttons=0;
-    static long previous_lcdinit=0;
+    //static long previous_millis_buttons=0;
+    //static long previous_lcdinit=0;
   //  buttons_check(); // Done in temperature interrupt
     //previous_millis_buttons=millis();
     
