@@ -670,6 +670,7 @@ FORCE_INLINE void process_commands()
       SERIAL_ECHO_START;
       SERIAL_ECHOLN(time);
       LCD_MESSAGE(time);
+      autotempShutdown();
     }
     break;
     case 42: //M42 -Change pin status via gcode

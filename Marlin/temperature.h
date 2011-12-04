@@ -108,6 +108,16 @@ FORCE_INLINE float isCoolingHotend(uint8_t extruder){
 };
 FORCE_INLINE bool isCoolingBed() {return target_raw[TEMPSENSOR_BED] < current_raw[TEMPSENSOR_BED];};
 
+FORCE_INLINE void autotempShutdown(){
+ #ifdef AUTOTEMP
+ if(autotemp_enabled)
+ {
+  autotemp_enabled=false;
+  if(degTargetHotend0()>autotemp_min)
+    setTargetHotend0(0);
+ }
+ #endif
+}
 void disable_heater();
 void setWatch();
 void updatePID();

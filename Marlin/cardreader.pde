@@ -436,5 +436,6 @@ void CardReader::printingHasFinished()
  {
    finishAndDisableSteppers();
  }
+ autotempShutdown();
 }
 #endif //SDSUPPORT
