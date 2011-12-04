@@ -56,9 +56,9 @@ static long counter_x,       // Counter variables for the bresenham line tracer
 volatile static unsigned long step_events_completed; // The number of step events executed in the current block
 #ifdef ADVANCE
   static long advance_rate, advance, final_advance = 0;
-  static short old_advance = 0;
+  static long old_advance = 0;
 #endif
-static short e_steps;
+static long e_steps;
 static unsigned char busy = false; // TRUE when SIG_OUTPUT_COMPARE1A is being serviced. Used to avoid retriggering that handler.
 static long acceleration_time, deceleration_time;
 //static unsigned long accelerate_until, decelerate_after, acceleration_rate, initial_rate, final_rate, nominal_rate;
@@ -79,13 +79,20 @@ static bool old_y_max_endstop=false;
 static bool old_z_min_endstop=false;
 static bool old_z_max_endstop=false;
 
+static bool check_endstops = true;
+
 volatile long count_position[NUM_AXIS] = { 0, 0, 0, 0};
 volatile char count_direction[NUM_AXIS] = { 1, 1, 1, 1};
 
 //===========================================================================
 //=============================functions         ============================
 //===========================================================================
-  
+
+#ifdef ENDSTOPS_ONLY_FOR_HOMING
+  #define CHECK_ENDSTOPS  if(check_endstops)
+#else
+  #define CHECK_ENDSTOPS
+#endif
 
 // intRes = intIn1 * intIn2 >> 16
 // uses:
@@ -191,6 +198,11 @@ void endstops_hit_on_purpose()
   endstop_z_hit=false;
 }
 
+void enable_endstops(bool check)
+{
+  check_endstops = check;
+}
+
 //         __________________________
 //        /|                        |\     _________________         ^
 //       / |                        | \   /|               |\        |
@@ -254,6 +266,9 @@ FORCE_INLINE void trapezoid_generator_reset() {
   #ifdef ADVANCE
     advance = current_block->initial_advance;
     final_advance = current_block->final_advance;
+    // Do E steps + advance steps
+    e_steps += ((advance >>8) - old_advance);
+    old_advance = advance >>8;  
   #endif
   deceleration_time = 0;
   // step_rate to timer interval
@@ -261,6 +276,17 @@ FORCE_INLINE void trapezoid_generator_reset() {
   acceleration_time = calc_timer(acc_step_rate);
   OCR1A = acceleration_time;
   OCR1A_nominal = calc_timer(current_block->nominal_rate);
+  
+//    SERIAL_ECHO_START;
+//    SERIAL_ECHOPGM("advance :");
+//    SERIAL_ECHO(current_block->advance/256.0);
+//    SERIAL_ECHOPGM("advance rate :");
+//    SERIAL_ECHO(current_block->advance_rate/256.0);
+//    SERIAL_ECHOPGM("initial advance :");
+//  SERIAL_ECHO(current_block->initial_advance/256.0);
+//    SERIAL_ECHOPGM("final advance :");
+//    SERIAL_ECHOLN(current_block->final_advance/256.0);
+    
 }
 
 // "The Stepper Driver Interrupt" - This timer interrupt is the workhorse.  
@@ -295,82 +321,100 @@ ISR(TIMER1_COMPA_vect)
     if ((out_bits & (1<<X_AXIS)) != 0) {   // -direction
       WRITE(X_DIR_PIN, INVERT_X_DIR);
       count_direction[X_AXIS]=-1;
-      #if X_MIN_PIN > -1
-        bool x_min_endstop=(READ(X_MIN_PIN) != X_ENDSTOPS_INVERTING);
-        if(x_min_endstop && old_x_min_endstop && (current_block->steps_x > 0)) {
-          endstops_trigsteps[X_AXIS] = count_position[X_AXIS];
-          endstop_x_hit=true;
-          step_events_completed = current_block->step_event_count;
-        }
-        old_x_min_endstop = x_min_endstop;
-      #endif
+      CHECK_ENDSTOPS
+      {
+        #if X_MIN_PIN > -1
+          bool x_min_endstop=(READ(X_MIN_PIN) != X_ENDSTOPS_INVERTING);
+          if(x_min_endstop && old_x_min_endstop && (current_block->steps_x > 0)) {
+            endstops_trigsteps[X_AXIS] = count_position[X_AXIS];
+            endstop_x_hit=true;
+            step_events_completed = current_block->step_event_count;
+          }
+          old_x_min_endstop = x_min_endstop;
+        #endif
+      }
     }
     else { // +direction 
       WRITE(X_DIR_PIN,!INVERT_X_DIR);
       count_direction[X_AXIS]=1;
-      #if X_MAX_PIN > -1
-        bool x_max_endstop=(READ(X_MAX_PIN) != X_ENDSTOPS_INVERTING);
-        if(x_max_endstop && old_x_max_endstop && (current_block->steps_x > 0)){
-          endstops_trigsteps[X_AXIS] = count_position[X_AXIS];
-          endstop_x_hit=true;
-          step_events_completed = current_block->step_event_count;
-        }
-        old_x_max_endstop = x_max_endstop;
-      #endif
+      CHECK_ENDSTOPS 
+      {
+        #if X_MAX_PIN > -1
+          bool x_max_endstop=(READ(X_MAX_PIN) != X_ENDSTOPS_INVERTING);
+          if(x_max_endstop && old_x_max_endstop && (current_block->steps_x > 0)){
+            endstops_trigsteps[X_AXIS] = count_position[X_AXIS];
+            endstop_x_hit=true;
+            step_events_completed = current_block->step_event_count;
+          }
+          old_x_max_endstop = x_max_endstop;
+        #endif
+      }
     }
 
     if ((out_bits & (1<<Y_AXIS)) != 0) {   // -direction
       WRITE(Y_DIR_PIN,INVERT_Y_DIR);
       count_direction[Y_AXIS]=-1;
-      #if Y_MIN_PIN > -1
-        bool y_min_endstop=(READ(Y_MIN_PIN) != Y_ENDSTOPS_INVERTING);
-        if(y_min_endstop && old_y_min_endstop && (current_block->steps_y > 0)) {
-          endstops_trigsteps[Y_AXIS] = count_position[Y_AXIS];
-          endstop_y_hit=true;
-          step_events_completed = current_block->step_event_count;
-        }
-        old_y_min_endstop = y_min_endstop;
-      #endif
+      CHECK_ENDSTOPS
+      {
+        #if Y_MIN_PIN > -1
+          bool y_min_endstop=(READ(Y_MIN_PIN) != Y_ENDSTOPS_INVERTING);
+          if(y_min_endstop && old_y_min_endstop && (current_block->steps_y > 0)) {
+            endstops_trigsteps[Y_AXIS] = count_position[Y_AXIS];
+            endstop_y_hit=true;
+            step_events_completed = current_block->step_event_count;
+          }
+          old_y_min_endstop = y_min_endstop;
+        #endif
+      }
     }
     else { // +direction
     WRITE(Y_DIR_PIN,!INVERT_Y_DIR);
       count_direction[Y_AXIS]=1;
-      #if Y_MAX_PIN > -1
-        bool y_max_endstop=(READ(Y_MAX_PIN) != Y_ENDSTOPS_INVERTING);
-        if(y_max_endstop && old_y_max_endstop && (current_block->steps_y > 0)){
-          endstops_trigsteps[Y_AXIS] = count_position[Y_AXIS];
-          endstop_y_hit=true;
-          step_events_completed = current_block->step_event_count;
-        }
-        old_y_max_endstop = y_max_endstop;
-      #endif
+      CHECK_ENDSTOPS
+      {
+        #if Y_MAX_PIN > -1
+          bool y_max_endstop=(READ(Y_MAX_PIN) != Y_ENDSTOPS_INVERTING);
+          if(y_max_endstop && old_y_max_endstop && (current_block->steps_y > 0)){
+            endstops_trigsteps[Y_AXIS] = count_position[Y_AXIS];
+            endstop_y_hit=true;
+            step_events_completed = current_block->step_event_count;
+          }
+          old_y_max_endstop = y_max_endstop;
+        #endif
+      }
     }
 
     if ((out_bits & (1<<Z_AXIS)) != 0) {   // -direction
       WRITE(Z_DIR_PIN,INVERT_Z_DIR);
       count_direction[Z_AXIS]=-1;
-      #if Z_MIN_PIN > -1
-        bool z_min_endstop=(READ(Z_MIN_PIN) != Z_ENDSTOPS_INVERTING);
-        if(z_min_endstop && old_z_min_endstop && (current_block->steps_z > 0)) {
-          endstops_trigsteps[Z_AXIS] = count_position[Z_AXIS];
-          endstop_z_hit=true;
-          step_events_completed = current_block->step_event_count;
-        }
-        old_z_min_endstop = z_min_endstop;
-      #endif
+      CHECK_ENDSTOPS
+      {
+        #if Z_MIN_PIN > -1
+          bool z_min_endstop=(READ(Z_MIN_PIN) != Z_ENDSTOPS_INVERTING);
+          if(z_min_endstop && old_z_min_endstop && (current_block->steps_z > 0)) {
+            endstops_trigsteps[Z_AXIS] = count_position[Z_AXIS];
+            endstop_z_hit=true;
+            step_events_completed = current_block->step_event_count;
+          }
+          old_z_min_endstop = z_min_endstop;
+        #endif
+      }
     }
     else { // +direction
       WRITE(Z_DIR_PIN,!INVERT_Z_DIR);
-        count_direction[Z_AXIS]=1;
-      #if Z_MAX_PIN > -1
-        bool z_max_endstop=(READ(Z_MAX_PIN) != Z_ENDSTOPS_INVERTING);
-        if(z_max_endstop && old_z_max_endstop && (current_block->steps_z > 0)) {
-          endstops_trigsteps[Z_AXIS] = count_position[Z_AXIS];
-          endstop_z_hit=true;
-          step_events_completed = current_block->step_event_count;
-        }
-        old_z_max_endstop = z_max_endstop;
-      #endif
+      count_direction[Z_AXIS]=1;
+      CHECK_ENDSTOPS
+      {
+        #if Z_MAX_PIN > -1
+          bool z_max_endstop=(READ(Z_MAX_PIN) != Z_ENDSTOPS_INVERTING);
+          if(z_max_endstop && old_z_max_endstop && (current_block->steps_z > 0)) {
+            endstops_trigsteps[Z_AXIS] = count_position[Z_AXIS];
+            endstop_z_hit=true;
+            step_events_completed = current_block->step_event_count;
+          }
+          old_z_max_endstop = z_max_endstop;
+        #endif
+      }
     }
 
     #ifndef ADVANCE
@@ -383,6 +427,9 @@ ISR(TIMER1_COMPA_vect)
         count_direction[E_AXIS]=-1;
       }
     #endif //!ADVANCE
+    
+
+    
     for(int8_t i=0; i < step_loops; i++) { // Take multiple steps per interrupt (For high speed moves) 
       MSerial.checkRx(); // Check for serial chars. 
       
@@ -391,19 +438,12 @@ ISR(TIMER1_COMPA_vect)
       if (counter_e > 0) {
         counter_e -= current_block->step_event_count;
         if ((out_bits & (1<<E_AXIS)) != 0) { // - direction
-          CRITICAL_SECTION_START;
           e_steps--;
-          CRITICAL_SECTION_END;
         }
         else {
-          CRITICAL_SECTION_START;
           e_steps++;
-          CRITICAL_SECTION_END;
         }
       }    
-      // Do E steps + advance steps
-      e_steps += ((advance >> 16) - old_advance);
-      old_advance = advance >> 16;  
       #endif //ADVANCE
       
       counter_x += current_block->steps_x;
@@ -462,6 +502,11 @@ ISR(TIMER1_COMPA_vect)
         for(int8_t i=0; i < step_loops; i++) {
           advance += advance_rate;
         }
+        //if(advance > current_block->advance) advance = current_block->advance;
+        // Do E steps + advance steps
+        e_steps += ((advance >>8) - old_advance);
+        old_advance = advance >>8;  
+        
       #endif
     } 
     else if (step_events_completed > (unsigned long int)current_block->decelerate_after) {   
@@ -486,8 +531,10 @@ ISR(TIMER1_COMPA_vect)
         for(int8_t i=0; i < step_loops; i++) {
           advance -= advance_rate;
         }
-        if(advance < final_advance)
-          advance = final_advance;
+        if(advance < final_advance) advance = final_advance;
+        // Do E steps + advance steps
+        e_steps += ((advance >>8) - old_advance);
+        old_advance = advance >>8;  
       #endif //ADVANCE
     }
     else {
@@ -508,7 +555,7 @@ ISR(TIMER1_COMPA_vect)
   // Timer 0 is shared with millies
   ISR(TIMER0_COMPA_vect)
   {
-    old_OCR0A += 25; // ~10kHz interrupt
+    old_OCR0A += 52; // ~10kHz interrupt (250000 / 26 = 9615kHz)
     OCR0A = old_OCR0A;
     // Set E direction (Depends on E direction + advance)
     for(unsigned char i=0; i<4;) {
@@ -520,7 +567,7 @@ ISR(TIMER1_COMPA_vect)
         e_steps++;
         WRITE(E_STEP_PIN, HIGH);
       } 
-      if (e_steps > 0) {
+      else if (e_steps > 0) {
         WRITE(E_DIR_PIN,!INVERT_E_DIR);
         e_steps--;
         WRITE(E_STEP_PIN, HIGH);
@@ -649,6 +696,13 @@ void st_init()
     e_steps = 0;
     TIMSK0 |= (1<<OCIE0A);
   #endif //ADVANCE
+  
+  #ifdef ENDSTOPS_ONLY_FOR_HOMING
+    enable_endstops(false);
+  #else
+    enable_endstops(true);
+  #endif
+  
   sei();
 }
 

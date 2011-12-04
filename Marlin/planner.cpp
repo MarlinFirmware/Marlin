@@ -200,7 +200,6 @@ void calculate_trapezoid_for_block(block_t *block, float entry_factor, float exi
   
  // block->accelerate_until = accelerate_steps;
  // block->decelerate_after = accelerate_steps+plateau_steps;
-  
   CRITICAL_SECTION_START;  // Fill variables used by the stepper in a critical section
   if(block->busy == false) { // Don't update variables if block is busy.
     block->accelerate_until = accelerate_steps;
@@ -484,7 +483,7 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
   // Bail if this is a zero-length block
   if (block->step_event_count <=dropsegments) { return; };
 
-  // Compute direction bits for this block
+  // Compute direction bits for this block 
   block->direction_bits = 0;
   if (target[X_AXIS] < position[X_AXIS]) { block->direction_bits |= (1<<X_AXIS); }
   if (target[Y_AXIS] < position[Y_AXIS]) { block->direction_bits |= (1<<Y_AXIS); }
@@ -725,7 +724,7 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
     else {
       long acc_dist = estimate_acceleration_distance(0, block->nominal_rate, block->acceleration_st);
       float advance = (STEPS_PER_CUBIC_MM_E * EXTRUDER_ADVANCE_K) * 
-        (current_speed[E_AXIS] * current_speed[E_AXIS] * EXTRUTION_AREA * EXTRUTION_AREA / 3600.0)*65536;
+        (current_speed[E_AXIS] * current_speed[E_AXIS] * EXTRUTION_AREA * EXTRUTION_AREA)*256;
       block->advance = advance;
       if(acc_dist == 0) {
         block->advance_rate = 0;
@@ -734,6 +733,13 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
         block->advance_rate = advance / (float)acc_dist;
       }
     }
+    /*
+    SERIAL_ECHO_START;
+    SERIAL_ECHOPGM("advance :");
+    SERIAL_ECHO(block->advance/256.0);
+    SERIAL_ECHOPGM("advance rate :");
+    SERIAL_ECHOLN(block->advance_rate/256.0);
+    */
   #endif // ADVANCE
 
 

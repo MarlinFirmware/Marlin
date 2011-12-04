@@ -170,6 +170,7 @@ const bool Y_ENDSTOPS_INVERTING = true; // set to true to invert the logic of th
 const bool Z_ENDSTOPS_INVERTING = true; // set to true to invert the logic of the endstops. 
 // For optos H21LOB set to true, for Mendel-Parts newer optos TCST2103 set to false
 
+//#define ENDSTOPS_ONLY_FOR_HOMING // If defined the endstops will only be used for homing
 
 // For Inverting Stepper Enable Pins (Active Low) use 0, Non Inverting (Active High) use 1
 #define X_ENABLE_ON 0
@@ -279,8 +280,8 @@ const bool Z_ENDSTOPS_INVERTING = true; // set to true to invert the logic of th
 #ifdef ADVANCE
   #define EXTRUDER_ADVANCE_K .3
 
-  #define D_FILAMENT 1.7
-  #define STEPS_MM_E 65
+  #define D_FILAMENT 2.85
+  #define STEPS_MM_E 836
   #define EXTRUTION_AREA (0.25 * D_FILAMENT * D_FILAMENT * 3.14159)
   #define STEPS_PER_CUBIC_MM_E (axis_steps_per_unit[E_AXIS]/ EXTRUTION_AREA)
 
