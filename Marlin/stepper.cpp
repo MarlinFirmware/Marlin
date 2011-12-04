@@ -87,7 +87,12 @@ volatile char count_direction[NUM_AXIS] = { 1, 1, 1, 1};
 //===========================================================================
 //=============================functions         ============================
 //===========================================================================
-  
+
+#ifdef ENDSTOPS_ONLY_FOR_HOMING
+  #define CHECK_ENDSTOPS  if(check_endstops)
+#else
+  #define CHECK_ENDSTOPS
+#endif
 
 // intRes = intIn1 * intIn2 >> 16
 // uses:
@@ -316,7 +321,8 @@ ISR(TIMER1_COMPA_vect)
     if ((out_bits & (1<<X_AXIS)) != 0) {   // -direction
       WRITE(X_DIR_PIN, INVERT_X_DIR);
       count_direction[X_AXIS]=-1;
-      if(check_endstops) {
+      CHECK_ENDSTOPS
+      {
         #if X_MIN_PIN > -1
           bool x_min_endstop=(READ(X_MIN_PIN) != X_ENDSTOPS_INVERTING);
           if(x_min_endstop && old_x_min_endstop && (current_block->steps_x > 0)) {
@@ -331,7 +337,8 @@ ISR(TIMER1_COMPA_vect)
     else { // +direction 
       WRITE(X_DIR_PIN,!INVERT_X_DIR);
       count_direction[X_AXIS]=1;
-      if(check_endstops) {
+      CHECK_ENDSTOPS 
+      {
         #if X_MAX_PIN > -1
           bool x_max_endstop=(READ(X_MAX_PIN) != X_ENDSTOPS_INVERTING);
           if(x_max_endstop && old_x_max_endstop && (current_block->steps_x > 0)){
@@ -347,7 +354,8 @@ ISR(TIMER1_COMPA_vect)
     if ((out_bits & (1<<Y_AXIS)) != 0) {   // -direction
       WRITE(Y_DIR_PIN,INVERT_Y_DIR);
       count_direction[Y_AXIS]=-1;
-      if(check_endstops) {
+      CHECK_ENDSTOPS
+      {
         #if Y_MIN_PIN > -1
           bool y_min_endstop=(READ(Y_MIN_PIN) != Y_ENDSTOPS_INVERTING);
           if(y_min_endstop && old_y_min_endstop && (current_block->steps_y > 0)) {
@@ -362,7 +370,8 @@ ISR(TIMER1_COMPA_vect)
     else { // +direction
     WRITE(Y_DIR_PIN,!INVERT_Y_DIR);
       count_direction[Y_AXIS]=1;
-      if(check_endstops) {
+      CHECK_ENDSTOPS
+      {
         #if Y_MAX_PIN > -1
           bool y_max_endstop=(READ(Y_MAX_PIN) != Y_ENDSTOPS_INVERTING);
           if(y_max_endstop && old_y_max_endstop && (current_block->steps_y > 0)){
@@ -378,7 +387,8 @@ ISR(TIMER1_COMPA_vect)
     if ((out_bits & (1<<Z_AXIS)) != 0) {   // -direction
       WRITE(Z_DIR_PIN,INVERT_Z_DIR);
       count_direction[Z_AXIS]=-1;
-      if(check_endstops) {
+      CHECK_ENDSTOPS
+      {
         #if Z_MIN_PIN > -1
           bool z_min_endstop=(READ(Z_MIN_PIN) != Z_ENDSTOPS_INVERTING);
           if(z_min_endstop && old_z_min_endstop && (current_block->steps_z > 0)) {
@@ -393,7 +403,8 @@ ISR(TIMER1_COMPA_vect)
     else { // +direction
       WRITE(Z_DIR_PIN,!INVERT_Z_DIR);
       count_direction[Z_AXIS]=1;
-      if(check_endstops) {
+      CHECK_ENDSTOPS
+      {
         #if Z_MAX_PIN > -1
           bool z_max_endstop=(READ(Z_MAX_PIN) != Z_ENDSTOPS_INVERTING);
           if(z_max_endstop && old_z_max_endstop && (current_block->steps_z > 0)) {
