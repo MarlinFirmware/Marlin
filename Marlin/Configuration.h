@@ -170,6 +170,7 @@ const bool Y_ENDSTOPS_INVERTING = true; // set to true to invert the logic of th
 const bool Z_ENDSTOPS_INVERTING = true; // set to true to invert the logic of the endstops. 
 // For optos H21LOB set to true, for Mendel-Parts newer optos TCST2103 set to false
 
+//#define ENDSTOPS_ONLY_FOR_HOMING // If defined the endstops will only be used for homing
 
 // For Inverting Stepper Enable Pins (Active Low) use 0, Non Inverting (Active High) use 1
 #define X_ENABLE_ON 0

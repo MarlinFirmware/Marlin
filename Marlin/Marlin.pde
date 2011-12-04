@@ -528,6 +528,8 @@ FORCE_INLINE void process_commands()
       saved_feedmultiply = feedmultiply;
       feedmultiply = 100;
       
+      enable_endstops(true);
+      
       for(int8_t i=0; i < NUM_AXIS; i++) {
         destination[i] = current_position[i];
       }
@@ -563,6 +565,9 @@ FORCE_INLINE void process_commands()
         HOMEAXIS(Z);
 	current_position[2]=code_value()+add_homeing[2];
       }       
+      #ifdef ENDSTOPS_ONLY_FOR_HOMING
+        enable_endstops(false);
+      #endif
       
       feedrate = saved_feedrate;
       feedmultiply = saved_feedmultiply;
