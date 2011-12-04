@@ -86,7 +86,7 @@ FORCE_INLINE void setTargetHotend0(const float &celsius)
   #endif //PIDTEMP
 };
 FORCE_INLINE void setTargetHotend1(const float &celsius) {  target_raw[TEMPSENSOR_HOTEND_1]=temp2analog(celsius);};
-FORCE_INLINE float setTargetHotend(const float &celcius, uint8_t extruder){  
+FORCE_INLINE void setTargetHotend(const float &celcius, uint8_t extruder){  
   if(extruder == 0) setTargetHotend0(celcius);
   if(extruder == 1) setTargetHotend1(celcius);
 };
@@ -94,20 +94,32 @@ FORCE_INLINE void setTargetBed(const float &celsius)     {  target_raw[TEMPSENSO
 
 FORCE_INLINE bool isHeatingHotend0() {return heatingtarget_raw[TEMPSENSOR_HOTEND_0] > current_raw[TEMPSENSOR_HOTEND_0];};
 FORCE_INLINE bool isHeatingHotend1() {return target_raw[TEMPSENSOR_HOTEND_1] > current_raw[TEMPSENSOR_HOTEND_1];};
-FORCE_INLINE float isHeatingHotend(uint8_t extruder){  
+FORCE_INLINE bool isHeatingHotend(uint8_t extruder){  
   if(extruder == 0) return heatingtarget_raw[TEMPSENSOR_HOTEND_0] > current_raw[TEMPSENSOR_HOTEND_0];
   if(extruder == 1) return target_raw[TEMPSENSOR_HOTEND_1] > current_raw[TEMPSENSOR_HOTEND_1];
+  return false; 
 };
 FORCE_INLINE bool isHeatingBed() {return target_raw[TEMPSENSOR_BED] > current_raw[TEMPSENSOR_BED];};
 
 FORCE_INLINE bool isCoolingHotend0() {return target_raw[TEMPSENSOR_HOTEND_0] < current_raw[TEMPSENSOR_HOTEND_0];};
 FORCE_INLINE bool isCoolingHotend1() {return target_raw[TEMPSENSOR_HOTEND_1] < current_raw[TEMPSENSOR_HOTEND_1];};
-FORCE_INLINE float isCoolingHotend(uint8_t extruder){  
+FORCE_INLINE bool isCoolingHotend(uint8_t extruder){  
   if(extruder == 0) return target_raw[TEMPSENSOR_HOTEND_0] < current_raw[TEMPSENSOR_HOTEND_0];
   if(extruder == 1) return target_raw[TEMPSENSOR_HOTEND_1] < current_raw[TEMPSENSOR_HOTEND_1];
+  return false; 
 };
 FORCE_INLINE bool isCoolingBed() {return target_raw[TEMPSENSOR_BED] < current_raw[TEMPSENSOR_BED];};
 
+FORCE_INLINE void autotempShutdown(){
+ #ifdef AUTOTEMP
+ if(autotemp_enabled)
+ {
+  autotemp_enabled=false;
+  if(degTargetHotend0()>autotemp_min)
+    setTargetHotend0(0);
+ }
+ #endif
+}
 void disable_heater();
 void setWatch();
 void updatePID();

@@ -34,7 +34,7 @@ void st_set_position(const long &x, const long &y, const long &z, const long &e)
 void st_set_e_position(const long &e);
 
 // Get current position in steps
-long st_get_position(char axis);
+long st_get_position(uint8_t axis);
 
 // The stepper subsystem goes to sleep when it runs out of things to execute. Call this
 // to notify the subsystem that it is time to go to work.

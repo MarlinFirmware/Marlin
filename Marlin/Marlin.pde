@@ -167,7 +167,8 @@ static char *strchr_pointer; // just a pointer to find chars in the cmd string l
 
 const int sensitive_pins[] = SENSITIVE_PINS; // Sensitive pin list for M42
 
-static float tt = 0, bt = 0;
+//static float tt = 0;
+//static float bt = 0;
 
 //Inactivity shutdown variables
 static unsigned long previous_millis_cmd = 0;
@@ -532,7 +533,7 @@ FORCE_INLINE void process_commands()
       }
       feedrate = 0.0;
       home_all_axis = !((code_seen(axis_codes[0])) || (code_seen(axis_codes[1])) || (code_seen(axis_codes[2])));
-      
+      #ifdef QUICK_HOME
       if( code_seen(axis_codes[0]) && code_seen(axis_codes[1]) )  //first diagonal move
       {
         current_position[X_AXIS] = 0; current_position[Y_AXIS] = 0;
@@ -545,6 +546,7 @@ FORCE_INLINE void process_commands()
         prepare_move();
         current_position[X_AXIS] = 0; current_position[Y_AXIS] = 0;
       }
+      #endif
       
       if((home_all_axis) || (code_seen(axis_codes[X_AXIS]))) 
       {
@@ -669,6 +671,7 @@ FORCE_INLINE void process_commands()
       SERIAL_ECHO_START;
       SERIAL_ECHOLN(time);
       LCD_MESSAGE(time);
+      autotempShutdown();
     }
     break;
     case 42: //M42 -Change pin status via gcode

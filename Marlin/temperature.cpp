@@ -67,7 +67,8 @@ int heatingtarget_raw[3]= {0, 0, 0};
 //===========================================================================
 static bool temp_meas_ready = false;
 
-static unsigned long previous_millis_heater, previous_millis_bed_heater;
+static unsigned long  previous_millis_bed_heater;
+//static unsigned long previous_millis_heater;
 
 #ifdef PIDTEMP
   //static cannot be external:
@@ -80,8 +81,8 @@ static unsigned long previous_millis_heater, previous_millis_bed_heater;
   static float pid_error;
   static float temp_iState_min;
   static float temp_iState_max;
-  static float pid_input;
-  static float pid_output;
+ // static float pid_input; 
+ // static float pid_output;
   static bool pid_reset;
  
 #endif //PIDTEMP
@@ -94,8 +95,8 @@ static unsigned long previous_millis_heater, previous_millis_bed_heater;
 // Init min and max temp with extreme values to prevent false errors during startup
   static int minttemp_0   = 0;
   static int maxttemp_0   = 16383;
-  static int minttemp_1   = 0;
-  static int maxttemp_1   = 16383;
+  //static int minttemp_1   = 0;
+  //static int maxttemp_1   = 16383;
   static int bed_minttemp = 0;
   static int bed_maxttemp = 16383;
 
@@ -268,7 +269,10 @@ int temp2analogBed(int celsius) {
     return (1023 * OVERSAMPLENR) - raw;
   #elif defined BED_USES_AD595
     return lround(celsius * (1024.0 * OVERSAMPLENR/ (5.0 * 100.0) ) );
+  #else
+    #warning No heater-type defined for the bed.
   #endif
+  return 0;
 }
 
 // Derived from RepRap FiveD extruder::getTemperature()
@@ -296,6 +300,8 @@ float analog2temp(int raw) {
     return celsius;
   #elif defined HEATER_0_USES_AD595
     return raw * ((5.0 * 100.0) / 1024.0) / OVERSAMPLENR;
+  #else
+    #error PLEASE DEFINE HEATER TYPE 
   #endif
 }
 
@@ -328,7 +334,10 @@ float analog2tempBed(int raw) {
     
   #elif defined BED_USES_AD595
     return raw * ((5.0 * 100.0) / 1024.0) / OVERSAMPLENR;
+  #else
+    #warning No heater-type defined for the bed.
   #endif
+  return 0;
 }
 
 void tp_init()
