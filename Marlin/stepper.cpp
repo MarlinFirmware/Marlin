@@ -24,9 +24,9 @@
 
 #include "stepper.h"
 #include "Configuration.h"
+#include "pins.h"
 #include "Marlin.h"
 #include "planner.h"
-#include "pins.h"
 #include "fastio.h"
 #include "temperature.h"
 #include "ultralcd.h"
@@ -39,7 +39,6 @@
 //=============================public variables  ============================
 //===========================================================================
 block_t *current_block;  // A pointer to the block currently being traced
-
 
 
 //===========================================================================
@@ -419,11 +418,11 @@ ISR(TIMER1_COMPA_vect)
 
     #ifndef ADVANCE
       if ((out_bits & (1<<E_AXIS)) != 0) {  // -direction
-        WRITE(E_DIR_PIN,INVERT_E_DIR);
+        NORM_E_DIR();
         count_direction[E_AXIS]=-1;
       }
       else { // +direction
-        WRITE(E_DIR_PIN,!INVERT_E_DIR);
+        REV_E_DIR();
         count_direction[E_AXIS]=-1;
       }
     #endif //!ADVANCE
@@ -473,9 +472,9 @@ ISR(TIMER1_COMPA_vect)
       #ifndef ADVANCE
         counter_e += current_block->steps_e;
         if (counter_e > 0) {
-          WRITE(E_STEP_PIN, HIGH);
+          WRITE_E_STEP(HIGH);
           counter_e -= current_block->step_event_count;
-          WRITE(E_STEP_PIN, LOW);
+          WRITE_E_STEP(LOW);
           count_position[E_AXIS]+=count_direction[E_AXIS];
         }
       #endif //!ADVANCE
@@ -559,18 +558,18 @@ ISR(TIMER1_COMPA_vect)
     OCR0A = old_OCR0A;
     // Set E direction (Depends on E direction + advance)
     for(unsigned char i=0; i<4;) {
-      WRITE(E_STEP_PIN, LOW);
+      WRITE_E_STEP(LOW);
       if (e_steps == 0) break;
       i++;
       if (e_steps < 0) {
-        WRITE(E_DIR_PIN,INVERT_E_DIR);    
+        WRITE_E_DIR(INVERT_E_DIR);    
         e_steps++;
-        WRITE(E_STEP_PIN, HIGH);
+        WRITE_E_STEP(HIGH);
       } 
       else if (e_steps > 0) {
-        WRITE(E_DIR_PIN,!INVERT_E_DIR);
+        WRITE_E_DIR(!INVERT_E_DIR);
         e_steps--;
-        WRITE(E_STEP_PIN, HIGH);
+        WRITE_E_STEP(HIGH);
       }
     }
   }
@@ -578,7 +577,7 @@ ISR(TIMER1_COMPA_vect)
 
 void st_init()
 {
-    //Initialize Dir Pins
+  //Initialize Dir Pins
   #if X_DIR_PIN > -1
     SET_OUTPUT(X_DIR_PIN);
   #endif
@@ -588,8 +587,14 @@ void st_init()
   #if Z_DIR_PIN > -1 
     SET_OUTPUT(Z_DIR_PIN);
   #endif
-  #if E_DIR_PIN > -1 
-    SET_OUTPUT(E_DIR_PIN);
+  #if E0_DIR_PIN > -1 
+    SET_OUTPUT(E0_DIR_PIN);
+  #endif
+  #if defined(E1_DIR_PIN) && (E1_DIR_PIN > -1)
+    SET_OUTPUT(E1_DIR_PIN);
+  #endif
+  #if defined(E2_DIR_PIN) && (E2_DIR_PIN > -1)
+    SET_OUTPUT(E2_DIR_PIN);
   #endif
 
   //Initialize Enable Pins - steppers default to disabled.
@@ -606,9 +611,17 @@ void st_init()
     SET_OUTPUT(Z_ENABLE_PIN);
     if(!Z_ENABLE_ON) WRITE(Z_ENABLE_PIN,HIGH);
   #endif
-  #if (E_ENABLE_PIN > -1)
-    SET_OUTPUT(E_ENABLE_PIN);
-    if(!E_ENABLE_ON) WRITE(E_ENABLE_PIN,HIGH);
+  #if (E0_ENABLE_PIN > -1)
+    SET_OUTPUT(E0_ENABLE_PIN);
+    if(!E_ENABLE_ON) WRITE(E0_ENABLE_PIN,HIGH);
+  #endif
+  #if defined(E1_ENABLE_PIN) && (E1_ENABLE_PIN > -1)
+    SET_OUTPUT(E1_ENABLE_PIN);
+    if(!E_ENABLE_ON) WRITE(E1_ENABLE_PIN,HIGH);
+  #endif
+  #if defined(E2_ENABLE_PIN) && (E2_ENABLE_PIN > -1)
+    SET_OUTPUT(E2_ENABLE_PIN);
+    if(!E_ENABLE_ON) WRITE(E2_ENABLE_PIN,HIGH);
   #endif
 
   //endstops and pullups
@@ -669,8 +682,14 @@ void st_init()
   #if (Z_STEP_PIN > -1) 
     SET_OUTPUT(Z_STEP_PIN);
   #endif  
-  #if (E_STEP_PIN > -1) 
-    SET_OUTPUT(E_STEP_PIN);
+  #if (E0_STEP_PIN > -1) 
+    SET_OUTPUT(E0_STEP_PIN);
+  #endif  
+  #if defined(E1_STEP_PIN) && (E1_STEP_PIN > -1) 
+    SET_OUTPUT(E1_STEP_PIN);
+  #endif  
+  #if defined(E2_STEP_PIN) && (E2_STEP_PIN > -1) 
+    SET_OUTPUT(E2_STEP_PIN);
   #endif  
 
   // waveform generation = 0100 = CTC
@@ -749,5 +768,7 @@ void finishAndDisableSteppers()
   disable_x(); 
   disable_y(); 
   disable_z(); 
-  disable_e(); 
+  disable_e0(); 
+  disable_e1(); 
+  disable_e2(); 
 }

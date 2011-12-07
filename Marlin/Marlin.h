@@ -57,6 +57,8 @@ const prog_char echomagic[] PROGMEM ="echo:";
 
 #define SERIAL_ECHOPAIR(name,value) {SERIAL_ECHOPGM(name);SERIAL_ECHO(value);}
 
+// Macro for getting current active extruder
+#define ACTIVE_EXTRUDER (active_extruder)
 
 //things to write to serial from Programmemory. saves 400 to 2k of RAM.
 #define SerialprintPGM(x) serialprintPGM(MYPGM(x))
@@ -100,13 +102,30 @@ void manage_inactivity(byte debug);
   #define disable_z() ;
 #endif
 
-#if E_ENABLE_PIN > -1
-  #define  enable_e() WRITE(E_ENABLE_PIN, E_ENABLE_ON)
-  #define disable_e() WRITE(E_ENABLE_PIN,!E_ENABLE_ON)
+#if defined(E0_ENABLE_PIN) && (E0_ENABLE_PIN > -1)
+  #define enable_e0() WRITE(E0_ENABLE_PIN, E_ENABLE_ON)
+  #define disable_e0() WRITE(E0_ENABLE_PIN,!E_ENABLE_ON)
 #else
-  #define enable_e() ;
-  #define disable_e() ;
+  #define enable_e0()  /* nothing */
+  #define disable_e0() /* nothing */
 #endif
+
+#if (EXTRUDERS > 1) && defined(E1_ENABLE_PIN) && (E1_ENABLE_PIN > -1)
+  #define enable_e1() WRITE(E1_ENABLE_PIN, E_ENABLE_ON)
+  #define disable_e1() WRITE(E1_ENABLE_PIN,!E_ENABLE_ON)
+#else
+  #define enable_e1()  /* nothing */
+  #define disable_e1() /* nothing */
+#endif
+
+#if (EXTRUDERS > 2) && defined(E2_ENABLE_PIN) && (E2_ENABLE_PIN > -1)
+  #define enable_e2() WRITE(E2_ENABLE_PIN, E_ENABLE_ON)
+  #define disable_e2() WRITE(E2_ENABLE_PIN,!E_ENABLE_ON)
+#else
+  #define enable_e2()  /* nothing */
+  #define disable_e2() /* nothing */
+#endif
+
 
 enum AxisEnum {X_AXIS=0, Y_AXIS=1, Z_AXIS=2, E_AXIS=3};
 
@@ -130,5 +149,8 @@ extern float homing_feedrate[];
 extern bool axis_relative_modes[];
 extern float current_position[NUM_AXIS] ;
 extern float add_homeing[3];
+
+// Handling multiple extruders pins
+extern uint8_t active_extruder;
 
 #endif
