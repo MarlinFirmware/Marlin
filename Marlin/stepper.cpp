@@ -706,6 +706,10 @@ void st_init()
   sei();
 }
 
+#define TEMPORARY_Z_HOME_SOUND_FIX
+#ifdef TEMPORARY_Z_HOME_SOUND_FIX
+  #include <util/delay.h>
+#endif
 // Block until all buffered steps are executed
 void st_synchronize()
 {
@@ -713,6 +717,10 @@ void st_synchronize()
     manage_heater();
     manage_inactivity(1);
     LCD_STATUS;
+    #ifdef TEMPORARY_Z_HOME_SOUND_FIX
+    _delay_ms(200);
+    _delay_ms(200);
+    #endif
   }   
 }
 
