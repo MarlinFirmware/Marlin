@@ -4,6 +4,7 @@
 // Tonokip RepRap firmware rewrite based off of Hydra-mmm firmware.
 // Licence: GPL
 #define  HardwareSerial_h // trick to disable the standard HWserial
+#include <stdio.h>
 #include <math.h>
 #if ARDUINO >= 100
   #include "Arduino.h"

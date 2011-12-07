@@ -27,6 +27,8 @@
 
 #include <math.h>
 #include <EEPROM.h>
+#include <stdio.h>
+
 #include "EEPROMwrite.h"
 #include "fastio.h"
 #include "Configuration.h"
@@ -39,7 +41,7 @@
 #include "motion_control.h"
 #include "cardreader.h"
 #include "watchdog.h"
-#include <stdio.h>
+
 
 
 #define VERSION_STRING  "1.0.0 Beta 1"
