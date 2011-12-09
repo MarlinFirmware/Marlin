@@ -707,15 +707,13 @@ void st_init()
 }
 
 
-#include <util/delay.h>
 // Block until all buffered steps are executed
 void st_synchronize()
 {
-  while(current_block!=0 || blocks_queued()) {
+    while( blocks_queued()) {
     manage_heater();
     manage_inactivity(1);
     LCD_STATUS;
-    //_delay_ms(1);
   }
 }
 
