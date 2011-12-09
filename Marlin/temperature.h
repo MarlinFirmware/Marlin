@@ -49,10 +49,10 @@ extern float Kp,Ki,Kd,Kc;
   extern float pid_setpoint ;
 #endif
   
-#ifdef WATCHPERIOD
-  extern int watch_raw[3] ;
-  extern unsigned long watchmillis;
-#endif
+// #ifdef WATCHPERIOD
+//   extern int watch_raw[3] ;
+//   extern unsigned long watchmillis;
+// #endif
 
 
 

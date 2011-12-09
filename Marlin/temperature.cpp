@@ -88,7 +88,7 @@ static unsigned long  previous_millis_bed_heater;
 #endif //PIDTEMP
   
 #ifdef WATCHPERIOD
-  static int watch_raw[3] = {-1000,-1000,-1000};
+  static int watch_oldtemp[3] = {0,0,0};
   static unsigned long watchmillis = 0;
 #endif //WATCHPERIOD
 
@@ -186,7 +186,20 @@ void manage_heater()
       WRITE(HEATER_0_PIN,LOW);
     }    
   #endif
-    
+  
+  #ifdef WATCHPERIOD
+    if(watchmillis && millis() - watchmillis > WATCHPERIOD){
+        if(watch_oldtemp[TEMPSENSOR_HOTEND_0] >= degHotend(active_extruder)){
+            setTargetHotend(0,active_extruder);
+            LCD_MESSAGEPGM("Heating failed");
+            SERIAL_ECHO_START;
+            SERIAL_ECHOLN("Heating failed");
+        }else{
+            watchmillis = 0;
+        }
+    }
+  #endif
+  
   if(millis() - previous_millis_bed_heater < BED_CHECK_INTERVAL)
     return;
   previous_millis_bed_heater = millis();
@@ -426,7 +439,7 @@ void setWatch()
   if(isHeatingHotend0())
   {
     watchmillis = max(1,millis());
-    watch_raw[TEMPSENSOR_HOTEND_0] = current_raw[TEMPSENSOR_HOTEND_0];
+    watch_oldtemp[TEMPSENSOR_HOTEND_0] = degHotend(0);
   }
   else
   {
