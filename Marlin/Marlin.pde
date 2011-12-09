@@ -499,19 +499,16 @@ FORCE_INLINE void process_commands()
     case 1: // G1
       get_coordinates(); // For X Y Z E F
       prepare_move();
-      previous_millis_cmd = millis();
       //ClearToSend();
       return;
       //break;
     case 2: // G2  - CW ARC
       get_arc_coordinates();
       prepare_arc_move(true);
-      previous_millis_cmd = millis();
       return;
     case 3: // G3  - CCW ARC
       get_arc_coordinates();
       prepare_arc_move(false);
-      previous_millis_cmd = millis();
       return;
     case 4: // G4 dwell
       LCD_MESSAGEPGM("DWELL...");
@@ -521,7 +518,7 @@ FORCE_INLINE void process_commands()
       
       st_synchronize();
       codenum += millis();  // keep track of when we started waiting
-      
+      previous_millis_cmd = millis();
       while(millis()  < codenum ){
         manage_heater();
       }
@@ -837,6 +834,7 @@ FORCE_INLINE void process_commands()
         }
         LCD_MESSAGEPGM("Heating done.");
         starttime=millis();
+        previous_millis_cmd = millis();
       }
       break;
     case 190: // M190 - Wait bed for heater to reach target.
@@ -860,6 +858,7 @@ FORCE_INLINE void process_commands()
           manage_heater();
         }
         LCD_MESSAGEPGM("Bed done.");
+        previous_millis_cmd = millis();
     #endif
     break;
 
@@ -1149,6 +1148,7 @@ FORCE_INLINE void get_arc_coordinates()
 
 void prepare_move()
 {
+  
   if (min_software_endstops) {
     if (destination[X_AXIS] < 0) destination[X_AXIS] = 0.0;
     if (destination[Y_AXIS] < 0) destination[Y_AXIS] = 0.0;
@@ -1165,6 +1165,7 @@ void prepare_move()
   for(int8_t i=0; i < NUM_AXIS; i++) {
     current_position[i] = destination[i];
   }
+  previous_millis_cmd = millis();
 }
 
 void prepare_arc_move(char isclockwise) {
@@ -1179,6 +1180,7 @@ void prepare_arc_move(char isclockwise) {
   for(int8_t i=0; i < NUM_AXIS; i++) {
     current_position[i] = destination[i];
   }
+  previous_millis_cmd = millis();
 }
 
 void manage_inactivity(byte debug) 
@@ -1194,6 +1196,20 @@ void manage_inactivity(byte debug)
       disable_z(); 
       disable_e(); 
     }
+  #ifdef EXTRUDER_RUNOUT_PREVENT
+    if( (millis()-previous_millis_cmd) >  EXTRUDER_RUNOUT_SECONDS*1000 ) 
+    if(degHotend(active_extruder)>EXTRUDER_RUNOUT_MINTEMP)
+    {
+     enable_e();
+     float oldepos=current_position[E_AXIS];
+     float oldedes=destination[E_AXIS];
+     plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]+EXTRUDER_RUNOUT_EXTRUDE, EXTRUDER_RUNOUT_SPEED*feedmultiply/60/100.0, active_extruder);
+     current_position[E_AXIS]=oldepos;
+     destination[E_AXIS]=oldedes;
+     plan_set_e_position(oldepos);
+     previous_millis_cmd=millis();
+    }
+  #endif
   check_axes_activity();
 }
 
