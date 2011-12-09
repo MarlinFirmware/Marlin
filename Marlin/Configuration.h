@@ -161,8 +161,9 @@
 //#define EXTRUDER_RUNOUT_PREVENT  
 #define EXTRUDER_RUNOUT_MINTEMP 190  
 #define EXTRUDER_RUNOUT_SECONDS 60
-#define EXTRUDER_RUNOUT_EXTRUDE 10 //mm filament
-#define EXTRUDER_RUNOUT_SPEED 20  //extrusion speed
+#define EXTRUDER_RUNOUT_ESTEPS 14 //mm filament
+#define EXTRUDER_RUNOUT_EXTRUDE 100 //mm filament
+#define EXTRUDER_RUNOUT_SPEED 1500  //extrusion speed
 
 
 //===========================================================================
