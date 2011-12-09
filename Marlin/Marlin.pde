@@ -903,18 +903,22 @@ FORCE_INLINE void process_commands()
       }
       else
       { 
-        #if ((E_ENABLE_PIN != X_ENABLE_PIN) && (E_ENABLE_PIN != Y_ENABLE_PIN)) // Only enable on boards that have seperate ENABLE_PINS
-        if(code_seen('E')) {
+        bool all_axis = !((code_seen(axis_codes[0])) || (code_seen(axis_codes[1])) || (code_seen(axis_codes[2]))|| (code_seen(axis_codes[3])));
+        if(all_axis)
+        {
+          finishAndDisableSteppers();
+        }
+        else
+        {
           st_synchronize();
-          LCD_MESSAGEPGM("Free Move");
-          disable_e();
+          if(code_seen('X')) disable_x();
+          if(code_seen('Y')) disable_y();
+          if(code_seen('Z')) disable_z();
+          #if ((E_ENABLE_PIN != X_ENABLE_PIN) && (E_ENABLE_PIN != Y_ENABLE_PIN)) // Only enable on boards that have seperate ENABLE_PINS
+            if(code_seen('E')) disable_e();
+          #endif 
+          LCD_MESSAGEPGM("Partial Release");
         }
-        else {
-          finishAndDisableSteppers();
-        }
-        #else
-          finishAndDisableSteppers();
-        #endif
       }
       break;
     case 85: // M85

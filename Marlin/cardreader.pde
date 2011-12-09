@@ -436,7 +436,7 @@ void CardReader::printingHasFinished()
  if(SD_FINISHED_STEPPERRELEASE)
  {
    //finishAndDisableSteppers();
-   enquecommand("M84");
+   enquecommand(SD_FINISHED_RELEASECOMMAND);
  }
  autotempShutdown();
 }
