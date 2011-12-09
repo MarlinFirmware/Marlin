@@ -44,6 +44,7 @@ public:
   bool cardOK ;
   char filename[11];
   bool filenameIsDir;
+  int lastnr; //last number of the autostart;
 private:
   SdFile root,*curDir,workDir,workDirParent,workDirParentParent;
   Sd2Card card;

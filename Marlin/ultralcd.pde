@@ -437,7 +437,7 @@ void MainMenu::showStatus()
   force_lcd_update=false;
 }
 
-enum {ItemP_exit, ItemP_home, ItemP_origin, ItemP_preheat, ItemP_extrude, ItemP_disstep};
+enum {ItemP_exit, ItemP_autostart,ItemP_disstep,ItemP_home, ItemP_origin, ItemP_preheat, ItemP_extrude};
 
 //any action must not contain a ',' character anywhere, or this breaks:
 #define MENUITEM(repaint_action, click_action) \
@@ -458,6 +458,12 @@ void MainMenu::showPrepare()
     case ItemP_exit:
       MENUITEM(  lcdprintPGM(" Main \003")  ,  BLOCK;status=Main_Menu;beepshort(); ) ;
       break;
+    case ItemP_autostart:
+      MENUITEM(  lcdprintPGM(" Autostart")  ,  BLOCK;card.lastnr=0;card.checkautostart(true);beepshort(); ) ;
+      break;
+    case ItemP_disstep:
+      MENUITEM(  lcdprintPGM(" Disable Steppers")  ,  BLOCK;enquecommand("M84");beepshort(); ) ;
+      break;
     case ItemP_home:
       MENUITEM(  lcdprintPGM(" Auto Home")  ,  BLOCK;enquecommand("G28 X-105 Y-105 Z0");beepshort(); ) ;
       break;
@@ -470,15 +476,14 @@ void MainMenu::showPrepare()
     case ItemP_extrude:
       MENUITEM(  lcdprintPGM(" Extrude")  ,  BLOCK;enquecommand("G92 E0");enquecommand("G1 F700 E50");beepshort(); ) ;
       break;
-    case ItemP_disstep:
-      MENUITEM(  lcdprintPGM(" Disable Steppers")  ,  BLOCK;enquecommand("M84");beepshort(); ) ;
-      break;
+    
+    
     default:   
       break;
   }
   line++;
  }
- updateActiveLines(ItemP_disstep,encoderpos);
+ updateActiveLines(ItemP_extrude,encoderpos);
 }
 
 enum {ItemT_exit,ItemT_speed,ItemT_flow,ItemT_nozzle,ItemT_fan};
