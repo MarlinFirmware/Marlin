@@ -1221,6 +1221,7 @@ void manage_inactivity(byte debug)
      destination[E_AXIS]=oldedes;
      plan_set_e_position(oldepos);
      previous_millis_cmd=millis();
+     enquecommand(DEFAULT_STEPPER_DEACTIVE_COMMAND);
     }
   #endif
   check_axes_activity();
