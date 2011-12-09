@@ -20,9 +20,6 @@
 // if unwanted behavior is observed on a user's machine when running at very slow speeds.
 #define MINIMUM_PLANNER_SPEED 2.0 // (mm/sec)
 
-// If defined the movements slow down when the look ahead buffer is only half full
-#define SLOWDOWN
-
 // BASIC SETTINGS: select your board type, thermistor type, axis scaling, and endstop configuration
 
 //// The following define selects which electronics board you have. Please choose the one that matches your setup
@@ -248,7 +245,12 @@ const bool Z_ENDSTOPS_INVERTING = true; // set to true to invert the logic of th
 #define DEFAULT_XYJERK                20.0    // (mm/sec)
 #define DEFAULT_ZJERK                 0.4     // (mm/sec)
 
+// If defined the movements slow down when the look ahead buffer is only half full
+#define SLOWDOWN
 
+//default stepper release if idle
+#define DEFAULT_STEPPER_DEACTIVE_TIME 60
+#define DEFAULT_STEPPER_DEACTIVE_COMMAND "M84 X Y E"  //z stays  powered
 
 
 //===========================================================================
@@ -338,6 +340,11 @@ const bool Z_ENDSTOPS_INVERTING = true; // set to true to invert the logic of th
   #define AUTOTEMP_OLDWEIGHT 0.98
 #endif
 
+//this prevents dangerous Extruder moves, i.e. if the temperature is under the limit
+//can be software-disabled for whatever purposes by
+#define PREVENT_DANGEROUS_EXTRUDE
+#define EXTRUDE_MINTEMP 190
+#define EXTRUDE_MAXLENGTH (X_MAX_LENGTH+Y_MAX_LENGTH) //prevent extrusion of very large distances.
 
 const int dropsegments=5; //everything with less than this number of steps will be ignored as move and joined with the next movement
 

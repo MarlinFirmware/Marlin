@@ -110,6 +110,7 @@
 // M206 - set additional homeing offset
 // M220 - set speed factor override percentage S:factor in percent
 // M301 - Set PID parameters P I and D
+// M302 - Allow cold extrudes
 // M400 - Finish all moves
 // M500 - stores paramters in EEPROM
 // M501 - reads parameters from EEPROM (if you need reset them after you changed them temporarily).  
@@ -176,7 +177,8 @@ const int sensitive_pins[] = SENSITIVE_PINS; // Sensitive pin list for M42
 //Inactivity shutdown variables
 static unsigned long previous_millis_cmd = 0;
 static unsigned long max_inactive_time = 0;
-static unsigned long stepper_inactive_time = 0;
+static unsigned long stepper_inactive_time = DEFAULT_STEPPER_DEACTIVE_TIME*1000;
+static unsigned long last_stepperdisabled_time=30*1000; //first release check after 30 seconds
 
 static unsigned long starttime=0;
 static unsigned long stoptime=0;
@@ -1057,6 +1059,12 @@ FORCE_INLINE void process_commands()
       }
       break;
     #endif //PIDTEMP
+      
+    case 302: // finish all moves
+    {
+      allow_cold_extrudes(true);
+    }
+    break;
     case 400: // finish all moves
     {
       st_synchronize();
@@ -1188,14 +1196,17 @@ void manage_inactivity(byte debug)
   if( (millis()-previous_millis_cmd) >  max_inactive_time ) 
     if(max_inactive_time) 
       kill(); 
-  if( (millis()-previous_millis_cmd) >  stepper_inactive_time ) 
-    if(stepper_inactive_time) 
-    { 
-      disable_x(); 
-      disable_y(); 
-      disable_z(); 
-      disable_e(); 
+  if(stepper_inactive_time)  
+  if( (millis()-last_stepperdisabled_time) >  stepper_inactive_time ) 
+  {
+    if(previous_millis_cmd>last_stepperdisabled_time)
+      last_stepperdisabled_time=previous_millis_cmd;
+    else
+    {
+      enquecommand(DEFAULT_STEPPER_DEACTIVE_COMMAND); 
+      last_stepperdisabled_time=millis();
     }
+  }
   #ifdef EXTRUDER_RUNOUT_PREVENT
     if( (millis()-previous_millis_cmd) >  EXTRUDER_RUNOUT_SECONDS*1000 ) 
     if(degHotend(active_extruder)>EXTRUDER_RUNOUT_MINTEMP)

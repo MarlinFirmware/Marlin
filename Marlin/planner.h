@@ -140,4 +140,6 @@ FORCE_INLINE bool blocks_queued()
   else
     return true;
 }
+
+void allow_cold_extrudes(bool allow);
 #endif
