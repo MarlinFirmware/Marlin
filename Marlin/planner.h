@@ -130,4 +130,14 @@ FORCE_INLINE block_t *plan_get_current_block()
   block->busy = true;
   return(block);
 }
+
+// Gets the current block. Returns NULL if buffer empty
+FORCE_INLINE bool blocks_queued() 
+{
+  if (block_buffer_head == block_buffer_tail) { 
+    return false; 
+  }
+  else
+    return true;
+}
 #endif
