@@ -131,5 +131,6 @@ extern float homing_feedrate[];
 extern bool axis_relative_modes[];
 extern float current_position[NUM_AXIS] ;
 extern float add_homeing[3];
+extern bool stop_heating_wait;
 
 #endif
