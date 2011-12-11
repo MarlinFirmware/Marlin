@@ -23,6 +23,7 @@
 
 #include "Marlin.h"
 #include "fastio.h"
+#include "planner.h"
 #ifdef PID_ADD_EXTRUSION_RATE
   #include "stepper.h"
 #endif
