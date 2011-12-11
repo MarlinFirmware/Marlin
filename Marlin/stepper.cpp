@@ -752,3 +752,12 @@ void finishAndDisableSteppers()
   disable_z(); 
   disable_e(); 
 }
+
+void quickStop()
+{
+  DISABLE_STEPPER_DRIVER_INTERRUPT();
+  while(blocks_queued())
+    plan_discard_current_block();
+  ENABLE_STEPPER_DRIVER_INTERRUPT();
+}
+

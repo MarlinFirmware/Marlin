@@ -432,6 +432,7 @@ void CardReader::updir()
 
 void CardReader::printingHasFinished()
 {
+ quickStop();
  sdprinting = false;
  if(SD_FINISHED_STEPPERRELEASE)
  {
