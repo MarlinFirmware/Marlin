@@ -235,7 +235,9 @@ void setup()
   SERIAL_PROTOCOLLNPGM("start");
   SERIAL_ECHO_START;
   SERIAL_ECHOPGM("Free Memory:");
-  SERIAL_ECHOLN(freeMemory());
+  SERIAL_ECHO(freeMemory());
+  SERIAL_ECHOPGM(" PlannerBufferBytes:");
+  SERIAL_ECHOLN((int)sizeof(block_t)*BLOCK_BUFFER_SIZE);
   for(int8_t i = 0; i < BUFSIZE; i++)
   {
     fromsd[i] = false;
@@ -1207,7 +1209,8 @@ void manage_inactivity(byte debug)
       last_stepperdisabled_time=previous_millis_cmd;
     else
     {
-      enquecommand(DEFAULT_STEPPER_DEACTIVE_COMMAND); 
+      if(  (X_ENABLE_ON && (READ(X_ENABLE_PIN)!=0))  ||  (!X_ENABLE_ON && READ(X_ENABLE_PIN)==0)  )
+        enquecommand(DEFAULT_STEPPER_DEACTIVE_COMMAND); 
       last_stepperdisabled_time=millis();
     }
   }
@@ -1215,6 +1218,7 @@ void manage_inactivity(byte debug)
     if( (millis()-previous_millis_cmd) >  EXTRUDER_RUNOUT_SECONDS*1000 ) 
     if(degHotend(active_extruder)>EXTRUDER_RUNOUT_MINTEMP)
     {
+     bool oldstatus=READ(E_ENABLE_PIN);
      enable_e();
      float oldepos=current_position[E_AXIS];
      float oldedes=destination[E_AXIS];
@@ -1225,7 +1229,9 @@ void manage_inactivity(byte debug)
      destination[E_AXIS]=oldedes;
      plan_set_e_position(oldepos);
      previous_millis_cmd=millis();
-     enquecommand(DEFAULT_STEPPER_DEACTIVE_COMMAND);
+     //enquecommand(DEFAULT_STEPPER_DEACTIVE_COMMAND);
+     st_synchronize();
+     WRITE(E_ENABLE_PIN,oldstatus);
     }
   #endif
   check_axes_activity();
