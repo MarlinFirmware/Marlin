@@ -14,6 +14,7 @@ CardReader::CardReader()
    autostart_atmillis=0;
 
    autostart_stilltocheck=true; //the sd start is delayed, because otherwise the serial cannot answer fast enought to make contact with the hostsoftware.
+   lastnr=0;
   //power to SD reader
   #if SDPOWER > -1
     SET_OUTPUT(SDPOWER); 
@@ -334,7 +335,7 @@ void CardReader::checkautostart(bool force)
     if(!cardOK) //fail
       return;
   }
-  static int lastnr=0;
+  
   char autoname[30];
   sprintf(autoname,"auto%i.g",lastnr);
   for(int8_t i=0;i<(int)strlen(autoname);i++)
@@ -431,10 +432,13 @@ void CardReader::updir()
 
 void CardReader::printingHasFinished()
 {
+ quickStop();
  sdprinting = false;
+ stop_heating_wait=true;
  if(SD_FINISHED_STEPPERRELEASE)
  {
-   finishAndDisableSteppers();
+   //finishAndDisableSteppers();
+   enquecommand(SD_FINISHED_RELEASECOMMAND);
  }
  autotempShutdown();
 }

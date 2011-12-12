@@ -757,14 +757,15 @@ void st_init()
   sei();
 }
 
+
 // Block until all buffered steps are executed
 void st_synchronize()
 {
-  while(plan_get_current_block()) {
+    while( blocks_queued()) {
     manage_heater();
     manage_inactivity(1);
     LCD_STATUS;
-  }   
+  }
 }
 
 void st_set_position(const long &x, const long &y, const long &z, const long &e)
@@ -804,3 +805,12 @@ void finishAndDisableSteppers()
   disable_e1(); 
   disable_e2(); 
 }
+
+void quickStop()
+{
+  DISABLE_STEPPER_DRIVER_INTERRUPT();
+  while(blocks_queued())
+    plan_discard_current_block();
+  ENABLE_STEPPER_DRIVER_INTERRUPT();
+}
+

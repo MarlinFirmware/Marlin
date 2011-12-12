@@ -23,6 +23,7 @@
 
 #include "Marlin.h"
 #include "fastio.h"
+#include "planner.h"
 #ifdef PID_ADD_EXTRUSION_RATE
   #include "stepper.h"
 #endif
@@ -48,10 +49,10 @@ extern float Kp,Ki,Kd,Kc;
   extern float pid_setpoint[EXTRUDERS];
 #endif
   
-#ifdef WATCHPERIOD
+// #ifdef WATCHPERIOD
   extern int watch_raw[EXTRUDERS] ;
-  extern unsigned long watchmillis;
-#endif
+//   extern unsigned long watchmillis;
+// #endif
 
 
 //high level conversion routines, for use outside of temperature.cpp

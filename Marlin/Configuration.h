@@ -20,9 +20,6 @@
 // if unwanted behavior is observed on a user's machine when running at very slow speeds.
 #define MINIMUM_PLANNER_SPEED 2.0 // (mm/sec)
 
-// If defined the movements slow down when the look ahead buffer is only half full
-#define SLOWDOWN
-
 // BASIC SETTINGS: select your board type, thermistor type, axis scaling, and endstop configuration
 
 //// The following define selects which electronics board you have. Please choose the one that matches your setup
@@ -65,11 +62,11 @@
 
 #define BED_CHECK_INTERVAL 5000 //ms
 
-//// Experimental watchdog and minimal temp
-// The watchdog waits for the watchperiod in milliseconds whenever an M104 or M109 increases the target temperature
-// If the temperature has not increased at the end of that period, the target temperature is set to zero. It can be reset with another M104/M109
-/// CURRENTLY NOT IMPLEMENTED AND UNUSEABLE
-//#define WATCHPERIOD 5000 //5 seconds
+//// Heating sanity check:
+// This waits for the watchperiod in milliseconds whenever an M104 or M109 increases the target temperature
+// If the temperature has not increased at the end of that period, the target temperature is set to zero. 
+// It can be reset with another M104/M109
+//#define WATCHPERIOD 20000 //20 seconds
 
 // Actual temperature must be close to target for this long before M109 returns success
 #define TEMP_RESIDENCY_TIME 30  // (seconds)
@@ -163,6 +160,14 @@
   #endif
 #endif // PIDTEMP
 
+//  extruder run-out prevention. 
+//if the machine is idle, and the temperature over MINTEMP, every couple of SECONDS some filament is extruded
+//#define EXTRUDER_RUNOUT_PREVENT  
+#define EXTRUDER_RUNOUT_MINTEMP 190  
+#define EXTRUDER_RUNOUT_SECONDS 30.
+#define EXTRUDER_RUNOUT_ESTEPS 14. //mm filament
+#define EXTRUDER_RUNOUT_SPEED 1500.  //extrusion speed
+
 
 //===========================================================================
 //=============================Mechanical Settings===========================
@@ -250,7 +255,12 @@ const bool Z_ENDSTOPS_INVERTING = true; // set to true to invert the logic of th
 #define DEFAULT_XYJERK                20.0    // (mm/sec)
 #define DEFAULT_ZJERK                 0.4     // (mm/sec)
 
+// If defined the movements slow down when the look ahead buffer is only half full
+#define SLOWDOWN
 
+//default stepper release if idle
+#define DEFAULT_STEPPER_DEACTIVE_TIME 60
+#define DEFAULT_STEPPER_DEACTIVE_COMMAND "M84 X Y E"  //z stays  powered
 
 
 //===========================================================================
@@ -303,6 +313,7 @@ const bool Z_ENDSTOPS_INVERTING = true; // set to true to invert the logic of th
 //#define ULTRA_LCD  //general lcd support, also 16x2
 //#define SDSUPPORT // Enable SD Card Support in Hardware Console
 #define SD_FINISHED_STEPPERRELEASE true  //if sd support and the file is finished: disable steppers?
+#define SD_FINISHED_RELEASECOMMAND "M84 X Y E" // no z because of layer shift.
 
 #define ULTIPANEL
 #ifdef ULTIPANEL
@@ -339,6 +350,11 @@ const bool Z_ENDSTOPS_INVERTING = true; // set to true to invert the logic of th
   #define AUTOTEMP_OLDWEIGHT 0.98
 #endif
 
+//this prevents dangerous Extruder moves, i.e. if the temperature is under the limit
+//can be software-disabled for whatever purposes by
+#define PREVENT_DANGEROUS_EXTRUDE
+#define EXTRUDE_MINTEMP 190
+#define EXTRUDE_MAXLENGTH (X_MAX_LENGTH+Y_MAX_LENGTH) //prevent extrusion of very large distances.
 
 const int dropsegments=5; //everything with less than this number of steps will be ignored as move and joined with the next movement
 

@@ -103,7 +103,9 @@ volatile unsigned char block_buffer_tail;           // Index of the block to pro
 //===========================================================================
 //=============================private variables ============================
 //===========================================================================
-
+#ifdef PREVENT_DANGEROUS_EXTRUDE
+  bool allow_cold_extrude=false;
+#endif
 #ifdef XY_FREQUENCY_LIMIT
   // Used for the frequency limit
   static unsigned char old_direction_bits = 0;               // Old direction bits. Used for speed calculations
@@ -462,7 +464,23 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
   target[X_AXIS] = lround(x*axis_steps_per_unit[X_AXIS]);
   target[Y_AXIS] = lround(y*axis_steps_per_unit[Y_AXIS]);
   target[Z_AXIS] = lround(z*axis_steps_per_unit[Z_AXIS]);     
-  target[E_AXIS] = lround(e*axis_steps_per_unit[E_AXIS]); 
+  target[E_AXIS] = lround(e*axis_steps_per_unit[E_AXIS]);
+  
+  #ifdef PREVENT_DANGEROUS_EXTRUDE
+    if(target[E_AXIS]!=position[E_AXIS])
+    if(degHotend(active_extruder)<EXTRUDE_MINTEMP && !allow_cold_extrude)
+    {
+      position[E_AXIS]=target[E_AXIS]; //behave as if the move really took place, but ignore E part
+      SERIAL_ECHO_START;
+      SERIAL_ECHOLNPGM(" cold extrusion prevented");
+    }
+    if(labs(target[E_AXIS]-position[E_AXIS])>axis_steps_per_unit[E_AXIS]*EXTRUDE_MAXLENGTH)
+    {
+      position[E_AXIS]=target[E_AXIS]; //behave as if the move really took place, but ignore E part
+      SERIAL_ECHO_START;
+      SERIAL_ECHOLNPGM(" too long extrusion prevented");
+    }
+  #endif
   
   // Prepare to set up new block
   block_t *block = &block_buffer[block_buffer_head];
@@ -778,3 +796,9 @@ uint8_t movesplanned()
  return (block_buffer_head-block_buffer_tail + BLOCK_BUFFER_SIZE) & (BLOCK_BUFFER_SIZE - 1);
 }
 
+void allow_cold_extrudes(bool allow)
+{
+  #ifdef PREVENT_DANGEROUS_EXTRUDE
+    allow_cold_extrude=allow;
+  #endif
+}
