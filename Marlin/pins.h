@@ -557,25 +557,24 @@
 #define HEATER_BED_PIN 4 
 #define TEMP_BED_PIN 11  
 
-#define EXTRUDER_0_STEP_PIN 43 
-#define EXTRUDER_0_DIR_PIN 45
-#define EXTRUDER_0_ENABLE_PIN 41
 #define HEATER_0_PIN  2
 #define TEMP_0_PIN 8   
 
-#define EXTRUDER_1_STEP_PIN 49 
-#define EXTRUDER_1_DIR_PIN 47
-#define EXTRUDER_1_ENABLE_PIN 51
 #define EXTRUDER_1_HEATER_PIN 3
 #define EXTRUDER_1_TEMPERATURE_PIN 10 
 #define HEATER_1_PIN 51
 #define TEMP_1_PIN 3
 
+#define HEATER_2_PIN -1
+#define TEMP_2_PIN -1
 
+#define E0_STEP_PIN         43
+#define E0_DIR_PIN          45
+#define E0_ENABLE_PIN       41
 
-#define E0_STEP_PIN         EXTRUDER_0_STEP_PIN
-#define E0_DIR_PIN          EXTRUDER_0_DIR_PIN
-#define E0_ENABLE_PIN       EXTRUDER_0_ENABLE_PIN
+#define E1_STEP_PIN         49
+#define E1_DIR_PIN          47
+#define E1_ENABLE_PIN       51
 
 #define SDPOWER            -1
 #define SDSS               53

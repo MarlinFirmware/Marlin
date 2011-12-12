@@ -163,7 +163,11 @@ void lcd_status()
     //static long previous_lcdinit=0;
   //  buttons_check(); // Done in temperature interrupt
     //previous_millis_buttons=millis();
-    
+    long ms=millis();
+    for(int8_t i=0; i<8; i++) {
+      if((blocking[i]>ms))
+        buttons &= ~(1<<i);
+    }
     if((buttons==oldbuttons) &&  ((millis() - previous_millis_lcd) < LCD_UPDATE_INTERVAL)   )
       return;
     oldbuttons=buttons;

@@ -1,78 +1,87 @@
 /*
-	This code contibuted by Triffid_Hunter and modified by Kliment
-	why double up on these macros? see http://gcc.gnu.org/onlinedocs/cpp/Stringification.html
+  This code contibuted by Triffid_Hunter and modified by Kliment
+  why double up on these macros? see http://gcc.gnu.org/onlinedocs/cpp/Stringification.html
 */
 
 #ifndef	_ARDUINO_H
 #define	_ARDUINO_H
 
-#include	<avr/io.h>
+#include <avr/io.h>
 
 /*
-	utility functions
+  utility functions
 */
 
-#ifndef		MASK
+#ifndef MASK
 /// MASKING- returns \f$2^PIN\f$
-	#define		MASK(PIN)				(1 << PIN)
+#define MASK(PIN)  (1 << PIN)
 #endif
 
 /*
-	magic I/O routines
-
-	now you can simply SET_OUTPUT(STEP); WRITE(STEP, 1); WRITE(STEP, 0);
+  magic I/O routines
+  now you can simply SET_OUTPUT(STEP); WRITE(STEP, 1); WRITE(STEP, 0);
 */
 
 /// Read a pin
-#define         _READ(IO)                                       ((bool)(DIO ## IO ## _RPORT & MASK(DIO ## IO ## _PIN)))
+#define _READ(IO) ((bool)(DIO ## IO ## _RPORT & MASK(DIO ## IO ## _PIN)))
 /// write to a pin
-#define         _WRITE(IO, v)                   do { if (v) {DIO ##  IO ## _WPORT |= MASK(DIO ## IO ## _PIN); } else {DIO ##  IO ## _WPORT &= ~MASK(DIO ## IO ## _PIN); }; } while (0)
-//#define               _WRITE(IO, v)   do { #if (DIO ##  IO ## _WPORT >= 0x100) CRITICAL_SECTION_START; if (v) {DIO ##  IO ## _WPORT |= MASK(DIO ## IO ## _PIN); } else {DIO ##  IO ## _WPORT &= ~MASK(DIO ## IO ## _PIN); };#if (DIO ##  IO ## _WPORT >= 0x100) CRITICAL_SECTION_END; } while (0)
+// On some boards pins > 0x100 are used. These are not converted to atomic actions. An critical section is needed.
+
+#define _WRITE_NC(IO, v)  do { if (v) {DIO ##  IO ## _WPORT |= MASK(DIO ## IO ## _PIN); } else {DIO ##  IO ## _WPORT &= ~MASK(DIO ## IO ## _PIN); }; } while (0)
+
+#define _WRITE_C(IO, v)   do { if (v) { \
+                                         CRITICAL_SECTION_START; \
+                                         {DIO ##  IO ## _WPORT |= MASK(DIO ## IO ## _PIN); }\
+                                         CRITICAL_SECTION_END; \
+                                       }\
+                                       else {\
+                                         CRITICAL_SECTION_START; \
+                                         {DIO ##  IO ## _WPORT &= ~MASK(DIO ## IO ## _PIN); }\
+                                         CRITICAL_SECTION_END; \
+                                       }\
+                                     }\
+                                     while (0)
+
+#define _WRITE(IO, v)  do {  if (&(DIO ##  IO ## _RPORT) >= (uint8_t *)0x100) {_WRITE_C(IO, v); } else {_WRITE_NC(IO, v); }; } while (0)
+
 /// toggle a pin
-#define         _TOGGLE(IO)                             do {DIO ##  IO ## _RPORT = MASK(DIO ## IO ## _PIN); } while (0)
+#define _TOGGLE(IO)  do {DIO ##  IO ## _RPORT = MASK(DIO ## IO ## _PIN); } while (0)
 
 /// set pin as input
-#define		_SET_INPUT(IO)		do {DIO ##  IO ## _DDR &= ~MASK(DIO ## IO ## _PIN); } while (0)
+#define	_SET_INPUT(IO) do {DIO ##  IO ## _DDR &= ~MASK(DIO ## IO ## _PIN); } while (0)
 /// set pin as output
-#define		_SET_OUTPUT(IO)		do {DIO ##  IO ## _DDR |=  MASK(DIO ## IO ## _PIN); } while (0)
+#define	_SET_OUTPUT(IO) do {DIO ##  IO ## _DDR |=  MASK(DIO ## IO ## _PIN); } while (0)
 
 /// check if pin is an input
-#define		_GET_INPUT(IO)		((DIO ## IO ## _DDR & MASK(DIO ## IO ## _PIN)) == 0)
+#define	_GET_INPUT(IO)  ((DIO ## IO ## _DDR & MASK(DIO ## IO ## _PIN)) == 0)
 /// check if pin is an output
-#define		_GET_OUTPUT(IO)		((DIO ## IO ## _DDR & MASK(DIO ## IO ## _PIN)) != 0)
+#define	_GET_OUTPUT(IO)  ((DIO ## IO ## _DDR & MASK(DIO ## IO ## _PIN)) != 0)
 
-//	why double up on these macros? see http://gcc.gnu.org/onlinedocs/cpp/Stringification.html
+/// check if pin is an timer
+#define	_GET_TIMER(IO)  ((DIO ## IO ## _PWM)
+
+//  why double up on these macros? see http://gcc.gnu.org/onlinedocs/cpp/Stringification.html
 
 /// Read a pin wrapper
-#define		READ(IO)				_READ(IO)
+#define READ(IO)  _READ(IO)
 /// Write to a pin wrapper
-#define		WRITE(IO, v)			_WRITE(IO, v)
-#if EXTRUDERS > 2
-  #define WRITE_E_STEP(v) { if(ACTIVE_EXTRUDER == 2) { WRITE(E2_STEP_PIN, v); } else { if(ACTIVE_EXTRUDER == 1) { WRITE(E1_STEP_PIN, v); } else { WRITE(E0_STEP_PIN, v); }}}
-  #define NORM_E_DIR() { if(ACTIVE_EXTRUDER == 2) { WRITE(E2_DIR_PIN, INVERT_E2_DIR); } else { if(ACTIVE_EXTRUDER == 1) { WRITE(E1_DIR_PIN, INVERT_E1_DIR); } else { WRITE(E0_DIR_PIN, INVERT_E0_DIR); }}}
-  #define REV_E_DIR() { if(ACTIVE_EXTRUDER == 2) { WRITE(E2_DIR_PIN, !INVERT_E2_DIR); } else { if(ACTIVE_EXTRUDER == 1) { WRITE(E1_DIR_PIN, !INVERT_E1_DIR); } else { WRITE(E0_DIR_PIN, !INVERT_E0_DIR); }}}
-#elif EXTRUDERS > 1
-  #define WRITE_E_STEP(v) { if(ACTIVE_EXTRUDER == 1) { WRITE(E1_STEP_PIN, v); } else { WRITE(E0_STEP_PIN, v); }}
-  #define NORM_E_DIR() { if(ACTIVE_EXTRUDER == 1) { WRITE(E1_DIR_PIN, INVERT_E1_DIR); } else { WRITE(E0_DIR_PIN, INVERT_E0_DIR); }}
-  #define REV_E_DIR() { if(ACTIVE_EXTRUDER == 1) { WRITE(E1_DIR_PIN, !INVERT_E1_DIR); } else { WRITE(E0_DIR_PIN, !INVERT_E0_DIR); }}
-#else
-  #define WRITE_E_STEP(v) WRITE(E0_STEP_PIN, v)
-  #define NORM_E_DIR() WRITE(E0_DIR_PIN, INVERT_E0_DIR)
-  #define REV_E_DIR() WRITE(E0_DIR_PIN, !INVERT_E0_DIR)
-#endif
+#define WRITE(IO, v)  _WRITE(IO, v)
 
 /// toggle a pin wrapper
-#define		TOGGLE(IO)				_TOGGLE(IO)
+#define TOGGLE(IO)  _TOGGLE(IO)
 
 /// set pin as input wrapper
-#define		SET_INPUT(IO)			_SET_INPUT(IO)
+#define SET_INPUT(IO)  _SET_INPUT(IO)
 /// set pin as output wrapper
-#define		SET_OUTPUT(IO)		_SET_OUTPUT(IO)
+#define SET_OUTPUT(IO)  _SET_OUTPUT(IO)
 
 /// check if pin is an input wrapper
-#define		GET_INPUT(IO)			_GET_INPUT(IO)
+#define GET_INPUT(IO)  _GET_INPUT(IO)
 /// check if pin is an output wrapper
-#define		GET_OUTPUT(IO)		_GET_OUTPUT(IO)
+#define GET_OUTPUT(IO)  _GET_OUTPUT(IO)
+
+/// check if pin is an timer wrapper
+#define GET_TIMER(IO)  _GET_TIMER(IO)
 
 /*
 	ports and functions
@@ -470,13 +479,13 @@ pins
 #define DIO3_RPORT	PINB
 #define DIO3_WPORT	PORTB
 #define DIO3_DDR		DDRB
-#define DIO3_PWM		&OCR0A
+#define DIO3_PWM		OCR0A
 
 #define DIO4_PIN		PINB4
 #define DIO4_RPORT	PINB
 #define DIO4_WPORT	PORTB
 #define DIO4_DDR		DDRB
-#define DIO4_PWM		&OCR0B
+#define DIO4_PWM		OCR0B
 
 #define DIO5_PIN		PINB5
 #define DIO5_RPORT	PINB
@@ -524,25 +533,25 @@ pins
 #define DIO12_RPORT	PIND
 #define DIO12_WPORT	PORTD
 #define DIO12_DDR		DDRD
-#define DIO12_PWM		NULL
+#define DIO12_PWM		OCR1B
 
 #define DIO13_PIN		PIND5
 #define DIO13_RPORT	PIND
 #define DIO13_WPORT	PORTD
 #define DIO13_DDR		DDRD
-#define DIO13_PWM		NULL
+#define DIO13_PWM		OCR1A
 
 #define DIO14_PIN		PIND6
 #define DIO14_RPORT	PIND
 #define DIO14_WPORT	PORTD
 #define DIO14_DDR		DDRD
-#define DIO14_PWM		&OCR2B
+#define DIO14_PWM		OCR2B
 
 #define DIO15_PIN		PIND7
 #define DIO15_RPORT	PIND
 #define DIO15_WPORT	PORTD
 #define DIO15_DDR		DDRD
-#define DIO15_PWM		&OCR2A
+#define DIO15_PWM		OCR2A
 
 #define DIO16_PIN		PINC0
 #define DIO16_RPORT	PINC
@@ -773,14 +782,14 @@ pins
 #define PB3_RPORT		PINB
 #define PB3_WPORT		PORTB
 #define PB3_DDR			DDRB
-#define PB3_PWM			&OCR0A
+#define PB3_PWM			OCR0A
 
 #undef PB4
 #define PB4_PIN			PINB4
 #define PB4_RPORT		PINB
 #define PB4_WPORT		PORTB
 #define PB4_DDR			DDRB
-#define PB4_PWM			&OCR0B
+#define PB4_PWM			OCR0B
 
 #undef PB5
 #define PB5_PIN			PINB5
@@ -908,14 +917,14 @@ pins
 #define PD6_RPORT		PIND
 #define PD6_WPORT		PORTD
 #define PD6_DDR			DDRD
-#define PD6_PWM			&OCR2B
+#define PD6_PWM			OCR2B
 
 #undef PD7
 #define PD7_PIN			PIND7
 #define PD7_RPORT		PIND
 #define PD7_WPORT		PORTD
 #define PD7_DDR			DDRD
-#define PD7_PWM			&OCR2A
+#define PD7_PWM			OCR2A
 #endif	/*	_AVR_ATmega{644,644P,644PA}__ */
 
 #if defined (__AVR_ATmega1280__) || defined (__AVR_ATmega2560__)

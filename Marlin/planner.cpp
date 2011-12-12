@@ -191,8 +191,8 @@ void calculate_trapezoid_for_block(block_t *block, float entry_factor, float exi
   }
 
   #ifdef ADVANCE
-    long initial_advance = block->advance*entry_factor*entry_factor;
-    long final_advance = block->advance*exit_factor*exit_factor;
+    volatile long initial_advance = block->advance*entry_factor*entry_factor; 
+    volatile long final_advance = block->advance*exit_factor*exit_factor;
   #endif // ADVANCE
   
  // block->accelerate_until = accelerate_steps;

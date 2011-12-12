@@ -26,7 +26,6 @@
  It has preliminary support for Matthew Roberts advance algorithm 
     http://reprap.org/pipermail/reprap-dev/2011-May/003323.html
 
- This firmware is optimized for gen6 electronics.
  */
 #include <avr/pgmspace.h>
 
@@ -82,6 +81,7 @@ static unsigned long  previous_millis_bed_heater;
   // static float pid_output[EXTRUDERS];
   static bool pid_reset[EXTRUDERS];
 #endif //PIDTEMP
+  static unsigned char soft_pwm[EXTRUDERS];
   
 #ifdef WATCHPERIOD
   static int watch_raw[EXTRUDERS] = { -1000 }; // the first value used for all
@@ -140,6 +140,10 @@ void updatePID()
 #endif
 }
   
+int getHeaterPower(int heater) {
+  return soft_pwm[heater];
+}
+
 void manage_heater()
 {
   #ifdef USE_WATCHDOG
@@ -198,15 +202,16 @@ void manage_heater()
     }
   #endif
 
-  // Check if temperature is within the correct range
-  if((current_raw[e] > minttemp[e]) && (current_raw[e] < maxttemp[e])) 
-  {
-    analogWrite(heater_pin_map[e], pid_output);
-  }
-  else {
-    analogWrite(heater_pin_map[e], 0);
-  }
-
+    // Check if temperature is within the correct range
+    if((current_raw[e] > minttemp[e]) && (current_raw[e] < maxttemp[e])) 
+    {
+      //analogWrite(heater_pin_map[e], pid_output);
+      soft_pwm[e] = (int)pid_output >> 1;
+    }
+    else {
+      //analogWrite(heater_pin_map[e], 0);
+      soft_pwm[e] = 0;
+    }
   } // End extruder for loop
     
   if(millis() - previous_millis_bed_heater < BED_CHECK_INTERVAL)
@@ -418,7 +423,6 @@ void tp_init()
        DIDR0 |= 1 << TEMP_0_PIN; 
     #else
        DIDR2 |= 1<<(TEMP_0_PIN - 8); 
-       ADCSRB = 1<<MUX5;
     #endif
   #endif
   #if (TEMP_1_PIN > -1)
@@ -426,7 +430,6 @@ void tp_init()
        DIDR0 |= 1<<TEMP_1_PIN; 
     #else
        DIDR2 |= 1<<(TEMP_1_PIN - 8); 
-       ADCSRB = 1<<MUX5;
     #endif
   #endif
   #if (TEMP_2_PIN > -1)
@@ -434,7 +437,6 @@ void tp_init()
        DIDR0 |= 1 << TEMP_2_PIN; 
     #else
        DIDR2 = 1<<(TEMP_2_PIN - 8); 
-       ADCSRB = 1<<MUX5;
     #endif
   #endif
   #if (TEMP_BED_PIN > -1)
@@ -442,7 +444,6 @@ void tp_init()
        DIDR0 |= 1<<TEMP_BED_PIN; 
     #else
        DIDR2 |= 1<<(TEMP_BED_PIN - 8); 
-       ADCSRB = 1<<MUX5;
     #endif
   #endif
   
@@ -506,6 +507,7 @@ void disable_heater()
 {
   #if TEMP_0_PIN > -1
   target_raw[0]=0;
+  soft_pwm[0]=0;
    #if HEATER_0_PIN > -1  
      digitalWrite(HEATER_0_PIN,LOW);
    #endif
@@ -513,6 +515,7 @@ void disable_heater()
      
   #if TEMP_1_PIN > -1
     target_raw[1]=0;
+    soft_pwm[1]=0;
     #if HEATER_1_PIN > -1 
       digitalWrite(HEATER_1_PIN,LOW);
     #endif
@@ -520,6 +523,7 @@ void disable_heater()
       
   #if TEMP_2_PIN > -1
     target_raw[2]=0;
+    soft_pwm[2]=0;
     #if HEATER_2_PIN > -1  
       digitalWrite(HEATER_2_PIN,LOW);
     #endif
@@ -533,6 +537,26 @@ void disable_heater()
   #endif 
 }
 
+void max_temp_error(uint8_t e) {
+  digitalWrite(heater_pin_map[e], 0);
+  SERIAL_ERROR_START;
+  SERIAL_ERRORLN(e);
+  SERIAL_ERRORLNPGM(": Extruder switched off. MAXTEMP triggered !");
+}
+
+void min_temp_error(uint8_t e) {
+  digitalWrite(heater_pin_map[e], 0);
+  SERIAL_ERROR_START;
+  SERIAL_ERRORLN(e);
+  SERIAL_ERRORLNPGM(": Extruder switched off. MINTEMP triggered !");
+}
+
+void bed_max_temp_error(void) {
+  digitalWrite(HEATER_BED_PIN, 0);
+  SERIAL_ERROR_START;
+  SERIAL_ERRORLNPGM("Temperature heated bed switched off. MAXTEMP triggered !!");
+}
+
 // Timer 0 is shared with millies
 ISR(TIMER0_COMPB_vect)
 {
@@ -543,6 +567,33 @@ ISR(TIMER0_COMPB_vect)
   static unsigned long raw_temp_2_value = 0;
   static unsigned long raw_temp_bed_value = 0;
   static unsigned char temp_state = 0;
+  static unsigned char pwm_count = 1;
+  static unsigned char soft_pwm_0;
+  static unsigned char soft_pwm_1;
+  static unsigned char soft_pwm_2;
+  
+  if(pwm_count == 0){
+    soft_pwm_0 = soft_pwm[0];
+    if(soft_pwm_0 > 0) WRITE(HEATER_0_PIN,1);
+    #if EXTRUDERS > 1
+    soft_pwm_1 = soft_pwm[1];
+    if(soft_pwm_1 > 0) WRITE(HEATER_1_PIN,1);
+    #endif
+    #if EXTRUDERS > 2
+    soft_pwm_2 = soft_pwm[2];
+    if(soft_pwm_2 > 0) WRITE(HEATER_2_PIN,1);
+    #endif
+  }
+  if(soft_pwm_0 <= pwm_count) WRITE(HEATER_0_PIN,0);
+  #if EXTRUDERS > 1
+  if(soft_pwm_1 <= pwm_count) WRITE(HEATER_1_PIN,0);
+  #endif
+  #if EXTRUDERS > 2
+  if(soft_pwm_2 <= pwm_count) WRITE(HEATER_2_PIN,0);
+  #endif
+  
+  pwm_count++;
+  pwm_count &= 0x7f;
   
   switch(temp_state) {
     case 0: // Prepare TEMP_0
@@ -628,10 +679,10 @@ ISR(TIMER0_COMPB_vect)
       temp_state = 0;
       temp_count++;
       break;
-    default:
-      SERIAL_ERROR_START;
-      SERIAL_ERRORLNPGM("Temp measurement error!");
-      break;
+//    default:
+//      SERIAL_ERROR_START;
+//      SERIAL_ERRORLNPGM("Temp measurement error!");
+//      break;
   }
     
   if(temp_count >= 16) // 8 ms * 16 = 128ms.
@@ -671,21 +722,15 @@ ISR(TIMER0_COMPB_vect)
     raw_temp_2_value = 0;
     raw_temp_bed_value = 0;
 
-    for(int e = 0; e < EXTRUDERS; e++) {
+    for(unsigned char e = 0; e < EXTRUDERS; e++) {
        if(current_raw[e] >= maxttemp[e]) {
           target_raw[e] = 0;
-          digitalWrite(heater_pin_map[e], 0);
-          SERIAL_ERROR_START;
-          SERIAL_ERRORLN((int)e);
-          SERIAL_ERRORLNPGM(": Extruder switched off. MAXTEMP triggered !");
-          kill();
+          max_temp_error(e);
+          kill();;
        }
        if(current_raw[e] <= minttemp[e]) {
           target_raw[e] = 0;
-          digitalWrite(heater_pin_map[e], 0);
-          SERIAL_ERROR_START;
-          SERIAL_ERRORLN(e);
-          SERIAL_ERRORLNPGM(": Extruder switched off. MINTEMP triggered !");
+          min_temp_error(e);
           kill();
        }
     }
@@ -693,9 +738,7 @@ ISR(TIMER0_COMPB_vect)
 #if defined(BED_MAXTEMP) && (HEATER_BED_PIN > -1)
     if(current_raw_bed >= bed_maxttemp) {
        target_raw_bed = 0;
-       digitalWrite(HEATER_BED_PIN, 0);
-       SERIAL_ERROR_START;
-       SERIAL_ERRORLNPGM("Temperature heated bed switched off. MAXTEMP triggered !!");
+       bed_max_temp_error();
        kill();
     }
 #endif

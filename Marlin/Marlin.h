@@ -57,8 +57,6 @@ const prog_char echomagic[] PROGMEM ="echo:";
 
 #define SERIAL_ECHOPAIR(name,value) {SERIAL_ECHOPGM(name);SERIAL_ECHO(value);}
 
-// Macro for getting current active extruder
-#define ACTIVE_EXTRUDER (active_extruder)
 
 //things to write to serial from Programmemory. saves 400 to 2k of RAM.
 #define SerialprintPGM(x) serialprintPGM(MYPGM(x))

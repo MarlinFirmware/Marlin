@@ -135,6 +135,7 @@ FORCE_INLINE void autotempShutdown(){
  #endif
 }
 
+int getHeaterPower(int heater);
 void disable_heater();
 void setWatch();
 void updatePID();

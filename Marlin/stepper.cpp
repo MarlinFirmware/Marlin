@@ -57,7 +57,7 @@ volatile static unsigned long step_events_completed; // The number of step event
   static long advance_rate, advance, final_advance = 0;
   static long old_advance = 0;
 #endif
-static long e_steps;
+static long e_steps[3];
 static unsigned char busy = false; // TRUE when SIG_OUTPUT_COMPARE1A is being serviced. Used to avoid retriggering that handler.
 static long acceleration_time, deceleration_time;
 //static unsigned long accelerate_until, decelerate_after, acceleration_rate, initial_rate, final_rate, nominal_rate;
@@ -266,7 +266,7 @@ FORCE_INLINE void trapezoid_generator_reset() {
     advance = current_block->initial_advance;
     final_advance = current_block->final_advance;
     // Do E steps + advance steps
-    e_steps += ((advance >>8) - old_advance);
+    e_steps[current_block->active_extruder] += ((advance >>8) - old_advance);
     old_advance = advance >>8;  
   #endif
   deceleration_time = 0;
@@ -303,8 +303,8 @@ ISR(TIMER1_COMPA_vect)
       counter_z = counter_x;
       counter_e = counter_x;
       step_events_completed = 0;
- //     #ifdef ADVANCE
-      e_steps = 0;
+//      #ifdef ADVANCE
+//      e_steps[current_block->active_extruder] = 0;
 //      #endif
     } 
     else {
@@ -418,11 +418,11 @@ ISR(TIMER1_COMPA_vect)
 
     #ifndef ADVANCE
       if ((out_bits & (1<<E_AXIS)) != 0) {  // -direction
-        NORM_E_DIR();
+        REV_E_DIR();
         count_direction[E_AXIS]=-1;
       }
       else { // +direction
-        REV_E_DIR();
+        NORM_E_DIR();
         count_direction[E_AXIS]=-1;
       }
     #endif //!ADVANCE
@@ -437,10 +437,10 @@ ISR(TIMER1_COMPA_vect)
       if (counter_e > 0) {
         counter_e -= current_block->step_event_count;
         if ((out_bits & (1<<E_AXIS)) != 0) { // - direction
-          e_steps--;
+          e_steps[current_block->active_extruder]--;
         }
         else {
-          e_steps++;
+          e_steps[current_block->active_extruder]++;
         }
       }    
       #endif //ADVANCE
@@ -503,7 +503,7 @@ ISR(TIMER1_COMPA_vect)
         }
         //if(advance > current_block->advance) advance = current_block->advance;
         // Do E steps + advance steps
-        e_steps += ((advance >>8) - old_advance);
+        e_steps[current_block->active_extruder] += ((advance >>8) - old_advance);
         old_advance = advance >>8;  
         
       #endif
@@ -532,7 +532,7 @@ ISR(TIMER1_COMPA_vect)
         }
         if(advance < final_advance) advance = final_advance;
         // Do E steps + advance steps
-        e_steps += ((advance >>8) - old_advance);
+        e_steps[current_block->active_extruder] += ((advance >>8) - old_advance);
         old_advance = advance >>8;  
       #endif //ADVANCE
     }
@@ -557,20 +557,50 @@ ISR(TIMER1_COMPA_vect)
     old_OCR0A += 52; // ~10kHz interrupt (250000 / 26 = 9615kHz)
     OCR0A = old_OCR0A;
     // Set E direction (Depends on E direction + advance)
-    for(unsigned char i=0; i<4;) {
-      WRITE_E_STEP(LOW);
-      if (e_steps == 0) break;
-      i++;
-      if (e_steps < 0) {
-        WRITE_E_DIR(INVERT_E_DIR);    
-        e_steps++;
-        WRITE_E_STEP(HIGH);
-      } 
-      else if (e_steps > 0) {
-        WRITE_E_DIR(!INVERT_E_DIR);
-        e_steps--;
-        WRITE_E_STEP(HIGH);
+    for(unsigned char i=0; i<4;i++) {
+      if (e_steps[0] != 0) {
+        WRITE(E0_STEP_PIN, LOW);
+        if (e_steps[0] < 0) {
+          WRITE(E0_DIR_PIN, INVERT_E0_DIR);
+          e_steps[0]++;
+          WRITE(E0_STEP_PIN, HIGH);
+        } 
+        else if (e_steps[0] > 0) {
+          WRITE(E0_DIR_PIN, !INVERT_E0_DIR);
+          e_steps[0]--;
+          WRITE(E0_STEP_PIN, HIGH);
+        }
       }
+ #if EXTRUDERS > 1
+      if (e_steps[1] != 0) {
+        WRITE(E1_STEP_PIN, LOW);
+        if (e_steps[1] < 0) {
+          WRITE(E1_DIR_PIN, INVERT_E1_DIR);
+          e_steps[1]++;
+          WRITE(E1_STEP_PIN, HIGH);
+        } 
+        else if (e_steps[1] > 0) {
+          WRITE(E1_DIR_PIN, !INVERT_E1_DIR);
+          e_steps[1]--;
+          WRITE(E1_STEP_PIN, HIGH);
+        }
+      }
+ #endif
+ #if EXTRUDERS > 2
+      if (e_steps[2] != 0) {
+        WRITE(E2_STEP_PIN, LOW);
+        if (e_steps[2] < 0) {
+          WRITE(E2_DIR_PIN, INVERT_E2_DIR);
+          e_steps[2]++;
+          WRITE(E2_STEP_PIN, HIGH);
+        } 
+        else if (e_steps[2] > 0) {
+          WRITE(E2_DIR_PIN, !INVERT_E2_DIR);
+          e_steps[2]--;
+          WRITE(E2_STEP_PIN, HIGH);
+        }
+      }
+ #endif
     }
   }
 #endif // ADVANCE
@@ -712,7 +742,9 @@ void st_init()
     TCCR0A &= ~(1<<WGM01);
     TCCR0A &= ~(1<<WGM00);
   #endif  
-    e_steps = 0;
+    e_steps[0] = 0;
+    e_steps[1] = 0;
+    e_steps[2] = 0;
     TIMSK0 |= (1<<OCIE0A);
   #endif //ADVANCE
   

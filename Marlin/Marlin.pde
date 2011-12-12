@@ -465,16 +465,16 @@ FORCE_INLINE bool code_seen(char code)
     plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]); \
     destination[LETTER##_AXIS] = 1.5 * LETTER##_MAX_LENGTH * LETTER##_HOME_DIR; \
     feedrate = homing_feedrate[LETTER##_AXIS]; \
-    prepare_move(); \
+    plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate/60, active_extruder); \
     \
     current_position[LETTER##_AXIS] = 0;\
     plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);\
     destination[LETTER##_AXIS] = -LETTER##_HOME_RETRACT_MM * LETTER##_HOME_DIR;\
-    prepare_move(); \
+    plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate/60, active_extruder); \
     \
     destination[LETTER##_AXIS] = 2*LETTER##_HOME_RETRACT_MM * LETTER##_HOME_DIR;\
     feedrate = homing_feedrate[LETTER##_AXIS]/2 ;  \
-    prepare_move(); \
+    plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate/60, active_extruder); \
     \
     current_position[LETTER##_AXIS] = (LETTER##_HOME_DIR == -1) ? 0 : LETTER##_MAX_LENGTH;\
     plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);\
@@ -541,6 +541,7 @@ FORCE_INLINE void process_commands()
       if( code_seen(axis_codes[0]) && code_seen(axis_codes[1]) )  //first diagonal move
       {
         current_position[X_AXIS] = 0; current_position[Y_AXIS] = 0;
+
         plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]); 
         destination[X_AXIS] = 1.5 * X_MAX_LENGTH * X_HOME_DIR;
         destination[Y_AXIS] = 1.5 * Y_MAX_LENGTH * Y_HOME_DIR; 
@@ -723,7 +724,7 @@ FORCE_INLINE void process_commands()
       if (code_seen('S')) setTargetBed(code_value());
       break;
     case 105 : // M105
-      tmp_extruder = ACTIVE_EXTRUDER;
+      tmp_extruder = active_extruder;
       if(code_seen('T')) {
         tmp_extruder = code_value();
         if(tmp_extruder >= EXTRUDERS) {
@@ -743,6 +744,10 @@ FORCE_INLINE void process_commands()
       #else
         SERIAL_ERROR_START;
         SERIAL_ERRORLNPGM("No thermistors - no temp");
+      #endif
+      #ifdef PIDTEMP
+        SERIAL_PROTOCOLPGM(" @:");
+        SERIAL_PROTOCOL(getHeaterPower(tmp_extruder));  
       #endif
         SERIAL_PROTOCOLLN("");
       return;
@@ -793,19 +798,21 @@ FORCE_INLINE void process_commands()
           if( (millis() - codenum) > 1000 ) 
           { //Print Temp Reading and remaining time every 1 second while heating up/cooling down
             SERIAL_PROTOCOLPGM("T:");
-            SERIAL_PROTOCOLLN( degHotend(tmp_extruder) ); 
+            SERIAL_PROTOCOL( degHotend(tmp_extruder) ); 
             SERIAL_PROTOCOLPGM(" E:");
             SERIAL_PROTOCOLLN( (int)tmp_extruder ); 
-            SERIAL_PROTOCOLPGM(" W:");
-            if(residencyStart > -1)
-            {
-               codenum = TEMP_RESIDENCY_TIME - ((millis() - residencyStart) / 1000);
-               SERIAL_PROTOCOLLN( codenum );
-            }
-            else 
-            {
-               SERIAL_PROTOCOLLN( "?" );
-            }
+            #ifdef TEMP_RESIDENCY_TIME
+              SERIAL_PROTOCOLPGM(" W:");
+              if(residencyStart > -1)
+              {
+                 codenum = TEMP_RESIDENCY_TIME - ((millis() - residencyStart) / 1000);
+                 SERIAL_PROTOCOLLN( codenum );
+              }
+              else 
+              {
+                 SERIAL_PROTOCOLLN( "?" );
+              }
+            #endif
             codenum = millis();
           }
           manage_heater();
@@ -834,11 +841,11 @@ FORCE_INLINE void process_commands()
         {
           if( (millis()-codenum) > 1000 ) //Print Temp Reading every 1 second while heating up.
           {
-            float tt=degHotend(ACTIVE_EXTRUDER);
+            float tt=degHotend(active_extruder);
             SERIAL_PROTOCOLPGM("T:");
             SERIAL_PROTOCOL(tt);
             SERIAL_PROTOCOLPGM(" E:");
-            SERIAL_PROTOCOLLN( (int)tmp_extruder ); 
+            SERIAL_PROTOCOLLN( (int)active_extruder ); 
             SERIAL_PROTOCOLPGM(" B:");
             SERIAL_PROTOCOLLN(degBed()); 
             codenum = millis(); 
@@ -1191,6 +1198,7 @@ void manage_inactivity(byte debug)
 
 void kill()
 {
+  cli(); // Stop interrupts
   disable_heater();
 
   disable_x();
