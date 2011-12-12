@@ -584,7 +584,7 @@ FORCE_INLINE void process_commands()
       }
 
       if(code_seen(axis_codes[Y_AXIS])) {
-       current_position[1]=code_value()+add_homeing[1];
+        current_position[1]=code_value()+add_homeing[1];
       }
 
       if(code_seen(axis_codes[Z_AXIS])) {
@@ -612,9 +612,11 @@ FORCE_INLINE void process_commands()
         if(code_seen(axis_codes[i])) { 
            current_position[i] = code_value()+add_homeing[i];  
            if(i == E_AXIS) {
+             current_position[i] = code_value();  
              plan_set_e_position(current_position[E_AXIS]);
            }
            else {
+             current_position[i] = code_value()+add_homeing[i];  
              plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
            }
         }
@@ -822,7 +824,7 @@ FORCE_INLINE void process_commands()
             SERIAL_PROTOCOLPGM("T:");
             SERIAL_PROTOCOL( degHotend(tmp_extruder) ); 
             SERIAL_PROTOCOLPGM(" E:");
-            SERIAL_PROTOCOLLN( (int)tmp_extruder ); 
+            SERIAL_PROTOCOL( (int)tmp_extruder ); 
             #ifdef TEMP_RESIDENCY_TIME
               SERIAL_PROTOCOLPGM(" W:");
               if(residencyStart > -1)
@@ -869,7 +871,7 @@ FORCE_INLINE void process_commands()
             SERIAL_PROTOCOLPGM("T:");
             SERIAL_PROTOCOL(tt);
             SERIAL_PROTOCOLPGM(" E:");
-            SERIAL_PROTOCOLLN( (int)active_extruder ); 
+            SERIAL_PROTOCOL( (int)active_extruder ); 
             SERIAL_PROTOCOLPGM(" B:");
             SERIAL_PROTOCOLLN(degBed()); 
             codenum = millis(); 
@@ -936,7 +938,11 @@ FORCE_INLINE void process_commands()
           if(code_seen('Y')) disable_y();
           if(code_seen('Z')) disable_z();
           #if ((E_ENABLE_PIN != X_ENABLE_PIN) && (E_ENABLE_PIN != Y_ENABLE_PIN)) // Only enable on boards that have seperate ENABLE_PINS
-            if(code_seen('E')) disable_e();
+            if(code_seen('E')) {
+              disable_e0();
+              disable_e1();
+              disable_e2();
+            }
           #endif 
           LCD_MESSAGEPGM("Partial Release");
         }
