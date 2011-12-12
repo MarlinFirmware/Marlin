@@ -21,8 +21,8 @@
 
 #include "Configuration.h"
 #include "Marlin.h"
-#include "stepper.h"
 #include "planner.h"
+#include "stepper.h"
 
 // The arc is approximated by generating a huge number of tiny, linear segments. The length of each 
 // segment is configured in settings.mm_per_arc_segment.  

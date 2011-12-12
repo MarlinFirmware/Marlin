@@ -27,15 +27,15 @@
 
 #include <EEPROM.h>
 
-#include "EEPROMwrite.h"
 #include "fastio.h"
 #include "Configuration.h"
 #include "pins.h"
 #include "Marlin.h"
-#include "ultralcd.h"
 #include "planner.h"
 #include "stepper.h"
 #include "temperature.h"
+#include "EEPROMwrite.h"
+#include "ultralcd.h"
 #include "motion_control.h"
 #include "cardreader.h"
 #include "watchdog.h"

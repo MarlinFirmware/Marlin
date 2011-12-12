@@ -1,10 +1,11 @@
 #ifndef __EEPROMH
 #define __EEPROMH
 
+#include <EEPROM.h>
+
 #include "Marlin.h"
 #include "planner.h"
 #include "temperature.h"
-#include <EEPROM.h>
 
 template <class T> int EEPROM_writeAnything(int &ee, const T& value)
 {

@@ -4,9 +4,11 @@
 // Tonokip RepRap firmware rewrite based off of Hydra-mmm firmware.
 // Licence: GPL
 #include <WProgram.h>
-#include "fastio.h"
 #include <avr/pgmspace.h>
+
+#include "fastio.h"
 #include "Configuration.h"
+#include "pins.h"
 
 //#define SERIAL_ECHO(x) Serial << "echo: " << x;
 //#define SERIAL_ECHOLN(x) Serial << "echo: "<<x<<endl;

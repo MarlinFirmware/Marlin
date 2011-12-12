@@ -56,10 +56,10 @@
 //#include <math.h>       
 //#include <stdlib.h>
 
-#include "Marlin.h"
+#include "fastio.h"
 #include "Configuration.h"
 #include "pins.h"
-#include "fastio.h"
+#include "Marlin.h"
 #include "planner.h"
 #include "stepper.h"
 #include "temperature.h"
