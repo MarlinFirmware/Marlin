@@ -555,17 +555,17 @@ FORCE_INLINE void process_commands()
       if((home_all_axis) || (code_seen(axis_codes[X_AXIS]))) 
       {
         HOMEAXIS(X);
-	current_position[0]=code_value()+add_homeing[0];
+        current_position[0]=code_value()+add_homeing[0];
       }
 
       if((home_all_axis) || (code_seen(axis_codes[Y_AXIS]))) {
-       HOMEAXIS(Y);
-       current_position[1]=code_value()+add_homeing[1];
+        HOMEAXIS(Y);
+        current_position[1]=code_value()+add_homeing[1];
       }
 
       if((home_all_axis) || (code_seen(axis_codes[Z_AXIS]))) {
         HOMEAXIS(Z);
-	current_position[2]=code_value()+add_homeing[2];
+        current_position[2]=code_value()+add_homeing[2];
       }       
       #ifdef ENDSTOPS_ONLY_FOR_HOMING
         enable_endstops(false);
@@ -587,7 +587,12 @@ FORCE_INLINE void process_commands()
         st_synchronize();
       for(int8_t i=0; i < NUM_AXIS; i++) {
         if(code_seen(axis_codes[i])) { 
-           current_position[i] = code_value()+add_homeing[i];  
+           current_position[i] = code_value() + 
+                                 ((i != E_AXIS) ? add_homeing[i] : 0);
+        }
+      }
+      for(int8_t i=0; i < NUM_AXIS; i++) {
+        if(code_seen(axis_codes[i])) { 
            if(i == E_AXIS) {
              plan_set_e_position(current_position[E_AXIS]);
            }
@@ -793,9 +798,9 @@ FORCE_INLINE void process_commands()
           if( (millis() - codenum) > 1000 ) 
           { //Print Temp Reading and remaining time every 1 second while heating up/cooling down
             SERIAL_PROTOCOLPGM("T:");
-            SERIAL_PROTOCOLLN( degHotend(tmp_extruder) ); 
+            SERIAL_PROTOCOL( degHotend(tmp_extruder) ); 
             SERIAL_PROTOCOLPGM(" E:");
-            SERIAL_PROTOCOLLN( (int)tmp_extruder ); 
+            SERIAL_PROTOCOL( (int)tmp_extruder ); 
             SERIAL_PROTOCOLPGM(" W:");
             if(residencyStart > -1)
             {
@@ -827,54 +832,54 @@ FORCE_INLINE void process_commands()
       break;
     case 190: // M190 - Wait for bed heater to reach target.
     #if TEMP_BED_PIN > -1
-        LCD_MESSAGEPGM("Bed Heating.");
-        if (code_seen('S')) setTargetBed(code_value());
-        codenum = millis(); 
-        while(isHeatingBed()) 
+      LCD_MESSAGEPGM("Bed Heating.");
+      if (code_seen('S')) setTargetBed(code_value());
+      codenum = millis(); 
+      while(isHeatingBed()) 
+      {
+        if( (millis()-codenum) > 1000 ) //Print Temp Reading every 1 second while heating up.
         {
-          if( (millis()-codenum) > 1000 ) //Print Temp Reading every 1 second while heating up.
-          {
-            float tt=degHotend(ACTIVE_EXTRUDER);
-            SERIAL_PROTOCOLPGM("T:");
-            SERIAL_PROTOCOL(tt);
-            SERIAL_PROTOCOLPGM(" E:");
-            SERIAL_PROTOCOLLN( (int)tmp_extruder ); 
-            SERIAL_PROTOCOLPGM(" B:");
-            SERIAL_PROTOCOLLN(degBed()); 
-            codenum = millis(); 
-          }
-          manage_heater();
+          float tt=degHotend(ACTIVE_EXTRUDER);
+          SERIAL_PROTOCOLPGM("T:");
+          SERIAL_PROTOCOL(tt);
+          SERIAL_PROTOCOLPGM(" B:");
+          SERIAL_PROTOCOL(degBed()); 
+          SERIAL_PROTOCOLPGM(" E:");
+          SERIAL_PROTOCOLLN((int)tmp_extruder); 
+          codenum = millis(); 
         }
-        LCD_MESSAGEPGM("Bed done.");
+        manage_heater();
+      }
+      LCD_MESSAGEPGM("Bed done.");
     #endif
-    break;
+      break;
 
     #if FAN_PIN > -1
-      case 106: //M106 Fan On
-        if (code_seen('S')){
-            WRITE(FAN_PIN,HIGH);
-            fanpwm=constrain(code_value(),0,255);
-            analogWrite(FAN_PIN,  fanpwm);
-        }
-        else {
+    case 106: //M106 Fan On
+      if (code_seen('S')){
           WRITE(FAN_PIN,HIGH);
-          fanpwm=255;
-          analogWrite(FAN_PIN, fanpwm);			
-        }
-        break;
-      case 107: //M107 Fan Off
-        WRITE(FAN_PIN,LOW);
-        analogWrite(FAN_PIN, 0);
-        break;
+          fanpwm=constrain(code_value(),0,255);
+          analogWrite(FAN_PIN,  fanpwm);
+      }
+      else {
+        WRITE(FAN_PIN,HIGH);
+        fanpwm=255;
+        analogWrite(FAN_PIN, fanpwm);			
+      }
+      break;
+    case 107: //M107 Fan Off
+      WRITE(FAN_PIN,LOW);
+      analogWrite(FAN_PIN, 0);
+      break;
     #endif //FAN_PIN
 
     #if (PS_ON_PIN > -1)
-      case 80: // M80 - ATX Power On
-        SET_OUTPUT(PS_ON_PIN); //GND
-        break;
-      case 81: // M81 - ATX Power Off
-        SET_INPUT(PS_ON_PIN); //Floating
-        break;
+    case 80: // M80 - ATX Power On
+      SET_OUTPUT(PS_ON_PIN); //GND
+      break;
+    case 81: // M81 - ATX Power Off
+      SET_INPUT(PS_ON_PIN); //Floating
+      break;
     #endif
     case 82:
       axis_relative_modes[3] = false;

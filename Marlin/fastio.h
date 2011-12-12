@@ -47,19 +47,6 @@
 #define		READ(IO)				_READ(IO)
 /// Write to a pin wrapper
 #define		WRITE(IO, v)			_WRITE(IO, v)
-#if EXTRUDERS > 2
-  #define WRITE_E_STEP(v) { if(ACTIVE_EXTRUDER == 2) { WRITE(E2_STEP_PIN, v); } else { if(ACTIVE_EXTRUDER == 1) { WRITE(E1_STEP_PIN, v); } else { WRITE(E0_STEP_PIN, v); }}}
-  #define NORM_E_DIR() { if(ACTIVE_EXTRUDER == 2) { WRITE(E2_DIR_PIN, INVERT_E2_DIR); } else { if(ACTIVE_EXTRUDER == 1) { WRITE(E1_DIR_PIN, INVERT_E1_DIR); } else { WRITE(E0_DIR_PIN, INVERT_E0_DIR); }}}
-  #define REV_E_DIR() { if(ACTIVE_EXTRUDER == 2) { WRITE(E2_DIR_PIN, !INVERT_E2_DIR); } else { if(ACTIVE_EXTRUDER == 1) { WRITE(E1_DIR_PIN, !INVERT_E1_DIR); } else { WRITE(E0_DIR_PIN, !INVERT_E0_DIR); }}}
-#elif EXTRUDERS > 1
-  #define WRITE_E_STEP(v) { if(ACTIVE_EXTRUDER == 1) { WRITE(E1_STEP_PIN, v); } else { WRITE(E0_STEP_PIN, v); }}
-  #define NORM_E_DIR() { if(ACTIVE_EXTRUDER == 1) { WRITE(E1_DIR_PIN, INVERT_E1_DIR); } else { WRITE(E0_DIR_PIN, INVERT_E0_DIR); }}
-  #define REV_E_DIR() { if(ACTIVE_EXTRUDER == 1) { WRITE(E1_DIR_PIN, !INVERT_E1_DIR); } else { WRITE(E0_DIR_PIN, !INVERT_E0_DIR); }}
-#else
-  #define WRITE_E_STEP(v) WRITE(E0_STEP_PIN, v)
-  #define NORM_E_DIR() WRITE(E0_DIR_PIN, INVERT_E0_DIR)
-  #define REV_E_DIR() WRITE(E0_DIR_PIN, !INVERT_E0_DIR)
-#endif
 
 /// toggle a pin wrapper
 #define		TOGGLE(IO)				_TOGGLE(IO)

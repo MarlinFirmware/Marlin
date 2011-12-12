@@ -129,6 +129,6 @@ void mc_arc(float *position, float *target, float *offset, uint8_t axis_0, uint8
   // Ensure last segment arrives at target location.
   plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], feed_rate, extruder);
 
-  //   plan_set_acceleration_manager_enabled(acceleration_manager_was_enabled);
+  // plan_set_acceleration_manager_enabled(acceleration_manager_was_enabled);
 }
 
