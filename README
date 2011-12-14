@@ -31,7 +31,7 @@ The default baudrate is 115200.
 Configuring and compilation
 
 
-Install the latest arduino software IDE/toolset (currently 0022)
+Install the latest arduino software IDE/toolset (currently 0022) ¡ARDUINO 1.0 DOES NOT WORK!
    http://www.arduino.cc/en/Main/Software
 
 Install Ultimaker's RepG 25 build
