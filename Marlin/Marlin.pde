@@ -937,7 +937,7 @@ FORCE_INLINE void process_commands()
           if(code_seen('X')) disable_x();
           if(code_seen('Y')) disable_y();
           if(code_seen('Z')) disable_z();
-          #if ((E_ENABLE_PIN != X_ENABLE_PIN) && (E_ENABLE_PIN != Y_ENABLE_PIN)) // Only enable on boards that have seperate ENABLE_PINS
+          #if ((E0_ENABLE_PIN != X_ENABLE_PIN) && (E1_ENABLE_PIN != Y_ENABLE_PIN)) // Only enable on boards that have seperate ENABLE_PINS
             if(code_seen('E')) {
               disable_e0();
               disable_e1();
@@ -1248,8 +1248,8 @@ void manage_inactivity(byte debug)
     if( (millis()-previous_millis_cmd) >  EXTRUDER_RUNOUT_SECONDS*1000 ) 
     if(degHotend(active_extruder)>EXTRUDER_RUNOUT_MINTEMP)
     {
-     bool oldstatus=READ(E_ENABLE_PIN);
-     enable_e();
+     bool oldstatus=READ(E0_ENABLE_PIN);
+     enable_e0();
      float oldepos=current_position[E_AXIS];
      float oldedes=destination[E_AXIS];
      plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], 
@@ -1261,7 +1261,7 @@ void manage_inactivity(byte debug)
      previous_millis_cmd=millis();
      //enquecommand(DEFAULT_STEPPER_DEACTIVE_COMMAND);
      st_synchronize();
-     WRITE(E_ENABLE_PIN,oldstatus);
+     WRITE(E0_ENABLE_PIN,oldstatus);
     }
   #endif
   check_axes_activity();
