@@ -303,7 +303,7 @@ ISR(TIMER1_COMPA_vect)
       counter_z = counter_x;
       counter_e = counter_x;
       step_events_completed = 0;
- //     #ifdef ADVANCE
+//      #ifdef ADVANCE
       e_steps = 0;
 //      #endif
     } 
