@@ -165,8 +165,13 @@ void lcd_status()
     //previous_millis_buttons=millis();
     long ms=millis();
     for(int8_t i=0; i<8; i++) {
+      #ifndef NEWPANEL
       if((blocking[i]>ms))
         buttons &= ~(1<<i);
+      #else
+      if((blocking>ms))
+        buttons &= ~(1<<i);        
+      #endif
     }
     if((buttons==oldbuttons) &&  ((millis() - previous_millis_lcd) < LCD_UPDATE_INTERVAL)   )
       return;
@@ -326,14 +331,14 @@ void MainMenu::showStatus()
     int tBed=intround(degBed());
     if((tBed!=oldtBed)||force_lcd_update)
     {
-      lcd.setCursor(1,0);
+      lcd.setCursor(11,0);
       lcd.print(ftostr3(tBed));
       oldtBed=tBed;
     }
     int targetBed=intround(degTargetBed());
     if((targetBed!=oldtargetBed)||force_lcd_update)
     {
-      lcd.setCursor(5,0);
+      lcd.setCursor(15,0);
       lcd.print(ftostr3(targetBed));
       oldtargetBed=targetBed;
     }
@@ -352,11 +357,11 @@ void MainMenu::showStatus()
     }
   }
   static int oldzpos=0;
-  int currentz=current_position[2]*10;
+  int currentz=current_position[2]*100;
   if((currentz!=oldzpos)||force_lcd_update)
   {
     lcd.setCursor(10,1);
-    lcdprintPGM("Z:");lcd.print(itostr31(currentz));
+    lcdprintPGM("Z:");lcd.print(ftostr32(current_position[2]));
     oldzpos=currentz;
   }
   static int oldfeedmultiply=0;
@@ -490,7 +495,11 @@ void MainMenu::showPrepare()
  updateActiveLines(ItemP_extrude,encoderpos);
 }
 
-enum {ItemT_exit,ItemT_speed,ItemT_flow,ItemT_nozzle,ItemT_fan};
+enum {ItemT_exit,ItemT_speed,ItemT_flow,ItemT_nozzle,
+#if (HEATER_BED_PIN > -1)
+ItemT_bed,
+#endif
+ItemT_fan};
 
 void MainMenu::showTune()
 { 
@@ -572,6 +581,42 @@ void MainMenu::showTune()
           lcd.setCursor(13,line);lcd.print(itostr3(encoderpos));
         }
       }break;
+      #if (HEATER_BED_PIN > -1)
+      case ItemT_bed:
+      {
+        if(force_lcd_update)
+        {
+          lcd.setCursor(0,line);lcdprintPGM(" \002Bed:");
+          lcd.setCursor(13,line);lcd.print(ftostr3(intround(degTargetBed())));
+        }
+        
+        if((activeline!=line) )
+          break;
+        
+        if(CLICKED)
+        {
+          linechanging=!linechanging;
+          if(linechanging)
+          {
+              encoderpos=intround(degTargetBed());
+          }
+          else
+          {
+            setTargetBed(encoderpos);
+            encoderpos=activeline*lcdslow;
+            beepshort();
+          }
+          BLOCK;
+        }
+        if(linechanging)
+        {
+          if(encoderpos<0) encoderpos=0;
+          if(encoderpos>260) encoderpos=260;
+          lcd.setCursor(13,line);lcd.print(itostr3(encoderpos));
+        }
+      }break;
+      #endif
+
       
       case ItemT_fan:
       {
@@ -677,6 +722,9 @@ enum {
   ItemCT_autotempactive,
   ItemCT_autotempmin,ItemCT_autotempmax,ItemCT_autotempfact,
 #endif
+#if (HEATER_BED_PIN > -1)
+ItemCT_bed,
+#endif  
   ItemCT_fan,
   ItemCT_PID_P,ItemCT_PID_I,ItemCT_PID_D,ItemCT_PID_C
 };
@@ -857,6 +905,41 @@ void MainMenu::showControlTemp()
         
       }break;  
       #endif //autotemp
+      #if (HEATER_BED_PIN > -1)
+      case ItemCT_bed:
+      {
+        if(force_lcd_update)
+        {
+          lcd.setCursor(0,line);lcdprintPGM(" \002Bed:");
+          lcd.setCursor(13,line);lcd.print(ftostr3(intround(degTargetBed())));
+        }
+        
+        if((activeline!=line) )
+          break;
+        
+        if(CLICKED)
+        {
+          linechanging=!linechanging;
+          if(linechanging)
+          {
+              encoderpos=intround(degTargetBed());
+          }
+          else
+          {
+            setTargetBed(encoderpos);
+            encoderpos=activeline*lcdslow;
+            beepshort();
+          }
+          BLOCK;
+        }
+        if(linechanging)
+        {
+          if(encoderpos<0) encoderpos=0;
+          if(encoderpos>260) encoderpos=260;
+          lcd.setCursor(13,line);lcd.print(itostr3(encoderpos));
+        }
+      }break;
+      #endif
       case ItemCT_fan:
       {
         if(force_lcd_update)

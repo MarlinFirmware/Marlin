@@ -42,6 +42,10 @@
 //===========================================================================
 int target_raw[EXTRUDERS] = { 0 };
 int target_raw_bed = 0;
+#ifdef BED_LIMIT_SWITCHING
+int target_bed_low_temp =0;  
+int target_bed_high_temp =0;
+#endif
 int current_raw[EXTRUDERS] = { 0 };
 int current_raw_bed = 0;
 
@@ -233,20 +237,39 @@ void manage_heater()
   previous_millis_bed_heater = millis();
   
   #if TEMP_BED_PIN > -1
-    // Check if temperature is within the correct range
-    if((current_raw_bed > bed_minttemp) && (current_raw_bed < bed_maxttemp)) {
-      if(current_raw_bed >= target_raw_bed)
-      {
+  
+    #ifndef BED_LIMIT_SWITCHING
+      // Check if temperature is within the correct range
+      if((current_raw_bed > bed_minttemp) && (current_raw_bed < bed_maxttemp)) {
+        if(current_raw_bed >= target_raw_bed)
+        {
+          WRITE(HEATER_BED_PIN,LOW);
+        }
+        else 
+        {
+          WRITE(HEATER_BED_PIN,HIGH);
+        }
+      }
+      else {
         WRITE(HEATER_BED_PIN,LOW);
       }
-      else 
-      {
-        WRITE(HEATER_BED_PIN,HIGH);
+    #else //#ifdef BED_LIMIT_SWITCHING
+      // Check if temperature is within the correct band
+      if((current_raw_bed > bed_minttemp) && (current_raw_bed < bed_maxttemp)) {
+        if(current_raw_bed > target_bed_high_temp)
+        {
+          WRITE(HEATER_BED_PIN,LOW);
+        }
+        else 
+          if(current_raw_bed <= target_bed_low_temp)
+        {
+          WRITE(HEATER_BED_PIN,HIGH);
+        }
       }
-    }
-    else {
-      WRITE(HEATER_BED_PIN,LOW);
-    }  
+      else {
+        WRITE(HEATER_BED_PIN,LOW);
+      }
+    #endif
   #endif
 }
 
@@ -520,6 +543,9 @@ void setWatch()
 
 void disable_heater()
 {
+  for(int i=0;i<EXTRUDERS;i++)
+    setTargetHotend(0,i);
+  setTargetBed(0);
   #if TEMP_0_PIN > -1
   target_raw[0]=0;
   soft_pwm[0]=0;

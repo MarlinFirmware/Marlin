@@ -555,7 +555,7 @@
 #define Z_ENABLE_PIN 35
 
 #define HEATER_BED_PIN 4 
-#define TEMP_BED_PIN 11  
+#define TEMP_BED_PIN 10  
 
 #define HEATER_0_PIN  2
 #define TEMP_0_PIN 8   

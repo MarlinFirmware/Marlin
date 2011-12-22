@@ -432,6 +432,7 @@ void CardReader::updir()
 
 void CardReader::printingHasFinished()
 {
+ st_synchronize();
  quickStop();
  sdprinting = false;
  stop_heating_wait=true;
