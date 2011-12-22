@@ -47,7 +47,6 @@ SdFile::SdFile(const char* path, uint8_t oflag) : SdBaseFile(path, oflag) {
 int16_t SdFile::write(const void* buf, uint16_t nbyte) {
   return SdBaseFile::write(buf, nbyte);
 }
-#warning F_CPU
 //------------------------------------------------------------------------------
 /** Write a byte to a file. Required by the Arduino Print class.
  * \param[in] b the byte to be written.
