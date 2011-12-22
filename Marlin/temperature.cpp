@@ -27,11 +27,8 @@
     http://reprap.org/pipermail/reprap-dev/2011-May/003323.html
 
  */
-#include <avr/pgmspace.h>
 
-#include "fastio.h"
-#include "Configuration.h"
-#include "pins.h"
+
 #include "Marlin.h"
 #include "ultralcd.h"
 #include "temperature.h"

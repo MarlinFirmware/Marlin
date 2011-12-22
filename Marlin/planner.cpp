@@ -52,14 +52,9 @@
 */
                                                                                                             
 
-//#include <inttypes.h>
-//#include <math.h>       
-//#include <stdlib.h>
 
-#include "Configuration.h"
-#include "pins.h"
+
 #include "Marlin.h"
-#include "fastio.h"
 #include "planner.h"
 #include "stepper.h"
 #include "temperature.h"

@@ -6,15 +6,21 @@
 #define  HardwareSerial_h // trick to disable the standard HWserial
 #include <stdio.h>
 #include <math.h>
+#include <util/delay.h>
+#include <avr/pgmspace.h>
+
+
 #if ARDUINO >= 100
   #include "Arduino.h"
 #else
    #include "WProgram.h"
 #endif
+#include <EEPROM.h>
+
 
 #include "fastio.h"
-#include <avr/pgmspace.h>
 #include "Configuration.h"
+#include "pins.h"
 #include "MarlinSerial.h"
 
 #define  FORCE_INLINE __attribute__((always_inline)) inline

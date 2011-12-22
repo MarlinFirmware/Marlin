@@ -19,7 +19,6 @@
   along with Grbl.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "Configuration.h"
 #include "Marlin.h"
 #include "stepper.h"
 #include "planner.h"

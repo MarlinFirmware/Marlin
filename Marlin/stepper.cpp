@@ -23,11 +23,9 @@
 
 
 #include "stepper.h"
-#include "Configuration.h"
-#include "pins.h"
+
 #include "Marlin.h"
 #include "planner.h"
-#include "fastio.h"
 #include "temperature.h"
 #include "ultralcd.h"
 
