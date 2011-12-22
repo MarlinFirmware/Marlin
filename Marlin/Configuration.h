@@ -363,6 +363,11 @@ const bool Z_ENDSTOPS_INVERTING = true; // set to true to invert the logic of th
 
 const int dropsegments=5; //everything with less than this number of steps will be ignored as move and joined with the next movement
 
+
+// M240  Triggers a camera by emulating a Canon RC-1 Remote
+// Data from: http://www.doc-diy.net/photo/rc-1_hacked/
+// #define PHOTOGRAPH_PIN     23
+
 //===========================================================================
 //=============================Buffers           ============================
 //===========================================================================

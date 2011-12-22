@@ -41,6 +41,7 @@
 #include "motion_control.h"
 #include "cardreader.h"
 #include "watchdog.h"
+#include <util/delay.h>
 
 
 
@@ -109,6 +110,7 @@
 // M205 -  advanced settings:  minimum travel speed S=while printing T=travel only,  B=minimum segment time X= maximum xy jerk, Z=maximum Z jerk
 // M206 - set additional homeing offset
 // M220 - set speed factor override percentage S:factor in percent
+// M240 - Trigger a camera to take a photograph
 // M301 - Set PID parameters P I and D
 // M302 - Allow cold extrudes
 // M400 - Finish all moves
@@ -227,7 +229,15 @@ void enquecommand(const char *cmd)
     buflen += 1;
   }
 }
-
+void setup_photpin()
+{
+  #ifdef PHOTOGRAPH_PIN
+    #if (PHOTOGRAPH_PIN > -1)
+    SET_OUTPUT(PHOTOGRAPH_PIN);
+    WRITE(PHOTOGRAPH_PIN, LOW);
+    #endif
+  #endif 
+}
 void setup()
 { 
   MSerial.begin(BAUDRATE);
@@ -255,6 +265,7 @@ void setup()
   plan_init();  // Initialize planner;
   st_init();    // Initialize stepper;
   wd_init();
+  setup_photpin();
 }
 
 
@@ -1064,6 +1075,8 @@ FORCE_INLINE void process_commands()
       }
     }
     break;
+    
+    
 
     #ifdef PIDTEMP
     case 301: // M301
@@ -1089,6 +1102,29 @@ FORCE_INLINE void process_commands()
       }
       break;
     #endif //PIDTEMP
+    case 240: // M240  Triggers a camera by emulating a Canon RC-1 : http://www.doc-diy.net/photo/rc-1_hacked/
+     {
+      #ifdef PHOTOGRAPH_PIN
+        #if (PHOTOGRAPH_PIN > -1)
+        const uint8_t NUM_PULSES=16;
+        const float PULSE_LENGTH=0.01524;
+        for(int i=0; i < NUM_PULSES; i++) {
+          WRITE(PHOTOGRAPH_PIN, HIGH);
+          _delay_ms(PULSE_LENGTH);
+          WRITE(PHOTOGRAPH_PIN, LOW);
+          _delay_ms(PULSE_LENGTH);
+        }
+        delay(7.33);
+        for(int i=0; i < NUM_PULSES; i++) {
+          WRITE(PHOTOGRAPH_PIN, HIGH);
+          _delay_ms(PULSE_LENGTH);
+          WRITE(PHOTOGRAPH_PIN, LOW);
+          _delay_ms(PULSE_LENGTH);
+        }
+        #endif
+      #endif
+     }
+    break;
       
     case 302: // finish all moves
     {
