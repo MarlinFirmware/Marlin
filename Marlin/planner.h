@@ -98,12 +98,7 @@ extern unsigned long axis_steps_per_sqr_second[NUM_AXIS];
 #endif
 
     
-/////semi-private stuff
-#if ARDUINO >= 100
-  #include "Arduino.h"
-#else
-   #include "WProgram.h"
-#endif
+
 
 extern block_t block_buffer[BLOCK_BUFFER_SIZE];            // A ring buffer for motion instfructions
 extern volatile unsigned char block_buffer_head;           // Index of the next block to be pushed

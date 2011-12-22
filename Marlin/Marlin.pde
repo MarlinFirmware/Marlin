@@ -25,15 +25,9 @@
     http://reprap.org/pipermail/reprap-dev/2011-May/003323.html
  */
 
-
 #include "Marlin.h"
-#include <EEPROM.h>
-#include <stdio.h>
 
-#include "EEPROMwrite.h"
-#include "fastio.h"
-#include "Configuration.h"
-#include "pins.h"
+
 
 #include "ultralcd.h"
 #include "planner.h"
@@ -42,7 +36,7 @@
 #include "motion_control.h"
 #include "cardreader.h"
 #include "watchdog.h"
-
+#include "EEPROMwrite.h"
 
 
 

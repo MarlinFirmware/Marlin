@@ -21,13 +21,8 @@
 
 #ifndef MarlinSerial_h
 #define MarlinSerial_h
-#include <math.h>
-#include <inttypes.h>
-//#include <Stream.h>
-#include <string.h>
-#define  FORCE_INLINE __attribute__((always_inline)) inline
+#include "Marlin.h"
 
-#include "WString.h"
 
 #define DEC 10
 #define HEX 16

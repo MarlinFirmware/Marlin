@@ -1,7 +1,7 @@
 TARGET = $(notdir $(CURDIR))
 # CHANGE BELOW:
 #~ INSTALL_DIR = /Applications/Arduino.app/Contents/Resources/Java
-INSTALL_DIR = /home/bkubicek/software/arduino-0022
+INSTALL_DIR = /home/bkubicek/software/arduino-0023
 #~ PORT = /dev/cu.usbserial*
 PORT = /dev/ttyACM0
 
@@ -60,13 +60,25 @@ OPT = 2
 #~ CDEFS = -DBUILD_F_CPU=$(BUILD_F_CPU)
 #~ CXXDEFS = -DBUILD_F_CPU=$(BUILD_F_CPU)
 # now called DF_CPU
-CDEFS = -DF_CPU=$(BUILD_F_CPU) -DARDUINO=22
-CXXDEFS = -DF_CPU=$(BUILD_F_CPU) -DARDUINO=22
+CDEFS = -DF_CPU=$(BUILD_F_CPU) -DARDUINO=23
+CXXDEFS = -DF_CPU=$(BUILD_F_CPU) -DARDUINO=23
 
 # Place -I options here
 CINCS = -I$(ARDUINO) -I$(INSTALL_DIR)/libraries/LiquidCrystal/ -I$(INSTALL_DIR)/libraries/EEPROM/
 CXXINCS = -I$(ARDUINO)
 
+OBJECTS= applet/Marlin.cpp.o \
+         applet/EEPROM.o       \
+         applet/pins_arduino.o  \
+         applet/wiring_analog.o   \
+         applet/wiring_pulse.o \
+         applet/main.o        \
+         applet/Print.o         \
+         applet/wiring_digital.o  \
+         applet/wiring_shift.o   \
+         applet/stepper.o       \
+         applet/wiring.o   \
+         applet/WMath.o 
 # Compiler flag to set the C Standard level.
 # c89 - "ANSI" C
 # gnu89 - c89 plus GCC extensions
@@ -253,7 +265,8 @@ applet/$(TARGET).elf: $(TARGET).pde applet/$(TARGET).cpp.o applet/core.a
 #	$(CC) $(ALL_CFLAGS) -o $@ applet/$(TARGET).cpp -L. applet/core.a $(LDFLAGS)
 # changed as in IDE v0022: link cpp obj files
 	@echo $$(tput bold)$$(tput setaf 2) $(CC) $$(tput sgr0) $(ALL_CFLAGS) $(CFINALF) -o $@ applet/$(TARGET).cpp.o $(CXXOBJ) -L. applet/core.a $(LDFLAGS)
-	@$(CC) $(ALL_CFLAGS) $(CFINALF) -o $@ applet/$(TARGET).cpp.o $(CXXOBJ) -L. applet/core.a $(LDFLAGS)
+	$(CC) $(ALL_CFLAGS) $(CFINALF) -o $@ $OBJECTS -L. applet/core.a $(LDFLAGS)
+	#@$(CC) $(ALL_CFLAGS) $(CFINALF) -o $@ applet/*.o applet/$(TARGET).cpp.o $(CXXOBJ) -L. applet/core.a $(LDFLAGS)
 
 # added: cpp.o depends on cpp (and .pde which generates it)
 # $< "first item in the dependencies list"; $@ "left side of the :"; $^ "right side of the :"

@@ -4,6 +4,8 @@
 #include "Marlin.h"
 #include "planner.h"
 #include "temperature.h"
+//#include <EEPROM.h>
+
 
 
 template <class T> int EEPROM_writeAnything(int &ee, const T& value)
@@ -11,7 +13,7 @@ template <class T> int EEPROM_writeAnything(int &ee, const T& value)
   const byte* p = (const byte*)(const void*)&value;
   int i;
   for (i = 0; i < (int)sizeof(value); i++)
-    EEPROM.write(ee++, *p++);
+    eeprom_write_byte((unsigned char *)ee++, *p++);
   return i;
 }
 
@@ -20,7 +22,7 @@ template <class T> int EEPROM_readAnything(int &ee, T& value)
   byte* p = (byte*)(void*)&value;
   int i;
   for (i = 0; i < (int)sizeof(value); i++)
-    *p++ = EEPROM.read(ee++);
+    *p++ = eeprom_read_byte((unsigned char *)ee++);
   return i;
 }
 //======================================================================================

@@ -1,7 +1,7 @@
 #ifndef THERMISTORTABLES_H_
 #define THERMISTORTABLES_H_
 
-#include <avr/pgmspace.h>
+#include "Marlin.h"
 
 #define OVERSAMPLENR 16
 

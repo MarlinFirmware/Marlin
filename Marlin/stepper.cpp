@@ -22,9 +22,10 @@
    and Philipp Tiefenbacher. */
 
 
-#include "stepper.h"
+
 
 #include "Marlin.h"
+#include "stepper.h"
 #include "planner.h"
 #include "temperature.h"
 #include "ultralcd.h"

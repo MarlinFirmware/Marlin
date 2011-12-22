@@ -17,6 +17,7 @@
  * along with the Arduino SdFat Library.  If not, see
  * <http://www.gnu.org/licenses/>.
  */
+#include "Marlin.h"
 #include "SdFile.h"
 /**  Create a file object and open it in the current working directory.
  *

@@ -1,35 +1,55 @@
+// Tonokip RepRap firmware rewrite based off of Hydra-mmm firmware.
+// Licence: GPL
+
 #ifndef __MARLINH
 #define __MARLINH
 
-// Tonokip RepRap firmware rewrite based off of Hydra-mmm firmware.
-// Licence: GPL
 #define  HardwareSerial_h // trick to disable the standard HWserial
-#include <stdio.h>
-#include <math.h>
-#include <util/delay.h>
-#include <avr/pgmspace.h>
 
+#define  FORCE_INLINE __attribute__((always_inline)) inline
+
+#include <math.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <inttypes.h>
+
+#include <avr/delay.h>
+#include <avr/pgmspace.h>
+#include <avr/eeprom.h>
+#include  <avr/wdt.h>
+#include  <avr/interrupt.h>
+
+
+
+
+
+
+
+
+
+#include "fastio.h"
+#include "Configuration.h"
+#include "pins.h"
 
 #if ARDUINO >= 100
   #include "Arduino.h"
 #else
    #include "WProgram.h"
 #endif
-#include <EEPROM.h>
 
-
-#include "fastio.h"
-#include "Configuration.h"
-#include "pins.h"
 #include "MarlinSerial.h"
 
-#define  FORCE_INLINE __attribute__((always_inline)) inline
-//#define SERIAL_ECHO(x) Serial << "echo: " << x;
-//#define SERIAL_ECHOLN(x) Serial << "echo: "<<x<<endl;
-//#define SERIAL_ERROR(x) Serial << "Error: " << x;
-//#define SERIAL_ERRORLN(x) Serial << "Error: " << x<<endl;
-//#define SERIAL_PROTOCOL(x) Serial << x;
-//#define SERIAL_PROTOCOLLN(x) Serial << x<<endl;
+#ifndef cbi
+#define cbi(sfr, bit) (_SFR_BYTE(sfr) &= ~_BV(bit))
+#endif
+#ifndef sbi
+#define sbi(sfr, bit) (_SFR_BYTE(sfr) |= _BV(bit))
+#endif
+
+#include "WString.h"
+
+
 
 //this is a unfinsihed attemp to removes a lot of warning messages, see:
 // http://www.avrfreaks.net/index.php?name=PNphpBB2&file=printview&t=57011

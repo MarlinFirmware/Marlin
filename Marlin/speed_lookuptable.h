@@ -1,7 +1,7 @@
 #ifndef SPEED_LOOKUPTABLE_H
 #define SPEED_LOOKUPTABLE_H
 
-#include <avr/pgmspace.h>
+#include "Marlin.h"
 
 uint16_t speed_lookuptable_fast[256][2] PROGMEM = {\
 { 62500, 55556}, { 6944, 3268}, { 3676, 1176}, { 2500, 607}, { 1893, 369}, { 1524, 249}, { 1275, 179}, { 1096, 135}, 

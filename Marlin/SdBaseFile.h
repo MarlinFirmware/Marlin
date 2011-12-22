@@ -23,14 +23,7 @@
  * \file
  * \brief SdBaseFile class
  */
-#include <avr/pgmspace.h>
-#define  HardwareSerial_h // trick to disable the standard HWserial
-#if ARDUINO < 100
-#include <WProgram.h>
-#else  // ARDUINO
-#include <Arduino.h>
-#endif  // ARDUINO
-#include "MarlinSerial.h"
+#include "Marlin.h"
 #include "SdFatConfig.h"
 #include "SdVolume.h"
 //------------------------------------------------------------------------------

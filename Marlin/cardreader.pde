@@ -1,7 +1,8 @@
+#include "Marlin.h"
 #include "cardreader.h"
 #ifdef SDSUPPORT
 
-#include "Marlin.h"
+
 
 CardReader::CardReader()
 {

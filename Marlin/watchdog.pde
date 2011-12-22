@@ -1,7 +1,6 @@
 #ifdef USE_WATCHDOG
+#include "Marlin.h"
 #include "watchdog.h"
-#include  <avr/wdt.h>
-#include  <avr/interrupt.h>
 
 //===========================================================================
 //=============================private variables  ============================

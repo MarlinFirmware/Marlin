@@ -20,25 +20,14 @@
   Modified 28 September 2010 by Mark Sproul
 */
 
-
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <inttypes.h>
-#include <math.h>
-#if ARDUINO >= 100
-  #include "Arduino.h"
-#else
-   #include "wiring.h"
-#endif
-#include "wiring_private.h"
+#include "Marlin.h"
+#include "MarlinSerial.h"
 
 // this next line disables the entire HardwareSerial.cpp, 
 // this is so I can support Attiny series and any other chip without a uart
 #if defined(UBRRH) || defined(UBRR0H) || defined(UBRR1H) || defined(UBRR2H) || defined(UBRR3H)
 
-#include "MarlinSerial.h"
-#include "Marlin.h"
+
 
 
 

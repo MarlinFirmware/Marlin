@@ -1,5 +1,6 @@
 #include "ultralcd.h"
 #ifdef ULTRA_LCD
+#include "Marlin.h"
 #include <LiquidCrystal.h>
 //===========================================================================
 //=============================imported variables============================
