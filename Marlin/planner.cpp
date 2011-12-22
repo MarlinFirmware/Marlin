@@ -56,9 +56,9 @@
 //#include <math.h>       
 //#include <stdlib.h>
 
-#include "Marlin.h"
 #include "Configuration.h"
 #include "pins.h"
+#include "Marlin.h"
 #include "fastio.h"
 #include "planner.h"
 #include "stepper.h"
@@ -81,8 +81,6 @@ float max_z_jerk;
 float mintravelfeedrate;
 unsigned long axis_steps_per_sqr_second[NUM_AXIS];
 
-uint8_t active_extruder = 0;
-
 // The current position of the tool in absolute steps
 long position[4];   //rescaled from extern when axis_steps_per_unit are changed by gcode
 static float previous_speed[4]; // Speed of previous path line segment
@@ -95,7 +93,6 @@ static float previous_nominal_speed; // Nominal speed of previous path line segm
     bool autotemp_enabled=false;
 #endif
 
-    
 //===========================================================================
 //=================semi-private variables, used in inline  functions    =====
 //===========================================================================
@@ -196,8 +193,8 @@ void calculate_trapezoid_for_block(block_t *block, float entry_factor, float exi
   }
 
   #ifdef ADVANCE
-    long initial_advance = block->advance*entry_factor*entry_factor;
-    long final_advance = block->advance*exit_factor*exit_factor;
+    volatile long initial_advance = block->advance*entry_factor*entry_factor; 
+    volatile long final_advance = block->advance*exit_factor*exit_factor;
   #endif // ADVANCE
   
  // block->accelerate_until = accelerate_steps;
@@ -439,7 +436,7 @@ void check_axes_activity() {
   if((DISABLE_X) && (x_active == 0)) disable_x();
   if((DISABLE_Y) && (y_active == 0)) disable_y();
   if((DISABLE_Z) && (z_active == 0)) disable_z();
-  if((DISABLE_E) && (e_active == 0)) disable_e();
+  if((DISABLE_E) && (e_active == 0)) { disable_e0();disable_e1();disable_e2(); }
 }
 
 
@@ -514,15 +511,10 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
   if(block->steps_x != 0) enable_x();
   if(block->steps_y != 0) enable_y();
   if(block->steps_z != 0) enable_z();
-  if(extruder == 0) {
-    if(block->steps_e != 0) enable_e();
-  }
-  #if (EXTRUDERS > 1)
-  if(extruder == 1) {
-    if(block->steps_e != 0) enable_e1();
-  }
-  #endif
-  
+
+  // Enable all
+  if(block->steps_e != 0) { enable_e0();enable_e1();enable_e2(); }
+
   float delta_mm[4];
   delta_mm[X_AXIS] = (target[X_AXIS]-position[X_AXIS])/axis_steps_per_unit[X_AXIS];
   delta_mm[Y_AXIS] = (target[Y_AXIS]-position[Y_AXIS])/axis_steps_per_unit[Y_AXIS];

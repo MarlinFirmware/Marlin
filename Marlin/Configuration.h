@@ -43,16 +43,20 @@
 // 5 is ParCan supplied 104GT-2 100K
 // 6 is EPCOS 100k
 // 7 is 100k Honeywell thermistor 135-104LAG-J01
+
 //#define THERMISTORHEATER_0 3
-//#define THERMISTORHEATER_1 3
-//#define THERMISTORBED 3
+//#define THERMISTORHEATER_1 1
+//#define THERMISTORHEATER_2 1
 
 //#define HEATER_0_USES_THERMISTOR
 //#define HEATER_1_USES_THERMISTOR
+//#define HEATER_2_USES_THERMISTOR
 #define HEATER_0_USES_AD595
 //#define HEATER_1_USES_AD595
+//#define HEATER_2_USES_AD595
 
 // Select one of these only to define how the bed temp is read.
+//#define THERMISTORBED 1
 //#define BED_USES_THERMISTOR
 //#define BED_USES_AD595
 
@@ -65,12 +69,13 @@
 //#define WATCHPERIOD 20000 //20 seconds
 
 // Actual temperature must be close to target for this long before M109 returns success
-//#define TEMP_RESIDENCY_TIME 20  // (seconds)
-//#define TEMP_HYSTERESIS 5       // (C°) range of +/- temperatures considered "close" to the target one
+#define TEMP_RESIDENCY_TIME 30  // (seconds)
+#define TEMP_HYSTERESIS 3       // (C°) range of +/- temperatures considered "close" to the target one
 
 //// The minimal temperature defines the temperature below which the heater will not be enabled
 #define HEATER_0_MINTEMP 5
 //#define HEATER_1_MINTEMP 5
+//#define HEATER_2_MINTEMP 5
 //#define BED_MINTEMP 5
 
 
@@ -79,6 +84,7 @@
 // You should use MINTEMP for thermistor short/failure protection.
 #define HEATER_0_MAXTEMP 275
 //#define HEATER_1_MAXTEMP 275
+//#define HEATER_2_MAXTEMP 275
 //#define BED_MAXTEMP 150
 
 
@@ -90,21 +96,17 @@
 
 // Heating is finished if a temperature close to this degree shift is reached
 #define HEATING_EARLY_FINISH_DEG_OFFSET 1 //Degree
+
 // PID settings:
 // Uncomment the following line to enable PID support.
-  
 #define PIDTEMP
+#define PID_MAX 255 // limits current to nozzle; 255=full current
 #ifdef PIDTEMP
-  #if MOTHERBOARD == 62
-    #error Sanguinololu does not support PID, sorry. Please disable it.
-  #endif
   //#define PID_DEBUG // Sends debug data to the serial port. 
   //#define PID_OPENLOOP 1 // Puts PID in open loop. M104 sets the output power in %
-  
-  #define PID_MAX 255 // limits current to nozzle; 255=full current
   #define PID_INTEGRAL_DRIVE_MAX 255  //limit for the integral term
   #define K1 0.95 //smoothing factor withing the PID
-  #define PID_dT 0.1 //sampling period of the PID
+  #define PID_dT 0.128 //sampling period of the PID
 
   //To develop some PID settings for your machine, you can initiall follow 
   // the Ziegler-Nichols method.
@@ -132,6 +134,11 @@
     #define  DEFAULT_Ki (1.25*PID_dT)  
     #define  DEFAULT_Kd (99/PID_dT)  
 
+// Makergear
+//    #define  DEFAULT_Kp 7.0
+//    #define  DEFAULT_Ki 0.1  
+//    #define  DEFAULT_Kd 12  
+
 // Mendel Parts V9 on 12V    
 //    #define  DEFAULT_Kp  63.0
 //    #define  DEFAULT_Ki (2.25*PID_dT)  
@@ -149,7 +156,7 @@
   // if Kc is choosen well, the additional required power due to increased melting should be compensated.
   #define PID_ADD_EXTRUSION_RATE  
   #ifdef PID_ADD_EXTRUSION_RATE
-    #define  DEFAULT_Kc (3) //heatingpower=Kc*(e_speed)
+    #define  DEFAULT_Kc (1) //heatingpower=Kc*(e_speed)
   #endif
 #endif // PIDTEMP
 
@@ -169,36 +176,39 @@
 
 // Endstop Settings
 #define ENDSTOPPULLUPS // Comment this out (using // at the start of the line) to disable the endstop pullup resistors
+
 // The pullups are needed if you directly connect a mechanical endswitch between the signal and ground pins.
 const bool X_ENDSTOPS_INVERTING = true; // set to true to invert the logic of the endstops. 
 const bool Y_ENDSTOPS_INVERTING = true; // set to true to invert the logic of the endstops. 
 const bool Z_ENDSTOPS_INVERTING = true; // set to true to invert the logic of the endstops. 
 // For optos H21LOB set to true, for Mendel-Parts newer optos TCST2103 set to false
 
-//#define ENDSTOPS_ONLY_FOR_HOMING // If defined the endstops will only be used for homing
+#define ENDSTOPS_ONLY_FOR_HOMING // If defined the endstops will only be used for homing
 
 // For Inverting Stepper Enable Pins (Active Low) use 0, Non Inverting (Active High) use 1
 #define X_ENABLE_ON 0
 #define Y_ENABLE_ON 0
 #define Z_ENABLE_ON 0
-#define E_ENABLE_ON 0
+#define E_ENABLE_ON 0 // For all extruders
 
 // Disables axis when it's not being used.
 #define DISABLE_X false
 #define DISABLE_Y false
 #define DISABLE_Z false
-#define DISABLE_E false
+#define DISABLE_E false // For all extruders
 
 // Inverting axis direction
 //#define INVERT_X_DIR false    // for Mendel set to false, for Orca set to true
 //#define INVERT_Y_DIR true   // for Mendel set to true, for Orca set to false
 //#define INVERT_Z_DIR false    // for Mendel set to false, for Orca set to true
-//#define INVERT_E_DIR true   // for direct drive extruder v9 set to true, for geared extruder set to false
+//#define INVERT_E*_DIR true   // for direct drive extruder v9 set to true, for geared extruder set to false, used for all extruders
 
-#define INVERT_X_DIR true     // for Mendel set to false, for Orca set to true
+#define INVERT_X_DIR true    // for Mendel set to false, for Orca set to true
 #define INVERT_Y_DIR false    // for Mendel set to true, for Orca set to false
 #define INVERT_Z_DIR true     // for Mendel set to false, for Orca set to true
-#define INVERT_E_DIR false    // for direct drive extruder v9 set to true, for geared extruder set to false
+#define INVERT_E0_DIR false   // for direct drive extruder v9 set to true, for geared extruder set to false
+#define INVERT_E1_DIR false    // for direct drive extruder v9 set to true, for geared extruder set to false
+#define INVERT_E2_DIR false   // for direct drive extruder v9 set to true, for geared extruder set to false
 
 //// ENDSTOP SETTINGS:
 // Sets direction of endstops when homing; 1=MAX, -1=MIN
@@ -206,11 +216,11 @@ const bool Z_ENDSTOPS_INVERTING = true; // set to true to invert the logic of th
 #define Y_HOME_DIR -1
 #define Z_HOME_DIR -1
 
-#define min_software_endstops false //If true, axis won't move to coordinates less than zero.
-#define max_software_endstops false  //If true, axis won't move to coordinates greater than the defined lengths below.
-#define X_MAX_LENGTH 210
-#define Y_MAX_LENGTH 210
-#define Z_MAX_LENGTH 210
+#define min_software_endstops true //If true, axis won't move to coordinates less than zero.
+#define max_software_endstops true  //If true, axis won't move to coordinates greater than the defined lengths below.
+#define X_MAX_LENGTH 205
+#define Y_MAX_LENGTH 205
+#define Z_MAX_LENGTH 200
 
 //// MOVEMENT SETTINGS
 #define NUM_AXIS 4 // The axis order in all axis related arrays is X, Y, Z, E
@@ -229,7 +239,8 @@ const bool Z_ENDSTOPS_INVERTING = true; // set to true to invert the logic of th
 // default settings 
 
 #define DEFAULT_AXIS_STEPS_PER_UNIT   {78.7402,78.7402,200*8/3,760*1.1}                    // default steps per unit for ultimaker 
-//#define DEFAULT_AXIS_STEPS_PER_UNIT   {40, 40, 3333.92, 67} //sells mendel with v9 extruder
+//#define DEFAULT_AXIS_STEPS_PER_UNIT   {40, 40, 3333.92, 360} //sells mendel with v9 extruder
+//#define DEFAULT_AXIS_STEPS_PER_UNIT   {80.3232, 80.8900, 2284.7651, 757.2218} // SAE Prusa w/ Wade extruder
 #define DEFAULT_MAX_FEEDRATE          {500, 500, 5, 45}    // (mm/sec)    
 #define DEFAULT_MAX_ACCELERATION      {9000,9000,100,10000}    // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for skeinforge 40+, for older versions raise them a lot.
 
@@ -285,10 +296,10 @@ const bool Z_ENDSTOPS_INVERTING = true; // set to true to invert the logic of th
 // hooke's law says:		force = k * distance
 // bernoulli's priniciple says:	v ^ 2 / 2 + g . h + pressure / density = constant
 // so: v ^ 2 is proportional to number of steps we advance the extruder
-//#define ADVANCE
+#define ADVANCE
 
 #ifdef ADVANCE
-  #define EXTRUDER_ADVANCE_K .3
+  #define EXTRUDER_ADVANCE_K .0
 
   #define D_FILAMENT 2.85
   #define STEPS_MM_E 836
@@ -304,7 +315,7 @@ const bool Z_ENDSTOPS_INVERTING = true; // set to true to invert the logic of th
 #define SD_FINISHED_STEPPERRELEASE true  //if sd support and the file is finished: disable steppers?
 #define SD_FINISHED_RELEASECOMMAND "M84 X Y E" // no z because of layer shift.
 
-//#define ULTIPANEL
+#define ULTIPANEL
 #ifdef ULTIPANEL
   //#define NEWPANEL  //enable this if you have a click-encoder panel
   #define SDSUPPORT

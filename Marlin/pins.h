@@ -47,9 +47,9 @@
 #define Z_MIN_PIN          17
 #define Z_MAX_PIN          16
 
-#define E_STEP_PIN         11
-#define E_DIR_PIN          12
-#define E_ENABLE_PIN       -1
+#define E0_STEP_PIN         11
+#define E0_DIR_PIN          12
+#define E0_ENABLE_PIN       -1
 
 #define SDPOWER          -1
 #define SDSS          -1
@@ -59,9 +59,13 @@
 #define KILL_PIN           -1
 
 #define HEATER_0_PIN        6
-#define TEMP_0_PIN          0    // MUST USE ANALOG INPUT NUMBERING NOT DIGITAL OUTPUT NUMBERING!!!!!!!!!
 #define HEATER_1_PIN        -1
 #define HEATER_2_PIN        -1
+#define TEMP_0_PIN          0    // MUST USE ANALOG INPUT NUMBERING NOT DIGITAL OUTPUT NUMBERING!!!!!!!!!
+#define TEMP_1_PIN          -1   // MUST USE ANALOG INPUT NUMBERING NOT DIGITAL OUTPUT NUMBERING!!!!!!!!!
+#define TEMP_2_PIN          -1   // MUST USE ANALOG INPUT NUMBERING NOT DIGITAL OUTPUT NUMBERING!!!!!!!!!
+#define HEATER_BED_PIN      -1
+#define TEMP_BED_PIN        -1
 #endif
 
 
@@ -120,9 +124,9 @@
 #define Z_MIN_PIN           2
 #define Z_MAX_PIN           1
 
-#define E_STEP_PIN         12
-#define E_DIR_PIN          16
-#define E_ENABLE_PIN        3
+#define E0_STEP_PIN         12
+#define E0_DIR_PIN          16
+#define E0_ENABLE_PIN        3
 
 #define SDPOWER          -1
 #define SDSS          -1
@@ -132,9 +136,13 @@
 #define KILL_PIN           -1
 
 #define HEATER_0_PIN       14
+#define HEATER_1_PIN       -1
+#define HEATER_2_PIN       -1
 #define TEMP_0_PIN          4 //D27   // MUST USE ANALOG INPUT NUMBERING NOT DIGITAL OUTPUT NUMBERING!!!!!!!!!
-#define HEATER_1_PIN        -1
-#define HEATER_2_PIN        -1
+#define TEMP_1_PIN         -1 
+#define TEMP_2_PIN         -1 
+#define HEATER_BED_PIN     -1
+#define TEMP_BED_PIN       -1
 /*  Unused (1) (2) (3) 4 5 6 7 8 9 10 11 12 13 (14) (15) (16) 17 (18) (19) (20) (21) (22) (23) 24 (25) (26) (27) 28 (29) (30) (31)  */
 
 
@@ -171,9 +179,9 @@
 #define Z_MIN_PIN       30
 #define Z_MAX_PIN       31
 
-#define E_STEP_PIN      17
-#define E_DIR_PIN       16
-#define E_ENABLE_PIN    -1
+#define E0_STEP_PIN      17
+#define E0_DIR_PIN       16
+#define E0_ENABLE_PIN    -1
 
 #define SDPOWER          -1
 #define SDSS          4
@@ -194,11 +202,13 @@
 #define KILL_PIN        -1
 
 #define HEATER_0_PIN    -1
+#define HEATER_1_PIN    -1
+#define HEATER_2_PIN    -1
 #define TEMP_0_PIN      -1    // MUST USE ANALOG INPUT NUMBERING NOT DIGITAL OUTPUT NUMBERING!!!!!!!!!
-#define HEATER_1_PIN        -1
-#define HEATER_2_PIN        -1
-
-
+#define TEMP_1_PIN      -1    
+#define TEMP_2_PIN      -1    
+#define HEATER_BED_PIN  -1
+#define TEMP_BED_PIN    -1
 
 #endif
 
@@ -230,37 +240,43 @@
 #define X_DIR_PIN          55
 #define X_ENABLE_PIN       38
 #define X_MIN_PIN           3
-#define X_MAX_PIN          -1   //2 //Max endstops default to disabled "-1", set to commented value to enable.
+#define X_MAX_PIN           2   //2 //Max endstops default to disabled "-1", set to commented value to enable.
 
 #define Y_STEP_PIN         60
 #define Y_DIR_PIN          61
 #define Y_ENABLE_PIN       56
 #define Y_MIN_PIN          14
-#define Y_MAX_PIN          -1   //15
+#define Y_MAX_PIN          15   //15
 
 #define Z_STEP_PIN         46
 #define Z_DIR_PIN          48
 #define Z_ENABLE_PIN       62
 #define Z_MIN_PIN          18
-#define Z_MAX_PIN          -1   //19
+#define Z_MAX_PIN          19   //19
 
-#define E_STEP_PIN         26
-#define E_DIR_PIN          28
-#define E_ENABLE_PIN       24
+#define E0_STEP_PIN        26
+#define E0_DIR_PIN         28
+#define E0_ENABLE_PIN      24
+
+#define E1_STEP_PIN        36
+#define E1_DIR_PIN         34
+#define E1_ENABLE_PIN      30
 
 #define SDPOWER            -1
 #define SDSS               53
 #define LED_PIN            13
-#define FAN_PIN            9
+#define FAN_PIN            4
 #define PS_ON_PIN          12
 #define KILL_PIN           -1
 
-#define HEATER_0_PIN       10
-#define HEATER_1_PIN       8
-#define HEATER_2_PIN        -1
+#define HEATER_0_PIN       10   // EXTRUDER 1
+#define HEATER_1_PIN       9    // EXTRUDER 2
+#define HEATER_2_PIN       -1   // EXTRUDER 2
 #define TEMP_0_PIN         13   // ANALOG NUMBERING
-#define TEMP_1_PIN         14   // ANALOG NUMBERING
+#define TEMP_1_PIN         15   // ANALOG NUMBERING
 #define TEMP_2_PIN         -1   // ANALOG NUMBERING
+#define HEATER_BED_PIN     8    // BED
+#define TEMP_BED_PIN       14   // ANALOG NUMBERING
 
 
 #else // RAMPS_V_1_1 or RAMPS_V_1_2 as default
@@ -283,9 +299,9 @@
 #define Z_MIN_PIN          18
 #define Z_MAX_PIN          -1    //19
 
-#define E_STEP_PIN         32
-#define E_DIR_PIN          34
-#define E_ENABLE_PIN       30
+#define E0_STEP_PIN         32
+#define E0_DIR_PIN          34
+#define E0_ENABLE_PIN       30
 
 #define SDPOWER            48
 #define SDSS               53
@@ -297,18 +313,19 @@
 
 #ifdef RAMPS_V_1_0 // RAMPS_V_1_0
   #define HEATER_0_PIN     12    // RAMPS 1.0
-  #define HEATER_1_PIN     -1    // RAMPS 1.0
+  #define HEATER_BED_PIN   -1    // RAMPS 1.0
   #define FAN_PIN          11    // RAMPS 1.0
-
 #else // RAMPS_V_1_1 or RAMPS_V_1_2
   #define HEATER_0_PIN     10    // RAMPS 1.1
-  #define HEATER_1_PIN      8    // RAMPS 1.1
+  #define HEATER_BED_PIN    8    // RAMPS 1.1
   #define FAN_PIN           9    // RAMPS 1.1
 #endif
+#define HEATER_1_PIN        -1
 #define HEATER_2_PIN        -1
 #define TEMP_0_PIN          2    // MUST USE ANALOG INPUT NUMBERING NOT DIGITAL OUTPUT NUMBERING!!!!!!!!!
-#define TEMP_1_PIN          1    // MUST USE ANALOG INPUT NUMBERING NOT DIGITAL OUTPUT NUMBERING!!!!!!!!!
-#define TEMP_2_PIN          -1    // MUST USE ANALOG INPUT NUMBERING NOT DIGITAL OUTPUT NUMBERING!!!!!!!!!
+#define TEMP_1_PIN          -1   
+#define TEMP_2_PIN          -1   
+#define TEMP_BED_PIN        1    // MUST USE ANALOG INPUT NUMBERING NOT DIGITAL OUTPUT NUMBERING!!!!!!!!!
 #endif
 
 // SPI for Max6675 Thermocouple 
@@ -353,9 +370,9 @@
 #define Z_MIN_PIN           4
 #define Z_MAX_PIN          -1
 
-#define E_STEP_PIN         11
-#define E_DIR_PIN          12
-#define E_ENABLE_PIN       -1
+#define E0_STEP_PIN         11
+#define E0_DIR_PIN          12
+#define E0_ENABLE_PIN       -1
 
 #define SDPOWER          -1
 #define SDSS          -1
@@ -365,9 +382,13 @@
 #define KILL_PIN           -1
 
 #define HEATER_0_PIN        6
-#define TEMP_0_PIN          0    // MUST USE ANALOG INPUT NUMBERING NOT DIGITAL OUTPUT NUMBERING!!!!!!!!!
 #define HEATER_1_PIN        -1
 #define HEATER_2_PIN        -1
+#define TEMP_0_PIN          0    // MUST USE ANALOG INPUT NUMBERING NOT DIGITAL OUTPUT NUMBERING!!!!!!!!!
+#define TEMP_1_PIN          -1    
+#define TEMP_2_PIN          -1    
+#define HEATER_BED_PIN      -1
+#define TEMP_BED_PIN        -1
 
 #endif
 
@@ -404,19 +425,21 @@
     #define Z_MAX_PIN       -1
     
     //extruder pins
-    #define E_STEP_PIN      4     //Edited @ EJE Electronics 20100715
-    #define E_DIR_PIN       2     //Edited @ EJE Electronics 20100715
-    #define E_ENABLE_PIN    3     //Added @ EJE Electronics 20100715
+    #define E0_STEP_PIN      4    //Edited @ EJE Electronics 20100715
+    #define E0_DIR_PIN       2    //Edited @ EJE Electronics 20100715
+    #define E0_ENABLE_PIN    3    //Added @ EJE Electronics 20100715
     #define TEMP_0_PIN      5     //changed @ rkoeppl 20110410
+    #define TEMP_1_PIN      -1    //changed @ rkoeppl 20110410
+    #define TEMP_2_PIN      -1    //changed @ rkoeppl 20110410
     #define HEATER_0_PIN    14    //changed @ rkoeppl 20110410
-    #define HEATER_1_PIN    -1    //changed @ rkoeppl 20110410
-    #define HEATER_2_PIN        -1
+    #define HEATER_1_PIN    -1
+    #define HEATER_2_PIN    -1
+    #define HEATER_BED_PIN  -1    //changed @ rkoeppl 20110410
+    #define TEMP_BED_PIN    -1    //changed @ rkoeppl 20110410
     
     #define SDPOWER          -1
     #define SDSS          17
     #define LED_PIN         -1    //changed @ rkoeppl 20110410
-    #define TEMP_1_PIN      -1    //changed @ rkoeppl 20110410
-    #define TEMP_2_PIN      -1
     #define FAN_PIN         -1    //changed @ rkoeppl 20110410
     #define PS_ON_PIN       -1    //changed @ rkoeppl 20110410
     //our pin for debugging.
@@ -459,8 +482,8 @@
 #define Z_MIN_PIN          20
 #define Z_MAX_PIN          -1
 
-#define E_STEP_PIN         1
-#define E_DIR_PIN          0
+#define E0_STEP_PIN         1
+#define E0_DIR_PIN          0
 
 #define LED_PIN            -1
 
@@ -470,31 +493,33 @@
 #define KILL_PIN           -1
 
 #define HEATER_0_PIN       13 // (extruder)
+#define HEATER_1_PIN       -1
+#define HEATER_2_PIN       -1
 
 #ifdef SANGUINOLOLU_V_1_2
 
-#define HEATER_1_PIN       12 // (bed)
+#define HEATER_BED_PIN     12 // (bed)
 #define X_ENABLE_PIN       14
 #define Y_ENABLE_PIN       14
 #define Z_ENABLE_PIN       26
-#define E_ENABLE_PIN       14
+#define E0_ENABLE_PIN       14
 
 #else
 
-#define HEATER_1_PIN       14  // (bed)
+#define HEATER_BED_PIN       14  // (bed)
 #define X_ENABLE_PIN       -1
 #define Y_ENABLE_PIN       -1
 #define Z_ENABLE_PIN       -1
-#define E_ENABLE_PIN       -1
+#define E0_ENABLE_PIN       -1
 
 #endif
 
 #define TEMP_0_PIN          7   // MUST USE ANALOG INPUT NUMBERING NOT DIGITAL OUTPUT NUMBERING!!!!!!!!! (pin 33 extruder)
-#define TEMP_1_PIN          6   // MUST USE ANALOG INPUT NUMBERING NOT DIGITAL OUTPUT NUMBERING!!!!!!!!! (pin 34 bed)
+#define TEMP_1_PIN         -1
 #define TEMP_2_PIN         -1
+#define TEMP_BED_PIN        6   // MUST USE ANALOG INPUT NUMBERING NOT DIGITAL OUTPUT NUMBERING!!!!!!!!! (pin 34 bed)
 #define SDPOWER            -1
 #define SDSS               31
-#define HEATER_2_PIN       -1
 
 #endif
 
@@ -529,28 +554,27 @@
 #define Z_MAX_PIN 32
 #define Z_ENABLE_PIN 35
 
-#define HEATER_1_PIN 4 
-#define TEMP_1_PIN 11  
+#define HEATER_BED_PIN 4 
+#define TEMP_BED_PIN 11  
 
-#define EXTRUDER_0_STEP_PIN 43 
-#define EXTRUDER_0_DIR_PIN 45
-#define EXTRUDER_0_ENABLE_PIN 41
 #define HEATER_0_PIN  2
 #define TEMP_0_PIN 8   
 
-#define EXTRUDER_1_STEP_PIN 49 
-#define EXTRUDER_1_DIR_PIN 47
-#define EXTRUDER_1_ENABLE_PIN 51
 #define EXTRUDER_1_HEATER_PIN 3
 #define EXTRUDER_1_TEMPERATURE_PIN 10 
-#define HEATER_2_PIN 51
-#define TEMP_2_PIN 3
+#define HEATER_1_PIN 51
+#define TEMP_1_PIN 3
 
+#define HEATER_2_PIN -1
+#define TEMP_2_PIN -1
 
+#define E0_STEP_PIN         43
+#define E0_DIR_PIN          45
+#define E0_ENABLE_PIN       41
 
-#define E_STEP_PIN         EXTRUDER_0_STEP_PIN
-#define E_DIR_PIN          EXTRUDER_0_DIR_PIN
-#define E_ENABLE_PIN       EXTRUDER_0_ENABLE_PIN
+#define E1_STEP_PIN         49
+#define E1_DIR_PIN          47
+#define E1_ENABLE_PIN       51
 
 #define SDPOWER            -1
 #define SDSS               53
@@ -655,20 +679,22 @@
 #define Z_MIN_PIN          15 
 #define Z_MAX_PIN          -1    
 
-#define E_STEP_PIN          6  
-#define E_DIR_PIN           7 
-#define E_ENABLE_PIN       19 
+#define E0_STEP_PIN         6  
+#define E0_DIR_PIN          7 
+#define E0_ENABLE_PIN       19 
 
 
 
 #define HEATER_0_PIN       21  // Extruder
-#define HEATER_1_PIN       20  // Bed
+#define HEATER_1_PIN       -1
 #define HEATER_2_PIN       -1
+#define HEATER_BED_PIN     20  // Bed
 #define FAN_PIN            22  // Fan   
 
 #define TEMP_0_PIN          7  // Extruder
-#define TEMP_1_PIN          6  // Bed
+#define TEMP_1_PIN         -1
 #define TEMP_2_PIN         -1
+#define TEMP_BED_PIN        6  // Bed
 
 #define SDPOWER            -1
 #define SDSS                8
@@ -690,6 +716,22 @@
 #endif
 
 //List of pins which to ignore when asked to change by gcode, 0 and 1 are RX and TX, do not mess with those!
-#define SENSITIVE_PINS {0, 1, X_STEP_PIN, X_DIR_PIN, X_ENABLE_PIN, X_MIN_PIN, X_MAX_PIN, Y_STEP_PIN, Y_DIR_PIN, Y_ENABLE_PIN, Y_MIN_PIN, Y_MAX_PIN, Z_STEP_PIN, Z_DIR_PIN, Z_ENABLE_PIN, Z_MIN_PIN, Z_MAX_PIN, E_STEP_PIN, E_DIR_PIN, E_ENABLE_PIN, LED_PIN, PS_ON_PIN, HEATER_0_PIN, HEATER_1_PIN, HEATER_2_PIN, FAN_PIN, TEMP_0_PIN, TEMP_1_PIN, TEMP_2_PIN}
-
+#define _E0_PINS E0_STEP_PIN, E0_DIR_PIN, E0_ENABLE_PIN
+#if EXTRUDERS == 3
+  #define _E1_PINS E1_STEP_PIN, E1_DIR_PIN, E1_ENABLE_PIN
+  #define _E2_PINS E2_STEP_PIN, E2_DIR_PIN, E2_ENABLE_PIN
+#elif EXTRUDERS == 2
+  #define _E1_PINS E1_STEP_PIN, E1_DIR_PIN, E1_ENABLE_PIN
+  #define _E2_PINS -1
+#elif EXTRUDERS == 1
+  #define _E1_PINS -1 
+  #define _E2_PINS -1
+#else
+  #error Unsupported number of extruders
+#endif
+#define SENSITIVE_PINS {0, 1, X_STEP_PIN, X_DIR_PIN, X_ENABLE_PIN, X_MIN_PIN, X_MAX_PIN, Y_STEP_PIN, Y_DIR_PIN, Y_ENABLE_PIN, Y_MIN_PIN, Y_MAX_PIN, Z_STEP_PIN, Z_DIR_PIN, Z_ENABLE_PIN, Z_MIN_PIN, Z_MAX_PIN, LED_PIN, PS_ON_PIN, \
+                        HEATER_0_PIN, HEATER_1_PIN, HEATER_2_PIN, \
+                        HEATER_BED_PIN, FAN_PIN,                  \
+                        _E0_PINS, _E1_PINS, _E2_PINS,             \
+                        TEMP_0_PIN, TEMP_1_PIN, TEMP_2_PIN, TEMP_BED_PIN }
 #endif

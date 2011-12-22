@@ -5,10 +5,9 @@
 
 #define OVERSAMPLENR 16
 
-#if (THERMISTORHEATER_0 == 1) || (THERMISTORHEATER_1 == 1) || (THERMISTORBED == 1) //100k bed thermistor
+#if (THERMISTORHEATER_0 == 1) || (THERMISTORHEATER_1 == 1)  || (THERMISTORHEATER_2 == 1) || (THERMISTORBED == 1) //100k bed thermistor
 
-#define NUMTEMPS_1 61
-const short temptable_1[NUMTEMPS_1][2] PROGMEM = {
+const short temptable_1[][2] PROGMEM = {
 {       23*OVERSAMPLENR ,       300     },
 {       25*OVERSAMPLENR ,       295     },
 {       27*OVERSAMPLENR ,       290     },
@@ -72,9 +71,8 @@ const short temptable_1[NUMTEMPS_1][2] PROGMEM = {
 {       1008*OVERSAMPLENR       ,       0       } //safety
 };
 #endif
-#if (THERMISTORHEATER_0 == 2) || (THERMISTORHEATER_1 == 2) || (THERMISTORBED == 2) //200k bed thermistor
-#define NUMTEMPS_2 21
-const short temptable_2[NUMTEMPS_2][2] PROGMEM = {
+#if (THERMISTORHEATER_0 == 2) || (THERMISTORHEATER_1 == 2) || (THERMISTORHEATER_2 == 2) || (THERMISTORBED == 2) //200k bed thermistor
+const short temptable_2[][2] PROGMEM = {
    {1*OVERSAMPLENR, 848},
    {54*OVERSAMPLENR, 275},
    {107*OVERSAMPLENR, 228},
@@ -99,9 +97,8 @@ const short temptable_2[NUMTEMPS_2][2] PROGMEM = {
 };
 
 #endif
-#if (THERMISTORHEATER_0 == 3) || (THERMISTORHEATER_1 == 3) || (THERMISTORBED == 3) //mendel-parts
-#define NUMTEMPS_3 28
-const short temptable_3[NUMTEMPS_3][2] PROGMEM = {
+#if (THERMISTORHEATER_0 == 3) || (THERMISTORHEATER_1 == 3) || (THERMISTORHEATER_2 == 3) || (THERMISTORBED == 3) //mendel-parts
+const short temptable_3[][2] PROGMEM = {
                 {1*OVERSAMPLENR,864},
                 {21*OVERSAMPLENR,300},
                 {25*OVERSAMPLENR,290},
@@ -133,10 +130,8 @@ const short temptable_3[NUMTEMPS_3][2] PROGMEM = {
         };
 
 #endif
-#if (THERMISTORHEATER_0 == 4) || (THERMISTORHEATER_1 == 4) || (THERMISTORBED == 4) //10k thermistor
-
-#define NUMTEMPS_4 20
-const short temptable_4[NUMTEMPS_4][2] PROGMEM = {
+#if (THERMISTORHEATER_0 == 4) || (THERMISTORHEATER_1 == 4) || (THERMISTORHEATER_2 == 4) || (THERMISTORBED == 4) //10k thermistor
+const short temptable_4[][2] PROGMEM = {
    {1*OVERSAMPLENR, 430},
    {54*OVERSAMPLENR, 137},
    {107*OVERSAMPLENR, 107},
@@ -160,10 +155,8 @@ const short temptable_4[NUMTEMPS_4][2] PROGMEM = {
 };
 #endif
 
-#if (THERMISTORHEATER_0 == 5) || (THERMISTORHEATER_1 == 5) || (THERMISTORBED == 5) //100k ParCan thermistor (104GT-2)
-
-#define NUMTEMPS_5 61
-const short temptable_5[NUMTEMPS_5][2] PROGMEM = {
+#if (THERMISTORHEATER_0 == 5) || (THERMISTORHEATER_1 == 5) || (THERMISTORHEATER_2 == 5) || (THERMISTORBED == 5) //100k ParCan thermistor (104GT-2)
+const short temptable_5[][2] PROGMEM = {
 {1*OVERSAMPLENR, 713},
 {18*OVERSAMPLENR, 316},
 {35*OVERSAMPLENR, 266},
@@ -228,9 +221,8 @@ const short temptable_5[NUMTEMPS_5][2] PROGMEM = {
 };
 #endif
 
-#if (THERMISTORHEATER_0 == 6) || (THERMISTORHEATER_1 == 6) || (THERMISTORBED == 6) // 100k Epcos thermistor
-#define NUMTEMPS_6 36
-const short temptable_6[NUMTEMPS_6][2] PROGMEM = {
+#if (THERMISTORHEATER_0 == 6) || (THERMISTORHEATER_1 == 6) || (THERMISTORHEATER_2 == 6) || (THERMISTORBED == 6) // 100k Epcos thermistor
+const short temptable_6[][2] PROGMEM = {
    {28*OVERSAMPLENR, 250},
    {31*OVERSAMPLENR, 245},
    {35*OVERSAMPLENR, 240},
@@ -270,9 +262,8 @@ const short temptable_6[NUMTEMPS_6][2] PROGMEM = {
 };
 #endif
 
-#if (THERMISTORHEATER_0 == 7) || (THERMISTORHEATER_1 == 7) || (THERMISTORBED == 7) // 100k Honeywell 135-104LAG-J01
-#define NUMTEMPS_7 54
-const short temptable_7[NUMTEMPS_7][2] PROGMEM = {
+#if (THERMISTORHEATER_0 == 7) || (THERMISTORHEATER_1 == 7) || (THERMISTORHEATER_2 == 7) || (THERMISTORBED == 7) // 100k Honeywell 135-104LAG-J01
+const short temptable_7[][2] PROGMEM = {
    {46*OVERSAMPLENR, 270},
    {50*OVERSAMPLENR, 265},
    {54*OVERSAMPLENR, 260},
@@ -330,82 +321,52 @@ const short temptable_7[NUMTEMPS_7][2] PROGMEM = {
 };
 #endif
 
+#define _TT_NAME(_N) temptable_ ## _N
+#define TT_NAME(_N) _TT_NAME(_N)
 
-
-#if THERMISTORHEATER_0 == 1
-#define NUMTEMPS_HEATER_0 NUMTEMPS_1
-#define heater_0_temptable temptable_1
-#elif THERMISTORHEATER_0 == 2
-#define NUMTEMPS_HEATER_0 NUMTEMPS_2
-#define heater_0_temptable temptable_2
-#elif THERMISTORHEATER_0 == 3
-#define NUMTEMPS_HEATER_0 NUMTEMPS_3
-#define heater_0_temptable temptable_3
-#elif THERMISTORHEATER_0 == 4
-#define NUMTEMPS_HEATER_0 NUMTEMPS_4
-#define heater_0_temptable temptable_4
-#elif THERMISTORHEATER_0 == 5
-#define NUMTEMPS_HEATER_0 NUMTEMPS_5
-#define heater_0_temptable temptable_5
-#elif THERMISTORHEATER_0 == 6
-#define NUMTEMPS_HEATER_0 NUMTEMPS_6
-#define heater_0_temptable temptable_6
-#elif THERMISTORHEATER_0 == 7
-#define NUMTEMPS_HEATER_0 NUMTEMPS_7
-#define heater_0_temptable temptable_7
-#elif defined HEATER_0_USES_THERMISTOR
-#error No heater 0 thermistor table specified
+#ifdef THERMISTORHEATER_0
+  #define heater_0_temptable TT_NAME(THERMISTORHEATER_0)
+  #define heater_0_temptable_len (sizeof(heater_0_temptable)/sizeof(*heater_0_temptable))
+#else
+#ifdef HEATER_0_USES_THERMISTOR
+  #error No heater 0 thermistor table specified
+#else  // HEATER_0_USES_THERMISTOR
+  #define heater_0_temptable 0
+  #define heater_0_temptable_len 0
+#endif // HEATER_0_USES_THERMISTOR
 #endif
 
-#if THERMISTORHEATER_1 == 1
-#define NUMTEMPS_HEATER_1 NUMTEMPS_1
-#define heater_1_temptable temptable_1
-#elif THERMISTORHEATER_1 == 2
-#define NUMTEMPS_HEATER_1 NUMTEMPS_2
-#define heater_1_temptable temptable_2
-#elif THERMISTORHEATER_1 == 3
-#define NUMTEMPS_HEATER_1 NUMTEMPS_3
-#define heater_1_temptable temptable_3
-#elif THERMISTORHEATER_1 == 4
-#define NUMTEMPS_HEATER_1 NUMTEMPS_4
-#define heater_1_temptable temptable_4
-#elif THERMISTORHEATER_1 == 5
-#define NUMTEMPS_HEATER_1 NUMTEMPS_5
-#define heater_1_temptable temptable_5
-#elif THERMISTORHEATER_1 == 6
-#define NUMTEMPS_HEATER_1 NUMTEMPS_6
-#define heater_1_temptable temptable_6
-#elif THERMISTORHEATER_1 == 7
-#define NUMTEMPS_HEATER_1 NUMTEMPS_7
-#define heater_1_temptable temptable_7
-#elif defined HEATER_1_USES_THERMISTOR
-#error No heater 1 thermistor table specified
+#ifdef THERMISTORHEATER_1
+  #define heater_1_temptable TT_NAME(THERMISTORHEATER_1)
+  #define heater_1_temptable_len (sizeof(heater_1_temptable)/sizeof(*heater_1_temptable))
+#else
+#ifdef HEATER_1_USES_THERMISTOR
+  #error No heater 1 thermistor table specified
+#else  // HEATER_1_USES_THERMISTOR
+  #define heater_1_temptable 0
+  #define heater_1_temptable_len 0
+#endif // HEATER_1_USES_THERMISTOR
 #endif
 
+#ifdef THERMISTORHEATER_2
+  #define heater_2_temptable TT_NAME(THERMISTORHEATER_2)
+  #define heater_2_temptable_len (sizeof(heater_2_temptable)/sizeof(*heater_2_temptable))
+#else
+#ifdef HEATER_2_USES_THERMISTOR
+  #error No heater 2 thermistor table specified
+#else  // HEATER_2_USES_THERMISTOR
+  #define heater_2_temptable 0
+  #define heater_2_temptable_len 0
+#endif // HEATER_2_USES_THERMISTOR
+#endif
 
-#if THERMISTORBED == 1
-#define BNUMTEMPS NUMTEMPS_1
-#define bedtemptable temptable_1
-#elif THERMISTORBED == 2
-#define BNUMTEMPS NUMTEMPS_2
-#define bedtemptable temptable_2
-#elif THERMISTORBED == 3
-#define BNUMTEMPS NUMTEMPS_3
-#define bedtemptable temptable_3
-#elif THERMISTORBED == 4
-#define BNUMTEMPS NUMTEMPS_4
-#define bedtemptable temptable_4
-#elif THERMISTORBED == 5
-#define BNUMTEMPS NUMTEMPS_5
-#define bedtemptable temptable_5
-#elif THERMISTORBED == 6
-#define BNUMTEMPS NUMTEMPS_6
-#define bedtemptable temptable_6
-#elif THERMISTORBED == 7
-#define BNUMTEMPS NUMTEMPS_7
-#define bedtemptable temptable_7
-#elif defined BED_USES_THERMISTOR
-#error No bed thermistor table specified
+#ifdef THERMISTORBED
+  #define bedtemptable TT_NAME(THERMISTORBED)
+  #define bedtemptable_len (sizeof(bedtemptable)/sizeof(*bedtemptable))
+#else
+#ifdef BED_USES_THERMISTOR
+  #error No bed thermistor table specified
+#endif // BED_USES_THERMISTOR
 #endif
 
 #endif //THERMISTORTABLES_H_
