@@ -451,6 +451,11 @@ void setWatch()
 
 void disable_heater()
 {
+  for(int i=0;i<EXTRUDERS;i++)
+   setTargetHotend(0,i);
+  setTargetBed(0);
+  
+
   #if TEMP_0_PIN > -1
   target_raw[0]=0;
    #if HEATER_0_PIN > -1  

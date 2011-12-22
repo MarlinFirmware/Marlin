@@ -706,15 +706,21 @@ void st_init()
   sei();
 }
 
-
+#include "util/delay.h"
 // Block until all buffered steps are executed
 void st_synchronize()
 {
-    while( blocks_queued()) {
+    while(current_block!=NULL || blocks_queued()) {
     manage_heater();
     manage_inactivity(1);
-    LCD_STATUS;
+     LCD_STATUS;
+    //_delay_ms(100);
+    ;
   }
+//   _delay_ms(250);_delay_ms(250);_delay_ms(250);_delay_ms(250);
+//   _delay_ms(250);_delay_ms(250);_delay_ms(250);_delay_ms(250);
+//   _delay_ms(250);_delay_ms(250);_delay_ms(250);_delay_ms(250);
+//   _delay_ms(250);_delay_ms(250);_delay_ms(250);_delay_ms(250);
 }
 
 void st_set_position(const long &x, const long &y, const long &z, const long &e)

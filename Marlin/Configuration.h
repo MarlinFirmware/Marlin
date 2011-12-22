@@ -248,7 +248,7 @@ const bool Z_ENDSTOPS_INVERTING = true; // set to true to invert the logic of th
 #define SLOWDOWN
 
 //default stepper release if idle
-#define DEFAULT_STEPPER_DEACTIVE_TIME 60
+#define DEFAULT_STEPPER_DEACTIVE_TIME 1200
 #define DEFAULT_STEPPER_DEACTIVE_COMMAND "M84 X Y E"  //z stays  powered
 
 
