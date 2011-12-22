@@ -176,10 +176,8 @@ const int sensitive_pins[] = SENSITIVE_PINS; // Sensitive pin list for M42
 
 //Inactivity shutdown variables
 static unsigned long previous_millis_cmd = 0;
-static unsigned long previous_millis_runoutprevent = 0;
-//static unsigned long previous_millis_beep = 0;
-static unsigned long max_inactive_time=0;
-static unsigned long stepper_inactive_time = 0;
+static unsigned long max_inactive_time = 0;
+static unsigned long stepper_inactive_time = DEFAULT_STEPPER_DEACTIVE_TIME*1000;
 static unsigned long last_stepperdisabled_time=30*1000; //first release check after 30 seconds
 
 static unsigned long starttime=0;
@@ -244,10 +242,6 @@ void setup()
   {
     fromsd[i] = false;
   }
-  
-  max_inactive_time = DEFAULT_MAX_INACTIVE_TIME*1000;
-  stepper_inactive_time = DEFAULT_STEPPER_DEACTIVE_TIME*1000;
-
   
   EEPROM_RetrieveSettings(); // loads data from EEPROM if available
 
@@ -421,7 +415,6 @@ FORCE_INLINE void get_command()
         SERIAL_ECHO_START;
         SERIAL_ECHOLN(time);
         LCD_MESSAGE(time);
-        st_synchronize();
         card.printingHasFinished();
         card.checkautostart(true);
         
@@ -1207,34 +1200,11 @@ void prepare_arc_move(char isclockwise) {
 
 void manage_inactivity(byte debug) 
 { 
-  unsigned long curtime=millis();
-  SERIAL_ECHO_START;
-  SERIAL_ECHO("MS");
-  SERIAL_ECHO(millis());
-  SERIAL_ECHO(" PREV_CMD");
-  SERIAL_ECHO(previous_millis_cmd);
-  SERIAL_ECHO(" maxinactive");
-  SERIAL_ECHOLN(max_inactive_time );
-  
-  if( (curtime-previous_millis_cmd) >  max_inactive_time ) 
+  if( (millis()-previous_millis_cmd) >  max_inactive_time ) 
     if(max_inactive_time) 
-    {
-      LCD_MESSAGEPGM("Bored Shutdown.");
-      SERIAL_ERROR_START;
-      SERIAL_ERRORLNPGM("Bored Shutdown.");
       kill(); 
-    }
-    
-  if( (curtime-previous_millis_cmd) >  DEFAULT_MAX_HOT_TIME*1000 ) 
-    if(DEFAULT_MAX_HOT_TIME && (degHotend0()>HOTTEMP) ) 
-    {
-      LCD_MESSAGEPGM("Hot too long.");
-      SERIAL_ECHO_START;
-      SERIAL_ECHOLNPGM("Hot too long");
-      disable_heater();
-    }
   if(stepper_inactive_time)  
-  if( (curtime-last_stepperdisabled_time) >  stepper_inactive_time ) 
+  if( (millis()-last_stepperdisabled_time) >  stepper_inactive_time ) 
   {
     if(previous_millis_cmd>last_stepperdisabled_time)
       last_stepperdisabled_time=previous_millis_cmd;
@@ -1246,37 +1216,23 @@ void manage_inactivity(byte debug)
     }
   }
   #ifdef EXTRUDER_RUNOUT_PREVENT
-    if(!blocks_queued())
-    if( (curtime-previous_millis_cmd) >  EXTRUDER_RUNOUT_SECONDS*1000 ) 
+    if( (millis()-previous_millis_cmd) >  EXTRUDER_RUNOUT_SECONDS*1000 ) 
+    if(degHotend(active_extruder)>EXTRUDER_RUNOUT_MINTEMP)
     {
-      if(previous_millis_cmd>previous_millis_runoutprevent)
-      {
-       previous_millis_runoutprevent=previous_millis_cmd; 
-      }
-      
-      if(degHotend0()>EXTRUDER_RUNOUT_MINTEMP)
-      if((curtime-previous_millis_runoutprevent) >  EXTRUDER_RUNOUT_SECONDS*1000)
-      {
-        bool oldstatus=READ(E_ENABLE_PIN);
-        enable_e();
-        float oldepos=current_position[E_AXIS];
-        float oldedes=destination[E_AXIS];
-        plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], 
-                          current_position[E_AXIS]+EXTRUDER_RUNOUT_EXTRUDE*EXTRUDER_RUNOUT_ESTEPS/axis_steps_per_unit[E_AXIS], 
-                          EXTRUDER_RUNOUT_SPEED/60.*EXTRUDER_RUNOUT_ESTEPS/axis_steps_per_unit[E_AXIS], active_extruder);
-        current_position[E_AXIS]=oldepos;
-        destination[E_AXIS]=oldedes;
-        plan_set_e_position(oldepos);
-        
-        while(current_block!=NULL || blocks_queued()) 
-        {
-          manage_heater();
-          LCD_STATUS;
-        }
-        
-        previous_millis_runoutprevent=millis();
-        WRITE(E_ENABLE_PIN,oldstatus);
-      }
+     bool oldstatus=READ(E_ENABLE_PIN);
+     enable_e();
+     float oldepos=current_position[E_AXIS];
+     float oldedes=destination[E_AXIS];
+     plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], 
+                      current_position[E_AXIS]+EXTRUDER_RUNOUT_EXTRUDE*EXTRUDER_RUNOUT_ESTEPS/axis_steps_per_unit[E_AXIS], 
+                      EXTRUDER_RUNOUT_SPEED/60.*EXTRUDER_RUNOUT_ESTEPS/axis_steps_per_unit[E_AXIS], active_extruder);
+     current_position[E_AXIS]=oldepos;
+     destination[E_AXIS]=oldedes;
+     plan_set_e_position(oldepos);
+     previous_millis_cmd=millis();
+     //enquecommand(DEFAULT_STEPPER_DEACTIVE_COMMAND);
+     st_synchronize();
+     WRITE(E_ENABLE_PIN,oldstatus);
     }
   #endif
   check_axes_activity();
@@ -1291,7 +1247,7 @@ void kill()
   disable_z();
   disable_e();
   
-  if(PS_ON_PIN > -1) pinMode(PS_ON_PIN,INPUT);  //Turn powersupply off
+  if(PS_ON_PIN > -1) pinMode(PS_ON_PIN,INPUT);
   SERIAL_ERROR_START;
   SERIAL_ERRORLNPGM("Printer halted. kill() called !!");
   LCD_MESSAGEPGM("KILLED. ");
