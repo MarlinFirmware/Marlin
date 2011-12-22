@@ -21,19 +21,16 @@
 #include  <avr/interrupt.h>
 
 
-
-
-
-
-
-
-
 #include "fastio.h"
 #include "Configuration.h"
 #include "pins.h"
 
-#if ARDUINO >= 100
-  #include "Arduino.h"
+#if ARDUINO >= 100 
+  #if defined(__AVR_ATmega644P__)
+    #include "WProgram.h"
+  #else
+    #include "Arduino.h"
+  #endif
 #else
    #include "WProgram.h"
 #endif
