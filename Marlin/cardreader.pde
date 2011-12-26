@@ -164,6 +164,15 @@ void CardReader::initsd()
     SERIAL_ECHOLNPGM("workDir open failed");
   }
 }
+
+void CardReader::setroot()
+{
+ curDir=&root;
+  if(!workDir.openRoot(&volume))
+  {
+    SERIAL_ECHOLNPGM("workDir open failed");
+  } 
+}
 void CardReader::release()
 {
   sdprinting = false;

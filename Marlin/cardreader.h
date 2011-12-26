@@ -31,6 +31,8 @@ public:
   void ls();
   void chdir(const char * relpath);
   void updir();
+  void setroot();
+
 
   FORCE_INLINE bool eof() { return sdpos>=filesize ;};
   FORCE_INLINE int16_t get() {  sdpos = file.curPosition();return (int16_t)file.read();};
