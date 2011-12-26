@@ -19,6 +19,10 @@
  */
 
 #define SERIAL MSerial
+
+#include "Marlin.h"
+#ifdef SDSUPPORT
+
 #include "SdBaseFile.h"
 //------------------------------------------------------------------------------
 // pointer to cwd directory
@@ -1784,3 +1788,6 @@ int16_t SdBaseFile::write(const void* buf, uint16_t nbyte) {
 #if ALLOW_DEPRECATED_FUNCTIONS && !defined(DOXYGEN)
 void (*SdBaseFile::oldDateTime_)(uint16_t& date, uint16_t& time) = 0;  // NOLINT
 #endif  // ALLOW_DEPRECATED_FUNCTIONS
+
+
+#endif

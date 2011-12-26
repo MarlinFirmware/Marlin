@@ -17,6 +17,10 @@
  * along with the Arduino Sd2Card Library.  If not, see
  * <http://www.gnu.org/licenses/>.
  */
+
+#include "Marlin.h"
+#ifdef SDSUPPORT
+
 #ifndef Sd2Card_h
 #define Sd2Card_h
 /**
@@ -232,3 +236,6 @@ class Sd2Card {
   bool writeData(uint8_t token, const uint8_t* src);
 };
 #endif  // Sd2Card_h
+
+
+#endif

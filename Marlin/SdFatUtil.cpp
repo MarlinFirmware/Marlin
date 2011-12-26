@@ -18,6 +18,8 @@
  * <http://www.gnu.org/licenses/>.
  */
 #include "Marlin.h"
+
+#ifdef SDSUPPORT
 #include "SdFatUtil.h"
 
 //------------------------------------------------------------------------------
@@ -74,3 +76,4 @@ void SdFatUtil::SerialPrint_P(PGM_P str) {
 void SdFatUtil::SerialPrintln_P(PGM_P str) {
   println_P( str);
 }
+#endif

@@ -17,6 +17,9 @@
  * along with the Arduino SdFat Library.  If not, see
  * <http://www.gnu.org/licenses/>.
  */
+#include "Marlin.h"
+#ifdef SDSUPPORT
+
 #ifndef SdFatUtil_h
 #define SdFatUtil_h
 /**
@@ -40,3 +43,6 @@ namespace SdFatUtil {
 
 using namespace SdFatUtil;  // NOLINT
 #endif  // #define SdFatUtil_h
+
+
+#endif

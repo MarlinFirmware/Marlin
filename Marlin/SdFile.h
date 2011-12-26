@@ -22,6 +22,8 @@
  * \brief SdFile class
  */
 #include "Marlin.h"
+
+#ifdef SDSUPPORT
 #include "SdBaseFile.h"
 #include <Print.h>
 #ifndef SdFile_h
@@ -47,3 +49,6 @@ class SdFile : public SdBaseFile, public Print {
   void writeln_P(PGM_P str);
 };
 #endif  // SdFile_h
+
+
+#endif

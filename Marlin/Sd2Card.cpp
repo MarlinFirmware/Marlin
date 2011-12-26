@@ -18,6 +18,8 @@
  * <http://www.gnu.org/licenses/>.
  */
 #include "Marlin.h"
+
+#ifdef SDSUPPORT
 #include "Sd2Card.h"
 //------------------------------------------------------------------------------
 #ifndef SOFTWARE_SPI
@@ -636,3 +638,6 @@ bool Sd2Card::writeStop() {
   chipSelectHigh();
   return false;
 }
+
+
+#endif

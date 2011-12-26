@@ -17,6 +17,9 @@
  * along with the Arduino SdFat Library.  If not, see
  * <http://www.gnu.org/licenses/>.
  */
+#include "Marlin.h"
+#ifdef SDSUPPORT
+
 #include "SdVolume.h"
 //------------------------------------------------------------------------------
 #if !USE_MULTIPLE_CARDS
@@ -399,3 +402,4 @@ bool SdVolume::init(Sd2Card* dev, uint8_t part) {
  fail:
   return false;
 }
+#endif
