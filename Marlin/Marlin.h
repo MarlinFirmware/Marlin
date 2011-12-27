@@ -1,6 +1,12 @@
 // Tonokip RepRap firmware rewrite based off of Hydra-mmm firmware.
 // Licence: GPL
+
+#if (ARDUINO >= 100)
+#include <Arduino.h>
+#else
 #include <WProgram.h>
+#endif
+
 #include "fastio.h"
 extern "C" void __cxa_pure_virtual();
 void __cxa_pure_virtual(){};
