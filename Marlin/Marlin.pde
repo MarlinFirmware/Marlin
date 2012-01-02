@@ -104,7 +104,7 @@
 // M202 - Set max acceleration in units/s^2 for travel moves (M202 X1000 Y1000) Unused in Marlin!!
 // M203 - Set maximum feedrate that your machine can sustain (M203 X200 Y200 Z300 E10000) in mm/sec
 // M204 - Set default acceleration: S normal moves T filament only moves (M204 S3000 T7000) im mm/sec^2  also sets minimum segment time in ms (B20000) to prevent buffer underruns and M20 minimum feedrate
-// M205 -  advanced settings:  minimum travel speed S=while printing T=travel only,  B=minimum segment time X= maximum xy jerk, Z=maximum Z jerk
+// M205 -  advanced settings:  minimum travel speed S=while printing T=travel only,  B=minimum segment time X= maximum xy jerk, Z=maximum Z jerk, E=maximum E jerk for retracts
 // M206 - set additional homeing offset
 // M220 - set speed factor override percentage S:factor in percent
 // M301 - Set PID parameters P I and D
@@ -113,6 +113,8 @@
 // M501 - reads parameters from EEPROM (if you need reset them after you changed them temporarily).  
 // M502 - reverts to the default "factory settings".  You still need to store them in EEPROM afterwards if you want to.
 // M503 - print the current settings (from memory not from eeprom)
+
+// T<NUMBER> [F<NUMBER>] - change the extruder, the feedrate might be set to control the speed of the re-positioning move
 
 //Stepper Movement Variables
 
@@ -141,8 +143,9 @@ uint8_t active_extruder = 0;
 //=============================private variables=============================
 //===========================================================================
 const char axis_codes[NUM_AXIS] = {'X', 'Y', 'Z', 'E'};
-static float destination[NUM_AXIS] = {  0.0, 0.0, 0.0, 0.0};
+static float destination[NUM_AXIS] = {0.0, 0.0, 0.0, 0.0};
 static float offset[3] = {0.0, 0.0, 0.0};
+static float extruder_offset[2][EXTRUDERS] = {EXTRUDER_OFFSET_X, EXTRUDER_OFFSET_Y}; // Offset only in XY plane
 static bool home_all_axis = true;
 static float feedrate = 1500.0, next_feedrate, saved_feedrate;
 static long gcode_N, gcode_LastN;
@@ -240,9 +243,10 @@ void setup()
   
   EEPROM_RetrieveSettings(); // loads data from EEPROM if available
 
-  for(int8_t i=0; i < NUM_AXIS; i++)
+  for(int8_t i=0; i < (3 + EXTRUDERS); i++)
   {
-    axis_steps_per_sqr_second[i] = max_acceleration_units_per_sq_second[i] * axis_steps_per_unit[i];
+    axis_steps_per_sqr_second[i] = 
+       max_acceleration_units_per_sq_second[i] * axis_steps_per_unit[i];
   }
 
   tp_init();    // Initialize temperature loop 
@@ -589,10 +593,6 @@ FORCE_INLINE void process_commands()
         if(code_seen(axis_codes[i])) { 
            current_position[i] = code_value() + 
                                  ((i != E_AXIS) ? add_homeing[i] : 0);
-        }
-      }
-      for(int8_t i=0; i < NUM_AXIS; i++) {
-        if(code_seen(axis_codes[i])) { 
            if(i == E_AXIS) {
              plan_set_e_position(current_position[E_AXIS]);
            }
@@ -915,10 +915,11 @@ FORCE_INLINE void process_commands()
       max_inactive_time = code_value() * 1000; 
       break;
     case 92: // M92
-      for(int8_t i=0; i < NUM_AXIS; i++) 
-      {
-        if(code_seen(axis_codes[i])) 
-          axis_steps_per_unit[i] = code_value();
+      for(int i=0; i < NUM_AXIS; i++) {
+        if(code_seen(axis_codes[i])) {
+          int ii = i + ((i==E_AXIS)?ACTIVE_EXTRUDER:0);
+          axis_steps_per_unit[ii] = code_value();
+        }
       }
       break;
     case 115: // M115
@@ -977,25 +978,49 @@ FORCE_INLINE void process_commands()
     case 201: // M201
       for(int8_t i=0; i < NUM_AXIS; i++) 
       {
-        if(code_seen(axis_codes[i])) axis_steps_per_sqr_second[i] = code_value() * axis_steps_per_unit[i];
+        if(code_seen(axis_codes[i])) {
+          if(i == E_AXIS) {
+            axis_steps_per_sqr_second[i] = 
+               code_value() * axis_steps_per_unit[i + ACTIVE_EXTRUDER];
+          } 
+          else {
+            axis_steps_per_sqr_second[i] = 
+               code_value() * axis_steps_per_unit[i];
+          }
+        }
       }
       break;
     #if 0 // Not used for Sprinter/grbl gen6
     case 202: // M202
       for(int8_t i=0; i < NUM_AXIS; i++) {
-        if(code_seen(axis_codes[i])) axis_travel_steps_per_sqr_second[i] = code_value() * axis_steps_per_unit[i];
+        if(code_seen(axis_codes[i])) {
+          if(i == E_AXIS) {
+            axis_travel_steps_per_sqr_second[i] = 
+               code_value() * axis_steps_per_unit[i + ACTIVE_EXTRUDER];
+          } 
+          else {
+            axis_steps_per_sqr_second[i] = 
+               code_value() * axis_steps_per_unit[i];
+          }
+        }
       }
       break;
     #endif
     case 203: // M203 max feedrate mm/sec
       for(int8_t i=0; i < NUM_AXIS; i++) {
-        if(code_seen(axis_codes[i])) max_feedrate[i] = code_value();
+        if(code_seen(axis_codes[i])) {
+          if(i == E_AXIS) {
+            max_feedrate[i + ACTIVE_EXTRUDER] = code_value();
+          } else {
+            max_feedrate[i] = code_value();
+          }
+        }
       }
       break;
     case 204: // M204 acclereration S normal moves T filmanent only moves
       {
-        if(code_seen('S')) acceleration = code_value() ;
-        if(code_seen('T')) retract_acceleration = code_value() ;
+        if(code_seen('S')) acceleration = code_value();
+        if(code_seen('T')) retract_acceleration[ACTIVE_EXTRUDER] = code_value();
       }
       break;
     case 205: //M205 advanced settings:  minimum travel speed S=while printing T=travel only,  B=minimum segment time X= maximum xy jerk, Z=maximum Z jerk
@@ -1005,6 +1030,7 @@ FORCE_INLINE void process_commands()
       if(code_seen('B')) minsegmenttime = code_value() ;
       if(code_seen('X')) max_xy_jerk = code_value() ;
       if(code_seen('Z')) max_z_jerk = code_value() ;
+      if(code_seen('E')) max_e_jerk[ACTIVE_EXTRUDER] = code_value() ;
     }
     break;
     case 206: // M206 additional homeing offset
@@ -1086,7 +1112,25 @@ FORCE_INLINE void process_commands()
       SERIAL_ECHOLN("Invalid extruder");
     }
     else {
-      active_extruder = tmp_extruder;
+      if(code_seen('F')) {
+        next_feedrate = code_value();
+        if(next_feedrate > 0.0) feedrate = next_feedrate;
+      }
+      if(tmp_extruder != active_extruder) {
+        // Save current position to return to after applying extruder offset
+        memcpy(destination, current_position, sizeof(destination));
+        // Offset extruder (only by XY)
+        for(i = 0; i < 2; i++) {
+           current_position[i] = current_position[i] - 
+                                 extruder_offset[i][active_extruder] +
+                                 extruder_offset[i][tmp_extruder];
+        }
+        active_extruder = tmp_extruder;
+        plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+        // Move to the old position (using current feedrate)
+        prepare_move();
+        st_synchronize();
+      }
       SERIAL_ECHO_START;
       SERIAL_ECHO("Active Extruder: ");
       SERIAL_PROTOCOLLN((int)active_extruder);
@@ -1127,7 +1171,7 @@ FORCE_INLINE void get_coordinates()
 {
   for(int8_t i=0; i < NUM_AXIS; i++) {
     if(code_seen(axis_codes[i])) destination[i] = (float)code_value() + (axis_relative_modes[i] || relative_mode)*current_position[i];
-    else destination[i] = current_position[i]; //Are these else lines really needed?
+    else destination[i] = current_position[i]; 
   }
   if(code_seen('F')) {
     next_feedrate = code_value();
@@ -1149,17 +1193,13 @@ void prepare_move()
     if (destination[Y_AXIS] < 0) destination[Y_AXIS] = 0.0;
     if (destination[Z_AXIS] < 0) destination[Z_AXIS] = 0.0;
   }
-
   if (max_software_endstops) {
     if (destination[X_AXIS] > X_MAX_LENGTH) destination[X_AXIS] = X_MAX_LENGTH;
     if (destination[Y_AXIS] > Y_MAX_LENGTH) destination[Y_AXIS] = Y_MAX_LENGTH;
     if (destination[Z_AXIS] > Z_MAX_LENGTH) destination[Z_AXIS] = Z_MAX_LENGTH;
   }
-
   plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate*feedmultiply/60/100.0, active_extruder);
-  for(int8_t i=0; i < NUM_AXIS; i++) {
-    current_position[i] = destination[i];
-  }
+  memcpy(current_position, destination, sizeof(current_position));
 }
 
 void prepare_arc_move(char isclockwise) {

@@ -58,7 +58,7 @@ const prog_char echomagic[] PROGMEM ="echo:";
 #define SERIAL_ECHOPAIR(name,value) {SERIAL_ECHOPGM(name);SERIAL_ECHO(value);}
 
 // Macro for getting current active extruder
-#define ACTIVE_EXTRUDER (active_extruder)
+#define ACTIVE_EXTRUDER ((int)active_extruder)
 
 //things to write to serial from Programmemory. saves 400 to 2k of RAM.
 #define SerialprintPGM(x) serialprintPGM(MYPGM(x))
@@ -147,7 +147,7 @@ void prepare_arc_move(char isclockwise);
 
 extern float homing_feedrate[];
 extern bool axis_relative_modes[];
-extern float current_position[NUM_AXIS] ;
+extern float current_position[NUM_AXIS];
 extern float add_homeing[3];
 
 // Handling multiple extruders pins

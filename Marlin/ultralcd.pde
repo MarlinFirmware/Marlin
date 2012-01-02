@@ -600,11 +600,11 @@ void MainMenu::showTune()
         
       }break;
       case ItemT_flow://axis_steps_per_unit[i] = code_value();
-         {
-      if(force_lcd_update)
+      {
+        if(force_lcd_update)
         {
           lcd.setCursor(0,line);lcdprintPGM(" Flow:");
-          lcd.setCursor(13,line);lcd.print(itostr4(axis_steps_per_unit[3]));
+          lcd.setCursor(13,line);lcd.print(itostr4(axis_steps_per_unit[3+ACTIVE_EXTRUDER])); 
         }
         
         if((activeline!=line) )
@@ -615,16 +615,15 @@ void MainMenu::showTune()
           linechanging=!linechanging;
           if(linechanging)
           {
-              encoderpos=(int)axis_steps_per_unit[3];
+              encoderpos=(int)axis_steps_per_unit[3+ACTIVE_EXTRUDER];
           }
           else
           {
-            float factor=float(encoderpos)/float(axis_steps_per_unit[3]);
+            float factor=float(encoderpos)/float(axis_steps_per_unit[3+ACTIVE_EXTRUDER]);
             position[E_AXIS]=lround(position[E_AXIS]*factor);
             //current_position[3]*=factor;
-            axis_steps_per_unit[E_AXIS]= encoderpos;
+            axis_steps_per_unit[3+ACTIVE_EXTRUDER]= encoderpos;
             encoderpos=activeline*lcdslow;
-              
           }
           BLOCK;
           beepshort();
@@ -1062,9 +1061,10 @@ void MainMenu::showControlMotion()
     case ItemCM_exit:
       MENUITEM(  lcdprintPGM(" Control \003")  ,  BLOCK;status=Main_Control;beepshort(); ) ;
       break;
+      
     case ItemCM_acc:
-    {
-      if(force_lcd_update)
+      {
+        if(force_lcd_update)
         {
           lcd.setCursor(0,line);lcdprintPGM(" Acc:");
           lcd.setCursor(13,line);lcd.print(itostr3(acceleration/100));lcdprintPGM("00");
@@ -1096,9 +1096,10 @@ void MainMenu::showControlMotion()
         }
         
       }break;
+      
     case ItemCM_xyjerk: //max_xy_jerk
       {
-      if(force_lcd_update)
+        if(force_lcd_update)
         {
           lcd.setCursor(0,line);lcdprintPGM(" Vxy-jerk: ");
           lcd.setCursor(13,line);lcd.print(itostr3(max_xy_jerk));
@@ -1137,14 +1138,15 @@ void MainMenu::showControlMotion()
     case ItemCM_vmaxz:
     case ItemCM_vmaxe:
       {
-      if(force_lcd_update)
+        int ii = i - ItemCM_vmaxx + ((i==ItemCM_vmaxe) ? ACTIVE_EXTRUDER : 0);
+        if(force_lcd_update)
         {
           lcd.setCursor(0,line);lcdprintPGM(" Vmax ");
           if(i==ItemCM_vmaxx)lcdprintPGM("x:");
           if(i==ItemCM_vmaxy)lcdprintPGM("y:");
           if(i==ItemCM_vmaxz)lcdprintPGM("z:");
           if(i==ItemCM_vmaxe)lcdprintPGM("e:");
-          lcd.setCursor(13,line);lcd.print(itostr3(max_feedrate[i-ItemCM_vmaxx]));
+          lcd.setCursor(13,line);lcd.print(itostr3(max_feedrate[ii]));
         }
         
         if((activeline!=line) )
@@ -1155,13 +1157,12 @@ void MainMenu::showControlMotion()
           linechanging=!linechanging;
           if(linechanging)
           {
-              encoderpos=(int)max_feedrate[i-ItemCM_vmaxx];
+            encoderpos=(int)max_feedrate[ii];
           }
           else
           {
-            max_feedrate[i-ItemCM_vmaxx]= encoderpos;
-            encoderpos=activeline*lcdslow;
-              
+            max_feedrate[ii]= encoderpos;
+            encoderpos=activeline * lcdslow;
           }
           BLOCK;
           beepshort();
@@ -1176,8 +1177,8 @@ void MainMenu::showControlMotion()
       }break;
     
     case ItemCM_vmin:
-    {
-      if(force_lcd_update)
+      {
+        if(force_lcd_update)
         {
           lcd.setCursor(0,line);lcdprintPGM(" Vmin:");
           lcd.setCursor(13,line);lcd.print(itostr3(minimumfeedrate));
@@ -1210,9 +1211,10 @@ void MainMenu::showControlMotion()
         }
         
       }break;
+      
     case ItemCM_vtravmin:
-    {
-      if(force_lcd_update)
+      {
+        if(force_lcd_update)
         {
           lcd.setCursor(0,line);lcdprintPGM(" VTrav min:");
           lcd.setCursor(13,line);lcd.print(itostr3(mintravelfeedrate));
@@ -1250,15 +1252,16 @@ void MainMenu::showControlMotion()
     case ItemCM_amaxy:
     case ItemCM_amaxz:
     case ItemCM_amaxe:
-    {
-      if(force_lcd_update)
+      {
+        int ii = i - ItemCM_amaxx + ((i==ItemCM_amaxe) ? ACTIVE_EXTRUDER : 0);
+        if(force_lcd_update)
         {
           lcd.setCursor(0,line);lcdprintPGM(" Amax ");
           if(i==ItemCM_amaxx)lcdprintPGM("x:");
           if(i==ItemCM_amaxy)lcdprintPGM("y:");
           if(i==ItemCM_amaxz)lcdprintPGM("z:");
           if(i==ItemCM_amaxe)lcdprintPGM("e:");
-          lcd.setCursor(13,line);lcd.print(itostr3(max_acceleration_units_per_sq_second[i-ItemCM_amaxx]/100));lcdprintPGM("00");
+          lcd.setCursor(13,line);lcd.print(itostr3(max_acceleration_units_per_sq_second[ii]/100));lcdprintPGM("00");
         }
         
         if((activeline!=line) )
@@ -1266,15 +1269,15 @@ void MainMenu::showControlMotion()
         
         if(CLICKED)
         {
-          linechanging=!linechanging;
+          linechanging = !linechanging;
           if(linechanging)
           {
-              encoderpos=(int)max_acceleration_units_per_sq_second[i-ItemCM_amaxx]/100;
+            encoderpos = (int)max_acceleration_units_per_sq_second[ii]/100;
           }
           else
           {
-            max_acceleration_units_per_sq_second[i-ItemCM_amaxx]= encoderpos*100;
-            encoderpos=activeline*lcdslow;
+            max_acceleration_units_per_sq_second[ii] = encoderpos*100;
+            encoderpos = activeline * lcdslow;
           }
           BLOCK;
           beepshort();
@@ -1287,12 +1290,13 @@ void MainMenu::showControlMotion()
         }
         
       }break;
+      
     case ItemCM_aret://float retract_acceleration = 7000;
-    {
+      {
         if(force_lcd_update)
         {
           lcd.setCursor(0,line);lcdprintPGM(" A-retract:");
-          lcd.setCursor(13,line);lcd.print(ftostr3(retract_acceleration/100));lcdprintPGM("00");
+          lcd.setCursor(13,line);lcd.print(ftostr3(retract_acceleration[ACTIVE_EXTRUDER]/100));lcdprintPGM("00");
         }
         
         if((activeline!=line) )
@@ -1303,11 +1307,11 @@ void MainMenu::showControlMotion()
           linechanging=!linechanging;
           if(linechanging)
           {
-              encoderpos=(int)retract_acceleration/100;
+              encoderpos=(int)retract_acceleration[ACTIVE_EXTRUDER]/100;
           }
           else
           {
-            retract_acceleration= encoderpos*100;
+            retract_acceleration[ACTIVE_EXTRUDER]= encoderpos*100;
             encoderpos=activeline*lcdslow;
               
           }
@@ -1322,15 +1326,16 @@ void MainMenu::showControlMotion()
         }
         
       }break;
+      
     case ItemCM_esteps://axis_steps_per_unit[i] = code_value();
-         {
-      if(force_lcd_update)
+      {
+        if(force_lcd_update)
         {
           lcd.setCursor(0,line);lcdprintPGM(" Esteps/mm:");
-          lcd.setCursor(13,line);lcd.print(itostr4(axis_steps_per_unit[3]));
+          lcd.setCursor(13,line);lcd.print(itostr4(axis_steps_per_unit[3+ACTIVE_EXTRUDER]));
         }
         
-        if((activeline!=line) )
+        if((activeline!=line))
           break;
         
         if(CLICKED)
@@ -1338,16 +1343,14 @@ void MainMenu::showControlMotion()
           linechanging=!linechanging;
           if(linechanging)
           {
-              encoderpos=(int)axis_steps_per_unit[3];
+            encoderpos = (int)axis_steps_per_unit[3+ACTIVE_EXTRUDER];
           }
           else
           {
-            float factor=float(encoderpos)/float(axis_steps_per_unit[3]);
-            position[E_AXIS]=lround(position[E_AXIS]*factor);
-            //current_position[3]*=factor;
-            axis_steps_per_unit[E_AXIS]= encoderpos;
-            encoderpos=activeline*lcdslow;
-              
+            float factor = float(encoderpos)/float(axis_steps_per_unit[3+ACTIVE_EXTRUDER]);
+            position[E_AXIS] = lround(position[E_AXIS]*factor);
+            axis_steps_per_unit[3+ACTIVE_EXTRUDER] = encoderpos;
+            encoderpos = activeline * lcdslow;
           }
           BLOCK;
           beepshort();
@@ -1360,6 +1363,7 @@ void MainMenu::showControlMotion()
         }
         
       }break; 
+      
     default:   
       break;
   }

@@ -215,7 +215,7 @@ const bool Z_ENDSTOPS_INVERTING = false; // set to true to invert the logic of t
 #define Z_MAX_LENGTH 210
 
 //// MOVEMENT SETTINGS
-#define NUM_AXIS 4 // The axis order in all axis related arrays is X, Y, Z, E
+#define NUM_AXIS 4 // The axis order in all axis related arrays is X, Y, Z, E*
 #define HOMING_FEEDRATE {30*60, 30*60, 2*60, 0}  // set the homing speeds (mm/min)
 
 //homing hits the endstop, then retracts by this distance, before it tries to slowly bump again:
@@ -228,26 +228,27 @@ const bool Z_ENDSTOPS_INVERTING = false; // set to true to invert the logic of t
 
 #define MAX_STEP_FREQUENCY 40000 // Max step frequency for Ultimaker (5000 pps / half step)
 
+#define EXTRUDER_OFFSET_X {0.0, 22.52} // (in mm) per extruder, offset of the extruder on the X axis
+#define EXTRUDER_OFFSET_Y {0.0, 0.0} // (in mm) per extruder, offset of the extruder on the Y axis
+
 // default settings 
 
 //#define DEFAULT_AXIS_STEPS_PER_UNIT   {78.7402,78.7402,200*8/3,760*1.1}                    // default steps per unit for ultimaker 
 //#define DEFAULT_AXIS_STEPS_PER_UNIT   {40, 40, 3333.92, 67} //sells mendel with v9 extruder
-#define DEFAULT_AXIS_STEPS_PER_UNIT   {80.3232, 80.8900, 2284.7651, 757.2218} // SAE Prusa w/ Wade extruder
-#define DEFAULT_MAX_FEEDRATE          {500, 500, 5, 45}    // (mm/sec)    
-#define DEFAULT_MAX_ACCELERATION      {9000,9000,100,10000}    // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for skeinforge 40+, for older versions raise them a lot.
-
-#define DEFAULT_ACCELERATION          3000    // X, Y, Z and E max acceleration in mm/s^2 for printing moves 
-#define DEFAULT_RETRACT_ACCELERATION  3000   // X, Y, Z and E max acceleration in mm/s^2 for r retracts
+#define DEFAULT_AXIS_STEPS_PER_UNIT   {80.3232, 80.8900, 2284.7651, 757.2218, 737.5537} // X,Y,Z,E0... SAE Prusa w/ Wade extruder
+#define DEFAULT_MAX_FEEDRATE          {500, 500, 7, 55, 55} // X,Y,Z,E0...(mm/sec)    
+#define DEFAULT_MAX_ACCELERATION      {9000,9000,100,9000,9000} // X,Y,Z,E0... maximum acceleration (mm/s^2). E default values are good for skeinforge 40+, for older versions raise them a lot.
+#define DEFAULT_RETRACT_ACCELERATION  {18000,18000} // E0... (per extruder) acceleration in mm/s^2 for retracts 
+#define DEFAULT_ACCELERATION          3000   // X,Y,Z and E* acceleration (one for all) in mm/s^2 for printing moves 
 
 #define DEFAULT_MINIMUMFEEDRATE       0.0     // minimum feedrate
 #define DEFAULT_MINTRAVELFEEDRATE     0.0
-
 // minimum time in microseconds that a movement needs to take if the buffer is emptied.   Increase this number if you see blobs while printing high speed & high detail.  It will slowdown on the detailed stuff.
 #define DEFAULT_MINSEGMENTTIME        20000   // Obsolete delete this
+
 #define DEFAULT_XYJERK                20.0    // (mm/sec)
 #define DEFAULT_ZJERK                 0.4     // (mm/sec)
-
-
+#define DEFAULT_EJERK                 {19,20} // E0... (mm/sec) per extruder, max initial speed for retract moves
 
 
 //===========================================================================
@@ -291,8 +292,7 @@ const bool Z_ENDSTOPS_INVERTING = false; // set to true to invert the logic of t
   #define D_FILAMENT 2.85
   #define STEPS_MM_E 836
   #define EXTRUTION_AREA (0.25 * D_FILAMENT * D_FILAMENT * 3.14159)
-  #define STEPS_PER_CUBIC_MM_E (axis_steps_per_unit[E_AXIS]/ EXTRUTION_AREA)
-
+  #define STEPS_PER_CUBIC_MM_E(_e) (axis_steps_per_unit[E_AXIS + (_e)] / EXTRUTION_AREA)
 #endif // ADVANCE
 
 
