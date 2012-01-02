@@ -760,14 +760,6 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
   // Move buffer head
   block_buffer_head = next_buffer_head;
 
-#if 1
-  if(delta_mm[E_AXIS] < 0) {
-    SERIAL_PROTOCOLPGM("Res:"); SERIAL_PROTOCOLLN(block->entry_speed); 
-    SERIAL_PROTOCOLPGM("Rns:"); SERIAL_PROTOCOLLN(block->nominal_speed); 
-    SERIAL_PROTOCOLPGM("Ra:"); SERIAL_PROTOCOLLN(block->acceleration); 
-  }
-#endif
-  
   // Update position
   memcpy(position, target, sizeof(target)); // position[] = target[]
 
