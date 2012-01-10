@@ -1677,9 +1677,10 @@ void MainMenu::showMainMenu()
     }
   } 
   clearIfNecessary();
-  for(int8_t line=0;line<LCD_HEIGHT;line++)
+  uint8_t line=0;
+  for(int8_t i=lineoffset;i<lineoffset+LCD_HEIGHT;i++)
   {
-    switch(line)
+    switch(i)
     { 
       case ItemM_watch:
         MENUITEM(  lcdprintPGM(" Watch   \003")  ,  BLOCK;status=Main_Status;beepshort(); ) ;
@@ -1733,6 +1734,7 @@ void MainMenu::showMainMenu()
         SERIAL_ERRORLNPGM("Something is wrong in the MenuStructure.");
       break;
     }
+    line++;
   }
   updateActiveLines(3,encoderpos);
 }
