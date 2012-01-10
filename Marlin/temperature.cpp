@@ -768,8 +768,8 @@ ISR(TIMER0_COMPB_vect)
        }
        if(current_raw[e] <= minttemp[e]) {
           target_raw[e] = 0;
-          min_temp_error(e);
-          kill();
+          //min_temp_error(e); //[SUMPOD specific] when milling no temperature sensor is attached ==> no kill for mintemp
+          //kill();            
        }
     }
   
