@@ -29,7 +29,7 @@
 // Sanguinololu 1.2 and above = 62
 // Ultimaker = 7,
 // Teensylu = 8
-#define MOTHERBOARD 7
+#define MOTHERBOARD 33 //[SUMPOD specific, uses RAMPS1.3]
 
 //===========================================================================
 //=============================Thermal Settings  ============================
@@ -44,14 +44,14 @@
 // 6 is EPCOS 100k
 // 7 is 100k Honeywell thermistor 135-104LAG-J01
 
-//#define THERMISTORHEATER_0 3
+#define THERMISTORHEATER_0 1
 //#define THERMISTORHEATER_1 1
 //#define THERMISTORHEATER_2 1
 
-//#define HEATER_0_USES_THERMISTOR
+#define HEATER_0_USES_THERMISTOR
 //#define HEATER_1_USES_THERMISTOR
 //#define HEATER_2_USES_THERMISTOR
-#define HEATER_0_USES_AD595
+//#define HEATER_0_USES_AD595
 //#define HEATER_1_USES_AD595
 //#define HEATER_2_USES_AD595
 
@@ -199,7 +199,7 @@ const bool Z_ENDSTOPS_INVERTING = true; // set to true to invert the logic of th
 // Disables axis when it's not being used.
 #define DISABLE_X false
 #define DISABLE_Y false
-#define DISABLE_Z false
+#define DISABLE_Z true  //[SUMPOD specific]
 #define DISABLE_E false // For all extruders
 
 // Inverting axis direction
@@ -217,25 +217,25 @@ const bool Z_ENDSTOPS_INVERTING = true; // set to true to invert the logic of th
 
 //// ENDSTOP SETTINGS:
 // Sets direction of endstops when homing; 1=MAX, -1=MIN
-#define X_HOME_DIR -1
-#define Y_HOME_DIR -1
-#define Z_HOME_DIR -1
+#define X_HOME_DIR 1
+#define Y_HOME_DIR 1
+#define Z_HOME_DIR 1
 
 #define min_software_endstops true //If true, axis won't move to coordinates less than zero.
 #define max_software_endstops true  //If true, axis won't move to coordinates greater than the defined lengths below.
-#define X_MAX_LENGTH 205
-#define Y_MAX_LENGTH 205
-#define Z_MAX_LENGTH 200
+#define X_MAX_LENGTH 130   //[SUMPOD specific, CHANGE FOR YOUR SUMPOD]
+#define Y_MAX_LENGTH 125   //[SUMPOD specific, CHANGE FOR YOUR SUMPOD]
+#define Z_MAX_LENGTH 94.5  //[SUMPOD specific, CHANGE FOR YOUR SUMPOD]
 
 //// MOVEMENT SETTINGS
 #define NUM_AXIS 4 // The axis order in all axis related arrays is X, Y, Z, E
-#define HOMING_FEEDRATE {50*60, 50*60, 4*60, 0}  // set the homing speeds (mm/min)
+#define HOMING_FEEDRATE {50*60, 50*60, 5*60, 0}  // set the homing speeds (mm/min) //[SUMPOD specific]
 
 //homing hits the endstop, then retracts by this distance, before it tries to slowly bump again:
 #define X_HOME_RETRACT_MM 5 
 #define Y_HOME_RETRACT_MM 5 
 #define Z_HOME_RETRACT_MM 1 
-#define QUICK_HOME  //if this is defined, if both x and y are to be homed, a diagonal move will be performed initially.
+//#define QUICK_HOME  //if this is defined, if both x and y are to be homed, a diagonal move will be performed initially. //[SUMPOD specific]
 
 #define AXIS_RELATIVE_MODES {false, false, false, false}
 
@@ -243,7 +243,8 @@ const bool Z_ENDSTOPS_INVERTING = true; // set to true to invert the logic of th
 
 // default settings 
 
-#define DEFAULT_AXIS_STEPS_PER_UNIT   {78.7402,78.7402,200*8/3,760*1.1}                    // default steps per unit for ultimaker 
+#define DEFAULT_AXIS_STEPS_PER_UNIT   {106.76, 106.76, 800, 67.16} //[SUMPOD specific]
+//#define DEFAULT_AXIS_STEPS_PER_UNIT   {78.7402,78.7402,200*8/3,760*1.1}                    // default steps per unit for ultimaker 
 //#define DEFAULT_AXIS_STEPS_PER_UNIT   {40, 40, 3333.92, 360} //sells mendel with v9 extruder
 //#define DEFAULT_AXIS_STEPS_PER_UNIT   {80.3232, 80.8900, 2284.7651, 757.2218} // SAE Prusa w/ Wade extruder
 #define DEFAULT_MAX_FEEDRATE          {500, 500, 5, 45}    // (mm/sec)    
@@ -320,13 +321,13 @@ const bool Z_ENDSTOPS_INVERTING = true; // set to true to invert the logic of th
 #define SD_FINISHED_STEPPERRELEASE true  //if sd support and the file is finished: disable steppers?
 #define SD_FINISHED_RELEASECOMMAND "M84 X Y E" // no z because of layer shift.
 
-//#define ULTIPANEL
+#define ULTIPANEL   //[SUMPOD specific]
 #ifdef ULTIPANEL
-  //#define NEWPANEL  //enable this if you have a click-encoder panel
-  #define SDSUPPORT
-  #define ULTRA_LCD
-  #define LCD_WIDTH 20
-  #define LCD_HEIGHT 4
+  #define NEWPANEL  //[SUMPOD specific]
+  #define SDSUPPORT //[SUMPOD specific]
+  #define ULTRA_LCD //[SUMPOD specific]
+  #define LCD_WIDTH 16 //20 //[SUMPOD specific]
+  #define LCD_HEIGHT 2 //4  //[SUMPOD specific]
 #else //no panel but just lcd 
   #ifdef ULTRA_LCD
     #define LCD_WIDTH 16
