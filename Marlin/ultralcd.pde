@@ -122,7 +122,8 @@ void lcd_init()
   lcd.createChar(3,uplevel);
   lcd.createChar(4,refresh);
   lcd.createChar(5,folder);
-  LCD_MESSAGEPGM("UltiMarlin ready.");
+  //LCD_MESSAGEPGM("UltiMarlin ready.");
+  LCD_MESSAGEPGM("Sumpod-Marlin ok");    //[SUMPOD]
 }
 
 
@@ -407,6 +408,7 @@ void MainMenu::showStatus()
   static int oldtargetHotEnd0=-1;
   if(force_lcd_update)  //initial display of content
   {
+    clear();
     encoderpos=feedmultiply;
     lcd.setCursor(0,0);lcdprintPGM("\002123/567\001 ");
     #if defined BED_USES_THERMISTOR || defined BED_USES_AD595 
