@@ -269,13 +269,13 @@
 #define PS_ON_PIN          12
 #define KILL_PIN           -1
 
-#define HEATER_0_PIN       8    // EXTRUDER 1 //[SUMPOD specific]
+#define HEATER_0_PIN       9    // EXTRUDER 1 //[SUMPOD specific]
 #define HEATER_1_PIN       -1   // EXTRUDER 2 //[SUMPOD specific]
 #define HEATER_2_PIN       -1   // EXTRUDER 3 //[SUMPOD specific]
 #define TEMP_0_PIN         13   // ANALOG NUMBERING
 #define TEMP_1_PIN         -1   // ANALOG NUMBERING
 #define TEMP_2_PIN         -1   // ANALOG NUMBERING
-#define HEATER_BED_PIN     9    // BED //[SUMPOD specific]
+#define HEATER_BED_PIN     11   // BED //[SUMPOD specific]
 #define TEMP_BED_PIN       14   // ANALOG NUMBERING
 
 //extra for SUMPOD LCD + click encoder + buzzer
