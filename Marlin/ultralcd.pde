@@ -447,7 +447,7 @@ void MainMenu::showStatus()
   force_lcd_update=false;
 }
 
-enum {ItemP_exit, ItemP_autostart,ItemP_disstep,ItemP_home, ItemP_origin, ItemP_preheat, ItemP_cooldown,ItemP_extrude};
+enum {ItemP_exit, ItemP_autostart,ItemP_disstep,ItemP_home, ItemP_move, ItemP_origin, ItemP_preheat, ItemP_cooldown,ItemP_extrude};
 
 //any action must not contain a ',' character anywhere, or this breaks:
 #define MENUITEM(repaint_action, click_action) \
@@ -475,7 +475,10 @@ void MainMenu::showPrepare()
       MENUITEM(  lcdprintPGM(" Disable Steppers")  ,  BLOCK;enquecommand("M84");beepshort(); ) ;
       break;
     case ItemP_home:
-      MENUITEM(  lcdprintPGM(" Auto Home")  ,  BLOCK;enquecommand("G28 X-105 Y-105 Z0");beepshort(); ) ;
+      MENUITEM(  lcdprintPGM(" Auto Home")  ,  BLOCK;enquecommand("G28");beepshort(); ) ;
+      break;
+    case ItemP_move:
+      MENUITEM(  lcdprintPGM(" Move Axes")  ,  BLOCK;status=Sub_MoveAxes;beepshort(); ) ;
       break;
     case ItemP_origin:
       MENUITEM(  lcdprintPGM(" Set Origin")  ,  BLOCK;enquecommand("G92 X0 Y0 Z0");beepshort(); ) ;
@@ -1464,6 +1467,84 @@ void MainMenu::showControlMotion()
  updateActiveLines(ItemCM_esteps,encoderpos);
 }
 
+enum {
+  ItemMA_exit, 
+  ItemMA_X,ItemMA_Y,ItemMA_Z 
+};
+
+void MainMenu::showMoveAxes()
+{
+ uint8_t line=0;
+ clearIfNecessary();
+ for(int8_t i=lineoffset;i<lineoffset+LCD_HEIGHT;i++)
+ {
+  uint8_t aidx = 0;
+  switch(i)
+  {
+    case ItemMA_exit:
+      MENUITEM(  lcdprintPGM(" Prepare \003")  ,  BLOCK;status=Main_Prepare;beepshort(); ) ;
+      break;
+      
+    case ItemMA_Z:
+      aidx++;
+    case ItemMA_Y:
+      aidx++;
+    case ItemMA_X:
+      {
+        if( force_lcd_update )
+        {
+          lcd.setCursor(0,line);
+          if( ItemMA_Z == i ) lcdprintPGM(" Z:");
+          if( ItemMA_Y == i ) lcdprintPGM(" Y:");
+          if( ItemMA_X == i ) lcdprintPGM(" X:");
+          lcd.setCursor(8,line);lcd.print(ftostr52(current_position[aidx]*10));
+        }
+
+        if((activeline!=line) )
+          break;
+        
+        if(CLICKED)
+        {
+          linechanging++;
+          lcd.setCursor(3,line);
+          switch(linechanging)
+          {
+            case 1: lcdprintPGM("fast:");
+              encoderpos=(int)(current_position[aidx]*2);
+              break;
+            case 2: lcdprintPGM("fine:");
+              encoderpos*=50;
+              break;
+            default:
+              encoderpos=activeline*lcdslow;
+              linechanging=0;
+          }
+          BLOCK;
+          beepshort();
+        }
+        if(linechanging)
+        {
+          
+//QQQ limit ???  if(encoderpos<5) encoderpos=5;
+//QQQ limit ???  if(encoderpos>990) encoderpos=990;
+
+          char cmd[10];
+          lcd.setCursor(8,line);lcd.print(ftostr52(encoderpos*10/((1==linechanging)?2.:100.)));          
+          sprintf(cmd,"G0 %c%s",'X'+aidx,conv);
+          enquecommand(cmd);
+        }
+        
+      }
+      break;
+          
+    default:   
+      break;
+  }
+  line++;
+ }
+ updateActiveLines(ItemMA_Z,encoderpos);
+}
+
 
 enum {
   ItemC_exit,ItemC_temp,ItemC_move,
@@ -1817,6 +1898,10 @@ void MainMenu::update()
       {
         showControlTemp(); 
       }break;
+      case Sub_MoveAxes:
+      {
+        showMoveAxes();
+      }break;
       case Main_SD: 
       {
         showSD();
@@ -1928,6 +2013,23 @@ char *ftostr51(const float &x)
   conv[5]='.';
   conv[6]=(xx)%10+'0';
   conv[7]=0;
+  return conv;
+}
+
+//  convert float to string with +1234.56 format
+char *ftostr52(const float &x)
+{
+  int xx=x*10;
+  conv[0]=(xx>=0)?'+':'-';
+  xx=abs(xx);
+  conv[1]=(xx/100000)%10+'0';
+  conv[2]=(xx/10000)%10+'0';
+  conv[3]=(xx/1000)%10+'0';
+  conv[4]=(xx/100)%10+'0';
+  conv[5]='.';
+  conv[6]=(xx/10)%10+'0';
+  conv[7]=(xx)%10+'0';
+  conv[8]=0;
   return conv;
 }
 

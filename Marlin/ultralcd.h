@@ -50,7 +50,7 @@
   #define blocktime 500
   #define lcdslow 5
     
-  enum MainStatus{Main_Status, Main_Menu, Main_Prepare, Main_Control, Main_SD,Sub_TempControl,Sub_MotionControl};
+  enum MainStatus{Main_Status, Main_Menu, Main_Prepare, Main_Control, Main_SD,Sub_TempControl,Sub_MotionControl,Sub_MoveAxes};
 
   class MainMenu{
   public:
@@ -67,13 +67,14 @@
     void showControl();
     void showControlMotion();
     void showControlTemp();
+    void showMoveAxes();
     void showSD();
     bool force_lcd_update;
     int lastencoderpos;
     int8_t lineoffset;
     int8_t lastlineoffset;
     
-    bool linechanging;
+    int linechanging;
     
     bool tune;
     
