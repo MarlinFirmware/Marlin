@@ -27,7 +27,7 @@
     
     #define CLICKED (buttons&EN_C)
     #define BLOCK {blocking=millis()+blocktime;}
-    #define CARDINSERTED (READ(SDCARDDETECT)==0)
+    #define CARDINSERTED (READ(SDCARDDETECT)!=0)  //[SUMPOD specific, changed for adafruit.com sd shield]
     
   #else
 
