@@ -478,7 +478,7 @@ void MainMenu::showPrepare()
       MENUITEM(  lcdprintPGM(" Auto Home")  ,  BLOCK;enquecommand("G28");beepshort(); ) ;
       break;
     case ItemP_move:
-      MENUITEM(  lcdprintPGM(" Move Axes")  ,  BLOCK;status=Sub_MoveAxes;beepshort(); ) ;
+      MENUITEM(  lcdprintPGM(" Move Axes \x7E")  ,  BLOCK;status=Sub_MoveAxes;beepshort(); ) ;
       break;
     case ItemP_origin:
       MENUITEM(  lcdprintPGM(" Set Origin")  ,  BLOCK;enquecommand("G92 X0 Y0 Z0");beepshort(); ) ;
@@ -1766,14 +1766,14 @@ void MainMenu::showMainMenu()
     switch(i)
     { 
       case ItemM_watch:
-        MENUITEM(  lcdprintPGM(" Watch   \003")  ,  BLOCK;status=Main_Status;beepshort(); ) ;
+        MENUITEM(  lcdprintPGM(" Watch     \003")  ,  BLOCK;status=Main_Status;beepshort(); ) ;
        break;
       case ItemM_prepare:
-        MENUITEM(  if(!tune) lcdprintPGM(" Prepare \x7E");else  lcdprintPGM(" Tune    \x7E"); ,  BLOCK;status=Main_Prepare;beepshort(); ) ;
+        MENUITEM(  if(!tune) lcdprintPGM(" Prepare   \x7E");else  lcdprintPGM(" Tune      \x7E"); ,  BLOCK;status=Main_Prepare;beepshort(); ) ;
       break;
        
       case ItemM_control:
-        MENUITEM(  lcdprintPGM(" Control \x7E")  ,  BLOCK;status=Main_Control;beepshort(); ) ;
+        MENUITEM(  lcdprintPGM(" Control   \x7E")  ,  BLOCK;status=Main_Control;beepshort(); ) ;
       break;
       #ifdef SDSUPPORT
       case ItemM_file:    
@@ -1788,9 +1788,9 @@ void MainMenu::showMainMenu()
           #endif
           {
             if(card.sdprinting)
-              lcdprintPGM(" Stop Print   \x7E");
+              lcdprintPGM(" Stop Print \x7E");
             else
-              lcdprintPGM(" Card Menu    \x7E");
+              lcdprintPGM(" Card Menu  \x7E");
           }
           else
           {
