@@ -16,7 +16,7 @@ extern CardReader card;
 //=============================public variables============================
 //===========================================================================
 volatile char buttons=0;  //the last checked buttons in a bit array.
-int encoderpos=0;
+long encoderpos=0;
 short lastenc=0;
 
 
@@ -1510,10 +1510,10 @@ void MainMenu::showMoveAxes()
           switch(linechanging)
           {
             case 1: lcdprintPGM("fast:");
-              encoderpos=(int)(current_position[aidx]*2);
+              encoderpos=(long)(current_position[aidx]*1);
               break;
             case 2: lcdprintPGM("fine:");
-              encoderpos*=50;
+              encoderpos=(long)(current_position[aidx]*100);
               break;
             default:
               encoderpos=activeline*lcdslow;

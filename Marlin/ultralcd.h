@@ -70,7 +70,7 @@
     void showMoveAxes();
     void showSD();
     bool force_lcd_update;
-    int lastencoderpos;
+    long lastencoderpos;
     int8_t lineoffset;
     int8_t lastlineoffset;
     
@@ -79,11 +79,11 @@
     bool tune;
     
   private:
-    FORCE_INLINE void updateActiveLines(const uint8_t &maxlines,volatile int &encoderpos)
+    FORCE_INLINE void updateActiveLines(const uint8_t &maxlines,volatile long &encoderpos)
     {
       if(linechanging) return; // an item is changint its value, do not switch lines hence
       lastlineoffset=lineoffset; 
-      int curencoderpos=encoderpos;  
+      long curencoderpos=encoderpos;  
       force_lcd_update=false;
       if(  (abs(curencoderpos-lastencoderpos)<lcdslow) ) 
       { 
@@ -160,5 +160,7 @@ char *itostr31(const int &xx);
 char *itostr3(const int &xx);
 char *itostr4(const int &xx);
 char *ftostr51(const float &x);
+char *ftostr52(const float &x);
+
 #endif //ULTRALCD
 
