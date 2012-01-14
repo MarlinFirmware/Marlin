@@ -1516,24 +1516,27 @@ void MainMenu::showMoveAxes()
               encoderpos=(long)(current_position[aidx]*100);
               break;
             default:
+              lcdprintPGM("     ");
               encoderpos=activeline*lcdslow;
               linechanging=0;
           }
           BLOCK;
           beepshort();
         }
+        
         if(linechanging)
         {
+          if(!check_axes_activity()) //check if axes is not moving
+          {
+            char cmd[10];
+            sprintf(cmd,"G0 %c%s",'X'+aidx,ftostr52(encoderpos*10/((1==linechanging)?1.:100.)));
+            enquecommand(cmd);
+          }
+          else
+            encoderpos=(long)(current_position[aidx]*((1==linechanging)?1:100));
           
-//QQQ limit ???  if(encoderpos<5) encoderpos=5;
-//QQQ limit ???  if(encoderpos>990) encoderpos=990;
-
-          char cmd[10];
-          lcd.setCursor(8,line);lcd.print(ftostr52(encoderpos*10/((1==linechanging)?2.:100.)));          
-          sprintf(cmd,"G0 %c%s",'X'+aidx,conv);
-          enquecommand(cmd);
+          lcd.setCursor(8,line);lcd.print(ftostr52(current_position[aidx]*10));
         }
-        
       }
       break;
           
