@@ -937,7 +937,9 @@ FORCE_INLINE void process_commands()
       #endif
       
       case 81: // M81 - ATX Power Off
+      
       #if (SUICIDE_PIN >-1)
+        st_synchronize();
         suicide();
       #else
         #if (PS_ON_PIN > -1) 
