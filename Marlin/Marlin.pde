@@ -161,7 +161,7 @@ static bool fromsd[BUFSIZE];
 static int bufindr = 0;
 static int bufindw = 0;
 static int buflen = 0;
-static int i = 0;
+//static int i = 0;
 static char serial_char;
 static int serial_count = 0;
 static boolean comment_mode = false;
@@ -233,8 +233,30 @@ void setup_photpin()
     #endif
   #endif 
 }
+
+void setup_powerhold()
+{
+ #ifdef SUICIDE_PIN
+    #if (SUICIDE_PIN> -1) 
+      SET_OUTPUT(SUICIDE_PIN);
+      WRITE(SUICIDE_PIN, HIGH);
+    #endif
+  #endif
+}
+
+void suicide()
+{
+ #ifdef SUICIDE_PIN
+    #if (SUICIDE_PIN> -1) 
+      SET_OUTPUT(SUICIDE_PIN);
+      WRITE(SUICIDE_PIN, LOW);
+    #endif
+  #endif
+}
+
 void setup()
 { 
+  setup_powerhold();
   MSerial.begin(BAUDRATE);
   SERIAL_ECHO_START;
   SERIAL_ECHOLNPGM(VERSION_STRING);
@@ -912,10 +934,17 @@ FORCE_INLINE void process_commands()
       case 80: // M80 - ATX Power On
         SET_OUTPUT(PS_ON_PIN); //GND
         break;
+      #endif
+      
       case 81: // M81 - ATX Power Off
-        SET_INPUT(PS_ON_PIN); //Floating
-        break;
-    #endif
+      #if (SUICIDE_PIN >-1)
+        suicide();
+      #else
+        #if (PS_ON_PIN > -1) 
+          SET_INPUT(PS_ON_PIN); //Floating
+        #endif
+      #endif
+        
     case 82:
       axis_relative_modes[3] = false;
       break;
@@ -1314,6 +1343,7 @@ void kill()
   SERIAL_ERROR_START;
   SERIAL_ERRORLNPGM("Printer halted. kill() called !!");
   LCD_MESSAGEPGM("KILLED. ");
+  suicide();
   while(1); // Wait for reset
 }
 
