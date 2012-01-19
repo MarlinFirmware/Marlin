@@ -40,9 +40,7 @@
 
 
 
-#define VERSION_STRING  "1.0.0 Beta 1"
-
-
+#define VERSION_STRING  "1.0.0 Beta 1 - SUMPOD"
 
 
 // look here for descriptions of gcodes: http://linuxcnc.org/handbook/gcode/g-code.html
