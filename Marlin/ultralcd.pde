@@ -1531,6 +1531,7 @@ void MainMenu::showMoveAxes()
             char cmd[10];
             sprintf(cmd,"G0 %c%s",'X'+aidx,ftostr52(encoderpos*10/((1==linechanging)?1.:100.)));
             enquecommand(cmd);
+            //QQQ better use this? st_synchronize(); //wait for all moves to finish
           }
           else
             encoderpos=(long)(current_position[aidx]*((1==linechanging)?1:100));
