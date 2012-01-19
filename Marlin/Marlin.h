@@ -55,7 +55,7 @@
 // //# define MYPGM(s) (__extension__({static prog_char __c[] = (s); &__c[0];})) 
 // //#define MYPGM(s) ((const prog_char *g PROGMEM=s))
 // //#define MYPGM(s) PSTR(s)
-#define MYPGM(s)  (__extension__({static char __c[] __attribute__((__progmem__)) = (s); &__c[0];}))  //This is the normal behaviour
+#define MYPGM(s)  (__extension__({static const char __c[] __attribute__((__progmem__)) = (s); &__c[0];}))  //This is the normal behaviour
 //#define MYPGM(s)  (__extension__({static prog_char __c[]  = (s); &__c[0];})) //this does not work but hides the warnings
 
 
