@@ -843,11 +843,11 @@ FORCE_INLINE void process_commands()
         /* continue to loop until we have reached the target temp   
           _and_ until TEMP_RESIDENCY_TIME hasn't passed since we reached it */
         while((residencyStart == -1) ||
-              (residencyStart > -1 && (millis() - residencyStart) < TEMP_RESIDENCY_TIME*1000) ) {
+              (residencyStart >= 0 && (((unsigned int) (millis() - residencyStart)) < (TEMP_RESIDENCY_TIME * 1000UL))) ) {
       #else
         while ( target_direction ? (isHeatingHotend(tmp_extruder)) : (isCoolingHotend(tmp_extruder)&&(CooldownNoWait==false)) ) {
       #endif //TEMP_RESIDENCY_TIME
-          if( (millis() - codenum) > 1000 ) 
+          if( (millis() - codenum) > 1000UL )
           { //Print Temp Reading and remaining time every 1 second while heating up/cooling down
             SERIAL_PROTOCOLPGM("T:");
             SERIAL_PROTOCOL( degHotend(tmp_extruder) ); 
@@ -857,7 +857,7 @@ FORCE_INLINE void process_commands()
               SERIAL_PROTOCOLPGM(" W:");
               if(residencyStart > -1)
               {
-                 codenum = TEMP_RESIDENCY_TIME - ((millis() - residencyStart) / 1000);
+                 codenum = ((TEMP_RESIDENCY_TIME * 1000UL) - (millis() - residencyStart)) / 1000UL;
                  SERIAL_PROTOCOLLN( codenum );
               }
               else 
