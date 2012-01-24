@@ -1301,8 +1301,10 @@ void manage_inactivity(byte debug)
       last_stepperdisabled_time=previous_millis_cmd;
     else
     {
-      if(  (X_ENABLE_ON && (READ(X_ENABLE_PIN)!=0))  ||  (!X_ENABLE_ON && READ(X_ENABLE_PIN)==0)  )
-        enquecommand(DEFAULT_STEPPER_DEACTIVE_COMMAND); 
+      #if X_ENABLE_PIN >= 0
+        if(  (X_ENABLE_ON && (READ(X_ENABLE_PIN)!=0))  ||  (!X_ENABLE_ON && READ(X_ENABLE_PIN)==0)  )
+          enquecommand(DEFAULT_STEPPER_DEACTIVE_COMMAND); 
+      #endif
       last_stepperdisabled_time=millis();
     }
   }
