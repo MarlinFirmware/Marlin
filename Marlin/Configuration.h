@@ -70,10 +70,10 @@
 // This waits for the watchperiod in milliseconds whenever an M104 or M109 increases the target temperature
 // If the temperature has not increased at the end of that period, the target temperature is set to zero. 
 // It can be reset with another M104/M109
-#define WATCHPERIOD 20000 //20 seconds
+// #define WATCHPERIOD 20000 //20 seconds
 
 // Actual temperature must be close to target for this long before M109 returns success
-#define TEMP_RESIDENCY_TIME 50  // (seconds)
+#define TEMP_RESIDENCY_TIME 5   // (seconds)
 #define TEMP_HYSTERESIS 3       // (C°) range of +/- temperatures considered "close" to the target one
 
 //// The minimal temperature defines the temperature below which the heater will not be enabled
@@ -181,14 +181,14 @@
 
 // Endstop Settings
 #define ENDSTOPPULLUPS // Comment this out (using // at the start of the line) to disable the endstop pullup resistors
-
 // The pullups are needed if you directly connect a mechanical endswitch between the signal and ground pins.
-const bool X_ENDSTOPS_INVERTING = true; // set to true to invert the logic of the endstops. 
-const bool Y_ENDSTOPS_INVERTING = true; // set to true to invert the logic of the endstops. 
-const bool Z_ENDSTOPS_INVERTING = true; // set to true to invert the logic of the endstops. 
+
+const bool X_ENDSTOPS_INVERTING = false; // set to true to invert the logic of the endstops. 
+const bool Y_ENDSTOPS_INVERTING = false; // set to true to invert the logic of the endstops. 
+const bool Z_ENDSTOPS_INVERTING = false; // set to true to invert the logic of the endstops. 
 // For optos H21LOB set to true, for Mendel-Parts newer optos TCST2103 set to false
 
-#define ENDSTOPS_ONLY_FOR_HOMING // If defined the endstops will only be used for homing
+//#define ENDSTOPS_ONLY_FOR_HOMING // If defined the endstops will only be used for homing
 
 // For Inverting Stepper Enable Pins (Active Low) use 0, Non Inverting (Active High) use 1
 #define X_ENABLE_ON 0
@@ -217,7 +217,7 @@ const bool Z_ENDSTOPS_INVERTING = true; // set to true to invert the logic of th
 
 //// ENDSTOP SETTINGS:
 // Sets direction of endstops when homing; 1=MAX, -1=MIN
-#define X_HOME_DIR -1
+#define X_HOME_DIR  1
 #define Y_HOME_DIR -1
 #define Z_HOME_DIR -1
 
@@ -246,19 +246,19 @@ const bool Z_ENDSTOPS_INVERTING = true; // set to true to invert the logic of th
 #define DEFAULT_AXIS_STEPS_PER_UNIT   {64,64,3200,110}                    // default steps per unit for ultimaker 
 //#define DEFAULT_AXIS_STEPS_PER_UNIT   {40, 40, 3333.92, 360} //sells mendel with v9 extruder
 //#define DEFAULT_AXIS_STEPS_PER_UNIT   {80.3232, 80.8900, 2284.7651, 757.2218} // SAE Prusa w/ Wade extruder
-#define DEFAULT_MAX_FEEDRATE          {500, 500, 5, 1000}    // (mm/sec)
-#define DEFAULT_MAX_ACCELERATION      {1200,1200,100,9000}    // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for skeinforge 40+, for older versions raise them a lot.
+#define DEFAULT_MAX_FEEDRATE          {500, 500, 2.5, 1000}    // (mm/sec)
+#define DEFAULT_MAX_ACCELERATION      {7000,7000,50,10000}    // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for skeinforge 40+, for older versions raise them a lot.
 
-#define DEFAULT_ACCELERATION          3000    // X, Y, Z and E max acceleration in mm/s^2 for printing moves 
-#define DEFAULT_RETRACT_ACCELERATION  3000   // X, Y, Z and E max acceleration in mm/s^2 for r retracts
+#define DEFAULT_ACCELERATION          4000    // X, Y, Z and E max acceleration in mm/s^2 for printing moves 
+#define DEFAULT_RETRACT_ACCELERATION  7000   // X, Y, Z and E max acceleration in mm/s^2 for r retracts
 
-#define DEFAULT_MINIMUMFEEDRATE       0.0     // minimum feedrate
-#define DEFAULT_MINTRAVELFEEDRATE     0.0
+#define DEFAULT_MINIMUMFEEDRATE       10.0     // minimum feedrate
+#define DEFAULT_MINTRAVELFEEDRATE     10.0
 
 // minimum time in microseconds that a movement needs to take if the buffer is emptied.   Increase this number if you see blobs while printing high speed & high detail.  It will slowdown on the detailed stuff.
 #define DEFAULT_MINSEGMENTTIME        20000   // Obsolete delete this
-#define DEFAULT_XYJERK                12.0    // (mm/sec)
-#define DEFAULT_ZJERK                 0.4     // (mm/sec)
+#define DEFAULT_XYJERK                8.0    // (mm/sec)
+#define DEFAULT_ZJERK                 0.1     // (mm/sec)
 
 // If defined the movements slow down when the look ahead buffer is only half full
 #define SLOWDOWN
