@@ -909,7 +909,7 @@ FORCE_INLINE void process_commands()
         LCD_MESSAGEPGM("Bed done.");
         previous_millis_cmd = millis();
     #endif
-    break;
+        break;
 
     #if FAN_PIN > -1
       case 106: //M106 Fan On
@@ -938,14 +938,13 @@ FORCE_INLINE void process_commands()
       
       case 81: // M81 - ATX Power Off
       
-      #if (SUICIDE_PIN >-1)
+      #if defined SUICIDE_PIN && SUICIDE_PIN > -1
         st_synchronize();
         suicide();
-      #else
-        #if (PS_ON_PIN > -1) 
-          SET_INPUT(PS_ON_PIN); //Floating
-        #endif
+      #elif (PS_ON_PIN > -1)
+        SET_INPUT(PS_ON_PIN); //Floating
       #endif
+		break;
         
     case 82:
       axis_relative_modes[3] = false;
