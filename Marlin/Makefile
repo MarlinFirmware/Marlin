@@ -153,7 +153,9 @@ sym: applet/$(TARGET).sym
 
 # Program the device.  
 upload: applet/$(TARGET).hex
+	stty hup < $(PORT); true
 	$(AVRDUDE) $(AVRDUDE_FLAGS) $(AVRDUDE_WRITE_FLASH)
+	stty -hup < $(PORT); true
 
 
 	# Display size of file.
