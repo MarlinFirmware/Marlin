@@ -114,7 +114,13 @@
 // M502 - reverts to the default "factory settings".  You still need to store them in EEPROM afterwards if you want to.
 // M503 - print the current settings (from memory not from eeprom)
 
-// T<NUMBER> [F<NUMBER>] - change the extruder, the feedrate might be set to control the speed of the re-positioning move
+// T<NUMBER> [F<NUMBER>] [S<0|1>] - change the extruder, the feedrate might 
+//                                  be set to control the speed of the 
+//                                  re-positioning move, S0 turns off the 
+//                                  repositioning move (enabled by default)
+// After the active extruder is selected the commands setting up the 
+// extrusion and heater parameters are applied to that extruder only.
+
 
 //Stepper Movement Variables
 
@@ -1112,7 +1118,9 @@ FORCE_INLINE void process_commands()
       SERIAL_ECHOLN("Invalid extruder");
     }
     else {
+      boolean make_move = false;
       if(code_seen('F')) {
+        make_move = true;
         next_feedrate = code_value();
         if(next_feedrate > 0.0) feedrate = next_feedrate;
       }
@@ -1127,9 +1135,11 @@ FORCE_INLINE void process_commands()
         }
         active_extruder = tmp_extruder;
         plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
-        // Move to the old position (using current feedrate)
-        prepare_move();
-        st_synchronize();
+        // Move to the old position if 'F' was in the parameters
+        if(make_move) {
+           prepare_move();
+           st_synchronize();
+        }
       }
       SERIAL_ECHO_START;
       SERIAL_ECHO("Active Extruder: ");

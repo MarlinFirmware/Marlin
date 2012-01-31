@@ -13,7 +13,6 @@ A fork by bkubicek for the Ultimaker was merged, and further development was aid
 Some features have been added by:
 Lampmaker, Bradley Feldman, and others...
 
-
 Features:
 
 *   Interrupt based movement with real linear acceleration
@@ -36,6 +35,7 @@ Features:
 *   Endstop trigger reporting to the host software.
 *   Updated sdcardlib
 *   Heater power reporting. Useful for PID monitoring.
+*   Support for up to 3 extruders
 
 The default baudrate is 250000. This baudrate has less jitter and hence errors than the usual 115200 baud, but is less supported by drivers and host-environments.
 
@@ -145,13 +145,28 @@ Movement variables:
 Advance:
 
 *   M200 - Set filament diameter for advance
-*   M205 -  advanced settings:  minimum travel speed S=while printing T=travel only,  B=minimum segment time X= maximum xy jerk, Z=maximum Z jerk
+*   M205 - advanced settings:  minimum travel speed S=while printing T=travel only,  B=minimum segment time X= maximum xy jerk, Z=maximum Z jerk, E= max E jerk (for retracts)
 
 EEPROM:
 
 *   M500 - stores paramters in EEPROM
 *   M501 - reads parameters from EEPROM (if you need reset them after you changed them temporarily).  
 *   M502 - reverts to the default "factory settings".  You still need to store them in EEPROM afterwards if you want to.
+
+EXTRUDER SELECTION:
+*   T<NUMBER> [F<NUMBER>] - change the extruder. The feedrate might be set to 
+                            reposition the extruder and specify at what speed. 
+                            If "F" is not present the coordinates are adjusted, 
+                            but the move is not performed.
+
+    In general, the commands and settings for extruder are applied only to the
+    active extruder. For example, to change max feedrate for extruders 0 and
+    1, one has to switch to the extruder 0, set its rate, then switch to
+    the extruder 1 and set its rate. M503 shows multiple 'E' values starting
+    with extruder 0 and so on. 
+    Some of the commands (like M104, M105 and M109) can take extruder 
+    number as a parameter. For example, in order to change the temperature 
+    of the extruder 1 without switching to it use "M104 S180 T1".
 
 
 Configuring and compilation:

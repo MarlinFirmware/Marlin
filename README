@@ -20,6 +20,9 @@ Features:
  - Simple LCD support (16x2)
  - SD Card support
  - Provisions for Bernhard Kubicek's new hardware control console and 20x4 lcd
+ - Supports up to 3 extruders w/ heaters (note: if using Printrun might need to 
+   enable passing in of the 'T' command in pronsole.py)
+   
 
 This firmware is optimized for Ultimaker's gen6 electronics (including the Ultimaker 1.5.x daughterboard and Arduino Mega 2560).
 
