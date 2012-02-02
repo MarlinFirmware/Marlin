@@ -114,13 +114,13 @@
 // M502 - reverts to the default "factory settings".  You still need to store them in EEPROM afterwards if you want to.
 // M503 - print the current settings (from memory not from eeprom)
 
-// T<NUMBER> [F<NUMBER>] [S<0|1>] - change the extruder, the feedrate might 
-//                                  be set to control the speed of the 
-//                                  re-positioning move, S0 turns off the 
-//                                  repositioning move (enabled by default)
-// After the active extruder is selected the commands setting up the 
-// extrusion and heater parameters are applied to that extruder only.
-
+// T<NUM> [F<NUM>] [S<NUM>] - change the extruder, the feedrate might be set 
+//                            to control the speed of the re-positioning move. 
+//                            S# allows to choose what E position the just
+//                            selected extruder should start from (# - the 
+//                            extruder number to pick the position from). If 
+//                            S is not specified the last known position for 
+//                            the selected extruder is used.
 
 //Stepper Movement Variables
 
@@ -141,6 +141,7 @@ volatile int feedmultiply=100; //100->1 200->2
 int saved_feedmultiply;
 volatile bool feedmultiplychanged=false;
 float current_position[NUM_AXIS] = { 0.0, 0.0, 0.0, 0.0 };
+float e_current_position[EXTRUDERS] = { 0.0 }; // not quite "current", set when extruders change
 float add_homeing[3]={0,0,0};
 uint8_t active_extruder = 0;
 
@@ -254,6 +255,7 @@ void setup()
     axis_steps_per_sqr_second[i] = 
        max_acceleration_units_per_sq_second[i] * axis_steps_per_unit[i];
   }
+  memset(e_current_position, 0, sizeof(e_current_position));
 
   tp_init();    // Initialize temperature loop 
   plan_init();  // Initialize planner;
@@ -1110,11 +1112,21 @@ FORCE_INLINE void process_commands()
 
   else if(code_seen('T')) 
   {
-    tmp_extruder = code_value();
+    // By default E axis is set to the coordinate of the selected extruder
+    uint8_t start_from_extruder = tmp_extruder = code_value();
+    if(code_seen('S')) {
+      start_from_extruder = code_value();
+    }
     if(tmp_extruder >= EXTRUDERS) {
       SERIAL_ECHO_START;
       SERIAL_ECHO("T");
       SERIAL_ECHO(tmp_extruder);
+      SERIAL_ECHOLN("Invalid extruder");
+    }
+    else if(start_from_extruder >= EXTRUDERS) {
+      SERIAL_ECHO_START;
+      SERIAL_ECHO("S");
+      SERIAL_ECHO(start_from_extruder);
       SERIAL_ECHOLN("Invalid extruder");
     }
     else {
@@ -1133,7 +1145,12 @@ FORCE_INLINE void process_commands()
                                  extruder_offset[i][active_extruder] +
                                  extruder_offset[i][tmp_extruder];
         }
+        // Save the current coordinate of the active extruder
+        e_current_position[active_extruder] = current_position[E_AXIS];
         active_extruder = tmp_extruder;
+        // Restore E coordinate of the specified extruder
+        current_position[E_AXIS] = e_current_position[start_from_extruder];
+        destination[E_AXIS] = current_position[E_AXIS];
         plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
         // Move to the old position if 'F' was in the parameters
         if(make_move) {

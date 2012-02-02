@@ -37,7 +37,7 @@ Features:
 *   Heater power reporting. Useful for PID monitoring.
 *   Support for up to 3 extruders
 
-The default baudrate is 250000. This baudrate has less jitter and hence errors than the usual 115200 baud, but is less supported by drivers and host-environments.
+The default baudrate is 115200. You can try 250000 it is less supported by drivers and host-environments, but might work better for you.
 
 
 Differences and additions to the already good Sprinter firmware:
@@ -154,10 +154,15 @@ EEPROM:
 *   M502 - reverts to the default "factory settings".  You still need to store them in EEPROM afterwards if you want to.
 
 EXTRUDER SELECTION:
-*   T<NUMBER> [F<NUMBER>] - change the extruder. The feedrate might be set to 
-                            reposition the extruder and specify at what speed. 
-                            If "F" is not present the coordinates are adjusted, 
-                            but the move is not performed.
+*   T<NUM> [F<NUM>] [S<NUM>] - change the extruder. The feedrate might be set 
+                            to reposition the extruder and specify at what 
+                            speed. If "F" is not present the coordinates are 
+                            adjusted, but the move is not performed.
+                            "S" allows to choose what E position the just
+                            selected extruder should start from (<NUM> - the 
+                            extruder number to pick the last position from). 
+                            If "S" is not specified the last known position for 
+                            the new selected extruder is used.
 
     In general, the commands and settings for extruder are applied only to the
     active extruder. For example, to change max feedrate for extruders 0 and
@@ -167,7 +172,11 @@ EXTRUDER SELECTION:
     Some of the commands (like M104, M105 and M109) can take extruder 
     number as a parameter. For example, in order to change the temperature 
     of the extruder 1 without switching to it use "M104 S180 T1".
-
+    Note: If using Printrun, your version might not accept the "T" command.
+          You might need to open pronsole.py and change all occurances of
+          if(l[0]=='M' or l[0]=="G"):
+          to
+          if(l[0]=='M' or l[0]=='G' or l[0]=='T'):
 
 Configuring and compilation:
 ============================
