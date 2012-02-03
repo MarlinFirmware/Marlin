@@ -14,7 +14,7 @@
 #include <string.h>
 #include <inttypes.h>
 
-#include <avr/delay.h>
+#include <util/delay.h>
 #include <avr/pgmspace.h>
 #include <avr/eeprom.h>
 #include  <avr/wdt.h>
@@ -54,8 +54,8 @@
 // //#define PSTR    (s )        ((const PROGMEM char *)(s))
 // //# define MYPGM(s) (__extension__({static prog_char __c[] = (s); &__c[0];})) 
 // //#define MYPGM(s) ((const prog_char *g PROGMEM=s))
-// //#define MYPGM(s) PSTR(s)
-#define MYPGM(s)  (__extension__({static char __c[] __attribute__((__progmem__)) = (s); &__c[0];}))  //This is the normal behaviour
+#define MYPGM(s) PSTR(s)
+//#define MYPGM(s)  (__extension__({static char __c[] __attribute__((__progmem__)) = (s); &__c[0];}))  //This is the normal behaviour
 //#define MYPGM(s)  (__extension__({static prog_char __c[]  = (s); &__c[0];})) //this does not work but hides the warnings
 
 
@@ -65,8 +65,8 @@
 #define SERIAL_PROTOCOLLNPGM(x) {serialprintPGM(MYPGM(x));MSerial.write('\n');}
 
 
-const prog_char errormagic[] PROGMEM ="Error:";
-const prog_char echomagic[] PROGMEM ="echo:";
+const char errormagic[] PROGMEM ="Error:";
+const char echomagic[] PROGMEM ="echo:";
 #define SERIAL_ERROR_START serialprintPGM(errormagic);
 #define SERIAL_ERROR(x) SERIAL_PROTOCOL(x)
 #define SERIAL_ERRORPGM(x) SERIAL_PROTOCOLPGM(x)
