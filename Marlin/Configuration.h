@@ -55,6 +55,8 @@
 #define HEATER_0_USES_AD595
 //#define HEATER_1_USES_AD595
 //#define HEATER_2_USES_AD595
+//#define HEATER_0_USES_MAX6675
+ 
 
 // Select one of these only to define how the bed temp is read.
 //#define THERMISTORBED 1
