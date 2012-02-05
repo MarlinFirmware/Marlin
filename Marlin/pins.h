@@ -331,16 +331,17 @@
 // SPI for Max6675 Thermocouple 
 
 #ifndef SDSUPPORT
-// these pins are defined in the SD library if building with SD support  #define SCK_PIN          52
-  #define MISO_PIN         50
-  #define MOSI_PIN         51
+// these pins are defined in the SD library if building with SD support  
+  #define MAX_SCK_PIN          52
+  #define MAX_MISO_PIN         50
+  #define MAX_MOSI_PIN         51
   #define MAX6675_SS       53
 #else
   #define MAX6675_SS       49
 #endif
 
-
 #endif
+
 /****************************************************************************************
 * Duemilanove w/ ATMega328P pin assignment
 *
