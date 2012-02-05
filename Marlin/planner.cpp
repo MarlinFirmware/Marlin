@@ -430,7 +430,9 @@ void check_axes_activity() {
   }
   if((DISABLE_X) && (x_active == 0)) disable_x();
   if((DISABLE_Y) && (y_active == 0)) disable_y();
-  if((DISABLE_Z) && (z_active == 0)) disable_z();
+  #ifndef Z_LATE_ENABLE
+    if((DISABLE_Z) && (z_active == 0)) disable_z();
+  #endif
   if((DISABLE_E) && (e_active == 0)) { disable_e0();disable_e1();disable_e2(); }
 }
 
@@ -505,7 +507,7 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
   //enable active axes
   if(block->steps_x != 0) enable_x();
   if(block->steps_y != 0) enable_y();
-  if(block->steps_z != 0) enable_z();
+//  if(block->steps_z != 0) enable_z();
 
   // Enable all
   if(block->steps_e != 0) { enable_e0();enable_e1();enable_e2(); }
@@ -535,10 +537,10 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
     	if(feed_rate<minimumfeedrate) feed_rate=minimumfeedrate;
   } 
 
-#ifdef SLOWDOWN
+
   // slow down when de buffer starts to empty, rather than wait at the corner for a buffer refill
   int moves_queued=(block_buffer_head-block_buffer_tail + BLOCK_BUFFER_SIZE) & (BLOCK_BUFFER_SIZE - 1);
-  
+#ifdef SLOWDOWN
   if(moves_queued < (BLOCK_BUFFER_SIZE * 0.5) && moves_queued > 1) feed_rate = feed_rate*moves_queued / (BLOCK_BUFFER_SIZE * 0.5); 
 #endif
 
@@ -686,7 +688,7 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
     vmax_junction = max_z_jerk/2;
   vmax_junction = min(vmax_junction, block->nominal_speed);
 
-  if ((block_buffer_head != block_buffer_tail) && (previous_nominal_speed > 0.0)) {
+  if ((moves_queued > 1) && (previous_nominal_speed > 0.0)) {
     float jerk = sqrt(pow((current_speed[X_AXIS]-previous_speed[X_AXIS]), 2)+pow((current_speed[Y_AXIS]-previous_speed[Y_AXIS]), 2));
     if((previous_speed[X_AXIS] != 0.0) || (previous_speed[Y_AXIS] != 0.0)) {
       vmax_junction = block->nominal_speed;

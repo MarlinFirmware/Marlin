@@ -327,7 +327,7 @@ void loop()
 }
 
 
-FORCE_INLINE void get_command() 
+void get_command() 
 { 
   while( MSerial.available() > 0  && buflen < BUFSIZE) {
     serial_char = MSerial.read();
@@ -474,20 +474,20 @@ FORCE_INLINE void get_command()
 }
 
 
-FORCE_INLINE float code_value() 
+float code_value() 
 { 
   return (strtod(&cmdbuffer[bufindr][strchr_pointer - cmdbuffer[bufindr] + 1], NULL)); 
 }
-FORCE_INLINE long code_value_long() 
+long code_value_long() 
 { 
   return (strtol(&cmdbuffer[bufindr][strchr_pointer - cmdbuffer[bufindr] + 1], NULL, 10)); 
 }
-FORCE_INLINE bool code_seen(char code_string[]) //Return True if the string was found
+bool code_seen(char code_string[]) //Return True if the string was found
 { 
   return (strstr(cmdbuffer[bufindr], code_string) != NULL); 
 }  
 
-FORCE_INLINE bool code_seen(char code)
+bool code_seen(char code)
 {
   strchr_pointer = strchr(cmdbuffer[bufindr], code);
   return (strchr_pointer != NULL);  //Return True if a character was found
@@ -519,7 +519,7 @@ FORCE_INLINE bool code_seen(char code)
     endstops_hit_on_purpose();\
   }
 
-FORCE_INLINE void process_commands()
+void process_commands()
 {
   unsigned long codenum; //throw away variable
   char *starpos = NULL;
@@ -1235,7 +1235,7 @@ void ClearToSend()
   SERIAL_PROTOCOLLNPGM("ok"); 
 }
 
-FORCE_INLINE void get_coordinates()
+void get_coordinates()
 {
   for(int8_t i=0; i < NUM_AXIS; i++) {
     if(code_seen(axis_codes[i])) destination[i] = (float)code_value() + (axis_relative_modes[i] || relative_mode)*current_position[i];
@@ -1247,7 +1247,7 @@ FORCE_INLINE void get_coordinates()
   }
 }
 
-FORCE_INLINE void get_arc_coordinates()
+void get_arc_coordinates()
 {
    get_coordinates();
    if(code_seen('I')) offset[0] = code_value();

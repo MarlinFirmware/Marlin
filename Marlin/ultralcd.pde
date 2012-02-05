@@ -59,7 +59,7 @@ void lcdProgMemprint(const char *str)
 //=============================functions         ============================
 //===========================================================================
 
-FORCE_INLINE int intround(const float &x){return int(0.5+x);}
+int intround(const float &x){return int(0.5+x);}
 
 void lcd_status(const char* message)
 {

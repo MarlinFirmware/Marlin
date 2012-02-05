@@ -274,6 +274,9 @@ FORCE_INLINE void trapezoid_generator_reset() {
   acceleration_time = calc_timer(acc_step_rate);
   OCR1A = acceleration_time;
   OCR1A_nominal = calc_timer(current_block->nominal_rate);
+  #ifdef Z_LATE_ENABLE
+    if(current_block->steps_z > 0) enable_z();
+  #endif
   
 //    SERIAL_ECHO_START;
 //    SERIAL_ECHOPGM("advance :");
