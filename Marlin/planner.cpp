@@ -410,7 +410,7 @@ void getHighESpeed()
 }
 #endif
 
-void check_axes_activity() {
+bool check_axes_activity() {
   unsigned char x_active = 0;
   unsigned char y_active = 0;  
   unsigned char z_active = 0;
@@ -432,6 +432,8 @@ void check_axes_activity() {
   if((DISABLE_Y) && (y_active == 0)) disable_y();
   if((DISABLE_Z) && (z_active == 0)) disable_z();
   if((DISABLE_E) && (e_active == 0)) { disable_e0();disable_e1();disable_e2(); }
+  
+  return( (x_active != 0) || (y_active != 0) || (z_active != 0) || (e_active != 0) );
 }
 
 

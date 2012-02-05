@@ -27,7 +27,7 @@
     
     #define CLICKED (buttons&EN_C)
     #define BLOCK {blocking=millis()+blocktime;}
-    #define CARDINSERTED (READ(SDCARDDETECT)==0)
+    #define CARDINSERTED (READ(SDCARDDETECT)!=0)  //[SUMPOD specific, changed for adafruit.com sd shield]
     
   #else
 
@@ -50,7 +50,7 @@
   #define blocktime 500
   #define lcdslow 5
     
-  enum MainStatus{Main_Status, Main_Menu, Main_Prepare, Main_Control, Main_SD,Sub_TempControl,Sub_MotionControl};
+  enum MainStatus{Main_Status, Main_Menu, Main_Prepare, Main_Control, Main_SD,Sub_TempControl,Sub_MotionControl,Sub_MoveAxes};
 
   class MainMenu{
   public:
@@ -67,22 +67,23 @@
     void showControl();
     void showControlMotion();
     void showControlTemp();
+    void showMoveAxes();
     void showSD();
     bool force_lcd_update;
-    int lastencoderpos;
+    long lastencoderpos;
     int8_t lineoffset;
     int8_t lastlineoffset;
     
-    bool linechanging;
+    int linechanging;
     
     bool tune;
     
   private:
-    FORCE_INLINE void updateActiveLines(const uint8_t &maxlines,volatile int &encoderpos)
+    FORCE_INLINE void updateActiveLines(const uint8_t &maxlines,volatile long &encoderpos)
     {
       if(linechanging) return; // an item is changint its value, do not switch lines hence
       lastlineoffset=lineoffset; 
-      int curencoderpos=encoderpos;  
+      long curencoderpos=encoderpos;  
       force_lcd_update=false;
       if(  (abs(curencoderpos-lastencoderpos)<lcdslow) ) 
       { 
@@ -159,5 +160,7 @@ char *itostr31(const int &xx);
 char *itostr3(const int &xx);
 char *itostr4(const int &xx);
 char *ftostr51(const float &x);
+char *ftostr52(const float &x);
+
 #endif //ULTRALCD
 

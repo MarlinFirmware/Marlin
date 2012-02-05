@@ -239,20 +239,20 @@
 #define X_STEP_PIN         54
 #define X_DIR_PIN          55
 #define X_ENABLE_PIN       38
-#define X_MIN_PIN           3
-#define X_MAX_PIN           2   //2 //Max endstops default to disabled "-1", set to commented value to enable.
+#define X_MIN_PIN          -1 //3 //[SUMPOD specific]
+#define X_MAX_PIN           2 //2 //[SUMPOD specific]  //Max endstops default to disabled "-1", set to commented value to enable.
 
 #define Y_STEP_PIN         60
 #define Y_DIR_PIN          61
 #define Y_ENABLE_PIN       56
-#define Y_MIN_PIN          14
-#define Y_MAX_PIN          15   //15
+#define Y_MIN_PIN          -1 //14 //[SUMPOD specific]
+#define Y_MAX_PIN          15 //15 //[SUMPOD specific]
 
 #define Z_STEP_PIN         46
 #define Z_DIR_PIN          48
 #define Z_ENABLE_PIN       62
-#define Z_MIN_PIN          18
-#define Z_MAX_PIN          19   //19
+#define Z_MIN_PIN          -1 //18 //[SUMPOD specific]
+#define Z_MAX_PIN          19 //19 //[SUMPOD specific]
 
 #define E0_STEP_PIN        26
 #define E0_DIR_PIN         28
@@ -265,19 +265,46 @@
 #define SDPOWER            -1
 #define SDSS               53
 #define LED_PIN            13
-#define FAN_PIN            4
+#define FAN_PIN            10 //[SUMPOD specific]
 #define PS_ON_PIN          12
 #define KILL_PIN           -1
 
-#define HEATER_0_PIN       10   // EXTRUDER 1
-#define HEATER_1_PIN       9    // EXTRUDER 2
-#define HEATER_2_PIN       -1   // EXTRUDER 2
+#define HEATER_0_PIN       9    // EXTRUDER 1 //[SUMPOD specific]
+#define HEATER_1_PIN       -1   // EXTRUDER 2 //[SUMPOD specific]
+#define HEATER_2_PIN       -1   // EXTRUDER 3 //[SUMPOD specific]
 #define TEMP_0_PIN         13   // ANALOG NUMBERING
-#define TEMP_1_PIN         15   // ANALOG NUMBERING
+#define TEMP_1_PIN         -1   // ANALOG NUMBERING
 #define TEMP_2_PIN         -1   // ANALOG NUMBERING
-#define HEATER_BED_PIN     8    // BED
+#define HEATER_BED_PIN     11   // BED //[SUMPOD specific]
 #define TEMP_BED_PIN       14   // ANALOG NUMBERING
 
+//extra for SUMPOD LCD + click encoder + buzzer
+#define LCD_PINS_RS        16 //[SUMPOD specific]
+#define LCD_PINS_ENABLE    17 //[SUMPOD specific]
+#define LCD_PINS_D4        23 //[SUMPOD specific]
+#define LCD_PINS_D5        25 //[SUMPOD specific]
+#define LCD_PINS_D6        27 //[SUMPOD specific]
+#define LCD_PINS_D7        29 //[SUMPOD specific]
+
+//beeper    
+#define BEEPER             59 //AUX-2 //[SUMPOD specific]
+
+//encoder pins are directly attached
+#define BTN_EN1            42 //AUX-2 //[SUMPOD specific]
+#define BTN_EN2            44 //AUX-2 //[SUMPOD specific]
+#define BTN_ENC            64 //AUX-2 (the click) //[SUMPOD specific]
+
+#define BLEN_A 0
+#define BLEN_B 1
+#define BLEN_C 2
+
+//encoder rotation values
+#define encrot0 0
+#define encrot1 2
+#define encrot2 3
+#define encrot3 1
+
+#define SDCARDDETECT       49 //[SUMPOD specific]
 
 #else // RAMPS_V_1_1 or RAMPS_V_1_2 as default
 

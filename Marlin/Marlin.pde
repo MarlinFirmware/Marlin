@@ -40,9 +40,7 @@
 
 
 
-#define VERSION_STRING  "1.0.0 Beta 1"
-
-
+#define VERSION_STRING  "1.0.0 Beta 1 - SUMPOD"
 
 
 // look here for descriptions of gcodes: http://linuxcnc.org/handbook/gcode/g-code.html
@@ -638,7 +636,6 @@ FORCE_INLINE void process_commands()
         st_synchronize();
       for(int8_t i=0; i < NUM_AXIS; i++) {
         if(code_seen(axis_codes[i])) { 
-           current_position[i] = code_value()+add_homeing[i];  
            if(i == E_AXIS) {
              current_position[i] = code_value();  
              plan_set_e_position(current_position[E_AXIS]);
@@ -1154,7 +1151,7 @@ FORCE_INLINE void process_commands()
      }
     break;
       
-    case 302: // finish all moves
+    case 302: // allow cold extrude
     {
       allow_cold_extrudes(true);
     }
