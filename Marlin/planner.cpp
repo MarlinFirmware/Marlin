@@ -430,9 +430,7 @@ void check_axes_activity() {
   }
   if((DISABLE_X) && (x_active == 0)) disable_x();
   if((DISABLE_Y) && (y_active == 0)) disable_y();
-  #ifndef Z_LATE_ENABLE
-    if((DISABLE_Z) && (z_active == 0)) disable_z();
-  #endif
+  if((DISABLE_Z) && (z_active == 0)) disable_z();
   if((DISABLE_E) && (e_active == 0)) { disable_e0();disable_e1();disable_e2(); }
 }
 
@@ -507,7 +505,9 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
   //enable active axes
   if(block->steps_x != 0) enable_x();
   if(block->steps_y != 0) enable_y();
-//  if(block->steps_z != 0) enable_z();
+  #ifndef Z_LATE_ENABLE
+    if(block->steps_z != 0) enable_z();
+  #endif
 
   // Enable all
   if(block->steps_e != 0) { enable_e0();enable_e1();enable_e2(); }
