@@ -130,7 +130,7 @@ void beep()
 {
   //return;
   #ifdef ULTIPANEL
-	if (BEEPER > -1)
+	#if (BEEPER > -1)
 	{
 		pinMode(BEEPER,OUTPUT);
 		for(int8_t i=0;i<20;i++){
@@ -140,6 +140,7 @@ void beep()
 		delay(5);
 		}
 	}
+        #endif
   #endif
 }
 
@@ -147,7 +148,7 @@ void beepshort()
 {
   //return;
   #ifdef ULTIPANEL
-	if (BEEPER > -1)
+	#if (BEEPER > -1)
 	{
 		pinMode(BEEPER,OUTPUT);
 		for(int8_t i=0;i<10;i++){
@@ -157,6 +158,7 @@ void beepshort()
 		delay(3);
 		}
 	}
+        #endif
   #endif  
 }
 
@@ -203,7 +205,11 @@ void buttons_init()
     WRITE(BTN_EN1,HIGH);
     WRITE(BTN_EN2,HIGH);
     WRITE(BTN_ENC,HIGH);
-    WRITE(SDCARDDETECT,HIGH);
+    #if (SDCARDDETECT > -1)
+    {
+      WRITE(SDCARDDETECT,HIGH);
+    }
+    #endif
   #else
     pinMode(SHIFT_CLK,OUTPUT);
     pinMode(SHIFT_LD,OUTPUT);

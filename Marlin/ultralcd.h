@@ -27,7 +27,11 @@
     
     #define CLICKED (buttons&EN_C)
     #define BLOCK {blocking=millis()+blocktime;}
-    #define CARDINSERTED (READ(SDCARDDETECT)==0)
+    #if (SDCARDDETECT > -1)
+    {
+      #define CARDINSERTED (READ(SDCARDDETECT)==0)
+    }
+    #endif
     
   #else
 
