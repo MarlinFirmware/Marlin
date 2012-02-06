@@ -275,9 +275,7 @@ FORCE_INLINE void trapezoid_generator_reset() {
   OCR1A = acceleration_time;
   OCR1A_nominal = calc_timer(current_block->nominal_rate);
   
-  #ifdef Z_LATE_ENABLE 
-    if(current_block->steps_z > 0) enable_z();
-  #endif
+
   
 //    SERIAL_ECHO_START;
 //    SERIAL_ECHOPGM("advance :");
@@ -306,6 +304,14 @@ ISR(TIMER1_COMPA_vect)
       counter_z = counter_x;
       counter_e = counter_x;
       step_events_completed = 0;
+      #ifdef Z_LATE_ENABLE 
+        if(current_block->steps_z > 0) {
+          enable_z();
+          OCR1A = 2000; //1ms wait
+          return;
+        }
+      #endif
+      
 //      #ifdef ADVANCE
 //      e_steps[current_block->active_extruder] = 0;
 //      #endif
