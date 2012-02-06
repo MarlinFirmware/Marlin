@@ -26,8 +26,9 @@
 // MEGA/RAMPS up to 1.2 = 3,
 // RAMPS 1.3 = 33
 // Gen6 = 5,
-// Sanguinololu 1.2 and above = 62
+// Sanguinololu 1.2 and above = 62,
 // Ultimaker = 7,
+// Gen7 = 77,
 // Teensylu = 8
 #define MOTHERBOARD 7
 
