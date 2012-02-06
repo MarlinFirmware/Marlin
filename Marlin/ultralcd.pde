@@ -130,13 +130,16 @@ void beep()
 {
   //return;
   #ifdef ULTIPANEL
-    pinMode(BEEPER,OUTPUT);
-    for(int8_t i=0;i<20;i++){
-      WRITE(BEEPER,HIGH);
-      delay(5);
-      WRITE(BEEPER,LOW);
-      delay(5);
-    }
+	if (BEEPER > -1)
+	{
+		pinMode(BEEPER,OUTPUT);
+		for(int8_t i=0;i<20;i++){
+		WRITE(BEEPER,HIGH);
+		delay(5);
+		WRITE(BEEPER,LOW);
+		delay(5);
+		}
+	}
   #endif
 }
 
@@ -144,13 +147,16 @@ void beepshort()
 {
   //return;
   #ifdef ULTIPANEL
-    pinMode(BEEPER,OUTPUT);
-    for(int8_t i=0;i<10;i++){
-      WRITE(BEEPER,HIGH);
-      delay(3);
-      WRITE(BEEPER,LOW);
-      delay(3);
-    }
+	if (BEEPER > -1)
+	{
+		pinMode(BEEPER,OUTPUT);
+		for(int8_t i=0;i<10;i++){
+		WRITE(BEEPER,HIGH);
+		delay(3);
+		WRITE(BEEPER,LOW);
+		delay(3);
+		}
+	}
   #endif  
 }
 
