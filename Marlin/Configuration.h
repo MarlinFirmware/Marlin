@@ -104,6 +104,9 @@
 // Heating is finished if a temperature close to this degree shift is reached
 #define HEATING_EARLY_FINISH_DEG_OFFSET 1 //Degree
 
+//Do not wait for M109 to finish when printing from SD card
+//#define STOP_HEATING_WAIT_WHEN_SD_PRINTING
+
 // PID settings:
 // Uncomment the following line to enable PID support.
 #define PIDTEMP

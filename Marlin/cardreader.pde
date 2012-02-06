@@ -444,7 +444,9 @@ void CardReader::printingHasFinished()
  st_synchronize();
  quickStop();
  sdprinting = false;
+ #ifdef STOP_HEATING_WAIT_FOR_SD_PRINTING
  stop_heating_wait=true;
+ #endif
  if(SD_FINISHED_STEPPERRELEASE)
  {
    //finishAndDisableSteppers();
