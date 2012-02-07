@@ -18,8 +18,6 @@
  * <http://www.gnu.org/licenses/>.
  */
 
-#define SERIAL MSerial
-
 #include "Marlin.h"
 #ifdef SDSUPPORT
 
