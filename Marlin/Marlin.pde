@@ -254,6 +254,12 @@ void suicide()
   #endif
 }
 
+long millis_diff(unsigned long starttime) {
+  unsigned long difftime = millis() - starttime;
+  if (difftime > 0x8000) difftime += 0x8000;
+  return difftime;
+}
+
 void setup()
 { 
   setup_powerhold();
@@ -550,9 +556,9 @@ void process_commands()
       if(code_seen('S')) codenum = code_value() * 1000; // seconds to wait
       
       st_synchronize();
-      codenum += millis();  // keep track of when we started waiting
+//      codenum += millis();  // keep track of when we started waiting
       previous_millis_cmd = millis();
-      while(millis()  < codenum ){
+      while(millis_diff(previous_millis_cmd)  < codenum ){
         manage_heater();
       }
       break;
@@ -843,11 +849,11 @@ void process_commands()
         /* continue to loop until we have reached the target temp   
           _and_ until TEMP_RESIDENCY_TIME hasn't passed since we reached it */
         while((residencyStart == -1) ||
-              (residencyStart > -1 && (millis() - residencyStart) < TEMP_RESIDENCY_TIME*1000) ) {
+              (residencyStart > -1 && (millis_diff(residencyStart) < TEMP_RESIDENCY_TIME*1000) )) {
       #else
         while ( target_direction ? (isHeatingHotend(tmp_extruder)) : (isCoolingHotend(tmp_extruder)&&(CooldownNoWait==false)) ) {
       #endif //TEMP_RESIDENCY_TIME
-          if( (millis() - codenum) > 1000 ) 
+          if(millis_diff(codenum) > 1000 ) 
           { //Print Temp Reading and remaining time every 1 second while heating up/cooling down
             SERIAL_PROTOCOLPGM("T:");
             SERIAL_PROTOCOL( degHotend(tmp_extruder) ); 
@@ -857,7 +863,7 @@ void process_commands()
               SERIAL_PROTOCOLPGM(" W:");
               if(residencyStart > -1)
               {
-                 codenum = TEMP_RESIDENCY_TIME - ((millis() - residencyStart) / 1000);
+                 codenum = TEMP_RESIDENCY_TIME - (millis_diff(residencyStart) / 1000);
                  SERIAL_PROTOCOLLN( codenum );
               }
               else 
@@ -895,7 +901,7 @@ void process_commands()
         codenum = millis(); 
         while(isHeatingBed()) 
         {
-          if( (millis()-codenum) > 1000 ) //Print Temp Reading every 1 second while heating up.
+          if( millis_diff(codenum) > 1000 ) //Print Temp Reading every 1 second while heating up.
           {
             float tt=degHotend(active_extruder);
             SERIAL_PROTOCOLPGM("T:");
@@ -1293,11 +1299,11 @@ void prepare_arc_move(char isclockwise) {
 
 void manage_inactivity(byte debug) 
 { 
-  if( (millis()-previous_millis_cmd) >  max_inactive_time ) 
+  if( millis_diff(previous_millis_cmd) >  max_inactive_time ) 
     if(max_inactive_time) 
       kill(); 
   if(stepper_inactive_time)  
-  if( (millis()-last_stepperdisabled_time) >  stepper_inactive_time ) 
+  if( millis_diff(last_stepperdisabled_time) >  stepper_inactive_time ) 
   {
     if(previous_millis_cmd>last_stepperdisabled_time)
       last_stepperdisabled_time=previous_millis_cmd;
@@ -1309,7 +1315,7 @@ void manage_inactivity(byte debug)
     }
   }
   #ifdef EXTRUDER_RUNOUT_PREVENT
-    if( (millis()-previous_millis_cmd) >  EXTRUDER_RUNOUT_SECONDS*1000 ) 
+    if( millis_diff(previous_millis_cmd) >  EXTRUDER_RUNOUT_SECONDS*1000 ) 
     if(degHotend(active_extruder)>EXTRUDER_RUNOUT_MINTEMP)
     {
      bool oldstatus=READ(E0_ENABLE_PIN);
