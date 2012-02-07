@@ -457,7 +457,7 @@ void MainMenu::showStatus()
   force_lcd_update=false;
 }
 
-enum {ItemP_exit, ItemP_autostart,ItemP_disstep,ItemP_home, ItemP_origin, ItemP_preheat, ItemP_cooldown,ItemP_extrude};
+enum {ItemP_exit, ItemP_autostart,ItemP_disstep,ItemP_home, ItemP_origin, ItemP_preheat, ItemP_cooldown,/*ItemP_extrude,*/ItemP_move};
 
 //any action must not contain a ',' character anywhere, or this breaks:
 #define MENUITEM(repaint_action, click_action) \
@@ -496,17 +496,54 @@ void MainMenu::showPrepare()
     case ItemP_cooldown:
       MENUITEM(  lcdprintPGM(" Cooldown")  ,  BLOCK;setTargetHotend0(0);setTargetBed(0);beepshort(); ) ;
       break;
-    case ItemP_extrude:
-      MENUITEM(  lcdprintPGM(" Extrude")  ,  BLOCK;enquecommand("G92 E0");enquecommand("G1 F700 E50");beepshort(); ) ;
+//    case ItemP_extrude:
+  //    MENUITEM(  lcdprintPGM(" Extrude")  ,  BLOCK;enquecommand("G92 E0");enquecommand("G1 F700 E50");beepshort(); ) ;
+    //  break;
+    case ItemP_move:
+      MENUITEM(  lcdprintPGM(" Move Axis      \x7E") , BLOCK;status=Sub_PrepareMove;beepshort(); );
       break;
-    
-    
-    default:   
+        default:   
       break;
   }
   line++;
  }
- updateActiveLines(ItemP_extrude,encoderpos);
+ updateActiveLines(ItemP_move,encoderpos);
+}
+
+enum {
+  ItemAM_exit,
+  ItemAM_X, ItemAM_Y, ItemAM_Z, ItemAM_E
+};
+
+void MainMenu::showAxisMove()
+{
+   uint8_t line=0;
+   clearIfNecessary();
+   for(int8_t i=lineoffset;i<lineoffset+LCD_HEIGHT;i++)
+   {
+     switch(i)
+      {
+          case ItemAM_exit:
+          MENUITEM(  lcdprintPGM(" Main \003")  ,  BLOCK;status=Main_Menu;beepshort(); ) ;
+          break;
+          case ItemAM_X:
+          MENUITEM(  lcdprintPGM(" X+")  ,  BLOCK;enquecommand("G92 X0");enquecommand("G1 F700 X10");beepshort(); ) ;
+          break;
+          case ItemAM_Y:
+          MENUITEM(  lcdprintPGM(" Y+")  ,  BLOCK;enquecommand("G92 Y0");enquecommand("G1 F700 Y10");beepshort(); ) ;
+          break;
+          case ItemAM_Z:
+          MENUITEM(  lcdprintPGM(" Z+")  ,  BLOCK;enquecommand("G92 Z0");enquecommand("G1 F700 Z10");beepshort(); ) ;
+          break;
+          case ItemAM_E:
+          MENUITEM(  lcdprintPGM(" Extrude")  ,  BLOCK;enquecommand("G92 E0");enquecommand("G1 F700 E50");beepshort(); ) ;
+          break;
+          default:
+          break;
+      }
+      line++;
+   }
+   updateActiveLines(ItemAM_Z,encoderpos);
 }
 
 enum {ItemT_exit,ItemT_speed,ItemT_flow,ItemT_nozzle,
@@ -1812,6 +1849,10 @@ void MainMenu::update()
         {
           showPrepare(); 
         }
+      }break;
+      case Sub_PrepareMove:
+      {        
+            showAxisMove();
       }break;
       case Main_Control:
       {
