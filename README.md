@@ -1,6 +1,10 @@
 WARNING: 
 --------
-THIS IS THE BETA 1 FOR MARLIN 1.0.0
+THIS IS RELEASE CANDIDATE 1 FOR MARLIN 1.0.0
+
+The configuration is now split in two files
+Configuration.h for the normal settings
+Configuration_adv.h for the advanced settings
 
 Quick Information
 ===================

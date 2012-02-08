@@ -204,5 +204,22 @@ const int dropsegments=5; //everything with less than this number of steps will 
 #if TEMP_SENSOR_0 == -2
   #define HEATER_0_USES_MAX6675
 #endif
+#if TEMP_SENSOR_0 == 0
+  #undef HEATER_0_MINTEMP
+  #undef HEATER_0_MAXTEMP
+#endif
+#if TEMP_SENSOR_1 == 0
+  #undef HEATER_1_MINTEMP
+  #undef HEATER_1_MAXTEMP
+#endif
+#if TEMP_SENSOR_2 == 0
+  #undef HEATER_2_MINTEMP
+  #undef HEATER_2_MAXTEMP
+#endif
+#if TEMP_SENSOR_BED == 0
+  #undef BED_MINTEMP
+  #undef BED_MAXTEMP
+#endif
+
 
 #endif //__CONFIGURATION_ADV_H
