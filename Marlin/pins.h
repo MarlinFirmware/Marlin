@@ -561,10 +561,8 @@
 #define HEATER_0_PIN  2
 #define TEMP_0_PIN 8   
 
-#define EXTRUDER_1_HEATER_PIN 3
-#define EXTRUDER_1_TEMPERATURE_PIN 10 
-#define HEATER_1_PIN 51
-#define TEMP_1_PIN 3
+#define HEATER_1_PIN 3
+#define TEMP_1_PIN 9
 
 #define HEATER_2_PIN -1
 #define TEMP_2_PIN -1
