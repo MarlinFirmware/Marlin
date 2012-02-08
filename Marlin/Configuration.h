@@ -30,7 +30,7 @@
 // 1 is 100k thermistor
 // 2 is 200k thermistor
 // 3 is mendel-parts thermistor
-// 4 is 10k thermistor
+// 4 is 10k thermistor !! do not use it for a hotend. It gives bad resolution at high temp. !!
 // 5 is ParCan supplied 104GT-2 100K
 // 6 is EPCOS 100k
 // 7 is 100k Honeywell thermistor 135-104LAG-J01
