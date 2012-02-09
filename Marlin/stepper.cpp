@@ -254,7 +254,7 @@ FORCE_INLINE unsigned short calc_timer(unsigned short step_rate) {
     timer = (unsigned short)pgm_read_word_near(table_address);
     timer -= (((unsigned short)pgm_read_word_near(table_address+2) * (unsigned char)(step_rate & 0x0007))>>3);
   }
-  if(timer < 100) { timer = 100; MSerial.print("Steprate to high : "); MSerial.println(step_rate); }//(20kHz this should never happen)
+  if(timer < 100) { timer = 100; SERIAL.print("Steprate to high : "); SERIAL.println(step_rate); }//(20kHz this should never happen)
   return timer;
 }
 
@@ -439,7 +439,9 @@ ISR(TIMER1_COMPA_vect)
 
     
     for(int8_t i=0; i < step_loops; i++) { // Take multiple steps per interrupt (For high speed moves) 
-      MSerial.checkRx(); // Check for serial chars. 
+      #if MOTHERBOARD != 8 // !teensylu
+      MSerial.checkRx(); // Check for serial chars.
+      #endif 
       
       #ifdef ADVANCE
       counter_e += current_block->steps_e;

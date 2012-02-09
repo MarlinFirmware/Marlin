@@ -247,7 +247,7 @@ void suicide()
 void setup()
 { 
   setup_powerhold();
-  MSerial.begin(BAUDRATE);
+  SERIAL.begin(BAUDRATE);
   SERIAL_ECHO_START;
   SERIAL_ECHOLNPGM(VERSION_STRING);
   SERIAL_PROTOCOLLNPGM("start");
@@ -318,8 +318,8 @@ void loop()
 
 void get_command() 
 { 
-  while( MSerial.available() > 0  && buflen < BUFSIZE) {
-    serial_char = MSerial.read();
+  while( SERIAL.available() > 0  && buflen < BUFSIZE) {
+    serial_char = SERIAL.read();
     if(serial_char == '\n' || serial_char == '\r' || serial_char == ':' || serial_count >= (MAX_CMD_SIZE - 1) ) 
     {
       if(!serial_count) return; //if empty line
@@ -1209,7 +1209,7 @@ void process_commands()
 void FlushSerialRequestResend()
 {
   //char cmdbuffer[bufindr][100]="Resend:";
-  MSerial.flush();
+  SERIAL.flush();
   SERIAL_PROTOCOLPGM("Resend:");
   SERIAL_PROTOCOLLN(gcode_LastN + 1);
   ClearToSend();

@@ -46,7 +46,11 @@
 
 #include "WString.h"
 
-
+#if MOTHERBOARD == 8  // Teensylu
+  #define SERIAL Serial
+#else
+  #define SERIAL MSerial
+#endif
 
 //this is a unfinsihed attemp to removes a lot of warning messages, see:
 // http://www.avrfreaks.net/index.php?name=PNphpBB2&file=printview&t=57011
@@ -59,10 +63,10 @@
 //#define MYPGM(s)  (__extension__({static prog_char __c[]  = (s); &__c[0];})) //this does not work but hides the warnings
 
 
-#define SERIAL_PROTOCOL(x) MSerial.print(x);
+#define SERIAL_PROTOCOL(x) SERIAL.print(x);
 #define SERIAL_PROTOCOLPGM(x) serialprintPGM(MYPGM(x));
-#define SERIAL_PROTOCOLLN(x) {MSerial.print(x);MSerial.write('\n');}
-#define SERIAL_PROTOCOLLNPGM(x) {serialprintPGM(MYPGM(x));MSerial.write('\n');}
+#define SERIAL_PROTOCOLLN(x) {SERIAL.print(x);SERIAL.write('\n');}
+#define SERIAL_PROTOCOLLNPGM(x) {serialprintPGM(MYPGM(x));SERIAL.write('\n');}
 
 
 const prog_char errormagic[] PROGMEM ="Error:";
@@ -89,7 +93,7 @@ FORCE_INLINE void serialprintPGM(const char *str)
   char ch=pgm_read_byte(str);
   while(ch)
   {
-    MSerial.write(ch);
+    SERIAL.write(ch);
     ch=pgm_read_byte(++str);
   }
 }
