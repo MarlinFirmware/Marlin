@@ -5,6 +5,12 @@
 // Advanced settings can be found in Configuration_adv.h 
 // BASIC SETTINGS: select your board type, temperature sensor type, axis scaling, and endstop configuration
 
+//User specified version info of THIS file to display in [Pronterface, etc] terminal window during startup.
+//Implementation of an idea by Prof Braino to inform user that any changes made
+//to THIS file by the user have been successfully uploaded into firmware.
+#define STRING_VERSION_CONFIG_H "2012-02-08j" //Personal revision number for changes to THIS file.
+#define STRING_CONFIG_H_AUTHOR "username" //Who made the changes.
+
 // This determines the communication speed of the printer
 #define BAUDRATE 250000
 //#define BAUDRATE 115200
