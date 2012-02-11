@@ -47,9 +47,9 @@
 #include "WString.h"
 
 #if MOTHERBOARD == 8  // Teensylu
-  #define SERIAL Serial
+  #define MYSERIAL Serial
 #else
-  #define SERIAL MSerial
+  #define MYSERIAL MSerial
 #endif
 
 //this is a unfinsihed attemp to removes a lot of warning messages, see:
@@ -63,10 +63,10 @@
 //#define MYPGM(s)  (__extension__({static prog_char __c[]  = (s); &__c[0];})) //this does not work but hides the warnings
 
 
-#define SERIAL_PROTOCOL(x) SERIAL.print(x);
+#define SERIAL_PROTOCOL(x) MYSERIAL.print(x);
 #define SERIAL_PROTOCOLPGM(x) serialprintPGM(MYPGM(x));
-#define SERIAL_PROTOCOLLN(x) {SERIAL.print(x);SERIAL.write('\n');}
-#define SERIAL_PROTOCOLLNPGM(x) {serialprintPGM(MYPGM(x));SERIAL.write('\n');}
+#define SERIAL_PROTOCOLLN(x) {MYSERIAL.print(x);MYSERIAL.write('\n');}
+#define SERIAL_PROTOCOLLNPGM(x) {serialprintPGM(MYPGM(x));MYSERIAL.write('\n');}
 
 
 const char errormagic[] PROGMEM ="Error:";
@@ -93,7 +93,7 @@ FORCE_INLINE void serialprintPGM(const char *str)
   char ch=pgm_read_byte(str);
   while(ch)
   {
-    SERIAL.write(ch);
+    MYSERIAL.write(ch);
     ch=pgm_read_byte(++str);
   }
 }
