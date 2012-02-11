@@ -247,7 +247,7 @@ void suicide()
 void setup()
 { 
   setup_powerhold();
-  SERIAL.begin(BAUDRATE);
+  MYSERIAL.begin(BAUDRATE);
   SERIAL_PROTOCOLLNPGM("start");
   SERIAL_ECHO_START;
   SERIAL_ECHOPGM("Marlin: ");
@@ -328,8 +328,8 @@ void loop()
 
 void get_command() 
 { 
-  while( SERIAL.available() > 0  && buflen < BUFSIZE) {
-    serial_char = SERIAL.read();
+  while( MYSERIAL.available() > 0  && buflen < BUFSIZE) {
+    serial_char = MYSERIAL.read();
     if(serial_char == '\n' || serial_char == '\r' || serial_char == ':' || serial_count >= (MAX_CMD_SIZE - 1) ) 
     {
       if(!serial_count) return; //if empty line
@@ -1219,7 +1219,7 @@ void process_commands()
 void FlushSerialRequestResend()
 {
   //char cmdbuffer[bufindr][100]="Resend:";
-  SERIAL.flush();
+  MYSERIAL.flush();
   SERIAL_PROTOCOLPGM("Resend:");
   SERIAL_PROTOCOLLN(gcode_LastN + 1);
   ClearToSend();
