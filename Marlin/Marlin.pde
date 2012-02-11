@@ -165,7 +165,6 @@ const int sensitive_pins[] = SENSITIVE_PINS; // Sensitive pin list for M42
 static unsigned long previous_millis_cmd = 0;
 static unsigned long max_inactive_time = 0;
 static unsigned long stepper_inactive_time = DEFAULT_STEPPER_DEACTIVE_TIME*1000l;
-static unsigned long last_stepperdisabled_time=30*1000; //first release check after 30 seconds
 
 static unsigned long starttime=0;
 static unsigned long stoptime=0;
@@ -1296,16 +1295,15 @@ void manage_inactivity(byte debug)
   if( (millis() - previous_millis_cmd) >  max_inactive_time ) 
     if(max_inactive_time) 
       kill(); 
-  if(stepper_inactive_time)  
-  if( (millis() - last_stepperdisabled_time) >  stepper_inactive_time ) 
-  {
-    if(previous_millis_cmd>last_stepperdisabled_time)
-      last_stepperdisabled_time=previous_millis_cmd;
-    else
+  if(stepper_inactive_time)  {
+    if( (millis() - previous_millis_cmd) >  stepper_inactive_time ) 
     {
-      if(  (X_ENABLE_ON && (READ(X_ENABLE_PIN)!=0))  ||  (!X_ENABLE_ON && READ(X_ENABLE_PIN)==0)  )
-        enquecommand(DEFAULT_STEPPER_DEACTIVE_COMMAND); 
-      last_stepperdisabled_time=millis();
+      disable_x();
+      disable_y();
+      disable_z();
+      disable_e0();
+      disable_e1();
+      disable_e2();
     }
   }
   #ifdef EXTRUDER_RUNOUT_PREVENT
@@ -1323,7 +1321,6 @@ void manage_inactivity(byte debug)
      destination[E_AXIS]=oldedes;
      plan_set_e_position(oldepos);
      previous_millis_cmd=millis();
-     //enquecommand(DEFAULT_STEPPER_DEACTIVE_COMMAND);
      st_synchronize();
      WRITE(E0_ENABLE_PIN,oldstatus);
     }

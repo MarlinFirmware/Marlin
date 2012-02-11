@@ -25,9 +25,6 @@
 // if CooldownNoWait is defined M109 will not wait for the cooldown to finish
 #define CooldownNoWait true
 
-// Heating is finished if a temperature close to this degree shift is reached
-#define HEATING_EARLY_FINISH_DEG_OFFSET 1 //Degree
-
 //Do not wait for M109 to finish when printing from SD card
 //#define STOP_HEATING_WAIT_WHEN_SD_PRINTING
 
@@ -85,7 +82,6 @@
 
 //default stepper release if idle
 #define DEFAULT_STEPPER_DEACTIVE_TIME 60
-#define DEFAULT_STEPPER_DEACTIVE_COMMAND "M84 X Y E"  //z stays  powered
 
 #define DEFAULT_MINIMUMFEEDRATE       0.0     // minimum feedrate
 #define DEFAULT_MINTRAVELFEEDRATE     0.0
@@ -112,7 +108,7 @@
 
 
 #define SD_FINISHED_STEPPERRELEASE true  //if sd support and the file is finished: disable steppers?
-#define SD_FINISHED_RELEASECOMMAND "M84 X Y E" // no z because of layer shift.
+#define SD_FINISHED_RELEASECOMMAND "M84 X Y Z E" // no z because of layer shift.
 
 // The hardware watchdog should halt the Microcontroller, in case the firmware gets stuck somewhere. However:
 // the Watchdog is not working well, so please only enable this for testing
