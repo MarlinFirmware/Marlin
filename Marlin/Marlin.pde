@@ -1303,7 +1303,6 @@ void manage_inactivity(byte debug)
       disable_e0();
       disable_e1();
       disable_e2();
-      #endif
     }
   }
   #ifdef EXTRUDER_RUNOUT_PREVENT
