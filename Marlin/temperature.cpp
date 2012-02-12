@@ -85,9 +85,9 @@ static unsigned long  previous_millis_bed_heater;
   static unsigned char soft_pwm[EXTRUDERS];
   
 #ifdef WATCHPERIOD
-  static int watch_raw[EXTRUDERS] = { -1000 }; // the first value used for all
-  static int watch_oldtemp[3] = {0,0,0};
-  static unsigned long watchmillis = 0;
+  int watch_raw[EXTRUDERS] = { -1000 }; // the first value used for all
+  int watch_oldtemp[3] = {0,0,0};
+  unsigned long watchmillis = 0;
 #endif //WATCHPERIOD
 
 // Init min and max temp with extreme values to prevent false errors during startup
@@ -218,7 +218,7 @@ void manage_heater()
   
   #ifdef WATCHPERIOD
     if(watchmillis && millis() - watchmillis > WATCHPERIOD){
-        if(watch_oldtemp[TEMPSENSOR_HOTEND_0] >= degHotend(active_extruder)){
+        if(watch_oldtemp[0] >= degHotend(active_extruder)){
             setTargetHotend(0,active_extruder);
             LCD_MESSAGEPGM("Heating failed");
             SERIAL_ECHO_START;
@@ -556,7 +556,7 @@ void setWatch()
   for (int e = 0; e < EXTRUDERS; e++)
   {
     if(isHeatingHotend(e))
-    watch_oldtemp[TEMPSENSOR_HOTEND_0] = degHotend(0);
+    watch_oldtemp[0] = degHotend(0);
     {
       t = max(t,millis());
       watch_raw[e] = current_raw[e];
