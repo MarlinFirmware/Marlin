@@ -841,11 +841,11 @@ void process_commands()
         /* continue to loop until we have reached the target temp   
           _and_ until TEMP_RESIDENCY_TIME hasn't passed since we reached it */
         while((residencyStart == -1) ||
-              (residencyStart > -1 && (millis() - residencyStart) < TEMP_RESIDENCY_TIME*1000l) ) {
+              (residencyStart >= 0 && (((unsigned int) (millis() - residencyStart)) < (TEMP_RESIDENCY_TIME * 1000UL))) ) {
       #else
         while ( target_direction ? (isHeatingHotend(tmp_extruder)) : (isCoolingHotend(tmp_extruder)&&(CooldownNoWait==false)) ) {
       #endif //TEMP_RESIDENCY_TIME
-          if((millis() - codenum) > 1000 ) 
+          if( (millis() - codenum) > 1000UL )
           { //Print Temp Reading and remaining time every 1 second while heating up/cooling down
             SERIAL_PROTOCOLPGM("T:");
             SERIAL_PROTOCOL( degHotend(tmp_extruder) ); 
@@ -855,7 +855,7 @@ void process_commands()
               SERIAL_PROTOCOLPGM(" W:");
               if(residencyStart > -1)
               {
-                 codenum = TEMP_RESIDENCY_TIME - ((millis() - residencyStart) / 1000);
+                 codenum = ((TEMP_RESIDENCY_TIME * 1000UL) - (millis() - residencyStart)) / 1000UL;
                  SERIAL_PROTOCOLLN( codenum );
               }
               else 
@@ -909,7 +909,7 @@ void process_commands()
         LCD_MESSAGEPGM("Bed done.");
         previous_millis_cmd = millis();
     #endif
-    break;
+        break;
 
     #if FAN_PIN > -1
       case 106: //M106 Fan On
@@ -938,14 +938,13 @@ void process_commands()
       
       case 81: // M81 - ATX Power Off
       
-      #if (SUICIDE_PIN >-1)
+      #if defined SUICIDE_PIN && SUICIDE_PIN > -1
         st_synchronize();
         suicide();
-      #else
-        #if (PS_ON_PIN > -1) 
-          SET_INPUT(PS_ON_PIN); //Floating
-        #endif
+      #elif (PS_ON_PIN > -1)
+        SET_INPUT(PS_ON_PIN); //Floating
       #endif
+		break;
         
     case 82:
       axis_relative_modes[3] = false;
