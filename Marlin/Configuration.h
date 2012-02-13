@@ -4,8 +4,8 @@
 
 
 // This determines the communication speed of the printer
-#define BAUDRATE 250000
-//#define BAUDRATE 115200
+//#define BAUDRATE 250000
+#define BAUDRATE 115200
 //#define BAUDRATE 230400
 
 #define EXTRUDERS 1
@@ -26,11 +26,11 @@
 // MEGA/RAMPS up to 1.2 = 3,
 // RAMPS 1.3 = 33
 // Gen6 = 5,
-// Sanguinololu 1.2 and above = 62,
-// Ultimaker = 7,
+// Sanguinololu 1.2 and above = 62
 // Gen7 = 77,
+// Ultimaker = 7,
 // Teensylu = 8
-#define MOTHERBOARD 7
+#define MOTHERBOARD 77
 
 //===========================================================================
 //=============================Thermal Settings  ============================
@@ -45,23 +45,23 @@
 // 6 is EPCOS 100k
 // 7 is 100k Honeywell thermistor 135-104LAG-J01
 
-//#define THERMISTORHEATER_0 3
+#define THERMISTORHEATER_0 1
 //#define THERMISTORHEATER_1 1
 //#define THERMISTORHEATER_2 1
 
-//#define HEATER_0_USES_THERMISTOR
+#define HEATER_0_USES_THERMISTOR
 //#define HEATER_1_USES_THERMISTOR
 //#define HEATER_2_USES_THERMISTOR
-#define HEATER_0_USES_AD595
+//#define HEATER_0_USES_AD595
 //#define HEATER_1_USES_AD595
 //#define HEATER_2_USES_AD595
 
 // Select one of these only to define how the bed temp is read.
-//#define THERMISTORBED 1
-//#define BED_USES_THERMISTOR
+#define THERMISTORBED 1
+#define BED_USES_THERMISTOR
 //#define BED_LIMIT_SWITCHING
 #ifdef BED_LIMIT_SWITCHING
-  #define BED_HYSTERESIS 2 //only disable heating if T>target+BED_HYSTERESIS and enable heating if T>target-BED_HYSTERESIS
+#define BED_HYSTERESIS 2 //only disable heating if T>target+BED_HYSTERESIS and enable heating if T>target-BED_HYSTERESIS
 #endif
 //#define BED_USES_AD595
 
@@ -75,10 +75,10 @@
 
 // Actual temperature must be close to target for this long before M109 returns success
 #define TEMP_RESIDENCY_TIME 30  // (seconds)
-#define TEMP_HYSTERESIS 3       // (C°) range of +/- temperatures considered "close" to the target one
+#define TEMP_HYSTERESIS 3       // (CÂ°) range of +/- temperatures considered "close" to the target one
 
 //// The minimal temperature defines the temperature below which the heater will not be enabled
-#define HEATER_0_MINTEMP 5
+//#define HEATER_0_MINTEMP 5
 //#define HEATER_1_MINTEMP 5
 //#define HEATER_2_MINTEMP 5
 //#define BED_MINTEMP 5
@@ -107,37 +107,37 @@
 #define PIDTEMP
 #define PID_MAX 255 // limits current to nozzle; 255=full current
 #ifdef PIDTEMP
-  //#define PID_DEBUG // Sends debug data to the serial port. 
-  //#define PID_OPENLOOP 1 // Puts PID in open loop. M104 sets the output power in %
-  #define PID_INTEGRAL_DRIVE_MAX 255  //limit for the integral term
-  #define K1 0.95 //smoothing factor withing the PID
-  #define PID_dT 0.128 //sampling period of the PID
+//#define PID_DEBUG // Sends debug data to the serial port. 
+//#define PID_OPENLOOP 1 // Puts PID in open loop. M104 sets the output power in %
+#define PID_INTEGRAL_DRIVE_MAX 255  //limit for the integral term
+#define K1 0.95 //smoothing factor withing the PID
+#define PID_dT 0.128 //sampling period of the PID
 
-  //To develop some PID settings for your machine, you can initiall follow 
-  // the Ziegler-Nichols method.
-  // set Ki and Kd to zero. 
-  // heat with a defined Kp and see if the temperature stabilizes
-  // ideally you do this graphically with repg.
-  // the PID_CRITIAL_GAIN should be the Kp at which temperature oscillatins are not dampned out/decreas in amplitutde
-  // PID_SWING_AT_CRITIAL is the time for a full period of the oscillations at the critical Gain
-  // usually further manual tunine is necessary.
+//To develop some PID settings for your machine, you can initiall follow 
+// the Ziegler-Nichols method.
+// set Ki and Kd to zero. 
+// heat with a defined Kp and see if the temperature stabilizes
+// ideally you do this graphically with repg.
+// the PID_CRITIAL_GAIN should be the Kp at which temperature oscillatins are not dampned out/decreas in amplitutde
+// PID_SWING_AT_CRITIAL is the time for a full period of the oscillations at the critical Gain
+// usually further manual tunine is necessary.
 
-  #define PID_CRITIAL_GAIN 50
-  #define PID_SWING_AT_CRITIAL 47 //seconds
-  
-  //#define PID_PI    //no differentail term
-  #define PID_PID //normal PID
+#define PID_CRITIAL_GAIN 50
+#define PID_SWING_AT_CRITIAL 47 //seconds
 
-  #ifdef PID_PID
-    //PID according to Ziegler-Nichols method
+//#define PID_PI    //no differentail term
+#define PID_PID //normal PID
+
+#ifdef PID_PID
+//PID according to Ziegler-Nichols method
 //    #define  DEFAULT_Kp  (0.6*PID_CRITIAL_GAIN)
 //    #define  DEFAULT_Ki (2*Kp/PID_SWING_AT_CRITIAL*PID_dT)  
 //    #define  DEFAULT_Kd (PID_SWING_AT_CRITIAL/8./PID_dT)  
 
 // Ultitmaker
-    #define  DEFAULT_Kp  22.2
-    #define  DEFAULT_Ki (1.25*PID_dT)  
-    #define  DEFAULT_Kd (99/PID_dT)  
+#define  DEFAULT_Kp  22.2
+#define  DEFAULT_Ki (1.25*PID_dT)  
+#define  DEFAULT_Kd (99/PID_dT)  
 
 // Makergear
 //    #define  DEFAULT_Kp 7.0
@@ -148,21 +148,21 @@
 //    #define  DEFAULT_Kp  63.0
 //    #define  DEFAULT_Ki (2.25*PID_dT)  
 //    #define  DEFAULT_Kd (440/PID_dT)  
-  #endif
-   
-  #ifdef PID_PI
-    //PI according to Ziegler-Nichols method
-    #define  DEFAULT_Kp (PID_CRITIAL_GAIN/2.2) 
-    #define  DEFAULT_Ki (1.2*Kp/PID_SWING_AT_CRITIAL*PID_dT)
-    #define  DEFAULT_Kd (0)
-  #endif
-  
-  // this adds an experimental additional term to the heatingpower, proportional to the extrusion speed.
-  // if Kc is choosen well, the additional required power due to increased melting should be compensated.
-  #define PID_ADD_EXTRUSION_RATE  
-  #ifdef PID_ADD_EXTRUSION_RATE
-    #define  DEFAULT_Kc (1) //heatingpower=Kc*(e_speed)
-  #endif
+#endif
+
+#ifdef PID_PI
+//PI according to Ziegler-Nichols method
+#define  DEFAULT_Kp (PID_CRITIAL_GAIN/2.2) 
+#define  DEFAULT_Ki (1.2*Kp/PID_SWING_AT_CRITIAL*PID_dT)
+#define  DEFAULT_Kd (0)
+#endif
+
+// this adds an experimental additional term to the heatingpower, proportional to the extrusion speed.
+// if Kc is choosen well, the additional required power due to increased melting should be compensated.
+#define PID_ADD_EXTRUSION_RATE  
+#ifdef PID_ADD_EXTRUSION_RATE
+#define  DEFAULT_Kc (1) //heatingpower=Kc*(e_speed)
+#endif
 #endif // PIDTEMP
 
 //  extruder run-out prevention. 
@@ -184,9 +184,9 @@
 #define ENDSTOPPULLUPS // Comment this out (using // at the start of the line) to disable the endstop pullup resistors
 
 // The pullups are needed if you directly connect a mechanical endswitch between the signal and ground pins.
-const bool X_ENDSTOPS_INVERTING = true; // set to true to invert the logic of the endstops. 
-const bool Y_ENDSTOPS_INVERTING = true; // set to true to invert the logic of the endstops. 
-const bool Z_ENDSTOPS_INVERTING = true; // set to true to invert the logic of the endstops. 
+const bool X_ENDSTOPS_INVERTING = false; // set to true to invert the logic of the endstops. 
+const bool Y_ENDSTOPS_INVERTING = false; // set to true to invert the logic of the endstops. 
+const bool Z_ENDSTOPS_INVERTING = false; // set to true to invert the logic of the endstops. 
 // For optos H21LOB set to true, for Mendel-Parts newer optos TCST2103 set to false
 
 #define ENDSTOPS_ONLY_FOR_HOMING // If defined the endstops will only be used for homing
@@ -209,9 +209,9 @@ const bool Z_ENDSTOPS_INVERTING = true; // set to true to invert the logic of th
 //#define INVERT_Z_DIR false    // for Mendel set to false, for Orca set to true
 //#define INVERT_E*_DIR true   // for direct drive extruder v9 set to true, for geared extruder set to false, used for all extruders
 
-#define INVERT_X_DIR true    // for Mendel set to false, for Orca set to true
+#define INVERT_X_DIR false    // for Mendel set to false, for Orca set to true
 #define INVERT_Y_DIR false    // for Mendel set to true, for Orca set to false
-#define INVERT_Z_DIR true     // for Mendel set to false, for Orca set to true
+#define INVERT_Z_DIR false     // for Mendel set to false, for Orca set to true
 #define INVERT_E0_DIR false   // for direct drive extruder v9 set to true, for geared extruder set to false
 #define INVERT_E1_DIR false    // for direct drive extruder v9 set to true, for geared extruder set to false
 #define INVERT_E2_DIR false   // for direct drive extruder v9 set to true, for geared extruder set to false
@@ -256,7 +256,8 @@ const bool Z_ENDSTOPS_INVERTING = true; // set to true to invert the logic of th
 #define DEFAULT_MINIMUMFEEDRATE       0.0     // minimum feedrate
 #define DEFAULT_MINTRAVELFEEDRATE     0.0
 
-// minimum time in microseconds that a movement needs to take if the buffer is emptied.   Increase this number if you see blobs while printing high speed & high detail.  It will slowdown on the detailed stuff.
+// minimum time in microseconds that a movement needs to take if the buffer is emptied.   Increase this number if you see blobs while
+//printing high speed & high detail.  It will slowdown on the detailed stuff.
 #define DEFAULT_MINSEGMENTTIME        20000   // Obsolete delete this
 #define DEFAULT_XYJERK                20.0    // (mm/sec)
 #define DEFAULT_ZJERK                 0.4     // (mm/sec)
@@ -290,7 +291,7 @@ const bool Z_ENDSTOPS_INVERTING = true; // set to true to invert the logic of th
 // this enables the watchdog interrupt.
 //#define USE_WATCHDOG
 //#ifdef USE_WATCHDOG
-  // you cannot reboot on a mega2560 due to a bug in he bootloader. Hence, you have to reset manually, and this is done hereby:
+// you cannot reboot on a mega2560 due to a bug in he bootloader. Hence, you have to reset manually, and this is done hereby:
 //#define RESET_MANUAL
 //#define WATCHDOG_TIMEOUT 4  //seconds
 //#endif
@@ -305,12 +306,12 @@ const bool Z_ENDSTOPS_INVERTING = true; // set to true to invert the logic of th
 //#define ADVANCE
 
 #ifdef ADVANCE
-  #define EXTRUDER_ADVANCE_K .0
+#define EXTRUDER_ADVANCE_K .0
 
-  #define D_FILAMENT 2.85
-  #define STEPS_MM_E 836
-  #define EXTRUTION_AREA (0.25 * D_FILAMENT * D_FILAMENT * 3.14159)
-  #define STEPS_PER_CUBIC_MM_E (axis_steps_per_unit[E_AXIS]/ EXTRUTION_AREA)
+#define D_FILAMENT 2.85
+#define STEPS_MM_E 836
+#define EXTRUTION_AREA (0.25 * D_FILAMENT * D_FILAMENT * 3.14159)
+#define STEPS_PER_CUBIC_MM_E (axis_steps_per_unit[E_AXIS]/ EXTRUTION_AREA)
 
 #endif // ADVANCE
 
@@ -321,18 +322,18 @@ const bool Z_ENDSTOPS_INVERTING = true; // set to true to invert the logic of th
 #define SD_FINISHED_STEPPERRELEASE true  //if sd support and the file is finished: disable steppers?
 #define SD_FINISHED_RELEASECOMMAND "M84 X Y E" // no z because of layer shift.
 
-//#define ULTIPANEL
+#define ULTIPANEL
 #ifdef ULTIPANEL
-  //#define NEWPANEL  //enable this if you have a click-encoder panel
-  #define SDSUPPORT
-  #define ULTRA_LCD
-  #define LCD_WIDTH 20
-  #define LCD_HEIGHT 4
+#define NEWPANEL  //enable this if you have a click-encoder panel
+#define SDSUPPORT
+#define ULTRA_LCD
+#define LCD_WIDTH 20
+#define LCD_HEIGHT 4
 #else //no panel but just lcd 
-  #ifdef ULTRA_LCD
-    #define LCD_WIDTH 16
-    #define LCD_HEIGHT 2
-  #endif
+#ifdef ULTRA_LCD
+#define LCD_WIDTH 16
+#define LCD_HEIGHT 2
+#endif
 #endif
 
 // A debugging feature to compare calculated vs performed steps, to see if steps are lost by the software.
@@ -353,13 +354,13 @@ const bool Z_ENDSTOPS_INVERTING = true; // set to true to invert the logic of th
 // on an ultimaker, some initial testing worked with M109 S215 T260 F0.1 in the start.gcode
 //#define AUTOTEMP
 #ifdef AUTOTEMP
-  #define AUTOTEMP_OLDWEIGHT 0.98
+#define AUTOTEMP_OLDWEIGHT 0.98
 #endif
 
 //this prevents dangerous Extruder moves, i.e. if the temperature is under the limit
 //can be software-disabled for whatever purposes by
 #define PREVENT_DANGEROUS_EXTRUDE
-#define EXTRUDE_MINTEMP 190
+#define EXTRUDE_MINTEMP 0
 #define EXTRUDE_MAXLENGTH (X_MAX_LENGTH+Y_MAX_LENGTH) //prevent extrusion of very large distances.
 
 const int dropsegments=5; //everything with less than this number of steps will be ignored as move and joined with the next movement
@@ -378,9 +379,9 @@ const int dropsegments=5; //everything with less than this number of steps will 
 // The number of linear motions that can be in the plan at any give time.  
 // THE BLOCK_BUFFER_SIZE NEEDS TO BE A POWER OF 2, i.g. 8,16,32 because shifts and ors are used to do the ringbuffering.
 #if defined SDSUPPORT
-  #define BLOCK_BUFFER_SIZE 16   // SD,LCD,Buttons take more memory, block buffer needs to be smaller
+#define BLOCK_BUFFER_SIZE 16   // SD,LCD,Buttons take more memory, block buffer needs to be smaller
 #else
-  #define BLOCK_BUFFER_SIZE 16 // maximize block buffer
+#define BLOCK_BUFFER_SIZE 16 // maximize block buffer
 #endif
 
 
@@ -392,3 +393,5 @@ const int dropsegments=5; //everything with less than this number of steps will 
 #include "thermistortables.h"
 
 #endif //__CONFIGURATION_H
+
+

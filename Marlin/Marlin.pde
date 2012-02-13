@@ -237,9 +237,11 @@ void setup_photpin()
 void setup_powerhold()
 {
  #ifdef SUICIDE_PIN
+   #if (SUICIDE_PIN> -1)
       SET_OUTPUT(SUICIDE_PIN);
       WRITE(SUICIDE_PIN, HIGH);
-     #endif
+   #endif
+ #endif
 }
 
 void suicide()
