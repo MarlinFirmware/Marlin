@@ -31,7 +31,7 @@
 #define BYTE 0
 
 
-
+#if MOTHERBOARD != 8 // ! teensylu
 // Define constants and variables for buffering incoming serial data.  We're
 // using a ring buffer (I think), in which rx_buffer_head is the index of the
 // location to which to write the next incoming character and rx_buffer_tail
@@ -144,8 +144,7 @@ class MarlinSerial //: public Stream
     void println(void);
 };
 
-#if defined(UBRRH) || defined(UBRR0H)
-  extern MarlinSerial MSerial;
-#endif
+extern MarlinSerial MSerial;
+#endif // ! teensylu
 
 #endif

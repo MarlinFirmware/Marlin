@@ -505,7 +505,9 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
   //enable active axes
   if(block->steps_x != 0) enable_x();
   if(block->steps_y != 0) enable_y();
-  if(block->steps_z != 0) enable_z();
+  #ifndef Z_LATE_ENABLE
+    if(block->steps_z != 0) enable_z();
+  #endif
 
   // Enable all
   if(block->steps_e != 0) { enable_e0();enable_e1();enable_e2(); }
@@ -515,8 +517,11 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
   delta_mm[Y_AXIS] = (target[Y_AXIS]-position[Y_AXIS])/axis_steps_per_unit[Y_AXIS];
   delta_mm[Z_AXIS] = (target[Z_AXIS]-position[Z_AXIS])/axis_steps_per_unit[Z_AXIS];
   delta_mm[E_AXIS] = (target[E_AXIS]-position[E_AXIS])/axis_steps_per_unit[E_AXIS];
-  block->millimeters = sqrt(square(delta_mm[X_AXIS]) + square(delta_mm[Y_AXIS]) +
-                            square(delta_mm[Z_AXIS]) + square(delta_mm[E_AXIS]));
+  if ( block->steps_x == 0 && block->steps_y == 0 && block->steps_z == 0 ) {
+    block->millimeters = abs(delta_mm[E_AXIS]);
+  } else {
+    block->millimeters = sqrt(square(delta_mm[X_AXIS]) + square(delta_mm[Y_AXIS]) + square(delta_mm[Z_AXIS]));
+  }
   float inverse_millimeters = 1.0/block->millimeters;  // Inverse millimeters to remove multiple divides 
   
   // Calculate speed in mm/second for each axis. No divide by zero due to previous checks.
@@ -525,9 +530,6 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
   block->nominal_speed = block->millimeters * inverse_second; // (mm/sec) Always > 0
   block->nominal_rate = ceil(block->step_event_count * inverse_second); // (step/sec) Always > 0
 
-  
- 
-
   if (block->steps_e == 0) {
         if(feed_rate<mintravelfeedrate) feed_rate=mintravelfeedrate;
   }
@@ -535,10 +537,9 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
     	if(feed_rate<minimumfeedrate) feed_rate=minimumfeedrate;
   } 
 
-#ifdef SLOWDOWN
   // slow down when de buffer starts to empty, rather than wait at the corner for a buffer refill
   int moves_queued=(block_buffer_head-block_buffer_tail + BLOCK_BUFFER_SIZE) & (BLOCK_BUFFER_SIZE - 1);
-  
+#ifdef SLOWDOWN
   if(moves_queued < (BLOCK_BUFFER_SIZE * 0.5) && moves_queued > 1) feed_rate = feed_rate*moves_queued / (BLOCK_BUFFER_SIZE * 0.5); 
 #endif
 
@@ -686,7 +687,7 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
     vmax_junction = max_z_jerk/2;
   vmax_junction = min(vmax_junction, block->nominal_speed);
 
-  if ((block_buffer_head != block_buffer_tail) && (previous_nominal_speed > 0.0)) {
+  if ((moves_queued > 1) && (previous_nominal_speed > 0.0)) {
     float jerk = sqrt(pow((current_speed[X_AXIS]-previous_speed[X_AXIS]), 2)+pow((current_speed[Y_AXIS]-previous_speed[Y_AXIS]), 2));
     if((previous_speed[X_AXIS] != 0.0) || (previous_speed[Y_AXIS] != 0.0)) {
       vmax_junction = block->nominal_speed;

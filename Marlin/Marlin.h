@@ -14,7 +14,7 @@
 #include <string.h>
 #include <inttypes.h>
 
-#include <avr/delay.h>
+#include <util/delay.h>
 #include <avr/pgmspace.h>
 #include <avr/eeprom.h>
 #include  <avr/wdt.h>
@@ -46,7 +46,11 @@
 
 #include "WString.h"
 
-
+#if MOTHERBOARD == 8  // Teensylu
+  #define MYSERIAL Serial
+#else
+  #define MYSERIAL MSerial
+#endif
 
 //this is a unfinsihed attemp to removes a lot of warning messages, see:
 // http://www.avrfreaks.net/index.php?name=PNphpBB2&file=printview&t=57011
@@ -54,19 +58,19 @@
 // //#define PSTR    (s )        ((const PROGMEM char *)(s))
 // //# define MYPGM(s) (__extension__({static prog_char __c[] = (s); &__c[0];})) 
 // //#define MYPGM(s) ((const prog_char *g PROGMEM=s))
-// //#define MYPGM(s) PSTR(s)
-#define MYPGM(s)  (__extension__({static char __c[] __attribute__((__progmem__)) = (s); &__c[0];}))  //This is the normal behaviour
+#define MYPGM(s) PSTR(s)
+//#define MYPGM(s)  (__extension__({static char __c[] __attribute__((__progmem__)) = (s); &__c[0];}))  //This is the normal behaviour
 //#define MYPGM(s)  (__extension__({static prog_char __c[]  = (s); &__c[0];})) //this does not work but hides the warnings
 
 
-#define SERIAL_PROTOCOL(x) MSerial.print(x);
+#define SERIAL_PROTOCOL(x) MYSERIAL.print(x);
 #define SERIAL_PROTOCOLPGM(x) serialprintPGM(MYPGM(x));
-#define SERIAL_PROTOCOLLN(x) {MSerial.print(x);MSerial.write('\n');}
-#define SERIAL_PROTOCOLLNPGM(x) {serialprintPGM(MYPGM(x));MSerial.write('\n');}
+#define SERIAL_PROTOCOLLN(x) {MYSERIAL.print(x);MYSERIAL.write('\n');}
+#define SERIAL_PROTOCOLLNPGM(x) {serialprintPGM(MYPGM(x));MYSERIAL.write('\n');}
 
 
-const prog_char errormagic[] PROGMEM ="Error:";
-const prog_char echomagic[] PROGMEM ="echo:";
+const char errormagic[] PROGMEM ="Error:";
+const char echomagic[] PROGMEM ="echo:";
 #define SERIAL_ERROR_START serialprintPGM(errormagic);
 #define SERIAL_ERROR(x) SERIAL_PROTOCOL(x)
 #define SERIAL_ERRORPGM(x) SERIAL_PROTOCOLPGM(x)
@@ -89,7 +93,7 @@ FORCE_INLINE void serialprintPGM(const char *str)
   char ch=pgm_read_byte(str);
   while(ch)
   {
-    MSerial.write(ch);
+    MYSERIAL.write(ch);
     ch=pgm_read_byte(++str);
   }
 }

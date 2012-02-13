@@ -254,7 +254,7 @@ FORCE_INLINE unsigned short calc_timer(unsigned short step_rate) {
     timer = (unsigned short)pgm_read_word_near(table_address);
     timer -= (((unsigned short)pgm_read_word_near(table_address+2) * (unsigned char)(step_rate & 0x0007))>>3);
   }
-  if(timer < 100) { timer = 100; MSerial.print("Steprate to high : "); MSerial.println(step_rate); }//(20kHz this should never happen)
+  if(timer < 100) { timer = 100; MYSERIAL.print("Steprate to high : "); MYSERIAL.println(step_rate); }//(20kHz this should never happen)
   return timer;
 }
 
@@ -274,6 +274,8 @@ FORCE_INLINE void trapezoid_generator_reset() {
   acceleration_time = calc_timer(acc_step_rate);
   OCR1A = acceleration_time;
   OCR1A_nominal = calc_timer(current_block->nominal_rate);
+  
+
   
 //    SERIAL_ECHO_START;
 //    SERIAL_ECHOPGM("advance :");
@@ -302,6 +304,14 @@ ISR(TIMER1_COMPA_vect)
       counter_z = counter_x;
       counter_e = counter_x;
       step_events_completed = 0;
+      #ifdef Z_LATE_ENABLE 
+        if(current_block->steps_z > 0) {
+          enable_z();
+          OCR1A = 2000; //1ms wait
+          return;
+        }
+      #endif
+      
 //      #ifdef ADVANCE
 //      e_steps[current_block->active_extruder] = 0;
 //      #endif
@@ -429,7 +439,9 @@ ISR(TIMER1_COMPA_vect)
 
     
     for(int8_t i=0; i < step_loops; i++) { // Take multiple steps per interrupt (For high speed moves) 
-      MSerial.checkRx(); // Check for serial chars. 
+      #if MOTHERBOARD != 8 // !teensylu
+      MSerial.checkRx(); // Check for serial chars.
+      #endif 
       
       #ifdef ADVANCE
       counter_e += current_block->steps_e;

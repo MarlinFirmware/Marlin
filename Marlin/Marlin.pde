@@ -27,8 +27,6 @@
 
 #include "Marlin.h"
 
-
-
 #include "ultralcd.h"
 #include "planner.h"
 #include "stepper.h"
@@ -38,12 +36,7 @@
 #include "watchdog.h"
 #include "EEPROMwrite.h"
 
-
-
-#define VERSION_STRING  "1.0.0 Beta 1"
-
-
-
+#define VERSION_STRING  "1.0.0 RC1"
 
 // look here for descriptions of gcodes: http://linuxcnc.org/handbook/gcode/g-code.html
 // http://objects.reprap.org/wiki/Mendel_User_Manual:_RepRapGCodes
@@ -147,14 +140,10 @@ static bool home_all_axis = true;
 static float feedrate = 1500.0, next_feedrate, saved_feedrate;
 static long gcode_N, gcode_LastN;
 
-
-
 static bool relative_mode = false;  //Determines Absolute or Relative Coordinates
 static bool relative_mode_e = false;  //Determines Absolute or Relative E Codes while in Absolute Coordinates mode. E is always relative in Relative Coordinates mode.
 
 static uint8_t fanpwm=0;
-
-
 
 static char cmdbuffer[BUFSIZE][MAX_CMD_SIZE];
 static bool fromsd[BUFSIZE];
@@ -175,8 +164,7 @@ const int sensitive_pins[] = SENSITIVE_PINS; // Sensitive pin list for M42
 //Inactivity shutdown variables
 static unsigned long previous_millis_cmd = 0;
 static unsigned long max_inactive_time = 0;
-static unsigned long stepper_inactive_time = DEFAULT_STEPPER_DEACTIVE_TIME*1000;
-static unsigned long last_stepperdisabled_time=30*1000; //first release check after 30 seconds
+static unsigned long stepper_inactive_time = DEFAULT_STEPPER_DEACTIVE_TIME*1000l;
 
 static unsigned long starttime=0;
 static unsigned long stoptime=0;
@@ -224,6 +212,7 @@ void enquecommand(const char *cmd)
     buflen += 1;
   }
 }
+
 void setup_photpin()
 {
   #ifdef PHOTOGRAPH_PIN
@@ -257,10 +246,20 @@ void suicide()
 void setup()
 { 
   setup_powerhold();
-  MSerial.begin(BAUDRATE);
-  SERIAL_ECHO_START;
-  SERIAL_ECHOLNPGM(VERSION_STRING);
+  MYSERIAL.begin(BAUDRATE);
   SERIAL_PROTOCOLLNPGM("start");
+  SERIAL_ECHO_START;
+  SERIAL_ECHOPGM("Marlin: ");
+  SERIAL_ECHOLNPGM(VERSION_STRING);
+  #ifdef STRING_VERSION_CONFIG_H
+    #ifdef STRING_CONFIG_H_AUTHOR
+      SERIAL_ECHO_START;
+      SERIAL_ECHOPGM("Configuration.h: ");
+      SERIAL_ECHOPGM(STRING_VERSION_CONFIG_H);
+      SERIAL_ECHOPGM(" | Author: ");
+      SERIAL_ECHOLNPGM(STRING_CONFIG_H_AUTHOR);
+    #endif
+  #endif
   SERIAL_ECHO_START;
   SERIAL_ECHOPGM("Free Memory:");
   SERIAL_ECHO(freeMemory());
@@ -326,11 +325,10 @@ void loop()
   LCD_STATUS;
 }
 
-
-FORCE_INLINE void get_command() 
+void get_command() 
 { 
-  while( MSerial.available() > 0  && buflen < BUFSIZE) {
-    serial_char = MSerial.read();
+  while( MYSERIAL.available() > 0  && buflen < BUFSIZE) {
+    serial_char = MYSERIAL.read();
     if(serial_char == '\n' || serial_char == '\r' || serial_char == ':' || serial_count >= (MAX_CMD_SIZE - 1) ) 
     {
       if(!serial_count) return; //if empty line
@@ -474,20 +472,20 @@ FORCE_INLINE void get_command()
 }
 
 
-FORCE_INLINE float code_value() 
+float code_value() 
 { 
   return (strtod(&cmdbuffer[bufindr][strchr_pointer - cmdbuffer[bufindr] + 1], NULL)); 
 }
-FORCE_INLINE long code_value_long() 
+long code_value_long() 
 { 
   return (strtol(&cmdbuffer[bufindr][strchr_pointer - cmdbuffer[bufindr] + 1], NULL, 10)); 
 }
-FORCE_INLINE bool code_seen(char code_string[]) //Return True if the string was found
+bool code_seen(char code_string[]) //Return True if the string was found
 { 
   return (strstr(cmdbuffer[bufindr], code_string) != NULL); 
 }  
 
-FORCE_INLINE bool code_seen(char code)
+bool code_seen(char code)
 {
   strchr_pointer = strchr(cmdbuffer[bufindr], code);
   return (strchr_pointer != NULL);  //Return True if a character was found
@@ -519,7 +517,7 @@ FORCE_INLINE bool code_seen(char code)
     endstops_hit_on_purpose();\
   }
 
-FORCE_INLINE void process_commands()
+void process_commands()
 {
   unsigned long codenum; //throw away variable
   char *starpos = NULL;
@@ -789,7 +787,7 @@ FORCE_INLINE void process_commands()
       #if (TEMP_0_PIN > -1)
         SERIAL_PROTOCOLPGM("ok T:");
         SERIAL_PROTOCOL(degHotend(tmp_extruder)); 
-        #if TEMP_BED_PIN > -1 
+        #if TEMP_BED_PIN > -1
           SERIAL_PROTOCOLPGM(" B:");  
           SERIAL_PROTOCOL(degBed());
         #endif //TEMP_BED_PIN
@@ -843,11 +841,11 @@ FORCE_INLINE void process_commands()
         /* continue to loop until we have reached the target temp   
           _and_ until TEMP_RESIDENCY_TIME hasn't passed since we reached it */
         while((residencyStart == -1) ||
-              (residencyStart > -1 && (millis() - residencyStart) < TEMP_RESIDENCY_TIME*1000) ) {
+              (residencyStart >= 0 && (((unsigned int) (millis() - residencyStart)) < (TEMP_RESIDENCY_TIME * 1000UL))) ) {
       #else
         while ( target_direction ? (isHeatingHotend(tmp_extruder)) : (isCoolingHotend(tmp_extruder)&&(CooldownNoWait==false)) ) {
       #endif //TEMP_RESIDENCY_TIME
-          if( (millis() - codenum) > 1000 ) 
+          if( (millis() - codenum) > 1000UL )
           { //Print Temp Reading and remaining time every 1 second while heating up/cooling down
             SERIAL_PROTOCOLPGM("T:");
             SERIAL_PROTOCOL( degHotend(tmp_extruder) ); 
@@ -857,13 +855,15 @@ FORCE_INLINE void process_commands()
               SERIAL_PROTOCOLPGM(" W:");
               if(residencyStart > -1)
               {
-                 codenum = TEMP_RESIDENCY_TIME - ((millis() - residencyStart) / 1000);
+                 codenum = ((TEMP_RESIDENCY_TIME * 1000UL) - (millis() - residencyStart)) / 1000UL;
                  SERIAL_PROTOCOLLN( codenum );
               }
               else 
               {
                  SERIAL_PROTOCOLLN( "?" );
               }
+            #else
+              SERIAL_PROTOCOLLN("");
             #endif
             codenum = millis();
           }
@@ -893,7 +893,7 @@ FORCE_INLINE void process_commands()
         codenum = millis(); 
         while(isHeatingBed()) 
         {
-          if( (millis()-codenum) > 1000 ) //Print Temp Reading every 1 second while heating up.
+          if(( millis() - codenum) > 1000 ) //Print Temp Reading every 1 second while heating up.
           {
             float tt=degHotend(active_extruder);
             SERIAL_PROTOCOLPGM("T:");
@@ -909,7 +909,7 @@ FORCE_INLINE void process_commands()
         LCD_MESSAGEPGM("Bed done.");
         previous_millis_cmd = millis();
     #endif
-    break;
+        break;
 
     #if FAN_PIN > -1
       case 106: //M106 Fan On
@@ -938,14 +938,13 @@ FORCE_INLINE void process_commands()
       
       case 81: // M81 - ATX Power Off
       
-      #if (SUICIDE_PIN >-1)
+      #if defined SUICIDE_PIN && SUICIDE_PIN > -1
         st_synchronize();
         suicide();
-      #else
-        #if (PS_ON_PIN > -1) 
-          SET_INPUT(PS_ON_PIN); //Floating
-        #endif
+      #elif (PS_ON_PIN > -1)
+        SET_INPUT(PS_ON_PIN); //Floating
       #endif
+		break;
         
     case 82:
       axis_relative_modes[3] = false;
@@ -963,6 +962,7 @@ FORCE_INLINE void process_commands()
         bool all_axis = !((code_seen(axis_codes[0])) || (code_seen(axis_codes[1])) || (code_seen(axis_codes[2]))|| (code_seen(axis_codes[3])));
         if(all_axis)
         {
+          st_synchronize();
           disable_e0();
           disable_e1();
           disable_e2();
@@ -1217,7 +1217,7 @@ FORCE_INLINE void process_commands()
 void FlushSerialRequestResend()
 {
   //char cmdbuffer[bufindr][100]="Resend:";
-  MSerial.flush();
+  MYSERIAL.flush();
   SERIAL_PROTOCOLPGM("Resend:");
   SERIAL_PROTOCOLLN(gcode_LastN + 1);
   ClearToSend();
@@ -1233,7 +1233,7 @@ void ClearToSend()
   SERIAL_PROTOCOLLNPGM("ok"); 
 }
 
-FORCE_INLINE void get_coordinates()
+void get_coordinates()
 {
   for(int8_t i=0; i < NUM_AXIS; i++) {
     if(code_seen(axis_codes[i])) destination[i] = (float)code_value() + (axis_relative_modes[i] || relative_mode)*current_position[i];
@@ -1245,7 +1245,7 @@ FORCE_INLINE void get_coordinates()
   }
 }
 
-FORCE_INLINE void get_arc_coordinates()
+void get_arc_coordinates()
 {
    get_coordinates();
    if(code_seen('I')) offset[0] = code_value();
@@ -1291,23 +1291,22 @@ void prepare_arc_move(char isclockwise) {
 
 void manage_inactivity(byte debug) 
 { 
-  if( (millis()-previous_millis_cmd) >  max_inactive_time ) 
+  if( (millis() - previous_millis_cmd) >  max_inactive_time ) 
     if(max_inactive_time) 
       kill(); 
-  if(stepper_inactive_time)  
-  if( (millis()-last_stepperdisabled_time) >  stepper_inactive_time ) 
-  {
-    if(previous_millis_cmd>last_stepperdisabled_time)
-      last_stepperdisabled_time=previous_millis_cmd;
-    else
+  if(stepper_inactive_time)  {
+    if( (millis() - previous_millis_cmd) >  stepper_inactive_time ) 
     {
-      if(  (X_ENABLE_ON && (READ(X_ENABLE_PIN)!=0))  ||  (!X_ENABLE_ON && READ(X_ENABLE_PIN)==0)  )
-        enquecommand(DEFAULT_STEPPER_DEACTIVE_COMMAND); 
-      last_stepperdisabled_time=millis();
+      disable_x();
+      disable_y();
+      disable_z();
+      disable_e0();
+      disable_e1();
+      disable_e2();
     }
   }
   #ifdef EXTRUDER_RUNOUT_PREVENT
-    if( (millis()-previous_millis_cmd) >  EXTRUDER_RUNOUT_SECONDS*1000 ) 
+    if( (millis() - previous_millis_cmd) >  EXTRUDER_RUNOUT_SECONDS*1000 ) 
     if(degHotend(active_extruder)>EXTRUDER_RUNOUT_MINTEMP)
     {
      bool oldstatus=READ(E0_ENABLE_PIN);
@@ -1321,7 +1320,6 @@ void manage_inactivity(byte debug)
      destination[E_AXIS]=oldedes;
      plan_set_e_position(oldepos);
      previous_millis_cmd=millis();
-     //enquecommand(DEFAULT_STEPPER_DEACTIVE_COMMAND);
      st_synchronize();
      WRITE(E0_ENABLE_PIN,oldstatus);
     }
