@@ -312,7 +312,7 @@ int temp2analog(int celsius, uint8_t e) {
 
     return (1023 * OVERSAMPLENR) - raw;
   }
-  return celsius * (1024.0 / (5.0 * 100.0) ) * OVERSAMPLENR;
+  return ((celsius-TEMP_SENSOR_AD595_OFFSET)/TEMP_SENSOR_AD595_GAIN) * (1024.0 / (5.0 * 100.0) ) * OVERSAMPLENR;
 }
 
 // Takes bed temperature value as input and returns corresponding raw value. 
@@ -342,7 +342,7 @@ int temp2analogBed(int celsius) {
 
     return (1023 * OVERSAMPLENR) - raw;
 #elif defined BED_USES_AD595
-    return lround(celsius * (1024.0 * OVERSAMPLENR/ (5.0 * 100.0) ) );
+    return lround(((celsius-TEMP_SENSOR_AD595_OFFSET)/TEMP_SENSOR_AD595_GAIN) * (1024.0 * OVERSAMPLENR/ (5.0 * 100.0) ) );
 #else
     #warning No heater-type defined for the bed.
     return 0;
@@ -390,7 +390,7 @@ float analog2temp(int raw, uint8_t e) {
 
     return celsius;
   }
-  return raw * ((5.0 * 100.0) / 1024.0) / OVERSAMPLENR;
+  return ((raw * ((5.0 * 100.0) / 1024.0) / OVERSAMPLENR) * TEMP_SENSOR_AD595_GAIN) + TEMP_SENSOR_AD595_OFFSET;
 }
 
 // Derived from RepRap FiveD extruder::getTemperature()
@@ -421,7 +421,7 @@ float analog2tempBed(int raw) {
     return celsius;
     
   #elif defined BED_USES_AD595
-    return raw * ((5.0 * 100.0) / 1024.0) / OVERSAMPLENR;
+    return ((raw * ((5.0 * 100.0) / 1024.0) / OVERSAMPLENR) * TEMP_SENSOR_AD595_GAIN) + TEMP_SENSOR_AD595_OFFSET;
   #else
     #warning No heater-type defined for the bed.
   #endif
