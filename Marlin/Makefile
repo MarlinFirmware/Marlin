@@ -138,6 +138,8 @@ all: build sizeafter
 build: elf hex 
 
 applet/$(TARGET).cpp: $(TARGET).pde $(MAKEFILE)
+
+applet/%.cpp: %.pde
 # Here is the "preprocessing".
 # It creates a .cpp file based with the same name as the .pde file.
 # On top of the new .cpp file comes the WProgram.h header.
@@ -145,11 +147,11 @@ applet/$(TARGET).cpp: $(TARGET).pde $(MAKEFILE)
 # Then the .cpp file will be compiled. Errors during compile will
 # refer to this new, automatically generated, file. 
 # Not the original .pde file you actually edit...
-	@echo "  WR    applet/$(TARGET).cpp"
-	@test -d applet || mkdir applet
-	@echo '#include "WProgram.h"' > applet/$(TARGET).cpp
-	@cat $(TARGET).pde >> applet/$(TARGET).cpp
-	@cat $(ARDUINO)/main.cpp >> applet/$(TARGET).cpp
+	@echo "  WR    $@"
+	@test -d $(dir $@) || mkdir $(dir $@)
+	@echo '#include "WProgram.h"' > $@
+	@cat $< >> $@
+	@cat $(ARDUINO)/main.cpp >> $@
 
 elf: applet/$(TARGET).elf
 hex: applet/$(TARGET).hex
