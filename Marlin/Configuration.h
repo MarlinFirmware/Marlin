@@ -9,7 +9,7 @@
 //Implementation of an idea by Prof Braino to inform user that any changes made
 //to THIS file by the user have been successfully uploaded into firmware.
 #define STRING_VERSION_CONFIG_H "2012-02-08j" //Personal revision number for changes to THIS file.
-#define STRING_CONFIG_H_AUTHOR "username" //Who made the changes.
+#define STRING_CONFIG_H_AUTHOR "scuba82" //Who made the changes.
 
 // This determines the communication speed of the printer
 //#define BAUDRATE 250000
@@ -21,7 +21,9 @@
 // Gen6 = 5,
 // Sanguinololu 1.2 and above = 62
 // Ultimaker = 7,
-// Gen7 = 77,
+// Gen7 custom (Alfons3 Version) = 77, "https://github.com/Alfons3/Generation_7_Electronics"
+// Gen7 v1.1, v1.2 = 78
+// Gen7 v1.3 = 79
 // Teensylu = 8,
 // Gen3+ =9
 #define MOTHERBOARD 77
@@ -49,7 +51,7 @@
 
 // Actual temperature must be close to target for this long before M109 returns success
 #define TEMP_RESIDENCY_TIME 30  // (seconds)
-#define TEMP_HYSTERESIS 3       // (C°) range of +/- temperatures considered "close" to the target one
+#define TEMP_HYSTERESIS 3       // (Cï¿½) range of +/- temperatures considered "close" to the target one
 
 // The minimal temperature defines the temperature below which the heater will not be enabled It is used
 // to check that the wiring to the thermistor is not broken. 
@@ -127,7 +129,7 @@ const bool Z_ENDSTOPS_INVERTING = false; // set to true to invert the logic of t
 
 #define INVERT_X_DIR false    // for Mendel set to false, for Orca set to true
 #define INVERT_Y_DIR false    // for Mendel set to true, for Orca set to false
-#define INVERT_Z_DIR true     // for Mendel set to false, for Orca set to true
+#define INVERT_Z_DIR false     // for Mendel set to false, for Orca set to true
 #define INVERT_E0_DIR false   // for direct drive extruder v9 set to true, for geared extruder set to false
 #define INVERT_E1_DIR false    // for direct drive extruder v9 set to true, for geared extruder set to false
 #define INVERT_E2_DIR false   // for direct drive extruder v9 set to true, for geared extruder set to false
@@ -138,7 +140,7 @@ const bool Z_ENDSTOPS_INVERTING = false; // set to true to invert the logic of t
 #define Y_HOME_DIR -1
 #define Z_HOME_DIR -1
 
-#define min_software_endstops true //If true, axis won't move to coordinates less than zero.
+#define min_software_endstops false //If true, axis won't move to coordinates less than zero.
 #define max_software_endstops true  //If true, axis won't move to coordinates greater than the defined lengths below.
 #define X_MAX_LENGTH 205
 #define Y_MAX_LENGTH 205
