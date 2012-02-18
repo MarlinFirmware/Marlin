@@ -179,6 +179,13 @@ const bool Z_ENDSTOPS_INVERTING = false; // set to true to invert the logic of t
 //#define ULTRA_LCD  //general lcd support, also 16x2
 #define SDSUPPORT // Enable SD Card Support in Hardware Console
 
+// Invert the SD card Detect Pin.  
+// If you are using a RAMPS board or cheap E-bay purchased boards that do not detect when an SD card is inserted
+// You can get round this by connecting a push button or single throw switch to the pin defined as SDCARDCARDDETECT 
+// in the pins.h file.  When using a push button pulling the pin to ground this will need inverted.  This setting should
+// be commented out otherwise
+#define SDCARDDETECTINVERTED 
+
 #define ULTIPANEL
 #ifdef ULTIPANEL
   #define NEWPANEL  //enable this if you have a click-encoder panel

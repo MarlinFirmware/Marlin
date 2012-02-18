@@ -281,8 +281,8 @@
 #ifdef ULTRA_LCD
 
   #ifdef NEWPANEL
-  //arduino pin witch triggers an piezzo beeper
-    #define BEEPER -1			// No Beeper added
+  //arduino pin which triggers an piezzo beeper
+    #define BEEPER 33			// Beeper on AUX-4
 
     #define LCD_PINS_RS 16 
     #define LCD_PINS_ENABLE 17
@@ -300,7 +300,7 @@
     #define BLEN_B 1
     #define BLEN_A 0
     
-    #define SDCARDDETECT -1		// Ramps does not use this port
+    #define SDCARDDETECT 31		// Ramps does not use this port
     
       //encoder rotation values
     #define encrot0 0
@@ -310,7 +310,7 @@
 
   #else //old style panel with shift register
     //arduino pin witch triggers an piezzo beeper
-    #define BEEPER -1		No Beeper added
+    #define BEEPER 33		No Beeper added
 
     //buttons are attached to a shift register
 	// Not wired this yet
