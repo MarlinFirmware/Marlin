@@ -265,7 +265,7 @@
 #define SDPOWER            -1
 #define SDSS               53
 #define LED_PIN            13
-#define FAN_PIN            4
+#define FAN_PIN            9 // Uses HEATER_1 on Ramps Board
 #define PS_ON_PIN          12
 #define KILL_PIN           -1
 
@@ -278,6 +278,74 @@
 #define HEATER_BED_PIN     8    // BED
 #define TEMP_BED_PIN       14   // ANALOG NUMBERING
 
+#ifdef ULTRA_LCD
+
+  #ifdef NEWPANEL
+  //arduino pin witch triggers an piezzo beeper
+    #define BEEPER -1			// No Beeper added
+
+    #define LCD_PINS_RS 16 
+    #define LCD_PINS_ENABLE 17
+    #define LCD_PINS_D4 23
+    #define LCD_PINS_D5 25 
+    #define LCD_PINS_D6 27
+    #define LCD_PINS_D7 29
+    
+    //buttons are directly attached using AUX-2
+    #define BTN_EN1 44
+    #define BTN_EN2 42
+    #define BTN_ENC 64  //the click
+    
+    #define BLEN_C 2
+    #define BLEN_B 1
+    #define BLEN_A 0
+    
+    #define SDCARDDETECT -1		// Ramps does not use this port
+    
+      //encoder rotation values
+    #define encrot0 0
+    #define encrot1 2
+    #define encrot2 3
+    #define encrot3 1
+
+  #else //old style panel with shift register
+    //arduino pin witch triggers an piezzo beeper
+    #define BEEPER -1		No Beeper added
+
+    //buttons are attached to a shift register
+	// Not wired this yet
+    //#define SHIFT_CLK 38
+    //#define SHIFT_LD 42
+    //#define SHIFT_OUT 40
+    //#define SHIFT_EN 17
+    
+    #define LCD_PINS_RS 16 
+    #define LCD_PINS_ENABLE 17
+    #define LCD_PINS_D4 23
+    #define LCD_PINS_D5 25 
+    #define LCD_PINS_D6 27
+    #define LCD_PINS_D7 29
+    
+    //encoder rotation values
+    #define encrot0 0
+    #define encrot1 2
+    #define encrot2 3
+    #define encrot3 1
+
+    
+    //bits in the shift register that carry the buttons for:
+    // left up center down right red
+    #define BL_LE 7
+    #define BL_UP 6
+    #define BL_MI 5
+    #define BL_DW 4
+    #define BL_RI 3
+    #define BL_ST 2
+
+    #define BLEN_B 1
+    #define BLEN_A 0
+  #endif 
+#endif //ULTRA_LCD
 
 #else // RAMPS_V_1_1 or RAMPS_V_1_2 as default
 
