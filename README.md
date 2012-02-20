@@ -10,6 +10,12 @@ I switched to an ATMega1284P which has double size program memory. Unfortunately
 For the necessary pin breakouts I used Alfons3 design of GEN7 (https://github.com/Alfons3/Generation_7_Electronics) with an additional breakout for pin A0/D31. 
 I'll publish my desing as soon as possible.
 
+You have to use different chip fuses to get Marlin running.
+The fuses I'm using are lfuse: 0xF7 hfuse: 0xD4 efuse: 0xFD
+
+For questions take a look into http://forums.reprap.org/read.php?181,118329 or send me an e-mail: christian_thalhammer@gmx.at
+
+
 Expect this fork to be highly experimental. 
 
 WARNING: 
