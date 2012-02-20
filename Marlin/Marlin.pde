@@ -252,6 +252,16 @@ void setup()
   MYSERIAL.begin(BAUDRATE);
   SERIAL_PROTOCOLLNPGM("start");
   SERIAL_ECHO_START;
+
+  // Check startup - does nothing if bootloader sets MCUSR to 0
+  byte mcu = MCUSR;
+  if(mcu & 1) SERIAL_ECHOLNPGM("PowerUp");
+  if(mcu & 2) SERIAL_ECHOLNPGM("External Reset");
+  if(mcu & 4) SERIAL_ECHOLNPGM("Brown out Reset");
+  if(mcu & 8) SERIAL_ECHOLNPGM("Watchdog Reset");
+  if(mcu & 32) SERIAL_ECHOLNPGM("Software Reset");
+  MCUSR=0;
+
   SERIAL_ECHOPGM("Marlin: ");
   SERIAL_ECHOLNPGM(VERSION_STRING);
   #ifdef STRING_VERSION_CONFIG_H
