@@ -35,6 +35,7 @@
 #include "cardreader.h"
 #include "watchdog.h"
 #include "EEPROMwrite.h"
+#include "language.h"
 
 #define VERSION_STRING  "1.0.0 RC1"
 
