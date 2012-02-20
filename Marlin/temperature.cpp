@@ -34,6 +34,9 @@
 #include "temperature.h"
 #include "watchdog.h"
 
+#define MAX_MAX_TEMP_ERRORS 50
+#define MAX_MIN_TEMP_ERRORS 50
+
 //===========================================================================
 //=============================public variables============================
 //===========================================================================
@@ -45,6 +48,10 @@ int target_bed_high_temp =0;
 #endif
 int current_raw[EXTRUDERS] = { 0 };
 int current_raw_bed = 0;
+
+
+int max_err_count = 0;
+int min_err_count = 0;
 
 #ifdef PIDTEMP
   // used external
@@ -851,13 +858,23 @@ ISR(TIMER0_COMPB_vect)
     for(unsigned char e = 0; e < EXTRUDERS; e++) {
        if(current_raw[e] >= maxttemp[e]) {
           target_raw[e] = 0;
-          max_temp_error(e);
-          kill();;
-       }
-       if(current_raw[e] <= minttemp[e]) {
+          max_err_count++;
+       }else if(current_raw[e] <= minttemp[e]) {
           target_raw[e] = 0;
-          min_temp_error(e);
-          kill();
+          min_err_count++;
+       }else{
+          max_err_count = 0; 
+          min_err_count = 0;
+       }
+       
+       if(max_err_count >= MAX_MAX_TEMP_ERRORS)
+       {
+           max_temp_error(e);
+           kill(); 
+       }else if(min_err_count >= MAX_MIN_TEMP_ERRORS)
+       {
+           min_temp_error(e);
+           kill(); 
        }
     }
   
