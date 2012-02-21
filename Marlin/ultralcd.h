@@ -28,17 +28,12 @@
     #define CLICKED (buttons&EN_C)
     #define BLOCK {blocking=millis()+blocktime;}
     #if (SDCARDDETECT > -1)
-    {
-
-	#ifdef SDCARDDETECTINVERTED 
-		#define CARDINSERTED (READ(SDCARDDETECT)!=0)
-
-	#else
-		#define CARDINSERTED (READ(SDCARDDETECT)==0)
-    }
-    #endif
-
-	#endif  //SDCARDTETECTINVERTED
+      #ifdef SDCARDDETECTINVERTED 
+        #define CARDINSERTED (READ(SDCARDDETECT)!=0)
+      #else
+        #define CARDINSERTED (READ(SDCARDDETECT)==0)
+      #endif
+    #endif  //SDCARDTETECTINVERTED
 
   #else
 
