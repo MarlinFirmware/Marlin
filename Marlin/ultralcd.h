@@ -29,10 +29,17 @@
     #define BLOCK {blocking=millis()+blocktime;}
     #if (SDCARDDETECT > -1)
     {
-      #define CARDINSERTED (READ(SDCARDDETECT)==0)
+
+	#ifdef SDCARDDETECTINVERTED 
+		#define CARDINSERTED (READ(SDCARDDETECT)!=0)
+
+	#else
+		#define CARDINSERTED (READ(SDCARDDETECT)==0)
     }
     #endif
-    
+
+	#endif  //SDCARDTETECTINVERTED
+
   #else
 
     //atomatic, do not change
