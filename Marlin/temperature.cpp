@@ -851,13 +851,21 @@ ISR(TIMER0_COMPB_vect)
     for(unsigned char e = 0; e < EXTRUDERS; e++) {
        if(current_raw[e] >= maxttemp[e]) {
           target_raw[e] = 0;
-          max_temp_error(e);
-          kill();;
+          #if (PS_ON != -1)
+          {
+            max_temp_error(e);
+            kill();;
+          }
+          #endif
        }
        if(current_raw[e] <= minttemp[e]) {
           target_raw[e] = 0;
-          min_temp_error(e);
-          kill();
+          #if (PS_ON != -1)
+          {
+            min_temp_error(e);
+            kill();
+          }
+          #endif
        }
     }
   
