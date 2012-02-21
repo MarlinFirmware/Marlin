@@ -424,7 +424,7 @@ pins
 #define PD7_PWM			NULL
 #endif	/*	_AVR_ATmega{168,328,328P}__ */
 
-#if defined (__AVR_ATmega644__) || defined (__AVR_ATmega644P__) || defined (__AVR_ATmega644PA__)
+#if defined (__AVR_ATmega644__) || defined (__AVR_ATmega644P__) || defined (__AVR_ATmega644PA__) || defined (__AVR_ATmega1284P__)
 // UART
 #define	RXD					DIO8
 #define	TXD					DIO9
