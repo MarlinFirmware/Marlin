@@ -485,13 +485,13 @@ void MainMenu::showPrepare()
       MENUITEM(  lcdprintPGM(" Disable Steppers")  ,  BLOCK;enquecommand("M84");beepshort(); ) ;
       break;
     case ItemP_home:
-      MENUITEM(  lcdprintPGM(" Auto Home")  ,  BLOCK;enquecommand("G28 X-105 Y-105 Z0");beepshort(); ) ;
+      MENUITEM(  lcdprintPGM(" Auto Home")  ,  BLOCK;enquecommand("G28 X0 Y0 Z0");beepshort(); ) ;
       break;
     case ItemP_origin:
       MENUITEM(  lcdprintPGM(" Set Origin")  ,  BLOCK;enquecommand("G92 X0 Y0 Z0");beepshort(); ) ;
       break;
     case ItemP_preheat:
-      MENUITEM(  lcdprintPGM(" Preheat")  ,  BLOCK;setTargetHotend0(170);setTargetBed(70);beepshort(); ) ;
+      MENUITEM(  lcdprintPGM(" Preheat")  ,  BLOCK;setTargetHotend0(227);setTargetBed(105);beepshort(); ) ;
       break;
     case ItemP_cooldown:
       MENUITEM(  lcdprintPGM(" Cooldown")  ,  BLOCK;setTargetHotend0(0);setTargetBed(0);beepshort(); ) ;
@@ -518,21 +518,22 @@ enum {
 void MainMenu::showAxisMove()
 {
    uint8_t line=0;
+   int oldencoderpos=0;
    clearIfNecessary();
    for(int8_t i=lineoffset;i<lineoffset+LCD_HEIGHT;i++)
    {
      switch(i)
       {
           case ItemAM_exit:
-          MENUITEM(  lcdprintPGM(" Main \003")  ,  BLOCK;status=Main_Menu;beepshort(); ) ;
+          MENUITEM(  lcdprintPGM(" Prepare \003")  ,  BLOCK;status=Main_Menu;beepshort(); ) ;
           break;
           case ItemAM_X:
-         // MENUITEM(  lcdprintPGM(" X+")  ,  BLOCK;enquecommand("G92 X0");enquecommand("G1 F700 X10");beepshort(); ) ;
-         {
+          {
+	 	  //oldencoderpos=0;
                   if(force_lcd_update)
                   {
                     lcd.setCursor(0,line);lcdprintPGM(" X:");
-                    lcd.setCursor(13,line);lcd.print(ftostr3(current_position[X_AXIS]));
+                    lcd.setCursor(13,line);lcd.print(ftostr32(current_position[X_AXIS]));
                   }
       
                   if((activeline!=line) )
@@ -543,11 +544,11 @@ void MainMenu::showAxisMove()
                     linechanging=!linechanging;
                     if(linechanging)
                     {
-                        encoderpos=current_position[X_AXIS];
+			enquecommand("G91");
                     }
                     else
                     {
-                      enquecommand("G1 F700 X"+encoderpos);
+		      enquecommand("G90");
                       encoderpos=activeline*lcdslow;
                       beepshort();
                     }
@@ -555,19 +556,29 @@ void MainMenu::showAxisMove()
                   }
                   if(linechanging)
                   {
-                    if(encoderpos<1) encoderpos=1;
-                    if(encoderpos>200) encoderpos=200;                   
-                    lcd.setCursor(13,line);lcd.print(current_position[X_AXIS]);
+                    if (encoderpos >0) 
+                   { 
+		    	enquecommand("G1 F700 X0.1");
+			oldencoderpos=encoderpos;
+                        encoderpos=0;
+		    }
+		  
+		    else if (encoderpos < 0)
+                    {
+		    	enquecommand("G1 F700 X-0.1");
+			oldencoderpos=encoderpos;
+                        encoderpos=0;
+		    }
+                    lcd.setCursor(13,line);lcd.print(ftostr32(current_position[X_AXIS]));
                   }
           }
           break;
           case ItemAM_Y:
-          //MENUITEM(  lcdprintPGM(" Y+")  ,  BLOCK;enquecommand("G92 Y0");enquecommand("G1 F700 Y10");beepshort(); ) ;
-          {
+            {
                   if(force_lcd_update)
                   {
                     lcd.setCursor(0,line);lcdprintPGM(" Y:");
-                    lcd.setCursor(13,line);lcd.print(ftostr3(current_position[Y_AXIS]));
+                    lcd.setCursor(13,line);lcd.print(ftostr32(current_position[Y_AXIS]));
                   }
       
                   if((activeline!=line) )
@@ -578,11 +589,11 @@ void MainMenu::showAxisMove()
                     linechanging=!linechanging;
                     if(linechanging)
                     {
-                        encoderpos=current_position[Y_AXIS];
+			enquecommand("G91");
                     }
                     else
                     {
-                      enquecommand("G1 F700 Y"+encoderpos);
+		      enquecommand("G90");
                       encoderpos=activeline*lcdslow;
                       beepshort();
                     }
@@ -590,34 +601,44 @@ void MainMenu::showAxisMove()
                   }
                   if(linechanging)
                   {
-                    if(encoderpos<1) encoderpos=1;
-                    if(encoderpos>200) encoderpos=200;                   
-                    lcd.setCursor(13,line);lcd.print(current_position[Y_AXIS]);
+                    if (encoderpos >0) 
+                   { 
+		    	enquecommand("G1 F700 Y0.1");
+			oldencoderpos=encoderpos;
+                        encoderpos=0;
+		    }
+		  
+		    else if (encoderpos < 0)
+                    {
+		    	enquecommand("G1 F700 Y-0.1");
+			oldencoderpos=encoderpos;
+                        encoderpos=0;
+		    }
+                    lcd.setCursor(13,line);lcd.print(ftostr32(current_position[Y_AXIS]));
                   }
           }
           break;
           case ItemAM_Z:
-          //MENUITEM(  lcdprintPGM(" Z+")  ,  BLOCK;enquecommand("G92 Z0");enquecommand("G1 F700 Z10");beepshort(); ) ;
           {
                   if(force_lcd_update)
                   {
                     lcd.setCursor(0,line);lcdprintPGM(" Z:");
-                    lcd.setCursor(13,line);lcd.print(ftostr3(current_position[Z_AXIS]));
+                    lcd.setCursor(13,line);lcd.print(ftostr32(current_position[Z_AXIS]));
                   }
       
                   if((activeline!=line) )
                   break;
                   
-                  if(CLICKED) 
+                   if(CLICKED) 
                   {
                     linechanging=!linechanging;
                     if(linechanging)
                     {
-                        encoderpos=current_position[Z_AXIS];
+			enquecommand("G91");
                     }
                     else
                     {
-                      enquecommand("G1 F700 Z"+encoderpos);
+		      enquecommand("G90");
                       encoderpos=activeline*lcdslow;
                       beepshort();
                     }
@@ -625,14 +646,25 @@ void MainMenu::showAxisMove()
                   }
                   if(linechanging)
                   {
-                    if(encoderpos<1) encoderpos=1;
-                    if(encoderpos>170) encoderpos=170;                   
-                    lcd.setCursor(13,line);lcd.print(current_position[Z_AXIS]);
+                    if (encoderpos >0) 
+                   { 
+		    	enquecommand("G1 F170 Z0.1");
+			oldencoderpos=encoderpos;
+                        encoderpos=0;
+		    }
+		  
+		    else if (encoderpos < 0)
+                    {
+		    	enquecommand("G1 F1700 Z-0.1");
+			oldencoderpos=encoderpos;
+                        encoderpos=0;
+		    }
+                    lcd.setCursor(13,line);lcd.print(ftostr32(current_position[Z_AXIS]));
                   }
           }
           break;
           case ItemAM_E:
-          MENUITEM(  lcdprintPGM(" Extrude")  ,  BLOCK;enquecommand("G92 E0");enquecommand("G1 F700 E10");beepshort(); ) ;
+          MENUITEM(  lcdprintPGM(" Extrude")  ,  BLOCK;enquecommand("G92 E0");enquecommand("G1 F700 E5");beepshort(); ) ;
           break;
           default:
           break;
@@ -1896,7 +1928,7 @@ void MainMenu::showSD()
             status=Main_Status;
             lcd_status(card.filename);
           }
-        }
+        } 
       }
       
     }
