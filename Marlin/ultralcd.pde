@@ -485,7 +485,7 @@ void MainMenu::showPrepare()
       MENUITEM(  lcdprintPGM(MSG_DISABLE_STEPPERS)  ,  BLOCK;enquecommand("M84");beepshort(); ) ;
       break;
     case ItemP_home:
-      MENUITEM(  lcdprintPGM(MSG_AUTO_HOME)  ,  BLOCK;enquecommand("G28 X-105 Y-105 Z0");beepshort(); ) ;
+      MENUITEM(  lcdprintPGM(MSG_AUTO_HOME)  ,  BLOCK;enquecommand("G28 X0 Y0 Z0");beepshort(); ) ;
       break;
     case ItemP_origin:
       MENUITEM(  lcdprintPGM(MSG_SET_ORIGIN)  ,  BLOCK;enquecommand("G92 X0 Y0 Z0");beepshort(); ) ;
@@ -533,7 +533,7 @@ void MainMenu::showAxisMove()
                   if(force_lcd_update)
                   {
                     lcd.setCursor(0,line);lcdprintPGM(" X:");
-                    lcd.setCursor(13,line);lcd.print(ftostr32(current_position[X_AXIS]));
+                    lcd.setCursor(11,line);lcd.print(ftostr52(current_position[X_AXIS]));
                   }
       
                   if((activeline!=line) )
@@ -569,7 +569,7 @@ void MainMenu::showAxisMove()
 			oldencoderpos=encoderpos;
                         encoderpos=0;
 		    }
-                    lcd.setCursor(13,line);lcd.print(ftostr32(current_position[X_AXIS]));
+                    lcd.setCursor(11,line);lcd.print(ftostr52(current_position[X_AXIS]));
                   }
           }
           break;
@@ -578,7 +578,7 @@ void MainMenu::showAxisMove()
                   if(force_lcd_update)
                   {
                     lcd.setCursor(0,line);lcdprintPGM(" Y:");
-                    lcd.setCursor(13,line);lcd.print(ftostr32(current_position[Y_AXIS]));
+                    lcd.setCursor(11,line);lcd.print(ftostr52(current_position[Y_AXIS]));
                   }
       
                   if((activeline!=line) )
@@ -614,7 +614,7 @@ void MainMenu::showAxisMove()
 			oldencoderpos=encoderpos;
                         encoderpos=0;
 		    }
-                    lcd.setCursor(13,line);lcd.print(ftostr32(current_position[Y_AXIS]));
+                    lcd.setCursor(11,line);lcd.print(ftostr52(current_position[Y_AXIS]));
                   }
           }
           break;
@@ -623,7 +623,7 @@ void MainMenu::showAxisMove()
                   if(force_lcd_update)
                   {
                     lcd.setCursor(0,line);lcdprintPGM(" Z:");
-                    lcd.setCursor(13,line);lcd.print(ftostr32(current_position[Z_AXIS]));
+                    lcd.setCursor(11,line);lcd.print(ftostr52(current_position[Z_AXIS]));
                   }
       
                   if((activeline!=line) )
@@ -659,7 +659,7 @@ void MainMenu::showAxisMove()
 			oldencoderpos=encoderpos;
                         encoderpos=0;
 		    }
-                    lcd.setCursor(13,line);lcd.print(ftostr32(current_position[Z_AXIS]));
+                    lcd.setCursor(11,line);lcd.print(ftostr52(current_position[Z_AXIS]));
                   }
           }
           break;
@@ -1598,7 +1598,7 @@ void MainMenu::showControlMotion()
       if(force_lcd_update)
         {
           lcd.setCursor(0,line);lcdprintPGM(" X steps/mm:");
-          lcd.setCursor(13,line);lcd.print(itostr4(axis_steps_per_unit[0]));
+          lcd.setCursor(11,line);lcd.print(ftostr52(axis_steps_per_unit[0]));
         }
         
         if((activeline!=line) )
@@ -1613,12 +1613,11 @@ void MainMenu::showControlMotion()
           }
           else
           {
-            float factor=float(encoderpos)/float(axis_steps_per_unit[0]);
+            float factor=float(encoderpos)/100/float(axis_steps_per_unit[0]);
             position[X_AXIS]=lround(position[X_AXIS]*factor);
             //current_position[3]*=factor;
-            axis_steps_per_unit[X_AXIS]= encoderpos;
+            axis_steps_per_unit[X_AXIS]= encoderpos/100.0;
             encoderpos=activeline*lcdslow;
-              
           }
           BLOCK;
           beepshort();
@@ -1626,8 +1625,8 @@ void MainMenu::showControlMotion()
         if(linechanging)
         {
           if(encoderpos<5) encoderpos=5;
-          if(encoderpos>9999) encoderpos=9999;
-          lcd.setCursor(13,line);lcd.print(itostr4(encoderpos));
+          if(encoderpos>99999) encoderpos=99999;
+          lcd.setCursor(11,line);lcd.print(ftostr52(encoderpos/100.0));
         }
         
       }break;
@@ -2223,6 +2222,21 @@ char *ftostr51(const float &x)
   return conv;
 }
 
+//  convert float to string with +123.45 format
+char *ftostr52(const float &x)
+{
+  int xx=x*100;
+  conv[0]=(xx>=0)?'+':'-';
+  xx=abs(xx);
+  conv[1]=(xx/10000)%10+'0';
+  conv[2]=(xx/1000)%10+'0';
+  conv[3]=(xx/100)%10+'0';
+  conv[4]='.';
+  conv[5]=(xx/10)%10+'0';
+  conv[6]=(xx)%10+'0';
+  conv[7]=0;
+  return conv;
+}
 
 #endif //ULTRA_LCD
 
