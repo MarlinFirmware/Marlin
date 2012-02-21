@@ -1,0 +1,1042 @@
+﻿Build started 20/02/2012 20:22:11.
+     1>Project "C:\Users\Blair\Desktop\Marlin_v1\Marlin\Marlin.vcxproj" on node 2 (build target(s)).
+     1>InitializeBuildStatus:
+         Creating "Debug\Marlin.unsuccessfulbuild" because "AlwaysCreate" was specified.
+       ClCompile:
+         c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /Od /Oy- /D _MBCS /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt MarlinSerial.cpp motion_control.cpp planner.cpp Sd2Card.cpp SdBaseFile.cpp SdFatUtil.cpp SdFile.cpp SdVolume.cpp stepper.cpp temperature.cpp
+         temperature.cpp
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(103): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(103): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(103): error C2072: 'cos' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(111): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(111): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(111): error C2072: 'fabs' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(128): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(128): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(128): error C2072: 'fmod' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(150): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(150): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(150): error C2072: 'sin' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(157): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(157): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(157): error C2072: 'sqrt' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(165): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(165): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(165): error C2072: 'tan' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(173): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(173): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(173): error C2072: 'floor' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(181): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(181): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(181): error C2072: 'ceil' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(211): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(211): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(211): error C2072: 'ldexp' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(218): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(218): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(218): error C2072: 'exp' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(225): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(225): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(225): error C2072: 'cosh' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(232): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(232): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(232): error C2072: 'sinh' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(239): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(239): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(239): error C2072: 'tanh' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(248): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(248): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(248): error C2072: 'acos' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(257): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(257): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(257): error C2072: 'asin' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(265): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(265): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(265): error C2072: 'atan' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(275): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(275): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(275): error C2072: 'atan2' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(282): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(282): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(282): error C2072: 'log' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(290): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(290): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(290): error C2072: 'log10' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(297): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(297): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(297): error C2072: 'pow' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(305): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(305): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(305): error C2072: 'isnan' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(313): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(313): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(313): error C2072: 'isinf' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(323): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(323): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(323): error C2072: 'square' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(331): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(331): error C2448: '__attribute__' : function-style initializer appears to be a function definition
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(336): error C2143: syntax error : missing ')' before ':'
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(337): error C2059: syntax error : ')'
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(333): error C3861: '__asm__': identifier not found
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(347): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(347): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(347): error C2072: 'fdim' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(357): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(357): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(357): error C2072: 'fma' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(366): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(366): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(366): error C2072: 'fmax' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(375): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(375): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(375): error C2072: 'fmin' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(389): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(389): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(389): error C2072: 'signbit' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(397): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(397): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(397): error C2072: 'trunc' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(405): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(405): error C2448: '__attribute__' : function-style initializer appears to be a function definition
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(413): error C2143: syntax error : missing ')' before ':'
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(414): error C2059: syntax error : ')'
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(408): error C3861: '__asm__': identifier not found
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(428): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(428): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(428): error C2072: 'hypot' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(439): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(439): fatal error C1003: error count exceeds 100; stopping compilation
+         stepper.cpp
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(103): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(103): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(103): error C2072: 'cos' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(111): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(111): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(111): error C2072: 'fabs' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(128): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(128): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(128): error C2072: 'fmod' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(150): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(150): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(150): error C2072: 'sin' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(157): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(157): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(157): error C2072: 'sqrt' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(165): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(165): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(165): error C2072: 'tan' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(173): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(173): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(173): error C2072: 'floor' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(181): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(181): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(181): error C2072: 'ceil' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(211): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(211): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(211): error C2072: 'ldexp' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(218): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(218): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(218): error C2072: 'exp' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(225): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(225): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(225): error C2072: 'cosh' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(232): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(232): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(232): error C2072: 'sinh' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(239): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(239): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(239): error C2072: 'tanh' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(248): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(248): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(248): error C2072: 'acos' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(257): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(257): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(257): error C2072: 'asin' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(265): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(265): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(265): error C2072: 'atan' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(275): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(275): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(275): error C2072: 'atan2' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(282): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(282): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(282): error C2072: 'log' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(290): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(290): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(290): error C2072: 'log10' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(297): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(297): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(297): error C2072: 'pow' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(305): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(305): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(305): error C2072: 'isnan' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(313): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(313): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(313): error C2072: 'isinf' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(323): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(323): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(323): error C2072: 'square' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(331): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(331): error C2448: '__attribute__' : function-style initializer appears to be a function definition
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(336): error C2143: syntax error : missing ')' before ':'
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(337): error C2059: syntax error : ')'
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(333): error C3861: '__asm__': identifier not found
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(347): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(347): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(347): error C2072: 'fdim' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(357): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(357): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(357): error C2072: 'fma' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(366): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(366): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(366): error C2072: 'fmax' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(375): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(375): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(375): error C2072: 'fmin' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(389): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(389): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(389): error C2072: 'signbit' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(397): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(397): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(397): error C2072: 'trunc' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(405): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(405): error C2448: '__attribute__' : function-style initializer appears to be a function definition
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(413): error C2143: syntax error : missing ')' before ':'
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(414): error C2059: syntax error : ')'
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(408): error C3861: '__asm__': identifier not found
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(428): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(428): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(428): error C2072: 'hypot' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(439): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(439): fatal error C1003: error count exceeds 100; stopping compilation
+         SdVolume.cpp
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(103): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(103): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(103): error C2072: 'cos' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(111): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(111): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(111): error C2072: 'fabs' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(128): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(128): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(128): error C2072: 'fmod' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(150): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(150): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(150): error C2072: 'sin' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(157): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(157): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(157): error C2072: 'sqrt' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(165): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(165): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(165): error C2072: 'tan' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(173): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(173): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(173): error C2072: 'floor' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(181): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(181): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(181): error C2072: 'ceil' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(211): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(211): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(211): error C2072: 'ldexp' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(218): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(218): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(218): error C2072: 'exp' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(225): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(225): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(225): error C2072: 'cosh' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(232): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(232): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(232): error C2072: 'sinh' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(239): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(239): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(239): error C2072: 'tanh' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(248): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(248): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(248): error C2072: 'acos' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(257): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(257): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(257): error C2072: 'asin' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(265): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(265): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(265): error C2072: 'atan' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(275): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(275): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(275): error C2072: 'atan2' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(282): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(282): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(282): error C2072: 'log' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(290): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(290): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(290): error C2072: 'log10' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(297): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(297): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(297): error C2072: 'pow' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(305): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(305): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(305): error C2072: 'isnan' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(313): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(313): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(313): error C2072: 'isinf' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(323): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(323): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(323): error C2072: 'square' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(331): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(331): error C2448: '__attribute__' : function-style initializer appears to be a function definition
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(336): error C2143: syntax error : missing ')' before ':'
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(337): error C2059: syntax error : ')'
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(333): error C3861: '__asm__': identifier not found
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(347): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(347): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(347): error C2072: 'fdim' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(357): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(357): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(357): error C2072: 'fma' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(366): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(366): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(366): error C2072: 'fmax' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(375): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(375): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(375): error C2072: 'fmin' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(389): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(389): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(389): error C2072: 'signbit' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(397): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(397): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(397): error C2072: 'trunc' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(405): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(405): error C2448: '__attribute__' : function-style initializer appears to be a function definition
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(413): error C2143: syntax error : missing ')' before ':'
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(414): error C2059: syntax error : ')'
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(408): error C3861: '__asm__': identifier not found
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(428): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(428): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(428): error C2072: 'hypot' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(439): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(439): fatal error C1003: error count exceeds 100; stopping compilation
+         SdFile.cpp
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(103): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(103): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(103): error C2072: 'cos' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(111): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(111): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(111): error C2072: 'fabs' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(128): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(128): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(128): error C2072: 'fmod' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(150): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(150): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(150): error C2072: 'sin' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(157): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(157): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(157): error C2072: 'sqrt' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(165): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(165): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(165): error C2072: 'tan' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(173): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(173): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(173): error C2072: 'floor' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(181): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(181): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(181): error C2072: 'ceil' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(211): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(211): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(211): error C2072: 'ldexp' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(218): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(218): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(218): error C2072: 'exp' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(225): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(225): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(225): error C2072: 'cosh' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(232): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(232): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(232): error C2072: 'sinh' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(239): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(239): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(239): error C2072: 'tanh' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(248): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(248): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(248): error C2072: 'acos' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(257): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(257): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(257): error C2072: 'asin' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(265): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(265): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(265): error C2072: 'atan' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(275): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(275): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(275): error C2072: 'atan2' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(282): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(282): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(282): error C2072: 'log' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(290): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(290): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(290): error C2072: 'log10' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(297): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(297): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(297): error C2072: 'pow' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(305): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(305): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(305): error C2072: 'isnan' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(313): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(313): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(313): error C2072: 'isinf' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(323): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(323): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(323): error C2072: 'square' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(331): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(331): error C2448: '__attribute__' : function-style initializer appears to be a function definition
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(336): error C2143: syntax error : missing ')' before ':'
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(337): error C2059: syntax error : ')'
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(333): error C3861: '__asm__': identifier not found
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(347): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(347): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(347): error C2072: 'fdim' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(357): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(357): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(357): error C2072: 'fma' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(366): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(366): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(366): error C2072: 'fmax' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(375): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(375): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(375): error C2072: 'fmin' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(389): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(389): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(389): error C2072: 'signbit' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(397): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(397): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(397): error C2072: 'trunc' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(405): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(405): error C2448: '__attribute__' : function-style initializer appears to be a function definition
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(413): error C2143: syntax error : missing ')' before ':'
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(414): error C2059: syntax error : ')'
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(408): error C3861: '__asm__': identifier not found
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(428): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(428): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(428): error C2072: 'hypot' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(439): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(439): fatal error C1003: error count exceeds 100; stopping compilation
+         SdFatUtil.cpp
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(103): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(103): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(103): error C2072: 'cos' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(111): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(111): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(111): error C2072: 'fabs' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(128): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(128): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(128): error C2072: 'fmod' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(150): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(150): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(150): error C2072: 'sin' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(157): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(157): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(157): error C2072: 'sqrt' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(165): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(165): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(165): error C2072: 'tan' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(173): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(173): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(173): error C2072: 'floor' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(181): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(181): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(181): error C2072: 'ceil' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(211): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(211): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(211): error C2072: 'ldexp' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(218): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(218): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(218): error C2072: 'exp' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(225): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(225): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(225): error C2072: 'cosh' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(232): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(232): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(232): error C2072: 'sinh' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(239): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(239): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(239): error C2072: 'tanh' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(248): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(248): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(248): error C2072: 'acos' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(257): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(257): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(257): error C2072: 'asin' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(265): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(265): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(265): error C2072: 'atan' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(275): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(275): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(275): error C2072: 'atan2' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(282): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(282): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(282): error C2072: 'log' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(290): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(290): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(290): error C2072: 'log10' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(297): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(297): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(297): error C2072: 'pow' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(305): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(305): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(305): error C2072: 'isnan' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(313): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(313): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(313): error C2072: 'isinf' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(323): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(323): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(323): error C2072: 'square' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(331): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(331): error C2448: '__attribute__' : function-style initializer appears to be a function definition
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(336): error C2143: syntax error : missing ')' before ':'
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(337): error C2059: syntax error : ')'
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(333): error C3861: '__asm__': identifier not found
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(347): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(347): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(347): error C2072: 'fdim' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(357): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(357): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(357): error C2072: 'fma' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(366): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(366): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(366): error C2072: 'fmax' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(375): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(375): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(375): error C2072: 'fmin' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(389): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(389): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(389): error C2072: 'signbit' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(397): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(397): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(397): error C2072: 'trunc' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(405): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(405): error C2448: '__attribute__' : function-style initializer appears to be a function definition
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(413): error C2143: syntax error : missing ')' before ':'
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(414): error C2059: syntax error : ')'
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(408): error C3861: '__asm__': identifier not found
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(428): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(428): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(428): error C2072: 'hypot' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(439): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(439): fatal error C1003: error count exceeds 100; stopping compilation
+         SdBaseFile.cpp
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(103): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(103): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(103): error C2072: 'cos' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(111): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(111): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(111): error C2072: 'fabs' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(128): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(128): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(128): error C2072: 'fmod' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(150): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(150): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(150): error C2072: 'sin' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(157): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(157): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(157): error C2072: 'sqrt' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(165): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(165): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(165): error C2072: 'tan' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(173): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(173): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(173): error C2072: 'floor' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(181): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(181): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(181): error C2072: 'ceil' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(211): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(211): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(211): error C2072: 'ldexp' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(218): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(218): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(218): error C2072: 'exp' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(225): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(225): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(225): error C2072: 'cosh' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(232): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(232): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(232): error C2072: 'sinh' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(239): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(239): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(239): error C2072: 'tanh' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(248): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(248): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(248): error C2072: 'acos' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(257): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(257): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(257): error C2072: 'asin' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(265): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(265): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(265): error C2072: 'atan' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(275): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(275): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(275): error C2072: 'atan2' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(282): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(282): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(282): error C2072: 'log' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(290): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(290): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(290): error C2072: 'log10' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(297): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(297): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(297): error C2072: 'pow' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(305): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(305): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(305): error C2072: 'isnan' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(313): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(313): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(313): error C2072: 'isinf' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(323): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(323): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(323): error C2072: 'square' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(331): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(331): error C2448: '__attribute__' : function-style initializer appears to be a function definition
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(336): error C2143: syntax error : missing ')' before ':'
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(337): error C2059: syntax error : ')'
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(333): error C3861: '__asm__': identifier not found
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(347): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(347): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(347): error C2072: 'fdim' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(357): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(357): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(357): error C2072: 'fma' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(366): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(366): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(366): error C2072: 'fmax' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(375): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(375): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(375): error C2072: 'fmin' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(389): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(389): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(389): error C2072: 'signbit' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(397): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(397): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(397): error C2072: 'trunc' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(405): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(405): error C2448: '__attribute__' : function-style initializer appears to be a function definition
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(413): error C2143: syntax error : missing ')' before ':'
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(414): error C2059: syntax error : ')'
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(408): error C3861: '__asm__': identifier not found
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(428): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(428): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(428): error C2072: 'hypot' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(439): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(439): fatal error C1003: error count exceeds 100; stopping compilation
+         Sd2Card.cpp
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(103): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(103): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(103): error C2072: 'cos' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(111): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(111): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(111): error C2072: 'fabs' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(128): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(128): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(128): error C2072: 'fmod' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(150): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(150): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(150): error C2072: 'sin' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(157): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(157): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(157): error C2072: 'sqrt' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(165): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(165): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(165): error C2072: 'tan' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(173): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(173): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(173): error C2072: 'floor' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(181): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(181): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(181): error C2072: 'ceil' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(211): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(211): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(211): error C2072: 'ldexp' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(218): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(218): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(218): error C2072: 'exp' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(225): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(225): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(225): error C2072: 'cosh' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(232): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(232): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(232): error C2072: 'sinh' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(239): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(239): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(239): error C2072: 'tanh' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(248): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(248): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(248): error C2072: 'acos' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(257): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(257): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(257): error C2072: 'asin' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(265): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(265): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(265): error C2072: 'atan' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(275): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(275): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(275): error C2072: 'atan2' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(282): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(282): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(282): error C2072: 'log' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(290): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(290): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(290): error C2072: 'log10' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(297): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(297): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(297): error C2072: 'pow' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(305): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(305): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(305): error C2072: 'isnan' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(313): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(313): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(313): error C2072: 'isinf' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(323): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(323): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(323): error C2072: 'square' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(331): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(331): error C2448: '__attribute__' : function-style initializer appears to be a function definition
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(336): error C2143: syntax error : missing ')' before ':'
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(337): error C2059: syntax error : ')'
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(333): error C3861: '__asm__': identifier not found
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(347): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(347): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(347): error C2072: 'fdim' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(357): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(357): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(357): error C2072: 'fma' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(366): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(366): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(366): error C2072: 'fmax' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(375): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(375): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(375): error C2072: 'fmin' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(389): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(389): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(389): error C2072: 'signbit' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(397): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(397): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(397): error C2072: 'trunc' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(405): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(405): error C2448: '__attribute__' : function-style initializer appears to be a function definition
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(413): error C2143: syntax error : missing ')' before ':'
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(414): error C2059: syntax error : ')'
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(408): error C3861: '__asm__': identifier not found
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(428): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(428): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(428): error C2072: 'hypot' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(439): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(439): fatal error C1003: error count exceeds 100; stopping compilation
+         planner.cpp
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(103): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(103): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(103): error C2072: 'cos' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(111): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(111): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(111): error C2072: 'fabs' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(128): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(128): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(128): error C2072: 'fmod' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(150): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(150): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(150): error C2072: 'sin' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(157): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(157): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(157): error C2072: 'sqrt' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(165): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(165): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(165): error C2072: 'tan' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(173): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(173): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(173): error C2072: 'floor' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(181): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(181): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(181): error C2072: 'ceil' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(211): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(211): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(211): error C2072: 'ldexp' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(218): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(218): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(218): error C2072: 'exp' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(225): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(225): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(225): error C2072: 'cosh' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(232): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(232): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(232): error C2072: 'sinh' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(239): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(239): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(239): error C2072: 'tanh' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(248): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(248): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(248): error C2072: 'acos' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(257): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(257): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(257): error C2072: 'asin' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(265): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(265): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(265): error C2072: 'atan' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(275): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(275): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(275): error C2072: 'atan2' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(282): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(282): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(282): error C2072: 'log' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(290): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(290): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(290): error C2072: 'log10' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(297): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(297): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(297): error C2072: 'pow' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(305): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(305): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(305): error C2072: 'isnan' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(313): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(313): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(313): error C2072: 'isinf' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(323): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(323): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(323): error C2072: 'square' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(331): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(331): error C2448: '__attribute__' : function-style initializer appears to be a function definition
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(336): error C2143: syntax error : missing ')' before ':'
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(337): error C2059: syntax error : ')'
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(333): error C3861: '__asm__': identifier not found
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(347): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(347): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(347): error C2072: 'fdim' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(357): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(357): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(357): error C2072: 'fma' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(366): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(366): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(366): error C2072: 'fmax' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(375): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(375): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(375): error C2072: 'fmin' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(389): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(389): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(389): error C2072: 'signbit' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(397): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(397): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(397): error C2072: 'trunc' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(405): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(405): error C2448: '__attribute__' : function-style initializer appears to be a function definition
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(413): error C2143: syntax error : missing ')' before ':'
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(414): error C2059: syntax error : ')'
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(408): error C3861: '__asm__': identifier not found
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(428): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(428): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(428): error C2072: 'hypot' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(439): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(439): fatal error C1003: error count exceeds 100; stopping compilation
+         motion_control.cpp
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(103): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(103): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(103): error C2072: 'cos' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(111): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(111): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(111): error C2072: 'fabs' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(128): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(128): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(128): error C2072: 'fmod' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(150): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(150): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(150): error C2072: 'sin' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(157): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(157): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(157): error C2072: 'sqrt' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(165): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(165): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(165): error C2072: 'tan' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(173): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(173): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(173): error C2072: 'floor' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(181): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(181): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(181): error C2072: 'ceil' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(211): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(211): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(211): error C2072: 'ldexp' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(218): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(218): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(218): error C2072: 'exp' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(225): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(225): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(225): error C2072: 'cosh' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(232): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(232): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(232): error C2072: 'sinh' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(239): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(239): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(239): error C2072: 'tanh' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(248): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(248): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(248): error C2072: 'acos' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(257): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(257): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(257): error C2072: 'asin' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(265): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(265): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(265): error C2072: 'atan' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(275): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(275): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(275): error C2072: 'atan2' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(282): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(282): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(282): error C2072: 'log' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(290): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(290): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(290): error C2072: 'log10' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(297): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(297): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(297): error C2072: 'pow' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(305): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(305): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(305): error C2072: 'isnan' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(313): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(313): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(313): error C2072: 'isinf' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(323): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(323): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(323): error C2072: 'square' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(331): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(331): error C2448: '__attribute__' : function-style initializer appears to be a function definition
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(336): error C2143: syntax error : missing ')' before ':'
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(337): error C2059: syntax error : ')'
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(333): error C3861: '__asm__': identifier not found
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(347): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(347): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(347): error C2072: 'fdim' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(357): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(357): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(357): error C2072: 'fma' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(366): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(366): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(366): error C2072: 'fmax' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(375): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(375): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(375): error C2072: 'fmin' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(389): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(389): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(389): error C2072: 'signbit' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(397): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(397): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(397): error C2072: 'trunc' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(405): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(405): error C2448: '__attribute__' : function-style initializer appears to be a function definition
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(413): error C2143: syntax error : missing ')' before ':'
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(414): error C2059: syntax error : ')'
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(408): error C3861: '__asm__': identifier not found
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(428): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(428): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(428): error C2072: 'hypot' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(439): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(439): fatal error C1003: error count exceeds 100; stopping compilation
+         MarlinSerial.cpp
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(103): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(103): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(103): error C2072: 'cos' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(111): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(111): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(111): error C2072: 'fabs' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(128): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(128): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(128): error C2072: 'fmod' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(150): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(150): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(150): error C2072: 'sin' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(157): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(157): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(157): error C2072: 'sqrt' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(165): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(165): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(165): error C2072: 'tan' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(173): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(173): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(173): error C2072: 'floor' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(181): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(181): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(181): error C2072: 'ceil' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(211): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(211): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(211): error C2072: 'ldexp' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(218): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(218): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(218): error C2072: 'exp' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(225): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(225): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(225): error C2072: 'cosh' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(232): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(232): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(232): error C2072: 'sinh' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(239): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(239): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(239): error C2072: 'tanh' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(248): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(248): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(248): error C2072: 'acos' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(257): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(257): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(257): error C2072: 'asin' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(265): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(265): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(265): error C2072: 'atan' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(275): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(275): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(275): error C2072: 'atan2' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(282): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(282): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(282): error C2072: 'log' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(290): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(290): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(290): error C2072: 'log10' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(297): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(297): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(297): error C2072: 'pow' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(305): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(305): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(305): error C2072: 'isnan' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(313): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(313): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(313): error C2072: 'isinf' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(323): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(323): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(323): error C2072: 'square' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(331): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(331): error C2448: '__attribute__' : function-style initializer appears to be a function definition
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(336): error C2143: syntax error : missing ')' before ':'
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(337): error C2059: syntax error : ')'
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(333): error C3861: '__asm__': identifier not found
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(347): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(347): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(347): error C2072: 'fdim' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(357): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(357): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(357): error C2072: 'fma' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(366): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(366): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(366): error C2072: 'fmax' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(375): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(375): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(375): error C2072: 'fmin' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(389): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(389): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(389): error C2072: 'signbit' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(397): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(397): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(397): error C2072: 'trunc' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(405): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(405): error C2448: '__attribute__' : function-style initializer appears to be a function definition
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(413): error C2143: syntax error : missing ')' before ':'
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(414): error C2059: syntax error : ')'
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(408): error C3861: '__asm__': identifier not found
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(428): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(428): error C2065: '__const__' : undeclared identifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(428): error C2072: 'hypot' : initialization of a function
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(439): error C3646: '__attribute__' : unknown override specifier
+     1>c:\arduino-1.0\hardware\tools\avr\avr\include\math.h(439): fatal error C1003: error count exceeds 100; stopping compilation
+         Generating Code...
+     1>Done Building Project "C:\Users\Blair\Desktop\Marlin_v1\Marlin\Marlin.vcxproj" (build target(s)) -- FAILED.
+
+Build FAILED.
+
+Time Elapsed 00:00:00.70
