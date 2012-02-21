@@ -586,8 +586,6 @@ void process_commands()
         st_synchronize();
         endstops_hit_on_purpose();
       }
-      else
-      {
       #endif
       
       if((home_all_axis) || (code_seen(axis_codes[X_AXIS]))) 
@@ -598,10 +596,6 @@ void process_commands()
       if((home_all_axis) || (code_seen(axis_codes[Y_AXIS]))) {
        HOMEAXIS(Y);
       }
-      
-      #ifdef QUICK_HOME
-      }
-      #endif
       
       if((home_all_axis) || (code_seen(axis_codes[Z_AXIS]))) {
         HOMEAXIS(Z);
