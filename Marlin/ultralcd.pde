@@ -372,7 +372,7 @@ void MainMenu::showStatus()
   if((currentz!=oldzpos)||force_lcd_update)
   {
     lcd.setCursor(10,1);
-    lcdprintPGM("Z:");lcd.print(ftostr32(current_position[2]));
+    lcdprintPGM("Z:");lcd.print(ftostr52(current_position[2]));
     oldzpos=currentz;
   }
   static int oldfeedmultiply=0;
@@ -411,7 +411,6 @@ void MainMenu::showStatus()
      lcd.setCursor(7,2);
     lcd.print(itostr3((int)percent));
     lcdprintPGM("%SD");
-    
   }
   
 #else //smaller LCDS----------------------------------
@@ -485,7 +484,7 @@ void MainMenu::showPrepare()
       MENUITEM(  lcdprintPGM(MSG_DISABLE_STEPPERS)  ,  BLOCK;enquecommand("M84");beepshort(); ) ;
       break;
     case ItemP_home:
-      MENUITEM(  lcdprintPGM(MSG_AUTO_HOME)  ,  BLOCK;enquecommand("G28 X0 Y0 Z0");beepshort(); ) ;
+      MENUITEM(  lcdprintPGM(MSG_AUTO_HOME)  ,  BLOCK;enquecommand("G28");beepshort(); ) ;
       break;
     case ItemP_origin:
       MENUITEM(  lcdprintPGM(MSG_SET_ORIGIN)  ,  BLOCK;enquecommand("G92 X0 Y0 Z0");beepshort(); ) ;
@@ -500,7 +499,7 @@ void MainMenu::showPrepare()
   //    MENUITEM(  lcdprintPGM(" Extrude")  ,  BLOCK;enquecommand("G92 E0");enquecommand("G1 F700 E50");beepshort(); ) ;
     //  break;
     case ItemP_move:
-      MENUITEM(  lcdprintPGM(" Move Axis      \x7E") , BLOCK;status=Sub_PrepareMove;beepshort(); );
+      MENUITEM(  lcdprintPGM(MSG_MOVE_AXIS) , BLOCK;status=Sub_PrepareMove;beepshort(); );
       break;
         default:   
       break;
@@ -664,7 +663,7 @@ void MainMenu::showAxisMove()
           }
           break;
           case ItemAM_E:
-          MENUITEM(  lcdprintPGM(" Extrude")  ,  BLOCK;enquecommand("G92 E0");enquecommand("G1 F700 E5");beepshort(); ) ;
+          MENUITEM(  lcdprintPGM(MSG_EXTRUDE)  ,  BLOCK;enquecommand("G92 E0");enquecommand("G1 F700 E5");beepshort(); ) ;
           break;
           default:
           break;
@@ -703,7 +702,7 @@ void MainMenu::showTune()
       if((activeline!=line) )
         break;
       
-      if(CLICKED) //nalogWrite(FAN_PIN,  fanpwm);
+      if(CLICKED) //AnalogWrite(FAN_PIN,  fanpwm);
       {
         linechanging=!linechanging;
         if(linechanging)
@@ -1597,7 +1596,7 @@ void MainMenu::showControlMotion()
          {
       if(force_lcd_update)
         {
-          lcd.setCursor(0,line);lcdprintPGM(" X steps/mm:");
+          lcd.setCursor(0,line);lcdprintPGM(MSG_XSTEPS);
           lcd.setCursor(11,line);lcd.print(ftostr52(axis_steps_per_unit[0]));
         }
         
@@ -1609,11 +1608,11 @@ void MainMenu::showControlMotion()
           linechanging=!linechanging;
           if(linechanging)
           {
-              encoderpos=(int)axis_steps_per_unit[0];
+              encoderpos=(int)(axis_steps_per_unit[0]*100.0);
           }
           else
           {
-            float factor=float(encoderpos)/100/float(axis_steps_per_unit[0]);
+            float factor=float(encoderpos)/100.0/float(axis_steps_per_unit[0]);
             position[X_AXIS]=lround(position[X_AXIS]*factor);
             //current_position[3]*=factor;
             axis_steps_per_unit[X_AXIS]= encoderpos/100.0;
@@ -1634,8 +1633,8 @@ void MainMenu::showControlMotion()
          {
       if(force_lcd_update)
         {
-          lcd.setCursor(0,line);lcdprintPGM(" Y steps/mm:");
-          lcd.setCursor(13,line);lcd.print(itostr4(axis_steps_per_unit[1]));
+          lcd.setCursor(0,line);lcdprintPGM(MSG_YSTEPS);
+          lcd.setCursor(11,line);lcd.print(ftostr52(axis_steps_per_unit[1]));
         }
         
         if((activeline!=line) )
@@ -1646,14 +1645,14 @@ void MainMenu::showControlMotion()
           linechanging=!linechanging;
           if(linechanging)
           {
-              encoderpos=(int)axis_steps_per_unit[1];
+              encoderpos=(int)(axis_steps_per_unit[1]*100.0);
           }
           else
           {
-            float factor=float(encoderpos)/float(axis_steps_per_unit[1]);
+            float factor=float(encoderpos)/100.0/float(axis_steps_per_unit[1]);
             position[Y_AXIS]=lround(position[Y_AXIS]*factor);
             //current_position[3]*=factor;
-            axis_steps_per_unit[Y_AXIS]= encoderpos;
+            axis_steps_per_unit[Y_AXIS]= encoderpos/100.0;
             encoderpos=activeline*lcdslow;
               
           }
@@ -1664,7 +1663,7 @@ void MainMenu::showControlMotion()
         {
           if(encoderpos<5) encoderpos=5;
           if(encoderpos>9999) encoderpos=9999;
-          lcd.setCursor(13,line);lcd.print(itostr4(encoderpos));
+          lcd.setCursor(11,line);lcd.print(ftostr52(encoderpos/100.0));
         }
         
       }break;
@@ -1672,8 +1671,8 @@ void MainMenu::showControlMotion()
          {
       if(force_lcd_update)
         {
-          lcd.setCursor(0,line);lcdprintPGM(" Z steps/mm:");
-          lcd.setCursor(13,line);lcd.print(itostr4(axis_steps_per_unit[2]));
+          lcd.setCursor(0,line);lcdprintPGM(MSG_ZSTEPS);
+          lcd.setCursor(11,line);lcd.print(ftostr52(axis_steps_per_unit[2]));
         }
         
         if((activeline!=line) )
@@ -1684,14 +1683,14 @@ void MainMenu::showControlMotion()
           linechanging=!linechanging;
           if(linechanging)
           {
-              encoderpos=(int)axis_steps_per_unit[2];
+              encoderpos=(int)(axis_steps_per_unit[2]*100.0);
           }
           else
           {
-            float factor=float(encoderpos)/float(axis_steps_per_unit[2]);
+            float factor=float(encoderpos)/100.0/float(axis_steps_per_unit[2]);
             position[Z_AXIS]=lround(position[Z_AXIS]*factor);
             //current_position[3]*=factor;
-            axis_steps_per_unit[Z_AXIS]= encoderpos;
+            axis_steps_per_unit[Z_AXIS]= encoderpos/100.0;
             encoderpos=activeline*lcdslow;
               
           }
@@ -1702,7 +1701,7 @@ void MainMenu::showControlMotion()
         {
           if(encoderpos<5) encoderpos=5;
           if(encoderpos>9999) encoderpos=9999;
-          lcd.setCursor(13,line);lcd.print(itostr4(encoderpos));
+          lcd.setCursor(11,line);lcd.print(ftostr52(encoderpos/100.0));
         }
         
       }break;
@@ -1712,7 +1711,7 @@ void MainMenu::showControlMotion()
       if(force_lcd_update)
         {
           lcd.setCursor(0,line);lcdprintPGM(MSG_ESTEPS);
-          lcd.setCursor(13,line);lcd.print(itostr4(axis_steps_per_unit[3]));
+          lcd.setCursor(11,line);lcd.print(ftostr52(axis_steps_per_unit[3]));
         }
         
         if((activeline!=line) )
@@ -1723,14 +1722,14 @@ void MainMenu::showControlMotion()
           linechanging=!linechanging;
           if(linechanging)
           {
-              encoderpos=(int)axis_steps_per_unit[3];
+              encoderpos=(int)(axis_steps_per_unit[3]*100.0);
           }
           else
           {
-            float factor=float(encoderpos)/float(axis_steps_per_unit[3]);
+            float factor=float(encoderpos)/100.0/float(axis_steps_per_unit[3]);
             position[E_AXIS]=lround(position[E_AXIS]*factor);
             //current_position[3]*=factor;
-            axis_steps_per_unit[E_AXIS]= encoderpos;
+            axis_steps_per_unit[E_AXIS]= encoderpos/100.0;
             encoderpos=activeline*lcdslow;
               
           }
@@ -1741,7 +1740,7 @@ void MainMenu::showControlMotion()
         {
           if(encoderpos<5) encoderpos=5;
           if(encoderpos>9999) encoderpos=9999;
-          lcd.setCursor(13,line);lcd.print(itostr4(encoderpos));
+          lcd.setCursor(11,line);lcd.print(ftostr52(encoderpos/100.0));
         }
         
       }break; 
