@@ -26,7 +26,7 @@
 // Gen7 v1.3 = 79
 // Teensylu = 8,
 // Gen3+ =9
-#define MOTHERBOARD 7
+#define MOTHERBOARD 33
 
 //===========================================================================
 //=============================Thermal Settings  ============================
@@ -44,7 +44,7 @@
 // 6 is EPCOS 100k
 // 7 is 100k Honeywell thermistor 135-104LAG-J01
 
-#define TEMP_SENSOR_0 -1
+#define TEMP_SENSOR_0 1
 #define TEMP_SENSOR_1 0
 #define TEMP_SENSOR_2 0
 #define TEMP_SENSOR_BED 1
@@ -129,7 +129,7 @@ const bool Z_ENDSTOPS_INVERTING = false; // set to true to invert the logic of t
 
 #define INVERT_X_DIR false    // for Mendel set to false, for Orca set to true
 #define INVERT_Y_DIR true    // for Mendel set to true, for Orca set to false
-#define INVERT_Z_DIR false     // for Mendel set to false, for Orca set to true
+#define INVERT_Z_DIR true     // for Mendel set to false, for Orca set to true
 #define INVERT_E0_DIR false   // for direct drive extruder v9 set to true, for geared extruder set to false
 #define INVERT_E1_DIR false    // for direct drive extruder v9 set to true, for geared extruder set to false
 #define INVERT_E2_DIR false   // for direct drive extruder v9 set to true, for geared extruder set to false
@@ -194,6 +194,10 @@ const bool Z_ENDSTOPS_INVERTING = false; // set to true to invert the logic of t
   #define ULTRA_LCD
   #define LCD_WIDTH 20
   #define LCD_HEIGHT 4
+  #define PLA_PREHEAT_HOTEND_TEMP 180 
+  #define PLA_PREHEAT_HPB_TEMP 70
+  #define ABS_PREHEAT_HOTEND_TEMP 240
+  #define ABS_PREHEAT_HPB_TEMP 100
 #else //no panel but just lcd 
   #ifdef ULTRA_LCD
     #define LCD_WIDTH 16

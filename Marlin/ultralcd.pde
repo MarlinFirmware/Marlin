@@ -456,7 +456,7 @@ void MainMenu::showStatus()
   force_lcd_update=false;
 }
 
-enum {ItemP_exit, ItemP_autostart,ItemP_disstep,ItemP_home, ItemP_origin, ItemP_preheat, ItemP_cooldown,/*ItemP_extrude,*/ItemP_move};
+enum {ItemP_exit, ItemP_autostart,ItemP_disstep,ItemP_home, ItemP_origin, ItemP_preheat_pla, ItemP_preheat_abs, ItemP_cooldown,/*ItemP_extrude,*/ItemP_move};
 
 //any action must not contain a ',' character anywhere, or this breaks:
 #define MENUITEM(repaint_action, click_action) \
@@ -489,8 +489,11 @@ void MainMenu::showPrepare()
     case ItemP_origin:
       MENUITEM(  lcdprintPGM(MSG_SET_ORIGIN)  ,  BLOCK;enquecommand("G92 X0 Y0 Z0");beepshort(); ) ;
       break;
-    case ItemP_preheat:
-      MENUITEM(  lcdprintPGM(MSG_PREHEAT)  ,  BLOCK;setTargetHotend0(170);setTargetBed(70);beepshort(); ) ;
+    case ItemP_preheat_pla:
+      MENUITEM(  lcdprintPGM(MSG_PREHEAT_PLA)  ,  BLOCK;setTargetHotend0(PLA_PREHEAT_HOTEND_TEMP);setTargetBed(PLA_PREHEAT_HPB_TEMP);beepshort(); ) ;
+      break;
+    case ItemP_preheat_abs:
+      MENUITEM(  lcdprintPGM(MSG_PREHEAT_ABS)  ,  BLOCK;setTargetHotend0(ABS_PREHEAT_HOTEND_TEMP);setTargetBed(ABS_PREHEAT_HPB_TEMP);beepshort(); ) ;
       break;
     case ItemP_cooldown:
       MENUITEM(  lcdprintPGM(MSG_COOLDOWN)  ,  BLOCK;setTargetHotend0(0);setTargetBed(0);beepshort(); ) ;
