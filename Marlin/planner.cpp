@@ -446,9 +446,9 @@ void plan_buffer_line(float &x, float &y, float &z, float &e, float feed_rate, u
 
   
   if (min_software_endstops) {
-    if (x < 0) x = 0;
-    if (y < 0) y = 0;
-    if (z < 0) z = 0;
+    if (x < X_HOME_POS) x = X_HOME_POS;
+    if (y < Y_HOME_POS) y = Y_HOME_POS;
+    if (z < Z_HOME_POS) z = Z_HOME_POS;
   }
 
   if (max_software_endstops) {

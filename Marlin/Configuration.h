@@ -146,6 +146,11 @@ const bool Z_ENDSTOPS_INVERTING = false; // set to true to invert the logic of t
 #define Y_MAX_LENGTH 185
 #define Z_MAX_LENGTH 90
 
+// The position of the homing switches. Use MAX_LENGTH * -0.5 if the center should be 0, 0, 0
+#define X_HOME_POS 0
+#define Y_HOME_POS 0
+#define Z_HOME_POS 0
+
 //// MOVEMENT SETTINGS
 #define NUM_AXIS 4 // The axis order in all axis related arrays is X, Y, Z, E
 #define HOMING_FEEDRATE {1500, 1500, 80, 0} // {50*60, 50*60, 4*60, 0}  // set the homing speeds (mm/min)
@@ -182,7 +187,7 @@ const bool Z_ENDSTOPS_INVERTING = false; // set to true to invert the logic of t
 //#define ULTRA_LCD  //general lcd support, also 16x2
 #define SDSUPPORT // Enable SD Card Support in Hardware Console
 
-//#define ULTIPANEL
+#define ULTIPANEL
 #ifdef ULTIPANEL
   #define NEWPANEL  //enable this if you have a click-encoder panel
   #define SDSUPPORT
