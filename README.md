@@ -1,3 +1,23 @@
+SCUBA82's fork:
+-----------------
+
+The main goal of my fork is porting the brilliant Marlin firmware to GEN7 Boards.
+I'm working on a 16MHz GEN7 board and have only tested with this configuration.
+But there were reports about successfully running it at 20 MHz. Expect 25% faster moves and maybe some other issues.
+
+Using lcd and sdcard support on an ATMega644(P) is not possible cause the sketch is way too big for its memory.
+I switched to an ATMega1284P which has double size program memory. Unfortunately it's not supported in Arduino IDE out of the box but expect a tutorial on how to compile for it soon. 
+For the necessary pin breakouts I used Alfons3 design of GEN7 (https://github.com/Alfons3/Generation_7_Electronics) with an additional breakout for pin A0/D31. 
+I'll publish my desing as soon as possible.
+
+You have to use different chip fuses to get Marlin running.
+The fuses I'm using are lfuse: 0xF7 hfuse: 0xD4 efuse: 0xFD
+
+For questions take a look into http://forums.reprap.org/read.php?181,118329 or send me an e-mail: christian_thalhammer@gmx.at
+
+
+Expect this fork to be highly experimental. 
+
 WARNING: 
 --------
 THIS IS RELEASE CANDIDATE 1 FOR MARLIN 1.0.0

@@ -308,7 +308,7 @@
 #define SDPOWER            -1
 #define SDSS               53
 #define LED_PIN            13
-#define FAN_PIN            4
+#define FAN_PIN            9 // Uses HEATER_1 on Ramps Board
 #define PS_ON_PIN          12
 #define KILL_PIN           -1
 
@@ -321,6 +321,74 @@
 #define HEATER_BED_PIN     8    // BED
 #define TEMP_BED_PIN       14   // ANALOG NUMBERING
 
+#ifdef ULTRA_LCD
+
+  #ifdef NEWPANEL
+  //arduino pin which triggers an piezzo beeper
+    #define BEEPER 33			// Beeper on AUX-4
+
+    #define LCD_PINS_RS 16 
+    #define LCD_PINS_ENABLE 17
+    #define LCD_PINS_D4 23
+    #define LCD_PINS_D5 25 
+    #define LCD_PINS_D6 27
+    #define LCD_PINS_D7 29
+    
+    //buttons are directly attached using AUX-2
+    #define BTN_EN1 44
+    #define BTN_EN2 42
+    #define BTN_ENC 64  //the click
+    
+    #define BLEN_C 2
+    #define BLEN_B 1
+    #define BLEN_A 0
+    
+    #define SDCARDDETECT 31		// Ramps does not use this port
+    
+      //encoder rotation values
+    #define encrot0 0
+    #define encrot1 2
+    #define encrot2 3
+    #define encrot3 1
+
+  #else //old style panel with shift register
+    //arduino pin witch triggers an piezzo beeper
+    #define BEEPER 33		No Beeper added
+
+    //buttons are attached to a shift register
+	// Not wired this yet
+    //#define SHIFT_CLK 38
+    //#define SHIFT_LD 42
+    //#define SHIFT_OUT 40
+    //#define SHIFT_EN 17
+    
+    #define LCD_PINS_RS 16 
+    #define LCD_PINS_ENABLE 17
+    #define LCD_PINS_D4 23
+    #define LCD_PINS_D5 25 
+    #define LCD_PINS_D6 27
+    #define LCD_PINS_D7 29
+    
+    //encoder rotation values
+    #define encrot0 0
+    #define encrot1 2
+    #define encrot2 3
+    #define encrot3 1
+
+    
+    //bits in the shift register that carry the buttons for:
+    // left up center down right red
+    #define BL_LE 7
+    #define BL_UP 6
+    #define BL_MI 5
+    #define BL_DW 4
+    #define BL_RI 3
+    #define BL_ST 2
+
+    #define BLEN_B 1
+    #define BLEN_A 0
+  #endif 
+#endif //ULTRA_LCD
 
 #else // RAMPS_V_1_1 or RAMPS_V_1_2 as default
 
@@ -567,6 +635,180 @@
 
 #endif
 
+/****************************************************************************************
+* Gen7 v1.1, v1.2, v1.3 pin assignment
+*
+****************************************************************************************/
+
+#if MOTHERBOARD == 79
+#define MOTHERBOARD 78
+#define GEN7_V_1_3
+#endif
+
+#if MOTHERBOARD == 78
+#define KNOWN_BOARD
+
+#if !defined(__AVR_ATmega644P__) && !defined(__AVR_ATmega644__) && !defined(__AVR_ATmega1284P__)
+#error Oops! Make sure you have 'Gen7' selected from the 'Tools -> Boards' menu.
+
+#endif
+
+//x axis pins
+#define X_STEP_PIN 19
+#define X_DIR_PIN 18
+#define X_ENABLE_PIN 24
+#define X_MIN_PIN 7
+#define X_MAX_PIN -1
+
+//y axis pins
+#define Y_STEP_PIN 23
+#define Y_DIR_PIN 22
+#define Y_ENABLE_PIN 24
+#define Y_MIN_PIN 5
+#define Y_MAX_PIN -1
+
+//z axis pins
+#define Z_STEP_PIN 26
+#define Z_DIR_PIN 25
+#define Z_ENABLE_PIN 24
+#define Z_MIN_PIN 1
+#define Z_MAX_PIN -1
+
+//extruder pins
+#define E0_STEP_PIN 28
+#define E0_DIR_PIN 27
+#define E0_ENABLE_PIN 24
+
+#define TEMP_0_PIN 1
+#define TEMP_1_PIN -1
+#define TEMP_2_PIN -1
+#define TEMP_BED_PIN 2
+
+#define HEATER_0_PIN 4
+#define HEATER_1_PIN -1
+#define HEATER_2_PIN -1
+#define HEATER_BED_PIN 3
+
+
+#define SDPOWER -1
+#define SDSS -1 // SCL pin of I2C header
+#define LED_PIN -1
+
+#ifdef GEN7_V_1_3
+// Gen7 v1.3 removed the fan pin
+#define FAN_PIN -1
+#else
+#define FAN_PIN 31
+#endif
+#define PS_ON_PIN 15
+
+//our pin for debugging.
+#define DEBUG_PIN 0
+
+//our RS485 pins
+#define TX_ENABLE_PIN 12
+#define RX_ENABLE_PIN 13
+
+#endif
+
+/*******************************************************************************
+*********
+* Gen7 Alfons3  pin assignment
+*
+********************************************************************************
+********/
+/* These Pins are assigned for the modified GEN7 Board from Alfons3 Please review the pins and adjust it for your needs*/
+
+#if MOTHERBOARD == 77
+#define KNOWN_BOARD
+
+#if !defined(__AVR_ATmega644P__) && !defined(__AVR_ATmega644__) && !defined(__AVR_ATmega1284P__)
+    #error Oops!  Make sure you have 'Gen7' selected from the 'Tools -> Boards' menu.
+
+#endif
+
+//x axis pins
+    #define X_STEP_PIN      21                  //different from stanard GEN7
+    #define X_DIR_PIN       20				    //different from stanard GEN7
+    #define X_ENABLE_PIN    24
+    #define X_MIN_PIN       0
+    #define X_MAX_PIN       -1
+
+    //y axis pins
+    #define Y_STEP_PIN      23
+    #define Y_DIR_PIN       22
+    #define Y_ENABLE_PIN    24
+    #define Y_MIN_PIN       1
+    #define Y_MAX_PIN       -1
+
+    //z axis pins
+    #define Z_STEP_PIN      26
+    #define Z_DIR_PIN       25
+    #define Z_ENABLE_PIN    24
+    #define Z_MIN_PIN       2
+    #define Z_MAX_PIN       -1
+
+    //extruder pins
+    #define E0_STEP_PIN      28
+    #define E0_DIR_PIN       27
+    #define E0_ENABLE_PIN    24
+    
+    #define TEMP_0_PIN      2
+    #define TEMP_1_PIN      -1
+    #define TEMP_2_PIN      -1
+    #define TEMP_BED_PIN        1   // MUST USE ANALOG INPUT NUMBERING NOT DIGITAL OUTPUT NUMBERING!!!!!!!!! (pin 34 bed)
+     
+    #define HEATER_0_PIN    4
+    #define HEATER_1_PIN    -1   
+    #define HEATER_2_PIN    -1
+    #define HEATER_BED_PIN      3  // (bed)
+   
+   
+
+    
+    #define SDPOWER         -1
+    #define SDSS            31                  // SCL pin of I2C header || CS Pin for SD Card support
+    #define LED_PIN         -1
+
+    #define FAN_PIN         -1
+    #define PS_ON_PIN       19
+    //our pin for debugging.
+
+    #define DEBUG_PIN        -1
+
+    //our RS485 pins
+    //#define TX_ENABLE_PIN       12
+    //#define RX_ENABLE_PIN       13
+    
+    #define BEEPER -1	
+	#define SDCARDDETECT -1 		
+    #define SUICIDE_PIN -1						//has to be defined; otherwise Power_off doesn't work
+	
+	//Pins for 4bit LCD Support 
+    #define LCD_PINS_RS 18 
+    #define LCD_PINS_ENABLE 17
+    #define LCD_PINS_D4 16
+    #define LCD_PINS_D5 15 
+    #define LCD_PINS_D6 13
+    #define LCD_PINS_D7 14
+    
+     //buttons are directly attached
+    #define BTN_EN1 11
+    #define BTN_EN2 10
+    #define BTN_ENC 12  //the click
+    
+    #define BLEN_C 2
+    #define BLEN_B 1
+    #define BLEN_A 0
+
+   
+    #define encrot0 0
+    #define encrot1 2
+    #define encrot2 3
+    #define encrot3 1
+   
+    
+#endif
 
 #if MOTHERBOARD == 7
 #define KNOWN_BOARD

@@ -35,6 +35,7 @@
 #include "cardreader.h"
 #include "watchdog.h"
 #include "EEPROMwrite.h"
+#include "language.h"
 
 #define VERSION_STRING  "1.0.0 RC1"
 
@@ -226,11 +227,11 @@ void setup_photpin()
 void setup_powerhold()
 {
  #ifdef SUICIDE_PIN
-    #if (SUICIDE_PIN> -1) 
+   #if (SUICIDE_PIN> -1)
       SET_OUTPUT(SUICIDE_PIN);
       WRITE(SUICIDE_PIN, HIGH);
-    #endif
-  #endif
+   #endif
+ #endif
 }
 
 void suicide()
@@ -508,12 +509,10 @@ bool code_seen(char code)
     feedrate = homing_feedrate[LETTER##_AXIS]/2 ;  \
     plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate/60, active_extruder); \
     \
-    current_position[LETTER##_AXIS] = (LETTER##_HOME_DIR == -1) ? 0 : LETTER##_MAX_LENGTH;\
-    plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);\
+    current_position[LETTER##_AXIS] = (LETTER##_HOME_DIR == -1) ? LETTER##_HOME_POS : LETTER##_MAX_LENGTH;\
     destination[LETTER##_AXIS] = current_position[LETTER##_AXIS];\
     feedrate = 0.0;\
     st_synchronize();\
-    plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);\
     endstops_hit_on_purpose();\
   }
 
@@ -567,7 +566,7 @@ void process_commands()
       feedrate = 0.0;
       home_all_axis = !((code_seen(axis_codes[0])) || (code_seen(axis_codes[1])) || (code_seen(axis_codes[2])));
       #ifdef QUICK_HOME
-      if( code_seen(axis_codes[0]) && code_seen(axis_codes[1]) )  //first diagonal move
+      if( code_seen(axis_codes[X_AXIS]) && code_seen(axis_codes[Y_AXIS]) )  //first diagonal move
       {
         current_position[X_AXIS] = 0;current_position[Y_AXIS] = 0;  
 
@@ -578,15 +577,13 @@ void process_commands()
           feedrate =homing_feedrate[Y_AXIS]; 
         prepare_move(); 
     
-        current_position[X_AXIS] = (X_HOME_DIR == -1) ? 0 : X_MAX_LENGTH;
-        current_position[Y_AXIS] = (Y_HOME_DIR == -1) ? 0 : Y_MAX_LENGTH;
+        current_position[X_AXIS] = (X_HOME_DIR == -1) ? X_HOME_POS : X_MAX_LENGTH;
+        current_position[Y_AXIS] = (Y_HOME_DIR == -1) ? Y_HOME_POS : Y_MAX_LENGTH;
         plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
         destination[X_AXIS] = current_position[X_AXIS];
         destination[Y_AXIS] = current_position[Y_AXIS];
         feedrate = 0.0;
         st_synchronize();
-        plan_set_position(0, 0, current_position[Z_AXIS], current_position[E_AXIS]);
-        current_position[X_AXIS] = 0;current_position[Y_AXIS] = 0;
         endstops_hit_on_purpose();
       }
       #endif
@@ -599,7 +596,7 @@ void process_commands()
       if((home_all_axis) || (code_seen(axis_codes[Y_AXIS]))) {
        HOMEAXIS(Y);
       }
-
+      
       if((home_all_axis) || (code_seen(axis_codes[Z_AXIS]))) {
         HOMEAXIS(Z);
       }
@@ -616,6 +613,8 @@ void process_commands()
       if(code_seen(axis_codes[Z_AXIS])) {
         current_position[2]=code_value()+add_homeing[2];
       }
+      plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+      
       #ifdef ENDSTOPS_ONLY_FOR_HOMING
         enable_endstops(false);
       #endif
@@ -1254,19 +1253,6 @@ void get_arc_coordinates()
 
 void prepare_move()
 {
-  
-  if (min_software_endstops) {
-    if (destination[X_AXIS] < 0) destination[X_AXIS] = 0.0;
-    if (destination[Y_AXIS] < 0) destination[Y_AXIS] = 0.0;
-    if (destination[Z_AXIS] < 0) destination[Z_AXIS] = 0.0;
-  }
-
-  if (max_software_endstops) {
-    if (destination[X_AXIS] > X_MAX_LENGTH) destination[X_AXIS] = X_MAX_LENGTH;
-    if (destination[Y_AXIS] > Y_MAX_LENGTH) destination[Y_AXIS] = Y_MAX_LENGTH;
-    if (destination[Z_AXIS] > Z_MAX_LENGTH) destination[Z_AXIS] = Z_MAX_LENGTH;
-  }
-
   plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate*feedmultiply/60/100.0, active_extruder);
   for(int8_t i=0; i < NUM_AXIS; i++) {
     current_position[i] = destination[i];

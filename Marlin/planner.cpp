@@ -439,11 +439,24 @@ float junction_deviation = 0.1;
 // Add a new linear movement to the buffer. steps_x, _y and _z is the absolute position in 
 // mm. Microseconds specify how many microseconds the move should take to perform. To aid acceleration
 // calculation the caller must also provide the physical length of the line in millimeters.
-void plan_buffer_line(const float &x, const float &y, const float &z, const float &e,  float feed_rate, const uint8_t &extruder)
+void plan_buffer_line(float &x, float &y, float &z, float &e, float feed_rate, uint8_t &extruder)
 {
   // Calculate the buffer head after we push this byte
   int next_buffer_head = next_block_index(block_buffer_head);
 
+  
+  if (min_software_endstops) {
+    if (x < X_HOME_POS) x = X_HOME_POS;
+    if (y < Y_HOME_POS) y = Y_HOME_POS;
+    if (z < Z_HOME_POS) z = Z_HOME_POS;
+  }
+
+  if (max_software_endstops) {
+    if (x > X_MAX_LENGTH) x = X_MAX_LENGTH;
+    if (y > Y_MAX_LENGTH) y = Y_MAX_LENGTH;
+    if (z > Z_MAX_LENGTH) z = Z_MAX_LENGTH;
+  }
+  
   // If the buffer is full: good! That means we are well ahead of the robot. 
   // Rest here until there is room in the buffer.
   while(block_buffer_tail == next_buffer_head) { 
@@ -451,7 +464,7 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
     manage_inactivity(1); 
     LCD_STATUS;
   }
-
+  
   // The target position of the tool in absolute steps
   // Calculate target position in absolute steps
   //this should be done after the wait, because otherwise a M92 code within the gcode disrupts this calculation somehow
@@ -460,6 +473,8 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
   target[Y_AXIS] = lround(y*axis_steps_per_unit[Y_AXIS]);
   target[Z_AXIS] = lround(z*axis_steps_per_unit[Z_AXIS]);     
   target[E_AXIS] = lround(e*axis_steps_per_unit[E_AXIS]);
+  
+
   
   #ifdef PREVENT_DANGEROUS_EXTRUDE
     if(target[E_AXIS]!=position[E_AXIS])

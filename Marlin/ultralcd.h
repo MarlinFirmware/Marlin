@@ -9,26 +9,25 @@
   void beep();
   void buttons_check();
 
-
   #define LCD_UPDATE_INTERVAL 100
   #define STATUSTIMEOUT 15000
-
-
-  
   extern LiquidCrystal lcd;
-
-
+  
   #ifdef NEWPANEL
-
-    
     #define EN_C (1<<BLEN_C)
     #define EN_B (1<<BLEN_B)
     #define EN_A (1<<BLEN_A)
     
     #define CLICKED (buttons&EN_C)
     #define BLOCK {blocking=millis()+blocktime;}
-    #define CARDINSERTED (READ(SDCARDDETECT)==0)
-    
+    #if (SDCARDDETECT > -1)
+      #ifdef SDCARDDETECTINVERTED 
+        #define CARDINSERTED (READ(SDCARDDETECT)!=0)
+      #else
+        #define CARDINSERTED (READ(SDCARDDETECT)==0)
+      #endif
+    #endif  //SDCARDTETECTINVERTED
+
   #else
 
     //atomatic, do not change
@@ -50,7 +49,7 @@
   #define blocktime 500
   #define lcdslow 5
     
-  enum MainStatus{Main_Status, Main_Menu, Main_Prepare, Main_Control, Main_SD,Sub_TempControl,Sub_MotionControl};
+  enum MainStatus{Main_Status, Main_Menu, Main_Prepare,Sub_PrepareMove, Main_Control, Main_SD,Sub_TempControl,Sub_MotionControl};
 
   class MainMenu{
   public:
@@ -67,6 +66,7 @@
     void showControl();
     void showControlMotion();
     void showControlTemp();
+    void showAxisMove();
     void showSD();
     bool force_lcd_update;
     int lastencoderpos;
