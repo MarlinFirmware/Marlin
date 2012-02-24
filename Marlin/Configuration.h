@@ -16,15 +16,16 @@
 #define BAUDRATE 115200
 
 //// The following define selects which electronics board you have. Please choose the one that matches your setup
-// MEGA/RAMPS up to 1.2 = 3,
-// RAMPS 1.3 = 33
-// Gen6 = 5,
+// Gen7 custom (Alfons3 Version) = 10 "https://github.com/Alfons3/Generation_7_Electronics"
+// Gen7 v1.1, v1.2 = 11
+// Gen7 v1.3 = 12
+// MEGA/RAMPS up to 1.2 = 3
+// RAMPS 1.3 = 33 (Power outputs: Extruder, Bed, Fan)
+// RAMPS 1.3 = 34 (Power outputs: Extruder0, Extruder1, Bed)
+// Gen6 = 
 // Sanguinololu 1.2 and above = 62
-// Ultimaker = 7,
-// Gen7 custom (Alfons3 Version) = 77, "https://github.com/Alfons3/Generation_7_Electronics"
-// Gen7 v1.1, v1.2 = 78
-// Gen7 v1.3 = 79
-// Teensylu = 8,
+// Ultimaker = 7
+// Teensylu = 8
 // Gen3+ =9
 #define MOTHERBOARD 33
 

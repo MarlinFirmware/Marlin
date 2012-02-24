@@ -9,6 +9,8 @@
 extern volatile int feedmultiply;
 extern volatile bool feedmultiplychanged;
 
+extern volatile int extrudemultiply;
+
 extern long position[4];   
 extern CardReader card;
 
