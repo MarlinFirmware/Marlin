@@ -128,7 +128,6 @@ volatile int feedmultiply=100; //100->1 200->2
 int saved_feedmultiply;
 volatile bool feedmultiplychanged=false;
 volatile int extrudemultiply=100; //100->1 200->2
-volatile bool extrudemultiplychanged=false;
 float current_position[NUM_AXIS] = { 0.0, 0.0, 0.0, 0.0 };
 float add_homeing[3]={0,0,0};
 uint8_t active_extruder = 0;
@@ -1110,7 +1109,7 @@ void process_commands()
       if(code_seen('S')) 
       {
         extrudemultiply = code_value() ;
-        extrudemultiplychanged=true;
+      }
     }
     break;
 
