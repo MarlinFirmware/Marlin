@@ -98,7 +98,8 @@
 // M204 - Set default acceleration: S normal moves T filament only moves (M204 S3000 T7000) im mm/sec^2  also sets minimum segment time in ms (B20000) to prevent buffer underruns and M20 minimum feedrate
 // M205 -  advanced settings:  minimum travel speed S=while printing T=travel only,  B=minimum segment time X= maximum xy jerk, Z=maximum Z jerk
 // M206 - set additional homeing offset
-// M220 - set speed factor override percentage S:factor in percent
+// M220 S<factor in percent>- set speed factor override percentage
+// M221 S<factor in percent>- set extrude factor override percentage
 // M240 - Trigger a camera to take a photograph
 // M301 - Set PID parameters P I and D
 // M302 - Allow cold extrudes
@@ -126,6 +127,8 @@ bool axis_relative_modes[] = AXIS_RELATIVE_MODES;
 volatile int feedmultiply=100; //100->1 200->2
 int saved_feedmultiply;
 volatile bool feedmultiplychanged=false;
+volatile int extrudemultiply=100; //100->1 200->2
+volatile bool extrudemultiplychanged=false;
 float current_position[NUM_AXIS] = { 0.0, 0.0, 0.0, 0.0 };
 float add_homeing[3]={0,0,0};
 uint8_t active_extruder = 0;
@@ -332,9 +335,13 @@ void get_command()
     serial_char = MYSERIAL.read();
     if(serial_char == '\n' || serial_char == '\r' || serial_char == ':' || serial_count >= (MAX_CMD_SIZE - 1) ) 
     {
-      if(!serial_count) return; //if empty line
+      if(!serial_count) { //if empty line
+        comment_mode = false; //for new command
+        return;
+      }
       cmdbuffer[bufindw][serial_count] = 0; //terminate string
       if(!comment_mode){
+        comment_mode = false; //for new command
         fromsd[bufindw] = false;
         if(strstr(cmdbuffer[bufindw], "N") != NULL)
         {
@@ -411,9 +418,7 @@ void get_command()
         }
         bufindw = (bufindw + 1)%BUFSIZE;
         buflen += 1;
-
       }
-      comment_mode = false; //for new command
       serial_count = 0; //clear buffer
     }
     else
@@ -447,10 +452,9 @@ void get_command()
         card.checkautostart(true);
         
       }
-      if(serial_char=='\n')
-         comment_mode = false; //for new command
       if(!serial_count)
       {
+        comment_mode = false; //for new command
         return; //if empty line
       }
       cmdbuffer[bufindw][serial_count] = 0; //terminate string
@@ -459,6 +463,7 @@ void get_command()
         buflen += 1;
         bufindw = (bufindw + 1)%BUFSIZE;
       }     
+      comment_mode = false; //for new command
       serial_count = 0; //clear buffer
     }
     else
@@ -1100,8 +1105,14 @@ void process_commands()
       }
     }
     break;
-    
-    
+    case 221: // M221 S<factor in percent>- set extrude factor override percentage
+    {
+      if(code_seen('S')) 
+      {
+        extrudemultiply = code_value() ;
+        extrudemultiplychanged=true;
+    }
+    break;
 
     #ifdef PIDTEMP
     case 301: // M301

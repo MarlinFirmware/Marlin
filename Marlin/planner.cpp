@@ -81,6 +81,8 @@ long position[4];   //rescaled from extern when axis_steps_per_unit are changed 
 static float previous_speed[4]; // Speed of previous path line segment
 static float previous_nominal_speed; // Nominal speed of previous path line segment
 
+extern volatile int extrudemultiply; // Sets extrude multiply factor (in percent)
+
 #ifdef AUTOTEMP
     float autotemp_max=250;
     float autotemp_min=210;
@@ -474,8 +476,6 @@ void plan_buffer_line(float &x, float &y, float &z, float &e, float feed_rate, u
   target[Z_AXIS] = lround(z*axis_steps_per_unit[Z_AXIS]);     
   target[E_AXIS] = lround(e*axis_steps_per_unit[E_AXIS]);
   
-
-  
   #ifdef PREVENT_DANGEROUS_EXTRUDE
     if(target[E_AXIS]!=position[E_AXIS])
     if(degHotend(active_extruder)<EXTRUDE_MINTEMP && !allow_cold_extrude)
@@ -503,6 +503,8 @@ void plan_buffer_line(float &x, float &y, float &z, float &e, float feed_rate, u
   block->steps_y = labs(target[Y_AXIS]-position[Y_AXIS]);
   block->steps_z = labs(target[Z_AXIS]-position[Z_AXIS]);
   block->steps_e = labs(target[E_AXIS]-position[E_AXIS]);
+  block->steps_e *= extrudemultiply;
+  block-?steps_e /= 100;
   block->step_event_count = max(block->steps_x, max(block->steps_y, max(block->steps_z, block->steps_e)));
 
   // Bail if this is a zero-length block
@@ -531,7 +533,7 @@ void plan_buffer_line(float &x, float &y, float &z, float &e, float feed_rate, u
   delta_mm[X_AXIS] = (target[X_AXIS]-position[X_AXIS])/axis_steps_per_unit[X_AXIS];
   delta_mm[Y_AXIS] = (target[Y_AXIS]-position[Y_AXIS])/axis_steps_per_unit[Y_AXIS];
   delta_mm[Z_AXIS] = (target[Z_AXIS]-position[Z_AXIS])/axis_steps_per_unit[Z_AXIS];
-  delta_mm[E_AXIS] = (target[E_AXIS]-position[E_AXIS])/axis_steps_per_unit[E_AXIS];
+  delta_mm[E_AXIS] = ((target[E_AXIS]-position[E_AXIS])/axis_steps_per_unit[E_AXIS])*extrudemultiply/100.0;
   if ( block->steps_x == 0 && block->steps_y == 0 && block->steps_z == 0 ) {
     block->millimeters = abs(delta_mm[E_AXIS]);
   } else {
