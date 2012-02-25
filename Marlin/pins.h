@@ -217,11 +217,7 @@
 * Arduino Mega pin assignment
 *
 ****************************************************************************************/
-#if MOTHERBOARD == 33 || MOTHERBOARD == 34
-#define MOTHERBOARD 3
-#define RAMPS_V_1_3
-#endif
-#if MOTHERBOARD == 3
+#if MOTHERBOARD == 3 || MOTHERBOARD == 33 || MOTHERBOARD == 34
 #define KNOWN_BOARD 1
 
 //////////////////FIX THIS//////////////
@@ -235,7 +231,7 @@
 // #define RAMPS_V_1_3
 // #define RAMPS_V_1_0
 
-#ifdef RAMPS_V_1_3
+#ifdef MOTHERBOARD == 33 || MOTHERBOARD == 34
 
 #define X_STEP_PIN         54
 #define X_DIR_PIN          55
@@ -515,7 +511,7 @@
     #define HEATER_0_PIN    14    //changed @ rkoeppl 20110410
     #define HEATER_1_PIN    -1
     #define HEATER_2_PIN    -1
-    #if MOTHERBOARD == 51
+    #if MOTHERBOARD == 5
     #define HEATER_BED_PIN  -1    //changed @ rkoeppl 20110410
     #define TEMP_BED_PIN    -1    //changed @ rkoeppl 20110410
     #else
