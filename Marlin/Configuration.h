@@ -8,12 +8,12 @@
 //User specified version info of THIS file to display in [Pronterface, etc] terminal window during startup.
 //Implementation of an idea by Prof Braino to inform user that any changes made
 //to THIS file by the user have been successfully uploaded into firmware.
-#define STRING_VERSION_CONFIG_H "2012-02-08j" //Personal revision number for changes to THIS file.
-#define STRING_CONFIG_H_AUTHOR "scuba82" //Who made the changes.
+#define STRING_VERSION_CONFIG_H "2012-02-25" //Personal revision number for changes to THIS file.
+#define STRING_CONFIG_H_AUTHOR "erik" //Who made the changes.
 
 // This determines the communication speed of the printer
-//#define BAUDRATE 250000
-#define BAUDRATE 115200
+#define BAUDRATE 250000
+//#define BAUDRATE 115200
 
 //// The following define selects which electronics board you have. Please choose the one that matches your setup
 // Gen7 custom (Alfons3 Version) = 10 "https://github.com/Alfons3/Generation_7_Electronics"
@@ -22,12 +22,13 @@
 // MEGA/RAMPS up to 1.2 = 3
 // RAMPS 1.3 = 33 (Power outputs: Extruder, Bed, Fan)
 // RAMPS 1.3 = 34 (Power outputs: Extruder0, Extruder1, Bed)
-// Gen6 = 
+// Gen6 = 5
+// Gen6 deluxe = 51
 // Sanguinololu 1.2 and above = 62
 // Ultimaker = 7
 // Teensylu = 8
 // Gen3+ =9
-#define MOTHERBOARD 33
+#define MOTHERBOARD 51
 
 //===========================================================================
 //=============================Thermal Settings  ============================
@@ -186,9 +187,9 @@ const bool Z_ENDSTOPS_INVERTING = false; // set to true to invert the logic of t
 
 //LCD and SD support
 //#define ULTRA_LCD  //general lcd support, also 16x2
-#define SDSUPPORT // Enable SD Card Support in Hardware Console
+//#define SDSUPPORT // Enable SD Card Support in Hardware Console
 
-#define ULTIPANEL
+//#define ULTIPANEL
 #ifdef ULTIPANEL
   #define NEWPANEL  //enable this if you have a click-encoder panel
   #define SDSUPPORT
