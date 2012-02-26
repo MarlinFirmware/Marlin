@@ -475,7 +475,9 @@
 #define KNOWN_BOARD 1
 
 #ifndef __AVR_ATmega644P__
-    #error Oops!  Make sure you have 'Sanguino' selected from the 'Tools -> Boards' menu.
+#ifndef __AVR_ATmega1284P__
+#error Oops!  Make sure you have 'Sanguino' selected from the 'Tools -> Boards' menu.
+#endif
 #endif
 
 //x axis pins
@@ -546,7 +548,9 @@
 #if MOTHERBOARD == 6
 #define KNOWN_BOARD 1
 #ifndef __AVR_ATmega644P__
+#ifndef __AVR_ATmega1284P__
 #error Oops!  Make sure you have 'Sanguino' selected from the 'Tools -> Boards' menu.
+#endif
 #endif
 
 #define X_STEP_PIN         15
@@ -867,7 +871,9 @@
 #define MOTHERBOARD 6
 #define KNOWN_BOARD 1
 #ifndef __AVR_ATmega644P__
+#ifndef __AVR_ATmega1284P__
 #error Oops!  Make sure you have 'Sanguino' selected from the 'Tools -> Boards' menu.
+#endif
 #endif
 
 #define X_STEP_PIN         15
