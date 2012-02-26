@@ -111,6 +111,9 @@
 #endif
 #define PS_ON_PIN 15
 
+// Gen 1.3 and earlier supplied thermistor power via PS_ON
+// Need to ignore the bad thermistor readings on those units
+#define BOGUS_TEMPERATURE_FAILSAFE_OVERRIDE
 //our pin for debugging.
 #define DEBUG_PIN 0
 
