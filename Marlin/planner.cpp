@@ -529,6 +529,13 @@ void plan_buffer_line(float &x, float &y, float &z, float &e, float feed_rate, u
   // Enable all
   if(block->steps_e != 0) { enable_e0();enable_e1();enable_e2(); }
 
+
+  // slow down when de buffer starts to empty, rather than wait at the corner for a buffer refill
+  int moves_queued=(block_buffer_head-block_buffer_tail + BLOCK_BUFFER_SIZE) & (BLOCK_BUFFER_SIZE - 1);
+  #ifdef SLOWDOWN
+    if(moves_queued < (BLOCK_BUFFER_SIZE * 0.5) && moves_queued > 1) feed_rate = feed_rate*moves_queued / (BLOCK_BUFFER_SIZE * 0.5); 
+  #endif
+
   float delta_mm[4];
   delta_mm[X_AXIS] = (target[X_AXIS]-position[X_AXIS])/axis_steps_per_unit[X_AXIS];
   delta_mm[Y_AXIS] = (target[Y_AXIS]-position[Y_AXIS])/axis_steps_per_unit[Y_AXIS];
@@ -553,12 +560,6 @@ void plan_buffer_line(float &x, float &y, float &z, float &e, float feed_rate, u
   else {
     	if(feed_rate<minimumfeedrate) feed_rate=minimumfeedrate;
   } 
-
-  // slow down when de buffer starts to empty, rather than wait at the corner for a buffer refill
-  int moves_queued=(block_buffer_head-block_buffer_tail + BLOCK_BUFFER_SIZE) & (BLOCK_BUFFER_SIZE - 1);
-#ifdef SLOWDOWN
-  if(moves_queued < (BLOCK_BUFFER_SIZE * 0.5) && moves_queued > 1) feed_rate = feed_rate*moves_queued / (BLOCK_BUFFER_SIZE * 0.5); 
-#endif
 
 /*
   //  segment time im micro seconds
