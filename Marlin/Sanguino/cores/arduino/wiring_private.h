@@ -27,7 +27,7 @@
 #include <math.h>
 #include <avr/io.h>
 #include <avr/interrupt.h>
-#include <avr/delay.h>
+#include <util/delay.h>
 #include <stdio.h>
 #include <stdarg.h>
 

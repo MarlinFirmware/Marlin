@@ -539,6 +539,7 @@
 *
 ****************************************************************************************/
 #if MOTHERBOARD == 62
+#undef MOTHERBOARD
 #define MOTHERBOARD 6
 #define SANGUINOLOLU_V_1_2 
 #endif
