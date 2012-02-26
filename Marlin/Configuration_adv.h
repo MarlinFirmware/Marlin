@@ -59,6 +59,11 @@
 #define EXTRUDER_RUNOUT_SPEED 1500.  //extrusion speed
 #define EXTRUDER_RUNOUT_EXTRUDE 100
 
+//These defines help to calibrate the AD595 sensor in case you get wrong temperature measurements.
+//The measured temperature is defined as "actualTemp = (measuredTemp * TEMP_SENSOR_AD595_GAIN) + TEMP_SENSOR_AD595_OFFSET"
+#define TEMP_SENSOR_AD595_OFFSET 0.0
+#define TEMP_SENSOR_AD595_GAIN   1.0
+
 //===========================================================================
 //=============================Mechanical Settings===========================
 //===========================================================================
