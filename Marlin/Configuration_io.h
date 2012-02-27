@@ -5,8 +5,8 @@
 
 // Display Types
 //#define ULTRA_LCD  //general lcd support, also 16x2 - ONLY SUPPORTED BY MOTHERBOARD 7
-#define SER_LCD //serLCD library lcd support - supported by Reprap's (Motherboard 3 and 33)
-//#define KS0108
+//#define SER_LCD //serLCD library lcd support - supported by Reprap's (Motherboard 3 and 33)
+#define KS0108
 //#define COLOR_LCD_SHIELD //Arduino shield rewired to be used - has three buttons on board 
 
 //To add support for more Motherboards insert pin assignments in pin.h
@@ -19,7 +19,7 @@
 
 //#define SDSUPPORT // Enable SD Card Support in Hardware Console
 
-//#define BEEPER // Piezo attached?
+//#define PIEZO// Piezo attached?
 
 // Macros for panels (Legacy support)
 //#define ULTIPANEL
@@ -38,7 +38,7 @@
   #define LCD_WIDTH 20
   #define LCD_HEIGHT 4
   #define LCD_AVAILABLE 
-  #define BEEPER
+  #define PIEZO
 #endif
 
 //no panel but just lcd 
@@ -52,6 +52,7 @@
   #define LCD_WIDTH 16
   #define LCD_HEIGHT 2
   #define LCD_AVAILABLE 
+  #define SER_PIN 4
 #endif
 
 #ifdef KS0108
@@ -82,6 +83,16 @@
 //Do not wait for M109 to finish when printing from SD card
 //#define STOP_HEATING_WAIT_WHEN_SD_PRINTING
 
+#ifdef LCD_AVAILABLE
+  // Preheat Constants
+  #define PLA_PREHEAT_HOTEND_TEMP 180 
+  #define PLA_PREHEAT_HPB_TEMP 70
+  #define PLA_PREHEAT_FAN_SPEED 255		// Insert Value between 0 and 255
+
+  #define ABS_PREHEAT_HOTEND_TEMP 240
+  #define ABS_PREHEAT_HPB_TEMP 100
+  #define ABS_PREHEAT_FAN_SPEED 255		// Insert Value between 0 and 255
+#endif
 // M240  Triggers a camera by emulating a Canon RC-1 Remote
 // Data from: http://www.doc-diy.net/photo/rc-1_hacked/
 // #define PHOTOGRAPH_PIN     23
