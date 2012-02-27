@@ -446,19 +446,6 @@ void plan_buffer_line(float &x, float &y, float &z, float &e, float feed_rate, u
   // Calculate the buffer head after we push this byte
   int next_buffer_head = next_block_index(block_buffer_head);
 
-  
-  if (min_software_endstops) {
-    if (x < X_HOME_POS) x = X_HOME_POS;
-    if (y < Y_HOME_POS) y = Y_HOME_POS;
-    if (z < Z_HOME_POS) z = Z_HOME_POS;
-  }
-
-  if (max_software_endstops) {
-    if (x > X_MAX_LENGTH) x = X_MAX_LENGTH;
-    if (y > Y_MAX_LENGTH) y = Y_MAX_LENGTH;
-    if (z > Z_MAX_LENGTH) z = Z_MAX_LENGTH;
-  }
-  
   // If the buffer is full: good! That means we are well ahead of the robot. 
   // Rest here until there is room in the buffer.
   while(block_buffer_tail == next_buffer_head) { 

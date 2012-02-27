@@ -122,6 +122,18 @@ void mc_arc(float *position, float *target, float *offset, uint8_t axis_0, uint8
     arc_target[axis_1] = center_axis1 + r_axis1;
     arc_target[axis_linear] += linear_per_segment;
     arc_target[E_AXIS] += extruder_per_segment;
+
+    if (min_software_endstops) {
+      if (arc_target[X_AXIS] < X_HOME_POS) arc_target[X_AXIS] = X_HOME_POS;
+      if (arc_target[Y_AXIS] < Y_HOME_POS) arc_target[Y_AXIS] = Y_HOME_POS;
+      if (arc_target[Z_AXIS] < Z_HOME_POS) arc_target[Z_AXIS] = Z_HOME_POS;
+    }
+
+    if (max_software_endstops) {
+      if (arc_target[X_AXIS] > X_MAX_LENGTH) arc_target[X_AXIS] = X_MAX_LENGTH;
+      if (arc_target[Y_AXIS] > Y_MAX_LENGTH) arc_target[Y_AXIS] = Y_MAX_LENGTH;
+      if (arc_target[Z_AXIS] > Z_MAX_LENGTH) arc_target[Z_AXIS] = Z_MAX_LENGTH;
+    }
     plan_buffer_line(arc_target[X_AXIS], arc_target[Y_AXIS], arc_target[Z_AXIS], arc_target[E_AXIS], feed_rate, extruder);
     
   }
