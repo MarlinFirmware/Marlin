@@ -316,14 +316,15 @@
 
   #else //old style panel with shift register
     //arduino pin witch triggers an piezzo beeper
-    #define BEEPER 33		No Beeper added
+    #define BEEPER 33		//No Beeper added
 
     //buttons are attached to a shift register
-	// Not wired this yet
-    //#define SHIFT_CLK 38
-    //#define SHIFT_LD 42
-    //#define SHIFT_OUT 40
-    //#define SHIFT_EN 17
+    // Not wired this yet
+    #define SHIFT_CLK 38
+    #define SHIFT_LD 42
+    #define SHIFT_OUT 40
+    #define SHIFT_EN 17
+    // end of not wire yet - enabled as compile fix
     
     #define LCD_PINS_RS 16 
     #define LCD_PINS_ENABLE 17
@@ -382,8 +383,6 @@
 #define LED_PIN            13
 #define PS_ON_PIN          -1
 #define KILL_PIN           -1
-
-
 
 #ifdef RAMPS_V_1_0 // RAMPS_V_1_0
   #define HEATER_0_PIN     12    // RAMPS 1.0
