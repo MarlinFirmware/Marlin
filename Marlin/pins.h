@@ -81,7 +81,7 @@
 #define Z_DIR_PIN 25
 #define Z_ENABLE_PIN 24
 #define Z_MIN_PIN 1
-#define Z_MAX_PIN 
+#define Z_MAX_PIN 0
 
 //extruder pins
 #define E0_STEP_PIN 28
