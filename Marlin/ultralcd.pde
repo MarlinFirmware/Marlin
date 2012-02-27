@@ -341,7 +341,7 @@ void MainMenu::showStatus()
     lcd_print(ftostr3(ttHotEnd0));
     oldtargetHotEnd0=ttHotEnd0;
   }
-  //#if defined BED_USES_THERMISTOR || defined BED_USES_AD595 
+  #if defined BED_USES_THERMISTOR || defined BED_USES_AD595 
     
     static int oldtBed=-1;
     static int oldtargetBed=-1; 
@@ -359,7 +359,7 @@ void MainMenu::showStatus()
       lcd_print(ftostr3(targetBed));
       oldtargetBed=targetBed;
     }
-  //#endif
+  #endif
   //starttime=2;
   static uint16_t oldtime=0;
   if(starttime!=0)
