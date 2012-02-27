@@ -131,7 +131,6 @@ volatile int extrudemultiply=100; //100->1 200->2
 float current_position[NUM_AXIS] = { 0.0, 0.0, 0.0, 0.0 };
 float add_homeing[3]={0,0,0};
 uint8_t active_extruder = 0;
-bool stop_heating_wait=false;
 
 //===========================================================================
 //=============================private variables=============================
@@ -886,7 +885,6 @@ void process_commands()
           }
           manage_heater();
           LCD_STATUS;
-        if(stop_heating_wait) break;
         #ifdef TEMP_RESIDENCY_TIME
             /* start/restart the TEMP_RESIDENCY_TIME timer whenever we reach target temp for the first time
               or when current temp falls outside the hysteresis after target temp was reached */

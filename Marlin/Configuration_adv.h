@@ -25,9 +25,6 @@
 // if CooldownNoWait is defined M109 will not wait for the cooldown to finish
 #define CooldownNoWait true
 
-//Do not wait for M109 to finish when printing from SD card
-//#define STOP_HEATING_WAIT_WHEN_SD_PRINTING
-
 #ifdef PIDTEMP
   // this adds an experimental additional term to the heatingpower, proportional to the extrusion speed.
   // if Kc is choosen well, the additional required power due to increased melting should be compensated.
