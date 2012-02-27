@@ -45,13 +45,19 @@
 #endif /* 99 */
 
 /****************************************************************************************
-* Gen7 v1.1, v1.2, v1.3 pin assignment
+* Gen7 v1.1, v1.2, v1.3, v1.4 pin assignment
 *
 ****************************************************************************************/
 
+
+#if MOTHERBOARD == 13
+#define MOTHERBOARD 11
+#define GEN7_VERSION 14 // v1.4
+#endif
+
 #if MOTHERBOARD == 12
 #define MOTHERBOARD 11
-#define GEN7_V_1_3
+#define GEN7_VERSION 13 // v1.3
 #endif
 
 #if MOTHERBOARD == 11
@@ -60,6 +66,10 @@
 #if !defined(__AVR_ATmega644P__) && !defined(__AVR_ATmega644__) && !defined(__AVR_ATmega1284P__)
 #error Oops! Make sure you have 'Gen7' selected from the 'Tools -> Boards' menu.
 
+#endif
+
+#ifndef GEN7_VERSION
+#define GEN7_VERSION 12 // v1.x
 #endif
 
 //x axis pins
@@ -103,7 +113,7 @@
 #define SDSS -1 // SCL pin of I2C header
 #define LED_PIN -1
 
-#ifdef GEN7_V_1_3
+#if (GEN7_VERSION >= 13)
 // Gen7 v1.3 removed the fan pin
 #define FAN_PIN -1
 #else
@@ -111,9 +121,12 @@
 #endif
 #define PS_ON_PIN 15
 
+#if (GEN7_VERSION < 14)
 // Gen 1.3 and earlier supplied thermistor power via PS_ON
 // Need to ignore the bad thermistor readings on those units
 #define BOGUS_TEMPERATURE_FAILSAFE_OVERRIDE
+#endif
+
 //our pin for debugging.
 #define DEBUG_PIN 0
 
