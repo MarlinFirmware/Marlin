@@ -186,39 +186,8 @@ const bool Z_ENDSTOPS_INVERTING = true; // set to true to invert the logic of th
 // please keep turned on if you can.
 //#define EEPROM_CHITCHAT
 
-//LCD and SD support
-//#define ULTRA_LCD  //general lcd support, also 16x2
-//#define SDSUPPORT // Enable SD Card Support in Hardware Console
-
-//#define ULTIPANEL
-#ifdef ULTIPANEL
-  #define NEWPANEL  //enable this if you have a click-encoder panel
-  #define SDSUPPORT
-  #define ULTRA_LCD
-  #define LCD_WIDTH 20
-  #define LCD_HEIGHT 4
-
-// Preheat Constants
-  #define PLA_PREHEAT_HOTEND_TEMP 180 
-  #define PLA_PREHEAT_HPB_TEMP 70
-  #define PLA_PREHEAT_FAN_SPEED 255		// Insert Value between 0 and 255
-
-  #define ABS_PREHEAT_HOTEND_TEMP 240
-  #define ABS_PREHEAT_HPB_TEMP 100
-  #define ABS_PREHEAT_FAN_SPEED 255		// Insert Value between 0 and 255
-
-#else //no panel but just lcd 
-  #ifdef ULTRA_LCD
-    #define LCD_WIDTH 16
-    #define LCD_HEIGHT 2
-  #endif
-#endif
-
-// M240  Triggers a camera by emulating a Canon RC-1 Remote
-// Data from: http://www.doc-diy.net/photo/rc-1_hacked/
-// #define PHOTOGRAPH_PIN     23
-
 #include "Configuration_adv.h"
+#include "Configuration_io.h"
 #include "thermistortables.h"
 
 #endif //__CONFIGURATION_H
