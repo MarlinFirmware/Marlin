@@ -16,13 +16,13 @@
     #include <LiquidCrystal.h>
     extern LiquidCrystal lcd;
 
-    #define lcd_print(x) lcd.print(x);
-    #define lcd_setCursor(column, row) lcd.setCursor(column, row);
-    #define lcd_constructorInit(w, h) lcd.begin(w, h); lcd_init();
-    #define lcd_lateInit(); 
-    #define lcd_clear() lcd.clear();
-    #define lcd_createChar(n, data) lcd.createChar(n+1, data);
-    #define lcd_printSpecialChar(n) lcd.print(n);
+    #define lcd_print(x) lcd.print(x)
+    #define lcd_setCursor(column, row) lcd.setCursor(column, row)
+    #define lcd_constructorInit(w, h) lcd.begin(w, h); lcd_init()
+    #define lcd_lateInit()
+    #define lcd_clear() lcd.clear()
+    #define lcd_createChar(n, data) lcd.createChar(n+1, data)
+    #define lcd_printSpecialChar(n) lcd.print(n)
 
     #ifdef NEWPANEL
       #define EN_C (1<<BLEN_C)
@@ -63,26 +63,26 @@
   
     extern serLCD lcd;
     
-    #define lcd_print(x) lcd.print(x);
-    #define lcd_setCursor(column, row) lcd.setCursor(row+1, column+1);
-    #define lcd_constructorInit(w, h); 
-    #define lcd_lateInit() lcd_init();
-    #define lcd_clear() lcd.clear(); 
-    #define lcd_createChar(n, data) lcd.createChar(n+1, data);
-    #define lcd_printSpecialChar(n) lcd.print(n);
+    #define lcd_print(x) lcd.print(x)
+    #define lcd_setCursor(column, row) lcd.setCursor(row+1, column+1)
+    #define lcd_constructorInit(w, h)
+    #define lcd_lateInit() lcd_init()
+    #define lcd_clear() lcd.clear()
+    #define lcd_createChar(n, data) lcd.createChar(n+1, data)
+    #define lcd_printSpecialChar(n) lcd.print(n)
     
   #elif defined KS0108
     //KS0108 library is configured in the library settings itself.
     #include <glcd.h>
     #include <fonts/SystemFont5x7.h>      // system font
        
-    #define lcd_print(x) GLCD.print(x);
-    #define lcd_setCursor(column, row) GLCD.CursorTo(column, row);
-    #define lcd_constructorInit(w, h); 
-    #define lcd_lateInit() GLCD.Init(); GLCD.SelectFont(System5x7); LCD_MESSAGEPGM(WELCOME_MSG);
-    #define lcd_clear() GLCD.ClearScreen(); 
-    #define lcd_createChar(n, data) ; //NOT IMPLEMENTED YET
-    #define lcd_printSpecialChar(n) ;//NOT IMPLEMENTED YET
+    #define lcd_print(x) GLCD.print(x)
+    #define lcd_setCursor(column, row) GLCD.CursorTo(column, row)
+    #define lcd_constructorInit(w, h)
+    #define lcd_lateInit() GLCD.Init(); GLCD.SelectFont(System5x7); LCD_MESSAGEPGM(WELCOME_MSG)
+    #define lcd_clear() GLCD.ClearScreen()
+    #define lcd_createChar(n, data) //NOT IMPLEMENTED YET
+    #define lcd_printSpecialChar(n) //NOT IMPLEMENTED YET
     
   #elif defined COLOR_LCD_SHIELD
     #error COLOR_LCD_SHIELD NOT IMPLEMENTED!!
