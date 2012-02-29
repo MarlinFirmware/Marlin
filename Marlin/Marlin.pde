@@ -490,10 +490,12 @@ float code_value()
 { 
   return (strtod(&cmdbuffer[bufindr][strchr_pointer - cmdbuffer[bufindr] + 1], NULL)); 
 }
+
 long code_value_long() 
 { 
   return (strtol(&cmdbuffer[bufindr][strchr_pointer - cmdbuffer[bufindr] + 1], NULL, 10)); 
 }
+
 bool code_seen(char code_string[]) //Return True if the string was found
 { 
   return (strstr(cmdbuffer[bufindr], code_string) != NULL); 
@@ -504,6 +506,7 @@ bool code_seen(char code)
   strchr_pointer = strchr(cmdbuffer[bufindr], code);
   return (strchr_pointer != NULL);  //Return True if a character was found
 }
+
 #define HOMEAXIS(LETTER) \
   if ((LETTER##_MIN_PIN > -1 && LETTER##_HOME_DIR==-1) || (LETTER##_MAX_PIN > -1 && LETTER##_HOME_DIR==1))\
     { \
@@ -590,7 +593,7 @@ void process_commands()
         feedrate = homing_feedrate[X_AXIS]; 
         if(homing_feedrate[Y_AXIS]<feedrate)
           feedrate =homing_feedrate[Y_AXIS]; 
-        plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate/60, active_extruder); \
+        plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate/60, active_extruder);
         st_synchronize();
     
         current_position[X_AXIS] = (X_HOME_DIR == -1) ? X_HOME_POS : X_MAX_LENGTH;
@@ -598,7 +601,7 @@ void process_commands()
         plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
         destination[X_AXIS] = current_position[X_AXIS];
         destination[Y_AXIS] = current_position[Y_AXIS];
-        plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate/60, active_extruder); \
+        plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate/60, active_extruder);
         feedrate = 0.0;
         st_synchronize();
         endstops_hit_on_purpose();
@@ -620,15 +623,21 @@ void process_commands()
       
       if(code_seen(axis_codes[X_AXIS])) 
       {
-        current_position[0]=code_value()+add_homeing[0];
+        if(code_value_long() != 0) {
+          current_position[X_AXIS]=code_value()+add_homeing[0];
+        }
       }
 
       if(code_seen(axis_codes[Y_AXIS])) {
-        current_position[1]=code_value()+add_homeing[1];
+        if(code_value_long() != 0) {
+          current_position[Y_AXIS]=code_value()+add_homeing[1];
+        }
       }
 
       if(code_seen(axis_codes[Z_AXIS])) {
-        current_position[2]=code_value()+add_homeing[2];
+        if(code_value_long() != 0) {
+          current_position[Z_AXIS]=code_value()+add_homeing[2];
+        }
       }
       plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
       
