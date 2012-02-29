@@ -948,7 +948,7 @@
 #else
   #define _E1_PINS
 #endif
-#elif EXTRUDERS > 2
+#if EXTRUDERS > 2
   #define _E2_PINS E2_STEP_PIN, E2_DIR_PIN, E2_ENABLE_PIN, HEATER_2_PIN,
 #else
   #define _E2_PINS
