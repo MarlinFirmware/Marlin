@@ -81,6 +81,8 @@ long position[4];   //rescaled from extern when axis_steps_per_unit are changed 
 static float previous_speed[4]; // Speed of previous path line segment
 static float previous_nominal_speed; // Nominal speed of previous path line segment
 
+extern volatile int extrudemultiply; // Sets extrude multiply factor (in percent)
+
 #ifdef AUTOTEMP
     float autotemp_max=250;
     float autotemp_min=210;
@@ -439,7 +441,7 @@ float junction_deviation = 0.1;
 // Add a new linear movement to the buffer. steps_x, _y and _z is the absolute position in 
 // mm. Microseconds specify how many microseconds the move should take to perform. To aid acceleration
 // calculation the caller must also provide the physical length of the line in millimeters.
-void plan_buffer_line(const float &x, const float &y, const float &z, const float &e,  float feed_rate, const uint8_t &extruder)
+void plan_buffer_line(float &x, float &y, float &z, float &e, float feed_rate, uint8_t &extruder)
 {
   // Calculate the buffer head after we push this byte
   int next_buffer_head = next_block_index(block_buffer_head);
@@ -451,7 +453,7 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
     manage_inactivity(1); 
     LCD_STATUS;
   }
-
+  
   // The target position of the tool in absolute steps
   // Calculate target position in absolute steps
   //this should be done after the wait, because otherwise a M92 code within the gcode disrupts this calculation somehow
@@ -488,6 +490,8 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
   block->steps_y = labs(target[Y_AXIS]-position[Y_AXIS]);
   block->steps_z = labs(target[Z_AXIS]-position[Z_AXIS]);
   block->steps_e = labs(target[E_AXIS]-position[E_AXIS]);
+  block->steps_e *= extrudemultiply;
+  block->steps_e /= 100;
   block->step_event_count = max(block->steps_x, max(block->steps_y, max(block->steps_z, block->steps_e)));
 
   // Bail if this is a zero-length block
@@ -512,11 +516,18 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
   // Enable all
   if(block->steps_e != 0) { enable_e0();enable_e1();enable_e2(); }
 
+
+  // slow down when de buffer starts to empty, rather than wait at the corner for a buffer refill
+  int moves_queued=(block_buffer_head-block_buffer_tail + BLOCK_BUFFER_SIZE) & (BLOCK_BUFFER_SIZE - 1);
+  #ifdef SLOWDOWN
+    if(moves_queued < (BLOCK_BUFFER_SIZE * 0.5) && moves_queued > 1) feed_rate = feed_rate*moves_queued / (BLOCK_BUFFER_SIZE * 0.5); 
+  #endif
+
   float delta_mm[4];
   delta_mm[X_AXIS] = (target[X_AXIS]-position[X_AXIS])/axis_steps_per_unit[X_AXIS];
   delta_mm[Y_AXIS] = (target[Y_AXIS]-position[Y_AXIS])/axis_steps_per_unit[Y_AXIS];
   delta_mm[Z_AXIS] = (target[Z_AXIS]-position[Z_AXIS])/axis_steps_per_unit[Z_AXIS];
-  delta_mm[E_AXIS] = (target[E_AXIS]-position[E_AXIS])/axis_steps_per_unit[E_AXIS];
+  delta_mm[E_AXIS] = ((target[E_AXIS]-position[E_AXIS])/axis_steps_per_unit[E_AXIS])*extrudemultiply/100.0;
   if ( block->steps_x == 0 && block->steps_y == 0 && block->steps_z == 0 ) {
     block->millimeters = abs(delta_mm[E_AXIS]);
   } else {
@@ -536,12 +547,6 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
   else {
     	if(feed_rate<minimumfeedrate) feed_rate=minimumfeedrate;
   } 
-
-  // slow down when de buffer starts to empty, rather than wait at the corner for a buffer refill
-  int moves_queued=(block_buffer_head-block_buffer_tail + BLOCK_BUFFER_SIZE) & (BLOCK_BUFFER_SIZE - 1);
-#ifdef SLOWDOWN
-  if(moves_queued < (BLOCK_BUFFER_SIZE * 0.5) && moves_queued > 1) feed_rate = feed_rate*moves_queued / (BLOCK_BUFFER_SIZE * 0.5); 
-#endif
 
 /*
   //  segment time im micro seconds

@@ -9,18 +9,11 @@
   void beep();
   void buttons_check();
 
-
   #define LCD_UPDATE_INTERVAL 100
   #define STATUSTIMEOUT 15000
-
-
-  
   extern LiquidCrystal lcd;
-
-
+  
   #ifdef NEWPANEL
-
-    
     #define EN_C (1<<BLEN_C)
     #define EN_B (1<<BLEN_B)
     #define EN_A (1<<BLEN_A)
@@ -28,11 +21,13 @@
     #define CLICKED (buttons&EN_C)
     #define BLOCK {blocking=millis()+blocktime;}
     #if (SDCARDDETECT > -1)
-    {
-      #define CARDINSERTED (READ(SDCARDDETECT)==0)
-    }
-    #endif
-    
+      #ifdef SDCARDDETECTINVERTED 
+        #define CARDINSERTED (READ(SDCARDDETECT)!=0)
+      #else
+        #define CARDINSERTED (READ(SDCARDDETECT)==0)
+      #endif
+    #endif  //SDCARDTETECTINVERTED
+
   #else
 
     //atomatic, do not change
