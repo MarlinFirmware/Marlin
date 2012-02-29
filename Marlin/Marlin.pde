@@ -714,6 +714,17 @@ void process_commands()
       //processed in write to file routine above
       //card,saving = false;
       break;
+    case 31: //M31 <filename> Delete File 
+	if (card.cardok){
+		card.closefile();
+		if (SdBaseFile::remove(strchr_pointer + 4)){
+			SERIAL_PROTOCOLLNPGM("File deleted");
+		}
+		else{
+			SERIAL_PROTOCOLLNPGM("Deletion failed");
+		}	
+	}
+	
 #endif //SDSUPPORT
 
     case 30: //M30 take time since the start of the SD print or an M109 command
