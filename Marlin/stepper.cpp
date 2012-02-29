@@ -432,7 +432,7 @@ ISR(TIMER1_COMPA_vect)
       }
       else { // +direction
         NORM_E_DIR();
-        count_direction[E_AXIS]=-1;
+        count_direction[E_AXIS]=1;
       }
     #endif //!ADVANCE
     
