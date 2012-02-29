@@ -12,7 +12,9 @@ extern volatile bool feedmultiplychanged;
 extern volatile int extrudemultiply;
 
 extern long position[4];   
+#ifdef SDSUPPORT
 extern CardReader card;
+#endif
 
 //===========================================================================
 //=============================public variables============================
@@ -480,7 +482,11 @@ void MainMenu::showPrepare()
       MENUITEM(  lcdprintPGM(MSG_MAIN)  ,  BLOCK;status=Main_Menu;beepshort(); ) ;
       break;
     case ItemP_autostart:
-      MENUITEM(  lcdprintPGM(MSG_AUTOSTART)  ,  BLOCK;card.lastnr=0;card.setroot();card.checkautostart(true);beepshort(); ) ;
+      MENUITEM(  lcdprintPGM(MSG_AUTOSTART)  ,  BLOCK;
+#ifdef SDSUPPORT
+          card.lastnr=0;card.setroot();card.checkautostart(true);
+#endif
+          beepshort(); ) ;
       break;
     case ItemP_disstep:
       MENUITEM(  lcdprintPGM(MSG_DISABLE_STEPPERS)  ,  BLOCK;enquecommand("M84");beepshort(); ) ;
@@ -1629,7 +1635,7 @@ void MainMenu::showControlMotion()
         if(linechanging)
         {
           if(encoderpos<5) encoderpos=5;
-          if(encoderpos>99999) encoderpos=99999;
+          if(encoderpos>32000) encoderpos=32000;//TODO: This is a problem, encoderpos is 16bit, but steps_per_unit for e can be wel over 800
           lcd.setCursor(11,line);lcd.print(ftostr52(encoderpos/100.0));
         }
         
@@ -1957,7 +1963,7 @@ void MainMenu::showMainMenu()
   #endif
   if(tune)
   {
-    if(!(movesplanned() ||card.sdprinting))
+    if(!(movesplanned() || IS_SD_PRINTING))
     {
       force_lcd_update=true;
       tune=false;
@@ -1965,7 +1971,7 @@ void MainMenu::showMainMenu()
   }
   else 
   {
-    if(movesplanned() ||card.sdprinting)
+    if(movesplanned() || IS_SD_PRINTING)
     {
       force_lcd_update=true;
       tune=true;
