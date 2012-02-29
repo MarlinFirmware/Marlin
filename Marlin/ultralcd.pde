@@ -9,6 +9,8 @@
 extern volatile int feedmultiply;
 extern volatile bool feedmultiplychanged;
 
+extern volatile int extrudemultiply;
+
 extern long position[4];   
 extern CardReader card;
 
@@ -122,7 +124,7 @@ void lcd_init()
   lcd.createChar(3,uplevel);
   lcd.createChar(4,refresh);
   lcd.createChar(5,folder);
-  LCD_MESSAGEPGM("UltiMarlin ready.");
+  LCD_MESSAGEPGM(WELCOME_MSG);
 }
 
 
@@ -372,7 +374,7 @@ void MainMenu::showStatus()
   if((currentz!=oldzpos)||force_lcd_update)
   {
     lcd.setCursor(10,1);
-    lcdprintPGM("Z:");lcd.print(ftostr32(current_position[2]));
+    lcdprintPGM("Z:");lcd.print(ftostr52(current_position[2]));
     oldzpos=currentz;
   }
   static int oldfeedmultiply=0;
@@ -411,7 +413,6 @@ void MainMenu::showStatus()
      lcd.setCursor(7,2);
     lcd.print(itostr3((int)percent));
     lcdprintPGM("%SD");
-    
   }
   
 #else //smaller LCDS----------------------------------
@@ -457,7 +458,7 @@ void MainMenu::showStatus()
   force_lcd_update=false;
 }
 
-enum {ItemP_exit, ItemP_autostart,ItemP_disstep,ItemP_home, ItemP_origin, ItemP_preheat, ItemP_cooldown,/*ItemP_extrude,*/ItemP_move};
+enum {ItemP_exit, ItemP_autostart,ItemP_disstep,ItemP_home, ItemP_origin, ItemP_preheat_pla, ItemP_preheat_abs, ItemP_cooldown,/*ItemP_extrude,*/ItemP_move};
 
 //any action must not contain a ',' character anywhere, or this breaks:
 #define MENUITEM(repaint_action, click_action) \
@@ -476,31 +477,34 @@ void MainMenu::showPrepare()
   switch(i)
   {
     case ItemP_exit:
-      MENUITEM(  lcdprintPGM(" Main \003")  ,  BLOCK;status=Main_Menu;beepshort(); ) ;
+      MENUITEM(  lcdprintPGM(MSG_MAIN)  ,  BLOCK;status=Main_Menu;beepshort(); ) ;
       break;
     case ItemP_autostart:
-      MENUITEM(  lcdprintPGM(" Autostart")  ,  BLOCK;card.lastnr=0;card.setroot();card.checkautostart(true);beepshort(); ) ;
+      MENUITEM(  lcdprintPGM(MSG_AUTOSTART)  ,  BLOCK;card.lastnr=0;card.setroot();card.checkautostart(true);beepshort(); ) ;
       break;
     case ItemP_disstep:
-      MENUITEM(  lcdprintPGM(" Disable Steppers")  ,  BLOCK;enquecommand("M84");beepshort(); ) ;
+      MENUITEM(  lcdprintPGM(MSG_DISABLE_STEPPERS)  ,  BLOCK;enquecommand("M84");beepshort(); ) ;
       break;
     case ItemP_home:
-      MENUITEM(  lcdprintPGM(" Auto Home")  ,  BLOCK;enquecommand("G28 X0 Y0 Z0");beepshort(); ) ;
+      MENUITEM(  lcdprintPGM(MSG_AUTO_HOME)  ,  BLOCK;enquecommand("G28");beepshort(); ) ;
       break;
     case ItemP_origin:
-      MENUITEM(  lcdprintPGM(" Set Origin")  ,  BLOCK;enquecommand("G92 X0 Y0 Z0");beepshort(); ) ;
+      MENUITEM(  lcdprintPGM(MSG_SET_ORIGIN)  ,  BLOCK;enquecommand("G92 X0 Y0 Z0");beepshort(); ) ;
       break;
-    case ItemP_preheat:
-      MENUITEM(  lcdprintPGM(" Preheat")  ,  BLOCK;setTargetHotend0(227);setTargetBed(105);beepshort(); ) ;
+    case ItemP_preheat_pla:
+      MENUITEM(  lcdprintPGM(MSG_PREHEAT_PLA)  ,  BLOCK;setTargetHotend0(PLA_PREHEAT_HOTEND_TEMP);setTargetBed(PLA_PREHEAT_HPB_TEMP);analogWrite(FAN_PIN, PLA_PREHEAT_FAN_SPEED); beepshort(); ) ;
+      break;
+    case ItemP_preheat_abs:
+      MENUITEM(  lcdprintPGM(MSG_PREHEAT_ABS)  ,  BLOCK;setTargetHotend0(ABS_PREHEAT_HOTEND_TEMP);setTargetBed(ABS_PREHEAT_HPB_TEMP); analogWrite(FAN_PIN, ABS_PREHEAT_FAN_SPEED); beepshort(); ) ;
       break;
     case ItemP_cooldown:
-      MENUITEM(  lcdprintPGM(" Cooldown")  ,  BLOCK;setTargetHotend0(0);setTargetBed(0);beepshort(); ) ;
+      MENUITEM(  lcdprintPGM(MSG_COOLDOWN)  ,  BLOCK;setTargetHotend0(0);setTargetBed(0);beepshort(); ) ;
       break;
 //    case ItemP_extrude:
   //    MENUITEM(  lcdprintPGM(" Extrude")  ,  BLOCK;enquecommand("G92 E0");enquecommand("G1 F700 E50");beepshort(); ) ;
     //  break;
     case ItemP_move:
-      MENUITEM(  lcdprintPGM(" Move Axis      \x7E") , BLOCK;status=Sub_PrepareMove;beepshort(); );
+      MENUITEM(  lcdprintPGM(MSG_MOVE_AXIS) , BLOCK;status=Sub_PrepareMove;beepshort(); );
       break;
         default:   
       break;
@@ -533,7 +537,7 @@ void MainMenu::showAxisMove()
                   if(force_lcd_update)
                   {
                     lcd.setCursor(0,line);lcdprintPGM(" X:");
-                    lcd.setCursor(13,line);lcd.print(ftostr32(current_position[X_AXIS]));
+                    lcd.setCursor(11,line);lcd.print(ftostr52(current_position[X_AXIS]));
                   }
       
                   if((activeline!=line) )
@@ -569,7 +573,7 @@ void MainMenu::showAxisMove()
 			oldencoderpos=encoderpos;
                         encoderpos=0;
 		    }
-                    lcd.setCursor(13,line);lcd.print(ftostr32(current_position[X_AXIS]));
+                    lcd.setCursor(11,line);lcd.print(ftostr52(current_position[X_AXIS]));
                   }
           }
           break;
@@ -578,7 +582,7 @@ void MainMenu::showAxisMove()
                   if(force_lcd_update)
                   {
                     lcd.setCursor(0,line);lcdprintPGM(" Y:");
-                    lcd.setCursor(13,line);lcd.print(ftostr32(current_position[Y_AXIS]));
+                    lcd.setCursor(11,line);lcd.print(ftostr52(current_position[Y_AXIS]));
                   }
       
                   if((activeline!=line) )
@@ -614,7 +618,7 @@ void MainMenu::showAxisMove()
 			oldencoderpos=encoderpos;
                         encoderpos=0;
 		    }
-                    lcd.setCursor(13,line);lcd.print(ftostr32(current_position[Y_AXIS]));
+                    lcd.setCursor(11,line);lcd.print(ftostr52(current_position[Y_AXIS]));
                   }
           }
           break;
@@ -623,7 +627,7 @@ void MainMenu::showAxisMove()
                   if(force_lcd_update)
                   {
                     lcd.setCursor(0,line);lcdprintPGM(" Z:");
-                    lcd.setCursor(13,line);lcd.print(ftostr32(current_position[Z_AXIS]));
+                    lcd.setCursor(11,line);lcd.print(ftostr52(current_position[Z_AXIS]));
                   }
       
                   if((activeline!=line) )
@@ -659,12 +663,12 @@ void MainMenu::showAxisMove()
 			oldencoderpos=encoderpos;
                         encoderpos=0;
 		    }
-                    lcd.setCursor(13,line);lcd.print(ftostr32(current_position[Z_AXIS]));
+                    lcd.setCursor(11,line);lcd.print(ftostr52(current_position[Z_AXIS]));
                   }
           }
           break;
           case ItemAM_E:
-          MENUITEM(  lcdprintPGM(" Extrude")  ,  BLOCK;enquecommand("G92 E0");enquecommand("G1 F700 E5");beepshort(); ) ;
+          MENUITEM(  lcdprintPGM(MSG_EXTRUDE)  ,  BLOCK;enquecommand("G92 E0");enquecommand("G1 F700 E5");beepshort(); ) ;
           break;
           default:
           break;
@@ -690,20 +694,20 @@ void MainMenu::showTune()
   switch(i)
   {
   case ItemT_exit:
-      MENUITEM(  lcdprintPGM(" Main \003")  ,  BLOCK;status=Main_Menu;beepshort(); ) ;
+      MENUITEM(  lcdprintPGM(MSG_MAIN)  ,  BLOCK;status=Main_Menu;beepshort(); ) ;
       break;
   case ItemT_speed:
     {
       if(force_lcd_update)
       {
-        lcd.setCursor(0,line);lcdprintPGM(" Speed:");
+        lcd.setCursor(0,line);lcdprintPGM(MSG_SPEED);
         lcd.setCursor(13,line);lcd.print(ftostr3(feedmultiply));
       }
       
       if((activeline!=line) )
         break;
       
-      if(CLICKED) //nalogWrite(FAN_PIN,  fanpwm);
+      if(CLICKED) //AnalogWrite(FAN_PIN,  fanpwm);
       {
         linechanging=!linechanging;
         if(linechanging)
@@ -731,7 +735,7 @@ void MainMenu::showTune()
       {
         if(force_lcd_update)
         {
-          lcd.setCursor(0,line);lcdprintPGM(" \002Nozzle:");
+          lcd.setCursor(0,line);lcdprintPGM(MSG_NOZZLE);
           lcd.setCursor(13,line);lcd.print(ftostr3(intround(degTargetHotend0())));
         }
         
@@ -765,7 +769,7 @@ void MainMenu::showTune()
       {
         if(force_lcd_update)
         {
-          lcd.setCursor(0,line);lcdprintPGM(" \002Bed:");
+          lcd.setCursor(0,line);lcdprintPGM(MSG_BED);
           lcd.setCursor(13,line);lcd.print(ftostr3(intround(degTargetBed())));
         }
         
@@ -836,7 +840,7 @@ void MainMenu::showTune()
          {
       if(force_lcd_update)
         {
-          lcd.setCursor(0,line);lcdprintPGM(" Flow:");
+          lcd.setCursor(0,line);lcdprintPGM(MSG_FLOW);
           lcd.setCursor(13,line);lcd.print(itostr4(axis_steps_per_unit[3]));
         }
         
@@ -917,13 +921,13 @@ void MainMenu::showControlTemp()
   switch(i)
   {
     case ItemCT_exit:
-      MENUITEM(  lcdprintPGM(" Control \003")  ,  BLOCK;status=Main_Control;beepshort(); ) ;
+      MENUITEM(  lcdprintPGM(MSG_CONTROL)  ,  BLOCK;status=Main_Control;beepshort(); ) ;
       break;
     case ItemCT_nozzle:
       {
         if(force_lcd_update)
         {
-          lcd.setCursor(0,line);lcdprintPGM(" \002Nozzle:");
+          lcd.setCursor(0,line);lcdprintPGM(MSG_NOZZLE);
           lcd.setCursor(13,line);lcd.print(ftostr3(intround(degTargetHotend0())));
         }
         
@@ -958,7 +962,7 @@ void MainMenu::showControlTemp()
       {
         if(force_lcd_update)
         {
-          lcd.setCursor(0,line);lcdprintPGM(" \002 Min:");
+          lcd.setCursor(0,line);lcdprintPGM(MSG_MIN);
           lcd.setCursor(13,line);lcd.print(ftostr3(autotemp_min));
         }
         
@@ -992,7 +996,7 @@ void MainMenu::showControlTemp()
       {
         if(force_lcd_update)
         {
-          lcd.setCursor(0,line);lcdprintPGM(" \002 Max:");
+          lcd.setCursor(0,line);lcdprintPGM(MSG_MAX);
           lcd.setCursor(13,line);lcd.print(ftostr3(autotemp_max));
         }
         
@@ -1026,7 +1030,7 @@ void MainMenu::showControlTemp()
       {
         if(force_lcd_update)
         {
-          lcd.setCursor(0,line);lcdprintPGM(" \002 Fact:");
+          lcd.setCursor(0,line);lcdprintPGM(MSG_FACTOR);
           lcd.setCursor(13,line);lcd.print(ftostr32(autotemp_factor));
         }
         
@@ -1060,12 +1064,12 @@ void MainMenu::showControlTemp()
       {
         if(force_lcd_update)
         {
-          lcd.setCursor(0,line);lcdprintPGM(" Autotemp:");
+          lcd.setCursor(0,line);lcdprintPGM(MSG_AUTOTEMP);
           lcd.setCursor(13,line);
           if(autotemp_enabled)
-            lcdprintPGM("On");
+            lcdprintPGM(MSG_ON);
           else
-            lcdprintPGM("Off");
+            lcdprintPGM(MSG_OFF);
         }
         
         if((activeline!=line) )
@@ -1076,9 +1080,9 @@ void MainMenu::showControlTemp()
           autotemp_enabled=!autotemp_enabled;
           lcd.setCursor(13,line);
           if(autotemp_enabled)
-            lcdprintPGM("On ");
+            lcdprintPGM(MSG_ON);
           else
-            lcdprintPGM("Off");
+            lcdprintPGM(MSG_OFF);
           BLOCK;
         }
         
@@ -1089,7 +1093,7 @@ void MainMenu::showControlTemp()
       {
         if(force_lcd_update)
         {
-          lcd.setCursor(0,line);lcdprintPGM(" \002Bed:");
+          lcd.setCursor(0,line);lcdprintPGM(MSG_BED);
           lcd.setCursor(13,line);lcd.print(ftostr3(intround(degTargetBed())));
         }
         
@@ -1123,7 +1127,7 @@ void MainMenu::showControlTemp()
       {
         if(force_lcd_update)
         {
-          lcd.setCursor(0,line);lcdprintPGM(" Fan speed:");
+          lcd.setCursor(0,line);lcdprintPGM(MSG_FAN_SPEED);
           lcd.setCursor(13,line);lcd.print(ftostr3(fanpwm));
         }
         
@@ -1193,7 +1197,7 @@ void MainMenu::showControlTemp()
       {
       if(force_lcd_update)
         {
-          lcd.setCursor(0,line);lcdprintPGM(" PID-I: ");
+          lcd.setCursor(0,line);lcdprintPGM(MSG_PID_I);
           lcd.setCursor(13,line);lcd.print(ftostr51(Ki/PID_dT));
         }
         
@@ -1228,7 +1232,7 @@ void MainMenu::showControlTemp()
       {
       if(force_lcd_update)
         {
-          lcd.setCursor(0,line);lcdprintPGM(" PID-D: ");
+          lcd.setCursor(0,line);lcdprintPGM(MSG_PID_D);
           lcd.setCursor(13,line);lcd.print(itostr4(Kd*PID_dT));
         }
         
@@ -1265,7 +1269,7 @@ void MainMenu::showControlTemp()
       {
       if(force_lcd_update)
         {
-          lcd.setCursor(0,line);lcdprintPGM(" PID-C: ");
+          lcd.setCursor(0,line);lcdprintPGM(MSG_PID_C);
           lcd.setCursor(13,line);lcd.print(itostr3(Kc));
         }
         
@@ -1331,13 +1335,13 @@ void MainMenu::showControlMotion()
   switch(i)
   {
     case ItemCM_exit:
-      MENUITEM(  lcdprintPGM(" Control \003")  ,  BLOCK;status=Main_Control;beepshort(); ) ;
+      MENUITEM(  lcdprintPGM(MSG_CONTROL)  ,  BLOCK;status=Main_Control;beepshort(); ) ;
       break;
     case ItemCM_acc:
     {
       if(force_lcd_update)
         {
-          lcd.setCursor(0,line);lcdprintPGM(" Acc:");
+          lcd.setCursor(0,line);lcdprintPGM(MSG_ACC);
           lcd.setCursor(13,line);lcd.print(itostr3(acceleration/100));lcdprintPGM("00");
         }
         
@@ -1371,7 +1375,7 @@ void MainMenu::showControlMotion()
       {
       if(force_lcd_update)
         {
-          lcd.setCursor(0,line);lcdprintPGM(" Vxy-jerk: ");
+          lcd.setCursor(0,line);lcdprintPGM(MSG_VXY_JERK);
           lcd.setCursor(13,line);lcd.print(itostr3(max_xy_jerk));
         }
         
@@ -1410,11 +1414,11 @@ void MainMenu::showControlMotion()
       {
       if(force_lcd_update)
         {
-          lcd.setCursor(0,line);lcdprintPGM(" Vmax ");
-          if(i==ItemCM_vmaxx)lcdprintPGM("x:");
-          if(i==ItemCM_vmaxy)lcdprintPGM("y:");
-          if(i==ItemCM_vmaxz)lcdprintPGM("z:");
-          if(i==ItemCM_vmaxe)lcdprintPGM("e:");
+          lcd.setCursor(0,line);lcdprintPGM(MSG_VMAX);
+          if(i==ItemCM_vmaxx)lcdprintPGM(MSG_X);
+          if(i==ItemCM_vmaxy)lcdprintPGM(MSG_Y);
+          if(i==ItemCM_vmaxz)lcdprintPGM(MSG_Z);
+          if(i==ItemCM_vmaxe)lcdprintPGM(MSG_E);
           lcd.setCursor(13,line);lcd.print(itostr3(max_feedrate[i-ItemCM_vmaxx]));
         }
         
@@ -1450,7 +1454,7 @@ void MainMenu::showControlMotion()
     {
       if(force_lcd_update)
         {
-          lcd.setCursor(0,line);lcdprintPGM(" Vmin:");
+          lcd.setCursor(0,line);lcdprintPGM(MSG_VMIN);
           lcd.setCursor(13,line);lcd.print(itostr3(minimumfeedrate));
         }
         
@@ -1485,7 +1489,7 @@ void MainMenu::showControlMotion()
     {
       if(force_lcd_update)
         {
-          lcd.setCursor(0,line);lcdprintPGM(" VTrav min:");
+          lcd.setCursor(0,line);lcdprintPGM(MSG_VTRAV_MIN);
           lcd.setCursor(13,line);lcd.print(itostr3(mintravelfeedrate));
         }
         
@@ -1525,10 +1529,10 @@ void MainMenu::showControlMotion()
       if(force_lcd_update)
         {
           lcd.setCursor(0,line);lcdprintPGM(" Amax ");
-          if(i==ItemCM_amaxx)lcdprintPGM("x:");
-          if(i==ItemCM_amaxy)lcdprintPGM("y:");
-          if(i==ItemCM_amaxz)lcdprintPGM("z:");
-          if(i==ItemCM_amaxe)lcdprintPGM("e:");
+          if(i==ItemCM_amaxx)lcdprintPGM(MSG_X);
+          if(i==ItemCM_amaxy)lcdprintPGM(MSG_Y);
+          if(i==ItemCM_amaxz)lcdprintPGM(MSG_Z);
+          if(i==ItemCM_amaxe)lcdprintPGM(MSG_E);
           lcd.setCursor(13,line);lcd.print(itostr3(max_acceleration_units_per_sq_second[i-ItemCM_amaxx]/100));lcdprintPGM("00");
         }
         
@@ -1562,7 +1566,7 @@ void MainMenu::showControlMotion()
     {
         if(force_lcd_update)
         {
-          lcd.setCursor(0,line);lcdprintPGM(" A-retract:");
+          lcd.setCursor(0,line);lcdprintPGM(MSG_A_RETRACT);
           lcd.setCursor(13,line);lcd.print(ftostr3(retract_acceleration/100));lcdprintPGM("00");
         }
         
@@ -1597,8 +1601,8 @@ void MainMenu::showControlMotion()
          {
       if(force_lcd_update)
         {
-          lcd.setCursor(0,line);lcdprintPGM(" X steps/mm:");
-          lcd.setCursor(13,line);lcd.print(itostr4(axis_steps_per_unit[0]));
+          lcd.setCursor(0,line);lcdprintPGM(MSG_XSTEPS);
+          lcd.setCursor(11,line);lcd.print(ftostr52(axis_steps_per_unit[0]));
         }
         
         if((activeline!=line) )
@@ -1609,16 +1613,15 @@ void MainMenu::showControlMotion()
           linechanging=!linechanging;
           if(linechanging)
           {
-              encoderpos=(int)axis_steps_per_unit[0];
+              encoderpos=(int)(axis_steps_per_unit[0]*100.0);
           }
           else
           {
-            float factor=float(encoderpos)/float(axis_steps_per_unit[0]);
+            float factor=float(encoderpos)/100.0/float(axis_steps_per_unit[0]);
             position[X_AXIS]=lround(position[X_AXIS]*factor);
             //current_position[3]*=factor;
-            axis_steps_per_unit[X_AXIS]= encoderpos;
+            axis_steps_per_unit[X_AXIS]= encoderpos/100.0;
             encoderpos=activeline*lcdslow;
-              
           }
           BLOCK;
           beepshort();
@@ -1626,8 +1629,8 @@ void MainMenu::showControlMotion()
         if(linechanging)
         {
           if(encoderpos<5) encoderpos=5;
-          if(encoderpos>9999) encoderpos=9999;
-          lcd.setCursor(13,line);lcd.print(itostr4(encoderpos));
+          if(encoderpos>99999) encoderpos=99999;
+          lcd.setCursor(11,line);lcd.print(ftostr52(encoderpos/100.0));
         }
         
       }break;
@@ -1635,8 +1638,8 @@ void MainMenu::showControlMotion()
          {
       if(force_lcd_update)
         {
-          lcd.setCursor(0,line);lcdprintPGM(" Y steps/mm:");
-          lcd.setCursor(13,line);lcd.print(itostr4(axis_steps_per_unit[1]));
+          lcd.setCursor(0,line);lcdprintPGM(MSG_YSTEPS);
+          lcd.setCursor(11,line);lcd.print(ftostr52(axis_steps_per_unit[1]));
         }
         
         if((activeline!=line) )
@@ -1647,14 +1650,14 @@ void MainMenu::showControlMotion()
           linechanging=!linechanging;
           if(linechanging)
           {
-              encoderpos=(int)axis_steps_per_unit[1];
+              encoderpos=(int)(axis_steps_per_unit[1]*100.0);
           }
           else
           {
-            float factor=float(encoderpos)/float(axis_steps_per_unit[1]);
+            float factor=float(encoderpos)/100.0/float(axis_steps_per_unit[1]);
             position[Y_AXIS]=lround(position[Y_AXIS]*factor);
             //current_position[3]*=factor;
-            axis_steps_per_unit[Y_AXIS]= encoderpos;
+            axis_steps_per_unit[Y_AXIS]= encoderpos/100.0;
             encoderpos=activeline*lcdslow;
               
           }
@@ -1665,7 +1668,7 @@ void MainMenu::showControlMotion()
         {
           if(encoderpos<5) encoderpos=5;
           if(encoderpos>9999) encoderpos=9999;
-          lcd.setCursor(13,line);lcd.print(itostr4(encoderpos));
+          lcd.setCursor(11,line);lcd.print(ftostr52(encoderpos/100.0));
         }
         
       }break;
@@ -1673,8 +1676,8 @@ void MainMenu::showControlMotion()
          {
       if(force_lcd_update)
         {
-          lcd.setCursor(0,line);lcdprintPGM(" Z steps/mm:");
-          lcd.setCursor(13,line);lcd.print(itostr4(axis_steps_per_unit[2]));
+          lcd.setCursor(0,line);lcdprintPGM(MSG_ZSTEPS);
+          lcd.setCursor(11,line);lcd.print(ftostr52(axis_steps_per_unit[2]));
         }
         
         if((activeline!=line) )
@@ -1685,14 +1688,14 @@ void MainMenu::showControlMotion()
           linechanging=!linechanging;
           if(linechanging)
           {
-              encoderpos=(int)axis_steps_per_unit[2];
+              encoderpos=(int)(axis_steps_per_unit[2]*100.0);
           }
           else
           {
-            float factor=float(encoderpos)/float(axis_steps_per_unit[2]);
+            float factor=float(encoderpos)/100.0/float(axis_steps_per_unit[2]);
             position[Z_AXIS]=lround(position[Z_AXIS]*factor);
             //current_position[3]*=factor;
-            axis_steps_per_unit[Z_AXIS]= encoderpos;
+            axis_steps_per_unit[Z_AXIS]= encoderpos/100.0;
             encoderpos=activeline*lcdslow;
               
           }
@@ -1703,7 +1706,7 @@ void MainMenu::showControlMotion()
         {
           if(encoderpos<5) encoderpos=5;
           if(encoderpos>9999) encoderpos=9999;
-          lcd.setCursor(13,line);lcd.print(itostr4(encoderpos));
+          lcd.setCursor(11,line);lcd.print(ftostr52(encoderpos/100.0));
         }
         
       }break;
@@ -1712,8 +1715,8 @@ void MainMenu::showControlMotion()
          {
       if(force_lcd_update)
         {
-          lcd.setCursor(0,line);lcdprintPGM(" E steps/mm:");
-          lcd.setCursor(13,line);lcd.print(itostr4(axis_steps_per_unit[3]));
+          lcd.setCursor(0,line);lcdprintPGM(MSG_ESTEPS);
+          lcd.setCursor(11,line);lcd.print(ftostr52(axis_steps_per_unit[3]));
         }
         
         if((activeline!=line) )
@@ -1724,14 +1727,14 @@ void MainMenu::showControlMotion()
           linechanging=!linechanging;
           if(linechanging)
           {
-              encoderpos=(int)axis_steps_per_unit[3];
+              encoderpos=(int)(axis_steps_per_unit[3]*100.0);
           }
           else
           {
-            float factor=float(encoderpos)/float(axis_steps_per_unit[3]);
+            float factor=float(encoderpos)/100.0/float(axis_steps_per_unit[3]);
             position[E_AXIS]=lround(position[E_AXIS]*factor);
             //current_position[3]*=factor;
-            axis_steps_per_unit[E_AXIS]= encoderpos;
+            axis_steps_per_unit[E_AXIS]= encoderpos/100.0;
             encoderpos=activeline*lcdslow;
               
           }
@@ -1742,7 +1745,7 @@ void MainMenu::showControlMotion()
         {
           if(encoderpos<5) encoderpos=5;
           if(encoderpos>9999) encoderpos=9999;
-          lcd.setCursor(13,line);lcd.print(itostr4(encoderpos));
+          lcd.setCursor(11,line);lcd.print(ftostr52(encoderpos/100.0));
         }
         
       }break; 
@@ -1769,19 +1772,19 @@ void MainMenu::showControl()
   switch(i)
   {
     case ItemC_exit:
-      MENUITEM(  lcdprintPGM(" Main        \003")  ,  BLOCK;status=Main_Menu;beepshort(); ) ;
+      MENUITEM(  lcdprintPGM(MSG_MAIN_WIDE)  ,  BLOCK;status=Main_Menu;beepshort(); ) ;
       break;
     case ItemC_temp:
-      MENUITEM(  lcdprintPGM(" Temperature \x7E")  ,  BLOCK;status=Sub_TempControl;beepshort(); ) ;
+      MENUITEM(  lcdprintPGM(MSG_TEMPERATURE_WIDE)  ,  BLOCK;status=Sub_TempControl;beepshort(); ) ;
       break;
    case ItemC_move:
-      MENUITEM(  lcdprintPGM(" Motion      \x7E")  ,  BLOCK;status=Sub_MotionControl;beepshort(); ) ;
+      MENUITEM(  lcdprintPGM(MSG_MOTION_WIDE)  ,  BLOCK;status=Sub_MotionControl;beepshort(); ) ;
       break;
     case ItemC_store:
     {
       if(force_lcd_update)
       {
-        lcd.setCursor(0,line);lcdprintPGM(" Store EPROM");
+        lcd.setCursor(0,line);lcdprintPGM(MSG_STORE_EPROM);
       }
       if((activeline==line) && CLICKED)
       {
@@ -1795,7 +1798,7 @@ void MainMenu::showControl()
     {
       if(force_lcd_update)
       {
-        lcd.setCursor(0,line);lcdprintPGM(" Load EPROM");
+        lcd.setCursor(0,line);lcdprintPGM(MSG_LOAD_EPROM);
       }
       if((activeline==line) && CLICKED)
       {
@@ -1809,7 +1812,7 @@ void MainMenu::showControl()
     {
       if(force_lcd_update)
       {
-        lcd.setCursor(0,line);lcdprintPGM(" Restore Failsafe");
+        lcd.setCursor(0,line);lcdprintPGM(MSG_RESTORE_FAILSAFE);
       }
       if((activeline==line) && CLICKED)
       {
@@ -1856,7 +1859,7 @@ void MainMenu::showSD()
   switch(i)
   {
     case 0:
-      MENUITEM(  lcdprintPGM(" Main \003")  ,  BLOCK;status=Main_Menu;beepshort(); ) ;
+      MENUITEM(  lcdprintPGM(MSG_MAIN)  ,  BLOCK;status=Main_Menu;beepshort(); ) ;
       break;
 //     case 1:
 //       {
@@ -1887,7 +1890,7 @@ void MainMenu::showSD()
 //         }
 //       }break;
     case 1:
-      MENUITEM(  lcd.print(" ");card.getWorkDirName();if(card.filename[0]=='/') lcdprintPGM("\004Refresh");else {lcd.print("\005");lcd.print(card.filename);lcd.print("/..");}  ,  BLOCK;card.updir();enforceupdate=true;lineoffset=0;beepshort(); ) ;
+      MENUITEM(  lcd.print(" ");card.getWorkDirName();if(card.filename[0]=='/') lcdprintPGM(MSG_REFRESH);else {lcd.print("\005");lcd.print(card.filename);lcd.print("/..");}  ,  BLOCK;card.updir();enforceupdate=true;lineoffset=0;beepshort(); ) ;
       
       break;
     default:
@@ -1974,14 +1977,14 @@ void MainMenu::showMainMenu()
     switch(line)
     { 
       case ItemM_watch:
-        MENUITEM(  lcdprintPGM(" Watch   \003")  ,  BLOCK;status=Main_Status;beepshort(); ) ;
+        MENUITEM(  lcdprintPGM(MSG_WATCH)  ,  BLOCK;status=Main_Status;beepshort(); ) ;
        break;
       case ItemM_prepare:
-        MENUITEM(  if(!tune) lcdprintPGM(" Prepare \x7E");else  lcdprintPGM(" Tune    \x7E"); ,  BLOCK;status=Main_Prepare;beepshort(); ) ;
+        MENUITEM(  if(!tune) lcdprintPGM(MSG_PREPARE);else  lcdprintPGM(MSG_TUNE); ,  BLOCK;status=Main_Prepare;beepshort(); ) ;
       break;
        
       case ItemM_control:
-        MENUITEM(  lcdprintPGM(" Control \x7E")  ,  BLOCK;status=Main_Control;beepshort(); ) ;
+        MENUITEM(  lcdprintPGM(MSG_CONTROL_ARROW)  ,  BLOCK;status=Main_Control;beepshort(); ) ;
       break;
       #ifdef SDSUPPORT
       case ItemM_file:    
@@ -1996,13 +1999,13 @@ void MainMenu::showMainMenu()
           #endif
           {
             if(card.sdprinting)
-              lcdprintPGM(" Stop Print   \x7E");
+              lcdprintPGM(MSG_STOP_PRINT);
             else
-              lcdprintPGM(" Card Menu    \x7E");
+              lcdprintPGM(MSG_CARD_MENU);
           }
           else
           {
-           lcdprintPGM(" No Card"); 
+           lcdprintPGM(MSG_NO_CARD); 
           }
         }
         #ifdef CARDINSERTED
@@ -2022,7 +2025,7 @@ void MainMenu::showMainMenu()
       #endif
       default: 
         SERIAL_ERROR_START;
-        SERIAL_ERRORLNPGM("Something is wrong in the MenuStructure.");
+        SERIAL_ERRORLNPGM(MSG_SERIAL_ERROR_MENU_STRUCTURE);
       break;
     }
   }
@@ -2043,12 +2046,12 @@ void MainMenu::update()
       if(CARDINSERTED)
       {
         card.initsd();
-        LCD_MESSAGEPGM("Card inserted");
+        LCD_MESSAGEPGM(MSG_SD_INSERTED);
       }
       else
       {
         card.release();
-        LCD_MESSAGEPGM("Card removed");
+        LCD_MESSAGEPGM(MSG_SD_REMOVED);
       }
     }
   #endif
@@ -2223,6 +2226,21 @@ char *ftostr51(const float &x)
   return conv;
 }
 
+//  convert float to string with +123.45 format
+char *ftostr52(const float &x)
+{
+  int xx=x*100;
+  conv[0]=(xx>=0)?'+':'-';
+  xx=abs(xx);
+  conv[1]=(xx/10000)%10+'0';
+  conv[2]=(xx/1000)%10+'0';
+  conv[3]=(xx/100)%10+'0';
+  conv[4]='.';
+  conv[5]=(xx/10)%10+'0';
+  conv[6]=(xx)%10+'0';
+  conv[7]=0;
+  return conv;
+}
 
 #endif //ULTRA_LCD
 

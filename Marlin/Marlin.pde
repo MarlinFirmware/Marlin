@@ -35,8 +35,9 @@
 #include "cardreader.h"
 #include "watchdog.h"
 #include "EEPROMwrite.h"
+#include "language.h"
 
-#define VERSION_STRING  "1.0.0 RC1"
+#define VERSION_STRING  "1.0.0 RC2"
 
 // look here for descriptions of gcodes: http://linuxcnc.org/handbook/gcode/g-code.html
 // http://objects.reprap.org/wiki/Mendel_User_Manual:_RepRapGCodes
@@ -97,7 +98,8 @@
 // M204 - Set default acceleration: S normal moves T filament only moves (M204 S3000 T7000) im mm/sec^2  also sets minimum segment time in ms (B20000) to prevent buffer underruns and M20 minimum feedrate
 // M205 -  advanced settings:  minimum travel speed S=while printing T=travel only,  B=minimum segment time X= maximum xy jerk, Z=maximum Z jerk
 // M206 - set additional homeing offset
-// M220 - set speed factor override percentage S:factor in percent
+// M220 S<factor in percent>- set speed factor override percentage
+// M221 S<factor in percent>- set extrude factor override percentage
 // M240 - Trigger a camera to take a photograph
 // M301 - Set PID parameters P I and D
 // M302 - Allow cold extrudes
@@ -125,10 +127,10 @@ bool axis_relative_modes[] = AXIS_RELATIVE_MODES;
 volatile int feedmultiply=100; //100->1 200->2
 int saved_feedmultiply;
 volatile bool feedmultiplychanged=false;
+volatile int extrudemultiply=100; //100->1 200->2
 float current_position[NUM_AXIS] = { 0.0, 0.0, 0.0, 0.0 };
 float add_homeing[3]={0,0,0};
 uint8_t active_extruder = 0;
-bool stop_heating_wait=false;
 
 //===========================================================================
 //=============================private variables=============================
@@ -249,6 +251,16 @@ void setup()
   MYSERIAL.begin(BAUDRATE);
   SERIAL_PROTOCOLLNPGM("start");
   SERIAL_ECHO_START;
+
+  // Check startup - does nothing if bootloader sets MCUSR to 0
+  byte mcu = MCUSR;
+  if(mcu & 1) SERIAL_ECHOLNPGM("PowerUp");
+  if(mcu & 2) SERIAL_ECHOLNPGM("External Reset");
+  if(mcu & 4) SERIAL_ECHOLNPGM("Brown out Reset");
+  if(mcu & 8) SERIAL_ECHOLNPGM("Watchdog Reset");
+  if(mcu & 32) SERIAL_ECHOLNPGM("Software Reset");
+  MCUSR=0;
+
   SERIAL_ECHOPGM("Marlin: ");
   SERIAL_ECHOLNPGM(VERSION_STRING);
   #ifdef STRING_VERSION_CONFIG_H
@@ -331,9 +343,13 @@ void get_command()
     serial_char = MYSERIAL.read();
     if(serial_char == '\n' || serial_char == '\r' || serial_char == ':' || serial_count >= (MAX_CMD_SIZE - 1) ) 
     {
-      if(!serial_count) return; //if empty line
+      if(!serial_count) { //if empty line
+        comment_mode = false; //for new command
+        return;
+      }
       cmdbuffer[bufindw][serial_count] = 0; //terminate string
       if(!comment_mode){
+        comment_mode = false; //for new command
         fromsd[bufindw] = false;
         if(strstr(cmdbuffer[bufindw], "N") != NULL)
         {
@@ -410,9 +426,7 @@ void get_command()
         }
         bufindw = (bufindw + 1)%BUFSIZE;
         buflen += 1;
-
       }
-      comment_mode = false; //for new command
       serial_count = 0; //clear buffer
     }
     else
@@ -446,10 +460,9 @@ void get_command()
         card.checkautostart(true);
         
       }
-      if(serial_char=='\n')
-         comment_mode = false; //for new command
       if(!serial_count)
       {
+        comment_mode = false; //for new command
         return; //if empty line
       }
       cmdbuffer[bufindw][serial_count] = 0; //terminate string
@@ -458,6 +471,7 @@ void get_command()
         buflen += 1;
         bufindw = (bufindw + 1)%BUFSIZE;
       }     
+      comment_mode = false; //for new command
       serial_count = 0; //clear buffer
     }
     else
@@ -476,10 +490,12 @@ float code_value()
 { 
   return (strtod(&cmdbuffer[bufindr][strchr_pointer - cmdbuffer[bufindr] + 1], NULL)); 
 }
+
 long code_value_long() 
 { 
   return (strtol(&cmdbuffer[bufindr][strchr_pointer - cmdbuffer[bufindr] + 1], NULL, 10)); 
 }
+
 bool code_seen(char code_string[]) //Return True if the string was found
 { 
   return (strstr(cmdbuffer[bufindr], code_string) != NULL); 
@@ -490,6 +506,7 @@ bool code_seen(char code)
   strchr_pointer = strchr(cmdbuffer[bufindr], code);
   return (strchr_pointer != NULL);  //Return True if a character was found
 }
+
 #define HOMEAXIS(LETTER) \
   if ((LETTER##_MIN_PIN > -1 && LETTER##_HOME_DIR==-1) || (LETTER##_MAX_PIN > -1 && LETTER##_HOME_DIR==1))\
     { \
@@ -498,22 +515,22 @@ bool code_seen(char code)
     destination[LETTER##_AXIS] = 1.5 * LETTER##_MAX_LENGTH * LETTER##_HOME_DIR; \
     feedrate = homing_feedrate[LETTER##_AXIS]; \
     plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate/60, active_extruder); \
+    st_synchronize();\
     \
     current_position[LETTER##_AXIS] = 0;\
     plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);\
     destination[LETTER##_AXIS] = -LETTER##_HOME_RETRACT_MM * LETTER##_HOME_DIR;\
     plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate/60, active_extruder); \
+    st_synchronize();\
     \
     destination[LETTER##_AXIS] = 2*LETTER##_HOME_RETRACT_MM * LETTER##_HOME_DIR;\
     feedrate = homing_feedrate[LETTER##_AXIS]/2 ;  \
     plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate/60, active_extruder); \
+    st_synchronize();\
     \
-    current_position[LETTER##_AXIS] = (LETTER##_HOME_DIR == -1) ? 0 : LETTER##_MAX_LENGTH;\
-    plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);\
+    current_position[LETTER##_AXIS] = (LETTER##_HOME_DIR == -1) ? LETTER##_HOME_POS : LETTER##_MAX_LENGTH;\
     destination[LETTER##_AXIS] = current_position[LETTER##_AXIS];\
     feedrate = 0.0;\
-    st_synchronize();\
-    plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);\
     endstops_hit_on_purpose();\
   }
 
@@ -567,7 +584,7 @@ void process_commands()
       feedrate = 0.0;
       home_all_axis = !((code_seen(axis_codes[0])) || (code_seen(axis_codes[1])) || (code_seen(axis_codes[2])));
       #ifdef QUICK_HOME
-      if( code_seen(axis_codes[0]) && code_seen(axis_codes[1]) )  //first diagonal move
+      if( code_seen(axis_codes[X_AXIS]) && code_seen(axis_codes[Y_AXIS]) )  //first diagonal move
       {
         current_position[X_AXIS] = 0;current_position[Y_AXIS] = 0;  
 
@@ -576,17 +593,17 @@ void process_commands()
         feedrate = homing_feedrate[X_AXIS]; 
         if(homing_feedrate[Y_AXIS]<feedrate)
           feedrate =homing_feedrate[Y_AXIS]; 
-        prepare_move(); 
+        plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate/60, active_extruder);
+        st_synchronize();
     
-        current_position[X_AXIS] = (X_HOME_DIR == -1) ? 0 : X_MAX_LENGTH;
-        current_position[Y_AXIS] = (Y_HOME_DIR == -1) ? 0 : Y_MAX_LENGTH;
+        current_position[X_AXIS] = (X_HOME_DIR == -1) ? X_HOME_POS : X_MAX_LENGTH;
+        current_position[Y_AXIS] = (Y_HOME_DIR == -1) ? Y_HOME_POS : Y_MAX_LENGTH;
         plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
         destination[X_AXIS] = current_position[X_AXIS];
         destination[Y_AXIS] = current_position[Y_AXIS];
+        plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate/60, active_extruder);
         feedrate = 0.0;
         st_synchronize();
-        plan_set_position(0, 0, current_position[Z_AXIS], current_position[E_AXIS]);
-        current_position[X_AXIS] = 0;current_position[Y_AXIS] = 0;
         endstops_hit_on_purpose();
       }
       #endif
@@ -599,23 +616,31 @@ void process_commands()
       if((home_all_axis) || (code_seen(axis_codes[Y_AXIS]))) {
        HOMEAXIS(Y);
       }
-
+      
       if((home_all_axis) || (code_seen(axis_codes[Z_AXIS]))) {
         HOMEAXIS(Z);
       }
       
       if(code_seen(axis_codes[X_AXIS])) 
       {
-        current_position[0]=code_value()+add_homeing[0];
+        if(code_value_long() != 0) {
+          current_position[X_AXIS]=code_value()+add_homeing[0];
+        }
       }
 
       if(code_seen(axis_codes[Y_AXIS])) {
-        current_position[1]=code_value()+add_homeing[1];
+        if(code_value_long() != 0) {
+          current_position[Y_AXIS]=code_value()+add_homeing[1];
+        }
       }
 
       if(code_seen(axis_codes[Z_AXIS])) {
-        current_position[2]=code_value()+add_homeing[2];
+        if(code_value_long() != 0) {
+          current_position[Z_AXIS]=code_value()+add_homeing[2];
+        }
       }
+      plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+      
       #ifdef ENDSTOPS_ONLY_FOR_HOMING
         enable_endstops(false);
       #endif
@@ -880,7 +905,6 @@ void process_commands()
           }
           manage_heater();
           LCD_STATUS;
-        if(stop_heating_wait) break;
         #ifdef TEMP_RESIDENCY_TIME
             /* start/restart the TEMP_RESIDENCY_TIME timer whenever we reach target temp for the first time
               or when current temp falls outside the hysteresis after target temp was reached */
@@ -1112,8 +1136,14 @@ void process_commands()
       }
     }
     break;
-    
-    
+    case 221: // M221 S<factor in percent>- set extrude factor override percentage
+    {
+      if(code_seen('S')) 
+      {
+        extrudemultiply = code_value() ;
+      }
+    }
+    break;
 
     #ifdef PIDTEMP
     case 301: // M301
@@ -1265,11 +1295,10 @@ void get_arc_coordinates()
 
 void prepare_move()
 {
-  
   if (min_software_endstops) {
-    if (destination[X_AXIS] < 0) destination[X_AXIS] = 0.0;
-    if (destination[Y_AXIS] < 0) destination[Y_AXIS] = 0.0;
-    if (destination[Z_AXIS] < 0) destination[Z_AXIS] = 0.0;
+    if (destination[X_AXIS] < X_HOME_POS) destination[X_AXIS] = X_HOME_POS;
+    if (destination[Y_AXIS] < Y_HOME_POS) destination[Y_AXIS] = Y_HOME_POS;
+    if (destination[Z_AXIS] < Z_HOME_POS) destination[Z_AXIS] = Z_HOME_POS;
   }
 
   if (max_software_endstops) {
@@ -1277,7 +1306,7 @@ void prepare_move()
     if (destination[Y_AXIS] > Y_MAX_LENGTH) destination[Y_AXIS] = Y_MAX_LENGTH;
     if (destination[Z_AXIS] > Z_MAX_LENGTH) destination[Z_AXIS] = Z_MAX_LENGTH;
   }
-
+  
   plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate*feedmultiply/60/100.0, active_extruder);
   for(int8_t i=0; i < NUM_AXIS; i++) {
     current_position[i] = destination[i];
