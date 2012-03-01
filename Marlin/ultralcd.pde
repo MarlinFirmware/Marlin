@@ -652,14 +652,14 @@ void MainMenu::showAxisMove()
                   {
                     if (encoderpos >0) 
                    { 
-		    	enquecommand("G1 F170 Z0.1");
+		    	enquecommand("G1 F70 Z0.1");
 			oldencoderpos=encoderpos;
                         encoderpos=0;
 		    }
 		  
 		    else if (encoderpos < 0)
                     {
-		    	enquecommand("G1 F1700 Z-0.1");
+		    	enquecommand("G1 F70 Z-0.1");
 			oldencoderpos=encoderpos;
                         encoderpos=0;
 		    }
