@@ -739,20 +739,22 @@ void process_commands()
       //processed in write to file routine above
       //card,saving = false;
       break;
-    case 31: //M31 <filename> Delete File 
-	if (card.cardok){
+    case 30: //M31 <filename> Delete File 
+	if (card.cardOK){
 		card.closefile();
-		if (SdBaseFile::remove(strchr_pointer + 4)){
-			SERIAL_PROTOCOLLNPGM("File deleted");
-		}
-		else{
-			SERIAL_PROTOCOLLNPGM("Deletion failed");
-		}	
+		starpos = (strchr(strchr_pointer + 4,'*'));
+                if(starpos != NULL){
+                char* npos = strchr(cmdbuffer[bufindr], 'N');
+                strchr_pointer = strchr(npos,' ') + 1;
+                *(starpos-1) = '\0';
+         }
+	 card.removeFile(strchr_pointer + 4);
 	}
+	break;
 	
 #endif //SDSUPPORT
 
-    case 30: //M30 take time since the start of the SD print or an M109 command
+    case 31: //M30 take time since the start of the SD print or an M109 command
       {
       stoptime=millis();
       char time[30];
