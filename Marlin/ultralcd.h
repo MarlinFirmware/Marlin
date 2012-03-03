@@ -129,6 +129,7 @@
 
   //conversion routines, could need some overworking
   char *ftostr51(const float &x);
+  char *ftostr52(const float &x);
   char *ftostr31(const float &x);
   char *ftostr3(const float &x);
 
@@ -142,10 +143,8 @@
   #define LCD_MESSAGE(x)
   #define LCD_MESSAGEPGM(x)
   FORCE_INLINE void lcd_status() {};
-#endif
-  
-#ifndef ULTIPANEL  
- #define CLICKED false
+
+  #define CLICKED false
   #define BLOCK ;
 #endif 
   
@@ -160,4 +159,3 @@ char *itostr3(const int &xx);
 char *itostr4(const int &xx);
 char *ftostr51(const float &x);
 #endif //ULTRALCD
-

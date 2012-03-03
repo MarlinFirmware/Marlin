@@ -64,39 +64,11 @@ private:
   char* diveDirName;
   void lsDive(const char *prepend,SdFile parent);
 };
-  
+#define IS_SD_PRINTING (card.sdprinting)
 
 #else
 
-#define dir_t bool 
-class CardReader
-{
-public:
-  FORCE_INLINE CardReader(){};
-  
-  FORCE_INLINE static void initsd(){};
-  FORCE_INLINE static void write_command(char *buf){};
-  
-  FORCE_INLINE static void checkautostart(bool x) {}; 
-  
-  FORCE_INLINE static void openFile(char* name,bool read){};
-  FORCE_INLINE static void closefile() {};
-  FORCE_INLINE static void release(){};
-  FORCE_INLINE static void startFileprint(){};
-  FORCE_INLINE static void startFilewrite(char *name){};
-  FORCE_INLINE static void pauseSDPrint(){};
-  FORCE_INLINE static void getStatus(){};
-  
-  FORCE_INLINE static void selectFile(char* name){};
-  FORCE_INLINE static void getfilename(const uint8_t nr){};
-  FORCE_INLINE static uint8_t getnrfilenames(){return 0;};
-  
+#define IS_SD_PRINTING (false)
 
-  FORCE_INLINE static void ls() {};
-  FORCE_INLINE static bool eof() {return true;};
-  FORCE_INLINE static char get() {return 0;};
-  FORCE_INLINE static void setIndex(){};
-  FORCE_INLINE uint8_t percentDone(){return 0;};
-};
 #endif //SDSUPPORT
 #endif
