@@ -59,6 +59,7 @@
 #include "stepper.h"
 #include "temperature.h"
 #include "ultralcd.h"
+#include "language.h"
 
 //===========================================================================
 //=============================public variables ============================
@@ -469,13 +470,13 @@ void plan_buffer_line(float &x, float &y, float &z, float &e, float feed_rate, u
     {
       position[E_AXIS]=target[E_AXIS]; //behave as if the move really took place, but ignore E part
       SERIAL_ECHO_START;
-      SERIAL_ECHOLNPGM(" cold extrusion prevented");
+      SERIAL_ECHOLNPGM(MSG_ERR_COLD_EXTRUDE_STOP);
     }
     if(labs(target[E_AXIS]-position[E_AXIS])>axis_steps_per_unit[E_AXIS]*EXTRUDE_MAXLENGTH)
     {
       position[E_AXIS]=target[E_AXIS]; //behave as if the move really took place, but ignore E part
       SERIAL_ECHO_START;
-      SERIAL_ECHOLNPGM(" too long extrusion prevented");
+      SERIAL_ECHOLNPGM(MSG_ERR_LONG_EXTRUDE_STOP);
     }
   #endif
   
