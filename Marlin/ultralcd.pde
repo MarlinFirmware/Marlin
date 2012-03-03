@@ -412,7 +412,7 @@ void MainMenu::showStatus()
   uint8_t percent=card.percentDone();
   if(oldpercent!=percent ||force_lcd_update)
   {
-     lcd.setCursor(7,2);
+     lcd.setCursor(10,2);
     lcd.print(itostr3((int)percent));
     lcdprintPGM("%SD");
   }
@@ -535,7 +535,7 @@ void MainMenu::showAxisMove()
      switch(i)
       {
           case ItemAM_exit:
-          MENUITEM(  lcdprintPGM(" Prepare \003")  ,  BLOCK;status=Main_Menu;beepshort(); ) ;
+          MENUITEM(  lcdprintPGM(MSG_PREPARE_ALT)  ,  BLOCK;status=Main_Menu;beepshort(); ) ;
           break;
           case ItemAM_X:
           {
@@ -811,7 +811,7 @@ void MainMenu::showTune()
       {
         if(force_lcd_update)
         {
-          lcd.setCursor(0,line);lcdprintPGM(" Fan speed:");
+          lcd.setCursor(0,line);lcdprintPGM(MSG_FAN_SPEED);
           lcd.setCursor(13,line);lcd.print(ftostr3(fanpwm));
         }
         
@@ -1896,7 +1896,19 @@ void MainMenu::showSD()
 //         }
 //       }break;
     case 1:
-      MENUITEM(  lcd.print(" ");card.getWorkDirName();if(card.filename[0]=='/') lcdprintPGM(MSG_REFRESH);else {lcd.print("\005");lcd.print(card.filename);lcd.print("/..");}  ,  BLOCK;card.updir();enforceupdate=true;lineoffset=0;beepshort(); ) ;
+      MENUITEM(  lcd.print(" ");card.getWorkDirName();
+	  if(card.filename[0]=='/') lcdprintPGM(MSG_REFRESH);
+	  else {
+		  lcd.print("\005");
+		  lcd.print(card.filename);
+		  lcd.print("/..");
+			}  ,  
+	BLOCK;
+			if(SDCARDDETECT == -1) card.initsd();
+			card.updir();
+			enforceupdate=true;
+			lineoffset=0;
+			beepshort(); ) ;
       
       break;
     default:
