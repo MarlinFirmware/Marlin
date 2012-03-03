@@ -410,7 +410,7 @@ void MainMenu::showStatus()
   uint8_t percent=card.percentDone();
   if(oldpercent!=percent ||force_lcd_update)
   {
-     lcd.setCursor(7,2);
+     lcd.setCursor(10,2);
     lcd.print(itostr3((int)percent));
     lcdprintPGM("%SD");
   }
