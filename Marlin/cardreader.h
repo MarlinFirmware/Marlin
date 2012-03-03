@@ -17,6 +17,7 @@ public:
 
   void checkautostart(bool x); 
   void openFile(char* name,bool read);
+  void removeFile(char* name);
   void closefile();
   void release();
   void startFileprint();

@@ -295,6 +295,75 @@ void CardReader::openFile(char* name,bool read)
   
 }
 
+void CardReader::removeFile(char* name)
+{
+  if(!cardOK)
+    return;
+  file.close();
+  sdprinting = false;
+  
+  
+  SdFile myDir;
+  curDir=&root;
+  char *fname=name;
+  
+  char *dirname_start,*dirname_end;
+  if(name[0]=='/')
+  {
+    dirname_start=strchr(name,'/')+1;
+    while(dirname_start>0)
+    {
+      dirname_end=strchr(dirname_start,'/');
+      //SERIAL_ECHO("start:");SERIAL_ECHOLN((int)(dirname_start-name));
+      //SERIAL_ECHO("end  :");SERIAL_ECHOLN((int)(dirname_end-name));
+      if(dirname_end>0 && dirname_end>dirname_start)
+      {
+        char subdirname[13];
+        strncpy(subdirname, dirname_start, dirname_end-dirname_start);
+        subdirname[dirname_end-dirname_start]=0;
+        SERIAL_ECHOLN(subdirname);
+        if(!myDir.open(curDir,subdirname,O_READ))
+        {
+          SERIAL_PROTOCOLPGM("open failed, File: ");
+          SERIAL_PROTOCOL(subdirname);
+          SERIAL_PROTOCOLLNPGM(".");
+          return;
+        }
+        else
+          ;//SERIAL_ECHOLN("dive ok");
+          
+        curDir=&myDir; 
+        dirname_start=dirname_end+1;
+      }
+      else // the reminder after all /fsa/fdsa/ is the filename
+      {
+        fname=dirname_start;
+        //SERIAL_ECHOLN("remaider");
+        //SERIAL_ECHOLN(fname);
+        break;
+      }
+      
+    }
+  }
+  else //relative path
+  {
+    curDir=&workDir;
+  }
+    if (file.remove(curDir, fname)) 
+    {
+      SERIAL_PROTOCOLPGM("File deleted:");
+      SERIAL_PROTOCOL(fname);
+      sdpos = 0;
+    }
+    else
+    {
+      SERIAL_PROTOCOLPGM("Deletion failed, File: ");
+      SERIAL_PROTOCOL(fname);
+      SERIAL_PROTOCOLLNPGM(".");
+    }
+  
+}
+
 void CardReader::getStatus()
 {
   if(cardOK){

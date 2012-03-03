@@ -75,7 +75,8 @@
 // M27  - Report SD print status
 // M28  - Start SD write (M28 filename.g)
 // M29  - Stop SD write
-// M30  - Output time since last M109 or SD card start to serial
+// M30  - Delete file from SD (M30 filename.g)
+// M31  - Output time since last M109 or SD card start to serial
 // M42  - Change pin status via gcode
 // M80  - Turn on Power Supply
 // M81  - Turn off Power Supply
@@ -739,7 +740,7 @@ void process_commands()
       //processed in write to file routine above
       //card,saving = false;
       break;
-    case 30: //M31 <filename> Delete File 
+    case 30: //M30 <filename> Delete File 
 	if (card.cardOK){
 		card.closefile();
 		starpos = (strchr(strchr_pointer + 4,'*'));
@@ -754,7 +755,7 @@ void process_commands()
 	
 #endif //SDSUPPORT
 
-    case 31: //M30 take time since the start of the SD print or an M109 command
+    case 31: //M31 take time since the start of the SD print or an M109 command
       {
       stoptime=millis();
       char time[30];
