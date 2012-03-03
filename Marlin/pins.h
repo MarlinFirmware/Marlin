@@ -285,7 +285,7 @@
 #define FAN_PIN            4 // IO pin. Buffer needed
 #endif
 #define PS_ON_PIN          12
-#define KILL_PIN           -1
+#define KILL_PIN           31
 
 #define HEATER_0_PIN       10   // EXTRUDER 1
 #if MOTHERBOARD == 33
@@ -322,7 +322,7 @@
     #define BLEN_B 1
     #define BLEN_A 0
     
-    #define SDCARDDETECT 31		// Ramps does not use this port
+    #define SDCARDDETECT -1		// Ramps does not use this port
     
       //encoder rotation values
     #define encrot0 0
