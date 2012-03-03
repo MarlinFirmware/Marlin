@@ -108,10 +108,6 @@
 //=============================Additional Features===========================
 //===========================================================================
 
-
-#define SD_FINISHED_STEPPERRELEASE true  //if sd support and the file is finished: disable steppers?
-#define SD_FINISHED_RELEASECOMMAND "M84 X Y Z E" // no z because of layer shift.
-
 // The hardware watchdog should halt the Microcontroller, in case the firmware gets stuck somewhere. However:
 // the Watchdog is not working well, so please only enable this for testing
 // this enables the watchdog interrupt.
@@ -159,15 +155,6 @@ const int dropsegments=5; //everything with less than this number of steps will 
 //===========================================================================
 //=============================Buffers           ============================
 //===========================================================================
-
-// The number of linear motions that can be in the plan at any give time.  
-// THE BLOCK_BUFFER_SIZE NEEDS TO BE A POWER OF 2, i.g. 8,16,32 because shifts and ors are used to do the ringbuffering.
-#if defined SDSUPPORT
-  #define BLOCK_BUFFER_SIZE 16   // SD,LCD,Buttons take more memory, block buffer needs to be smaller
-#else
-  #define BLOCK_BUFFER_SIZE 16 // maximize block buffer
-#endif
-
 
 //The ASCII buffer for recieving from the serial:
 #define MAX_CMD_SIZE 96

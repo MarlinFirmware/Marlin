@@ -294,6 +294,7 @@ void setup()
   st_init();    // Initialize stepper;
   wd_init();
   setup_photpin();
+  LCD_SETUP;
 }
 
 
