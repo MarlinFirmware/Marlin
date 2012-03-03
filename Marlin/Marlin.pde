@@ -466,11 +466,11 @@ void get_command()
         return; //if empty line
       }
       cmdbuffer[bufindw][serial_count] = 0; //terminate string
-      if(!comment_mode){
+//      if(!comment_mode){
         fromsd[bufindw] = true;
         buflen += 1;
         bufindw = (bufindw + 1)%BUFSIZE;
-      }     
+//      }     
       comment_mode = false; //for new command
       serial_count = 0; //clear buffer
     }
