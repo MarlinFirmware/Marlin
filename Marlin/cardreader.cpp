@@ -3,6 +3,8 @@
 #include "ultralcd.h"
 #include "stepper.h"
 #include "temperature.h"
+#include "language.h"
+
 #ifdef SDSUPPORT
 
 
@@ -75,7 +77,7 @@ void  CardReader::lsDive(const char *prepend,SdFile parent)
         if(lsAction==LS_SerialPrint)
         {
           SERIAL_ECHO_START;
-          SERIAL_ECHOLN("Cannot open subdir");
+          SERIAL_ECHOLN(MSG_SD_CANT_OPEN_SUBDIR);
           SERIAL_ECHOLN(lfilename);
         }
       }
@@ -143,28 +145,28 @@ void CardReader::initsd()
   {
     //if (!card.init(SPI_HALF_SPEED,SDSS))
     SERIAL_ECHO_START;
-    SERIAL_ECHOLNPGM("SD init fail");
+    SERIAL_ECHOLNPGM(MSG_SD_INIT_FAIL);
   }
   else if (!volume.init(&card))
   {
     SERIAL_ERROR_START;
-    SERIAL_ERRORLNPGM("volume.init failed");
+    SERIAL_ERRORLNPGM(MSG_SD_VOL_INIT_FAIL);
   }
   else if (!root.openRoot(&volume)) 
   {
     SERIAL_ERROR_START;
-    SERIAL_ERRORLNPGM("openRoot failed");
+    SERIAL_ERRORLNPGM(MSG_SD_OPENROOT_FAIL);
   }
   else 
   {
     cardOK = true;
     SERIAL_ECHO_START;
-    SERIAL_ECHOLNPGM("SD card ok");
+    SERIAL_ECHOLNPGM(MSG_SD_CARD_OK);
   }
   curDir=&root;
   if(!workDir.openRoot(&volume))
   {
-    SERIAL_ECHOLNPGM("workDir open failed");
+    SERIAL_ECHOLNPGM(MSG_SD_WORKDIR_FAIL);
   }
 }
 
@@ -173,7 +175,7 @@ void CardReader::setroot()
  curDir=&root;
   if(!workDir.openRoot(&volume))
   {
-    SERIAL_ECHOLNPGM("workDir open failed");
+    SERIAL_ECHOLNPGM(MSG_SD_WORKDIR_FAIL);
   } 
 }
 void CardReader::release()
@@ -230,7 +232,7 @@ void CardReader::openFile(char* name,bool read)
         SERIAL_ECHOLN(subdirname);
         if(!myDir.open(curDir,subdirname,O_READ))
         {
-          SERIAL_PROTOCOLPGM("open failed, File: ");
+          SERIAL_PROTOCOLPGM(MSG_SD_OPEN_FILE_FAIL);
           SERIAL_PROTOCOL(subdirname);
           SERIAL_PROTOCOLLNPGM(".");
           return;
@@ -260,18 +262,18 @@ void CardReader::openFile(char* name,bool read)
     if (file.open(curDir, fname, O_READ)) 
     {
       filesize = file.fileSize();
-      SERIAL_PROTOCOLPGM("File opened:");
+      SERIAL_PROTOCOLPGM(MSG_SD_FILE_OPENED);
       SERIAL_PROTOCOL(fname);
-      SERIAL_PROTOCOLPGM(" Size:");
+      SERIAL_PROTOCOLPGM(MSG_SD_SIZE);
       SERIAL_PROTOCOLLN(filesize);
       sdpos = 0;
       
-      SERIAL_PROTOCOLLNPGM("File selected");
+      SERIAL_PROTOCOLLNPGM(MSG_SD_FILE_SELECTED);
       LCD_MESSAGE(fname);
     }
     else
     {
-      SERIAL_PROTOCOLPGM("open failed, File: ");
+      SERIAL_PROTOCOLPGM(MSG_SD_OPEN_FILE_FAIL);
       SERIAL_PROTOCOL(fname);
       SERIAL_PROTOCOLLNPGM(".");
     }
@@ -280,14 +282,14 @@ void CardReader::openFile(char* name,bool read)
   { //write
     if (!file.open(curDir, fname, O_CREAT | O_APPEND | O_WRITE | O_TRUNC))
     {
-      SERIAL_PROTOCOLPGM("open failed, File: ");
+      SERIAL_PROTOCOLPGM(MSG_SD_OPEN_FILE_FAIL);
       SERIAL_PROTOCOL(fname);
       SERIAL_PROTOCOLLNPGM(".");
     }
     else
     {
       saving = true;
-      SERIAL_PROTOCOLPGM("Writing to file: ");
+      SERIAL_PROTOCOLPGM(MSG_SD_WRITE_TO_FILE);
       SERIAL_PROTOCOLLN(name);
       LCD_MESSAGE(fname);
     }
@@ -298,13 +300,13 @@ void CardReader::openFile(char* name,bool read)
 void CardReader::getStatus()
 {
   if(cardOK){
-    SERIAL_PROTOCOLPGM("SD printing byte ");
+    SERIAL_PROTOCOLPGM(MSG_SD_PRINTING_BYTE);
     SERIAL_PROTOCOL(sdpos);
     SERIAL_PROTOCOLPGM("/");
     SERIAL_PROTOCOLLN(filesize);
   }
   else{
-    SERIAL_PROTOCOLLNPGM("Not SD printing");
+    SERIAL_PROTOCOLLNPGM(MSG_SD_NOT_PRINTING);
   }
 }
 void CardReader::write_command(char *buf)
@@ -326,7 +328,7 @@ void CardReader::write_command(char *buf)
   if (file.writeError)
   {
     SERIAL_ERROR_START;
-    SERIAL_ERRORLNPGM("error writing to file");
+    SERIAL_ERRORLNPGM(MSG_SD_ERR_WRITE_TO_FILE);
   }
 }
 
@@ -420,7 +422,7 @@ void CardReader::chdir(const char * relpath)
   if(!newfile.open(*parent,relpath, O_READ))
   {
    SERIAL_ECHO_START;
-   SERIAL_ECHOPGM("Cannot enter subdir:");
+   SERIAL_ECHOPGM(MSG_SD_CANT_ENTER_SUBDIR);
    SERIAL_ECHOLN(relpath);
   }
   else
