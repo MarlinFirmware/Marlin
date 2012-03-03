@@ -299,7 +299,7 @@ void setup()
 
 void loop()
 {
-  if(buflen<3)
+  if(buflen < (BUFSIZE-1))
     get_command();
   #ifdef SDSUPPORT
   card.checkautostart(false);

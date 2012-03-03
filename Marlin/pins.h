@@ -247,7 +247,7 @@
 // #define RAMPS_V_1_3
 // #define RAMPS_V_1_0
 
-#ifdef MOTHERBOARD == 33 || MOTHERBOARD == 34
+#if MOTHERBOARD == 33 || MOTHERBOARD == 34
 
 #define X_STEP_PIN         54
 #define X_DIR_PIN          55
@@ -398,8 +398,6 @@
 #define LED_PIN            13
 #define PS_ON_PIN          -1
 #define KILL_PIN           -1
-
-
 
 #ifdef RAMPS_V_1_0 // RAMPS_V_1_0
   #define HEATER_0_PIN     12    // RAMPS 1.0
