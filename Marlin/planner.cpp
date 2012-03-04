@@ -74,6 +74,7 @@ float acceleration;         // Normal acceleration mm/s^2  THIS IS THE DEFAULT A
 float retract_acceleration; //  mm/s^2   filament pull-pack and push-forward  while standing still in the other axis M204 TXXXX
 float max_xy_jerk; //speed than can be stopped at once, if i understand correctly.
 float max_z_jerk;
+float max_e_jerk;
 float mintravelfeedrate;
 unsigned long axis_steps_per_sqr_second[NUM_AXIS];
 
@@ -531,6 +532,13 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
   if(block->steps_e != 0) { enable_e0();enable_e1();enable_e2(); }
 
 
+  if (block->steps_e == 0) {
+        if(feed_rate<mintravelfeedrate) feed_rate=mintravelfeedrate;
+  }
+  else {
+    	if(feed_rate<minimumfeedrate) feed_rate=minimumfeedrate;
+  } 
+  
   // slow down when de buffer starts to empty, rather than wait at the corner for a buffer refill
   int moves_queued=(block_buffer_head-block_buffer_tail + BLOCK_BUFFER_SIZE) & (BLOCK_BUFFER_SIZE - 1);
   #ifdef SLOWDOWN
@@ -555,12 +563,6 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
   block->nominal_speed = block->millimeters * inverse_second; // (mm/sec) Always > 0
   block->nominal_rate = ceil(block->step_event_count * inverse_second); // (step/sec) Always > 0
 
-  if (block->steps_e == 0) {
-        if(feed_rate<mintravelfeedrate) feed_rate=mintravelfeedrate;
-  }
-  else {
-    	if(feed_rate<minimumfeedrate) feed_rate=minimumfeedrate;
-  } 
 
 /*
   //  segment time im micro seconds
@@ -705,7 +707,9 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
   if(abs(current_speed[Z_AXIS]) > max_z_jerk/2) 
     vmax_junction = max_z_jerk/2;
   vmax_junction = min(vmax_junction, block->nominal_speed);
-
+  if(abs(current_speed[E_AXIS]) > max_e_jerk/2) 
+    vmax_junction = min(vmax_junction, max_z_jerk/2);
+    
   if ((moves_queued > 1) && (previous_nominal_speed > 0.0)) {
     float jerk = sqrt(pow((current_speed[X_AXIS]-previous_speed[X_AXIS]), 2)+pow((current_speed[Y_AXIS]-previous_speed[Y_AXIS]), 2));
     if((previous_speed[X_AXIS] != 0.0) || (previous_speed[Y_AXIS] != 0.0)) {
@@ -716,6 +720,9 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
     } 
     if(abs(current_speed[Z_AXIS] - previous_speed[Z_AXIS]) > max_z_jerk) {
       vmax_junction *= (max_z_jerk/abs(current_speed[Z_AXIS] - previous_speed[Z_AXIS]));
+    } 
+    if(abs(current_speed[E_AXIS] - previous_speed[E_AXIS]) > max_e_jerk) {
+      vmax_junction *= (max_e_jerk/abs(current_speed[E_AXIS] - previous_speed[E_AXIS]));
     } 
   }
   block->max_entry_speed = vmax_junction;

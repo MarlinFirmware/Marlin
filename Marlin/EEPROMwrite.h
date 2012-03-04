@@ -38,7 +38,7 @@ template <class T> int EEPROM_readAnything(int &ee, T& value)
 // the default values are used whenever there is a change to the data, to prevent
 // wrong data being written to the variables.
 // ALSO:  always make sure the variables in the Store and retrieve sections are in the same order.
-#define EEPROM_VERSION "V04"  
+#define EEPROM_VERSION "V05"  
 
 inline void EEPROM_StoreSettings() 
 {
@@ -56,6 +56,7 @@ inline void EEPROM_StoreSettings()
   EEPROM_writeAnything(i,minsegmenttime);
   EEPROM_writeAnything(i,max_xy_jerk);
   EEPROM_writeAnything(i,max_z_jerk);
+  EEPROM_writeAnything(i,max_e_jerk);
   #ifdef PIDTEMP
     EEPROM_writeAnything(i,Kp);
     EEPROM_writeAnything(i,Ki);
@@ -116,6 +117,7 @@ inline void EEPROM_printSettings()
       SERIAL_ECHOPAIR(" B" ,minsegmenttime ); 
       SERIAL_ECHOPAIR(" X" ,max_xy_jerk ); 
       SERIAL_ECHOPAIR(" Z" ,max_z_jerk);
+      SERIAL_ECHOPAIR(" E" ,max_e_jerk);
       SERIAL_ECHOLN(""); 
     #ifdef PIDTEMP
       SERIAL_ECHO_START;
@@ -150,6 +152,7 @@ inline void EEPROM_RetrieveSettings(bool def=false)
       EEPROM_readAnything(i,minsegmenttime);
       EEPROM_readAnything(i,max_xy_jerk);
       EEPROM_readAnything(i,max_z_jerk);
+      EEPROM_readAnything(i,max_e_jerk);
       #ifndef PIDTEMP
         float Kp,Ki,Kd;
       #endif
@@ -179,6 +182,7 @@ inline void EEPROM_RetrieveSettings(bool def=false)
       mintravelfeedrate=DEFAULT_MINTRAVELFEEDRATE;
       max_xy_jerk=DEFAULT_XYJERK;
       max_z_jerk=DEFAULT_ZJERK;
+      max_e_jerk=DEFAULT_EJERK;
       SERIAL_ECHO_START;
       SERIAL_ECHOLN("Using Default settings:");
     }
