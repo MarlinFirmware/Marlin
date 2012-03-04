@@ -14,8 +14,7 @@
 
 // LCD Menu Messages
 
-//	#define WELCOME_MSG "UltiMARLIN Ready."
-	#define WELCOME_MSG "RepRap Ready."
+	#define WELCOME_MSG "Printer Ready."
 	#define MSG_SD_INSERTED "Card inserted"
 	#define MSG_SD_REMOVED "Card removed"
 	#define MSG_MAIN " Main \003"
@@ -27,7 +26,7 @@
 	#define MSG_EXTRUDE " Extrude"
 	#define MSG_PREHEAT_PLA " Preheat PLA"
 	#define MSG_PREHEAT_ABS " Preheat ABS"
-    #define MSG_MOVE_AXIS " Move Axis      \x7E"
+	#define MSG_MOVE_AXIS " Move Axis      \x7E"
 	#define MSG_SPEED " Speed:"
 	#define MSG_NOZZLE " \002Nozzle:"
 	#define MSG_BED " \002Bed:"
@@ -150,7 +149,7 @@
 	#define MSG_ERR_LONG_EXTRUDE_STOP " too long extrusion prevented"
 
 #endif
-#if LANGUAGE_CHOICE == 2
+#if LANGUAGE_CHOICE == 4
 
 // LCD Menu Messages
 
@@ -166,7 +165,10 @@
 	#define MSG_PREHEAT_PLA " Aufheizen PLA"
 	#define MSG_PREHEAT_ABS " Aufheizen ABS"
 	#define MSG_COOLDOWN " Abkuehlen"
-    #define MSG_MOVE_AXIS " Move Axis      \x7E"
+	#define MSG_EXTRUDE " Extrude"
+	#define MSG_PREHEAT_PLA " Preheat PLA"
+	#define MSG_PREHEAT_ABS " Preheat ABS"
+	#define MSG_MOVE_AXIS " Move Axis      \x7E"
         #define MSG_MOVE_AXIS " Achsen verfahren   \x7E"
 	#define MSG_SPEED " Geschw:"
 	#define MSG_NOZZLE " \002Duese:"
@@ -209,6 +211,7 @@
 	#define MSG_WATCH " Beobachten   \003"
 	#define MSG_PREPARE " Prepare \x7E"
 	#define MSG_PREPARE_ALT " Prepare \003"
+	#define MSG_CONTROL_ARROW " Control \x7E"
 	#define MSG_TUNE " Tune    \x7E"
 	#define MSG_STOP_PRINT " Druck stoppen   \x7E"
 	#define MSG_CARD_MENU " SDKarten Menue    \x7E"
@@ -220,7 +223,7 @@
 	#define MSG_KILLED "KILLED. "
 	#define MSG_PREHEAT_PLA " Preheat PLA"
 	#define MSG_PREHEAT_ABS " Preheat ABS"
-
+	#define MSG_STEPPER_RELEASED "Released."
 
 
 // Serial Console Messages
@@ -282,6 +285,11 @@
 	#define MSG_SD_NOT_PRINTING "Not SD printing"
 	#define MSG_SD_ERR_WRITE_TO_FILE "error writing to file"
 	#define MSG_SD_CANT_ENTER_SUBDIR "Cannot enter subdir:"
+
+	#define MSG_STEPPER_TO_HIGH "Steprate to high : "
+	#define MSG_ENDSTOPS_HIT "endstops hit: "
+	#define MSG_ERR_COLD_EXTRUDE_STOP " cold extrusion prevented"
+	#define MSG_ERR_LONG_EXTRUDE_STOP " too long extrusion prevented"
 
 #endif
 #endif // ifndef LANGUAGE_H
