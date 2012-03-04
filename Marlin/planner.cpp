@@ -708,7 +708,7 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
     vmax_junction = max_z_jerk/2;
   vmax_junction = min(vmax_junction, block->nominal_speed);
   if(abs(current_speed[E_AXIS]) > max_e_jerk/2) 
-    vmax_junction = min(vmax_junction, max_z_jerk/2);
+    vmax_junction = min(vmax_junction, max_e_jerk/2);
     
   if ((moves_queued > 1) && (previous_nominal_speed > 0.0)) {
     float jerk = sqrt(pow((current_speed[X_AXIS]-previous_speed[X_AXIS]), 2)+pow((current_speed[Y_AXIS]-previous_speed[Y_AXIS]), 2));
