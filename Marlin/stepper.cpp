@@ -21,9 +21,6 @@
 /* The timer calculations of this module informed by the 'RepRap cartesian firmware' by Zack Smith
    and Philipp Tiefenbacher. */
 
-
-
-
 #include "Marlin.h"
 #include "stepper.h"
 #include "planner.h"
@@ -303,7 +300,8 @@ ISR(TIMER1_COMPA_vect)
       counter_y = counter_x;
       counter_z = counter_x;
       counter_e = counter_x;
-      step_events_completed = 0;
+      step_events_completed = 0; 
+      
       #ifdef Z_LATE_ENABLE 
         if(current_block->steps_z > 0) {
           enable_z();
