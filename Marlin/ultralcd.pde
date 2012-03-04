@@ -812,7 +812,7 @@ void MainMenu::showTune()
         if(force_lcd_update)
         {
           lcd.setCursor(0,line);lcdprintPGM(MSG_FAN_SPEED);
-          lcd.setCursor(13,line);lcd.print(ftostr3(fanpwm));
+          lcd.setCursor(13,line);lcd.print(ftostr3(FanSpeed));
         }
         
         if((activeline!=line) )
@@ -823,7 +823,7 @@ void MainMenu::showTune()
           linechanging=!linechanging;
           if(linechanging)
           {
-              encoderpos=fanpwm;
+              encoderpos=FanSpeed;
           }
           else
           {
@@ -836,8 +836,8 @@ void MainMenu::showTune()
         {
           if(encoderpos<0) encoderpos=0;
           if(encoderpos>255) encoderpos=255;
-          fanpwm=encoderpos;
-            analogWrite(FAN_PIN,  fanpwm);
+          FanSpeed=encoderpos;
+            analogWrite(FAN_PIN,  FanSpeed);
           lcd.setCursor(13,line);lcd.print(itostr3(encoderpos));
         }
         
@@ -1134,7 +1134,7 @@ void MainMenu::showControlTemp()
         if(force_lcd_update)
         {
           lcd.setCursor(0,line);lcdprintPGM(MSG_FAN_SPEED);
-          lcd.setCursor(13,line);lcd.print(ftostr3(fanpwm));
+          lcd.setCursor(13,line);lcd.print(ftostr3(FanSpeed));
         }
         
         if((activeline!=line) )
@@ -1145,7 +1145,7 @@ void MainMenu::showControlTemp()
           linechanging=!linechanging;
           if(linechanging)
           {
-              encoderpos=fanpwm;
+              encoderpos=FanSpeed;
           }
           else
           {
@@ -1158,8 +1158,8 @@ void MainMenu::showControlTemp()
         {
           if(encoderpos<0) encoderpos=0;
           if(encoderpos>255) encoderpos=255;
-          fanpwm=encoderpos;
-            analogWrite(FAN_PIN,  fanpwm);
+          FanSpeed=encoderpos;
+            analogWrite(FAN_PIN,  FanSpeed);
           lcd.setCursor(13,line);lcd.print(itostr3(encoderpos));
         }
         

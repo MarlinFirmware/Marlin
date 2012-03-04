@@ -131,6 +131,7 @@ volatile int extrudemultiply=100; //100->1 200->2
 float current_position[NUM_AXIS] = { 0.0, 0.0, 0.0, 0.0 };
 float add_homeing[3]={0,0,0};
 uint8_t active_extruder = 0;
+unsigned char FanSpeed=0;
 
 //===========================================================================
 //=============================private variables=============================
@@ -144,8 +145,6 @@ static long gcode_N, gcode_LastN;
 
 static bool relative_mode = false;  //Determines Absolute or Relative Coordinates
 static bool relative_mode_e = false;  //Determines Absolute or Relative E Codes while in Absolute Coordinates mode. E is always relative in Relative Coordinates mode.
-
-static uint8_t fanpwm=0;
 
 static char cmdbuffer[BUFSIZE][MAX_CMD_SIZE];
 static bool fromsd[BUFSIZE];
@@ -938,19 +937,14 @@ void process_commands()
     #if FAN_PIN > -1
       case 106: //M106 Fan On
         if (code_seen('S')){
-            WRITE(FAN_PIN,HIGH);
-            fanpwm=constrain(code_value(),0,255);
-            analogWrite(FAN_PIN,  fanpwm);
+           FanSpeed=constrain(code_value(),0,255);
         }
         else {
-          WRITE(FAN_PIN,HIGH);
-          fanpwm=255;
-          analogWrite(FAN_PIN, fanpwm);			
+          FanSpeed=255;			
         }
         break;
       case 107: //M107 Fan Off
-        WRITE(FAN_PIN,LOW);
-        analogWrite(FAN_PIN, 0);
+        FanSpeed = 0;
         break;
     #endif //FAN_PIN
 

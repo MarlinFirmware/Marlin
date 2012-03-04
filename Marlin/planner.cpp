@@ -418,23 +418,34 @@ void check_axes_activity() {
   unsigned char y_active = 0;  
   unsigned char z_active = 0;
   unsigned char e_active = 0;
+  unsigned char fan_speed = 0;
+  unsigned char tail_fan_speed = 0;
   block_t *block;
 
   if(block_buffer_tail != block_buffer_head) {
     uint8_t block_index = block_buffer_tail;
+    tail_fan_speed = block_buffer[block_index].fan_speed;
     while(block_index != block_buffer_head) {
       block = &block_buffer[block_index];
       if(block->steps_x != 0) x_active++;
       if(block->steps_y != 0) y_active++;
       if(block->steps_z != 0) z_active++;
       if(block->steps_e != 0) e_active++;
+      if(block->fan_speed != 0) fan_speed++;
       block_index = (block_index+1) & (BLOCK_BUFFER_SIZE - 1);
     }
+  }
+  else {
+    if (FanSpeed != 0) analogWrite(FAN_PIN,FanSpeed); // If buffer is empty use current fan speed
   }
   if((DISABLE_X) && (x_active == 0)) disable_x();
   if((DISABLE_Y) && (y_active == 0)) disable_y();
   if((DISABLE_Z) && (z_active == 0)) disable_z();
   if((DISABLE_E) && (e_active == 0)) { disable_e0();disable_e1();disable_e2(); }
+  if((FanSpeed == 0) && (fan_speed ==0)) analogWrite(FAN_PIN, 0);
+  if (FanSpeed != 0 && tail_fan_speed !=0) { 
+    analogWrite(FAN_PIN,tail_fan_speed);
+  }
 }
 
 
@@ -498,6 +509,8 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
   // Bail if this is a zero-length block
   if (block->step_event_count <=dropsegments) { return; };
 
+  block->fan_speed = FanSpeed;
+  
   // Compute direction bits for this block 
   block->direction_bits = 0;
   if (target[X_AXIS] < position[X_AXIS]) { block->direction_bits |= (1<<X_AXIS); }

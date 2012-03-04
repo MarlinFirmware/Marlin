@@ -175,6 +175,7 @@ extern float homing_feedrate[];
 extern bool axis_relative_modes[];
 extern float current_position[NUM_AXIS] ;
 extern float add_homeing[3];
+extern unsigned char FanSpeed;
 
 // Handling multiple extruders pins
 extern uint8_t active_extruder;
