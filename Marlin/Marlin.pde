@@ -942,6 +942,7 @@ void process_commands()
             codenum = millis(); 
           }
           manage_heater();
+          LCD_STATUS;
         }
         LCD_MESSAGEPGM(MSG_BED_DONE);
         previous_millis_cmd = millis();
