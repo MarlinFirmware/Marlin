@@ -62,7 +62,7 @@ int current_raw_bed = 0;
 //===========================================================================
 //=============================private variables============================
 //===========================================================================
-static bool temp_meas_ready = false;
+static volatile bool temp_meas_ready = false;
 
 static unsigned long  previous_millis_bed_heater;
 //static unsigned long previous_millis_heater;
@@ -132,7 +132,94 @@ static unsigned long  previous_millis_bed_heater;
 //===========================================================================
 //=============================   functions      ============================
 //===========================================================================
+
+void PID_autotune(float temp)
+{
+  float input;
+  int cycles=0;
+  bool heating = true;
+  soft_pwm[0] = 255>>1;
+
+  unsigned long temp_millis = millis();
+  unsigned long t1=temp_millis;
+  unsigned long t2=temp_millis;
+  long t_high;
+  long t_low;
+
+  long bias=127;
+  long d = 127;
+  float Ku, Tu;
+  float Kp, Ki, Kd;
+  float max, min;
   
+  SERIAL_ECHOLN("PID Autotune start");
+
+  for(;;) {
+
+    if(temp_meas_ready == true) { // temp sample ready
+      CRITICAL_SECTION_START;
+      temp_meas_ready = false;
+      CRITICAL_SECTION_END;
+      input = analog2temp(current_raw[0], 0);
+      
+      max=max(max,input);
+      min=min(min,input);
+      if(heating == true && input > temp) {
+        if(millis() - t2 > 5000) { 
+          heating=false;
+          soft_pwm[0] = (bias - d) >> 1;
+          t1=millis();
+          t_high=t1 - t2;
+          max=temp;
+        }
+      }
+      if(heating == false && input < temp) {
+        if(millis() - t1 > 5000) {
+          heating=true;
+          t2=millis();
+          t_low=t2 - t1;
+          if(cycles > 0) {
+            bias += (d*(t_high - t_low))/(t_low + t_high);
+            bias = constrain(bias, 20 ,235);
+            if(bias > 127) d = 254 - bias;
+            else d = bias;
+
+            SERIAL_PROTOCOLPGM(" bias: "); SERIAL_PROTOCOL(bias);
+            SERIAL_PROTOCOLPGM(" d: "); SERIAL_PROTOCOL(d);
+            SERIAL_PROTOCOLPGM(" min: "); SERIAL_PROTOCOL(min);
+            SERIAL_PROTOCOLPGM(" max: "); SERIAL_PROTOCOLLN(max);
+            if(cycles > 2) {
+              Ku = (4.0*d)/(3.14159*(max-min)/2.0);
+              Tu = ((float)(t_low + t_high)/1000.0);
+              Kp = 0.6*Ku;
+              Ki = 2*Kp/Tu;
+              Kd = Kp*Tu/8;
+              SERIAL_PROTOCOLPGM(" Kp: "); SERIAL_PROTOCOLLN(Kp);
+              SERIAL_PROTOCOLPGM(" Ki: "); SERIAL_PROTOCOLLN(Ki);
+              SERIAL_PROTOCOLPGM(" Kd: "); SERIAL_PROTOCOLLN(Kd);
+            }
+          }
+          soft_pwm[0] = (bias + d) >> 1;
+          cycles++;
+          min=temp;
+        }
+      } 
+    }
+    if(input > (temp + 20)) {
+      SERIAL_PROTOCOLLNPGM("PID Autotune failed !!!, Temperature to high");
+      return;
+    }
+    if(millis() - temp_millis > 2000) {
+      temp_millis = millis();
+      SERIAL_PROTOCOLPGM("ok T:");
+      SERIAL_PROTOCOL(degHotend(0));   
+      SERIAL_PROTOCOLPGM(" @:");
+      SERIAL_PROTOCOLLN(getHeaterPower(0));       
+    }
+    LCD_STATUS;
+  }
+}
+
 void updatePID()
 {
 #ifdef PIDTEMP
