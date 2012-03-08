@@ -109,6 +109,7 @@
 // M501 - reads parameters from EEPROM (if you need reset them after you changed them temporarily).  
 // M502 - reverts to the default "factory settings".  You still need to store them in EEPROM afterwards if you want to.
 // M503 - print the current settings (from memory not from eeprom)
+// M303 - PID relay autotune S<temperature> sets the target temperature. (default target temperature = 150C)
 
 //Stepper Movement Variables
 
@@ -1195,6 +1196,13 @@ void process_commands()
     case 302: // finish all moves
     {
       allow_cold_extrudes(true);
+    }
+    break;
+    case 303: // M303 PID autotune
+    {
+      float temp = 150.0;
+      if (code_seen('S')) temp=code_value();
+      PID_autotune(temp);
     }
     break;
     case 400: // finish all moves

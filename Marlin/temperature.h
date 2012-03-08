@@ -158,5 +158,8 @@ FORCE_INLINE void autotempShutdown(){
  }
  #endif
 }
+
+void PID_autotune(float temp);
+
 #endif
 

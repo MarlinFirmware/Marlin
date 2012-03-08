@@ -734,7 +734,7 @@
     #define encrot2 3
     #define encrot3 1
 
-    
+    #define SDCARDDETECT -1
     //bits in the shift register that carry the buttons for:
     // left up center down right red
     #define BL_LE 7
