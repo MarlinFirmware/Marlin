@@ -437,13 +437,17 @@ void check_axes_activity() {
     }
   }
   else {
-    if (FanSpeed != 0) analogWrite(FAN_PIN,FanSpeed); // If buffer is empty use current fan speed
+    #if FAN_PIN > -1
+      if (FanSpeed != 0) analogWrite(FAN_PIN,FanSpeed); // If buffer is empty use current fan speed
+    #endif
   }
   if((DISABLE_X) && (x_active == 0)) disable_x();
   if((DISABLE_Y) && (y_active == 0)) disable_y();
   if((DISABLE_Z) && (z_active == 0)) disable_z();
   if((DISABLE_E) && (e_active == 0)) { disable_e0();disable_e1();disable_e2(); }
-  if((FanSpeed == 0) && (fan_speed ==0)) analogWrite(FAN_PIN, 0);
+  #if FAN_PIN > -1
+    if((FanSpeed == 0) && (fan_speed ==0)) analogWrite(FAN_PIN, 0);
+  #endif
   if (FanSpeed != 0 && tail_fan_speed !=0) { 
     analogWrite(FAN_PIN,tail_fan_speed);
   }
