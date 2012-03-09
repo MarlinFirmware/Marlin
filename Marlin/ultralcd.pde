@@ -383,7 +383,7 @@ void MainMenu::showStatus()
   int curfeedmultiply=feedmultiply;
   
   if(feedmultiplychanged == true) {
-    feedmultiplychanged == false;
+    feedmultiplychanged = false;
     encoderpos = curfeedmultiply;
   }
   
