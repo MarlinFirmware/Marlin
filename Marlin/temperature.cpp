@@ -206,7 +206,7 @@ void PID_autotune(float temp)
       } 
     }
     if(input > (temp + 20)) {
-      SERIAL_PROTOCOLLNPGM("PID Autotune failed !!!, Temperature to high");
+      SERIAL_PROTOCOLLNPGM("PID Autotune failed !, Temperature to high");
       return;
     }
     if(millis() - temp_millis > 2000) {
