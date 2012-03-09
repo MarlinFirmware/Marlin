@@ -576,6 +576,7 @@ void process_commands()
       saved_feedrate = feedrate;
       saved_feedmultiply = feedmultiply;
       feedmultiply = 100;
+      previous_millis_cmd = millis();
       
       enable_endstops(true);
       
@@ -1314,12 +1315,11 @@ void prepare_move()
     if (destination[Y_AXIS] > Y_MAX_LENGTH) destination[Y_AXIS] = Y_MAX_LENGTH;
     if (destination[Z_AXIS] > Z_MAX_LENGTH) destination[Z_AXIS] = Z_MAX_LENGTH;
   }
-  
+  previous_millis_cmd = millis();  
   plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate*feedmultiply/60/100.0, active_extruder);
   for(int8_t i=0; i < NUM_AXIS; i++) {
     current_position[i] = destination[i];
   }
-  previous_millis_cmd = millis();
 }
 
 void prepare_arc_move(char isclockwise) {
@@ -1345,12 +1345,14 @@ void manage_inactivity(byte debug)
   if(stepper_inactive_time)  {
     if( (millis() - previous_millis_cmd) >  stepper_inactive_time ) 
     {
-      disable_x();
-      disable_y();
-      disable_z();
-      disable_e0();
-      disable_e1();
-      disable_e2();
+      if(blocks_queued() == false) {
+        disable_x();
+        disable_y();
+        disable_z();
+        disable_e0();
+        disable_e1();
+        disable_e2();
+      }
     }
   }
   #ifdef EXTRUDER_RUNOUT_PREVENT
