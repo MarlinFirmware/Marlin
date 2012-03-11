@@ -285,7 +285,7 @@
 #define FAN_PIN            4 // IO pin. Buffer needed
 #endif
 #define PS_ON_PIN          12
-#define KILL_PIN           31
+#define KILL_PIN           -1
 
 #define HEATER_0_PIN       10   // EXTRUDER 1
 #if MOTHERBOARD == 33
@@ -314,9 +314,9 @@
     #define LCD_PINS_D7 29
     
     //buttons are directly attached using AUX-2
-    #define BTN_EN1 44
-    #define BTN_EN2 42
-    #define BTN_ENC 64  //the click
+    #define BTN_EN1 37
+    #define BTN_EN2 35
+    #define BTN_ENC 31  //the click
     
     #define BLEN_C 2
     #define BLEN_B 1
