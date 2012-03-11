@@ -750,7 +750,13 @@ void st_init()
   // output mode = 00 (disconnected)
   TCCR1A &= ~(3<<COM1A0); 
   TCCR1A &= ~(3<<COM1B0); 
-  TCCR1B = (TCCR1B & ~(0x07<<CS10)) | (2<<CS10); // 2MHz timer
+  
+  // Set the timer pre-scaler
+  // Generally we use a divider of 8, resulting in a 2MHz timer
+  // frequency on a 16MHz MCU. If you are going to change this, be
+  // sure to regenerate speed_lookuptable.h with
+  // create_speed_lookuptable.py
+  TCCR1B = (TCCR1B & ~(0x07<<CS10)) | (2<<CS10);
 
   OCR1A = 0x4000;
   TCNT1 = 0;

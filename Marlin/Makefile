@@ -23,7 +23,9 @@
 #  3. Set the line containing "MCU" to match your board's processor. 
 #     Older one's are atmega8 based, newer ones like Arduino Mini, Bluetooth
 #     or Diecimila have the atmega168.  If you're using a LilyPad Arduino,
-#     change F_CPU to 8000000.
+#     change F_CPU to 8000000. If you are using Gen7 electronics, you
+#     probably need to use 20000000. Either way, you must regenerate
+#     the speed lookup table with create_speed_lookuptable.py.
 #
 #  4. Type "make" and press enter to compile/verify your program.
 #
@@ -42,6 +44,8 @@ MCU = atmega1280
 #Arduino install directory
 INSTALL_DIR = ../../arduino-0022/
 
+# Be sure to regenerate speed_lookuptable.h with create_speed_lookuptable.py
+# if you are setting this to something other than 16MHz
 F_CPU = 16000000
 
 UPLOAD_RATE = 115200
