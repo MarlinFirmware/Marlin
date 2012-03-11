@@ -22,11 +22,8 @@ print
 print '#include "Marlin.h"'
 print
 
-# Based on timer calculations of 'RepRap cartesian firmware' by Zack
-# Smith and Philip Tiefenbacher.
-
 print "const uint16_t speed_lookuptable_fast[256][2] PROGMEM = {"
-a = [ timer_freq / ((i*256)+32) for i in range(256) ]
+a = [ timer_freq / ((i*256)+(args.cpu_freq*2)) for i in range(256) ]
 b = [ a[i] - a[i+1] for i in range(255) ]
 b.append(b[-1])
 for i in range(32):
@@ -38,7 +35,7 @@ print "};"
 print
 
 print "const uint16_t speed_lookuptable_slow[256][2] PROGMEM = {"
-a = [ timer_freq / ((i*8)+32) for i in range(256) ]
+a = [ timer_freq / ((i*8)+(args.cpu_freq*2)) for i in range(256) ]
 b = [ a[i] - a[i+1] for i in range(255) ]
 b.append(b[-1])
 for i in range(32):
