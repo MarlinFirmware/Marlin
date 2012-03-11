@@ -585,7 +585,7 @@
 #define E0_STEP_PIN         1
 #define E0_DIR_PIN          0
 
-#define LED_PIN            -1
+#define LED_PIN            27
 
 #define FAN_PIN            -1 
 
@@ -598,7 +598,7 @@
 
 #ifdef SANGUINOLOLU_V_1_2
 
-#define HEATER_BED_PIN     12 // (bed)
+#define HEATER_BED_PIN     4 //(bed) PB4 Default war 12 ist aber kaputt // (bed)
 #define X_ENABLE_PIN       14
 #define Y_ENABLE_PIN       14
 #define Z_ENABLE_PIN       26
