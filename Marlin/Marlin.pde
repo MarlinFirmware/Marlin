@@ -290,6 +290,7 @@ void setup()
     axis_steps_per_sqr_second[i] = max_acceleration_units_per_sq_second[i] * axis_steps_per_unit[i];
   }
 
+
   tp_init();    // Initialize temperature loop 
   plan_init();  // Initialize planner;
   st_init();    // Initialize stepper;
@@ -1337,6 +1338,40 @@ void prepare_arc_move(char isclockwise) {
   previous_millis_cmd = millis();
 }
 
+#ifdef CONTROLLERFAN_PIN
+unsigned long lastMotor = 0; //Save the time for when a motor was turned on last
+unsigned long lastMotorCheck = 0;
+
+void controllerFan()
+{
+  if ((millis() - lastMotorCheck) >= 2500) //Not a time critical function, so we only check every 2500ms
+  {
+    lastMotorCheck = millis();
+    
+    if(!READ(X_ENABLE_PIN) || !READ(Y_ENABLE_PIN) || !READ(Z_ENABLE_PIN)
+    #if EXTRUDERS > 2
+       || !READ(E2_ENABLE_PIN)
+    #endif
+    #if EXTRUDER > 1
+       || !READ(E2_ENABLE_PIN)
+    #endif
+       || !READ(E0_ENABLE_PIN)) //If any of the drivers are enabled...    
+    {
+      lastMotor = millis(); //... set time to NOW so the fan will turn on
+    }
+    
+    if ((millis() - lastMotor) >= (CONTROLLERFAN_SEC*1000UL) || lastMotor == 0) //If the last time any driver was enabled, is longer since than CONTROLLERSEC...   
+    {
+      WRITE(CONTROLLERFAN_PIN, LOW); //... turn the fan off
+    }
+    else
+    {
+      WRITE(CONTROLLERFAN_PIN, HIGH); //... turn the fan on
+    }
+  }
+}
+#endif
+
 void manage_inactivity(byte debug) 
 { 
   if( (millis() - previous_millis_cmd) >  max_inactive_time ) 
@@ -1355,6 +1390,9 @@ void manage_inactivity(byte debug)
       }
     }
   }
+  #ifdef CONTROLLERFAN_PIN
+    controllerFan(); //Check if fan should be turned on to cool stepper drivers down
+  #endif
   #ifdef EXTRUDER_RUNOUT_PREVENT
     if( (millis() - previous_millis_cmd) >  EXTRUDER_RUNOUT_SECONDS*1000 ) 
     if(degHotend(active_extruder)>EXTRUDER_RUNOUT_MINTEMP)
