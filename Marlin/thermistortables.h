@@ -322,7 +322,9 @@ const short temptable_7[][2] PROGMEM = {
 #endif
 
 
-#if (THERMISTORHEATER_0 == 101) || (THERMISTORHEATER_1 == 101) || (THERMISTORHEATER_2 == 101) || (THERMISTORBED == 101) // 100k Honeywell 135-104LAG-J01
+// Thermistor lookup table for RS thermistor 198-961 (DO-35 NTC axial lead thermistor,100K)
+// Made with: ./createTemperatureLookup.py --r0=100000 --t0=25 --r2=10000 --beta=3960 --max-adc=1023
+#if (THERMISTORHEATER_0 == 101) || (THERMISTORHEATER_1 == 101) || (THERMISTORHEATER_2 == 101) || (THERMISTORBED == 101) 
 const short temptable_101[][2] PROGMEM = {
    {   1*OVERSAMPLENR,  704},
    {  18*OVERSAMPLENR,  296},
