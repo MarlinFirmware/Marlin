@@ -571,6 +571,7 @@ void process_commands()
       previous_millis_cmd = millis();
       while(millis()  < codenum ){
         manage_heater();
+        manage_inactivity(1);
       }
       break;
     case 28: //G28 Home all Axis one at a time
@@ -909,6 +910,7 @@ void process_commands()
             codenum = millis();
           }
           manage_heater();
+          manage_inactivity(1);
           LCD_STATUS;
         #ifdef TEMP_RESIDENCY_TIME
             /* start/restart the TEMP_RESIDENCY_TIME timer whenever we reach target temp for the first time
@@ -945,6 +947,7 @@ void process_commands()
             codenum = millis(); 
           }
           manage_heater();
+          manage_inactivity(1);
           LCD_STATUS;
         }
         LCD_MESSAGEPGM(MSG_BED_DONE);
