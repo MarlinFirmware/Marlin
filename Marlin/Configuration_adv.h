@@ -61,6 +61,12 @@
 #define TEMP_SENSOR_AD595_OFFSET 0.0
 #define TEMP_SENSOR_AD595_GAIN   1.0
 
+//This is for controlling a fan to cool down the stepper drivers
+//it will turn on when any driver is enabled
+//and turn off after the set amount of seconds from last driver being disabled again
+//#define CONTROLLERFAN_PIN 23 //Pin used for the fan to cool controller, comment out to disable this function
+#define CONTROLLERFAN_SEC 60 //How many seconds, after all motors were disabled, the fan should run
+
 //===========================================================================
 //=============================Mechanical Settings===========================
 //===========================================================================

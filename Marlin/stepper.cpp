@@ -714,23 +714,33 @@ void st_init()
   //Initialize Step Pins
   #if (X_STEP_PIN > -1) 
     SET_OUTPUT(X_STEP_PIN);
+    if(!X_ENABLE_ON) WRITE(X_ENABLE_PIN,HIGH);
   #endif  
   #if (Y_STEP_PIN > -1) 
     SET_OUTPUT(Y_STEP_PIN);
+    if(!Y_ENABLE_ON) WRITE(Y_ENABLE_PIN,HIGH);
   #endif  
   #if (Z_STEP_PIN > -1) 
     SET_OUTPUT(Z_STEP_PIN);
+    if(!Z_ENABLE_ON) WRITE(Z_ENABLE_PIN,HIGH);
   #endif  
   #if (E0_STEP_PIN > -1) 
     SET_OUTPUT(E0_STEP_PIN);
+    if(!E_ENABLE_ON) WRITE(E0_ENABLE_PIN,HIGH);
   #endif  
   #if defined(E1_STEP_PIN) && (E1_STEP_PIN > -1) 
     SET_OUTPUT(E1_STEP_PIN);
+    if(!E_ENABLE_ON) WRITE(E1_ENABLE_PIN,HIGH);
   #endif  
   #if defined(E2_STEP_PIN) && (E2_STEP_PIN > -1) 
     SET_OUTPUT(E2_STEP_PIN);
+    if(!E_ENABLE_ON) WRITE(E2_ENABLE_PIN,HIGH);
   #endif  
 
+  #ifdef CONTROLLERFAN_PIN
+    SET_OUTPUT(CONTROLLERFAN_PIN); //Set pin used for driver cooling fan
+  #endif
+  
   // waveform generation = 0100 = CTC
   TCCR1B &= ~(1<<WGM13);
   TCCR1B |=  (1<<WGM12);
@@ -740,7 +750,13 @@ void st_init()
   // output mode = 00 (disconnected)
   TCCR1A &= ~(3<<COM1A0); 
   TCCR1A &= ~(3<<COM1B0); 
-  TCCR1B = (TCCR1B & ~(0x07<<CS10)) | (2<<CS10); // 2MHz timer
+  
+  // Set the timer pre-scaler
+  // Generally we use a divider of 8, resulting in a 2MHz timer
+  // frequency on a 16MHz MCU. If you are going to change this, be
+  // sure to regenerate speed_lookuptable.h with
+  // create_speed_lookuptable.py
+  TCCR1B = (TCCR1B & ~(0x07<<CS10)) | (2<<CS10);
 
   OCR1A = 0x4000;
   TCNT1 = 0;
