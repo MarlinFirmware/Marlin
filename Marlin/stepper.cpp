@@ -714,23 +714,33 @@ void st_init()
   //Initialize Step Pins
   #if (X_STEP_PIN > -1) 
     SET_OUTPUT(X_STEP_PIN);
+    if(!X_ENABLE_ON) WRITE(X_ENABLE_PIN,HIGH);
   #endif  
   #if (Y_STEP_PIN > -1) 
     SET_OUTPUT(Y_STEP_PIN);
+    if(!Y_ENABLE_ON) WRITE(Y_ENABLE_PIN,HIGH);
   #endif  
   #if (Z_STEP_PIN > -1) 
     SET_OUTPUT(Z_STEP_PIN);
+    if(!Z_ENABLE_ON) WRITE(Z_ENABLE_PIN,HIGH);
   #endif  
   #if (E0_STEP_PIN > -1) 
     SET_OUTPUT(E0_STEP_PIN);
+    if(!E_ENABLE_ON) WRITE(E0_ENABLE_PIN,HIGH);
   #endif  
   #if defined(E1_STEP_PIN) && (E1_STEP_PIN > -1) 
     SET_OUTPUT(E1_STEP_PIN);
+    if(!E_ENABLE_ON) WRITE(E1_ENABLE_PIN,HIGH);
   #endif  
   #if defined(E2_STEP_PIN) && (E2_STEP_PIN > -1) 
     SET_OUTPUT(E2_STEP_PIN);
+    if(!E_ENABLE_ON) WRITE(E2_ENABLE_PIN,HIGH);
   #endif  
 
+  #ifdef CONTROLLERFAN_PIN
+    SET_OUTPUT(CONTROLLERFAN_PIN); //Set pin used for driver cooling fan
+  #endif
+  
   // waveform generation = 0100 = CTC
   TCCR1B &= ~(1<<WGM13);
   TCCR1B |=  (1<<WGM12);
