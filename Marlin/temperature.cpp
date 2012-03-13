@@ -191,9 +191,26 @@ void PID_autotune(float temp)
             if(cycles > 2) {
               Ku = (4.0*d)/(3.14159*(max-min)/2.0);
               Tu = ((float)(t_low + t_high)/1000.0);
+              SERIAL_PROTOCOLPGM(" Ku: "); SERIAL_PROTOCOL(Ku);
+              SERIAL_PROTOCOLPGM(" Tu: "); SERIAL_PROTOCOLLN(Tu);
               Kp = 0.6*Ku;
               Ki = 2*Kp/Tu;
               Kd = Kp*Tu/8;
+              SERIAL_PROTOCOLLNPGM(" Clasic PID ")
+              SERIAL_PROTOCOLPGM(" Kp: "); SERIAL_PROTOCOLLN(Kp);
+              SERIAL_PROTOCOLPGM(" Ki: "); SERIAL_PROTOCOLLN(Ki);
+              SERIAL_PROTOCOLPGM(" Kd: "); SERIAL_PROTOCOLLN(Kd);
+              Kp = 0.33*Ku;
+              Ki = Kp/Tu;
+              Kd = Kp*Tu/3;
+              SERIAL_PROTOCOLLNPGM(" Some overshoot ")
+              SERIAL_PROTOCOLPGM(" Kp: "); SERIAL_PROTOCOLLN(Kp);
+              SERIAL_PROTOCOLPGM(" Ki: "); SERIAL_PROTOCOLLN(Ki);
+              SERIAL_PROTOCOLPGM(" Kd: "); SERIAL_PROTOCOLLN(Kd);
+              Kp = 0.2*Ku;
+              Ki = 2*Kp/Tu;
+              Kd = Kp*Tu/3;
+              SERIAL_PROTOCOLLNPGM(" No overshoot ")
               SERIAL_PROTOCOLPGM(" Kp: "); SERIAL_PROTOCOLLN(Kp);
               SERIAL_PROTOCOLPGM(" Ki: "); SERIAL_PROTOCOLLN(Ki);
               SERIAL_PROTOCOLPGM(" Kd: "); SERIAL_PROTOCOLLN(Kd);

@@ -285,7 +285,7 @@
 #define FAN_PIN            4 // IO pin. Buffer needed
 #endif
 #define PS_ON_PIN          12
-#define KILL_PIN           31
+#define KILL_PIN           -1
 
 #define HEATER_0_PIN       10   // EXTRUDER 1
 #if MOTHERBOARD == 33
@@ -314,9 +314,9 @@
     #define LCD_PINS_D7 29
     
     //buttons are directly attached using AUX-2
-    #define BTN_EN1 44
-    #define BTN_EN2 42
-    #define BTN_ENC 64  //the click
+    #define BTN_EN1 37
+    #define BTN_EN2 35
+    #define BTN_ENC 31  //the click
     
     #define BLEN_C 2
     #define BLEN_B 1
@@ -950,6 +950,12 @@
   #define _E2_PINS E2_STEP_PIN, E2_DIR_PIN, E2_ENABLE_PIN, HEATER_2_PIN,
 #else
   #define _E2_PINS
+#endif
+
+#ifdef DISABLE_MAX_ENDSTOPS
+#define X_MAX_PIN          -1
+#define Y_MAX_PIN          -1
+#define Z_MAX_PIN          -1
 #endif
 
 #define SENSITIVE_PINS {0, 1, X_STEP_PIN, X_DIR_PIN, X_ENABLE_PIN, X_MIN_PIN, X_MAX_PIN, Y_STEP_PIN, Y_DIR_PIN, Y_ENABLE_PIN, Y_MIN_PIN, Y_MAX_PIN, Z_STEP_PIN, Z_DIR_PIN, Z_ENABLE_PIN, Z_MIN_PIN, Z_MAX_PIN, LED_PIN, PS_ON_PIN, \

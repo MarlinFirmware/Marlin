@@ -82,19 +82,18 @@
   //#define PID_OPENLOOP 1 // Puts PID in open loop. M104 sets the output power in %
   #define PID_INTEGRAL_DRIVE_MAX 255  //limit for the integral term
   #define K1 0.95 //smoothing factor withing the PID
-  #define PID_dT 0.128 //sampling period of the PID
+  #define PID_dT ((16.0 * 8.0)/(F_CPU / 64.0 / 256.0)) //sampling period of the
 
 // If you are using a preconfigured hotend then you can use one of the value sets by uncommenting it
 // Ultimaker
 //    #define  DEFAULT_Kp  22.2
-//    #define  DEFAULT_Ki (1.25*PID_dT)  
-//    #define  DEFAULT_Kd (99/PID_dT)  
+//    #define  DEFAULT_Ki (1.08*PID_dT)  
+//    #define  DEFAULT_Kd (114/PID_dT)  
 
 // RepRapPro Huxley
   #define  DEFAULT_Kp 3.0
   #define  DEFAULT_Ki (2*PID_dT)
   #define  DEFAULT_Kd (80/PID_dT)
-
 
 // Makergear
 //    #define  DEFAULT_Kp 7.0
@@ -124,6 +123,7 @@
 const bool X_ENDSTOPS_INVERTING = false; // set to true to invert the logic of the endstops. 
 const bool Y_ENDSTOPS_INVERTING = false; // set to true to invert the logic of the endstops. 
 const bool Z_ENDSTOPS_INVERTING = false; // set to true to invert the logic of the endstops. 
+#define DISABLE_MAX_ENDSTOPS
 
 // For Inverting Stepper Enable Pins (Active Low) use 0, Non Inverting (Active High) use 1
 #define X_ENABLE_ON 0
@@ -200,7 +200,7 @@ const bool Z_ENDSTOPS_INVERTING = false; // set to true to invert the logic of t
 
 //#define ULTIPANEL
 #ifdef ULTIPANEL
-  #define NEWPANEL  //enable this if you have a click-encoder panel
+//  #define NEWPANEL  //enable this if you have a click-encoder panel
   #define SDSUPPORT
   #define ULTRA_LCD
   #define LCD_WIDTH 20
