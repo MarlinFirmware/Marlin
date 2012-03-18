@@ -6,6 +6,8 @@ The configuration is now split in two files
 Configuration.h for the normal settings
 Configuration_adv.h for the advanced settings
 
+Gen7T is not supported.
+
 Quick Information
 ===================
 This RepRap firmware is a mashup between <a href="https://github.com/kliment/Sprinter">Sprinter</a>, <a href="https://github.com/simen/grbl/tree">grbl</a> and many original parts.
