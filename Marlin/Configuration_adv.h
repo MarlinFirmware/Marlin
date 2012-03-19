@@ -162,6 +162,9 @@ const int dropsegments=5; //everything with less than this number of steps will 
 // be commented out otherwise
 #define SDCARDDETECTINVERTED 
 
+#ifdef ULTIPANEL
+ #undef SDCARDDETECTINVERTED
+#endif
 //===========================================================================
 //=============================Buffers           ============================
 //===========================================================================

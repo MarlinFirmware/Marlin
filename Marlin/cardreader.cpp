@@ -53,7 +53,7 @@ void  CardReader::lsDive(const char *prepend,SdFile parent)
  
   while (parent.readDir(p) > 0)
   {
-    if( DIR_IS_SUBDIR(&p) && lsAction!=LS_Count && lsAction!=LS_GetFilename)
+    if( DIR_IS_SUBDIR(&p) && lsAction!=LS_Count && lsAction!=LS_GetFilename) // hence LS_SerialPrint
     {
 
       char path[13*2];
