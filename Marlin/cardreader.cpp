@@ -95,8 +95,10 @@ void  CardReader::lsDive(const char *prepend,SdFile parent)
         if ( p.name[1] != '.')
         continue;
       }
+      
       if (!DIR_IS_FILE_OR_SUBDIR(&p)) continue;
       filenameIsDir=DIR_IS_SUBDIR(&p);
+      
       
       if(!filenameIsDir)
       {
@@ -163,20 +165,26 @@ void CardReader::initsd()
     SERIAL_ECHO_START;
     SERIAL_ECHOLNPGM(MSG_SD_CARD_OK);
   }
+  workDir=root;
   curDir=&root;
+  /*
   if(!workDir.openRoot(&volume))
   {
     SERIAL_ECHOLNPGM(MSG_SD_WORKDIR_FAIL);
   }
+  */
+  
 }
 
 void CardReader::setroot()
 {
- curDir=&root;
-  if(!workDir.openRoot(&volume))
+  /*if(!workDir.openRoot(&volume))
   {
     SERIAL_ECHOLNPGM(MSG_SD_WORKDIR_FAIL);
-  } 
+  }*/
+  workDir=root;
+  
+  curDir=&workDir;
 }
 void CardReader::release()
 {
