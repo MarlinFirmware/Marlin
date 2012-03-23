@@ -35,14 +35,31 @@
 # $Id$
 
 #For "old" Arduino Mega
-MCU = atmega1280
+#MCU = atmega1280
 #For Arduino Mega2560
 #MCU = atmega2560
 #For Sanguinololu
-#MCU = atmega644p 
+MCU = atmega644p 
 
-#Arduino install directory
-INSTALL_DIR = ../../arduino-0022/
+# Here you select "arduino", "Sanguino", "Gen7", ...
+HARDWARE_VARIANT 		= Sanguino
+# This defined the board you are compiling for
+HARDWARE_MOTHERBOARD	= 91
+
+# Arduino source install directory
+INSTALL_DIR = ../../arduino-0022
+
+# Arduino containd the main source code for the Arduino
+# Libraries, the "hardware variant" are for boards
+# that derives from that, and their source are present in
+# the main Marlin source directory
+ARDUINO = $(INSTALL_DIR)/hardware/arduino/cores/arduino
+
+ifeq (${HARDWARE_VARIANT}, arduino)
+HARDWARE_SRC= $(ARDUINO)
+else
+HARDWARE_SRC= $(HARDWARE_VARIANT)/cores/arduino
+endif
 
 # Be sure to regenerate speed_lookuptable.h with create_speed_lookuptable.py
 # if you are setting this to something other than 16MHz
@@ -54,20 +71,31 @@ PORT = /dev/arduino
 
 TARGET = $(notdir $(CURDIR))
 
+# VPATH tells make to look into these directory for source files,
+# there is no need to specify explicit pathnames as long as the
+# directory is added here
+
+VPATH = .
+VPATH += applet
+VPATH += $(HARDWARE_SRC)
+VPATH += $(ARDUINO)
+VPATH += $(INSTALL_DIR)/libraries/LiquidCrystal
 
 ############################################################################
 # Below here nothing should be changed...
 
-ARDUINO = $(INSTALL_DIR)/hardware/arduino/cores/arduino
 AVR_TOOLS_PATH = 
-SRC =  $(ARDUINO)/pins_arduino.c $(ARDUINO)/wiring.c \
-	$(ARDUINO)/wiring_analog.c $(ARDUINO)/wiring_digital.c \
-	$(ARDUINO)/wiring_pulse.c \
-	$(ARDUINO)/wiring_shift.c $(ARDUINO)/WInterrupts.c
-CXXSRC = $(ARDUINO)/WMath.cpp $(ARDUINO)/WString.cpp\
-	$(ARDUINO)/Print.cpp applet/Marlin.cpp MarlinSerial.cpp Sd2Card.cpp SdBaseFile.cpp SdFatUtil.cpp SdFile.cpp SdVolume.cpp motion_control.cpp planner.cpp stepper.cpp temperature.cpp cardreader.cpp
+SRC =  pins_arduino.c wiring.c \
+	wiring_analog.c wiring_digital.c \
+	wiring_pulse.c \
+	wiring_shift.c WInterrupts.c
+CXXSRC = WMath.cpp WString.cpp Print.cpp \
+	Marlin.cpp MarlinSerial.cpp Sd2Card.cpp SdBaseFile.cpp \
+	SdFatUtil.cpp SdFile.cpp SdVolume.cpp motion_control.cpp \
+	planner.cpp stepper.cpp temperature.cpp cardreader.cpp
+#CXXSRC += LiquidCrystal.cpp ultralcd.cpp
+#CXXSRC += ultralcd.cpp
 FORMAT = ihex
-
 
 # Name of this Makefile (used for "make depend").
 MAKEFILE = Makefile
@@ -83,9 +111,9 @@ OPT = s
 CDEFS = -DF_CPU=$(F_CPU)
 CXXDEFS = -DF_CPU=$(F_CPU)
 
-# Place -I options here
-CINCS = -I$(ARDUINO)
-CXXINCS = -I$(ARDUINO)
+# Add all the source directories as include directories too
+CINCS = ${patsubst %,-I%,${subst :, ,${VPATH}}}
+CXXINCS = ${patsubst %,-I%,${subst :, ,${VPATH}}}
 
 # Compiler flag to set the C Standard level.
 # c89   - "ANSI" C
@@ -95,7 +123,12 @@ CXXINCS = -I$(ARDUINO)
 #CSTANDARD = -std=gnu99
 CDEBUG = -g$(DEBUG)
 CWARN = -Wall -Wstrict-prototypes
-CTUNING = -funsigned-char -funsigned-bitfields -fpack-struct -fshort-enums -w -ffunction-sections -fdata-sections -DARDUINO=22
+CTUNING = -funsigned-char -funsigned-bitfields -fpack-struct \
+	-fshort-enums -w -ffunction-sections -fdata-sections \
+	-DARDUINO=22
+ifneq (${HARDWARE_MOTHERBOARD},)
+CTUNING += -DMOTHERBOARD=${HARDWARE_MOTHERBOARD}
+endif
 #CEXTRA = -Wa,-adhlns=$(<:.c=.lst)
 
 CFLAGS = $(CDEBUG) $(CDEFS) $(CINCS) -O$(OPT) $(CWARN) $(CEXTRA) $(CTUNING)
@@ -124,7 +157,9 @@ REMOVE = rm -f
 MV = mv -f
 
 # Define all object files.
-OBJ = $(SRC:.c=.o) $(CXXSRC:.cpp=.o) $(ASRC:.S=.o) 
+OBJ = ${patsubst %.c, applet/%.o, ${SRC}}
+OBJ += ${patsubst %.cpp, applet/%.o, ${CXXSRC}}
+OBJ += ${patsubst %.S, applet/%.o, ${ASRC}}
 
 # Define all listing files.
 LST = $(ASRC:.S=.lst) $(CXXSRC:.cpp=.lst) $(SRC:.c=.lst)
@@ -132,30 +167,32 @@ LST = $(ASRC:.S=.lst) $(CXXSRC:.cpp=.lst) $(SRC:.c=.lst)
 # Combine all necessary flags and optional flags.
 # Add target processor to flags.
 ALL_CFLAGS = -mmcu=$(MCU) -I. $(CFLAGS)
-ALL_CXXFLAGS = -mmcu=$(MCU) -I. $(CXXFLAGS)
-ALL_ASFLAGS = -mmcu=$(MCU) -I. -x assembler-with-cpp $(ASFLAGS)
+ALL_CXXFLAGS = -mmcu=$(MCU) $(CXXFLAGS)
+ALL_ASFLAGS = -mmcu=$(MCU) -x assembler-with-cpp $(ASFLAGS)
 
 
 # Default target.
-all: build sizeafter
+all: sizeafter
 
-build: elf hex 
+build: applet elf hex 
 
-applet/$(TARGET).cpp: $(TARGET).pde $(MAKEFILE)
+# Creates the object directory
+applet: 
+	@mkdir -p applet
+
+# the .cpp for Marlin depends on the .pde
+#applet/$(TARGET).cpp: $(TARGET).pde
+# ..and the .o depends from the .cpp
+#applet/%.o: applet/%.cpp
 
 applet/%.cpp: %.pde
 # Here is the "preprocessing".
 # It creates a .cpp file based with the same name as the .pde file.
 # On top of the new .cpp file comes the WProgram.h header.
-# At the end there is a generic main() function attached.
-# Then the .cpp file will be compiled. Errors during compile will
-# refer to this new, automatically generated, file. 
-# Not the original .pde file you actually edit...
 	@echo "  WR    $@"
-	@test -d $(dir $@) || mkdir $(dir $@)
 	@echo '#include "WProgram.h"' > $@
-	@cat $< >> $@
-	@cat $(ARDUINO)/main.cpp >> $@
+	@echo '#include "$<"' >>$@
+	@echo '#include "$(ARDUINO)/main.cpp"' >> $@
 
 elf: applet/$(TARGET).elf
 hex: applet/$(TARGET).hex
@@ -164,11 +201,15 @@ lss: applet/$(TARGET).lss
 sym: applet/$(TARGET).sym
 
 # Program the device.  
+# Do not try to reset an arduino if it's not one
 upload: applet/$(TARGET).hex
+ifeq (${AVRDUDE_PROGRAMMER}, arduino)
 	stty hup < $(PORT); true
+endif
 	$(AVRDUDE) $(AVRDUDE_FLAGS) $(AVRDUDE_WRITE_FLASH)
+ifeq (${AVRDUDE_PROGRAMMER}, arduino)
 	stty -hup < $(PORT); true
-
+endif
 
 	# Display size of file.
 HEXSIZE = $(SIZE) --target=$(FORMAT) applet/$(TARGET).hex
@@ -176,7 +217,7 @@ ELFSIZE = $(SIZE)  applet/$(TARGET).elf
 sizebefore:
 	@if [ -f applet/$(TARGET).elf ]; then echo; echo $(MSG_SIZE_BEFORE); $(HEXSIZE); echo; fi
 
-sizeafter:
+sizeafter: build
 	@if [ -f applet/$(TARGET).elf ]; then echo; echo $(MSG_SIZE_AFTER); $(ELFSIZE); echo; fi
 
 
@@ -220,16 +261,22 @@ applet/$(TARGET).elf: applet/$(TARGET).cpp applet/core.a Configuration.h
 	@echo "  CXX   $@"
 	@$(CC) $(ALL_CXXFLAGS) -Wl,--gc-sections -o $@ applet/$(TARGET).cpp -L. applet/core.a $(LDFLAGS)
 
-applet/core.a: $(OBJ) Configuration.h
+applet/core.a: $(OBJ)
 	@for i in $(OBJ); do echo "  AR    $$i"; $(AR) rcs applet/core.a $$i; done
 
-%.o: %.c Configuration.h $(MAKEFILE)
+applet/%.o: %.c
 	@echo "  CC    $@"
-	@$(CC) -c $(ALL_CFLAGS) $< -o $@
+	@$(CC) -MMD -c $(ALL_CFLAGS) $< -o $@
 
-%.o: %.cpp Configuration.h $(MAKEFILE)
+applet/%.o: %.cpp
 	@echo "  CXX   $@"
-	@$(CXX) -c $(ALL_CXXFLAGS) $< -o $@
+	@$(CXX) -MMD -c $(ALL_CXXFLAGS) $< -o $@
+
+# special rule for autogenerated files...
+applet/%.o: applet/%.cpp
+	@echo "  CXX   $@"
+	@$(CXX) -MMD -c $(ALL_CXXFLAGS) $< -o $@
+
 
 # Target: clean project.
 clean:
@@ -238,17 +285,10 @@ clean:
 		applet/$(TARGET).map applet/$(TARGET).sym applet/$(TARGET).lss applet/$(TARGET).cpp applet/core.a \
 		$(OBJ) $(LST) $(SRC:.c=.s) $(SRC:.c=.d) $(CXXSRC:.cpp=.s) $(CXXSRC:.cpp=.d)
 	@echo "  RMDIR applet/"
-	@rmdir applet
+	@rm -rf applet
 
-depend:
-	if grep '^# DO NOT DELETE' $(MAKEFILE) >/dev/null; \
-	then \
-		sed -e '/^# DO NOT DELETE/,$$d' $(MAKEFILE) > \
-			$(MAKEFILE).$$$$ && \
-		$(MV) $(MAKEFILE).$$$$ $(MAKEFILE); \
-	fi
-	echo '# DO NOT DELETE THIS LINE -- make depend depends on it.' \
-		>> $(MAKEFILE); \
-	$(CC) -M -mmcu=$(MCU) $(CDEFS) $(CINCS) $(SRC) $(ASRC) >> $(MAKEFILE)
 
 .PHONY:	all build elf hex eep lss sym program coff extcoff clean depend applet_files sizebefore sizeafter
+
+# Automaticaly include the dependency files created by gcc
+-include ${wildcard applet/*.d}

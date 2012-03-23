@@ -29,7 +29,9 @@
 // Ultimaker = 7
 // Teensylu = 8
 // Gen3+ =9
+#ifndef MOTHERBOARD
 #define MOTHERBOARD 7
+#endif
 
 //===========================================================================
 //=============================Thermal Settings  ============================
@@ -193,7 +195,7 @@ const bool Z_ENDSTOPS_INVERTING = true; // set to true to invert the logic of th
 //#define ULTRA_LCD  //general lcd support, also 16x2
 //#define SDSUPPORT // Enable SD Card Support in Hardware Console
 
-#define ULTIPANEL
+//#define ULTIPANEL
 #ifdef ULTIPANEL
 //  #define NEWPANEL  //enable this if you have a click-encoder panel
   #define SDSUPPORT
