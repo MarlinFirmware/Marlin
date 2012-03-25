@@ -110,6 +110,7 @@
 // M502 - reverts to the default "factory settings".  You still need to store them in EEPROM afterwards if you want to.
 // M503 - print the current settings (from memory not from eeprom)
 // M303 - PID relay autotune S<temperature> sets the target temperature. (default target temperature = 150C)
+// M999 - Restart after being stopped by error
 
 //Stepper Movement Variables
 
@@ -135,6 +136,7 @@ float add_homeing[3]={0,0,0};
 uint8_t active_extruder = 0;
 unsigned char FanSpeed=0;
 
+
 //===========================================================================
 //=============================private variables=============================
 //===========================================================================
@@ -143,7 +145,7 @@ static float destination[NUM_AXIS] = {  0.0, 0.0, 0.0, 0.0};
 static float offset[3] = {0.0, 0.0, 0.0};
 static bool home_all_axis = true;
 static float feedrate = 1500.0, next_feedrate, saved_feedrate;
-static long gcode_N, gcode_LastN;
+static long gcode_N, gcode_LastN, Stopped_gcode_LastN = 0;
 
 static bool relative_mode = false;  //Determines Absolute or Relative Coordinates
 static bool relative_mode_e = false;  //Determines Absolute or Relative E Codes while in Absolute Coordinates mode. E is always relative in Relative Coordinates mode.
@@ -174,6 +176,7 @@ static unsigned long stoptime=0;
 
 static uint8_t tmp_extruder;
 
+bool Stopped=false;
 
 //===========================================================================
 //=============================ROUTINES=============================
@@ -415,11 +418,17 @@ void get_command()
           case 1:
           case 2:
           case 3:
-	    #ifdef SDSUPPORT
-            if(card.saving)
-              break;
-	    #endif //SDSUPPORT
-            SERIAL_PROTOCOLLNPGM(MSG_OK); 
+            if(Stopped == false) { // If printer is stopped by an error the G[0-3] codes are ignored.
+	      #ifdef SDSUPPORT
+              if(card.saving)
+                break;
+	      #endif //SDSUPPORT
+              SERIAL_PROTOCOLLNPGM(MSG_OK); 
+            }
+            else {
+              SERIAL_ERRORLNPGM(MSG_ERR_STOPPED);
+              LCD_MESSAGEPGM(MSG_STOPPED);
+            }
             break;
           default:
             break;
@@ -547,19 +556,25 @@ void process_commands()
     {
     case 0: // G0 -> G1
     case 1: // G1
-      get_coordinates(); // For X Y Z E F
-      prepare_move();
-      //ClearToSend();
-      return;
+      if(Stopped == false) {
+        get_coordinates(); // For X Y Z E F
+        prepare_move();
+        //ClearToSend();
+        return;
+      }
       //break;
     case 2: // G2  - CW ARC
-      get_arc_coordinates();
-      prepare_arc_move(true);
-      return;
+      if(Stopped == false) {
+        get_arc_coordinates();
+        prepare_arc_move(true);
+        return;
+      }
     case 3: // G3  - CCW ARC
-      get_arc_coordinates();
-      prepare_arc_move(false);
-      return;
+      if(Stopped == false) {
+        get_arc_coordinates();
+        prepare_arc_move(false);
+        return;
+      }
     case 4: // G4 dwell
       LCD_MESSAGEPGM(MSG_DWELL);
       codenum = 0;
@@ -972,6 +987,7 @@ void process_commands()
     #if (PS_ON_PIN > -1)
       case 80: // M80 - ATX Power On
         SET_OUTPUT(PS_ON_PIN); //GND
+        WRITE(PS_ON_PIN, LOW);
         break;
       #endif
       
@@ -1236,7 +1252,11 @@ void process_commands()
       EEPROM_printSettings();
     }
     break;
-
+    case 999: // Restart after being stopped
+      Stopped = false;
+      gcode_LastN = Stopped_gcode_LastN;
+      FlushSerialRequestResend();
+    break;
     }
   }
 
@@ -1437,5 +1457,19 @@ void kill()
   suicide();
   while(1); // Wait for reset
 }
+
+void Stop()
+{
+  disable_heater();
+  if(Stopped == false) {
+    Stopped = true;
+    Stopped_gcode_LastN = gcode_LastN; // Save last g_code for restart
+    SERIAL_ERROR_START;
+    SERIAL_ERRORLNPGM(MSG_ERR_STOPPED);
+    LCD_MESSAGEPGM(MSG_STOPPED);
+  }
+}
+
+bool IsStopped() { return Stopped; };
 
 
