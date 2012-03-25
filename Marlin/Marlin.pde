@@ -346,7 +346,10 @@ void get_command()
 { 
   while( MYSERIAL.available() > 0  && buflen < BUFSIZE) {
     serial_char = MYSERIAL.read();
-    if(serial_char == '\n' || serial_char == '\r' || serial_char == ':' || serial_count >= (MAX_CMD_SIZE - 1) ) 
+    if(serial_char == '\n' || 
+       serial_char == '\r' || 
+       (serial_char == ':' && comment_mode == false) || 
+       serial_count >= (MAX_CMD_SIZE - 1) ) 
     {
       if(!serial_count) { //if empty line
         comment_mode = false; //for new command
@@ -453,7 +456,10 @@ void get_command()
   while( !card.eof()  && buflen < BUFSIZE) {
     int16_t n=card.get();
     serial_char = (char)n;
-    if(serial_char == '\n' || serial_char == '\r' || serial_char == ':' || serial_count >= (MAX_CMD_SIZE - 1)||n==-1) 
+    if(serial_char == '\n' || 
+       serial_char == '\r' || 
+       (serial_char == ':' && comment_mode == false) || 
+       serial_count >= (MAX_CMD_SIZE - 1)||n==-1) 
     {
       if(card.eof()){
         SERIAL_PROTOCOLLNPGM(MSG_FILE_PRINTED);
