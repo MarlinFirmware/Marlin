@@ -1328,8 +1328,18 @@ void get_coordinates()
 void get_arc_coordinates()
 {
    get_coordinates();
-   if(code_seen('I')) offset[0] = code_value();
-   if(code_seen('J')) offset[1] = code_value();
+   if(code_seen('I')) {
+     offset[0] = code_value();
+   } 
+   else {
+     offset[0] = 0.0;
+   }
+   if(code_seen('J')) {
+     offset[1] = code_value();
+   }
+   else {
+     offset[1] = 0.0;
+   }
 }
 
 void prepare_move()
