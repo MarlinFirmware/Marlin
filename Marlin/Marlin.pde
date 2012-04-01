@@ -850,9 +850,13 @@ void process_commands()
       #if (TEMP_0_PIN > -1)
         SERIAL_PROTOCOLPGM("ok T:");
         SERIAL_PROTOCOL(degHotend(tmp_extruder)); 
+        SERIAL_PROTOCOLPGM("/");
+        SERIAL_PROTOCOL(degTargetHotend(tmp_extruder)); 
         #if TEMP_BED_PIN > -1
           SERIAL_PROTOCOLPGM(" B:");  
           SERIAL_PROTOCOL(degBed());
+          SERIAL_PROTOCOLPGM("/");
+          SERIAL_PROTOCOL(degTargetBed());
         #endif //TEMP_BED_PIN
       #else
         SERIAL_ERROR_START;

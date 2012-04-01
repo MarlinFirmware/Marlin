@@ -438,7 +438,9 @@ void check_axes_activity() {
   }
   else {
     #if FAN_PIN > -1
-      if (FanSpeed != 0) analogWrite(FAN_PIN,FanSpeed); // If buffer is empty use current fan speed
+      if (FanSpeed != 0){
+        analogWrite(FAN_PIN,FanSpeed); // If buffer is empty use current fan speed
+      }
     #endif
   }
   if((DISABLE_X) && (x_active == 0)) disable_x();
@@ -446,11 +448,14 @@ void check_axes_activity() {
   if((DISABLE_Z) && (z_active == 0)) disable_z();
   if((DISABLE_E) && (e_active == 0)) { disable_e0();disable_e1();disable_e2(); }
   #if FAN_PIN > -1
-    if((FanSpeed == 0) && (fan_speed ==0)) analogWrite(FAN_PIN, 0);
-  #endif
+  if((FanSpeed == 0) && (fan_speed ==0)) {
+    analogWrite(FAN_PIN, 0);
+  }
+
   if (FanSpeed != 0 && tail_fan_speed !=0) { 
     analogWrite(FAN_PIN,tail_fan_speed);
   }
+  #endif
 }
 
 
@@ -714,9 +719,9 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
   if(abs(current_speed[E_AXIS]) > max_e_jerk/2) 
     vmax_junction = min(vmax_junction, max_e_jerk/2);
     
-  if ((moves_queued > 1) && (previous_nominal_speed > 0.0)) {
+  if ((moves_queued > 1) && (previous_nominal_speed > 0.0001)) {
     float jerk = sqrt(pow((current_speed[X_AXIS]-previous_speed[X_AXIS]), 2)+pow((current_speed[Y_AXIS]-previous_speed[Y_AXIS]), 2));
-    if((previous_speed[X_AXIS] != 0.0) || (previous_speed[Y_AXIS] != 0.0)) {
+    if((abs(previous_speed[X_AXIS]) > 0.0001) || (abs(previous_speed[Y_AXIS]) > 0.0001)) {
       vmax_junction = block->nominal_speed;
     }
     if (jerk > max_xy_jerk) {
@@ -750,6 +755,7 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
   // Update previous path unit_vector and nominal speed
   memcpy(previous_speed, current_speed, sizeof(previous_speed)); // previous_speed[] = current_speed[]
   previous_nominal_speed = block->nominal_speed;
+
   
   #ifdef ADVANCE
     // Calculate advance rate
