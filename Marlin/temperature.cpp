@@ -51,8 +51,8 @@ int current_raw_bed = 0;
   float pid_setpoint[EXTRUDERS] = { 0.0 };
   
   float Kp=DEFAULT_Kp;
-  float Ki=DEFAULT_Ki;
-  float Kd=DEFAULT_Kd;
+  float Ki=(DEFAULT_Ki*PID_dT);
+  float Kd=(DEFAULT_Kd/PID_dT);
   #ifdef PID_ADD_EXTRUSION_RATE
     float Kc=DEFAULT_Kc;
   #endif
@@ -708,22 +708,28 @@ void disable_heater()
 
 void max_temp_error(uint8_t e) {
   digitalWrite(heater_pin_map[e], 0);
-  SERIAL_ERROR_START;
-  SERIAL_ERRORLN(e);
-  SERIAL_ERRORLNPGM(": Extruder switched off. MAXTEMP triggered !");
+  if(IsStopped() == false) {
+    SERIAL_ERROR_START;
+    SERIAL_ERRORLN(e);
+    SERIAL_ERRORLNPGM(": Extruder switched off. MAXTEMP triggered !");
+  }
 }
 
 void min_temp_error(uint8_t e) {
   digitalWrite(heater_pin_map[e], 0);
-  SERIAL_ERROR_START;
-  SERIAL_ERRORLN(e);
-  SERIAL_ERRORLNPGM(": Extruder switched off. MINTEMP triggered !");
+  if(IsStopped() == false) {
+    SERIAL_ERROR_START;
+    SERIAL_ERRORLN(e);
+    SERIAL_ERRORLNPGM(": Extruder switched off. MINTEMP triggered !");
+  }
 }
 
 void bed_max_temp_error(void) {
   digitalWrite(HEATER_BED_PIN, 0);
-  SERIAL_ERROR_START;
-  SERIAL_ERRORLNPGM("Temperature heated bed switched off. MAXTEMP triggered !!");
+  if(IsStopped() == false) {
+    SERIAL_ERROR_START;
+    SERIAL_ERRORLNPGM("Temperature heated bed switched off. MAXTEMP triggered !!");
+  }
 }
 
 #define HEAT_INTERVAL 250
@@ -956,7 +962,7 @@ ISR(TIMER0_COMPB_vect)
           max_temp_error(e);
           #ifndef BOGUS_TEMPERATURE_FAILSAFE_OVERRIDE
           {
-            kill();;
+            Stop();;
           }
           #endif
        }
@@ -965,7 +971,7 @@ ISR(TIMER0_COMPB_vect)
           min_temp_error(e);
           #ifndef BOGUS_TEMPERATURE_FAILSAFE_OVERRIDE
           {
-            kill();
+            Stop();
           }
           #endif
        }
@@ -975,7 +981,7 @@ ISR(TIMER0_COMPB_vect)
     if(current_raw_bed >= bed_maxttemp) {
        target_raw_bed = 0;
        bed_max_temp_error();
-       kill();
+       Stop();
     }
 #endif
   }
