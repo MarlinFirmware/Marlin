@@ -262,7 +262,7 @@
 	#define MSG_M115_REPORT "FIRMWARE_NAME:Marlin V1; Sprinter/grbl mashup for gen6 FIRMWARE_URL:http://www.mendel-parts.com PROTOCOL_VERSION:1.0 MACHINE_TYPE:Mendel EXTRUDER_COUNT:1\n"
 	#define MSG_COUNT_X " Count X:"
 	#define MSG_ERR_KILLED "Printer halted. kill() called !!"
-	#define MSG_ERR_STOPPED "Printer stopped deu to errors. Fix the error and use M999 to restart!"
+	#define MSG_ERR_STOPPED "Printer stopped due to errors. Fix the error and use M999 to restart!"
 	#define MSG_RESEND "Resend:"
 	#define MSG_UNKNOWN_COMMAND "Unknown command:\""
 	#define MSG_ACTIVE_EXTRUDER "Active Extruder: "
