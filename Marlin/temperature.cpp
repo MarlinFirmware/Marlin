@@ -153,7 +153,9 @@ void PID_autotune(float temp)
   float max, min;
   
   SERIAL_ECHOLN("PID Autotune start");
-
+  
+  disable_heater(); // switch off all heaters.
+  
   for(;;) {
 
     if(temp_meas_ready == true) { // temp sample ready
@@ -921,14 +923,14 @@ ISR(TIMER0_COMPB_vect)
     
   if(temp_count >= 16) // 8 ms * 16 = 128ms.
   {
-    #ifdef HEATER_0_USES_AD595
+    #ifdef HEATER_0_USES_AD595 || defined HEATER_0_USES_MAX6675
       current_raw[0] = raw_temp_0_value;
     #else
       current_raw[0] = 16383 - raw_temp_0_value;
     #endif
 
 #if EXTRUDERS > 1    
-    #ifdef HEATER_1_USES_AD595 || defined HEATER_0_USES_MAX6675
+    #ifdef HEATER_1_USES_AD595
       current_raw[1] = raw_temp_1_value;
     #else
       current_raw[1] = 16383 - raw_temp_1_value;
