@@ -144,7 +144,7 @@ float current_position[NUM_AXIS] = { 0.0, 0.0, 0.0, 0.0 };
 float e_current_position[EXTRUDERS] = { 0.0 }; // not quite "current", set when extruders change
 float add_homeing[3]={0,0,0};
 uint8_t active_extruder = 0;
-
+unsigned int debug_flags = 0;
 
 //===========================================================================
 //=============================private variables=============================
@@ -243,6 +243,9 @@ void setup()
   SERIAL_ECHO_START;
   SERIAL_ECHOPGM("Free Memory:");
   SERIAL_ECHOLN(freeMemory());
+  SERIAL_ECHO_START;
+  SERIAL_ECHOPGM("Extruders: ");
+  SERIAL_ECHOLN((int)EXTRUDERS);
   for(int8_t i = 0; i < BUFSIZE; i++)
   {
     fromsd[i] = false;
@@ -736,7 +739,7 @@ FORCE_INLINE void process_commands()
       if (code_seen('S')) setTargetBed(code_value());
       break;
     case 105 : // M105
-      tmp_extruder = ACTIVE_EXTRUDER;
+      tmp_extruder = active_extruder;
       if(code_seen('T')) {
         tmp_extruder = code_value();
         if(tmp_extruder >= EXTRUDERS) {
@@ -748,10 +751,10 @@ FORCE_INLINE void process_commands()
       }
       #if (TEMP_0_PIN > -1)
         SERIAL_PROTOCOLPGM("ok T:");
-        SERIAL_PROTOCOL(degHotend(tmp_extruder)); 
+        SERIAL_PROTOCOL((int)(degHotend(tmp_extruder) + 0.5)); 
         #if TEMP_BED_PIN > -1 
           SERIAL_PROTOCOLPGM(" B:");  
-          SERIAL_PROTOCOL(degBed());
+          SERIAL_PROTOCOL((int)(degBed() + 0.5));
         #endif //TEMP_BED_PIN
       #else
         SERIAL_ERROR_START;
@@ -806,10 +809,13 @@ FORCE_INLINE void process_commands()
           if( (millis() - codenum) > 1000 ) 
           { //Print Temp Reading and remaining time every 1 second while heating up/cooling down
             SERIAL_PROTOCOLPGM("T:");
-            SERIAL_PROTOCOL( degHotend(tmp_extruder) ); 
-            SERIAL_PROTOCOLPGM(" E:");
-            SERIAL_PROTOCOL( (int)tmp_extruder ); 
-            SERIAL_PROTOCOLPGM(" W:");
+            SERIAL_PROTOCOL((int)(degHotend(tmp_extruder) + 0.5)); 
+      #if TEMP_BED_PIN > -1
+            SERIAL_PROTOCOLPGM(" B:");
+            SERIAL_PROTOCOL((int)(degBed() + 0.5));
+      #endif
+            SERIAL_PROTOCOLLN("");
+            SERIAL_PROTOCOLPGM("Wait:");
             if(residencyStart > -1)
             {
                codenum = TEMP_RESIDENCY_TIME - ((millis() - residencyStart) / 1000);
@@ -843,17 +849,14 @@ FORCE_INLINE void process_commands()
       LCD_MESSAGEPGM("Bed Heating.");
       if (code_seen('S')) setTargetBed(code_value());
       codenum = millis(); 
-      while(isHeatingBed()) 
+      while(!isDoneHeatingBed()) 
       {
         if( (millis()-codenum) > 1000 ) //Print Temp Reading every 1 second while heating up.
         {
-          float tt=degHotend(ACTIVE_EXTRUDER);
           SERIAL_PROTOCOLPGM("T:");
-          SERIAL_PROTOCOL(tt);
+          SERIAL_PROTOCOL((int)(degHotend(tmp_extruder) + 0.5));
           SERIAL_PROTOCOLPGM(" B:");
-          SERIAL_PROTOCOL(degBed()); 
-          SERIAL_PROTOCOLPGM(" E:");
-          SERIAL_PROTOCOLLN((int)tmp_extruder); 
+          SERIAL_PROTOCOLLN((int)(degBed() + 0.5)); 
           codenum = millis(); 
         }
         manage_heater();
@@ -1104,6 +1107,20 @@ FORCE_INLINE void process_commands()
     case 503: // print settings currently in memory
     {
       EEPROM_printSettings();
+      SERIAL_ECHO_START;
+      SERIAL_ECHOLN("Active extruder:");
+      SERIAL_ECHO_START;
+      SERIAL_ECHO(" T");
+      SERIAL_ECHOLN((int)active_extruder);
+    }
+    case 504: // set debug flags
+    {
+      if(code_seen('S')) 
+      {
+        debug_flags = code_value() ;
+      }
+      SERIAL_ECHO("Debug flags: ");
+      SERIAL_ECHOLN(debug_flags);
     }
     break;
 

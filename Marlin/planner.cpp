@@ -231,8 +231,8 @@ FORCE_INLINE float max_allowable_speed(float acceleration, float target_velocity
 // The kernel called by planner_recalculate() when scanning the plan from last to first entry.
 void planner_reverse_pass_kernel(block_t *previous, block_t *current, block_t *next) {
   if(!current) { return; }
-  
-    if (next) {
+
+  if (next) {
     // If entry speed is already at the maximum entry speed, no need to recheck. Block is cruising.
     // If not, block in state of acceleration or deceleration. Reset entry speed to maximum and
     // check for maximum allowable speed reductions to ensure maximum possible planned speed.
@@ -272,7 +272,7 @@ void planner_reverse_pass() {
 // The kernel called by planner_recalculate() when scanning the plan from first to last entry.
 void planner_forward_pass_kernel(block_t *previous, block_t *current, block_t *next) {
   if(!previous) { return; }
-  
+
   // If the previous block is an acceleration block, but it is not long enough to complete the
   // full speed change within the block, we need to adjust the entry speed accordingly. Entry
   // speeds have already been reset, maximized, and reverse planned by reverse planner.
@@ -491,7 +491,9 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
   block->step_event_count = max(block->steps_x, max(block->steps_y, max(block->steps_z, block->steps_e)));
 
   // Bail if this is a zero-length block
-  if (block->step_event_count <=dropsegments) { return; };
+  if (block->step_event_count <= dropsegments) { 
+     return; 
+  };
 
   // Compute direction bits for this block 
   block->direction_bits = 0;
@@ -620,7 +622,7 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
 
   // Compute and limit the acceleration rate for the trapezoid generator.  
   float steps_per_mm = block->step_event_count/block->millimeters;
-  if(block->steps_x == 0 && block->steps_y == 0 && block->steps_z == 0) {
+  if(block->steps_x <= dropsegments && block->steps_y <= dropsegments && block->steps_z <= dropsegments) {
     block->acceleration_st = ceil(retract_acceleration[extruder] * steps_per_mm); // convert to: acceleration steps/sec^2
   }
   else {
@@ -680,9 +682,8 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
 #endif
 
   // For E-only moves use the user defined max for E axis otherwise use XY max
-  if(block->steps_x == 0 && block->steps_y == 0 && block->steps_z == 0) {
-     block->entry_speed = block->max_entry_speed = 
-       min(max_e_jerk[extruder], block->nominal_speed);
+  if(block->steps_x <= dropsegments && block->steps_y <= dropsegments && block->steps_z <= dropsegments) {
+     block->entry_speed = block->max_entry_speed = min(max_e_jerk[extruder], block->nominal_speed);
   }
   else
   {
@@ -729,7 +730,8 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
   
 #ifdef ADVANCE
     // Calculate advance rate
-    if((block->steps_e == 0) || (block->steps_x == 0 && block->steps_y == 0 && block->steps_z == 0)) {
+    if((block->steps_e == 0) || 
+       (block->steps_x <= dropsegments && block->steps_y <= dropsegments && block->steps_z <= dropsegments)) {
       block->advance_rate = 0;
       block->advance = 0;
     }
@@ -755,15 +757,17 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
 #endif // ADVANCE
 
   calculate_trapezoid_for_block(block, block->entry_speed/block->nominal_speed,
-    MINIMUM_PLANNER_SPEED/block->nominal_speed);
-    
+                                MINIMUM_PLANNER_SPEED/block->nominal_speed);
+
   // Move buffer head
   block_buffer_head = next_buffer_head;
 
   // Update position
   memcpy(position, target, sizeof(target)); // position[] = target[]
 
+  // Recalculate
   planner_recalculate();
+
   #ifdef AUTOTEMP
     getHighESpeed();
   #endif

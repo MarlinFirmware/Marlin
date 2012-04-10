@@ -17,25 +17,11 @@
 #include "MarlinSerial.h"
 
 #define  FORCE_INLINE __attribute__((always_inline)) inline
-//#define SERIAL_ECHO(x) Serial << "echo: " << x;
-//#define SERIAL_ECHOLN(x) Serial << "echo: "<<x<<endl;
-//#define SERIAL_ERROR(x) Serial << "Error: " << x;
-//#define SERIAL_ERRORLN(x) Serial << "Error: " << x<<endl;
-//#define SERIAL_PROTOCOL(x) Serial << x;
-//#define SERIAL_PROTOCOLLN(x) Serial << x<<endl;
 
-//this is a unfinsihed attemp to removes a lot of warning messages, see:
-// http://www.avrfreaks.net/index.php?name=PNphpBB2&file=printview&t=57011
-//typedef char prog_char PROGMEM; 
-// //#define PSTR    (s )        ((const PROGMEM char *)(s))
-// //# define MYPGM(s) (__extension__({static prog_char __c[] = (s); &__c[0];})) 
-// //#define MYPGM(s) ((const prog_char *g PROGMEM=s))
-// //#define MYPGM(s) PSTR(s)
 #define MYPGM(s)  (__extension__({static char __c[] __attribute__((__progmem__)) = (s); &__c[0];}))  //This is the normal behaviour
-//#define MYPGM(s)  (__extension__({static prog_char __c[]  = (s); &__c[0];})) //this does not work but hides the warnings
-
 
 #define SERIAL_PROTOCOL(x) MSerial.print(x);
+#define SERIAL_PROTOCOL2(x,y) MSerial.print(x,y);
 #define SERIAL_PROTOCOLPGM(x) serialprintPGM(MYPGM(x));
 #define SERIAL_PROTOCOLLN(x) {MSerial.print(x);MSerial.write('\n');}
 #define SERIAL_PROTOCOLLNPGM(x) {serialprintPGM(MYPGM(x));MSerial.write('\n');}
@@ -149,6 +135,7 @@ extern float homing_feedrate[];
 extern bool axis_relative_modes[];
 extern float current_position[NUM_AXIS];
 extern float add_homeing[3];
+extern unsigned int debug_flags;
 
 // Handling multiple extruders pins
 extern uint8_t active_extruder;

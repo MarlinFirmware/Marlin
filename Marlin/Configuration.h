@@ -228,8 +228,8 @@ const bool Z_ENDSTOPS_INVERTING = false; // set to true to invert the logic of t
 
 #define MAX_STEP_FREQUENCY 40000 // Max step frequency for Ultimaker (5000 pps / half step)
 
-#define EXTRUDER_OFFSET_X {0.0, 20.57} // (in mm) per extruder, offset of the extruder on the X axis
-#define EXTRUDER_OFFSET_Y {0.0, 0.20} // (in mm) per extruder, offset of the extruder on the Y axis
+#define EXTRUDER_OFFSET_X {0.0, 21.68} // (in mm) per extruder, offset of the extruder on the X axis
+#define EXTRUDER_OFFSET_Y {0.0, 0.64} // (in mm) per extruder, offset of the extruder on the Y axis
 
 // default settings 
 
@@ -238,7 +238,7 @@ const bool Z_ENDSTOPS_INVERTING = false; // set to true to invert the logic of t
 #define DEFAULT_AXIS_STEPS_PER_UNIT   {80.3232, 80.8900, 2284.7651, 757.2218, 737.5537} // X,Y,Z,E0... SAE Prusa w/ Wade extruder
 #define DEFAULT_MAX_FEEDRATE          {500, 500, 7, 50, 50} // X,Y,Z,E0...(mm/sec)    
 #define DEFAULT_MAX_ACCELERATION      {9000,9000,100,9000,9000} // X,Y,Z,E0... maximum acceleration (mm/s^2). E default values are good for skeinforge 40+, for older versions raise them a lot.
-#define DEFAULT_RETRACT_ACCELERATION  {18000,18000} // E0... (per extruder) acceleration in mm/s^2 for retracts 
+#define DEFAULT_RETRACT_ACCELERATION  {9000,9000} // E0... (per extruder) acceleration in mm/s^2 for retracts 
 #define DEFAULT_ACCELERATION          3000   // X,Y,Z and E* acceleration (one for all) in mm/s^2 for printing moves 
 
 #define DEFAULT_MINIMUMFEEDRATE       0.0     // minimum feedrate
@@ -248,7 +248,7 @@ const bool Z_ENDSTOPS_INVERTING = false; // set to true to invert the logic of t
 
 #define DEFAULT_XYJERK                20.0    // (mm/sec)
 #define DEFAULT_ZJERK                 0.4     // (mm/sec)
-#define DEFAULT_EJERK                 {19,20} // E0... (mm/sec) per extruder, max initial speed for retract moves
+#define DEFAULT_EJERK                 {18,19} // E0... (mm/sec) per extruder, max initial speed for retract moves
 
 
 //===========================================================================
