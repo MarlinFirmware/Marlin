@@ -923,7 +923,7 @@ ISR(TIMER0_COMPB_vect)
     
   if(temp_count >= 16) // 8 ms * 16 = 128ms.
   {
-    #ifdef HEATER_0_USES_AD595 || defined HEATER_0_USES_MAX6675
+    #if defined(HEATER_0_USES_AD595) || defined(HEATER_0_USES_MAX6675)
       current_raw[0] = raw_temp_0_value;
     #else
       current_raw[0] = 16383 - raw_temp_0_value;
