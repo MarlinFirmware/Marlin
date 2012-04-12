@@ -74,7 +74,7 @@
 // This defines the number of extruders
 #define EXTRUDERS 1
 
-#define ENDSTOPS_ONLY_FOR_HOMING // If defined the endstops will only be used for homing
+//#define ENDSTOPS_ONLY_FOR_HOMING // If defined the endstops will only be used for homing
 
 //#define Z_LATE_ENABLE // Enable Z the last moment. Needed if your Z driver overheats.
 
