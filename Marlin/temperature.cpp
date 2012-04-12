@@ -154,7 +154,7 @@ void PID_autotune(float temp)
   
   SERIAL_ECHOLN("PID Autotune start");
   
-  disable_heater(); // switch off all heaters.
+  //disable_heater(); // switch off all heaters.
   
   for(;;) {
 
