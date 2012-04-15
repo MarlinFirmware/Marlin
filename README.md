@@ -42,6 +42,7 @@ Features:
 *   Endstop trigger reporting to the host software.
 *   Updated sdcardlib
 *   Heater power reporting. Useful for PID monitoring.
+*   PID tuning
 
 The default baudrate is 250000. This baudrate has less jitter and hence errors than the usual 115200 baud, but is less supported by drivers and host-environments.
 
@@ -145,20 +146,30 @@ Movement variables:
 *   M203 - Set maximum feedrate that your machine can sustain (M203 X200 Y200 Z300 E10000) in mm/sec
 *   M204 - Set default acceleration: S normal moves T filament only moves (M204 S3000 T7000) im mm/sec^2  also sets minimum segment time in ms (B20000) to prevent buffer underruns and M20 minimum feedrate
 *   M220 - set build speed mulitplying S:factor in percent ; aka "realtime tuneing in the gcode". So you can slow down if you have islands in one height-range, and speed up otherwise.
-*   M301 - Set PID parameters P I and D
+*   M221 - set the extrude multiplying S:factor in percent
 *   M400 - Finish all buffered moves.
+
+Temperature variables:
+*   M301 - Set PID parameters P I and D
+*   M302 - Allow cold extrudes
+*   M303 - PID relay autotune S<temperature> sets the target temperature. (default target temperature = 150C)
 
 Advance:
 
 *   M200 - Set filament diameter for advance
-*   M205 -  advanced settings:  minimum travel speed S=while printing T=travel only,  B=minimum segment time X= maximum xy jerk, Z=maximum Z jerk
+*   M205 - advanced settings:  minimum travel speed S=while printing T=travel only,  B=minimum segment time X= maximum xy jerk, Z=maximum Z jerk
 
 EEPROM:
 
 *   M500 - stores paramters in EEPROM
 *   M501 - reads parameters from EEPROM (if you need reset them after you changed them temporarily).  
 *   M502 - reverts to the default "factory settings".  You still need to store them in EEPROM afterwards if you want to.
+*   M503 - print the current settings (from memory not from eeprom)
 
+MISC:
+
+*   M240 - Trigger a camera to take a photograph
+*   M999 - Restart after being stopped by error
 
 Configuring and compilation:
 ============================
