@@ -51,9 +51,6 @@
     IntersectionDistance[s1_, s2_, a_, d_] := (2 a d - s1^2 + s2^2)/(4 a)
 */
                                                                                                             
-
-
-
 #include "Marlin.h"
 #include "planner.h"
 #include "stepper.h"
@@ -377,20 +374,26 @@ void plan_init() {
 void getHighESpeed()
 {
   static float oldt=0;
-  if(!autotemp_enabled)
+  if(!autotemp_enabled){
     return;
-  if(degTargetHotend0()+2<autotemp_min)  //probably temperature set to zero.
+  }
+  if(degTargetHotend0()+2<autotemp_min) {  //probably temperature set to zero.
     return; //do nothing
+  }
   
-  float high=0;
+  float high=0.0;
   uint8_t block_index = block_buffer_tail;
   
   while(block_index != block_buffer_head) {
-    float se=block_buffer[block_index].steps_e/float(block_buffer[block_index].step_event_count)*block_buffer[block_index].nominal_rate;
-    //se; units steps/sec;
-    if(se>high)
-    {
-      high=se;
+    if((block_buffer[block_index].steps_x != 0) ||
+       (block_buffer[block_index].steps_y != 0) ||
+       (block_buffer[block_index].steps_z != 0)) {
+      float se=(float(block_buffer[block_index].steps_e)/float(block_buffer[block_index].step_event_count))*block_buffer[block_index].nominal_speed;
+      //se; mm/sec;
+      if(se>high)
+      {
+        high=se;
+      }
     }
     block_index = (block_index+1) & (BLOCK_BUFFER_SIZE - 1);
   }
@@ -407,10 +410,6 @@ void getHighESpeed()
   }
   oldt=t;
   setTargetHotend0(t);
-//   SERIAL_ECHO_START;
-//   SERIAL_ECHOPAIR("highe",high);
-//   SERIAL_ECHOPAIR(" t",t);
-//   SERIAL_ECHOLN("");
 }
 #endif
 
@@ -455,6 +454,9 @@ void check_axes_activity() {
   if (FanSpeed != 0 && tail_fan_speed !=0) { 
     analogWrite(FAN_PIN,tail_fan_speed);
   }
+  #endif
+  #ifdef AUTOTEMP
+    getHighESpeed();
   #endif
 }
 
@@ -517,7 +519,7 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
   block->step_event_count = max(block->steps_x, max(block->steps_y, max(block->steps_z, block->steps_e)));
 
   // Bail if this is a zero-length block
-  if (block->step_event_count <=dropsegments) { return; };
+  if (block->step_event_count <= dropsegments) { return; };
 
   block->fan_speed = FanSpeed;
   
@@ -540,7 +542,6 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
   // Enable all
   if(block->steps_e != 0) { enable_e0();enable_e1();enable_e2(); }
 
-
   if (block->steps_e == 0) {
         if(feed_rate<mintravelfeedrate) feed_rate=mintravelfeedrate;
   }
@@ -548,12 +549,6 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
     	if(feed_rate<minimumfeedrate) feed_rate=minimumfeedrate;
   } 
   
-  // slow down when de buffer starts to empty, rather than wait at the corner for a buffer refill
-  int moves_queued=(block_buffer_head-block_buffer_tail + BLOCK_BUFFER_SIZE) & (BLOCK_BUFFER_SIZE - 1);
-  #ifdef SLOWDOWN
-    if(moves_queued < (BLOCK_BUFFER_SIZE * 0.5) && moves_queued > 1) feed_rate = feed_rate*moves_queued / (BLOCK_BUFFER_SIZE * 0.5); 
-  #endif
-
   float delta_mm[4];
   delta_mm[X_AXIS] = (target[X_AXIS]-position[X_AXIS])/axis_steps_per_unit[X_AXIS];
   delta_mm[Y_AXIS] = (target[Y_AXIS]-position[Y_AXIS])/axis_steps_per_unit[Y_AXIS];
@@ -569,34 +564,33 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
   // Calculate speed in mm/second for each axis. No divide by zero due to previous checks.
   float inverse_second = feed_rate * inverse_millimeters;
   
+  int moves_queued=(block_buffer_head-block_buffer_tail + BLOCK_BUFFER_SIZE) & (BLOCK_BUFFER_SIZE - 1);
+ 
+  // slow down when de buffer starts to empty, rather than wait at the corner for a buffer refill
+  #ifdef OLD_SLOWDOWN
+    if(moves_queued < (BLOCK_BUFFER_SIZE * 0.5) && moves_queued > 1) feed_rate = feed_rate*moves_queued / (BLOCK_BUFFER_SIZE * 0.5); 
+  #endif
+
+  #ifdef SLOWDOWN
+  //  segment time im micro seconds
+  unsigned long segment_time = lround(1000000.0/inverse_second);
+  if ((moves_queued > 1) && (moves_queued < (BLOCK_BUFFER_SIZE * 0.5))) {
+    if (segment_time < minsegmenttime)  { // buffer is draining, add extra time.  The amount of time added increases if the buffer is still emptied more.
+        inverse_second=1000000.0/(segment_time+lround(2*(minsegmenttime-segment_time)/moves_queued));
+    }
+  }
+  #endif
+  //  END OF SLOW DOWN SECTION    
+
+  
   block->nominal_speed = block->millimeters * inverse_second; // (mm/sec) Always > 0
   block->nominal_rate = ceil(block->step_event_count * inverse_second); // (step/sec) Always > 0
 
-
-/*
-  //  segment time im micro seconds
-  long segment_time = lround(1000000.0/inverse_second);
-  if ((blockcount>0) && (blockcount < (BLOCK_BUFFER_SIZE - 4))) {
-    if (segment_time<minsegmenttime)  { // buffer is draining, add extra time.  The amount of time added increases if the buffer is still emptied more.
-        segment_time=segment_time+lround(2*(minsegmenttime-segment_time)/blockcount);
-    }
-  }
-  else {
-    if (segment_time<minsegmenttime) segment_time=minsegmenttime;
-  }
-  //  END OF SLOW DOWN SECTION    
-*/
-
-
- // Calculate speed in mm/sec for each axis
+ // Calculate and limit speed in mm/sec for each axis
   float current_speed[4];
-  for(int i=0; i < 4; i++) {
-    current_speed[i] = delta_mm[i] * inverse_second;
-  }
-
-  // Limit speed per axis
   float speed_factor = 1.0; //factor <=1 do decrease speed
   for(int i=0; i < 4; i++) {
+    current_speed[i] = delta_mm[i] * inverse_second;
     if(abs(current_speed[i]) > max_feedrate[i])
       speed_factor = min(speed_factor, max_feedrate[i] / abs(current_speed[i]));
   }
@@ -633,17 +627,6 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
 
   // Correct the speed  
   if( speed_factor < 1.0) {
-//    Serial.print("speed factor : "); Serial.println(speed_factor);
-    for(int i=0; i < 4; i++) {
-    if(abs(current_speed[i]) > max_feedrate[i])
-      speed_factor = min(speed_factor, max_feedrate[i] / abs(current_speed[i]));
- /*     
-      if(speed_factor < 0.1) {
-        Serial.print("speed factor : "); Serial.println(speed_factor);
-        Serial.print("current_speed"); Serial.print(i); Serial.print(" : "); Serial.println(current_speed[i]);
-      }
- */
-  }
     for(unsigned char i=0; i < 4; i++) {
       current_speed[i] *= speed_factor;
     }
@@ -784,9 +767,6 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
     */
   #endif // ADVANCE
 
-
-
-
   calculate_trapezoid_for_block(block, block->entry_speed/block->nominal_speed,
     MINIMUM_PLANNER_SPEED/block->nominal_speed);
     
@@ -797,9 +777,7 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
   memcpy(position, target, sizeof(target)); // position[] = target[]
 
   planner_recalculate();
-  #ifdef AUTOTEMP
-    getHighESpeed();
-  #endif
+
   st_wake_up();
 }
 

@@ -41,8 +41,8 @@
 // the target temperature is set to mintemp+factor*se[steps/sec] and limited by mintemp and maxtemp
 // you exit the value by any M109 without F*
 // Also, if the temperature is set to a value <mintemp, it is not changed by autotemp.
-// on an ultimaker, some initial testing worked with M109 S215 T260 F0.1 in the start.gcode
-//#define AUTOTEMP
+// on an ultimaker, some initial testing worked with M109 S215 B260 F1 in the start.gcode
+#define AUTOTEMP
 #ifdef AUTOTEMP
   #define AUTOTEMP_OLDWEIGHT 0.98
 #endif
@@ -94,8 +94,8 @@
 #define DEFAULT_MINIMUMFEEDRATE       0.0     // minimum feedrate
 #define DEFAULT_MINTRAVELFEEDRATE     0.0
 
-// minimum time in microseconds that a movement needs to take if the buffer is emptied.   Increase this number if you see blobs while printing high speed & high detail.  It will slowdown on the detailed stuff.
-#define DEFAULT_MINSEGMENTTIME        20000   // Obsolete delete this
+// minimum time in microseconds that a movement needs to take if the buffer is emptied.
+#define DEFAULT_MINSEGMENTTIME        20000
 
 // If defined the movements slow down when the look ahead buffer is only half full
 #define SLOWDOWN
@@ -146,9 +146,6 @@
   #define STEPS_PER_CUBIC_MM_E (axis_steps_per_unit[E_AXIS]/ EXTRUTION_AREA)
 
 #endif // ADVANCE
-
-// A debugging feature to compare calculated vs performed steps, to see if steps are lost by the software.
-//#define DEBUG_STEPS
 
 // Arc interpretation settings:
 #define MM_PER_ARC_SEGMENT 1

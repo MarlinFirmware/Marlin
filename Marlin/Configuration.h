@@ -121,7 +121,7 @@
 const bool X_ENDSTOPS_INVERTING = true; // set to true to invert the logic of the endstops. 
 const bool Y_ENDSTOPS_INVERTING = true; // set to true to invert the logic of the endstops. 
 const bool Z_ENDSTOPS_INVERTING = true; // set to true to invert the logic of the endstops. 
-#define DISABLE_MAX_ENDSTOPS
+//#define DISABLE_MAX_ENDSTOPS
 
 // For Inverting Stepper Enable Pins (Active Low) use 0, Non Inverting (Active High) use 1
 #define X_ENABLE_ON 0
@@ -165,7 +165,7 @@ const bool Z_ENDSTOPS_INVERTING = true; // set to true to invert the logic of th
 
 // default settings 
 
-#define DEFAULT_AXIS_STEPS_PER_UNIT   {78.7402,78.7402,200*8/3,760*1.1}                    // default steps per unit for ultimaker 
+#define DEFAULT_AXIS_STEPS_PER_UNIT   {78.7402,78.7402,200*8/3,760*1.1}  // default steps per unit for ultimaker 
 #define DEFAULT_MAX_FEEDRATE          {500, 500, 5, 45}    // (mm/sec)    
 #define DEFAULT_MAX_ACCELERATION      {9000,9000,100,10000}    // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for skeinforge 40+, for older versions raise them a lot.
 
@@ -196,7 +196,7 @@ const bool Z_ENDSTOPS_INVERTING = true; // set to true to invert the logic of th
 //#define ULTRA_LCD  //general lcd support, also 16x2
 //#define SDSUPPORT // Enable SD Card Support in Hardware Console
 
-//#define ULTIPANEL
+#define ULTIPANEL
 #ifdef ULTIPANEL
 //  #define NEWPANEL  //enable this if you have a click-encoder panel
   #define SDSUPPORT

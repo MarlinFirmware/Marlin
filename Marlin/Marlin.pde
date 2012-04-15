@@ -849,14 +849,14 @@ void process_commands()
       }
       #if (TEMP_0_PIN > -1)
         SERIAL_PROTOCOLPGM("ok T:");
-        SERIAL_PROTOCOL(degHotend(tmp_extruder)); 
-        //SERIAL_PROTOCOLPGM("/");
-        //SERIAL_PROTOCOL(degTargetHotend(tmp_extruder)); 
+        SERIAL_PROTOCOL_F(degHotend(tmp_extruder),1); 
+        SERIAL_PROTOCOLPGM(" /");
+        SERIAL_PROTOCOL_F(degTargetHotend(tmp_extruder),1); 
         #if TEMP_BED_PIN > -1
           SERIAL_PROTOCOLPGM(" B:");  
-          SERIAL_PROTOCOL(degBed());
-          //SERIAL_PROTOCOLPGM("/");
-          //SERIAL_PROTOCOL(degTargetBed());
+          SERIAL_PROTOCOL_F(degBed(),1);
+          SERIAL_PROTOCOLPGM(" /");
+          SERIAL_PROTOCOL_F(degTargetBed(),1);
         #endif //TEMP_BED_PIN
       #else
         SERIAL_ERROR_START;
@@ -888,7 +888,7 @@ void process_commands()
       if (code_seen('S')) setTargetHotend(code_value(), tmp_extruder);
       #ifdef AUTOTEMP
         if (code_seen('S')) autotemp_min=code_value();
-        if (code_seen('G')) autotemp_max=code_value();
+        if (code_seen('B')) autotemp_max=code_value();
         if (code_seen('F')) 
         {
           autotemp_factor=code_value();
@@ -915,9 +915,9 @@ void process_commands()
           if( (millis() - codenum) > 1000UL )
           { //Print Temp Reading and remaining time every 1 second while heating up/cooling down
             SERIAL_PROTOCOLPGM("T:");
-            SERIAL_PROTOCOL( degHotend(tmp_extruder) ); 
+            SERIAL_PROTOCOL_F(degHotend(tmp_extruder),1); 
             SERIAL_PROTOCOLPGM(" E:");
-            SERIAL_PROTOCOL( (int)tmp_extruder ); 
+            SERIAL_PROTOCOL((int)tmp_extruder); 
             #ifdef TEMP_RESIDENCY_TIME
               SERIAL_PROTOCOLPGM(" W:");
               if(residencyStart > -1)
@@ -966,9 +966,10 @@ void process_commands()
             SERIAL_PROTOCOLPGM("T:");
             SERIAL_PROTOCOL(tt);
             SERIAL_PROTOCOLPGM(" E:");
-            SERIAL_PROTOCOL( (int)active_extruder ); 
+            SERIAL_PROTOCOL((int)active_extruder); 
             SERIAL_PROTOCOLPGM(" B:");
-            SERIAL_PROTOCOLLN(degBed()); 
+            SERIAL_PROTOCOL_F(degBed(),1); 
+            SERIAL_PROTOCOLLN(""); 
             codenum = millis(); 
           }
           manage_heater();
@@ -1058,7 +1059,20 @@ void process_commands()
       for(int8_t i=0; i < NUM_AXIS; i++) 
       {
         if(code_seen(axis_codes[i])) 
-          axis_steps_per_unit[i] = code_value();
+          
+          if(i == 3) { // E
+            float value = code_value();
+            if(value < 20.0) {
+              float factor = axis_steps_per_unit[i] / value; // increase e constants if M92 E14 is given for netfab.
+              max_e_jerk *= factor;
+              max_feedrate[i] *= factor;
+              axis_steps_per_sqr_second[i] *= factor;
+            }
+            axis_steps_per_unit[i] = value;
+          }
+          else {
+            axis_steps_per_unit[i] = code_value();
+          }
       }
       break;
     case 115: // M115
