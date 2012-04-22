@@ -196,7 +196,16 @@ const bool Z_ENDSTOPS_INVERTING = true; // set to true to invert the logic of th
 //#define ULTRA_LCD  //general lcd support, also 16x2
 //#define SDSUPPORT // Enable SD Card Support in Hardware Console
 
-#define ULTIPANEL
+//#define ULTIMAKERCONTROLLER //as available from the ultimaker online store.
+//#define ULTIPANEL  //the ultipanel as on thingiverse
+
+
+#ifdef ULTIMAKERCONTROLLER    //automatic expansion
+ #define ULTIPANEL
+ #define NEWPANEL
+#endif 
+ 
+
 #ifdef ULTIPANEL
 //  #define NEWPANEL  //enable this if you have a click-encoder panel
   #define SDSUPPORT
