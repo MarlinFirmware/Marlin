@@ -710,7 +710,7 @@ void max_temp_error(uint8_t e) {
   disable_heater();
   if(IsStopped() == false) {
     SERIAL_ERROR_START;
-    SERIAL_ERRORLN(e);
+    SERIAL_ERRORLN((int)e);
     SERIAL_ERRORLNPGM(": Extruder switched off. MAXTEMP triggered !");
   }
 }
@@ -719,7 +719,7 @@ void min_temp_error(uint8_t e) {
   disable_heater();
   if(IsStopped() == false) {
     SERIAL_ERROR_START;
-    SERIAL_ERRORLN(e);
+    SERIAL_ERRORLN((int)e);
     SERIAL_ERRORLNPGM(": Extruder switched off. MINTEMP triggered !");
   }
 }
