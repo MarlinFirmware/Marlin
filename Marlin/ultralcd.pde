@@ -95,6 +95,7 @@ FORCE_INLINE void clear()
 void lcd_init()
 {
   //beep();
+  
   byte Degree[8] =
   {
     B01100,
@@ -2080,6 +2081,7 @@ void MainMenu::update()
     {
       force_lcd_update=true;
       oldcardstatus=CARDINSERTED;
+      lcd_init(); // to maybe revive the lcd if static electricty killed it.
       //Serial.println("echo: SD CHANGE");
       if(CARDINSERTED)
       {
