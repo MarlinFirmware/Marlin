@@ -609,7 +609,7 @@ void process_commands()
       feedrate = 0.0;
       home_all_axis = !((code_seen(axis_codes[0])) || (code_seen(axis_codes[1])) || (code_seen(axis_codes[2])));
       #ifdef QUICK_HOME
-      if( code_seen(axis_codes[X_AXIS]) && code_seen(axis_codes[Y_AXIS]) )  //first diagonal move
+      if((home_all_axis)||( code_seen(axis_codes[X_AXIS]) && code_seen(axis_codes[Y_AXIS])) )  //first diagonal move
       {
         current_position[X_AXIS] = 0;current_position[Y_AXIS] = 0;  
 
