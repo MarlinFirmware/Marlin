@@ -366,15 +366,15 @@ void MainMenu::showStatus()
     if((tHotEnd1!=olddegHotEnd1)||force_lcd_update)
     {
       lcd.setCursor(11,0);
-      lcd.print(ftostr3(tHotEnd0));
-      olddegHotEnd0=tHotEnd0;
+      lcd.print(ftostr3(tHotEnd1));
+      olddegHotEnd1=tHotEnd1;
     }
     int ttHotEnd1=intround(degTargetHotend1());
-    if((ttHotEnd1!=oldtargetHotEnd0)||force_lcd_update)
+    if((ttHotEnd1!=oldtargetHotEnd1)||force_lcd_update)
     {
       lcd.setCursor(15,0);
       lcd.print(ftostr3(ttHotEnd1));
-      oldtargetHotEnd0=ttHotEnd1;
+      oldtargetHotEnd1=ttHotEnd1;
     }
   #endif
   //starttime=2;
