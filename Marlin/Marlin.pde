@@ -1100,6 +1100,12 @@ void process_commands()
       
       SERIAL_PROTOCOLLN("");
       break;
+    case 120: // M120
+      enable_endstops(false) ;
+      break;
+    case 121: // M121
+      enable_endstops(true) ;
+      break;
     case 119: // M119
       #if (X_MIN_PIN > -1)
         SERIAL_PROTOCOLPGM(MSG_X_MIN);
