@@ -82,11 +82,7 @@ volatile char count_direction[NUM_AXIS] = { 1, 1, 1, 1};
 //=============================functions         ============================
 //===========================================================================
 
-#ifdef ENDSTOPS_ONLY_FOR_HOMING
-  #define CHECK_ENDSTOPS  if(check_endstops)
-#else
-  #define CHECK_ENDSTOPS  if(check_endstops)
-#endif
+#define CHECK_ENDSTOPS  if(check_endstops)
 
 // intRes = intIn1 * intIn2 >> 16
 // uses:
