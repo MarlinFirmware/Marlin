@@ -729,10 +729,18 @@
     #define LCD_PINS_D7 19
     
     //encoder rotation values
-    #define encrot0 0
-    #define encrot1 2
-    #define encrot2 3
-    #define encrot3 1
+    #ifndef ULTIMAKERCONTROLLER
+     #define encrot0 0
+     #define encrot1 2
+     #define encrot2 3
+     #define encrot3 1
+    #else
+     #define encrot0 0
+     #define encrot1 1
+     #define encrot2 3
+     #define encrot3 2
+
+    #endif
 
     #define SDCARDDETECT -1
     //bits in the shift register that carry the buttons for:

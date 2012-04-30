@@ -609,7 +609,7 @@ void process_commands()
       feedrate = 0.0;
       home_all_axis = !((code_seen(axis_codes[0])) || (code_seen(axis_codes[1])) || (code_seen(axis_codes[2])));
       #ifdef QUICK_HOME
-      if( code_seen(axis_codes[X_AXIS]) && code_seen(axis_codes[Y_AXIS]) )  //first diagonal move
+      if((home_all_axis)||( code_seen(axis_codes[X_AXIS]) && code_seen(axis_codes[Y_AXIS])) )  //first diagonal move
       {
         current_position[X_AXIS] = 0;current_position[Y_AXIS] = 0;  
 
@@ -1099,6 +1099,12 @@ void process_commands()
       SERIAL_PROTOCOL(float(st_get_position(Z_AXIS))/axis_steps_per_unit[Z_AXIS]);
       
       SERIAL_PROTOCOLLN("");
+      break;
+    case 120: // M120
+      enable_endstops(false) ;
+      break;
+    case 121: // M121
+      enable_endstops(true) ;
       break;
     case 119: // M119
       #if (X_MIN_PIN > -1)
