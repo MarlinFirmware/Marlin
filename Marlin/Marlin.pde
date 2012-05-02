@@ -36,6 +36,7 @@
 #include "watchdog.h"
 #include "EEPROMwrite.h"
 #include "language.h"
+#include "pins_arduino.h"
 
 #define VERSION_STRING  "1.0.0 RC2"
 
@@ -1511,5 +1512,75 @@ void Stop()
 }
 
 bool IsStopped() { return Stopped; };
+
+#ifdef FAST_PWM_FAN
+void setPwmFrequency(uint8_t pin, int val)
+{
+  val &= 0x07;
+  switch(digitalPinToTimer(pin))
+  {
+ 
+    #if defined(TCCR0A)
+    case TIMER0A:
+    case TIMER0B:
+         TCCR0B &= ~(CS00 | CS01 | CS02);
+         TCCR0B |= val;
+         break;
+    #endif
+
+    #if defined(TCCR1A)
+    case TIMER1A:
+    case TIMER1B:
+         TCCR1B &= ~(CS10 | CS11 | CS12);
+         TCCR1B |= val;
+         break;
+    #endif
+
+    #if defined(TCCR2)
+    case TIMER2:
+    case TIMER2:
+         TCCR2 &= ~(CS10 | CS11 | CS12);
+         TCCR2 |= val;
+         break;
+    #endif
+
+    #if defined(TCCR2A)
+    case TIMER2A:
+    case TIMER2B:
+         TCCR2B &= ~(CS20 | CS21 | CS22);
+         TCCR2B |= val;
+         break;
+    #endif
+
+    #if defined(TCCR3A)
+    case TIMER3A:
+    case TIMER3B:
+    case TIMER3C:
+         TCCR3B &= ~(CS30 | CS31 | CS32);
+         TCCR3B |= val;
+         break;
+    #endif
+
+    #if defined(TCCR4A) 
+    case TIMER4A:
+    case TIMER4B:
+    case TIMER4C:
+         TCCR4B &= ~(CS40 | CS41 | CS42);
+         TCCR4B |= val;
+         break;
+   #endif
+
+    #if defined(TCCR5A) 
+    case TIMER5A:
+    case TIMER5B:
+    case TIMER5C:
+         TCCR5B &= ~(CS50 | CS51 | CS52);
+         TCCR5B |= val;
+         break;
+   #endif
+
+  }
+}
+#endif
 
 

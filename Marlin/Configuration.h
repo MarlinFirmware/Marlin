@@ -8,7 +8,7 @@
 //User specified version info of THIS file to display in [Pronterface, etc] terminal window during startup.
 //Implementation of an idea by Prof Braino to inform user that any changes made
 //to THIS file by the user have been successfully uploaded into firmware.
-#define STRING_VERSION_CONFIG_H "2012-02-25" //Personal revision number for changes to THIS file.
+#define STRING_VERSION_CONFIG_H "2012-05-02" //Personal revision number for changes to THIS file.
 #define STRING_CONFIG_H_AUTHOR "erik" //Who made the changes.
 
 // This determines the communication speed of the printer
@@ -229,6 +229,9 @@ const bool Z_ENDSTOPS_INVERTING = true; // set to true to invert the logic of th
     #define LCD_HEIGHT 2    
   #endif
 #endif
+
+// Increase the FAN pwm frequency. Removes the PWM noise but increases heating in the FET/Arduino
+#define FAST_PWM_FAN
 
 // M240  Triggers a camera by emulating a Canon RC-1 Remote
 // Data from: http://www.doc-diy.net/photo/rc-1_hacked/
