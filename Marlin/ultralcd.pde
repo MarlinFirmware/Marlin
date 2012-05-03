@@ -1,6 +1,9 @@
 #include "ultralcd.h"
 #ifdef ULTRA_LCD
 #include "Marlin.h"
+#include "language.h"
+#include "temperature.h"
+#include "EEPROMwrite.h"
 #include <LiquidCrystal.h>
 //===========================================================================
 //=============================imported variables============================
@@ -13,6 +16,7 @@ extern volatile int extrudemultiply;
 
 extern long position[4];   
 #ifdef SDSUPPORT
+#include "cardreader.h"
 extern CardReader card;
 #endif
 
