@@ -99,6 +99,9 @@ FORCE_INLINE void clear()
 void lcd_init()
 {
   //beep();
+  #ifdef ULTIPANEL
+    buttons_init();
+  #endif
   
   byte Degree[8] =
   {
@@ -306,10 +309,6 @@ MainMenu::MainMenu()
   displayStartingRow=0;
   activeline=0;
   force_lcd_update=true;
-  #ifdef ULTIPANEL
-    buttons_init();
-  #endif
-  lcd_init();
   linechanging=false;
   tune=false;
 }
