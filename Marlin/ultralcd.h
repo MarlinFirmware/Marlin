@@ -7,6 +7,7 @@
   void lcd_init();
   void lcd_status(const char* message);
   void beep();
+  void buttons_init();
   void buttons_check();
 
   #define LCD_UPDATE_INTERVAL 100
