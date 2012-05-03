@@ -1246,7 +1246,7 @@ void process_commands()
      }
     break;
       
-    case 302: // finish all moves
+    case 302: // allow cold extrudes
     {
       allow_cold_extrudes(true);
     }
