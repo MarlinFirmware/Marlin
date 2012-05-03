@@ -20,6 +20,13 @@
 #include  <avr/wdt.h>
 #include  <avr/interrupt.h>
 
+//do some magic defines in order to prevent hundreds of wrong warnings in gcc
+//more info here: http://www.avrfreaks.net/index.php?name=PNphpBB2&file=viewtopic&p=646359
+typedef short prog_short PROGMEM;
+#undef PROGMEM
+#define PROGMEM __attribute__(( section(".progmem.data") )) 
+#undef PSTR 
+#define PSTR(s) (__extension__({static prog_char __c[] PROGMEM = (s); &__c[0];})) 
 
 #include "fastio.h"
 #include "Configuration.h"

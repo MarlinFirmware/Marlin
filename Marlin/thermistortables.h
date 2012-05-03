@@ -7,7 +7,7 @@
 
 #if (THERMISTORHEATER_0 == 1) || (THERMISTORHEATER_1 == 1)  || (THERMISTORHEATER_2 == 1) || (THERMISTORBED == 1) //100k bed thermistor
 
-const short temptable_1[][2] PROGMEM = {
+const prog_short temptable_1[][2] = {
 {       23*OVERSAMPLENR ,       300     },
 {       25*OVERSAMPLENR ,       295     },
 {       27*OVERSAMPLENR ,       290     },
@@ -72,7 +72,7 @@ const short temptable_1[][2] PROGMEM = {
 };
 #endif
 #if (THERMISTORHEATER_0 == 2) || (THERMISTORHEATER_1 == 2) || (THERMISTORHEATER_2 == 2) || (THERMISTORBED == 2) //200k bed thermistor
-const short temptable_2[][2] PROGMEM = {
+const prog_short temptable_2[][2] = {
    {1*OVERSAMPLENR, 848},
    {54*OVERSAMPLENR, 275},
    {107*OVERSAMPLENR, 228},
@@ -98,7 +98,7 @@ const short temptable_2[][2] PROGMEM = {
 
 #endif
 #if (THERMISTORHEATER_0 == 3) || (THERMISTORHEATER_1 == 3) || (THERMISTORHEATER_2 == 3) || (THERMISTORBED == 3) //mendel-parts
-const short temptable_3[][2] PROGMEM = {
+const prog_short temptable_3[][2] = {
                 {1*OVERSAMPLENR,864},
                 {21*OVERSAMPLENR,300},
                 {25*OVERSAMPLENR,290},
@@ -131,7 +131,7 @@ const short temptable_3[][2] PROGMEM = {
 
 #endif
 #if (THERMISTORHEATER_0 == 4) || (THERMISTORHEATER_1 == 4) || (THERMISTORHEATER_2 == 4) || (THERMISTORBED == 4) //10k thermistor
-const short temptable_4[][2] PROGMEM = {
+const prog_short temptable_4[][2] = {
    {1*OVERSAMPLENR, 430},
    {54*OVERSAMPLENR, 137},
    {107*OVERSAMPLENR, 107},
@@ -156,7 +156,7 @@ const short temptable_4[][2] PROGMEM = {
 #endif
 
 #if (THERMISTORHEATER_0 == 5) || (THERMISTORHEATER_1 == 5) || (THERMISTORHEATER_2 == 5) || (THERMISTORBED == 5) //100k ParCan thermistor (104GT-2)
-const short temptable_5[][2] PROGMEM = {
+const prog_short temptable_5[][2] = {
 {1*OVERSAMPLENR, 713},
 {18*OVERSAMPLENR, 316},
 {35*OVERSAMPLENR, 266},
@@ -222,7 +222,7 @@ const short temptable_5[][2] PROGMEM = {
 #endif
 
 #if (THERMISTORHEATER_0 == 6) || (THERMISTORHEATER_1 == 6) || (THERMISTORHEATER_2 == 6) || (THERMISTORBED == 6) // 100k Epcos thermistor
-const short temptable_6[][2] PROGMEM = {
+const prog_short temptable_6[][2] = {
    {28*OVERSAMPLENR, 250},
    {31*OVERSAMPLENR, 245},
    {35*OVERSAMPLENR, 240},
@@ -263,7 +263,7 @@ const short temptable_6[][2] PROGMEM = {
 #endif
 
 #if (THERMISTORHEATER_0 == 7) || (THERMISTORHEATER_1 == 7) || (THERMISTORHEATER_2 == 7) || (THERMISTORBED == 7) // 100k Honeywell 135-104LAG-J01
-const short temptable_7[][2] PROGMEM = {
+const prog_short temptable_7[][2] = {
    {46*OVERSAMPLENR, 270},
    {50*OVERSAMPLENR, 265},
    {54*OVERSAMPLENR, 260},
