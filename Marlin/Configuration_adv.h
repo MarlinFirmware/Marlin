@@ -162,6 +162,20 @@ const int dropsegments=5; //everything with less than this number of steps will 
 #ifdef ULTIPANEL
  #undef SDCARDDETECTINVERTED
 #endif
+/*
+  The original Marlin firmware sent out a step pulse by toggling the _STEP_PIN high then immediately low resulting in a 1.4usec pulse.
+  A Pololu A4988 with a 1usec pulse width requirement which works fine.
+  However, other stepper drivers use a TB6560AHQ with a 30usec requirement. (No wonder it won't work at <1.4usec.) 
+
+  By comparison, Teacup firmware has a step pulse width of 60usec.
+  The Marlin firmware stepper.c file has been modified to set the _STEP_PINs low a little later in the code.
+  This alone extends the step pulse to approx 10usec.
+  Define the macro below to extend the step pulses. (This is only applied to the XYZ steppers.)
+  Stepper interrupt gives a step pulse period = 10 usec plus this value to the XYZ steppers.  
+*/
+#undef EXTEND_STEP_PULSE_USEC (10)  // Additional delay in usec for the XYZ step pulses to remain high.
+
+
 //===========================================================================
 //=============================Buffers           ============================
 //===========================================================================
