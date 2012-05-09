@@ -45,10 +45,10 @@ typedef struct {
   #endif
 
   // Fields used by the motion planner to manage acceleration
-//  float speed_x, speed_y, speed_z, speed_e;        // Nominal mm/minute for each axis
-  float nominal_speed;                               // The nominal speed for this block in mm/min  
-  float entry_speed;                                 // Entry speed at previous-current junction in mm/min
-  float max_entry_speed;                             // Maximum allowable junction entry speed in mm/min
+//  float speed_x, speed_y, speed_z, speed_e;        // Nominal mm/sec for each axis
+  float nominal_speed;                               // The nominal speed for this block in mm/sec 
+  float entry_speed;                                 // Entry speed at previous-current junction in mm/sec
+  float max_entry_speed;                             // Maximum allowable junction entry speed in mm/sec
   float millimeters;                                 // The total travel of this block in mm
   float acceleration;                                // acceleration mm/sec^2
   unsigned char recalculate_flag;                    // Planner flag to recalculate trapezoids on entry junction
