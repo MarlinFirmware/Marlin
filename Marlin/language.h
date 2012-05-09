@@ -12,7 +12,7 @@
 
 #define PROTOCOL_VERSION "1.0"
 
-#ifdef MOTHERBOARD == 7
+#if MOTHERBOARD == 7 || MOTHERBOARD == 71
 	#define MACHINE_NAME "Ultimaker"
 	#define FIRMWARE_URL "http://firmware.ultimaker.com"
 #else
@@ -89,7 +89,7 @@
 	#define MSG_NO_MOVE "No move."
 	#define MSG_PART_RELEASE "Partial Release"
 	#define MSG_KILLED "KILLED. "
-        #define MSG_STOPPED "STOPPED. "
+	#define MSG_STOPPED "STOPPED. "
 	#define MSG_PREHEAT_PLA " Preheat PLA"
 	#define MSG_PREHEAT_ABS " Preheat ABS"
 	#define MSG_STEPPER_RELEASED "Released."
@@ -182,7 +182,7 @@
 	#define MSG_PREHEAT_PLA " Preheat PLA"
 	#define MSG_PREHEAT_ABS " Preheat ABS"
 	#define MSG_MOVE_AXIS " Move Axis      \x7E"
-        #define MSG_MOVE_AXIS " Achsen verfahren   \x7E"
+	#define MSG_MOVE_AXIS " Achsen verfahren   \x7E"
 	#define MSG_SPEED " Geschw:"
 	#define MSG_NOZZLE " \002Duese:"
 	#define MSG_NOZZLE1 " \002Duese2:"
