@@ -1752,7 +1752,7 @@ void MainMenu::showControlMotion()
         if(linechanging)
         {
           if(encoderpos<5) encoderpos=5;
-          if(encoderpos>999999) encoderpos=99999;
+          if(encoderpos>999999) encoderpos=999999;
           lcd.setCursor(11,line);lcd.print(ftostr52(encoderpos/100.0));
         }
         
