@@ -2108,9 +2108,10 @@ void MainMenu::showMainMenu()
     }
   } 
   clearIfNecessary();
-  for(int8_t line=0;line<LCD_HEIGHT;line++)
+  uint8_t line=0;
+  for(int8_t i=lineoffset;i<lineoffset+LCD_HEIGHT;i++)
   {
-    switch(line)
+    switch(i)
     { 
       case ItemM_watch:
         MENUITEM(  lcdprintPGM(MSG_WATCH)  ,  BLOCK;status=Main_Status;beepshort(); ) ;
@@ -2164,6 +2165,7 @@ void MainMenu::showMainMenu()
         SERIAL_ERRORLNPGM(MSG_SERIAL_ERROR_MENU_STRUCTURE);
       break;
     }
+    line++;
   }
   updateActiveLines(3,encoderpos);
 }
