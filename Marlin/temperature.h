@@ -42,12 +42,14 @@ extern int heatingtarget_raw[EXTRUDERS];
 extern int current_raw[EXTRUDERS];
 extern int target_raw_bed;
 extern int current_raw_bed;
-extern float Kp,Ki,Kd,Kc;
-
 #ifdef PIDTEMP
+  extern float Kp,Ki,Kd,Kc;
+  #ifdef PID_RANGE
+    extern float Kr;
+  #endif
   extern float pid_setpoint[EXTRUDERS];
 #endif
-  
+
 #ifdef WATCHPERIOD
   extern int watch_raw[EXTRUDERS] ;
   extern unsigned long watchmillis;

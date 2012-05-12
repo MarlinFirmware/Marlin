@@ -72,7 +72,7 @@
 
 //// The minimal temperature defines the temperature below which the heater will not be enabled
 #define HEATER_0_MINTEMP 5
-//#define HEATER_1_MINTEMP 5
+#define HEATER_1_MINTEMP 5
 #define BED_MINTEMP 5
 
 
@@ -80,7 +80,7 @@
 // This feature exists to protect your hotend from overheating accidentally, but *NOT* from thermistor short/failure!
 // You should use MINTEMP for thermistor short/failure protection.
 #define HEATER_0_MAXTEMP 275
-//#define HEATER_1_MAXTEMP 275
+#define HEATER_1_MAXTEMP 275
 #define BED_MAXTEMP 150
 
 
@@ -107,6 +107,11 @@
   #define PID_INTEGRAL_DRIVE_MAX 255  //limit for the integral term
   #define K1 0.95 //smoothing factor withing the PID
   #define PID_dT 0.1 //sampling period of the PID
+
+  // If PID_RANGE <deg> is defined the PID is used only within the specified 
+  // <deg> range of the target temperature, outside of the range on/off method 
+  // is used. The accumulated integral part is not affected.
+  #define PID_RANGE 4.0
 
   //To develop some PID settings for your machine, you can initiall follow 
   // the Ziegler-Nichols method.
@@ -135,9 +140,9 @@
 //    #define  DEFAULT_Kd (99/PID_dT)  
 
 // Makergear
-    #define  DEFAULT_Kp 7.0
-    #define  DEFAULT_Ki 0.1  
-    #define  DEFAULT_Kd 12  
+    #define  DEFAULT_Kp 7.5
+    #define  DEFAULT_Ki (1.0 * PID_dT)
+    #define  DEFAULT_Kd (4.0 / PID_dT)
 
 // Mendel Parts V9 on 12V    
 //    #define  DEFAULT_Kp  63.0
@@ -158,6 +163,9 @@
   #ifdef PID_ADD_EXTRUSION_RATE
     #define  DEFAULT_Kc (1) //heatingpower=Kc*(e_speed)
   #endif
+#else // PIDTEMP
+  // limits current to nozzle; 255=full current (used even if PID is Off)
+  #define PID_MAX 255
 #endif // PIDTEMP
 
 
@@ -238,7 +246,7 @@ const bool Z_ENDSTOPS_INVERTING = false; // set to true to invert the logic of t
 #define DEFAULT_AXIS_STEPS_PER_UNIT   {80.3232, 80.8900, 2284.7651, 757.2218, 737.5537} // X,Y,Z,E0... SAE Prusa w/ Wade extruder
 #define DEFAULT_MAX_FEEDRATE          {500, 500, 7, 50, 50} // X,Y,Z,E0...(mm/sec)    
 #define DEFAULT_MAX_ACCELERATION      {9000,9000,100,9000,9000} // X,Y,Z,E0... maximum acceleration (mm/s^2). E default values are good for skeinforge 40+, for older versions raise them a lot.
-#define DEFAULT_RETRACT_ACCELERATION  {9000,9000} // E0... (per extruder) acceleration in mm/s^2 for retracts 
+#define DEFAULT_RETRACT_ACCELERATION  {180000,180000} // E0... (per extruder) acceleration in mm/s^2 for retracts 
 #define DEFAULT_ACCELERATION          3000   // X,Y,Z and E* acceleration (one for all) in mm/s^2 for printing moves 
 
 #define DEFAULT_MINIMUMFEEDRATE       0.0     // minimum feedrate
@@ -248,7 +256,7 @@ const bool Z_ENDSTOPS_INVERTING = false; // set to true to invert the logic of t
 
 #define DEFAULT_XYJERK                20.0    // (mm/sec)
 #define DEFAULT_ZJERK                 0.4     // (mm/sec)
-#define DEFAULT_EJERK                 {18,19} // E0... (mm/sec) per extruder, max initial speed for retract moves
+#define DEFAULT_EJERK                 {19,19} // E0... (mm/sec) per extruder, max initial speed for retract moves
 
 
 //===========================================================================

@@ -42,7 +42,7 @@
 #include <stdio.h>
 
 
-#define VERSION_STRING  "1.0.0 Beta 1"
+#define VERSION_STRING  "1.0.0 X2 Beta 2"
 
 
 
@@ -934,7 +934,7 @@ FORCE_INLINE void process_commands()
       }
       break;
     case 115: // M115
-      SerialprintPGM("FIRMWARE_NAME:Marlin; Sprinter/grbl mashup for gen6 FIRMWARE_URL:http://www.mendel-parts.com PROTOCOL_VERSION:1.0 MACHINE_TYPE:Mendel EXTRUDER_COUNT:1");
+      SerialprintPGM("FIRMWARE_NAME:Marlin X2; Sprinter/grbl mashup for RAMPS 1.4 FIRMWARE_URL:https://github.com/dob71/Marlin/tree/m PROTOCOL_VERSION:1.0 MACHINE_TYPE:Mendel X2");
       break;
     case 117: // M117 display message
       LCD_MESSAGE(cmdbuffer[bufindr]+5);
@@ -1067,18 +1067,25 @@ FORCE_INLINE void process_commands()
         if(code_seen('I')) Ki = code_value()*PID_dT;
         if(code_seen('D')) Kd = code_value()/PID_dT;
         #ifdef PID_ADD_EXTRUSION_RATE
-        if(code_seen('C')) Kc = code_value();
+        if(code_seen('C')) Kc = code_value()/PID_dT;
+        #endif
+        #ifdef PID_RANGE
+        if(code_seen('R')) Kr = code_value();
         #endif
         updatePID();
-        SERIAL_PROTOCOL("ok p:");
+        SERIAL_PROTOCOL("ok P:");
         SERIAL_PROTOCOL(Kp);
-        SERIAL_PROTOCOL(" i:");
-        SERIAL_PROTOCOL(Ki/PID_dT);
-        SERIAL_PROTOCOL(" d:");
-        SERIAL_PROTOCOL(Kd*PID_dT);
+        SERIAL_PROTOCOL(" I:");
+        SERIAL_PROTOCOL((Ki/PID_dT));
+        SERIAL_PROTOCOL(" D:");
+        SERIAL_PROTOCOL((Kd*PID_dT));
         #ifdef PID_ADD_EXTRUSION_RATE
-        SERIAL_PROTOCOL(" c:");
-        SERIAL_PROTOCOL(Kc*PID_dT);
+        SERIAL_PROTOCOL(" C:");
+        SERIAL_PROTOCOL((Kc*PID_dT));
+        #endif
+        #ifdef PID_RANGE
+        SERIAL_PROTOCOL(" R:");
+        SERIAL_PROTOCOL(Kr);
         #endif
         SERIAL_PROTOCOLLN("");
       }

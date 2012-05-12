@@ -1,10 +1,11 @@
 WARNING: 
 --------
-THIS IS THE BETA 1 FOR MARLIN 1.0.0
+THIS IS THE BETA 2 FOR MARLIN X2 1.0.0
 
 Quick Information
 ===================
 This RepRap firmware is a mashup between <a href="https://github.com/kliment/Sprinter">Sprinter</a>, <a href="https://github.com/simen/grbl/tree">grbl</a> and many original parts.
+On top of that it has multiple extruder support.
 
 Derived from Sprinter and Grbl by Erik van der Zalm.
 Sprinters lead developers are Kliment and caru.

@@ -37,7 +37,7 @@ template <class T> int EEPROM_readAnything(int &ee, T& value)
 // the default values are used whenever there is a change to the data, to prevent
 // wrong data being written to the variables.
 // ALSO:  always make sure the variables in the Store and retrieve sections are in the same order.
-#define EEPROM_VERSION "V05"  
+#define EEPROM_VERSION "V06"  
 
 inline void EEPROM_StoreSettings() 
 {
@@ -62,8 +62,14 @@ inline void EEPROM_StoreSettings()
     EEPROM_writeAnything(i,Kp);
     EEPROM_writeAnything(i,Ki);
     EEPROM_writeAnything(i,Kd);
+    #ifdef PID_RANGE
+      EEPROM_writeAnything(i,Kr);
+    #else 
+      EEPROM_writeAnything(i,0);
+    #endif 
   #else
-    EEPROM_writeAnything(i,3000);
+    EEPROM_writeAnything(i,0);
+    EEPROM_writeAnything(i,0);
     EEPROM_writeAnything(i,0);
     EEPROM_writeAnything(i,0);
   #endif
@@ -143,6 +149,9 @@ inline void EEPROM_printSettings()
       SERIAL_ECHOPAIR("   M301 P",Kp); 
       SERIAL_ECHOPAIR(" I" ,Ki/PID_dT); 
       SERIAL_ECHOPAIR(" D" ,Kd*PID_dT);
+      #ifdef PID_RANGE
+        SERIAL_ECHOPAIR(" R" ,Kr);
+      #endif
       SERIAL_ECHOLN(""); 
     #endif
   #endif
@@ -176,12 +185,23 @@ inline void EEPROM_RetrieveSettings(bool def=false)
       EEPROM_readAnything(i,max_z_jerk);
       EEPROM_readAnything(i,max_e_jerk);
       #ifndef PIDTEMP
-        float Kp,Ki,Kd;
+        float Kp,Ki,Kd,Kr;
+      #elif !defined(PID_RANGE)
+        float Kr;
       #endif
       EEPROM_readAnything(i,Kp);
       EEPROM_readAnything(i,Ki);
       EEPROM_readAnything(i,Kd);
-
+      EEPROM_readAnything(i,Kr);
+      #ifdef PIDTEMP
+      if(Kp <= 0) Kp = DEFAULT_Kp;
+      if(Ki <= 0) Ki = DEFAULT_Ki;
+      if(Kd <= 0) Kd = DEFAULT_Kd;
+      #ifdef PID_RANGE
+      if(Kr <= 0) Kr = PID_RANGE;
+      #endif
+      updatePID();
+      #endif
       SERIAL_ECHO_START;
       SERIAL_ECHOLNPGM("Stored settings retreived:");
     }

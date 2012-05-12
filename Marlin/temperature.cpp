@@ -56,6 +56,9 @@ int current_raw_bed = 0;
   #ifdef PID_ADD_EXTRUSION_RATE
     float Kc=DEFAULT_Kc;
   #endif
+  #ifdef PID_RANGE
+    float Kr=PID_RANGE;
+  #endif
 #endif //PIDTEMP
   
   
@@ -159,9 +162,12 @@ void manage_heater()
   for(int e = 0; e < EXTRUDERS; e++) 
   {
 
-  #ifdef PIDTEMP
+#ifdef PIDTEMP
     pid_input = analog2temp(current_raw[e], e);
-
+  #ifdef PID_RANGE    
+    if(abs(pid_setpoint[e] - pid_input) <= Kr)
+  #endif /* PID_RANGE */
+    {
     #ifndef PID_OPENLOOP
         pid_error[e] = pid_setpoint[e] - pid_input;
         if(pid_error[e] > 10) {
@@ -189,14 +195,22 @@ void manage_heater()
         }
     #endif //PID_OPENLOOP
     #ifdef PID_DEBUG
-    SERIAL_ECHOLN(" PIDDEBUG "<<e<<": Input "<<pid_input<<" Output "<<pid_output" pTerm "<<pTerm[e]<<" iTerm "<<iTerm[e]<<" dTerm "<<dTerm[e]);  
+        SERIAL_ECHOLN(" PIDDEBUG "<<e<<": Input "<<pid_input<<" Output "<<pid_output" pTerm "<<pTerm[e]<<" iTerm "<<iTerm[e]<<" dTerm "<<dTerm[e]);  
     #endif //PID_DEBUG
-  #else /* PID off */
-    pid_output = 0;
-    if(current_raw[e] < target_raw[e]) {
-      pid_output = PID_MAX;
     }
-  #endif
+  #ifdef PID_RANGE    
+    else
+  #endif /* PID_RANGE */
+#endif
+    {
+#if defined(PID_DEBUG) && defined(PID_RANGE)
+        SERIAL_ECHOLN(" PIDDEBUG "<<e<<": PID Off: DistToTgt "<<(abs(pid_setpoint[e] - pid_input)));  
+#endif //PID_DEBUG
+       pid_output = 0;
+        if(current_raw[e] < target_raw[e]) {
+          pid_output = PID_MAX;
+        }
+    }
 
   // Check if temperature is within the correct range
   if((current_raw[e] > minttemp[e]) && (current_raw[e] < maxttemp[e])) 
