@@ -300,6 +300,8 @@ void setup()
   st_init();    // Initialize stepper;
   wd_init();
   setup_photpin();
+  
+  LCD_INIT;
 }
 
 
@@ -687,7 +689,6 @@ void process_commands()
         st_synchronize();
       for(int8_t i=0; i < NUM_AXIS; i++) {
         if(code_seen(axis_codes[i])) { 
-           current_position[i] = code_value()+add_homeing[i];  
            if(i == E_AXIS) {
              current_position[i] = code_value();  
              plan_set_e_position(current_position[E_AXIS]);
@@ -1246,7 +1247,7 @@ void process_commands()
      }
     break;
       
-    case 302: // finish all moves
+    case 302: // allow cold extrudes
     {
       allow_cold_extrudes(true);
     }
