@@ -26,6 +26,7 @@
 // Gen6 = 5
 // Gen6 deluxe = 51
 // Sanguinololu 1.2 and above = 62
+// Melzi = 63
 // Ultimaker = 7
 // Teensylu = 8
 // Gen3+ =9
