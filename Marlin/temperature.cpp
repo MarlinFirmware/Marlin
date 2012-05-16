@@ -134,8 +134,8 @@ void PID_autotune(float temp)
   long t_high;
   long t_low;
 
-  long bias=127;
-  long d = 127;
+  long bias=PID_MAX/2;
+  long d = PID_MAX/2;
   float Ku, Tu;
   float Kp, Ki, Kd;
   float max, min;
@@ -144,7 +144,7 @@ void PID_autotune(float temp)
   
   disable_heater(); // switch off all heaters.
   
-  soft_pwm[0] = 255>>1;
+  soft_pwm[0] = PID_MAX/2;
     
   for(;;) {
 
@@ -172,8 +172,8 @@ void PID_autotune(float temp)
           t_low=t2 - t1;
           if(cycles > 0) {
             bias += (d*(t_high - t_low))/(t_low + t_high);
-            bias = constrain(bias, 20 ,235);
-            if(bias > 127) d = 254 - bias;
+            bias = constrain(bias, 20 ,PID_MAX-20);
+            if(bias > PID_MAX/2) d = PID_MAX - 1 - bias;
             else d = bias;
 
             SERIAL_PROTOCOLPGM(" bias: "); SERIAL_PROTOCOL(bias);
