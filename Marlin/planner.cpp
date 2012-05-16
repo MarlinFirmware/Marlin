@@ -555,7 +555,7 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
   delta_mm[Z_AXIS] = (target[Z_AXIS]-position[Z_AXIS])/axis_steps_per_unit[Z_AXIS];
   delta_mm[E_AXIS] = ((target[E_AXIS]-position[E_AXIS])/axis_steps_per_unit[E_AXIS])*extrudemultiply/100.0;
   if ( block->steps_x == 0 && block->steps_y == 0 && block->steps_z == 0 ) {
-    block->millimeters = abs(delta_mm[E_AXIS]);
+    block->millimeters = fabs(delta_mm[E_AXIS]);
   } else {
     block->millimeters = sqrt(square(delta_mm[X_AXIS]) + square(delta_mm[Y_AXIS]) + square(delta_mm[Z_AXIS]));
   }
@@ -591,8 +591,8 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
   float speed_factor = 1.0; //factor <=1 do decrease speed
   for(int i=0; i < 4; i++) {
     current_speed[i] = delta_mm[i] * inverse_second;
-    if(abs(current_speed[i]) > max_feedrate[i])
-      speed_factor = min(speed_factor, max_feedrate[i] / abs(current_speed[i]));
+    if(fabs(current_speed[i]) > max_feedrate[i])
+      speed_factor = min(speed_factor, max_feedrate[i] / fabs(current_speed[i]));
   }
 
 // Max segement time in us.
@@ -696,25 +696,25 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
 #endif
   // Start with a safe speed
   float vmax_junction = max_xy_jerk/2;  
-  if(abs(current_speed[Z_AXIS]) > max_z_jerk/2) 
+  if(fabs(current_speed[Z_AXIS]) > max_z_jerk/2) 
     vmax_junction = max_z_jerk/2;
   vmax_junction = min(vmax_junction, block->nominal_speed);
-  if(abs(current_speed[E_AXIS]) > max_e_jerk/2) 
+  if(fabs(current_speed[E_AXIS]) > max_e_jerk/2) 
     vmax_junction = min(vmax_junction, max_e_jerk/2);
     
   if ((moves_queued > 1) && (previous_nominal_speed > 0.0001)) {
     float jerk = sqrt(pow((current_speed[X_AXIS]-previous_speed[X_AXIS]), 2)+pow((current_speed[Y_AXIS]-previous_speed[Y_AXIS]), 2));
-    if((abs(previous_speed[X_AXIS]) > 0.0001) || (abs(previous_speed[Y_AXIS]) > 0.0001)) {
+    if((fabs(previous_speed[X_AXIS]) > 0.0001) || (fabs(previous_speed[Y_AXIS]) > 0.0001)) {
       vmax_junction = block->nominal_speed;
     }
     if (jerk > max_xy_jerk) {
       vmax_junction *= (max_xy_jerk/jerk);
     } 
-    if(abs(current_speed[Z_AXIS] - previous_speed[Z_AXIS]) > max_z_jerk) {
-      vmax_junction *= (max_z_jerk/abs(current_speed[Z_AXIS] - previous_speed[Z_AXIS]));
+    if(fabs(current_speed[Z_AXIS] - previous_speed[Z_AXIS]) > max_z_jerk) {
+      vmax_junction *= (max_z_jerk/fabs(current_speed[Z_AXIS] - previous_speed[Z_AXIS]));
     } 
-    if(abs(current_speed[E_AXIS] - previous_speed[E_AXIS]) > max_e_jerk) {
-      vmax_junction *= (max_e_jerk/abs(current_speed[E_AXIS] - previous_speed[E_AXIS]));
+    if(fabs(current_speed[E_AXIS] - previous_speed[E_AXIS]) > max_e_jerk) {
+      vmax_junction *= (max_e_jerk/fabs(current_speed[E_AXIS] - previous_speed[E_AXIS]));
     } 
   }
   block->max_entry_speed = vmax_junction;
