@@ -107,6 +107,7 @@
 // M302 - Allow cold extrudes
 // M303 - PID relay autotune S<temperature> sets the target temperature. (default target temperature = 150C)
 // M400 - Finish all moves
+// M401 - Wait for user to press a button on the LCD (Only if ULTRA_LCD is enabled)
 // M500 - stores paramters in EEPROM
 // M501 - reads parameters from EEPROM (if you need reset them after you changed them temporarily).  
 // M502 - reverts to the default "factory settings".  You still need to store them in EEPROM afterwards if you want to.
@@ -596,6 +597,7 @@ void process_commands()
       while(millis()  < codenum ){
         manage_heater();
         manage_inactivity(1);
+		LCD_STATUS;
       }
       break;
     case 28: //G28 Home all Axis one at a time
@@ -1259,11 +1261,37 @@ void process_commands()
       PID_autotune(temp);
     }
     break;
-    case 400: // finish all moves
+    case 400: // M400 finish all moves
     {
       st_synchronize();
     }
     break;
+#ifdef ULTRA_LCD
+    case 401: // M401 - Wait for user button press on LCD
+    {
+      LCD_MESSAGEPGM(MSG_USERWAIT);
+      codenum = 0;
+      if(code_seen('P')) codenum = code_value(); // milliseconds to wait
+      if(code_seen('S')) codenum = code_value() * 1000; // seconds to wait
+      
+      st_synchronize();
+      previous_millis_cmd = millis();
+	  if (codenum > 0)
+	  {
+        codenum += millis();  // keep track of when we started waiting
+        while(millis()  < codenum && buttons == 0){
+          manage_heater();
+          manage_inactivity(1);
+		}
+      }else{
+        while(buttons == 0) {
+          manage_heater();
+          manage_inactivity(1);
+		}
+	  }
+    }
+    break;
+#endif
     case 500: // Store settings in EEPROM
     {
         EEPROM_StoreSettings();

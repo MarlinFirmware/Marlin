@@ -86,6 +86,7 @@
 	#define MSG_NO_CARD " No Card"
 	#define MSG_SERIAL_ERROR_MENU_STRUCTURE "Something is wrong in the MenuStructure."
 	#define MSG_DWELL "Sleep..."
+	#define MSG_USERWAIT "Wait for user..."
 	#define MSG_NO_MOVE "No move."
 	#define MSG_PART_RELEASE "Partial Release"
 	#define MSG_KILLED "KILLED. "
