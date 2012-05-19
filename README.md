@@ -161,7 +161,8 @@ Advance:
 
 EEPROM:
 
-*   M500 - stores paramters in EEPROM
+*   M500 - stores paramters in EEPROM. This parameters are stored:  axis_steps_per_unit,  max_feedrate, max_acceleration  ,acceleration,retract_acceleration,
+  minimumfeedrate,mintravelfeedrate,minsegmenttime,  jerk velocities, PID
 *   M501 - reads parameters from EEPROM (if you need reset them after you changed them temporarily).  
 *   M502 - reverts to the default "factory settings".  You still need to store them in EEPROM afterwards if you want to.
 *   M503 - print the current settings (from memory not from eeprom)

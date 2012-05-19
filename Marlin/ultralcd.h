@@ -7,6 +7,7 @@
   void lcd_init();
   void lcd_status(const char* message);
   void beep();
+  void buttons_init();
   void buttons_check();
 
   #define LCD_UPDATE_INTERVAL 100
@@ -69,7 +70,7 @@
     void showAxisMove();
     void showSD();
     bool force_lcd_update;
-    int lastencoderpos;
+    long lastencoderpos;
     int8_t lineoffset;
     int8_t lastlineoffset;
     
@@ -78,11 +79,11 @@
     bool tune;
     
   private:
-    FORCE_INLINE void updateActiveLines(const uint8_t &maxlines,volatile int &encoderpos)
+    FORCE_INLINE void updateActiveLines(const uint8_t &maxlines,volatile long &encoderpos)
     {
       if(linechanging) return; // an item is changint its value, do not switch lines hence
       lastlineoffset=lineoffset; 
-      int curencoderpos=encoderpos;  
+      long curencoderpos=encoderpos;  
       force_lcd_update=false;
       if(  (abs(curencoderpos-lastencoderpos)<lcdslow) ) 
       { 
@@ -134,11 +135,12 @@
   char *ftostr3(const float &x);
 
 
-
+  #define LCD_INIT lcd_init();
   #define LCD_MESSAGE(x) lcd_status(x);
   #define LCD_MESSAGEPGM(x) lcd_statuspgm(MYPGM(x));
   #define LCD_STATUS lcd_status()
 #else //no lcd
+  #define LCD_INIT
   #define LCD_STATUS
   #define LCD_MESSAGE(x)
   #define LCD_MESSAGEPGM(x)
