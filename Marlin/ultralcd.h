@@ -13,7 +13,7 @@
   #define LCD_UPDATE_INTERVAL 100
   #define STATUSTIMEOUT 15000
   extern LiquidCrystal lcd;
-  extern volatile char buttons=0;  //the last checked buttons in a bit array.
+  extern volatile char buttons;  //the last checked buttons in a bit array.
   
   #ifdef NEWPANEL
     #define EN_C (1<<BLEN_C)
