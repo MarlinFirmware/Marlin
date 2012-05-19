@@ -1279,12 +1279,12 @@ void process_commands()
 	  if (codenum > 0)
 	  {
         codenum += millis();  // keep track of when we started waiting
-        while(millis()  < codenum && buttons == 0){
+        while(millis()  < codenum && !CLICKED){
           manage_heater();
           manage_inactivity(1);
 		}
       }else{
-        while(buttons == 0) {
+        while(!CLICKED) {
           manage_heater();
           manage_inactivity(1);
 		}
