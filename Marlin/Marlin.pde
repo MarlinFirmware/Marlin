@@ -1282,11 +1282,13 @@ void process_commands()
         while(millis()  < codenum && !CLICKED){
           manage_heater();
           manage_inactivity(1);
+		  LCD_STATUS;
 		}
       }else{
         while(!CLICKED) {
           manage_heater();
           manage_inactivity(1);
+		  LCD_STATUS;
 		}
 	  }
     }
