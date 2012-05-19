@@ -50,6 +50,7 @@
 // 5 is ParCan supplied 104GT-2 100K
 // 6 is EPCOS 100k - Not calculated like table 1, measured using a fluke
 // 7 is 100k Honeywell thermistor 135-104LAG-J01
+// 8 is EPCOS 100k - 1Kohm RESISTOR PULLUP ONLY! SEE therm table, should give twice resolution from 150C to 200C - EXPERIMENTAL!
 
 #define TEMP_SENSOR_0 -1
 #define TEMP_SENSOR_1 0
