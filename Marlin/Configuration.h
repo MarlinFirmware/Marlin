@@ -43,12 +43,12 @@
 // -2 is thermocouple with MAX6675 (only for sensor 0)
 // -1 is thermocouple with AD595
 // 0 is not used
-// 1 is 100k thermistor - closer to EPCOS 100k manuf table
+// 1 is 100k thermistor - best choice for EPCOS 100k
 // 2 is 200k thermistor
 // 3 is mendel-parts thermistor
 // 4 is 10k thermistor !! do not use it for a hotend. It gives bad resolution at high temp. !!
 // 5 is ParCan supplied 104GT-2 100K
-// 6 is EPCOS 100k - Not calculated like table 1, measured using a fluke
+// 6 is EPCOS 100k - Not as accurate as table 1 (created using a fluke thermocouple)
 // 7 is 100k Honeywell thermistor 135-104LAG-J01
 // 8 is EPCOS 100k - 1Kohm RESISTOR PULLUP ONLY! SEE therm table, should give twice resolution from 150C to 200C - EXPERIMENTAL!
 
