@@ -337,7 +337,6 @@ const short temptable_7[][2] PROGMEM = {
 #if (THERMISTORHEATER_0 == 8) || (THERMISTORHEATER_1 == 8) || (THERMISTORHEATER_2 == 8) || (THERMISTORBED == 8) 
 // 100k EPCOS (WITH 1kohm RESISTOR FOR PULLUP, R9/R10 ON SANGUINOLOLU! NOT FOR 4.7kohm PULLUP! THIS IS NOT NORMAL!)
 // Advantage: Twice the resolution and better linearity from 150C to 200C
-// Experimental - untested
 const short temptable_8[][2] PROGMEM = {
    {190*OVERSAMPLENR, 250},
    {203*OVERSAMPLENR, 245},
