@@ -76,7 +76,8 @@ const short temptable_1[][2] PROGMEM = {
 //200k ATC Semitec 204GT-2
 //Verified by linagee. Source: http://shop.arcol.hu/static/datasheets/thermistors.pdf
 // Calculated using 4.7kohm pullup, voltage divider math, and manufacturer provided temp/resistance
-   {30*OVERSAMPLENR, 300},
+   {1*OVERSAMPLENR, 848},
+   {30*OVERSAMPLENR, 300}, //top rating 300C
    {34*OVERSAMPLENR, 290},
    {39*OVERSAMPLENR, 280},
    {46*OVERSAMPLENR, 270},
@@ -173,7 +174,8 @@ const short temptable_5[][2] PROGMEM = {
 // ATC Semitec 104GT-2 (Used in ParCan)
 // Verified by linagee. Source: http://shop.arcol.hu/static/datasheets/thermistors.pdf
 // Calculated using 4.7kohm pullup, voltage divider math, and manufacturer provided temp/resistance
-   {17*OVERSAMPLENR, 300},
+   {1*OVERSAMPLENR, 713},
+   {17*OVERSAMPLENR, 300}, //top rating 300C
    {20*OVERSAMPLENR, 290},
    {23*OVERSAMPLENR, 280},
    {27*OVERSAMPLENR, 270},
