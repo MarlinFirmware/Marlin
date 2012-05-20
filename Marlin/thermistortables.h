@@ -72,7 +72,7 @@ const short temptable_1[][2] PROGMEM = {
 };
 #endif
 #if (THERMISTORHEATER_0 == 2) || (THERMISTORHEATER_1 == 2) || (THERMISTORHEATER_2 == 2) || (THERMISTORBED == 2) //200k bed thermistor
-   const short temptable_2[][2] PROGMEM = {
+const short temptable_2[][2] PROGMEM = {
 //200k ATC Semitec 204GT-2
 //Verified by linagee. Source: http://shop.arcol.hu/static/datasheets/thermistors.pdf
 // Calculated using 4.7kohm pullup, voltage divider math, and manufacturer provided temp/resistance
