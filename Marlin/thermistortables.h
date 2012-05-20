@@ -211,7 +211,8 @@ const short temptable_5[][2] PROGMEM = {
 
 #if (THERMISTORHEATER_0 == 6) || (THERMISTORHEATER_1 == 6) || (THERMISTORHEATER_2 == 6) || (THERMISTORBED == 6) // 100k Epcos thermistor
 const short temptable_6[][2] PROGMEM = {
-   {28*OVERSAMPLENR, 250},
+   {1*OVERSAMPLENR, 350}
+   {28*OVERSAMPLENR, 250}, //top rating 250C
    {31*OVERSAMPLENR, 245},
    {35*OVERSAMPLENR, 240},
    {39*OVERSAMPLENR, 235},
@@ -252,7 +253,8 @@ const short temptable_6[][2] PROGMEM = {
 
 #if (THERMISTORHEATER_0 == 7) || (THERMISTORHEATER_1 == 7) || (THERMISTORHEATER_2 == 7) || (THERMISTORBED == 7) // 100k Honeywell 135-104LAG-J01
 const short temptable_7[][2] PROGMEM = {
-   {46*OVERSAMPLENR, 270},
+   {1*OVERSAMPLENR, 500}
+   {46*OVERSAMPLENR, 270}, //top rating 300C
    {50*OVERSAMPLENR, 265},
    {54*OVERSAMPLENR, 260},
    {58*OVERSAMPLENR, 255},
@@ -315,7 +317,8 @@ const short temptable_7[][2] PROGMEM = {
 // Calculated using 1kohm pullup, voltage divider math, and manufacturer provided temp/resistance
 // Advantage: Twice the resolution and better linearity from 150C to 200C
 const short temptable_51[][2] PROGMEM = {
-   {190*OVERSAMPLENR, 250},
+   {1*OVERSAMPLENR, 350}
+   {190*OVERSAMPLENR, 250}, //top rating 250C
    {203*OVERSAMPLENR, 245},
    {217*OVERSAMPLENR, 240},
    {232*OVERSAMPLENR, 235},
@@ -376,7 +379,8 @@ const short temptable_51[][2] PROGMEM = {
 // Calculated using 1kohm pullup, voltage divider math, and manufacturer provided temp/resistance
 // Advantage: More resolution and better linearity from 150C to 200C
 const short temptable_52[][2] PROGMEM = {
-   {125*OVERSAMPLENR, 300},
+   {1*OVERSAMPLENR, 500}
+   {125*OVERSAMPLENR, 300}, //top rating 300C
    {142*OVERSAMPLENR, 290},
    {162*OVERSAMPLENR, 280},
    {185*OVERSAMPLENR, 270},
