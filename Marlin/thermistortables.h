@@ -334,10 +334,12 @@ const short temptable_7[][2] PROGMEM = {
 };
 #endif
 
-#if (THERMISTORHEATER_0 == 8) || (THERMISTORHEATER_1 == 8) || (THERMISTORHEATER_2 == 8) || (THERMISTORBED == 8) 
-// 100k EPCOS (WITH 1kohm RESISTOR FOR PULLUP, R9/R10 ON SANGUINOLOLU! NOT FOR 4.7kohm PULLUP! THIS IS NOT NORMAL!)
+#if (THERMISTORHEATER_0 == 51) || (THERMISTORHEATER_1 == 51) || (THERMISTORHEATER_2 == 51) || (THERMISTORBED == 51) 
+// 100k EPCOS (WITH 1kohm RESISTOR FOR PULLUP, R9 ON SANGUINOLOLU! NOT FOR 4.7kohm PULLUP! THIS IS NOT NORMAL!)
+// Verified by linagee. Source: http://shop.arcol.hu/static/datasheets/thermistors.pdf
+// Calculated using 1kohm pullup, voltage divider math, and manufacturer provided temp/resistance
 // Advantage: Twice the resolution and better linearity from 150C to 200C
-const short temptable_8[][2] PROGMEM = {
+const short temptable_51[][2] PROGMEM = {
    {190*OVERSAMPLENR, 250},
    {203*OVERSAMPLENR, 245},
    {217*OVERSAMPLENR, 240},
@@ -392,6 +394,48 @@ const short temptable_8[][2] PROGMEM = {
    {1021*OVERSAMPLENR, -5}
 };
 #endif
+
+#if (THERMISTORHEATER_0 == 52) || (THERMISTORHEATER_1 == 52) || (THERMISTORHEATER_2 == 52) || (THERMISTORBED == 52) 
+// 200k ATC Semitec 204GT-2 (WITH 1kohm RESISTOR FOR PULLUP, R9 ON SANGUINOLOLU! NOT FOR 4.7kohm PULLUP! THIS IS NOT NORMAL!)
+// Verified by linagee. Source: http://shop.arcol.hu/static/datasheets/thermistors.pdf
+// Calculated using 1kohm pullup, voltage divider math, and manufacturer provided temp/resistance
+// Advantage: More resolution and better linearity from 150C to 200C
+const short temptable_52[][2] PROGMEM = {
+   {125*OVERSAMPLENR, 300},
+   {142*OVERSAMPLENR, 290},
+   {162*OVERSAMPLENR, 280},
+   {185*OVERSAMPLENR, 270},
+   {211*OVERSAMPLENR, 260},
+   {240*OVERSAMPLENR, 250},
+   {274*OVERSAMPLENR, 240},
+   {312*OVERSAMPLENR, 230},
+   {355*OVERSAMPLENR, 220},
+   {401*OVERSAMPLENR, 210},
+   {452*OVERSAMPLENR, 200},
+   {506*OVERSAMPLENR, 190},
+   {563*OVERSAMPLENR, 180},
+   {620*OVERSAMPLENR, 170},
+   {677*OVERSAMPLENR, 160},
+   {732*OVERSAMPLENR, 150},
+   {783*OVERSAMPLENR, 140},
+   {830*OVERSAMPLENR, 130},
+   {871*OVERSAMPLENR, 120},
+   {906*OVERSAMPLENR, 110},
+   {935*OVERSAMPLENR, 100},
+   {958*OVERSAMPLENR, 90},
+   {976*OVERSAMPLENR, 80},
+   {990*OVERSAMPLENR, 70},
+   {1000*OVERSAMPLENR, 60},
+   {1008*OVERSAMPLENR, 50},
+   {1013*OVERSAMPLENR, 40},
+   {1017*OVERSAMPLENR, 30},
+   {1019*OVERSAMPLENR, 20},
+   {1021*OVERSAMPLENR, 10},
+   {1022*OVERSAMPLENR, 0}
+};
+#endif
+
+
 
 #define _TT_NAME(_N) temptable_ ## _N
 #define TT_NAME(_N) _TT_NAME(_N)
