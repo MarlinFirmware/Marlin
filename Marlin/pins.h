@@ -684,7 +684,7 @@
 
 #define E1_STEP_PIN         49
 #define E1_DIR_PIN          47
-#define E1_ENABLE_PIN       51
+#define E1_ENABLE_PIN       48
 
 #define SDPOWER            -1
 #define SDSS               53
