@@ -1524,16 +1524,16 @@ void setPwmFrequency(uint8_t pin, int val)
     #if defined(TCCR0A)
     case TIMER0A:
     case TIMER0B:
-         TCCR0B &= ~(CS00 | CS01 | CS02);
-         TCCR0B |= val;
+//         TCCR0B &= ~(CS00 | CS01 | CS02);
+//         TCCR0B |= val;
          break;
     #endif
 
     #if defined(TCCR1A)
     case TIMER1A:
     case TIMER1B:
-         TCCR1B &= ~(CS10 | CS11 | CS12);
-         TCCR1B |= val;
+//         TCCR1B &= ~(CS10 | CS11 | CS12);
+//         TCCR1B |= val;
          break;
     #endif
 
