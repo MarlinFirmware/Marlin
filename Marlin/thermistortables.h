@@ -232,8 +232,8 @@ const short temptable_6[][2] PROGMEM = {
    {49*OVERSAMPLENR, 220},
    {53*OVERSAMPLENR, 215},
    {62*OVERSAMPLENR, 210},
-   {73*OVERSAMPLENR, 205},
-   {72*OVERSAMPLENR, 200},
+   {71*OVERSAMPLENR, 205}, //fitted graphically
+   {78*OVERSAMPLENR, 200}, //fitted graphically
    {94*OVERSAMPLENR, 190},
    {102*OVERSAMPLENR, 185},
    {116*OVERSAMPLENR, 170},
