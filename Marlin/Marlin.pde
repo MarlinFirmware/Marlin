@@ -562,7 +562,7 @@ bool code_seen(char code)
     plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate/60, active_extruder); \
     st_synchronize();\
     \
-    current_position[LETTER##_AXIS] = (LETTER##_HOME_DIR == -1) ? LETTER##_HOME_POS : LETTER##_MAX_LENGTH;\
+    current_position[LETTER##_AXIS] = LETTER##_HOME_POS;\
     destination[LETTER##_AXIS] = current_position[LETTER##_AXIS];\
     feedrate = 0.0;\
     endstops_hit_on_purpose();\
@@ -656,6 +656,13 @@ void process_commands()
       }
       feedrate = 0.0;
       home_all_axis = !((code_seen(axis_codes[0])) || (code_seen(axis_codes[1])) || (code_seen(axis_codes[2])));
+      
+      #if Z_HOME_DIR > 0                      // If homing away from BED do Z first
+      if((home_all_axis) || (code_seen(axis_codes[Z_AXIS]))) {
+        HOMEAXIS(Z);
+      }
+      #endif
+      
       #ifdef QUICK_HOME
       if((home_all_axis)||( code_seen(axis_codes[X_AXIS]) && code_seen(axis_codes[Y_AXIS])) )  //first diagonal move
       {
@@ -669,8 +676,8 @@ void process_commands()
         plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate/60, active_extruder);
         st_synchronize();
     
-        current_position[X_AXIS] = (X_HOME_DIR == -1) ? X_HOME_POS : X_MAX_LENGTH;
-        current_position[Y_AXIS] = (Y_HOME_DIR == -1) ? Y_HOME_POS : Y_MAX_LENGTH;
+        current_position[X_AXIS] = X_HOME_POS;
+        current_position[Y_AXIS] = Y_HOME_POS;
         plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
         destination[X_AXIS] = current_position[X_AXIS];
         destination[Y_AXIS] = current_position[Y_AXIS];
@@ -687,12 +694,14 @@ void process_commands()
       }
 
       if((home_all_axis) || (code_seen(axis_codes[Y_AXIS]))) {
-       HOMEAXIS(Y);
+        HOMEAXIS(Y);
       }
       
+      #if Z_HOME_DIR < 0                      // If homing towards BED do Z last
       if((home_all_axis) || (code_seen(axis_codes[Z_AXIS]))) {
         HOMEAXIS(Z);
       }
+      #endif
       
       if(code_seen(axis_codes[X_AXIS])) 
       {
@@ -1533,15 +1542,15 @@ void get_arc_coordinates()
 void prepare_move()
 {
   if (min_software_endstops) {
-    if (destination[X_AXIS] < X_HOME_POS) destination[X_AXIS] = X_HOME_POS;
-    if (destination[Y_AXIS] < Y_HOME_POS) destination[Y_AXIS] = Y_HOME_POS;
-    if (destination[Z_AXIS] < Z_HOME_POS) destination[Z_AXIS] = Z_HOME_POS;
+    if (destination[X_AXIS] < X_MIN_POS) destination[X_AXIS] = X_MIN_POS;
+    if (destination[Y_AXIS] < Y_MIN_POS) destination[Y_AXIS] = Y_MIN_POS;
+    if (destination[Z_AXIS] < Z_MIN_POS) destination[Z_AXIS] = Z_MIN_POS;
   }
 
   if (max_software_endstops) {
-    if (destination[X_AXIS] > X_MAX_LENGTH) destination[X_AXIS] = X_MAX_LENGTH;
-    if (destination[Y_AXIS] > Y_MAX_LENGTH) destination[Y_AXIS] = Y_MAX_LENGTH;
-    if (destination[Z_AXIS] > Z_MAX_LENGTH) destination[Z_AXIS] = Z_MAX_LENGTH;
+    if (destination[X_AXIS] > X_MAX_POS) destination[X_AXIS] = X_MAX_POS;
+    if (destination[Y_AXIS] > Y_MAX_POS) destination[Y_AXIS] = Y_MAX_POS;
+    if (destination[Z_AXIS] > Z_MAX_POS) destination[Z_AXIS] = Z_MAX_POS;
   }
   previous_millis_cmd = millis();  
   plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate*feedmultiply/60/100.0, active_extruder);
