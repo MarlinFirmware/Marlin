@@ -453,7 +453,6 @@ ISR(TIMER1_COMPA_vect)
       if (counter_x > 0) {
         WRITE(X_STEP_PIN, HIGH);
         counter_x -= current_block->step_event_count;
-        WRITE(X_STEP_PIN, LOW);
         count_position[X_AXIS]+=count_direction[X_AXIS];   
       }
 
@@ -461,7 +460,6 @@ ISR(TIMER1_COMPA_vect)
       if (counter_y > 0) {
         WRITE(Y_STEP_PIN, HIGH);
         counter_y -= current_block->step_event_count;
-        WRITE(Y_STEP_PIN, LOW);
         count_position[Y_AXIS]+=count_direction[Y_AXIS];
       }
 
@@ -469,7 +467,6 @@ ISR(TIMER1_COMPA_vect)
       if (counter_z > 0) {
         WRITE(Z_STEP_PIN, HIGH);
         counter_z -= current_block->step_event_count;
-        WRITE(Z_STEP_PIN, LOW);
         count_position[Z_AXIS]+=count_direction[Z_AXIS];
       }
 
@@ -483,6 +480,19 @@ ISR(TIMER1_COMPA_vect)
         }
       #endif //!ADVANCE
       step_events_completed += 1;  
+      
+      /*
+        Turn off all steps (even if only one is active).
+        This will lengthen out the step pulse width.
+        Additional delay can be compiled in using EXTEND_STEP_PULSE_USEC.
+      */  
+      #if defined(EXTEND_STEP_PULSE_USEC)
+        delayMicroseconds(EXTEND_STEP_PULSE_USEC);
+      #endif
+      WRITE(X_STEP_PIN, LOW);
+      WRITE(Y_STEP_PIN, LOW);
+      WRITE(Z_STEP_PIN, LOW);
+
       if(step_events_completed >= current_block->step_event_count) break;
     }
     // Calculare new timer value
