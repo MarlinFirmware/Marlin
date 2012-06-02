@@ -73,6 +73,7 @@
 	#define MSG_ZSTEPS " Zsteps/mm:"
 	#define MSG_ESTEPS " Esteps/mm:"
 	#define MSG_MAIN_WIDE " Main        \003"
+	#define MSG_RECTRACT_WIDE " Rectract    \x7E"
 	#define MSG_TEMPERATURE_WIDE " Temperature \x7E"
 	#define MSG_MOTION_WIDE " Motion      \x7E"
 	#define MSG_STORE_EPROM " Store memory"
@@ -83,6 +84,7 @@
 	#define MSG_PREPARE " Prepare \x7E"
 	#define MSG_PREPARE_ALT " Prepare \003"
 	#define MSG_CONTROL_ARROW " Control \x7E"
+	#define MSG_RETRACT_ARROW " Control \x7E"
 	#define MSG_TUNE " Tune    \x7E"
 	#define MSG_STOP_PRINT " Stop Print   \x7E"
 	#define MSG_CARD_MENU " Card Menu    \x7E"
@@ -97,7 +99,12 @@
 	#define MSG_PREHEAT_PLA " Preheat PLA"
 	#define MSG_PREHEAT_ABS " Preheat ABS"
 	#define MSG_STEPPER_RELEASED "Released."
-
+  #define MSG_CONTROL_RETRACT  " Retract mm:"
+  #define MSG_CONTROL_RETRACTF " Retract  F:"
+  #define MSG_CONTROL_RETRACT_ZLIFT " Hop mm:"
+  #define MSG_CONTROL_RETRACT_RECOVER " UnRet +mm:"
+  #define MSG_CONTROL_RETRACT_RECOVERF " UnRet  F:"
+  #define MSG_AUTORETRACT " AutoRetr.:"
 
 // Serial Console Messages
 
@@ -231,6 +238,7 @@
 	#define MSG_PREPARE " Prepare \x7E"
 	#define MSG_PREPARE_ALT " Prepare \003"
 	#define MSG_CONTROL_ARROW " Control \x7E"
+	
 	#define MSG_TUNE " Tune    \x7E"
 	#define MSG_STOP_PRINT " Druck stoppen   \x7E"
 	#define MSG_CARD_MENU " SDKarten Menue    \x7E"
@@ -244,6 +252,7 @@
 	#define MSG_PREHEAT_PLA " Preheat PLA"
 	#define MSG_PREHEAT_ABS " Preheat ABS"
 	#define MSG_STEPPER_RELEASED "Released."
+	
 
 
 // Serial Console Messages

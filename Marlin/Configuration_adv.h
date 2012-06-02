@@ -179,6 +179,16 @@ const int dropsegments=5; //everything with less than this number of steps will 
 #define MAX_CMD_SIZE 96
 #define BUFSIZE 4
 
+
+// Firmware based and LCD controled retract
+// M207 and M208 can be used to define parameters for the retraction. 
+// The retraction can be called by the slicer using G10 and G11
+// until then, intended retractions can be detected by moves that only extrude and the direction. 
+// the moves are than replaced by the firmware controlled ones.
+
+// #define FWRETRACT  //ONLY PARTIALLY TESTED
+#define MIN_RETRACT 0.1 //minimum extruded mm to accept a automatic gcode retraction attempt
+
 //===========================================================================
 //=============================  Define Defines  ============================
 //===========================================================================
