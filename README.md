@@ -31,6 +31,7 @@ Features:
 *   Full endstop support
 *   SD Card support
 *   SD Card folders (works in pronterface)
+*   SD Card autostart support
 *   LCD support (ideally 20x4) 
 *   LCD menu system for autonomous SD card printing, controlled by an click-encoder. 
 *   EEPROM storage of e.g. max-velocity, max-acceleration, and similar variables
@@ -99,6 +100,11 @@ Also, with just a 20x4 or 16x2 display, useful data is shown.
 If you have an SD card reader attached to your controller, also folders work now. Listing the files in pronterface will show "/path/subpath/file.g".
 You can write to file in a subfolder by specifying a similar text using small letters in the path.
 Also, backup copies of various operating systems are hidden, as well as files not ending with ".g".
+
+*SD card folders:*
+
+If you place a file auto<0-9>.g into the root of the sd card, it will be automatically executed if you boot the printer. The same file will be executed by selecting "Autostart" from the menu.
+First *0 will be performed, than *1 and so on. That way, you can heat up or even print automatically without user interaction.
 
 *Endstop trigger reporting:*
 
