@@ -10,11 +10,23 @@
 
 #define LANGUAGE_CHOICE 1  // Pick your language from the list above
 
+#define PROTOCOL_VERSION "1.0"
+
+#if MOTHERBOARD == 7 || MOTHERBOARD == 71
+	#define MACHINE_NAME "Ultimaker"
+	#define FIRMWARE_URL "http://firmware.ultimaker.com"
+#else
+	#define MACHINE_NAME "Mendel"
+	#define FIRMWARE_URL "http://www.mendel-parts.com"
+#endif
+
+#define STRINGIFY_(n) #n
+#define STRINGIFY(n) STRINGIFY_(n)
+
 #if LANGUAGE_CHOICE == 1
 
 // LCD Menu Messages
-
-	#define WELCOME_MSG "Printer Ready."
+	#define WELCOME_MSG MACHINE_NAME " Ready."
 	#define MSG_SD_INSERTED "Card inserted"
 	#define MSG_SD_REMOVED "Card removed"
 	#define MSG_MAIN " Main \003"
@@ -63,8 +75,8 @@
 	#define MSG_MAIN_WIDE " Main        \003"
 	#define MSG_TEMPERATURE_WIDE " Temperature \x7E"
 	#define MSG_MOTION_WIDE " Motion      \x7E"
-	#define MSG_STORE_EPROM " Store EPROM"
-	#define MSG_LOAD_EPROM " Load EPROM"
+	#define MSG_STORE_EPROM " Store memory"
+	#define MSG_LOAD_EPROM " Load memory"
 	#define MSG_RESTORE_FAILSAFE " Restore Failsafe"
 	#define MSG_REFRESH "\004Refresh"
 	#define MSG_WATCH " Watch   \003"
@@ -76,11 +88,12 @@
 	#define MSG_CARD_MENU " Card Menu    \x7E"
 	#define MSG_NO_CARD " No Card"
 	#define MSG_SERIAL_ERROR_MENU_STRUCTURE "Something is wrong in the MenuStructure."
-	#define MSG_DWELL "DWELL..."		
+	#define MSG_DWELL "Sleep..."
+	#define MSG_USERWAIT "Wait for user..."
 	#define MSG_NO_MOVE "No move."
 	#define MSG_PART_RELEASE "Partial Release"
 	#define MSG_KILLED "KILLED. "
-        #define MSG_STOPPED "STOPPED. "
+	#define MSG_STOPPED "STOPPED. "
 	#define MSG_PREHEAT_PLA " Preheat PLA"
 	#define MSG_PREHEAT_ABS " Preheat ABS"
 	#define MSG_STEPPER_RELEASED "Released."
@@ -94,7 +107,7 @@
 	#define MSG_BROWNOUT_RESET " Brown out Reset"
 	#define MSG_WATCHDOG_RESET " Watchdog Reset"
 	#define MSG_SOFTWARE_RESET " Software Reset"
-	#define MSG_MARLIN "Marlin: "
+	#define MSG_MARLIN "Marlin "
 	#define MSG_AUTHOR " | Author: "
 	#define MSG_CONFIGURATION_VER " Last Updated: "
 	#define MSG_FREE_MEMORY " Free Memory: "
@@ -116,7 +129,7 @@
 	#define MSG_HEATING_COMPLETE "Heating done."
 	#define MSG_BED_HEATING "Bed Heating."
 	#define MSG_BED_DONE "Bed done."
-	#define MSG_M115_REPORT "FIRMWARE_NAME:Marlin V1; Sprinter/grbl mashup for gen6 FIRMWARE_URL:http://www.mendel-parts.com PROTOCOL_VERSION:1.0 MACHINE_TYPE:Mendel EXTRUDER_COUNT:1\n"
+	#define MSG_M115_REPORT "FIRMWARE_NAME:Marlin V1; Sprinter/grbl mashup for gen6 FIRMWARE_URL:" FIRMWARE_URL " PROTOCOL_VERSION:" PROTOCOL_VERSION " MACHINE_TYPE:" MACHINE_NAME " EXTRUDER_COUNT:" STRINGIFY(EXTRUDERS) "\n"
 	#define MSG_COUNT_X " Count X:"
 	#define MSG_ERR_KILLED "Printer halted. kill() called !!"
 	#define MSG_ERR_STOPPED "Printer stopped deu to errors. Fix the error and use M999 to restart!. (Temperature is reset. Set it before restarting)"
@@ -157,7 +170,7 @@
 
 // LCD Menu Messages
 
-	#define WELCOME_MSG "UltiMARLIN Ready."
+	#define WELCOME_MSG MACHINE_NAME " Ready."
 
 	#define MSG_SD_INSERTED "Card inserted"
 	#define MSG_SD_REMOVED "Card removed"
@@ -173,7 +186,7 @@
 	#define MSG_PREHEAT_PLA " Preheat PLA"
 	#define MSG_PREHEAT_ABS " Preheat ABS"
 	#define MSG_MOVE_AXIS " Move Axis      \x7E"
-        #define MSG_MOVE_AXIS " Achsen verfahren   \x7E"
+	#define MSG_MOVE_AXIS " Achsen verfahren   \x7E"
 	#define MSG_SPEED " Geschw:"
 	#define MSG_NOZZLE " \002Duese:"
 	#define MSG_NOZZLE1 " \002Duese2:"
@@ -263,7 +276,7 @@
 	#define MSG_HEATING_COMPLETE "Heating done."
 	#define MSG_BED_HEATING "Bed Heating."
 	#define MSG_BED_DONE "Bed done."
-	#define MSG_M115_REPORT "FIRMWARE_NAME:Marlin V1; Sprinter/grbl mashup for gen6 FIRMWARE_URL:http://www.mendel-parts.com PROTOCOL_VERSION:1.0 MACHINE_TYPE:Mendel EXTRUDER_COUNT:1\n"
+	#define MSG_M115_REPORT "FIRMWARE_NAME:Marlin V1; Sprinter/grbl mashup for gen6 FIRMWARE_URL:" FIRMWARE_URL " PROTOCOL_VERSION:" PROTOCOL_VERSION " MACHINE_TYPE:" MACHINE_NAME " EXTRUDER_COUNT:" STRINGIFY(EXTRUDERS) "\n"
 	#define MSG_COUNT_X " Count X:"
 	#define MSG_ERR_KILLED "Printer halted. kill() called !!"
 	#define MSG_ERR_STOPPED "Printer stopped due to errors. Fix the error and use M999 to restart!"
