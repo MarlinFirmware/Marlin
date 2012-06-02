@@ -103,7 +103,7 @@ Also, backup copies of various operating systems are hidden, as well as files no
 
 *SD card folders:*
 
-If you place a file auto<0-9>.g into the root of the sd card, it will be automatically executed if you boot the printer. The same file will be executed by selecting "Autostart" from the menu.
+If you place a file auto[0-9].g into the root of the sd card, it will be automatically executed if you boot the printer. The same file will be executed by selecting "Autostart" from the menu.
 First *0 will be performed, than *1 and so on. That way, you can heat up or even print automatically without user interaction.
 
 *Endstop trigger reporting:*
