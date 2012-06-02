@@ -50,6 +50,8 @@
 // G2  - CW ARC
 // G3  - CCW ARC
 // G4  - Dwell S<seconds> or P<milliseconds>
+// G10 - retract filament according to settings of M207
+// G11 - retract recover filament according to settings of M208
 // G28 - Home all Axis
 // G90 - Use Absolute Coordinates
 // G91 - Use Relative Coordinates
@@ -102,6 +104,9 @@
 // M204 - Set default acceleration: S normal moves T filament only moves (M204 S3000 T7000) im mm/sec^2  also sets minimum segment time in ms (B20000) to prevent buffer underruns and M20 minimum feedrate
 // M205 -  advanced settings:  minimum travel speed S=while printing T=travel only,  B=minimum segment time X= maximum xy jerk, Z=maximum Z jerk, E=maximum E jerk
 // M206 - set additional homeing offset
+// M207 - set retract length S[positive mm] F[feedrate mm/sec] Z[additional zlift/hop]
+// M208 - set recover=unretract length S[positive mm surplus to the M207 S*] F[feedrate mm/sec]
+// M209 - S<1=true/0=false> enable automatic retract detect if the slicer did not support G10/11: every normal extrude-only move will be classified as retract depending on the direction.
 // M220 S<factor in percent>- set speed factor override percentage
 // M221 S<factor in percent>- set extrude factor override percentage
 // M240 - Trigger a camera to take a photograph
@@ -139,6 +144,12 @@ float add_homeing[3]={0,0,0};
 uint8_t active_extruder = 0;
 unsigned char FanSpeed=0;
 
+#ifdef FWRETRACT
+  bool autoretract_enabled=true;
+  bool retracted=false;
+  float retract_length=3, retract_feedrate=17*60, retract_zlift=0.8;
+  float retract_recover_length=0, retract_recover_feedrate=8*60;
+#endif
 
 //===========================================================================
 //=============================private variables=============================
@@ -178,6 +189,7 @@ static unsigned long starttime=0;
 static unsigned long stoptime=0;
 
 static uint8_t tmp_extruder;
+
 
 bool Stopped=false;
 
@@ -601,6 +613,36 @@ void process_commands()
 		LCD_STATUS;
       }
       break;
+      #ifdef FWRETRACT  
+      case 10: // G10 retract
+      if(!retracted) 
+      {
+        destination[X_AXIS]=current_position[X_AXIS];
+        destination[Y_AXIS]=current_position[Y_AXIS];
+        destination[Z_AXIS]=current_position[Z_AXIS]; 
+        current_position[Z_AXIS]+=-retract_zlift;
+        destination[E_AXIS]=current_position[E_AXIS]-retract_length; 
+        feedrate=retract_feedrate;
+        retracted=true;
+        prepare_move();
+      }
+      
+      break;
+      case 11: // G10 retract_recover
+      if(!retracted) 
+      {
+        destination[X_AXIS]=current_position[X_AXIS];
+        destination[Y_AXIS]=current_position[Y_AXIS];
+        destination[Z_AXIS]=current_position[Z_AXIS]; 
+        
+        current_position[Z_AXIS]+=retract_zlift;
+        current_position[E_AXIS]+=-retract_recover_length; 
+        feedrate=retract_recover_feedrate;
+        retracted=false;
+        prepare_move();
+      }
+      break;
+      #endif //FWRETRACT
     case 28: //G28 Home all Axis one at a time
       saved_feedrate = feedrate;
       saved_feedmultiply = feedmultiply;
@@ -1212,6 +1254,53 @@ void process_commands()
         if(code_seen(axis_codes[i])) add_homeing[i] = code_value();
       }
       break;
+    #ifdef FWRETRACT
+    case 207: //M207 - set retract length S[positive mm] F[feedrate mm/sec] Z[additional zlift/hop]
+    {
+      if(code_seen('S')) 
+      {
+        retract_length = code_value() ;
+      }
+      if(code_seen('F')) 
+      {
+        retract_feedrate = code_value() ;
+      }
+      if(code_seen('Z')) 
+      {
+        retract_zlift = code_value() ;
+      }
+    }break;
+    case 208: // M208 - set retract recover length S[positive mm surplus to the M207 S*] F[feedrate mm/sec]
+    {
+      if(code_seen('S')) 
+      {
+        retract_recover_length = code_value() ;
+      }
+      if(code_seen('F')) 
+      {
+        retract_recover_feedrate = code_value() ;
+      }
+    }break;
+    
+    case 209: // M209 - S<1=true/0=false> enable automatic retract detect if the slicer did not support G10/11: every normal extrude-only move will be classified as retract depending on the direction.
+    {
+      if(code_seen('S')) 
+      {
+        int t= code_value() ;
+        switch(t)
+        {
+          case 0: autoretract_enabled=false;retracted=false;break;
+          case 1: autoretract_enabled=true;retracted=false;break;
+          default: 
+            SERIAL_ECHO_START;
+            SERIAL_ECHOPGM(MSG_UNKNOWN_COMMAND);
+            SERIAL_ECHO(cmdbuffer[bufindr]);
+            SERIAL_ECHOLNPGM("\"");
+        }
+      }
+      
+    }break;
+    #endif
     case 220: // M220 S<factor in percent>- set speed factor override percentage
     {
       if(code_seen('S')) 
@@ -1373,14 +1462,55 @@ void ClearToSend()
 
 void get_coordinates()
 {
+  bool seen[4]={false,false,false,false};
   for(int8_t i=0; i < NUM_AXIS; i++) {
-    if(code_seen(axis_codes[i])) destination[i] = (float)code_value() + (axis_relative_modes[i] || relative_mode)*current_position[i];
+    if(code_seen(axis_codes[i])) 
+    {
+      destination[i] = (float)code_value() + (axis_relative_modes[i] || relative_mode)*current_position[i];
+      seen[i]=true;
+    }
     else destination[i] = current_position[i]; //Are these else lines really needed?
   }
   if(code_seen('F')) {
     next_feedrate = code_value();
     if(next_feedrate > 0.0) feedrate = next_feedrate;
   }
+  #ifdef FWRETRACT
+  if(autoretract_enabled)
+  if( !(seen[X_AXIS] || seen[Y_AXIS] || seen[Z_AXIS]) && seen[E_AXIS])
+  {
+    float echange=destination[E_AXIS]-current_position[E_AXIS];
+    if(echange<-MIN_RETRACT) //retract
+    {
+      if(!retracted) 
+      {
+      
+      destination[Z_AXIS]+=retract_zlift; //not sure why chaninging current_position negatively does not work.
+      //if slicer retracted by echange=-1mm and you want to retract 3mm, corrrectede=-2mm additionally
+      float correctede=-echange-retract_length;
+      //to generate the additional steps, not the destination is changed, but inversely the current position
+      destination[E_AXIS]+=correctede; 
+      feedrate=retract_feedrate;
+      retracted=true;
+      }
+      
+    }
+    else 
+      if(echange>MIN_RETRACT) //retract_recover
+    {
+      if(retracted) 
+      {
+      //current_position[Z_AXIS]+=-retract_zlift;
+      //if slicer retracted_recovered by echange=+1mm and you want to retract_recover 3mm, corrrectede=2mm additionally
+      float correctede=-echange+0*retract_length+retract_recover_length; //total unretract=retract_length+retract_recover_length[surplus]
+      current_position[E_AXIS]+=-correctede; //to generate the additional steps, not the destination is changed, but inversely the current position
+      feedrate=retract_recover_feedrate;
+      retracted=false;
+      }
+    }
+    
+  }
+  #endif //FWRETRACT
 }
 
 void get_arc_coordinates()

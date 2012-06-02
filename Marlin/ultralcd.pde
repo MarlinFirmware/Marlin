@@ -1688,6 +1688,8 @@ void MainMenu::showControlMotion()
         }
         
       }break;
+     
+    
     case ItemCM_aret://float retract_acceleration = 7000;
     {
         if(force_lcd_update)
@@ -1885,7 +1887,251 @@ void MainMenu::showControlMotion()
 
 
 enum {
+  ItemR_exit,
+  ItemR_autoretract,
+  ItemR_retract_length,ItemR_retract_feedrate,ItemR_retract_zlift,
+  ItemR_unretract_length,ItemR_unretract_feedrate,
+  
+};
+
+
+
+void MainMenu::showControlRetract()
+{
+#ifdef FWRETRACT
+ uint8_t line=0;
+ clearIfNecessary();
+ for(int8_t i=lineoffset;i<lineoffset+LCD_HEIGHT;i++)
+ {
+  switch(i)
+  {
+    case ItemR_exit:
+      MENUITEM(  lcdprintPGM(MSG_CONTROL)  ,  BLOCK;status=Main_Control;beepshort(); ) ;
+      break;
+    
+      //float retract_length=2, retract_feedrate=1200, retract_zlift=0.4;
+  //float retract_recover_length=0, retract_recover_feedrate=500;
+      case ItemR_autoretract:
+      {
+        if(force_lcd_update)
+        {
+          lcd.setCursor(0,line);lcdprintPGM(MSG_AUTORETRACT);
+          lcd.setCursor(13,line);
+          if(autoretract_enabled)
+            lcdprintPGM(MSG_ON);
+          else
+            lcdprintPGM(MSG_OFF);
+        }
+        
+        if((activeline!=line) )
+          break;
+        
+        if(CLICKED)
+        {
+          autoretract_enabled=!autoretract_enabled;
+          lcd.setCursor(13,line);
+          if(autoretract_enabled)
+            lcdprintPGM(MSG_ON);
+          else
+            lcdprintPGM(MSG_OFF);
+          BLOCK;
+        }
+        
+      }break;  
+    
+      case ItemR_retract_length:
+    {
+        if(force_lcd_update)
+        {
+          lcd.setCursor(0,line);lcdprintPGM(MSG_CONTROL_RETRACT);
+          lcd.setCursor(13,line);lcd.print(ftostr52(retract_length));
+        }
+        
+        if((activeline!=line) )
+          break;
+        
+        if(CLICKED)
+        {
+          linechanging=!linechanging;
+          if(linechanging)
+          {
+              encoderpos=(long)(retract_length*100);
+          }
+          else
+          {
+            retract_length= encoderpos/100.;
+            encoderpos=activeline*lcdslow;
+              
+          }
+          BLOCK;
+          beepshort();
+        }
+        if(linechanging)
+        {
+          if(encoderpos<1) encoderpos=1;
+          if(encoderpos>990) encoderpos=990;
+          lcd.setCursor(13,line);lcd.print(ftostr52(encoderpos/100.));
+        }
+        
+      }break;
+      case ItemR_retract_feedrate:
+    {
+        if(force_lcd_update)
+        {
+          lcd.setCursor(0,line);lcdprintPGM(MSG_CONTROL_RETRACTF);
+          lcd.setCursor(13,line);lcd.print(itostr4(retract_feedrate));
+        }
+        
+        if((activeline!=line) )
+          break;
+        
+        if(CLICKED)
+        {
+          linechanging=!linechanging;
+          if(linechanging)
+          {
+              encoderpos=(long)(retract_feedrate/5);
+          }
+          else
+          {
+            retract_feedrate= encoderpos*5.;
+            encoderpos=activeline*lcdslow;
+              
+          }
+          BLOCK;
+          beepshort();
+        }
+        if(linechanging)
+        {
+          if(encoderpos<1) encoderpos=1;
+          if(encoderpos>990) encoderpos=990;
+          lcd.setCursor(13,line);lcd.print(itostr4(encoderpos*5));
+        }
+        
+      }break;
+      case ItemR_retract_zlift://float retract_acceleration = 7000;
+    {
+        if(force_lcd_update)
+        {
+          lcd.setCursor(0,line);lcdprintPGM(MSG_CONTROL_RETRACT_ZLIFT);
+          lcd.setCursor(13,line);lcd.print(ftostr52(retract_zlift));;
+        }
+        
+        if((activeline!=line) )
+          break;
+        
+        if(CLICKED)
+        {
+          linechanging=!linechanging;
+          if(linechanging)
+          {
+              encoderpos=(long)(retract_zlift*10);
+          }
+          else
+          {
+            retract_zlift= encoderpos/10.;
+            encoderpos=activeline*lcdslow;
+              
+          }
+          BLOCK;
+          beepshort();
+        }
+        if(linechanging)
+        {
+          if(encoderpos<0) encoderpos=0;
+          if(encoderpos>990) encoderpos=990;
+          lcd.setCursor(13,line);lcd.print(ftostr52(encoderpos/10.));
+        }
+        
+      }break;
+      case ItemR_unretract_length:
+    {
+        if(force_lcd_update)
+        {
+          lcd.setCursor(0,line);lcdprintPGM(MSG_CONTROL_RETRACT_RECOVER);
+          lcd.setCursor(13,line);lcd.print(ftostr52(retract_recover_length));;
+        }
+        
+        if((activeline!=line) )
+          break;
+        
+        if(CLICKED)
+        {
+          linechanging=!linechanging;
+          if(linechanging)
+          {
+              encoderpos=(long)(retract_recover_length*100);
+          }
+          else
+          {
+            retract_recover_length= encoderpos/100.;
+            encoderpos=activeline*lcdslow;
+              
+          }
+          BLOCK;
+          beepshort();
+        }
+        if(linechanging)
+        {
+          if(encoderpos<0) encoderpos=0;
+          if(encoderpos>990) encoderpos=990;
+          lcd.setCursor(13,line);lcd.print(ftostr52(encoderpos/100.));
+        }
+        
+      }break;
+      
+      case ItemR_unretract_feedrate:
+    {
+        if(force_lcd_update)
+        {
+          lcd.setCursor(0,line);lcdprintPGM(MSG_CONTROL_RETRACT_RECOVERF);
+          lcd.setCursor(13,line);lcd.print(itostr4(retract_recover_feedrate));
+        }
+        
+        if((activeline!=line) )
+          break;
+        
+        if(CLICKED)
+        {
+          linechanging=!linechanging;
+          if(linechanging)
+          {
+              encoderpos=(long)retract_recover_feedrate/5;
+          }
+          else
+          {
+            retract_recover_feedrate= encoderpos*5.;
+            encoderpos=activeline*lcdslow;
+              
+          }
+          BLOCK;
+          beepshort();
+        }
+        if(linechanging)
+        {
+          if(encoderpos<1) encoderpos=1;
+          if(encoderpos>990) encoderpos=990;
+          lcd.setCursor(13,line);lcd.print(itostr4(encoderpos*5));
+        }
+        
+      }break;
+    
+    default:   
+      break;
+  }
+  line++;
+ }
+ updateActiveLines(ItemR_unretract_feedrate,encoderpos);
+#endif
+}
+
+
+
+enum {
   ItemC_exit,ItemC_temp,ItemC_move,
+#ifdef FWRETRACT
+  ItemC_rectract,
+#endif
   ItemC_store, ItemC_load,ItemC_failsafe
 };
 
@@ -1906,6 +2152,11 @@ void MainMenu::showControl()
    case ItemC_move:
       MENUITEM(  lcdprintPGM(MSG_MOTION_WIDE)  ,  BLOCK;status=Sub_MotionControl;beepshort(); ) ;
       break;
+#ifdef FWRETRACT
+    case ItemC_rectract:
+      MENUITEM(  lcdprintPGM(MSG_RECTRACT_WIDE)  ,  BLOCK;status=Sub_RetractControl;beepshort(); ) ;
+      break;
+#endif
     case ItemC_store:
     {
       if(force_lcd_update)
@@ -2249,6 +2500,10 @@ void MainMenu::update()
       case Sub_MotionControl:
       {
         showControlMotion(); 
+      }break;
+      case Sub_RetractControl:
+      {
+        showControlRetract(); 
       }break;
       case Sub_TempControl:
       {
