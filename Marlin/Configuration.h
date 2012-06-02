@@ -1,5 +1,5 @@
-#ifndef __CONFIGURATION_H
-#define __CONFIGURATION_H
+#ifndef CONFIGURATION_H
+#define CONFIGURATION_H
 
 // This configurtion file contains the basic settings.
 // Advanced settings can be found in Configuration_adv.h 

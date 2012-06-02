@@ -1,5 +1,5 @@
-#ifndef __WATCHDOGH
-#define __WATCHDOGH
+#ifndef WATCHDOG_H
+#define WATCHDOG_H
 #include "Marlin.h"
 #ifdef USE_WATCHDOG
 

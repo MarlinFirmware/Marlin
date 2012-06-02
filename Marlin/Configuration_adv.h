@@ -1,5 +1,5 @@
-#ifndef __CONFIGURATION_ADV_H
-#define __CONFIGURATION_ADV_H
+#ifndef CONFIGURATION_ADV_H
+#define CONFIGURATION_ADV_H
 
 //===========================================================================
 //=============================Thermal Settings  ============================
