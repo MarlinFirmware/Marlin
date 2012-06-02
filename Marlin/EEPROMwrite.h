@@ -1,5 +1,5 @@
-#ifndef __EEPROMH
-#define __EEPROMH
+#ifndef EEPROM_H
+#define EEPROM_H
 
 #include "Marlin.h"
 #include "planner.h"

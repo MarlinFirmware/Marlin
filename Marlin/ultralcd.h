@@ -1,5 +1,5 @@
-#ifndef __ULTRALCDH
-#define __ULTRALCDH
+#ifndef ULTRALCD_H
+#define ULTRALCD_H
 #include "Marlin.h"
 #ifdef ULTRA_LCD
   #include <LiquidCrystal.h>
