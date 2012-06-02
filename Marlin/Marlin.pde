@@ -56,6 +56,8 @@
 // G92 - Set current position to cordinates given
 
 //RepRap M Codes
+// M0   - Unconditional stop - Wait for user to press a button on the LCD (Only if ULTRA_LCD is enabled)
+// M1   - Same as M0
 // M104 - Set extruder target temp
 // M105 - Read current temp
 // M106 - Fan on
@@ -596,6 +598,7 @@ void process_commands()
       while(millis()  < codenum ){
         manage_heater();
         manage_inactivity(1);
+		LCD_STATUS;
       }
       break;
     case 28: //G28 Home all Axis one at a time
@@ -707,6 +710,35 @@ void process_commands()
   {
     switch( (int)code_value() ) 
     {
+#ifdef ULTRA_LCD
+    case 0: // M0 - Unconditional stop - Wait for user button press on LCD
+    case 1: // M1 - Conditional stop - Wait for user button press on LCD
+    {
+      LCD_MESSAGEPGM(MSG_USERWAIT);
+      codenum = 0;
+      if(code_seen('P')) codenum = code_value(); // milliseconds to wait
+      if(code_seen('S')) codenum = code_value() * 1000; // seconds to wait
+      
+      st_synchronize();
+      previous_millis_cmd = millis();
+	  if (codenum > 0)
+	  {
+        codenum += millis();  // keep track of when we started waiting
+        while(millis()  < codenum && !CLICKED){
+          manage_heater();
+          manage_inactivity(1);
+		  LCD_STATUS;
+		}
+      }else{
+        while(!CLICKED) {
+          manage_heater();
+          manage_inactivity(1);
+		  LCD_STATUS;
+		}
+	  }
+    }
+    break;
+#endif
     case 17:
         LCD_MESSAGEPGM(MSG_NO_MOVE);
         enable_x(); 
@@ -1259,7 +1291,7 @@ void process_commands()
       PID_autotune(temp);
     }
     break;
-    case 400: // finish all moves
+    case 400: // M400 finish all moves
     {
       st_synchronize();
     }
