@@ -1489,7 +1489,7 @@ void get_coordinates()
       //if slicer retracted by echange=-1mm and you want to retract 3mm, corrrectede=-2mm additionally
       float correctede=-echange-retract_length;
       //to generate the additional steps, not the destination is changed, but inversely the current position
-      destination[E_AXIS]+=correctede; 
+      current_position[E_AXIS]+=-correctede; 
       feedrate=retract_feedrate;
       retracted=true;
       }
@@ -1502,8 +1502,8 @@ void get_coordinates()
       {
       //current_position[Z_AXIS]+=-retract_zlift;
       //if slicer retracted_recovered by echange=+1mm and you want to retract_recover 3mm, corrrectede=2mm additionally
-      float correctede=-echange+0*retract_length+retract_recover_length; //total unretract=retract_length+retract_recover_length[surplus]
-      current_position[E_AXIS]+=-correctede; //to generate the additional steps, not the destination is changed, but inversely the current position
+      float correctede=-echange+1*retract_length+retract_recover_length; //total unretract=retract_length+retract_recover_length[surplus]
+      current_position[E_AXIS]+=correctede; //to generate the additional steps, not the destination is changed, but inversely the current position
       feedrate=retract_recover_feedrate;
       retracted=false;
       }
