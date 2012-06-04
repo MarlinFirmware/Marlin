@@ -2260,7 +2260,7 @@ void MainMenu::update()
   if(timeoutToStatus<millis())
     status=Main_Status;
   //force_lcd_update=false;
-  lastencoderpos=encoderpos;
+  //lastencoderpos=encoderpos;
 }
 
 
