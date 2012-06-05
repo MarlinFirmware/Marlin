@@ -1,5 +1,5 @@
-#ifndef __ULTRALCDH
-#define __ULTRALCDH
+#ifndef ULTRALCD_H
+#define ULTRALCD_H
 #include "Marlin.h"
 #ifdef ULTRA_LCD
   #include <LiquidCrystal.h>
@@ -13,6 +13,7 @@
   #define LCD_UPDATE_INTERVAL 100
   #define STATUSTIMEOUT 15000
   extern LiquidCrystal lcd;
+  extern volatile char buttons;  //the last checked buttons in a bit array.
   
   #ifdef NEWPANEL
     #define EN_C (1<<BLEN_C)
@@ -50,7 +51,7 @@
   #define blocktime 500
   #define lcdslow 5
     
-  enum MainStatus{Main_Status, Main_Menu, Main_Prepare,Sub_PrepareMove, Main_Control, Main_SD,Sub_TempControl,Sub_MotionControl};
+  enum MainStatus{Main_Status, Main_Menu, Main_Prepare,Sub_PrepareMove, Main_Control, Main_SD,Sub_TempControl,Sub_MotionControl,Sub_RetractControl};
 
   class MainMenu{
   public:
@@ -67,6 +68,7 @@
     void showControl();
     void showControlMotion();
     void showControlTemp();
+    void showControlRetract();
     void showAxisMove();
     void showSD();
     bool force_lcd_update;
