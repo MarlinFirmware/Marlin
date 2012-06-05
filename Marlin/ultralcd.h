@@ -85,7 +85,7 @@
       lastlineoffset=lineoffset; 
       long curencoderpos=encoderpos;  
       force_lcd_update=false;
-      if(  (abs(curencoderpos-lastencoderpos)>lcdslow) ) 
+      if(  (abs(curencoderpos-lastencoderpos)>=lcdslow) ) 
       { 
         lcd.setCursor(0,activeline);lcd.print(' '); 
         if(curencoderpos<0)  

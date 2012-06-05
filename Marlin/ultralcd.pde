@@ -2200,6 +2200,7 @@ void MainMenu::update()
     force_lcd_update=true;
     encoderpos=0;
     lineoffset=0;
+	lastencodespos = -lcdslow;
     
     oldstatus=status;
   }
