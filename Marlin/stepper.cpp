@@ -261,12 +261,10 @@ FORCE_INLINE void trapezoid_generator_reset() {
   #endif
   deceleration_time = 0;
   // step_rate to timer interval
+  OCR1A_nominal = calc_timer(current_block->nominal_rate);
   acc_step_rate = current_block->initial_rate;
   acceleration_time = calc_timer(acc_step_rate);
   OCR1A = acceleration_time;
-  OCR1A_nominal = calc_timer(current_block->nominal_rate);
-  
-
   
 //    SERIAL_ECHO_START;
 //    SERIAL_ECHOPGM("advance :");

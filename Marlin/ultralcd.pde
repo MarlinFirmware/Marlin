@@ -957,7 +957,7 @@ enum {
 #if EXTRUDERS > 2
   ItemCT_nozzle2,
 #endif
-#if defined BED_USES_THERMISTOR || BED_USES_AD595
+#if defined BED_USES_THERMISTOR || defined BED_USES_AD595
 ItemCT_bed,
 #endif  
   ItemCT_fan,
@@ -1212,7 +1212,7 @@ void MainMenu::showControlTemp()
         
       }break;  
     #endif //autotemp
-    #if defined BED_USES_THERMISTOR || BED_USES_AD595
+    #if defined BED_USES_THERMISTOR || defined BED_USES_AD595
     case ItemCT_bed:
       {
         if(force_lcd_update)
