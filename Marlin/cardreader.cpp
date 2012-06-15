@@ -143,9 +143,10 @@ void CardReader::initsd()
   cardOK = false;
   if(root.isOpen())
     root.close();
-  if ((!card.init(SPI_FULL_SPEED,SDSS) || if((!card.init(SPI_HALF_SPEED,SDSS)) {
-      SERIAL_ECHO_START;
-      SERIAL_ECHOLNPGM(MSG_SD_INIT_FAIL);
+
+  if (!card.init(SPI_FULL_SPEED,SDSS) || !card.init(SPI_HALF_SPEED,SDSS)) {
+    SERIAL_ECHO_START;
+    SERIAL_ECHOLNPGM(MSG_SD_INIT_FAIL);
   }
   else if (!volume.init(&card))
   {
