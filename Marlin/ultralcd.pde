@@ -317,7 +317,7 @@ MainMenu::MainMenu()
 
 void MainMenu::showStatus()
 { 
-#if LCD_HEIGHT==4
+#if LCD_HEIGHT>=4
   static int olddegHotEnd0=-1;
   static int oldtargetHotEnd0=-1;
   //force_lcd_update=true;
