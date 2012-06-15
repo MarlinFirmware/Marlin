@@ -104,7 +104,9 @@
             lineoffset=maxlines+1-LCD_HEIGHT; 
           if(curencoderpos>maxlines*lcdslow) 
             curencoderpos=maxlines*lcdslow; 
-        } 
+        } else if (curencoderpos>maxlines*lcdslow) {
+          curencoderpos=maxlines*lcdslow;
+        }
         lastencoderpos=encoderpos=curencoderpos;
         activeline=curencoderpos/lcdslow;
         if(activeline<0) activeline=0;
