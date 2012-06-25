@@ -24,8 +24,8 @@ Features:
    enable passing in of the 'T' command in pronsole.py)
    
 
-This firmware is optimized for Ultimaker's gen6 electronics (including the Ultimaker 1.5.x daughterboard and Arduino Mega 2560).
-It works great for RAMPS 1.4 too.
+This firmware is optimized for RAMPS 1.4 running 2 extruders (Reprap Mendel X2 
+printers).
 
 The default baudrate is 115200. 
 

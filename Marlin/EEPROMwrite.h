@@ -37,7 +37,7 @@ template <class T> int EEPROM_readAnything(int &ee, T& value)
 // the default values are used whenever there is a change to the data, to prevent
 // wrong data being written to the variables.
 // ALSO:  always make sure the variables in the Store and retrieve sections are in the same order.
-#define EEPROM_VERSION "V06"  
+#define EEPROM_VERSION "V07"  
 
 inline void EEPROM_StoreSettings() 
 {
@@ -58,6 +58,7 @@ inline void EEPROM_StoreSettings()
   EEPROM_writeAnything(i,max_xy_jerk);
   EEPROM_writeAnything(i,max_z_jerk);
   EEPROM_writeAnything(i,max_e_jerk);
+  EEPROM_writeAnything(i,extruder_offset);
   #ifdef PIDTEMP
     EEPROM_writeAnything(i,Kp);
     EEPROM_writeAnything(i,Ki);
@@ -142,6 +143,18 @@ inline void EEPROM_printSettings()
          SERIAL_ECHOPAIR(" E" ,max_e_jerk[i]);
       }
       SERIAL_ECHOLN(""); 
+      SERIAL_ECHO_START;
+      SERIAL_ECHOLNPGM("Extruder offsets:");
+      for(i = 0; i < EXTRUDERS; i++)
+      {
+         SERIAL_ECHO_START;
+         SERIAL_ECHO("   M208 "); 
+         SERIAL_ECHOPAIR("T" ,(int)i);
+         SERIAL_ECHOPAIR(" X" ,extruder_offset[X_AXIS][i]);
+         SERIAL_ECHOPAIR(" Y" ,extruder_offset[Y_AXIS][i]);
+         SERIAL_ECHOLN(""); 
+      }
+      SERIAL_ECHOLN(""); 
     #ifdef PIDTEMP
       SERIAL_ECHO_START;
       SERIAL_ECHOLNPGM("PID settings:");
@@ -184,6 +197,7 @@ inline void EEPROM_RetrieveSettings(bool def=false)
       EEPROM_readAnything(i,max_xy_jerk);
       EEPROM_readAnything(i,max_z_jerk);
       EEPROM_readAnything(i,max_e_jerk);
+      EEPROM_readAnything(i,extruder_offset);
       #ifndef PIDTEMP
         float Kp,Ki,Kd,Kr;
       #elif !defined(PID_RANGE)
@@ -213,6 +227,8 @@ inline void EEPROM_RetrieveSettings(bool def=false)
       long tmp3[]=DEFAULT_MAX_ACCELERATION;
       long tmp4[]=DEFAULT_RETRACT_ACCELERATION; 
       long tmp5[]=DEFAULT_EJERK;
+      float tmp6[] = EXTRUDER_OFFSET_X;
+      float tmp7[] = EXTRUDER_OFFSET_Y;
       // Populate missing values for extruders from the last value in arrays
       for (short i = 0; i < (3 + EXTRUDERS); i++) 
       {
@@ -244,6 +260,16 @@ inline void EEPROM_RetrieveSettings(bool def=false)
               max_e_jerk[i]=tmp5[i];
            else
               max_e_jerk[i]=tmp5[max_i - 1];
+           max_i = sizeof(tmp6)/sizeof(*tmp6);
+           if(i < max_i)
+              extruder_offset[X_AXIS][i]=tmp6[i];
+           else
+              extruder_offset[X_AXIS][i]=0;
+           max_i = sizeof(tmp7)/sizeof(*tmp7);
+           if(i < max_i)
+              extruder_offset[Y_AXIS][i]=tmp7[i];
+           else
+              extruder_offset[Y_AXIS][i]=0;
         }
       }
       acceleration=DEFAULT_ACCELERATION;

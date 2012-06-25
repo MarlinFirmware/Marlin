@@ -67,7 +67,7 @@
 // M105 - Read current temp
 // M106 - Fan on
 // M107 - Fan off
-// M109 - Wait for extruder current temp to reach target temp.
+// M109 - Wait for extruders current temp to reach target temp.
 // M114 - Display current position
 
 //Custom M Codes
@@ -106,6 +106,7 @@
 // M204 - Set default acceleration: S normal moves T filament only moves (M204 S3000 T7000) im mm/sec^2  also sets minimum segment time in ms (B20000) to prevent buffer underruns and M20 minimum feedrate
 // M205 -  advanced settings:  minimum travel speed S=while printing T=travel only,  B=minimum segment time X= maximum xy jerk, Z=maximum Z jerk, E=maximum E jerk for retracts
 // M206 - set additional homeing offset
+// M208 - set XY offset for extruders (off of the printing point)
 // M220 - set speed factor override percentage S:factor in percent
 // M301 - Set PID parameters P I and D
 // M400 - Finish all moves
@@ -143,6 +144,7 @@ volatile bool feedmultiplychanged=false;
 float current_position[NUM_AXIS] = { 0.0, 0.0, 0.0, 0.0 };
 float e_current_position[EXTRUDERS] = { 0.0 }; // not quite "current", set when extruders change
 float add_homeing[3]={0,0,0};
+float extruder_offset[2][EXTRUDERS]; // Extruder offset, only in XY plane
 uint8_t active_extruder = 0;
 unsigned int debug_flags = 0;
 
@@ -152,7 +154,6 @@ unsigned int debug_flags = 0;
 const char axis_codes[NUM_AXIS] = {'X', 'Y', 'Z', 'E'};
 static float destination[NUM_AXIS] = {0.0, 0.0, 0.0, 0.0};
 static float offset[3] = {0.0, 0.0, 0.0};
-static float extruder_offset[2][EXTRUDERS] = {EXTRUDER_OFFSET_X, EXTRUDER_OFFSET_Y}; // Offset only in XY plane
 static bool home_all_axis = true;
 static float feedrate = 1500.0, next_feedrate, saved_feedrate;
 static long gcode_N, gcode_LastN;
@@ -733,6 +734,16 @@ FORCE_INLINE void process_commands()
         }
       }
       if (code_seen('S')) setTargetHotend(code_value(), tmp_extruder);
+      if (code_seen('L')) {
+        int deg = degTargetHotend(tmp_extruder);
+        deg = (deg > code_value()) ? (deg - code_value()) : 0;
+        setTargetHotend(deg, tmp_extruder);
+      }
+      if (code_seen('H')) {
+        int deg = degTargetHotend(tmp_extruder) + code_value();
+        // if heating over max value should the machine will shut down
+        setTargetHotend(deg, tmp_extruder);
+      }
       setWatch();
       break;
     case 140: // M140 set bed temp
@@ -765,6 +776,7 @@ FORCE_INLINE void process_commands()
       break;
     case 109: 
     {// M109 - Wait for extruder heater to reach target.
+      int start_e, end_e, deg;
       tmp_extruder = active_extruder;
       if(code_seen('T')) {
         tmp_extruder = code_value();
@@ -775,13 +787,32 @@ FORCE_INLINE void process_commands()
           break;
         }
       }
+      if (code_seen('A') && code_value() > 0) {
+        start_e = 0;
+        end_e = EXTRUDERS;
+      }
+      else
+      {
+        start_e = tmp_extruder; 
+        end_e = tmp_extruder + 1;
+      }
       LCD_MESSAGEPGM("Heating...");   
       #ifdef AUTOTEMP
         autotemp_enabled=false;
       #endif
-      if (code_seen('S')) setTargetHotend(code_value(), tmp_extruder);
+      if (code_seen('S')) setTargetHotend((deg = code_value()), tmp_extruder);
+      if (code_seen('L')) {
+        deg = degTargetHotend(tmp_extruder);
+        deg = (deg > code_value()) ? (deg - code_value()) : 0;
+        setTargetHotend(deg, tmp_extruder);
+      }
+      if (code_seen('H')) {
+        deg = degTargetHotend(tmp_extruder) + code_value();
+        // if heating over max value should the machine will shut down
+        setTargetHotend(deg, tmp_extruder);
+      }
       #ifdef AUTOTEMP
-        if (code_seen('S')) autotemp_min=code_value();
+        if (code_seen('S')) autotemp_min=deg;
         if (code_seen('G')) autotemp_max=code_value();
         if (code_seen('F')) 
         {
@@ -793,21 +824,23 @@ FORCE_INLINE void process_commands()
       setWatch();
       codenum = millis(); 
 
-      /* See if we are heating up or cooling down */
-      bool target_direction = isHeatingHotend(tmp_extruder); // true if heating, false if cooling
-
       #ifdef TEMP_RESIDENCY_TIME
-        long residencyStart;
-        residencyStart = -1;
-        /* continue to loop until we have reached the target temp   
-          _and_ until TEMP_RESIDENCY_TIME hasn't passed since we reached it */
-        while((residencyStart == -1) ||
-              (residencyStart > -1 && (millis() - residencyStart) < TEMP_RESIDENCY_TIME*1000) ) {
-      #else
-        while ( target_direction ? (isHeatingHotend(tmp_extruder)) : (isCoolingHotend(tmp_extruder)&&(CooldownNoWait==false)) ) {
+        long residencyStart = -1;
+        int residencyTime = (code_seen('W')) ? code_value() : TEMP_RESIDENCY_TIME;
       #endif //TEMP_RESIDENCY_TIME
-          if( (millis() - codenum) > 1000 ) 
-          { //Print Temp Reading and remaining time every 1 second while heating up/cooling down
+        bool done_temp = false;
+        while(!done_temp)
+        {
+          if((millis() - codenum) > 1000) 
+          {
+            // See if target extruder(s) have reached the temperature 
+            done_temp = true;
+            for(i = start_e; i < end_e; i++)
+            {
+              done_temp &= (degTargetHotend(i) == 0) || 
+                           (labs(degHotend(i) - degTargetHotend(i)) <= TEMP_HYSTERESIS);
+            }
+            //Print Temp Reading and remaining time every 1 second while heating up/cooling down
             SERIAL_PROTOCOLPGM("T:");
             SERIAL_PROTOCOL((int)(degHotend(tmp_extruder) + 0.5)); 
       #if TEMP_BED_PIN > -1
@@ -815,30 +848,47 @@ FORCE_INLINE void process_commands()
             SERIAL_PROTOCOL((int)(degBed() + 0.5));
       #endif
             SERIAL_PROTOCOLLN("");
-            SERIAL_PROTOCOLPGM("Wait:");
-            if(residencyStart > -1)
+      #if (EXTRUDERS > 1)
+            SERIAL_ECHO_START;
+            for(i = 0; i < EXTRUDERS; i++)
             {
-               codenum = TEMP_RESIDENCY_TIME - ((millis() - residencyStart) / 1000);
-               SERIAL_PROTOCOLLN( codenum );
+              SERIAL_PROTOCOLPGM(" Ext");
+              SERIAL_PROTOCOL(i); 
+              SERIAL_PROTOCOLPGM(":");
+              SERIAL_PROTOCOL((int)(degHotend(i) + 0.5)); 
+            }
+      #endif
+      #ifdef TEMP_RESIDENCY_TIME
+            // Print the waiting info
+            SERIAL_PROTOCOLPGM(" Wait:");
+            if(residencyStart >= 0)
+            {
+               codenum = residencyTime - ((millis() - residencyStart) / 1000);
+               SERIAL_PROTOCOLLN(codenum);
             }
             else 
             {
-               SERIAL_PROTOCOLLN( "?" );
+               SERIAL_PROTOCOLLN("?");
             }
+            // Logic to handle wait for temperature to stabilize
+            if(!done_temp) // Still reaching the target teperature(s)
+            {
+              residencyStart = -1;
+            }
+            else if(residencyStart < 0) // Start waiting for stabilization
+            {
+              residencyStart = millis();
+              done_temp = false;
+            }
+            else if(codenum > 0) // have to wait
+            {
+              done_temp = false;
+            }
+      #endif
             codenum = millis();
           }
           manage_heater();
           LCD_STATUS;
-        #ifdef TEMP_RESIDENCY_TIME
-            /* start/restart the TEMP_RESIDENCY_TIME timer whenever we reach target temp for the first time
-              or when current temp falls outside the hysteresis after target temp was reached */
-          if ((residencyStart == -1 &&  target_direction && !isHeatingHotend(tmp_extruder)) ||
-              (residencyStart == -1 && !target_direction && !isCoolingHotend(tmp_extruder)) ||
-              (residencyStart > -1 && labs(degHotend(tmp_extruder) - degTargetHotend(tmp_extruder)) > TEMP_HYSTERESIS) ) 
-          {
-            residencyStart = millis();
-          }
-        #endif //TEMP_RESIDENCY_TIME
         }
         LCD_MESSAGEPGM("Heating done.");
         starttime=millis();
@@ -1049,6 +1099,12 @@ FORCE_INLINE void process_commands()
       {
         if(code_seen(axis_codes[i])) add_homeing[i] = code_value();
       }
+      break;
+    case 208: // M208 extruder offset
+      tmp_extruder = active_extruder;
+      if(code_seen('T')) tmp_extruder = code_value();
+      if(code_seen('X')) extruder_offset[X_AXIS][tmp_extruder] = code_value();
+      if(code_seen('Y')) extruder_offset[Y_AXIS][tmp_extruder] = code_value();
       break;
     case 220: // M220 S<factor in percent>- set speed factor override percentage
     {
