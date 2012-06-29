@@ -449,34 +449,34 @@ ISR(TIMER1_COMPA_vect)
       
       counter_x += current_block->steps_x;
       if (counter_x > 0) {
-        WRITE(X_STEP_PIN, HIGH);
+        WRITE(X_STEP_PIN, !INVERT_X_STEP_PIN);
         counter_x -= current_block->step_event_count;
-        WRITE(X_STEP_PIN, LOW);
+        WRITE(X_STEP_PIN, INVERT_X_STEP_PIN);
         count_position[X_AXIS]+=count_direction[X_AXIS];   
       }
 
       counter_y += current_block->steps_y;
       if (counter_y > 0) {
-        WRITE(Y_STEP_PIN, HIGH);
+        WRITE(Y_STEP_PIN, !INVERT_Y_STEP_PIN);
         counter_y -= current_block->step_event_count;
-        WRITE(Y_STEP_PIN, LOW);
+        WRITE(Y_STEP_PIN, INVERT_Y_STEP_PIN);
         count_position[Y_AXIS]+=count_direction[Y_AXIS];
       }
 
       counter_z += current_block->steps_z;
       if (counter_z > 0) {
-        WRITE(Z_STEP_PIN, HIGH);
+        WRITE(Z_STEP_PIN, !INVERT_Z_STEP_PIN);
         counter_z -= current_block->step_event_count;
-        WRITE(Z_STEP_PIN, LOW);
+        WRITE(Z_STEP_PIN, INVERT_Z_STEP_PIN);
         count_position[Z_AXIS]+=count_direction[Z_AXIS];
       }
 
       #ifndef ADVANCE
         counter_e += current_block->steps_e;
         if (counter_e > 0) {
-          WRITE_E_STEP(HIGH);
+          WRITE_E_STEP(!INVERT_E_STEP_PIN);
           counter_e -= current_block->step_event_count;
-          WRITE_E_STEP(LOW);
+          WRITE_E_STEP(INVERT_E_STEP_PIN);
           count_position[E_AXIS]+=count_direction[E_AXIS];
         }
       #endif //!ADVANCE
@@ -704,27 +704,27 @@ void st_init()
   //Initialize Step Pins
   #if (X_STEP_PIN > -1) 
     SET_OUTPUT(X_STEP_PIN);
-    if(!X_ENABLE_ON) WRITE(X_ENABLE_PIN,HIGH);
+    WRITE(X_STEP_PIN,INVERT_X_STEP_PIN);
   #endif  
   #if (Y_STEP_PIN > -1) 
     SET_OUTPUT(Y_STEP_PIN);
-    if(!Y_ENABLE_ON) WRITE(Y_ENABLE_PIN,HIGH);
+    WRITE(Y_STEP_PIN,INVERT_Y_STEP_PIN);
   #endif  
   #if (Z_STEP_PIN > -1) 
     SET_OUTPUT(Z_STEP_PIN);
-    if(!Z_ENABLE_ON) WRITE(Z_ENABLE_PIN,HIGH);
+    WRITE(Z_STEP_PIN,INVERT_Z_STEP_PIN);
   #endif  
   #if (E0_STEP_PIN > -1) 
     SET_OUTPUT(E0_STEP_PIN);
-    if(!E_ENABLE_ON) WRITE(E0_ENABLE_PIN,HIGH);
+    WRITE(E0_STEP_PIN,INVERT_E_STEP_PIN);
   #endif  
   #if defined(E1_STEP_PIN) && (E1_STEP_PIN > -1) 
     SET_OUTPUT(E1_STEP_PIN);
-    if(!E_ENABLE_ON) WRITE(E1_ENABLE_PIN,HIGH);
+    WRITE(E1_STEP_PIN,INVERT_E_STEP_PIN);
   #endif  
   #if defined(E2_STEP_PIN) && (E2_STEP_PIN > -1) 
     SET_OUTPUT(E2_STEP_PIN);
-    if(!E_ENABLE_ON) WRITE(E2_ENABLE_PIN,HIGH);
+    WRITE(E2_STEP_PIN,INVERT_E_STEP_PIN);
   #endif  
 
   #ifdef CONTROLLERFAN_PIN
