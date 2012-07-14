@@ -563,7 +563,7 @@ ISR(TIMER1_COMPA_vect)
           WRITE_E_STEP(!INVERT_E_STEP_PIN);
           counter_e -= current_block->step_event_count;
           count_position[E_AXIS]+=count_direction[E_AXIS];
-          WRITE(E_STEP_PIN, INVERT_E_STEP_PIN);
+          WRITE_E_STEP(INVERT_E_STEP_PIN);
         }
       #endif //!ADVANCE
       step_events_completed += 1;  
