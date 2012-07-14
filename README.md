@@ -44,6 +44,7 @@ Features:
 *   Updated sdcardlib
 *   Heater power reporting. Useful for PID monitoring.
 *   PID tuning
+*   CoreXY kinematics (www.corexy.com/theory.html)
 
 The default baudrate is 250000. This baudrate has less jitter and hence errors than the usual 115200 baud, but is less supported by drivers and host-environments.
 
