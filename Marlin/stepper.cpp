@@ -488,16 +488,16 @@ ISR(TIMER1_COMPA_vect)
         if (counter_x > 0) {
           WRITE(X_STEP_PIN, HIGH);
           counter_x -= current_block->step_event_count;
-          WRITE(X_STEP_PIN, LOW);
           count_position[X_AXIS]+=count_direction[X_AXIS];   
+          WRITE(X_STEP_PIN, LOW);
         }
   
         counter_y += current_block->steps_y;
         if (counter_y > 0) {
           WRITE(Y_STEP_PIN, HIGH);
-
+          counter_y -= current_block->step_event_count; 
+          count_position[Y_AXIS]+=count_direction[Y_AXIS];         
           WRITE(Y_STEP_PIN, LOW);
-
         }
       #endif
   
@@ -508,19 +508,19 @@ ISR(TIMER1_COMPA_vect)
         if ((counter_x > 0)&&!(counter_y>0)){  //X step only
           WRITE(X_STEP_PIN, HIGH);
           WRITE(Y_STEP_PIN, HIGH);
-          counter_x -= current_block->step_event_count;          
+          counter_x -= current_block->step_event_count; 
+          count_position[X_AXIS]+=count_direction[X_AXIS];         
           WRITE(X_STEP_PIN, LOW);
           WRITE(Y_STEP_PIN, LOW);
-          count_position[X_AXIS]+=count_direction[X_AXIS];
         }
         
         if (!(counter_x > 0)&&(counter_y>0)){  //Y step only
           WRITE(X_STEP_PIN, HIGH);
           WRITE(Y_STEP_PIN, HIGH);
-          counter_y -= current_block->step_event_count;          
+          counter_y -= current_block->step_event_count; 
+          count_position[Y_AXIS]+=count_direction[Y_AXIS];
           WRITE(X_STEP_PIN, LOW);
           WRITE(Y_STEP_PIN, LOW);
-          count_position[Y_AXIS]+=count_direction[Y_AXIS];
         }        
         
         if ((counter_x > 0)&&(counter_y>0)){  //step in both axes
@@ -553,8 +553,8 @@ ISR(TIMER1_COMPA_vect)
       if (counter_z > 0) {
         WRITE(Z_STEP_PIN, HIGH);
         counter_z -= current_block->step_event_count;
-        WRITE(Z_STEP_PIN, LOW);
         count_position[Z_AXIS]+=count_direction[Z_AXIS];
+        WRITE(Z_STEP_PIN, LOW);
       }
 
       #ifndef ADVANCE
@@ -562,8 +562,8 @@ ISR(TIMER1_COMPA_vect)
         if (counter_e > 0) {
           WRITE_E_STEP(HIGH);
           counter_e -= current_block->step_event_count;
-          WRITE_E_STEP(LOW);
           count_position[E_AXIS]+=count_direction[E_AXIS];
+          WRITE_E_STEP(LOW);
         }
       #endif //!ADVANCE
       step_events_completed += 1;  
