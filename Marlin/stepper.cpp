@@ -486,18 +486,18 @@ ISR(TIMER1_COMPA_vect)
       #if !defined COREXY      
         counter_x += current_block->steps_x;
         if (counter_x > 0) {
-          WRITE(X_STEP_PIN, HIGH);
+          WRITE(X_STEP_PIN, !INVERT_X_STEP_PIN);
           counter_x -= current_block->step_event_count;
           count_position[X_AXIS]+=count_direction[X_AXIS];   
-          WRITE(X_STEP_PIN, LOW);
+          WRITE(X_STEP_PIN, INVERT_X_STEP_PIN);
         }
   
         counter_y += current_block->steps_y;
         if (counter_y > 0) {
-          WRITE(Y_STEP_PIN, HIGH);
+          WRITE(Y_STEP_PIN, !INVERT_Y_STEP_PIN);
           counter_y -= current_block->step_event_count; 
-          count_position[Y_AXIS]+=count_direction[Y_AXIS];         
-          WRITE(Y_STEP_PIN, LOW);
+          count_position[Y_AXIS]+=count_direction[Y_AXIS]; 
+          WRITE(Y_STEP_PIN, INVERT_Y_STEP_PIN);
         }
       #endif
   
@@ -506,64 +506,64 @@ ISR(TIMER1_COMPA_vect)
         counter_y += current_block->steps_y;
         
         if ((counter_x > 0)&&!(counter_y>0)){  //X step only
-          WRITE(X_STEP_PIN, HIGH);
-          WRITE(Y_STEP_PIN, HIGH);
+          WRITE(X_STEP_PIN, !INVERT_X_STEP_PIN);
+          WRITE(Y_STEP_PIN, !INVERT_Y_STEP_PIN);
           counter_x -= current_block->step_event_count; 
           count_position[X_AXIS]+=count_direction[X_AXIS];         
-          WRITE(X_STEP_PIN, LOW);
-          WRITE(Y_STEP_PIN, LOW);
+          WRITE(X_STEP_PIN, INVERT_X_STEP_PIN);
+          WRITE(Y_STEP_PIN, INVERT_Y_STEP_PIN);
         }
         
         if (!(counter_x > 0)&&(counter_y>0)){  //Y step only
-          WRITE(X_STEP_PIN, HIGH);
-          WRITE(Y_STEP_PIN, HIGH);
+          WRITE(X_STEP_PIN, !INVERT_X_STEP_PIN);
+          WRITE(Y_STEP_PIN, !INVERT_Y_STEP_PIN);
           counter_y -= current_block->step_event_count; 
           count_position[Y_AXIS]+=count_direction[Y_AXIS];
-          WRITE(X_STEP_PIN, LOW);
-          WRITE(Y_STEP_PIN, LOW);
+          WRITE(X_STEP_PIN, INVERT_X_STEP_PIN);
+          WRITE(Y_STEP_PIN, INVERT_Y_STEP_PIN);
         }        
         
         if ((counter_x > 0)&&(counter_y>0)){  //step in both axes
           if (((out_bits & (1<<X_AXIS)) == 0)^((out_bits & (1<<Y_AXIS)) == 0)){  //X and Y in different directions
-            WRITE(Y_STEP_PIN, HIGH);
+            WRITE(Y_STEP_PIN, !INVERT_Y_STEP_PIN);
             counter_x -= current_block->step_event_count;             
-            WRITE(Y_STEP_PIN, LOW);
+            WRITE(Y_STEP_PIN, INVERT_Y_STEP_PIN);
             step_wait();
             count_position[X_AXIS]+=count_direction[X_AXIS];
             count_position[Y_AXIS]+=count_direction[Y_AXIS];
-            WRITE(Y_STEP_PIN, HIGH);
+            WRITE(Y_STEP_PIN, !INVERT_Y_STEP_PIN);
             counter_y -= current_block->step_event_count;
-            WRITE(Y_STEP_PIN, LOW);
+            WRITE(Y_STEP_PIN, INVERT_Y_STEP_PIN);
           }
           else{  //X and Y in same direction
-            WRITE(X_STEP_PIN, HIGH);
+            WRITE(X_STEP_PIN, !INVERT_X_STEP_PIN);
             counter_x -= current_block->step_event_count;             
-            WRITE(X_STEP_PIN, LOW) ;
+            WRITE(X_STEP_PIN, INVERT_X_STEP_PIN) ;
             step_wait();
             count_position[X_AXIS]+=count_direction[X_AXIS];
             count_position[Y_AXIS]+=count_direction[Y_AXIS];
-            WRITE(X_STEP_PIN, HIGH); 
+            WRITE(X_STEP_PIN, !INVERT_X_STEP_PIN); 
             counter_y -= current_block->step_event_count;    
-            WRITE(X_STEP_PIN, LOW);        
+            WRITE(X_STEP_PIN, INVERT_X_STEP_PIN);        
           }
         }
       #endif //corexy
       
       counter_z += current_block->steps_z;
       if (counter_z > 0) {
-        WRITE(Z_STEP_PIN, HIGH);
+        WRITE(Z_STEP_PIN, !INVERT_Z_STEP_PIN);
         counter_z -= current_block->step_event_count;
         count_position[Z_AXIS]+=count_direction[Z_AXIS];
-        WRITE(Z_STEP_PIN, LOW);
+        WRITE(Z_STEP_PIN, INVERT_Z_STEP_PIN);
       }
 
       #ifndef ADVANCE
         counter_e += current_block->steps_e;
         if (counter_e > 0) {
-          WRITE_E_STEP(HIGH);
+          WRITE_E_STEP(!INVERT_E_STEP_PIN);
           counter_e -= current_block->step_event_count;
           count_position[E_AXIS]+=count_direction[E_AXIS];
-          WRITE_E_STEP(LOW);
+          WRITE(E_STEP_PIN, INVERT_E_STEP_PIN);
         }
       #endif //!ADVANCE
       step_events_completed += 1;  
@@ -647,45 +647,45 @@ ISR(TIMER1_COMPA_vect)
     // Set E direction (Depends on E direction + advance)
     for(unsigned char i=0; i<4;i++) {
       if (e_steps[0] != 0) {
-        WRITE(E0_STEP_PIN, LOW);
+        WRITE(E0_STEP_PIN, INVERT_E_STEP_PIN);
         if (e_steps[0] < 0) {
           WRITE(E0_DIR_PIN, INVERT_E0_DIR);
           e_steps[0]++;
-          WRITE(E0_STEP_PIN, HIGH);
+          WRITE(E0_STEP_PIN, !INVERT_E_STEP_PIN);
         } 
         else if (e_steps[0] > 0) {
           WRITE(E0_DIR_PIN, !INVERT_E0_DIR);
           e_steps[0]--;
-          WRITE(E0_STEP_PIN, HIGH);
+          WRITE(E0_STEP_PIN, !INVERT_E_STEP_PIN);
         }
       }
  #if EXTRUDERS > 1
       if (e_steps[1] != 0) {
-        WRITE(E1_STEP_PIN, LOW);
+        WRITE(E1_STEP_PIN, INVERT_E_STEP_PIN);
         if (e_steps[1] < 0) {
           WRITE(E1_DIR_PIN, INVERT_E1_DIR);
           e_steps[1]++;
-          WRITE(E1_STEP_PIN, HIGH);
+          WRITE(E1_STEP_PIN, !INVERT_E_STEP_PIN);
         } 
         else if (e_steps[1] > 0) {
           WRITE(E1_DIR_PIN, !INVERT_E1_DIR);
           e_steps[1]--;
-          WRITE(E1_STEP_PIN, HIGH);
+          WRITE(E1_STEP_PIN, !INVERT_E_STEP_PIN);
         }
       }
  #endif
  #if EXTRUDERS > 2
       if (e_steps[2] != 0) {
-        WRITE(E2_STEP_PIN, LOW);
+        WRITE(E2_STEP_PIN, INVERT_E_STEP_PIN);
         if (e_steps[2] < 0) {
           WRITE(E2_DIR_PIN, INVERT_E2_DIR);
           e_steps[2]++;
-          WRITE(E2_STEP_PIN, HIGH);
+          WRITE(E2_STEP_PIN, !INVERT_E_STEP_PIN);
         } 
         else if (e_steps[2] > 0) {
           WRITE(E2_DIR_PIN, !INVERT_E2_DIR);
           e_steps[2]--;
-          WRITE(E2_STEP_PIN, HIGH);
+          WRITE(E2_STEP_PIN, !INVERT_E_STEP_PIN);
         }
       }
  #endif
@@ -790,26 +790,32 @@ void st_init()
   //Initialize Step Pins
   #if (X_STEP_PIN > -1) 
     SET_OUTPUT(X_STEP_PIN);
+    WRITE(X_STEP_PIN,INVERT_X_STEP_PIN);
     if(!X_ENABLE_ON) WRITE(X_ENABLE_PIN,HIGH);
   #endif  
   #if (Y_STEP_PIN > -1) 
     SET_OUTPUT(Y_STEP_PIN);
+    WRITE(Y_STEP_PIN,INVERT_Y_STEP_PIN);
     if(!Y_ENABLE_ON) WRITE(Y_ENABLE_PIN,HIGH);
   #endif  
   #if (Z_STEP_PIN > -1) 
     SET_OUTPUT(Z_STEP_PIN);
+    WRITE(Z_STEP_PIN,INVERT_Z_STEP_PIN);
     if(!Z_ENABLE_ON) WRITE(Z_ENABLE_PIN,HIGH);
   #endif  
   #if (E0_STEP_PIN > -1) 
     SET_OUTPUT(E0_STEP_PIN);
+    WRITE(E0_STEP_PIN,INVERT_E_STEP_PIN);
     if(!E_ENABLE_ON) WRITE(E0_ENABLE_PIN,HIGH);
   #endif  
   #if defined(E1_STEP_PIN) && (E1_STEP_PIN > -1) 
     SET_OUTPUT(E1_STEP_PIN);
+    WRITE(E1_STEP_PIN,INVERT_E_STEP_PIN);
     if(!E_ENABLE_ON) WRITE(E1_ENABLE_PIN,HIGH);
   #endif  
   #if defined(E2_STEP_PIN) && (E2_STEP_PIN > -1) 
     SET_OUTPUT(E2_STEP_PIN);
+    WRITE(E2_STEP_PIN,INVERT_E_STEP_PIN);
     if(!E_ENABLE_ON) WRITE(E2_ENABLE_PIN,HIGH);
   #endif  
 
