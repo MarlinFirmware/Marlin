@@ -725,7 +725,7 @@ void MainMenu::showAxisMove()
       }
       line++;
    }
-   updateActiveLines(ItemAM_E,encoderpos);
+   updateActiveLines(ItemAM_ERetract,encoderpos);
 }
 
 enum {ItemT_exit,ItemT_speed,ItemT_flow,ItemT_nozzle,
