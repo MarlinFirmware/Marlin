@@ -561,7 +561,7 @@ void MainMenu::showPrepare()
 
 enum {
   ItemAM_exit,
-  ItemAM_X, ItemAM_Y, ItemAM_Z, ItemAM_E
+  ItemAM_X, ItemAM_Y, ItemAM_Z, ItemAM_E, ItemAM_ERetract
 };
 
 void MainMenu::showAxisMove()
@@ -714,8 +714,12 @@ void MainMenu::showAxisMove()
           break;
           case ItemAM_E:
           // ErikDB: TODO: this length should be changed for volumetric.
-          MENUITEM(  lcdprintPGM(MSG_EXTRUDE)  ,  BLOCK;enquecommand("G92 E0");enquecommand("G1 F700 E5");beepshort(); ) ;
+          MENUITEM(  lcdprintPGM(MSG_EXTRUDE)  ,  BLOCK;enquecommand("G92 E0");enquecommand("G1 F70 E1");beepshort(); ) ;
           break;
+          case ItemAM_ERetract:
+              // ErikDB: TODO: this length should be changed for volumetric.
+              MENUITEM(  lcdprintPGM(MSG_RETRACT)  ,  BLOCK;enquecommand("G92 E0");enquecommand("G1 F700 E-1");beepshort(); ) ;
+              break;
           default:
           break;
       }
@@ -2338,7 +2342,7 @@ void MainMenu::showSD()
 }
 
 
-enum {ItemM_watch, ItemM_prepare, ItemM_control, ItemM_file };
+enum {ItemM_watch, ItemM_prepare, ItemM_control, ItemM_file, ItemM_pause};
 void MainMenu::showMainMenu()
 {
 
@@ -2410,18 +2414,68 @@ void MainMenu::showMainMenu()
           beepshort();
         }
       }break;
+        case ItemM_pause:
+        {
+            if(force_lcd_update)
+            {
+                lcd.setCursor(0,line);
+#ifdef CARDINSERTED
+                if(CARDINSERTED)
+#else
+                    if(true)
+#endif
+                    {
+                        if(card.sdprinting)
+                            lcdprintPGM(MSG_PAUSE_PRINT);
+                        else
+                            lcdprintPGM(MSG_RESUME_PRINT);
+                    }
+                    else
+                    {
+                        //lcdprintPGM(MSG_NO_CARD);
+                    }
+            }
+#ifdef CARDINSERTED
+            if(CARDINSERTED)
+#endif
+                if((activeline==line) && CLICKED)
+                {
+                    if(card.sdprinting)
+                    {
+                        card.pauseSDPrint();
+                        beepshort();
+                        status = Main_Status;
+                    }
+                    else
+                    {
+                        card.startFileprint();
+                        starttime=millis();
+                        beepshort();
+                        status = Main_Status;
+                    }
+                }
+        }break;
       #else
       case ItemM_file:
         break;
+        case ItemM_pause:
+            break;
       #endif
-      default: 
+      default:
         SERIAL_ERROR_START;
         SERIAL_ERRORLNPGM(MSG_SERIAL_ERROR_MENU_STRUCTURE);
       break;
     }
     line++;
   }
-  updateActiveLines(3,encoderpos);
+    
+    uint8_t numberOfLines = 4;
+#ifdef SDSUPPORT
+    numberOfLines = 4;
+#else
+    numberOfLines = 3;
+#endif
+    updateActiveLines(numberOfLines,encoderpos);
 }
 
 void MainMenu::update()
