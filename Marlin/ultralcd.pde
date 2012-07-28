@@ -574,7 +574,7 @@ void MainMenu::showAxisMove()
      switch(i)
       {
           case ItemAM_exit:
-          MENUITEM(  lcdprintPGM(MSG_PREPARE_ALT)  ,  BLOCK;status=Main_Menu;beepshort(); ) ;
+          MENUITEM(  lcdprintPGM(MSG_PREPARE_ALT)  ,  BLOCK;status=Main_Prepare;beepshort(); ) ;
           break;
           case ItemAM_X:
           {
