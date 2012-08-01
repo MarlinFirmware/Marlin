@@ -143,6 +143,8 @@ volatile bool feedmultiplychanged=false;
 volatile int extrudemultiply=100; //100->1 200->2
 float current_position[NUM_AXIS] = { 0.0, 0.0, 0.0, 0.0 };
 float add_homeing[3]={0,0,0};
+float min_pos[3] = { X_MIN_POS, Y_MIN_POS, Z_MIN_POS };
+float max_pos[3] = { X_MAX_POS, Y_MAX_POS, Z_MAX_POS };
 uint8_t active_extruder = 0;
 unsigned char FanSpeed=0;
 
@@ -543,6 +545,28 @@ bool code_seen(char code)
   return (strchr_pointer != NULL);  //Return True if a character was found
 }
 
+#define DEFINE_PGM_READ_ANY(type, reader)		\
+    static inline type pgm_read_any(const type *p)	\
+	{ return pgm_read_##reader##_near(p); }
+
+DEFINE_PGM_READ_ANY(float,       float);
+
+#define XYZ_CONSTS_FROM_CONFIG(type, array, CONFIG)	\
+static const PROGMEM type array##_P[3] =		\
+    { X_##CONFIG, Y_##CONFIG, Z_##CONFIG };		\
+static inline type array(int axis)			\
+    { return pgm_read_any(&array##_P[axis]); }
+
+XYZ_CONSTS_FROM_CONFIG(float, base_min_pos,    MIN_POS);
+XYZ_CONSTS_FROM_CONFIG(float, base_max_pos,    MAX_POS);
+XYZ_CONSTS_FROM_CONFIG(float, base_home_pos,   HOME_POS);
+
+static void axis_is_at_home(int axis) {
+  current_position[axis] = base_home_pos(axis) + add_homeing[axis];
+  min_pos[axis] =          base_min_pos(axis) + add_homeing[axis];
+  max_pos[axis] =          base_max_pos(axis) + add_homeing[axis];
+}
+
 #define HOMEAXIS(LETTER) \
   if ((LETTER##_MIN_PIN > -1 && LETTER##_HOME_DIR==-1) || (LETTER##_MAX_PIN > -1 && LETTER##_HOME_DIR==1))\
     { \
@@ -564,8 +588,8 @@ bool code_seen(char code)
     plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate/60, active_extruder); \
     st_synchronize();\
     \
-    current_position[LETTER##_AXIS] = LETTER##_HOME_POS;\
-    destination[LETTER##_AXIS] = current_position[LETTER##_AXIS];\
+    axis_is_at_home(LETTER##_AXIS);					\
+    destination[LETTER##_AXIS] = current_position[LETTER##_AXIS]; \
     feedrate = 0.0;\
     endstops_hit_on_purpose();\
   }
@@ -678,8 +702,8 @@ void process_commands()
         plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate/60, active_extruder);
         st_synchronize();
     
-        current_position[X_AXIS] = X_HOME_POS;
-        current_position[Y_AXIS] = Y_HOME_POS;
+        axis_is_at_home(X_AXIS);
+        axis_is_at_home(Y_AXIS);
         plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
         destination[X_AXIS] = current_position[X_AXIS];
         destination[Y_AXIS] = current_position[Y_AXIS];
@@ -1544,15 +1568,15 @@ void get_arc_coordinates()
 void clamp_to_software_endstops(float target[3])
 {
   if (min_software_endstops) {
-    if (target[X_AXIS] < X_MIN_POS) target[X_AXIS] = X_MIN_POS;
-    if (target[Y_AXIS] < Y_MIN_POS) target[Y_AXIS] = Y_MIN_POS;
-    if (target[Z_AXIS] < Z_MIN_POS) target[Z_AXIS] = Z_MIN_POS;
+    if (target[X_AXIS] < min_pos[X_AXIS]) target[X_AXIS] = min_pos[X_AXIS];
+    if (target[Y_AXIS] < min_pos[Y_AXIS]) target[Y_AXIS] = min_pos[Y_AXIS];
+    if (target[Z_AXIS] < min_pos[Z_AXIS]) target[Z_AXIS] = min_pos[Z_AXIS];
   }
 
   if (max_software_endstops) {
-    if (target[X_AXIS] > X_MAX_POS) target[X_AXIS] = X_MAX_POS;
-    if (target[Y_AXIS] > Y_MAX_POS) target[Y_AXIS] = Y_MAX_POS;
-    if (target[Z_AXIS] > Z_MAX_POS) target[Z_AXIS] = Z_MAX_POS;
+    if (target[X_AXIS] > max_pos[X_AXIS]) target[X_AXIS] = max_pos[X_AXIS];
+    if (target[Y_AXIS] > max_pos[Y_AXIS]) target[Y_AXIS] = max_pos[Y_AXIS];
+    if (target[Z_AXIS] > max_pos[Z_AXIS]) target[Z_AXIS] = max_pos[Z_AXIS];
   }
 }
 
