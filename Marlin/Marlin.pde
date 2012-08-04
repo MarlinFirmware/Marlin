@@ -203,6 +203,13 @@ bool Stopped=false;
 
 void get_arc_coordinates();
 
+void serial_echopair_P(const char *s_P, float v)
+    { serialprintPGM(s_P); SERIAL_ECHO(v); }
+void serial_echopair_P(const char *s_P, double v)
+    { serialprintPGM(s_P); SERIAL_ECHO(v); }
+void serial_echopair_P(const char *s_P, unsigned long v)
+    { serialprintPGM(s_P); SERIAL_ECHO(v); }
+
 extern "C"{
   extern unsigned int __bss_end;
   extern unsigned int __heap_start;
