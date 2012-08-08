@@ -557,6 +557,7 @@ bool code_seen(char code)
 	{ return pgm_read_##reader##_near(p); }
 
 DEFINE_PGM_READ_ANY(float,       float);
+DEFINE_PGM_READ_ANY(signed char, byte);
 
 #define XYZ_CONSTS_FROM_CONFIG(type, array, CONFIG)	\
 static const PROGMEM type array##_P[3] =		\
@@ -567,6 +568,9 @@ static inline type array(int axis)			\
 XYZ_CONSTS_FROM_CONFIG(float, base_min_pos,    MIN_POS);
 XYZ_CONSTS_FROM_CONFIG(float, base_max_pos,    MAX_POS);
 XYZ_CONSTS_FROM_CONFIG(float, base_home_pos,   HOME_POS);
+XYZ_CONSTS_FROM_CONFIG(float, max_length,      MAX_LENGTH);
+XYZ_CONSTS_FROM_CONFIG(float, home_retract_mm, HOME_RETRACT_MM);
+XYZ_CONSTS_FROM_CONFIG(signed char, home_dir,  HOME_DIR);
 
 static void axis_is_at_home(int axis) {
   current_position[axis] = base_home_pos(axis) + add_homeing[axis];
@@ -574,32 +578,39 @@ static void axis_is_at_home(int axis) {
   max_pos[axis] =          base_max_pos(axis) + add_homeing[axis];
 }
 
-#define HOMEAXIS(LETTER) \
-  if ((LETTER##_MIN_PIN > -1 && LETTER##_HOME_DIR==-1) || (LETTER##_MAX_PIN > -1 && LETTER##_HOME_DIR==1))\
-    { \
-    current_position[LETTER##_AXIS] = 0; \
-    plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]); \
-    destination[LETTER##_AXIS] = 1.5 * LETTER##_MAX_LENGTH * LETTER##_HOME_DIR; \
-    feedrate = homing_feedrate[LETTER##_AXIS]; \
-    plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate/60, active_extruder); \
-    st_synchronize();\
-    \
-    current_position[LETTER##_AXIS] = 0;\
-    plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);\
-    destination[LETTER##_AXIS] = -LETTER##_HOME_RETRACT_MM * LETTER##_HOME_DIR;\
-    plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate/60, active_extruder); \
-    st_synchronize();\
-    \
-    destination[LETTER##_AXIS] = 2*LETTER##_HOME_RETRACT_MM * LETTER##_HOME_DIR;\
-    feedrate = homing_feedrate[LETTER##_AXIS]/2 ;  \
-    plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate/60, active_extruder); \
-    st_synchronize();\
-    \
-    axis_is_at_home(LETTER##_AXIS);					\
-    destination[LETTER##_AXIS] = current_position[LETTER##_AXIS]; \
-    feedrate = 0.0;\
-    endstops_hit_on_purpose();\
+static void homeaxis(int axis) {
+#define HOMEAXIS_DO(LETTER) \
+  ((LETTER##_MIN_PIN > -1 && LETTER##_HOME_DIR==-1) || (LETTER##_MAX_PIN > -1 && LETTER##_HOME_DIR==1))
+
+  if (axis==X_AXIS ? HOMEAXIS_DO(X) :
+      axis==Y_AXIS ? HOMEAXIS_DO(Y) :
+      axis==Z_AXIS ? HOMEAXIS_DO(Z) :
+      0) {
+    current_position[axis] = 0;
+    plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+    destination[axis] = 1.5 * max_length(axis) * home_dir(axis);
+    feedrate = homing_feedrate[axis];
+    plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate/60, active_extruder);
+    st_synchronize();
+   
+    current_position[axis] = 0;
+    plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+    destination[axis] = -home_retract_mm(axis) * home_dir(axis);
+    plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate/60, active_extruder);
+    st_synchronize();
+   
+    destination[axis] = 2*home_retract_mm(axis) * home_dir(axis);
+    feedrate = homing_feedrate[axis]/2 ; 
+    plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate/60, active_extruder);
+    st_synchronize();
+   
+    axis_is_at_home(axis);					
+    destination[axis] = current_position[axis];
+    feedrate = 0.0;
+    endstops_hit_on_purpose();
   }
+}
+#define HOMEAXIS(LETTER) homeaxis(LETTER##_AXIS)
 
 void process_commands()
 {
