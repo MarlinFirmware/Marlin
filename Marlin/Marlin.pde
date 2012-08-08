@@ -1,3 +1,5 @@
+/* -*- c++ -*- */
+
 /*
     Reprap firmware based on Sprinter and grbl.
  Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
