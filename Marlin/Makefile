@@ -221,7 +221,8 @@ endif
 
 	# Display size of file.
 HEXSIZE = $(SIZE) --target=$(FORMAT) applet/$(TARGET).hex
-ELFSIZE = $(SIZE)  applet/$(TARGET).elf
+ELFSIZE = $(SIZE) --mcu=$(MCU) -C applet/$(TARGET).elf; \
+          $(SIZE)  applet/$(TARGET).elf
 sizebefore:
 	$P if [ -f applet/$(TARGET).elf ]; then echo; echo $(MSG_SIZE_BEFORE); $(HEXSIZE); echo; fi
 
