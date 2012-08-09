@@ -1541,19 +1541,25 @@ void get_arc_coordinates()
    }
 }
 
-void prepare_move()
+void clamp_to_software_endstops(float target[3])
 {
   if (min_software_endstops) {
-    if (destination[X_AXIS] < X_MIN_POS) destination[X_AXIS] = X_MIN_POS;
-    if (destination[Y_AXIS] < Y_MIN_POS) destination[Y_AXIS] = Y_MIN_POS;
-    if (destination[Z_AXIS] < Z_MIN_POS) destination[Z_AXIS] = Z_MIN_POS;
+    if (target[X_AXIS] < X_MIN_POS) target[X_AXIS] = X_MIN_POS;
+    if (target[Y_AXIS] < Y_MIN_POS) target[Y_AXIS] = Y_MIN_POS;
+    if (target[Z_AXIS] < Z_MIN_POS) target[Z_AXIS] = Z_MIN_POS;
   }
 
   if (max_software_endstops) {
-    if (destination[X_AXIS] > X_MAX_POS) destination[X_AXIS] = X_MAX_POS;
-    if (destination[Y_AXIS] > Y_MAX_POS) destination[Y_AXIS] = Y_MAX_POS;
-    if (destination[Z_AXIS] > Z_MAX_POS) destination[Z_AXIS] = Z_MAX_POS;
+    if (target[X_AXIS] > X_MAX_POS) target[X_AXIS] = X_MAX_POS;
+    if (target[Y_AXIS] > Y_MAX_POS) target[Y_AXIS] = Y_MAX_POS;
+    if (target[Z_AXIS] > Z_MAX_POS) target[Z_AXIS] = Z_MAX_POS;
   }
+}
+
+void prepare_move()
+{
+  clamp_to_software_endstops(destination);
+
   previous_millis_cmd = millis();  
   plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate*feedmultiply/60/100.0, active_extruder);
   for(int8_t i=0; i < NUM_AXIS; i++) {
