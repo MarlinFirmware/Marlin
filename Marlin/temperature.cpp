@@ -254,6 +254,11 @@ int getHeaterPower(int heater) {
 
 void manage_heater()
 {
+#ifdef HEATER_BED_DUTY_CYCLE_DIVIDER
+  static int bed_needs_heating=0;
+  static int bed_is_on=0;
+#endif
+
   #ifdef USE_WATCHDOG
     wd_reset();
   #endif
@@ -333,12 +338,26 @@ void manage_heater()
     }
   #endif
   
+#ifdef HEATER_BED_DUTY_CYCLE_DIVIDER
+  if (bed_needs_heating){
+    if (bed_is_on==0)
+        WRITE(HEATER_BED_PIN,HIGH);
+    if (bed_is_on==1)
+        WRITE(HEATER_BED_PIN,LOW);
+    bed_is_on=(bed_is_on+1) % HEATER_BED_DUTY_CYCLE_DIVIDER;
+  }
+#endif
+
   if(millis() - previous_millis_bed_heater < BED_CHECK_INTERVAL)
     return;
   previous_millis_bed_heater = millis();
   
   #if TEMP_BED_PIN > -1
   
+    #ifdef HEATER_BED_DUTY_CYCLE_DIVIDER
+    bed_needs_heating=0;
+    #endif
+
     #ifndef BED_LIMIT_SWITCHING
       // Check if temperature is within the correct range
       if((current_raw_bed > bed_minttemp) && (current_raw_bed < bed_maxttemp)) {
@@ -348,6 +367,9 @@ void manage_heater()
         }
         else 
         {
+          #ifdef HEATER_BED_DUTY_CYCLE_DIVIDER
+          bed_needs_heating=1;
+          #endif
           WRITE(HEATER_BED_PIN,HIGH);
         }
       }
@@ -364,6 +386,9 @@ void manage_heater()
         else 
           if(current_raw_bed <= target_bed_low_temp)
         {
+          #ifdef HEATER_BED_DUTY_CYCLE_DIVIDER
+          bed_needs_heating=1;
+          #endif
           WRITE(HEATER_BED_PIN,HIGH);
         }
       }
