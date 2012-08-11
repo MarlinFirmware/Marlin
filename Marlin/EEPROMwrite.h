@@ -38,7 +38,7 @@ template <class T> int EEPROM_readAnything(int &ee, T& value)
 // the default values are used whenever there is a change to the data, to prevent
 // wrong data being written to the variables.
 // ALSO:  always make sure the variables in the Store and retrieve sections are in the same order.
-#define EEPROM_VERSION "V05"  
+#define EEPROM_VERSION "V06"
 
 inline void EEPROM_StoreSettings() 
 {
@@ -57,6 +57,7 @@ inline void EEPROM_StoreSettings()
   EEPROM_writeAnything(i,max_xy_jerk);
   EEPROM_writeAnything(i,max_z_jerk);
   EEPROM_writeAnything(i,max_e_jerk);
+  EEPROM_writeAnything(i,add_homeing);
   #ifdef PIDTEMP
     EEPROM_writeAnything(i,Kp);
     EEPROM_writeAnything(i,Ki);
@@ -119,6 +120,13 @@ inline void EEPROM_printSettings()
       SERIAL_ECHOPAIR(" Z" ,max_z_jerk);
       SERIAL_ECHOPAIR(" E" ,max_e_jerk);
       SERIAL_ECHOLN(""); 
+    SERIAL_ECHO_START;
+      SERIAL_ECHOLNPGM("Home offset (mm):");
+      SERIAL_ECHO_START;
+      SERIAL_ECHOPAIR("  M206 X",add_homeing[0] );
+      SERIAL_ECHOPAIR(" Y" ,add_homeing[1] );
+      SERIAL_ECHOPAIR(" Z" ,add_homeing[2] );
+      SERIAL_ECHOLN("");
     #ifdef PIDTEMP
       SERIAL_ECHO_START;
       SERIAL_ECHOLNPGM("PID settings:");
@@ -153,6 +161,7 @@ inline void EEPROM_RetrieveSettings(bool def=false)
       EEPROM_readAnything(i,max_xy_jerk);
       EEPROM_readAnything(i,max_z_jerk);
       EEPROM_readAnything(i,max_e_jerk);
+      EEPROM_readAnything(i,add_homeing);
       #ifndef PIDTEMP
         float Kp,Ki,Kd;
       #endif
@@ -183,6 +192,7 @@ inline void EEPROM_RetrieveSettings(bool def=false)
       max_xy_jerk=DEFAULT_XYJERK;
       max_z_jerk=DEFAULT_ZJERK;
       max_e_jerk=DEFAULT_EJERK;
+      add_homeing[0] = add_homeing[1] = add_homeing[2] = 0;
       SERIAL_ECHO_START;
       SERIAL_ECHOLN("Using Default settings:");
     }
