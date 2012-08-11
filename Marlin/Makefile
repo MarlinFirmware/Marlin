@@ -170,6 +170,14 @@ ALL_CFLAGS = -mmcu=$(MCU) -I. $(CFLAGS)
 ALL_CXXFLAGS = -mmcu=$(MCU) $(CXXFLAGS)
 ALL_ASFLAGS = -mmcu=$(MCU) -x assembler-with-cpp $(ASFLAGS)
 
+# set V=1 (eg, "make V=1") to print the full commands etc.
+ifneq ($V,1)
+ Pecho=@echo
+ P=@
+else
+ Pecho=@:
+ P=
+endif
 
 # Default target.
 all: sizeafter
@@ -178,7 +186,7 @@ build: applet elf hex
 
 # Creates the object directory
 applet: 
-	@mkdir -p applet
+	$P mkdir -p applet
 
 # the .cpp for Marlin depends on the .pde
 #applet/$(TARGET).cpp: $(TARGET).pde
@@ -189,10 +197,10 @@ applet/%.cpp: %.pde $(MAKEFILE)
 # Here is the "preprocessing".
 # It creates a .cpp file based with the same name as the .pde file.
 # On top of the new .cpp file comes the WProgram.h header.
-	@echo "  WR    $@"
-	@echo '#include "WProgram.h"' > $@
-	@echo '#include "$<"' >>$@
-	@echo '#include "$(ARDUINO)/main.cpp"' >> $@
+	$(Pecho) "  WR    $@"
+	$P echo '#include "WProgram.h"' > $@
+	$P echo '#include "$<"' >>$@
+	$P echo '#include "$(ARDUINO)/main.cpp"' >> $@
 
 elf: applet/$(TARGET).elf
 hex: applet/$(TARGET).hex
@@ -213,12 +221,13 @@ endif
 
 	# Display size of file.
 HEXSIZE = $(SIZE) --target=$(FORMAT) applet/$(TARGET).hex
-ELFSIZE = $(SIZE)  applet/$(TARGET).elf
+ELFSIZE = $(SIZE) --mcu=$(MCU) -C applet/$(TARGET).elf; \
+          $(SIZE)  applet/$(TARGET).elf
 sizebefore:
-	@if [ -f applet/$(TARGET).elf ]; then echo; echo $(MSG_SIZE_BEFORE); $(HEXSIZE); echo; fi
+	$P if [ -f applet/$(TARGET).elf ]; then echo; echo $(MSG_SIZE_BEFORE); $(HEXSIZE); echo; fi
 
 sizeafter: build
-	@if [ -f applet/$(TARGET).elf ]; then echo; echo $(MSG_SIZE_AFTER); $(ELFSIZE); echo; fi
+	$P if [ -f applet/$(TARGET).elf ]; then echo; echo $(MSG_SIZE_AFTER); $(ELFSIZE); echo; fi
 
 
 # Convert ELF to COFF for use in debugging / simulating in AVR Studio or VMLAB.
@@ -241,8 +250,8 @@ extcoff: $(TARGET).elf
 .PRECIOUS: .o
 
 .elf.hex:
-	@echo "  COPY  $@"
-	@$(OBJCOPY) -O $(FORMAT) -R .eeprom $< $@
+	$(Pecho) "  COPY  $@"
+	$P $(OBJCOPY) -O $(FORMAT) -R .eeprom $< $@
 
 .elf.eep:
 	-$(OBJCOPY) -j .eeprom --set-section-flags=.eeprom="alloc,load" \
@@ -258,29 +267,29 @@ extcoff: $(TARGET).elf
 
 	# Link: create ELF output file from library.
 applet/$(TARGET).elf: applet/$(TARGET).cpp applet/core.a Configuration.h
-	@echo "  CXX   $@"
-	@$(CC) $(ALL_CXXFLAGS) -Wl,--gc-sections -o $@ applet/$(TARGET).cpp -L. applet/core.a $(LDFLAGS)
+	$(Pecho) "  CXX   $@"
+	$P $(CC) $(ALL_CXXFLAGS) -Wl,--gc-sections -o $@ applet/$(TARGET).cpp -L. applet/core.a $(LDFLAGS)
 
 applet/core.a: $(OBJ)
-	@for i in $(OBJ); do echo "  AR    $$i"; $(AR) rcs applet/core.a $$i; done
+	$P for i in $(OBJ); do echo "  AR    $$i"; $(AR) rcs applet/core.a $$i; done
 
 applet/%.o: %.c Configuration.h Configuration_adv.h $(MAKEFILE)
-	@echo "  CC    $@"
-	@$(CC) -MMD -c $(ALL_CFLAGS) $< -o $@
+	$(Pecho) "  CC    $@"
+	$P $(CC) -MMD -c $(ALL_CFLAGS) $< -o $@
 
 applet/%.o: %.cpp Configuration.h Configuration_adv.h $(MAKEFILE)
-	@echo "  CXX   $@"
-	@$(CXX) -MMD -c $(ALL_CXXFLAGS) $< -o $@
+	$(Pecho) "  CXX   $@"
+	$P $(CXX) -MMD -c $(ALL_CXXFLAGS) $< -o $@
 
 
 # Target: clean project.
 clean:
-	@echo "  RM    applet/*"
-	@$(REMOVE) applet/$(TARGET).hex applet/$(TARGET).eep applet/$(TARGET).cof applet/$(TARGET).elf \
+	$(Pecho) "  RM    applet/*"
+	$P $(REMOVE) applet/$(TARGET).hex applet/$(TARGET).eep applet/$(TARGET).cof applet/$(TARGET).elf \
 		applet/$(TARGET).map applet/$(TARGET).sym applet/$(TARGET).lss applet/$(TARGET).cpp applet/core.a \
 		$(OBJ) $(LST) $(SRC:.c=.s) $(SRC:.c=.d) $(CXXSRC:.cpp=.s) $(CXXSRC:.cpp=.d)
-	@echo "  RMDIR applet/"
-	@rm -rf applet
+	$(Pecho) "  RMDIR applet/"
+	$P rm -rf applet
 
 
 .PHONY:	all build elf hex eep lss sym program coff extcoff clean depend applet_files sizebefore sizeafter

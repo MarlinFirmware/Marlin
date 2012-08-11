@@ -84,7 +84,11 @@ const char echomagic[] PROGMEM ="echo:";
 #define SERIAL_ECHOLN(x) SERIAL_PROTOCOLLN(x)
 #define SERIAL_ECHOLNPGM(x) SERIAL_PROTOCOLLNPGM(x)
 
-#define SERIAL_ECHOPAIR(name,value) {SERIAL_ECHOPGM(name);SERIAL_ECHO(value);}
+#define SERIAL_ECHOPAIR(name,value) (serial_echopair_P(PSTR(name),(value)))
+
+void serial_echopair_P(const char *s_P, float v);
+void serial_echopair_P(const char *s_P, double v);
+void serial_echopair_P(const char *s_P, unsigned long v);
 
 
 //things to write to serial from Programmemory. saves 400 to 2k of RAM.
@@ -169,6 +173,7 @@ bool IsStopped();
 
 void enquecommand(const char *cmd); //put an ascii command at the end of the current buffer.
 void prepare_arc_move(char isclockwise);
+void clamp_to_software_endstops(float target[3]);
 
 #ifdef FAST_PWM_FAN
 void setPwmFrequency(uint8_t pin, int val);
@@ -183,6 +188,8 @@ extern float homing_feedrate[];
 extern bool axis_relative_modes[];
 extern float current_position[NUM_AXIS] ;
 extern float add_homeing[3];
+extern float min_pos[3];
+extern float max_pos[3];
 extern unsigned char FanSpeed;
 
 // Handling multiple extruders pins
