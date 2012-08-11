@@ -78,6 +78,18 @@
 
 //#define Z_LATE_ENABLE // Enable Z the last moment. Needed if your Z driver overheats.
 
+// A single Z stepper driver is usually used to drive 2 stepper motors.
+// Uncomment this define to utilize a separate stepper driver for each Z axis motor.
+// Only a few motherboards support this, like RAMPS, which have dual extruder support (the 2nd, often unused, extruder driver is used
+// to control the 2nd Z axis stepper motor). The pins are currently only defined for a RAMPS motherboards.
+// On a RAMPS (or other 5 driver) motherboard, using this feature will limit you to using 1 extruder.
+//#define Z_DUAL_STEPPER_DRIVERS
+
+#ifdef Z_DUAL_STEPPER_DRIVERS
+  #undef EXTRUDERS
+  #define EXTRUDERS 1
+#endif
+
 //homing hits the endstop, then retracts by this distance, before it tries to slowly bump again:
 #define X_HOME_RETRACT_MM 5 
 #define Y_HOME_RETRACT_MM 5 
