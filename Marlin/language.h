@@ -344,7 +344,7 @@
 #define MSG_NOZZLE " \002Nozzle:"
 #define MSG_NOZZLE1 " \002Nozzle2:"
 #define MSG_NOZZLE2 " \002Nozzle3:"
-#define MSG_BED " \002Bed:"
+#define MSG_BED " \002Base:"
 #define MSG_FAN_SPEED " Ventilador:"
 #define MSG_FLOW " Flujo:"
 #define MSG_CONTROL " Control \003"
