@@ -42,7 +42,7 @@
 #include <stdio.h>
 
 
-#define VERSION_STRING  "1.0.0 X2 Beta 2"
+#define VERSION_STRING  "1.0.0 X2 Beta 3"
 
 
 
@@ -64,7 +64,7 @@
 
 //RepRap M Codes
 // M104 - Set extruder target temp
-// M105 - Read current temp
+// M105 - Read current temp (use A1 to read for all extruders)
 // M106 - Fan on
 // M107 - Fan off
 // M109 - Wait for extruders current temp to reach target temp.
@@ -750,6 +750,12 @@ FORCE_INLINE void process_commands()
       if (code_seen('S')) setTargetBed(code_value());
       break;
     case 105 : // M105
+      #if !(TEMP_0_PIN > -1)
+        SERIAL_ERROR_START;
+        SERIAL_ERRORLNPGM("No thermistors - no temp");
+        SERIAL_PROTOCOLLN("");
+        break;
+      #endif
       tmp_extruder = active_extruder;
       if(code_seen('T')) {
         tmp_extruder = code_value();
@@ -760,19 +766,33 @@ FORCE_INLINE void process_commands()
           break;
         }
       }
-      #if (TEMP_0_PIN > -1)
-        SERIAL_PROTOCOLPGM("ok T:");
-        SERIAL_PROTOCOL((int)(degHotend(tmp_extruder) + 0.5)); 
-        #if TEMP_BED_PIN > -1 
-          SERIAL_PROTOCOLPGM(" B:");  
-          SERIAL_PROTOCOL((int)(degBed() + 0.5));
-        #endif //TEMP_BED_PIN
-      #else
-        SERIAL_ERROR_START;
-        SERIAL_ERRORLNPGM("No thermistors - no temp");
-      #endif
-        SERIAL_PROTOCOLLN("");
-      return;
+      codenum = 0;
+      if(code_seen('A') && code_value() != 0) {
+        codenum = 1;
+        tmp_extruder = active_extruder;
+      }
+      SERIAL_PROTOCOLPGM("ok T");
+      if(codenum != 0) { // extruder # only if A1 option is used (for compat.)
+        SERIAL_PROTOCOL((int)tmp_extruder);
+      }
+      SERIAL_PROTOCOLPGM(":");
+      SERIAL_PROTOCOL((int)(degHotend(tmp_extruder) + 0.5));
+      #if (EXTRUDERS > 1)
+      for(tmp_extruder=0; codenum!=0 && tmp_extruder<EXTRUDERS; tmp_extruder++) {
+        if(tmp_extruder == active_extruder) {
+          continue;
+        }
+        SERIAL_PROTOCOLPGM(" T");
+        SERIAL_PROTOCOL((int)tmp_extruder);
+        SERIAL_PROTOCOLPGM(":");
+        SERIAL_PROTOCOL((int)(degHotend(tmp_extruder) + 0.5));
+      }
+      #endif // (EXTRUDERS > 1)
+      #if TEMP_BED_PIN > -1
+        SERIAL_PROTOCOLPGM(" B:");
+        SERIAL_PROTOCOL((int)(degBed() + 0.5));
+      #endif //TEMP_BED_PIN
+      SERIAL_PROTOCOLLN("");
       break;
     case 109: 
     {// M109 - Wait for extruder heater to reach target.

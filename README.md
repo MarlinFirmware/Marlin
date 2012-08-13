@@ -143,18 +143,21 @@ T<NUM> [F<NUM>] [S<NUM>] - changes the extruder. The feedrate might be set
     In general, the commands and settings for extruder are applied only to the
     active extruder. For example, to change max feedrate for extruders 0 and
     1, one has to switch to the extruder 0, set its rate, then switch to
-    the extruder 1 and set its rate. The exception is the M503 command that 
-    shows info for all extruders. It simply prints multiple parameters that 
-    are extruder specific starting from the value for the extruder 0 and so on, 
-    for example you'll see two 'E'(rate) values if there are 2 extruders. 
-    Some of the commands (like M104, M105 and M109) can take extruder 
+    the extruder 1 and set its rate. There are several exceptions. The M503 
+    command shows info for all extruders. It simply prints multiple parameters 
+    that are extruder specific starting from the value for the extruder 0 
+    and so on, for example you'll see two 'E'(rate) values if there are 2 
+    extruders. Some of the commands (like M104, M105 and M109) can take extruder
     number as a parameter. For example, in order to change the temperature 
     of the extruder 1 heater without switching to it use "M104 S180 T1".
+    M105 can also be used with option A1 that will change its output to 
+    show temperature of all extruders starting with the active one (for example
+    if extruder 1 is active on a 2 extruder system: "ok T1:27 T0:27 B:25").
     M109 can be used to wait for all extruder heaters that have temperature 
     set to non-0 values by specifying non-0 'A' parameter, e.g. "M109 A1".
     M109 can also take the W<NUM> parameter that can change the default 
     dwell time for temperature stabilization (if enabled in the config).
-    Note: If using Printrun, your version might not accept the "T" command.
+    Note: If using old Printrun, your version might not accept the "T" command.
           You might need to open pronsole.py and change all occurances of
           if(l[0]=='M' or l[0]=="G"):
           to
