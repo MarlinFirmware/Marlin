@@ -530,14 +530,16 @@ void MainMenu::showPrepare()
     case ItemP_preheat_pla:
       MENUITEM(  lcdprintPGM(MSG_PREHEAT_PLA)  ,  BLOCK;setTargetHotend0(PLA_PREHEAT_HOTEND_TEMP);setTargetBed(PLA_PREHEAT_HPB_TEMP);
       #if FAN_PIN > -1
-        analogWrite(FAN_PIN, PLA_PREHEAT_FAN_SPEED);
+		FanSpeed=PLA_PREHEAT_FAN_SPEED;
+        analogWrite(FAN_PIN,  FanSpeed);
       #endif
       beepshort(); );
       break;
     case ItemP_preheat_abs:
       MENUITEM(  lcdprintPGM(MSG_PREHEAT_ABS)  ,  BLOCK;setTargetHotend0(ABS_PREHEAT_HOTEND_TEMP);setTargetBed(ABS_PREHEAT_HPB_TEMP); 
       #if FAN_PIN > -1
-        analogWrite(FAN_PIN, ABS_PREHEAT_FAN_SPEED);
+	  	FanSpeed=ABS_PREHEAT_FAN_SPEED;
+        analogWrite(FAN_PIN,  FanSpeed);
       #endif
       beepshort(); );
       break;
