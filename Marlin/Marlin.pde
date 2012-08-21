@@ -245,6 +245,14 @@ void enquecommand(const char *cmd)
   }
 }
 
+void setup_killpin()
+{
+  #if( KILL_PIN>-1 )
+    pinMode(KILL_PIN,INPUT);
+    WRITE(KILL_PIN,HIGH);
+  #endif
+}
+    
 void setup_photpin()
 {
   #ifdef PHOTOGRAPH_PIN
@@ -276,7 +284,8 @@ void suicide()
 }
 
 void setup()
-{ 
+{
+  setup_killpin(); 
   setup_powerhold();
   MYSERIAL.begin(BAUDRATE);
   SERIAL_PROTOCOLLNPGM("start");
@@ -365,7 +374,7 @@ void loop()
   }
   //check heater every n milliseconds
   manage_heater();
-  manage_inactivity(1);
+  manage_inactivity();
   checkHitEndstops();
   LCD_STATUS;
 }
@@ -653,8 +662,8 @@ void process_commands()
       previous_millis_cmd = millis();
       while(millis()  < codenum ){
         manage_heater();
-        manage_inactivity(1);
-		LCD_STATUS;
+        manage_inactivity();
+        LCD_STATUS;
       }
       break;
       #ifdef FWRETRACT  
@@ -816,21 +825,20 @@ void process_commands()
       
       st_synchronize();
       previous_millis_cmd = millis();
-	  if (codenum > 0)
-	  {
+      if (codenum > 0){
         codenum += millis();  // keep track of when we started waiting
         while(millis()  < codenum && !CLICKED){
           manage_heater();
-          manage_inactivity(1);
-		  LCD_STATUS;
-		}
+          manage_inactivity();
+          LCD_STATUS;
+        }
       }else{
-        while(!CLICKED) {
+        while(!CLICKED){
           manage_heater();
-          manage_inactivity(1);
-		  LCD_STATUS;
-		}
-	  }
+          manage_inactivity();
+          LCD_STATUS;
+        }
+      }
     }
     break;
 #endif
@@ -1064,7 +1072,7 @@ void process_commands()
             codenum = millis();
           }
           manage_heater();
-          manage_inactivity(1);
+          manage_inactivity();
           LCD_STATUS;
         #ifdef TEMP_RESIDENCY_TIME
             /* start/restart the TEMP_RESIDENCY_TIME timer whenever we reach target temp for the first time
@@ -1102,7 +1110,7 @@ void process_commands()
             codenum = millis(); 
           }
           manage_heater();
-          manage_inactivity(1);
+          manage_inactivity();
           LCD_STATUS;
         }
         LCD_MESSAGEPGM(MSG_BED_DONE);
@@ -1664,7 +1672,7 @@ void controllerFan()
 }
 #endif
 
-void manage_inactivity(byte debug) 
+void manage_inactivity() 
 { 
   if( (millis() - previous_millis_cmd) >  max_inactive_time ) 
     if(max_inactive_time) 
@@ -1682,6 +1690,10 @@ void manage_inactivity(byte debug)
       }
     }
   }
+  #if( KILL_PIN>-1 )
+    if( 0 == READ(KILL_PIN) )
+      kill();
+  #endif
   #ifdef CONTROLLERFAN_PIN
     controllerFan(); //Check if fan should be turned on to cool stepper drivers down
   #endif
