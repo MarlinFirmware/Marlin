@@ -22,6 +22,8 @@
 
 #ifndef SdFatStructs_h
 #define SdFatStructs_h
+
+#define PACKED __attribute__((__packed__))
 /**
  * \file
  * \brief FAT file structures
@@ -95,7 +97,7 @@ struct partitionTable {
   uint32_t firstSector;
            /** Length of the partition, in blocks. */
   uint32_t totalSectors;
-};
+} PACKED;
 /** Type name for partitionTable */
 typedef struct partitionTable part_t;
 //------------------------------------------------------------------------------
@@ -119,7 +121,7 @@ struct masterBootRecord {
   uint8_t  mbrSig0;
            /** Second MBR signature byte. Must be 0XAA */
   uint8_t  mbrSig1;
-};
+} PACKED;
 /** Type name for masterBootRecord */
 typedef struct masterBootRecord mbr_t;
 //------------------------------------------------------------------------------
@@ -247,7 +249,7 @@ struct fat_boot {
   uint8_t  bootSectorSig0;
            /** must be 0XAA */
   uint8_t  bootSectorSig1;
-};
+} PACKED;
 /** Type name for FAT Boot Sector */
 typedef struct fat_boot fat_boot_t;
 //------------------------------------------------------------------------------
@@ -401,7 +403,7 @@ struct fat32_boot {
   uint8_t  bootSectorSig0;
            /** must be 0XAA */
   uint8_t  bootSectorSig1;
-};
+} PACKED;
 /** Type name for FAT32 Boot Sector */
 typedef struct fat32_boot fat32_boot_t;
 //------------------------------------------------------------------------------
@@ -441,7 +443,7 @@ struct fat32_fsinfo {
   uint8_t  reserved2[12];
            /** must be 0X00, 0X00, 0X55, 0XAA */
   uint8_t  tailSignature[4];
-};
+} PACKED;
 /** Type name for FAT32 FSINFO Sector */
 typedef struct fat32_fsinfo fat32_fsinfo_t;
 //------------------------------------------------------------------------------
@@ -539,12 +541,46 @@ struct directoryEntry {
   uint16_t firstClusterLow;
            /** 32-bit unsigned holding this file's size in bytes. */
   uint32_t fileSize;
-};
+} PACKED;
+/**
+ * \struct directoryVFATEntry
+ * \brief VFAT long filename directory entry
+ *
+ * directoryVFATEntries are found in the same list as normal directoryEntry.
+ * But have the attribute field set to DIR_ATT_LONG_NAME.
+ * 
+ * Long filenames are saved in multiple directoryVFATEntries.
+ * Each entry containing 13 UTF-16 characters.
+ */
+struct directoryVFATEntry {
+  /**
+   * Sequence number. Consists of 2 parts:
+   *  bit 6:   indicates first long filename block for the next file
+   *  bit 0-4: the position of this long filename block (first block is 1)
+   */
+  uint8_t  sequenceNumber;
+  /** First set of UTF-16 characters */
+  uint16_t name1[5];//UTF-16
+  /** attributes (at the same location as in directoryEntry), always 0x0F */
+  uint8_t  attributes;
+  /** Reserved for use by Windows NT. Always 0. */
+  uint8_t  reservedNT;
+  /** Checksum of the short 8.3 filename, can be used to checked if the file system as modified by a not-long-filename aware implementation. */
+  uint8_t  checksum;
+  /** Second set of UTF-16 characters */
+  uint16_t name2[6];//UTF-16
+  /** firstClusterLow is always zero for longFilenames */
+  uint16_t firstClusterLow;
+  /** Third set of UTF-16 characters */
+  uint16_t name3[2];//UTF-16
+} PACKED;
 //------------------------------------------------------------------------------
 // Definitions for directory entries
 //
 /** Type name for directoryEntry */
 typedef struct directoryEntry dir_t;
+/** Type name for directoryVFATEntry */
+typedef struct directoryVFATEntry vfat_t;
 /** escape for name[0] = 0XE5 */
 uint8_t const DIR_NAME_0XE5 = 0X05;
 /** name[0] value for entry that is free after being "deleted" */
