@@ -140,12 +140,14 @@
   #define LCD_INIT lcd_init();
   #define LCD_MESSAGE(x) lcd_status(x);
   #define LCD_MESSAGEPGM(x) lcd_statuspgm(MYPGM(x));
+  #define LCD_ALERTMESSAGEPGM(x) lcd_alertstatuspgm(MYPGM(x));
   #define LCD_STATUS lcd_status()
 #else //no lcd
   #define LCD_INIT
   #define LCD_STATUS
   #define LCD_MESSAGE(x)
   #define LCD_MESSAGEPGM(x)
+  #define LCD_ALERTMESSAGEPGM(x)
   FORCE_INLINE void lcd_status() {};
 
   #define CLICKED false
@@ -153,6 +155,7 @@
 #endif 
   
 void lcd_statuspgm(const char* message);
+void lcd_alertstatuspgm(const char* message);
   
 char *ftostr3(const float &x);
 char *itostr2(const uint8_t &x);
