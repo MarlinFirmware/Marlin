@@ -9,7 +9,7 @@
 // 5  Spanish
 // 6  Etc
 
-#define LANGUAGE_CHOICE 5  // Pick your language from the list above
+#define LANGUAGE_CHOICE 1  // Pick your language from the list above
 
 #define PROTOCOL_VERSION "1.0"
 
