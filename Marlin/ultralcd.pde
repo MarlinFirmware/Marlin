@@ -92,6 +92,12 @@ void lcd_statuspgm(const char* message)
   *target=0;
 }
 
+void lcd_alertstatuspgm(const char* message)
+{
+  lcd_statuspgm(message); 
+  menu.showStatus(); 
+}
+
 FORCE_INLINE void clear()
 {
   lcd.clear();
@@ -2922,7 +2928,7 @@ char *ftostr31(const float &x)
 
 char *ftostr32(const float &x)
 {
-  int xx=x*100;
+  long xx=x*100;
   conv[0]=(xx>=0)?'+':'-';
   xx=abs(xx);
   conv[1]=(xx/100)%10+'0';
@@ -2967,7 +2973,7 @@ char *itostr4(const int &xx)
 //  convert float to string with +1234.5 format
 char *ftostr51(const float &x)
 {
-  int xx=x*10;
+  long xx=x*10;
   conv[0]=(xx>=0)?'+':'-';
   xx=abs(xx);
   conv[1]=(xx/10000)%10+'0';
@@ -2983,7 +2989,7 @@ char *ftostr51(const float &x)
 //  convert float to string with +123.45 format
 char *ftostr52(const float &x)
 {
-  int xx=x*100;
+  long xx=x*100;
   conv[0]=(xx>=0)?'+':'-';
   xx=abs(xx);
   conv[1]=(xx/10000)%10+'0';
