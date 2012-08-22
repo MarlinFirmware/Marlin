@@ -1734,7 +1734,7 @@ void kill()
   if(PS_ON_PIN > -1) pinMode(PS_ON_PIN,INPUT);
   SERIAL_ERROR_START;
   SERIAL_ERRORLNPGM(MSG_ERR_KILLED);
-  LCD_MESSAGEPGM(MSG_KILLED);
+  LCD_ALERTMESSAGEPGM(MSG_KILLED);
   suicide();
   while(1); // Wait for reset
 }

@@ -92,6 +92,12 @@ void lcd_statuspgm(const char* message)
   *target=0;
 }
 
+void lcd_alertstatuspgm(const char* message)
+{
+  lcd_statuspgm(message); 
+  menu.showStatus(); 
+}
+
 FORCE_INLINE void clear()
 {
   lcd.clear();
