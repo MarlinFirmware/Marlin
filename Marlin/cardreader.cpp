@@ -51,7 +51,7 @@ void  CardReader::lsDive(const char *prepend,SdFile parent)
   dir_t p;
  uint8_t cnt=0;
  
-  while (parent.readDir(p) > 0)
+  while (parent.readDir(p, longFilename) > 0)
   {
     if( DIR_IS_SUBDIR(&p) && lsAction!=LS_Count && lsAction!=LS_GetFilename) // hence LS_SerialPrint
     {
@@ -429,16 +429,16 @@ void CardReader::checkautostart(bool force)
   
   char autoname[30];
   sprintf(autoname,"auto%i.g",lastnr);
-  for(int8_t i=0;i<(int)strlen(autoname);i++)
+  for(int8_t i=0;i<(int8_t)strlen(autoname);i++)
     autoname[i]=tolower(autoname[i]);
   dir_t p;
 
   root.rewind();
   
   bool found=false;
-  while (root.readDir(p) > 0) 
+  while (root.readDir(p, NULL) > 0) 
   {
-    for(int8_t i=0;i<(int)strlen((char*)p.name);i++)
+    for(int8_t i=0;i<(int8_t)strlen((char*)p.name);i++)
     p.name[i]=tolower(p.name[i]);
     //Serial.print((char*)p.name);
     //Serial.print(" ");

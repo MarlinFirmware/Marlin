@@ -1822,5 +1822,3 @@ void setPwmFrequency(uint8_t pin, int val)
   }
 }
 #endif
-
-
