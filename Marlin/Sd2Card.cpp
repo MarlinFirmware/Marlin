@@ -369,7 +369,6 @@ bool Sd2Card::init(uint8_t sckRateID, uint8_t chipSelectPin) {
  *
  * \param[in] blockNumber Logical block to be read.
  * \param[out] dst Pointer to the location that will receive the data.
-
  * \return The value one, true, is returned for success and
  * the value zero, false, is returned for failure.
  */
@@ -638,6 +637,5 @@ bool Sd2Card::writeStop() {
   chipSelectHigh();
   return false;
 }
-
 
 #endif
