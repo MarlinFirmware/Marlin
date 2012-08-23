@@ -282,6 +282,7 @@
 #define SDPOWER            -1
 #define SDSS               53
 #define LED_PIN            13
+#define SHUTTER_PIN        32
 
 #if MOTHERBOARD == 33
 #define FAN_PIN            9 // (Sprinter config)
