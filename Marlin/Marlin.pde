@@ -111,7 +111,8 @@
 // M209 - S<1=true/0=false> enable automatic retract detect if the slicer did not support G10/11: every normal extrude-only move will be classified as retract depending on the direction.
 // M220 S<factor in percent>- set speed factor override percentage
 // M221 S<factor in percent>- set extrude factor override percentage
-// M240 - Trigger a camera to take a photograph
+// M240 - Trigger a camera to take a photograph via Canon method
+// M250 - Trigger a camera to take a photograph via relay method --added by eagleApex
 // M301 - Set PID parameters P I and D
 // M302 - Allow cold extrudes
 // M303 - PID relay autotune S<temperature> sets the target temperature. (default target temperature = 150C)
