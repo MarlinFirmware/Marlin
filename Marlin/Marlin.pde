@@ -1430,6 +1430,20 @@ void process_commands()
       #endif
      }
     break;
+    
+    case 250: // M250 Take picture. Press shutter button for a delay of S[delay value = variable "shutter"]
+    //uses pin digital 32, set in pins.h and ground on RAMPS. That is pin 2 and 3 on Aux 4 for RAMPS 1.3
+    {
+       if(code_seen('S')) 
+       {
+           shutter = code_value() ;
+	       pinMode(SHUTTER_PIN, OUTPUT);
+           digitalWrite(SHUTTER_PIN, HIGH);
+           delay(shutter);
+	       digitalWrite(SHUTTER_PIN, LOW);
+       }
+    }
+    break;
       
     case 302: // allow cold extrudes
     {
