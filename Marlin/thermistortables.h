@@ -419,7 +419,7 @@ const short temptable_52[][2] PROGMEM = {
 // Verified by linagee. Source: http://shop.arcol.hu/static/datasheets/thermistors.pdf
 // Calculated using 1kohm pullup, voltage divider math, and manufacturer provided temp/resistance
 // Advantage: More resolution and better linearity from 150C to 200C
-const short temptable_52[][2] PROGMEM = {
+const short temptable_55[][2] PROGMEM = {
    {1*OVERSAMPLENR, 500},
    {76*OVERSAMPLENR, 300},
    {87*OVERSAMPLENR, 290},
