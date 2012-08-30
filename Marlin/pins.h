@@ -543,6 +543,7 @@
     #define LED_PIN         -1    //changed @ rkoeppl 20110410
     #define FAN_PIN         -1    //changed @ rkoeppl 20110410
     #define PS_ON_PIN       -1    //changed @ rkoeppl 20110410
+    #define KILL_PIN        -1    //changed @ drakelive 20120830
     //our pin for debugging.
     
     #define DEBUG_PIN        0
