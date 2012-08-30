@@ -30,9 +30,10 @@
 // Ultimaker = 7
 // Teensylu = 8
 // Gen3+ =9
+// Rambo = 301
 
 #ifndef MOTHERBOARD
-#define MOTHERBOARD 7
+#define MOTHERBOARD 301
 #endif
 
 
