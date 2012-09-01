@@ -1576,7 +1576,15 @@ void get_coordinates()
 
 void get_arc_coordinates()
 {
+#ifdef SF_ARC_FIX
+   bool relative_mode_backup = relative_mode;
+   bool relative_mode = true;
+#endif
    get_coordinates();
+#ifdef SF_ARC_FIX
+   relative_mode=relative_mode_backup;
+#endif
+
    if(code_seen('I')) {
      offset[0] = code_value();
    } 
