@@ -1578,7 +1578,7 @@ void get_arc_coordinates()
 {
 #ifdef SF_ARC_FIX
    bool relative_mode_backup = relative_mode;
-   bool relative_mode = true;
+   relative_mode = true;
 #endif
    get_coordinates();
 #ifdef SF_ARC_FIX
