@@ -108,6 +108,7 @@
 #define HEATER_2_PIN -1
 #define HEATER_BED_PIN 3
 
+#define KILL_PIN -1
 
 #define SDPOWER -1
 #define SDSS -1 // SCL pin of I2C header
@@ -206,6 +207,7 @@
 	#define SDCARDDETECT -1 		
     #define SUICIDE_PIN -1						//has to be defined; otherwise Power_off doesn't work
 	
+    #define KILL_PIN -1
 	//Pins for 4bit LCD Support 
     #define LCD_PINS_RS 18 
     #define LCD_PINS_ENABLE 17
