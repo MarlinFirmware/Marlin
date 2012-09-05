@@ -1,16 +1,16 @@
 ##############################################################
 
-sanguino.name=Gen6 & Gen6 Deluxe 
-sanguino.upload.protocol=stk500
-sanguino.upload.maximum_size=63488
-sanguino.upload.speed=38400
-sanguino.bootloader.low_fuses=0xFF
-sanguino.bootloader.high_fuses=0xDC
-sanguino.bootloader.extended_fuses=0xFD
-sanguino.bootloader.path=atmega644p
-sanguino.bootloader.file=ATmegaBOOT_644P.hex
-sanguino.bootloader.unlock_bits=0x3F
-sanguino.bootloader.lock_bits=0x0F
-sanguino.build.mcu=atmega644p
-sanguino.build.f_cpu=16000000L
-sanguino.build.core=arduino
+Generation_Series.name=Gen6 & Gen6 Deluxe 
+Generation_Series.upload.protocol=stk500
+Generation_Series.upload.maximum_size=63488
+Generation_Series.upload.speed=38400
+Generation_Series.bootloader.low_fuses=0xFF
+Generation_Series.bootloader.high_fuses=0xDC
+Generation_Series.bootloader.extended_fuses=0xFD
+Generation_Series.bootloader.path=atmega644p
+Generation_Series.bootloader.file=ATmegaBOOT_644P.hex
+Generation_Series.bootloader.unlock_bits=0x3F
+Generation_Series.bootloader.lock_bits=0x0F
+Generation_Series.build.mcu=atmega644p
+Generation_Series.build.f_cpu=16000000L
+Generation_Series.build.core=arduino
