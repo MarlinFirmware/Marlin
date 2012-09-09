@@ -885,6 +885,8 @@ ISR(TIMER0_COMPB_vect)
       #if (TEMP_BED_PIN > -1)
         #if TEMP_BED_PIN > 7
           ADCSRB = 1<<MUX5;
+        #else
+          ADCSRB = 0;
         #endif
         ADMUX = ((1 << REFS0) | (TEMP_BED_PIN & 0x07));
         ADCSRA |= 1<<ADSC; // Start conversion
