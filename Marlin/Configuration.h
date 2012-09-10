@@ -68,7 +68,7 @@
 
 // Actual temperature must be close to target for this long before M109 returns success
 #define TEMP_RESIDENCY_TIME 30  // (seconds)
-#define TEMP_HYSTERESIS 3       // (C) range of +/- temperatures considered "close" enough to the target one 
+#define TEMP_WINDOW 3           // (C) range of +/- temperatures considered "close" enough to the target one 
                                 // (i.e. M109 will consider the temp reached if withing that range)
 
 //// The minimal temperature defines the temperature below which the heater will not be enabled

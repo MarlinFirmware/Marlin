@@ -858,7 +858,7 @@ FORCE_INLINE void process_commands()
             for(i = start_e; i < end_e; i++)
             {
               done_temp &= (degTargetHotend(i) == 0) || 
-                           (labs(degHotend(i) - degTargetHotend(i)) <= TEMP_HYSTERESIS);
+                           (labs(degHotend(i) - degTargetHotend(i)) <= TEMP_WINDOW);
             }
             //Print Temp Reading and remaining time every 1 second while heating up/cooling down
             SERIAL_PROTOCOLPGM("T:");
