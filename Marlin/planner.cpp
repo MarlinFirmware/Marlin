@@ -74,6 +74,8 @@ float max_z_jerk;
 float max_e_jerk;
 float mintravelfeedrate;
 unsigned long axis_steps_per_sqr_second[NUM_AXIS];
+unsigned char previous_direction_bits = 0;
+long hysteresis_steps[NUM_AXIS] = DEFAULT_HYSTERESIS_STEPS;
 
 // The current position of the tool in absolute steps
 long position[4];   //rescaled from extern when axis_steps_per_unit are changed by gcode
@@ -134,6 +136,12 @@ static int8_t prev_block_index(int8_t block_index) {
 //===========================================================================
 //=============================functions         ============================
 //===========================================================================
+
+// much faster than using pow(val,2)
+float sqr( float val )
+{
+  return val*val;
+}
 
 // Calculates the distance (not time) it takes to accelerate from initial_rate to target_rate using the 
 // given acceleration:
@@ -537,14 +545,20 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
 
   // Mark block as not busy (Not executed by the stepper interrupt)
   block->busy = false;
+  
+  long delta_steps[NUM_AXIS];
+  for(int i=0;i<NUM_AXIS;++i)
+  {
+    delta_steps[i] = (target[i]-position[i]);
+  }
+  delta_steps[E_AXIS] *= extrudemultiply;
+  delta_steps[E_AXIS] /= 100;
 
   // Number of steps for each axis
-  block->steps_x = labs(target[X_AXIS]-position[X_AXIS]);
-  block->steps_y = labs(target[Y_AXIS]-position[Y_AXIS]);
-  block->steps_z = labs(target[Z_AXIS]-position[Z_AXIS]);
-  block->steps_e = labs(target[E_AXIS]-position[E_AXIS]);
-  block->steps_e *= extrudemultiply;
-  block->steps_e /= 100;
+  block->steps_x = labs(delta_steps[X_AXIS]);
+  block->steps_y = labs(delta_steps[Y_AXIS]);
+  block->steps_z = labs(delta_steps[Z_AXIS]);
+  block->steps_e = labs(delta_steps[E_AXIS]);
   block->step_event_count = max(block->steps_x, max(block->steps_y, max(block->steps_z, block->steps_e)));
 
   // Bail if this is a zero-length block
@@ -569,6 +583,33 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
     block->direction_bits |= (1<<E_AXIS); 
   }
 
+  // If there has been a change in direction, add the hysteresis to the steps
+  if( block->direction_bits != previous_direction_bits )
+  {
+    if( (block->direction_bits & (1<<X_AXIS)) != (previous_direction_bits & (1<<X_AXIS)) )
+    {
+      block->steps_x += hysteresis_steps[X_AXIS];
+      delta_steps[X_AXIS] += (delta_steps[X_AXIS] < 0) ? -hysteresis_steps[X_AXIS] : hysteresis_steps[X_AXIS];
+    }
+    if( (block->direction_bits & (1<<Y_AXIS)) != (previous_direction_bits & (1<<Y_AXIS)) )
+    {
+      block->steps_y += hysteresis_steps[Y_AXIS];
+      delta_steps[Y_AXIS] += (delta_steps[Y_AXIS] < 0) ? -hysteresis_steps[Y_AXIS] : hysteresis_steps[Y_AXIS];
+    }
+    if( (block->direction_bits & (1<<Z_AXIS)) != (previous_direction_bits & (1<<Z_AXIS)) )
+    {
+      block->steps_z += hysteresis_steps[Z_AXIS];
+      delta_steps[Z_AXIS] += (delta_steps[Z_AXIS] < 0) ? -hysteresis_steps[Z_AXIS] : hysteresis_steps[Z_AXIS];
+    }
+    if( (block->direction_bits & (1<<E_AXIS)) != (previous_direction_bits & (1<<E_AXIS)) )
+    {
+      block->steps_e += hysteresis_steps[E_AXIS];
+      delta_steps[E_AXIS] += (delta_steps[E_AXIS] , 0) ? -hysteresis_steps[E_AXIS] : hysteresis_steps[E_AXIS];
+    }
+    block->step_event_count = max(block->steps_x, max(block->steps_y, max(block->steps_z, block->steps_e)));
+  }
+  previous_direction_bits = block->direction_bits;
+  
   block->active_extruder = extruder;
 
   //enable active axes
@@ -593,10 +634,10 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
   } 
 
   float delta_mm[4];
-  delta_mm[X_AXIS] = (target[X_AXIS]-position[X_AXIS])/axis_steps_per_unit[X_AXIS];
-  delta_mm[Y_AXIS] = (target[Y_AXIS]-position[Y_AXIS])/axis_steps_per_unit[Y_AXIS];
-  delta_mm[Z_AXIS] = (target[Z_AXIS]-position[Z_AXIS])/axis_steps_per_unit[Z_AXIS];
-  delta_mm[E_AXIS] = ((target[E_AXIS]-position[E_AXIS])/axis_steps_per_unit[E_AXIS])*extrudemultiply/100.0;
+  for(int i=0;i<4;++i)
+  {
+    delta_mm[i] = delta_steps[i]/axis_steps_per_unit[i];
+  }
   if ( block->steps_x <=dropsegments && block->steps_y <=dropsegments && block->steps_z <=dropsegments ) {
     block->millimeters = fabs(delta_mm[E_AXIS]);
   } 
@@ -749,7 +790,7 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
   float safe_speed = vmax_junction;
 
   if ((moves_queued > 1) && (previous_nominal_speed > 0.0001)) {
-    float jerk = sqrt(pow((current_speed[X_AXIS]-previous_speed[X_AXIS]), 2)+pow((current_speed[Y_AXIS]-previous_speed[Y_AXIS]), 2));
+    float jerk = sqrt(sqr((current_speed[X_AXIS]-previous_speed[X_AXIS]))+sqr((current_speed[Y_AXIS]-previous_speed[Y_AXIS])));
     //    if((fabs(previous_speed[X_AXIS]) > 0.0001) || (fabs(previous_speed[Y_AXIS]) > 0.0001)) {
     vmax_junction = block->nominal_speed;
     //    }
