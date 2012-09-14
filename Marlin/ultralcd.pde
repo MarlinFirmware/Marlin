@@ -133,9 +133,36 @@ void lcd_init()
     B10001,
     B01110
   };
-  byte uplevel[8]={0x04, 0x0e, 0x1f, 0x04, 0x1c, 0x00, 0x00, 0x00};//thanks joris
-  byte refresh[8]={0x00, 0x06, 0x19, 0x18, 0x03, 0x13, 0x0c, 0x00}; //thanks joris
-  byte folder [8]={0x00, 0x1c, 0x1f, 0x11, 0x11, 0x1f, 0x00, 0x00}; //thanks joris
+  byte uplevel[8]={
+    B00100,
+    B01110,
+    B11111,
+    B00100,
+    B11100,
+    B00000,
+    B00000,
+    B00000
+  }; //thanks joris
+  byte refresh[8]={
+    B00000,
+    B00110,
+    B11001,
+    B11000,
+    B00011,
+    B10011,
+    B01100,
+    B00000,
+  }; //thanks joris
+  byte folder [8]={
+    B00000,
+    B11100,
+    B11111,
+    B10001,
+    B10001,
+    B11111,
+    B00000,
+    B00000
+  }; //thanks joris
   lcd.begin(LCD_WIDTH, LCD_HEIGHT);
   lcd.createChar(1,Degree);
   lcd.createChar(2,Thermometer);
