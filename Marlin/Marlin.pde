@@ -1145,7 +1145,8 @@ void process_commands()
         st_synchronize();
         suicide();
       #elif (PS_ON_PIN > -1)
-        SET_INPUT(PS_ON_PIN); //Floating
+        SET_OUTPUT(PS_ON_PIN); 
+        WRITE(PS_ON_PIN, HIGH);
       #endif
 		break;
         
