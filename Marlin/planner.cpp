@@ -57,6 +57,7 @@
 #include "temperature.h"
 #include "ultralcd.h"
 #include "language.h"
+#include "Hysteresis.h"
 
 //===========================================================================
 //=============================public variables ============================
@@ -74,8 +75,6 @@ float max_z_jerk;
 float max_e_jerk;
 float mintravelfeedrate;
 unsigned long axis_steps_per_sqr_second[NUM_AXIS];
-unsigned char previous_direction_bits = 0;
-long hysteresis_steps[NUM_AXIS] = DEFAULT_HYSTERESIS_STEPS;
 
 // The current position of the tool in absolute steps
 long position[4];   //rescaled from extern when axis_steps_per_unit are changed by gcode
@@ -502,6 +501,8 @@ float junction_deviation = 0.1;
 // calculation the caller must also provide the physical length of the line in millimeters.
 void plan_buffer_line(const float &x, const float &y, const float &z, const float &e, float feed_rate, const uint8_t &extruder)
 {
+  hysteresis.InsertCorrection(x,y,z,e);
+
   // Calculate the buffer head after we push this byte
   int next_buffer_head = next_block_index(block_buffer_head);
 
@@ -546,19 +547,13 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
   // Mark block as not busy (Not executed by the stepper interrupt)
   block->busy = false;
   
-  long delta_steps[NUM_AXIS];
-  for(int i=0;i<NUM_AXIS;++i)
-  {
-    delta_steps[i] = (target[i]-position[i]);
-  }
-  delta_steps[E_AXIS] *= extrudemultiply;
-  delta_steps[E_AXIS] /= 100;
-
   // Number of steps for each axis
-  block->steps_x = labs(delta_steps[X_AXIS]);
-  block->steps_y = labs(delta_steps[Y_AXIS]);
-  block->steps_z = labs(delta_steps[Z_AXIS]);
-  block->steps_e = labs(delta_steps[E_AXIS]);
+  block->steps_x = labs(target[X_AXIS]-position[X_AXIS]);
+  block->steps_y = labs(target[Y_AXIS]-position[Y_AXIS]);
+  block->steps_z = labs(target[Z_AXIS]-position[Z_AXIS]);
+  block->steps_e = labs(target[E_AXIS]-position[E_AXIS]);
+  block->steps_e *= extrudemultiply;
+  block->steps_e /= 100;
   block->step_event_count = max(block->steps_x, max(block->steps_y, max(block->steps_z, block->steps_e)));
 
   // Bail if this is a zero-length block
@@ -583,33 +578,6 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
     block->direction_bits |= (1<<E_AXIS); 
   }
 
-  // If there has been a change in direction, add the hysteresis to the steps
-  if( block->direction_bits != previous_direction_bits )
-  {
-    if( (block->direction_bits & (1<<X_AXIS)) != (previous_direction_bits & (1<<X_AXIS)) )
-    {
-      block->steps_x += hysteresis_steps[X_AXIS];
-      delta_steps[X_AXIS] += (delta_steps[X_AXIS] < 0) ? -hysteresis_steps[X_AXIS] : hysteresis_steps[X_AXIS];
-    }
-    if( (block->direction_bits & (1<<Y_AXIS)) != (previous_direction_bits & (1<<Y_AXIS)) )
-    {
-      block->steps_y += hysteresis_steps[Y_AXIS];
-      delta_steps[Y_AXIS] += (delta_steps[Y_AXIS] < 0) ? -hysteresis_steps[Y_AXIS] : hysteresis_steps[Y_AXIS];
-    }
-    if( (block->direction_bits & (1<<Z_AXIS)) != (previous_direction_bits & (1<<Z_AXIS)) )
-    {
-      block->steps_z += hysteresis_steps[Z_AXIS];
-      delta_steps[Z_AXIS] += (delta_steps[Z_AXIS] < 0) ? -hysteresis_steps[Z_AXIS] : hysteresis_steps[Z_AXIS];
-    }
-    if( (block->direction_bits & (1<<E_AXIS)) != (previous_direction_bits & (1<<E_AXIS)) )
-    {
-      block->steps_e += hysteresis_steps[E_AXIS];
-      delta_steps[E_AXIS] += (delta_steps[E_AXIS] , 0) ? -hysteresis_steps[E_AXIS] : hysteresis_steps[E_AXIS];
-    }
-    block->step_event_count = max(block->steps_x, max(block->steps_y, max(block->steps_z, block->steps_e)));
-  }
-  previous_direction_bits = block->direction_bits;
-  
   block->active_extruder = extruder;
 
   //enable active axes
@@ -634,10 +602,10 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
   } 
 
   float delta_mm[4];
-  for(int i=0;i<4;++i)
-  {
-    delta_mm[i] = delta_steps[i]/axis_steps_per_unit[i];
-  }
+  delta_mm[X_AXIS] = (target[X_AXIS]-position[X_AXIS])/axis_steps_per_unit[X_AXIS];
+  delta_mm[Y_AXIS] = (target[Y_AXIS]-position[Y_AXIS])/axis_steps_per_unit[Y_AXIS];
+  delta_mm[Z_AXIS] = (target[Z_AXIS]-position[Z_AXIS])/axis_steps_per_unit[Z_AXIS];
+  delta_mm[E_AXIS] = ((target[E_AXIS]-position[E_AXIS])/axis_steps_per_unit[E_AXIS])*extrudemultiply/100.0;
   if ( block->steps_x <=dropsegments && block->steps_y <=dropsegments && block->steps_z <=dropsegments ) {
     block->millimeters = fabs(delta_mm[E_AXIS]);
   } 

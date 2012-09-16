@@ -39,6 +39,7 @@
 #include "EEPROMwrite.h"
 #include "language.h"
 #include "pins_arduino.h"
+#include "Hysteresis.h"
 
 #define VERSION_STRING  "1.0.0"
 
@@ -93,8 +94,8 @@
 //        or use S<seconds> to specify an inactivity timeout, after which the steppers will be disabled.  S0 to disable the timeout.
 // M85  - Set inactivity shutdown timer with parameter S<seconds>. To disable set zero (default)
 // M92  - Set axis_steps_per_unit - same syntax as G92
-// M98  - Get current hysteresis steps values for all axis
-// M99  - Set XYZE hysteresis values. To turn off hysteresis... (M99 X0 Y0 Z0 E0)
+// M98  - Get current hysteresis mm values for all axis
+// M99  - Set XYZE hysteresis mm. To turn off hysteresis... (M99 X0 Y0 Z0 E0)
 // M114 - Output current position to serial port 
 // M115	- Capabilities string
 // M117 - display message
@@ -1216,24 +1217,15 @@ void process_commands()
       break;
     case 98: // M98
       {
-        SERIAL_PROTOCOLPGM("H=X");
-        SERIAL_PROTOCOL(hysteresis_steps[X_AXIS]);
-        SERIAL_PROTOCOLPGM(" Y");
-        SERIAL_PROTOCOL(hysteresis_steps[Y_AXIS]);
-        SERIAL_PROTOCOLPGM(" Z");
-        SERIAL_PROTOCOL(hysteresis_steps[Z_AXIS]);
-        SERIAL_PROTOCOLPGM(" E");      
-        SERIAL_PROTOCOL(hysteresis_steps[E_AXIS]);
-        
-        SERIAL_PROTOCOLLN("");
+        hysteresis.ReportToSerial();
       }
       break;
     case 99: // M99
       {
-        if(code_seen('X')) hysteresis_steps[X_AXIS] = code_value() ;
-        if(code_seen('Y')) hysteresis_steps[Y_AXIS] = code_value() ;
-        if(code_seen('Z')) hysteresis_steps[Z_AXIS] = code_value() ;
-        if(code_seen('E')) hysteresis_steps[E_AXIS] = code_value() ;
+        if(code_seen('X')) hysteresis.SetAxis( X_AXIS, code_value() );
+        if(code_seen('Y')) hysteresis.SetAxis( Y_AXIS, code_value() );
+        if(code_seen('Z')) hysteresis.SetAxis( Z_AXIS, code_value() );
+        if(code_seen('E')) hysteresis.SetAxis( E_AXIS, code_value() );
       }
       break;
     case 115: // M115
