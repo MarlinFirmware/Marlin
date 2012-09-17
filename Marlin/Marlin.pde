@@ -202,6 +202,7 @@ bool Stopped=false;
 //===========================================================================
 
 void get_arc_coordinates();
+bool setTargetedHotend(int code);
 
 void serial_echopair_P(const char *s_P, float v)
     { serialprintPGM(s_P); SERIAL_ECHO(v); }
@@ -957,15 +958,8 @@ void process_commands()
       }
      break;
     case 104: // M104
-      tmp_extruder = active_extruder;
-      if(code_seen('T')) {
-        tmp_extruder = code_value();
-        if(tmp_extruder >= EXTRUDERS) {
-          SERIAL_ECHO_START;
-          SERIAL_ECHO(MSG_M104_INVALID_EXTRUDER);
-          SERIAL_ECHOLN(tmp_extruder);
-          break;
-        }
+      if(setTargetedHotend(104)){
+        break;
       }
       if (code_seen('S')) setTargetHotend(code_value(), tmp_extruder);
       setWatch();
@@ -974,15 +968,8 @@ void process_commands()
       if (code_seen('S')) setTargetBed(code_value());
       break;
     case 105 : // M105
-      tmp_extruder = active_extruder;
-      if(code_seen('T')) {
-        tmp_extruder = code_value();
-        if(tmp_extruder >= EXTRUDERS) {
-          SERIAL_ECHO_START;
-          SERIAL_ECHO(MSG_M105_INVALID_EXTRUDER);
-          SERIAL_ECHOLN(tmp_extruder);
-          break;
-        }
+      if(setTargetedHotend(105)){
+        break;
       }
       #if (TEMP_0_PIN > -1)
         SERIAL_PROTOCOLPGM("ok T:");
@@ -1008,15 +995,8 @@ void process_commands()
       break;
     case 109: 
     {// M109 - Wait for extruder heater to reach target.
-      tmp_extruder = active_extruder;
-      if(code_seen('T')) {
-        tmp_extruder = code_value();
-        if(tmp_extruder >= EXTRUDERS) {
-          SERIAL_ECHO_START;
-          SERIAL_ECHO(MSG_M109_INVALID_EXTRUDER);
-          SERIAL_ECHOLN(tmp_extruder);
-          break;
-        }
+      if(setTargetedHotend(109)){
+        break;
       }
       LCD_MESSAGEPGM(MSG_HEATING);   
       #ifdef AUTOTEMP
@@ -1145,7 +1125,8 @@ void process_commands()
         st_synchronize();
         suicide();
       #elif (PS_ON_PIN > -1)
-        SET_INPUT(PS_ON_PIN); //Floating
+        SET_OUTPUT(PS_ON_PIN); 
+        WRITE(PS_ON_PIN, HIGH);
       #endif
 		break;
         
@@ -1829,4 +1810,28 @@ void setPwmFrequency(uint8_t pin, int val)
 
   }
 }
-#endif
+#endif //FAST_PWM_FAN
+
+bool setTargetedHotend(int code){
+  tmp_extruder = active_extruder;
+  if(code_seen('T')) {
+    tmp_extruder = code_value();
+    if(tmp_extruder >= EXTRUDERS) {
+      SERIAL_ECHO_START;
+      switch(code){
+        case 104:
+          SERIAL_ECHO(MSG_M104_INVALID_EXTRUDER);
+          break;
+        case 105:
+          SERIAL_ECHO(MSG_M105_INVALID_EXTRUDER);
+          break;
+        case 109:
+          SERIAL_ECHO(MSG_M109_INVALID_EXTRUDER);
+          break;
+      }
+      SERIAL_ECHOLN(tmp_extruder);
+      return true;
+    }
+  }
+  return false;
+}
