@@ -173,8 +173,8 @@ void PID_autotune(float temp, int extruder, int ncycles)
 
 	if (extruder<0)
 	{
-	 	soft_pwm_bed = (PID_MAX_BED)/2;
-		bias = d = (PID_MAX_BED)/2;
+	 	soft_pwm_bed = (MAX_BED_POWER)/2;
+		bias = d = (MAX_BED_POWER)/2;
   }
 	else
 	{
@@ -214,8 +214,8 @@ void PID_autotune(float temp, int extruder, int ncycles)
           t_low=t2 - t1;
           if(cycles > 0) {
             bias += (d*(t_high - t_low))/(t_low + t_high);
-            bias = constrain(bias, 20 ,(extruder<0?(PID_MAX_BED):(PID_MAX))-20);
-            if(bias > (extruder<0?(PID_MAX_BED):(PID_MAX))/2) d = (extruder<0?(PID_MAX_BED):(PID_MAX)) - 1 - bias;
+            bias = constrain(bias, 20 ,(extruder<0?(MAX_BED_POWER):(PID_MAX))-20);
+            if(bias > (extruder<0?(MAX_BED_POWER):(PID_MAX))/2) d = (extruder<0?(MAX_BED_POWER):(PID_MAX)) - 1 - bias;
             else d = bias;
 
             SERIAL_PROTOCOLPGM(" bias: "); SERIAL_PROTOCOL(bias);
@@ -299,6 +299,8 @@ void updatePID()
   for(int e = 0; e < EXTRUDERS; e++) { 
      temp_iState_max[e] = PID_INTEGRAL_DRIVE_MAX / Ki;  
   }
+#endif
+#ifdef PIDTEMPBED
   temp_iState_max_bed = PID_INTEGRAL_DRIVE_MAX / bedKi;  
 #endif
 }
@@ -419,10 +421,10 @@ void manage_heater()
 		  dTerm_bed= (bedKd * (pid_input - temp_dState_bed))*K2 + (K1 * dTerm_bed);
 		  temp_dState_bed = pid_input;
 
-		  pid_output = constrain(pTerm_bed + iTerm_bed - dTerm_bed, 0, PID_MAX_BED);
+		  pid_output = constrain(pTerm_bed + iTerm_bed - dTerm_bed, 0, MAX_BED_POWER);
 
     #else 
-      pid_output = constrain(pid_setpoint_bed, 0, PID_MAX_BED);
+      pid_output = constrain(pid_setpoint_bed, 0, MAX_BED_POWER);
     #endif //PID_OPENLOOP
 
 	  if((current_raw_bed > bed_minttemp) && (current_raw_bed < bed_maxttemp)) 
@@ -442,7 +444,7 @@ void manage_heater()
         }
         else 
         {
-					soft_pwm_bed = PID_MAX_BED>>1;
+					soft_pwm_bed = MAX_BED_POWER>>1;
         }
       }
       else {
@@ -459,7 +461,7 @@ void manage_heater()
         else 
           if(current_raw_bed <= target_bed_low_temp)
         {
-					soft_pwm_bed = PID_MAX_BED>>1;
+					soft_pwm_bed = MAX_BED_POWER>>1;
         }
       }
       else {
