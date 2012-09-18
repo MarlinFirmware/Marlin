@@ -99,6 +99,8 @@ static volatile bool temp_meas_ready = false;
   static float pid_error_bed;
   static float temp_iState_min_bed;
   static float temp_iState_max_bed;
+#else //PIDTEMPBED
+	static unsigned long  previous_millis_bed_heater;
 #endif //PIDTEMPBED
   static unsigned char soft_pwm[EXTRUDERS];
   static unsigned char soft_pwm_bed;
@@ -640,9 +642,11 @@ void tp_init()
 #ifdef PIDTEMP
     temp_iState_min[e] = 0.0;
     temp_iState_max[e] = PID_INTEGRAL_DRIVE_MAX / Ki;
+#endif //PIDTEMP
+#ifdef PIDTEMPBED
     temp_iState_min_bed = 0.0;
     temp_iState_max_bed = PID_INTEGRAL_DRIVE_MAX / bedKi;
-#endif //PIDTEMP
+#endif //PIDTEMPBED
   }
 
   #if (HEATER_0_PIN > -1) 

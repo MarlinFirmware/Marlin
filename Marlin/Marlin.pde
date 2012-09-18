@@ -1000,14 +1000,13 @@ void process_commands()
         SERIAL_ERROR_START;
         SERIAL_ERRORLNPGM(MSG_ERR_NO_THERMISTORS);
       #endif
-      #ifdef PIDTEMP
+
         SERIAL_PROTOCOLPGM(" @:");
         SERIAL_PROTOCOL(getHeaterPower(tmp_extruder));  
-      #endif
-      #ifdef PIDTEMPBED
+
         SERIAL_PROTOCOLPGM(" B@:");
         SERIAL_PROTOCOL(getHeaterPower(-1));  
-      #endif
+
         SERIAL_PROTOCOLLN("");
       return;
       break;
