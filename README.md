@@ -122,11 +122,11 @@ Outside of that range simple on/off mode is used.
 
 *Multiple extruder support:*
 
-T&lt;NUM&gt; [F&lt;NUM&gt;] [S&lt;NUM&gt;] - changes the extruder. 
+T_num_ [F_num_] [S_num_] - changes the extruder. 
 The feedrate might be set to reposition the extruder and specify at what 
 speed. If "F" is not present the coordinates are adjusted, but the move is 
 not performed. "S" allows to choose what E position the just
-selected extruder should start from (&lt;NUM&gt; - the extruder number to 
+selected extruder should start from (_num_ - the extruder number to 
 pick the last position from). If "S" is not specified the last known 
 position for the new selected extruder is used. For example, if Skeinforge 
 generates support using absolute coordinates and you want it to be printed 
@@ -154,14 +154,18 @@ if extruder 1 is active on a 2 extruder system: "ok T1:27 T0:27 B:25").
 
 M109 can be used to wait for all extruder heaters that have temperature 
 set to non-0 values by specifying non-0 'A' parameter, e.g. "M109 A1".
-M109 can also take the W&lt;NUM&gt; parameter that can change the default 
+M109 can also take the W_num_ parameter that can change the default 
 dwell time for temperature stabilization (if enabled in the config).
 
 Note: If using old Printrun, your version might not accept the "T" command.
 You might need to open pronsole.py and change all occurances of
+
     if(l[0]=='M' or l[0]=="G"):
+
 to
+
     if(l[0]=='M' or l[0]=='G' or l[0]=='T'):
+
 
 
 Non-standard G-Codes, different to an old version of sprinter:
@@ -205,7 +209,7 @@ EEPROM:
 
 MULTIPLE EXTRUDERS:
 
-*   T<0|1|2> - changes active extruder (details in the section above) 
+*   T - changes active extruder (details in the section above) 
 
 
 Configuring and compilation:
