@@ -122,46 +122,46 @@ Outside of that range simple on/off mode is used.
 
 *Multiple extruder support:*
 
-T<NUM> [F<NUM>] [S<NUM>] - changes the extruder. The feedrate might be set 
-                           to reposition the extruder and specify at what 
-                           speed. If "F" is not present the coordinates are 
-                           adjusted, but the move is not performed.
-                           "S" allows to choose what E position the just
-                           selected extruder should start from (<NUM> - the 
-                           extruder number to pick the last position from). 
-                           If "S" is not specified the last known position for 
-                           the new selected extruder is used. For example, if  
-                           Skeinforge generates support using absolute coordinates 
-                           and you want it to be printed using extruder 1 while 
-                           the object is printed using extruder 0, use "T1 S0" 
-                           to start support printing and "T0 S1" to go go back 
-                           to the object printing. Alternatively, If you have 
-                           gcode for extrider 0 and 1 generated separately and 
-                           then mixed just use T0 and T1 to switch between 
-                           the extruders.
+T&lt;NUM&gt; [F&lt;NUM&gt;] [S&lt;NUM&gt;] - changes the extruder. 
+The feedrate might be set to reposition the extruder and specify at what 
+speed. If "F" is not present the coordinates are adjusted, but the move is 
+not performed. "S" allows to choose what E position the just
+selected extruder should start from (&lt;NUM&gt; - the extruder number to 
+pick the last position from). If "S" is not specified the last known 
+position for the new selected extruder is used. For example, if Skeinforge 
+generates support using absolute coordinates and you want it to be printed 
+using extruder 1 while the object is printed using extruder 0, use "T1 S0" 
+to start support printing and "T0 S1" to go go back to the object printing. 
+Alternatively, If you have gcode for extrider 0 and 1 generated separately 
+and then mixed just use T0 and T1 to switch between the extruders.
 
-    In general, the commands and settings for extruder are applied only to the
-    active extruder. For example, to change max feedrate for extruders 0 and
-    1, one has to switch to the extruder 0, set its rate, then switch to
-    the extruder 1 and set its rate. There are several exceptions. The M503 
-    command shows info for all extruders. It simply prints multiple parameters 
-    that are extruder specific starting from the value for the extruder 0 
-    and so on, for example you'll see two 'E'(rate) values if there are 2 
-    extruders. Some of the commands (like M104, M105 and M109) can take extruder
-    number as a parameter. For example, in order to change the temperature 
-    of the extruder 1 heater without switching to it use "M104 S180 T1".
-    M105 can also be used with option A1 that will change its output to 
-    show temperature of all extruders starting with the active one (for example
-    if extruder 1 is active on a 2 extruder system: "ok T1:27 T0:27 B:25").
-    M109 can be used to wait for all extruder heaters that have temperature 
-    set to non-0 values by specifying non-0 'A' parameter, e.g. "M109 A1".
-    M109 can also take the W<NUM> parameter that can change the default 
-    dwell time for temperature stabilization (if enabled in the config).
-    Note: If using old Printrun, your version might not accept the "T" command.
-          You might need to open pronsole.py and change all occurances of
-          if(l[0]=='M' or l[0]=="G"):
-          to
-          if(l[0]=='M' or l[0]=='G' or l[0]=='T'):
+In general, the commands and settings for extruder are applied only to the
+active extruder. For example, to change max feedrate for extruders 0 and
+1, one has to switch to the extruder 0, set its rate, then switch to
+the extruder 1 and set its rate. There are several exceptions. 
+
+The M503 command shows info for all extruders. It simply prints multiple 
+parameters that are extruder specific starting from the value for the extruder 0 
+and so on, for example you'll see two 'E'(rate) values if there are 2 
+extruders. 
+
+Some of the commands (like M104, M105 and M109) can take extruder
+number as a parameter. For example, in order to change the temperature 
+of the extruder 1 heater without switching to it use "M104 S180 T1".
+M105 can also be used with option A1 that will change its output to 
+show temperature of all extruders starting with the active one (for example
+if extruder 1 is active on a 2 extruder system: "ok T1:27 T0:27 B:25").
+
+M109 can be used to wait for all extruder heaters that have temperature 
+set to non-0 values by specifying non-0 'A' parameter, e.g. "M109 A1".
+M109 can also take the W&lt;NUM&gt; parameter that can change the default 
+dwell time for temperature stabilization (if enabled in the config).
+
+Note: If using old Printrun, your version might not accept the "T" command.
+You might need to open pronsole.py and change all occurances of
+    if(l[0]=='M' or l[0]=="G"):
+to
+    if(l[0]=='M' or l[0]=='G' or l[0]=='T'):
 
 
 Non-standard G-Codes, different to an old version of sprinter:
