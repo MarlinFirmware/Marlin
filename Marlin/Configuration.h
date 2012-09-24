@@ -70,6 +70,7 @@
 #define TEMP_RESIDENCY_TIME 30  // (seconds)
 #define TEMP_WINDOW 3           // (C) range of +/- temperatures considered "close" enough to the target one 
                                 // (i.e. M109 will consider the temp reached if withing that range)
+#define TEMP_WINDOW_BED 2       // (C) range of +/- temperatures considered "close" enough for bed
 
 //// The minimal temperature defines the temperature below which the heater will not be enabled
 #define HEATER_0_MINTEMP 5

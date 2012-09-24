@@ -176,6 +176,7 @@ static int i = 0;
 static char serial_char;
 static int serial_count = 0;
 static boolean comment_mode = false;
+static int recovery_count = 0;
 static char *strchr_pointer; // just a pointer to find chars in the cmd string like X, Y, Z, E, etc
 
 const int sensitive_pins[] = SENSITIVE_PINS; // Sensitive pin list for M42
@@ -319,30 +320,34 @@ FORCE_INLINE void get_command()
       cmdbuffer[bufindw][serial_count] = 0; //terminate string
       if(!comment_mode){
         fromsd[bufindw] = false;
-        if(strstr(cmdbuffer[bufindw], "N") != NULL)
+        strchr_pointer = strchr(cmdbuffer[bufindw], 'N');
+        if(strchr_pointer != NULL)
         {
-          strchr_pointer = strchr(cmdbuffer[bufindw], 'N');
-          gcode_N = (strtol(&cmdbuffer[bufindw][strchr_pointer - cmdbuffer[bufindw] + 1], NULL, 10));
-          if(gcode_N != gcode_LastN+1 && (strstr(cmdbuffer[bufindw], "M110") == NULL) ) {
-            SERIAL_ERROR_START;
-            SERIAL_ERRORPGM("Line Number is not Last Line Number+1, Last Line:");
-            SERIAL_ERRORLN(gcode_LastN);
-            //Serial.println(gcode_N);
-            FlushSerialRequestResend();
+          gcode_N = strtol(strchr_pointer + 1, NULL, 10);
+          if(gcode_N != (gcode_LastN + 1) && (strstr(cmdbuffer[bufindw], "M110") == NULL)) {
+            if(recovery_count <= 0) {
+              SERIAL_ERROR_START;
+              SERIAL_ERRORPGM("Line Number is not Last Line Number+1, Last Line:");
+              SERIAL_ERRORLN(gcode_LastN);
+              //Serial.println(gcode_N);
+              FlushSerialRequestResend();
+            } else {
+              --recovery_count;
+            }
             serial_count = 0;
             return;
           }
 
-          if(strstr(cmdbuffer[bufindw], "*") != NULL)
+          strchr_pointer = strchr(cmdbuffer[bufindw], '*');
+          if(strchr_pointer != NULL)
           {
             byte checksum = 0;
             byte count = 0;
             while(cmdbuffer[bufindw][count] != '*') checksum = checksum^cmdbuffer[bufindw][count++];
-            strchr_pointer = strchr(cmdbuffer[bufindw], '*');
 
-            if( (int)(strtod(&cmdbuffer[bufindw][strchr_pointer - cmdbuffer[bufindw] + 1], NULL)) != checksum) {
+            if(strtol(strchr_pointer + 1, NULL, 10) != checksum) {
               SERIAL_ERROR_START;
-              SERIAL_ERRORPGM("checksum mismatch, Last Line:");
+              SERIAL_ERRORPGM("Checksum mismatch, Last Line:");
               SERIAL_ERRORLN(gcode_LastN);
               FlushSerialRequestResend();
               serial_count = 0;
@@ -365,7 +370,7 @@ FORCE_INLINE void get_command()
         }
         else  // if we don't receive 'N' but still see '*'
         {
-          if((strstr(cmdbuffer[bufindw], "*") != NULL))
+          if(strchr(cmdbuffer[bufindw], '*') != NULL)
           {
             SERIAL_ERROR_START;
             SERIAL_ERRORPGM("No Line Number with checksum, Last Line:");
@@ -374,9 +379,9 @@ FORCE_INLINE void get_command()
             return;
           }
         }
-        if((strstr(cmdbuffer[bufindw], "G") != NULL)){
-          strchr_pointer = strchr(cmdbuffer[bufindw], 'G');
-          switch((int)((strtod(&cmdbuffer[bufindw][strchr_pointer - cmdbuffer[bufindw] + 1], NULL)))){
+        strchr_pointer = strchr(cmdbuffer[bufindw], 'G');
+        if(strchr_pointer != NULL) {
+          switch(strtol(strchr_pointer + 1, NULL, 10)) {
           case 0:
           case 1:
           case 2:
@@ -392,7 +397,7 @@ FORCE_INLINE void get_command()
           }
 
         }
-        bufindw = (bufindw + 1)%BUFSIZE;
+        bufindw = (bufindw + 1) % BUFSIZE;
         buflen += 1;
 
       }
@@ -919,7 +924,7 @@ FORCE_INLINE void process_commands()
       LCD_MESSAGEPGM("Bed Heating.");
       if (code_seen('S')) setTargetBed(code_value());
       codenum = millis(); 
-      while(!isDoneHeatingBed()) 
+      while(!isDoneHeatingBed() && (degTargetBed() != 0)) 
       {
         if( (millis()-codenum) > 1000 ) //Print Temp Reading every 1 second while heating up.
         {
@@ -1281,6 +1286,7 @@ void FlushSerialRequestResend()
   MSerial.flush();
   SERIAL_PROTOCOLPGM("Resend:");
   SERIAL_PROTOCOLLN(gcode_LastN + 1);
+  recovery_count = buflen + 1; // Give it a chance to grind through stuff received after the error
   ClearToSend();
 }
 

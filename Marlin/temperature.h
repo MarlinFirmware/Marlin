@@ -104,7 +104,7 @@ FORCE_INLINE bool isCoolingBed() {
 };
 
 FORCE_INLINE bool isDoneHeatingBed() {
-  return abs(degBed()-analog2tempBed(target_raw_bed)) < 1.0;
+  return abs(degBed()-analog2tempBed(target_raw_bed)) <= TEMP_WINDOW_BED;
 }
 #define degHotend0() degHotend(0)
 #define degTargetHotend0() degTargetHotend(0)
