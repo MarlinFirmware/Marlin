@@ -495,7 +495,7 @@
 #define MSG_SD_PRINTING_BYTE "SD imprimiendo el byte "
 #define MSG_SD_NOT_PRINTING "No se esta imprimiendo con SD"
 #define MSG_SD_ERR_WRITE_TO_FILE "Error al escribir en el archivo"
-#define MSG_SD_CANT_ENTER_SUBDIR "No se puede entrar en la carpeta:"
+#define MSG_SD_CANT_ENTER_SUBDIR "No se puede abrir la carpeta:"
 
 #define MSG_STEPPER_TO_HIGH "Steprate demasiado alto : "
 #define MSG_ENDSTOPS_HIT "Se ha tocado el fin de carril: "
