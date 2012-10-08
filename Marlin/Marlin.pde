@@ -115,6 +115,7 @@
 // M301 - Set PID parameters P I and D
 // M302 - Allow cold extrudes
 // M303 - PID relay autotune S<temperature> sets the target temperature. (default target temperature = 150C)
+// M304 - Set bed PID parameters P I and D
 // M400 - Finish all moves
 // M500 - stores paramters in EEPROM
 // M501 - reads parameters from EEPROM (if you need reset them after you changed them temporarily).  
@@ -986,10 +987,13 @@ void process_commands()
         SERIAL_ERROR_START;
         SERIAL_ERRORLNPGM(MSG_ERR_NO_THERMISTORS);
       #endif
-      #ifdef PIDTEMP
+
         SERIAL_PROTOCOLPGM(" @:");
         SERIAL_PROTOCOL(getHeaterPower(tmp_extruder));  
-      #endif
+
+        SERIAL_PROTOCOLPGM(" B@:");
+        SERIAL_PROTOCOL(getHeaterPower(-1));  
+
         SERIAL_PROTOCOLLN("");
       return;
       break;
@@ -1386,6 +1390,24 @@ void process_commands()
       }
       break;
     #endif //PIDTEMP
+    #ifdef PIDTEMPBED
+    case 304: // M304
+      {
+        if(code_seen('P')) bedKp = code_value();
+        if(code_seen('I')) bedKi = code_value()*PID_dT;
+        if(code_seen('D')) bedKd = code_value()/PID_dT;
+        updatePID();
+        SERIAL_PROTOCOL(MSG_OK);
+		SERIAL_PROTOCOL(" p:");
+        SERIAL_PROTOCOL(Kp);
+        SERIAL_PROTOCOL(" i:");
+        SERIAL_PROTOCOL(Ki/PID_dT);
+        SERIAL_PROTOCOL(" d:");
+        SERIAL_PROTOCOL(Kd*PID_dT);
+        SERIAL_PROTOCOLLN("");
+      }
+      break;
+    #endif //PIDTEMP
     case 240: // M240  Triggers a camera by emulating a Canon RC-1 : http://www.doc-diy.net/photo/rc-1_hacked/
      {
       #ifdef PHOTOGRAPH_PIN
@@ -1418,8 +1440,14 @@ void process_commands()
     case 303: // M303 PID autotune
     {
       float temp = 150.0;
+      int e=0;
+      int c=5;
+      if (code_seen('E')) e=code_value();
+			if (e<0)
+				temp=70;
       if (code_seen('S')) temp=code_value();
-      PID_autotune(temp);
+      if (code_seen('C')) c=code_value();
+      PID_autotune(temp, e, c);
     }
     break;
     case 400: // M400 finish all moves
