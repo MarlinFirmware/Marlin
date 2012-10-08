@@ -98,7 +98,7 @@
 #define PID_MAX 255 // limits current to nozzle; 255=full current
 #ifdef PIDTEMP
   //#define PID_DEBUG // Sends debug data to the serial port. 
-  //#define PID_OPENLOOP 1 // Puts PID in open loop. M104 sets the output power in %
+  //#define PID_OPENLOOP 1 // Puts PID in open loop. M104/M140 sets the output power from 0 to PID_MAX
   #define PID_INTEGRAL_DRIVE_MAX 255  //limit for the integral term
   #define K1 0.95 //smoothing factor withing the PID
   #define PID_dT ((16.0 * 8.0)/(F_CPU / 64.0 / 256.0)) //sampling period of the
@@ -119,6 +119,44 @@
 //    #define  DEFAULT_Ki 2.25
 //    #define  DEFAULT_Kd 440
 #endif // PIDTEMP
+
+// Bed Temperature Control
+// Select PID or bang-bang with PIDTEMPBED.  If bang-bang, BED_LIMIT_SWITCHING will enable hysteresis
+//
+// uncomment this to enable PID on the bed.   It uses the same ferquency PWM as the extruder. 
+// If your PID_dT above is the default, and correct for your hardware/configuration, that means 7.689Hz,
+// which is fine for driving a square wave into a resistive load and does not significantly impact you FET heating.
+// This also works fine on a Fotek SSR-10DA Solid State Relay into a 250W heater. 
+// If your configuration is significantly different than this and you don't understand the issues involved, you proabaly 
+// shouldn't use bed PID until someone else verifies your hardware works.
+// If this is enabled, find your own PID constants below.
+//#define PIDTEMPBED
+//
+//#define BED_LIMIT_SWITCHING
+
+// This sets the max power delived to the bed, and replaces the HEATER_BED_DUTY_CYCLE_DIVIDER option.
+// all forms of bed control obey this (PID, bang-bang, bang-bang with hysteresis)
+// setting this to anything other than 255 enables a form of PWM to the bed just like HEATER_BED_DUTY_CYCLE_DIVIDER did,
+// so you shouldn't use it unless you are OK with PWM on your bed.  (see the comment on enabling PIDTEMPBED)
+#define MAX_BED_POWER 255 // limits duty cycle to bed; 255=full current
+
+#ifdef PIDTEMPBED
+//120v 250W silicone heater into 4mm borosilicate (MendelMax 1.5+)
+//from FOPDT model - kp=.39 Tp=405 Tdead=66, Tc set to 79.2, argressive factor of .15 (vs .1, 1, 10)
+    #define  DEFAULT_bedKp 10.00
+    #define  DEFAULT_bedKi .023
+    #define  DEFAULT_bedKd 305.4
+
+//120v 250W silicone heater into 4mm borosilicate (MendelMax 1.5+)
+//from pidautotune
+//    #define  DEFAULT_bedKp 97.1
+//    #define  DEFAULT_bedKi 1.41
+//    #define  DEFAULT_bedKd 1675.16
+
+// FIND YOUR OWN: "M303 E-1 C8 S90" to run autotune on the bed at 90 degreesC for 8 cycles.
+#endif // PIDTEMPBED
+
+
 
 //this prevents dangerous Extruder moves, i.e. if the temperature is under the limit
 //can be software-disabled for whatever purposes by
