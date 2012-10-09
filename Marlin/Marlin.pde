@@ -1399,11 +1399,11 @@ void process_commands()
         updatePID();
         SERIAL_PROTOCOL(MSG_OK);
 		SERIAL_PROTOCOL(" p:");
-        SERIAL_PROTOCOL(Kp);
+        SERIAL_PROTOCOL(bedKp);
         SERIAL_PROTOCOL(" i:");
-        SERIAL_PROTOCOL(Ki/PID_dT);
+        SERIAL_PROTOCOL(bedKi/PID_dT);
         SERIAL_PROTOCOL(" d:");
-        SERIAL_PROTOCOL(Kd*PID_dT);
+        SERIAL_PROTOCOL(bedKd*PID_dT);
         SERIAL_PROTOCOLLN("");
       }
       break;
