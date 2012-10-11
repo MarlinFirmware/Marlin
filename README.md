@@ -1,3 +1,9 @@
+Roboforum Edition of Marlin Firmware.
+
+Changes:
+* Add Russian translation
+
+===================
 WARNING: 
 --------
 THIS IS RELEASE CANDIDATE 2 FOR MARLIN 1.0.0

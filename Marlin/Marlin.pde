@@ -152,8 +152,8 @@ unsigned char FanSpeed=0;
 #ifdef FWRETRACT
   bool autoretract_enabled=true;
   bool retracted=false;
-  float retract_length=3, retract_feedrate=17*60, retract_zlift=0.8;
-  float retract_recover_length=0, retract_recover_feedrate=8*60;
+  float retract_length=3, retract_feedrate=17*60, retract_zlift=0.3;
+  float retract_recover_length=3, retract_recover_feedrate=17*60;
 #endif
 
 //===========================================================================
@@ -672,26 +672,34 @@ void process_commands()
       case 10: // G10 retract
       if(!retracted) 
       {
+//        SERIAL_ECHO_START;
+//        SERIAL_ECHOLN("Retract");
         destination[X_AXIS]=current_position[X_AXIS];
         destination[Y_AXIS]=current_position[Y_AXIS];
-        destination[Z_AXIS]=current_position[Z_AXIS]; 
-        current_position[Z_AXIS]+=-retract_zlift;
+        current_position[Z_AXIS]+=retract_zlift;
         destination[E_AXIS]=current_position[E_AXIS]-retract_length; 
+        destination[Z_AXIS]=current_position[Z_AXIS]; 
         feedrate=retract_feedrate;
         retracted=true;
         prepare_move();
       }
       
       break;
-      case 11: // G10 retract_recover
-      if(!retracted) 
+      case 11: // G11 retract_recover
+      if(retracted) 
       {
+//        SERIAL_ECHO_START;
+//        SERIAL_ECHOLN("UnRetract");
+//        SERIAL_ECHO("G11:E=");
+//        SERIAL_ECHO(current_position[E_AXIS]);
         destination[X_AXIS]=current_position[X_AXIS];
         destination[Y_AXIS]=current_position[Y_AXIS];
+        current_position[Z_AXIS]+=-retract_zlift;
+        current_position[E_AXIS]+=retract_recover_length; 
+        destination[E_AXIS]=current_position[E_AXIS]; 
         destination[Z_AXIS]=current_position[Z_AXIS]; 
-        
-        current_position[Z_AXIS]+=retract_zlift;
-        current_position[E_AXIS]+=-retract_recover_length; 
+//        SERIAL_ECHO("->E=");
+//        SERIAL_ECHOLN(destination[E_AXIS]);
         feedrate=retract_recover_feedrate;
         retracted=false;
         prepare_move();
@@ -1550,11 +1558,13 @@ void get_coordinates()
   if( !(seen[X_AXIS] || seen[Y_AXIS] || seen[Z_AXIS]) && seen[E_AXIS])
   {
     float echange=destination[E_AXIS]-current_position[E_AXIS];
+      SERIAL_ECHO_START;
+      SERIAL_ECHO("AutoRetract:");
+      SERIAL_ECHOLN(echange);
     if(echange<-MIN_RETRACT) //retract
     {
       if(!retracted) 
       {
-      
       destination[Z_AXIS]+=retract_zlift; //not sure why chaninging current_position negatively does not work.
       //if slicer retracted by echange=-1mm and you want to retract 3mm, corrrectede=-2mm additionally
       float correctede=-echange-retract_length;
@@ -1571,6 +1581,7 @@ void get_coordinates()
       if(retracted) 
       {
       //current_position[Z_AXIS]+=-retract_zlift;
+      destination[Z_AXIS]+=-retract_zlift;
       //if slicer retracted_recovered by echange=+1mm and you want to retract_recover 3mm, corrrectede=2mm additionally
       float correctede=-echange+1*retract_length+retract_recover_length; //total unretract=retract_length+retract_recover_length[surplus]
       current_position[E_AXIS]+=correctede; //to generate the additional steps, not the destination is changed, but inversely the current position

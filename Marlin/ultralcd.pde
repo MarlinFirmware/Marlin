@@ -6,7 +6,7 @@
 #include "language.h"
 #include "temperature.h"
 #include "EEPROMwrite.h"
-#include <LiquidCrystal.h>
+#include "LiquidCrystalRus.h"
 //===========================================================================
 //=============================imported variables============================
 //===========================================================================
@@ -38,7 +38,7 @@ static char messagetext[LCD_WIDTH]="";
 //return for string conversion routines
 static char conv[8];
 
-LiquidCrystal lcd(LCD_PINS_RS, LCD_PINS_ENABLE, LCD_PINS_D4, LCD_PINS_D5,LCD_PINS_D6,LCD_PINS_D7);  //RS,Enable,D4,D5,D6,D7 
+LiquidCrystalRus lcd(LCD_PINS_RS, LCD_PINS_ENABLE, LCD_PINS_D4, LCD_PINS_D5,LCD_PINS_D6,LCD_PINS_D7);  //RS,Enable,D4,D5,D6,D7 
 
 static unsigned long previous_millis_lcd=0;
 //static long previous_millis_buttons=0;
@@ -169,6 +169,7 @@ void lcd_init()
   lcd.createChar(3,uplevel);
   lcd.createChar(4,refresh);
   lcd.createChar(5,folder);
+  setTargetHotend0(0);setTargetHotend1(0);setTargetHotend2(0);setTargetBed(0);
   LCD_MESSAGEPGM(WELCOME_MSG);
 }
 
@@ -450,8 +451,8 @@ void MainMenu::showStatus()
    curfeedmultiply=encoderpos;
    if(curfeedmultiply<10)
      curfeedmultiply=10;
-   if(curfeedmultiply>999)
-     curfeedmultiply=999;
+   if(curfeedmultiply>400)
+     curfeedmultiply=400;
    feedmultiply=curfeedmultiply;
    encoderpos=curfeedmultiply;
   }
@@ -518,11 +519,11 @@ void MainMenu::showStatus()
     messagetext[0]='\0';
   }
 
-#endif
+#endif //smaller LCDS----------------------------------
   force_lcd_update=false;
 }
 
-enum {ItemP_exit, ItemP_autostart,ItemP_disstep,ItemP_home, ItemP_origin, ItemP_preheat_pla, ItemP_preheat_abs, ItemP_cooldown,/*ItemP_extrude,*/ItemP_move};
+enum {ItemP_exit, ItemP_expose, /* ItemP_autostart, */ ItemP_disstep,ItemP_home, /* ItemP_origin,*/  ItemP_preheat_pla, ItemP_preheat_abs, ItemP_cooldown,/*ItemP_extrude,*/ItemP_move};
 
 //any action must not contain a ',' character anywhere, or this breaks:
 #define MENUITEM(repaint_action, click_action) \
@@ -544,22 +545,28 @@ void MainMenu::showPrepare()
     case ItemP_exit:
       MENUITEM(  lcdprintPGM(MSG_MAIN)  ,  BLOCK;status=Main_Menu;beepshort(); ) ;
       break;
-    case ItemP_autostart:
-      MENUITEM(  lcdprintPGM(MSG_AUTOSTART)  ,  BLOCK;
-#ifdef SDSUPPORT
-          card.lastnr=0;card.setroot();card.checkautostart(true);
-#endif
-          beepshort(); ) ;
+    case ItemP_expose:
+      char cmd[30];
+      sprintf(cmd,"G1 Y%u F%u",Y_MAX_POS-30,max_feedrate[1]*60);
+//      sprintf(cmd,"G1 Y190 F12000");
+      MENUITEM(  lcdprintPGM(MSG_PART_RELEASE) ,  BLOCK;enquecommand(cmd);beepshort(); ) ;
       break;
+//    case ItemP_autostart:
+//      MENUITEM(  lcdprintPGM(MSG_AUTOSTART)  ,  BLOCK;
+//#ifdef SDSUPPORT
+//          card.lastnr=0;card.setroot();card.checkautostart(true);
+//#endif
+//          beepshort(); ) ;
+//      break;
     case ItemP_disstep:
       MENUITEM(  lcdprintPGM(MSG_DISABLE_STEPPERS)  ,  BLOCK;enquecommand("M84");beepshort(); ) ;
       break;
     case ItemP_home:
       MENUITEM(  lcdprintPGM(MSG_AUTO_HOME)  ,  BLOCK;enquecommand("G28");beepshort(); ) ;
       break;
-    case ItemP_origin:
-      MENUITEM(  lcdprintPGM(MSG_SET_ORIGIN)  ,  BLOCK;enquecommand("G92 X0 Y0 Z0");beepshort(); ) ;
-      break;
+//    case ItemP_origin:
+//      MENUITEM(  lcdprintPGM(MSG_SET_ORIGIN)  ,  BLOCK;enquecommand("G92 X0 Y0 Z0");beepshort(); ) ;
+//      break;
     case ItemP_preheat_pla:
 		MENUITEM(  lcdprintPGM(MSG_PREHEAT_PLA)  ,  BLOCK;setTargetHotend0(plaPreheatHotendTemp);setTargetBed(plaPreheatHPBTemp);
       #if FAN_PIN > -1
@@ -1849,7 +1856,7 @@ void MainMenu::showControlMotion()
       if(force_lcd_update)
         {
           lcd.setCursor(0,line);lcdprintPGM(MSG_ZSTEPS);
-          lcd.setCursor(11,line);lcd.print(ftostr52(axis_steps_per_unit[Z_AXIS]));
+          lcd.setCursor(11,line);lcd.print(ftostr51(axis_steps_per_unit[Z_AXIS]));
         }
         
         if((activeline!=line) )
@@ -1888,7 +1895,7 @@ void MainMenu::showControlMotion()
       if(force_lcd_update)
         {
           lcd.setCursor(0,line);lcdprintPGM(MSG_ESTEPS);
-          lcd.setCursor(11,line);lcd.print(ftostr52(axis_steps_per_unit[E_AXIS]));
+          lcd.setCursor(11,line);lcd.print(ftostr51(axis_steps_per_unit[E_AXIS]));
         }
         
         if((activeline!=line) )
