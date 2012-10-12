@@ -2,6 +2,7 @@
 #define ULTRALCD_H
 #include "Marlin.h"
 #ifdef ULTRA_LCD
+#include "language.h"
 #if LANGUAGE_CHOICE == 6
 #include "LiquidCrystalRus.h"
 #else
