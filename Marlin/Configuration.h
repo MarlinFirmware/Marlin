@@ -30,6 +30,7 @@
 // Ultimaker = 7
 // Teensylu = 8
 // Gen3+ =9
+// Megatronics =70
 
 #ifndef MOTHERBOARD
 #define MOTHERBOARD 7
