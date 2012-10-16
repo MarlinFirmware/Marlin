@@ -277,7 +277,7 @@ applet/%.o: %.c Configuration.h Configuration_adv.h $(MAKEFILE)
 	$(Pecho) "  CC    $@"
 	$P $(CC) -MMD -c $(ALL_CFLAGS) $< -o $@
 
-applet/Marlin.o: applet/Marlin.cpp Configuration.h Configuration_adv.h $(MAKEFILE)
+applet/%.o: applet/%.cpp Configuration.h Configuration_adv.h $(MAKEFILE)
 	$(Pecho) "  CXX   $@"
 	$P $(CXX) -MMD -c $(ALL_CXXFLAGS) $< -o $@
 
