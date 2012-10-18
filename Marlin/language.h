@@ -16,7 +16,7 @@
 // 7  Italian
 // 8  Etc
 
-#define LANGUAGE_CHOICE 1  // Pick your language from the list above
+#define LANGUAGE_CHOICE 6  // Pick your language from the list above
 
 #define PROTOCOL_VERSION "1.0"
 
