@@ -1858,7 +1858,7 @@ void MainMenu::showControlMotion()
       if(force_lcd_update)
         {
           lcd.setCursor(0,line);lcdprintPGM(MSG_ZSTEPS);
-          lcd.setCursor(11,line);lcd.print(ftostr52(axis_steps_per_unit[Z_AXIS]));
+          lcd.setCursor(11,line);lcd.print(ftostr51(axis_steps_per_unit[Z_AXIS]));
         }
         
         if((activeline!=line) )
@@ -1897,7 +1897,7 @@ void MainMenu::showControlMotion()
       if(force_lcd_update)
         {
           lcd.setCursor(0,line);lcdprintPGM(MSG_ESTEPS);
-          lcd.setCursor(11,line);lcd.print(ftostr52(axis_steps_per_unit[E_AXIS]));
+          lcd.setCursor(11,line);lcd.print(ftostr51(axis_steps_per_unit[E_AXIS]));
         }
         
         if((activeline!=line) )
