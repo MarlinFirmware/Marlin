@@ -177,7 +177,6 @@ void lcd_init()
   lcd.createChar(3,uplevel);
   lcd.createChar(4,refresh);
   lcd.createChar(5,folder);
-  setTargetHotend0(0);setTargetHotend1(0);setTargetHotend2(0);setTargetBed(0);
   LCD_MESSAGEPGM(WELCOME_MSG);
 }
 
