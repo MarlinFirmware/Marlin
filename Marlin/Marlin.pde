@@ -142,12 +142,20 @@ volatile int feedmultiply=100; //100->1 200->2
 int saved_feedmultiply;
 volatile bool feedmultiplychanged=false;
 volatile int extrudemultiply=100; //100->1 200->2
+volatile unsigned long starttime=0;
 float current_position[NUM_AXIS] = { 0.0, 0.0, 0.0, 0.0 };
 float add_homeing[3]={0,0,0};
 float min_pos[3] = { X_MIN_POS, Y_MIN_POS, Z_MIN_POS };
 float max_pos[3] = { X_MAX_POS, Y_MAX_POS, Z_MAX_POS };
 uint8_t active_extruder = 0;
 unsigned char FanSpeed=0;
+
+int plaPreheatHotendTemp;
+int plaPreheatHPBTemp;
+int plaPreheatFanSpeed;
+int absPreheatHotendTemp;
+int absPreheatHPBTemp;
+int absPreheatFanSpeed;
 
 #ifdef FWRETRACT
   bool autoretract_enabled=true;
@@ -167,7 +175,7 @@ static float feedrate = 1500.0, next_feedrate, saved_feedrate;
 static long gcode_N, gcode_LastN, Stopped_gcode_LastN = 0;
 
 static bool relative_mode = false;  //Determines Absolute or Relative Coordinates
-static bool relative_mode_e = false;  //Determines Absolute or Relative E Codes while in Absolute Coordinates mode. E is always relative in Relative Coordinates mode.
+//UNUSED static bool relative_mode_e = false;  //Determines Absolute or Relative E Codes while in Absolute Coordinates mode. E is always relative in Relative Coordinates mode.
 
 static char cmdbuffer[BUFSIZE][MAX_CMD_SIZE];
 static bool fromsd[BUFSIZE];
@@ -190,7 +198,6 @@ static unsigned long previous_millis_cmd = 0;
 static unsigned long max_inactive_time = 0;
 static unsigned long stepper_inactive_time = DEFAULT_STEPPER_DEACTIVE_TIME*1000l;
 
-static unsigned long starttime=0;
 static unsigned long stoptime=0;
 
 static uint8_t tmp_extruder;
@@ -1181,7 +1188,7 @@ void process_commands()
       for(int8_t i=0; i < NUM_AXIS; i++) 
       {
         if(code_seen(axis_codes[i])) 
-          
+        {  
           if(i == 3) { // E
             float value = code_value();
             if(value < 20.0) {
@@ -1195,6 +1202,7 @@ void process_commands()
           else {
             axis_steps_per_unit[i] = code_value();
           }
+        }        
       }
       break;
     case 115: // M115
@@ -1532,12 +1540,16 @@ void ClearToSend()
 
 void get_coordinates()
 {
+  #ifdef FWRETRACT
   bool seen[4]={false,false,false,false};
+  #endif
   for(int8_t i=0; i < NUM_AXIS; i++) {
     if(code_seen(axis_codes[i])) 
     {
       destination[i] = (float)code_value() + (axis_relative_modes[i] || relative_mode)*current_position[i];
+      #ifdef FWRETRACT
       seen[i]=true;
+      #endif
     }
     else destination[i] = current_position[i]; //Are these else lines really needed?
   }
