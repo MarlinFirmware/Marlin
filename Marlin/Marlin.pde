@@ -111,7 +111,8 @@
 // M209 - S<1=true/0=false> enable automatic retract detect if the slicer did not support G10/11: every normal extrude-only move will be classified as retract depending on the direction.
 // M220 S<factor in percent>- set speed factor override percentage
 // M221 S<factor in percent>- set extrude factor override percentage
-// M240 - Trigger a camera to take a photograph
+// M240 - Trigger a camera to take a photograph via Canon method
+// M250 - Trigger a camera to take a photograph via relay method --added by eagleApex
 // M301 - Set PID parameters P I and D
 // M302 - Allow cold extrudes
 // M303 - PID relay autotune S<temperature> sets the target temperature. (default target temperature = 150C)
@@ -140,6 +141,7 @@ float homing_feedrate[] = HOMING_FEEDRATE;
 bool axis_relative_modes[] = AXIS_RELATIVE_MODES;
 volatile int feedmultiply=100; //100->1 200->2
 int saved_feedmultiply;
+int shutter = 100;  //for M250
 volatile bool feedmultiplychanged=false;
 volatile int extrudemultiply=100; //100->1 200->2
 float current_position[NUM_AXIS] = { 0.0, 0.0, 0.0, 0.0 };
@@ -1430,6 +1432,20 @@ void process_commands()
         #endif
       #endif
      }
+    break;
+    
+    case 250: // M250 Take picture. Press shutter button for a delay of S[delay value = variable "shutter"]
+    //uses pin digital 32, set in pins.h and ground on RAMPS. That is pin 2 and 3 on Aux 4 for RAMPS 1.3
+    {
+       if(code_seen('S')) 
+       {
+           shutter = code_value() ;
+	       pinMode(SHUTTER_PIN, OUTPUT);
+           digitalWrite(SHUTTER_PIN, HIGH);
+           delay(shutter);
+	       digitalWrite(SHUTTER_PIN, LOW);
+       }
+    }
     break;
       
     case 302: // allow cold extrudes
