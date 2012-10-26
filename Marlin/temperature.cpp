@@ -57,15 +57,21 @@ int current_raw_bed = 0;
     float Kc=DEFAULT_Kc;
   #endif
 #endif //PIDTEMP
+
+#ifdef PIDTEMPBED
+  // used external
+  float pid_setpoint_bed = { 0.0 };
+  
+  float bedKp=DEFAULT_bedKp;
+  float bedKi=(DEFAULT_bedKi*PID_dT);
+  float bedKd=(DEFAULT_bedKd/PID_dT);
+#endif //PIDTEMPBED
   
   
 //===========================================================================
 //=============================private variables============================
 //===========================================================================
 static volatile bool temp_meas_ready = false;
-
-static unsigned long  previous_millis_bed_heater;
-//static unsigned long previous_millis_heater;
 
 #ifdef PIDTEMP
   //static cannot be external:
@@ -82,7 +88,22 @@ static unsigned long  previous_millis_bed_heater;
   // static float pid_output[EXTRUDERS];
   static bool pid_reset[EXTRUDERS];
 #endif //PIDTEMP
+#ifdef PIDTEMPBED
+  //static cannot be external:
+  static float temp_iState_bed = { 0 };
+  static float temp_dState_bed = { 0 };
+  static float pTerm_bed;
+  static float iTerm_bed;
+  static float dTerm_bed;
+  //int output;
+  static float pid_error_bed;
+  static float temp_iState_min_bed;
+  static float temp_iState_max_bed;
+#else //PIDTEMPBED
+	static unsigned long  previous_millis_bed_heater;
+#endif //PIDTEMPBED
   static unsigned char soft_pwm[EXTRUDERS];
+  static unsigned char soft_pwm_bed;
   
 #ifdef WATCHPERIOD
   int watch_raw[EXTRUDERS] = { -1000 }; // the first value used for all
@@ -122,7 +143,7 @@ static unsigned long  previous_millis_bed_heater;
 //=============================   functions      ============================
 //===========================================================================
 
-void PID_autotune(float temp)
+void PID_autotune(float temp, int extruder, int ncycles)
 {
   float input;
   int cycles=0;
@@ -134,32 +155,55 @@ void PID_autotune(float temp)
   long t_high;
   long t_low;
 
-  long bias=PID_MAX/2;
-  long d = PID_MAX/2;
+  long bias, d;
   float Ku, Tu;
   float Kp, Ki, Kd;
   float max, min;
-  
+
+	if ((extruder > EXTRUDERS)
+  #if (TEMP_BED_PIN <= -1)
+		||(extruder < 0)
+	#endif
+	){
+  	SERIAL_ECHOLN("PID Autotune failed. Bad extruder number.");
+  	return;
+	}
+	
   SERIAL_ECHOLN("PID Autotune start");
   
   disable_heater(); // switch off all heaters.
-  
-  soft_pwm[0] = PID_MAX/2;
-    
-  for(;;) {
+
+	if (extruder<0)
+	{
+	 	soft_pwm_bed = (MAX_BED_POWER)/2;
+		bias = d = (MAX_BED_POWER)/2;
+  }
+	else
+	{
+	  soft_pwm[extruder] = (PID_MAX)/2;
+		bias = d = (PID_MAX)/2;
+  }
+
+
+
+
+ for(;;) {
 
     if(temp_meas_ready == true) { // temp sample ready
       CRITICAL_SECTION_START;
       temp_meas_ready = false;
       CRITICAL_SECTION_END;
-      input = analog2temp(current_raw[0], 0);
-      
+      input = (extruder<0)?analog2tempBed(current_raw_bed):analog2temp(current_raw[extruder], extruder);
+
       max=max(max,input);
       min=min(min,input);
       if(heating == true && input > temp) {
         if(millis() - t2 > 5000) { 
           heating=false;
-          soft_pwm[0] = (bias - d) >> 1;
+					if (extruder<0)
+						soft_pwm_bed = (bias - d) >> 1;
+					else
+						soft_pwm[extruder] = (bias - d) >> 1;
           t1=millis();
           t_high=t1 - t2;
           max=temp;
@@ -172,8 +216,8 @@ void PID_autotune(float temp)
           t_low=t2 - t1;
           if(cycles > 0) {
             bias += (d*(t_high - t_low))/(t_low + t_high);
-            bias = constrain(bias, 20 ,PID_MAX-20);
-            if(bias > PID_MAX/2) d = PID_MAX - 1 - bias;
+            bias = constrain(bias, 20 ,(extruder<0?(MAX_BED_POWER):(PID_MAX))-20);
+            if(bias > (extruder<0?(MAX_BED_POWER):(PID_MAX))/2) d = (extruder<0?(MAX_BED_POWER):(PID_MAX)) - 1 - bias;
             else d = bias;
 
             SERIAL_PROTOCOLPGM(" bias: "); SERIAL_PROTOCOL(bias);
@@ -210,7 +254,10 @@ void PID_autotune(float temp)
               */
             }
           }
-          soft_pwm[0] = (bias + d) >> 1;
+					if (extruder<0)
+						soft_pwm_bed = (bias + d) >> 1;
+					else
+						soft_pwm[extruder] = (bias + d) >> 1;
           cycles++;
           min=temp;
         }
@@ -221,17 +268,26 @@ void PID_autotune(float temp)
       return;
     }
     if(millis() - temp_millis > 2000) {
-      temp_millis = millis();
-      SERIAL_PROTOCOLPGM("ok T:");
-      SERIAL_PROTOCOL(degHotend(0));   
+			int p;
+			if (extruder<0){
+	      p=soft_pwm_bed;       
+	      SERIAL_PROTOCOLPGM("ok B:");
+			}else{
+	      p=soft_pwm[extruder];       
+	      SERIAL_PROTOCOLPGM("ok T:");
+			}
+			
+      SERIAL_PROTOCOL(input);   
       SERIAL_PROTOCOLPGM(" @:");
-      SERIAL_PROTOCOLLN(getHeaterPower(0));       
+      SERIAL_PROTOCOLLN(p);       
+
+      temp_millis = millis();
     }
     if(((millis() - t1) + (millis() - t2)) > (10L*60L*1000L*2L)) {
       SERIAL_PROTOCOLLNPGM("PID Autotune failed! timeout");
       return;
     }
-    if(cycles > 5) {
+    if(cycles > ncycles) {
       SERIAL_PROTOCOLLNPGM("PID Autotune finished ! Place the Kp, Ki and Kd constants in the configuration.h");
       return;
     }
@@ -246,18 +302,19 @@ void updatePID()
      temp_iState_max[e] = PID_INTEGRAL_DRIVE_MAX / Ki;  
   }
 #endif
+#ifdef PIDTEMPBED
+  temp_iState_max_bed = PID_INTEGRAL_DRIVE_MAX / bedKi;  
+#endif
 }
   
 int getHeaterPower(int heater) {
+	if (heater<0)
+		return soft_pwm_bed;
   return soft_pwm[heater];
 }
 
 void manage_heater()
 {
-#ifdef HEATER_BED_DUTY_CYCLE_DIVIDER
-  static int bed_needs_heating=0;
-  static int bed_is_on=0;
-#endif
 
   #ifdef USE_WATCHDOG
     wd_reset();
@@ -298,12 +355,16 @@ void manage_heater()
           temp_iState[e] += pid_error[e];
           temp_iState[e] = constrain(temp_iState[e], temp_iState_min[e], temp_iState_max[e]);
           iTerm[e] = Ki * temp_iState[e];
+
           //K1 defined in Configuration.h in the PID settings
           #define K2 (1.0-K1)
           dTerm[e] = (Kd * (pid_input - temp_dState[e]))*K2 + (K1 * dTerm[e]);
           temp_dState[e] = pid_input;
+
           pid_output = constrain(pTerm[e] + iTerm[e] - dTerm[e], 0, PID_MAX);
         }
+    #else 
+          pid_output = constrain(pid_setpoint[e], 0, PID_MAX);
     #endif //PID_OPENLOOP
     #ifdef PID_DEBUG
     SERIAL_ECHOLN(" PIDDEBUG "<<e<<": Input "<<pid_input<<" Output "<<pid_output" pTerm "<<pTerm[e]<<" iTerm "<<iTerm[e]<<" dTerm "<<dTerm[e]);  
@@ -338,42 +399,58 @@ void manage_heater()
     }
   #endif
   
-#ifdef HEATER_BED_DUTY_CYCLE_DIVIDER
-  if (bed_needs_heating){
-    if (bed_is_on==0)
-        WRITE(HEATER_BED_PIN,HIGH);
-    if (bed_is_on==1)
-        WRITE(HEATER_BED_PIN,LOW);
-    bed_is_on=(bed_is_on+1) % HEATER_BED_DUTY_CYCLE_DIVIDER;
-  }
-#endif
 
+		#ifndef PIDTEMPBED
   if(millis() - previous_millis_bed_heater < BED_CHECK_INTERVAL)
     return;
   previous_millis_bed_heater = millis();
-  
-  #if TEMP_BED_PIN > -1
-  
-    #ifdef HEATER_BED_DUTY_CYCLE_DIVIDER
-    bed_needs_heating=0;
     #endif
 
-    #ifndef BED_LIMIT_SWITCHING
+  #if TEMP_BED_PIN > -1
+  
+		#ifdef PIDTEMPBED
+    pid_input = analog2tempBed(current_raw_bed);
+
+    #ifndef PID_OPENLOOP
+		  pid_error_bed = pid_setpoint_bed - pid_input;
+		  pTerm_bed = bedKp * pid_error_bed;
+		  temp_iState_bed += pid_error_bed;
+		  temp_iState_bed = constrain(temp_iState_bed, temp_iState_min_bed, temp_iState_max_bed);
+		  iTerm_bed = bedKi * temp_iState_bed;
+
+		  //K1 defined in Configuration.h in the PID settings
+		  #define K2 (1.0-K1)
+		  dTerm_bed= (bedKd * (pid_input - temp_dState_bed))*K2 + (K1 * dTerm_bed);
+		  temp_dState_bed = pid_input;
+
+		  pid_output = constrain(pTerm_bed + iTerm_bed - dTerm_bed, 0, MAX_BED_POWER);
+
+    #else 
+      pid_output = constrain(pid_setpoint_bed, 0, MAX_BED_POWER);
+    #endif //PID_OPENLOOP
+
+	  if((current_raw_bed > bed_minttemp) && (current_raw_bed < bed_maxttemp)) 
+	  {
+	    soft_pwm_bed = (int)pid_output >> 1;
+	  }
+	  else {
+	    soft_pwm_bed = 0;
+	  }
+
+    #elif not defined BED_LIMIT_SWITCHING
       // Check if temperature is within the correct range
       if((current_raw_bed > bed_minttemp) && (current_raw_bed < bed_maxttemp)) {
         if(current_raw_bed >= target_raw_bed)
         {
-          WRITE(HEATER_BED_PIN,LOW);
+					soft_pwm_bed = 0;
         }
         else 
         {
-          #ifdef HEATER_BED_DUTY_CYCLE_DIVIDER
-          bed_needs_heating=1;
-          #endif
-          WRITE(HEATER_BED_PIN,HIGH);
+					soft_pwm_bed = MAX_BED_POWER>>1;
         }
       }
       else {
+					soft_pwm_bed = 0;
         WRITE(HEATER_BED_PIN,LOW);
       }
     #else //#ifdef BED_LIMIT_SWITCHING
@@ -381,18 +458,16 @@ void manage_heater()
       if((current_raw_bed > bed_minttemp) && (current_raw_bed < bed_maxttemp)) {
         if(current_raw_bed > target_bed_high_temp)
         {
-          WRITE(HEATER_BED_PIN,LOW);
+					soft_pwm_bed = 0;
         }
         else 
           if(current_raw_bed <= target_bed_low_temp)
         {
-          #ifdef HEATER_BED_DUTY_CYCLE_DIVIDER
-          bed_needs_heating=1;
-          #endif
-          WRITE(HEATER_BED_PIN,HIGH);
+					soft_pwm_bed = MAX_BED_POWER>>1;
         }
       }
       else {
+					soft_pwm_bed = 0;
         WRITE(HEATER_BED_PIN,LOW);
       }
     #endif
@@ -568,6 +643,10 @@ void tp_init()
     temp_iState_min[e] = 0.0;
     temp_iState_max[e] = PID_INTEGRAL_DRIVE_MAX / Ki;
 #endif //PIDTEMP
+#ifdef PIDTEMPBED
+    temp_iState_min_bed = 0.0;
+    temp_iState_max_bed = PID_INTEGRAL_DRIVE_MAX / bedKi;
+#endif //PIDTEMPBED
   }
 
   #if (HEATER_0_PIN > -1) 
@@ -728,6 +807,7 @@ void disable_heater()
 
   #if TEMP_BED_PIN > -1
     target_raw_bed=0;
+    soft_pwm_bed=0;
     #if HEATER_BED_PIN > -1  
       WRITE(HEATER_BED_PIN,LOW);
     #endif
@@ -832,6 +912,7 @@ ISR(TIMER0_COMPB_vect)
   static unsigned char soft_pwm_0;
   static unsigned char soft_pwm_1;
   static unsigned char soft_pwm_2;
+  static unsigned char soft_pwm_b;
   
   if(pwm_count == 0){
     soft_pwm_0 = soft_pwm[0];
@@ -844,6 +925,10 @@ ISR(TIMER0_COMPB_vect)
     soft_pwm_2 = soft_pwm[2];
     if(soft_pwm_2 > 0) WRITE(HEATER_2_PIN,1);
     #endif
+    #if HEATER_BED_PIN > -1
+    soft_pwm_b = soft_pwm_bed;
+    if(soft_pwm_b > 0) WRITE(HEATER_BED_PIN,1);
+    #endif
   }
   if(soft_pwm_0 <= pwm_count) WRITE(HEATER_0_PIN,0);
   #if EXTRUDERS > 1
@@ -851,6 +936,9 @@ ISR(TIMER0_COMPB_vect)
   #endif
   #if EXTRUDERS > 2
   if(soft_pwm_2 <= pwm_count) WRITE(HEATER_2_PIN,0);
+  #endif
+  #if HEATER_BED_PIN > -1
+  if(soft_pwm_b <= pwm_count) WRITE(HEATER_BED_PIN,0);
   #endif
   
   pwm_count++;
@@ -885,6 +973,8 @@ ISR(TIMER0_COMPB_vect)
       #if (TEMP_BED_PIN > -1)
         #if TEMP_BED_PIN > 7
           ADCSRB = 1<<MUX5;
+        #else
+          ADCSRB = 0;
         #endif
         ADMUX = ((1 << REFS0) | (TEMP_BED_PIN & 0x07));
         ADCSRA |= 1<<ADSC; // Start conversion

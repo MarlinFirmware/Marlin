@@ -46,10 +46,14 @@ extern int current_raw_bed;
   extern int target_bed_low_temp ;  
   extern int target_bed_high_temp ;
 #endif
-extern float Kp,Ki,Kd,Kc;
 
 #ifdef PIDTEMP
+  extern float Kp,Ki,Kd,Kc;
   extern float pid_setpoint[EXTRUDERS];
+#endif
+#ifdef PIDTEMPBED
+  extern float bedKp,bedKi,bedKd;
+  extern float pid_setpoint_bed;
 #endif
   
 // #ifdef WATCHPERIOD
@@ -88,7 +92,9 @@ FORCE_INLINE void setTargetHotend(const float &celsius, uint8_t extruder) {
 FORCE_INLINE void setTargetBed(const float &celsius) {  
   
   target_raw_bed = temp2analogBed(celsius);
-  #ifdef BED_LIMIT_SWITCHING
+	#ifdef PIDTEMPBED
+  pid_setpoint_bed = celsius;
+  #elif defined BED_LIMIT_SWITCHING
     if(celsius>BED_HYSTERESIS)
     {
     target_bed_low_temp= temp2analogBed(celsius-BED_HYSTERESIS);
@@ -163,7 +169,7 @@ FORCE_INLINE void autotempShutdown(){
  #endif
 }
 
-void PID_autotune(float temp);
+void PID_autotune(float temp, int extruder, int ncycles);
 
 #endif
 
