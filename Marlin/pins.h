@@ -116,6 +116,10 @@
 #endif
 #define PS_ON_PIN 15
 
+//All these generations of Gen7 supply thermistor power
+//via PS_ON, so ignore bad thermistor readings
+#define BOGUS_TEMPERATURE_FAILSAFE_OVERRIDE
+
 //our pin for debugging.
 #define DEBUG_PIN 0
 
