@@ -187,6 +187,7 @@
 #define HEATER_2_PIN -1
 #define HEATER_BED_PIN 3
 
+#define KILL_PIN -1
 
 #define SDPOWER -1
 #define SDSS -1 // SCL pin of I2C header
