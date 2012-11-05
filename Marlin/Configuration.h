@@ -331,6 +331,13 @@ const bool Z_ENDSTOPS_INVERTING = true; // set to true to invert the logic of th
 // SF send wrong arc g-codes when using Arc Point as fillet procedure
 //#define SF_ARC_FIX
 
+
+// SERIAL_PORT selects which serial port should be used for communication with the host.
+// This allows the use of wireless adapters (for instance) which are connected to 
+// non-default serial port pins.
+#define SERIAL_PORT 2
+
+
 #include "Configuration_adv.h"
 #include "thermistortables.h"
 
