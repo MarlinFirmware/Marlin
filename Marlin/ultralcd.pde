@@ -358,7 +358,7 @@ MainMenu::MainMenu()
 
 void MainMenu::showStatus()
 { 
-#if LCD_HEIGHT==4
+#if LCD_HEIGHT>=4
   static int olddegHotEnd0=-1;
   static int oldtargetHotEnd0=-1;
   //force_lcd_update=true;
@@ -2572,6 +2572,7 @@ void MainMenu::update()
     force_lcd_update=true;
     encoderpos=0;
     lineoffset=0;
+	lastencoderpos = -lcdslow;
     
     oldstatus=status;
   }
@@ -2644,7 +2645,7 @@ void MainMenu::update()
   if(timeoutToStatus<millis())
     status=Main_Status;
   //force_lcd_update=false;
-  lastencoderpos=encoderpos;
+  //lastencoderpos=encoderpos;
 }
 
 enum {
