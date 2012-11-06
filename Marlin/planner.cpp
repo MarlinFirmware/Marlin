@@ -57,6 +57,7 @@
 #include "temperature.h"
 #include "ultralcd.h"
 #include "language.h"
+#include "Hysteresis.h"
 
 //===========================================================================
 //=============================public variables ============================
@@ -134,6 +135,12 @@ static int8_t prev_block_index(int8_t block_index) {
 //===========================================================================
 //=============================functions         ============================
 //===========================================================================
+
+// much faster than using pow(val,2)
+float sqr( float val )
+{
+  return val*val;
+}
 
 // Calculates the distance (not time) it takes to accelerate from initial_rate to target_rate using the 
 // given acceleration:
@@ -494,6 +501,8 @@ float junction_deviation = 0.1;
 // calculation the caller must also provide the physical length of the line in millimeters.
 void plan_buffer_line(const float &x, const float &y, const float &z, const float &e, float feed_rate, const uint8_t &extruder)
 {
+  hysteresis.InsertCorrection(x,y,z,e);
+
   // Calculate the buffer head after we push this byte
   int next_buffer_head = next_block_index(block_buffer_head);
 
@@ -537,7 +546,7 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
 
   // Mark block as not busy (Not executed by the stepper interrupt)
   block->busy = false;
-
+  
   // Number of steps for each axis
   block->steps_x = labs(target[X_AXIS]-position[X_AXIS]);
   block->steps_y = labs(target[Y_AXIS]-position[Y_AXIS]);
@@ -749,7 +758,7 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
   float safe_speed = vmax_junction;
 
   if ((moves_queued > 1) && (previous_nominal_speed > 0.0001)) {
-    float jerk = sqrt(pow((current_speed[X_AXIS]-previous_speed[X_AXIS]), 2)+pow((current_speed[Y_AXIS]-previous_speed[Y_AXIS]), 2));
+    float jerk = sqrt(sqr((current_speed[X_AXIS]-previous_speed[X_AXIS]))+sqr((current_speed[Y_AXIS]-previous_speed[Y_AXIS])));
     //    if((fabs(previous_speed[X_AXIS]) > 0.0001) || (fabs(previous_speed[Y_AXIS]) > 0.0001)) {
     vmax_junction = block->nominal_speed;
     //    }
