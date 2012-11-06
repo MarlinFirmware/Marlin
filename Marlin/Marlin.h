@@ -17,7 +17,6 @@
 #include <util/delay.h>
 #include <avr/pgmspace.h>
 #include <avr/eeprom.h>
-#include <avr/wdt.h>
 #include <avr/interrupt.h>
 
 

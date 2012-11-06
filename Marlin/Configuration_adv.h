@@ -185,9 +185,10 @@
 //#define USE_WATCHDOG
 
 #ifdef USE_WATCHDOG
-// you cannot watchdog reboot on Arduino mega2560 due to a bug in he bootloader. Hence we need to ask the user to reset.
-//  THIS FEATURE IS UNSAFE!, as it will only work if interrupts are disabled. And the code could hang in an interrupt routine with interrupts disabled.
-//#define RESET_MANUAL
+// If you have a watchdog reboot in an ArduinoMega2560 then the device will hang forever, as a watchdog reset will leave the watchdog on.
+// The "WATCHDOG_RESET_MANUAL" goes around this by not using the hardware reset.
+//  However, THIS FEATURE IS UNSAFE!, as it will only work if interrupts are disabled. And the code could hang in an interrupt routine with interrupts disabled.
+#define WATCHDOG_RESET_MANUAL
 #endif
 
 // extruder advance constant (s2/mm3)
