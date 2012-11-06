@@ -53,9 +53,9 @@ static unsigned long previous_millis_lcd=0;
 
 
 #ifdef NEWPANEL
- static long blocking=0;
+ static unsigned long blocking=0;
 #else
- static long blocking[8]={0,0,0,0,0,0,0,0};
+ static unsigned long blocking[8]={0,0,0,0,0,0,0,0};
 #endif
  
 static MainMenu menu;
@@ -225,7 +225,7 @@ void lcd_status()
     //static long previous_lcdinit=0;
   //  buttons_check(); // Done in temperature interrupt
     //previous_millis_buttons=millis();
-    long ms=millis();
+    unsigned long ms=millis();
     for(int8_t i=0; i<8; i++) {
       #ifndef NEWPANEL
       if((blocking[i]>ms))
@@ -2365,7 +2365,7 @@ void MainMenu::showSD()
           card.getfilename(i-FIRSTITEM);
           if(card.filenameIsDir)
           {
-            for(int8_t i=0;i<strlen(card.filename);i++)
+            for(uint8_t i=0;i<strlen(card.filename);i++)
               card.filename[i]=tolower(card.filename[i]);
             card.chdir(card.filename);
             lineoffset=0;
@@ -2374,7 +2374,7 @@ void MainMenu::showSD()
           else
           {
             char cmd[30];
-            for(int8_t i=0;i<strlen(card.filename);i++)
+            for(uint8_t i=0;i<strlen(card.filename);i++)
               card.filename[i]=tolower(card.filename[i]);
             sprintf(cmd,"M23 %s",card.filename);
             //sprintf(cmd,"M115");
@@ -2549,7 +2549,7 @@ void MainMenu::showMainMenu()
 void MainMenu::update()
 {
   static MainStatus oldstatus=Main_Menu;  //init automatically causes foce_lcd_update=true
-  static long timeoutToStatus=0;
+  static unsigned long timeoutToStatus=0;
   static bool oldcardstatus=false;
   #ifdef CARDINSERTED
     if((CARDINSERTED != oldcardstatus))
