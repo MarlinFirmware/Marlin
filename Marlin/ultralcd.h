@@ -1,46 +1,41 @@
 #ifndef ULTRALCD_H
 #define ULTRALCD_H
+
 #include "Marlin.h"
+
 #ifdef ULTRA_LCD
 #include "language.h"
+
 #if LANGUAGE_CHOICE == 6
 #include "LiquidCrystalRus.h"
+#define LCD_CLASS LiquidCrystalRus
 #else
 #include <LiquidCrystal.h>
+#define LCD_CLASS LiquidCrystal
 #endif
-  void lcd_status();
-  void lcd_init();
-  void lcd_status(const char* message);
-  void beep();
-  void buttons_init();
-  void buttons_check();
 
-  #define LCD_UPDATE_INTERVAL 100
-  #define STATUSTIMEOUT 15000
-#if LANGUAGE_CHOICE == 6
-  extern LiquidCrystalRus lcd;
-#else
-  extern LiquidCrystal lcd;
-#endif
-  extern volatile char buttons;  //the last checked buttons in a bit array.
+void lcd_status();
+void lcd_init();
+void lcd_status(const char* message);
+void beep();
+void buttons_init();
+void buttons_check();
+
+#define LCD_UPDATE_INTERVAL 100
+#define STATUSTIMEOUT 15000
+
+extern LCD_CLASS lcd;
+
+extern volatile char buttons;  //the last checked buttons in a bit array.
   
-  #ifdef NEWPANEL
+#ifdef NEWPANEL
     #define EN_C (1<<BLEN_C)
     #define EN_B (1<<BLEN_B)
     #define EN_A (1<<BLEN_A)
-    
+
     #define CLICKED (buttons&EN_C)
     #define BLOCK {blocking=millis()+blocktime;}
-    #if (SDCARDDETECT > -1)
-      #ifdef SDCARDDETECTINVERTED 
-        #define CARDINSERTED (READ(SDCARDDETECT)!=0)
-      #else
-        #define CARDINSERTED (READ(SDCARDDETECT)==0)
-      #endif
-    #endif  //SDCARDTETECTINVERTED
-
-  #else
-
+#else
     //atomatic, do not change
     #define B_LE (1<<BL_LE)
     #define B_UP (1<<BL_UP)
@@ -53,9 +48,18 @@
     
     #define CLICKED ((buttons&B_MI)||(buttons&B_ST))
     #define BLOCK {blocking[BL_MI]=millis()+blocktime;blocking[BL_ST]=millis()+blocktime;}
-    
-  #endif
+#endif
 
+#if (SDCARDDETECT > -1)
+#ifdef SDCARDDETECTINVERTED 
+#define CARDINSERTED (READ(SDCARDDETECT)!=0)
+#else
+#define CARDINSERTED (READ(SDCARDDETECT)==0)
+#endif //SDCARDTETECTINVERTED
+#else
+//If we don't have a card detect line, aways asume the card is inserted
+#define CARDINSERTED true
+#endif
 
     
   // blocking time for recognizing a new keypress of one key, ms
@@ -152,8 +156,8 @@
 
   #define LCD_INIT lcd_init();
   #define LCD_MESSAGE(x) lcd_status(x);
-  #define LCD_MESSAGEPGM(x) lcd_statuspgm(MYPGM(x));
-  #define LCD_ALERTMESSAGEPGM(x) lcd_alertstatuspgm(MYPGM(x));
+  #define LCD_MESSAGEPGM(x) lcd_statuspgm(PSTR(x));
+  #define LCD_ALERTMESSAGEPGM(x) lcd_alertstatuspgm(PSTR(x));
   #define LCD_STATUS lcd_status()
 #else //no lcd
   #define LCD_INIT
@@ -178,4 +182,14 @@ char *itostr31(const int &xx);
 char *itostr3(const int &xx);
 char *itostr4(const int &xx);
 char *ftostr51(const float &x);
+
+//TODO: These do not belong here.
+extern int plaPreheatHotendTemp;
+extern int plaPreheatHPBTemp;
+extern int plaPreheatFanSpeed;
+
+extern int absPreheatHotendTemp;
+extern int absPreheatHPBTemp;
+extern int absPreheatFanSpeed;
+
 #endif //ULTRALCD

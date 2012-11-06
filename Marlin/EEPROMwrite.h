@@ -6,14 +6,6 @@
 #include "temperature.h"
 //#include <EEPROM.h>
 
-int plaPreheatHotendTemp;
-int plaPreheatHPBTemp;
-int plaPreheatFanSpeed;
-
-int absPreheatHotendTemp;
-int absPreheatHPBTemp;
-int absPreheatFanSpeed;
-
 template <class T> int EEPROM_writeAnything(int &ee, const T& value)
 {
   const byte* p = (const byte*)(const void*)&value;

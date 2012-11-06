@@ -181,15 +181,14 @@
 #define SD_FINISHED_STEPPERRELEASE true  //if sd support and the file is finished: disable steppers?
 #define SD_FINISHED_RELEASECOMMAND "M84 X Y Z E" // no z because of layer shift.
 
-// The hardware watchdog should halt the Microcontroller, in case the firmware gets stuck somewhere. However:
-// the Watchdog is not working well, so please only enable this for testing
-// this enables the watchdog interrupt.
-//#define USE_WATCHDOG
-//#ifdef USE_WATCHDOG
-  // you cannot reboot on a mega2560 due to a bug in he bootloader. Hence, you have to reset manually, and this is done hereby:
+// The hardware watchdog should reset the Microcontroller disabling all outputs, in case the firmware gets stuck and doesn't do temperature regulation.
+#define USE_WATCHDOG
+
+#ifdef USE_WATCHDOG
+// you cannot watchdog reboot on Arduino mega2560 due to a bug in he bootloader. Hence we need to ask the user to reset.
+//  THIS FEATURE IS UNSAFE!, as it will only work if interrupts are disabled. And the code could hang in an interrupt routine with interrupts disabled.
 //#define RESET_MANUAL
-//#define WATCHDOG_TIMEOUT 4  //seconds
-//#endif
+#endif
 
 // extruder advance constant (s2/mm3)
 //
@@ -214,7 +213,7 @@
 #define MM_PER_ARC_SEGMENT 1
 #define N_ARC_CORRECTION 25
 
-const int dropsegments=5; //everything with less than this number of steps will be ignored as move and joined with the next movement
+const unsigned int dropsegments=5; //everything with less than this number of steps will be ignored as move and joined with the next movement
 
 // If you are using a RAMPS board or cheap E-bay purchased boards that do not detect when an SD card is inserted
 // You can get round this by connecting a push button or single throw switch to the pin defined as SDCARDCARDDETECT 

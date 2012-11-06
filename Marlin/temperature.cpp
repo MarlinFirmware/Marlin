@@ -145,20 +145,20 @@ static volatile bool temp_meas_ready = false;
 
 void PID_autotune(float temp, int extruder, int ncycles)
 {
-  float input;
+  float input = 0.0;
   int cycles=0;
   bool heating = true;
 
   unsigned long temp_millis = millis();
   unsigned long t1=temp_millis;
   unsigned long t2=temp_millis;
-  long t_high;
-  long t_low;
+  long t_high = 0;
+  long t_low = 0;
 
   long bias, d;
   float Ku, Tu;
   float Kp, Ki, Kd;
-  float max, min;
+  float max = 0, min = 10000;
 
 	if ((extruder > EXTRUDERS)
   #if (TEMP_BED_PIN <= -1)
@@ -315,16 +315,14 @@ int getHeaterPower(int heater) {
 
 void manage_heater()
 {
-
-  #ifdef USE_WATCHDOG
-    wd_reset();
-  #endif
-  
   float pid_input;
   float pid_output;
 
   if(temp_meas_ready != true)   //better readability
     return; 
+
+  //Reset the watchdog after we know we have a temperature measurement.
+  watchdog_reset();
 
   CRITICAL_SECTION_START;
   temp_meas_ready = false;
@@ -548,7 +546,6 @@ int temp2analogBed(int celsius) {
 #elif defined BED_USES_AD595
     return lround(((celsius-TEMP_SENSOR_AD595_OFFSET)/TEMP_SENSOR_AD595_GAIN) * (1024.0 * OVERSAMPLENR/ (5.0 * 100.0) ) );
 #else
-    #warning No heater-type defined for the bed.
     return 0;
 #endif
 }
@@ -625,7 +622,6 @@ float analog2tempBed(int raw) {
   #elif defined BED_USES_AD595
     return ((raw * ((5.0 * 100.0) / 1024.0) / OVERSAMPLENR) * TEMP_SENSOR_AD595_GAIN) + TEMP_SENSOR_AD595_OFFSET;
   #else
-    #warning No heater-type defined for the bed.
     return 0;
   #endif
 }
