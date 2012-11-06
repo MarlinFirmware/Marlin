@@ -182,7 +182,7 @@
 #define SD_FINISHED_RELEASECOMMAND "M84 X Y Z E" // no z because of layer shift.
 
 // The hardware watchdog should reset the Microcontroller disabling all outputs, in case the firmware gets stuck and doesn't do temperature regulation.
-#define USE_WATCHDOG
+//#define USE_WATCHDOG
 
 #ifdef USE_WATCHDOG
 // you cannot watchdog reboot on Arduino mega2560 due to a bug in he bootloader. Hence we need to ask the user to reset.
