@@ -213,6 +213,14 @@ inline void EEPROM_RetrieveSettings(bool def=false)
 	  absPreheatHPBTemp = ABS_PREHEAT_HPB_TEMP;
 	  absPreheatFanSpeed = ABS_PREHEAT_FAN_SPEED;
 #endif
+#ifdef PIDTEMP
+        Kp = DEFAULT_Kp;
+        Ki = DEFAULT_Ki;
+        Kd = DEFAULT_Kp;
+#ifdef PID_ADD_EXTRUSION_RATE
+        Kc = DEFAULT_Kc;
+ #endif
+#endif
     }
   #ifdef EEPROM_CHITCHAT
     EEPROM_printSettings();
