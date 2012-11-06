@@ -17,8 +17,8 @@
 #include <util/delay.h>
 #include <avr/pgmspace.h>
 #include <avr/eeprom.h>
-#include  <avr/wdt.h>
-#include  <avr/interrupt.h>
+#include <avr/wdt.h>
+#include <avr/interrupt.h>
 
 
 #include "fastio.h"
@@ -52,22 +52,11 @@
   #define MYSERIAL MSerial
 #endif
 
-//this is a unfinsihed attemp to removes a lot of warning messages, see:
-// http://www.avrfreaks.net/index.php?name=PNphpBB2&file=printview&t=57011
-//typedef char prog_char PROGMEM; 
-// //#define PSTR    (s )        ((const PROGMEM char *)(s))
-// //# define MYPGM(s) (__extension__({static prog_char __c[] = (s); &__c[0];})) 
-// //#define MYPGM(s) ((const prog_char *g PROGMEM=s))
-#define MYPGM(s) PSTR(s)
-//#define MYPGM(s)  (__extension__({static char __c[] __attribute__((__progmem__)) = (s); &__c[0];}))  //This is the normal behaviour
-//#define MYPGM(s)  (__extension__({static prog_char __c[]  = (s); &__c[0];})) //this does not work but hides the warnings
-
-
 #define SERIAL_PROTOCOL(x) MYSERIAL.print(x);
 #define SERIAL_PROTOCOL_F(x,y) MYSERIAL.print(x,y);
-#define SERIAL_PROTOCOLPGM(x) serialprintPGM(MYPGM(x));
+#define SERIAL_PROTOCOLPGM(x) serialprintPGM(PSTR(x));
 #define SERIAL_PROTOCOLLN(x) {MYSERIAL.print(x);MYSERIAL.write('\n');}
-#define SERIAL_PROTOCOLLNPGM(x) {serialprintPGM(MYPGM(x));MYSERIAL.write('\n');}
+#define SERIAL_PROTOCOLLNPGM(x) {serialprintPGM(PSTR(x));MYSERIAL.write('\n');}
 
 
 const char errormagic[] PROGMEM ="Error:";
@@ -92,7 +81,6 @@ void serial_echopair_P(const char *s_P, unsigned long v);
 
 
 //things to write to serial from Programmemory. saves 400 to 2k of RAM.
-#define SerialprintPGM(x) serialprintPGM(MYPGM(x))
 FORCE_INLINE void serialprintPGM(const char *str)
 {
   char ch=pgm_read_byte(str);
@@ -196,6 +184,9 @@ extern float add_homeing[3];
 extern float min_pos[3];
 extern float max_pos[3];
 extern unsigned char FanSpeed;
+
+extern unsigned long starttime;
+extern unsigned long stoptime;
 
 // Handling multiple extruders pins
 extern uint8_t active_extruder;

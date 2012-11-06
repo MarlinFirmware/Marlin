@@ -191,8 +191,7 @@ void calculate_trapezoid_for_block(block_t *block, float entry_factor, float exi
   // have to use intersection_distance() to calculate when to abort acceleration and start braking
   // in order to reach the final_rate exactly at the end of this block.
   if (plateau_steps < 0) {
-    accelerate_steps = ceil(
-    intersection_distance(block->initial_rate, block->final_rate, acceleration, block->step_event_count));
+    accelerate_steps = ceil(intersection_distance(block->initial_rate, block->final_rate, acceleration, block->step_event_count));
     accelerate_steps = max(accelerate_steps,0); // Check limits due to numerical round-off
     accelerate_steps = min(accelerate_steps,block->step_event_count);
     plateau_steps = 0;
