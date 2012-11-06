@@ -35,7 +35,11 @@
 // These are macros to build serial port register names for the selected SERIAL_PORT (C preprocessor
 // requires two levels of indirection to expand macro values properly)
 #define SERIAL_REGNAME(registerbase,number,suffix) SERIAL_REGNAME_INTERNAL(registerbase,number,suffix)
+#if defined(UBRRH)
+#define SERIAL_REGNAME_INTERNAL(registerbase,number,suffix) registerbase##suffix
+#else
 #define SERIAL_REGNAME_INTERNAL(registerbase,number,suffix) registerbase##number##suffix
+#endif
 
 // Registers used by MarlinSerial class (these are expanded 
 // depending on selected serial port
