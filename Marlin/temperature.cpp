@@ -145,20 +145,20 @@ static volatile bool temp_meas_ready = false;
 
 void PID_autotune(float temp, int extruder, int ncycles)
 {
-  float input;
+  float input=0;
   int cycles=0;
   bool heating = true;
 
   unsigned long temp_millis = millis();
   unsigned long t1=temp_millis;
   unsigned long t2=temp_millis;
-  long t_high;
+  long t_high=0;
   long t_low;
 
   long bias, d;
   float Ku, Tu;
   float Kp, Ki, Kd;
-  float max, min;
+  float max=0, min=1000;
 
 	if ((extruder > EXTRUDERS)
   #if (TEMP_BED_PIN <= -1)

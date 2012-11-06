@@ -196,6 +196,12 @@ extern float add_homeing[3];
 extern float min_pos[3];
 extern float max_pos[3];
 extern unsigned char FanSpeed;
+extern int plaPreheatHotendTemp;
+extern int plaPreheatHPBTemp;
+extern int plaPreheatFanSpeed;
+extern int absPreheatHotendTemp;
+extern int absPreheatHPBTemp;
+extern int absPreheatFanSpeed;
 
 // Handling multiple extruders pins
 extern uint8_t active_extruder;
