@@ -35,7 +35,7 @@
 // These are macros to build serial port register names for the selected SERIAL_PORT (C preprocessor
 // requires two levels of indirection to expand macro values properly)
 #define SERIAL_REGNAME(registerbase,number,suffix) SERIAL_REGNAME_INTERNAL(registerbase,number,suffix)
-#if defined(UBRRH)
+#if SERIAL_PORT == 0 && !defined(UBRR0H)
 #define SERIAL_REGNAME_INTERNAL(registerbase,number,suffix) registerbase##suffix
 #else
 #define SERIAL_REGNAME_INTERNAL(registerbase,number,suffix) registerbase##number##suffix
