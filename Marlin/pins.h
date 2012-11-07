@@ -405,6 +405,23 @@
     #define encrot2 3
     #define encrot3 1
 
+    #ifdef REPRAPDISCOUNTSC
+      // Override partially the above definitions
+      #define KILL_PIN 41
+      #define LCD_PINS_RS 16
+      #define LCD_PINS_ENABLE 17
+      #define LCD_PINS_D4 23
+      #define LCD_PINS_D5 25
+      #define LCD_PINS_D6 27
+      #define LCD_PINS_D7 29
+
+      #define BTN_EN1 31
+      #define BTN_EN2 33
+      #define BTN_ENC 35
+      #define BEEPER 37
+      #define SDCARDDETECT 49
+    #endif
+
   #else //old style panel with shift register
     //arduino pin witch triggers an piezzo beeper
     #define BEEPER 33		No Beeper added
