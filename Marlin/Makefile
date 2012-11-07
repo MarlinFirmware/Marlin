@@ -92,7 +92,7 @@ SRC =  pins_arduino.c wiring.c \
 CXXSRC = WMath.cpp WString.cpp Print.cpp Marlin.cpp Marlin_main.cpp	\
 	MarlinSerial.cpp Sd2Card.cpp SdBaseFile.cpp SdFatUtil.cpp	\
 	SdFile.cpp SdVolume.cpp motion_control.cpp planner.cpp		\
-	stepper.cpp temperature.cpp cardreader.cpp
+	stepper.cpp temperature.cpp cardreader.cpp ConfigurationStore.cpp
 #CXXSRC += LiquidCrystal.cpp ultralcd.cpp
 #CXXSRC += ultralcd.cpp
 FORMAT = ihex
