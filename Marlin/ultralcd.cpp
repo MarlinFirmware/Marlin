@@ -5,7 +5,7 @@
 #include "Marlin.h"
 #include "language.h"
 #include "temperature.h"
-#include "EEPROMwrite.h"
+#include "ConfigurationStore.h"
 
 //===========================================================================
 //=============================imported variables============================
@@ -2220,7 +2220,7 @@ void MainMenu::showControl()
         //enquecommand("M84");
         beepshort();
         BLOCK;
-        EEPROM_StoreSettings();
+        Config_StoreSettings();
       }
     }break;
     case ItemC_load:
@@ -2234,7 +2234,7 @@ void MainMenu::showControl()
         //enquecommand("M84");
         beepshort();
         BLOCK;
-        EEPROM_RetrieveSettings();
+        Config_RetrieveSettings();
       }
     }break;
     case ItemC_failsafe:
@@ -2248,7 +2248,7 @@ void MainMenu::showControl()
         //enquecommand("M84");
         beepshort();
         BLOCK;
-        EEPROM_RetrieveSettings(true);
+        Config_ResetDefault();
       }
     }break;
     default:   
@@ -2785,7 +2785,7 @@ void MainMenu::showPLAsettings()
         //enquecommand("M84");
         beepshort();
         BLOCK;
-        EEPROM_StoreSettings();
+        Config_StoreSettings();
       }
     }break;
       default:   
@@ -2931,7 +2931,7 @@ void MainMenu::showABSsettings()
         //enquecommand("M84");
         beepshort();
         BLOCK;
-        EEPROM_StoreSettings();
+        Config_StoreSettings();
       }
     }break;
       default:   

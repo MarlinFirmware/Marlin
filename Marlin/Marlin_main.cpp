@@ -36,7 +36,7 @@
 #include "motion_control.h"
 #include "cardreader.h"
 #include "watchdog.h"
-#include "EEPROMwrite.h"
+#include "ConfigurationStore.h"
 #include "language.h"
 #include "pins_arduino.h"
 
@@ -322,7 +322,7 @@ void setup()
     fromsd[i] = false;
   }
   
-  EEPROM_RetrieveSettings(); // loads data from EEPROM if available
+  Config_RetrieveSettings(); // loads data from EEPROM if available
 
   for(int8_t i=0; i < NUM_AXIS; i++)
   {
@@ -1457,22 +1457,22 @@ void process_commands()
     break;
     case 500: // Store settings in EEPROM
     {
-        EEPROM_StoreSettings();
+        Config_StoreSettings();
     }
     break;
     case 501: // Read settings from EEPROM
     {
-      EEPROM_RetrieveSettings();
+        Config_RetrieveSettings();
     }
     break;
     case 502: // Revert to default settings
     {
-      EEPROM_RetrieveSettings(true);
+        Config_ResetDefault();
     }
     break;
     case 503: // print settings currently in memory
     {
-      EEPROM_printSettings();
+        Config_PrintSettings();
     }
     break;
     case 999: // Restart after being stopped
