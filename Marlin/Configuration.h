@@ -298,7 +298,7 @@ const bool Z_ENDSTOPS_INVERTING = true; // set to true to invert the logic of th
 
 // The RepRapDiscount Smart Controller
 // http://reprap.org/wiki/RepRapDiscount_Smart_Controller
-//#define REPRAPDISCOUNTSC
+//#define REPRAP_DISCOUNT_SMART_CONTROLLER
 
 
 //automatic expansion

@@ -405,7 +405,7 @@
     #define encrot2 3
     #define encrot3 1
 
-    #ifdef REPRAPDISCOUNTSC
+    #ifdef REPRAP_DISCOUNT_SMART_CONTROLLER
       // Override partially the above definitions
       #define KILL_PIN 41
       #define LCD_PINS_RS 16
