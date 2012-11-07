@@ -15,7 +15,7 @@
 //===========================================================================
 
 
-/// intialise watch dog with a 1 sec interrupt time
+/// intialise watch dog with a 4 sec interrupt time
 void watchdog_init()
 {
 #ifdef WATCHDOG_RESET_MANUAL
@@ -23,9 +23,9 @@ void watchdog_init()
     //Take care, as this requires the correct order of operation, with interrupts disabled. See the datasheet of any AVR chip for details.
     wdt_reset();
     _WD_CONTROL_REG = _BV(_WD_CHANGE_BIT) | _BV(WDE);
-    _WD_CONTROL_REG = _BV(WDIE) | WDTO_1S;
+    _WD_CONTROL_REG = _BV(WDIE) | WDTO_4S;
 #else
-    wdt_enable(WDTO_1S);
+    wdt_enable(WDTO_4S);
 #endif
 }
 
