@@ -3,13 +3,7 @@
 
 #include "Configuration.h"
 
-#ifdef EEPROM_SETTINGS
-void Config_StoreSettings();
-void Config_RetrieveSettings();
-#else
-FORCE_INLINE void Config_StoreSettings() {}
-FORCE_INLINE void Config_RetrieveSettings() {}
-#endif
+void Config_ResetDefault();
 
 #ifdef EEPROM_CHITCHAT
 void Config_PrintSettings();
@@ -17,7 +11,13 @@ void Config_PrintSettings();
 FORCE_INLINE void Config_PrintSettings() {}
 #endif
 
-void Config_ResetDefault();
+#ifdef EEPROM_SETTINGS
+void Config_StoreSettings();
+void Config_RetrieveSettings();
+#else
+FORCE_INLINE void Config_StoreSettings() {}
+FORCE_INLINE void Config_RetrieveSettings() { Config_ResetDefault(); Config_PrintSettings(); }
+#endif
 
 #endif
 
