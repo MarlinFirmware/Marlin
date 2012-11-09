@@ -227,8 +227,8 @@ void Config_ResetDefault()
 #endif
 #ifdef PIDTEMP
     Kp = DEFAULT_Kp;
-    Ki = DEFAULT_Ki;
-    Kd = DEFAULT_Kp;
+    Ki = (DEFAULT_Ki*PID_dT);
+    Kd = (DEFAULT_Kp/PID_dT);
 #ifdef PID_ADD_EXTRUSION_RATE
     Kc = DEFAULT_Kc;
 #endif//PID_ADD_EXTRUSION_RATE
