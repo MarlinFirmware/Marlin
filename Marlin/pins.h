@@ -459,7 +459,7 @@
   #endif 
 #endif //ULTRA_LCD
 
-#else // RAMPS_V_1_1 or RAMPS_V_1_2 as default
+#else // RAMPS_V_1_1 or RAMPS_V_1_2 as default (MOTHERBOARD == 3)
 
 #define X_STEP_PIN         26
 #define X_DIR_PIN          28
@@ -504,7 +504,7 @@
 #define TEMP_1_PIN          -1   
 #define TEMP_2_PIN          -1   
 #define TEMP_BED_PIN        1    // MUST USE ANALOG INPUT NUMBERING NOT DIGITAL OUTPUT NUMBERING!!!!!!!!!
-#endif
+#endif// MOTHERBOARD == 33 || MOTHERBOARD == 34
 
 // SPI for Max6675 Thermocouple 
 
@@ -518,7 +518,7 @@
   #define MAX6675_SS       49
 #endif
 
-#endif
+#endif//MOTHERBOARD == 3 || MOTHERBOARD == 33 || MOTHERBOARD == 34
 
 /****************************************************************************************
 * Duemilanove w/ ATMega328P pin assignment
@@ -1008,7 +1008,7 @@
 *
 ****************************************************************************************/
 #if MOTHERBOARD == 9
-#define MOTHERBOARD 6
+#define MOTHERBOARD 6   /*TODO: Figure out, Why is this done?*/
 #define KNOWN_BOARD 1
 #ifndef __AVR_ATmega644P__
 #ifndef __AVR_ATmega1284P__
