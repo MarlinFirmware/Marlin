@@ -136,4 +136,6 @@ FORCE_INLINE bool blocks_queued()
 }
 
 void allow_cold_extrudes(bool allow);
+void copy_position( float* ret_position );
+void set_position( const float* new_position );
 #endif

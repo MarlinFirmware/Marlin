@@ -137,7 +137,7 @@ void Hysteresis::InsertCorrection(const float &x, const float &y, const float &z
     }
     float best_feedrate = calc_best_feedrate( current_position, destination );
 
-/*
+
         // debug output to display any hysteresis corrections.
         SERIAL_PROTOCOLPGM("From=X");
         SERIAL_PROTOCOL(current_position[X_AXIS]);
@@ -164,10 +164,13 @@ void Hysteresis::InsertCorrection(const float &x, const float &y, const float &z
         
 
         SERIAL_PROTOCOLLN("");
-*/
+
   
     m_prev_direction_bits = direction_bits; // need to set these now to avoid recursion as plan_buffer_line calls this function
+    float position_before_correction[NUM_AXIS];
+    copy_position( position_before_correction );
     plan_buffer_line(fixed_pos[X_AXIS], fixed_pos[Y_AXIS], fixed_pos[Z_AXIS], fixed_pos[E_AXIS], best_feedrate, active_extruder);
+    set_position( position_before_correction );
   }
   m_prev_direction_bits = direction_bits;
 }

@@ -136,6 +136,22 @@ static int8_t prev_block_index(int8_t block_index) {
 //=============================functions         ============================
 //===========================================================================
 
+void copy_position( float* ret_position )
+{
+  for(int i=0;i<NUM_AXIS;++i)
+  {
+    ret_position[i] = position[i];
+  }
+}
+
+void set_position( const float* new_position )
+{
+  for(int i=0;i<NUM_AXIS;++i)
+  {
+    position[i] = new_position[i];
+  }
+}
+
 // much faster than using pow(val,2)
 float sqr( float val )
 {
@@ -502,6 +518,15 @@ float junction_deviation = 0.1;
 void plan_buffer_line(const float &x, const float &y, const float &z, const float &e, float feed_rate, const uint8_t &extruder)
 {
   hysteresis.InsertCorrection(x,y,z,e);
+
+        SERIAL_PROTOCOLPGM("plan to=X");
+        SERIAL_PROTOCOL(x);
+        SERIAL_PROTOCOLPGM(" Y");
+        SERIAL_PROTOCOL(y);
+        SERIAL_PROTOCOLPGM(" Z");
+        SERIAL_PROTOCOL(z);
+        SERIAL_PROTOCOLPGM(" E");      
+        SERIAL_PROTOCOL(e);
 
   // Calculate the buffer head after we push this byte
   int next_buffer_head = next_block_index(block_buffer_head);
