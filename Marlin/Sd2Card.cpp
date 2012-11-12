@@ -42,28 +42,28 @@ static void spiInit(uint8_t spiRate) {
 /** SPI receive a byte */
 static uint8_t spiRec() {
   SPDR = 0XFF;
-  while (!(SPSR & (1 << SPIF)));
+  while (!(SPSR & (1 << SPIF))) { /* Intentionally left empty */ }
   return SPDR;
 }
 //------------------------------------------------------------------------------
 /** SPI read data - only one call so force inline */
 static inline __attribute__((always_inline))
-  void spiRead(uint8_t* buf, uint16_t nbyte) {
+void spiRead(uint8_t* buf, uint16_t nbyte) {
   if (nbyte-- == 0) return;
   SPDR = 0XFF;
   for (uint16_t i = 0; i < nbyte; i++) {
-    while (!(SPSR & (1 << SPIF)));
+    while (!(SPSR & (1 << SPIF))) { /* Intentionally left empty */ }
     buf[i] = SPDR;
     SPDR = 0XFF;
   }
-  while (!(SPSR & (1 << SPIF)));
+  while (!(SPSR & (1 << SPIF))) { /* Intentionally left empty */ }
   buf[nbyte] = SPDR;
 }
 //------------------------------------------------------------------------------
 /** SPI send a byte */
 static void spiSend(uint8_t b) {
   SPDR = b;
-  while (!(SPSR & (1 << SPIF)));
+  while (!(SPSR & (1 << SPIF))) { /* Intentionally left empty */ }
 }
 //------------------------------------------------------------------------------
 /** SPI send block - only one call so force inline */
@@ -71,12 +71,12 @@ static inline __attribute__((always_inline))
   void spiSendBlock(uint8_t token, const uint8_t* buf) {
   SPDR = token;
   for (uint16_t i = 0; i < 512; i += 2) {
-    while (!(SPSR & (1 << SPIF)));
+    while (!(SPSR & (1 << SPIF))) { /* Intentionally left empty */ }
     SPDR = buf[i];
-    while (!(SPSR & (1 << SPIF)));
+    while (!(SPSR & (1 << SPIF))) { /* Intentionally left empty */ }
     SPDR = buf[i + 1];
   }
-  while (!(SPSR & (1 << SPIF)));
+  while (!(SPSR & (1 << SPIF))) { /* Intentionally left empty */ }
 }
 //------------------------------------------------------------------------------
 #else  // SOFTWARE_SPI
@@ -174,7 +174,7 @@ uint8_t Sd2Card::cardCommand(uint8_t cmd, uint32_t arg) {
   if (cmd == CMD12) spiRec();
 
   // wait for response
-  for (uint8_t i = 0; ((status_ = spiRec()) & 0X80) && i != 0XFF; i++);
+  for (uint8_t i = 0; ((status_ = spiRec()) & 0X80) && i != 0XFF; i++) { /* Intentionally left empty */ }
   return status_;
 }
 //------------------------------------------------------------------------------

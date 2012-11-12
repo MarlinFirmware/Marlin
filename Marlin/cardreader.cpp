@@ -246,7 +246,9 @@ void CardReader::openFile(char* name,bool read)
           return;
         }
         else
-          ;//SERIAL_ECHOLN("dive ok");
+        {
+          //SERIAL_ECHOLN("dive ok");
+        }
           
         curDir=&myDir; 
         dirname_start=dirname_end+1;
@@ -340,7 +342,9 @@ void CardReader::removeFile(char* name)
           return;
         }
         else
-          ;//SERIAL_ECHOLN("dive ok");
+        {
+          //SERIAL_ECHOLN("dive ok");
+        }
           
         curDir=&myDir; 
         dirname_start=dirname_end+1;
