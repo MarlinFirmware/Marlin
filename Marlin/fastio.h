@@ -3,8 +3,8 @@
   why double up on these macros? see http://gcc.gnu.org/onlinedocs/cpp/Stringification.html
 */
 
-#ifndef	_ARDUINO_H
-#define	_ARDUINO_H
+#ifndef	_FASTIO_ARDUINO_H
+#define	_FASTIO_ARDUINO_H
 
 #include <avr/io.h>
 
@@ -2579,4 +2579,4 @@ pins
 #error pins for this chip not defined in arduino.h! If you write an appropriate pin definition and have this firmware work on your chip, please submit a pull request
 #endif
 
-#endif /* _ARDUINO_H */
+#endif /* _FASTIO_ARDUINO_H */
