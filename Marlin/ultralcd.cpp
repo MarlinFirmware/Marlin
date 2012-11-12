@@ -1115,7 +1115,7 @@ void MainMenu::showControlTemp()
           }
           else
           {
-            setTargetHotend1(encoderpos);
+            setTargetHotend2(encoderpos);
             encoderpos=activeline*lcdslow;
             beepshort();
           }
