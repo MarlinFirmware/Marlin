@@ -2295,11 +2295,7 @@ void MainMenu::showSD()
 //         if(force_lcd_update)
 //         {
 //           lcd.setCursor(0,line);
-//            #ifdef CARDINSERTED
 //           if(CARDINSERTED)
-//           #else
-//           if(true)
-//           #endif
 //           {
 //             LCD_PRINT_PGM(" \004Refresh");
 //           }
@@ -2455,11 +2451,7 @@ void MainMenu::showMainMenu()
         if(force_lcd_update) 
         {
           lcd.setCursor(0,line);
-          #ifdef CARDINSERTED
-            if(CARDINSERTED)
-          #else
-            if(true)
-          #endif
+          if(CARDINSERTED)
           {
             if(card.sdprinting)
               LCD_PRINT_PGM(MSG_STOP_PRINT);
@@ -2471,10 +2463,7 @@ void MainMenu::showMainMenu()
            LCD_PRINT_PGM(MSG_NO_CARD); 
           }
         }
-        #ifdef CARDINSERTED
-          if(CARDINSERTED)
-        #endif
-        if((activeline==line)&&CLICKED)
+        if(CARDINSERTED&&(activeline==line)&&CLICKED)
         {
           card.printingHasFinished();
           BLOCK;
@@ -2487,41 +2476,34 @@ void MainMenu::showMainMenu()
             if(force_lcd_update)
             {
                 lcd.setCursor(0,line);
-#ifdef CARDINSERTED
                 if(CARDINSERTED)
-#else
-                    if(true)
-#endif
-                    {
-                        if(card.sdprinting)
-                            LCD_PRINT_PGM(MSG_PAUSE_PRINT);
-                        else
-                            LCD_PRINT_PGM(MSG_RESUME_PRINT);
-                    }
-                    else
-                    {
-                        //LCD_PRINT_PGM(MSG_NO_CARD);
-                    }
-            }
-#ifdef CARDINSERTED
-            if(CARDINSERTED)
-#endif
-                if((activeline==line) && CLICKED)
                 {
                     if(card.sdprinting)
-                    {
-                        card.pauseSDPrint();
-                        beepshort();
-                        status = Main_Status;
-                    }
+                        LCD_PRINT_PGM(MSG_PAUSE_PRINT);
                     else
-                    {
-                        card.startFileprint();
-                        starttime=millis();
-                        beepshort();
-                        status = Main_Status;
-                    }
+                        LCD_PRINT_PGM(MSG_RESUME_PRINT);
                 }
+                else
+                {
+                    //LCD_PRINT_PGM(MSG_NO_CARD);
+                }
+            }
+            if(CARDINSERTED && (activeline==line) && CLICKED)
+            {
+                if(card.sdprinting)
+                {
+                    card.pauseSDPrint();
+                    beepshort();
+                    status = Main_Status;
+                }
+                else
+                {
+                    card.startFileprint();
+                    starttime=millis();
+                    beepshort();
+                    status = Main_Status;
+                }
+            }
         }break;
       #else
       case ItemM_file:
@@ -2550,8 +2532,9 @@ void MainMenu::update()
 {
   static MainStatus oldstatus=Main_Menu;  //init automatically causes foce_lcd_update=true
   static unsigned long timeoutToStatus=0;
-  static bool oldcardstatus=false;
-  #ifdef CARDINSERTED
+  #if (SDCARDDETECT > -1)
+    //This code is only relivant if you have an SDcard detect pin.
+    static bool oldcardstatus=false;
     if((CARDINSERTED != oldcardstatus))
     {
       force_lcd_update=true;
