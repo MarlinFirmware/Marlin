@@ -8,8 +8,8 @@
 
 // Languages
 // 1  English
-// 2  -
-// 3  French	(Waiting translation)
+// 2  Polish
+// 3  French	(awaiting translation!)
 // 4  German
 // 5  Spanish
 // 6  Russian
@@ -135,27 +135,27 @@
 	#define MSG_PLANNER_BUFFER_BYTES "  PlannerBufferBytes: "
 	#define MSG_OK "ok"
 	#define MSG_FILE_SAVED "Done saving file."
-	#define MSG_ERR_LINE_NO "Line Number is not Last Line Number+1, Last Line:"
-	#define MSG_ERR_CHECKSUM_MISMATCH "checksum mismatch, Last Line:"
-	#define MSG_ERR_NO_CHECKSUM "No Checksum with line number, Last Line:"
-	#define MSG_ERR_NO_LINENUMBER_WITH_CHECKSUM "No Line Number with checksum, Last Line:"
+	#define MSG_ERR_LINE_NO "Line Number is not Last Line Number+1, Last Line: "
+	#define MSG_ERR_CHECKSUM_MISMATCH "checksum mismatch, Last Line: "
+	#define MSG_ERR_NO_CHECKSUM "No Checksum with line number, Last Line: "
+	#define MSG_ERR_NO_LINENUMBER_WITH_CHECKSUM "No Line Number with checksum, Last Line: "
 	#define MSG_FILE_PRINTED "Done printing file"
 	#define MSG_BEGIN_FILE_LIST "Begin file list"
 	#define MSG_END_FILE_LIST "End file list"
 	#define MSG_M104_INVALID_EXTRUDER "M104 Invalid extruder "
 	#define MSG_M105_INVALID_EXTRUDER "M105 Invalid extruder "
-	#define MSG_ERR_NO_THERMISTORS "No thermistors - no temp"
+	#define MSG_ERR_NO_THERMISTORS "No thermistors - no temperature"
 	#define MSG_M109_INVALID_EXTRUDER "M109 Invalid extruder "
 	#define MSG_HEATING "Heating..."
 	#define MSG_HEATING_COMPLETE "Heating done."
 	#define MSG_BED_HEATING "Bed Heating."
 	#define MSG_BED_DONE "Bed done."
 	#define MSG_M115_REPORT "FIRMWARE_NAME:Marlin V1; Sprinter/grbl mashup for gen6 FIRMWARE_URL:" FIRMWARE_URL " PROTOCOL_VERSION:" PROTOCOL_VERSION " MACHINE_TYPE:" MACHINE_NAME " EXTRUDER_COUNT:" STRINGIFY(EXTRUDERS) "\n"
-	#define MSG_COUNT_X " Count X:"
-	#define MSG_ERR_KILLED "Printer halted. kill() called !!"
-	#define MSG_ERR_STOPPED "Printer stopped due to errors. Fix the error and use M999 to restart!. (Temperature is reset. Set it before restarting)"
-	#define MSG_RESEND "Resend:"
-	#define MSG_UNKNOWN_COMMAND "Unknown command:\""
+	#define MSG_COUNT_X " Count X: "
+	#define MSG_ERR_KILLED "Printer halted. kill() called!"
+	#define MSG_ERR_STOPPED "Printer stopped due to errors. Fix the error and use M999 to restart. (Temperature is reset. Set it after restarting)"
+	#define MSG_RESEND "Resend: "
+	#define MSG_UNKNOWN_COMMAND "Unknown command: \""
 	#define MSG_ACTIVE_EXTRUDER "Active Extruder: "
 	#define MSG_INVALID_EXTRUDER "Invalid extruder"
 	#define MSG_X_MIN "x_min: "
@@ -175,21 +175,187 @@
 	#define MSG_SD_CARD_OK "SD card ok"
 	#define MSG_SD_WORKDIR_FAIL "workDir open failed"
 	#define MSG_SD_OPEN_FILE_FAIL "open failed, File: "
-	#define MSG_SD_FILE_OPENED "File opened:"
-	#define MSG_SD_SIZE " Size:"
+	#define MSG_SD_FILE_OPENED "File opened: "
+	#define MSG_SD_SIZE " Size: "
 	#define MSG_SD_FILE_SELECTED "File selected"
 	#define MSG_SD_WRITE_TO_FILE "Writing to file: "
 	#define MSG_SD_PRINTING_BYTE "SD printing byte "
 	#define MSG_SD_NOT_PRINTING "Not SD printing"
 	#define MSG_SD_ERR_WRITE_TO_FILE "error writing to file"
-	#define MSG_SD_CANT_ENTER_SUBDIR "Cannot enter subdir:"
+	#define MSG_SD_CANT_ENTER_SUBDIR "Cannot enter subdir: "
 
-	#define MSG_STEPPER_TO_HIGH "Steprate to high : "
+	#define MSG_STEPPER_TO_HIGH "Steprate to high: "
 	#define MSG_ENDSTOPS_HIT "endstops hit: "
 	#define MSG_ERR_COLD_EXTRUDE_STOP " cold extrusion prevented"
 	#define MSG_ERR_LONG_EXTRUDE_STOP " too long extrusion prevented"
 
 #endif
+
+
+#if LANGUAGE_CHOICE == 2
+
+// LCD Menu Messages
+	#define WELCOME_MSG MACHINE_NAME " Gotowe."
+	#define MSG_SD_INSERTED "Karta wlozona"
+	#define MSG_SD_REMOVED "Karta usunieta"
+	#define MSG_MAIN " Menu \003"
+	#define MSG_AUTOSTART " Autostart"
+	#define MSG_DISABLE_STEPPERS " Wylacz silniki"
+	#define MSG_AUTO_HOME " Auto. poz. zerowa"
+	#define MSG_SET_ORIGIN " Ustaw punkt zerowy"
+	#define MSG_PREHEAT_PLA " Rozgrzej PLA"
+	#define MSG_PREHEAT_PLA_SETTINGS " Ustawienia roz. PLA"
+	#define MSG_PREHEAT_ABS " Rozgrzej ABS"
+	#define MSG_PREHEAT_ABS_SETTINGS " Ustawienia roz. ABS"
+	#define MSG_COOLDOWN " Chlodzenie"
+	#define MSG_EXTRUDE " Ekstruzja"
+	#define MSG_RETRACT " Cofanie"
+	#define MSG_MOVE_AXIS " Ruch osi       \x7E"
+	#define MSG_SPEED " Predkosc:"
+	#define MSG_NOZZLE " \002Dysza:"
+	#define MSG_NOZZLE1 " \002Dysza2:"
+	#define MSG_NOZZLE2 " \002Dysza3:"
+	#define MSG_BED " \002Loze:"
+	#define MSG_FAN_SPEED " Obroty wiatraka:"
+	#define MSG_FLOW " Przeplyw:"
+	#define MSG_CONTROL " Kontrola \003"
+	#define MSG_MIN " \002 Min:"
+	#define MSG_MAX " \002 Max:"
+	#define MSG_FACTOR " \002 Mnoznik:"
+	#define MSG_AUTOTEMP " Auto. temp.:"
+	#define MSG_ON "Wl. "
+	#define MSG_OFF "Wyl."
+	#define MSG_PID_P " PID-P: "
+	#define MSG_PID_I " PID-I: "
+	#define MSG_PID_D " PID-D: "
+	#define MSG_PID_C " PID-C: "
+	#define MSG_ACC  " Acc:"
+	#define MSG_VXY_JERK " Zryw Vxy: "
+	#define MSG_VMAX " Vmax "
+	#define MSG_X "x:"
+	#define MSG_Y "y:"
+	#define MSG_Z "z:"
+	#define MSG_E "e:"
+	#define MSG_VMIN " Vmin:"
+	#define MSG_VTRAV_MIN " Vskok min:"
+	#define MSG_AMAX " Amax "
+	#define MSG_A_RETRACT " A-wycofanie:"
+	#define MSG_XSTEPS " krokiX/mm:"
+	#define MSG_YSTEPS " krokiY/mm:"
+	#define MSG_ZSTEPS " krokiZ/mm:"
+	#define MSG_ESTEPS " krokiE/mm:"
+	#define MSG_MAIN_WIDE " Menu        \003"
+	#define MSG_RECTRACT_WIDE " Wycofanie   \x7E"
+	#define MSG_TEMPERATURE_WIDE " Temperatura \x7E"
+	#define MSG_TEMPERATURE_RTN " Temperatura  \003"
+	#define MSG_MOTION_WIDE " Ruch        \x7E"
+	#define MSG_STORE_EPROM " Zapisz w pamieci"
+	#define MSG_LOAD_EPROM " Wczytaj z pamieci"
+	#define MSG_RESTORE_FAILSAFE " Ustawienia fabryczne"
+	#define MSG_REFRESH "\004Odswiez"
+	#define MSG_WATCH " Obserwuj   \003"
+	#define MSG_PREPARE " Przygotuj \x7E"
+	#define MSG_PREPARE_ALT " Przygotuj \003"
+	#define MSG_CONTROL_ARROW " Kontroluj \x7E"
+	#define MSG_RETRACT_ARROW " Wycofaj \x7E"
+	#define MSG_TUNE "Strojenie\x7E"
+	#define MSG_PAUSE_PRINT "    Pauza    \x7E"
+	#define MSG_RESUME_PRINT "  Wznowienie  \x7E"
+	#define MSG_STOP_PRINT "     Stop     \x7E"
+	#define MSG_CARD_MENU " Menu SDCard  \x7E"
+	#define MSG_NO_CARD " Brak karty"
+	#define MSG_DWELL "Uspij..."
+	#define MSG_USERWAIT "Czekaj na uzytkownika..."
+	#define MSG_NO_MOVE "Brak ruchu."
+	#define MSG_PART_RELEASE "Czesciowe zwolnienie"
+	#define MSG_KILLED "Ubity. "
+	#define MSG_STOPPED "Zatrzymany. "
+	#define MSG_STEPPER_RELEASED "Zwolniony."
+	#define MSG_CONTROL_RETRACT  " Wycofaj mm:"
+	#define MSG_CONTROL_RETRACTF " Wycofaj  F:"
+	#define MSG_CONTROL_RETRACT_ZLIFT " Skok Z mm:"
+	#define MSG_CONTROL_RETRACT_RECOVER " Cof. wycof. +mm:"
+	#define MSG_CONTROL_RETRACT_RECOVERF " Cof. wycof.  F:"
+	#define MSG_AUTORETRACT " Auto. wycofanie:"
+        #define MSG_SERIAL_ERROR_MENU_STRUCTURE "Cos jest nie tak ze struktura menu."
+
+// Serial Console Messages
+
+	#define MSG_Enqueing "Kolejkowanie \""
+	#define MSG_POWERUP "Zasilanie wlaczone"
+	#define MSG_EXTERNAL_RESET " Reset (zewnetrzny)"
+	#define MSG_BROWNOUT_RESET " Reset (spadek napiecia)"
+	#define MSG_WATCHDOG_RESET " Reset (watchdog)"
+	#define MSG_SOFTWARE_RESET " Reset (programowy)"
+	#define MSG_MARLIN "Marlin "
+	#define MSG_AUTHOR " | Autor: "
+	#define MSG_CONFIGURATION_VER " Ostatnia aktualizacja: "
+	#define MSG_FREE_MEMORY " Wolna pamiec: "
+	#define MSG_PLANNER_BUFFER_BYTES "  Bufor planisty krokow (w bajtach): "
+	#define MSG_OK "ok"
+	#define MSG_FILE_SAVED "Plik zapisany."
+	#define MSG_ERR_LINE_NO "Numer linijki nie jest ostatnim numerem linijki+1; ostatnia linijka:"
+	#define MSG_ERR_CHECKSUM_MISMATCH "Niezgodna suma kontrolna; ostatnia linijka: "
+	#define MSG_ERR_NO_CHECKSUM "Brak sumy kontrolnej w linijce; ostatnia linijka:"
+	#define MSG_ERR_NO_LINENUMBER_WITH_CHECKSUM "Brak numery linijki przy sumie kontrolnej; ostatnia linijka:"
+	#define MSG_FILE_PRINTED "Ukonczono wydruk z pliku"
+	#define MSG_BEGIN_FILE_LIST "Start listy plikow"
+	#define MSG_END_FILE_LIST "Koniec listy plikow"
+	#define MSG_M104_INVALID_EXTRUDER "M104 Niepoprawny ekstruder "
+	#define MSG_M105_INVALID_EXTRUDER "M105 Niepoprawny ekstruder "
+	#define MSG_ERR_NO_THERMISTORS "Brak termistorow - brak temperatury :("
+	#define MSG_M109_INVALID_EXTRUDER "M109 Niepoprawny ekstruder "
+	#define MSG_HEATING "Nagrzewanie ekstrudera..."
+	#define MSG_HEATING_COMPLETE "Nagrzewanie ekstrudera zakonczone."
+	#define MSG_BED_HEATING "Nagrzewanie loza..."
+	#define MSG_BED_DONE "Nagrzewanie loza zakonczone."
+	#define MSG_M115_REPORT "FIRMWARE_NAME:Marlin V1; Sprinter/grbl mashup for gen6 FIRMWARE_URL:" FIRMWARE_URL " PROTOCOL_VERSION:" PROTOCOL_VERSION " MACHINE_TYPE:" MACHINE_NAME " EXTRUDER_COUNT:" STRINGIFY(EXTRUDERS) "\n"
+	#define MSG_COUNT_X " Liczenie X: "
+	#define MSG_ERR_KILLED "Drukarka zatrzymana. Wywolano kill()"
+	#define MSG_ERR_STOPPED "Drukarka zatrzymana z powodu bledu. Usun problem i zrestartuj drukartke komenda M999. (temperatura zostala zresetowana; ustaw temperature po restarcie)"
+	#define MSG_RESEND "Wyslij ponownie: "
+	#define MSG_UNKNOWN_COMMAND "Nieznane polecenie: \""
+	#define MSG_ACTIVE_EXTRUDER "Aktywny ekstruder: "
+	#define MSG_INVALID_EXTRUDER "Niepoprawny ekstruder"
+	#define MSG_X_MIN "x_min: "
+	#define MSG_X_MAX "x_max: "
+	#define MSG_Y_MIN "y_min: "
+	#define MSG_Y_MAX "y_max: "
+	#define MSG_Z_MIN "z_min: "
+	#define MSG_Z_MAX "z_max: "
+	#define MSG_M119_REPORT "Zgloszenie statusu wylacznikow krancowych"
+	#define MSG_ENDSTOP_HIT "WYZWOLONY"
+	#define MSG_ENDSTOP_OPEN "otwarty"
+
+	#define MSG_SD_CANT_OPEN_SUBDIR "Nie mozna otworzyc podkatalogu"
+	#define MSG_SD_INIT_FAIL "Blad inicjalizacji karty SD"
+	#define MSG_SD_VOL_INIT_FAIL "Blad inizjalizacji wolumenu"
+	#define MSG_SD_OPENROOT_FAIL "Blad odczytywania katalogu glownego"
+	#define MSG_SD_CARD_OK "Karta SD zainicjalizowana"
+	#define MSG_SD_WORKDIR_FAIL "Blad odczytywania katalogu roboczego"
+	#define MSG_SD_OPEN_FILE_FAIL "Nie mozna otworzyc pliku: "
+	#define MSG_SD_FILE_OPENED "Otwarto plik:"
+	#define MSG_SD_SIZE " Rozmiar:"
+	#define MSG_SD_FILE_SELECTED "Wybrano plik"
+	#define MSG_SD_WRITE_TO_FILE "Zapisywanie do pliku: "
+	#define MSG_SD_PRINTING_BYTE "Drukowanie z karty SD, bajt "
+	#define MSG_SD_NOT_PRINTING "Nie trwa drukowanie z karty SD"
+	#define MSG_SD_ERR_WRITE_TO_FILE "blad podczas zapisu do pliku"
+	#define MSG_SD_CANT_ENTER_SUBDIR "Nie mozna odczytac podkatalogu: "
+
+	#define MSG_STEPPER_TO_HIGH "Za duza czestotliwosc krokow: "
+	#define MSG_ENDSTOPS_HIT "Wylacznik krancowy zostal wyzwolony na pozycji: "
+	#define MSG_ERR_COLD_EXTRUDE_STOP " uniemozliwiono zimna ekstruzje"
+	#define MSG_ERR_LONG_EXTRUDE_STOP " uniemozliwiono zbyt dluga ekstruzje"
+
+#endif
+
+
+#if LANGUAGE_CHOICE == 3
+    #error "There is no French translation available yet. Can you help? (you need to choose a different language in order to compile Marlin)"
+#endif
+
+
 #if LANGUAGE_CHOICE == 4
 
 // LCD Menu Messages
@@ -348,6 +514,7 @@
 	#define MSG_ERR_LONG_EXTRUDE_STOP " too long extrusion prevented"
 
 #endif
+
 
 #if LANGUAGE_CHOICE == 5
 
@@ -664,6 +831,7 @@
 
 #endif
 
+
 #if LANGUAGE_CHOICE == 7
 
 	// LCD Menu Messages
@@ -821,6 +989,7 @@
 	#define MSG_ERR_LONG_EXTRUDE_STOP " prevenuta estrusione troppo lunga"
 
 #endif
+
 
 #if LANGUAGE_CHOICE == 8
 
@@ -982,4 +1151,5 @@
 
 
 #endif
+
 #endif // ifndef LANGUAGE_H
