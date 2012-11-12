@@ -514,21 +514,21 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
   target[E_AXIS] = lround(e*axis_steps_per_unit[E_AXIS]);
 
 #ifdef PREVENT_DANGEROUS_EXTRUDE
-  if(target[E_AXIS]!=position[E_AXIS])
-    if(degHotend(active_extruder)<EXTRUDE_MINTEMP && !allow_cold_extrude)
-    {
-      position[E_AXIS]=target[E_AXIS]; //behave as if the move really took place, but ignore E part
+  if(target[E_AXIS] != position[E_AXIS]) {
+    if(degHotend(active_extruder) < EXTRUDE_MINTEMP && !allow_cold_extrude) {
+      position[E_AXIS] = target[E_AXIS]; //behave as if the move really took place, but ignore E part
       SERIAL_ECHO_START;
       SERIAL_ECHOLNPGM(MSG_ERR_COLD_EXTRUDE_STOP);
     }
+  }
+#endif
+
 #ifdef PREVENT_LENGTHY_EXTRUDE
-  if(labs(target[E_AXIS]-position[E_AXIS])>axis_steps_per_unit[E_AXIS]*EXTRUDE_MAXLENGTH)
-  {
-    position[E_AXIS]=target[E_AXIS]; //behave as if the move really took place, but ignore E part
+  if(labs(target[E_AXIS] - position[E_AXIS]) > axis_steps_per_unit[E_AXIS] * EXTRUDE_MAXLENGTH) {
+    position[E_AXIS] = target[E_AXIS]; //behave as if the move really took place, but ignore E part
     SERIAL_ECHO_START;
     SERIAL_ECHOLNPGM(MSG_ERR_LONG_EXTRUDE_STOP);
   }
-#endif
 #endif
 
   // Prepare to set up new block
