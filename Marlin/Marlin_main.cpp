@@ -1753,7 +1753,7 @@ void kill()
   SERIAL_ERRORLNPGM(MSG_ERR_KILLED);
   LCD_ALERTMESSAGEPGM(MSG_KILLED);
   suicide();
-  while(1); // Wait for reset
+  while(1) { /* Intentionally left empty */ } // Wait for reset
 }
 
 void Stop()
