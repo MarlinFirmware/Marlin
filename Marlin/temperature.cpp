@@ -906,9 +906,15 @@ ISR(TIMER0_COMPB_vect)
   static unsigned char temp_state = 0;
   static unsigned char pwm_count = 1;
   static unsigned char soft_pwm_0;
+  #if EXTRUDERS > 1
   static unsigned char soft_pwm_1;
+  #endif
+  #if EXTRUDERS > 2
   static unsigned char soft_pwm_2;
+  #endif
+  #if HEATER_BED_PIN > -1
   static unsigned char soft_pwm_b;
+  #endif
   
   if(pwm_count == 0){
     soft_pwm_0 = soft_pwm[0];
