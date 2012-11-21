@@ -103,12 +103,11 @@ volatile unsigned char block_buffer_tail;           // Index of the block to pro
 bool allow_cold_extrude=false;
 #endif
 #ifdef XY_FREQUENCY_LIMIT
+#define MAX_FREQ_TIME (1000000.0/XY_FREQUENCY_LIMIT)
 // Used for the frequency limit
 static unsigned char old_direction_bits = 0;               // Old direction bits. Used for speed calculations
-static long x_segment_time[3]={
-  0,0,0};                     // Segment times (in us). Used for speed calculations
-static long y_segment_time[3]={
-  0,0,0};
+static long x_segment_time[3]={MAX_FREQ_TIME + 1,0,0};     // Segment times (in us). Used for speed calculations
+static long y_segment_time[3]={MAX_FREQ_TIME + 1,0,0};
 #endif
 
 // Returns the index of the next block in the ring buffer
@@ -644,6 +643,9 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
     if (segment_time < minsegmenttime)
     { // buffer is draining, add extra time.  The amount of time added increases if the buffer is still emptied more.
       inverse_second=1000000.0/(segment_time+lround(2*(minsegmenttime-segment_time)/moves_queued));
+      #ifdef XY_FREQUENCY_LIMIT
+         segment_time = lround(1000000.0/inverse_second);
+      #endif
     }
   }
 #endif
@@ -666,11 +668,11 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
   // Max segement time in us.
 #ifdef XY_FREQUENCY_LIMIT
 #define MAX_FREQ_TIME (1000000.0/XY_FREQUENCY_LIMIT)
-
   // Check and limit the xy direction change frequency
   unsigned char direction_change = block->direction_bits ^ old_direction_bits;
   old_direction_bits = block->direction_bits;
-
+  segment_time = lround((float)segment_time / speed_factor);
+  
   if((direction_change & (1<<X_AXIS)) == 0)
   {
     x_segment_time[0] += segment_time;
