@@ -28,7 +28,7 @@
 #include "ultralcd.h"
 #include "language.h"
 #include "speed_lookuptable.h"
-
+#include <SPI.h>
 
 
 //===========================================================================
@@ -714,6 +714,9 @@ ISR(TIMER1_COMPA_vect)
 
 void st_init()
 {
+  digipot_init(); //Initialize Digipot Motor Current
+  microstep_init(); //Initialize Microstepping Pins
+  
   //Initialize Dir Pins
   #if X_DIR_PIN > -1
     SET_OUTPUT(X_DIR_PIN);
@@ -949,5 +952,102 @@ void quickStop()
     plan_discard_current_block();
   current_block = NULL;
   ENABLE_STEPPER_DRIVER_INTERRUPT();
+}
+
+int digitalPotWrite(int address, int value) // From Arduino DigitalPotControl example
+{
+  #if DIGIPOTSS_PIN > -1
+    digitalWrite(DIGIPOTSS_PIN,LOW); // take the SS pin low to select the chip
+    SPI.transfer(address); //  send in the address and value via SPI:
+    SPI.transfer(value);
+    digitalWrite(DIGIPOTSS_PIN,HIGH); // take the SS pin high to de-select the chip:
+    //delay(10);
+  #endif
+}
+
+void digipot_init() //Initialize Digipot Motor Current
+{
+  #if DIGIPOTSS_PIN > -1
+    const uint8_t digipot_motor_current[] = DIGIPOT_MOTOR_CURRENT;
+    
+    SPI.begin(); 
+    pinMode(DIGIPOTSS_PIN, OUTPUT);    
+    for(int i=0;i<=4;i++) 
+      //digitalPotWrite(digipot_ch[i], digipot_motor_current[i]);
+      digipot_current(i,digipot_motor_current[i]);
+  #endif
+}
+
+void digipot_current(uint8_t driver, int current)
+{
+  #if DIGIPOTSS_PIN > -1
+    const uint8_t digipot_ch[] = DIGIPOT_CHANNELS;
+    digitalPotWrite(digipot_ch[driver], current);
+  #endif
+}
+
+void microstep_init()
+{
+  #if X_MS1_PIN > -1
+  const uint8_t microstep_modes[] = MICROSTEP_MODES;
+  pinMode(X_MS2_PIN,OUTPUT);
+  pinMode(Y_MS2_PIN,OUTPUT);
+  pinMode(Z_MS2_PIN,OUTPUT);
+  pinMode(E0_MS2_PIN,OUTPUT);
+  pinMode(E1_MS2_PIN,OUTPUT);
+  for(int i=0;i<=4;i++) microstep_mode(i,microstep_modes[i]);
+  #endif
+}
+
+void microstep_ms(uint8_t driver, int8_t ms1, int8_t ms2)
+{
+  if(ms1 > -1) switch(driver)
+  {
+    case 0: digitalWrite( X_MS1_PIN,ms1); break;
+    case 1: digitalWrite( Y_MS1_PIN,ms1); break;
+    case 2: digitalWrite( Z_MS1_PIN,ms1); break;
+    case 3: digitalWrite(E0_MS1_PIN,ms1); break;
+    case 4: digitalWrite(E1_MS1_PIN,ms1); break;
+  }
+  if(ms2 > -1) switch(driver)
+  {
+    case 0: digitalWrite( X_MS2_PIN,ms2); break;
+    case 1: digitalWrite( Y_MS2_PIN,ms2); break;
+    case 2: digitalWrite( Z_MS2_PIN,ms2); break;
+    case 3: digitalWrite(E0_MS2_PIN,ms2); break;
+    case 4: digitalWrite(E1_MS2_PIN,ms2); break;
+  }
+}
+
+void microstep_mode(uint8_t driver, uint8_t stepping_mode)
+{
+  switch(stepping_mode)
+  {
+    case 1: microstep_ms(driver,MICROSTEP1); break;
+    case 2: microstep_ms(driver,MICROSTEP2); break;
+    case 4: microstep_ms(driver,MICROSTEP4); break;
+    case 8: microstep_ms(driver,MICROSTEP8); break;
+    case 16: microstep_ms(driver,MICROSTEP16); break;
+  }
+}
+
+void microstep_readings()
+{
+      SERIAL_PROTOCOLPGM("MS1,MS2 Pins\n");
+      SERIAL_PROTOCOLPGM("X: ");
+      SERIAL_PROTOCOL(   digitalRead(X_MS1_PIN));
+      SERIAL_PROTOCOLLN( digitalRead(X_MS2_PIN));
+      SERIAL_PROTOCOLPGM("Y: ");
+      SERIAL_PROTOCOL(   digitalRead(Y_MS1_PIN));
+      SERIAL_PROTOCOLLN( digitalRead(Y_MS2_PIN));
+      SERIAL_PROTOCOLPGM("Z: ");
+      SERIAL_PROTOCOL(   digitalRead(Z_MS1_PIN));
+      SERIAL_PROTOCOLLN( digitalRead(Z_MS2_PIN));
+      SERIAL_PROTOCOLPGM("E0: ");
+      SERIAL_PROTOCOL(   digitalRead(E0_MS1_PIN));
+      SERIAL_PROTOCOLLN( digitalRead(E0_MS2_PIN));
+      SERIAL_PROTOCOLPGM("E1: ");
+      SERIAL_PROTOCOL(   digitalRead(E1_MS1_PIN));
+      SERIAL_PROTOCOLLN( digitalRead(E1_MS2_PIN));
 }
 
