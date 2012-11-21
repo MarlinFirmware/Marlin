@@ -34,3 +34,4 @@
 #ifdef ULTRA_LCD
 #include <LiquidCrystal.h>
 #endif
+#include <SPI.h>

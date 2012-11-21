@@ -26,7 +26,7 @@
  It has preliminary support for Matthew Roberts advance algorithm 
     http://reprap.org/pipermail/reprap-dev/2011-May/003323.html
  */
-#include <SPI.h>
+
 #include "Marlin.h"
 
 #include "ultralcd.h"
@@ -39,6 +39,10 @@
 #include "ConfigurationStore.h"
 #include "language.h"
 #include "pins_arduino.h"
+
+#if DIGIPOTSS_PIN > -1
+#include <SPI.h>
+#endif
 
 #define VERSION_STRING  "1.0.0"
 
