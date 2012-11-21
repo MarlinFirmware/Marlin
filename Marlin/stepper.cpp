@@ -28,7 +28,9 @@
 #include "ultralcd.h"
 #include "language.h"
 #include "speed_lookuptable.h"
+#if DIGIPOTSS_PIN > -1
 #include <SPI.h>
+#endif
 
 
 //===========================================================================
