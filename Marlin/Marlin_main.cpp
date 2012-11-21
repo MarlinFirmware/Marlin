@@ -26,7 +26,7 @@
  It has preliminary support for Matthew Roberts advance algorithm 
     http://reprap.org/pipermail/reprap-dev/2011-May/003323.html
  */
-
+#include <SPI.h>
 #include "Marlin.h"
 
 #include "ultralcd.h"
@@ -121,6 +121,10 @@
 // M501 - reads parameters from EEPROM (if you need reset them after you changed them temporarily).  
 // M502 - reverts to the default "factory settings".  You still need to store them in EEPROM afterwards if you want to.
 // M503 - print the current settings (from memory not from eeprom)
+// M907 - Set digital trimpot motor current using axis codes.
+// M908 - Control digital trimpot directly.
+// M350 - Set microstepping mode.
+// M351 - Toggle MS1 MS2 pins directly.
 // M999 - Restart after being stopped by error
 
 //Stepper Movement Variables
@@ -310,6 +314,8 @@ void setup()
       SERIAL_ECHOPGM(STRING_VERSION_CONFIG_H);
       SERIAL_ECHOPGM(MSG_AUTHOR);
       SERIAL_ECHOLNPGM(STRING_CONFIG_H_AUTHOR);
+      SERIAL_ECHOPGM("Compiled: ");
+      SERIAL_ECHOLNPGM(__DATE__);
     #endif
   #endif
   SERIAL_ECHO_START;
@@ -1473,6 +1479,52 @@ void process_commands()
     case 503: // print settings currently in memory
     {
         Config_PrintSettings();
+    }
+    break;
+    case 907: // Set digital trimpot motor current using axis codes.
+    {
+      #if DIGIPOTSS_PIN > -1
+        for(int i=0;i<=NUM_AXIS;i++) if(code_seen(axis_codes[i])) digipot_current(i,code_value());
+        if(code_seen('B')) digipot_current(4,code_value());
+        if(code_seen('S')) for(int i=0;i<=4;i++) digipot_current(i,code_value());
+      #endif
+    }
+    case 908: // Control digital trimpot directly.
+    {
+      #if DIGIPOTSS_PIN > -1
+        uint8_t channel,current;
+        if(code_seen('P')) channel=code_value();
+        if(code_seen('S')) current=code_value();
+        digitalPotWrite(channel, current);
+      #endif
+    }
+    break;
+    case 350: // Set microstepping mode. Warning: Steps per unit remains unchanged. S code sets stepping mode for all drivers.
+    {
+      #if X_MS1_PIN > -1
+        if(code_seen('S')) for(int i=0;i<=4;i++) microstep_mode(i,code_value()); 
+        for(int i=0;i<=NUM_AXIS;i++) if(code_seen(axis_codes[i])) microstep_mode(i,(uint8_t)code_value());
+        if(code_seen('B')) microstep_mode(4,code_value());
+        microstep_readings();
+      #endif
+    }
+    break;
+    case 351: // Toggle MS1 MS2 pins directly, S# determines MS1 or MS2, X# sets the pin high/low.
+    {
+      #if X_MS1_PIN > -1
+      if(code_seen('S')) switch((int)code_value())
+      {
+        case 1:
+          for(int i=0;i<=NUM_AXIS;i++) if(code_seen(axis_codes[i])) microstep_ms(i,code_value(),-1);
+          if(code_seen('B')) microstep_ms(4,code_value(),-1);
+          break;
+        case 2:
+          for(int i=0;i<=NUM_AXIS;i++) if(code_seen(axis_codes[i])) microstep_ms(i,-1,code_value());
+          if(code_seen('B')) microstep_ms(4,-1,code_value());
+          break;
+      }
+      microstep_readings();
+      #endif
     }
     break;
     case 999: // Restart after being stopped
