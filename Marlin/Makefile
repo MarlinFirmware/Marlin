@@ -147,6 +147,11 @@ else ifeq  ($(HARDWARE_MOTHERBOARD),91)
 HARDWARE_VARIANT ?= Sanguino
 MCU              ?= atmega644p
 
+#Rambo
+else ifeq  ($(HARDWARE_MOTHERBOARD),301)
+HARDWARE_VARIANT ?= arduino
+MCU              ?= atmega2560
+
 endif
 
 # Be sure to regenerate speed_lookuptable.h with create_speed_lookuptable.py
@@ -158,10 +163,8 @@ F_CPU ?= 16000000
 # Libraries, the "hardware variant" are for boards
 # that derives from that, and their source are present in
 # the main Marlin source directory
-ARDUINO = $(ARDUINO_INSTALL_DIR)/hardware/arduino/cores/arduino
-
-ifeq (${HARDWARE_VARIANT}, arduino)
-HARDWARE_SRC = $(ARDUINO)
+ifeq ($(HARDWARE_VARIANT), arduino)
+HARDWARE_SRC = $(ARDUINO_INSTALL_DIR)/hardware/arduino/cores/arduino
 else
 HARDWARE_SRC = $(HARDWARE_VARIANT)/cores/arduino
 endif
@@ -175,12 +178,12 @@ TARGET = $(notdir $(CURDIR))
 VPATH = .
 VPATH += $(BUILD_DIR)
 VPATH += $(HARDWARE_SRC)
-VPATH += $(ARDUINO)
 VPATH += $(ARDUINO_INSTALL_DIR)/libraries/LiquidCrystal
-#TODO: Add the path to the hardware variant when using Arduino >= 100, and adjust the files required for compilation.
-#VPATH += $(ARDUINO_INSTALL_DIR)/hardware/arduino/variants/mega
-
-SRC = pins_arduino.c main.c wiring.c \
+VPATH += $(ARDUINO_INSTALL_DIR)/libraries/SPI
+ifeq ($(HARDWARE_VARIANT), arduino)
+VPATH += $(ARDUINO_INSTALL_DIR)/hardware/arduino/variants/mega
+endif
+SRC = wiring.c \
 	wiring_analog.c wiring_digital.c \
 	wiring_pulse.c \
 	wiring_shift.c WInterrupts.c
@@ -188,8 +191,15 @@ CXXSRC = WMath.cpp WString.cpp Print.cpp Marlin_main.cpp	\
 	MarlinSerial.cpp Sd2Card.cpp SdBaseFile.cpp SdFatUtil.cpp	\
 	SdFile.cpp SdVolume.cpp motion_control.cpp planner.cpp		\
 	stepper.cpp temperature.cpp cardreader.cpp ConfigurationStore.cpp
-#CXXSRC += LiquidCrystal.cpp ultralcd.cpp
-#CXXSRC += ultralcd.cpp
+CXXSRC += LiquidCrystal.cpp ultralcd.cpp SPI.cpp
+
+#Check for Arduino 1.0.0 or higher and use the correct sourcefiles for that version
+ifeq ($(shell [ $(ARDUINO_VERSION) -ge 100 ] && echo true), true)
+CXXSRC += main.cpp
+else
+SRC += pins_arduino.c main.c
+endif
+
 FORMAT = ihex
 
 # Name of this Makefile (used for "make depend").
