@@ -254,6 +254,21 @@ void enquecommand(const char *cmd)
   }
 }
 
+void enquecommand_P(const char *cmd)
+{
+  if(buflen < BUFSIZE)
+  {
+    //this is dangerous if a mixing of serial and this happsens
+    strcpy_P(&(cmdbuffer[bufindw][0]),cmd);
+    SERIAL_ECHO_START;
+    SERIAL_ECHOPGM("enqueing \"");
+    SERIAL_ECHO(cmdbuffer[bufindw]);
+    SERIAL_ECHOLNPGM("\"");
+    bufindw= (bufindw + 1)%BUFSIZE;
+    buflen += 1;
+  }
+}
+
 void setup_killpin()
 {
   #if( KILL_PIN>-1 )
@@ -362,7 +377,7 @@ void loop()
     #ifdef SDSUPPORT
       if(card.saving)
       {
-	if(strstr(cmdbuffer[bufindr],"M29") == NULL)
+	if(strstr_P(cmdbuffer[bufindr], PSTR("M29")) == NULL)
 	{
 	  card.write_command(cmdbuffer[bufindr]);
 	  SERIAL_PROTOCOLLNPGM(MSG_OK);
@@ -407,11 +422,11 @@ void get_command()
       if(!comment_mode){
         comment_mode = false; //for new command
         fromsd[bufindw] = false;
-        if(strstr(cmdbuffer[bufindw], "N") != NULL)
+        if(strchr(cmdbuffer[bufindw], 'N') != NULL)
         {
           strchr_pointer = strchr(cmdbuffer[bufindw], 'N');
           gcode_N = (strtol(&cmdbuffer[bufindw][strchr_pointer - cmdbuffer[bufindw] + 1], NULL, 10));
-          if(gcode_N != gcode_LastN+1 && (strstr(cmdbuffer[bufindw], "M110") == NULL) ) {
+          if(gcode_N != gcode_LastN+1 && (strstr_P(cmdbuffer[bufindw], PSTR("M110")) == NULL) ) {
             SERIAL_ERROR_START;
             SERIAL_ERRORPGM(MSG_ERR_LINE_NO);
             SERIAL_ERRORLN(gcode_LastN);
@@ -421,7 +436,7 @@ void get_command()
             return;
           }
 
-          if(strstr(cmdbuffer[bufindw], "*") != NULL)
+          if(strchr(cmdbuffer[bufindw], '*') != NULL)
           {
             byte checksum = 0;
             byte count = 0;
@@ -453,7 +468,7 @@ void get_command()
         }
         else  // if we don't receive 'N' but still see '*'
         {
-          if((strstr(cmdbuffer[bufindw], "*") != NULL))
+          if((strchr(cmdbuffer[bufindw], '*') != NULL))
           {
             SERIAL_ERROR_START;
             SERIAL_ERRORPGM(MSG_ERR_NO_LINENUMBER_WITH_CHECKSUM);
@@ -462,7 +477,7 @@ void get_command()
             return;
           }
         }
-        if((strstr(cmdbuffer[bufindw], "G") != NULL)){
+        if((strchr(cmdbuffer[bufindw], 'G') != NULL)){
           strchr_pointer = strchr(cmdbuffer[bufindw], 'G');
           switch((int)((strtod(&cmdbuffer[bufindw][strchr_pointer - cmdbuffer[bufindw] + 1], NULL)))){
           case 0:
@@ -517,7 +532,7 @@ void get_command()
         int sec,min;
         min=t/60;
         sec=t%60;
-        sprintf(time,"%i min, %i sec",min,sec);
+        sprintf_P(time, PSTR("%i min, %i sec"),min,sec);
         SERIAL_ECHO_START;
         SERIAL_ECHOLN(time);
         LCD_MESSAGE(time);
@@ -560,11 +575,6 @@ long code_value_long()
 { 
   return (strtol(&cmdbuffer[bufindr][strchr_pointer - cmdbuffer[bufindr] + 1], NULL, 10)); 
 }
-
-bool code_seen(char code_string[]) //Return True if the string was found
-{ 
-  return (strstr(cmdbuffer[bufindr], code_string) != NULL); 
-}  
 
 bool code_seen(char code)
 {
@@ -935,7 +945,7 @@ void process_commands()
       int sec,min;
       min=t/60;
       sec=t%60;
-      sprintf(time,"%i min, %i sec",min,sec);
+      sprintf_P(time, PSTR("%i min, %i sec"), min, sec);
       SERIAL_ECHO_START;
       SERIAL_ECHOLN(time);
       LCD_MESSAGE(time);

@@ -956,7 +956,7 @@ void quickStop()
   ENABLE_STEPPER_DRIVER_INTERRUPT();
 }
 
-int digitalPotWrite(int address, int value) // From Arduino DigitalPotControl example
+void digitalPotWrite(int address, int value) // From Arduino DigitalPotControl example
 {
   #if DIGIPOTSS_PIN > -1
     digitalWrite(DIGIPOTSS_PIN,LOW); // take the SS pin low to select the chip
