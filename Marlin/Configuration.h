@@ -239,6 +239,14 @@ const bool Z_ENDSTOPS_INVERTING = true; // set to true to invert the logic of th
 #define Y_HOME_DIR -1
 #define Z_HOME_DIR -1
 
+//#define ENABLE_AUTO_BED_LEVELING // Delete the comment to enable (remove // at the start of the line)
+
+#ifdef ENABLE_AUTO_BED_LEVELING
+  #define X_EXTRUDER_OFFSET_FROM_Z_PROBE 40
+  #define Y_EXTRUDER_OFFSET_FROM_Z_PROBE -10
+  #define Z_EXTRUDER_OFFSET_FROM_Z_PROBE 3.5
+#endif
+
 #define min_software_endstops true //If true, axis won't move to coordinates less than HOME_POS.
 #define max_software_endstops true  //If true, axis won't move to coordinates greater than the defined lengths below.
 // Travel limits after homing
