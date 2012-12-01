@@ -32,7 +32,6 @@
 #ifdef ENABLE_AUTO_BED_LEVELING
 #include "vector_3.h"
 #endif // #ifdef ENABLE_AUTO_BED_LEVELING
-
 #include "ultralcd.h"
 #include "planner.h"
 #include "stepper.h"
@@ -646,7 +645,7 @@ static void set_bed_level_equation(float z_at_x30_y40, float z_at_x140_y40, floa
     current_position[Z_AXIS] = corrected_position.z;
 
     // but the bed at 0 so we don't go below it.
-    current_position[Z_AXIS] = Z_EXTRUDER_OFFSET_FROM_Z_PROBE;
+    current_position[Z_AXIS] = -Z_PROBE_OFFSET_FROM_EXTRUDER;
 
     plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
 }
@@ -970,7 +969,7 @@ void process_commands()
 
             // prob 1
             do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], 40);
-            do_blocking_move_to(30 + X_EXTRUDER_OFFSET_FROM_Z_PROBE, 160 + Y_EXTRUDER_OFFSET_FROM_Z_PROBE, current_position[Z_AXIS]);
+            do_blocking_move_to(30 - X_PROBE_OFFSET_FROM_EXTRUDER, 160 - Y_PROBE_OFFSET_FROM_EXTRUDER, current_position[Z_AXIS]);
             run_z_probe();
             float z_at_x30_y160 = current_position[Z_AXIS];
 
@@ -980,7 +979,7 @@ void process_commands()
 
             // prob 2
             do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS] + 10);
-            do_blocking_move_to(30 + X_EXTRUDER_OFFSET_FROM_Z_PROBE, 40 + Y_EXTRUDER_OFFSET_FROM_Z_PROBE, current_position[Z_AXIS]);
+            do_blocking_move_to(30 - X_PROBE_OFFSET_FROM_EXTRUDER, 40 - Y_PROBE_OFFSET_FROM_EXTRUDER, current_position[Z_AXIS]);
             run_z_probe();
             float z_at_x30_y40 = current_position[Z_AXIS];
 
@@ -991,7 +990,7 @@ void process_commands()
             // prob 3
             do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS] + 10);
             // the current position will be updated by the blocking move so the head will not lower on this next call.
-            do_blocking_move_to(140 + X_EXTRUDER_OFFSET_FROM_Z_PROBE, 40 + Y_EXTRUDER_OFFSET_FROM_Z_PROBE, current_position[Z_AXIS]);
+            do_blocking_move_to(140 - X_PROBE_OFFSET_FROM_EXTRUDER, 40 - Y_PROBE_OFFSET_FROM_EXTRUDER, current_position[Z_AXIS]);
             run_z_probe();
             float z_at_x140_y40 = current_position[Z_AXIS];
 
