@@ -1381,8 +1381,8 @@
     #define LCD_PINS_D7 29
     
     //buttons are directly attached using AUX-2
-    #define BTN_EN1 37
-    #define BTN_EN2 35
+    #define BTN_EN1 59
+    #define BTN_EN2 64
     #define BTN_ENC 43  //the click
     
     #define BLEN_C 2
