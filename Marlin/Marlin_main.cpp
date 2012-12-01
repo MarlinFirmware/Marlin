@@ -614,15 +614,15 @@ static void axis_is_at_home(int axis) {
 }
 
 #ifdef ENABLE_AUTO_BED_LEVELING
-static void set_bed_level_equation(float z_at_x30_y40, float z_at_x140_y40, float z_at_x30_y160) {
+static void set_bed_level_equation(float z_at_xLeft_yFront, float z_at_xRight_yFront, float z_at_xLeft_yBack) {
     plan_bed_level_matrix.set_to_identity();
 
-    vector_3 x30y40 = vector_3(30, 40, z_at_x30_y40);
-    vector_3 x30y160 = vector_3(30, 160, z_at_x30_y160);
-    vector_3 x140y40 = vector_3(140, 40, z_at_x140_y40);
+    vector_3 xLeftyFront = vector_3(LEFT_PROBE_BED_POSITION, FRONT_PROBE_BED_POSITION, z_at_xLeft_yFront);
+    vector_3 xLeftyBack = vector_3(LEFT_PROBE_BED_POSITION, BACK_PROBE_BED_POSITION, z_at_xLeft_yBack);
+    vector_3 xRightyFront = vector_3(RIGHT_PROBE_BED_POSITION, FRONT_PROBE_BED_POSITION, z_at_xRight_yFront);
 
-    vector_3 xPositive = (x140y40 - x30y40).get_normal();
-    vector_3 yPositive = (x30y160 - x30y40).get_normal();
+    vector_3 xPositive = (xRightyFront - xLeftyFront).get_normal();
+    vector_3 yPositive = (xLeftyBack - xLeftyFront).get_normal();
     vector_3 planeNormal = vector_3::cross(yPositive, xPositive).get_normal();
 
     //planeNormal.debug("planeNormal");
@@ -714,7 +714,9 @@ static void clean_up_after_endstop_move() {
 	feedmultiply = saved_feedmultiply;
 	previous_millis_cmd = millis();
 }
+#endif // #ifdef ENABLE_AUTO_BED_LEVELING
 
+#if defined(ENABLE_AUTO_BED_LEVELING) && defined(LOWER_AND_RAISE_Z_PROBE)
 static void lower_z_probe() {
         // move to the correct z
   	do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], Z_MAX_POS - 14);
@@ -746,7 +748,7 @@ static void raise_z_probe() {
 	do_blocking_move_relative(-2, 0, -2);
 	do_blocking_move_relative(7, 0, 0);
 }
-#endif // #ifdef ENABLE_AUTO_BED_LEVELING
+#endif // #if defined(ENABLE_AUTO_BED_LEVELING) && defined(LOWER_AND_RAISE_Z_PROBE)
 
 static void homeaxis(int axis) {
 #define HOMEAXIS_DO(LETTER) \
@@ -963,44 +965,59 @@ void process_commands()
             plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
             setup_for_endstop_move();
 
+#if defined(ENABLE_AUTO_BED_LEVELING) && defined(LOWER_AND_RAISE_Z_PROBE)
             lower_z_probe();
+#endif // #if defined(ENABLE_AUTO_BED_LEVELING) && defined(LOWER_AND_RAISE_Z_PROBE)
 
             feedrate = homing_feedrate[Z_AXIS];
 
             // prob 1
             do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], 40);
-            do_blocking_move_to(30 - X_PROBE_OFFSET_FROM_EXTRUDER, 160 - Y_PROBE_OFFSET_FROM_EXTRUDER, current_position[Z_AXIS]);
+            do_blocking_move_to(LEFT_PROBE_BED_POSITION - X_PROBE_OFFSET_FROM_EXTRUDER, BACK_PROBE_BED_POSITION - Y_PROBE_OFFSET_FROM_EXTRUDER, current_position[Z_AXIS]);
             run_z_probe();
-            float z_at_x30_y160 = current_position[Z_AXIS];
+            float z_at_xLeft_yBack = current_position[Z_AXIS];
 
-            SERIAL_PROTOCOLPGM("Bed x30 y160 Z: ");
+            SERIAL_PROTOCOLPGM("Bed x: ");
+			SERIAL_PROTOCOL(LEFT_PROBE_BED_POSITION);
+			SERIAL_PROTOCOLPGM(" y: ");
+			SERIAL_PROTOCOL(BACK_PROBE_BED_POSITION);
+			SERIAL_PROTOCOLPGM(" z: ");
             SERIAL_PROTOCOL(current_position[Z_AXIS]);
             SERIAL_PROTOCOLPGM("\n");
 
             // prob 2
             do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS] + 10);
-            do_blocking_move_to(30 - X_PROBE_OFFSET_FROM_EXTRUDER, 40 - Y_PROBE_OFFSET_FROM_EXTRUDER, current_position[Z_AXIS]);
+            do_blocking_move_to(LEFT_PROBE_BED_POSITION - X_PROBE_OFFSET_FROM_EXTRUDER, FRONT_PROBE_BED_POSITION - Y_PROBE_OFFSET_FROM_EXTRUDER, current_position[Z_AXIS]);
             run_z_probe();
-            float z_at_x30_y40 = current_position[Z_AXIS];
+            float z_at_xLeft_yFront = current_position[Z_AXIS];
 
-            SERIAL_PROTOCOLPGM("Bed x30  y40  Z: ");
+            SERIAL_PROTOCOLPGM("Bed x: ");
+			SERIAL_PROTOCOL(LEFT_PROBE_BED_POSITION);
+			SERIAL_PROTOCOLPGM(" y: ");
+			SERIAL_PROTOCOL(FRONT_PROBE_BED_POSITION);
+			SERIAL_PROTOCOLPGM(" z: ");
             SERIAL_PROTOCOL(current_position[Z_AXIS]);
             SERIAL_PROTOCOLPGM("\n");
 
             // prob 3
             do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS] + 10);
             // the current position will be updated by the blocking move so the head will not lower on this next call.
-            do_blocking_move_to(140 - X_PROBE_OFFSET_FROM_EXTRUDER, 40 - Y_PROBE_OFFSET_FROM_EXTRUDER, current_position[Z_AXIS]);
+            do_blocking_move_to(RIGHT_PROBE_BED_POSITION - X_PROBE_OFFSET_FROM_EXTRUDER, FRONT_PROBE_BED_POSITION - Y_PROBE_OFFSET_FROM_EXTRUDER, current_position[Z_AXIS]);
             run_z_probe();
-            float z_at_x140_y40 = current_position[Z_AXIS];
+            float z_at_xRight_yFront = current_position[Z_AXIS];
 
-            SERIAL_PROTOCOLPGM("Bed x140 y40  Z: ");
+            SERIAL_PROTOCOLPGM("Bed x: ");
+			SERIAL_PROTOCOL(RIGHT_PROBE_BED_POSITION);
+			SERIAL_PROTOCOLPGM(" y: ");
+			SERIAL_PROTOCOL(FRONT_PROBE_BED_POSITION);
+			SERIAL_PROTOCOLPGM(" z: ");
             SERIAL_PROTOCOL(current_position[Z_AXIS]);
             SERIAL_PROTOCOLPGM("\n");
 
             clean_up_after_endstop_move();
 
-            // remember where we were before wwe raise the z probe and go back there after.
+#if defined(ENABLE_AUTO_BED_LEVELING) && defined(LOWER_AND_RAISE_Z_PROBE)
+            // remember where we were before we raise the z probe and go back there after.
             {
                 float oldx = current_position[X_AXIS];
                 float oldy = current_position[Y_AXIS];
@@ -1008,8 +1025,9 @@ void process_commands()
                 raise_z_probe();
                 do_blocking_move_to(oldx, oldy, oldz);
             }
+#endif // #if defined(ENABLE_AUTO_BED_LEVELING) && defined(LOWER_AND_RAISE_Z_PROBE)
 
-            set_bed_level_equation(z_at_x30_y40, z_at_x140_y40, z_at_x30_y160);
+            set_bed_level_equation(z_at_xLeft_yFront, z_at_xRight_yFront, z_at_xLeft_yBack);
         }
 #endif // ENABLE_AUTO_BED_LEVELING
         break;

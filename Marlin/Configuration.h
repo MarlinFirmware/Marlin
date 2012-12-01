@@ -239,9 +239,18 @@ const bool Z_ENDSTOPS_INVERTING = true; // set to true to invert the logic of th
 #define Y_HOME_DIR -1
 #define Z_HOME_DIR -1
 
-//#define ENABLE_AUTO_BED_LEVELING // Delete the comment to enable (remove // at the start of the line)
+#define ENABLE_AUTO_BED_LEVELING // Delete the comment to enable (remove // at the start of the line)
 
-#ifdef ENABLE_AUTO_BED_LEVELING
+//#ifdef ENABLE_AUTO_BED_LEVELING
+  #define LOWER_AND_RAISE_Z_PROBE // Comment this out (using // at the start of the line) to disable the mechanical lowering and rasing of the z probe
+
+  // these are the positions on the bed to do the probing
+  #define LEFT_PROBE_BED_POSITION 30
+  #define RIGHT_PROBE_BED_POSITION 140
+  #define BACK_PROBE_BED_POSITION 160
+  #define FRONT_PROBE_BED_POSITION 40
+
+  // these are the offsets to the prob relative to the extruder tip
   #define X_PROBE_OFFSET_FROM_EXTRUDER -40
   #define Y_PROBE_OFFSET_FROM_EXTRUDER 10
   #define Z_PROBE_OFFSET_FROM_EXTRUDER -3.5
