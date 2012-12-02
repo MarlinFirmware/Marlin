@@ -241,7 +241,7 @@ const bool Z_ENDSTOPS_INVERTING = true; // set to true to invert the logic of th
 
 #define ENABLE_AUTO_BED_LEVELING // Delete the comment to enable (remove // at the start of the line)
 
-//#ifdef ENABLE_AUTO_BED_LEVELING
+#ifdef ENABLE_AUTO_BED_LEVELING
   #define LOWER_AND_RAISE_Z_PROBE // Comment this out (using // at the start of the line) to disable the mechanical lowering and rasing of the z probe
 
   // these are the positions on the bed to do the probing
