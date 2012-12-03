@@ -80,8 +80,6 @@ long position[4];   //rescaled from extern when axis_steps_per_unit are changed 
 static float previous_speed[4]; // Speed of previous path line segment
 static float previous_nominal_speed; // Nominal speed of previous path line segment
 
-extern volatile int extrudemultiply; // Sets extrude multiply factor (in percent)
-
 #ifdef AUTOTEMP
 float autotemp_max=250;
 float autotemp_min=210;
@@ -462,8 +460,8 @@ void check_axes_activity()
   else
   {
     #if FAN_PIN > -1
-    if (FanSpeed != 0){
-      analogWrite(FAN_PIN,FanSpeed); // If buffer is empty use current fan speed
+    if (fanSpeed != 0){
+      analogWrite(FAN_PIN,fanSpeed); // If buffer is empty use current fan speed
     }
     #endif
   }
@@ -477,12 +475,12 @@ void check_axes_activity()
     disable_e2(); 
   }
 #if FAN_PIN > -1
-  if((FanSpeed == 0) && (fan_speed ==0))
+  if((fanSpeed == 0) && (fan_speed ==0))
   {
     analogWrite(FAN_PIN, 0);
   }
 
-  if (FanSpeed != 0 && tail_fan_speed !=0)
+  if (fanSpeed != 0 && tail_fan_speed !=0)
   {
     analogWrite(FAN_PIN,tail_fan_speed);
   }
@@ -562,7 +560,7 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
     return; 
   }
 
-  block->fan_speed = FanSpeed;
+  block->fan_speed = fanSpeed;
 
   // Compute direction bits for this block 
   block->direction_bits = 0;

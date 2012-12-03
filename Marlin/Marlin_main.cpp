@@ -146,16 +146,15 @@ CardReader card;
 #endif
 float homing_feedrate[] = HOMING_FEEDRATE;
 bool axis_relative_modes[] = AXIS_RELATIVE_MODES;
-volatile int feedmultiply=100; //100->1 200->2
+int feedmultiply=100; //100->1 200->2
 int saved_feedmultiply;
-volatile bool feedmultiplychanged=false;
-volatile int extrudemultiply=100; //100->1 200->2
+int extrudemultiply=100; //100->1 200->2
 float current_position[NUM_AXIS] = { 0.0, 0.0, 0.0, 0.0 };
 float add_homeing[3]={0,0,0};
 float min_pos[3] = { X_MIN_POS, Y_MIN_POS, Z_MIN_POS };
 float max_pos[3] = { X_MAX_POS, Y_MAX_POS, Z_MAX_POS };
 uint8_t active_extruder = 0;
-unsigned char FanSpeed=0;
+int fanSpeed=0;
 
 #ifdef FWRETRACT
   bool autoretract_enabled=true;
@@ -1124,14 +1123,14 @@ void process_commands()
     #if FAN_PIN > -1
       case 106: //M106 Fan On
         if (code_seen('S')){
-           FanSpeed=constrain(code_value(),0,255);
+           fanSpeed=constrain(code_value(),0,255);
         }
         else {
-          FanSpeed=255;			
+          fanSpeed=255;			
         }
         break;
       case 107: //M107 Fan Off
-        FanSpeed = 0;
+        fanSpeed = 0;
         break;
     #endif //FAN_PIN
 
@@ -1372,7 +1371,6 @@ void process_commands()
       if(code_seen('S')) 
       {
         feedmultiply = code_value() ;
-        feedmultiplychanged=true;
       }
     }
     break;
