@@ -279,7 +279,7 @@ void CardReader::openFile(char* name,bool read)
       sdpos = 0;
       
       SERIAL_PROTOCOLLNPGM(MSG_SD_FILE_SELECTED);
-      LCD_MESSAGE(fname);
+      lcd_setstatus(fname);
     }
     else
     {
@@ -301,7 +301,7 @@ void CardReader::openFile(char* name,bool read)
       saving = true;
       SERIAL_PROTOCOLPGM(MSG_SD_WRITE_TO_FILE);
       SERIAL_PROTOCOLLN(name);
-      LCD_MESSAGE(fname);
+      lcd_setstatus(fname);
     }
   }
   

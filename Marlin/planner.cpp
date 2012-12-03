@@ -506,7 +506,7 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
   {
     manage_heater(); 
     manage_inactivity(); 
-    LCD_STATUS;
+    lcd_update();
   }
 
   // The target position of the tool in absolute steps
