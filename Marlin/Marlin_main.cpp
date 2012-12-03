@@ -126,6 +126,8 @@
 // M303 - PID relay autotune S<temperature> sets the target temperature. (default target temperature = 150C)
 // M304 - Set bed PID parameters P I and D
 // M400 - Finish all moves
+// M401 - Lower z-probe if present
+// M402 - Raise z-probe if present
 // M500 - stores paramters in EEPROM
 // M501 - reads parameters from EEPROM (if you need reset them after you changed them temporarily).  
 // M502 - reverts to the default "factory settings".  You still need to store them in EEPROM afterwards if you want to.
@@ -681,7 +683,7 @@ static void run_z_probe() {
 static void do_blocking_move_to(float x, float y, float z) {
     float oldFeedRate = feedrate;
 
-    feedrate = homing_feedrate[X_AXIS];
+    feedrate = homing_feedrate[X_AXIS]/2;
 
     current_position[X_AXIS] = x;
     current_position[Y_AXIS] = y;
@@ -718,35 +720,37 @@ static void clean_up_after_endstop_move() {
 
 #if defined(ENABLE_AUTO_BED_LEVELING) && defined(LOWER_AND_RAISE_Z_PROBE)
 static void lower_z_probe() {
-        // move to the correct z
-  	do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], Z_MAX_POS - 14);
-        // move to the correct x
-	do_blocking_move_relative(-162, 0, 0);
-        // start pushing the pin // We could write the equation for the arc instead.
-	do_blocking_move_relative(1, 0, 4);
-	do_blocking_move_relative(1, 0, 1);
-	do_blocking_move_relative(2, 0, 1);
-	do_blocking_move_relative(2, 0, 0);
-	do_blocking_move_relative(4, 0, 1);
-	do_blocking_move_relative(2, 0, 0);
-	do_blocking_move_relative(-2, 0, 0);
-	do_blocking_move_relative(0, 0, -10);
+  // TODO: make this movement based off of X_POSITION_WHEN_PROBE_PIVOT_AND_PIN_ALIGNED, Z_POSITION_WHEN_PROBE_PIVOT_AND_PIN_ALIGNED, and Z_PROBE_LENGTH_PIVOT_TO_MOVE_ARM
+  // move to the correct z
+  do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], Z_MAX_POS - 14);
+  // move to the correct x
+  do_blocking_move_relative(-162, 0, 0);
+  // start pushing the pin // We could write the equation for the arc instead.
+  do_blocking_move_relative(1, 0, 4);
+  do_blocking_move_relative(1, 0, 1);
+  do_blocking_move_relative(2, 0, 1);
+  do_blocking_move_relative(2, 0, 0);
+  do_blocking_move_relative(4, 0, 1);
+  do_blocking_move_relative(2, 0, 0);
+  do_blocking_move_relative(-2, 0, 0);
+  do_blocking_move_relative(0, 0, -10);
 }
 
 static void raise_z_probe() {
-        // move to a position that is safe
-  	do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], Z_MAX_POS - 15);
-  	do_blocking_move_to(X_MAX_POS - 139, current_position[Y_AXIS], current_position[Z_AXIS]);
-        // get up close to the pin.
-	do_blocking_move_relative(0, 0, 12);
-        // start pushing the pin // We could write the equation for the arc instead.
-	do_blocking_move_relative(-3, 0, 1);
-	do_blocking_move_relative(-2, 0, 1);
-	do_blocking_move_relative(-2, 0, 1);
-	do_blocking_move_relative(-6, 0, -1);
-	do_blocking_move_relative(-4, 0, -2);
-	do_blocking_move_relative(-2, 0, -2);
-	do_blocking_move_relative(7, 0, 0);
+  // TODO: make this movement based off of X_POSITION_WHEN_PROBE_PIVOT_AND_PIN_ALIGNED, Z_POSITION_WHEN_PROBE_PIVOT_AND_PIN_ALIGNED, and Z_PROBE_LENGTH_PIVOT_TO_MOVE_ARM
+  // move to a position that is safe
+  do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], Z_MAX_POS - 15);
+  do_blocking_move_to(X_MAX_POS - 139, current_position[Y_AXIS], current_position[Z_AXIS]);
+  // get up close to the pin.
+  do_blocking_move_relative(0, 0, 12);
+  // start pushing the pin // We could write the equation for the arc instead.
+  do_blocking_move_relative(-3, 0, 1);
+  do_blocking_move_relative(-2, 0, 1);
+  do_blocking_move_relative(-2, 0, 1);
+  do_blocking_move_relative(-6, 0, -1);
+  do_blocking_move_relative(-4, 0, -2);
+  do_blocking_move_relative(-2, 0, -2);
+  do_blocking_move_relative(7, 0, 0);
 }
 #endif // #if defined(ENABLE_AUTO_BED_LEVELING) && defined(LOWER_AND_RAISE_Z_PROBE)
 
@@ -1631,7 +1635,7 @@ void process_commands()
       }
     }
     break;
-
+    
     #ifdef PIDTEMP
     case 301: // M301
       {
@@ -1722,6 +1726,17 @@ void process_commands()
       st_synchronize();
     }
     break;
+    case 401:
+#if defined(ENABLE_AUTO_BED_LEVELING) && defined(LOWER_AND_RAISE_Z_PROBE)
+      lower_z_probe();
+#endif
+    break;
+    case 402:
+#if defined(ENABLE_AUTO_BED_LEVELING) && defined(LOWER_AND_RAISE_Z_PROBE)
+      raise_z_probe();
+#endif
+    break;
+
     case 500: // Store settings in EEPROM
     {
         Config_StoreSettings();

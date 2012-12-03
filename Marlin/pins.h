@@ -335,13 +335,13 @@
 #define X_STEP_PIN         54
 #define X_DIR_PIN          55
 #define X_ENABLE_PIN       38
-#define X_MIN_PIN           3
+#define X_MIN_PIN           -1 //3
 #define X_MAX_PIN           2   //2 //Max endstops default to disabled "-1", set to commented value to enable.
 
 #define Y_STEP_PIN         60
 #define Y_DIR_PIN          61
 #define Y_ENABLE_PIN       56
-#define Y_MIN_PIN          14
+#define Y_MIN_PIN          -1 //14
 #define Y_MAX_PIN          15   //15
 
 #define Z_STEP_PIN         46
@@ -367,7 +367,7 @@
 #define LED_PIN            13
 
 #if MOTHERBOARD == 33
-#define FAN_PIN            9 // (Sprinter config)
+#define FAN_PIN            -1 //9 // (Sprinter config)
 #else
 #define FAN_PIN            4 // IO pin. Buffer needed
 #endif

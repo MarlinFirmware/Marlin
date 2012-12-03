@@ -44,7 +44,7 @@
 // Rambo = 301
 
 #ifndef MOTHERBOARD
-#define MOTHERBOARD 7
+#define MOTHERBOARD 33
 #endif
 
 
@@ -73,7 +73,7 @@
 // 52 is 200k thermistor - ATC Semitec 204GT-2 (1k pullup)
 // 55 is 100k thermistor - ATC Semitec 104GT-2 (Used in ParCan) (1k pullup)
 
-#define TEMP_SENSOR_0 -1
+#define TEMP_SENSOR_0 7
 #define TEMP_SENSOR_1 0
 #define TEMP_SENSOR_2 0
 #define TEMP_SENSOR_BED 0
@@ -117,9 +117,9 @@
 
 // If you are using a preconfigured hotend then you can use one of the value sets by uncommenting it
 // Ultimaker
-    #define  DEFAULT_Kp 22.2
-    #define  DEFAULT_Ki 1.08  
-    #define  DEFAULT_Kd 114  
+    #define  DEFAULT_Kp 30.5
+    #define  DEFAULT_Ki 1.8  
+    #define  DEFAULT_Kd 214.88
 
 // Makergear
 //    #define  DEFAULT_Kp 7.0
@@ -209,9 +209,9 @@
 #endif
 
 // The pullups are needed if you directly connect a mechanical endswitch between the signal and ground pins.
-const bool X_ENDSTOPS_INVERTING = true; // set to true to invert the logic of the endstops. 
-const bool Y_ENDSTOPS_INVERTING = true; // set to true to invert the logic of the endstops. 
-const bool Z_ENDSTOPS_INVERTING = true; // set to true to invert the logic of the endstops. 
+const bool X_ENDSTOPS_INVERTING = false; // set to true to invert the logic of the endstops. 
+const bool Y_ENDSTOPS_INVERTING = false; // set to true to invert the logic of the endstops. 
+const bool Z_ENDSTOPS_INVERTING = false; // set to true to invert the logic of the endstops. 
 //#define DISABLE_MAX_ENDSTOPS
 
 // For Inverting Stepper Enable Pins (Active Low) use 0, Non Inverting (Active High) use 1
@@ -235,9 +235,9 @@ const bool Z_ENDSTOPS_INVERTING = true; // set to true to invert the logic of th
 
 // ENDSTOP SETTINGS:
 // Sets direction of endstops when homing; 1=MAX, -1=MIN
-#define X_HOME_DIR -1
-#define Y_HOME_DIR -1
-#define Z_HOME_DIR -1
+#define X_HOME_DIR 1
+#define Y_HOME_DIR 1
+#define Z_HOME_DIR 1
 
 #define ENABLE_AUTO_BED_LEVELING // Delete the comment to enable (remove // at the start of the line)
 
@@ -245,9 +245,9 @@ const bool Z_ENDSTOPS_INVERTING = true; // set to true to invert the logic of th
   #define LOWER_AND_RAISE_Z_PROBE // Comment this out (using // at the start of the line) to disable the mechanical lowering and rasing of the z probe
 
   // these are not used yet but will be soon
-  #define LOWER_AND_RAISE_PIN_X_POSITION 20
-  #define LOWER_AND_RAISE_PIN_Z_POSITION 80
-  #define Z_PROBE_LENGTH_PIVOT_TO_MOVE_ARM 35
+  #define X_POSITION_WHEN_PROBE_PIVOT_AND_PIN_ALIGNED 38
+  #define Z_POSITION_WHEN_PROBE_PIVOT_AND_PIN_ALIGNED 113
+  #define Z_PROBE_LENGTH_PIVOT_TO_MOVE_ARM 15
 
   // these are the positions on the bed to do the probing
   #define LEFT_PROBE_BED_POSITION 30
@@ -264,11 +264,11 @@ const bool Z_ENDSTOPS_INVERTING = true; // set to true to invert the logic of th
 #define min_software_endstops true //If true, axis won't move to coordinates less than HOME_POS.
 #define max_software_endstops true  //If true, axis won't move to coordinates greater than the defined lengths below.
 // Travel limits after homing
-#define X_MAX_POS 205
+#define X_MAX_POS 188
 #define X_MIN_POS 0
-#define Y_MAX_POS 205
+#define Y_MAX_POS 190
 #define Y_MIN_POS 0
-#define Z_MAX_POS 200
+#define Z_MAX_POS 131.78
 #define Z_MIN_POS 0
 
 #define X_MAX_LENGTH (X_MAX_POS - X_MIN_POS)
@@ -280,17 +280,41 @@ const bool Z_ENDSTOPS_INVERTING = true; // set to true to invert the logic of th
 //#define BED_CENTER_AT_0_0  // If defined the center of the bed is defined as (0,0)
 
 //Manual homing switch locations:
-#define MANUAL_X_HOME_POS 0
-#define MANUAL_Y_HOME_POS 0
-#define MANUAL_Z_HOME_POS 0
+#define MANUAL_X_HOME_POS X_MAX_LENGTH
+#define MANUAL_Y_HOME_POS Y_MAX_LENGTH
+#define MANUAL_Z_HOME_POS Z_MAX_LENGTH
 
 //// MOVEMENT SETTINGS
 #define NUM_AXIS 4 // The axis order in all axis related arrays is X, Y, Z, E
 #define HOMING_FEEDRATE {50*60, 50*60, 4*60, 0}  // set the homing speeds (mm/min)
 
 // default settings 
+// useful constants
+#define PI 3.14159265
+#define MM_PER_INCH 25.4
 
-#define DEFAULT_AXIS_STEPS_PER_UNIT   {78.7402,78.7402,200*8/3,760*1.1}  // default steps per unit for ultimaker 
+#define STEPS_PER_REVOLUTION_X 3200
+#define STEPS_PER_REVOLUTION_Y 6400
+#define STEPS_PER_REVOLUTION_Z 3200
+#define STEPS_PER_REVOLUTION_E 6400
+
+#define IDLER_TEETH 8
+
+#define BELT_PITCH_X (.2 * MM_PER_INCH)
+#define BELT_PITCH_Y (.2 * MM_PER_INCH)
+
+#define PITCH_OF_Z_ROD 1.25
+
+// makergear extruder box
+#define EXTRUDER_GEAR_RATIO (47.0/9.0)
+#define PINCH_WHEEL_DIAMETER 4.7
+
+#define AXIS_STEPS_PER_UNIT_X (STEPS_PER_REVOLUTION_X / IDLER_TEETH / BELT_PITCH_X)
+#define AXIS_STEPS_PER_UNIT_Y (STEPS_PER_REVOLUTION_Y / IDLER_TEETH / BELT_PITCH_Y)
+#define AXIS_STEPS_PER_UNIT_Z (STEPS_PER_REVOLUTION_Z / PITCH_OF_Z_ROD)
+#define AXIS_STEPS_PER_UNIT_E (STEPS_PER_REVOLUTION_E * EXTRUDER_GEAR_RATIO / (PINCH_WHEEL_DIAMETER * PI))
+
+#define DEFAULT_AXIS_STEPS_PER_UNIT   {AXIS_STEPS_PER_UNIT_X, AXIS_STEPS_PER_UNIT_Y, AXIS_STEPS_PER_UNIT_Z, AXIS_STEPS_PER_UNIT_E}
 #define DEFAULT_MAX_FEEDRATE          {500, 500, 5, 45}    // (mm/sec)    
 #define DEFAULT_MAX_ACCELERATION      {9000,9000,100,10000}    // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for skeinforge 40+, for older versions raise them a lot.
 
