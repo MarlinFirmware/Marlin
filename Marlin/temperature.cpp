@@ -567,7 +567,7 @@ float analog2temp(int raw, uint8_t e) {
     }
   #endif
 
-  if(heater_ttbl_map[e] != 0)
+  if(heater_ttbl_map[e] != NULL)
   {
     float celsius = 0;
     byte i;  

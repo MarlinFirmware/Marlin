@@ -78,7 +78,7 @@ static bool old_z_max_endstop=false;
 static bool check_endstops = true;
 
 volatile long count_position[NUM_AXIS] = { 0, 0, 0, 0};
-volatile char count_direction[NUM_AXIS] = { 1, 1, 1, 1};
+volatile signed char count_direction[NUM_AXIS] = { 1, 1, 1, 1};
 
 //===========================================================================
 //=============================functions         ============================
