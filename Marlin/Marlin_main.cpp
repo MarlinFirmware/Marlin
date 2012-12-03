@@ -151,16 +151,16 @@ CardReader card;
 #endif
 float homing_feedrate[] = HOMING_FEEDRATE;
 bool axis_relative_modes[] = AXIS_RELATIVE_MODES;
-volatile int feedmultiply=100; //100->1 200->2
+int feedmultiply=100; //100->1 200->2
+bool feedmultiplychanged;
 int saved_feedmultiply;
-volatile bool feedmultiplychanged=false;
-volatile int extrudemultiply=100; //100->1 200->2
+int extrudemultiply=100; //100->1 200->2
 float current_position[NUM_AXIS] = { 0.0, 0.0, 0.0, 0.0 };
 float add_homeing[3]={0,0,0};
 float min_pos[3] = { X_MIN_POS, Y_MIN_POS, Z_MIN_POS };
 float max_pos[3] = { X_MAX_POS, Y_MAX_POS, Z_MAX_POS };
 uint8_t active_extruder = 0;
-unsigned char FanSpeed=0;
+int fanSpeed=0;
 
 #ifdef FWRETRACT
   bool autoretract_enabled=true;
@@ -366,7 +366,7 @@ void setup()
   st_init();    // Initialize stepper, this enables interrupts!
   setup_photpin();
   
-  LCD_INIT;
+  lcd_init();
 }
 
 
@@ -407,7 +407,7 @@ void loop()
   manage_heater();
   manage_inactivity();
   checkHitEndstops();
-  LCD_STATUS;
+  lcd_update();
 }
 
 void get_command() 
@@ -540,7 +540,7 @@ void get_command()
         sprintf_P(time, PSTR("%i min, %i sec"),min,sec);
         SERIAL_ECHO_START;
         SERIAL_ECHOLN(time);
-        LCD_MESSAGE(time);
+        lcd_setstatus(time);
         card.printingHasFinished();
         card.checkautostart(true);
         
@@ -826,7 +826,7 @@ void process_commands()
       while(millis()  < codenum ){
         manage_heater();
         manage_inactivity();
-        LCD_STATUS;
+        lcd_update();
       }
       break;
       #ifdef FWRETRACT  
@@ -1095,16 +1095,16 @@ void process_commands()
       previous_millis_cmd = millis();
       if (codenum > 0){
         codenum += millis();  // keep track of when we started waiting
-        while(millis()  < codenum && !CLICKED){
+        while(millis()  < codenum && !LCD_CLICKED){
           manage_heater();
           manage_inactivity();
-          LCD_STATUS;
+          lcd_update();
         }
       }else{
-        while(!CLICKED){
+        while(!LCD_CLICKED){
           manage_heater();
           manage_inactivity();
-          LCD_STATUS;
+          lcd_update();
         }
       }
     }
@@ -1195,7 +1195,7 @@ void process_commands()
       sprintf_P(time, PSTR("%i min, %i sec"), min, sec);
       SERIAL_ECHO_START;
       SERIAL_ECHOLN(time);
-      LCD_MESSAGE(time);
+      lcd_setstatus(time);
       autotempShutdown();
       }
       break;
@@ -1323,7 +1323,7 @@ void process_commands()
           }
           manage_heater();
           manage_inactivity();
-          LCD_STATUS;
+          lcd_update();
         #ifdef TEMP_RESIDENCY_TIME
             /* start/restart the TEMP_RESIDENCY_TIME timer whenever we reach target temp for the first time
               or when current temp falls outside the hysteresis after target temp was reached */
@@ -1361,7 +1361,7 @@ void process_commands()
           }
           manage_heater();
           manage_inactivity();
-          LCD_STATUS;
+          lcd_update();
         }
         LCD_MESSAGEPGM(MSG_BED_DONE);
         previous_millis_cmd = millis();
@@ -1371,14 +1371,14 @@ void process_commands()
     #if FAN_PIN > -1
       case 106: //M106 Fan On
         if (code_seen('S')){
-           FanSpeed=constrain(code_value(),0,255);
+           fanSpeed=constrain(code_value(),0,255);
         }
         else {
-          FanSpeed=255;			
+          fanSpeed=255;			
         }
         break;
       case 107: //M107 Fan Off
-        FanSpeed = 0;
+        fanSpeed = 0;
         break;
     #endif //FAN_PIN
 
@@ -1468,7 +1468,7 @@ void process_commands()
       SERIAL_PROTOCOLPGM(MSG_M115_REPORT);
       break;
     case 117: // M117 display message
-      LCD_MESSAGE(cmdbuffer[bufindr]+5);
+      lcd_setstatus(cmdbuffer[bufindr]+5);
       break;
     case 114: // M114
       SERIAL_PROTOCOLPGM("X:");
@@ -1619,7 +1619,7 @@ void process_commands()
       if(code_seen('S')) 
       {
         feedmultiply = code_value() ;
-        feedmultiplychanged=true;
+        feedmultiplychanged = true;
       }
     }
     break;
