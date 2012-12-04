@@ -989,10 +989,10 @@ void process_commands()
             float z_at_xLeft_yBack = current_position[Z_AXIS];
 
             SERIAL_PROTOCOLPGM("Bed x: ");
-			SERIAL_PROTOCOL(LEFT_PROBE_BED_POSITION);
-			SERIAL_PROTOCOLPGM(" y: ");
-			SERIAL_PROTOCOL(BACK_PROBE_BED_POSITION);
-			SERIAL_PROTOCOLPGM(" z: ");
+            SERIAL_PROTOCOL(LEFT_PROBE_BED_POSITION);
+            SERIAL_PROTOCOLPGM(" y: ");
+            SERIAL_PROTOCOL(BACK_PROBE_BED_POSITION);
+            SERIAL_PROTOCOLPGM(" z: ");
             SERIAL_PROTOCOL(current_position[Z_AXIS]);
             SERIAL_PROTOCOLPGM("\n");
 
@@ -1003,10 +1003,10 @@ void process_commands()
             float z_at_xLeft_yFront = current_position[Z_AXIS];
 
             SERIAL_PROTOCOLPGM("Bed x: ");
-			SERIAL_PROTOCOL(LEFT_PROBE_BED_POSITION);
-			SERIAL_PROTOCOLPGM(" y: ");
-			SERIAL_PROTOCOL(FRONT_PROBE_BED_POSITION);
-			SERIAL_PROTOCOLPGM(" z: ");
+            SERIAL_PROTOCOL(LEFT_PROBE_BED_POSITION);
+            SERIAL_PROTOCOLPGM(" y: ");
+            SERIAL_PROTOCOL(FRONT_PROBE_BED_POSITION);
+            SERIAL_PROTOCOLPGM(" z: ");
             SERIAL_PROTOCOL(current_position[Z_AXIS]);
             SERIAL_PROTOCOLPGM("\n");
 
@@ -1018,10 +1018,10 @@ void process_commands()
             float z_at_xRight_yFront = current_position[Z_AXIS];
 
             SERIAL_PROTOCOLPGM("Bed x: ");
-			SERIAL_PROTOCOL(RIGHT_PROBE_BED_POSITION);
-			SERIAL_PROTOCOLPGM(" y: ");
-			SERIAL_PROTOCOL(FRONT_PROBE_BED_POSITION);
-			SERIAL_PROTOCOLPGM(" z: ");
+            SERIAL_PROTOCOL(RIGHT_PROBE_BED_POSITION);
+            SERIAL_PROTOCOLPGM(" y: ");
+            SERIAL_PROTOCOL(FRONT_PROBE_BED_POSITION);
+            SERIAL_PROTOCOLPGM(" z: ");
             SERIAL_PROTOCOL(current_position[Z_AXIS]);
             SERIAL_PROTOCOLPGM("\n");
 
