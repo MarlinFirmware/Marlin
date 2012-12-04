@@ -306,6 +306,11 @@ const bool Z_ENDSTOPS_INVERTING = true; // set to true to invert the logic of th
 // http://reprap.org/wiki/RepRapDiscount_Smart_Controller
 //#define REPRAP_DISCOUNT_SMART_CONTROLLER
 
+//I2C Display support. Tested with PCF8574(A) I2C Portexpander using LiquidCrystal_I2C
+//#define I2C_DISPLAY
+//Configure your I2C address PCF8574: 0x20 - 0x27
+//#define I2C_ADDRESS 0x20
+
 
 //automatic expansion
 #if defined(ULTIMAKERCONTROLLER) || defined(REPRAP_DISCOUNT_SMART_CONTROLLER)
