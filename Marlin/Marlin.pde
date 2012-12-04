@@ -32,6 +32,10 @@
 
 #include "Configuration.h"
 #ifdef ULTRA_LCD
+#ifdef I2C_DISPLAY
+#include <Wire.h>
+#include "LiquidCrystal_I2C.h"
+#else 
 #include <LiquidCrystal.h>
 #endif
 #include <SPI.h>

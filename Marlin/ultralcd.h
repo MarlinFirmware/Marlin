@@ -8,6 +8,11 @@
   #if LANGUAGE_CHOICE == 6
   #include "LiquidCrystalRus.h"
   #define LCD_CLASS LiquidCrystalRus
+  #endif
+  
+  #ifdef I2C_DISPLAY
+  #include "LiquidCrystal_I2C.h"
+  #define LCD_CLASS LiquidCrystal_I2C
   #else
   #include <LiquidCrystal.h>
   #define LCD_CLASS LiquidCrystal
