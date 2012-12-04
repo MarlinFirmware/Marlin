@@ -653,6 +653,7 @@ static void set_bed_level_equation(float z_at_xLeft_yFront, float z_at_xRight_yF
 }
 
 static void run_z_probe() {
+    plan_bed_level_matrix.set_to_identity();
     feedrate = homing_feedrate[Z_AXIS];
 
     // move down until you find the bed
@@ -720,6 +721,7 @@ static void clean_up_after_endstop_move() {
 
 #if defined(ENABLE_AUTO_BED_LEVELING) && defined(LOWER_AND_RAISE_Z_PROBE)
 static void lower_z_probe() {
+  plan_bed_level_matrix.set_to_identity();
   // TODO: make this movement based off of X_POSITION_WHEN_PROBE_PIVOT_AND_PIN_ALIGNED, Z_POSITION_WHEN_PROBE_PIVOT_AND_PIN_ALIGNED, and Z_PROBE_LENGTH_PIVOT_TO_MOVE_ARM
   // move to the correct z
   do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], Z_MAX_POS - 14);
@@ -737,6 +739,7 @@ static void lower_z_probe() {
 }
 
 static void raise_z_probe() {
+  plan_bed_level_matrix.set_to_identity();
   // TODO: make this movement based off of X_POSITION_WHEN_PROBE_PIVOT_AND_PIN_ALIGNED, Z_POSITION_WHEN_PROBE_PIVOT_AND_PIN_ALIGNED, and Z_PROBE_LENGTH_PIVOT_TO_MOVE_ARM
   // move to a position that is safe
   do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], Z_MAX_POS - 15);
