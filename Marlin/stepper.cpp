@@ -944,7 +944,6 @@ float st_get_position_mm(uint8_t axis)
 void finishAndDisableSteppers()
 {
   st_synchronize(); 
-  LCD_MESSAGEPGM(MSG_STEPPER_RELEASED);
   disable_x(); 
   disable_y(); 
   disable_z(); 
