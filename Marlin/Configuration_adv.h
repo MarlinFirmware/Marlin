@@ -13,8 +13,10 @@
 //// Heating sanity check:
 // This waits for the watchperiod in milliseconds whenever an M104 or M109 increases the target temperature
 // If the temperature has not increased at the end of that period, the target temperature is set to zero. 
-// It can be reset with another M104/M109
-//#define WATCHPERIOD 20000 //20 seconds
+// It can be reset with another M104/M109. This check is also only triggered if the target temperature and the current temperature
+//  differ by at least 2x WATCH_TEMP_INCREASE
+//#define WATCH_TEMP_PERIOD 20000 //20 seconds
+//#define WATCH_TEMP_INCREASE 10  //Heat up at least 10 degree in 20 seconds
 
 // Wait for Cooldown
 // This defines if the M109 call should not block if it is cooling down.

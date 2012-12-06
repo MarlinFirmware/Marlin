@@ -105,12 +105,6 @@ static volatile bool temp_meas_ready = false;
   static unsigned char soft_pwm[EXTRUDERS];
   static unsigned char soft_pwm_bed;
   
-#ifdef WATCHPERIOD
-  int watch_raw[EXTRUDERS] = { -1000 }; // the first value used for all
-  int watch_oldtemp[3] = {0,0,0};
-  unsigned long watchmillis = 0;
-#endif //WATCHPERIOD
-
 #if EXTRUDERS > 3
 # error Unsupported number of extruders
 #elif EXTRUDERS > 2
@@ -129,6 +123,10 @@ static int bed_maxttemp = 16383;
 static void *heater_ttbl_map[EXTRUDERS] = ARRAY_BY_EXTRUDERS((void *)heater_0_temptable, (void *)heater_1_temptable, (void *)heater_2_temptable);
 static int heater_ttbllen_map[EXTRUDERS] = ARRAY_BY_EXTRUDERS(heater_0_temptable_len, heater_1_temptable_len, heater_2_temptable_len);
 
+#ifdef WATCH_TEMP_PERIOD
+int watch_start_temp[EXTRUDERS] = ARRAY_BY_EXTRUDERS(0,0,0);
+unsigned long watchmillis[EXTRUDERS] = ARRAY_BY_EXTRUDERS(0,0,0);
+#endif //WATCH_TEMP_PERIOD
 
 //===========================================================================
 //=============================   functions      ============================
@@ -376,20 +374,23 @@ void manage_heater()
     else {
       soft_pwm[e] = 0;
     }
-  } // End extruder for loop
-  
-  #ifdef WATCHPERIOD
-    if(watchmillis && millis() - watchmillis > WATCHPERIOD){
-        if(watch_oldtemp[0] >= degHotend(active_extruder)){
-            setTargetHotend(0,active_extruder);
+
+    #ifdef WATCH_TEMP_PERIOD
+    if(watchmillis[e] && millis() - watchmillis[e] > WATCH_TEMP_PERIOD)
+    {
+        if(degHotend(e) < watch_start_temp[e] + WATCH_TEMP_INCREASE)
+        {
+            setTargetHotend(0, e);
             LCD_MESSAGEPGM("Heating failed");
             SERIAL_ECHO_START;
             SERIAL_ECHOLN("Heating failed");
         }else{
-            watchmillis = 0;
+            watchmillis[e] = 0;
         }
     }
-  #endif
+    #endif
+
+  } // End extruder for loop
   
 
 		#ifndef PIDTEMPBED
@@ -625,9 +626,6 @@ void tp_init()
   // Finish init of mult extruder arrays 
   for(int e = 0; e < EXTRUDERS; e++) {
     // populate with the first value 
-#ifdef WATCHPERIOD
-    watch_raw[e] = watch_raw[0];
-#endif
     maxttemp[e] = maxttemp[0];
 #ifdef PIDTEMP
     temp_iState_min[e] = 0.0;
@@ -746,22 +744,17 @@ void tp_init()
 #endif //BED_MAXTEMP
 }
 
-
-
 void setWatch() 
 {  
-#ifdef WATCHPERIOD
-  int t = 0;
+#ifdef WATCH_TEMP_PERIOD
   for (int e = 0; e < EXTRUDERS; e++)
   {
-    if(isHeatingHotend(e))
-    watch_oldtemp[0] = degHotend(0);
+    if(degHotend(e) < degTargetHotend(e) - (WATCH_TEMP_INCREASE * 2))
     {
-      t = max(t,millis());
-      watch_raw[e] = current_raw[e];
+      watch_start_temp[e] = degHotend(e);
+      watchmillis[e] = millis();
     } 
   }
-  watchmillis = t;
 #endif 
 }
 
