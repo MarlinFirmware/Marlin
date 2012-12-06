@@ -111,33 +111,24 @@ static volatile bool temp_meas_ready = false;
   unsigned long watchmillis = 0;
 #endif //WATCHPERIOD
 
+#if EXTRUDERS > 3
+# error Unsupported number of extruders
+#elif EXTRUDERS > 2
+# define ARRAY_BY_EXTRUDERS(v1, v2, v3) { v1, v2, v3 }
+#elif EXTRUDERS > 1
+# define ARRAY_BY_EXTRUDERS(v1, v2, v3) { v1, v2 }
+#else
+# define ARRAY_BY_EXTRUDERS(v1, v2, v3) { v1 }
+#endif
+
 // Init min and max temp with extreme values to prevent false errors during startup
-  static int minttemp[EXTRUDERS] = { 0 };
-  static int maxttemp[EXTRUDERS] = { 16383 }; // the first value used for all
-  static int bed_minttemp = 0;
-  static int bed_maxttemp = 16383;
-  static void *heater_ttbl_map[EXTRUDERS] = { (void *)heater_0_temptable
-#if EXTRUDERS > 1
-                                            , (void *)heater_1_temptable
-#endif
-#if EXTRUDERS > 2
-                                            , (void *)heater_2_temptable
-#endif
-#if EXTRUDERS > 3
-  #error Unsupported number of extruders
-#endif
-  };
-  static int heater_ttbllen_map[EXTRUDERS] = { heater_0_temptable_len
-#if EXTRUDERS > 1
-                                             , heater_1_temptable_len
-#endif
-#if EXTRUDERS > 2
-                                             , heater_2_temptable_len
-#endif
-#if EXTRUDERS > 3
-  #error Unsupported number of extruders
-#endif
-  };
+static int minttemp[EXTRUDERS] = ARRAY_BY_EXTRUDERS(0, 0, 0);
+static int maxttemp[EXTRUDERS] = ARRAY_BY_EXTRUDERS(16383, 16383, 16383); // the first value used for all
+static int bed_minttemp = 0;
+static int bed_maxttemp = 16383;
+static void *heater_ttbl_map[EXTRUDERS] = ARRAY_BY_EXTRUDERS((void *)heater_0_temptable, (void *)heater_1_temptable, (void *)heater_2_temptable);
+static int heater_ttbllen_map[EXTRUDERS] = ARRAY_BY_EXTRUDERS(heater_0_temptable_len, heater_1_temptable_len, heater_2_temptable_len);
+
 
 //===========================================================================
 //=============================   functions      ============================
@@ -820,6 +811,9 @@ void max_temp_error(uint8_t e) {
     SERIAL_ERRORLN((int)e);
     SERIAL_ERRORLNPGM(": Extruder switched off. MAXTEMP triggered !");
   }
+  #ifndef BOGUS_TEMPERATURE_FAILSAFE_OVERRIDE
+  Stop();
+  #endif
 }
 
 void min_temp_error(uint8_t e) {
@@ -829,6 +823,9 @@ void min_temp_error(uint8_t e) {
     SERIAL_ERRORLN((int)e);
     SERIAL_ERRORLNPGM(": Extruder switched off. MINTEMP triggered !");
   }
+  #ifndef BOGUS_TEMPERATURE_FAILSAFE_OVERRIDE
+  Stop();
+  #endif
 }
 
 void bed_max_temp_error(void) {
@@ -839,16 +836,19 @@ void bed_max_temp_error(void) {
     SERIAL_ERROR_START;
     SERIAL_ERRORLNPGM("Temperature heated bed switched off. MAXTEMP triggered !!");
   }
+  #ifndef BOGUS_TEMPERATURE_FAILSAFE_OVERRIDE
+  Stop();
+  #endif
 }
 
-#define HEAT_INTERVAL 250
 #ifdef HEATER_0_USES_MAX6675
+#define MAX6675_HEAT_INTERVAL 250
 long max6675_previous_millis = -HEAT_INTERVAL;
 int max6675_temp = 2000;
 
 int read_max6675()
 {
-  if (millis() - max6675_previous_millis < HEAT_INTERVAL) 
+  if (millis() - max6675_previous_millis < MAX6675_HEAT_INTERVAL) 
     return max6675_temp;
   
   max6675_previous_millis = millis();
@@ -1077,20 +1077,10 @@ ISR(TIMER0_COMPB_vect)
        if(current_raw[e] >= maxttemp[e]) {
           target_raw[e] = 0;
           max_temp_error(e);
-          #ifndef BOGUS_TEMPERATURE_FAILSAFE_OVERRIDE
-          {
-            Stop();;
-          }
-          #endif
        }
        if(current_raw[e] <= minttemp[e]) {
           target_raw[e] = 0;
           min_temp_error(e);
-          #ifndef BOGUS_TEMPERATURE_FAILSAFE_OVERRIDE
-          {
-            Stop();
-          }
-          #endif
        }
     }
   
@@ -1098,7 +1088,6 @@ ISR(TIMER0_COMPB_vect)
     if(current_raw_bed >= bed_maxttemp) {
        target_raw_bed = 0;
        bed_max_temp_error();
-       Stop();
     }
 #endif
   }
