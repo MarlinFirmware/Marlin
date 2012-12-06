@@ -56,12 +56,6 @@ extern int current_raw_bed;
   extern float pid_setpoint_bed;
 #endif
   
-// #ifdef WATCHPERIOD
-  extern int watch_raw[EXTRUDERS] ;
-//   extern unsigned long watchmillis;
-// #endif
-
-
 //high level conversion routines, for use outside of temperature.cpp
 //inline so that there is no performance decrease.
 //deg=degreeCelsius
