@@ -44,8 +44,8 @@ void watchdog_reset()
 ISR(WDT_vect)
 { 
     //TODO: This message gets overwritten by the kill() call
-    LCD_MESSAGEPGM("ERR:Please Reset");//16 characters so it fits on a 16x2 display
-    LCD_STATUS;
+    LCD_ALERTMESSAGEPGM("ERR:Please Reset");//16 characters so it fits on a 16x2 display
+    lcd_update();
     SERIAL_ERROR_START;
     SERIAL_ERRORLNPGM("Something is wrong, please turn off the printer.");
     kill(); //kill blocks
