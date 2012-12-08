@@ -835,7 +835,7 @@ void process_commands()
   {
     switch( (int)code_value() ) 
     {
-#ifdef ULTRA_LCD
+#ifdef ULTIPANEL
     case 0: // M0 - Unconditional stop - Wait for user button press on LCD
     case 1: // M1 - Conditional stop - Wait for user button press on LCD
     {
