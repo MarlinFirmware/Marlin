@@ -1022,6 +1022,7 @@
 * See http://reprap.org/wiki/Printrboard for more info
 ****************************************************************************************/
 #if MOTHERBOARD == 81
+#undef MOTHERBOARD
 #define MOTHERBOARD 8  // Disable MarlinSerial etc.
 #define KNOWN_BOARD 1
 
@@ -1155,6 +1156,7 @@
    https://github.com/unrepentantgeek/brainwave-arduino
  ****************************************************************************************/
 #if MOTHERBOARD == 82
+#undef MOTHERBOARD
 #define MOTHERBOARD 8  // Disable MarlinSerial etc.
 #define KNOWN_BOARD 1
 
