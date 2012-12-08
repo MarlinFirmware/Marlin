@@ -190,7 +190,8 @@ SRC = wiring.c \
 CXXSRC = WMath.cpp WString.cpp Print.cpp Marlin_main.cpp	\
 	MarlinSerial.cpp Sd2Card.cpp SdBaseFile.cpp SdFatUtil.cpp	\
 	SdFile.cpp SdVolume.cpp motion_control.cpp planner.cpp		\
-	stepper.cpp temperature.cpp cardreader.cpp ConfigurationStore.cpp
+	stepper.cpp temperature.cpp cardreader.cpp ConfigurationStore.cpp \
+	watchdog.cpp
 CXXSRC += LiquidCrystal.cpp ultralcd.cpp SPI.cpp
 
 #Check for Arduino 1.0.0 or higher and use the correct sourcefiles for that version
@@ -212,9 +213,11 @@ DEBUG = stabs
 
 OPT = s
 
+DEFINES ?=
+
 # Place -D or -U options here
-CDEFS = -DF_CPU=$(F_CPU)
-CXXDEFS = -DF_CPU=$(F_CPU)
+CDEFS = -DF_CPU=$(F_CPU) ${addprefix -D , $(DEFINES)}
+CXXDEFS = -DF_CPU=$(F_CPU) ${addprefix -D , $(DEFINES)}
 
 # Add all the source directories as include directories too
 CINCS = ${addprefix -I ,${VPATH}}
