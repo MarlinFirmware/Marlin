@@ -964,7 +964,7 @@
 ****************************************************************************************/
 #if MOTHERBOARD == 8 || MOTHERBOARD == 81
 #undef MOTHERBOARD
-#define MOTHERBOARD 8
+#define MOTHERBOARD 8  // Disable MarlinSerial etc.
 #define KNOWN_BOARD 1
 
 #ifndef __AVR_AT90USB1286__
@@ -997,12 +997,12 @@
 #define HEATER_1_PIN       -1
 #define HEATER_2_PIN       -1
 #define HEATER_BED_PIN     20  // Bed
-#define FAN_PIN            22
+#define FAN_PIN            22  // Fan
 
-#define TEMP_0_PIN          7  // Extruder / Analog PIN numbering
+#define TEMP_0_PIN          7  // Extruder / Analog pin numbering
 #define TEMP_1_PIN         -1
 #define TEMP_2_PIN         -1
-#define TEMP_BED_PIN        6  // Bed / Analog PIN numbering
+#define TEMP_BED_PIN        6  // Bed / Analog pin numbering
 
 #define SDPOWER            -1
 #define SDSS                8
