@@ -4,7 +4,9 @@
 #ifndef MARLIN_H
 #define MARLIN_H
 
+#ifndef AT90USB
 #define  HardwareSerial_h // trick to disable the standard HWserial
+#endif
 
 #define  FORCE_INLINE __attribute__((always_inline)) inline
 
@@ -45,7 +47,7 @@
 
 #include "WString.h"
 
-#if MOTHERBOARD == 8  // Teensylu
+#ifdef AT90USB
   #define MYSERIAL Serial
 #else
   #define MYSERIAL MSerial
