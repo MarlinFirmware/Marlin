@@ -64,7 +64,7 @@ BUILD_DIR          ?= applet
 #Gen7
 ifeq ($(HARDWARE_MOTHERBOARD),10)
 HARDWARE_VARIANT ?= Gen7
-MCU              ?= atmega644 
+MCU              ?= atmega644
 F_CPU            ?= 20000000
 else ifeq  ($(HARDWARE_MOTHERBOARD),11)
 HARDWARE_VARIANT ?= Gen7
@@ -93,6 +93,7 @@ MCU              ?= atmega2560
 #Duemilanove w/ ATMega328P pin assignment
 else ifeq  ($(HARDWARE_MOTHERBOARD),4)
 HARDWARE_VARIANT ?= arduino
+HARDWARE_SUB_VARIANT ?= standard
 MCU              ?= atmega328p
 
 #Gen6
@@ -181,7 +182,8 @@ VPATH += $(HARDWARE_SRC)
 VPATH += $(ARDUINO_INSTALL_DIR)/libraries/LiquidCrystal
 VPATH += $(ARDUINO_INSTALL_DIR)/libraries/SPI
 ifeq ($(HARDWARE_VARIANT), arduino)
-VPATH += $(ARDUINO_INSTALL_DIR)/hardware/arduino/variants/mega
+HARDWARE_SUB_VARIANT ?= mega
+VPATH += $(ARDUINO_INSTALL_DIR)/hardware/arduino/variants/$(HARDWARE_SUB_VARIANT)
 endif
 SRC = wiring.c \
 	wiring_analog.c wiring_digital.c \
@@ -365,15 +367,15 @@ $(BUILD_DIR)/$(TARGET).elf: $(OBJ) Configuration.h
 	$P $(CC) $(ALL_CXXFLAGS) -Wl,--gc-sections -o $@ -L. $(OBJ) $(LDFLAGS)
 
 $(BUILD_DIR)/%.o: %.c Configuration.h Configuration_adv.h $(MAKEFILE)
-	$(Pecho) "  CC    $@"
+	$(Pecho) "  CC    $<"
 	$P $(CC) -MMD -c $(ALL_CFLAGS) $< -o $@
 
 $(BUILD_DIR)/%.o: $(BUILD_DIR)/%.cpp Configuration.h Configuration_adv.h $(MAKEFILE)
-	$(Pecho) "  CXX   $@"
+	$(Pecho) "  CXX   $<"
 	$P $(CXX) -MMD -c $(ALL_CXXFLAGS) $< -o $@
 
 $(BUILD_DIR)/%.o: %.cpp Configuration.h Configuration_adv.h $(MAKEFILE)
-	$(Pecho) "  CXX   $@"
+	$(Pecho) "  CXX   $<"
 	$P $(CXX) -MMD -c $(ALL_CXXFLAGS) $< -o $@
 
 
