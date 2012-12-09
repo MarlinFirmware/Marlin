@@ -963,9 +963,8 @@
 * See http://reprap.org/wiki/Printrboard for more info
 ****************************************************************************************/
 #if MOTHERBOARD == 8 || MOTHERBOARD == 81
-#undef MOTHERBOARD
-#define MOTHERBOARD 8  // Disable MarlinSerial etc.
 #define KNOWN_BOARD 1
+#define AT90USB 1286  // Disable MarlinSerial etc.
 
 #ifndef __AVR_AT90USB1286__
 #error Oops!  Make sure you have 'Teensy++ 2.0' selected from the 'Tools -> Boards' menu.
@@ -1026,9 +1025,8 @@
    https://github.com/unrepentantgeek/brainwave-arduino
  ****************************************************************************************/
 #if MOTHERBOARD == 82
-#undef MOTHERBOARD
-#define MOTHERBOARD 8  // Disable MarlinSerial etc.
 #define KNOWN_BOARD 1
+#define AT90USB 646  // Disable MarlinSerial etc.
 
 #ifndef __AVR_AT90USB646__
 #error Oops!  Make sure you have 'Brainwave' selected from the 'Tools -> Boards' menu.
