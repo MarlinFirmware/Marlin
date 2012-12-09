@@ -957,198 +957,68 @@
 #endif
 
 /****************************************************************************************
-* Teensylu 0.7 pin assingments (ATMEGA90USB)
-* Requires the Teensyduino software with Teensy2.0++ selected in arduino IDE!
-****************************************************************************************/
-#if MOTHERBOARD == 8
-#define MOTHERBOARD 8
-#define KNOWN_BOARD 1
-
-
-#define X_STEP_PIN          0  
-#define X_DIR_PIN           1  
-#define X_ENABLE_PIN       39 
-#define X_MIN_PIN          13 
-#define X_MAX_PIN          -1    
-
-#define Y_STEP_PIN          2  
-#define Y_DIR_PIN           3 
-#define Y_ENABLE_PIN       38 
-#define Y_MIN_PIN          14 
-#define Y_MAX_PIN          -1    
-
-#define Z_STEP_PIN          4
-#define Z_DIR_PIN           5 
-#define Z_ENABLE_PIN       23 
-#define Z_MIN_PIN          15 
-#define Z_MAX_PIN          -1    
-
-#define E0_STEP_PIN         6  
-#define E0_DIR_PIN          7 
-#define E0_ENABLE_PIN       19 
-
-
-
-#define HEATER_0_PIN       21  // Extruder
-#define HEATER_1_PIN       -1
-#define HEATER_2_PIN       -1
-#define HEATER_BED_PIN     20  // Bed
-#define FAN_PIN            22  // Fan   
-
-#define TEMP_0_PIN          7  // Extruder
-#define TEMP_1_PIN         -1
-#define TEMP_2_PIN         -1
-#define TEMP_BED_PIN        6  // Bed
-
-#define SDPOWER            -1
-#define SDSS                8
-#define LED_PIN            -1
-#define PS_ON_PIN          -1
-#define KILL_PIN           -1 
-#define ALARM_PIN          -1
-
-#ifndef SDSUPPORT
-// these pins are defined in the SD library if building with SD support  
-  #define SCK_PIN           9 
-  #define MISO_PIN         11 
-  #define MOSI_PIN         10 
-#endif
-#endif
-
-/****************************************************************************************
-* Printrboard Rev. B pin assingments (ATMEGA90USB1286)
-* Requires the Teensyduino software with Teensy++ 2.0 selected in arduino IDE!
+* Teensylu 0.7 / Printrboard pin assignments (AT90USB1286)
+* Requires the Teensyduino software with Teensy++ 2.0 selected in Arduino IDE!
   http://www.pjrc.com/teensy/teensyduino.html
 * See http://reprap.org/wiki/Printrboard for more info
 ****************************************************************************************/
-#if MOTHERBOARD == 81
+#if MOTHERBOARD == 8 || MOTHERBOARD == 81
 #undef MOTHERBOARD
-#define MOTHERBOARD 8  // Disable MarlinSerial etc.
+#define MOTHERBOARD 8
 #define KNOWN_BOARD 1
 
 #ifndef __AVR_AT90USB1286__
 #error Oops!  Make sure you have 'Teensy++ 2.0' selected from the 'Tools -> Boards' menu.
 #endif
 
-#define X_STEP_PIN         28
-#define X_DIR_PIN          29
-#define X_ENABLE_PIN       19
-#define X_MIN_PIN          47
+#define X_STEP_PIN          0
+#define X_DIR_PIN           1
+#define X_ENABLE_PIN       39
+#define X_MIN_PIN          13
 #define X_MAX_PIN          -1
 
-#define Y_STEP_PIN         30
-#define Y_DIR_PIN          31
-#define Y_ENABLE_PIN       18
-#define Y_MIN_PIN           20
+#define Y_STEP_PIN          2
+#define Y_DIR_PIN           3
+#define Y_ENABLE_PIN       38
+#define Y_MIN_PIN          14
 #define Y_MAX_PIN          -1
 
-#define Z_STEP_PIN         32
-#define Z_DIR_PIN          33
-#define Z_ENABLE_PIN       17
-#define Z_MIN_PIN          36
+#define Z_STEP_PIN          4
+#define Z_DIR_PIN           5
+#define Z_ENABLE_PIN       23
+#define Z_MIN_PIN          15
 #define Z_MAX_PIN          -1
 
-#define E0_STEP_PIN         34
-#define E0_DIR_PIN          35
-#define E0_ENABLE_PIN       13
+#define E0_STEP_PIN         6
+#define E0_DIR_PIN          7
+#define E0_ENABLE_PIN      19
 
-#define HEATER_0_PIN       15  // Extruder
+#define HEATER_0_PIN       21  // Extruder
 #define HEATER_1_PIN       -1
 #define HEATER_2_PIN       -1
-#define HEATER_BED_PIN     14  // Bed
-#define FAN_PIN            16  // Fan
+#define HEATER_BED_PIN     20  // Bed
+#define FAN_PIN            22
 
-#define TEMP_0_PIN          1  // Extruder - ANALOG PIN NUMBERING
+#define TEMP_0_PIN          7  // Extruder / Analog PIN numbering
 #define TEMP_1_PIN         -1
 #define TEMP_2_PIN         -1
-#define TEMP_BED_PIN        0  // Bed - ANALOG PIN NUMBERING
+#define TEMP_BED_PIN        6  // Bed / Analog PIN numbering
 
 #define SDPOWER            -1
-#define SDSS                26
+#define SDSS                8
 #define LED_PIN            -1
 #define PS_ON_PIN          -1
 #define KILL_PIN           -1
+#define ALARM_PIN          -1
 
 #ifndef SDSUPPORT
 // these pins are defined in the SD library if building with SD support
-  #define SCK_PIN          21
-  #define MISO_PIN         22
-  #define MOSI_PIN         23
+  #define SCK_PIN           9
+  #define MISO_PIN         11
+  #define MOSI_PIN         10
 #endif
 
-#ifdef ULTRA_LCD
-
-  #ifdef NEWPANEL
-  //arduino pin which triggers an piezzo beeper
-    #define BEEPER 33			// Beeper on AUX-4
-
-#ifndef MCP28017_LCD
-    #define LCD_PINS_RS 16
-    #define LCD_PINS_ENABLE 17
-    #define LCD_PINS_D4 23
-    #define LCD_PINS_D5 25
-    #define LCD_PINS_D6 27
-    #define LCD_PINS_D7 29
-#endif // MCP28017_LCD
-
-    //buttons are directly attached using AUX-2
-    #define BTN_EN1 11 // PC1
-    #define BTN_EN2 12 // PC2
-#ifndef VERSAPANEL
-    #define BTN_ENC 31  //the click
-#endif
-
-    #define BLEN_C 2
-    #define BLEN_B 1
-    #define BLEN_A 0
-
-    #define SDCARDDETECT -1		// Ramps does not use this port
-
-      //encoder rotation values
-    #define encrot0 0
-    #define encrot1 2
-    #define encrot2 3
-    #define encrot3 1
-
-  #else //old style panel with shift register
-    //arduino pin witch triggers an piezzo beeper
-    #define BEEPER 33		No Beeper added
-
-    //buttons are attached to a shift register
-	// Not wired this yet
-    //#define SHIFT_CLK 38
-    //#define SHIFT_LD 42
-    //#define SHIFT_OUT 40
-    //#define SHIFT_EN 17
-
-    #define LCD_PINS_RS 16
-    #define LCD_PINS_ENABLE 17
-    #define LCD_PINS_D4 23
-    #define LCD_PINS_D5 25
-    #define LCD_PINS_D6 27
-    #define LCD_PINS_D7 29
-
-    //encoder rotation values
-    #define encrot0 0
-    #define encrot1 2
-    #define encrot2 3
-    #define encrot3 1
-
-    //bits in the shift register that carry the buttons for:
-    // left up center down right red
-    #define BL_LE 7
-    #define BL_UP 6
-    #define BL_MI 5
-    #define BL_DW 4
-    #define BL_RI 3
-    #define BL_ST 2
-
-    #define BLEN_B 1
-    #define BLEN_A 0
-  #endif
-#endif //ULTRA_LCD
-
-#endif
+#endif  // MOTHERBOARD == 8 (Teensylu) or 81 (Printrboard)
 
 /****************************************************************************************
  * Brainwave 1.0 pin assignments (AT90USB646)
@@ -1185,10 +1055,10 @@
 #define Z_MAX_PIN          -1
 #define Z_ATT_PIN          16
 
-#define E0_STEP_PIN         21
-#define E0_DIR_PIN          23
-#define E0_ENABLE_PIN       22
-#define E0_ATT_PIN          20
+#define E0_STEP_PIN        21
+#define E0_DIR_PIN         23
+#define E0_ENABLE_PIN      22
+#define E0_ATT_PIN         20
 
 #define HEATER_0_PIN        4  // Extruder
 #define HEATER_1_PIN       -1
@@ -1210,12 +1080,12 @@
 
 #ifndef SDSUPPORT
 // these pins are defined in the SD library if building with SD support
-  #define SCK_PIN          21
-  #define MISO_PIN         22
-  #define MOSI_PIN         23
+  #define SCK_PIN           9
+  #define MISO_PIN         11
+  #define MOSI_PIN         10
 #endif
 
-#endif
+#endif  // MOTHERBOARD == 82 (Brainwave)
 
 /****************************************************************************************
 * Gen3+ pin assignment
