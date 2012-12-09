@@ -99,21 +99,21 @@ MCU              ?= atmega328p
 #Gen6
 else ifeq  ($(HARDWARE_MOTHERBOARD),5)
 HARDWARE_VARIANT ?= Gen6
-MCU              ?= atmega664p
+MCU              ?= atmega644p
 else ifeq  ($(HARDWARE_MOTHERBOARD),51)
 HARDWARE_VARIANT ?= Gen6
-MCU              ?= atmega664p
+MCU              ?= atmega644p
 
 #Sanguinololu
 else ifeq  ($(HARDWARE_MOTHERBOARD),6)
 HARDWARE_VARIANT ?= Sanguino
-MCU              ?= atmega1284p
+MCU              ?= atmega644p
 else ifeq  ($(HARDWARE_MOTHERBOARD),62)
 HARDWARE_VARIANT ?= Sanguino
-MCU              ?= atmega1284p
+MCU              ?= atmega644p
 else ifeq  ($(HARDWARE_MOTHERBOARD),63)
 HARDWARE_VARIANT ?= Sanguino
-MCU              ?= atmega1284p
+MCU              ?= atmega644p
 
 #Ultimaker
 else ifeq  ($(HARDWARE_MOTHERBOARD),7)
