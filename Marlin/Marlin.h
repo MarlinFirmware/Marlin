@@ -4,10 +4,6 @@
 #ifndef MARLIN_H
 #define MARLIN_H
 
-#ifndef AT90USB
-#define  HardwareSerial_h // trick to disable the standard HWserial
-#endif
-
 #define  FORCE_INLINE __attribute__((always_inline)) inline
 
 #include <math.h>
@@ -25,6 +21,10 @@
 #include "fastio.h"
 #include "Configuration.h"
 #include "pins.h"
+
+#ifndef AT90USB
+#define  HardwareSerial_h // trick to disable the standard HWserial
+#endif
 
 #if ARDUINO >= 100 
   #if defined(__AVR_ATmega644P__)
