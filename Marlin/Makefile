@@ -127,6 +127,12 @@ MCU              ?= atmega1280
 else ifeq  ($(HARDWARE_MOTHERBOARD),8)
 HARDWARE_VARIANT ?= Teensyduino
 MCU              ?= at90usb1286
+else ifeq  ($(HARDWARE_MOTHERBOARD),81)
+HARDWARE_VARIANT ?= Teensyduino
+MCU              ?= at90usb1286
+else ifeq  ($(HARDWARE_MOTHERBOARD),82)
+HARDWARE_VARIANT ?= Teensyduino
+MCU              ?= at90usb646
 
 #Gen3+
 else ifeq  ($(HARDWARE_MOTHERBOARD),9)
