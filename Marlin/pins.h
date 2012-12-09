@@ -998,10 +998,16 @@
 #define HEATER_BED_PIN     20  // Bed
 #define FAN_PIN            22  // Fan
 
-#define TEMP_0_PIN          7  // Extruder / Analog pin numbering
+#if MOTHERBOARD == 8
+  #define TEMP_0_PIN          7  // Extruder / Analog pin numbering
+  #define TEMP_BED_PIN        6  // Bed / Analog pin numbering
+#else
+  #define TEMP_0_PIN          1  // Extruder / Analog pin numbering
+  #define TEMP_BED_PIN        0  // Bed / Analog pin numbering
+#endif
+
 #define TEMP_1_PIN         -1
 #define TEMP_2_PIN         -1
-#define TEMP_BED_PIN        6  // Bed / Analog pin numbering
 
 #define SDPOWER            -1
 #define SDSS                8
