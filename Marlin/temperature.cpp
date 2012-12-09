@@ -348,7 +348,18 @@ void manage_heater()
           pid_output = constrain(target_temperature[e], 0, PID_MAX);
     #endif //PID_OPENLOOP
     #ifdef PID_DEBUG
-    SERIAL_ECHOLN(" PIDDEBUG "<<e<<": Input "<<pid_input<<" Output "<<pid_output" pTerm "<<pTerm[e]<<" iTerm "<<iTerm[e]<<" dTerm "<<dTerm[e]);  
+    SERIAL_ECHO_START(" PIDDEBUG ");
+    SERIAL_ECHO(e);
+    SERIAL_ECHO(": Input ");
+    SERIAL_ECHO(pid_input);
+    SERIAL_ECHO(" Output ");
+    SERIAL_ECHO(pid_output);
+    SERIAL_ECHO(" pTerm ");
+    SERIAL_ECHO(pTerm[e]);
+    SERIAL_ECHO(" iTerm ");
+    SERIAL_ECHO(iTerm[e]);
+    SERIAL_ECHO(" dTerm ");
+    SERIAL_ECHOLN(dTerm[e]);  
     #endif //PID_DEBUG
   #else /* PID off */
     pid_output = 0;
