@@ -802,6 +802,7 @@ void max_temp_error(uint8_t e) {
     SERIAL_ERROR_START;
     SERIAL_ERRORLN((int)e);
     SERIAL_ERRORLNPGM(": Extruder switched off. MAXTEMP triggered !");
+    LCD_ALERTMESSAGEPGM("Err: MAXTEMP");
   }
   #ifndef BOGUS_TEMPERATURE_FAILSAFE_OVERRIDE
   Stop();
@@ -814,6 +815,7 @@ void min_temp_error(uint8_t e) {
     SERIAL_ERROR_START;
     SERIAL_ERRORLN((int)e);
     SERIAL_ERRORLNPGM(": Extruder switched off. MINTEMP triggered !");
+    LCD_ALERTMESSAGEPGM("Err: MINTEMP");
   }
   #ifndef BOGUS_TEMPERATURE_FAILSAFE_OVERRIDE
   Stop();
@@ -827,6 +829,7 @@ void bed_max_temp_error(void) {
   if(IsStopped() == false) {
     SERIAL_ERROR_START;
     SERIAL_ERRORLNPGM("Temperature heated bed switched off. MAXTEMP triggered !!");
+    LCD_ALERTMESSAGEPGM("Err: MAXTEMP BED");
   }
   #ifndef BOGUS_TEMPERATURE_FAILSAFE_OVERRIDE
   Stop();
@@ -1034,10 +1037,10 @@ ISR(TIMER0_COMPB_vect)
     {
       current_temperature_raw[0] = raw_temp_0_value;
 #if EXTRUDERS > 1
-      current_temperature_raw[1] = raw_temp_0_value;
+      current_temperature_raw[1] = raw_temp_1_value;
 #endif
 #if EXTRUDERS > 2
-      current_temperature_raw[2] = raw_temp_0_value;
+      current_temperature_raw[2] = raw_temp_2_value;
 #endif
     }
     
