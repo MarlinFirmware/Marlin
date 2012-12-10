@@ -159,6 +159,7 @@ void FlushSerialRequestResend();
 void ClearToSend();
 
 void get_coordinates();
+void calculate_delta(float cartesian[3]);
 void prepare_move();
 void kill();
 void Stop();
