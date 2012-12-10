@@ -335,19 +335,19 @@
 #define X_STEP_PIN         54
 #define X_DIR_PIN          55
 #define X_ENABLE_PIN       38
-#define X_MIN_PIN           3
+#define X_MIN_PIN          -1
 #define X_MAX_PIN           2   //2 //Max endstops default to disabled "-1", set to commented value to enable.
 
 #define Y_STEP_PIN         60
 #define Y_DIR_PIN          61
 #define Y_ENABLE_PIN       56
-#define Y_MIN_PIN          14
+#define Y_MIN_PIN          -1
 #define Y_MAX_PIN          15   //15
 
 #define Z_STEP_PIN         46
 #define Z_DIR_PIN          48
 #define Z_ENABLE_PIN       62
-#define Z_MIN_PIN          18
+#define Z_MIN_PIN          -1
 #define Z_MAX_PIN          19
 
 #define Z2_STEP_PIN        36
@@ -1041,22 +1041,22 @@
 #define X_STEP_PIN         27
 #define X_DIR_PIN          29
 #define X_ENABLE_PIN       28
-#define X_MIN_PIN           7
-#define X_MAX_PIN          -1
+#define X_MIN_PIN          -1
+#define X_MAX_PIN           7
 #define X_ATT_PIN          26
 
 #define Y_STEP_PIN         31
 #define Y_DIR_PIN          33
 #define Y_ENABLE_PIN       32
-#define Y_MIN_PIN           6
-#define Y_MAX_PIN          -1
+#define Y_MIN_PIN          -1
+#define Y_MAX_PIN           6
 #define Y_ATT_PIN          30
 
 #define Z_STEP_PIN         17
 #define Z_DIR_PIN          19
 #define Z_ENABLE_PIN       18
-#define Z_MIN_PIN           5
-#define Z_MAX_PIN          -1
+#define Z_MIN_PIN          -1
+#define Z_MAX_PIN           5
 #define Z_ATT_PIN          16
 
 #define E0_STEP_PIN        21
