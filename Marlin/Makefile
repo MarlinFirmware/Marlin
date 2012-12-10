@@ -64,7 +64,7 @@ BUILD_DIR          ?= applet
 #Gen7
 ifeq ($(HARDWARE_MOTHERBOARD),10)
 HARDWARE_VARIANT ?= Gen7
-MCU              ?= atmega644 
+MCU              ?= atmega644
 F_CPU            ?= 20000000
 else ifeq  ($(HARDWARE_MOTHERBOARD),11)
 HARDWARE_VARIANT ?= Gen7
@@ -93,26 +93,27 @@ MCU              ?= atmega2560
 #Duemilanove w/ ATMega328P pin assignment
 else ifeq  ($(HARDWARE_MOTHERBOARD),4)
 HARDWARE_VARIANT ?= arduino
+HARDWARE_SUB_VARIANT ?= standard
 MCU              ?= atmega328p
 
 #Gen6
 else ifeq  ($(HARDWARE_MOTHERBOARD),5)
 HARDWARE_VARIANT ?= Gen6
-MCU              ?= atmega664p
+MCU              ?= atmega644p
 else ifeq  ($(HARDWARE_MOTHERBOARD),51)
 HARDWARE_VARIANT ?= Gen6
-MCU              ?= atmega664p
+MCU              ?= atmega644p
 
 #Sanguinololu
 else ifeq  ($(HARDWARE_MOTHERBOARD),6)
 HARDWARE_VARIANT ?= Sanguino
-MCU              ?= atmega1284p
+MCU              ?= atmega644p
 else ifeq  ($(HARDWARE_MOTHERBOARD),62)
 HARDWARE_VARIANT ?= Sanguino
-MCU              ?= atmega1284p
+MCU              ?= atmega644p
 else ifeq  ($(HARDWARE_MOTHERBOARD),63)
 HARDWARE_VARIANT ?= Sanguino
-MCU              ?= atmega1284p
+MCU              ?= atmega644p
 
 #Ultimaker
 else ifeq  ($(HARDWARE_MOTHERBOARD),7)
@@ -126,6 +127,12 @@ MCU              ?= atmega1280
 else ifeq  ($(HARDWARE_MOTHERBOARD),8)
 HARDWARE_VARIANT ?= Teensyduino
 MCU              ?= at90usb1286
+else ifeq  ($(HARDWARE_MOTHERBOARD),81)
+HARDWARE_VARIANT ?= Teensyduino
+MCU              ?= at90usb1286
+else ifeq  ($(HARDWARE_MOTHERBOARD),82)
+HARDWARE_VARIANT ?= Teensyduino
+MCU              ?= at90usb646
 
 #Gen3+
 else ifeq  ($(HARDWARE_MOTHERBOARD),9)
@@ -166,7 +173,11 @@ F_CPU ?= 16000000
 ifeq ($(HARDWARE_VARIANT), arduino)
 HARDWARE_SRC = $(ARDUINO_INSTALL_DIR)/hardware/arduino/cores/arduino
 else
-HARDWARE_SRC = $(HARDWARE_VARIANT)/cores/arduino
+ifeq ($(shell [ $(ARDUINO_VERSION) -ge 100 ] && echo true), true)
+HARDWARE_SRC = ../ArduinoAddons/Arduino_1.x.x/$(HARDWARE_VARIANT)/cores/arduino
+else
+HARDWARE_SRC = ../ArduinoAddons/Arduino_0.xx/$(HARDWARE_VARIANT)/cores/arduino
+endif
 endif
 
 TARGET = $(notdir $(CURDIR))
@@ -181,7 +192,8 @@ VPATH += $(HARDWARE_SRC)
 VPATH += $(ARDUINO_INSTALL_DIR)/libraries/LiquidCrystal
 VPATH += $(ARDUINO_INSTALL_DIR)/libraries/SPI
 ifeq ($(HARDWARE_VARIANT), arduino)
-VPATH += $(ARDUINO_INSTALL_DIR)/hardware/arduino/variants/mega
+HARDWARE_SUB_VARIANT ?= mega
+VPATH += $(ARDUINO_INSTALL_DIR)/hardware/arduino/variants/$(HARDWARE_SUB_VARIANT)
 endif
 SRC = wiring.c \
 	wiring_analog.c wiring_digital.c \
@@ -190,7 +202,8 @@ SRC = wiring.c \
 CXXSRC = WMath.cpp WString.cpp Print.cpp Marlin_main.cpp	\
 	MarlinSerial.cpp Sd2Card.cpp SdBaseFile.cpp SdFatUtil.cpp	\
 	SdFile.cpp SdVolume.cpp motion_control.cpp planner.cpp		\
-	stepper.cpp temperature.cpp cardreader.cpp ConfigurationStore.cpp
+	stepper.cpp temperature.cpp cardreader.cpp ConfigurationStore.cpp \
+	watchdog.cpp
 CXXSRC += LiquidCrystal.cpp ultralcd.cpp SPI.cpp
 
 #Check for Arduino 1.0.0 or higher and use the correct sourcefiles for that version
@@ -212,9 +225,11 @@ DEBUG = stabs
 
 OPT = s
 
+DEFINES ?=
+
 # Place -D or -U options here
-CDEFS = -DF_CPU=$(F_CPU)
-CXXDEFS = -DF_CPU=$(F_CPU)
+CDEFS = -DF_CPU=$(F_CPU) ${addprefix -D , $(DEFINES)}
+CXXDEFS = -DF_CPU=$(F_CPU) ${addprefix -D , $(DEFINES)}
 
 # Add all the source directories as include directories too
 CINCS = ${addprefix -I ,${VPATH}}
@@ -362,15 +377,15 @@ $(BUILD_DIR)/$(TARGET).elf: $(OBJ) Configuration.h
 	$P $(CC) $(ALL_CXXFLAGS) -Wl,--gc-sections -o $@ -L. $(OBJ) $(LDFLAGS)
 
 $(BUILD_DIR)/%.o: %.c Configuration.h Configuration_adv.h $(MAKEFILE)
-	$(Pecho) "  CC    $@"
+	$(Pecho) "  CC    $<"
 	$P $(CC) -MMD -c $(ALL_CFLAGS) $< -o $@
 
 $(BUILD_DIR)/%.o: $(BUILD_DIR)/%.cpp Configuration.h Configuration_adv.h $(MAKEFILE)
-	$(Pecho) "  CXX   $@"
+	$(Pecho) "  CXX   $<"
 	$P $(CXX) -MMD -c $(ALL_CXXFLAGS) $< -o $@
 
 $(BUILD_DIR)/%.o: %.cpp Configuration.h Configuration_adv.h $(MAKEFILE)
-	$(Pecho) "  CXX   $@"
+	$(Pecho) "  CXX   $<"
 	$P $(CXX) -MMD -c $(ALL_CXXFLAGS) $< -o $@
 
 

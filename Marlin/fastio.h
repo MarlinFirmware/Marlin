@@ -1928,7 +1928,7 @@ pins
 
 #endif
 
-#if defined (__AVR_AT90USB1287__) || defined (__AVR_AT90USB1286__)
+#if defined (__AVR_AT90USB1287__) || defined (__AVR_AT90USB1286__) || defined (__AVR_AT90USB646__) || defined(__AVR_AT90USB647__)
 // SPI
 #define	SCK					DIO9
 #define	MISO				DIO11
