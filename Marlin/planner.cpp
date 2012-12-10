@@ -466,6 +466,20 @@ void check_axes_activity()
   }
 #if FAN_PIN > -1
   #ifndef FAN_SOFT_PWM
+  if (FAN_KICKSTART_TIME) {
+    static unsigned long FanKickEnd;
+    if (tail_fan_speed) {
+      if (FanKickEnd == 0) {
+        // Just starting up fan - run at full power.
+        FanKickEnd = millis() + FAN_KICKSTART_TIME;
+        tail_fan_speed = 255;
+      } else if (FanKickEnd > millis())
+        // Fan still spinning up.
+        tail_fan_speed = 255;
+    } else {
+      FanKickEnd = 0;
+    }
+  }
   analogWrite(FAN_PIN,tail_fan_speed);
   #endif
 #endif
