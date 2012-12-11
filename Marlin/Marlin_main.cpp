@@ -1474,27 +1474,27 @@ void process_commands()
       st_synchronize();
     }
     break;
-    case 500: // Store settings in EEPROM
+    case 500: // M500 Store settings in EEPROM
     {
         Config_StoreSettings();
     }
     break;
-    case 501: // Read settings from EEPROM
+    case 501: // M501 Read settings from EEPROM
     {
         Config_RetrieveSettings();
     }
     break;
-    case 502: // Revert to default settings
+    case 502: // M502 Revert to default settings
     {
         Config_ResetDefault();
     }
     break;
-    case 503: // print settings currently in memory
+    case 503: // M503 print settings currently in memory
     {
         Config_PrintSettings();
     }
     break;
-    case 907: // Set digital trimpot motor current using axis codes.
+    case 907: // M907 Set digital trimpot motor current using axis codes.
     {
       #if DIGIPOTSS_PIN > -1
         for(int i=0;i<=NUM_AXIS;i++) if(code_seen(axis_codes[i])) digipot_current(i,code_value());
@@ -1502,7 +1502,7 @@ void process_commands()
         if(code_seen('S')) for(int i=0;i<=4;i++) digipot_current(i,code_value());
       #endif
     }
-    case 908: // Control digital trimpot directly.
+    case 908: // M908 Control digital trimpot directly.
     {
       #if DIGIPOTSS_PIN > -1
         uint8_t channel,current;
@@ -1512,7 +1512,7 @@ void process_commands()
       #endif
     }
     break;
-    case 350: // Set microstepping mode. Warning: Steps per unit remains unchanged. S code sets stepping mode for all drivers.
+    case 350: // M350 Set microstepping mode. Warning: Steps per unit remains unchanged. S code sets stepping mode for all drivers.
     {
       #if X_MS1_PIN > -1
         if(code_seen('S')) for(int i=0;i<=4;i++) microstep_mode(i,code_value()); 
@@ -1522,7 +1522,7 @@ void process_commands()
       #endif
     }
     break;
-    case 351: // Toggle MS1 MS2 pins directly, S# determines MS1 or MS2, X# sets the pin high/low.
+    case 351: // M351 Toggle MS1 MS2 pins directly, S# determines MS1 or MS2, X# sets the pin high/low.
     {
       #if X_MS1_PIN > -1
       if(code_seen('S')) switch((int)code_value())
@@ -1540,7 +1540,7 @@ void process_commands()
       #endif
     }
     break;
-    case 999: // Restart after being stopped
+    case 999: // M999: Restart after being stopped
       Stopped = false;
       gcode_LastN = Stopped_gcode_LastN;
       FlushSerialRequestResend();
@@ -1845,7 +1845,7 @@ void setPwmFrequency(uint8_t pin, int val)
     #if defined(TCCR0A)
     case TIMER0A:
     case TIMER0B:
-//         TCCR0B &= ~(CS00 | CS01 | CS02);
+//         TCCR0B &= ~(_BV(CS00) | _BV(CS01) | _BV(CS02));
 //         TCCR0B |= val;
          break;
     #endif
@@ -1853,7 +1853,7 @@ void setPwmFrequency(uint8_t pin, int val)
     #if defined(TCCR1A)
     case TIMER1A:
     case TIMER1B:
-//         TCCR1B &= ~(CS10 | CS11 | CS12);
+//         TCCR1B &= ~(_BV(CS10) | _BV(CS11) | _BV(CS12));
 //         TCCR1B |= val;
          break;
     #endif
@@ -1861,7 +1861,7 @@ void setPwmFrequency(uint8_t pin, int val)
     #if defined(TCCR2)
     case TIMER2:
     case TIMER2:
-         TCCR2 &= ~(CS10 | CS11 | CS12);
+         TCCR2 &= ~(_BV(CS10) | _BV(CS11) | _BV(CS12));
          TCCR2 |= val;
          break;
     #endif
@@ -1869,7 +1869,7 @@ void setPwmFrequency(uint8_t pin, int val)
     #if defined(TCCR2A)
     case TIMER2A:
     case TIMER2B:
-         TCCR2B &= ~(CS20 | CS21 | CS22);
+         TCCR2B &= ~(_BV(CS20) | _BV(CS21) | _BV(CS22));
          TCCR2B |= val;
          break;
     #endif
@@ -1878,7 +1878,7 @@ void setPwmFrequency(uint8_t pin, int val)
     case TIMER3A:
     case TIMER3B:
     case TIMER3C:
-         TCCR3B &= ~(CS30 | CS31 | CS32);
+         TCCR3B &= ~(_BV(CS30) | _BV(CS31) | _BV(CS32));
          TCCR3B |= val;
          break;
     #endif
@@ -1887,7 +1887,7 @@ void setPwmFrequency(uint8_t pin, int val)
     case TIMER4A:
     case TIMER4B:
     case TIMER4C:
-         TCCR4B &= ~(CS40 | CS41 | CS42);
+         TCCR4B &= ~(_BV(CS40) | _BV(CS41) | _BV(CS42));
          TCCR4B |= val;
          break;
    #endif
@@ -1896,7 +1896,7 @@ void setPwmFrequency(uint8_t pin, int val)
     case TIMER5A:
     case TIMER5B:
     case TIMER5C:
-         TCCR5B &= ~(CS50 | CS51 | CS52);
+         TCCR5B &= ~(_BV(CS50) | _BV(CS51) | _BV(CS52));
          TCCR5B |= val;
          break;
    #endif
