@@ -40,7 +40,11 @@ static char messagetext[LCD_WIDTH]="";
 //return for string conversion routines
 static char conv[8];
 
+#ifdef I2C_DISPLAY
+LCD_CLASS lcd(I2C_ADDRESS ,LCD_WIDTH, LCD_HEIGHT);
+#else
 LCD_CLASS lcd(LCD_PINS_RS, LCD_PINS_ENABLE, LCD_PINS_D4, LCD_PINS_D5,LCD_PINS_D6,LCD_PINS_D7);  //RS,Enable,D4,D5,D6,D7
+#endif
 
 static unsigned long previous_millis_lcd=0;
 //static long previous_millis_buttons=0;
@@ -165,7 +169,11 @@ void lcd_init()
     B00000,
     B00000
   }; //thanks joris
+  #ifdef I2C_DISPLAY
+  lcd.init();
+  #else
   lcd.begin(LCD_WIDTH, LCD_HEIGHT);
+  #endif
   lcd.createChar(1,Degree);
   lcd.createChar(2,Thermometer);
   lcd.createChar(3,uplevel);
