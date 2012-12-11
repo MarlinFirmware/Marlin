@@ -117,7 +117,7 @@ static int maxttemp[EXTRUDERS] = ARRAY_BY_EXTRUDERS( 16383, 16383, 16383 );
 static int bed_maxttemp_raw = HEATER_BED_RAW_HI_TEMP;
 #endif
 static void *heater_ttbl_map[EXTRUDERS] = ARRAY_BY_EXTRUDERS( (void *)HEATER_0_TEMPTABLE, (void *)HEATER_1_TEMPTABLE, (void *)HEATER_2_TEMPTABLE );
-static int heater_ttbllen_map[EXTRUDERS] = ARRAY_BY_EXTRUDERS( HEATER_0_TEMPTABLE_LEN, HEATER_1_TEMPTABLE_LEN, HEATER_2_TEMPTABLE_LEN );
+static uint8_t heater_ttbllen_map[EXTRUDERS] = ARRAY_BY_EXTRUDERS( HEATER_0_TEMPTABLE_LEN, HEATER_1_TEMPTABLE_LEN, HEATER_2_TEMPTABLE_LEN );
 
 static float analog2temp(int raw, uint8_t e);
 static float analog2tempBed(int raw);
@@ -493,7 +493,7 @@ static float analog2temp(int raw, uint8_t e) {
   if(heater_ttbl_map[e] != NULL)
   {
     float celsius = 0;
-    byte i;
+    uint8_t i;
     short (*tt)[][2] = (short (*)[][2])(heater_ttbl_map[e]);
 
     for (i=1; i<heater_ttbllen_map[e]; i++)
@@ -523,20 +523,20 @@ static float analog2tempBed(int raw) {
     float celsius = 0;
     byte i;
 
-    for (i=1; i<bedtemptable_len; i++)
+    for (i=1; i<BEDTEMPTABLE_LEN; i++)
     {
-      if (PGM_RD_W(bedtemptable[i][0]) > raw)
+      if (PGM_RD_W(BEDTEMPTABLE[i][0]) > raw)
       {
-        celsius  = PGM_RD_W(bedtemptable[i-1][1]) + 
-          (raw - PGM_RD_W(bedtemptable[i-1][0])) * 
-          (float)(PGM_RD_W(bedtemptable[i][1]) - PGM_RD_W(bedtemptable[i-1][1])) /
-          (float)(PGM_RD_W(bedtemptable[i][0]) - PGM_RD_W(bedtemptable[i-1][0]));
+        celsius  = PGM_RD_W(BEDTEMPTABLE[i-1][1]) + 
+          (raw - PGM_RD_W(BEDTEMPTABLE[i-1][0])) * 
+          (float)(PGM_RD_W(BEDTEMPTABLE[i][1]) - PGM_RD_W(BEDTEMPTABLE[i-1][1])) /
+          (float)(PGM_RD_W(BEDTEMPTABLE[i][0]) - PGM_RD_W(BEDTEMPTABLE[i-1][0]));
         break;
       }
     }
 
     // Overflow: Set to last value in the table
-    if (i == bedtemptable_len) celsius = PGM_RD_W(bedtemptable[i-1][1]);
+    if (i == BEDTEMPTABLE_LEN) celsius = PGM_RD_W(BEDTEMPTABLE[i-1][1]);
 
     return celsius;
   #elif defined BED_USES_AD595

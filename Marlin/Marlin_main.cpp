@@ -956,24 +956,22 @@ void process_commands()
       if (code_seen('S'))
       {
         int pin_status = code_value();
+        int pin_number = LED_PIN;
         if (code_seen('P') && pin_status >= 0 && pin_status <= 255)
+          pin_number = code_value();
+        for(int8_t i = 0; i < (int8_t)sizeof(sensitive_pins); i++)
         {
-          int pin_number = code_value();
-          for(int8_t i = 0; i < (int8_t)sizeof(sensitive_pins); i++)
+          if (sensitive_pins[i] == pin_number)
           {
-            if (sensitive_pins[i] == pin_number)
-            {
-              pin_number = -1;
-              break;
-            }
+            pin_number = -1;
+            break;
           }
-          
-          if (pin_number > -1)
-          {              
-            pinMode(pin_number, OUTPUT);
-            digitalWrite(pin_number, pin_status);
-            analogWrite(pin_number, pin_status);
-          }
+        }
+        if (pin_number > -1)
+        {
+          pinMode(pin_number, OUTPUT);
+          digitalWrite(pin_number, pin_status);
+          analogWrite(pin_number, pin_status);
         }
       }
      break;

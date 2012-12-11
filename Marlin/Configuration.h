@@ -43,7 +43,7 @@
 // 70 = Megatronics
 // 90 = Alpha OMCA board
 // 91 = Final OMCA board
-// Rambo = 301
+// 301 = Rambo
 
 #ifndef MOTHERBOARD
 #define MOTHERBOARD 7
