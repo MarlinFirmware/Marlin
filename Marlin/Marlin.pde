@@ -40,6 +40,7 @@
 #else 
 #include <LiquidCrystal.h>
 #endif
+#endif
 
 #if DIGIPOTSS_PIN > -1
 #include <SPI.h>
