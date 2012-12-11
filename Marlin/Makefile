@@ -173,7 +173,11 @@ F_CPU ?= 16000000
 ifeq ($(HARDWARE_VARIANT), arduino)
 HARDWARE_SRC = $(ARDUINO_INSTALL_DIR)/hardware/arduino/cores/arduino
 else
-HARDWARE_SRC = $(HARDWARE_VARIANT)/cores/arduino
+ifeq ($(shell [ $(ARDUINO_VERSION) -ge 100 ] && echo true), true)
+HARDWARE_SRC = ../ArduinoAddons/Arduino_1.x.x/$(HARDWARE_VARIANT)/cores/arduino
+else
+HARDWARE_SRC = ../ArduinoAddons/Arduino_0.xx/$(HARDWARE_VARIANT)/cores/arduino
+endif
 endif
 
 TARGET = $(notdir $(CURDIR))
