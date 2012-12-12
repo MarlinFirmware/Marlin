@@ -147,7 +147,6 @@ CardReader card;
 float homing_feedrate[] = HOMING_FEEDRATE;
 bool axis_relative_modes[] = AXIS_RELATIVE_MODES;
 int feedmultiply=100; //100->1 200->2
-bool feedmultiplychanged;
 int saved_feedmultiply;
 int extrudemultiply=100; //100->1 200->2
 float current_position[NUM_AXIS] = { 0.0, 0.0, 0.0, 0.0 };
@@ -1372,7 +1371,6 @@ void process_commands()
       if(code_seen('S')) 
       {
         feedmultiply = code_value() ;
-        feedmultiplychanged = true;
       }
     }
     break;
@@ -1543,6 +1541,7 @@ void process_commands()
     break;
     case 999: // M999: Restart after being stopped
       Stopped = false;
+      lcd_reset_alert_level();
       gcode_LastN = Stopped_gcode_LastN;
       FlushSerialRequestResend();
     break;
