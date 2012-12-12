@@ -1042,6 +1042,7 @@ ISR(TIMER0_COMPB_vect)
 #if EXTRUDERS > 2
       current_temperature_raw[2] = raw_temp_2_value;
 #endif
+      current_temperature_bed_raw = raw_temp_bed_value;
     }
     
     temp_meas_ready = true;
