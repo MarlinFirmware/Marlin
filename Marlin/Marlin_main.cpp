@@ -1218,7 +1218,10 @@ void process_commands()
       SERIAL_PROTOCOLPGM(MSG_M115_REPORT);
       break;
     case 117: // M117 display message
-      lcd_setstatus(cmdbuffer[bufindr]+5);
+      starpos = (strchr(strchr_pointer + 5,'*'));
+      if(starpos!=NULL)
+        *(starpos-1)='\0';
+      lcd_setstatus(strchr_pointer + 5);
       break;
     case 114: // M114
       SERIAL_PROTOCOLPGM("X:");
