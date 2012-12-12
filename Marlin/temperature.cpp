@@ -319,11 +319,11 @@ void manage_heater()
 
     #ifndef PID_OPENLOOP
         pid_error[e] = target_temperature[e] - pid_input;
-        if(pid_error[e] > 10) {
+        if(pid_error[e] > PID_FUNCTIONAL_RANGE) {
           pid_output = PID_MAX;
           pid_reset[e] = true;
         }
-        else if(pid_error[e] < -10) {
+        else if(pid_error[e] < -PID_FUNCTIONAL_RANGE) {
           pid_output = 0;
           pid_reset[e] = true;
         }

@@ -113,9 +113,11 @@
 #ifdef PIDTEMP
   //#define PID_DEBUG // Sends debug data to the serial port. 
   //#define PID_OPENLOOP 1 // Puts PID in open loop. M104/M140 sets the output power from 0 to PID_MAX
+  #define PID_FUNCTIONAL_RANGE 10 // If the temperature difference between the target temperature and the actual temperature
+                                  // is more then PID_FUNCTIONAL_RANGE then the PID will be shut off and the heater will be set to min/max.
   #define PID_INTEGRAL_DRIVE_MAX 255  //limit for the integral term
   #define K1 0.95 //smoothing factor withing the PID
-  #define PID_dT ((16.0 * 8.0)/(F_CPU / 64.0 / 256.0)) //sampling period of the
+  #define PID_dT ((16.0 * 8.0)/(F_CPU / 64.0 / 256.0)) //sampling period of the temperature routine
 
 // If you are using a preconfigured hotend then you can use one of the value sets by uncommenting it
 // Ultimaker
