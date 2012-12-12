@@ -474,7 +474,7 @@ const short temptable_55[][2] PROGMEM = {
 
 //Set the high and low raw values for the heater, this indicates which raw value is a high or low temperature
 #ifndef HEATER_0_RAW_HI_TEMP
-# if HEATER_0_USES_THERMISTOR   //In case of a thermistor the highest temperature results in the lowest ADC value
+# ifdef HEATER_0_USES_THERMISTOR   //In case of a thermistor the highest temperature results in the lowest ADC value
 #  define HEATER_0_RAW_HI_TEMP 0
 #  define HEATER_0_RAW_LO_TEMP 16383
 # else                          //In case of an thermocouple the highest temperature results in the highest ADC value
@@ -497,7 +497,7 @@ const short temptable_55[][2] PROGMEM = {
 
 //Set the high and low raw values for the heater, this indicates which raw value is a high or low temperature
 #ifndef HEATER_1_RAW_HI_TEMP
-# if HEATER_1_USES_THERMISTOR   //In case of a thermistor the highest temperature results in the lowest ADC value
+# ifdef HEATER_1_USES_THERMISTOR   //In case of a thermistor the highest temperature results in the lowest ADC value
 #  define HEATER_1_RAW_HI_TEMP 0
 #  define HEATER_1_RAW_LO_TEMP 16383
 # else                          //In case of an thermocouple the highest temperature results in the highest ADC value
@@ -520,7 +520,7 @@ const short temptable_55[][2] PROGMEM = {
 
 //Set the high and low raw values for the heater, this indicates which raw value is a high or low temperature
 #ifndef HEATER_2_RAW_HI_TEMP
-# if HEATER_2_USES_THERMISTOR   //In case of a thermistor the highest temperature results in the lowest ADC value
+# ifdef HEATER_2_USES_THERMISTOR   //In case of a thermistor the highest temperature results in the lowest ADC value
 #  define HEATER_2_RAW_HI_TEMP 0
 #  define HEATER_2_RAW_LO_TEMP 16383
 # else                          //In case of an thermocouple the highest temperature results in the highest ADC value
@@ -540,7 +540,7 @@ const short temptable_55[][2] PROGMEM = {
 
 //Set the high and low raw values for the heater, this indicates which raw value is a high or low temperature
 #ifndef HEATER_BED_RAW_HI_TEMP
-# if BED_USES_THERMISTOR   //In case of a thermistor the highest temperature results in the lowest ADC value
+# ifdef BED_USES_THERMISTOR   //In case of a thermistor the highest temperature results in the lowest ADC value
 #  define HEATER_BED_RAW_HI_TEMP 0
 #  define HEATER_BED_RAW_LO_TEMP 16383
 # else                          //In case of an thermocouple the highest temperature results in the highest ADC value
