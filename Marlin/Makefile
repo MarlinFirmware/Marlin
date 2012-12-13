@@ -125,13 +125,13 @@ MCU              ?= atmega1280
 
 #Teensylu
 else ifeq  ($(HARDWARE_MOTHERBOARD),8)
-HARDWARE_VARIANT ?= Teensyduino
+HARDWARE_VARIANT ?= Teensy
 MCU              ?= at90usb1286
 else ifeq  ($(HARDWARE_MOTHERBOARD),81)
-HARDWARE_VARIANT ?= Teensyduino
+HARDWARE_VARIANT ?= Teensy
 MCU              ?= at90usb1286
 else ifeq  ($(HARDWARE_MOTHERBOARD),82)
-HARDWARE_VARIANT ?= Teensyduino
+HARDWARE_VARIANT ?= Teensy
 MCU              ?= at90usb646
 
 #Gen3+
@@ -149,7 +149,8 @@ else ifeq  ($(HARDWARE_MOTHERBOARD),90)
 HARDWARE_VARIANT ?= SanguinoA
 MCU              ?= atmega644
 
-#Final OMCA board
+#
+Final OMCA board
 else ifeq  ($(HARDWARE_MOTHERBOARD),91)
 HARDWARE_VARIANT ?= Sanguino
 MCU              ?= atmega644p
@@ -179,6 +180,7 @@ else
 HARDWARE_SRC = ../ArduinoAddons/Arduino_0.xx/$(HARDWARE_VARIANT)/cores/arduino
 endif
 endif
+
 
 TARGET = $(notdir $(CURDIR))
 
@@ -228,8 +230,14 @@ OPT = s
 DEFINES ?=
 
 # Place -D or -U options here
-CDEFS = -DF_CPU=$(F_CPU) ${addprefix -D , $(DEFINES)}
-CXXDEFS = -DF_CPU=$(F_CPU) ${addprefix -D , $(DEFINES)}
+CDEFS    = -DF_CPU=$(F_CPU) ${addprefix -D , $(DEFINES)}
+CXXDEFS  = $(CDEFS)
+
+ifeq ($(HARDWARE_VARIANT), Teensy)
+CDEFS  += -DUSB_SERIAL
+SRC    += usb.c pins_teensy.c
+CXXSRC += usb_api.cpp
+endif
 
 # Add all the source directories as include directories too
 CINCS = ${addprefix -I ,${VPATH}}
