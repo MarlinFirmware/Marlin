@@ -432,9 +432,9 @@ void manage_heater()
 	    soft_pwm_bed = 0;
 	  }
 
-    #elif not defined BED_LIMIT_SWITCHING
+    #elif !defined(BED_LIMIT_SWITCHING)
       // Check if temperature is within the correct range
-      if((current_temperature_bed > BED_MAXTEMP) && (current_temperature_bed < BED_MINTEMP))
+      if((current_temperature_bed > BED_MINTEMP) && (current_temperature_bed < BED_MAXTEMP))
       {
         if(current_temperature_bed >= target_temperature_bed)
         {
@@ -1042,6 +1042,7 @@ ISR(TIMER0_COMPB_vect)
 #if EXTRUDERS > 2
       current_temperature_raw[2] = raw_temp_2_value;
 #endif
+      current_temperature_bed_raw = raw_temp_bed_value;
     }
     
     temp_meas_ready = true;
@@ -1101,9 +1102,9 @@ ISR(TIMER0_COMPB_vect)
   /* No bed MINTEMP error? */
 #if defined(BED_MAXTEMP) && (TEMP_SENSOR_BED != 0)
 # if HEATER_BED_RAW_LO_TEMP > HEATER_BED_RAW_HI_TEMP
-    if(current_temperature_bed <= bed_maxttemp_raw) {
+    if(current_temperature_bed_raw <= bed_maxttemp_raw) {
 #else
-    if(current_temperature_bed >= bed_maxttemp_raw) {
+    if(current_temperature_bed_raw >= bed_maxttemp_raw) {
 #endif
        target_temperature_bed = 0;
        bed_max_temp_error();

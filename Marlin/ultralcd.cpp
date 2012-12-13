@@ -476,7 +476,7 @@ static void lcd_control_temperature_preheat_pla_settings_menu()
 #if TEMP_SENSOR_BED != 0
     MENU_ITEM_EDIT(int3, MSG_BED, &plaPreheatHPBTemp, 0, BED_MAXTEMP - 15);
 #endif
-#if EEPROM_SETTINGS
+#ifdef EEPROM_SETTINGS
     MENU_ITEM(function, MSG_STORE_EPROM, Config_StoreSettings);
 #endif
     END_MENU();
@@ -491,7 +491,7 @@ static void lcd_control_temperature_preheat_abs_settings_menu()
 #if TEMP_SENSOR_BED != 0
     MENU_ITEM_EDIT(int3, MSG_BED, &absPreheatHPBTemp, 0, BED_MAXTEMP - 15);
 #endif
-#if EEPROM_SETTINGS
+#ifdef EEPROM_SETTINGS
     MENU_ITEM(function, MSG_STORE_EPROM, Config_StoreSettings);
 #endif
     END_MENU();
