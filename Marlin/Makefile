@@ -254,7 +254,7 @@ endif
 CFLAGS = $(CDEBUG) $(CDEFS) $(CINCS) -O$(OPT) $(CWARN) $(CEXTRA) $(CTUNING)
 CXXFLAGS =         $(CDEFS) $(CINCS) -O$(OPT) -Wall    $(CEXTRA) $(CTUNING)
 #ASFLAGS = -Wa,-adhlns=$(<:.S=.lst),-gstabs 
-LDFLAGS = -lm
+LDFLAGS = -lm -Wl,--relax
 
 
 # Programming support using avrdude. Settings and variables.
