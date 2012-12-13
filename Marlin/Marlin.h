@@ -26,14 +26,12 @@
 #define  HardwareSerial_h // trick to disable the standard HWserial
 #endif
 
-#if ARDUINO >= 100 
-  #if defined(__AVR_ATmega644P__)
-    #include "WProgram.h"
-  #else
-    #include "Arduino.h"
-  #endif
+#if (ARDUINO >= 100) && !defined(__AVR_ATmega644P__)
+# include "Arduino.h"
 #else
-   #include "WProgram.h"
+# include "WProgram.h"
+  //Arduino < 1.0.0 does not define this, so we need to do it ourselfs
+# define analogInputToDigitalPin(p) ((p) + A0)
 #endif
 
 #include "MarlinSerial.h"
