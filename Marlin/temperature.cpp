@@ -432,9 +432,9 @@ void manage_heater()
 	    soft_pwm_bed = 0;
 	  }
 
-    #elif not defined BED_LIMIT_SWITCHING
+    #elif !defined(BED_LIMIT_SWITCHING)
       // Check if temperature is within the correct range
-      if((current_temperature_bed > BED_MAXTEMP) && (current_temperature_bed < BED_MINTEMP))
+      if((current_temperature_bed > BED_MINTEMP) && (current_temperature_bed < BED_MAXTEMP))
       {
         if(current_temperature_bed >= target_temperature_bed)
         {
