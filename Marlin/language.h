@@ -812,7 +812,7 @@
 #if LANGUAGE_CHOICE == 6
 
 // LCD Menu Messages
-#define WELCOME_MSG MACHINE_NAME			" Готов."
+#define WELCOME_MSG MACHINE_NAME			" Готов"
 #define MSG_SD_INSERTED						"Карта вставлена"
 #define MSG_SD_REMOVED						"Карта извлечена"
 #define MSG_MAIN							" Меню              \003"
@@ -861,21 +861,16 @@
 #define MSG_YSTEPS							" Y шаг/mm:"
 #define MSG_ZSTEPS							" Z шаг/mm:"
 #define MSG_ESTEPS							" E шаг/mm:"
-#define MSG_MAIN_WIDE						" Меню              \003"
-#define MSG_RECTRACT_WIDE					" Откат подачи      \x7E"
-#define MSG_TEMPERATURE_WIDE				" Температура       \x7E"
-#define MSG_TEMPERATURE_RTN					" Температура       \003"
-#define MSG_MOTION_WIDE						" Скорости          \x7E"
+#define MSG_RECTRACT    					" Откат подачи      \x7E"
+#define MSG_TEMPERATURE  				" Температура       \x7E"
+#define MSG_MOTION						" Скорости          \x7E"
 #define MSG_STORE_EPROM						" Сохранить настройки"
 #define MSG_LOAD_EPROM						" Загрузить настройки"
 #define MSG_RESTORE_FAILSAFE				" Сброс настроек     "
 #define MSG_REFRESH							"\004Обновить           "
 #define MSG_WATCH							" Обзор             \003"
 #define MSG_PREPARE							" Действия          \x7E"
-#define MSG_PREPARE_ALT						" Действия          \003"
-#define MSG_CONTROL_ARROW					" Настройки         \x7E"
-#define MSG_RETRACT_ARROW					" Настройки отката  \x7E"
-#define MSG_TUNE							" Tune              \x7E"
+#define MSG_TUNE					" Настройки         \x7E"
 #define MSG_PAUSE_PRINT						" Пауза печати      \x7E"
 #define MSG_RESUME_PRINT					" Продолжить печать \x7E"
 #define MSG_STOP_PRINT						" Остановить печать \x7E"
@@ -887,7 +882,6 @@
 #define MSG_PART_RELEASE					" Извлечение принта  "
 #define MSG_KILLED							"УБИТО. "
 #define MSG_STOPPED							"ОСТАНОВЛЕНО. "
-#define MSG_STEPPER_RELEASED				"Двигатели отключены."
 #define MSG_CONTROL_RETRACT					" Откат mm:"
 #define MSG_CONTROL_RETRACTF				" Откат  F:"
 #define MSG_CONTROL_RETRACT_ZLIFT			" Прыжок mm:"
@@ -939,7 +933,9 @@
 #define MSG_Y_MAX							"y_max:"
 #define MSG_Z_MIN							"z_min:"
 #define MSG_Z_MAX							"z_max:"
-
+#define MSG_M119_REPORT						"Статус концевиков"
+#define MSG_ENDSTOP_HIT						"Срабатывание концевика"
+#define MSG_ENDSTOP_OPEN					"Концевик освобожден"
 #define MSG_SD_CANT_OPEN_SUBDIR				"Не открыть папку"
 #define MSG_SD_INIT_FAIL					"Ошибка инициализации SD"
 #define MSG_SD_VOL_INIT_FAIL				"Ошибка инициализации раздела"
@@ -955,14 +951,10 @@
 #define MSG_SD_NOT_PRINTING					"нет SD печати"
 #define MSG_SD_ERR_WRITE_TO_FILE			"ошибка записи в файл"
 #define MSG_SD_CANT_ENTER_SUBDIR			"Не зайти в папку:"
-
 #define MSG_STEPPER_TO_HIGH					"Частота шагов очень высока : "
 #define MSG_ENDSTOPS_HIT					"концевик сработал: "
 #define MSG_ERR_COLD_EXTRUDE_STOP			" защита холодной экструзии"
 #define MSG_ERR_LONG_EXTRUDE_STOP			" защита превышения длинны экструзии"
-#define MSG_M119_REPORT						"Статус концевиков"
-#define MSG_ENDSTOP_HIT						"Срабатывание концевика"
-#define MSG_ENDSTOP_OPEN					"Концевик освобожден"
 
 #endif
 
