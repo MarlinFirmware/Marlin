@@ -51,8 +51,6 @@
 	#define MSG_COOLDOWN "Cooldown"
 	#define MSG_EXTRUDE "Extrude"
 	#define MSG_RETRACT "Retract"
-	#define MSG_PREHEAT_PLA "Preheat PLA"
-	#define MSG_PREHEAT_ABS "Preheat ABS"
 	#define MSG_MOVE_AXIS "Move Axis"
 	#define MSG_SPEED "Speed"
 	#define MSG_NOZZLE "Nozzle"
