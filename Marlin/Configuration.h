@@ -43,7 +43,7 @@
 // 70 = Megatronics
 // 90 = Alpha OMCA board
 // 91 = Final OMCA board
-// Rambo = 301
+// 301 = Rambo
 
 #ifndef MOTHERBOARD
 #define MOTHERBOARD 33
@@ -145,9 +145,11 @@
 #ifdef PIDTEMP
   //#define PID_DEBUG // Sends debug data to the serial port. 
   //#define PID_OPENLOOP 1 // Puts PID in open loop. M104/M140 sets the output power from 0 to PID_MAX
+  #define PID_FUNCTIONAL_RANGE 10 // If the temperature difference between the target temperature and the actual temperature
+                                  // is more then PID_FUNCTIONAL_RANGE then the PID will be shut off and the heater will be set to min/max.
   #define PID_INTEGRAL_DRIVE_MAX 255  //limit for the integral term
   #define K1 0.95 //smoothing factor withing the PID
-  #define PID_dT ((16.0 * 8.0)/(F_CPU / 64.0 / 256.0)) //sampling period of the
+  #define PID_dT ((16.0 * 8.0)/(F_CPU / 64.0 / 256.0)) //sampling period of the temperature routine
 
 // If you are using a preconfigured hotend then you can use one of the value sets by uncommenting it
 // Ultimaker
@@ -290,8 +292,8 @@ const bool Z_ENDSTOPS_INVERTING = false; // set to true to invert the logic of t
 #define Z_MAX_LENGTH (Z_MAX_POS - Z_MIN_POS)
 
 // The position of the homing switches
-#define MANUAL_HOME_POSITIONS  // If defined, manualy programed locations will be used
-//#define BED_CENTER_AT_0_0  // If defined the center of the bed is defined as (0,0)
+define MANUAL_HOME_POSITIONS  // If defined, MANUAL_*_HOME_POS below will be used
+//#define BED_CENTER_AT_0_0  // If defined, the center of the bed is at (X=0, Y=0)
 
 // Manual homing switch locations:
 // For deltabots this means top and center of the cartesian print volume.

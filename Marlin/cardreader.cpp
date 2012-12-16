@@ -527,14 +527,15 @@ void CardReader::updir()
 
 void CardReader::printingHasFinished()
 {
- st_synchronize();
- quickStop();
- sdprinting = false;
- if(SD_FINISHED_STEPPERRELEASE)
- {
-   //finishAndDisableSteppers();
-   enquecommand_P(PSTR(SD_FINISHED_RELEASECOMMAND));
- }
- autotempShutdown();
+    st_synchronize();
+    quickStop();
+    file.close();
+    sdprinting = false;
+    if(SD_FINISHED_STEPPERRELEASE)
+    {
+        //finishAndDisableSteppers();
+        enquecommand_P(PSTR(SD_FINISHED_RELEASECOMMAND));
+    }
+    autotempShutdown();
 }
 #endif //SDSUPPORT

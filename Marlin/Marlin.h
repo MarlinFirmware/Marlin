@@ -26,14 +26,12 @@
 #define  HardwareSerial_h // trick to disable the standard HWserial
 #endif
 
-#if ARDUINO >= 100 
-  #if defined(__AVR_ATmega644P__)
-    #include "WProgram.h"
-  #else
-    #include "Arduino.h"
-  #endif
+#if (ARDUINO >= 100) && !defined(__AVR_ATmega644P__)
+# include "Arduino.h"
 #else
-   #include "WProgram.h"
+# include "WProgram.h"
+  //Arduino < 1.0.0 does not define this, so we need to do it ourselfs
+# define analogInputToDigitalPin(p) ((p) + A0)
 #endif
 
 #include "MarlinSerial.h"
@@ -183,7 +181,6 @@ void setPwmFrequency(uint8_t pin, int val);
 extern float homing_feedrate[];
 extern bool axis_relative_modes[];
 extern int feedmultiply;
-extern bool feedmultiplychanged;
 extern int extrudemultiply; // Sets extrude multiply factor (in percent)
 extern float current_position[NUM_AXIS] ;
 extern float add_homeing[3];
