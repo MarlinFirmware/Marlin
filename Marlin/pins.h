@@ -1017,7 +1017,6 @@
 #define Y_STOP_PIN          6
 #define Y_ATT_PIN          30
 
-
 #define Z_STEP_PIN         17
 #define Z_DIR_PIN          19
 #define Z_ENABLE_PIN       18
