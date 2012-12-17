@@ -19,20 +19,17 @@
 #define X_STEP_PIN          2
 #define X_DIR_PIN           3
 #define X_ENABLE_PIN        -1
-#define X_MIN_PIN           -1
-#define X_MAX_PIN           16
+#define X_STOP_PIN          16
 
 #define Y_STEP_PIN          5
 #define Y_DIR_PIN           6
 #define Y_ENABLE_PIN       -1
-#define Y_MIN_PIN           67
-#define Y_MAX_PIN          -1
+#define Y_STOP_PIN          67
 
 #define Z_STEP_PIN          62
 #define Z_DIR_PIN           63
 #define Z_ENABLE_PIN       -1
-#define Z_MIN_PIN           59
-#define Z_MAX_PIN          -1
+#define Z_STOP_PIN          59
 
 #define E0_STEP_PIN         65
 #define E0_DIR_PIN          66
@@ -83,15 +80,13 @@
 #define X_STEP_PIN 19
 #define X_DIR_PIN 18
 #define X_ENABLE_PIN 24
-#define X_MIN_PIN 7
-#define X_MAX_PIN -1
+#define X_STOP_PIN 7
 
 //y axis pins
 #define Y_STEP_PIN 23
 #define Y_DIR_PIN 22
 #define Y_ENABLE_PIN 24
-#define Y_MIN_PIN 5
-#define Y_MAX_PIN -1
+#define Y_STOP_PIN 5
 
 //z axis pins
 #define Z_STEP_PIN 26
@@ -167,22 +162,19 @@
 #define X_STEP_PIN 29
 #define X_DIR_PIN 28
 #define X_ENABLE_PIN 25
-#define X_MIN_PIN 0
-#define X_MAX_PIN -1
+#define X_STOP_PIN 0
 
 //y axis pins
 #define Y_STEP_PIN 27
 #define Y_DIR_PIN 26
 #define Y_ENABLE_PIN 25
-#define Y_MIN_PIN 1
-#define Y_MAX_PIN -1
+#define Y_STOP_PIN 1
 
 //z axis pins
 #define Z_STEP_PIN 23
 #define Z_DIR_PIN 22
 #define Z_ENABLE_PIN 25
-#define Z_MIN_PIN 2
-#define Z_MAX_PIN -1
+#define Z_STOP_PIN 2
 
 //extruder pins
 #define E0_STEP_PIN 19
@@ -238,22 +230,19 @@
     #define X_STEP_PIN      21                  //different from stanard GEN7
     #define X_DIR_PIN       20				    //different from stanard GEN7
     #define X_ENABLE_PIN    24
-    #define X_MIN_PIN       0
-    #define X_MAX_PIN       -1
+    #define X_STOP_PIN      0
 
     //y axis pins
     #define Y_STEP_PIN      23
     #define Y_DIR_PIN       22
     #define Y_ENABLE_PIN    24
-    #define Y_MIN_PIN       1
-    #define Y_MAX_PIN       -1
+    #define Y_STOP_PIN      1
 
     //z axis pins
     #define Z_STEP_PIN      26
     #define Z_DIR_PIN       25
     #define Z_ENABLE_PIN    24
-    #define Z_MIN_PIN       2
-    #define Z_MAX_PIN       -1
+    #define Z_STOP_PIN      2
 
     //extruder pins
     #define E0_STEP_PIN      28
@@ -336,13 +325,13 @@
 #define X_DIR_PIN          55
 #define X_ENABLE_PIN       38
 #define X_MIN_PIN           3
-#define X_MAX_PIN           2   //2 //Max endstops default to disabled "-1", set to commented value to enable.
+#define X_MAX_PIN           2
 
 #define Y_STEP_PIN         60
 #define Y_DIR_PIN          61
 #define Y_ENABLE_PIN       56
 #define Y_MIN_PIN          14
-#define Y_MAX_PIN          15   //15
+#define Y_MAX_PIN          15
 
 #define Z_STEP_PIN         46
 #define Z_DIR_PIN          48
@@ -546,20 +535,17 @@
 #define X_STEP_PIN         19
 #define X_DIR_PIN          18
 #define X_ENABLE_PIN       -1
-#define X_MIN_PIN          17
-#define X_MAX_PIN          -1
+#define X_STOP_PIN         17
 
 #define Y_STEP_PIN         10
 #define Y_DIR_PIN           7
 #define Y_ENABLE_PIN       -1
-#define Y_MIN_PIN           8
-#define Y_MAX_PIN          -1
+#define Y_STOP_PIN          8
 
 #define Z_STEP_PIN         13
 #define Z_DIR_PIN           3
 #define Z_ENABLE_PIN        2
-#define Z_MIN_PIN           4
-#define Z_MAX_PIN          -1
+#define Z_STOP_PIN          4
 
 #define E0_STEP_PIN         11
 #define E0_DIR_PIN          12
@@ -600,23 +586,20 @@
     #define X_STEP_PIN      15
     #define X_DIR_PIN       18
     #define X_ENABLE_PIN    19
-    #define X_MIN_PIN       20
-    #define X_MAX_PIN       -1
-    
+    #define X_STOP_PIN      20
+
     //y axis pins
     #define Y_STEP_PIN      23
     #define Y_DIR_PIN       22
     #define Y_ENABLE_PIN    24
-    #define Y_MIN_PIN       25
-    #define Y_MAX_PIN       -1
-    
+    #define Y_STOP_PIN      25
+
     //z axis pins
     #define Z_STEP_PIN      27
     #define Z_DIR_PIN       28
     #define Z_ENABLE_PIN    29
-    #define Z_MIN_PIN       30
-    #define Z_MAX_PIN       -1
-    
+    #define Z_STOP_PIN      30
+
     //extruder pins
     #define E0_STEP_PIN      4    //Edited @ EJE Electronics 20100715
     #define E0_DIR_PIN       2    //Edited @ EJE Electronics 20100715
@@ -675,33 +658,15 @@
 
 #define X_STEP_PIN         15
 #define X_DIR_PIN          21
-#if X_HOME_DIR < 0
-# define X_MIN_PIN          18 
-# define X_MAX_PIN          -1
-#else
-# define X_MIN_PIN          -1
-# define X_MAX_PIN          18
-#endif
+#define X_STOP_PIN         18
 
 #define Y_STEP_PIN         22
 #define Y_DIR_PIN          23
-#if Y_HOME_DIR < 0
-# define Y_MIN_PIN          19 
-# define Y_MAX_PIN          -1
-#else
-# define Y_MIN_PIN          -1
-# define Y_MAX_PIN          19
-#endif
+#define Y_STOP_PIN         19
 
 #define Z_STEP_PIN         3
 #define Z_DIR_PIN          2
-#if Z_HOME_DIR < 0
-# define Z_MIN_PIN          20 
-# define Z_MAX_PIN          -1
-#else
-# define Z_MIN_PIN          -1
-# define Z_MAX_PIN          20
-#endif
+#define Z_STOP_PIN         20
 
 #define E0_STEP_PIN         1
 #define E0_DIR_PIN          0
@@ -976,17 +941,14 @@
 #define X_STEP_PIN          0
 #define X_DIR_PIN           1
 #define X_ENABLE_PIN       39
-#define X_MAX_PIN          -1
 
 #define Y_STEP_PIN          2
 #define Y_DIR_PIN           3
 #define Y_ENABLE_PIN       38
-#define Y_MAX_PIN          -1
 
 #define Z_STEP_PIN          4
 #define Z_DIR_PIN           5
 #define Z_ENABLE_PIN       23
-#define Z_MAX_PIN          -1
 
 #define E0_STEP_PIN         6
 #define E0_DIR_PIN          7
@@ -1001,15 +963,15 @@
 // for the fan and Teensyduino uses a different pin mapping.
 
 #if MOTHERBOARD == 8  // Teensylu
-  #define X_MIN_PIN          13
-  #define Y_MIN_PIN          14
-  #define Z_MIN_PIN          15
+  #define X_STOP_PIN         13
+  #define Y_STOP_PIN         14
+  #define Z_STOP_PIN         15
   #define TEMP_0_PIN          7  // Extruder / Analog pin numbering
   #define TEMP_BED_PIN        6  // Bed / Analog pin numbering
 #else  // Printrboard
-  #define X_MIN_PIN          35
-  #define Y_MIN_PIN           8
-  #define Z_MIN_PIN          36
+  #define X_STOP_PIN         35
+  #define Y_STOP_PIN          8
+  #define Z_STOP_PIN         36
   #define TEMP_0_PIN          1  // Extruder / Analog pin numbering
   #define TEMP_BED_PIN        0  // Bed / Analog pin numbering
 #endif
@@ -1049,22 +1011,19 @@
 #define X_STEP_PIN         27
 #define X_DIR_PIN          29
 #define X_ENABLE_PIN       28
-#define X_MIN_PIN           7
-#define X_MAX_PIN          -1
+#define X_STOP_PIN          7
 #define X_ATT_PIN          26
 
 #define Y_STEP_PIN         31
 #define Y_DIR_PIN          33
 #define Y_ENABLE_PIN       32
-#define Y_MIN_PIN           6
-#define Y_MAX_PIN          -1
+#define Y_STOP_PIN          6
 #define Y_ATT_PIN          30
 
 #define Z_STEP_PIN         17
 #define Z_DIR_PIN          19
 #define Z_ENABLE_PIN       18
-#define Z_MIN_PIN           5
-#define Z_MAX_PIN          -1
+#define Z_STOP_PIN          5
 #define Z_ATT_PIN          16
 
 #define E0_STEP_PIN        21
@@ -1114,18 +1073,15 @@
 
 #define X_STEP_PIN         15
 #define X_DIR_PIN          18
-#define X_MIN_PIN          20
-#define X_MAX_PIN           -1
+#define X_STOP_PIN         20
 
 #define Y_STEP_PIN         23
 #define Y_DIR_PIN          22
-#define Y_MIN_PIN          25
-#define Y_MAX_PIN          -1
+#define Y_STOP_PIN         25
 
 #define Z_STEP_PIN         27
 #define Z_DIR_PIN          28
-#define Z_MIN_PIN          30
-#define Z_MAX_PIN          -1
+#define Z_STOP_PIN         30
 
 #define E_STEP_PIN         17
 #define E_DIR_PIN          21
@@ -1195,20 +1151,17 @@
 #define X_STEP_PIN         21
 #define X_DIR_PIN          20
 #define X_ENABLE_PIN       24
-#define X_MIN_PIN          0
-#define X_MAX_PIN          -1
+#define X_STOP_PIN         0
 
 #define Y_STEP_PIN         23
 #define Y_DIR_PIN          22
 #define Y_ENABLE_PIN       24
-#define Y_MIN_PIN          1
-#define Y_MAX_PIN          -1
+#define Y_STOP_PIN         1
 
 #define Z_STEP_PIN         26
 #define Z_DIR_PIN          25
 #define Z_ENABLE_PIN       24
-#define Z_MIN_PIN          2
-#define Z_MAX_PIN          -1
+#define Z_STOP_PIN         2
 
 #define E0_STEP_PIN         28
 #define E0_DIR_PIN          27
@@ -1252,20 +1205,17 @@
 #define X_STEP_PIN         26
 #define X_DIR_PIN          25
 #define X_ENABLE_PIN       10
-#define X_MIN_PIN          0
-#define X_MAX_PIN          -1
+#define X_STOP_PIN         0
 
 #define Y_STEP_PIN         28
 #define Y_DIR_PIN          27
 #define Y_ENABLE_PIN       10
-#define Y_MIN_PIN          1
-#define Y_MAX_PIN          -1
+#define Y_STOP_PIN         1
 
 #define Z_STEP_PIN         23
 #define Z_DIR_PIN          22
 #define Z_ENABLE_PIN       10
-#define Z_MIN_PIN          2
-#define Z_MAX_PIN          -1
+#define Z_STOP_PIN         2
 
 #define E0_STEP_PIN         24
 #define E0_DIR_PIN          21
@@ -1402,13 +1352,13 @@
 #define X_DIR_PIN          28
 #define X_ENABLE_PIN       24
 #define X_MIN_PIN          41
-#define X_MAX_PIN          37   //2 //Max endstops default to disabled "-1", set to commented value to enable.
+#define X_MAX_PIN          37
 
 #define Y_STEP_PIN         60 // A6
 #define Y_DIR_PIN          61 // A7
 #define Y_ENABLE_PIN       22
 #define Y_MIN_PIN          14
-#define Y_MAX_PIN          15   //15
+#define Y_MAX_PIN          15
 
 #define Z_STEP_PIN         54 // A0
 #define Z_DIR_PIN          55 // A1
@@ -1500,6 +1450,36 @@
   #define _E2_PINS E2_STEP_PIN, E2_DIR_PIN, E2_ENABLE_PIN, HEATER_2_PIN,
 #else
   #define _E2_PINS
+#endif
+
+#ifdef X_STOP_PIN
+  #if X_HOME_DIR < 0
+    #define X_MIN_PIN X_STOP_PIN
+    #define X_MAX_PIN -1
+  #else
+    #define X_MIN_PIN -1
+    #define X_MAX_PIN X_STOP_PIN
+  #endif
+#endif
+
+#ifdef Y_STOP_PIN
+  #if Y_HOME_DIR < 0
+    #define Y_MIN_PIN Y_STOP_PIN
+    #define Y_MAX_PIN -1
+  #else
+    #define Y_MIN_PIN -1
+    #define Y_MAX_PIN Y_STOP_PIN
+  #endif
+#endif
+
+#ifdef Z_STOP_PIN
+  #if Z_HOME_DIR < 0
+    #define Z_MIN_PIN Z_STOP_PIN
+    #define Z_MAX_PIN -1
+  #else
+    #define Z_MIN_PIN -1
+    #define Z_MAX_PIN Z_STOP_PIN
+  #endif
 #endif
 
 #ifdef DISABLE_MAX_ENDSTOPS
