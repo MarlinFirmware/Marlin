@@ -460,10 +460,12 @@ void check_axes_activity()
   else
   {
     #if FAN_PIN > -1
+    #ifndef FAN_SOFT_PWM
     if (fanSpeed != 0){
       analogWrite(FAN_PIN,fanSpeed); // If buffer is empty use current fan speed
     }
     #endif
+	#endif
   }
   if((DISABLE_X) && (x_active == 0)) disable_x();
   if((DISABLE_Y) && (y_active == 0)) disable_y();
@@ -475,6 +477,7 @@ void check_axes_activity()
     disable_e2(); 
   }
 #if FAN_PIN > -1
+  #ifndef FAN_SOFT_PWM
   if((fanSpeed == 0) && (fan_speed ==0))
   {
     analogWrite(FAN_PIN, 0);
@@ -484,6 +487,7 @@ void check_axes_activity()
   {
     analogWrite(FAN_PIN,tail_fan_speed);
   }
+  #endif
 #endif
 #ifdef AUTOTEMP
   getHighESpeed();
