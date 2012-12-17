@@ -96,6 +96,11 @@ static volatile bool temp_meas_ready = false;
 #endif //PIDTEMPBED
   static unsigned char soft_pwm[EXTRUDERS];
   static unsigned char soft_pwm_bed;
+#ifdef FAN_SOFT_PWM
+  static unsigned char soft_pwm_fan;
+#endif
+
+
   
 #if EXTRUDERS > 3
 # error Unsupported number of extruders
@@ -597,6 +602,9 @@ void tp_init()
     #ifdef FAST_PWM_FAN
     setPwmFrequency(FAN_PIN, 1); // No prescaling. Pwm frequency = F_CPU/256/8
     #endif
+    #ifdef FAN_SOFT_PWM
+	soft_pwm_fan=(unsigned char)fanSpeed;
+	#endif
   #endif  
 
   #ifdef HEATER_0_USES_MAX6675
@@ -929,6 +937,10 @@ ISR(TIMER0_COMPB_vect)
     soft_pwm_b = soft_pwm_bed;
     if(soft_pwm_b > 0) WRITE(HEATER_BED_PIN,1);
     #endif
+    #ifdef FAN_SOFT_PWM
+    soft_pwm_fan =(unsigned char) fanSpeed;
+    if(soft_pwm_fan > 0) WRITE(FAN_PIN,1);
+    #endif
   }
   if(soft_pwm_0 <= pwm_count) WRITE(HEATER_0_PIN,0);
   #if EXTRUDERS > 1
@@ -939,6 +951,9 @@ ISR(TIMER0_COMPB_vect)
   #endif
   #if HEATER_BED_PIN > -1
   if(soft_pwm_b <= pwm_count) WRITE(HEATER_BED_PIN,0);
+  #endif
+  #ifdef FAN_SOFT_PWM
+  if(soft_pwm_fan <= pwm_count) WRITE(FAN_PIN,0);
   #endif
   
   pwm_count++;
