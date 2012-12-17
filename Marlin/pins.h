@@ -709,6 +709,9 @@
 #define LED_PIN            -1
 
 #define FAN_PIN            -1 
+#if FAN_PIN == 12 || FAN_PIN ==13
+#define FAN_SOFT_PWM
+#endif
 
 #ifdef MELZI
 #define LED_PIN            28
