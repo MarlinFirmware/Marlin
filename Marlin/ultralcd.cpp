@@ -71,10 +71,11 @@ static void menu_action_setting_edit_long5(const char* pstr, unsigned long* ptr,
 #define MENU_ITEM(type, label, args...) do { \
     if (_menuItemNr == _lineNr) { \
         if (lcdDrawUpdate) { \
+            const char* _label_pstr = PSTR(label); \
             if ((encoderPosition / ENCODER_STEPS_PER_MENU_ITEM) == _menuItemNr) { \
-                lcd_implementation_drawmenu_ ## type ## _selected (_drawLineNr, PSTR(label) , ## args ); \
+                lcd_implementation_drawmenu_ ## type ## _selected (_drawLineNr, _label_pstr , ## args ); \
             }else{\
-                lcd_implementation_drawmenu_ ## type (_drawLineNr, PSTR(label) , ## args ); \
+                lcd_implementation_drawmenu_ ## type (_drawLineNr, _label_pstr , ## args ); \
             }\
         }\
         if (LCD_CLICKED && (encoderPosition / ENCODER_STEPS_PER_MENU_ITEM) == _menuItemNr) {\
