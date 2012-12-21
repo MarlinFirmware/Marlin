@@ -859,6 +859,7 @@ void process_commands()
           lcd_update();
         }
       }
+      LCD_MESSAGEPGM(MSG_RESUMING);
     }
     break;
 #endif

@@ -137,8 +137,7 @@ static void lcd_status_screen()
         currentMenu = lcd_main_menu;
         lcd_quick_feedback();
     }
-    if (abs(encoderPosition / 2) > 1)
-        feedmultiply += encoderPosition / 2;
+    feedmultiply += int(encoderPosition);
     encoderPosition = 0;
     if (feedmultiply < 10)
         feedmultiply = 10;
@@ -381,9 +380,9 @@ static void lcd_move_menu_axis()
     MENU_ITEM(back, MSG_MOVE_AXIS, lcd_move_menu);
     MENU_ITEM(submenu, "Move X", lcd_move_x);
     MENU_ITEM(submenu, "Move Y", lcd_move_y);
-    MENU_ITEM(submenu, "Move Z", lcd_move_z);
     if (move_menu_scale < 10.0)
     {
+        MENU_ITEM(submenu, "Move Z", lcd_move_z);
         MENU_ITEM(submenu, "Extruder", lcd_move_e);
     }
     END_MENU();
@@ -698,6 +697,8 @@ void lcd_init()
     WRITE(SDCARDDETECT, HIGH);
     lcd_oldcardstatus = IS_SD_INSERTED;
 #endif//(SDCARDDETECT > -1)
+    lcd_buttons_update();
+    encoderDiff = 0;
 }
 
 void lcd_update()

@@ -363,7 +363,7 @@ static void lcd_implementation_drawmenu_setting_edit_generic_P(uint8_t row, cons
 #define lcd_implementation_drawmenu_setting_edit_bool(row, pstr, pstr2, data) lcd_implementation_drawmenu_setting_edit_generic_P(row, pstr, ' ', (*(data))?PSTR(MSG_ON):PSTR(MSG_OFF))
 void lcd_implementation_drawedit(const char* pstr, char* value)
 {
-    lcd.setCursor(0, 1);
+    lcd.setCursor(1, 1);
     lcd_printPGM(pstr);
     lcd.print(':');
     lcd.setCursor(19 - strlen(value), 1);
