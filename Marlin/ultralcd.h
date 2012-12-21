@@ -62,9 +62,6 @@
 
   #define LCD_MESSAGEPGM(x) 
   #define LCD_ALERTMESSAGEPGM(x) 
-
-  #define CLICKED false
-  #define BLOCK ;
 #endif 
 
 char *itostr2(const uint8_t &x);
