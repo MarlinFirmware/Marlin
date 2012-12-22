@@ -40,8 +40,12 @@
 #include "language.h"
 #include "pins_arduino.h"
 
+#if (defined NUM_SERVOS) && (NUM_SERVOS > 0)
+  #include "Servo.h"
+#endif
+
 #if DIGIPOTSS_PIN > -1
-#include <SPI.h>
+  #include <SPI.h>
 #endif
 
 #define VERSION_STRING  "1.0.0"
@@ -116,6 +120,9 @@
 // M220 S<factor in percent>- set speed factor override percentage
 // M221 S<factor in percent>- set extrude factor override percentage
 // M240 - Trigger a camera to take a photograph
+// M280 - set servo position absolute. P: servo index, S: angle or microseconds
+// M281 - EXTRUDER_SINGLE_SERVO - set servo angle for currently active extruder. S: angle or microseconds
+// M282 - EXTRUDER_PER_SERVO - set ACTIVE and IDLE angles for currently active extruder. S: ACTIVE angle, P: IDLE angle
 // M301 - Set PID parameters P I and D
 // M302 - Allow cold extrudes
 // M303 - PID relay autotune S<temperature> sets the target temperature. (default target temperature = 150C)
@@ -203,6 +210,17 @@ static uint8_t tmp_extruder;
 
 
 bool Stopped=false;
+
+#if (defined NUM_SERVOS) && (NUM_SERVOS > 0)
+  Servo servos[NUM_SERVOS];
+  #ifdef EXTRUDER_SINGLE_SERVO
+    uint16_t extruder_servo_angle[EXTRUDERS] = DEFAULT_SERVO_ACTIVE_ANGLES;
+  #endif
+  #ifdef EXTRUDER_PER_SERVO
+    uint16_t extruder_servo_active[NUM_SERVOS] = DEFAULT_SERVO_ACTIVE_ANGLES;
+    uint16_t extruder_servo_idle[NUM_SERVOS] = DEFAULT_SERVO_IDLE_ANGLES;
+  #endif
+#endif
 
 //===========================================================================
 //=============================ROUTINES=============================
@@ -306,6 +324,35 @@ void suicide()
   #endif
 }
 
+void servo_init()
+{
+	#if (NUM_SERVOS >= 1) && defined (SERVO0_PIN) && (SERVO0_PIN > -1)
+	  servos[0].attach(SERVO0_PIN);
+	#endif
+	#if (NUM_SERVOS >= 2) && defined (SERVO1_PIN) && (SERVO1_PIN > -1)
+	  servos[1].attach(SERVO1_PIN);
+	#endif
+	#if (NUM_SERVOS >= 3) && defined (SERVO2_PIN) && (SERVO2_PIN > -1)
+	  servos[2].attach(SERVO2_PIN);
+	#endif
+	#if (NUM_SERVOS >= 4) && defined (SERVO3_PIN) && (SERVO3_PIN > -1)
+	  servos[3].attach(SERVO3_PIN);
+	#endif
+	#if (NUM_SERVOS >= 5)
+	  #error "TODO: enter initalisation code for more servos"
+	#endif
+	
+	#if defined EXTRUDER_SINGLE_SERVO
+	  // default to extruder 0 selected
+	  servos[EXTRUDER_SINGLE_SERVO].write(extruder_servo_angle[0]);
+	#elif defined EXTRUDER_PER_SERVO
+	  int i;
+	  for (i = 0; i < EXTRUDERS; i++) {
+	    servos[i].write( (i == 0) ? extruder_servo_active[i] : extruder_servo_idle[i] );
+	  }
+	#endif
+}
+
 void setup()
 {
   setup_killpin(); 
@@ -359,6 +406,7 @@ void setup()
   watchdog_init();
   st_init();    // Initialize stepper, this enables interrupts!
   setup_photpin();
+  servo_init();
   
   lcd_init();
 }
@@ -1384,6 +1432,71 @@ void process_commands()
     }
     break;
 
+    #if (defined NUM_SERVOS) && (NUM_SERVOS > 0)
+    case 280: // M280 - set servo position absolute. P: servo index, S: angle or microseconds
+      {
+        int servo_index = -1;
+        int servo_position = 0;
+        if (code_seen('P'))
+          servo_index = code_value();
+        if (code_seen('S')) {
+          servo_position = code_value();
+          if ((servo_index >= 0) && (servo_index < NUM_SERVOS)) {
+            servos[servo_index].write(servo_position);
+          }
+          else {
+            SERIAL_ECHO_START;
+            SERIAL_ECHO("Servo ");
+            SERIAL_ECHO(servo_index);
+            SERIAL_ECHOLN(" out of range");
+          }
+        }
+        else if (servo_index >= 0) {
+          SERIAL_PROTOCOL(MSG_OK);
+          SERIAL_PROTOCOL(" Servo ");
+          SERIAL_PROTOCOL(servo_index);
+          SERIAL_PROTOCOL(": ");
+          SERIAL_PROTOCOL(servos[servo_index].read());
+          SERIAL_PROTOCOLLN("");
+        }
+      }
+      break;
+    #ifdef EXTRUDER_SINGLE_SERVO
+    case 281: // M281 - EXTRUDER_SINGLE_SERVO - set servo angle for currently active extruder. S: angle or microseconds
+      if (code_seen('S')) {
+        extruder_servo_angle[active_extruder] = code_value();
+        servos[EXTRUDER_SINGLE_SERVO].write(extruder_servo_angle[active_extruder]);
+      }
+      SERIAL_PROTOCOL(MSG_OK);
+      SERIAL_PROTOCOL(" s:");
+      SERIAL_PROTOCOL(extruder_servo_angle[active_extruder]);
+      SERIAL_PROTOCOLLN("");
+      break;
+    #endif // EXTRUDER_SINGLE_SERVO
+    #ifdef EXTRUDER_PER_SERVO
+    case 282: // M282 - EXTRUDER_PER_SERVO - set ACTIVE and IDLE angles for currently active extruder. S: ACTIVE angle, P: IDLE angle
+      {
+        int active_angle = -1, idle_angle = -1;
+        if (code_seen('S')) {
+          active_angle = code_value();
+          extruder_servo_active[active_extruder] = active_angle;
+          servos[active_extruder].write(active_angle);
+        }
+        if (code_seen('P')) {
+          idle_angle = code_value();
+          extruder_servo_idle[active_extruder] = idle_angle;
+        }
+        SERIAL_PROTOCOL(MSG_OK);
+        SERIAL_PROTOCOL(" ACTIVE: ");
+        SERIAL_PROTOCOL(extruder_servo_active[active_extruder]);
+        SERIAL_PROTOCOL(" IDLE: ");
+        SERIAL_PROTOCOL(extruder_servo_idle[active_extruder]);
+        SERIAL_PROTOCOLLN("");
+      }
+      break;
+    #endif // EXTRUDER_PER_SERVO
+    #endif // NUM_SERVOS > 0
+
     #ifdef PIDTEMP
     case 301: // M301
       {
@@ -1563,6 +1676,15 @@ void process_commands()
       SERIAL_ECHO_START;
       SERIAL_ECHO(MSG_ACTIVE_EXTRUDER);
       SERIAL_PROTOCOLLN((int)active_extruder);
+      #ifdef EXTRUDER_SINGLE_SERVO
+        servos[EXTRUDER_SINGLE_SERVO].write(extruder_servo_angle[active_extruder]);
+      #endif
+      #ifdef EXTRUDER_PER_SERVO
+        int i;
+        for (i = 0; i < EXTRUDERS; i++) {
+          servos[i].write((i == active_extruder) ? extruder_servo_active[i] : extruder_servo_idle[i]);
+        }
+      #endif
     }
   }
 

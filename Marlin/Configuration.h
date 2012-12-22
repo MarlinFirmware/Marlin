@@ -351,6 +351,79 @@ const bool Z_ENDSTOPS_INVERTING = true; // set to true to invert the logic of th
 // SF send wrong arc g-codes when using Arc Point as fillet procedure
 //#define SF_ARC_FIX
 
+
+/*********************************************************************\
+*
+* R/C SERVO support
+*
+* Sponsored by TrinityLabs
+*
+**********************************************************************/
+
+// Number of servos
+//
+// If you select a configuration below, this will receive a default value and does not need to be set manually
+//
+// set it manually if you have more servos than extruders and wish to manually control some
+//
+// leaving it undefined or defining as 0 will disable the servo subsystem
+//
+// If unsure, leave commented / disabled
+//
+// #define NUM_SERVOS 3
+
+// SINGLE SERVO configuration
+//
+// In this configuration, a single servo is used to select each extruder, by a rocker arm or cam or some other arrangement
+// Define this value as the index of the extruder servo, when NUM_SERVOS > 1
+//
+// If unsure, leave as 0
+//
+// #define EXTRUDER_SINGLE_SERVO 0
+
+// PER SERVO configuration
+//
+// In this configuration, each extruder has its own servo which moves to an ACTIVE position when its extruder is selected
+//     and retreats to an IDLE position when its extruder is no longer selected
+//
+// There is no provision for remapping extruder->servo indexes, move your servo plugs instead.
+//
+// #define EXTRUDER_PER_SERVO
+
+#if defined EXTRUDER_SINGLE_SERVO
+  #ifndef NUM_SERVOS
+    #define NUM_SERVOS 1
+  #endif
+  // if angle < 180, used as an angle. pulse_width = linear_interpolate(angle, 0, 180, 544, 2400)
+  // if angle > 544, used as microseconds width of servo pulse
+
+  // SERVO active angles - this is the angle to set the SINGLE servo to for EXTRUDER0, EXTRUDER1, etc
+  // must have same number of elements as EXTRUDERS
+  //
+  // These can be altered at runtime using M281
+  // See description in Marlin_main.cpp for specifics
+  //
+  #define DEFAULT_SERVO_ACTIVE_ANGLES { 1400, 1600 }
+
+  #ifdef EXTRUDER_PER_SERVO
+    #error "EXTRUDER_SINGLE_SERVO and EXTRUDER_PER_SERVO cannot both be selected at the same time!"
+  #endif
+
+#elif defined EXTRUDER_PER_SERVO
+  #ifndef NUM_SERVOS
+    #define NUM_SERVOS EXTRUDERS
+  #endif
+
+  //SERVO active/idle angles - this is the angle to set servo[active_extruder] to when ACTIVE or IDLE
+  // must have same number of elements as EXTRUDERS (or NUM_SERVOS if you overrode it)
+  //
+  // These can be altered at runtime using M282
+  // See description in Marlin_main.cpp for specifics
+  //
+  #define DEFAULT_SERVO_ACTIVE_ANGLES { 1600, 1600 }
+  #define DEFAULT_SERVO_IDLE_ANGLES   { 1200, 1200 }
+#endif
+
 #include "Configuration_adv.h"
 #include "thermistortables.h"
 
