@@ -570,6 +570,7 @@
 	#define MSG_NO_CARD          "Keine SDKarte"
 	#define MSG_DWELL            "Warten..."		
 	#define MSG_USERWAIT         "Warte auf Nutzer..."
+    #define MSG_RESUMING         "Druck fortsetzung"
 	#define MSG_NO_MOVE          "Kein Zug."
 	#define MSG_PART_RELEASE     "Stepper tlw frei"
 	#define MSG_KILLED           "KILLED"
