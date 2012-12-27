@@ -662,6 +662,16 @@ void tp_init()
   // Interleave temperature interrupt with millies interrupt
   OCR0B = 128;
   TIMSK0 |= (1<<OCIE0B);  
+
+#if FAN_PIN == 12 || FAN_PIN ==13
+#ifdef FAN_PWM_TIMER2
+  //Use timer2 for fan pwm 
+  TCCR2B=3;
+  TCCR2A=1;
+  OCR2A=0;
+  TIMSK2=2;
+#endif
+#endif
   
   // Wait for temperature measurement to settle
   delay(250);
@@ -901,6 +911,22 @@ int read_max6675()
 #endif
 
 
+
+#if FAN_PIN == 12 || FAN_PIN ==13
+#ifdef FAN_PWM_TIMER2
+ISR(TIMER2_COMPA_vect)
+{
+  OCR2A =(unsigned char) fanSpeed;
+  if(fanSpeed==0){
+  	WRITE(FAN_PIN,0);
+  }
+  else
+  {
+    TOGGLE(FAN_PIN);
+  }
+}
+#endif
+#endif
 // Timer 0 is shared with millies
 ISR(TIMER0_COMPB_vect)
 {

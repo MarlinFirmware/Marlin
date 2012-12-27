@@ -679,7 +679,9 @@
 
 #define FAN_PIN            -1 
 #if FAN_PIN == 12 || FAN_PIN ==13
+#ifndef FAN_PWM_TIMER2
 #define FAN_SOFT_PWM
+#endif
 #endif
 
 #ifdef MELZI
