@@ -618,7 +618,7 @@ static void homeaxis(int axis) {
       0) {
     current_position[axis] = 0;
     plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
-    destination[axis] = 1.5 * max_length(axis) * home_dir(axis);
+    destination[axis] = 3 * Z_MAX_LENGTH;
     feedrate = homing_feedrate[axis];
     plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate/60, active_extruder);
     st_synchronize();
@@ -740,9 +740,9 @@ void process_commands()
         current_position[Z_AXIS] = 0;
         plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]); 
 
-        destination[X_AXIS] = 1.5 * X_MAX_LENGTH * X_HOME_DIR;
-        destination[Y_AXIS] = 1.5 * Y_MAX_LENGTH * Y_HOME_DIR;
-        destination[Z_AXIS] = 1.5 * Z_MAX_LENGTH * Z_HOME_DIR;
+        destination[X_AXIS] = 3 * Z_MAX_LENGTH;
+        destination[Y_AXIS] = 3 * Z_MAX_LENGTH;
+        destination[Z_AXIS] = 3 * Z_MAX_LENGTH;
         feedrate = 1.732 * homing_feedrate[X_AXIS];
         plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate/60, active_extruder);
         st_synchronize();
