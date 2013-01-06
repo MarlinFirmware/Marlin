@@ -478,8 +478,8 @@ void check_axes_activity()
   if((DISABLE_Z) && (z_active == 0)) disable_z();
   if(DISABLE_E) {
     if(e0_active == 0) disable_e0();
-    if(e1_active == 0) disable_e1();
-    if(e2_active == 0) disable_e2();
+    if(e1_active == 1) disable_e1();
+    if(e2_active == 2) disable_e2();
   }
 #if FAN_PIN > -1
   #ifndef FAN_SOFT_PWM

@@ -1401,20 +1401,23 @@ void process_commands()
     #ifdef PIDTEMP
     case 301: // M301
       {
-        if(code_seen('P')) Kp = code_value();
-        if(code_seen('I')) Ki = code_value()*PID_dT;
-        if(code_seen('D')) Kd = code_value()/PID_dT;
+        if(setTargetedHotend(301)){
+          break;
+        }
+        if(code_seen('P')) Kp[tmp_extruder] = code_value();
+        if(code_seen('I')) Ki[tmp_extruder] = code_value()*PID_dT;
+        if(code_seen('D')) Kd[tmp_extruder] = code_value()/PID_dT;
         #ifdef PID_ADD_EXTRUSION_RATE
         if(code_seen('C')) Kc = code_value();
         #endif
         updatePID();
         SERIAL_PROTOCOL(MSG_OK);
 		SERIAL_PROTOCOL(" p:");
-        SERIAL_PROTOCOL(Kp);
+        SERIAL_PROTOCOL(Kp[tmp_extruder]);
         SERIAL_PROTOCOL(" i:");
-        SERIAL_PROTOCOL(Ki/PID_dT);
+        SERIAL_PROTOCOL(Ki[tmp_extruder]/PID_dT);
         SERIAL_PROTOCOL(" d:");
-        SERIAL_PROTOCOL(Kd*PID_dT);
+        SERIAL_PROTOCOL(Kd[tmp_extruder]*PID_dT);
         #ifdef PID_ADD_EXTRUSION_RATE
         SERIAL_PROTOCOL(" c:");
         SERIAL_PROTOCOL(Kc*PID_dT);
@@ -1935,6 +1938,9 @@ bool setTargetedHotend(int code){
           break;
         case 109:
           SERIAL_ECHO(MSG_M109_INVALID_EXTRUDER);
+          break;
+        case 301:
+          SERIAL_ECHO(MSG_M301_INVALID_EXTRUDER);
           break;
       }
       SERIAL_ECHOLN(tmp_extruder);

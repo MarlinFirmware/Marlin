@@ -143,10 +143,24 @@ void Config_PrintSettings()
     SERIAL_ECHO_START;
     SERIAL_ECHOLNPGM("PID settings:");
     SERIAL_ECHO_START;
-    SERIAL_ECHOPAIR("   M301 P",Kp); 
-    SERIAL_ECHOPAIR(" I" ,Ki/PID_dT); 
-    SERIAL_ECHOPAIR(" D" ,Kd*PID_dT);
+    SERIAL_ECHOPAIR("   M301 P",Kp[0]); 
+    SERIAL_ECHOPAIR(" I" ,Ki[0]/PID_dT); 
+    SERIAL_ECHOPAIR(" D" ,Kd[0]*PID_dT);
     SERIAL_ECHOLN(""); 
+#if EXTRUDERS > 1
+    SERIAL_ECHOPAIR("   M301 P",Kp[1]); 
+    SERIAL_ECHOPAIR(" I" ,Ki[1]/PID_dT); 
+    SERIAL_ECHOPAIR(" D" ,Kd[1]*PID_dT);
+    SERIAL_ECHOPGM(" T1");
+    SERIAL_ECHOLN(""); 
+#endif
+#if EXTRUDERS > 2
+    SERIAL_ECHOPAIR("   M301 P",Kp[2]); 
+    SERIAL_ECHOPAIR(" I" ,Ki[2]/PID_dT); 
+    SERIAL_ECHOPAIR(" D" ,Kd[2]*PID_dT);
+    SERIAL_ECHOPGM(" T2");
+    SERIAL_ECHOLN(""); 
+#endif
 #endif
 } 
 #endif
@@ -234,9 +248,19 @@ void Config_ResetDefault()
     absPreheatFanSpeed = ABS_PREHEAT_FAN_SPEED;
 #endif
 #ifdef PIDTEMP
-    Kp = DEFAULT_Kp;
-    Ki = (DEFAULT_Ki*PID_dT);
-    Kd = (DEFAULT_Kd/PID_dT);
+    Kp[0] = DEFAULT_Kp;
+    Ki[0] = (DEFAULT_Ki*PID_dT);
+    Kd[0] = (DEFAULT_Kd/PID_dT);
+    #if EXTRUDERS > 1
+    Kp[1] = DEFAULT_Kp_E1;
+    Ki[1] = (DEFAULT_Ki_E1*PID_dT);
+    Kd[1] = (DEFAULT_Kd_E1/PID_dT);
+    #endif
+    #if EXTRUDERS > 2
+    Kp[2] = DEFAULT_Kp_E2;
+    Ki[2] = (DEFAULT_Ki_E2*PID_dT);
+    Kd[2] = (DEFAULT_Kd_E2/PID_dT);
+    #endif
 #ifdef PID_ADD_EXTRUSION_RATE
     Kc = DEFAULT_Kc;
 #endif//PID_ADD_EXTRUSION_RATE

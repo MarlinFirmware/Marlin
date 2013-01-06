@@ -136,6 +136,17 @@
 //    #define  DEFAULT_Kd 440
 #endif // PIDTEMP
 
+// PID parameters for 2nd extruder
+    #define DEFAULT_Kp_E1 22.2
+    #define DEFAULT_Ki_E1 1.08
+    #define DEFAULT_Kd_E1 114
+
+
+// PID parameters for 3th extruder
+//    #define DEFAULT_Kp_E2 22.2
+//    #define DEFAULT_Ki_E2 1.08
+//    #define DEFAULT_Kd_E2 114
+
 // Bed Temperature Control
 // Select PID or bang-bang with PIDTEMPBED.  If bang-bang, BED_LIMIT_SWITCHING will enable hysteresis
 //
