@@ -39,7 +39,10 @@ extern int target_temperature_bed;
 extern float current_temperature_bed;
 
 #ifdef PIDTEMP
-  extern float Kp,Ki,Kd,Kc;
+  extern float Kp[EXTRUDERS];
+  extern float Ki[EXTRUDERS];
+  extern float Kd[EXTRUDERS];
+  extern float Kc;
 #endif
 #ifdef PIDTEMPBED
   extern float bedKp,bedKi,bedKd;
