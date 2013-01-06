@@ -437,7 +437,9 @@ void check_axes_activity()
   unsigned char x_active = 0;
   unsigned char y_active = 0;  
   unsigned char z_active = 0;
-  unsigned char e_active = 0;
+  unsigned char e0_active = 0;
+  unsigned char e1_active = 0;
+  unsigned char e2_active = 0;
   unsigned char fan_speed = 0;
   unsigned char tail_fan_speed = 0;
   block_t *block;
@@ -452,7 +454,11 @@ void check_axes_activity()
       if(block->steps_x != 0) x_active++;
       if(block->steps_y != 0) y_active++;
       if(block->steps_z != 0) z_active++;
-      if(block->steps_e != 0) e_active++;
+      if(block->steps_e != 0) {
+         if(block->active_extruder == 0) e0_active++;
+         if(block->active_extruder == 1) e1_active++;
+         if(block->active_extruder == 2) e2_active++;
+      }
       if(block->fan_speed != 0) fan_speed++;
       block_index = (block_index+1) & (BLOCK_BUFFER_SIZE - 1);
     }
@@ -470,11 +476,10 @@ void check_axes_activity()
   if((DISABLE_X) && (x_active == 0)) disable_x();
   if((DISABLE_Y) && (y_active == 0)) disable_y();
   if((DISABLE_Z) && (z_active == 0)) disable_z();
-  if((DISABLE_E) && (e_active == 0))
-  {
-    disable_e0();
-    disable_e1();
-    disable_e2(); 
+  if(DISABLE_E) {
+    if(e0_active == 0) disable_e0();
+    if(e1_active == 0) disable_e1();
+    if(e2_active == 0) disable_e2();
   }
 #if FAN_PIN > -1
   #ifndef FAN_SOFT_PWM
@@ -597,9 +602,9 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
   // Enable all
   if(block->steps_e != 0)
   {
-    enable_e0();
-    enable_e1();
-    enable_e2(); 
+    if(extruder == 0) enable_e0();
+    if(extruder == 1) enable_e1();
+    if(extruder == 2) enable_e2(); 
   }
 
   if (block->steps_e == 0)

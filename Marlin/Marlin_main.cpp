@@ -1181,10 +1181,24 @@ void process_commands()
           if(code_seen('Z')) disable_z();
           #if ((E0_ENABLE_PIN != X_ENABLE_PIN) && (E1_ENABLE_PIN != Y_ENABLE_PIN)) // Only enable on boards that have seperate ENABLE_PINS
             if(code_seen('E')) {
-              disable_e0();
-              disable_e1();
-              disable_e2();
-            }
+              if(code_seen('T')) {
+                tmp_extruder = code_value();
+                if(tmp_extruder >= EXTRUDERS) {
+                  SERIAL_ECHO_START;
+                  SERIAL_ECHOLN(MSG_INVALID_EXTRUDER);
+                }
+                else {
+                  if(tmp_extruder == 0) disable_e0();
+                  else if(tmp_extruder == 1) disable_e1();
+                  else if(tmp_extruder == 2) disable_e2();
+               }
+             }
+             else {
+               disable_e0();
+               disable_e1();
+               disable_e2();
+             }
+          }
           #endif 
         }
       }
