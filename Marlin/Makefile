@@ -190,8 +190,13 @@ TARGET = $(notdir $(CURDIR))
 VPATH = .
 VPATH += $(BUILD_DIR)
 VPATH += $(HARDWARE_SRC)
+ifeq ($(HARDWARE_VARIANT), arduino)
+VPATH += $(ARDUINO_INSTALL_DIR)/libraries/LiquidCrystal
+VPATH += $(ARDUINO_INSTALL_DIR)/libraries/SPI
+else
 VPATH += $(HARDWARE_DIR)/libraries/LiquidCrystal
 VPATH += $(HARDWARE_DIR)/libraries/SPI
+endif
 ifeq ($(HARDWARE_VARIANT), arduino)
 HARDWARE_SUB_VARIANT ?= mega
 VPATH += $(ARDUINO_INSTALL_DIR)/hardware/arduino/variants/$(HARDWARE_SUB_VARIANT)
