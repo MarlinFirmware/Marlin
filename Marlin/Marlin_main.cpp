@@ -295,6 +295,10 @@ void setup_powerhold()
       WRITE(SUICIDE_PIN, HIGH);
    #endif
  #endif
+ #if (PS_ON_PIN > -1)
+   SET_OUTPUT(PS_ON_PIN);
+   WRITE(PS_ON_PIN, PS_ON_AWAKE);
+ #endif
 }
 
 void suicide()
@@ -1137,7 +1141,7 @@ void process_commands()
     #if (PS_ON_PIN > -1)
       case 80: // M80 - ATX Power On
         SET_OUTPUT(PS_ON_PIN); //GND
-        WRITE(PS_ON_PIN, LOW);
+        WRITE(PS_ON_PIN, PS_ON_AWAKE);
         break;
       #endif
       
@@ -1148,7 +1152,7 @@ void process_commands()
         suicide();
       #elif (PS_ON_PIN > -1)
         SET_OUTPUT(PS_ON_PIN); 
-        WRITE(PS_ON_PIN, HIGH);
+        WRITE(PS_ON_PIN, PS_ON_ASLEEP);
       #endif
 		break;
         
