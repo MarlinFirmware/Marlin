@@ -310,13 +310,16 @@ const bool Z_ENDSTOPS_INVERTING = true; // set to true to invert the logic of th
 //#define ULTIMAKERCONTROLLER //as available from the ultimaker online store.
 //#define ULTIPANEL  //the ultipanel as on thingiverse
 
-// The RepRapDiscount Smart Controller
+// The RepRapDiscount Smart Controller (white PCB)
 // http://reprap.org/wiki/RepRapDiscount_Smart_Controller
 //#define REPRAP_DISCOUNT_SMART_CONTROLLER
 
+// The GADGETS3D G3D LCD/SD Controller (blue PCB)
+// http://reprap.org/wiki/RAMPS_1.3/1.4_GADGETS3D_Shield_with_Panel
+//#define G3D_PANEL
 
 //automatic expansion
-#if defined(ULTIMAKERCONTROLLER) || defined(REPRAP_DISCOUNT_SMART_CONTROLLER)
+#if defined(ULTIMAKERCONTROLLER) || defined(REPRAP_DISCOUNT_SMART_CONTROLLER) || defined(G3D_PANEL)
  #define ULTIPANEL
  #define NEWPANEL
 #endif 
