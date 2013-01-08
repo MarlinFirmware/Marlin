@@ -256,9 +256,9 @@ static void lcd_implementation_status_screen()
     lcd.print(ftostr3(current_position[Y_AXIS]));
 #  endif//EXTRUDERS > 1 || TEMP_SENSOR_BED != 0
 # endif//LCD_WIDTH > 19
-    lcd.setCursor(LCD_WIDTH - 7, 1);
+    lcd.setCursor(LCD_WIDTH - 8, 1);
     lcd.print('Z');
-    lcd.print(ftostr31(current_position[Z_AXIS]));
+    lcd.print(ftostr32(current_position[Z_AXIS]));
 #endif//LCD_HEIGHT > 2
 
 #if LCD_HEIGHT > 3
