@@ -362,7 +362,7 @@
 #endif
 #define PS_ON_PIN          12
 
-#ifdef REPRAP_DISCOUNT_SMART_CONTROLLER
+#if defined(REPRAP_DISCOUNT_SMART_CONTROLLER) || defined(G3D_PANEL)
 #define KILL_PIN           41
 #else
 #define KILL_PIN           -1
@@ -418,7 +418,11 @@
       #define BTN_EN2 35
       #define BTN_ENC 31  //the click
 
-      #define SDCARDDETECT -1  // Ramps does not use this port
+      #ifdef G3D_PANEL
+        #define SDCARDDETECT 49
+      #else
+        #define SDCARDDETECT -1  // Ramps does not use this port
+      #endif
     #endif
 
   #else //old style panel with shift register
