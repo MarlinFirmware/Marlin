@@ -66,6 +66,11 @@
 //#define CONTROLLERFAN_PIN 23 //Pin used for the fan to cool controller, comment out to disable this function
 #define CONTROLLERFAN_SEC 60 //How many seconds, after all motors were disabled, the fan should run
 
+// When first starting the main fan, run it at full speed for the
+// given number of milliseconds.  This gets the fan spinning reliably
+// before setting a PWM value.  Set to zero to disable.
+#define FAN_KICKSTART_TIME 100
+
 //===========================================================================
 //=============================Mechanical Settings===========================
 //===========================================================================
