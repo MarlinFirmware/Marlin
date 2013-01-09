@@ -221,10 +221,7 @@ void lcd_preheat_pla()
     setTargetHotend1(plaPreheatHotendTemp);
     setTargetHotend2(plaPreheatHotendTemp);
     setTargetBed(plaPreheatHPBTemp);
-#if FAN_PIN > -1
     fanSpeed = plaPreheatFanSpeed;
-    analogWrite(FAN_PIN,  fanSpeed);
-#endif
     lcd_return_to_status();
 }
 
@@ -234,10 +231,7 @@ void lcd_preheat_abs()
     setTargetHotend1(absPreheatHotendTemp);
     setTargetHotend2(absPreheatHotendTemp);
     setTargetBed(absPreheatHPBTemp);
-#if FAN_PIN > -1
     fanSpeed = absPreheatFanSpeed;
-    analogWrite(FAN_PIN,  fanSpeed);
-#endif
     lcd_return_to_status();
 }
 
