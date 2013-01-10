@@ -916,15 +916,15 @@ int read_max6675()
 #ifdef FAN_PWM_TIMER2
 ISR(TIMER2_OVF_vect)
 {
-  OCR2A =(unsigned char) fanSpeed;
-  WRITE(FAN_PIN,1);
+  if(fanSpeed!=0){
+  	OCR2A =(unsigned char) fanSpeed;
+  	WRITE(FAN_PIN,1);
+  }
 }
 
 ISR(TIMER2_COMPA_vect)
 {
-  if(fanSpeed!=0){
     WRITE(FAN_PIN,0);
-  }
 }
 #endif
 #endif
