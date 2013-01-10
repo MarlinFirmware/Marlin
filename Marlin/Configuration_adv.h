@@ -68,8 +68,8 @@
 
 // When first starting the main fan, run it at full speed for the
 // given number of milliseconds.  This gets the fan spinning reliably
-// before setting a PWM value.  Set to zero to disable.
-#define FAN_KICKSTART_TIME 100
+// before setting a PWM value. (Does not work with software PWM for fan on Sanguinololu)
+//#define FAN_KICKSTART_TIME 100
 
 //===========================================================================
 //=============================Mechanical Settings===========================
