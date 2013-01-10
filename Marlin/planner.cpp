@@ -455,6 +455,18 @@ void check_axes_activity()
       block_index = (block_index+1) & (BLOCK_BUFFER_SIZE - 1);
     }
   }
+  else
+  {
+    #if FAN_PIN > -1
+    #ifndef FAN_SOFT_PWM
+	#ifndef FAN_PWM_TIMER2
+    if (fanSpeed != 0){
+      analogWrite(FAN_PIN,fanSpeed); // If buffer is empty use current fan speed
+    }
+    #endif
+    #endif
+	#endif
+  }
   if((DISABLE_X) && (x_active == 0)) disable_x();
   if((DISABLE_Y) && (y_active == 0)) disable_y();
   if((DISABLE_Z) && (z_active == 0)) disable_z();
@@ -466,6 +478,7 @@ void check_axes_activity()
   }
 #if FAN_PIN > -1
   #ifndef FAN_SOFT_PWM
+
     #ifdef FAN_KICKSTART_TIME
       static unsigned long fan_kick_end;
       if (tail_fan_speed) {
@@ -480,9 +493,12 @@ void check_axes_activity()
         fan_kick_end = 0;
       }
     #endif//FAN_KICKSTART_TIME
-    analogWrite(FAN_PIN,tail_fan_speed);
+    #ifndef FAN_PWM_TIMER2
+      analogWrite(FAN_PIN,tail_fan_speed);
+    #endif //FAN_PWM_TIMER2
   #endif//!FAN_SOFT_PWM
 #endif//FAN_PIN > -1
+
 #ifdef AUTOTEMP
   getHighESpeed();
 #endif

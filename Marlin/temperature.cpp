@@ -666,10 +666,10 @@ void tp_init()
 #if FAN_PIN == 12 || FAN_PIN ==13
 #ifdef FAN_PWM_TIMER2
   //Use timer2 for fan pwm 
-  TCCR2B=3;
-  TCCR2A=1;
+  TCCR2B=5;
+  TCCR2A=0;
   OCR2A=0;
-  TIMSK2=2;
+  TIMSK2=3;
 #endif
 #endif
   
@@ -914,15 +914,16 @@ int read_max6675()
 
 #if FAN_PIN == 12 || FAN_PIN ==13
 #ifdef FAN_PWM_TIMER2
-ISR(TIMER2_COMPA_vect)
+ISR(TIMER2_OVF_vect)
 {
   OCR2A =(unsigned char) fanSpeed;
-  if(fanSpeed==0){
-  	WRITE(FAN_PIN,0);
-  }
-  else
-  {
-    TOGGLE(FAN_PIN);
+  WRITE(FAN_PIN,1);
+}
+
+ISR(TIMER2_COMPA_vect)
+{
+  if(fanSpeed!=0){
+    WRITE(FAN_PIN,0);
   }
 }
 #endif
