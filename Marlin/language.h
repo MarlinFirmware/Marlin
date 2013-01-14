@@ -1036,6 +1036,7 @@
 	#define MSG_NO_CARD              " No Card"
 	#define MSG_DWELL                " Sospensione..."
 	#define MSG_USERWAIT             "Attendi utente..."
+	#define MSG_RESUMING             "Riprendi stampa"
 	#define MSG_NO_MOVE              "Nessun movimento."
 	#define MSG_PART_RELEASE         "Rilascio Parziale"
 	#define MSG_KILLED               "UCCISO. "
