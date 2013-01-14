@@ -438,8 +438,7 @@ void check_axes_activity()
   unsigned char y_active = 0;  
   unsigned char z_active = 0;
   unsigned char e_active = 0;
-  unsigned char fan_speed = 0;
-  unsigned char tail_fan_speed = 0;
+  unsigned char tail_fan_speed = fanSpeed;
   block_t *block;
 
   if(block_buffer_tail != block_buffer_head)
@@ -453,19 +452,8 @@ void check_axes_activity()
       if(block->steps_y != 0) y_active++;
       if(block->steps_z != 0) z_active++;
       if(block->steps_e != 0) e_active++;
-      if(block->fan_speed != 0) fan_speed++;
       block_index = (block_index+1) & (BLOCK_BUFFER_SIZE - 1);
     }
-  }
-  else
-  {
-    #if FAN_PIN > -1
-    #ifndef FAN_SOFT_PWM
-    if (fanSpeed != 0){
-      analogWrite(FAN_PIN,fanSpeed); // If buffer is empty use current fan speed
-    }
-    #endif
-	#endif
   }
   if((DISABLE_X) && (x_active == 0)) disable_x();
   if((DISABLE_Y) && (y_active == 0)) disable_y();
@@ -478,17 +466,23 @@ void check_axes_activity()
   }
 #if FAN_PIN > -1
   #ifndef FAN_SOFT_PWM
-  if((fanSpeed == 0) && (fan_speed ==0))
-  {
-    analogWrite(FAN_PIN, 0);
-  }
-
-  if (fanSpeed != 0 && tail_fan_speed !=0)
-  {
+    #ifdef FAN_KICKSTART_TIME
+      static unsigned long fan_kick_end;
+      if (tail_fan_speed) {
+        if (fan_kick_end == 0) {
+          // Just starting up fan - run at full power.
+          fan_kick_end = millis() + FAN_KICKSTART_TIME;
+          tail_fan_speed = 255;
+        } else if (fan_kick_end > millis())
+          // Fan still spinning up.
+          tail_fan_speed = 255;
+      } else {
+        fan_kick_end = 0;
+      }
+    #endif//FAN_KICKSTART_TIME
     analogWrite(FAN_PIN,tail_fan_speed);
-  }
-  #endif
-#endif
+  #endif//!FAN_SOFT_PWM
+#endif//FAN_PIN > -1
 #ifdef AUTOTEMP
   getHighESpeed();
 #endif

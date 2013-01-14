@@ -125,6 +125,7 @@
 // M501 - reads parameters from EEPROM (if you need reset them after you changed them temporarily).  
 // M502 - reverts to the default "factory settings".  You still need to store them in EEPROM afterwards if you want to.
 // M503 - print the current settings (from memory not from eeprom)
+// M540 - Use S[0|1] to enable or disable the stop SD card print on endstop hit (requires ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED)
 // M907 - Set digital trimpot motor current using axis codes.
 // M908 - Control digital trimpot directly.
 // M350 - Set microstepping mode.
@@ -293,6 +294,10 @@ void setup_powerhold()
       SET_OUTPUT(SUICIDE_PIN);
       WRITE(SUICIDE_PIN, HIGH);
    #endif
+ #endif
+ #if (PS_ON_PIN > -1)
+   SET_OUTPUT(PS_ON_PIN);
+   WRITE(PS_ON_PIN, PS_ON_AWAKE);
  #endif
 }
 
@@ -1136,7 +1141,7 @@ void process_commands()
     #if (PS_ON_PIN > -1)
       case 80: // M80 - ATX Power On
         SET_OUTPUT(PS_ON_PIN); //GND
-        WRITE(PS_ON_PIN, LOW);
+        WRITE(PS_ON_PIN, PS_ON_AWAKE);
         break;
       #endif
       
@@ -1147,7 +1152,7 @@ void process_commands()
         suicide();
       #elif (PS_ON_PIN > -1)
         SET_OUTPUT(PS_ON_PIN); 
-        WRITE(PS_ON_PIN, HIGH);
+        WRITE(PS_ON_PIN, PS_ON_ASLEEP);
       #endif
 		break;
         
@@ -1494,6 +1499,13 @@ void process_commands()
         Config_PrintSettings();
     }
     break;
+    #ifdef ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED
+    case 540:
+    {
+        if(code_seen('S')) abort_on_endstop_hit = code_value() > 0;
+    }
+    break;
+    #endif
     case 907: // M907 Set digital trimpot motor current using axis codes.
     {
       #if DIGIPOTSS_PIN > -1
