@@ -39,6 +39,11 @@
 #define TIMER2A 6
 #define TIMER2B 7
 
+const static uint8_t SS   = 4;
+const static uint8_t MOSI = 5;
+const static uint8_t MISO = 6;
+const static uint8_t SCK  = 7;
+
 extern const uint8_t PROGMEM port_to_mode_PGM[];
 extern const uint8_t PROGMEM port_to_input_PGM[];
 extern const uint8_t PROGMEM port_to_output_PGM[];

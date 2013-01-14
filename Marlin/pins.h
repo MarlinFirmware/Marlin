@@ -362,7 +362,7 @@
 #endif
 #define PS_ON_PIN          12
 
-#ifdef REPRAP_DISCOUNT_SMART_CONTROLLER
+#if defined(REPRAP_DISCOUNT_SMART_CONTROLLER) || defined(G3D_PANEL)
 #define KILL_PIN           41
 #else
 #define KILL_PIN           -1
@@ -418,7 +418,11 @@
       #define BTN_EN2 35
       #define BTN_ENC 31  //the click
 
-      #define SDCARDDETECT -1  // Ramps does not use this port
+      #ifdef G3D_PANEL
+        #define SDCARDDETECT 49
+      #else
+        #define SDCARDDETECT -1  // Ramps does not use this port
+      #endif
     #endif
 
   #else //old style panel with shift register
@@ -719,6 +723,39 @@
 #define SDSS               24
 #endif
 
+ #ifdef ULTRA_LCD
+   #ifdef NEWPANEL
+     //we have no buzzer installed
+     #define BEEPER -1
+     //LCD Pins
+     #define LCD_PINS_RS        4
+     #define LCD_PINS_ENABLE    17
+     #define LCD_PINS_D4        30
+     #define LCD_PINS_D5        29
+     #define LCD_PINS_D6        28
+     #define LCD_PINS_D7        27
+     
+     //The encoder and click button
+     #define BTN_EN1 11  //must be a hardware interrupt pin
+     #define BTN_EN2 10 //must be hardware interrupt pin
+     #define BTN_ENC 16  //the switch
+     //not connected to a pin
+     #define SDCARDDETECT -1
+     
+     //from the same bit in the RAMPS Newpanel define
+     //encoder rotation values
+     #define encrot0 0
+     #define encrot1 2
+     #define encrot2 3
+     #define encrot3 1
+     
+     #define BLEN_C 2
+     #define BLEN_B 1
+     #define BLEN_A 0
+     
+   #endif //Newpanel
+ #endif //Ultipanel
+ 
 #endif
 
 

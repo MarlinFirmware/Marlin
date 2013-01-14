@@ -221,10 +221,7 @@ void lcd_preheat_pla()
     setTargetHotend1(plaPreheatHotendTemp);
     setTargetHotend2(plaPreheatHotendTemp);
     setTargetBed(plaPreheatHPBTemp);
-#if FAN_PIN > -1
     fanSpeed = plaPreheatFanSpeed;
-    analogWrite(FAN_PIN,  fanSpeed);
-#endif
     lcd_return_to_status();
 }
 
@@ -234,10 +231,7 @@ void lcd_preheat_abs()
     setTargetHotend1(absPreheatHotendTemp);
     setTargetHotend2(absPreheatHotendTemp);
     setTargetBed(absPreheatHPBTemp);
-#if FAN_PIN > -1
     fanSpeed = absPreheatFanSpeed;
-    analogWrite(FAN_PIN,  fanSpeed);
-#endif
     lcd_return_to_status();
 }
 
@@ -518,6 +512,9 @@ static void lcd_control_motion_menu()
     MENU_ITEM_EDIT(float52, MSG_YSTEPS, &axis_steps_per_unit[Y_AXIS], 5, 9999);
     MENU_ITEM_EDIT(float51, MSG_ZSTEPS, &axis_steps_per_unit[Z_AXIS], 5, 9999);
     MENU_ITEM_EDIT(float51, MSG_ESTEPS, &axis_steps_per_unit[E_AXIS], 5, 9999);    
+#ifdef ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED
+    MENU_ITEM_EDIT(bool, "Endstop abort", &abort_on_endstop_hit);
+#endif
     END_MENU();
 }
 
@@ -889,13 +886,17 @@ char *ftostr31(const float &x)
 char *ftostr32(const float &x)
 {
   long xx=x*100;
-  conv[0]=(xx>=0)?'+':'-';
+  if (xx >= 0)
+    conv[0]=(xx/10000)%10+'0';
+  else
+    conv[0]='-';
   xx=abs(xx);
-  conv[1]=(xx/100)%10+'0';
-  conv[2]='.';
-  conv[3]=(xx/10)%10+'0';
-  conv[4]=(xx)%10+'0';
-  conv[5]=0;
+  conv[1]=(xx/1000)%10+'0';
+  conv[2]=(xx/100)%10+'0';
+  conv[3]='.';
+  conv[4]=(xx/10)%10+'0';
+  conv[5]=(xx)%10+'0';
+  conv[6]=0;
   return conv;
 }
 

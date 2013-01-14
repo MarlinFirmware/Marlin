@@ -171,15 +171,15 @@ F_CPU ?= 16000000
 # that derives from that, and their source are present in
 # the main Marlin source directory
 ifeq ($(HARDWARE_VARIANT), arduino)
-HARDWARE_SRC = $(ARDUINO_INSTALL_DIR)/hardware/arduino/cores/arduino
+HARDWARE_DIR = $(ARDUINO_INSTALL_DIR)/hardware
 else
 ifeq ($(shell [ $(ARDUINO_VERSION) -ge 100 ] && echo true), true)
-HARDWARE_SRC = ../ArduinoAddons/Arduino_1.x.x/$(HARDWARE_VARIANT)/cores/arduino
+HARDWARE_DIR = ../ArduinoAddons/Arduino_1.x.x
 else
-HARDWARE_SRC = ../ArduinoAddons/Arduino_0.xx/$(HARDWARE_VARIANT)/cores/arduino
+HARDWARE_DIR = ../ArduinoAddons/Arduino_0.xx
 endif
 endif
-
+HARDWARE_SRC = $(HARDWARE_DIR)/$(HARDWARE_VARIANT)/cores/arduino
 
 TARGET = $(notdir $(CURDIR))
 
@@ -190,11 +190,19 @@ TARGET = $(notdir $(CURDIR))
 VPATH = .
 VPATH += $(BUILD_DIR)
 VPATH += $(HARDWARE_SRC)
+ifeq ($(HARDWARE_VARIANT), arduino)
 VPATH += $(ARDUINO_INSTALL_DIR)/libraries/LiquidCrystal
 VPATH += $(ARDUINO_INSTALL_DIR)/libraries/SPI
+else
+VPATH += $(HARDWARE_DIR)/libraries/LiquidCrystal
+VPATH += $(HARDWARE_DIR)/libraries/SPI
+endif
 ifeq ($(HARDWARE_VARIANT), arduino)
 HARDWARE_SUB_VARIANT ?= mega
 VPATH += $(ARDUINO_INSTALL_DIR)/hardware/arduino/variants/$(HARDWARE_SUB_VARIANT)
+else
+HARDWARE_SUB_VARIANT ?= standard
+VPATH += $(HARDWARE_DIR)/$(HARDWARE_VARIANT)/variants/$(HARDWARE_SUB_VARIANT)
 endif
 SRC = wiring.c \
 	wiring_analog.c wiring_digital.c \
