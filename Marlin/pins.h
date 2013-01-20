@@ -719,9 +719,9 @@
 #define SDPOWER            -1
 #define SDSS               31
 
-#ifdef MELZI
-#define SDSS               24
-#endif
+//#ifdef MELZI
+//#define SDSS               24
+//#endif
 
  #ifdef ULTRA_LCD
    #ifdef NEWPANEL
