@@ -719,9 +719,8 @@
 #define SDPOWER            -1
 #define SDSS               31
 
-#ifdef MELZI
-#define SDSS               24
-#endif
+/* On some broken versions of the Sanguino libraries the pin definitions are wrong, which then needs SDSS as pin 24. But you better upgrade your Sanguino libraries! See #368. */
+//#define SDSS               24
 
  #ifdef ULTRA_LCD
    #ifdef NEWPANEL
