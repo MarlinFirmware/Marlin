@@ -719,7 +719,7 @@
 #define SDPOWER            -1
 #define SDSS               31
 
-//#ifdef MELZI
+//#ifdef MELZI						// Not needed and setting SDSS to pin 24 corrupts hotend temp readout
 //#define SDSS               24
 //#endif
 
