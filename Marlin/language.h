@@ -113,6 +113,7 @@
 	#define MSG_CONTROL_RETRACT_RECOVER "UnRet +mm"
 	#define MSG_CONTROL_RETRACT_RECOVERF "UnRet  F"
 	#define MSG_AUTORETRACT "AutoRetr."
+	#define MSG_FILAMENTCHANGE "Change filament"
 
 // Serial Console Messages
 
@@ -267,6 +268,7 @@
 	#define MSG_CONTROL_RETRACT_RECOVER "Cof. wycof. +mm"
 	#define MSG_CONTROL_RETRACT_RECOVERF "Cof. wycof.  F"
 	#define MSG_AUTORETRACT "Auto. wycofanie"
+	#define MSG_FILAMENTCHANGE "Change filament"
 
 // Serial Console Messages
 
@@ -426,6 +428,7 @@
 #define MSG_CONTROL_RETRACT_RECOVER " UnRet +mm:"
 #define MSG_CONTROL_RETRACT_RECOVERF " UnRet F:"
 #define MSG_AUTORETRACT " Retract. Auto.:"
+#define MSG_FILAMENTCHANGE "Change filament"
 
 // Serial Console Messages
 
@@ -583,6 +586,7 @@
     #define MSG_CONTROL_RETRACT_RECOVER "UnRet +mm"
     #define MSG_CONTROL_RETRACT_RECOVERF "UnRet  F"
     #define MSG_AUTORETRACT      "AutoRetr."
+    #define MSG_FILAMENTCHANGE "Filament wechseln"
 	
 // Serial Console Messages
 
@@ -741,7 +745,7 @@
 #define MSG_CONTROL_RETRACT_RECOVER " DesRet +mm:"
 #define MSG_CONTROL_RETRACT_RECOVERF " DesRet F:"
 #define MSG_AUTORETRACT " AutoRetr.:"
-
+#define MSG_FILAMENTCHANGE "Change filament"
 // Serial Console Messages
 
 #define MSG_Enqueing "En cola \""
@@ -891,6 +895,7 @@
 #define MSG_CONTROL_RETRACT_RECOVER			" Возврат +mm:"
 #define MSG_CONTROL_RETRACT_RECOVERF		" Возврат  F:"
 #define MSG_AUTORETRACT						" АвтоОткат:"
+#define MSG_FILAMENTCHANGE "Change filament"
 
 // Serial Console Messages
 
@@ -1049,6 +1054,7 @@
 	#define MSG_CONTROL_RETRACT_RECOVERF " UnRet  F:"
 	#define MSG_AUTORETRACT          " AutoRilascio.:"
 	#define MSG_SERIAL_ERROR_MENU_STRUCTURE "Qualcosa non va in MenuStructure."
+	#define MSG_FILAMENTCHANGE "Change filament"
 
 	// Serial Console Messages
 
@@ -1210,6 +1216,7 @@
 	#define MSG_CONTROL_RETRACT_RECOVERF " DesRet  F:"
 	#define MSG_AUTORETRACT " AutoRetr.:"
         #define MSG_SERIAL_ERROR_MENU_STRUCTURE "Algo esta errado na estrutura do Menu."
+        #define MSG_FILAMENTCHANGE "Change filament"
 
 // Serial Console Messages
 
@@ -1366,6 +1373,7 @@
 	#define MSG_CONTROL_RETRACT_RECOVER "UnRet +mm"
 	#define MSG_CONTROL_RETRACT_RECOVERF "UnRet  F"
 	#define MSG_AUTORETRACT "AutoVeto."
+	#define MSG_FILAMENTCHANGE "Change filament"
 
 // Serial Console Messages
 
