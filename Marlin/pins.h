@@ -683,7 +683,7 @@
 #endif
 
 #ifdef MELZI
-#define LED_PIN            28
+#define LED_PIN            27 /* On some broken versions of the Sanguino libraries the pin definitions are wrong, which then needs LED_PIN as pin 27. But you better upgrade your Sanguino libraries! See #368. */
 #define FAN_PIN            4
 #endif
 
