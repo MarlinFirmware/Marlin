@@ -88,7 +88,7 @@
 // M29  - Stop SD write
 // M30  - Delete file from SD (M30 filename.g)
 // M31  - Output time since last M109 or SD card start to serial
-// M42  - Change pin status via gcode. Use M42 Px Sy to set pin x to value y, when omitting Px the onboard led will be used.
+// M42  - Change pin status via gcode
 // M80  - Turn on Power Supply
 // M81  - Turn off Power Supply
 // M82  - Set E codes absolute (default)
@@ -125,7 +125,6 @@
 // M501 - reads parameters from EEPROM (if you need reset them after you changed them temporarily).  
 // M502 - reverts to the default "factory settings".  You still need to store them in EEPROM afterwards if you want to.
 // M503 - print the current settings (from memory not from eeprom)
-
 // M540 - Use S[0|1] to enable or disable the stop SD card print on endstop hit (requires ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED)
 // M600 - Pause for filament change X[pos] Y[pos] Z[relative lift] E[initial retract] L[later retract distance for removal]
 // M907 - Set digital trimpot motor current using axis codes.
@@ -959,7 +958,7 @@ void process_commands()
       autotempShutdown();
       }
       break;
-    case 42: //M42 -Change pin status via gcode 
+    case 42: //M42 -Change pin status via gcode
       if (code_seen('S'))
       {
         int pin_status = code_value();
@@ -1501,19 +1500,12 @@ void process_commands()
         Config_PrintSettings();
     }
     break;
-
     #ifdef ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED
-
     case 540:
-
     {
-
         if(code_seen('S')) abort_on_endstop_hit = code_value() > 0;
-
     }
-
     break;
-
     #endif
     #ifdef FILAMENTCHANGEENABLE
     case 600: //Pause for filament change X[pos] Y[pos] Z[relative lift] E[initial retract] L[later retract distance for removal]
