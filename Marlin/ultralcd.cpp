@@ -5,6 +5,7 @@
 #include "language.h"
 #include "cardreader.h"
 #include "temperature.h"
+#include "stepper.h"
 #include "ConfigurationStore.h"
 
 /* Configuration settings */
