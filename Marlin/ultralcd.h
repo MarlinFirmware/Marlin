@@ -9,6 +9,7 @@
   void lcd_init();
   void lcd_setstatus(const char* message);
   void lcd_setstatuspgm(const char* message);
+  void lcd_setalertstatus(const char* message);
   void lcd_setalertstatuspgm(const char* message);
   void lcd_reset_alert_level();
 
@@ -24,7 +25,7 @@
   #else
   FORCE_INLINE void lcd_buttons_update() {}
   #endif
-
+  
   extern int plaPreheatHotendTemp;
   extern int plaPreheatHPBTemp;
   extern int plaPreheatFanSpeed;
@@ -57,6 +58,7 @@
   FORCE_INLINE void lcd_update() {}
   FORCE_INLINE void lcd_init() {}
   FORCE_INLINE void lcd_setstatus(const char* message) {}
+  FORCE_INLINE void lcd_setalertstatus(const char* message) {}
   FORCE_INLINE void lcd_buttons_update() {}
   FORCE_INLINE void lcd_reset_alert_level() {}
 

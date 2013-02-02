@@ -293,16 +293,22 @@ const unsigned int dropsegments=5; //everything with less than this number of st
 #define MIN_RETRACT 0.1 //minimum extruded mm to accept a automatic gcode retraction attempt
 
 
-//adds support for experimental filament exchange support M600; requires display
-#ifdef ULTIPANEL
-  //#define FILAMENTCHANGEENABLE
-  #ifdef FILAMENTCHANGEENABLE
-    #define FILAMENTCHANGE_XPOS 3
-    #define FILAMENTCHANGE_YPOS 3
-    #define FILAMENTCHANGE_ZADD 10
-    #define FILAMENTCHANGE_FIRSTRETRACT -2
-    #define FILAMENTCHANGE_FINALRETRACT -100
-  #endif
+//adds support for experimental filament exchange support (M600)
+//#define PARK_HEAD_ENABLE
+#ifdef PARK_HEAD_ENABLE
+  // These relate to the default M600 & M601 values
+  #define PARK_HEAD_XPOS 5
+  #define PARK_HEAD_YPOS 5
+  #define PARK_HEAD_ZADD 10
+  #define PARK_HEAD_FIRSTRETRACT -2
+  #define UNPARK_HEAD_EXTRUDE 1 // this is the small extrude after head has been moved back into position
+  
+  #ifdef ULTIPANEL
+    // These values relate to the "Change Filament" LCD command
+    #define FILAMENTCHANGE_FIRSTRETRACT "-50"
+    #define FILAMENTCHANGE_EXTRUDE "50"
+    #define FILAMENTCHANGE_FINALRETRACT "-1" // == -UNPARK_HEAD_EXTRUDE
+  #endif  
 #endif
  
 //===========================================================================
