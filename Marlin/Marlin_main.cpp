@@ -152,7 +152,6 @@ CardReader card;
 float homing_feedrate[] = HOMING_FEEDRATE;
 bool axis_relative_modes[] = AXIS_RELATIVE_MODES;
 int feedmultiply=100; //100->1 200->2
-int saved_feedmultiply;
 int extrudemultiply=100; //100->1 200->2
 float current_position[NUM_AXIS] = { 0.0, 0.0, 0.0, 0.0 };
 float add_homeing[3]={0,0,0};
@@ -188,8 +187,8 @@ const char axis_codes[NUM_AXIS] = {'X', 'Y', 'Z', 'E'};
 static float destination[NUM_AXIS] = {  0.0, 0.0, 0.0, 0.0};
 static float offset[3] = {0.0, 0.0, 0.0};
 static bool home_all_axis = true;
-static float feedrate = 1500.0, next_feedrate, saved_feedrate;
-static long gcode_N, gcode_LastN, Stopped_gcode_LastN = 0;
+static float feedrate = 1500.0;
+static long gcode_LastN, Stopped_gcode_LastN = 0;
 
 static bool relative_mode = false;  //Determines Absolute or Relative Coordinates
 
@@ -198,16 +197,11 @@ static bool fromsd[BUFSIZE];
 static int bufindr = 0;
 static int bufindw = 0;
 static int buflen = 0;
-//static int i = 0;
-static char serial_char;
 static int serial_count = 0;
 static boolean comment_mode = false;
 static char *strchr_pointer; // just a pointer to find chars in the cmd string like X, Y, Z, E, etc
 
 const int sensitive_pins[] = SENSITIVE_PINS; // Sensitive pin list for M42
-
-//static float tt = 0;
-//static float bt = 0;
 
 //Inactivity shutdown variables
 static unsigned long previous_millis_cmd = 0;
@@ -396,14 +390,14 @@ void loop()
   if(buflen)
   {
     #ifdef ULTIPANEL
-    // enqueuecommand() can inject multi-line LCD commands so deal with this here
-    // by processing each command in a loop.
-    char *nextcmd_pointer;
     while (true) 
     {
-      if ((nextcmd_pointer = strchr(cmdbuffer[bufindr], '\n')) != NULL)
-        *nextcmd_pointer++ = '\0';
-    #endif      
+      // enqueuecommand() can inject multi-line LCD commands so deal with this here
+      // by processing each command in a loop.
+      uint8_t nextcmd_index = strcspn_P(cmdbuffer[bufindr], PSTR("\n"));
+      if (cmdbuffer[bufindr][nextcmd_index] == '\n')
+        cmdbuffer[bufindr][nextcmd_index++] = '\0';
+    #endif //ULTIPANEL
     #ifdef SDSUPPORT
       if(card.saving)
       {
@@ -423,15 +417,15 @@ void loop()
         process_commands();
       }
     #else
-        process_commands();
+      process_commands();
     #endif //SDSUPPORT
     #ifdef ULTIPANEL
-      if (nextcmd_pointer == NULL || *nextcmd_pointer == "\0")
+      if (cmdbuffer[bufindr][nextcmd_index] == '\0')
         break;
-      // shuffle down next part of command
-      memmove(cmdbuffer[bufindr], nextcmd_pointer, strlen(nextcmd_pointer)+1);
+      // shuffle down next part of multi-line command
+      memmove(cmdbuffer[bufindr], &cmdbuffer[bufindr][nextcmd_index], strlen(&cmdbuffer[bufindr][nextcmd_index])+1);
     }
-    #endif
+    #endif //ULTIPANEL
     buflen = (buflen-1);
     bufindr = (bufindr + 1)%BUFSIZE;
   }
@@ -444,6 +438,7 @@ void loop()
 
 void get_command() 
 { 
+  char serial_char;
   while( MYSERIAL.available() > 0  && buflen < BUFSIZE) {
     serial_char = MYSERIAL.read();
     if(serial_char == '\n' || 
@@ -456,14 +451,14 @@ void get_command()
         return;
       }
       cmdbuffer[bufindw][serial_count] = 0; //terminate string
-      if(!comment_mode){
-        comment_mode = false; //for new command
+      if(!comment_mode)
+      {
         fromsd[bufindw] = false;
-        if(strchr(cmdbuffer[bufindw], 'N') != NULL)
+        if((strchr_pointer = strchr(cmdbuffer[bufindw], 'N')) != NULL)
         {
-          strchr_pointer = strchr(cmdbuffer[bufindw], 'N');
-          gcode_N = (strtol(&cmdbuffer[bufindw][strchr_pointer - cmdbuffer[bufindw] + 1], NULL, 10));
-          if(gcode_N != gcode_LastN+1 && (strstr_P(cmdbuffer[bufindw], PSTR("M110")) == NULL) ) {
+          long gcode_N = (strtol(&cmdbuffer[bufindw][strchr_pointer - cmdbuffer[bufindw] + 1], NULL, 10));
+          if(gcode_N != gcode_LastN+1 && (strstr_P(cmdbuffer[bufindw], PSTR("M110")) == NULL) ) 
+          {
             SERIAL_ERROR_START;
             SERIAL_ERRORPGM(MSG_ERR_LINE_NO);
             SERIAL_ERRORLN(gcode_LastN);
@@ -473,14 +468,15 @@ void get_command()
             return;
           }
 
-          if(strchr(cmdbuffer[bufindw], '*') != NULL)
+          if((strchr_pointer = strrchr(cmdbuffer[bufindw], '*')) != NULL)
           {
             byte checksum = 0;
             byte count = 0;
-            while(cmdbuffer[bufindw][count] != '*') checksum = checksum^cmdbuffer[bufindw][count++];
-            strchr_pointer = strchr(cmdbuffer[bufindw], '*');
+            while(&cmdbuffer[bufindw][count] < strchr_pointer) 
+              checksum = checksum^cmdbuffer[bufindw][count++];
 
-            if( (int)(strtod(&cmdbuffer[bufindw][strchr_pointer - cmdbuffer[bufindw] + 1], NULL)) != checksum) {
+            if( (int)(strtod(&cmdbuffer[bufindw][strchr_pointer - cmdbuffer[bufindw] + 1], NULL)) != checksum) 
+            {
               SERIAL_ERROR_START;
               SERIAL_ERRORPGM(MSG_ERR_CHECKSUM_MISMATCH);
               SERIAL_ERRORLN(gcode_LastN);
@@ -488,7 +484,8 @@ void get_command()
               serial_count = 0;
               return;
             }
-            //if no errors, continue parsing
+            //if no errors, then terminate command at '*' so that later scanning for checksum is not required
+            *strchr_pointer = '\0';
           }
           else 
           {
@@ -541,6 +538,7 @@ void get_command()
         bufindw = (bufindw + 1)%BUFSIZE;
         buflen += 1;
       }
+      comment_mode = false; //for new command
       serial_count = 0; //clear buffer
     }
     else
@@ -682,7 +680,6 @@ static void homeaxis(int axis) {
 void process_commands()
 {
   unsigned long codenum; //throw away variable
-  char *starpos = NULL;
  
   if(code_seen('G'))
   {
@@ -755,8 +752,9 @@ void process_commands()
       break;
       #endif //FWRETRACT
     case 28: //G28 Home all Axis one at a time
-      saved_feedrate = feedrate;
-      saved_feedmultiply = feedmultiply;
+    {
+      float saved_feedrate = feedrate;
+      int saved_feedmultiply = feedmultiply;
       feedmultiply = 100;
       previous_millis_cmd = millis();
       
@@ -843,6 +841,7 @@ void process_commands()
       previous_millis_cmd = millis();
       endstops_hit_on_purpose();
       break;
+    }
     case 90: // G90
       relative_mode = false;
       break;
@@ -927,9 +926,6 @@ void process_commands()
 
       break;
     case 23: //M23 - Select file
-      starpos = (strchr(strchr_pointer + 4,'*'));
-      if(starpos!=NULL)
-        *(starpos-1)='\0';
       card.openFile(strchr_pointer + 4,true);
       break;
     case 24: //M24 - Start SD print
@@ -947,13 +943,7 @@ void process_commands()
     case 27: //M27 - Get SD status
       card.getStatus();
       break;
-    case 28: //M28 - Start SD write
-      starpos = (strchr(strchr_pointer + 4,'*'));
-      if(starpos != NULL){
-        char* npos = strchr(cmdbuffer[bufindr], 'N');
-        strchr_pointer = strchr(npos,' ') + 1;
-        *(starpos-1) = '\0';
-      }
+    case 28: //M28 <filename> - Start SD write
       card.openFile(strchr_pointer+4,false);
       break;
     case 29: //M29 - Stop SD write
@@ -961,17 +951,11 @@ void process_commands()
       //card,saving = false;
       break;
     case 30: //M30 <filename> Delete File 
-	if (card.cardOK){
-		card.closefile();
-		starpos = (strchr(strchr_pointer + 4,'*'));
-                if(starpos != NULL){
-                char* npos = strchr(cmdbuffer[bufindr], 'N');
-                strchr_pointer = strchr(npos,' ') + 1;
-                *(starpos-1) = '\0';
-         }
-	 card.removeFile(strchr_pointer + 4);
-	}
-	break;
+      if (card.cardOK){
+        card.closefile();
+        card.removeFile(strchr_pointer + 4);
+      }
+      break;
 	
 #endif //SDSUPPORT
 
@@ -1256,9 +1240,6 @@ void process_commands()
       SERIAL_PROTOCOLPGM(MSG_M115_REPORT);
       break;
     case 117: // M117 display message
-      starpos = (strchr(strchr_pointer + 5,'*'));
-      if(starpos!=NULL)
-        *(starpos-1)='\0';
       lcd_setstatus(strchr_pointer + 5);
       break;
     case 114: // M114
@@ -1739,9 +1720,6 @@ void process_commands()
         if (code_seen('D'))
         {
           msg = strchr_pointer+1;
-          starpos = (strchr(msg,'*'));
-          if(starpos!=NULL)
-            *(starpos-1)='\0';
           lcd_setalertstatus(msg);
         }
         if (code_seen('S') && (msg == NULL || strchr_pointer < msg))
@@ -1879,6 +1857,8 @@ void ClearToSend()
 void get_coordinates()
 {
   bool seen[4]={false,false,false,false};
+  float next_feedrate;
+  
   for(int8_t i=0; i < NUM_AXIS; i++) {
     if(code_seen(axis_codes[i])) 
     {

@@ -265,6 +265,31 @@ const unsigned int dropsegments=5; //everything with less than this number of st
   #define PS_ON_ASLEEP LOW
 #endif
 
+// Firmware based and LCD controled retract
+// M207 and M208 can be used to define parameters for the retraction. 
+// The retraction can be called by the slicer using G10 and G11
+// until then, intended retractions can be detected by moves that only extrude and the direction. 
+// the moves are than replaced by the firmware controlled ones.
+
+// #define FWRETRACT  //ONLY PARTIALLY TESTED
+#define MIN_RETRACT 0.1 //minimum extruded mm to accept a automatic gcode retraction attempt
+
+// Define default values for the park/unpark head command (M600 & M601) argument values
+#ifdef PARK_HEAD_ENABLE
+  #define PARK_HEAD_XPOS 5          // location to park extruder head (X)
+  #define PARK_HEAD_YPOS 5          // location to park extruder head (Y)
+  #define PARK_HEAD_ZADD 10         // amount to lift extruder head by 
+  #define PARK_HEAD_FIRSTRETRACT -2 // amount to retract before lifting head
+  #define UNPARK_HEAD_EXTRUDE 2     // amount to extrude after head has been moved back into position
+  
+  #ifdef ULTIPANEL
+    // These values relate to the "Change Filament" LCD menu command
+    #define FILAMENTCHANGE_FIRSTRETRACT "-50" // amount to retract after head has been parked
+    #define FILAMENTCHANGE_EXTRUDE "50"       // amount to extrude after LCD button has been pressed
+    #define FILAMENTCHANGE_FINALRETRACT "-2"  // amount to retract before mouving head back into position (== -UNPARK_HEAD_EXTRUDE)
+  #endif  
+#endif
+ 
 //===========================================================================
 //=============================Buffers           ============================
 //===========================================================================
@@ -282,35 +307,6 @@ const unsigned int dropsegments=5; //everything with less than this number of st
 #define MAX_CMD_SIZE 96
 #define BUFSIZE 4
 
-
-// Firmware based and LCD controled retract
-// M207 and M208 can be used to define parameters for the retraction. 
-// The retraction can be called by the slicer using G10 and G11
-// until then, intended retractions can be detected by moves that only extrude and the direction. 
-// the moves are than replaced by the firmware controlled ones.
-
-// #define FWRETRACT  //ONLY PARTIALLY TESTED
-#define MIN_RETRACT 0.1 //minimum extruded mm to accept a automatic gcode retraction attempt
-
-
-//adds support for experimental filament exchange support (M600)
-//#define PARK_HEAD_ENABLE
-#ifdef PARK_HEAD_ENABLE
-  // These relate to the default M600 & M601 values
-  #define PARK_HEAD_XPOS 5
-  #define PARK_HEAD_YPOS 5
-  #define PARK_HEAD_ZADD 10
-  #define PARK_HEAD_FIRSTRETRACT -2
-  #define UNPARK_HEAD_EXTRUDE 1 // this is the small extrude after head has been moved back into position
-  
-  #ifdef ULTIPANEL
-    // These values relate to the "Change Filament" LCD command
-    #define FILAMENTCHANGE_FIRSTRETRACT "-50"
-    #define FILAMENTCHANGE_EXTRUDE "50"
-    #define FILAMENTCHANGE_FINALRETRACT "-1" // == -UNPARK_HEAD_EXTRUDE
-  #endif  
-#endif
- 
 //===========================================================================
 //=============================  Define Defines  ============================
 //===========================================================================

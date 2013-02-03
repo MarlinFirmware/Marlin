@@ -361,6 +361,9 @@ const bool Z_ENDSTOPS_INVERTING = true; // set to true to invert the logic of th
 // SF send wrong arc g-codes when using Arc Point as fillet procedure
 //#define SF_ARC_FIX
 
+// Enable support for head parking/print pausing/filament changeover support (M600 + M601)
+//#define PARK_HEAD_ENABLE
+
 #include "Configuration_adv.h"
 #include "thermistortables.h"
 
