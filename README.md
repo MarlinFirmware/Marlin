@@ -133,9 +133,9 @@ necessary for backwards compatibility.
 An interrupt is used to manage ADC conversions, and enforce checking for critical temperatures.
 This leads to less blocking in the heater management routine.
 
-*Parking and unparking of head:*
+*Parking and unparking of extruder head:*
 
-An experimental feature to allow you to park the extruder head by safely moving it to a parking position.
+A new feature to allow you to park the extruder head by safely moving it to a parking position.
 You can use this function for instance to clean the drive gear or change filament. Changing filament allows you
 to replace a nearly depleted spool or to change the filament entirely for multi-colored prints.
 
@@ -191,7 +191,7 @@ MISC:
 *   M240 - Trigger a camera to take a photograph
 *   M600 - Park head to allow filament change or pause of print
 *   M601 - Unpark head to resume printing
-*   M602 - Turn on/off extruder motors (e.g., for cleaning)
+*   M602 - Turn on/off current extruder motor (e.g., for cleaning)
 *   M603 - Display LCD alert, sound beeper and wait for button press.
 *   M999 - Restart after being stopped by error
 

@@ -278,15 +278,14 @@ const unsigned int dropsegments=5; //everything with less than this number of st
 #ifdef PARK_HEAD_ENABLE
   #define PARK_HEAD_XPOS 5          // location to park extruder head (X)
   #define PARK_HEAD_YPOS 5          // location to park extruder head (Y)
-  #define PARK_HEAD_ZADD 10         // amount to lift extruder head by 
-  #define PARK_HEAD_FIRSTRETRACT -2 // amount to retract before lifting head
-  #define UNPARK_HEAD_EXTRUDE 2     // amount to extrude after head has been moved back into position
+  #define PARK_HEAD_ZADD 10         // amount to lift extruder head by (Z)
+  #define PARK_HEAD_RETRACT -3      // amount to retract/extrude before/after lifting head (E)
+  #define UNPARK_HEAD_RETRACT -3    // amount to retract/extrude before/after returning into position (E)
   
   #ifdef ULTIPANEL
     // These values relate to the "Change Filament" LCD menu command
-    #define FILAMENTCHANGE_FIRSTRETRACT "-50" // amount to retract after head has been parked
-    #define FILAMENTCHANGE_EXTRUDE "50"       // amount to extrude after LCD button has been pressed
-    #define FILAMENTCHANGE_FINALRETRACT "-2"  // amount to retract before mouving head back into position (== -UNPARK_HEAD_EXTRUDE)
+    #define FILAMENTCHANGE_LONGRETRACT "-50" // amount to retract after head has been parked
+    #define FILAMENTCHANGE_LONGEXTRUDE "50"       // amount to extrude after LCD button has been pressed
   #endif  
 #endif
  
