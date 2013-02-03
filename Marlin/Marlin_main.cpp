@@ -260,6 +260,7 @@ void enquecommand(const char *cmd)
     SERIAL_ECHOPGM("enqueing \"");
     SERIAL_ECHO(cmdbuffer[bufindw]);
     SERIAL_ECHOLNPGM("\"");
+    fromsd[bufindw] = true;
     bufindw= (bufindw + 1)%BUFSIZE;
     buflen += 1;
   }
@@ -275,6 +276,7 @@ void enquecommand_P(const char *cmd)
     SERIAL_ECHOPGM("enqueing \"");
     SERIAL_ECHO(cmdbuffer[bufindw]);
     SERIAL_ECHOLNPGM("\"");
+    fromsd[bufindw] = true;
     bufindw= (bufindw + 1)%BUFSIZE;
     buflen += 1;
   }
