@@ -727,17 +727,28 @@
      //we have no buzzer installed
      #define BEEPER -1
      //LCD Pins
-     #define LCD_PINS_RS        4
-     #define LCD_PINS_ENABLE    17
-     #define LCD_PINS_D4        30
-     #define LCD_PINS_D5        29
-     #define LCD_PINS_D6        28
-     #define LCD_PINS_D7        27
+     #ifndef PANELOLU2
+		#define LCD_PINS_RS        4
+		#define LCD_PINS_ENABLE    17
+		#define LCD_PINS_D4        30
+		#define LCD_PINS_D5        29
+		#define LCD_PINS_D6        28
+		#define LCD_PINS_D7        27
+	 #endif
      
      //The encoder and click button
-     #define BTN_EN1 11  //must be a hardware interrupt pin
-     #define BTN_EN2 10 //must be hardware interrupt pin
-     #define BTN_ENC 16  //the switch
+     #define BTN_EN1 11  
+	 #define BTN_EN2 10  
+     #ifdef PANELOLU2
+	   #ifdef MELZI
+          #define BTN_ENC 29 //the click switch
+		  #define SDSS 30 //to use the SD card reader on the Panelolu2 rather than the melzi board
+	   #else
+	      #define BTN_ENC 30 //the click switch
+	   #endif
+	 #else
+	   #define BTN_ENC 16  //the click switch
+	 #endif //Panelolu2
      //not connected to a pin
      #define SDCARDDETECT -1
      

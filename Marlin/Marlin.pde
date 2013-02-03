@@ -33,8 +33,11 @@
 #include "Configuration.h"
 #include "pins.h"
 
-#ifdef ULTRA_LCD
-#include <LiquidCrystal.h>
+#ifdef PANELOLU2
+  #include <Wire.h>
+  #include <LiquidTWI2.h>
+#elif defined (ULTRA_LCD)
+  #include <LiquidCrystal.h>
 #endif
 
 #if DIGIPOTSS_PIN > -1
