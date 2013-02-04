@@ -553,7 +553,8 @@ void get_command()
   if(!card.sdprinting || serial_count!=0){
     return;
   }
-  while( !card.eof()  && buflen < BUFSIZE) {
+  while( !card.eof() && buflen < (BUFSIZE-1)) // we leave 1 buffer spot empty so that the LCD menu should be able use enquecommand() any time
+  {
     int16_t n=card.get();
     serial_char = (char)n;
     if(serial_char == '\n' || 
