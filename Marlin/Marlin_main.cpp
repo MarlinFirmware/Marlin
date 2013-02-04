@@ -1569,6 +1569,8 @@ void process_commands()
             destination[Z_AXIS] += PARK_HEAD_ZADD ;
           #endif
         }     
+        if (destination[Z_AXIS] > Z_MAX_POS)
+          destination[Z_AXIS] = Z_MAX_POS;
         plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], homing_feedrate[Z_AXIS]/60, active_extruder);
         
         parked_state.initial_raised_z_pos = destination[Z_AXIS];

@@ -155,11 +155,19 @@ static void lcd_return_to_status()
 
 static void lcd_sdcard_pause()
 {
+#ifndef ENABLE_PARK_ON_SD_PRINT_PAUSE_MENU_ACTION
     card.pauseSDPrint();
+#else
+    enquecommand_P(PSTR("M25\nM600")); // enqueuing both commands ensures they are sequenced correctly.
+#endif    
 }
 static void lcd_sdcard_resume()
 {
+#ifndef ENABLE_PARK_ON_SD_PRINT_PAUSE_MENU_ACTION
     card.startFileprint();
+#else
+    enquecommand_P(PSTR("M601\nM24")); // enqueuing both commands ensures they are sequenced correctly.
+#endif    
 }
 
 static void lcd_sdcard_stop()

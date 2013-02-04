@@ -283,6 +283,10 @@ const unsigned int dropsegments=5; //everything with less than this number of st
   #define UNPARK_HEAD_RETRACT -3    // amount to retract/extrude before/after returning into position (E)
   
   #ifdef ULTIPANEL
+    // Whether to enable automatic extruder park/unpark when an SD Print is paused/resumed from the LCD menu
+    // (there's no reason not to enable by default - pausing a print without parking the head is almost always destructive)
+    #define ENABLE_PARK_ON_SD_PRINT_PAUSE_MENU_ACTION
+  
     // These values relate to the "Change Filament" LCD menu command
     #define FILAMENTCHANGE_LONGRETRACT "-50" // amount to retract after head has been parked
     #define FILAMENTCHANGE_LONGEXTRUDE "50"       // amount to extrude after LCD button has been pressed
