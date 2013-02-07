@@ -180,7 +180,13 @@ static void lcd_sdcard_stop()
 #ifndef ENABLE_PARK_ON_SD_PRINT_PAUSE_MENU_ACTION
         enquecommand_P(PSTR(SD_FINISHED_RELEASECOMMAND));
 #else
-        enquecommand_P(PSTR(SD_FINISHED_RELEASECOMMAND "\nM600")); // no reason not to park head after stop either
+        enquecommand_P(PSTR(SD_FINISHED_RELEASECOMMAND "\nM600")); // no reason not to park head after print stop either
+#endif    
+    }
+    else
+    {
+#ifdef ENABLE_PARK_ON_SD_PRINT_PAUSE_MENU_ACTION
+        enquecommand_P(PSTR("M600")); // no reason not to park head after print stop either
 #endif    
     }
     autotempShutdown();
