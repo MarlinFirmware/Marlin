@@ -90,6 +90,8 @@ void  CardReader::lsDive(const char *prepend,SdFile parent)
     {
       if (p.name[0] == DIR_NAME_FREE) break;
       if (p.name[0] == DIR_NAME_DELETED || p.name[0] == '.'|| p.name[0] == '_') continue;
+      if (longFilename[0] != '\0' &&
+          (longFilename[0] == '.' || longFilename[0] == '_')) continue;
       if ( p.name[0] == '.')
       {
         if ( p.name[1] != '.')
@@ -246,7 +248,9 @@ void CardReader::openFile(char* name,bool read)
           return;
         }
         else
-          ;//SERIAL_ECHOLN("dive ok");
+        {
+          //SERIAL_ECHOLN("dive ok");
+        }
           
         curDir=&myDir; 
         dirname_start=dirname_end+1;
@@ -277,7 +281,7 @@ void CardReader::openFile(char* name,bool read)
       sdpos = 0;
       
       SERIAL_PROTOCOLLNPGM(MSG_SD_FILE_SELECTED);
-      LCD_MESSAGE(fname);
+      lcd_setstatus(fname);
     }
     else
     {
@@ -299,7 +303,7 @@ void CardReader::openFile(char* name,bool read)
       saving = true;
       SERIAL_PROTOCOLPGM(MSG_SD_WRITE_TO_FILE);
       SERIAL_PROTOCOLLN(name);
-      LCD_MESSAGE(fname);
+      lcd_setstatus(fname);
     }
   }
   
@@ -340,7 +344,9 @@ void CardReader::removeFile(char* name)
           return;
         }
         else
-          ;//SERIAL_ECHOLN("dive ok");
+        {
+          //SERIAL_ECHOLN("dive ok");
+        }
           
         curDir=&myDir; 
         dirname_start=dirname_end+1;
@@ -428,7 +434,7 @@ void CardReader::checkautostart(bool force)
   }
   
   char autoname[30];
-  sprintf(autoname,"auto%i.g",lastnr);
+  sprintf_P(autoname, PSTR("auto%i.g"), lastnr);
   for(int8_t i=0;i<(int8_t)strlen(autoname);i++)
     autoname[i]=tolower(autoname[i]);
   dir_t p;
@@ -448,9 +454,9 @@ void CardReader::checkautostart(bool force)
     {
       char cmd[30];
 
-      sprintf(cmd,"M23 %s",autoname);
+      sprintf_P(cmd, PSTR("M23 %s"), autoname);
       enquecommand(cmd);
-      enquecommand("M24");
+      enquecommand_P(PSTR("M24"));
       found=true;
     }
   }
@@ -523,14 +529,15 @@ void CardReader::updir()
 
 void CardReader::printingHasFinished()
 {
- st_synchronize();
- quickStop();
- sdprinting = false;
- if(SD_FINISHED_STEPPERRELEASE)
- {
-   //finishAndDisableSteppers();
-   enquecommand(SD_FINISHED_RELEASECOMMAND);
- }
- autotempShutdown();
+    st_synchronize();
+    quickStop();
+    file.close();
+    sdprinting = false;
+    if(SD_FINISHED_STEPPERRELEASE)
+    {
+        //finishAndDisableSteppers();
+        enquecommand_P(PSTR(SD_FINISHED_RELEASECOMMAND));
+    }
+    autotempShutdown();
 }
 #endif //SDSUPPORT

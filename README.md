@@ -45,6 +45,7 @@ Features:
 *   Heater power reporting. Useful for PID monitoring.
 *   PID tuning
 *   CoreXY kinematics (www.corexy.com/theory.html)
+*   Configurable serial port to support connection of wireless adaptors.
 
 The default baudrate is 250000. This baudrate has less jitter and hence errors than the usual 115200 baud, but is less supported by drivers and host-environments.
 
@@ -183,11 +184,11 @@ MISC:
 Configuring and compilation:
 ============================
 
-Install the arduino software IDE/toolset v22
+Install the arduino software IDE/toolset v23 (Some configurations also work with 1.x.x)
    http://www.arduino.cc/en/Main/Software
 
-For gen6 and sanguinololu the Sanguino directory in the Marlin dir needs to be copied to the arduino environment.
-  copy Marlin\sanguino <arduino home>\hardware\Sanguino
+For gen6/gen7 and sanguinololu the Sanguino directory in the Marlin dir needs to be copied to the arduino environment.
+  copy ArduinoAddons\Arduino_x.x.x\sanguino <arduino home>\hardware\Sanguino
 
 Install Ultimaker's RepG 25 build
     http://software.ultimaker.com

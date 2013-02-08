@@ -247,7 +247,8 @@ const short temptable_6[][2] PROGMEM = {
    {954*OVERSAMPLENR, 30},
    {970*OVERSAMPLENR, 25},
    {978*OVERSAMPLENR, 22},
-   {1008*OVERSAMPLENR, 3}
+   {1008*OVERSAMPLENR, 3},
+   {1023*OVERSAMPLENR, 0}  //to allow internal 0°C
 };
 #endif
 
@@ -307,11 +308,109 @@ const short temptable_7[][2] PROGMEM = {
    {989*OVERSAMPLENR, 20},
    {994*OVERSAMPLENR, 15},
    {1001*OVERSAMPLENR, 10},
-   {1005*OVERSAMPLENR, 5}
+   {1005*OVERSAMPLENR, 5},
+   {1023*OVERSAMPLENR, 0}  //to allow internal 0°C
+};
+#endif
+#if (THERMISTORHEATER_0 == 8) || (THERMISTORHEATER_1 == 8) || (THERMISTORHEATER_2 == 8) || (THERMISTORBED == 8)
+// 100k 0603 SMD Vishay NTCS0603E3104FXT (4.7k pullup)
+const short temptable_8[][2] PROGMEM = {
+   {1*OVERSAMPLENR, 704},
+   {54*OVERSAMPLENR, 216},
+   {107*OVERSAMPLENR, 175},
+   {160*OVERSAMPLENR, 152},
+   {213*OVERSAMPLENR, 137},
+   {266*OVERSAMPLENR, 125},
+   {319*OVERSAMPLENR, 115},
+   {372*OVERSAMPLENR, 106},
+   {425*OVERSAMPLENR, 99},
+   {478*OVERSAMPLENR, 91},
+   {531*OVERSAMPLENR, 85},
+   {584*OVERSAMPLENR, 78},
+   {637*OVERSAMPLENR, 71},
+   {690*OVERSAMPLENR, 65},
+   {743*OVERSAMPLENR, 58},
+   {796*OVERSAMPLENR, 50},
+   {849*OVERSAMPLENR, 42},
+   {902*OVERSAMPLENR, 31},
+   {955*OVERSAMPLENR, 17},
+   {1008*OVERSAMPLENR, 0}
+};
+#endif
+#if (THERMISTORHEATER_0 == 9) || (THERMISTORHEATER_1 == 9) || (THERMISTORHEATER_2 == 9) || (THERMISTORBED == 9)
+// 100k GE Sensing AL03006-58.2K-97-G1 (4.7k pullup)
+const short temptable_9[][2] PROGMEM = {
+	{1*OVERSAMPLENR, 936},
+	{36*OVERSAMPLENR, 300},
+	{71*OVERSAMPLENR, 246},
+	{106*OVERSAMPLENR, 218},
+	{141*OVERSAMPLENR, 199},
+	{176*OVERSAMPLENR, 185},
+	{211*OVERSAMPLENR, 173},
+	{246*OVERSAMPLENR, 163},
+	{281*OVERSAMPLENR, 155},
+	{316*OVERSAMPLENR, 147},
+	{351*OVERSAMPLENR, 140},
+	{386*OVERSAMPLENR, 134},
+	{421*OVERSAMPLENR, 128},
+	{456*OVERSAMPLENR, 122},
+	{491*OVERSAMPLENR, 117},
+	{526*OVERSAMPLENR, 112},
+	{561*OVERSAMPLENR, 107},
+	{596*OVERSAMPLENR, 102},
+	{631*OVERSAMPLENR, 97},
+	{666*OVERSAMPLENR, 92},
+	{701*OVERSAMPLENR, 87},
+	{736*OVERSAMPLENR, 81},
+	{771*OVERSAMPLENR, 76},
+	{806*OVERSAMPLENR, 70},
+	{841*OVERSAMPLENR, 63},
+	{876*OVERSAMPLENR, 56},
+	{911*OVERSAMPLENR, 48},
+	{946*OVERSAMPLENR, 38},
+	{981*OVERSAMPLENR, 23},
+	{1005*OVERSAMPLENR, 5},
+	{1016*OVERSAMPLENR, 0}
+};
+#endif
+#if (THERMISTORHEATER_0 == 10) || (THERMISTORHEATER_1 == 10) || (THERMISTORHEATER_2 == 10) || (THERMISTORBED == 10)
+// 100k RS thermistor 198-961 (4.7k pullup)
+const short temptable_10[][2] PROGMEM = {
+   {1*OVERSAMPLENR, 929},
+   {36*OVERSAMPLENR, 299},
+   {71*OVERSAMPLENR, 246},
+   {106*OVERSAMPLENR, 217},
+   {141*OVERSAMPLENR, 198},
+   {176*OVERSAMPLENR, 184},
+   {211*OVERSAMPLENR, 173},
+   {246*OVERSAMPLENR, 163},
+   {281*OVERSAMPLENR, 154},
+   {316*OVERSAMPLENR, 147},
+   {351*OVERSAMPLENR, 140},
+   {386*OVERSAMPLENR, 134},
+   {421*OVERSAMPLENR, 128},
+   {456*OVERSAMPLENR, 122},
+   {491*OVERSAMPLENR, 117},
+   {526*OVERSAMPLENR, 112},
+   {561*OVERSAMPLENR, 107},
+   {596*OVERSAMPLENR, 102},
+   {631*OVERSAMPLENR, 97},
+   {666*OVERSAMPLENR, 91},
+   {701*OVERSAMPLENR, 86},
+   {736*OVERSAMPLENR, 81},
+   {771*OVERSAMPLENR, 76},
+   {806*OVERSAMPLENR, 70},
+   {841*OVERSAMPLENR, 63},
+   {876*OVERSAMPLENR, 56},
+   {911*OVERSAMPLENR, 48},
+   {946*OVERSAMPLENR, 38},
+   {981*OVERSAMPLENR, 23},
+   {1005*OVERSAMPLENR, 5},
+   {1016*OVERSAMPLENR, 0}
 };
 #endif
 
-#if (THERMISTORHEATER_0 == 51) || (THERMISTORHEATER_1 == 51) || (THERMISTORHEATER_2 == 51) || (THERMISTORBED == 51) 
+#if (THERMISTORHEATER_0 == 51) || (THERMISTORHEATER_1 == 51) || (THERMISTORHEATER_2 == 51) || (THERMISTORBED == 51)
 // 100k EPCOS (WITH 1kohm RESISTOR FOR PULLUP, R9 ON SANGUINOLOLU! NOT FOR 4.7kohm PULLUP! THIS IS NOT NORMAL!)
 // Verified by linagee.
 // Calculated using 1kohm pullup, voltage divider math, and manufacturer provided temp/resistance
@@ -459,49 +558,92 @@ const short temptable_55[][2] PROGMEM = {
 #define TT_NAME(_N) _TT_NAME(_N)
 
 #ifdef THERMISTORHEATER_0
-  #define heater_0_temptable TT_NAME(THERMISTORHEATER_0)
-  #define heater_0_temptable_len (sizeof(heater_0_temptable)/sizeof(*heater_0_temptable))
+# define HEATER_0_TEMPTABLE TT_NAME(THERMISTORHEATER_0)
+# define HEATER_0_TEMPTABLE_LEN (sizeof(HEATER_0_TEMPTABLE)/sizeof(*HEATER_0_TEMPTABLE))
 #else
-#ifdef HEATER_0_USES_THERMISTOR
-  #error No heater 0 thermistor table specified
-#else  // HEATER_0_USES_THERMISTOR
-  #define heater_0_temptable 0
-  #define heater_0_temptable_len 0
-#endif // HEATER_0_USES_THERMISTOR
+# ifdef HEATER_0_USES_THERMISTOR
+#  error No heater 0 thermistor table specified
+# else  // HEATER_0_USES_THERMISTOR
+#  define HEATER_0_TEMPTABLE NULL
+#  define HEATER_0_TEMPTABLE_LEN 0
+# endif // HEATER_0_USES_THERMISTOR
+#endif
+
+//Set the high and low raw values for the heater, this indicates which raw value is a high or low temperature
+#ifndef HEATER_0_RAW_HI_TEMP
+# ifdef HEATER_0_USES_THERMISTOR   //In case of a thermistor the highest temperature results in the lowest ADC value
+#  define HEATER_0_RAW_HI_TEMP 0
+#  define HEATER_0_RAW_LO_TEMP 16383
+# else                          //In case of an thermocouple the highest temperature results in the highest ADC value
+#  define HEATER_0_RAW_HI_TEMP 16383
+#  define HEATER_0_RAW_LO_TEMP 0
+# endif
 #endif
 
 #ifdef THERMISTORHEATER_1
-  #define heater_1_temptable TT_NAME(THERMISTORHEATER_1)
-  #define heater_1_temptable_len (sizeof(heater_1_temptable)/sizeof(*heater_1_temptable))
+# define HEATER_1_TEMPTABLE TT_NAME(THERMISTORHEATER_1)
+# define HEATER_1_TEMPTABLE_LEN (sizeof(HEATER_1_TEMPTABLE)/sizeof(*HEATER_1_TEMPTABLE))
 #else
-#ifdef HEATER_1_USES_THERMISTOR
-  #error No heater 1 thermistor table specified
-#else  // HEATER_1_USES_THERMISTOR
-  #define heater_1_temptable 0
-  #define heater_1_temptable_len 0
-#endif // HEATER_1_USES_THERMISTOR
+# ifdef HEATER_1_USES_THERMISTOR
+#  error No heater 1 thermistor table specified
+# else  // HEATER_1_USES_THERMISTOR
+#  define HEATER_1_TEMPTABLE NULL
+#  define HEATER_1_TEMPTABLE_LEN 0
+# endif // HEATER_1_USES_THERMISTOR
+#endif
+
+//Set the high and low raw values for the heater, this indicates which raw value is a high or low temperature
+#ifndef HEATER_1_RAW_HI_TEMP
+# ifdef HEATER_1_USES_THERMISTOR   //In case of a thermistor the highest temperature results in the lowest ADC value
+#  define HEATER_1_RAW_HI_TEMP 0
+#  define HEATER_1_RAW_LO_TEMP 16383
+# else                          //In case of an thermocouple the highest temperature results in the highest ADC value
+#  define HEATER_1_RAW_HI_TEMP 16383
+#  define HEATER_1_RAW_LO_TEMP 0
+# endif
 #endif
 
 #ifdef THERMISTORHEATER_2
-  #define heater_2_temptable TT_NAME(THERMISTORHEATER_2)
-  #define heater_2_temptable_len (sizeof(heater_2_temptable)/sizeof(*heater_2_temptable))
+# define HEATER_2_TEMPTABLE TT_NAME(THERMISTORHEATER_2)
+# define HEATER_2_TEMPTABLE_LEN (sizeof(HEATER_2_TEMPTABLE)/sizeof(*HEATER_2_TEMPTABLE))
 #else
-#ifdef HEATER_2_USES_THERMISTOR
-  #error No heater 2 thermistor table specified
-#else  // HEATER_2_USES_THERMISTOR
-  #define heater_2_temptable 0
-  #define heater_2_temptable_len 0
-#endif // HEATER_2_USES_THERMISTOR
+# ifdef HEATER_2_USES_THERMISTOR
+#  error No heater 2 thermistor table specified
+# else  // HEATER_2_USES_THERMISTOR
+#  define HEATER_2_TEMPTABLE NULL
+#  define HEATER_2_TEMPTABLE_LEN 0
+# endif // HEATER_2_USES_THERMISTOR
+#endif
+
+//Set the high and low raw values for the heater, this indicates which raw value is a high or low temperature
+#ifndef HEATER_2_RAW_HI_TEMP
+# ifdef HEATER_2_USES_THERMISTOR   //In case of a thermistor the highest temperature results in the lowest ADC value
+#  define HEATER_2_RAW_HI_TEMP 0
+#  define HEATER_2_RAW_LO_TEMP 16383
+# else                          //In case of an thermocouple the highest temperature results in the highest ADC value
+#  define HEATER_2_RAW_HI_TEMP 16383
+#  define HEATER_2_RAW_LO_TEMP 0
+# endif
 #endif
 
 #ifdef THERMISTORBED
-  #define bedtemptable TT_NAME(THERMISTORBED)
-  #define bedtemptable_len (sizeof(bedtemptable)/sizeof(*bedtemptable))
+# define BEDTEMPTABLE TT_NAME(THERMISTORBED)
+# define BEDTEMPTABLE_LEN (sizeof(BEDTEMPTABLE)/sizeof(*BEDTEMPTABLE))
 #else
-#ifdef BED_USES_THERMISTOR
-  #error No bed thermistor table specified
-#endif // BED_USES_THERMISTOR
+# ifdef BED_USES_THERMISTOR
+#  error No bed thermistor table specified
+# endif // BED_USES_THERMISTOR
+#endif
+
+//Set the high and low raw values for the heater, this indicates which raw value is a high or low temperature
+#ifndef HEATER_BED_RAW_HI_TEMP
+# ifdef BED_USES_THERMISTOR   //In case of a thermistor the highest temperature results in the lowest ADC value
+#  define HEATER_BED_RAW_HI_TEMP 0
+#  define HEATER_BED_RAW_LO_TEMP 16383
+# else                          //In case of an thermocouple the highest temperature results in the highest ADC value
+#  define HEATER_BED_RAW_HI_TEMP 16383
+#  define HEATER_BED_RAW_LO_TEMP 0
+# endif
 #endif
 
 #endif //THERMISTORTABLES_H_
-

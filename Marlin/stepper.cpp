@@ -27,8 +27,11 @@
 #include "temperature.h"
 #include "ultralcd.h"
 #include "language.h"
+#include "cardreader.h"
 #include "speed_lookuptable.h"
-
+#if DIGIPOTSS_PIN > -1
+#include <SPI.h>
+#endif
 
 
 //===========================================================================
@@ -52,8 +55,8 @@ volatile static unsigned long step_events_completed; // The number of step event
 #ifdef ADVANCE
   static long advance_rate, advance, final_advance = 0;
   static long old_advance = 0;
+  static long e_steps[3];
 #endif
-static long e_steps[3];
 static long acceleration_time, deceleration_time;
 //static unsigned long accelerate_until, decelerate_after, acceleration_rate, initial_rate, final_rate, nominal_rate;
 static unsigned short acc_step_rate; // needed for deccelaration start point
@@ -65,6 +68,9 @@ volatile long endstops_stepsTotal,endstops_stepsDone;
 static volatile bool endstop_x_hit=false;
 static volatile bool endstop_y_hit=false;
 static volatile bool endstop_z_hit=false;
+#ifdef ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED
+bool abort_on_endstop_hit = false;
+#endif
 
 static bool old_x_min_endstop=false;
 static bool old_x_max_endstop=false;
@@ -76,7 +82,7 @@ static bool old_z_max_endstop=false;
 static bool check_endstops = true;
 
 volatile long count_position[NUM_AXIS] = { 0, 0, 0, 0};
-volatile char count_direction[NUM_AXIS] = { 1, 1, 1, 1};
+volatile signed char count_direction[NUM_AXIS] = { 1, 1, 1, 1};
 
 //===========================================================================
 //=============================functions         ============================
@@ -167,17 +173,31 @@ void checkHitEndstops()
    SERIAL_ECHOPGM(MSG_ENDSTOPS_HIT);
    if(endstop_x_hit) {
      SERIAL_ECHOPAIR(" X:",(float)endstops_trigsteps[X_AXIS]/axis_steps_per_unit[X_AXIS]);
+     LCD_MESSAGEPGM(MSG_ENDSTOPS_HIT "X");
    }
    if(endstop_y_hit) {
      SERIAL_ECHOPAIR(" Y:",(float)endstops_trigsteps[Y_AXIS]/axis_steps_per_unit[Y_AXIS]);
+     LCD_MESSAGEPGM(MSG_ENDSTOPS_HIT "Y");
    }
    if(endstop_z_hit) {
      SERIAL_ECHOPAIR(" Z:",(float)endstops_trigsteps[Z_AXIS]/axis_steps_per_unit[Z_AXIS]);
+     LCD_MESSAGEPGM(MSG_ENDSTOPS_HIT "Z");
    }
    SERIAL_ECHOLN("");
    endstop_x_hit=false;
    endstop_y_hit=false;
    endstop_z_hit=false;
+#ifdef ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED
+   if (abort_on_endstop_hit)
+   {
+     card.sdprinting = false;
+     card.closefile();
+     quickStop();
+     setTargetHotend0(0);
+     setTargetHotend1(0);
+     setTargetHotend2(0);
+   }
+#endif
  }
 }
 
@@ -476,10 +496,10 @@ ISR(TIMER1_COMPA_vect)
 
     
     for(int8_t i=0; i < step_loops; i++) { // Take multiple steps per interrupt (For high speed moves) 
-      #if MOTHERBOARD != 8 // !teensylu
+      #ifndef AT90USB
       MSerial.checkRx(); // Check for serial chars.
-      #endif 
-      
+      #endif
+
       #ifdef ADVANCE
       counter_e += current_block->steps_e;
       if (counter_e > 0) {
@@ -714,6 +734,9 @@ ISR(TIMER1_COMPA_vect)
 
 void st_init()
 {
+  digipot_init(); //Initialize Digipot Motor Current
+  microstep_init(); //Initialize Microstepping Pins
+  
   //Initialize Dir Pins
   #if X_DIR_PIN > -1
     SET_OUTPUT(X_DIR_PIN);
@@ -819,38 +842,36 @@ void st_init()
   #if (X_STEP_PIN > -1) 
     SET_OUTPUT(X_STEP_PIN);
     WRITE(X_STEP_PIN,INVERT_X_STEP_PIN);
-    if(!X_ENABLE_ON) WRITE(X_ENABLE_PIN,HIGH);
+    disable_x();
   #endif  
   #if (Y_STEP_PIN > -1) 
     SET_OUTPUT(Y_STEP_PIN);
     WRITE(Y_STEP_PIN,INVERT_Y_STEP_PIN);
-    if(!Y_ENABLE_ON) WRITE(Y_ENABLE_PIN,HIGH);
+    disable_y();
   #endif  
   #if (Z_STEP_PIN > -1) 
     SET_OUTPUT(Z_STEP_PIN);
     WRITE(Z_STEP_PIN,INVERT_Z_STEP_PIN);
-    if(!Z_ENABLE_ON) WRITE(Z_ENABLE_PIN,HIGH);
-    
     #if defined(Z_DUAL_STEPPER_DRIVERS) && (Z2_STEP_PIN > -1)
       SET_OUTPUT(Z2_STEP_PIN);
       WRITE(Z2_STEP_PIN,INVERT_Z_STEP_PIN);
-      if(!Z_ENABLE_ON) WRITE(Z2_ENABLE_PIN,HIGH);
     #endif
+    disable_z();
   #endif  
   #if (E0_STEP_PIN > -1) 
     SET_OUTPUT(E0_STEP_PIN);
     WRITE(E0_STEP_PIN,INVERT_E_STEP_PIN);
-    if(!E_ENABLE_ON) WRITE(E0_ENABLE_PIN,HIGH);
+    disable_e0();
   #endif  
   #if defined(E1_STEP_PIN) && (E1_STEP_PIN > -1) 
     SET_OUTPUT(E1_STEP_PIN);
     WRITE(E1_STEP_PIN,INVERT_E_STEP_PIN);
-    if(!E_ENABLE_ON) WRITE(E1_ENABLE_PIN,HIGH);
+    disable_e1();
   #endif  
   #if defined(E2_STEP_PIN) && (E2_STEP_PIN > -1) 
     SET_OUTPUT(E2_STEP_PIN);
     WRITE(E2_STEP_PIN,INVERT_E_STEP_PIN);
-    if(!E_ENABLE_ON) WRITE(E2_ENABLE_PIN,HIGH);
+    disable_e2();
   #endif  
 
   #ifdef CONTROLLERFAN_PIN
@@ -900,7 +921,7 @@ void st_synchronize()
     while( blocks_queued()) {
     manage_heater();
     manage_inactivity();
-    LCD_STATUS;
+    lcd_update();
   }
 }
 
@@ -933,7 +954,6 @@ long st_get_position(uint8_t axis)
 void finishAndDisableSteppers()
 {
   st_synchronize(); 
-  LCD_MESSAGEPGM(MSG_STEPPER_RELEASED);
   disable_x(); 
   disable_y(); 
   disable_z(); 
@@ -949,5 +969,102 @@ void quickStop()
     plan_discard_current_block();
   current_block = NULL;
   ENABLE_STEPPER_DRIVER_INTERRUPT();
+}
+
+void digitalPotWrite(int address, int value) // From Arduino DigitalPotControl example
+{
+  #if DIGIPOTSS_PIN > -1
+    digitalWrite(DIGIPOTSS_PIN,LOW); // take the SS pin low to select the chip
+    SPI.transfer(address); //  send in the address and value via SPI:
+    SPI.transfer(value);
+    digitalWrite(DIGIPOTSS_PIN,HIGH); // take the SS pin high to de-select the chip:
+    //delay(10);
+  #endif
+}
+
+void digipot_init() //Initialize Digipot Motor Current
+{
+  #if DIGIPOTSS_PIN > -1
+    const uint8_t digipot_motor_current[] = DIGIPOT_MOTOR_CURRENT;
+    
+    SPI.begin(); 
+    pinMode(DIGIPOTSS_PIN, OUTPUT);    
+    for(int i=0;i<=4;i++) 
+      //digitalPotWrite(digipot_ch[i], digipot_motor_current[i]);
+      digipot_current(i,digipot_motor_current[i]);
+  #endif
+}
+
+void digipot_current(uint8_t driver, int current)
+{
+  #if DIGIPOTSS_PIN > -1
+    const uint8_t digipot_ch[] = DIGIPOT_CHANNELS;
+    digitalPotWrite(digipot_ch[driver], current);
+  #endif
+}
+
+void microstep_init()
+{
+  #if X_MS1_PIN > -1
+  const uint8_t microstep_modes[] = MICROSTEP_MODES;
+  pinMode(X_MS2_PIN,OUTPUT);
+  pinMode(Y_MS2_PIN,OUTPUT);
+  pinMode(Z_MS2_PIN,OUTPUT);
+  pinMode(E0_MS2_PIN,OUTPUT);
+  pinMode(E1_MS2_PIN,OUTPUT);
+  for(int i=0;i<=4;i++) microstep_mode(i,microstep_modes[i]);
+  #endif
+}
+
+void microstep_ms(uint8_t driver, int8_t ms1, int8_t ms2)
+{
+  if(ms1 > -1) switch(driver)
+  {
+    case 0: digitalWrite( X_MS1_PIN,ms1); break;
+    case 1: digitalWrite( Y_MS1_PIN,ms1); break;
+    case 2: digitalWrite( Z_MS1_PIN,ms1); break;
+    case 3: digitalWrite(E0_MS1_PIN,ms1); break;
+    case 4: digitalWrite(E1_MS1_PIN,ms1); break;
+  }
+  if(ms2 > -1) switch(driver)
+  {
+    case 0: digitalWrite( X_MS2_PIN,ms2); break;
+    case 1: digitalWrite( Y_MS2_PIN,ms2); break;
+    case 2: digitalWrite( Z_MS2_PIN,ms2); break;
+    case 3: digitalWrite(E0_MS2_PIN,ms2); break;
+    case 4: digitalWrite(E1_MS2_PIN,ms2); break;
+  }
+}
+
+void microstep_mode(uint8_t driver, uint8_t stepping_mode)
+{
+  switch(stepping_mode)
+  {
+    case 1: microstep_ms(driver,MICROSTEP1); break;
+    case 2: microstep_ms(driver,MICROSTEP2); break;
+    case 4: microstep_ms(driver,MICROSTEP4); break;
+    case 8: microstep_ms(driver,MICROSTEP8); break;
+    case 16: microstep_ms(driver,MICROSTEP16); break;
+  }
+}
+
+void microstep_readings()
+{
+      SERIAL_PROTOCOLPGM("MS1,MS2 Pins\n");
+      SERIAL_PROTOCOLPGM("X: ");
+      SERIAL_PROTOCOL(   digitalRead(X_MS1_PIN));
+      SERIAL_PROTOCOLLN( digitalRead(X_MS2_PIN));
+      SERIAL_PROTOCOLPGM("Y: ");
+      SERIAL_PROTOCOL(   digitalRead(Y_MS1_PIN));
+      SERIAL_PROTOCOLLN( digitalRead(Y_MS2_PIN));
+      SERIAL_PROTOCOLPGM("Z: ");
+      SERIAL_PROTOCOL(   digitalRead(Z_MS1_PIN));
+      SERIAL_PROTOCOLLN( digitalRead(Z_MS2_PIN));
+      SERIAL_PROTOCOLPGM("E0: ");
+      SERIAL_PROTOCOL(   digitalRead(E0_MS1_PIN));
+      SERIAL_PROTOCOLLN( digitalRead(E0_MS2_PIN));
+      SERIAL_PROTOCOLPGM("E1: ");
+      SERIAL_PROTOCOL(   digitalRead(E1_MS1_PIN));
+      SERIAL_PROTOCOLLN( digitalRead(E1_MS2_PIN));
 }
 

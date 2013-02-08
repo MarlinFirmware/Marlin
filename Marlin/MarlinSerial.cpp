@@ -23,12 +23,12 @@
 #include "Marlin.h"
 #include "MarlinSerial.h"
 
-#if MOTHERBOARD != 8 // !teensylu
+#ifndef AT90USB
 // this next line disables the entire HardwareSerial.cpp, 
 // this is so I can support Attiny series and any other chip without a uart
 #if defined(UBRRH) || defined(UBRR0H) || defined(UBRR1H) || defined(UBRR2H) || defined(UBRR3H)
 
-#if defined(UBRRH) || defined(UBRR0H)
+#if UART_PRESENT(SERIAL_PORT)
   ring_buffer rx_buffer  =  { { 0 }, 0, 0 };
 #endif
 
@@ -48,18 +48,12 @@ FORCE_INLINE void store_char(unsigned char c)
 
 
 //#elif defined(SIG_USART_RECV)
-#if defined(USART0_RX_vect)
+#if defined(M_USARTx_RX_vect)
   // fixed by Mark Sproul this is on the 644/644p
   //SIGNAL(SIG_USART_RECV)
-  SIGNAL(USART0_RX_vect)
+  SIGNAL(M_USARTx_RX_vect)
   {
-  #if defined(UDR0)
-    unsigned char c  =  UDR0;
-  #elif defined(UDR)
-    unsigned char c  =  UDR;  //  atmega8, atmega32
-  #else
-    #error UDR not defined
-  #endif
+    unsigned char c  =  M_UDRx;
     store_char(c);
   }
 #endif
@@ -76,39 +70,39 @@ MarlinSerial::MarlinSerial()
 void MarlinSerial::begin(long baud)
 {
   uint16_t baud_setting;
-  bool useU2X0 = true;
+  bool useU2X = true;
 
-#if F_CPU == 16000000UL
+#if F_CPU == 16000000UL && SERIAL_PORT == 0
   // hardcoded exception for compatibility with the bootloader shipped
   // with the Duemilanove and previous boards and the firmware on the 8U2
   // on the Uno and Mega 2560.
   if (baud == 57600) {
-    useU2X0 = false;
+    useU2X = false;
   }
 #endif
   
-  if (useU2X0) {
-    UCSR0A = 1 << U2X0;
+  if (useU2X) {
+    M_UCSRxA = 1 << M_U2Xx;
     baud_setting = (F_CPU / 4 / baud - 1) / 2;
   } else {
-    UCSR0A = 0;
+    M_UCSRxA = 0;
     baud_setting = (F_CPU / 8 / baud - 1) / 2;
   }
 
   // assign the baud_setting, a.k.a. ubbr (USART Baud Rate Register)
-  UBRR0H = baud_setting >> 8;
-  UBRR0L = baud_setting;
+  M_UBRRxH = baud_setting >> 8;
+  M_UBRRxL = baud_setting;
 
-  sbi(UCSR0B, RXEN0);
-  sbi(UCSR0B, TXEN0);
-  sbi(UCSR0B, RXCIE0);
+  sbi(M_UCSRxB, M_RXENx);
+  sbi(M_UCSRxB, M_TXENx);
+  sbi(M_UCSRxB, M_RXCIEx);
 }
 
 void MarlinSerial::end()
 {
-  cbi(UCSR0B, RXEN0);
-  cbi(UCSR0B, TXEN0);
-  cbi(UCSR0B, RXCIE0);  
+  cbi(M_UCSRxB, M_RXENx);
+  cbi(M_UCSRxB, M_TXENx);
+  cbi(M_UCSRxB, M_RXCIEx);  
 }
 
 
@@ -325,5 +319,4 @@ void MarlinSerial::printFloat(double number, uint8_t digits)
 MarlinSerial MSerial;
 
 #endif // whole file
-#endif //teensylu
-
+#endif // !AT90USB
