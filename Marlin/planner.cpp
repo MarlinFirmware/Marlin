@@ -544,8 +544,15 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
   block->busy = false;
 
   // Number of steps for each axis
-  block->steps_x = labs(target[X_AXIS]-position[X_AXIS]);
-  block->steps_y = labs(target[Y_AXIS]-position[Y_AXIS]);
+#ifdef COREXY
+// these equations follow the form of the dA and dB equations on http://www.corexy.com/theory.html
+block->steps_x = labs((target[X_AXIS]-position[X_AXIS]) + (target[Y_AXIS]-position[Y_AXIS]));
+block->steps_y = labs((target[X_AXIS]-position[X_AXIS]) - (target[Y_AXIS]-position[Y_AXIS]));
+#else
+// this code is unchanged from what exists now
+block->steps_x = labs(target[X_AXIS]-position[X_AXIS]);
+block->steps_y = labs(target[Y_AXIS]-position[Y_AXIS]);
+#endif
   block->steps_z = labs(target[Z_AXIS]-position[Z_AXIS]);
   block->steps_e = labs(target[E_AXIS]-position[E_AXIS]);
   block->steps_e *= extrudemultiply;
@@ -562,6 +569,16 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
 
   // Compute direction bits for this block 
   block->direction_bits = 0;
+#ifdef COREXY
+  if (0 > (target[X_AXIS]-position[X_AXIS]) + (target[Y_AXIS]-position[Y_AXIS]))
+  {
+    block->direction_bits |= (1<<X_AXIS); 
+  }
+  if (0 > (target[X_AXIS]-position[X_AXIS]) - (target[Y_AXIS]-position[Y_AXIS]))
+  {
+    block->direction_bits |= (1<<Y_AXIS); 
+  }
+#else
   if (target[X_AXIS] < position[X_AXIS])
   {
     block->direction_bits |= (1<<X_AXIS); 
@@ -570,6 +587,7 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
   {
     block->direction_bits |= (1<<Y_AXIS); 
   }
+#endif
   if (target[Z_AXIS] < position[Z_AXIS])
   {
     block->direction_bits |= (1<<Z_AXIS); 
