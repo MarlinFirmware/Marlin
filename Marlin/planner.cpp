@@ -570,13 +570,13 @@ block->steps_y = labs(target[Y_AXIS]-position[Y_AXIS]);
   // Compute direction bits for this block 
   block->direction_bits = 0;
 #ifdef COREXY
-  if (0 > (target[X_AXIS]-position[X_AXIS]) + (target[Y_AXIS]-position[Y_AXIS]))
+  if (((target[X_AXIS]-position[X_AXIS]) + (target[Y_AXIS]-position[Y_AXIS])) < 0)
   {
-    block->direction_bits |= (1<<X_AXIS); 
+    block->direction_bits += (1<<X_AXIS); 
   }
-  if (0 > (target[X_AXIS]-position[X_AXIS]) - (target[Y_AXIS]-position[Y_AXIS]))
+  if (((target[X_AXIS]-position[X_AXIS]) - (target[Y_AXIS]-position[Y_AXIS])) < 0)
   {
-    block->direction_bits |= (1<<Y_AXIS); 
+    block->direction_bits += (1<<Y_AXIS); 
   }
 #else
   if (target[X_AXIS] < position[X_AXIS])
@@ -624,10 +624,15 @@ block->steps_y = labs(target[Y_AXIS]-position[Y_AXIS]);
   } 
 
   float delta_mm[4];
-  delta_mm[X_AXIS] = (target[X_AXIS]-position[X_AXIS])/axis_steps_per_unit[X_AXIS];
-  delta_mm[Y_AXIS] = (target[Y_AXIS]-position[Y_AXIS])/axis_steps_per_unit[Y_AXIS];
-  delta_mm[Z_AXIS] = (target[Z_AXIS]-position[Z_AXIS])/axis_steps_per_unit[Z_AXIS];
-  delta_mm[E_AXIS] = ((target[E_AXIS]-position[E_AXIS])/axis_steps_per_unit[E_AXIS])*extrudemultiply/100.0;
+  #ifndef COREXY
+    delta_mm[X_AXIS] = (target[X_AXIS]-position[X_AXIS])/axis_steps_per_unit[X_AXIS];
+    delta_mm[Y_AXIS] = (target[Y_AXIS]-position[Y_AXIS])/axis_steps_per_unit[Y_AXIS];
+  #else
+    delta_mm[X_AXIS] = ((target[X_AXIS]-position[X_AXIS]) + (target[Y_AXIS]-position[Y_AXIS]))/axis_steps_per_unit[X_AXIS];
+    delta_mm[Y_AXIS] = ((target[X_AXIS]-position[X_AXIS]) - (target[Y_AXIS]-position[Y_AXIS]))/axis_steps_per_unit[Y_AXIS];
+  #endif
+    delta_mm[Z_AXIS] = (target[Z_AXIS]-position[Z_AXIS])/axis_steps_per_unit[Z_AXIS];
+    delta_mm[E_AXIS] = ((target[E_AXIS]-position[E_AXIS])/axis_steps_per_unit[E_AXIS])*extrudemultiply/100.0;
   if ( block->steps_x <=dropsegments && block->steps_y <=dropsegments && block->steps_z <=dropsegments )
   {
     block->millimeters = fabs(delta_mm[E_AXIS]);
