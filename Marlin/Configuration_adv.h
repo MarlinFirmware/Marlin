@@ -288,8 +288,9 @@ const unsigned int dropsegments=5; //everything with less than this number of st
     #define ENABLE_PARK_ON_SD_PRINT_PAUSE_MENU_ACTION
   
     // These values relate to the "Change Filament" LCD menu command
-    #define FILAMENTCHANGE_LONGRETRACT "-50" // amount to retract after head has been parked
-    #define FILAMENTCHANGE_LONGEXTRUDE "50"       // amount to extrude after LCD button has been pressed
+    #define FILAMENTCHANGE_LONGRETRACT "-75"        // amount to retract after head has been parked
+    #define FILAMENTCHANGE_LONGEXTRUDE "75"         // amount to extrude after LCD button has been pressed
+    #define FILAMENTCHANGE_LONGEXTRUDE_RATE "300"   // mm/min rate to extrude (extruding too fast can strip the filament)
   #endif  
 #endif
  

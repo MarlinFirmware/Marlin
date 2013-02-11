@@ -275,7 +275,7 @@ static void lcd_tune_menu()
     // disables extruder motor, displays alert, sounds beeper every 1000ms, waits for button press, extrudes by 
     // large amount (FILAMENTCHANGE_EXTRUDE) [extruder motor is auto-enabled], then unparks head (which includes 
     // a small retraction before movement and a small extrude after movement).
-    MENU_ITEM(gcode, MSG_FILAMENTCHANGE, PSTR("M600 L0\nM83\nG1 E" FILAMENTCHANGE_LONGRETRACT " F1200\nM602 S0\nM603 S1000 D" MSG_FILAMENTCHANGE "\nG1 E" FILAMENTCHANGE_LONGEXTRUDE "\nM601"));
+    MENU_ITEM(gcode, MSG_FILAMENTCHANGE, PSTR("M600 L0\nM83\nG1 E" FILAMENTCHANGE_LONGRETRACT " F1200\nM602 S0\nM603 S1000 D" MSG_FILAMENTCHANGE "\nG1 E" FILAMENTCHANGE_LONGEXTRUDE " F" FILAMENTCHANGE_LONGEXTRUDE_RATE "\nM601"));
 #endif
     END_MENU();
 }
