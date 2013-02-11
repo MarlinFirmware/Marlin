@@ -366,7 +366,7 @@ void lcd_implementation_drawedit(const char* pstr, char* value)
     lcd.setCursor(1, 1);
     lcd_printPGM(pstr);
     lcd.print(':');
-    lcd.setCursor(19 - strlen(value), 1);
+    lcd.setCursor(LCD_WIDTH -1 - strlen(value), 1);
     lcd.print(value);
 }
 static void lcd_implementation_drawmenu_sdfile_selected(uint8_t row, const char* pstr, const char* filename, char* longFilename)
