@@ -279,8 +279,8 @@ const unsigned int dropsegments=5; //everything with less than this number of st
   #define PARK_HEAD_XPOS 5          // location to park extruder head (X)
   #define PARK_HEAD_YPOS 5          // location to park extruder head (Y)
   #define PARK_HEAD_ZADD 5          // amount to lift extruder head by (Z)
-  #define PARK_HEAD_RETRACT -3      // amount to retract/extrude before/after lifting head (E)
-  #define UNPARK_HEAD_RETRACT -3    // amount to retract/extrude before/after returning into position (E)
+  #define PARK_HEAD_RETRACT -3      // amount to retract before lifting head (E) (== amount to extrude after moving by default)
+  #define UNPARK_HEAD_EXTRUDE 3     // amount to extrude after returning into position (L) (== amount to retract before moving by default)
   
   #ifdef ULTIPANEL
     // Whether to enable automatic extruder park/unpark when an SD Print is paused/resumed from the LCD menu
