@@ -71,6 +71,17 @@
 // before setting a PWM value. (Does not work with software PWM for fan on Sanguinololu)
 //#define FAN_KICKSTART_TIME 100
 
+// Configure fan pin outputs to automatically turn on/off when the associated
+// extruder temperature is above/below EXTRUDER_AUTO_FAN_TEMPERATURE.
+// Multiple extruders can be assigned to the same pin in which case 
+// the fan will turn on when any selected extruder is above the threshold.
+// Note: FAN_PIN (defined in pins.h and controlled by M106/M107) cannot be 
+// assigned to the same pin as a extruder auto fan pin.
+#define EXTRUDER_0_AUTO_FAN_PIN   -1
+#define EXTRUDER_1_AUTO_FAN_PIN   -1
+#define EXTRUDER_2_AUTO_FAN_PIN   -1
+#define EXTRUDER_AUTO_FAN_TEMPERATURE 60 
+
 //===========================================================================
 //=============================Mechanical Settings===========================
 //===========================================================================

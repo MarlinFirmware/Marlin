@@ -50,6 +50,7 @@ Features:
 *   CoreXY kinematics (www.corexy.com/theory.html)
 *   Configurable serial port to support connection of wireless adaptors.
 *   Parking and unparking of head to pause printing or change filament.
+*   Automatic start/stop of extruder cooling fans based on extruder temperature
 
 The default baudrate is 250000. This baudrate has less jitter and hence errors than the usual 115200 baud, but is less supported by drivers and host-environments.
 
