@@ -162,6 +162,7 @@
 	#define MSG_M119_REPORT "Reporting endstop status"
 	#define MSG_ENDSTOP_HIT "TRIGGERED"
 	#define MSG_ENDSTOP_OPEN "open"
+  #define MSG_NO_SAVED_POSITION "Cannot unpark - no saved position" 
 
 	#define MSG_SD_CANT_OPEN_SUBDIR "Cannot open subdir"
 	#define MSG_SD_INIT_FAIL "SD init fail"
@@ -317,6 +318,7 @@
 	#define MSG_M119_REPORT "Zgloszenie statusu wylacznikow krancowych"
 	#define MSG_ENDSTOP_HIT "WYZWOLONY"
 	#define MSG_ENDSTOP_OPEN "otwarty"
+  #define MSG_NO_SAVED_POSITION "Cannot unpark - no saved position" 
 
 	#define MSG_SD_CANT_OPEN_SUBDIR "Nie mozna otworzyc podkatalogu"
 	#define MSG_SD_INIT_FAIL "Blad inicjalizacji karty SD"
@@ -477,6 +479,7 @@
 #define MSG_M119_REPORT "Affichage du status des fin de course"
 #define MSG_ENDSTOP_HIT "DECLENCHE"
 #define MSG_ENDSTOP_OPEN "OUVERT"
+#define MSG_NO_SAVED_POSITION "Cannot unpark - no saved position" 
 
 #define MSG_SD_CANT_OPEN_SUBDIR "Impossible d'ouvrir le sous-repertoire"
 #define MSG_SD_INIT_FAIL "Echec de l'initialisation de la SD"
@@ -635,6 +638,7 @@
 	#define MSG_M119_REPORT "Reporting endstop status"
 	#define MSG_ENDSTOP_HIT "TRIGGERED"
 	#define MSG_ENDSTOP_OPEN "open"
+  #define MSG_NO_SAVED_POSITION "Cannot unpark - no saved position" 
 
 	#define MSG_SD_CANT_OPEN_SUBDIR "Cannot open subdir"
 	#define MSG_SD_INIT_FAIL "SD init fail"
@@ -792,6 +796,7 @@
 #define MSG_M119_REPORT "Comprobando fines de carrera."
 #define MSG_ENDSTOP_HIT "PULSADO"
 #define MSG_ENDSTOP_OPEN "abierto"
+#define MSG_NO_SAVED_POSITION "Cannot unpark - no saved position" 
         
 #define MSG_SD_CANT_OPEN_SUBDIR "No se pudo abrir la subcarpeta."
 #define MSG_SD_INIT_FAIL "Fallo al iniciar la SD"
@@ -944,6 +949,8 @@
 #define MSG_M119_REPORT						"Статус концевиков"
 #define MSG_ENDSTOP_HIT						"Срабатывание концевика"
 #define MSG_ENDSTOP_OPEN					"Концевик освобожден"
+#define MSG_NO_SAVED_POSITION "Cannot unpark - no saved position" 
+
 #define MSG_SD_CANT_OPEN_SUBDIR				"Не открыть папку"
 #define MSG_SD_INIT_FAIL					"Ошибка инициализации SD"
 #define MSG_SD_VOL_INIT_FAIL				"Ошибка инициализации раздела"
@@ -1103,6 +1110,7 @@
 	#define MSG_M119_REPORT          "Segnalazione stato degli endstop"
 	#define MSG_ENDSTOP_HIT          "INNESCATO"
 	#define MSG_ENDSTOP_OPEN         "aperto"
+  #define MSG_NO_SAVED_POSITION "Cannot unpark - no saved position" 
 
 	#define MSG_SD_CANT_OPEN_SUBDIR  "Impossibile aprire sottocartella"
 	#define MSG_SD_INIT_FAIL         "Fallita Inizializzazione SD"
@@ -1265,7 +1273,8 @@
 	#define MSG_M119_REPORT "Relatando estado do ponto final"
 	#define MSG_ENDSTOP_HIT "PULSADO"
 	#define MSG_ENDSTOP_OPEN "Aberto"
-
+  #define MSG_NO_SAVED_POSITION "Cannot unpark - no saved position" 
+  
 	#define MSG_SD_CANT_OPEN_SUBDIR "Nao pode abrir sub diretorio"
 	#define MSG_SD_INIT_FAIL "Falha ao iniciar SD"
 	#define MSG_SD_VOL_INIT_FAIL "Falha ao montar volume"
@@ -1422,7 +1431,8 @@
 	#define MSG_M119_REPORT "Rajakytkimien tilaraportti"
 	#define MSG_ENDSTOP_HIT "AKTIIVISENA"
 	#define MSG_ENDSTOP_OPEN "avoinna"
-
+  #define MSG_NO_SAVED_POSITION "Cannot unpark - no saved position" 
+  
 	#define MSG_SD_CANT_OPEN_SUBDIR "Alihakemistoa ei voitu avata"
 	#define MSG_SD_INIT_FAIL "SD alustus epaonnistui"
 	#define MSG_SD_VOL_INIT_FAIL "volume.init epaonnistui"

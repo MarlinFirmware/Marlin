@@ -156,11 +156,19 @@ static void lcd_return_to_status()
 
 static void lcd_sdcard_pause()
 {
+#ifndef ENABLE_PARK_ON_SD_PRINT_PAUSE_MENU_ACTION
     card.pauseSDPrint();
+#else
+    enquecommand_P(PSTR("M25\nM600")); // enqueuing both commands ensures they are sequenced correctly.
+#endif    
 }
 static void lcd_sdcard_resume()
 {
+#ifndef ENABLE_PARK_ON_SD_PRINT_PAUSE_MENU_ACTION
     card.startFileprint();
+#else
+    enquecommand_P(PSTR("M601\nM24")); // enqueuing both commands ensures they are sequenced correctly.
+#endif    
 }
 
 static void lcd_sdcard_stop()
@@ -170,7 +178,17 @@ static void lcd_sdcard_stop()
     quickStop();
     if(SD_FINISHED_STEPPERRELEASE)
     {
+#ifndef ENABLE_PARK_ON_SD_PRINT_PAUSE_MENU_ACTION
         enquecommand_P(PSTR(SD_FINISHED_RELEASECOMMAND));
+#else
+        enquecommand_P(PSTR(SD_FINISHED_RELEASECOMMAND "\nM600")); // no reason not to park head after print stop either
+#endif    
+    }
+    else
+    {
+#ifdef ENABLE_PARK_ON_SD_PRINT_PAUSE_MENU_ACTION
+        enquecommand_P(PSTR("M600")); // no reason not to park head after print stop either
+#endif    
     }
     autotempShutdown();
 }
@@ -253,8 +271,12 @@ static void lcd_tune_menu()
 #endif
     MENU_ITEM_EDIT(int3, MSG_FAN_SPEED, &fanSpeed, 0, 255);
     MENU_ITEM_EDIT(int3, MSG_FLOW, &extrudemultiply, 10, 999);
-#ifdef FILAMENTCHANGEENABLE
-     MENU_ITEM(gcode, MSG_FILAMENTCHANGE, PSTR("M600"));
+#ifdef PARK_HEAD_ENABLE
+    // Change filament does the following: parks the head, retracts by large amount (FILAMENTCHANGE_FIRSTRETRACT), 
+    // disables extruder motor, displays alert, sounds beeper every 1000ms, waits for button press, extrudes by 
+    // large amount (FILAMENTCHANGE_EXTRUDE) [extruder motor is auto-enabled], then unparks head (which includes 
+    // a small retraction before movement and a small extrude after movement).
+    MENU_ITEM(gcode, MSG_FILAMENTCHANGE, PSTR("M600 L0\nM83\nG1 E" FILAMENTCHANGE_LONGRETRACT " F1200\nM602 S0\nM603 S1000 D" MSG_FILAMENTCHANGE "\nG1 E" FILAMENTCHANGE_LONGEXTRUDE " F" FILAMENTCHANGE_LONGEXTRUDE_RATE "\nM601"));
 #endif
     END_MENU();
 }
@@ -644,6 +666,7 @@ static void menu_action_submenu(menuFunc_t data)
 }
 static void menu_action_gcode(const char* pgcode)
 {
+    
     enquecommand_P(pgcode);
 }
 static void menu_action_function(menuFunc_t data)
@@ -699,7 +722,9 @@ void lcd_init()
     lcd_oldcardstatus = IS_SD_INSERTED;
 #endif//(SDCARDDETECT > -1)
     lcd_buttons_update();
+#ifdef ULTIPANEL
     encoderDiff = 0;
+#endif    
 }
 
 void lcd_update()
@@ -771,6 +796,14 @@ void lcd_setstatuspgm(const char* message)
         return;
     strncpy_P(lcd_status_message, message, LCD_WIDTH);
     lcdDrawUpdate = 2;
+}
+void lcd_setalertstatus(const char* message)
+{
+    lcd_setstatus(message);
+    lcd_status_message_level = 1;
+#ifdef ULTIPANEL
+    lcd_return_to_status();
+#endif//ULTIPANEL
 }
 void lcd_setalertstatuspgm(const char* message)
 {

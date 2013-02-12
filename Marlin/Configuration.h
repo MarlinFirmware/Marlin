@@ -275,7 +275,7 @@ const bool Z_ENDSTOPS_INVERTING = true; // set to true to invert the logic of th
 
 //// MOVEMENT SETTINGS
 #define NUM_AXIS 4 // The axis order in all axis related arrays is X, Y, Z, E
-#define HOMING_FEEDRATE {50*60, 50*60, 4*60, 0}  // set the homing speeds (mm/min)
+#define HOMING_FEEDRATE {50*60, 50*60, 4*60, 20*60}  // set the homing speeds (mm/min)
 
 // default settings 
 
@@ -360,6 +360,9 @@ const bool Z_ENDSTOPS_INVERTING = true; // set to true to invert the logic of th
 
 // SF send wrong arc g-codes when using Arc Point as fillet procedure
 //#define SF_ARC_FIX
+
+// Enable support for head parking/print pausing/filament changeover support (M600 + M601)
+//#define PARK_HEAD_ENABLE
 
 #include "Configuration_adv.h"
 #include "thermistortables.h"

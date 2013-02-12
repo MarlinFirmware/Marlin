@@ -1,10 +1,13 @@
-WARNING: 
---------
-THIS IS RELEASE CANDIDATE 2 FOR MARLIN 1.0.0
+==========================
+Marlin 3D Printer Firmware
+==========================
 
-The configuration is now split in two files
-Configuration.h for the normal settings
-Configuration_adv.h for the advanced settings
+Notes: 
+-----
+
+The configuration is now split in two files:
+  Configuration.h for the normal settings
+  Configuration_adv.h for the advanced settings
 
 Gen7T is not supported.
 
@@ -46,6 +49,7 @@ Features:
 *   PID tuning
 *   CoreXY kinematics (www.corexy.com/theory.html)
 *   Configurable serial port to support connection of wireless adaptors.
+*   Parking and unparking of head to pause printing or change filament.
 
 The default baudrate is 250000. This baudrate has less jitter and hence errors than the usual 115200 baud, but is less supported by drivers and host-environments.
 
@@ -129,6 +133,12 @@ necessary for backwards compatibility.
 An interrupt is used to manage ADC conversions, and enforce checking for critical temperatures.
 This leads to less blocking in the heater management routine.
 
+*Parking and unparking of extruder head:*
+
+A new feature to allow you to park the extruder head by safely moving it to a parking position.
+You can use this function for instance to clean the drive gear or change filament. Changing filament allows you
+to replace a nearly depleted spool or to change the filament entirely for multi-colored prints.
+
 
 Non-standard M-Codes, different to an old version of sprinter:
 ==============================================================
@@ -179,6 +189,10 @@ EEPROM:
 MISC:
 
 *   M240 - Trigger a camera to take a photograph
+*   M600 - Park head to allow filament change or pause of print
+*   M601 - Unpark head to resume printing
+*   M602 - Turn on/off current extruder motor (e.g., for cleaning)
+*   M603 - Display LCD alert, sound beeper and wait for button press.
 *   M999 - Restart after being stopped by error
 
 Configuring and compilation:
