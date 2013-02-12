@@ -456,9 +456,11 @@ void get_command()
       if(!comment_mode)
       {
         fromsd[bufindw] = false;
-        if((strchr_pointer = strchr(cmdbuffer[bufindw], 'N')) != NULL)
+        // the line number command will always be the first character on a line 
+        // (ensures we don't pick up other N's that might appear in M117 LCD status messages for instance)
+        if(cmdbuffer[bufindw][0] == 'N')
         {
-          long gcode_N = (strtol(&cmdbuffer[bufindw][strchr_pointer - cmdbuffer[bufindw] + 1], NULL, 10));
+          long gcode_N = (strtol(&cmdbuffer[bufindw][1], NULL, 10));
           if(gcode_N != gcode_LastN+1 && (strstr_P(cmdbuffer[bufindw], PSTR("M110")) == NULL) ) 
           {
             SERIAL_ERROR_START;
