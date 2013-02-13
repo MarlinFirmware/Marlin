@@ -570,12 +570,11 @@ void lcd_sdcard_menu()
     }else{
         MENU_ITEM(function, LCD_STR_FOLDER "..", lcd_sd_updir);
     }
-    
     for(uint16_t i=0;i<fileCnt;i++)
     {
         if (_menuItemNr == _lineNr)
         {
-            card.getfilename(i);
+            card.getfilename((fileCnt-1)-i);
             if (card.filenameIsDir)
             {
                 MENU_ITEM(sddirectory, MSG_CARD_MENU, card.filename, card.longFilename);
