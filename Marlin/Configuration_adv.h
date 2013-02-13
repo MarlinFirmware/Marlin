@@ -71,6 +71,16 @@
 // before setting a PWM value. (Does not work with software PWM for fan on Sanguinololu)
 //#define FAN_KICKSTART_TIME 100
 
+// Configure fan pin outputs to automatically turn on/off when the associated
+// extruder temperature is above/below EXTRUDER_AUTO_FAN_TEMPERATURE.
+// Multiple extruders can be assigned to the same pin in which case 
+// the fan will turn on when any selected extruder is above the threshold.
+#define EXTRUDER_0_AUTO_FAN_PIN   -1
+#define EXTRUDER_1_AUTO_FAN_PIN   -1
+#define EXTRUDER_2_AUTO_FAN_PIN   -1
+#define EXTRUDER_AUTO_FAN_TEMPERATURE 50 
+#define EXTRUDER_AUTO_FAN_SPEED   255  // == full speed
+
 //===========================================================================
 //=============================Mechanical Settings===========================
 //===========================================================================
@@ -265,6 +275,35 @@ const unsigned int dropsegments=5; //everything with less than this number of st
   #define PS_ON_ASLEEP LOW
 #endif
 
+// Firmware based and LCD controled retract
+// M207 and M208 can be used to define parameters for the retraction. 
+// The retraction can be called by the slicer using G10 and G11
+// until then, intended retractions can be detected by moves that only extrude and the direction. 
+// the moves are than replaced by the firmware controlled ones.
+
+// #define FWRETRACT  //ONLY PARTIALLY TESTED
+#define MIN_RETRACT 0.1 //minimum extruded mm to accept a automatic gcode retraction attempt
+
+// Define default values for the park/unpark head command (M600 & M601) argument values
+#ifdef PARK_HEAD_ENABLE
+  #define PARK_HEAD_XPOS 5          // location to park extruder head (X)
+  #define PARK_HEAD_YPOS 5          // location to park extruder head (Y)
+  #define PARK_HEAD_ZADD 5          // amount to lift extruder head by (Z)
+  #define PARK_HEAD_RETRACT -3      // amount to retract before lifting head (E) (== amount to extrude after moving by default)
+  #define UNPARK_HEAD_EXTRUDE 3     // amount to extrude after returning into position (L) (== amount to retract before moving by default)
+  
+  #ifdef ULTIPANEL
+    // Whether to enable automatic extruder park/unpark when an SD Print is paused/resumed from the LCD menu
+    // (there's no reason not to enable by default - pausing a print without parking the head is almost always destructive)
+    #define ENABLE_PARK_ON_SD_PRINT_PAUSE_MENU_ACTION
+  
+    // These values relate to the "Change Filament" LCD menu command
+    #define FILAMENTCHANGE_LONGRETRACT "-75"        // amount to retract after head has been parked
+    #define FILAMENTCHANGE_LONGEXTRUDE "75"         // amount to extrude after LCD button has been pressed
+    #define FILAMENTCHANGE_LONGEXTRUDE_RATE "300"   // mm/min rate to extrude (extruding too fast can strip the filament)
+  #endif  
+#endif
+ 
 //===========================================================================
 //=============================Buffers           ============================
 //===========================================================================
@@ -282,29 +321,6 @@ const unsigned int dropsegments=5; //everything with less than this number of st
 #define MAX_CMD_SIZE 96
 #define BUFSIZE 4
 
-
-// Firmware based and LCD controled retract
-// M207 and M208 can be used to define parameters for the retraction. 
-// The retraction can be called by the slicer using G10 and G11
-// until then, intended retractions can be detected by moves that only extrude and the direction. 
-// the moves are than replaced by the firmware controlled ones.
-
-// #define FWRETRACT  //ONLY PARTIALLY TESTED
-#define MIN_RETRACT 0.1 //minimum extruded mm to accept a automatic gcode retraction attempt
-
-
-//adds support for experimental filament exchange support M600; requires display
-#ifdef ULTIPANEL
-  //#define FILAMENTCHANGEENABLE
-  #ifdef FILAMENTCHANGEENABLE
-    #define FILAMENTCHANGE_XPOS 3
-    #define FILAMENTCHANGE_YPOS 3
-    #define FILAMENTCHANGE_ZADD 10
-    #define FILAMENTCHANGE_FIRSTRETRACT -2
-    #define FILAMENTCHANGE_FINALRETRACT -100
-  #endif
-#endif
- 
 //===========================================================================
 //=============================  Define Defines  ============================
 //===========================================================================

@@ -126,7 +126,10 @@
 // M502 - reverts to the default "factory settings".  You still need to store them in EEPROM afterwards if you want to.
 // M503 - print the current settings (from memory not from eeprom)
 // M540 - Use S[0|1] to enable or disable the stop SD card print on endstop hit (requires ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED)
-// M600 - Pause for filament change X[pos] Y[pos] Z[relative lift] E[initial retract] L[later retract distance for removal]
+// M600 - Park head for pause or filament change X[pos] Y[pos] Z[relative lift] E[pre-movement retract] L[post-movement extrude override]
+// M601 - Unpark head E[pre-move retract override] L[post-move extrude]
+// M602 - Use S[0|1] to turn on/off current extruder motor
+// M603 - Display alert message, sound beeper and wait for button press S[ms beeper interval or 0] D[text to display]
 // M907 - Set digital trimpot motor current using axis codes.
 // M908 - Control digital trimpot directly.
 // M350 - Set microstepping mode.
@@ -149,7 +152,6 @@ CardReader card;
 float homing_feedrate[] = HOMING_FEEDRATE;
 bool axis_relative_modes[] = AXIS_RELATIVE_MODES;
 int feedmultiply=100; //100->1 200->2
-int saved_feedmultiply;
 int extrudemultiply=100; //100->1 200->2
 float current_position[NUM_AXIS] = { 0.0, 0.0, 0.0, 0.0 };
 float add_homeing[3]={0,0,0};
@@ -165,6 +167,19 @@ int fanSpeed=0;
   float retract_recover_length=0, retract_recover_feedrate=8*60;
 #endif
 
+#ifdef PARK_HEAD_ENABLE 
+// potentially save to EEPROM later to save RAM
+struct ParkedState {
+  float pos[NUM_AXIS];
+  float initial_raised_z_pos;
+  float feedrate;
+  uint8_t active_extruder;
+  bool relative_mode;
+  bool relative_extruder_mode;
+} ;
+struct ParkedState parked_state = { { 0.0, 0.0, 0.0, 0.0 }, 0.0, 0.0, 0, false, false }; 
+#endif
+
 //===========================================================================
 //=============================private variables=============================
 //===========================================================================
@@ -172,8 +187,8 @@ const char axis_codes[NUM_AXIS] = {'X', 'Y', 'Z', 'E'};
 static float destination[NUM_AXIS] = {  0.0, 0.0, 0.0, 0.0};
 static float offset[3] = {0.0, 0.0, 0.0};
 static bool home_all_axis = true;
-static float feedrate = 1500.0, next_feedrate, saved_feedrate;
-static long gcode_N, gcode_LastN, Stopped_gcode_LastN = 0;
+static float feedrate = 1500.0;
+static long gcode_LastN, Stopped_gcode_LastN = 0;
 
 static bool relative_mode = false;  //Determines Absolute or Relative Coordinates
 
@@ -182,16 +197,11 @@ static bool fromsd[BUFSIZE];
 static int bufindr = 0;
 static int bufindw = 0;
 static int buflen = 0;
-//static int i = 0;
-static char serial_char;
 static int serial_count = 0;
 static boolean comment_mode = false;
 static char *strchr_pointer; // just a pointer to find chars in the cmd string like X, Y, Z, E, etc
 
 const int sensitive_pins[] = SENSITIVE_PINS; // Sensitive pin list for M42
-
-//static float tt = 0;
-//static float bt = 0;
 
 //Inactivity shutdown variables
 static unsigned long previous_millis_cmd = 0;
@@ -250,6 +260,7 @@ void enquecommand(const char *cmd)
     SERIAL_ECHOPGM("enqueing \"");
     SERIAL_ECHO(cmdbuffer[bufindw]);
     SERIAL_ECHOLNPGM("\"");
+    fromsd[bufindw] = true;
     bufindw= (bufindw + 1)%BUFSIZE;
     buflen += 1;
   }
@@ -265,6 +276,7 @@ void enquecommand_P(const char *cmd)
     SERIAL_ECHOPGM("enqueing \"");
     SERIAL_ECHO(cmdbuffer[bufindw]);
     SERIAL_ECHOLNPGM("\"");
+    fromsd[bufindw] = true;
     bufindw= (bufindw + 1)%BUFSIZE;
     buflen += 1;
   }
@@ -379,27 +391,43 @@ void loop()
   #endif
   if(buflen)
   {
+    #ifdef ULTIPANEL
+    while (true) 
+    {
+      // enqueuecommand() can inject multi-line LCD commands so deal with this here
+      // by processing each command in a loop.
+      uint8_t nextcmd_index = strcspn_P(cmdbuffer[bufindr], PSTR("\n"));
+      if (cmdbuffer[bufindr][nextcmd_index] == '\n')
+        cmdbuffer[bufindr][nextcmd_index++] = '\0';
+    #endif //ULTIPANEL
     #ifdef SDSUPPORT
       if(card.saving)
       {
-	if(strstr_P(cmdbuffer[bufindr], PSTR("M29")) == NULL)
-	{
-	  card.write_command(cmdbuffer[bufindr]);
-	  SERIAL_PROTOCOLLNPGM(MSG_OK);
-	}
-	else
-	{
-	  card.closefile();
-	  SERIAL_PROTOCOLLNPGM(MSG_FILE_SAVED);
-	}
+        if(strstr_P(cmdbuffer[bufindr], PSTR("M29")) == NULL)
+        {
+          card.write_command(cmdbuffer[bufindr]);
+          SERIAL_PROTOCOLLNPGM(MSG_OK);
+        }
+        else
+        {
+          card.closefile();
+          SERIAL_PROTOCOLLNPGM(MSG_FILE_SAVED);
+        }
       }
       else
       {
-	process_commands();
+        process_commands();
       }
     #else
       process_commands();
     #endif //SDSUPPORT
+    #ifdef ULTIPANEL
+      if (cmdbuffer[bufindr][nextcmd_index] == '\0')
+        break;
+      // shuffle down next part of multi-line command
+      memmove(cmdbuffer[bufindr], &cmdbuffer[bufindr][nextcmd_index], strlen(&cmdbuffer[bufindr][nextcmd_index])+1);
+    }
+    #endif //ULTIPANEL
     buflen = (buflen-1);
     bufindr = (bufindr + 1)%BUFSIZE;
   }
@@ -412,6 +440,7 @@ void loop()
 
 void get_command() 
 { 
+  char serial_char;
   while( MYSERIAL.available() > 0  && buflen < BUFSIZE) {
     serial_char = MYSERIAL.read();
     if(serial_char == '\n' || 
@@ -424,14 +453,16 @@ void get_command()
         return;
       }
       cmdbuffer[bufindw][serial_count] = 0; //terminate string
-      if(!comment_mode){
-        comment_mode = false; //for new command
+      if(!comment_mode)
+      {
         fromsd[bufindw] = false;
-        if(strchr(cmdbuffer[bufindw], 'N') != NULL)
+        // the line number command will always be the first character on a line 
+        // (ensures we don't pick up other N's that might appear in M117 LCD status messages for instance)
+        if(cmdbuffer[bufindw][0] == 'N')
         {
-          strchr_pointer = strchr(cmdbuffer[bufindw], 'N');
-          gcode_N = (strtol(&cmdbuffer[bufindw][strchr_pointer - cmdbuffer[bufindw] + 1], NULL, 10));
-          if(gcode_N != gcode_LastN+1 && (strstr_P(cmdbuffer[bufindw], PSTR("M110")) == NULL) ) {
+          long gcode_N = (strtol(&cmdbuffer[bufindw][1], NULL, 10));
+          if(gcode_N != gcode_LastN+1 && (strstr_P(cmdbuffer[bufindw], PSTR("M110")) == NULL) ) 
+          {
             SERIAL_ERROR_START;
             SERIAL_ERRORPGM(MSG_ERR_LINE_NO);
             SERIAL_ERRORLN(gcode_LastN);
@@ -441,14 +472,15 @@ void get_command()
             return;
           }
 
-          if(strchr(cmdbuffer[bufindw], '*') != NULL)
+          if((strchr_pointer = strrchr(cmdbuffer[bufindw], '*')) != NULL)
           {
             byte checksum = 0;
             byte count = 0;
-            while(cmdbuffer[bufindw][count] != '*') checksum = checksum^cmdbuffer[bufindw][count++];
-            strchr_pointer = strchr(cmdbuffer[bufindw], '*');
+            while(&cmdbuffer[bufindw][count] < strchr_pointer) 
+              checksum = checksum^cmdbuffer[bufindw][count++];
 
-            if( (int)(strtod(&cmdbuffer[bufindw][strchr_pointer - cmdbuffer[bufindw] + 1], NULL)) != checksum) {
+            if( (int)(strtod(&cmdbuffer[bufindw][strchr_pointer - cmdbuffer[bufindw] + 1], NULL)) != checksum) 
+            {
               SERIAL_ERROR_START;
               SERIAL_ERRORPGM(MSG_ERR_CHECKSUM_MISMATCH);
               SERIAL_ERRORLN(gcode_LastN);
@@ -456,7 +488,8 @@ void get_command()
               serial_count = 0;
               return;
             }
-            //if no errors, continue parsing
+            //if no errors, then terminate command at '*' so that later scanning for checksum is not required
+            *strchr_pointer = '\0';
           }
           else 
           {
@@ -509,6 +542,7 @@ void get_command()
         bufindw = (bufindw + 1)%BUFSIZE;
         buflen += 1;
       }
+      comment_mode = false; //for new command
       serial_count = 0; //clear buffer
     }
     else
@@ -521,7 +555,8 @@ void get_command()
   if(!card.sdprinting || serial_count!=0){
     return;
   }
-  while( !card.eof()  && buflen < BUFSIZE) {
+  while( !card.eof() && buflen < (BUFSIZE-1)) // we leave 1 buffer spot empty so that the LCD menu should be able use enquecommand() any time
+  {
     int16_t n=card.get();
     serial_char = (char)n;
     if(serial_char == '\n' || 
@@ -650,8 +685,7 @@ static void homeaxis(int axis) {
 void process_commands()
 {
   unsigned long codenum; //throw away variable
-  char *starpos = NULL;
-
+ 
   if(code_seen('G'))
   {
     switch((int)code_value())
@@ -723,8 +757,9 @@ void process_commands()
       break;
       #endif //FWRETRACT
     case 28: //G28 Home all Axis one at a time
-      saved_feedrate = feedrate;
-      saved_feedmultiply = feedmultiply;
+    {
+      float saved_feedrate = feedrate;
+      int saved_feedmultiply = feedmultiply;
       feedmultiply = 100;
       previous_millis_cmd = millis();
       
@@ -811,6 +846,7 @@ void process_commands()
       previous_millis_cmd = millis();
       endstops_hit_on_purpose();
       break;
+    }
     case 90: // G90
       relative_mode = false;
       break;
@@ -895,9 +931,6 @@ void process_commands()
 
       break;
     case 23: //M23 - Select file
-      starpos = (strchr(strchr_pointer + 4,'*'));
-      if(starpos!=NULL)
-        *(starpos-1)='\0';
       card.openFile(strchr_pointer + 4,true);
       break;
     case 24: //M24 - Start SD print
@@ -915,13 +948,7 @@ void process_commands()
     case 27: //M27 - Get SD status
       card.getStatus();
       break;
-    case 28: //M28 - Start SD write
-      starpos = (strchr(strchr_pointer + 4,'*'));
-      if(starpos != NULL){
-        char* npos = strchr(cmdbuffer[bufindr], 'N');
-        strchr_pointer = strchr(npos,' ') + 1;
-        *(starpos-1) = '\0';
-      }
+    case 28: //M28 <filename> - Start SD write
       card.openFile(strchr_pointer+4,false);
       break;
     case 29: //M29 - Stop SD write
@@ -929,17 +956,11 @@ void process_commands()
       //card,saving = false;
       break;
     case 30: //M30 <filename> Delete File 
-	if (card.cardOK){
-		card.closefile();
-		starpos = (strchr(strchr_pointer + 4,'*'));
-                if(starpos != NULL){
-                char* npos = strchr(cmdbuffer[bufindr], 'N');
-                strchr_pointer = strchr(npos,' ') + 1;
-                *(starpos-1) = '\0';
-         }
-	 card.removeFile(strchr_pointer + 4);
-	}
-	break;
+      if (card.cardOK){
+        card.closefile();
+        card.removeFile(strchr_pointer + 4);
+      }
+      break;
 	
 #endif //SDSUPPORT
 
@@ -973,6 +994,10 @@ void process_commands()
             break;
           }
         }
+      #if FAN_PIN > -1
+        if (pin_number == FAN_PIN)
+          fanSpeed = pin_status;
+      #endif
         if (pin_number > -1)
         {
           pinMode(pin_number, OUTPUT);
@@ -1224,9 +1249,6 @@ void process_commands()
       SERIAL_PROTOCOLPGM(MSG_M115_REPORT);
       break;
     case 117: // M117 display message
-      starpos = (strchr(strchr_pointer + 5,'*'));
-      if(starpos!=NULL)
-        *(starpos-1)='\0';
       lcd_setstatus(strchr_pointer + 5);
       break;
     case 114: // M114
@@ -1507,130 +1529,277 @@ void process_commands()
     }
     break;
     #endif
-    #ifdef FILAMENTCHANGEENABLE
-    case 600: //Pause for filament change X[pos] Y[pos] Z[relative lift] E[initial retract] L[later retract distance for removal]
-    {
-        float target[4];
-        float lastpos[4];
-        target[X_AXIS]=current_position[X_AXIS];
-        target[Y_AXIS]=current_position[Y_AXIS];
-        target[Z_AXIS]=current_position[Z_AXIS];
-        target[E_AXIS]=current_position[E_AXIS];
-        lastpos[X_AXIS]=current_position[X_AXIS];
-        lastpos[Y_AXIS]=current_position[Y_AXIS];
-        lastpos[Z_AXIS]=current_position[Z_AXIS];
-        lastpos[E_AXIS]=current_position[E_AXIS];
+    #ifdef PARK_HEAD_ENABLE
+    case 600: //Park head for pause or filament change X[pos] Y[pos] Z[relative lift] E[pre-move retract] L[post-move extrude override]
+    {    
+        // save state
+        parked_state.pos[X_AXIS]=current_position[X_AXIS];
+        parked_state.pos[Y_AXIS]=current_position[Y_AXIS];
+        parked_state.pos[Z_AXIS]=current_position[Z_AXIS];
+        parked_state.pos[E_AXIS]=current_position[E_AXIS];
+        parked_state.feedrate = feedrate;
+        parked_state.active_extruder = active_extruder;
+        parked_state.relative_mode = relative_mode;
+        parked_state.relative_extruder_mode=axis_relative_modes[E_AXIS];
+        
+        destination[X_AXIS] = current_position[X_AXIS];
+        destination[Y_AXIS] = current_position[Y_AXIS];
+        destination[Z_AXIS] = current_position[Z_AXIS]; 
+        destination[E_AXIS] = current_position[E_AXIS];
+
         //retract by E
         if(code_seen('E')) 
         {
-          target[E_AXIS]+= code_value();
+          destination[E_AXIS] += code_value();
         }
         else
         {
-          #ifdef FILAMENTCHANGE_FIRSTRETRACT
-            target[E_AXIS]+= FILAMENTCHANGE_FIRSTRETRACT ;
+          #ifdef PARK_HEAD_RETRACT
+            destination[E_AXIS] += PARK_HEAD_RETRACT;
           #endif
         }
-        plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], feedrate/60, active_extruder);
-        
+        plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], 
+          #ifdef FWRETRACT
+            retract_feedrate/60, active_extruder);
+          #else
+            homing_feedrate[E_AXIS]/60, active_extruder);
+          #endif
+            
         //lift Z
         if(code_seen('Z')) 
         {
-          target[Z_AXIS]+= code_value();
+          destination[Z_AXIS] += code_value();
         }
         else
         {
-          #ifdef FILAMENTCHANGE_ZADD
-            target[Z_AXIS]+= FILAMENTCHANGE_ZADD ;
+          #ifdef PARK_HEAD_ZADD
+            destination[Z_AXIS] += PARK_HEAD_ZADD ;
           #endif
-        }
-        plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], feedrate/60, active_extruder);
+        }     
+        if (destination[Z_AXIS] > Z_MAX_POS)
+          destination[Z_AXIS] = Z_MAX_POS;
+        plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], homing_feedrate[Z_AXIS]/60, active_extruder);
+        
+        parked_state.initial_raised_z_pos = destination[Z_AXIS];
         
         //move xy
         if(code_seen('X')) 
         {
-          target[X_AXIS]+= code_value();
+          destination[X_AXIS] = code_value();
         }
         else
         {
-          #ifdef FILAMENTCHANGE_XPOS
-            target[X_AXIS]= FILAMENTCHANGE_XPOS ;
-          #endif
+          #ifdef PARK_HEAD_XPOS
+            destination[X_AXIS] = PARK_HEAD_XPOS ;
+          #endif            
         }
         if(code_seen('Y')) 
         {
-          target[Y_AXIS]= code_value();
+          destination[Y_AXIS] = code_value();
         }
         else
         {
-          #ifdef FILAMENTCHANGE_YPOS
-            target[Y_AXIS]= FILAMENTCHANGE_YPOS ;
-          #endif
+          #ifdef PARK_HEAD_YPOS
+            destination[Y_AXIS] = PARK_HEAD_YPOS ;
+          #endif            
         }
+        plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], homing_feedrate[X_AXIS]/60, active_extruder);
         
-        plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], feedrate/60, active_extruder);
-        
-        if(code_seen('L'))
+        //extrude by L (or negative of E if not specified)
+        if(code_seen('L')) 
         {
-          target[E_AXIS]+= code_value();
+          destination[E_AXIS] += code_value();
         }
         else
         {
-          #ifdef FILAMENTCHANGE_FINALRETRACT
-            target[E_AXIS]+= FILAMENTCHANGE_FINALRETRACT ;
+          destination[E_AXIS] = parked_state.pos[E_AXIS];
+        }
+        plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], 
+          #ifdef FWRETRACT
+            retract_recover_feedrate/60, active_extruder);
+          #else
+            homing_feedrate[E_AXIS]/60, active_extruder);
+          #endif
+            
+        //finish moves
+        st_synchronize();       
+
+        // update current position
+        current_position[X_AXIS] = destination[X_AXIS];
+        current_position[Y_AXIS] = destination[Y_AXIS];
+        current_position[Z_AXIS] = destination[Z_AXIS]; 
+        current_position[E_AXIS] = destination[E_AXIS];
+    }        
+    break;
+    case 601: //Unpark head after pause or filament change - E[pre-move retract override] L[post-move extrude]
+    {
+        // This will restore relative co-ordinate modes (for G90/91 and M82/83), the active extruder number,
+        // feedrate, as well as XYZE position.
+        // Note: it purposely does not restore extruder temperature. For simplicity it also does not 
+        // turn back on all the motors and make sure that the bed and extruder are at termperature
+        // (if they have been changed).
+    
+        if  (!parked_state.pos[X_AXIS] && !parked_state.pos[Y_AXIS] && !parked_state.initial_raised_z_pos && !parked_state.pos[E_AXIS])
+        {
+          SERIAL_ERROR_START;
+          SERIAL_ERRORLNPGM(MSG_NO_SAVED_POSITION);
+          return;
+        }
+
+        // restore active extruder
+        active_extruder = parked_state.active_extruder;    
+        
+        destination[X_AXIS] = current_position[X_AXIS];
+        destination[Y_AXIS] = current_position[Y_AXIS];
+        destination[Z_AXIS] = current_position[Z_AXIS]; 
+        destination[E_AXIS] = current_position[E_AXIS]; 
+
+        // use codenum to store L
+        if(code_seen('L')) 
+        {
+          codenum = code_value();
+        }
+        else
+        {
+          #ifdef UNPARK_HEAD_EXTRUDE
+            codenum = UNPARK_HEAD_EXTRUDE;
+          #else
+            codenum = 0;
           #endif
         }
         
-        plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], feedrate/60, active_extruder);
+        //retract by E (or negative of L if not specified)
+        if(code_seen('E')) 
+        {
+          destination[E_AXIS] += code_value();
+        }
+        else
+        {
+          destination[E_AXIS] -= codenum;
+        }
+        plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], 
+          #ifdef FWRETRACT
+            retract_feedrate/60, active_extruder);
+          #else
+            homing_feedrate[E_AXIS]/60, active_extruder);
+          #endif
+
+        // raise Z back to initially raised position
+        if (current_position[Z_AXIS] < parked_state.initial_raised_z_pos)
+        {
+          destination[Z_AXIS]=parked_state.initial_raised_z_pos; 
+          plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], homing_feedrate[Z_AXIS]/60, active_extruder);
+        }
         
+        // restore XY
+        destination[X_AXIS]=parked_state.pos[X_AXIS];
+        destination[Y_AXIS]=parked_state.pos[Y_AXIS];
+        plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], homing_feedrate[X_AXIS]/60, active_extruder);
+        
+        // restore Z
+        destination[Z_AXIS]=parked_state.pos[Z_AXIS]; 
+        plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], homing_feedrate[Z_AXIS]/60, active_extruder);
+
+        //extrude by L
+        destination[E_AXIS] += codenum;
+        plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], 
+          #ifdef FWRETRACT
+            retract_recover_feedrate/60, active_extruder);
+          #else
+            homing_feedrate[E_AXIS]/60, active_extruder);
+          #endif
+
         //finish moves
         st_synchronize();
-        //disable extruder steppers so filament can be removed
-        disable_e0();
-        disable_e1();
-        disable_e2();
-        delay(100);
-        LCD_ALERTMESSAGEPGM(MSG_FILAMENTCHANGE);
-        uint8_t cnt=0;
-        while(!LCD_CLICKED){
-          cnt++;
-          manage_heater();
-          manage_inactivity();
-          lcd_update();
+
+        // restore abs/relative mode and feedrate
+        relative_mode = parked_state.relative_mode;
+        axis_relative_modes[E_AXIS]=parked_state.relative_extruder_mode;
+        feedrate = parked_state.feedrate;
+        
+        // update current position (and restore previous E axis position)
+        current_position[X_AXIS] = destination[X_AXIS];
+        current_position[Y_AXIS] = destination[Y_AXIS];
+        current_position[Z_AXIS] = destination[Z_AXIS]; 
+        current_position[E_AXIS] = parked_state.pos[E_AXIS]; 
+
+        // clear saved state
+        parked_state.pos[X_AXIS] = 0;
+        parked_state.pos[Y_AXIS] = 0;
+        parked_state.pos[Z_AXIS] = 0;
+        parked_state.pos[E_AXIS] = 0;
+        parked_state.initial_raised_z_pos = 0;
+    }
+    break;
+    #endif //PARK_HEAD_ENABLE
+    case 602: // M602 Use S[0|1] to turn on/off current extruder motor
+    {
+        // note: the current Marlin planner code automatically re-enables all 
+        // extruders whenever an E axis move is done
+        if(code_seen('S') && code_value() > 0) 
+        {
+          switch (active_extruder) {
+          case 0: enable_e0(); break;
+          case 1: enable_e1(); break;
+          case 2: enable_e2(); break;
+          }
+        }
+        else
+        {
+          switch (active_extruder) {
+          case 0: disable_e0(); break;
+          case 1: disable_e1(); break;
+          case 2: disable_e2(); break;
+          }
+        }
+    }
+    break;
+    #ifdef ULTIPANEL
+    case 603: // M603 - Display alert message, sound beeper and wait for button press S[ms beeper interval or 0 to disable] D[text to display]
+    {
+        // On printer without an LCD, the host can replace the M603 command with an M400 and perform all 
+        // alerting and prompting locally.
+        char *msg = NULL;
+        int interval_ms = 0;
+
+        st_synchronize();
+        previous_millis_cmd = millis();
+
+        if (code_seen('D'))
+        {
+          msg = strchr_pointer+1;
+          lcd_setalertstatus(msg);
+        }
+        if (code_seen('S') && (msg == NULL || strchr_pointer < msg))
+        {
+          interval_ms = code_value();
+        }
+
+        while(!LCD_CLICKED)
+        {
+          codenum = interval_ms + millis();
+          while(millis() < codenum )
+          {
+            manage_heater();
+            manage_inactivity();
+            lcd_update();
+          }
           
           #if BEEPER > -1
-          if(cnt==0)
+          if (interval_ms > 0)
           {
             SET_OUTPUT(BEEPER);
-            
             WRITE(BEEPER,HIGH);
             delay(3);
             WRITE(BEEPER,LOW);
-            delay(3);
           }
           #endif
         }
         
-        //return to normal
-        if(code_seen('L')) 
-        {
-          target[E_AXIS]+= -code_value();
-        }
-        else
-        {
-          #ifdef FILAMENTCHANGE_FINALRETRACT
-            target[E_AXIS]+=(-1)*FILAMENTCHANGE_FINALRETRACT ;
-          #endif
-        }
-        current_position[E_AXIS]=target[E_AXIS]; //the long retract of L is compensated by manual filament feeding
-        plan_set_e_position(current_position[E_AXIS]);
-        plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], feedrate/60, active_extruder); //should do nothing
-        plan_buffer_line(lastpos[X_AXIS], lastpos[Y_AXIS], target[Z_AXIS], target[E_AXIS], feedrate/60, active_extruder); //move xy back
-        plan_buffer_line(lastpos[X_AXIS], lastpos[Y_AXIS], lastpos[Z_AXIS], target[E_AXIS], feedrate/60, active_extruder); //move z back
-        plan_buffer_line(lastpos[X_AXIS], lastpos[Y_AXIS], lastpos[Z_AXIS], lastpos[E_AXIS], feedrate/60, active_extruder); //final untretract
+        lcd_reset_alert_level();
     }
     break;
-    #endif //FILAMENTCHANGEENABLE    
+    #endif // ULTIPANEL
     case 907: // M907 Set digital trimpot motor current using axis codes.
     {
       #if DIGIPOTSS_PIN > -1
@@ -1736,6 +1905,8 @@ void ClearToSend()
 void get_coordinates()
 {
   bool seen[4]={false,false,false,false};
+  float next_feedrate;
+  
   for(int8_t i=0; i < NUM_AXIS; i++) {
     if(code_seen(axis_codes[i])) 
     {

@@ -395,14 +395,16 @@ void CardReader::getStatus()
 void CardReader::write_command(char *buf)
 {
   char* begin = buf;
-  char* npos = 0;
   char* end = buf + strlen(buf) - 1;
 
   file.writeError = false;
-  if((npos = strchr(buf, 'N')) != NULL)
+  // the line number command will always be the first character on a line 
+  // (ensures we don't pick up other N's that might appear in M117 LCD status messages for instance)
+  if(buf[0] == 'N')
   {
-    begin = strchr(npos, ' ') + 1;
-    end = strchr(npos, '*') - 1;
+    begin = strchr(buf, ' ') + 1;
+    // checksum removal has already been handled in get_command() so 
+    // don't duplicate here.
   }
   end[1] = '\r';
   end[2] = '\n';
