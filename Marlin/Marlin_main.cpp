@@ -994,6 +994,10 @@ void process_commands()
             break;
           }
         }
+      #if FAN_PIN > -1
+        if (pin_number == FAN_PIN)
+          fanSpeed = pin_status;
+      #endif
         if (pin_number > -1)
         {
           pinMode(pin_number, OUTPUT);

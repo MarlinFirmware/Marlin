@@ -401,10 +401,6 @@ void manage_heater()
   } // End extruder for loop
   
   #if EXTRUDER_0_AUTO_FAN_PIN != -1 || EXTRUDER_1_AUTO_FAN_PIN != -1 || EXTRUDER_2_AUTO_FAN_PIN != -1
-    // sanity check pin assignment first
-    #if FAN_PIN > -1 && (EXTRUDER_0_AUTO_FAN_PIN == FAN_PIN || EXTRUDER_1_AUTO_FAN_PIN == FAN_PIN || EXTRUDER_2_AUTO_FAN_PIN == FAN_PIN)
-      #error "You can't assign the M106/M107 controlled FAN_PIN to the same pin as the auto temperature controlled pins."
-    #endif
     // check the extruder 0 setting (and any ganged auto fan outputs)
     bool newFanState = (EXTRUDER_0_AUTO_FAN_PIN > -1 && 
         (current_temperature[0] > EXTRUDER_AUTO_FAN_TEMPERATURE || 
@@ -412,9 +408,12 @@ void manage_heater()
             (EXTRUDER_0_AUTO_FAN_PIN == EXTRUDER_2_AUTO_FAN_PIN && current_temperature[2] > EXTRUDER_AUTO_FAN_TEMPERATURE)));
     if ((extruderAutoFanState & 1) != newFanState) // store state in first bit
     {
+        int newFanSpeed = (newFanState ? EXTRUDER_AUTO_FAN_SPEED : 0);
+        if (EXTRUDER_0_AUTO_FAN_PIN == FAN_PIN) 
+            fanSpeed = newFanSpeed;
         pinMode(EXTRUDER_0_AUTO_FAN_PIN, OUTPUT);
-        digitalWrite(EXTRUDER_0_AUTO_FAN_PIN, newFanState ? 255 : 0);
-        analogWrite(EXTRUDER_0_AUTO_FAN_PIN, newFanState ? 255 : 0);
+        digitalWrite(EXTRUDER_0_AUTO_FAN_PIN, newFanSpeed);
+        analogWrite(EXTRUDER_0_AUTO_FAN_PIN, newFanSpeed);
         extruderAutoFanState = newFanState | (extruderAutoFanState & ~1);
     }
     // check the extruder 1 setting (except when extruder 1 is the same as 0)
@@ -423,9 +422,12 @@ void manage_heater()
             (EXTRUDER_1_AUTO_FAN_PIN == EXTRUDER_2_AUTO_FAN_PIN && current_temperature[2] > EXTRUDER_AUTO_FAN_TEMPERATURE)));
     if ((extruderAutoFanState & 2) != (newFanState<<1)) // use second bit
     {
+        int newFanSpeed = (newFanState ? EXTRUDER_AUTO_FAN_SPEED : 0);
+        if (EXTRUDER_1_AUTO_FAN_PIN == FAN_PIN) 
+            fanSpeed = newFanSpeed;
         pinMode(EXTRUDER_1_AUTO_FAN_PIN, OUTPUT);
-        digitalWrite(EXTRUDER_1_AUTO_FAN_PIN, newFanState ? 255 : 0);
-        analogWrite(EXTRUDER_1_AUTO_FAN_PIN, newFanState ? 255 : 0);
+        digitalWrite(EXTRUDER_1_AUTO_FAN_PIN, newFanSpeed);
+        analogWrite(EXTRUDER_1_AUTO_FAN_PIN, newFanSpeed);
         extruderAutoFanState = (newFanState<<1) | (extruderAutoFanState & ~2);
     }
     // check the extruder 2 setting (except when extruder 2 is the same as 1 or 0)
@@ -434,9 +436,12 @@ void manage_heater()
         current_temperature[2] > EXTRUDER_AUTO_FAN_TEMPERATURE);
     if ((extruderAutoFanState & 4) != (newFanState<<2)) // use third bit
     {
-        pinMode(EXTRUDER_1_AUTO_FAN_PIN, OUTPUT);
-        digitalWrite(EXTRUDER_1_AUTO_FAN_PIN, newFanState ? 255 : 0);
-        analogWrite(EXTRUDER_1_AUTO_FAN_PIN, newFanState ? 255 : 0);
+        int newFanSpeed = (newFanState ? EXTRUDER_AUTO_FAN_SPEED : 0);
+        if (EXTRUDER_2_AUTO_FAN_PIN == FAN_PIN) 
+            fanSpeed = newFanSpeed;
+        pinMode(EXTRUDER_2_AUTO_FAN_PIN, OUTPUT);
+        digitalWrite(EXTRUDER_2_AUTO_FAN_PIN, newFanSpeed);
+        analogWrite(EXTRUDER_2_AUTO_FAN_PIN, newFanSpeed);
         extruderAutoFanState = (newFanState<<2) | (extruderAutoFanState & ~4);
     }
   #endif 
