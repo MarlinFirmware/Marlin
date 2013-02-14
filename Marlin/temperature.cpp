@@ -99,8 +99,8 @@ static volatile bool temp_meas_ready = false;
 #ifdef FAN_SOFT_PWM
   static unsigned char soft_pwm_fan;
 #endif
-#if EXTRUDER_0_AUTO_FAN_PIN != -1 || EXTRUDER_1_AUTO_FAN_PIN != -1 || EXTRUDER_2_AUTO_FAN_PIN != -1
-  static uint8_t extruderAutoFanState = 0; // extruder fan state stored as bitmap
+#if EXTRUDER_0_AUTO_FAN_PIN > -1 || EXTRUDER_1_AUTO_FAN_PIN > -1 || EXTRUDER_2_AUTO_FAN_PIN > -1
+  static uint8_t extruderAutoFanState = 0; // extruder auto fan state stored as bitmap
 #endif  
   
 #if EXTRUDERS > 3
@@ -400,7 +400,7 @@ void manage_heater()
 
   } // End extruder for loop
   
-  #if EXTRUDER_0_AUTO_FAN_PIN != -1 || EXTRUDER_1_AUTO_FAN_PIN != -1 || EXTRUDER_2_AUTO_FAN_PIN != -1
+  #if EXTRUDER_0_AUTO_FAN_PIN > -1
     // check the extruder 0 setting (and any ganged auto fan outputs)
     bool newFanState = (EXTRUDER_0_AUTO_FAN_PIN > -1 && 
         (current_temperature[0] > EXTRUDER_AUTO_FAN_TEMPERATURE || 
@@ -416,6 +416,8 @@ void manage_heater()
         analogWrite(EXTRUDER_0_AUTO_FAN_PIN, newFanSpeed);
         extruderAutoFanState = newFanState | (extruderAutoFanState & ~1);
     }
+  #endif //EXTRUDER_0_AUTO_FAN_PIN > -1
+  #if EXTRUDER_1_AUTO_FAN_PIN > -1
     // check the extruder 1 setting (except when extruder 1 is the same as 0)
     newFanState = (EXTRUDER_1_AUTO_FAN_PIN > -1 && EXTRUDER_1_AUTO_FAN_PIN != EXTRUDER_0_AUTO_FAN_PIN &&
         (current_temperature[1] > EXTRUDER_AUTO_FAN_TEMPERATURE ||
@@ -430,6 +432,8 @@ void manage_heater()
         analogWrite(EXTRUDER_1_AUTO_FAN_PIN, newFanSpeed);
         extruderAutoFanState = (newFanState<<1) | (extruderAutoFanState & ~2);
     }
+  #endif //EXTRUDER_1_AUTO_FAN_PIN > -1
+  #if EXTRUDER_2_AUTO_FAN_PIN > -1
     // check the extruder 2 setting (except when extruder 2 is the same as 1 or 0)
     newFanState = (EXTRUDER_2_AUTO_FAN_PIN > -1 && 
             EXTRUDER_2_AUTO_FAN_PIN != EXTRUDER_0_AUTO_FAN_PIN && EXTRUDER_2_AUTO_FAN_PIN != EXTRUDER_1_AUTO_FAN_PIN &&
@@ -444,7 +448,7 @@ void manage_heater()
         analogWrite(EXTRUDER_2_AUTO_FAN_PIN, newFanSpeed);
         extruderAutoFanState = (newFanState<<2) | (extruderAutoFanState & ~4);
     }
-  #endif 
+  #endif //EXTRUDER_2_AUTO_FAN_PIN > -1
 
   #ifndef PIDTEMPBED
   if(millis() - previous_millis_bed_heater < BED_CHECK_INTERVAL)
