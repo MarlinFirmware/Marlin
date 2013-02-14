@@ -126,8 +126,8 @@
 // M502 - reverts to the default "factory settings".  You still need to store them in EEPROM afterwards if you want to.
 // M503 - print the current settings (from memory not from eeprom)
 // M540 - Use S[0|1] to enable or disable the stop SD card print on endstop hit (requires ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED)
-// M600 - Park head for pause or filament change X[pos] Y[pos] Z[relative lift] E[pre-movement retract] L[post-movement extrude override]
-// M601 - Unpark head E[pre-move retract override] L[post-move extrude]
+// M600 - Park head for pause or filament change X[pos] Y[pos] Z[relative lift] R[pre-move retract] E[post-move extrude]
+// M601 - Unpark head R[pre-move retract] E[post-move extrude]
 // M602 - Use S[0|1] to turn on/off current extruder motor
 // M603 - Display alert message, sound beeper and wait for button press S[ms beeper interval or 0] D[text to display]
 // M907 - Set digital trimpot motor current using axis codes.
@@ -1526,7 +1526,7 @@ void process_commands()
     break;
     #endif
     #ifdef PARK_HEAD_ENABLE
-    case 600: //Park head for pause or filament change X[pos] Y[pos] Z[relative lift] E[pre-move retract] L[post-move extrude override]
+    case 600: //Park head for pause or filament change X[pos] Y[pos] Z[relative lift] R[pre-move retract] E[post-move extrude]
     {    
         // save state
         parked_state.pos[X_AXIS]=current_position[X_AXIS];
@@ -1543,8 +1543,8 @@ void process_commands()
         destination[Z_AXIS] = current_position[Z_AXIS]; 
         destination[E_AXIS] = current_position[E_AXIS];
 
-        //retract by E
-        if(code_seen('E')) 
+        //retract by R
+        if(code_seen('R')) 
         {
           destination[E_AXIS] += code_value();
         }
@@ -1601,14 +1601,16 @@ void process_commands()
         }
         plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], homing_feedrate[X_AXIS]/60, active_extruder);
         
-        //extrude by L (or negative of E if not specified)
-        if(code_seen('L')) 
+        // extrude by E
+        if(code_seen('E')) 
         {
           destination[E_AXIS] += code_value();
         }
         else
         {
-          destination[E_AXIS] = parked_state.pos[E_AXIS];
+          #ifdef PARK_HEAD_EXTRUDE
+            destination[E_AXIS] += PARK_HEAD_EXTRUDE;
+          #endif
         }
         plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], 
           #ifdef FWRETRACT
@@ -1627,7 +1629,7 @@ void process_commands()
         current_position[E_AXIS] = destination[E_AXIS];
     }        
     break;
-    case 601: //Unpark head after pause or filament change - E[pre-move retract override] L[post-move extrude]
+    case 601: //Unpark head after pause or filament change - R[pre-move retract] E[post-move extrude]
     {
         // This will restore relative co-ordinate modes (for G90/91 and M82/83), the active extruder number,
         // feedrate, as well as XYZE position.
@@ -1650,28 +1652,16 @@ void process_commands()
         destination[Z_AXIS] = current_position[Z_AXIS]; 
         destination[E_AXIS] = current_position[E_AXIS]; 
 
-        // use codenum to store L
-        if(code_seen('L')) 
-        {
-          codenum = code_value();
-        }
-        else
-        {
-          #ifdef UNPARK_HEAD_EXTRUDE
-            codenum = UNPARK_HEAD_EXTRUDE;
-          #else
-            codenum = 0;
-          #endif
-        }
-        
-        //retract by E (or negative of L if not specified)
-        if(code_seen('E')) 
+        // retract by R
+        if(code_seen('R')) 
         {
           destination[E_AXIS] += code_value();
         }
         else
         {
-          destination[E_AXIS] -= codenum;
+          #ifdef UNPARK_HEAD_RETRACT
+            destination[E_AXIS] += UNPARK_HEAD_RETRACT;
+          #endif
         }
         plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], 
           #ifdef FWRETRACT
@@ -1696,8 +1686,17 @@ void process_commands()
         destination[Z_AXIS]=parked_state.pos[Z_AXIS]; 
         plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], homing_feedrate[Z_AXIS]/60, active_extruder);
 
-        //extrude by L
-        destination[E_AXIS] += codenum;
+        // extrude by E
+        if(code_seen('E')) 
+        {
+          destination[E_AXIS] += code_value();
+        }
+        else
+        {
+          #ifdef UNPARK_HEAD_EXTRUDE
+            destination[E_AXIS] += UNPARK_HEAD_EXTRUDE;
+          #endif
+        }
         plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], 
           #ifdef FWRETRACT
             retract_recover_feedrate/60, active_extruder);
