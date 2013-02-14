@@ -342,133 +342,8 @@ ISR(TIMER1_COMPA_vect)
     // Set directions TO DO This should be done once during init of trapezoid. Endstops -> interrupt
     out_bits = current_block->direction_bits;
 
-    // Set direction en check limit switches
-    #ifndef COREXY
-    if ((out_bits & (1<<X_AXIS)) != 0) {   // stepping along -X axis
-      WRITE(X_DIR_PIN, INVERT_X_DIR);
-      count_direction[X_AXIS]=-1;
-      CHECK_ENDSTOPS
-      {
-        #if X_MIN_PIN > -1
-          bool x_min_endstop=(READ(X_MIN_PIN) != X_ENDSTOPS_INVERTING);
-          if(x_min_endstop && old_x_min_endstop && (current_block->steps_x > 0)) {
-            endstops_trigsteps[X_AXIS] = count_position[X_AXIS];
-            endstop_x_hit=true;
-            step_events_completed = current_block->step_event_count;
-          }
-          old_x_min_endstop = x_min_endstop;
-        #endif
-      }
-    }
-    else { // +direction
-      WRITE(X_DIR_PIN, !INVERT_X_DIR);
-      count_direction[X_AXIS]=1;
-      CHECK_ENDSTOPS 
-      {
-        #if X_MAX_PIN > -1
-          bool x_max_endstop=(READ(X_MAX_PIN) != X_ENDSTOPS_INVERTING);
-          if(x_max_endstop && old_x_max_endstop && (current_block->steps_x > 0)){
-            endstops_trigsteps[X_AXIS] = count_position[X_AXIS];
-            endstop_x_hit=true;
-            step_events_completed = current_block->step_event_count;
-          }
-          old_x_max_endstop = x_max_endstop;
-        #endif
-      }
-    }
 
-    if ((out_bits & (1<<Y_AXIS)) != 0) {   // -direction
-      WRITE(Y_DIR_PIN, INVERT_Y_DIR);
-      count_direction[Y_AXIS]=-1;
-      CHECK_ENDSTOPS
-      {
-        #if Y_MIN_PIN > -1
-          bool y_min_endstop=(READ(Y_MIN_PIN) != Y_ENDSTOPS_INVERTING);
-          if(y_min_endstop && old_y_min_endstop && (current_block->steps_y > 0)) {
-            endstops_trigsteps[Y_AXIS] = count_position[Y_AXIS];
-            endstop_y_hit=true;
-            step_events_completed = current_block->step_event_count;
-          }
-          old_y_min_endstop = y_min_endstop;
-        #endif
-      }
-    }
-    else { // +direction
-      WRITE(Y_DIR_PIN, !INVERT_Y_DIR);
-      count_direction[Y_AXIS]=1;
-      CHECK_ENDSTOPS
-      {
-        #if Y_MAX_PIN > -1
-          bool y_max_endstop=(READ(Y_MAX_PIN) != Y_ENDSTOPS_INVERTING);
-          if(y_max_endstop && old_y_max_endstop && (current_block->steps_y > 0)){
-            endstops_trigsteps[Y_AXIS] = count_position[Y_AXIS];
-            endstop_y_hit=true;
-            step_events_completed = current_block->step_event_count;
-          }
-          old_y_max_endstop = y_max_endstop;
-        #endif
-      }
-    }
-    #else //Modify endstop checking conditions for corexy kinematics
-    // Because motions are defined in planner.cpp, X_AXIS = A_AXIS and Y_AXIS = B_AXIS
-    if ((((out_bits & (1<<X_AXIS)) != 0)&&(out_bits & (1<<Y_AXIS)) != 0)) {   //-X occurs for -A and -B
-      CHECK_ENDSTOPS
-      {
-        #if X_MIN_PIN > -1
-          bool x_min_endstop=(READ(X_MIN_PIN) != X_ENDSTOPS_INVERTING);
-          if(x_min_endstop && old_x_min_endstop && (current_block->steps_x > 0)) {
-            endstops_trigsteps[X_AXIS] = count_position[X_AXIS];
-            endstop_x_hit=true;
-            step_events_completed = current_block->step_event_count;
-          }
-          old_x_min_endstop = x_min_endstop;
-        #endif
-      }
-    }
-    else { // +X occurs for +A and +B
-      CHECK_ENDSTOPS 
-      {
-        #if X_MAX_PIN > -1
-          bool x_max_endstop=(READ(X_MAX_PIN) != X_ENDSTOPS_INVERTING);
-          if(x_max_endstop && old_x_max_endstop && (current_block->steps_x > 0)){
-            endstops_trigsteps[X_AXIS] = count_position[X_AXIS];
-            endstop_x_hit=true;
-            step_events_completed = current_block->step_event_count;
-          }
-          old_x_max_endstop = x_max_endstop;
-        #endif
-      }
-    }
-
-    if ((((out_bits & (1<<X_AXIS)) != 0)&&(out_bits & (1<<Y_AXIS)) == 0)) {   // -Y occurs for -A and +B
-      CHECK_ENDSTOPS
-      {
-        #if Y_MIN_PIN > -1
-          bool y_min_endstop=(READ(Y_MIN_PIN) != Y_ENDSTOPS_INVERTING);
-          if(y_min_endstop && old_y_min_endstop && (current_block->steps_y > 0)) {
-            endstops_trigsteps[Y_AXIS] = count_position[Y_AXIS];
-            endstop_y_hit=true;
-            step_events_completed = current_block->step_event_count;
-          }
-          old_y_min_endstop = y_min_endstop;
-        #endif
-      }
-    }
-    else { // +Y
-      CHECK_ENDSTOPS
-      {
-        #if Y_MAX_PIN > -1
-          bool y_max_endstop=(READ(Y_MAX_PIN) != Y_ENDSTOPS_INVERTING);
-          if(y_max_endstop && old_y_max_endstop && (current_block->steps_y > 0)){
-            endstops_trigsteps[Y_AXIS] = count_position[Y_AXIS];
-            endstop_y_hit=true;
-            step_events_completed = current_block->step_event_count;
-          }
-          old_y_max_endstop = y_max_endstop;
-        #endif
-      }
-    }
-    // Now set direction bits accordingly
+    // Set the direction bits (X_AXIS=A_AXIS and Y_AXIS=B_AXIS for COREXY)
     if((out_bits & (1<<X_AXIS))!=0){
       WRITE(X_DIR_PIN, INVERT_X_DIR);
       count_direction[X_AXIS]=-1;
@@ -485,7 +360,73 @@ ISR(TIMER1_COMPA_vect)
       WRITE(Y_DIR_PIN, !INVERT_Y_DIR);
       count_direction[Y_AXIS]=1;
     }
+    
+    // Set direction en check limit switches
+    #ifndef COREXY
+    if ((out_bits & (1<<X_AXIS)) != 0) {   // stepping along -X axis
+    #else
+    if ((((out_bits & (1<<X_AXIS)) != 0)&&(out_bits & (1<<Y_AXIS)) != 0)) {   //-X occurs for -A and -B
     #endif
+      CHECK_ENDSTOPS
+      {
+        #if X_MIN_PIN > -1
+          bool x_min_endstop=(READ(X_MIN_PIN) != X_ENDSTOPS_INVERTING);
+          if(x_min_endstop && old_x_min_endstop && (current_block->steps_x > 0)) {
+            endstops_trigsteps[X_AXIS] = count_position[X_AXIS];
+            endstop_x_hit=true;
+            step_events_completed = current_block->step_event_count;
+          }
+          old_x_min_endstop = x_min_endstop;
+        #endif
+      }
+    }
+    else { // +direction
+      CHECK_ENDSTOPS 
+      {
+        #if X_MAX_PIN > -1
+          bool x_max_endstop=(READ(X_MAX_PIN) != X_ENDSTOPS_INVERTING);
+          if(x_max_endstop && old_x_max_endstop && (current_block->steps_x > 0)){
+            endstops_trigsteps[X_AXIS] = count_position[X_AXIS];
+            endstop_x_hit=true;
+            step_events_completed = current_block->step_event_count;
+          }
+          old_x_max_endstop = x_max_endstop;
+        #endif
+      }
+    }
+
+    #ifndef COREXY
+    if ((out_bits & (1<<Y_AXIS)) != 0) {   // -direction
+    #else
+    if ((((out_bits & (1<<X_AXIS)) != 0)&&(out_bits & (1<<Y_AXIS)) == 0)) {   // -Y occurs for -A and +B
+    #endif
+      CHECK_ENDSTOPS
+      {
+        #if Y_MIN_PIN > -1
+          bool y_min_endstop=(READ(Y_MIN_PIN) != Y_ENDSTOPS_INVERTING);
+          if(y_min_endstop && old_y_min_endstop && (current_block->steps_y > 0)) {
+            endstops_trigsteps[Y_AXIS] = count_position[Y_AXIS];
+            endstop_y_hit=true;
+            step_events_completed = current_block->step_event_count;
+          }
+          old_y_min_endstop = y_min_endstop;
+        #endif
+      }
+    }
+    else { // +direction
+      CHECK_ENDSTOPS
+      {
+        #if Y_MAX_PIN > -1
+          bool y_max_endstop=(READ(Y_MAX_PIN) != Y_ENDSTOPS_INVERTING);
+          if(y_max_endstop && old_y_max_endstop && (current_block->steps_y > 0)){
+            endstops_trigsteps[Y_AXIS] = count_position[Y_AXIS];
+            endstop_y_hit=true;
+            step_events_completed = current_block->step_event_count;
+          }
+          old_y_max_endstop = y_max_endstop;
+        #endif
+      }
+    }
 
     if ((out_bits & (1<<Z_AXIS)) != 0) {   // -direction
       WRITE(Z_DIR_PIN,INVERT_Z_DIR);
