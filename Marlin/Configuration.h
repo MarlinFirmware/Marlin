@@ -55,6 +55,12 @@
 
 #define POWER_SUPPLY 1
 
+//// The following define selects whether the PSU is activated when Marlin boots.
+// Comment out PSU_DEFAULT_ON to leave your Marlin controlled PSU turned off when Marlin starts.
+
+#define PSU_DEFAULT_ON
+
+
 //===========================================================================
 //=============================Thermal Settings  ============================
 //===========================================================================
@@ -320,6 +326,11 @@ const bool Z_ENDSTOPS_INVERTING = true; // set to true to invert the logic of th
 // The GADGETS3D G3D LCD/SD Controller (blue PCB)
 // http://reprap.org/wiki/RAMPS_1.3/1.4_GADGETS3D_Shield_with_Panel
 //#define G3D_PANEL
+
+
+//  Enable LCD Menu for Power Supply Control
+//  Uncomment below to enable switching your Marlin controlled PSU from the LCD Menu.
+//#define LCD_POWER_CONTROL
 
 //automatic expansion
 #if defined(ULTIMAKERCONTROLLER) || defined(REPRAP_DISCOUNT_SMART_CONTROLLER) || defined(G3D_PANEL)
