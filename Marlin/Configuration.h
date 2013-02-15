@@ -55,6 +55,11 @@
 
 #define POWER_SUPPLY 1
 
+//// The following define selects whether or not the power supply is turned on by default.
+//#define PSU_DEFAULT_ON will leave the PSU turned off.
+
+#define PSU_DEFAULT_ON
+
 //===========================================================================
 //=============================Thermal Settings  ============================
 //===========================================================================
@@ -306,6 +311,10 @@ const bool Z_ENDSTOPS_INVERTING = true; // set to true to invert the logic of th
 // please keep turned on if you can.
 //#define EEPROM_CHITCHAT
 
+
+
+
+
 //LCD and SD support
 //#define ULTRA_LCD  //general lcd support, also 16x2
 //#define SDSUPPORT // Enable SD Card Support in Hardware Console
@@ -320,6 +329,9 @@ const bool Z_ENDSTOPS_INVERTING = true; // set to true to invert the logic of th
 // The GADGETS3D G3D LCD/SD Controller (blue PCB)
 // http://reprap.org/wiki/RAMPS_1.3/1.4_GADGETS3D_Shield_with_Panel
 //#define G3D_PANEL
+
+//// This define adds LCD Power Supply Control.  Uncomment to enable LCD menu entries for power supply control.
+//#define LCD_POWER_CONTROL
 
 //automatic expansion
 #if defined(ULTIMAKERCONTROLLER) || defined(REPRAP_DISCOUNT_SMART_CONTROLLER) || defined(G3D_PANEL)
