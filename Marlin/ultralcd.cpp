@@ -34,6 +34,9 @@ static void lcd_main_menu();
 static void lcd_tune_menu();
 static void lcd_prepare_menu();
 static void lcd_move_menu();
+#ifdef LCD_POWER_CONTROL
+static void lcd_power_menu();
+#endif
 static void lcd_control_menu();
 static void lcd_control_temperature_menu();
 static void lcd_control_temperature_preheat_pla_settings_menu();
@@ -186,6 +189,9 @@ static void lcd_main_menu()
     }else{
         MENU_ITEM(submenu, MSG_PREPARE, lcd_prepare_menu);
     }
+	#ifdef LCD_POWER_CONTROL
+	MENU_ITEM(submenu, MSG_PSU_CONTROL, lcd_power_menu);
+	#endif
     MENU_ITEM(submenu, MSG_CONTROL, lcd_control_menu);
 #ifdef SDSUPPORT
     if (card.cardOK)
@@ -418,6 +424,16 @@ static void lcd_move_menu()
     //TODO:X,Y,Z,E
     END_MENU();
 }
+
+#ifdef LCD_PSU_CONTROL
+static void lcd_power_menu()
+{
+	START_MENU();
+	MENU_ITEM(back, MSG_MAIN, lcd_main_menu);
+	MENU_ITEM(gcode, MSG_PSU_ON, PSTR("M80"));
+	MENU_ITEM(gcode, MSG_PSU_OFF, PSTR("M81"));
+	END_MENU();
+#endif
 
 static void lcd_control_menu()
 {
