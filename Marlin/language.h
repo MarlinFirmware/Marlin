@@ -259,6 +259,7 @@
 	#define MSG_NO_CARD "Brak karty"
 	#define MSG_DWELL "Uspij..."
 	#define MSG_USERWAIT "Czekaj na uzytkownika..."
+	#define MSG_RESUMING "Wznawiam drukowanie"
 	#define MSG_NO_MOVE "Brak ruchu."
 	#define MSG_PART_RELEASE "Czesciowe zwolnienie"
 	#define MSG_KILLED "Ubity. "
