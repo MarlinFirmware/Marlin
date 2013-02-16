@@ -745,7 +745,8 @@
      #define LCD_PINS_D5        29
      #define LCD_PINS_D6        28
      #define LCD_PINS_D7        27
-     
+     #endif
+	 
      //The encoder and click button
      #define BTN_EN1 11  //must be a hardware interrupt pin
      #define BTN_EN2 10 //must be hardware interrupt pin
