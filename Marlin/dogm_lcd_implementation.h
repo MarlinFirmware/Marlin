@@ -81,10 +81,11 @@ static void lcd_implementation_init()
 			dogm.print("by STB");
 	   } while( dogm.next() );
 
-	pinMode(17, OUTPUT);	// Enable LCD backlight
-	digitalWrite(17, HIGH);
+//  Uncomment this if you have the first generation (V1.10) of STBs board
+//	pinMode(17, OUTPUT);	// Enable LCD backlight
+//	digitalWrite(17, HIGH);
 	
-	dog_Delay(1000);		// wait 10sec.
+	dog_Delay(2000);		// wait 2sec. to show the welcome screen
 }
 
 static void lcd_implementation_clear()
