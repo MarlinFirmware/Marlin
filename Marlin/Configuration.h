@@ -226,7 +226,7 @@ const bool Z_ENDSTOPS_INVERTING = true; // set to true to invert the logic of th
 //#define DISABLE_MAX_ENDSTOPS
 
 // Disable max endstops for compatibility with endstop checking routine
-#ifdef COREXY && #ifndef DISABLE_MAX_ENDSTOPS
+#if defined(COREXY) && !defined(DISABLE_MAX_ENDSTOPS)
   #define DISABLE_MAX_ENDSTOPS
 #endif
 
