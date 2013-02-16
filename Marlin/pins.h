@@ -644,6 +644,9 @@
 * Sanguinololu pin assignment
 *
 ****************************************************************************************/
+#if MOTHERBOARD == 64
+#define STB
+#endif
 #if MOTHERBOARD == 63
 #define MELZI
 #endif
@@ -687,6 +690,10 @@
 #define FAN_PIN            4
 #endif
 
+#ifdef STB
+#define FAN_PIN            4
+#endif
+
 #define PS_ON_PIN          -1
 #define KILL_PIN           -1
 
@@ -727,6 +734,11 @@
      //we have no buzzer installed
      #define BEEPER -1
      //LCD Pins
+	 #ifdef DOGLCD
+	 // Pins for DOGM SPI LCD Support
+	 // must be defined in libraries/Dogm/utility/dogm128.h
+	 // line #184-194	 
+	 #else
      #define LCD_PINS_RS        4
      #define LCD_PINS_ENABLE    17
      #define LCD_PINS_D4        30
