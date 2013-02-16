@@ -24,7 +24,11 @@ typedef void (*menuFunc_t)();
 uint8_t lcd_status_message_level;
 char lcd_status_message[LCD_WIDTH+1] = WELCOME_MSG;
 
+#ifdef DOGLCD
+#include "dogm_lcd_implementation.h"
+#else
 #include "ultralcd_implementation_hitachi_HD44780.h"
+#endif
 
 /** forward declerations **/
 /* Different menus */
@@ -705,6 +709,7 @@ void lcd_init()
 void lcd_update()
 {
     static unsigned long timeoutToStatus = 0;
+	static unsigned char blink = 0;	// Variable for blinking dot in the Display
     
     lcd_buttons_update();
     
@@ -742,7 +747,20 @@ void lcd_update()
             timeoutToStatus = millis() + LCD_TIMEOUT_TO_STATUS;
 #endif//ULTIPANEL
         
-        (*currentMenu)();
+#ifdef DOGLCD          // Changes due to different driver architecture of the DOGM display
+		blink++;	   // Variable for blinking dot in the display right bottom corner
+		dogm.start();
+		do {
+				dogm.setFont(font_6x10_marlin);
+				dogm.setXY(121,0);
+				if (blink % 2) dogm.print("."); else dogm.print(" ");	// blinking dot
+				(*currentMenu)();
+				if (!lcdDrawUpdate)  break; // Terminate display update, when nothing new to draw. This must be done before the next dogm.next()
+		   } while( dogm.next() );
+#else
+				(*currentMenu)();
+#endif
+
 #ifdef ULTIPANEL
         if(timeoutToStatus < millis() && currentMenu != lcd_status_screen)
         {
