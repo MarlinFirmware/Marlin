@@ -1,0 +1,3 @@
+avrdragon.name=AVR Dragon ISP
+avrdragon.communication=usb
+avrdragon.protocol=dragon_isp
