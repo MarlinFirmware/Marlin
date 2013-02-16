@@ -1050,6 +1050,8 @@
 	#define MSG_AUTORETRACT          "AutoArretramento"
 	#define MSG_SERIAL_ERROR_MENU_STRUCTURE "Qualcosa non va in MenuStructure."
 	#define MSG_FILAMENTCHANGE       "Cambia filamento"
+	#define MSG_INIT_SDCARD          "Iniz. SD-Card"
+	#define MSG_CNG_SDCARD           "Cambia SD-Card"
 
 	// Serial Console Messages
 
