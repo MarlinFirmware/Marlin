@@ -297,7 +297,12 @@ static void lcd_implementation_status_screen()
 static void lcd_implementation_drawmenu_generic(uint8_t row, const char* pstr, char pre_char, char post_char)
 {
     char c;
-    uint8_t n = LCD_WIDTH - 1 - 2;
+    //Use all characters in narrow LCDs
+  #if LCD_WIDTH < 20
+    	uint8_t n = LCD_WIDTH - 1 - 1;
+    #else
+    	uint8_t n = LCD_WIDTH - 1 - 2;
+  #endif
     lcd.setCursor(0, row);
     lcd.print(pre_char);
     while((c = pgm_read_byte(pstr)) != '\0')
@@ -314,7 +319,12 @@ static void lcd_implementation_drawmenu_generic(uint8_t row, const char* pstr, c
 static void lcd_implementation_drawmenu_setting_edit_generic(uint8_t row, const char* pstr, char pre_char, char* data)
 {
     char c;
-    uint8_t n = LCD_WIDTH - 1 - 2 - strlen(data);
+    //Use all characters in narrow LCDs
+  #if LCD_WIDTH < 20
+    	uint8_t n = LCD_WIDTH - 1 - 1 - strlen(data);
+    #else
+    	uint8_t n = LCD_WIDTH - 1 - 2 - strlen(data);
+  #endif
     lcd.setCursor(0, row);
     lcd.print(pre_char);
     while((c = pgm_read_byte(pstr)) != '\0')
@@ -331,7 +341,12 @@ static void lcd_implementation_drawmenu_setting_edit_generic(uint8_t row, const 
 static void lcd_implementation_drawmenu_setting_edit_generic_P(uint8_t row, const char* pstr, char pre_char, const char* data)
 {
     char c;
-    uint8_t n = LCD_WIDTH - 1 - 2 - strlen_P(data);
+    //Use all characters in narrow LCDs
+  #if LCD_WIDTH < 20
+    	uint8_t n = LCD_WIDTH - 1 - 1 - strlen_P(data);
+    #else
+    	uint8_t n = LCD_WIDTH - 1 - 2 - strlen_P(data);
+  #endif
     lcd.setCursor(0, row);
     lcd.print(pre_char);
     while((c = pgm_read_byte(pstr)) != '\0')
@@ -366,7 +381,11 @@ void lcd_implementation_drawedit(const char* pstr, char* value)
     lcd.setCursor(1, 1);
     lcd_printPGM(pstr);
     lcd.print(':');
-    lcd.setCursor(19 - strlen(value), 1);
+   #if LCD_WIDTH < 20
+    	lcd.setCursor(LCD_WIDTH - strlen(value), 1);
+    #else
+    	lcd.setCursor(LCD_WIDTH -1 - strlen(value), 1);
+   #endif
     lcd.print(value);
 }
 static void lcd_implementation_drawmenu_sdfile_selected(uint8_t row, const char* pstr, const char* filename, char* longFilename)

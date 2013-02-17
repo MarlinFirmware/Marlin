@@ -248,7 +248,7 @@ const short temptable_6[][2] PROGMEM = {
    {970*OVERSAMPLENR, 25},
    {978*OVERSAMPLENR, 22},
    {1008*OVERSAMPLENR, 3},
-   {1023*OVERSAMPLENR, 0}  //to allow internal 0°C
+   {1023*OVERSAMPLENR, 0}  //to allow internal 0C
 };
 #endif
 
@@ -309,7 +309,7 @@ const short temptable_7[][2] PROGMEM = {
    {994*OVERSAMPLENR, 15},
    {1001*OVERSAMPLENR, 10},
    {1005*OVERSAMPLENR, 5},
-   {1023*OVERSAMPLENR, 0}  //to allow internal 0°C
+   {1023*OVERSAMPLENR, 0}  //to allow internal 0C
 };
 #endif
 #if (THERMISTORHEATER_0 == 8) || (THERMISTORHEATER_1 == 8) || (THERMISTORHEATER_2 == 8) || (THERMISTORBED == 8)
