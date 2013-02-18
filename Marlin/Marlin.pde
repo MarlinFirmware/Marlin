@@ -34,7 +34,11 @@
 #include "pins.h"
 
 #ifdef ULTRA_LCD
-#include <LiquidCrystal.h>
+	#ifdef DOGLCD
+		#include <U8glib.h> // DE_U8glib
+	#else
+		#include <LiquidCrystal.h>
+	#endif
 #endif
 
 #if DIGIPOTSS_PIN > -1
