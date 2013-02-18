@@ -35,7 +35,7 @@
 
 #ifdef ULTRA_LCD
 	#ifdef DOGLCD
-		#include <Dogm.h>
+		#include <U8glib.h> // DE_U8glib
 	#else
 		#include <LiquidCrystal.h>
 	#endif
