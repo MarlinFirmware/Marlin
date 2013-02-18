@@ -7,12 +7,8 @@
 
 
 // CHANGE_DE begin ***
-#include <Dogm.h>
+#include <U8glib.h>	// DE_U8glib
 #include "start_bmp.h"
-
-extern const dog_pgm_uint8_t font_6x10_marlin[];	// Font with marlin specific symbols
-
-int a0Pin = PIN_A0_DEFAULT;      // address line a0 for the dogm module
 
 
 /* Russian language not supported yet, needs custom font
@@ -37,68 +33,80 @@ int a0Pin = PIN_A0_DEFAULT;      // address line a0 for the dogm module
 
 
 /* Custom characters defined in font font_6x10_marlin.c */
-#define LCD_STR_BEDTEMP     "\x27"
-#define LCD_STR_DEGREE      "\x5E"
-#define LCD_STR_THERMOMETER "\x26"
-#define LCD_STR_UPLEVEL     "\x60"
-#define LCD_STR_REFRESH     "\x23"
-#define LCD_STR_FOLDER      "\x7D"
-#define LCD_STR_FEEDRATE    "\x7C"
-#define LCD_STR_CLOCK       "\x7B"
-#define LCD_STR_ARROW_RIGHT "\x5C"
+#define LCD_STR_BEDTEMP     "\xFE"
+#define LCD_STR_DEGREE      "\xB0"
+#define LCD_STR_THERMOMETER "\xFF"
+#define LCD_STR_UPLEVEL     "\xFB"
+#define LCD_STR_REFRESH     "\xF8"
+#define LCD_STR_FOLDER      "\xF9"
+#define LCD_STR_FEEDRATE    "\xFD"
+#define LCD_STR_CLOCK       "\xFC"
+#define LCD_STR_ARROW_RIGHT "\xFA"
 
-Dogm dogm(a0Pin);
+// LCD selection
+// DE_U8glib
+U8GLIB_DOGM128 u8g(29, 30);                    // SPI Com: SCK = 13, MOSI = 11, CS = 10, A0 = 9
 
 static void lcd_implementation_init()
 {
-	dogm.start();
+	//  Uncomment this if you have the first generation (V1.10) of STBs board
+	pinMode(17, OUTPUT);	// Enable LCD backlight
+	digitalWrite(17, HIGH);
+	
+	u8g.firstPage();
 	do {
-		//dogm.setFont(font_6x10_marlin);
-		dogm.clrBox (0, 0, DOG_WIDTH, DOG_HEIGHT);
-	   } while( dogm.next() );
-
-	dogm.start();
+		u8g.setFont(u8g_font_6x10_marlin);
+		u8g.setColorIndex(1);
+		u8g.drawBox (0, 0, u8g.getWidth(), u8g.getHeight());
+		u8g.setColorIndex(1);
+	   } while( u8g.nextPage() );
+	  
+	u8g.setRot180();	// Rotate screen by 180°
+	   
+	u8g.firstPage();
 	do {
 			// RepRap init bmp
-			dogm.setBitmapP(0,63,start_bmp,60,64);
+			u8g.drawBitmapP(0,0,(unsigned int) 60/8+1,64,start_bmp);
 			// Welcome message
-			dogm.setFont(font_6x10_marlin);
-			dogm.setXY(62,53);
-			dogm.print("MARLIN");
-			dogm.setFont(font_5x7);
-			dogm.setXY(62,46);
-			dogm.print("V1.0.0 RC2");
-			dogm.setFont(font_6x10_marlin);
-			dogm.setXY(62,35);
-			dogm.print("by ErikZalm");
-			dogm.setXY(62,20);
-			dogm.print("DOGM128 LCD");
-			dogm.setFont(font_5x8);
-			dogm.setXY(62,13);
-			dogm.print("enhancements");
-			dogm.setFont(font_6x10_marlin);
-			dogm.setXY(62, 2);
-			dogm.print("by STB");
-	   } while( dogm.next() );
+			u8g.setFont(u8g_font_6x10_marlin);
+			u8g.drawStr(62,10,"MARLIN"); 
+			u8g.setFont(u8g_font_5x7);
+			u8g.drawStr(62,18,"V1.0.0 RC2");
+			u8g.setFont(u8g_font_6x10_marlin);
+			u8g.drawStr(62,27,"by ErikZalm");
+			u8g.drawStr(62,41,"DOGM128 LCD");
+			u8g.setFont(u8g_font_5x8);
+			u8g.drawStr(62,48,"enhancements");
+			u8g.setFont(u8g_font_5x8);
+			u8g.drawStr(62,55,"by STB");
+			u8g.drawStr(62,61,"uses u8glib");
+	   } while( u8g.nextPage() );
 
-//  Uncomment this if you have the first generation (V1.10) of STBs board
-//	pinMode(17, OUTPUT);	// Enable LCD backlight
-//	digitalWrite(17, HIGH);
-	
-	dog_Delay(2000);		// wait 2sec. to show the welcome screen
+
+
+	delay(2000);		// wait 2sec. to show the welcome screen
+
+
 }
 
 static void lcd_implementation_clear()
 {
-		dogm.clrBox (0, 0, DOG_WIDTH, DOG_HEIGHT);
+	u8g.setRot180();
+	u8g.firstPage();
+	do {	
+			u8g.setColorIndex(0);
+			u8g.drawBox (0, 0, u8g.getWidth(), u8g.getHeight());
+			u8g.setColorIndex(1);
+		} while( u8g.nextPage() );
 }
+
 /* Arduino < 1.0.0 is missing a function to print PROGMEM strings, so we need to implement our own */
 static void lcd_printPGM(const char* str)
 {
     char c;
     while((c = pgm_read_byte(str++)) != '\0')
     {
-			dogm.write(c);
+			u8g.print(c);
     }
 }
 
@@ -117,54 +125,54 @@ static void lcd_implementation_status_screen()
     int tBedTarget	= int(degTargetBed() + 0.5);
 
  
-	dogm.setFont(font_6x10_marlin);
+	u8g.setFont(u8g_font_6x10_marlin);
 	
-	dogm.setXY(0 * DOG_CHAR_WIDTH, (DOG_HEIGHT - 1 - DOG_CHAR_HEIGHT) - (0 * DOG_CHAR_HEIGHT) - START_ROW ); // 0,0
-	dogm.print(LCD_STR_THERMOMETER[0]);
-	dogm.print(itostr3(tHotend));
-	dogm.print('/');
-	dogm.print(itostr3left(tTarget));
+	u8g.setPrintPos(0 * DOG_CHAR_WIDTH, 10 + START_ROW ); // 0,0
+	u8g.print(LCD_STR_THERMOMETER[0]);
+	u8g.print(itostr3(tHotend));
+	u8g.print('/');
+	u8g.print(itostr3left(tTarget));
 	lcd_printPGM(PSTR(LCD_STR_DEGREE " "));
 
 # if EXTRUDERS > 1
-	dogm.setXY( 10 * DOG_CHAR_WIDTH, (DOG_HEIGHT - 1 - DOG_CHAR_HEIGHT) - (0 * DOG_CHAR_HEIGHT) - START_ROW );//(10, 0);
-	dogm.print(LCD_STR_THERMOMETER[0]);
-	dogm.print(itostr3(tHotend1));
-	dogm.print('/');
-	dogm.print(itostr3left(tTarget1));
+	u8g.setPrintPos( 10 * DOG_CHAR_WIDTH, 10 + START_ROW );//(10, 0);
+	u8g.print(LCD_STR_THERMOMETER[0]);
+	u8g.print(itostr3(tHotend1));
+	u8g.print('/');
+	u8g.print(itostr3left(tTarget1));
 	lcd_printPGM(PSTR(LCD_STR_DEGREE " "));
 #endif
    
-	dogm.setXY( 0 * DOG_CHAR_WIDTH, (DOG_HEIGHT - 1 - DOG_CHAR_HEIGHT) - (1 * DOG_CHAR_HEIGHT) - START_ROW ); //(0, 1);
-	dogm.print(LCD_STR_BEDTEMP[0]);
-	dogm.print(itostr3(tBed));
-	dogm.print('/');
-	dogm.print(itostr3left(tBedTarget));
+	u8g.setPrintPos( 0 * DOG_CHAR_WIDTH, 22 + START_ROW ); //(0, 1);
+	u8g.print(LCD_STR_BEDTEMP[0]);
+	u8g.print(itostr3(tBed));
+	u8g.print('/');
+	u8g.print(itostr3left(tBedTarget));
 	lcd_printPGM(PSTR(LCD_STR_DEGREE " "));
 
-	dogm.setXY(0 * DOG_CHAR_WIDTH, (DOG_HEIGHT - 1 - DOG_CHAR_HEIGHT) - (2 * DOG_CHAR_HEIGHT ) - START_ROW ); //(0,1);
-	dogm.print('X');
-	dogm.print(ftostr3(current_position[X_AXIS]));
+	u8g.setPrintPos(0 * DOG_CHAR_WIDTH, 34 + START_ROW ); //(0,1);
+	u8g.print('X');
+	u8g.print(ftostr3(current_position[X_AXIS]));
 	lcd_printPGM(PSTR(" Y"));
-	dogm.print(ftostr3(current_position[Y_AXIS]));
+	u8g.print(ftostr3(current_position[Y_AXIS]));
 
-	dogm.setXY((LCD_WIDTH - 7)* DOG_CHAR_WIDTH, (DOG_HEIGHT - 1 - DOG_CHAR_HEIGHT) - (2 * DOG_CHAR_HEIGHT) - START_ROW );//(LCD_WIDTH - 7, 1);
-	dogm.print('Z');
-	dogm.print(ftostr31(current_position[Z_AXIS]));
+	u8g.setPrintPos((LCD_WIDTH - 7)* DOG_CHAR_WIDTH, 34 + START_ROW );//(LCD_WIDTH - 7, 1);
+	u8g.print('Z');
+	u8g.print(ftostr31(current_position[Z_AXIS]));
 
-	dogm.setXY(0 * DOG_CHAR_WIDTH, (DOG_HEIGHT - 1 - DOG_CHAR_HEIGHT) - (3 * DOG_CHAR_HEIGHT) - START_ROW );//(0, 2);
-	dogm.print(LCD_STR_FEEDRATE[0]);
-	dogm.print(itostr3(feedmultiply));
-	dogm.print('%');
+	u8g.setPrintPos(0 * DOG_CHAR_WIDTH, 46 + START_ROW );//(0, 2);
+	u8g.print(LCD_STR_FEEDRATE[0]);
+	u8g.print(itostr3(feedmultiply));
+	u8g.print('%');
 
 #  ifdef SDSUPPORT
 
-		dogm.setXY(6 * DOG_CHAR_WIDTH, (DOG_HEIGHT - 1 - DOG_CHAR_HEIGHT) - (3 * DOG_CHAR_HEIGHT) - START_ROW );
+		u8g.setPrintPos(6 * DOG_CHAR_WIDTH, 46 + START_ROW );
 		lcd_printPGM(PSTR("SD"));
 	
     if (IS_SD_PRINTING) {
 
-			dogm.print(itostr3(card.percentDone()));
+			u8g.print(itostr3(card.percentDone()));
 
 		}
 		
@@ -172,28 +180,28 @@ static void lcd_implementation_status_screen()
 				lcd_printPGM(PSTR("---"));
 		 }
 
-		dogm.print('%');
+		u8g.print('%');
 	
 #  endif//SDSUPPORT
 
-	dogm.setXY((LCD_WIDTH - 7) * DOG_CHAR_WIDTH, (DOG_HEIGHT - 1 - DOG_CHAR_HEIGHT) - (3 * DOG_CHAR_HEIGHT) - START_ROW );
-	dogm.print(LCD_STR_CLOCK[0]);
-	dogm.print(' ');
+	u8g.setPrintPos((LCD_WIDTH - 7) * DOG_CHAR_WIDTH, 46 + START_ROW );
+	u8g.print(LCD_STR_CLOCK[0]);
+	u8g.print(' ');
 
 	if(starttime != 0)
     {
         uint16_t time = millis()/60000 - starttime/60000;
 
-			dogm.print(itostr2(time/60));
-			dogm.print(':');
-			dogm.print(itostr2(time%60));
+			u8g.print(itostr2(time/60));
+			u8g.print(':');
+			u8g.print(itostr2(time%60));
 		
     }else{
 				lcd_printPGM(PSTR("--:--"));
 		 }
 
-		dogm.setXY(0 * DOG_CHAR_WIDTH, (DOG_HEIGHT - 1 - DOG_CHAR_HEIGHT) - ((LCD_HEIGHT-1) * DOG_CHAR_HEIGHT) - START_ROW );
-		dogm.print(lcd_status_message);
+		u8g.setPrintPos(0 * DOG_CHAR_WIDTH, 58 - START_ROW );
+		u8g.print(lcd_status_message);
 }
 
 static void lcd_implementation_drawmenu_generic(uint8_t row, const char* pstr, char pre_char, char post_char)
@@ -202,22 +210,30 @@ static void lcd_implementation_drawmenu_generic(uint8_t row, const char* pstr, c
     
     uint8_t n = LCD_WIDTH - 1 - 2;
 		
-		dogm.setXY(0 * DOG_CHAR_WIDTH, (DOG_HEIGHT - 1 - DOG_CHAR_HEIGHT) - (row * DOG_CHAR_HEIGHT) - START_ROW );
-		dogm.print(pre_char);
+		if ((pre_char == '>') || (pre_char == LCD_STR_UPLEVEL[0] ))
+		   {
+			u8g.setColorIndex(1);		// black on white
+			u8g.drawBox (0, row*DOG_CHAR_HEIGHT + 3, 128, DOG_CHAR_HEIGHT);
+			u8g.setColorIndex(0);		// following text must be white on black
+		   } else u8g.setColorIndex(1); // unmarked text is black on white
+		
+		u8g.setPrintPos(0 * DOG_CHAR_WIDTH, (row + 1) * DOG_CHAR_HEIGHT);//(u8g.getHeight() - 1 - DOG_CHAR_HEIGHT) - (row * DOG_CHAR_HEIGHT) - START_ROW );
+		if (pre_char != '>') u8g.print(pre_char); else u8g.print(' ');	// Row selector is obsolete
 
 
     while( (c = pgm_read_byte(pstr)) != '\0' )
     {
-		dogm.print(c);
+		u8g.print(c);
         pstr++;
         n--;
     }
     while(n--){
-					dogm.print(' ');
+					u8g.print(' ');
 		}
 	   
-		dogm.print(post_char);
-		dogm.print(' ');
+		u8g.print(post_char);
+		u8g.print(' ');
+		u8g.setColorIndex(1);		// restore settings to black on white
 }
 
 static void lcd_implementation_drawmenu_setting_edit_generic(uint8_t row, const char* pstr, char pre_char, char* data)
@@ -226,24 +242,24 @@ static void lcd_implementation_drawmenu_setting_edit_generic(uint8_t row, const 
 	char c;
     uint8_t n = LCD_WIDTH - 1 - 2 - strlen(data);
 		
-		dogm.setXY(0 * DOG_CHAR_WIDTH, (DOG_HEIGHT - 1 - DOG_CHAR_HEIGHT) - (row * DOG_CHAR_HEIGHT) + START_ROW );
-		dogm.print(pre_char);
+		u8g.setPrintPos(0 * DOG_CHAR_WIDTH, (row + 1) * DOG_CHAR_HEIGHT); //(u8g.getHeight() - 1 - DOG_CHAR_HEIGHT) - (row * DOG_CHAR_HEIGHT) + START_ROW );
+		u8g.print(pre_char);
 	
     while( (c = pgm_read_byte(pstr)) != '\0' )
     {
-			dogm.print(c);
+			u8g.print(c);
 		
         pstr++;
         n--;
     }
 	
-		dogm.print(':');
+		u8g.print(':');
 
     while(n--){
-					dogm.print(' ');
+					u8g.print(' ');
 			  }
 
-		dogm.print(data);
+		u8g.print(data);
 }
 
 static void lcd_implementation_drawmenu_setting_edit_generic_P(uint8_t row, const char* pstr, char pre_char, const char* data)
@@ -251,21 +267,21 @@ static void lcd_implementation_drawmenu_setting_edit_generic_P(uint8_t row, cons
     char c;
     uint8_t n= LCD_WIDTH - 1 - 2 - strlen_P(data);
 
-		dogm.setXY(0 * DOG_CHAR_WIDTH, (DOG_HEIGHT - 1 - DOG_CHAR_HEIGHT) - (row * DOG_CHAR_HEIGHT) - START_ROW );
-		dogm.print(pre_char);
+		u8g.setPrintPos(0 * DOG_CHAR_WIDTH, (row + 1) * DOG_CHAR_HEIGHT);//(u8g.getHeight() - 1 - DOG_CHAR_HEIGHT) - (row * DOG_CHAR_HEIGHT) - START_ROW );
+		u8g.print(pre_char);
 	
     while( (c = pgm_read_byte(pstr)) != '\0' )
     {
-			dogm.print(c);
+			u8g.print(c);
 		
         pstr++;
         n--;
     }
 
-		dogm.print(':');
+		u8g.print(':');
 	
     while(n--){
-					dogm.print(' ');
+					u8g.print(' ');
 			  }
 
 		lcd_printPGM(data);
@@ -290,12 +306,12 @@ static void lcd_implementation_drawmenu_setting_edit_generic_P(uint8_t row, cons
 
 void lcd_implementation_drawedit(const char* pstr, char* value)
 {
-		dogm.setXY(0 * DOG_CHAR_WIDTH_LARGE, (DOG_HEIGHT - 1 - DOG_CHAR_HEIGHT_LARGE) - (1 * DOG_CHAR_HEIGHT_LARGE) - START_ROW );
-		dogm.setFont(font_9x18);
+		u8g.setPrintPos(0 * DOG_CHAR_WIDTH_LARGE, (u8g.getHeight() - 1 - DOG_CHAR_HEIGHT_LARGE) - (1 * DOG_CHAR_HEIGHT_LARGE) - START_ROW );
+		u8g.setFont(u8g_font_9x18);
 		lcd_printPGM(pstr);
-		dogm.print(':');
-		dogm.setXY((14 - strlen(value)) * DOG_CHAR_WIDTH_LARGE, (DOG_HEIGHT - 1 - DOG_CHAR_HEIGHT_LARGE) - (1 * DOG_CHAR_HEIGHT_LARGE) - START_ROW );
-		dogm.print(value);
+		u8g.print(':');
+		u8g.setPrintPos((14 - strlen(value)) * DOG_CHAR_WIDTH_LARGE, (u8g.getHeight() - 1 - DOG_CHAR_HEIGHT_LARGE) - (1 * DOG_CHAR_HEIGHT_LARGE) - START_ROW );
+		u8g.print(value);
 }
 
 static void lcd_implementation_drawmenu_sdfile_selected(uint8_t row, const char* pstr, const char* filename, char* longFilename)
@@ -309,17 +325,17 @@ static void lcd_implementation_drawmenu_sdfile_selected(uint8_t row, const char*
         longFilename[LCD_WIDTH-1] = '\0';
     }
 
-		dogm.setXY(0 * DOG_CHAR_WIDTH, (DOG_HEIGHT - 1 - DOG_CHAR_HEIGHT) - (row * DOG_CHAR_HEIGHT) - START_ROW );
-		dogm.print('>');
+		u8g.setPrintPos(0 * DOG_CHAR_WIDTH, (row + 1) * DOG_CHAR_HEIGHT);//(u8g.getHeight() - 1 - DOG_CHAR_HEIGHT) - (row * DOG_CHAR_HEIGHT) - START_ROW );
+		u8g.print('>');
 	   
     while((c = *filename) != '\0')
     {
-		dogm.print(c);
+		u8g.print(c);
         filename++;
         n--;
     }
     while(n--){
-					dogm.print(' ');
+					u8g.print(' ');
 			   }
 }
 
@@ -334,18 +350,18 @@ static void lcd_implementation_drawmenu_sdfile(uint8_t row, const char* pstr, co
         longFilename[LCD_WIDTH-1] = '\0';
     }
 
-		dogm.setXY(0 * DOG_CHAR_WIDTH, (DOG_HEIGHT - 1 - DOG_CHAR_HEIGHT) - (row * DOG_CHAR_HEIGHT) - START_ROW );
-		dogm.print(' ');
+		u8g.setPrintPos(0 * DOG_CHAR_WIDTH, (row + 1) * DOG_CHAR_HEIGHT);//(u8g.getHeight() - 1 - DOG_CHAR_HEIGHT) - (row * DOG_CHAR_HEIGHT) - START_ROW );
+		u8g.print(' ');
 		
 while((c = *filename) != '\0')
     {
-			dogm.print(c);
+			u8g.print(c);
 		
         filename++;
         n--;
     }
     while(n--){
-					dogm.print(' ');
+					u8g.print(' ');
 			   }
 
 }
@@ -360,20 +376,19 @@ static void lcd_implementation_drawmenu_sddirectory_selected(uint8_t row, const 
         filename = longFilename;
         longFilename[LCD_WIDTH-2] = '\0';
     }
-
-		dogm.setXY(0 * DOG_CHAR_WIDTH, (DOG_HEIGHT - 1 - DOG_CHAR_HEIGHT) - (row * DOG_CHAR_HEIGHT) - START_ROW );
-		dogm.print('>');
-		dogm.print(LCD_STR_FOLDER[0]);
+		u8g.setPrintPos(0 * DOG_CHAR_WIDTH, (row + 1) * DOG_CHAR_HEIGHT);//(u8g.getHeight() - 1 - DOG_CHAR_HEIGHT) - (row * DOG_CHAR_HEIGHT) - START_ROW );
+		u8g.print('>');
+		u8g.print(LCD_STR_FOLDER[0]);
 	   
     while((c = *filename) != '\0')
     {
-			dogm.print(c);
+			u8g.print(c);
 		
         filename++;
         n--;
     }
     while(n--){
-					dogm.print(' ');
+					u8g.print(' ');
 			   }
 }
 
@@ -388,19 +403,19 @@ static void lcd_implementation_drawmenu_sddirectory(uint8_t row, const char* pst
         longFilename[LCD_WIDTH-2] = '\0';
     }
 
-		dogm.setXY(0 * DOG_CHAR_WIDTH, (DOG_HEIGHT - 1 - DOG_CHAR_HEIGHT) - (row * DOG_CHAR_HEIGHT) - START_ROW );
-		dogm.print(' ');
-		dogm.print(LCD_STR_FOLDER[0]);
+		u8g.setPrintPos(0 * DOG_CHAR_WIDTH, (row + 1) * DOG_CHAR_HEIGHT);//(u8g.getHeight() - 1 - DOG_CHAR_HEIGHT) - (row * DOG_CHAR_HEIGHT) - START_ROW );
+		u8g.print(' ');
+		u8g.print(LCD_STR_FOLDER[0]);
 
     while((c = *filename) != '\0')
     {
-			dogm.print(c);
+			u8g.print(c);
 		
         filename++;
         n--;
     }
     while(n--){
-					dogm.print(' ');
+					u8g.print(' ');
 			   }
 }
 
