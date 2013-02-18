@@ -330,6 +330,7 @@ static void lcd_implementation_drawmenu_generic(uint8_t row, const char* pstr, c
 }
 static void lcd_implementation_drawmenu_setting_edit_generic(uint8_t row, const char* pstr, char pre_char, char* data)
 {
+  char c;
     //Use all characters in narrow LCDs
   #if LCD_WIDTH < 20
     	uint8_t n = LCD_WIDTH - 1 - 1 - strlen(data);
@@ -351,6 +352,7 @@ static void lcd_implementation_drawmenu_setting_edit_generic(uint8_t row, const 
 }
 static void lcd_implementation_drawmenu_setting_edit_generic_P(uint8_t row, const char* pstr, char pre_char, const char* data)
 {
+  char c;
     //Use all characters in narrow LCDs
   #if LCD_WIDTH < 20
     	uint8_t n = LCD_WIDTH - 1 - 1 - strlen_P(data);
