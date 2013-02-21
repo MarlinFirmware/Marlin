@@ -310,7 +310,7 @@ const bool Z_ENDSTOPS_INVERTING = true; // set to true to invert the logic of th
 //#define ULTRA_LCD  //general lcd support, also 16x2
 //#define SDSUPPORT // Enable SD Card Support in Hardware Console
 
-//#define ULTIMAKERCONTROLLER //as available from the ultimaker online store.
+//#define ULTIMAKERCONTROLLER //as available from the ultimaker online store. Also use for Think3dPrint3d original Panelolu
 //#define ULTIPANEL  //the ultipanel as on thingiverse
 
 // The RepRapDiscount Smart Controller (white PCB)
@@ -320,6 +320,16 @@ const bool Z_ENDSTOPS_INVERTING = true; // set to true to invert the logic of th
 // The GADGETS3D G3D LCD/SD Controller (blue PCB)
 // http://reprap.org/wiki/RAMPS_1.3/1.4_GADGETS3D_Shield_with_Panel
 //#define G3D_PANEL
+
+// The Think3dPrint3d I2C Panelolu2, see http://blog.think3dprint3d.com/Panelolu2
+// This also requires Lincomatic's LiquidTWI2, see http://blog.lincomatic.com/?p=965
+//#define PANELOLU2
+
+#ifdef PANELOLU2
+ #define ULTIPANEL
+ #define NEWPANEL
+ #define PAN_BEEP //comment out to disable buzzer
+#endif 
 
 //automatic expansion
 #if defined(ULTIMAKERCONTROLLER) || defined(REPRAP_DISCOUNT_SMART_CONTROLLER) || defined(G3D_PANEL)

@@ -24,7 +24,11 @@ typedef void (*menuFunc_t)();
 uint8_t lcd_status_message_level;
 char lcd_status_message[LCD_WIDTH+1] = WELCOME_MSG;
 
-#include "ultralcd_implementation_hitachi_HD44780.h"
+#ifdef PANELOLU2
+  #include "ultralcd_implementation_panelolu2.h"
+#else
+  #include "ultralcd_implementation_hitachi_HD44780.h"
+#endif
 
 /** forward declerations **/
 /* Different menus */
