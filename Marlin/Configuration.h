@@ -326,7 +326,7 @@ const bool Z_ENDSTOPS_INVERTING = true; // set to true to invert the logic of th
 //automatic expansion
 #if defined(ULTIMAKERCONTROLLER) || defined(REPRAP_DISCOUNT_SMART_CONTROLLER) || defined(G3D_PANEL)
  #define ULTIPANEL
- #define NEWPANEL
+// #define NEWPANEL
 #endif 
 
 // Preheat Constants
@@ -340,10 +340,10 @@ const bool Z_ENDSTOPS_INVERTING = true; // set to true to invert the logic of th
 
 
 #ifdef ULTIPANEL
-//  #define NEWPANEL  //enable this if you have a click-encoder panel
+  #define NEWPANEL  //enable this if you have a click-encoder panel
   #define SDSUPPORT
   #define ULTRA_LCD
-	#ifdef DOGLCD	// Change number of lines if the DOG graphic display is selected
+	#ifdef DOGLCD	// Change number of lines to match the DOG graphic display
 		#define LCD_WIDTH 20
 		#define LCD_HEIGHT 5
 	#else
@@ -359,7 +359,7 @@ const bool Z_ENDSTOPS_INVERTING = true; // set to true to invert the logic of th
 	#else
 		#define LCD_WIDTH 16
 		#define LCD_HEIGHT 2
-	#endif  
+	#endif
   #endif
 #endif
 
