@@ -20,8 +20,8 @@
 **/
 
 
-// CHANGE_DE begin ***
-#include <U8glib.h>	// DE_U8glib
+
+#include <U8glib.h>
 #include "DOGMbitmaps.h"
 #include "ultralcd.h"
 
