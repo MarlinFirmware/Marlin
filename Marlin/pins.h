@@ -733,11 +733,16 @@
    #ifdef NEWPANEL
      //we have no buzzer installed
      #define BEEPER -1
-     //LCD Pins
+     //LCD Pins etc.
 	 #ifdef DOGLCD
 	 // Pins for DOGM SPI LCD Support
-	 // must be defined in libraries/Dogm/utility/dogm128.h
-	 // line #184-194	 
+	 #define DOGLCD_A0	30
+	 #define DOGLCD_CS	29
+// Uncomment screen orientation
+//	 #define LCD_SCREEN_ROT_0
+//	 #define LCD_SCREEN_ROT_90
+	 #define LCD_SCREEN_ROT_180
+//	 #define LCD_SCREEN_ROT_270
 	 #else
      #define LCD_PINS_RS        4
      #define LCD_PINS_ENABLE    17
