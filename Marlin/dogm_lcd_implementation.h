@@ -60,9 +60,6 @@
 
 #define FONT_STATUSMENU	u8g_font_6x9
 
-#define EXTRUDERS 3
-
-
 // LCD selection
 U8GLIB_DOGM128 u8g(DOGLCD_CS, DOGLCD_A0);	// HW-SPI Com: CS, A0
 
