@@ -144,8 +144,6 @@ static void lcd_implementation_status_screen()
  
  u8g.setColorIndex(1);	// black on white
  
- fanSpeed = 255;
- 
  // Symbols menu graphics
  if ((blink % 2) &&  fanSpeed )	u8g.drawBitmapP(9,1,STATUS_SCREENBYTEWIDTH,STATUS_SCREENHEIGHT,status_screen0_bmp);
 	else u8g.drawBitmapP(9,1,STATUS_SCREENBYTEWIDTH,STATUS_SCREENHEIGHT,status_screen1_bmp);
