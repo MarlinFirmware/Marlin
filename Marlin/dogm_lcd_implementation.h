@@ -186,7 +186,7 @@ static void lcd_implementation_status_screen()
  u8g.print(itostr3(int(degTargetHotend(0) + 0.5)));
  lcd_printPGM(PSTR(LCD_STR_DEGREE " "));
  u8g.setPrintPos(6,27);
- u8g.print(itostr3(int(degHotend(1) + 0.5)));
+ u8g.print(itostr3(int(degHotend(0) + 0.5)));
  lcd_printPGM(PSTR(LCD_STR_DEGREE " "));
  if (!isHeatingHotend(0)) u8g.drawBox(13,17,2,2);
 	else
