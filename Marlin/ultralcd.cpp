@@ -24,13 +24,13 @@ typedef void (*menuFunc_t)();
 uint8_t lcd_status_message_level;
 char lcd_status_message[LCD_WIDTH+1] = WELCOME_MSG;
 
-
+// CHANGE_DE begin ***
 #ifdef DOGLCD
 #include "dogm_lcd_implementation.h"
 #else
 #include "ultralcd_implementation_hitachi_HD44780.h"
 #endif
-
+// CHANGE_DE end ***
 
 /** forward declerations **/
 /* Different menus */
@@ -205,9 +205,16 @@ static void lcd_main_menu()
             MENU_ITEM(function, MSG_STOP_PRINT, lcd_sdcard_stop);
         }else{
             MENU_ITEM(submenu, MSG_CARD_MENU, lcd_sdcard_menu);
+#if SDCARDDETECT < 1
+			MENU_ITEM(gcode, MSG_CNG_SDCARD, PSTR("M21"));  // SD-card changed by user
+#endif
+
         }
     }else{
-        MENU_ITEM(submenu, MSG_NO_CARD, lcd_sdcard_menu);
+          MENU_ITEM(submenu, MSG_NO_CARD, lcd_sdcard_menu);
+#if SDCARDDETECT < 1
+		  MENU_ITEM(gcode, MSG_INIT_SDCARD, PSTR("M21"));  // Manually initialize the SD-card via user interface
+#endif		
     }
 #endif
     END_MENU();
@@ -711,9 +718,9 @@ void lcd_init()
 void lcd_update()
 {
     static unsigned long timeoutToStatus = 0;
-
-	static unsigned char blink = 0;	// Variable for blinking dot in the Display
-
+    // CHANGE_DE begin ***
+	// static unsigned char blink = 0;	// Variable for blinking dot in the Display
+	// CHANGE_DE begin ***
 	
     lcd_buttons_update();
     
@@ -751,21 +758,23 @@ void lcd_update()
             timeoutToStatus = millis() + LCD_TIMEOUT_TO_STATUS;
 #endif//ULTIPANEL
         
-
+// CHANGE_DE begin ***
 #ifdef DOGLCD        // Changes due to different driver architecture of the DOGM display
 		blink++;	   // Variable for blinking dot in the display right bottom corner
 		u8g.firstPage();
 		do {
 				u8g.setFont(u8g_font_6x10_marlin);
-				u8g.setPrintPos(121,0);
-				if (blink % 2) u8g.print("."); else u8g.print(" ");	// blinking dot
+				u8g.setPrintPos(125,0);
+				if (blink % 2) u8g.setColorIndex(1); else u8g.setColorIndex(0);
+				u8g.drawPixel(127,63);
+				u8g.setColorIndex(1);	// black on white
 				(*currentMenu)();
 				if (!lcdDrawUpdate)  break; // Terminate display update, when nothing new to draw. This must be done before the next dogm.next()
 		   } while( u8g.nextPage() );
 #else
 				(*currentMenu)();
 #endif
-
+// CHANGE_DE end ***
 
 #ifdef ULTIPANEL
         if(timeoutToStatus < millis() && currentMenu != lcd_status_screen)
@@ -908,6 +917,21 @@ char *ftostr31(const float &x)
   conv[4]='.';
   conv[5]=(xx)%10+'0';
   conv[6]=0;
+  return conv;
+}
+
+//  convert float to string with 123.4 format
+char *ftostr31ns(const float &x)
+{
+  int xx=x*10;
+  //conv[0]=(xx>=0)?'+':'-';
+  xx=abs(xx);
+  conv[0]=(xx/1000)%10+'0';
+  conv[1]=(xx/100)%10+'0';
+  conv[2]=(xx/10)%10+'0';
+  conv[3]='.';
+  conv[4]=(xx)%10+'0';
+  conv[5]=0;
   return conv;
 }
 
