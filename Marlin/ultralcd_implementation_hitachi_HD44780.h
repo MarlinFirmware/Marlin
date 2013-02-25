@@ -11,6 +11,7 @@
   #define LCD_CLASS LiquidCrystalRus
 #else
   #ifdef LCD_I2C
+    #include <Wire.h>
     #include <LiquidCrystal_I2C.h>
     #define LCD_CLASS LiquidCrystal_I2C
   #else
