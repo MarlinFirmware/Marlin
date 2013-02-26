@@ -354,10 +354,10 @@ const bool Z_ENDSTOPS_INVERTING = true; // set to true to invert the logic of th
 //The LCD is attached via an I2C port expander.
 //#define LCD_I2C
 #ifdef LCD_I2C
-  // Port Expander Type - 0=PCF8574 or 1=MCP23008
+  // Port Expander Type - 0=PCF8574 sainsmart/ywrobot
   #define LCD_I2C_TYPE 0
   // I2C Address of the port expander
-  #define LCD_I2C_ADDRESS 0x20
+  #define LCD_I2C_ADDRESS 0x27
 #endif
 
 // Increase the FAN pwm frequency. Removes the PWM noise but increases heating in the FET/Arduino
