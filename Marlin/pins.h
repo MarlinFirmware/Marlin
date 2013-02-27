@@ -290,15 +290,6 @@
     #define BTN_EN1 11
     #define BTN_EN2 10
     #define BTN_ENC 12  //the click
-    
-    #define BLEN_C 2
-    #define BLEN_B 1
-    #define BLEN_A 0
-
-    #define encrot0 0
-    #define encrot1 2
-    #define encrot2 3
-    #define encrot3 1
 #endif
 
 /****************************************************************************************
@@ -384,16 +375,6 @@
 #ifdef ULTRA_LCD
 
   #ifdef NEWPANEL
-     //encoder rotation values
-    #define encrot0 0
-    #define encrot1 2
-    #define encrot2 3
-    #define encrot3 1
-
-    #define BLEN_A 0
-    #define BLEN_B 1
-    #define BLEN_C 2
-
     #define LCD_PINS_RS 16 
     #define LCD_PINS_ENABLE 17
     #define LCD_PINS_D4 23
@@ -427,7 +408,7 @@
 
   #else //old style panel with shift register
     //arduino pin witch triggers an piezzo beeper
-    #define BEEPER 33		No Beeper added
+    #define BEEPER 33		// No Beeper added 
 
     //buttons are attached to a shift register
 	// Not wired this yet
@@ -442,25 +423,6 @@
     #define LCD_PINS_D5 25 
     #define LCD_PINS_D6 27
     #define LCD_PINS_D7 29
-    
-    //encoder rotation values
-    #define encrot0 0
-    #define encrot1 2
-    #define encrot2 3
-    #define encrot3 1
-
-    
-    //bits in the shift register that carry the buttons for:
-    // left up center down right red
-    #define BL_LE 7
-    #define BL_UP 6
-    #define BL_MI 5
-    #define BL_DW 4
-    #define BL_RI 3
-    #define BL_ST 2
-
-    #define BLEN_B 1
-    #define BLEN_A 0
   #endif 
 #endif //ULTRA_LCD
 
@@ -735,23 +697,12 @@
      #define LCD_PINS_D7        27
      
      //The encoder and click button
-     #define BTN_EN1 11  //must be a hardware interrupt pin
-     #define BTN_EN2 10 //must be hardware interrupt pin
+     #define BTN_EN1 11  
+     #define BTN_EN2 10 
      #define BTN_ENC 16  //the switch
      //not connected to a pin
-     #define SDCARDDETECT -1
-     
-     //from the same bit in the RAMPS Newpanel define
-     //encoder rotation values
-     #define encrot0 0
-     #define encrot1 2
-     #define encrot2 3
-     #define encrot3 1
-     
-     #define BLEN_C 2
-     #define BLEN_B 1
-     #define BLEN_A 0
-     
+     #define SDCARDDETECT -1    
+    
    #endif //Newpanel
  #endif //Ultipanel
  
@@ -834,17 +785,8 @@
     #define BTN_EN2 42
     #define BTN_ENC 19  //the click
     
-    #define BLEN_C 2
-    #define BLEN_B 1
-    #define BLEN_A 0
-    
     #define SDCARDDETECT 38
     
-      //encoder rotation values
-    #define encrot0 0
-    #define encrot1 2
-    #define encrot2 3
-    #define encrot3 1
   #else //old style panel with shift register
     //arduino pin witch triggers an piezzo beeper
     #define BEEPER 18
@@ -861,33 +803,8 @@
     #define LCD_PINS_D5 21 
     #define LCD_PINS_D6 20
     #define LCD_PINS_D7 19
-    
-    //encoder rotation values
-    #ifndef ULTIMAKERCONTROLLER
-     #define encrot0 0
-     #define encrot1 2
-     #define encrot2 3
-     #define encrot3 1
-    #else
-     #define encrot0 0
-     #define encrot1 1
-     #define encrot2 3
-     #define encrot3 2
-
-    #endif
-
+  
     #define SDCARDDETECT -1
-    //bits in the shift register that carry the buttons for:
-    // left up center down right red
-    #define BL_LE 7
-    #define BL_UP 6
-    #define BL_MI 5
-    #define BL_DW 4
-    #define BL_RI 3
-    #define BL_ST 2
-
-    #define BLEN_B 1
-    #define BLEN_A 0
   #endif 
 #endif //ULTRA_LCD
 
@@ -1455,17 +1372,7 @@
     #define BTN_EN2 64
     #define BTN_ENC 43  //the click
     
-    #define BLEN_C 2
-    #define BLEN_B 1
-    #define BLEN_A 0
-    
     #define SDCARDDETECT -1		// Ramps does not use this port
-    
-      //encoder rotation values
-    #define encrot0 0
-    #define encrot1 2
-    #define encrot2 3
-    #define encrot3 1
 #endif
 #endif //ULTRA_LCD
 

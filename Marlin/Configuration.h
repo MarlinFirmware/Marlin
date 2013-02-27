@@ -306,12 +306,21 @@ const bool Z_ENDSTOPS_INVERTING = true; // set to true to invert the logic of th
 // please keep turned on if you can.
 //#define EEPROM_CHITCHAT
 
+// Preheat Constants
+#define PLA_PREHEAT_HOTEND_TEMP 180 
+#define PLA_PREHEAT_HPB_TEMP 70
+#define PLA_PREHEAT_FAN_SPEED 255		// Insert Value between 0 and 255
+
+#define ABS_PREHEAT_HOTEND_TEMP 240
+#define ABS_PREHEAT_HPB_TEMP 100
+#define ABS_PREHEAT_FAN_SPEED 255		// Insert Value between 0 and 255
+
 //LCD and SD support
 //#define ULTRA_LCD  //general lcd support, also 16x2
 //#define SDSUPPORT // Enable SD Card Support in Hardware Console
 
 //#define ULTIMAKERCONTROLLER //as available from the ultimaker online store.
-//#define ULTIPANEL  //the ultipanel as on thingiverse
+#define ULTIPANEL  //the ultipanel as on thingiverse
 
 // The RepRapDiscount Smart Controller (white PCB)
 // http://reprap.org/wiki/RepRapDiscount_Smart_Controller
@@ -327,15 +336,42 @@ const bool Z_ENDSTOPS_INVERTING = true; // set to true to invert the logic of th
  #define NEWPANEL
 #endif 
 
-// Preheat Constants
-#define PLA_PREHEAT_HOTEND_TEMP 180 
-#define PLA_PREHEAT_HPB_TEMP 70
-#define PLA_PREHEAT_FAN_SPEED 255		// Insert Value between 0 and 255
+// I2C PANELS
 
-#define ABS_PREHEAT_HOTEND_TEMP 240
-#define ABS_PREHEAT_HPB_TEMP 100
-#define ABS_PREHEAT_FAN_SPEED 255		// Insert Value between 0 and 255
+#define LCD_I2C_SAINSMART_YWROBOT
+#ifdef LCD_I2C_SAINSMART_YWROBOT
+  // This uses the LiquidCrystal_I2C library ( https://bitbucket.org/fmalpartida/new-liquidcrystal/wiki/Home )
+  // Make sure it is placed in the Arduino libraries directory.
+  #define LCD_I2C_TYPE_PCF8575
+  #define ULTIPANEL
+  #define NEWPANEL
+  #define LCD_I2C_ADDRESS 0x27   // I2C Address of the port expander
+#endif
 
+// PANELOLU2 LCD with status LEDs, separate encoder and click inputs
+//#define LCD_I2C_PANELOLU2
+#ifdef LCD_I2C_PANELOLU2
+  // This uses the LiquidTWI2 library ( https://github.com/lincomatic/LiquidTWI2 ).
+  // Make sure it is placed in the Arduino libraries directory.
+  #define LCD_I2C_TYPE_MCP23017
+  #define ULTIPANEL
+  #define NEWPANEL
+  #define LCD_I2C_ADDRESS 0x20
+  #define LCD_HAS_I2C_BUZZ //comment out to disable buzzer on LCD
+  #define LCD_HAS_STATUS_INDICATORS  
+#endif
+
+// VIKI LCD with status LEDs, integrated click & L/R/U/P buttons, separate encoder inputs
+//#define LCD_I2C_VIKI
+#ifdef LCD_I2C_VIKI
+  // This uses the LiquidTWI2 library (https://github.com/lincomatic/LiquidTWI2).
+  // Make sure it is placed in the Arduino libraries directory.
+  #define LCD_I2C_TYPE_MCP23017
+  #define ULTIPANEL
+  #define NEWPANEL
+  #define LCD_I2C_ADDRESS 0x20
+  #define LCD_HAS_STATUS_INDICATORS  
+#endif
 
 #ifdef ULTIPANEL
 //  #define NEWPANEL  //enable this if you have a click-encoder panel
@@ -349,15 +385,6 @@ const bool Z_ENDSTOPS_INVERTING = true; // set to true to invert the logic of th
     #define LCD_WIDTH 16
     #define LCD_HEIGHT 2    
   #endif
-#endif
-
-//The LCD is attached via an I2C port expander.
-//#define LCD_I2C
-#ifdef LCD_I2C
-  // Port Expander Type - 0=PCF8574 sainsmart/ywrobot
-  #define LCD_I2C_TYPE 0
-  // I2C Address of the port expander
-  #define LCD_I2C_ADDRESS 0x27
 #endif
 
 // Increase the FAN pwm frequency. Removes the PWM noise but increases heating in the FET/Arduino
