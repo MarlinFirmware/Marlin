@@ -200,4 +200,6 @@ extern unsigned long stoptime;
 // Handling multiple extruders pins
 extern uint8_t active_extruder;
 
+extern float base_min_pos[];
+extern float base_max_pos[];
 #endif

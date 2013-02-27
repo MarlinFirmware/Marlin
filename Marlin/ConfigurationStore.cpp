@@ -37,7 +37,7 @@ void _EEPROM_readData(int &pos, uint8_t* value, uint8_t size)
 // the default values are used whenever there is a change to the data, to prevent
 // wrong data being written to the variables.
 // ALSO:  always make sure the variables in the Store and retrieve sections are in the same order.
-#define EEPROM_VERSION "V07"
+#define EEPROM_VERSION "V08"
 
 #ifdef EEPROM_SETTINGS
 void Config_StoreSettings() 
@@ -76,6 +76,12 @@ void Config_StoreSettings()
     EEPROM_WRITE_VAR(i,0);
     EEPROM_WRITE_VAR(i,0);
   #endif
+  EEPROM_WRITE_VAR(i,base_min_pos[0]);
+  EEPROM_WRITE_VAR(i,base_max_pos[0]);
+  EEPROM_WRITE_VAR(i,base_min_pos[1]);
+  EEPROM_WRITE_VAR(i,base_max_pos[1]);
+  EEPROM_WRITE_VAR(i,base_min_pos[2]);
+  EEPROM_WRITE_VAR(i,base_max_pos[2]);
   char ver2[4]=EEPROM_VERSION;
   i=EEPROM_OFFSET;
   EEPROM_WRITE_VAR(i,ver2); // validate data
@@ -148,6 +154,20 @@ void Config_PrintSettings()
     SERIAL_ECHOPAIR(" D" ,Kd*PID_dT);
     SERIAL_ECHOLN(""); 
 #endif
+    SERIAL_ECHO_START;
+    SERIAL_ECHOLNPGM("Min position (mm):");
+    SERIAL_ECHO_START;
+    SERIAL_ECHOPAIR("  M210 X" , base_min_pos[0] );
+    SERIAL_ECHOPAIR(" Y" , base_min_pos[1] );
+    SERIAL_ECHOPAIR(" Z" , base_min_pos[2] );
+    SERIAL_ECHOLN("");
+    SERIAL_ECHO_START;
+    SERIAL_ECHOLNPGM("Max position (mm):");
+    SERIAL_ECHO_START;
+    SERIAL_ECHOPAIR("  M211 X" , base_max_pos[0] );
+    SERIAL_ECHOPAIR(" Y" , base_max_pos[1] );
+    SERIAL_ECHOPAIR(" Z" , base_max_pos[2] );
+    SERIAL_ECHOLN("");
 } 
 #endif
 
@@ -191,6 +211,12 @@ void Config_RetrieveSettings()
         EEPROM_READ_VAR(i,Kp);
         EEPROM_READ_VAR(i,Ki);
         EEPROM_READ_VAR(i,Kd);
+        EEPROM_READ_VAR(i,base_min_pos[0]);
+        EEPROM_READ_VAR(i,base_max_pos[0]);
+        EEPROM_READ_VAR(i,base_min_pos[1]);
+        EEPROM_READ_VAR(i,base_max_pos[1]);
+        EEPROM_READ_VAR(i,base_min_pos[2]);
+        EEPROM_READ_VAR(i,base_max_pos[2]);
 
         SERIAL_ECHO_START;
         SERIAL_ECHOLNPGM("Stored settings retreived:");
@@ -241,4 +267,10 @@ void Config_ResetDefault()
     Kc = DEFAULT_Kc;
 #endif//PID_ADD_EXTRUSION_RATE
 #endif//PIDTEMP
+    base_min_pos[0] = X_MIN_POS_DEFAULT;
+    base_min_pos[1] = Y_MIN_POS_DEFAULT;
+    base_min_pos[2] = Z_MIN_POS_DEFAULT;
+    base_max_pos[0] = X_MAX_POS_DEFAULT;
+    base_max_pos[1] = Y_MAX_POS_DEFAULT;
+    base_max_pos[2] = Z_MAX_POS_DEFAULT;
 }
