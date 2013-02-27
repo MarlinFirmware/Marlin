@@ -714,6 +714,10 @@ void lcd_update()
     
     lcd_buttons_update();
     
+    #ifdef LCD_HAS_EXTRA_BUTTONS
+    buttons |= lcd_read_extra_buttons(); // buttons which take too long to read in interrupt context
+    #endif
+    
     #if (SDCARDDETECT > -1)
     if((IS_SD_INSERTED != lcd_oldcardstatus))
     {
@@ -857,6 +861,11 @@ void lcd_buttons_update()
     lastEncoderBits = enc;
 }
 #endif//ULTIPANEL
+
+bool lcd_clicked() 
+{ 
+  return LCD_CLICKED;
+}
 
 /********************************/
 /** Float conversion utilities **/

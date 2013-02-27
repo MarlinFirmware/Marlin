@@ -36,7 +36,21 @@
 #ifdef ULTRA_LCD
   #ifdef LCD_I2C
     #include <Wire.h>
-    #include <LiquidCrystal_I2C.h>
+    #if defined(LCD_I2C_TYPE_PCF8575)
+      #include <LiquidCrystal_I2C.h>
+    #elif defined(LCD_I2C_TYPE_MCP23017)
+      #ifdef PANELOLU2
+        #undef PANELOLU2
+        #include <LiquidTWI2.h>
+        #ifndef PANELOLU2
+          #error You must uncomment #define PANELOLU2 in LiquidTWI2.h for LiquidTWI2.cpp to compile correctly
+        #endif
+      #else
+        #include <LiquidTWI2.h>
+      #endif
+    #else
+      #error Unknown I2C LCD type    
+    #endif
   #else
     #include <LiquidCrystal.h>
   #endif

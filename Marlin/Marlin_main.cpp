@@ -853,13 +853,13 @@ void process_commands()
       previous_millis_cmd = millis();
       if (codenum > 0){
         codenum += millis();  // keep track of when we started waiting
-        while(millis()  < codenum && !LCD_CLICKED){
+        while(millis()  < codenum && !lcd_clicked()){
           manage_heater();
           manage_inactivity();
           lcd_update();
         }
       }else{
-        while(!LCD_CLICKED){
+        while(!lcd_clicked()){
           manage_heater();
           manage_inactivity();
           lcd_update();
@@ -1592,7 +1592,7 @@ void process_commands()
         delay(100);
         LCD_ALERTMESSAGEPGM(MSG_FILAMENTCHANGE);
         uint8_t cnt=0;
-        while(!LCD_CLICKED){
+        while(!lcd_clicked()){
           cnt++;
           manage_heater();
           manage_inactivity();

@@ -20,7 +20,6 @@
 
   #ifdef ULTIPANEL
   void lcd_buttons_update();
-  extern volatile uint8_t buttons;  //the last checked buttons in a bit array.
   #else
   FORCE_INLINE void lcd_buttons_update() {}
   #endif
@@ -33,25 +32,7 @@
   extern int absPreheatHPBTemp;
   extern int absPreheatFanSpeed;
     
-  #ifdef NEWPANEL
-    #define EN_C (1<<BLEN_C)
-    #define EN_B (1<<BLEN_B)
-    #define EN_A (1<<BLEN_A)
-
-    #define LCD_CLICKED (buttons&EN_C)
-  #else
-    //atomatic, do not change
-    #define B_LE (1<<BL_LE)
-    #define B_UP (1<<BL_UP)
-    #define B_MI (1<<BL_MI)
-    #define B_DW (1<<BL_DW)
-    #define B_RI (1<<BL_RI)
-    #define B_ST (1<<BL_ST)
-    #define EN_B (1<<BLEN_B)
-    #define EN_A (1<<BLEN_A)
-    
-    #define LCD_CLICKED ((buttons&B_MI)||(buttons&B_ST))
-  #endif//NEWPANEL
+  bool lcd_clicked();
 
 #else //no lcd
   FORCE_INLINE void lcd_update() {}
