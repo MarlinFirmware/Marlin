@@ -320,7 +320,7 @@ const bool Z_ENDSTOPS_INVERTING = true; // set to true to invert the logic of th
 //#define SDSUPPORT // Enable SD Card Support in Hardware Console
 
 //#define ULTIMAKERCONTROLLER //as available from the ultimaker online store.
-#define ULTIPANEL  //the ultipanel as on thingiverse
+//#define ULTIPANEL  //the ultipanel as on thingiverse
 
 // The RepRapDiscount Smart Controller (white PCB)
 // http://reprap.org/wiki/RepRapDiscount_Smart_Controller
@@ -338,11 +338,12 @@ const bool Z_ENDSTOPS_INVERTING = true; // set to true to invert the logic of th
 
 // I2C PANELS
 
-#define LCD_I2C_SAINSMART_YWROBOT
+//#define LCD_I2C_SAINSMART_YWROBOT
 #ifdef LCD_I2C_SAINSMART_YWROBOT
   // This uses the LiquidCrystal_I2C library ( https://bitbucket.org/fmalpartida/new-liquidcrystal/wiki/Home )
   // Make sure it is placed in the Arduino libraries directory.
   #define LCD_I2C_TYPE_PCF8575
+  #define LCD_I2C
   #define ULTIPANEL
   #define NEWPANEL
   #define LCD_I2C_ADDRESS 0x27   // I2C Address of the port expander
@@ -354,6 +355,7 @@ const bool Z_ENDSTOPS_INVERTING = true; // set to true to invert the logic of th
   // This uses the LiquidTWI2 library ( https://github.com/lincomatic/LiquidTWI2 ).
   // Make sure it is placed in the Arduino libraries directory.
   #define LCD_I2C_TYPE_MCP23017
+  #define LCD_I2C
   #define ULTIPANEL
   #define NEWPANEL
   #define LCD_I2C_ADDRESS 0x20
@@ -367,6 +369,7 @@ const bool Z_ENDSTOPS_INVERTING = true; // set to true to invert the logic of th
   // This uses the LiquidTWI2 library (https://github.com/lincomatic/LiquidTWI2).
   // Make sure it is placed in the Arduino libraries directory.
   #define LCD_I2C_TYPE_MCP23017
+  #define LCD_I2C
   #define ULTIPANEL
   #define NEWPANEL
   #define LCD_I2C_ADDRESS 0x20
