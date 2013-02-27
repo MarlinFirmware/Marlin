@@ -93,13 +93,13 @@
     #ifdef BED_CENTER_AT_0_0
       #define X_HOME_POS X_MAX_LENGTH * -0.5
     #else
-      #define X_HOME_POS X_MIN_POS
+      #define X_HOME_POS base_min_pos[0]
     #endif //BED_CENTER_AT_0_0
   #else    
     #ifdef BED_CENTER_AT_0_0
       #define X_HOME_POS X_MAX_LENGTH * 0.5
     #else
-      #define X_HOME_POS X_MAX_POS
+      #define X_HOME_POS base_max_pos[0]
     #endif //BED_CENTER_AT_0_0
   #endif //X_HOME_DIR == -1
   
@@ -108,21 +108,21 @@
     #ifdef BED_CENTER_AT_0_0
       #define Y_HOME_POS Y_MAX_LENGTH * -0.5
     #else
-      #define Y_HOME_POS Y_MIN_POS
+      #define Y_HOME_POS base_min_pos[1]
     #endif //BED_CENTER_AT_0_0
   #else    
     #ifdef BED_CENTER_AT_0_0
       #define Y_HOME_POS Y_MAX_LENGTH * 0.5
     #else
-      #define Y_HOME_POS Y_MAX_POS
+      #define Y_HOME_POS base_max_pos[1]
     #endif //BED_CENTER_AT_0_0
   #endif //Y_HOME_DIR == -1
   
   // Z axis
   #if Z_HOME_DIR == -1 //BED_CENTER_AT_0_0 not used
-    #define Z_HOME_POS Z_MIN_POS
+    #define Z_HOME_POS base_min_pos[2]
   #else    
-    #define Z_HOME_POS Z_MAX_POS
+    #define Z_HOME_POS base_max_pos[2]
   #endif //Z_HOME_DIR == -1
 #endif //End auto min/max positions
 //END AUTOSET LOCATIONS OF LIMIT SWITCHES -ZP

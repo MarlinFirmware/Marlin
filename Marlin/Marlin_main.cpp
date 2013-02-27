@@ -113,6 +113,8 @@
 // M207 - set retract length S[positive mm] F[feedrate mm/sec] Z[additional zlift/hop]
 // M208 - set recover=unretract length S[positive mm surplus to the M207 S*] F[feedrate mm/sec]
 // M209 - S<1=true/0=false> enable automatic retract detect if the slicer did not support G10/11: every normal extrude-only move will be classified as retract depending on the direction.
+// M210 - set travel soft minimum
+// M211 - set travel soft maximum
 // M220 S<factor in percent>- set speed factor override percentage
 // M221 S<factor in percent>- set extrude factor override percentage
 // M240 - Trigger a camera to take a photograph
@@ -153,8 +155,8 @@ int saved_feedmultiply;
 int extrudemultiply=100; //100->1 200->2
 float current_position[NUM_AXIS] = { 0.0, 0.0, 0.0, 0.0 };
 float add_homeing[3]={0,0,0};
-float min_pos[3] = { X_MIN_POS, Y_MIN_POS, Z_MIN_POS };
-float max_pos[3] = { X_MAX_POS, Y_MAX_POS, Z_MAX_POS };
+float min_pos[3] = { X_MIN_POS_DEFAULT, Y_MIN_POS_DEFAULT, Z_MIN_POS_DEFAULT };
+float max_pos[3] = { X_MAX_POS_DEFAULT, Y_MAX_POS_DEFAULT, Z_MAX_POS_DEFAULT };
 uint8_t active_extruder = 0;
 int fanSpeed=0;
 
@@ -600,17 +602,23 @@ static const PROGMEM type array##_P[3] =		\
 static inline type array(int axis)			\
     { return pgm_read_any(&array##_P[axis]); }
 
-XYZ_CONSTS_FROM_CONFIG(float, base_min_pos,    MIN_POS);
-XYZ_CONSTS_FROM_CONFIG(float, base_max_pos,    MAX_POS);
-XYZ_CONSTS_FROM_CONFIG(float, base_home_pos,   HOME_POS);
-XYZ_CONSTS_FROM_CONFIG(float, max_length,      MAX_LENGTH);
+#define XYZ_DYN_FROM_CONFIG(type, array, CONFIG)	\
+static inline type array(int axis)			\
+    { type temp[3] = { X_##CONFIG, Y_##CONFIG, Z_##CONFIG };\
+      return temp[axis];}
+
+XYZ_DYN_FROM_CONFIG(float, base_home_pos,   HOME_POS);
+XYZ_DYN_FROM_CONFIG(float, max_length, MAX_LENGTH);
 XYZ_CONSTS_FROM_CONFIG(float, home_retract_mm, HOME_RETRACT_MM);
 XYZ_CONSTS_FROM_CONFIG(signed char, home_dir,  HOME_DIR);
 
+float base_min_pos[3] = { X_MIN_POS_DEFAULT, Y_MIN_POS_DEFAULT, Z_MIN_POS_DEFAULT };
+float base_max_pos[3] = { X_MAX_POS_DEFAULT, Y_MAX_POS_DEFAULT, Z_MAX_POS_DEFAULT };
+
 static void axis_is_at_home(int axis) {
   current_position[axis] = base_home_pos(axis) + add_homeing[axis];
-  min_pos[axis] =          base_min_pos(axis) + add_homeing[axis];
-  max_pos[axis] =          base_max_pos(axis) + add_homeing[axis];
+  min_pos[axis] =          base_min_pos[axis] + add_homeing[axis];
+  max_pos[axis] =          base_max_pos[axis] + add_homeing[axis];
 }
 
 static void homeaxis(int axis) {
@@ -1373,6 +1381,26 @@ void process_commands()
       
     }break;
     #endif
+    case 210: //M210 - Set min pos
+    {
+      for(int8_t i=0; i < 3; i++)
+      {
+        if(code_seen(axis_codes[i]))
+        {
+          base_min_pos[i] = code_value();
+        }
+      }
+    }break;
+    case 211: //M211 - Set max pos
+    {
+      for(int8_t i=0; i < 3; i++)
+      {
+        if(code_seen(axis_codes[i]))
+        {
+          base_max_pos[i] = code_value();
+        }
+      }
+    }break;
     case 220: // M220 S<factor in percent>- set speed factor override percentage
     {
       if(code_seen('S')) 
