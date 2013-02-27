@@ -157,11 +157,13 @@ float add_homeing[3]={0,0,0};
 float min_pos[3] = { X_MIN_POS, Y_MIN_POS, Z_MIN_POS };
 float max_pos[3] = { X_MAX_POS, Y_MAX_POS, Z_MAX_POS };
 // Extruder offset, only in XY plane
+#if EXTRUDERS > 1
 float extruder_offset[2][EXTRUDERS] = { 
 #if defined(EXTRUDER_OFFSET_X) && defined(EXTRUDER_OFFSET_Y)
   EXTRUDER_OFFSET_X, EXTRUDER_OFFSET_Y 
 #endif
 }; 
+#endif
 uint8_t active_extruder = 0;
 int fanSpeed=0;
 
@@ -1379,6 +1381,7 @@ void process_commands()
       
     }break;
     #endif // FWRETRACT
+    #if EXTRUDERS > 1
     case 218: // M218 - set hotend offset (in mm), T<extruder_number> X<offset_on_X> Y<offset_on_Y>
     {
       if(setTargetedHotend(218)){
@@ -1403,6 +1406,7 @@ void process_commands()
       }
       SERIAL_ECHOLN("");
     }break;
+    #endif
     case 220: // M220 S<factor in percent>- set speed factor override percentage
     {
       if(code_seen('S')) 
@@ -1734,6 +1738,7 @@ void process_commands()
           feedrate = next_feedrate;
         }
       }
+      #if EXTRUDERS > 1
       if(tmp_extruder != active_extruder) {
         // Save current position to return to after applying extruder offset
         memcpy(destination, current_position, sizeof(destination));
@@ -1752,6 +1757,7 @@ void process_commands()
            prepare_move();
         }
       }
+      #endif
       SERIAL_ECHO_START;
       SERIAL_ECHO(MSG_ACTIVE_EXTRUDER);
       SERIAL_PROTOCOLLN((int)active_extruder);
