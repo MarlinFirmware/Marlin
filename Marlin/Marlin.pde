@@ -34,21 +34,14 @@
 #include "pins.h"
 
 #ifdef ULTRA_LCD
-  #ifdef LCD_I2C
+  #if defined(LCD_I2C_TYPE_PCF8575)
     #include <Wire.h>
-    #if defined(LCD_I2C_TYPE_PCF8575)
-      #include <LiquidCrystal_I2C.h>
-    #elif defined(LCD_I2C_TYPE_MCP23017)
-      #ifdef LCD_I2C_PANELOLU2
-        #include <LiquidTWI2.h>
-        #ifndef PANELOLU2
-          #error You must uncomment #define PANELOLU2 in LiquidTWI2.h for LiquidTWI2.cpp to compile correctly
-        #endif
-      #else
-        #include <LiquidTWI2.h>
-      #endif
-    #else
-      #error Unknown I2C LCD type    
+    #include <LiquidCrystal_I2C.h>
+  #elif defined(LCD_I2C_TYPE_MCP23017) || defined(LCD_I2C_TYPE_MCP23008)
+    #include <Wire.h>
+    #include <LiquidTWI2.h>
+    #if defined(LCD_I2C_PANELOLU2) && !defined(PANELOLU2)
+      #error You must uncomment "#define PANELOLU2" in LiquidTWI2.h for LiquidTWI2.cpp to compile correctly
     #endif
   #else
     #include <LiquidCrystal.h>

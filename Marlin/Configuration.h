@@ -336,44 +336,39 @@ const bool Z_ENDSTOPS_INVERTING = true; // set to true to invert the logic of th
  #define NEWPANEL
 #endif 
 
-// I2C PANELS
+//I2C PANELS
 
 //#define LCD_I2C_SAINSMART_YWROBOT
 #ifdef LCD_I2C_SAINSMART_YWROBOT
   // This uses the LiquidCrystal_I2C library ( https://bitbucket.org/fmalpartida/new-liquidcrystal/wiki/Home )
   // Make sure it is placed in the Arduino libraries directory.
   #define LCD_I2C_TYPE_PCF8575
-  #define LCD_I2C
-  #define ULTIPANEL
-  #define NEWPANEL
   #define LCD_I2C_ADDRESS 0x27   // I2C Address of the port expander
+  #define NEWPANEL
+  #define ULTIPANEL 
 #endif
 
-// PANELOLU2 LCD with status LEDs, separate encoder and click inputs
+//PANELOLU2 LCD with status LEDs, separate encoder and click inputs
 //#define LCD_I2C_PANELOLU2
 #ifdef LCD_I2C_PANELOLU2
   // This uses the LiquidTWI2 library ( https://github.com/lincomatic/LiquidTWI2 ).
   // Make sure it is placed in the Arduino libraries directory.
   #define LCD_I2C_TYPE_MCP23017
-  #define LCD_I2C
-  #define ULTIPANEL
+  #define LCD_I2C_ADDRESS 0x20 // I2C Address of the port expander
+  #define LCD_USE_I2C_BUZZER //comment out to disable buzzer on LCD
   #define NEWPANEL
-  #define LCD_I2C_ADDRESS 0x20
-  #define LCD_HAS_I2C_BUZZ //comment out to disable buzzer on LCD
-  #define LCD_HAS_STATUS_INDICATORS  
+  #define ULTIPANEL 
 #endif
 
-// VIKI LCD with status LEDs, integrated click & L/R/U/P buttons, separate encoder inputs
+//VIKI LCD with status LEDs, integrated click & L/R/U/P buttons, separate encoder inputs
 //#define LCD_I2C_VIKI
 #ifdef LCD_I2C_VIKI
   // This uses the LiquidTWI2 library (https://github.com/lincomatic/LiquidTWI2).
   // Make sure it is placed in the Arduino libraries directory.
-  #define LCD_I2C_TYPE_MCP23017
-  #define LCD_I2C
-  #define ULTIPANEL
+  #define LCD_I2C_TYPE_MCP23017 
+  #define LCD_I2C_ADDRESS 0x20 // I2C Address of the port expander
   #define NEWPANEL
-  #define LCD_I2C_ADDRESS 0x20
-  #define LCD_HAS_STATUS_INDICATORS  
+  #define ULTIPANEL 
 #endif
 
 #ifdef ULTIPANEL
