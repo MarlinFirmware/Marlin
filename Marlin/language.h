@@ -1,6 +1,4 @@
-
-<!-- saved from url=(0066)https://raw.github.com/ErikZalm/Marlin/Marlin_v1/Marlin/language.h -->
-<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"></head><body><pre style="word-wrap: break-word; white-space: pre-wrap;">#ifndef LANGUAGE_H
+#ifndef LANGUAGE_H
 #define LANGUAGE_H
 
 // NOTE: IF YOU CHANGE THIS FILE / MERGE THIS FILE WITH CHANGES
