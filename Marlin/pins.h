@@ -644,10 +644,13 @@
 * Sanguinololu pin assignment
 *
 ****************************************************************************************/
+#if MOTHERBOARD == 64
+#define STB
+#endif
 #if MOTHERBOARD == 63
 #define MELZI
 #endif
-#if MOTHERBOARD == 62 || MOTHERBOARD == 63
+#if MOTHERBOARD == 62 || MOTHERBOARD == 63 || MOTHERBOARD == 64
 #undef MOTHERBOARD
 #define MOTHERBOARD 6
 #define SANGUINOLOLU_V_1_2 
@@ -684,6 +687,10 @@
 
 #ifdef MELZI
 #define LED_PIN            27 /* On some broken versions of the Sanguino libraries the pin definitions are wrong, which then needs LED_PIN as pin 28. But you better upgrade your Sanguino libraries! See #368. */
+#define FAN_PIN            4
+#endif
+
+#ifdef STB
 #define FAN_PIN            4
 #endif
 
@@ -727,13 +734,25 @@
      //we have no buzzer installed
      #define BEEPER -1
      //LCD Pins
-     #define LCD_PINS_RS        4
-     #define LCD_PINS_ENABLE    17
-     #define LCD_PINS_D4        30
-     #define LCD_PINS_D5        29
-     #define LCD_PINS_D6        28
-     #define LCD_PINS_D7        27
-     
+	 	 #ifdef DOGLCD
+			 // Pins for DOGM SPI LCD Support
+			 #define DOGLCD_A0	30
+			 #define DOGLCD_CS	29
+			 // GLCD features
+			 #define LCD_CONTRAST 1
+			 // Uncomment screen orientation
+		     // #define LCD_SCREEN_ROT_0
+		     // #define LCD_SCREEN_ROT_90
+			 #define LCD_SCREEN_ROT_180
+		     // #define LCD_SCREEN_ROT_270
+			 #else // standard Hitachi LCD controller
+			 #define LCD_PINS_RS        4
+			 #define LCD_PINS_ENABLE    17
+			 #define LCD_PINS_D4        30
+			 #define LCD_PINS_D5        29
+			 #define LCD_PINS_D6        28
+			 #define LCD_PINS_D7        27
+         #endif
      //The encoder and click button
      #define BTN_EN1 11  //must be a hardware interrupt pin
      #define BTN_EN2 10 //must be hardware interrupt pin
