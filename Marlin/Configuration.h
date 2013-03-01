@@ -331,6 +331,9 @@ const bool Z_ENDSTOPS_INVERTING = true; // set to true to invert the logic of th
 // http://reprap.org/wiki/RAMPS_1.3/1.4_GADGETS3D_Shield_with_Panel
 //#define G3D_PANEL
 
+// The ODDepot.com Sanguinololu Wireless Adapter
+//#define SWASUPPORT // Enable Sanguinololu Wireless Adapter
+
 //automatic expansion
 #if defined(ULTIMAKERCONTROLLER) || defined(REPRAP_DISCOUNT_SMART_CONTROLLER) || defined(G3D_PANEL)
  #define ULTIPANEL
@@ -368,6 +371,13 @@ const bool Z_ENDSTOPS_INVERTING = true; // set to true to invert the logic of th
 		#define LCD_HEIGHT 2
 	#endif    
   #endif
+#endif
+
+#ifdef SWASUPPORT
+  #define MOTHERBOARD 62
+  #define SERIAL_PORT 1
+  #define BAUDRATE 115200
+  #define SDSUPPORT
 #endif
 
 // Increase the FAN pwm frequency. Removes the PWM noise but increases heating in the FET/Arduino
