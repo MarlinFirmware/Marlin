@@ -1,10 +1,12 @@
-#ifndef LANGUAGE_H
+
+<!-- saved from url=(0066)https://raw.github.com/ErikZalm/Marlin/Marlin_v1/Marlin/language.h -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"></head><body><pre style="word-wrap: break-word; white-space: pre-wrap;">#ifndef LANGUAGE_H
 #define LANGUAGE_H
 
 // NOTE: IF YOU CHANGE THIS FILE / MERGE THIS FILE WITH CHANGES
 //
-//   ==> ALWAYS TRY TO COMPILE MARLIN WITH/WITHOUT "ULTIPANEL" / "ULTRALCD" / "SDSUPPORT" #define IN "Configuration.h" 
-//   ==> ALSO TRY ALL AVAILABLE "LANGUAGE_CHOICE" OPTIONS
+//   ==&gt; ALWAYS TRY TO COMPILE MARLIN WITH/WITHOUT "ULTIPANEL" / "ULTRALCD" / "SDSUPPORT" #define IN "Configuration.h" 
+//   ==&gt; ALSO TRY ALL AVAILABLE "LANGUAGE_CHOICE" OPTIONS
 
 // Languages
 // 1  English
@@ -1462,3 +1464,4 @@
 
 #endif
 #endif // ifndef LANGUAGE_H
+</pre></body></html>
