@@ -23,32 +23,52 @@ extern volatile uint8_t buttons;  //the last checked buttons in a bit array.
 #define EN_B (1<<BLEN_B) // The two encoder pins are connected through BTN_EN1 and BTN_EN2
 #define EN_A (1<<BLEN_A)
 
+#if defined(BTN_ENC) && BTN_ENC > -1
+  // encoder click is directly connected
+  #define BLEN_C 2 
+  #define EN_C (1<<BLEN_C) 
+#endif 
+  
 //
 // Setup other button mappings of each panel
 //
 #if defined(LCD_I2C_VIKI)
-  #define BLEN_C 2 // == pause/stop/restart button connected to BTN_ENC pin (named for consistency with NEWPANEL code)
-  #define EN_C (1<<BLEN_C) 
-
-  #define B_I2C_BTN_OFFSET (BLEN_C+1) // (the first three bit positions reserved for EN_A, EN_B, EN_C)
+  #define B_I2C_BTN_OFFSET 3 // (the first three bit positions reserved for EN_A, EN_B, EN_C)
   
   // button and encoder bit positions within 'buttons'
-  #define B_ST (EN_C)                             // Map the pause/stop/resume button into its normalized functional name 
   #define B_LE (BUTTON_LEFT<<B_I2C_BTN_OFFSET)    // The remaining normalized buttons are all read via I2C
   #define B_UP (BUTTON_UP<<B_I2C_BTN_OFFSET)
   #define B_MI (BUTTON_SELECT<<B_I2C_BTN_OFFSET)
   #define B_DW (BUTTON_DOWN<<B_I2C_BTN_OFFSET)
   #define B_RI (BUTTON_RIGHT<<B_I2C_BTN_OFFSET)
 
-  #define LCD_CLICKED (buttons&(B_MI|B_RI|B_ST)) // pause/stop button also acts as click until we implement proper pause/stop.
+  #if defined(BTN_ENC) && BTN_ENC > -1 
+    // the pause/stop/restart button is connected to BTN_ENC when used
+    #define B_ST (EN_C)                            // Map the pause/stop/resume button into its normalized functional name 
+    #define LCD_CLICKED (buttons&(B_MI|B_RI|B_ST)) // pause/stop button also acts as click until we implement proper pause/stop.
+  #else
+    #define LCD_CLICKED (buttons&(B_MI|B_RI))
+  #endif  
 
   // I2C buttons take too long to read inside an interrupt context and so we read them during lcd_update
   #define LCD_HAS_SLOW_BUTTONS
 
+#elif defined(LCD_I2C_PANELOLU2)
+  #if !defined(BTN_ENC) || BTN_ENC == -1 
+    // encoder click is connected through I2C (rather than directly connected)
+    #define B_I2C_BTN_OFFSET 3 // (the first three bit positions reserved for EN_A, EN_B, EN_C)
+  
+    #define B_MI (ENCODER_C<<B_I2C_BTN_OFFSET)
+
+    #define LCD_CLICKED (buttons&B_MI)
+
+    // I2C buttons take too long to read inside an interrupt context and so we read them during lcd_update
+    #define LCD_HAS_SLOW_BUTTONS
+  #else
+    #define LCD_CLICKED (buttons&EN_C)  
+  #endif
+
 #elif defined(NEWPANEL)
-  // Standard Newpanel has just a single button (all direclty connected)
-  #define BLEN_C 2 // == select button
-  #define EN_C (1<<BLEN_C)
   #define LCD_CLICKED (buttons&EN_C)
   
 #else // old style ULTIPANEL
@@ -88,7 +108,7 @@ extern volatile uint8_t buttons;  //the last checked buttons in a bit array.
     #define encrot2 3
     #define encrot3 2
   #endif
-#endif
+#endif 
 
 #endif //ULTIPANEL
 
@@ -629,7 +649,7 @@ static void lcd_implementation_drawmenu_sddirectory(uint8_t row, const char* pst
 static void lcd_implementation_quick_feedback()
 {
 #ifdef LCD_USE_I2C_BUZZER
-    lcd.buzz(300,4000);
+    lcd.buzz(60,1000/6);
 #elif defined(BEEPER) && BEEPER > -1
     SET_OUTPUT(BEEPER);
     for(int8_t i=0;i<10;i++)
