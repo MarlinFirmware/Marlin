@@ -686,11 +686,13 @@ void lcd_init()
 #ifdef NEWPANEL
     pinMode(BTN_EN1,INPUT);
     pinMode(BTN_EN2,INPUT); 
-    pinMode(BTN_ENC,INPUT); 
     pinMode(SDCARDDETECT,INPUT);
     WRITE(BTN_EN1,HIGH);
     WRITE(BTN_EN2,HIGH);
+  #if defined(BTN_ENC) && BTN_ENC > -1
+    pinMode(BTN_ENC,INPUT); 
     WRITE(BTN_ENC,HIGH);
+  #endif    
 #else
     pinMode(SHIFT_CLK,OUTPUT);
     pinMode(SHIFT_LD,OUTPUT);
@@ -809,8 +811,10 @@ void lcd_buttons_update()
     uint8_t newbutton=0;
     if(READ(BTN_EN1)==0)  newbutton|=EN_A;
     if(READ(BTN_EN2)==0)  newbutton|=EN_B;
+  #if defined(BTN_ENC) && BTN_ENC > -1
     if((blocking_enc<millis()) && (READ(BTN_ENC)==0))
         newbutton |= EN_C;
+  #endif      
     buttons = newbutton;
 #else   //read it from the shift register
     uint8_t newbutton=0;

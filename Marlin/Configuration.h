@@ -351,8 +351,10 @@ const bool Z_ENDSTOPS_INVERTING = true; // set to true to invert the logic of th
 //PANELOLU2 LCD with status LEDs, separate encoder and click inputs
 //#define LCD_I2C_PANELOLU2
 #ifdef LCD_I2C_PANELOLU2
-  // This uses the LiquidTWI2 library ( https://github.com/lincomatic/LiquidTWI2 ).
-  // Make sure it is placed in the Arduino libraries directory.
+  // This uses the LiquidTWI2 library ( https://github.com/lincomatic/LiquidTWI2 )
+  // Make sure it is placed in the Arduino or Sketchbook libraries directory.
+  // Note: The PANELOLU2 encoder click input can either be directly connected to a pin 
+  //       (if BTN_ENC defined to != -1) or read through I2C (when BTN_ENC == -1). 
   #define LCD_I2C_TYPE_MCP23017
   #define LCD_I2C_ADDRESS 0x20 // I2C Address of the port expander
   #define LCD_USE_I2C_BUZZER //comment out to disable buzzer on LCD
@@ -360,11 +362,13 @@ const bool Z_ENDSTOPS_INVERTING = true; // set to true to invert the logic of th
   #define ULTIPANEL 
 #endif
 
-//VIKI LCD with status LEDs, integrated click & L/R/U/P buttons, separate encoder inputs
+//Panucatt VIKI LCD with status LEDs, integrated click & L/R/U/P buttons, separate encoder inputs
 //#define LCD_I2C_VIKI
 #ifdef LCD_I2C_VIKI
-  // This uses the LiquidTWI2 library (https://github.com/lincomatic/LiquidTWI2).
-  // Make sure it is placed in the Arduino libraries directory.
+  // This uses the LiquidTWI2 library ( https://github.com/lincomatic/LiquidTWI2 )
+  // Make sure it is placed in the Arduino or Sketchbook libraries directory.
+  // Note: The pause/stop/resume LCD button pin should be connected to the Arduino
+  //       BTN_ENC pin (or set BTN_ENC to -1 if not used)
   #define LCD_I2C_TYPE_MCP23017 
   #define LCD_I2C_ADDRESS 0x20 // I2C Address of the port expander
   #define NEWPANEL
