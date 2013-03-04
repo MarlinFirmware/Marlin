@@ -7,11 +7,29 @@
 **/
 
 #if LANGUAGE_CHOICE == 6
-#include "LiquidCrystalRus.h"
-#define LCD_CLASS LiquidCrystalRus
+  #include "LiquidCrystalRus.h"
+  #define LCD_CLASS LiquidCrystalRus
 #else
-#include <LiquidCrystal.h>
-#define LCD_CLASS LiquidCrystal
+  #ifdef LCD_I2C
+    #if LCD_I2C_TYPE = 0
+      #define LCD_I2C_PIN_BL  3
+      #define LCD_I2C_PIN_EN  2
+      #define LCD_I2C_PIN_RW  1
+      #define LCD_I2C_PIN_RS  0
+      #define LCD_I2C_PIN_D4  4
+      #define LCD_I2C_PIN_D5  5
+      #define LCD_I2C_PIN_D6  6
+      #define LCD_I2C_PIN_D7  7
+    #endif
+
+    #include <Wire.h>
+    #include <LCD.h>
+    #include <LiquidCrystal_I2C.h>
+    #define LCD_CLASS LiquidCrystal_I2C
+  #else
+    #include <LiquidCrystal.h>
+    #define LCD_CLASS LiquidCrystal
+  #endif
 #endif
 
 /* Custom characters defined in the first 8 characters of the LCD */
@@ -25,7 +43,12 @@
 #define LCD_STR_CLOCK       "\x07"
 #define LCD_STR_ARROW_RIGHT "\x7E"  /* from the default character set */
 
-LCD_CLASS lcd(LCD_PINS_RS, LCD_PINS_ENABLE, LCD_PINS_D4, LCD_PINS_D5,LCD_PINS_D6,LCD_PINS_D7);  //RS,Enable,D4,D5,D6,D7
+#ifdef LCD_I2C
+  LCD_CLASS lcd(LCD_I2C_ADDRESS,LCD_I2C_PIN_EN,LCD_I2C_PIN_RW,LCD_I2C_PIN_RS,LCD_I2C_PIN_D4,LCD_I2C_PIN_D5,LCD_I2C_PIN_D6,LCD_I2C_PIN_D7);
+#else
+  LCD_CLASS lcd(LCD_PINS_RS, LCD_PINS_ENABLE, LCD_PINS_D4, LCD_PINS_D5,LCD_PINS_D6,LCD_PINS_D7);  //RS,Enable,D4,D5,D6,D7
+#endif
+
 static void lcd_implementation_init()
 {
     byte bedTemp[8] =
@@ -111,6 +134,14 @@ static void lcd_implementation_init()
         B00000,
         B00000
     }; //thanks Sonny Mounicou
+
+    #ifdef LCD_I2C
+        #ifdef LCD_I2C_PIN_BL
+            lcd.setBacklightPin(LCD_I2C_PIN_BL,POSITIVE);
+            lcd.setBacklight(HIGH);
+        #endif
+    #endif
+
     lcd.begin(LCD_WIDTH, LCD_HEIGHT);
     lcd.createChar(LCD_STR_BEDTEMP[0], bedTemp);
     lcd.createChar(LCD_STR_DEGREE[0], degree);
