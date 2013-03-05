@@ -165,6 +165,10 @@ int fanSpeed=0;
   float retract_recover_length=0, retract_recover_feedrate=8*60;
 #endif
 
+#ifdef ULTIPANEL
+	bool powersupply = true;
+#endif
+
 //===========================================================================
 //=============================private variables=============================
 //===========================================================================
@@ -1140,13 +1144,18 @@ void process_commands()
     #endif //FAN_PIN
 
     #if (PS_ON_PIN > -1)
-      case 80: // M80 - ATX Power On
+      case 80: // M80 - Turn on Power Supply
         SET_OUTPUT(PS_ON_PIN); //GND
         WRITE(PS_ON_PIN, PS_ON_AWAKE);
+        #ifdef ULTIPANEL
+          powersupply = true;
+          LCD_MESSAGEPGM(WELCOME_MSG);
+          lcd_update();
+        #endif
         break;
       #endif
       
-      case 81: // M81 - ATX Power Off
+      case 81: // M81 - Turn off Power Supply
       
       #if defined SUICIDE_PIN && SUICIDE_PIN > -1
         st_synchronize();
@@ -1154,6 +1163,11 @@ void process_commands()
       #elif (PS_ON_PIN > -1)
         SET_OUTPUT(PS_ON_PIN); 
         WRITE(PS_ON_PIN, PS_ON_ASLEEP);
+      #endif
+      #ifdef ULTIPANEL
+        powersupply = false;
+        LCD_MESSAGEPGM(MACHINE_NAME" "MSG_OFF".");
+        lcd_update();
       #endif
 		break;
         
