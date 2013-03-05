@@ -1156,7 +1156,14 @@ void process_commands()
       #endif
       
       case 81: // M81 - Turn off Power Supply
-      
+        disable_heater();
+        st_synchronize();
+        disable_e0();
+        disable_e1();
+        disable_e2();
+        finishAndDisableSteppers();
+        fanSpeed = 0;
+        delay(1000); // Wait a little before to switch off
       #if defined SUICIDE_PIN && SUICIDE_PIN > -1
         st_synchronize();
         suicide();
