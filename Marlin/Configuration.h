@@ -28,6 +28,7 @@
 // 3  = MEGA/RAMPS up to 1.2 = 3
 // 33 = RAMPS 1.3 (Power outputs: Extruder, Bed, Fan)
 // 34 = RAMPS 1.3 (Power outputs: Extruder0, Extruder1, Bed)
+// 35 = RAMPS 1.3 (Power outputs: Extruder, Fan, Fan)
 // 4  = Duemilanove w/ ATMega328P pin assignment
 // 5  = Gen6
 // 51 = Gen6 deluxe
