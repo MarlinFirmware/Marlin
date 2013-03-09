@@ -310,7 +310,7 @@ const short temptable_7[][2] PROGMEM = {
    {955*OVERSAMPLENR, 35},
    {973*OVERSAMPLENR, 27},
    {991*OVERSAMPLENR, 17},
-   {1009*OVERSAMPLENR, 1}
+   {1009*OVERSAMPLENR, 1},
    {1023*OVERSAMPLENR, 0}  //to allow internal 0 degrees C
 };
 #endif
