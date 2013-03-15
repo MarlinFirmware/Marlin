@@ -18,7 +18,7 @@
 // 9  Finnish
 
 #ifndef LANGUAGE_CHOICE
-#define LANGUAGE_CHOICE 1  // Pick your language from the list above
+#define LANGUAGE_CHOICE 5  // Pick your language from the list above
 #endif
 
 #define PROTOCOL_VERSION "1.0"
@@ -27,7 +27,7 @@
 	#define MACHINE_NAME "Ultimaker"
 	#define FIRMWARE_URL "http://firmware.ultimaker.com"
 #else
-	#define MACHINE_NAME "Mendel"
+	#define MACHINE_NAME "SHODAN"
 	#define FIRMWARE_URL "http://www.mendel-parts.com"
 #endif
 
@@ -745,6 +745,8 @@
 #define MSG_NO_CARD " No hay Tarjeta SD"
 #define MSG_DWELL "Reposo..."
 #define MSG_USERWAIT "Esperando Ordenes..."
+#define MSG_RESUMING "Reanudando..."
+#define MSG_MOTION "Motion"
 #define MSG_NO_MOVE "Sin movimiento"
 #define MSG_PART_RELEASE "Desacople Parcial"
 #define MSG_KILLED "PARADA DE EMERGENCIA. "
@@ -757,6 +759,10 @@
 #define MSG_CONTROL_RETRACT_RECOVERF " DesRet F:"
 #define MSG_AUTORETRACT " AutoRetr.:"
 #define MSG_FILAMENTCHANGE "Change filament"
+#define MSG_CNG_SDCARD           "Cambiar SD"
+#define MSG_INIT_SDCARD          "Iniz. SD-Card"
+#define MSG_TEMPERATURE "Temperatura"
+
 // Serial Console Messages
 
 #define MSG_Enqueing "En cola \""
@@ -801,6 +807,7 @@
 #define MSG_Y_MIN "y_min: "
 #define MSG_Y_MAX "y_max: "
 #define MSG_Z_MIN "z_min: "
+#define MSG_Z_MAX "z_max: "
 #define MSG_M119_REPORT "Comprobando fines de carrera."
 #define MSG_ENDSTOP_HIT "PULSADO"
 #define MSG_ENDSTOP_OPEN "abierto"
