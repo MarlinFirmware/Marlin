@@ -709,7 +709,7 @@
 #define MSG_PID_D " PID-D: "
 #define MSG_PID_C " PID-C: "
 #define MSG_ACC  " Acc:"
-#define MSG_VXY_JERK " Vxy-jerk: "
+#define MSG_VXY_JERK " Vxy-Agit: "
 #define MSG_VMAX " Vmax "
 #define MSG_X "x:"
 #define MSG_Y "y:"
@@ -756,7 +756,7 @@
 #define MSG_CONTROL_RETRACT_RECOVER " DesRet +mm:"
 #define MSG_CONTROL_RETRACT_RECOVERF " DesRet F:"
 #define MSG_AUTORETRACT " AutoRetr.:"
-#define MSG_FILAMENTCHANGE "Change filament"
+#define MSG_FILAMENTCHANGE "Cambiar filamento"
 // Serial Console Messages
 
 #define MSG_Enqueing "En cola \""
@@ -804,7 +804,7 @@
 #define MSG_M119_REPORT "Comprobando fines de carrera."
 #define MSG_ENDSTOP_HIT "PULSADO"
 #define MSG_ENDSTOP_OPEN "abierto"
-#define MSG_HOTEND_OFFSET "Hotend offsets:"
+#define MSG_HOTEND_OFFSET "Desvio de Hotend:"
         
 #define MSG_SD_CANT_OPEN_SUBDIR "No se pudo abrir la subcarpeta."
 #define MSG_SD_INIT_FAIL "Fallo al iniciar la SD"
