@@ -397,11 +397,11 @@ void loop()
 	  card.write_command(cmdbuffer[bufindr]);
           if(card.logging)
           {
-	    process_commands();
+            process_commands();
           }
           else
           {
-	    SERIAL_PROTOCOLLNPGM(MSG_OK);
+            SERIAL_PROTOCOLLNPGM(MSG_OK);
           }
 	}
 	else
