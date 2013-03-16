@@ -132,6 +132,7 @@
 // M908 - Control digital trimpot directly.
 // M350 - Set microstepping mode.
 // M351 - Toggle MS1 MS2 pins directly.
+// M928 - Start SD logging (M928 filename.g) - ended by M29
 // M999 - Restart after being stopped by error
 
 //Stepper Movement Variables
@@ -394,7 +395,14 @@ void loop()
 	if(strstr_P(cmdbuffer[bufindr], PSTR("M29")) == NULL)
 	{
 	  card.write_command(cmdbuffer[bufindr]);
-	  SERIAL_PROTOCOLLNPGM(MSG_OK);
+          if(card.logging)
+          {
+	    process_commands();
+          }
+          else
+          {
+	    SERIAL_PROTOCOLLNPGM(MSG_OK);
+          }
 	}
 	else
 	{
@@ -949,6 +957,15 @@ void process_commands()
 	 card.removeFile(strchr_pointer + 4);
 	}
 	break;
+    case 928: //M928 - Start SD write
+      starpos = (strchr(strchr_pointer + 5,'*'));
+      if(starpos != NULL){
+        char* npos = strchr(cmdbuffer[bufindr], 'N');
+        strchr_pointer = strchr(npos,' ') + 1;
+        *(starpos-1) = '\0';
+      }
+      card.openLogFile(strchr_pointer+5);
+      break;
 	
 #endif //SDSUPPORT
 
