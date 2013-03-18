@@ -3,8 +3,8 @@
 
 // NOTE: IF YOU CHANGE THIS FILE / MERGE THIS FILE WITH CHANGES
 //
-//   ==> ALWAYS TRY TO COMPILE MARLIN WITH/WITHOUT "ULTIPANEL" / "ULTRALCD" / "SDSUPPORT" #define IN "Configuration.h" 
-//   ==> ALSO TRY ALL AVAILABLE "LANGUAGE_CHOICE" OPTIONS
+//   ==&gt; ALWAYS TRY TO COMPILE MARLIN WITH/WITHOUT "ULTIPANEL" / "ULTRALCD" / "SDSUPPORT" #define IN "Configuration.h" 
+//   ==&gt; ALSO TRY ALL AVAILABLE "LANGUAGE_CHOICE" OPTIONS
 
 // Languages
 // 1  English
@@ -1462,3 +1462,4 @@
 
 #endif
 #endif // ifndef LANGUAGE_H
+</pre></body></html>
