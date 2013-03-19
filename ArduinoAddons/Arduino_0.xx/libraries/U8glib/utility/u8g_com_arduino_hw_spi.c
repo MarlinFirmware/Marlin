@@ -115,7 +115,7 @@ uint8_t u8g_com_arduino_hw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void
             1	1		fclk/128
       */
       SPCR = 0;
-      SPCR =  (1<<SPE) | (1<<MSTR)|(0<<SPR1)|(0<<SPR0)|(0<<CPOL)|(0<<CPHA);
+      SPCR =  (1<<SPE) | (1<<MSTR)|(0<<SPR1)|(1<<SPR0)|(0<<CPOL)|(0<<CPHA);
 #ifdef U8G_HW_SPI_2X
       SPSR = (1 << SPI2X);  /* double speed, issue 89 */
 #endif
