@@ -1596,7 +1596,8 @@ extern const u8g_fntpgm_uint8_t u8g_font_blipfest_07[] U8G_SECTION(".progmem.u8g
 extern const u8g_fntpgm_uint8_t u8g_font_blipfest_07r[] U8G_SECTION(".progmem.u8g_font_blipfest_07r");
 extern const u8g_fntpgm_uint8_t u8g_font_blipfest_07n[] U8G_SECTION(".progmem.u8g_font_blipfest_07n");
 
-
+extern const u8g_fntpgm_uint8_t u8g_font_6x10_marlin[] U8G_SECTION(".progmem.u8g_font_6x10_marlin");
+extern const u8g_fntpgm_uint8_t u8g_font_6x9[] U8G_SECTION(".progmem.u8g_font_6x9");
 
 #ifdef __cplusplus
 }
