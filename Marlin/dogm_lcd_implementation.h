@@ -108,7 +108,7 @@ static void lcd_implementation_init()
 			u8g.setFont(u8g_font_5x8);
 			u8g.drawStr(62,55,"by STB");
 			u8g.drawStr(62,61,"uses u");
-			u8g.drawStr(92,61,"8");
+			u8g.drawStr90(92,61,"8");
 			u8g.drawStr(100,61,"glib");
 	   } while( u8g.nextPage() );
 }
