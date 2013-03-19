@@ -893,6 +893,21 @@ char *ftostr31(const float &x)
   return conv;
 }
 
+//  convert float to string with 123.4 format
+char *ftostr31ns(const float &x)
+{
+  int xx=x*10;
+  //conv[0]=(xx>=0)?'+':'-';
+  xx=abs(xx);
+  conv[0]=(xx/1000)%10+'0';
+  conv[1]=(xx/100)%10+'0';
+  conv[2]=(xx/10)%10+'0';
+  conv[3]='.';
+  conv[4]=(xx)%10+'0';
+  conv[5]=0;
+  return conv;
+}
+
 char *ftostr32(const float &x)
 {
   long xx=x*100;
