@@ -67,8 +67,8 @@ U8GLIB_DOGM128 u8g(DOGLCD_CS, DOGLCD_A0);	// HW-SPI Com: CS, A0
 static void lcd_implementation_init()
 {
 	//  Uncomment this if you have the first generation (V1.10) of STBs board
-	pinMode(17, OUTPUT);	// Enable LCD backlight
-	digitalWrite(17, HIGH);
+	//  pinMode(17, OUTPUT);	// Enable LCD backlight
+	//  digitalWrite(17, HIGH);
 	
 	u8g.firstPage();
 	do {
@@ -79,15 +79,15 @@ static void lcd_implementation_init()
 	   } while( u8g.nextPage() );
 
 #ifdef LCD_SCREEN_ROT_90
-	u8g.setRot90();	// Rotate screen by 90Â°
+	u8g.setRot90();	// Rotate screen by 90°
 #endif
 
 #ifdef LCD_SCREEN_ROT_180;
-	u8g.setRot180();	// Rotate screen by 180Â°
+	u8g.setRot180();	// Rotate screen by 180°
 #endif
 
 #ifdef LCD_SCREEN_ROT_270;
-	u8g.setRot270();	// Rotate screen by 270Â°
+	u8g.setRot270();	// Rotate screen by 270°
 #endif
 
    
@@ -115,7 +115,6 @@ static void lcd_implementation_init()
 
 static void lcd_implementation_clear()
 {
-	//u8g.setRot180();
 	u8g.firstPage();
 	do {	
 			u8g.setColorIndex(0);
@@ -142,7 +141,7 @@ static void lcd_implementation_status_screen()
  
  u8g.setColorIndex(1);	// black on white
  
- // Symbols menu graphics
+ // Symbols menu graphics, animated fan
  if ((blink % 2) &&  fanSpeed )	u8g.drawBitmapP(9,1,STATUS_SCREENBYTEWIDTH,STATUS_SCREENHEIGHT,status_screen0_bmp);
 	else u8g.drawBitmapP(9,1,STATUS_SCREENBYTEWIDTH,STATUS_SCREENHEIGHT,status_screen1_bmp);
  
@@ -160,12 +159,11 @@ static void lcd_implementation_status_screen()
  
  if (IS_SD_PRINTING)
    {
-	// u8g.print(itostr3(card.percentDone()));
 	// Progress bar
 	u8g.drawBox(55,50, (unsigned int)( (71 * card.percentDone())/100) ,2);
    }
     else {
-			//
+			// do nothing
 		 }
  
  u8g.setPrintPos(80,47);
