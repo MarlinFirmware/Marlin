@@ -1128,3 +1128,31 @@ ISR(TIMER0_COMPB_vect)
 #endif
   }  
 }
+
+#ifdef PIDTEMP
+// Apply the scale factors to the PID values
+
+
+float scalePID_i(float i)
+{
+	return i*PID_dT;
+}
+
+float unscalePID_i(float i)
+{
+	return i/PID_dT;
+}
+
+float scalePID_d(float d)
+{
+    return d/PID_dT;
+}
+
+float unscalePID_d(float d)
+{
+	return d*PID_dT;
+}
+
+#endif //PIDTEMP
+
+
