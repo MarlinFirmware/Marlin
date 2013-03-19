@@ -31,6 +31,10 @@ char lcd_status_message[LCD_WIDTH+1] = WELCOME_MSG;
 #endif
 
 /** forward declerations **/
+
+void copy_and_scalePID_i();
+void copy_and_scalePID_d();
+
 /* Different menus */
 static void lcd_status_screen();
 #ifdef ULTIPANEL
@@ -63,6 +67,14 @@ static void menu_action_setting_edit_float5(const char* pstr, float* ptr, float 
 static void menu_action_setting_edit_float51(const char* pstr, float* ptr, float minValue, float maxValue);
 static void menu_action_setting_edit_float52(const char* pstr, float* ptr, float minValue, float maxValue);
 static void menu_action_setting_edit_long5(const char* pstr, unsigned long* ptr, unsigned long minValue, unsigned long maxValue);
+static void menu_action_setting_edit_callback_bool(const char* pstr, bool* ptr, menuFunc_t callbackFunc);
+static void menu_action_setting_edit_callback_int3(const char* pstr, int* ptr, int minValue, int maxValue, menuFunc_t callbackFunc);
+static void menu_action_setting_edit_callback_float3(const char* pstr, float* ptr, float minValue, float maxValue, menuFunc_t callbackFunc);
+static void menu_action_setting_edit_callback_float32(const char* pstr, float* ptr, float minValue, float maxValue, menuFunc_t callbackFunc);
+static void menu_action_setting_edit_callback_float5(const char* pstr, float* ptr, float minValue, float maxValue, menuFunc_t callbackFunc);
+static void menu_action_setting_edit_callback_float51(const char* pstr, float* ptr, float minValue, float maxValue, menuFunc_t callbackFunc);
+static void menu_action_setting_edit_callback_float52(const char* pstr, float* ptr, float minValue, float maxValue, menuFunc_t callbackFunc);
+static void menu_action_setting_edit_callback_long5(const char* pstr, unsigned long* ptr, unsigned long minValue, unsigned long maxValue, menuFunc_t callbackFunc);
 
 #define ENCODER_STEPS_PER_MENU_ITEM 5
 
@@ -93,6 +105,7 @@ static void menu_action_setting_edit_long5(const char* pstr, unsigned long* ptr,
 } while(0)
 #define MENU_ITEM_DUMMY() do { _menuItemNr++; } while(0)
 #define MENU_ITEM_EDIT(type, label, args...) MENU_ITEM(setting_edit_ ## type, label, PSTR(label) , ## args )
+#define MENU_ITEM_EDIT_CALLBACK(type, label, args...) MENU_ITEM(setting_edit_callback_ ## type, label, PSTR(label) , ## args )
 #define END_MENU() \
     if (encoderPosition / ENCODER_STEPS_PER_MENU_ITEM >= _menuItemNr) encoderPosition = _menuItemNr * ENCODER_STEPS_PER_MENU_ITEM - 1; \
     if ((uint8_t)(encoderPosition / ENCODER_STEPS_PER_MENU_ITEM) >= currentMenuViewOffset + LCD_HEIGHT) { currentMenuViewOffset = (encoderPosition / ENCODER_STEPS_PER_MENU_ITEM) - LCD_HEIGHT + 1; lcdDrawUpdate = 1; _lineNr = currentMenuViewOffset - 1; _drawLineNr = -1; } \
@@ -123,6 +136,10 @@ uint16_t prevEncoderPosition;
 const char* editLabel;
 void* editValue;
 int32_t minEditValue, maxEditValue;
+menuFunc_t callbackFunc;
+
+// placeholders for Ki and Kd edits
+float raw_Ki, raw_Kd;
 
 /* Main status screen. It's up to the implementation specific part to show what is needed. As this is very display dependend */
 static void lcd_status_screen()
@@ -442,6 +459,10 @@ static void lcd_control_menu()
 
 static void lcd_control_temperature_menu()
 {
+	// set up temp variables - undo the default scaling
+	raw_Ki = unscalePID_i(Ki);
+	raw_Kd = unscalePID_d(Kd);
+	
     START_MENU();
     MENU_ITEM(back, MSG_CONTROL, lcd_control_menu);
     MENU_ITEM_EDIT(int3, MSG_NOZZLE, &target_temperature[0], 0, HEATER_0_MAXTEMP - 15);
@@ -463,9 +484,9 @@ static void lcd_control_temperature_menu()
 #endif
 #ifdef PIDTEMP
     MENU_ITEM_EDIT(float52, MSG_PID_P, &Kp, 1, 9990);
-//TODO, I and D should have a PID_dT multiplier (Ki = PID_I * PID_dT, Kd = PID_D / PID_dT)
-    MENU_ITEM_EDIT(float52, MSG_PID_I, &Ki, 1, 9990);
-    MENU_ITEM_EDIT(float52, MSG_PID_D, &Kd, 1, 9990);
+	// i is typically a small value so allows values below 1
+    MENU_ITEM_EDIT_CALLBACK(float52, MSG_PID_I, &raw_Ki, 0.01, 9990, copy_and_scalePID_i);
+    MENU_ITEM_EDIT_CALLBACK(float52, MSG_PID_D, &raw_Kd, 1, 9990, copy_and_scalePID_d);
 # ifdef PID_ADD_EXTRUSION_RATE
     MENU_ITEM_EDIT(float3, MSG_PID_C, &Kc, 1, 9990);
 # endif//PID_ADD_EXTRUSION_RATE
@@ -511,16 +532,18 @@ static void lcd_control_motion_menu()
     MENU_ITEM(back, MSG_CONTROL, lcd_control_menu);
     MENU_ITEM_EDIT(float5, MSG_ACC, &acceleration, 500, 99000);
     MENU_ITEM_EDIT(float3, MSG_VXY_JERK, &max_xy_jerk, 1, 990);
+    MENU_ITEM_EDIT(float52, MSG_VZ_JERK, &max_z_jerk, 0.1, 990);
+    MENU_ITEM_EDIT(float3, MSG_VE_JERK, &max_e_jerk, 1, 990);
     MENU_ITEM_EDIT(float3, MSG_VMAX MSG_X, &max_feedrate[X_AXIS], 1, 999);
     MENU_ITEM_EDIT(float3, MSG_VMAX MSG_Y, &max_feedrate[Y_AXIS], 1, 999);
     MENU_ITEM_EDIT(float3, MSG_VMAX MSG_Z, &max_feedrate[Z_AXIS], 1, 999);
     MENU_ITEM_EDIT(float3, MSG_VMAX MSG_E, &max_feedrate[E_AXIS], 1, 999);
     MENU_ITEM_EDIT(float3, MSG_VMIN, &minimumfeedrate, 0, 999);
     MENU_ITEM_EDIT(float3, MSG_VTRAV_MIN, &mintravelfeedrate, 0, 999);
-    MENU_ITEM_EDIT(long5, MSG_AMAX MSG_X, &max_acceleration_units_per_sq_second[X_AXIS], 100, 99000);
-    MENU_ITEM_EDIT(long5, MSG_AMAX MSG_Y, &max_acceleration_units_per_sq_second[Y_AXIS], 100, 99000);
-    MENU_ITEM_EDIT(long5, MSG_AMAX MSG_Z, &max_acceleration_units_per_sq_second[Z_AXIS], 100, 99000);
-    MENU_ITEM_EDIT(long5, MSG_AMAX MSG_E, &max_acceleration_units_per_sq_second[E_AXIS], 100, 99000);
+    MENU_ITEM_EDIT_CALLBACK(long5, MSG_AMAX MSG_X, &max_acceleration_units_per_sq_second[X_AXIS], 100, 99000, reset_acceleration_rates);
+    MENU_ITEM_EDIT_CALLBACK(long5, MSG_AMAX MSG_Y, &max_acceleration_units_per_sq_second[Y_AXIS], 100, 99000, reset_acceleration_rates);
+    MENU_ITEM_EDIT_CALLBACK(long5, MSG_AMAX MSG_Z, &max_acceleration_units_per_sq_second[Z_AXIS], 100, 99000, reset_acceleration_rates);
+    MENU_ITEM_EDIT_CALLBACK(long5, MSG_AMAX MSG_E, &max_acceleration_units_per_sq_second[E_AXIS], 100, 99000, reset_acceleration_rates);
     MENU_ITEM_EDIT(float5, MSG_A_RETRACT, &retract_acceleration, 100, 99000);
     MENU_ITEM_EDIT(float52, MSG_XSTEPS, &axis_steps_per_unit[X_AXIS], 5, 9999);
     MENU_ITEM_EDIT(float52, MSG_YSTEPS, &axis_steps_per_unit[Y_AXIS], 5, 9999);
@@ -610,6 +633,23 @@ void lcd_sdcard_menu()
             encoderPosition = prevEncoderPosition; \
         } \
     } \
+    void menu_edit_callback_ ## _name () \
+    { \
+        if ((int32_t)encoderPosition < minEditValue) \
+            encoderPosition = minEditValue; \
+        if ((int32_t)encoderPosition > maxEditValue) \
+            encoderPosition = maxEditValue; \
+        if (lcdDrawUpdate) \
+            lcd_implementation_drawedit(editLabel, _strFunc(((_type)encoderPosition) / scale)); \
+        if (LCD_CLICKED) \
+        { \
+            *((_type*)editValue) = ((_type)encoderPosition) / scale; \
+            lcd_quick_feedback(); \
+            currentMenu = prevMenu; \
+            encoderPosition = prevEncoderPosition; \
+            (*callbackFunc)();\
+        } \
+    } \
     static void menu_action_setting_edit_ ## _name (const char* pstr, _type* ptr, _type minValue, _type maxValue) \
     { \
         prevMenu = currentMenu; \
@@ -623,6 +663,21 @@ void lcd_sdcard_menu()
         minEditValue = minValue * scale; \
         maxEditValue = maxValue * scale; \
         encoderPosition = (*ptr) * scale; \
+    }\
+    static void menu_action_setting_edit_callback_ ## _name (const char* pstr, _type* ptr, _type minValue, _type maxValue, menuFunc_t callback) \
+    { \
+        prevMenu = currentMenu; \
+        prevEncoderPosition = encoderPosition; \
+         \
+        lcdDrawUpdate = 2; \
+        currentMenu = menu_edit_callback_ ## _name; \
+         \
+        editLabel = pstr; \
+        editValue = ptr; \
+        minEditValue = minValue * scale; \
+        maxEditValue = maxValue * scale; \
+        encoderPosition = (*ptr) * scale; \
+        callbackFunc = callback;\
     }
 menu_edit_type(int, int3, itostr3, 1)
 menu_edit_type(float, float3, ftostr3, 1)
@@ -1070,4 +1125,20 @@ char *ftostr52(const float &x)
   return conv;
 }
 
+// Callback for after editing PID i value
+// grab the pid i value out of the temp variable; scale it; then update the PID driver
+void copy_and_scalePID_i()
+{
+  Ki = scalePID_i(raw_Ki);
+  updatePID();
+}	
+
+// Callback for after editing PID d value
+// grab the pid d value out of the temp variable; scale it; then update the PID driver
+void copy_and_scalePID_d()
+{
+  Kd = scalePID_d(raw_Kd);
+  updatePID();
+}	
+	
 #endif //ULTRA_LCD
