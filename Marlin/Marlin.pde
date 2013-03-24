@@ -40,9 +40,6 @@
   #elif defined(LCD_I2C_TYPE_MCP23017) || defined(LCD_I2C_TYPE_MCP23008)
     #include <Wire.h>
     #include <LiquidTWI2.h>
-    #if defined(LCD_I2C_PANELOLU2) && !defined(PANELOLU2)
-      #error You must uncomment "#define PANELOLU2" in LiquidTWI2.h for LiquidTWI2.cpp to compile correctly
-    #endif
   #else
     #include <LiquidCrystal.h>
   #endif

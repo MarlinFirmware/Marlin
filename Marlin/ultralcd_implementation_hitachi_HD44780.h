@@ -54,11 +54,11 @@ extern volatile uint8_t buttons;  //the last checked buttons in a bit array.
   #define LCD_HAS_SLOW_BUTTONS
 
 #elif defined(LCD_I2C_PANELOLU2)
+  // encoder click can be read through I2C if not directly connected
   #if !defined(BTN_ENC) || BTN_ENC == -1 
-    // encoder click is connected through I2C (rather than directly connected)
     #define B_I2C_BTN_OFFSET 3 // (the first three bit positions reserved for EN_A, EN_B, EN_C)
   
-    #define B_MI (ENCODER_C<<B_I2C_BTN_OFFSET)
+    #define B_MI (PANELOLU2_ENCODER_C<<B_I2C_BTN_OFFSET) // requires LiquidTWI2 library v1.2.3 or later
 
     #define LCD_CLICKED (buttons&B_MI)
 
