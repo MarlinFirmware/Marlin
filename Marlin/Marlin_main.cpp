@@ -117,6 +117,7 @@
 // M220 S<factor in percent>- set speed factor override percentage
 // M221 S<factor in percent>- set extrude factor override percentage
 // M240 - Trigger a camera to take a photograph
+// M300 - Play beepsound S<frequency Hz> P<duration ms>
 // M301 - Set PID parameters P I and D
 // M302 - Allow cold extrudes
 // M303 - PID relay autotune S<temperature> sets the target temperature. (default target temperature = 150C)
@@ -1423,6 +1424,20 @@ void process_commands()
       }
     }
     break;
+
+    #ifdef BEEPER
+    case 300: // M300
+    {
+      int beepS = 1;
+      int beepP = 1000;
+      if(code_seen('S')) beepS = code_value();
+      if(code_seen('P')) beepP = code_value();
+      tone(BEEPER, beepS);
+      delay(beepP);
+      noTone(BEEPER);
+    }
+    break;
+    #endif // M300
 
     #ifdef PIDTEMP
     case 301: // M301
