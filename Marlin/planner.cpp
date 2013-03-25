@@ -883,6 +883,11 @@ void plan_set_e_position(const float &e)
   st_set_e_position(position[E_AXIS]);
 }
 
+float plan_update_position(uint8_t axis) {
+	position[axis]=st_get_position(axis);
+	return position[axis]/axis_steps_per_unit[axis];
+}
+
 uint8_t movesplanned()
 {
   return (block_buffer_head-block_buffer_tail + BLOCK_BUFFER_SIZE) & (BLOCK_BUFFER_SIZE - 1);
