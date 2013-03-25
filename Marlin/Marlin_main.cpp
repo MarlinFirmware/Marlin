@@ -1425,7 +1425,7 @@ void process_commands()
     }
     break;
 
-    #ifdef BEEPER
+    #if defined(BEEPER) && BEEPER > -1
     case 300: // M300
     {
       int beepS = 1;
