@@ -376,6 +376,14 @@ void setup()
   setup_photpin();
   
   lcd_init();
+  
+  #ifdef CONTROLLERFAN_PIN
+    SET_OUTPUT(CONTROLLERFAN_PIN); //Set pin used for driver cooling fan
+  #endif
+  
+  #ifdef EXTRUDERFAN_PIN
+    SET_OUTPUT(EXTRUDERFAN_PIN); //Set pin used for extruder cooling fan
+  #endif
 }
 
 
@@ -1948,6 +1956,27 @@ void controllerFan()
     else
     {
       WRITE(CONTROLLERFAN_PIN, HIGH); //... turn the fan on
+    }
+  }
+}
+#endif
+
+#ifdef EXTRUDERFAN_PIN
+unsigned long lastExtruderCheck = 0;
+
+void extruderFan()
+{
+  if ((millis() - lastExtruderCheck) >= 2500) //Not a time critical function, so we only check every 2500ms
+  {
+    lastExtruderCheck = millis();
+           
+    if (degHotend(active_extruder) < EXTRUDERFAN_DEC)
+    {
+      WRITE(EXTRUDERFAN_PIN, LOW); //... turn the fan off
+    }
+    else
+    {
+      WRITE(EXTRUDERFAN_PIN, HIGH); //... turn the fan on
     }
   }
 }
