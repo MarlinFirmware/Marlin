@@ -841,12 +841,13 @@ void process_commands()
      
       feedrate = 0.0;
       
-      bool seen[3]={code_seen(axis_codes[X_AXIS]), code_seen(axis_codes[Y_AXIS]), code_seen(axis_codes[Z_AXIS])};
+      bool do_home[3]={code_seen(axis_codes[X_AXIS]), code_seen(axis_codes[Y_AXIS]), code_seen(axis_codes[Z_AXIS])};
       
-      bool home_all_axis = !(seen[X_AXIS]||seen[Y_AXIS]||seen[Z_AXIS]);
+      if(!(do_home[X_AXIS]||do_home[Y_AXIS]||do_home[Z_AXIS]))
+        do_home[X_AXIS]=do_home[Y_AXIS]=do_home[Z_AXIS]=true;
   
 #if Z_HOME_DIR > 0                      // If homing away from BED do Z first
-      if(home_all_axis || seen[Z_AXIS]) 
+      if(do_home[Z_AXIS]) 
       {
         if(!homeaxis(Z_AXIS, &home_offset[Z_AXIS]))
           homing_ok=false;
@@ -855,7 +856,7 @@ void process_commands()
       
 #ifdef QUICK_HOME
       // move diagonally toward X/Y limit switches, stop after first is hit
-      if(home_all_axis || ( seen[X_AXIS] && seen[Y_AXIS])) 
+      if(do_home[X_AXIS] && do_home[Y_AXIS]) 
       {
         st_synchronize();
         
@@ -871,16 +872,16 @@ void process_commands()
       }
 #endif
       
-      if(home_all_axis || seen[X_AXIS]) 
+      if(do_home[X_AXIS]) 
         if(!homeaxis(X_AXIS, &home_offset[X_AXIS]))
           homing_ok=false;
 
-      if(home_all_axis || seen[Y_AXIS])
+      if(do_home[Y_AXIS])
         if(!homeaxis(Y_AXIS, &home_offset[Y_AXIS]))
           homing_ok=false;
       
 #if Z_HOME_DIR < 0                      // If homing towards BED do Z last
-      if(home_all_axis || seen[Z_AXIS])
+      if(do_home[Z_AXIS])
         if(!homeaxis(Z_AXIS, &home_offset[Z_AXIS]))
           homing_ok=false;
 #endif
@@ -892,9 +893,9 @@ void process_commands()
       } else {
         SERIAL_ECHOPGM(MSG_HOMING_FAILED);
       }        
-      if(home_all_axis || seen[X_AXIS]) SERIAL_ECHOPAIR(" X:",home_offset[X_AXIS]);
-      if(home_all_axis || seen[Y_AXIS]) SERIAL_ECHOPAIR(" Y:",home_offset[Y_AXIS]);
-      if(home_all_axis || seen[Z_AXIS]) SERIAL_ECHOPAIR(" Z:",home_offset[Z_AXIS]);
+      if(do_home[X_AXIS]) SERIAL_ECHOPAIR(" X:",home_offset[X_AXIS]);
+      if(do_home[Y_AXIS]) SERIAL_ECHOPAIR(" Y:",home_offset[Y_AXIS]);
+      if(do_home[Z_AXIS]) SERIAL_ECHOPAIR(" Z:",home_offset[Z_AXIS]);
       SERIAL_ECHOLN("");
 
 #ifdef ENDSTOPS_ONLY_FOR_HOMING
