@@ -16,6 +16,7 @@ CardReader::CardReader()
    sdprinting = false;
    cardOK = false;
    saving = false;
+   logging = false;
    autostart_atmillis=0;
 
    autostart_stilltocheck=true; //the sd start is delayed, because otherwise the serial cannot answer fast enought to make contact with the hostsoftware.
@@ -212,6 +213,11 @@ void CardReader::pauseSDPrint()
 }
 
 
+void CardReader::openLogFile(char* name)
+{
+  logging = true;
+  openFile(name, false);
+}
 
 void CardReader::openFile(char* name,bool read)
 {
@@ -471,6 +477,7 @@ void CardReader::closefile()
   file.sync();
   file.close();
   saving = false; 
+  logging = false;
 }
 
 void CardReader::getfilename(const uint8_t nr)
