@@ -73,7 +73,7 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
 // Set position. Used for G92 instructions.
 void plan_set_position(const float &x, const float &y, const float &z, const float &e);
 void plan_set_e_position(const float &e);
-
+float plan_update_position(uint8_t axis);
 
 
 void check_axes_activity();

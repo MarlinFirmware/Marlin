@@ -37,7 +37,7 @@ void _EEPROM_readData(int &pos, uint8_t* value, uint8_t size)
 // the default values are used whenever there is a change to the data, to prevent
 // wrong data being written to the variables.
 // ALSO:  always make sure the variables in the Store and retrieve sections are in the same order.
-#define EEPROM_VERSION "V07"
+#define EEPROM_VERSION "V08"
 
 #ifdef EEPROM_SETTINGS
 void Config_StoreSettings() 
@@ -57,6 +57,10 @@ void Config_StoreSettings()
   EEPROM_WRITE_VAR(i,max_z_jerk);
   EEPROM_WRITE_VAR(i,max_e_jerk);
   EEPROM_WRITE_VAR(i,add_homeing);
+  EEPROM_WRITE_VAR(i,min_pos);
+  EEPROM_WRITE_VAR(i,max_pos);
+  EEPROM_WRITE_VAR(i,home_pos);
+  
   #ifndef ULTIPANEL
   int plaPreheatHotendTemp = PLA_PREHEAT_HOTEND_TEMP, plaPreheatHPBTemp = PLA_PREHEAT_HPB_TEMP, plaPreheatFanSpeed = PLA_PREHEAT_FAN_SPEED;
   int absPreheatHotendTemp = ABS_PREHEAT_HOTEND_TEMP, absPreheatHPBTemp = ABS_PREHEAT_HPB_TEMP, absPreheatFanSpeed = ABS_PREHEAT_FAN_SPEED;
@@ -139,6 +143,31 @@ void Config_PrintSettings()
     SERIAL_ECHOPAIR(" Y" ,add_homeing[1] );
     SERIAL_ECHOPAIR(" Z" ,add_homeing[2] );
     SERIAL_ECHOLN("");
+
+    SERIAL_ECHO_START;
+    SERIAL_ECHOLNPGM("Min position (mm):");
+    SERIAL_ECHO_START;
+    SERIAL_ECHOPAIR("  M206 P1 X",min_pos[0] );
+    SERIAL_ECHOPAIR(" Y" ,min_pos[1] );
+    SERIAL_ECHOPAIR(" Z" ,min_pos[2] );
+    SERIAL_ECHOLN("");
+
+    SERIAL_ECHO_START;
+    SERIAL_ECHOLNPGM("Max position (mm):");
+    SERIAL_ECHO_START;
+    SERIAL_ECHOPAIR("  M206 P2 X",max_pos[0] );
+    SERIAL_ECHOPAIR(" Y" ,max_pos[1] );
+    SERIAL_ECHOPAIR(" Z" ,max_pos[2] );
+    SERIAL_ECHOLN("");
+
+    SERIAL_ECHO_START;
+    SERIAL_ECHOLNPGM("Home position (mm):");
+    SERIAL_ECHO_START;
+    SERIAL_ECHOPAIR("  M206 P3 X",home_pos[0] );
+    SERIAL_ECHOPAIR(" Y" ,home_pos[1] );
+    SERIAL_ECHOPAIR(" Z" ,home_pos[2] );
+    SERIAL_ECHOLN("");
+
 #ifdef PIDTEMP
     SERIAL_ECHO_START;
     SERIAL_ECHOLNPGM("PID settings:");
@@ -175,6 +204,9 @@ void Config_RetrieveSettings()
         EEPROM_READ_VAR(i,max_z_jerk);
         EEPROM_READ_VAR(i,max_e_jerk);
         EEPROM_READ_VAR(i,add_homeing);
+        EEPROM_READ_VAR(i,min_pos);
+        EEPROM_READ_VAR(i,max_pos);
+        EEPROM_READ_VAR(i,home_pos);
         #ifndef ULTIPANEL
         int plaPreheatHotendTemp, plaPreheatHPBTemp, plaPreheatFanSpeed;
         int absPreheatHotendTemp, absPreheatHPBTemp, absPreheatFanSpeed;
@@ -225,6 +257,23 @@ void Config_ResetDefault()
     max_z_jerk=DEFAULT_ZJERK;
     max_e_jerk=DEFAULT_EJERK;
     add_homeing[0] = add_homeing[1] = add_homeing[2] = 0;
+    { float tmp[3]=DEFAULT_MIN_POS;
+      for(uint8_t i=0;i<3;i++) min_pos[i]=tmp[i];
+    }
+    { float tmp[3]=DEFAULT_MAX_POS;
+      for(uint8_t i=0;i<3;i++) max_pos[i]=tmp[i];
+    }
+#ifdef MANUAL_HOME_POSITIONS
+    { float tmp[3]=MANUAL_HOME_POS;
+      for(uint8_t i=0;i<3;i++) home_pos[i]=tmp[i];
+    }
+#else
+  //X axis
+  home_pos[X_AXIS]=(X_HOME_DIR < 0) ? min_pos[X_AXIS]:max_pos[X_AXIS];
+  home_pos[Y_AXIS]=(Y_HOME_DIR < 0) ? min_pos[Y_AXIS]:max_pos[Y_AXIS];
+  home_pos[Z_AXIS]=(Z_HOME_DIR < 0) ? min_pos[Z_AXIS]:max_pos[Z_AXIS];
+#endif
+    
 #ifdef ULTIPANEL
     plaPreheatHotendTemp = PLA_PREHEAT_HOTEND_TEMP;
     plaPreheatHPBTemp = PLA_PREHEAT_HPB_TEMP;

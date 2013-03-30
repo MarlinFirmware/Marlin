@@ -185,6 +185,7 @@ extern float current_position[NUM_AXIS] ;
 extern float add_homeing[3];
 extern float min_pos[3];
 extern float max_pos[3];
+extern float home_pos[3];
 extern int fanSpeed;
 
 #ifdef FWRETRACT
