@@ -321,6 +321,8 @@
 
 #if MOTHERBOARD == 33 || MOTHERBOARD == 34
 
+#define LARGE_FLASH        true
+
 #define X_STEP_PIN         54
 #define X_DIR_PIN          55
 #define X_ENABLE_PIN       38
@@ -789,6 +791,8 @@
  #endif
 #endif
 
+#define LARGE_FLASH true
+
 #define X_STEP_PIN 25
 #define X_DIR_PIN 23
 #define X_MIN_PIN 22
@@ -923,6 +927,8 @@
  #error Oops!  Make sure you have 'Arduino Mega' selected from the 'Tools -> Boards' menu.
  #endif
 #endif
+
+#define LARGE_FLASH true
 
 #define X_STEP_PIN 25
 #define X_DIR_PIN 23
@@ -1079,6 +1085,8 @@
 #ifndef __AVR_AT90USB1286__
 #error Oops!  Make sure you have 'Teensy++ 2.0' selected from the 'Tools -> Boards' menu.
 #endif
+
+#define LARGE_FLASH        true
 
 #define X_STEP_PIN          0
 #define X_DIR_PIN           1
@@ -1413,6 +1421,8 @@
 #error Oops!  Make sure you have 'Arduino Mega 2560' selected from the 'Tools -> Boards' menu.
 #endif
 
+#define LARGE_FLASH true
+
 #define X_STEP_PIN 37
 #define X_DIR_PIN 48
 #define X_MIN_PIN 12
@@ -1488,7 +1498,7 @@
  #endif
 
 
-
+#define LARGE_FLASH        true
 
 #define X_STEP_PIN         26
 #define X_DIR_PIN          28
