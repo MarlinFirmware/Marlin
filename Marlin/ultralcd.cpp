@@ -24,7 +24,11 @@ typedef void (*menuFunc_t)();
 uint8_t lcd_status_message_level;
 char lcd_status_message[LCD_WIDTH+1] = WELCOME_MSG;
 
+#ifdef DOGLCD
+#include "dogm_lcd_implementation.h"
+#else
 #include "ultralcd_implementation_hitachi_HD44780.h"
+#endif
 
 /** forward declerations **/
 /* Different menus */
@@ -747,8 +751,23 @@ void lcd_update()
         if (LCD_CLICKED)
             timeoutToStatus = millis() + LCD_TIMEOUT_TO_STATUS;
 #endif//ULTIPANEL
-        
+
+#ifdef DOGLCD        // Changes due to different driver architecture of the DOGM display
+		blink++;	   // Variable for fan animation and alive dot
+		u8g.firstPage();
+		do {
+				u8g.setFont(u8g_font_6x10_marlin);
+				u8g.setPrintPos(125,0);
+				if (blink % 2) u8g.setColorIndex(1); else u8g.setColorIndex(0); // Set color for the alive dot
+				u8g.drawPixel(127,63);	// draw alive dot
+				u8g.setColorIndex(1);	// black on white
+				(*currentMenu)();
+				if (!lcdDrawUpdate)  break; // Terminate display update, when nothing new to draw. This must be done before the last dogm.next()
+		   } while( u8g.nextPage() );
+#else        
         (*currentMenu)();
+#endif
+
 #ifdef ULTIPANEL
         if(timeoutToStatus < millis() && currentMenu != lcd_status_screen)
         {
@@ -890,6 +909,21 @@ char *ftostr31(const float &x)
   conv[4]='.';
   conv[5]=(xx)%10+'0';
   conv[6]=0;
+  return conv;
+}
+
+//  convert float to string with 123.4 format
+char *ftostr31ns(const float &x)
+{
+  int xx=x*10;
+  //conv[0]=(xx>=0)?'+':'-';
+  xx=abs(xx);
+  conv[0]=(xx/1000)%10+'0';
+  conv[1]=(xx/100)%10+'0';
+  conv[2]=(xx/10)%10+'0';
+  conv[3]='.';
+  conv[4]=(xx)%10+'0';
+  conv[5]=0;
   return conv;
 }
 
