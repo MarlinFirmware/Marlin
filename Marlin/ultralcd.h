@@ -11,6 +11,8 @@
   void lcd_setstatuspgm(const char* message);
   void lcd_setalertstatuspgm(const char* message);
   void lcd_reset_alert_level();
+  
+  static unsigned char blink = 0;	// Variable for visualisation of fan rotation in GLCD
 
   #define LCD_MESSAGEPGM(x) lcd_setstatuspgm(PSTR(x))
   #define LCD_ALERTMESSAGEPGM(x) lcd_setalertstatuspgm(PSTR(x))
@@ -71,6 +73,7 @@ char *itostr3left(const int &xx);
 char *itostr4(const int &xx);
 
 char *ftostr3(const float &x);
+char *ftostr31ns(const float &x); // float to string without sign character
 char *ftostr31(const float &x);
 char *ftostr32(const float &x);
 char *ftostr5(const float &x);
