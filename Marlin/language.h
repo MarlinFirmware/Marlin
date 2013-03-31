@@ -1463,5 +1463,6 @@
 	#define MSG_ERR_COLD_EXTRUDE_STOP " kylmana pursotus estetty"
 	#define MSG_ERR_LONG_EXTRUDE_STOP " liian pitka pursotus estetty"
 
+#endif
 #endif // ifndef LANGUAGE_H
 
