@@ -39,6 +39,7 @@
 #include "ConfigurationStore.h"
 #include "language.h"
 #include "pins_arduino.h"
+#include "SWAConfig.h"
 
 #if DIGIPOTSS_PIN > -1
 #include <SPI.h>
@@ -328,6 +329,9 @@ void setup()
   setup_killpin(); 
   setup_powerhold();
   MYSERIAL.begin(BAUDRATE);
+  #ifdef SWASUPPORT
+    setup_SWA(MYSERIAL);
+  #endif
   SERIAL_PROTOCOLLNPGM("start");
   SERIAL_ECHO_START;
 
