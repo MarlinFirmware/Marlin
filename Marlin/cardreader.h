@@ -17,6 +17,7 @@ public:
 
   void checkautostart(bool x); 
   void openFile(char* name,bool read);
+  void openLogFile(char* name);
   void removeFile(char* name);
   void closefile();
   void release();
@@ -44,6 +45,7 @@ public:
 
 public:
   bool saving;
+  bool logging;
   bool sdprinting ;  
   bool cardOK ;
   char filename[13];
