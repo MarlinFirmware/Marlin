@@ -1494,8 +1494,7 @@ void process_commands()
         if(code_seen('P')) bedKp = code_value();
         if(code_seen('I')) bedKi = scalePID_i(code_value());
         if(code_seen('D')) bedKd = scalePID_d(code_value());
-        // Scale the Bed PID values by PID_dT
-        scaleBedPID();
+
         updatePID();
         SERIAL_PROTOCOL(MSG_OK);
 		SERIAL_PROTOCOL(" p:");
