@@ -133,6 +133,10 @@ int watch_start_temp[EXTRUDERS] = ARRAY_BY_EXTRUDERS(0,0,0);
 unsigned long watchmillis[EXTRUDERS] = ARRAY_BY_EXTRUDERS(0,0,0);
 #endif //WATCH_TEMP_PERIOD
 
+#ifndef SOFT_PWM_SCALE
+#define SOFT_PWM_SCALE 0
+#endif
+
 //===========================================================================
 //=============================   functions      ============================
 //===========================================================================
@@ -911,7 +915,7 @@ ISR(TIMER0_COMPB_vect)
   static unsigned long raw_temp_2_value = 0;
   static unsigned long raw_temp_bed_value = 0;
   static unsigned char temp_state = 0;
-  static unsigned char pwm_count = 1;
+  static unsigned char pwm_count = (1 << SOFT_PWM_SCALE);
   static unsigned char soft_pwm_0;
   #if EXTRUDERS > 1
   static unsigned char soft_pwm_1;
@@ -957,7 +961,7 @@ ISR(TIMER0_COMPB_vect)
   if(soft_pwm_fan <= pwm_count) WRITE(FAN_PIN,0);
   #endif
   
-  pwm_count++;
+  pwm_count += (1 << SOFT_PWM_SCALE);
   pwm_count &= 0x7f;
   
   switch(temp_state) {
