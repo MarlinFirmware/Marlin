@@ -607,8 +607,8 @@ void tp_init()
     setPwmFrequency(FAN_PIN, 1); // No prescaling. Pwm frequency = F_CPU/256/8
     #endif
     #ifdef FAN_SOFT_PWM
-	soft_pwm_fan=(unsigned char)fanSpeed;
-	#endif
+    soft_pwm_fan = fanSpeed / 2;
+    #endif
   #endif  
 
   #ifdef HEATER_0_USES_MAX6675
@@ -943,7 +943,7 @@ ISR(TIMER0_COMPB_vect)
     if(soft_pwm_b > 0) WRITE(HEATER_BED_PIN,1);
     #endif
     #ifdef FAN_SOFT_PWM
-    soft_pwm_fan =(unsigned char) fanSpeed;
+    soft_pwm_fan = fanSpeed / 2;
     if(soft_pwm_fan > 0) WRITE(FAN_PIN,1);
     #endif
   }
