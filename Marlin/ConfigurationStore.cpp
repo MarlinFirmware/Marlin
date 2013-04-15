@@ -72,9 +72,11 @@ void Config_StoreSettings()
     EEPROM_WRITE_VAR(i,Ki);
     EEPROM_WRITE_VAR(i,Kd);
   #else
-    EEPROM_WRITE_VAR(i,3000);
-    EEPROM_WRITE_VAR(i,0);
-    EEPROM_WRITE_VAR(i,0);
+		float dummy = 3000.0f;
+    EEPROM_WRITE_VAR(i,dummy);
+		dummy = 0.0f;
+    EEPROM_WRITE_VAR(i,dummy);
+    EEPROM_WRITE_VAR(i,dummy);
   #endif
   char ver2[4]=EEPROM_VERSION;
   i=EEPROM_OFFSET;
