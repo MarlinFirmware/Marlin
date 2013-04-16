@@ -181,10 +181,10 @@
 #define E0_DIR_PIN 18
 #define E0_ENABLE_PIN 25
 
-#define TEMP_0_PIN 0
+#define TEMP_0_PIN 1
 #define TEMP_1_PIN -1
 #define TEMP_2_PIN -1
-#define TEMP_BED_PIN 1
+#define TEMP_BED_PIN 0
 
 #define HEATER_0_PIN 4
 #define HEATER_1_PIN -1
