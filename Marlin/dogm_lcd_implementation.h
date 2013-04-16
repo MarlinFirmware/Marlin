@@ -23,6 +23,7 @@
 // CHANGE_DE begin ***
 #include <U8glib.h>	// DE_U8glib
 #include "DOGMbitmaps.h"
+#include "dogm_font_data_marlin.h"
 #include "ultralcd.h"
 
 
