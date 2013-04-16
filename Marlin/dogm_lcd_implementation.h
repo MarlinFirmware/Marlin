@@ -63,7 +63,12 @@
 
 
 // LCD selection
+#ifdef U8GLIB_ST7920
+// SPI Com: SCK = en = (D4), MOSI = rw = (RS), CS = di = (ENABLE)
+U8GLIB_ST7920_128X64_1X u8g(LCD_PINS_D4, LCD_PINS_ENABLE, LCD_PINS_RS);
+#else
 U8GLIB_DOGM128 u8g(DOGLCD_CS, DOGLCD_A0);	// HW-SPI Com: CS, A0
+#endif
 
 static void lcd_implementation_init()
 {
