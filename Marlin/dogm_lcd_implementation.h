@@ -121,12 +121,16 @@ static void lcd_implementation_init()
 
 static void lcd_implementation_clear()
 {
-	u8g.firstPage();
-	do {	
-			u8g.setColorIndex(0);
-			u8g.drawBox (0, 0, u8g.getWidth(), u8g.getHeight());
-			u8g.setColorIndex(1);
-		} while( u8g.nextPage() );
+// NO NEED TO IMPLEMENT LIKE SO. Picture loop automatically clears the display.
+//
+// Check this article: http://arduino.cc/forum/index.php?topic=91395.25;wap2
+//
+//	u8g.firstPage();
+//	do {	
+//			u8g.setColorIndex(0);
+//			u8g.drawBox (0, 0, u8g.getWidth(), u8g.getHeight());
+//			u8g.setColorIndex(1);
+//		} while( u8g.nextPage() );
 }
 
 /* Arduino < 1.0.0 is missing a function to print PROGMEM strings, so we need to implement our own */
