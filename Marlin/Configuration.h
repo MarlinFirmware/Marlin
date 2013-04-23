@@ -331,7 +331,19 @@ const bool Z_ENDSTOPS_INVERTING = true; // set to true to invert the logic of th
 // http://reprap.org/wiki/RAMPS_1.3/1.4_GADGETS3D_Shield_with_Panel
 //#define G3D_PANEL
 
+// The RepRapDiscount FULL GRAPHIC Smart Controller (quadratic white PCB)
+// http://reprap.org/wiki/RepRapDiscount_Full_Graphic_Smart_Controller
+//
+// ==> REMEMBER TO INSTALL U8glib to your ARDUINO library folder: http://code.google.com/p/u8glib/wiki/u8glib
+//#define REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
+
 //automatic expansion
+#if defined (REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
+ #define DOGLCD
+ #define U8GLIB_ST7920
+ #define REPRAP_DISCOUNT_SMART_CONTROLLER
+#endif
+
 #if defined(ULTIMAKERCONTROLLER) || defined(REPRAP_DISCOUNT_SMART_CONTROLLER) || defined(G3D_PANEL)
  #define ULTIPANEL
  #define NEWPANEL
