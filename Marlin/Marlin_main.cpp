@@ -374,13 +374,9 @@ void setup()
   
   lcd_init();
   
-  #ifdef CONTROLLERFAN_PIN
+  #if CONTROLLERFAN_PIN > 0
     SET_OUTPUT(CONTROLLERFAN_PIN); //Set pin used for driver cooling fan
-  #endif
-  
-  #ifdef EXTRUDERFAN_PIN
-    SET_OUTPUT(EXTRUDERFAN_PIN); //Set pin used for extruder cooling fan
-  #endif
+  #endif 
 }
 
 
@@ -1963,7 +1959,12 @@ void prepare_arc_move(char isclockwise) {
   previous_millis_cmd = millis();
 }
 
-#ifdef CONTROLLERFAN_PIN
+#if CONTROLLERFAN_PIN > 0
+
+#if CONTROLLERFAN_PIN == FAN_PIN 
+   #error "You cannot set CONTROLLERFAN_PIN equal to FAN_PIN"
+#endif
+
 unsigned long lastMotor = 0; //Save the time for when a motor was turned on last
 unsigned long lastMotorCheck = 0;
 
@@ -1985,34 +1986,16 @@ void controllerFan()
       lastMotor = millis(); //... set time to NOW so the fan will turn on
     }
     
-    if ((millis() - lastMotor) >= (CONTROLLERFAN_SEC*1000UL) || lastMotor == 0) //If the last time any driver was enabled, is longer since than CONTROLLERSEC...   
+    if ((millis() - lastMotor) >= (CONTROLLERFAN_SECS*1000UL) || lastMotor == 0) //If the last time any driver was enabled, is longer since than CONTROLLERSEC...   
     {
-      WRITE(CONTROLLERFAN_PIN, LOW); //... turn the fan off
+        digitalWrite(CONTROLLERFAN_PIN, 0); 
+        analogWrite(CONTROLLERFAN_PIN, 0); 
     }
     else
     {
-      WRITE(CONTROLLERFAN_PIN, HIGH); //... turn the fan on
-    }
-  }
-}
-#endif
-
-#ifdef EXTRUDERFAN_PIN
-unsigned long lastExtruderCheck = 0;
-
-void extruderFan()
-{
-  if ((millis() - lastExtruderCheck) >= 2500) //Not a time critical function, so we only check every 2500ms
-  {
-    lastExtruderCheck = millis();
-           
-    if (degHotend(active_extruder) < EXTRUDERFAN_DEC)
-    {
-      WRITE(EXTRUDERFAN_PIN, LOW); //... turn the fan off
-    }
-    else
-    {
-      WRITE(EXTRUDERFAN_PIN, HIGH); //... turn the fan on
+        // allows digital or PWM fan output to be used (see M42 handling)
+        digitalWrite(CONTROLLERFAN_PIN, CONTROLLERFAN_SPEED);
+        analogWrite(CONTROLLERFAN_PIN, CONTROLLERFAN_SPEED); 
     }
   }
 }
@@ -2036,11 +2019,11 @@ void manage_inactivity()
       }
     }
   }
-  #if( KILL_PIN>-1 )
+  #if KILL_PIN > 0
     if( 0 == READ(KILL_PIN) )
       kill();
   #endif
-  #ifdef CONTROLLERFAN_PIN
+  #if CONTROLLERFAN_PIN > 0
     controllerFan(); //Check if fan should be turned on to cool stepper drivers down
   #endif
   #ifdef EXTRUDER_RUNOUT_PREVENT
