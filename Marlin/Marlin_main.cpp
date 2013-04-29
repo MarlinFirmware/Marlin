@@ -117,6 +117,7 @@
 // M220 S<factor in percent>- set speed factor override percentage
 // M221 S<factor in percent>- set extrude factor override percentage
 // M240 - Trigger a camera to take a photograph
+// M300 - Play beepsound S<frequency Hz> P<duration ms>
 // M301 - Set PID parameters P I and D
 // M302 - Allow cold extrudes
 // M303 - PID relay autotune S<temperature> sets the target temperature. (default target temperature = 150C)
@@ -132,6 +133,7 @@
 // M908 - Control digital trimpot directly.
 // M350 - Set microstepping mode.
 // M351 - Toggle MS1 MS2 pins directly.
+// M928 - Start SD logging (M928 filename.g) - ended by M29
 // M999 - Restart after being stopped by error
 
 //Stepper Movement Variables
@@ -361,13 +363,8 @@ void setup()
     fromsd[i] = false;
   }
   
-  Config_RetrieveSettings(); // loads data from EEPROM if available
-
-  for(int8_t i=0; i < NUM_AXIS; i++)
-  {
-    axis_steps_per_sqr_second[i] = max_acceleration_units_per_sq_second[i] * axis_steps_per_unit[i];
-  }
-
+  // loads data from EEPROM if available else uses defaults (and resets step acceleration rate)
+  Config_RetrieveSettings(); 
 
   tp_init();    // Initialize temperature loop 
   plan_init();  // Initialize planner;
@@ -376,6 +373,14 @@ void setup()
   setup_photpin();
   
   lcd_init();
+  
+  #ifdef CONTROLLERFAN_PIN
+    SET_OUTPUT(CONTROLLERFAN_PIN); //Set pin used for driver cooling fan
+  #endif
+  
+  #ifdef EXTRUDERFAN_PIN
+    SET_OUTPUT(EXTRUDERFAN_PIN); //Set pin used for extruder cooling fan
+  #endif
 }
 
 
@@ -394,7 +399,14 @@ void loop()
 	if(strstr_P(cmdbuffer[bufindr], PSTR("M29")) == NULL)
 	{
 	  card.write_command(cmdbuffer[bufindr]);
-	  SERIAL_PROTOCOLLNPGM(MSG_OK);
+          if(card.logging)
+          {
+            process_commands();
+          }
+          else
+          {
+            SERIAL_PROTOCOLLNPGM(MSG_OK);
+          }
 	}
 	else
 	{
@@ -949,6 +961,15 @@ void process_commands()
 	 card.removeFile(strchr_pointer + 4);
 	}
 	break;
+    case 928: //M928 - Start SD write
+      starpos = (strchr(strchr_pointer + 5,'*'));
+      if(starpos != NULL){
+        char* npos = strchr(cmdbuffer[bufindr], 'N');
+        strchr_pointer = strchr(npos,' ') + 1;
+        *(starpos-1) = '\0';
+      }
+      card.openLogFile(strchr_pointer+5);
+      break;
 	
 #endif //SDSUPPORT
 
@@ -1301,9 +1322,10 @@ void process_commands()
         if(code_seen(axis_codes[i]))
         {
           max_acceleration_units_per_sq_second[i] = code_value();
-          axis_steps_per_sqr_second[i] = code_value() * axis_steps_per_unit[i];
         }
       }
+      // steps per sq second need to be updated to agree with the units per sq second (as they are what is used in the planner)
+	  reset_acceleration_rates();
       break;
     #if 0 // Not used for Sprinter/grbl gen6
     case 202: // M202
@@ -1427,27 +1449,44 @@ void process_commands()
       }
     }
     break;
+    
+    #if defined(LARGE_FLASH) && LARGE_FLASH == true && defined(BEEPER) && BEEPER > -1
+    case 300: // M300
+    {
+      int beepS = 1;
+      int beepP = 1000;
+      if(code_seen('S')) beepS = code_value();
+      if(code_seen('P')) beepP = code_value();
+      tone(BEEPER, beepS);
+      delay(beepP);
+      noTone(BEEPER);
+    }
+    break;
+    #endif // M300
 
     #ifdef PIDTEMP
     case 301: // M301
       {
         if(code_seen('P')) Kp = code_value();
-        if(code_seen('I')) Ki = code_value()*PID_dT;
-        if(code_seen('D')) Kd = code_value()/PID_dT;
+        if(code_seen('I')) Ki = scalePID_i(code_value());
+        if(code_seen('D')) Kd = scalePID_d(code_value());
+
         #ifdef PID_ADD_EXTRUSION_RATE
         if(code_seen('C')) Kc = code_value();
         #endif
+        
         updatePID();
         SERIAL_PROTOCOL(MSG_OK);
 		SERIAL_PROTOCOL(" p:");
         SERIAL_PROTOCOL(Kp);
         SERIAL_PROTOCOL(" i:");
-        SERIAL_PROTOCOL(Ki/PID_dT);
+        SERIAL_PROTOCOL(unscalePID_i(Ki));
         SERIAL_PROTOCOL(" d:");
-        SERIAL_PROTOCOL(Kd*PID_dT);
+        SERIAL_PROTOCOL(unscalePID_d(Kd));
         #ifdef PID_ADD_EXTRUSION_RATE
         SERIAL_PROTOCOL(" c:");
-        SERIAL_PROTOCOL(Kc*PID_dT);
+        //Kc does not have scaling applied above, or in resetting defaults
+        SERIAL_PROTOCOL(Kc);
         #endif
         SERIAL_PROTOCOLLN("");
       }
@@ -1457,16 +1496,17 @@ void process_commands()
     case 304: // M304
       {
         if(code_seen('P')) bedKp = code_value();
-        if(code_seen('I')) bedKi = code_value()*PID_dT;
-        if(code_seen('D')) bedKd = code_value()/PID_dT;
+        if(code_seen('I')) bedKi = scalePID_i(code_value());
+        if(code_seen('D')) bedKd = scalePID_d(code_value());
+
         updatePID();
         SERIAL_PROTOCOL(MSG_OK);
 		SERIAL_PROTOCOL(" p:");
         SERIAL_PROTOCOL(bedKp);
         SERIAL_PROTOCOL(" i:");
-        SERIAL_PROTOCOL(bedKi/PID_dT);
+        SERIAL_PROTOCOL(unscalePID_i(bedKi));
         SERIAL_PROTOCOL(" d:");
-        SERIAL_PROTOCOL(bedKd*PID_dT);
+        SERIAL_PROTOCOL(unscalePID_d(bedKd));
         SERIAL_PROTOCOLLN("");
       }
       break;
@@ -1952,6 +1992,27 @@ void controllerFan()
     else
     {
       WRITE(CONTROLLERFAN_PIN, HIGH); //... turn the fan on
+    }
+  }
+}
+#endif
+
+#ifdef EXTRUDERFAN_PIN
+unsigned long lastExtruderCheck = 0;
+
+void extruderFan()
+{
+  if ((millis() - lastExtruderCheck) >= 2500) //Not a time critical function, so we only check every 2500ms
+  {
+    lastExtruderCheck = millis();
+           
+    if (degHotend(active_extruder) < EXTRUDERFAN_DEC)
+    {
+      WRITE(EXTRUDERFAN_PIN, LOW); //... turn the fan off
+    }
+    else
+    {
+      WRITE(EXTRUDERFAN_PIN, HIGH); //... turn the fan on
     }
   }
 }

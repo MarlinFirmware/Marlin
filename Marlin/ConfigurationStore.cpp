@@ -72,9 +72,11 @@ void Config_StoreSettings()
     EEPROM_WRITE_VAR(i,Ki);
     EEPROM_WRITE_VAR(i,Kd);
   #else
-    EEPROM_WRITE_VAR(i,3000);
-    EEPROM_WRITE_VAR(i,0);
-    EEPROM_WRITE_VAR(i,0);
+		float dummy = 3000.0f;
+    EEPROM_WRITE_VAR(i,dummy);
+		dummy = 0.0f;
+    EEPROM_WRITE_VAR(i,dummy);
+    EEPROM_WRITE_VAR(i,dummy);
   #endif
   char ver2[4]=EEPROM_VERSION;
   i=EEPROM_OFFSET;
@@ -122,7 +124,7 @@ void Config_PrintSettings()
     SERIAL_ECHOLN("");
 
     SERIAL_ECHO_START;
-    SERIAL_ECHOLNPGM("Advanced variables: S=Min feedrate (mm/s), T=Min travel feedrate (mm/s), B=minimum segment time (ms), X=maximum xY jerk (mm/s),  Z=maximum Z jerk (mm/s)");
+    SERIAL_ECHOLNPGM("Advanced variables: S=Min feedrate (mm/s), T=Min travel feedrate (mm/s), B=minimum segment time (ms), X=maximum XY jerk (mm/s),  Z=maximum Z jerk (mm/s),  E=maximum E jerk (mm/s)");
     SERIAL_ECHO_START;
     SERIAL_ECHOPAIR("  M205 S",minimumfeedrate ); 
     SERIAL_ECHOPAIR(" T" ,mintravelfeedrate ); 
@@ -144,8 +146,8 @@ void Config_PrintSettings()
     SERIAL_ECHOLNPGM("PID settings:");
     SERIAL_ECHO_START;
     SERIAL_ECHOPAIR("   M301 P",Kp); 
-    SERIAL_ECHOPAIR(" I" ,Ki/PID_dT); 
-    SERIAL_ECHOPAIR(" D" ,Kd*PID_dT);
+    SERIAL_ECHOPAIR(" I" ,unscalePID_i(Ki)); 
+    SERIAL_ECHOPAIR(" D" ,unscalePID_d(Kd));
     SERIAL_ECHOLN(""); 
 #endif
 } 
@@ -166,6 +168,10 @@ void Config_RetrieveSettings()
         EEPROM_READ_VAR(i,axis_steps_per_unit);  
         EEPROM_READ_VAR(i,max_feedrate);  
         EEPROM_READ_VAR(i,max_acceleration_units_per_sq_second);
+        
+        // steps per sq second need to be updated to agree with the units per sq second (as they are what is used in the planner)
+		reset_acceleration_rates();
+        
         EEPROM_READ_VAR(i,acceleration);
         EEPROM_READ_VAR(i,retract_acceleration);
         EEPROM_READ_VAR(i,minimumfeedrate);
@@ -188,18 +194,19 @@ void Config_RetrieveSettings()
         #ifndef PIDTEMP
         float Kp,Ki,Kd;
         #endif
+        // do not need to scale PID values as the values in EEPROM are already scaled		
         EEPROM_READ_VAR(i,Kp);
         EEPROM_READ_VAR(i,Ki);
         EEPROM_READ_VAR(i,Kd);
 
+		// Call updatePID (similar to when we have processed M301)
+		updatePID();
         SERIAL_ECHO_START;
-        SERIAL_ECHOLNPGM("Stored settings retreived:");
+        SERIAL_ECHOLNPGM("Stored settings retrieved");
     }
     else
     {
         Config_ResetDefault();
-        SERIAL_ECHO_START;
-        SERIAL_ECHOLN("Using Default settings:");
     }
     Config_PrintSettings();
 }
@@ -216,6 +223,10 @@ void Config_ResetDefault()
         max_feedrate[i]=tmp2[i];  
         max_acceleration_units_per_sq_second[i]=tmp3[i];
     }
+    
+    // steps per sq second need to be updated to agree with the units per sq second
+    reset_acceleration_rates();
+    
     acceleration=DEFAULT_ACCELERATION;
     retract_acceleration=DEFAULT_RETRACT_ACCELERATION;
     minimumfeedrate=DEFAULT_MINIMUMFEEDRATE;
@@ -235,10 +246,18 @@ void Config_ResetDefault()
 #endif
 #ifdef PIDTEMP
     Kp = DEFAULT_Kp;
-    Ki = (DEFAULT_Ki*PID_dT);
-    Kd = (DEFAULT_Kd/PID_dT);
+    Ki = scalePID_i(DEFAULT_Ki);
+    Kd = scalePID_d(DEFAULT_Kd);
+    
+    // call updatePID (similar to when we have processed M301)
+    updatePID();
+    
 #ifdef PID_ADD_EXTRUSION_RATE
     Kc = DEFAULT_Kc;
 #endif//PID_ADD_EXTRUSION_RATE
 #endif//PIDTEMP
+
+SERIAL_ECHO_START;
+SERIAL_ECHOLNPGM("Hardcoded Default Settings Loaded");
+
 }

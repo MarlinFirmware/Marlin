@@ -31,8 +31,8 @@
 void tp_init();  //initialise the heating
 void manage_heater(); //it is critical that this is called periodically.
 
-//low leven conversion routines
-// do not use this routines and variables outsie of temperature.cpp
+// low level conversion routines
+// do not use these routines and variables outside of temperature.cpp
 extern int target_temperature[EXTRUDERS];  
 extern float current_temperature[EXTRUDERS];
 extern int target_temperature_bed;
@@ -40,6 +40,11 @@ extern float current_temperature_bed;
 
 #ifdef PIDTEMP
   extern float Kp,Ki,Kd,Kc;
+  float scalePID_i(float i);
+  float scalePID_d(float d);
+  float unscalePID_i(float i);
+  float unscalePID_d(float d);
+
 #endif
 #ifdef PIDTEMPBED
   extern float bedKp,bedKi,bedKd;
