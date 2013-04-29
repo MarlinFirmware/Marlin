@@ -26,17 +26,19 @@
 // 12 = Gen7 v1.3
 // 13 = Gen7 v1.4
 // 3  = MEGA/RAMPS up to 1.2 = 3
-// 33 = RAMPS 1.3 (Power outputs: Extruder, Bed, Fan)
-// 34 = RAMPS 1.3 (Power outputs: Extruder0, Extruder1, Bed)
+// 33 = RAMPS 1.3 / 1.4 (Power outputs: Extruder, Bed, Fan)
+// 34 = RAMPS 1.3 / 1.4 (Power outputs: Extruder0, Extruder1, Bed)
 // 4  = Duemilanove w/ ATMega328P pin assignment
 // 5  = Gen6
 // 51 = Gen6 deluxe
 // 6  = Sanguinololu < 1.2
 // 62 = Sanguinololu 1.2 and above
 // 63 = Melzi
+// 64 = STB V1.1
 // 7  = Ultimaker
 // 71 = Ultimaker (Older electronics. Pre 1.5.4. This is rare)
 // 8  = Teensylu
+// 80 = Rumba
 // 81 = Printrboard (AT90USB1286)
 // 82 = Brainwave (AT90USB646)
 // 9  = Gen3+
@@ -116,7 +118,8 @@
 // PID settings:
 // Comment the following line to disable PID and enable bang-bang.
 #define PIDTEMP
-#define PID_MAX 256 // limits current to nozzle; 256=full current
+#define BANG_MAX 256 // limits current to nozzle while in bang-bang mode; 256=full current
+#define PID_MAX 256 // limits current to nozzle while PID is active (see PID_FUNCTIONAL_RANGE below); 256=full current
 #ifdef PIDTEMP
   //#define PID_DEBUG // Sends debug data to the serial port. 
   //#define PID_OPENLOOP 1 // Puts PID in open loop. M104/M140 sets the output power from 0 to PID_MAX
@@ -280,13 +283,19 @@ const bool Z_ENDSTOPS_INVERTING = true; // set to true to invert the logic of th
 // default settings 
 
 #define DEFAULT_AXIS_STEPS_PER_UNIT   {78.7402,78.7402,200*8/3,760*1.1}  // default steps per unit for ultimaker 
-#define DEFAULT_MAX_FEEDRATE          {500, 500, 5, 45}    // (mm/sec)    
+#define DEFAULT_MAX_FEEDRATE          {500, 500, 5, 25}    // (mm/sec)    
 #define DEFAULT_MAX_ACCELERATION      {9000,9000,100,10000}    // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for skeinforge 40+, for older versions raise them a lot.
 
 #define DEFAULT_ACCELERATION          3000    // X, Y, Z and E max acceleration in mm/s^2 for printing moves 
 #define DEFAULT_RETRACT_ACCELERATION  3000   // X, Y, Z and E max acceleration in mm/s^2 for r retracts
 
-// 
+// Offset of the extruders (uncomment if using more than one and relying on firmware to position when changing).
+// The offset has to be X=0, Y=0 for the extruder 0 hotend (default extruder).
+// For the other hotends it is their distance from the extruder 0 hotend.
+// #define EXTRUDER_OFFSET_X {0.0, 20.00} // (in mm) for each extruder, offset of the hotend on the X axis
+// #define EXTRUDER_OFFSET_Y {0.0, 5.00}  // (in mm) for each extruder, offset of the hotend on the Y axis
+
+// The speed change that does not require acceleration (i.e. the software might assume it can be done instanteneously)
 #define DEFAULT_XYJERK                20.0    // (mm/sec)
 #define DEFAULT_ZJERK                 0.4     // (mm/sec)
 #define DEFAULT_EJERK                 5.0    // (mm/sec)
@@ -317,7 +326,9 @@ const bool Z_ENDSTOPS_INVERTING = true; // set to true to invert the logic of th
 
 //LCD and SD support
 //#define ULTRA_LCD  //general lcd support, also 16x2
+//#define DOGLCD	// Support for SPI LCD 128x64 (Controller ST7565R graphic Display Family)
 //#define SDSUPPORT // Enable SD Card Support in Hardware Console
+//#define SDSLOW // Use slower SD transfer mode (not normally needed - uncomment if you're getting volume init error)
 
 //#define ULTIMAKERCONTROLLER //as available from the ultimaker online store.
 //#define ULTIPANEL  //the ultipanel as on thingiverse
@@ -330,7 +341,19 @@ const bool Z_ENDSTOPS_INVERTING = true; // set to true to invert the logic of th
 // http://reprap.org/wiki/RAMPS_1.3/1.4_GADGETS3D_Shield_with_Panel
 //#define G3D_PANEL
 
+// The RepRapDiscount FULL GRAPHIC Smart Controller (quadratic white PCB)
+// http://reprap.org/wiki/RepRapDiscount_Full_Graphic_Smart_Controller
+//
+// ==> REMEMBER TO INSTALL U8glib to your ARDUINO library folder: http://code.google.com/p/u8glib/wiki/u8glib
+//#define REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
+
 //automatic expansion
+#if defined (REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
+ #define DOGLCD
+ #define U8GLIB_ST7920
+ #define REPRAP_DISCOUNT_SMART_CONTROLLER
+#endif
+
 #if defined(ULTIMAKERCONTROLLER) || defined(REPRAP_DISCOUNT_SMART_CONTROLLER) || defined(G3D_PANEL)
  #define ULTIPANEL
  #define NEWPANEL
@@ -381,13 +404,22 @@ const bool Z_ENDSTOPS_INVERTING = true; // set to true to invert the logic of th
 //  #define NEWPANEL  //enable this if you have a click-encoder panel
   #define SDSUPPORT
   #define ULTRA_LCD
-  #define LCD_WIDTH 20
-  #define LCD_HEIGHT 4
-  
+	#ifdef DOGLCD	// Change number of lines to match the DOG graphic display
+		#define LCD_WIDTH 20
+		#define LCD_HEIGHT 5
+	#else
+		#define LCD_WIDTH 20
+		#define LCD_HEIGHT 4
+	#endif
 #else //no panel but just lcd 
   #ifdef ULTRA_LCD
-    #define LCD_WIDTH 16
-    #define LCD_HEIGHT 2    
+	#ifdef DOGLCD	// Change number of lines to match the 128x64 graphics display
+		#define LCD_WIDTH 20
+		#define LCD_HEIGHT 5
+	#else
+		#define LCD_WIDTH 16
+		#define LCD_HEIGHT 2
+	#endif    
   #endif
 #endif
 
