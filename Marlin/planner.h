@@ -136,4 +136,6 @@ FORCE_INLINE bool blocks_queued()
 }
 
 void allow_cold_extrudes(bool allow);
+
+void reset_acceleration_rates();
 #endif
