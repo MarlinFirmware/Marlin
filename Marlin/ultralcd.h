@@ -34,6 +34,8 @@
   extern int absPreheatHPBTemp;
   extern int absPreheatFanSpeed;
     
+  void lcd_buzz(long duration,uint16_t freq);
+
   bool lcd_clicked();
 
 #else //no lcd
@@ -42,6 +44,7 @@
   FORCE_INLINE void lcd_setstatus(const char* message) {}
   FORCE_INLINE void lcd_buttons_update() {}
   FORCE_INLINE void lcd_reset_alert_level() {}
+  FORCE_INLINE void lcd_buzz(long duration,uint16_t freq) {}
 
   #define LCD_MESSAGEPGM(x) 
   #define LCD_ALERTMESSAGEPGM(x) 
