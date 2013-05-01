@@ -59,6 +59,9 @@ float current_temperature_bed = 0;
   float bedKd=(DEFAULT_bedKd/PID_dT);
 #endif //PIDTEMPBED
   
+#ifdef FAN_SOFT_PWM
+  unsigned char fanSpeedSoftPwm;
+#endif
   
 //===========================================================================
 //=============================private variables============================
@@ -607,7 +610,7 @@ void tp_init()
     setPwmFrequency(FAN_PIN, 1); // No prescaling. Pwm frequency = F_CPU/256/8
     #endif
     #ifdef FAN_SOFT_PWM
-    soft_pwm_fan = fanSpeed / 2;
+    soft_pwm_fan = fanSpeedSoftPwm / 2;
     #endif
   #endif  
 
@@ -943,7 +946,7 @@ ISR(TIMER0_COMPB_vect)
     if(soft_pwm_b > 0) WRITE(HEATER_BED_PIN,1);
     #endif
     #ifdef FAN_SOFT_PWM
-    soft_pwm_fan = fanSpeed / 2;
+    soft_pwm_fan = fanSpeedSoftPwm / 2;
     if(soft_pwm_fan > 0) WRITE(FAN_PIN,1);
     #endif
   }

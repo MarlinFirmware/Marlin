@@ -186,6 +186,9 @@ extern float add_homeing[3];
 extern float min_pos[3];
 extern float max_pos[3];
 extern int fanSpeed;
+#ifdef FAN_SOFT_PWM
+extern unsigned char fanSpeedSoftPwm;
+#endif
 
 #ifdef FWRETRACT
 extern bool autoretract_enabled;
