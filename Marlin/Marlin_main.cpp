@@ -1449,13 +1449,18 @@ void process_commands()
     #if defined(LARGE_FLASH) && LARGE_FLASH == true && defined(BEEPER) && BEEPER > -1
     case 300: // M300
     {
-      int beepS = 1;
-      int beepP = 1000;
-      if(code_seen('S')) beepS = code_value();
-      if(code_seen('P')) beepP = code_value();
-      tone(BEEPER, beepS);
-      delay(beepP);
-      noTone(BEEPER);
+      int beepS = code_seen('S') ? code_value() : 110;
+      int beepP = code_seen('P') ? code_value() : 1000;
+      if (beepS > 0)
+      {
+        tone(BEEPER, beepS);
+        delay(beepP);
+        noTone(BEEPER);
+      }
+      else
+      {
+        delay(beepP);
+      }
     }
     break;
     #endif // M300
