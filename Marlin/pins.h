@@ -429,7 +429,7 @@
 
   #else //old style panel with shift register
     //arduino pin witch triggers an piezzo beeper
-    #define BEEPER 33		No Beeper added
+    #define BEEPER 33		// No Beeper added
 
     //buttons are attached to a shift register
 	// Not wired this yet
