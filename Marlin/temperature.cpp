@@ -653,7 +653,7 @@ void tp_init()
     #if TEMP_2_PIN < 8
        DIDR0 |= 1 << TEMP_2_PIN; 
     #else
-       DIDR2 = 1<<(TEMP_2_PIN - 8); 
+       DIDR2 |= 1<<(TEMP_2_PIN - 8); 
     #endif
   #endif
   #if (TEMP_BED_PIN > -1)
