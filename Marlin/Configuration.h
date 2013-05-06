@@ -46,9 +46,10 @@
 // 90 = Alpha OMCA board
 // 91 = Final OMCA board
 // 301 = Rambo
+// 21 = Elefu Ra Board (v3)
 
 #ifndef MOTHERBOARD
-#define MOTHERBOARD 7
+#define MOTHERBOARD 21
 #endif
 
 //// The following define selects which power supply you have. Please choose the one that matches your setup
@@ -84,10 +85,10 @@
 // 52 is 200k thermistor - ATC Semitec 204GT-2 (1k pullup)
 // 55 is 100k thermistor - ATC Semitec 104GT-2 (Used in ParCan) (1k pullup)
 
-#define TEMP_SENSOR_0 -1
+#define TEMP_SENSOR_0 1
 #define TEMP_SENSOR_1 0
 #define TEMP_SENSOR_2 0
-#define TEMP_SENSOR_BED 0
+#define TEMP_SENSOR_BED 1
 
 // Actual temperature must be close to target for this long before M109 returns success
 #define TEMP_RESIDENCY_TIME 10	// (seconds)
@@ -338,6 +339,15 @@ const bool Z_ENDSTOPS_INVERTING = true; // set to true to invert the logic of th
 // ==> REMEMBER TO INSTALL U8glib to your ARDUINO library folder: http://code.google.com/p/u8glib/wiki/u8glib
 //#define REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
 
+// The Elefu RA Board Control Panel
+// http://www.elefu.com/index.php?route=product/product&product_id=53
+// REMEMBER TO INSTALL LiquidCrystal_I2C.h in your ARUDINO library folder: http://hmario.home.xs4all.nl/arduino/LiquidCrystal_I2C/LiquidCrystal_I2C.zip
+#define RA_CONTROL_PANEL
+
+// The Elefu TLC5947 RGB Lighting Module
+// Uncomment to enable TLC5947 Lighting Modules.
+//#define RA_DISCO
+
 //automatic expansion
 #if defined (REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
  #define DOGLCD
@@ -348,7 +358,14 @@ const bool Z_ENDSTOPS_INVERTING = true; // set to true to invert the logic of th
 #if defined(ULTIMAKERCONTROLLER) || defined(REPRAP_DISCOUNT_SMART_CONTROLLER) || defined(G3D_PANEL)
  #define ULTIPANEL
  #define NEWPANEL
-#endif 
+#endif
+
+#if defined(RA_CONTROL_PANEL)
+ #define ULTIPANEL
+ #define NEWPANEL
+ #define LCD_I2C_TYPE_PCA8574
+ #define LCD_I2C_ADDRESS 0x27   // I2C Address of the port expander
+#endif
 
 // Preheat Constants
 #define PLA_PREHEAT_HOTEND_TEMP 180 

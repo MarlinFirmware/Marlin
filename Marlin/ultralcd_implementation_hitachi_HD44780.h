@@ -10,8 +10,13 @@
 #include "LiquidCrystalRus.h"
 #define LCD_CLASS LiquidCrystalRus
 #else
-#include <LiquidCrystal.h>
-#define LCD_CLASS LiquidCrystal
+  #ifdef  LCD_I2C_TYPE_PCA8574
+    #include <LiquidCrystal_I2C.h>
+    #define LCD_CLASS LiquidCrystal_I2C
+  #else
+    #include <LiquidCrystal.h>
+    #define LCD_CLASS LiquidCrystal
+  #endif
 #endif
 
 /* Custom characters defined in the first 8 characters of the LCD */
@@ -25,7 +30,12 @@
 #define LCD_STR_CLOCK       "\x07"
 #define LCD_STR_ARROW_RIGHT "\x7E"  /* from the default character set */
 
-LCD_CLASS lcd(LCD_PINS_RS, LCD_PINS_ENABLE, LCD_PINS_D4, LCD_PINS_D5,LCD_PINS_D6,LCD_PINS_D7);  //RS,Enable,D4,D5,D6,D7
+#ifdef LCD_I2C_TYPE_PCA8574
+  LCD_CLASS lcd(LCD_I2C_ADDRESS, LCD_WIDTH, LCD_HEIGHT);
+#else
+  LCD_CLASS lcd(LCD_PINS_RS, LCD_PINS_ENABLE, LCD_PINS_D4, LCD_PINS_D5,LCD_PINS_D6,LCD_PINS_D7);  //RS,Enable,D4,D5,D6,D7
+#endif
+
 static void lcd_implementation_init()
 {
     byte bedTemp[8] =
@@ -111,7 +121,12 @@ static void lcd_implementation_init()
         B00000,
         B00000
     }; //thanks Sonny Mounicou
-    lcd.begin(LCD_WIDTH, LCD_HEIGHT);
+    #ifdef LCD_I2C_TYPE_PCA8574
+      lcd.init();
+      lcd.backlight();
+    #else
+      lcd.begin(LCD_WIDTH, LCD_HEIGHT);
+    #endif
     lcd.createChar(LCD_STR_BEDTEMP[0], bedTemp);
     lcd.createChar(LCD_STR_DEGREE[0], degree);
     lcd.createChar(LCD_STR_THERMOMETER[0], thermometer);
