@@ -341,12 +341,8 @@ const bool Z_ENDSTOPS_INVERTING = true; // set to true to invert the logic of th
 
 // The Elefu RA Board Control Panel
 // http://www.elefu.com/index.php?route=product/product&product_id=53
-// REMEMBER TO INSTALL LiquidCrystal_I2C.h in your ARUDINO library folder: http://hmario.home.xs4all.nl/arduino/LiquidCrystal_I2C/LiquidCrystal_I2C.zip
-#define RA_CONTROL_PANEL
-
-// The Elefu TLC5947 RGB Lighting Module
-// Uncomment to enable TLC5947 Lighting Modules.
-//#define RA_DISCO
+// REMEMBER TO INSTALL LiquidCrystal_I2C.h in your ARUDINO library folder: https://github.com/kiyoshigawa/LiquidCrystal_I2C
+//#define RA_CONTROL_PANEL
 
 //automatic expansion
 #if defined (REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
