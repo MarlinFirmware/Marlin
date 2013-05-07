@@ -465,23 +465,25 @@ void check_axes_activity()
     disable_e2(); 
   }
 #if FAN_PIN > -1
-  #ifndef FAN_SOFT_PWM
-    #ifdef FAN_KICKSTART_TIME
-      static unsigned long fan_kick_end;
-      if (tail_fan_speed) {
-        if (fan_kick_end == 0) {
-          // Just starting up fan - run at full power.
-          fan_kick_end = millis() + FAN_KICKSTART_TIME;
-          tail_fan_speed = 255;
-        } else if (fan_kick_end > millis())
-          // Fan still spinning up.
-          tail_fan_speed = 255;
-      } else {
-        fan_kick_end = 0;
-      }
-    #endif//FAN_KICKSTART_TIME
-    analogWrite(FAN_PIN,tail_fan_speed);
-  #endif//!FAN_SOFT_PWM
+  #ifdef FAN_KICKSTART_TIME
+  static unsigned long fan_kick_end;
+  if (tail_fan_speed) {
+    if (fan_kick_end == 0) {
+      // Just starting up fan - run at full power.
+      fan_kick_end = millis() + FAN_KICKSTART_TIME;
+      tail_fan_speed = 255;
+    } else if (fan_kick_end > millis())
+      // Fan still spinning up.
+      tail_fan_speed = 255;
+  } else {
+    fan_kick_end = 0;
+  }
+  #endif//FAN_KICKSTART_TIME
+  #ifdef FAN_SOFT_PWM
+  fanSpeedSoftPwm = tail_fan_speed;
+  #else
+  analogWrite(FAN_PIN,tail_fan_speed);
+  #endif
 #endif//FAN_PIN > -1
 #ifdef AUTOTEMP
   getHighESpeed();
@@ -735,7 +737,7 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
       block->acceleration_st = axis_steps_per_sqr_second[Z_AXIS];
   }
   block->acceleration = block->acceleration_st / steps_per_mm;
-  block->acceleration_rate = (long)((float)block->acceleration_st * 8.388608);
+  block->acceleration_rate = (long)((float)block->acceleration_st * (16777216.0 / (F_CPU / 8.0)));
 
 #if 0  // Use old jerk for now
   // Compute path unit vector
