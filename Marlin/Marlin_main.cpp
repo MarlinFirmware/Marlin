@@ -119,7 +119,7 @@
 // M240 - Trigger a camera to take a photograph
 // M300 - Play beepsound S<frequency Hz> P<duration ms>
 // M301 - Set PID parameters P I and D
-// M302 - Allow cold extrudes
+// M302 - Allow cold extrudes, or set the minimum extrude S<temperature>.
 // M303 - PID relay autotune S<temperature> sets the target temperature. (default target temperature = 150C)
 // M304 - Set bed PID parameters P I and D
 // M400 - Finish all moves
@@ -1530,12 +1530,15 @@ void process_commands()
       #endif
      }
     break;
-      
-    case 302: // allow cold extrudes
+    #ifdef PREVENT_DANGEROUS_EXTRUDE
+    case 302: // allow cold extrudes, or set the minimum extrude temperature
     {
-      allow_cold_extrudes(true);
+	  float temp = .0;
+	  if (code_seen('S')) temp=code_value();
+      set_extrude_min_temp(temp);
     }
     break;
+	#endif
     case 303: // M303 PID autotune
     {
       float temp = 150.0;

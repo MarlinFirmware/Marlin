@@ -98,7 +98,7 @@ volatile unsigned char block_buffer_tail;           // Index of the block to pro
 //=============================private variables ============================
 //===========================================================================
 #ifdef PREVENT_DANGEROUS_EXTRUDE
-bool allow_cold_extrude=false;
+float extrude_min_temp=EXTRUDE_MINTEMP;
 #endif
 #ifdef XY_FREQUENCY_LIMIT
 #define MAX_FREQ_TIME (1000000.0/XY_FREQUENCY_LIMIT)
@@ -519,7 +519,7 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
   #ifdef PREVENT_DANGEROUS_EXTRUDE
   if(target[E_AXIS]!=position[E_AXIS])
   {
-    if(degHotend(active_extruder)<EXTRUDE_MINTEMP && !allow_cold_extrude)
+    if(degHotend(active_extruder)<extrude_min_temp)
     {
       position[E_AXIS]=target[E_AXIS]; //behave as if the move really took place, but ignore E part
       SERIAL_ECHO_START;
@@ -896,12 +896,12 @@ uint8_t movesplanned()
   return (block_buffer_head-block_buffer_tail + BLOCK_BUFFER_SIZE) & (BLOCK_BUFFER_SIZE - 1);
 }
 
-void allow_cold_extrudes(bool allow)
-{
 #ifdef PREVENT_DANGEROUS_EXTRUDE
-  allow_cold_extrude=allow;
-#endif
+void set_extrude_min_temp(float temp)
+{
+  extrude_min_temp=temp;
 }
+#endif
 
 // Calculate the steps/s^2 acceleration rates, based on the mm/s^s
 void reset_acceleration_rates()
