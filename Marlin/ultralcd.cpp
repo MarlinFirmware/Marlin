@@ -113,6 +113,7 @@ static void menu_action_setting_edit_callback_long5(const char* pstr, unsigned l
 
 /** Used variables to keep track of the menu */
 volatile uint8_t buttons;//Contains the bits of the currently pressed buttons.
+volatile uint8_t buttons_reprapworld_keypad; // to store the reprapworld_keypad shiftregister values
 
 uint8_t currentMenuViewOffset;              /* scroll offset in the current menu */
 uint32_t blocking_enc;
@@ -687,6 +688,24 @@ menu_edit_type(float, float51, ftostr51, 10)
 menu_edit_type(float, float52, ftostr52, 100)
 menu_edit_type(unsigned long, long5, ftostr5, 0.01)
 
+#ifdef REPRAPWORLD_KEYPAD
+	static void reprapworld_keypad_move_y_down() {
+        encoderPosition = 1;
+        move_menu_scale = REPRAPWORLD_KEYPAD_MOVE_STEP;
+		lcd_move_y();
+	}
+	static void reprapworld_keypad_move_y_up() {
+		encoderPosition = -1;
+		move_menu_scale = REPRAPWORLD_KEYPAD_MOVE_STEP;
+    	lcd_move_y();
+	}
+	static void reprapworld_keypad_move_home() {
+		//enquecommand_P((PSTR("G28"))); // move all axis home
+		// TODO gregor: move all axis home, i have currently only one axis on my prusa i3
+		enquecommand_P((PSTR("G28 Y")));
+	}
+#endif
+
 /** End of menus **/
 
 static void lcd_quick_feedback()
@@ -750,6 +769,13 @@ void lcd_init()
     WRITE(BTN_EN1,HIGH);
     WRITE(BTN_EN2,HIGH);
     WRITE(BTN_ENC,HIGH);
+    #ifdef REPRAPWORLD_KEYPAD
+      pinMode(SHIFT_CLK,OUTPUT);
+      pinMode(SHIFT_LD,OUTPUT);
+      pinMode(SHIFT_OUT,INPUT);
+      WRITE(SHIFT_OUT,HIGH);
+      WRITE(SHIFT_LD,HIGH);
+    #endif
 #else
     pinMode(SHIFT_CLK,OUTPUT);
     pinMode(SHIFT_LD,OUTPUT);
@@ -796,6 +822,17 @@ void lcd_update()
     if (lcd_next_update_millis < millis())
     {
 #ifdef ULTIPANEL
+		#ifdef REPRAPWORLD_KEYPAD
+        	if (REPRAPWORLD_KEYPAD_MOVE_Y_DOWN) {
+        		reprapworld_keypad_move_y_down();
+        	}
+        	if (REPRAPWORLD_KEYPAD_MOVE_Y_UP) {
+        		reprapworld_keypad_move_y_up();
+        	}
+        	if (REPRAPWORLD_KEYPAD_MOVE_HOME) {
+        		reprapworld_keypad_move_home();
+        	}
+		#endif
         if (encoderDiff)
         {
             lcdDrawUpdate = 1;
@@ -876,6 +913,20 @@ void lcd_buttons_update()
     if((blocking_enc<millis()) && (READ(BTN_ENC)==0))
         newbutton |= EN_C;
     buttons = newbutton;
+    #ifdef REPRAPWORLD_KEYPAD
+      // for the reprapworld_keypad
+      uint8_t newbutton_reprapworld_keypad=0;
+      WRITE(SHIFT_LD,LOW);
+      WRITE(SHIFT_LD,HIGH);
+      for(int8_t i=0;i<8;i++) {
+          newbutton_reprapworld_keypad = newbutton_reprapworld_keypad>>1;
+          if(READ(SHIFT_OUT))
+              newbutton_reprapworld_keypad|=(1<<7);
+          WRITE(SHIFT_CLK,HIGH);
+          WRITE(SHIFT_CLK,LOW);
+      }
+      buttons_reprapworld_keypad=~newbutton_reprapworld_keypad; //invert it, because a pressed switch produces a logical 0
+	#endif
 #else   //read it from the shift register
     uint8_t newbutton=0;
     WRITE(SHIFT_LD,LOW);
