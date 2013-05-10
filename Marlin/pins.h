@@ -416,7 +416,7 @@
       #define BEEPER 33	 // Beeper on AUX-4
 
       //buttons are directly attached using AUX-2
-      #ifdef KEYPAD
+      #ifdef REPRAPWORLD_KEYPAD
         #define BTN_EN1 64 // encoder
         #define BTN_EN2 59 // encoder
         #define BTN_ENC 63 // enter button
@@ -424,14 +424,14 @@
         #define SHIFT_CLK 44 // shift register
         #define SHIFT_LD 42 // shift register
         // define register bit values, don't change it
-        #define BLEN_KEYPAD_F3 0
-        #define BLEN_KEYPAD_F2 1
-        #define BLEN_KEYPAD_F1 2
-        #define BLEN_KEYPAD_UP 3
-        #define BLEN_KEYPAD_RIGHT 4
-        #define BLEN_KEYPAD_MIDDLE 5
-        #define BLEN_KEYPAD_DOWN 6
-        #define BLEN_KEYPAD_LEFT 7
+        #define BLEN_REPRAPWORLD_KEYPAD_F3 0
+        #define BLEN_REPRAPWORLD_KEYPAD_F2 1
+        #define BLEN_REPRAPWORLD_KEYPAD_F1 2
+        #define BLEN_REPRAPWORLD_KEYPAD_UP 3
+        #define BLEN_REPRAPWORLD_KEYPAD_RIGHT 4
+        #define BLEN_REPRAPWORLD_KEYPAD_MIDDLE 5
+        #define BLEN_REPRAPWORLD_KEYPAD_DOWN 6
+        #define BLEN_REPRAPWORLD_KEYPAD_LEFT 7
 	  #else
         #define BTN_EN1 37
         #define BTN_EN2 35
