@@ -23,6 +23,9 @@
   #ifdef ULTIPANEL
   void lcd_buttons_update();
   extern volatile uint8_t buttons;  //the last checked buttons in a bit array.
+  #ifdef KEYPAD
+    extern volatile uint8_t buttons_keypad; // to store the keypad shiftregister values
+  #endif
   #else
   FORCE_INLINE void lcd_buttons_update() {}
   #endif
@@ -41,6 +44,21 @@
     #define EN_A (1<<BLEN_A)
 
     #define LCD_CLICKED (buttons&EN_C)
+    #ifdef KEYPAD
+  	  #define EN_KEYPAD_F3 (1<<BLEN_KEYPAD_F3)
+  	  #define EN_KEYPAD_F2 (1<<BLEN_KEYPAD_F2)
+  	  #define EN_KEYPAD_F1 (1<<BLEN_KEYPAD_F1)
+  	  #define EN_KEYPAD_UP (1<<BLEN_KEYPAD_UP)
+  	  #define EN_KEYPAD_RIGHT (1<<BLEN_KEYPAD_RIGHT)
+  	  #define EN_KEYPAD_MIDDLE (1<<BLEN_KEYPAD_MIDDLE)
+  	  #define EN_KEYPAD_DOWN (1<<BLEN_KEYPAD_DOWN)
+  	  #define EN_KEYPAD_LEFT (1<<BLEN_KEYPAD_LEFT)
+
+  	  #define LCD_CLICKED ((buttons&EN_C) || (buttons_keypad&EN_KEYPAD_F1))
+  	  #define KEYPAD_MOVE_Y_DOWN (buttons_keypad&EN_KEYPAD_DOWN)
+  	  #define KEYPAD_MOVE_Y_UP (buttons_keypad&EN_KEYPAD_UP)
+  	  #define KEYPAD_MOVE_HOME (buttons_keypad&EN_KEYPAD_MIDDLE)
+    #endif //KEYPAD
   #else
     //atomatic, do not change
     #define B_LE (1<<BL_LE)

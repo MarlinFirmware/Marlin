@@ -338,6 +338,11 @@ const bool Z_ENDSTOPS_INVERTING = true; // set to true to invert the logic of th
 // ==> REMEMBER TO INSTALL U8glib to your ARDUINO library folder: http://code.google.com/p/u8glib/wiki/u8glib
 //#define REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
 
+// The RepRapWorld Keypad v1.1
+// http://reprapworld.com/?products_details&products_id=202&cPath=1591_1626
+//#define KEYPAD
+//#define KEYPAD_MOVE_STEP 10.0 // how much should be moved when a key is pressed, eg 10.0 means 10mm per click
+
 //automatic expansion
 #if defined (REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
  #define DOGLCD
@@ -349,6 +354,11 @@ const bool Z_ENDSTOPS_INVERTING = true; // set to true to invert the logic of th
  #define ULTIPANEL
  #define NEWPANEL
 #endif 
+
+#if defined(KEYPAD)
+  #define NEWPANEL
+  #define ULTIPANEL
+#endif
 
 // Preheat Constants
 #define PLA_PREHEAT_HOTEND_TEMP 180 
