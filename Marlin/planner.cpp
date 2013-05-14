@@ -495,12 +495,29 @@ void check_axes_activity()
 
 #if HEATER_1_PIN > -1
     if (ValvePressure != 0){
-      analogWrite(HEATER_1_PIN,ValvePressure); // If buffer is empty use current fan speed
+      analogWrite(HEATER_1_PIN,ValvePressure); // If buffer is empty use current valve pressure
+    }
+
+    if((ValvePressure == 0) && (valve_pressure ==0)) {
+      analogWrite(HEATER_1_PIN, 0);
+    }
+
+    if (ValvePressure != 0 && tail_valve_pressure !=0) { 
+      analogWrite(HEATER_1_PIN,tail_valve_pressure);
     }
 #endif
+
 #if HEATER_2_PIN > -1
     if (EtoPPressure != 0){
-      analogWrite(HEATER_2_PIN,EtoPPressure); // If buffer is empty use current fan speed
+      analogWrite(HEATER_2_PIN,EtoPPressure); // If buffer is empty use current EtoP pressure
+    }
+
+    if((EtoPPressure == 0) && (e_to_p_pressure ==0)) {
+      analogWrite(HEATER_2_PIN, 0);
+    }
+
+    if (EtoPPressure != 0 && tail_e_to_p_pressure !=0) { 
+      analogWrite(HEATER_2_PIN,tail_e_to_p_pressure);
     }
 #endif
 }
