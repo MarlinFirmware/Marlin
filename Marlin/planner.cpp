@@ -439,12 +439,18 @@ void check_axes_activity()
   unsigned char z_active = 0;
   unsigned char e_active = 0;
   unsigned char tail_fan_speed = fanSpeed;
+  unsigned char valve_pressure = 0;
+  unsigned char e_to_p_pressure = 0;
+  unsigned char tail_valve_pressure = 0;
+  unsigned char tail_e_to_p_pressure = 0;
   block_t *block;
 
   if(block_buffer_tail != block_buffer_head)
   {
     uint8_t block_index = block_buffer_tail;
     tail_fan_speed = block_buffer[block_index].fan_speed;
+    tail_valve_pressure = block_buffer[block_index].valve_pressure;
+    tail_e_to_p_pressure = block_buffer[block_index].e_to_p_pressure;
     while(block_index != block_buffer_head)
     {
       block = &block_buffer[block_index];
@@ -485,6 +491,34 @@ void check_axes_activity()
 #endif//FAN_PIN > -1
 #ifdef AUTOTEMP
   getHighESpeed();
+#endif
+
+#if HEATER_1_PIN > -1
+    if (ValvePressure != 0){
+      analogWrite(HEATER_1_PIN,ValvePressure); // If buffer is empty use current valve pressure
+    }
+
+    if((ValvePressure == 0) && (valve_pressure ==0)) {
+      analogWrite(HEATER_1_PIN, 0);
+    }
+
+    if (ValvePressure != 0 && tail_valve_pressure !=0) { 
+      analogWrite(HEATER_1_PIN,tail_valve_pressure);
+    }
+#endif
+
+#if HEATER_2_PIN > -1
+    if (EtoPPressure != 0){
+      analogWrite(HEATER_2_PIN,EtoPPressure); // If buffer is empty use current EtoP pressure
+    }
+
+    if((EtoPPressure == 0) && (e_to_p_pressure ==0)) {
+      analogWrite(HEATER_2_PIN, 0);
+    }
+
+    if (EtoPPressure != 0 && tail_e_to_p_pressure !=0) { 
+      analogWrite(HEATER_2_PIN,tail_e_to_p_pressure);
+    }
 #endif
 }
 
@@ -559,6 +593,8 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
   }
 
   block->fan_speed = fanSpeed;
+  block->valve_pressure = ValvePressure;
+  block->e_to_p_pressure = EtoPPressure;
 
   // Compute direction bits for this block 
   block->direction_bits = 0;
