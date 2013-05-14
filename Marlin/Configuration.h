@@ -48,7 +48,7 @@
 // 301 = Rambo
 
 #ifndef MOTHERBOARD
-#define MOTHERBOARD 7
+#define MOTHERBOARD 301
 #endif
 
 //// The following define selects which power supply you have. Please choose the one that matches your setup
