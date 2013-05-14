@@ -172,8 +172,10 @@ float extruder_offset[2][EXTRUDERS] = {
 #endif
 uint8_t active_extruder = 0;
 int fanSpeed=0;
+#ifdef BARICUDA
 int ValvePressure=0;
 int EtoPPressure=0;
+#endif
 
 #ifdef FWRETRACT
   bool autoretract_enabled=true;
@@ -1174,37 +1176,37 @@ void process_commands()
         fanSpeed = 0;
         break;
     #endif //FAN_PIN
-
+    #ifdef BARICUDA
 	// PWM for HEATER_1_PIN
-    #if HEATER_1_PIN > -1
-      case 126: //M126 valve open
-        if (code_seen('S')){
-           ValvePressure=constrain(code_value(),0,255);
-        }
-        else {
-          ValvePressure=255;			
-        }
-        break;
-      case 127: //M127 valve closed
-        ValvePressure = 0;
-        break;
-    #endif //HEATER_1_PIN
+      #if HEATER_1_PIN > -1
+        case 126: //M126 valve open
+          if (code_seen('S')){
+             ValvePressure=constrain(code_value(),0,255);
+          }
+          else {
+            ValvePressure=255;			
+          }
+          break;
+        case 127: //M127 valve closed
+          ValvePressure = 0;
+          break;
+      #endif //HEATER_1_PIN
 
-	// PWM for HEATER_2_PIN
-    #if HEATER_2_PIN > -1
-      case 128: //M128 valve open
-        if (code_seen('S')){
-           EtoPPressure=constrain(code_value(),0,255);
-        }
-        else {
-          EtoPPressure=255;			
-        }
-        break;
-      case 129: //M129 valve closed
-        EtoPPressure = 0;
-        break;
-    #endif //HEATER_2_PIN
-
+  	// PWM for HEATER_2_PIN
+      #if HEATER_2_PIN > -1
+        case 128: //M128 valve open
+          if (code_seen('S')){
+             EtoPPressure=constrain(code_value(),0,255);
+          }
+          else {
+            EtoPPressure=255;			
+          }
+          break;
+        case 129: //M129 valve closed
+          EtoPPressure = 0;
+          break;
+      #endif //HEATER_2_PIN
+    #endif
 
     #if (PS_ON_PIN > -1)
       case 80: // M80 - ATX Power On

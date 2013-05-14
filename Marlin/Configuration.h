@@ -403,6 +403,9 @@ const bool Z_ENDSTOPS_INVERTING = true; // set to true to invert the logic of th
 // SF send wrong arc g-codes when using Arc Point as fillet procedure
 //#define SF_ARC_FIX
 
+// Support for the BariCUDA Paste Extruder.
+//#define BARICUDA
+
 #include "Configuration_adv.h"
 #include "thermistortables.h"
 

@@ -1474,7 +1474,11 @@
 #define HEATER_1_PIN 7
 #define TEMP_1_PIN 1
 
+#ifdef BARICUDA
 #define HEATER_2_PIN 6
+#else
+#define HEATER_2_PIN -1
+#endif
 #define TEMP_2_PIN -1
 
 #define E0_STEP_PIN         34

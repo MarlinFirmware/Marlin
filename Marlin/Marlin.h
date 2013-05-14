@@ -186,8 +186,10 @@ extern float add_homeing[3];
 extern float min_pos[3];
 extern float max_pos[3];
 extern int fanSpeed;
+#ifdef BARICUDA
 extern int ValvePressure;
 extern int EtoPPressure;
+#endif
 
 #ifdef FWRETRACT
 extern bool autoretract_enabled;
