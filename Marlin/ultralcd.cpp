@@ -252,6 +252,7 @@ void lcd_preheat_pla()
     setTargetBed(plaPreheatHPBTemp);
     fanSpeed = plaPreheatFanSpeed;
     lcd_return_to_status();
+	setWatch();	// heater sanity check timer
 }
 
 void lcd_preheat_abs()
@@ -262,6 +263,16 @@ void lcd_preheat_abs()
     setTargetBed(absPreheatHPBTemp);
     fanSpeed = absPreheatFanSpeed;
     lcd_return_to_status();
+	setWatch();	// heater sanity check timer
+}
+
+static void lcd_cooldown()
+{
+	setTargetHotend0(0);
+	setTargetHotend1(0);
+	setTargetHotend2(0);
+	setTargetBed(0);
+	lcd_return_to_status();
 }
 
 static void lcd_tune_menu()
@@ -299,7 +310,7 @@ static void lcd_prepare_menu()
     //MENU_ITEM(gcode, MSG_SET_ORIGIN, PSTR("G92 X0 Y0 Z0"));
     MENU_ITEM(function, MSG_PREHEAT_PLA, lcd_preheat_pla);
     MENU_ITEM(function, MSG_PREHEAT_ABS, lcd_preheat_abs);
-    MENU_ITEM(gcode, MSG_COOLDOWN, PSTR("M104 S0\nM140 S0"));
+    MENU_ITEM(function, MSG_COOLDOWN, lcd_cooldown);
     MENU_ITEM(submenu, MSG_MOVE_AXIS, lcd_move_menu);
     END_MENU();
 }
