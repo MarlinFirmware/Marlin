@@ -695,7 +695,7 @@ void tp_init()
 
 #if (EXTRUDERS > 1) && defined(HEATER_1_MINTEMP)
   minttemp[1] = HEATER_1_MINTEMP;
-  while(analog2temp(minttemp_raw[1], 1) > HEATER_1_MINTEMP) {
+  while(analog2temp(minttemp_raw[1], 1) < HEATER_1_MINTEMP) {
 #if HEATER_1_RAW_LO_TEMP < HEATER_1_RAW_HI_TEMP
     minttemp_raw[1] += OVERSAMPLENR;
 #else
@@ -716,7 +716,7 @@ void tp_init()
 
 #if (EXTRUDERS > 2) && defined(HEATER_2_MINTEMP)
   minttemp[2] = HEATER_2_MINTEMP;
-  while(analog2temp(minttemp_raw[2], 2) > HEATER_2_MINTEMP) {
+  while(analog2temp(minttemp_raw[2], 2) < HEATER_2_MINTEMP) {
 #if HEATER_2_RAW_LO_TEMP < HEATER_2_RAW_HI_TEMP
     minttemp_raw[2] += OVERSAMPLENR;
 #else
