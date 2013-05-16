@@ -1,12 +1,12 @@
 # Sprinter Arduino Project Makefile
-# 
+#
 # Makefile Based on:
 # Arduino 0011 Makefile
 # Arduino adaptation by mellis, eighthave, oli.keller
 # Marlin adaption by Daid
 #
 # This has been tested with Arduino 0022.
-# 
+#
 # This makefile allows you to build sketches from the command line
 # without the Arduino environment (or Java).
 #
@@ -21,7 +21,7 @@
 #     (e.g. UPLOAD_PORT = /dev/tty.USB0).  If the exact name of this file
 #     changes, you can use * as a wildcard (e.g. UPLOAD_PORT = /dev/tty.usb*).
 #
-#  3. Set the line containing "MCU" to match your board's processor. 
+#  3. Set the line containing "MCU" to match your board's processor.
 #     Older one's are atmega8 based, newer ones like Arduino Mini, Bluetooth
 #     or Diecimila have the atmega168.  If you're using a LilyPad Arduino,
 #     change F_CPU to 8000000. If you are using Gen7 electronics, you
@@ -44,7 +44,7 @@ ARDUINO_INSTALL_DIR  ?= ../../arduino-0022
 ARDUINO_VERSION      ?= 22
 
 # You can optionally set a path to the avr-gcc tools. Requires a trailing slash. (ex: /usr/local/avr-gcc/bin)
-AVR_TOOLS_PATH ?= 
+AVR_TOOLS_PATH ?=
 
 #Programmer configuration
 UPLOAD_RATE        ?= 115200
@@ -213,7 +213,7 @@ CXXSRC = WMath.cpp WString.cpp Print.cpp Marlin_main.cpp	\
 	SdFile.cpp SdVolume.cpp motion_control.cpp planner.cpp		\
 	stepper.cpp temperature.cpp cardreader.cpp ConfigurationStore.cpp \
 	watchdog.cpp
-CXXSRC += LiquidCrystal.cpp ultralcd.cpp SPI.cpp
+CXXSRC += LiquidCrystal.cpp ultralcd.cpp SPI.cpp Servo.cpp
 
 #Check for Arduino 1.0.0 or higher and use the correct sourcefiles for that version
 ifeq ($(shell [ $(ARDUINO_VERSION) -ge 100 ] && echo true), true)
@@ -317,19 +317,19 @@ endif
 # Default target.
 all: sizeafter
 
-build: $(BUILD_DIR) elf hex 
+build: $(BUILD_DIR) elf hex
 
 # Creates the object directory
-$(BUILD_DIR): 
+$(BUILD_DIR):
 	$P mkdir -p $(BUILD_DIR)
 
 elf: $(BUILD_DIR)/$(TARGET).elf
 hex: $(BUILD_DIR)/$(TARGET).hex
 eep: $(BUILD_DIR)/$(TARGET).eep
-lss: $(BUILD_DIR)/$(TARGET).lss 
+lss: $(BUILD_DIR)/$(TARGET).lss
 sym: $(BUILD_DIR)/$(TARGET).sym
 
-# Program the device.  
+# Program the device.
 # Do not try to reset an arduino if it's not one
 upload: $(BUILD_DIR)/$(TARGET).hex
 ifeq (${AVRDUDE_PROGRAMMER}, arduino)
@@ -356,7 +356,7 @@ COFFCONVERT=$(OBJCOPY) --debugging \
 	--change-section-address .data-0x800000 \
 	--change-section-address .bss-0x800000 \
 	--change-section-address .noinit-0x800000 \
-	--change-section-address .eeprom-0x810000 
+	--change-section-address .eeprom-0x810000
 
 
 coff: $(BUILD_DIR)/$(TARGET).elf
