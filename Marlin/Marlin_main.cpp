@@ -2083,11 +2083,19 @@ void controllerFan()
 
     if ((millis() - lastMotor) >= (CONTROLLERFAN_SEC*1000UL) || lastMotor == 0) //If the last time any driver was enabled, is longer since than CONTROLLERSEC...
     {
-      WRITE(CONTROLLERFAN_PIN, LOW); //... turn the fan off
+      #ifdef CONTROLLERFAN_SPEED
+        analogWrite(CONTROLLERFAN_PIN, 0); //... turn the fan off
+      #else
+        WRITE(CONTROLLERFAN_PIN, LOW); //... turn the fan off
+      #endif
     }
     else
     {
-      WRITE(CONTROLLERFAN_PIN, HIGH); //... turn the fan on
+      #ifdef CONTROLLERFAN_SPEED
+        analogWrite(CONTROLLERFAN_PIN, CONTROLLERFAN_SPEED); //... turn the fan on at the correct speed
+      #else
+        WRITE(CONTROLLERFAN_PIN, HIGH); //... turn the fan on
+      #endif
     }
   }
 }
