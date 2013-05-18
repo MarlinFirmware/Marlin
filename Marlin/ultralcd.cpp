@@ -77,6 +77,7 @@ static void menu_action_setting_edit_callback_float52(const char* pstr, float* p
 static void menu_action_setting_edit_callback_long5(const char* pstr, unsigned long* ptr, unsigned long minValue, unsigned long maxValue, menuFunc_t callbackFunc);
 
 #define ENCODER_STEPS_PER_MENU_ITEM 5
+#define ENCODER_FEEDRATE_DEADZONE 10
 
 /* Helper macros for menus */
 #define START_MENU() do { \
@@ -158,10 +159,34 @@ static void lcd_status_screen()
     if (LCD_CLICKED)
     {
         currentMenu = lcd_main_menu;
+		encoderPosition = 0;
         lcd_quick_feedback();
     }
-    feedmultiply += int(encoderPosition);
-    encoderPosition = 0;
+
+	// Dead zone at 100% feedrate
+	if (feedmultiply < 100 && (feedmultiply + int(encoderPosition)) > 100 ||
+			feedmultiply > 100 && (feedmultiply + int(encoderPosition)) < 100)
+	{
+		encoderPosition = 0;
+		feedmultiply = 100;
+	}
+	
+	if (feedmultiply == 100 && int(encoderPosition) > ENCODER_FEEDRATE_DEADZONE)
+	{
+		feedmultiply += int(encoderPosition) - ENCODER_FEEDRATE_DEADZONE;
+		encoderPosition = 0;
+	}
+	else if (feedmultiply == 100 && int(encoderPosition) < -ENCODER_FEEDRATE_DEADZONE)
+	{
+		feedmultiply += int(encoderPosition) + ENCODER_FEEDRATE_DEADZONE;
+		encoderPosition = 0;	
+	}
+	else if (feedmultiply != 100)
+	{
+    	feedmultiply += int(encoderPosition);
+		encoderPosition = 0;
+    }
+
     if (feedmultiply < 10)
         feedmultiply = 10;
     if (feedmultiply > 999)
