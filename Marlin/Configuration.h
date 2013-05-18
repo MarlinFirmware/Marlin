@@ -168,7 +168,7 @@
 
 #ifdef PIDTEMPBED
 //120v 250W silicone heater into 4mm borosilicate (MendelMax 1.5+)
-//from FOPDT model - kp=.39 Tp=405 Tdead=66, Tc set to 79.2, argressive factor of .15 (vs .1, 1, 10)
+//from FOPDT model - kp=.39 Tp=405 Tdead=66, Tc set to 79.2, aggresive factor of .15 (vs .1, 1, 10)
     #define  DEFAULT_bedKp 10.00
     #define  DEFAULT_bedKi .023
     #define  DEFAULT_bedKd 305.4
@@ -407,21 +407,11 @@ const bool Z_ENDSTOPS_INVERTING = true; // set to true to invert the logic of th
 //#define BARICUDA
 
 /*********************************************************************\
-*
 * R/C SERVO support
-*
 * Sponsored by TrinityLabs, Reworked by codexmas
-*
 **********************************************************************/
-
-// Number of servos
-//
-// If you select a configuration below, this will receive a default value and does not need to be set manually
-// set it manually if you have more servos than extruders and wish to manually control some
-// leaving it undefined or defining as 0 will disable the servo subsystem
-// If unsure, leave commented / disabled
-//
-// #define NUM_SERVOS 3
+// Number of servos, on RAMPS power to servo pins needs vcc pin jumpered to 5v pin or external supply.
+//#define NUM_SERVOS 3 // Indexing starts at 0 for M280 command
 
 #include "Configuration_adv.h"
 #include "thermistortables.h"
