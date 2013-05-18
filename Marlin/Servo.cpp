@@ -41,7 +41,7 @@
  detach()    - Stops an attached servos from pulsing its i/o pin.
 
 */
-
+#ifdef NUM_SERVOS
 #include <avr/interrupt.h>
 #include <Arduino.h>
 
@@ -335,3 +335,5 @@ bool Servo::attached()
 {
   return servos[this->servoIndex].Pin.isActive ;
 }
+
+#endif
