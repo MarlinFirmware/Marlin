@@ -298,12 +298,12 @@ static void lcd_implementation_init()
   #endif
   
 #elif defined(LCD_I2C_TYPE_MCP23017)
-  	lcd.setMCPType(LTI_TYPE_MCP23017);
+    lcd.setMCPType(LTI_TYPE_MCP23017);
     lcd.begin(LCD_WIDTH, LCD_HEIGHT);
     lcd.setBacklight(0); //set all the LEDs off to begin with
     
 #elif defined(LCD_I2C_TYPE_MCP23008)
-  	lcd.setMCPType(LTI_TYPE_MCP23008);
+    lcd.setMCPType(LTI_TYPE_MCP23008);
     lcd.begin(LCD_WIDTH, LCD_HEIGHT);
     
 #else
@@ -497,9 +497,9 @@ static void lcd_implementation_drawmenu_generic(uint8_t row, const char* pstr, c
     char c;
     //Use all characters in narrow LCDs
   #if LCD_WIDTH < 20
-    	uint8_t n = LCD_WIDTH - 1 - 1;
+      uint8_t n = LCD_WIDTH - 1 - 1;
     #else
-    	uint8_t n = LCD_WIDTH - 1 - 2;
+      uint8_t n = LCD_WIDTH - 1 - 2;
   #endif
     lcd.setCursor(0, row);
     lcd.print(pre_char);
@@ -519,9 +519,9 @@ static void lcd_implementation_drawmenu_setting_edit_generic(uint8_t row, const 
     char c;
     //Use all characters in narrow LCDs
   #if LCD_WIDTH < 20
-    	uint8_t n = LCD_WIDTH - 1 - 1 - strlen(data);
+      uint8_t n = LCD_WIDTH - 1 - 1 - strlen(data);
     #else
-    	uint8_t n = LCD_WIDTH - 1 - 2 - strlen(data);
+      uint8_t n = LCD_WIDTH - 1 - 2 - strlen(data);
   #endif
     lcd.setCursor(0, row);
     lcd.print(pre_char);
@@ -541,9 +541,9 @@ static void lcd_implementation_drawmenu_setting_edit_generic_P(uint8_t row, cons
     char c;
     //Use all characters in narrow LCDs
   #if LCD_WIDTH < 20
-    	uint8_t n = LCD_WIDTH - 1 - 1 - strlen_P(data);
+      uint8_t n = LCD_WIDTH - 1 - 1 - strlen_P(data);
     #else
-    	uint8_t n = LCD_WIDTH - 1 - 2 - strlen_P(data);
+      uint8_t n = LCD_WIDTH - 1 - 2 - strlen_P(data);
   #endif
     lcd.setCursor(0, row);
     lcd.print(pre_char);
@@ -600,9 +600,9 @@ void lcd_implementation_drawedit(const char* pstr, char* value)
     lcd_printPGM(pstr);
     lcd.print(':');
    #if LCD_WIDTH < 20
-    	lcd.setCursor(LCD_WIDTH - strlen(value), 1);
+      lcd.setCursor(LCD_WIDTH - strlen(value), 1);
     #else
-    	lcd.setCursor(LCD_WIDTH -1 - strlen(value), 1);
+      lcd.setCursor(LCD_WIDTH -1 - strlen(value), 1);
    #endif
     lcd.print(value);
 }
@@ -720,11 +720,11 @@ static void lcd_implementation_update_indicators()
     //set the LEDS - referred to as backlights by the LiquidTWI2 library 
     static uint8_t ledsprev = 0;
     uint8_t leds = 0;
-    if (isHeatingBed()) leds |= LED_A;
-    if (isHeatingHotend(0)) leds |= LED_B;
+    if (target_temperature_bed > 0) leds |= LED_A;
+    if (target_temperature[0] > 0) leds |= LED_B;
     if (fanSpeed) leds |= LED_C;
     #if EXTRUDERS > 1  
-      if (isHeatingHotend(1)) leds |= LED_C;
+      if (target_temperature[1] > 0) leds |= LED_C;
     #endif
     if (leds != ledsprev) {
       lcd.setBacklight(leds);
