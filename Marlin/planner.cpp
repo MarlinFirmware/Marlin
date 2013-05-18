@@ -439,12 +439,20 @@ void check_axes_activity()
   unsigned char z_active = 0;
   unsigned char e_active = 0;
   unsigned char tail_fan_speed = fanSpeed;
+  #ifdef BARICUDA
+  unsigned char tail_valve_pressure = ValvePressure;
+  unsigned char tail_e_to_p_pressure = EtoPPressure;
+  #endif
   block_t *block;
 
   if(block_buffer_tail != block_buffer_head)
   {
     uint8_t block_index = block_buffer_tail;
     tail_fan_speed = block_buffer[block_index].fan_speed;
+    #ifdef BARICUDA
+    tail_valve_pressure = block_buffer[block_index].valve_pressure;
+    tail_e_to_p_pressure = block_buffer[block_index].e_to_p_pressure;
+    #endif
     while(block_index != block_buffer_head)
     {
       block = &block_buffer[block_index];
@@ -485,6 +493,16 @@ void check_axes_activity()
 #endif//FAN_PIN > -1
 #ifdef AUTOTEMP
   getHighESpeed();
+#endif
+
+#ifdef BARICUDA
+  #if HEATER_1_PIN > -1
+      analogWrite(HEATER_1_PIN,tail_valve_pressure);
+  #endif
+
+  #if HEATER_2_PIN > -1
+      analogWrite(HEATER_2_PIN,tail_e_to_p_pressure);
+  #endif
 #endif
 }
 
@@ -559,6 +577,10 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
   }
 
   block->fan_speed = fanSpeed;
+  #ifdef BARICUDA
+  block->valve_pressure = ValvePressure;
+  block->e_to_p_pressure = EtoPPressure;
+  #endif
 
   // Compute direction bits for this block 
   block->direction_bits = 0;
@@ -582,8 +604,16 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
   block->active_extruder = extruder;
 
   //enable active axes
+  #ifdef COREXY
+  if((block->steps_x != 0) || (block->steps_y != 0))
+  {
+    enable_x();
+    enable_y();
+  }
+  #else
   if(block->steps_x != 0) enable_x();
   if(block->steps_y != 0) enable_y();
+  #endif
 #ifndef Z_LATE_ENABLE
   if(block->steps_z != 0) enable_z();
 #endif
