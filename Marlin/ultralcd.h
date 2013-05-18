@@ -35,7 +35,6 @@
   extern int absPreheatFanSpeed;
     
   void lcd_buzz(long duration,uint16_t freq);
-
   bool lcd_clicked();
 
 #else //no lcd

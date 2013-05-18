@@ -6,7 +6,11 @@
 * When selecting the rusian language, a slightly different LCD implementation is used to handle UTF8 characters.
 **/
 
+#ifndef REPRAPWORLD_KEYPAD
 extern volatile uint8_t buttons;  //the last checked buttons in a bit array.
+#else
+extern volatile uint16_t buttons;  //an extended version of the last checked buttons in a bit array.
+#endif
 
 ////////////////////////////////////
 // Setup button and encode mappings for each panel (into 'buttons' variable)
@@ -55,7 +59,7 @@ extern volatile uint8_t buttons;  //the last checked buttons in a bit array.
 
 #elif defined(LCD_I2C_PANELOLU2)
   // encoder click can be read through I2C if not directly connected
-  #if !defined(BTN_ENC) || BTN_ENC == -1 
+  #if BTN_ENC <= 0 
     #define B_I2C_BTN_OFFSET 3 // (the first three bit positions reserved for EN_A, EN_B, EN_C)
   
     #define B_MI (PANELOLU2_ENCODER_C<<B_I2C_BTN_OFFSET) // requires LiquidTWI2 library v1.2.3 or later
@@ -67,6 +71,33 @@ extern volatile uint8_t buttons;  //the last checked buttons in a bit array.
   #else
     #define LCD_CLICKED (buttons&EN_C)  
   #endif
+
+#elif defined(REPRAPWORLD_KEYPAD)
+    // define register bit values, don't change it
+    #define BLEN_REPRAPWORLD_KEYPAD_F3 0
+    #define BLEN_REPRAPWORLD_KEYPAD_F2 1
+    #define BLEN_REPRAPWORLD_KEYPAD_F1 2
+    #define BLEN_REPRAPWORLD_KEYPAD_UP 3
+    #define BLEN_REPRAPWORLD_KEYPAD_RIGHT 4
+    #define BLEN_REPRAPWORLD_KEYPAD_MIDDLE 5
+    #define BLEN_REPRAPWORLD_KEYPAD_DOWN 6
+    #define BLEN_REPRAPWORLD_KEYPAD_LEFT 7
+    
+    #define REPRAPWORLD_BTN_OFFSET 3 // bit offset into buttons for shift register values
+
+    #define EN_REPRAPWORLD_KEYPAD_F3 (1<<(BLEN_REPRAPWORLD_KEYPAD_F3+REPRAPWORLD_BTN_OFFSET))
+    #define EN_REPRAPWORLD_KEYPAD_F2 (1<<(BLEN_REPRAPWORLD_KEYPAD_F2+REPRAPWORLD_BTN_OFFSET))
+    #define EN_REPRAPWORLD_KEYPAD_F1 (1<<(BLEN_REPRAPWORLD_KEYPAD_F1+REPRAPWORLD_BTN_OFFSET))
+    #define EN_REPRAPWORLD_KEYPAD_UP (1<<(BLEN_REPRAPWORLD_KEYPAD_UP+REPRAPWORLD_BTN_OFFSET))
+    #define EN_REPRAPWORLD_KEYPAD_RIGHT (1<<(BLEN_REPRAPWORLD_KEYPAD_RIGHT+REPRAPWORLD_BTN_OFFSET))
+    #define EN_REPRAPWORLD_KEYPAD_MIDDLE (1<<(BLEN_REPRAPWORLD_KEYPAD_MIDDLE+REPRAPWORLD_BTN_OFFSET))
+    #define EN_REPRAPWORLD_KEYPAD_DOWN (1<<(BLEN_REPRAPWORLD_KEYPAD_DOWN+REPRAPWORLD_BTN_OFFSET))
+    #define EN_REPRAPWORLD_KEYPAD_LEFT (1<<(BLEN_REPRAPWORLD_KEYPAD_LEFT+REPRAPWORLD_BTN_OFFSET))
+
+    #define LCD_CLICKED ((buttons&EN_C) || (buttons&EN_REPRAPWORLD_KEYPAD_F1))
+    #define REPRAPWORLD_KEYPAD_MOVE_Y_DOWN (buttons&EN_REPRAPWORLD_KEYPAD_DOWN)
+    #define REPRAPWORLD_KEYPAD_MOVE_Y_UP (buttons&EN_REPRAPWORLD_KEYPAD_UP)
+    #define REPRAPWORLD_KEYPAD_MOVE_HOME (buttons&EN_REPRAPWORLD_KEYPAD_MIDDLE)
 
 #elif defined(NEWPANEL)
   #define LCD_CLICKED (buttons&EN_C)
@@ -90,7 +121,7 @@ extern volatile uint8_t buttons;  //the last checked buttons in a bit array.
   #define B_ST (1<<BL_ST)
   
   #define LCD_CLICKED (buttons&(B_MI|B_ST))
-#endif//else NEWPANEL
+#endif
 
 ////////////////////////
 // Setup Rotary Encoder Bit Values (for two pin encoders to indicate movement)
