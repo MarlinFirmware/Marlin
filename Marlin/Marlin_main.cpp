@@ -40,11 +40,11 @@
 #include "language.h"
 #include "pins_arduino.h"
 
-#if (defined NUM_SERVOS) && (NUM_SERVOS > 0)
+#if NUM_SERVOS > 0
 #include "Servo.h"
 #endif
 
-#if DIGIPOTSS_PIN > -1
+#if DIGIPOTSS_PIN > 0
 #include <SPI.h>
 #endif
 
@@ -102,7 +102,7 @@
 // M85  - Set inactivity shutdown timer with parameter S<seconds>. To disable set zero (default)
 // M92  - Set axis_steps_per_unit - same syntax as G92
 // M114 - Output current position to serial port
-// M115	- Capabilities string
+// M115 - Capabilities string
 // M117 - display message
 // M119 - Output Endstop status to serial port
 // M126 - Solenoid Air Valve Open (BariCUDA support by jmil)
@@ -230,7 +230,7 @@ static uint8_t tmp_extruder;
 
 bool Stopped=false;
 
-#if (defined NUM_SERVOS) && (NUM_SERVOS > 0)
+#if NUM_SERVOS > 0
   Servo servos[NUM_SERVOS];
 #endif
 
@@ -309,7 +309,7 @@ void setup_killpin()
 void setup_photpin()
 {
   #ifdef PHOTOGRAPH_PIN
-    #if (PHOTOGRAPH_PIN > -1)
+    #if (PHOTOGRAPH_PIN > 0)
     SET_OUTPUT(PHOTOGRAPH_PIN);
     WRITE(PHOTOGRAPH_PIN, LOW);
     #endif
@@ -324,7 +324,7 @@ void setup_powerhold()
       WRITE(SUICIDE_PIN, HIGH);
    #endif
  #endif
- #if (PS_ON_PIN > -1)
+ #if (PS_ON_PIN > 0)
    SET_OUTPUT(PS_ON_PIN);
    WRITE(PS_ON_PIN, PS_ON_AWAKE);
  #endif
@@ -333,7 +333,7 @@ void setup_powerhold()
 void suicide()
 {
  #ifdef SUICIDE_PIN
-    #if (SUICIDE_PIN> -1)
+    #if (SUICIDE_PIN > 0)
       SET_OUTPUT(SUICIDE_PIN);
       WRITE(SUICIDE_PIN, LOW);
     #endif
@@ -342,16 +342,16 @@ void suicide()
 
 void servo_init()
 {
-  #if (NUM_SERVOS >= 1) && defined (SERVO0_PIN) && (SERVO0_PIN > -1)
+  #if (NUM_SERVOS >= 1) && (SERVO0_PIN > 0)
     servos[0].attach(SERVO0_PIN);
   #endif
-  #if (NUM_SERVOS >= 2) && defined (SERVO1_PIN) && (SERVO1_PIN > -1)
+  #if (NUM_SERVOS >= 2) && (SERVO1_PIN > 0)
     servos[1].attach(SERVO1_PIN);
   #endif
-  #if (NUM_SERVOS >= 3) && defined (SERVO2_PIN) && (SERVO2_PIN > -1)
+  #if (NUM_SERVOS >= 3) && (SERVO2_PIN > 0)
     servos[2].attach(SERVO2_PIN);
   #endif
-  #if (NUM_SERVOS >= 4) && defined (SERVO3_PIN) && (SERVO3_PIN > -1)
+  #if (NUM_SERVOS >= 4) && (SERVO3_PIN > 0)
     servos[3].attach(SERVO3_PIN);
   #endif
   #if (NUM_SERVOS >= 5)
@@ -433,9 +433,9 @@ void loop()
     #ifdef SDSUPPORT
       if(card.saving)
       {
-	if(strstr_P(cmdbuffer[bufindr], PSTR("M29")) == NULL)
-	{
-	  card.write_command(cmdbuffer[bufindr]);
+        if(strstr_P(cmdbuffer[bufindr], PSTR("M29")) == NULL)
+        {
+          card.write_command(cmdbuffer[bufindr]);
           if(card.logging)
           {
             process_commands();
@@ -444,16 +444,16 @@ void loop()
           {
             SERIAL_PROTOCOLLNPGM(MSG_OK);
           }
-	}
-	else
-	{
-	  card.closefile();
-	  SERIAL_PROTOCOLLNPGM(MSG_FILE_SAVED);
-	}
+        }
+        else
+        {
+          card.closefile();
+          SERIAL_PROTOCOLLNPGM(MSG_FILE_SAVED);
+        }
       }
       else
       {
-	process_commands();
+        process_commands();
       }
     #else
       process_commands();
@@ -548,10 +548,10 @@ void get_command()
           case 2:
           case 3:
             if(Stopped == false) { // If printer is stopped by an error the G[0-3] codes are ignored.
-	      #ifdef SDSUPPORT
+          #ifdef SDSUPPORT
               if(card.saving)
                 break;
-	      #endif //SDSUPPORT
+          #endif //SDSUPPORT
               SERIAL_PROTOCOLLNPGM(MSG_OK);
             }
             else {
@@ -645,17 +645,17 @@ bool code_seen(char code)
   return (strchr_pointer != NULL);  //Return True if a character was found
 }
 
-#define DEFINE_PGM_READ_ANY(type, reader)		\
-    static inline type pgm_read_any(const type *p)	\
-	{ return pgm_read_##reader##_near(p); }
+#define DEFINE_PGM_READ_ANY(type, reader)       \
+    static inline type pgm_read_any(const type *p)  \
+    { return pgm_read_##reader##_near(p); }
 
 DEFINE_PGM_READ_ANY(float,       float);
 DEFINE_PGM_READ_ANY(signed char, byte);
 
-#define XYZ_CONSTS_FROM_CONFIG(type, array, CONFIG)	\
-static const PROGMEM type array##_P[3] =		\
-    { X_##CONFIG, Y_##CONFIG, Z_##CONFIG };		\
-static inline type array(int axis)			\
+#define XYZ_CONSTS_FROM_CONFIG(type, array, CONFIG) \
+static const PROGMEM type array##_P[3] =        \
+    { X_##CONFIG, Y_##CONFIG, Z_##CONFIG };     \
+static inline type array(int axis)          \
     { return pgm_read_any(&array##_P[axis]); }
 
 XYZ_CONSTS_FROM_CONFIG(float, base_min_pos,    MIN_POS);
@@ -673,7 +673,7 @@ static void axis_is_at_home(int axis) {
 
 static void homeaxis(int axis) {
 #define HOMEAXIS_DO(LETTER) \
-  ((LETTER##_MIN_PIN > -1 && LETTER##_HOME_DIR==-1) || (LETTER##_MAX_PIN > -1 && LETTER##_HOME_DIR==1))
+  ((LETTER##_MIN_PIN > 0 && LETTER##_HOME_DIR==-1) || (LETTER##_MAX_PIN > 0 && LETTER##_HOME_DIR==1))
 
   if (axis==X_AXIS ? HOMEAXIS_DO(X) :
       axis==Y_AXIS ? HOMEAXIS_DO(Y) :
@@ -911,13 +911,13 @@ void process_commands()
       previous_millis_cmd = millis();
       if (codenum > 0){
         codenum += millis();  // keep track of when we started waiting
-        while(millis()  < codenum && !LCD_CLICKED){
+        while(millis()  < codenum && !lcd_clicked()){
           manage_heater();
           manage_inactivity();
           lcd_update();
         }
       }else{
-        while(!LCD_CLICKED){
+        while(!lcd_clicked()){
           manage_heater();
           manage_inactivity();
           lcd_update();
@@ -987,17 +987,17 @@ void process_commands()
       //card,saving = false;
       break;
     case 30: //M30 <filename> Delete File
-	if (card.cardOK){
-		card.closefile();
-		starpos = (strchr(strchr_pointer + 4,'*'));
-                if(starpos != NULL){
-                char* npos = strchr(cmdbuffer[bufindr], 'N');
-                strchr_pointer = strchr(npos,' ') + 1;
-                *(starpos-1) = '\0';
-         }
-	 card.removeFile(strchr_pointer + 4);
-	}
-	break;
+      if (card.cardOK){
+        card.closefile();
+        starpos = (strchr(strchr_pointer + 4,'*'));
+        if(starpos != NULL){
+          char* npos = strchr(cmdbuffer[bufindr], 'N');
+          strchr_pointer = strchr(npos,' ') + 1;
+          *(starpos-1) = '\0';
+        }
+        card.removeFile(strchr_pointer + 4);
+      }
+      break;
     case 928: //M928 - Start SD write
       starpos = (strchr(strchr_pointer + 5,'*'));
       if(starpos != NULL){
@@ -1062,12 +1062,12 @@ void process_commands()
       if(setTargetedHotend(105)){
         break;
       }
-      #if (TEMP_0_PIN > -1)
+      #if (TEMP_0_PIN > 0)
         SERIAL_PROTOCOLPGM("ok T:");
         SERIAL_PROTOCOL_F(degHotend(tmp_extruder),1);
         SERIAL_PROTOCOLPGM(" /");
         SERIAL_PROTOCOL_F(degTargetHotend(tmp_extruder),1);
-        #if TEMP_BED_PIN > -1
+        #if TEMP_BED_PIN > 0
           SERIAL_PROTOCOLPGM(" B:");
           SERIAL_PROTOCOL_F(degBed(),1);
           SERIAL_PROTOCOLPGM(" /");
@@ -1165,7 +1165,7 @@ void process_commands()
       }
       break;
     case 190: // M190 - Wait for bed heater to reach target.
-    #if TEMP_BED_PIN > -1
+    #if TEMP_BED_PIN > 0
         LCD_MESSAGEPGM(MSG_BED_HEATING);
         if (code_seen('S')) setTargetBed(code_value());
         codenum = millis();
@@ -1192,7 +1192,7 @@ void process_commands()
     #endif
         break;
 
-    #if FAN_PIN > -1
+    #if FAN_PIN > 0
       case 106: //M106 Fan On
         if (code_seen('S')){
            fanSpeed=constrain(code_value(),0,255);
@@ -1206,8 +1206,8 @@ void process_commands()
         break;
     #endif //FAN_PIN
     #ifdef BARICUDA
-	// PWM for HEATER_1_PIN
-      #if HEATER_1_PIN > -1
+      // PWM for HEATER_1_PIN
+      #if HEATER_1_PIN > 0
         case 126: //M126 valve open
           if (code_seen('S')){
              ValvePressure=constrain(code_value(),0,255);
@@ -1221,8 +1221,8 @@ void process_commands()
           break;
       #endif //HEATER_1_PIN
 
-  	// PWM for HEATER_2_PIN
-      #if HEATER_2_PIN > -1
+      // PWM for HEATER_2_PIN
+      #if HEATER_2_PIN > 0
         case 128: //M128 valve open
           if (code_seen('S')){
              EtoPPressure=constrain(code_value(),0,255);
@@ -1237,7 +1237,7 @@ void process_commands()
       #endif //HEATER_2_PIN
     #endif
 
-    #if (PS_ON_PIN > -1)
+    #if (PS_ON_PIN > 0)
       case 80: // M80 - ATX Power On
         SET_OUTPUT(PS_ON_PIN); //GND
         WRITE(PS_ON_PIN, PS_ON_AWAKE);
@@ -1246,14 +1246,14 @@ void process_commands()
 
       case 81: // M81 - ATX Power Off
 
-      #if defined SUICIDE_PIN && SUICIDE_PIN > -1
+      #if defined SUICIDE_PIN && SUICIDE_PIN > 0
         st_synchronize();
         suicide();
-      #elif (PS_ON_PIN > -1)
+      #elif (PS_ON_PIN > 0)
         SET_OUTPUT(PS_ON_PIN);
         WRITE(PS_ON_PIN, PS_ON_ASLEEP);
       #endif
-		break;
+        break;
 
     case 82:
       axis_relative_modes[3] = false;
@@ -1354,27 +1354,27 @@ void process_commands()
       break;
     case 119: // M119
     SERIAL_PROTOCOLLN(MSG_M119_REPORT);
-      #if (X_MIN_PIN > -1)
+      #if (X_MIN_PIN > 0)
         SERIAL_PROTOCOLPGM(MSG_X_MIN);
         SERIAL_PROTOCOLLN(((READ(X_MIN_PIN)^X_ENDSTOPS_INVERTING)?MSG_ENDSTOP_HIT:MSG_ENDSTOP_OPEN));
       #endif
-      #if (X_MAX_PIN > -1)
+      #if (X_MAX_PIN > 0)
         SERIAL_PROTOCOLPGM(MSG_X_MAX);
         SERIAL_PROTOCOLLN(((READ(X_MAX_PIN)^X_ENDSTOPS_INVERTING)?MSG_ENDSTOP_HIT:MSG_ENDSTOP_OPEN));
       #endif
-      #if (Y_MIN_PIN > -1)
+      #if (Y_MIN_PIN > 0)
         SERIAL_PROTOCOLPGM(MSG_Y_MIN);
         SERIAL_PROTOCOLLN(((READ(Y_MIN_PIN)^Y_ENDSTOPS_INVERTING)?MSG_ENDSTOP_HIT:MSG_ENDSTOP_OPEN));
       #endif
-      #if (Y_MAX_PIN > -1)
+      #if (Y_MAX_PIN > 0)
         SERIAL_PROTOCOLPGM(MSG_Y_MAX);
         SERIAL_PROTOCOLLN(((READ(Y_MAX_PIN)^Y_ENDSTOPS_INVERTING)?MSG_ENDSTOP_HIT:MSG_ENDSTOP_OPEN));
       #endif
-      #if (Z_MIN_PIN > -1)
+      #if (Z_MIN_PIN > 0)
         SERIAL_PROTOCOLPGM(MSG_Z_MIN);
         SERIAL_PROTOCOLLN(((READ(Z_MIN_PIN)^Z_ENDSTOPS_INVERTING)?MSG_ENDSTOP_HIT:MSG_ENDSTOP_OPEN));
       #endif
-      #if (Z_MAX_PIN > -1)
+      #if (Z_MAX_PIN > 0)
         SERIAL_PROTOCOLPGM(MSG_Z_MAX);
         SERIAL_PROTOCOLLN(((READ(Z_MAX_PIN)^Z_ENDSTOPS_INVERTING)?MSG_ENDSTOP_HIT:MSG_ENDSTOP_OPEN));
       #endif
@@ -1389,7 +1389,7 @@ void process_commands()
         }
       }
       // steps per sq second need to be updated to agree with the units per sq second (as they are what is used in the planner)
-	  reset_acceleration_rates();
+      reset_acceleration_rates();
       break;
     #if 0 // Not used for Sprinter/grbl gen6
     case 202: // M202
@@ -1513,8 +1513,8 @@ void process_commands()
       }
     }
     break;
-
-    #if (defined NUM_SERVOS) && (NUM_SERVOS > 0)
+    
+    #if NUM_SERVOS > 0
     case 280: // M280 - set servo position absolute. P: servo index, S: angle or microseconds
       {
         int servo_index = -1;
@@ -1545,16 +1545,20 @@ void process_commands()
       break;
     #endif // NUM_SERVOS > 0
 
-    #if defined(LARGE_FLASH) && LARGE_FLASH == true && defined(BEEPER) && BEEPER > -1
+    #if LARGE_FLASH == true && ( BEEPER > 0 || defined(ULTRALCD) )
     case 300: // M300
     {
-      int beepS = 1;
+      int beepS = 400;
       int beepP = 1000;
       if(code_seen('S')) beepS = code_value();
       if(code_seen('P')) beepP = code_value();
-      tone(BEEPER, beepS);
-      delay(beepP);
-      noTone(BEEPER);
+      #if BEEPER > 0
+        tone(BEEPER, beepS);
+        delay(beepP);
+        noTone(BEEPER);
+      #elif defined(ULTRALCD)
+        lcd_buzz(beepS, beepP);
+      #endif
     }
     break;
     #endif // M300
@@ -1572,7 +1576,7 @@ void process_commands()
 
         updatePID();
         SERIAL_PROTOCOL(MSG_OK);
-		SERIAL_PROTOCOL(" p:");
+        SERIAL_PROTOCOL(" p:");
         SERIAL_PROTOCOL(Kp);
         SERIAL_PROTOCOL(" i:");
         SERIAL_PROTOCOL(unscalePID_i(Ki));
@@ -1596,7 +1600,7 @@ void process_commands()
 
         updatePID();
         SERIAL_PROTOCOL(MSG_OK);
-		SERIAL_PROTOCOL(" p:");
+        SERIAL_PROTOCOL(" p:");
         SERIAL_PROTOCOL(bedKp);
         SERIAL_PROTOCOL(" i:");
         SERIAL_PROTOCOL(unscalePID_i(bedKi));
@@ -1609,7 +1613,7 @@ void process_commands()
     case 240: // M240  Triggers a camera by emulating a Canon RC-1 : http://www.doc-diy.net/photo/rc-1_hacked/
      {
       #ifdef PHOTOGRAPH_PIN
-        #if (PHOTOGRAPH_PIN > -1)
+        #if (PHOTOGRAPH_PIN > 0)
         const uint8_t NUM_PULSES=16;
         const float PULSE_LENGTH=0.01524;
         for(int i=0; i < NUM_PULSES; i++) {
@@ -1641,8 +1645,8 @@ void process_commands()
       int e=0;
       int c=5;
       if (code_seen('E')) e=code_value();
-			if (e<0)
-				temp=70;
+        if (e<0)
+          temp=70;
       if (code_seen('S')) temp=code_value();
       if (code_seen('C')) c=code_value();
       PID_autotune(temp, e, c);
@@ -1765,23 +1769,24 @@ void process_commands()
         delay(100);
         LCD_ALERTMESSAGEPGM(MSG_FILAMENTCHANGE);
         uint8_t cnt=0;
-        while(!LCD_CLICKED){
+        while(!lcd_clicked()){
           cnt++;
           manage_heater();
           manage_inactivity();
           lcd_update();
-
-          #if BEEPER > -1
           if(cnt==0)
           {
+          #if BEEPER > 0
             SET_OUTPUT(BEEPER);
 
             WRITE(BEEPER,HIGH);
             delay(3);
             WRITE(BEEPER,LOW);
             delay(3);
-          }
+          #else 
+            lcd_buzz(1000/6,100);
           #endif
+          }
         }
 
         //return to normal
@@ -1806,7 +1811,7 @@ void process_commands()
     #endif //FILAMENTCHANGEENABLE
     case 907: // M907 Set digital trimpot motor current using axis codes.
     {
-      #if DIGIPOTSS_PIN > -1
+      #if DIGIPOTSS_PIN > 0
         for(int i=0;i<NUM_AXIS;i++) if(code_seen(axis_codes[i])) digipot_current(i,code_value());
         if(code_seen('B')) digipot_current(4,code_value());
         if(code_seen('S')) for(int i=0;i<=4;i++) digipot_current(i,code_value());
@@ -1815,7 +1820,7 @@ void process_commands()
     break;
     case 908: // M908 Control digital trimpot directly.
     {
-      #if DIGIPOTSS_PIN > -1
+      #if DIGIPOTSS_PIN > 0
         uint8_t channel,current;
         if(code_seen('P')) channel=code_value();
         if(code_seen('S')) current=code_value();
@@ -1825,7 +1830,7 @@ void process_commands()
     break;
     case 350: // M350 Set microstepping mode. Warning: Steps per unit remains unchanged. S code sets stepping mode for all drivers.
     {
-      #if X_MS1_PIN > -1
+      #if X_MS1_PIN > 0
         if(code_seen('S')) for(int i=0;i<=4;i++) microstep_mode(i,code_value());
         for(int i=0;i<NUM_AXIS;i++) if(code_seen(axis_codes[i])) microstep_mode(i,(uint8_t)code_value());
         if(code_seen('B')) microstep_mode(4,code_value());
@@ -1835,7 +1840,7 @@ void process_commands()
     break;
     case 351: // M351 Toggle MS1 MS2 pins directly, S# determines MS1 or MS2, X# sets the pin high/low.
     {
-      #if X_MS1_PIN > -1
+      #if X_MS1_PIN > 0
       if(code_seen('S')) switch((int)code_value())
       {
         case 1:
@@ -2173,7 +2178,7 @@ void kill()
   disable_e1();
   disable_e2();
 
-  if(PS_ON_PIN > -1) pinMode(PS_ON_PIN,INPUT);
+  if(PS_ON_PIN > 0) pinMode(PS_ON_PIN,INPUT);
   SERIAL_ERROR_START;
   SERIAL_ERRORLNPGM(MSG_ERR_KILLED);
   LCD_ALERTMESSAGEPGM(MSG_KILLED);
