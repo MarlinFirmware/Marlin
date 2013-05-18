@@ -90,7 +90,7 @@
 #define TEMP_SENSOR_BED 0
 
 // Actual temperature must be close to target for this long before M109 returns success
-#define TEMP_RESIDENCY_TIME 10	// (seconds)
+#define TEMP_RESIDENCY_TIME 10  // (seconds)
 #define TEMP_HYSTERESIS 3       // (degC) range of +/- temperatures considered "close" to the target one
 #define TEMP_WINDOW     1       // (degC) Window around target to start the recidency timer x degC early.
 
@@ -315,9 +315,18 @@ const bool Z_ENDSTOPS_INVERTING = true; // set to true to invert the logic of th
 // please keep turned on if you can.
 //#define EEPROM_CHITCHAT
 
+// Preheat Constants
+#define PLA_PREHEAT_HOTEND_TEMP 180 
+#define PLA_PREHEAT_HPB_TEMP 70
+#define PLA_PREHEAT_FAN_SPEED 255   // Insert Value between 0 and 255
+
+#define ABS_PREHEAT_HOTEND_TEMP 240
+#define ABS_PREHEAT_HPB_TEMP 100
+#define ABS_PREHEAT_FAN_SPEED 255   // Insert Value between 0 and 255
+
 //LCD and SD support
 //#define ULTRA_LCD  //general lcd support, also 16x2
-//#define DOGLCD	// Support for SPI LCD 128x64 (Controller ST7565R graphic Display Family)
+//#define DOGLCD  // Support for SPI LCD 128x64 (Controller ST7565R graphic Display Family)
 //#define SDSUPPORT // Enable SD Card Support in Hardware Console
 //#define SDSLOW // Use slower SD transfer mode (not normally needed - uncomment if you're getting volume init error)
 
@@ -360,36 +369,67 @@ const bool Z_ENDSTOPS_INVERTING = true; // set to true to invert the logic of th
   #define ULTIPANEL
 #endif
 
-// Preheat Constants
-#define PLA_PREHEAT_HOTEND_TEMP 180
-#define PLA_PREHEAT_HPB_TEMP 70
-#define PLA_PREHEAT_FAN_SPEED 255		// Insert Value between 0 and 255
+//I2C PANELS
 
-#define ABS_PREHEAT_HOTEND_TEMP 240
-#define ABS_PREHEAT_HPB_TEMP 100
-#define ABS_PREHEAT_FAN_SPEED 255		// Insert Value between 0 and 255
+//#define LCD_I2C_SAINSMART_YWROBOT
+#ifdef LCD_I2C_SAINSMART_YWROBOT
+  // This uses the LiquidCrystal_I2C library ( https://bitbucket.org/fmalpartida/new-liquidcrystal/wiki/Home )
+  // Make sure it is placed in the Arduino libraries directory.
+  #define LCD_I2C_TYPE_PCF8575
+  #define LCD_I2C_ADDRESS 0x27   // I2C Address of the port expander
+  #define NEWPANEL
+  #define ULTIPANEL 
+#endif
 
+// PANELOLU2 LCD with status LEDs, separate encoder and click inputs
+//#define LCD_I2C_PANELOLU2
+#ifdef LCD_I2C_PANELOLU2
+  // This uses the LiquidTWI2 library v1.2.3 or later ( https://github.com/lincomatic/LiquidTWI2 )
+  // Make sure the LiquidTWI2 directory is placed in the Arduino or Sketchbook libraries subdirectory.
+  // (v1.2.3 no longer requires you to define PANELOLU in the LiquidTWI2.h library header file)
+  // Note: The PANELOLU2 encoder click input can either be directly connected to a pin 
+  //       (if BTN_ENC defined to != -1) or read through I2C (when BTN_ENC == -1). 
+  #define LCD_I2C_TYPE_MCP23017
+  #define LCD_I2C_ADDRESS 0x20 // I2C Address of the port expander
+  #define LCD_USE_I2C_BUZZER //comment out to disable buzzer on LCD
+  #define NEWPANEL
+  #define ULTIPANEL 
+#endif
+
+// Panucatt VIKI LCD with status LEDs, integrated click & L/R/U/P buttons, separate encoder inputs
+//#define LCD_I2C_VIKI
+#ifdef LCD_I2C_VIKI
+  // This uses the LiquidTWI2 library v1.2.3 or later ( https://github.com/lincomatic/LiquidTWI2 )
+  // Make sure the LiquidTWI2 directory is placed in the Arduino or Sketchbook libraries subdirectory.
+  // Note: The pause/stop/resume LCD button pin should be connected to the Arduino
+  //       BTN_ENC pin (or set BTN_ENC to -1 if not used)
+  #define LCD_I2C_TYPE_MCP23017 
+  #define LCD_I2C_ADDRESS 0x20 // I2C Address of the port expander
+  #define LCD_USE_I2C_BUZZER //comment out to disable buzzer on LCD (requires LiquidTWI2 v1.2.3 or later)
+  #define NEWPANEL
+  #define ULTIPANEL 
+#endif
 
 #ifdef ULTIPANEL
 //  #define NEWPANEL  //enable this if you have a click-encoder panel
   #define SDSUPPORT
   #define ULTRA_LCD
-	#ifdef DOGLCD	// Change number of lines to match the DOG graphic display
-		#define LCD_WIDTH 20
-		#define LCD_HEIGHT 5
-	#else
-		#define LCD_WIDTH 20
-		#define LCD_HEIGHT 4
-	#endif
+  #ifdef DOGLCD // Change number of lines to match the DOG graphic display
+    #define LCD_WIDTH 20
+    #define LCD_HEIGHT 5
+  #else
+    #define LCD_WIDTH 20
+    #define LCD_HEIGHT 4
+  #endif
 #else //no panel but just lcd
   #ifdef ULTRA_LCD
-	#ifdef DOGLCD	// Change number of lines to match the 128x64 graphics display
-		#define LCD_WIDTH 20
-		#define LCD_HEIGHT 5
-	#else
-		#define LCD_WIDTH 16
-		#define LCD_HEIGHT 2
-	#endif
+  #ifdef DOGLCD // Change number of lines to match the 128x64 graphics display
+    #define LCD_WIDTH 20
+    #define LCD_HEIGHT 5
+  #else
+    #define LCD_WIDTH 16
+    #define LCD_HEIGHT 2
+  #endif
   #endif
 #endif
 
