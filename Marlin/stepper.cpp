@@ -879,10 +879,6 @@ void st_init()
     disable_e2();
   #endif  
 
-  #ifdef CONTROLLERFAN_PIN
-    SET_OUTPUT(CONTROLLERFAN_PIN); //Set pin used for driver cooling fan
-  #endif
-  
   // waveform generation = 0100 = CTC
   TCCR1B &= ~(1<<WGM13);
   TCCR1B |=  (1<<WGM12);
