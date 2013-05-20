@@ -99,8 +99,9 @@ static volatile bool temp_meas_ready = false;
 #ifdef FAN_SOFT_PWM
   static unsigned char soft_pwm_fan;
 #endif
-
-
+#if EXTRUDER_0_AUTO_FAN_PIN > 0 || EXTRUDER_1_AUTO_FAN_PIN > 0 || EXTRUDER_2_AUTO_FAN_PIN > 0
+  static unsigned long extruder_autofan_last_check;
+#endif  
   
 #if EXTRUDERS > 3
 # error Unsupported number of extruders
@@ -306,6 +307,76 @@ int getHeaterPower(int heater) {
   return soft_pwm[heater];
 }
 
+#if EXTRUDER_0_AUTO_FAN_PIN > 0 || EXTRUDER_1_AUTO_FAN_PIN > 0 || EXTRUDER_2_AUTO_FAN_PIN > 0
+
+  #if FAN_PIN > 0
+    #if EXTRUDER_0_AUTO_FAN_PIN == FAN_PIN 
+       #error "You cannot set EXTRUDER_0_AUTO_FAN_PIN equal to FAN_PIN"
+    #endif
+    #if EXTRUDER_1_AUTO_FAN_PIN == FAN_PIN 
+       #error "You cannot set EXTRUDER_1_AUTO_FAN_PIN equal to FAN_PIN"
+    #endif
+    #if EXTRUDER_2_AUTO_FAN_PIN == FAN_PIN 
+       #error "You cannot set EXTRUDER_2_AUTO_FAN_PIN equal to FAN_PIN"
+    #endif
+  #endif 
+
+void setExtruderAutoFanState(int pin, bool state)
+{
+  unsigned char newFanSpeed = (state != 0) ? EXTRUDER_AUTO_FAN_SPEED : 0;
+  // this idiom allows both digital and PWM fan outputs (see M42 handling).
+  pinMode(pin, OUTPUT);
+  digitalWrite(pin, newFanSpeed);
+  analogWrite(pin, newFanSpeed);
+}
+
+void checkExtruderAutoFans()
+{
+  uint8_t fanState = 0;
+
+  // which fan pins need to be turned on?      
+  #if EXTRUDER_0_AUTO_FAN_PIN > 0
+    if (current_temperature[0] > EXTRUDER_AUTO_FAN_TEMPERATURE) 
+      fanState |= 1;
+  #endif
+  #if EXTRUDER_1_AUTO_FAN_PIN > 0
+    if (current_temperature[1] > EXTRUDER_AUTO_FAN_TEMPERATURE) 
+    {
+      if (EXTRUDER_1_AUTO_FAN_PIN == EXTRUDER_0_AUTO_FAN_PIN) 
+        fanState |= 1;
+      else
+        fanState |= 2;
+    }
+  #endif
+  #if EXTRUDER_2_AUTO_FAN_PIN > 0
+    if (current_temperature[2] > EXTRUDER_AUTO_FAN_TEMPERATURE) 
+    {
+      if (EXTRUDER_2_AUTO_FAN_PIN == EXTRUDER_0_AUTO_FAN_PIN) 
+        fanState |= 1;
+      else if (EXTRUDER_2_AUTO_FAN_PIN == EXTRUDER_1_AUTO_FAN_PIN) 
+        fanState |= 2;
+      else
+        fanState |= 4;
+    }
+  #endif
+  
+  // update extruder auto fan states
+  #if EXTRUDER_0_AUTO_FAN_PIN > 0
+    setExtruderAutoFanState(EXTRUDER_0_AUTO_FAN_PIN, (fanState & 1) != 0);
+  #endif 
+  #if EXTRUDER_1_AUTO_FAN_PIN > 0
+    if (EXTRUDER_1_AUTO_FAN_PIN != EXTRUDER_0_AUTO_FAN_PIN) 
+      setExtruderAutoFanState(EXTRUDER_1_AUTO_FAN_PIN, (fanState & 2) != 0);
+  #endif 
+  #if EXTRUDER_2_AUTO_FAN_PIN > 0
+    if (EXTRUDER_2_AUTO_FAN_PIN != EXTRUDER_0_AUTO_FAN_PIN 
+        && EXTRUDER_2_AUTO_FAN_PIN != EXTRUDER_1_AUTO_FAN_PIN)
+      setExtruderAutoFanState(EXTRUDER_2_AUTO_FAN_PIN, (fanState & 4) != 0);
+  #endif 
+}
+
+#endif // any extruder auto fan pins set
+
 void manage_heater()
 {
   float pid_input;
@@ -398,8 +469,15 @@ void manage_heater()
     #endif
 
   } // End extruder for loop
-  
 
+  #if EXTRUDER_0_AUTO_FAN_PIN > 0 || EXTRUDER_1_AUTO_FAN_PIN > 0 || EXTRUDER_2_AUTO_FAN_PIN > 0
+  if(millis() - extruder_autofan_last_check > 2500)  // only need to check fan state very infrequently
+  {
+    checkExtruderAutoFans();
+    extruder_autofan_last_check = millis();
+  }  
+  #endif       
+  
   #ifndef PIDTEMPBED
   if(millis() - previous_millis_bed_heater < BED_CHECK_INTERVAL)
     return;
@@ -571,6 +649,12 @@ static void updateTemperaturesFromRawValues()
 
 void tp_init()
 {
+#if (MOTHERBOARD == 80) && ((TEMP_SENSOR_0==-1)||(TEMP_SENSOR_1==-1)||(TEMP_SENSOR_2==-1)||(TEMP_SENSOR_BED==-1))
+  //disable RUMBA JTAG in case the thermocouple extension is plugged on top of JTAG connector
+  MCUCR=(1<<JTD); 
+  MCUCR=(1<<JTD);
+#endif
+  
   // Finish init of mult extruder arrays 
   for(int e = 0; e < EXTRUDERS; e++) {
     // populate with the first value 
@@ -647,7 +731,7 @@ void tp_init()
     #if TEMP_2_PIN < 8
        DIDR0 |= 1 << TEMP_2_PIN; 
     #else
-       DIDR2 = 1<<(TEMP_2_PIN - 8); 
+       DIDR2 |= 1<<(TEMP_2_PIN - 8); 
     #endif
   #endif
   #if (TEMP_BED_PIN > -1)
@@ -689,7 +773,7 @@ void tp_init()
 
 #if (EXTRUDERS > 1) && defined(HEATER_1_MINTEMP)
   minttemp[1] = HEATER_1_MINTEMP;
-  while(analog2temp(minttemp_raw[1], 1) > HEATER_1_MINTEMP) {
+  while(analog2temp(minttemp_raw[1], 1) < HEATER_1_MINTEMP) {
 #if HEATER_1_RAW_LO_TEMP < HEATER_1_RAW_HI_TEMP
     minttemp_raw[1] += OVERSAMPLENR;
 #else
@@ -710,7 +794,7 @@ void tp_init()
 
 #if (EXTRUDERS > 2) && defined(HEATER_2_MINTEMP)
   minttemp[2] = HEATER_2_MINTEMP;
-  while(analog2temp(minttemp_raw[2], 2) > HEATER_2_MINTEMP) {
+  while(analog2temp(minttemp_raw[2], 2) < HEATER_2_MINTEMP) {
 #if HEATER_2_RAW_LO_TEMP < HEATER_2_RAW_HI_TEMP
     minttemp_raw[2] += OVERSAMPLENR;
 #else

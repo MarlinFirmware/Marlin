@@ -79,6 +79,13 @@ static void menu_action_setting_edit_callback_long5(const char* pstr, unsigned l
 #define ENCODER_STEPS_PER_MENU_ITEM 5
 #define ENCODER_FEEDRATE_DEADZONE 10
 
+#if !defined(LCD_I2C_VIKI)
+  #define ENCODER_STEPS_PER_MENU_ITEM 5
+#else
+  #define ENCODER_STEPS_PER_MENU_ITEM 2 // VIKI LCD rotary encoder uses a different number of steps per rotation
+#endif
+
+
 /* Helper macros for menus */
 #define START_MENU() do { \
     if (encoderPosition > 0x8000) encoderPosition = 0; \
@@ -113,15 +120,18 @@ static void menu_action_setting_edit_callback_long5(const char* pstr, unsigned l
     } } while(0)
 
 /** Used variables to keep track of the menu */
+#ifndef REPRAPWORLD_KEYPAD
 volatile uint8_t buttons;//Contains the bits of the currently pressed buttons.
-volatile uint8_t buttons_reprapworld_keypad; // to store the reprapworld_keypad shiftregister values
+#else
+volatile uint16_t buttons;//Contains the bits of the currently pressed buttons (extended).
+#endif
 
 uint8_t currentMenuViewOffset;              /* scroll offset in the current menu */
 uint32_t blocking_enc;
 uint8_t lastEncoderBits;
 int8_t encoderDiff; /* encoderDiff is updated from interrupt context and added to encoderPosition every LCD update */
 uint32_t encoderPosition;
-#if (SDCARDDETECT > -1)
+#if (SDCARDDETECT > 0)
 bool lcd_oldcardstatus;
 #endif
 #endif//ULTIPANEL
@@ -163,28 +173,28 @@ static void lcd_status_screen()
         lcd_quick_feedback();
     }
 
-	// Dead zone at 100% feedrate
-	if (feedmultiply < 100 && (feedmultiply + int(encoderPosition)) > 100 ||
-			feedmultiply > 100 && (feedmultiply + int(encoderPosition)) < 100)
-	{
-		encoderPosition = 0;
-		feedmultiply = 100;
-	}
-	
-	if (feedmultiply == 100 && int(encoderPosition) > ENCODER_FEEDRATE_DEADZONE)
-	{
-		feedmultiply += int(encoderPosition) - ENCODER_FEEDRATE_DEADZONE;
-		encoderPosition = 0;
-	}
-	else if (feedmultiply == 100 && int(encoderPosition) < -ENCODER_FEEDRATE_DEADZONE)
-	{
-		feedmultiply += int(encoderPosition) + ENCODER_FEEDRATE_DEADZONE;
-		encoderPosition = 0;	
-	}
-	else if (feedmultiply != 100)
-	{
-    	feedmultiply += int(encoderPosition);
-		encoderPosition = 0;
+    // Dead zone at 100% feedrate
+    if (feedmultiply < 100 && (feedmultiply + int(encoderPosition)) > 100 ||
+            feedmultiply > 100 && (feedmultiply + int(encoderPosition)) < 100)
+    {
+        encoderPosition = 0;
+        feedmultiply = 100;
+    }
+
+    if (feedmultiply == 100 && int(encoderPosition) > ENCODER_FEEDRATE_DEADZONE)
+    {
+        feedmultiply += int(encoderPosition) - ENCODER_FEEDRATE_DEADZONE;
+        encoderPosition = 0;
+    }
+    else if (feedmultiply == 100 && int(encoderPosition) < -ENCODER_FEEDRATE_DEADZONE)
+    {
+        feedmultiply += int(encoderPosition) + ENCODER_FEEDRATE_DEADZONE;
+        encoderPosition = 0;	
+    }
+    else if (feedmultiply != 100)
+    {
+        feedmultiply += int(encoderPosition);
+        encoderPosition = 0;
     }
 
     if (feedmultiply < 10)
@@ -247,14 +257,14 @@ static void lcd_main_menu()
         }else{
             MENU_ITEM(submenu, MSG_CARD_MENU, lcd_sdcard_menu);
 #if SDCARDDETECT < 1
-			MENU_ITEM(gcode, MSG_CNG_SDCARD, PSTR("M21"));	// SD-card changed by user
-#endif			
+            MENU_ITEM(gcode, MSG_CNG_SDCARD, PSTR("M21"));  // SD-card changed by user
+#endif
         }
     }else{
         MENU_ITEM(submenu, MSG_NO_CARD, lcd_sdcard_menu);
-#if SDCARDDETECT < 1		
-		MENU_ITEM(gcode, MSG_INIT_SDCARD, PSTR("M21"));	// Manually initialize the SD-card via user interface
-#endif		
+#if SDCARDDETECT < 1
+        MENU_ITEM(gcode, MSG_INIT_SDCARD, PSTR("M21")); // Manually initialize the SD-card via user interface
+#endif
     }
 #endif
     END_MENU();
@@ -277,7 +287,7 @@ void lcd_preheat_pla()
     setTargetBed(plaPreheatHPBTemp);
     fanSpeed = plaPreheatFanSpeed;
     lcd_return_to_status();
-	setWatch();	// heater sanity check timer
+    setWatch(); // heater sanity check timer
 }
 
 void lcd_preheat_abs()
@@ -288,16 +298,16 @@ void lcd_preheat_abs()
     setTargetBed(absPreheatHPBTemp);
     fanSpeed = absPreheatFanSpeed;
     lcd_return_to_status();
-	setWatch();	// heater sanity check timer
+    setWatch(); // heater sanity check timer
 }
 
 static void lcd_cooldown()
 {
-	setTargetHotend0(0);
-	setTargetHotend1(0);
-	setTargetHotend2(0);
-	setTargetBed(0);
-	lcd_return_to_status();
+    setTargetHotend0(0);
+    setTargetHotend1(0);
+    setTargetHotend2(0);
+    setTargetBed(0);
+    lcd_return_to_status();
 }
 
 static void lcd_tune_menu()
@@ -496,10 +506,10 @@ static void lcd_control_menu()
 
 static void lcd_control_temperature_menu()
 {
-	// set up temp variables - undo the default scaling
-	raw_Ki = unscalePID_i(Ki);
-	raw_Kd = unscalePID_d(Kd);
-	
+    // set up temp variables - undo the default scaling
+    raw_Ki = unscalePID_i(Ki);
+    raw_Kd = unscalePID_d(Kd);
+
     START_MENU();
     MENU_ITEM(back, MSG_CONTROL, lcd_control_menu);
     MENU_ITEM_EDIT(int3, MSG_NOZZLE, &target_temperature[0], 0, HEATER_0_MAXTEMP - 15);
@@ -521,7 +531,7 @@ static void lcd_control_temperature_menu()
 #endif
 #ifdef PIDTEMP
     MENU_ITEM_EDIT(float52, MSG_PID_P, &Kp, 1, 9990);
-	// i is typically a small value so allows values below 1
+    // i is typically a small value so allows values below 1
     MENU_ITEM_EDIT_CALLBACK(float52, MSG_PID_I, &raw_Ki, 0.01, 9990, copy_and_scalePID_i);
     MENU_ITEM_EDIT_CALLBACK(float52, MSG_PID_D, &raw_Kd, 1, 9990, copy_and_scalePID_d);
 # ifdef PID_ADD_EXTRUSION_RATE
@@ -725,21 +735,21 @@ menu_edit_type(float, float52, ftostr52, 100)
 menu_edit_type(unsigned long, long5, ftostr5, 0.01)
 
 #ifdef REPRAPWORLD_KEYPAD
-	static void reprapworld_keypad_move_y_down() {
+    static void reprapworld_keypad_move_y_down() {
         encoderPosition = 1;
         move_menu_scale = REPRAPWORLD_KEYPAD_MOVE_STEP;
-		lcd_move_y();
-	}
-	static void reprapworld_keypad_move_y_up() {
-		encoderPosition = -1;
-		move_menu_scale = REPRAPWORLD_KEYPAD_MOVE_STEP;
-    	lcd_move_y();
-	}
-	static void reprapworld_keypad_move_home() {
-		//enquecommand_P((PSTR("G28"))); // move all axis home
-		// TODO gregor: move all axis home, i have currently only one axis on my prusa i3
-		enquecommand_P((PSTR("G28 Y")));
-	}
+        lcd_move_y();
+    }
+    static void reprapworld_keypad_move_y_up() {
+        encoderPosition = -1;
+        move_menu_scale = REPRAPWORLD_KEYPAD_MOVE_STEP;
+        lcd_move_y();
+    }
+    static void reprapworld_keypad_move_home() {
+        //enquecommand_P((PSTR("G28"))); // move all axis home
+        // TODO gregor: move all axis home, i have currently only one axis on my prusa i3
+        enquecommand_P((PSTR("G28 Y")));
+    }
 #endif
 
 /** End of menus **/
@@ -800,18 +810,20 @@ void lcd_init()
 #ifdef NEWPANEL
     pinMode(BTN_EN1,INPUT);
     pinMode(BTN_EN2,INPUT); 
-    pinMode(BTN_ENC,INPUT); 
     pinMode(SDCARDDETECT,INPUT);
     WRITE(BTN_EN1,HIGH);
     WRITE(BTN_EN2,HIGH);
+  #if BTN_ENC > 0
+    pinMode(BTN_ENC,INPUT); 
     WRITE(BTN_ENC,HIGH);
-    #ifdef REPRAPWORLD_KEYPAD
-      pinMode(SHIFT_CLK,OUTPUT);
-      pinMode(SHIFT_LD,OUTPUT);
-      pinMode(SHIFT_OUT,INPUT);
-      WRITE(SHIFT_OUT,HIGH);
-      WRITE(SHIFT_LD,HIGH);
-    #endif
+  #endif    
+  #ifdef REPRAPWORLD_KEYPAD
+    pinMode(SHIFT_CLK,OUTPUT);
+    pinMode(SHIFT_LD,OUTPUT);
+    pinMode(SHIFT_OUT,INPUT);
+    WRITE(SHIFT_OUT,HIGH);
+    WRITE(SHIFT_LD,HIGH);
+  #endif
 #else
     pinMode(SHIFT_CLK,OUTPUT);
     pinMode(SHIFT_LD,OUTPUT);
@@ -821,12 +833,14 @@ void lcd_init()
     WRITE(SHIFT_LD,HIGH); 
     WRITE(SHIFT_EN,LOW);
 #endif//!NEWPANEL
-#if (SDCARDDETECT > -1)
+#if (SDCARDDETECT > 0)
     WRITE(SDCARDDETECT, HIGH);
     lcd_oldcardstatus = IS_SD_INSERTED;
-#endif//(SDCARDDETECT > -1)
+#endif//(SDCARDDETECT > 0)
     lcd_buttons_update();
+#ifdef ULTIPANEL    
     encoderDiff = 0;
+#endif    
 }
 
 void lcd_update()
@@ -835,7 +849,11 @@ void lcd_update()
     
     lcd_buttons_update();
     
-    #if (SDCARDDETECT > -1)
+    #ifdef LCD_HAS_SLOW_BUTTONS
+    buttons |= lcd_implementation_read_slow_buttons(); // buttons which take too long to read in interrupt context
+    #endif
+    
+    #if (SDCARDDETECT > 0)
     if((IS_SD_INSERTED != lcd_oldcardstatus))
     {
         lcdDrawUpdate = 2;
@@ -858,17 +876,17 @@ void lcd_update()
     if (lcd_next_update_millis < millis())
     {
 #ifdef ULTIPANEL
-		#ifdef REPRAPWORLD_KEYPAD
-        	if (REPRAPWORLD_KEYPAD_MOVE_Y_DOWN) {
-        		reprapworld_keypad_move_y_down();
-        	}
-        	if (REPRAPWORLD_KEYPAD_MOVE_Y_UP) {
-        		reprapworld_keypad_move_y_up();
-        	}
-        	if (REPRAPWORLD_KEYPAD_MOVE_HOME) {
-        		reprapworld_keypad_move_home();
-        	}
-		#endif
+        #ifdef REPRAPWORLD_KEYPAD
+        if (REPRAPWORLD_KEYPAD_MOVE_Y_DOWN) {
+            reprapworld_keypad_move_y_down();
+        }
+        if (REPRAPWORLD_KEYPAD_MOVE_Y_UP) {
+            reprapworld_keypad_move_y_up();
+        }
+        if (REPRAPWORLD_KEYPAD_MOVE_HOME) {
+            reprapworld_keypad_move_home();
+        }
+        #endif
         if (encoderDiff)
         {
             lcdDrawUpdate = 1;
@@ -881,19 +899,24 @@ void lcd_update()
 #endif//ULTIPANEL
 
 #ifdef DOGLCD        // Changes due to different driver architecture of the DOGM display
-		blink++;	   // Variable for fan animation and alive dot
-		u8g.firstPage();
-		do {
-				u8g.setFont(u8g_font_6x10_marlin);
-				u8g.setPrintPos(125,0);
-				if (blink % 2) u8g.setColorIndex(1); else u8g.setColorIndex(0); // Set color for the alive dot
-				u8g.drawPixel(127,63);	// draw alive dot
-				u8g.setColorIndex(1);	// black on white
-				(*currentMenu)();
-				if (!lcdDrawUpdate)  break; // Terminate display update, when nothing new to draw. This must be done before the last dogm.next()
-		   } while( u8g.nextPage() );
+        blink++;     // Variable for fan animation and alive dot
+        u8g.firstPage();
+        do 
+        {
+            u8g.setFont(u8g_font_6x10_marlin);
+            u8g.setPrintPos(125,0);
+            if (blink % 2) u8g.setColorIndex(1); else u8g.setColorIndex(0); // Set color for the alive dot
+            u8g.drawPixel(127,63); // draw alive dot
+            u8g.setColorIndex(1); // black on white
+            (*currentMenu)();
+            if (!lcdDrawUpdate)  break; // Terminate display update, when nothing new to draw. This must be done before the last dogm.next()
+        } while( u8g.nextPage() );
 #else        
         (*currentMenu)();
+#endif
+
+#ifdef LCD_HAS_STATUS_INDICATORS
+        lcd_implementation_update_indicators();
 #endif
 
 #ifdef ULTIPANEL
@@ -946,23 +969,25 @@ void lcd_buttons_update()
     uint8_t newbutton=0;
     if(READ(BTN_EN1)==0)  newbutton|=EN_A;
     if(READ(BTN_EN2)==0)  newbutton|=EN_B;
+  #if BTN_ENC > 0
     if((blocking_enc<millis()) && (READ(BTN_ENC)==0))
         newbutton |= EN_C;
+  #endif      
+  #ifdef REPRAPWORLD_KEYPAD
+    // for the reprapworld_keypad
+    uint8_t newbutton_reprapworld_keypad=0;
+    WRITE(SHIFT_LD,LOW);
+    WRITE(SHIFT_LD,HIGH);
+    for(int8_t i=0;i<8;i++) {
+        newbutton_reprapworld_keypad = newbutton_reprapworld_keypad>>1;
+        if(READ(SHIFT_OUT))
+            newbutton_reprapworld_keypad|=(1<<7);
+        WRITE(SHIFT_CLK,HIGH);
+        WRITE(SHIFT_CLK,LOW);
+    }
+    newbutton |= ((~newbutton_reprapworld_keypad) << REPRAPWORLD_BTN_OFFSET); //invert it, because a pressed switch produces a logical 0
+  #endif
     buttons = newbutton;
-    #ifdef REPRAPWORLD_KEYPAD
-      // for the reprapworld_keypad
-      uint8_t newbutton_reprapworld_keypad=0;
-      WRITE(SHIFT_LD,LOW);
-      WRITE(SHIFT_LD,HIGH);
-      for(int8_t i=0;i<8;i++) {
-          newbutton_reprapworld_keypad = newbutton_reprapworld_keypad>>1;
-          if(READ(SHIFT_OUT))
-              newbutton_reprapworld_keypad|=(1<<7);
-          WRITE(SHIFT_CLK,HIGH);
-          WRITE(SHIFT_CLK,LOW);
-      }
-      buttons_reprapworld_keypad=~newbutton_reprapworld_keypad; //invert it, because a pressed switch produces a logical 0
-	#endif
 #else   //read it from the shift register
     uint8_t newbutton=0;
     WRITE(SHIFT_LD,LOW);
@@ -1016,6 +1041,18 @@ void lcd_buttons_update()
         }
     }
     lastEncoderBits = enc;
+}
+
+void lcd_buzz(long duration, uint16_t freq)
+{ 
+#ifdef LCD_USE_I2C_BUZZER
+  lcd.buzz(duration,freq);
+#endif   
+}
+
+bool lcd_clicked() 
+{ 
+  return LCD_CLICKED;
 }
 #endif//ULTIPANEL
 
@@ -1218,7 +1255,7 @@ void copy_and_scalePID_i()
 {
   Ki = scalePID_i(raw_Ki);
   updatePID();
-}	
+}
 
 // Callback for after editing PID d value
 // grab the pid d value out of the temp variable; scale it; then update the PID driver
@@ -1226,6 +1263,6 @@ void copy_and_scalePID_d()
 {
   Kd = scalePID_d(raw_Kd);
   updatePID();
-}	
-	
+}
+
 #endif //ULTRA_LCD
