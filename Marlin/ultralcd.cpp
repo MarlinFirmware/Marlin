@@ -169,7 +169,7 @@ static void lcd_status_screen()
     if (LCD_CLICKED)
     {
         currentMenu = lcd_main_menu;
-		encoderPosition = 0;
+        encoderPosition = 0;
         lcd_quick_feedback();
     }
 
