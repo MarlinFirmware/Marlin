@@ -735,7 +735,16 @@
      //The encoder and click button
      #define BTN_EN1 11  
      #define BTN_EN2 10 
-     #define BTN_ENC 16  //the switch
+     #ifdef LCD_I2C_PANELOLU2
+       #ifdef MELZI
+         #define BTN_ENC 29 //the click switch
+         #define SDSS 30 //to use the SD card reader on the Panelolu2 rather than the melzi board
+       #else
+         #define BTN_ENC 30 //the click switch
+       #endif
+     #else
+       #define BTN_ENC 16  //the click switch
+     #endif //Panelolu2
      //not connected to a pin
      #define SDCARDDETECT -1    
     
