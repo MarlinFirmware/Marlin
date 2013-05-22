@@ -472,7 +472,7 @@ void check_axes_activity()
     disable_e1();
     disable_e2(); 
   }
-#if FAN_PIN > -1
+#if defined(FAN_PIN) && FAN_PIN > -1
   #ifndef FAN_SOFT_PWM
     #ifdef FAN_KICKSTART_TIME
       static unsigned long fan_kick_end;
@@ -496,11 +496,11 @@ void check_axes_activity()
 #endif
 
 #ifdef BARICUDA
-  #if HEATER_1_PIN > -1
+  #if defined(HEATER_1_PIN) && HEATER_1_PIN > -1
       analogWrite(HEATER_1_PIN,tail_valve_pressure);
   #endif
 
-  #if HEATER_2_PIN > -1
+  #if defined(HEATER_2_PIN) && HEATER_2_PIN > -1
       analogWrite(HEATER_2_PIN,tail_e_to_p_pressure);
   #endif
 #endif

@@ -44,7 +44,7 @@
 #include "Servo.h"
 #endif
 
-#if DIGIPOTSS_PIN > 0
+#if defined(DIGIPOTSS_PIN) && DIGIPOTSS_PIN > -1
 #include <SPI.h>
 #endif
 
@@ -300,7 +300,7 @@ void enquecommand_P(const char *cmd)
 
 void setup_killpin()
 {
-  #if( KILL_PIN>-1 )
+  #if defined(KILL_PIN) && KILL_PIN > -1
     pinMode(KILL_PIN,INPUT);
     WRITE(KILL_PIN,HIGH);
   #endif
@@ -308,50 +308,44 @@ void setup_killpin()
 
 void setup_photpin()
 {
-  #ifdef PHOTOGRAPH_PIN
-    #if (PHOTOGRAPH_PIN > 0)
+  #if defined(PHOTOGRAPH_PIN) && PHOTOGRAPH_PIN > -1
     SET_OUTPUT(PHOTOGRAPH_PIN);
     WRITE(PHOTOGRAPH_PIN, LOW);
-    #endif
   #endif
 }
 
 void setup_powerhold()
 {
- #ifdef SUICIDE_PIN
-   #if (SUICIDE_PIN> 0)
-      SET_OUTPUT(SUICIDE_PIN);
-      WRITE(SUICIDE_PIN, HIGH);
-   #endif
- #endif
- #if (PS_ON_PIN > 0)
-   SET_OUTPUT(PS_ON_PIN);
-   WRITE(PS_ON_PIN, PS_ON_AWAKE);
- #endif
+  #if defined(SUICIDE_PIN) && SUICIDE_PIN > -1
+    SET_OUTPUT(SUICIDE_PIN);
+    WRITE(SUICIDE_PIN, HIGH);
+  #endif
+  #if defined(PS_ON_PIN) && PS_ON_PIN > -1
+    SET_OUTPUT(PS_ON_PIN);
+    WRITE(PS_ON_PIN, PS_ON_AWAKE);
+  #endif
 }
 
 void suicide()
 {
- #ifdef SUICIDE_PIN
-    #if (SUICIDE_PIN > 0)
-      SET_OUTPUT(SUICIDE_PIN);
-      WRITE(SUICIDE_PIN, LOW);
-    #endif
+  #if defined(SUICIDE_PIN) && SUICIDE_PIN > -1
+    SET_OUTPUT(SUICIDE_PIN);
+    WRITE(SUICIDE_PIN, LOW);
   #endif
 }
 
 void servo_init()
 {
-  #if (NUM_SERVOS >= 1) && (SERVO0_PIN > 0)
+  #if (NUM_SERVOS >= 1) && defined(SERVO0_PIN) && (SERVO0_PIN > -1)
     servos[0].attach(SERVO0_PIN);
   #endif
-  #if (NUM_SERVOS >= 2) && (SERVO1_PIN > 0)
+  #if (NUM_SERVOS >= 2) && defined(SERVO1_PIN) && (SERVO1_PIN > -1)
     servos[1].attach(SERVO1_PIN);
   #endif
-  #if (NUM_SERVOS >= 3) && (SERVO2_PIN > 0)
+  #if (NUM_SERVOS >= 3) && defined(SERVO2_PIN) && (SERVO2_PIN > -1)
     servos[2].attach(SERVO2_PIN);
   #endif
-  #if (NUM_SERVOS >= 4) && (SERVO3_PIN > 0)
+  #if (NUM_SERVOS >= 4) && defined(SERVO3_PIN) && (SERVO3_PIN > -1)
     servos[3].attach(SERVO3_PIN);
   #endif
   #if (NUM_SERVOS >= 5)
@@ -411,7 +405,7 @@ void setup()
 
   lcd_init();
   
-  #if CONTROLLERFAN_PIN > 0
+  #if defined(CONTROLLERFAN_PIN) && CONTROLLERFAN_PIN > -1
     SET_OUTPUT(CONTROLLERFAN_PIN); //Set pin used for driver cooling fan
   #endif 
 }
@@ -669,7 +663,7 @@ static void axis_is_at_home(int axis) {
 
 static void homeaxis(int axis) {
 #define HOMEAXIS_DO(LETTER) \
-  ((LETTER##_MIN_PIN > 0 && LETTER##_HOME_DIR==-1) || (LETTER##_MAX_PIN > 0 && LETTER##_HOME_DIR==1))
+  ((LETTER##_MIN_PIN > -1 && LETTER##_HOME_DIR==-1) || (LETTER##_MAX_PIN > -1 && LETTER##_HOME_DIR==1))
 
   if (axis==X_AXIS ? HOMEAXIS_DO(X) :
       axis==Y_AXIS ? HOMEAXIS_DO(Y) :
@@ -1036,7 +1030,7 @@ void process_commands()
             break;
           }
         }
-      #if FAN_PIN > 0
+      #if defined(FAN_PIN) && FAN_PIN > -1
         if (pin_number == FAN_PIN)
           fanSpeed = pin_status;
       #endif
@@ -1062,12 +1056,12 @@ void process_commands()
       if(setTargetedHotend(105)){
         break;
       }
-      #if (TEMP_0_PIN > 0)
+      #if defined(TEMP_0_PIN) && TEMP_0_PIN > -1
         SERIAL_PROTOCOLPGM("ok T:");
         SERIAL_PROTOCOL_F(degHotend(tmp_extruder),1);
         SERIAL_PROTOCOLPGM(" /");
         SERIAL_PROTOCOL_F(degTargetHotend(tmp_extruder),1);
-        #if TEMP_BED_PIN > 0
+        #if defined(TEMP_BED_PIN) && TEMP_BED_PIN > -1
           SERIAL_PROTOCOLPGM(" B:");
           SERIAL_PROTOCOL_F(degBed(),1);
           SERIAL_PROTOCOLPGM(" /");
@@ -1165,7 +1159,7 @@ void process_commands()
       }
       break;
     case 190: // M190 - Wait for bed heater to reach target.
-    #if TEMP_BED_PIN > 0
+    #if defined(TEMP_BED_PIN) && TEMP_BED_PIN > -1
         LCD_MESSAGEPGM(MSG_BED_HEATING);
         if (code_seen('S')) setTargetBed(code_value());
         codenum = millis();
@@ -1192,7 +1186,7 @@ void process_commands()
     #endif
         break;
 
-    #if FAN_PIN > 0
+    #if defined(FAN_PIN) && FAN_PIN > -1
       case 106: //M106 Fan On
         if (code_seen('S')){
            fanSpeed=constrain(code_value(),0,255);
@@ -1207,7 +1201,7 @@ void process_commands()
     #endif //FAN_PIN
     #ifdef BARICUDA
       // PWM for HEATER_1_PIN
-      #if HEATER_1_PIN > 0
+      #if defined(HEATER_1_PIN) && HEATER_1_PIN > -1
         case 126: //M126 valve open
           if (code_seen('S')){
              ValvePressure=constrain(code_value(),0,255);
@@ -1222,7 +1216,7 @@ void process_commands()
       #endif //HEATER_1_PIN
 
       // PWM for HEATER_2_PIN
-      #if HEATER_2_PIN > 0
+      #if defined(HEATER_2_PIN) && HEATER_2_PIN > -1
         case 128: //M128 valve open
           if (code_seen('S')){
              EtoPPressure=constrain(code_value(),0,255);
@@ -1237,7 +1231,7 @@ void process_commands()
       #endif //HEATER_2_PIN
     #endif
 
-    #if (PS_ON_PIN > 0)
+    #if defined(PS_ON_PIN) && PS_ON_PIN > -1
       case 80: // M80 - ATX Power On
         SET_OUTPUT(PS_ON_PIN); //GND
         WRITE(PS_ON_PIN, PS_ON_AWAKE);
@@ -1246,10 +1240,10 @@ void process_commands()
 
       case 81: // M81 - ATX Power Off
 
-      #if defined SUICIDE_PIN && SUICIDE_PIN > 0
+      #if defined(SUICIDE_PIN) && SUICIDE_PIN > -1
         st_synchronize();
         suicide();
-      #elif (PS_ON_PIN > 0)
+      #elif defined(PS_ON_PIN) && PS_ON_PIN > -1
         SET_OUTPUT(PS_ON_PIN);
         WRITE(PS_ON_PIN, PS_ON_ASLEEP);
       #endif
@@ -1354,27 +1348,27 @@ void process_commands()
       break;
     case 119: // M119
     SERIAL_PROTOCOLLN(MSG_M119_REPORT);
-      #if (X_MIN_PIN > 0)
+      #if defined(X_MIN_PIN) && X_MIN_PIN > -1
         SERIAL_PROTOCOLPGM(MSG_X_MIN);
         SERIAL_PROTOCOLLN(((READ(X_MIN_PIN)^X_ENDSTOPS_INVERTING)?MSG_ENDSTOP_HIT:MSG_ENDSTOP_OPEN));
       #endif
-      #if (X_MAX_PIN > 0)
+      #if defined(X_MAX_PIN) && X_MAX_PIN > -1
         SERIAL_PROTOCOLPGM(MSG_X_MAX);
         SERIAL_PROTOCOLLN(((READ(X_MAX_PIN)^X_ENDSTOPS_INVERTING)?MSG_ENDSTOP_HIT:MSG_ENDSTOP_OPEN));
       #endif
-      #if (Y_MIN_PIN > 0)
+      #if defined(Y_MIN_PIN) && Y_MIN_PIN > -1
         SERIAL_PROTOCOLPGM(MSG_Y_MIN);
         SERIAL_PROTOCOLLN(((READ(Y_MIN_PIN)^Y_ENDSTOPS_INVERTING)?MSG_ENDSTOP_HIT:MSG_ENDSTOP_OPEN));
       #endif
-      #if (Y_MAX_PIN > 0)
+      #if defined(Y_MAX_PIN) && Y_MAX_PIN > -1
         SERIAL_PROTOCOLPGM(MSG_Y_MAX);
         SERIAL_PROTOCOLLN(((READ(Y_MAX_PIN)^Y_ENDSTOPS_INVERTING)?MSG_ENDSTOP_HIT:MSG_ENDSTOP_OPEN));
       #endif
-      #if (Z_MIN_PIN > 0)
+      #if defined(Z_MIN_PIN) && Z_MIN_PIN > -1
         SERIAL_PROTOCOLPGM(MSG_Z_MIN);
         SERIAL_PROTOCOLLN(((READ(Z_MIN_PIN)^Z_ENDSTOPS_INVERTING)?MSG_ENDSTOP_HIT:MSG_ENDSTOP_OPEN));
       #endif
-      #if (Z_MAX_PIN > 0)
+      #if defined(Z_MAX_PIN) && Z_MAX_PIN > -1
         SERIAL_PROTOCOLPGM(MSG_Z_MAX);
         SERIAL_PROTOCOLLN(((READ(Z_MAX_PIN)^Z_ENDSTOPS_INVERTING)?MSG_ENDSTOP_HIT:MSG_ENDSTOP_OPEN));
       #endif
@@ -1612,8 +1606,7 @@ void process_commands()
     #endif //PIDTEMP
     case 240: // M240  Triggers a camera by emulating a Canon RC-1 : http://www.doc-diy.net/photo/rc-1_hacked/
      {
-      #ifdef PHOTOGRAPH_PIN
-        #if (PHOTOGRAPH_PIN > 0)
+      #if defined(PHOTOGRAPH_PIN) && PHOTOGRAPH_PIN > -1
         const uint8_t NUM_PULSES=16;
         const float PULSE_LENGTH=0.01524;
         for(int i=0; i < NUM_PULSES; i++) {
@@ -1629,7 +1622,6 @@ void process_commands()
           WRITE(PHOTOGRAPH_PIN, LOW);
           _delay_ms(PULSE_LENGTH);
         }
-        #endif
       #endif
      }
     break;
@@ -1811,7 +1803,7 @@ void process_commands()
     #endif //FILAMENTCHANGEENABLE
     case 907: // M907 Set digital trimpot motor current using axis codes.
     {
-      #if DIGIPOTSS_PIN > 0
+      #if defined(DIGIPOTSS_PIN) && DIGIPOTSS_PIN > -1
         for(int i=0;i<NUM_AXIS;i++) if(code_seen(axis_codes[i])) digipot_current(i,code_value());
         if(code_seen('B')) digipot_current(4,code_value());
         if(code_seen('S')) for(int i=0;i<=4;i++) digipot_current(i,code_value());
@@ -1820,7 +1812,7 @@ void process_commands()
     break;
     case 908: // M908 Control digital trimpot directly.
     {
-      #if DIGIPOTSS_PIN > 0
+      #if defined(DIGIPOTSS_PIN) && DIGIPOTSS_PIN > -1
         uint8_t channel,current;
         if(code_seen('P')) channel=code_value();
         if(code_seen('S')) current=code_value();
@@ -1830,7 +1822,7 @@ void process_commands()
     break;
     case 350: // M350 Set microstepping mode. Warning: Steps per unit remains unchanged. S code sets stepping mode for all drivers.
     {
-      #if X_MS1_PIN > 0
+      #if defined(X_MS1_PIN) && X_MS1_PIN > -1
         if(code_seen('S')) for(int i=0;i<=4;i++) microstep_mode(i,code_value());
         for(int i=0;i<NUM_AXIS;i++) if(code_seen(axis_codes[i])) microstep_mode(i,(uint8_t)code_value());
         if(code_seen('B')) microstep_mode(4,code_value());
@@ -1840,7 +1832,7 @@ void process_commands()
     break;
     case 351: // M351 Toggle MS1 MS2 pins directly, S# determines MS1 or MS2, X# sets the pin high/low.
     {
-      #if X_MS1_PIN > 0
+      #if defined(X_MS1_PIN) && X_MS1_PIN > -1
       if(code_seen('S')) switch((int)code_value())
       {
         case 1:
@@ -2064,11 +2056,13 @@ void prepare_arc_move(char isclockwise) {
   previous_millis_cmd = millis();
 }
 
-#if CONTROLLERFAN_PIN > 0
+#if defined(CONTROLLERFAN_PIN) && CONTROLLERFAN_PIN > -1
 
-#if CONTROLLERFAN_PIN == FAN_PIN 
-   #error "You cannot set CONTROLLERFAN_PIN equal to FAN_PIN"
-#endif
+#if defined(FAN_PIN)
+  #if CONTROLLERFAN_PIN == FAN_PIN 
+    #error "You cannot set CONTROLLERFAN_PIN equal to FAN_PIN"
+  #endif
+#endif  
 
 unsigned long lastMotor = 0; //Save the time for when a motor was turned on last
 unsigned long lastMotorCheck = 0;
@@ -2124,11 +2118,11 @@ void manage_inactivity()
       }
     }
   }
-  #if KILL_PIN > 0
+  #if defined(KILL_PIN) && KILL_PIN > -1
     if( 0 == READ(KILL_PIN) )
       kill();
   #endif
-  #if CONTROLLERFAN_PIN > 0
+  #if defined(CONTROLLERFAN_PIN) && CONTROLLERFAN_PIN > -1
     controllerFan(); //Check if fan should be turned on to cool stepper drivers down
   #endif
   #ifdef EXTRUDER_RUNOUT_PREVENT
@@ -2165,7 +2159,9 @@ void kill()
   disable_e1();
   disable_e2();
 
-  if(PS_ON_PIN > 0) pinMode(PS_ON_PIN,INPUT);
+#if defined(PS_ON_PIN) && PS_ON_PIN > -1
+  pinMode(PS_ON_PIN,INPUT);
+#endif  
   SERIAL_ERROR_START;
   SERIAL_ERRORLNPGM(MSG_ERR_KILLED);
   LCD_ALERTMESSAGEPGM(MSG_KILLED);
