@@ -99,7 +99,9 @@ static volatile bool temp_meas_ready = false;
 #ifdef FAN_SOFT_PWM
   static unsigned char soft_pwm_fan;
 #endif
-#if EXTRUDER_0_AUTO_FAN_PIN > 0 || EXTRUDER_1_AUTO_FAN_PIN > 0 || EXTRUDER_2_AUTO_FAN_PIN > 0
+#if (defined(EXTRUDER_0_AUTO_FAN_PIN) && EXTRUDER_0_AUTO_FAN_PIN > -1) || \
+    (defined(EXTRUDER_1_AUTO_FAN_PIN) && EXTRUDER_1_AUTO_FAN_PIN > -1) || \
+    (defined(EXTRUDER_2_AUTO_FAN_PIN) && EXTRUDER_2_AUTO_FAN_PIN > -1)
   static unsigned long extruder_autofan_last_check;
 #endif  
   
@@ -307,9 +309,11 @@ int getHeaterPower(int heater) {
   return soft_pwm[heater];
 }
 
-#if EXTRUDER_0_AUTO_FAN_PIN > 0 || EXTRUDER_1_AUTO_FAN_PIN > 0 || EXTRUDER_2_AUTO_FAN_PIN > 0
+#if (defined(EXTRUDER_0_AUTO_FAN_PIN) && EXTRUDER_0_AUTO_FAN_PIN > -1) || \
+    (defined(EXTRUDER_1_AUTO_FAN_PIN) && EXTRUDER_1_AUTO_FAN_PIN > -1) || \
+    (defined(EXTRUDER_2_AUTO_FAN_PIN) && EXTRUDER_2_AUTO_FAN_PIN > -1)
 
-  #if FAN_PIN > 0
+  #if defined(FAN_PIN) && FAN_PIN > -1
     #if EXTRUDER_0_AUTO_FAN_PIN == FAN_PIN 
        #error "You cannot set EXTRUDER_0_AUTO_FAN_PIN equal to FAN_PIN"
     #endif
@@ -335,11 +339,11 @@ void checkExtruderAutoFans()
   uint8_t fanState = 0;
 
   // which fan pins need to be turned on?      
-  #if EXTRUDER_0_AUTO_FAN_PIN > 0
+  #if defined(EXTRUDER_0_AUTO_FAN_PIN) && EXTRUDER_0_AUTO_FAN_PIN > -1
     if (current_temperature[0] > EXTRUDER_AUTO_FAN_TEMPERATURE) 
       fanState |= 1;
   #endif
-  #if EXTRUDER_1_AUTO_FAN_PIN > 0
+  #if defined(EXTRUDER_1_AUTO_FAN_PIN) && EXTRUDER_1_AUTO_FAN_PIN > -1
     if (current_temperature[1] > EXTRUDER_AUTO_FAN_TEMPERATURE) 
     {
       if (EXTRUDER_1_AUTO_FAN_PIN == EXTRUDER_0_AUTO_FAN_PIN) 
@@ -348,7 +352,7 @@ void checkExtruderAutoFans()
         fanState |= 2;
     }
   #endif
-  #if EXTRUDER_2_AUTO_FAN_PIN > 0
+  #if defined(EXTRUDER_2_AUTO_FAN_PIN) && EXTRUDER_2_AUTO_FAN_PIN > -1
     if (current_temperature[2] > EXTRUDER_AUTO_FAN_TEMPERATURE) 
     {
       if (EXTRUDER_2_AUTO_FAN_PIN == EXTRUDER_0_AUTO_FAN_PIN) 
@@ -361,14 +365,14 @@ void checkExtruderAutoFans()
   #endif
   
   // update extruder auto fan states
-  #if EXTRUDER_0_AUTO_FAN_PIN > 0
+  #if defined(EXTRUDER_0_AUTO_FAN_PIN) && EXTRUDER_0_AUTO_FAN_PIN > -1
     setExtruderAutoFanState(EXTRUDER_0_AUTO_FAN_PIN, (fanState & 1) != 0);
   #endif 
-  #if EXTRUDER_1_AUTO_FAN_PIN > 0
+  #if defined(EXTRUDER_1_AUTO_FAN_PIN) && EXTRUDER_1_AUTO_FAN_PIN > -1
     if (EXTRUDER_1_AUTO_FAN_PIN != EXTRUDER_0_AUTO_FAN_PIN) 
       setExtruderAutoFanState(EXTRUDER_1_AUTO_FAN_PIN, (fanState & 2) != 0);
   #endif 
-  #if EXTRUDER_2_AUTO_FAN_PIN > 0
+  #if defined(EXTRUDER_2_AUTO_FAN_PIN) && EXTRUDER_2_AUTO_FAN_PIN > -1
     if (EXTRUDER_2_AUTO_FAN_PIN != EXTRUDER_0_AUTO_FAN_PIN 
         && EXTRUDER_2_AUTO_FAN_PIN != EXTRUDER_1_AUTO_FAN_PIN)
       setExtruderAutoFanState(EXTRUDER_2_AUTO_FAN_PIN, (fanState & 4) != 0);
@@ -470,7 +474,9 @@ void manage_heater()
 
   } // End extruder for loop
 
-  #if EXTRUDER_0_AUTO_FAN_PIN > 0 || EXTRUDER_1_AUTO_FAN_PIN > 0 || EXTRUDER_2_AUTO_FAN_PIN > 0
+  #if (defined(EXTRUDER_0_AUTO_FAN_PIN) && EXTRUDER_0_AUTO_FAN_PIN > -1) || \
+      (defined(EXTRUDER_1_AUTO_FAN_PIN) && EXTRUDER_1_AUTO_FAN_PIN > -1) || \
+      (defined(EXTRUDER_2_AUTO_FAN_PIN) && EXTRUDER_2_AUTO_FAN_PIN > -1)
   if(millis() - extruder_autofan_last_check > 2500)  // only need to check fan state very infrequently
   {
     checkExtruderAutoFans();
@@ -669,19 +675,19 @@ void tp_init()
 #endif //PIDTEMPBED
   }
 
-  #if (HEATER_0_PIN > -1) 
+  #if defined(HEATER_0_PIN) && (HEATER_0_PIN > -1) 
     SET_OUTPUT(HEATER_0_PIN);
   #endif  
-  #if (HEATER_1_PIN > -1) 
+  #if defined(HEATER_1_PIN) && (HEATER_1_PIN > -1) 
     SET_OUTPUT(HEATER_1_PIN);
   #endif  
-  #if (HEATER_2_PIN > -1) 
+  #if defined(HEATER_2_PIN) && (HEATER_2_PIN > -1) 
     SET_OUTPUT(HEATER_2_PIN);
   #endif  
-  #if (HEATER_BED_PIN > -1) 
+  #if defined(HEATER_BED_PIN) && (HEATER_BED_PIN > -1) 
     SET_OUTPUT(HEATER_BED_PIN);
   #endif  
-  #if (FAN_PIN > -1) 
+  #if defined(FAN_PIN) && (FAN_PIN > -1) 
     SET_OUTPUT(FAN_PIN);
     #ifdef FAST_PWM_FAN
     setPwmFrequency(FAN_PIN, 1); // No prescaling. Pwm frequency = F_CPU/256/8
@@ -713,28 +719,28 @@ void tp_init()
   #ifdef DIDR2
     DIDR2 = 0;
   #endif
-  #if (TEMP_0_PIN > -1)
+  #if defined(TEMP_0_PIN) && (TEMP_0_PIN > -1)
     #if TEMP_0_PIN < 8
        DIDR0 |= 1 << TEMP_0_PIN; 
     #else
        DIDR2 |= 1<<(TEMP_0_PIN - 8); 
     #endif
   #endif
-  #if (TEMP_1_PIN > -1)
+  #if defined(TEMP_1_PIN) && (TEMP_1_PIN > -1)
     #if TEMP_1_PIN < 8
        DIDR0 |= 1<<TEMP_1_PIN; 
     #else
        DIDR2 |= 1<<(TEMP_1_PIN - 8); 
     #endif
   #endif
-  #if (TEMP_2_PIN > -1)
+  #if defined(TEMP_2_PIN) && (TEMP_2_PIN > -1)
     #if TEMP_2_PIN < 8
        DIDR0 |= 1 << TEMP_2_PIN; 
     #else
        DIDR2 |= 1<<(TEMP_2_PIN - 8); 
     #endif
   #endif
-  #if (TEMP_BED_PIN > -1)
+  #if defined(TEMP_BED_PIN) && (TEMP_BED_PIN > -1)
     #if TEMP_BED_PIN < 8
        DIDR0 |= 1<<TEMP_BED_PIN; 
     #else
@@ -855,34 +861,34 @@ void disable_heater()
   for(int i=0;i<EXTRUDERS;i++)
     setTargetHotend(0,i);
   setTargetBed(0);
-  #if TEMP_0_PIN > -1
+  #if defined(TEMP_0_PIN) && TEMP_0_PIN > -1
   target_temperature[0]=0;
   soft_pwm[0]=0;
-   #if HEATER_0_PIN > -1  
+   #if defined(HEATER_0_PIN) && HEATER_0_PIN > -1  
      WRITE(HEATER_0_PIN,LOW);
    #endif
   #endif
      
-  #if TEMP_1_PIN > -1
+  #if defined(TEMP_1_PIN) && TEMP_1_PIN > -1
     target_temperature[1]=0;
     soft_pwm[1]=0;
-    #if HEATER_1_PIN > -1 
+    #if defined(HEATER_1_PIN) && HEATER_1_PIN > -1 
       WRITE(HEATER_1_PIN,LOW);
     #endif
   #endif
       
-  #if TEMP_2_PIN > -1
+  #if defined(TEMP_2_PIN) && TEMP_2_PIN > -1
     target_temperature[2]=0;
     soft_pwm[2]=0;
-    #if HEATER_2_PIN > -1  
+    #if defined(HEATER_2_PIN) && HEATER_2_PIN > -1  
       WRITE(HEATER_2_PIN,LOW);
     #endif
   #endif 
 
-  #if TEMP_BED_PIN > -1
+  #if defined(TEMP_BED_PIN) && TEMP_BED_PIN > -1
     target_temperature_bed=0;
     soft_pwm_bed=0;
-    #if HEATER_BED_PIN > -1  
+    #if defined(HEATER_BED_PIN) && HEATER_BED_PIN > -1  
       WRITE(HEATER_BED_PIN,LOW);
     #endif
   #endif 
@@ -1018,7 +1024,7 @@ ISR(TIMER0_COMPB_vect)
     soft_pwm_2 = soft_pwm[2];
     if(soft_pwm_2 > 0) WRITE(HEATER_2_PIN,1);
     #endif
-    #if HEATER_BED_PIN > -1
+    #if defined(HEATER_BED_PIN) && HEATER_BED_PIN > -1
     soft_pwm_b = soft_pwm_bed;
     if(soft_pwm_b > 0) WRITE(HEATER_BED_PIN,1);
     #endif
@@ -1034,7 +1040,7 @@ ISR(TIMER0_COMPB_vect)
   #if EXTRUDERS > 2
   if(soft_pwm_2 <= pwm_count) WRITE(HEATER_2_PIN,0);
   #endif
-  #if HEATER_BED_PIN > -1
+  #if defined(HEATER_BED_PIN) && HEATER_BED_PIN > -1
   if(soft_pwm_b <= pwm_count) WRITE(HEATER_BED_PIN,0);
   #endif
   #ifdef FAN_SOFT_PWM
@@ -1046,7 +1052,7 @@ ISR(TIMER0_COMPB_vect)
   
   switch(temp_state) {
     case 0: // Prepare TEMP_0
-      #if (TEMP_0_PIN > -1)
+      #if defined(TEMP_0_PIN) && (TEMP_0_PIN > -1)
         #if TEMP_0_PIN > 7
           ADCSRB = 1<<MUX5;
         #else
@@ -1059,7 +1065,7 @@ ISR(TIMER0_COMPB_vect)
       temp_state = 1;
       break;
     case 1: // Measure TEMP_0
-      #if (TEMP_0_PIN > -1)
+      #if defined(TEMP_0_PIN) && (TEMP_0_PIN > -1)
         raw_temp_0_value += ADC;
       #endif
       #ifdef HEATER_0_USES_MAX6675 // TODO remove the blocking
@@ -1068,7 +1074,7 @@ ISR(TIMER0_COMPB_vect)
       temp_state = 2;
       break;
     case 2: // Prepare TEMP_BED
-      #if (TEMP_BED_PIN > -1)
+      #if defined(TEMP_BED_PIN) && (TEMP_BED_PIN > -1)
         #if TEMP_BED_PIN > 7
           ADCSRB = 1<<MUX5;
         #else
@@ -1081,13 +1087,13 @@ ISR(TIMER0_COMPB_vect)
       temp_state = 3;
       break;
     case 3: // Measure TEMP_BED
-      #if (TEMP_BED_PIN > -1)
+      #if defined(TEMP_BED_PIN) && (TEMP_BED_PIN > -1)
         raw_temp_bed_value += ADC;
       #endif
       temp_state = 4;
       break;
     case 4: // Prepare TEMP_1
-      #if (TEMP_1_PIN > -1)
+      #if defined(TEMP_1_PIN) && (TEMP_1_PIN > -1)
         #if TEMP_1_PIN > 7
           ADCSRB = 1<<MUX5;
         #else
@@ -1100,13 +1106,13 @@ ISR(TIMER0_COMPB_vect)
       temp_state = 5;
       break;
     case 5: // Measure TEMP_1
-      #if (TEMP_1_PIN > -1)
+      #if defined(TEMP_1_PIN) && (TEMP_1_PIN > -1)
         raw_temp_1_value += ADC;
       #endif
       temp_state = 6;
       break;
     case 6: // Prepare TEMP_2
-      #if (TEMP_2_PIN > -1)
+      #if defined(TEMP_2_PIN) && (TEMP_2_PIN > -1)
         #if TEMP_2_PIN > 7
           ADCSRB = 1<<MUX5;
         #else
@@ -1119,7 +1125,7 @@ ISR(TIMER0_COMPB_vect)
       temp_state = 7;
       break;
     case 7: // Measure TEMP_2
-      #if (TEMP_2_PIN > -1)
+      #if defined(TEMP_2_PIN) && (TEMP_2_PIN > -1)
         raw_temp_2_value += ADC;
       #endif
       temp_state = 0;

@@ -47,6 +47,6 @@
   #endif
 #endif
 
-#if DIGIPOTSS_PIN > -1
+#if defined(DIGIPOTSS_PIN) && DIGIPOTSS_PIN > -1
 #include <SPI.h>
 #endif
