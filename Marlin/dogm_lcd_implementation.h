@@ -279,7 +279,7 @@ static void lcd_implementation_status_screen()
  // Fan
  u8g.setFont(FONT_STATUSMENU);
  u8g.setPrintPos(104,27);
- #if FAN_PIN > 0
+ #if defined(FAN_PIN) && FAN_PIN > -1
  u8g.print(itostr3(int((fanSpeed*100)/256 + 1)));
  u8g.print("%");
  #else
