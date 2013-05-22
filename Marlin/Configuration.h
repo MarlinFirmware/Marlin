@@ -152,7 +152,7 @@
 // Bed Temperature Control
 // Select PID or bang-bang with PIDTEMPBED.  If bang-bang, BED_LIMIT_SWITCHING will enable hysteresis
 //
-// uncomment this to enable PID on the bed.   It uses the same ferquency PWM as the extruder.
+// uncomment this to enable PID on the bed.   It uses the same frequency PWM as the extruder.
 // If your PID_dT above is the default, and correct for your hardware/configuration, that means 7.689Hz,
 // which is fine for driving a square wave into a resistive load and does not significantly impact you FET heating.
 // This also works fine on a Fotek SSR-10DA Solid State Relay into a 250W heater.
