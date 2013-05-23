@@ -124,7 +124,14 @@
 	#define MSG_FILAMENTCHANGE "Change filament"
 	#define MSG_INIT_SDCARD "Init. SD-Card"	
 	#define MSG_CNG_SDCARD "Change SD-Card"
-
+	#define MSG_MOVE_X "Move X"
+	#define MSG_MOVE_Y "Move Y"
+	#define MSG_MOVE_Z "Move Z"
+	#define MSG_MOVE_10MM "Move 10mm"
+	#define MSG_MOVE_1MM "Move 1mm"
+	#define MSG_MOVE_TENTH_MM "Move 0.1mm"
+	#define MSG_ENDSTOP_ABORT "Endstop abort"
+	
 // Serial Console Messages
 
 	#define MSG_Enqueing "enqueing \""
@@ -443,6 +450,13 @@
 	#define MSG_FILAMENTCHANGE "Changer filament"  // "Change filament"
 	#define MSG_INIT_SDCARD "Init. Carte SD"  // "Init. SD-Card"
 	#define MSG_CNG_SDCARD "Changer Carte SD"  // "Change SD-Card"
+	#define MSG_MOVE_X "Deplace X" // "Move X"
+	#define MSG_MOVE_Y "Deplace Y" // "Move Y"
+	#define MSG_MOVE_Z "Deplace Z" // "Move Z"
+	#define MSG_MOVE_10MM "Deplacer de  10mm" // "Move 10mm"
+	#define MSG_MOVE_1MM "Deplacer de   1mm" // "Move 1mm"
+	#define MSG_MOVE_TENTH_MM "Deplacer de 0.1mm" // "Move 0.1mm"
+	#define MSG_ENDSTOP_ABORT "Abandon Endstop" // "Endstop abort"
 
 // Serial Console Messages
 
