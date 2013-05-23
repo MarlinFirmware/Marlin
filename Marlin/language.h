@@ -505,7 +505,7 @@
 	#define MSG_Y_MAX "y_max: "  // "y_max: "
 	#define MSG_Z_MIN "z_min: "  // "z_min: "
 	#define MSG_Z_MAX "z_max: "  // "z_max: "
-	#define MSG_M119_REPORT "Affichage du statut des fins de course"  // "Reporting endstop status"
+	#define MSG_M119_REPORT "Affichage du statut des fdc"  // "Reporting endstop status"
 	#define MSG_ENDSTOP_HIT "DECLENCHE"  // "TRIGGERED"
 	#define MSG_ENDSTOP_OPEN "ouvert"  // "open"
 	#define MSG_HOTEND_OFFSET "Decalages Hotend:"  // "Hotend offsets:"
@@ -527,7 +527,7 @@
 	#define MSG_SD_CANT_ENTER_SUBDIR "Impossible d'entrer dans le sous-repertoire: "  // "Cannot enter subdir: "
 
 	#define MSG_STEPPER_TO_HIGH "Steprate trop eleve: "  // "Steprate to high: "
-	#define MSG_ENDSTOPS_HIT "fin de course atteint: "  // "endstops hit: "
+	#define MSG_ENDSTOPS_HIT "fdc atteint: "  // "endstops hit: "
 	#define MSG_ERR_COLD_EXTRUDE_STOP " extrusion a froid evitee"  // " cold extrusion prevented"
 	#define MSG_ERR_LONG_EXTRUDE_STOP " extrusion trop longue evitee"  // " too long extrusion prevented"
 
