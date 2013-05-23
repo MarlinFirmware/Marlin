@@ -435,7 +435,7 @@ static void lcd_move_e()
     }
     if (lcdDrawUpdate)
     {
-        lcd_implementation_drawedit(PSTR("Extruder"), ftostr31(current_position[E_AXIS]));
+        lcd_implementation_drawedit(PSTR(MSG_EXTRUDER), ftostr31(current_position[E_AXIS]));
     }
     if (LCD_CLICKED)
     {
