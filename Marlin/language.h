@@ -29,6 +29,9 @@
 #elif MOTHERBOARD == 80
 	#define MACHINE_NAME "Rumba"
 	#define FIRMWARE_URL "https://github.com/ErikZalm/Marlin/"
+#elif MOTHERBOARD == 34
+	#define MACHINE_NAME "PRUSA i3"
+	#define FIRMWARE_URL "https://github.com/josefprusa/Prusa3"
 #else
 	#define MACHINE_NAME "Mendel"
 	#define FIRMWARE_URL "http://www.mendel-parts.com"
