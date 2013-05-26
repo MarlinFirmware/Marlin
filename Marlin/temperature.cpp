@@ -40,10 +40,13 @@
 int target_temperature[EXTRUDERS] = { 0 };
 int target_temperature_bed = 0;
 int current_temperature_raw[EXTRUDERS] = { 0 };
-float current_temperature[EXTRUDERS] = { 0 };
+float current_temperature[EXTRUDERS] = { 0.0 };
 int current_temperature_bed_raw = 0;
-float current_temperature_bed = 0;
-
+float current_temperature_bed = 0.0;
+#ifdef TEMP_SENSOR_1_AS_REDUNDANT
+  int redundant_temperature_raw = 0;
+  float redundant_temperature = 0.0;
+#endif
 #ifdef PIDTEMP
   float Kp=DEFAULT_Kp;
   float Ki=(DEFAULT_Ki*PID_dT);
@@ -157,28 +160,28 @@ void PID_autotune(float temp, int extruder, int ncycles)
   float Kp, Ki, Kd;
   float max = 0, min = 10000;
 
-	if ((extruder > EXTRUDERS)
+  if ((extruder > EXTRUDERS)
   #if (TEMP_BED_PIN <= -1)
-		||(extruder < 0)
-	#endif
-	){
-  	SERIAL_ECHOLN("PID Autotune failed. Bad extruder number.");
-  	return;
-	}
+       ||(extruder < 0)
+  #endif
+       ){
+          SERIAL_ECHOLN("PID Autotune failed. Bad extruder number.");
+          return;
+        }
 	
   SERIAL_ECHOLN("PID Autotune start");
   
   disable_heater(); // switch off all heaters.
 
-	if (extruder<0)
-	{
-	 	soft_pwm_bed = (MAX_BED_POWER)/2;
-		bias = d = (MAX_BED_POWER)/2;
-  }
-	else
-	{
-	  soft_pwm[extruder] = (PID_MAX)/2;
-		bias = d = (PID_MAX)/2;
+  if (extruder<0)
+  {
+     soft_pwm_bed = (MAX_BED_POWER)/2;
+     bias = d = (MAX_BED_POWER)/2;
+   }
+   else
+   {
+     soft_pwm[extruder] = (PID_MAX)/2;
+     bias = d = (PID_MAX)/2;
   }
 
 
@@ -196,10 +199,10 @@ void PID_autotune(float temp, int extruder, int ncycles)
       if(heating == true && input > temp) {
         if(millis() - t2 > 5000) { 
           heating=false;
-					if (extruder<0)
-						soft_pwm_bed = (bias - d) >> 1;
-					else
-						soft_pwm[extruder] = (bias - d) >> 1;
+          if (extruder<0)
+            soft_pwm_bed = (bias - d) >> 1;
+          else
+            soft_pwm[extruder] = (bias - d) >> 1;
           t1=millis();
           t_high=t1 - t2;
           max=temp;
@@ -250,10 +253,10 @@ void PID_autotune(float temp, int extruder, int ncycles)
               */
             }
           }
-					if (extruder<0)
-						soft_pwm_bed = (bias + d) >> 1;
-					else
-						soft_pwm[extruder] = (bias + d) >> 1;
+          if (extruder<0)
+            soft_pwm_bed = (bias + d) >> 1;
+          else
+            soft_pwm[extruder] = (bias + d) >> 1;
           cycles++;
           min=temp;
         }
@@ -264,14 +267,14 @@ void PID_autotune(float temp, int extruder, int ncycles)
       return;
     }
     if(millis() - temp_millis > 2000) {
-			int p;
-			if (extruder<0){
-	      p=soft_pwm_bed;       
-	      SERIAL_PROTOCOLPGM("ok B:");
-			}else{
-	      p=soft_pwm[extruder];       
-	      SERIAL_PROTOCOLPGM("ok T:");
-			}
+      int p;
+      if (extruder<0){
+        p=soft_pwm_bed;       
+        SERIAL_PROTOCOLPGM("ok B:");
+      }else{
+        p=soft_pwm[extruder];       
+        SERIAL_PROTOCOLPGM("ok T:");
+      }
 			
       SERIAL_PROTOCOL(input);   
       SERIAL_PROTOCOLPGM(" @:");
@@ -471,7 +474,19 @@ void manage_heater()
         }
     }
     #endif
-
+    #ifdef TEMP_SENSOR_1_AS_REDUNDANT
+      if(fabs(current_temperature[1] - redundant_temperature) > MAX_REDUNDANT_TEMP_SENSOR_DIFF) {
+        disable_heater();
+        if(IsStopped() == false) {
+          SERIAL_ERROR_START;
+          SERIAL_ERRORLNPGM("Extruder switched off. Temperature difference between temp sensors is to high !");
+          LCD_ALERTMESSAGEPGM("Err: REDUNDANT TEMP ERROR");
+        }
+        #ifndef BOGUS_TEMPERATURE_FAILSAFE_OVERRIDE
+          Stop();
+        #endif
+      }
+    #endif
   } // End extruder for loop
 
   #if (defined(EXTRUDER_0_AUTO_FAN_PIN) && EXTRUDER_0_AUTO_FAN_PIN > -1) || \
@@ -644,7 +659,9 @@ static void updateTemperaturesFromRawValues()
         current_temperature[e] = analog2temp(current_temperature_raw[e], e);
     }
     current_temperature_bed = analog2tempBed(current_temperature_bed_raw);
-
+    #ifdef TEMP_SENSOR_1_AS_REDUNDANT
+      redundant_temperature =analog2temp(redundant_temperature_raw, 1);
+    #endif
     //Reset the watchdog after we know we have a temperature measurement.
     watchdog_reset();
 
@@ -1144,6 +1161,9 @@ ISR(TIMER0_COMPB_vect)
       current_temperature_raw[0] = raw_temp_0_value;
 #if EXTRUDERS > 1
       current_temperature_raw[1] = raw_temp_1_value;
+#endif
+#ifdef TEMP_SENSOR_1_AS_REDUNDANT
+      redundant_temperature_raw = raw_temp_1_value;
 #endif
 #if EXTRUDERS > 2
       current_temperature_raw[2] = raw_temp_2_value;

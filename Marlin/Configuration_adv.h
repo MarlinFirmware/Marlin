@@ -367,5 +367,8 @@ const unsigned int dropsegments=5; //everything with less than this number of st
   #undef BED_MAXTEMP
 #endif
 
+#if EXTRUDERS > 1 && defined TEMP_SENSOR_1_AS_REDUNDANT
+  #error "You cannot use  TEMP_SENSOR_1_AS_REDUNDANT if EXTRUDERS > 1"
+#endif
 
 #endif //__CONFIGURATION_ADV_H
