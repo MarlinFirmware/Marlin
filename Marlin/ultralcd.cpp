@@ -919,7 +919,7 @@ void lcd_update()
 #endif
 
 #ifdef ULTIPANEL
-        if(timeoutToStatus < millis() && currentMenu != lcd_status_screen)
+        if(timeoutToStatus < millis() && currentMenu != lcd_status_screen && LCD_TIMEOUT_TO_STATUS > -1)
         {
             lcd_return_to_status();
             lcdDrawUpdate = 2;
