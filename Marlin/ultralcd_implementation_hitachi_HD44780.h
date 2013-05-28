@@ -503,7 +503,7 @@ static void lcd_implementation_drawmenu_generic(uint8_t row, const char* pstr, c
   #endif
     lcd.setCursor(0, row);
     lcd.print(pre_char);
-    while((c = pgm_read_byte(pstr)) != '\0')
+    while( ((c = pgm_read_byte(pstr)) != '\0') && (n>0) )
     {
         lcd.print(c);
         pstr++;
@@ -525,7 +525,7 @@ static void lcd_implementation_drawmenu_setting_edit_generic(uint8_t row, const 
   #endif
     lcd.setCursor(0, row);
     lcd.print(pre_char);
-    while((c = pgm_read_byte(pstr)) != '\0')
+    while( ((c = pgm_read_byte(pstr)) != '\0') && (n>0) )
     {
         lcd.print(c);
         pstr++;
@@ -547,7 +547,7 @@ static void lcd_implementation_drawmenu_setting_edit_generic_P(uint8_t row, cons
   #endif
     lcd.setCursor(0, row);
     lcd.print(pre_char);
-    while((c = pgm_read_byte(pstr)) != '\0')
+    while( ((c = pgm_read_byte(pstr)) != '\0') && (n>0) )
     {
         lcd.print(c);
         pstr++;
@@ -617,7 +617,7 @@ static void lcd_implementation_drawmenu_sdfile_selected(uint8_t row, const char*
         filename = longFilename;
         longFilename[LCD_WIDTH-1] = '\0';
     }
-    while((c = *filename) != '\0')
+    while( ((c = *filename) != '\0') && (n>0) )
     {
         lcd.print(c);
         filename++;
@@ -637,7 +637,7 @@ static void lcd_implementation_drawmenu_sdfile(uint8_t row, const char* pstr, co
         filename = longFilename;
         longFilename[LCD_WIDTH-1] = '\0';
     }
-    while((c = *filename) != '\0')
+    while( ((c = *filename) != '\0') && (n>0) )
     {
         lcd.print(c);
         filename++;
@@ -658,7 +658,7 @@ static void lcd_implementation_drawmenu_sddirectory_selected(uint8_t row, const 
         filename = longFilename;
         longFilename[LCD_WIDTH-2] = '\0';
     }
-    while((c = *filename) != '\0')
+    while( ((c = *filename) != '\0') && (n>0) )
     {
         lcd.print(c);
         filename++;
@@ -679,7 +679,7 @@ static void lcd_implementation_drawmenu_sddirectory(uint8_t row, const char* pst
         filename = longFilename;
         longFilename[LCD_WIDTH-2] = '\0';
     }
-    while((c = *filename) != '\0')
+    while( ((c = *filename) != '\0') && (n>0) )
     {
         lcd.print(c);
         filename++;
