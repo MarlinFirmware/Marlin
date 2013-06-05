@@ -318,6 +318,9 @@ const unsigned int dropsegments=5; //everything with less than this number of st
 //===========================================================================
 //=============================  Define Defines  ============================
 //===========================================================================
+#if EXTRUDERS > 1 && defined TEMP_SENSOR_1_AS_REDUNDANT
+  #error "You cannot use  TEMP_SENSOR_1_AS_REDUNDANT if EXTRUDERS > 1"
+#endif
 
 #if TEMP_SENSOR_0 > 0
   #define THERMISTORHEATER_0 TEMP_SENSOR_0
