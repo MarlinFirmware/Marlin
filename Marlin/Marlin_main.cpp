@@ -177,6 +177,10 @@ float extruder_offset[2][EXTRUDERS] = {
 #endif
 uint8_t active_extruder = 0;
 int fanSpeed=0;
+#ifdef SERVO_ENDSTOPS
+  int servo_endstops[] = SERVO_ENDSTOPS;
+  int servo_endstop_angles[] = SERVO_ENDSTOP_ANGLES;
+#endif
 #ifdef BARICUDA
 int ValvePressure=0;
 int EtoPPressure=0;
