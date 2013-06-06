@@ -351,6 +351,16 @@ void servo_init()
   #if (NUM_SERVOS >= 5)
     #error "TODO: enter initalisation code for more servos"
   #endif
+
+  // Set position of Servo Endstops that are defined
+  #ifdef SERVO_ENDSTOPS
+  for(int8_t i = 0; i < 3; i++)
+  {
+    if(servo_endstops[i] > -1) {
+      servos[servo_endstops[i]].write(servo_endstop_angles[i * 2 + 1]);
+    }
+  }
+  #endif
 }
 
 void setup()
@@ -664,11 +674,16 @@ static void axis_is_at_home(int axis) {
 static void homeaxis(int axis) {
 #define HOMEAXIS_DO(LETTER) \
   ((LETTER##_MIN_PIN > -1 && LETTER##_HOME_DIR==-1) || (LETTER##_MAX_PIN > -1 && LETTER##_HOME_DIR==1))
-
   if (axis==X_AXIS ? HOMEAXIS_DO(X) :
       axis==Y_AXIS ? HOMEAXIS_DO(Y) :
       axis==Z_AXIS ? HOMEAXIS_DO(Z) :
       0) {
+
+    // Engage Servo endstop if enabled
+    #ifdef SERVO_ENDSTOPS[axis] > -1
+      servos[servo_endstops[axis]].write(servo_endstop_angles[axis * 2]);
+    #endif
+
     current_position[axis] = 0;
     plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
     destination[axis] = 1.5 * max_length(axis) * home_dir(axis);
@@ -691,6 +706,11 @@ static void homeaxis(int axis) {
     destination[axis] = current_position[axis];
     feedrate = 0.0;
     endstops_hit_on_purpose();
+
+    // Retract Servo endstop if enabled
+    #ifdef SERVO_ENDSTOPS[axis] > -1
+      servos[servo_endstops[axis]].write(servo_endstop_angles[axis * 2 + 1]);
+    #endif
   }
 }
 #define HOMEAXIS(LETTER) homeaxis(LETTER##_AXIS)
