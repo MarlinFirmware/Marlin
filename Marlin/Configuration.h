@@ -470,7 +470,15 @@ const bool Z_ENDSTOPS_INVERTING = true; // set to true to invert the logic of th
 // leaving it undefined or defining as 0 will disable the servo subsystem
 // If unsure, leave commented / disabled
 //
-// #define NUM_SERVOS 3
+//#define NUM_SERVOS 3 // Servo index starts with 0
+
+// Servo Endstops
+// 
+// This allows for servo actuated endstops, primary usage is for the Z Axis to eliminate calibration or bed height changes.
+// Use M206 command to correct for switch height offset to actual nozzle height. Store that setting with M500.
+// 
+//#define SERVO_ENDSTOPS {-1, -1, 0} // Servo index for X, Y, Z. Disable with -1
+//#define SERVO_ENDSTOP_ANGLES {0,0, 0,0, 70,0} // X,Y,Z Axis Extend and Retract angles
 
 #include "Configuration_adv.h"
 #include "thermistortables.h"
