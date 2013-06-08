@@ -48,6 +48,7 @@
 // 90 = Alpha OMCA board
 // 91 = Final OMCA board
 // 301 = Rambo
+// 21 = Elefu Ra Board (v3)
 
 #ifndef MOTHERBOARD
 #define MOTHERBOARD 7
@@ -361,6 +362,11 @@ const bool Z_ENDSTOPS_INVERTING = true; // set to true to invert the logic of th
 //#define REPRAPWORLD_KEYPAD
 //#define REPRAPWORLD_KEYPAD_MOVE_STEP 10.0 // how much should be moved when a key is pressed, eg 10.0 means 10mm per click
 
+// The Elefu RA Board Control Panel
+// http://www.elefu.com/index.php?route=product/product&product_id=53
+// REMEMBER TO INSTALL LiquidCrystal_I2C.h in your ARUDINO library folder: https://github.com/kiyoshigawa/LiquidCrystal_I2C
+//#define RA_CONTROL_PANEL
+
 //automatic expansion
 #if defined (REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
  #define DOGLCD
@@ -376,6 +382,12 @@ const bool Z_ENDSTOPS_INVERTING = true; // set to true to invert the logic of th
 #if defined(REPRAPWORLD_KEYPAD)
   #define NEWPANEL
   #define ULTIPANEL
+#endif
+#if defined(RA_CONTROL_PANEL)
+ #define ULTIPANEL
+ #define NEWPANEL
+ #define LCD_I2C_TYPE_PCA8574
+ #define LCD_I2C_ADDRESS 0x27   // I2C Address of the port expander
 #endif
 
 //I2C PANELS
