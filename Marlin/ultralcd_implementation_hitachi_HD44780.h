@@ -10,14 +10,6 @@
 extern volatile uint8_t buttons;  //the last checked buttons in a bit array.
 #else
 extern volatile uint16_t buttons;  //an extended version of the last checked buttons in a bit array.
-
-  #ifdef  LCD_I2C_TYPE_PCA8574
-    #include <LiquidCrystal_I2C.h>
-    #define LCD_CLASS LiquidCrystal_I2C
-  #else
-    #include <LiquidCrystal.h>
-    #define LCD_CLASS LiquidCrystal
-  #endif
 #endif
 
 ////////////////////////////////////
@@ -188,6 +180,11 @@ extern volatile uint16_t buttons;  //an extended version of the last checked but
   #include <LiquidTWI2.h>
   #define LCD_CLASS LiquidTWI2
   LCD_CLASS lcd(LCD_I2C_ADDRESS);  
+
+#elif defined(LCD_I2C_TYPE_PCA8574)
+    #include <LiquidCrystal_I2C.h>
+    #define LCD_CLASS LiquidCrystal_I2C
+	LCD_CLASS lcd(LCD_I2C_ADDRESS, LCD_WIDTH, LCD_HEIGHT);
   
 #else
   // Standard directly connected LCD implementations
@@ -211,12 +208,6 @@ extern volatile uint16_t buttons;  //an extended version of the last checked but
 #define LCD_STR_FEEDRATE    "\x06"
 #define LCD_STR_CLOCK       "\x07"
 #define LCD_STR_ARROW_RIGHT "\x7E"  /* from the default character set */
-
-#ifdef LCD_I2C_TYPE_PCA8574
-  LCD_CLASS lcd(LCD_I2C_ADDRESS, LCD_WIDTH, LCD_HEIGHT);
-#else
-  LCD_CLASS lcd(LCD_PINS_RS, LCD_PINS_ENABLE, LCD_PINS_D4, LCD_PINS_D5,LCD_PINS_D6,LCD_PINS_D7);  //RS,Enable,D4,D5,D6,D7
-#endif
 
 static void lcd_implementation_init()
 {
@@ -303,14 +294,9 @@ static void lcd_implementation_init()
         B00000,
         B00000
     }; //thanks Sonny Mounicou
-    #ifdef LCD_I2C_TYPE_PCA8574
-      lcd.init();
-      lcd.backlight();
-    #else
-	  if defined(LCDI2C_TYPE_PCF8575)
-        lcd.begin(LCD_WIDTH, LCD_HEIGHT);
-    #endif
-  #ifdef LCD_I2C_PIN_BL
+#if defined(LCDI2C_TYPE_PCF8575)
+    lcd.begin(LCD_WIDTH, LCD_HEIGHT);
+   #ifdef LCD_I2C_PIN_BL
     lcd.setBacklightPin(LCD_I2C_PIN_BL,POSITIVE);
     lcd.setBacklight(HIGH);
   #endif
@@ -323,6 +309,10 @@ static void lcd_implementation_init()
 #elif defined(LCD_I2C_TYPE_MCP23008)
     lcd.setMCPType(LTI_TYPE_MCP23008);
     lcd.begin(LCD_WIDTH, LCD_HEIGHT);
+
+#elif defined(LCD_I2C_TYPE_PCA8574)
+      lcd.init();
+      lcd.backlight();
     
 #else
     lcd.begin(LCD_WIDTH, LCD_HEIGHT);
