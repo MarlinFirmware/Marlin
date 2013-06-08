@@ -184,7 +184,7 @@ extern volatile uint16_t buttons;  //an extended version of the last checked but
 #elif defined(LCD_I2C_TYPE_PCA8574)
     #include <LiquidCrystal_I2C.h>
     #define LCD_CLASS LiquidCrystal_I2C
-	LCD_CLASS lcd(LCD_I2C_ADDRESS, LCD_WIDTH, LCD_HEIGHT);
+    LCD_CLASS lcd(LCD_I2C_ADDRESS, LCD_WIDTH, LCD_HEIGHT);
   
 #else
   // Standard directly connected LCD implementations
@@ -294,9 +294,10 @@ static void lcd_implementation_init()
         B00000,
         B00000
     }; //thanks Sonny Mounicou
+
 #if defined(LCDI2C_TYPE_PCF8575)
     lcd.begin(LCD_WIDTH, LCD_HEIGHT);
-   #ifdef LCD_I2C_PIN_BL
+  #ifdef LCD_I2C_PIN_BL
     lcd.setBacklightPin(LCD_I2C_PIN_BL,POSITIVE);
     lcd.setBacklight(HIGH);
   #endif
