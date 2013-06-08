@@ -303,14 +303,9 @@ static void lcd_implementation_init()
         B00000,
         B00000
     }; //thanks Sonny Mounicou
-    #ifdef LCD_I2C_TYPE_PCA8574
-      lcd.init();
-      lcd.backlight();
-    #else
-	  if defined(LCDI2C_TYPE_PCF8575)
-        lcd.begin(LCD_WIDTH, LCD_HEIGHT);
-    #endif
-  #ifdef LCD_I2C_PIN_BL
+#if defined(LCDI2C_TYPE_PCF8575)
+    lcd.begin(LCD_WIDTH, LCD_HEIGHT);
+   #ifdef LCD_I2C_PIN_BL
     lcd.setBacklightPin(LCD_I2C_PIN_BL,POSITIVE);
     lcd.setBacklight(HIGH);
   #endif
@@ -323,6 +318,10 @@ static void lcd_implementation_init()
 #elif defined(LCD_I2C_TYPE_MCP23008)
     lcd.setMCPType(LTI_TYPE_MCP23008);
     lcd.begin(LCD_WIDTH, LCD_HEIGHT);
+
+#elif defined(LCD_I2C_TYPE_PCA8574)
+      lcd.init();
+      lcd.backlight();
     
 #else
     lcd.begin(LCD_WIDTH, LCD_HEIGHT);
