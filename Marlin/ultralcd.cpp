@@ -8,6 +8,8 @@
 #include "stepper.h"
 #include "ConfigurationStore.h"
 
+int8_t encoderDiff; /* encoderDiff is updated from interrupt context and added to encoderPosition every LCD update */
+
 /* Configuration settings */
 int plaPreheatHotendTemp;
 int plaPreheatHPBTemp;
@@ -128,7 +130,6 @@ volatile uint16_t buttons;//Contains the bits of the currently pressed buttons (
 uint8_t currentMenuViewOffset;              /* scroll offset in the current menu */
 uint32_t blocking_enc;
 uint8_t lastEncoderBits;
-int8_t encoderDiff; /* encoderDiff is updated from interrupt context and added to encoderPosition every LCD update */
 uint32_t encoderPosition;
 #if (SDCARDDETECT > 0)
 bool lcd_oldcardstatus;
