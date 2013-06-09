@@ -13,7 +13,7 @@ extern volatile uint16_t buttons;  //an extended version of the last checked but
 #endif
 
 ////////////////////////////////////
-// Setup button and encode mappings for each panel (into 'buttons' variable)
+// Setup button and encode mappings for each panel (into 'buttons' variable
 //
 // This is just to map common functions (across different panels) onto the same 
 // macro name. The mapping is independent of whether the button is directly connected or 
@@ -715,9 +715,9 @@ static void lcd_implementation_quick_feedback()
     for(int8_t i=0;i<10;i++)
     {
       WRITE(BEEPER,HIGH);
-      delay(3);
+      delayMicroseconds(100);
       WRITE(BEEPER,LOW);
-      delay(3);
+      delayMicroseconds(100);
     }
 #endif
 }
