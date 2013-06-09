@@ -9,7 +9,7 @@
 // Languages
 // 1  English
 // 2  Polish
-// 3  French	(awaiting translation!)
+// 3  French
 // 4  German
 // 5  Spanish
 // 6  Russian
