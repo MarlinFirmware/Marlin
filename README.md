@@ -22,14 +22,14 @@ Features:
 *   High steprate
 *   Look ahead (Keep the speed high when possible. High cornering speed)
 *   Interrupt based temperature protection
-*   preliminary support for Matthew Roberts advance algorithm 
+*   preliminary support for Matthew Roberts advance algorithm
     For more info see: http://reprap.org/pipermail/reprap-dev/2011-May/003323.html
 *   Full endstop support
 *   SD Card support
 *   SD Card folders (works in pronterface)
 *   SD Card autostart support
-*   LCD support (ideally 20x4) 
-*   LCD menu system for autonomous SD card printing, controlled by an click-encoder. 
+*   LCD support (ideally 20x4)
+*   LCD menu system for autonomous SD card printing, controlled by an click-encoder.
 *   EEPROM storage of e.g. max-velocity, max-acceleration, and similar variables
 *   many small but handy things originating from bkubicek's fork.
 *   Arc support
@@ -43,6 +43,7 @@ Features:
 *   CoreXY kinematics (www.corexy.com/theory.html)
 *   Configurable serial port to support connection of wireless adaptors.
 *   Automatic operation of extruder/cold-end cooling fans based on nozzle temperature
+*   RC Servo Support, specify angle or duration for continuous rotation servos.
 
 The default baudrate is 250000. This baudrate has less jitter and hence errors than the usual 115200 baud, but is less supported by drivers and host-environments.
 
@@ -52,17 +53,17 @@ Differences and additions to the already good Sprinter firmware:
 
 *Look-ahead:*
 
-Marlin has look-ahead. While sprinter has to break and re-accelerate at each corner, 
-lookahead will only decelerate and accelerate to a velocity, 
+Marlin has look-ahead. While sprinter has to break and re-accelerate at each corner,
+lookahead will only decelerate and accelerate to a velocity,
 so that the change in vectorial velocity magnitude is less than the xy_jerk_velocity.
-This is only possible, if some future moves are already processed, hence the name. 
+This is only possible, if some future moves are already processed, hence the name.
 It leads to less over-deposition at corners, especially at flat angles.
 
 *Arc support:*
 
 Slic3r can find curves that, although broken into segments, were ment to describe an arc.
 Marlin is able to print those arcs. The advantage is the firmware can choose the resolution,
-and can perform the arc with nearly constant velocity, resulting in a nice finish. 
+and can perform the arc with nearly constant velocity, resulting in a nice finish.
 Also, less serial communication is needed.
 
 *Temperature Oversampling:*
@@ -91,7 +92,7 @@ After each reboot, it will magically load them from EEPROM, independent what you
 
 If your hardware supports it, you can build yourself a LCD-CardReader+Click+encoder combination. It will enable you to realtime tune temperatures,
 accelerations, velocities, flow rates, select and print files from the SD card, preheat, disable the steppers, and do other fancy stuff.
-One working hardware is documented here: http://www.thingiverse.com/thing:12663 
+One working hardware is documented here: http://www.thingiverse.com/thing:12663
 Also, with just a 20x4 or 16x2 display, useful data is shown.
 
 *SD card folders:*
@@ -198,7 +199,7 @@ Custom M Codes
 *  M220 S<factor in percent>- set speed factor override percentage
 *  M221 S<factor in percent>- set extrude factor override percentage
 *  M240 - Trigger a camera to take a photograph
-*  M280 - set servo position absolute. P: servo index, S: angle or microseconds
+*  M280 - Position an RC Servo P<index> S<angle/microseconds>, ommit S to report back current angle
 *  M300 - Play beepsound S<frequency Hz> P<duration ms>
 *  M301 - Set PID parameters P I and D
 *  M302 - Allow cold extrudes

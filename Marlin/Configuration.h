@@ -527,11 +527,8 @@ const bool Z_ENDSTOPS_INVERTING = true; // set to true to invert the logic of th
 //#define BARICUDA
 
 /*********************************************************************\
-*
 * R/C SERVO support
-*
 * Sponsored by TrinityLabs, Reworked by codexmas
-*
 **********************************************************************/
 
 // Number of servos
@@ -541,7 +538,7 @@ const bool Z_ENDSTOPS_INVERTING = true; // set to true to invert the logic of th
 // leaving it undefined or defining as 0 will disable the servo subsystem
 // If unsure, leave commented / disabled
 //
-//#define NUM_SERVOS 3 // Servo index starts with 0
+//#define NUM_SERVOS 3 // Servo index starts with 0 for M280 command
 
 // Servo Endstops
 // 
