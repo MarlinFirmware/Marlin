@@ -62,6 +62,9 @@ float current_temperature_bed = 0.0;
   float bedKd=(DEFAULT_bedKd/PID_dT);
 #endif //PIDTEMPBED
   
+#ifdef FAN_SOFT_PWM
+  unsigned char fanSpeedSoftPwm;
+#endif
   
 //===========================================================================
 //=============================private variables============================
@@ -144,6 +147,10 @@ static void updateTemperaturesFromRawValues();
 int watch_start_temp[EXTRUDERS] = ARRAY_BY_EXTRUDERS(0,0,0);
 unsigned long watchmillis[EXTRUDERS] = ARRAY_BY_EXTRUDERS(0,0,0);
 #endif //WATCH_TEMP_PERIOD
+
+#ifndef SOFT_PWM_SCALE
+#define SOFT_PWM_SCALE 0
+#endif
 
 //===========================================================================
 //=============================   functions      ============================
@@ -720,8 +727,8 @@ void tp_init()
     setPwmFrequency(FAN_PIN, 1); // No prescaling. Pwm frequency = F_CPU/256/8
     #endif
     #ifdef FAN_SOFT_PWM
-	soft_pwm_fan=(unsigned char)fanSpeed;
-	#endif
+    soft_pwm_fan = fanSpeedSoftPwm / 2;
+    #endif
   #endif  
 
   #ifdef HEATER_0_USES_MAX6675
@@ -1028,7 +1035,7 @@ ISR(TIMER0_COMPB_vect)
   static unsigned long raw_temp_2_value = 0;
   static unsigned long raw_temp_bed_value = 0;
   static unsigned char temp_state = 0;
-  static unsigned char pwm_count = 1;
+  static unsigned char pwm_count = (1 << SOFT_PWM_SCALE);
   static unsigned char soft_pwm_0;
   #if EXTRUDERS > 1
   static unsigned char soft_pwm_1;
@@ -1056,7 +1063,7 @@ ISR(TIMER0_COMPB_vect)
     if(soft_pwm_b > 0) WRITE(HEATER_BED_PIN,1);
     #endif
     #ifdef FAN_SOFT_PWM
-    soft_pwm_fan =(unsigned char) fanSpeed;
+    soft_pwm_fan = fanSpeedSoftPwm / 2;
     if(soft_pwm_fan > 0) WRITE(FAN_PIN,1);
     #endif
   }
@@ -1074,7 +1081,7 @@ ISR(TIMER0_COMPB_vect)
   if(soft_pwm_fan <= pwm_count) WRITE(FAN_PIN,0);
   #endif
   
-  pwm_count++;
+  pwm_count += (1 << SOFT_PWM_SCALE);
   pwm_count &= 0x7f;
   
   switch(temp_state) {

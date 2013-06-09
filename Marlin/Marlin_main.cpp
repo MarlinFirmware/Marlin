@@ -177,6 +177,10 @@ float extruder_offset[2][EXTRUDERS] = {
 #endif
 uint8_t active_extruder = 0;
 int fanSpeed=0;
+#ifdef SERVO_ENDSTOPS
+  int servo_endstops[] = SERVO_ENDSTOPS;
+  int servo_endstop_angles[] = SERVO_ENDSTOP_ANGLES;
+#endif
 #ifdef BARICUDA
 int ValvePressure=0;
 int EtoPPressure=0;
@@ -194,6 +198,9 @@ int EtoPPressure=0;
 //===========================================================================
 const char axis_codes[NUM_AXIS] = {'X', 'Y', 'Z', 'E'};
 static float destination[NUM_AXIS] = {  0.0, 0.0, 0.0, 0.0};
+#ifdef DELTA
+static float delta[3] = {0.0, 0.0, 0.0};
+#endif
 static float offset[3] = {0.0, 0.0, 0.0};
 static bool home_all_axis = true;
 static float feedrate = 1500.0, next_feedrate, saved_feedrate;
@@ -351,6 +358,16 @@ void servo_init()
   #if (NUM_SERVOS >= 5)
     #error "TODO: enter initalisation code for more servos"
   #endif
+
+  // Set position of Servo Endstops that are defined
+  #ifdef SERVO_ENDSTOPS
+  for(int8_t i = 0; i < 3; i++)
+  {
+    if(servo_endstops[i] > -1) {
+      servos[servo_endstops[i]].write(servo_endstop_angles[i * 2 + 1]);
+    }
+  }
+  #endif
 }
 
 void setup()
@@ -404,10 +421,10 @@ void setup()
   servo_init();
 
   lcd_init();
-
+  
   #if defined(CONTROLLERFAN_PIN) && CONTROLLERFAN_PIN > -1
     SET_OUTPUT(CONTROLLERFAN_PIN); //Set pin used for driver cooling fan
-  #endif
+  #endif 
 }
 
 
@@ -664,11 +681,16 @@ static void axis_is_at_home(int axis) {
 static void homeaxis(int axis) {
 #define HOMEAXIS_DO(LETTER) \
   ((LETTER##_MIN_PIN > -1 && LETTER##_HOME_DIR==-1) || (LETTER##_MAX_PIN > -1 && LETTER##_HOME_DIR==1))
-
   if (axis==X_AXIS ? HOMEAXIS_DO(X) :
       axis==Y_AXIS ? HOMEAXIS_DO(Y) :
       axis==Z_AXIS ? HOMEAXIS_DO(Z) :
       0) {
+
+    // Engage Servo endstop if enabled
+    #ifdef SERVO_ENDSTOPS[axis] > -1
+      servos[servo_endstops[axis]].write(servo_endstop_angles[axis * 2]);
+    #endif
+
     current_position[axis] = 0;
     plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
     destination[axis] = 1.5 * max_length(axis) * home_dir(axis);
@@ -691,6 +713,11 @@ static void homeaxis(int axis) {
     destination[axis] = current_position[axis];
     feedrate = 0.0;
     endstops_hit_on_purpose();
+
+    // Retract Servo endstop if enabled
+    #ifdef SERVO_ENDSTOPS[axis] > -1
+      servos[servo_endstops[axis]].write(servo_endstop_angles[axis * 2 + 1]);
+    #endif
   }
 }
 #define HOMEAXIS(LETTER) homeaxis(LETTER##_AXIS)
@@ -782,8 +809,8 @@ void process_commands()
         destination[i] = current_position[i];
       }
       feedrate = 0.0;
-      home_all_axis = !((code_seen(axis_codes[0])) || (code_seen(axis_codes[1])) || (code_seen(axis_codes[2])));
-
+      home_all_axis = !((code_seen(axis_codes[0])) || (code_seen(axis_codes[1])) || (code_seen(axis_codes[2])))
+                    || ((code_seen(axis_codes[0])) && (code_seen(axis_codes[1])) && (code_seen(axis_codes[2])));
       #if Z_HOME_DIR > 0                      // If homing away from BED do Z first
       if((home_all_axis) || (code_seen(axis_codes[Z_AXIS]))) {
         HOMEAXIS(Z);
@@ -812,6 +839,10 @@ void process_commands()
         feedrate = 0.0;
         st_synchronize();
         endstops_hit_on_purpose();
+
+        current_position[X_AXIS] = destination[X_AXIS];
+        current_position[Y_AXIS] = destination[Y_AXIS];
+        current_position[Z_AXIS] = destination[Z_AXIS];
       }
       #endif
 
@@ -848,8 +879,12 @@ void process_commands()
           current_position[Z_AXIS]=code_value()+add_homeing[2];
         }
       }
-      plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
-
+      #ifdef DELTA
+        calculate_delta(current_position);
+        plan_set_position(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], current_position[E_AXIS]);
+      #else
+        plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+      #endif
       #ifdef ENDSTOPS_ONLY_FOR_HOMING
         enable_endstops(false);
       #endif
@@ -2032,11 +2067,64 @@ void clamp_to_software_endstops(float target[3])
   }
 }
 
+#ifdef DELTA
+void calculate_delta(float cartesian[3])
+{
+  delta[X_AXIS] = sqrt(sq(DELTA_DIAGONAL_ROD)
+                       - sq(DELTA_TOWER1_X-cartesian[X_AXIS])
+                       - sq(DELTA_TOWER1_Y-cartesian[Y_AXIS])
+                       ) + cartesian[Z_AXIS];
+  delta[Y_AXIS] = sqrt(sq(DELTA_DIAGONAL_ROD)
+                       - sq(DELTA_TOWER2_X-cartesian[X_AXIS])
+                       - sq(DELTA_TOWER2_Y-cartesian[Y_AXIS])
+                       ) + cartesian[Z_AXIS];
+  delta[Z_AXIS] = sqrt(sq(DELTA_DIAGONAL_ROD)
+                       - sq(DELTA_TOWER3_X-cartesian[X_AXIS])
+                       - sq(DELTA_TOWER3_Y-cartesian[Y_AXIS])
+                       ) + cartesian[Z_AXIS];
+  /*
+  SERIAL_ECHOPGM("cartesian x="); SERIAL_ECHO(cartesian[X_AXIS]);
+  SERIAL_ECHOPGM(" y="); SERIAL_ECHO(cartesian[Y_AXIS]);
+  SERIAL_ECHOPGM(" z="); SERIAL_ECHOLN(cartesian[Z_AXIS]);
+
+  SERIAL_ECHOPGM("delta x="); SERIAL_ECHO(delta[X_AXIS]);
+  SERIAL_ECHOPGM(" y="); SERIAL_ECHO(delta[Y_AXIS]);
+  SERIAL_ECHOPGM(" z="); SERIAL_ECHOLN(delta[Z_AXIS]);
+  */
+}
+#endif
+
 void prepare_move()
 {
   clamp_to_software_endstops(destination);
 
   previous_millis_cmd = millis();
+#ifdef DELTA
+  float difference[NUM_AXIS];
+  for (int8_t i=0; i < NUM_AXIS; i++) {
+    difference[i] = destination[i] - current_position[i];
+  }
+  float cartesian_mm = sqrt(sq(difference[X_AXIS]) +
+                            sq(difference[Y_AXIS]) +
+                            sq(difference[Z_AXIS]));
+  if (cartesian_mm < 0.000001) { cartesian_mm = abs(difference[E_AXIS]); }
+  if (cartesian_mm < 0.000001) { return; }
+  float seconds = 6000 * cartesian_mm / feedrate / feedmultiply;
+  int steps = max(1, int(DELTA_SEGMENTS_PER_SECOND * seconds));
+  // SERIAL_ECHOPGM("mm="); SERIAL_ECHO(cartesian_mm);
+  // SERIAL_ECHOPGM(" seconds="); SERIAL_ECHO(seconds);
+  // SERIAL_ECHOPGM(" steps="); SERIAL_ECHOLN(steps);
+  for (int s = 1; s <= steps; s++) {
+    float fraction = float(s) / float(steps);
+    for(int8_t i=0; i < NUM_AXIS; i++) {
+      destination[i] = current_position[i] + difference[i] * fraction;
+    }
+    calculate_delta(destination);
+    plan_buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS],
+                     destination[E_AXIS], feedrate*feedmultiply/60/100.0,
+                     active_extruder);
+  }
+#else
   // Do not use feedmultiply for E or Z only moves
   if( (current_position[X_AXIS] == destination [X_AXIS]) && (current_position[Y_AXIS] == destination [Y_AXIS])) {
       plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate/60, active_extruder);
@@ -2044,6 +2132,7 @@ void prepare_move()
   else {
     plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate*feedmultiply/60/100.0, active_extruder);
   }
+#endif
   for(int8_t i=0; i < NUM_AXIS; i++) {
     current_position[i] = destination[i];
   }
