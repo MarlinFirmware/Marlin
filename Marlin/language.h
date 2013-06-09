@@ -9,7 +9,7 @@
 // Languages
 // 1  English
 // 2  Polish
-// 3  French	(awaiting translation!)
+// 3  French
 // 4  German
 // 5  Spanish
 // 6  Russian
@@ -706,9 +706,9 @@
 #define MSG_PREHEAT_ABS_SETTINGS " Ajustar temp. ABS"
 #define MSG_MOVE_AXIS " Mover Ejes      \x7E"
 #define MSG_SPEED " Velocidad:"
-#define MSG_NOZZLE " \002Nozzle:"
-#define MSG_NOZZLE1 " \002Nozzle2:"
-#define MSG_NOZZLE2 " \002Nozzle3:"
+#define MSG_NOZZLE " \002Fusor:"
+#define MSG_NOZZLE1 " \002Fusor2:"
+#define MSG_NOZZLE2 " \002Fusor3:"
 #define MSG_BED " \002Base:"
 #define MSG_FAN_SPEED " Ventilador:"
 #define MSG_FLOW " Flujo:"
@@ -724,9 +724,9 @@
 #define MSG_PID_D " PID-D: "
 #define MSG_PID_C " PID-C: "
 #define MSG_ACC  " Acc:"
-#define MSG_VXY_JERK " Vxy-jerk: "
-#define MSG_VZ_JERK "Vz-jerk"
-#define MSG_VE_JERK "Ve-jerk"
+#define MSG_VXY_JERK " Vxy-agit: "
+#define MSG_VZ_JERK "Vz-agit"
+#define MSG_VE_JERK "Ve-agit"
 #define MSG_VMAX " Vmax "
 #define MSG_X "x:"
 #define MSG_Y "y:"
@@ -821,7 +821,7 @@
 #define MSG_M119_REPORT "Comprobando fines de carrera."
 #define MSG_ENDSTOP_HIT "PULSADO"
 #define MSG_ENDSTOP_OPEN "abierto"
-#define MSG_HOTEND_OFFSET "Hotend offsets:"
+#define MSG_HOTEND_OFFSET "Despl. Hotend:"
         
 #define MSG_SD_CANT_OPEN_SUBDIR "No se pudo abrir la subcarpeta."
 #define MSG_SD_INIT_FAIL "Fallo al iniciar la SD"

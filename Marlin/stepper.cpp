@@ -345,12 +345,31 @@ ISR(TIMER1_COMPA_vect)
     // Set directions TO DO This should be done once during init of trapezoid. Endstops -> interrupt
     out_bits = current_block->direction_bits;
 
-    // Set direction en check limit switches
-    if ((out_bits & (1<<X_AXIS)) != 0) {   // stepping along -X axis
-      #if !defined COREXY  //NOT COREXY
-        WRITE(X_DIR_PIN, INVERT_X_DIR);
-      #endif
+
+    // Set the direction bits (X_AXIS=A_AXIS and Y_AXIS=B_AXIS for COREXY)
+    if((out_bits & (1<<X_AXIS))!=0){
+      WRITE(X_DIR_PIN, INVERT_X_DIR);
       count_direction[X_AXIS]=-1;
+    }
+    else{
+      WRITE(X_DIR_PIN, !INVERT_X_DIR);
+      count_direction[X_AXIS]=1;
+    }
+    if((out_bits & (1<<Y_AXIS))!=0){
+      WRITE(Y_DIR_PIN, INVERT_Y_DIR);
+      count_direction[Y_AXIS]=-1;
+    }
+    else{
+      WRITE(Y_DIR_PIN, !INVERT_Y_DIR);
+      count_direction[Y_AXIS]=1;
+    }
+    
+    // Set direction en check limit switches
+    #ifndef COREXY
+    if ((out_bits & (1<<X_AXIS)) != 0) {   // stepping along -X axis
+    #else
+    if ((((out_bits & (1<<X_AXIS)) != 0)&&(out_bits & (1<<Y_AXIS)) != 0)) {   //-X occurs for -A and -B
+    #endif
       CHECK_ENDSTOPS
       {
         #if defined(X_MIN_PIN) && X_MIN_PIN > -1
@@ -365,11 +384,6 @@ ISR(TIMER1_COMPA_vect)
       }
     }
     else { // +direction
-      #if !defined COREXY  //NOT COREXY
-        WRITE(X_DIR_PIN,!INVERT_X_DIR);
-      #endif
-      
-      count_direction[X_AXIS]=1;
       CHECK_ENDSTOPS 
       {
         #if defined(X_MAX_PIN) && X_MAX_PIN > -1
@@ -384,11 +398,11 @@ ISR(TIMER1_COMPA_vect)
       }
     }
 
+    #ifndef COREXY
     if ((out_bits & (1<<Y_AXIS)) != 0) {   // -direction
-      #if !defined COREXY  //NOT COREXY
-        WRITE(Y_DIR_PIN,INVERT_Y_DIR);
-      #endif
-      count_direction[Y_AXIS]=-1;
+    #else
+    if ((((out_bits & (1<<X_AXIS)) != 0)&&(out_bits & (1<<Y_AXIS)) == 0)) {   // -Y occurs for -A and +B
+    #endif
       CHECK_ENDSTOPS
       {
         #if defined(Y_MIN_PIN) && Y_MIN_PIN > -1
@@ -403,10 +417,6 @@ ISR(TIMER1_COMPA_vect)
       }
     }
     else { // +direction
-      #if !defined COREXY  //NOT COREXY
-        WRITE(Y_DIR_PIN,!INVERT_Y_DIR);
-      #endif
-      count_direction[Y_AXIS]=1;
       CHECK_ENDSTOPS
       {
         #if defined(Y_MAX_PIN) && Y_MAX_PIN > -1
@@ -420,28 +430,7 @@ ISR(TIMER1_COMPA_vect)
         #endif
       }
     }
-    
-    
-    #ifdef COREXY  //coreXY kinematics defined
-      if((current_block->steps_x >= current_block->steps_y)&&((out_bits & (1<<X_AXIS)) == 0)){  //+X is major axis
-        WRITE(X_DIR_PIN, !INVERT_X_DIR);
-        WRITE(Y_DIR_PIN, !INVERT_Y_DIR);
-      }
-      if((current_block->steps_x >= current_block->steps_y)&&((out_bits & (1<<X_AXIS)) != 0)){  //-X is major axis
-        WRITE(X_DIR_PIN, INVERT_X_DIR);
-        WRITE(Y_DIR_PIN, INVERT_Y_DIR);
-      }      
-      if((current_block->steps_y > current_block->steps_x)&&((out_bits & (1<<Y_AXIS)) == 0)){  //+Y is major axis
-        WRITE(X_DIR_PIN, !INVERT_X_DIR);
-        WRITE(Y_DIR_PIN, INVERT_Y_DIR);
-      }        
-      if((current_block->steps_y > current_block->steps_x)&&((out_bits & (1<<Y_AXIS)) != 0)){  //-Y is major axis
-        WRITE(X_DIR_PIN, INVERT_X_DIR);
-        WRITE(Y_DIR_PIN, !INVERT_Y_DIR);
-      }  
-    #endif //coreXY
-    
-    
+
     if ((out_bits & (1<<Z_AXIS)) != 0) {   // -direction
       WRITE(Z_DIR_PIN,INVERT_Z_DIR);
       
@@ -516,7 +505,6 @@ ISR(TIMER1_COMPA_vect)
       }    
       #endif //ADVANCE
 
-      #if !defined COREXY      
         counter_x += current_block->steps_x;
         if (counter_x > 0) {
           WRITE(X_STEP_PIN, !INVERT_X_STEP_PIN);
@@ -532,56 +520,7 @@ ISR(TIMER1_COMPA_vect)
           count_position[Y_AXIS]+=count_direction[Y_AXIS]; 
           WRITE(Y_STEP_PIN, INVERT_Y_STEP_PIN);
         }
-      #endif
   
-      #ifdef COREXY
-        counter_x += current_block->steps_x;        
-        counter_y += current_block->steps_y;
-        
-        if ((counter_x > 0)&&!(counter_y>0)){  //X step only
-          WRITE(X_STEP_PIN, !INVERT_X_STEP_PIN);
-          WRITE(Y_STEP_PIN, !INVERT_Y_STEP_PIN);
-          counter_x -= current_block->step_event_count; 
-          count_position[X_AXIS]+=count_direction[X_AXIS];         
-          WRITE(X_STEP_PIN, INVERT_X_STEP_PIN);
-          WRITE(Y_STEP_PIN, INVERT_Y_STEP_PIN);
-        }
-        
-        if (!(counter_x > 0)&&(counter_y>0)){  //Y step only
-          WRITE(X_STEP_PIN, !INVERT_X_STEP_PIN);
-          WRITE(Y_STEP_PIN, !INVERT_Y_STEP_PIN);
-          counter_y -= current_block->step_event_count; 
-          count_position[Y_AXIS]+=count_direction[Y_AXIS];
-          WRITE(X_STEP_PIN, INVERT_X_STEP_PIN);
-          WRITE(Y_STEP_PIN, INVERT_Y_STEP_PIN);
-        }        
-        
-        if ((counter_x > 0)&&(counter_y>0)){  //step in both axes
-          if (((out_bits & (1<<X_AXIS)) == 0)^((out_bits & (1<<Y_AXIS)) == 0)){  //X and Y in different directions
-            WRITE(Y_STEP_PIN, !INVERT_Y_STEP_PIN);
-            counter_x -= current_block->step_event_count;             
-            WRITE(Y_STEP_PIN, INVERT_Y_STEP_PIN);
-            step_wait();
-            count_position[X_AXIS]+=count_direction[X_AXIS];
-            count_position[Y_AXIS]+=count_direction[Y_AXIS];
-            WRITE(Y_STEP_PIN, !INVERT_Y_STEP_PIN);
-            counter_y -= current_block->step_event_count;
-            WRITE(Y_STEP_PIN, INVERT_Y_STEP_PIN);
-          }
-          else{  //X and Y in same direction
-            WRITE(X_STEP_PIN, !INVERT_X_STEP_PIN);
-            counter_x -= current_block->step_event_count;             
-            WRITE(X_STEP_PIN, INVERT_X_STEP_PIN) ;
-            step_wait();
-            count_position[X_AXIS]+=count_direction[X_AXIS];
-            count_position[Y_AXIS]+=count_direction[Y_AXIS];
-            WRITE(X_STEP_PIN, !INVERT_X_STEP_PIN); 
-            counter_y -= current_block->step_event_count;    
-            WRITE(X_STEP_PIN, INVERT_X_STEP_PIN);        
-          }
-        }
-      #endif //corexy
-      
       counter_z += current_block->steps_z;
       if (counter_z > 0) {
         WRITE(Z_STEP_PIN, !INVERT_Z_STEP_PIN);

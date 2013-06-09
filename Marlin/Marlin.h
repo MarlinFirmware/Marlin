@@ -157,6 +157,9 @@ void FlushSerialRequestResend();
 void ClearToSend();
 
 void get_coordinates();
+#ifdef DELTA
+void calculate_delta(float cartesian[3]);
+#endif
 void prepare_move();
 void kill();
 void Stop();
@@ -189,6 +192,10 @@ extern int fanSpeed;
 #ifdef BARICUDA
 extern int ValvePressure;
 extern int EtoPPressure;
+#endif
+
+#ifdef FAN_SOFT_PWM
+extern unsigned char fanSpeedSoftPwm;
 #endif
 
 #ifdef FWRETRACT
