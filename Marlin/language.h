@@ -29,6 +29,9 @@
 #elif MOTHERBOARD == 80
 	#define MACHINE_NAME "Rumba"
 	#define FIRMWARE_URL "https://github.com/ErikZalm/Marlin/"
+#elif MOTHERBOARD == 77
+	#define MACHINE_NAME "3Drag"
+	#define FIRMWARE_URL "http://3dprint.elettronicain.it/"
 #else
 	#ifdef CUSTOM_MENDEL_NAME
 		#define MACHINE_NAME CUSTOM_MENDEL_NAME
@@ -1004,7 +1007,7 @@
 #if LANGUAGE_CHOICE == 7
 
 	// LCD Menu Messages
-	#define WELCOME_MSG MACHINE_NAME " Pronto."
+	#define WELCOME_MSG MACHINE_NAME " Pronta"
 	#define MSG_SD_INSERTED          "SD Card inserita"
 	#define MSG_SD_REMOVED           "SD Card rimossa"
 	#define MSG_MAIN                 "Menu principale"
@@ -1016,7 +1019,7 @@
 	#define MSG_PREHEAT_PLA_SETTINGS "Preris. PLA Conf"
 	#define MSG_PREHEAT_ABS          "Preriscalda ABS"
 	#define MSG_PREHEAT_ABS_SETTINGS "Preris. ABS Conf"
-	#define MSG_COOLDOWN             "Rafredda"
+	#define MSG_COOLDOWN             "Raffredda"
 	#define MSG_EXTRUDE              "Estrudi"
 	#define MSG_RETRACT              "Ritrai"
 	#define MSG_MOVE_AXIS            "Muovi Asse"
