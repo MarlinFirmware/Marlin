@@ -496,7 +496,22 @@
     
       #endif
     
+      #if MOTHERBOARD == 77 
+        #define BEEPER -1 
 
+        #define LCD_PINS_RS 27 
+        #define LCD_PINS_ENABLE 29 
+        #define LCD_PINS_D4 37 
+        #define LCD_PINS_D5 35 
+        #define LCD_PINS_D6 33 
+        #define LCD_PINS_D7 31 
+
+       //buttons 
+       #define BTN_EN1 16 
+       #define BTN_EN2 17 
+       #define BTN_ENC 23 //the click 
+
+    #endif 
     #else //old style panel with shift register
       //arduino pin witch triggers an piezzo beeper
       #define BEEPER 33		//No Beeper added
