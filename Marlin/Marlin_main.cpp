@@ -808,9 +808,42 @@ void process_commands()
       for(int8_t i=0; i < NUM_AXIS; i++) {
         destination[i] = current_position[i];
       }
-      feedrate = 0.0;
-      home_all_axis = !((code_seen(axis_codes[0])) || (code_seen(axis_codes[1])) || (code_seen(axis_codes[2])))
-                    || ((code_seen(axis_codes[0])) && (code_seen(axis_codes[1])) && (code_seen(axis_codes[2])));
+          feedrate = 0.0;
+
+#ifdef DELTA
+          // A delta can only safely home all axis at the same time
+          // all axis have to home at the same time
+
+          // Move all carriages up together until the first endstop is hit.
+          current_position[X_AXIS] = 0;
+          current_position[Y_AXIS] = 0;
+          current_position[Z_AXIS] = 0;
+          plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]); 
+
+          destination[X_AXIS] = 3 * Z_MAX_LENGTH;
+          destination[Y_AXIS] = 3 * Z_MAX_LENGTH;
+          destination[Z_AXIS] = 3 * Z_MAX_LENGTH;
+          feedrate = 1.732 * homing_feedrate[X_AXIS];
+          plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate/60, active_extruder);
+          st_synchronize();
+          endstops_hit_on_purpose();
+
+          current_position[X_AXIS] = destination[X_AXIS];
+          current_position[Y_AXIS] = destination[Y_AXIS];
+          current_position[Z_AXIS] = destination[Z_AXIS];
+          
+          // take care of back off and rehome now we are all at the top
+          HOMEAXIS(X);
+          HOMEAXIS(Y);
+          HOMEAXIS(Z);
+
+          calculate_delta(current_position);
+          plan_set_position(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], current_position[E_AXIS]);
+
+#else // NOT DELTA
+
+          home_all_axis = !((code_seen(axis_codes[0])) || (code_seen(axis_codes[1])) || (code_seen(axis_codes[2])));
+
       #if Z_HOME_DIR > 0                      // If homing away from BED do Z first
       if((home_all_axis) || (code_seen(axis_codes[Z_AXIS]))) {
         HOMEAXIS(Z);
@@ -879,12 +912,9 @@ void process_commands()
           current_position[Z_AXIS]=code_value()+add_homeing[2];
         }
       }
-      #ifdef DELTA
-        calculate_delta(current_position);
-        plan_set_position(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], current_position[E_AXIS]);
-      #else
-        plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
-      #endif
+      plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+#endif // DELTA
+          
       #ifdef ENDSTOPS_ONLY_FOR_HOMING
         enable_endstops(false);
       #endif
