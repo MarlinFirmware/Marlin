@@ -128,7 +128,7 @@ FORCE_INLINE bool isCoolingBed() {
 
 int getHeaterPower(int heater);
 void disable_heater();
-void setWatch();
+//void setWatch();
 void updatePID();
 
 FORCE_INLINE void autotempShutdown(){
