@@ -12,11 +12,13 @@
 
 //// Heating sanity check:
 // This waits for the watchperiod in milliseconds whenever an M104 or M109 increases the target temperature
-// If the temperature has not increased at the end of that period, the target temperature is set to zero. 
-// It can be reset with another M104/M109. This check is also only triggered if the target temperature and the current temperature
-//  differ by at least 2x WATCH_TEMP_INCREASE
-//#define WATCH_TEMP_PERIOD 40000 //40 seconds
-//#define WATCH_TEMP_INCREASE 10  //Heat up at least 10 degree in 20 seconds
+// it checks first and second order differences of stored temp readings while the extruder is on
+// then averages second order differences.  if 2nd-order-avg < 0 the therm is disconnected
+// to use with PID make sure the PID parameters are already calibrated.  To auto-calibrate with M303 you may
+// need to disable WATCH_TEMP_PERIOD by commenting out the next line.
+// NOTE: commenting out the next line will disable thermistor protection check
+#define WATCH_TEMP_PERIOD 50  // milliseconds
+//#define WATCH_TEMP_PERIOD_DEBUG
 
 // Wait for Cooldown
 // This defines if the M109 call should not block if it is cooling down.

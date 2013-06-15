@@ -1112,7 +1112,6 @@ void process_commands()
         break;
       }
       if (code_seen('S')) setTargetHotend(code_value(), tmp_extruder);
-      setWatch();
       break;
     case 140: // M140 set bed temp
       if (code_seen('S')) setTargetBed(code_value());
@@ -1166,7 +1165,6 @@ void process_commands()
         }
       #endif
 
-      setWatch();
       codenum = millis();
 
       /* See if we are heating up or cooling down */
