@@ -846,7 +846,10 @@
 #if MOTHERBOARD == 63
 #define MELZI
 #endif
-#if MOTHERBOARD == 62 || MOTHERBOARD == 63 || MOTHERBOARD == 64
+#if MOTHERBOARD == 65
+#define AZTEEG_X1
+#endif
+#if MOTHERBOARD == 62 || MOTHERBOARD == 63 || MOTHERBOARD == 64 || MOTHERBOARD == 65
 #undef MOTHERBOARD
 #define MOTHERBOARD 6
 #define SANGUINOLOLU_V_1_2
@@ -887,6 +890,10 @@
 #endif
 
 #ifdef STB
+#define FAN_PIN            4
+#endif
+
+#ifdef AZTEEG_X1
 #define FAN_PIN            4
 #endif
 
