@@ -35,6 +35,7 @@
 // 62 = Sanguinololu 1.2 and above
 // 63 = Melzi
 // 64 = STB V1.1
+// 65 = Azteeg X1
 // 7  = Ultimaker
 // 71 = Ultimaker (Older electronics. Pre 1.5.4. This is rare)
 // 77 = 3Drag Controller
