@@ -1252,16 +1252,20 @@ char *ftostr52(const float &x)
 // grab the pid i value out of the temp variable; scale it; then update the PID driver
 void copy_and_scalePID_i()
 {
+#ifdef PIDTEMP
   Ki = scalePID_i(raw_Ki);
   updatePID();
+#endif
 }
 
 // Callback for after editing PID d value
 // grab the pid d value out of the temp variable; scale it; then update the PID driver
 void copy_and_scalePID_d()
 {
+#ifdef PIDTEMP
   Kd = scalePID_d(raw_Kd);
   updatePID();
+#endif
 }
 
 #endif //ULTRA_LCD
