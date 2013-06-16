@@ -505,9 +505,11 @@ static void lcd_control_menu()
 
 static void lcd_control_temperature_menu()
 {
+#ifdef PIDTEMP
     // set up temp variables - undo the default scaling
     raw_Ki = unscalePID_i(Ki);
     raw_Kd = unscalePID_d(Kd);
+#endif
 
     START_MENU();
     MENU_ITEM(back, MSG_CONTROL, lcd_control_menu);
@@ -1252,16 +1254,20 @@ char *ftostr52(const float &x)
 // grab the pid i value out of the temp variable; scale it; then update the PID driver
 void copy_and_scalePID_i()
 {
+#ifdef PIDTEMP
   Ki = scalePID_i(raw_Ki);
   updatePID();
+#endif
 }
 
 // Callback for after editing PID d value
 // grab the pid d value out of the temp variable; scale it; then update the PID driver
 void copy_and_scalePID_d()
 {
+#ifdef PIDTEMP
   Kd = scalePID_d(raw_Kd);
   updatePID();
+#endif
 }
 
 #endif //ULTRA_LCD
