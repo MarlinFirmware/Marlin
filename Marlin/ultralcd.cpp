@@ -505,9 +505,11 @@ static void lcd_control_menu()
 
 static void lcd_control_temperature_menu()
 {
+#ifdef PIDTEMP
     // set up temp variables - undo the default scaling
     raw_Ki = unscalePID_i(Ki);
     raw_Kd = unscalePID_d(Kd);
+#endif
 
     START_MENU();
     MENU_ITEM(back, MSG_CONTROL, lcd_control_menu);
