@@ -46,7 +46,6 @@ void attachInterrupt(uint8_t interruptNum, void (*userFunc)(void), int mode) {
     // the mode into place.
       
     // Enable the interrupt.
-      
     switch (interruptNum) {
 #if defined(EICRA) && defined(EICRB) && defined(EIMSK)
     case 2:
@@ -80,6 +79,19 @@ void attachInterrupt(uint8_t interruptNum, void (*userFunc)(void), int mode) {
     case 7:
       EICRB = (EICRB & ~((1 << ISC70) | (1 << ISC71))) | (mode << ISC70);
       EIMSK |= (1 << INT7);
+      break;
+#elif defined(EICRA) && defined(EIMSK)
+    case 0:
+      EICRA = (EICRA & ~((1 << ISC00) | (1 << ISC01))) | (mode << ISC00);
+      EIMSK |= (1 << INT0);
+      break;
+    case 1:
+      EICRA = (EICRA & ~((1 << ISC10) | (1 << ISC11))) | (mode << ISC10);
+      EIMSK |= (1 << INT1);
+      break;
+    case 2:
+      EICRA = (EICRA & ~((1 << ISC20) | (1 << ISC21))) | (mode << ISC20);
+      EIMSK |= (1 << INT2);
       break;
 #else
     case 0:
@@ -123,15 +135,6 @@ void detachInterrupt(uint8_t interruptNum) {
     // ATmega8.  There, INT0 is 6 and INT1 is 7.)
     switch (interruptNum) {
 #if defined(EICRA) && defined(EICRB) && defined(EIMSK)
-    case 2:
-      EIMSK &= ~(1 << INT0);
-      break;
-    case 3:
-      EIMSK &= ~(1 << INT1);
-      break;
-    case 4:
-      EIMSK &= ~(1 << INT2);
-      break;
     case 5:
       EIMSK &= ~(1 << INT3);
       break;
@@ -147,6 +150,17 @@ void detachInterrupt(uint8_t interruptNum) {
     case 7:
       EIMSK &= ~(1 << INT7);
       break;
+#elif defined(EICRA) && defined(EIMSK)
+    case 0:
+      EIMSK &= ~(1 << INT0);
+      break;
+    case 1:
+      EIMSK &= ~(1 << INT1);
+      break;
+    case 2:
+      EIMSK &= ~(1 << INT2);
+      break;
+
 #else
     case 0:
     #if defined(EIMSK) && defined(INT0)
@@ -184,8 +198,8 @@ void attachInterruptTwi(void (*userFunc)(void) ) {
 }
 */
 
-#if defined(EICRA) && defined(EICRB)
 
+#if defined(EICRA) && defined(EICRB)
 SIGNAL(INT0_vect) {
   if(intFunc[EXTERNAL_INT_2])
     intFunc[EXTERNAL_INT_2]();
@@ -224,6 +238,23 @@ SIGNAL(INT6_vect) {
 SIGNAL(INT7_vect) {
   if(intFunc[EXTERNAL_INT_7])
     intFunc[EXTERNAL_INT_7]();
+}
+
+#elif defined(EICRA)
+
+SIGNAL(INT0_vect) {
+  if(intFunc[EXTERNAL_INT_0])
+    intFunc[EXTERNAL_INT_0]();
+}
+
+SIGNAL(INT1_vect) {
+  if(intFunc[EXTERNAL_INT_1])
+    intFunc[EXTERNAL_INT_1]();
+}
+
+SIGNAL(INT2_vect) {
+  if(intFunc[EXTERNAL_INT_2])
+    intFunc[EXTERNAL_INT_2]();
 }
 
 #else

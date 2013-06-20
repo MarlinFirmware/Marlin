@@ -3,6 +3,8 @@
 
 #ifdef SDSUPPORT
 
+#define MAX_DIR_DEPTH 10
+
 #include "SdFile.h"
 enum LsAction {LS_SerialPrint,LS_Count,LS_GetFilename};
 class CardReader
@@ -17,6 +19,7 @@ public:
 
   void checkautostart(bool x); 
   void openFile(char* name,bool read);
+  void openLogFile(char* name);
   void removeFile(char* name);
   void closefile();
   void release();
@@ -44,6 +47,7 @@ public:
 
 public:
   bool saving;
+  bool logging;
   bool sdprinting ;  
   bool cardOK ;
   char filename[13];
@@ -51,7 +55,8 @@ public:
   bool filenameIsDir;
   int lastnr; //last number of the autostart;
 private:
-  SdFile root,*curDir,workDir,workDirParent,workDirParentParent;
+  SdFile root,*curDir,workDir,workDirParents[MAX_DIR_DEPTH];
+  uint16_t workDirDepth;
   Sd2Card card;
   SdVolume volume;
   SdFile file;
