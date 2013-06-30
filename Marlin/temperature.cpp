@@ -809,10 +809,33 @@ void tp_init()
     #endif
   #endif
   
-  // Use timer0 for temperature measurement
-  // Interleave temperature interrupt with millies interrupt
-  OCR0B = 128;
-  TIMSK0 |= (1<<OCIE0B);  
+    // Use timer0 for temperature measurement
+    // timer frequency is 16Mhz/64 -> 250 khz
+    // timer overflow: 250 khz / 256 -> ~977 Hz
+    // base pwm frequency: 7,7 Hz
+  
+    #ifdef SOFT_PWM_SCALE_USE_OCR
+        // disable fast pwm mode for Timer0, 
+        // this disables Hardware PWM on Pins 4 and 13 (atmega2560)
+        TCCR0A = 0x00;   
+        
+        // maximum shift between COMPB ISR and OVF ISR (millis)
+        // The problem is that COMPB has a higher interrupt priority
+        // and if the computation in COMPB takes to long
+        // the result of millis would not be correct for all times
+        // this ensures there are at least 64 clock ticks between the interrupts
+        // (with SOFT_PWM_FREQUENCY_SCALE = 7)
+        // As only the first part (soft pwm output) of the COMP0B ISR is executed in critical case
+        // this should be enough
+        OCR0B = ((256 >> SOFT_PWM_SCALE) >> 1);
+        
+    #else
+       // Interleave temperature interrupt with millies interrupt
+       OCR0B = 128;
+    #endif
+    
+    TIMSK0 |= (1<<OCIE0B);  
+    
   
   // Wait for temperature measurement to settle
   delay(250);
@@ -1062,7 +1085,10 @@ ISR(TIMER0_COMPB_vect)
   static unsigned long raw_temp_2_value = 0;
   static unsigned long raw_temp_bed_value = 0;
   static unsigned char temp_state = 0;
-  static unsigned char pwm_count = (1 << SOFT_PWM_SCALE);
+  static unsigned char pwm_count = 1;
+  #ifdef SOFT_PWM_SCALE_USE_OCR
+  static unsigned char sample_count = 1;
+  #endif
   static unsigned char soft_pwm_0;
   #if EXTRUDERS > 1
   static unsigned char soft_pwm_1;
@@ -1108,8 +1134,25 @@ ISR(TIMER0_COMPB_vect)
   if(soft_pwm_fan <= pwm_count) WRITE(FAN_PIN,0);
   #endif
   
-  pwm_count += (1 << SOFT_PWM_SCALE);
+  #ifdef SOFT_PWM_SCALE_USE_OCR
+    pwm_count++;
+  #else
+    pwm_count += (1 << SOFT_PWM_SCALE);
+  #endif
+  
   pwm_count &= 0x7f;
+  
+  #ifdef SOFT_PWM_SCALE_USE_OCR
+      // pwm done, reset OCR0B
+      OCR0B = TCNT0 + (256 >> SOFT_PWM_SCALE);
+
+      // execute rest of the ISR every SOFT_PWM_SCALE times
+      if (sample_count != (1 << SOFT_PWM_SCALE)) {
+          sample_count++;
+          return;
+      }
+      sample_count = 1;
+  #endif
   
   switch(temp_state) {
     case 0: // Prepare TEMP_0

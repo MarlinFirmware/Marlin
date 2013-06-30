@@ -522,7 +522,15 @@ const bool Z_ENDSTOPS_INVERTING = true; // set to true to invert the logic of th
 // affecting heaters, and the fan if FAN_SOFT_PWM is enabled.
 // However, control resolution will be halved for each increment;
 // at zero value, there are 128 effective control positions.
-#define SOFT_PWM_SCALE 0
+#define SOFT_PWM_SCALE 0        // 0 = 7,7 Hz ; 1  = 15,4 Hz ; 2  = 30,8 Hz ; 3 = 61,6 Hz ; 
+                                // 4 = 123,2Hz ; 5 = 246,4 Hz ; 6 = 492,8 Hz ; 7 = 983,6 Hz
+                                // do not set beyond 7
+
+// Activate to use the Output Compare Register for PWM scaling.
+// This keeps the pwm resolution at its maximum but disables hardware
+// pwm on pin 13 (atmega2560, usually the LED_PIN). Be aware that analogWrite (M42)
+// will no longer work with this pin.
+//#define SOFT_PWM_SCALE_USE_OCR
 
 // M240  Triggers a camera by emulating a Canon RC-1 Remote
 // Data from: http://www.doc-diy.net/photo/rc-1_hacked/
