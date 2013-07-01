@@ -26,7 +26,7 @@
 // 12 = Gen7 v1.3
 // 13 = Gen7 v1.4
 // 3  = MEGA/RAMPS up to 1.2 = 3
-// 33 = RAMPS 1.3 / 1.4 (Power outputs: Extruder, Bed, Fan)
+// 33 = RAMPS 1.3 / 1.4 (Power outputs: Extruder, Fan, Bed)
 // 34 = RAMPS 1.3 / 1.4 (Power outputs: Extruder0, Extruder1, Bed)
 // 4  = Duemilanove w/ ATMega328P pin assignment
 // 5  = Gen6
@@ -35,6 +35,7 @@
 // 62 = Sanguinololu 1.2 and above
 // 63 = Melzi
 // 64 = STB V1.1
+// 65 = Azteeg X1
 // 7  = Ultimaker
 // 71 = Ultimaker (Older electronics. Pre 1.5.4. This is rare)
 // 77 = 3Drag Controller
@@ -124,6 +125,7 @@
 // 8 is 100k 0603 SMD Vishay NTCS0603E3104FXT (4.7k pullup)
 // 9 is 100k GE Sensing AL03006-58.2K-97-G1 (4.7k pullup)
 // 10 is 100k RS thermistor 198-961 (4.7k pullup)
+// 60 is 100k Maker's Tool Works Kapton Bed Thermister
 //
 //    1k ohm pullup tables - This is not normal, you would have to have changed out your 4.7k for 1k
 //                          (but gives greater accuracy and more stable PID)
@@ -278,6 +280,7 @@ const bool X_ENDSTOPS_INVERTING = false; // set to true to invert the logic of t
 const bool Y_ENDSTOPS_INVERTING = false; // set to true to invert the logic of the endstops.
 const bool Z_ENDSTOPS_INVERTING = false; // set to true to invert the logic of the endstops.
 //#define DISABLE_MAX_ENDSTOPS
+//#define DISABLE_MIN_ENDSTOPS
 
 // Disable max endstops for compatibility with endstop checking routine
 #if defined(COREXY) && !defined(DISABLE_MAX_ENDSTOPS)

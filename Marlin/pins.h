@@ -846,7 +846,10 @@
 #if MOTHERBOARD == 63
 #define MELZI
 #endif
-#if MOTHERBOARD == 62 || MOTHERBOARD == 63 || MOTHERBOARD == 64
+#if MOTHERBOARD == 65
+#define AZTEEG_X1
+#endif
+#if MOTHERBOARD == 62 || MOTHERBOARD == 63 || MOTHERBOARD == 64 || MOTHERBOARD == 65
 #undef MOTHERBOARD
 #define MOTHERBOARD 6
 #define SANGUINOLOLU_V_1_2
@@ -887,6 +890,10 @@
 #endif
 
 #ifdef STB
+#define FAN_PIN            4
+#endif
+
+#ifdef AZTEEG_X1
 #define FAN_PIN            4
 #endif
 
@@ -2038,6 +2045,12 @@
 #define X_MAX_PIN          -1
 #define Y_MAX_PIN          -1
 #define Z_MAX_PIN          -1
+#endif
+
+#ifdef DISABLE_MIN_ENDSTOPS
+#define X_MIN_PIN          -1
+#define Y_MIN_PIN          -1
+#define Z_MIN_PIN          -1
 #endif
 
 #define SENSITIVE_PINS {0, 1, X_STEP_PIN, X_DIR_PIN, X_ENABLE_PIN, X_MIN_PIN, X_MAX_PIN, Y_STEP_PIN, Y_DIR_PIN, Y_ENABLE_PIN, Y_MIN_PIN, Y_MAX_PIN, Z_STEP_PIN, Z_DIR_PIN, Z_ENABLE_PIN, Z_MIN_PIN, Z_MAX_PIN, PS_ON_PIN, \
