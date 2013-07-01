@@ -53,7 +53,7 @@
 // 21 = Elefu Ra Board (v3)
 
 #ifndef MOTHERBOARD
-#define MOTHERBOARD 81
+#define MOTHERBOARD 33
 #endif
 
 // Define this to set a custom name for your generic Mendel,
@@ -73,7 +73,7 @@
 //============================== Delta Settings =============================
 //===========================================================================
 // Enable DELTA kinematics
-//#define DELTA
+#define DELTA
 
 // Make delta curves from many straight lines (linear interpolation).
 // This is a trade-off between visible corners (not enough segments)
@@ -339,6 +339,8 @@ const bool Z_ENDSTOPS_INVERTING = false; // set to true to invert the logic of t
 //// MOVEMENT SETTINGS
 #define NUM_AXIS 4 // The axis order in all axis related arrays is X, Y, Z, E
 #define HOMING_FEEDRATE {200*60, 200*60, 200*60, 0}  // set the homing speeds (mm/min)
+
+#define Z_PROBE_OFFSET {0, -13.6, -6.4, 0}  // Distance between hotend nozzle and deployed bed leveling probe.
 
 // default settings
 
