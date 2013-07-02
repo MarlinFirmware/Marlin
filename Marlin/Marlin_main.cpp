@@ -755,7 +755,7 @@ void deploy_z_probe() {
 void retract_z_probe() {
   feedrate = 400*60;
   destination[X_AXIS] = -40;
-  destination[Y_AXIS] = -82;
+  destination[Y_AXIS] = -83;
   prepare_move_raw();
 
   // Move the nozzle below the print surface to push the probe up.
@@ -763,11 +763,8 @@ void retract_z_probe() {
   destination[Z_AXIS] = current_position[Z_AXIS] - 14;
   prepare_move_raw();
 
-  feedrate = 400*60;
+  feedrate = 200*60;
   destination[Z_AXIS] = current_position[Z_AXIS] + 30;
-  prepare_move_raw();
-  // Try again because sometimes the last move doesn't flush properly.
-  destination[Z_AXIS] = current_position[Z_AXIS] + 0.1;
   prepare_move_raw();
   st_synchronize();
 }
