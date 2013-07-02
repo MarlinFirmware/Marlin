@@ -173,8 +173,8 @@ static void lcd_status_screen()
     }
 
     // Dead zone at 100% feedrate
-    if (feedmultiply < 100 && (feedmultiply + int(encoderPosition)) > 100 ||
-            feedmultiply > 100 && (feedmultiply + int(encoderPosition)) < 100)
+    if ((feedmultiply < 100 && (feedmultiply + int(encoderPosition)) > 100) ||
+            (feedmultiply > 100 && (feedmultiply + int(encoderPosition)) < 100))
     {
         encoderPosition = 0;
         feedmultiply = 100;
