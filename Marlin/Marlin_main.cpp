@@ -720,7 +720,7 @@ static void homeaxis(int axis) {
     enable_endstops(true);  // Stop ignoring Z probe while moving up to the top microswitch again.
 
     destination[axis] = 2*home_retract_mm(axis) * home_dir(axis);
-    feedrate = homing_feedrate[axis]/2 ;
+    feedrate = homing_feedrate[axis]/10;
     plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate/60, active_extruder);
     st_synchronize();
 
@@ -740,37 +740,37 @@ static void homeaxis(int axis) {
 #define HOMEAXIS(LETTER) homeaxis(LETTER##_AXIS)
 
 void deploy_z_probe() {
-  feedrate = 400*60;
+  feedrate = homing_feedrate[X_AXIS];
   destination[X_AXIS] = 25;
   destination[Y_AXIS] = 93;
   destination[Z_AXIS] = 100;
   prepare_move_raw();
 
-  feedrate = 20*60;
+  feedrate = homing_feedrate[X_AXIS]/10;
   destination[X_AXIS] = 0;
   prepare_move_raw();
   st_synchronize();
 }
 
 void retract_z_probe() {
-  feedrate = 400*60;
+  feedrate = homing_feedrate[X_AXIS];
   destination[X_AXIS] = -40;
   destination[Y_AXIS] = -83;
   prepare_move_raw();
 
   // Move the nozzle below the print surface to push the probe up.
-  feedrate = 20*60;
+  feedrate = homing_feedrate[Z_AXIS]/10;
   destination[Z_AXIS] = current_position[Z_AXIS] - 14;
   prepare_move_raw();
 
-  feedrate = 200*60;
+  feedrate = homing_feedrate[Z_AXIS];
   destination[Z_AXIS] = current_position[Z_AXIS] + 30;
   prepare_move_raw();
   st_synchronize();
 }
 
 float z_probe() {
-  feedrate = 400*60;
+  feedrate = homing_feedrate[X_AXIS];
   prepare_move_raw();
   st_synchronize();
 
@@ -778,7 +778,7 @@ float z_probe() {
   float start_z = current_position[Z_AXIS];
   long start_steps = st_get_position(Z_AXIS);
 
-  feedrate = 50*60;
+  feedrate = homing_feedrate[Z_AXIS]/10;
   destination[Z_AXIS] = -20;
   prepare_move_raw();
   st_synchronize();
@@ -794,7 +794,7 @@ float z_probe() {
   plan_set_position(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS],
 		    current_position[E_AXIS]);
 
-  feedrate = 400*60;
+  feedrate = homing_feedrate[Z_AXIS];
   destination[Z_AXIS] = mm+2;
   prepare_move_raw();
   return mm;
