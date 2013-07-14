@@ -1003,6 +1003,7 @@ void lcd_buttons_update()
   #if BTN_ENC > 0
     if((blocking_enc<millis()) && (READ(BTN_ENC)==0))
         newbutton |= EN_C;
+  #endif
     buttons = newbutton;
     #ifdef REPRAPWORLD_KEYPAD
       // for the reprapworld_keypad
