@@ -366,7 +366,7 @@ static void lcd_move_z()
         if (current_position[Z_AXIS] > Z_MAX_POS)
             current_position[Z_AXIS] = Z_MAX_POS;
         encoderPosition = 0;
-        plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 60, active_extruder);
+        plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], homing_feedrate[Z_AXIS]/60, active_extruder);
         lcdDrawUpdate = 1;
     }
     if (lcdDrawUpdate)
@@ -690,20 +690,38 @@ menu_edit_type(float, float52, ftostr52, 100)
 menu_edit_type(unsigned long, long5, ftostr5, 0.01)
 
 #ifdef REPRAPWORLD_KEYPAD
+	static void reprapworld_keypad_move_z_up() {
+    encoderPosition = 1;
+    move_menu_scale = REPRAPWORLD_KEYPAD_MOVE_STEP;
+		lcd_move_z();
+  }
+	static void reprapworld_keypad_move_z_down() {
+    encoderPosition = -1;
+    move_menu_scale = REPRAPWORLD_KEYPAD_MOVE_STEP;
+		lcd_move_z();
+  }
+	static void reprapworld_keypad_move_x_left() {
+    encoderPosition = -1;
+    move_menu_scale = REPRAPWORLD_KEYPAD_MOVE_STEP;
+		lcd_move_x();
+  }
+	static void reprapworld_keypad_move_x_right() {
+    encoderPosition = 1;
+    move_menu_scale = REPRAPWORLD_KEYPAD_MOVE_STEP;
+		lcd_move_x();
+	}
 	static void reprapworld_keypad_move_y_down() {
-        encoderPosition = 1;
-        move_menu_scale = REPRAPWORLD_KEYPAD_MOVE_STEP;
+    encoderPosition = 1;
+    move_menu_scale = REPRAPWORLD_KEYPAD_MOVE_STEP;
 		lcd_move_y();
 	}
 	static void reprapworld_keypad_move_y_up() {
 		encoderPosition = -1;
 		move_menu_scale = REPRAPWORLD_KEYPAD_MOVE_STEP;
-    	lcd_move_y();
+    lcd_move_y();
 	}
 	static void reprapworld_keypad_move_home() {
-		//enquecommand_P((PSTR("G28"))); // move all axis home
-		// TODO gregor: move all axis home, i have currently only one axis on my prusa i3
-		enquecommand_P((PSTR("G28 Y")));
+		enquecommand_P((PSTR("G28"))); // move all axis home
 	}
 #endif
 
@@ -824,6 +842,18 @@ void lcd_update()
     {
 #ifdef ULTIPANEL
 		#ifdef REPRAPWORLD_KEYPAD
+        	if (REPRAPWORLD_KEYPAD_MOVE_Z_UP) {
+        		reprapworld_keypad_move_z_up();
+        	}
+        	if (REPRAPWORLD_KEYPAD_MOVE_Z_DOWN) {
+        		reprapworld_keypad_move_z_down();
+        	}
+        	if (REPRAPWORLD_KEYPAD_MOVE_X_LEFT) {
+        		reprapworld_keypad_move_x_left();
+        	}
+        	if (REPRAPWORLD_KEYPAD_MOVE_X_RIGHT) {
+        		reprapworld_keypad_move_x_right();
+        	}
         	if (REPRAPWORLD_KEYPAD_MOVE_Y_DOWN) {
         		reprapworld_keypad_move_y_down();
         	}
