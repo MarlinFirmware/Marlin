@@ -17,8 +17,7 @@
 #define SERIAL_PORT 0
 
 // This determines the communication speed of the printer
-#define BAUDRATE 250000
-//#define BAUDRATE 115200
+#define BAUDRATE 115200
 
 //// The following define selects which electronics board you have. Please choose the one that matches your setup
 // 10 = Gen7 custom (Alfons3 Version) "https://github.com/Alfons3/Generation_7_Electronics"
@@ -36,6 +35,7 @@
 // 63 = Melzi
 // 64 = STB V1.1
 // 65 = Azteeg X1
+// 66 = Melzi with ATmega1284 (MaKr3d version)
 // 7  = Ultimaker
 // 71 = Ultimaker (Older electronics. Pre 1.5.4. This is rare)
 // 77 = 3Drag Controller
@@ -371,10 +371,10 @@ const bool Z_ENDSTOPS_INVERTING = true; // set to true to invert the logic of th
 // M501 - reads parameters from EEPROM (if you need reset them after you changed them temporarily).
 // M502 - reverts to the default "factory settings".  You still need to store them in EEPROM afterwards if you want to.
 //define this to enable eeprom support
-//#define EEPROM_SETTINGS
+#define EEPROM_SETTINGS
 //to disable EEPROM Serial responses and decrease program space by ~1700 byte: comment this out:
 // please keep turned on if you can.
-//#define EEPROM_CHITCHAT
+#define EEPROM_CHITCHAT
 
 // Preheat Constants
 #define PLA_PREHEAT_HOTEND_TEMP 180 
@@ -393,6 +393,10 @@ const bool Z_ENDSTOPS_INVERTING = true; // set to true to invert the logic of th
 
 //#define ULTIMAKERCONTROLLER //as available from the ultimaker online store.
 //#define ULTIPANEL  //the ultipanel as on thingiverse
+
+// The MaKr3d Makr-Panel with graphic controller and SD support
+// http://reprap.org/wiki/MaKr3d_MaKrPanel
+//#define MAKRPANEL
 
 // The RepRapDiscount Smart Controller (white PCB)
 // http://reprap.org/wiki/RepRapDiscount_Smart_Controller
@@ -419,6 +423,14 @@ const bool Z_ENDSTOPS_INVERTING = true; // set to true to invert the logic of th
 //#define RA_CONTROL_PANEL
 
 //automatic expansion
+#if defined (MAKRPANEL)
+ #define DOGLCD
+ #define SDSUPPORT
+ #define ULTIPANEL
+ #define NEWPANEL
+ #define DEFAULT_LCD_CONTRAST 17
+#endif
+
 #if defined (REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
  #define DOGLCD
  #define U8GLIB_ST7920

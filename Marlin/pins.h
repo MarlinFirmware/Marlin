@@ -843,13 +843,13 @@
 #if MOTHERBOARD == 64
 #define STB
 #endif
-#if MOTHERBOARD == 63
+#if MOTHERBOARD == 63 || MOTHERBOARD == 66
 #define MELZI
 #endif
 #if MOTHERBOARD == 65
 #define AZTEEG_X1
 #endif
-#if MOTHERBOARD == 62 || MOTHERBOARD == 63 || MOTHERBOARD == 64 || MOTHERBOARD == 65
+#if MOTHERBOARD == 62 || MOTHERBOARD == 63 || MOTHERBOARD == 64 || MOTHERBOARD == 65 || MOTHERBOARD == 66
 #undef MOTHERBOARD
 #define MOTHERBOARD 6
 #define SANGUINOLOLU_V_1_2
@@ -891,6 +891,8 @@
 
 #ifdef STB
 #define FAN_PIN            4
+	//  Uncomment this if you have the first generation (V1.10) of STBs board
+#define LCD_PIN_BL         17 // LCD backlight LED
 #endif
 
 #ifdef AZTEEG_X1
@@ -974,6 +976,27 @@
     
    #endif //Newpanel
  #endif //Ultipanel
+
+ #ifdef MAKRPANEL
+     #define BEEPER 29
+     // Pins for DOGM SPI LCD Support
+     #define DOGLCD_A0  30
+     #define DOGLCD_CS  17
+     #define LCD_PIN_BL	28	// backlight LED on PA3
+     // GLCD features
+     #define LCD_CONTRAST 1
+     // Uncomment screen orientation
+     #define LCD_SCREEN_ROT_0
+       // #define LCD_SCREEN_ROT_90
+       // #define LCD_SCREEN_ROT_180
+       // #define LCD_SCREEN_ROT_270
+     //The encoder and click button
+     #define BTN_EN1 11
+     #define BTN_EN2 10
+     #define BTN_ENC 16  //the click switch
+     //not connected to a pin
+     #define SDCARDDETECT -1    
+ #endif //Makrpanel
 
 #endif
 
