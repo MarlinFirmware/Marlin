@@ -84,6 +84,7 @@
 // M29  - Stop SD write
 // M30  - Delete file from SD (M30 filename.g)
 // M31  - Output time since last M109 or SD card start to serial
+// M32  - Select file and start SD print (Can be used when printing from SD card)
 // M42  - Change pin status via gcode Use M42 Px Sy to set pin x to value y, when omitting Px the onboard led will be used.
 // M80  - Turn on Power Supply
 // M81  - Turn off Power Supply
@@ -1061,6 +1062,19 @@ void process_commands()
         card.removeFile(strchr_pointer + 4);
       }
       break;
+    case 32: //M32 - Select file and start SD print
+      if(card.sdprinting) {
+        st_synchronize();
+        card.closefile();
+        card.sdprinting = false;
+      }
+      starpos = (strchr(strchr_pointer + 4,'*'));
+      if(starpos!=NULL)
+        *(starpos-1)='\0';
+      card.openFile(strchr_pointer + 4,true);
+      card.startFileprint();
+      starttime=millis();
+      break
     case 928: //M928 - Start SD write
       starpos = (strchr(strchr_pointer + 5,'*'));
       if(starpos != NULL){
