@@ -18,12 +18,6 @@
 //#define WATCH_TEMP_PERIOD 40000 //40 seconds
 //#define WATCH_TEMP_INCREASE 10  //Heat up at least 10 degree in 20 seconds
 
-// Wait for Cooldown
-// This defines if the M109 call should not block if it is cooling down.
-// example: From a current temp of 220, you set M109 S200. 
-// if CooldownNoWait is defined M109 will not wait for the cooldown to finish
-#define CooldownNoWait true
-
 #ifdef PIDTEMP
   // this adds an experimental additional term to the heatingpower, proportional to the extrusion speed.
   // if Kc is choosen well, the additional required power due to increased melting should be compensated.

@@ -67,17 +67,9 @@
 // G91 - Use Relative Coordinates
 // G92 - Set current position to cordinates given
 
-//RepRap M Codes
+// M Codes
 // M0   - Unconditional stop - Wait for user to press a button on the LCD (Only if ULTRA_LCD is enabled)
 // M1   - Same as M0
-// M104 - Set extruder target temp
-// M105 - Read current temp
-// M106 - Fan on
-// M107 - Fan off
-// M109 - Wait for extruder current temp to reach target temp.
-// M114 - Display current position
-
-//Custom M Codes
 // M17  - Enable/Power all stepper motors
 // M18  - Disable all stepper motors; same as M84
 // M20  - List SD card
@@ -101,6 +93,12 @@
 //        or use S<seconds> to specify an inactivity timeout, after which the steppers will be disabled.  S0 to disable the timeout.
 // M85  - Set inactivity shutdown timer with parameter S<seconds>. To disable set zero (default)
 // M92  - Set axis_steps_per_unit - same syntax as G92
+// M104 - Set extruder target temp
+// M105 - Read current temp
+// M106 - Fan on
+// M107 - Fan off
+// M109 - Sxxx Wait for extruder current temp to reach target temp. Waits only when heating
+//        Rxxx Wait for extruder current temp to reach target temp. Waits when heating and cooling
 // M114 - Output current position to serial port
 // M115 - Capabilities string
 // M117 - display message
@@ -110,7 +108,8 @@
 // M128 - EtoP Open (BariCUDA EtoP = electricity to air pressure transducer by jmil)
 // M129 - EtoP Closed (BariCUDA EtoP = electricity to air pressure transducer by jmil)
 // M140 - Set bed target temp
-// M190 - Wait for bed current temp to reach target temp.
+// M190 - Sxxx Wait for bed current temp to reach target temp. Waits only when heating
+//        Rxxx Wait for bed current temp to reach target temp. Waits when heating and cooling
 // M200 - Set filament diameter
 // M201 - Set max acceleration in units/s^2 for print moves (M201 X1000 Y1000)
 // M202 - Set max acceleration in units/s^2 for travel moves (M202 X1000 Y1000) Unused in Marlin!!
@@ -241,6 +240,9 @@ bool Stopped=false;
 #if NUM_SERVOS > 0
   Servo servos[NUM_SERVOS];
 #endif
+
+bool CooldownNoWait = true;
+bool target_direction;
 
 //===========================================================================
 //=============================ROUTINES=============================
@@ -1161,7 +1163,13 @@ void process_commands()
       #ifdef AUTOTEMP
         autotemp_enabled=false;
       #endif
-      if (code_seen('S')) setTargetHotend(code_value(), tmp_extruder);
+      if (code_seen('S')) { 
+        setTargetHotend(code_value(), tmp_extruder);
+        CooldownNoWait = true;
+      } else if (code_seen('R')) {
+        setTargetHotend(code_value(), tmp_extruder);
+        CooldownNoWait = false;
+      }
       #ifdef AUTOTEMP
         if (code_seen('S')) autotemp_min=code_value();
         if (code_seen('B')) autotemp_max=code_value();
@@ -1176,7 +1184,7 @@ void process_commands()
       codenum = millis();
 
       /* See if we are heating up or cooling down */
-      bool target_direction = isHeatingHotend(tmp_extruder); // true if heating, false if cooling
+      target_direction = isHeatingHotend(tmp_extruder); // true if heating, false if cooling
 
       #ifdef TEMP_RESIDENCY_TIME
         long residencyStart;
@@ -1232,9 +1240,18 @@ void process_commands()
     case 190: // M190 - Wait for bed heater to reach target.
     #if defined(TEMP_BED_PIN) && TEMP_BED_PIN > -1
         LCD_MESSAGEPGM(MSG_BED_HEATING);
-        if (code_seen('S')) setTargetBed(code_value());
+        if (code_seen('S')) { 
+          setTargetBed(code_value());
+          CooldownNoWait = true;
+        } else if (code_seen('R')) {
+          setTargetBed(code_value());
+          CooldownNoWait = false;
+        }
         codenum = millis();
-        while(isHeatingBed())
+        
+        target_direction = isHeatingBed(); // true if heating, false if cooling
+        
+        while ( target_direction ? (isHeatingBed()) : (isCoolingBed()&&(CooldownNoWait==false)) )
         {
           if(( millis() - codenum) > 1000 ) //Print Temp Reading every 1 second while heating up.
           {
