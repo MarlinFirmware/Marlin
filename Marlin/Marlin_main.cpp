@@ -125,6 +125,7 @@
 // M220 S<factor in percent>- set speed factor override percentage
 // M221 S<factor in percent>- set extrude factor override percentage
 // M240 - Trigger a camera to take a photograph
+// M250 - Set LCD contrast C<contrast value> (value 0..63)
 // M280 - set servo position absolute. P: servo index, S: angle or microseconds
 // M300 - Play beepsound S<frequency Hz> P<duration ms>
 // M301 - Set PID parameters P I and D
@@ -421,6 +422,7 @@ void setup()
   servo_init();
 
   lcd_init();
+  _delay_ms(1000);	// wait 1sec to display the splash screen
   
   #if defined(CONTROLLERFAN_PIN) && CONTROLLERFAN_PIN > -1
     SET_OUTPUT(CONTROLLERFAN_PIN); //Set pin used for driver cooling fan
@@ -1699,6 +1701,18 @@ void process_commands()
       #endif
      }
     break;
+#ifdef DOGLCD
+    case 250: // M250  Set LCD contrast value: C<value> (value 0..63)
+     {
+	  if (code_seen('C')) {
+	   lcd_setcontrast( ((int)code_value())&63 );
+          }
+          SERIAL_PROTOCOLPGM("lcd contrast value: ");
+          SERIAL_PROTOCOL(lcd_contrast);
+          SERIAL_PROTOCOLLN("");
+     }
+    break;
+#endif
     #ifdef PREVENT_DANGEROUS_EXTRUDE
     case 302: // allow cold extrudes, or set the minimum extrude temperature
     {

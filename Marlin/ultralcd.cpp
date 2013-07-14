@@ -49,6 +49,9 @@ static void lcd_control_temperature_menu();
 static void lcd_control_temperature_preheat_pla_settings_menu();
 static void lcd_control_temperature_preheat_abs_settings_menu();
 static void lcd_control_motion_menu();
+#ifdef DOGLCD
+static void lcd_set_contrast();
+#endif
 static void lcd_control_retract_menu();
 static void lcd_sdcard_menu();
 
@@ -492,6 +495,10 @@ static void lcd_control_menu()
     MENU_ITEM(back, MSG_MAIN, lcd_main_menu);
     MENU_ITEM(submenu, MSG_TEMPERATURE, lcd_control_temperature_menu);
     MENU_ITEM(submenu, MSG_MOTION, lcd_control_motion_menu);
+#ifdef DOGLCD
+//    MENU_ITEM_EDIT(int3, MSG_CONTRAST, &lcd_contrast, 0, 63);
+    MENU_ITEM(submenu, MSG_CONTRAST, lcd_set_contrast);
+#endif
 #ifdef FWRETRACT
     MENU_ITEM(submenu, MSG_RETRACT, lcd_control_retract_menu);
 #endif
@@ -602,6 +609,31 @@ static void lcd_control_motion_menu()
 #endif
     END_MENU();
 }
+
+#ifdef DOGLCD
+static void lcd_set_contrast()
+{
+    if (encoderPosition != 0)
+    {
+        lcd_contrast -= encoderPosition;
+        if (lcd_contrast < 0) lcd_contrast = 0;
+        else if (lcd_contrast > 63) lcd_contrast = 63;
+        encoderPosition = 0;
+        lcdDrawUpdate = 1;
+        u8g.setContrast(lcd_contrast);
+    }
+    if (lcdDrawUpdate)
+    {
+        lcd_implementation_drawedit(PSTR("Contrast"), itostr2(lcd_contrast));
+    }
+    if (LCD_CLICKED)
+    {
+        lcd_quick_feedback();
+        currentMenu = lcd_control_menu;
+        encoderPosition = 0;
+    }
+}
+#endif
 
 #ifdef FWRETRACT
 static void lcd_control_retract_menu()
@@ -991,6 +1023,14 @@ void lcd_reset_alert_level()
 {
     lcd_status_message_level = 0;
 }
+
+#ifdef DOGLCD
+void lcd_setcontrast(uint8_t value)
+{
+    lcd_contrast = value & 63;
+    u8g.setContrast(lcd_contrast);	
+}
+#endif
 
 #ifdef ULTIPANEL
 /* Warning: This function is called from interrupt context */

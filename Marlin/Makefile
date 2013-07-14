@@ -114,6 +114,12 @@ MCU              ?= atmega644p
 else ifeq  ($(HARDWARE_MOTHERBOARD),63)
 HARDWARE_VARIANT ?= Sanguino
 MCU              ?= atmega644p
+else ifeq  ($(HARDWARE_MOTHERBOARD),65)
+HARDWARE_VARIANT ?= Sanguino
+MCU              ?= atmega1284p
+else ifeq  ($(HARDWARE_MOTHERBOARD),66)
+HARDWARE_VARIANT ?= Sanguino
+MCU              ?= atmega1284p
 
 #Ultimaker
 else ifeq  ($(HARDWARE_MOTHERBOARD),7)
