@@ -8,6 +8,8 @@
 #include "stepper.h"
 #include "ConfigurationStore.h"
 
+int8_t encoderDiff; /* encoderDiff is updated from interrupt context and added to encoderPosition every LCD update */
+
 /* Configuration settings */
 int plaPreheatHotendTemp;
 int plaPreheatHPBTemp;
@@ -122,13 +124,11 @@ static void menu_action_setting_edit_callback_long5(const char* pstr, unsigned l
 #ifndef REPRAPWORLD_KEYPAD
 volatile uint8_t buttons;//Contains the bits of the currently pressed buttons.
 #else
-volatile uint16_t buttons;//Contains the bits of the currently pressed buttons (extended).
+volatile uint8_t buttons_reprapworld_keypad; // to store the reprapworld_keypad shiftregister values
 #endif
-
 uint8_t currentMenuViewOffset;              /* scroll offset in the current menu */
 uint32_t blocking_enc;
 uint8_t lastEncoderBits;
-int8_t encoderDiff; /* encoderDiff is updated from interrupt context and added to encoderPosition every LCD update */
 uint32_t encoderPosition;
 #if (SDCARDDETECT > 0)
 bool lcd_oldcardstatus;
@@ -410,7 +410,7 @@ static void lcd_move_z()
         if (current_position[Z_AXIS] > Z_MAX_POS)
             current_position[Z_AXIS] = Z_MAX_POS;
         encoderPosition = 0;
-        plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 60, active_extruder);
+        plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], homing_feedrate[Z_AXIS]/60, active_extruder);
         lcdDrawUpdate = 1;
     }
     if (lcdDrawUpdate)
@@ -736,21 +736,39 @@ menu_edit_type(float, float52, ftostr52, 100)
 menu_edit_type(unsigned long, long5, ftostr5, 0.01)
 
 #ifdef REPRAPWORLD_KEYPAD
-    static void reprapworld_keypad_move_y_down() {
-        encoderPosition = 1;
-        move_menu_scale = REPRAPWORLD_KEYPAD_MOVE_STEP;
-        lcd_move_y();
-    }
-    static void reprapworld_keypad_move_y_up() {
-        encoderPosition = -1;
-        move_menu_scale = REPRAPWORLD_KEYPAD_MOVE_STEP;
-        lcd_move_y();
-    }
-    static void reprapworld_keypad_move_home() {
-        //enquecommand_P((PSTR("G28"))); // move all axis home
-        // TODO gregor: move all axis home, i have currently only one axis on my prusa i3
-        enquecommand_P((PSTR("G28 Y")));
-    }
+	static void reprapworld_keypad_move_z_up() {
+    encoderPosition = 1;
+    move_menu_scale = REPRAPWORLD_KEYPAD_MOVE_STEP;
+		lcd_move_z();
+  }
+	static void reprapworld_keypad_move_z_down() {
+    encoderPosition = -1;
+    move_menu_scale = REPRAPWORLD_KEYPAD_MOVE_STEP;
+		lcd_move_z();
+  }
+	static void reprapworld_keypad_move_x_left() {
+    encoderPosition = -1;
+    move_menu_scale = REPRAPWORLD_KEYPAD_MOVE_STEP;
+		lcd_move_x();
+  }
+	static void reprapworld_keypad_move_x_right() {
+    encoderPosition = 1;
+    move_menu_scale = REPRAPWORLD_KEYPAD_MOVE_STEP;
+		lcd_move_x();
+	}
+	static void reprapworld_keypad_move_y_down() {
+    encoderPosition = 1;
+    move_menu_scale = REPRAPWORLD_KEYPAD_MOVE_STEP;
+		lcd_move_y();
+	}
+	static void reprapworld_keypad_move_y_up() {
+		encoderPosition = -1;
+		move_menu_scale = REPRAPWORLD_KEYPAD_MOVE_STEP;
+    lcd_move_y();
+	}
+	static void reprapworld_keypad_move_home() {
+		enquecommand_P((PSTR("G28"))); // move all axis home
+	}
 #endif
 
 /** End of menus **/
@@ -877,17 +895,29 @@ void lcd_update()
     if (lcd_next_update_millis < millis())
     {
 #ifdef ULTIPANEL
-        #ifdef REPRAPWORLD_KEYPAD
-        if (REPRAPWORLD_KEYPAD_MOVE_Y_DOWN) {
-            reprapworld_keypad_move_y_down();
-        }
-        if (REPRAPWORLD_KEYPAD_MOVE_Y_UP) {
-            reprapworld_keypad_move_y_up();
-        }
-        if (REPRAPWORLD_KEYPAD_MOVE_HOME) {
-            reprapworld_keypad_move_home();
-        }
-        #endif
+		#ifdef REPRAPWORLD_KEYPAD
+        	if (REPRAPWORLD_KEYPAD_MOVE_Z_UP) {
+        		reprapworld_keypad_move_z_up();
+        	}
+        	if (REPRAPWORLD_KEYPAD_MOVE_Z_DOWN) {
+        		reprapworld_keypad_move_z_down();
+        	}
+        	if (REPRAPWORLD_KEYPAD_MOVE_X_LEFT) {
+        		reprapworld_keypad_move_x_left();
+        	}
+        	if (REPRAPWORLD_KEYPAD_MOVE_X_RIGHT) {
+        		reprapworld_keypad_move_x_right();
+        	}
+        	if (REPRAPWORLD_KEYPAD_MOVE_Y_DOWN) {
+        		reprapworld_keypad_move_y_down();
+        	}
+        	if (REPRAPWORLD_KEYPAD_MOVE_Y_UP) {
+        		reprapworld_keypad_move_y_up();
+        	}
+        	if (REPRAPWORLD_KEYPAD_MOVE_HOME) {
+        		reprapworld_keypad_move_home();
+        	}
+		#endif
         if (encoderDiff)
         {
             lcdDrawUpdate = 1;
@@ -973,22 +1003,21 @@ void lcd_buttons_update()
   #if BTN_ENC > 0
     if((blocking_enc<millis()) && (READ(BTN_ENC)==0))
         newbutton |= EN_C;
-  #endif      
-  #ifdef REPRAPWORLD_KEYPAD
-    // for the reprapworld_keypad
-    uint8_t newbutton_reprapworld_keypad=0;
-    WRITE(SHIFT_LD,LOW);
-    WRITE(SHIFT_LD,HIGH);
-    for(int8_t i=0;i<8;i++) {
-        newbutton_reprapworld_keypad = newbutton_reprapworld_keypad>>1;
-        if(READ(SHIFT_OUT))
-            newbutton_reprapworld_keypad|=(1<<7);
-        WRITE(SHIFT_CLK,HIGH);
-        WRITE(SHIFT_CLK,LOW);
-    }
-    newbutton |= ((~newbutton_reprapworld_keypad) << REPRAPWORLD_BTN_OFFSET); //invert it, because a pressed switch produces a logical 0
-  #endif
     buttons = newbutton;
+    #ifdef REPRAPWORLD_KEYPAD
+      // for the reprapworld_keypad
+      uint8_t newbutton_reprapworld_keypad=0;
+      WRITE(SHIFT_LD,LOW);
+      WRITE(SHIFT_LD,HIGH);
+      for(int8_t i=0;i<8;i++) {
+          newbutton_reprapworld_keypad = newbutton_reprapworld_keypad>>1;
+          if(READ(SHIFT_OUT))
+              newbutton_reprapworld_keypad|=(1<<7);
+          WRITE(SHIFT_CLK,HIGH);
+          WRITE(SHIFT_CLK,LOW);
+      }
+      buttons_reprapworld_keypad=~newbutton_reprapworld_keypad; //invert it, because a pressed switch produces a logical 0
+	#endif
 #else   //read it from the shift register
     uint8_t newbutton=0;
     WRITE(SHIFT_LD,LOW);
