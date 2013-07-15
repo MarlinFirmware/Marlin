@@ -80,7 +80,7 @@ int lcd_contrast;
 #ifdef U8GLIB_ST7920
 //U8GLIB_ST7920_128X64_RRD u8g(0,0,0);
 U8GLIB_ST7920_128X64_RRD u8g(0);
-#elsif defined(MAKRPANEL)
+#elif defined(MAKRPANEL)
 // The MaKrPanel display, ST7565 controller as well
 U8GLIB_NHD_C12864 u8g(DOGLCD_CS, DOGLCD_A0);
 #else
