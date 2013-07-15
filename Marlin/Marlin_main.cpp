@@ -1074,7 +1074,7 @@ void process_commands()
       card.openFile(strchr_pointer + 4,true);
       card.startFileprint();
       starttime=millis();
-      break
+      break;
     case 928: //M928 - Start SD write
       starpos = (strchr(strchr_pointer + 5,'*'));
       if(starpos != NULL){
