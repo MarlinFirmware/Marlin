@@ -351,12 +351,23 @@ const bool Z_ENDSTOPS_INVERTING = true; // set to true to invert the logic of th
 #endif // delta
 
 // Travel limits after homing
+#ifdef DELTA
+#define X_MAX_POS 90
+#define X_MIN_POS -90
+#define Y_MAX_POS 90
+#define Y_MIN_POS -90
+#define Z_MAX_POS MANUAL_Z_HOME_POS
+#define Z_MIN_POS 0
+
+#else
+
 #define X_MAX_POS 205
 #define X_MIN_POS 0
 #define Y_MAX_POS 205
 #define Y_MIN_POS 0
 #define Z_MAX_POS 200
 #define Z_MIN_POS 0
+#endif // DELTA
 
 #define X_MAX_LENGTH (X_MAX_POS - X_MIN_POS)
 #define Y_MAX_LENGTH (Y_MAX_POS - Y_MIN_POS)
