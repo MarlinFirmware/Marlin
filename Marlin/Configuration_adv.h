@@ -148,8 +148,13 @@
 
 //homing hits the endstop, then retracts by this distance, before it tries to slowly bump again:
 #define X_HOME_RETRACT_MM 5 
-#define Y_HOME_RETRACT_MM 5 
-#define Z_HOME_RETRACT_MM 1 
+#define Y_HOME_RETRACT_MM 5
+#ifdef DELTA
+#define Z_HOME_RETRACT_MM 5
+#else
+#define Z_HOME_RETRACT_MM 1
+#endif
+
 //#define QUICK_HOME  //if this is defined, if both x and y are to be homed, a diagonal move will be performed initially.
 
 #define AXIS_RELATIVE_MODES {false, false, false, false}
