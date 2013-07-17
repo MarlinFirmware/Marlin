@@ -431,7 +431,11 @@ const bool Z_ENDSTOPS_INVERTING = true; // set to true to invert the logic of th
 
 // The speed change that does not require acceleration (i.e. the software might assume it can be done instantaneously)
 #define DEFAULT_XYJERK                20.0    // (mm/sec)
+#ifdef DELTA
+#define DEFAULT_ZJERK                 20.0    // (mm/sec) Must be same as XY for delta
+#else
 #define DEFAULT_ZJERK                 0.4     // (mm/sec)
+#endif // DELTA
 #define DEFAULT_EJERK                 5.0    // (mm/sec)
 
 //===========================================================================
