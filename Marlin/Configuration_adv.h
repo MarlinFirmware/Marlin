@@ -169,11 +169,6 @@
 #define X2_STEP_PIN 25
 #define X2_DIR_PIN 23
 
-// The following settings control the behaviour of the automatic parking and unparking of inactive extruder
-#define TOOLCHANGE_PARK_ZLIFT 0.1        // the distance to raise Z axis when parking an extruder
-#define TOOLCHANGE_UNPARK_ZLIFT 1        // the distance to raise Z axis when unparking an extruder
-#define TOOLCHANGE_UNPARK_SKIP_TRAVEL_MOVES // disable if slicer natively suports dual x-carriage mode. 
-    // When enabled this avoids unnecessary & inadvertant moves from the last position of old extruder. 
 #endif // DUAL_X_CARRIAGE
     
 //homing hits the endstop, then retracts by this distance, before it tries to slowly bump again:
