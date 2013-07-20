@@ -677,7 +677,44 @@ XYZ_CONSTS_FROM_CONFIG(float, max_length,      MAX_LENGTH);
 XYZ_CONSTS_FROM_CONFIG(float, home_retract_mm, HOME_RETRACT_MM);
 XYZ_CONSTS_FROM_CONFIG(signed char, home_dir,  HOME_DIR);
 
+#ifdef DUAL_X_CARRIAGE
+  #if EXTRUDERS == 1 || defined(COREXY) \
+      || !defined(X2_ENABLE_PIN) || !defined(X2_STEP_PIN) || !defined(X2_DIR_PIN) \
+      || !defined(X2_HOME_POS) || !defined(X2_MIN_POS) || !defined(X2_MAX_POS) \
+      || !defined(X_MAX_PIN) || X_MAX_PIN < 0
+    #error "Missing or invalid definitions for DUAL_X_CARRIAGE mode."
+  #endif
+  #if X_HOME_DIR != -1 || X2_HOME_DIR != 1
+    #error "Please use canonical x-carriage assignment" // the x-carriages are defined by their homing directions
+  #endif  
+    
+static float x_home_pos(int extruder) {
+  if (extruder == 0)
+    return base_home_pos(X_AXIS) + add_homeing[X_AXIS];
+  else
+    // In dual carriage mode the extruder offset provides an override of the
+    // second X-carriage offset when homed - otherwise X2_HOME_POS is used.
+    // This allow soft recalibration of the second extruder offset position without firmware reflash 
+    // (through the M218 command).
+    return (extruder_offset[X_AXIS][1] != 0) ? extruder_offset[X_AXIS][1] : X2_HOME_POS;
+}
+
+static int x_home_dir(int extruder) {
+  return (extruder == 0) ? X_HOME_DIR : X2_HOME_DIR;
+}
+
+static float inactive_x_carriage_pos = X2_MAX_POS;
+#endif     
+
 static void axis_is_at_home(int axis) {
+#ifdef DUAL_X_CARRIAGE
+  if (axis == X_AXIS && active_extruder != 0) {
+    current_position[X_AXIS] = x_home_pos(active_extruder);
+    min_pos[X_AXIS] =          X2_MIN_POS;
+    max_pos[X_AXIS] =          X2_MAX_POS;
+    return;
+  }
+#endif  
   current_position[axis] = base_home_pos(axis) + add_homeing[axis];
   min_pos[axis] =          base_min_pos(axis) + add_homeing[axis];
   max_pos[axis] =          base_max_pos(axis) + add_homeing[axis];
@@ -686,10 +723,16 @@ static void axis_is_at_home(int axis) {
 static void homeaxis(int axis) {
 #define HOMEAXIS_DO(LETTER) \
   ((LETTER##_MIN_PIN > -1 && LETTER##_HOME_DIR==-1) || (LETTER##_MAX_PIN > -1 && LETTER##_HOME_DIR==1))
+
   if (axis==X_AXIS ? HOMEAXIS_DO(X) :
       axis==Y_AXIS ? HOMEAXIS_DO(Y) :
       axis==Z_AXIS ? HOMEAXIS_DO(Z) :
       0) {
+    int axis_home_dir = home_dir(axis);
+#ifdef DUAL_X_CARRIAGE
+    if (axis == X_AXIS)
+      axis_home_dir = x_home_dir(active_extruder);
+#endif
 
     // Engage Servo endstop if enabled
     #ifdef SERVO_ENDSTOPS
@@ -700,18 +743,18 @@ static void homeaxis(int axis) {
       
     current_position[axis] = 0;
     plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
-    destination[axis] = 1.5 * max_length(axis) * home_dir(axis);
+    destination[axis] = 1.5 * max_length(axis) * axis_home_dir;
     feedrate = homing_feedrate[axis];
     plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate/60, active_extruder);
     st_synchronize();
 
     current_position[axis] = 0;
     plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
-    destination[axis] = -home_retract_mm(axis) * home_dir(axis);
+    destination[axis] = -home_retract_mm(axis) * axis_home_dir;
     plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate/60, active_extruder);
     st_synchronize();
 
-    destination[axis] = 2*home_retract_mm(axis) * home_dir(axis);
+    destination[axis] = 2*home_retract_mm(axis) * axis_home_dir;
     feedrate = homing_feedrate[axis]/2 ;
     plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate/60, active_extruder);
     st_synchronize();
@@ -851,7 +894,7 @@ void process_commands()
 
 #else // NOT DELTA
 
-          home_all_axis = !((code_seen(axis_codes[0])) || (code_seen(axis_codes[1])) || (code_seen(axis_codes[2])));
+      home_all_axis = !((code_seen(axis_codes[0])) || (code_seen(axis_codes[1])) || (code_seen(axis_codes[2])));
 
       #if Z_HOME_DIR > 0                      // If homing away from BED do Z first
       if((home_all_axis) || (code_seen(axis_codes[Z_AXIS]))) {
@@ -864,8 +907,14 @@ void process_commands()
       {
         current_position[X_AXIS] = 0;current_position[Y_AXIS] = 0;
 
+       #ifdef DUAL_X_CARRIAGE
+        int x_axis_home_dir = home_dir(X_AXIS);
+       #else
+        int x_axis_home_dir = x_home_dir(active_extruder);
+       #endif
+        
         plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
-        destination[X_AXIS] = 1.5 * X_MAX_LENGTH * X_HOME_DIR;destination[Y_AXIS] = 1.5 * Y_MAX_LENGTH * Y_HOME_DIR;
+        destination[X_AXIS] = 1.5 * max_length(X_AXIS) * x_axis_home_dir;destination[Y_AXIS] = 1.5 * max_length(Y_AXIS) * home_dir(Y_AXIS);
         feedrate = homing_feedrate[X_AXIS];
         if(homing_feedrate[Y_AXIS]<feedrate)
           feedrate =homing_feedrate[Y_AXIS];
@@ -890,6 +939,13 @@ void process_commands()
 
       if((home_all_axis) || (code_seen(axis_codes[X_AXIS])))
       {
+      #ifdef DUAL_X_CARRIAGE
+        int tmp_extruder = active_extruder;
+        active_extruder = !active_extruder;
+        HOMEAXIS(X);
+        inactive_x_carriage_pos = current_position[X_AXIS];
+        active_extruder = tmp_extruder;
+      #endif         
         HOMEAXIS(X);
       }
 
@@ -922,7 +978,7 @@ void process_commands()
         }
       }
       plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
-#endif // DELTA
+#endif // else DELTA
           
       #ifdef ENDSTOPS_ONLY_FOR_HOMING
         enable_endstops(false);
@@ -2001,6 +2057,20 @@ void process_commands()
       if(tmp_extruder != active_extruder) {
         // Save current position to return to after applying extruder offset
         memcpy(destination, current_position, sizeof(destination));
+      #ifdef DUAL_X_CARRIAGE
+        // only apply Y extruder offset in dual x carriage mode (x offset is already used in determining home pos)
+        current_position[Y_AXIS] = current_position[Y_AXIS] -
+                     extruder_offset[Y_AXIS][active_extruder] +
+                     extruder_offset[Y_AXIS][tmp_extruder];
+
+        float tmp_x_pos = current_position[X_AXIS];
+
+        // Set the new active extruder and position
+        active_extruder = tmp_extruder;
+        axis_is_at_home(X_AXIS); //this function updates X min/max values.
+        current_position[X_AXIS] = inactive_x_carriage_pos;
+        inactive_x_carriage_pos = tmp_x_pos;      
+      #else    
         // Offset extruder (only by XY)
         int i;
         for(i = 0; i < 2; i++) {
@@ -2010,6 +2080,7 @@ void process_commands()
         }
         // Set the new active extruder and position
         active_extruder = tmp_extruder;
+      #endif //else DUAL_X_CARRIAGE
         plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
         // Move to the old position if 'F' was in the parameters
         if(make_move && Stopped == false) {
@@ -2254,6 +2325,9 @@ void controllerFan()
        || !READ(E2_ENABLE_PIN)
     #endif
     #if EXTRUDER > 1
+      #if defined(X2_ENABLE_PIN) && X2_ENABLE_PIN > -1
+       || !READ(X2_ENABLE_PIN)
+      #endif
        || !READ(E1_ENABLE_PIN)
     #endif
        || !READ(E0_ENABLE_PIN)) //If any of the drivers are enabled...
