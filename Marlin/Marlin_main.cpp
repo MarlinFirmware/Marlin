@@ -696,7 +696,7 @@ static float x_home_pos(int extruder) {
     // second X-carriage offset when homed - otherwise X2_HOME_POS is used.
     // This allow soft recalibration of the second extruder offset position without firmware reflash 
     // (through the M218 command).
-    return (extruder_offset[X_AXIS][1] != 0) ? extruder_offset[X_AXIS][1] : X2_HOME_POS;
+    return (extruder_offset[X_AXIS][1] > 0) ? extruder_offset[X_AXIS][1] : X2_HOME_POS;
 }
 
 static int x_home_dir(int extruder) {
@@ -711,7 +711,7 @@ static void axis_is_at_home(int axis) {
   if (axis == X_AXIS && active_extruder != 0) {
     current_position[X_AXIS] = x_home_pos(active_extruder);
     min_pos[X_AXIS] =          X2_MIN_POS;
-    max_pos[X_AXIS] =          X2_MAX_POS;
+    max_pos[X_AXIS] =          max(extruder_offset[X_AXIS][1], X2_MAX_POS);
     return;
   }
 #endif  
@@ -907,7 +907,7 @@ void process_commands()
       {
         current_position[X_AXIS] = 0;current_position[Y_AXIS] = 0;
 
-       #ifdef DUAL_X_CARRIAGE
+       #ifndef DUAL_X_CARRIAGE
         int x_axis_home_dir = home_dir(X_AXIS);
        #else
         int x_axis_home_dir = x_home_dir(active_extruder);
