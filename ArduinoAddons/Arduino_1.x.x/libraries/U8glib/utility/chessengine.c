@@ -72,7 +72,7 @@
 	- Castling: Need to check for fields under attack
 	    --> done
 	
-	- Check for WIN / LOOSE situation, perhaps call ce_Eval() once on the top-level board setup
+	- Check for WIN / LOSE situation, perhaps call ce_Eval() once on the top-level board setup
 	    just after the real move
 	- cleanup cu_Move
 	    --> almost done

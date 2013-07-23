@@ -8,6 +8,8 @@
 #include "stepper.h"
 #include "ConfigurationStore.h"
 
+int8_t encoderDiff; /* encoderDiff is updated from interrupt context and added to encoderPosition every LCD update */
+
 /* Configuration settings */
 int plaPreheatHotendTemp;
 int plaPreheatHPBTemp;
@@ -47,6 +49,9 @@ static void lcd_control_temperature_menu();
 static void lcd_control_temperature_preheat_pla_settings_menu();
 static void lcd_control_temperature_preheat_abs_settings_menu();
 static void lcd_control_motion_menu();
+#ifdef DOGLCD
+static void lcd_set_contrast();
+#endif
 static void lcd_control_retract_menu();
 static void lcd_sdcard_menu();
 
@@ -122,13 +127,11 @@ static void menu_action_setting_edit_callback_long5(const char* pstr, unsigned l
 #ifndef REPRAPWORLD_KEYPAD
 volatile uint8_t buttons;//Contains the bits of the currently pressed buttons.
 #else
-volatile uint16_t buttons;//Contains the bits of the currently pressed buttons (extended).
+volatile uint8_t buttons_reprapworld_keypad; // to store the reprapworld_keypad shiftregister values
 #endif
-
 uint8_t currentMenuViewOffset;              /* scroll offset in the current menu */
 uint32_t blocking_enc;
 uint8_t lastEncoderBits;
-int8_t encoderDiff; /* encoderDiff is updated from interrupt context and added to encoderPosition every LCD update */
 uint32_t encoderPosition;
 #if (SDCARDDETECT > 0)
 bool lcd_oldcardstatus;
@@ -173,8 +176,8 @@ static void lcd_status_screen()
     }
 
     // Dead zone at 100% feedrate
-    if (feedmultiply < 100 && (feedmultiply + int(encoderPosition)) > 100 ||
-            feedmultiply > 100 && (feedmultiply + int(encoderPosition)) < 100)
+    if ((feedmultiply < 100 && (feedmultiply + int(encoderPosition)) > 100) ||
+            (feedmultiply > 100 && (feedmultiply + int(encoderPosition)) < 100))
     {
         encoderPosition = 0;
         feedmultiply = 100;
@@ -357,9 +360,9 @@ static void lcd_move_x()
     if (encoderPosition != 0)
     {
         current_position[X_AXIS] += float((int)encoderPosition) * move_menu_scale;
-        if (current_position[X_AXIS] < X_MIN_POS)
+        if (min_software_endstops && current_position[X_AXIS] < X_MIN_POS)
             current_position[X_AXIS] = X_MIN_POS;
-        if (current_position[X_AXIS] > X_MAX_POS)
+        if (max_software_endstops && current_position[X_AXIS] > X_MAX_POS)
             current_position[X_AXIS] = X_MAX_POS;
         encoderPosition = 0;
         plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 600, active_extruder);
@@ -381,9 +384,9 @@ static void lcd_move_y()
     if (encoderPosition != 0)
     {
         current_position[Y_AXIS] += float((int)encoderPosition) * move_menu_scale;
-        if (current_position[Y_AXIS] < Y_MIN_POS)
+        if (min_software_endstops && current_position[Y_AXIS] < Y_MIN_POS)
             current_position[Y_AXIS] = Y_MIN_POS;
-        if (current_position[Y_AXIS] > Y_MAX_POS)
+        if (max_software_endstops && current_position[Y_AXIS] > Y_MAX_POS)
             current_position[Y_AXIS] = Y_MAX_POS;
         encoderPosition = 0;
         plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 600, active_extruder);
@@ -405,12 +408,12 @@ static void lcd_move_z()
     if (encoderPosition != 0)
     {
         current_position[Z_AXIS] += float((int)encoderPosition) * move_menu_scale;
-        if (current_position[Z_AXIS] < Z_MIN_POS)
+        if (min_software_endstops && current_position[Z_AXIS] < Z_MIN_POS)
             current_position[Z_AXIS] = Z_MIN_POS;
-        if (current_position[Z_AXIS] > Z_MAX_POS)
+        if (max_software_endstops && current_position[Z_AXIS] > Z_MAX_POS)
             current_position[Z_AXIS] = Z_MAX_POS;
         encoderPosition = 0;
-        plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 60, active_extruder);
+        plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], homing_feedrate[Z_AXIS]/60, active_extruder);
         lcdDrawUpdate = 1;
     }
     if (lcdDrawUpdate)
@@ -492,6 +495,10 @@ static void lcd_control_menu()
     MENU_ITEM(back, MSG_MAIN, lcd_main_menu);
     MENU_ITEM(submenu, MSG_TEMPERATURE, lcd_control_temperature_menu);
     MENU_ITEM(submenu, MSG_MOTION, lcd_control_motion_menu);
+#ifdef DOGLCD
+//    MENU_ITEM_EDIT(int3, MSG_CONTRAST, &lcd_contrast, 0, 63);
+    MENU_ITEM(submenu, MSG_CONTRAST, lcd_set_contrast);
+#endif
 #ifdef FWRETRACT
     MENU_ITEM(submenu, MSG_RETRACT, lcd_control_retract_menu);
 #endif
@@ -505,9 +512,11 @@ static void lcd_control_menu()
 
 static void lcd_control_temperature_menu()
 {
+#ifdef PIDTEMP
     // set up temp variables - undo the default scaling
     raw_Ki = unscalePID_i(Ki);
     raw_Kd = unscalePID_d(Kd);
+#endif
 
     START_MENU();
     MENU_ITEM(back, MSG_CONTROL, lcd_control_menu);
@@ -600,6 +609,31 @@ static void lcd_control_motion_menu()
 #endif
     END_MENU();
 }
+
+#ifdef DOGLCD
+static void lcd_set_contrast()
+{
+    if (encoderPosition != 0)
+    {
+        lcd_contrast -= encoderPosition;
+        if (lcd_contrast < 0) lcd_contrast = 0;
+        else if (lcd_contrast > 63) lcd_contrast = 63;
+        encoderPosition = 0;
+        lcdDrawUpdate = 1;
+        u8g.setContrast(lcd_contrast);
+    }
+    if (lcdDrawUpdate)
+    {
+        lcd_implementation_drawedit(PSTR("Contrast"), itostr2(lcd_contrast));
+    }
+    if (LCD_CLICKED)
+    {
+        lcd_quick_feedback();
+        currentMenu = lcd_control_menu;
+        encoderPosition = 0;
+    }
+}
+#endif
 
 #ifdef FWRETRACT
 static void lcd_control_retract_menu()
@@ -734,21 +768,39 @@ menu_edit_type(float, float52, ftostr52, 100)
 menu_edit_type(unsigned long, long5, ftostr5, 0.01)
 
 #ifdef REPRAPWORLD_KEYPAD
-    static void reprapworld_keypad_move_y_down() {
-        encoderPosition = 1;
-        move_menu_scale = REPRAPWORLD_KEYPAD_MOVE_STEP;
-        lcd_move_y();
-    }
-    static void reprapworld_keypad_move_y_up() {
-        encoderPosition = -1;
-        move_menu_scale = REPRAPWORLD_KEYPAD_MOVE_STEP;
-        lcd_move_y();
-    }
-    static void reprapworld_keypad_move_home() {
-        //enquecommand_P((PSTR("G28"))); // move all axis home
-        // TODO gregor: move all axis home, i have currently only one axis on my prusa i3
-        enquecommand_P((PSTR("G28 Y")));
-    }
+	static void reprapworld_keypad_move_z_up() {
+    encoderPosition = 1;
+    move_menu_scale = REPRAPWORLD_KEYPAD_MOVE_STEP;
+		lcd_move_z();
+  }
+	static void reprapworld_keypad_move_z_down() {
+    encoderPosition = -1;
+    move_menu_scale = REPRAPWORLD_KEYPAD_MOVE_STEP;
+		lcd_move_z();
+  }
+	static void reprapworld_keypad_move_x_left() {
+    encoderPosition = -1;
+    move_menu_scale = REPRAPWORLD_KEYPAD_MOVE_STEP;
+		lcd_move_x();
+  }
+	static void reprapworld_keypad_move_x_right() {
+    encoderPosition = 1;
+    move_menu_scale = REPRAPWORLD_KEYPAD_MOVE_STEP;
+		lcd_move_x();
+	}
+	static void reprapworld_keypad_move_y_down() {
+    encoderPosition = 1;
+    move_menu_scale = REPRAPWORLD_KEYPAD_MOVE_STEP;
+		lcd_move_y();
+	}
+	static void reprapworld_keypad_move_y_up() {
+		encoderPosition = -1;
+		move_menu_scale = REPRAPWORLD_KEYPAD_MOVE_STEP;
+    lcd_move_y();
+	}
+	static void reprapworld_keypad_move_home() {
+		enquecommand_P((PSTR("G28"))); // move all axis home
+	}
 #endif
 
 /** End of menus **/
@@ -875,17 +927,29 @@ void lcd_update()
     if (lcd_next_update_millis < millis())
     {
 #ifdef ULTIPANEL
-        #ifdef REPRAPWORLD_KEYPAD
-        if (REPRAPWORLD_KEYPAD_MOVE_Y_DOWN) {
-            reprapworld_keypad_move_y_down();
-        }
-        if (REPRAPWORLD_KEYPAD_MOVE_Y_UP) {
-            reprapworld_keypad_move_y_up();
-        }
-        if (REPRAPWORLD_KEYPAD_MOVE_HOME) {
-            reprapworld_keypad_move_home();
-        }
-        #endif
+		#ifdef REPRAPWORLD_KEYPAD
+        	if (REPRAPWORLD_KEYPAD_MOVE_Z_UP) {
+        		reprapworld_keypad_move_z_up();
+        	}
+        	if (REPRAPWORLD_KEYPAD_MOVE_Z_DOWN) {
+        		reprapworld_keypad_move_z_down();
+        	}
+        	if (REPRAPWORLD_KEYPAD_MOVE_X_LEFT) {
+        		reprapworld_keypad_move_x_left();
+        	}
+        	if (REPRAPWORLD_KEYPAD_MOVE_X_RIGHT) {
+        		reprapworld_keypad_move_x_right();
+        	}
+        	if (REPRAPWORLD_KEYPAD_MOVE_Y_DOWN) {
+        		reprapworld_keypad_move_y_down();
+        	}
+        	if (REPRAPWORLD_KEYPAD_MOVE_Y_UP) {
+        		reprapworld_keypad_move_y_up();
+        	}
+        	if (REPRAPWORLD_KEYPAD_MOVE_HOME) {
+        		reprapworld_keypad_move_home();
+        	}
+		#endif
         if (encoderDiff)
         {
             lcdDrawUpdate = 1;
@@ -960,6 +1024,14 @@ void lcd_reset_alert_level()
     lcd_status_message_level = 0;
 }
 
+#ifdef DOGLCD
+void lcd_setcontrast(uint8_t value)
+{
+    lcd_contrast = value & 63;
+    u8g.setContrast(lcd_contrast);	
+}
+#endif
+
 #ifdef ULTIPANEL
 /* Warning: This function is called from interrupt context */
 void lcd_buttons_update()
@@ -971,22 +1043,22 @@ void lcd_buttons_update()
   #if BTN_ENC > 0
     if((blocking_enc<millis()) && (READ(BTN_ENC)==0))
         newbutton |= EN_C;
-  #endif      
-  #ifdef REPRAPWORLD_KEYPAD
-    // for the reprapworld_keypad
-    uint8_t newbutton_reprapworld_keypad=0;
-    WRITE(SHIFT_LD,LOW);
-    WRITE(SHIFT_LD,HIGH);
-    for(int8_t i=0;i<8;i++) {
-        newbutton_reprapworld_keypad = newbutton_reprapworld_keypad>>1;
-        if(READ(SHIFT_OUT))
-            newbutton_reprapworld_keypad|=(1<<7);
-        WRITE(SHIFT_CLK,HIGH);
-        WRITE(SHIFT_CLK,LOW);
-    }
-    newbutton |= ((~newbutton_reprapworld_keypad) << REPRAPWORLD_BTN_OFFSET); //invert it, because a pressed switch produces a logical 0
   #endif
     buttons = newbutton;
+    #ifdef REPRAPWORLD_KEYPAD
+      // for the reprapworld_keypad
+      uint8_t newbutton_reprapworld_keypad=0;
+      WRITE(SHIFT_LD,LOW);
+      WRITE(SHIFT_LD,HIGH);
+      for(int8_t i=0;i<8;i++) {
+          newbutton_reprapworld_keypad = newbutton_reprapworld_keypad>>1;
+          if(READ(SHIFT_OUT))
+              newbutton_reprapworld_keypad|=(1<<7);
+          WRITE(SHIFT_CLK,HIGH);
+          WRITE(SHIFT_CLK,LOW);
+      }
+      buttons_reprapworld_keypad=~newbutton_reprapworld_keypad; //invert it, because a pressed switch produces a logical 0
+	#endif
 #else   //read it from the shift register
     uint8_t newbutton=0;
     WRITE(SHIFT_LD,LOW);
@@ -1252,16 +1324,20 @@ char *ftostr52(const float &x)
 // grab the pid i value out of the temp variable; scale it; then update the PID driver
 void copy_and_scalePID_i()
 {
+#ifdef PIDTEMP
   Ki = scalePID_i(raw_Ki);
   updatePID();
+#endif
 }
 
 // Callback for after editing PID d value
 // grab the pid d value out of the temp variable; scale it; then update the PID driver
 void copy_and_scalePID_d()
 {
+#ifdef PIDTEMP
   Kd = scalePID_d(raw_Kd);
   updatePID();
+#endif
 }
 
 #endif //ULTRA_LCD
