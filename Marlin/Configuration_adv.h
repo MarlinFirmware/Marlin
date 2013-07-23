@@ -18,12 +18,6 @@
 //#define WATCH_TEMP_PERIOD 40000 //40 seconds
 //#define WATCH_TEMP_INCREASE 10  //Heat up at least 10 degree in 20 seconds
 
-// Wait for Cooldown
-// This defines if the M109 call should not block if it is cooling down.
-// example: From a current temp of 220, you set M109 S200. 
-// if CooldownNoWait is defined M109 will not wait for the cooldown to finish
-#define CooldownNoWait true
-
 #ifdef PIDTEMP
   // this adds an experimental additional term to the heatingpower, proportional to the extrusion speed.
   // if Kc is choosen well, the additional required power due to increased melting should be compensated.
@@ -152,6 +146,31 @@
   #define EXTRUDERS 1
 #endif
 
+// Enable this for dual x-carriage printers. 
+// A dual x-carriage design has the advantage that the inactive extruder can be parked which
+// prevents hot-end ooze contaminating the print. It also reduces the weight of each x-carriage
+// allowing faster printing speeds.
+//#define DUAL_X_CARRIAGE
+#ifdef DUAL_X_CARRIAGE
+// Configuration for second X-carriage
+// Note: the first x-carriage is defined as the x-carriage which homes to the minimum endstop;
+// the second x-carriage always homes to the maximum endstop.
+#define X2_MIN_POS 88     // set minimum to ensure second x-carriage doesn't hit the parked first X-carriage
+#define X2_MAX_POS 350.45 // set maximum to the distance between toolheads when both heads are homed 
+#define X2_HOME_DIR 1     // the second X-carriage always homes to the maximum endstop position
+#define X2_HOME_POS X2_MAX_POS // default home position is the maximum carriage position 
+    // However: In this mode the EXTRUDER_OFFSET_X value for the second extruder provides a software 
+    // override for X2_HOME_POS. This also allow recalibration of the distance between the two endstops
+    // without modifying the firmware (through the "M218 T1 X???" command).
+    // Remember: you should set the second extruder x-offset to 0 in your slicer.
+
+// Pins for second x-carriage stepper driver (defined here to avoid further complicating pins.h)
+#define X2_ENABLE_PIN 29
+#define X2_STEP_PIN 25
+#define X2_DIR_PIN 23
+
+#endif // DUAL_X_CARRIAGE
+    
 //homing hits the endstop, then retracts by this distance, before it tries to slowly bump again:
 #define X_HOME_RETRACT_MM 5 
 #define Y_HOME_RETRACT_MM 5 
