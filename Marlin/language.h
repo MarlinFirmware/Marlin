@@ -294,6 +294,8 @@
 	#define MSG_CONTROL_RETRACT_RECOVERF "Cof. wycof.  F"
 	#define MSG_AUTORETRACT "Auto. wycofanie"
 	#define MSG_FILAMENTCHANGE "Change filament"
+	#define MSG_INIT_SDCARD "Init. SD-Card"	
+	#define MSG_CNG_SDCARD "Change SD-Card"
 
 // Serial Console Messages
 
@@ -427,11 +429,10 @@
 #define MSG_ZSTEPS " Zpas/mm:"
 #define MSG_ESTEPS " Epas/mm:"
 #define MSG_MAIN_WIDE " Principal \003"
-#define MSG_RECTRACT_WIDE " Rectractater \x7E"
-#define MSG_TEMPERATURE_WIDE " Temperature \x7E"
-#define MSG_TEMPERATURE_RTN " Temperature \003"
-#define MSG_MOTION_WIDE " Mouvement \x7E"
-	#define MSG_CONTRAST "LCD contrast"
+#define MSG_RECTRACT "Rectracter"
+#define MSG_TEMPERATURE "Temperature"
+#define MSG_MOTION "Mouvement"
+#define MSG_CONTRAST "LCD contrast"
 #define MSG_STORE_EPROM " Sauvegarder memoire"
 #define MSG_LOAD_EPROM " Lire memoire"
 #define MSG_RESTORE_FAILSAFE " Restaurer memoire"
@@ -449,6 +450,7 @@
 #define MSG_NO_CARD " Pas de carte"
 #define MSG_DWELL "Repos..."
 #define MSG_USERWAIT "Attente de l'utilisateur..."
+#define MSG_RESUMING "Reprise de l'impression"
 #define MSG_NO_MOVE "Aucun mouvement."
 #define MSG_PART_RELEASE "Relache partielle"
 #define MSG_KILLED "TUE."
@@ -461,6 +463,8 @@
 #define MSG_CONTROL_RETRACT_RECOVERF " UnRet F:"
 #define MSG_AUTORETRACT " Retract. Auto.:"
 #define MSG_FILAMENTCHANGE "Change filament"
+#define MSG_INIT_SDCARD "Init. la carte SD"	
+#define MSG_CNG_SDCARD "Changer de carte SD"
 
 // Serial Console Messages
 
@@ -626,6 +630,8 @@
     #define MSG_CONTROL_RETRACT_RECOVERF "UnRet  F"
     #define MSG_AUTORETRACT      "AutoRetr."
     #define MSG_FILAMENTCHANGE "Filament wechseln"
+    #define MSG_INIT_SDCARD "Init. SD-Card"	
+    #define MSG_CNG_SDCARD "Change SD-Card"
 	
 // Serial Console Messages
 
@@ -944,6 +950,7 @@
 #define MSG_NO_CARD							" Нет карты"
 #define MSG_DWELL							"Сон..."
 #define MSG_USERWAIT						"Нажмите для продолж."
+#define MSG_RESUMING "Resuming print"
 #define MSG_NO_MOVE							"Нет движения.       "
 #define MSG_PART_RELEASE					" Извлечение принта  "
 #define MSG_KILLED							"УБИТО. "
@@ -955,6 +962,8 @@
 #define MSG_CONTROL_RETRACT_RECOVERF		" Возврат  F:"
 #define MSG_AUTORETRACT						" АвтоОткат:"
 #define MSG_FILAMENTCHANGE "Change filament"
+#define MSG_INIT_SDCARD "Init. SD-Card"	
+#define MSG_CNG_SDCARD "Change SD-Card"
 
 // Serial Console Messages
 
@@ -1250,10 +1259,9 @@
 	#define MSG_ZSTEPS " Zpasso/mm:"
 	#define MSG_ESTEPS " Epasso/mm:"
 	#define MSG_MAIN_WIDE " Menu Principal  \003"
-	#define MSG_RECTRACT_WIDE " Retrair    \x7E"
-	#define MSG_TEMPERATURE_WIDE " Temperatura \x7E"
-	#define MSG_TEMPERATURE_RTN " Temperatura  \003"
-	#define MSG_MOTION_WIDE " Movimento     \x7E"
+	#define MSG_RECTRACT "Retrair"
+	#define MSG_TEMPERATURE "Temperatura"
+	#define MSG_MOTION "Movimento"
 	#define MSG_STORE_EPROM " Guardar memoria"
 	#define MSG_LOAD_EPROM " Carregar memoria"
 	#define MSG_RESTORE_FAILSAFE " Rest. de emergencia"
@@ -1271,6 +1279,7 @@
 	#define MSG_NO_CARD " Sem cartao SD"
 	#define MSG_DWELL "Repouso..."
 	#define MSG_USERWAIT "Esperando Ordem..."
+	#define MSG_RESUMING "Resuming print"
 	#define MSG_NO_MOVE "Sem movimento."
 	#define MSG_PART_RELEASE "Lancamento Parcial"
 	#define MSG_KILLED "PARADA DE EMERGENCIA. "
@@ -1284,6 +1293,8 @@
 	#define MSG_AUTORETRACT " AutoRetr.:"
 	#define MSG_SERIAL_ERROR_MENU_STRUCTURE "Algo esta errado na estrutura do Menu."
 	#define MSG_FILAMENTCHANGE "Change filament"
+	#define MSG_INIT_SDCARD "Init. SD-Card"	
+	#define MSG_CNG_SDCARD "Change SD-Card"
 
 // Serial Console Messages
 
@@ -1448,6 +1459,8 @@
 	#define MSG_CONTROL_RETRACT_RECOVERF "UnRet  F"
 	#define MSG_AUTORETRACT "AutoVeto."
 	#define MSG_FILAMENTCHANGE "Change filament"
+	#define MSG_INIT_SDCARD "Init. SD-Card"	
+	#define MSG_CNG_SDCARD "Change SD-Card"
 
 // Serial Console Messages
 
