@@ -67,17 +67,9 @@
 // G91 - Use Relative Coordinates
 // G92 - Set current position to cordinates given
 
-//RepRap M Codes
+// M Codes
 // M0   - Unconditional stop - Wait for user to press a button on the LCD (Only if ULTRA_LCD is enabled)
 // M1   - Same as M0
-// M104 - Set extruder target temp
-// M105 - Read current temp
-// M106 - Fan on
-// M107 - Fan off
-// M109 - Wait for extruder current temp to reach target temp.
-// M114 - Display current position
-
-//Custom M Codes
 // M17  - Enable/Power all stepper motors
 // M18  - Disable all stepper motors; same as M84
 // M20  - List SD card
@@ -92,6 +84,7 @@
 // M29  - Stop SD write
 // M30  - Delete file from SD (M30 filename.g)
 // M31  - Output time since last M109 or SD card start to serial
+// M32  - Select file and start SD print (Can be used when printing from SD card)
 // M42  - Change pin status via gcode Use M42 Px Sy to set pin x to value y, when omitting Px the onboard led will be used.
 // M80  - Turn on Power Supply
 // M81  - Turn off Power Supply
@@ -101,6 +94,12 @@
 //        or use S<seconds> to specify an inactivity timeout, after which the steppers will be disabled.  S0 to disable the timeout.
 // M85  - Set inactivity shutdown timer with parameter S<seconds>. To disable set zero (default)
 // M92  - Set axis_steps_per_unit - same syntax as G92
+// M104 - Set extruder target temp
+// M105 - Read current temp
+// M106 - Fan on
+// M107 - Fan off
+// M109 - Sxxx Wait for extruder current temp to reach target temp. Waits only when heating
+//        Rxxx Wait for extruder current temp to reach target temp. Waits when heating and cooling
 // M114 - Output current position to serial port
 // M115 - Capabilities string
 // M117 - display message
@@ -110,7 +109,8 @@
 // M128 - EtoP Open (BariCUDA EtoP = electricity to air pressure transducer by jmil)
 // M129 - EtoP Closed (BariCUDA EtoP = electricity to air pressure transducer by jmil)
 // M140 - Set bed target temp
-// M190 - Wait for bed current temp to reach target temp.
+// M190 - Sxxx Wait for bed current temp to reach target temp. Waits only when heating
+//        Rxxx Wait for bed current temp to reach target temp. Waits when heating and cooling
 // M200 - Set filament diameter
 // M201 - Set max acceleration in units/s^2 for print moves (M201 X1000 Y1000)
 // M202 - Set max acceleration in units/s^2 for travel moves (M202 X1000 Y1000) Unused in Marlin!!
@@ -125,6 +125,7 @@
 // M220 S<factor in percent>- set speed factor override percentage
 // M221 S<factor in percent>- set extrude factor override percentage
 // M240 - Trigger a camera to take a photograph
+// M250 - Set LCD contrast C<contrast value> (value 0..63)
 // M280 - set servo position absolute. P: servo index, S: angle or microseconds
 // M300 - Play beepsound S<frequency Hz> P<duration ms>
 // M301 - Set PID parameters P I and D
@@ -244,6 +245,9 @@ bool Stopped=false;
 #if NUM_SERVOS > 0
   Servo servos[NUM_SERVOS];
 #endif
+
+bool CooldownNoWait = true;
+bool target_direction;
 
 //===========================================================================
 //=============================ROUTINES=============================
@@ -425,6 +429,7 @@ void setup()
   servo_init();
 
   lcd_init();
+  _delay_ms(1000);	// wait 1sec to display the splash screen
   
   #if defined(CONTROLLERFAN_PIN) && CONTROLLERFAN_PIN > -1
     SET_OUTPUT(CONTROLLERFAN_PIN); //Set pin used for driver cooling fan
@@ -676,7 +681,44 @@ XYZ_CONSTS_FROM_CONFIG(float, max_length,      MAX_LENGTH);
 XYZ_CONSTS_FROM_CONFIG(float, home_retract_mm, HOME_RETRACT_MM);
 XYZ_CONSTS_FROM_CONFIG(signed char, home_dir,  HOME_DIR);
 
+#ifdef DUAL_X_CARRIAGE
+  #if EXTRUDERS == 1 || defined(COREXY) \
+      || !defined(X2_ENABLE_PIN) || !defined(X2_STEP_PIN) || !defined(X2_DIR_PIN) \
+      || !defined(X2_HOME_POS) || !defined(X2_MIN_POS) || !defined(X2_MAX_POS) \
+      || !defined(X_MAX_PIN) || X_MAX_PIN < 0
+    #error "Missing or invalid definitions for DUAL_X_CARRIAGE mode."
+  #endif
+  #if X_HOME_DIR != -1 || X2_HOME_DIR != 1
+    #error "Please use canonical x-carriage assignment" // the x-carriages are defined by their homing directions
+  #endif  
+    
+static float x_home_pos(int extruder) {
+  if (extruder == 0)
+    return base_home_pos(X_AXIS) + add_homeing[X_AXIS];
+  else
+    // In dual carriage mode the extruder offset provides an override of the
+    // second X-carriage offset when homed - otherwise X2_HOME_POS is used.
+    // This allow soft recalibration of the second extruder offset position without firmware reflash 
+    // (through the M218 command).
+    return (extruder_offset[X_AXIS][1] > 0) ? extruder_offset[X_AXIS][1] : X2_HOME_POS;
+}
+
+static int x_home_dir(int extruder) {
+  return (extruder == 0) ? X_HOME_DIR : X2_HOME_DIR;
+}
+
+static float inactive_x_carriage_pos = X2_MAX_POS;
+#endif     
+
 static void axis_is_at_home(int axis) {
+#ifdef DUAL_X_CARRIAGE
+  if (axis == X_AXIS && active_extruder != 0) {
+    current_position[X_AXIS] = x_home_pos(active_extruder);
+    min_pos[X_AXIS] =          X2_MIN_POS;
+    max_pos[X_AXIS] =          max(extruder_offset[X_AXIS][1], X2_MAX_POS);
+    return;
+  }
+#endif  
   current_position[axis] = base_home_pos(axis) + add_homeing[axis];
   min_pos[axis] =          base_min_pos(axis) + add_homeing[axis];
   max_pos[axis] =          base_max_pos(axis) + add_homeing[axis];
@@ -685,30 +727,38 @@ static void axis_is_at_home(int axis) {
 static void homeaxis(int axis) {
 #define HOMEAXIS_DO(LETTER) \
   ((LETTER##_MIN_PIN > -1 && LETTER##_HOME_DIR==-1) || (LETTER##_MAX_PIN > -1 && LETTER##_HOME_DIR==1))
+
   if (axis==X_AXIS ? HOMEAXIS_DO(X) :
       axis==Y_AXIS ? HOMEAXIS_DO(Y) :
       axis==Z_AXIS ? HOMEAXIS_DO(Z) :
       0) {
+    int axis_home_dir = home_dir(axis);
+#ifdef DUAL_X_CARRIAGE
+    if (axis == X_AXIS)
+      axis_home_dir = x_home_dir(active_extruder);
+#endif
 
     // Engage Servo endstop if enabled
-    #ifdef SERVO_ENDSTOPS[axis] > -1
-      servos[servo_endstops[axis]].write(servo_endstop_angles[axis * 2]);
+    #ifdef SERVO_ENDSTOPS
+      if (SERVO_ENDSTOPS[axis] > -1) {
+        servos[servo_endstops[axis]].write(servo_endstop_angles[axis * 2]);
+      }
     #endif
-
+      
     current_position[axis] = 0;
     plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
-    destination[axis] = 1.5 * max_length(axis) * home_dir(axis);
+    destination[axis] = 1.5 * max_length(axis) * axis_home_dir;
     feedrate = homing_feedrate[axis];
     plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate/60, active_extruder);
     st_synchronize();
 
     current_position[axis] = 0;
     plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
-    destination[axis] = -home_retract_mm(axis) * home_dir(axis);
+    destination[axis] = -home_retract_mm(axis) * axis_home_dir;
     plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate/60, active_extruder);
     st_synchronize();
 
-    destination[axis] = 2*home_retract_mm(axis) * home_dir(axis);
+    destination[axis] = 2*home_retract_mm(axis) * axis_home_dir;
     feedrate = homing_feedrate[axis]/2 ;
     plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate/60, active_extruder);
     st_synchronize();
@@ -719,8 +769,10 @@ static void homeaxis(int axis) {
     endstops_hit_on_purpose();
 
     // Retract Servo endstop if enabled
-    #ifdef SERVO_ENDSTOPS[axis] > -1
-      servos[servo_endstops[axis]].write(servo_endstop_angles[axis * 2 + 1]);
+    #ifdef SERVO_ENDSTOPS
+      if (SERVO_ENDSTOPS[axis] > -1) {
+        servos[servo_endstops[axis]].write(servo_endstop_angles[axis * 2 + 1]);
+      }
     #endif
   }
 }
@@ -846,7 +898,7 @@ void process_commands()
 
 #else // NOT DELTA
 
-          home_all_axis = !((code_seen(axis_codes[0])) || (code_seen(axis_codes[1])) || (code_seen(axis_codes[2])));
+      home_all_axis = !((code_seen(axis_codes[0])) || (code_seen(axis_codes[1])) || (code_seen(axis_codes[2])));
 
       #if Z_HOME_DIR > 0                      // If homing away from BED do Z first
       if((home_all_axis) || (code_seen(axis_codes[Z_AXIS]))) {
@@ -859,8 +911,14 @@ void process_commands()
       {
         current_position[X_AXIS] = 0;current_position[Y_AXIS] = 0;
 
+       #ifndef DUAL_X_CARRIAGE
+        int x_axis_home_dir = home_dir(X_AXIS);
+       #else
+        int x_axis_home_dir = x_home_dir(active_extruder);
+       #endif
+        
         plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
-        destination[X_AXIS] = 1.5 * X_MAX_LENGTH * X_HOME_DIR;destination[Y_AXIS] = 1.5 * Y_MAX_LENGTH * Y_HOME_DIR;
+        destination[X_AXIS] = 1.5 * max_length(X_AXIS) * x_axis_home_dir;destination[Y_AXIS] = 1.5 * max_length(Y_AXIS) * home_dir(Y_AXIS);
         feedrate = homing_feedrate[X_AXIS];
         if(homing_feedrate[Y_AXIS]<feedrate)
           feedrate =homing_feedrate[Y_AXIS];
@@ -885,6 +943,13 @@ void process_commands()
 
       if((home_all_axis) || (code_seen(axis_codes[X_AXIS])))
       {
+      #ifdef DUAL_X_CARRIAGE
+        int tmp_extruder = active_extruder;
+        active_extruder = !active_extruder;
+        HOMEAXIS(X);
+        inactive_x_carriage_pos = current_position[X_AXIS];
+        active_extruder = tmp_extruder;
+      #endif         
         HOMEAXIS(X);
       }
 
@@ -917,7 +982,7 @@ void process_commands()
         }
       }
       plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
-#endif // DELTA
+#endif // else DELTA
           
       #ifdef ENDSTOPS_ONLY_FOR_HOMING
         enable_endstops(false);
@@ -1057,6 +1122,19 @@ void process_commands()
         card.removeFile(strchr_pointer + 4);
       }
       break;
+    case 32: //M32 - Select file and start SD print
+      if(card.sdprinting) {
+        st_synchronize();
+        card.closefile();
+        card.sdprinting = false;
+      }
+      starpos = (strchr(strchr_pointer + 4,'*'));
+      if(starpos!=NULL)
+        *(starpos-1)='\0';
+      card.openFile(strchr_pointer + 4,true);
+      card.startFileprint();
+      starttime=millis();
+      break;
     case 928: //M928 - Start SD write
       starpos = (strchr(strchr_pointer + 5,'*'));
       if(starpos != NULL){
@@ -1159,7 +1237,13 @@ void process_commands()
       #ifdef AUTOTEMP
         autotemp_enabled=false;
       #endif
-      if (code_seen('S')) setTargetHotend(code_value(), tmp_extruder);
+      if (code_seen('S')) { 
+        setTargetHotend(code_value(), tmp_extruder);
+        CooldownNoWait = true;
+      } else if (code_seen('R')) {
+        setTargetHotend(code_value(), tmp_extruder);
+        CooldownNoWait = false;
+      }
       #ifdef AUTOTEMP
         if (code_seen('S')) autotemp_min=code_value();
         if (code_seen('B')) autotemp_max=code_value();
@@ -1174,7 +1258,7 @@ void process_commands()
       codenum = millis();
 
       /* See if we are heating up or cooling down */
-      bool target_direction = isHeatingHotend(tmp_extruder); // true if heating, false if cooling
+      target_direction = isHeatingHotend(tmp_extruder); // true if heating, false if cooling
 
       #ifdef TEMP_RESIDENCY_TIME
         long residencyStart;
@@ -1230,9 +1314,18 @@ void process_commands()
     case 190: // M190 - Wait for bed heater to reach target.
     #if defined(TEMP_BED_PIN) && TEMP_BED_PIN > -1
         LCD_MESSAGEPGM(MSG_BED_HEATING);
-        if (code_seen('S')) setTargetBed(code_value());
+        if (code_seen('S')) { 
+          setTargetBed(code_value());
+          CooldownNoWait = true;
+        } else if (code_seen('R')) {
+          setTargetBed(code_value());
+          CooldownNoWait = false;
+        }
         codenum = millis();
-        while(isHeatingBed())
+        
+        target_direction = isHeatingBed(); // true if heating, false if cooling
+        
+        while ( target_direction ? (isHeatingBed()) : (isCoolingBed()&&(CooldownNoWait==false)) )
         {
           if(( millis() - codenum) > 1000 ) //Print Temp Reading every 1 second while heating up.
           {
@@ -1716,6 +1809,18 @@ void process_commands()
       #endif
      }
     break;
+#ifdef DOGLCD
+    case 250: // M250  Set LCD contrast value: C<value> (value 0..63)
+     {
+	  if (code_seen('C')) {
+	   lcd_setcontrast( ((int)code_value())&63 );
+          }
+          SERIAL_PROTOCOLPGM("lcd contrast value: ");
+          SERIAL_PROTOCOL(lcd_contrast);
+          SERIAL_PROTOCOLLN("");
+     }
+    break;
+#endif
     #ifdef PREVENT_DANGEROUS_EXTRUDE
     case 302: // allow cold extrudes, or set the minimum extrude temperature
     {
@@ -1973,6 +2078,20 @@ void process_commands()
       if(tmp_extruder != active_extruder) {
         // Save current position to return to after applying extruder offset
         memcpy(destination, current_position, sizeof(destination));
+      #ifdef DUAL_X_CARRIAGE
+        // only apply Y extruder offset in dual x carriage mode (x offset is already used in determining home pos)
+        current_position[Y_AXIS] = current_position[Y_AXIS] -
+                     extruder_offset[Y_AXIS][active_extruder] +
+                     extruder_offset[Y_AXIS][tmp_extruder];
+
+        float tmp_x_pos = current_position[X_AXIS];
+
+        // Set the new active extruder and position
+        active_extruder = tmp_extruder;
+        axis_is_at_home(X_AXIS); //this function updates X min/max values.
+        current_position[X_AXIS] = inactive_x_carriage_pos;
+        inactive_x_carriage_pos = tmp_x_pos;      
+      #else    
         // Offset extruder (only by XY)
         int i;
         for(i = 0; i < 2; i++) {
@@ -1982,6 +2101,7 @@ void process_commands()
         }
         // Set the new active extruder and position
         active_extruder = tmp_extruder;
+      #endif //else DUAL_X_CARRIAGE
         plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
         // Move to the old position if 'F' was in the parameters
         if(make_move && Stopped == false) {
@@ -2226,6 +2346,9 @@ void controllerFan()
        || !READ(E2_ENABLE_PIN)
     #endif
     #if EXTRUDER > 1
+      #if defined(X2_ENABLE_PIN) && X2_ENABLE_PIN > -1
+       || !READ(X2_ENABLE_PIN)
+      #endif
        || !READ(E1_ENABLE_PIN)
     #endif
        || !READ(E0_ENABLE_PIN)) //If any of the drivers are enabled...

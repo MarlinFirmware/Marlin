@@ -41,6 +41,8 @@ Features:
 *   Heater power reporting. Useful for PID monitoring.
 *   PID tuning
 *   CoreXY kinematics (www.corexy.com/theory.html)
+*   Delta kinematics
+*   Dual X-carriage support for multiple extruder systems
 *   Configurable serial port to support connection of wireless adaptors.
 *   Automatic operation of extruder/cold-end cooling fans based on nozzle temperature
 *   RC Servo Support, specify angle or duration for continuous rotation servos.
@@ -142,17 +144,9 @@ Implemented G Codes:
 *  G91 - Use Relative Coordinates
 *  G92 - Set current position to cordinates given
 
-RepRap M Codes
+M Codes
 *  M0   - Unconditional stop - Wait for user to press a button on the LCD (Only if ULTRA_LCD is enabled)
 *  M1   - Same as M0
-*  M104 - Set extruder target temp
-*  M105 - Read current temp
-*  M106 - Fan on
-*  M107 - Fan off
-*  M109 - Wait for extruder current temp to reach target temp.
-*  M114 - Display current position
-
-Custom M Codes
 *  M17  - Enable/Power all stepper motors
 *  M18  - Disable all stepper motors; same as M84
 *  M20  - List SD card
@@ -167,6 +161,7 @@ Custom M Codes
 *  M29  - Stop SD write
 *  M30  - Delete file from SD (M30 filename.g)
 *  M31  - Output time since last M109 or SD card start to serial
+*  M32  - Select file and start SD print (Can be used when printing from SD card)
 *  M42  - Change pin status via gcode Use M42 Px Sy to set pin x to value y, when omitting Px the onboard led will be used.
 *  M80  - Turn on Power Supply
 *  M81  - Turn off Power Supply
@@ -175,6 +170,12 @@ Custom M Codes
 *  M84  - Disable steppers until next move, or use S<seconds> to specify an inactivity timeout, after which the steppers will be disabled.  S0 to disable the timeout.
 *  M85  - Set inactivity shutdown timer with parameter S<seconds>. To disable set zero (default)
 *  M92  - Set axis_steps_per_unit - same syntax as G92
+*  M104 - Set extruder target temp
+*  M105 - Read current temp
+*  M106 - Fan on
+*  M107 - Fan off
+*  M109 - Sxxx Wait for extruder current temp to reach target temp. Waits only when heating
+*         Rxxx Wait for extruder current temp to reach target temp. Waits when heating and cooling
 *  M114 - Output current position to serial port
 *  M115 - Capabilities string
 *  M117 - display message
@@ -184,7 +185,8 @@ Custom M Codes
 *  M128 - EtoP Open (BariCUDA EtoP = electricity to air pressure transducer by jmil)
 *  M129 - EtoP Closed (BariCUDA EtoP = electricity to air pressure transducer by jmil)
 *  M140 - Set bed target temp
-*  M190 - Wait for bed current temp to reach target temp.
+*  M190 - Sxxx Wait for bed current temp to reach target temp. Waits only when heating
+*         Rxxx Wait for bed current temp to reach target temp. Waits when heating and cooling
 *  M200 - Set filament diameter
 *  M201 - Set max acceleration in units/s^2 for print moves (M201 X1000 Y1000)
 *  M202 - Set max acceleration in units/s^2 for travel moves (M202 X1000 Y1000) Unused in Marlin!!
