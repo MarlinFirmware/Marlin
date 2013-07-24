@@ -54,6 +54,9 @@ UPLOAD_PORT        ?= /dev/arduino
 #Directory used to build files in, contains all the build files, from object files to the final hex file.
 BUILD_DIR          ?= applet
 
+# This defines whether Liquid_TWI2 support will be built
+LIQUID_TWI2 ?= 0
+
 ############################################################################
 # Below here nothing should be changed...
 
@@ -199,9 +202,19 @@ VPATH += $(HARDWARE_SRC)
 ifeq ($(HARDWARE_VARIANT), arduino)
 VPATH += $(ARDUINO_INSTALL_DIR)/libraries/LiquidCrystal
 VPATH += $(ARDUINO_INSTALL_DIR)/libraries/SPI
+ifeq ($(LIQUID_TWI2), 1)
+VPATH += $(ARDUINO_INSTALL_DIR)/libraries/Wire
+VPATH += $(ARDUINO_INSTALL_DIR)/libraries/Wire/utility
+VPATH += $(ARDUINO_INSTALL_DIR)/libraries/LiquidTWI2
+endif
 else
 VPATH += $(HARDWARE_DIR)/libraries/LiquidCrystal
 VPATH += $(HARDWARE_DIR)/libraries/SPI
+ifeq ($(LIQUID_TWI2), 1)
+VPATH += $(HARDWARE_DIR)/libraries/Wire
+VPATH += $(HARDWARE_DIR)/libraries/Wire/utility
+VPATH += $(HARDWARE_DIR)/libraries/LiquidTWI2
+endif
 endif
 ifeq ($(HARDWARE_VARIANT), arduino)
 HARDWARE_SUB_VARIANT ?= mega
@@ -218,8 +231,13 @@ CXXSRC = WMath.cpp WString.cpp Print.cpp Marlin_main.cpp	\
 	MarlinSerial.cpp Sd2Card.cpp SdBaseFile.cpp SdFatUtil.cpp	\
 	SdFile.cpp SdVolume.cpp motion_control.cpp planner.cpp		\
 	stepper.cpp temperature.cpp cardreader.cpp ConfigurationStore.cpp \
-	watchdog.cpp
-CXXSRC += LiquidCrystal.cpp ultralcd.cpp SPI.cpp Servo.cpp Tone.cpp
+	watchdog.cpp SPI.cpp Servo.cpp Tone.cpp ultralcd.cpp
+ifeq ($(LIQUID_TWI2), 0)
+CXXSRC += LiquidCrystal.cpp
+else
+SRC += twi.c
+CXXSRC += Wire.cpp LiquidTWI2.cpp
+endif
 
 #Check for Arduino 1.0.0 or higher and use the correct sourcefiles for that version
 ifeq ($(shell [ $(ARDUINO_VERSION) -ge 100 ] && echo true), true)
