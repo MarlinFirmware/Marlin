@@ -96,7 +96,11 @@ void process_commands();
 
 void manage_inactivity();
 
-#if X_ENABLE_PIN > -1
+#if defined(DUAL_X_CARRIAGE) && defined(X_ENABLE_PIN) && X_ENABLE_PIN > -1 \
+    && defined(X2_ENABLE_PIN) && X2_ENABLE_PIN > -1
+  #define  enable_x() do { WRITE(X_ENABLE_PIN, X_ENABLE_ON); WRITE(X2_ENABLE_PIN, X_ENABLE_ON); } while (0)
+  #define disable_x() do { WRITE(X_ENABLE_PIN,!X_ENABLE_ON); WRITE(X2_ENABLE_PIN,!X_ENABLE_ON); } while (0)
+#elif defined(X_ENABLE_PIN) && X_ENABLE_PIN > -1
   #define  enable_x() WRITE(X_ENABLE_PIN, X_ENABLE_ON)
   #define disable_x() WRITE(X_ENABLE_PIN,!X_ENABLE_ON)
 #else
@@ -104,7 +108,7 @@ void manage_inactivity();
   #define disable_x() ;
 #endif
 
-#if Y_ENABLE_PIN > -1
+#if defined(Y_ENABLE_PIN) && Y_ENABLE_PIN > -1
   #define  enable_y() WRITE(Y_ENABLE_PIN, Y_ENABLE_ON)
   #define disable_y() WRITE(Y_ENABLE_PIN,!Y_ENABLE_ON)
 #else
@@ -112,7 +116,7 @@ void manage_inactivity();
   #define disable_y() ;
 #endif
 
-#if Z_ENABLE_PIN > -1
+#if defined(Z_ENABLE_PIN) && Z_ENABLE_PIN > -1
   #ifdef Z_DUAL_STEPPER_DRIVERS
     #define  enable_z() { WRITE(Z_ENABLE_PIN, Z_ENABLE_ON); WRITE(Z2_ENABLE_PIN, Z_ENABLE_ON); }
     #define disable_z() { WRITE(Z_ENABLE_PIN,!Z_ENABLE_ON); WRITE(Z2_ENABLE_PIN,!Z_ENABLE_ON); }
@@ -157,6 +161,9 @@ void FlushSerialRequestResend();
 void ClearToSend();
 
 void get_coordinates();
+#ifdef DELTA
+void calculate_delta(float cartesian[3]);
+#endif
 void prepare_move();
 void kill();
 void Stop();
@@ -186,6 +193,14 @@ extern float add_homeing[3];
 extern float min_pos[3];
 extern float max_pos[3];
 extern int fanSpeed;
+#ifdef BARICUDA
+extern int ValvePressure;
+extern int EtoPPressure;
+#endif
+
+#ifdef FAN_SOFT_PWM
+extern unsigned char fanSpeedSoftPwm;
+#endif
 
 #ifdef FWRETRACT
 extern bool autoretract_enabled;

@@ -98,7 +98,7 @@ volatile unsigned char block_buffer_tail;           // Index of the block to pro
 //=============================private variables ============================
 //===========================================================================
 #ifdef PREVENT_DANGEROUS_EXTRUDE
-bool allow_cold_extrude=false;
+float extrude_min_temp=EXTRUDE_MINTEMP;
 #endif
 #ifdef XY_FREQUENCY_LIMIT
 #define MAX_FREQ_TIME (1000000.0/XY_FREQUENCY_LIMIT)
@@ -439,12 +439,20 @@ void check_axes_activity()
   unsigned char z_active = 0;
   unsigned char e_active = 0;
   unsigned char tail_fan_speed = fanSpeed;
+  #ifdef BARICUDA
+  unsigned char tail_valve_pressure = ValvePressure;
+  unsigned char tail_e_to_p_pressure = EtoPPressure;
+  #endif
   block_t *block;
 
   if(block_buffer_tail != block_buffer_head)
   {
     uint8_t block_index = block_buffer_tail;
     tail_fan_speed = block_buffer[block_index].fan_speed;
+    #ifdef BARICUDA
+    tail_valve_pressure = block_buffer[block_index].valve_pressure;
+    tail_e_to_p_pressure = block_buffer[block_index].e_to_p_pressure;
+    #endif
     while(block_index != block_buffer_head)
     {
       block = &block_buffer[block_index];
@@ -464,27 +472,39 @@ void check_axes_activity()
     disable_e1();
     disable_e2(); 
   }
-#if FAN_PIN > -1
-  #ifndef FAN_SOFT_PWM
-    #ifdef FAN_KICKSTART_TIME
-      static unsigned long fan_kick_end;
-      if (tail_fan_speed) {
-        if (fan_kick_end == 0) {
-          // Just starting up fan - run at full power.
-          fan_kick_end = millis() + FAN_KICKSTART_TIME;
-          tail_fan_speed = 255;
-        } else if (fan_kick_end > millis())
-          // Fan still spinning up.
-          tail_fan_speed = 255;
-      } else {
-        fan_kick_end = 0;
-      }
-    #endif//FAN_KICKSTART_TIME
-    analogWrite(FAN_PIN,tail_fan_speed);
+#if defined(FAN_PIN) && FAN_PIN > -1
+  #ifdef FAN_KICKSTART_TIME
+    static unsigned long fan_kick_end;
+    if (tail_fan_speed) {
+      if (fan_kick_end == 0) {
+        // Just starting up fan - run at full power.
+        fan_kick_end = millis() + FAN_KICKSTART_TIME;
+        tail_fan_speed = 255;
+      } else if (fan_kick_end > millis())
+        // Fan still spinning up.
+        tail_fan_speed = 255;
+    } else {
+      fan_kick_end = 0;
+    }
+  #endif//FAN_KICKSTART_TIME
+  #ifdef FAN_SOFT_PWM
+  fanSpeedSoftPwm = tail_fan_speed;
+  #else
+  analogWrite(FAN_PIN,tail_fan_speed);
   #endif//!FAN_SOFT_PWM
 #endif//FAN_PIN > -1
 #ifdef AUTOTEMP
   getHighESpeed();
+#endif
+
+#ifdef BARICUDA
+  #if defined(HEATER_1_PIN) && HEATER_1_PIN > -1
+      analogWrite(HEATER_1_PIN,tail_valve_pressure);
+  #endif
+
+  #if defined(HEATER_2_PIN) && HEATER_2_PIN > -1
+      analogWrite(HEATER_2_PIN,tail_e_to_p_pressure);
+  #endif
 #endif
 }
 
@@ -519,7 +539,7 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
   #ifdef PREVENT_DANGEROUS_EXTRUDE
   if(target[E_AXIS]!=position[E_AXIS])
   {
-    if(degHotend(active_extruder)<EXTRUDE_MINTEMP && !allow_cold_extrude)
+    if(degHotend(active_extruder)<extrude_min_temp)
     {
       position[E_AXIS]=target[E_AXIS]; //behave as if the move really took place, but ignore E part
       SERIAL_ECHO_START;
@@ -544,8 +564,16 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
   block->busy = false;
 
   // Number of steps for each axis
-  block->steps_x = labs(target[X_AXIS]-position[X_AXIS]);
-  block->steps_y = labs(target[Y_AXIS]-position[Y_AXIS]);
+#ifndef COREXY
+// default non-h-bot planning
+block->steps_x = labs(target[X_AXIS]-position[X_AXIS]);
+block->steps_y = labs(target[Y_AXIS]-position[Y_AXIS]);
+#else
+// corexy planning
+// these equations follow the form of the dA and dB equations on http://www.corexy.com/theory.html
+block->steps_x = labs((target[X_AXIS]-position[X_AXIS]) + (target[Y_AXIS]-position[Y_AXIS]));
+block->steps_y = labs((target[X_AXIS]-position[X_AXIS]) - (target[Y_AXIS]-position[Y_AXIS]));
+#endif
   block->steps_z = labs(target[Z_AXIS]-position[Z_AXIS]);
   block->steps_e = labs(target[E_AXIS]-position[E_AXIS]);
   block->steps_e *= extrudemultiply;
@@ -559,9 +587,14 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
   }
 
   block->fan_speed = fanSpeed;
+  #ifdef BARICUDA
+  block->valve_pressure = ValvePressure;
+  block->e_to_p_pressure = EtoPPressure;
+  #endif
 
   // Compute direction bits for this block 
   block->direction_bits = 0;
+#ifndef COREXY
   if (target[X_AXIS] < position[X_AXIS])
   {
     block->direction_bits |= (1<<X_AXIS); 
@@ -570,6 +603,16 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
   {
     block->direction_bits |= (1<<Y_AXIS); 
   }
+#else
+  if ((target[X_AXIS]-position[X_AXIS]) + (target[Y_AXIS]-position[Y_AXIS]) < 0)
+  {
+    block->direction_bits |= (1<<X_AXIS); 
+  }
+  if ((target[X_AXIS]-position[X_AXIS]) - (target[Y_AXIS]-position[Y_AXIS]) < 0)
+  {
+    block->direction_bits |= (1<<Y_AXIS); 
+  }
+#endif
   if (target[Z_AXIS] < position[Z_AXIS])
   {
     block->direction_bits |= (1<<Z_AXIS); 
@@ -614,8 +657,13 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
   } 
 
   float delta_mm[4];
-  delta_mm[X_AXIS] = (target[X_AXIS]-position[X_AXIS])/axis_steps_per_unit[X_AXIS];
-  delta_mm[Y_AXIS] = (target[Y_AXIS]-position[Y_AXIS])/axis_steps_per_unit[Y_AXIS];
+  #ifndef COREXY
+    delta_mm[X_AXIS] = (target[X_AXIS]-position[X_AXIS])/axis_steps_per_unit[X_AXIS];
+    delta_mm[Y_AXIS] = (target[Y_AXIS]-position[Y_AXIS])/axis_steps_per_unit[Y_AXIS];
+  #else
+    delta_mm[X_AXIS] = ((target[X_AXIS]-position[X_AXIS]) + (target[Y_AXIS]-position[Y_AXIS]))/axis_steps_per_unit[X_AXIS];
+    delta_mm[Y_AXIS] = ((target[X_AXIS]-position[X_AXIS]) - (target[Y_AXIS]-position[Y_AXIS]))/axis_steps_per_unit[Y_AXIS];
+  #endif
   delta_mm[Z_AXIS] = (target[Z_AXIS]-position[Z_AXIS])/axis_steps_per_unit[Z_AXIS];
   delta_mm[E_AXIS] = ((target[E_AXIS]-position[E_AXIS])/axis_steps_per_unit[E_AXIS])*extrudemultiply/100.0;
   if ( block->steps_x <=dropsegments && block->steps_y <=dropsegments && block->steps_z <=dropsegments )
@@ -735,7 +783,7 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
       block->acceleration_st = axis_steps_per_sqr_second[Z_AXIS];
   }
   block->acceleration = block->acceleration_st / steps_per_mm;
-  block->acceleration_rate = (long)((float)block->acceleration_st * 8.388608);
+  block->acceleration_rate = (long)((float)block->acceleration_st * (16777216.0 / (F_CPU / 8.0)));
 
 #if 0  // Use old jerk for now
   // Compute path unit vector
@@ -896,12 +944,12 @@ uint8_t movesplanned()
   return (block_buffer_head-block_buffer_tail + BLOCK_BUFFER_SIZE) & (BLOCK_BUFFER_SIZE - 1);
 }
 
-void allow_cold_extrudes(bool allow)
-{
 #ifdef PREVENT_DANGEROUS_EXTRUDE
-  allow_cold_extrude=allow;
-#endif
+void set_extrude_min_temp(float temp)
+{
+  extrude_min_temp=temp;
 }
+#endif
 
 // Calculate the steps/s^2 acceleration rates, based on the mm/s^s
 void reset_acceleration_rates()
