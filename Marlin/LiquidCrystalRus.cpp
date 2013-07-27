@@ -36,7 +36,7 @@ const PROGMEM uint8_t utf_recode[] =
 //    S = 0; No shift 
 //
 // Note, however, that resetting the Arduino doesn't reset the LCD, so we
-// can't assume that its in that state when a sketch starts (and the
+// can't assume that it's in that state when a sketch starts (and the
 // LiquidCrystal constructor is called).
 // 
 // modified 27 Jul 2011
