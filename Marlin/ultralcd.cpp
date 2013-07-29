@@ -675,6 +675,8 @@ static void lcd_sd_updir()
 
 void lcd_sdcard_menu()
 {
+    if (lcdDrawUpdate == 0 && LCD_CLICKED == 0) 
+        return;	// nothing to do (so don't thrash the SD card)
     uint16_t fileCnt = card.getnrfilenames();
     START_MENU();
     MENU_ITEM(back, MSG_MAIN, lcd_main_menu);
