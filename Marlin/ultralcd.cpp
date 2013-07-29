@@ -96,6 +96,7 @@ static void menu_action_setting_edit_callback_long5(const char* pstr, unsigned l
     if (encoderPosition > 0x8000) encoderPosition = 0; \
     if (encoderPosition / ENCODER_STEPS_PER_MENU_ITEM < currentMenuViewOffset) currentMenuViewOffset = encoderPosition / ENCODER_STEPS_PER_MENU_ITEM;\
     uint8_t _lineNr = currentMenuViewOffset, _menuItemNr; \
+    bool wasClicked = LCD_CLICKED;\
     for(uint8_t _drawLineNr = 0; _drawLineNr < LCD_HEIGHT; _drawLineNr++, _lineNr++) { \
         _menuItemNr = 0;
 #define MENU_ITEM(type, label, args...) do { \
@@ -108,7 +109,7 @@ static void menu_action_setting_edit_callback_long5(const char* pstr, unsigned l
                 lcd_implementation_drawmenu_ ## type (_drawLineNr, _label_pstr , ## args ); \
             }\
         }\
-        if (LCD_CLICKED && (encoderPosition / ENCODER_STEPS_PER_MENU_ITEM) == _menuItemNr) {\
+        if (wasClicked && (encoderPosition / ENCODER_STEPS_PER_MENU_ITEM) == _menuItemNr) {\
             lcd_quick_feedback(); \
             menu_action_ ## type ( args ); \
             return;\
