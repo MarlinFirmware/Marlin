@@ -124,6 +124,7 @@
 // 5 is 100K thermistor - ATC Semitec 104GT-2 (Used in ParCan) (4.7k pullup)
 // 6 is 100k EPCOS - Not as accurate as table 1 (created using a fluke thermocouple) (4.7k pullup)
 // 7 is 100k Honeywell thermistor 135-104LAG-J01 (4.7k pullup)
+// 71 is 100k Honeywell thermistor 135-104LAF-J01 (4.7k pullup)
 // 8 is 100k 0603 SMD Vishay NTCS0603E3104FXT (4.7k pullup)
 // 9 is 100k GE Sensing AL03006-58.2K-97-G1 (4.7k pullup)
 // 10 is 100k RS thermistor 198-961 (4.7k pullup)
