@@ -107,6 +107,9 @@
 #define DELTA_TOWER3_X 0.0 // back middle tower
 #define DELTA_TOWER3_Y DELTA_RADIUS
 
+// Diagonal rod squared
+#define DELTA_DIAGONAL_ROD_2 pow(DELTA_DIAGONAL_ROD,2)
+
 //===========================================================================
 //=============================Thermal Settings  ============================
 //===========================================================================
