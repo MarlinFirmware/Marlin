@@ -354,7 +354,7 @@ ISR(TIMER1_COMPA_vect)
       CHECK_ENDSTOPS
       {
         #if defined(X_MIN_PIN) && X_MIN_PIN > -1
-          bool x_min_endstop=(READ(X_MIN_PIN) != X_ENDSTOPS_INVERTING);
+		  bool x_min_endstop=(READ(X_MIN_PIN) != X_MIN_INVERTING);
           if(x_min_endstop && old_x_min_endstop && (current_block->steps_x > 0)) {
             endstops_trigsteps[X_AXIS] = count_position[X_AXIS];
             endstop_x_hit=true;
@@ -373,7 +373,7 @@ ISR(TIMER1_COMPA_vect)
       CHECK_ENDSTOPS 
       {
         #if defined(X_MAX_PIN) && X_MAX_PIN > -1
-          bool x_max_endstop=(READ(X_MAX_PIN) != X_ENDSTOPS_INVERTING);
+          bool x_max_endstop=(READ(X_MAX_PIN) != X_MAX_INVERTING);
           if(x_max_endstop && old_x_max_endstop && (current_block->steps_x > 0)){
             endstops_trigsteps[X_AXIS] = count_position[X_AXIS];
             endstop_x_hit=true;
@@ -392,7 +392,7 @@ ISR(TIMER1_COMPA_vect)
       CHECK_ENDSTOPS
       {
         #if defined(Y_MIN_PIN) && Y_MIN_PIN > -1
-          bool y_min_endstop=(READ(Y_MIN_PIN) != Y_ENDSTOPS_INVERTING);
+          bool y_min_endstop=(READ(Y_MIN_PIN) != X_MIN_INVERTING);
           if(y_min_endstop && old_y_min_endstop && (current_block->steps_y > 0)) {
             endstops_trigsteps[Y_AXIS] = count_position[Y_AXIS];
             endstop_y_hit=true;
@@ -410,7 +410,7 @@ ISR(TIMER1_COMPA_vect)
       CHECK_ENDSTOPS
       {
         #if defined(Y_MAX_PIN) && Y_MAX_PIN > -1
-          bool y_max_endstop=(READ(Y_MAX_PIN) != Y_ENDSTOPS_INVERTING);
+          bool y_max_endstop=(READ(Y_MAX_PIN) != Y_MAX_INVERTING);
           if(y_max_endstop && old_y_max_endstop && (current_block->steps_y > 0)){
             endstops_trigsteps[Y_AXIS] = count_position[Y_AXIS];
             endstop_y_hit=true;
@@ -453,7 +453,7 @@ ISR(TIMER1_COMPA_vect)
       CHECK_ENDSTOPS
       {
         #if defined(Z_MIN_PIN) && Z_MIN_PIN > -1
-          bool z_min_endstop=(READ(Z_MIN_PIN) != Z_ENDSTOPS_INVERTING);
+          bool z_min_endstop=(READ(Z_MIN_PIN) != Z_MIN_INVERTING);
           if(z_min_endstop && old_z_min_endstop && (current_block->steps_z > 0)) {
             endstops_trigsteps[Z_AXIS] = count_position[Z_AXIS];
             endstop_z_hit=true;
@@ -474,7 +474,7 @@ ISR(TIMER1_COMPA_vect)
       CHECK_ENDSTOPS
       {
         #if defined(Z_MAX_PIN) && Z_MAX_PIN > -1
-          bool z_max_endstop=(READ(Z_MAX_PIN) != Z_ENDSTOPS_INVERTING);
+          bool z_max_endstop=(READ(Z_MAX_PIN) != Z_MAX_INVERTING);
           if(z_max_endstop && old_z_max_endstop && (current_block->steps_z > 0)) {
             endstops_trigsteps[Z_AXIS] = count_position[Z_AXIS];
             endstop_z_hit=true;
