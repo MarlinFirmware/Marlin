@@ -1723,8 +1723,73 @@
 #define LED_PIN            13
 #define FAN_PIN            8
 #define PS_ON_PIN          4
-#define KILL_PIN           -1
+#define KILL_PIN           -1 //80 with Smart Controller LCD
 #define SUICIDE_PIN        -1  //PIN that has to be turned on right after start, to keep power flowing.
+
+#ifdef ULTRA_LCD
+  #define KILL_PIN 80
+  #ifdef NEWPANEL
+   //arduino pin which triggers an piezzo beeper
+    #define BEEPER 79      // Beeper on AUX-4
+    #define LCD_PINS_RS 70
+    #define LCD_PINS_ENABLE 71
+    #define LCD_PINS_D4 72
+    #define LCD_PINS_D5 73
+    #define LCD_PINS_D6 74
+    #define LCD_PINS_D7 75
+
+    //buttons are directly attached using AUX-2
+    #define BTN_EN1 76
+    #define BTN_EN2 77
+    #define BTN_ENC 78  //the click
+
+    #define BLEN_C 2
+    #define BLEN_B 1
+    #define BLEN_A 0
+
+    #define SDCARDDETECT 81    // Ramps does not use this port
+
+    //encoder rotation values
+    #define encrot0 0
+    #define encrot1 2
+    #define encrot2 3
+    #define encrot3 1
+  #else //old style panel with shift register
+    //arduino pin witch triggers an piezzo beeper
+    #define BEEPER 33    No Beeper added
+    //buttons are attached to a shift register
+    // Not wired this yet
+    // #define SHIFT_CLK 38
+    // #define SHIFT_LD 42
+    // #define SHIFT_OUT 40
+    // #define SHIFT_EN 17
+
+    #define LCD_PINS_RS 75
+    #define LCD_PINS_ENABLE 17
+    #define LCD_PINS_D4 23
+    #define LCD_PINS_D5 25
+    #define LCD_PINS_D6 27
+    #define LCD_PINS_D7 29
+
+    //encoder rotation values
+    #define encrot0 0
+    #define encrot1 2
+    #define encrot2 3
+    #define encrot3 1
+
+    //bits in the shift register that carry the buttons for:
+    // left up center down right red
+    #define BL_LE 7
+    #define BL_UP 6
+    #define BL_MI 5
+    #define BL_DW 4
+    #define BL_RI 3
+    #define BL_ST 2
+    #define BLEN_B 1
+    #define BLEN_A 0
+  #endif
+#endif //ULTRA_LCD
+
 
 #endif
 
