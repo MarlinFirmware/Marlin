@@ -529,6 +529,16 @@ void manage_heater()
     
         #ifndef PID_OPENLOOP
             pid_error_bed = target_temperature_bed - pid_input;
+            
+            pTerm_bed = bedKp * pid_error_bed;
+            temp_iState_bed += pid_error_bed;
+            temp_iState_bed = constrain(temp_iState_bed, temp_iState_min_bed, temp_iState_max_bed);
+            iTerm_bed = bedKi * temp_iState_bed;
+
+            //K1 defined in Configuration.h in the PID settings
+            #define K2 (1.0-K1)
+            dTerm_bed= (bedKd * (pid_input - temp_dState_bed))*K2 + (K1 * dTerm_bed);
+            temp_dState_bed = pid_input;
 
             // PID only active within PID_FUNCTIONAL_RANGE
             if (pid_error_bed > PID_FUNCTIONAL_RANGE) {
@@ -540,16 +550,6 @@ void manage_heater()
                 pid_output = 0;
 
             } else {
-
-                pTerm_bed = bedKp * pid_error_bed;
-                temp_iState_bed += pid_error_bed;
-                temp_iState_bed = constrain(temp_iState_bed, temp_iState_min_bed, temp_iState_max_bed);
-                iTerm_bed = bedKi * temp_iState_bed;
-
-                //K1 defined in Configuration.h in the PID settings
-                #define K2 (1.0-K1)
-                dTerm_bed= (bedKd * (pid_input - temp_dState_bed))*K2 + (K1 * dTerm_bed);
-                temp_dState_bed = pid_input;
 
                 #if (PIDTEMPBED_I_TERM_FUNCTIONAL_RANGE > 0)  
                     // use I term only if we are near to the target temperature
