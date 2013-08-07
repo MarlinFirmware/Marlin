@@ -3,3 +3,4 @@ applet/
 *~
 *.orig
 *.rej
+*.bak
