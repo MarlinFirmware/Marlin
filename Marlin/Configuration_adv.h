@@ -155,8 +155,8 @@
 // Configuration for second X-carriage
 // Note: the first x-carriage is defined as the x-carriage which homes to the minimum endstop;
 // the second x-carriage always homes to the maximum endstop.
-#define X2_MIN_POS 88     // set minimum to ensure second x-carriage doesn't hit the parked first X-carriage
-#define X2_MAX_POS 350.45 // set maximum to the distance between toolheads when both heads are homed 
+#define X2_MIN_POS 80     // set minimum to ensure second x-carriage doesn't hit the parked first X-carriage
+#define X2_MAX_POS 353    // set maximum to the distance between toolheads when both heads are homed 
 #define X2_HOME_DIR 1     // the second X-carriage always homes to the maximum endstop position
 #define X2_HOME_POS X2_MAX_POS // default home position is the maximum carriage position 
     // However: In this mode the EXTRUDER_OFFSET_X value for the second extruder provides a software 
@@ -169,7 +169,29 @@
 #define X2_STEP_PIN 25
 #define X2_DIR_PIN 23
 
-#endif // DUAL_X_CARRIAGE
+// There are a few selectable movement modes for dual x-carriages using M605 S<mode>
+//    Mode 0: Full control. The slicer has full control over both x-carriages and can achieve optimal travel results
+//                           as long as it supports dual x-carriages. (M605 S0)
+//    Mode 1: Auto-park mode. The firmware will automatically park and unpark the x-carriages on tool changes so
+//                           that additional slicer support is not required. (M605 S1)
+//    Mode 2: Duplication mode. The firmware will transparently make the second x-carriage and extruder copy all  
+//                           actions of the first x-carriage. This allows the printer to print 2 arbitrary items at
+//                           once. (2nd extruder x offset and temp offset are set using: M605 S2 [Xnnn] [Rmmm])
+
+// This is the default power-up mode which can be later using M605. 
+#define DEFAULT_DUAL_X_CARRIAGE_MODE 0 
+
+// As the x-carriages are independent we can now account for any relative Z offset
+#define EXTRUDER1_Z_OFFSET 0.0           // z offset relative to extruder 0
+
+// Default settings in "Auto-park Mode" 
+#define TOOLCHANGE_PARK_ZLIFT   0.2      // the distance to raise Z axis when parking an extruder
+#define TOOLCHANGE_UNPARK_ZLIFT 1        // the distance to raise Z axis when unparking an extruder
+
+// Default x offset in duplication mode (typically set to half print bed width)
+#define DEFAULT_DUPLICATION_X_OFFSET 100
+
+#endif //DUAL_X_CARRIAGE
     
 //homing hits the endstop, then retracts by this distance, before it tries to slowly bump again:
 #define X_HOME_RETRACT_MM 5 
