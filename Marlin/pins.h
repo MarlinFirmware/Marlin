@@ -980,8 +980,8 @@
        #define LCD_PINS_D7        27
      #endif
      //The encoder and click button
-     #define BTN_EN1 11  
-     #define BTN_EN2 10 
+     #define BTN_EN1 22
+     #define BTN_EN2 7
      #ifdef LCD_I2C_PANELOLU2
        #ifdef MELZI
          #define BTN_ENC 29 //the click switch
@@ -990,11 +990,9 @@
          #define BTN_ENC 30 //the click switch
        #endif
      #else
-       #define BTN_ENC 16  //the click switch
+       #define BTN_ENC 31  //the click switch
      #endif //Panelolu2
-     //not connected to a pin
-     #define SDCARDDETECT -1    
-    
+     #define SDCARDDETECT 49
    #endif //Newpanel
  #endif //Ultipanel
 
