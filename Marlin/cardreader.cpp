@@ -206,7 +206,6 @@ void CardReader::startFileprint()
   if(cardOK)
   {
     sdprinting = true;
-    
   }
 }
 

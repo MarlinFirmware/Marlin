@@ -1385,7 +1385,101 @@ pins
 #define DIO69_DDR		DDRK
 #define DIO69_PWM		NULL
 
+#define DIO70_PIN		PING4
+#define DIO70_RPORT	PING
+#define DIO70_WPORT	PORTG
+#define DIO70_DDR		DDRG
+#define DIO70_PWM		NULL
 
+#define DIO71_PIN		PING3
+#define DIO71_RPORT	PING
+#define DIO71_WPORT	PORTG
+#define DIO71_DDR		DDRG
+#define DIO71_PWM		NULL
+
+#define DIO72_PIN		PINJ2
+#define DIO72_RPORT	PINJ
+#define DIO72_WPORT	PORTJ
+#define DIO72_DDR		DDRJ
+#define DIO72_PWM		NULL
+
+#define DIO73_PIN		PINJ3
+#define DIO73_RPORT	PINJ
+#define DIO73_WPORT	PORTJ
+#define DIO73_DDR		DDRJ
+#define DIO73_PWM		NULL
+
+#define DIO74_PIN		PINJ7
+#define DIO74_RPORT	PINJ
+#define DIO74_WPORT	PORTJ
+#define DIO74_DDR		DDRJ
+#define DIO74_PWM		NULL
+
+#define DIO73_PIN		PINJ4
+#define DIO73_RPORT	PINJ
+#define DIO73_WPORT	PORTJ
+#define DIO73_DDR		DDRJ
+#define DIO73_PWM		NULL
+
+#define DIO76_PIN		PINJ5
+#define DIO76_RPORT	PINJ
+#define DIO76_WPORT	PORTJ
+#define DIO76_DDR		DDRJ
+#define DIO76_PWM		NULL
+
+#define DIO77_PIN		PINJ6
+#define DIO77_RPORT	PINJ
+#define DIO77_WPORT	PORTJ
+#define DIO77_DDR		DDRJ
+#define DIO77_PWM		NULL
+
+#define DIO78_PIN		PINE2
+#define DIO78_RPORT	PINE
+#define DIO78_WPORT	PORTE
+#define DIO78_DDR		DDRE
+#define DIO78_PWM		NULL
+
+#define DIO79_PIN		PINE6
+#define DIO79_RPORT	PINE
+#define DIO79_WPORT	PORTE
+#define DIO79_DDR		DDRE
+#define DIO79_PWM		NULL
+
+#define DIO80_PIN		PINE7
+#define DIO80_RPORT	PINE
+#define DIO80_WPORT	PORTE
+#define DIO80_DDR		DDRE
+#define DIO80_PWM		NULL
+
+#define DIO81_PIN		PIND4
+#define DIO81_RPORT	PIND
+#define DIO81_WPORT	PORTD
+#define DIO81_DDR		DDRD
+#define DIO81_PWM		NULL
+
+#define DIO82_PIN		PIND5
+#define DIO82_RPORT	PIND
+#define DIO82_WPORT	PORTD
+#define DIO82_DDR		DDRD
+#define DIO82_PWM		NULL
+
+#define DIO83_PIN		PIND6
+#define DIO83_RPORT	PIND
+#define DIO83_WPORT	PORTD
+#define DIO83_DDR		DDRD
+#define DIO83_PWM		NULL
+
+#define DIO84_PIN		PINH2
+#define DIO84_RPORT	PINH
+#define DIO84_WPORT	PORTH
+#define DIO84_DDR		DDRH
+#define DIO84_PWM		NULL
+
+#define DIO85_PIN		PINH7
+#define DIO85_RPORT	PINH
+#define DIO85_WPORT	PORTH
+#define DIO85_DDR		DDRH
+#define DIO85_PWM		NULL
 
 #undef PA0
 #define PA0_PIN			PINA0
