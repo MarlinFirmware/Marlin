@@ -826,7 +826,7 @@ static void homeaxis(int axis) {
 void deploy_z_probe() {
   feedrate = homing_feedrate[X_AXIS];
   destination[X_AXIS] = 25;
-  destination[Y_AXIS] = 93;
+  destination[Y_AXIS] = 78;
   destination[Z_AXIS] = 100;
   prepare_move_raw();
 
@@ -838,13 +838,17 @@ void deploy_z_probe() {
 
 void retract_z_probe() {
   feedrate = homing_feedrate[X_AXIS];
-  destination[X_AXIS] = -40;
-  destination[Y_AXIS] = -83;
+  destination[Z_AXIS] = current_position[Z_AXIS] + 20;
+  prepare_move_raw();
+
+  destination[X_AXIS] = -55;
+  destination[Y_AXIS] = 63;
+  destination[Z_AXIS] = 30;
   prepare_move_raw();
 
   // Move the nozzle below the print surface to push the probe up.
   feedrate = homing_feedrate[Z_AXIS]/10;
-  destination[Z_AXIS] = current_position[Z_AXIS] - 14;
+  destination[Z_AXIS] = current_position[Z_AXIS] - 20;
   prepare_move_raw();
 
   feedrate = homing_feedrate[Z_AXIS];
@@ -889,8 +893,8 @@ void calibrate_print_surface(float z_offset) {
     int dir = y % 2 ? -1 : 1;
     for (int x = -3*dir; x != 4*dir; x += dir) {
       if (x*x + y*y < 11) {
-	destination[X_AXIS] = 25 * x + z_probe_offset[X_AXIS];
-	destination[Y_AXIS] = 25 * y + z_probe_offset[Y_AXIS];
+	destination[X_AXIS] = AUTOLEVEL_GRID * x - z_probe_offset[X_AXIS];
+	destination[Y_AXIS] = AUTOLEVEL_GRID * y - z_probe_offset[Y_AXIS];
 	bed_level[x+3][y+3] = z_probe() + z_offset;
       } else {
 	bed_level[x+3][y+3] = 0.0;
@@ -2540,8 +2544,8 @@ void calculate_delta(float cartesian[3])
 // Adjust print surface height by linear interpolation over the bed_level array.
 void adjust_delta(float cartesian[3])
 {
-  float grid_x = max(-2.999, min(2.999, cartesian[X_AXIS]/25.0));
-  float grid_y = max(-2.999, min(2.999, cartesian[Y_AXIS]/25.0));
+  float grid_x = max(-2.999, min(2.999, cartesian[X_AXIS] / AUTOLEVEL_GRID));
+  float grid_y = max(-2.999, min(2.999, cartesian[Y_AXIS] / AUTOLEVEL_GRID));
   int floor_x = floor(grid_x);
   int floor_y = floor(grid_y);
   float ratio_x = grid_x - floor_x;
