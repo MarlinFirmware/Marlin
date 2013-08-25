@@ -108,7 +108,7 @@
 #define DELTA_TOWER3_Y DELTA_RADIUS
 
 // Diagonal rod squared
-#define DELTA_DIAGONAL_ROD_2 pow(DELTA_DIAGONAL_ROD,2)
+#define DELTA_DIAGONAL_ROD_2 sq(DELTA_DIAGONAL_ROD)
 
 //===========================================================================
 //=============================Thermal Settings  ============================
