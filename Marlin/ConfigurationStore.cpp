@@ -37,7 +37,7 @@ void _EEPROM_readData(int &pos, uint8_t* value, uint8_t size)
 // the default values are used whenever there is a change to the data, to prevent
 // wrong data being written to the variables.
 // ALSO:  always make sure the variables in the Store and retrieve sections are in the same order.
-#define EEPROM_VERSION "V08"
+#define EEPROM_VERSION "V09"
 
 #ifdef EEPROM_SETTINGS
 void Config_StoreSettings() 
@@ -57,6 +57,9 @@ void Config_StoreSettings()
   EEPROM_WRITE_VAR(i,max_z_jerk);
   EEPROM_WRITE_VAR(i,max_e_jerk);
   EEPROM_WRITE_VAR(i,add_homeing);
+  #ifdef DELTA
+  EEPROM_WRITE_VAR(i,endstop_adj);
+  #endif
   #ifndef ULTIPANEL
   int plaPreheatHotendTemp = PLA_PREHEAT_HOTEND_TEMP, plaPreheatHPBTemp = PLA_PREHEAT_HPB_TEMP, plaPreheatFanSpeed = PLA_PREHEAT_FAN_SPEED;
   int absPreheatHotendTemp = ABS_PREHEAT_HOTEND_TEMP, absPreheatHPBTemp = ABS_PREHEAT_HPB_TEMP, absPreheatFanSpeed = ABS_PREHEAT_FAN_SPEED;
@@ -145,6 +148,15 @@ void Config_PrintSettings()
     SERIAL_ECHOPAIR(" Y" ,add_homeing[1] );
     SERIAL_ECHOPAIR(" Z" ,add_homeing[2] );
     SERIAL_ECHOLN("");
+#ifdef DELTA
+    SERIAL_ECHO_START;
+    SERIAL_ECHOLNPGM("Endstop adjustement (mm):");
+    SERIAL_ECHO_START;
+    SERIAL_ECHOPAIR("  M666 X",endstop_adj[0] );
+    SERIAL_ECHOPAIR(" Y" ,endstop_adj[1] );
+    SERIAL_ECHOPAIR(" Z" ,endstop_adj[2] );
+    SERIAL_ECHOLN("");
+#endif
 #ifdef PIDTEMP
     SERIAL_ECHO_START;
     SERIAL_ECHOLNPGM("PID settings:");
@@ -185,6 +197,9 @@ void Config_RetrieveSettings()
         EEPROM_READ_VAR(i,max_z_jerk);
         EEPROM_READ_VAR(i,max_e_jerk);
         EEPROM_READ_VAR(i,add_homeing);
+        #ifdef DELTA
+        EEPROM_READ_VAR(i,endstop_adj);
+        #endif
         #ifndef ULTIPANEL
         int plaPreheatHotendTemp, plaPreheatHPBTemp, plaPreheatFanSpeed;
         int absPreheatHotendTemp, absPreheatHPBTemp, absPreheatFanSpeed;
@@ -244,6 +259,9 @@ void Config_ResetDefault()
     max_z_jerk=DEFAULT_ZJERK;
     max_e_jerk=DEFAULT_EJERK;
     add_homeing[0] = add_homeing[1] = add_homeing[2] = 0;
+#ifdef DELTA
+    endstop_adj[0] = endstop_adj[1] = endstop_adj[2] = 0;
+#endif
 #ifdef ULTIPANEL
     plaPreheatHotendTemp = PLA_PREHEAT_HOTEND_TEMP;
     plaPreheatHPBTemp = PLA_PREHEAT_HPB_TEMP;
