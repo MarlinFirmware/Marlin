@@ -139,6 +139,7 @@
 // M503 - print the current settings (from memory not from eeprom)
 // M540 - Use S[0|1] to enable or disable the stop SD card print on endstop hit (requires ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED)
 // M600 - Pause for filament change X[pos] Y[pos] Z[relative lift] E[initial retract] L[later retract distance for removal]
+// M666 - set delta endstop adjustemnt
 // M605 - Set dual x-carriage movement mode: S<mode> [ X<duplication x-offset> R<duplication temp offset> ]
 // M907 - Set digital trimpot motor current using axis codes.
 // M908 - Control digital trimpot directly.
@@ -167,6 +168,9 @@ int saved_feedmultiply;
 int extrudemultiply=100; //100->1 200->2
 float current_position[NUM_AXIS] = { 0.0, 0.0, 0.0, 0.0 };
 float add_homeing[3]={0,0,0};
+#ifdef DELTA
+float endstop_adj[3]={0,0,0};
+#endif
 float min_pos[3] = { X_MIN_POS, Y_MIN_POS, Z_MIN_POS };
 float max_pos[3] = { X_MAX_POS, Y_MAX_POS, Z_MAX_POS };
 
@@ -794,7 +798,15 @@ static void homeaxis(int axis) {
 #endif
     plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate/60, active_extruder);
     st_synchronize();
-
+#ifdef DELTA
+    // retrace by the amount specified in endstop_adj
+    if (endstop_adj[axis] * axis_home_dir < 0) {
+      plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+      destination[axis] = endstop_adj[axis];
+      plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate/60, active_extruder);
+      st_synchronize();
+    }
+#endif
     axis_is_at_home(axis);
     destination[axis] = current_position[axis];
     feedrate = 0.0;
@@ -1658,6 +1670,14 @@ void process_commands()
         if(code_seen(axis_codes[i])) add_homeing[i] = code_value();
       }
       break;
+    #ifdef DELTA
+    case 666: // M666 set delta endstop adjustemnt
+      for(int8_t i=0; i < 3; i++)
+      {
+        if(code_seen(axis_codes[i])) endstop_adj[i] = code_value();
+      }
+      break;
+    #endif
     #ifdef FWRETRACT
     case 207: //M207 - set retract length S[positive mm] F[feedrate mm/sec] Z[additional zlift/hop]
     {
