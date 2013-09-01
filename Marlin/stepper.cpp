@@ -559,6 +559,11 @@ ISR(TIMER1_COMPA_vect)
               WRITE(X_STEP_PIN, !INVERT_X_STEP_PIN);
           }
         #else
+          
+          #ifdef DELAY_WRITE_MICROSECONDS                          //ADDING DELAY
+          delayMicroseconds(DELAY_WRITE_MICROSECONDS);
+          #endif
+          
           WRITE(X_STEP_PIN, !INVERT_X_STEP_PIN);
         #endif        
           counter_x -= current_block->step_event_count;
@@ -575,20 +580,40 @@ ISR(TIMER1_COMPA_vect)
               WRITE(X_STEP_PIN, INVERT_X_STEP_PIN);
           }
         #else
+        
+          #ifdef DELAY_WRITE_MICROSECONDS                          //ADDING DELAY
+          delayMicroseconds(DELAY_WRITE_MICROSECONDS);
+          #endif
+          
           WRITE(X_STEP_PIN, INVERT_X_STEP_PIN);
         #endif
         }
 
         counter_y += current_block->steps_y;
         if (counter_y > 0) {
+          
+          #ifdef DELAY_WRITE_MICROSECONDS                          //ADDING DELAY
+          delayMicroseconds(DELAY_WRITE_MICROSECONDS);
+          #endif
+          
           WRITE(Y_STEP_PIN, !INVERT_Y_STEP_PIN);
           counter_y -= current_block->step_event_count;
           count_position[Y_AXIS]+=count_direction[Y_AXIS];
+          
+          #ifdef DELAY_WRITE_MICROSECONDS                          //ADDING DELAY
+          delayMicroseconds(DELAY_WRITE_MICROSECONDS);
+          #endif
+          
           WRITE(Y_STEP_PIN, INVERT_Y_STEP_PIN);
         }
 
       counter_z += current_block->steps_z;
       if (counter_z > 0) {
+        
+        #ifdef DELAY_WRITE_MICROSECONDS                          //ADDING DELAY
+        delayMicroseconds(DELAY_WRITE_MICROSECONDS);
+        #endif
+          
         WRITE(Z_STEP_PIN, !INVERT_Z_STEP_PIN);
         
         #ifdef Z_DUAL_STEPPER_DRIVERS
@@ -597,6 +622,11 @@ ISR(TIMER1_COMPA_vect)
 
         counter_z -= current_block->step_event_count;
         count_position[Z_AXIS]+=count_direction[Z_AXIS];
+        
+        #ifdef DELAY_WRITE_MICROSECONDS                          //ADDING DELAY
+        delayMicroseconds(DELAY_WRITE_MICROSECONDS);
+        #endif
+          
         WRITE(Z_STEP_PIN, INVERT_Z_STEP_PIN);
         
         #ifdef Z_DUAL_STEPPER_DRIVERS
@@ -607,9 +637,19 @@ ISR(TIMER1_COMPA_vect)
       #ifndef ADVANCE
         counter_e += current_block->steps_e;
         if (counter_e > 0) {
+          
+          #ifdef DELAY_WRITE_MICROSECONDS                          //ADDING DELAY
+          delayMicroseconds(DELAY_WRITE_MICROSECONDS);
+          #endif
+          
           WRITE_E_STEP(!INVERT_E_STEP_PIN);
           counter_e -= current_block->step_event_count;
           count_position[E_AXIS]+=count_direction[E_AXIS];
+          
+          #ifdef DELAY_WRITE_MICROSECONDS                          //ADDING DELAY
+          delayMicroseconds(DELAY_WRITE_MICROSECONDS);
+          #endif
+          
           WRITE_E_STEP(INVERT_E_STEP_PIN);
         }
       #endif //!ADVANCE
@@ -1085,4 +1125,3 @@ void microstep_readings()
       SERIAL_PROTOCOL(   digitalRead(E1_MS1_PIN));
       SERIAL_PROTOCOLLN( digitalRead(E1_MS2_PIN));
 }
-
