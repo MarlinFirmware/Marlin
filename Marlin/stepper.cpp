@@ -1125,3 +1125,4 @@ void microstep_readings()
       SERIAL_PROTOCOL(   digitalRead(E1_MS1_PIN));
       SERIAL_PROTOCOLLN( digitalRead(E1_MS2_PIN));
 }
+
