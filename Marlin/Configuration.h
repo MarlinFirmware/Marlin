@@ -321,6 +321,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define Y_HOME_DIR -1
 #define Z_HOME_DIR -1
 
+
 #define min_software_endstops true // If true, axis won't move to coordinates less than HOME_POS.
 #define max_software_endstops true  // If true, axis won't move to coordinates greater than the defined lengths below.
 // Travel limits after homing
@@ -369,6 +370,32 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define DEFAULT_XYJERK                20.0    // (mm/sec)
 #define DEFAULT_ZJERK                 0.4     // (mm/sec)
 #define DEFAULT_EJERK                 5.0    // (mm/sec)
+
+
+//===========================================================================
+//============================= Auto Bed Leveling ===========================
+//===========================================================================
+
+//#define ENABLE_AUTO_BED_LEVELING // Delete the comment to enable (remove // at the start of the line)
+
+#ifdef ENABLE_AUTO_BED_LEVELING
+
+  // these are the positions on the bed to do the probing
+  #define LEFT_PROBE_BED_POSITION 10
+  #define RIGHT_PROBE_BED_POSITION 160
+  #define BACK_PROBE_BED_POSITION 170
+  #define FRONT_PROBE_BED_POSITION 10
+
+  // these are the offsets to the prob relative to the extruder tip (Hotend - Probe)
+  #define X_PROBE_OFFSET_FROM_EXTRUDER -34
+  #define Y_PROBE_OFFSET_FROM_EXTRUDER -26.5
+  #define Z_PROBE_OFFSET_FROM_EXTRUDER -5
+  
+  #define Z_RAISE_BEFORE_PROBING 20     //How much the extruder will be raised before traveling to the first probing point.
+  #define Z_RAISE_BETWEEN_PROBINGS 10   //How much the extruder will be raised when traveling from between next probing points ()
+#endif
+
+
 
 //===========================================================================
 //=============================Additional Features===========================
