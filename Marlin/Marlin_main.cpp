@@ -29,6 +29,10 @@
 
 #include "Marlin.h"
 
+#ifdef ENABLE_AUTO_BED_LEVELING
+#include "vector_3.h"
+#endif // ENABLE_AUTO_BED_LEVELING
+
 #include "ultralcd.h"
 #include "planner.h"
 #include "stepper.h"
