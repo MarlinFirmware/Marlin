@@ -47,7 +47,7 @@
 #if LANGUAGE_CHOICE == 1
 
 // LCD Menu Messages
-	#define WELCOME_MSG MACHINE_NAME " Ready."
+	#define WELCOME_MSG MACHINE_NAME ""
 	#define MSG_SD_INSERTED "Card inserted"
 	#define MSG_SD_REMOVED "Card removed"
 	#define MSG_MAIN "Main"
