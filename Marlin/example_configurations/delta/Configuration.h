@@ -82,6 +82,8 @@
 // and processor overload (too many expensive sqrt calls).
 #define DELTA_SEGMENTS_PER_SECOND 200
 
+// NOTE NB all values for DELTA_* values MOUST be floating point, so always have a decimal point in them
+
 // Center-to-center distance of the holes in the diagonal push rods.
 #define DELTA_DIAGONAL_ROD 250.0 // mm
 
@@ -96,6 +98,8 @@
 
 // Effective horizontal distance bridged by diagonal push rods.
 #define DELTA_RADIUS (DELTA_SMOOTH_ROD_OFFSET-DELTA_EFFECTOR_OFFSET-DELTA_CARRIAGE_OFFSET)
+
+#define DELTA_DIAGONAL_ROD_2 sq(DELTA_DIAGONAL_ROD)
 
 // Effective X/Y positions of the three vertical towers.
 #define SIN_60 0.8660254037844386
