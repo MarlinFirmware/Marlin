@@ -49,6 +49,7 @@
 // 70 = Megatronics
 // 701= Megatronics v2.0
 // 702= Minitronics v1.0
+// 72 = Leapfrog Creatr board
 // 90 = Alpha OMCA board
 // 91 = Final OMCA board
 // 301 = Rambo
