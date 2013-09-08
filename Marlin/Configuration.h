@@ -371,6 +371,10 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define DEFAULT_ZJERK                 0.4     // (mm/sec)
 #define DEFAULT_EJERK                 5.0    // (mm/sec)
 
+
+#define DELAY_WRITE_MICROSECONDS 2            // It adds a delay so the pulse signal is long enough for the stepper driver. Comment the line if not needed a delay to have a longer signal to the stepper driver
+
+
 //===========================================================================
 //=============================Additional Features===========================
 //===========================================================================
