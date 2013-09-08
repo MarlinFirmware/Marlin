@@ -1834,9 +1834,9 @@ void process_commands()
     #ifdef PIDTEMP
     case 301: // M301
       {
-        if(code_seen('P')) Kp = code_value();
-        if(code_seen('I')) Ki = scalePID_i(code_value());
-        if(code_seen('D')) Kd = scalePID_d(code_value());
+        if(code_seen('P')) Kp[tmp_extruder] = code_value();
+        if(code_seen('I')) Ki[tmp_extruder] = scalePID_i(code_value());
+        if(code_seen('D')) Kd[tmp_extruder] = scalePID_d(code_value());
 
         #ifdef PID_ADD_EXTRUSION_RATE
         if(code_seen('C')) Kc = code_value();
@@ -1845,11 +1845,11 @@ void process_commands()
         updatePID();
         SERIAL_PROTOCOL(MSG_OK);
         SERIAL_PROTOCOL(" p:");
-        SERIAL_PROTOCOL(Kp);
+        SERIAL_PROTOCOL(Kp[tmp_extruder]);
         SERIAL_PROTOCOL(" i:");
-        SERIAL_PROTOCOL(unscalePID_i(Ki));
+        SERIAL_PROTOCOL(unscalePID_i(Ki[tmp_extruder]));
         SERIAL_PROTOCOL(" d:");
-        SERIAL_PROTOCOL(unscalePID_d(Kd));
+        SERIAL_PROTOCOL(unscalePID_d(Kd[tmp_extruder]));
         #ifdef PID_ADD_EXTRUSION_RATE
         SERIAL_PROTOCOL(" c:");
         //Kc does not have scaling applied above, or in resetting defaults
