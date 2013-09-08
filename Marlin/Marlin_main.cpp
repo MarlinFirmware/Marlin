@@ -1260,17 +1260,11 @@ void process_commands()
         break;
         }
       #if defined(TEMP_0_PIN) && TEMP_0_PIN > -1
-        SERIAL_PROTOCOLPGM("ok T:");
+        SERIAL_PROTOCOLPGM("ok T:");                                                //First extruder temp is shown
         SERIAL_PROTOCOL_F(degHotend(tmp_extruder),1);
         SERIAL_PROTOCOLPGM(" /");
         SERIAL_PROTOCOL_F(degTargetHotend(tmp_extruder),1);
-        #if defined(TEMP_BED_PIN) && TEMP_BED_PIN > -1
-          SERIAL_PROTOCOLPGM(" B:");
-          SERIAL_PROTOCOL_F(degBed(),1);
-          SERIAL_PROTOCOLPGM(" /");
-          SERIAL_PROTOCOL_F(degTargetBed(),1);
-        #endif //TEMP_BED_PIN
-        for (int8_t cur_extruder = 0; cur_extruder < EXTRUDERS; ++cur_extruder) {
+        for (int8_t cur_extruder = 1; cur_extruder < EXTRUDERS; ++cur_extruder) {   //If more extruders are defined their temp is shown as well
           SERIAL_PROTOCOLPGM(" T");
           SERIAL_PROTOCOL(cur_extruder);
           SERIAL_PROTOCOLPGM(":");
@@ -1278,6 +1272,12 @@ void process_commands()
           SERIAL_PROTOCOLPGM(" /");
           SERIAL_PROTOCOL_F(degTargetHotend(cur_extruder),1);
         }
+        #if defined(TEMP_BED_PIN) && TEMP_BED_PIN > -1                              //Bed temp is shown if defined
+          SERIAL_PROTOCOLPGM(" B:");
+          SERIAL_PROTOCOL_F(degBed(),1);
+          SERIAL_PROTOCOLPGM(" /");
+          SERIAL_PROTOCOL_F(degTargetBed(),1);
+        #endif //TEMP_BED_PIN
       #else
         SERIAL_ERROR_START;
         SERIAL_ERRORLNPGM(MSG_ERR_NO_THERMISTORS);
