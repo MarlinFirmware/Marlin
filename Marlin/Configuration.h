@@ -206,14 +206,14 @@
 //    #define  DEFAULT_Kd 440
 
 // PID parameters for 2nd extruder
-    #define DEFAULT_Kp_E1 7.01
-    #define DEFAULT_Ki_E1 0.31
-    #define DEFAULT_Kd_E1 39.97
+//    #define DEFAULT_Kp_E1 7.01
+//    #define DEFAULT_Ki_E1 0.31
+//    #define DEFAULT_Kd_E1 39.97
 
 //// PID parameters for 3th extruder
-// #define DEFAULT_Kp_E2 22.2
-// #define DEFAULT_Ki_E2 1.08
-// #define DEFAULT_Kd_E2 114
+//    #define DEFAULT_Kp_E2 22.2
+//    #define DEFAULT_Ki_E2 1.08
+//    #define DEFAULT_Kd_E2 114
 
 #endif // PIDTEMP
 
@@ -312,7 +312,9 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define X_ENABLE_ON 0
 #define Y_ENABLE_ON 0
 #define Z_ENABLE_ON 0
-#define E_ENABLE_ON 0 // For all extruders
+#define E0_ENABLE_ON 1 // For each extruders
+//#define E1_ENABLE_ON 1
+//#define E2_ENABLE_ON 0
 
 // Disables axis when it's not being used.
 #define DISABLE_X false
