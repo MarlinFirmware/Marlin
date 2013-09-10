@@ -40,6 +40,9 @@
 #include "language.h"
 #include "pins_arduino.h"
 
+#include "BlinkM.h"
+#include "Wire.h" 
+
 #if NUM_SERVOS > 0
 #include "Servo.h"
 #endif
@@ -109,6 +112,7 @@
 // M128 - EtoP Open (BariCUDA EtoP = electricity to air pressure transducer by jmil)
 // M129 - EtoP Closed (BariCUDA EtoP = electricity to air pressure transducer by jmil)
 // M140 - Set bed target temp
+// M150 - Set BlinkM Colour Output R: Red<0-255> U(!): Green<0-255> B: Blue<0-255> over i2c, G for green does not work.
 // M190 - Sxxx Wait for bed current temp to reach target temp. Waits only when heating
 //        Rxxx Wait for bed current temp to reach target temp. Waits when heating and cooling
 // M200 - Set filament diameter
@@ -1613,6 +1617,19 @@ void process_commands()
       #endif
       break;
       //TODO: update for all axis, use for loop
+    case 150: // M150
+      {
+        byte red;
+        byte grn;
+        byte blu;
+        
+        if(code_seen('R')) red = code_value();
+        if(code_seen('U')) grn = code_value();
+        if(code_seen('B')) blu = code_value();
+        
+        SendColors(red,grn,blu);        
+      }
+      break;
     case 201: // M201
       for(int8_t i=0; i < NUM_AXIS; i++)
       {
