@@ -128,17 +128,10 @@ extern volatile uint16_t buttons;  //an extended version of the last checked but
 // These values are independent of which pins are used for EN_A and EN_B indications
 // The rotary encoder part is also independent to the chipset used for the LCD
 #if defined(EN_A) && defined(EN_B)
-  #ifndef ULTIMAKERCONTROLLER
     #define encrot0 0
     #define encrot1 2
     #define encrot2 3
     #define encrot3 1
-  #else
-    #define encrot0 0
-    #define encrot1 1
-    #define encrot2 3
-    #define encrot3 2
-  #endif
 #endif 
 
 #endif //ULTIPANEL
