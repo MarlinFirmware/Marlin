@@ -492,7 +492,7 @@
         #define SDSS 53
         #define SDCARDDETECT -1
         #define KILL_PIN 41
-        #define FAN_PIN 45
+              
       #else
         //arduino pin which triggers an piezzo beeper
         #define BEEPER 33  // Beeper on AUX-4
@@ -901,23 +901,23 @@
 #define LED_PIN            -1
 
 #define FAN_PIN            -1
-#if FAN_PIN == 12 || FAN_PIN ==13
-#define FAN_SOFT_PWM
+ #if FAN_PIN == 12 || FAN_PIN ==13
+  #define FAN_SOFT_PWM
 #endif
 
 #ifdef MELZI
-#define LED_PIN            27 /* On some broken versions of the Sanguino libraries the pin definitions are wrong, which then needs LED_PIN as pin 28. But you better upgrade your Sanguino libraries! See #368. */
-#define FAN_PIN            4
+ #define LED_PIN            27 /* On some broken versions of the Sanguino libraries the pin definitions are wrong, which then needs LED_PIN as pin 28. But you better upgrade your Sanguino libraries! See #368. */
+ #define FAN_PIN            4 // Works for Panelolu2 too
 #endif
 
 #ifdef STB
-#define FAN_PIN            4
+ #define FAN_PIN            4
 	//  Uncomment this if you have the first generation (V1.10) of STBs board
-#define LCD_PIN_BL         17 // LCD backlight LED
+ #define LCD_PIN_BL         17 // LCD backlight LED
 #endif
 
 #ifdef AZTEEG_X1
-#define FAN_PIN            4
+ #define FAN_PIN            4
 #endif
 
 #define PS_ON_PIN          -1
@@ -929,19 +929,23 @@
 
 #ifdef SANGUINOLOLU_V_1_2
 
-#define HEATER_BED_PIN     12 // (bed)
-#define X_ENABLE_PIN       14
-#define Y_ENABLE_PIN       14
-#define Z_ENABLE_PIN       26
-#define E0_ENABLE_PIN       14
+ #define HEATER_BED_PIN     12 // (bed)
+ #define X_ENABLE_PIN       14
+ #define Y_ENABLE_PIN       14
+ #define Z_ENABLE_PIN       26
+ #define E0_ENABLE_PIN      14
+
+ #ifdef LCD_I2C_PANELOLU2
+   #define FAN_PIN          4 // Uses Transistor1 (PWM) on Panelolu2's Sanguino Adapter Board to drive the fan
+ #endif
 
 #else
 
-#define HEATER_BED_PIN       14  // (bed)
+#define HEATER_BED_PIN      14  // (bed)
 #define X_ENABLE_PIN       -1
 #define Y_ENABLE_PIN       -1
 #define Z_ENABLE_PIN       -1
-#define E0_ENABLE_PIN       -1
+#define E0_ENABLE_PIN      -1
 
 #endif
 
