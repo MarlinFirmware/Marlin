@@ -772,7 +772,7 @@ static void homeaxis(int axis) {
 
     // Engage Servo endstop if enabled
     #ifdef SERVO_ENDSTOPS
-      if (SERVO_ENDSTOPS[axis] > -1) {
+      if (servo_endstops[axis] > -1) {
         servos[servo_endstops[axis]].write(servo_endstop_angles[axis * 2]);
       }
     #endif
@@ -814,7 +814,7 @@ static void homeaxis(int axis) {
 
     // Retract Servo endstop if enabled
     #ifdef SERVO_ENDSTOPS
-      if (SERVO_ENDSTOPS[axis] > -1) {
+      if (servo_endstops[axis] > -1) {
         servos[servo_endstops[axis]].write(servo_endstop_angles[axis * 2 + 1]);
       }
     #endif
