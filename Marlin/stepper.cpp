@@ -823,15 +823,15 @@ void st_init()
   #endif
   #if defined(E0_ENABLE_PIN) && (E0_ENABLE_PIN > -1)
     SET_OUTPUT(E0_ENABLE_PIN);
-    if(!E0_ENABLE_ON) WRITE(E0_ENABLE_PIN,HIGH);
+    if(!E_ENABLE_ON) WRITE(E0_ENABLE_PIN,HIGH);
   #endif
-  #if defined(E1_ENABLE_PIN) && (E1_ENABLE_PIN > -1 && EXTRUDERS > 1)
+  #if defined(E1_ENABLE_PIN) && (E1_ENABLE_PIN > -1)
     SET_OUTPUT(E1_ENABLE_PIN);
-    if(!E1_ENABLE_ON) WRITE(E1_ENABLE_PIN,HIGH);
+    if(!E_ENABLE_ON) WRITE(E1_ENABLE_PIN,HIGH);
   #endif
-  #if defined(E2_ENABLE_PIN) && (E2_ENABLE_PIN > -1 && EXTRUDERS > 2)
+  #if defined(E2_ENABLE_PIN) && (E2_ENABLE_PIN > -1)
     SET_OUTPUT(E2_ENABLE_PIN);
-    if(!E2_ENABLE_ON) WRITE(E2_ENABLE_PIN,HIGH);
+    if(!E_ENABLE_ON) WRITE(E2_ENABLE_PIN,HIGH);
   #endif
 
   //endstops and pullups
