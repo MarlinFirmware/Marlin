@@ -94,7 +94,7 @@ void Config_StoreSettings()
 #endif //EEPROM_SETTINGS
 
 
-#ifdef EEPROM_CHITCHAT
+#ifndef DISABLE_M503
 void Config_PrintSettings()
 {  // Always have this function, even with EEPROM_SETTINGS disabled, the current values will be shown
     SERIAL_ECHO_START;
@@ -231,7 +231,9 @@ void Config_RetrieveSettings()
     {
         Config_ResetDefault();
     }
-    Config_PrintSettings();
+    #ifdef EEPROM_CHITCHAT
+      Config_PrintSettings();
+    #endif
 }
 #endif
 
