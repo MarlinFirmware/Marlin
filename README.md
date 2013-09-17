@@ -1,13 +1,13 @@
 =======================================
 Added in this Branch: Bed Auto Leveling
 =======================================
-Uncomment the "ENABLE_AUTO_BED_LEVELING" define (uncommented by default)
+Uncomment the "ENABLE_AUTO_BED_LEVELING" define (commented by default)
 
 You will probably need a swivel Z-MIN endstop in the extruder. A rc servo do a great job.
-Check the system working here: http://www.youtube.com/watch?v=3IKMeOYz-1Q (English subtitles soon)
+Check the system working here: http://www.youtube.com/watch?v=3IKMeOYz-1Q (Enable English subtitles)
+Teasing ;-) video: http://www.youtube.com/watch?v=x8eqSQNAyro
 
 In order to get the servo working, you need to enable:
-
 
 * \#define NUM_SERVOS 1 // Servo index starts with 0 for M280 command
 
@@ -17,29 +17,28 @@ In order to get the servo working, you need to enable:
 
 
 The first define tells firmware how many servos you have.
-The second tells what axis this servo will be attached to. In case above, it is Z axis.
+The second tells what axis this servo will be attached to. In the example above, we have a servo in Z axis.
 The third one tells the angle in 2 situations: Probing (165º) and resting (60º). Check this with command M280 P0 S{angle}
 
 Next you need to define the Z endstop (probe) offset from hotend.
 My preferred method:
 
-* a) Heat your heated bed (if available), place your hotend 0.1mm over the bed (a regular paper thickness) and zero the Z axis (G92 Z0);
-* b) Make a small mark in the bed and place the hotend tip as *exactly* as possible on the mark;
-* c) Perform a M114 and write down the values. Example: X:120.2 Y:114.3 Z:0;
-* d) Raise the extruder a few mm for probe clearance, lower the Z probe (Z-Endstop) with M401 and place it just on that mark by moving X and Y;
-* e) Lower the Z in 0.1mm steps, with the probe always touching the mark until you hear the "click" meaning the mechanical endstop was trigged. You can confirm with M119;
-* f) Now you have the probe in the same place as your hotend tip was before. Perform a M114 and write down the values, for example: X:144.5 Y:145.7 Z:5.1;
+* a) Make a small mark in the bed with a marker/felt-tip pen.
+* b) Place the hotend tip as *exactly* as possible on the mark, touching the bed. Raise the hotend 0.1mm (a regular paper thickness) and zero all axis (G92);
+* d) Raise the hotend 10mm (or more) for probe clearance, lower the Z probe (Z-Endstop) with M401 and place it just on that mark by moving X, Y and Z;
+* e) Lower the Z in 0.1mm steps, with the probe always touching the mark (it may be necessary to adjust X and Y as well) until you hear the "click" meaning the mechanical endstop was trigged. You can confirm with M119;
+* f) Now you have the probe in the same place as your hotend tip was before. Perform a M114 and write down the values, for example: X:24.3 Y:-31.4 Z:5.1;
 * g) You can raise the z probe with M402 command;
-* h) Just do the math: "Hotend position - Probe position" and fill the defines bellow:
+* h) Fill the defines bellow multiplying the values by "-1" (just change the signal)
 
 
 * \#define X_PROBE_OFFSET_FROM_EXTRUDER -24.3
-* \#define Y_PROBE_OFFSET_FROM_EXTRUDER -31.4
+* \#define Y_PROBE_OFFSET_FROM_EXTRUDER 31.4
 * \#define Z_PROBE_OFFSET_FROM_EXTRUDER -5.1
 
 
-The following options define the probing positions. These are good staring values.
-I recommend keep a better clearance from borders in the first run and then make the probes as close as possible to borders:
+The following options define the probing positions. These are good starting values.
+I recommend to keep a better clearance from borders in the first run and then make the probes as close as possible to borders:
 
 * \#define LEFT_PROBE_BED_POSITION 30
 * \#define RIGHT_PROBE_BED_POSITION 140
