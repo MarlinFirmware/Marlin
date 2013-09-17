@@ -51,22 +51,22 @@
   #define MYSERIAL MSerial
 #endif
 
-#define SERIAL_PROTOCOL(x) (MYSERIAL.print(x))
-#define SERIAL_PROTOCOL_F(x,y) (MYSERIAL.print(x,y))
-#define SERIAL_PROTOCOLPGM(x) (serialprintPGM(PSTR(x)))
-#define SERIAL_PROTOCOLLN(x) (MYSERIAL.print(x),MYSERIAL.write('\n'))
-#define SERIAL_PROTOCOLLNPGM(x) (serialprintPGM(PSTR(x)),MYSERIAL.write('\n'))
+#define SERIAL_PROTOCOL(x) MYSERIAL.print(x);
+#define SERIAL_PROTOCOL_F(x,y) MYSERIAL.print(x,y);
+#define SERIAL_PROTOCOLPGM(x) serialprintPGM(PSTR(x));
+#define SERIAL_PROTOCOLLN(x) {MYSERIAL.print(x);MYSERIAL.write('\n');}
+#define SERIAL_PROTOCOLLNPGM(x) {serialprintPGM(PSTR(x));MYSERIAL.write('\n');}
 
 
 const char errormagic[] PROGMEM ="Error:";
 const char echomagic[] PROGMEM ="echo:";
-#define SERIAL_ERROR_START (serialprintPGM(errormagic))
+#define SERIAL_ERROR_START serialprintPGM(errormagic);
 #define SERIAL_ERROR(x) SERIAL_PROTOCOL(x)
 #define SERIAL_ERRORPGM(x) SERIAL_PROTOCOLPGM(x)
 #define SERIAL_ERRORLN(x) SERIAL_PROTOCOLLN(x)
 #define SERIAL_ERRORLNPGM(x) SERIAL_PROTOCOLLNPGM(x)
 
-#define SERIAL_ECHO_START (serialprintPGM(echomagic))
+#define SERIAL_ECHO_START serialprintPGM(echomagic);
 #define SERIAL_ECHO(x) SERIAL_PROTOCOL(x)
 #define SERIAL_ECHOPGM(x) SERIAL_PROTOCOLPGM(x)
 #define SERIAL_ECHOLN(x) SERIAL_PROTOCOLLN(x)
@@ -96,11 +96,7 @@ void process_commands();
 
 void manage_inactivity();
 
-#if defined(DUAL_X_CARRIAGE) && defined(X_ENABLE_PIN) && X_ENABLE_PIN > -1 \
-    && defined(X2_ENABLE_PIN) && X2_ENABLE_PIN > -1
-  #define  enable_x() do { WRITE(X_ENABLE_PIN, X_ENABLE_ON); WRITE(X2_ENABLE_PIN, X_ENABLE_ON); } while (0)
-  #define disable_x() do { WRITE(X_ENABLE_PIN,!X_ENABLE_ON); WRITE(X2_ENABLE_PIN,!X_ENABLE_ON); } while (0)
-#elif defined(X_ENABLE_PIN) && X_ENABLE_PIN > -1
+#if defined(X_ENABLE_PIN) && X_ENABLE_PIN > -1
   #define  enable_x() WRITE(X_ENABLE_PIN, X_ENABLE_ON)
   #define disable_x() WRITE(X_ENABLE_PIN,!X_ENABLE_ON)
 #else
@@ -109,13 +105,8 @@ void manage_inactivity();
 #endif
 
 #if defined(Y_ENABLE_PIN) && Y_ENABLE_PIN > -1
-  #ifdef Y_DUAL_STEPPER_DRIVERS
-    #define  enable_y() { WRITE(Y_ENABLE_PIN, Y_ENABLE_ON); WRITE(Y2_ENABLE_PIN,  Y_ENABLE_ON); }
-    #define disable_y() { WRITE(Y_ENABLE_PIN,!Y_ENABLE_ON); WRITE(Y2_ENABLE_PIN, !Y_ENABLE_ON); }
-  #else
-    #define  enable_y() WRITE(Y_ENABLE_PIN, Y_ENABLE_ON)
-    #define disable_y() WRITE(Y_ENABLE_PIN,!Y_ENABLE_ON)
-  #endif
+  #define  enable_y() WRITE(Y_ENABLE_PIN, Y_ENABLE_ON)
+  #define disable_y() WRITE(Y_ENABLE_PIN,!Y_ENABLE_ON)
 #else
   #define enable_y() ;
   #define disable_y() ;
@@ -168,7 +159,6 @@ void ClearToSend();
 void get_coordinates();
 #ifdef DELTA
 void calculate_delta(float cartesian[3]);
-extern float delta[3];
 #endif
 void prepare_move();
 void kill();
