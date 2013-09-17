@@ -105,8 +105,13 @@ void manage_inactivity();
 #endif
 
 #if defined(Y_ENABLE_PIN) && Y_ENABLE_PIN > -1
-  #define  enable_y() WRITE(Y_ENABLE_PIN, Y_ENABLE_ON)
-  #define disable_y() WRITE(Y_ENABLE_PIN,!Y_ENABLE_ON)
+  #ifdef Y_DUAL_STEPPER_DRIVERS
+    #define  enable_y() { WRITE(Y_ENABLE_PIN, Y_ENABLE_ON); WRITE(Y2_ENABLE_PIN,  Y_ENABLE_ON); }
+    #define disable_y() { WRITE(Y_ENABLE_PIN,!Y_ENABLE_ON); WRITE(Y2_ENABLE_PIN, !Y_ENABLE_ON); }
+  #else
+    #define  enable_y() WRITE(Y_ENABLE_PIN, Y_ENABLE_ON)
+    #define disable_y() WRITE(Y_ENABLE_PIN,!Y_ENABLE_ON)
+  #endif
 #else
   #define enable_y() ;
   #define disable_y() ;
