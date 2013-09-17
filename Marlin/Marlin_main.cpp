@@ -139,6 +139,8 @@
 // M303 - PID relay autotune S<temperature> sets the target temperature. (default target temperature = 150C)
 // M304 - Set bed PID parameters P I and D
 // M400 - Finish all moves
+// M401 - Lower z-probe if present
+// M402 - Raise z-probe if present
 // M500 - stores paramters in EEPROM
 // M501 - reads parameters from EEPROM (if you need reset them after you changed them temporarily).
 // M502 - reverts to the default "factory settings".  You still need to store them in EEPROM afterwards if you want to.
@@ -831,7 +833,7 @@ static void run_z_probe() {
 static void do_blocking_move_to(float x, float y, float z) {
     float oldFeedRate = feedrate;
 
-    feedrate = homing_feedrate[X_AXIS];
+    feedrate = XY_TRAVEL_SPEED;
 
     current_position[X_AXIS] = x;
     current_position[Y_AXIS] = y;
@@ -847,23 +849,42 @@ static void do_blocking_move_relative(float offset_x, float offset_y, float offs
 }
 
 static void setup_for_endstop_move() {
-	saved_feedrate = feedrate;
-	saved_feedmultiply = feedmultiply;
-	feedmultiply = 100;
-	previous_millis_cmd = millis();
+    saved_feedrate = feedrate;
+    saved_feedmultiply = feedmultiply;
+    feedmultiply = 100;
+    previous_millis_cmd = millis();
 
-	enable_endstops(true);
+    enable_endstops(true);
 }
 
 static void clean_up_after_endstop_move() {
 #ifdef ENDSTOPS_ONLY_FOR_HOMING
-	enable_endstops(false);
+    enable_endstops(false);
 #endif
 
-	feedrate = saved_feedrate;
-	feedmultiply = saved_feedmultiply;
-	previous_millis_cmd = millis();
+    feedrate = saved_feedrate;
+    feedmultiply = saved_feedmultiply;
+    previous_millis_cmd = millis();
 }
+
+static void engage_z_probe() {
+    // Engage Z Servo endstop if enabled
+    #ifdef SERVO_ENDSTOPS
+    if (servo_endstops[Z_AXIS] > -1) {
+        servos[servo_endstops[Z_AXIS]].write(servo_endstop_angles[Z_AXIS * 2]);
+    }
+    #endif
+}
+
+static void retract_z_probe() {
+    // Retract Z Servo endstop if enabled
+    #ifdef SERVO_ENDSTOPS
+    if (servo_endstops[Z_AXIS] > -1) {
+        servos[servo_endstops[Z_AXIS]].write(servo_endstop_angles[Z_AXIS * 2 + 1]);
+    }
+    #endif
+}
+
 #endif // #ifdef ENABLE_AUTO_BED_LEVELING
 
 static void homeaxis(int axis) {
@@ -936,6 +957,7 @@ void process_commands()
 {
   unsigned long codenum; //throw away variable
   char *starpos = NULL;
+  float x_tmp, y_tmp, z_tmp, real_z, corrected_z;
 
   if(code_seen('G'))
   {
@@ -1008,7 +1030,6 @@ void process_commands()
       break;
       #endif //FWRETRACT
     case 28: //G28 Home all Axis one at a time
-
 #ifdef ENABLE_AUTO_BED_LEVELING
       plan_bed_level_matrix.set_to_identity();  //Reset the plane ("erase" all leveling data)
 #endif //ENABLE_AUTO_BED_LEVELING
@@ -1162,15 +1183,11 @@ void process_commands()
       endstops_hit_on_purpose();
       break;
 
-    case 29: // G29 Detailed Z-Probe, probes the bed at 3 points.
 #ifdef ENABLE_AUTO_BED_LEVELING
-        // TODO: (Z_MIN_PIN > -1) should also be true.  I don't know the prefered way to ensure this.
+    case 29: // G29 Detailed Z-Probe, probes the bed at 3 points.
         {
-            // Engage Z Servo endstop if enabled
-            #ifdef SERVO_ENDSTOPS
-            if (servo_endstops[Z_AXIS] > -1) {
-                servos[servo_endstops[Z_AXIS]].write(servo_endstop_angles[Z_AXIS * 2]);
-            }
+            #if Z_MIN_PIN == -1
+            #error "You must have a Z_MIN endstop in order to enable Auto Bed Leveling feature!!! Z_MIN_PIN must point to a valid hardware pin."
             #endif
 
             st_synchronize();
@@ -1191,6 +1208,9 @@ void process_commands()
             // prob 1
             do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], Z_RAISE_BEFORE_PROBING);
             do_blocking_move_to(LEFT_PROBE_BED_POSITION - X_PROBE_OFFSET_FROM_EXTRUDER, BACK_PROBE_BED_POSITION - Y_PROBE_OFFSET_FROM_EXTRUDER, current_position[Z_AXIS]);
+
+            engage_z_probe();   // Engage Z Servo endstop if available
+            
             run_z_probe();
             float z_at_xLeft_yBack = current_position[Z_AXIS];
 
@@ -1235,54 +1255,49 @@ void process_commands()
 
             set_bed_level_equation(z_at_xLeft_yFront, z_at_xRight_yFront, z_at_xLeft_yBack);
 
-            // Retract Z Servo endstop if enabled
-            #ifdef SERVO_ENDSTOPS
-            if (servo_endstops[Z_AXIS] > -1) {
-                servos[servo_endstops[Z_AXIS]].write(servo_endstop_angles[Z_AXIS * 2 + 1]);
-            }
-            #endif
+            retract_z_probe(); // Retract Z Servo endstop if available
+            
+            st_synchronize();            
+
+            // The following code correct the Z height difference from z-probe position and hotend tip position.
+            // The Z height on homing is measured by Z-Probe, but the probe is quite far from the hotend. 
+            // When the bed is uneven, this height must be corrected.
+            real_z = float(st_get_position(Z_AXIS))/axis_steps_per_unit[Z_AXIS];  //get the real Z (since the auto bed leveling is already correcting the plane)
+            x_tmp = current_position[X_AXIS] + X_PROBE_OFFSET_FROM_EXTRUDER;
+            y_tmp = current_position[Y_AXIS] + Y_PROBE_OFFSET_FROM_EXTRUDER;
+            z_tmp = current_position[Z_AXIS];
+
+            apply_rotation_xyz(plan_bed_level_matrix, x_tmp, y_tmp, z_tmp);         //Apply the correction sending the probe offset
+            current_position[Z_AXIS] = z_tmp - real_z + current_position[Z_AXIS];   //The difference is added to current position and sent to planner.
+            plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
         }
-#endif // ENABLE_AUTO_BED_LEVELING
         break;
         
     case 30: // G30 Single Z Probe
-#ifdef ENABLE_AUTO_BED_LEVELING
-		
-        // Engage Z Servo endstop if enabled
-        #ifdef SERVO_ENDSTOPS
-        if (servo_endstops[Z_AXIS] > -1) {
-            servos[servo_endstops[Z_AXIS]].write(servo_endstop_angles[Z_AXIS * 2]);
-	}
-        #endif
-	
-        // TODO: (Z_MIN_PIN > -1) should also be true.  I don't know the prefered way to ensure this.
-        st_synchronize();
-        // TODO: make sure the bed_level_rotation_matrix is identity or the planner will get set incorectly
-        setup_for_endstop_move();
+        {
+            engage_z_probe(); // Engage Z Servo endstop if available
+            
+            st_synchronize();
+            // TODO: make sure the bed_level_rotation_matrix is identity or the planner will get set incorectly
+            setup_for_endstop_move();
 
-        feedrate = homing_feedrate[Z_AXIS];
+            feedrate = homing_feedrate[Z_AXIS];
 
-        run_z_probe();
-        SERIAL_PROTOCOLPGM("Bed Position X: ");
-        SERIAL_PROTOCOL(current_position[X_AXIS]);
-        SERIAL_PROTOCOLPGM(" Y: ");
-        SERIAL_PROTOCOL(current_position[Y_AXIS]);
-        SERIAL_PROTOCOLPGM(" Z: ");
-        SERIAL_PROTOCOL(current_position[Z_AXIS]);
-        SERIAL_PROTOCOLPGM("\n");
+            run_z_probe();
+            SERIAL_PROTOCOLPGM("Bed Position X: ");
+            SERIAL_PROTOCOL(current_position[X_AXIS]);
+            SERIAL_PROTOCOLPGM(" Y: ");
+            SERIAL_PROTOCOL(current_position[Y_AXIS]);
+            SERIAL_PROTOCOLPGM(" Z: ");
+            SERIAL_PROTOCOL(current_position[Z_AXIS]);
+            SERIAL_PROTOCOLPGM("\n");
 
-        clean_up_after_endstop_move();
-		
-        // Retract Z Servo endstop if enabled
-        #ifdef SERVO_ENDSTOPS
-        if (servo_endstops[Z_AXIS] > -1) {
-            servos[servo_endstops[Z_AXIS]].write(servo_endstop_angles[Z_AXIS * 2 + 1]);
+            clean_up_after_endstop_move();
+
+            retract_z_probe(); // Retract Z Servo endstop if available
         }
-        #endif
-
-#endif // ENABLE_AUTO_BED_LEVELING
         break;
-
+#endif // ENABLE_AUTO_BED_LEVELING
     case 90: // G90
       relative_mode = false;
       break;
@@ -1736,7 +1751,7 @@ void process_commands()
         LCD_MESSAGEPGM(MACHINE_NAME" "MSG_OFF".");
         lcd_update();
       #endif
-	  break;
+      break;
 
     case 82:
       axis_relative_modes[3] = false;
@@ -2140,8 +2155,8 @@ void process_commands()
 #ifdef DOGLCD
     case 250: // M250  Set LCD contrast value: C<value> (value 0..63)
      {
-	  if (code_seen('C')) {
-	   lcd_setcontrast( ((int)code_value())&63 );
+      if (code_seen('C')) {
+       lcd_setcontrast( ((int)code_value())&63 );
           }
           SERIAL_PROTOCOLPGM("lcd contrast value: ");
           SERIAL_PROTOCOL(lcd_contrast);
@@ -2152,12 +2167,12 @@ void process_commands()
     #ifdef PREVENT_DANGEROUS_EXTRUDE
     case 302: // allow cold extrudes, or set the minimum extrude temperature
     {
-	  float temp = .0;
-	  if (code_seen('S')) temp=code_value();
+      float temp = .0;
+      if (code_seen('S')) temp=code_value();
       set_extrude_min_temp(temp);
     }
     break;
-	#endif
+    #endif
     case 303: // M303 PID autotune
     {
       float temp = 150.0;
@@ -2176,6 +2191,19 @@ void process_commands()
       st_synchronize();
     }
     break;
+#if defined(ENABLE_AUTO_BED_LEVELING) && defined(SERVO_ENDSTOPS)
+    case 401:
+    {
+        engage_z_probe();    // Engage Z Servo endstop if available
+    }
+    break;
+    
+    case 402:
+    {
+        retract_z_probe();    // Retract Z Servo endstop if enabled
+    }
+    break;
+#endif    
     case 500: // M500 Store settings in EEPROM
     {
         Config_StoreSettings();
