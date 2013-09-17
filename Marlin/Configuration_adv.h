@@ -152,6 +152,21 @@
   #define EXTRUDERS 1
 #endif
 
+// Same again but for Y Axis.
+#define Y_DUAL_STEPPER_DRIVERS
+
+// Define if the two Y drives need to rotate in opposite directions
+#define INVERT_Y2_VS_Y_DIR true
+
+#ifdef Y_DUAL_STEPPER_DRIVERS
+  #undef EXTRUDERS
+  #define EXTRUDERS 1
+#endif
+
+#ifdef Z_DUAL_STEPPER_DRIVERS && Y_DUAL_STEPPER_DRIVERS
+  #error "You cannot have dual drivers for both Y and Z"
+#endif 
+
 //homing hits the endstop, then retracts by this distance, before it tries to slowly bump again:
 #define X_HOME_RETRACT_MM 5 
 #define Y_HOME_RETRACT_MM 5 
