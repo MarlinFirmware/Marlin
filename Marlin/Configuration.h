@@ -558,7 +558,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 //#define BARICUDA
 
 //define BlinkM/CyzRgb Support
-//#define BlinkM
+//#define BLINKM
 
 /*********************************************************************\
 * R/C SERVO support

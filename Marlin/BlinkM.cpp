@@ -7,6 +7,7 @@
 #else
   # include "WProgram.h"
 #endif
+
 #include "BlinkM.h"
 
 void SendColors(byte red, byte grn, byte blu)

@@ -1617,6 +1617,7 @@ void process_commands()
       #endif
       break;
       //TODO: update for all axis, use for loop
+    #ifdef BLINKM  
     case 150: // M150
       {
         byte red;
@@ -1630,6 +1631,7 @@ void process_commands()
         SendColors(red,grn,blu);        
       }
       break;
+    #endif //BLINKM
     case 201: // M201
       for(int8_t i=0; i < NUM_AXIS; i++)
       {
