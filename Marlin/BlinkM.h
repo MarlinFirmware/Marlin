@@ -8,11 +8,7 @@
   # include "WProgram.h"
 #endif
 
-#ifndef BLINKM
-#define BLINKM
-
 #include "Wire.h"
 
 void SendColors(byte red, byte grn, byte blu);
 
-#endif
