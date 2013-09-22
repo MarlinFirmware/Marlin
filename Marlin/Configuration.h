@@ -361,7 +361,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define Z_MAX_POS 180
 
 #ifndef ENABLE_AUTO_BED_LEVELING
-#define Z_MIN_POS 7
+#define Z_MIN_POS 0
 #else
 #define Z_MIN_POS (-1*Z_PROBE_OFFSET_FROM_EXTRUDER)  //With Auto Bed Leveling, the Z_MIN MUST have the same distance as Z_PROBE
 #endif
