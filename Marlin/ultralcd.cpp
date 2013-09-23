@@ -91,6 +91,7 @@ static void menu_action_setting_edit_callback_long5(const char* pstr, unsigned l
   #define ENCODER_PULSES_PER_STEP 1
 #else
   #define ENCODER_STEPS_PER_MENU_ITEM 2 // VIKI LCD rotary encoder uses a different number of steps per rotation
+  #define ENCODER_PULSES_PER_STEP 1
 #endif
 
 
