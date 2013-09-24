@@ -298,7 +298,7 @@
 * Arduino Mega pin assignment
 *
 ****************************************************************************************/
-#if MOTHERBOARD == 3 || MOTHERBOARD == 33 || MOTHERBOARD == 34 || MOTHERBOARD == 35 || MOTHERBOARD == 77
+#if MOTHERBOARD == 3 || MOTHERBOARD == 33 || MOTHERBOARD == 34 || MOTHERBOARD == 35 || MOTHERBOARD == 77 || MOTHERBOARD == 67
 #define KNOWN_BOARD 1
 
 //////////////////FIX THIS//////////////
@@ -314,7 +314,7 @@
 // #define RAMPS_V_1_0
 
 
-#if MOTHERBOARD == 33 || MOTHERBOARD == 34 || MOTHERBOARD == 35 || MOTHERBOARD == 77
+#if MOTHERBOARD == 33 || MOTHERBOARD == 34 || MOTHERBOARD == 35 || MOTHERBOARD == 77 || MOTHERBOARD == 67
 
   #define LARGE_FLASH true
   
@@ -392,7 +392,7 @@
     #define LED_PIN            13
   #endif
 
-  #if MOTHERBOARD == 33 || MOTHERBOARD == 35
+  #if MOTHERBOARD == 33 || MOTHERBOARD == 35 || MOTHERBOARD == 67
     #define FAN_PIN            9 // (Sprinter config)
   #else
     #define FAN_PIN            4 // IO pin. Buffer needed
@@ -420,7 +420,7 @@
     #define HEATER_0_PIN       10   // EXTRUDER 1
   #endif
 
-  #if MOTHERBOARD == 33 
+  #if MOTHERBOARD == 33 || MOTHERBOARD == 67
     #define HEATER_1_PIN       -1
   #else
     #define HEATER_1_PIN       9    // EXTRUDER 2 (FAN On Sprinter)
@@ -492,7 +492,12 @@
         #define SDSS 53
         #define SDCARDDETECT -1
         #define KILL_PIN 41
-              
+      #elif defined(LCD_I2C_VIKI)
+        #define BTN_EN1 22  //reverse if the encoder turns the wrong way.
+        #define BTN_EN2 7
+        #define BTN_ENC -1
+        #define SDSS 53
+        #define SDCARDDETECT 49
       #else
         //arduino pin which triggers an piezzo beeper
         #define BEEPER 33  // Beeper on AUX-4
