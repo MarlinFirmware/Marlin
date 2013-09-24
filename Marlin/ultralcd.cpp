@@ -88,8 +88,14 @@ static void menu_action_setting_edit_callback_long5(const char* pstr, unsigned l
 
 #if !defined(LCD_I2C_VIKI)
   #define ENCODER_STEPS_PER_MENU_ITEM 5
+  #ifndef ENCODER_PULSES_PER_STEP
+    #define ENCODER_PULSES_PER_STEP 1
+  #endif
 #else
   #define ENCODER_STEPS_PER_MENU_ITEM 2 // VIKI LCD rotary encoder uses a different number of steps per rotation
+  #ifndef ENCODER_PULSES_PER_STEP
+    #define ENCODER_PULSES_PER_STEP 1
+  #endif
 #endif
 
 
@@ -233,10 +239,8 @@ static void lcd_sdcard_stop()
     quickStop();
     if(SD_FINISHED_STEPPERRELEASE)
     {
-		enquecommand_P(PSTR(SD_FINISHED_MOVEEXTRUDERAWAY));
-		enquecommand_P(PSTR(SD_FINISHED_RELEASECOMMAND));
+        enquecommand_P(PSTR(SD_FINISHED_RELEASECOMMAND));
     }
-	disable_heater();
     autotempShutdown();
 }
 
@@ -986,10 +990,10 @@ void lcd_update()
         		reprapworld_keypad_move_home();
         	}
 		#endif
-        if (encoderDiff)
+        if (abs(encoderDiff) >= ENCODER_PULSES_PER_STEP)
         {
             lcdDrawUpdate = 1;
-            encoderPosition += encoderDiff;
+            encoderPosition += encoderDiff / ENCODER_PULSES_PER_STEP;
             encoderDiff = 0;
             timeoutToStatus = millis() + LCD_TIMEOUT_TO_STATUS;
         }

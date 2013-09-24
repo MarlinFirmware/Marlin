@@ -396,6 +396,11 @@ void servo_init()
     }
   }
   #endif
+
+  #if defined (ENABLE_AUTO_BED_LEVELING) && (PROBE_SERVO_DEACTIVATION_DELAY > 0)
+  delay(PROBE_SERVO_DEACTIVATION_DELAY);
+  servos[servo_endstops[Z_AXIS]].detach();  
+  #endif
 }
 
 void setup()
@@ -871,7 +876,14 @@ static void engage_z_probe() {
     // Engage Z Servo endstop if enabled
     #ifdef SERVO_ENDSTOPS
     if (servo_endstops[Z_AXIS] > -1) {
+#if defined (ENABLE_AUTO_BED_LEVELING) && (PROBE_SERVO_DEACTIVATION_DELAY > 0)
+        servos[servo_endstops[Z_AXIS]].attach(0);
+#endif
         servos[servo_endstops[Z_AXIS]].write(servo_endstop_angles[Z_AXIS * 2]);
+#if defined (ENABLE_AUTO_BED_LEVELING) && (PROBE_SERVO_DEACTIVATION_DELAY > 0)
+        delay(PROBE_SERVO_DEACTIVATION_DELAY);
+        servos[servo_endstops[Z_AXIS]].detach();
+#endif
     }
     #endif
 }
@@ -880,7 +892,14 @@ static void retract_z_probe() {
     // Retract Z Servo endstop if enabled
     #ifdef SERVO_ENDSTOPS
     if (servo_endstops[Z_AXIS] > -1) {
+#if defined (ENABLE_AUTO_BED_LEVELING) && (PROBE_SERVO_DEACTIVATION_DELAY > 0)
+        servos[servo_endstops[Z_AXIS]].attach(0);
+#endif
         servos[servo_endstops[Z_AXIS]].write(servo_endstop_angles[Z_AXIS * 2 + 1]);
+#if defined (ENABLE_AUTO_BED_LEVELING) && (PROBE_SERVO_DEACTIVATION_DELAY > 0)
+        delay(PROBE_SERVO_DEACTIVATION_DELAY);
+        servos[servo_endstops[Z_AXIS]].detach();
+#endif
     }
     #endif
 }
@@ -903,6 +922,10 @@ static void homeaxis(int axis) {
 
     // Engage Servo endstop if enabled
     #ifdef SERVO_ENDSTOPS
+#if defined (ENABLE_AUTO_BED_LEVELING) && (PROBE_SERVO_DEACTIVATION_DELAY > 0)
+    if (axis==Z_AXIS) engage_z_probe();
+	else
+#endif
       if (servo_endstops[axis] > -1) {
         servos[servo_endstops[axis]].write(servo_endstop_angles[axis * 2]);
       }
@@ -949,6 +972,10 @@ static void homeaxis(int axis) {
         servos[servo_endstops[axis]].write(servo_endstop_angles[axis * 2 + 1]);
       }
     #endif
+#if defined (ENABLE_AUTO_BED_LEVELING) && (PROBE_SERVO_DEACTIVATION_DELAY > 0)
+    if (axis==Z_AXIS) retract_z_probe();
+#endif
+    
   }
 }
 #define HOMEAXIS(LETTER) homeaxis(LETTER##_AXIS)
@@ -957,8 +984,9 @@ void process_commands()
 {
   unsigned long codenum; //throw away variable
   char *starpos = NULL;
-  float x_tmp, y_tmp, z_tmp, real_z, corrected_z;
-
+#ifdef ENABLE_AUTO_BED_LEVELING
+  float x_tmp, y_tmp, z_tmp, real_z;
+#endif
   if(code_seen('G'))
   {
     switch((int)code_value())
@@ -1751,7 +1779,7 @@ void process_commands()
         LCD_MESSAGEPGM(MACHINE_NAME" "MSG_OFF".");
         lcd_update();
       #endif
-      break;
+	  break;
 
     case 82:
       axis_relative_modes[3] = false;
@@ -2155,8 +2183,8 @@ void process_commands()
 #ifdef DOGLCD
     case 250: // M250  Set LCD contrast value: C<value> (value 0..63)
      {
-      if (code_seen('C')) {
-       lcd_setcontrast( ((int)code_value())&63 );
+	  if (code_seen('C')) {
+	   lcd_setcontrast( ((int)code_value())&63 );
           }
           SERIAL_PROTOCOLPGM("lcd contrast value: ");
           SERIAL_PROTOCOL(lcd_contrast);
@@ -2167,12 +2195,12 @@ void process_commands()
     #ifdef PREVENT_DANGEROUS_EXTRUDE
     case 302: // allow cold extrudes, or set the minimum extrude temperature
     {
-      float temp = .0;
-      if (code_seen('S')) temp=code_value();
+	  float temp = .0;
+	  if (code_seen('S')) temp=code_value();
       set_extrude_min_temp(temp);
     }
     break;
-    #endif
+	#endif
     case 303: // M303 PID autotune
     {
       float temp = 150.0;

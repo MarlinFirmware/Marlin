@@ -64,18 +64,18 @@
 // When first starting the main fan, run it at full speed for the
 // given number of milliseconds.  This gets the fan spinning reliably
 // before setting a PWM value. (Does not work with software PWM for fan on Sanguinololu)
-#define FAN_KICKSTART_TIME 100
+//#define FAN_KICKSTART_TIME 100
 
 // Extruder cooling fans
 // Configure fan pin outputs to automatically turn on/off when the associated
 // extruder temperature is above/below EXTRUDER_AUTO_FAN_TEMPERATURE.
 // Multiple extruders can be assigned to the same pin in which case 
 // the fan will turn on when any selected extruder is above the threshold.
-#define EXTRUDER_0_AUTO_FAN_PIN   9
+#define EXTRUDER_0_AUTO_FAN_PIN   -1
 #define EXTRUDER_1_AUTO_FAN_PIN   -1
 #define EXTRUDER_2_AUTO_FAN_PIN   -1
 #define EXTRUDER_AUTO_FAN_TEMPERATURE 50
-#define EXTRUDER_AUTO_FAN_SPEED   127  // == full speed
+#define EXTRUDER_AUTO_FAN_SPEED   255  // == full speed
 
 
 //===========================================================================
@@ -196,8 +196,8 @@
 //homing hits the endstop, then retracts by this distance, before it tries to slowly bump again:
 #define X_HOME_RETRACT_MM 5 
 #define Y_HOME_RETRACT_MM 5 
-#define Z_HOME_RETRACT_MM 2 
-#define QUICK_HOME  //if this is defined, if both x and y are to be homed, a diagonal move will be performed initially.
+#define Z_HOME_RETRACT_MM 1 
+//#define QUICK_HOME  //if this is defined, if both x and y are to be homed, a diagonal move will be performed initially.
 
 #define AXIS_RELATIVE_MODES {false, false, false, false}
 
@@ -255,7 +255,6 @@
 //===========================================================================
 
 #define SD_FINISHED_STEPPERRELEASE true  //if sd support and the file is finished: disable steppers?
-#define SD_FINISHED_MOVEEXTRUDERAWAY "G28 X0 Y0 F5000" //Move extruder away before disabling steppers
 #define SD_FINISHED_RELEASECOMMAND "M84 X Y Z E" // You might want to keep the z enabled so your bed stays in place.
 
 // The hardware watchdog should reset the Microcontroller disabling all outputs, in case the firmware gets stuck and doesn't do temperature regulation.
@@ -281,10 +280,10 @@
 //#define ADVANCE
 
 #ifdef ADVANCE
-  #define EXTRUDER_ADVANCE_K 0.01
+  #define EXTRUDER_ADVANCE_K .0
 
-  #define D_FILAMENT 2.9
-  //#define STEPS_MM_E 884
+  #define D_FILAMENT 2.85
+  #define STEPS_MM_E 836
   #define EXTRUTION_AREA (0.25 * D_FILAMENT * D_FILAMENT * 3.14159)
   #define STEPS_PER_CUBIC_MM_E (axis_steps_per_unit[E_AXIS]/ EXTRUTION_AREA)
 
