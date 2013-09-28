@@ -24,7 +24,8 @@
 #ifndef planner_h
 #define planner_h
 
-#include "Marlin.h"
+#include "hax.h"
+//#include "Marlin.h"
 
 // This struct is used when buffering the setup for each linear movement "nominal" values are as specified in 
 // the source g-code and may never actually be reached if acceleration management is active.
