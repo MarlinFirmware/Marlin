@@ -32,6 +32,7 @@
 // 11 = Gen7 v1.1, v1.2 = 11
 // 12 = Gen7 v1.3
 // 13 = Gen7 v1.4
+// 20 = Sethi 3D_1 
 // 3  = MEGA/RAMPS up to 1.2 = 3
 // 33 = RAMPS 1.3 / 1.4 (Power outputs: Extruder, Fan, Bed)
 // 34 = RAMPS 1.3 / 1.4 (Power outputs: Extruder0, Extruder1, Bed)
@@ -45,6 +46,7 @@
 // 64 = STB V1.1
 // 65 = Azteeg X1
 // 66 = Melzi with ATmega1284 (MaKr3d version)
+// 67 = Azteeg X3
 // 7  = Ultimaker
 // 71 = Ultimaker (Older electronics. Pre 1.5.4. This is rare)
 // 77 = 3Drag Controller

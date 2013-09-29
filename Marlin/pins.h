@@ -53,6 +53,83 @@
 
 #endif /* 99 */
 
+/****************************************************************************************
+* Sethi 3D_1 pin assignment - www.sethi3d.com.br
+*
+****************************************************************************************/
+
+#if MOTHERBOARD == 20
+#define KNOWN_BOARD
+
+#if !defined(__AVR_ATmega644P__) && !defined(__AVR_ATmega644__) && !defined(__AVR_ATmega1284P__)
+#error Oops! Make sure you have 'Sethi 3D' selected from the 'Tools -> Boards' menu.
+
+#endif
+
+#ifndef GEN7_VERSION
+#define GEN7_VERSION 12 // v1.x
+#endif
+
+//x axis pins
+#define X_STEP_PIN 19
+#define X_DIR_PIN 18
+#define X_ENABLE_PIN 24
+#define X_STOP_PIN 2
+
+//y axis pins
+#define Y_STEP_PIN 23
+#define Y_DIR_PIN 22
+#define Y_ENABLE_PIN 24
+#define Y_STOP_PIN 0
+
+//z axis pins
+#define Z_STEP_PIN 26
+#define Z_DIR_PIN 25
+#define Z_ENABLE_PIN 24
+#define Z_MIN_PIN 1
+#define Z_MAX_PIN 0
+
+//extruder pins
+#define E0_STEP_PIN 28
+#define E0_DIR_PIN 27
+#define E0_ENABLE_PIN 24
+
+#define TEMP_0_PIN 1
+#define TEMP_1_PIN -1
+#define TEMP_2_PIN -1
+#define TEMP_BED_PIN 2
+
+#define HEATER_0_PIN 4
+#define HEATER_1_PIN -1
+#define HEATER_2_PIN -1
+#define HEATER_BED_PIN 3
+
+#define KILL_PIN -1
+
+#define SDPOWER -1
+#define SDSS -1 // SCL pin of I2C header
+#define LED_PIN -1
+
+#if (GEN7_VERSION >= 13)
+// Gen7 v1.3 removed the fan pin
+#define FAN_PIN -1
+#else
+#define FAN_PIN 31
+#endif
+#define PS_ON_PIN 15
+
+//All these generations of Gen7 supply thermistor power
+//via PS_ON, so ignore bad thermistor readings
+#define BOGUS_TEMPERATURE_FAILSAFE_OVERRIDE
+
+//our pin for debugging.
+#define DEBUG_PIN 0
+
+//our RS485 pins
+#define TX_ENABLE_PIN 12
+#define RX_ENABLE_PIN 13
+
+#endif
 
 /****************************************************************************************
 * Gen7 v1.1, v1.2, v1.3 pin assignment
@@ -298,7 +375,7 @@
 * Arduino Mega pin assignment
 *
 ****************************************************************************************/
-#if MOTHERBOARD == 3 || MOTHERBOARD == 33 || MOTHERBOARD == 34 || MOTHERBOARD == 35 || MOTHERBOARD == 77
+#if MOTHERBOARD == 3 || MOTHERBOARD == 33 || MOTHERBOARD == 34 || MOTHERBOARD == 35 || MOTHERBOARD == 77 || MOTHERBOARD == 67
 #define KNOWN_BOARD 1
 
 //////////////////FIX THIS//////////////
@@ -314,7 +391,7 @@
 // #define RAMPS_V_1_0
 
 
-#if MOTHERBOARD == 33 || MOTHERBOARD == 34 || MOTHERBOARD == 35 || MOTHERBOARD == 77
+#if MOTHERBOARD == 33 || MOTHERBOARD == 34 || MOTHERBOARD == 35 || MOTHERBOARD == 77 || MOTHERBOARD == 67
 
   #define LARGE_FLASH true
   
@@ -392,7 +469,7 @@
     #define LED_PIN            13
   #endif
 
-  #if MOTHERBOARD == 33 || MOTHERBOARD == 35
+  #if MOTHERBOARD == 33 || MOTHERBOARD == 35 || MOTHERBOARD == 67
     #define FAN_PIN            9 // (Sprinter config)
   #else
     #define FAN_PIN            4 // IO pin. Buffer needed
@@ -420,7 +497,7 @@
     #define HEATER_0_PIN       10   // EXTRUDER 1
   #endif
 
-  #if MOTHERBOARD == 33 
+  #if MOTHERBOARD == 33 || MOTHERBOARD == 67
     #define HEATER_1_PIN       -1
   #else
     #define HEATER_1_PIN       9    // EXTRUDER 2 (FAN On Sprinter)
@@ -492,7 +569,12 @@
         #define SDSS 53
         #define SDCARDDETECT -1
         #define KILL_PIN 41
-              
+      #elif defined(LCD_I2C_VIKI)
+        #define BTN_EN1 22  //reverse if the encoder turns the wrong way.
+        #define BTN_EN2 7
+        #define BTN_ENC -1
+        #define SDSS 53
+        #define SDCARDDETECT 49
       #else
         //arduino pin which triggers an piezzo beeper
         #define BEEPER 33  // Beeper on AUX-4
