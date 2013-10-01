@@ -1,3 +1,67 @@
+=======================================
+Added in this Branch: Bed Auto Leveling
+=======================================
+Uncomment the "ENABLE_AUTO_BED_LEVELING" define (commented by default)
+
+You will probably need a swivel Z-MIN endstop in the extruder. A rc servo do a great job.
+Check the system working here: http://www.youtube.com/watch?v=3IKMeOYz-1Q (Enable English subtitles)
+Teasing ;-) video: http://www.youtube.com/watch?v=x8eqSQNAyro
+
+In order to get the servo working, you need to enable:
+
+* \#define NUM_SERVOS 1 // Servo index starts with 0 for M280 command
+
+* \#define SERVO_ENDSTOPS {-1, -1, 0} // Servo index for X, Y, Z. Disable with -1
+
+* \#define SERVO_ENDSTOP_ANGLES {0,0, 0,0, 165,60} // X,Y,Z Axis Extend and Retract angles
+
+
+The first define tells firmware how many servos you have.
+The second tells what axis this servo will be attached to. In the example above, we have a servo in Z axis.
+The third one tells the angle in 2 situations: Probing (165º) and resting (60º). Check this with command M280 P0 S{angle}
+
+Next you need to define the Z endstop (probe) offset from hotend.
+My preferred method:
+
+* a) Make a small mark in the bed with a marker/felt-tip pen.
+* b) Place the hotend tip as *exactly* as possible on the mark, touching the bed. Raise the hotend 0.1mm (a regular paper thickness) and zero all axis (G92);
+* d) Raise the hotend 10mm (or more) for probe clearance, lower the Z probe (Z-Endstop) with M401 and place it just on that mark by moving X, Y and Z;
+* e) Lower the Z in 0.1mm steps, with the probe always touching the mark (it may be necessary to adjust X and Y as well) until you hear the "click" meaning the mechanical endstop was trigged. You can confirm with M119;
+* f) Now you have the probe in the same place as your hotend tip was before. Perform a M114 and write down the values, for example: X:24.3 Y:-31.4 Z:5.1;
+* g) You can raise the z probe with M402 command;
+* h) Fill the defines bellow multiplying the values by "-1" (just change the signal)
+
+
+* \#define X_PROBE_OFFSET_FROM_EXTRUDER -24.3
+* \#define Y_PROBE_OFFSET_FROM_EXTRUDER 31.4
+* \#define Z_PROBE_OFFSET_FROM_EXTRUDER -5.1
+
+
+The following options define the probing positions. These are good starting values.
+I recommend to keep a better clearance from borders in the first run and then make the probes as close as possible to borders:
+
+* \#define LEFT_PROBE_BED_POSITION 30
+* \#define RIGHT_PROBE_BED_POSITION 140
+* \#define BACK_PROBE_BED_POSITION 140
+* \#define FRONT_PROBE_BED_POSITION 30
+
+A few more options:
+
+* \#define XY_TRAVEL_SPEED 6000
+
+X and Y axis travel speed between probes, in mm/min.
+Bear in mind that really fast moves may render step skipping. 6000 mm/min (100mm/s) is a good value.
+
+* \#define Z_RAISE_BEFORE_PROBING 10
+* \#define Z_RAISE_BETWEEN_PROBINGS 10
+
+The Z axis is lifted when traveling to the first probe point by Z_RAISE_BEFORE_PROBING value
+and then lifted when traveling from first to second and second to third point by Z_RAISE_BETWEEN_PROBINGS.
+All values are in mm as usual. 
+
+That's it.. enjoy never having to calibrate your Z endstop neither leveling your bed by hand anymore ;-)
+
+
 ==========================
 Marlin 3D Printer Firmware
 ==========================
