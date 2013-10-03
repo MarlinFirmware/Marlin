@@ -1260,10 +1260,10 @@ void process_commands()
         break;
         }
       #if defined(TEMP_0_PIN) && TEMP_0_PIN > -1
-        SERIAL_PROTOCOLPGM("ok T:");                                                //First extruder temp is shown
-        SERIAL_PROTOCOL_F(degHotend(tmp_extruder),1);
+        SERIAL_PROTOCOLPGM("ok T:");                                                //First extruder temp is shown. Before this change we used to show the current extruder temp and after all the extruders and the bed,
+        SERIAL_PROTOCOL_F(degHotend(0),1);                                          //now no current extruder temp is shown so no "redundant" info.
         SERIAL_PROTOCOLPGM(" /");
-        SERIAL_PROTOCOL_F(degTargetHotend(tmp_extruder),1);
+        SERIAL_PROTOCOL_F(degTargetHotend(0),1);
         for (int8_t cur_extruder = 1; cur_extruder < EXTRUDERS; ++cur_extruder) {   //If more extruders are defined their temp is shown as well
           SERIAL_PROTOCOLPGM(" T");
           SERIAL_PROTOCOL(cur_extruder);
