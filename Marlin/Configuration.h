@@ -58,6 +58,7 @@
 // 70 = Megatronics
 // 701= Megatronics v2.0
 // 702= Minitronics v1.0
+// 72 = Leapfrog Creatr board
 // 90 = Alpha OMCA board
 // 91 = Final OMCA board
 // 301 = Rambo
@@ -159,9 +160,9 @@
 
 // If you are using a preconfigured hotend then you can use one of the value sets by uncommenting it
 // Ultimaker
-    #define  DEFAULT_Kp 22.2
-    #define  DEFAULT_Ki 1.08
-    #define  DEFAULT_Kd 114
+    #define  DEFAULT_Kp_E0 22.2
+    #define  DEFAULT_Ki_E0 1.08
+    #define  DEFAULT_Kd_E0 114
 
 // Makergear
 //    #define  DEFAULT_Kp 7.0
@@ -172,6 +173,17 @@
 //    #define  DEFAULT_Kp 63.0
 //    #define  DEFAULT_Ki 2.25
 //    #define  DEFAULT_Kd 440
+
+// PID parameters for 2nd extruder
+    #define DEFAULT_Kp_E1 7.01
+    #define DEFAULT_Ki_E1 0.31
+    #define DEFAULT_Kd_E1 39.97
+
+//// PID parameters for 3th extruder
+// #define DEFAULT_Kp_E2 22.2
+// #define DEFAULT_Ki_E2 1.08
+// #define DEFAULT_Kd_E2 114
+
 #endif // PIDTEMP
 
 // Bed Temperature Control
@@ -375,6 +387,10 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define DEFAULT_XYJERK                20.0    // (mm/sec)
 #define DEFAULT_ZJERK                 0.4     // (mm/sec)
 #define DEFAULT_EJERK                 5.0    // (mm/sec)
+
+
+#define DELAY_WRITE_MICROSECONDS 2            // It adds a delay so the pulse signal is long enough for the stepper driver. Comment the line if not needed a delay to have a longer signal to the stepper driver
+
 
 //===========================================================================
 //=============================Additional Features===========================

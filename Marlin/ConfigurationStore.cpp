@@ -276,9 +276,19 @@ void Config_ResetDefault()
     lcd_contrast = DEFAULT_LCD_CONTRAST;
 #endif
 #ifdef PIDTEMP
-    Kp = DEFAULT_Kp;
-    Ki = scalePID_i(DEFAULT_Ki);
-    Kd = scalePID_d(DEFAULT_Kd);
+    Kp[0] = DEFAULT_Kp_E0;
+    Ki[0] = scalePID_i(DEFAULT_Ki_E0);
+    Kd[0] = scalePID_d(DEFAULT_Kd_E0);
+    #if EXTRUDERS > 1
+    Kp[1] = DEFAULT_Kp_E1;
+    Ki[1] = scalePID_i(DEFAULT_Ki_E1);
+    Kd[1] = scalePID_d(DEFAULT_Kd_E1);
+    #endif
+    #if EXTRUDERS > 2
+    Kp[2] = DEFAULT_Kp_E2;
+    Ki[2] = scalePID_i(DEFAULT_Ki_E2);
+    Kd[2] = scalePID_d(DEFAULT_Kd_E2);
+    #endif
     
     // call updatePID (similar to when we have processed M301)
     updatePID();
