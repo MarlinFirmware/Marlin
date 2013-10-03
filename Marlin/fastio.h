@@ -1415,11 +1415,11 @@ pins
 #define DIO74_DDR		DDRJ
 #define DIO74_PWM		NULL
 
-#define DIO73_PIN		PINJ4
-#define DIO73_RPORT	PINJ
-#define DIO73_WPORT	PORTJ
-#define DIO73_DDR		DDRJ
-#define DIO73_PWM		NULL
+#define DIO75_PIN		PINJ4
+#define DIO75_RPORT	PINJ
+#define DIO75_WPORT	PORTJ
+#define DIO75_DDR		DDRJ
+#define DIO75_PWM		NULL
 
 #define DIO76_PIN		PINJ5
 #define DIO76_RPORT	PINJ
