@@ -322,6 +322,68 @@ static void lcd_cooldown()
     lcd_return_to_status();
 }
 
+#ifdef BABYSTEPPING
+static void lcd_babystep_x()
+{
+    if (encoderPosition != 0)
+    {
+        babystepsTodo[X_AXIS]+=(int)encoderPosition;
+        encoderPosition=0;
+        lcdDrawUpdate = 1;
+    }
+    if (lcdDrawUpdate)
+    {
+        lcd_implementation_drawedit(PSTR("Babystepping X"),"");
+    }
+    if (LCD_CLICKED)
+    {
+        lcd_quick_feedback();
+        currentMenu = lcd_tune_menu;
+        encoderPosition = 0;
+    }
+}
+
+static void lcd_babystep_y()
+{
+    if (encoderPosition != 0)
+    {
+        babystepsTodo[Y_AXIS]+=(int)encoderPosition;
+        encoderPosition=0;
+        lcdDrawUpdate = 1;
+    }
+    if (lcdDrawUpdate)
+    {
+        lcd_implementation_drawedit(PSTR("Babystepping Y"),"");
+    }
+    if (LCD_CLICKED)
+    {
+        lcd_quick_feedback();
+        currentMenu = lcd_tune_menu;
+        encoderPosition = 0;
+    }
+}
+
+static void lcd_babystep_z()
+{
+    if (encoderPosition != 0)
+    {
+        babystepsTodo[Z_AXIS]+=(int)encoderPosition;
+        encoderPosition=0;
+        lcdDrawUpdate = 1;
+    }
+    if (lcdDrawUpdate)
+    {
+        lcd_implementation_drawedit(PSTR("Babystepping Z"),"");
+    }
+    if (LCD_CLICKED)
+    {
+        lcd_quick_feedback();
+        currentMenu = lcd_tune_menu;
+        encoderPosition = 0;
+    }
+}
+#endif //BABYSTEPPING
+
 static void lcd_tune_menu()
 {
     START_MENU();
@@ -339,6 +401,14 @@ static void lcd_tune_menu()
 #endif
     MENU_ITEM_EDIT(int3, MSG_FAN_SPEED, &fanSpeed, 0, 255);
     MENU_ITEM_EDIT(int3, MSG_FLOW, &extrudemultiply, 10, 999);
+    
+#ifdef BABYSTEPPING
+    #ifdef BABYSTEP_XY
+      MENU_ITEM(submenu, "Babystep X", lcd_babystep_x);
+      MENU_ITEM(submenu, "Babystep Y", lcd_babystep_y);
+    #endif //BABYSTEP_XY
+    MENU_ITEM(submenu, "Babystep Z", lcd_babystep_z);
+#endif
 #ifdef FILAMENTCHANGEENABLE
      MENU_ITEM(gcode, MSG_FILAMENTCHANGE, PSTR("M600"));
 #endif

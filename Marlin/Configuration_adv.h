@@ -270,6 +270,17 @@
 // Enable the option to stop SD printing when hitting and endstops, needs to be enabled from the LCD menu when this option is enabled.
 //#define ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED
 
+// Babystepping enables the user to control the axis in tiny amounts, independently from the normal printing process
+// it can e.g. be used to change z-positions in the print startup phase in realtime
+// does not respect endstops!
+
+//#define BABYSTEPPING
+//#define BABYSTEP_XY  //not only z, but also XY
+
+#ifdef COREXY
+    #error BABYSTEPPING not implemented for COREXY yet.
+#endif
+
 // extruder advance constant (s2/mm3)
 //
 // advance (steps) = STEPS_PER_CUBIC_MM_E * EXTUDER_ADVANCE_K * cubic mm per second ^ 2
