@@ -997,6 +997,116 @@ void quickStop()
   ENABLE_STEPPER_DRIVER_INTERRUPT();
 }
 
+#ifdef BABYSTEPPING
+
+
+void babystep(const uint8_t axis,const bool direction)
+{
+  //MUST ONLY BE CALLED BY A ISR, it depends on that no other ISR interrupts this
+    //store initial pin states
+  switch(axis)
+  {
+  case X_AXIS:
+  {
+    enable_x();   
+    uint8_t old_x_dir_pin= READ(X_DIR_PIN);  //if dualzstepper, both point to same direction.
+   
+    //setup new step
+    WRITE(X_DIR_PIN,(INVERT_X_DIR)^direction);
+    #ifdef DUAL_X_CARRIAGE
+      WRITE(X2_DIR_PIN,(INVERT_X_DIR)^direction);
+    #endif
+    
+    //perform step 
+    WRITE(X_STEP_PIN, !INVERT_X_STEP_PIN); 
+    #ifdef DUAL_X_CARRIAGE
+      WRITE(X2_STEP_PIN, !INVERT_X_STEP_PIN);
+    #endif
+    {
+    float x=1./float(axis+1)/float(axis+2); //wait a tiny bit
+    }
+    WRITE(X_STEP_PIN, INVERT_X_STEP_PIN);
+    #ifdef DUAL_X_CARRIAGE
+      WRITE(X2_STEP_PIN, INVERT_X_STEP_PIN);
+    #endif
+
+    //get old pin state back.
+    WRITE(X_DIR_PIN,old_x_dir_pin);
+    #ifdef DUAL_X_CARRIAGE
+      WRITE(X2_DIR_PIN,old_x_dir_pin);
+    #endif
+
+  }
+  break;
+  case Y_AXIS:
+  {
+    enable_y();   
+    uint8_t old_y_dir_pin= READ(Y_DIR_PIN);  //if dualzstepper, both point to same direction.
+   
+    //setup new step
+    WRITE(Y_DIR_PIN,(INVERT_Y_DIR)^direction);
+    #ifdef DUAL_Y_CARRIAGE
+      WRITE(Y2_DIR_PIN,(INVERT_Y_DIR)^direction);
+    #endif
+    
+    //perform step 
+    WRITE(Y_STEP_PIN, !INVERT_Y_STEP_PIN); 
+    #ifdef DUAL_Y_CARRIAGE
+      WRITE(Y2_STEP_PIN, !INVERT_Y_STEP_PIN);
+    #endif
+    {
+    float x=1./float(axis+1)/float(axis+2); //wait a tiny bit
+    }
+    WRITE(Y_STEP_PIN, INVERT_Y_STEP_PIN);
+    #ifdef DUAL_Y_CARRIAGE
+      WRITE(Y2_STEP_PIN, INVERT_Y_STEP_PIN);
+    #endif
+
+    //get old pin state back.
+    WRITE(Y_DIR_PIN,old_y_dir_pin);
+    #ifdef DUAL_Y_CARRIAGE
+      WRITE(Y2_DIR_PIN,old_y_dir_pin);
+    #endif
+
+  }
+  break; 
+  case Z_AXIS:
+  {
+    enable_z();
+    uint8_t old_z_dir_pin= READ(Z_DIR_PIN);  //if dualzstepper, both point to same direction.
+    //setup new step
+    WRITE(Z_DIR_PIN,(INVERT_Z_DIR)^direction);
+    #ifdef Z_DUAL_STEPPER_DRIVERS
+      WRITE(Z2_DIR_PIN,(INVERT_Z_DIR)^direction);
+    #endif
+    //perform step 
+    WRITE(Z_STEP_PIN, !INVERT_Z_STEP_PIN); 
+    #ifdef Z_DUAL_STEPPER_DRIVERS
+      WRITE(Z2_STEP_PIN, !INVERT_Z_STEP_PIN);
+    #endif
+    //wait a tiny bit
+    {
+    float x=1./float(axis+1); //absolutely useless
+    }
+    WRITE(Z_STEP_PIN, INVERT_Z_STEP_PIN);
+    #ifdef Z_DUAL_STEPPER_DRIVERS
+      WRITE(Z2_STEP_PIN, INVERT_Z_STEP_PIN);
+    #endif
+
+    //get old pin state back.
+    WRITE(Z_DIR_PIN,old_z_dir_pin);
+    #ifdef Z_DUAL_STEPPER_DRIVERS
+      WRITE(Z2_DIR_PIN,old_z_dir_pin);
+    #endif
+
+  }
+  break;
+ 
+  default:    break;
+  }
+}
+#endif //BABYSTEPPING
+
 void digitalPotWrite(int address, int value) // From Arduino DigitalPotControl example
 {
   #if defined(DIGIPOTSS_PIN) && DIGIPOTSS_PIN > -1
