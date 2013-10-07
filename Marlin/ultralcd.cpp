@@ -367,7 +367,7 @@ static void lcd_babystep_z()
 {
     if (encoderPosition != 0)
     {
-        babystepsTodo[Z_AXIS]+=(int)encoderPosition;
+        babystepsTodo[Z_AXIS]+=BABYSTEP_Z_MULTIPLICATOR*(int)encoderPosition;
         encoderPosition=0;
         lcdDrawUpdate = 1;
     }

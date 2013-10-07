@@ -1069,15 +1069,17 @@ void babystep(const uint8_t axis,const bool direction)
     #endif
 
   }
-  break; 
+  break;
+ 
+#ifndef DELTA
   case Z_AXIS:
   {
     enable_z();
     uint8_t old_z_dir_pin= READ(Z_DIR_PIN);  //if dualzstepper, both point to same direction.
     //setup new step
-    WRITE(Z_DIR_PIN,(INVERT_Z_DIR)^direction);
+    WRITE(Z_DIR_PIN,(INVERT_Z_DIR)^direction^BABYSTEP_INVERT_Z);
     #ifdef Z_DUAL_STEPPER_DRIVERS
-      WRITE(Z2_DIR_PIN,(INVERT_Z_DIR)^direction);
+      WRITE(Z2_DIR_PIN,(INVERT_Z_DIR)^direction^BABYSTEP_INVERT_Z);
     #endif
     //perform step 
     WRITE(Z_STEP_PIN, !INVERT_Z_STEP_PIN); 
@@ -1101,6 +1103,41 @@ void babystep(const uint8_t axis,const bool direction)
 
   }
   break;
+#else //DELTA
+  case Z_AXIS:
+  {
+    enable_x();
+    enable_y();
+    enable_z();
+    uint8_t old_x_dir_pin= READ(X_DIR_PIN);  
+    uint8_t old_y_dir_pin= READ(Y_DIR_PIN);  
+    uint8_t old_z_dir_pin= READ(Z_DIR_PIN);  
+    //setup new step
+    WRITE(X_DIR_PIN,(INVERT_X_DIR)^direction^BABYSTEP_INVERT_Z);
+    WRITE(Y_DIR_PIN,(INVERT_Y_DIR)^direction^BABYSTEP_INVERT_Z);
+    WRITE(Z_DIR_PIN,(INVERT_Z_DIR)^direction^BABYSTEP_INVERT_Z);
+    
+    //perform step 
+    WRITE(X_STEP_PIN, !INVERT_X_STEP_PIN); 
+    WRITE(Y_STEP_PIN, !INVERT_Y_STEP_PIN); 
+    WRITE(Z_STEP_PIN, !INVERT_Z_STEP_PIN); 
+    
+    //wait a tiny bit
+    {
+    float x=1./float(axis+1); //absolutely useless
+    }
+    WRITE(X_STEP_PIN, INVERT_X_STEP_PIN); 
+    WRITE(Y_STEP_PIN, INVERT_Y_STEP_PIN); 
+    WRITE(Z_STEP_PIN, INVERT_Z_STEP_PIN);
+
+    //get old pin state back.
+    WRITE(X_DIR_PIN,old_x_dir_pin);
+    WRITE(Y_DIR_PIN,old_y_dir_pin);
+    WRITE(Z_DIR_PIN,old_z_dir_pin);
+
+  }
+  break;
+#endif
  
   default:    break;
   }
