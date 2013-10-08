@@ -274,7 +274,7 @@ In order to get the servo working, you need to enable:
 
 The first define tells firmware how many servos you have.
 The second tells what axis this servo will be attached to. In the example above, we have a servo in Z axis.
-The third one tells the angle in 2 situations: Probing (165º) and resting (60º). Check this with command M280 P0 S{angle}
+The third one tells the angle in 2 situations: Probing (165º) and resting (60º). Check this with command M280 P0 S{angle} (example: M280 P0 S60 moves the servo to 60º)
 
 Next you need to define the Z endstop (probe) offset from hotend.
 My preferred method:
