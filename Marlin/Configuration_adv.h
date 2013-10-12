@@ -257,6 +257,11 @@
 #define SD_FINISHED_STEPPERRELEASE true  //if sd support and the file is finished: disable steppers?
 #define SD_FINISHED_RELEASECOMMAND "M84 X Y Z E" // You might want to keep the z enabled so your bed stays in place.
 
+#define SDCARD_RATHERRECENTFIRST  //reverse file order of sd card menu display. Its sorted practically after the filesystem block order. 
+// if a file is deleted, it frees a block. hence, the order is not purely cronological. To still have auto0.g accessible, there is again the option to do that.
+// using:
+//#define MENU_ADDAUTOSTART
+
 // The hardware watchdog should reset the Microcontroller disabling all outputs, in case the firmware gets stuck and doesn't do temperature regulation.
 //#define USE_WATCHDOG
 
@@ -379,6 +384,12 @@ const unsigned int dropsegments=5; //everything with less than this number of st
     #define FILAMENTCHANGE_FIRSTRETRACT -2
     #define FILAMENTCHANGE_FINALRETRACT -100
   #endif
+#endif
+
+#ifdef FILAMENTCHANGEENABLE
+  #ifdef EXTRUDER_RUNOUT_PREVENT
+    #error EXTRUDER_RUNOUT_PREVENT currently incompatible with FILAMENTCHANGE
+  #endif 
 #endif
  
 //===========================================================================
