@@ -420,7 +420,9 @@ static void lcd_prepare_menu()
     START_MENU();
     MENU_ITEM(back, MSG_MAIN, lcd_main_menu);
 #ifdef SDSUPPORT
-    //MENU_ITEM(function, MSG_AUTOSTART, lcd_autostart_sd);
+    #ifdef MENU_ADDAUTOSTART
+      MENU_ITEM(function, MSG_AUTOSTART, lcd_autostart_sd);
+    #endif
 #endif
     MENU_ITEM(gcode, MSG_DISABLE_STEPPERS, PSTR("M84"));
     MENU_ITEM(gcode, MSG_AUTO_HOME, PSTR("G28"));
@@ -792,7 +794,11 @@ void lcd_sdcard_menu()
     {
         if (_menuItemNr == _lineNr)
         {
-            card.getfilename(i);
+            #ifndef SDCARD_RATHERRECENTFIRST
+              card.getfilename(i);
+            #else
+              card.getfilename(fileCnt-1-i);
+            #endif
             if (card.filenameIsDir)
             {
                 MENU_ITEM(sddirectory, MSG_CARD_MENU, card.filename, card.longFilename);
