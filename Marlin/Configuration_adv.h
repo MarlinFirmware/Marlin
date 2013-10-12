@@ -40,6 +40,10 @@
   #define AUTOTEMP_OLDWEIGHT 0.98
 #endif
 
+//Show Temperature ADC value
+//The M105 command return, besides traditional information, the ADC value read from temperature sensors.
+//#define SHOW_TEMP_ADC_VALUES
+
 //  extruder run-out prevention. 
 //if the machine is idle, and the temperature over MINTEMP, every couple of SECONDS some filament is extruded
 //#define EXTRUDER_RUNOUT_PREVENT  
