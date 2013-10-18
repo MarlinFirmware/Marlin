@@ -1,4 +1,11 @@
 ==========================
+Marlin 360 3D Printer Firmware
+==========================
+
+This version was made for rotating bed based printers, it is optimized for the R-360 3D printer
+Developers Kornel Farkas and Gabor Heves
+
+==========================
 Marlin 3D Printer Firmware
 ==========================
 
