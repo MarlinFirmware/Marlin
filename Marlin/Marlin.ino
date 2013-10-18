@@ -26,6 +26,11 @@
  It has preliminary support for Matthew Roberts advance algorithm 
     http://reprap.org/pipermail/reprap-dev/2011-May/003323.html
  */
+ 
+ /*
+   R-360 version vere developed by Kornel Farkas and Gabor Heves
+   This version is for  rotating disk based printers. It is optimised for R-360 printer
+ */
 
 /* All the implementation is done in *.cpp files to get better compatibility with avr-gcc without the Arduino IDE */
 /* Use this file to help the Arduino IDE find which Arduino libraries are needed and to keep documentation on GCode */
