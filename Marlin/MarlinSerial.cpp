@@ -320,3 +320,4 @@ MarlinSerial MSerial;
 
 #endif // whole file
 #endif // !AT90USB
+

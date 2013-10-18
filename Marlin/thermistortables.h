@@ -317,7 +317,7 @@ const short temptable_7[][2] PROGMEM = {
 
 #if (THERMISTORHEATER_0 == 71) || (THERMISTORHEATER_1 == 71) || (THERMISTORHEATER_2 == 71) || (THERMISTORBED == 71) // 100k Honeywell 135-104LAF-J01
 // R0 = 100000 Ohm
-// T0 = 25 °C
+// T0 = 25 ¬∞C
 // Beta = 3974
 // R1 = 0 Ohm
 // R2 = 4700 Ohm
@@ -879,3 +879,4 @@ const short temptable_60[][2] PROGMEM = {
 #endif
 
 #endif //THERMISTORTABLES_H_
+

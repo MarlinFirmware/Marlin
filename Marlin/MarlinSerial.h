@@ -182,3 +182,4 @@ extern MarlinSerial MSerial;
 #endif // !AT90USB
 
 #endif
+

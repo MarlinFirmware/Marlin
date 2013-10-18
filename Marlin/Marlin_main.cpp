@@ -209,6 +209,12 @@ int EtoPPressure=0;
 float delta[3] = {0.0, 0.0, 0.0};
 #endif
 
+#ifdef R_360
+float r_360[2] = {0.0, 0.0};
+float r_360_alpha = {0};
+float pi = 3.14159265359;
+#endif
+
 //===========================================================================
 //=============================private variables=============================
 //===========================================================================
@@ -893,6 +899,8 @@ void process_commands()
 
       enable_endstops(true);
 
+
+
       for(int8_t i=0; i < NUM_AXIS; i++) {
         destination[i] = current_position[i];
       }
@@ -992,11 +1000,16 @@ void process_commands()
         HOMEAXIS(X);
       #endif         
       }
-
+#ifdef R_360
+  //don't move
+  r_360[0] = 0.0;
+  r_360[1] = 0.0;
+    
+#else  
       if((home_all_axis) || (code_seen(axis_codes[Y_AXIS]))) {
         HOMEAXIS(Y);
       }
-
+#endif
       #if Z_HOME_DIR < 0                      // If homing towards BED do Z last
       if((home_all_axis) || (code_seen(axis_codes[Z_AXIS]))) {
         HOMEAXIS(Z);
@@ -2424,6 +2437,138 @@ void prepare_move()
   clamp_to_software_endstops(destination);
 
   previous_millis_cmd = millis();
+  
+#ifdef R_360 
+  float alpha = 0;
+  float x_diff = 0;
+  float x_current = 0;
+  float rotation_max = (R_360_OUTER_RADIUS  * pi);
+  float rotation_min = -(R_360_OUTER_RADIUS  * pi);
+  
+  if( current_position[Y_AXIS] == destination [Y_AXIS] && current_position[X_AXIS] == destination [X_AXIS] ) {
+     plan_buffer_line(abs(r_360[X_AXIS]), r_360[Y_AXIS], destination[Z_AXIS],destination[E_AXIS], feedrate/60, active_extruder);
+  }
+  else {
+
+  float difference[NUM_AXIS];
+  for (int8_t i=0; i < NUM_AXIS; i++) {
+    difference[i] = destination[i] - current_position[i];
+  }
+  float cartesian_mm = sqrt(sq(difference[X_AXIS]) +
+                            sq(difference[Y_AXIS]));
+  if (cartesian_mm < 0.000001) { cartesian_mm = abs(difference[E_AXIS]);}
+  if (cartesian_mm < 0.000001) { return; }
+  float seconds = 6000 * cartesian_mm / feedrate / feedmultiply;
+  int steps = max(1, int(R_360_DELTA_SEGMENTS_PER_SECOND * seconds));
+  
+   float current_cartesian_position[4] =  {0.0, 0.0 , 0.0, 0.0};
+   for(int8_t i=0; i < NUM_AXIS; i++) {
+     current_cartesian_position[i] = current_position[i];
+    }
+  
+  for (int s = 1; s <= steps; s++) {
+    float fraction = float(s) / float(steps);
+    float new_target_y;
+    for(int8_t i=0; i < NUM_AXIS; i++) {
+       destination[i] = current_position[i] + difference[i] * fraction;
+    }
+   
+    
+    //float fraction = 1;
+    
+    // X movement
+    //TODO check vector
+    
+     x_diff =   sqrt(sq(destination[X_AXIS]) + sq(destination[Y_AXIS])) -  sqrt(sq(current_cartesian_position[X_AXIS]) + sq(current_cartesian_position[Y_AXIS])); 
+    
+    
+
+    r_360[X_AXIS] =   r_360[X_AXIS] + x_diff;
+    
+    //Y movement 
+    alpha = (atan2( destination[Y_AXIS], destination[X_AXIS] ) - atan2(current_cartesian_position[Y_AXIS], current_cartesian_position[X_AXIS])) *-1;  
+    r_360_alpha = r_360_alpha + alpha;
+    
+    new_target_y = (R_360_OUTER_RADIUS  * alpha) + r_360[Y_AXIS] ;
+   
+   //Go the shorter way
+   if(abs(alpha) > pi){
+     
+     //SERIAL_ECHOPGM("Large alpha detected "); SERIAL_ECHOLN( alpha );
+     
+      if (alpha > 0){
+        
+        
+        
+        plan_buffer_line(abs(r_360[X_AXIS]),  rotation_min, destination[Z_AXIS],
+                     destination[E_AXIS], feedrate*feedmultiply/60/100.0,
+                     active_extruder);
+     
+         //we may need to adjust the E
+         
+         plan_set_position(abs(r_360[X_AXIS]),  rotation_max, destination[Z_AXIS], destination[E_AXIS]);                 
+                         
+         r_360[Y_AXIS] = new_target_y ;//+ (rotation_min *2);
+         
+      }else{
+        
+         
+        plan_buffer_line(abs(r_360[X_AXIS]),  rotation_max, destination[Z_AXIS],
+                     destination[E_AXIS], feedrate*feedmultiply/60/100.0,
+                     active_extruder);
+     
+       //we may need to adjust the E
+       plan_set_position(abs(r_360[X_AXIS]),  rotation_min, destination[Z_AXIS], destination[E_AXIS]);
+       
+       
+       
+         r_360[Y_AXIS] = new_target_y ;//+ (rotation_max *2);
+        
+        
+      } 
+   
+   }else{
+   
+       r_360[Y_AXIS] = new_target_y;
+       
+   }
+   
+   //TODO
+   //speed up large Y rotations on tiny X movements
+   //We could use a move than extrude
+   if (abs(alpha) > R_360_ALPHA_CONDITION && x_diff < R_360_X_DIFF_CONDITION) {
+     plan_buffer_line(abs(r_360[X_AXIS]), r_360[Y_AXIS], current_cartesian_position[Z_AXIS], current_cartesian_position[E_AXIS], max_feedrate[Y_AXIS],
+                     active_extruder);    
+          
+   }else{
+    plan_buffer_line(abs(r_360[X_AXIS]),  r_360[Y_AXIS], destination[Z_AXIS],
+                     destination[E_AXIS], feedrate*feedmultiply/60/100.0,
+                     active_extruder);
+   }
+   
+   //SERIAL_ECHOPGM("Current Y="); SERIAL_ECHO( current_position[Y_AXIS] );
+   //SERIAL_ECHOPGM(" Current X="); SERIAL_ECHO( current_position[X_AXIS] );
+   SERIAL_ECHOPGM("Current Cartesian Y="); SERIAL_ECHO( current_cartesian_position[Y_AXIS] );
+   SERIAL_ECHOPGM(" Current Cartesian X="); SERIAL_ECHO( current_cartesian_position[X_AXIS] );
+   SERIAL_ECHOPGM("angle="); SERIAL_ECHO(alpha);
+   SERIAL_ECHOPGM("total alpha="); SERIAL_ECHO(r_360_alpha);
+   SERIAL_ECHOPGM(" Y="); SERIAL_ECHO( r_360[Y_AXIS] );
+   SERIAL_ECHOPGM(" X="); SERIAL_ECHOLN( r_360[X_AXIS] );
+   
+                     
+    for(int8_t i=0; i < NUM_AXIS; i++) {
+     current_cartesian_position[i] = destination[i];
+    }             
+  }
+   
+  
+    
+  }
+  
+  
+  
+#else 
+  
 #ifdef DELTA
   float difference[NUM_AXIS];
   for (int8_t i=0; i < NUM_AXIS; i++) {
@@ -2500,6 +2645,9 @@ void prepare_move()
     plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate*feedmultiply/60/100.0, active_extruder);
   }
 #endif //else DELTA
+
+
+#endif // R_360
   for(int8_t i=0; i < NUM_AXIS; i++) {
     current_position[i] = destination[i];
   }
@@ -2756,4 +2904,5 @@ bool setTargetedHotend(int code){
   }
   return false;
 }
+
 

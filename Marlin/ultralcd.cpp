@@ -237,7 +237,11 @@ static void lcd_sdcard_stop()
     }
     autotempShutdown();
 }
+#ifdef R_360
+//static void lcd_main_menu(){
 
+//}
+#endif
 /* Menu implementation */
 static void lcd_main_menu()
 {
@@ -1375,3 +1379,4 @@ void copy_and_scalePID_d()
 }
 
 #endif //ULTRA_LCD
+

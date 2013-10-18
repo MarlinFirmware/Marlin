@@ -403,7 +403,7 @@
   #endif
   
   #if MOTHERBOARD == 35
-    #define CONTROLLERFAN_PIN  10 //Pin used for the fan to cool controller
+    #define CONTROLLERFAN_PIN  4 //Pin used for the fan to cool controller
   #endif
 
   #define PS_ON_PIN          12
@@ -415,7 +415,7 @@
   #endif
 
   #if MOTHERBOARD == 35
-    #define HEATER_0_PIN       8
+    #define HEATER_0_PIN       10
   #else
     #define HEATER_0_PIN       10   // EXTRUDER 1
   #endif
@@ -423,7 +423,7 @@
   #if MOTHERBOARD == 33 
     #define HEATER_1_PIN       -1
   #else
-    #define HEATER_1_PIN       9    // EXTRUDER 2 (FAN On Sprinter)
+    #define HEATER_1_PIN       8    // EXTRUDER 2 (FAN On Sprinter)
   #endif
 
   #define HEATER_2_PIN       -1 
@@ -435,7 +435,7 @@
   #endif
 
   #define TEMP_0_PIN         13   // ANALOG NUMBERING
-  #define TEMP_1_PIN         15   // ANALOG NUMBERING
+  #define TEMP_1_PIN         -1 //15   // ANALOG NUMBERING
   #define TEMP_2_PIN         -1   // ANALOG NUMBERING
 
   #if MOTHERBOARD == 35
@@ -2167,4 +2167,5 @@
                         _E0_PINS _E1_PINS _E2_PINS             \
                         analogInputToDigitalPin(TEMP_0_PIN), analogInputToDigitalPin(TEMP_1_PIN), analogInputToDigitalPin(TEMP_2_PIN), analogInputToDigitalPin(TEMP_BED_PIN) }
 #endif
+
 

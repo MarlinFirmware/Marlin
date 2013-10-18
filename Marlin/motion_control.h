@@ -30,3 +30,4 @@ void mc_arc(float *position, float *target, float *offset, unsigned char axis_0,
   unsigned char axis_linear, float feed_rate, float radius, unsigned char isclockwise, uint8_t extruder);
   
 #endif
+

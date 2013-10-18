@@ -12,7 +12,7 @@
 #endif
 
 // it is a russian alphabet translation
-// except 0401 --> 0xa2 = ╗, 0451 --> 0xb5
+// except 0401 --> 0xa2 = ‚ïó, 0451 --> 0xb5
 const PROGMEM uint8_t utf_recode[] = 
        { 0x41,0xa0,0x42,0xa1,0xe0,0x45,0xa3,0xa4,0xa5,0xa6,0x4b,0xa7,0x4d,0x48,0x4f,
          0xa8,0x50,0x43,0x54,0xa9,0xaa,0x58,0xe1,0xab,0xac,0xe2,0xad,0xae,0x62,0xaf,0xb0,0xb1,
@@ -300,9 +300,9 @@ inline void LiquidCrystalRus::command(uint8_t value) {
     } else {
       value &= 0x3f;
       if (!utf_hi_char && (value == 1)) 
-        send(0xa2,HIGH); // ╗
+        send(0xa2,HIGH); // ‚ïó
       else if ((utf_hi_char == 1) && (value == 0x11)) 
-        send(0xb5,HIGH); // ╦
+        send(0xb5,HIGH); // ‚ï¶
       else 
         send(pgm_read_byte_near(utf_recode + value + (utf_hi_char<<6) - 0x10), HIGH);
     }    
@@ -386,4 +386,5 @@ uint8_t LiquidCrystalRus::readNbits(uint8_t n) {
 
   return retval;
 }
+
 
