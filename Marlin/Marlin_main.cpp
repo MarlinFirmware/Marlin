@@ -44,8 +44,10 @@
 #include "language.h"
 #include "pins_arduino.h"
 
+#ifdef BLINKM
 #include "BlinkM.h"
 #include "Wire.h" 
+#endif
 
 #if NUM_SERVOS > 0
 #include "Servo.h"
