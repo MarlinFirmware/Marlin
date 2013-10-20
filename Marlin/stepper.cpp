@@ -383,10 +383,20 @@ ISR(TIMER1_COMPA_vect)
     }
     if((out_bits & (1<<Y_AXIS))!=0){
       WRITE(Y_DIR_PIN, INVERT_Y_DIR);
+	  
+	  #ifdef Y_DUAL_STEPPER_DRIVERS
+	    WRITE(Y2_DIR_PIN, !(INVERT_Y_DIR == INVERT_Y2_VS_Y_DIR));
+	  #endif
+	  
       count_direction[Y_AXIS]=-1;
     }
     else{
       WRITE(Y_DIR_PIN, !INVERT_Y_DIR);
+	  
+	  #ifdef Y_DUAL_STEPPER_DRIVERS
+	    WRITE(Y2_DIR_PIN, (INVERT_Y_DIR == INVERT_Y2_VS_Y_DIR));
+	  #endif
+	  
       count_direction[Y_AXIS]=1;
     }
 
@@ -582,9 +592,18 @@ ISR(TIMER1_COMPA_vect)
         counter_y += current_block->steps_y;
         if (counter_y > 0) {
           WRITE(Y_STEP_PIN, !INVERT_Y_STEP_PIN);
+		  
+		  #ifdef Y_DUAL_STEPPER_DRIVERS
+			WRITE(Y2_STEP_PIN, !INVERT_Y_STEP_PIN);
+		  #endif
+		  
           counter_y -= current_block->step_event_count;
           count_position[Y_AXIS]+=count_direction[Y_AXIS];
           WRITE(Y_STEP_PIN, INVERT_Y_STEP_PIN);
+		  
+		  #ifdef Y_DUAL_STEPPER_DRIVERS
+			WRITE(Y2_STEP_PIN, INVERT_Y_STEP_PIN);
+		  #endif
         }
 
       counter_z += current_block->steps_z;
@@ -756,6 +775,10 @@ void st_init()
   #endif
   #if defined(Y_DIR_PIN) && Y_DIR_PIN > -1
     SET_OUTPUT(Y_DIR_PIN);
+		
+	#if defined(Y_DUAL_STEPPER_DRIVERS) && defined(Y2_DIR_PIN) && (Y2_DIR_PIN > -1)
+	  SET_OUTPUT(Y2_DIR_PIN);
+	#endif
   #endif
   #if defined(Z_DIR_PIN) && Z_DIR_PIN > -1
     SET_OUTPUT(Z_DIR_PIN);
@@ -787,6 +810,11 @@ void st_init()
   #if defined(Y_ENABLE_PIN) && Y_ENABLE_PIN > -1
     SET_OUTPUT(Y_ENABLE_PIN);
     if(!Y_ENABLE_ON) WRITE(Y_ENABLE_PIN,HIGH);
+	
+	#if defined(Y_DUAL_STEPPER_DRIVERS) && defined(Y2_ENABLE_PIN) && (Y2_ENABLE_PIN > -1)
+	  SET_OUTPUT(Y2_ENABLE_PIN);
+	  if(!Y_ENABLE_ON) WRITE(Y2_ENABLE_PIN,HIGH);
+	#endif
   #endif
   #if defined(Z_ENABLE_PIN) && Z_ENABLE_PIN > -1
     SET_OUTPUT(Z_ENABLE_PIN);
@@ -869,6 +897,10 @@ void st_init()
   #if defined(Y_STEP_PIN) && (Y_STEP_PIN > -1)
     SET_OUTPUT(Y_STEP_PIN);
     WRITE(Y_STEP_PIN,INVERT_Y_STEP_PIN);
+    #if defined(Y_DUAL_STEPPER_DRIVERS) && defined(Y2_STEP_PIN) && (Y2_STEP_PIN > -1)
+      SET_OUTPUT(Y2_STEP_PIN);
+      WRITE(Y2_STEP_PIN,INVERT_Y_STEP_PIN);
+    #endif
     disable_y();
   #endif
   #if defined(Z_STEP_PIN) && (Z_STEP_PIN > -1)
