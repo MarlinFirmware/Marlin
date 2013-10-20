@@ -544,6 +544,13 @@
     #endif
   #endif
 
+  #ifdef TEMP_STAT_LEDS
+    #if MOTHERBOARD == 67
+      #define STAT_LED_RED       6
+      #define STAT_LED_BLUE     11
+    #endif
+  #endif
+  
   #ifdef ULTRA_LCD
 
     #ifdef NEWPANEL
