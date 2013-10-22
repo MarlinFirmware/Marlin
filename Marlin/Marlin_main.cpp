@@ -90,7 +90,10 @@
 // M29  - Stop SD write
 // M30  - Delete file from SD (M30 filename.g)
 // M31  - Output time since last M109 or SD card start to serial
-// M32  - Select file and start SD print (Can be used when printing from SD card)
+// M32  - Select file and start SD print (Can be used _while_ printing from SD card files): 
+//        syntax "M32 /path/filename#", or "M32 S<startpos bytes> !filename#"
+//        Call gcode file : "M32 P !filename#" and return to caller file after finishing (simiarl to #include).
+//        The '#' is necessary when calling from within sd files, as it stops buffer prereading
 // M42  - Change pin status via gcode Use M42 Px Sy to set pin x to value y, when omitting Px the onboard led will be used.
 // M80  - Turn on Power Supply
 // M81  - Turn off Power Supply
@@ -1467,19 +1470,41 @@ void process_commands()
         card.removeFile(strchr_pointer + 4);
       }
       break;
-    case 32: //M32 - Select file and start SD print
+    case 32: //M32 - Select file and start SD print 
+    {
       if(card.sdprinting) {
         st_synchronize();
-        card.closefile();
-        card.sdprinting = false;
+
       }
-      starpos = (strchr(strchr_pointer + 4,'*'));
+      starpos = (strchr(strchr_pointer + 4,'*')); 
+      
+      char* namestartpos = (strchr(strchr_pointer + 4,'!'));   //find ! to indicate filename string start.
+      if(namestartpos==NULL)
+      {
+        namestartpos=strchr_pointer + 4; //default name position, 4 letters after the M
+      }
+      else
+        namestartpos++; //to skip the '!'
+        
       if(starpos!=NULL)
         *(starpos-1)='\0';
-      card.openFile(strchr_pointer + 4,true);
-      card.startFileprint();
-      starttime=millis();
-      break;
+            
+      bool call_procedure=(code_seen('P'));
+      
+      if(strchr_pointer>namestartpos) 
+        call_procedure=false;  //false alert, 'P' found within filename
+      
+      if( card.cardOK ) 
+      {
+        card.openFile(namestartpos,true,!call_procedure);
+        if(code_seen('S'))
+          if(strchr_pointer<namestartpos) //only if "S" is occuring _before_ the filename
+            card.setIndex(code_value_long());
+        card.startFileprint();
+        if(!call_procedure)
+          starttime=millis(); //procedure calls count as normal print time.
+      }
+    } break;
     case 928: //M928 - Start SD write
       starpos = (strchr(strchr_pointer + 5,'*'));
       if(starpos != NULL){
