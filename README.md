@@ -276,6 +276,13 @@ The first define tells firmware how many servos you have.
 The second tells what axis this servo will be attached to. In the example above, we have a servo in Z axis.
 The third one tells the angle in 2 situations: Probing (165º) and resting (60º). Check this with command M280 P0 S{angle} (example: M280 P0 S60 moves the servo to 60º)
 
+*For RAMPS users:*
+By default, RAMPS have no power on servo bus (if you happen to have a multimeter, check the voltage on servo power pins).
+In order to get the servo working, you need to supply 5V to 5V pin.. You can do it using your power supply (if it has a 5V output) or jumping the "Vcc" from Arduino to the 5V RAMPS rail.
+These 2 pins are located just between the Reset Button and the yellow fuses... There are marks in the board showing 5V and VCC.. just connect them..
+If jumping the arduino Vcc do RAMPS 5V rail, take care to not use a power hungry servo, otherwise you will cause a blackout in the arduino board ;-)
+
+
 Next you need to define the Z endstop (probe) offset from hotend.
 My preferred method:
 
