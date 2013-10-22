@@ -21,7 +21,7 @@ public:
   void openFile(char* name,bool read,bool replace_current=true);
   void openLogFile(char* name);
   void removeFile(char* name);
-  void closefile();
+  void closefile(bool store_location=false);
   void release();
   void startFileprint();
   void pauseSDPrint();
