@@ -642,7 +642,7 @@ void get_command()
     serial_char = (char)n; 
     if(serial_char == '\n' ||
        serial_char == '\r' ||
-       serial_char == '#' ||
+       (serial_char == '#' && comment_mode == false) ||
        (serial_char == ':' && comment_mode == false) ||
        serial_count >= (MAX_CMD_SIZE - 1)||n==-1)
     {
