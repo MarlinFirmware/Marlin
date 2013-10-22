@@ -620,11 +620,20 @@ void get_command()
   if(!card.sdprinting || serial_count!=0){
     return;
   }
-  while( !card.eof()  && buflen < BUFSIZE) {
+  
+  //'#' stops reading from sd to the buffer prematurely, so procedural macro calls are possible
+  // if it occures, stop_buffering is triggered and the buffer is ran dry. 
+  // this character _can_ occure in serial com, due to checksums. however, no checksums are used in sd printing
+  
+  static bool stop_buffering=false;
+  if(buflen==0) stop_buffering=false;
+  
+  while( !card.eof()  && buflen < BUFSIZE && !stop_buffering) { 
     int16_t n=card.get();
-    serial_char = (char)n;
+    serial_char = (char)n; 
     if(serial_char == '\n' ||
        serial_char == '\r' ||
+       serial_char == '#' ||
        (serial_char == ':' && comment_mode == false) ||
        serial_count >= (MAX_CMD_SIZE - 1)||n==-1)
     {
@@ -644,6 +653,9 @@ void get_command()
         card.checkautostart(true);
 
       }
+      if(serial_char=='#')
+        stop_buffering=true;
+      
       if(!serial_count)
       {
         comment_mode = false; //for new command
