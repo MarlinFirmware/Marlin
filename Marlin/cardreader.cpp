@@ -535,12 +535,21 @@ void CardReader::checkautostart(bool force)
     lastnr++;
 }
 
-void CardReader::closefile()
+void CardReader::closefile(bool store_location)
 {
   file.sync();
   file.close();
   saving = false; 
   logging = false;
+  
+  if(store_location)
+  {
+    //future: store printer state, filename and position for continueing a stoped print
+    // so one can unplug the printer and continue printing the next day.
+    
+  }
+
+  
 }
 
 void CardReader::getfilename(const uint8_t nr)
