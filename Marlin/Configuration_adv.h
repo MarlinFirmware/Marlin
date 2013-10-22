@@ -40,6 +40,10 @@
   #define AUTOTEMP_OLDWEIGHT 0.98
 #endif
 
+//Show Temperature ADC value
+//The M105 command return, besides traditional information, the ADC value read from temperature sensors.
+//#define SHOW_TEMP_ADC_VALUES
+
 //  extruder run-out prevention. 
 //if the machine is idle, and the temperature over MINTEMP, every couple of SECONDS some filament is extruded
 //#define EXTRUDER_RUNOUT_PREVENT  
@@ -145,6 +149,21 @@
   #undef EXTRUDERS
   #define EXTRUDERS 1
 #endif
+
+// Same again but for Y Axis.
+//#define Y_DUAL_STEPPER_DRIVERS
+
+// Define if the two Y drives need to rotate in opposite directions
+#define INVERT_Y2_VS_Y_DIR true
+
+#ifdef Y_DUAL_STEPPER_DRIVERS
+  #undef EXTRUDERS
+  #define EXTRUDERS 1
+#endif
+
+#ifdef Z_DUAL_STEPPER_DRIVERS && Y_DUAL_STEPPER_DRIVERS
+  #error "You cannot have dual drivers for both Y and Z"
+#endif 
 
 // Enable this for dual x-carriage printers. 
 // A dual x-carriage design has the advantage that the inactive extruder can be parked which

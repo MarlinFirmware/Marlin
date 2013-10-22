@@ -737,12 +737,23 @@ static void lcd_implementation_update_indicators()
 #endif
 
 #ifdef LCD_HAS_SLOW_BUTTONS
+extern uint32_t blocking_enc;
+
 static uint8_t lcd_implementation_read_slow_buttons()
 {
   #ifdef LCD_I2C_TYPE_MCP23017
+  uint8_t slow_buttons;
     // Reading these buttons this is likely to be too slow to call inside interrupt context
     // so they are called during normal lcd_update
-    return lcd.readButtons() << B_I2C_BTN_OFFSET; 
+    slow_buttons = lcd.readButtons() << B_I2C_BTN_OFFSET; 
+    #if defined(LCD_I2C_VIKI)
+    if(slow_buttons & (B_MI|B_RI)) { //LCD clicked
+       if(blocking_enc > millis()) {
+         slow_buttons &= ~(B_MI|B_RI); // Disable LCD clicked buttons if screen is updated
+       }
+    }
+    #endif
+    return slow_buttons; 
   #endif
 }
 #endif
