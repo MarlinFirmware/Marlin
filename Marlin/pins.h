@@ -403,7 +403,7 @@
   #endif
   
   #if MOTHERBOARD == 35
-    #define CONTROLLERFAN_PIN  4 //Pin used for the fan to cool controller
+    #define CONTROLLERFAN_PIN  2 //Pin used for the fan to cool controller
   #endif
 
   #define PS_ON_PIN          12
