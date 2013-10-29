@@ -27,29 +27,35 @@
 
 #define PROTOCOL_VERSION "1.0"
 
-#if MOTHERBOARD == 7 || MOTHERBOARD == 71 || MOTHERBOARD == 72
-	#define MACHINE_NAME "Ultimaker"
-	#define FIRMWARE_URL "http://firmware.ultimaker.com"
-#elif MOTHERBOARD == 80
-	#define MACHINE_NAME "Rumba"
-	#define FIRMWARE_URL "https://github.com/ErikZalm/Marlin/"
-#elif MOTHERBOARD == 77
-	#define MACHINE_NAME "3Drag"
-	#define FIRMWARE_URL "http://3dprint.elettronicain.it/"
-#elif MOTHERBOARD == 88
-	#define MACHINE_NAME "Makibox"
-	#define FIRMWARE_URL "https://github.com/ErikZalm/Marlin/"
-#else
-	#ifdef CUSTOM_MENDEL_NAME
+	#if MOTHERBOARD == 7 || MOTHERBOARD == 71 || MOTHERBOARD == 72
+		#define MACHINE_NAME "Ultimaker"
+		#define FIRMWARE_URL "http://firmware.ultimaker.com"
+	#elif MOTHERBOARD == 80
+		#define MACHINE_NAME "Rumba"
+		#define FIRMWARE_URL "https://github.com/ErikZalm/Marlin/"
+	#elif MOTHERBOARD == 77
+		#define MACHINE_NAME "3Drag"
+		#define FIRMWARE_URL "http://3dprint.elettronicain.it/"
+		
+	#else
+	#if defined(WITBOX_DUAL)
+			#define MACHINE_NAME "bq WitboxDual"
+			#define FIRMWARE_URL "http://www.bqreaders.com/descargas-witbox.html"
+			#define FIRMWARE_VER "v1.3-Dual"
+	#elif defined(WITBOX)
+			#define MACHINE_NAME "bq Witbox"
+			#define FIRMWARE_URL "http://www.bqreaders.com/descargas-witbox.html"
+			#define FIRMWARE_VER "v1.3"
+	
+	#elif defined(CUSTOM_MENDEL_NAME)
 		#define MACHINE_NAME CUSTOM_MENDEL_NAME
 	#else
 		#define MACHINE_NAME "Mendel"
 	#endif
-
 // Default firmware set to Mendel
 	#define FIRMWARE_URL "https://github.com/ErikZalm/Marlin/"
-#endif
 
+#endif
 
 #ifndef MACHINE_UUID
    #define MACHINE_UUID "00000000-0000-0000-0000-000000000000"
@@ -263,6 +269,36 @@
 	#define MSG_BABYSTEPPING_Z "Babystepping Z"
 	#define MSG_SERIAL_ERROR_MENU_STRUCTURE "Error in menu structure"
 
+	#ifdef WITBOX
+
+	#define MSG_FILAMENT "Filament"
+	#define MSG_LEVEL_PLATE "Level plate"
+	#define MSG_PREHEAT "Preheat"
+	#define MSG_JOG "Jog"
+	#define MSG_LOAD "Load"
+	#define MSG_UNLOAD "Unload"
+	#define MSG_ABORT "Abort" 
+	#define MSG_PRE_EXTRUD "Insert & Press"      
+	#define MSG_EXTRUDING "Extruding..." 
+	#define MSG_LENGTH "Length:"         
+	#define MSG_RETRACTING "Retracting"
+	#define MSG_WELLCOME "bq Witbox"
+	#define MSG_LP_INTRO "  Leveling plate...    Press to start   "
+	#define MSG_LP_1 " Adjust first point  & Press the button"
+	#define MSG_LP_2 "Adjust second point  & Press the button"
+	#define MSG_LP_3 "Adjust third point   & Press the button"
+	#define MSG_LP_4 "     Is it ok?         Press to end"       
+	#define MSG_LP_5 " Plate leveled!"
+	#define MSG_LP_COOL_1 "Cooling..."
+	#define MSG_LP_COOL_2 "Temp:"
+	#define MSG_LP_COOL_3 "   Press to abort"
+
+	#ifdef WITBOX_DUAL
+	  #define MSG_EXTRUDER_1 "Left extruder"
+	  #define MSG_EXTRUDER_2 "Rigth extruder"
+	#endif //WITBOX_DUAL
+
+	#endif //#ifdef WITBOX
 #endif
 
 
@@ -482,7 +518,7 @@
 	#define MSG_SET_ORIGIN "Regler origine"
 	#define MSG_PREHEAT_PLA " Prechauffage PLA"
 	#define MSG_PREHEAT_PLA0 "Prechauff. PLA 1"
-        #define MSG_PREHEAT_PLA1 "Prechauff. PLA 2"
+    #define MSG_PREHEAT_PLA1 "Prechauff. PLA 2"
 	#define MSG_PREHEAT_PLA2 "Prechauff. PLA 3"
 	#define MSG_PREHEAT_PLA012 "Prech. PLA Tout"
 	#define MSG_PREHEAT_PLA_BEDONLY "Prech. PLA Plateau"
@@ -1072,6 +1108,33 @@
 	#define MSG_BABYSTEPPING_Y "Babystepping Y"
 	#define MSG_BABYSTEPPING_Z "Babystepping Z"
 	#define MSG_SERIAL_ERROR_MENU_STRUCTURE "Error in menu structure"
+
+	#ifdef WITBOX
+
+	#define MSG_FILAMENT "Filamento"
+	#define MSG_LEVEL_PLATE "Nivelar base"
+	#define MSG_START_SCRIPT "Start script"
+	#define MSG_PREHEAT "Calentar"
+	#define MSG_JOG "Mover"
+	#define MSG_LOAD "Cargar"
+	#define MSG_UNLOAD "Descargar"
+	#define MSG_ABORT "Atras"
+	#define MSG_PRE_EXTRUD "Insert & Press"
+	#define MSG_EXTRUDING "Extruyendo..."
+	#define MSG_LENGTH "Logitud:"
+	#define MSG_RETRACTING "Retrayendo"
+	#define MSG_WELLCOME "bq Witbox"
+	#define MSG_LP_INTRO "Nivelando la base... Pulsa para empezar"
+	#define MSG_LP_1 " Nivela el punto 1     Pulsa la rueda"
+	#define MSG_LP_2 " Nivela el punto 2     Pulsa la rueda"
+	#define MSG_LP_3 " Nivela el punto 3     Pulsa la rueda"
+	#define MSG_LP_4 "Comprueba el centro  Pulsa para acabar"        
+	#define MSG_LP_5 "!Base nivelada!"
+	#define MSG_LP_COOL_1 "Enfriando..."
+	#define MSG_LP_COOL_2 "Temp:"
+	#define MSG_LP_COOL_3 "  Pulsa para salir"
+	
+	#endif //#ifdef WITBOX
 
 #endif
 

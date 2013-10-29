@@ -236,6 +236,9 @@ M Codes
 *  M503 - print the current settings (from memory not from eeprom)
 *  M540 - Use S[0|1] to enable or disable the stop SD card print on endstop hit (requires ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED)
 *  M600 - Pause for filament change X[pos] Y[pos] Z[relative lift] E[initial retract] L[later retract distance for removal]
+*  M700 - Level plate script used on Witbox printer interface. Take 3 points to adjust the bed.
+*  M701 - Load filament script used on Witbox printer interface. This helps to load the filament and extrude automatically 
+*  M702 - Unload filament script used on Witbox printer interface.This helps to unload the filament and extrude and then retract automatically 
 *  M907 - Set digital trimpot motor current using axis codes.
 *  M908 - Control digital trimpot directly.
 *  M350 - Set microstepping mode.
