@@ -238,9 +238,9 @@ Install the arduino software IDE/toolset v23 (Some configurations also work with
 For gen6/gen7 and sanguinololu the Sanguino directory in the Marlin dir needs to be copied to the arduino environment.
   copy ArduinoAddons\Arduino_x.x.x\sanguino <arduino home>\hardware\Sanguino
 
-Copy the Marlin firmware
+Download the Marlin firmware
    https://github.com/ErikZalm/Marlin/tree/Marlin_v1
-   (Use the download button)
+   Use the "Download Zip" button on the right.
 
 Start the arduino IDE.
 Select Tools -> Board -> Arduino Mega 2560    or your microcontroller
