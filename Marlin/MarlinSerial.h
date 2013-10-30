@@ -181,4 +181,9 @@ class MarlinSerial //: public Stream
 extern MarlinSerial MSerial;
 #endif // !AT90USB
 
+// Use the UART for BT in AT90USB configurations
+#if defined(AT90USB) && defined (BTENABLED)
+   extern HardwareSerial bt;
+#endif
+
 #endif
