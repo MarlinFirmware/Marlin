@@ -34,6 +34,10 @@
 # define analogInputToDigitalPin(p) ((p) + A0)
 #endif
 
+#ifdef AT90USB
+#include "HardwareSerial.h"
+#endif
+
 #include "MarlinSerial.h"
 
 #ifndef cbi
@@ -44,6 +48,15 @@
 #endif
 
 #include "WString.h"
+
+#ifdef AT90USB
+   #ifdef BTENABLED
+         extern HardwareSerial bt;
+         #define MYSERIAL bt
+   #else
+         #define MYSERIAL Serial
+   #endif // BTENABLED
+#endif
 
 #ifdef AT90USB
   #define MYSERIAL Serial
