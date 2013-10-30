@@ -18,12 +18,6 @@
 //#define WATCH_TEMP_PERIOD 40000 //40 seconds
 //#define WATCH_TEMP_INCREASE 10  //Heat up at least 10 degree in 20 seconds
 
-// Wait for Cooldown
-// This defines if the M109 call should not block if it is cooling down.
-// example: From a current temp of 220, you set M109 S200. 
-// if CooldownNoWait is defined M109 will not wait for the cooldown to finish
-#define CooldownNoWait true
-
 #ifdef PIDTEMP
   // this adds an experimental additional term to the heatingpower, proportional to the extrusion speed.
   // if Kc is choosen well, the additional required power due to increased melting should be compensated.
@@ -46,6 +40,10 @@
   #define AUTOTEMP_OLDWEIGHT 0.98
 #endif
 
+//Show Temperature ADC value
+//The M105 command return, besides traditional information, the ADC value read from temperature sensors.
+//#define SHOW_TEMP_ADC_VALUES
+
 //  extruder run-out prevention. 
 //if the machine is idle, and the temperature over MINTEMP, every couple of SECONDS some filament is extruded
 //#define EXTRUDER_RUNOUT_PREVENT  
@@ -63,22 +61,32 @@
 //This is for controlling a fan to cool down the stepper drivers
 //it will turn on when any driver is enabled
 //and turn off after the set amount of seconds from last driver being disabled again
-//#define CONTROLLERFAN_PIN 23 //Pin used for the fan to cool controller, comment out to disable this function
-#define CONTROLLERFAN_SEC 60 //How many seconds, after all motors were disabled, the fan should run
+#define CONTROLLERFAN_PIN -1 //Pin used for the fan to cool controller (-1 to disable)
+#define CONTROLLERFAN_SECS 60 //How many seconds, after all motors were disabled, the fan should run
+#define CONTROLLERFAN_SPEED 255  // == full speed
 
 // When first starting the main fan, run it at full speed for the
 // given number of milliseconds.  This gets the fan spinning reliably
 // before setting a PWM value. (Does not work with software PWM for fan on Sanguinololu)
 //#define FAN_KICKSTART_TIME 100
 
+// Extruder cooling fans
+// Configure fan pin outputs to automatically turn on/off when the associated
+// extruder temperature is above/below EXTRUDER_AUTO_FAN_TEMPERATURE.
+// Multiple extruders can be assigned to the same pin in which case 
+// the fan will turn on when any selected extruder is above the threshold.
+#define EXTRUDER_0_AUTO_FAN_PIN   -1
+#define EXTRUDER_1_AUTO_FAN_PIN   -1
+#define EXTRUDER_2_AUTO_FAN_PIN   -1
+#define EXTRUDER_AUTO_FAN_TEMPERATURE 50
+#define EXTRUDER_AUTO_FAN_SPEED   255  // == full speed
+
+
 //===========================================================================
 //=============================Mechanical Settings===========================
 //===========================================================================
 
-// This defines the number of extruders
-#define EXTRUDERS 1
-
-#define ENDSTOPS_ONLY_FOR_HOMING // If defined the endstops will only be used for homing
+//#define ENDSTOPS_ONLY_FOR_HOMING // If defined the endstops will only be used for homing
 
 
 //// AUTOSET LOCATIONS OF LIMIT SWITCHES
@@ -142,11 +150,73 @@
   #define EXTRUDERS 1
 #endif
 
+// Same again but for Y Axis.
+//#define Y_DUAL_STEPPER_DRIVERS
+
+// Define if the two Y drives need to rotate in opposite directions
+#define INVERT_Y2_VS_Y_DIR true
+
+#ifdef Y_DUAL_STEPPER_DRIVERS
+  #undef EXTRUDERS
+  #define EXTRUDERS 1
+#endif
+
+#ifdef Z_DUAL_STEPPER_DRIVERS && Y_DUAL_STEPPER_DRIVERS
+  #error "You cannot have dual drivers for both Y and Z"
+#endif 
+
+// Enable this for dual x-carriage printers. 
+// A dual x-carriage design has the advantage that the inactive extruder can be parked which
+// prevents hot-end ooze contaminating the print. It also reduces the weight of each x-carriage
+// allowing faster printing speeds.
+//#define DUAL_X_CARRIAGE
+#ifdef DUAL_X_CARRIAGE
+// Configuration for second X-carriage
+// Note: the first x-carriage is defined as the x-carriage which homes to the minimum endstop;
+// the second x-carriage always homes to the maximum endstop.
+#define X2_MIN_POS 80     // set minimum to ensure second x-carriage doesn't hit the parked first X-carriage
+#define X2_MAX_POS 353    // set maximum to the distance between toolheads when both heads are homed 
+#define X2_HOME_DIR 1     // the second X-carriage always homes to the maximum endstop position
+#define X2_HOME_POS X2_MAX_POS // default home position is the maximum carriage position 
+    // However: In this mode the EXTRUDER_OFFSET_X value for the second extruder provides a software 
+    // override for X2_HOME_POS. This also allow recalibration of the distance between the two endstops
+    // without modifying the firmware (through the "M218 T1 X???" command).
+    // Remember: you should set the second extruder x-offset to 0 in your slicer.
+
+// Pins for second x-carriage stepper driver (defined here to avoid further complicating pins.h)
+#define X2_ENABLE_PIN 29
+#define X2_STEP_PIN 25
+#define X2_DIR_PIN 23
+
+// There are a few selectable movement modes for dual x-carriages using M605 S<mode>
+//    Mode 0: Full control. The slicer has full control over both x-carriages and can achieve optimal travel results
+//                           as long as it supports dual x-carriages. (M605 S0)
+//    Mode 1: Auto-park mode. The firmware will automatically park and unpark the x-carriages on tool changes so
+//                           that additional slicer support is not required. (M605 S1)
+//    Mode 2: Duplication mode. The firmware will transparently make the second x-carriage and extruder copy all  
+//                           actions of the first x-carriage. This allows the printer to print 2 arbitrary items at
+//                           once. (2nd extruder x offset and temp offset are set using: M605 S2 [Xnnn] [Rmmm])
+
+// This is the default power-up mode which can be later using M605. 
+#define DEFAULT_DUAL_X_CARRIAGE_MODE 0 
+
+// As the x-carriages are independent we can now account for any relative Z offset
+#define EXTRUDER1_Z_OFFSET 0.0           // z offset relative to extruder 0
+
+// Default settings in "Auto-park Mode" 
+#define TOOLCHANGE_PARK_ZLIFT   0.2      // the distance to raise Z axis when parking an extruder
+#define TOOLCHANGE_UNPARK_ZLIFT 1        // the distance to raise Z axis when unparking an extruder
+
+// Default x offset in duplication mode (typically set to half print bed width)
+#define DEFAULT_DUPLICATION_X_OFFSET 100
+
+#endif //DUAL_X_CARRIAGE
+    
 //homing hits the endstop, then retracts by this distance, before it tries to slowly bump again:
 #define X_HOME_RETRACT_MM 5 
 #define Y_HOME_RETRACT_MM 5 
-#define Z_HOME_RETRACT_MM 1 
-//#define QUICK_HOME  //if this is defined, if both x and y are to be homed, a diagonal move will be performed initially.
+#define Z_HOME_RETRACT_MM 2 
+#define QUICK_HOME  //if this is defined, if both x and y are to be homed, a diagonal move will be performed initially.
 
 #define AXIS_RELATIVE_MODES {false, false, false, false}
 
@@ -163,6 +233,11 @@
 
 #define DEFAULT_MINIMUMFEEDRATE       0.0     // minimum feedrate
 #define DEFAULT_MINTRAVELFEEDRATE     0.0
+
+// Feedrates for manual moves along X, Y, Z, E from panel
+#ifdef ULTIPANEL
+#define MANUAL_FEEDRATE {120*60, 120*60, 22*60, 60}  // set the speeds for manual moves (mm/min)
+#endif
 
 // minimum time in microseconds that a movement needs to take if the buffer is emptied.
 #define DEFAULT_MINSEGMENTTIME        20000
@@ -201,6 +276,11 @@
 #define SD_FINISHED_STEPPERRELEASE true  //if sd support and the file is finished: disable steppers?
 #define SD_FINISHED_RELEASECOMMAND "M84 X Y Z E" // You might want to keep the z enabled so your bed stays in place.
 
+#define SDCARD_RATHERRECENTFIRST  //reverse file order of sd card menu display. Its sorted practically after the filesystem block order. 
+// if a file is deleted, it frees a block. hence, the order is not purely cronological. To still have auto0.g accessible, there is again the option to do that.
+// using:
+//#define MENU_ADDAUTOSTART
+
 // The hardware watchdog should reset the Microcontroller disabling all outputs, in case the firmware gets stuck and doesn't do temperature regulation.
 //#define USE_WATCHDOG
 
@@ -214,6 +294,26 @@
 // Enable the option to stop SD printing when hitting and endstops, needs to be enabled from the LCD menu when this option is enabled.
 //#define ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED
 
+// Babystepping enables the user to control the axis in tiny amounts, independently from the normal printing process
+// it can e.g. be used to change z-positions in the print startup phase in realtime
+// does not respect endstops!
+//#define BABYSTEPPING
+#ifdef BABYSTEPPING
+  #define BABYSTEP_XY  //not only z, but also XY in the menu. more clutter, more functions
+  #define BABYSTEP_INVERT_Z false  //true for inverse movements in Z
+  #define BABYSTEP_Z_MULTIPLICATOR 2 //faster z movements
+  
+  #ifdef COREXY
+    #error BABYSTEPPING not implemented for COREXY yet.
+  #endif
+
+  #ifdef DELTA
+    #ifdef BABYSTEP_XY
+      #error BABYSTEPPING only implemented for Z axis on deltabots.
+    #endif
+  #endif
+#endif
+
 // extruder advance constant (s2/mm3)
 //
 // advance (steps) = STEPS_PER_CUBIC_MM_E * EXTUDER_ADVANCE_K * cubic mm per second ^ 2
@@ -226,8 +326,8 @@
 #ifdef ADVANCE
   #define EXTRUDER_ADVANCE_K .0
 
-  #define D_FILAMENT 2.85
-  #define STEPS_MM_E 836
+  #define D_FILAMENT 1.75
+  #define STEPS_MM_E 100.47095761381482
   #define EXTRUTION_AREA (0.25 * D_FILAMENT * D_FILAMENT * 3.14159)
   #define STEPS_PER_CUBIC_MM_E (axis_steps_per_unit[E_AXIS]/ EXTRUTION_AREA)
 
@@ -295,7 +395,7 @@ const unsigned int dropsegments=5; //everything with less than this number of st
 
 //adds support for experimental filament exchange support M600; requires display
 #ifdef ULTIPANEL
- // #define FILAMENTCHANGEENABLE
+  #define FILAMENTCHANGEENABLE
   #ifdef FILAMENTCHANGEENABLE
     #define FILAMENTCHANGE_XPOS 3
     #define FILAMENTCHANGE_YPOS 3
@@ -304,10 +404,19 @@ const unsigned int dropsegments=5; //everything with less than this number of st
     #define FILAMENTCHANGE_FINALRETRACT -100
   #endif
 #endif
+
+#ifdef FILAMENTCHANGEENABLE
+  #ifdef EXTRUDER_RUNOUT_PREVENT
+    #error EXTRUDER_RUNOUT_PREVENT currently incompatible with FILAMENTCHANGE
+  #endif 
+#endif
  
 //===========================================================================
 //=============================  Define Defines  ============================
 //===========================================================================
+#if EXTRUDERS > 1 && defined TEMP_SENSOR_1_AS_REDUNDANT
+  #error "You cannot use TEMP_SENSOR_1_AS_REDUNDANT if EXTRUDERS > 1"
+#endif
 
 #if TEMP_SENSOR_0 > 0
   #define THERMISTORHEATER_0 TEMP_SENSOR_0

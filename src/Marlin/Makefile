@@ -1,12 +1,12 @@
 # Sprinter Arduino Project Makefile
-# 
+#
 # Makefile Based on:
 # Arduino 0011 Makefile
 # Arduino adaptation by mellis, eighthave, oli.keller
 # Marlin adaption by Daid
 #
 # This has been tested with Arduino 0022.
-# 
+#
 # This makefile allows you to build sketches from the command line
 # without the Arduino environment (or Java).
 #
@@ -21,7 +21,7 @@
 #     (e.g. UPLOAD_PORT = /dev/tty.USB0).  If the exact name of this file
 #     changes, you can use * as a wildcard (e.g. UPLOAD_PORT = /dev/tty.usb*).
 #
-#  3. Set the line containing "MCU" to match your board's processor. 
+#  3. Set the line containing "MCU" to match your board's processor.
 #     Older one's are atmega8 based, newer ones like Arduino Mini, Bluetooth
 #     or Diecimila have the atmega168.  If you're using a LilyPad Arduino,
 #     change F_CPU to 8000000. If you are using Gen7 electronics, you
@@ -44,7 +44,7 @@ ARDUINO_INSTALL_DIR  ?= ../../arduino-0022
 ARDUINO_VERSION      ?= 22
 
 # You can optionally set a path to the avr-gcc tools. Requires a trailing slash. (ex: /usr/local/avr-gcc/bin)
-AVR_TOOLS_PATH ?= 
+AVR_TOOLS_PATH ?=
 
 #Programmer configuration
 UPLOAD_RATE        ?= 115200
@@ -53,6 +53,9 @@ UPLOAD_PORT        ?= /dev/arduino
 
 #Directory used to build files in, contains all the build files, from object files to the final hex file.
 BUILD_DIR          ?= applet
+
+# This defines whether Liquid_TWI2 support will be built
+LIQUID_TWI2 ?= 0
 
 ############################################################################
 # Below here nothing should be changed...
@@ -114,6 +117,12 @@ MCU              ?= atmega644p
 else ifeq  ($(HARDWARE_MOTHERBOARD),63)
 HARDWARE_VARIANT ?= Sanguino
 MCU              ?= atmega644p
+else ifeq  ($(HARDWARE_MOTHERBOARD),65)
+HARDWARE_VARIANT ?= Sanguino
+MCU              ?= atmega1284p
+else ifeq  ($(HARDWARE_MOTHERBOARD),66)
+HARDWARE_VARIANT ?= Sanguino
+MCU              ?= atmega1284p
 
 #Ultimaker
 else ifeq  ($(HARDWARE_MOTHERBOARD),7)
@@ -193,9 +202,19 @@ VPATH += $(HARDWARE_SRC)
 ifeq ($(HARDWARE_VARIANT), arduino)
 VPATH += $(ARDUINO_INSTALL_DIR)/libraries/LiquidCrystal
 VPATH += $(ARDUINO_INSTALL_DIR)/libraries/SPI
+ifeq ($(LIQUID_TWI2), 1)
+VPATH += $(ARDUINO_INSTALL_DIR)/libraries/Wire
+VPATH += $(ARDUINO_INSTALL_DIR)/libraries/Wire/utility
+VPATH += $(ARDUINO_INSTALL_DIR)/libraries/LiquidTWI2
+endif
 else
 VPATH += $(HARDWARE_DIR)/libraries/LiquidCrystal
 VPATH += $(HARDWARE_DIR)/libraries/SPI
+ifeq ($(LIQUID_TWI2), 1)
+VPATH += $(HARDWARE_DIR)/libraries/Wire
+VPATH += $(HARDWARE_DIR)/libraries/Wire/utility
+VPATH += $(HARDWARE_DIR)/libraries/LiquidTWI2
+endif
 endif
 ifeq ($(HARDWARE_VARIANT), arduino)
 HARDWARE_SUB_VARIANT ?= mega
@@ -212,8 +231,13 @@ CXXSRC = WMath.cpp WString.cpp Print.cpp Marlin_main.cpp	\
 	MarlinSerial.cpp Sd2Card.cpp SdBaseFile.cpp SdFatUtil.cpp	\
 	SdFile.cpp SdVolume.cpp motion_control.cpp planner.cpp		\
 	stepper.cpp temperature.cpp cardreader.cpp ConfigurationStore.cpp \
-	watchdog.cpp
-CXXSRC += LiquidCrystal.cpp ultralcd.cpp SPI.cpp
+	watchdog.cpp SPI.cpp Servo.cpp Tone.cpp ultralcd.cpp
+ifeq ($(LIQUID_TWI2), 0)
+CXXSRC += LiquidCrystal.cpp
+else
+SRC += twi.c
+CXXSRC += Wire.cpp LiquidTWI2.cpp
+endif
 
 #Check for Arduino 1.0.0 or higher and use the correct sourcefiles for that version
 ifeq ($(shell [ $(ARDUINO_VERSION) -ge 100 ] && echo true), true)
@@ -277,6 +301,7 @@ ifneq ($(HARDWARE_MOTHERBOARD),)
 CTUNING += -DMOTHERBOARD=${HARDWARE_MOTHERBOARD}
 endif
 #CEXTRA = -Wa,-adhlns=$(<:.c=.lst)
+CEXTRA = -fno-use-cxa-atexit
 
 CFLAGS := $(CDEBUG) $(CDEFS) $(CINCS) -O$(OPT) $(CWARN) $(CEXTRA) $(CTUNING)
 CXXFLAGS :=         $(CDEFS) $(CINCS) -O$(OPT) -Wall    $(CEXTRA) $(CTUNING)
@@ -287,7 +312,12 @@ LDFLAGS = -lm
 # Programming support using avrdude. Settings and variables.
 AVRDUDE_PORT = $(UPLOAD_PORT)
 AVRDUDE_WRITE_FLASH = -U flash:w:$(BUILD_DIR)/$(TARGET).hex:i
-AVRDUDE_FLAGS = -D -C $(ARDUINO_INSTALL_DIR)/hardware/tools/avrdude.conf \
+ifeq ($(shell uname -s), Linux)
+AVRDUDE_CONF = $(ARDUINO_INSTALL_DIR)/hardware/tools/avrdude.conf
+else
+AVRDUDE_CONF = $(ARDUINO_INSTALL_DIR)/hardware/tools/avr/etc/avrdude.conf
+endif
+AVRDUDE_FLAGS = -D -C $(AVRDUDE_CONF) \
 	-p $(MCU) -P $(AVRDUDE_PORT) -c $(AVRDUDE_PROGRAMMER) \
 	-b $(UPLOAD_RATE)
 
@@ -317,19 +347,19 @@ endif
 # Default target.
 all: sizeafter
 
-build: $(BUILD_DIR) elf hex 
+build: $(BUILD_DIR) elf hex
 
 # Creates the object directory
-$(BUILD_DIR): 
+$(BUILD_DIR):
 	$P mkdir -p $(BUILD_DIR)
 
 elf: $(BUILD_DIR)/$(TARGET).elf
 hex: $(BUILD_DIR)/$(TARGET).hex
 eep: $(BUILD_DIR)/$(TARGET).eep
-lss: $(BUILD_DIR)/$(TARGET).lss 
+lss: $(BUILD_DIR)/$(TARGET).lss
 sym: $(BUILD_DIR)/$(TARGET).sym
 
-# Program the device.  
+# Program the device.
 # Do not try to reset an arduino if it's not one
 upload: $(BUILD_DIR)/$(TARGET).hex
 ifeq (${AVRDUDE_PROGRAMMER}, arduino)
@@ -356,7 +386,7 @@ COFFCONVERT=$(OBJCOPY) --debugging \
 	--change-section-address .data-0x800000 \
 	--change-section-address .bss-0x800000 \
 	--change-section-address .noinit-0x800000 \
-	--change-section-address .eeprom-0x810000 
+	--change-section-address .eeprom-0x810000
 
 
 coff: $(BUILD_DIR)/$(TARGET).elf
