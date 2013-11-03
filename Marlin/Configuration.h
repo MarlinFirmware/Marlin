@@ -22,20 +22,13 @@
 // This allows the connection of wireless adapters (for instance) to non-default port pins.
 // Serial port 0 is still used by the Arduino bootloader regardless of this setting.
 #define SERIAL_PORT 0
-//#define SERIAL_PORT 1  // Define serial port 1 for bluetooth configuration in AT90USB configurations
 
 // This determines the communication speed of the printer
 // This determines the communication speed of the printer
 #define BAUDRATE 250000
 
 // This enables the serial port associated to the Bluetooth interface
-//#define BTENABLED              // Enable BT interface
-
-
-// SERIAL_PORT selects which serial port should be used for communication with the host.
-// This allows the connection of wireless adapters (for instance) to non-default port pins.
-// Serial port 0 is still used by the Arduino bootloader regardless of this setting.
-#define SERIAL_PORT 0
+//#define BTENABLED              // Enable BT interface on AT90USB devices
 
 
 //// The following define selects which electronics board you have. Please choose the one that matches your setup
@@ -76,8 +69,7 @@
 // 21 = Elefu Ra Board (v3)
 
 #ifndef MOTHERBOARD
-//[FMC]#define MOTHERBOARD 7
-#define MOTHERBOARD 83
+//#define MOTHERBOARD 7
 #endif
 
 // Define this to set a custom name for your generic Mendel,
@@ -522,6 +514,8 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 // Shift register panels
 // ---------------------
+// 2 wire Non-latching LCD SR from:
+// https://bitbucket.org/fmalpartida/new-liquidcrystal/wiki/schematics#!shiftregister-connection 
 //#define SR_LCD
 #ifdef SR_LCD
    #define SR_LCD_2W_NL    // Non latching 2 wire shiftregister
