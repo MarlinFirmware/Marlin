@@ -51,17 +51,10 @@
 
 #ifdef AT90USB
    #ifdef BTENABLED
-         extern HardwareSerial bt;
          #define MYSERIAL bt
    #else
          #define MYSERIAL Serial
    #endif // BTENABLED
-#endif
-
-#ifdef AT90USB
-  #define MYSERIAL Serial
-#else
-  #define MYSERIAL MSerial
 #endif
 
 #define SERIAL_PROTOCOL(x) (MYSERIAL.print(x))
