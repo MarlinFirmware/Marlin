@@ -2159,42 +2159,42 @@ void process_commands()
       
         if(pin_state >= -1 && pin_state <= 1){
         
-        for(int8_t i = 0; i < (int8_t)sizeof(sensitive_pins); i++)
-        {
-        if (sensitive_pins[i] == pin_number)
-        {
-        pin_number = -1;
-        break;
-        }
-        }
+          for(int8_t i = 0; i < (int8_t)sizeof(sensitive_pins); i++)
+          {
+            if (sensitive_pins[i] == pin_number)
+            {
+              pin_number = -1;
+              break;
+            }
+          }
         
-        if (pin_number > -1)
-        {
-        st_synchronize();
-        
-        pinMode(pin_number, INPUT);
-        
-        int target;
-        switch(pin_state){
-        case 1:
-          target = HIGH;
-          break;
-        
-        case 0:
-          target = LOW;
-          break;
-        
-        case -1:
-          target = !digitalRead(pin_number);
-          break;
-        }
-        
-        while(digitalRead(pin_number) != target){
-        manage_heater();
-        manage_inactivity();
-        lcd_update();
-        }
-        }
+          if (pin_number > -1)
+          {
+            st_synchronize();
+            
+            pinMode(pin_number, INPUT);
+            
+            int target;
+            switch(pin_state){
+            case 1:
+              target = HIGH;
+              break;
+            
+            case 0:
+              target = LOW;
+              break;
+            
+            case -1:
+              target = !digitalRead(pin_number);
+              break;
+            }
+            
+            while(digitalRead(pin_number) != target){
+              manage_heater();
+              manage_inactivity();
+              lcd_update();
+            }
+          }
         }
       }
     }
