@@ -38,10 +38,12 @@
 	#else
 		#define MACHINE_NAME "Mendel"
 	#endif
-	#ifndef MACHINE_UUID
-		#define MACHINE_UUID "00000000-0000-0000-0000-000000000000"
-	#endif
+
 	#define FIRMWARE_URL "http://www.mendel-parts.com"
+#endif
+
+#ifndef MACHINE_UUID
+   #define MACHINE_UUID "00000000-0000-0000-0000-000000000000"
 #endif
 
 #define STRINGIFY_(n) #n

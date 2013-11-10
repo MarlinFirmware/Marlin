@@ -55,6 +55,8 @@
    #else
          #define MYSERIAL Serial
    #endif // BTENABLED
+#else
+  #define MYSERIAL MSerial
 #endif
 
 #define SERIAL_PROTOCOL(x) (MYSERIAL.print(x))
