@@ -414,6 +414,10 @@
     #define Z_MIN_PIN          18
     #define Z_MAX_PIN          -1
 
+    #define Y2_STEP_PIN        36
+    #define Y2_DIR_PIN         34
+    #define Y2_ENABLE_PIN      30
+
     #define Z2_STEP_PIN        36
     #define Z2_DIR_PIN         34
     #define Z2_ENABLE_PIN      30
@@ -451,6 +455,10 @@
     #define Z_ENABLE_PIN       62
     #define Z_MIN_PIN          18
     #define Z_MAX_PIN          19
+
+    #define Y2_STEP_PIN        36
+    #define Y2_DIR_PIN         34
+    #define Y2_ENABLE_PIN      30
 
     #define Z2_STEP_PIN        36
     #define Z2_DIR_PIN         34

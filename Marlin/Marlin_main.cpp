@@ -139,6 +139,7 @@
 // M218 - set hotend offset (in mm): T<extruder_number> X<offset_on_X> Y<offset_on_Y>
 // M220 S<factor in percent>- set speed factor override percentage
 // M221 S<factor in percent>- set extrude factor override percentage
+// M226 P<pin number> S<pin state>- Wait until the specified pin reaches the state required
 // M240 - Trigger a camera to take a photograph
 // M250 - Set LCD contrast C<contrast value> (value 0..63)
 // M280 - set servo position absolute. P: servo index, S: angle or microseconds
@@ -366,7 +367,11 @@ void setup_powerhold()
   #endif
   #if defined(PS_ON_PIN) && PS_ON_PIN > -1
     SET_OUTPUT(PS_ON_PIN);
-    WRITE(PS_ON_PIN, PS_ON_AWAKE);
+	#if defined(PS_DEFAULT_OFF)
+	  WRITE(PS_ON_PIN, PS_ON_ASLEEP);
+    #else
+	  WRITE(PS_ON_PIN, PS_ON_AWAKE);
+	#endif
   #endif
 }
 
@@ -1821,6 +1826,15 @@ void process_commands()
       case 80: // M80 - Turn on Power Supply
         SET_OUTPUT(PS_ON_PIN); //GND
         WRITE(PS_ON_PIN, PS_ON_AWAKE);
+
+        // If you have a switch on suicide pin, this is useful
+        // if you want to start another print with suicide feature after
+        // a print without suicide...
+        #if defined SUICIDE_PIN && SUICIDE_PIN > -1
+            SET_OUTPUT(SUICIDE_PIN);
+            WRITE(SUICIDE_PIN, HIGH);
+        #endif
+        
         #ifdef ULTIPANEL
           powersupply = true;
           LCD_MESSAGEPGM(WELCOME_MSG);
@@ -2143,6 +2157,57 @@ void process_commands()
       }
     }
     break;
+	
+	case 226: // M226 P<pin number> S<pin state>- Wait until the specified pin reaches the state required
+	{
+      if(code_seen('P')){
+        int pin_number = code_value(); // pin number
+        int pin_state = -1; // required pin state - default is inverted
+        
+        if(code_seen('S')) pin_state = code_value(); // required pin state
+      
+        if(pin_state >= -1 && pin_state <= 1){
+        
+          for(int8_t i = 0; i < (int8_t)sizeof(sensitive_pins); i++)
+          {
+            if (sensitive_pins[i] == pin_number)
+            {
+              pin_number = -1;
+              break;
+            }
+          }
+        
+          if (pin_number > -1)
+          {
+            st_synchronize();
+            
+            pinMode(pin_number, INPUT);
+            
+            int target;
+            switch(pin_state){
+            case 1:
+              target = HIGH;
+              break;
+            
+            case 0:
+              target = LOW;
+              break;
+            
+            case -1:
+              target = !digitalRead(pin_number);
+              break;
+            }
+            
+            while(digitalRead(pin_number) != target){
+              manage_heater();
+              manage_inactivity();
+              lcd_update();
+            }
+          }
+        }
+      }
+    }
+    break;	
 
     #if NUM_SERVOS > 0
     case 280: // M280 - set servo position absolute. P: servo index, S: angle or microseconds

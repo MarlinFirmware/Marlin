@@ -38,7 +38,12 @@
 	#else
 		#define MACHINE_NAME "Mendel"
 	#endif
+
 	#define FIRMWARE_URL "http://www.mendel-parts.com"
+#endif
+
+#ifndef MACHINE_UUID
+   #define MACHINE_UUID "00000000-0000-0000-0000-000000000000"
 #endif
 
 #define STRINGIFY_(n) #n
@@ -163,7 +168,7 @@
 	#define MSG_HEATING_COMPLETE "Heating done."
 	#define MSG_BED_HEATING "Bed Heating."
 	#define MSG_BED_DONE "Bed done."
-	#define MSG_M115_REPORT "FIRMWARE_NAME:Marlin V1; Sprinter/grbl mashup for gen6 FIRMWARE_URL:" FIRMWARE_URL " PROTOCOL_VERSION:" PROTOCOL_VERSION " MACHINE_TYPE:" MACHINE_NAME " EXTRUDER_COUNT:" STRINGIFY(EXTRUDERS) "\n"
+	#define MSG_M115_REPORT "FIRMWARE_NAME:Marlin V1; Sprinter/grbl mashup for gen6 FIRMWARE_URL:" FIRMWARE_URL " PROTOCOL_VERSION:" PROTOCOL_VERSION " MACHINE_TYPE:" MACHINE_NAME " EXTRUDER_COUNT:" STRINGIFY(EXTRUDERS) " UUID:" MACHINE_UUID "\n"
 	#define MSG_COUNT_X " Count X: "
 	#define MSG_ERR_KILLED "Printer halted. kill() called!"
 	#define MSG_ERR_STOPPED "Printer stopped due to errors. Fix the error and use M999 to restart. (Temperature is reset. Set it after restarting)"
@@ -328,7 +333,7 @@
 	#define MSG_HEATING_COMPLETE "Nagrzewanie ekstrudera zakonczone."
 	#define MSG_BED_HEATING "Nagrzewanie loza..."
 	#define MSG_BED_DONE "Nagrzewanie loza zakonczone."
-	#define MSG_M115_REPORT "FIRMWARE_NAME:Marlin V1; Sprinter/grbl mashup for gen6 FIRMWARE_URL:" FIRMWARE_URL " PROTOCOL_VERSION:" PROTOCOL_VERSION " MACHINE_TYPE:" MACHINE_NAME " EXTRUDER_COUNT:" STRINGIFY(EXTRUDERS) "\n"
+	#define MSG_M115_REPORT "FIRMWARE_NAME:Marlin V1; Sprinter/grbl mashup for gen6 FIRMWARE_URL:" FIRMWARE_URL " PROTOCOL_VERSION:" PROTOCOL_VERSION " MACHINE_TYPE:" MACHINE_NAME " EXTRUDER_COUNT:" STRINGIFY(EXTRUDERS) " UUID:" MACHINE_UUID "\n"
 	#define MSG_COUNT_X " Liczenie X: "
 	#define MSG_ERR_KILLED "Drukarka zatrzymana. Wywolano kill()"
 	#define MSG_ERR_STOPPED "Drukarka zatrzymana z powodu bledu. Usun problem i zrestartuj drukartke komenda M999. (temperatura zostala zresetowana; ustaw temperature po restarcie)"
@@ -492,7 +497,7 @@
 	#define MSG_HEATING_COMPLETE "Chauffe terminee."
 	#define MSG_BED_HEATING "Chauffe du lit."
 	#define MSG_BED_DONE "Chauffe du lit terminee."
-	#define MSG_M115_REPORT "FIRMWARE_NAME:Marlin V1; Sprinter/grbl mashup for gen6 FIRMWARE_URL:" FIRMWARE_URL " PROTOCOL_VERSION:" PROTOCOL_VERSION " MACHINE_TYPE:" MACHINE_NAME " EXTRUDER_COUNT:" STRINGIFY(EXTRUDERS) "\n"
+	#define MSG_M115_REPORT "FIRMWARE_NAME:Marlin V1; Sprinter/grbl mashup for gen6 FIRMWARE_URL:" FIRMWARE_URL " PROTOCOL_VERSION:" PROTOCOL_VERSION " MACHINE_TYPE:" MACHINE_NAME " EXTRUDER_COUNT:" STRINGIFY(EXTRUDERS) " UUID:" MACHINE_UUID "\n"
 	#define MSG_COUNT_X " Compteur X: "
 	#define MSG_ERR_KILLED "Impression arretee. kill() appelee!"
 	#define MSG_ERR_STOPPED "Impression arretee a cause d'erreurs. Corriger les erreurs et utiliser M999 pour la reprendre. (Temperature remise a zero. Reactivez la apres redemarrage)"
@@ -659,7 +664,7 @@
 	#define MSG_HEATING_COMPLETE "Heating done."
 	#define MSG_BED_HEATING "Bed Heating."
 	#define MSG_BED_DONE "Bed done."
-	#define MSG_M115_REPORT "FIRMWARE_NAME:Marlin V1; Sprinter/grbl mashup for gen6 FIRMWARE_URL:" FIRMWARE_URL " PROTOCOL_VERSION:" PROTOCOL_VERSION " MACHINE_TYPE:" MACHINE_NAME " EXTRUDER_COUNT:" STRINGIFY(EXTRUDERS) "\n"
+	#define MSG_M115_REPORT "FIRMWARE_NAME:Marlin V1; Sprinter/grbl mashup for gen6 FIRMWARE_URL:" FIRMWARE_URL " PROTOCOL_VERSION:" PROTOCOL_VERSION " MACHINE_TYPE:" MACHINE_NAME " EXTRUDER_COUNT:" STRINGIFY(EXTRUDERS) " UUID:" MACHINE_UUID "\n"
 	#define MSG_COUNT_X " Count X:"
 	#define MSG_ERR_KILLED "Printer halted. kill() called !!"
 	#define MSG_ERR_STOPPED "Printer stopped due to errors. Fix the error and use M999 to restart!"
@@ -830,7 +835,7 @@
 	#define MSG_HEATING_COMPLETE "Calentamiento Hecho."
 	#define MSG_BED_HEATING "Calentando la base."
 	#define MSG_BED_DONE "Base Caliente."
-	#define MSG_M115_REPORT "FIRMWARE_NAME:Marlin V1; Sprinter/grbl mashup for gen6 FIRMWARE_URL:" FIRMWARE_URL " PROTOCOL_VERSION:" PROTOCOL_VERSION " MACHINE_TYPE:" MACHINE_NAME " EXTRUDER_COUNT:" STRINGIFY(EXTRUDERS) "\n"
+	#define MSG_M115_REPORT "FIRMWARE_NAME:Marlin V1; Sprinter/grbl mashup for gen6 FIRMWARE_URL:" FIRMWARE_URL " PROTOCOL_VERSION:" PROTOCOL_VERSION " MACHINE_TYPE:" MACHINE_NAME " EXTRUDER_COUNT:" STRINGIFY(EXTRUDERS) " UUID:" MACHINE_UUID "\n"
 	#define MSG_COUNT_X " Cuenta X:"
 	#define MSG_ERR_KILLED "¡¡Impresora Parada con kill()!!"
 	#define MSG_ERR_STOPPED "¡Impresora parada por errores. Arregle el error y use M999 Para reiniciar!. (La temperatura se reestablece. Ajustela antes de continuar)"
@@ -991,7 +996,7 @@
 	#define MSG_HEATING_COMPLETE				"Наргето.    "
 	#define MSG_BED_HEATING						"Нагрев стола...     "
 	#define MSG_BED_DONE						"Стол нагрет.        "
-	#define MSG_M115_REPORT						"FIRMWARE_NAME:Marlin V1; Sprinter/grbl mashup for gen6 FIRMWARE_URL:" FIRMWARE_URL " PROTOCOL_VERSION:" PROTOCOL_VERSION " MACHINE_TYPE:" MACHINE_NAME " EXTRUDER_COUNT:" STRINGIFY(EXTRUDERS) "\n"
+	#define MSG_M115_REPORT						"FIRMWARE_NAME:Marlin V1; Sprinter/grbl mashup for gen6 FIRMWARE_URL:" FIRMWARE_URL " PROTOCOL_VERSION:" PROTOCOL_VERSION " MACHINE_TYPE:" MACHINE_NAME " EXTRUDER_COUNT:" STRINGIFY(EXTRUDERS) " UUID:" MACHINE_UUID "\n"
 	#define MSG_COUNT_X							" Count X:"
 	#define MSG_ERR_KILLED						"Принтер остановлен. вызов kill() !!"
 	#define MSG_ERR_STOPPED						"Ошибка принтера, останов. Устраните неисправность и используйте M999 для перезагрузки!. (Температура недоступна. Проверьте датчики)"
@@ -1152,7 +1157,7 @@
 	#define MSG_HEATING_COMPLETE     "Stampante Calda."
 	#define MSG_BED_HEATING          "Riscaldamento Piatto."
 	#define MSG_BED_DONE             "Piatto Pronto."
-	#define MSG_M115_REPORT          "FIRMWARE_NAME:Marlin V1; Sprinter/grbl mashup for gen6 FIRMWARE_URL:" FIRMWARE_URL " PROTOCOL_VERSION:" PROTOCOL_VERSION " MACHINE_TYPE:" MACHINE_NAME " EXTRUDER_COUNT:" STRINGIFY(EXTRUDERS) "\n"
+	#define MSG_M115_REPORT          "FIRMWARE_NAME:Marlin V1; Sprinter/grbl mashup for gen6 FIRMWARE_URL:" FIRMWARE_URL " PROTOCOL_VERSION:" PROTOCOL_VERSION " MACHINE_TYPE:" MACHINE_NAME " EXTRUDER_COUNT:" STRINGIFY(EXTRUDERS) " UUID:" MACHINE_UUID "\n"
 	#define MSG_COUNT_X              " Calcola X: "
 	#define MSG_ERR_KILLED           "Stampante Calda. kill() chiamata !!"
 	#define MSG_ERR_STOPPED          "Stampante fermata a causa di errori. Risolvi l'errore e usa M999 per ripartire!. (Reset temperatura. Impostala prima di ripartire)"
@@ -1322,7 +1327,7 @@
 	#define MSG_HEATING_COMPLETE "Aquecido."
 	#define MSG_BED_HEATING "Aquecendo a Base."
 	#define MSG_BED_DONE "Base quente."
-	#define MSG_M115_REPORT "FIRMWARE_NAME:Marlin V1; Sprinter/grbl mashup for gen6 FIRMWARE_URL:" FIRMWARE_URL " PROTOCOL_VERSION:" PROTOCOL_VERSION " MACHINE_TYPE:" MACHINE_NAME " EXTRUDER_COUNT:" STRINGIFY(EXTRUDERS) "\n"
+	#define MSG_M115_REPORT "FIRMWARE_NAME:Marlin V1; Sprinter/grbl mashup for gen6 FIRMWARE_URL:" FIRMWARE_URL " PROTOCOL_VERSION:" PROTOCOL_VERSION " MACHINE_TYPE:" MACHINE_NAME " EXTRUDER_COUNT:" STRINGIFY(EXTRUDERS) " UUID:" MACHINE_UUID "\n"
 	#define MSG_COUNT_X " Conta X:"
 	#define MSG_ERR_KILLED "Impressora parada com kill() !!"
 	#define MSG_ERR_STOPPED "Impressora parada por erros. Coserte o erro e use M999 para recomeçar!. (Temperatura reiniciada. Ajuste antes de recomeçar)"
@@ -1488,7 +1493,7 @@
 	#define MSG_HEATING_COMPLETE "Lammitys valmis."
 	#define MSG_BED_HEATING "Alusta lampiaa."
 	#define MSG_BED_DONE "Alusta valmis."
-	#define MSG_M115_REPORT "FIRMWARE_NAME:Marlin V1; Sprinter/grbl mashup for gen6 FIRMWARE_URL:" FIRMWARE_URL " PROTOCOL_VERSION:" PROTOCOL_VERSION " MACHINE_TYPE:" MACHINE_NAME " EXTRUDER_COUNT:" STRINGIFY(EXTRUDERS) "\n"
+	#define MSG_M115_REPORT "FIRMWARE_NAME:Marlin V1; Sprinter/grbl mashup for gen6 FIRMWARE_URL:" FIRMWARE_URL " PROTOCOL_VERSION:" PROTOCOL_VERSION " MACHINE_TYPE:" MACHINE_NAME " EXTRUDER_COUNT:" STRINGIFY(EXTRUDERS) " UUID:" MACHINE_UUID "\n"
 	#define MSG_COUNT_X " Laskuri X: "
 	#define MSG_ERR_KILLED "Tulostin pysaytetty. kill():ia kutsuttu!"
 	#define MSG_ERR_STOPPED "Tulostin pysaytetty virheiden vuoksi. Korjaa virheet ja kayta M999 kaynnistaaksesi uudelleen. (Lampotila nollattiin. Aseta lampotila sen jalkeen kun jatkat.)"
