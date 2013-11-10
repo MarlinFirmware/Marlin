@@ -368,8 +368,10 @@ void setup_powerhold()
     SET_OUTPUT(PS_ON_PIN);
 	#if defined(PS_DEFAULT_OFF)
 	  WRITE(PS_ON_PIN, PS_ON_ASLEEP);
+	  powersupply = false;	
     #else
 	  WRITE(PS_ON_PIN, PS_ON_AWAKE);
+	  powersupply = true;	
 	#endif
   #endif
 }
