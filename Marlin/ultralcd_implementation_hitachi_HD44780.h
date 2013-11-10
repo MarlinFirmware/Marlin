@@ -178,7 +178,16 @@ extern volatile uint16_t buttons;  //an extended version of the last checked but
     #include <LiquidCrystal_I2C.h>
     #define LCD_CLASS LiquidCrystal_I2C
     LCD_CLASS lcd(LCD_I2C_ADDRESS, LCD_WIDTH, LCD_HEIGHT);
-  
+    
+// 2 wire Non-latching LCD SR from:
+// https://bitbucket.org/fmalpartida/new-liquidcrystal/wiki/schematics#!shiftregister-connection 
+#elif defined(SR_LCD_2W_NL)
+   
+  #include <LCD.h>
+  #include <LiquidCrystal_SR.h>
+  #define LCD_CLASS LiquidCrystal_SR
+  LCD_CLASS lcd(SR_DATA_PIN, SR_CLK_PIN);
+
 #else
   // Standard directly connected LCD implementations
   #if LANGUAGE_CHOICE == 6
