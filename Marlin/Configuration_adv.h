@@ -366,7 +366,7 @@ const unsigned int dropsegments=5; //everything with less than this number of st
 #endif
 
 // Control heater 0 and heater 1 in parallel.
-#define HEATERS_PARALLEL
+//#define HEATERS_PARALLEL
 
 //===========================================================================
 //=============================Buffers           ============================

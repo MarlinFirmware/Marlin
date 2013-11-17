@@ -142,6 +142,9 @@ volatile uint8_t buttons;//Contains the bits of the currently pressed buttons.
 #else
 volatile uint8_t buttons_reprapworld_keypad; // to store the reprapworld_keypad shiftregister values
 #endif
+#ifdef LCD_HAS_SLOW_BUTTONS
+volatile uint8_t slow_buttons;//Contains the bits of the currently pressed buttons.
+#endif
 uint8_t currentMenuViewOffset;              /* scroll offset in the current menu */
 uint32_t blocking_enc;
 uint8_t lastEncoderBits;
@@ -1013,6 +1016,9 @@ void lcd_init()
     WRITE(SDCARDDETECT, HIGH);
     lcd_oldcardstatus = IS_SD_INSERTED;
 #endif//(SDCARDDETECT > 0)
+    #ifdef LCD_HAS_SLOW_BUTTONS
+    slow_buttons = 0;
+    #endif
     lcd_buttons_update();
 #ifdef ULTIPANEL    
     encoderDiff = 0;
@@ -1023,11 +1029,11 @@ void lcd_update()
 {
     static unsigned long timeoutToStatus = 0;
     
-    lcd_buttons_update();
-    
     #ifdef LCD_HAS_SLOW_BUTTONS
-    buttons |= lcd_implementation_read_slow_buttons(); // buttons which take too long to read in interrupt context
+    slow_buttons = lcd_implementation_read_slow_buttons(); // buttons which take too long to read in interrupt context
     #endif
+    
+    lcd_buttons_update();
     
     #if (SDCARDDETECT > 0)
     if((IS_SD_INSERTED != lcd_oldcardstatus))
@@ -1170,6 +1176,9 @@ void lcd_buttons_update()
         newbutton |= EN_C;
   #endif
     buttons = newbutton;
+    #ifdef LCD_HAS_SLOW_BUTTONS
+    buttons |= slow_buttons;
+    #endif
     #ifdef REPRAPWORLD_KEYPAD
       // for the reprapworld_keypad
       uint8_t newbutton_reprapworld_keypad=0;
