@@ -421,7 +421,6 @@ static void lcd_tune_menu()
     END_MENU();
 }
 
-#if TEMP_SENSOR_2 != 0 //2nd extruder preheat
 void lcd_preheat_pla1()
 {
     setTargetHotend0(plaPreheatHotendTemp);
@@ -442,6 +441,7 @@ void lcd_preheat_abs1()
     lcd_return_to_status();
 }
 
+#if TEMP_SENSOR_2 != 0 //2nd extruder preheat
 void lcd_preheat_pla2()
 {
     //setTargetHotend0(plaPreheatHotendTemp);
