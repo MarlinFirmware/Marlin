@@ -1057,41 +1057,42 @@ ISR(TIMER0_COMPB_vect)
       #ifdef HEATERS_PARALLEL
       WRITE(HEATER_1_PIN,1);
       #endif
-    }
+    } else WRITE(HEATER_0_PIN,0);
+	
     #if EXTRUDERS > 1
     soft_pwm_1 = soft_pwm[1];
-    if(soft_pwm_1 > 0) WRITE(HEATER_1_PIN,1);
+    if(soft_pwm_1 > 0) WRITE(HEATER_1_PIN,1); else WRITE(HEATER_1_PIN,0);
     #endif
     #if EXTRUDERS > 2
     soft_pwm_2 = soft_pwm[2];
-    if(soft_pwm_2 > 0) WRITE(HEATER_2_PIN,1);
+    if(soft_pwm_2 > 0) WRITE(HEATER_2_PIN,1); else WRITE(HEATER_2_PIN,0);
     #endif
     #if defined(HEATER_BED_PIN) && HEATER_BED_PIN > -1
     soft_pwm_b = soft_pwm_bed;
-    if(soft_pwm_b > 0) WRITE(HEATER_BED_PIN,1);
+    if(soft_pwm_b > 0) WRITE(HEATER_BED_PIN,1); else WRITE(HEATER_BED_PIN,0);
     #endif
     #ifdef FAN_SOFT_PWM
     soft_pwm_fan = fanSpeedSoftPwm / 2;
-    if(soft_pwm_fan > 0) WRITE(FAN_PIN,1);
+    if(soft_pwm_fan > 0) WRITE(FAN_PIN,1); else WRITE(FAN_PIN,0);
     #endif
   }
-  if(soft_pwm_0 <= pwm_count) { 
+  if(soft_pwm_0 < pwm_count) { 
       WRITE(HEATER_0_PIN,0);
       #ifdef HEATERS_PARALLEL
       WRITE(HEATER_1_PIN,0);
       #endif
     }
   #if EXTRUDERS > 1
-  if(soft_pwm_1 <= pwm_count) WRITE(HEATER_1_PIN,0);
+  if(soft_pwm_1 < pwm_count) WRITE(HEATER_1_PIN,0);
   #endif
   #if EXTRUDERS > 2
-  if(soft_pwm_2 <= pwm_count) WRITE(HEATER_2_PIN,0);
+  if(soft_pwm_2 < pwm_count) WRITE(HEATER_2_PIN,0);
   #endif
   #if defined(HEATER_BED_PIN) && HEATER_BED_PIN > -1
-  if(soft_pwm_b <= pwm_count) WRITE(HEATER_BED_PIN,0);
+  if(soft_pwm_b < pwm_count) WRITE(HEATER_BED_PIN,0);
   #endif
   #ifdef FAN_SOFT_PWM
-  if(soft_pwm_fan <= pwm_count) WRITE(FAN_PIN,0);
+  if(soft_pwm_fan < pwm_count) WRITE(FAN_PIN,0);
   #endif
   
   pwm_count += (1 << SOFT_PWM_SCALE);
