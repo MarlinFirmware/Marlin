@@ -136,6 +136,8 @@
 	#define MSG_FILAMENTCHANGE "Change filament"
 	#define MSG_INIT_SDCARD "Init. SD-Card"	
 	#define MSG_CNG_SDCARD "Change SD-Card"
+    #define MSG_ZPROBE_OUT "ZProbe Outside Bed"
+    #define MSG_POSITION_UNKNOWN "Home X/Y before Z"
 
 // Serial Console Messages
 
@@ -301,6 +303,8 @@
 	#define MSG_FILAMENTCHANGE "Change filament"
 	#define MSG_INIT_SDCARD "Init. SD-Card"	
 	#define MSG_CNG_SDCARD "Change SD-Card"
+    #define MSG_ZPROBE_OUT "ZProbe Outside Bed"
+    #define MSG_POSITION_UNKNOWN "Home X/Y before Z"
 
 // Serial Console Messages
 
@@ -465,6 +469,8 @@
 	#define MSG_FILAMENTCHANGE "Changer filament"
 	#define MSG_INIT_SDCARD "Init. la carte SD"	
 	#define MSG_CNG_SDCARD "Changer de carte SD"
+    #define MSG_ZPROBE_OUT "ZProbe Outside Bed"
+    #define MSG_POSITION_UNKNOWN "Home X/Y before Z"
 
 // Serial Console Messages
 
@@ -632,6 +638,8 @@
 	#define MSG_FILAMENTCHANGE "Filament wechseln"
 	#define MSG_INIT_SDCARD "Init. SD-Card"	
 	#define MSG_CNG_SDCARD "Change SD-Card"
+    #define MSG_ZPROBE_OUT "ZProbe Outside Bed"
+    #define MSG_POSITION_UNKNOWN "Home X/Y before Z"
 	
 // Serial Console Messages
 
@@ -803,6 +811,8 @@
 	#define MSG_RETRACT_ARROW "Retraer"
 	#define MSG_PART_RELEASE "Desacople Parcial"
 	#define MSG_STEPPER_RELEASED "Desacoplada."
+    #define MSG_ZPROBE_OUT "ZProbe Outside Bed"
+    #define MSG_POSITION_UNKNOWN "Home X/Y before Z"
 
 // Serial Console Messages
 
@@ -964,6 +974,8 @@
 	#define MSG_FILAMENTCHANGE "Change filament"
 	#define MSG_INIT_SDCARD "Init. SD-Card"	
 	#define MSG_CNG_SDCARD "Change SD-Card"
+    #define MSG_ZPROBE_OUT "ZProbe Outside Bed"
+    #define MSG_POSITION_UNKNOWN "Home X/Y before Z"
 
 // Serial Console Messages
 
@@ -1125,6 +1137,8 @@
 	#define MSG_FILAMENTCHANGE       "Cambia filamento"
 	#define MSG_INIT_SDCARD          "Iniz. SD-Card"
 	#define MSG_CNG_SDCARD           "Cambia SD-Card"
+    #define MSG_ZPROBE_OUT "ZProbe Outside Bed"
+    #define MSG_POSITION_UNKNOWN "Home X/Y before Z"
 
 	// Serial Console Messages
 
@@ -1295,6 +1309,8 @@
 	#define MSG_FILAMENTCHANGE "Change filament"
 	#define MSG_INIT_SDCARD "Init. SD-Card"	
 	#define MSG_CNG_SDCARD "Change SD-Card"
+    #define MSG_ZPROBE_OUT "Sonda fora da mesa"
+    #define MSG_POSITION_UNKNOWN "Home X/Y antes de Z"
 
 // Serial Console Messages
 
@@ -1461,6 +1477,8 @@
 	#define MSG_FILAMENTCHANGE "Change filament"
 	#define MSG_INIT_SDCARD "Init. SD-Card"	
 	#define MSG_CNG_SDCARD "Change SD-Card"
+    #define MSG_ZPROBE_OUT "ZProbe Outside Bed"
+    #define MSG_POSITION_UNKNOWN "Home X/Y before Z"
 
 // Serial Console Messages
 
