@@ -65,6 +65,8 @@ float current_temperature_bed = 0.0;
 #ifdef FAN_SOFT_PWM
   unsigned char fanSpeedSoftPwm;
 #endif
+
+unsigned char soft_pwm_bed;
   
 #ifdef BABYSTEPPING
   volatile int babystepsTodo[3]={0,0,0};
@@ -105,7 +107,7 @@ static volatile bool temp_meas_ready = false;
 	static unsigned long  previous_millis_bed_heater;
 #endif //PIDTEMPBED
   static unsigned char soft_pwm[EXTRUDERS];
-  static unsigned char soft_pwm_bed;
+
 #ifdef FAN_SOFT_PWM
   static unsigned char soft_pwm_fan;
 #endif
