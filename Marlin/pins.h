@@ -2289,6 +2289,150 @@
 #endif
 
 
+#if MOTHERBOARD == 101
+#define KNOWN_BOARD
+/*****************************************************************
+* Decapede Pin Assignments
+******************************************************************/
+/*
+Arduino Mega Pins		Decapede Pins
+AREF					NC
+GND						GND
+13						Fan driver signal (H-enable)
+12						MotorE_dir
+11						MotorE_step
+10						MotorE_Enable
+9						MotorD_dir
+8						MotorD_step
+7						MotorD_Enable
+6						TH6
+5						MotorC_dir
+4						TH7
+3						MotorC_step
+2						MotorC_Enable
+1						Tx0
+0						Rx0
+14(TX3)					A axis
+15(RX3)					B axis
+16(TX2)					C axis
+17(RX2)					D axis
+18(TX1)					E axis
+19(RX1)					X axis
+20(SDA)					Y axis
+21(SCL)					Z axis
+RESET					Reset
+3.3V					3.3V
+5V						5V
+GND						GND
+GND						GND
+Vin						NC
+A0						MotorV_Enable
+A1						MotorV_step
+A2						MotorV_dir
+A3						MotorW_Enable
+A4						MotorW_step
+A5						MotorW_dir
+A6						MotorZ_Enable
+A7						MotorZ_step
+A8						MotorZ_dir
+A9						TH5
+A10						TH4
+A11						TH3
+A12						TH2
+A13						TH1
+A14						FET4_PWM
+A15						FET3_PWM
+22						FET5
+23						FET5_PWM
+24						MotorA_dir
+25						MotorA_step
+26						MotorA_Enable
+27						TH8
+28						TH10
+29						TH9
+30						MotorB_dir
+31						MotorB_step
+32						MotorB_Enable
+33						FET1
+34						V axis
+35						W axis
+36						FET2
+37						GPIO1
+38						FET3
+39						GPIO2
+40						FET4
+41						GPIO3
+42						MotorX_dir
+43						MotorX_step
+44						MotorX_Enable
+45						FET1_PWM
+46						FET2_PWM
+47						MotorY_dir
+48						MotorY_step
+49						MotorY_Enable
+50						MISO
+51						MOSI
+52						SCK
+53						SS
+*/	
+
+#ifndef __AVR_ATmega2560__
+#error Oops!  Make sure you have 'Arduino Mega 2560' selected from the 'Tools -> Boards' menu.
+#endif
+
+#define LARGE_FLASH true
+
+#define X_STEP_PIN 43
+#define X_DIR_PIN 42
+#define X_MIN_PIN 19
+#define X_ENABLE_PIN 44
+
+#define Y_STEP_PIN 48
+#define Y_DIR_PIN 47
+#define Y_MIN_PIN 20
+#define Y_ENABLE_PIN 49
+
+#define Z_STEP_PIN 61
+#define Z_DIR_PIN 62
+#define Z_MIN_PIN 21
+#define Z_ENABLE_PIN 60
+
+// FET4
+#define HEATER_BED_PIN 40
+#define TEMP_BED_PIN 
+
+// FET1
+#define HEATER_0_PIN  33
+#define TEMP_0_PIN 67
+
+// FET2
+#define HEATER_1_PIN 36
+#define TEMP_1_PIN 66
+
+// FET3
+#define HEATER_2_PIN 38
+#define TEMP_2_PIN 65
+
+// E
+#define E0_STEP_PIN         11
+#define E0_DIR_PIN          12
+#define E0_ENABLE_PIN       10
+
+// D
+#define E1_STEP_PIN         8
+#define E1_DIR_PIN          9
+#define E1_ENABLE_PIN       7
+
+#define SDPOWER            -1
+#define SDSS               -1
+#define LED_PIN            -1
+#define FAN_PIN            45 // FET1_PWM
+#define PS_ON_PIN          -1
+#define KILL_PIN           -1 //80 with Smart Controller LCD
+#define SUICIDE_PIN        -1  //PIN that has to be turned on right after start, to keep power flowing.
+#endif
+
+
 
 #ifndef KNOWN_BOARD
 #error Unknown MOTHERBOARD value in configuration.h

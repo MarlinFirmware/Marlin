@@ -65,6 +65,7 @@
 // 702= Minitronics v1.0
 // 90 = Alpha OMCA board
 // 91 = Final OMCA board
+// 101 = Decapede
 // 301 = Rambo
 // 21 = Elefu Ra Board (v3)
 
