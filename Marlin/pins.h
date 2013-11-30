@@ -2423,6 +2423,11 @@ A15						FET3_PWM
 #define E1_DIR_PIN          9
 #define E1_ENABLE_PIN       7
 
+// C
+#define E2_STEP_PIN         3
+#define E2_DIR_PIN          5
+#define E2_ENABLE_PIN       2
+
 #define SDPOWER            -1
 #define SDSS               -1
 #define LED_PIN            -1
