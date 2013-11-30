@@ -2429,7 +2429,7 @@ A15						FET3_PWM
 #define E2_ENABLE_PIN       2
 
 #define SDPOWER            -1
-#define SDSS               -1
+#define SDSS               53
 #define LED_PIN            -1
 #define FAN_PIN            45 // FET1_PWM
 #define PS_ON_PIN          -1
