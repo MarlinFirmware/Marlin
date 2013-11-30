@@ -2397,21 +2397,21 @@ A15						FET3_PWM
 #define Z_MIN_PIN 21
 #define Z_ENABLE_PIN 60
 
-// FET4
+// FET4 / TH4
 #define HEATER_BED_PIN 40
-#define TEMP_BED_PIN 
+#define TEMP_BED_PIN 10
 
-// FET1
+// FET1 / TH1
 #define HEATER_0_PIN  33
-#define TEMP_0_PIN 67
+#define TEMP_0_PIN 13 // analog numbering A13
 
-// FET2
+// FET2 / TH2
 #define HEATER_1_PIN 36
-#define TEMP_1_PIN 66
+#define TEMP_1_PIN 12 
 
-// FET3
+// FET3 / TH3
 #define HEATER_2_PIN 38
-#define TEMP_2_PIN 65
+#define TEMP_2_PIN 11
 
 // E
 #define E0_STEP_PIN         11
