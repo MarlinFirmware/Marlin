@@ -558,8 +558,8 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
     #define LCD_WIDTH 20
     #define LCD_HEIGHT 5
   #else
-    #define LCD_WIDTH 20
-    #define LCD_HEIGHT 4
+    #define LCD_WIDTH 16
+    #define LCD_HEIGHT 2
   #endif
   #endif
 #endif
