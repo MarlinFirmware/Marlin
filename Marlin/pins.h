@@ -2384,17 +2384,17 @@ A15						FET3_PWM
 
 #define X_STEP_PIN 43
 #define X_DIR_PIN 42
-#define X_STOP 19
+#define X_MIN_PIN 19
 #define X_ENABLE_PIN 44
 
 #define Y_STEP_PIN 48
 #define Y_DIR_PIN 47
-#define Y_STOP 20
+#define Y_MIN_PIN 20
 #define Y_ENABLE_PIN 49
 
 #define Z_STEP_PIN 61
 #define Z_DIR_PIN 62
-#define Z_STOP 21
+#define Z_MIN_PIN 21
 #define Z_ENABLE_PIN 60
 
 // FET1 / TH1
@@ -2408,6 +2408,10 @@ A15						FET3_PWM
 // FET3 / TH3
 #define HEATER_2_PIN 38
 #define TEMP_2_PIN 11
+
+// Out+- (H-enable) / TH4
+#define HEATER_BED_PIN 13
+#define TEMP_BED_PIN 10
 
 // E
 #define E0_STEP_PIN         11
@@ -2423,10 +2427,6 @@ A15						FET3_PWM
 #define E2_STEP_PIN         3
 #define E2_DIR_PIN          5
 #define E2_ENABLE_PIN       2
-
-// Out+- (H-enable) / TH4
-#define HEATER_BED_PIN 13
-#define TEMP_BED_PIN 10
 
 #define SDPOWER            -1
 #define SDSS               53
@@ -2498,7 +2498,12 @@ A15						FET3_PWM
 #define Z_MIN_PIN          -1
 #endif
 
-#define SENSITIVE_PINS {0, 1, X_STEP_PIN, X_DIR_PIN, X_ENABLE_PIN, X_MIN_PIN, X_MAX_PIN, Y_STEP_PIN, Y_DIR_PIN, Y_ENABLE_PIN, Y_MIN_PIN, Y_MAX_PIN, Z_STEP_PIN, Z_DIR_PIN, Z_ENABLE_PIN, Z_MIN_PIN, Z_MAX_PIN, PS_ON_PIN, \
+#define SENSITIVE_PINS { \
+  0, 1, \
+  X_STEP_PIN, X_DIR_PIN, X_ENABLE_PIN, X_MIN_PIN, X_MAX_PIN, \
+  Y_STEP_PIN, Y_DIR_PIN, Y_ENABLE_PIN, Y_MIN_PIN, Y_MAX_PIN, \
+  Z_STEP_PIN, Z_DIR_PIN, Z_ENABLE_PIN, Z_MIN_PIN, Z_MAX_PIN, \
+  PS_ON_PIN, \
                         HEATER_BED_PIN, FAN_PIN,                  \
                         _E0_PINS _E1_PINS _E2_PINS             \
                         analogInputToDigitalPin(TEMP_0_PIN), analogInputToDigitalPin(TEMP_1_PIN), analogInputToDigitalPin(TEMP_2_PIN), analogInputToDigitalPin(TEMP_BED_PIN) }
