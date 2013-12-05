@@ -121,10 +121,10 @@
 // 52 is 200k thermistor - ATC Semitec 204GT-2 (1k pullup)
 // 55 is 100k thermistor - ATC Semitec 104GT-2 (Used in ParCan & J-Head) (1k pullup)
 
-#define TEMP_SENSOR_0 7
-#define TEMP_SENSOR_1 7
-#define TEMP_SENSOR_2 7
-#define TEMP_SENSOR_BED 7
+#define TEMP_SENSOR_0 72
+#define TEMP_SENSOR_1 72
+#define TEMP_SENSOR_2 72
+#define TEMP_SENSOR_BED 72
 
 // This makes temp sensor 1 a redundant sensor for sensor 0. If the temperatures difference between these sensors is to high the print will be aborted.
 //#define TEMP_SENSOR_1_AS_REDUNDANT
@@ -138,10 +138,10 @@
 // The minimal temperature defines the temperature below which the heater will not be enabled It is used
 // to check that the wiring to the thermistor is not broken.
 // Otherwise this would lead to the heater being powered on all the time.
-#define HEATER_0_MINTEMP 0
-#define HEATER_1_MINTEMP 0
-#define HEATER_2_MINTEMP 0
-#define BED_MINTEMP 0
+#define HEATER_0_MINTEMP 1
+#define HEATER_1_MINTEMP 1
+#define HEATER_2_MINTEMP 1
+#define BED_MINTEMP 1
 
 // When temperature exceeds max temp, your heater will be switched off.
 // This feature exists to protect your hotend from overheating accidentally, but *NOT* from thermistor short/failure!
@@ -590,7 +590,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 // Use software PWM to drive the fan, as for the heaters. This uses a very low frequency
 // which is not ass annoying as with the hardware PWM. On the other hand, if this frequency
 // is too low, you should also increment SOFT_PWM_SCALE.
-//#define FAN_SOFT_PWM
+#define FAN_SOFT_PWM
 
 // Incrementing this by 1 will double the software PWM frequency,
 // affecting heaters, and the fan if FAN_SOFT_PWM is enabled.
