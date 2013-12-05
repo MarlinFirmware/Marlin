@@ -2384,17 +2384,17 @@ A15						FET3_PWM
 
 #define X_STEP_PIN 43
 #define X_DIR_PIN 42
-#define X_MIN_PIN 19
+#define X_STOP 19
 #define X_ENABLE_PIN 44
 
 #define Y_STEP_PIN 48
 #define Y_DIR_PIN 47
-#define Y_MIN_PIN 20
+#define Y_STOP 20
 #define Y_ENABLE_PIN 49
 
 #define Z_STEP_PIN 61
 #define Z_DIR_PIN 62
-#define Z_MIN_PIN 21
+#define Z_STOP 21
 #define Z_ENABLE_PIN 60
 
 // FET1 / TH1
@@ -2414,7 +2414,7 @@ A15						FET3_PWM
 #define E0_DIR_PIN          12
 #define E0_ENABLE_PIN       10
 
-// D
+  // D
 #define E1_STEP_PIN         8
 #define E1_DIR_PIN          9
 #define E1_ENABLE_PIN       7
