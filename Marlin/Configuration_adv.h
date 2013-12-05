@@ -61,7 +61,7 @@
 //This is for controlling a fan to cool down the stepper drivers
 //it will turn on when any driver is enabled
 //and turn off after the set amount of seconds from last driver being disabled again
-#define CONTROLLERFAN_PIN -1 //Pin used for the fan to cool controller (-1 to disable)
+#define CONTROLLERFAN_PIN 33 // fet1 Pin used for the fan to cool controller (-1 to disable)
 #define CONTROLLERFAN_SECS 60 //How many seconds, after all motors were disabled, the fan should run
 #define CONTROLLERFAN_SPEED 255  // == full speed
 
@@ -75,9 +75,9 @@
 // extruder temperature is above/below EXTRUDER_AUTO_FAN_TEMPERATURE.
 // Multiple extruders can be assigned to the same pin in which case 
 // the fan will turn on when any selected extruder is above the threshold.
-#define EXTRUDER_0_AUTO_FAN_PIN   -1
-#define EXTRUDER_1_AUTO_FAN_PIN   -1
-#define EXTRUDER_2_AUTO_FAN_PIN   -1
+#define EXTRUDER_0_AUTO_FAN_PIN   46 // fet2_pwm
+#define EXTRUDER_1_AUTO_FAN_PIN   54 // fet3_pwm
+#define EXTRUDER_2_AUTO_FAN_PIN   55 // fet4_pwm
 #define EXTRUDER_AUTO_FAN_TEMPERATURE 50
 #define EXTRUDER_AUTO_FAN_SPEED   255  // == full speed
 
@@ -184,9 +184,15 @@
     // Remember: you should set the second extruder x-offset to 0 in your slicer.
 
 // Pins for second x-carriage stepper driver (defined here to avoid further complicating pins.h)
-#define X2_ENABLE_PIN 29
-#define X2_STEP_PIN 25
-#define X2_DIR_PIN 23
+// W axis
+/*
+A3						MotorW_Enable
+A4						MotorW_step
+A5						MotorW_dir
+*/
+#define X2_ENABLE_PIN 57
+#define X2_STEP_PIN 58
+#define X2_DIR_PIN 59
 
 // There are a few selectable movement modes for dual x-carriages using M605 S<mode>
 //    Mode 0: Full control. The slicer has full control over both x-carriages and can achieve optimal travel results
