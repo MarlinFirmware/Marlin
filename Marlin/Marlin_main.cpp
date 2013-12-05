@@ -26,7 +26,7 @@
  It has preliminary support for Matthew Roberts advance algorithm
     http://reprap.org/pipermail/reprap-dev/2011-May/003323.html
  */
-
+ 
 #include "Marlin.h"
 
 #ifdef ENABLE_AUTO_BED_LEVELING
@@ -236,8 +236,8 @@ float delta[3] = {0.0, 0.0, 0.0};
 //===========================================================================
 //=============================private variables=============================
 //===========================================================================
-const char axis_codes[NUM_AXIS] = {'X', 'Y', 'Z', 'E'};
-static float destination[NUM_AXIS] = {  0.0, 0.0, 0.0, 0.0};
+const char axis_codes[NUM_AXIS] = {'X', 'Y', 'Z', 'E', 'A'};
+static float destination[NUM_AXIS] = {  0.0, 0.0, 0.0, 0.0, 0.0};
 static float offset[3] = {0.0, 0.0, 0.0};
 static bool home_all_axis = true;
 static float feedrate = 1500.0, next_feedrate, saved_feedrate;
@@ -1995,14 +1995,13 @@ void process_commands()
       lcd_setstatus(strchr_pointer + 5);
       break;
     case 114: // M114
-      SERIAL_PROTOCOLPGM("X:");
-      SERIAL_PROTOCOL(current_position[X_AXIS]);
-      SERIAL_PROTOCOLPGM("Y:");
-      SERIAL_PROTOCOL(current_position[Y_AXIS]);
-      SERIAL_PROTOCOLPGM("Z:");
-      SERIAL_PROTOCOL(current_position[Z_AXIS]);
-      SERIAL_PROTOCOLPGM("E:");
-      SERIAL_PROTOCOL(current_position[E_AXIS]);
+      for(int n = 0; n < NUM_AXIS; n++) {
+      SERIAL_PROTOCOL(axis_codes[n]);
+      SERIAL_PROTOCOLPGM(":");
+      SERIAL_PROTOCOL(current_position[n]);
+      SERIAL_PROTOCOLPGM(" ");
+      }
+      SERIAL_PROTOCOLPGM(" ");
 
       SERIAL_PROTOCOLPGM(MSG_COUNT_X);
       SERIAL_PROTOCOL(float(st_get_position(X_AXIS))/axis_steps_per_unit[X_AXIS]);
