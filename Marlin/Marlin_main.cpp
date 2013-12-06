@@ -807,11 +807,11 @@ static void set_bed_level_equation(float z_at_xLeft_yFront, float z_at_xRight_yF
 
     vector_3 xPositive = (xRightyFront - xLeftyFront).get_normal();
     vector_3 yPositive = (xLeftyBack - xLeftyFront).get_normal();
-    vector_3 planeNormal = vector_3::cross(yPositive, xPositive).get_normal();
+    vector_3 planeNormal = vector_3::cross(xPositive, yPositive).get_normal();
 
     //planeNormal.debug("planeNormal");
     //yPositive.debug("yPositive");
-    matrix_3x3 bedLevel = matrix_3x3::create_look_at(planeNormal, yPositive);
+    plan_bed_level_matrix = matrix_3x3::create_look_at(planeNormal);
     //bedLevel.debug("bedLevel");
 
     //plan_bed_level_matrix.debug("bed level before");
@@ -819,7 +819,6 @@ static void set_bed_level_equation(float z_at_xLeft_yFront, float z_at_xRight_yF
     //uncorrected_position.debug("position before");
 
     // and set our bed level equation to do the right thing
-    plan_bed_level_matrix = matrix_3x3::create_inverse(bedLevel);
     //plan_bed_level_matrix.debug("bed level after");
 
     vector_3 corrected_position = plan_get_position();
