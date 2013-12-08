@@ -520,7 +520,7 @@
   #endif
 
   #define TEMP_0_PIN         13   // ANALOG NUMBERING
-  #define TEMP_1_PIN         15   // ANALOG NUMBERING
+  #define TEMP_1_PIN         14   // ANALOG NUMBERING
   #define TEMP_2_PIN         -1   // ANALOG NUMBERING
 
   #if MOTHERBOARD == 35
@@ -532,7 +532,7 @@
       #define HEATER_BED_PIN     8    // BED
     #endif
   #endif
-  #define TEMP_BED_PIN       14   // ANALOG NUMBERING
+  #define TEMP_BED_PIN       15   // ANALOG NUMBERING
 
 
 
