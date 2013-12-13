@@ -1368,10 +1368,26 @@ void process_commands()
             
             
             int probePointCounter = 0;
+            bool zig = true;
             
-            for (int xProbe=LEFT_PROBE_BED_POSITION; xProbe <= RIGHT_PROBE_BED_POSITION; xProbe += xGridSpacing)
+            for (int yProbe=FRONT_PROBE_BED_POSITION; yProbe <= BACK_PROBE_BED_POSITION; yProbe += yGridSpacing)
             {
-              for (int yProbe=FRONT_PROBE_BED_POSITION; yProbe <= BACK_PROBE_BED_POSITION; yProbe += yGridSpacing)
+              int xProbe, xInc;
+              if (zig)
+              {
+                xProbe = LEFT_PROBE_BED_POSITION;
+                //xEnd = RIGHT_PROBE_BED_POSITION;
+                xInc = xGridSpacing;
+                zig = false;
+              } else // zag
+              {
+                xProbe = RIGHT_PROBE_BED_POSITION;
+                //xEnd = LEFT_PROBE_BED_POSITION;
+                xInc = -xGridSpacing;
+                zig = true;
+              }
+              
+              for (int xCount=0; xCount < ACCURATE_BED_LEVELING_POINTS; xCount++)
               {
                 if (probePointCounter == 0)
                 {
@@ -1403,6 +1419,7 @@ void process_commands()
                 eqnAMatrix[probePointCounter + 1*ACCURATE_BED_LEVELING_POINTS*ACCURATE_BED_LEVELING_POINTS] = yProbe;
                 eqnAMatrix[probePointCounter + 2*ACCURATE_BED_LEVELING_POINTS*ACCURATE_BED_LEVELING_POINTS] = 1;
                 probePointCounter++;
+                xProbe += xInc;
               }
             }
             clean_up_after_endstop_move();
