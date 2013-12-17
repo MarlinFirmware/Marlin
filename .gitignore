@@ -4,3 +4,6 @@ applet/
 *.orig
 *.rej
 *.bak
+
+# MacOS
+.DS_Store
