@@ -39,11 +39,13 @@
 #include "temperature.h"
 #include "motion_control.h"
 #include "cardreader.h"
+#include "gcode.h"
 #include "watchdog.h"
 #include "ConfigurationStore.h"
 #include "language.h"
 #include "pins_arduino.h"
 #include "math.h"
+#include "ManualFirmwareLeveling.h"
 
 #ifdef BLINKM
 #include "BlinkM.h"
@@ -798,9 +800,7 @@ static void axis_is_at_home(int axis) {
 }
 
 #ifdef ENABLE_AUTO_BED_LEVELING
-static void set_bed_level_equation(float z_at_xLeft_yFront, float z_at_xRight_yFront, float z_at_xLeft_yBack) {
-    plan_bed_level_matrix.set_to_identity();
-
+void set_bed_level_equation(float z_at_xLeft_yFront, float z_at_xRight_yFront, float z_at_xLeft_yBack) {
     vector_3 xLeftyFront = vector_3(LEFT_PROBE_BED_POSITION, FRONT_PROBE_BED_POSITION, z_at_xLeft_yFront);
     vector_3 xLeftyBack = vector_3(LEFT_PROBE_BED_POSITION, BACK_PROBE_BED_POSITION, z_at_xLeft_yBack);
     vector_3 xRightyFront = vector_3(RIGHT_PROBE_BED_POSITION, FRONT_PROBE_BED_POSITION, z_at_xRight_yFront);
@@ -1418,6 +1418,12 @@ void process_commands()
             retract_z_probe(); // Retract Z Servo endstop if available
         }
         break;
+	case 31: // Manually specify 
+			g31_manual_firmware_leveling();
+		break;
+	case 32: // Clear bed leveling matrix
+			g32_clear_manual_firmware_leveling();	
+		break;
 #endif // ENABLE_AUTO_BED_LEVELING
     case 90: // G90
       relative_mode = false;

@@ -145,6 +145,8 @@ Implemented G Codes:
 *  G28 - Home all Axis
 *  G29 - Detailed Z-Probe, probes the bed at 3 points.  You must de at the home position for this to work correctly.
 *  G30 - Single Z Probe, probes bed at current XY location.
+*  G31 - Manually configure bed leveling. Takes the probe height at the O(rigin) R(ight) and B(ack).
+*  G32 - Clear manual bed leveling offsets added with G31
 *  G90 - Use Absolute Coordinates
 *  G91 - Use Relative Coordinates
 *  G92 - Set current position to cordinates given
