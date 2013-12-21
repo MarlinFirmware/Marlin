@@ -863,7 +863,7 @@ static void run_z_probe() {
     plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
 }
 
-static void do_blocking_move_to(float x, float y, float z) {
+void do_blocking_move_to(float x, float y, float z) {
     float oldFeedRate = feedrate;
 
     feedrate = XY_TRAVEL_SPEED;
@@ -1423,6 +1423,9 @@ void process_commands()
 		break;
 	case 32: // Clear bed leveling matrix
 			g32_clear_manual_firmware_leveling();	
+		break;
+	case 33: // Move extruder to measure bed
+			g33_position_extruder_to_measure_bed();
 		break;
 #endif // ENABLE_AUTO_BED_LEVELING
     case 90: // G90

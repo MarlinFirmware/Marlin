@@ -147,6 +147,7 @@ Implemented G Codes:
 *  G30 - Single Z Probe, probes bed at current XY location.
 *  G31 - Manually configure bed leveling. Takes the probe height at the O(rigin) R(ight) and B(ack).
 *  G32 - Clear manual bed leveling offsets added with G31
+*  G33 - Position head for manual bed leveling measurement (use O(rigin), R(ight) or B(back) to set the position
 *  G90 - Use Absolute Coordinates
 *  G91 - Use Relative Coordinates
 *  G92 - Set current position to cordinates given
