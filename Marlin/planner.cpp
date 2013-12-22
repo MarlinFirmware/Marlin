@@ -186,9 +186,9 @@ void calculate_trapezoid_for_block(block_t *block, float entry_factor, float exi
 
   long acceleration = block->acceleration_st;
   int32_t accelerate_steps =
-    ceil(estimate_acceleration_distance(block->initial_rate, block->nominal_rate, acceleration));
+    ceil(estimate_acceleration_distance(initial_rate, block->nominal_rate, acceleration));
   int32_t decelerate_steps =
-    floor(estimate_acceleration_distance(block->nominal_rate, block->final_rate, -acceleration));
+    floor(estimate_acceleration_distance(block->nominal_rate, final_rate, -acceleration));
 
   // Calculate the size of Plateau of Nominal Rate.
   int32_t plateau_steps = block->step_event_count-accelerate_steps-decelerate_steps;
@@ -197,7 +197,7 @@ void calculate_trapezoid_for_block(block_t *block, float entry_factor, float exi
   // have to use intersection_distance() to calculate when to abort acceleration and start braking
   // in order to reach the final_rate exactly at the end of this block.
   if (plateau_steps < 0) {
-    accelerate_steps = ceil(intersection_distance(block->initial_rate, block->final_rate, acceleration, block->step_event_count));
+    accelerate_steps = ceil(intersection_distance(initial_rate, final_rate, acceleration, block->step_event_count));
     accelerate_steps = max(accelerate_steps,0); // Check limits due to numerical round-off
     accelerate_steps = min((uint32_t)accelerate_steps,block->step_event_count);//(We can cast here to unsigned, because the above line ensures that we are above zero)
     plateau_steps = 0;
