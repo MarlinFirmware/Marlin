@@ -161,7 +161,7 @@
   #define EXTRUDERS 1
 #endif
 
-#ifdef Z_DUAL_STEPPER_DRIVERS && Y_DUAL_STEPPER_DRIVERS
+#if defined (Z_DUAL_STEPPER_DRIVERS) && defined (Y_DUAL_STEPPER_DRIVERS)
   #error "You cannot have dual drivers for both Y and Z"
 #endif
 
