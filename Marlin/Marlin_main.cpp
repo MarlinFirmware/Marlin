@@ -31,6 +31,9 @@
 
 #ifdef ENABLE_AUTO_BED_LEVELING
 #include "vector_3.h"
+  #ifdef ACCURATE_BED_LEVELING
+    #include "qr_solve.h"
+  #endif
 #endif // ENABLE_AUTO_BED_LEVELING
 
 #include "ultralcd.h"
@@ -802,6 +805,31 @@ static void axis_is_at_home(int axis) {
 }
 
 #ifdef ENABLE_AUTO_BED_LEVELING
+#ifdef ACCURATE_BED_LEVELING
+static void set_bed_level_equation_lsq(double *plane_equation_coefficients)
+{
+    vector_3 planeNormal = vector_3(-plane_equation_coefficients[0], -plane_equation_coefficients[1], 1);
+    planeNormal.debug("planeNormal");
+    plan_bed_level_matrix = matrix_3x3::create_look_at(planeNormal);
+    //bedLevel.debug("bedLevel");
+
+    //plan_bed_level_matrix.debug("bed level before");
+    //vector_3 uncorrected_position = plan_get_position_mm();
+    //uncorrected_position.debug("position before");
+
+    vector_3 corrected_position = plan_get_position();
+//    corrected_position.debug("position after");
+    current_position[X_AXIS] = corrected_position.x;
+    current_position[Y_AXIS] = corrected_position.y;
+    current_position[Z_AXIS] = corrected_position.z;
+
+    // but the bed at 0 so we don't go below it.
+    current_position[Z_AXIS] = -Z_PROBE_OFFSET_FROM_EXTRUDER;
+
+    plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+}
+
+#else
 static void set_bed_level_equation(float z_at_xLeft_yFront, float z_at_xRight_yFront, float z_at_xLeft_yBack) {
     plan_bed_level_matrix.set_to_identity();
 
@@ -811,11 +839,11 @@ static void set_bed_level_equation(float z_at_xLeft_yFront, float z_at_xRight_yF
 
     vector_3 xPositive = (xRightyFront - xLeftyFront).get_normal();
     vector_3 yPositive = (xLeftyBack - xLeftyFront).get_normal();
-    vector_3 planeNormal = vector_3::cross(yPositive, xPositive).get_normal();
+    vector_3 planeNormal = vector_3::cross(xPositive, yPositive).get_normal();
 
     //planeNormal.debug("planeNormal");
     //yPositive.debug("yPositive");
-    matrix_3x3 bedLevel = matrix_3x3::create_look_at(planeNormal, yPositive);
+    plan_bed_level_matrix = matrix_3x3::create_look_at(planeNormal);
     //bedLevel.debug("bedLevel");
 
     //plan_bed_level_matrix.debug("bed level before");
@@ -823,7 +851,6 @@ static void set_bed_level_equation(float z_at_xLeft_yFront, float z_at_xRight_yF
     //uncorrected_position.debug("position before");
 
     // and set our bed level equation to do the right thing
-    plan_bed_level_matrix = matrix_3x3::create_inverse(bedLevel);
     //plan_bed_level_matrix.debug("bed level after");
 
     vector_3 corrected_position = plan_get_position();
@@ -837,6 +864,7 @@ static void set_bed_level_equation(float z_at_xLeft_yFront, float z_at_xRight_yF
 
     plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
 }
+#endif // ACCURATE_BED_LEVELING
 
 static void run_z_probe() {
     plan_bed_level_matrix.set_to_identity();
@@ -1325,7 +1353,99 @@ void process_commands()
             setup_for_endstop_move();
 
             feedrate = homing_feedrate[Z_AXIS];
-
+#ifdef ACCURATE_BED_LEVELING
+            
+            int xGridSpacing = (RIGHT_PROBE_BED_POSITION - LEFT_PROBE_BED_POSITION) / (ACCURATE_BED_LEVELING_POINTS-1);
+            int yGridSpacing = (BACK_PROBE_BED_POSITION - FRONT_PROBE_BED_POSITION) / (ACCURATE_BED_LEVELING_POINTS-1);
+            
+            
+            // solve the plane equation ax + by + d = z
+            // A is the matrix with rows [x y 1] for all the probed points
+            // B is the vector of the Z positions
+            // the normal vector to the plane is formed by the coefficients of the plane equation in the standard form, which is Vx*x+Vy*y+Vz*z+d = 0
+            // so Vx = -a Vy = -b Vz = 1 (we want the vector facing towards positive Z
+            
+            // "A" matrix of the linear system of equations
+            double eqnAMatrix[ACCURATE_BED_LEVELING_POINTS*ACCURATE_BED_LEVELING_POINTS*3];
+            // "B" vector of Z points
+            double eqnBVector[ACCURATE_BED_LEVELING_POINTS*ACCURATE_BED_LEVELING_POINTS];
+            
+            
+            int probePointCounter = 0;
+            bool zig = true;
+            
+            for (int yProbe=FRONT_PROBE_BED_POSITION; yProbe <= BACK_PROBE_BED_POSITION; yProbe += yGridSpacing)
+            {
+              int xProbe, xInc;
+              if (zig)
+              {
+                xProbe = LEFT_PROBE_BED_POSITION;
+                //xEnd = RIGHT_PROBE_BED_POSITION;
+                xInc = xGridSpacing;
+                zig = false;
+              } else // zag
+              {
+                xProbe = RIGHT_PROBE_BED_POSITION;
+                //xEnd = LEFT_PROBE_BED_POSITION;
+                xInc = -xGridSpacing;
+                zig = true;
+              }
+              
+              for (int xCount=0; xCount < ACCURATE_BED_LEVELING_POINTS; xCount++)
+              {
+                if (probePointCounter == 0)
+                {
+                  // raise before probing
+                  do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], Z_RAISE_BEFORE_PROBING);
+                } else
+                {               
+                  // raise extruder
+                  do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS] + Z_RAISE_BETWEEN_PROBINGS);
+                }
+                
+                
+                do_blocking_move_to(xProbe - X_PROBE_OFFSET_FROM_EXTRUDER, yProbe - Y_PROBE_OFFSET_FROM_EXTRUDER, current_position[Z_AXIS]);
+    
+                engage_z_probe();   // Engage Z Servo endstop if available
+                run_z_probe();
+                eqnBVector[probePointCounter] = current_position[Z_AXIS];
+                retract_z_probe();
+    
+                SERIAL_PROTOCOLPGM("Bed x: ");
+                SERIAL_PROTOCOL(xProbe);
+                SERIAL_PROTOCOLPGM(" y: ");
+                SERIAL_PROTOCOL(yProbe);
+                SERIAL_PROTOCOLPGM(" z: ");
+                SERIAL_PROTOCOL(current_position[Z_AXIS]);
+                SERIAL_PROTOCOLPGM("\n");
+                
+                eqnAMatrix[probePointCounter + 0*ACCURATE_BED_LEVELING_POINTS*ACCURATE_BED_LEVELING_POINTS] = xProbe;
+                eqnAMatrix[probePointCounter + 1*ACCURATE_BED_LEVELING_POINTS*ACCURATE_BED_LEVELING_POINTS] = yProbe;
+                eqnAMatrix[probePointCounter + 2*ACCURATE_BED_LEVELING_POINTS*ACCURATE_BED_LEVELING_POINTS] = 1;
+                probePointCounter++;
+                xProbe += xInc;
+              }
+            }
+            clean_up_after_endstop_move();
+            
+            // solve lsq problem
+            double *plane_equation_coefficients = qr_solve(ACCURATE_BED_LEVELING_POINTS*ACCURATE_BED_LEVELING_POINTS, 3, eqnAMatrix, eqnBVector);
+            
+            SERIAL_PROTOCOLPGM("Eqn coefficients: a: ");
+            SERIAL_PROTOCOL(plane_equation_coefficients[0]);
+            SERIAL_PROTOCOLPGM(" b: ");
+            SERIAL_PROTOCOL(plane_equation_coefficients[1]);
+            SERIAL_PROTOCOLPGM(" d: ");
+            SERIAL_PROTOCOLLN(plane_equation_coefficients[2]);
+            
+            
+            set_bed_level_equation_lsq(plane_equation_coefficients);
+            
+            free(plane_equation_coefficients);
+            
+#else // ACCURATE_BED_LEVELING not defined
+            
+            
             // prob 1
             do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], Z_RAISE_BEFORE_PROBING);
             do_blocking_move_to(LEFT_PROBE_BED_POSITION - X_PROBE_OFFSET_FROM_EXTRUDER, BACK_PROBE_BED_POSITION - Y_PROBE_OFFSET_FROM_EXTRUDER, current_position[Z_AXIS]);
@@ -1381,7 +1501,9 @@ void process_commands()
             clean_up_after_endstop_move();
 
             set_bed_level_equation(z_at_xLeft_yFront, z_at_xRight_yFront, z_at_xLeft_yBack);
-
+         
+            
+#endif // ACCURATE_BED_LEVELING
             st_synchronize();
 
             // The following code correct the Z height difference from z-probe position and hotend tip position.
