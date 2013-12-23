@@ -47,8 +47,8 @@ struct matrix_3x3
 	float matrix[9];
 
 	static matrix_3x3 create_from_rows(vector_3 row_0, vector_3 row_1, vector_3 row_2);
-	static matrix_3x3 create_look_at(vector_3 target, vector_3 up);
-	static matrix_3x3 create_inverse(matrix_3x3 original);
+	static matrix_3x3 create_look_at(vector_3 target);
+	static matrix_3x3 transpose(matrix_3x3 original);
 
 	void set_to_identity();
 
