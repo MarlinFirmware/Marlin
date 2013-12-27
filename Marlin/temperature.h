@@ -35,10 +35,18 @@ void manage_heater(); //it is critical that this is called periodically.
 // do not use these routines and variables outside of temperature.cpp
 extern int target_temperature[EXTRUDERS];  
 extern float current_temperature[EXTRUDERS];
+#ifdef SHOW_TEMP_ADC_VALUES
+  extern int current_temperature_raw[EXTRUDERS];
+  extern int current_temperature_bed_raw;
+#endif
 extern int target_temperature_bed;
 extern float current_temperature_bed;
 #ifdef TEMP_SENSOR_1_AS_REDUNDANT
   extern float redundant_temperature;
+#endif
+
+#if defined(CONTROLLERFAN_PIN) && CONTROLLERFAN_PIN > -1
+  extern unsigned char soft_pwm_bed;
 #endif
 
 #ifdef PIDTEMP
@@ -53,6 +61,11 @@ extern float current_temperature_bed;
   extern float bedKp,bedKi,bedKd;
 #endif
   
+  
+#ifdef BABYSTEPPING
+  extern volatile int babystepsTodo[3];
+#endif
+  
 //high level conversion routines, for use outside of temperature.cpp
 //inline so that there is no performance decrease.
 //deg=degreeCelsius
@@ -60,6 +73,16 @@ extern float current_temperature_bed;
 FORCE_INLINE float degHotend(uint8_t extruder) {  
   return current_temperature[extruder];
 };
+
+#ifdef SHOW_TEMP_ADC_VALUES
+  FORCE_INLINE float rawHotendTemp(uint8_t extruder) {  
+    return current_temperature_raw[extruder];
+  };
+
+  FORCE_INLINE float rawBedTemp() {  
+    return current_temperature_bed_raw;
+  };
+#endif
 
 FORCE_INLINE float degBed() {
   return current_temperature_bed;

@@ -75,6 +75,15 @@ float max_e_jerk;
 float mintravelfeedrate;
 unsigned long axis_steps_per_sqr_second[NUM_AXIS];
 
+#ifdef ENABLE_AUTO_BED_LEVELING
+// this holds the required transform to compensate for bed level
+matrix_3x3 plan_bed_level_matrix = {
+	1.0, 0.0, 0.0,
+	0.0, 1.0, 0.0,
+	0.0, 0.0, 1.0,
+};
+#endif // #ifdef ENABLE_AUTO_BED_LEVELING
+
 // The current position of the tool in absolute steps
 long position[4];   //rescaled from extern when axis_steps_per_unit are changed by gcode
 static float previous_speed[4]; // Speed of previous path line segment
@@ -177,9 +186,9 @@ void calculate_trapezoid_for_block(block_t *block, float entry_factor, float exi
 
   long acceleration = block->acceleration_st;
   int32_t accelerate_steps =
-    ceil(estimate_acceleration_distance(block->initial_rate, block->nominal_rate, acceleration));
+    ceil(estimate_acceleration_distance(initial_rate, block->nominal_rate, acceleration));
   int32_t decelerate_steps =
-    floor(estimate_acceleration_distance(block->nominal_rate, block->final_rate, -acceleration));
+    floor(estimate_acceleration_distance(block->nominal_rate, final_rate, -acceleration));
 
   // Calculate the size of Plateau of Nominal Rate.
   int32_t plateau_steps = block->step_event_count-accelerate_steps-decelerate_steps;
@@ -188,7 +197,7 @@ void calculate_trapezoid_for_block(block_t *block, float entry_factor, float exi
   // have to use intersection_distance() to calculate when to abort acceleration and start braking
   // in order to reach the final_rate exactly at the end of this block.
   if (plateau_steps < 0) {
-    accelerate_steps = ceil(intersection_distance(block->initial_rate, block->final_rate, acceleration, block->step_event_count));
+    accelerate_steps = ceil(intersection_distance(initial_rate, final_rate, acceleration, block->step_event_count));
     accelerate_steps = max(accelerate_steps,0); // Check limits due to numerical round-off
     accelerate_steps = min((uint32_t)accelerate_steps,block->step_event_count);//(We can cast here to unsigned, because the above line ensures that we are above zero)
     plateau_steps = 0;
@@ -513,7 +522,11 @@ float junction_deviation = 0.1;
 // Add a new linear movement to the buffer. steps_x, _y and _z is the absolute position in 
 // mm. Microseconds specify how many microseconds the move should take to perform. To aid acceleration
 // calculation the caller must also provide the physical length of the line in millimeters.
+#ifdef ENABLE_AUTO_BED_LEVELING
+void plan_buffer_line(float x, float y, float z, const float &e, float feed_rate, const uint8_t &extruder)
+#else
 void plan_buffer_line(const float &x, const float &y, const float &z, const float &e, float feed_rate, const uint8_t &extruder)
+#endif  //ENABLE_AUTO_BED_LEVELING
 {
   // Calculate the buffer head after we push this byte
   int next_buffer_head = next_block_index(block_buffer_head);
@@ -526,6 +539,10 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
     manage_inactivity(); 
     lcd_update();
   }
+
+#ifdef ENABLE_AUTO_BED_LEVELING
+  apply_rotation_xyz(plan_bed_level_matrix, x, y, z);
+#endif // ENABLE_AUTO_BED_LEVELING
 
   // The target position of the tool in absolute steps
   // Calculate target position in absolute steps
@@ -919,8 +936,30 @@ block->steps_y = labs((target[X_AXIS]-position[X_AXIS]) - (target[Y_AXIS]-positi
   st_wake_up();
 }
 
+#ifdef ENABLE_AUTO_BED_LEVELING
+vector_3 plan_get_position() {
+	vector_3 position = vector_3(st_get_position_mm(X_AXIS), st_get_position_mm(Y_AXIS), st_get_position_mm(Z_AXIS));
+
+	//position.debug("in plan_get position");
+	//plan_bed_level_matrix.debug("in plan_get bed_level");
+	matrix_3x3 inverse = matrix_3x3::transpose(plan_bed_level_matrix);
+	//inverse.debug("in plan_get inverse");
+	position.apply_rotation(inverse);
+	//position.debug("after rotation");
+
+	return position;
+}
+#endif // ENABLE_AUTO_BED_LEVELING
+
+#ifdef ENABLE_AUTO_BED_LEVELING
+void plan_set_position(float x, float y, float z, const float &e)
+{
+  apply_rotation_xyz(plan_bed_level_matrix, x, y, z);
+#else
 void plan_set_position(const float &x, const float &y, const float &z, const float &e)
 {
+#endif // ENABLE_AUTO_BED_LEVELING
+
   position[X_AXIS] = lround(x*axis_steps_per_unit[X_AXIS]);
   position[Y_AXIS] = lround(y*axis_steps_per_unit[Y_AXIS]);
   position[Z_AXIS] = lround(z*axis_steps_per_unit[Z_AXIS]);     

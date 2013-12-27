@@ -1,6 +1,8 @@
 ==========================
 Marlin 3D Printer Firmware
 ==========================
+Marlin has a GPL license because I believe in open development.
+Please do not use this code in products (3D printers, CNC etc) that are closed source or are crippled by a patent.
 
 [![Flattr this git repo](http://api.flattr.com/button/flattr-badge-large.png)](https://flattr.com/submit/auto?user_id=ErikZalm&url=https://github.com/ErikZalm/Marlin&title=Marlin&language=&tags=github&category=software)
 
@@ -41,9 +43,12 @@ Features:
 *   Heater power reporting. Useful for PID monitoring.
 *   PID tuning
 *   CoreXY kinematics (www.corexy.com/theory.html)
+*   Delta kinematics
+*   Dual X-carriage support for multiple extruder systems
 *   Configurable serial port to support connection of wireless adaptors.
 *   Automatic operation of extruder/cold-end cooling fans based on nozzle temperature
 *   RC Servo Support, specify angle or duration for continuous rotation servos.
+*   Bed Auto Leveling.
 
 The default baudrate is 250000. This baudrate has less jitter and hence errors than the usual 115200 baud, but is less supported by drivers and host-environments.
 
@@ -138,21 +143,15 @@ Implemented G Codes:
 *  G10 - retract filament according to settings of M207
 *  G11 - retract recover filament according to settings of M208
 *  G28 - Home all Axis
+*  G29 - Detailed Z-Probe, probes the bed at 3 points.  You must de at the home position for this to work correctly.
+*  G30 - Single Z Probe, probes bed at current XY location.
 *  G90 - Use Absolute Coordinates
 *  G91 - Use Relative Coordinates
 *  G92 - Set current position to cordinates given
 
-RepRap M Codes
+M Codes
 *  M0   - Unconditional stop - Wait for user to press a button on the LCD (Only if ULTRA_LCD is enabled)
 *  M1   - Same as M0
-*  M104 - Set extruder target temp
-*  M105 - Read current temp
-*  M106 - Fan on
-*  M107 - Fan off
-*  M109 - Wait for extruder current temp to reach target temp.
-*  M114 - Display current position
-
-Custom M Codes
 *  M17  - Enable/Power all stepper motors
 *  M18  - Disable all stepper motors; same as M84
 *  M20  - List SD card
@@ -167,6 +166,7 @@ Custom M Codes
 *  M29  - Stop SD write
 *  M30  - Delete file from SD (M30 filename.g)
 *  M31  - Output time since last M109 or SD card start to serial
+*  M32  - Select file and start SD print (Can be used when printing from SD card)
 *  M42  - Change pin status via gcode Use M42 Px Sy to set pin x to value y, when omitting Px the onboard led will be used.
 *  M80  - Turn on Power Supply
 *  M81  - Turn off Power Supply
@@ -175,6 +175,12 @@ Custom M Codes
 *  M84  - Disable steppers until next move, or use S<seconds> to specify an inactivity timeout, after which the steppers will be disabled.  S0 to disable the timeout.
 *  M85  - Set inactivity shutdown timer with parameter S<seconds>. To disable set zero (default)
 *  M92  - Set axis_steps_per_unit - same syntax as G92
+*  M104 - Set extruder target temp
+*  M105 - Read current temp
+*  M106 - Fan on
+*  M107 - Fan off
+*  M109 - Sxxx Wait for extruder current temp to reach target temp. Waits only when heating
+*         Rxxx Wait for extruder current temp to reach target temp. Waits when heating and cooling
 *  M114 - Output current position to serial port
 *  M115 - Capabilities string
 *  M117 - display message
@@ -184,7 +190,8 @@ Custom M Codes
 *  M128 - EtoP Open (BariCUDA EtoP = electricity to air pressure transducer by jmil)
 *  M129 - EtoP Closed (BariCUDA EtoP = electricity to air pressure transducer by jmil)
 *  M140 - Set bed target temp
-*  M190 - Wait for bed current temp to reach target temp.
+*  M190 - Sxxx Wait for bed current temp to reach target temp. Waits only when heating
+*         Rxxx Wait for bed current temp to reach target temp. Waits when heating and cooling
 *  M200 - Set filament diameter
 *  M201 - Set max acceleration in units/s^2 for print moves (M201 X1000 Y1000)
 *  M202 - Set max acceleration in units/s^2 for travel moves (M202 X1000 Y1000) Unused in Marlin!!
@@ -206,6 +213,8 @@ Custom M Codes
 *  M303 - PID relay autotune S<temperature> sets the target temperature. (default target temperature = 150C)
 *  M304 - Set bed PID parameters P I and D
 *  M400 - Finish all moves
+*  M401 - Lower z-probe if present
+*  M402 - Raise z-probe if present
 *  M500 - stores paramters in EEPROM
 *  M501 - reads parameters from EEPROM (if you need reset them after you changed them temporarily).
 *  M502 - reverts to the default "factory settings".  You still need to store them in EEPROM afterwards if you want to.
@@ -226,12 +235,12 @@ Configuring and compilation:
 Install the arduino software IDE/toolset v23 (Some configurations also work with 1.x.x)
    http://www.arduino.cc/en/Main/Software
 
+Download the Marlin firmware
+   https://github.com/ErikZalm/Marlin/tree/Marlin_v1
+   Use the "Download Zip" button on the right.
+
 For gen6/gen7 and sanguinololu the Sanguino directory in the Marlin dir needs to be copied to the arduino environment.
   copy ArduinoAddons\Arduino_x.x.x\sanguino <arduino home>\hardware\Sanguino
-
-Copy the Marlin firmware
-   https://github.com/ErikZalm/Marlin/tree/Marlin_v1
-   (Use the download button)
 
 Start the arduino IDE.
 Select Tools -> Board -> Arduino Mega 2560    or your microcontroller
@@ -244,6 +253,76 @@ Click the Upload button
 If all goes well the firmware is uploading
 
 That's ok.  Enjoy Silky Smooth Printing.
+
+===============================================
+Instructions for configuring Bed Auto Leveling
+===============================================
+Uncomment the "ENABLE_AUTO_BED_LEVELING" define (commented by default)
+
+You will probably need a swivel Z-MIN endstop in the extruder. A rc servo do a great job.
+Check the system working here: http://www.youtube.com/watch?v=3IKMeOYz-1Q (Enable English subtitles)
+Teasing ;-) video: http://www.youtube.com/watch?v=x8eqSQNAyro
+
+In order to get the servo working, you need to enable:
+
+* \#define NUM_SERVOS 1 // Servo index starts with 0 for M280 command
+
+* \#define SERVO_ENDSTOPS {-1, -1, 0} // Servo index for X, Y, Z. Disable with -1
+
+* \#define SERVO_ENDSTOP_ANGLES {0,0, 0,0, 165,60} // X,Y,Z Axis Extend and Retract angles
+
+
+The first define tells firmware how many servos you have.
+The second tells what axis this servo will be attached to. In the example above, we have a servo in Z axis.
+The third one tells the angle in 2 situations: Probing (165º) and resting (60º). Check this with command M280 P0 S{angle} (example: M280 P0 S60 moves the servo to 60º)
+
+*For RAMPS users:*
+By default, RAMPS have no power on servo bus (if you happen to have a multimeter, check the voltage on servo power pins).
+In order to get the servo working, you need to supply 5V to 5V pin.. You can do it using your power supply (if it has a 5V output) or jumping the "Vcc" from Arduino to the 5V RAMPS rail.
+These 2 pins are located just between the Reset Button and the yellow fuses... There are marks in the board showing 5V and VCC.. just connect them..
+If jumping the arduino Vcc do RAMPS 5V rail, take care to not use a power hungry servo, otherwise you will cause a blackout in the arduino board ;-)
+
+
+Next you need to define the Z endstop (probe) offset from hotend.
+My preferred method:
+
+* a) Make a small mark in the bed with a marker/felt-tip pen.
+* b) Place the hotend tip as *exactly* as possible on the mark, touching the bed. Raise the hotend 0.1mm (a regular paper thickness) and zero all axis (G92 X0 Y0 Z0);
+* d) Raise the hotend 10mm (or more) for probe clearance, lower the Z probe (Z-Endstop) with M401 and place it just on that mark by moving X, Y and Z;
+* e) Lower the Z in 0.1mm steps, with the probe always touching the mark (it may be necessary to adjust X and Y as well) until you hear the "click" meaning the mechanical endstop was trigged. You can confirm with M119;
+* f) Now you have the probe in the same place as your hotend tip was before. Perform a M114 and write down the values, for example: X:24.3 Y:-31.4 Z:5.1;
+* g) You can raise the z probe with M402 command;
+* h) Fill the defines bellow multiplying the values by "-1" (just change the signal)
+
+
+* \#define X_PROBE_OFFSET_FROM_EXTRUDER -24.3
+* \#define Y_PROBE_OFFSET_FROM_EXTRUDER 31.4
+* \#define Z_PROBE_OFFSET_FROM_EXTRUDER -5.1
+
+
+The following options define the probing positions. These are good starting values.
+I recommend to keep a better clearance from borders in the first run and then make the probes as close as possible to borders:
+
+* \#define LEFT_PROBE_BED_POSITION 30
+* \#define RIGHT_PROBE_BED_POSITION 140
+* \#define BACK_PROBE_BED_POSITION 140
+* \#define FRONT_PROBE_BED_POSITION 30
+
+A few more options:
+
+* \#define XY_TRAVEL_SPEED 6000
+
+X and Y axis travel speed between probes, in mm/min.
+Bear in mind that really fast moves may render step skipping. 6000 mm/min (100mm/s) is a good value.
+
+* \#define Z_RAISE_BEFORE_PROBING 10
+* \#define Z_RAISE_BETWEEN_PROBINGS 10
+
+The Z axis is lifted when traveling to the first probe point by Z_RAISE_BEFORE_PROBING value
+and then lifted when traveling from first to second and second to third point by Z_RAISE_BETWEEN_PROBINGS.
+All values are in mm as usual. 
+
+That's it.. enjoy never having to calibrate your Z endstop neither leveling your bed by hand anymore ;-)
 
 
 

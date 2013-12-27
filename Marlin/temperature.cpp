@@ -65,6 +65,12 @@ float current_temperature_bed = 0.0;
 #ifdef FAN_SOFT_PWM
   unsigned char fanSpeedSoftPwm;
 #endif
+
+unsigned char soft_pwm_bed;
+  
+#ifdef BABYSTEPPING
+  volatile int babystepsTodo[3]={0,0,0};
+#endif
   
 //===========================================================================
 //=============================private variables============================
@@ -101,7 +107,7 @@ static volatile bool temp_meas_ready = false;
 	static unsigned long  previous_millis_bed_heater;
 #endif //PIDTEMPBED
   static unsigned char soft_pwm[EXTRUDERS];
-  static unsigned char soft_pwm_bed;
+
 #ifdef FAN_SOFT_PWM
   static unsigned char soft_pwm_fan;
 #endif
@@ -248,7 +254,7 @@ void PID_autotune(float temp, int extruder, int ncycles)
               Kp = 0.6*Ku;
               Ki = 2*Kp/Tu;
               Kd = Kp*Tu/8;
-              SERIAL_PROTOCOLLNPGM(" Clasic PID ")
+              SERIAL_PROTOCOLLNPGM(" Clasic PID ");
               SERIAL_PROTOCOLPGM(" Kp: "); SERIAL_PROTOCOLLN(Kp);
               SERIAL_PROTOCOLPGM(" Ki: "); SERIAL_PROTOCOLLN(Ki);
               SERIAL_PROTOCOLPGM(" Kd: "); SERIAL_PROTOCOLLN(Kd);
@@ -440,10 +446,9 @@ void manage_heater()
           //K1 defined in Configuration.h in the PID settings
           #define K2 (1.0-K1)
           dTerm[e] = (Kd * (pid_input - temp_dState[e]))*K2 + (K1 * dTerm[e]);
-          temp_dState[e] = pid_input;
-
           pid_output = constrain(pTerm[e] + iTerm[e] - dTerm[e], 0, PID_MAX);
         }
+        temp_dState[e] = pid_input;
     #else 
           pid_output = constrain(target_temperature[e], 0, PID_MAX);
     #endif //PID_OPENLOOP
@@ -1090,7 +1095,7 @@ ISR(TIMER0_COMPB_vect)
   static unsigned char sample_count = 1;
   #endif
   static unsigned char soft_pwm_0;
-  #if EXTRUDERS > 1
+  #if (EXTRUDERS > 1) || defined(HEATERS_PARALLEL)
   static unsigned char soft_pwm_1;
   #endif
   #if EXTRUDERS > 2
@@ -1102,36 +1107,47 @@ ISR(TIMER0_COMPB_vect)
   
   if(pwm_count == 0){
     soft_pwm_0 = soft_pwm[0];
-    if(soft_pwm_0 > 0) WRITE(HEATER_0_PIN,1);
+    if(soft_pwm_0 > 0) { 
+      WRITE(HEATER_0_PIN,1);
+      #ifdef HEATERS_PARALLEL
+      WRITE(HEATER_1_PIN,1);
+      #endif
+    } else WRITE(HEATER_0_PIN,0);
+	
     #if EXTRUDERS > 1
     soft_pwm_1 = soft_pwm[1];
-    if(soft_pwm_1 > 0) WRITE(HEATER_1_PIN,1);
+    if(soft_pwm_1 > 0) WRITE(HEATER_1_PIN,1); else WRITE(HEATER_1_PIN,0);
     #endif
     #if EXTRUDERS > 2
     soft_pwm_2 = soft_pwm[2];
-    if(soft_pwm_2 > 0) WRITE(HEATER_2_PIN,1);
+    if(soft_pwm_2 > 0) WRITE(HEATER_2_PIN,1); else WRITE(HEATER_2_PIN,0);
     #endif
     #if defined(HEATER_BED_PIN) && HEATER_BED_PIN > -1
     soft_pwm_b = soft_pwm_bed;
-    if(soft_pwm_b > 0) WRITE(HEATER_BED_PIN,1);
+    if(soft_pwm_b > 0) WRITE(HEATER_BED_PIN,1); else WRITE(HEATER_BED_PIN,0);
     #endif
     #ifdef FAN_SOFT_PWM
     soft_pwm_fan = fanSpeedSoftPwm / 2;
-    if(soft_pwm_fan > 0) WRITE(FAN_PIN,1);
+    if(soft_pwm_fan > 0) WRITE(FAN_PIN,1); else WRITE(FAN_PIN,0);
     #endif
   }
-  if(soft_pwm_0 <= pwm_count) WRITE(HEATER_0_PIN,0);
+  if(soft_pwm_0 < pwm_count) { 
+      WRITE(HEATER_0_PIN,0);
+      #ifdef HEATERS_PARALLEL
+      WRITE(HEATER_1_PIN,0);
+      #endif
+    }
   #if EXTRUDERS > 1
-  if(soft_pwm_1 <= pwm_count) WRITE(HEATER_1_PIN,0);
+  if(soft_pwm_1 < pwm_count) WRITE(HEATER_1_PIN,0);
   #endif
   #if EXTRUDERS > 2
-  if(soft_pwm_2 <= pwm_count) WRITE(HEATER_2_PIN,0);
+  if(soft_pwm_2 < pwm_count) WRITE(HEATER_2_PIN,0);
   #endif
   #if defined(HEATER_BED_PIN) && HEATER_BED_PIN > -1
-  if(soft_pwm_b <= pwm_count) WRITE(HEATER_BED_PIN,0);
+  if(soft_pwm_b < pwm_count) WRITE(HEATER_BED_PIN,0);
   #endif
   #ifdef FAN_SOFT_PWM
-  if(soft_pwm_fan <= pwm_count) WRITE(FAN_PIN,0);
+  if(soft_pwm_fan < pwm_count) WRITE(FAN_PIN,0);
   #endif
   
   #ifdef SOFT_PWM_SCALE_USE_OCR
@@ -1323,7 +1339,26 @@ ISR(TIMER0_COMPB_vect)
        bed_max_temp_error();
     }
 #endif
-  }  
+  }
+  
+#ifdef BABYSTEPPING
+  for(uint8_t axis=0;axis<3;axis++)
+  {
+    int curTodo=babystepsTodo[axis]; //get rid of volatile for performance
+   
+    if(curTodo>0)
+    {
+      babystep(axis,/*fwd*/true);
+      babystepsTodo[axis]--; //less to do next time
+    }
+    else
+    if(curTodo<0)
+    {
+      babystep(axis,/*fwd*/false);
+      babystepsTodo[axis]++; //less to do next time
+    }
+  }
+#endif //BABYSTEPPING
 }
 
 #ifdef PIDTEMP
