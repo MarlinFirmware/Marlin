@@ -1315,9 +1315,11 @@ void process_commands()
         }
       }
       #ifdef ENABLE_AUTO_BED_LEVELING
+      #if Z_HOME_DIR < 0//If homing towards the bed
         if((home_all_axis) || (code_seen(axis_codes[Z_AXIS]))) {
           current_position[Z_AXIS] -= Z_PROBE_OFFSET_FROM_EXTRUDER;  //Add Z_Probe offset (the distance is negative)
         }
+      #endif
       #endif
       plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
 #endif // else DELTA
