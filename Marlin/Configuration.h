@@ -10,7 +10,7 @@
 //===========================================================================
 // For a Delta printer rplace the configuration files wilth the files in the 
 // example_configurations/delta directory.
-// 
+//
 
 // User-specified version info of this build to display in [Pronterface, etc] terminal window during
 // startup. Implementation of an idea by Prof Braino to inform user that any changes made to this
@@ -36,7 +36,8 @@
 // 11 = Gen7 v1.1, v1.2 = 11
 // 12 = Gen7 v1.3
 // 13 = Gen7 v1.4
-// 20 = Sethi 3D_1 
+// 2  = Cheaptronic v1.0
+// 20 = Sethi 3D_1
 // 3  = MEGA/RAMPS up to 1.2 = 3
 // 33 = RAMPS 1.3 / 1.4 (Power outputs: Extruder, Fan, Bed)
 // 34 = RAMPS 1.3 / 1.4 (Power outputs: Extruder0, Extruder1, Bed)
@@ -364,6 +365,13 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
     #define Z_SAFE_HOMING_X_POINT (X_MAX_LENGTH/2)    // X point for Z homing when homing all axis (G28)
     #define Z_SAFE_HOMING_Y_POINT (Y_MAX_LENGTH/2)    // Y point for Z homing when homing all axis (G28)
     
+  // with accurate bed leveling, the bed is sampled in a ACCURATE_BED_LEVELING_POINTSxACCURATE_BED_LEVELING_POINTS grid and least squares solution is calculated
+  // Note: this feature occupies 10'206 byte
+  #define ACCURATE_BED_LEVELING
+  
+  #ifdef ACCURATE_BED_LEVELING
+     // I wouldn't see a reason to go above 3 (=9 probing points on the bed)
+    #define ACCURATE_BED_LEVELING_POINTS 2
   #endif
   
 #endif
@@ -434,6 +442,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 //#define SDSUPPORT // Enable SD Card Support in Hardware Console
 //#define SDSLOW // Use slower SD transfer mode (not normally needed - uncomment if you're getting volume init error)
 //#define ENCODER_PULSES_PER_STEP 1 // Increase if you have a high resolution encoder
+//#define ENCODER_STEPS_PER_MENU_ITEM 5 // Set according to ENCODER_PULSES_PER_STEP or your liking
 //#define ULTIMAKERCONTROLLER //as available from the ultimaker online store.
 //#define ULTIPANEL  //the ultipanel as on thingiverse
 
@@ -540,7 +549,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 // Shift register panels
 // ---------------------
 // 2 wire Non-latching LCD SR from:
-// https://bitbucket.org/fmalpartida/new-liquidcrystal/wiki/schematics#!shiftregister-connection 
+// https://bitbucket.org/fmalpartida/new-liquidcrystal/wiki/schematics#!shiftregister-connection
 //#define SR_LCD
 #ifdef SR_LCD
    #define SR_LCD_2W_NL    // Non latching 2 wire shiftregister
