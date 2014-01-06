@@ -792,9 +792,10 @@ const short temptable_60[][2] PROGMEM = {
 
 // my additions:
 // 137 = AD8495 thermocouple
-// 138 = TI LMT87 silicon temperature sensor
+// 138 = TI LMT87 temperature sensor
 
-#if (THERMISTORHEATER_0 == 137) || (THERMISTORHEATER_1 == 137) || (THERMISTORHEATER_2 == 137) || (THERMISTORBED == 137) // AD8495 thermocouple (5mV/°C)
+#if (THERMISTORHEATER_0 == 137) || (THERMISTORHEATER_1 == 137) || (THERMISTORHEATER_2 == 137) || (THERMISTORBED == 137) 
+// AD8495 thermocouple (5mV/°C)
 const short temptable_137[][2] PROGMEM = {
 	{0 * OVERSAMPLENR, 0},
 	{10 * OVERSAMPLENR, 10},
@@ -838,7 +839,32 @@ const short temptable_137[][2] PROGMEM = {
 	{390 * OVERSAMPLENR, 380},
 	{400 * OVERSAMPLENR, 391},
 	{500 * OVERSAMPLENR, 488},
-	{501 * OVERSAMPLENR, 999},
+	{501 * OVERSAMPLENR, 999}
+};
+#endif
+
+
+#if (THERMISTORHEATER_0 == 138) || (THERMISTORHEATER_1 == 138) || (THERMISTORHEATER_2 == 138) || (THERMISTORBED == 138) 
+// TI LMT87 temperature sensor (-13.6mV/K)
+const short temptable_138[][2] PROGMEM = {
+	{80 * OVERSAMPLENR, 160},
+	{110 * OVERSAMPLENR, 150},
+	{140 * OVERSAMPLENR, 140},
+	{170 * OVERSAMPLENR, 130},
+	{199 * OVERSAMPLENR, 120},
+	{228 * OVERSAMPLENR, 110},	
+	{257 * OVERSAMPLENR, 100},	
+	{287 * OVERSAMPLENR, 90},	
+	{315 * OVERSAMPLENR, 80},
+	{344 * OVERSAMPLENR, 70},	
+	{373 * OVERSAMPLENR, 60},	
+	{401 * OVERSAMPLENR, 50},
+	{429 * OVERSAMPLENR, 40},
+	{457 * OVERSAMPLENR, 30},
+	{471 * OVERSAMPLENR, 25},
+	{484 * OVERSAMPLENR, 20},
+	{512 * OVERSAMPLENR, 10},	
+	{539 * OVERSAMPLENR, 0}
 };
 #endif
 
