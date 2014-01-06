@@ -1039,7 +1039,7 @@ ISR(TIMER0_COMPB_vect)
   static unsigned long raw_temp_1_value = 0;
   static unsigned long raw_temp_2_value = 0;
   static unsigned long raw_temp_bed_value = 0;
-  static unsigned char temp_state = 0;
+  static unsigned char temp_state = 8;
   static unsigned char pwm_count = (1 << SOFT_PWM_SCALE);
   static unsigned char soft_pwm_0;
   #if (EXTRUDERS > 1) || defined(HEATERS_PARALLEL)
@@ -1180,6 +1180,9 @@ ISR(TIMER0_COMPB_vect)
       #endif
       temp_state = 0;
       temp_count++;
+      break;
+    case 8: //Startup, delay initial temp reading a tiny bit so the hardware can settle.
+      temp_state = 0;
       break;
 //    default:
 //      SERIAL_ERROR_START;
