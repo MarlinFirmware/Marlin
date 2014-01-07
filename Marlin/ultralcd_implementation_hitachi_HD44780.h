@@ -13,7 +13,7 @@ extern volatile uint16_t buttons;  //an extended version of the last checked but
 #endif
 
 ////////////////////////////////////
-// Setup button and encode mappings for each panel (into 'buttons' variable)
+// Setup button and encode mappings for each panel (into 'buttons' variable
 //
 // This is just to map common functions (across different panels) onto the same 
 // macro name. The mapping is independent of whether the button is directly connected or 
@@ -128,17 +128,10 @@ extern volatile uint16_t buttons;  //an extended version of the last checked but
 // These values are independent of which pins are used for EN_A and EN_B indications
 // The rotary encoder part is also independent to the chipset used for the LCD
 #if defined(EN_A) && defined(EN_B)
-  #ifndef ULTIMAKERCONTROLLER
     #define encrot0 0
     #define encrot1 2
     #define encrot2 3
     #define encrot3 1
-  #else
-    #define encrot0 0
-    #define encrot1 1
-    #define encrot2 3
-    #define encrot3 2
-  #endif
 #endif 
 
 #endif //ULTIPANEL
@@ -180,7 +173,21 @@ extern volatile uint16_t buttons;  //an extended version of the last checked but
   #include <LiquidTWI2.h>
   #define LCD_CLASS LiquidTWI2
   LCD_CLASS lcd(LCD_I2C_ADDRESS);  
-  
+
+#elif defined(LCD_I2C_TYPE_PCA8574)
+    #include <LiquidCrystal_I2C.h>
+    #define LCD_CLASS LiquidCrystal_I2C
+    LCD_CLASS lcd(LCD_I2C_ADDRESS, LCD_WIDTH, LCD_HEIGHT);
+    
+// 2 wire Non-latching LCD SR from:
+// https://bitbucket.org/fmalpartida/new-liquidcrystal/wiki/schematics#!shiftregister-connection 
+#elif defined(SR_LCD_2W_NL)
+   
+  #include <LCD.h>
+  #include <LiquidCrystal_SR.h>
+  #define LCD_CLASS LiquidCrystal_SR
+  LCD_CLASS lcd(SR_DATA_PIN, SR_CLK_PIN);
+
 #else
   // Standard directly connected LCD implementations
   #if LANGUAGE_CHOICE == 6
@@ -305,6 +312,10 @@ static void lcd_implementation_init()
 #elif defined(LCD_I2C_TYPE_MCP23008)
     lcd.setMCPType(LTI_TYPE_MCP23008);
     lcd.begin(LCD_WIDTH, LCD_HEIGHT);
+
+#elif defined(LCD_I2C_TYPE_PCA8574)
+      lcd.init();
+      lcd.backlight();
     
 #else
     lcd.begin(LCD_WIDTH, LCD_HEIGHT);
@@ -503,7 +514,7 @@ static void lcd_implementation_drawmenu_generic(uint8_t row, const char* pstr, c
   #endif
     lcd.setCursor(0, row);
     lcd.print(pre_char);
-    while((c = pgm_read_byte(pstr)) != '\0')
+    while( ((c = pgm_read_byte(pstr)) != '\0') && (n>0) )
     {
         lcd.print(c);
         pstr++;
@@ -525,7 +536,7 @@ static void lcd_implementation_drawmenu_setting_edit_generic(uint8_t row, const 
   #endif
     lcd.setCursor(0, row);
     lcd.print(pre_char);
-    while((c = pgm_read_byte(pstr)) != '\0')
+    while( ((c = pgm_read_byte(pstr)) != '\0') && (n>0) )
     {
         lcd.print(c);
         pstr++;
@@ -547,7 +558,7 @@ static void lcd_implementation_drawmenu_setting_edit_generic_P(uint8_t row, cons
   #endif
     lcd.setCursor(0, row);
     lcd.print(pre_char);
-    while((c = pgm_read_byte(pstr)) != '\0')
+    while( ((c = pgm_read_byte(pstr)) != '\0') && (n>0) )
     {
         lcd.print(c);
         pstr++;
@@ -617,7 +628,7 @@ static void lcd_implementation_drawmenu_sdfile_selected(uint8_t row, const char*
         filename = longFilename;
         longFilename[LCD_WIDTH-1] = '\0';
     }
-    while((c = *filename) != '\0')
+    while( ((c = *filename) != '\0') && (n>0) )
     {
         lcd.print(c);
         filename++;
@@ -637,7 +648,7 @@ static void lcd_implementation_drawmenu_sdfile(uint8_t row, const char* pstr, co
         filename = longFilename;
         longFilename[LCD_WIDTH-1] = '\0';
     }
-    while((c = *filename) != '\0')
+    while( ((c = *filename) != '\0') && (n>0) )
     {
         lcd.print(c);
         filename++;
@@ -658,7 +669,7 @@ static void lcd_implementation_drawmenu_sddirectory_selected(uint8_t row, const 
         filename = longFilename;
         longFilename[LCD_WIDTH-2] = '\0';
     }
-    while((c = *filename) != '\0')
+    while( ((c = *filename) != '\0') && (n>0) )
     {
         lcd.print(c);
         filename++;
@@ -679,7 +690,7 @@ static void lcd_implementation_drawmenu_sddirectory(uint8_t row, const char* pst
         filename = longFilename;
         longFilename[LCD_WIDTH-2] = '\0';
     }
-    while((c = *filename) != '\0')
+    while( ((c = *filename) != '\0') && (n>0) )
     {
         lcd.print(c);
         filename++;
@@ -706,9 +717,9 @@ static void lcd_implementation_quick_feedback()
     for(int8_t i=0;i<10;i++)
     {
       WRITE(BEEPER,HIGH);
-      delay(3);
+      delayMicroseconds(100);
       WRITE(BEEPER,LOW);
-      delay(3);
+      delayMicroseconds(100);
     }
 #endif
 }
@@ -735,12 +746,23 @@ static void lcd_implementation_update_indicators()
 #endif
 
 #ifdef LCD_HAS_SLOW_BUTTONS
+extern uint32_t blocking_enc;
+
 static uint8_t lcd_implementation_read_slow_buttons()
 {
   #ifdef LCD_I2C_TYPE_MCP23017
+  uint8_t slow_buttons;
     // Reading these buttons this is likely to be too slow to call inside interrupt context
     // so they are called during normal lcd_update
-    return lcd.readButtons() << B_I2C_BTN_OFFSET; 
+    slow_buttons = lcd.readButtons() << B_I2C_BTN_OFFSET; 
+    #if defined(LCD_I2C_VIKI)
+    if(slow_buttons & (B_MI|B_RI)) { //LCD clicked
+       if(blocking_enc > millis()) {
+         slow_buttons &= ~(B_MI|B_RI); // Disable LCD clicked buttons if screen is updated
+       }
+    }
+    #endif
+    return slow_buttons; 
   #endif
 }
 #endif

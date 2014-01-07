@@ -75,6 +75,15 @@ float max_e_jerk;
 float mintravelfeedrate;
 unsigned long axis_steps_per_sqr_second[NUM_AXIS];
 
+#ifdef ENABLE_AUTO_BED_LEVELING
+// this holds the required transform to compensate for bed level
+matrix_3x3 plan_bed_level_matrix = {
+	1.0, 0.0, 0.0,
+	0.0, 1.0, 0.0,
+	0.0, 0.0, 1.0,
+};
+#endif // #ifdef ENABLE_AUTO_BED_LEVELING
+
 // The current position of the tool in absolute steps
 long position[4];   //rescaled from extern when axis_steps_per_unit are changed by gcode
 static float previous_speed[4]; // Speed of previous path line segment
@@ -98,7 +107,7 @@ volatile unsigned char block_buffer_tail;           // Index of the block to pro
 //=============================private variables ============================
 //===========================================================================
 #ifdef PREVENT_DANGEROUS_EXTRUDE
-bool allow_cold_extrude=false;
+float extrude_min_temp=EXTRUDE_MINTEMP;
 #endif
 #ifdef XY_FREQUENCY_LIMIT
 #define MAX_FREQ_TIME (1000000.0/XY_FREQUENCY_LIMIT)
@@ -177,9 +186,9 @@ void calculate_trapezoid_for_block(block_t *block, float entry_factor, float exi
 
   long acceleration = block->acceleration_st;
   int32_t accelerate_steps =
-    ceil(estimate_acceleration_distance(block->initial_rate, block->nominal_rate, acceleration));
+    ceil(estimate_acceleration_distance(initial_rate, block->nominal_rate, acceleration));
   int32_t decelerate_steps =
-    floor(estimate_acceleration_distance(block->nominal_rate, block->final_rate, -acceleration));
+    floor(estimate_acceleration_distance(block->nominal_rate, final_rate, -acceleration));
 
   // Calculate the size of Plateau of Nominal Rate.
   int32_t plateau_steps = block->step_event_count-accelerate_steps-decelerate_steps;
@@ -188,7 +197,7 @@ void calculate_trapezoid_for_block(block_t *block, float entry_factor, float exi
   // have to use intersection_distance() to calculate when to abort acceleration and start braking
   // in order to reach the final_rate exactly at the end of this block.
   if (plateau_steps < 0) {
-    accelerate_steps = ceil(intersection_distance(block->initial_rate, block->final_rate, acceleration, block->step_event_count));
+    accelerate_steps = ceil(intersection_distance(initial_rate, final_rate, acceleration, block->step_event_count));
     accelerate_steps = max(accelerate_steps,0); // Check limits due to numerical round-off
     accelerate_steps = min((uint32_t)accelerate_steps,block->step_event_count);//(We can cast here to unsigned, because the above line ensures that we are above zero)
     plateau_steps = 0;
@@ -473,22 +482,24 @@ void check_axes_activity()
     disable_e2(); 
   }
 #if defined(FAN_PIN) && FAN_PIN > -1
-  #ifndef FAN_SOFT_PWM
-    #ifdef FAN_KICKSTART_TIME
-      static unsigned long fan_kick_end;
-      if (tail_fan_speed) {
-        if (fan_kick_end == 0) {
-          // Just starting up fan - run at full power.
-          fan_kick_end = millis() + FAN_KICKSTART_TIME;
-          tail_fan_speed = 255;
-        } else if (fan_kick_end > millis())
-          // Fan still spinning up.
-          tail_fan_speed = 255;
-      } else {
-        fan_kick_end = 0;
-      }
-    #endif//FAN_KICKSTART_TIME
-    analogWrite(FAN_PIN,tail_fan_speed);
+  #ifdef FAN_KICKSTART_TIME
+    static unsigned long fan_kick_end;
+    if (tail_fan_speed) {
+      if (fan_kick_end == 0) {
+        // Just starting up fan - run at full power.
+        fan_kick_end = millis() + FAN_KICKSTART_TIME;
+        tail_fan_speed = 255;
+      } else if (fan_kick_end > millis())
+        // Fan still spinning up.
+        tail_fan_speed = 255;
+    } else {
+      fan_kick_end = 0;
+    }
+  #endif//FAN_KICKSTART_TIME
+  #ifdef FAN_SOFT_PWM
+  fanSpeedSoftPwm = tail_fan_speed;
+  #else
+  analogWrite(FAN_PIN,tail_fan_speed);
   #endif//!FAN_SOFT_PWM
 #endif//FAN_PIN > -1
 #ifdef AUTOTEMP
@@ -511,7 +522,11 @@ float junction_deviation = 0.1;
 // Add a new linear movement to the buffer. steps_x, _y and _z is the absolute position in 
 // mm. Microseconds specify how many microseconds the move should take to perform. To aid acceleration
 // calculation the caller must also provide the physical length of the line in millimeters.
+#ifdef ENABLE_AUTO_BED_LEVELING
+void plan_buffer_line(float x, float y, float z, const float &e, float feed_rate, const uint8_t &extruder)
+#else
 void plan_buffer_line(const float &x, const float &y, const float &z, const float &e, float feed_rate, const uint8_t &extruder)
+#endif  //ENABLE_AUTO_BED_LEVELING
 {
   // Calculate the buffer head after we push this byte
   int next_buffer_head = next_block_index(block_buffer_head);
@@ -525,6 +540,10 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
     lcd_update();
   }
 
+#ifdef ENABLE_AUTO_BED_LEVELING
+  apply_rotation_xyz(plan_bed_level_matrix, x, y, z);
+#endif // ENABLE_AUTO_BED_LEVELING
+
   // The target position of the tool in absolute steps
   // Calculate target position in absolute steps
   //this should be done after the wait, because otherwise a M92 code within the gcode disrupts this calculation somehow
@@ -537,7 +556,7 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
   #ifdef PREVENT_DANGEROUS_EXTRUDE
   if(target[E_AXIS]!=position[E_AXIS])
   {
-    if(degHotend(active_extruder)<EXTRUDE_MINTEMP && !allow_cold_extrude)
+    if(degHotend(active_extruder)<extrude_min_temp)
     {
       position[E_AXIS]=target[E_AXIS]; //behave as if the move really took place, but ignore E part
       SERIAL_ECHO_START;
@@ -562,8 +581,16 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
   block->busy = false;
 
   // Number of steps for each axis
-  block->steps_x = labs(target[X_AXIS]-position[X_AXIS]);
-  block->steps_y = labs(target[Y_AXIS]-position[Y_AXIS]);
+#ifndef COREXY
+// default non-h-bot planning
+block->steps_x = labs(target[X_AXIS]-position[X_AXIS]);
+block->steps_y = labs(target[Y_AXIS]-position[Y_AXIS]);
+#else
+// corexy planning
+// these equations follow the form of the dA and dB equations on http://www.corexy.com/theory.html
+block->steps_x = labs((target[X_AXIS]-position[X_AXIS]) + (target[Y_AXIS]-position[Y_AXIS]));
+block->steps_y = labs((target[X_AXIS]-position[X_AXIS]) - (target[Y_AXIS]-position[Y_AXIS]));
+#endif
   block->steps_z = labs(target[Z_AXIS]-position[Z_AXIS]);
   block->steps_e = labs(target[E_AXIS]-position[E_AXIS]);
   block->steps_e *= extrudemultiply;
@@ -584,6 +611,7 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
 
   // Compute direction bits for this block 
   block->direction_bits = 0;
+#ifndef COREXY
   if (target[X_AXIS] < position[X_AXIS])
   {
     block->direction_bits |= (1<<X_AXIS); 
@@ -592,6 +620,16 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
   {
     block->direction_bits |= (1<<Y_AXIS); 
   }
+#else
+  if ((target[X_AXIS]-position[X_AXIS]) + (target[Y_AXIS]-position[Y_AXIS]) < 0)
+  {
+    block->direction_bits |= (1<<X_AXIS); 
+  }
+  if ((target[X_AXIS]-position[X_AXIS]) - (target[Y_AXIS]-position[Y_AXIS]) < 0)
+  {
+    block->direction_bits |= (1<<Y_AXIS); 
+  }
+#endif
   if (target[Z_AXIS] < position[Z_AXIS])
   {
     block->direction_bits |= (1<<Z_AXIS); 
@@ -636,8 +674,13 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
   } 
 
   float delta_mm[4];
-  delta_mm[X_AXIS] = (target[X_AXIS]-position[X_AXIS])/axis_steps_per_unit[X_AXIS];
-  delta_mm[Y_AXIS] = (target[Y_AXIS]-position[Y_AXIS])/axis_steps_per_unit[Y_AXIS];
+  #ifndef COREXY
+    delta_mm[X_AXIS] = (target[X_AXIS]-position[X_AXIS])/axis_steps_per_unit[X_AXIS];
+    delta_mm[Y_AXIS] = (target[Y_AXIS]-position[Y_AXIS])/axis_steps_per_unit[Y_AXIS];
+  #else
+    delta_mm[X_AXIS] = ((target[X_AXIS]-position[X_AXIS]) + (target[Y_AXIS]-position[Y_AXIS]))/axis_steps_per_unit[X_AXIS];
+    delta_mm[Y_AXIS] = ((target[X_AXIS]-position[X_AXIS]) - (target[Y_AXIS]-position[Y_AXIS]))/axis_steps_per_unit[Y_AXIS];
+  #endif
   delta_mm[Z_AXIS] = (target[Z_AXIS]-position[Z_AXIS])/axis_steps_per_unit[Z_AXIS];
   delta_mm[E_AXIS] = ((target[E_AXIS]-position[E_AXIS])/axis_steps_per_unit[E_AXIS])*extrudemultiply/100.0;
   if ( block->steps_x <=dropsegments && block->steps_y <=dropsegments && block->steps_z <=dropsegments )
@@ -757,7 +800,7 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
       block->acceleration_st = axis_steps_per_sqr_second[Z_AXIS];
   }
   block->acceleration = block->acceleration_st / steps_per_mm;
-  block->acceleration_rate = (long)((float)block->acceleration_st * 8.388608);
+  block->acceleration_rate = (long)((float)block->acceleration_st * (16777216.0 / (F_CPU / 8.0)));
 
 #if 0  // Use old jerk for now
   // Compute path unit vector
@@ -893,8 +936,30 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
   st_wake_up();
 }
 
+#ifdef ENABLE_AUTO_BED_LEVELING
+vector_3 plan_get_position() {
+	vector_3 position = vector_3(st_get_position_mm(X_AXIS), st_get_position_mm(Y_AXIS), st_get_position_mm(Z_AXIS));
+
+	//position.debug("in plan_get position");
+	//plan_bed_level_matrix.debug("in plan_get bed_level");
+	matrix_3x3 inverse = matrix_3x3::transpose(plan_bed_level_matrix);
+	//inverse.debug("in plan_get inverse");
+	position.apply_rotation(inverse);
+	//position.debug("after rotation");
+
+	return position;
+}
+#endif // ENABLE_AUTO_BED_LEVELING
+
+#ifdef ENABLE_AUTO_BED_LEVELING
+void plan_set_position(float x, float y, float z, const float &e)
+{
+  apply_rotation_xyz(plan_bed_level_matrix, x, y, z);
+#else
 void plan_set_position(const float &x, const float &y, const float &z, const float &e)
 {
+#endif // ENABLE_AUTO_BED_LEVELING
+
   position[X_AXIS] = lround(x*axis_steps_per_unit[X_AXIS]);
   position[Y_AXIS] = lround(y*axis_steps_per_unit[Y_AXIS]);
   position[Z_AXIS] = lround(z*axis_steps_per_unit[Z_AXIS]);     
@@ -918,12 +983,12 @@ uint8_t movesplanned()
   return (block_buffer_head-block_buffer_tail + BLOCK_BUFFER_SIZE) & (BLOCK_BUFFER_SIZE - 1);
 }
 
-void allow_cold_extrudes(bool allow)
-{
 #ifdef PREVENT_DANGEROUS_EXTRUDE
-  allow_cold_extrude=allow;
-#endif
+void set_extrude_min_temp(float temp)
+{
+  extrude_min_temp=temp;
 }
+#endif
 
 // Calculate the steps/s^2 acceleration rates, based on the mm/s^s
 void reset_acceleration_rates()

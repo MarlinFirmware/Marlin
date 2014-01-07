@@ -33,11 +33,11 @@
 #define LCD_CLICKED (buttons&EN_C)
 #endif
 
-// CHANGE_DE begin ***
-#include <U8glib.h>	// DE_U8glib
+#include <U8glib.h>
 #include "DOGMbitmaps.h"
 #include "dogm_font_data_marlin.h"
 #include "ultralcd.h"
+#include "ultralcd_st7920_u8glib_rrd.h"
 
 
 /* Russian language not supported yet, needs custom font
@@ -74,17 +74,28 @@
 
 #define FONT_STATUSMENU	u8g_font_6x9
 
+int lcd_contrast;
 
 // LCD selection
 #ifdef U8GLIB_ST7920
-// SPI Com: SCK = en = (D4), MOSI = rw = (RS), CS = di = (ENABLE)
-U8GLIB_ST7920_128X64_1X u8g(LCD_PINS_D4, LCD_PINS_ENABLE, LCD_PINS_RS);
+//U8GLIB_ST7920_128X64_RRD u8g(0,0,0);
+U8GLIB_ST7920_128X64_RRD u8g(0);
+#elif defined(MAKRPANEL)
+// The MaKrPanel display, ST7565 controller as well
+U8GLIB_NHD_C12864 u8g(DOGLCD_CS, DOGLCD_A0);
 #else
+// for regular DOGM128 display with HW-SPI
 U8GLIB_DOGM128 u8g(DOGLCD_CS, DOGLCD_A0);	// HW-SPI Com: CS, A0
 #endif
 
 static void lcd_implementation_init()
 {
+#ifdef LCD_PIN_BL
+	pinMode(LCD_PIN_BL, OUTPUT);	// Enable LCD backlight
+	digitalWrite(LCD_PIN_BL, HIGH);
+#endif
+
+        u8g.setContrast(lcd_contrast);	
 	//  Uncomment this if you have the first generation (V1.10) of STBs board
 	//  pinMode(17, OUTPUT);	// Enable LCD backlight
 	//  digitalWrite(17, HIGH);
@@ -101,11 +112,11 @@ static void lcd_implementation_init()
 	u8g.setRot90();	// Rotate screen by 90°
 #endif
 
-#ifdef LCD_SCREEN_ROT_180;
+#ifdef LCD_SCREEN_ROT_180
 	u8g.setRot180();	// Rotate screen by 180°
 #endif
 
-#ifdef LCD_SCREEN_ROT_270;
+#ifdef LCD_SCREEN_ROT_270
 	u8g.setRot270();	// Rotate screen by 270°
 #endif
 
@@ -118,14 +129,14 @@ static void lcd_implementation_init()
 			u8g.setFont(u8g_font_6x10_marlin);
 			u8g.drawStr(62,10,"MARLIN"); 
 			u8g.setFont(u8g_font_5x8);
-			u8g.drawStr(62,19,"V1.0.0 RC2");
+			u8g.drawStr(62,19,"V1.0.0 RC2-mm");
 			u8g.setFont(u8g_font_6x10_marlin);
 			u8g.drawStr(62,28,"by ErikZalm");
 			u8g.drawStr(62,41,"DOGM128 LCD");
 			u8g.setFont(u8g_font_5x8);
 			u8g.drawStr(62,48,"enhancements");
 			u8g.setFont(u8g_font_5x8);
-			u8g.drawStr(62,55,"by STB");
+			u8g.drawStr(62,55,"by STB, MM");
 			u8g.drawStr(62,61,"uses u");
 			u8g.drawStr90(92,57,"8");
 			u8g.drawStr(100,61,"glib");

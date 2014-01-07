@@ -77,7 +77,7 @@ typedef enum { _timer3, _Nbr_16timers } timer16_Sequence_t ;
 //typedef enum { _timer3, _timer1, _Nbr_16timers } timer16_Sequence_t ;
 typedef enum { _timer3, _Nbr_16timers } timer16_Sequence_t ;
 
-#elif defined(__AVR_ATmega128__) ||defined(__AVR_ATmega1281__)||defined(__AVR_ATmega2561__)
+#elif defined(__AVR_ATmega128__) ||defined(__AVR_ATmega1281__) || defined(__AVR_ATmega1284P__) ||defined(__AVR_ATmega2561__)
 #define _useTimer3
 //#define _useTimer1
 //typedef enum { _timer3, _timer1, _Nbr_16timers } timer16_Sequence_t ;
@@ -123,6 +123,9 @@ public:
   int read();                        // returns current pulse width as an angle between 0 and 180 degrees
   int readMicroseconds();            // returns current pulse width in microseconds for this servo (was read_us() in first release)
   bool attached();                   // return true if this servo is attached, otherwise false
+#if defined (ENABLE_AUTO_BED_LEVELING) && (PROBE_SERVO_DEACTIVATION_DELAY > 0)
+  int pin;                           // store the hw pin of the servo
+#endif
 private:
    uint8_t servoIndex;               // index into the channel data for this servo
    int8_t min;                       // minimum is this value times 4 added to MIN_PULSE_WIDTH
