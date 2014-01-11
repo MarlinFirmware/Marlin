@@ -215,6 +215,7 @@ int fanSpeed=0;
 #ifdef SERVO_ENDSTOPS
   int servo_endstops[] = SERVO_ENDSTOPS;
   int servo_endstop_angles[] = SERVO_ENDSTOP_ANGLES;
+  int servo_endstop_delay[] = SERVO_ENDSTOP_DELAY;
 #endif
 #ifdef BARICUDA
 int ValvePressure=0;
@@ -394,28 +395,15 @@ void suicide()
 
 void servo_init()
 {
-  #if (NUM_SERVOS >= 1) && defined(SERVO0_PIN) && (SERVO0_PIN > -1)
-    servos[0].attach(SERVO0_PIN);
-  #endif
-  #if (NUM_SERVOS >= 2) && defined(SERVO1_PIN) && (SERVO1_PIN > -1)
-    servos[1].attach(SERVO1_PIN);
-  #endif
-  #if (NUM_SERVOS >= 3) && defined(SERVO2_PIN) && (SERVO2_PIN > -1)
-    servos[2].attach(SERVO2_PIN);
-  #endif
-  #if (NUM_SERVOS >= 4) && defined(SERVO3_PIN) && (SERVO3_PIN > -1)
-    servos[3].attach(SERVO3_PIN);
-  #endif
-  #if (NUM_SERVOS >= 5)
-    #error "TODO: enter initalisation code for more servos"
-  #endif
-
   // Set position of Servo Endstops that are defined
   #ifdef SERVO_ENDSTOPS
   for(int8_t i = 0; i < 3; i++)
   {
     if(servo_endstops[i] > -1) {
+      servo_attach(servo_endstops[i]);
       servos[servo_endstops[i]].write(servo_endstop_angles[i * 2 + 1]);
+      delay(servo_endstop_delay[i]);
+      servos[servo_endstops[i]].detach();
     }
   }
   #endif
@@ -423,6 +411,35 @@ void servo_init()
   #if defined (ENABLE_AUTO_BED_LEVELING) && (PROBE_SERVO_DEACTIVATION_DELAY > 0)
   delay(PROBE_SERVO_DEACTIVATION_DELAY);
   servos[servo_endstops[Z_AXIS]].detach();
+  #endif
+}
+
+void servo_attach(int index)
+{
+  // Attach only the requested servo index
+  #if (index == 0) && defined(SERVO0_PIN) && (SERVO0_PIN > -1)
+    servos[index].attach(SERVO0_PIN);
+  #endif
+  #if (index == 1) && defined(SERVO1_PIN) && (SERVO1_PIN > -1)
+    servos[index].attach(SERVO1_PIN);
+  #endif
+  #if (index == 2) && defined(SERVO2_PIN) && (SERVO2_PIN > -1)
+    servos[index].attach(SERVO2_PIN);
+  #endif
+  #if (index == 3) && defined(SERVO3_PIN) && (SERVO3_PIN > -1)
+    servos[index].attach(SERVO3_PIN);
+  #endif
+  #if (index == 4) && defined(SERVO4_PIN) && (SERVO4_PIN > -1)
+    servos[index].attach(SERVO4_PIN);
+  #endif
+  #if (index == 5) && defined(SERVO5_PIN) && (SERVO5_PIN > -1)
+    servos[index].attach(SERVO5_PIN);
+  #endif
+  #if (index == 6) && defined(SERVO6_PIN) && (SERVO6_PIN > -1)
+    servos[index].attach(SERVO6_PIN);
+  #endif
+  #if (index == 7) && defined(SERVO7_PIN) && (SERVO7_PIN > -1)
+    servos[index].attach(SERVO7_PIN);
   #endif
 }
 
@@ -993,7 +1010,10 @@ static void homeaxis(int axis) {
 	    else
       #endif
       if (servo_endstops[axis] > -1) {
+        servo_attach(servo_endstops[axis]);
         servos[servo_endstops[axis]].write(servo_endstop_angles[axis * 2]);
+        delay(servo_endstop_delay[axis]);
+        servos[servo_endstops[axis]].detach();
       }
     #endif
 
@@ -1034,7 +1054,10 @@ static void homeaxis(int axis) {
     // Retract Servo endstop if enabled
     #ifdef SERVO_ENDSTOPS
       if (servo_endstops[axis] > -1) {
+        servo_attach(servo_endstops[axis]);
         servos[servo_endstops[axis]].write(servo_endstop_angles[axis * 2 + 1]);
+        delay(servo_endstop_delay[axis]);
+        servos[servo_endstops[axis]].detach();
       }
     #endif
 #if defined (ENABLE_AUTO_BED_LEVELING) && (PROBE_SERVO_DEACTIVATION_DELAY > 0)
