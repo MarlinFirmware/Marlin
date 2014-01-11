@@ -393,27 +393,6 @@ void suicide()
   #endif
 }
 
-void servo_init()
-{
-  // Set position of Servo Endstops that are defined
-  #ifdef SERVO_ENDSTOPS
-  for(int8_t i = 0; i < 3; i++)
-  {
-    if(servo_endstops[i] > -1) {
-      servo_attach(servo_endstops[i]);
-      servos[servo_endstops[i]].write(servo_endstop_angles[i * 2 + 1]);
-      delay(servo_endstop_delay[i]);
-      servos[servo_endstops[i]].detach();
-    }
-  }
-  #endif
-
-  #if defined (ENABLE_AUTO_BED_LEVELING) && (PROBE_SERVO_DEACTIVATION_DELAY > 0)
-  delay(PROBE_SERVO_DEACTIVATION_DELAY);
-  servos[servo_endstops[Z_AXIS]].detach();
-  #endif
-}
-
 void servo_attach(int index)
 {
   // Attach only the requested servo index
@@ -440,6 +419,27 @@ void servo_attach(int index)
   #endif
   #if (index == 7) && defined(SERVO7_PIN) && (SERVO7_PIN > -1)
     servos[index].attach(SERVO7_PIN);
+  #endif
+}
+
+void servo_init()
+{
+  // Set position of Servo Endstops that are defined
+  #ifdef SERVO_ENDSTOPS
+  for(int8_t i = 0; i < 3; i++)
+  {
+    if(servo_endstops[i] > -1) {
+      servo_attach(servo_endstops[i]);
+      servos[servo_endstops[i]].write(servo_endstop_angles[i * 2 + 1]);
+      delay(servo_endstop_delay[i]);
+      servos[servo_endstops[i]].detach();
+    }
+  }
+  #endif
+
+  #if defined (ENABLE_AUTO_BED_LEVELING) && (PROBE_SERVO_DEACTIVATION_DELAY > 0)
+  delay(PROBE_SERVO_DEACTIVATION_DELAY);
+  servos[servo_endstops[Z_AXIS]].detach();
   #endif
 }
 
