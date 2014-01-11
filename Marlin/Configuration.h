@@ -336,6 +336,46 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
   // You MUST HAVE the SERVO_ENDSTOPS defined to use here a value higher than zero otherwise your code will not compile.
 
 //  #define PROBE_SERVO_DEACTIVATION_DELAY 300  
+
+
+#define SERVO_BIT_BANG_CONTROL //This makes possible to use Servo based Z-Probes on boards that are based on ATMega644, like the Sanguino or GEN7. It also has a lighther firmware
+#ifdef SERVO_BIT_BANG_CONTROL
+	#define SERVO_BIT_BANG_PIN  PINC1//Defines the PIN, look below ASCII art of the chip
+	#define SERVO_BIT_BANG_OUT_PORT PORTC//Defines the port
+	#define SERVO_BIT_BANG_DIRECTION_PORT DDRC//Defines the direction port
+	#define SERVO_DEPLOYED 1000	//Number of microseconds that puts the z_probe into the enable position
+	#define SERVO_RETRACTED 2000 //Number of microseconds that retracts the z_probe.
+#endif
+
+/****************************************************************************************
+*
+*                        ATMega644
+*
+*                      	   +---\/---+
+*            (D 0) PINB0  1|        |40  PINA0 (AI 0 / D31)
+*            (D 1) PINB1  2|        |39  PINA1 (AI 1 / D30)
+*       INT2 (D 2) PINB2  3|        |38  PINA2 (AI 2 / D29)
+*        PWM (D 3) PINB3  4|        |37  PINA3 (AI 3 / D28)			DDRA and PORTA
+*        PWM (D 4) PINB4  5|        |36  PINA4 (AI 4 / D27)
+*       MOSI (D 5) PINB5  6|        |35  PINA5 (AI 5 / D26)
+*       MISO (D 6) PINB6  7|        |34  PINA6 (AI 6 / D25)
+*        SCK (D 7) PINB7  8|        |33  PINA7 (AI 7 / D24)
+*                    RST  9|        |32  AREF
+*                    VCC 10|        |31  GND
+*                    GND 11|        |30  AVCC
+*                  XTAL2 12|        |29  PINC7 (D 23)
+*                  XTAL1 13|        |28  PINC6 (D 22)
+*       RX0 (D 8)  PIND0 14|        |27  PINC5 (D 21) TDI		}
+*       TX0 (D 9)  PIND1 15|        |26  PINC4 (D 20) TDO		|
+*  INT0 RX1 (D 10) PIND2 16|        |25  PINC3 (D 19) TMS		|
+*  INT1 TX1 (D 11) PIND3 17|        |24  PINC2 (D 18) TCK		|  DDRC and PORTC 
+*       PWM (D 12) PIND4 18|        |23  PINC1 (D 17) SDA		|
+*       PWM (D 13) PIND5 19|        |22  PINC0 (D 16) SCL		|
+*       PWM (D 14) PIND6 20|        |21  PIND7 (D 15) PWM		}
+*                        +--------+
+*
+****************************************************************************************/
+
   
 #endif
 
