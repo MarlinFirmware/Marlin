@@ -899,7 +899,8 @@ static void clean_up_after_endstop_move() {
 }
 
 static void engage_z_probe() {
-    // Engage Z Servo endstop if enabled
+#ifndef SERVO_BIT_BANG_CONTROL
+    //Engage Z Servo endstop if enabled
     #ifdef SERVO_ENDSTOPS
     if (servo_endstops[Z_AXIS] > -1) {
 #if defined (ENABLE_AUTO_BED_LEVELING) && (PROBE_SERVO_DEACTIVATION_DELAY > 0)
@@ -912,10 +913,22 @@ static void engage_z_probe() {
 #endif
     }
     #endif
+#else
+		//As we have a poormans board so we use a bitbanging routine (has the absolute same effect).
+		SERVO_BIT_BANG_DIRECTION_PORT |= (1<<SERVO_BIT_BANG_PIN);
+		for (uint8_t w; w<100;w++)
+		{
+			SERVO_BIT_BANG_OUT_PORT |= (1<<SERVO_BIT_BANG_PIN);
+			_delay_us(SERVO_DEPLOYED);
+			SERVO_BIT_BANG_OUT_PORT &= ~(1<<SERVO_BIT_BANG_PIN);
+			_delay_us(20000-SERVO_DEPLOYED);
+		}
+#endif
 }
 
 static void retract_z_probe() {
-    // Retract Z Servo endstop if enabled
+#ifndef SERVO_BIT_BANG_CONTROL
+    //Retract Z Servo endstop if enabled
     #ifdef SERVO_ENDSTOPS
     if (servo_endstops[Z_AXIS] > -1) {
 #if defined (ENABLE_AUTO_BED_LEVELING) && (PROBE_SERVO_DEACTIVATION_DELAY > 0)
@@ -928,6 +941,18 @@ static void retract_z_probe() {
 #endif
     }
     #endif
+#else
+
+		SERVO_BIT_BANG_DIRECTION_PORT |= (1<<SERVO_BIT_BANG_PIN);
+		for (uint8_t w; w<100;w++)
+		{
+			SERVO_BIT_BANG_OUT_PORT |= (1<<SERVO_BIT_BANG_PIN);
+			_delay_us(SERVO_RETRACTED);
+			SERVO_BIT_BANG_OUT_PORT &= ~(1<<SERVO_BIT_BANG_PIN);
+			_delay_us(20000-SERVO_RETRACTED);
+		}
+	
+#endif
 }
 
 #endif // #ifdef ENABLE_AUTO_BED_LEVELING
