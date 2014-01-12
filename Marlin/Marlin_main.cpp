@@ -2423,6 +2423,7 @@ void process_commands()
           servo_index = code_value();
         if (code_seen('S')) {
           servo_position = code_value();
+          servo_attach(servo_endstops[servo_index]);
           if ((servo_index >= 0) && (servo_index < NUM_SERVOS)) {
 #if defined (ENABLE_AUTO_BED_LEVELING) && (PROBE_SERVO_DEACTIVATION_DELAY > 0)
 		      servos[servo_index].attach(0);
@@ -2432,6 +2433,8 @@ void process_commands()
               delay(PROBE_SERVO_DEACTIVATION_DELAY);
               servos[servo_index].detach();
 #endif
+            delay(servo_endstop_delay[servo_index]);
+            servos[servo_endstops[servo_index]].detach();
           }
           else {
             SERIAL_ECHO_START;
