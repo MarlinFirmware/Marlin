@@ -2660,6 +2660,27 @@ void process_commands()
     }
     break;
     #endif
+    case 550:
+    {
+        // M550: Print out some diagnostic info
+        SERIAL_ECHOPGM(MSG_MARLIN);
+        SERIAL_ECHOLNPGM(VERSION_STRING);
+        #ifdef STRING_VERSION_CONFIG_H
+          #ifdef STRING_CONFIG_H_AUTHOR
+            SERIAL_ECHO_START;
+            SERIAL_ECHOPGM(MSG_CONFIGURATION_VER);
+            SERIAL_ECHOPGM(STRING_VERSION_CONFIG_H);
+            SERIAL_ECHOPGM(MSG_AUTHOR);
+            SERIAL_ECHOLNPGM(STRING_CONFIG_H_AUTHOR);
+            SERIAL_ECHOPGM("Compiled: ");
+            SERIAL_ECHOLNPGM(__DATE__);
+          #endif
+        #endif
+        SERIAL_ECHO_START;
+        SERIAL_ECHOPGM(MSG_FREE_MEMORY);
+        SERIAL_ECHO(freeMemory());
+    }
+
     #ifdef FILAMENTCHANGEENABLE
     case 600: //Pause for filament change X[pos] Y[pos] Z[relative lift] E[initial retract] L[later retract distance for removal]
     {
