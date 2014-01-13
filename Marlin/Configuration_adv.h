@@ -78,6 +78,7 @@
 #define EXTRUDER_0_AUTO_FAN_PIN   46 // fet2_pwm
 #define EXTRUDER_1_AUTO_FAN_PIN   54 // fet3_pwm
 #define EXTRUDER_2_AUTO_FAN_PIN   55 // fet4_pwm
+#define EXTRUDER_3_AUTO_FAN_PIN   -1
 #define EXTRUDER_AUTO_FAN_TEMPERATURE 50
 #define EXTRUDER_AUTO_FAN_SPEED   255  // == full speed
 
@@ -184,12 +185,8 @@
     // Remember: you should set the second extruder x-offset to 0 in your slicer.
 
 // Pins for second x-carriage stepper driver (defined here to avoid further complicating pins.h)
+
 // W axis
-/*
-A3						MotorW_Enable
-A4						MotorW_step
-A5						MotorW_dir
-*/
 #define X2_ENABLE_PIN 57
 #define X2_STEP_PIN 58
 #define X2_DIR_PIN 59
@@ -204,7 +201,7 @@ A5						MotorW_dir
 //                           once. (2nd extruder x offset and temp offset are set using: M605 S2 [Xnnn] [Rmmm])
 
 // This is the default power-up mode which can be later using M605. 
-#define DEFAULT_DUAL_X_CARRIAGE_MODE 0 
+#define DEFAULT_DUAL_X_CARRIAGE_MODE  2
 
 // As the x-carriages are independent we can now account for any relative Z offset
 #define EXTRUDER1_Z_OFFSET 0.0           // z offset relative to extruder 0
@@ -443,6 +440,10 @@ const unsigned int dropsegments=5; //everything with less than this number of st
   #define THERMISTORHEATER_2 TEMP_SENSOR_2
   #define HEATER_2_USES_THERMISTOR
 #endif
+#if TEMP_SENSOR_3 > 0
+  #define THERMISTORHEATER_2 TEMP_SENSOR_2
+  #define HEATER_2_USES_THERMISTOR
+#endif
 #if TEMP_SENSOR_BED > 0
   #define THERMISTORBED TEMP_SENSOR_BED
   #define BED_USES_THERMISTOR
@@ -455,6 +456,9 @@ const unsigned int dropsegments=5; //everything with less than this number of st
 #endif
 #if TEMP_SENSOR_2 == -1
   #define HEATER_2_USES_AD595
+#endif
+#if TEMP_SENSOR_3 == -1
+  #define HEATER_3_USES_AD595
 #endif
 #if TEMP_SENSOR_BED == -1
   #define BED_USES_AD595
@@ -473,6 +477,10 @@ const unsigned int dropsegments=5; //everything with less than this number of st
 #if TEMP_SENSOR_2 == 0
   #undef HEATER_2_MINTEMP
   #undef HEATER_2_MAXTEMP
+#endif
+#if TEMP_SENSOR_3 == 0
+  #undef HEATER_3_MINTEMP
+  #undef HEATER_3_MAXTEMP
 #endif
 #if TEMP_SENSOR_BED == 0
   #undef BED_MINTEMP

@@ -113,25 +113,28 @@ static volatile bool temp_meas_ready = false;
 #endif
 #if (defined(EXTRUDER_0_AUTO_FAN_PIN) && EXTRUDER_0_AUTO_FAN_PIN > -1) || \
     (defined(EXTRUDER_1_AUTO_FAN_PIN) && EXTRUDER_1_AUTO_FAN_PIN > -1) || \
-    (defined(EXTRUDER_2_AUTO_FAN_PIN) && EXTRUDER_2_AUTO_FAN_PIN > -1)
+    (defined(EXTRUDER_2_AUTO_FAN_PIN) && EXTRUDER_2_AUTO_FAN_PIN > -1) || \
+    (defined(EXTRUDER_2_AUTO_FAN_PIN) && EXTRUDER_3_AUTO_FAN_PIN > -1)
   static unsigned long extruder_autofan_last_check;
 #endif  
 
-#if EXTRUDERS > 3
+#if EXTRUDERS > 4
   # error Unsupported number of extruders
+#elif EXTRUDERS > 3
+  # define ARRAY_BY_EXTRUDERS(v1, v2, v3, v4) { v1, v2, v3, v4 }
 #elif EXTRUDERS > 2
-  # define ARRAY_BY_EXTRUDERS(v1, v2, v3) { v1, v2, v3 }
+  # define ARRAY_BY_EXTRUDERS(v1, v2, v3, v4) { v1, v2, v3 }
 #elif EXTRUDERS > 1
-  # define ARRAY_BY_EXTRUDERS(v1, v2, v3) { v1, v2 }
+  # define ARRAY_BY_EXTRUDERS(v1, v2, v3, v4) { v1, v2 }
 #else
-  # define ARRAY_BY_EXTRUDERS(v1, v2, v3) { v1 }
+  # define ARRAY_BY_EXTRUDERS(v1, v2, v3, v4) { v1 }
 #endif
 
 // Init min and max temp with extreme values to prevent false errors during startup
-static int minttemp_raw[EXTRUDERS] = ARRAY_BY_EXTRUDERS( HEATER_0_RAW_LO_TEMP , HEATER_1_RAW_LO_TEMP , HEATER_2_RAW_LO_TEMP );
-static int maxttemp_raw[EXTRUDERS] = ARRAY_BY_EXTRUDERS( HEATER_0_RAW_HI_TEMP , HEATER_1_RAW_HI_TEMP , HEATER_2_RAW_HI_TEMP );
-static int minttemp[EXTRUDERS] = ARRAY_BY_EXTRUDERS( 0, 0, 0 );
-static int maxttemp[EXTRUDERS] = ARRAY_BY_EXTRUDERS( 16383, 16383, 16383 );
+static int minttemp_raw[EXTRUDERS] = ARRAY_BY_EXTRUDERS( HEATER_0_RAW_LO_TEMP , HEATER_1_RAW_LO_TEMP , HEATER_2_RAW_LO_TEMP , HEATER_3_RAW_LO_TEMP );
+static int maxttemp_raw[EXTRUDERS] = ARRAY_BY_EXTRUDERS( HEATER_0_RAW_HI_TEMP , HEATER_1_RAW_HI_TEMP , HEATER_2_RAW_HI_TEMP , HEATER_3_RAW_HI_TEMP );
+static int minttemp[EXTRUDERS] = ARRAY_BY_EXTRUDERS( 0, 0, 0, 0 );
+static int maxttemp[EXTRUDERS] = ARRAY_BY_EXTRUDERS( 16383, 16383, 16383, 16383 );
 //static int bed_minttemp_raw = HEATER_BED_RAW_LO_TEMP; /* No bed mintemp error implemented?!? */
 #ifdef BED_MAXTEMP
 static int bed_maxttemp_raw = HEATER_BED_RAW_HI_TEMP;
@@ -141,8 +144,8 @@ static int bed_maxttemp_raw = HEATER_BED_RAW_HI_TEMP;
   static void *heater_ttbl_map[2] = {(void *)HEATER_0_TEMPTABLE, (void *)HEATER_1_TEMPTABLE };
   static uint8_t heater_ttbllen_map[2] = { HEATER_0_TEMPTABLE_LEN, HEATER_1_TEMPTABLE_LEN };
 #else
-  static void *heater_ttbl_map[EXTRUDERS] = ARRAY_BY_EXTRUDERS( (void *)HEATER_0_TEMPTABLE, (void *)HEATER_1_TEMPTABLE, (void *)HEATER_2_TEMPTABLE );
-  static uint8_t heater_ttbllen_map[EXTRUDERS] = ARRAY_BY_EXTRUDERS( HEATER_0_TEMPTABLE_LEN, HEATER_1_TEMPTABLE_LEN, HEATER_2_TEMPTABLE_LEN );
+  static void *heater_ttbl_map[EXTRUDERS] = ARRAY_BY_EXTRUDERS( (void *)HEATER_0_TEMPTABLE, (void *)HEATER_1_TEMPTABLE, (void *)HEATER_2_TEMPTABLE, (void *)HEATER_3_TEMPTABLE );
+  static uint8_t heater_ttbllen_map[EXTRUDERS] = ARRAY_BY_EXTRUDERS( HEATER_0_TEMPTABLE_LEN, HEATER_1_TEMPTABLE_LEN, HEATER_2_TEMPTABLE_LEN, HEATER_3_TEMPTABLE_LEN );
 #endif
 
 static float analog2temp(int raw, uint8_t e);
@@ -150,8 +153,8 @@ static float analog2tempBed(int raw);
 static void updateTemperaturesFromRawValues();
 
 #ifdef WATCH_TEMP_PERIOD
-int watch_start_temp[EXTRUDERS] = ARRAY_BY_EXTRUDERS(0,0,0);
-unsigned long watchmillis[EXTRUDERS] = ARRAY_BY_EXTRUDERS(0,0,0);
+int watch_start_temp[EXTRUDERS] = ARRAY_BY_EXTRUDERS(0,0,0,0);
+unsigned long watchmillis[EXTRUDERS] = ARRAY_BY_EXTRUDERS(0,0,0,0);
 #endif //WATCH_TEMP_PERIOD
 
 #ifndef SOFT_PWM_SCALE
@@ -333,7 +336,8 @@ int getHeaterPower(int heater) {
 
 #if (defined(EXTRUDER_0_AUTO_FAN_PIN) && EXTRUDER_0_AUTO_FAN_PIN > -1) || \
     (defined(EXTRUDER_1_AUTO_FAN_PIN) && EXTRUDER_1_AUTO_FAN_PIN > -1) || \
-    (defined(EXTRUDER_2_AUTO_FAN_PIN) && EXTRUDER_2_AUTO_FAN_PIN > -1)
+    (defined(EXTRUDER_2_AUTO_FAN_PIN) && EXTRUDER_2_AUTO_FAN_PIN > -1) || \
+    (defined(EXTRUDER_3_AUTO_FAN_PIN) && EXTRUDER_3_AUTO_FAN_PIN > -1)
 
   #if defined(FAN_PIN) && FAN_PIN > -1
     #if EXTRUDER_0_AUTO_FAN_PIN == FAN_PIN 
@@ -344,6 +348,9 @@ int getHeaterPower(int heater) {
     #endif
     #if EXTRUDER_2_AUTO_FAN_PIN == FAN_PIN 
        #error "You cannot set EXTRUDER_2_AUTO_FAN_PIN equal to FAN_PIN"
+    #endif
+    #if EXTRUDER_3_AUTO_FAN_PIN == FAN_PIN 
+       #error "You cannot set EXTRUDER_3_AUTO_FAN_PIN equal to FAN_PIN"
     #endif
   #endif 
 
@@ -385,7 +392,19 @@ void checkExtruderAutoFans()
         fanState |= 4;
     }
   #endif
-  
+  #if defined(EXTRUDER_3_AUTO_FAN_PIN) && EXTRUDER_3_AUTO_FAN_PIN > -1
+    if (current_temperature[3] > EXTRUDER_AUTO_FAN_TEMPERATURE) 
+    {
+      if (EXTRUDER_3_AUTO_FAN_PIN == EXTRUDER_0_AUTO_FAN_PIN) 
+        fanState |= 1;
+      else if (EXTRUDER_3_AUTO_FAN_PIN == EXTRUDER_1_AUTO_FAN_PIN) 
+        fanState |= 2;
+      else if (EXTRUDER_3_AUTO_FAN_PIN == EXTRUDER_2_AUTO_FAN_PIN) 
+        fanState |= 4;
+      else
+        fanState |= 8;
+    }
+  #endif  
   // update extruder auto fan states
   #if defined(EXTRUDER_0_AUTO_FAN_PIN) && EXTRUDER_0_AUTO_FAN_PIN > -1
     setExtruderAutoFanState(EXTRUDER_0_AUTO_FAN_PIN, (fanState & 1) != 0);
@@ -399,9 +418,15 @@ void checkExtruderAutoFans()
         && EXTRUDER_2_AUTO_FAN_PIN != EXTRUDER_1_AUTO_FAN_PIN)
       setExtruderAutoFanState(EXTRUDER_2_AUTO_FAN_PIN, (fanState & 4) != 0);
   #endif 
+  #if defined(EXTRUDER_3_AUTO_FAN_PIN) && EXTRUDER_3_AUTO_FAN_PIN > -1
+    if (EXTRUDER_3_AUTO_FAN_PIN != EXTRUDER_0_AUTO_FAN_PIN 
+        && EXTRUDER_3_AUTO_FAN_PIN != EXTRUDER_1_AUTO_FAN_PIN
+		&& EXTRUDER_3_AUTO_FAN_PIN != EXTRUDER_2_AUTO_FAN_PIN)
+      setExtruderAutoFanState(EXTRUDER_3_AUTO_FAN_PIN, (fanState & 8) != 0);
+  #endif 
 }
-
 #endif // any extruder auto fan pins set
+
 
 void manage_heater()
 {
@@ -509,7 +534,8 @@ void manage_heater()
 
   #if (defined(EXTRUDER_0_AUTO_FAN_PIN) && EXTRUDER_0_AUTO_FAN_PIN > -1) || \
       (defined(EXTRUDER_1_AUTO_FAN_PIN) && EXTRUDER_1_AUTO_FAN_PIN > -1) || \
-      (defined(EXTRUDER_2_AUTO_FAN_PIN) && EXTRUDER_2_AUTO_FAN_PIN > -1)
+      (defined(EXTRUDER_2_AUTO_FAN_PIN) && EXTRUDER_2_AUTO_FAN_PIN > -1) || \
+      (defined(EXTRUDER_3_AUTO_FAN_PIN) && EXTRUDER_3_AUTO_FAN_PIN > -1)
   if(millis() - extruder_autofan_last_check > 2500)  // only need to check fan state very infrequently
   {
     checkExtruderAutoFans();
@@ -858,6 +884,28 @@ void tp_init()
   }
 #endif //MAXTEMP 2
 
+#if (EXTRUDERS > 3) && defined(HEATER_3_MINTEMP)
+	minttemp[3] = HEATER_3_MINTEMP;
+  while(analog3temp(minttemp_raw[3], 3) < HEATER_3_MINTEMP) {
+#if HEATER_3_RAW_LO_TEMP < HEATER_3_RAW_HI_TEMP
+    minttemp_raw[3] += OVERSAMPLENR;
+#else
+    minttemp_raw[3] -= OVERSAMPLENR;
+#endif
+  }
+#endif //MINTEMP 3
+#if (EXTRUDERS > 3) && defined(HEATER_3_MAXTEMP)
+  maxttemp[3] = HEATER_3_MAXTEMP;
+  while(analog3temp(maxttemp_raw[3], 3) > HEATER_3_MAXTEMP) {
+#if HEATER_3_RAW_LO_TEMP < HEATER_3_RAW_HI_TEMP
+    maxttemp_raw[3] -= OVERSAMPLENR;
+#else
+    maxttemp_raw[3] += OVERSAMPLENR;
+#endif
+  }
+#endif //MAXTEMP 3
+
+
 #ifdef BED_MINTEMP
   /* No bed MINTEMP error implemented?!? */ /*
   while(analog2tempBed(bed_minttemp_raw) < BED_MINTEMP) {
@@ -924,6 +972,14 @@ void disable_heater()
     #endif
   #endif 
 
+  #if defined(TEMP_3_PIN) && TEMP_3_PIN > -1
+	  target_temperature[3]=0;
+    soft_pwm[3]=0;
+    #if defined(HEATER_3_PIN) && HEATER_3_PIN > -1  
+      WRITE(HEATER_3_PIN,LOW);
+    #endif
+  #endif   
+  
   #if defined(TEMP_BED_PIN) && TEMP_BED_PIN > -1
     target_temperature_bed=0;
     soft_pwm_bed=0;
@@ -1038,6 +1094,7 @@ ISR(TIMER0_COMPB_vect)
   static unsigned long raw_temp_0_value = 0;
   static unsigned long raw_temp_1_value = 0;
   static unsigned long raw_temp_2_value = 0;
+  static unsigned long raw_temp_3_value = 0;
   static unsigned long raw_temp_bed_value = 0;
   static unsigned char temp_state = 0;
   static unsigned char pwm_count = (1 << SOFT_PWM_SCALE);
@@ -1047,6 +1104,9 @@ ISR(TIMER0_COMPB_vect)
   #endif
   #if EXTRUDERS > 2
   static unsigned char soft_pwm_2;
+  #endif
+  #if EXTRUDERS > 3
+  static unsigned char soft_pwm_3;
   #endif
   #if HEATER_BED_PIN > -1
   static unsigned char soft_pwm_b;
@@ -1069,6 +1129,10 @@ ISR(TIMER0_COMPB_vect)
     soft_pwm_2 = soft_pwm[2];
     if(soft_pwm_2 > 0) WRITE(HEATER_2_PIN,1); else WRITE(HEATER_2_PIN,0);
     #endif
+    #if EXTRUDERS > 3
+    soft_pwm_3 = soft_pwm[2];
+    if(soft_pwm_3 > 0) WRITE(HEATER_3_PIN,1); else WRITE(HEATER_3_PIN,0);
+    #endif
     #if defined(HEATER_BED_PIN) && HEATER_BED_PIN > -1
     soft_pwm_b = soft_pwm_bed;
     if(soft_pwm_b > 0) WRITE(HEATER_BED_PIN,1); else WRITE(HEATER_BED_PIN,0);
@@ -1089,6 +1153,9 @@ ISR(TIMER0_COMPB_vect)
   #endif
   #if EXTRUDERS > 2
   if(soft_pwm_2 < pwm_count) WRITE(HEATER_2_PIN,0);
+  #endif
+  #if EXTRUDERS > 3
+  if(soft_pwm_3 < pwm_count) WRITE(HEATER_3_PIN,0);
   #endif
   #if defined(HEATER_BED_PIN) && HEATER_BED_PIN > -1
   if(soft_pwm_b < pwm_count) WRITE(HEATER_BED_PIN,0);
@@ -1178,6 +1245,26 @@ ISR(TIMER0_COMPB_vect)
       #if defined(TEMP_2_PIN) && (TEMP_2_PIN > -1)
         raw_temp_2_value += ADC;
       #endif
+      temp_state = 8;
+      temp_count++;
+      break;
+    case 8: // Prepare TEMP_3
+      #if defined(TEMP_3_PIN) && (TEMP_3_PIN > -1)
+        #if TEMP_3_PIN > 7
+          ADCSRB = 1<<MUX5;
+        #else
+          ADCSRB = 0;
+        #endif
+        ADMUX = ((1 << REFS0) | (TEMP_3_PIN & 0x07));
+        ADCSRA |= 1<<ADSC; // Start conversion
+      #endif
+      lcd_buttons_update();
+      temp_state = 9;
+      break;
+    case 9: // Measure TEMP_3
+      #if defined(TEMP_3_PIN) && (TEMP_3_PIN > -1)
+        raw_temp_3_value += ADC;
+      #endif
       temp_state = 0;
       temp_count++;
       break;
@@ -1200,6 +1287,9 @@ ISR(TIMER0_COMPB_vect)
 #endif
 #if EXTRUDERS > 2
       current_temperature_raw[2] = raw_temp_2_value;
+#endif
+#if EXTRUDERS > 3
+      current_temperature_raw[3] = raw_temp_3_value;
 #endif
       current_temperature_bed_raw = raw_temp_bed_value;
     }
@@ -1257,7 +1347,22 @@ ISR(TIMER0_COMPB_vect)
         min_temp_error(2);
     }
 #endif
-  
+#if EXTRUDERS > 3
+#if HEATER_3_RAW_LO_TEMP > HEATER_3_RAW_HI_TEMP
+    if(current_temperature_raw[3] <= maxttemp_raw[3]) {
+#else
+    if(current_temperature_raw[3] >= maxttemp_raw[3]) {
+#endif
+        max_temp_error(3);
+    }
+#if HEATER_3_RAW_LO_TEMP > HEATER_3_RAW_HI_TEMP
+    if(current_temperature_raw[3] >= minttemp_raw[3]) {
+#else
+    if(current_temperature_raw[3] <= minttemp_raw[3]) {
+#endif
+        min_temp_error(3);
+    }
+#endif
   /* No bed MINTEMP error? */
 #if defined(BED_MAXTEMP) && (TEMP_SENSOR_BED != 0)
 # if HEATER_BED_RAW_LO_TEMP > HEATER_BED_RAW_HI_TEMP

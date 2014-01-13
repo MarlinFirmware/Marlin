@@ -2385,16 +2385,19 @@ A15						FET3_PWM
 #define X_STEP_PIN 43
 #define X_DIR_PIN 42
 #define X_MIN_PIN 19
+#define X_MAX_PIN 19
 #define X_ENABLE_PIN 44
 
 #define Y_STEP_PIN 48
 #define Y_DIR_PIN 47
 #define Y_MIN_PIN 20
+#define Y_MAX_PIN 20
 #define Y_ENABLE_PIN 49
 
 #define Z_STEP_PIN 61
 #define Z_DIR_PIN 62
 #define Z_MIN_PIN 21
+#define Z_MAX_PIN 21
 #define Z_ENABLE_PIN 60
 
 // FET1 / TH1
@@ -2409,16 +2412,20 @@ A15						FET3_PWM
 #define HEATER_2_PIN 38
 #define TEMP_2_PIN 11
 
-// Out+- (H-enable) / TH4
+// FET4 / TH4
+#define HEATER_3_PIN 40
+#define TEMP_3_PIN 10
+
+// Out+- (H-enable) / TH5
 #define HEATER_BED_PIN 13
-#define TEMP_BED_PIN 10
+#define TEMP_BED_PIN 9
 
 // E
 #define E0_STEP_PIN         11
 #define E0_DIR_PIN          12
 #define E0_ENABLE_PIN       10
 
-  // D
+// D
 #define E1_STEP_PIN         8
 #define E1_DIR_PIN          9
 #define E1_ENABLE_PIN       7
@@ -2427,6 +2434,11 @@ A15						FET3_PWM
 #define E2_STEP_PIN         3
 #define E2_DIR_PIN          5
 #define E2_ENABLE_PIN       2
+
+// B
+#define E3_STEP_PIN         31
+#define E3_DIR_PIN          30
+#define E3_ENABLE_PIN       32
 
 #define SDPOWER            -1
 #define SDSS               53
@@ -2454,6 +2466,12 @@ A15						FET3_PWM
   #define _E2_PINS E2_STEP_PIN, E2_DIR_PIN, E2_ENABLE_PIN, HEATER_2_PIN,
 #else
   #define _E2_PINS
+#endif
+
+#if EXTRUDERS > 3
+  #define _E3_PINS E3_STEP_PIN, E3_DIR_PIN, E3_ENABLE_PIN, HEATER_3_PIN,
+#else
+  #define _E3_PINS
 #endif
 
 #ifdef X_STOP_PIN
@@ -2505,7 +2523,7 @@ A15						FET3_PWM
   Z_STEP_PIN, Z_DIR_PIN, Z_ENABLE_PIN, Z_MIN_PIN, Z_MAX_PIN, \
   PS_ON_PIN, \
                         HEATER_BED_PIN, FAN_PIN,                  \
-                        _E0_PINS _E1_PINS _E2_PINS             \
-                        analogInputToDigitalPin(TEMP_0_PIN), analogInputToDigitalPin(TEMP_1_PIN), analogInputToDigitalPin(TEMP_2_PIN), analogInputToDigitalPin(TEMP_BED_PIN) }
+                        _E0_PINS _E1_PINS _E2_PINS _E3_PINS         \
+                        analogInputToDigitalPin(TEMP_0_PIN), analogInputToDigitalPin(TEMP_1_PIN), analogInputToDigitalPin(TEMP_2_PIN), analogInputToDigitalPin(TEMP_3_PIN), analogInputToDigitalPin(TEMP_BED_PIN) }
 #endif
 
