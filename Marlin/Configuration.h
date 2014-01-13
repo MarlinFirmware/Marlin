@@ -124,6 +124,7 @@
 #define TEMP_SENSOR_0 72
 #define TEMP_SENSOR_1 72
 #define TEMP_SENSOR_2 72
+#define TEMP_SENSOR_3 72
 #define TEMP_SENSOR_BED 72
 
 // This makes temp sensor 1 a redundant sensor for sensor 0. If the temperatures difference between these sensors is to high the print will be aborted.
