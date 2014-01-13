@@ -749,6 +749,9 @@ void tp_init()
   #if defined(HEATER_2_PIN) && (HEATER_2_PIN > -1) 
     SET_OUTPUT(HEATER_2_PIN);
   #endif  
+  #if defined(HEATER_3_PIN) && (HEATER_3_PIN > -1) 
+    SET_OUTPUT(HEATER_3_PIN);
+  #endif  
   #if defined(HEATER_BED_PIN) && (HEATER_BED_PIN > -1) 
     SET_OUTPUT(HEATER_BED_PIN);
   #endif  
@@ -886,7 +889,7 @@ void tp_init()
 
 #if (EXTRUDERS > 3) && defined(HEATER_3_MINTEMP)
 	minttemp[3] = HEATER_3_MINTEMP;
-  while(analog3temp(minttemp_raw[3], 3) < HEATER_3_MINTEMP) {
+  while(analog2temp(minttemp_raw[3], 3) < HEATER_3_MINTEMP) {
 #if HEATER_3_RAW_LO_TEMP < HEATER_3_RAW_HI_TEMP
     minttemp_raw[3] += OVERSAMPLENR;
 #else
@@ -896,7 +899,7 @@ void tp_init()
 #endif //MINTEMP 3
 #if (EXTRUDERS > 3) && defined(HEATER_3_MAXTEMP)
   maxttemp[3] = HEATER_3_MAXTEMP;
-  while(analog3temp(maxttemp_raw[3], 3) > HEATER_3_MAXTEMP) {
+  while(analog2temp(maxttemp_raw[3], 3) > HEATER_3_MAXTEMP) {
 #if HEATER_3_RAW_LO_TEMP < HEATER_3_RAW_HI_TEMP
     maxttemp_raw[3] -= OVERSAMPLENR;
 #else
