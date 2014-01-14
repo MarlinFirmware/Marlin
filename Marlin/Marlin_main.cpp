@@ -1905,6 +1905,7 @@ void process_commands()
         disable_e0();
         disable_e1();
         disable_e2();
+        disable_e3();
         finishAndDisableSteppers();
         fanSpeed = 0;
         delay(1000); // Wait a little before to switch off
@@ -1942,6 +1943,8 @@ void process_commands()
           disable_e0();
           disable_e1();
           disable_e2();
+          disable_e3();
+
           finishAndDisableSteppers();
         }
         else
@@ -1955,6 +1958,7 @@ void process_commands()
               disable_e0();
               disable_e1();
               disable_e2();
+			  disable_e3();
             }
           #endif
         }
@@ -2554,6 +2558,7 @@ void process_commands()
         disable_e0();
         disable_e1();
         disable_e2();
+		disable_e3();
         delay(100);
         LCD_ALERTMESSAGEPGM(MSG_FILAMENTCHANGE);
         uint8_t cnt=0;
@@ -3142,6 +3147,7 @@ void manage_inactivity()
         disable_e0();
         disable_e1();
         disable_e2();
+		disable_e3();
       }
     }
   }
@@ -3198,6 +3204,7 @@ void kill()
   disable_e0();
   disable_e1();
   disable_e2();
+  disable_e3();
 
 #if defined(PS_ON_PIN) && PS_ON_PIN > -1
   pinMode(PS_ON_PIN,INPUT);

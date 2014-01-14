@@ -808,6 +808,13 @@ void tp_init()
        DIDR2 |= 1<<(TEMP_2_PIN - 8); 
     #endif
   #endif
+  #if defined(TEMP_3_PIN) && (TEMP_3_PIN > -1)
+    #if TEMP_3_PIN < 8
+       DIDR0 |= 1 << TEMP_3_PIN; 
+    #else
+       DIDR2 |= 1<<(TEMP_3_PIN - 8); 
+    #endif
+  #endif
   #if defined(TEMP_BED_PIN) && (TEMP_BED_PIN > -1)
     #if TEMP_BED_PIN < 8
        DIDR0 |= 1<<TEMP_BED_PIN; 
@@ -1302,7 +1309,8 @@ ISR(TIMER0_COMPB_vect)
     raw_temp_0_value = 0;
     raw_temp_1_value = 0;
     raw_temp_2_value = 0;
-    raw_temp_bed_value = 0;
+	raw_temp_3_value = 0;
+	raw_temp_bed_value = 0;
 
 #if HEATER_0_RAW_LO_TEMP > HEATER_0_RAW_HI_TEMP
     if(current_temperature_raw[0] <= maxttemp_raw[0]) {

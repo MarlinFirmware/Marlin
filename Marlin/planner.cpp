@@ -480,6 +480,7 @@ void check_axes_activity()
     disable_e0();
     disable_e1();
     disable_e2(); 
+	disable_e3();
   }
 #if defined(FAN_PIN) && FAN_PIN > -1
   #ifdef FAN_KICKSTART_TIME
