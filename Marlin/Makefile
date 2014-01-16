@@ -14,7 +14,7 @@
 #
 #  1. Modify the line containg "ARDUINO_INSTALL_DIR" to point to the directory that
 #     contains the Arduino installation (for example, under Mac OS X, this
-#     might be /Applications/arduino-0012).
+#     might be /Applications/Arduino.app/Contents/Resources/Java).
 #
 #  2. Modify the line containing "UPLOAD_PORT" to refer to the filename
 #     representing the USB or serial connection to your Arduino board
@@ -40,8 +40,8 @@
 HARDWARE_MOTHERBOARD ?= 11
 
 # Arduino source install directory, and version number
-ARDUINO_INSTALL_DIR  ?= ../../arduino-0022
-ARDUINO_VERSION      ?= 22
+ARDUINO_INSTALL_DIR  ?= /Applications/Arduino.app/Contents/Resources/Java
+ARDUINO_VERSION      ?= 105
 
 # You can optionally set a path to the avr-gcc tools. Requires a trailing slash. (ex: /usr/local/avr-gcc/bin)
 AVR_TOOLS_PATH ?=
@@ -142,6 +142,12 @@ MCU              ?= at90usb1286
 else ifeq  ($(HARDWARE_MOTHERBOARD),82)
 HARDWARE_VARIANT ?= Teensy
 MCU              ?= at90usb646
+else ifeq  ($(HARDWARE_MOTHERBOARD),83)
+HARDWARE_VARIANT ?= Teensy
+MCU              ?= at90usb1286
+else ifeq  ($(HARDWARE_MOTHERBOARD),84)
+HARDWARE_VARIANT ?= Teensy
+MCU              ?= at90usb1286
 
 #Gen3+
 else ifeq  ($(HARDWARE_MOTHERBOARD),9)
@@ -227,6 +233,10 @@ SRC = wiring.c \
 	wiring_analog.c wiring_digital.c \
 	wiring_pulse.c \
 	wiring_shift.c WInterrupts.c
+ifeq ($(HARDWARE_VARIANT), Teensy)
+SRC = wiring.c
+VPATH += $(ARDUINO_INSTALL_DIR)/hardware/teensy/cores/teensy
+endif
 CXXSRC = WMath.cpp WString.cpp Print.cpp Marlin_main.cpp	\
 	MarlinSerial.cpp Sd2Card.cpp SdBaseFile.cpp SdFatUtil.cpp	\
 	SdFile.cpp SdVolume.cpp motion_control.cpp planner.cpp		\
