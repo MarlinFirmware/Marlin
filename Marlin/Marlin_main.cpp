@@ -3304,7 +3304,6 @@ void manage_inactivity()
      current_position[E_AXIS]=oldepos;
      destination[E_AXIS]=oldedes;
      plan_set_e_position(oldepos);
-     previous_millis_cmd=millis();
      st_synchronize();
      WRITE(E0_ENABLE_PIN,oldstatus);
     }
