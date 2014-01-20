@@ -138,7 +138,7 @@
 	#define MSG_CNG_SDCARD "Change SD-Card"
     #define MSG_ZPROBE_OUT "ZProbe Outside Bed"
     #define MSG_POSITION_UNKNOWN "Home X/Y before Z"
-
+    #define MSG_ZPROBE_ZOFFSET "Z Offset"
 // Serial Console Messages
 
 	#define MSG_Enqueing "enqueing \""
@@ -305,6 +305,7 @@
 	#define MSG_CNG_SDCARD "Change SD-Card"
     #define MSG_ZPROBE_OUT "ZProbe Outside Bed"
     #define MSG_POSITION_UNKNOWN "Home X/Y before Z"
+    #define MSG_ZPROBE_ZOFFSET "Z Offset"
 
 // Serial Console Messages
 
@@ -471,6 +472,7 @@
 	#define MSG_CNG_SDCARD "Changer de carte SD"
     #define MSG_ZPROBE_OUT "ZProbe Outside Bed"
     #define MSG_POSITION_UNKNOWN "Home X/Y before Z"
+    #define MSG_ZPROBE_ZOFFSET "Z Offset"
 
 // Serial Console Messages
 
@@ -640,6 +642,7 @@
 	#define MSG_CNG_SDCARD "Change SD-Card"
     #define MSG_ZPROBE_OUT "ZProbe Outside Bed"
     #define MSG_POSITION_UNKNOWN "Home X/Y before Z"
+    #define MSG_ZPROBE_ZOFFSET "Z Offset"
 	
 // Serial Console Messages
 
@@ -813,6 +816,7 @@
 	#define MSG_STEPPER_RELEASED "Desacoplada."
     #define MSG_ZPROBE_OUT "ZProbe Outside Bed"
     #define MSG_POSITION_UNKNOWN "Home X/Y before Z"
+    #define MSG_ZPROBE_ZOFFSET "Z Offset"
 
 // Serial Console Messages
 
@@ -976,6 +980,7 @@
 	#define MSG_CNG_SDCARD "Change SD-Card"
     #define MSG_ZPROBE_OUT "ZProbe Outside Bed"
     #define MSG_POSITION_UNKNOWN "Home X/Y before Z"
+    #define MSG_ZPROBE_ZOFFSET "Z Offset"
 
 // Serial Console Messages
 
@@ -1139,6 +1144,7 @@
 	#define MSG_CNG_SDCARD           "Cambia SD-Card"
     #define MSG_ZPROBE_OUT "ZProbe Outside Bed"
     #define MSG_POSITION_UNKNOWN "Home X/Y before Z"
+    #define MSG_ZPROBE_ZOFFSET "Z Offset"
 
 	// Serial Console Messages
 
@@ -1311,6 +1317,7 @@
 	#define MSG_CNG_SDCARD "Change SD-Card"
     #define MSG_ZPROBE_OUT "Sonda fora da mesa"
     #define MSG_POSITION_UNKNOWN "Home X/Y antes de Z"
+    #define MSG_ZPROBE_ZOFFSET "Z Offset"
 
 // Serial Console Messages
 
@@ -1479,6 +1486,7 @@
 	#define MSG_CNG_SDCARD "Change SD-Card"
     #define MSG_ZPROBE_OUT "ZProbe Outside Bed"
     #define MSG_POSITION_UNKNOWN "Home X/Y before Z"
+    #define MSG_ZPROBE_ZOFFSET "Z Offset"
 
 // Serial Console Messages
 
