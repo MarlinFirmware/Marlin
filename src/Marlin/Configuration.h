@@ -16,7 +16,7 @@
 // startup. Implementation of an idea by Prof Braino to inform user that any changes made to this
 // build by the user have been successfully uploaded into firmware.
 #define STRING_VERSION_CONFIG_H __DATE__ " " __TIME__ // build date and time
-#define STRING_CONFIG_H_AUTHOR "(none, default config)" // Who made the changes.
+#define STRING_CONFIG_H_AUTHOR "(Pablo Clemente, bq Witbox FW International v1.0)" // Who made the changes.
 
 // SERIAL_PORT selects which serial port should be used for communication with the host.
 // This allows the connection of wireless adapters (for instance) to non-default port pins.
@@ -133,9 +133,9 @@
 // When temperature exceeds max temp, your heater will be switched off.
 // This feature exists to protect your hotend from overheating accidentally, but *NOT* from thermistor short/failure!
 // You should use MINTEMP for thermistor short/failure protection.
-#define HEATER_0_MAXTEMP 250
-#define HEATER_1_MAXTEMP 250
-#define HEATER_2_MAXTEMP 250
+#define HEATER_0_MAXTEMP 245
+#define HEATER_1_MAXTEMP 245
+#define HEATER_2_MAXTEMP 245
 #define BED_MAXTEMP 150
 
 // If your bed has low resistance e.g. .6 ohm and throws the fuse you can duty cycle it to reduce the
@@ -159,9 +159,9 @@
 
 // If you are using a preconfigured hotend then you can use one of the value sets by uncommenting it
 // Ultimaker
-    #define  DEFAULT_Kp 22.2
-    #define  DEFAULT_Ki 1.08
-    #define  DEFAULT_Kd 114
+//    #define  DEFAULT_Kp 22.2
+//    #define  DEFAULT_Ki 1.08
+//    #define  DEFAULT_Kd 114
 
 // Makergear
 //    #define  DEFAULT_Kp 7.0
@@ -172,6 +172,27 @@
 //    #define  DEFAULT_Kp 63.0
 //    #define  DEFAULT_Ki 2.25
 //    #define  DEFAULT_Kd 440
+
+/*AUTOTUNE PID M303 S200 en la nave pamplona:
+bias: 105 d: 105 min: 198.35 max: 202.88
+ Ku: 59.03 Tu: 19.27
+ Clasic PID
+ Kp: 35.42
+ Ki: 3.68
+ Kd: 85.30
+*/
+/*AUTOTUNE PID M303 S200 en laboratorio las rozas:
+bias: 105 d: 105 min: 198.35 max: 202.88
+ Ku: 59.03 Tu: 19.27
+ Clasic PID
+ Kp: 12.49
+ Ki: 0.62
+ Kd: 62.61
+*/
+    #define  DEFAULT_Kp 12.49
+    #define  DEFAULT_Ki 0.62
+    #define  DEFAULT_Kd 62.61
+
 #endif // PIDTEMP
 
 // Bed Temperature Control
@@ -274,7 +295,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 // Disables axis when it's not being used.
 #define DISABLE_X false
 #define DISABLE_Y false
-#define DISABLE_Z false
+#define DISABLE_Z true
 #define DISABLE_E false // For all extruders
 
 #define INVERT_X_DIR true    // for Mendel set to false, for Orca set to true
@@ -348,11 +369,12 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define MANUAL_X_HOME_POS 345
 #define MANUAL_Y_HOME_POS 200
 #define MANUAL_Z_HOME_POS 0
+
 //#define MANUAL_Z_HOME_POS 402 // For delta: Distance between nozzle and print surface after homing.
 
 //// MOVEMENT SETTINGS
 #define NUM_AXIS 4 // The axis order in all axis related arrays is X, Y, Z, E
-#define HOMING_FEEDRATE {120*60, 120*60, 22*60, 0}  //{50*60, 50*60, 4*60, 0} set the homing speeds (mm/min)
+#define HOMING_FEEDRATE {120*60, 120*60, 18*60, 0}  //{50*60, 50*60, 4*60, 0} set the homing speeds (mm/min)
 
 // default settings
 
@@ -368,9 +390,16 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 */
 
-#define DEFAULT_AXIS_STEPS_PER_UNIT   {79.9798,79.9798,600*8/3,100.47095761381482}  // {78.7402,78.7402,600*8/3,100.47095761381482}50.235
-#define DEFAULT_MAX_FEEDRATE          {700, 700, 22, 25}    // (mm/sec)
-#define DEFAULT_MAX_ACCELERATION      {1000,1000,10,10000}    // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for skeinforge 40+, for older versions raise them a lot.
+#define DEFAULT_AXIS_STEPS_PER_UNIT   {80,80,600*8/3,102.073}  // {78.7402,78.7402,600*8/3,100.47095761381482}50.235 z:1557.177615571776
+#define DEFAULT_MAX_FEEDRATE          {350, 350, 15, 25}    // (mm/sec)
+
+/* VELOCIDADES MAXIMAS:(sin lubricar varillas)
+Eje Z: 21,6 feedrate
+Eje Y: 
+Eje X: 
+*/
+
+#define DEFAULT_MAX_ACCELERATION      {1000,1000,10,1000}    // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for skeinforge 40+, for older versions raise them a lot.
 
 #define DEFAULT_ACCELERATION          3000    // X, Y, Z and E max acceleration in mm/s^2 for printing moves
 #define DEFAULT_RETRACT_ACCELERATION  5000   //POR DEFECTO 3000   // X, Y, Z and E max acceleration in mm/s^2 for retracts
@@ -402,7 +431,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 //#define EEPROM_CHITCHAT
 
 // Preheat Constants
-#define PLA_PREHEAT_HOTEND_TEMP 180
+#define PLA_PREHEAT_HOTEND_TEMP 200
 #define PLA_PREHEAT_HPB_TEMP 0
 #define PLA_PREHEAT_FAN_SPEED 255   // Insert Value between 0 and 255
 
