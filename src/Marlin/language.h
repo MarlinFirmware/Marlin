@@ -203,6 +203,40 @@
 	#define MSG_ERR_COLD_EXTRUDE_STOP " cold extrusion prevented"
 	#define MSG_ERR_LONG_EXTRUDE_STOP " too long extrusion prevented"
 
+//WITBOX
+
+	#define MSG_FILAMENT "Filament"
+	#define MSG_LEVEL_PLATE "Level plate"
+	#define MSG_START_SCRIPT "Start script"
+	#define MSG_PREHEAT "Preheat"
+        #define MSG_JOG "Jog"
+        #define MSG_LOAD "Load"
+        #define MSG_UNLOAD "Unload"	
+        #define MSG_ABORT "Abort" 
+        #define MSG_PRE_EXTRUD "Insert & Press"      
+        #define MSG_EXTRUDING "Extruding..." 
+        #define MSG_LENGTH "Length:"         
+        #define MSG_CLEAN "Clean & Press..."
+        #define MSG_PUSH_BEEP "Pull Fil. after Beep"         
+        #define MSG_RETRACTING "Retracting"
+        #define MSG_WELLCOME "bq Witbox"
+
+/*      #define MSG_LP_INTRO "Nivelando la base... Pulsa para empezar"
+        #define MSG_LP_1 " Nivela el PUNTO 1     Pulsa la rueda"
+        #define MSG_LP_2 " Nivela el PUNTO 2     Pulsa la rueda"
+        #define MSG_LP_3 " Nivela el PUNTO 3     Pulsa la rueda"
+        #define MSG_LP_4 "Comprueba el centro  Pulsa para acabar"        
+        #define MSG_LP_5 "!Base nivelada!"
+        */
+
+        #define MSG_LP_INTRO "  Leveling plate... Push button to start"
+        #define MSG_LP_INTRO "  Leveling plate...    Press to start   "
+        #define MSG_LP_1 " Adjust first point  & Press the button"
+        #define MSG_LP_2 "Adjust second point  & Press the button"
+        #define MSG_LP_3 "Adjust third point   & Press the button"
+        #define MSG_LP_4 "     Is it ok?         Press to end"       
+        #define MSG_LP_5 " Plate leveled!"        
+        #define FIRMWARE_VER "v1.0"
 #endif
 
 
