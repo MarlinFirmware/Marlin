@@ -2477,6 +2477,143 @@ void process_commands()
     }
     break;
     #endif //FILAMENTCHANGEENABLE
+    
+/*
+    WITBOX new GCODES:
+
+		*M602: level plate script
+		*M700: load filament script
+		*M701: unload filament script
+
+*/
+    
+    case 602: // Script for level the build plate going to 3 points
+    {
+        SERIAL_ECHOLN(" --LEVEL PLATE SCRIPT--");
+        
+        set_ChangeScreen(true);
+        
+       while(!lcd_clicked()){
+        set_pageShowInfo(0);
+        lcd_update();        
+        }
+        
+        set_pageShowInfo(1);
+        lcd_update();
+        set_ChangeScreen(true);        
+        st_synchronize();       
+       
+        HOMEAXIS(X);
+        HOMEAXIS(Y);
+        HOMEAXIS(Z);
+        
+        st_synchronize();
+        current_position[X_AXIS] = 300;
+        current_position[Y_AXIS] = 210;
+        current_position[Z_AXIS] = 0;
+        current_position[E_AXIS] = 0;
+        plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+
+        // prob 1
+        do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], 10);
+        do_blocking_move_to(150, 200, current_position[Z_AXIS]);
+        do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], 0);
+        
+       while(!lcd_clicked()){          
+          manage_heater();
+        //  manage_inactivity();
+          //lcd_update();
+        }
+        
+        set_ChangeScreen(true);
+        set_pageShowInfo(2);
+        lcd_update(); 
+        
+        do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], 10);
+        do_blocking_move_to(93, 5, current_position[Z_AXIS]);
+        do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], 0);
+          
+        while(!lcd_clicked()){
+          manage_heater();
+          manage_inactivity();
+       //   lcd_update();
+        }
+        
+        set_ChangeScreen(true);
+        set_pageShowInfo(3);
+        lcd_update();
+                  
+        do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], 10);
+        do_blocking_move_to(207, 5, current_position[Z_AXIS]);
+        do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], 0);
+              lcd_update();    
+              
+         while(!lcd_clicked()){
+          manage_heater();
+          manage_inactivity();
+        //  lcd_update();
+        }        
+        
+        set_ChangeScreen(true);
+        set_pageShowInfo(4);
+        lcd_update(); 
+                 
+        do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], 10);
+        do_blocking_move_to(150, 105, current_position[Z_AXIS]);
+        do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], 0);
+              lcd_update();    
+              
+        while(!lcd_clicked()){                  
+          manage_heater();
+          manage_inactivity();
+        // lcd_update();
+        }
+        
+        set_ChangeScreen(true);
+        set_pageShowInfo(5);
+        lcd_update();         
+                
+        do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], 10);
+        do_blocking_move_to(300, 210, current_position[Z_AXIS]);
+        //do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], 0);
+        lcd_update();           
+   
+    }
+    break;
+    
+    case 700:
+      SERIAL_ECHOLN(" --LOAD--");
+       st_synchronize(); 
+	    
+       plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]); 
+    
+      //-- Extruir!
+      current_position[E_AXIS] += 100.0;
+      plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS], 300/60, active_extruder);
+      st_synchronize(); 
+	
+      break;
+      
+    case 701:
+      SERIAL_ECHOLN(" --UNLOAD");
+       st_synchronize(); 
+	    
+       plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]); 
+    
+      //-- Extruir!
+      current_position[E_AXIS] += 10.0;
+      plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS], 300/60, active_extruder);
+      st_synchronize(); 
+      
+      //-- Sacar!
+      current_position[E_AXIS] -= 60.0;
+      plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS], 300/60, active_extruder);
+      st_synchronize();
+	
+      break;  
+    
+    //QQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQ
+    
     #ifdef DUAL_X_CARRIAGE
     case 605: // Set dual x-carriage movement mode:
               //    M605 S0: Full control mode. The slicer has full control over x-carriage movement
