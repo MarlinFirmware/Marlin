@@ -47,11 +47,11 @@
 //  extruder run-out prevention. 
 //if the machine is idle, and the temperature over MINTEMP, every couple of SECONDS some filament is extruded
 //#define EXTRUDER_RUNOUT_PREVENT  
-#define EXTRUDER_RUNOUT_MINTEMP 190  
+#define EXTRUDER_RUNOUT_MINTEMP 160  
 #define EXTRUDER_RUNOUT_SECONDS 30.
-#define EXTRUDER_RUNOUT_ESTEPS 14. //mm filament
-#define EXTRUDER_RUNOUT_SPEED 1500.  //extrusion speed
-#define EXTRUDER_RUNOUT_EXTRUDE 100
+//#define EXTRUDER_RUNOUT_ESTEPS 14. //mm filament
+//#define EXTRUDER_RUNOUT_SPEED 1500.  //extrusion speed
+//#define EXTRUDER_RUNOUT_EXTRUDE 100
 
 //These defines help to calibrate the AD595 sensor in case you get wrong temperature measurements.
 //The measured temperature is defined as "actualTemp = (measuredTemp * TEMP_SENSOR_AD595_GAIN) + TEMP_SENSOR_AD595_OFFSET"
@@ -236,7 +236,7 @@
 
 // Feedrates for manual moves along X, Y, Z, E from panel
 #ifdef ULTIPANEL
-#define MANUAL_FEEDRATE {120*60, 120*60, 22*60, 60}  // set the speeds for manual moves (mm/min)
+#define MANUAL_FEEDRATE {120*60, 120*60, 18*60, 60}  // set the speeds for manual moves (mm/min)
 #endif
 
 // minimum time in microseconds that a movement needs to take if the buffer is emptied.
@@ -279,7 +279,7 @@
 #define SDCARD_RATHERRECENTFIRST  //reverse file order of sd card menu display. Its sorted practically after the filesystem block order. 
 // if a file is deleted, it frees a block. hence, the order is not purely cronological. To still have auto0.g accessible, there is again the option to do that.
 // using:
-//#define MENU_ADDAUTOSTART
+#define MENU_ADDAUTOSTART
 
 // The hardware watchdog should reset the Microcontroller disabling all outputs, in case the firmware gets stuck and doesn't do temperature regulation.
 //#define USE_WATCHDOG
@@ -397,11 +397,11 @@ const unsigned int dropsegments=5; //everything with less than this number of st
 #ifdef ULTIPANEL
   #define FILAMENTCHANGEENABLE
   #ifdef FILAMENTCHANGEENABLE
-    #define FILAMENTCHANGE_XPOS 3
-    #define FILAMENTCHANGE_YPOS 3
+    #define FILAMENTCHANGE_XPOS 300
+    #define FILAMENTCHANGE_YPOS 200
     #define FILAMENTCHANGE_ZADD 10
-    #define FILAMENTCHANGE_FIRSTRETRACT -2
-    #define FILAMENTCHANGE_FINALRETRACT -100
+    #define FILAMENTCHANGE_FIRSTRETRACT -40
+    #define FILAMENTCHANGE_FINALRETRACT 0
   #endif
 #endif
 
