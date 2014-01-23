@@ -307,31 +307,19 @@ static void lcd_sdcard_stop()
 /* Menu implementation */
 static void lcd_main_menu()
 {
-/* NO WITBOX
     START_MENU();
     MENU_ITEM(back, MSG_WATCH, lcd_status_screen);
+    
+    /*
     if (movesplanned() || IS_SD_PRINTING)
     {
         MENU_ITEM(submenu, MSG_TUNE, lcd_tune_menu);
-    }else{
-        MENU_ITEM(submenu, MSG_PREPARE, lcd_prepare_menu);
-    }
-    MENU_ITEM(submenu, MSG_CONTROL, lcd_control_menu);
-*/
-
-//WITBOX->
-    if (movesplanned() || IS_SD_PRINTING)
-    {
-       #ifdef FILAMENTCHANGEENABLE
-        MENU_ITEM(gcode, MSG_FILAMENTCHANGE, PSTR("M600"));
-       #endif
-        MENU_ITEM(submenu, MSG_SPEED, lcd_speed_printing);
-        
     }
       else{
-        MENU_ITEM(submenu, MSG_CONTROL, lcd_control_menu);
+          MENU_ITEM(submenu, MSG_PREPARE, lcd_prepare_menu);
       }
-//<-WITBOX
+      */
+  //  MENU_ITEM(submenu, MSG_CONTROL, lcd_control_menu);
 #ifdef SDSUPPORT
     if (card.cardOK)
     {
@@ -341,7 +329,7 @@ static void lcd_main_menu()
                 MENU_ITEM(function, MSG_PAUSE_PRINT, lcd_sdcard_pause);
             else
                 MENU_ITEM(function, MSG_RESUME_PRINT, lcd_sdcard_resume);
-            MENU_ITEM(function, MSG_STOP_PRINT, lcd_sdcard_stop);
+                MENU_ITEM(function, MSG_STOP_PRINT, lcd_sdcard_stop);
         }else{
             MENU_ITEM(submenu, MSG_CARD_MENU, lcd_sdcard_menu);
 #if SDCARDDETECT < 1
@@ -355,6 +343,20 @@ static void lcd_main_menu()
 #endif
     }
 #endif
+
+    if (movesplanned() || IS_SD_PRINTING)
+    {
+       #ifdef FILAMENTCHANGEENABLE
+        MENU_ITEM(gcode, MSG_FILAMENTCHANGE, PSTR("M600"));
+       #endif
+        MENU_ITEM(submenu, MSG_SPEED, lcd_speed_printing);
+        
+    }
+      else{
+        MENU_ITEM(submenu, MSG_CONTROL, lcd_control_menu);
+      }
+
+    
     END_MENU();
 }
 

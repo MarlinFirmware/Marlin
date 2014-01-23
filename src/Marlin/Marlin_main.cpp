@@ -790,7 +790,19 @@ static void axis_is_at_home(int axis) {
   max_pos[axis] =          base_max_pos(axis) + add_homeing[axis];
 }
 
+#define XY_TRAVEL_SPEED 8000 
+static void do_blocking_move_to(float x, float y, float z) {
+
+    feedrate = XY_TRAVEL_SPEED;
+
+    current_position[X_AXIS] = x;
+    current_position[Y_AXIS] = y;
+    current_position[Z_AXIS] = z;
+    plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
+    st_synchronize();
+}
 #ifdef ENABLE_AUTO_BED_LEVELING
+//#if defined(ENABLE_AUTO_BED_LEVELING) || defined(WITBOX)
 static void set_bed_level_equation(float z_at_xLeft_yFront, float z_at_xRight_yFront, float z_at_xLeft_yBack) {
     plan_bed_level_matrix.set_to_identity();
 
