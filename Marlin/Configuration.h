@@ -379,6 +379,34 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #endif
 
 
+// This is primary for usage as a milling machine. This feature doesn't work with a unclean or hot extruder
+// This is for Z-Axis homing when Auto Bed Leveling is disabled and Z-endstop must be triggered with a tool or extruder
+// at a specific position. It works like Z_SAFE_HOMING feature of Auto Bed Leveling on homing all axis and in advance when
+// homing Z-Axis only. Move Z high enough when start homing
+#ifndef ENABLE_AUTO_BED_LEVELING
+// #define Z_SAFE_HOMING // enable this for Z-axis homing at a specifc point
+  #ifdef Z_SAFE_HOMING
+  
+    #define Z_SAFE_HOMING_Z_ALONE // enable safe homing when only Z are homed don't comment out
+    #define Z_SAFE_HOMING_DISABLE_ON_HOMING_ALL // disable Z-Homing when homing all axis
+
+    #define Z_SAFE_HOMING_X_POINT 50    // X point for Z homing when homing on Z only or all axis
+    #define Z_SAFE_HOMING_Y_POINT 6     // Y point for Z homing when homing on Z only or all axis
+    #define Z_SAFE_HOMING_Z_POINT .8    // Z offset after homing, this must be positive!
+
+    // these are the offsets to the prob relative to the extruder tip (Hotend - Probe)
+    #define X_PROBE_OFFSET_FROM_EXTRUDER 0
+    #define Y_PROBE_OFFSET_FROM_EXTRUDER 0
+    #define Z_PROBE_OFFSET_FROM_EXTRUDER 0
+
+    #define Z_RAISE_BEFORE_HOMING 5     // (in mm) Raise Z before homing (G28) for Probe Clearance.
+                                        // Be sure you have this distance over your Z_MAX_POS in case
+
+    #define XY_TRAVEL_SPEED 6000        // X and Y axis travel speed between probes, in mm/min
+
+  #endif 
+#endif
+
 // The position of the homing switches
 //#define MANUAL_HOME_POSITIONS  // If defined, MANUAL_*_HOME_POS below will be used
 //#define BED_CENTER_AT_0_0  // If defined, the center of the bed is at (X=0, Y=0)

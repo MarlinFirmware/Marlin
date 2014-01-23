@@ -1264,14 +1264,17 @@ void process_commands()
             #endif
             HOMEAXIS(Z);
           }
-        #else                      // Z Safe mode activated. 
+        #else
+          // Z Safe mode activated.
+          // do this only for auto bed leveling 
+          #ifndef Z_SAFE_HOMING_Z_ALONE
           if(home_all_axis) {
             destination[X_AXIS] = round(Z_SAFE_HOMING_X_POINT - X_PROBE_OFFSET_FROM_EXTRUDER);
             destination[Y_AXIS] = round(Z_SAFE_HOMING_Y_POINT - Y_PROBE_OFFSET_FROM_EXTRUDER);
             destination[Z_AXIS] = Z_RAISE_BEFORE_HOMING * home_dir(Z_AXIS) * (-1);    // Set destination away from bed
             feedrate = XY_TRAVEL_SPEED;
             current_position[Z_AXIS] = 0;
-			
+                   
             plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
             plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate, active_extruder);
             st_synchronize();
@@ -1280,22 +1283,77 @@ void process_commands()
 
             HOMEAXIS(Z);
           }
-                                                // Let's see if X and Y are homed and probe is inside bed area.
-          if(code_seen(axis_codes[Z_AXIS])) {
-            if ( (axis_known_position[X_AXIS]) && (axis_known_position[Y_AXIS]) \
-              && (current_position[X_AXIS]+X_PROBE_OFFSET_FROM_EXTRUDER >= X_MIN_POS) \
-              && (current_position[X_AXIS]+X_PROBE_OFFSET_FROM_EXTRUDER <= X_MAX_POS) \
-              && (current_position[Y_AXIS]+Y_PROBE_OFFSET_FROM_EXTRUDER >= Y_MIN_POS) \
-              && (current_position[Y_AXIS]+Y_PROBE_OFFSET_FROM_EXTRUDER <= Y_MAX_POS)) {
+          #endif
 
+          // Let's see if X and Y are homed and probe is inside bed area.
+          // when auto leveling is disabled check if probe on Homing Point
+          #if !defined Z_SAFE_HOMING_Z_ALONE || defined Z_SAFE_HOMING_DISABLE_ON_HOMING_ALL 
+          if(code_seen(axis_codes[Z_AXIS])) {
+          #else
+          // when Z_SAFE_HOMING_Z_ALONE is defined run this on Z homing and all axis homing
+          if((code_seen(axis_codes[Z_AXIS])) || (home_all_axis)) {
+          #endif
+            if ( (axis_known_position[X_AXIS]) && (axis_known_position[Y_AXIS])
+              #ifndef Z_SAFE_HOMING_Z_ALONE
+               && (current_position[X_AXIS]+X_PROBE_OFFSET_FROM_EXTRUDER >= X_MIN_POS) \
+               && (current_position[X_AXIS]+X_PROBE_OFFSET_FROM_EXTRUDER <= X_MAX_POS) \
+               && (current_position[Y_AXIS]+Y_PROBE_OFFSET_FROM_EXTRUDER >= Y_MIN_POS) \
+               && (current_position[Y_AXIS]+Y_PROBE_OFFSET_FROM_EXTRUDER <= Y_MAX_POS))
+              #else
+               )
+              #endif
+              {
+              #ifdef Z_SAFE_HOMING_Z_ALONE
+                // Z_SAFE_HOMING_Z_ALONE is active -> bed auto leveling is disabled
+                #if (defined Z_RAISE_BEFORE_HOMING) && (Z_RAISE_BEFORE_HOMING!=0)
+                  // move Z up
+                  destination[Z_AXIS] = Z_RAISE_BEFORE_HOMING * home_dir(Z_AXIS) * (-1);    // Set destination away from bed
+                  feedrate = max_feedrate[Z_AXIS];
+                  current_position[Z_AXIS] = 0;
+                  plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+                  plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate, active_extruder);
+                  st_synchronize();
+                  destination[Z_AXIS] = 0;
+                #endif
+
+                // Z_SAFE_HOMING_Z_ALONE is active
+                // move to homing position
+                destination[X_AXIS] = round(Z_SAFE_HOMING_X_POINT - X_PROBE_OFFSET_FROM_EXTRUDER);
+                destination[Y_AXIS] = round(Z_SAFE_HOMING_Y_POINT - Y_PROBE_OFFSET_FROM_EXTRUDER);
+                feedrate = XY_TRAVEL_SPEED;
+                current_position[Z_AXIS] = 0;
+                plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+                plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate, active_extruder);
+                st_synchronize();
+                current_position[X_AXIS] = destination[X_AXIS];
+                current_position[Y_AXIS] = destination[Y_AXIS];
+              #endif
+              
               current_position[Z_AXIS] = 0;
-              plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);			  
-              destination[Z_AXIS] = Z_RAISE_BEFORE_HOMING * home_dir(Z_AXIS) * (-1);    // Set destination away from bed
+              plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+              #ifndef Z_SAFE_HOMING_Z_ALONE
+              // this is done before, when Z_SAFE_HOMING_Z_ALONE is enabled/auto leveling disabled
+                destination[Z_AXIS] = Z_RAISE_BEFORE_HOMING * home_dir(Z_AXIS) * (-1);    // Set destination away from bed
+              #endif
               feedrate = max_feedrate[Z_AXIS];
               plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate, active_extruder);
               st_synchronize();
-
+              
               HOMEAXIS(Z);
+              
+             // lift tool after endstop triggered and reset z home position
+             #if defined Z_SAFE_HOMING_Z_POINT
+             if (Z_SAFE_HOMING_Z_POINT>0)
+             {
+                destination[Z_AXIS] = Z_SAFE_HOMING_Z_POINT * home_dir(Z_AXIS) * (-1);    // Set destination away from bed
+                plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+                feedrate = max_feedrate[Z_AXIS];
+                plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate, active_extruder);
+                st_synchronize();
+                axis_is_at_home(Z_AXIS);
+             }
+             #endif
+              
             } else if (!((axis_known_position[X_AXIS]) && (axis_known_position[Y_AXIS]))) {
                 LCD_MESSAGEPGM(MSG_POSITION_UNKNOWN);
                 SERIAL_ECHO_START;
