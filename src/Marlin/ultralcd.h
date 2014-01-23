@@ -12,6 +12,12 @@
   void lcd_setalertstatuspgm(const char* message);
   void lcd_reset_alert_level();
 
+//WITBOX->
+void set_pageShowInfo(int value);
+void set_ChangeScreen(boolean state);
+void config_lcd_level_bed(void);
+void lcd_level_bed(void);
+//<-WITBOX
 #ifdef DOGLCD
   extern int lcd_contrast;
   void lcd_setcontrast(uint8_t value);
@@ -45,6 +51,9 @@
     
   void lcd_buzz(long duration,uint16_t freq);
   bool lcd_clicked();
+//WITBOX REVISAR SI HACE FALTA->
+  void lcd_set_clicked(boolean state);
+//<-WITBOX REVISAR SI HACE FALTA
 
   #ifdef NEWPANEL
     #define EN_C (1<<BLEN_C)
