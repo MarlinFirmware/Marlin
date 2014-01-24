@@ -55,7 +55,6 @@ static void lcd_control_motion_menu();
 
 //menus extras para witbox->
 static void lcd_control_filament_menu();
-static void lcd_speed();
 static void lcd_move_jog_menu();
 static void lcd_speed_printing();
 static void lcd_filament_menu();
@@ -647,29 +646,7 @@ static void lcd_move_e()
     }
 }
 
-//REVISAR, CREO QUE SOBRA UNA FUNCION. WITBOX->
-static void lcd_speed()
-{
-    feedmultiply += int(encoderPosition);
-    encoderPosition = 0;
-    if (feedmultiply < 10)
-        feedmultiply = 10;
-    if (feedmultiply > 999)
-        feedmultiply = 999;
-
-    lcdDrawUpdate = 1;
-    if (lcdDrawUpdate)
-    {
-        lcd_implementation_drawedit(PSTR(MSG_SPEED), itostr3(feedmultiply));
-    }
-    if (LCD_CLICKED)
-    {
-        lcd_quick_feedback();
-        currentMenu = lcd_move_menu_axis;
-        encoderPosition = 0;
-    }
-}
-
+//WITBOX->
 static void lcd_speed_printing()
 {
     feedmultiply += int(encoderPosition);
@@ -691,7 +668,7 @@ static void lcd_speed_printing()
         encoderPosition = 0;
     }
 }
-//<-REVISAR, CREO QUE SOBRA UNA FUNCION. WITBOX
+//<-WITBOX
 static void lcd_move_menu_axis()
 {
     START_MENU();
@@ -738,7 +715,6 @@ static void lcd_move_menu()
 
     MENU_ITEM(gcode, MSG_DISABLE_STEPPERS, PSTR("M84"));    
     MENU_ITEM(submenu, MSG_JOG, lcd_move_jog_menu);
-    MENU_ITEM(submenu, MSG_SPEED, lcd_speed);
 //<-WITBOX
     //TODO:X,Y,Z,E
     END_MENU();
