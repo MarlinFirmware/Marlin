@@ -333,8 +333,6 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
   #define Z_RAISE_BEFORE_HOMING 4       // (in mm) Raise Z before homing (G28) for Probe Clearance.
                                         // Be sure you have this distance over your Z_MAX_POS in case
-    
-  #define XY_TRAVEL_SPEED 8000         // X and Y axis travel speed between probes, in mm/min
   
   #define Z_RAISE_BEFORE_PROBING 15    //How much the extruder will be raised before traveling to the first probing point.
   #define Z_RAISE_BETWEEN_PROBINGS 5  //How much the extruder will be raised when traveling from between next probing points
@@ -348,6 +346,8 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
   
 #endif
 
+  #define XY_TRAVEL_SPEED 8000         // X and Y axis travel speed between probes for bed auto leveling and WITBOX mouvements, in mm/min
+ 
 // Travel limits after homing
 #define X_MAX_POS 300
 #define X_MIN_POS 0
@@ -391,7 +391,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 */
 
 #define DEFAULT_AXIS_STEPS_PER_UNIT   {80,80,600*8/3,102.073}  // {78.7402,78.7402,600*8/3,100.47095761381482}50.235 z:1557.177615571776
-#define DEFAULT_MAX_FEEDRATE          {350, 350, 15, 25}    // (mm/sec)
+#define DEFAULT_MAX_FEEDRATE          {350, 350, 15, 80}    // (mm/sec)
 
 /* VELOCIDADES MAXIMAS:(sin lubricar varillas)
 Eje Z: 21,6 feedrate
@@ -419,6 +419,10 @@ Eje X:
 //=============================Additional Features===========================
 //===========================================================================
 #define WITBOX
+
+#ifdef WITBOX
+	#define EXTRUSION_SPEED 300 	
+#endif
 //===========================================================================
 //===========================================================================
 //===========================================================================

@@ -671,6 +671,7 @@ static void lcd_speed_printing()
 //<-WITBOX
 static void lcd_move_menu_axis()
 {
+	st_synchronize();
     START_MENU();
     MENU_ITEM(back, MSG_MOVE_AXIS, lcd_move_menu);
     MENU_ITEM(submenu, "Move X", lcd_move_x);

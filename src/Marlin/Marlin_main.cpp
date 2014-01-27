@@ -790,8 +790,10 @@ static void axis_is_at_home(int axis) {
   max_pos[axis] =          base_max_pos(axis) + add_homeing[axis];
 }
 
-#define XY_TRAVEL_SPEED 8000 
+#if defined(ENABLE_AUTO_BED_LEVELING) || defined(WITBOX)
+
 static void do_blocking_move_to(float x, float y, float z) {
+    float oldFeedRate = feedrate;
 
     feedrate = XY_TRAVEL_SPEED;
 
@@ -800,9 +802,22 @@ static void do_blocking_move_to(float x, float y, float z) {
     current_position[Z_AXIS] = z;
     plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
     st_synchronize();
+
+    feedrate = oldFeedRate;
+}
+static void do_blocking_extrude_to(float e) {
+	
+	float oldFeedRate = feedrate;
+
+    feedrate = EXTRUSION_SPEED;
+
+    current_position[E_AXIS] = e;
+    plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
+    st_synchronize();
+
+    feedrate = oldFeedRate;
 }
 #ifdef ENABLE_AUTO_BED_LEVELING
-//#if defined(ENABLE_AUTO_BED_LEVELING) || defined(WITBOX)
 static void set_bed_level_equation(float z_at_xLeft_yFront, float z_at_xRight_yFront, float z_at_xLeft_yBack) {
     plan_bed_level_matrix.set_to_identity();
 
@@ -868,20 +883,6 @@ static void run_z_probe() {
     plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
 }
 
-static void do_blocking_move_to(float x, float y, float z) {
-    float oldFeedRate = feedrate;
-
-    feedrate = XY_TRAVEL_SPEED;
-
-    current_position[X_AXIS] = x;
-    current_position[Y_AXIS] = y;
-    current_position[Z_AXIS] = z;
-    plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
-    st_synchronize();
-
-    feedrate = oldFeedRate;
-}
-
 static void do_blocking_move_relative(float offset_x, float offset_y, float offset_z) {
     do_blocking_move_to(current_position[X_AXIS] + offset_x, current_position[Y_AXIS] + offset_y, current_position[Z_AXIS] + offset_z);
 }
@@ -938,6 +939,7 @@ static void retract_z_probe() {
 }
 
 #endif // #ifdef ENABLE_AUTO_BED_LEVELING
+#endif  // #if defined(ENABLE_AUTO_BED_LEVELING) || defined(WITBOX)
 
 static void homeaxis(int axis) {
 #define HOMEAXIS_DO(LETTER) \
@@ -2504,8 +2506,7 @@ void process_commands()
         SERIAL_ECHOLN(" --LEVEL PLATE SCRIPT--");
         
         set_ChangeScreen(true);
-        
-       while(!lcd_clicked()){
+        while(!lcd_clicked()){
         set_pageShowInfo(0);
         lcd_update();        
         }
@@ -2513,23 +2514,25 @@ void process_commands()
         set_pageShowInfo(1);
         lcd_update();
         set_ChangeScreen(true);        
-        st_synchronize();       
+//        st_synchronize();       
        
         HOMEAXIS(X);
         HOMEAXIS(Y);
         HOMEAXIS(Z);
         
-        st_synchronize();
+ //       st_synchronize();
+        /*
         current_position[X_AXIS] = 300;
         current_position[Y_AXIS] = 210;
         current_position[Z_AXIS] = 0;
         current_position[E_AXIS] = 0;
         plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
-
+*/
         // prob 1
-        do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], 10);
-        do_blocking_move_to(150, 200, current_position[Z_AXIS]);
-        do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], 0);
+        
+        do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS],Z_MIN_POS+10);
+        do_blocking_move_to((X_MAX_POS-X_MIN_POS)/2,current_position[Y_AXIS], current_position[Z_AXIS]);
+        do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], Z_MIN_POS-10);
         
        while(!lcd_clicked()){          
           manage_heater();
@@ -2541,9 +2544,9 @@ void process_commands()
         set_pageShowInfo(2);
         lcd_update(); 
         
-        do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], 10);
+        do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS],Z_MIN_POS+10);
         do_blocking_move_to(93, 5, current_position[Z_AXIS]);
-        do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], 0);
+        do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS],Z_MIN_POS);
           
         while(!lcd_clicked()){
           manage_heater();
@@ -2555,9 +2558,9 @@ void process_commands()
         set_pageShowInfo(3);
         lcd_update();
                   
-        do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], 10);
+        do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS],Z_MIN_POS+10);
         do_blocking_move_to(207, 5, current_position[Z_AXIS]);
-        do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], 0);
+        do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS],Z_MIN_POS);
               lcd_update();    
               
          while(!lcd_clicked()){
@@ -2570,9 +2573,9 @@ void process_commands()
         set_pageShowInfo(4);
         lcd_update(); 
                  
-        do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], 10);
+        do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS],Z_MIN_POS+10);
         do_blocking_move_to(150, 105, current_position[Z_AXIS]);
-        do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], 0);
+        do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS],Z_MIN_POS);
               lcd_update();    
               
         while(!lcd_clicked()){                  
@@ -2585,31 +2588,33 @@ void process_commands()
         set_pageShowInfo(5);
         lcd_update();         
                 
-        do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], 10);
+        do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS],Z_MIN_POS+30);
         do_blocking_move_to(300, 210, current_position[Z_AXIS]);
-        //do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], 0);
+        //do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS],Z_MIN_POS);
         lcd_update();           
    
     }
     break;
     
     case 700:
-      SERIAL_ECHOLN(" --LOAD--");
-       st_synchronize(); 
-	    
+      SERIAL_ECHOLN(" --LOAD-- ");
+/*      
+       st_synchronize();
        plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]); 
     
       //-- Extruir!
       current_position[E_AXIS] += 100.0;
       plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS], 300/60, active_extruder);
       st_synchronize(); 
-	
+*/
+	  do_blocking_extrude_to(100);
+	  
       break;
       
     case 701:
-      SERIAL_ECHOLN(" --UNLOAD");
+      SERIAL_ECHOLN(" --UNLOAD-- ");
+ /*     
        st_synchronize(); 
-	    
        plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]); 
     
       //-- Extruir!
@@ -2621,10 +2626,13 @@ void process_commands()
       current_position[E_AXIS] -= 60.0;
       plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS], 300/60, active_extruder);
       st_synchronize();
-	
+*/
+
+	  do_blocking_extrude_to(30);
+	  do_blocking_extrude_to(-100);
+
       break;  
     
-    //QQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQ
     
     #ifdef DUAL_X_CARRIAGE
     case 605: // Set dual x-carriage movement mode:
