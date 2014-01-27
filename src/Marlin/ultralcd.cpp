@@ -804,14 +804,15 @@ void lcd_level_bed()
         {
           lcd.setCursor(2, 2);          
           lcd_printPGM(PSTR(MSG_LP_5));         
-          pageShowInfo=0;
           
           ChangeScreen=false;
           delay(1200);    
           
-          encoderPosition = 0; 
+          encoderPosition = 0;
+          lcd.clear(); 
           currentMenu = lcd_status_screen;
           lcd_status_screen();
+          pageShowInfo=0;
      
         }
         break; 
@@ -1506,7 +1507,11 @@ void lcd_update()
  //WITBOX->
         if (FilamentMenuActive)
             timeoutToStatus = millis() + LCD_TIMEOUT_TO_STATUS;
- //<-WITBOX           
+        if (ChangeScreen && pageShowInfo!=5){
+            lcd_level_bed(); 
+            currentMenu=lcd_level_bed;
+        }           
+ //<-WITBOX
 #endif//ULTIPANEL
 
 #ifdef DOGLCD        // Changes due to different driver architecture of the DOGM display
