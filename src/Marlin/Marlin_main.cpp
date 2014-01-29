@@ -2594,7 +2594,7 @@ void process_commands()
         // prob 1
         
         do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS],Z_MIN_POS+10);
-        do_blocking_move_to((X_MAX_POS-X_MIN_POS)/2,current_position[Y_AXIS], current_position[Z_AXIS]);
+        do_blocking_move_to((X_MAX_POS-X_MIN_POS)/2,Y_MAX_POS-10, current_position[Z_AXIS]);
         do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], Z_MIN_POS);
         
        while(!lcd_clicked()){          
