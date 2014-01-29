@@ -283,7 +283,8 @@ static void lcd_sdcard_stop()
     card.closefile();
    
 //WITBOX->
-	target_temperature[0]=0;    //temperatura del nozzle 1
+	//target_temperature[0]=0;    //temperatura del nozzle 1
+    setTargetHotend(0,0);
     
     enquecommand_P(PSTR("G90"));
     enquecommand_P(PSTR("G1 X298 Y208 Z200"));
@@ -734,9 +735,21 @@ static void lcd_move_jog_menu()
 
 
 void config_lcd_level_bed(){
-  currentMenu=lcd_level_bed;
-  enquecommand_P(PSTR("M602"));
-  pageShowInfo=0;
+	
+	if(degHotend(0)<60){
+		SERIAL_ECHOLN("Leveling...");	
+		currentMenu=lcd_level_bed;
+		enquecommand_P(PSTR("M602"));
+		pageShowInfo=0;
+	}
+	else{
+		SERIAL_ECHOLN("Temperature too high.");
+		enquecommand_P(PSTR("M117 Temperature protection"));
+		setTargetHotend(0,0);
+		lcd.clear(); 
+		currentMenu = lcd_status_screen;
+		lcd_status_screen();
+	}	
   
 }
 
