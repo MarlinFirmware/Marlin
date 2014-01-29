@@ -16,6 +16,7 @@
 void set_pageShowInfo(int value);
 void set_ChangeScreen(boolean state);
 void config_lcd_level_bed(void);
+void lcd_level_bed_cooling(void);
 void lcd_level_bed(void);
 //<-WITBOX
 #ifdef DOGLCD

@@ -295,6 +295,19 @@ static void lcd_sdcard_stop()
     
     enquecommand_P(PSTR("M300 S1174 P150"));
     enquecommand_P(PSTR("M300 S1567 P300"));
+ /*
+ #ifdef LCD_USE_I2C_BUZZER
+    lcd.buzz(60,1000/6);
+#elif defined(BEEPER) && BEEPER > -1
+    SET_OUTPUT(BEEPER);
+    for(int8_t i=0;i<10;i++)
+    {
+      WRITE(BEEPER,HIGH);
+      delayMicroseconds(100);
+      WRITE(BEEPER,LOW);
+      delayMicroseconds(100);
+    }   
+    */
 //<-WITBOX
     quickStop();
     if(SD_FINISHED_STEPPERRELEASE)
@@ -736,7 +749,9 @@ static void lcd_move_jog_menu()
 
 void config_lcd_level_bed(){
 	
-	if(degHotend(0)<60){
+	setTargetHotend(0,0);
+	
+	if(degHotend(0)<LEVEL_PLATE_TEMP_PROTECTION){
 		SERIAL_ECHOLN("Leveling...");	
 		currentMenu=lcd_level_bed;
 		enquecommand_P(PSTR("M602"));
@@ -744,21 +759,56 @@ void config_lcd_level_bed(){
 	}
 	else{
 		SERIAL_ECHOLN("Temperature too high.");
-		enquecommand_P(PSTR("M117 Temperature protection"));
-		setTargetHotend(0,0);
+		enquecommand_P(PSTR("M117 Temp protection"));
+	//GOTO: cooling screen and wait for LEVEL_PLATE_TEMP_PROTECTION to execute lcd_level_bed()
+	/*
 		lcd.clear(); 
 		currentMenu = lcd_status_screen;
 		lcd_status_screen();
+	*/
+	//GOTO: cooling screen and wait for LEVEL_PLATE_TEMP_PROTECTION to execute lcd_level_bed()
+		lcd.clear(); 
+		currentMenu = lcd_level_bed_cooling;		
+		
 	}	
   
 }
-
+void lcd_level_bed_cooling()
+{
+        while(!lcd_clicked()){
+		  manage_heater();
+          lcd.setCursor(0, 0);
+          lcd_printPGM(PSTR(MSG_LP_COOL_1));
+          lcd.setCursor(0, 1);
+          lcd_printPGM(PSTR(MSG_LP_COOL_2));
+          lcd.setCursor(0, 2);
+          lcd_printPGM(PSTR(MSG_LP_COOL_3));
+			lcd.setCursor(6, 2);
+			lcd.print(LCD_STR_THERMOMETER[0]);
+			lcd.print(itostr3(int(degHotend(0))));
+			lcd.print('/');
+			lcd.print(itostr3left(int(degTargetHotend(0))));
+			lcd_printPGM(PSTR(LCD_STR_DEGREE " "));
+          lcd.setCursor(0, 3);
+          lcd_printPGM(PSTR(MSG_LP_COOL_4));                  
+          currentMenu = lcd_level_bed_cooling;
+          
+			if(degHotend(0)<LEVEL_PLATE_TEMP_PROTECTION){
+				currentMenu=config_lcd_level_bed;
+				lcd_quick_feedback();
+				lcd_update();
+				break;
+			}
+        }
+			lcd_quick_feedback();
+			if(degHotend(0)>LEVEL_PLATE_TEMP_PROTECTION){       
+			lcd.clear(); 
+			currentMenu = lcd_status_screen;
+			lcd_implementation_status_screen();
+			}
+}
 void lcd_level_bed()
 {
-
-    //lcd.setCursor(5, 2);
-    //lcd_printPGM(PSTR("NIVELANDO..."));
-    
         if(ChangeScreen){
        lcd.clear(); 
     switch(pageShowInfo){
@@ -776,7 +826,6 @@ void lcd_level_bed()
         {      
           lcd.setCursor(0, 1);
           lcd_printPGM(PSTR(MSG_LP_1));
-            //currentMenu = lcd_status_screen;
               currentMenu = lcd_level_bed;
            ChangeScreen=false;         
         }
@@ -786,7 +835,6 @@ void lcd_level_bed()
         {      
           lcd.setCursor(0, 1);
           lcd_printPGM(PSTR(MSG_LP_2));
-            //currentMenu = lcd_status_screen;
               currentMenu = lcd_level_bed;
            ChangeScreen=false;       
         }
@@ -796,7 +844,6 @@ void lcd_level_bed()
         {      
           lcd.setCursor(0, 1);
           lcd_printPGM(PSTR(MSG_LP_3));
-            //currentMenu = lcd_status_screen;
               currentMenu = lcd_level_bed;
            ChangeScreen=false;         
         }
@@ -806,7 +853,6 @@ void lcd_level_bed()
         {     
           lcd.setCursor(0, 1);
           lcd_printPGM(PSTR(MSG_LP_4));
-            //currentMenu = lcd_status_screen;
               currentMenu = lcd_level_bed;
            ChangeScreen=false;         
         }
@@ -875,7 +921,6 @@ static void lcd_control_menu()
 static void lcd_abort_leveling_1()
 {
   FilamentMenuActive = false;
-  //setTargetHotend0(0);
   lcd_control_menu();
 }
 
@@ -964,7 +1009,6 @@ static void lcd_end_1()
 static void lcd_abort_preheating_1()
 {
   FilamentMenuActive = false;
-  //setTargetHotend0(0);
   lcd_filament_menu();
 }
 

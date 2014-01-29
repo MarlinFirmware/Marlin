@@ -2641,7 +2641,7 @@ void process_commands()
         set_ChangeScreen(true);
         set_pageShowInfo(5);
                 
-        do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS],Z_MIN_POS+30);
+        do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS],Z_MIN_POS+50);
         do_blocking_move_to(10, 10, current_position[Z_AXIS]);
         //do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS],Z_MIN_POS);       
    

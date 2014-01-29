@@ -235,8 +235,13 @@
 	#define MSG_LP_2 "Adjust second point  & Press the button"
 	#define MSG_LP_3 "Adjust third point   & Press the button"
 	#define MSG_LP_4 "     Is it ok?         Press to end"       
-	#define MSG_LP_5 " Plate leveled!"        
-	#define FIRMWARE_VER "v1.0"
+	#define MSG_LP_5 " Plate leveled!"
+	#define MSG_LP_COOL_1 "Temp. too high!!"
+	#define MSG_LP_COOL_2 "Cooling..."
+	#define MSG_LP_COOL_3 "Temp:"
+	#define MSG_LP_COOL_4 "   Press to abort"
+					        
+	#define FIRMWARE_VER "v1.1"
 #endif
 
 

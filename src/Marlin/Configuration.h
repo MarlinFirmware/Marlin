@@ -421,7 +421,8 @@ Eje X:
 #define WITBOX
 
 #ifdef WITBOX
-	#define EXTRUSION_SPEED 300 	
+	#define EXTRUSION_SPEED 300
+	#define LEVEL_PLATE_TEMP_PROTECTION 60	
 #endif
 //===========================================================================
 //===========================================================================
