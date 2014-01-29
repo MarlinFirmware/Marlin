@@ -441,19 +441,19 @@
     #define X_STEP_PIN         54
     #define X_DIR_PIN          55
     #define X_ENABLE_PIN       38
-    #define X_MIN_PIN           3
+    #define X_MIN_PIN          -1 // unused for deltabot, was 3
     #define X_MAX_PIN           2
 
     #define Y_STEP_PIN         60
     #define Y_DIR_PIN          61
     #define Y_ENABLE_PIN       56
-    #define Y_MIN_PIN          14
+    #define Y_MIN_PIN          -1 // unused for deltabot, was 14
     #define Y_MAX_PIN          15
 
     #define Z_STEP_PIN         46
     #define Z_DIR_PIN          48
     #define Z_ENABLE_PIN       62
-    #define Z_MIN_PIN          18
+    #define Z_MIN_PIN          18 // autolevel for deltabot
     #define Z_MAX_PIN          19
 
     #define Y2_STEP_PIN        36
@@ -1546,7 +1546,8 @@
 #else  // Printrboard
   #define X_STOP_PIN         35
   #define Y_STOP_PIN          8
-  #define Z_STOP_PIN         36
+  #define Z_MAX_PIN          36
+  #define Z_MIN_PIN          37  // Use E-STOP for autolevel Z probe
   #define TEMP_0_PIN          1  // Extruder / Analog pin numbering
   #define TEMP_BED_PIN        0  // Bed / Analog pin numbering
 #endif

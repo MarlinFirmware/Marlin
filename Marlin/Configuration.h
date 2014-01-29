@@ -16,7 +16,7 @@
 // startup. Implementation of an idea by Prof Braino to inform user that any changes made to this
 // build by the user have been successfully uploaded into firmware.
 #define STRING_VERSION_CONFIG_H __DATE__ " " __TIME__ // build date and time
-#define STRING_CONFIG_H_AUTHOR "(none, default config)" // Who made the changes.
+#define STRING_CONFIG_H_AUTHOR "(jcrocholl, Mini Kossel)" // Who made the changes.
 
 // SERIAL_PORT selects which serial port should be used for communication with the host.
 // This allows the connection of wireless adapters (for instance) to non-default port pins.
@@ -24,8 +24,8 @@
 #define SERIAL_PORT 0
 
 // This determines the communication speed of the printer
-// This determines the communication speed of the printer
-#define BAUDRATE 250000
+//#define BAUDRATE 250000
+#define BAUDRATE 115200
 
 // This enables the serial port associated to the Bluetooth interface
 //#define BTENABLED              // Enable BT interface on AT90USB devices
@@ -70,7 +70,7 @@
 // 21 = Elefu Ra Board (v3)
 
 #ifndef MOTHERBOARD
-#define MOTHERBOARD 7
+#define MOTHERBOARD 33
 #endif
 
 // Define this to set a custom name for your generic Mendel,
@@ -91,6 +91,45 @@
 
 // Define this to have the electronics keep the powersupply off on startup. If you don't know what this is leave it.
 // #define PS_DEFAULT_OFF
+
+//===========================================================================
+//============================== Delta Settings =============================
+//===========================================================================
+// Enable DELTA kinematics
+#define DELTA
+
+// Make delta curves from many straight lines (linear interpolation).
+// This is a trade-off between visible corners (not enough segments)
+// and processor overload (too many expensive sqrt calls).
+#define DELTA_SEGMENTS_PER_SECOND 200
+
+// Center-to-center distance of the holes in the diagonal push rods.
+#define DELTA_DIAGONAL_ROD 215.0 // mm
+
+// Horizontal offset from middle of printer to smooth rod center.
+#define DELTA_SMOOTH_ROD_OFFSET 137.0 // mm
+
+// Horizontal offset of the universal joints on the end effector.
+#define DELTA_EFFECTOR_OFFSET 19.9 // mm
+
+// Horizontal offset of the universal joints on the carriages.
+#define DELTA_CARRIAGE_OFFSET 19.5 // mm
+
+// Effective horizontal distance bridged by diagonal push rods.
+#define DELTA_RADIUS (DELTA_SMOOTH_ROD_OFFSET-DELTA_EFFECTOR_OFFSET-DELTA_CARRIAGE_OFFSET)
+
+// Effective X/Y positions of the three vertical towers.
+#define SIN_60 0.8660254037844386
+#define COS_60 0.5
+#define DELTA_TOWER1_X -SIN_60*DELTA_RADIUS // front left tower
+#define DELTA_TOWER1_Y -COS_60*DELTA_RADIUS
+#define DELTA_TOWER2_X SIN_60*DELTA_RADIUS // front right tower
+#define DELTA_TOWER2_Y -COS_60*DELTA_RADIUS
+#define DELTA_TOWER3_X 0.0 // back middle tower
+#define DELTA_TOWER3_Y DELTA_RADIUS
+
+// Diagonal rod squared
+#define DELTA_DIAGONAL_ROD_2 pow(DELTA_DIAGONAL_ROD,2)
 
 //===========================================================================
 //=============================Thermal Settings  ============================
@@ -121,8 +160,8 @@
 // 52 is 200k thermistor - ATC Semitec 204GT-2 (1k pullup)
 // 55 is 100k thermistor - ATC Semitec 104GT-2 (Used in ParCan & J-Head) (1k pullup)
 
-#define TEMP_SENSOR_0 -1
-#define TEMP_SENSOR_1 -1
+#define TEMP_SENSOR_0 5
+#define TEMP_SENSOR_1 0
 #define TEMP_SENSOR_2 0
 #define TEMP_SENSOR_BED 0
 
@@ -264,12 +303,12 @@
 #endif
 
 // The pullups are needed if you directly connect a mechanical endswitch between the signal and ground pins.
-const bool X_MIN_ENDSTOP_INVERTING = true; // set to true to invert the logic of the endstop.
-const bool Y_MIN_ENDSTOP_INVERTING = true; // set to true to invert the logic of the endstop.
-const bool Z_MIN_ENDSTOP_INVERTING = true; // set to true to invert the logic of the endstop.
-const bool X_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of the endstop.
-const bool Y_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of the endstop.
-const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of the endstop.
+const bool X_MIN_ENDSTOP_INVERTING = false; // set to true to invert the logic of the endstop.
+const bool Y_MIN_ENDSTOP_INVERTING = false; // set to true to invert the logic of the endstop.
+const bool Z_MIN_ENDSTOP_INVERTING = false; // set to true to invert the logic of the endstop.
+const bool X_MAX_ENDSTOP_INVERTING = false; // set to true to invert the logic of the endstop.
+const bool Y_MAX_ENDSTOP_INVERTING = false; // set to true to invert the logic of the endstop.
+const bool Z_MAX_ENDSTOP_INVERTING = false; // set to true to invert the logic of the endstop.
 //#define DISABLE_MAX_ENDSTOPS
 //#define DISABLE_MIN_ENDSTOPS
 
@@ -290,28 +329,28 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define DISABLE_Z false
 #define DISABLE_E false // For all extruders
 
-#define INVERT_X_DIR true    // for Mendel set to false, for Orca set to true
+#define INVERT_X_DIR false    // for Mendel set to false, for Orca set to true
 #define INVERT_Y_DIR false    // for Mendel set to true, for Orca set to false
-#define INVERT_Z_DIR true     // for Mendel set to false, for Orca set to true
+#define INVERT_Z_DIR false    // for Mendel set to false, for Orca set to true
 #define INVERT_E0_DIR false   // for direct drive extruder v9 set to true, for geared extruder set to false
-#define INVERT_E1_DIR false    // for direct drive extruder v9 set to true, for geared extruder set to false
+#define INVERT_E1_DIR false   // for direct drive extruder v9 set to true, for geared extruder set to false
 #define INVERT_E2_DIR false   // for direct drive extruder v9 set to true, for geared extruder set to false
 
 // ENDSTOP SETTINGS:
 // Sets direction of endstops when homing; 1=MAX, -1=MIN
-#define X_HOME_DIR -1
-#define Y_HOME_DIR -1
-#define Z_HOME_DIR -1
+#define X_HOME_DIR 1
+#define Y_HOME_DIR 1
+#define Z_HOME_DIR 1
 
 #define min_software_endstops true // If true, axis won't move to coordinates less than HOME_POS.
 #define max_software_endstops true  // If true, axis won't move to coordinates greater than the defined lengths below.
 
 // Travel limits after homing
-#define X_MAX_POS 205
-#define X_MIN_POS 0
-#define Y_MAX_POS 205
-#define Y_MIN_POS 0
-#define Z_MAX_POS 200
+#define X_MAX_POS 90
+#define X_MIN_POS -90
+#define Y_MAX_POS 90
+#define Y_MIN_POS -90
+#define Z_MAX_POS MANUAL_Z_HOME_POS
 #define Z_MIN_POS 0
 
 #define X_MAX_LENGTH (X_MAX_POS - X_MIN_POS)
@@ -380,25 +419,28 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 
 // The position of the homing switches
-//#define MANUAL_HOME_POSITIONS  // If defined, MANUAL_*_HOME_POS below will be used
+#define MANUAL_HOME_POSITIONS  // If defined, MANUAL_*_HOME_POS below will be used
 //#define BED_CENTER_AT_0_0  // If defined, the center of the bed is at (X=0, Y=0)
 
 //Manual homing switch locations:
 // For deltabots this means top and center of the cartesian print volume.
 #define MANUAL_X_HOME_POS 0
 #define MANUAL_Y_HOME_POS 0
-#define MANUAL_Z_HOME_POS 0
-//#define MANUAL_Z_HOME_POS 402 // For delta: Distance between nozzle and print surface after homing.
+#define MANUAL_Z_HOME_POS 205  // For delta: Distance between nozzle and print surface after homing.
+
+#define AUTOLEVEL_GRID 24  // Distance between autolevel Z probing points, should be less than print surface radius/3.
 
 //// MOVEMENT SETTINGS
 #define NUM_AXIS 4 // The axis order in all axis related arrays is X, Y, Z, E
-#define HOMING_FEEDRATE {50*60, 50*60, 4*60, 0}  // set the homing speeds (mm/min)
+#define HOMING_FEEDRATE {200*60, 200*60, 200*60, 0}  // set the homing speeds (mm/min)
+
+#define Z_PROBE_OFFSET {0, 19, -8, 0}  // X, Y, Z, E distance between hotend nozzle and deployed bed leveling probe.
 
 // default settings
 
-#define DEFAULT_AXIS_STEPS_PER_UNIT   {78.7402,78.7402,200.0*8/3,760*1.1}  // default steps per unit for Ultimaker
-#define DEFAULT_MAX_FEEDRATE          {500, 500, 5, 25}    // (mm/sec)
-#define DEFAULT_MAX_ACCELERATION      {9000,9000,100,10000}    // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for skeinforge 40+, for older versions raise them a lot.
+#define DEFAULT_AXIS_STEPS_PER_UNIT   {100, 100, 100, 100}
+#define DEFAULT_MAX_FEEDRATE          {200, 200, 200, 200}    // (mm/sec)
+#define DEFAULT_MAX_ACCELERATION      {9000,9000,9000,9000}    // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for skeinforge 40+, for older versions raise them a lot.
 
 #define DEFAULT_ACCELERATION          3000    // X, Y, Z and E max acceleration in mm/s^2 for printing moves
 #define DEFAULT_RETRACT_ACCELERATION  3000   // X, Y, Z and E max acceleration in mm/s^2 for retracts
@@ -411,8 +453,8 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 // The speed change that does not require acceleration (i.e. the software might assume it can be done instantaneously)
 #define DEFAULT_XYJERK                20.0    // (mm/sec)
-#define DEFAULT_ZJERK                 0.4     // (mm/sec)
-#define DEFAULT_EJERK                 5.0    // (mm/sec)
+#define DEFAULT_ZJERK                 20.0    // (mm/sec)
+#define DEFAULT_EJERK                 20.0    // (mm/sec)
 
 //===========================================================================
 //=============================Additional Features===========================
@@ -441,7 +483,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 //LCD and SD support
 //#define ULTRA_LCD  //general lcd support, also 16x2
 //#define DOGLCD  // Support for SPI LCD 128x64 (Controller ST7565R graphic Display Family)
-//#define SDSUPPORT // Enable SD Card Support in Hardware Console
+#define SDSUPPORT // Enable SD Card Support in Hardware Console
 //#define SDSLOW // Use slower SD transfer mode (not normally needed - uncomment if you're getting volume init error)
 //#define ENCODER_PULSES_PER_STEP 1 // Increase if you have a high resolution encoder
 //#define ENCODER_STEPS_PER_MENU_ITEM 5 // Set according to ENCODER_PULSES_PER_STEP or your liking
