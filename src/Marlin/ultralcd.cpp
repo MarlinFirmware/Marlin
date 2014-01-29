@@ -82,17 +82,11 @@ static void lcd_load_material_extrud_1();
 static void lcd_insert_and_press_1();
 static void lcd_pre_extrud_1();
 static void lcd_extrud_1();
-static void lcd_clean_and_press_1();
-static void lcd_end_1();
 static void lcd_abort_preheating_1();
 
 // Unload
 static void lcd_unload_material_extrud_1();
-static void lcd_pre_UN_extrud_1();
-static void lcd_UN_extrud_1();
-static void lcd_pre_Retract_extrud_1();
-static void lcd_Retract_extrud_1();
-static void lcd_UN_end_1();
+
 //<-menus extras para witbox
 #ifdef DOGLCD
 static void lcd_set_contrast();
@@ -759,7 +753,6 @@ void config_lcd_level_bed(){
 	}
 	else{
 		SERIAL_ECHOLN("Temperature too high.");
-		enquecommand_P(PSTR("M117 Temp protection"));
 	//GOTO: cooling screen and wait for LEVEL_PLATE_TEMP_PROTECTION to execute lcd_level_bed()
 	/*
 		lcd.clear(); 
@@ -781,16 +774,12 @@ void lcd_level_bed_cooling()
           lcd_printPGM(PSTR(MSG_LP_COOL_1));
           lcd.setCursor(0, 1);
           lcd_printPGM(PSTR(MSG_LP_COOL_2));
-          lcd.setCursor(0, 2);
-          lcd_printPGM(PSTR(MSG_LP_COOL_3));
-			lcd.setCursor(6, 2);
+			lcd.setCursor(6, 1);
 			lcd.print(LCD_STR_THERMOMETER[0]);
 			lcd.print(itostr3(int(degHotend(0))));
-			lcd.print('/');
-			lcd.print(itostr3left(int(degTargetHotend(0))));
 			lcd_printPGM(PSTR(LCD_STR_DEGREE " "));
           lcd.setCursor(0, 3);
-          lcd_printPGM(PSTR(MSG_LP_COOL_4));                  
+          lcd_printPGM(PSTR(MSG_LP_COOL_3));                  
           currentMenu = lcd_level_bed_cooling;
           
 			if(degHotend(0)<LEVEL_PLATE_TEMP_PROTECTION){
@@ -962,7 +951,7 @@ static void lcd_load_material_extrud_1()
 
     int tHotend=int(degHotend(0) + 0.5);
     int tTarget=int(degTargetHotend(0) + 0.5);
-    lcd.setCursor(5, 2);
+    lcd.setCursor(3, 2);
     lcd_printPGM(PSTR(MSG_HEATING));
     lcd.setCursor(5, 3);
     lcd.print(LCD_STR_THERMOMETER[0]);
@@ -989,23 +978,6 @@ static void lcd_insert_and_press_1()
     MENU_ITEM(gcode, MSG_PRE_EXTRUD, PSTR("M700")); 
     END_MENU();
 }
-
-static void lcd_clean_and_press_1()
-{
-    START_MENU();
-    MENU_ITEM(back, MSG_ABORT, lcd_abort_preheating_1);
-     encoderPosition = 0;   
-    MENU_ITEM(submenu, MSG_CLEAN, lcd_end_1);
-    END_MENU();
-}
-
-static void lcd_end_1()
-{
-    lcd_quick_feedback();
-    currentMenu = lcd_abort_preheating_1;
-    encoderPosition = 0;
-}  
-
 static void lcd_abort_preheating_1()
 {
   FilamentMenuActive = false;
@@ -1035,16 +1007,16 @@ static void lcd_unload_material_extrud_1()
 
     int tHotend=int(degHotend(0) + 0.5);
     int tTarget=int(degTargetHotend(0) + 0.5);
-    lcd.setCursor(5, 1);
+    lcd.setCursor(3, 2);
     lcd_printPGM(PSTR(MSG_HEATING));
-    lcd.setCursor(5, 2);
+    lcd.setCursor(5, 3);
     lcd.print(LCD_STR_THERMOMETER[0]);
     lcd.print(itostr3(tHotend));
     lcd.print('/');
     lcd.print(itostr3left(tTarget));
     lcd_printPGM(PSTR(LCD_STR_DEGREE " "));
     lcd.setCursor(0, 3);
-    lcd_printPGM(PSTR(MSG_PUSH_BEEP));
+//    lcd_printPGM(PSTR(MSG_PUSH_BEEP));
 
     //if ((degHotend(0) > (degTargetHotend(0)-1)) && (degHotend(0) < (degTargetHotend(0)+1)))
     if (degHotend(0) > degTargetHotend(0))
@@ -1056,39 +1028,6 @@ static void lcd_unload_material_extrud_1()
 	 enquecommand_P(PSTR("M701"));
     }
 }
-
-static void lcd_pre_UN_extrud_1()
-{
-    active_extruder = 0;
-    lcd_UN_extrud_1();
-    currentMenu = lcd_UN_extrud_1;
-    encoderPosition = 0;
-}
-
-static void lcd_UN_extrud_1()
-{
-
-    current_position[E_AXIS]= (float)FILAMENT_UNLOAD_EXTRUSION_LENGTH + current_position[E_AXIS];
-     
-    plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS], 300/60, active_extruder);
-    
-    current_position[E_AXIS]= -(float)FILAMENT_UNLOAD_RETRACTION_LENGTH + current_position[E_AXIS];
-     
-    plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS], 300/60, active_extruder);
-    
-    lcd_quick_feedback();
-    lcd_UN_end_1();
-    currentMenu = lcd_UN_end_1;
-}
-
-
-static void lcd_UN_end_1()
-{
-    lcd_quick_feedback();
-    currentMenu = lcd_abort_preheating_1;
-    encoderPosition = 0;
-}
-
 //////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 
