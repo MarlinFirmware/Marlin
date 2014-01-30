@@ -143,9 +143,9 @@ def main(argv):
     for temp in temps:
         counter = counter +1
         if counter == len(temps):
-            print "   {%s*OVERSAMPLENR, %s}  // v=%s r=%s res=%s C/count" % (int(t.adc(temp)), temp, t.v(t.adc(temp)), t.r(t.adc(temp)),t.res(t.adc(temp)))
+            print "   {(short)(%.2f*OVERSAMPLENR), %s}  // v=%s r=%s res=%s C/count" % ((t.adc(temp)), temp, t.v(t.adc(temp)), t.r(t.adc(temp)),t.res(t.adc(temp)))
         else:
-            print "   {%s*OVERSAMPLENR, %s}, // v=%s r=%s res=%s C/count" % (int(t.adc(temp)), temp, t.v(t.adc(temp)), t.r(t.adc(temp)),t.res(t.adc(temp)))
+            print "   {(short)(%.2f*OVERSAMPLENR), %s}, // v=%s r=%s res=%s C/count" % ((t.adc(temp)), temp, t.v(t.adc(temp)), t.r(t.adc(temp)),t.res(t.adc(temp)))
     print "};"
     
 def usage():
