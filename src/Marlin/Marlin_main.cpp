@@ -2650,7 +2650,7 @@ void process_commands()
     
     case 700:
       SERIAL_ECHOLN(" --LOAD-- ");
-/*      
+      
        st_synchronize();
        plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]); 
     
@@ -2658,14 +2658,14 @@ void process_commands()
       current_position[E_AXIS] += 100.0;
       plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS], 300/60, active_extruder);
       st_synchronize(); 
-*/
-	  do_blocking_extrude_to(100);
+
+	//  do_blocking_extrude_to(100);
 	  
       break;
       
     case 701:
       SERIAL_ECHOLN(" --UNLOAD-- ");
- /*     
+      
        st_synchronize(); 
        plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]); 
     
@@ -2678,10 +2678,10 @@ void process_commands()
       current_position[E_AXIS] -= 60.0;
       plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS], 300/60, active_extruder);
       st_synchronize();
-*/
 
-	  do_blocking_extrude_to(30);
-	  do_blocking_extrude_to(-100);
+
+	//  do_blocking_extrude_to(30);
+	//  do_blocking_extrude_to(-100);
 
       break;  
     
