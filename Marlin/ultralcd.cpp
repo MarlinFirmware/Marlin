@@ -426,6 +426,76 @@ static void lcd_tune_menu()
     END_MENU();
 }
 
+void lcd_preheat_pla1()
+{
+    setTargetHotend0(plaPreheatHotendTemp);
+    //setTargetHotend1(plaPreheatHotendTemp);
+    //setTargetHotend2(plaPreheatHotendTemp);
+    setTargetBed(plaPreheatHPBTemp);
+    fanSpeed = plaPreheatFanSpeed;
+    lcd_return_to_status();
+}
+
+void lcd_preheat_abs1()
+{
+    setTargetHotend0(absPreheatHotendTemp);
+    //setTargetHotend1(absPreheatHotendTemp);
+    //setTargetHotend2(absPreheatHotendTemp);
+    setTargetBed(absPreheatHPBTemp);
+    fanSpeed = absPreheatFanSpeed;
+    lcd_return_to_status();
+}
+
+#if TEMP_SENSOR_2 != 0 //2nd extruder preheat
+void lcd_preheat_pla2()
+{
+    //setTargetHotend0(plaPreheatHotendTemp);
+    setTargetHotend1(plaPreheatHotendTemp);
+    //setTargetHotend2(plaPreheatHotendTemp);
+    setTargetBed(plaPreheatHPBTemp);
+    fanSpeed = plaPreheatFanSpeed;
+    lcd_return_to_status();
+}
+
+void lcd_preheat_abs2()
+{
+    //setTargetHotend0(absPreheatHotendTemp);
+    setTargetHotend1(absPreheatHotendTemp);
+    //setTargetHotend2(absPreheatHotendTemp);
+    setTargetBed(absPreheatHPBTemp);
+    fanSpeed = absPreheatFanSpeed;
+    lcd_return_to_status();
+}
+
+static void lcd_preheat_pla_menu()
+{
+    START_MENU();
+    MENU_ITEM(back, MSG_PREPARE, lcd_prepare_menu);
+    MENU_ITEM(function, MSG_PREHEAT_PLA1, lcd_preheat_pla1);
+    MENU_ITEM(function, MSG_PREHEAT_PLA2, lcd_preheat_pla2);
+    END_MENU();
+}
+
+static void lcd_preheat_abs_menu()
+{
+    START_MENU();
+    MENU_ITEM(back, MSG_PREPARE, lcd_prepare_menu);
+    MENU_ITEM(function, MSG_PREHEAT_ABS1, lcd_preheat_abs1);
+    MENU_ITEM(function, MSG_PREHEAT_ABS2, lcd_preheat_abs2);
+    END_MENU();
+}
+#endif //2nd extruder preheat
+
+void lcd_cooldown()
+{
+    setTargetHotend0(0);
+    setTargetHotend1(0);
+    setTargetHotend2(0);
+    setTargetBed(0);
+    fanSpeed = 0;
+    lcd_return_to_status();
+}
+
 static void lcd_prepare_menu()
 {
     START_MENU();
@@ -438,8 +508,14 @@ static void lcd_prepare_menu()
     MENU_ITEM(gcode, MSG_DISABLE_STEPPERS, PSTR("M84"));
     MENU_ITEM(gcode, MSG_AUTO_HOME, PSTR("G28"));
     //MENU_ITEM(gcode, MSG_SET_ORIGIN, PSTR("G92 X0 Y0 Z0"));
-    MENU_ITEM(function, MSG_PREHEAT_PLA, lcd_preheat_pla);
-    MENU_ITEM(function, MSG_PREHEAT_ABS, lcd_preheat_abs);
+#if TEMP_SENSOR_1 != 0
+    MENU_ITEM(function, MSG_PREHEAT_PLA, lcd_preheat_pla1);
+    MENU_ITEM(function, MSG_PREHEAT_ABS, lcd_preheat_abs1);
+#endif
+#if TEMP_SENSOR_2 != 0
+    MENU_ITEM(submenu, MSG_PREHEAT_PLA, lcd_preheat_pla_menu);
+    MENU_ITEM(submenu, MSG_PREHEAT_ABS, lcd_preheat_abs_menu);
+#endif
     MENU_ITEM(function, MSG_COOLDOWN, lcd_cooldown);
 #if PS_ON_PIN > -1
     if (powersupply)
