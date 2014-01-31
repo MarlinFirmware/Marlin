@@ -188,7 +188,7 @@ bool axis_relative_modes[] = AXIS_RELATIVE_MODES;
 int feedmultiply=100; //100->1 200->2
 int saved_feedmultiply;
 int extrudemultiply=100; //100->1 200->2
-float filament_area[EXTRUDERS] = {1.0
+float volumetric_multiplier[EXTRUDERS] = {1.0
   #if EXTRUDERS > 1
     , 1.0
     #if EXTRUDERS > 2
@@ -2222,7 +2222,7 @@ void process_commands()
           SERIAL_ECHOLN(tmp_extruder);
           break;
         }
-        filament_area[tmp_extruder] = area;
+        volumetric_multiplier[tmp_extruder] = 1 / area;
       }
       break;
     case 201: // M201
