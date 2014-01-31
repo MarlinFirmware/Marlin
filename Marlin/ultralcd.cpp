@@ -989,7 +989,6 @@ void lcd_init()
 #ifdef NEWPANEL
     pinMode(BTN_EN1,INPUT);
     pinMode(BTN_EN2,INPUT);
-    pinMode(SDCARDDETECT,INPUT);
     WRITE(BTN_EN1,HIGH);
     WRITE(BTN_EN2,HIGH);
   #if BTN_ENC > 0
@@ -1003,11 +1002,11 @@ void lcd_init()
     WRITE(SHIFT_OUT,HIGH);
     WRITE(SHIFT_LD,HIGH);
   #endif
-#else
-  #ifdef SR_LCD_2W_NL
+#else  // Not NEWPANEL
+  #ifdef SR_LCD_2W_NL // Non latching 2 wire shiftregister
      pinMode (SR_DATA_PIN, OUTPUT);
      pinMode (SR_CLK_PIN, OUTPUT);
-  #else
+  #elif defined(SHIFT_CLK) 
      pinMode(SHIFT_CLK,OUTPUT);
      pinMode(SHIFT_LD,OUTPUT);
      pinMode(SHIFT_EN,OUTPUT);
@@ -1015,16 +1014,21 @@ void lcd_init()
      WRITE(SHIFT_OUT,HIGH);
      WRITE(SHIFT_LD,HIGH);
      WRITE(SHIFT_EN,LOW);
-   #endif // SR_LCD_2W_NL
+  #else
+     #ifdef ULTIPANEL
+     #error ULTIPANEL requires an encoder
+     #endif
+  #endif // SR_LCD_2W_NL
 #endif//!NEWPANEL
 
-#if (SDCARDDETECT > 0)
+#if defined (SDSUPPORT) && defined(SDCARDDETECT) && (SDCARDDETECT > 0)
+    pinMode(SDCARDDETECT,INPUT);
     WRITE(SDCARDDETECT, HIGH);
     lcd_oldcardstatus = IS_SD_INSERTED;
 #endif//(SDCARDDETECT > 0)
-    #ifdef LCD_HAS_SLOW_BUTTONS
+#ifdef LCD_HAS_SLOW_BUTTONS
     slow_buttons = 0;
-    #endif
+#endif
     lcd_buttons_update();
 #ifdef ULTIPANEL
     encoderDiff = 0;
