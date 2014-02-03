@@ -189,6 +189,8 @@ void enquecommand_P(const char *cmd); //put an ascii command at the end of the c
 void prepare_arc_move(char isclockwise);
 void clamp_to_software_endstops(float target[3]);
 
+void refresh_cmd_timeout(void);
+
 #ifdef FAST_PWM_FAN
 void setPwmFrequency(uint8_t pin, int val);
 #endif
