@@ -1816,10 +1816,20 @@ void process_commands()
       #endif
 
         SERIAL_PROTOCOLPGM(" @:");
+      #ifdef EXTRUDER_WATTS
+        SERIAL_PROTOCOL((EXTRUDER_WATTS * getHeaterPower(tmp_extruder))/127);
+        SERIAL_PROTOCOLPGM("W");
+      #else
         SERIAL_PROTOCOL(getHeaterPower(tmp_extruder));
+      #endif
 
         SERIAL_PROTOCOLPGM(" B@:");
+      #ifdef BED_WATTS
+        SERIAL_PROTOCOL((BED_WATTS * getHeaterPower(-1))/127);
+        SERIAL_PROTOCOLPGM("W");
+      #else
         SERIAL_PROTOCOL(getHeaterPower(-1));
+      #endif
 
         #ifdef SHOW_TEMP_ADC_VALUES
           #if defined(TEMP_BED_PIN) && TEMP_BED_PIN > -1
