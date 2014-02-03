@@ -460,6 +460,7 @@ static void lcd_move_x()
 {
     if (encoderPosition != 0)
     {
+        refresh_cmd_timeout();
         current_position[X_AXIS] += float((int)encoderPosition) * move_menu_scale;
         if (min_software_endstops && current_position[X_AXIS] < X_MIN_POS)
             current_position[X_AXIS] = X_MIN_POS;
@@ -489,6 +490,7 @@ static void lcd_move_y()
 {
     if (encoderPosition != 0)
     {
+        refresh_cmd_timeout();
         current_position[Y_AXIS] += float((int)encoderPosition) * move_menu_scale;
         if (min_software_endstops && current_position[Y_AXIS] < Y_MIN_POS)
             current_position[Y_AXIS] = Y_MIN_POS;
@@ -518,6 +520,7 @@ static void lcd_move_z()
 {
     if (encoderPosition != 0)
     {
+        refresh_cmd_timeout();
         current_position[Z_AXIS] += float((int)encoderPosition) * move_menu_scale;
         if (min_software_endstops && current_position[Z_AXIS] < Z_MIN_POS)
             current_position[Z_AXIS] = Z_MIN_POS;
