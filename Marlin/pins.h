@@ -1425,6 +1425,14 @@
 #define E2_DIR_PIN         28
 #define E2_ENABLE_PIN      39
 
+#define Y2_STEP_PIN        E2_STEP_PIN
+#define Y2_DIR_PIN         E2_DIR_PIN
+#define Y2_ENABLE_PIN      E2_ENABLE_PIN
+
+#define Z2_STEP_PIN        E2_STEP_PIN
+#define Z2_DIR_PIN         E2_DIR_PIN
+#define Z2_ENABLE_PIN      E2_ENABLE_PIN
+
 #define LED_PIN            13
 
 #define FAN_PIN            7
