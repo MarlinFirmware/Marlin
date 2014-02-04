@@ -130,7 +130,7 @@
 // M150 - Set BlinkM Colour Output R: Red<0-255> U(!): Green<0-255> B: Blue<0-255> over i2c, G for green does not work.
 // M190 - Sxxx Wait for bed current temp to reach target temp. Waits only when heating
 //        Rxxx Wait for bed current temp to reach target temp. Waits when heating and cooling
-// M200 - Set filament diameter
+// M200 D<millimeters>- set filament diameter and set E axis units to cubic millimeters (use S0 to set back to millimeters).
 // M201 - Set max acceleration in units/s^2 for print moves (M201 X1000 Y1000)
 // M202 - Set max acceleration in units/s^2 for travel moves (M202 X1000 Y1000) Unused in Marlin!!
 // M203 - Set maximum feedrate that your machine can sustain (M203 X200 Y200 Z300 E10000) in mm/sec
@@ -188,6 +188,14 @@ bool axis_relative_modes[] = AXIS_RELATIVE_MODES;
 int feedmultiply=100; //100->1 200->2
 int saved_feedmultiply;
 int extrudemultiply=100; //100->1 200->2
+float volumetric_multiplier[EXTRUDERS] = {1.0
+  #if EXTRUDERS > 1
+    , 1.0
+    #if EXTRUDERS > 2
+      , 1.0
+    #endif
+  #endif
+};
 float current_position[NUM_AXIS] = { 0.0, 0.0, 0.0, 0.0 };
 float add_homeing[3]={0,0,0};
 #ifdef DELTA
@@ -1808,10 +1816,20 @@ void process_commands()
       #endif
 
         SERIAL_PROTOCOLPGM(" @:");
+      #ifdef EXTRUDER_WATTS
+        SERIAL_PROTOCOL((EXTRUDER_WATTS * getHeaterPower(tmp_extruder))/127);
+        SERIAL_PROTOCOLPGM("W");
+      #else
         SERIAL_PROTOCOL(getHeaterPower(tmp_extruder));
+      #endif
 
         SERIAL_PROTOCOLPGM(" B@:");
+      #ifdef BED_WATTS
+        SERIAL_PROTOCOL((BED_WATTS * getHeaterPower(-1))/127);
+        SERIAL_PROTOCOLPGM("W");
+      #else
         SERIAL_PROTOCOL(getHeaterPower(-1));
+      #endif
 
         #ifdef SHOW_TEMP_ADC_VALUES
           #if defined(TEMP_BED_PIN) && TEMP_BED_PIN > -1
@@ -2190,6 +2208,34 @@ void process_commands()
       }
       break;
     #endif //BLINKM
+    case 200: // M200 D<millimeters> set filament diameter and set E axis units to cubic millimeters (use S0 to set back to millimeters).
+      {
+        float area = .0;
+        float radius = .0;
+        if(code_seen('D')) {
+          radius = (float)code_value() * .5;
+          if(radius == 0) {
+            area = 1;
+          } else {
+            area = M_PI * pow(radius, 2);
+          }
+        } else {
+          //reserved for setting filament diameter via UFID or filament measuring device
+          break;
+        }
+        tmp_extruder = active_extruder;
+        if(code_seen('T')) {
+          tmp_extruder = code_value();
+          if(tmp_extruder >= EXTRUDERS) {
+            SERIAL_ECHO_START;
+            SERIAL_ECHO(MSG_M200_INVALID_EXTRUDER);
+          }
+          SERIAL_ECHOLN(tmp_extruder);
+          break;
+        }
+        volumetric_multiplier[tmp_extruder] = 1 / area;
+      }
+      break;
     case 201: // M201
       for(int8_t i=0; i < NUM_AXIS; i++)
       {
@@ -2431,7 +2477,7 @@ void process_commands()
       break;
     #endif // NUM_SERVOS > 0
 
-    #if LARGE_FLASH == true && ( BEEPER > 0 || defined(ULTRALCD) )
+    #if (LARGE_FLASH == true && ( BEEPER > 0 || defined(ULTRALCD) || defined(LCD_USE_I2C_BUZZER)))
     case 300: // M300
     {
       int beepS = code_seen('S') ? code_value() : 110;
@@ -2443,7 +2489,9 @@ void process_commands()
           delay(beepP);
           noTone(BEEPER);
         #elif defined(ULTRALCD)
-          lcd_buzz(beepS, beepP);
+		  lcd_buzz(beepS, beepP);
+		#elif defined(LCD_USE_I2C_BUZZER)
+		  lcd_buzz(beepP, beepS);
         #endif
       }
       else
@@ -2701,7 +2749,11 @@ void process_commands()
             WRITE(BEEPER,LOW);
             delay(3);
           #else
-            lcd_buzz(1000/6,100);
+			#if !defined(LCD_FEEDBACK_FREQUENCY_HZ) || !defined(LCD_FEEDBACK_FREQUENCY_DURATION_MS)
+              lcd_buzz(1000/6,100);
+			#else
+			  lcd_buzz(LCD_FEEDBACK_FREQUENCY_DURATION_MS,LCD_FEEDBACK_FREQUENCY_HZ);
+			#endif
           #endif
           }
         }

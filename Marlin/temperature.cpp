@@ -1190,7 +1190,7 @@ ISR(TIMER0_COMPB_vect)
 //      break;
   }
     
-  if(temp_count >= 16) // 8 ms * 16 = 128ms.
+  if(temp_count >= OVERSAMPLENR) // 8 * 16 * 1/(16000000/64/256)  = 131ms.
   {
     if (!temp_meas_ready) //Only update the raw values if they have been read. Else we could be updating them during reading.
     {

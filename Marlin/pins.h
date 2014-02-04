@@ -971,6 +971,10 @@
 #undef MOTHERBOARD
 #define MOTHERBOARD 6
 #define SANGUINOLOLU_V_1_2
+
+#if defined(__AVR_ATmega1284P__)
+	#define LARGE_FLASH true
+#endif
 #endif
 #if MOTHERBOARD == 6
 #define KNOWN_BOARD 1
