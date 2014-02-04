@@ -1150,7 +1150,6 @@ const short temptable_60[][2] PROGMEM = {
 
 
 
-// my additions:
 // 137 = AD8495 thermocouple
 // 138 = TI LMT87 temperature sensor
 
@@ -1199,7 +1198,7 @@ const short temptable_137[][2] PROGMEM = {
 	{390 * OVERSAMPLENR, 380},
 	{400 * OVERSAMPLENR, 391},
 	{500 * OVERSAMPLENR, 488},
-	{501 * OVERSAMPLENR, 999}
+	{501 * OVERSAMPLENR, 999}		// thermocouple removal
 };
 #endif
 
