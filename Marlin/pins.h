@@ -472,6 +472,20 @@
     #define E1_DIR_PIN         34
     #define E1_ENABLE_PIN      30
 
+    #if MOTHERBOARD == 68
+      #define E2_STEP_PIN        23
+      #define E2_DIR_PIN         25
+      #define E2_ENABLE_PIN      40
+
+      #define E3_STEP_PIN        27
+      #define E3_DIR_PIN         29
+      #define E3_ENABLE_PIN      41
+
+      #define E4_STEP_PIN        43
+      #define E4_DIR_PIN         37
+      #define E4_ENABLE_PIN      42
+    #endif
+
     #define SDPOWER            -1
     #define SDSS               53
     #define LED_PIN            13
@@ -511,17 +525,33 @@
     #define HEATER_1_PIN       9    // EXTRUDER 2 (FAN On Sprinter)
   #endif
 
-  #define HEATER_2_PIN       -1
 
   #if MOTHERBOARD == 77
     #define HEATER_0_PIN       10
     #define HEATER_1_PIN       12
     #define HEATER_2_PIN       6
+  #elif MOTHERBOARD == 68
+    #define HEATER_2_PIN       16
+    #define HEATER_3_PIN       17
+    #define HEATER_4_PIN       4
+    #define HEATER_5_PIN       5
+    #define HEATER_6_PIN       6
+    #define HEATER_7_PIN       11
+  #else
+    #define HEATER_2_PIN       -1
   #endif
 
   #define TEMP_0_PIN         13   // ANALOG NUMBERING
   #define TEMP_1_PIN         15   // ANALOG NUMBERING
-  #define TEMP_2_PIN         -1   // ANALOG NUMBERING
+  #if MOTHERBOARD == 68
+    #define TEMP_2_PIN         12   // ANALOG NUMBERING
+    #define TEMP_3_PIN         11   // ANALOG NUMBERING
+    #define TEMP_4_PIN         10   // ANALOG NUMBERING
+    #define TC1                4    // ANALOG NUMBERING Thermo couple on Azteeg X3Pro
+    #define TC2                5    // ANALOG NUMBERING Thermo couple on Azteeg X3Pro
+  #else
+    #define TEMP_2_PIN         -1   // ANALOG NUMBERING
+  #endif
 
   #if MOTHERBOARD == 35
     #define HEATER_BED_PIN     -1    // NO BED
@@ -532,6 +562,7 @@
       #define HEATER_BED_PIN     8    // BED
     #endif
   #endif
+
   #define TEMP_BED_PIN       14   // ANALOG NUMBERING
 
   #ifdef NUM_SERVOS
