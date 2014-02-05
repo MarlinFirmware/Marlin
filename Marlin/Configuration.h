@@ -52,6 +52,7 @@
 // 65 = Azteeg X1
 // 66 = Melzi with ATmega1284 (MaKr3d version)
 // 67 = Azteeg X3
+// 68 = Azteeg X3 Pro
 // 7  = Ultimaker
 // 71 = Ultimaker (Older electronics. Pre 1.5.4. This is rare)
 // 77 = 3Drag Controller
@@ -156,8 +157,8 @@
 // HEATER_BED_DUTY_CYCLE_DIVIDER intervals.
 //#define HEATER_BED_DUTY_CYCLE_DIVIDER 4
 
-// If you want the M105 heater power reported in watts, define the BED_WATTS, and (shared for all extruders) EXTRUDER_WATTS 
-//#define EXTRUDER_WATTS (12.0*12.0/6.7) //  P=I^2/R 
+// If you want the M105 heater power reported in watts, define the BED_WATTS, and (shared for all extruders) EXTRUDER_WATTS
+//#define EXTRUDER_WATTS (12.0*12.0/6.7) //  P=I^2/R
 //#define BED_WATTS (12.0*12.0/1.1)      // P=I^2/R
 
 // PID settings:
@@ -374,12 +375,12 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
   // with accurate bed leveling, the bed is sampled in a ACCURATE_BED_LEVELING_POINTSxACCURATE_BED_LEVELING_POINTS grid and least squares solution is calculated
   // Note: this feature occupies 10'206 byte
   #define ACCURATE_BED_LEVELING
-  
+
   #ifdef ACCURATE_BED_LEVELING
      // I wouldn't see a reason to go above 3 (=9 probing points on the bed)
     #define ACCURATE_BED_LEVELING_POINTS 2
   #endif
-  
+
 #endif
 
 
@@ -538,21 +539,21 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
   #define LCD_USE_I2C_BUZZER //comment out to disable buzzer on LCD
   #define NEWPANEL
   #define ULTIPANEL
-  
+
   #ifndef ENCODER_PULSES_PER_STEP
 	#define ENCODER_PULSES_PER_STEP 4
-  #endif 
+  #endif
 
   #ifndef ENCODER_STEPS_PER_MENU_ITEM
 	#define ENCODER_STEPS_PER_MENU_ITEM 1
-  #endif 
-  
-  
+  #endif
+
+
   #ifdef LCD_USE_I2C_BUZZER
 	#define LCD_FEEDBACK_FREQUENCY_HZ 1000
 	#define LCD_FEEDBACK_FREQUENCY_DURATION_MS 100
   #endif
-  
+
 #endif
 
 // Panucatt VIKI LCD with status LEDs, integrated click & L/R/U/P buttons, separate encoder inputs
