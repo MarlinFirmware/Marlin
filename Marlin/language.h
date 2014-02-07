@@ -225,7 +225,7 @@
 	#define MSG_ERR_LONG_EXTRUDE_STOP " too long extrusion prevented"
 	#define MSG_BABYSTEPPING_X "Babystepping X"
 	#define MSG_BABYSTEPPING_Y "Babystepping Y"
-	#define MSG_BABYSTEPINGP_Z "Babystepping Z"
+	#define MSG_BABYSTEPPING_Z "Babystepping Z"
 
 #endif
 
@@ -409,7 +409,7 @@
 	#define MSG_ERR_LONG_EXTRUDE_STOP " uniemozliwiono zbyt dluga ekstruzje"
 	#define MSG_BABYSTEPPING_X "Babystepping X"
 	#define MSG_BABYSTEPPING_Y "Babystepping Y"
-	#define MSG_BABYSTEPINGP_Z "Babystepping Z"
+	#define MSG_BABYSTEPPING_Z "Babystepping Z"
 
 #endif
 
@@ -592,7 +592,7 @@
 	#define MSG_ERR_LONG_EXTRUDE_STOP " Extrusion longue evitee"
 	#define MSG_BABYSTEPPING_X "Babystepping X"
 	#define MSG_BABYSTEPPING_Y "Babystepping Y"
-	#define MSG_BABYSTEPINGP_Z "Babystepping Z"
+	#define MSG_BABYSTEPPING_Z "Babystepping Z"
 	
 #endif
 
@@ -778,7 +778,7 @@
 	#define MSG_ERR_LONG_EXTRUDE_STOP " too long extrusion prevented"
 	#define MSG_BABYSTEPPING_X "Babystepping X"
 	#define MSG_BABYSTEPPING_Y "Babystepping Y"
-	#define MSG_BABYSTEPINGP_Z "Babystepping Z"
+	#define MSG_BABYSTEPPING_Z "Babystepping Z"
 
 #endif
 
@@ -967,7 +967,7 @@
 	#define MSG_ERR_LONG_EXTRUDE_STOP " extrusion demasiado larga evitada"
 	#define MSG_BABYSTEPPING_X "Babystepping X"
 	#define MSG_BABYSTEPPING_Y "Babystepping Y"
-	#define MSG_BABYSTEPINGP_Z "Babystepping Z"
+	#define MSG_BABYSTEPPING_Z "Babystepping Z"
 
 #endif
 
@@ -1146,7 +1146,7 @@
 	#define MSG_ERR_LONG_EXTRUDE_STOP			" защита превышения длинны экструзии"
 	#define MSG_BABYSTEPPING_X "Babystepping X"
 	#define MSG_BABYSTEPPING_Y "Babystepping Y"
-	#define MSG_BABYSTEPINGP_Z "Babystepping Z"
+	#define MSG_BABYSTEPPING_Z "Babystepping Z"
 
 #endif
 
@@ -1328,7 +1328,7 @@
 	#define MSG_ERR_LONG_EXTRUDE_STOP " prevenuta estrusione troppo lunga"
 	#define MSG_BABYSTEPPING_X "Babystepping X"
 	#define MSG_BABYSTEPPING_Y "Babystepping Y"
-	#define MSG_BABYSTEPINGP_Z "Babystepping Z"
+	#define MSG_BABYSTEPPING_Z "Babystepping Z"
 
 #endif
 
@@ -1517,7 +1517,7 @@
 	#define MSG_ERR_LONG_EXTRUDE_STOP " Extrusao muito larga evitada"
 	#define MSG_BABYSTEPPING_X "Babystepping X"
 	#define MSG_BABYSTEPPING_Y "Babystepping Y"
-	#define MSG_BABYSTEPINGP_Z "Babystepping Z"
+	#define MSG_BABYSTEPPING_Z "Babystepping Z"
 
 #endif
 
@@ -1701,7 +1701,7 @@
 	#define MSG_ERR_LONG_EXTRUDE_STOP " liian pitka pursotus estetty"
 	#define MSG_BABYSTEPPING_X "Babystepping X"
 	#define MSG_BABYSTEPPING_Y "Babystepping Y"
-	#define MSG_BABYSTEPINGP_Z "Babystepping Z"
+	#define MSG_BABYSTEPPING_Z "Babystepping Z"
 	#define MSG_ENDSTOP_ABORT "Endstop abort"
 	#define MSG_CONTRAST "Contrast"
 
