@@ -1624,13 +1624,16 @@
 #define LCD_PINS_D5        -1
 #define LCD_PINS_D6        -1
 #define LCD_PINS_D7        -1
-#define BTN_EN1            -1
-#define BTN_EN2            -1
-#define BTN_ENC            -1
+
+#ifdef SAV_3DLCD
+#define BTN_EN1            41
+#define BTN_EN2            40
+#define BTN_ENC            12
+#endif
 
 // For LCD SHIFT register LCD
-#define SR_DATA_PIN         0
-#define SR_CLK_PIN          1
+#define SR_DATA_PIN         1
+#define SR_CLK_PIN          0
 
 #endif  // MOTHERBOARD == 83
 
