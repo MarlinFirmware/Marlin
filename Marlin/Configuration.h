@@ -22,7 +22,6 @@
 // This allows the connection of wireless adapters (for instance) to non-default port pins.
 // Serial port 0 is still used by the Arduino bootloader regardless of this setting.
 #define SERIAL_PORT 0
-//#define SERIAL_PORT 1  // Define serial port 1 for bluetooth configuration in AT90USB configurations
 
 // This determines the communication speed of the printer
 // This determines the communication speed of the printer
@@ -148,9 +147,9 @@
 // When temperature exceeds max temp, your heater will be switched off.
 // This feature exists to protect your hotend from overheating accidentally, but *NOT* from thermistor short/failure!
 // You should use MINTEMP for thermistor short/failure protection.
-#define HEATER_0_MAXTEMP 255
-#define HEATER_1_MAXTEMP 255
-#define HEATER_2_MAXTEMP 255
+#define HEATER_0_MAXTEMP 280
+#define HEATER_1_MAXTEMP 280
+#define HEATER_2_MAXTEMP 280
 #define BED_MAXTEMP      130
 
 
@@ -420,9 +419,8 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 //LCD and SD support
 //[FMC]#define ULTRA_LCD  //general lcd support, also 16x2
-
+#define ULTRA_LCD  //general lcd support, also 16x2
 //#define DOGLCD  // Support for SPI LCD 128x64 (Controller ST7565R graphic Display Family)
-
 //[FMC]#define SDSUPPORT // Enable SD Card Support in Hardware Console
 #define SDSUPPORT // Enable SD Card Support in Hardware Console
 //#define SDSLOW // Use slower SD transfer mode (not normally needed - uncomment if you're getting volume init error)
@@ -534,11 +532,12 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 // ---------------------
 // 2 wire Non-latching LCD SR from:
 // https://bitbucket.org/fmalpartida/new-liquidcrystal/wiki/schematics#!shiftregister-connection 
-//[FMC]#define SR_LCD
-//#define SR_LCD
-#ifdef SR_LCD
+//[FMC]#define SAV_3DLCD
+//#define SAV_3DLCD
+#ifdef SAV_3DLCD
    #define SR_LCD_2W_NL    // Non latching 2 wire shiftregister
-   //#define NEWPANEL
+   #define NEWPANEL
+   #define ULTIPANEL
 #endif
 
 
@@ -559,8 +558,8 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
     #define LCD_WIDTH 20
     #define LCD_HEIGHT 5
   #else
-    #define LCD_WIDTH 16
-    #define LCD_HEIGHT 2
+    #define LCD_WIDTH 20
+    #define LCD_HEIGHT 4
   #endif
   #endif
 #endif
