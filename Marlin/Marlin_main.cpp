@@ -1139,8 +1139,8 @@ void calibrate_print_surface(float z_offset) {
     int dir = y % 2 ? -1 : 1;
     for (int x = -3*dir; x != 4*dir; x += dir) {
       if (x*x + y*y < 11) {
-	destination[X_AXIS] = ACCURATE_BED_LEVELING_GRID_MM * x - z_probe_offset[X_AXIS];
-	destination[Y_AXIS] = ACCURATE_BED_LEVELING_GRID_MM * y - z_probe_offset[Y_AXIS];
+	destination[X_AXIS] = ACCURATE_BED_LEVELING_GRID_X * x - z_probe_offset[X_AXIS];
+	destination[Y_AXIS] = ACCURATE_BED_LEVELING_GRID_Y * y - z_probe_offset[Y_AXIS];
 	bed_level[x+3][y+3] = z_probe() + z_offset;
       } else {
 	bed_level[x+3][y+3] = 0.0;
@@ -1452,7 +1452,7 @@ void process_commands()
       break;
 
 #ifdef ENABLE_AUTO_BED_LEVELING
-    case 29: // G29 Detailed Z-Probe, probes the bed at 3 points.
+    case 29: // G29 Detailed Z-Probe, probes the bed at 3 or more points.
         {
             #if Z_MIN_PIN == -1
             #error "You must have a Z_MIN endstop in order to enable Auto Bed Leveling feature!!! Z_MIN_PIN must point to a valid hardware pin."
@@ -1474,11 +1474,6 @@ void process_commands()
 
             feedrate = homing_feedrate[Z_AXIS];
 #ifdef ACCURATE_BED_LEVELING
-
-            int xGridSpacing = (RIGHT_PROBE_BED_POSITION - LEFT_PROBE_BED_POSITION) / (ACCURATE_BED_LEVELING_POINTS-1);
-            int yGridSpacing = (BACK_PROBE_BED_POSITION - FRONT_PROBE_BED_POSITION) / (ACCURATE_BED_LEVELING_POINTS-1);
-
-
             // solve the plane equation ax + by + d = z
             // A is the matrix with rows [x y 1] for all the probed points
             // B is the vector of the Z positions
@@ -1494,20 +1489,20 @@ void process_commands()
             int probePointCounter = 0;
             bool zig = true;
 
-            for (int yProbe=FRONT_PROBE_BED_POSITION; yProbe <= BACK_PROBE_BED_POSITION; yProbe += yGridSpacing)
+            for (int yProbe=FRONT_PROBE_BED_POSITION; yProbe <= BACK_PROBE_BED_POSITION; yProbe += ACCURATE_BED_LEVELING_GRID_Y)
             {
               int xProbe, xInc;
               if (zig)
               {
                 xProbe = LEFT_PROBE_BED_POSITION;
                 //xEnd = RIGHT_PROBE_BED_POSITION;
-                xInc = xGridSpacing;
+                xInc = ACCURATE_BED_LEVELING_GRID_X;
                 zig = false;
               } else // zag
               {
                 xProbe = RIGHT_PROBE_BED_POSITION;
                 //xEnd = LEFT_PROBE_BED_POSITION;
-                xInc = -xGridSpacing;
+                xInc = -ACCURATE_BED_LEVELING_GRID_Y;
                 zig = true;
               }
 
@@ -3247,8 +3242,8 @@ void calculate_delta(float cartesian[3])
 // Adjust print surface height by linear interpolation over the bed_level array.
 void adjust_delta(float cartesian[3])
 {
-  float grid_x = max(-2.999, min(2.999, cartesian[X_AXIS] / ACCURATE_BED_LEVELING_GRID_MM));
-  float grid_y = max(-2.999, min(2.999, cartesian[Y_AXIS] / ACCURATE_BED_LEVELING_GRID_MM));
+  float grid_x = max(-2.999, min(2.999, cartesian[X_AXIS] / ACCURATE_BED_LEVELING_GRID_X));
+  float grid_y = max(-2.999, min(2.999, cartesian[Y_AXIS] / ACCURATE_BED_LEVELING_GRID_Y));
   int floor_x = floor(grid_x);
   int floor_y = floor(grid_y);
   float ratio_x = grid_x - floor_x;

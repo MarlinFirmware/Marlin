@@ -368,10 +368,10 @@ const bool Z_MAX_ENDSTOP_INVERTING = false; // set to true to invert the logic o
 #ifdef ENABLE_AUTO_BED_LEVELING
 
   // these are the positions on the bed to do the probing
-  #define LEFT_PROBE_BED_POSITION 15
-  #define RIGHT_PROBE_BED_POSITION 170
-  #define BACK_PROBE_BED_POSITION 180
-  #define FRONT_PROBE_BED_POSITION 20
+  #define LEFT_PROBE_BED_POSITION -70
+  #define RIGHT_PROBE_BED_POSITION 70
+  #define BACK_PROBE_BED_POSITION 70
+  #define FRONT_PROBE_BED_POSITION -70
 
   // these are the offsets to the prob relative to the extruder tip (Hotend - Probe)
   #define X_PROBE_OFFSET_FROM_EXTRUDER -25
@@ -417,7 +417,14 @@ const bool Z_MAX_ENDSTOP_INVERTING = false; // set to true to invert the logic o
 
   #ifdef ACCURATE_BED_LEVELING
     #define ACCURATE_BED_LEVELING_POINTS 7
-    #define ACCURATE_BED_LEVELING_GRID_MM 20
+    #define ACCURATE_BED_LEVELING_GRID_X ((RIGHT_PROBE_BED_POSITION - LEFT_PROBE_BED_POSITION) / ACCURATE_BED_LEVELING_POINTS)
+    #define ACCURATE_BED_LEVELING_GRID_Y ((BACK_PROBE_BED_POSITION - FRONT_PROBE_BED_POSITION) / ACCURATE_BED_LEVELING_POINTS)
+
+    // NONLINEAR_BED_LEVELING means: don't try to calculate linear coefficients but instead
+    // compensate by interpolating between the nearest four Z probe values for each point.
+    // Useful for deltabots where the print surface may appear like a bowl or dome shape.
+    // Works best with ACCURATE_BED_LEVELING_POINTS 5 or higher.
+    #define NONLINEAR_BED_LEVELING
   #endif
 
 #endif
