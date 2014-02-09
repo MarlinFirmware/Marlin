@@ -1729,6 +1729,13 @@
 	#define MSG_EXTRUDE "Extruir"
 	#define MSG_RETRACT "Retraer"
 	#define MSG_MOVE_AXIS "Mover Eixes"
+#define MSG_MOVE_X "Move X"
+#define MSG_MOVE_Y "Move Y"
+#define MSG_MOVE_Z "Move Z"
+#define MSG_MOVE_E "Extruder"
+#define MSG_MOVE_01MM "Move 0.1mm"
+#define MSG_MOVE_1MM "Move 1mm"
+#define MSG_MOVE_10MM "Move 10mm"
 	#define MSG_SPEED "Velocidat"
 	#define MSG_NOZZLE "Nozzle"
 	#define MSG_NOZZLE1 "Nozzle2"
@@ -1807,6 +1814,11 @@
     #define MSG_ZPROBE_OUT "ZProbe Outside Bed"
     #define MSG_POSITION_UNKNOWN "Home X/Y before Z"
     #define MSG_ZPROBE_ZOFFSET "Z Offset"
+#define MSG_BABYSTEP_X "Babystep X"
+#define MSG_BABYSTEP_Y "Babystep Y"
+#define MSG_BABYSTEP_Z "Babystep Z"
+#define MSG_ENDSTOP_ABORT "Endstop abort"
+#define MSG_CONTRAST "Contrast"
 
 // Serial Console Messages
 
@@ -1878,6 +1890,9 @@
 	#define MSG_ENDSTOPS_HIT "S'ha tocau a fin de carril: "
 	#define MSG_ERR_COLD_EXTRUDE_STOP " extrusion fria privada"
 	#define MSG_ERR_LONG_EXTRUDE_STOP " extrusion masiau larga privada"
+#define MSG_BABYSTEPPING_X "Babystepping X"
+#define MSG_BABYSTEPPING_Y "Babystepping Y"
+#define MSG_BABYSTEPPING_Z "Babystepping Z"
 
 #endif
 #endif // ifndef LANGUAGE_H
