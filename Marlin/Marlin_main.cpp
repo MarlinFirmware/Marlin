@@ -983,7 +983,7 @@ static void engage_z_probe() {
     #endif
 }
 
-static void retract_z_probe() {
+  static void retract_z_probe() {
     // Retract Z Servo endstop if enabled
     #ifdef SERVO_ENDSTOPS
     if (servo_endstops[Z_AXIS] > -1) {
@@ -1458,6 +1458,7 @@ void process_commands()
             #error "You must have a Z_MIN endstop in order to enable Auto Bed Leveling feature!!! Z_MIN_PIN must point to a valid hardware pin."
             #endif
 
+            engage_z_probe();   // Engage Z Servo endstop if available
             st_synchronize();
             // make sure the bed_level_rotation_matrix is identity or the planner will get it incorectly
             //vector_3 corrected_position = plan_get_position_mm();
@@ -1525,10 +1526,8 @@ void process_commands()
 
                 do_blocking_move_to(xProbe - X_PROBE_OFFSET_FROM_EXTRUDER, yProbe - Y_PROBE_OFFSET_FROM_EXTRUDER, current_position[Z_AXIS]);
 
-                engage_z_probe();   // Engage Z Servo endstop if available
                 run_z_probe();
                 eqnBVector[probePointCounter] = current_position[Z_AXIS];
-                retract_z_probe();
 
                 SERIAL_PROTOCOLPGM("Bed x: ");
                 SERIAL_PROTOCOL(xProbe);
@@ -1569,10 +1568,8 @@ void process_commands()
             do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], Z_RAISE_BEFORE_PROBING);
             do_blocking_move_to(LEFT_PROBE_BED_POSITION - X_PROBE_OFFSET_FROM_EXTRUDER, BACK_PROBE_BED_POSITION - Y_PROBE_OFFSET_FROM_EXTRUDER, current_position[Z_AXIS]);
 
-            engage_z_probe();   // Engage Z Servo endstop if available
             run_z_probe();
             float z_at_xLeft_yBack = current_position[Z_AXIS];
-            retract_z_probe();
 
             SERIAL_PROTOCOLPGM("Bed x: ");
             SERIAL_PROTOCOL(LEFT_PROBE_BED_POSITION);
@@ -1586,10 +1583,8 @@ void process_commands()
             do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS] + Z_RAISE_BETWEEN_PROBINGS);
             do_blocking_move_to(LEFT_PROBE_BED_POSITION - X_PROBE_OFFSET_FROM_EXTRUDER, FRONT_PROBE_BED_POSITION - Y_PROBE_OFFSET_FROM_EXTRUDER, current_position[Z_AXIS]);
 
-            engage_z_probe();   // Engage Z Servo endstop if available
             run_z_probe();
             float z_at_xLeft_yFront = current_position[Z_AXIS];
-            retract_z_probe();
 
             SERIAL_PROTOCOLPGM("Bed x: ");
             SERIAL_PROTOCOL(LEFT_PROBE_BED_POSITION);
@@ -1604,10 +1599,8 @@ void process_commands()
             // the current position will be updated by the blocking move so the head will not lower on this next call.
             do_blocking_move_to(RIGHT_PROBE_BED_POSITION - X_PROBE_OFFSET_FROM_EXTRUDER, FRONT_PROBE_BED_POSITION - Y_PROBE_OFFSET_FROM_EXTRUDER, current_position[Z_AXIS]);
 
-            engage_z_probe();   // Engage Z Servo endstop if available
             run_z_probe();
             float z_at_xRight_yFront = current_position[Z_AXIS];
-            retract_z_probe(); // Retract Z Servo endstop if available
 
             SERIAL_PROTOCOLPGM("Bed x: ");
             SERIAL_PROTOCOL(RIGHT_PROBE_BED_POSITION);
@@ -1623,6 +1616,7 @@ void process_commands()
 
 
 #endif // ACCURATE_BED_LEVELING
+            retract_z_probe();
             st_synchronize();
 
             // The following code correct the Z height difference from z-probe position and hotend tip position.
