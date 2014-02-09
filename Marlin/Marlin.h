@@ -204,6 +204,7 @@ extern float homing_feedrate[];
 extern bool axis_relative_modes[];
 extern int feedmultiply;
 extern int extrudemultiply; // Sets extrude multiply factor (in percent)
+extern float volumetric_multiplier[EXTRUDERS]; // reciprocal of cross-sectional area of filament (in square millimeters), stored this way to reduce computational burden in planner
 extern float current_position[NUM_AXIS] ;
 extern float add_homeing[3];
 #ifdef DELTA
@@ -235,5 +236,10 @@ extern unsigned long stoptime;
 
 // Handling multiple extruders pins
 extern uint8_t active_extruder;
+
+#ifdef DIGIPOT_I2C
+extern void digipot_i2c_set_current( int channel, float current );
+extern void digipot_i2c_init();
+#endif
 
 #endif

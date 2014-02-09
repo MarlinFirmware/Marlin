@@ -52,6 +52,7 @@
 // 65 = Azteeg X1
 // 66 = Melzi with ATmega1284 (MaKr3d version)
 // 67 = Azteeg X3
+// 68 = Azteeg X3 Pro
 // 7  = Ultimaker
 // 71 = Ultimaker (Older electronics. Pre 1.5.4. This is rare)
 // 77 = 3Drag Controller
@@ -195,6 +196,10 @@
 // HEATER_BED_DUTY_CYCLE_DIVIDER intervals.
 //#define HEATER_BED_DUTY_CYCLE_DIVIDER 4
 
+// If you want the M105 heater power reported in watts, define the BED_WATTS, and (shared for all extruders) EXTRUDER_WATTS
+//#define EXTRUDER_WATTS (12.0*12.0/6.7) //  P=I^2/R
+//#define BED_WATTS (12.0*12.0/1.1)      // P=I^2/R
+
 // PID settings:
 // Comment the following line to disable PID and enable bang-bang.
 #define PIDTEMP
@@ -207,7 +212,7 @@
                                   // is more then PID_FUNCTIONAL_RANGE then the PID will be shut off and the heater will be set to min/max.
   #define PID_INTEGRAL_DRIVE_MAX 255  //limit for the integral term
   #define K1 0.95 //smoothing factor within the PID
-  #define PID_dT ((16.0 * 8.0)/(F_CPU / 64.0 / 256.0)) //sampling period of the temperature routine
+  #define PID_dT ((OVERSAMPLENR * 8.0)/(F_CPU / 64.0 / 256.0)) //sampling period of the temperature routine
 
 // If you are using a preconfigured hotend then you can use one of the value sets by uncommenting it
 // Ultimaker
@@ -409,12 +414,12 @@ const bool Z_MAX_ENDSTOP_INVERTING = false; // set to true to invert the logic o
   // with accurate bed leveling, the bed is sampled in a ACCURATE_BED_LEVELING_POINTSxACCURATE_BED_LEVELING_POINTS grid and least squares solution is calculated
   // Note: this feature occupies 10'206 byte
   #define ACCURATE_BED_LEVELING
-  
+
   #ifdef ACCURATE_BED_LEVELING
      // I wouldn't see a reason to go above 3 (=9 probing points on the bed)
     #define ACCURATE_BED_LEVELING_POINTS 2
   #endif
-  
+
 #endif
 
 
@@ -489,6 +494,8 @@ const bool Z_MAX_ENDSTOP_INVERTING = false; // set to true to invert the logic o
 //#define ENCODER_STEPS_PER_MENU_ITEM 5 // Set according to ENCODER_PULSES_PER_STEP or your liking
 //#define ULTIMAKERCONTROLLER //as available from the ultimaker online store.
 //#define ULTIPANEL  //the ultipanel as on thingiverse
+//#define LCD_FEEDBACK_FREQUENCY_HZ 1000	// this is the tone frequency the buzzer plays when on UI feedback. ie Screen Click
+//#define LCD_FEEDBACK_FREQUENCY_DURATION_MS 100 // the duration the buzzer plays the UI feedback sound. ie Screen Click
 
 // The MaKr3d Makr-Panel with graphic controller and SD support
 // http://reprap.org/wiki/MaKr3d_MaKrPanel
@@ -574,6 +581,21 @@ const bool Z_MAX_ENDSTOP_INVERTING = false; // set to true to invert the logic o
   #define LCD_USE_I2C_BUZZER //comment out to disable buzzer on LCD
   #define NEWPANEL
   #define ULTIPANEL
+
+  #ifndef ENCODER_PULSES_PER_STEP
+	#define ENCODER_PULSES_PER_STEP 4
+  #endif
+
+  #ifndef ENCODER_STEPS_PER_MENU_ITEM
+	#define ENCODER_STEPS_PER_MENU_ITEM 1
+  #endif
+
+
+  #ifdef LCD_USE_I2C_BUZZER
+	#define LCD_FEEDBACK_FREQUENCY_HZ 1000
+	#define LCD_FEEDBACK_FREQUENCY_DURATION_MS 100
+  #endif
+
 #endif
 
 // Panucatt VIKI LCD with status LEDs, integrated click & L/R/U/P buttons, separate encoder inputs
