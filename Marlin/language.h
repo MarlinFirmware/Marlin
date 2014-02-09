@@ -1681,7 +1681,7 @@
 	#define MSG_SOFTWARE_RESET " Reset por Software"
 	#define MSG_MARLIN "Marlin "
 	#define MSG_AUTHOR " | Autor: "
-	#define MSG_CONFIGURATION_VEYER " Zaguer esvielle: "
+	#define MSG_CONFIGURATION_VER " Zaguer esvielle: "
 	#define MSG_FREE_MEMORY " Memoria libre: "
 	#define MSG_PLANNER_BUFFER_BYTES "  PlannerBufferBytes: "
 	#define MSG_OK "ok"
