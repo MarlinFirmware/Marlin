@@ -363,7 +363,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = false; // set to true to invert the logic o
 #define Z_MAX_LENGTH (Z_MAX_POS - Z_MIN_POS)
 //============================= Bed Auto Leveling ===========================
 
-//#define ENABLE_AUTO_BED_LEVELING // Delete the comment to enable (remove // at the start of the line)
+#define ENABLE_AUTO_BED_LEVELING // Delete the comment to enable (remove // at the start of the line)
 
 #ifdef ENABLE_AUTO_BED_LEVELING
 
@@ -416,8 +416,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = false; // set to true to invert the logic o
   #define ACCURATE_BED_LEVELING
 
   #ifdef ACCURATE_BED_LEVELING
-     // I wouldn't see a reason to go above 3 (=9 probing points on the bed)
-    #define ACCURATE_BED_LEVELING_POINTS 2
+    #define ACCURATE_BED_LEVELING_POINTS 7
   #endif
 
 #endif
@@ -425,15 +424,13 @@ const bool Z_MAX_ENDSTOP_INVERTING = false; // set to true to invert the logic o
 
 // The position of the homing switches
 #define MANUAL_HOME_POSITIONS  // If defined, MANUAL_*_HOME_POS below will be used
-//#define BED_CENTER_AT_0_0  // If defined, the center of the bed is at (X=0, Y=0)
+#define BED_CENTER_AT_0_0  // If defined, the center of the bed is at (X=0, Y=0)
 
 //Manual homing switch locations:
 // For deltabots this means top and center of the cartesian print volume.
 #define MANUAL_X_HOME_POS 0
 #define MANUAL_Y_HOME_POS 0
 #define MANUAL_Z_HOME_POS 205  // For delta: Distance between nozzle and print surface after homing.
-
-#define AUTOLEVEL_GRID 24  // Distance between autolevel Z probing points, should be less than print surface radius/3.
 
 //// MOVEMENT SETTINGS
 #define NUM_AXIS 4 // The axis order in all axis related arrays is X, Y, Z, E
