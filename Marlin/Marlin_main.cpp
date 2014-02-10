@@ -894,6 +894,25 @@ static void run_z_probe() {
     plan_bed_level_matrix.set_to_identity();
     feedrate = homing_feedrate[Z_AXIS];
 
+#ifdef DELTA
+    enable_endstops(true);
+    float start_z = current_position[Z_AXIS];
+    long start_steps = st_get_position(Z_AXIS);
+
+    feedrate = homing_feedrate[Z_AXIS]/10;
+    destination[Z_AXIS] = -20;
+    prepare_move_raw();
+    st_synchronize();
+    endstops_hit_on_purpose();
+
+    enable_endstops(false);
+    long stop_steps = st_get_position(Z_AXIS);
+
+    float mm = start_z - float(start_steps - stop_steps) / axis_steps_per_unit[Z_AXIS];
+    current_position[Z_AXIS] = mm;
+    calculate_delta(current_position);
+    plan_set_position(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], current_position[E_AXIS]);
+#else
     // move down until you find the bed
     float zPosition = -10;
     plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], zPosition, current_position[E_AXIS], feedrate/60, active_extruder);
@@ -917,6 +936,7 @@ static void run_z_probe() {
     current_position[Z_AXIS] = st_get_position_mm(Z_AXIS);
     // make sure the planner knows where we are as it may be a bit different than we last said to move to
     plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+#endif
 }
 
 static void do_blocking_move_to(float x, float y, float z) {
@@ -924,10 +944,17 @@ static void do_blocking_move_to(float x, float y, float z) {
 
     feedrate = XY_TRAVEL_SPEED;
 
+#ifdef DELTA
+    destination[X_AXIS] = x;
+    destination[Y_AXIS] = y;
+    destination[Z_AXIS] = z;
+    prepare_move_raw();
+#else  // cartesian
     current_position[X_AXIS] = x;
     current_position[Y_AXIS] = y;
     current_position[Z_AXIS] = z;
     plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
+#endif
     st_synchronize();
 
     feedrate = oldFeedRate;
@@ -969,9 +996,9 @@ static void engage_z_probe() {
         servos[servo_endstops[Z_AXIS]].detach();
 #endif
     }
-    #else
+    #else  // Deploy the Z probe by touching the belt, no servo needed.
     feedrate = homing_feedrate[X_AXIS];
-    destination[X_AXIS] = 25;
+    destination[X_AXIS] = 35;
     destination[Y_AXIS] = 78;
     destination[Z_AXIS] = 100;
     prepare_move_raw();
@@ -996,7 +1023,7 @@ static void engage_z_probe() {
         servos[servo_endstops[Z_AXIS]].detach();
 #endif
     }
-    #else
+    #else  // Push up the Z probe by moving the end effector, no servo needed.
     feedrate = homing_feedrate[X_AXIS];
     destination[Z_AXIS] = current_position[Z_AXIS] + 20;
     prepare_move_raw();
@@ -1103,38 +1130,8 @@ static void homeaxis(int axis) {
 }
 #define HOMEAXIS(LETTER) homeaxis(LETTER##_AXIS)
 
-float z_probe() {
-  feedrate = homing_feedrate[X_AXIS];
-  prepare_move_raw();
-  st_synchronize();
-
-  enable_endstops(true);
-  float start_z = current_position[Z_AXIS];
-  long start_steps = st_get_position(Z_AXIS);
-
-  feedrate = homing_feedrate[Z_AXIS]/10;
-  destination[Z_AXIS] = -20;
-  prepare_move_raw();
-  st_synchronize();
-  endstops_hit_on_purpose();
-
-  enable_endstops(false);
-  long stop_steps = st_get_position(Z_AXIS);
-
-  float mm = start_z -
-    float(start_steps - stop_steps) / axis_steps_per_unit[Z_AXIS];
-  current_position[Z_AXIS] = mm;
-  calculate_delta(current_position);
-  plan_set_position(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS],
-		    current_position[E_AXIS]);
-
-  feedrate = homing_feedrate[Z_AXIS];
-  destination[Z_AXIS] = mm+2;
-  prepare_move_raw();
-  return mm;
-}
-
-void calibrate_print_surface(float z_offset) {
+#ifdef NONLINEAR_BED_LEVELING
+void calibrate_print_surface_nonlinear(float z_offset) {
   for (int y = 3; y >= -3; y--) {
     int dir = y % 2 ? -1 : 1;
     for (int x = -3*dir; x != 4*dir; x += dir) {
@@ -1163,6 +1160,7 @@ void calibrate_print_surface(float z_offset) {
     SERIAL_ECHOLN("");
   }
 }
+#endif
 
 void process_commands()
 {
@@ -3239,6 +3237,7 @@ void calculate_delta(float cartesian[3])
   */
 }
 
+#ifdef NONLINEAR_BED_LEVELING
 // Adjust print surface height by linear interpolation over the bed_level array.
 void adjust_delta(float cartesian[3])
 {
@@ -3289,6 +3288,7 @@ void prepare_move_raw()
     current_position[i] = destination[i];
   }
 }
+#endif
 
 void prepare_move()
 {
@@ -3316,7 +3316,9 @@ void prepare_move()
       destination[i] = current_position[i] + difference[i] * fraction;
     }
     calculate_delta(destination);
+    #ifdef NONLINEAR_BED_LEVELING
     adjust_delta(destination);
+    #endif
     plan_buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS],
                      destination[E_AXIS], feedrate*feedmultiply/60/100.0,
                      active_extruder);
