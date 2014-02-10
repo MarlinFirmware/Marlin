@@ -257,15 +257,7 @@ float delta[3] = {0.0, 0.0, 0.0};
 const char axis_codes[NUM_AXIS] = {'X', 'Y', 'Z', 'E'};
 static float destination[NUM_AXIS] = {  0.0, 0.0, 0.0, 0.0};
 static float offset[3] = {0.0, 0.0, 0.0};
-static float bed_level[7][7] = {
-  {0, 0, 0, 0, 0, 0, 0},
-  {0, 0, 0, 0, 0, 0, 0},
-  {0, 0, 0, 0, 0, 0, 0},
-  {0, 0, 0, 0, 0, 0, 0},
-  {0, 0, 0, 0, 0, 0, 0},
-  {0, 0, 0, 0, 0, 0, 0},
-  {0, 0, 0, 0, 0, 0, 0},
-};
+static float bed_level[ACCURATE_BED_LEVELING_POINTS][ACCURATE_BED_LEVELING_POINTS];
 static bool home_all_axis = true;
 static float feedrate = 1500.0, next_feedrate, saved_feedrate;
 static long gcode_N, gcode_LastN, Stopped_gcode_LastN = 0;
@@ -1132,29 +1124,22 @@ static void homeaxis(int axis) {
 
 #ifdef NONLINEAR_BED_LEVELING
 void calibrate_print_surface_nonlinear(float z_offset) {
-  for (int y = 3; y >= -3; y--) {
+  int half = (ACCURATE_BED_LEVELING_POINTS - 1) / 2;
+  for (int y = half; y >= -half; y--) {
     int dir = y % 2 ? -1 : 1;
-    for (int x = -3*dir; x != 4*dir; x += dir) {
+    for (int x = -half*dir; x != (half+1)*dir; x += dir) {
       if (x*x + y*y < 11) {
 	destination[X_AXIS] = ACCURATE_BED_LEVELING_GRID_X * x - z_probe_offset[X_AXIS];
 	destination[Y_AXIS] = ACCURATE_BED_LEVELING_GRID_Y * y - z_probe_offset[Y_AXIS];
-	bed_level[x+3][y+3] = z_probe() + z_offset;
+	run_z_probe();
+	bed_level[x+half][y+half] = current_position[Z_AXIS] + z_offset;
       } else {
-	bed_level[x+3][y+3] = 0.0;
+	bed_level[x+half][y+half] = 0.0;
       }
     }
-    // For unprobed positions just copy nearest neighbor.
-    if (abs(y) >= 3) {
-      bed_level[1][y+3] = bed_level[2][y+3];
-      bed_level[5][y+3] = bed_level[4][y+3];
-    }
-    if (abs(y) >=2) {
-      bed_level[0][y+3] = bed_level[1][y+3];
-      bed_level[6][y+3] = bed_level[5][y+3];
-    }
     // Print calibration results for manual frame adjustment.
-    for (int x = -3; x <= 3; x++) {
-      SERIAL_PROTOCOL_F(bed_level[x+3][y+3], 3);
+    for (int x = -half; x <= half; x++) {
+      SERIAL_PROTOCOL_F(bed_level[x+half][y+half], 3);
       SERIAL_PROTOCOLPGM(" ");
     }
     SERIAL_ECHOLN("");
@@ -1243,6 +1228,11 @@ void process_commands()
       plan_bed_level_matrix.set_to_identity();  //Reset the plane ("erase" all leveling data)
 #endif //ENABLE_AUTO_BED_LEVELING
 
+#ifdef NONLINEAR_BED_LEVELING
+      for (int y = 0; y < ACCURATE_BED_LEVELING_POINTS; y++)
+        for (int x = 0; x < ACCURATE_BED_LEVELING_POINTS; x++)
+           bed_level[x][y] = 0.0;
+#endif //NONLINEAR_BED_LEVELING
 
       saved_feedrate = feedrate;
       saved_feedmultiply = feedmultiply;
@@ -1487,8 +1477,9 @@ void process_commands()
             int probePointCounter = 0;
             bool zig = true;
 
-            for (int yProbe=FRONT_PROBE_BED_POSITION; yProbe <= BACK_PROBE_BED_POSITION; yProbe += ACCURATE_BED_LEVELING_GRID_Y)
+            for (int yCount=0; yCount <= ACCURATE_BED_LEVELING_POINTS; yCount++)
             {
+              int yProbe = FRONT_PROBE_BED_POSITION + ACCURATE_BED_LEVELING_GRID_Y * yCount;
               int xProbe, xInc;
               if (zig)
               {
@@ -1520,7 +1511,6 @@ void process_commands()
                 do_blocking_move_to(xProbe - X_PROBE_OFFSET_FROM_EXTRUDER, yProbe - Y_PROBE_OFFSET_FROM_EXTRUDER, current_position[Z_AXIS]);
 
                 run_z_probe();
-                eqnBVector[probePointCounter] = current_position[Z_AXIS];
 
                 SERIAL_PROTOCOLPGM("Bed x: ");
                 SERIAL_PROTOCOL(xProbe);
@@ -1530,9 +1520,14 @@ void process_commands()
                 SERIAL_PROTOCOL(current_position[Z_AXIS]);
                 SERIAL_PROTOCOLPGM("\n");
 
+#ifdef NONLINEAR_BED_LEVELING
+                bed_level[xCount][yCount] = current_position[Z_AXIS];
+#else
+                eqnBVector[probePointCounter] = current_position[Z_AXIS];
                 eqnAMatrix[probePointCounter + 0*ACCURATE_BED_LEVELING_POINTS*ACCURATE_BED_LEVELING_POINTS] = xProbe;
                 eqnAMatrix[probePointCounter + 1*ACCURATE_BED_LEVELING_POINTS*ACCURATE_BED_LEVELING_POINTS] = yProbe;
                 eqnAMatrix[probePointCounter + 2*ACCURATE_BED_LEVELING_POINTS*ACCURATE_BED_LEVELING_POINTS] = 1;
+#endif
                 probePointCounter++;
                 xProbe += xInc;
               }
@@ -3241,16 +3236,17 @@ void calculate_delta(float cartesian[3])
 // Adjust print surface height by linear interpolation over the bed_level array.
 void adjust_delta(float cartesian[3])
 {
-  float grid_x = max(-2.999, min(2.999, cartesian[X_AXIS] / ACCURATE_BED_LEVELING_GRID_X));
-  float grid_y = max(-2.999, min(2.999, cartesian[Y_AXIS] / ACCURATE_BED_LEVELING_GRID_Y));
+  int half = (ACCURATE_BED_LEVELING_POINTS - 1) / 2;
+  float grid_x = max(0.001-half, min(half-0.001, cartesian[X_AXIS] / ACCURATE_BED_LEVELING_GRID_X));
+  float grid_y = max(0.001-half, min(half-0.001, cartesian[Y_AXIS] / ACCURATE_BED_LEVELING_GRID_Y));
   int floor_x = floor(grid_x);
   int floor_y = floor(grid_y);
   float ratio_x = grid_x - floor_x;
   float ratio_y = grid_y - floor_y;
-  float z1 = bed_level[floor_x+3][floor_y+3];
-  float z2 = bed_level[floor_x+3][floor_y+4];
-  float z3 = bed_level[floor_x+4][floor_y+3];
-  float z4 = bed_level[floor_x+4][floor_y+4];
+  float z1 = bed_level[floor_x+half][floor_y+half];
+  float z2 = bed_level[floor_x+half][floor_y+half];
+  float z3 = bed_level[floor_x+half+1][floor_y+half+1];
+  float z4 = bed_level[floor_x+half+1][floor_y+half+1];
   float left = (1-ratio_y)*z1 + ratio_y*z2;
   float right = (1-ratio_y)*z3 + ratio_y*z4;
   float offset = (1-ratio_x)*left + ratio_x*right;
@@ -3317,7 +3313,7 @@ void prepare_move()
     }
     calculate_delta(destination);
     #ifdef NONLINEAR_BED_LEVELING
-    adjust_delta(destination);
+      adjust_delta(destination);
     #endif
     plan_buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS],
                      destination[E_AXIS], feedrate*feedmultiply/60/100.0,
