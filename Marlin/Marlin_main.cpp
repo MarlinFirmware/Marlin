@@ -184,7 +184,6 @@
 CardReader card;
 #endif
 float homing_feedrate[] = HOMING_FEEDRATE;
-float z_probe_offset[] = Z_PROBE_OFFSET;
 bool axis_relative_modes[] = AXIS_RELATIVE_MODES;
 int feedmultiply=100; //100->1 200->2
 int saved_feedmultiply;
@@ -1129,8 +1128,8 @@ void calibrate_print_surface_nonlinear(float z_offset) {
     int dir = y % 2 ? -1 : 1;
     for (int x = -half*dir; x != (half+1)*dir; x += dir) {
       if (x*x + y*y < 11) {
-	destination[X_AXIS] = ACCURATE_BED_LEVELING_GRID_X * x - z_probe_offset[X_AXIS];
-	destination[Y_AXIS] = ACCURATE_BED_LEVELING_GRID_Y * y - z_probe_offset[Y_AXIS];
+	destination[X_AXIS] = ACCURATE_BED_LEVELING_GRID_X * x - X_PROBE_OFFSET_FROM_EXTRUDER;
+	destination[Y_AXIS] = ACCURATE_BED_LEVELING_GRID_Y * y - Y_PROBE_OFFSET_FROM_EXTRUDER;
 	run_z_probe();
 	bed_level[x+half][y+half] = current_position[Z_AXIS] + z_offset;
       } else {
@@ -3244,8 +3243,8 @@ void adjust_delta(float cartesian[3])
   float ratio_x = grid_x - floor_x;
   float ratio_y = grid_y - floor_y;
   float z1 = bed_level[floor_x+half][floor_y+half];
-  float z2 = bed_level[floor_x+half][floor_y+half];
-  float z3 = bed_level[floor_x+half+1][floor_y+half+1];
+  float z2 = bed_level[floor_x+half][floor_y+half+1];
+  float z3 = bed_level[floor_x+half+1][floor_y+half];
   float z4 = bed_level[floor_x+half+1][floor_y+half+1];
   float left = (1-ratio_y)*z1 + ratio_y*z2;
   float right = (1-ratio_y)*z3 + ratio_y*z4;
