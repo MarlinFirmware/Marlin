@@ -40,15 +40,19 @@
 		#define MACHINE_NAME "Mendel"
 	#endif
 
-	#define FIRMWARE_URL "http://www.mendel-parts.com"
+// Default firmware set to Mendel	
+	#define FIRMWARE_URL "https://github.com/ErikZalm/Marlin/"
 #endif
+
 
 #ifndef MACHINE_UUID
    #define MACHINE_UUID "00000000-0000-0000-0000-000000000000"
 #endif
 
+
 #define STRINGIFY_(n) #n
 #define STRINGIFY(n) STRINGIFY_(n)
+
 
 #if LANGUAGE_CHOICE == 1
 
@@ -234,7 +238,7 @@
 #if LANGUAGE_CHOICE == 2
 
 // LCD Menu Messages
-	#define WELCOME_MSG MACHINE_NAME " Gotowe."
+	#define WELCOME_MSG MACHINE_NAME " gotowy."
 	#define MSG_SD_INSERTED "Karta wlozona"
 	#define MSG_SD_REMOVED "Karta usunieta"
 	#define MSG_MAIN "Menu glowne"
@@ -247,22 +251,22 @@
 	#define MSG_PREHEAT_ABS "Rozgrzej ABS"
 	#define MSG_PREHEAT_ABS_SETTINGS "Ustawienia roz. ABS"
 	#define MSG_COOLDOWN "Chlodzenie"
-	#define MSG_SWITCH_PS_ON "Wl. zasilacz"
-	#define MSG_SWITCH_PS_OFF "Wyl. zasilacz"
+	#define MSG_SWITCH_PS_ON "Wlacz zasilacz"
+	#define MSG_SWITCH_PS_OFF "Wylacz zasilacz"
 	#define MSG_EXTRUDE "Ekstruzja"
 	#define MSG_RETRACT "Cofanie"
 	#define MSG_MOVE_AXIS "Ruch osi"
-	#define MSG_MOVE_X "Move X"
-	#define MSG_MOVE_Y "Move Y"
-	#define MSG_MOVE_Z "Move Z"
-	#define MSG_MOVE_E "Extruder"
-	#define MSG_MOVE_01MM "Move 0.1mm"
-	#define MSG_MOVE_1MM "Move 1mm"
-	#define MSG_MOVE_10MM "Move 10mm"
+	#define MSG_MOVE_X "Przesun w X"
+	#define MSG_MOVE_Y "Przesun w Y"
+	#define MSG_MOVE_Z "Przesun w Z"
+	#define MSG_MOVE_E "Ekstruzja (os E)"
+	#define MSG_MOVE_01MM "Przesuwaj co 0.1mm"
+	#define MSG_MOVE_1MM "Przesuwaj co 1mm"
+	#define MSG_MOVE_10MM "Przesuwaj co 10mm"
 	#define MSG_SPEED "Predkosc"
 	#define MSG_NOZZLE "Dysza"
-	#define MSG_NOZZLE1 "Dysza2"
-	#define MSG_NOZZLE2 "Dysza3"
+	#define MSG_NOZZLE1 "Dysza 2"
+	#define MSG_NOZZLE2 "Dysza 3"
 	#define MSG_BED "Loze"
 	#define MSG_FAN_SPEED "Obroty wiatraka"
 	#define MSG_FLOW "Przeplyw"
@@ -270,14 +274,14 @@
 	#define MSG_MIN " \002 Min"
 	#define MSG_MAX " \002 Max"
 	#define MSG_FACTOR " \002 Mnoznik"
-	#define MSG_AUTOTEMP "Auto. temp."
+	#define MSG_AUTOTEMP "Auto. temperatura"
 	#define MSG_ON "Wl. "
 	#define MSG_OFF "Wyl."
 	#define MSG_PID_P "PID-P"
 	#define MSG_PID_I "PID-I"
 	#define MSG_PID_D "PID-D"
 	#define MSG_PID_C "PID-C"
-	#define MSG_ACC  "Acc"
+	#define MSG_ACC  "Przyspieszenie"
 	#define MSG_VXY_JERK "Zryw Vxy"
 	#define MSG_VZ_JERK "Zryw Vz"
 	#define MSG_VE_JERK "Zryw Ve"
@@ -312,7 +316,7 @@
 	#define MSG_CARD_MENU "Menu karty SD"
 	#define MSG_NO_CARD "Brak karty"
 	#define MSG_DWELL "Uspij..."
-	#define MSG_USERWAIT "Czekaj na uzytkownika..."
+	#define MSG_USERWAIT "Czekam na uzytkownika..."
 	#define MSG_RESUMING "Wznawiam drukowanie"
 	#define MSG_NO_MOVE "Brak ruchu."
 	#define MSG_PART_RELEASE "Czesciowe zwolnienie"
@@ -326,16 +330,16 @@
 	#define MSG_CONTROL_RETRACT_RECOVERF "Cof. wycof.  F"
 	#define MSG_AUTORETRACT "Auto. wycofanie"
 	#define MSG_FILAMENTCHANGE "Zmien filament"
-	#define MSG_INIT_SDCARD "Uruchom karte SD"	
-	#define MSG_CNG_SDCARD "Zmien karte SD"
+	#define MSG_INIT_SDCARD "Inicjalizacja karty"
+	#define MSG_CNG_SDCARD "Zmiana karty SD"
     #define MSG_ZPROBE_OUT "Probkuj Z poza lozem"
-    #define MSG_POSITION_UNKNOWN "Domuj X/Y przed Z"
-    #define MSG_ZPROBE_ZOFFSET "Z Offset"
+    #define MSG_POSITION_UNKNOWN "Powrot w X/Y przed Z"
+    #define MSG_ZPROBE_ZOFFSET "Offset Z"
 	#define MSG_BABYSTEP_X "Babystep X"
 	#define MSG_BABYSTEP_Y "Babystep Y"
 	#define MSG_BABYSTEP_Z "Babystep Z"
-	#define MSG_ENDSTOP_ABORT "Endstop abort"
-	#define MSG_CONTRAST "Contrast"
+	#define MSG_ENDSTOP_ABORT "Blad wyl. krancowego"
+	#define MSG_CONTRAST "Kontrast"
 
 // Serial Console Messages
 
@@ -350,7 +354,7 @@
 	#define MSG_CONFIGURATION_VER " Ostatnia aktualizacja: "
 	#define MSG_FREE_MEMORY " Wolna pamiec: "
 	#define MSG_PLANNER_BUFFER_BYTES "  Bufor planisty krokow (w bajtach): "
-	#define MSG_OK "ok"
+	#define MSG_OK "OK"
 	#define MSG_FILE_SAVED "Plik zapisany."
 	#define MSG_ERR_LINE_NO "Numer linijki nie jest ostatnim numerem linijki+1; ostatnia linijka:"
 	#define MSG_ERR_CHECKSUM_MISMATCH "Niezgodna suma kontrolna; ostatnia linijka: "
@@ -370,7 +374,7 @@
 	#define MSG_BED_HEATING "Nagrzewanie loza..."
 	#define MSG_BED_DONE "Nagrzewanie loza zakonczone."
 	#define MSG_M115_REPORT "FIRMWARE_NAME:Marlin V1; Sprinter/grbl mashup for gen6 FIRMWARE_URL:" FIRMWARE_URL " PROTOCOL_VERSION:" PROTOCOL_VERSION " MACHINE_TYPE:" MACHINE_NAME " EXTRUDER_COUNT:" STRINGIFY(EXTRUDERS) " UUID:" MACHINE_UUID "\n"
-	#define MSG_COUNT_X " Liczenie X: "
+	#define MSG_COUNT_X " Licznik X: "
 	#define MSG_ERR_KILLED "Drukarka zatrzymana. Wywolano kill()"
 	#define MSG_ERR_STOPPED "Drukarka zatrzymana z powodu bledu. Usun problem i zrestartuj drukartke komenda M999. (temperatura zostala zresetowana; ustaw temperature po restarcie)"
 	#define MSG_RESEND "Wyslij ponownie: "
@@ -386,7 +390,7 @@
 	#define MSG_M119_REPORT "Zgloszenie statusu wylacznikow krancowych"
 	#define MSG_ENDSTOP_HIT "Wyzwolony"
 	#define MSG_ENDSTOP_OPEN "Otwarty"
-	#define MSG_HOTEND_OFFSET "Hotend offsets:"
+	#define MSG_HOTEND_OFFSET "Offsety dysz:"
 
 	#define MSG_SD_CANT_OPEN_SUBDIR "Nie mozna otworzyc podkatalogu"
 	#define MSG_SD_INIT_FAIL "Blad inicjalizacji karty SD"
@@ -401,16 +405,16 @@
 	#define MSG_SD_WRITE_TO_FILE "Zapisywanie do pliku: "
 	#define MSG_SD_PRINTING_BYTE "Drukowanie z karty SD, bajt "
 	#define MSG_SD_NOT_PRINTING "Nie trwa drukowanie z karty SD"
-	#define MSG_SD_ERR_WRITE_TO_FILE "blad podczas zapisu do pliku"
+	#define MSG_SD_ERR_WRITE_TO_FILE "Wystapil blad podczas zapisu do pliku"
 	#define MSG_SD_CANT_ENTER_SUBDIR "Nie mozna odczytac podkatalogu: "
 
 	#define MSG_STEPPER_TOO_HIGH "Za duza czestotliwosc krokow: "
 	#define MSG_ENDSTOPS_HIT "Wylacznik krancowy zostal wyzwolony na pozycji: "
 	#define MSG_ERR_COLD_EXTRUDE_STOP " uniemozliwiono zimna ekstruzje"
 	#define MSG_ERR_LONG_EXTRUDE_STOP " uniemozliwiono zbyt dluga ekstruzje"
-	#define MSG_BABYSTEPPING_X "Babystepping X"
-	#define MSG_BABYSTEPPING_Y "Babystepping Y"
-	#define MSG_BABYSTEPPING_Z "Babystepping Z"
+	#define MSG_BABYSTEPPING_X "Babystepping w osi X"
+	#define MSG_BABYSTEPPING_Y "Babystepping w osi Y"
+	#define MSG_BABYSTEPPING_Z "Babystepping w osi Z"
 
 #endif
 
