@@ -1113,11 +1113,13 @@ void process_commands()
         destination[X_AXIS]=current_position[X_AXIS];
         destination[Y_AXIS]=current_position[Y_AXIS];
         destination[Z_AXIS]=current_position[Z_AXIS];
-        current_position[Z_AXIS]+=-retract_zlift;
-        destination[E_AXIS]=current_position[E_AXIS]-retract_length;
+        current_position[Z_AXIS]-=retract_zlift;
+        destination[E_AXIS]=current_position[E_AXIS]-retract_length/volumetric_multiplier[active_extruder];
+        float oldFeedrate = feedrate;
         feedrate=retract_feedrate;
         retracted=true;
         prepare_move();
+        feedrate = oldFeedrate;
       }
 
       break;
