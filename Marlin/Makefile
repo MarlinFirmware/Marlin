@@ -55,7 +55,10 @@ UPLOAD_PORT        ?= /dev/arduino
 BUILD_DIR          ?= applet
 
 # This defines whether Liquid_TWI2 support will be built
-LIQUID_TWI2 ?= 0
+LIQUID_TWI2        ?= 0
+
+# this defines if Wire is needed
+WIRE               ?= 0
 
 ############################################################################
 # Below here nothing should be changed...
@@ -174,6 +177,14 @@ else ifeq  ($(HARDWARE_MOTHERBOARD),301)
 HARDWARE_VARIANT ?= arduino
 MCU              ?= atmega2560
 
+# Azteeg
+else ifeq  ($(HARDWARE_MOTHERBOARD),67)
+HARDWARE_VARIANT ?= arduino
+MCU              ?= atmega2560
+else ifeq  ($(HARDWARE_MOTHERBOARD),68)
+HARDWARE_VARIANT ?= arduino
+MCU              ?= atmega2560
+
 endif
 
 # Be sure to regenerate speed_lookuptable.h with create_speed_lookuptable.py
@@ -213,6 +224,10 @@ VPATH += $(ARDUINO_INSTALL_DIR)/libraries/Wire
 VPATH += $(ARDUINO_INSTALL_DIR)/libraries/Wire/utility
 VPATH += $(ARDUINO_INSTALL_DIR)/libraries/LiquidTWI2
 endif
+ifeq ($(WIRE), 1)
+VPATH += $(ARDUINO_INSTALL_DIR)/libraries/Wire
+VPATH += $(ARDUINO_INSTALL_DIR)/libraries/Wire/utility
+endif
 else
 VPATH += $(HARDWARE_DIR)/libraries/LiquidCrystal
 VPATH += $(HARDWARE_DIR)/libraries/SPI
@@ -220,6 +235,10 @@ ifeq ($(LIQUID_TWI2), 1)
 VPATH += $(HARDWARE_DIR)/libraries/Wire
 VPATH += $(HARDWARE_DIR)/libraries/Wire/utility
 VPATH += $(HARDWARE_DIR)/libraries/LiquidTWI2
+endif
+ifeq ($(WIRE, 1)
+VPATH += $(HARDWARE_DIR)/libraries/Wire
+VPATH += $(HARDWARE_DIR)/libraries/Wire/utility
 endif
 endif
 ifeq ($(HARDWARE_VARIANT), arduino)
@@ -241,12 +260,17 @@ CXXSRC = WMath.cpp WString.cpp Print.cpp Marlin_main.cpp	\
 	MarlinSerial.cpp Sd2Card.cpp SdBaseFile.cpp SdFatUtil.cpp	\
 	SdFile.cpp SdVolume.cpp motion_control.cpp planner.cpp		\
 	stepper.cpp temperature.cpp cardreader.cpp ConfigurationStore.cpp \
-	watchdog.cpp SPI.cpp Servo.cpp Tone.cpp ultralcd.cpp
+	watchdog.cpp SPI.cpp Servo.cpp Tone.cpp ultralcd.cpp digipot_mcp4451.cpp
 ifeq ($(LIQUID_TWI2), 0)
 CXXSRC += LiquidCrystal.cpp
 else
 SRC += twi.c
 CXXSRC += Wire.cpp LiquidTWI2.cpp
+endif
+
+ifeq ($(WIRE), 1)
+SRC += twi.c
+CXXSRC += Wire.cpp
 endif
 
 #Check for Arduino 1.0.0 or higher and use the correct sourcefiles for that version
