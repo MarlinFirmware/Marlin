@@ -344,7 +344,7 @@ static void lcd_babystep_x()
     }
     if (lcdDrawUpdate)
     {
-        lcd_implementation_drawedit(PSTR("Babystepping X"),"");
+        lcd_implementation_drawedit(PSTR(MSG_BABYSTEPPING_X),"");
     }
     if (LCD_CLICKED)
     {
@@ -364,7 +364,7 @@ static void lcd_babystep_y()
     }
     if (lcdDrawUpdate)
     {
-        lcd_implementation_drawedit(PSTR("Babystepping Y"),"");
+        lcd_implementation_drawedit(PSTR(MSG_BABYSTEPPING_Y),"");
     }
     if (LCD_CLICKED)
     {
@@ -384,7 +384,7 @@ static void lcd_babystep_z()
     }
     if (lcdDrawUpdate)
     {
-        lcd_implementation_drawedit(PSTR("Babystepping Z"),"");
+        lcd_implementation_drawedit(PSTR(MSG_BABYSTEPPING_Z),"");
     }
     if (LCD_CLICKED)
     {
@@ -415,10 +415,10 @@ static void lcd_tune_menu()
 
 #ifdef BABYSTEPPING
     #ifdef BABYSTEP_XY
-      MENU_ITEM(submenu, "Babystep X", lcd_babystep_x);
-      MENU_ITEM(submenu, "Babystep Y", lcd_babystep_y);
+      MENU_ITEM(submenu, MSG_BABYSTEP_X, lcd_babystep_x);
+      MENU_ITEM(submenu, MSG_BABYSTEP_Y, lcd_babystep_y);
     #endif //BABYSTEP_XY
-    MENU_ITEM(submenu, "Babystep Z", lcd_babystep_z);
+    MENU_ITEM(submenu, MSG_BABYSTEP_Z, lcd_babystep_z);
 #endif
 #ifdef FILAMENTCHANGEENABLE
      MENU_ITEM(gcode, MSG_FILAMENTCHANGE, PSTR("M600"));
@@ -573,12 +573,12 @@ static void lcd_move_menu_axis()
 {
     START_MENU();
     MENU_ITEM(back, MSG_MOVE_AXIS, lcd_move_menu);
-    MENU_ITEM(submenu, "Move X", lcd_move_x);
-    MENU_ITEM(submenu, "Move Y", lcd_move_y);
+    MENU_ITEM(submenu, MSG_MOVE_X, lcd_move_x);
+    MENU_ITEM(submenu, MSG_MOVE_Y, lcd_move_y);
     if (move_menu_scale < 10.0)
     {
-        MENU_ITEM(submenu, "Move Z", lcd_move_z);
-        MENU_ITEM(submenu, "Extruder", lcd_move_e);
+        MENU_ITEM(submenu, MSG_MOVE_Z, lcd_move_z);
+        MENU_ITEM(submenu, MSG_MOVE_E, lcd_move_e);
     }
     END_MENU();
 }
@@ -603,9 +603,9 @@ static void lcd_move_menu()
 {
     START_MENU();
     MENU_ITEM(back, MSG_PREPARE, lcd_prepare_menu);
-    MENU_ITEM(submenu, "Move 10mm", lcd_move_menu_10mm);
-    MENU_ITEM(submenu, "Move 1mm", lcd_move_menu_1mm);
-    MENU_ITEM(submenu, "Move 0.1mm", lcd_move_menu_01mm);
+    MENU_ITEM(submenu, MSG_MOVE_10MM, lcd_move_menu_10mm);
+    MENU_ITEM(submenu, MSG_MOVE_1MM, lcd_move_menu_1mm);
+    MENU_ITEM(submenu, MSG_MOVE_01MM, lcd_move_menu_01mm);
     //TODO:X,Y,Z,E
     END_MENU();
 }
@@ -727,7 +727,7 @@ static void lcd_control_motion_menu()
     MENU_ITEM_EDIT(float51, MSG_ZSTEPS, &axis_steps_per_unit[Z_AXIS], 5, 9999);
     MENU_ITEM_EDIT(float51, MSG_ESTEPS, &axis_steps_per_unit[E_AXIS], 5, 9999);
 #ifdef ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED
-    MENU_ITEM_EDIT(bool, "Endstop abort", &abort_on_endstop_hit);
+    MENU_ITEM_EDIT(bool, MSG_ENDSTOP_ABORT, &abort_on_endstop_hit);
 #endif
     END_MENU();
 }
@@ -746,7 +746,7 @@ static void lcd_set_contrast()
     }
     if (lcdDrawUpdate)
     {
-        lcd_implementation_drawedit(PSTR("Contrast"), itostr2(lcd_contrast));
+        lcd_implementation_drawedit(PSTR(MSG_CONTRAST), itostr2(lcd_contrast));
     }
     if (LCD_CLICKED)
     {
