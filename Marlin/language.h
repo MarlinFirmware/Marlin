@@ -165,7 +165,6 @@
 	#define MSG_BABYSTEP_Y "Babystep Y"
 	#define MSG_BABYSTEP_Z "Babystep Z"
 	#define MSG_ENDSTOP_ABORT "Endstop abort"
-	#define MSG_CONTRAST "Contrast"
 
 // Serial Console Messages
 
