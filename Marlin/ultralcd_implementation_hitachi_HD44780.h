@@ -182,7 +182,8 @@ extern volatile uint16_t buttons;  //an extended version of the last checked but
 // 2 wire Non-latching LCD SR from:
 // https://bitbucket.org/fmalpartida/new-liquidcrystal/wiki/schematics#!shiftregister-connection 
 #elif defined(SR_LCD_2W_NL)
-   
+
+  extern "C" void __cxa_pure_virtual() { while (1); }
   #include <LCD.h>
   #include <LiquidCrystal_SR.h>
   #define LCD_CLASS LiquidCrystal_SR
