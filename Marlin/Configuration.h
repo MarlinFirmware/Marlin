@@ -419,7 +419,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 //LCD and SD support
 //[FMC]#define ULTRA_LCD  //general lcd support, also 16x2
-#define ULTRA_LCD  //general lcd support, also 16x2
+//#define ULTRA_LCD  //general lcd support, also 16x2
 //#define DOGLCD  // Support for SPI LCD 128x64 (Controller ST7565R graphic Display Family)
 //[FMC]#define SDSUPPORT // Enable SD Card Support in Hardware Console
 #define SDSUPPORT // Enable SD Card Support in Hardware Console
