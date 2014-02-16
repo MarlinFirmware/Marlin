@@ -1123,31 +1123,6 @@ static void homeaxis(int axis) {
 }
 #define HOMEAXIS(LETTER) homeaxis(LETTER##_AXIS)
 
-#ifdef NONLINEAR_BED_LEVELING
-void calibrate_print_surface_nonlinear(float z_offset) {
-  int half = (ACCURATE_BED_LEVELING_POINTS - 1) / 2;
-  for (int y = half; y >= -half; y--) {
-    int dir = y % 2 ? -1 : 1;
-    for (int x = -half*dir; x != (half+1)*dir; x += dir) {
-      if (x*x + y*y < 11) {
-	destination[X_AXIS] = ACCURATE_BED_LEVELING_GRID_X * x - X_PROBE_OFFSET_FROM_EXTRUDER;
-	destination[Y_AXIS] = ACCURATE_BED_LEVELING_GRID_Y * y - Y_PROBE_OFFSET_FROM_EXTRUDER;
-	run_z_probe();
-	bed_level[x+half][y+half] = current_position[Z_AXIS] + z_offset;
-      } else {
-	bed_level[x+half][y+half] = 0.0;
-      }
-    }
-    // Print calibration results for manual frame adjustment.
-    for (int x = -half; x <= half; x++) {
-      SERIAL_PROTOCOL_F(bed_level[x+half][y+half], 3);
-      SERIAL_PROTOCOLPGM(" ");
-    }
-    SERIAL_ECHOLN("");
-  }
-}
-#endif
-
 void process_commands()
 {
   unsigned long codenum; //throw away variable
@@ -1229,11 +1204,9 @@ void process_commands()
       plan_bed_level_matrix.set_to_identity();  //Reset the plane ("erase" all leveling data)
 #endif //ENABLE_AUTO_BED_LEVELING
 
-#ifdef NONLINEAR_BED_LEVELING
       for (int y = 0; y < ACCURATE_BED_LEVELING_POINTS; y++)
         for (int x = 0; x < ACCURATE_BED_LEVELING_POINTS; x++)
            bed_level[x][y] = 0.0;
-#endif //NONLINEAR_BED_LEVELING
 
       saved_feedrate = feedrate;
       saved_feedmultiply = feedmultiply;
@@ -1502,6 +1475,16 @@ void process_commands()
 
               for (int xCount=0; xCount < ACCURATE_BED_LEVELING_POINTS; xCount++)
               {
+                #ifdef DELTA
+                  // Avoid probing the corners (outside the round or hexagon print surface) on a delta printer.
+                  float distance_from_center = sqrt(xProbe*xProbe + yProbe*yProbe);
+                  if (distance_from_center > DELTA_PRINTABLE_RADIUS) {
+                    bed_level[xCount][yCount] = -1e6;
+                    xProbe += xInc;
+                    continue;
+                  }
+                #endif
+
                 if (probePointCounter == 0)
                 {
                   // raise before probing
@@ -1512,24 +1495,7 @@ void process_commands()
                   do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS] + Z_RAISE_BETWEEN_PROBINGS);
                 }
 
-                float xAdjusted = xProbe - X_PROBE_OFFSET_FROM_EXTRUDER;
-                float yAdjusted = yProbe - Y_PROBE_OFFSET_FROM_EXTRUDER;
-                #ifdef DELTA
-                  // Avoid probing the corners (outside the round or hexagon print surface) on a delta printer.
-                  float distance_from_center = sqrt(xAdjusted*xAdjusted + yAdjusted*yAdjusted);
-                  if (distance_from_center > DELTA_RADIUS) {
-                    #ifdef NONLINEAR_BED_LEVELING
-                      bed_level[xCount][yCount] = -1e6;
-                    #endif
-                    xProbe += xInc;
-                    continue;
-                  }
-                #endif
-
-                SERIAL_PROTOCOLPGM("do_blocking_move_to\n");
-                do_blocking_move_to(xAdjusted, yAdjusted, current_position[Z_AXIS]);
-
-                SERIAL_PROTOCOLPGM("run_z_probe\n");
+                do_blocking_move_to(xProbe - X_PROBE_OFFSET_FROM_EXTRUDER, yProbe - Y_PROBE_OFFSET_FROM_EXTRUDER, current_position[Z_AXIS]);
                 run_z_probe();
 
                 SERIAL_PROTOCOLPGM("Bed x: ");
@@ -1540,14 +1506,11 @@ void process_commands()
                 SERIAL_PROTOCOL(current_position[Z_AXIS]);
                 SERIAL_PROTOCOLPGM("\n");
 
-#ifdef NONLINEAR_BED_LEVELING
                 bed_level[xCount][yCount] = current_position[Z_AXIS];
-#else
                 eqnBVector[probePointCounter] = current_position[Z_AXIS];
                 eqnAMatrix[probePointCounter + 0*ACCURATE_BED_LEVELING_POINTS*ACCURATE_BED_LEVELING_POINTS] = xProbe;
                 eqnAMatrix[probePointCounter + 1*ACCURATE_BED_LEVELING_POINTS*ACCURATE_BED_LEVELING_POINTS] = yProbe;
                 eqnAMatrix[probePointCounter + 2*ACCURATE_BED_LEVELING_POINTS*ACCURATE_BED_LEVELING_POINTS] = 1;
-#endif
                 probePointCounter++;
                 xProbe += xInc;
               }
@@ -1564,8 +1527,9 @@ void process_commands()
             SERIAL_PROTOCOLPGM(" d: ");
             SERIAL_PROTOCOLLN(plane_equation_coefficients[2]);
 
-
+          #ifndef NONLINEAR_BED_LEVELING
             set_bed_level_equation_lsq(plane_equation_coefficients);
+          #endif
 
             free(plane_equation_coefficients);
 
@@ -3252,7 +3216,6 @@ void calculate_delta(float cartesian[3])
   */
 }
 
-#ifdef NONLINEAR_BED_LEVELING
 // Adjust print surface height by linear interpolation over the bed_level array.
 void adjust_delta(float cartesian[3])
 {
@@ -3291,7 +3254,6 @@ void adjust_delta(float cartesian[3])
   SERIAL_ECHOPGM(" offset="); SERIAL_ECHOLN(offset);
   */
 }
-#endif
 
 void prepare_move_raw()
 {

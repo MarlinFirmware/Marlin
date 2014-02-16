@@ -118,6 +118,7 @@
 
 // Effective horizontal distance bridged by diagonal push rods.
 #define DELTA_RADIUS (DELTA_SMOOTH_ROD_OFFSET-DELTA_EFFECTOR_OFFSET-DELTA_CARRIAGE_OFFSET)
+#define DELTA_PRINTABLE_RADIUS (DELTA_RADIUS-10)
 
 // Effective X/Y positions of the three vertical towers.
 #define SIN_60 0.8660254037844386
@@ -368,14 +369,14 @@ const bool Z_MAX_ENDSTOP_INVERTING = false; // set to true to invert the logic o
 #ifdef ENABLE_AUTO_BED_LEVELING
 
   // these are the positions on the bed to do the probing
-  #define LEFT_PROBE_BED_POSITION -70
-  #define RIGHT_PROBE_BED_POSITION 70
-  #define BACK_PROBE_BED_POSITION 70
-  #define FRONT_PROBE_BED_POSITION -70
+  #define LEFT_PROBE_BED_POSITION -90
+  #define RIGHT_PROBE_BED_POSITION 90
+  #define BACK_PROBE_BED_POSITION 90
+  #define FRONT_PROBE_BED_POSITION -90
 
   // these are the offsets to the prob relative to the extruder tip (Hotend - Probe)
   #define X_PROBE_OFFSET_FROM_EXTRUDER 0
-  #define Y_PROBE_OFFSET_FROM_EXTRUDER 19
+  #define Y_PROBE_OFFSET_FROM_EXTRUDER 24
   #define Z_PROBE_OFFSET_FROM_EXTRUDER -8
 
   #define Z_RAISE_BEFORE_HOMING 4       // (in mm) Raise Z before homing (G28) for Probe Clearance.
@@ -416,7 +417,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = false; // set to true to invert the logic o
   #define ACCURATE_BED_LEVELING
 
   #ifdef ACCURATE_BED_LEVELING
-    #define ACCURATE_BED_LEVELING_POINTS 7
+    #define ACCURATE_BED_LEVELING_POINTS 9
     #define ACCURATE_BED_LEVELING_GRID_X ((RIGHT_PROBE_BED_POSITION - LEFT_PROBE_BED_POSITION) / ACCURATE_BED_LEVELING_POINTS)
     #define ACCURATE_BED_LEVELING_GRID_Y ((BACK_PROBE_BED_POSITION - FRONT_PROBE_BED_POSITION) / ACCURATE_BED_LEVELING_POINTS)
 
