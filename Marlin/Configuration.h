@@ -116,9 +116,11 @@
 // Horizontal offset of the universal joints on the carriages.
 #define DELTA_CARRIAGE_OFFSET 19.5 // mm
 
-// Effective horizontal distance bridged by diagonal push rods.
+// Horizontal distance bridged by diagonal push rods when effector is centered.
 #define DELTA_RADIUS (DELTA_SMOOTH_ROD_OFFSET-DELTA_EFFECTOR_OFFSET-DELTA_CARRIAGE_OFFSET)
-#define DELTA_PRINTABLE_RADIUS (DELTA_RADIUS-10)
+
+// Print surface diameter/2 minus unreachable space (avoid collisions with vertical towers).
+#define DELTA_PRINTABLE_RADIUS 75
 
 // Effective X/Y positions of the three vertical towers.
 #define SIN_60 0.8660254037844386
@@ -368,11 +370,18 @@ const bool Z_MAX_ENDSTOP_INVERTING = false; // set to true to invert the logic o
 
 #ifdef ENABLE_AUTO_BED_LEVELING
 
+#ifdef DELTA
+  #define LEFT_PROBE_BED_POSITION -(DELTA_PRINTABLE_RADIUS-5)
+  #define RIGHT_PROBE_BED_POSITION (DELTA_PRINTABLE_RADIUS-5)
+  #define BACK_PROBE_BED_POSITION (DELTA_PRINTABLE_RADIUS-5)
+  #define FRONT_PROBE_BED_POSITION -(DELTA_PRINTABLE_RADIUS-5)
+#else
   // these are the positions on the bed to do the probing
-  #define LEFT_PROBE_BED_POSITION -90
-  #define RIGHT_PROBE_BED_POSITION 90
-  #define BACK_PROBE_BED_POSITION 90
-  #define FRONT_PROBE_BED_POSITION -90
+  #define LEFT_PROBE_BED_POSITION 15
+  #define RIGHT_PROBE_BED_POSITION 170
+  #define BACK_PROBE_BED_POSITION 180
+  #define FRONT_PROBE_BED_POSITION 20
+#endif
 
   // these are the offsets to the prob relative to the extruder tip (Hotend - Probe)
   #define X_PROBE_OFFSET_FROM_EXTRUDER 0
@@ -417,9 +426,9 @@ const bool Z_MAX_ENDSTOP_INVERTING = false; // set to true to invert the logic o
   #define ACCURATE_BED_LEVELING
 
   #ifdef ACCURATE_BED_LEVELING
-    #define ACCURATE_BED_LEVELING_POINTS 9
-    #define ACCURATE_BED_LEVELING_GRID_X ((RIGHT_PROBE_BED_POSITION - LEFT_PROBE_BED_POSITION) / ACCURATE_BED_LEVELING_POINTS)
-    #define ACCURATE_BED_LEVELING_GRID_Y ((BACK_PROBE_BED_POSITION - FRONT_PROBE_BED_POSITION) / ACCURATE_BED_LEVELING_POINTS)
+    #define ACCURATE_BED_LEVELING_POINTS 7
+    #define ACCURATE_BED_LEVELING_GRID_X ((RIGHT_PROBE_BED_POSITION - LEFT_PROBE_BED_POSITION) / (ACCURATE_BED_LEVELING_POINTS - 1))
+    #define ACCURATE_BED_LEVELING_GRID_Y ((BACK_PROBE_BED_POSITION - FRONT_PROBE_BED_POSITION) / (ACCURATE_BED_LEVELING_POINTS - 1))
 
     // NONLINEAR_BED_LEVELING means: don't try to calculate linear coefficients but instead
     // compensate by interpolating between the nearest four Z probe values for each point.
