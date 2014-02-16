@@ -37,7 +37,7 @@ void _EEPROM_readData(int &pos, uint8_t* value, uint8_t size)
 // the default values are used whenever there is a change to the data, to prevent
 // wrong data being written to the variables.
 // ALSO:  always make sure the variables in the Store and retrieve sections are in the same order.
-#define EEPROM_VERSION "V10"
+#define EEPROM_VERSION "V11"
 
 #ifdef EEPROM_SETTINGS
 void Config_StoreSettings() 
@@ -71,6 +71,20 @@ void Config_StoreSettings()
   EEPROM_WRITE_VAR(i,absPreheatHPBTemp);
   EEPROM_WRITE_VAR(i,absPreheatFanSpeed);
   EEPROM_WRITE_VAR(i,zprobe_zoffset);
+  #ifdef SERVO_ENDSTOPS
+  if (servo_endstops[X_AXIS] > -1) {
+  	EEPROM_WRITE_VAR(i,servo_endstop_angles[X_AXIS * 2]);
+  	EEPROM_WRITE_VAR(i,servo_endstop_angles[X_AXIS * 2 + 1]);
+  }
+  if (servo_endstops[Y_AXIS] > -1) {
+	EEPROM_WRITE_VAR(i,servo_endstop_angles[Y_AXIS * 2]);
+	EEPROM_WRITE_VAR(i,servo_endstop_angles[Y_AXIS * 2 + 1]);
+  }
+  if (servo_endstops[Z_AXIS] > -1) {
+	EEPROM_WRITE_VAR(i,servo_endstop_angles[Z_AXIS * 2]);
+	EEPROM_WRITE_VAR(i,servo_endstop_angles[Z_AXIS * 2 + 1]);
+  }
+  #endif
   #ifdef PIDTEMP
     EEPROM_WRITE_VAR(i,Kp);
     EEPROM_WRITE_VAR(i,Ki);
@@ -158,6 +172,33 @@ void Config_PrintSettings()
     SERIAL_ECHOPAIR(" Z" ,endstop_adj[2] );
     SERIAL_ECHOLN("");
 #endif
+
+    SERIAL_ECHO_START;
+    SERIAL_ECHOLNPGM("Bed Auto level settings:");
+    SERIAL_ECHO_START;
+    SERIAL_ECHOPAIR(" Z-offset",zprobe_zoffset );
+#ifdef SERVO_ENDSTOPS
+    if (servo_endstops[X_AXIS] > -1) {
+      SERIAL_ECHO(" X extend angle");
+      SERIAL_ECHO(servo_endstop_angles[X_AXIS * 2]);
+      SERIAL_ECHO(" X retract angle");
+      SERIAL_ECHO(servo_endstop_angles[X_AXIS * 2 + 1] );
+	}
+    if (servo_endstops[X_AXIS] > -1) {
+      SERIAL_ECHO(" Y extend angle");
+      SERIAL_ECHO(servo_endstop_angles[Y_AXIS * 2] );
+      SERIAL_ECHO(" Y retract angle");
+      SERIAL_ECHO(servo_endstop_angles[Y_AXIS * 2 + 1] );
+	}
+    if (servo_endstops[X_AXIS] > -1) {
+      SERIAL_ECHO(" Z extend angle");
+      SERIAL_ECHO(servo_endstop_angles[Z_AXIS * 2] );
+      SERIAL_ECHO(" Z retract angle");
+      SERIAL_ECHO(servo_endstop_angles[Z_AXIS * 2 + 1] );
+	}
+    SERIAL_ECHOLN("");
+#endif
+
 #ifdef PIDTEMP
     SERIAL_ECHO_START;
     SERIAL_ECHOLNPGM("PID settings:");
@@ -212,6 +253,20 @@ void Config_RetrieveSettings()
         EEPROM_READ_VAR(i,absPreheatHPBTemp);
         EEPROM_READ_VAR(i,absPreheatFanSpeed);
         EEPROM_READ_VAR(i,zprobe_zoffset);
+        #ifdef SERVO_ENDSTOPS
+        if (servo_endstops[X_AXIS] > -1) {
+        	EEPROM_READ_VAR(i,servo_endstop_angles[X_AXIS * 2]);
+        	EEPROM_READ_VAR(i,servo_endstop_angles[X_AXIS * 2 + 1]);
+        }
+        if (servo_endstops[Y_AXIS] > -1) {
+        	EEPROM_READ_VAR(i,servo_endstop_angles[Y_AXIS * 2]);
+        	EEPROM_READ_VAR(i,servo_endstop_angles[Y_AXIS * 2 + 1]);
+        }
+        if (servo_endstops[Z_AXIS] > -1) {
+	        EEPROM_READ_VAR(i,servo_endstop_angles[Z_AXIS * 2]);
+        	EEPROM_READ_VAR(i,servo_endstop_angles[Z_AXIS * 2 + 1]);
+        }
+        #endif
         #ifndef PIDTEMP
         float Kp,Ki,Kd;
         #endif
@@ -277,6 +332,21 @@ void Config_ResetDefault()
 #ifdef ENABLE_AUTO_BED_LEVELING
     zprobe_zoffset = -Z_PROBE_OFFSET_FROM_EXTRUDER;
 #endif
+#ifdef SERVO_ENDSTOPS
+if (servo_endstops[X_AXIS] > -1) {
+	servo_endstop_angles[X_AXIS * 2] = 90;
+	servo_endstop_angles[X_AXIS * 2 + 1] = 90;
+}
+if (servo_endstops[Y_AXIS] > -1) {
+	servo_endstop_angles[Y_AXIS * 2] = 90;
+	servo_endstop_angles[Y_AXIS * 2 + 1] = 90;
+}
+if (servo_endstops[Z_AXIS] > -1) {
+	servo_endstop_angles[Z_AXIS * 2] = 90;
+	servo_endstop_angles[Z_AXIS * 2 + 1] = 90;
+}
+#endif
+
 #ifdef DOGLCD
     lcd_contrast = DEFAULT_LCD_CONTRAST;
 #endif
