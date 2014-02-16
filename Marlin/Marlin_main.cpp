@@ -1044,7 +1044,7 @@ static void extrapolate_one_point(int x, int y, int xdir, int ydir) {
   }
   float a = 2*bed_level[x+xdir][y] - bed_level[x+xdir*2][y];  // Left to right.
   float b = 2*bed_level[x][y+ydir] - bed_level[x][y+ydir*2];  // Front to back.
-  float c = 2*bed_level[x+xdir][y+ydir] - bed_level[x+xdir*2][y+ydir*2];  // Diagonally.
+  float c = 2*bed_level[x+xdir][y+ydir] - bed_level[x+xdir*2][y+ydir*2];  // Diagonal.
   float median = c;  // Median is robust (ignores outliers).
   if (a < b) {
     if (b < c) median = b;
@@ -1056,15 +1056,17 @@ static void extrapolate_one_point(int x, int y, int xdir, int ydir) {
   bed_level[x][y] = median;
 }
 
+// Fill in the unprobed points (corners of circular print surface)
+// using linear extrapolation, away from the center.
 static void extrapolate_unprobed_bed_level() {
-  // Fill in the unprobed points using linear extrapolation, away from the center.
   int half = (ACCURATE_BED_LEVELING_POINTS-1)/2;
-  for (int y = 2; y <= half; y++) {
-    for (int x = 2; x <= half; x++) {
-      extrapolate_one_point(half-x, half-y, +1, +1);
-      extrapolate_one_point(half+x, half-y, -1, +1);
-      extrapolate_one_point(half-x, half+y, +1, -1);
-      extrapolate_one_point(half+x, half+y, -1, -1);
+  for (int y = 0; y <= half; y++) {
+    for (int x = 0; x <= half; x++) {
+      if (x + y < 3) continue;
+      extrapolate_one_point(half-x, half-y, x>1?+1:0, y>1?+1:0);
+      extrapolate_one_point(half+x, half-y, x>1?-1:0, y>1?+1:0);
+      extrapolate_one_point(half-x, half+y, x>1?+1:0, y>1?-1:0);
+      extrapolate_one_point(half+x, half+y, x>1?-1:0, y>1?-1:0);
     }
   }
 }
