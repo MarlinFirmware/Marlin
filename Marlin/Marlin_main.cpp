@@ -1038,6 +1038,47 @@ static void engage_z_probe() {
     #endif
 }
 
+static void extrapolate_one_point(int x, int y, int xdir, int ydir) {
+  if (bed_level[x][y] != 0.0) {
+    return;  // Don't overwrite good values.
+  }
+  float a = 2*bed_level[x+xdir][y] - bed_level[x+xdir*2][y];  // Left to right.
+  float b = 2*bed_level[x][y+ydir] - bed_level[x][y+ydir*2];  // Front to back.
+  float c = 2*bed_level[x+xdir][y+ydir] - bed_level[x+xdir*2][y+ydir*2];  // Diagonally.
+  float median = c;  // Median is robust (ignores outliers).
+  if (a < b) {
+    if (b < c) median = b;
+    if (c < a) median = a;
+  } else {  // b <= a
+    if (c < b) median = b;
+    if (a < c) median = a;
+  }
+  bed_level[x][y] = median;
+}
+
+static void extrapolate_unprobed_bed_level() {
+  // Fill in the unprobed points using linear extrapolation, away from the center.
+  int half = (ACCURATE_BED_LEVELING_POINTS-1)/2;
+  for (int y = 2; y <= half; y++) {
+    for (int x = 2; x <= half; x++) {
+      extrapolate_one_point(half-x, half-y, +1, +1);
+      extrapolate_one_point(half+x, half-y, -1, +1);
+      extrapolate_one_point(half-x, half+y, +1, -1);
+      extrapolate_one_point(half+x, half+y, -1, -1);
+    }
+  }
+}
+
+static void print_bed_level() {
+  // Print calibration results for plotting or manual frame adjustment.
+  for (int y = 0; y < ACCURATE_BED_LEVELING_POINTS; y++) {
+    for (int x = 0; x < ACCURATE_BED_LEVELING_POINTS; x++) {
+      SERIAL_PROTOCOL_F(bed_level[x][y], 3);
+      SERIAL_PROTOCOLPGM(" ");
+    }
+    SERIAL_ECHOLN("");
+  }
+}
 #endif // #ifdef ENABLE_AUTO_BED_LEVELING
 
 static void homeaxis(int axis) {
@@ -1479,7 +1520,7 @@ void process_commands()
                   // Avoid probing the corners (outside the round or hexagon print surface) on a delta printer.
                   float distance_from_center = sqrt(xProbe*xProbe + yProbe*yProbe);
                   if (distance_from_center > DELTA_PRINTABLE_RADIUS) {
-                    bed_level[xCount][yCount] = 100.0;
+                    bed_level[xCount][yCount] = 0.0;
                     xProbe += xInc;
                     continue;
                   }
@@ -1518,14 +1559,9 @@ void process_commands()
             clean_up_after_endstop_move();
 
           #ifdef NONLINEAR_BED_LEVELING
-            // Print calibration results for plotting or manual frame adjustment.
-            for (int yCount = 0; yCount < ACCURATE_BED_LEVELING_POINTS; yCount++) {
-              for (int xCount = 0; xCount < ACCURATE_BED_LEVELING_POINTS; xCount++) {
-                SERIAL_PROTOCOL_F(bed_level[xCount][yCount], 3);
-                SERIAL_PROTOCOLPGM(" ");
-              }
-              SERIAL_ECHOLN("");
-            }
+	    print_bed_level();
+	    extrapolate_unprobed_bed_level();
+	    print_bed_level();
           #else
             // solve lsq problem
             double *plane_equation_coefficients = qr_solve(ACCURATE_BED_LEVELING_POINTS*ACCURATE_BED_LEVELING_POINTS, 3, eqnAMatrix, eqnBVector);
