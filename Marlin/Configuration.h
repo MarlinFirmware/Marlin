@@ -335,11 +335,27 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 #ifdef ENABLE_AUTO_BED_LEVELING
 
+// Enable auto bed leveling at any 3 points that aren't colinear
+#define AUTO_BED_LEVELING_ANY_POINTS
+
+#ifdef AUTO_BED_LEVELING_ANY_POINTS
+  #define ABL_PROBE_PT_1_X -11
+  #define ABL_PROBE_PT_1_Y -15
+  #define ABL_PROBE_PT_2_X -11
+  #define ABL_PROBE_PT_2_Y 75
+  #define ABL_PROBE_PT_3_X 121
+  #define ABL_PROBE_PT_3_Y -15
+
+
+#else // not AUTO_BED_LEVELING_ANY_POINTS
+
   // these are the positions on the bed to do the probing
   #define LEFT_PROBE_BED_POSITION 15
   #define RIGHT_PROBE_BED_POSITION 170
   #define BACK_PROBE_BED_POSITION 180
   #define FRONT_PROBE_BED_POSITION 20
+
+#endif
 
   // these are the offsets to the probe relative to the extruder tip (Hotend - Probe)
   #define X_PROBE_OFFSET_FROM_EXTRUDER -25
