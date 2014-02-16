@@ -1134,13 +1134,15 @@ void process_commands()
         destination[X_AXIS]=current_position[X_AXIS];
         destination[Y_AXIS]=current_position[Y_AXIS];
         destination[Z_AXIS]=current_position[Z_AXIS];
-        current_position[Z_AXIS]-=retract_zlift;
         destination[E_AXIS]=current_position[E_AXIS];
         current_position[E_AXIS]+=retract_length/volumetric_multiplier[active_extruder];
         plan_set_e_position(current_position[E_AXIS]);
         float oldFeedrate = feedrate;
         feedrate=retract_feedrate;
         retracted=true;
+        prepare_move();
+        current_position[Z_AXIS]-=retract_zlift;
+        plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
         prepare_move();
         feedrate = oldFeedrate;
       }
@@ -1152,8 +1154,10 @@ void process_commands()
         destination[X_AXIS]=current_position[X_AXIS];
         destination[Y_AXIS]=current_position[Y_AXIS];
         destination[Z_AXIS]=current_position[Z_AXIS];
-        current_position[Z_AXIS]+=retract_zlift;
         destination[E_AXIS]=current_position[E_AXIS];
+        current_position[Z_AXIS]+=retract_zlift;
+        plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+        //prepare_move();
         current_position[E_AXIS]-=(retract_length+retract_recover_length)/volumetric_multiplier[active_extruder]; 
         plan_set_e_position(current_position[E_AXIS]);
         float oldFeedrate = feedrate;
