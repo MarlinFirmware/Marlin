@@ -978,6 +978,27 @@ static void retract_z_probe() {
     #endif
 }
 
+/// Probe bed height at position (x,y), returns the measured z value
+static float probe_pt(float x, float y, float z_before) {
+  // move to right place
+  do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], z_before);
+  do_blocking_move_to(x - X_PROBE_OFFSET_FROM_EXTRUDER, y - Y_PROBE_OFFSET_FROM_EXTRUDER, current_position[Z_AXIS]);
+
+  engage_z_probe();   // Engage Z Servo endstop if available
+  run_z_probe();
+  float measured_z = current_position[Z_AXIS];
+  retract_z_probe();
+
+  SERIAL_PROTOCOLPGM("Bed x: ");
+  SERIAL_PROTOCOL(x);
+  SERIAL_PROTOCOLPGM(" y: ");
+  SERIAL_PROTOCOL(y);
+  SERIAL_PROTOCOLPGM(" z: ");
+  SERIAL_PROTOCOL(measured_z);
+  SERIAL_PROTOCOLPGM("\n");
+  return measured_z;
+}
+
 #endif // #ifdef ENABLE_AUTO_BED_LEVELING
 
 static void homeaxis(int axis) {
