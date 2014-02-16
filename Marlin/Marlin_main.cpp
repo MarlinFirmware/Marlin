@@ -1494,34 +1494,28 @@ void process_commands()
 
 
             int probePointCounter = 0;
-            bool zig = true;
-
             for (int yCount=0; yCount < ACCURATE_BED_LEVELING_POINTS; yCount++)
             {
               float yProbe = FRONT_PROBE_BED_POSITION + ACCURATE_BED_LEVELING_GRID_Y * yCount;
-              float xProbe, xInc;
-              if (zig)
-              {
-                xProbe = LEFT_PROBE_BED_POSITION;
-                //xEnd = RIGHT_PROBE_BED_POSITION;
-                xInc = ACCURATE_BED_LEVELING_GRID_X;
-                zig = false;
-              } else // zag
-              {
-                xProbe = RIGHT_PROBE_BED_POSITION;
-                //xEnd = LEFT_PROBE_BED_POSITION;
-                xInc = -ACCURATE_BED_LEVELING_GRID_Y;
-                zig = true;
+	      int xStart, xStop, xInc;
+              if (yCount % 2) {
+                xStart = 0;
+                xStop = ACCURATE_BED_LEVELING_POINTS;
+                xInc = 1;
+              } else {
+                xStart = ACCURATE_BED_LEVELING_POINTS - 1;
+                xStop = -1;
+                xInc = -1;
               }
 
-              for (int xCount=0; xCount < ACCURATE_BED_LEVELING_POINTS; xCount++)
+              for (int xCount=xStart; xCount != xStop; xCount += xInc)
               {
+		float xProbe = LEFT_PROBE_BED_POSITION + ACCURATE_BED_LEVELING_GRID_X * xCount;
+
                 #ifdef DELTA
                   // Avoid probing the corners (outside the round or hexagon print surface) on a delta printer.
                   float distance_from_center = sqrt(xProbe*xProbe + yProbe*yProbe);
                   if (distance_from_center > DELTA_PRINTABLE_RADIUS) {
-                    bed_level[xCount][yCount] = 0.0;
-                    xProbe += xInc;
                     continue;
                   }
                 #endif
@@ -1553,7 +1547,6 @@ void process_commands()
                 eqnAMatrix[probePointCounter + 1*ACCURATE_BED_LEVELING_POINTS*ACCURATE_BED_LEVELING_POINTS] = yProbe;
                 eqnAMatrix[probePointCounter + 2*ACCURATE_BED_LEVELING_POINTS*ACCURATE_BED_LEVELING_POINTS] = 1;
                 probePointCounter++;
-                xProbe += xInc;
               }
             }
             clean_up_after_endstop_move();
