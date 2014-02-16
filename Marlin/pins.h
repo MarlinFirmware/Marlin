@@ -1605,7 +1605,6 @@
 #define SDSS               20  // PB0 - 8 in marlin env.
 #define LED_PIN            -1
 #define PS_ON_PIN          -1
-#define KILL_PIN           -1
 #define ALARM_PIN          -1
 #define SDCARDDETECT       -1
 
@@ -1626,14 +1625,16 @@
 #define LCD_PINS_D7        -1
 
 #ifdef SAV_3DLCD
-#define BTN_EN1            41
-#define BTN_EN2            40
-#define BTN_ENC            12
-#endif
-
 // For LCD SHIFT register LCD
 #define SR_DATA_PIN         1
 #define SR_CLK_PIN          0
+
+#define BTN_EN1            41
+#define BTN_EN2            40
+#define BTN_ENC            12
+
+#define KILL_PIN           -1  // A2 = 42
+#endif
 
 #endif  // MOTHERBOARD == 83
 
