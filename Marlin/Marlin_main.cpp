@@ -1455,7 +1455,7 @@ void process_commands()
             int probePointCounter = 0;
             bool zig = true;
 
-            for (int yCount=0; yCount <= ACCURATE_BED_LEVELING_POINTS; yCount++)
+            for (int yCount=0; yCount < ACCURATE_BED_LEVELING_POINTS; yCount++)
             {
               int yProbe = FRONT_PROBE_BED_POSITION + ACCURATE_BED_LEVELING_GRID_Y * yCount;
               int xProbe, xInc;
@@ -1479,7 +1479,7 @@ void process_commands()
                   // Avoid probing the corners (outside the round or hexagon print surface) on a delta printer.
                   float distance_from_center = sqrt(xProbe*xProbe + yProbe*yProbe);
                   if (distance_from_center > DELTA_PRINTABLE_RADIUS) {
-                    bed_level[xCount][yCount] = -1e6;
+                    bed_level[xCount][yCount] = 100.0;
                     xProbe += xInc;
                     continue;
                   }
@@ -1517,6 +1517,16 @@ void process_commands()
             }
             clean_up_after_endstop_move();
 
+          #ifdef NONLINEAR_BED_LEVELING
+            // Print calibration results for plotting or manual frame adjustment.
+            for (int yCount = 0; yCount < ACCURATE_BED_LEVELING_POINTS; yCount++) {
+              for (int xCount = 0; xCount < ACCURATE_BED_LEVELING_POINTS; xCount++) {
+                SERIAL_PROTOCOL_F(bed_level[xCount][yCount], 3);
+                SERIAL_PROTOCOLPGM(" ");
+              }
+              SERIAL_ECHOLN("");
+            }
+          #else
             // solve lsq problem
             double *plane_equation_coefficients = qr_solve(ACCURATE_BED_LEVELING_POINTS*ACCURATE_BED_LEVELING_POINTS, 3, eqnAMatrix, eqnBVector);
 
@@ -1527,11 +1537,10 @@ void process_commands()
             SERIAL_PROTOCOLPGM(" d: ");
             SERIAL_PROTOCOLLN(plane_equation_coefficients[2]);
 
-          #ifndef NONLINEAR_BED_LEVELING
             set_bed_level_equation_lsq(plane_equation_coefficients);
+            free(plane_equation_coefficients);
           #endif
 
-            free(plane_equation_coefficients);
 
 #else // ACCURATE_BED_LEVELING not defined
 
