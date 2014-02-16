@@ -1457,8 +1457,8 @@ void process_commands()
 
             for (int yCount=0; yCount < ACCURATE_BED_LEVELING_POINTS; yCount++)
             {
-              int yProbe = FRONT_PROBE_BED_POSITION + ACCURATE_BED_LEVELING_GRID_Y * yCount;
-              int xProbe, xInc;
+              float yProbe = FRONT_PROBE_BED_POSITION + ACCURATE_BED_LEVELING_GRID_Y * yCount;
+              float xProbe, xInc;
               if (zig)
               {
                 xProbe = LEFT_PROBE_BED_POSITION;
