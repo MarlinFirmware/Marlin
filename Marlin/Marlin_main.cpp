@@ -961,7 +961,9 @@ static void setup_for_endstop_move() {
     feedmultiply = 100;
     previous_millis_cmd = millis();
 
+#ifndef DELTA
     enable_endstops(true);
+#endif  // Delta printers enable endstops only during Z probe down move.
 }
 
 static void clean_up_after_endstop_move() {
@@ -1451,12 +1453,16 @@ void process_commands()
             //vector_3 corrected_position = plan_get_position_mm();
             //corrected_position.debug("position before G29");
             plan_bed_level_matrix.set_to_identity();
+
+          #ifndef NONLINEAR_BED_LEVELING
             vector_3 uncorrected_position = plan_get_position();
             //uncorrected_position.debug("position durring G29");
             current_position[X_AXIS] = uncorrected_position.x;
             current_position[Y_AXIS] = uncorrected_position.y;
             current_position[Z_AXIS] = uncorrected_position.z;
             plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+          #endif
+
             setup_for_endstop_move();
 
             feedrate = homing_feedrate[Z_AXIS];
@@ -1506,9 +1512,24 @@ void process_commands()
                   do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS] + Z_RAISE_BETWEEN_PROBINGS);
                 }
 
+                float xAdjusted = xProbe - X_PROBE_OFFSET_FROM_EXTRUDER;
+                float yAdjusted = yProbe - Y_PROBE_OFFSET_FROM_EXTRUDER;
+                #ifdef DELTA
+                  // Avoid probing the corners (outside the round or hexagon print surface) on a delta printer.
+                  float distance_from_center = sqrt(xAdjusted*xAdjusted + yAdjusted*yAdjusted);
+                  if (distance_from_center > DELTA_RADIUS) {
+                    #ifdef NONLINEAR_BED_LEVELING
+                      bed_level[xCount][yCount] = -1e6;
+                    #endif
+                    xProbe += xInc;
+                    continue;
+                  }
+                #endif
 
-                do_blocking_move_to(xProbe - X_PROBE_OFFSET_FROM_EXTRUDER, yProbe - Y_PROBE_OFFSET_FROM_EXTRUDER, current_position[Z_AXIS]);
+                SERIAL_PROTOCOLPGM("do_blocking_move_to\n");
+                do_blocking_move_to(xAdjusted, yAdjusted, current_position[Z_AXIS]);
 
+                SERIAL_PROTOCOLPGM("run_z_probe\n");
                 run_z_probe();
 
                 SERIAL_PROTOCOLPGM("Bed x: ");
