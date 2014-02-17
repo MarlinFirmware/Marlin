@@ -236,7 +236,7 @@ VPATH += $(HARDWARE_DIR)/libraries/Wire
 VPATH += $(HARDWARE_DIR)/libraries/Wire/utility
 VPATH += $(HARDWARE_DIR)/libraries/LiquidTWI2
 endif
-ifeq ($(WIRE, 1)
+ifeq ($(WIRE), 1)
 VPATH += $(HARDWARE_DIR)/libraries/Wire
 VPATH += $(HARDWARE_DIR)/libraries/Wire/utility
 endif
