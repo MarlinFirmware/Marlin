@@ -123,6 +123,11 @@
 // 51 is 100k thermistor - EPCOS (1k pullup)
 // 52 is 200k thermistor - ATC Semitec 204GT-2 (1k pullup)
 // 55 is 100k thermistor - ATC Semitec 104GT-2 (Used in ParCan & J-Head) (1k pullup)
+//
+// 1047 is Pt1000 with 4k7 pullup
+// 1010 is Pt1000 with 1k pullup (non standard)
+// 147 is Pt100 with 4k7 pullup
+// 110 is Pt100 with 1k pullup (non standard)
 
 #define TEMP_SENSOR_0 -1
 #define TEMP_SENSOR_1 -1
