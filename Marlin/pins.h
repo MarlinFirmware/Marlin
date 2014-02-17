@@ -1570,7 +1570,7 @@
 #define HEATER_1_PIN       -1
 #define HEATER_2_PIN       -1
 #define HEATER_BED_PIN     20  // Bed
-#define FAN_PIN            22  // Fan
+#define FAN_PIN            16  // Fan
 // You may need to change FAN_PIN to 16 because Marlin isn't using fastio.h
 // for the fan and Teensyduino uses a different pin mapping.
 
