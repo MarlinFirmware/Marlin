@@ -231,7 +231,7 @@ int EtoPPressure=0;
 #endif
 
 #ifdef FWRETRACT
-  bool autoretract_enabled=true;
+  bool autoretract_enabled=false;
   bool retracted=false;
   float retract_length = RETRACT_LENGTH;
   float retract_feedrate = RETRACT_FEEDRATE;
