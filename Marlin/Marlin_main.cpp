@@ -978,6 +978,27 @@ static void retract_z_probe() {
     #endif
 }
 
+/// Probe bed height at position (x,y), returns the measured z value
+static float probe_pt(float x, float y, float z_before) {
+  // move to right place
+  do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], z_before);
+  do_blocking_move_to(x - X_PROBE_OFFSET_FROM_EXTRUDER, y - Y_PROBE_OFFSET_FROM_EXTRUDER, current_position[Z_AXIS]);
+
+  engage_z_probe();   // Engage Z Servo endstop if available
+  run_z_probe();
+  float measured_z = current_position[Z_AXIS];
+  retract_z_probe();
+
+  SERIAL_PROTOCOLPGM("Bed x: ");
+  SERIAL_PROTOCOL(x);
+  SERIAL_PROTOCOLPGM(" y: ");
+  SERIAL_PROTOCOL(y);
+  SERIAL_PROTOCOLPGM(" z: ");
+  SERIAL_PROTOCOL(measured_z);
+  SERIAL_PROTOCOLPGM("\n");
+  return measured_z;
+}
+
 #endif // #ifdef ENABLE_AUTO_BED_LEVELING
 
 static void homeaxis(int axis) {
@@ -1415,31 +1436,20 @@ void process_commands()
 
               for (int xCount=0; xCount < ACCURATE_BED_LEVELING_POINTS; xCount++)
               {
+                float z_before;
                 if (probePointCounter == 0)
                 {
                   // raise before probing
-                  do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], Z_RAISE_BEFORE_PROBING);
+                  z_before = Z_RAISE_BEFORE_PROBING;
                 } else
                 {
                   // raise extruder
-                  do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS] + Z_RAISE_BETWEEN_PROBINGS);
+                  z_before = current_position[Z_AXIS] + Z_RAISE_BETWEEN_PROBINGS;
                 }
 
+                float measured_z = probe_pt(xProbe, yProbe, z_before);
 
-                do_blocking_move_to(xProbe - X_PROBE_OFFSET_FROM_EXTRUDER, yProbe - Y_PROBE_OFFSET_FROM_EXTRUDER, current_position[Z_AXIS]);
-
-                engage_z_probe();   // Engage Z Servo endstop if available
-                run_z_probe();
-                eqnBVector[probePointCounter] = current_position[Z_AXIS];
-                retract_z_probe();
-
-                SERIAL_PROTOCOLPGM("Bed x: ");
-                SERIAL_PROTOCOL(xProbe);
-                SERIAL_PROTOCOLPGM(" y: ");
-                SERIAL_PROTOCOL(yProbe);
-                SERIAL_PROTOCOLPGM(" z: ");
-                SERIAL_PROTOCOL(current_position[Z_AXIS]);
-                SERIAL_PROTOCOLPGM("\n");
+                eqnBVector[probePointCounter] = measured_z;
 
                 eqnAMatrix[probePointCounter + 0*ACCURATE_BED_LEVELING_POINTS*ACCURATE_BED_LEVELING_POINTS] = xProbe;
                 eqnAMatrix[probePointCounter + 1*ACCURATE_BED_LEVELING_POINTS*ACCURATE_BED_LEVELING_POINTS] = yProbe;
@@ -1469,56 +1479,13 @@ void process_commands()
 
 
             // prob 1
-            do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], Z_RAISE_BEFORE_PROBING);
-            do_blocking_move_to(LEFT_PROBE_BED_POSITION - X_PROBE_OFFSET_FROM_EXTRUDER, BACK_PROBE_BED_POSITION - Y_PROBE_OFFSET_FROM_EXTRUDER, current_position[Z_AXIS]);
-
-            engage_z_probe();   // Engage Z Servo endstop if available
-            run_z_probe();
-            float z_at_xLeft_yBack = current_position[Z_AXIS];
-            retract_z_probe();
-
-            SERIAL_PROTOCOLPGM("Bed x: ");
-            SERIAL_PROTOCOL(LEFT_PROBE_BED_POSITION);
-            SERIAL_PROTOCOLPGM(" y: ");
-            SERIAL_PROTOCOL(BACK_PROBE_BED_POSITION);
-            SERIAL_PROTOCOLPGM(" z: ");
-            SERIAL_PROTOCOL(current_position[Z_AXIS]);
-            SERIAL_PROTOCOLPGM("\n");
+            float z_at_xLeft_yBack = probe_pt(LEFT_PROBE_BED_POSITION, BACK_PROBE_BED_POSITION, Z_RAISE_BEFORE_PROBING);
 
             // prob 2
-            do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS] + Z_RAISE_BETWEEN_PROBINGS);
-            do_blocking_move_to(LEFT_PROBE_BED_POSITION - X_PROBE_OFFSET_FROM_EXTRUDER, FRONT_PROBE_BED_POSITION - Y_PROBE_OFFSET_FROM_EXTRUDER, current_position[Z_AXIS]);
-
-            engage_z_probe();   // Engage Z Servo endstop if available
-            run_z_probe();
-            float z_at_xLeft_yFront = current_position[Z_AXIS];
-            retract_z_probe();
-
-            SERIAL_PROTOCOLPGM("Bed x: ");
-            SERIAL_PROTOCOL(LEFT_PROBE_BED_POSITION);
-            SERIAL_PROTOCOLPGM(" y: ");
-            SERIAL_PROTOCOL(FRONT_PROBE_BED_POSITION);
-            SERIAL_PROTOCOLPGM(" z: ");
-            SERIAL_PROTOCOL(current_position[Z_AXIS]);
-            SERIAL_PROTOCOLPGM("\n");
+            float z_at_xLeft_yFront = probe_pt(LEFT_PROBE_BED_POSITION, FRONT_PROBE_BED_POSITION, current_position[Z_AXIS] + Z_RAISE_BETWEEN_PROBINGS);
 
             // prob 3
-            do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS] + Z_RAISE_BETWEEN_PROBINGS);
-            // the current position will be updated by the blocking move so the head will not lower on this next call.
-            do_blocking_move_to(RIGHT_PROBE_BED_POSITION - X_PROBE_OFFSET_FROM_EXTRUDER, FRONT_PROBE_BED_POSITION - Y_PROBE_OFFSET_FROM_EXTRUDER, current_position[Z_AXIS]);
-
-            engage_z_probe();   // Engage Z Servo endstop if available
-            run_z_probe();
-            float z_at_xRight_yFront = current_position[Z_AXIS];
-            retract_z_probe(); // Retract Z Servo endstop if available
-
-            SERIAL_PROTOCOLPGM("Bed x: ");
-            SERIAL_PROTOCOL(RIGHT_PROBE_BED_POSITION);
-            SERIAL_PROTOCOLPGM(" y: ");
-            SERIAL_PROTOCOL(FRONT_PROBE_BED_POSITION);
-            SERIAL_PROTOCOLPGM(" z: ");
-            SERIAL_PROTOCOL(current_position[Z_AXIS]);
-            SERIAL_PROTOCOLPGM("\n");
+            float z_at_xRight_yFront = probe_pt(RIGHT_PROBE_BED_POSITION, FRONT_PROBE_BED_POSITION, current_position[Z_AXIS] + Z_RAISE_BETWEEN_PROBINGS);
 
             clean_up_after_endstop_move();
 
