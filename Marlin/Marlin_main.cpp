@@ -989,7 +989,8 @@ static float probe_pt(float x, float y, float z_before) {
   float measured_z = current_position[Z_AXIS];
   retract_z_probe();
 
-  SERIAL_PROTOCOLPGM("Bed x: ");
+  SERIAL_PROTOCOLPGM(MSG_BED);
+  SERIAL_PROTOCOLPGM(" x: ");
   SERIAL_PROTOCOL(x);
   SERIAL_PROTOCOLPGM(" y: ");
   SERIAL_PROTOCOL(y);
@@ -1520,7 +1521,8 @@ void process_commands()
             feedrate = homing_feedrate[Z_AXIS];
 
             run_z_probe();
-            SERIAL_PROTOCOLPGM("Bed Position X: ");
+            SERIAL_PROTOCOLPGM(MSG_BED);
+            SERIAL_PROTOCOLPGM(" X: ");
             SERIAL_PROTOCOL(current_position[X_AXIS]);
             SERIAL_PROTOCOLPGM(" Y: ");
             SERIAL_PROTOCOL(current_position[Y_AXIS]);
