@@ -463,7 +463,7 @@ void setup()
   servo_init();
 
   lcd_init();
-  _delay_ms(1000);	// wait 1sec to display the splash screen
+ // _delay_ms(1000);	// wait 1sec to display the splash screen
 
   #if defined(CONTROLLERFAN_PIN) && CONTROLLERFAN_PIN > -1
     SET_OUTPUT(CONTROLLERFAN_PIN); //Set pin used for driver cooling fan
@@ -2492,6 +2492,8 @@ void process_commands()
     break;
     #endif //FILAMENTCHANGEENABLE
     
+#ifdef WITBOX 
+
 /*
     WITBOX new GCODES:
 
@@ -2500,7 +2502,7 @@ void process_commands()
 		*M701: unload filament script
 
 */
-    
+   
     case 602: // Script for level the build plate going to 3 points
     {
         SERIAL_ECHOLN(" --LEVEL PLATE SCRIPT--");         
@@ -2685,6 +2687,7 @@ void process_commands()
 
       break;  
     
+#endif //WITBOX
     
     #ifdef DUAL_X_CARRIAGE
     case 605: // Set dual x-carriage movement mode:

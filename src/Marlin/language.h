@@ -23,27 +23,33 @@
 
 #define PROTOCOL_VERSION "1.0"
 
-#if MOTHERBOARD == 7 || MOTHERBOARD == 71
-	#define MACHINE_NAME "Ultimaker"
-	#define FIRMWARE_URL "http://firmware.ultimaker.com"
-#elif MOTHERBOARD == 80
-	#define MACHINE_NAME "Rumba"
-	#define FIRMWARE_URL "https://github.com/ErikZalm/Marlin/"
-#elif MOTHERBOARD == 77
-	#define MACHINE_NAME "3Drag"
-	#define FIRMWARE_URL "http://3dprint.elettronicain.it/"
-#else
-	#ifdef CUSTOM_MENDEL_NAME
-		#define MACHINE_NAME CUSTOM_MENDEL_NAME
-	#else
-		#define MACHINE_NAME "Mendel"
-	#endif
-	#define FIRMWARE_URL "http://www.mendel-parts.com"
-#endif
-
-#ifdef WITBOX
+#if defined(WITBOX_DUAL)
+	#define MACHINE_NAME "bq WitboxDual"
+	#define FIRMWARE_URL "http://www.bqreaders.com/descargas-witbox.html"
+	#define FIRMWARE_VER "v1.1.b"
+#elif defined(WITBOX)
+	#define MACHINE_NAME "bq Witbox"
+	#define FIRMWARE_URL "http://www.bqreaders.com/descargas-witbox.html"
 	#define FIRMWARE_VER "v1.1"
-#endif	
+#else
+	#if MOTHERBOARD == 7 || MOTHERBOARD == 71
+		#define MACHINE_NAME "Ultimaker"
+		#define FIRMWARE_URL "http://firmware.ultimaker.com"
+	#elif MOTHERBOARD == 80
+		#define MACHINE_NAME "Rumba"
+		#define FIRMWARE_URL "https://github.com/ErikZalm/Marlin/"
+	#elif MOTHERBOARD == 77
+		#define MACHINE_NAME "3Drag"
+		#define FIRMWARE_URL "http://3dprint.elettronicain.it/"
+	#else
+		#ifdef CUSTOM_MENDEL_NAME
+			#define MACHINE_NAME CUSTOM_MENDEL_NAME
+		#else
+			#define MACHINE_NAME "Mendel"
+		#endif
+		#define FIRMWARE_URL "http://www.mendel-parts.com"
+#endif
+#endif
 
 #define STRINGIFY_(n) #n
 #define STRINGIFY(n) STRINGIFY_(n)

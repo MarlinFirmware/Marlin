@@ -68,7 +68,8 @@
 #endif
 
 // Define this to set a custom name for your generic Mendel,
-#define CUSTOM_MENDEL_NAME "bq Witbox"
+#define CUSTOM_MENDEL_NAME "This Mendel"
+//#define CUSTOM_MENDEL_NAME "bq Witbox"
 
 // This defines the number of extruders
 #define EXTRUDERS 1
@@ -416,13 +417,21 @@ Eje X:
 #define DEFAULT_EJERK                 5.0    // (mm/sec)
 
 //===========================================================================
-//=============================WITBOX Features===========================
+//=============================WITBOX Features===============================
 //===========================================================================
+
 #define WITBOX
 
 #ifdef WITBOX
+	//#define WITBOX_DUAL
+
 	#define EXTRUSION_SPEED 300
-	#define LEVEL_PLATE_TEMP_PROTECTION 60	
+	#define LEVEL_PLATE_TEMP_PROTECTION 60
+	#define Change_Filament_Target_Temp 220
+
+	#define FILAMENT_EXTRUSION_LENGTH 30
+	#define FILAMENT_UNLOAD_EXTRUSION_LENGTH 5
+	#define FILAMENT_UNLOAD_RETRACTION_LENGTH 40	
 #endif
 //===========================================================================
 //===========================================================================
