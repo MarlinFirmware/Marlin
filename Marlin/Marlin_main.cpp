@@ -1080,6 +1080,10 @@ static void homeaxis(int axis) {
   }
 }
 #define HOMEAXIS(LETTER) homeaxis(LETTER##_AXIS)
++void refresh_cmd_timeout(void)
+{
+  previous_millis_cmd = millis();
+}
 
 void process_commands()
 {
