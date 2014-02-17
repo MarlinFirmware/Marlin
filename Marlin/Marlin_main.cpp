@@ -233,8 +233,11 @@ int EtoPPressure=0;
 #ifdef FWRETRACT
   bool autoretract_enabled=true;
   bool retracted=false;
-  float retract_length=3, retract_feedrate=17*60, retract_zlift=0.8;
-  float retract_recover_length=0, retract_recover_feedrate=8*60;
+  float retract_length = RETRACT_LENGTH;
+  float retract_feedrate = RETRACT_FEEDRATE;
+  float retract_zlift = RETRACT_ZLIFT;
+  float retract_recover_length = RETRACT_RECOVER_LENGTH;
+  float retract_recover_feedrate = RETRACT_RECOVER_FEEDRATE;
 #endif
 
 #ifdef ULTIPANEL
@@ -1115,6 +1118,7 @@ static void homeaxis(int axis) {
     }
   } //retract
 #endif //FWRETRACT
+
 void process_commands()
 {
   unsigned long codenum; //throw away variable
