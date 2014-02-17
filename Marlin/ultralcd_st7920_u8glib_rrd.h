@@ -12,8 +12,8 @@
 #define ST7920_DAT_PIN  LCD_PINS_ENABLE
 #define ST7920_CS_PIN   LCD_PINS_RS
 
-//#define PAGE_HEIGHT 8   //128 byte frambuffer
-//#define PAGE_HEIGHT 16  //256 byte frambuffer
+//#define PAGE_HEIGHT 8   //128 byte framebuffer
+//#define PAGE_HEIGHT 16  //256 byte framebuffer
 #define PAGE_HEIGHT 32  //512 byte framebuffer
 
 #define WIDTH 128
@@ -59,8 +59,8 @@ uint8_t u8g_dev_rrd_st7920_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t msg, vo
         ST7920_SET_CMD();
         ST7920_WRITE_BYTE(0x08);       //display off, cursor+blink off
         ST7920_WRITE_BYTE(0x01);       //clear CGRAM ram
-        u8g_Delay(10);                 //delay for cgram clear
-        ST7920_WRITE_BYTE(0x3E);       //extended mode + gdram active
+        u8g_Delay(10);                 //delay for CGRAM clear
+        ST7920_WRITE_BYTE(0x3E);       //extended mode + GDRAM active
         for(y=0;y<HEIGHT/2;y++)        //clear GDRAM
         {
           ST7920_WRITE_BYTE(0x80|y);   //set y
