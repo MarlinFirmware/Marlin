@@ -1080,6 +1080,41 @@ static void homeaxis(int axis) {
 }
 #define HOMEAXIS(LETTER) homeaxis(LETTER##_AXIS)
 
+#ifdef FWRETRACT
+  void retract(bool retracting) {
+    if(retracting && !retracted) {
+      destination[X_AXIS]=current_position[X_AXIS];
+      destination[Y_AXIS]=current_position[Y_AXIS];
+      destination[Z_AXIS]=current_position[Z_AXIS];
+      destination[E_AXIS]=current_position[E_AXIS];
+      current_position[E_AXIS]+=retract_length/volumetric_multiplier[active_extruder];
+      plan_set_e_position(current_position[E_AXIS]);
+      float oldFeedrate = feedrate;
+      feedrate=retract_feedrate;
+      retracted=true;
+      prepare_move();
+      current_position[Z_AXIS]-=retract_zlift;
+      plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+      prepare_move();
+      feedrate = oldFeedrate;
+    } else if(!retracting && retracted) {
+      destination[X_AXIS]=current_position[X_AXIS];
+      destination[Y_AXIS]=current_position[Y_AXIS];
+      destination[Z_AXIS]=current_position[Z_AXIS];
+      destination[E_AXIS]=current_position[E_AXIS];
+      current_position[Z_AXIS]+=retract_zlift;
+      plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+      //prepare_move();
+      current_position[E_AXIS]-=(retract_length+retract_recover_length)/volumetric_multiplier[active_extruder]; 
+      plan_set_e_position(current_position[E_AXIS]);
+      float oldFeedrate = feedrate;
+      feedrate=retract_recover_feedrate;
+      retracted=false;
+      prepare_move();
+      feedrate = oldFeedrate;
+    }
+  } //retract
+#endif //FWRETRACT
 void process_commands()
 {
   unsigned long codenum; //throw away variable
@@ -1095,6 +1130,18 @@ void process_commands()
     case 1: // G1
       if(Stopped == false) {
         get_coordinates(); // For X Y Z E F
+          #ifdef FWRETRACT
+            if(autoretract_enabled)
+            if( !(code_seen(X_AXIS) || code_seen(Y_AXIS) || code_seen(Z_AXIS)) && code_seen(E_AXIS)) {
+              float echange=destination[E_AXIS]-current_position[E_AXIS];
+              if((echange<-MIN_RETRACT && !retracted) || (echange>MIN_RETRACT && retracted)) { //move appears to be an attempt to attract or recover
+                  current_position[E_AXIS] = destination[E_AXIS]; //hide the slicer-generated retract/recover from calculations
+                  plan_set_e_position(current_position[E_AXIS]); //AND from the planner
+                  retract(!retracted);
+                  return;
+              }
+            }
+          #endif //FWRETRACT
         prepare_move();
         //ClearToSend();
         return;
@@ -1129,43 +1176,10 @@ void process_commands()
       break;
       #ifdef FWRETRACT
       case 10: // G10 retract
-      if(!retracted)
-      {
-        destination[X_AXIS]=current_position[X_AXIS];
-        destination[Y_AXIS]=current_position[Y_AXIS];
-        destination[Z_AXIS]=current_position[Z_AXIS];
-        destination[E_AXIS]=current_position[E_AXIS];
-        current_position[E_AXIS]+=retract_length/volumetric_multiplier[active_extruder];
-        plan_set_e_position(current_position[E_AXIS]);
-        float oldFeedrate = feedrate;
-        feedrate=retract_feedrate;
-        retracted=true;
-        prepare_move();
-        current_position[Z_AXIS]-=retract_zlift;
-        plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
-        prepare_move();
-        feedrate = oldFeedrate;
-      }
-
+        retract(true);
       break;
       case 11: // G11 retract_recover
-      if(retracted)
-      {
-        destination[X_AXIS]=current_position[X_AXIS];
-        destination[Y_AXIS]=current_position[Y_AXIS];
-        destination[Z_AXIS]=current_position[Z_AXIS];
-        destination[E_AXIS]=current_position[E_AXIS];
-        current_position[Z_AXIS]+=retract_zlift;
-        plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
-        //prepare_move();
-        current_position[E_AXIS]-=(retract_length+retract_recover_length)/volumetric_multiplier[active_extruder]; 
-        plan_set_e_position(current_position[E_AXIS]);
-        float oldFeedrate = feedrate;
-        feedrate=retract_recover_feedrate;
-        retracted=false;
-        prepare_move();
-        feedrate = oldFeedrate;
-      }
+        retract(false);
       break;
       #endif //FWRETRACT
     case 28: //G28 Home all Axis one at a time
@@ -3020,42 +3034,6 @@ void get_coordinates()
     next_feedrate = code_value();
     if(next_feedrate > 0.0) feedrate = next_feedrate;
   }
-  #ifdef FWRETRACT
-  if(autoretract_enabled)
-  if( !(seen[X_AXIS] || seen[Y_AXIS] || seen[Z_AXIS]) && seen[E_AXIS])
-  {
-    float echange=destination[E_AXIS]-current_position[E_AXIS];
-    if(echange<-MIN_RETRACT) //retract
-    {
-      if(!retracted)
-      {
-
-      destination[Z_AXIS]+=retract_zlift; //not sure why chaninging current_position negatively does not work.
-      //if slicer retracted by echange=-1mm and you want to retract 3mm, corrrectede=-2mm additionally
-      float correctede=-echange-retract_length;
-      //to generate the additional steps, not the destination is changed, but inversely the current position
-      current_position[E_AXIS]+=-correctede;
-      feedrate=retract_feedrate;
-      retracted=true;
-      }
-
-    }
-    else
-      if(echange>MIN_RETRACT) //retract_recover
-    {
-      if(retracted)
-      {
-      //current_position[Z_AXIS]+=-retract_zlift;
-      //if slicer retracted_recovered by echange=+1mm and you want to retract_recover 3mm, corrrectede=2mm additionally
-      float correctede=-echange+1*retract_length+retract_recover_length; //total unretract=retract_length+retract_recover_length[surplus]
-      current_position[E_AXIS]+=correctede; //to generate the additional steps, not the destination is changed, but inversely the current position
-      feedrate=retract_recover_feedrate;
-      retracted=false;
-      }
-    }
-
-  }
-  #endif //FWRETRACT
 }
 
 void get_arc_coordinates()
