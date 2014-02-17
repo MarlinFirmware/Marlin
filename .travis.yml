@@ -1,0 +1,14 @@
+language: cpp
+
+install: sudo ./setup-ubuntu.sh
+
+script: ./run_tests.sh
+
+notifications:
+  email:
+    - gabe+travis@missionst.com
+
+env:
+  global:
+    - ARDUINO_INSTALL_DIR=/usr/share/arduino
+    - AVR_TOOLS_PATH=/usr/bin/

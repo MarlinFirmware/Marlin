@@ -7,3 +7,6 @@ applet/
 
 # MacOS
 .DS_Store
+
+# Vagrant
+.vagrant
