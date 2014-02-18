@@ -200,6 +200,28 @@ float current_position[NUM_AXIS] = { 0.0, 0.0, 0.0, 0.0 };
 float add_homeing[3]={0,0,0};
 #ifdef DELTA
 float endstop_adj[3]={0,0,0};
+float delta_diagonal_rod = DELTA_DIAGONAL_ROD;
+float delta_diagonal_rod_2 = sq(DELTA_DIAGONAL_ROD);
+float delta_radius = DELTA_RADIUS;
+float delta_tower1_x = -SIN_60*delta_radius;   // front left tower
+float delta_tower1_y = -COS_60*delta_radius;
+float delta_tower2_x = +SIN_60*delta_radius;   // front right tower
+float delta_tower2_y = -COS_60*delta_radius;
+float delta_tower3_x = 0.0;                   // back middle tower
+float delta_tower3_y = delta_radius;
+void delta_reconfigure()
+{
+  // delta_radius
+  delta_tower1_x = -SIN_60*delta_radius;   // front left tower
+  delta_tower1_y = -COS_60*delta_radius;
+  delta_tower2_x = +SIN_60*delta_radius;   // front right tower
+  delta_tower2_y = -COS_60*delta_radius;
+  delta_tower3_x = 0.0;                    // back middle tower
+  delta_tower3_y = delta_radius;
+
+  // delta_diagonal_rod
+  delta_diagonal_rod_2 = sq(delta_diagonal_rod);
+}
 #endif
 float min_pos[3] = { X_MIN_POS, Y_MIN_POS, Z_MIN_POS };
 float max_pos[3] = { X_MAX_POS, Y_MAX_POS, Z_MAX_POS };
@@ -1159,7 +1181,7 @@ void process_commands()
         destination[Z_AXIS]=current_position[Z_AXIS];
         current_position[Z_AXIS]+=retract_zlift;
         destination[E_AXIS]=current_position[E_AXIS];
-        current_position[E_AXIS]-=(retract_length+retract_recover_length)/volumetric_multiplier[active_extruder]; 
+        current_position[E_AXIS]-=(retract_length+retract_recover_length)/volumetric_multiplier[active_extruder];
         plan_set_e_position(current_position[E_AXIS]);
         float oldFeedrate = feedrate;
         feedrate=retract_recover_feedrate;
@@ -2267,11 +2289,14 @@ void process_commands()
       }
       break;
     #ifdef DELTA
-    case 666: // M666 set delta endstop adjustemnt
-      for(int8_t i=0; i < 3; i++)
+    case 666: // M666 set delta endstop adjustment
+      for(int8_t i=0; i < 2; i++)
       {
         if(code_seen(axis_codes[i])) endstop_adj[i] = code_value();
       }
+      if(code_seen('R')) delta_radius       = code_value();
+      if(code_seen('D')) delta_diagonal_rod = code_value();
+      delta_reconfigure();
       break;
     #endif
     #ifdef FWRETRACT
@@ -3101,19 +3126,20 @@ void clamp_to_software_endstops(float target[3])
 }
 
 #ifdef DELTA
+
 void calculate_delta(float cartesian[3])
 {
-  delta[X_AXIS] = sqrt(DELTA_DIAGONAL_ROD_2
-                       - sq(DELTA_TOWER1_X-cartesian[X_AXIS])
-                       - sq(DELTA_TOWER1_Y-cartesian[Y_AXIS])
+  delta[X_AXIS] = sqrt(delta_diagonal_rod_2
+                       - sq(delta_tower1_x-cartesian[X_AXIS])
+                       - sq(delta_tower1_y-cartesian[Y_AXIS])
                        ) + cartesian[Z_AXIS];
-  delta[Y_AXIS] = sqrt(DELTA_DIAGONAL_ROD_2
-                       - sq(DELTA_TOWER2_X-cartesian[X_AXIS])
-                       - sq(DELTA_TOWER2_Y-cartesian[Y_AXIS])
+  delta[Y_AXIS] = sqrt(delta_diagonal_rod_2
+                       - sq(delta_tower2_x-cartesian[X_AXIS])
+                       - sq(delta_tower2_y-cartesian[Y_AXIS])
                        ) + cartesian[Z_AXIS];
-  delta[Z_AXIS] = sqrt(DELTA_DIAGONAL_ROD_2
-                       - sq(DELTA_TOWER3_X-cartesian[X_AXIS])
-                       - sq(DELTA_TOWER3_Y-cartesian[Y_AXIS])
+  delta[Z_AXIS] = sqrt(delta_diagonal_rod_2
+                       - sq(delta_tower3_x-cartesian[X_AXIS])
+                       - sq(delta_tower3_y-cartesian[Y_AXIS])
                        ) + cartesian[Z_AXIS];
   /*
   SERIAL_ECHOPGM("cartesian x="); SERIAL_ECHO(cartesian[X_AXIS]);
