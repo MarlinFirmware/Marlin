@@ -60,6 +60,7 @@ void Config_StoreSettings()
   #ifdef DELTA
   EEPROM_WRITE_VAR(i,endstop_adj);
   EEPROM_WRITE_VAR(i,delta_radius);
+  EEPROM_WRITE_VAR(i,delta_diagonal_rod);
   #endif
   #ifndef ULTIPANEL
   int plaPreheatHotendTemp = PLA_PREHEAT_HOTEND_TEMP, plaPreheatHPBTemp = PLA_PREHEAT_HPB_TEMP, plaPreheatFanSpeed = PLA_PREHEAT_FAN_SPEED;
@@ -109,7 +110,7 @@ void Config_RetrieveSettings()
         EEPROM_READ_VAR(i,max_acceleration_units_per_sq_second);
 
         // steps per sq second need to be updated to agree with the units per sq second (as they are what is used in the planner)
-		reset_acceleration_rates();
+        reset_acceleration_rates();
 
         EEPROM_READ_VAR(i,acceleration);
         EEPROM_READ_VAR(i,retract_acceleration);
@@ -123,6 +124,8 @@ void Config_RetrieveSettings()
         #ifdef DELTA
         EEPROM_READ_VAR(i,endstop_adj);
         EEPROM_READ_VAR(i,delta_radius);
+        EEPROM_READ_VAR(i,delta_diagonal_rod);
+        delta_reconfigure();
         #endif
         #ifndef ULTIPANEL
         int plaPreheatHotendTemp, plaPreheatHPBTemp, plaPreheatFanSpeed;
@@ -147,8 +150,8 @@ void Config_RetrieveSettings()
         #endif
         EEPROM_READ_VAR(i,lcd_contrast);
 
-		// Call updatePID (similar to when we have processed M301)
-		updatePID();
+	// Call updatePID (similar to when we have processed M301)
+	updatePID();
         SERIAL_ECHO_START;
         SERIAL_ECHOLNPGM("Stored settings retrieved");
     }
@@ -224,6 +227,7 @@ void Config_PrintSettings()
     SERIAL_ECHOPAIR(" Y" ,endstop_adj[1] );
     SERIAL_ECHOPAIR(" Z" ,endstop_adj[2] );
     SERIAL_ECHOPAIR(" R" ,delta_radius );
+    SERIAL_ECHOPAIR(" D" ,delta_diagonal_rod );
     SERIAL_ECHOLN("");
 #endif
 #ifdef PIDTEMP
@@ -265,6 +269,9 @@ void Config_ResetDefault()
     add_homeing[0] = add_homeing[1] = add_homeing[2] = 0;
 #ifdef DELTA
     endstop_adj[0] = endstop_adj[1] = endstop_adj[2] = 0;
+    delta_radius = DELTA_RADIUS;
+    delta_diagonal_rod = DELTA_DIAGONAL_ROD;
+    delta_reconfigure();
 #endif
 #ifdef ULTIPANEL
     plaPreheatHotendTemp = PLA_PREHEAT_HOTEND_TEMP;

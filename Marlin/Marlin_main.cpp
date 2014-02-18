@@ -200,6 +200,8 @@ float current_position[NUM_AXIS] = { 0.0, 0.0, 0.0, 0.0 };
 float add_homeing[3]={0,0,0};
 #ifdef DELTA
 float endstop_adj[3]={0,0,0};
+float delta_diagonal_rod = DELTA_DIAGONAL_ROD;
+float delta_diagonal_rod_2 = sq(DELTA_DIAGONAL_ROD);
 float delta_radius = DELTA_RADIUS;
 float delta_tower1_x = -SIN_60*delta_radius;   // front left tower
 float delta_tower1_y = -COS_60*delta_radius;
@@ -207,6 +209,19 @@ float delta_tower2_x = +SIN_60*delta_radius;   // front right tower
 float delta_tower2_y = -COS_60*delta_radius;
 float delta_tower3_x = 0.0;                   // back middle tower
 float delta_tower3_y = delta_radius;
+void delta_reconfigure()
+{
+  // delta_radius
+  delta_tower1_x = -SIN_60*delta_radius;   // front left tower
+  delta_tower1_y = -COS_60*delta_radius;
+  delta_tower2_x = +SIN_60*delta_radius;   // front right tower
+  delta_tower2_y = -COS_60*delta_radius;
+  delta_tower3_x = 0.0;                    // back middle tower
+  delta_tower3_y = delta_radius;
+
+  // delta_diagonal_rod
+  delta_diagonal_rod_2 = sq(delta_diagonal_rod);
+}
 #endif
 float min_pos[3] = { X_MIN_POS, Y_MIN_POS, Z_MIN_POS };
 float max_pos[3] = { X_MAX_POS, Y_MAX_POS, Z_MAX_POS };
@@ -2279,16 +2294,9 @@ void process_commands()
       {
         if(code_seen(axis_codes[i])) endstop_adj[i] = code_value();
       }
-      if(code_seen('R'))
-        {
-        delta_radius = code_value();
-        delta_tower1_x = -SIN_60*delta_radius;   // front left tower
-        delta_tower1_y = -COS_60*delta_radius;
-        delta_tower2_x = +SIN_60*delta_radius;   // front right tower
-        delta_tower2_y = -COS_60*delta_radius;
-        delta_tower3_x = 0.0;                    // back middle tower
-        delta_tower3_y = delta_radius;
-        }
+      if(code_seen('R')) delta_radius       = code_value();
+      if(code_seen('D')) delta_diagonal_rod = code_value();
+      delta_reconfigure();
       break;
     #endif
     #ifdef FWRETRACT
@@ -3121,15 +3129,15 @@ void clamp_to_software_endstops(float target[3])
 
 void calculate_delta(float cartesian[3])
 {
-  delta[X_AXIS] = sqrt(DELTA_DIAGONAL_ROD_2
+  delta[X_AXIS] = sqrt(delta_diagonal_rod_2
                        - sq(delta_tower1_x-cartesian[X_AXIS])
                        - sq(delta_tower1_y-cartesian[Y_AXIS])
                        ) + cartesian[Z_AXIS];
-  delta[Y_AXIS] = sqrt(DELTA_DIAGONAL_ROD_2
+  delta[Y_AXIS] = sqrt(delta_diagonal_rod_2
                        - sq(delta_tower2_x-cartesian[X_AXIS])
                        - sq(delta_tower2_y-cartesian[Y_AXIS])
                        ) + cartesian[Z_AXIS];
-  delta[Z_AXIS] = sqrt(DELTA_DIAGONAL_ROD_2
+  delta[Z_AXIS] = sqrt(delta_diagonal_rod_2
                        - sq(delta_tower3_x-cartesian[X_AXIS])
                        - sq(delta_tower3_y-cartesian[Y_AXIS])
                        ) + cartesian[Z_AXIS];
