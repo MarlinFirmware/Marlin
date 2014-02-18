@@ -1074,7 +1074,7 @@ static void homeaxis(int axis) {
     // Engage Servo endstop if enabled
     #ifdef SERVO_ENDSTOPS
       #if defined (ENABLE_AUTO_BED_LEVELING) && (PROBE_SERVO_DEACTIVATION_DELAY > 0)
-        if (axis==Z_AXIS) {
+        if (axis==Z_AXIS && Z_HOME_DIR == -1) {
           engage_z_probe();
         }
 	    else
@@ -1125,7 +1125,7 @@ static void homeaxis(int axis) {
       }
     #endif
 #if defined (ENABLE_AUTO_BED_LEVELING) && (PROBE_SERVO_DEACTIVATION_DELAY > 0)
-    if (axis==Z_AXIS) retract_z_probe();
+    if (axis==Z_AXIS && Z_HOME_DIR == -1) retract_z_probe();
 #endif
 
   }
