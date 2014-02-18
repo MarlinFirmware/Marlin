@@ -27,9 +27,11 @@
 
   #ifdef ULTIPANEL
   void lcd_buttons_update();
-  extern volatile uint8_t buttons;  //the last checked buttons in a bit array.
   #ifdef REPRAPWORLD_KEYPAD
+  	extern volatile uint16_t buttons;  //the last checked buttons in a bit array.
     extern volatile uint8_t buttons_reprapworld_keypad; // to store the keypad shiftregister values
+  #else
+	extern volatile uint8_t buttons;  //the last checked buttons in a bit array.
   #endif
   #else
   FORCE_INLINE void lcd_buttons_update() {}
