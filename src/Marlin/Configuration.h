@@ -37,6 +37,7 @@
 // 33 = RAMPS 1.3 / 1.4 (Power outputs: Extruder, Fan, Bed)
 // 34 = RAMPS 1.3 / 1.4 (Power outputs: Extruder0, Extruder1, Bed)
 // 35 = RAMPS 1.3 / 1.4 (Power outputs: Extruder, Fan, Fan)
+// 36 = RAMPS 1.3 / 1.4 (Power outputs: Extruder0, Fan, Extruder1)
 // 4  = Duemilanove w/ ATMega328P pin assignment
 // 5  = Gen6
 // 51 = Gen6 deluxe
@@ -68,8 +69,7 @@
 #endif
 
 // Define this to set a custom name for your generic Mendel,
-#define CUSTOM_MENDEL_NAME "This Mendel"
-//#define CUSTOM_MENDEL_NAME "bq Witbox"
+// #define CUSTOM_MENDEL_NAME "This Mendel"
 
 // This defines the number of extruders
 #define EXTRUDERS 1
@@ -334,6 +334,8 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
   #define Z_RAISE_BEFORE_HOMING 4       // (in mm) Raise Z before homing (G28) for Probe Clearance.
                                         // Be sure you have this distance over your Z_MAX_POS in case
+    
+//  #define XY_TRAVEL_SPEED 8000         // X and Y axis travel speed between probes, in mm/min
   
   #define Z_RAISE_BEFORE_PROBING 15    //How much the extruder will be raised before traveling to the first probing point.
   #define Z_RAISE_BETWEEN_PROBINGS 5  //How much the extruder will be raised when traveling from between next probing points
@@ -350,7 +352,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
   #define XY_TRAVEL_SPEED 8000         // X and Y axis travel speed between probes for bed auto leveling and WITBOX mouvements, in mm/min
  
 // Travel limits after homing
-#define X_MAX_POS 297
+#define X_MAX_POS 297 //236 for witbox dual
 #define X_MIN_POS 0
 #define Y_MAX_POS 210
 #define Y_MIN_POS 0
@@ -411,8 +413,15 @@ Eje X:
 // #define EXTRUDER_OFFSET_X {0.0, 20.00} // (in mm) for each extruder, offset of the hotend on the X axis
 // #define EXTRUDER_OFFSET_Y {0.0, 5.00}  // (in mm) for each extruder, offset of the hotend on the Y axis
 
+ #define EXTRUDER_OFFSET_X {-27.50,27.50} // (in mm) for each extruder, offset of the hotend on the X axis
+ #define EXTRUDER_OFFSET_Y {0.1,-0.1}  // (in mm) for each extruder, offset of the hotend on the Y axis
+
+/*
+ #define EXTRUDER_OFFSET_X {0,54.9} // (in mm) for each extruder, offset of the hotend on the X axis
+ #define EXTRUDER_OFFSET_Y {0,0.2}  // (in mm) for each extruder, offset of the hotend on the Y axis
+ */
 // The speed change that does not require acceleration (i.e. the software might assume it can be done instantaneously)
-#define DEFAULT_XYJERK                20.0    // (mm/sec)
+#define DEFAULT_XYJERK                10.0    // (mm/sec)
 #define DEFAULT_ZJERK                 0.4     // (mm/sec)
 #define DEFAULT_EJERK                 5.0    // (mm/sec)
 

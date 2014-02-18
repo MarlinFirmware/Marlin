@@ -22,7 +22,7 @@ M104 S210 ; set temperature
 G28 ; home all axes
 ;M106 S255
 ;G1 Z200 F1200 ; lift nozzle
-M109 S200 ; wait for temperature to be reached
+M109 S210 ; wait for temperature to be reached
 G90 ; use absolute coordinates
 G92 E0
 M82 ; use absolute distances for extrusion

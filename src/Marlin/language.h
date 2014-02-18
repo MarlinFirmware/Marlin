@@ -26,11 +26,11 @@
 #if defined(WITBOX_DUAL)
 	#define MACHINE_NAME "bq WitboxDual"
 	#define FIRMWARE_URL "http://www.bqreaders.com/descargas-witbox.html"
-	#define FIRMWARE_VER "v1.1.b"
+	#define FIRMWARE_VER "v1.2.b"
 #elif defined(WITBOX)
 	#define MACHINE_NAME "bq Witbox"
 	#define FIRMWARE_URL "http://www.bqreaders.com/descargas-witbox.html"
-	#define FIRMWARE_VER "v1.1"
+	#define FIRMWARE_VER "v1.2"
 #else
 	#if MOTHERBOARD == 7 || MOTHERBOARD == 71
 		#define MACHINE_NAME "Ultimaker"
@@ -238,7 +238,12 @@
 	#define MSG_LP_COOL_1 "Cooling..."
 	#define MSG_LP_COOL_2 "Temp:"
 	#define MSG_LP_COOL_3 "   Press to abort"
-
+/*
+	#if define(WITBOX_DUAL)
+		#define MSG_EXTRUDER_1 "Left extruder"
+		#define MSG_EXTRUDER_2 "Rigth extruder"
+	#endif //WITBOX_DUAL
+*/
 	#endif //#ifdef WITBOX
 #endif
 
