@@ -947,7 +947,7 @@ static void do_blocking_move_to(float x, float y, float z) {
     current_position[Y_AXIS] = y;
     current_position[Z_AXIS] = z;
     plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
-#endif
+#endif //DELTA
     st_synchronize();
 
     feedrate = oldFeedRate;
@@ -1553,6 +1553,12 @@ void process_commands()
             // "B" vector of Z points
             double eqnBVector[ACCURATE_BED_LEVELING_POINTS*ACCURATE_BED_LEVELING_POINTS];
 
+            #ifdef NONLINEAR_BED_LEVELING
+            float z_offset = Z_PROBE_OFFSET_FROM_EXTRUDER;
+            if (code_seen(axis_codes[Z_AXIS])) {
+              z_offset += code_value();
+            }
+            #endif //NONLINEAR_BED_LEVELING
 
             int probePointCounter = 0;
             for (int yCount=0; yCount < ACCURATE_BED_LEVELING_POINTS; yCount++)
@@ -1584,7 +1590,7 @@ void process_commands()
                 float measured_z = probe_pt(xProbe, yProbe, z_before);
 
                 #ifdef NONLINEAR_BED_LEVELING
-                bed_level[xCount][yCount] = measured_z;
+                bed_level[xCount][yCount] = measured_z + z_offset;
                 #endif //NONLINEAR_BED_LEVELING
 
                 eqnBVector[probePointCounter] = measured_z;
