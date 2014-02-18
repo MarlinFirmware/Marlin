@@ -1046,16 +1046,16 @@ static float probe_pt(float x, float y, float z_before) {
   do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], z_before);
   do_blocking_move_to(x - X_PROBE_OFFSET_FROM_EXTRUDER, y - Y_PROBE_OFFSET_FROM_EXTRUDER, current_position[Z_AXIS]);
 
-#ifndef NONLINEAR_BED_LEVELING
+#ifdef SERVO_ENDSTOPS
   engage_z_probe();   // Engage Z Servo endstop if available
-#endif //NONLINEAR_BED_LEVELING
+#endif //SERVO_ENDSTOPS
 
   run_z_probe();
   float measured_z = current_position[Z_AXIS];
 
-#ifndef NONLINEAR_BED_LEVELING
+#ifdef SERVO_ENDSTOPS
   retract_z_probe();
-#endif //NONLINEAR_BED_LEVELING
+#endif //SERVO_ENDSTOPS
 
   SERIAL_PROTOCOLPGM(MSG_BED);
   SERIAL_PROTOCOLPGM(" x: ");
@@ -1525,7 +1525,6 @@ void process_commands()
 
           #ifdef NONLINEAR_BED_LEVELING
             reset_bed_level();
-            engage_z_probe();   // Engage Z Servo endstop if available
           #else
             vector_3 uncorrected_position = plan_get_position();
             //uncorrected_position.debug("position durring G29");
@@ -1534,6 +1533,10 @@ void process_commands()
             current_position[Z_AXIS] = uncorrected_position.z;
             plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
           #endif //NONLINEAR_BED_LEVELING
+
+          #ifndef SERVO_ENDSTOPS
+            engage_z_probe();   // Engage Z probe by moving the end effector.
+          #endif
 
             setup_for_endstop_move();
 
@@ -1634,9 +1637,11 @@ void process_commands()
 #endif // ACCURATE_BED_LEVELING
             st_synchronize();
 
-#ifdef NONLINEAR_BED_LEVELING
-            retract_z_probe();
-#else
+          #ifndef SERVO_ENDSTOPS
+            retract_z_probe();   // Retract Z probe by moving the end effector.
+          #endif //SERVO_ENDSTOPS
+
+          #ifndef NONLINEAR_BED_LEVELING
             // The following code correct the Z height difference from z-probe position and hotend tip position.
             // The Z height on homing is measured by Z-Probe, but the probe is quite far from the hotend.
             // When the bed is uneven, this height must be corrected.
@@ -1648,7 +1653,7 @@ void process_commands()
             apply_rotation_xyz(plan_bed_level_matrix, x_tmp, y_tmp, z_tmp);         //Apply the correction sending the probe offset
             current_position[Z_AXIS] = z_tmp - real_z + current_position[Z_AXIS];   //The difference is added to current position and sent to planner.
             plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
-#endif //NONLINEAR_BED_LEVELING
+          #endif //NONLINEAR_BED_LEVELING
         }
         break;
 
