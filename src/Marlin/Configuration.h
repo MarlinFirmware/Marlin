@@ -413,8 +413,8 @@ Eje X:
 // #define EXTRUDER_OFFSET_X {0.0, 20.00} // (in mm) for each extruder, offset of the hotend on the X axis
 // #define EXTRUDER_OFFSET_Y {0.0, 5.00}  // (in mm) for each extruder, offset of the hotend on the Y axis
 
- #define EXTRUDER_OFFSET_X {-27.50,27.50} // (in mm) for each extruder, offset of the hotend on the X axis
- #define EXTRUDER_OFFSET_Y {0.1,-0.1}  // (in mm) for each extruder, offset of the hotend on the Y axis
+// #define EXTRUDER_OFFSET_X {-27.50,27.50} // (in mm) for each extruder, offset of the hotend on the X axis
+// #define EXTRUDER_OFFSET_Y {0.1,-0.1}  // (in mm) for each extruder, offset of the hotend on the Y axis
 
 /*
  #define EXTRUDER_OFFSET_X {0,54.9} // (in mm) for each extruder, offset of the hotend on the X axis
