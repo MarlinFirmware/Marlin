@@ -1409,6 +1409,15 @@ void process_commands()
             #error "You must have a Z_MIN endstop in order to enable Auto Bed Leveling feature!!! Z_MIN_PIN must point to a valid hardware pin."
             #endif
 
+            // Prevent user from running a G29 without first homing in X and Y
+            if (! (axis_known_position[X_AXIS] && axis_known_position[Y_AXIS]) )
+            {
+                LCD_MESSAGEPGM(MSG_POSITION_UNKNOWN);
+                SERIAL_ECHO_START;
+                SERIAL_ECHOLNPGM(MSG_POSITION_UNKNOWN);
+                break; // abort G29, since we don't know where we are
+            }
+
             st_synchronize();
             // make sure the bed_level_rotation_matrix is identity or the planner will get it incorectly
             //vector_3 corrected_position = plan_get_position_mm();
