@@ -335,21 +335,44 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 #ifdef ENABLE_AUTO_BED_LEVELING
 
-// Enable auto bed leveling at any 3 points that aren't colinear
-#define AUTO_BED_LEVELING_ANY_POINTS
+// There are 3 different ways to pick the X and Y locations to probe:
+// 1. Basic 3-point probe at left-back, left-front, and right-front corners of a rectangle
+// 2. Probe all points of a 2D lattice, defined by a rectangle and ACCURATE_BED_LEVELING_POINTS
+// 3. 3-point probe at 3 arbitrary points that don't form a line.
 
+// To enable mode 1:
+//   - #define ENABLE_AUTO_BED_LEVELING
+//   - Set the XXXX_PROBE_BED_POSITION values below
+//   - Don't define AUTO_BED_LEVELING_ANY_POINTS or ACCURATE_BED_LEVELING
+
+// To enable mode 2:
+//  - #define ENABLE_AUTO_BED_LEVELING
+//  - Set the XXXX_PROBE_BED_POSITION values below
+//  - #define ACCURATE_BED_LEVELING
+//  - Set the ACCURATE_BED_LEVELING_POINTS to your desired density
+
+// To enable mode 3:
+//  - #define ENABLE_AUTO_BED_LEVELING
+//  - #define AUTO_BED_LEVELING_ANY_POINTS
+//  - Set the ABL_PROBE_PT_XXXX values below
+//  - Comment out (undefine) ACCURATE_BED_LEVELING since that is incompatible
+
+
+
+// Mode 3: Enable auto bed leveling at any 3 points that aren't colinear
+// #define AUTO_BED_LEVELING_ANY_POINTS
 #ifdef AUTO_BED_LEVELING_ANY_POINTS
-  #define ABL_PROBE_PT_1_X -11
-  #define ABL_PROBE_PT_1_Y -15
-  #define ABL_PROBE_PT_2_X -11
+  #define ABL_PROBE_PT_1_X 15
+  #define ABL_PROBE_PT_1_Y 15
+  #define ABL_PROBE_PT_2_X 25
   #define ABL_PROBE_PT_2_Y 75
-  #define ABL_PROBE_PT_3_X 121
-  #define ABL_PROBE_PT_3_Y -15
-
-
+  #define ABL_PROBE_PT_3_X 125
+  #define ABL_PROBE_PT_3_Y 25
 #else // not AUTO_BED_LEVELING_ANY_POINTS
 
-  // these are the positions on the bed to do the probing
+  // Modes 1 & 2:
+  //   For mode 1, probing happens at left-back, left-front, and right-front corners
+  //   For mode 2, probing happens at lattice points within this rectangle (see ACCURATE_BED_LEVELING_POINTS)
   #define LEFT_PROBE_BED_POSITION 15
   #define RIGHT_PROBE_BED_POSITION 170
   #define BACK_PROBE_BED_POSITION 180
@@ -398,8 +421,11 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
   // with accurate bed leveling, the bed is sampled in a ACCURATE_BED_LEVELING_POINTSxACCURATE_BED_LEVELING_POINTS grid and least squares solution is calculated
   // Note: this feature occupies 10'206 byte
   #define ACCURATE_BED_LEVELING
-
+  // Mode 2 only
   #ifdef ACCURATE_BED_LEVELING
+    #ifdef AUTO_BED_LEVELING_ANY_POINTS
+      #error AUTO_BED_LEVELING_ANY_POINTS is incompatible with ACCURATE_BED_LEVELING
+    #endif
      // I wouldn't see a reason to go above 3 (=9 probing points on the bed)
     #define ACCURATE_BED_LEVELING_POINTS 2
   #endif

@@ -1433,7 +1433,7 @@ void process_commands()
       break;
 
 #ifdef ENABLE_AUTO_BED_LEVELING
-    case 29: // G29 Detailed Z-Probe, probes the bed at 3 points.
+    case 29: // G29 Detailed Z-Probe, probes the bed at 3 or more points.
         {
             #if Z_MIN_PIN == -1
             #error "You must have a Z_MIN endstop in order to enable Auto Bed Leveling feature!!! Z_MIN_PIN must point to a valid hardware pin."
@@ -1463,6 +1463,7 @@ void process_commands()
 
             feedrate = homing_feedrate[Z_AXIS];
 #ifdef ACCURATE_BED_LEVELING
+            // probe at the points of a lattice grid
 
             int xGridSpacing = (RIGHT_PROBE_BED_POSITION - LEFT_PROBE_BED_POSITION) / (ACCURATE_BED_LEVELING_POINTS-1);
             int yGridSpacing = (BACK_PROBE_BED_POSITION - FRONT_PROBE_BED_POSITION) / (ACCURATE_BED_LEVELING_POINTS-1);
@@ -1545,6 +1546,7 @@ void process_commands()
 
 
   #ifdef AUTO_BED_LEVELING_ANY_POINTS
+            // Probe at 3 arbitrary points
             // probe 1
             float z_at_pt_1 = probe_pt(ABL_PROBE_PT_1_X, ABL_PROBE_PT_1_Y, Z_RAISE_BEFORE_PROBING);
 
@@ -1558,14 +1560,14 @@ void process_commands()
 
             set_bed_level_equation_any_pts(z_at_pt_1, z_at_pt_2, z_at_pt_3);
   #else // not AUTO_BED_LEVELING_ANY_POINTS
-
-            // prob 1
+            // probe at 3 corners of a rectangle
+            // probe 1
             float z_at_xLeft_yBack = probe_pt(LEFT_PROBE_BED_POSITION, BACK_PROBE_BED_POSITION, Z_RAISE_BEFORE_PROBING);
 
-            // prob 2
+            // probe 2
             float z_at_xLeft_yFront = probe_pt(LEFT_PROBE_BED_POSITION, FRONT_PROBE_BED_POSITION, current_position[Z_AXIS] + Z_RAISE_BETWEEN_PROBINGS);
 
-            // prob 3
+            // probe 3
             float z_at_xRight_yFront = probe_pt(RIGHT_PROBE_BED_POSITION, FRONT_PROBE_BED_POSITION, current_position[Z_AXIS] + Z_RAISE_BETWEEN_PROBINGS);
 
             clean_up_after_endstop_move();
