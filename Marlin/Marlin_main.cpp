@@ -2679,9 +2679,11 @@ void process_commands()
     }
     break;
     #endif
-    case 550:
+
+    #ifdef CUSTOM_M_CODES
+    case CUSTOM_M_CODE_REPORT_BUILD_INFO:
     {
-        // M550: Print out some diagnostic info
+        // Print out some diagnostic info
         SERIAL_ECHOPGM(MSG_MARLIN);
         SERIAL_ECHOLNPGM(VERSION_STRING);
         #ifdef STRING_VERSION_CONFIG_H
@@ -2693,12 +2695,48 @@ void process_commands()
             SERIAL_ECHOLNPGM(STRING_CONFIG_H_AUTHOR);
             SERIAL_ECHOPGM("Compiled: ");
             SERIAL_ECHOLNPGM(__DATE__);
+            SERIAL_PROTOCOLLN("");
           #endif
         #endif
         SERIAL_ECHO_START;
         SERIAL_ECHOPGM(MSG_FREE_MEMORY);
         SERIAL_ECHO(freeMemory());
+        SERIAL_PROTOCOLLN("");
+        break;
     }
+    case CUSTOM_M_CODE_SET_Z_PROBE_OFFSET:
+    {
+      float value;
+      if (code_seen('Z'))
+      {
+        value = code_value();
+        if ((Z_PROBE_OFFSET_RANGE_MIN <= value) && (value <= Z_PROBE_OFFSET_RANGE_MAX))
+        {
+          zprobe_zoffset = -value; // compare w/ line 278 of ConfigurationStore.cpp
+          SERIAL_ECHO_START;
+          SERIAL_ECHOLNPGM("Z probe offset has been set");
+          SERIAL_PROTOCOLLN("");
+        }
+        else
+        {
+          SERIAL_ECHO_START;
+          SERIAL_ECHOPGM("Invalid z-probe value.  Must be between ");
+          SERIAL_ECHO(Z_PROBE_OFFSET_RANGE_MIN);
+          SERIAL_ECHOPGM(" and ");
+          SERIAL_ECHO(Z_PROBE_OFFSET_RANGE_MAX);
+          SERIAL_PROTOCOLLN("");
+        }
+      }
+      else
+      {
+          SERIAL_ECHO_START;
+          SERIAL_ECHOLNPGM("Z probe offset is currently ");
+          SERIAL_ECHO(-zprobe_zoffset);
+          SERIAL_PROTOCOLLN("");
+      }
+      break;
+    }
+    #endif // CUSTOM_M_CODES
 
     #ifdef FILAMENTCHANGEENABLE
     case 600: //Pause for filament change X[pos] Y[pos] Z[relative lift] E[initial retract] L[later retract distance for removal]
