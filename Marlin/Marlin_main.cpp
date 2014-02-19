@@ -76,7 +76,7 @@
 // G10 - retract filament according to settings of M207
 // G11 - retract recover filament according to settings of M208
 // G28 - Home all Axis
-// G29 - Detailed Z-Probe, probes the bed at 3 points.  You must de at the home position for this to work correctly.
+// G29 - Detailed Z-Probe, probes the bed at 3 or more points.  Will fail if you haven't homed yet.
 // G30 - Single Z Probe, probes bed at current XY location.
 // G90 - Use Absolute Coordinates
 // G91 - Use Relative Coordinates
