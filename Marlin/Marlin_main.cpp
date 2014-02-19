@@ -1237,6 +1237,10 @@ void process_commands()
 
       home_all_axis = !((code_seen(axis_codes[X_AXIS])) || (code_seen(axis_codes[Y_AXIS])) || (code_seen(axis_codes[Z_AXIS])));
 
+      #ifdef Z_SAFE_HOMING_FIXED_POINT  // Z home always triggers X & Y home first
+        home_all_axis |= code_seen(axis_codes[Z_AXIS]);
+      #endif
+
       #if Z_HOME_DIR > 0                      // If homing away from BED do Z first
       if((home_all_axis) || (code_seen(axis_codes[Z_AXIS]))) {
         HOMEAXIS(Z);
@@ -1342,7 +1346,12 @@ void process_commands()
 
             HOMEAXIS(Z);
           }
-                                                // Let's see if X and Y are homed and probe is inside bed area.
+
+          // if X or Y or both hasn't homed, but we do need to Z-home, then
+          // ensure that at least probe is inside bed area.
+          // note that this condition can't occur with Z_SAFE_HOMING_FIXED_POINT
+          // because in that case, any Z-home always triggers an X & Y home first
+          #ifndef Z_SAFE_HOMING_FIXED_POINT
           if(code_seen(axis_codes[Z_AXIS])) {
             if ( (axis_known_position[X_AXIS]) && (axis_known_position[Y_AXIS]) \
               && (current_position[X_AXIS]+X_PROBE_OFFSET_FROM_EXTRUDER >= X_MIN_POS) \
@@ -1368,8 +1377,9 @@ void process_commands()
                 SERIAL_ECHOLNPGM(MSG_ZPROBE_OUT);
             }
           }
-        #endif
-      #endif
+          #endif // not Z_SAFE_HOMING_FIXED_POINT
+        #endif // Z_SAFE_HOMING
+      #endif // Z_HOME_DIR
 
 
 
@@ -1542,6 +1552,15 @@ void process_commands()
 
     case 30: // G30 Single Z Probe
         {
+
+            #ifdef Z_SAFE_HOMING_FIXED_POINT
+              #define G30_NOT_ALLOWED "G30 not allowed because of Z_SAFE_HOMING_FIXED_POINT"
+              LCD_MESSAGEPGM(G30_NOT_ALLOWED);
+              SERIAL_ECHO_START;
+              SERIAL_ECHOLNPGM(G30_NOT_ALLOWED);
+              break; // abort
+            #endif // Z_SAFE_HOMING_FIXED_POINT
+
             engage_z_probe(); // Engage Z Servo endstop if available
 
             st_synchronize();

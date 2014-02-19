@@ -415,6 +415,20 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
     #define Z_SAFE_HOMING_X_POINT (X_MAX_LENGTH/2)    // X point for Z homing when homing all axis (G28)
     #define Z_SAFE_HOMING_Y_POINT (Y_MAX_LENGTH/2)    // Y point for Z homing when homing all axis (G28)
 
+
+// On some printer hardware, Z-homing and bed probing is only safe from very
+// specific X & Y points.  You can prevent accidental crashes on that hardware
+// by enabling
+//    #define Z_SAFE_HOMING_FIXED_POINT
+//
+// This mode differs from regular Z_SAFE_HOMING in the following ways:
+//    - Before *any* Z home begins, first X & Y are homed, and then the probe
+//      is moved in X & Y to the safe-homing point defined above.
+//      Without this option set, "G28 Z0" will do a straight Z-home from anywhere
+//      in the bed area.  That can cause a bed / extruder crash on some hardware.
+//    - G30 command is disabled, for the same reason.
+
+
   #endif
 
 #endif // ENABLE_AUTO_BED_LEVELING
