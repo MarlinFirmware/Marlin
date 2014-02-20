@@ -1381,7 +1381,7 @@
 #define SDSS               53
 #define LED_PIN            8
 #define FAN_PIN            7
-#define PS_ON_PIN          12
+#define PS_ON_PIN          -1
 #define KILL_PIN           -1
 #define SUICIDE_PIN        -1  //PIN that has to be turned on right after start, to keep power flowing.
 #define SAFETY_TRIGGERED_PIN     28 //PIN to detect the safety circuit has triggered
