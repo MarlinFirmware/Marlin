@@ -26,5 +26,5 @@ do
     fi
 done
 
-grep -v -f "$PATTERNS_FILE" -
+grep -v -w -f "$PATTERNS_FILE" -
 rm "$PATTERNS_FILE"
