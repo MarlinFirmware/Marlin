@@ -460,6 +460,7 @@ static void lcd_move_x()
 {
     if (encoderPosition != 0)
     {
+        refresh_cmd_timeout();
         current_position[X_AXIS] += float((int)encoderPosition) * move_menu_scale;
         if (min_software_endstops && current_position[X_AXIS] < X_MIN_POS)
             current_position[X_AXIS] = X_MIN_POS;
@@ -489,6 +490,7 @@ static void lcd_move_y()
 {
     if (encoderPosition != 0)
     {
+        refresh_cmd_timeout();
         current_position[Y_AXIS] += float((int)encoderPosition) * move_menu_scale;
         if (min_software_endstops && current_position[Y_AXIS] < Y_MIN_POS)
             current_position[Y_AXIS] = Y_MIN_POS;
@@ -518,6 +520,7 @@ static void lcd_move_z()
 {
     if (encoderPosition != 0)
     {
+        refresh_cmd_timeout();
         current_position[Z_AXIS] += float((int)encoderPosition) * move_menu_scale;
         if (min_software_endstops && current_position[Z_AXIS] < Z_MIN_POS)
             current_position[Z_AXIS] = Z_MIN_POS;
@@ -706,7 +709,9 @@ static void lcd_control_motion_menu()
 {
     START_MENU();
     MENU_ITEM(back, MSG_CONTROL, lcd_control_menu);
+#ifdef ENABLE_AUTO_BED_LEVELING
     MENU_ITEM_EDIT(float32, MSG_ZPROBE_ZOFFSET, &zprobe_zoffset, 0.5, 50);
+#endif
     MENU_ITEM_EDIT(float5, MSG_ACC, &acceleration, 500, 99000);
     MENU_ITEM_EDIT(float3, MSG_VXY_JERK, &max_xy_jerk, 1, 990);
     MENU_ITEM_EDIT(float52, MSG_VZ_JERK, &max_z_jerk, 0.1, 990);
