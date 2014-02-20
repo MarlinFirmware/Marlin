@@ -335,50 +335,49 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 #ifdef ENABLE_AUTO_BED_LEVELING
 
-// There are 3 different ways to pick the X and Y locations to probe:
-// 1. Basic 3-point probe at left-back, left-front, and right-front corners of a rectangle
-// 2. Probe all points of a 2D lattice, defined by a rectangle and ACCURATE_BED_LEVELING_POINTS
-// 3. 3-point probe at 3 arbitrary points that don't form a line.
+// There are 2 different ways to pick the X and Y locations to probe:
 
-// To enable mode 1:
-//   - #define ENABLE_AUTO_BED_LEVELING
-//   - Set the XXXX_PROBE_BED_POSITION values below
-//   - Don't define AUTO_BED_LEVELING_ANY_POINTS or ACCURATE_BED_LEVELING
+//  - "grid" mode
+//    Probe every point in a rectangular grid
+//    You must specify the rectangle, and the density of sample points
+//    This mode is preferred because there are more measurements.
+//    It used to be called ACCURATE_BED_LEVELING but "grid" is more descriptive
 
-// To enable mode 2:
-//  - #define ENABLE_AUTO_BED_LEVELING
-//  - Set the XXXX_PROBE_BED_POSITION values below
-//  - #define ACCURATE_BED_LEVELING
-//  - Set the ACCURATE_BED_LEVELING_POINTS to your desired density
+//  - "3-point" mode
+//    Probe 3 arbitrary points on the bed (that aren't colinear)
+//    You must specify the X & Y coordinates of all 3 points
 
-// To enable mode 3:
-//  - #define ENABLE_AUTO_BED_LEVELING
-//  - #define AUTO_BED_LEVELING_ANY_POINTS
-//  - Set the ABL_PROBE_PT_XXXX values below
-//  - Comment out (undefine) ACCURATE_BED_LEVELING since that is incompatible
+  #define AUTO_BED_LEVELING_GRID
+  // with AUTO_BED_LEVELING_GRID, the bed is sampled in a
+  // AUTO_BED_LEVELING_GRID_POINTSxAUTO_BED_LEVELING_GRID_POINTS grid
+  // and least squares solution is calculated
+  // Note: this feature occupies 10'206 byte
+  #ifdef AUTO_BED_LEVELING_GRID
+
+    // set the rectangle in which to probe
+    #define LEFT_PROBE_BED_POSITION 15
+    #define RIGHT_PROBE_BED_POSITION 170
+    #define BACK_PROBE_BED_POSITION 180
+    #define FRONT_PROBE_BED_POSITION 20
+
+     // set the number of grid points per dimension
+     // I wouldn't see a reason to go above 3 (=9 probing points on the bed)
+    #define AUTO_BED_LEVELING_GRID_POINTS 2
 
 
+  #else  // not AUTO_BED_LEVELING_GRID
+    // with no grid, just probe 3 arbitrary points.  A simple cross-product
+    // is used to esimate the plane of the print bed
 
-// Mode 3: Enable auto bed leveling at any 3 points that aren't colinear
-// #define AUTO_BED_LEVELING_ANY_POINTS
-#ifdef AUTO_BED_LEVELING_ANY_POINTS
-  #define ABL_PROBE_PT_1_X 15
-  #define ABL_PROBE_PT_1_Y 15
-  #define ABL_PROBE_PT_2_X 25
-  #define ABL_PROBE_PT_2_Y 75
-  #define ABL_PROBE_PT_3_X 125
-  #define ABL_PROBE_PT_3_Y 25
-#else // not AUTO_BED_LEVELING_ANY_POINTS
+      #define ABL_PROBE_PT_1_X 15
+      #define ABL_PROBE_PT_1_Y 180
+      #define ABL_PROBE_PT_2_X 15
+      #define ABL_PROBE_PT_2_Y 20
+      #define ABL_PROBE_PT_3_X 170
+      #define ABL_PROBE_PT_3_Y 20
 
-  // Modes 1 & 2:
-  //   For mode 1, probing happens at left-back, left-front, and right-front corners
-  //   For mode 2, probing happens at lattice points within this rectangle (see ACCURATE_BED_LEVELING_POINTS)
-  #define LEFT_PROBE_BED_POSITION 15
-  #define RIGHT_PROBE_BED_POSITION 170
-  #define BACK_PROBE_BED_POSITION 180
-  #define FRONT_PROBE_BED_POSITION 20
+  #endif // AUTO_BED_LEVELING_GRID
 
-#endif
 
   // these are the offsets to the probe relative to the extruder tip (Hotend - Probe)
   #define X_PROBE_OFFSET_FROM_EXTRUDER -25
@@ -418,19 +417,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
   #endif
 
-  // with accurate bed leveling, the bed is sampled in a ACCURATE_BED_LEVELING_POINTSxACCURATE_BED_LEVELING_POINTS grid and least squares solution is calculated
-  // Note: this feature occupies 10'206 byte
-  #define ACCURATE_BED_LEVELING
-  // Mode 2 only
-  #ifdef ACCURATE_BED_LEVELING
-    #ifdef AUTO_BED_LEVELING_ANY_POINTS
-      #error AUTO_BED_LEVELING_ANY_POINTS is incompatible with ACCURATE_BED_LEVELING
-    #endif
-     // I wouldn't see a reason to go above 3 (=9 probing points on the bed)
-    #define ACCURATE_BED_LEVELING_POINTS 2
-  #endif
-
-#endif
+#endif // ENABLE_AUTO_BED_LEVELING
 
 
 // The position of the homing switches
