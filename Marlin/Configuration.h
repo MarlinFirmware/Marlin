@@ -365,12 +365,12 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
     // with no grid, just probe 3 arbitrary points.  A simple cross-product
     // is used to esimate the plane of the print bed
 
-      #define ABL_PROBE_PT_1_X 15
-      #define ABL_PROBE_PT_1_Y 180
-      #define ABL_PROBE_PT_2_X 15
-      #define ABL_PROBE_PT_2_Y 20
-      #define ABL_PROBE_PT_3_X 170
-      #define ABL_PROBE_PT_3_Y 20
+      #define ABL_PROBE_PT_1_X -11
+      #define ABL_PROBE_PT_1_Y -15
+      #define ABL_PROBE_PT_2_X -11
+      #define ABL_PROBE_PT_2_Y 75
+      #define ABL_PROBE_PT_3_X 121
+      #define ABL_PROBE_PT_3_Y -15
 
   #endif // AUTO_BED_LEVELING_GRID
 
