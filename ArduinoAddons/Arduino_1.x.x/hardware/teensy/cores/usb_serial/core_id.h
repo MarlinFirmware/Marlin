@@ -1,0 +1,1 @@
+#define CORE_TEENSY_SERIAL
