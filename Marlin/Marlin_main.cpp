@@ -885,15 +885,14 @@ static void set_bed_level_equation(float z_at_xLeft_yFront, float z_at_xRight_yF
 
 static void run_z_probe() {
     plan_bed_level_matrix.set_to_identity();
-    feedrate = homing_feedrate[Z_AXIS];
 
 #ifdef DELTA
     enable_endstops(true);
     float start_z = current_position[Z_AXIS];
     long start_steps = st_get_position(Z_AXIS);
 
-    feedrate = homing_feedrate[Z_AXIS]/10;
-    destination[Z_AXIS] = -20;
+    feedrate = homing_feedrate[Z_AXIS]/4;
+    destination[Z_AXIS] = -10;
     prepare_move_raw();
     st_synchronize();
     endstops_hit_on_purpose();
@@ -906,6 +905,8 @@ static void run_z_probe() {
     calculate_delta(current_position);
     plan_set_position(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], current_position[E_AXIS]);
 #else
+    feedrate = homing_feedrate[Z_AXIS];
+
     // move down until you find the bed
     float zPosition = -10;
     plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], zPosition, current_position[E_AXIS], feedrate/60, active_extruder);
@@ -1108,7 +1109,7 @@ static void extrapolate_unprobed_bed_level() {
 static void print_bed_level() {
   for (int y = 0; y < ACCURATE_BED_LEVELING_POINTS; y++) {
     for (int x = 0; x < ACCURATE_BED_LEVELING_POINTS; x++) {
-      SERIAL_PROTOCOL_F(bed_level[x][y], 3);
+      SERIAL_PROTOCOL_F(bed_level[x][y], 2);
       SERIAL_PROTOCOLPGM(" ");
     }
     SERIAL_ECHOLN("");
@@ -1173,7 +1174,7 @@ static void homeaxis(int axis) {
 
     destination[axis] = 2*home_retract_mm(axis) * axis_home_dir;
 #ifdef DELTA
-    feedrate = homing_feedrate[axis]/10;
+    feedrate = homing_feedrate[axis]/4;
 #else
     feedrate = homing_feedrate[axis]/2 ;
 #endif
@@ -3297,7 +3298,7 @@ void adjust_delta(float cartesian[3])
   delta[Y_AXIS] += offset;
   delta[Z_AXIS] += offset;
 
-  /*
+  // / *
   SERIAL_ECHOPGM("grid_x="); SERIAL_ECHO(grid_x);
   SERIAL_ECHOPGM(" grid_y="); SERIAL_ECHO(grid_y);
   SERIAL_ECHOPGM(" floor_x="); SERIAL_ECHO(floor_x);
@@ -3311,7 +3312,7 @@ void adjust_delta(float cartesian[3])
   SERIAL_ECHOPGM(" left="); SERIAL_ECHO(left);
   SERIAL_ECHOPGM(" right="); SERIAL_ECHO(right);
   SERIAL_ECHOPGM(" offset="); SERIAL_ECHOLN(offset);
-  */
+  // * /
 }
 
 void prepare_move_raw()
