@@ -5,9 +5,13 @@ if [ "$(id -u)" != "0" ]; then
    exit 1
 fi
 
-export ARDUINO_INSTALL_DIR=/usr/share/arduino
-export S3_REGION=us-west-2
-export S3_BUCKET=missionst-blobs
+ARDUINO_INSTALL_DIR=/usr/share/arduino
+DEPENDENCIES_URL=https://github.com/MissionSt/Marlin/archive/Printrboard-Dependencies.tar.gz
+TARGET_DIR=$ARDUINO_INSTALL_DIR/hardware
+STRIP_COUNT=4
 
 apt-get install -yq make arduino-core curl git
-curl https://s3-$S3_REGION.amazonaws.com/$S3_BUCKET/teensy-cores.tgz | tar -zx -C $ARDUINO_INSTALL_DIR/hardware/
+curl -L $DEPENDENCIES_URL | tar -zx -C $TARGET_DIR --strip-components=$STRIP_COUNT
+
+echo "Installed to $TARGET_DIR  Contents are: "
+ls -lh $TARGET_DIR
