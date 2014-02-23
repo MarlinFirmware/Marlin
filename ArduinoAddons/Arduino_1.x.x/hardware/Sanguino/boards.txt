@@ -27,9 +27,9 @@ atmega12848m.upload.protocol=stk500
 atmega12848m.upload.maximum_size=131072
 atmega12848m.upload.speed=19200
 
-atmega12848m.bootloader.low_fuses=0xFD
-atmega12848m.bootloader.high_fuses=0x9A
-atmega12848m.bootloader.extended_fuses=0xFF
+atmega1284.bootloader.low_fuses=0xD6
+atmega1284.bootloader.high_fuses=0xDA
+atmega1284.bootloader.extended_fuses=0xFD
 atmega12848m.bootloader.path=atmega
 atmega12848m.bootloader.file=ATmegaBOOT_168_atmega1284p_8m.hex
 atmega12848m.bootloader.unlock_bits=0x3F
@@ -48,9 +48,9 @@ atmega1284.upload.protocol=stk500
 atmega1284.upload.maximum_size=131072
 atmega1284.upload.speed=57600
 
-atmega1284.bootloader.low_fuses=0xFF
-atmega1284.bootloader.high_fuses=0x9A
-atmega1284.bootloader.extended_fuses=0xFF
+atmega1284.bootloader.low_fuses=0xD6
+atmega1284.bootloader.high_fuses=0xDA
+atmega1284.bootloader.extended_fuses=0xFD
 atmega1284.bootloader.path=atmega
 atmega1284.bootloader.file=ATmegaBOOT_168_atmega1284p.hex
 atmega1284.bootloader.unlock_bits=0x3F
@@ -60,4 +60,24 @@ atmega1284.build.mcu=atmega1284p
 atmega1284.build.f_cpu=16000000L
 atmega1284.build.core=arduino
 atmega1284.build.variant=standard
+##############################################################
+
+atmega1284m.name=Sanguino W/ ATmega1284p 20mhz
+
+atmega1284m.upload.protocol=stk500
+atmega1284m.upload.maximum_size=131072
+atmega1284m.upload.speed=57600
+
+atmega1284m.bootloader.low_fuses=0xD6
+atmega1284m.bootloader.high_fuses=0xDA
+atmega1284m.bootloader.extended_fuses=0xFD
+atmega1284m.bootloader.path=atmega
+atmega1284m.bootloader.file=ATmegaBOOT_168_atmega1284p.hex
+atmega1284m.bootloader.unlock_bits=0x3F
+atmega1284m.bootloader.lock_bits=0x0F
+
+atmega1284m.build.mcu=atmega1284p
+atmega1284m.build.f_cpu=20000000L
+atmega1284m.build.core=arduino
+atmega1284m.build.variant=standard
 #

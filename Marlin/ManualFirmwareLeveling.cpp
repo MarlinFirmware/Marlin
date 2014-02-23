@@ -29,7 +29,7 @@ void g31_manual_firmware_leveling()
 	}
 	
 	if (ok) {
-		set_bed_level_equation(-z_origin, -z_right_front, -z_left_back);
+		set_bed_level_equation_3pts(-z_origin, -z_right_front, -z_left_back);
 	} else {
 		SERIAL_PROTOCOLLN("G31 needs O(rigin) R(ight) and B(back) offsets");
 	}

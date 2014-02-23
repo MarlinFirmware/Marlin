@@ -1039,7 +1039,7 @@ ISR(TIMER0_COMPB_vect)
   static unsigned long raw_temp_1_value = 0;
   static unsigned long raw_temp_2_value = 0;
   static unsigned long raw_temp_bed_value = 0;
-  static unsigned char temp_state = 0;
+  static unsigned char temp_state = 8;
   static unsigned char pwm_count = (1 << SOFT_PWM_SCALE);
   static unsigned char soft_pwm_0;
   #if (EXTRUDERS > 1) || defined(HEATERS_PARALLEL)
@@ -1181,13 +1181,16 @@ ISR(TIMER0_COMPB_vect)
       temp_state = 0;
       temp_count++;
       break;
+    case 8: //Startup, delay initial temp reading a tiny bit so the hardware can settle.
+      temp_state = 0;
+      break;
 //    default:
 //      SERIAL_ERROR_START;
 //      SERIAL_ERRORLNPGM("Temp measurement error!");
 //      break;
   }
     
-  if(temp_count >= 16) // 8 ms * 16 = 128ms.
+  if(temp_count >= OVERSAMPLENR) // 8 * 16 * 1/(16000000/64/256)  = 131ms.
   {
     if (!temp_meas_ready) //Only update the raw values if they have been read. Else we could be updating them during reading.
     {

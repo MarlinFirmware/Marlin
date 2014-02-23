@@ -711,9 +711,14 @@ static void lcd_implementation_drawmenu_sddirectory(uint8_t row, const char* pst
 static void lcd_implementation_quick_feedback()
 {
 #ifdef LCD_USE_I2C_BUZZER
-    lcd.buzz(60,1000/6);
+	#if !defined(LCD_FEEDBACK_FREQUENCY_HZ) || !defined(LCD_FEEDBACK_FREQUENCY_DURATION_MS)
+	  lcd_buzz(1000/6,100);
+	#else
+	  lcd_buzz(LCD_FEEDBACK_FREQUENCY_DURATION_MS,LCD_FEEDBACK_FREQUENCY_HZ);
+	#endif
 #elif defined(BEEPER) && BEEPER > -1
     SET_OUTPUT(BEEPER);
+	#if !defined(LCD_FEEDBACK_FREQUENCY_HZ) || !defined(LCD_FEEDBACK_FREQUENCY_DURATION_MS)
     for(int8_t i=0;i<10;i++)
     {
       WRITE(BEEPER,HIGH);
@@ -721,6 +726,15 @@ static void lcd_implementation_quick_feedback()
       WRITE(BEEPER,LOW);
       delayMicroseconds(100);
     }
+    #else
+    for(int8_t i=0;i<(LCD_FEEDBACK_FREQUENCY_DURATION_MS / (1000 / LCD_FEEDBACK_FREQUENCY_HZ));i++)
+    {
+      WRITE(BEEPER,HIGH);
+      delayMicroseconds(1000000 / LCD_FEEDBACK_FREQUENCY_HZ / 2);
+      WRITE(BEEPER,LOW);
+      delayMicroseconds(1000000 / LCD_FEEDBACK_FREQUENCY_HZ / 2);
+    }
+    #endif
 #endif
 }
 
