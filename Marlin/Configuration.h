@@ -331,7 +331,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define Z_MAX_LENGTH (Z_MAX_POS - Z_MIN_POS)
 //============================= Bed Auto Leveling ===========================
 
-//#define ENABLE_AUTO_BED_LEVELING // Delete the comment to enable (remove // at the start of the line)
+#define ENABLE_AUTO_BED_LEVELING // Delete the comment to enable (remove // at the start of the line)
 
 #ifdef ENABLE_AUTO_BED_LEVELING
 
@@ -347,18 +347,24 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 //    Probe 3 arbitrary points on the bed (that aren't colinear)
 //    You must specify the X & Y coordinates of all 3 points
 
-  #define AUTO_BED_LEVELING_GRID
+//  - "Manual" mode
+//    The user measures the extruder height at 3 locations. Requires that 
+//    AUTO_BED_LEVELING_GRID to be disabled
+
+// set the rectangle in which to probe. This is also the positions for manual
+// bed leveling probing
+#define LEFT_PROBE_BED_POSITION 15
+#define RIGHT_PROBE_BED_POSITION 170
+#define BACK_PROBE_BED_POSITION 110
+#define FRONT_PROBE_BED_POSITION 20
+
+  //#define AUTO_BED_LEVELING_GRID
   // with AUTO_BED_LEVELING_GRID, the bed is sampled in a
   // AUTO_BED_LEVELING_GRID_POINTSxAUTO_BED_LEVELING_GRID_POINTS grid
   // and least squares solution is calculated
   // Note: this feature occupies 10'206 byte
   #ifdef AUTO_BED_LEVELING_GRID
 
-    // set the rectangle in which to probe
-    #define LEFT_PROBE_BED_POSITION 15
-    #define RIGHT_PROBE_BED_POSITION 170
-    #define BACK_PROBE_BED_POSITION 180
-    #define FRONT_PROBE_BED_POSITION 20
 
      // set the number of grid points per dimension
      // I wouldn't see a reason to go above 3 (=9 probing points on the bed)
@@ -403,7 +409,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 //If you have enabled the Bed Auto Leveling and are using the same Z Probe for Z Homing,
 //it is highly recommended you let this Z_SAFE_HOMING enabled!!!
 
-  #define Z_SAFE_HOMING   // This feature is meant to avoid Z homing with probe outside the bed area.
+  //#define Z_SAFE_HOMING   // This feature is meant to avoid Z homing with probe outside the bed area.
                           // When defined, it will:
                           // - Allow Z homing only after X and Y homing AND stepper drivers still enabled
                           // - If stepper drivers timeout, it will need X and Y homing again before Z homing

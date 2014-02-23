@@ -29,7 +29,11 @@ void g31_manual_firmware_leveling()
 	}
 	
 	if (ok) {
+#ifdef AUTO_BED_LEVELING_GRID
+		SERIAL_PROTOCOLLN("G31 needs AUTO_BED_LEVELING_GRID disabled");
+#else
 		set_bed_level_equation_3pts(-z_origin, -z_right_front, -z_left_back);
+#endif
 	} else {
 		SERIAL_PROTOCOLLN("G31 needs O(rigin) R(ight) and B(back) offsets");
 	}

@@ -850,7 +850,7 @@ static void set_bed_level_equation_lsq(double *plane_equation_coefficients)
 
 #else // not AUTO_BED_LEVELING_GRID
 
-static void set_bed_level_equation_3pts(float z_at_pt_1, float z_at_pt_2, float z_at_pt_3) {
+void set_bed_level_equation_3pts(float z_at_pt_1, float z_at_pt_2, float z_at_pt_3) {
 
     plan_bed_level_matrix.set_to_identity();
 
