@@ -31,7 +31,7 @@
 
 #ifdef ENABLE_AUTO_BED_LEVELING
 #include "vector_3.h"
-  #ifdef ACCURATE_BED_LEVELING
+  #ifdef AUTO_BED_LEVELING_GRID
     #include "qr_solve.h"
   #endif
 #endif // ENABLE_AUTO_BED_LEVELING
@@ -822,7 +822,7 @@ static void axis_is_at_home(int axis) {
 }
 
 #ifdef ENABLE_AUTO_BED_LEVELING
-#ifdef ACCURATE_BED_LEVELING
+#ifdef AUTO_BED_LEVELING_GRID
 static void set_bed_level_equation_lsq(double *plane_equation_coefficients)
 {
     vector_3 planeNormal = vector_3(-plane_equation_coefficients[0], -plane_equation_coefficients[1], 1);
@@ -846,42 +846,36 @@ static void set_bed_level_equation_lsq(double *plane_equation_coefficients)
     plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
 }
 
-#else
-static void set_bed_level_equation(float z_at_xLeft_yFront, float z_at_xRight_yFront, float z_at_xLeft_yBack) {
+#else // not AUTO_BED_LEVELING_GRID
+
+static void set_bed_level_equation_3pts(float z_at_pt_1, float z_at_pt_2, float z_at_pt_3) {
+
     plan_bed_level_matrix.set_to_identity();
 
-    vector_3 xLeftyFront = vector_3(LEFT_PROBE_BED_POSITION, FRONT_PROBE_BED_POSITION, z_at_xLeft_yFront);
-    vector_3 xLeftyBack = vector_3(LEFT_PROBE_BED_POSITION, BACK_PROBE_BED_POSITION, z_at_xLeft_yBack);
-    vector_3 xRightyFront = vector_3(RIGHT_PROBE_BED_POSITION, FRONT_PROBE_BED_POSITION, z_at_xRight_yFront);
+    vector_3 pt1 = vector_3(ABL_PROBE_PT_1_X, ABL_PROBE_PT_1_Y, z_at_pt_1);
+    vector_3 pt2 = vector_3(ABL_PROBE_PT_2_X, ABL_PROBE_PT_2_Y, z_at_pt_2);
+    vector_3 pt3 = vector_3(ABL_PROBE_PT_3_X, ABL_PROBE_PT_3_Y, z_at_pt_3);
 
-    vector_3 xPositive = (xRightyFront - xLeftyFront).get_normal();
-    vector_3 yPositive = (xLeftyBack - xLeftyFront).get_normal();
-    vector_3 planeNormal = vector_3::cross(xPositive, yPositive).get_normal();
+    vector_3 from_2_to_1 = (pt1 - pt2).get_normal();
+    vector_3 from_2_to_3 = (pt3 - pt2).get_normal();
+    vector_3 planeNormal = vector_3::cross(from_2_to_1, from_2_to_3).get_normal();
+    planeNormal = vector_3(planeNormal.x, planeNormal.y, abs(planeNormal.z));
 
-    //planeNormal.debug("planeNormal");
-    //yPositive.debug("yPositive");
     plan_bed_level_matrix = matrix_3x3::create_look_at(planeNormal);
-    //bedLevel.debug("bedLevel");
-
-    //plan_bed_level_matrix.debug("bed level before");
-    //vector_3 uncorrected_position = plan_get_position_mm();
-    //uncorrected_position.debug("position before");
-
-    // and set our bed level equation to do the right thing
-    //plan_bed_level_matrix.debug("bed level after");
 
     vector_3 corrected_position = plan_get_position();
-    //corrected_position.debug("position after");
     current_position[X_AXIS] = corrected_position.x;
     current_position[Y_AXIS] = corrected_position.y;
     current_position[Z_AXIS] = corrected_position.z;
 
-    // but the bed at 0 so we don't go below it.
+    // put the bed at 0 so we don't go below it.
     current_position[Z_AXIS] = zprobe_zoffset;
 
     plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+
 }
-#endif // ACCURATE_BED_LEVELING
+
+#endif // AUTO_BED_LEVELING_GRID
 
 static void run_z_probe() {
     plan_bed_level_matrix.set_to_identity();
@@ -1403,7 +1397,7 @@ void process_commands()
       break;
 
 #ifdef ENABLE_AUTO_BED_LEVELING
-    case 29: // G29 Detailed Z-Probe, probes the bed at 3 points.
+    case 29: // G29 Detailed Z-Probe, probes the bed at 3 or more points.
         {
             #if Z_MIN_PIN == -1
             #error "You must have a Z_MIN endstop in order to enable Auto Bed Leveling feature!!! Z_MIN_PIN must point to a valid hardware pin."
@@ -1432,10 +1426,11 @@ void process_commands()
             setup_for_endstop_move();
 
             feedrate = homing_feedrate[Z_AXIS];
-#ifdef ACCURATE_BED_LEVELING
+#ifdef AUTO_BED_LEVELING_GRID
+            // probe at the points of a lattice grid
 
-            int xGridSpacing = (RIGHT_PROBE_BED_POSITION - LEFT_PROBE_BED_POSITION) / (ACCURATE_BED_LEVELING_POINTS-1);
-            int yGridSpacing = (BACK_PROBE_BED_POSITION - FRONT_PROBE_BED_POSITION) / (ACCURATE_BED_LEVELING_POINTS-1);
+            int xGridSpacing = (RIGHT_PROBE_BED_POSITION - LEFT_PROBE_BED_POSITION) / (AUTO_BED_LEVELING_GRID_POINTS-1);
+            int yGridSpacing = (BACK_PROBE_BED_POSITION - FRONT_PROBE_BED_POSITION) / (AUTO_BED_LEVELING_GRID_POINTS-1);
 
 
             // solve the plane equation ax + by + d = z
@@ -1445,9 +1440,9 @@ void process_commands()
             // so Vx = -a Vy = -b Vz = 1 (we want the vector facing towards positive Z
 
             // "A" matrix of the linear system of equations
-            double eqnAMatrix[ACCURATE_BED_LEVELING_POINTS*ACCURATE_BED_LEVELING_POINTS*3];
+            double eqnAMatrix[AUTO_BED_LEVELING_GRID_POINTS*AUTO_BED_LEVELING_GRID_POINTS*3];
             // "B" vector of Z points
-            double eqnBVector[ACCURATE_BED_LEVELING_POINTS*ACCURATE_BED_LEVELING_POINTS];
+            double eqnBVector[AUTO_BED_LEVELING_GRID_POINTS*AUTO_BED_LEVELING_GRID_POINTS];
 
 
             int probePointCounter = 0;
@@ -1470,7 +1465,7 @@ void process_commands()
                 zig = true;
               }
 
-              for (int xCount=0; xCount < ACCURATE_BED_LEVELING_POINTS; xCount++)
+              for (int xCount=0; xCount < AUTO_BED_LEVELING_GRID_POINTS; xCount++)
               {
                 float z_before;
                 if (probePointCounter == 0)
@@ -1487,9 +1482,9 @@ void process_commands()
 
                 eqnBVector[probePointCounter] = measured_z;
 
-                eqnAMatrix[probePointCounter + 0*ACCURATE_BED_LEVELING_POINTS*ACCURATE_BED_LEVELING_POINTS] = xProbe;
-                eqnAMatrix[probePointCounter + 1*ACCURATE_BED_LEVELING_POINTS*ACCURATE_BED_LEVELING_POINTS] = yProbe;
-                eqnAMatrix[probePointCounter + 2*ACCURATE_BED_LEVELING_POINTS*ACCURATE_BED_LEVELING_POINTS] = 1;
+                eqnAMatrix[probePointCounter + 0*AUTO_BED_LEVELING_GRID_POINTS*AUTO_BED_LEVELING_GRID_POINTS] = xProbe;
+                eqnAMatrix[probePointCounter + 1*AUTO_BED_LEVELING_GRID_POINTS*AUTO_BED_LEVELING_GRID_POINTS] = yProbe;
+                eqnAMatrix[probePointCounter + 2*AUTO_BED_LEVELING_GRID_POINTS*AUTO_BED_LEVELING_GRID_POINTS] = 1;
                 probePointCounter++;
                 xProbe += xInc;
               }
@@ -1497,7 +1492,7 @@ void process_commands()
             clean_up_after_endstop_move();
 
             // solve lsq problem
-            double *plane_equation_coefficients = qr_solve(ACCURATE_BED_LEVELING_POINTS*ACCURATE_BED_LEVELING_POINTS, 3, eqnAMatrix, eqnBVector);
+            double *plane_equation_coefficients = qr_solve(AUTO_BED_LEVELING_GRID_POINTS*AUTO_BED_LEVELING_GRID_POINTS, 3, eqnAMatrix, eqnBVector);
 
             SERIAL_PROTOCOLPGM("Eqn coefficients: a: ");
             SERIAL_PROTOCOL(plane_equation_coefficients[0]);
@@ -1511,24 +1506,24 @@ void process_commands()
 
             free(plane_equation_coefficients);
 
-#else // ACCURATE_BED_LEVELING not defined
+#else // AUTO_BED_LEVELING_GRID not defined
 
+            // Probe at 3 arbitrary points
+            // probe 1
+            float z_at_pt_1 = probe_pt(ABL_PROBE_PT_1_X, ABL_PROBE_PT_1_Y, Z_RAISE_BEFORE_PROBING);
 
-            // prob 1
-            float z_at_xLeft_yBack = probe_pt(LEFT_PROBE_BED_POSITION, BACK_PROBE_BED_POSITION, Z_RAISE_BEFORE_PROBING);
+            // probe 2
+            float z_at_pt_2 = probe_pt(ABL_PROBE_PT_2_X, ABL_PROBE_PT_2_Y, current_position[Z_AXIS] + Z_RAISE_BETWEEN_PROBINGS);
 
-            // prob 2
-            float z_at_xLeft_yFront = probe_pt(LEFT_PROBE_BED_POSITION, FRONT_PROBE_BED_POSITION, current_position[Z_AXIS] + Z_RAISE_BETWEEN_PROBINGS);
-
-            // prob 3
-            float z_at_xRight_yFront = probe_pt(RIGHT_PROBE_BED_POSITION, FRONT_PROBE_BED_POSITION, current_position[Z_AXIS] + Z_RAISE_BETWEEN_PROBINGS);
+            // probe 3
+            float z_at_pt_3 = probe_pt(ABL_PROBE_PT_3_X, ABL_PROBE_PT_3_Y, current_position[Z_AXIS] + Z_RAISE_BETWEEN_PROBINGS);
 
             clean_up_after_endstop_move();
 
-            set_bed_level_equation(z_at_xLeft_yFront, z_at_xRight_yFront, z_at_xLeft_yBack);
+            set_bed_level_equation_3pts(z_at_pt_1, z_at_pt_2, z_at_pt_3);
 
 
-#endif // ACCURATE_BED_LEVELING
+#endif // AUTO_BED_LEVELING_GRID
             st_synchronize();
 
             // The following code correct the Z height difference from z-probe position and hotend tip position.
