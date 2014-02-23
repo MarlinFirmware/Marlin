@@ -384,7 +384,7 @@
 	#define MSG_HEATING_COMPLETE "Nagrzewanie ekstrudera zakonczone."
 	#define MSG_BED_HEATING "Nagrzewanie loza..."
 	#define MSG_BED_DONE "Nagrzewanie loza zakonczone."
-	#define MSG_M115_REPORT "FIRMWARE_NAME:Marlin V1; Sprinter/grbl mashup for gen6 FIRMWARE_URL:" FIRMWARE_URL " PROTOCOL_VERSION:" PROTOCOL_VERSION " MACHINE_TYPE:" MACHINE_NAME " EXTRUDER_COUNT:" STRINGIFY(EXTRUDERS) " UUID:" MACHINE_UUID "\n"
+	#define MSG_M115_REPORT "FIRMWARE_NAME:Marlin V1; Sprinter/grbl mashup for gen6 FIRMWARE_URL:" FIRMWARE_URL " PROTOCOL_VERSION:" PROTOCOL_VERSION " MACHINE_TYPE:" MACHINE_NAME " EXTRUDER_COUNT:" STRINGIFY(EXTRUDERS) " UUID:" MACHINE_UUID " MOTHERBOARD:" MOTHERBOARD "\n"
 	#define MSG_COUNT_X " Licznik X: "
 	#define MSG_ERR_KILLED "Drukarka zatrzymana. Wywolano kill()"
 	#define MSG_ERR_STOPPED "Drukarka zatrzymana z powodu bledu. Usun problem i zrestartuj drukartke komenda M999. (temperatura zostala zresetowana; ustaw temperature po restarcie)"

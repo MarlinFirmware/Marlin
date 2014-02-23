@@ -934,43 +934,49 @@ void disable_heater()
 }
 
 void max_temp_error(uint8_t e) {
-  disable_heater();
-  if(IsStopped() == false) {
-    SERIAL_ERROR_START;
-    SERIAL_ERRORLN((int)e);
-    SERIAL_ERRORLNPGM(": Extruder switched off. MAXTEMP triggered !");
-    LCD_ALERTMESSAGEPGM("Err: MAXTEMP");
+  if(DISABLE_TEMP_SENSOR == false) {
+    disable_heater();
+    if(IsStopped() == false) {
+      SERIAL_ERROR_START;
+      SERIAL_ERRORLN((int)e);
+      SERIAL_ERRORLNPGM(": Extruder switched off. MAXTEMP triggered !");
+      LCD_ALERTMESSAGEPGM("Err: MAXTEMP");
+    }
+    #ifndef BOGUS_TEMPERATURE_FAILSAFE_OVERRIDE
+      Stop();
+    #endif
   }
-  #ifndef BOGUS_TEMPERATURE_FAILSAFE_OVERRIDE
-  Stop();
-  #endif
 }
 
 void min_temp_error(uint8_t e) {
-  disable_heater();
-  if(IsStopped() == false) {
-    SERIAL_ERROR_START;
-    SERIAL_ERRORLN((int)e);
-    SERIAL_ERRORLNPGM(": Extruder switched off. MINTEMP triggered !");
-    LCD_ALERTMESSAGEPGM("Err: MINTEMP");
+  if(DISABLE_TEMP_SENSOR == false) {
+    disable_heater();
+    if(IsStopped() == false) {
+      SERIAL_ERROR_START;
+      SERIAL_ERRORLN((int)e);
+      SERIAL_ERRORLNPGM(": Extruder switched off. MINTEMP triggered !");
+      LCD_ALERTMESSAGEPGM("Err: MINTEMP");
+    }
+    #ifndef BOGUS_TEMPERATURE_FAILSAFE_OVERRIDE
+      Stop();
+    #endif
   }
-  #ifndef BOGUS_TEMPERATURE_FAILSAFE_OVERRIDE
-  Stop();
-  #endif
 }
 
 void bed_max_temp_error(void) {
-#if HEATER_BED_PIN > -1
-  WRITE(HEATER_BED_PIN, 0);
-#endif
-  if(IsStopped() == false) {
-    SERIAL_ERROR_START;
-    SERIAL_ERRORLNPGM("Temperature heated bed switched off. MAXTEMP triggered !!");
-    LCD_ALERTMESSAGEPGM("Err: MAXTEMP BED");
+  if(DISABLE_TEMP_SENSOR == false) {
+    #if HEATER_BED_PIN > -1
+      WRITE(HEATER_BED_PIN, 0);
+    #endif
+    if(IsStopped() == false) {
+      SERIAL_ERROR_START;
+      SERIAL_ERRORLNPGM("Temperature heated bed switched off. MAXTEMP triggered !!");
+      LCD_ALERTMESSAGEPGM("Err: MAXTEMP BED");
+    }
+    #ifndef BOGUS_TEMPERATURE_FAILSAFE_OVERRIDE
+      Stop();
+    #endif
   }
-  #ifndef BOGUS_TEMPERATURE_FAILSAFE_OVERRIDE
-  Stop();
-  #endif
 }
 
 #ifdef HEATER_0_USES_MAX6675
