@@ -318,12 +318,12 @@ void updatePID()
 #ifdef PIDTEMP
   for(int e = 0; e < EXTRUDERS; e++) { 
      temp_iState_max[e] = PID_INTEGRAL_DRIVE_MAX / Ki;  
-     temp_iState[e] = ((soft_pwm[e] << 1) - pid_error[e]*Kp + dTerm[e] )/Ki; // backcalculation for bumpless update
+     temp_iState[e] = ((soft_pwm[e] << 1) - pTerm[e] + dTerm[e] )/Ki; // backcalculation for bumpless update
   }
 #endif
 #ifdef PIDTEMPBED
   temp_iState_max_bed = PID_INTEGRAL_DRIVE_MAX / bedKi;  
-  temp_iState_bed = ((soft_pwm_bed << 1 )  - pid_error_bed*bedKp +dTerm_bed)/bedKi; // backcalculation for bumpless update
+  temp_iState_bed = ((soft_pwm_bed << 1 )  - pidTerm_bed +dTerm_bed)/bedKi; // backcalculation for bumpless update
 #endif
 }
   
@@ -438,7 +438,7 @@ void manage_heater()
           }
           pTerm[e] = Kp * pid_error[e];
           temp_iState[e] += pid_error[e];
-          temp_iState[e] = constrain(temp_iState[e], temp_iState_min[e], temp_iState_max[e]);
+	  //          temp_iState[e] = constrain(temp_iState[e], temp_iState_min[e], temp_iState_max[e]);
           iTerm[e] = Ki * temp_iState[e];
 
           //K1 defined in Configuration.h in the PID settings
@@ -542,7 +542,7 @@ void manage_heater()
 		  pid_error_bed = target_temperature_bed - pid_input;
 		  pTerm_bed = bedKp * pid_error_bed;
 		  temp_iState_bed += pid_error_bed;
-		  temp_iState_bed = constrain(temp_iState_bed, temp_iState_min_bed, temp_iState_max_bed);
+		  //		  temp_iState_bed = constrain(temp_iState_bed, temp_iState_min_bed, temp_iState_max_bed);
 		  iTerm_bed = bedKi * temp_iState_bed;
 
 		  //K1 defined in Configuration.h in the PID settings
