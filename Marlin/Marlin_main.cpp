@@ -1135,9 +1135,9 @@ void process_commands()
         get_coordinates(); // For X Y Z E F
           #ifdef FWRETRACT
             if(autoretract_enabled)
-            if( !(code_seen(X_AXIS) || code_seen(Y_AXIS) || code_seen(Z_AXIS)) && code_seen(E_AXIS)) {
+            if( !(code_seen('X') || code_seen('Y') || code_seen('Z')) && code_seen('E')) {
               float echange=destination[E_AXIS]-current_position[E_AXIS];
-              if((echange<-MIN_RETRACT && !retracted) || (echange>MIN_RETRACT && retracted)) { //move appears to be an attempt to attract or recover
+              if((echange<-MIN_RETRACT && !retracted) || (echange>MIN_RETRACT && retracted)) { //move appears to be an attempt to retract or recover
                   current_position[E_AXIS] = destination[E_AXIS]; //hide the slicer-generated retract/recover from calculations
                   plan_set_e_position(current_position[E_AXIS]); //AND from the planner
                   retract(!retracted);
