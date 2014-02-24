@@ -218,10 +218,7 @@ static void lcd_status_screen()
         lcd_quick_feedback();
     }
 
-#ifdef WITBOX
-	//NO CHANGEABLE SPEED ON INFO SCREEN
-#else
-
+#ifndef WITBOX //NO CHANGEABLE SPEED ON INFO SCREEN
     // Dead zone at 100% feedrate
     if ((feedmultiply < 100 && (feedmultiply + int(encoderPosition)) > 100) ||
             (feedmultiply > 100 && (feedmultiply + int(encoderPosition)) < 100))
@@ -286,10 +283,7 @@ static void lcd_sdcard_stop()
     //plan_buffer_line(current_position[150], current_position[20], current_position[50], current_position[0], manual_feedrate[X_AXIS]/60, active_extruder);
         
     enquecommand_P(PSTR("M300 S1174 P300"));
-    enquecommand_P(PSTR("M300 S0 P150"));
-    
-    enquecommand_P(PSTR("M300 S1174 P150"));
-    enquecommand_P(PSTR("M300 S1567 P300"));
+
  /*
  #ifdef LCD_USE_I2C_BUZZER
     lcd.buzz(60,1000/6);
@@ -908,14 +902,6 @@ static void lcd_control_menu()
 
 //WITBOX->
 #ifdef WITBOX
-/* ESTO SIRVE PARA ALGO??????????????????????????????
-static void lcd_abort_leveling_1()
-{
-  FilamentMenuActive = false;
-  lcd_control_menu();
-}
-*/
-
 static void lcd_filament_menu()
 {
     START_MENU();
