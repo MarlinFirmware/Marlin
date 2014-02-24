@@ -1,6 +1,6 @@
 #include "Configuration.h"
 
-#ifdef ACCURATE_BED_LEVELING
+#ifdef AUTO_BED_LEVELING_GRID
 
 void daxpy ( int n, double da, double dx[], int incx, double dy[], int incy );
 double ddot ( int n, double dx[], int incx, double dy[], int incy );
