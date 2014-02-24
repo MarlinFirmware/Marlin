@@ -11,7 +11,7 @@
   #include "WProgram.h"
 #endif
 
-// it is a russian alphabet translation
+// it is a Russian alphabet translation
 // except 0401 --> 0xa2 = ╗, 0451 --> 0xb5
 const PROGMEM uint8_t utf_recode[] = 
        { 0x41,0xa0,0x42,0xa1,0xe0,0x45,0xa3,0xa4,0xa5,0xa6,0x4b,0xa7,0x4d,0x48,0x4f,
@@ -115,7 +115,7 @@ void LiquidCrystalRus::begin(uint8_t cols, uint8_t lines, uint8_t dotsize) {
 
   // SEE PAGE 45/46 FOR INITIALIZATION SPECIFICATION!
   // according to datasheet, we need at least 40ms after power rises above 2.7V
-  // before sending commands. Arduino can turn on way befer 4.5V so we'll wait 50
+  // before sending commands. Arduino can turn on way before 4.5V so we'll wait 50
   delayMicroseconds(50000); 
   // Now we pull both RS and R/W low to begin commands
   digitalWrite(_rs_pin, LOW);
@@ -126,7 +126,7 @@ void LiquidCrystalRus::begin(uint8_t cols, uint8_t lines, uint8_t dotsize) {
   
   //put the LCD into 4 bit or 8 bit mode
   if (! (_displayfunction & LCD_8BITMODE)) {
-    // this is according to the hitachi HD44780 datasheet
+    // this is according to the Hitachi HD44780 datasheet
     // figure 24, pg 46
 
     // we start in 8bit mode, try to set 4 bit mode
@@ -144,7 +144,7 @@ void LiquidCrystalRus::begin(uint8_t cols, uint8_t lines, uint8_t dotsize) {
     // finally, set to 8-bit interface
     writeNbits(0x02,4); 
   } else {
-    // this is according to the hitachi HD44780 datasheet
+    // this is according to the Hitachi HD44780 datasheet
     // page 45 figure 23
 
     // Send function set command sequence
@@ -308,7 +308,7 @@ inline void LiquidCrystalRus::command(uint8_t value) {
     }    
   } else send(out_char, HIGH);
 #if defined(ARDUINO) && ARDUINO >= 100
-  return 1; // assume sucess 
+  return 1; // assume success 
 #endif
 }
 

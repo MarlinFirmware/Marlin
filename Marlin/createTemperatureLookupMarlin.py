@@ -54,9 +54,25 @@ class Thermistor:
         self.c2 = c2
         self.c3 = c3
 
+    def res(self,adc):
+        "Convert ADC reading into a resolution"
+        res = self.temp(adc)-self.temp(adc+1)
+        return res
+
+    def v(self,adc):
+        "Convert ADC reading into a Voltage"
+        v = adc * self.vadc / (1024 )   # convert the 10 bit ADC value to a voltage
+        return v
+
+    def r(self,adc):
+        "Convert ADC reading into a resistance in Ohms"
+        v = adc * self.vadc / (1024 )   # convert the 10 bit ADC value to a voltage
+        r = self.rp * v / (self.vcc - v)    # resistance of thermistor
+        return r
+
     def temp(self,adc):
         "Convert ADC reading into a temperature in Celcius"
-        v = adc * self.vadc / (1024 * 16)   # convert the 10 bit ADC value to a voltage
+        v = adc * self.vadc / (1024 )   # convert the 10 bit ADC value to a voltage
         r = self.rp * v / (self.vcc - v)    # resistance of thermistor
         lnr = log(r)
         Tinv = self.c1 + (self.c2*lnr) + (self.c3*pow(lnr,3))
@@ -67,7 +83,7 @@ class Thermistor:
         y = (self.c1 - (1/(temp+273.15))) / (2*self.c3)
 	x = sqrt(pow(self.c2 / (3*self.c3),3) + pow(y,2))
         r = exp(pow(x-y,1.0/3) - pow(x+y,1.0/3)) # resistance of thermistor
-        return (r / (self.rp + r)) * (1024*16)
+        return (r / (self.rp + r)) * (1024)
 
 def main(argv):
 
@@ -107,7 +123,7 @@ def main(argv):
         elif opt == "--num-temps":
             num_temps =  int(arg)
 
-    max_adc = (1024 * 16) - 1
+    max_adc = (1024 ) - 1
     min_temp = 0
     max_temp = 350
     increment = int(max_adc/(num_temps-1));
@@ -118,17 +134,18 @@ def main(argv):
     temps = range(max_temp, min_temp + tmp, tmp);
 
     print "// Thermistor lookup table for Marlin"
-    print "// ./createTemperatureLookup.py --rp=%s --t1=%s:%s --t2=%s:%s --t3=%s:%s --num-temps=%s" % (rp, t1, r1, t2, r2, t3, r3, num_temps)
-    print "#define NUMTEMPS %s" % (len(temps))
-    print "short temptable[NUMTEMPS][2] = {"
+    print "// ./createTemperatureLookupMarlin.py --rp=%s --t1=%s:%s --t2=%s:%s --t3=%s:%s --num-temps=%s" % (rp, t1, r1, t2, r2, t3, r3, num_temps)
+    print "// Steinhart-Hart Coefficients: %.15g, %.15g,  %.15g " % (t.c1, t.c2, t.c3)
+    print "//#define NUMTEMPS %s" % (len(temps))
+    print "const short temptable[NUMTEMPS][2] PROGMEM = {"
 
     counter = 0
     for temp in temps:
         counter = counter +1
         if counter == len(temps):
-            print "   {%s, %s}" % (int(t.adc(temp)), temp)
+            print "   {(short)(%.2f*OVERSAMPLENR), %s}  // v=%s r=%s res=%s C/count" % ((t.adc(temp)), temp, t.v(t.adc(temp)), t.r(t.adc(temp)),t.res(t.adc(temp)))
         else:
-            print "   {%s, %s}," % (int(t.adc(temp)), temp)
+            print "   {(short)(%.2f*OVERSAMPLENR), %s}, // v=%s r=%s res=%s C/count" % ((t.adc(temp)), temp, t.v(t.adc(temp)), t.r(t.adc(temp)),t.res(t.adc(temp)))
     print "};"
     
 def usage():

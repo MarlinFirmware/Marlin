@@ -72,6 +72,9 @@ static volatile bool endstop_z_hit=false;
 #ifdef ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED
 bool abort_on_endstop_hit = false;
 #endif
+#ifdef MOTOR_CURRENT_PWM_XY_PIN
+  int motor_current_setting[3] = DEFAULT_PWM_MOTOR_CURRENT;
+#endif
 
 static bool old_x_min_endstop=false;
 static bool old_x_max_endstop=false;
@@ -1198,6 +1201,16 @@ void digipot_init() //Initialize Digipot Motor Current
       //digitalPotWrite(digipot_ch[i], digipot_motor_current[i]);
       digipot_current(i,digipot_motor_current[i]);
   #endif
+  #ifdef MOTOR_CURRENT_PWM_XY_PIN
+    pinMode(MOTOR_CURRENT_PWM_XY_PIN, OUTPUT);
+    pinMode(MOTOR_CURRENT_PWM_Z_PIN, OUTPUT);
+    pinMode(MOTOR_CURRENT_PWM_E_PIN, OUTPUT);
+    digipot_current(0, motor_current_setting[0]);
+    digipot_current(1, motor_current_setting[1]);
+    digipot_current(2, motor_current_setting[2]);
+    //Set timer5 to 31khz so the PWM of the motor power is as constant as possible. (removes a buzzing noise)
+    TCCR5B = (TCCR5B & ~(_BV(CS50) | _BV(CS51) | _BV(CS52))) | _BV(CS50);
+  #endif
 }
 
 void digipot_current(uint8_t driver, int current)
@@ -1205,6 +1218,11 @@ void digipot_current(uint8_t driver, int current)
   #if defined(DIGIPOTSS_PIN) && DIGIPOTSS_PIN > -1
     const uint8_t digipot_ch[] = DIGIPOT_CHANNELS;
     digitalPotWrite(digipot_ch[driver], current);
+  #endif
+  #ifdef MOTOR_CURRENT_PWM_XY_PIN
+  if (driver == 0) analogWrite(MOTOR_CURRENT_PWM_XY_PIN, (long)current * 255L / (long)MOTOR_CURRENT_PWM_RANGE);
+  if (driver == 1) analogWrite(MOTOR_CURRENT_PWM_Z_PIN, (long)current * 255L / (long)MOTOR_CURRENT_PWM_RANGE);
+  if (driver == 2) analogWrite(MOTOR_CURRENT_PWM_E_PIN, (long)current * 255L / (long)MOTOR_CURRENT_PWM_RANGE);
   #endif
 }
 
