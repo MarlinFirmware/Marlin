@@ -318,10 +318,12 @@ void updatePID()
 #ifdef PIDTEMP
   for(int e = 0; e < EXTRUDERS; e++) { 
      temp_iState_max[e] = PID_INTEGRAL_DRIVE_MAX / Ki;  
+     temp_iState[e] = ((soft_pwm[e] << 1) - pid_error[e]*Kp + dTerm[e] )/Ki; // backcalculation for bumpless update
   }
 #endif
 #ifdef PIDTEMPBED
   temp_iState_max_bed = PID_INTEGRAL_DRIVE_MAX / bedKi;  
+  temp_iState_bed = ((soft_pwm_bed << 1 )  - pid_error_bed*bedKp +dTerm_bed)/bedKi; // backcalculation for bumpless update
 #endif
 }
   
@@ -548,7 +550,14 @@ void manage_heater()
 		  dTerm_bed= (bedKd * (pid_input - temp_dState_bed))*K2 + (K1 * dTerm_bed);
 		  temp_dState_bed = pid_input;
 
-		  pid_output = constrain(pTerm_bed + iTerm_bed - dTerm_bed, 0, MAX_BED_POWER);
+		  pid_output = pTerm_bed +iTerm_bed - dTerm_bed;
+		  if( pid_output > MAX_BED_POWER ) {
+		    temp_iState_bed -= (pid_output - MAX_BED_POWER)/Ki;
+		    pid_output = MAX_BED_POWER;
+		  } else if (pid_output < 0 ) {
+		    temp_iState_bed += (0 - pid_output)/Ki;
+		    pid_output = 0;
+		  }
 
     #else 
       pid_output = constrain(target_temperature_bed, 0, MAX_BED_POWER);
