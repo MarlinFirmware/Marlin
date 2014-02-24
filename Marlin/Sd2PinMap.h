@@ -222,10 +222,10 @@ uint8_t const SDA_PIN = 1;  // D1
 uint8_t const SCL_PIN = 0;  // D0
 
 // SPI port
-uint8_t const SS_PIN    = 20;    // B0
-uint8_t const MOSI_PIN  = 22;    // B2
-uint8_t const MISO_PIN  = 23;    // B3
-uint8_t const SCK_PIN   = 21;    // B1
+uint8_t const SS_PIN = 20;    // B0
+uint8_t const MOSI_PIN = 22;  // B2
+uint8_t const MISO_PIN = 23;  // B3
+uint8_t const SCK_PIN = 21;   // B1
 
 static const pin_map_t digitalPinMap[] = {
   {&DDRD, &PIND, &PORTD, 0},  // D0  0

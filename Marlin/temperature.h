@@ -45,10 +45,6 @@ extern float current_temperature_bed;
   extern float redundant_temperature;
 #endif
 
-#if defined(CONTROLLERFAN_PIN) && CONTROLLERFAN_PIN > -1
-  extern unsigned char soft_pwm_bed;
-#endif
-
 #ifdef PIDTEMP
   extern float Kp,Ki,Kd,Kc;
   float scalePID_i(float i);

@@ -19,11 +19,7 @@ int absPreheatHotendTemp;
 int absPreheatHPBTemp;
 int absPreheatFanSpeed;
 
-
-#ifdef ULTIPANEL
 static float manual_feedrate[] = MANUAL_FEEDRATE;
-#endif // ULTIPANEL
-
 /* !Configuration settings */
 
 //Function pointer to menu functions.
@@ -56,6 +52,39 @@ static void lcd_control_temperature_menu();
 static void lcd_control_temperature_preheat_pla_settings_menu();
 static void lcd_control_temperature_preheat_abs_settings_menu();
 static void lcd_control_motion_menu();
+
+//menus extras para witbox->
+#ifdef WITBOX
+static void lcd_control_filament_menu();
+static void lcd_move_jog_menu();
+static void lcd_speed_printing();
+static void lcd_filament_menu();
+static void lcd_filament_Material_menu(int Material);
+
+boolean FilamentMenuActive;
+float Wit_ExtrusionTarget;
+float Wit_ExtrusionPos;
+
+int  pageShowInfo=0;
+boolean ChangeScreen=false;
+void set_pageShowInfo(int value){  pageShowInfo=value;  }
+void set_ChangeScreen(boolean state) { ChangeScreen=state;}
+
+
+
+
+// Extruder 1 ************************************************
+// Load
+static void lcd_load_material_extrud_1();
+static void lcd_insert_and_press_1();
+static void lcd_pre_extrud_1();
+static void lcd_extrud_1();
+static void lcd_abort_preheating_1();
+
+// Unload
+static void lcd_unload_material_extrud_1();
+#endif
+//<-menus extras para witbox
 #ifdef DOGLCD
 static void lcd_set_contrast();
 #endif
@@ -91,16 +120,12 @@ static void menu_action_setting_edit_callback_long5(const char* pstr, unsigned l
 #define ENCODER_FEEDRATE_DEADZONE 10
 
 #if !defined(LCD_I2C_VIKI)
-  #ifndef ENCODER_STEPS_PER_MENU_ITEM
-    #define ENCODER_STEPS_PER_MENU_ITEM 5
-  #endif
+  #define ENCODER_STEPS_PER_MENU_ITEM 5
   #ifndef ENCODER_PULSES_PER_STEP
     #define ENCODER_PULSES_PER_STEP 1
   #endif
 #else
-  #ifndef ENCODER_STEPS_PER_MENU_ITEM
-    #define ENCODER_STEPS_PER_MENU_ITEM 2 // VIKI LCD rotary encoder uses a different number of steps per rotation
-  #endif
+  #define ENCODER_STEPS_PER_MENU_ITEM 2 // VIKI LCD rotary encoder uses a different number of steps per rotation
   #ifndef ENCODER_PULSES_PER_STEP
     #define ENCODER_PULSES_PER_STEP 1
   #endif
@@ -146,9 +171,6 @@ static void menu_action_setting_edit_callback_long5(const char* pstr, unsigned l
 volatile uint8_t buttons;//Contains the bits of the currently pressed buttons.
 #else
 volatile uint8_t buttons_reprapworld_keypad; // to store the reprapworld_keypad shiftregister values
-#endif
-#ifdef LCD_HAS_SLOW_BUTTONS
-volatile uint8_t slow_buttons;//Contains the bits of the currently pressed buttons.
 #endif
 uint8_t currentMenuViewOffset;              /* scroll offset in the current menu */
 uint32_t blocking_enc;
@@ -196,6 +218,10 @@ static void lcd_status_screen()
         lcd_quick_feedback();
     }
 
+#ifdef WITBOX
+	//NO CHANGEABLE SPEED ON INFO SCREEN
+#else
+
     // Dead zone at 100% feedrate
     if ((feedmultiply < 100 && (feedmultiply + int(encoderPosition)) > 100) ||
             (feedmultiply > 100 && (feedmultiply + int(encoderPosition)) < 100))
@@ -212,7 +238,7 @@ static void lcd_status_screen()
     else if (feedmultiply == 100 && int(encoderPosition) < -ENCODER_FEEDRATE_DEADZONE)
     {
         feedmultiply += int(encoderPosition) + ENCODER_FEEDRATE_DEADZONE;
-        encoderPosition = 0;
+        encoderPosition = 0;	
     }
     else if (feedmultiply != 100)
     {
@@ -224,6 +250,9 @@ static void lcd_status_screen()
         feedmultiply = 10;
     if (feedmultiply > 999)
         feedmultiply = 999;
+        
+#endif //WITBOX
+
 #endif//ULTIPANEL
 }
 
@@ -247,6 +276,35 @@ static void lcd_sdcard_stop()
 {
     card.sdprinting = false;
     card.closefile();
+   
+#ifdef WITBOX
+	//target_temperature[0]=0;    //temperatura del nozzle 1
+    setTargetHotend(0,0);
+    
+    enquecommand_P(PSTR("G90"));
+    enquecommand_P(PSTR("G1 X298 Y208 Z200"));
+    //plan_buffer_line(current_position[150], current_position[20], current_position[50], current_position[0], manual_feedrate[X_AXIS]/60, active_extruder);
+        
+    enquecommand_P(PSTR("M300 S1174 P300"));
+    enquecommand_P(PSTR("M300 S0 P150"));
+    
+    enquecommand_P(PSTR("M300 S1174 P150"));
+    enquecommand_P(PSTR("M300 S1567 P300"));
+ /*
+ #ifdef LCD_USE_I2C_BUZZER
+    lcd.buzz(60,1000/6);
+#elif defined(BEEPER) && BEEPER > -1
+    SET_OUTPUT(BEEPER);
+    for(int8_t i=0;i<10;i++)
+    {
+      WRITE(BEEPER,HIGH);
+      delayMicroseconds(100);
+      WRITE(BEEPER,LOW);
+      delayMicroseconds(100);
+    }   
+    */
+#endif //WITBOX
+
     quickStop();
     if(SD_FINISHED_STEPPERRELEASE)
     {
@@ -260,13 +318,17 @@ static void lcd_main_menu()
 {
     START_MENU();
     MENU_ITEM(back, MSG_WATCH, lcd_status_screen);
+    
+#ifndef WITBOX
     if (movesplanned() || IS_SD_PRINTING)
     {
         MENU_ITEM(submenu, MSG_TUNE, lcd_tune_menu);
-    }else{
-        MENU_ITEM(submenu, MSG_PREPARE, lcd_prepare_menu);
     }
+      else{
+          MENU_ITEM(submenu, MSG_PREPARE, lcd_prepare_menu);
+      }
     MENU_ITEM(submenu, MSG_CONTROL, lcd_control_menu);
+#endif  
 #ifdef SDSUPPORT
     if (card.cardOK)
     {
@@ -276,7 +338,7 @@ static void lcd_main_menu()
                 MENU_ITEM(function, MSG_PAUSE_PRINT, lcd_sdcard_pause);
             else
                 MENU_ITEM(function, MSG_RESUME_PRINT, lcd_sdcard_resume);
-            MENU_ITEM(function, MSG_STOP_PRINT, lcd_sdcard_stop);
+                MENU_ITEM(function, MSG_STOP_PRINT, lcd_sdcard_stop);
         }else{
             MENU_ITEM(submenu, MSG_CARD_MENU, lcd_sdcard_menu);
 #if SDCARDDETECT < 1
@@ -290,6 +352,22 @@ static void lcd_main_menu()
 #endif
     }
 #endif
+
+ #ifdef WITBOX
+    if (movesplanned() || IS_SD_PRINTING)
+    {
+       #ifdef FILAMENTCHANGEENABLE
+        MENU_ITEM(gcode, MSG_FILAMENTCHANGE, PSTR("M600"));
+       #endif
+       
+        MENU_ITEM(submenu, MSG_SPEED, lcd_speed_printing);
+       
+    }
+      else{
+        MENU_ITEM(submenu, MSG_CONTROL, lcd_control_menu);
+      }
+
+ #endif  //WITBOX
     END_MENU();
 }
 
@@ -323,7 +401,15 @@ void lcd_preheat_abs()
     lcd_return_to_status();
     setWatch(); // heater sanity check timer
 }
-
+#ifdef WITBOX
+static void lcd_preheat()
+{
+    setTargetHotend0(plaPreheatHotendTemp);
+    fanSpeed = plaPreheatFanSpeed;
+    setWatch(); // heater sanity check timer
+    lcd_return_to_status();
+}
+#endif //WITBOX
 static void lcd_cooldown()
 {
     setTargetHotend0(0);
@@ -344,7 +430,7 @@ static void lcd_babystep_x()
     }
     if (lcdDrawUpdate)
     {
-        lcd_implementation_drawedit(PSTR(MSG_BABYSTEPPING_X),"");
+        lcd_implementation_drawedit(PSTR("Babystepping X"),"");
     }
     if (LCD_CLICKED)
     {
@@ -364,7 +450,7 @@ static void lcd_babystep_y()
     }
     if (lcdDrawUpdate)
     {
-        lcd_implementation_drawedit(PSTR(MSG_BABYSTEPPING_Y),"");
+        lcd_implementation_drawedit(PSTR("Babystepping Y"),"");
     }
     if (LCD_CLICKED)
     {
@@ -384,7 +470,7 @@ static void lcd_babystep_z()
     }
     if (lcdDrawUpdate)
     {
-        lcd_implementation_drawedit(PSTR(MSG_BABYSTEPPING_Z),"");
+        lcd_implementation_drawedit(PSTR("Babystepping Z"),"");
     }
     if (LCD_CLICKED)
     {
@@ -412,13 +498,13 @@ static void lcd_tune_menu()
 #endif
     MENU_ITEM_EDIT(int3, MSG_FAN_SPEED, &fanSpeed, 0, 255);
     MENU_ITEM_EDIT(int3, MSG_FLOW, &extrudemultiply, 10, 999);
-
+    
 #ifdef BABYSTEPPING
     #ifdef BABYSTEP_XY
-      MENU_ITEM(submenu, MSG_BABYSTEP_X, lcd_babystep_x);
-      MENU_ITEM(submenu, MSG_BABYSTEP_Y, lcd_babystep_y);
+      MENU_ITEM(submenu, "Babystep X", lcd_babystep_x);
+      MENU_ITEM(submenu, "Babystep Y", lcd_babystep_y);
     #endif //BABYSTEP_XY
-    MENU_ITEM(submenu, MSG_BABYSTEP_Z, lcd_babystep_z);
+    MENU_ITEM(submenu, "Babystep Z", lcd_babystep_z);
 #endif
 #ifdef FILAMENTCHANGEENABLE
      MENU_ITEM(gcode, MSG_FILAMENTCHANGE, PSTR("M600"));
@@ -441,14 +527,19 @@ static void lcd_prepare_menu()
     MENU_ITEM(function, MSG_PREHEAT_PLA, lcd_preheat_pla);
     MENU_ITEM(function, MSG_PREHEAT_ABS, lcd_preheat_abs);
     MENU_ITEM(function, MSG_COOLDOWN, lcd_cooldown);
-#if PS_ON_PIN > -1
-    if (powersupply)
-    {
-        MENU_ITEM(gcode, MSG_SWITCH_PS_OFF, PSTR("M81"));
-    }else{
-        MENU_ITEM(gcode, MSG_SWITCH_PS_ON, PSTR("M80"));
-    }
-#endif
+    
+#ifndef WITBOX //WITBOX dont have control of power suply
+
+	#if PS_ON_PIN > -1
+		if (powersupply)
+		{
+		    MENU_ITEM(gcode, MSG_SWITCH_PS_OFF, PSTR("M81"));
+		}else{
+		    MENU_ITEM(gcode, MSG_SWITCH_PS_ON, PSTR("M80"));
+		}
+	#endif
+#endif //NO WITBOX
+
     MENU_ITEM(submenu, MSG_MOVE_AXIS, lcd_move_menu);
     END_MENU();
 }
@@ -460,7 +551,6 @@ static void lcd_move_x()
 {
     if (encoderPosition != 0)
     {
-        refresh_cmd_timeout();
         current_position[X_AXIS] += float((int)encoderPosition) * move_menu_scale;
         if (min_software_endstops && current_position[X_AXIS] < X_MIN_POS)
             current_position[X_AXIS] = X_MIN_POS;
@@ -490,7 +580,6 @@ static void lcd_move_y()
 {
     if (encoderPosition != 0)
     {
-        refresh_cmd_timeout();
         current_position[Y_AXIS] += float((int)encoderPosition) * move_menu_scale;
         if (min_software_endstops && current_position[Y_AXIS] < Y_MIN_POS)
             current_position[Y_AXIS] = Y_MIN_POS;
@@ -520,7 +609,6 @@ static void lcd_move_z()
 {
     if (encoderPosition != 0)
     {
-        refresh_cmd_timeout();
         current_position[Z_AXIS] += float((int)encoderPosition) * move_menu_scale;
         if (min_software_endstops && current_position[Z_AXIS] < Z_MIN_POS)
             current_position[Z_AXIS] = Z_MIN_POS;
@@ -572,16 +660,40 @@ static void lcd_move_e()
     }
 }
 
+#ifdef WITBOX
+static void lcd_speed_printing()
+{
+    feedmultiply += int(encoderPosition);
+    encoderPosition = 0;
+    if (feedmultiply < 10)
+        feedmultiply = 10;
+    if (feedmultiply > 999)
+        feedmultiply = 999;
+
+    lcdDrawUpdate = 1;
+    if (lcdDrawUpdate)
+    {
+        lcd_implementation_drawedit(PSTR(MSG_SPEED), itostr3(feedmultiply));
+    }
+    if (LCD_CLICKED)
+    {
+        lcd_quick_feedback();
+        currentMenu = lcd_main_menu;
+        encoderPosition = 0;
+    }
+}
+#endif //WITBOX
 static void lcd_move_menu_axis()
 {
+	st_synchronize();
     START_MENU();
     MENU_ITEM(back, MSG_MOVE_AXIS, lcd_move_menu);
-    MENU_ITEM(submenu, MSG_MOVE_X, lcd_move_x);
-    MENU_ITEM(submenu, MSG_MOVE_Y, lcd_move_y);
+    MENU_ITEM(submenu, "Move X", lcd_move_x);
+    MENU_ITEM(submenu, "Move Y", lcd_move_y);
     if (move_menu_scale < 10.0)
     {
-        MENU_ITEM(submenu, MSG_MOVE_Z, lcd_move_z);
-        MENU_ITEM(submenu, MSG_MOVE_E, lcd_move_e);
+        MENU_ITEM(submenu, "Move Z", lcd_move_z);
+        MENU_ITEM(submenu, "Extruder", lcd_move_e);
     }
     END_MENU();
 }
@@ -605,17 +717,176 @@ static void lcd_move_menu_01mm()
 static void lcd_move_menu()
 {
     START_MENU();
+#ifdef WITBOX
+    MENU_ITEM(back, MSG_CONTROL, lcd_control_menu);
+    
+    MENU_ITEM(gcode, MSG_AUTO_HOME, PSTR("G28"));
+
+    MENU_ITEM(gcode, MSG_DISABLE_STEPPERS, PSTR("M84"));    
+    MENU_ITEM(submenu, MSG_JOG, lcd_move_jog_menu);
+#else
     MENU_ITEM(back, MSG_PREPARE, lcd_prepare_menu);
-    MENU_ITEM(submenu, MSG_MOVE_10MM, lcd_move_menu_10mm);
-    MENU_ITEM(submenu, MSG_MOVE_1MM, lcd_move_menu_1mm);
-    MENU_ITEM(submenu, MSG_MOVE_01MM, lcd_move_menu_01mm);
-    //TODO:X,Y,Z,E
+    MENU_ITEM(submenu, "Move 10mm", lcd_move_menu_10mm);
+    MENU_ITEM(submenu, "Move 1mm", lcd_move_menu_1mm);
+    MENU_ITEM(submenu, "Move 0.1mm", lcd_move_menu_01mm);
+#endif //WITBOX
     END_MENU();
 }
+
+#ifdef WITBOX
+static void lcd_move_jog_menu()
+{
+    START_MENU();
+    MENU_ITEM(back, MSG_JOG, lcd_move_menu);
+    MENU_ITEM(submenu, "Move 10mm", lcd_move_menu_10mm);
+    MENU_ITEM(submenu, "Move 1mm", lcd_move_menu_1mm);
+    MENU_ITEM(submenu, "Move 0.1mm", lcd_move_menu_01mm);
+    END_MENU();
+}
+
+
+void config_lcd_level_bed(){
+	
+	setTargetHotend(0,0);
+	
+	if(degHotend(0)<LEVEL_PLATE_TEMP_PROTECTION){
+		SERIAL_ECHOLN("Leveling...");	
+		currentMenu=lcd_level_bed;
+		enquecommand_P(PSTR("M602"));
+		pageShowInfo=0;
+	}
+	else{
+		SERIAL_ECHOLN("Temperature too high.");
+	//Remove this in the future
+	//GOTO: cooling screen and wait for LEVEL_PLATE_TEMP_PROTECTION to execute lcd_level_bed()
+	/*
+		lcd.clear(); 
+		currentMenu = lcd_status_screen;
+		lcd_status_screen();
+	*/
+	//GOTO: cooling screen and wait for LEVEL_PLATE_TEMP_PROTECTION to execute lcd_level_bed()
+		lcd.clear(); 
+		currentMenu = lcd_level_bed_cooling;		
+		
+	}	
+  
+}
+void lcd_level_bed_cooling()
+{
+        while(!lcd_clicked()){
+		  manage_heater();
+          lcd.setCursor(0, 0);
+          lcd_printPGM(PSTR(MSG_LP_COOL_1));
+          lcd.setCursor(0, 1);
+          lcd_printPGM(PSTR(MSG_LP_COOL_2));
+			lcd.setCursor(6, 1);
+			lcd.print(LCD_STR_THERMOMETER[0]);
+			lcd.print(itostr3(int(degHotend(0))));
+			lcd_printPGM(PSTR(LCD_STR_DEGREE " "));
+          lcd.setCursor(0, 3);
+          lcd_printPGM(PSTR(MSG_LP_COOL_3));                  
+          currentMenu = lcd_level_bed_cooling;
+          
+			if(degHotend(0)<LEVEL_PLATE_TEMP_PROTECTION){
+				currentMenu=config_lcd_level_bed;
+				lcd_quick_feedback();
+				lcd_update();
+				break;
+			}
+        }
+			lcd_quick_feedback();
+			if(degHotend(0)>LEVEL_PLATE_TEMP_PROTECTION){       
+			lcd.clear(); 
+			currentMenu = lcd_status_screen;
+			lcd_implementation_status_screen();
+			}
+}
+void lcd_level_bed()
+{
+        if(ChangeScreen){
+       lcd.clear(); 
+    switch(pageShowInfo){
+      
+      case 0:
+        {      
+          lcd.setCursor(0, 1);
+          lcd_printPGM(PSTR(MSG_LP_INTRO));
+           currentMenu = lcd_level_bed;
+           ChangeScreen=false;
+        }
+        break;
+
+      case 1:
+        {      
+          lcd.setCursor(0, 1);
+          lcd_printPGM(PSTR(MSG_LP_1));
+              currentMenu = lcd_level_bed;
+           ChangeScreen=false;         
+        }
+              
+        break;
+      case 2:
+        {      
+          lcd.setCursor(0, 1);
+          lcd_printPGM(PSTR(MSG_LP_2));
+              currentMenu = lcd_level_bed;
+           ChangeScreen=false;       
+        }
+              
+        break;        
+      case 3:
+        {      
+          lcd.setCursor(0, 1);
+          lcd_printPGM(PSTR(MSG_LP_3));
+              currentMenu = lcd_level_bed;
+           ChangeScreen=false;         
+        }
+              
+        break;        
+     case 4:
+        {     
+          lcd.setCursor(0, 1);
+          lcd_printPGM(PSTR(MSG_LP_4));
+              currentMenu = lcd_level_bed;
+           ChangeScreen=false;         
+        }
+              
+        break;
+    
+     case 5:
+        {
+          lcd.setCursor(2, 2);          
+          lcd_printPGM(PSTR(MSG_LP_5));         
+          
+          ChangeScreen=false;
+          delay(1200);    
+          
+          encoderPosition = 0;
+          lcd.clear(); 
+          currentMenu = lcd_status_screen;
+          lcd_status_screen();
+          pageShowInfo=0;
+     
+        }
+        break; 
+    }
+   }
+}
+#endif //WITBOX
 
 static void lcd_control_menu()
 {
     START_MENU();
+#ifdef WITBOX
+     MENU_ITEM(back, MSG_MAIN, lcd_main_menu);   
+     MENU_ITEM(submenu, MSG_FILAMENT, lcd_filament_menu);     //cambiar filamento
+     MENU_ITEM(submenu, MSG_MOVE_AXIS, lcd_move_menu);
+     //MENU_ITEM(gcode, MSG_LEVEL_PLATE, PSTR("M602"));                //script nivelar base con gcode
+     MENU_ITEM(function, MSG_LEVEL_PLATE, config_lcd_level_bed);   
+     
+     if(target_temperature[0]>10)   MENU_ITEM(function, MSG_COOLDOWN, lcd_cooldown );
+     else                           MENU_ITEM(function, MSG_PREHEAT, lcd_preheat);    
+#else
     MENU_ITEM(back, MSG_MAIN, lcd_main_menu);
     MENU_ITEM(submenu, MSG_TEMPERATURE, lcd_control_temperature_menu);
     MENU_ITEM(submenu, MSG_MOTION, lcd_control_motion_menu);
@@ -630,9 +901,138 @@ static void lcd_control_menu()
     MENU_ITEM(function, MSG_STORE_EPROM, Config_StoreSettings);
     MENU_ITEM(function, MSG_LOAD_EPROM, Config_RetrieveSettings);
 #endif
-    MENU_ITEM(function, MSG_RESTORE_FAILSAFE, Config_ResetDefault);
+    MENU_ITEM(function, MSG_RESTORE_FAILSAFE, Config_ResetDefault);        
+#endif //WITBOX
     END_MENU();
 }
+
+//WITBOX->
+#ifdef WITBOX
+/* ESTO SIRVE PARA ALGO??????????????????????????????
+static void lcd_abort_leveling_1()
+{
+  FilamentMenuActive = false;
+  lcd_control_menu();
+}
+*/
+
+static void lcd_filament_menu()
+{
+    START_MENU();
+    MENU_ITEM(back, MSG_CONTROL, lcd_control_menu);
+    
+    MENU_ITEM(submenu, MSG_LOAD, lcd_load_material_extrud_1);
+    MENU_ITEM(submenu, MSG_UNLOAD, lcd_unload_material_extrud_1);
+    END_MENU();
+}
+
+//////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+//                              EXTRUDER 1                                  //
+//////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
+// Load
+static void lcd_load_material_extrud_1()
+{
+    //Settings
+    FilamentMenuActive = true;
+    /*
+    int TargetTemperature;
+   TargetTemperature = ABS_Target_Temp;
+    else if (Wit_Material == 2) TargetTemperature = PLA_Target_Temp;
+    else if (Wit_Material == 3) TargetTemperature = PVA_Target_Temp;
+    else if (Wit_Material == 4) TargetTemperature = NYLON_Target_Temp;
+    else TargetTemperature = PLA_Target_Temp;
+*/
+    ////CALENTANDO/HEATING
+    setTargetHotend0(Change_Filament_Target_Temp);
+
+    START_MENU();
+    MENU_ITEM(back, MSG_ABORT, lcd_abort_preheating_1);
+    END_MENU();
+
+    int tHotend=int(degHotend(0) + 0.5);
+    int tTarget=int(degTargetHotend(0) + 0.5);
+    lcd.setCursor(3, 2);
+    lcd_printPGM(PSTR(MSG_HEATING));
+    lcd.setCursor(5, 3);
+    lcd.print(LCD_STR_THERMOMETER[0]);
+    lcd.print(itostr3(tHotend));
+    lcd.print('/');
+    lcd.print(itostr3left(tTarget));
+    lcd_printPGM(PSTR(LCD_STR_DEGREE " "));
+
+    //if ((degHotend(0) > (degTargetHotend(0)-1)) && (degHotend(0) < (degTargetHotend(0)+1)))
+    if ((degHotend(0) > degTargetHotend(0)) )
+    {
+        lcd_quick_feedback();
+        currentMenu = lcd_insert_and_press_1;
+    }
+}
+
+static void lcd_insert_and_press_1()
+{
+    START_MENU();
+    MENU_ITEM(back, MSG_ABORT, lcd_abort_preheating_1);
+    //encoderPosition = 0;
+    //MENU_ITEM(submenu, MSG_PRE_EXTRUD, lcd_pre_extrud_1);
+    active_extruder = 0;
+    MENU_ITEM(gcode, MSG_PRE_EXTRUD, PSTR("M700")); 
+    END_MENU();
+}
+static void lcd_abort_preheating_1()
+{
+  FilamentMenuActive = false;
+  lcd_filament_menu();
+}
+
+// UNLOAD *************************************************************************
+static void lcd_unload_material_extrud_1()
+{
+ //Settings
+ 
+    FilamentMenuActive = true;
+    /*
+    int TargetTemperature;
+    if (Wit_Material == 1) TargetTemperature = ABS_Target_Temp;
+    else if (Wit_Material == 2) TargetTemperature = PLA_Target_Temp;
+    else if (Wit_Material == 3) TargetTemperature = PVA_Target_Temp;
+    else if (Wit_Material == 4) TargetTemperature = NYLON_Target_Temp;
+    else TargetTemperature = PLA_Target_Temp;
+*/
+    ////CALENTANDO/HEATING
+   setTargetHotend0(Change_Filament_Target_Temp);
+
+    START_MENU();
+    MENU_ITEM(back, MSG_ABORT, lcd_abort_preheating_1);
+    END_MENU();
+
+    int tHotend=int(degHotend(0) + 0.5);
+    int tTarget=int(degTargetHotend(0) + 0.5);
+    lcd.setCursor(3, 2);
+    lcd_printPGM(PSTR(MSG_HEATING));
+    lcd.setCursor(5, 3);
+    lcd.print(LCD_STR_THERMOMETER[0]);
+    lcd.print(itostr3(tHotend));
+    lcd.print('/');
+    lcd.print(itostr3left(tTarget));
+    lcd_printPGM(PSTR(LCD_STR_DEGREE " "));
+    lcd.setCursor(0, 3);
+//    lcd_printPGM(PSTR(MSG_PUSH_BEEP));
+
+    //if ((degHotend(0) > (degTargetHotend(0)-1)) && (degHotend(0) < (degTargetHotend(0)+1)))
+    if (degHotend(0) > degTargetHotend(0))
+    {
+        lcd_quick_feedback();
+   
+        currentMenu = lcd_filament_menu;
+	//-- Ejecutar gcode
+	 enquecommand_P(PSTR("M701"));
+    }
+}
+#endif //WITBOX
+//////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////
 
 static void lcd_control_temperature_menu()
 {
@@ -709,9 +1109,6 @@ static void lcd_control_motion_menu()
 {
     START_MENU();
     MENU_ITEM(back, MSG_CONTROL, lcd_control_menu);
-#ifdef ENABLE_AUTO_BED_LEVELING
-    MENU_ITEM_EDIT(float32, MSG_ZPROBE_ZOFFSET, &zprobe_zoffset, 0.5, 50);
-#endif
     MENU_ITEM_EDIT(float5, MSG_ACC, &acceleration, 500, 99000);
     MENU_ITEM_EDIT(float3, MSG_VXY_JERK, &max_xy_jerk, 1, 990);
     MENU_ITEM_EDIT(float52, MSG_VZ_JERK, &max_z_jerk, 0.1, 990);
@@ -730,9 +1127,9 @@ static void lcd_control_motion_menu()
     MENU_ITEM_EDIT(float52, MSG_XSTEPS, &axis_steps_per_unit[X_AXIS], 5, 9999);
     MENU_ITEM_EDIT(float52, MSG_YSTEPS, &axis_steps_per_unit[Y_AXIS], 5, 9999);
     MENU_ITEM_EDIT(float51, MSG_ZSTEPS, &axis_steps_per_unit[Z_AXIS], 5, 9999);
-    MENU_ITEM_EDIT(float51, MSG_ESTEPS, &axis_steps_per_unit[E_AXIS], 5, 9999);
+    MENU_ITEM_EDIT(float51, MSG_ESTEPS, &axis_steps_per_unit[E_AXIS], 5, 9999);    
 #ifdef ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED
-    MENU_ITEM_EDIT(bool, MSG_ENDSTOP_ABORT, &abort_on_endstop_hit);
+    MENU_ITEM_EDIT(bool, "Endstop abort", &abort_on_endstop_hit);
 #endif
     END_MENU();
 }
@@ -751,7 +1148,7 @@ static void lcd_set_contrast()
     }
     if (lcdDrawUpdate)
     {
-        lcd_implementation_drawedit(PSTR(MSG_CONTRAST), itostr2(lcd_contrast));
+        lcd_implementation_drawedit(PSTR("Contrast"), itostr2(lcd_contrast));
     }
     if (LCD_CLICKED)
     {
@@ -792,7 +1189,7 @@ static void lcd_sd_updir()
 
 void lcd_sdcard_menu()
 {
-    if (lcdDrawUpdate == 0 && LCD_CLICKED == 0)
+    if (lcdDrawUpdate == 0 && LCD_CLICKED == 0) 
         return;	// nothing to do (so don't thrash the SD card)
     uint16_t fileCnt = card.getnrfilenames();
     START_MENU();
@@ -806,7 +1203,7 @@ void lcd_sdcard_menu()
     }else{
         MENU_ITEM(function, LCD_STR_FOLDER "..", lcd_sd_updir);
     }
-
+    
     for(uint16_t i=0;i<fileCnt;i++)
     {
         if (_menuItemNr == _lineNr)
@@ -993,13 +1390,14 @@ void lcd_init()
 
 #ifdef NEWPANEL
     pinMode(BTN_EN1,INPUT);
-    pinMode(BTN_EN2,INPUT);
+    pinMode(BTN_EN2,INPUT); 
+    pinMode(SDCARDDETECT,INPUT);
     WRITE(BTN_EN1,HIGH);
     WRITE(BTN_EN2,HIGH);
   #if BTN_ENC > 0
-    pinMode(BTN_ENC,INPUT);
+    pinMode(BTN_ENC,INPUT); 
     WRITE(BTN_ENC,HIGH);
-  #endif
+  #endif    
   #ifdef REPRAPWORLD_KEYPAD
     pinMode(SHIFT_CLK,OUTPUT);
     pinMode(SHIFT_LD,OUTPUT);
@@ -1007,56 +1405,54 @@ void lcd_init()
     WRITE(SHIFT_OUT,HIGH);
     WRITE(SHIFT_LD,HIGH);
   #endif
-#else  // Not NEWPANEL
-  #ifdef SR_LCD_2W_NL // Non latching 2 wire shiftregister
-     pinMode (SR_DATA_PIN, OUTPUT);
-     pinMode (SR_CLK_PIN, OUTPUT);
-  #elif defined(SHIFT_CLK) 
-     pinMode(SHIFT_CLK,OUTPUT);
-     pinMode(SHIFT_LD,OUTPUT);
-     pinMode(SHIFT_EN,OUTPUT);
-     pinMode(SHIFT_OUT,INPUT);
-     WRITE(SHIFT_OUT,HIGH);
-     WRITE(SHIFT_LD,HIGH);
-     WRITE(SHIFT_EN,LOW);
-  #else
-     #ifdef ULTIPANEL
-     #error ULTIPANEL requires an encoder
-     #endif
-  #endif // SR_LCD_2W_NL
+#else
+    pinMode(SHIFT_CLK,OUTPUT);
+    pinMode(SHIFT_LD,OUTPUT);
+    pinMode(SHIFT_EN,OUTPUT);
+    pinMode(SHIFT_OUT,INPUT);
+    WRITE(SHIFT_OUT,HIGH);
+    WRITE(SHIFT_LD,HIGH); 
+    WRITE(SHIFT_EN,LOW);
 #endif//!NEWPANEL
-
-#if defined (SDSUPPORT) && defined(SDCARDDETECT) && (SDCARDDETECT > 0)
-    pinMode(SDCARDDETECT,INPUT);
+#if (SDCARDDETECT > 0)
     WRITE(SDCARDDETECT, HIGH);
     lcd_oldcardstatus = IS_SD_INSERTED;
 #endif//(SDCARDDETECT > 0)
-#ifdef LCD_HAS_SLOW_BUTTONS
-    slow_buttons = 0;
-#endif
     lcd_buttons_update();
-#ifdef ULTIPANEL
+#ifdef ULTIPANEL    
     encoderDiff = 0;
+#endif    
+
+//WITBOX SPLASH SCREEN->
+#ifdef WITBOX
+    lcd.clear();
+    lcd.setCursor(6, 1);
+    lcd_printPGM(PSTR(MSG_WELLCOME));
+    lcd.setCursor(8, 3);
+    lcd_printPGM(PSTR(FIRMWARE_VER));
+    delay(1500);
+    lcd.clear();
 #endif
+//<-WITBOX SPLASH SCREEN-
 }
 
 void lcd_update()
 {
     static unsigned long timeoutToStatus = 0;
-
-    #ifdef LCD_HAS_SLOW_BUTTONS
-    slow_buttons = lcd_implementation_read_slow_buttons(); // buttons which take too long to read in interrupt context
-    #endif
-
+    
     lcd_buttons_update();
-
+    
+    #ifdef LCD_HAS_SLOW_BUTTONS
+    buttons |= lcd_implementation_read_slow_buttons(); // buttons which take too long to read in interrupt context
+    #endif
+    
     #if (SDCARDDETECT > 0)
     if((IS_SD_INSERTED != lcd_oldcardstatus))
     {
         lcdDrawUpdate = 2;
         lcd_oldcardstatus = IS_SD_INSERTED;
         lcd_implementation_init(); // to maybe revive the lcd if static electricty killed it.
-
+        
         if(lcd_oldcardstatus)
         {
             card.initsd();
@@ -1069,7 +1465,7 @@ void lcd_update()
         }
     }
     #endif//CARDINSERTED
-
+    
     if (lcd_next_update_millis < millis())
     {
 #ifdef ULTIPANEL
@@ -1105,12 +1501,22 @@ void lcd_update()
         }
         if (LCD_CLICKED)
             timeoutToStatus = millis() + LCD_TIMEOUT_TO_STATUS;
+ //WITBOX->
+#ifdef WITBOX
+        if (FilamentMenuActive)
+            timeoutToStatus = millis() + LCD_TIMEOUT_TO_STATUS;
+        if (ChangeScreen && pageShowInfo!=5){
+            lcd_level_bed(); 
+            currentMenu=lcd_level_bed;
+        }
+#endif
+ //<-WITBOX
 #endif//ULTIPANEL
 
 #ifdef DOGLCD        // Changes due to different driver architecture of the DOGM display
         blink++;     // Variable for fan animation and alive dot
         u8g.firstPage();
-        do
+        do 
         {
             u8g.setFont(u8g_font_6x10_marlin);
             u8g.setPrintPos(125,0);
@@ -1120,7 +1526,7 @@ void lcd_update()
             (*currentMenu)();
             if (!lcdDrawUpdate)  break; // Terminate display update, when nothing new to draw. This must be done before the last dogm.next()
         } while( u8g.nextPage() );
-#else
+#else        
         (*currentMenu)();
 #endif
 
@@ -1129,11 +1535,19 @@ void lcd_update()
 #endif
 
 #ifdef ULTIPANEL
-        if(timeoutToStatus < millis() && currentMenu != lcd_status_screen)
-        {
-            lcd_return_to_status();
-            lcdDrawUpdate = 2;
-        }
+	#ifdef WITBOX
+		if(timeoutToStatus < millis() && currentMenu != lcd_status_screen && currentMenu != lcd_level_bed)
+		{
+		    lcd_return_to_status();
+		    lcdDrawUpdate = 2;
+		}
+	#else
+	    if(timeoutToStatus < millis() && currentMenu != lcd_status_screen)
+	    {
+	        lcd_return_to_status();
+	        lcdDrawUpdate = 2;
+	    }
+	#endif //WITBOX
 #endif//ULTIPANEL
         if (lcdDrawUpdate == 2)
             lcd_implementation_clear();
@@ -1174,7 +1588,7 @@ void lcd_reset_alert_level()
 void lcd_setcontrast(uint8_t value)
 {
     lcd_contrast = value & 63;
-    u8g.setContrast(lcd_contrast);
+    u8g.setContrast(lcd_contrast);	
 }
 #endif
 
@@ -1191,9 +1605,6 @@ void lcd_buttons_update()
         newbutton |= EN_C;
   #endif
     buttons = newbutton;
-    #ifdef LCD_HAS_SLOW_BUTTONS
-    buttons |= slow_buttons;
-    #endif
     #ifdef REPRAPWORLD_KEYPAD
       // for the reprapworld_keypad
       uint8_t newbutton_reprapworld_keypad=0;
@@ -1214,7 +1625,7 @@ void lcd_buttons_update()
     WRITE(SHIFT_LD,HIGH);
     unsigned char tmp_buttons=0;
     for(int8_t i=0;i<8;i++)
-    {
+    { 
         newbutton = newbutton>>1;
         if(READ(SHIFT_OUT))
             newbutton|=(1<<7);
@@ -1264,16 +1675,21 @@ void lcd_buttons_update()
 }
 
 void lcd_buzz(long duration, uint16_t freq)
-{
+{ 
 #ifdef LCD_USE_I2C_BUZZER
   lcd.buzz(duration,freq);
-#endif
+#endif   
 }
 
-bool lcd_clicked()
-{
+bool lcd_clicked() 
+{ 
   return LCD_CLICKED;
 }
+//REVISAR SI HACE FALTA PARA LA WITBOX->
+void lcd_set_clicked(boolean state){
+  LCD_CLICKED == state;
+}
+//<-REVISAR SI HACE FALTA PARA LA WITBOX
 #endif//ULTIPANEL
 
 /********************************/

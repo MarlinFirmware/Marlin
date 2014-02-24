@@ -178,16 +178,7 @@ extern volatile uint16_t buttons;  //an extended version of the last checked but
     #include <LiquidCrystal_I2C.h>
     #define LCD_CLASS LiquidCrystal_I2C
     LCD_CLASS lcd(LCD_I2C_ADDRESS, LCD_WIDTH, LCD_HEIGHT);
-    
-// 2 wire Non-latching LCD SR from:
-// https://bitbucket.org/fmalpartida/new-liquidcrystal/wiki/schematics#!shiftregister-connection 
-#elif defined(SR_LCD_2W_NL)
-   
-  #include <LCD.h>
-  #include <LiquidCrystal_SR.h>
-  #define LCD_CLASS LiquidCrystal_SR
-  LCD_CLASS lcd(SR_DATA_PIN, SR_CLK_PIN);
-
+  
 #else
   // Standard directly connected LCD implementations
   #if LANGUAGE_CHOICE == 6
@@ -711,14 +702,9 @@ static void lcd_implementation_drawmenu_sddirectory(uint8_t row, const char* pst
 static void lcd_implementation_quick_feedback()
 {
 #ifdef LCD_USE_I2C_BUZZER
-	#if !defined(LCD_FEEDBACK_FREQUENCY_HZ) || !defined(LCD_FEEDBACK_FREQUENCY_DURATION_MS)
-	  lcd_buzz(1000/6,100);
-	#else
-	  lcd_buzz(LCD_FEEDBACK_FREQUENCY_DURATION_MS,LCD_FEEDBACK_FREQUENCY_HZ);
-	#endif
+    lcd.buzz(60,1000/6);
 #elif defined(BEEPER) && BEEPER > -1
     SET_OUTPUT(BEEPER);
-	#if !defined(LCD_FEEDBACK_FREQUENCY_HZ) || !defined(LCD_FEEDBACK_FREQUENCY_DURATION_MS)
     for(int8_t i=0;i<10;i++)
     {
       WRITE(BEEPER,HIGH);
@@ -726,15 +712,6 @@ static void lcd_implementation_quick_feedback()
       WRITE(BEEPER,LOW);
       delayMicroseconds(100);
     }
-    #else
-    for(int8_t i=0;i<(LCD_FEEDBACK_FREQUENCY_DURATION_MS / (1000 / LCD_FEEDBACK_FREQUENCY_HZ));i++)
-    {
-      WRITE(BEEPER,HIGH);
-      delayMicroseconds(1000000 / LCD_FEEDBACK_FREQUENCY_HZ / 2);
-      WRITE(BEEPER,LOW);
-      delayMicroseconds(1000000 / LCD_FEEDBACK_FREQUENCY_HZ / 2);
-    }
-    #endif
 #endif
 }
 
