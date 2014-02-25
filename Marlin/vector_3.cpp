@@ -22,19 +22,9 @@
 #ifdef ENABLE_AUTO_BED_LEVELING
 #include "vector_3.h"
 
-vector_3::vector_3()
-{
-  this->x = 0;
-  this->y = 0;
-  this->z = 0;
-}
+vector_3::vector_3() : x(0), y(0), z(0) { }
 
-vector_3::vector_3(float x, float y, float z)
-{
-	this->x = x;
-	this->y = y;
-	this->z = z;
-}
+vector_3::vector_3(float x_, float y_, float z_) : x(x_), y(y_), z(z_) { }
 
 vector_3 vector_3::cross(vector_3 left, vector_3 right)
 {
@@ -62,7 +52,7 @@ vector_3 vector_3::get_normal()
 
 float vector_3::get_length() 
 {
-        float length = sqrt((x * x) + (y * y) + (z * z));
+	float length = sqrt((x * x) + (y * y) + (z * z));
 	return length;
 }
  
@@ -127,57 +117,32 @@ void matrix_3x3::set_to_identity()
 	matrix[6] = 0; matrix[7] = 0; matrix[8] = 1;
 }
 
-matrix_3x3 matrix_3x3::create_look_at(vector_3 target, vector_3 up)
+matrix_3x3 matrix_3x3::create_look_at(vector_3 target)
 {
-    // There are lots of examples of look at code on the internet that don't do all these noramize and also find the position
-    // through several dot products.  The problem with them is that they have a bit of error in that all the vectors arn't normal and need to be.
-    vector_3 z_row = vector_3(-target.x, -target.y, -target.z).get_normal();
-    vector_3 x_row = vector_3::cross(up, z_row).get_normal();
-    vector_3 y_row = vector_3::cross(z_row, x_row).get_normal();
+    vector_3 z_row = target.get_normal();
+    vector_3 x_row = vector_3(1, 0, -target.x/target.z).get_normal();
+    vector_3 y_row = vector_3(0, 1, -target.y/target.z).get_normal();
 
-    //x_row.debug("x_row");
-    //y_row.debug("y_row");
-    //z_row.debug("z_row");
-    
-    matrix_3x3 rot = matrix_3x3::create_from_rows(vector_3(x_row.x, y_row.x, z_row.x),
-                                vector_3(x_row.y, y_row.y, z_row.y),
-                                vector_3(x_row.z, y_row.z, z_row.z));
+   // x_row.debug("x_row");
+   // y_row.debug("y_row");
+   // z_row.debug("z_row");
 
-    //rot.debug("rot");
+ 
+     // create the matrix already correctly transposed
+    matrix_3x3 rot = matrix_3x3::create_from_rows(x_row, y_row, z_row);
+
+ //   rot.debug("rot");
     return rot;
 }
 
-matrix_3x3 matrix_3x3::create_inverse(matrix_3x3 original)
+
+matrix_3x3 matrix_3x3::transpose(matrix_3x3 original)
 {
-	//original.debug("original");
-	float* A = original.matrix;
-	float determinant = 
-		+ A[0 * 3 + 0] * (A[1 * 3 + 1] * A[2 * 3 + 2] - A[2 * 3 + 1] * A[1 * 3 + 2])
-		- A[0 * 3 + 1] * (A[1 * 3 + 0] * A[2 * 3 + 2] - A[1 * 3 + 2] * A[2 * 3 + 0])
-		+ A[0 * 3 + 2] * (A[1 * 3 + 0] * A[2 * 3 + 1] - A[1 * 3 + 1] * A[2 * 3 + 0]);
-	matrix_3x3 inverse;
-	inverse.matrix[0 * 3 + 0] = +(A[1 * 3 + 1] * A[2 * 3 + 2] - A[2 * 3 + 1] * A[1 * 3 + 2]) / determinant;
-	inverse.matrix[0 * 3 + 1] = -(A[0 * 3 + 1] * A[2 * 3 + 2] - A[0 * 3 + 2] * A[2 * 3 + 1]) / determinant;
-	inverse.matrix[0 * 3 + 2] = +(A[0 * 3 + 1] * A[1 * 3 + 2] - A[0 * 3 + 2] * A[1 * 3 + 1]) / determinant;
-	inverse.matrix[1 * 3 + 0] = -(A[1 * 3 + 0] * A[2 * 3 + 2] - A[1 * 3 + 2] * A[2 * 3 + 0]) / determinant;
-	inverse.matrix[1 * 3 + 1] = +(A[0 * 3 + 0] * A[2 * 3 + 2] - A[0 * 3 + 2] * A[2 * 3 + 0]) / determinant;
-	inverse.matrix[1 * 3 + 2] = -(A[0 * 3 + 0] * A[1 * 3 + 2] - A[1 * 3 + 0] * A[0 * 3 + 2]) / determinant;
-	inverse.matrix[2 * 3 + 0] = +(A[1 * 3 + 0] * A[2 * 3 + 1] - A[2 * 3 + 0] * A[1 * 3 + 1]) / determinant;
-	inverse.matrix[2 * 3 + 1] = -(A[0 * 3 + 0] * A[2 * 3 + 1] - A[2 * 3 + 0] * A[0 * 3 + 1]) / determinant;
-	inverse.matrix[2 * 3 + 2] = +(A[0 * 3 + 0] * A[1 * 3 + 1] - A[1 * 3 + 0] * A[0 * 3 + 1]) / determinant;
-
-	vector_3 row0 = vector_3(inverse.matrix[0 * 3 + 0], inverse.matrix[0 * 3 + 1], inverse.matrix[0 * 3 + 2]);
-	vector_3 row1 = vector_3(inverse.matrix[1 * 3 + 0], inverse.matrix[1 * 3 + 1], inverse.matrix[1 * 3 + 2]);
-	vector_3 row2 = vector_3(inverse.matrix[2 * 3 + 0], inverse.matrix[2 * 3 + 1], inverse.matrix[2 * 3 + 2]);
-
-    row0.normalize();
-    row1.normalize();
-    row2.normalize();
-
-	inverse = matrix_3x3::create_from_rows(row0, row1, row2);
-
-	//inverse.debug("inverse");
-	return inverse;
+  matrix_3x3 new_matrix;
+  new_matrix.matrix[0] = original.matrix[0]; new_matrix.matrix[1] = original.matrix[3]; new_matrix.matrix[2] = original.matrix[6]; 
+  new_matrix.matrix[3] = original.matrix[1]; new_matrix.matrix[4] = original.matrix[4]; new_matrix.matrix[5] = original.matrix[7]; 
+  new_matrix.matrix[6] = original.matrix[2]; new_matrix.matrix[7] = original.matrix[5]; new_matrix.matrix[8] = original.matrix[8];
+  return new_matrix;
 }
 
 void matrix_3x3::debug(char* title)

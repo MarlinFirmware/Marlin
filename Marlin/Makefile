@@ -14,7 +14,7 @@
 #
 #  1. Modify the line containg "ARDUINO_INSTALL_DIR" to point to the directory that
 #     contains the Arduino installation (for example, under Mac OS X, this
-#     might be /Applications/arduino-0012).
+#     might be /Applications/Arduino.app/Contents/Resources/Java).
 #
 #  2. Modify the line containing "UPLOAD_PORT" to refer to the filename
 #     representing the USB or serial connection to your Arduino board
@@ -40,8 +40,8 @@
 HARDWARE_MOTHERBOARD ?= 11
 
 # Arduino source install directory, and version number
-ARDUINO_INSTALL_DIR  ?= ../../arduino-0022
-ARDUINO_VERSION      ?= 22
+ARDUINO_INSTALL_DIR  ?= /Applications/Arduino.app/Contents/Resources/Java
+ARDUINO_VERSION      ?= 105
 
 # You can optionally set a path to the avr-gcc tools. Requires a trailing slash. (ex: /usr/local/avr-gcc/bin)
 AVR_TOOLS_PATH ?=
@@ -55,7 +55,10 @@ UPLOAD_PORT        ?= /dev/arduino
 BUILD_DIR          ?= applet
 
 # This defines whether Liquid_TWI2 support will be built
-LIQUID_TWI2 ?= 0
+LIQUID_TWI2        ?= 0
+
+# this defines if Wire is needed
+WIRE               ?= 0
 
 ############################################################################
 # Below here nothing should be changed...
@@ -142,6 +145,12 @@ MCU              ?= at90usb1286
 else ifeq  ($(HARDWARE_MOTHERBOARD),82)
 HARDWARE_VARIANT ?= Teensy
 MCU              ?= at90usb646
+else ifeq  ($(HARDWARE_MOTHERBOARD),83)
+HARDWARE_VARIANT ?= Teensy
+MCU              ?= at90usb1286
+else ifeq  ($(HARDWARE_MOTHERBOARD),84)
+HARDWARE_VARIANT ?= Teensy
+MCU              ?= at90usb1286
 
 #Gen3+
 else ifeq  ($(HARDWARE_MOTHERBOARD),9)
@@ -165,6 +174,14 @@ MCU              ?= atmega644p
 
 #Rambo
 else ifeq  ($(HARDWARE_MOTHERBOARD),301)
+HARDWARE_VARIANT ?= arduino
+MCU              ?= atmega2560
+
+# Azteeg
+else ifeq  ($(HARDWARE_MOTHERBOARD),67)
+HARDWARE_VARIANT ?= arduino
+MCU              ?= atmega2560
+else ifeq  ($(HARDWARE_MOTHERBOARD),68)
 HARDWARE_VARIANT ?= arduino
 MCU              ?= atmega2560
 
@@ -207,6 +224,10 @@ VPATH += $(ARDUINO_INSTALL_DIR)/libraries/Wire
 VPATH += $(ARDUINO_INSTALL_DIR)/libraries/Wire/utility
 VPATH += $(ARDUINO_INSTALL_DIR)/libraries/LiquidTWI2
 endif
+ifeq ($(WIRE), 1)
+VPATH += $(ARDUINO_INSTALL_DIR)/libraries/Wire
+VPATH += $(ARDUINO_INSTALL_DIR)/libraries/Wire/utility
+endif
 else
 VPATH += $(HARDWARE_DIR)/libraries/LiquidCrystal
 VPATH += $(HARDWARE_DIR)/libraries/SPI
@@ -214,6 +235,10 @@ ifeq ($(LIQUID_TWI2), 1)
 VPATH += $(HARDWARE_DIR)/libraries/Wire
 VPATH += $(HARDWARE_DIR)/libraries/Wire/utility
 VPATH += $(HARDWARE_DIR)/libraries/LiquidTWI2
+endif
+ifeq ($(WIRE), 1)
+VPATH += $(HARDWARE_DIR)/libraries/Wire
+VPATH += $(HARDWARE_DIR)/libraries/Wire/utility
 endif
 endif
 ifeq ($(HARDWARE_VARIANT), arduino)
@@ -227,16 +252,26 @@ SRC = wiring.c \
 	wiring_analog.c wiring_digital.c \
 	wiring_pulse.c \
 	wiring_shift.c WInterrupts.c
+ifeq ($(HARDWARE_VARIANT), Teensy)
+SRC = wiring.c
+VPATH += $(ARDUINO_INSTALL_DIR)/hardware/teensy/cores/teensy
+endif
 CXXSRC = WMath.cpp WString.cpp Print.cpp Marlin_main.cpp	\
 	MarlinSerial.cpp Sd2Card.cpp SdBaseFile.cpp SdFatUtil.cpp	\
 	SdFile.cpp SdVolume.cpp motion_control.cpp planner.cpp		\
 	stepper.cpp temperature.cpp cardreader.cpp ConfigurationStore.cpp \
-	watchdog.cpp SPI.cpp Servo.cpp Tone.cpp ultralcd.cpp
+	watchdog.cpp SPI.cpp Servo.cpp Tone.cpp ultralcd.cpp digipot_mcp4451.cpp \
+	vector_3.cpp qr_solve.cpp
 ifeq ($(LIQUID_TWI2), 0)
 CXXSRC += LiquidCrystal.cpp
 else
 SRC += twi.c
 CXXSRC += Wire.cpp LiquidTWI2.cpp
+endif
+
+ifeq ($(WIRE), 1)
+SRC += twi.c
+CXXSRC += Wire.cpp
 endif
 
 #Check for Arduino 1.0.0 or higher and use the correct sourcefiles for that version
