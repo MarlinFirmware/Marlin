@@ -702,6 +702,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 //#define SERVO_ENDSTOP_ANGLES {0,0, 0,0, 70,0} // X,Y,Z Axis Extend and Retract angles
 
 #define DISABLE_TEMP_SENSOR true
+#define DISABLE_TEMP_SENSOR_MESSAGE "Temperature sensors disabled by default!"
 
 #include "Configuration_adv.h"
 #include "thermistortables.h"
