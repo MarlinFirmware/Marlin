@@ -50,7 +50,8 @@ static unsigned char out_bits;        // The next stepping-bits to be output
 static long counter_x,       // Counter variables for the bresenham line tracer
             counter_y,
             counter_z,
-            counter_e;
+            counter_e,
+            counter_i;
 volatile static unsigned long step_events_completed; // The number of step events executed in the current block
 #ifdef ADVANCE
   static long advance_rate, advance, final_advance = 0;
@@ -85,8 +86,8 @@ static bool old_z_max_endstop=false;
 
 static bool check_endstops = true;
 
-volatile long count_position[NUM_AXIS] = { 0, 0, 0, 0};
-volatile signed char count_direction[NUM_AXIS] = { 1, 1, 1, 1};
+volatile long count_position[NUM_AXIS] = {0, 0, 0, 0, 0};
+volatile signed char count_direction[NUM_AXIS] = {1, 1, 1, 1, 1};
 
 //===========================================================================
 //=============================functions         ============================
@@ -325,6 +326,7 @@ ISR(TIMER1_COMPA_vect)
       counter_y = counter_x;
       counter_z = counter_x;
       counter_e = counter_x;
+      counter_i = counter_x;
       step_events_completed = 0;
 
       #ifdef Z_LATE_ENABLE
@@ -527,16 +529,24 @@ ISR(TIMER1_COMPA_vect)
       }
     }
 
-    #ifndef ADVANCE
+    // #ifndef ADVANCE
       if ((out_bits & (1<<E_AXIS)) != 0) {  // -direction
-        REV_E_DIR();
+        E0_REV_E_DIR();
         count_direction[E_AXIS]=-1;
       }
       else { // +direction
-        NORM_E_DIR();
+        E0_NORM_E_DIR();
         count_direction[E_AXIS]=1;
       }
-    #endif //!ADVANCE
+      if ((out_bits & (1<<I_AXIS)) != 0) {  // -direction
+        E1_REV_E_DIR();
+        count_direction[I_AXIS]=-1;
+      }
+      else { // +direction
+        E1_NORM_E_DIR();
+        count_direction[I_AXIS]=1;
+      }
+    // #endif //!ADVANCE
 
 
 
@@ -545,18 +555,18 @@ ISR(TIMER1_COMPA_vect)
       MSerial.checkRx(); // Check for serial chars.
       #endif
 
-      #ifdef ADVANCE
-      counter_e += current_block->steps_e;
-      if (counter_e > 0) {
-        counter_e -= current_block->step_event_count;
-        if ((out_bits & (1<<E_AXIS)) != 0) { // - direction
-          e_steps[current_block->active_extruder]--;
-        }
-        else {
-          e_steps[current_block->active_extruder]++;
-        }
-      }
-      #endif //ADVANCE
+      // #ifdef ADVANCE
+      // counter_e += current_block->steps_e;
+      // if (counter_e > 0) {
+      //   counter_e -= current_block->step_event_count;
+      //   if ((out_bits & (1<<E_AXIS)) != 0) { // - direction
+      //     e_steps[current_block->active_extruder]--;
+      //   }
+      //   else {
+      //     e_steps[current_block->active_extruder]++;
+      //   }
+      // }
+      // #endif //ADVANCE
 
         counter_x += current_block->steps_x;
         if (counter_x > 0) {
@@ -626,15 +636,24 @@ ISR(TIMER1_COMPA_vect)
         #endif
       }
 
-      #ifndef ADVANCE
+      // #ifndef ADVANCE
         counter_e += current_block->steps_e;
         if (counter_e > 0) {
-          WRITE_E_STEP(!INVERT_E_STEP_PIN);
+          E0_WRITE_E_STEP(!INVERT_E_STEP_PIN);
           counter_e -= current_block->step_event_count;
           count_position[E_AXIS]+=count_direction[E_AXIS];
-          WRITE_E_STEP(INVERT_E_STEP_PIN);
+          E0_WRITE_E_STEP(INVERT_E_STEP_PIN);
         }
-      #endif //!ADVANCE
+
+        counter_i += current_block->steps_i;
+        if (counter_i > 0) {
+          E1_WRITE_E_STEP(!INVERT_E_STEP_PIN);
+          counter_i -= current_block->step_event_count;
+          count_position[I_AXIS]+=count_direction[I_AXIS];
+          E1_WRITE_E_STEP(INVERT_E_STEP_PIN);
+        }
+      // #endif //!ADVANCE
+
       step_events_completed += 1;
       if(step_events_completed >= current_block->step_event_count) break;
     }
@@ -654,16 +673,16 @@ ISR(TIMER1_COMPA_vect)
       timer = calc_timer(acc_step_rate);
       OCR1A = timer;
       acceleration_time += timer;
-      #ifdef ADVANCE
-        for(int8_t i=0; i < step_loops; i++) {
-          advance += advance_rate;
-        }
-        //if(advance > current_block->advance) advance = current_block->advance;
-        // Do E steps + advance steps
-        e_steps[current_block->active_extruder] += ((advance >>8) - old_advance);
-        old_advance = advance >>8;
+      // #ifdef ADVANCE
+      //   for(int8_t i=0; i < step_loops; i++) {
+      //     advance += advance_rate;
+      //   }
+      //   //if(advance > current_block->advance) advance = current_block->advance;
+      //   // Do E steps + advance steps
+      //   e_steps[current_block->active_extruder] += ((advance >>8) - old_advance);
+      //   old_advance = advance >>8;
 
-      #endif
+      // #endif
     }
     else if (step_events_completed > (unsigned long int)current_block->decelerate_after) {
       MultiU24X24toH16(step_rate, deceleration_time, current_block->acceleration_rate);
@@ -683,15 +702,15 @@ ISR(TIMER1_COMPA_vect)
       timer = calc_timer(step_rate);
       OCR1A = timer;
       deceleration_time += timer;
-      #ifdef ADVANCE
-        for(int8_t i=0; i < step_loops; i++) {
-          advance -= advance_rate;
-        }
-        if(advance < final_advance) advance = final_advance;
-        // Do E steps + advance steps
-        e_steps[current_block->active_extruder] += ((advance >>8) - old_advance);
-        old_advance = advance >>8;
-      #endif //ADVANCE
+      // #ifdef ADVANCE
+      //   for(int8_t i=0; i < step_loops; i++) {
+      //     advance -= advance_rate;
+      //   }
+      //   if(advance < final_advance) advance = final_advance;
+      //   // Do E steps + advance steps
+      //   e_steps[current_block->active_extruder] += ((advance >>8) - old_advance);
+      //   old_advance = advance >>8;
+      // #endif //ADVANCE
     }
     else {
       OCR1A = OCR1A_nominal;
@@ -707,62 +726,62 @@ ISR(TIMER1_COMPA_vect)
   }
 }
 
-#ifdef ADVANCE
-  unsigned char old_OCR0A;
-  // Timer interrupt for E. e_steps is set in the main routine;
-  // Timer 0 is shared with millies
-  ISR(TIMER0_COMPA_vect)
-  {
-    old_OCR0A += 52; // ~10kHz interrupt (250000 / 26 = 9615kHz)
-    OCR0A = old_OCR0A;
-    // Set E direction (Depends on E direction + advance)
-    for(unsigned char i=0; i<4;i++) {
-      if (e_steps[0] != 0) {
-        WRITE(E0_STEP_PIN, INVERT_E_STEP_PIN);
-        if (e_steps[0] < 0) {
-          WRITE(E0_DIR_PIN, INVERT_E0_DIR);
-          e_steps[0]++;
-          WRITE(E0_STEP_PIN, !INVERT_E_STEP_PIN);
-        }
-        else if (e_steps[0] > 0) {
-          WRITE(E0_DIR_PIN, !INVERT_E0_DIR);
-          e_steps[0]--;
-          WRITE(E0_STEP_PIN, !INVERT_E_STEP_PIN);
-        }
-      }
- #if EXTRUDERS > 1
-      if (e_steps[1] != 0) {
-        WRITE(E1_STEP_PIN, INVERT_E_STEP_PIN);
-        if (e_steps[1] < 0) {
-          WRITE(E1_DIR_PIN, INVERT_E1_DIR);
-          e_steps[1]++;
-          WRITE(E1_STEP_PIN, !INVERT_E_STEP_PIN);
-        }
-        else if (e_steps[1] > 0) {
-          WRITE(E1_DIR_PIN, !INVERT_E1_DIR);
-          e_steps[1]--;
-          WRITE(E1_STEP_PIN, !INVERT_E_STEP_PIN);
-        }
-      }
- #endif
- #if EXTRUDERS > 2
-      if (e_steps[2] != 0) {
-        WRITE(E2_STEP_PIN, INVERT_E_STEP_PIN);
-        if (e_steps[2] < 0) {
-          WRITE(E2_DIR_PIN, INVERT_E2_DIR);
-          e_steps[2]++;
-          WRITE(E2_STEP_PIN, !INVERT_E_STEP_PIN);
-        }
-        else if (e_steps[2] > 0) {
-          WRITE(E2_DIR_PIN, !INVERT_E2_DIR);
-          e_steps[2]--;
-          WRITE(E2_STEP_PIN, !INVERT_E_STEP_PIN);
-        }
-      }
- #endif
-    }
-  }
-#endif // ADVANCE
+// #ifdef ADVANCE
+//   unsigned char old_OCR0A;
+//   // Timer interrupt for E. e_steps is set in the main routine;
+//   // Timer 0 is shared with millies
+//   ISR(TIMER0_COMPA_vect)
+//   {
+//     old_OCR0A += 52; // ~10kHz interrupt (250000 / 26 = 9615kHz)
+//     OCR0A = old_OCR0A;
+//     // Set E direction (Depends on E direction + advance)
+//     for(unsigned char i=0; i<4;i++) {
+//       if (e_steps[0] != 0) {
+//         WRITE(E0_STEP_PIN, INVERT_E_STEP_PIN);
+//         if (e_steps[0] < 0) {
+//           WRITE(E0_DIR_PIN, INVERT_E0_DIR);
+//           e_steps[0]++;
+//           WRITE(E0_STEP_PIN, !INVERT_E_STEP_PIN);
+//         }
+//         else if (e_steps[0] > 0) {
+//           WRITE(E0_DIR_PIN, !INVERT_E0_DIR);
+//           e_steps[0]--;
+//           WRITE(E0_STEP_PIN, !INVERT_E_STEP_PIN);
+//         }
+//       }
+//  #if EXTRUDERS > 1
+//       if (e_steps[1] != 0) {
+//         WRITE(E1_STEP_PIN, INVERT_E_STEP_PIN);
+//         if (e_steps[1] < 0) {
+//           WRITE(E1_DIR_PIN, INVERT_E1_DIR);
+//           e_steps[1]++;
+//           WRITE(E1_STEP_PIN, !INVERT_E_STEP_PIN);
+//         }
+//         else if (e_steps[1] > 0) {
+//           WRITE(E1_DIR_PIN, !INVERT_E1_DIR);
+//           e_steps[1]--;
+//           WRITE(E1_STEP_PIN, !INVERT_E_STEP_PIN);
+//         }
+//       }
+//  #endif
+//  #if EXTRUDERS > 2
+//       if (e_steps[2] != 0) {
+//         WRITE(E2_STEP_PIN, INVERT_E_STEP_PIN);
+//         if (e_steps[2] < 0) {
+//           WRITE(E2_DIR_PIN, INVERT_E2_DIR);
+//           e_steps[2]++;
+//           WRITE(E2_STEP_PIN, !INVERT_E_STEP_PIN);
+//         }
+//         else if (e_steps[2] > 0) {
+//           WRITE(E2_DIR_PIN, !INVERT_E2_DIR);
+//           e_steps[2]--;
+//           WRITE(E2_STEP_PIN, !INVERT_E_STEP_PIN);
+//         }
+//       }
+//  #endif
+//     }
+//   }
+// #endif // ADVANCE
 
 void st_init()
 {
