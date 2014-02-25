@@ -54,11 +54,6 @@ void lcd_level_bed(void);
     
   void lcd_buzz(long duration,uint16_t freq);
   bool lcd_clicked();
-//WITBOX REVISAR SI HACE FALTA->
-#ifdef WITBOX
-  void lcd_set_clicked(boolean state);
-#endif
-//<-WITBOX REVISAR SI HACE FALTA
 
   #ifdef NEWPANEL
     #define EN_C (1<<BLEN_C)
