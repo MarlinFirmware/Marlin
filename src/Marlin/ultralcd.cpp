@@ -1671,11 +1671,6 @@ bool lcd_clicked()
 { 
   return LCD_CLICKED;
 }
-//REVISAR SI HACE FALTA PARA LA WITBOX->
-void lcd_set_clicked(boolean state){
-  LCD_CLICKED == state;
-}
-//<-REVISAR SI HACE FALTA PARA LA WITBOX
 #endif//ULTIPANEL
 
 /********************************/
