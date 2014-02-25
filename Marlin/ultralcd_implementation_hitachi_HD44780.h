@@ -2,8 +2,8 @@
 #define ULTRA_LCD_IMPLEMENTATION_HITACHI_HD44780_H
 
 /**
-* Implementation of the LCD display routines for a hitachi HD44780 display. These are common LCD character displays.
-* When selecting the rusian language, a slightly different LCD implementation is used to handle UTF8 characters.
+* Implementation of the LCD display routines for a Hitachi HD44780 display. These are common LCD character displays.
+* When selecting the Russian language, a slightly different LCD implementation is used to handle UTF8 characters.
 **/
 
 #ifndef REPRAPWORLD_KEYPAD
@@ -20,7 +20,7 @@ extern volatile uint16_t buttons;  //an extended version of the last checked but
 // via a shift/i2c register.
 
 #ifdef ULTIPANEL
-// All Ultipanels might have an encoder - so this is always be mapped onto first two bits
+// All UltiPanels might have an encoder - so this is always be mapped onto first two bits
 #define BLEN_B 1
 #define BLEN_A 0
 
