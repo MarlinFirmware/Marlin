@@ -85,7 +85,7 @@ AutoTemp:
 If your gcode contains a wide spread of extruder velocities, or you realtime change the building speed, the temperature should be changed accordingly.
 Usually, higher speed requires higher temperature.
 This can now be performed by the AutoTemp function
-By calling M109 S<mintemp> T<maxtemp> F<factor> you enter the autotemp mode.
+By calling M109 S<mintemp> B<maxtemp> F<factor> you enter the autotemp mode.
 
 You can leave it by calling M109 without any F.
 If active, the maximal extruder stepper rate of all buffered moves will be calculated, and named "maxerate" [steps/sec].
