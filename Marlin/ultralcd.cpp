@@ -746,7 +746,7 @@ void config_lcd_level_bed(){
 	if(degHotend(0)<LEVEL_PLATE_TEMP_PROTECTION){
 		SERIAL_ECHOLN("Leveling...");	
 		currentMenu=lcd_level_bed;
-		enquecommand_P(PSTR("M602"));
+		enquecommand_P(PSTR("M700"));
 		pageShowInfo=0;
 	}
 	else{
@@ -963,7 +963,7 @@ static void lcd_insert_and_press_1()
     //encoderPosition = 0;
     //MENU_ITEM(submenu, MSG_PRE_EXTRUD, lcd_pre_extrud_1);
     active_extruder = 0;
-    MENU_ITEM(gcode, MSG_PRE_EXTRUD, PSTR("M700")); 
+    MENU_ITEM(gcode, MSG_PRE_EXTRUD, PSTR("M701")); 
     END_MENU();
 }
 static void lcd_abort_preheating_1()
@@ -1013,7 +1013,7 @@ static void lcd_unload_material_extrud_1()
    
         currentMenu = lcd_filament_menu;
 	//-- Ejecutar gcode
-	 enquecommand_P(PSTR("M701"));
+	 enquecommand_P(PSTR("M702"));
     }
 }
 #endif //WITBOX
