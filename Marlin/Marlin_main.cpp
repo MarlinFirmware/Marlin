@@ -848,42 +848,62 @@ static void do_blocking_extrude_to(float e) {
 
     feedrate = oldFeedRate;
 }
+
 #ifdef ENABLE_AUTO_BED_LEVELING
-static void set_bed_level_equation(float z_at_xLeft_yFront, float z_at_xRight_yFront, float z_at_xLeft_yBack) {
-    plan_bed_level_matrix.set_to_identity();
-
-    vector_3 xLeftyFront = vector_3(LEFT_PROBE_BED_POSITION, FRONT_PROBE_BED_POSITION, z_at_xLeft_yFront);
-    vector_3 xLeftyBack = vector_3(LEFT_PROBE_BED_POSITION, BACK_PROBE_BED_POSITION, z_at_xLeft_yBack);
-    vector_3 xRightyFront = vector_3(RIGHT_PROBE_BED_POSITION, FRONT_PROBE_BED_POSITION, z_at_xRight_yFront);
-
-    vector_3 xPositive = (xRightyFront - xLeftyFront).get_normal();
-    vector_3 yPositive = (xLeftyBack - xLeftyFront).get_normal();
-    vector_3 planeNormal = vector_3::cross(yPositive, xPositive).get_normal();
-
-    //planeNormal.debug("planeNormal");
-    //yPositive.debug("yPositive");
-    matrix_3x3 bedLevel = matrix_3x3::create_look_at(planeNormal, yPositive);
+#ifdef AUTO_BED_LEVELING_GRID
+static void set_bed_level_equation_lsq(double *plane_equation_coefficients)
+{
+    vector_3 planeNormal = vector_3(-plane_equation_coefficients[0], -plane_equation_coefficients[1], 1);
+    planeNormal.debug("planeNormal");
+    plan_bed_level_matrix = matrix_3x3::create_look_at(planeNormal);
     //bedLevel.debug("bedLevel");
 
     //plan_bed_level_matrix.debug("bed level before");
     //vector_3 uncorrected_position = plan_get_position_mm();
     //uncorrected_position.debug("position before");
 
-    // and set our bed level equation to do the right thing
-    plan_bed_level_matrix = matrix_3x3::create_inverse(bedLevel);
-    //plan_bed_level_matrix.debug("bed level after");
-
     vector_3 corrected_position = plan_get_position();
-    //corrected_position.debug("position after");
+//    corrected_position.debug("position after");
     current_position[X_AXIS] = corrected_position.x;
     current_position[Y_AXIS] = corrected_position.y;
     current_position[Z_AXIS] = corrected_position.z;
 
     // but the bed at 0 so we don't go below it.
-    current_position[Z_AXIS] = -Z_PROBE_OFFSET_FROM_EXTRUDER;
+    current_position[Z_AXIS] = zprobe_zoffset; // in the lsq we reach here after raising the extruder due to the loop structure
 
     plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
 }
+
+#else // not AUTO_BED_LEVELING_GRID
+
+static void set_bed_level_equation_3pts(float z_at_pt_1, float z_at_pt_2, float z_at_pt_3) {
+
+    plan_bed_level_matrix.set_to_identity();
+
+    vector_3 pt1 = vector_3(ABL_PROBE_PT_1_X, ABL_PROBE_PT_1_Y, z_at_pt_1);
+    vector_3 pt2 = vector_3(ABL_PROBE_PT_2_X, ABL_PROBE_PT_2_Y, z_at_pt_2);
+    vector_3 pt3 = vector_3(ABL_PROBE_PT_3_X, ABL_PROBE_PT_3_Y, z_at_pt_3);
+
+    vector_3 from_2_to_1 = (pt1 - pt2).get_normal();
+    vector_3 from_2_to_3 = (pt3 - pt2).get_normal();
+    vector_3 planeNormal = vector_3::cross(from_2_to_1, from_2_to_3).get_normal();
+    planeNormal = vector_3(planeNormal.x, planeNormal.y, abs(planeNormal.z));
+
+    plan_bed_level_matrix = matrix_3x3::create_look_at(planeNormal);
+
+    vector_3 corrected_position = plan_get_position();
+    current_position[X_AXIS] = corrected_position.x;
+    current_position[Y_AXIS] = corrected_position.y;
+    current_position[Z_AXIS] = corrected_position.z;
+
+    // put the bed at 0 so we don't go below it.
+    current_position[Z_AXIS] = zprobe_zoffset;
+
+    plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+
+}
+
+#endif // AUTO_BED_LEVELING_GRID
 
 static void run_z_probe() {
     plan_bed_level_matrix.set_to_identity();
@@ -967,6 +987,28 @@ static void retract_z_probe() {
 #endif
     }
     #endif
+}
+
+/// Probe bed height at position (x,y), returns the measured z value
+static float probe_pt(float x, float y, float z_before) {
+  // move to right place
+  do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], z_before);
+  do_blocking_move_to(x - X_PROBE_OFFSET_FROM_EXTRUDER, y - Y_PROBE_OFFSET_FROM_EXTRUDER, current_position[Z_AXIS]);
+
+  engage_z_probe();   // Engage Z Servo endstop if available
+  run_z_probe();
+  float measured_z = current_position[Z_AXIS];
+  retract_z_probe();
+
+  SERIAL_PROTOCOLPGM(MSG_BED);
+  SERIAL_PROTOCOLPGM(" x: ");
+  SERIAL_PROTOCOL(x);
+  SERIAL_PROTOCOLPGM(" y: ");
+  SERIAL_PROTOCOL(y);
+  SERIAL_PROTOCOLPGM(" z: ");
+  SERIAL_PROTOCOL(measured_z);
+  SERIAL_PROTOCOLPGM("\n");
+  return measured_z;
 }
 
 #endif // #ifdef ENABLE_AUTO_BED_LEVELING
