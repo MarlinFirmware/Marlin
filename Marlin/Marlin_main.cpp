@@ -161,6 +161,7 @@
 // M503 - print the current settings (from memory not from EEPROM)
 // M540 - Use S[0|1] to enable or disable the stop SD card print on endstop hit (requires ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED)
 // M600 - Pause for filament change X[pos] Y[pos] Z[relative lift] E[initial retract] L[later retract distance for removal]
+// M665 - set delta configurations
 // M666 - set delta endstop adjustment
 // M605 - Set dual x-carriage movement mode: S<mode> [ X<duplication x-offset> R<duplication temp offset> ]
 // M907 - Set digital trimpot motor current using axis codes.
@@ -249,9 +250,21 @@ int EtoPPressure=0;
 #endif
 
 #ifdef DELTA
-float delta[3] = {0.0, 0.0, 0.0};
-#endif
-
+  float delta[3] = {0.0, 0.0, 0.0};
+  #define SIN_60 0.8660254037844386
+  #define COS_60 0.5
+  // these are the default values, can be overriden with M665
+  float delta_radius= DELTA_RADIUS;
+  float delta_tower1_x= -SIN_60*delta_radius; // front left tower
+  float delta_tower1_y= -COS_60*delta_radius;	   
+  float delta_tower2_x=  SIN_60*delta_radius; // front right tower
+  float delta_tower2_y= -COS_60*delta_radius;	   
+  float delta_tower3_x= 0.0;                  // back middle tower
+  float delta_tower3_y= delta_radius;
+  float delta_diagonal_rod= DELTA_DIAGONAL_ROD;
+  float delta_diagonal_rod_2= sq(delta_diagonal_rod);
+  float delta_segments_per_second= DELTA_SEGMENTS_PER_SECOND;
+#endif					
 
 //===========================================================================
 //=============================Private Variables=============================
@@ -2293,6 +2306,19 @@ void process_commands()
       }
       break;
     #ifdef DELTA
+	case 665: // M665 set delta configurations L<diagonal_rod> R<delta_radius> S<segments_per_sec>
+		if(code_seen('L')) {
+			delta_diagonal_rod= code_value();
+		}
+		if(code_seen('R')) {
+			delta_radius= code_value();
+		}
+		if(code_seen('S')) {
+			delta_segments_per_second= code_value();
+		}
+		
+		recalc_delta_settings(delta_radius, delta_diagonal_rod);
+		break;
     case 666: // M666 set delta endstop adjustemnt
       for(int8_t i=0; i < 3; i++)
       {
@@ -3091,19 +3117,30 @@ void clamp_to_software_endstops(float target[3])
 }
 
 #ifdef DELTA
+void recalc_delta_settings(float radius, float diagonal_rod)
+{
+	 delta_tower1_x= -SIN_60*radius; // front left tower
+	 delta_tower1_y= -COS_60*radius;	   
+	 delta_tower2_x=  SIN_60*radius; // front right tower
+	 delta_tower2_y= -COS_60*radius;	   
+	 delta_tower3_x= 0.0;                  // back middle tower
+	 delta_tower3_y= radius;
+	 delta_diagonal_rod_2= sq(diagonal_rod);
+}
+
 void calculate_delta(float cartesian[3])
 {
-  delta[X_AXIS] = sqrt(DELTA_DIAGONAL_ROD_2
-                       - sq(DELTA_TOWER1_X-cartesian[X_AXIS])
-                       - sq(DELTA_TOWER1_Y-cartesian[Y_AXIS])
+  delta[X_AXIS] = sqrt(delta_diagonal_rod_2
+                       - sq(delta_tower1_x-cartesian[X_AXIS])
+                       - sq(delta_tower1_y-cartesian[Y_AXIS])
                        ) + cartesian[Z_AXIS];
-  delta[Y_AXIS] = sqrt(DELTA_DIAGONAL_ROD_2
-                       - sq(DELTA_TOWER2_X-cartesian[X_AXIS])
-                       - sq(DELTA_TOWER2_Y-cartesian[Y_AXIS])
+  delta[Y_AXIS] = sqrt(delta_diagonal_rod_2
+                       - sq(delta_tower2_x-cartesian[X_AXIS])
+                       - sq(delta_tower2_y-cartesian[Y_AXIS])
                        ) + cartesian[Z_AXIS];
-  delta[Z_AXIS] = sqrt(DELTA_DIAGONAL_ROD_2
-                       - sq(DELTA_TOWER3_X-cartesian[X_AXIS])
-                       - sq(DELTA_TOWER3_Y-cartesian[Y_AXIS])
+  delta[Z_AXIS] = sqrt(delta_diagonal_rod_2
+                       - sq(delta_tower3_x-cartesian[X_AXIS])
+                       - sq(delta_tower3_y-cartesian[Y_AXIS])
                        ) + cartesian[Z_AXIS];
   /*
   SERIAL_ECHOPGM("cartesian x="); SERIAL_ECHO(cartesian[X_AXIS]);
@@ -3133,7 +3170,7 @@ void prepare_move()
   if (cartesian_mm < 0.000001) { cartesian_mm = abs(difference[E_AXIS]); }
   if (cartesian_mm < 0.000001) { return; }
   float seconds = 6000 * cartesian_mm / feedrate / feedmultiply;
-  int steps = max(1, int(DELTA_SEGMENTS_PER_SECOND * seconds));
+  int steps = max(1, int(delta_segments_per_second * seconds));
   // SERIAL_ECHOPGM("mm="); SERIAL_ECHO(cartesian_mm);
   // SERIAL_ECHOPGM(" seconds="); SERIAL_ECHO(seconds);
   // SERIAL_ECHOPGM(" steps="); SERIAL_ECHOLN(steps);
