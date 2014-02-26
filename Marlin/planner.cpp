@@ -413,10 +413,10 @@ void getHighESpeed()
   uint8_t block_index = block_buffer_tail;
 
   while(block_index != block_buffer_head) {
-    if((block_buffer[block_index].steps_x != 0) ||
-      (block_buffer[block_index].steps_y != 0) ||
-      (block_buffer[block_index].steps_z != 0)) {
-      float se=(float(block_buffer[block_index].steps_e)/float(block_buffer[block_index].step_event_count))*block_buffer[block_index].nominal_speed;
+    if((block_buffer[block_index].steps[X_AXIS] != 0) ||
+      (block_buffer[block_index].steps[Y_AXIS] != 0) ||
+      (block_buffer[block_index].steps[Z_AXIS] != 0)) {
+      float se=(float(block_buffer[block_index].steps[E_AXIS])/float(block_buffer[block_index].step_event_count))*block_buffer[block_index].nominal_speed;
       //se; mm/sec;
       if(se>high)
       {
@@ -465,10 +465,10 @@ void check_axes_activity()
     while(block_index != block_buffer_head)
     {
       block = &block_buffer[block_index];
-      if(block->steps_x != 0) x_active++;
-      if(block->steps_y != 0) y_active++;
-      if(block->steps_z != 0) z_active++;
-      if(block->steps_e != 0) e_active++;
+      if(block->steps[X_AXIS] != 0) x_active++;
+      if(block->steps[Y_AXIS] != 0) y_active++;
+      if(block->steps[Z_AXIS] != 0) z_active++;
+      if(block->steps[E_AXIS] != 0) e_active++;
       block_index = (block_index+1) & (BLOCK_BUFFER_SIZE - 1);
     }
   }
@@ -552,18 +552,18 @@ void crazy(const float &x, const float &y, const float &z, const float &e, const
   block->busy = false;
 
   // Number of steps for each axis
-  block->steps_x = labs(target[X_AXIS]-position[X_AXIS]);
-  block->steps_y = labs(target[Y_AXIS]-position[Y_AXIS]);
-  block->steps_z = labs(target[Z_AXIS]-position[Z_AXIS]);
-  block->steps_e = labs(target[E_AXIS]-position[E_AXIS]);
-  block->steps_e *= volumetric_multiplier[active_extruder];
-  block->steps_e *= extrudemultiply;
-  block->steps_e /= 100;
-  block->steps_i = labs(target[I_AXIS]-position[I_AXIS]);
-  block->steps_i *= volumetric_multiplier[active_extruder];
-  block->steps_i *= extrudemultiply;
-  block->steps_i /= 100;
-  block->step_event_count = max(block->steps_x, max(block->steps_y, max(block->steps_z, max(block->steps_e, block->steps_i))));
+  block->steps[X_AXIS] = labs(target[X_AXIS]-position[X_AXIS]);
+  block->steps[Y_AXIS] = labs(target[Y_AXIS]-position[Y_AXIS]);
+  block->steps[Z_AXIS] = labs(target[Z_AXIS]-position[Z_AXIS]);
+  block->steps[E_AXIS] = labs(target[E_AXIS]-position[E_AXIS]);
+  block->steps[E_AXIS] *= volumetric_multiplier[active_extruder];
+  block->steps[E_AXIS] *= extrudemultiply;
+  block->steps[E_AXIS] /= 100;
+  block->steps[I_AXIS] = labs(target[I_AXIS]-position[I_AXIS]);
+  block->steps[I_AXIS] *= volumetric_multiplier[active_extruder];
+  block->steps[I_AXIS] *= extrudemultiply;
+  block->steps[I_AXIS] /= 100;
+  block->step_event_count = max(block->steps[X_AXIS], max(block->steps[Y_AXIS], max(block->steps[Z_AXIS], max(block->steps[E_AXIS], block->steps[I_AXIS]))));
 
   // Bail if this is a zero-length block
   if (block->step_event_count <= dropsegments)
@@ -598,22 +598,22 @@ void crazy(const float &x, const float &y, const float &z, const float &e, const
 
   block->active_extruder = extruder;
 
-  if(block->steps_x != 0) enable_x();
-  if(block->steps_y != 0) enable_y();
-  if(block->steps_z != 0) enable_z();
-  if(block->steps_e != 0) enable_e0();
-  if(block->steps_i != 0) enable_e1();
+  if(block->steps[X_AXIS] != 0) enable_x();
+  if(block->steps[Y_AXIS] != 0) enable_y();
+  if(block->steps[Z_AXIS] != 0) enable_z();
+  if(block->steps[E_AXIS] != 0) enable_e0();
+  if(block->steps[I_AXIS] != 0) enable_e1();
 
 
   // Enable all
-  // if((block->steps_e != 0) || (block->steps_i != 0))
+  // if((block->steps[E_AXIS] != 0) || (block->steps[I_AXIS] != 0))
   // {
   //   enable_e0();
   //   enable_e1();
   //   enable_e2(); 
   // }
 
-  // if((block->steps_e == 0) || (block->steps_i == 0))
+  // if((block->steps[E_AXIS] == 0) || (block->steps[I_AXIS] == 0))
   // {
   //   if(feed_rate < mintravelfeedrate) feed_rate = mintravelfeedrate;
   // }
@@ -628,7 +628,7 @@ void crazy(const float &x, const float &y, const float &z, const float &e, const
   delta_mm[Z_AXIS] = (target[Z_AXIS]-position[Z_AXIS])/axis_steps_per_unit[Z_AXIS];
   delta_mm[E_AXIS] = ((target[E_AXIS]-position[E_AXIS])/axis_steps_per_unit[E_AXIS])*volumetric_multiplier[active_extruder]*extrudemultiply/100.0;
   delta_mm[I_AXIS] = ((target[I_AXIS]-position[I_AXIS])/axis_steps_per_unit[I_AXIS])*volumetric_multiplier[active_extruder]*extrudemultiply/100.0;
-  if(block->steps_x <= dropsegments && block->steps_y <= dropsegments && block->steps_z <= dropsegments)
+  if(block->steps[X_AXIS] <= dropsegments && block->steps[Y_AXIS] <= dropsegments && block->steps[Z_AXIS] <= dropsegments)
   {
     // block->millimeters = max(fabs(delta_mm[E_AXIS]), fabs(delta_mm[I_AXIS]));
     // block->millimeters = fabs(delta_mm[E_AXIS]);
@@ -706,7 +706,7 @@ void crazy(const float &x, const float &y, const float &z, const float &e, const
 
   // Compute and limit the acceleration rate for the trapezoid generator.  
   float steps_per_mm = block->step_event_count/block->millimeters;
-  if(block->steps_x == 0 && block->steps_y == 0 && block->steps_z == 0)
+  if(block->steps[X_AXIS] == 0 && block->steps[Y_AXIS] == 0 && block->steps[Z_AXIS] == 0)
   {
     block->acceleration_st = ceil(retract_acceleration * steps_per_mm); // convert to: acceleration steps/sec^2
   }
@@ -714,15 +714,15 @@ void crazy(const float &x, const float &y, const float &z, const float &e, const
   {
     block->acceleration_st = ceil(acceleration * steps_per_mm); // convert to: acceleration steps/sec^2
     // Limit acceleration per axis
-    if(((float)block->acceleration_st * (float)block->steps_x / (float)block->step_event_count) > axis_steps_per_sqr_second[X_AXIS])
+    if(((float)block->acceleration_st * (float)block->steps[X_AXIS] / (float)block->step_event_count) > axis_steps_per_sqr_second[X_AXIS])
       block->acceleration_st = axis_steps_per_sqr_second[X_AXIS];
-    if(((float)block->acceleration_st * (float)block->steps_y / (float)block->step_event_count) > axis_steps_per_sqr_second[Y_AXIS])
+    if(((float)block->acceleration_st * (float)block->steps[Y_AXIS] / (float)block->step_event_count) > axis_steps_per_sqr_second[Y_AXIS])
       block->acceleration_st = axis_steps_per_sqr_second[Y_AXIS];
-    if(((float)block->acceleration_st * (float)block->steps_e / (float)block->step_event_count) > axis_steps_per_sqr_second[E_AXIS])
+    if(((float)block->acceleration_st * (float)block->steps[E_AXIS] / (float)block->step_event_count) > axis_steps_per_sqr_second[E_AXIS])
       block->acceleration_st = axis_steps_per_sqr_second[E_AXIS];
-    if(((float)block->acceleration_st * (float)block->steps_i / (float)block->step_event_count) > axis_steps_per_sqr_second[I_AXIS]) // Use E0 for now
+    if(((float)block->acceleration_st * (float)block->steps[I_AXIS] / (float)block->step_event_count) > axis_steps_per_sqr_second[I_AXIS]) // Use E0 for now
       block->acceleration_st = axis_steps_per_sqr_second[I_AXIS];
-    if(((float)block->acceleration_st * (float)block->steps_z / (float)block->step_event_count ) > axis_steps_per_sqr_second[Z_AXIS])
+    if(((float)block->acceleration_st * (float)block->steps[Z_AXIS] / (float)block->step_event_count ) > axis_steps_per_sqr_second[Z_AXIS])
       block->acceleration_st = axis_steps_per_sqr_second[Z_AXIS];
   }
   block->acceleration = block->acceleration_st / steps_per_mm;
@@ -792,7 +792,7 @@ void crazy(const float &x, const float &y, const float &z, const float &e, const
   st_wake_up();
 }
 
-// Add a new linear movement to the buffer. steps_x, _y and _z is the absolute position in 
+// Add a new linear movement to the buffer. steps[X_AXIS], _y and _z is the absolute position in 
 // mm. Microseconds specify how many microseconds the move should take to perform. To aid acceleration
 // calculation the caller must also provide the physical length of the line in millimeters.
 #ifdef ENABLE_AUTO_BED_LEVELING
@@ -856,20 +856,20 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
   // Number of steps for each axis
 #ifndef COREXY
 // default non-h-bot planning
-block->steps_x = labs(target[X_AXIS]-position[X_AXIS]);
-block->steps_y = labs(target[Y_AXIS]-position[Y_AXIS]);
+block->steps[X_AXIS] = labs(target[X_AXIS]-position[X_AXIS]);
+block->steps[Y_AXIS] = labs(target[Y_AXIS]-position[Y_AXIS]);
 #else
 // corexy planning
 // these equations follow the form of the dA and dB equations on http://www.corexy.com/theory.html
-block->steps_x = labs((target[X_AXIS]-position[X_AXIS]) + (target[Y_AXIS]-position[Y_AXIS]));
-block->steps_y = labs((target[X_AXIS]-position[X_AXIS]) - (target[Y_AXIS]-position[Y_AXIS]));
+block->steps[X_AXIS] = labs((target[X_AXIS]-position[X_AXIS]) + (target[Y_AXIS]-position[Y_AXIS]));
+block->steps[Y_AXIS] = labs((target[X_AXIS]-position[X_AXIS]) - (target[Y_AXIS]-position[Y_AXIS]));
 #endif
-  block->steps_z = labs(target[Z_AXIS]-position[Z_AXIS]);
-  block->steps_e = labs(target[E_AXIS]-position[E_AXIS]);
-  block->steps_e *= volumetric_multiplier[active_extruder];
-  block->steps_e *= extrudemultiply;
-  block->steps_e /= 100;
-  block->step_event_count = max(block->steps_x, max(block->steps_y, max(block->steps_z, block->steps_e)));
+  block->steps[Z_AXIS] = labs(target[Z_AXIS]-position[Z_AXIS]);
+  block->steps[E_AXIS] = labs(target[E_AXIS]-position[E_AXIS]);
+  block->steps[E_AXIS] *= volumetric_multiplier[active_extruder];
+  block->steps[E_AXIS] *= extrudemultiply;
+  block->steps[E_AXIS] /= 100;
+  block->step_event_count = max(block->steps[X_AXIS], max(block->steps[Y_AXIS], max(block->steps[Z_AXIS], block->steps[E_AXIS])));
 
   // Bail if this is a zero-length block
   if (block->step_event_count <= dropsegments)
@@ -917,28 +917,28 @@ block->steps_y = labs((target[X_AXIS]-position[X_AXIS]) - (target[Y_AXIS]-positi
 
   //enable active axes
   #ifdef COREXY
-  if((block->steps_x != 0) || (block->steps_y != 0))
+  if((block->steps[X_AXIS] != 0) || (block->steps[Y_AXIS] != 0))
   {
     enable_x();
     enable_y();
   }
   #else
-  if(block->steps_x != 0) enable_x();
-  if(block->steps_y != 0) enable_y();
+  if(block->steps[X_AXIS] != 0) enable_x();
+  if(block->steps[Y_AXIS] != 0) enable_y();
   #endif
 #ifndef Z_LATE_ENABLE
-  if(block->steps_z != 0) enable_z();
+  if(block->steps[Z_AXIS] != 0) enable_z();
 #endif
 
   // Enable all
-  if(block->steps_e != 0)
+  if(block->steps[E_AXIS] != 0)
   {
     enable_e0();
     enable_e1();
     enable_e2(); 
   }
 
-  if (block->steps_e == 0)
+  if (block->steps[E_AXIS] == 0)
   {
     if(feed_rate<mintravelfeedrate) feed_rate=mintravelfeedrate;
   }
@@ -957,7 +957,7 @@ block->steps_y = labs((target[X_AXIS]-position[X_AXIS]) - (target[Y_AXIS]-positi
   #endif
   delta_mm[Z_AXIS] = (target[Z_AXIS]-position[Z_AXIS])/axis_steps_per_unit[Z_AXIS];
   delta_mm[E_AXIS] = ((target[E_AXIS]-position[E_AXIS])/axis_steps_per_unit[E_AXIS])*volumetric_multiplier[active_extruder]*extrudemultiply/100.0;
-  if ( block->steps_x <=dropsegments && block->steps_y <=dropsegments && block->steps_z <=dropsegments )
+  if ( block->steps[X_AXIS] <=dropsegments && block->steps[Y_AXIS] <=dropsegments && block->steps[Z_AXIS] <=dropsegments )
   {
     block->millimeters = fabs(delta_mm[E_AXIS]);
   } 
@@ -1056,7 +1056,7 @@ block->steps_y = labs((target[X_AXIS]-position[X_AXIS]) - (target[Y_AXIS]-positi
 
   // Compute and limit the acceleration rate for the trapezoid generator.  
   float steps_per_mm = block->step_event_count/block->millimeters;
-  if(block->steps_x == 0 && block->steps_y == 0 && block->steps_z == 0)
+  if(block->steps[X_AXIS] == 0 && block->steps[Y_AXIS] == 0 && block->steps[Z_AXIS] == 0)
   {
     block->acceleration_st = ceil(retract_acceleration * steps_per_mm); // convert to: acceleration steps/sec^2
   }
@@ -1064,13 +1064,13 @@ block->steps_y = labs((target[X_AXIS]-position[X_AXIS]) - (target[Y_AXIS]-positi
   {
     block->acceleration_st = ceil(acceleration * steps_per_mm); // convert to: acceleration steps/sec^2
     // Limit acceleration per axis
-    if(((float)block->acceleration_st * (float)block->steps_x / (float)block->step_event_count) > axis_steps_per_sqr_second[X_AXIS])
+    if(((float)block->acceleration_st * (float)block->steps[X_AXIS] / (float)block->step_event_count) > axis_steps_per_sqr_second[X_AXIS])
       block->acceleration_st = axis_steps_per_sqr_second[X_AXIS];
-    if(((float)block->acceleration_st * (float)block->steps_y / (float)block->step_event_count) > axis_steps_per_sqr_second[Y_AXIS])
+    if(((float)block->acceleration_st * (float)block->steps[Y_AXIS] / (float)block->step_event_count) > axis_steps_per_sqr_second[Y_AXIS])
       block->acceleration_st = axis_steps_per_sqr_second[Y_AXIS];
-    if(((float)block->acceleration_st * (float)block->steps_e / (float)block->step_event_count) > axis_steps_per_sqr_second[E_AXIS])
+    if(((float)block->acceleration_st * (float)block->steps[E_AXIS] / (float)block->step_event_count) > axis_steps_per_sqr_second[E_AXIS])
       block->acceleration_st = axis_steps_per_sqr_second[E_AXIS];
-    if(((float)block->acceleration_st * (float)block->steps_z / (float)block->step_event_count ) > axis_steps_per_sqr_second[Z_AXIS])
+    if(((float)block->acceleration_st * (float)block->steps[Z_AXIS] / (float)block->step_event_count ) > axis_steps_per_sqr_second[Z_AXIS])
       block->acceleration_st = axis_steps_per_sqr_second[Z_AXIS];
   }
   block->acceleration = block->acceleration_st / steps_per_mm;
@@ -1171,7 +1171,7 @@ block->steps_y = labs((target[X_AXIS]-position[X_AXIS]) - (target[Y_AXIS]-positi
 
 #ifdef ADVANCE
   // Calculate advance rate
-  if((block->steps_e == 0) || (block->steps_x == 0 && block->steps_y == 0 && block->steps_z == 0)) {
+  if((block->steps[E_AXIS] == 0) || (block->steps[X_AXIS] == 0 && block->steps[Y_AXIS] == 0 && block->steps[Z_AXIS] == 0)) {
     block->advance_rate = 0;
     block->advance = 0;
   }
