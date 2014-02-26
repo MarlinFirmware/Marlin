@@ -202,7 +202,20 @@ float volumetric_multiplier[EXTRUDERS] = {1.0
     , 1.0
   #endif
 };
-float current_position[NUM_AXIS] = {0.0, 0.0, 0.0, 0.0, 0.0};
+float current_position[NUM_AXIS] = {0.0, 0.0, 0.0, 0.0
+  #if EXTRUDERS > 1
+    , 0.0
+  #endif
+  #if EXTRUDERS > 2
+    , 0.0
+  #endif
+  #if EXTRUDERS > 3
+    , 0.0
+  #endif
+  #if EXTRUDERS > 4
+    , 0.0
+  #endif
+};
 float add_homeing[3]={0,0,0};
 #ifdef DELTA
 float endstop_adj[3]={0,0,0};
@@ -264,8 +277,34 @@ float delta[3] = {0.0, 0.0, 0.0};
 //===========================================================================
 //=============================private variables=============================
 //===========================================================================
-const char axis_codes[NUM_AXIS] = {'X', 'Y', 'Z', 'E', 'I'};
-static float destination[NUM_AXIS] = {0.0, 0.0, 0.0, 0.0, 0.0};
+const char axis_codes[NUM_AXIS] = {'X', 'Y', 'Z', 'E'
+  #if EXTRUDERS > 1
+    , 'I'
+  #endif
+  #if EXTRUDERS > 2
+    , 'J'
+  #endif
+  #if EXTRUDERS > 3
+    , 'K'
+  #endif
+  #if EXTRUDERS > 4
+    , 'L'
+  #endif
+};
+static float destination[NUM_AXIS] = {0.0, 0.0, 0.0, 0.0
+  #if EXTRUDERS > 1
+    , 0.0
+  #endif
+  #if EXTRUDERS > 2
+    , 0.0
+  #endif
+  #if EXTRUDERS > 3
+    , 0.0
+  #endif
+  #if EXTRUDERS > 4
+    , 0.0
+  #endif
+};
 static float offset[3] = {0.0, 0.0, 0.0};
 static bool home_all_axis = true;
 static float feedrate = 1500.0, next_feedrate, saved_feedrate;
@@ -3046,7 +3085,20 @@ void ClearToSend()
 
 void get_coordinates()
 {
-	bool seen[NUM_AXIS] = {false, false, false, false, false};
+	bool seen[NUM_AXIS] = {false, false, false, false
+    #if EXTRUDERS > 1
+      , false
+    #endif
+    #if EXTRUDERS > 2
+      , false
+    #endif
+    #if EXTRUDERS > 3
+      , false
+    #endif
+    #if EXTRUDERS > 4
+      , false
+    #endif
+  };
 	for(int8_t i=0; i < NUM_AXIS; i++) {
 		if(code_seen(axis_codes[i]))
 		{

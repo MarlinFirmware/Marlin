@@ -50,8 +50,19 @@ static unsigned char out_bits;        // The next stepping-bits to be output
 static long counter_x,       // Counter variables for the bresenham line tracer
             counter_y,
             counter_z,
-            counter_e,
-            counter_i;
+            counter_e;
+#if EXTRUDERS > 1
+  static long counter_i;
+#endif
+#if EXTRUDERS > 2
+  static long counter_j;
+#endif
+#if EXTRUDERS > 3
+  static long counter_k;
+#endif
+#if EXTRUDERS > 4
+  static long counter_l;
+#endif
 volatile static unsigned long step_events_completed; // The number of step events executed in the current block
 #ifdef ADVANCE
   static long advance_rate, advance, final_advance = 0;
@@ -86,8 +97,34 @@ static bool old_z_max_endstop=false;
 
 static bool check_endstops = true;
 
-volatile long count_position[NUM_AXIS] = {0, 0, 0, 0, 0};
-volatile signed char count_direction[NUM_AXIS] = {1, 1, 1, 1, 1};
+volatile long count_position[NUM_AXIS] = {0, 0, 0, 0
+  #if EXTRUDERS > 1
+    , 0
+  #endif
+  #if EXTRUDERS > 2
+    , 0
+  #endif
+  #if EXTRUDERS > 3
+    , 0
+  #endif
+  #if EXTRUDERS > 4
+    , 0
+  #endif
+};
+volatile signed char count_direction[NUM_AXIS] = {1, 1, 1, 1
+  #if EXTRUDERS > 1
+    , 1
+  #endif
+  #if EXTRUDERS > 2
+    , 1
+  #endif
+  #if EXTRUDERS > 3
+    , 1
+  #endif
+  #if EXTRUDERS > 4
+    , 1
+  #endif
+};
 
 //===========================================================================
 //=============================functions         ============================
@@ -326,7 +363,18 @@ ISR(TIMER1_COMPA_vect)
       counter_y = counter_x;
       counter_z = counter_x;
       counter_e = counter_x;
-      counter_i = counter_x;
+      #if EXTRUDERS > 1
+        counter_i = counter_x;
+      #endif
+      #if EXTRUDERS > 2
+        counter_j = counter_x;
+      #endif
+      #if EXTRUDERS > 3
+        counter_k = counter_x;
+      #endif
+      #if EXTRUDERS > 4
+        counter_l = counter_x;
+      #endif
       step_events_completed = 0;
 
       #ifdef Z_LATE_ENABLE
@@ -529,24 +577,57 @@ ISR(TIMER1_COMPA_vect)
       }
     }
 
-    // #ifndef ADVANCE
+    #ifndef ADVANCE
       if ((out_bits & (1<<E_AXIS)) != 0) {  // -direction
-        E0_REV_E_DIR();
+        REV_E_DIR();
         count_direction[E_AXIS]=-1;
       }
       else { // +direction
-        E0_NORM_E_DIR();
+        NORM_E_DIR();
         count_direction[E_AXIS]=1;
       }
-      if ((out_bits & (1<<I_AXIS)) != 0) {  // -direction
-        E1_REV_E_DIR();
-        count_direction[I_AXIS]=-1;
-      }
-      else { // +direction
-        E1_NORM_E_DIR();
-        count_direction[I_AXIS]=1;
-      }
-    // #endif //!ADVANCE
+
+      #if EXTRUDERS > 1
+        if ((out_bits & (1<<I_AXIS)) != 0) {  // -direction
+          REV_I_DIR();
+          count_direction[I_AXIS]=-1;
+        }
+        else { // +direction
+          NORM_I_DIR();
+          count_direction[I_AXIS]=1;
+        }
+      #endif
+      #if EXTRUDERS > 2
+        if ((out_bits & (1<<J_AXIS)) != 0) {  // -direction
+          REV_J_DIR();
+          count_direction[J_AXIS]=-1;
+        }
+        else { // +direction
+          NORM_J_DIR();
+          count_direction[J_AXIS]=1;
+        }
+      #endif
+      #if EXTRUDERS > 3
+        if ((out_bits & (1<<K_AXIS)) != 0) {  // -direction
+          REV_K_DIR();
+          count_direction[K_AXIS]=-1;
+        }
+        else { // +direction
+          NORM_K_DIR();
+          count_direction[K_AXIS]=1;
+        }
+      #endif
+      #if EXTRUDERS > 4
+        if ((out_bits & (1<<L_AXIS)) != 0) {  // -direction
+          REV_L_DIR();
+          count_direction[L_AXIS]=-1;
+        }
+        else { // +direction
+          NORM_L_DIR();
+          count_direction[L_AXIS]=1;
+        }
+      #endif
+    #endif //!ADVANCE
 
 
 
@@ -636,23 +717,52 @@ ISR(TIMER1_COMPA_vect)
         #endif
       }
 
-      // #ifndef ADVANCE
+      #ifndef ADVANCE
         counter_e += current_block->steps[E_AXIS];
         if (counter_e > 0) {
-          E0_WRITE_E_STEP(!INVERT_E_STEP_PIN);
+          WRITE_E_STEP(!INVERT_E_STEP_PIN);
           counter_e -= current_block->step_event_count;
           count_position[E_AXIS]+=count_direction[E_AXIS];
-          E0_WRITE_E_STEP(INVERT_E_STEP_PIN);
+          WRITE_E_STEP(INVERT_E_STEP_PIN);
         }
 
-        counter_i += current_block->steps[I_AXIS];
-        if (counter_i > 0) {
-          E1_WRITE_E_STEP(!INVERT_E_STEP_PIN);
-          counter_i -= current_block->step_event_count;
-          count_position[I_AXIS]+=count_direction[I_AXIS];
-          E1_WRITE_E_STEP(INVERT_E_STEP_PIN);
-        }
-      // #endif //!ADVANCE
+        #if EXTRUDERS > 1
+          counter_i += current_block->steps[I_AXIS];
+          if (counter_i > 0) {
+            WRITE_I_STEP(!INVERT_E_STEP_PIN);
+            counter_i -= current_block->step_event_count;
+            count_position[I_AXIS]+=count_direction[I_AXIS];
+            WRITE_I_STEP(INVERT_E_STEP_PIN);
+          }
+        #endif
+        #if EXTRUDERS > 2
+          counter_j += current_block->steps[J_AXIS];
+          if (counter_j > 0) {
+            WRITE_J_STEP(!INVERT_E_STEP_PIN);
+            counter_j -= current_block->step_event_count;
+            count_position[J_AXIS]+=count_direction[J_AXIS];
+            WRITE_J_STEP(INVERT_E_STEP_PIN);
+          }
+        #endif
+        #if EXTRUDERS > 3
+          counter_k += current_block->steps[K_AXIS];
+          if (counter_k > 0) {
+            WRITE_K_STEP(!INVERT_E_STEP_PIN);
+            counter_k -= current_block->step_event_count;
+            count_position[K_AXIS]+=count_direction[K_AXIS];
+            WRITE_K_STEP(INVERT_E_STEP_PIN);
+          }
+        #endif
+        #if EXTRUDERS > 4
+          counter_l += current_block->steps[L_AXIS];
+          if (counter_l > 0) {
+            WRITE_L_STEP(!INVERT_E_STEP_PIN);
+            counter_l -= current_block->step_event_count;
+            count_position[L_AXIS]+=count_direction[L_AXIS];
+            WRITE_L_STEP(INVERT_E_STEP_PIN);
+          }
+        #endif
+      #endif //!ADVANCE
 
       step_events_completed += 1;
       if(step_events_completed >= current_block->step_event_count) break;
@@ -818,6 +928,12 @@ void st_init()
   #if defined(E2_DIR_PIN) && (E2_DIR_PIN > -1)
     SET_OUTPUT(E2_DIR_PIN);
   #endif
+  #if defined(E3_DIR_PIN) && (E3_DIR_PIN > -1)
+    SET_OUTPUT(E3_DIR_PIN);
+  #endif
+  #if defined(E4_DIR_PIN) && E4_DIR_PIN > -1
+    SET_OUTPUT(E4_DIR_PIN);
+  #endif
 
   //Initialize Enable Pins - steppers default to disabled.
 
@@ -858,6 +974,14 @@ void st_init()
   #if defined(E2_ENABLE_PIN) && (E2_ENABLE_PIN > -1)
     SET_OUTPUT(E2_ENABLE_PIN);
     if(!E_ENABLE_ON) WRITE(E2_ENABLE_PIN,HIGH);
+  #endif
+  #if defined(E3_ENABLE_PIN) && (E3_ENABLE_PIN > -1)
+    SET_OUTPUT(E3_ENABLE_PIN);
+    if(!E_ENABLE_ON) WRITE(E3_ENABLE_PIN,HIGH);
+  #endif
+  #if defined(E4_ENABLE_PIN) && (E4_ENABLE_PIN > -1)
+    SET_OUTPUT(E4_ENABLE_PIN);
+    if(!E_ENABLE_ON) WRITE(E4_ENABLE_PIN,HIGH);
   #endif
 
   //endstops and pullups
@@ -948,6 +1072,16 @@ void st_init()
     SET_OUTPUT(E2_STEP_PIN);
     WRITE(E2_STEP_PIN,INVERT_E_STEP_PIN);
     disable_e2();
+  #endif
+  #if defined(E3_STEP_PIN) && (E3_STEP_PIN > -1)
+    SET_OUTPUT(E3_STEP_PIN);
+    WRITE(E3_STEP_PIN,INVERT_E_STEP_PIN);
+    disable_e3();
+  #endif
+  #if defined(E4_STEP_PIN) && (E4_STEP_PIN > -1)
+    SET_OUTPUT(E4_STEP_PIN);
+    WRITE(E4_STEP_PIN,INVERT_E_STEP_PIN);
+    disable_e4();
   #endif
 
   // waveform generation = 0100 = CTC

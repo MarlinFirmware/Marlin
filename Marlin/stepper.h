@@ -23,33 +23,50 @@
 
 #include "planner.h"
 
-#define E0_WRITE_E_STEP(v) { WRITE(E0_STEP_PIN, v); }
-#define E0_NORM_E_DIR() { WRITE(E0_DIR_PIN, !INVERT_E0_DIR); }
-#define E0_REV_E_DIR() { WRITE(E0_DIR_PIN, INVERT_E0_DIR); }
-#define E1_WRITE_E_STEP(v) { WRITE(E1_STEP_PIN, v); }
-#define E1_NORM_E_DIR() { WRITE(E1_DIR_PIN, !INVERT_E1_DIR); }
-#define E1_REV_E_DIR() { WRITE(E1_DIR_PIN, INVERT_E1_DIR); }
-
-#if EXTRUDERS > 2
-  #define WRITE_E_STEP(v) { if(current_block->active_extruder == 2) { WRITE(E2_STEP_PIN, v); } else { if(current_block->active_extruder == 1) { WRITE(E1_STEP_PIN, v); } else { WRITE(E0_STEP_PIN, v); }}}
-  #define NORM_E_DIR() { if(current_block->active_extruder == 2) { WRITE(E2_DIR_PIN, !INVERT_E2_DIR); } else { if(current_block->active_extruder == 1) { WRITE(E1_DIR_PIN, !INVERT_E1_DIR); } else { WRITE(E0_DIR_PIN, !INVERT_E0_DIR); }}}
-  #define REV_E_DIR() { if(current_block->active_extruder == 2) { WRITE(E2_DIR_PIN, INVERT_E2_DIR); } else { if(current_block->active_extruder == 1) { WRITE(E1_DIR_PIN, INVERT_E1_DIR); } else { WRITE(E0_DIR_PIN, INVERT_E0_DIR); }}}
-#elif EXTRUDERS > 1
-  #ifndef DUAL_X_CARRIAGE
-    #define WRITE_E_STEP(v) { if(current_block->active_extruder == 1) { WRITE(E1_STEP_PIN, v); } else { WRITE(E0_STEP_PIN, v); }}
-    #define NORM_E_DIR() { if(current_block->active_extruder == 1) { WRITE(E1_DIR_PIN, !INVERT_E1_DIR); } else { WRITE(E0_DIR_PIN, !INVERT_E0_DIR); }}
-    #define REV_E_DIR() { if(current_block->active_extruder == 1) { WRITE(E1_DIR_PIN, INVERT_E1_DIR); } else { WRITE(E0_DIR_PIN, INVERT_E0_DIR); }}
-  #else
-    extern bool extruder_duplication_enabled;
-    #define WRITE_E_STEP(v) { if(extruder_duplication_enabled) { WRITE(E0_STEP_PIN, v); WRITE(E1_STEP_PIN, v); } else if(current_block->active_extruder == 1) { WRITE(E1_STEP_PIN, v); } else { WRITE(E0_STEP_PIN, v); }}
-    #define NORM_E_DIR() { if(extruder_duplication_enabled) { WRITE(E0_DIR_PIN, !INVERT_E0_DIR); WRITE(E1_DIR_PIN, !INVERT_E1_DIR); } else if(current_block->active_extruder == 1) { WRITE(E1_DIR_PIN, !INVERT_E1_DIR); } else { WRITE(E0_DIR_PIN, !INVERT_E0_DIR); }}
-    #define REV_E_DIR() { if(extruder_duplication_enabled) { WRITE(E0_DIR_PIN, INVERT_E0_DIR); WRITE(E1_DIR_PIN, INVERT_E1_DIR); } else if(current_block->active_extruder == 1) { WRITE(E1_DIR_PIN, INVERT_E1_DIR); } else { WRITE(E0_DIR_PIN, INVERT_E0_DIR); }}
-  #endif  
-#else
-  #define WRITE_E_STEP(v) WRITE(E0_STEP_PIN, v)
-  #define NORM_E_DIR() WRITE(E0_DIR_PIN, !INVERT_E0_DIR)
-  #define REV_E_DIR() WRITE(E0_DIR_PIN, INVERT_E0_DIR)
+#define WRITE_E_STEP(v) { WRITE(E0_STEP_PIN, v); }
+#define NORM_E_DIR() { WRITE(E0_DIR_PIN, !INVERT_E0_DIR); }
+#define REV_E_DIR() { WRITE(E0_DIR_PIN, INVERT_E0_DIR); }
+#if EXTRUDERS > 1
+  #define WRITE_I_STEP(v) { WRITE(E1_STEP_PIN, v); }
+  #define NORM_I_DIR() { WRITE(E1_DIR_PIN, !INVERT_E1_DIR); }
+  #define REV_I_DIR() { WRITE(E1_DIR_PIN, INVERT_E1_DIR); }
 #endif
+#if EXTRUDERS > 2
+  #define WRITE_J_STEP(v) { WRITE(E2_STEP_PIN, v); }
+  #define NORM_J_DIR() { WRITE(E2_DIR_PIN, !INVERT_E2_DIR); }
+  #define REV_J_DIR() { WRITE(E2_DIR_PIN, INVERT_E2_DIR); }
+#endif
+#if EXTRUDERS > 3
+  #define WRITE_K_STEP(v) { WRITE(E3_STEP_PIN, v); }
+  #define NORM_K_DIR() { WRITE(E3_DIR_PIN, !INVERT_E3_DIR); }
+  #define REV_K_DIR() { WRITE(E3_DIR_PIN, INVERT_E3_DIR); }
+#endif
+#if EXTRUDERS > 4
+  #define WRITE_L_STEP(v) { WRITE(E4_STEP_PIN, v); }
+  #define NORM_L_DIR() { WRITE(E4_DIR_PIN, !INVERT_E4_DIR); }
+  #define REV_L_DIR() { WRITE(E4_DIR_PIN, INVERT_E4_DIR); }
+#endif
+
+// #if EXTRUDERS > 2
+//   #define WRITE_E_STEP(v) { if(current_block->active_extruder == 2) { WRITE(E2_STEP_PIN, v); } else { if(current_block->active_extruder == 1) { WRITE(E1_STEP_PIN, v); } else { WRITE(E0_STEP_PIN, v); }}}
+//   #define NORM_E_DIR() { if(current_block->active_extruder == 2) { WRITE(E2_DIR_PIN, !INVERT_E2_DIR); } else { if(current_block->active_extruder == 1) { WRITE(E1_DIR_PIN, !INVERT_E1_DIR); } else { WRITE(E0_DIR_PIN, !INVERT_E0_DIR); }}}
+//   #define REV_E_DIR() { if(current_block->active_extruder == 2) { WRITE(E2_DIR_PIN, INVERT_E2_DIR); } else { if(current_block->active_extruder == 1) { WRITE(E1_DIR_PIN, INVERT_E1_DIR); } else { WRITE(E0_DIR_PIN, INVERT_E0_DIR); }}}
+// #elif EXTRUDERS > 1
+//   #ifndef DUAL_X_CARRIAGE
+//     #define WRITE_E_STEP(v) { if(current_block->active_extruder == 1) { WRITE(E1_STEP_PIN, v); } else { WRITE(E0_STEP_PIN, v); }}
+//     #define NORM_E_DIR() { if(current_block->active_extruder == 1) { WRITE(E1_DIR_PIN, !INVERT_E1_DIR); } else { WRITE(E0_DIR_PIN, !INVERT_E0_DIR); }}
+//     #define REV_E_DIR() { if(current_block->active_extruder == 1) { WRITE(E1_DIR_PIN, INVERT_E1_DIR); } else { WRITE(E0_DIR_PIN, INVERT_E0_DIR); }}
+//   #else
+//     extern bool extruder_duplication_enabled;
+//     #define WRITE_E_STEP(v) { if(extruder_duplication_enabled) { WRITE(E0_STEP_PIN, v); WRITE(E1_STEP_PIN, v); } else if(current_block->active_extruder == 1) { WRITE(E1_STEP_PIN, v); } else { WRITE(E0_STEP_PIN, v); }}
+//     #define NORM_E_DIR() { if(extruder_duplication_enabled) { WRITE(E0_DIR_PIN, !INVERT_E0_DIR); WRITE(E1_DIR_PIN, !INVERT_E1_DIR); } else if(current_block->active_extruder == 1) { WRITE(E1_DIR_PIN, !INVERT_E1_DIR); } else { WRITE(E0_DIR_PIN, !INVERT_E0_DIR); }}
+//     #define REV_E_DIR() { if(extruder_duplication_enabled) { WRITE(E0_DIR_PIN, INVERT_E0_DIR); WRITE(E1_DIR_PIN, INVERT_E1_DIR); } else if(current_block->active_extruder == 1) { WRITE(E1_DIR_PIN, INVERT_E1_DIR); } else { WRITE(E0_DIR_PIN, INVERT_E0_DIR); }}
+//   #endif  
+// #else
+//   #define WRITE_E_STEP(v) WRITE(E0_STEP_PIN, v)
+//   #define NORM_E_DIR() WRITE(E0_DIR_PIN, !INVERT_E0_DIR)
+//   #define REV_E_DIR() WRITE(E0_DIR_PIN, INVERT_E0_DIR)
+// #endif
 
 #ifdef ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED
 extern bool abort_on_endstop_hit;

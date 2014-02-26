@@ -738,6 +738,7 @@ void crazy(float *destination, float feed_rate)
   block->acceleration_rate = (long)((float)block->acceleration_st * (16777216.0 / (F_CPU / 8.0)));
 
   // Start with a safe speed
+  // NOTE: Jerk settings for extruders are left alone for one extruder.
   float vmax_junction = max_xy_jerk/2; 
   float vmax_junction_factor = 1.0; 
   if(fabs(current_speed[Z_AXIS]) > max_z_jerk/2) 
