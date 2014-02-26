@@ -182,8 +182,20 @@ void manage_inactivity();
   #define disable_e4() /* nothing */
 #endif
 
-enum AxisEnum {X_AXIS=0, Y_AXIS=1, Z_AXIS=2, E_AXIS=3, I_AXIS=4};
-
+enum AxisEnum {X_AXIS=0, Y_AXIS=1, Z_AXIS=2, E_AXIS=3
+  #if EXTRUDERS > 1
+    , I_AXIS=4
+  #endif
+  #if EXTRUDERS > 2
+    , J_AXIS=5
+  #endif
+  #if EXTRUDERS > 3
+    , K_AXIS=6
+  #endif
+  #if EXTRUDERS > 4
+    , L_AXIS=7
+  #endif
+};
 
 void FlushSerialRequestResend();
 void ClearToSend();
