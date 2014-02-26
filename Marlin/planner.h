@@ -81,8 +81,7 @@ void plan_init();
 
 // Add a new linear movement to the buffer. x, y and z is the signed, absolute target position in 
 // millimaters. Feed rate specifies the speed of the motion.
-
-void crazy(const float &x, const float &y, const float &z, const float &e, const float &i, float feed_rate, const uint8_t &extruder);
+void crazy(float *destination, float feed_rate);
 
 #ifdef ENABLE_AUTO_BED_LEVELING
 void plan_buffer_line(float x, float y, float z, const float &e, float feed_rate, const uint8_t &extruder);

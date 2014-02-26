@@ -521,7 +521,7 @@ void check_axes_activity()
 float junction_deviation = 0.1;
 
 
-void crazy(const float &x, const float &y, const float &z, const float &e, const float &i, float feed_rate, const uint8_t &extruder)
+void crazy(float *destination, float feed_rate)
 {
   // Calculate the buffer head after we push this byte
   int next_buffer_head = next_block_index(block_buffer_head);
@@ -539,11 +539,10 @@ void crazy(const float &x, const float &y, const float &z, const float &e, const
   // Calculate target position in absolute steps
   //this should be done after the wait, because otherwise a M92 code within the gcode disrupts this calculation somehow
   long target[NUM_AXIS];
-  target[X_AXIS] = lround(x*axis_steps_per_unit[X_AXIS]);
-  target[Y_AXIS] = lround(y*axis_steps_per_unit[Y_AXIS]);
-  target[Z_AXIS] = lround(z*axis_steps_per_unit[Z_AXIS]);     
-  target[E_AXIS] = lround(e*axis_steps_per_unit[E_AXIS]);
-  target[I_AXIS] = lround(i*axis_steps_per_unit[I_AXIS]); // Use E0 for now
+  for(int i = 0; i < NUM_AXIS; i ++)
+  {
+    target[i] = lround(destination[i] * axis_steps_per_unit[i]);
+  }
 
   // Prepare to set up new block
   block_t *block = &block_buffer[block_buffer_head];
@@ -551,19 +550,27 @@ void crazy(const float &x, const float &y, const float &z, const float &e, const
   // Mark block as not busy (Not executed by the stepper interrupt)
   block->busy = false;
 
-  // Number of steps for each axis
-  block->steps[X_AXIS] = labs(target[X_AXIS]-position[X_AXIS]);
-  block->steps[Y_AXIS] = labs(target[Y_AXIS]-position[Y_AXIS]);
-  block->steps[Z_AXIS] = labs(target[Z_AXIS]-position[Z_AXIS]);
-  block->steps[E_AXIS] = labs(target[E_AXIS]-position[E_AXIS]);
-  block->steps[E_AXIS] *= volumetric_multiplier[active_extruder];
-  block->steps[E_AXIS] *= extrudemultiply;
-  block->steps[E_AXIS] /= 100;
-  block->steps[I_AXIS] = labs(target[I_AXIS]-position[I_AXIS]);
-  block->steps[I_AXIS] *= volumetric_multiplier[active_extruder];
-  block->steps[I_AXIS] *= extrudemultiply;
-  block->steps[I_AXIS] /= 100;
-  block->step_event_count = max(block->steps[X_AXIS], max(block->steps[Y_AXIS], max(block->steps[Z_AXIS], max(block->steps[E_AXIS], block->steps[I_AXIS]))));
+  // Number of steps for X, Y, Z axis
+  for(int i = 0; i < E_AXIS; i++)
+  {
+    block->steps[i] = labs(target[i] - position[i]); 
+  }
+  // Number of steps for extruder axis
+  for(int i = E_AXIS; i < NUM_AXIS; i++)
+  {
+    block->steps[i] = labs(target[i] - position[i]);
+    block->steps[i] *= volumetric_multiplier[i - E_AXIS];
+    block->steps[i] *= extrudemultiply;
+    block->steps[i] /= 100;
+  }
+
+  // Compute max step event for all axis
+  block->step_event_count = 0;
+  for(int i = 0; i < NUM_AXIS; i++)
+  {
+    if(block->step_event_count < block->steps[i])
+      block->step_event_count = block->steps[i];
+  }
 
   // Bail if this is a zero-length block
   if (block->step_event_count <= dropsegments)
@@ -575,64 +582,71 @@ void crazy(const float &x, const float &y, const float &z, const float &e, const
 
   // Compute direction bits for this block 
   block->direction_bits = 0;
-  if (target[X_AXIS] < position[X_AXIS])
+  for(int i = 0; i < NUM_AXIS; i++)
   {
-    block->direction_bits |= (1<<X_AXIS); 
-  }
-  if (target[Y_AXIS] < position[Y_AXIS])
-  {
-    block->direction_bits |= (1<<Y_AXIS); 
-  }
-  if (target[Z_AXIS] < position[Z_AXIS])
-  {
-    block->direction_bits |= (1<<Z_AXIS); 
-  }
-  if (target[E_AXIS] < position[E_AXIS])
-  {
-    block->direction_bits |= (1<<E_AXIS); 
-  }
-  if (target[I_AXIS] < position[I_AXIS])
-  {
-    block->direction_bits |= (1<<I_AXIS); 
+    if(target[i] < position[i])
+      block->direction_bits |= (1<<i); 
   }
 
-  block->active_extruder = extruder;
+  // block->active_extruder = extruder;
 
   if(block->steps[X_AXIS] != 0) enable_x();
   if(block->steps[Y_AXIS] != 0) enable_y();
   if(block->steps[Z_AXIS] != 0) enable_z();
   if(block->steps[E_AXIS] != 0) enable_e0();
-  if(block->steps[I_AXIS] != 0) enable_e1();
+  #if EXTRUDERS > 1
+    if(block->steps[I_AXIS] != 0) enable_e1();
+  #endif
+  #if EXTRUDERS > 2
+    if(block->steps[I_AXIS] != 0) enable_e2();
+  #endif
+  #if EXTRUDERS > 3
+    if(block->steps[I_AXIS] != 0) enable_e3();
+  #endif
+  #if EXTRUDERS > 4
+    if(block->steps[I_AXIS] != 0) enable_e4();
+  #endif
 
-
-  // Enable all
-  // if((block->steps[E_AXIS] != 0) || (block->steps[I_AXIS] != 0))
-  // {
-  //   enable_e0();
-  //   enable_e1();
-  //   enable_e2(); 
-  // }
-
-  // if((block->steps[E_AXIS] == 0) || (block->steps[I_AXIS] == 0))
-  // {
-  //   if(feed_rate < mintravelfeedrate) feed_rate = mintravelfeedrate;
-  // }
-  // else
-  // {
-  //   if(feed_rate < minimumfeedrate) feed_rate = minimumfeedrate;
-  // } 
+  // NOTE: Not sure what to do here. Making the assumption that if all extruders have no more steps than the feedrate 
+  // should be minimal travel feedrate.
+  bool no_extruder_movement = true;
+  for(int i = 0; i < NUM_AXIS; i++)
+  {
+    if(block->steps[i] =! 0)
+    {
+      no_extruder_movement = false;
+      break;
+    }
+  }
+  if(no_extruder_movement)
+  {
+    if(feed_rate < mintravelfeedrate) feed_rate = mintravelfeedrate;
+  }
+  else
+  {
+    if(feed_rate < minimumfeedrate) feed_rate = minimumfeedrate;
+  } 
 
   float delta_mm[NUM_AXIS];
-  delta_mm[X_AXIS] = (target[X_AXIS]-position[X_AXIS])/axis_steps_per_unit[X_AXIS];
-  delta_mm[Y_AXIS] = (target[Y_AXIS]-position[Y_AXIS])/axis_steps_per_unit[Y_AXIS];
-  delta_mm[Z_AXIS] = (target[Z_AXIS]-position[Z_AXIS])/axis_steps_per_unit[Z_AXIS];
-  delta_mm[E_AXIS] = ((target[E_AXIS]-position[E_AXIS])/axis_steps_per_unit[E_AXIS])*volumetric_multiplier[active_extruder]*extrudemultiply/100.0;
-  delta_mm[I_AXIS] = ((target[I_AXIS]-position[I_AXIS])/axis_steps_per_unit[I_AXIS])*volumetric_multiplier[active_extruder]*extrudemultiply/100.0;
-  if(block->steps[X_AXIS] <= dropsegments && block->steps[Y_AXIS] <= dropsegments && block->steps[Z_AXIS] <= dropsegments)
+  for(int i = 0; i < E_AXIS; i++) // Deltas for X, Y, and Z
   {
-    // block->millimeters = max(fabs(delta_mm[E_AXIS]), fabs(delta_mm[I_AXIS]));
-    // block->millimeters = fabs(delta_mm[E_AXIS]);
-    block->millimeters = sqrt(square(delta_mm[E_AXIS]) + square(delta_mm[I_AXIS]));
+    delta_mm[i] = (target[i] - position[i]) / axis_steps_per_unit[i];
+  }
+  for(int i = E_AXIS; i < NUM_AXIS; i++) // For extruders
+  {
+    delta_mm[i] = ((target[i] - position[i]) / axis_steps_per_unit[i]) * volumetric_multiplier[i - E_AXIS] * extrudemultiply / 100.0;
+  }
+  
+  if(block->steps[X_AXIS] <= dropsegments && block->steps[Y_AXIS] <= dropsegments && block->steps[Z_AXIS] <= dropsegments)
+  { 
+    // NOTE: Not sure what to do here, before it was just doing an absolute value of the extruder axis. 
+    // For now just calculate the distance, each extruder will represent a 1-D space. 
+    float all_deltas_squared = 0;
+    for(int i = E_AXIS; i < NUM_AXIS; i++)
+    {
+      all_deltas_squared += square(delta_mm[i]);
+    }
+    block->millimeters = sqrt(all_deltas_squared);
   } 
   else
   {
@@ -714,16 +728,11 @@ void crazy(const float &x, const float &y, const float &z, const float &e, const
   {
     block->acceleration_st = ceil(acceleration * steps_per_mm); // convert to: acceleration steps/sec^2
     // Limit acceleration per axis
-    if(((float)block->acceleration_st * (float)block->steps[X_AXIS] / (float)block->step_event_count) > axis_steps_per_sqr_second[X_AXIS])
-      block->acceleration_st = axis_steps_per_sqr_second[X_AXIS];
-    if(((float)block->acceleration_st * (float)block->steps[Y_AXIS] / (float)block->step_event_count) > axis_steps_per_sqr_second[Y_AXIS])
-      block->acceleration_st = axis_steps_per_sqr_second[Y_AXIS];
-    if(((float)block->acceleration_st * (float)block->steps[E_AXIS] / (float)block->step_event_count) > axis_steps_per_sqr_second[E_AXIS])
-      block->acceleration_st = axis_steps_per_sqr_second[E_AXIS];
-    if(((float)block->acceleration_st * (float)block->steps[I_AXIS] / (float)block->step_event_count) > axis_steps_per_sqr_second[I_AXIS]) // Use E0 for now
-      block->acceleration_st = axis_steps_per_sqr_second[I_AXIS];
-    if(((float)block->acceleration_st * (float)block->steps[Z_AXIS] / (float)block->step_event_count ) > axis_steps_per_sqr_second[Z_AXIS])
-      block->acceleration_st = axis_steps_per_sqr_second[Z_AXIS];
+    for(int i = 0; i < NUM_AXIS; i++)
+    {
+      if(((float)block->acceleration_st * (float)block->steps[i] / (float)block->step_event_count) > axis_steps_per_sqr_second[i])
+        block->acceleration_st = axis_steps_per_sqr_second[i];
+    }
   }
   block->acceleration = block->acceleration_st / steps_per_mm;
   block->acceleration_rate = (long)((float)block->acceleration_st * (16777216.0 / (F_CPU / 8.0)));

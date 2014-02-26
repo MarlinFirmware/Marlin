@@ -191,10 +191,16 @@ int extrudemultiply=100; //100->1 200->2
 float volumetric_multiplier[EXTRUDERS] = {1.0
 	#if EXTRUDERS > 1
 		, 1.0
-		#if EXTRUDERS > 2
-			, 1.0
-		#endif
 	#endif
+  #if EXTRUDERS > 2
+		, 1.0
+	#endif
+  #if EXTRUDERS > 3
+    , 1.0
+  #endif
+  #if EXTRUDERS > 4
+    , 1.0
+  #endif
 };
 float current_position[NUM_AXIS] = {0.0, 0.0, 0.0, 0.0, 0.0};
 float add_homeing[3]={0,0,0};
@@ -208,17 +214,19 @@ float zprobe_zoffset;
 
 // Extruder offset
 #if EXTRUDERS > 1
-#ifndef DUAL_X_CARRIAGE
-	#define NUM_EXTRUDER_OFFSETS 2 // only in XY plane
-#else
-	#define NUM_EXTRUDER_OFFSETS 3 // supports offsets in XYZ plane
+  #ifndef DUAL_X_CARRIAGE
+  	#define NUM_EXTRUDER_OFFSETS 2 // only in XY plane
+  #else
+  	#define NUM_EXTRUDER_OFFSETS 3 // supports offsets in XYZ plane
+  #endif
+  
+  float extruder_offset[NUM_EXTRUDER_OFFSETS][EXTRUDERS] = {
+  #if defined(EXTRUDER_OFFSET_X) && defined(EXTRUDER_OFFSET_Y)
+  	EXTRUDER_OFFSET_X, EXTRUDER_OFFSET_Y
+  #endif
+  };
 #endif
-float extruder_offset[NUM_EXTRUDER_OFFSETS][EXTRUDERS] = {
-#if defined(EXTRUDER_OFFSET_X) && defined(EXTRUDER_OFFSET_Y)
-	EXTRUDER_OFFSET_X, EXTRUDER_OFFSET_Y
-#endif
-};
-#endif
+
 uint8_t active_extruder = 0;
 int fanSpeed=0;
 #ifdef SERVO_ENDSTOPS
@@ -3195,11 +3203,11 @@ void prepare_move()
 	// Do not use feedmultiply for E or Z only moves
 	if((current_position[X_AXIS] == destination [X_AXIS]) && (current_position[Y_AXIS] == destination [Y_AXIS])) {
 		// plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate/60, active_extruder);
-		crazy(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], destination[I_AXIS], feedrate/60, active_extruder);
+		crazy(destination, feedrate/60);
 	}
 	else {
 		// plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate*feedmultiply/60/100.0, active_extruder);
-		crazy(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], destination[I_AXIS], feedrate*feedmultiply/60/100.0, active_extruder);
+		crazy(destination, feedrate*feedmultiply/60/100.0);
 	}
 
 #endif //else DELTA
