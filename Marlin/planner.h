@@ -81,16 +81,17 @@ void plan_init();
 
 // Add a new linear movement to the buffer. x, y and z is the signed, absolute target position in 
 // millimaters. Feed rate specifies the speed of the motion.
-void crazy(float *destination, float feed_rate);
 
-#ifdef ENABLE_AUTO_BED_LEVELING
-void plan_buffer_line(float x, float y, float z, const float &e, float feed_rate, const uint8_t &extruder);
+// Highly modify version of this method with multiple independent extruders.
+void plan_buffer_line(float *destination, float feed_rate);
 
-// Get the position applying the bed level matrix if enabled
-vector_3 plan_get_position();
-#else
-void plan_buffer_line(const float &x, const float &y, const float &z, const float &e, float feed_rate, const uint8_t &extruder);
-#endif // ENABLE_AUTO_BED_LEVELING
+// #ifdef ENABLE_AUTO_BED_LEVELING
+//   void plan_buffer_line(float x, float y, float z, const float &e, float feed_rate, const uint8_t &extruder);
+//   // Get the position applying the bed level matrix if enabled
+//   vector_3 plan_get_position();
+// #else
+//   void plan_buffer_line(const float &x, const float &y, const float &z, const float &e, float feed_rate, const uint8_t &extruder);
+// #endif // ENABLE_AUTO_BED_LEVELING
 
 // Set position. Used for G92 instructions.
 #ifdef ENABLE_AUTO_BED_LEVELING
