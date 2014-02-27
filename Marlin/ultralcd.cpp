@@ -940,7 +940,6 @@ static void lcd_load_material_extrud_1()
     lcd.print(itostr3left(tTarget));
     lcd_printPGM(PSTR(LCD_STR_DEGREE " "));
 
-    //if ((degHotend(0) > (degTargetHotend(0)-1)) && (degHotend(0) < (degTargetHotend(0)+1)))
     if ((degHotend(0) > degTargetHotend(0)) )
     {
         lcd_quick_feedback();
@@ -987,7 +986,6 @@ static void lcd_unload_material_extrud_1()
     lcd.print(itostr3left(tTarget));
     lcd_printPGM(PSTR(LCD_STR_DEGREE " "));
 
-    //if ((degHotend(0) > (degTargetHotend(0)-1)) && (degHotend(0) < (degTargetHotend(0)+1)))
     if (degHotend(0) > degTargetHotend(0))
     {
         lcd_quick_feedback();

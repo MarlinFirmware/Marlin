@@ -163,6 +163,9 @@
 // M600 - Pause for filament change X[pos] Y[pos] Z[relative lift] E[initial retract] L[later retract distance for removal]
 // M666 - set delta endstop adjustment
 // M605 - Set dual x-carriage movement mode: S<mode> [ X<duplication x-offset> R<duplication temp offset> ]
+// M700 - Level plate script for use with Witbox printer.
+// M701 - Load filament script for use with Witbox printer.
+// M702 - Unload filament script for use with Witbox printer.
 // M907 - Set digital trimpot motor current using axis codes.
 // M908 - Control digital trimpot directly.
 // M350 - Set microstepping mode.
