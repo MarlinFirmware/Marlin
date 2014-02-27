@@ -85,7 +85,7 @@ AutoTemp:
 If your gcode contains a wide spread of extruder velocities, or you realtime change the building speed, the temperature should be changed accordingly.
 Usually, higher speed requires higher temperature.
 This can now be performed by the AutoTemp function
-By calling M109 S<mintemp> T<maxtemp> F<factor> you enter the autotemp mode.
+By calling M109 S<mintemp> B<maxtemp> F<factor> you enter the autotemp mode.
 
 You can leave it by calling M109 without any F.
 If active, the maximal extruder stepper rate of all buffered moves will be calculated, and named "maxerate" [steps/sec].
@@ -233,6 +233,9 @@ M Codes
 *  M503 - print the current settings (from memory not from eeprom)
 *  M540 - Use S[0|1] to enable or disable the stop SD card print on endstop hit (requires ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED)
 *  M600 - Pause for filament change X[pos] Y[pos] Z[relative lift] E[initial retract] L[later retract distance for removal]
+*  M700 - Level plate script for use with Witbox printer.
+*  M701 - Load filament script for use with Witbox printer.
+*  M702 - Unload filament script for use with Witbox printer.
 *  M907 - Set digital trimpot motor current using axis codes.
 *  M908 - Control digital trimpot directly.
 *  M350 - Set microstepping mode.

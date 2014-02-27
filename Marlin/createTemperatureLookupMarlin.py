@@ -16,9 +16,9 @@ Usage: python createTemperatureLookup.py [options]
 Options:
   -h, --help        show this help
   --rp=...          pull-up resistor
-  --t0=ttt:rrr      low temperature temperature:resistance point (around 25C)
-  --t1=ttt:rrr      middle temperature temperature:resistance point (around 150C)
-  --t2=ttt:rrr      high temperature temperature:resistance point (around 250C)
+  --t1=ttt:rrr      low temperature temperature:resistance point (around 25C)
+  --t2=ttt:rrr      middle temperature temperature:resistance point (around 150C)
+  --t3=ttt:rrr      high temperature temperature:resistance point (around 250C)
   --num-temps=...   the number of temperature points to calculate (default: 20)
 """
 
@@ -98,7 +98,8 @@ def main(argv):
     
     try:
         opts, args = getopt.getopt(argv, "h", ["help", "rp=", "t1=", "t2=", "t3=", "num-temps="])
-    except getopt.GetoptError:
+    except getopt.GetoptError as err:
+        print  str(err)
         usage()
         sys.exit(2)
         
