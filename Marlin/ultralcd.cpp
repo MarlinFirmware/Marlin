@@ -66,8 +66,6 @@ static void lcd_filament_menu();
 static void lcd_filament_Material_menu(int Material);
 
 boolean FilamentMenuActive;
-float Wit_ExtrusionTarget;
-float Wit_ExtrusionPos;
 
 int  pageShowInfo=0;
 boolean ChangeScreen=false;
@@ -389,8 +387,8 @@ void lcd_preheat_abs()
 #ifdef WITBOX
 static void lcd_preheat()
 {
-    setTargetHotend0(plaPreheatHotendTemp);
-    fanSpeed = plaPreheatFanSpeed;
+    setTargetHotend0(PREHEAT_HOTEND_TEMP);
+    fanSpeed = PREHEAT_FAN_SPEED;
     setWatch(); // heater sanity check timer
     lcd_return_to_status();
 }
@@ -402,6 +400,9 @@ static void lcd_cooldown()
     setTargetHotend1(0);
     setTargetHotend2(0);
     setTargetBed(0);
+    #ifdef WITBOX
+    fanSpeed = COOLDOWN_FAN_SPEED;
+    #endif
     lcd_return_to_status();
 }
 
@@ -740,6 +741,7 @@ void config_lcd_level_bed(){
 	if(degHotend(0)<LEVEL_PLATE_TEMP_PROTECTION){
 		SERIAL_ECHOLN("Leveling...");	
 		currentMenu=lcd_level_bed;
+		fanSpeed = PREHEAT_FAN_SPEED;
 		enquecommand_P(PSTR("M700"));
 		pageShowInfo=0;
 	}
@@ -754,7 +756,8 @@ void config_lcd_level_bed(){
 	*/
 	//GOTO: cooling screen and wait for LEVEL_PLATE_TEMP_PROTECTION to execute lcd_level_bed()
 		lcd.clear(); 
-		currentMenu = lcd_level_bed_cooling;		
+		currentMenu = lcd_level_bed_cooling;
+		fanSpeed = COOLDOWN_FAN_SPEED;		
 		
 	}	
   
@@ -777,6 +780,7 @@ void lcd_level_bed_cooling()
           
 			if(degHotend(0)<LEVEL_PLATE_TEMP_PROTECTION){
 				currentMenu=config_lcd_level_bed;
+				fanSpeed = PREHEAT_FAN_SPEED;
 				lcd_quick_feedback();
 				lcd_update();
 				break;
@@ -784,7 +788,8 @@ void lcd_level_bed_cooling()
         }
 			lcd_quick_feedback();
 			if(degHotend(0)>LEVEL_PLATE_TEMP_PROTECTION){       
-			lcd.clear(); 
+			lcd.clear();
+			fanSpeed = COOLDOWN_FAN_SPEED; 
 			currentMenu = lcd_status_screen;
 			lcd_implementation_status_screen();
 			}
@@ -869,7 +874,6 @@ static void lcd_control_menu()
      MENU_ITEM(back, MSG_MAIN, lcd_main_menu);   
      MENU_ITEM(submenu, MSG_FILAMENT, lcd_filament_menu);     //cambiar filamento
      MENU_ITEM(submenu, MSG_MOVE_AXIS, lcd_move_menu);
-     //MENU_ITEM(gcode, MSG_LEVEL_PLATE, PSTR("M602"));                //script nivelar base con gcode
      MENU_ITEM(function, MSG_LEVEL_PLATE, config_lcd_level_bed);   
      
      if(target_temperature[0]>10)   MENU_ITEM(function, MSG_COOLDOWN, lcd_cooldown );
@@ -916,16 +920,10 @@ static void lcd_load_material_extrud_1()
 {
     //Settings
     FilamentMenuActive = true;
-    /*
-    int TargetTemperature;
-   TargetTemperature = ABS_Target_Temp;
-    else if (Wit_Material == 2) TargetTemperature = PLA_Target_Temp;
-    else if (Wit_Material == 3) TargetTemperature = PVA_Target_Temp;
-    else if (Wit_Material == 4) TargetTemperature = NYLON_Target_Temp;
-    else TargetTemperature = PLA_Target_Temp;
-*/
+    
     ////CALENTANDO/HEATING
     setTargetHotend0(Change_Filament_Target_Temp);
+    fanSpeed = PREHEAT_FAN_SPEED;
 
     START_MENU();
     MENU_ITEM(back, MSG_ABORT, lcd_abort_preheating_1);
@@ -954,10 +952,8 @@ static void lcd_insert_and_press_1()
 {
     START_MENU();
     MENU_ITEM(back, MSG_ABORT, lcd_abort_preheating_1);
-    //encoderPosition = 0;
-    //MENU_ITEM(submenu, MSG_PRE_EXTRUD, lcd_pre_extrud_1);
     active_extruder = 0;
-    MENU_ITEM(gcode, MSG_PRE_EXTRUD, PSTR("M701")); 
+    MENU_ITEM(gcode, MSG_PRE_EXTRUD, PSTR("M701"));
     END_MENU();
 }
 static void lcd_abort_preheating_1()
@@ -972,14 +968,7 @@ static void lcd_unload_material_extrud_1()
  //Settings
  
     FilamentMenuActive = true;
-    /*
-    int TargetTemperature;
-    if (Wit_Material == 1) TargetTemperature = ABS_Target_Temp;
-    else if (Wit_Material == 2) TargetTemperature = PLA_Target_Temp;
-    else if (Wit_Material == 3) TargetTemperature = PVA_Target_Temp;
-    else if (Wit_Material == 4) TargetTemperature = NYLON_Target_Temp;
-    else TargetTemperature = PLA_Target_Temp;
-*/
+    fanSpeed = PREHEAT_FAN_SPEED;
     ////CALENTANDO/HEATING
    setTargetHotend0(Change_Filament_Target_Temp);
 
@@ -997,14 +986,11 @@ static void lcd_unload_material_extrud_1()
     lcd.print('/');
     lcd.print(itostr3left(tTarget));
     lcd_printPGM(PSTR(LCD_STR_DEGREE " "));
-    lcd.setCursor(0, 3);
-//    lcd_printPGM(PSTR(MSG_PUSH_BEEP));
 
     //if ((degHotend(0) > (degTargetHotend(0)-1)) && (degHotend(0) < (degTargetHotend(0)+1)))
     if (degHotend(0) > degTargetHotend(0))
     {
         lcd_quick_feedback();
-   
         currentMenu = lcd_filament_menu;
 	//-- Ejecutar gcode
 	 enquecommand_P(PSTR("M702"));

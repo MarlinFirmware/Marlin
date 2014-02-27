@@ -2943,13 +2943,6 @@ void process_commands()
       previous_millis_cmd = millis();
       endstops_hit_on_purpose();        
         
- //       st_synchronize();
-        /*
-        current_position[X_AXIS] = 300;
-        current_position[Y_AXIS] = 210;
-        current_position[Z_AXIS] = 0;
-        current_position[E_AXIS] = 0;
-*/
         plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
 
         // prob 1
@@ -2967,7 +2960,7 @@ void process_commands()
         set_pageShowInfo(2); 
         
         do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS],Z_MIN_POS+10);
-        do_blocking_move_to(93, 5, current_position[Z_AXIS]);
+        do_blocking_move_to(90, 5, current_position[Z_AXIS]);
         do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS],Z_MIN_POS);
           
         while(!lcd_clicked()){
@@ -2979,7 +2972,7 @@ void process_commands()
         set_pageShowInfo(3);
                   
         do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS],Z_MIN_POS+10);
-        do_blocking_move_to(207, 5, current_position[Z_AXIS]);
+        do_blocking_move_to(205, 5, current_position[Z_AXIS]);
         do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS],Z_MIN_POS);
               
          while(!lcd_clicked()){

@@ -24,7 +24,6 @@
 #define SERIAL_PORT 0
 
 // This determines the communication speed of the printer
-// This determines the communication speed of the printer
 #define BAUDRATE 250000
 
 // This enables the serial port associated to the Bluetooth interface
@@ -200,9 +199,9 @@
 //    #define  DEFAULT_Kd 440
 
 // Witbox
-    #define  DEFAULT_Kp 12.49
-    #define  DEFAULT_Ki 0.62
-    #define  DEFAULT_Kd 62.61
+//  #define  DEFAULT_Kp 12.49
+//  #define  DEFAULT_Ki 0.62
+//  #define  DEFAULT_Kd 62.61
 
 #endif // PIDTEMP
 
@@ -394,8 +393,6 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
   #define Z_RAISE_BEFORE_HOMING 4       // (in mm) Raise Z before homing (G28) for Probe Clearance.
                                         // Be sure you have this distance over your Z_MAX_POS in case
 
-  #define XY_TRAVEL_SPEED 8000         // X and Y axis travel speed between probes, in mm/min
-
   #define Z_RAISE_BEFORE_PROBING 15    //How much the extruder will be raised before traveling to the first probing point.
   #define Z_RAISE_BETWEEN_PROBINGS 5  //How much the extruder will be raised when traveling from between next probing points
 
@@ -440,7 +437,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 //// MOVEMENT SETTINGS
 #define NUM_AXIS 4 // The axis order in all axis related arrays is X, Y, Z, E
-#define HOMING_FEEDRATE {50*60, 50*60, 4*60, 0}  // set the homing speeds (mm/min) //WITBOX: {120*60, 120*60, 18*60, 0}
+#define HOMING_FEEDRATE {120*60, 120*60, 18*60, 0}  // set the homing speeds (mm/min)
 
 // default settings
 
@@ -466,7 +463,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 //=============================WITBOX Features===============================
 //===========================================================================
 
-#define WITBOX
+//#define WITBOX
 
 #ifdef WITBOX
 	//#define WITBOX_DUAL
@@ -477,12 +474,16 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 	#define FILAMENT_EXTRUSION_LENGTH 30
 	#define FILAMENT_UNLOAD_EXTRUSION_LENGTH 5
-	#define FILAMENT_UNLOAD_RETRACTION_LENGTH 40	
-#endif
-//===========================================================================
-//===========================================================================
-//===========================================================================
+	#define FILAMENT_UNLOAD_RETRACTION_LENGTH 40
 
+    #define PREHEAT_HOTEND_TEMP 200
+    #define PREHEAT_FAN_SPEED 0
+    #define COOLDOWN_FAN_SPEED 255
+#endif
+
+#if defined(ENABLE_AUTO_BED_LEVELING) || defined(WITBOX)
+  #define XY_TRAVEL_SPEED 8000 		// X and Y axis travel speed between probes and Witbox movements, in mm/min
+#endif
 //===========================================================================
 //=============================Additional Features===========================
 //===========================================================================
