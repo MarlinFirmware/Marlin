@@ -995,7 +995,7 @@ static void engage_z_probe() {
     #else // Deploy the Z probe by touching the belt, no servo needed.
     feedrate = homing_feedrate[X_AXIS];
     destination[X_AXIS] = 35;
-    destination[Y_AXIS] = 78;
+    destination[Y_AXIS] = 72;
     destination[Z_AXIS] = 100;
     prepare_move_raw();
 
@@ -1024,12 +1024,17 @@ static void retract_z_probe() {
     destination[Z_AXIS] = current_position[Z_AXIS] + 20;
     prepare_move_raw();
 
-    destination[X_AXIS] = -55;
-    destination[Y_AXIS] = 63;
-    destination[Z_AXIS] = 30;
+    destination[X_AXIS] = -46;
+    destination[Y_AXIS] = 59;
+    destination[Z_AXIS] = 28;
     prepare_move_raw();
 
-    // Move the nozzle below the print surface to push the probe up.
+    // TODO: Move the nozzle down until the Z probe switch is activated.
+    //enable_endstops(true);
+    //destination[Z_AXIS] = current_position[Z_AXIS] - 30;
+    //enable_endstops(false);
+
+    // Move the nozzle down further to push the probe into retracted position.
     feedrate = homing_feedrate[Z_AXIS]/10;
     destination[Z_AXIS] = current_position[Z_AXIS] - 20;
     prepare_move_raw();
@@ -3298,7 +3303,7 @@ void adjust_delta(float cartesian[3])
   delta[Y_AXIS] += offset;
   delta[Z_AXIS] += offset;
 
-  // / *
+  /*
   SERIAL_ECHOPGM("grid_x="); SERIAL_ECHO(grid_x);
   SERIAL_ECHOPGM(" grid_y="); SERIAL_ECHO(grid_y);
   SERIAL_ECHOPGM(" floor_x="); SERIAL_ECHO(floor_x);
@@ -3312,7 +3317,7 @@ void adjust_delta(float cartesian[3])
   SERIAL_ECHOPGM(" left="); SERIAL_ECHO(left);
   SERIAL_ECHOPGM(" right="); SERIAL_ECHO(right);
   SERIAL_ECHOPGM(" offset="); SERIAL_ECHOLN(offset);
-  // * /
+  */
 }
 
 void prepare_move_raw()
