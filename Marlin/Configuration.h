@@ -421,6 +421,13 @@ const bool Z_MAX_ENDSTOP_INVERTING = false; // set to true to invert the logic o
     #define Z_SAFE_HOMING_Y_POINT (Y_MAX_LENGTH/2)    // Y point for Z homing when homing all axis (G28)
 
   #endif
+  
+  // sequence for Z probe deploy and retract. {X,Y,Z,feedrate divider}
+  // you can use positions relative to CURPOS for x,y,z coordinates
+  // speed is initially HOMING_FEEDRATE[0], when speed==0 or not compiled, previous or initial speed is used, 
+  //                                        when speed!=0, the speed will be HOMING_FEEDRATE[0] divided by this value
+  #define Z_PROBE_DEPLOY_SEQUENCE  { {35,72,100},{0,CURPOS,CURPOS,10} }
+  #define Z_PROBE_RETRACT_SEQUENCE { {CURPOS,CURPOS,CURPOS+20},{-46,59,28},{CURPOS,CURPOS,CURPOS-20,10},{CURPOS,CURPOS,CURPOS+30,1} }
 
   // with accurate bed leveling, the bed is sampled in a ACCURATE_BED_LEVELING_POINTSxACCURATE_BED_LEVELING_POINTS grid and least squares solution is calculated
   // Note: this feature occupies 10'206 byte

@@ -17,7 +17,6 @@
 #include <avr/eeprom.h>
 #include <avr/interrupt.h>
 
-
 #include "fastio.h"
 #include "Configuration.h"
 #include "pins.h"
@@ -97,6 +96,15 @@ FORCE_INLINE void serialprintPGM(const char *str)
     ch=pgm_read_byte(++str);
   }
 }
+
+struct s_sequence { float x,y,z,f; };
+void do_move_sequence(const struct s_sequence *seq, int len);
+#define CURPOS 10000 // just tag for move sequences
+#define DO_MOVE_SEQUENCE(SEQ) \
+ do {\
+    const static PROGMEM struct s_sequence sequence[]=SEQ; \
+    do_move_sequence(sequence, sizeof(sequence)/sizeof(*sequence)); \
+ } while(0)
 
 
 void get_command();

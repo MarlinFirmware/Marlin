@@ -979,6 +979,26 @@ static void clean_up_after_endstop_move() {
     previous_millis_cmd = millis();
 }
 
+static void move_seq_calc_coordinate(float *destination, float value) {
+  if (value < CURPOS/2)  *destination=value;
+  else *destination+=value-CURPOS;
+}
+
+void do_move_sequence(const struct s_sequence *seq, int len) {
+  float f=feedrate;
+  feedrate = homing_feedrate[X_AXIS];
+  for (int i=0; i<len; i++, seq++) {
+    move_seq_calc_coordinate(&destination[X_AXIS], pgm_read_float(&(seq->x)));
+    move_seq_calc_coordinate(&destination[Y_AXIS], pgm_read_float(&(seq->y)));
+    move_seq_calc_coordinate(&destination[Z_AXIS], pgm_read_float(&(seq->z)));
+    if (pgm_read_float(&(seq->f))) feedrate = homing_feedrate[X_AXIS]/pgm_read_float(&(seq->f));
+    prepare_move_raw();
+  }
+  st_synchronize();
+  feedrate=f;
+}
+
+
 static void engage_z_probe() {
     // Engage Z Servo endstop if enabled
     #ifdef SERVO_ENDSTOPS
@@ -992,17 +1012,8 @@ static void engage_z_probe() {
         servos[servo_endstops[Z_AXIS]].detach();
 #endif
     }
-    #else // Deploy the Z probe by touching the belt, no servo needed.
-    feedrate = homing_feedrate[X_AXIS];
-    destination[X_AXIS] = 35;
-    destination[Y_AXIS] = 72;
-    destination[Z_AXIS] = 100;
-    prepare_move_raw();
-
-    feedrate = homing_feedrate[X_AXIS]/10;
-    destination[X_AXIS] = 0;
-    prepare_move_raw();
-    st_synchronize();
+    #elif defined (Z_PROBE_DEPLOY_SEQUENCE) // Deploy the Z probe by touching the belt, no servo needed.
+    DO_MOVE_SEQUENCE(Z_PROBE_DEPLOY_SEQUENCE);
     #endif //SERVO_ENDSTOPS
 }
 
@@ -1019,30 +1030,8 @@ static void retract_z_probe() {
         servos[servo_endstops[Z_AXIS]].detach();
 #endif
     }
-    #else // Push up the Z probe by moving the end effector, no servo needed.
-    feedrate = homing_feedrate[X_AXIS];
-    destination[Z_AXIS] = current_position[Z_AXIS] + 20;
-    prepare_move_raw();
-
-    destination[X_AXIS] = -46;
-    destination[Y_AXIS] = 59;
-    destination[Z_AXIS] = 28;
-    prepare_move_raw();
-
-    // TODO: Move the nozzle down until the Z probe switch is activated.
-    //enable_endstops(true);
-    //destination[Z_AXIS] = current_position[Z_AXIS] - 30;
-    //enable_endstops(false);
-
-    // Move the nozzle down further to push the probe into retracted position.
-    feedrate = homing_feedrate[Z_AXIS]/10;
-    destination[Z_AXIS] = current_position[Z_AXIS] - 20;
-    prepare_move_raw();
-
-    feedrate = homing_feedrate[Z_AXIS];
-    destination[Z_AXIS] = current_position[Z_AXIS] + 30;
-    prepare_move_raw();
-    st_synchronize();
+    #elif defined (Z_PROBE_RETRACT_SEQUENCE) // Push up the Z probe by moving the end effector, no servo needed.
+    DO_MOVE_SEQUENCE(Z_PROBE_RETRACT_SEQUENCE);
     #endif //SERVO_ENDSTOPS
 }
 
