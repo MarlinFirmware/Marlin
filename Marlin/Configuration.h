@@ -445,6 +445,8 @@ const bool Z_MAX_ENDSTOP_INVERTING = false; // set to true to invert the logic o
     #define NONLINEAR_BED_LEVELING
   #endif
 
+// undef to reverse bed probing Y direction
+//  #define BED_PROBING_REVERSE_Y
 #endif
 
 

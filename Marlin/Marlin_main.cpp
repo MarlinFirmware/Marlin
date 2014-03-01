@@ -1556,10 +1556,15 @@ void process_commands()
             #endif //NONLINEAR_BED_LEVELING
 
             int probePointCounter = 0;
+#ifdef BED_PROBING_REVERSE_Y
+            for (int yCount=ACCURATE_BED_LEVELING_POINTS-1; yCount >= 0 ; yCount--)
+#else
             for (int yCount=0; yCount < ACCURATE_BED_LEVELING_POINTS; yCount++)
+#endif
             {
               float yProbe = FRONT_PROBE_BED_POSITION + ACCURATE_BED_LEVELING_GRID_Y * yCount;
               int xStart, xStop, xInc;
+              int yc2=yCount;
               if (yCount % 2) {
                 xStart = 0;
                 xStop = ACCURATE_BED_LEVELING_POINTS;
