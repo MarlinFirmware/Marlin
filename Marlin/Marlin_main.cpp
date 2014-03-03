@@ -1627,6 +1627,8 @@ void process_commands()
           lcd_update();
         }
       }else{
+          if (!lcd_detected())
+            break;
         while(!lcd_clicked()){
           manage_heater();
           manage_inactivity();
