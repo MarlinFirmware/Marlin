@@ -1564,8 +1564,8 @@
 	#define MSG_PREHEAT_ABS "Esilammita ABS"
 	#define MSG_PREHEAT_ABS_SETTINGS "Esilamm. ABS konf"
 	#define MSG_COOLDOWN "Jaahdyta"
-	#define MSG_SWITCH_PS_ON "Switch Power On"
-	#define MSG_SWITCH_PS_OFF "Switch Power Off"
+	#define MSG_SWITCH_PS_ON "Virta paalle"
+	#define MSG_SWITCH_PS_OFF "Virta pois"
 	#define MSG_EXTRUDE "Pursota"
 	#define MSG_RETRACT "Veda takaisin"
 	#define MSG_MOVE_AXIS "Liikuta akseleita"
@@ -1649,7 +1649,6 @@
 	#define MSG_BABYSTEP_Y "Babystep Y"
 	#define MSG_BABYSTEP_Z "Babystep Z"
 	#define MSG_ENDSTOP_ABORT "Endstop abort"
-	#define MSG_CONTRAST "Contrast"
 
 // Serial Console Messages
 
@@ -1725,8 +1724,8 @@
 	#define MSG_BABYSTEPPING_Y "Babystepping Y"
 	#define MSG_BABYSTEPPING_Z "Babystepping Z"
 	#define MSG_ENDSTOP_ABORT "Endstop abort"
-	#define MSG_CONTRAST "Contrast"
-	#define MSG_SERIAL_ERROR_MENU_STRUCTURE "Error in menu structure"
+	#define MSG_CONTRAST "Kontrasti"
+	#define MSG_SERIAL_ERROR_MENU_STRUCTURE "Virhe valikon rakenteessa"
 
 #endif
 
