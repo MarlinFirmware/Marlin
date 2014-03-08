@@ -287,12 +287,16 @@
 #endif
 
 // The pullups are needed if you directly connect a mechanical endswitch between the signal and ground pins.
-const bool X_ENDSTOPS_INVERTING = false; // set to true to invert the logic of the endstops.
-const bool Y_ENDSTOPS_INVERTING = false; // set to true to invert the logic of the endstops.
-const bool Z_ENDSTOPS_INVERTING = false; // set to true to invert the logic of the endstops.
+const bool X_MIN_ENDSTOP_INVERTING = false; // set to true to invert the logic of the endstop.
+const bool Y_MIN_ENDSTOP_INVERTING = false; // set to true to invert the logic of the endstop.
+const bool Z_MIN_ENDSTOP_INVERTING = false; // set to true to invert the logic of the endstop.
+//const bool X_ENDSTOPS_INVERTING = false; // set to true to invert the logic of the endstops.
+//const bool Y_ENDSTOPS_INVERTING = false; // set to true to invert the logic of the endstops.
+//const bool Z_ENDSTOPS_INVERTING = false; // set to true to invert the logic of the endstops.
 const bool X_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of the endstop.
 const bool Y_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of the endstop.
 const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of the endstop.
+
 
 #define DISABLE_MAX_ENDSTOPS	// TODO - CHECK THIS
 //#define DISABLE_MIN_ENDSTOPS
@@ -658,7 +662,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 # endif
 #endif
 
-TODO - Check if fast or low fan should be set
+//TODO - Check if fast or low fan should be set
 // Increase the FAN pwm frequency. Removes the PWM noise but increases heating in the FET/Arduino
 //#define FAST_PWM_FAN
 
