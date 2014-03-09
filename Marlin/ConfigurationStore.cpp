@@ -37,7 +37,7 @@ void _EEPROM_readData(int &pos, uint8_t* value, uint8_t size)
 // the default values are used whenever there is a change to the data, to prevent
 // wrong data being written to the variables.
 // ALSO:  always make sure the variables in the Store and retrieve sections are in the same order.
-#ifdef DELTA
+#if defined(DELTA) || defined(SERVO_ENDSTOPS)
 #define EEPROM_VERSION "V11"
 #else
 #define EEPROM_VERSION "V10"
