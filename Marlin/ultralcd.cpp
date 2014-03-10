@@ -409,26 +409,26 @@ static void lcd_calibrate_z_offset()
       current_position[Z_AXIS] = Z_RAISE_BEFORE_HOMING;
       #ifdef DELTA
       calculate_delta(current_position);
-      plan_buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], current_position[E_AXIS], homing_feedrate[Z_AXIS], active_extruder);
+      plan_buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], current_position[E_AXIS], homing_feedrate[Z_AXIS]/60, active_extruder);
       #else
-      plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], homing_feedrate[Z_AXIS], active_extruder);
+      plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], homing_feedrate[Z_AXIS]/60, active_extruder);
       #endif
       // Move to the middle of the platform
       current_position[X_AXIS] = (X_MIN_POS + X_MAX_POS)/2;
       current_position[Y_AXIS] = (Y_MIN_POS + Y_MAX_POS)/2;
       #ifdef DELTA
       calculate_delta(current_position);
-      plan_buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], current_position[E_AXIS], XY_TRAVEL_SPEED, active_extruder);
+      plan_buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], current_position[E_AXIS], XY_TRAVEL_SPEED/60, active_extruder);
       #else
-      plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], XY_TRAVEL_SPEED, active_extruder);
+      plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], XY_TRAVEL_SPEED/60, active_extruder);
       #endif
       // Slowly move down to the platform
       current_position[Z_AXIS] = 0;
       #ifdef DELTA
       calculate_delta(current_position);
-      plan_buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], current_position[E_AXIS], homing_feedrate[Z_AXIS]/4, active_extruder);
+      plan_buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], current_position[E_AXIS], (homing_feedrate[Z_AXIS]/60)/4, active_extruder);
       #else
-      plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], homing_feedrate[Z_AXIS]/4, active_extruder);
+      plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], (homing_feedrate[Z_AXIS]/60)/4, active_extruder);
       #endif
       calibration_just_started = false;
     }
@@ -445,9 +445,9 @@ static void lcd_calibrate_z_offset()
         encoderPosition = 0;
         #ifdef DELTA
         calculate_delta(current_position);
-        plan_buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], current_position[E_AXIS], homing_feedrate[Z_AXIS]/4, active_extruder);
+        plan_buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], current_position[E_AXIS], (homing_feedrate[Z_AXIS]/60)/4, active_extruder);
         #else
-        plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], homing_feedrate[Z_AXIS]/4, active_extruder);
+        plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], (homing_feedrate[Z_AXIS]/60)/4, active_extruder);
         #endif
         lcdDrawUpdate = 1;
     }
@@ -465,9 +465,9 @@ static void lcd_calibrate_z_offset()
         current_position[Z_AXIS] = Z_RAISE_BEFORE_HOMING;
         #ifdef DELTA
         calculate_delta(current_position);
-        plan_buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], current_position[E_AXIS], homing_feedrate[Z_AXIS], active_extruder);
+        plan_buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], current_position[E_AXIS], homing_feedrate[Z_AXIS]/60, active_extruder);
         #else
-        plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], homing_feedrate[Z_AXIS], active_extruder);
+        plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], homing_feedrate[Z_AXIS]/60, active_extruder);
         #endif
         Config_StoreSettings();
     }
@@ -530,7 +530,7 @@ static void lcd_prepare_menu()
 #endif
     MENU_ITEM(submenu, MSG_MOVE_AXIS, lcd_move_menu);
 #ifdef ENABLE_AUTO_BED_LEVELING
-    MENU_ITEM(function, MSG_CALIBRATE_Z_OFFSET, lcd_calibrate_z_offset);
+    MENU_ITEM(submenu, MSG_CALIBRATE_Z_OFFSET, lcd_calibrate_z_offset);
 #endif //ENABLE_AUTO_BED_LEVELING
     END_MENU();
 }
