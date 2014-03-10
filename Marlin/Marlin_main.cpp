@@ -314,6 +314,12 @@ bool Stopped=false;
 bool CooldownNoWait = true;
 bool target_direction;
 
+//Insert variables if CHDK is defined
+#ifdef CHDK
+unsigned long chdkHigh = 0;
+boolean chdkActive = false;
+#endif
+
 //===========================================================================
 //=============================Routines======================================
 //===========================================================================
@@ -2588,23 +2594,33 @@ void process_commands()
     #endif //PIDTEMP
     case 240: // M240  Triggers a camera by emulating a Canon RC-1 : http://www.doc-diy.net/photo/rc-1_hacked/
      {
-      #if defined(PHOTOGRAPH_PIN) && PHOTOGRAPH_PIN > -1
-        const uint8_t NUM_PULSES=16;
-        const float PULSE_LENGTH=0.01524;
-        for(int i=0; i < NUM_PULSES; i++) {
-          WRITE(PHOTOGRAPH_PIN, HIGH);
-          _delay_ms(PULSE_LENGTH);
-          WRITE(PHOTOGRAPH_PIN, LOW);
-          _delay_ms(PULSE_LENGTH);
+     	#ifdef CHDK
+       
+         SET_OUTPUT(CHDK);
+         WRITE(CHDK, HIGH);
+         chdkHigh = millis();
+         chdkActive = true;
+       
+       #else
+     	
+      	#if defined(PHOTOGRAPH_PIN) && PHOTOGRAPH_PIN > -1
+	const uint8_t NUM_PULSES=16;
+	const float PULSE_LENGTH=0.01524;
+	for(int i=0; i < NUM_PULSES; i++) {
+        WRITE(PHOTOGRAPH_PIN, HIGH);
+        _delay_ms(PULSE_LENGTH);
+        WRITE(PHOTOGRAPH_PIN, LOW);
+        _delay_ms(PULSE_LENGTH);
         }
         delay(7.33);
         for(int i=0; i < NUM_PULSES; i++) {
-          WRITE(PHOTOGRAPH_PIN, HIGH);
-          _delay_ms(PULSE_LENGTH);
-          WRITE(PHOTOGRAPH_PIN, LOW);
-          _delay_ms(PULSE_LENGTH);
+        WRITE(PHOTOGRAPH_PIN, HIGH);
+        _delay_ms(PULSE_LENGTH);
+        WRITE(PHOTOGRAPH_PIN, LOW);
+        _delay_ms(PULSE_LENGTH);
         }
-      #endif
+      	#endif
+      #endif //chdk end if
      }
     break;
 #ifdef DOGLCD
@@ -3353,6 +3369,16 @@ void manage_inactivity()
       }
     }
   }
+  
+  #ifdef CHDK //Check if pin should be set to LOW after M240 set it to HIGH
+    if (chdkActive)
+    {
+      chdkActive = false;
+      if (millis()-chdkHigh < CHDK_DELAY) return;
+      WRITE(CHDK, LOW);
+    }
+  #endif
+  
   #if defined(KILL_PIN) && KILL_PIN > -1
     if( 0 == READ(KILL_PIN) )
       kill();
