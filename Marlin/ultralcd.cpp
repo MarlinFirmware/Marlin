@@ -176,6 +176,9 @@ menuFunc_t callbackFunc;
 // place-holders for Ki and Kd edits
 float raw_Ki, raw_Kd;
 
+// Pause for timeout that forces to return to main menu. Is used for long commands.
+bool pauseTimeoutToStatus = false;
+
 /* Main status screen. It's up to the implementation specific part to show what is needed. As this is very display dependent */
 static void lcd_status_screen()
 {
@@ -396,81 +399,86 @@ static void lcd_babystep_z()
 #endif //BABYSTEPPING
 
 #ifdef ENABLE_AUTO_BED_LEVELING
-static void lcd_calibrate_z_offset()
+static void lcd_calibrate_z_offset_tune()
 {
-    static int calibration_state = 0;
-    switch(calibration_state)
+    if (encoderPosition != 0)
     {
-      case 0: // Calibration just started
-          char cmd[30];
-          lcd_implementation_drawedit(PSTR(MSG_CALIBRATE_WAIT), "");
+        zprobe_zoffset+=0.1*float((int)encoderPosition);
+
+        current_position[Z_AXIS]-=0.1*float((int)encoderPosition);
+        if (min_software_endstops && current_position[Z_AXIS] < Z_MIN_POS)
+            current_position[Z_AXIS] = Z_MIN_POS;
+        if (max_software_endstops && current_position[Z_AXIS] > Z_MAX_POS)
+            current_position[Z_AXIS] = Z_MAX_POS;
+        encoderPosition = 0;
+        #ifdef DELTA
+        calculate_delta(current_position);
+        plan_buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], current_position[E_AXIS], (homing_feedrate[Z_AXIS]/60)/4, active_extruder);
+        #else
+        plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], (homing_feedrate[Z_AXIS]/60)/4, active_extruder);
+        #endif
+
+        lcdDrawUpdate = 1;
+    }
+    if (lcdDrawUpdate)
+    {
+        lcd_implementation_drawedit(PSTR(MSG_ZPROBE_ZOFFSET), ftostr51(zprobe_zoffset));
+    }
+    if (LCD_CLICKED)
+    {
+        lcd_quick_feedback();
+        currentMenu = lcd_status_screen;
+        encoderPosition = 0;
+
+        // Move up a little bit
+        current_position[Z_AXIS] = Z_RAISE_BEFORE_HOMING;
+        #ifdef DELTA
+        calculate_delta(current_position);
+        plan_buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], current_position[E_AXIS], homing_feedrate[Z_AXIS]/60, active_extruder);
+        #else
+        plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], homing_feedrate[Z_AXIS]/60, active_extruder);
+        #endif
+        Config_StoreSettings();
+
+      }
+}
+
+static void lcd_calibrate_z_offset_wait()
+{
+    if( !movesplanned() )
+    {
+      lcdDrawUpdate = 1;
+      lcd_implementation_drawedit(PSTR(MSG_ZPROBE_ZOFFSET), ftostr51(zprobe_zoffset));
+      currentMenu = lcd_calibrate_z_offset_tune;
+//      timeoutToStatus = millis() + LCD_TIMEOUT_TO_STATUS;
+      pauseTimeoutToStatus = false;
+    }
+    else
+    {
+      lcdDrawUpdate = 1;
+      lcd_implementation_drawedit(PSTR(MSG_CALIBRATE_WAIT), "");
+    }
+}
+
+static void lcd_calibrate_z_offset_prepare()
+{
+
+    char cmd[30];
 #if BUFSIZE < 4
 #error Please increase BUFSIZE value. Calibration script needs at least 4 commands buffer
 #endif
-          // Home all axis
-          enquecommand_P(PSTR("G28"));
-          // Probe the build plate
-          enquecommand_P(PSTR("G29"));
-          // Move up a little bit and move to the middle of the platform with z-axis home speed (usually it is the slowest)
-          sprintf_P(cmd, PSTR("G1 X%i Y%i Z%i F%i"), (X_MIN_POS + X_MAX_POS)/2, (Y_MIN_POS + Y_MAX_POS)/2, Z_RAISE_BEFORE_HOMING, HOMING_FEEDRATE[Z_AXIS]);
-          enquecommand(cmd);
-          // Slowly move down to the platform
-          sprintf_P(cmd, PSTR("G1 Z0 F%i"), HOMING_FEEDRATE[Z_AXIS]/4);
-          enquecommand(cmd);
-          calibration_state = 1;
-          break;
-      case 1: // Waiting for head to move to initial position
-          refresh_cmd_timeout(); // Do not exit while we wait for head to move to initial position
-          if(current_position[X_AXIS] == (X_MIN_POS + X_MAX_POS)/2 &&
-             current_position[Y_AXIS] == (Y_MIN_POS + Y_MAX_POS)/2 &&
-             current_position[Z_AXIS] == 0)
-          {
-            calibration_state = 2;
-            encoderPosition = 0;
-            lcd_implementation_drawedit(PSTR(MSG_ZPROBE_ZOFFSET), ftostr3(zprobe_zoffset));
-          }
-          break;
-      case 2: // Calibrate
-          if (encoderPosition != 0)
-          {
-              refresh_cmd_timeout();
-              zprobe_zoffset+=0.1*float((int)encoderPosition);
-              current_position[Z_AXIS]-=0.1*float((int)encoderPosition);
-              if (min_software_endstops && current_position[Z_AXIS] < Z_MIN_POS)
-                  current_position[Z_AXIS] = Z_MIN_POS;
-              if (max_software_endstops && current_position[Z_AXIS] > Z_MAX_POS)
-                  current_position[Z_AXIS] = Z_MAX_POS;
-              encoderPosition = 0;
-              #ifdef DELTA
-              calculate_delta(current_position);
-              plan_buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], current_position[E_AXIS], (homing_feedrate[Z_AXIS]/60)/4, active_extruder);
-              #else
-              plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], (homing_feedrate[Z_AXIS]/60)/4, active_extruder);
-              #endif
-              lcdDrawUpdate = 1;
-          }
-          if (lcdDrawUpdate)
-          {
-              lcd_implementation_drawedit(PSTR(MSG_ZPROBE_ZOFFSET), ftostr3(zprobe_zoffset));
-          }
-          if (LCD_CLICKED)
-          {
-              lcd_quick_feedback();
-              currentMenu = lcd_status_screen;
-              encoderPosition = 0;
-              // Move up a little bit
-              current_position[Z_AXIS] = Z_RAISE_BEFORE_HOMING;
-              #ifdef DELTA
-              calculate_delta(current_position);
-              plan_buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], current_position[E_AXIS], homing_feedrate[Z_AXIS]/60, active_extruder);
-              #else
-              plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], homing_feedrate[Z_AXIS]/60, active_extruder);
-              #endif
-              Config_StoreSettings();
-              calibration_state = 0;
-          }
-          break;
-    }
+    // Home all axis
+    enquecommand_P(PSTR("G28"));
+    // Probe the build plate
+    enquecommand_P(PSTR("G29"));
+    // Move up a little bit and move to the middle of the platform with z-axis home speed (usually it is the slowest)
+    sprintf_P(cmd, PSTR("G1 X%i Y%i Z%i"), (X_MIN_POS + X_MAX_POS)/2, (Y_MIN_POS + Y_MAX_POS)/2, Z_RAISE_BEFORE_HOMING);
+    enquecommand(cmd);
+    // Slowly move down to the platform
+    enquecommand_P(PSTR("G1 Z0"));
+
+    pauseTimeoutToStatus = true;
+    currentMenu = lcd_calibrate_z_offset_wait;
 }
 #endif //ENABLE_AUTO_BED_LEVELING
 
@@ -530,7 +538,7 @@ static void lcd_prepare_menu()
 #endif
     MENU_ITEM(submenu, MSG_MOVE_AXIS, lcd_move_menu);
 #ifdef ENABLE_AUTO_BED_LEVELING
-    MENU_ITEM(submenu, MSG_CALIBRATE_Z_OFFSET, lcd_calibrate_z_offset);
+    MENU_ITEM(submenu, MSG_CALIBRATE_Z_OFFSET, lcd_calibrate_z_offset_prepare);
 #endif //ENABLE_AUTO_BED_LEVELING
     END_MENU();
 }
@@ -1211,10 +1219,15 @@ void lcd_update()
 #endif
 
 #ifdef ULTIPANEL
-        if(timeoutToStatus < millis() && currentMenu != lcd_status_screen)
+        if(timeoutToStatus < millis() && currentMenu != lcd_status_screen && !pauseTimeoutToStatus)
         {
             lcd_return_to_status();
             lcdDrawUpdate = 2;
+        }
+        else if(pauseTimeoutToStatus)
+        {
+            // Reset timeout
+            timeoutToStatus = millis() + LCD_TIMEOUT_TO_STATUS;
         }
 #endif//ULTIPANEL
         if (lcdDrawUpdate == 2)
