@@ -404,18 +404,18 @@ static void lcd_calibrate_z_offset()
       case 0: // Calibration just started
           char cmd[30];
           lcd_implementation_drawedit(PSTR(MSG_CALIBRATE_WAIT), "");
+#if BUFSIZE < 4
+#error Please increase BUFSIZE value. Calibration script needs at least 4 commands buffer
+#endif
           // Home all axis
           enquecommand_P(PSTR("G28"));
           // Probe the build plate
           enquecommand_P(PSTR("G29"));
-          // Move up a little bit
-          sprintf_P(cmd, PSTR("G1 Z%i F%i"), Z_RAISE_BEFORE_HOMING, homing_feedrate[Z_AXIS]);
-          enquecommand(cmd);
-          // Move to the middle of the platform
-          sprintf_P(cmd, PSTR("G1 X%i Y%i F%i"), (X_MIN_POS + X_MAX_POS)/2, (Y_MIN_POS + Y_MAX_POS)/2, XY_TRAVEL_SPEED);
+          // Move up a little bit and move to the middle of the platform with z-axis home speed (usually it is the slowest)
+          sprintf_P(cmd, PSTR("G1 X%i Y%i Z%i F%i"), (X_MIN_POS + X_MAX_POS)/2, (Y_MIN_POS + Y_MAX_POS)/2, Z_RAISE_BEFORE_HOMING, HOMING_FEEDRATE[Z_AXIS]);
           enquecommand(cmd);
           // Slowly move down to the platform
-          sprintf_P(cmd, PSTR("G1 Z0 F%i"), homing_feedrate[Z_AXIS]/4);
+          sprintf_P(cmd, PSTR("G1 Z0 F%i"), HOMING_FEEDRATE[Z_AXIS]/4);
           enquecommand(cmd);
           calibration_state = 1;
           break;
