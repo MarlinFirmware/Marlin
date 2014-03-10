@@ -453,7 +453,7 @@ static void lcd_calibrate_z_offset()
     }
     if (lcdDrawUpdate)
     {
-        lcd_implementation_drawedit(PSTR(MSG_Z_OFFSET),"");
+        lcd_implementation_drawedit(PSTR(MSG_ZPROBE_ZOFFSET),"");
     }
     if (LCD_CLICKED)
     {
