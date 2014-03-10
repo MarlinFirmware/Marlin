@@ -415,11 +415,12 @@ static void lcd_calibrate_z_offset()
           sprintf_P(cmd, PSTR("G1 X%s Y%s F%s"), (X_MIN_POS + X_MAX_POS)/2, (Y_MIN_POS + Y_MAX_POS)/2, XY_TRAVEL_SPEED);
           enquecommand(cmd);
           // Slowly move down to the platform
-          sprintf_P(cmd, PSTR("G1 Z%s F%s"), 0, homing_feedrate[Z_AXIS]/4);
+          sprintf_P(cmd, PSTR("G1 Z0 F%s"), homing_feedrate[Z_AXIS]/4);
           enquecommand(cmd);
           calibration_state = 1;
           break;
       case 1: // Waiting for head to move to initial position
+          refresh_cmd_timeout(); // Do not exit while we wait for head to move to initial position
           if(current_position[X_AXIS] == (X_MIN_POS + X_MAX_POS)/2 &&
              current_position[Y_AXIS] == (Y_MIN_POS + Y_MAX_POS)/2 &&
              current_position[Z_AXIS] == 0)
