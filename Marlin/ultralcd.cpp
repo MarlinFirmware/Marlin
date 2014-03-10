@@ -395,6 +395,85 @@ static void lcd_babystep_z()
 }
 #endif //BABYSTEPPING
 
+#ifdef ENABLE_AUTO_BED_LEVELING
+static void lcd_calibrate_z_offset()
+{
+    static bool calibration_just_started = true;
+    if(calibration_just_started)
+    {
+      // Home all axis
+      enquecommand_P("G28");
+      // Probe the build plate
+      enquecommand_P("G29");
+      // Move up a little bit
+      current_position[Z_AXIS] = Z_RAISE_BEFORE_HOMING;
+      #ifdef DELTA
+      calculate_delta(current_position);
+      plan_buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], current_position[E_AXIS], homing_feedrate[Z_AXIS], active_extruder);
+      #else
+      plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], homing_feedrate[Z_AXIS], active_extruder);
+      #endif
+      // Move to the middle of the platform
+      current_position[X_AXIS] = (X_MIN_POS + X_MAX_POS)/2;
+      current_position[Y_AXIS] = (Y_MIN_POS + Y_MAX_POS)/2;
+      #ifdef DELTA
+      calculate_delta(current_position);
+      plan_buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], current_position[E_AXIS], XY_TRAVEL_SPEED, active_extruder);
+      #else
+      plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], XY_TRAVEL_SPEED, active_extruder);
+      #endif
+      // Slowly move down to the platform
+      current_position[Z_AXIS] = 0;
+      #ifdef DELTA
+      calculate_delta(current_position);
+      plan_buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], current_position[E_AXIS], homing_feedrate[Z_AXIS]/4, active_extruder);
+      #else
+      plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], homing_feedrate[Z_AXIS]/4, active_extruder);
+      #endif
+      calibration_just_started = false;
+    }
+
+    if (encoderPosition != 0)
+    {
+        refresh_cmd_timeout();
+        zprobe_zoffset+=0.1*float((int)encoderPosition);
+        current_position[Z_AXIS]-=0.1*float((int)encoderPosition);
+        if (min_software_endstops && current_position[Z_AXIS] < Z_MIN_POS)
+            current_position[Z_AXIS] = Z_MIN_POS;
+        if (max_software_endstops && current_position[Z_AXIS] > Z_MAX_POS)
+            current_position[Z_AXIS] = Z_MAX_POS;
+        encoderPosition = 0;
+        #ifdef DELTA
+        calculate_delta(current_position);
+        plan_buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], current_position[E_AXIS], homing_feedrate[Z_AXIS]/4, active_extruder);
+        #else
+        plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], homing_feedrate[Z_AXIS]/4, active_extruder);
+        #endif
+        lcdDrawUpdate = 1;
+    }
+    if (lcdDrawUpdate)
+    {
+        lcd_implementation_drawedit(PSTR(MSG_Z_OFFSET),"");
+    }
+    if (LCD_CLICKED)
+    {
+        lcd_quick_feedback();
+        currentMenu = lcd_status_screen;
+        encoderPosition = 0;
+        calibration_just_started = true;
+        // Move up a little bit
+        current_position[Z_AXIS] = Z_RAISE_BEFORE_HOMING;
+        #ifdef DELTA
+        calculate_delta(current_position);
+        plan_buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], current_position[E_AXIS], homing_feedrate[Z_AXIS], active_extruder);
+        #else
+        plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], homing_feedrate[Z_AXIS], active_extruder);
+        #endif
+        Config_StoreSettings();
+    }
+}
+#endif //ENABLE_AUTO_BED_LEVELING
+
 static void lcd_tune_menu()
 {
     START_MENU();
@@ -450,6 +529,9 @@ static void lcd_prepare_menu()
     }
 #endif
     MENU_ITEM(submenu, MSG_MOVE_AXIS, lcd_move_menu);
+#ifdef ENABLE_AUTO_BED_LEVELING
+    MENU_ITEM(function, MSG_CALIBRATE_Z_OFFSET, lcd_calibrate_z_offset);
+#endif //ENABLE_AUTO_BED_LEVELING
     END_MENU();
 }
 
