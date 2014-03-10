@@ -409,13 +409,13 @@ static void lcd_calibrate_z_offset()
           // Probe the build plate
           enquecommand_P(PSTR("G29"));
           // Move up a little bit
-          sprintf_P(cmd, PSTR("G1 Z%s F%s"), Z_RAISE_BEFORE_HOMING, homing_feedrate[Z_AXIS]);
+          sprintf_P(cmd, PSTR("G1 Z%i F%i"), Z_RAISE_BEFORE_HOMING, homing_feedrate[Z_AXIS]);
           enquecommand(cmd);
           // Move to the middle of the platform
-          sprintf_P(cmd, PSTR("G1 X%s Y%s F%s"), (X_MIN_POS + X_MAX_POS)/2, (Y_MIN_POS + Y_MAX_POS)/2, XY_TRAVEL_SPEED);
+          sprintf_P(cmd, PSTR("G1 X%i Y%i F%i"), (X_MIN_POS + X_MAX_POS)/2, (Y_MIN_POS + Y_MAX_POS)/2, XY_TRAVEL_SPEED);
           enquecommand(cmd);
           // Slowly move down to the platform
-          sprintf_P(cmd, PSTR("G1 Z0 F%s"), homing_feedrate[Z_AXIS]/4);
+          sprintf_P(cmd, PSTR("G1 Z0 F%i"), homing_feedrate[Z_AXIS]/4);
           enquecommand(cmd);
           calibration_state = 1;
           break;
@@ -433,6 +433,7 @@ static void lcd_calibrate_z_offset()
       case 2: // Calibrate
           if (encoderPosition != 0)
           {
+              refresh_cmd_timeout();
               zprobe_zoffset+=0.1*float((int)encoderPosition);
               current_position[Z_AXIS]-=0.1*float((int)encoderPosition);
               if (min_software_endstops && current_position[Z_AXIS] < Z_MIN_POS)
