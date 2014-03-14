@@ -1808,6 +1808,9 @@ void process_commands()
 #endif
       setWatch();
       break;
+    case 112: //  M112 -Emergency Stop
+      kill();
+      break;
     case 140: // M140 set bed temp
       if (code_seen('S')) setTargetBed(code_value());
       break;
