@@ -17,7 +17,7 @@
   void lcd_setcontrast(uint8_t value);
 #endif
 
-  static unsigned char blink = 0;	// Variable for visualisation of fan rotation in GLCD
+  static unsigned char blink = 0;	// Variable for visualization of fan rotation in GLCD
 
   #define LCD_MESSAGEPGM(x) lcd_setstatuspgm(PSTR(x))
   #define LCD_ALERTMESSAGEPGM(x) lcd_setalertstatuspgm(PSTR(x))
@@ -29,7 +29,7 @@
   void lcd_buttons_update();
   extern volatile uint8_t buttons;  //the last checked buttons in a bit array.
   #ifdef REPRAPWORLD_KEYPAD
-    extern volatile uint8_t buttons_reprapworld_keypad; // to store the keypad shiftregister values
+    extern volatile uint8_t buttons_reprapworld_keypad; // to store the keypad shift register values
   #endif
   #else
   FORCE_INLINE void lcd_buttons_update() {}
@@ -72,7 +72,7 @@
   	  #define REPRAPWORLD_KEYPAD_MOVE_HOME (buttons_reprapworld_keypad&EN_REPRAPWORLD_KEYPAD_MIDDLE)
     #endif //REPRAPWORLD_KEYPAD
   #else
-    //atomatic, do not change
+    //atomic, do not change
     #define B_LE (1<<BL_LE)
     #define B_UP (1<<BL_UP)
     #define B_MI (1<<BL_MI)
@@ -85,7 +85,7 @@
     #define LCD_CLICKED ((buttons&B_MI)||(buttons&B_ST))
   #endif//NEWPANEL
 
-#else //no lcd
+#else //no LCD
   FORCE_INLINE void lcd_update() {}
   FORCE_INLINE void lcd_init() {}
   FORCE_INLINE void lcd_setstatus(const char* message) {}

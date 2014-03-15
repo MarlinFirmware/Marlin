@@ -1,11 +1,9 @@
 #include "qr_solve.h"
 
-#ifdef ACCURATE_BED_LEVELING
+#ifdef AUTO_BED_LEVELING_GRID
 
 #include <stdlib.h>
 #include <math.h>
-#include <time.h>
-
 
 //# include "r8lib.h"
 
@@ -1173,7 +1171,7 @@ void dqrlss ( double a[], int lda, int m, int n, int kr, double b[], double x[],
 
   Discussion:
 
-    DQRLSS must be preceeded by a call to DQRANK.
+    DQRLSS must be preceded by a call to DQRANK.
 
     The system is to be solved is
       A * X = B
@@ -1225,7 +1223,7 @@ void dqrlss ( double a[], int lda, int m, int n, int kr, double b[], double x[],
     linear system.
 
     Output, double RSD[M], the residual, B - A*X.  RSD may
-    overwite B.
+    overwrite B.
 
     Input, int JPVT[N], the pivot information from DQRANK.
     Columns JPVT[0], ..., JPVT[KR-1] of the original matrix are linearly
@@ -1314,7 +1312,7 @@ int dqrsl ( double a[], int lda, int n, int k, double qraux[], double y[],
     can be replaced by dummy variables in the calling program.
     To save storage, the user may in some cases use the same
     array for different parameters in the calling sequence.  A
-    frequently occuring example is when one wishes to compute
+    frequently occurring example is when one wishes to compute
     any of B, RSD, or AB and does not need Y or QTY.  In this
     case one may identify Y, QTY, and one of B, RSD, or AB, while
     providing separate arrays for anything else that is to be

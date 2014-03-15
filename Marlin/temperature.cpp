@@ -250,7 +250,7 @@ void PID_autotune(float temp, int extruder, int ncycles)
               Kp = 0.6*Ku;
               Ki = 2*Kp/Tu;
               Kd = Kp*Tu/8;
-              SERIAL_PROTOCOLLNPGM(" Clasic PID ");
+              SERIAL_PROTOCOLLNPGM(" Classic PID ");
               SERIAL_PROTOCOLPGM(" Kp: "); SERIAL_PROTOCOLLN(Kp);
               SERIAL_PROTOCOLPGM(" Ki: "); SERIAL_PROTOCOLLN(Ki);
               SERIAL_PROTOCOLPGM(" Kd: "); SERIAL_PROTOCOLLN(Kd);
@@ -306,7 +306,7 @@ void PID_autotune(float temp, int extruder, int ncycles)
       return;
     }
     if(cycles > ncycles) {
-      SERIAL_PROTOCOLLNPGM("PID Autotune finished! Put the Kp, Ki and Kd constants into Configuration.h");
+      SERIAL_PROTOCOLLNPGM("PID Autotune finished! Put the last Kp, Ki and Kd constants from above into Configuration.h");
       return;
     }
     lcd_update();
@@ -449,7 +449,8 @@ void manage_heater()
           pid_output = constrain(target_temperature[e], 0, PID_MAX);
     #endif //PID_OPENLOOP
     #ifdef PID_DEBUG
-    SERIAL_ECHO_START(" PIDDEBUG ");
+    SERIAL_ECHO_START;
+    SERIAL_ECHO(" PID_DEBUG ");
     SERIAL_ECHO(e);
     SERIAL_ECHO(": Input ");
     SERIAL_ECHO(pid_input);
