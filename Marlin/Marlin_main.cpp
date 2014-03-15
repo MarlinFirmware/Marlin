@@ -189,6 +189,14 @@ bool axis_relative_modes[] = AXIS_RELATIVE_MODES;
 int feedmultiply=100; //100->1 200->2
 int saved_feedmultiply;
 int extrudemultiply=100; //100->1 200->2
+int extruder_multiply[EXTRUDERS] = {100
+  #if EXTRUDERS > 1
+    , 100
+    #if EXTRUDERS > 2
+      , 100
+    #endif
+  #endif
+};
 float volumetric_multiplier[EXTRUDERS] = {1.0
   #if EXTRUDERS > 1
     , 1.0
@@ -2426,7 +2434,18 @@ void process_commands()
     {
       if(code_seen('S'))
       {
-        extrudemultiply = code_value() ;
+        int tmp_code = code_value();
+        if (code_seen('T'))
+        {
+          if(setTargetedHotend(221)){
+            break;
+          }
+          extruder_multiply[tmp_extruder] = tmp_code;
+        }
+        else
+        {
+          extrudemultiply = tmp_code ;
+        }
       }
     }
     break;
@@ -3545,6 +3564,9 @@ bool setTargetedHotend(int code){
           break;
         case 218:
           SERIAL_ECHO(MSG_M218_INVALID_EXTRUDER);
+          break;
+        case 221:
+          SERIAL_ECHO(MSG_M221_INVALID_EXTRUDER);
           break;
       }
       SERIAL_ECHOLN(tmp_extruder);
