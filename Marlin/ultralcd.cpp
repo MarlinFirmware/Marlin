@@ -196,6 +196,7 @@ static void lcd_status_screen()
         lcd_quick_feedback();
     }
 
+#ifdef ULTIPANEL_FEEDMULTIPLY
     // Dead zone at 100% feedrate
     if ((feedmultiply < 100 && (feedmultiply + int(encoderPosition)) > 100) ||
             (feedmultiply > 100 && (feedmultiply + int(encoderPosition)) < 100))
@@ -219,6 +220,7 @@ static void lcd_status_screen()
         feedmultiply += int(encoderPosition);
         encoderPosition = 0;
     }
+#endif//ULTIPANEL_FEEDMULTIPLY
 
     if (feedmultiply < 10)
         feedmultiply = 10;
