@@ -658,6 +658,12 @@ void get_command()
           }
 
         }
+
+        if(strcmp(cmdbuffer[bufindw], "M112") == 0)
+        {
+          kill();
+        }
+        
         bufindw = (bufindw + 1)%BUFSIZE;
         buflen += 1;
       }
@@ -3340,6 +3346,9 @@ void handle_status_leds(void) {
 
 void manage_inactivity()
 {
+  if(buflen < (BUFSIZE-1))
+    get_command();
+
   if( (millis() - previous_millis_cmd) >  max_inactive_time )
     if(max_inactive_time)
       kill();
