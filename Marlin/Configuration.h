@@ -75,8 +75,11 @@
 #define MOTHERBOARD 7
 #endif
 
-// Define this to set a custom name for your generic Mendel,
-// #define CUSTOM_MENDEL_NAME "This Mendel"
+// Define this to set a custom name for your printer,
+// #define MACHINE_NAME "This Mendel"
+
+// Define this to set a custom location to look for firmware for your printer,
+// #define FIRMWARE_URL "https://github.com/ErikZalm/Marlin/"
 
 // Define this to set a unique identifier for this printer, (Used by some programs to differentiate between machines)
 // You can use an online service to generate a random UUID. (eg http://www.uuidgenerator.net/version4)
