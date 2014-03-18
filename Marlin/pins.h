@@ -1055,18 +1055,18 @@
 #endif
 
 #ifdef NUM_SERVOS
-  #define SERVO0_PIN          11
+  #define SERVO0_PIN          -1
 
   #if NUM_SERVOS > 1
-    #define SERVO1_PIN        27
+    #define SERVO1_PIN        -1
   #endif
 
   #if NUM_SERVOS > 2
-    #define SERVO2_PIN        28
+    #define SERVO2_PIN        -1
   #endif
 
   #if NUM_SERVOS > 3
-    #define SERVO3_PIN        29
+    #define SERVO3_PIN        -1
   #endif
 #endif
 
