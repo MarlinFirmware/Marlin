@@ -1066,10 +1066,10 @@
 // LCD Menu Messages
 // Please note these are limited to 17 characters!
 
-	#define WELCOME_MSG MACHINE_NAME			" Готов."
+	#define WELCOME_MSG MACHINE_NAME			        "Готов."
 	#define MSG_SD_INSERTED						"Карта вставлена"
 	#define MSG_SD_REMOVED						"Карта извлечена"
-	#define MSG_MAIN							"Меню            \003"
+	#define MSG_MAIN							"Меню \003"
 	#define MSG_AUTOSTART						"Автостарт"
 	#define MSG_DISABLE_STEPPERS 				"Выкл. двигатели"
 	#define MSG_AUTO_HOME						"Парковка"
@@ -1150,8 +1150,8 @@
 	#define MSG_WATCH							"Обзор           \003"
 	#define MSG_PREPARE							"Действия        \x7E"
 	#define MSG_TUNE							"Настройки       \x7E"
-	#define MSG_RESUME_PRINT  					"Продолжить печать"
-	#define MSG_RESUME_PRINT					"Продолжить печать"
+	#define MSG_PAUSE_PRINT  					"Продолжить печать"
+	#define MSG_RESUME_PRINT					"возобн. печать"
 	#define MSG_STOP_PRINT 						"Остановить печать"
 	#define MSG_CARD_MENU						"Меню карты      \x7E"
 	#define MSG_NO_CARD							"Нет карты"
