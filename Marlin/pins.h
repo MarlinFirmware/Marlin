@@ -298,7 +298,7 @@
 * Arduino Mega pin assignment
 *
 ****************************************************************************************/
-#if MOTHERBOARD == 3 || MOTHERBOARD == 33 || MOTHERBOARD == 34 || MOTHERBOARD == 35 || MOTHERBOARD == 77
+#if MOTHERBOARD == 3 || MOTHERBOARD == 33 || MOTHERBOARD == 34 || MOTHERBOARD == 35 || MOTHERBOARD == 36 || MOTHERBOARD == 77
 #define KNOWN_BOARD 1
 
 //////////////////FIX THIS//////////////
@@ -314,7 +314,7 @@
 // #define RAMPS_V_1_0
 
 
-#if MOTHERBOARD == 33 || MOTHERBOARD == 34 || MOTHERBOARD == 35 || MOTHERBOARD == 77
+#if MOTHERBOARD == 33 || MOTHERBOARD == 34 || MOTHERBOARD == 35 || MOTHERBOARD == 36 || MOTHERBOARD == 77
 
   #define LARGE_FLASH true
   
@@ -398,11 +398,11 @@
     #define FAN_PIN            4 // IO pin. Buffer needed
   #endif
 
-  #if MOTHERBOARD == 77
+  #if MOTHERBOARD == 77 || MOTHERBOARD == 36
     #define FAN_PIN            8 
   #endif
   
-  #if MOTHERBOARD == 35
+  #if MOTHERBOARD == 35 
     #define CONTROLLERFAN_PIN  2 //Pin used for the fan to cool controller
   #endif
 
@@ -414,7 +414,7 @@
     #define KILL_PIN           -1
   #endif
 
-  #if MOTHERBOARD == 35
+  #if MOTHERBOARD == 35 || MOTHERBOARD == 36 
     #define HEATER_0_PIN       10
   #else
     #define HEATER_0_PIN       10   // EXTRUDER 1
@@ -426,6 +426,10 @@
     #define HEATER_1_PIN       8    // EXTRUDER 2 (FAN On Sprinter)
   #endif
 
+  #if MOTHERBOARD == 36 
+    #define HEATER_1_PIN       9    // EXTRUDER 2
+  #endif
+  
   #define HEATER_2_PIN       -1 
 
   #if MOTHERBOARD == 77
@@ -434,11 +438,9 @@
     #define HEATER_2_PIN       6   
   #endif
 
-  #define TEMP_0_PIN         13   // ANALOG NUMBERING
-  #define TEMP_1_PIN         -1 //15   // ANALOG NUMBERING
-  #define TEMP_2_PIN         -1   // ANALOG NUMBERING
+  
 
-  #if MOTHERBOARD == 35
+  #if MOTHERBOARD == 35 || MOTHERBOARD == 36
     #define HEATER_BED_PIN     -1    // NO BED
   #else
     #if MOTHERBOARD == 77
@@ -447,9 +449,19 @@
       #define HEATER_BED_PIN     8    // BED
     #endif
   #endif
-  #define TEMP_BED_PIN       14   // ANALOG NUMBERING
+  
 
-
+  #if MOTHERBOARD == 36
+    #define TEMP_BED_PIN     -1 // NO BED
+    #define TEMP_0_PIN         13 // ANALOG NUMBERING T0
+    #define TEMP_1_PIN         14 //ANALOG NUMBERING T1
+    #define TEMP_2_PIN         -1   // ANALOG NUMBERING
+  #else
+    #define TEMP_BED_PIN       14   // ANALOG NUMBERING
+    #define TEMP_0_PIN         13   // ANALOG NUMBERING
+    #define TEMP_1_PIN         -1 //15   // ANALOG NUMBERING
+    #define TEMP_2_PIN         -1   // ANALOG NUMBERING
+  #endif
 
   #ifdef NUM_SERVOS
     #define SERVO0_PIN         11
@@ -615,7 +627,7 @@
   #define MAX6675_SS       49
 #endif
 
-#endif //MOTHERBOARD == 3 || MOTHERBOARD == 33 || MOTHERBOARD == 34 || MOTHERBOARD == 35 || MOTHERBOARD == 77
+#endif //MOTHERBOARD == 3 || MOTHERBOARD == 33 || MOTHERBOARD == 34 || MOTHERBOARD == 35 ||  MOTHERBOARD == 36 || MOTHERBOARD == 77
 
 /****************************************************************************************
 * Duemilanove w/ ATMega328P pin assignment

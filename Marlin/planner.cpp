@@ -108,6 +108,7 @@ static long x_segment_time[3]={MAX_FREQ_TIME + 1,0,0};     // Segment times (in 
 static long y_segment_time[3]={MAX_FREQ_TIME + 1,0,0};
 #endif
 
+
 // Returns the index of the next block in the ring buffer
 // NOTE: Removed modulo (%) operator, which uses an expensive divide and multiplication.
 static int8_t next_block_index(int8_t block_index) {
@@ -507,14 +508,23 @@ void check_axes_activity()
   #endif
 #endif
 }
-
-
+#ifdef R_360
+void plan_buffer_line_Y_degree(const float &x, const float &y_degree, const float &z, const float &e, float feed_rate, const uint8_t &extruder)
+{
+    float y_step_diff = R_360_STEPS_PER_ROTATION / 180 * y_degree;
+    float y = (position[Y_AXIS] + y_step_diff) / axis_steps_per_unit[Y_AXIS];
+    plan_buffer_line(x, y, z, e, feed_rate, extruder);
+    
+}
+#endif
 float junction_deviation = 0.1;
 // Add a new linear movement to the buffer. steps_x, _y and _z is the absolute position in 
 // mm. Microseconds specify how many microseconds the move should take to perform. To aid acceleration
 // calculation the caller must also provide the physical length of the line in millimeters.
 void plan_buffer_line(const float &x, const float &y, const float &z, const float &e, float feed_rate, const uint8_t &extruder)
 {
+  float original_target_y ;
+  
   // Calculate the buffer head after we push this byte
   int next_buffer_head = next_block_index(block_buffer_head);
 
@@ -531,8 +541,44 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
   // Calculate target position in absolute steps
   //this should be done after the wait, because otherwise a M92 code within the gcode disrupts this calculation somehow
   long target[4];
+  int cross_flag = 0;
+  int cross_direction = 0;
   target[X_AXIS] = lround(x*axis_steps_per_unit[X_AXIS]);
-  target[Y_AXIS] = lround(y*axis_steps_per_unit[Y_AXIS]);
+    
+  #ifdef R_360 
+ 	//This is hack to identyfy 0 position
+       if (R_360_STEPS_PER_ROTATION == abs(y)){
+ 		target[Y_AXIS] = y;
+  	}else{
+  		target[Y_AXIS] = lround(y*axis_steps_per_unit[Y_AXIS]);
+  	}
+  /*
+      //identyfy 0 position
+      target[Y_AXIS] = lround(y*axis_steps_per_unit[Y_AXIS]);
+      SERIAL_ECHOPGM(" position="); SERIAL_ECHO( position[Y_AXIS]   );
+    
+      if (R_360_STEPS_PER_ROTATION <= abs(target[Y_AXIS])  
+        || (target[Y_AXIS] > (R_360_STEPS_PER_ROTATION / 2)) && (position[Y_AXIS] < (-R_360_STEPS_PER_ROTATION / 2))
+        || (target[Y_AXIS] < (-R_360_STEPS_PER_ROTATION / 2)) && (position[Y_AXIS] > (R_360_STEPS_PER_ROTATION / 2))
+        ){
+     
+          original_target_y = target[Y_AXIS];
+          cross_flag = 1;
+  	  if (position[Y_AXIS] > 0 ){
+             target[Y_AXIS] = R_360_STEPS_PER_ROTATION;
+             cross_direction = 1;
+           }else{
+             target[Y_AXIS] = -R_360_STEPS_PER_ROTATION;
+             cross_direction = -1;
+           }
+      } 
+  */    
+  #else
+  	target[Y_AXIS] = lround(y*axis_steps_per_unit[Y_AXIS]);
+  #endif
+
+  //SERIAL_ECHOPGM(" Y="); SERIAL_ECHO( y ); SERIAL_ECHOPGM(" line Y="); SERIAL_ECHO( target[Y_AXIS] );
+  
   target[Z_AXIS] = lround(z*axis_steps_per_unit[Z_AXIS]);     
   target[E_AXIS] = lround(e*axis_steps_per_unit[E_AXIS]);
 
@@ -892,7 +938,7 @@ block->steps_y = labs((target[X_AXIS]-position[X_AXIS]) - (target[Y_AXIS]-positi
     if(acc_dist == 0) {
       block->advance_rate = 0;
     } 
-    else {
+    else {z
       block->advance_rate = advance / (float)acc_dist;
     }
   }
@@ -917,12 +963,57 @@ block->steps_y = labs((target[X_AXIS]-position[X_AXIS]) - (target[Y_AXIS]-positi
   planner_recalculate();
 
   st_wake_up();
+  
+#ifdef R_360
+      /*
+      //compensate for crossing 0
+      float new_y = 0;
+      if (cross_flag ){
+        //if (cross_direction == 1){  new_y = R_360_STEPS_PER_ROTATION / axis_steps_per_unit[Y_AXIS]; }else{ new_y = -R_360_STEPS_PER_ROTATION / axis_steps_per_unit[Y_AXIS]; }
+        new_y = -target[Y_AXIS] / axis_steps_per_unit[Y_AXIS];
+        SERIAL_ECHOPGM(" new_y=");SERIAL_ECHOLN(new_y);
+        plan_set_position(x, new_y , z, e);
+      }
+      
+      SERIAL_ECHOPGM(" cross dir=");SERIAL_ECHOLN(cross_direction);
+      */
+#endif  
 }
-
-void plan_set_position(const float &x, const float &y, const float &z, const float &e)
+#ifdef R_360 
+void plan_set_position_reset_y(const float &x, const float &y, const float &z, const float &e)
 {
+  plan_set_position(x, 0, z, e);
+  
+}
+#endif
+void plan_set_position(const float &x, const float &y, const float &z, const float &e)
+{	
   position[X_AXIS] = lround(x*axis_steps_per_unit[X_AXIS]);
-  position[Y_AXIS] = lround(y*axis_steps_per_unit[Y_AXIS]);
+ #ifdef R_360 
+       //this is a hack to set 0 position
+ 	if (R_360_STEPS_PER_ROTATION == abs(y)){
+  		position[Y_AXIS] = y;
+  	}
+  	else{
+  		position[Y_AXIS] = lround(y*axis_steps_per_unit[Y_AXIS]);
+  	}
+  /*
+      position[Y_AXIS] = lround(y*axis_steps_per_unit[Y_AXIS]);
+      if (abs(position[Y_AXIS] > R_360_STEPS_PER_ROTATION )){
+        if(position[Y_AXIS] > 0 ){
+          position[Y_AXIS] -= R_360_STEPS_PER_ROTATION;
+        }else{
+          position[Y_AXIS] +=  R_360_STEPS_PER_ROTATION;
+        }
+      }
+      */
+      //position[Y_AXIS] = lround(y*axis_steps_per_unit[Y_AXIS]);
+  #else
+  	position[Y_AXIS] = lround(y*axis_steps_per_unit[Y_AXIS]);
+  #endif
+  
+  //SERIAL_ECHOPGM(" Y="); SERIAL_ECHO( y );	SERIAL_ECHOPGM("position Y="); SERIAL_ECHOLN( position[Y_AXIS] );
+  
   position[Z_AXIS] = lround(z*axis_steps_per_unit[Z_AXIS]);     
   position[E_AXIS] = lround(e*axis_steps_per_unit[E_AXIS]);  
   st_set_position(position[X_AXIS], position[Y_AXIS], position[Z_AXIS], position[E_AXIS]);

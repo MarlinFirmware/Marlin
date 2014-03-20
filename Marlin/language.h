@@ -139,8 +139,27 @@
 	#define MSG_CONTROL_RETRACT_RECOVERF "UnRet  F"
 	#define MSG_AUTORETRACT "AutoRetr."
 	#define MSG_FILAMENTCHANGE "Change filament"
-	#define MSG_INIT_SDCARD "Init. SD-Card"	
+	#define MSG_INIT_SDCARD "Init SD-Card"	
 	#define MSG_CNG_SDCARD "Change SD-Card"
+        #define MSG_BASIC_MODE "Basic Mode"
+        #define MSG_ADVANCED_MODE "Advanced Mode"
+        #define MSG_SCAN "Scan"
+        #define MSG_SCANNING "Scanning..."
+        #define MSG_SCAN_TURNTABLE_INIT "Initalise scan"
+        #define MSG_SCAN_TURNTABLE_CONTINOUS "Turning continued"
+        #define MSG_SCAN_TURNTABLE_STOP "Stop turning"
+        #define MSG_SCAN_TURNTABLE_TURN_30 "Turn 30 degree"
+        #define MSG_SCAN_TURNTABLE_TURN_45 "Turn 45 degree"
+        #define MSG_SCAN_TURNTABLE_TURN_60 "Turn 60 degree"
+        #define MSG_SCAN_TURNTABLE_TURN_90 "Turn 90 degree"
+        #define MSG_SCAN_TURNTABLE_TURN_180 "Turn 180 degree"
+        #define MSG_SCAN_TURNTABLE_TURN_360 "Turn 360 degree"
+        #define MSG_COPY "Copy"
+        #define MSG_CHANGE_FILLAMENT "Change Fillament"
+        #define MSG_INITIALISE "Initialise"
+        #define MSG_CALIBRATE "Calibrate"
+        
+                  
 
 // Serial Console Messages
 

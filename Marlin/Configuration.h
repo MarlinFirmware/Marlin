@@ -29,6 +29,7 @@
 // 33 = RAMPS 1.3 / 1.4 (Power outputs: Extruder, Fan, Bed)
 // 34 = RAMPS 1.3 / 1.4 (Power outputs: Extruder0, Extruder1, Bed)
 // 35 = RAMPS 1.3 / 1.4 (Power outputs: Extruder, Fan, Fan)
+// 36 = RAMPS 1.4 (Power outputs: Extruder0 [d10], Extruder1[d9],Filament Fan[D8] ) - R-360 -coming soon
 // 4  = Duemilanove w/ ATMega328P pin assignment
 // 5  = Gen6
 // 51 = Gen6 deluxe
@@ -55,14 +56,14 @@
 // 21 = Elefu Ra Board (v3)
 
 #ifndef MOTHERBOARD
-#define MOTHERBOARD 35
+#define MOTHERBOARD 35 // R-360 35 Single Extruder , 36 Dual Head
 #endif
 
 // Define this to set a custom name for your generic Mendel,
 // #define CUSTOM_MENDEL_NAME "This Mendel"
 
 // This defines the number of extruders
-#define EXTRUDERS 1
+#define EXTRUDERS 1 // R-360 35 Single Extruder 1 Dual 2
 
 //// The following define selects which power supply you have. Please choose the one that matches your setup
 // 1 = ATX
@@ -73,24 +74,25 @@
 //===========================================================================
 //============================== R_360 Settings =============================
 //===========================================================================
-// Enable  R_360
+// Enable  R_360 Polar cordinates
 #define R_360
+//#define R_360_MENU
 
 //disc outer size
-#define R_360_OUTER_RADIUS 115
+#define R_360_OUTER_RADIUS 100
 
 // Make delta curves from many straight lines (linear interpolation).
 // This is a trade-off between visible corners (not enough segments)
-// and processor overload (too many expensive sqrt calls).
-#define R_360_DELTA_SEGMENTS_PER_SECOND 200
+// and processor overload (too many expensive atan2 calls).
+#define R_360_DELTA_SEGMENTS_PER_SECOND 250 //normal 250
 
-//Bed offset
-#define R_360_BED_OFFSET 100
+//steps for full rotation -5760 to 5760 //TODO Use the full rotation not the half
+#define R_360_STEPS_PER_ROTATION 5760
 
 //Speed up in the middle
 //Will make a quick move when larger than alpha condition(tn) and smaller than x_diff condition(mm)
-#define R_360_ALPHA_CONDITION 0.05
-#define R_360_X_DIFF_CONDITION 0.3
+#define R_360_ALPHA_CONDITION 0.03
+#define R_360_X_DIFF_CONDITION 2
 
 
 //===========================================================================
@@ -161,8 +163,8 @@
 // 52 is 200k thermistor - ATC Semitec 204GT-2 (1k pullup)
 // 55 is 100k thermistor - ATC Semitec 104GT-2 (Used in ParCan) (1k pullup)
 
-#define TEMP_SENSOR_0 1 //normaly 5
-#define TEMP_SENSOR_1 -1
+#define TEMP_SENSOR_0 1 //default  5   //r-360 1
+#define TEMP_SENSOR_1 0 // R-230 single 0 Dual 1 
 #define TEMP_SENSOR_2 0
 #define TEMP_SENSOR_BED 0
 
@@ -374,8 +376,8 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 // default settings
 
-#define DEFAULT_AXIS_STEPS_PER_UNIT   {79.5355,14.87783996384824,4000,720}  // default steps per unit for (R-360 Y 14.896399416664 calculated)
-#define DEFAULT_MAX_FEEDRATE          {500, 500, 5, 25}    // (mm/sec)
+#define DEFAULT_AXIS_STEPS_PER_UNIT   {80.3388,18.3346494441863,4000,327.1089} //e:720 wades  //79.5355// default steps per unit for (R-360 Y 15.9431734297273 calculated)R_360_STEPS_PER_ROTATION/(PI*2)
+#define DEFAULT_MAX_FEEDRATE          {500, 1200, 5, 25}    // (mm/sec)
 #define DEFAULT_MAX_ACCELERATION      {9000,9000,100,10000}    // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for skeinforge 40+, for older versions raise them a lot.
 
 #define DEFAULT_ACCELERATION          3000    // X, Y, Z and E max acceleration in mm/s^2 for printing moves

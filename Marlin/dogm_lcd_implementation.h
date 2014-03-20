@@ -307,13 +307,21 @@ static void lcd_implementation_status_screen()
  u8g.drawPixel(8,33);
  u8g.drawPixel(8,35);
  u8g.setPrintPos(10,37);
- u8g.print(ftostr31ns(current_position[X_AXIS]));
+ #ifdef R_360
+   u8g.print(ftostr31ns(abs(current_position[X_AXIS])));
+ #else
+   u8g.print(ftostr31ns(current_position[X_AXIS]));
+ #endif
  u8g.setPrintPos(43,37);
  lcd_printPGM(PSTR("Y"));
  u8g.drawPixel(49,33);
  u8g.drawPixel(49,35);
  u8g.setPrintPos(51,37);
- u8g.print(ftostr31ns(current_position[Y_AXIS]));
+ #ifdef R_360
+   u8g.print(ftostr31ns(abs(current_position[Y_AXIS])));
+ #else
+   u8g.print(ftostr31ns(current_position[Y_AXIS]));
+ #endif
  u8g.setPrintPos(83,37);
  u8g.print("Z");
  u8g.drawPixel(89,33);

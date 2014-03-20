@@ -58,6 +58,31 @@ static void lcd_set_contrast();
 static void lcd_control_retract_menu();
 static void lcd_sdcard_menu();
 
+#ifdef R_360
+boolean truntable_ready = false;
+boolean currently_scanning = false;
+static void lcd_scan_menu();
+static void lcd_scan_init();
+static void lcd_scan_stop();
+static void lcd_scan_turn_continouse();
+static void lcd_scan_turndegree(int turnDegree);
+static void lcd_scan_turndegree30();
+static void lcd_scan_turndegree360();
+#endif
+
+#ifdef R_360_MENU
+boolean advanced_menu_view = false;
+float current_cartesian_position[4] =  {0.0, 0.0 , 0.0, 0.0};
+static void lcd_r_360_basic_menu();
+
+
+
+static void lcd_advanced_mode_on();
+static void lcd_advanced_mode_off();
+
+#endif
+
+
 static void lcd_quick_feedback();//Cause an LCD refresh, and give the user visual or audiable feedback that something has happend
 
 /* Different types of actions that can be used in menuitems. */
@@ -174,7 +199,16 @@ static void lcd_status_screen()
 #ifdef ULTIPANEL
     if (LCD_CLICKED)
     {
-        currentMenu = lcd_main_menu;
+#ifdef R_360_MENU
+  if (advanced_menu_view){
+    currentMenu = lcd_main_menu;
+  }else{
+    currentMenu = lcd_r_360_basic_menu;
+  }
+#else
+     currentMenu = lcd_main_menu;
+#endif
+       
         encoderPosition = 0;
         lcd_quick_feedback();
     }
@@ -238,10 +272,161 @@ static void lcd_sdcard_stop()
     autotempShutdown();
 }
 #ifdef R_360
-//static void lcd_main_menu(){
+static void lcd_scan_menu(){
+   START_MENU();
+    MENU_ITEM(back, MSG_MAIN, lcd_status_screen);
+    if(truntable_ready == true){
+    
+        if(currently_scanning == true){
+         MENU_ITEM(submenu, MSG_SCAN_TURNTABLE_STOP, lcd_scan_stop);
+        }else{
+            
+            MENU_ITEM(submenu, MSG_SCAN_TURNTABLE_CONTINOUS, lcd_scan_turn_continouse);
+            MENU_ITEM(submenu, MSG_SCAN_TURNTABLE_TURN_30, lcd_scan_turndegree30);
+            MENU_ITEM(submenu, MSG_SCAN_TURNTABLE_TURN_360, lcd_scan_turndegree360);
+        }
+    }else{
+        //MENU_ITEM(gcode, MSG_SCAN_TURNTABLE_INIT,  PSTR("G1 X100 Z100 Y0 F200"));
+        MENU_ITEM(function, MSG_SCAN_TURNTABLE_INIT, lcd_scan_init);
+    }
+    END_MENU();
+}
 
-//}
+static void lcd_scan_turndegree30(){
+  lcd_scan_turndegree(30);
+  lcd_scan_menu();
+}
+static void lcd_scan_turndegree360(){
+  lcd_scan_turndegree(360);
+  lcd_scan_menu();
+}
+
+static void lcd_scan_turndegree(int turnDegree){
+   //calculate_r_360(current_position,target);
+  plan_buffer_line_Y_degree(current_position[X_AXIS], turnDegree, current_position[Z_AXIS], current_position[E_AXIS], manual_feedrate[X_AXIS]/60, active_extruder);
+   
+  currently_scanning == true;
+  lcd_scan_menu();
+}
+
+static void lcd_scan_stop(){
+  currently_scanning == false;
+  lcd_scan_menu();
+}
+
+static void lcd_scan_init(){
+    enquecommand_P((PSTR("G28")));
+    float target[4] = {0.0,0.0,0.0,0.0};
+    target[X_AXIS] = 100;
+    target[Y_AXIS] = current_position[Y_AXIS];
+    target[Z_AXIS] = 100;
+    target[E_AXIS] = current_position[E_AXIS];
+    enquecommand_P((PSTR("G1 X100 Z100 F500")));
+    //calculate_r_360(current_position,target);
+    //plan_buffer_line(r_360[X_AXIS], r_360[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], manual_feedrate[X_AXIS]/60, active_extruder);
+        
+    
+    truntable_ready=true;
+    lcd_scan_menu();
+}
+
+static void lcd_scan_turn_continouse(){
+  currently_scanning == true;
+  //enquecommand_P((PSTR("G1 Y0 F200")));
+  //enquecommand_P((PSTR("G1 Y180 F200")));
+  lcd_scan_menu();
+}
+
+#endif //R_360
+#ifdef R_360_MENU
+static void lcd_r_360_basic_menu(){
+  
+  START_MENU();
+    MENU_ITEM(back, MSG_WATCH, lcd_status_screen);
+    
+#ifdef SDSUPPORT
+    if (card.cardOK)
+    {
+        if (card.isFileOpen())
+        {
+            if (card.sdprinting)
+                MENU_ITEM(function, MSG_PAUSE_PRINT, lcd_sdcard_pause);
+            else
+                MENU_ITEM(function, MSG_RESUME_PRINT, lcd_sdcard_resume);
+            MENU_ITEM(function, MSG_STOP_PRINT, lcd_sdcard_stop);
+        }else{
+            MENU_ITEM(submenu, MSG_CARD_MENU, lcd_sdcard_menu);
+#if SDCARDDETECT < 1
+            MENU_ITEM(gcode, MSG_CNG_SDCARD, PSTR("M21"));  // SD-card changed by user
 #endif
+        }
+    }else{
+        MENU_ITEM(submenu, MSG_NO_CARD, lcd_sdcard_menu);
+#if SDCARDDETECT < 1
+        MENU_ITEM(gcode, MSG_INIT_SDCARD, PSTR("M21")); // Manually initialize the SD-card via user interface
+#endif
+    }
+#endif
+
+   
+    if (movesplanned() || IS_SD_PRINTING)
+    {
+        MENU_ITEM(submenu, MSG_TUNE, lcd_tune_menu);
+    }else{
+         MENU_ITEM(submenu, MSG_SCAN, lcd_scan_menu);
+         MENU_ITEM(gcode, MSG_INITIALISE, PSTR("G28"));
+         MENU_ITEM(back, MSG_CHANGE_FILLAMENT, lcd_status_screen);
+    }
+    
+    //MENU_ITEM(submenu, MSG_ADVANCED_MODE, lcd_control_menu);
+    MENU_ITEM(function, MSG_ADVANCED_MODE, lcd_advanced_mode_on);
+    
+    
+    END_MENU();
+    
+}
+
+static void lcd_scan_menu(){
+   START_MENU();
+    MENU_ITEM(back, MSG_MAIN, lcd_r_360_basic_menu);
+    if(truntable_ready == true){
+    
+        if(currently_scanning == true){
+         MENU_ITEM(submenu, MSG_SCAN_TURNTABLE_STOP, lcd_status_screen);
+        }else{
+            
+            MENU_ITEM(submenu, MSG_SCAN_TURNTABLE_CONTINOUS, lcd_scan_turn_continouse);
+            MENU_ITEM(submenu, MSG_SCAN_TURNTABLE_TURN_30, lcd_scan_turndegree30);
+            MENU_ITEM(submenu, MSG_SCAN_TURNTABLE_TURN_45, lcd_scan_turndegree30);
+            MENU_ITEM(submenu, MSG_SCAN_TURNTABLE_TURN_60, lcd_scan_turndegree30);
+            MENU_ITEM(submenu, MSG_SCAN_TURNTABLE_TURN_90, lcd_scan_turndegree30);
+            MENU_ITEM(submenu, MSG_SCAN_TURNTABLE_TURN_180, lcd_scan_turndegree30);
+            MENU_ITEM(submenu, MSG_SCAN_TURNTABLE_TURN_360, lcd_scan_turndegree360);
+        }
+    }else{
+        //MENU_ITEM(gcode, MSG_SCAN_TURNTABLE_INIT,  PSTR("G1 X100 Z100 Y0 F200"));
+        MENU_ITEM(function, MSG_SCAN_TURNTABLE_INIT, lcd_scan_init);
+    }
+    END_MENU();
+}
+
+static void lcd_advanced_mode_on(){
+    advanced_menu_view = true;
+    lcd_status_screen();
+}
+static void lcd_advanced_mode_off(){
+    advanced_menu_view = false;
+    lcd_status_screen();
+}
+
+
+
+
+
+
+#endif// R-360_Menu
+
+
 /* Menu implementation */
 static void lcd_main_menu()
 {
@@ -277,6 +462,15 @@ static void lcd_main_menu()
 #endif
     }
 #endif
+#ifdef R_360
+   MENU_ITEM(function, MSG_SCAN, lcd_scan_menu);
+#endif
+
+#ifdef R_360_MENU
+   MENU_ITEM(function, MSG_BASIC_MODE, lcd_advanced_mode_off);
+#endif
+
+
     END_MENU();
 }
 
@@ -375,6 +569,12 @@ static void lcd_move_x()
 {
     if (encoderPosition != 0)
     {
+        //#ifdef R_360_MENU
+        //  for(int8_t i=0; i < NUM_AXIS; i++) {
+        //     current_cartesian_position[i] = current_position[i];
+        //  }
+          
+        //#endif
         current_position[X_AXIS] += float((int)encoderPosition) * move_menu_scale;
         if (min_software_endstops && current_position[X_AXIS] < X_MIN_POS)
             current_position[X_AXIS] = X_MIN_POS;
@@ -384,9 +584,16 @@ static void lcd_move_x()
         #ifdef DELTA
         calculate_delta(current_position);
         plan_buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], current_position[E_AXIS], manual_feedrate[X_AXIS]/60, active_extruder);
-        #else
-        plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], manual_feedrate[X_AXIS]/60, active_extruder);
-        #endif
+      
+        #ifdef R_360_MENU
+          calculate_r_360(current_cartesian_position,current_position);
+          plan_buffer_line(r_360[X_AXIS], r_360[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], manual_feedrate[X_AXIS]/60, active_extruder);
+                  
+          #else
+          plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], manual_feedrate[X_AXIS]/60, active_extruder);
+          #endif
+         #endif
+        
         lcdDrawUpdate = 1;
     }
     if (lcdDrawUpdate)
@@ -404,6 +611,12 @@ static void lcd_move_y()
 {
     if (encoderPosition != 0)
     {
+        //#ifdef R_360_MENU
+        //  for(int8_t i=0; i < NUM_AXIS; i++) {
+        //     current_cartesian_position[i] = current_position[i];
+        //  }
+          
+        //#endif
         current_position[Y_AXIS] += float((int)encoderPosition) * move_menu_scale;
         if (min_software_endstops && current_position[Y_AXIS] < Y_MIN_POS)
             current_position[Y_AXIS] = Y_MIN_POS;
@@ -413,9 +626,17 @@ static void lcd_move_y()
         #ifdef DELTA
         calculate_delta(current_position);
         plan_buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], current_position[E_AXIS], manual_feedrate[Y_AXIS]/60, active_extruder);
-        #else
-        plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], manual_feedrate[Y_AXIS]/60, active_extruder);
-        #endif
+        
+        #ifdef R_360_MENU
+          calculate_r_360(current_cartesian_position,current_position);
+          plan_buffer_line(r_360[X_AXIS], r_360[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], manual_feedrate[X_AXIS]/60, active_extruder);
+                  
+          #else
+        	
+          plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], manual_feedrate[Y_AXIS]/60, active_extruder);
+        	
+          #endif
+        #endif  
         lcdDrawUpdate = 1;
     }
     if (lcdDrawUpdate)
@@ -442,8 +663,13 @@ static void lcd_move_z()
         #ifdef DELTA
         calculate_delta(current_position);
         plan_buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], current_position[E_AXIS], manual_feedrate[Z_AXIS]/60, active_extruder);
-        #else
-        plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], manual_feedrate[Z_AXIS]/60, active_extruder);
+          #ifdef R_360_MENU
+        
+          plan_buffer_line(r_360[X_AXIS], r_360[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], manual_feedrate[X_AXIS]/60, active_extruder);
+        
+          #else
+          plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], manual_feedrate[Z_AXIS]/60, active_extruder);
+          #endif
         #endif
         lcdDrawUpdate = 1;
     }
@@ -467,9 +693,14 @@ static void lcd_move_e()
         #ifdef DELTA
         calculate_delta(current_position);
         plan_buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], current_position[E_AXIS], manual_feedrate[E_AXIS]/60, active_extruder);
-        #else
-        plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], manual_feedrate[E_AXIS]/60, active_extruder);
-        #endif
+          #ifdef R_360_MENU
+        
+          plan_buffer_line(r_360[X_AXIS], r_360[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], manual_feedrate[X_AXIS]/60, active_extruder);
+        
+          #else
+          plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], manual_feedrate[E_AXIS]/60, active_extruder);
+          #endif
+       #endif
         lcdDrawUpdate = 1;
     }
     if (lcdDrawUpdate)

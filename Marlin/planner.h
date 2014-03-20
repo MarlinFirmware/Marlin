@@ -77,8 +77,10 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
 // Set position. Used for G92 instructions.
 void plan_set_position(const float &x, const float &y, const float &z, const float &e);
 void plan_set_e_position(const float &e);
-
-
+#ifdef R_360 
+void plan_set_position_reset_y(const float &x, const float &y, const float &z, const float &e);
+void plan_buffer_line_Y_degree(const float &x, const float &y_degree, const float &z, const float &e, float feed_rate, const uint8_t &extruder);
+#endif
 
 void check_axes_activity();
 uint8_t movesplanned(); //return the nr of buffered moves
