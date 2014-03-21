@@ -659,10 +659,9 @@ void get_command()
 
         }
 
+        //If command was e-stop process now
         if(strcmp(cmdbuffer[bufindw], "M112") == 0)
-        {
           kill();
-        }
         
         bufindw = (bufindw + 1)%BUFSIZE;
         buflen += 1;
