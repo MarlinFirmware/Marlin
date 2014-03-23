@@ -63,7 +63,7 @@
 
 #define VERSION_STRING  "1.0.0"
 
-// look here for descriptions of gcodes: http://linuxcnc.org/handbook/gcode/g-code.html
+// look here for descriptions of G-codes: http://linuxcnc.org/handbook/gcode/g-code.html
 // http://objects.reprap.org/wiki/Mendel_User_Manual:_RepRapGCodes
 
 //Implemented Codes
@@ -80,7 +80,7 @@
 // G30 - Single Z Probe, probes bed at current XY location.
 // G90 - Use Absolute Coordinates
 // G91 - Use Relative Coordinates
-// G92 - Set current position to cordinates given
+// G92 - Set current position to coordinates given
 
 // M Codes
 // M0   - Unconditional stop - Wait for user to press a button on the LCD (Only if ULTRA_LCD is enabled)
@@ -101,7 +101,7 @@
 // M31  - Output time since last M109 or SD card start to serial
 // M32  - Select file and start SD print (Can be used _while_ printing from SD card files):
 //        syntax "M32 /path/filename#", or "M32 S<startpos bytes> !filename#"
-//        Call gcode file : "M32 P !filename#" and return to caller file after finishing (simiarl to #include).
+//        Call gcode file : "M32 P !filename#" and return to caller file after finishing (similar to #include).
 //        The '#' is necessary when calling from within sd files, as it stops buffer prereading
 // M42  - Change pin status via gcode Use M42 Px Sy to set pin x to value y, when omitting Px the onboard led will be used.
 // M80  - Turn on Power Supply
@@ -127,18 +127,18 @@
 // M128 - EtoP Open (BariCUDA EtoP = electricity to air pressure transducer by jmil)
 // M129 - EtoP Closed (BariCUDA EtoP = electricity to air pressure transducer by jmil)
 // M140 - Set bed target temp
-// M150 - Set BlinkM Colour Output R: Red<0-255> U(!): Green<0-255> B: Blue<0-255> over i2c, G for green does not work.
+// M150 - Set BlinkM Color Output R: Red<0-255> U(!): Green<0-255> B: Blue<0-255> over i2c, G for green does not work.
 // M190 - Sxxx Wait for bed current temp to reach target temp. Waits only when heating
 //        Rxxx Wait for bed current temp to reach target temp. Waits when heating and cooling
 // M200 D<millimeters>- set filament diameter and set E axis units to cubic millimeters (use S0 to set back to millimeters).
 // M201 - Set max acceleration in units/s^2 for print moves (M201 X1000 Y1000)
 // M202 - Set max acceleration in units/s^2 for travel moves (M202 X1000 Y1000) Unused in Marlin!!
 // M203 - Set maximum feedrate that your machine can sustain (M203 X200 Y200 Z300 E10000) in mm/sec
-// M204 - Set default acceleration: S normal moves T filament only moves (M204 S3000 T7000) im mm/sec^2  also sets minimum segment time in ms (B20000) to prevent buffer underruns and M20 minimum feedrate
+// M204 - Set default acceleration: S normal moves T filament only moves (M204 S3000 T7000) in mm/sec^2  also sets minimum segment time in ms (B20000) to prevent buffer under-runs and M20 minimum feedrate
 // M205 -  advanced settings:  minimum travel speed S=while printing T=travel only,  B=minimum segment time X= maximum xy jerk, Z=maximum Z jerk, E=maximum E jerk
-// M206 - set additional homeing offset
+// M206 - set additional homing offset
 // M207 - set retract length S[positive mm] F[feedrate mm/min] Z[additional zlift/hop], stays in mm regardless of M200 setting
-// M208 - set recover=unretract length S[positive mm surplus to the M207 S*] F[feedrate mm/min]
+// M208 - set recover=unretract length S[positive mm surplus to the M207 S*] F[feedrate mm/sec]
 // M209 - S<1=true/0=false> enable automatic retract detect if the slicer did not support G10/11: every normal extrude-only move will be classified as retract depending on the direction.
 // M218 - set hotend offset (in mm): T<extruder_number> X<offset_on_X> Y<offset_on_Y>
 // M220 S<factor in percent>- set speed factor override percentage
@@ -147,7 +147,7 @@
 // M240 - Trigger a camera to take a photograph
 // M250 - Set LCD contrast C<contrast value> (value 0..63)
 // M280 - set servo position absolute. P: servo index, S: angle or microseconds
-// M300 - Play beepsound S<frequency Hz> P<duration ms>
+// M300 - Play beep sound S<frequency Hz> P<duration ms>
 // M301 - Set PID parameters P I and D
 // M302 - Allow cold extrudes, or set the minimum extrude S<temperature>.
 // M303 - PID relay autotune S<temperature> sets the target temperature. (default target temperature = 150C)
@@ -155,13 +155,14 @@
 // M400 - Finish all moves
 // M401 - Lower z-probe if present
 // M402 - Raise z-probe if present
-// M500 - stores paramters in EEPROM
+// M500 - stores parameters in EEPROM
 // M501 - reads parameters from EEPROM (if you need reset them after you changed them temporarily).
 // M502 - reverts to the default "factory settings".  You still need to store them in EEPROM afterwards if you want to.
-// M503 - print the current settings (from memory not from eeprom)
+// M503 - print the current settings (from memory not from EEPROM)
 // M540 - Use S[0|1] to enable or disable the stop SD card print on endstop hit (requires ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED)
 // M600 - Pause for filament change X[pos] Y[pos] Z[relative lift] E[initial retract] L[later retract distance for removal]
-// M666 - set delta endstop adjustemnt
+// M665 - set delta configurations
+// M666 - set delta endstop adjustment
 // M605 - Set dual x-carriage movement mode: S<mode> [ X<duplication x-offset> R<duplication temp offset> ]
 // M907 - Set digital trimpot motor current using axis codes.
 // M908 - Control digital trimpot directly.
@@ -188,6 +189,14 @@ bool axis_relative_modes[] = AXIS_RELATIVE_MODES;
 int feedmultiply=100; //100->1 200->2
 int saved_feedmultiply;
 int extrudemultiply=100; //100->1 200->2
+int extruder_multiply[EXTRUDERS] = {100
+  #if EXTRUDERS > 1
+    , 100
+    #if EXTRUDERS > 2
+      , 100
+    #endif
+  #endif
+};
 float volumetric_multiplier[EXTRUDERS] = {1.0
   #if EXTRUDERS > 1
     , 1.0
@@ -249,12 +258,24 @@ int EtoPPressure=0;
 #endif
 
 #ifdef DELTA
-float delta[3] = {0.0, 0.0, 0.0};
-#endif
-
+  float delta[3] = {0.0, 0.0, 0.0};
+  #define SIN_60 0.8660254037844386
+  #define COS_60 0.5
+  // these are the default values, can be overriden with M665
+  float delta_radius= DELTA_RADIUS;
+  float delta_tower1_x= -SIN_60*delta_radius; // front left tower
+  float delta_tower1_y= -COS_60*delta_radius;	   
+  float delta_tower2_x=  SIN_60*delta_radius; // front right tower
+  float delta_tower2_y= -COS_60*delta_radius;	   
+  float delta_tower3_x= 0.0;                  // back middle tower
+  float delta_tower3_y= delta_radius;
+  float delta_diagonal_rod= DELTA_DIAGONAL_ROD;
+  float delta_diagonal_rod_2= sq(delta_diagonal_rod);
+  float delta_segments_per_second= DELTA_SEGMENTS_PER_SECOND;
+#endif					
 
 //===========================================================================
-//=============================private variables=============================
+//=============================Private Variables=============================
 //===========================================================================
 const char axis_codes[NUM_AXIS] = {'X', 'Y', 'Z', 'E'};
 static float destination[NUM_AXIS] = {  0.0, 0.0, 0.0, 0.0};
@@ -274,7 +295,7 @@ static int buflen = 0;
 static char serial_char;
 static int serial_count = 0;
 static boolean comment_mode = false;
-static char *strchr_pointer; // just a pointer to find chars in the cmd string like X, Y, Z, E, etc
+static char *strchr_pointer; // just a pointer to find chars in the command string like X, Y, Z, E, etc
 
 const int sensitive_pins[] = SENSITIVE_PINS; // Sensitive pin list for M42
 
@@ -301,8 +322,14 @@ bool Stopped=false;
 bool CooldownNoWait = true;
 bool target_direction;
 
+//Insert variables if CHDK is defined
+#ifdef CHDK
+unsigned long chdkHigh = 0;
+boolean chdkActive = false;
+#endif
+
 //===========================================================================
-//=============================ROUTINES=============================
+//=============================Routines======================================
 //===========================================================================
 
 void get_arc_coordinates();
@@ -339,7 +366,7 @@ void enquecommand(const char *cmd)
 {
   if(buflen < BUFSIZE)
   {
-    //this is dangerous if a mixing of serial and this happsens
+    //this is dangerous if a mixing of serial and this happens
     strcpy(&(cmdbuffer[bufindw][0]),cmd);
     SERIAL_ECHO_START;
     SERIAL_ECHOPGM("enqueing \"");
@@ -354,7 +381,7 @@ void enquecommand_P(const char *cmd)
 {
   if(buflen < BUFSIZE)
   {
-    //this is dangerous if a mixing of serial and this happsens
+    //this is dangerous if a mixing of serial and this happens
     strcpy_P(&(cmdbuffer[bufindw][0]),cmd);
     SERIAL_ECHO_START;
     SERIAL_ECHOPGM("enqueing \"");
@@ -492,6 +519,10 @@ void setup()
   lcd_init();
   _delay_ms(1000);	// wait 1sec to display the splash screen
 
+  // FMC for collition between marlin pins and Teensy pins
+  pinMode (40, INPUT);
+  digitalWrite (40, HIGH);
+  
   #if defined(CONTROLLERFAN_PIN) && CONTROLLERFAN_PIN > -1
     SET_OUTPUT(CONTROLLERFAN_PIN); //Set pin used for driver cooling fan
   #endif
@@ -661,9 +692,9 @@ void get_command()
     return;
   }
 
-  //'#' stops reading from sd to the buffer prematurely, so procedural macro calls are possible
-  // if it occures, stop_buffering is triggered and the buffer is ran dry.
-  // this character _can_ occure in serial com, due to checksums. however, no checksums are used in sd printing
+  //'#' stops reading from SD to the buffer prematurely, so procedural macro calls are possible
+  // if it occurs, stop_buffering is triggered and the buffer is ran dry.
+  // this character _can_ occur in serial com, due to checksums. however, no checksums are used in SD printing
 
   static bool stop_buffering=false;
   if(buflen==0) stop_buffering=false;
@@ -1135,9 +1166,9 @@ void process_commands()
         get_coordinates(); // For X Y Z E F
           #ifdef FWRETRACT
             if(autoretract_enabled)
-            if( !(code_seen(X_AXIS) || code_seen(Y_AXIS) || code_seen(Z_AXIS)) && code_seen(E_AXIS)) {
+            if( !(code_seen('X') || code_seen('Y') || code_seen('Z')) && code_seen('E')) {
               float echange=destination[E_AXIS]-current_position[E_AXIS];
-              if((echange<-MIN_RETRACT && !retracted) || (echange>MIN_RETRACT && retracted)) { //move appears to be an attempt to attract or recover
+              if((echange<-MIN_RETRACT && !retracted) || (echange>MIN_RETRACT && retracted)) { //move appears to be an attempt to retract or recover
                   current_position[E_AXIS] = destination[E_AXIS]; //hide the slicer-generated retract/recover from calculations
                   plan_set_e_position(current_position[E_AXIS]); //AND from the planner
                   retract(!retracted);
@@ -2311,6 +2342,19 @@ void process_commands()
       }
       break;
     #ifdef DELTA
+	case 665: // M665 set delta configurations L<diagonal_rod> R<delta_radius> S<segments_per_sec>
+		if(code_seen('L')) {
+			delta_diagonal_rod= code_value();
+		}
+		if(code_seen('R')) {
+			delta_radius= code_value();
+		}
+		if(code_seen('S')) {
+			delta_segments_per_second= code_value();
+		}
+		
+		recalc_delta_settings(delta_radius, delta_diagonal_rod);
+		break;
     case 666: // M666 set delta endstop adjustemnt
       for(int8_t i=0; i < 3; i++)
       {
@@ -2412,7 +2456,18 @@ void process_commands()
     {
       if(code_seen('S'))
       {
-        extrudemultiply = code_value() ;
+        int tmp_code = code_value();
+        if (code_seen('T'))
+        {
+          if(setTargetedHotend(221)){
+            break;
+          }
+          extruder_multiply[tmp_extruder] = tmp_code;
+        }
+        else
+        {
+          extrudemultiply = tmp_code ;
+        }
       }
     }
     break;
@@ -2580,23 +2635,33 @@ void process_commands()
     #endif //PIDTEMP
     case 240: // M240  Triggers a camera by emulating a Canon RC-1 : http://www.doc-diy.net/photo/rc-1_hacked/
      {
-      #if defined(PHOTOGRAPH_PIN) && PHOTOGRAPH_PIN > -1
-        const uint8_t NUM_PULSES=16;
-        const float PULSE_LENGTH=0.01524;
-        for(int i=0; i < NUM_PULSES; i++) {
-          WRITE(PHOTOGRAPH_PIN, HIGH);
-          _delay_ms(PULSE_LENGTH);
-          WRITE(PHOTOGRAPH_PIN, LOW);
-          _delay_ms(PULSE_LENGTH);
+     	#ifdef CHDK
+       
+         SET_OUTPUT(CHDK);
+         WRITE(CHDK, HIGH);
+         chdkHigh = millis();
+         chdkActive = true;
+       
+       #else
+     	
+      	#if defined(PHOTOGRAPH_PIN) && PHOTOGRAPH_PIN > -1
+	const uint8_t NUM_PULSES=16;
+	const float PULSE_LENGTH=0.01524;
+	for(int i=0; i < NUM_PULSES; i++) {
+        WRITE(PHOTOGRAPH_PIN, HIGH);
+        _delay_ms(PULSE_LENGTH);
+        WRITE(PHOTOGRAPH_PIN, LOW);
+        _delay_ms(PULSE_LENGTH);
         }
         delay(7.33);
         for(int i=0; i < NUM_PULSES; i++) {
-          WRITE(PHOTOGRAPH_PIN, HIGH);
-          _delay_ms(PULSE_LENGTH);
-          WRITE(PHOTOGRAPH_PIN, LOW);
-          _delay_ms(PULSE_LENGTH);
+        WRITE(PHOTOGRAPH_PIN, HIGH);
+        _delay_ms(PULSE_LENGTH);
+        WRITE(PHOTOGRAPH_PIN, LOW);
+        _delay_ms(PULSE_LENGTH);
         }
-      #endif
+      	#endif
+      #endif //chdk end if
      }
     break;
 #ifdef DOGLCD
@@ -3109,19 +3174,30 @@ void clamp_to_software_endstops(float target[3])
 }
 
 #ifdef DELTA
+void recalc_delta_settings(float radius, float diagonal_rod)
+{
+	 delta_tower1_x= -SIN_60*radius; // front left tower
+	 delta_tower1_y= -COS_60*radius;	   
+	 delta_tower2_x=  SIN_60*radius; // front right tower
+	 delta_tower2_y= -COS_60*radius;	   
+	 delta_tower3_x= 0.0;                  // back middle tower
+	 delta_tower3_y= radius;
+	 delta_diagonal_rod_2= sq(diagonal_rod);
+}
+
 void calculate_delta(float cartesian[3])
 {
-  delta[X_AXIS] = sqrt(DELTA_DIAGONAL_ROD_2
-                       - sq(DELTA_TOWER1_X-cartesian[X_AXIS])
-                       - sq(DELTA_TOWER1_Y-cartesian[Y_AXIS])
+  delta[X_AXIS] = sqrt(delta_diagonal_rod_2
+                       - sq(delta_tower1_x-cartesian[X_AXIS])
+                       - sq(delta_tower1_y-cartesian[Y_AXIS])
                        ) + cartesian[Z_AXIS];
-  delta[Y_AXIS] = sqrt(DELTA_DIAGONAL_ROD_2
-                       - sq(DELTA_TOWER2_X-cartesian[X_AXIS])
-                       - sq(DELTA_TOWER2_Y-cartesian[Y_AXIS])
+  delta[Y_AXIS] = sqrt(delta_diagonal_rod_2
+                       - sq(delta_tower2_x-cartesian[X_AXIS])
+                       - sq(delta_tower2_y-cartesian[Y_AXIS])
                        ) + cartesian[Z_AXIS];
-  delta[Z_AXIS] = sqrt(DELTA_DIAGONAL_ROD_2
-                       - sq(DELTA_TOWER3_X-cartesian[X_AXIS])
-                       - sq(DELTA_TOWER3_Y-cartesian[Y_AXIS])
+  delta[Z_AXIS] = sqrt(delta_diagonal_rod_2
+                       - sq(delta_tower3_x-cartesian[X_AXIS])
+                       - sq(delta_tower3_y-cartesian[Y_AXIS])
                        ) + cartesian[Z_AXIS];
   /*
   SERIAL_ECHOPGM("cartesian x="); SERIAL_ECHO(cartesian[X_AXIS]);
@@ -3151,7 +3227,7 @@ void prepare_move()
   if (cartesian_mm < 0.000001) { cartesian_mm = abs(difference[E_AXIS]); }
   if (cartesian_mm < 0.000001) { return; }
   float seconds = 6000 * cartesian_mm / feedrate / feedmultiply;
-  int steps = max(1, int(DELTA_SEGMENTS_PER_SECOND * seconds));
+  int steps = max(1, int(delta_segments_per_second * seconds));
   // SERIAL_ECHOPGM("mm="); SERIAL_ECHO(cartesian_mm);
   // SERIAL_ECHOPGM(" seconds="); SERIAL_ECHO(seconds);
   // SERIAL_ECHOPGM(" steps="); SERIAL_ECHOLN(steps);
@@ -3334,6 +3410,16 @@ void manage_inactivity()
       }
     }
   }
+  
+  #ifdef CHDK //Check if pin should be set to LOW after M240 set it to HIGH
+    if (chdkActive)
+    {
+      chdkActive = false;
+      if (millis()-chdkHigh < CHDK_DELAY) return;
+      WRITE(CHDK, LOW);
+    }
+  #endif
+  
   #if defined(KILL_PIN) && KILL_PIN > -1
     if( 0 == READ(KILL_PIN) )
       kill();
@@ -3500,6 +3586,9 @@ bool setTargetedHotend(int code){
           break;
         case 218:
           SERIAL_ECHO(MSG_M218_INVALID_EXTRUDER);
+          break;
+        case 221:
+          SERIAL_ECHO(MSG_M221_INVALID_EXTRUDER);
           break;
       }
       SERIAL_ECHOLN(tmp_extruder);
