@@ -569,7 +569,7 @@
     #define SERVO0_PIN         11
 
     #if NUM_SERVOS > 1
-      #define SERVO1_PIN         6
+      #define SERVO1_PIN         53
     #endif
 
     #if NUM_SERVOS > 2
