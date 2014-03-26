@@ -566,10 +566,10 @@
   #define TEMP_BED_PIN       14   // ANALOG NUMBERING
 
   #ifdef NUM_SERVOS
-    #define SERVO0_PIN         11
+    #define SERVO0_PIN         53
 
     #if NUM_SERVOS > 1
-      #define SERVO1_PIN         53
+      #define SERVO1_PIN         6
     #endif
 
     #if NUM_SERVOS > 2
