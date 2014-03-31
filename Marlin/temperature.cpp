@@ -442,7 +442,14 @@ void manage_heater()
           //K1 defined in Configuration.h in the PID settings
           #define K2 (1.0-K1)
           dTerm[e] = (Kd * (pid_input - temp_dState[e]))*K2 + (K1 * dTerm[e]);
-          pid_output = constrain(pTerm[e] + iTerm[e] - dTerm[e], 0, PID_MAX);
+          pid_output = pTerm[e] + iTerm[e] - dTerm[e];
+          if (pid_output > PID_MAX) {
+            if (pid_error[e] > 0 )  temp_iState[e] -= pid_error[e]; // conditional un-integration
+            pid_output=PID_MAX;
+          } else if (pid_output < 0){
+            if (pid_error[e] < 0 )  temp_iState[e] -= pid_error[e]; // conditional un-integration
+            pid_output=0;
+          }
         }
         temp_dState[e] = pid_input;
     #else 
