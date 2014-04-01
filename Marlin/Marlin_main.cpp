@@ -1425,6 +1425,12 @@ void process_commands()
                 break; // abort G29, since we don't know where we are
             }
 
+            // Allow user to enter the probe offsets as G29 Z[zoffset] Y[yoffset] X[xoffset]
+            if(code_seen('Z'))
+            {
+            	zprobe_zoffset = (float) code_value();
+            }
+
             st_synchronize();
             // make sure the bed_level_rotation_matrix is identity or the planner will get it incorectly
             //vector_3 corrected_position = plan_get_position_mm();
