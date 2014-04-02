@@ -781,6 +781,14 @@ const short temptable_55[][2] PROGMEM = {
 #endif
 
 #if (THERMISTORHEATER_0 == 60) || (THERMISTORHEATER_1 == 60) || (THERMISTORHEATER_2 == 60) || (THERMISTORBED == 60) // Maker's Tool Works Kapton Bed Thermister
+// ./createTemperatureLookup.py --r0=100000 --t0=25 --r1=0 --r2=4700 --beta=3950 
+// r0: 100000
+// t0: 25
+// r1: 0 (parallel with rTherm)
+// r2: 4700 (series with rTherm)
+// beta: 3950
+// min adc: 1 at 0.0048828125 V
+// max adc: 1023 at 4.9951171875 V
 const short temptable_60[][2] PROGMEM = {
    {51*OVERSAMPLENR, 272},
    {61*OVERSAMPLENR, 258},
