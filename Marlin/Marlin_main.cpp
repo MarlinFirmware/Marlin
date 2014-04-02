@@ -2268,8 +2268,6 @@ void process_commands()
             SERIAL_ECHO_START;
             SERIAL_ECHO(MSG_M200_INVALID_EXTRUDER);
           }
-          SERIAL_ECHOLN(tmp_extruder);
-          break;
         }
         volumetric_multiplier[tmp_extruder] = 1 / area;
       }
