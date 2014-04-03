@@ -3148,7 +3148,8 @@ void clamp_to_software_endstops(float target[3])
   if (min_software_endstops) {
     if (target[X_AXIS] < min_pos[X_AXIS]) target[X_AXIS] = min_pos[X_AXIS];
     if (target[Y_AXIS] < min_pos[Y_AXIS]) target[Y_AXIS] = min_pos[Y_AXIS];
-    if (target[Z_AXIS] < min_pos[Z_AXIS]) target[Z_AXIS] = min_pos[Z_AXIS];
+    float minZ = min_pos[Z_AXIS]-Z_MAX_TRAVEL_PAST_ENDSTOP_MM;
+    if (target[Z_AXIS] < minZ) target[Z_AXIS] = minZ;
   }
 
   if (max_software_endstops) {

@@ -100,6 +100,8 @@
 	#define MSG_MOVE_Y "Move Y"
 	#define MSG_MOVE_Z "Move Z"
 	#define MSG_MOVE_E "Extruder"
+	#define MSG_SET_Z0_HERE "Set Z0 here"
+	#define MSG_MOVE_002MM "Move 0.02mm"
 	#define MSG_MOVE_01MM "Move 0.1mm"
 	#define MSG_MOVE_1MM "Move 1mm"
 	#define MSG_MOVE_10MM "Move 10mm"

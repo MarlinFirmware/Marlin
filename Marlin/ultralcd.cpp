@@ -655,8 +655,12 @@ static void lcd_move_z()
     {
         refresh_cmd_timeout();
         current_position[Z_AXIS] += float((int)encoderPosition) * move_menu_scale;
-        if (min_software_endstops && current_position[Z_AXIS] < Z_MIN_POS)
-            current_position[Z_AXIS] = Z_MIN_POS;
+        if (min_software_endstops)
+           {
+           float minZ = min_pos[Z_AXIS]-Z_MAX_TRAVEL_PAST_ENDSTOP_MM;
+           if(current_position[Z_AXIS] < minZ)
+              current_position[Z_AXIS] = minZ;
+           }
         if (max_software_endstops && current_position[Z_AXIS] > Z_MAX_POS)
             current_position[Z_AXIS] = Z_MAX_POS;
         encoderPosition = 0;
@@ -670,7 +674,7 @@ static void lcd_move_z()
     }
     if (lcdDrawUpdate)
     {
-        lcd_implementation_drawedit(PSTR("Z"), ftostr31(current_position[Z_AXIS]));
+        lcd_implementation_drawedit(PSTR("Z"), ftostr32(current_position[Z_AXIS]));
     }
     if (LCD_CLICKED)
     {
@@ -705,6 +709,14 @@ static void lcd_move_e()
     }
 }
 
+//Set the current position to be Z0, by adjusting homeing[Z_AXIS] in a similar fashion to M206 Znn
+static void lcd_set_z0_here()
+{
+add_homeing[Z_AXIS] -= current_position[Z_AXIS];
+current_position[Z_AXIS] = 0;
+plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+}
+
 static void lcd_move_menu_axis()
 {
     START_MENU();
@@ -714,6 +726,7 @@ static void lcd_move_menu_axis()
     if (move_menu_scale < 10.0)
     {
         MENU_ITEM(submenu, MSG_MOVE_Z, lcd_move_z);
+        MENU_ITEM(function, MSG_SET_Z0_HERE, lcd_set_z0_here);
         MENU_ITEM(submenu, MSG_MOVE_E, lcd_move_e);
     }
     END_MENU();
@@ -729,9 +742,9 @@ static void lcd_move_menu_1mm()
     move_menu_scale = 1.0;
     lcd_move_menu_axis();
 }
-static void lcd_move_menu_01mm()
+static void lcd_move_menu_002mm()
 {
-    move_menu_scale = 0.1;
+    move_menu_scale = 0.02;
     lcd_move_menu_axis();
 }
 
@@ -741,7 +754,7 @@ static void lcd_move_menu()
     MENU_ITEM(back, MSG_PREPARE, lcd_prepare_menu);
     MENU_ITEM(submenu, MSG_MOVE_10MM, lcd_move_menu_10mm);
     MENU_ITEM(submenu, MSG_MOVE_1MM, lcd_move_menu_1mm);
-    MENU_ITEM(submenu, MSG_MOVE_01MM, lcd_move_menu_01mm);
+    MENU_ITEM(submenu, MSG_MOVE_002MM, lcd_move_menu_002mm);
     //TODO:X,Y,Z,E
     END_MENU();
 }

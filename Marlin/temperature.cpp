@@ -281,7 +281,7 @@ void PID_autotune(float temp, int extruder, int ncycles)
         }
       } 
     }
-    if(input > (temp + 20)) {
+    if(input > (temp + 40)) {  //CDA changed from 20 to 40 degrees of allowed overshoot to enable E3D v5 to auto tune
       SERIAL_PROTOCOLLNPGM("PID Autotune failed! Temperature too high");
       return;
     }
