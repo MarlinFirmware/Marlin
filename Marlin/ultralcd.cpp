@@ -615,7 +615,7 @@ static void lcd_move_axis(int current_axis){
             break;
     }
     
-    
+    //updates future position for axis
     if (encoderPosition != 0)
     {
     
@@ -624,13 +624,13 @@ static void lcd_move_axis(int current_axis){
         lcdDrawUpdate = 1;
     }
     
+    //move current axis if axis has not matched up to future distance yet, move axis by current move_menu_scale
     if(current_position[current_axis]!=future_position[current_axis])
     {
-        //if(current_axis != E_AXIS) // The extruder doesn't  have  a min and a max
-        //{
+        if(current_axis != E_AXIS) // The extruder doesn't  have  a min and a max
+        {
             refresh_cmd_timeout(); //this is not used for E, I don't know why
-        //}
-        if(current_axis == E_AXIS) move_menu_scale = 10.0;
+        }
         if (future_position[current_axis] > current_position[current_axis])
             current_position[current_axis]+=move_menu_scale;
         else
