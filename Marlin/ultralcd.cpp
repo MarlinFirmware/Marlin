@@ -624,13 +624,13 @@ static void lcd_move_axis(int current_axis){
         lcdDrawUpdate = 1;
     }
     
-    if((current_position[current_axis]!=future_position[current_axis]))
+    if(current_position[current_axis]!=future_position[current_axis])
     {
         //if(current_axis != E_AXIS) // The extruder doesn't  have  a min and a max
         //{
             refresh_cmd_timeout(); //this is not used for E, I don't know why
         //}
-        
+        if(current_axis == E_AXIS) move_menu_scale = 10.0;
         if (future_position[current_axis] > current_position[current_axis])
             current_position[current_axis]+=move_menu_scale;
         else
@@ -649,7 +649,6 @@ static void lcd_move_axis(int current_axis){
                 future_position[current_axis] = temp_max_pos;
             }
         }
-        
         
         #ifdef DELTA
         calculate_delta(current_position);
@@ -674,7 +673,7 @@ static void lcd_move_axis(int current_axis){
             lcd_implementation_drawedit(PSTR("Z"), ftostr31(future_position[current_axis]));
             break;
           default:
-            lcd_implementation_drawedit(PSTR("E"), ftostr31(future_position[current_axis]));
+            lcd_implementation_drawedit(PSTR("Extruder"), ftostr31(future_position[current_axis]));
             break;
         }            
     }
