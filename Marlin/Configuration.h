@@ -332,10 +332,23 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define min_software_endstops true // If true, axis won't move to coordinates less than HOME_POS.
 #define max_software_endstops true  // If true, axis won't move to coordinates greater than the defined lengths below.
 
+/**
+This firmware adjust Z0 feature assumes that the hardware z min endstop is positioned so that, after homing,
+the nozzle is ~0.5 mm (i.e. < Z_MAX_TRAVEL_PAST_ENDSTOP_MM) above the bed. Enabling this feature then lets you
+set Z0 (i.e. the position of the nozzle after a G1 Z0 command) to be below this and just touching the
+bed by choosing the Move Z menu item and turning the knob. So the procedure is:
+   Auto Home
+   Move Z (in 0.02mm increments)
+   Set Z0 Here (this is the new menu command)
+   Store memory.
+Allowing z0 to be a little below the end stop position does mean you are relying on the flex in the micro-switch arm,
+since the first layer or two are printed below the min end stop position, but this does not seem to be a problem for 
+offsets < 1 mm. 
+*/
 #define ENABLE_FIRMWARE_ADJUST_Z0  //Uncomment to enable the Adjust Z0 menu (under Prepare)
 
 #ifdef ENABLE_FIRMWARE_ADJUST_Z0
-#define Z_MAX_TRAVEL_PAST_ENDSTOP_MM 1  
+#define Z_MAX_TRAVEL_PAST_ENDSTOP_MM 1  //Allow Z0 to be up to this distance below min z endstop, even though min_software_endstops is true.
 #else
 #define Z_MAX_TRAVEL_PAST_ENDSTOP_MM 0
 #endif
