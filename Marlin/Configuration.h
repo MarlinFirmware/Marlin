@@ -116,7 +116,7 @@
 // 9 is 100k GE Sensing AL03006-58.2K-97-G1 (4.7k pullup)
 // 10 is 100k RS thermistor 198-961 (4.7k pullup)
 // 20 is the PT100 circuit found in the Ultimainboard V2.x
-// 60 is 100k Maker's Tool Works Kapton Bed Thermistor beta=3950
+// 60 is 100k Maker's Tool Works Kapton Bed Thermistor
 //
 //    1k ohm pullup tables - This is not normal, you would have to have changed out your 4.7k for 1k
 //                          (but gives greater accuracy and more stable PID)
@@ -332,7 +332,13 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define min_software_endstops true // If true, axis won't move to coordinates less than HOME_POS.
 #define max_software_endstops true  // If true, axis won't move to coordinates greater than the defined lengths below.
 
-#define Z_MAX_TRAVEL_PAST_ENDSTOP_MM 1  //CDA
+#define ENABLE_FIRMWARE_ADJUST_Z0  //Uncomment to enable the Adjust Z0 menu (under Prepare)
+
+#ifdef ENABLE_FIRMWARE_ADJUST_Z0
+#define Z_MAX_TRAVEL_PAST_ENDSTOP_MM 1  
+#else
+#define Z_MAX_TRAVEL_PAST_ENDSTOP_MM 0
+#endif
 
 // Travel limits after homing
 #define X_MAX_POS 190

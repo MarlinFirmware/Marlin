@@ -50,6 +50,9 @@ extern bool powersupply;
 static void lcd_main_menu();
 static void lcd_tune_menu();
 static void lcd_prepare_menu();
+#ifdef ENABLE_FIRMWARE_ADJUST_Z0
+static void lcd_adjust_z0_menu();
+#endif
 static void lcd_move_menu();
 static void lcd_control_menu();
 static void lcd_control_temperature_menu();
@@ -564,6 +567,10 @@ static void lcd_prepare_menu()
     MENU_ITEM(gcode, MSG_DISABLE_STEPPERS, PSTR("M84"));
     MENU_ITEM(gcode, MSG_AUTO_HOME, PSTR("G28"));
     //MENU_ITEM(gcode, MSG_SET_ORIGIN, PSTR("G92 X0 Y0 Z0"));
+#ifdef ENABLE_FIRMWARE_ADJUST_Z0
+    MENU_ITEM(submenu, MSG_ADJUST_Z0, lcd_adjust_z0_menu);
+#endif
+
 #if TEMP_SENSOR_0 != 0
   #if TEMP_SENSOR_1 != 0 || TEMP_SENSOR_2 != 0 || TEMP_SENSOR_BED != 0
     MENU_ITEM(submenu, MSG_PREHEAT_PLA, lcd_preheat_pla_menu);
@@ -709,13 +716,41 @@ static void lcd_move_e()
     }
 }
 
+#ifdef ENABLE_FIRMWARE_ADJUST_Z0
+
+static void lcd_move_z_fine()
+{
+   move_menu_scale = 0.02;
+   lcd_move_z();
+   if(currentMenu == lcd_move_menu_axis)
+      currentMenu = lcd_adjust_z0_menu;
+
+}
+
+
 //Set the current position to be Z0, by adjusting homeing[Z_AXIS] in a similar fashion to M206 Znn
 static void lcd_set_z0_here()
 {
-add_homeing[Z_AXIS] -= current_position[Z_AXIS];
-current_position[Z_AXIS] = 0;
-plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+   add_homeing[Z_AXIS] -= current_position[Z_AXIS];
+   current_position[Z_AXIS] = 0;
+   plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
 }
+
+
+static void lcd_adjust_z0_menu()
+{
+    START_MENU();
+    MENU_ITEM(back, MSG_PREPARE, lcd_prepare_menu);
+    MENU_ITEM(submenu, MSG_MOVE_Z, lcd_move_z_fine);
+    MENU_ITEM(function, MSG_SET_Z0_HERE, lcd_set_z0_here);
+    #ifdef EEPROM_SETTINGS
+    MENU_ITEM(function, MSG_STORE_EPROM, Config_StoreSettings);
+    #endif
+    END_MENU();
+}
+
+#endif
+
 
 static void lcd_move_menu_axis()
 {
@@ -726,7 +761,6 @@ static void lcd_move_menu_axis()
     if (move_menu_scale < 10.0)
     {
         MENU_ITEM(submenu, MSG_MOVE_Z, lcd_move_z);
-        MENU_ITEM(function, MSG_SET_Z0_HERE, lcd_set_z0_here);
         MENU_ITEM(submenu, MSG_MOVE_E, lcd_move_e);
     }
     END_MENU();
@@ -742,9 +776,9 @@ static void lcd_move_menu_1mm()
     move_menu_scale = 1.0;
     lcd_move_menu_axis();
 }
-static void lcd_move_menu_002mm()
+static void lcd_move_menu_01mm()
 {
-    move_menu_scale = 0.02;
+    move_menu_scale = 0.1;
     lcd_move_menu_axis();
 }
 
@@ -754,7 +788,7 @@ static void lcd_move_menu()
     MENU_ITEM(back, MSG_PREPARE, lcd_prepare_menu);
     MENU_ITEM(submenu, MSG_MOVE_10MM, lcd_move_menu_10mm);
     MENU_ITEM(submenu, MSG_MOVE_1MM, lcd_move_menu_1mm);
-    MENU_ITEM(submenu, MSG_MOVE_002MM, lcd_move_menu_002mm);
+    MENU_ITEM(submenu, MSG_MOVE_01MM, lcd_move_menu_01mm);
     //TODO:X,Y,Z,E
     END_MENU();
 }
