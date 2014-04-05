@@ -626,10 +626,10 @@ static void lcd_move_axis(int current_axis){
     
     if((current_position[current_axis]!=future_position[current_axis]))
     {
-        if(current_axis != E_AXIS) // The extruder doesn't  have  a min and a max
-        {
+        //if(current_axis != E_AXIS) // The extruder doesn't  have  a min and a max
+        //{
             refresh_cmd_timeout(); //this is not used for E, I don't know why
-        }
+        //}
         
         if (future_position[current_axis] > current_position[current_axis])
             current_position[current_axis]+=move_menu_scale;
