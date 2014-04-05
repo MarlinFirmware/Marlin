@@ -176,6 +176,10 @@ menuFunc_t callbackFunc;
 // place-holders for Ki and Kd edits
 float raw_Ki, raw_Kd;
 
+//future X Y Z and E movements
+float future_position[4] = {0.0,0.0,0.0,0.0};
+
+
 /* Main status screen. It's up to the implementation specific part to show what is needed. As this is very display dependent */
 static void lcd_status_screen()
 {
@@ -589,28 +593,94 @@ static void lcd_prepare_menu()
 float move_menu_scale;
 static void lcd_move_menu_axis();
 
-static void lcd_move_x()
-{
+static void lcd_move_axis(int current_axis){
+    //find max and min pos of current_axis
+    int temp_min_pos = 0;
+    int temp_max_pos = 1;
+    char *move_display= "?";
+    switch(current_axis)
+    {
+        case X_AXIS:
+            temp_min_pos = X_MIN_POS;
+            temp_max_pos = X_MAX_POS;
+             move_display = "X"; 
+            break;
+        case Y_AXIS:
+            temp_min_pos = Y_MIN_POS;
+            temp_max_pos = Y_MAX_POS;
+             move_display = "Y";
+            break;
+        case Z_AXIS:
+            temp_min_pos = Z_MIN_POS;
+            temp_max_pos = Z_MAX_POS;
+             move_display = "Z";
+            break;
+        default:
+            break;
+    }
+    
+    
     if (encoderPosition != 0)
     {
-        refresh_cmd_timeout();
-        current_position[X_AXIS] += float((int)encoderPosition) * move_menu_scale;
-        if (min_software_endstops && current_position[X_AXIS] < X_MIN_POS)
-            current_position[X_AXIS] = X_MIN_POS;
-        if (max_software_endstops && current_position[X_AXIS] > X_MAX_POS)
-            current_position[X_AXIS] = X_MAX_POS;
+    
+        future_position[current_axis] += float((int)encoderPosition) * move_menu_scale;
         encoderPosition = 0;
-        #ifdef DELTA
-        calculate_delta(current_position);
-        plan_buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], current_position[E_AXIS], manual_feedrate[X_AXIS]/60, active_extruder);
-        #else
-        plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], manual_feedrate[X_AXIS]/60, active_extruder);
-        #endif
         lcdDrawUpdate = 1;
     }
+    
+    if((current_position[current_axis]!=future_position[current_axis]))
+    {
+        if(current_axis != E_AXIS) // The extruder doesn't  have  a min and a max
+        {
+            refresh_cmd_timeout(); //this is not used for E, I don't know why
+        }
+        
+        if (future_position[current_axis] > current_position[current_axis])
+            current_position[current_axis]+=move_menu_scale;
+        else
+            current_position[current_axis]-=move_menu_scale;
+        
+        if(current_axis !=E_AXIS)
+        {
+            if (min_software_endstops && current_position[current_axis] < temp_min_pos)
+            {
+                current_position[current_axis] = temp_min_pos;
+                future_position[current_axis] = temp_min_pos;
+            }
+            if (max_software_endstops && current_position[current_axis] > temp_max_pos)
+            {
+                current_position[current_axis] = temp_max_pos;
+                future_position[current_axis] = temp_max_pos;
+            }
+        }
+        
+        
+        #ifdef DELTA
+        calculate_delta(current_position);
+        plan_buffer_line(delta[current_axis], delta[Y_AXIS], delta[Z_AXIS], current_position[E_AXIS], manual_feedrate[current_axis]/60, active_extruder);
+        #else
+        plan_buffer_line(current_position[current_axis], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], manual_feedrate[current_axis]/60, active_extruder);
+        #endif
+    }
+    
     if (lcdDrawUpdate)
     {
-        lcd_implementation_drawedit(PSTR("X"), ftostr31(current_position[X_AXIS]));
+        switch(current_axis) //output message for correct axis
+        {
+          case X_AXIS:
+            lcd_implementation_drawedit(PSTR("X"), ftostr31(future_position[current_axis]));
+            break;
+            
+          case Y_AXIS:
+            lcd_implementation_drawedit(PSTR("X"), ftostr31(future_position[current_axis]));
+            break;
+          case Z_AXIS:
+            lcd_implementation_drawedit(PSTR("Z"), ftostr31(future_position[current_axis]));
+            break;
+          default:
+            lcd_implementation_drawedit(PSTR("E"), ftostr31(future_position[current_axis]));
+            break;
+        }            
     }
     if (LCD_CLICKED)
     {
@@ -618,91 +688,24 @@ static void lcd_move_x()
         currentMenu = lcd_move_menu_axis;
         encoderPosition = 0;
     }
+}
+
+//delete eventually
+static void lcd_move_x()
+{
+    lcd_move_axis(X_AXIS);
 }
 static void lcd_move_y()
 {
-    if (encoderPosition != 0)
-    {
-        refresh_cmd_timeout();
-        current_position[Y_AXIS] += float((int)encoderPosition) * move_menu_scale;
-        if (min_software_endstops && current_position[Y_AXIS] < Y_MIN_POS)
-            current_position[Y_AXIS] = Y_MIN_POS;
-        if (max_software_endstops && current_position[Y_AXIS] > Y_MAX_POS)
-            current_position[Y_AXIS] = Y_MAX_POS;
-        encoderPosition = 0;
-        #ifdef DELTA
-        calculate_delta(current_position);
-        plan_buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], current_position[E_AXIS], manual_feedrate[Y_AXIS]/60, active_extruder);
-        #else
-        plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], manual_feedrate[Y_AXIS]/60, active_extruder);
-        #endif
-        lcdDrawUpdate = 1;
-    }
-    if (lcdDrawUpdate)
-    {
-        lcd_implementation_drawedit(PSTR("Y"), ftostr31(current_position[Y_AXIS]));
-    }
-    if (LCD_CLICKED)
-    {
-        lcd_quick_feedback();
-        currentMenu = lcd_move_menu_axis;
-        encoderPosition = 0;
-    }
+	lcd_move_axis(Y_AXIS);
 }
 static void lcd_move_z()
 {
-    if (encoderPosition != 0)
-    {
-        refresh_cmd_timeout();
-        current_position[Z_AXIS] += float((int)encoderPosition) * move_menu_scale;
-        if (min_software_endstops && current_position[Z_AXIS] < Z_MIN_POS)
-            current_position[Z_AXIS] = Z_MIN_POS;
-        if (max_software_endstops && current_position[Z_AXIS] > Z_MAX_POS)
-            current_position[Z_AXIS] = Z_MAX_POS;
-        encoderPosition = 0;
-        #ifdef DELTA
-        calculate_delta(current_position);
-        plan_buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], current_position[E_AXIS], manual_feedrate[Z_AXIS]/60, active_extruder);
-        #else
-        plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], manual_feedrate[Z_AXIS]/60, active_extruder);
-        #endif
-        lcdDrawUpdate = 1;
-    }
-    if (lcdDrawUpdate)
-    {
-        lcd_implementation_drawedit(PSTR("Z"), ftostr31(current_position[Z_AXIS]));
-    }
-    if (LCD_CLICKED)
-    {
-        lcd_quick_feedback();
-        currentMenu = lcd_move_menu_axis;
-        encoderPosition = 0;
-    }
+	lcd_move_axis(Z_AXIS);
 }
 static void lcd_move_e()
 {
-    if (encoderPosition != 0)
-    {
-        current_position[E_AXIS] += float((int)encoderPosition) * move_menu_scale;
-        encoderPosition = 0;
-        #ifdef DELTA
-        calculate_delta(current_position);
-        plan_buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], current_position[E_AXIS], manual_feedrate[E_AXIS]/60, active_extruder);
-        #else
-        plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], manual_feedrate[E_AXIS]/60, active_extruder);
-        #endif
-        lcdDrawUpdate = 1;
-    }
-    if (lcdDrawUpdate)
-    {
-        lcd_implementation_drawedit(PSTR("Extruder"), ftostr31(current_position[E_AXIS]));
-    }
-    if (LCD_CLICKED)
-    {
-        lcd_quick_feedback();
-        currentMenu = lcd_move_menu_axis;
-        encoderPosition = 0;
-    }
+    lcd_move_axis(E_AXIS);
 }
 
 static void lcd_move_menu_axis()
@@ -738,6 +741,12 @@ static void lcd_move_menu_01mm()
 static void lcd_move_menu()
 {
     START_MENU();
+    //set future_position to current_position for move functions
+    future_position[X_AXIS] = current_position[X_AXIS];
+    future_position[Y_AXIS] = current_position[Y_AXIS];
+    future_position[Z_AXIS] = current_position[Z_AXIS];
+    future_position[E_AXIS] = current_position[E_AXIS];
+    
     MENU_ITEM(back, MSG_PREPARE, lcd_prepare_menu);
     MENU_ITEM(submenu, MSG_MOVE_10MM, lcd_move_menu_10mm);
     MENU_ITEM(submenu, MSG_MOVE_1MM, lcd_move_menu_1mm);
