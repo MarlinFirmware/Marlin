@@ -597,23 +597,19 @@ static void lcd_move_axis(int current_axis){
     //find max and min pos of current_axis
     int temp_min_pos = 0;
     int temp_max_pos = 1;
-    char *move_display= "?";
     switch(current_axis)
     {
         case X_AXIS:
             temp_min_pos = X_MIN_POS;
             temp_max_pos = X_MAX_POS;
-             move_display = "X"; 
             break;
         case Y_AXIS:
             temp_min_pos = Y_MIN_POS;
             temp_max_pos = Y_MAX_POS;
-             move_display = "Y";
             break;
         case Z_AXIS:
             temp_min_pos = Z_MIN_POS;
             temp_max_pos = Z_MAX_POS;
-             move_display = "Z";
             break;
         default:
             break;
@@ -657,9 +653,9 @@ static void lcd_move_axis(int current_axis){
         
         #ifdef DELTA
         calculate_delta(current_position);
-        plan_buffer_line(delta[current_axis], delta[Y_AXIS], delta[Z_AXIS], current_position[E_AXIS], manual_feedrate[current_axis]/60, active_extruder);
+        plan_buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], current_position[E_AXIS], manual_feedrate[current_axis]/60, active_extruder);
         #else
-        plan_buffer_line(current_position[current_axis], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], manual_feedrate[current_axis]/60, active_extruder);
+        plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], manual_feedrate[current_axis]/60, active_extruder);
         #endif
     }
     
