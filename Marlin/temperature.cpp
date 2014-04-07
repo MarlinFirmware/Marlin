@@ -1081,7 +1081,7 @@ ISR(TIMER0_COMPB_vect)
   static unsigned long raw_temp_2_value = 0;
   static unsigned long raw_temp_3_value = 0;
   static unsigned long raw_temp_bed_value = 0;
-  static unsigned char temp_state = 9;
+  static unsigned char temp_state = 10;
   static unsigned char pwm_count = (1 << SOFT_PWM_SCALE);
   static unsigned char soft_pwm_0;
   #if (EXTRUDERS > 1) || defined(HEATERS_PARALLEL)
@@ -1232,14 +1232,27 @@ ISR(TIMER0_COMPB_vect)
       #endif
       temp_state = 8;
       break;
-    case 8: // Measure TEMP_2
+    case 8: // Prepare TEMP_3
+      #if defined(TEMP_3_PIN) && (TEMP_3_PIN > -1)
+        #if TEMP_3_PIN > 7
+          ADCSRB = 1<<MUX5;
+        #else
+          ADCSRB = 0;
+        #endif
+        ADMUX = ((1 << REFS0) | (TEMP_3_PIN & 0x07));
+        ADCSRA |= 1<<ADSC; // Start conversion
+      #endif
+      lcd_buttons_update();
+      temp_state = 7;
+      break;
+    case 9: // Measure TEMP_3
       #if defined(TEMP_3_PIN) && (TEMP_3_PIN > -1)
         raw_temp_3_value += ADC;
       #endif
       temp_state = 0;
       temp_count++;
       break;
-    case 9: //Startup, delay initial temp reading a tiny bit so the hardware can settle.
+    case 10: //Startup, delay initial temp reading a tiny bit so the hardware can settle.
       temp_state = 0;
       break;
 //    default:
