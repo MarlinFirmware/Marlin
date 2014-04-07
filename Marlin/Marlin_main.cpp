@@ -2731,15 +2731,16 @@ void process_commands()
         {
           zprobe_zoffset = -value; // compare w/ line 278 of ConfigurationStore.cpp
           SERIAL_ECHO_START;
-          SERIAL_ECHOLNPGM("Z probe offset has been set");
+          SERIAL_ECHOLNPGM(MSG_ZPROBE_ZOFFSET " " MSG_OK);
           SERIAL_PROTOCOLLN("");
         }
         else
         {
           SERIAL_ECHO_START;
-          SERIAL_ECHOPGM("Invalid z-probe value.  Must be between ");
+          SERIAL_ECHOPGM(MSG_ZPROBE_ZOFFSET);
+          SERIAL_ECHOPGM(MSG_Z_MIN);
           SERIAL_ECHO(Z_PROBE_OFFSET_RANGE_MIN);
-          SERIAL_ECHOPGM(" and ");
+          SERIAL_ECHOPGM(MSG_Z_MAX);
           SERIAL_ECHO(Z_PROBE_OFFSET_RANGE_MAX);
           SERIAL_PROTOCOLLN("");
         }
@@ -2747,7 +2748,7 @@ void process_commands()
       else
       {
           SERIAL_ECHO_START;
-          SERIAL_ECHOLNPGM("Z probe offset is currently ");
+          SERIAL_ECHOLNPGM(MSG_ZPROBE_ZOFFSET " : ");
           SERIAL_ECHO(-zprobe_zoffset);
           SERIAL_PROTOCOLLN("");
       }
