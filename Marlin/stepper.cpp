@@ -760,6 +760,22 @@ ISR(TIMER1_COMPA_vect)
         }
       }
  #endif
+ #if EXTRUDERS > 3
+      if (e_steps[3] != 0) {
+        WRITE(E3_STEP_PIN, INVERT_E_STEP_PIN);
+        if (e_steps[3] < 0) {
+          WRITE(E3_DIR_PIN, INVERT_E3_DIR);
+          e_steps[3]++;
+          WRITE(E3_STEP_PIN, !INVERT_E_STEP_PIN);
+        }
+        else if (e_steps[3] > 0) {
+          WRITE(E3_DIR_PIN, !INVERT_E3_DIR);
+          e_steps[3]--;
+          WRITE(E3_STEP_PIN, !INVERT_E_STEP_PIN);
+        }
+      }
+ #endif
+
     }
   }
 #endif // ADVANCE

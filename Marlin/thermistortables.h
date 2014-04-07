@@ -579,6 +579,10 @@ This does not match the normal thermistor behaviour so we need to set the follow
 # define HEATER_2_RAW_HI_TEMP 16383
 # define HEATER_2_RAW_LO_TEMP 0
 #endif
+#if (THERMISTORHEATER_3 == 20)
+# define HEATER_3_RAW_HI_TEMP 16383
+# define HEATER_3_RAW_LO_TEMP 0
+#endif
 #if (THERMISTORBED == 20)
 # define HEATER_BED_RAW_HI_TEMP 16383
 # define HEATER_BED_RAW_LO_TEMP 0
@@ -991,6 +995,29 @@ const short temptable_1047[][2] PROGMEM = {
 # else                          //In case of an thermocouple the highest temperature results in the highest ADC value
 #  define HEATER_2_RAW_HI_TEMP 16383
 #  define HEATER_2_RAW_LO_TEMP 0
+# endif
+#endif
+
+#ifdef THERMISTORHEATER_3
+# define HEATER_3_TEMPTABLE TT_NAME(THERMISTORHEATER_3)
+# define HEATER_3_TEMPTABLE_LEN (sizeof(HEATER_3_TEMPTABLE)/sizeof(*HEATER_3_TEMPTABLE))
+#else
+# ifdef HEATER_3_USES_THERMISTOR
+#  error No heater 3 thermistor table specified
+# else  // HEATER_3_USES_THERMISTOR
+#  define HEATER_3_TEMPTABLE NULL
+#  define HEATER_3_TEMPTABLE_LEN 0
+# endif // HEATER_3_USES_THERMISTOR
+#endif
+
+//Set the high and low raw values for the heater, this indicates which raw value is a high or low temperature
+#ifndef HEATER_3_RAW_HI_TEMP
+# ifdef HEATER_3_USES_THERMISTOR   //In case of a thermistor the highest temperature results in the lowest ADC value
+#  define HEATER_3_RAW_HI_TEMP 0
+#  define HEATER_3_RAW_LO_TEMP 16383
+# else                          //In case of an thermocouple the highest temperature results in the highest ADC value
+#  define HEATER_3_RAW_HI_TEMP 16383
+#  define HEATER_3_RAW_LO_TEMP 0
 # endif
 #endif
 
