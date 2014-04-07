@@ -1243,7 +1243,7 @@ ISR(TIMER0_COMPB_vect)
         ADCSRA |= 1<<ADSC; // Start conversion
       #endif
       lcd_buttons_update();
-      temp_state = 7;
+      temp_state = 9;
       break;
     case 9: // Measure TEMP_3
       #if defined(TEMP_3_PIN) && (TEMP_3_PIN > -1)
