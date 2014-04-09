@@ -636,6 +636,294 @@ const short temptable_20[][2] PROGMEM = {
 };
 #endif
 
+#if (THERMISTORHEATER_0 == 20) || (THERMISTORHEATER_1 == 20) || (THERMISTORHEATER_2 == 20) || (THERMISTORBED == 20) // PT100 with INA826 amp on Ultimaker v2.0 electronics
+/* The PT100 in the Ultimaker v2.0 electronics has a high sample value for a high temperature.
+This does not match the normal thermistor behaviour so we need to set the following defines */
+#if (THERMISTORHEATER_0 == 20)
+# define HEATER_0_RAW_HI_TEMP 16383
+# define HEATER_0_RAW_LO_TEMP 0
+#endif
+#if (THERMISTORHEATER_1 == 20)
+# define HEATER_1_RAW_HI_TEMP 16383
+# define HEATER_1_RAW_LO_TEMP 0
+#endif
+#if (THERMISTORHEATER_2 == 20)
+# define HEATER_2_RAW_HI_TEMP 16383
+# define HEATER_2_RAW_LO_TEMP 0
+#endif
+#if (THERMISTORBED == 20)
+# define HEATER_BED_RAW_HI_TEMP 16383
+# define HEATER_BED_RAW_LO_TEMP 0
+#endif
+const short temptable_20[][2] PROGMEM = {
+{         0*OVERSAMPLENR ,       0     },
+{       227*OVERSAMPLENR ,       1     },
+{       236*OVERSAMPLENR ,       10     },
+{       245*OVERSAMPLENR ,       20     },
+{       253*OVERSAMPLENR ,       30     },
+{       262*OVERSAMPLENR ,       40     },
+{       270*OVERSAMPLENR ,       50     },
+{       279*OVERSAMPLENR ,       60     },
+{       287*OVERSAMPLENR ,       70     },
+{       295*OVERSAMPLENR ,       80     },
+{       304*OVERSAMPLENR ,       90     },
+{       312*OVERSAMPLENR ,       100     },
+{       320*OVERSAMPLENR ,       110     },
+{       329*OVERSAMPLENR ,       120     },
+{       337*OVERSAMPLENR ,       130     },
+{       345*OVERSAMPLENR ,       140     },
+{       353*OVERSAMPLENR ,       150     },
+{       361*OVERSAMPLENR ,       160     },
+{       369*OVERSAMPLENR ,       170     },
+{       377*OVERSAMPLENR ,       180     },
+{       385*OVERSAMPLENR ,       190     },
+{       393*OVERSAMPLENR ,       200     },
+{       401*OVERSAMPLENR ,       210     },
+{       409*OVERSAMPLENR ,       220     },
+{       417*OVERSAMPLENR ,       230     },
+{       424*OVERSAMPLENR ,       240     },
+{       432*OVERSAMPLENR ,       250     },
+{       440*OVERSAMPLENR ,       260     },
+{       447*OVERSAMPLENR ,       270     },
+{       455*OVERSAMPLENR ,       280     },
+{       463*OVERSAMPLENR ,       290     },
+{       470*OVERSAMPLENR ,       300     },
+{       478*OVERSAMPLENR ,       310     },
+{       485*OVERSAMPLENR ,       320     },
+{       493*OVERSAMPLENR ,       330     },
+{       500*OVERSAMPLENR ,       340     },
+{       507*OVERSAMPLENR ,       350     },
+{       515*OVERSAMPLENR ,       360     },
+{       522*OVERSAMPLENR ,       370     },
+{       529*OVERSAMPLENR ,       380     },
+{       537*OVERSAMPLENR ,       390     },
+{       544*OVERSAMPLENR ,       400     },
+{       614*OVERSAMPLENR ,       500     },
+{       681*OVERSAMPLENR ,       600     },
+{       744*OVERSAMPLENR ,       700     },
+{       805*OVERSAMPLENR ,       800     },
+{       862*OVERSAMPLENR ,       900     },
+{       917*OVERSAMPLENR ,       1000     },
+{       968*OVERSAMPLENR ,       1100     }
+};
+#endif
+
+#if (THERMISTORHEATER_0 == 20) || (THERMISTORHEATER_1 == 20) || (THERMISTORHEATER_2 == 20) || (THERMISTORBED == 20) // PT100 with INA826 amp on Ultimaker v2.0 electronics
+/* The PT100 in the Ultimaker v2.0 electronics has a high sample value for a high temperature.
+This does not match the normal thermistor behaviour so we need to set the following defines */
+#if (THERMISTORHEATER_0 == 20)
+# define HEATER_0_RAW_HI_TEMP 16383
+# define HEATER_0_RAW_LO_TEMP 0
+#endif
+#if (THERMISTORHEATER_1 == 20)
+# define HEATER_1_RAW_HI_TEMP 16383
+# define HEATER_1_RAW_LO_TEMP 0
+#endif
+#if (THERMISTORHEATER_2 == 20)
+# define HEATER_2_RAW_HI_TEMP 16383
+# define HEATER_2_RAW_LO_TEMP 0
+#endif
+#if (THERMISTORBED == 20)
+# define HEATER_BED_RAW_HI_TEMP 16383
+# define HEATER_BED_RAW_LO_TEMP 0
+#endif
+const short temptable_20[][2] PROGMEM = {
+{         0*OVERSAMPLENR ,       0     },
+{       227*OVERSAMPLENR ,       1     },
+{       236*OVERSAMPLENR ,       10     },
+{       245*OVERSAMPLENR ,       20     },
+{       253*OVERSAMPLENR ,       30     },
+{       262*OVERSAMPLENR ,       40     },
+{       270*OVERSAMPLENR ,       50     },
+{       279*OVERSAMPLENR ,       60     },
+{       287*OVERSAMPLENR ,       70     },
+{       295*OVERSAMPLENR ,       80     },
+{       304*OVERSAMPLENR ,       90     },
+{       312*OVERSAMPLENR ,       100     },
+{       320*OVERSAMPLENR ,       110     },
+{       329*OVERSAMPLENR ,       120     },
+{       337*OVERSAMPLENR ,       130     },
+{       345*OVERSAMPLENR ,       140     },
+{       353*OVERSAMPLENR ,       150     },
+{       361*OVERSAMPLENR ,       160     },
+{       369*OVERSAMPLENR ,       170     },
+{       377*OVERSAMPLENR ,       180     },
+{       385*OVERSAMPLENR ,       190     },
+{       393*OVERSAMPLENR ,       200     },
+{       401*OVERSAMPLENR ,       210     },
+{       409*OVERSAMPLENR ,       220     },
+{       417*OVERSAMPLENR ,       230     },
+{       424*OVERSAMPLENR ,       240     },
+{       432*OVERSAMPLENR ,       250     },
+{       440*OVERSAMPLENR ,       260     },
+{       447*OVERSAMPLENR ,       270     },
+{       455*OVERSAMPLENR ,       280     },
+{       463*OVERSAMPLENR ,       290     },
+{       470*OVERSAMPLENR ,       300     },
+{       478*OVERSAMPLENR ,       310     },
+{       485*OVERSAMPLENR ,       320     },
+{       493*OVERSAMPLENR ,       330     },
+{       500*OVERSAMPLENR ,       340     },
+{       507*OVERSAMPLENR ,       350     },
+{       515*OVERSAMPLENR ,       360     },
+{       522*OVERSAMPLENR ,       370     },
+{       529*OVERSAMPLENR ,       380     },
+{       537*OVERSAMPLENR ,       390     },
+{       544*OVERSAMPLENR ,       400     },
+{       614*OVERSAMPLENR ,       500     },
+{       681*OVERSAMPLENR ,       600     },
+{       744*OVERSAMPLENR ,       700     },
+{       805*OVERSAMPLENR ,       800     },
+{       862*OVERSAMPLENR ,       900     },
+{       917*OVERSAMPLENR ,       1000     },
+{       968*OVERSAMPLENR ,       1100     }
+};
+#endif
+
+#if (THERMISTORHEATER_0 == 20) || (THERMISTORHEATER_1 == 20) || (THERMISTORHEATER_2 == 20) || (THERMISTORBED == 20) // PT100 with INA826 amp on Ultimaker v2.0 electronics
+/* The PT100 in the Ultimaker v2.0 electronics has a high sample value for a high temperature.
+This does not match the normal thermistor behaviour so we need to set the following defines */
+#if (THERMISTORHEATER_0 == 20)
+# define HEATER_0_RAW_HI_TEMP 16383
+# define HEATER_0_RAW_LO_TEMP 0
+#endif
+#if (THERMISTORHEATER_1 == 20)
+# define HEATER_1_RAW_HI_TEMP 16383
+# define HEATER_1_RAW_LO_TEMP 0
+#endif
+#if (THERMISTORHEATER_2 == 20)
+# define HEATER_2_RAW_HI_TEMP 16383
+# define HEATER_2_RAW_LO_TEMP 0
+#endif
+#if (THERMISTORBED == 20)
+# define HEATER_BED_RAW_HI_TEMP 16383
+# define HEATER_BED_RAW_LO_TEMP 0
+#endif
+const short temptable_20[][2] PROGMEM = {
+{         0*OVERSAMPLENR ,       0     },
+{       227*OVERSAMPLENR ,       1     },
+{       236*OVERSAMPLENR ,       10     },
+{       245*OVERSAMPLENR ,       20     },
+{       253*OVERSAMPLENR ,       30     },
+{       262*OVERSAMPLENR ,       40     },
+{       270*OVERSAMPLENR ,       50     },
+{       279*OVERSAMPLENR ,       60     },
+{       287*OVERSAMPLENR ,       70     },
+{       295*OVERSAMPLENR ,       80     },
+{       304*OVERSAMPLENR ,       90     },
+{       312*OVERSAMPLENR ,       100     },
+{       320*OVERSAMPLENR ,       110     },
+{       329*OVERSAMPLENR ,       120     },
+{       337*OVERSAMPLENR ,       130     },
+{       345*OVERSAMPLENR ,       140     },
+{       353*OVERSAMPLENR ,       150     },
+{       361*OVERSAMPLENR ,       160     },
+{       369*OVERSAMPLENR ,       170     },
+{       377*OVERSAMPLENR ,       180     },
+{       385*OVERSAMPLENR ,       190     },
+{       393*OVERSAMPLENR ,       200     },
+{       401*OVERSAMPLENR ,       210     },
+{       409*OVERSAMPLENR ,       220     },
+{       417*OVERSAMPLENR ,       230     },
+{       424*OVERSAMPLENR ,       240     },
+{       432*OVERSAMPLENR ,       250     },
+{       440*OVERSAMPLENR ,       260     },
+{       447*OVERSAMPLENR ,       270     },
+{       455*OVERSAMPLENR ,       280     },
+{       463*OVERSAMPLENR ,       290     },
+{       470*OVERSAMPLENR ,       300     },
+{       478*OVERSAMPLENR ,       310     },
+{       485*OVERSAMPLENR ,       320     },
+{       493*OVERSAMPLENR ,       330     },
+{       500*OVERSAMPLENR ,       340     },
+{       507*OVERSAMPLENR ,       350     },
+{       515*OVERSAMPLENR ,       360     },
+{       522*OVERSAMPLENR ,       370     },
+{       529*OVERSAMPLENR ,       380     },
+{       537*OVERSAMPLENR ,       390     },
+{       544*OVERSAMPLENR ,       400     },
+{       614*OVERSAMPLENR ,       500     },
+{       681*OVERSAMPLENR ,       600     },
+{       744*OVERSAMPLENR ,       700     },
+{       805*OVERSAMPLENR ,       800     },
+{       862*OVERSAMPLENR ,       900     },
+{       917*OVERSAMPLENR ,       1000     },
+{       968*OVERSAMPLENR ,       1100     }
+};
+#endif
+
+#if (THERMISTORHEATER_0 == 20) || (THERMISTORHEATER_1 == 20) || (THERMISTORHEATER_2 == 20) || (THERMISTORBED == 20) // PT100 with INA826 amp on Ultimaker v2.0 electronics
+/* The PT100 in the Ultimaker v2.0 electronics has a high sample value for a high temperature.
+This does not match the normal thermistor behaviour so we need to set the following defines */
+#if (THERMISTORHEATER_0 == 20)
+# define HEATER_0_RAW_HI_TEMP 16383
+# define HEATER_0_RAW_LO_TEMP 0
+#endif
+#if (THERMISTORHEATER_1 == 20)
+# define HEATER_1_RAW_HI_TEMP 16383
+# define HEATER_1_RAW_LO_TEMP 0
+#endif
+#if (THERMISTORHEATER_2 == 20)
+# define HEATER_2_RAW_HI_TEMP 16383
+# define HEATER_2_RAW_LO_TEMP 0
+#endif
+#if (THERMISTORBED == 20)
+# define HEATER_BED_RAW_HI_TEMP 16383
+# define HEATER_BED_RAW_LO_TEMP 0
+#endif
+const short temptable_20[][2] PROGMEM = {
+{         0*OVERSAMPLENR ,       0     },
+{       227*OVERSAMPLENR ,       1     },
+{       236*OVERSAMPLENR ,       10     },
+{       245*OVERSAMPLENR ,       20     },
+{       253*OVERSAMPLENR ,       30     },
+{       262*OVERSAMPLENR ,       40     },
+{       270*OVERSAMPLENR ,       50     },
+{       279*OVERSAMPLENR ,       60     },
+{       287*OVERSAMPLENR ,       70     },
+{       295*OVERSAMPLENR ,       80     },
+{       304*OVERSAMPLENR ,       90     },
+{       312*OVERSAMPLENR ,       100     },
+{       320*OVERSAMPLENR ,       110     },
+{       329*OVERSAMPLENR ,       120     },
+{       337*OVERSAMPLENR ,       130     },
+{       345*OVERSAMPLENR ,       140     },
+{       353*OVERSAMPLENR ,       150     },
+{       361*OVERSAMPLENR ,       160     },
+{       369*OVERSAMPLENR ,       170     },
+{       377*OVERSAMPLENR ,       180     },
+{       385*OVERSAMPLENR ,       190     },
+{       393*OVERSAMPLENR ,       200     },
+{       401*OVERSAMPLENR ,       210     },
+{       409*OVERSAMPLENR ,       220     },
+{       417*OVERSAMPLENR ,       230     },
+{       424*OVERSAMPLENR ,       240     },
+{       432*OVERSAMPLENR ,       250     },
+{       440*OVERSAMPLENR ,       260     },
+{       447*OVERSAMPLENR ,       270     },
+{       455*OVERSAMPLENR ,       280     },
+{       463*OVERSAMPLENR ,       290     },
+{       470*OVERSAMPLENR ,       300     },
+{       478*OVERSAMPLENR ,       310     },
+{       485*OVERSAMPLENR ,       320     },
+{       493*OVERSAMPLENR ,       330     },
+{       500*OVERSAMPLENR ,       340     },
+{       507*OVERSAMPLENR ,       350     },
+{       515*OVERSAMPLENR ,       360     },
+{       522*OVERSAMPLENR ,       370     },
+{       529*OVERSAMPLENR ,       380     },
+{       537*OVERSAMPLENR ,       390     },
+{       544*OVERSAMPLENR ,       400     },
+{       614*OVERSAMPLENR ,       500     },
+{       681*OVERSAMPLENR ,       600     },
+{       744*OVERSAMPLENR ,       700     },
+{       805*OVERSAMPLENR ,       800     },
+{       862*OVERSAMPLENR ,       900     },
+{       917*OVERSAMPLENR ,       1000     },
+{       968*OVERSAMPLENR ,       1100     }
+};
+#endif
+
 #if (THERMISTORHEATER_0 == 51) || (THERMISTORHEATER_1 == 51) || (THERMISTORHEATER_2 == 51) || (THERMISTORBED == 51)
 // 100k EPCOS (WITH 1kohm RESISTOR FOR PULLUP, R9 ON SANGUINOLOLU! NOT FOR 4.7kohm PULLUP! THIS IS NOT NORMAL!)
 // Verified by linagee.
@@ -929,6 +1217,87 @@ const short temptable_1047[][2] PROGMEM = {
   PtLine(300,1000,4700)
 };
 #endif
+
+
+
+
+
+// 137 = AD8495 thermocouple
+// 138 = TI LMT87 temperature sensor
+
+#if (THERMISTORHEATER_0 == 137) || (THERMISTORHEATER_1 == 137) || (THERMISTORHEATER_2 == 137) || (THERMISTORBED == 137) 
+// AD8495 thermocouple (5mV/°C)
+const short temptable_137[][2] PROGMEM = {
+	{0 * OVERSAMPLENR, 0},
+	{10 * OVERSAMPLENR, 10},
+	{20 * OVERSAMPLENR, 20},
+	{30 * OVERSAMPLENR, 29},
+	{40 * OVERSAMPLENR, 39},
+	{50 * OVERSAMPLENR, 49},
+	{60 * OVERSAMPLENR, 59},
+	{70 * OVERSAMPLENR, 68},
+	{80 * OVERSAMPLENR, 78},
+	{90 * OVERSAMPLENR, 88},
+	{100 * OVERSAMPLENR, 98},
+	{110 * OVERSAMPLENR, 107},
+	{120 * OVERSAMPLENR, 117},
+	{130 * OVERSAMPLENR, 127},
+	{140 * OVERSAMPLENR, 137},
+	{150 * OVERSAMPLENR, 146},
+	{160 * OVERSAMPLENR, 156},
+	{170 * OVERSAMPLENR, 166},
+	{180 * OVERSAMPLENR, 176},
+	{190 * OVERSAMPLENR, 186},
+	{200 * OVERSAMPLENR, 195},
+	{210 * OVERSAMPLENR, 205},
+	{220 * OVERSAMPLENR, 215},
+	{230 * OVERSAMPLENR, 225},
+	{240 * OVERSAMPLENR, 234},
+	{250 * OVERSAMPLENR, 244},
+	{260 * OVERSAMPLENR, 254},
+	{270 * OVERSAMPLENR, 264},
+	{280 * OVERSAMPLENR, 273},
+	{290 * OVERSAMPLENR, 283},
+	{300 * OVERSAMPLENR, 293},
+	{310 * OVERSAMPLENR, 303},
+	{320 * OVERSAMPLENR, 312},
+	{330 * OVERSAMPLENR, 322},
+	{340 * OVERSAMPLENR, 332},
+	{350 * OVERSAMPLENR, 342},
+	{360 * OVERSAMPLENR, 352},
+	{370 * OVERSAMPLENR, 361},
+	{380 * OVERSAMPLENR, 371},
+	{390 * OVERSAMPLENR, 380},
+	{400 * OVERSAMPLENR, 391},
+	{500 * OVERSAMPLENR, 488},
+	{501 * OVERSAMPLENR, 999}		// thermocouple removal
+};
+#endif
+
+
+#if (THERMISTORHEATER_0 == 138) || (THERMISTORHEATER_1 == 138) || (THERMISTORHEATER_2 == 138) || (THERMISTORBED == 138) 
+// TI LMT87 temperature sensor (-13.6mV/K)
+const short temptable_138[][2] PROGMEM = {
+	{80 * OVERSAMPLENR, 160},
+	{110 * OVERSAMPLENR, 150},
+	{140 * OVERSAMPLENR, 140},
+	{170 * OVERSAMPLENR, 130},
+	{199 * OVERSAMPLENR, 120},
+	{228 * OVERSAMPLENR, 110},	
+	{257 * OVERSAMPLENR, 100},	
+	{287 * OVERSAMPLENR, 90},	
+	{315 * OVERSAMPLENR, 80},
+	{344 * OVERSAMPLENR, 70},	
+	{373 * OVERSAMPLENR, 60},	
+	{401 * OVERSAMPLENR, 50},
+	{429 * OVERSAMPLENR, 40},
+	{457 * OVERSAMPLENR, 30},
+	{471 * OVERSAMPLENR, 25},
+	{484 * OVERSAMPLENR, 20},
+	{512 * OVERSAMPLENR, 10},	
+	{539 * OVERSAMPLENR, 0}
+};
+#endif 
 
 #define _TT_NAME(_N) temptable_ ## _N
 #define TT_NAME(_N) _TT_NAME(_N)
