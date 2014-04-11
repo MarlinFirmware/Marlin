@@ -933,6 +933,11 @@ static void run_z_probe() {
     plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
 }
 
+#endif
+
+#if defined( ENABLE_AUTO_BED_LEVELING) || defined(ENABLE_MANUAL_BED_LEVELING)
+
+
 static void do_blocking_move_to(float x, float y, float z) {
     float oldFeedRate = feedrate;
 
@@ -950,6 +955,10 @@ static void do_blocking_move_to(float x, float y, float z) {
 static void do_blocking_move_relative(float offset_x, float offset_y, float offset_z) {
     do_blocking_move_to(current_position[X_AXIS] + offset_x, current_position[Y_AXIS] + offset_y, current_position[Z_AXIS] + offset_z);
 }
+
+#endif
+
+#if defined( ENABLE_AUTO_BED_LEVELING)
 
 static void setup_for_endstop_move() {
     saved_feedrate = feedrate;

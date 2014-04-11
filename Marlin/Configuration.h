@@ -353,6 +353,15 @@ offsets < 1 mm.
 #define Z_MAX_TRAVEL_PAST_ENDSTOP_MM 0
 #endif
 
+#define ENABLE_MANUAL_BED_LEVELING
+
+#ifdef ENABLE_MANUAL_BED_LEVELING
+  #define Z_RAISE_BEFORE_MOVING 4       // (in mm) Raise Z before moving to next corner
+                                        
+  #define XY_TRAVEL_SPEED 2400         // X and Y axis travel speed between probes, in mm/min
+
+#endif
+
 // Travel limits after homing
 #define X_MAX_POS 190
 #define X_MIN_POS 0
