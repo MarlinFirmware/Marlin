@@ -510,7 +510,6 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 //#define LCD_FEEDBACK_TONE_DURATION_MS 60 // the duration the buzzer plays the UI feedback sound. ie Screen Click
 
 
-
 // The MaKr3d Makr-Panel with graphic controller and SD support
 // http://reprap.org/wiki/MaKr3d_MaKrPanel
 //#define MAKRPANEL
