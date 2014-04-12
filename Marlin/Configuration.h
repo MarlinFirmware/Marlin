@@ -497,8 +497,18 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 //#define ENCODER_STEPS_PER_MENU_ITEM 5 // Set according to ENCODER_PULSES_PER_STEP or your liking
 //#define ULTIMAKERCONTROLLER //as available from the Ultimaker online store.
 //#define ULTIPANEL  //the UltiPanel as on Thingiverse
-//#define LCD_FEEDBACK_FREQUENCY_HZ 1000	// this is the tone frequency the buzzer plays when on UI feedback. ie Screen Click
-//#define LCD_FEEDBACK_FREQUENCY_DURATION_MS 100 // the duration the buzzer plays the UI feedback sound. ie Screen Click
+
+// Feedback configuration
+// this is different for transducers and buzzers!
+//
+// transducer:
+//#define LCD_FEEDBACK_FREQUENCY_HZ 1000	// this is the tone frequency the transducer plays when on UI feedback. ie Screen Click
+//#define LCD_FEEDBACK_FREQUENCY_DURATION_MS 100 // the duration the transducer plays the UI feedback sound. ie Screen Click
+//
+// buzzer:
+//#define LCD_FEEDBACK_TONE_COLOR 3 // this is the tone variation the buzzer plays when on UI feedback. ie Screen Click
+//#define LCD_FEEDBACK_TONE_DURATION_MS 60 // the duration the buzzer plays the UI feedback sound. ie Screen Click
+
 
 // The MaKr3d Makr-Panel with graphic controller and SD support
 // http://reprap.org/wiki/MaKr3d_MaKrPanel
