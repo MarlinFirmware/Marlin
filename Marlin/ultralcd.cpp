@@ -19,7 +19,6 @@ int absPreheatHotendTemp;
 int absPreheatHPBTemp;
 int absPreheatFanSpeed;
 
-
 #ifdef ULTIPANEL
 static float manual_feedrate[] = MANUAL_FEEDRATE;
 #endif // ULTIPANEL
@@ -304,6 +303,42 @@ static void lcd_autostart_sd()
 }
 #endif
 
+/*
+    Setting Home Z Offset
+    By default auto-home (G28) sets XYZ=0, but XYZ can be any values.
+    This command takes the current Z offset and compares it
+    to Z home, add_homing[2]. If Z=0.2 and add_homing[2]=0, we set
+    add_homing[2]=-0.2, which makes the printer move 0.2mm up before
+    starting the print.
+    Let's say the endstop is really low!
+    After auto-home Z = -0.7 as previously set.
+    Now adjust the Z axis until we get a good Z=0.
+    If "0.1" is better now, that means the endstop is at -0.8.
+    If "-0.1" is better, then the endstop is at -0.6.
+    Basically, how far away is the endstop from this new 0.0?
+*/
+void lcd_set_z_home()
+{
+    for(int8_t i=0; i < NUM_AXIS; i++) {
+      if (i != E_AXIS) {
+        add_homing[i] -= current_position[i];
+        current_position[i] = 0.0;
+      }
+    }
+    plan_set_position(0.0, 0.0, 0.0, current_position[E_AXIS]);
+    // char cmd[20];
+    // add_homing[2] -= current_position[Z_AXIS];
+    // sprintf_P(cmd, PSTR("M206 Z%f"), add_homing[2]-current_position[Z_AXIS]);
+    // enquecommand(cmd);
+    // enquecommand_P(PSTR("G92 Z0"));
+
+    // Audio feedback
+    enquecommand_P(PSTR("M300 S659 P200"));
+    enquecommand_P(PSTR("M300 S698 P200"));
+    lcd_return_to_status();
+}
+
+
 #ifdef BABYSTEPPING
 static void lcd_babystep_x()
 {
@@ -563,6 +598,7 @@ static void lcd_prepare_menu()
 #endif
     MENU_ITEM(gcode, MSG_DISABLE_STEPPERS, PSTR("M84"));
     MENU_ITEM(gcode, MSG_AUTO_HOME, PSTR("G28"));
+    MENU_ITEM(function, MSG_SET_Z_HOME, lcd_set_z_home);
     //MENU_ITEM(gcode, MSG_SET_ORIGIN, PSTR("G92 X0 Y0 Z0"));
 #if TEMP_SENSOR_0 != 0
   #if TEMP_SENSOR_1 != 0 || TEMP_SENSOR_2 != 0 || TEMP_SENSOR_BED != 0
