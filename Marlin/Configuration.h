@@ -356,9 +356,11 @@ offsets < 1 mm.
 #define ENABLE_MANUAL_BED_LEVELING
 
 #ifdef ENABLE_MANUAL_BED_LEVELING
-  #define Z_RAISE_BEFORE_MOVING 4       // (in mm) Raise Z before moving to next corner
+  #define Z_RAISE_BEFORE_MOVING 1       // (in mm) Raise Z before moving to next corner
                                         
-  #define XY_TRAVEL_SPEED 2400         // X and Y axis travel speed between probes, in mm/min
+  #define XY_TRAVEL_SPEED 4000         // X and Y axis travel speed between probes, in mm/min
+
+  #define INSET_FROM_MAXMIN 0           //When moving to the corners, stop a little short of X_MAX_POS etc.
 
 #endif
 

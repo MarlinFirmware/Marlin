@@ -956,6 +956,13 @@ static void do_blocking_move_relative(float offset_x, float offset_y, float offs
     do_blocking_move_to(current_position[X_AXIS] + offset_x, current_position[Y_AXIS] + offset_y, current_position[Z_AXIS] + offset_z);
 }
 
+void blocking_raised_move_to(float x, float y) 
+{
+do_blocking_move_relative(0,0,Z_RAISE_BEFORE_MOVING);
+do_blocking_move_to(x,y,current_position[Z_AXIS]);
+do_blocking_move_relative(0,0,-Z_RAISE_BEFORE_MOVING);
+}
+
 #endif
 
 #if defined( ENABLE_AUTO_BED_LEVELING)
