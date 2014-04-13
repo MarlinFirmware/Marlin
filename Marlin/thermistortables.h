@@ -563,8 +563,11 @@ const short temptable_10[][2] PROGMEM = {
    {1016*OVERSAMPLENR, 0}
 };
 #endif
-#if (THERMISTORHEATER_0 == 11) || (THERMISTORHEATER_1 == 11) || (THERMISTORHEATER_2 == 11) || (THERMISTORBED == 11) // QU-BD silicone bed QWG-104F-3950 thermistor
-const short temptable_8[][2] PROGMEM = {
+
+#if (THERMISTORHEATER_0 == 11) || (THERMISTORHEATER_1 == 11) || (THERMISTORHEATER_2 == 11) || (THERMISTORBED == 11) 
+// QU-BD silicone bed QWG-104F-3950 thermistor
+
+const short temptable_11[][2] PROGMEM = {
          {1*OVERSAMPLENR,        938},
          {31*OVERSAMPLENR,       314},
          {41*OVERSAMPLENR,       290},
