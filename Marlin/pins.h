@@ -71,7 +71,6 @@
 #define TEMP_BED_PIN        5    // MUST USE ANALOG INPUT NUMBERING NOT DIGITAL OUTPUT NUMBERING!!!!!!!!!
 #define HEATER_BED_PIN      8
 
-
 #endif /* 390 */
 
 #if MOTHERBOARD == 99
@@ -602,10 +601,9 @@
     #define HEATER_2_PIN       -1
   #endif
 
-  #define TEMP_0_PIN         11   // ANALOG NUMBERING
-  #define TEMP_1_PIN         10   // ANALOG NUMBERING
-  #define TEMP_2_PIN         5    //ANALOG NUMBERIN
-  #define TEMP_3_PIN         9    //ANALOG NUMBERING
+  #define TEMP_0_PIN         13   // ANALOG NUMBERING
+  #define TEMP_1_PIN         15   // ANALOG NUMBERING
+
   #if MOTHERBOARD == 68
     #define TEMP_2_PIN         12   // ANALOG NUMBERING
     #define TEMP_3_PIN         11   // ANALOG NUMBERING
@@ -626,7 +624,7 @@
     #endif
   #endif
 
-  #define TEMP_BED_PIN       12   // ANALOG NUMBERING
+  #define TEMP_BED_PIN       14   // ANALOG NUMBERING
 
   #ifdef NUM_SERVOS
     #define SERVO0_PIN         11
@@ -792,7 +790,7 @@
 #define TEMP_0_PIN          2    // MUST USE ANALOG INPUT NUMBERING NOT DIGITAL OUTPUT NUMBERING!!!!!!!!!
 #define TEMP_1_PIN          -1
 #define TEMP_2_PIN          -1
-#define TEMP_BED_PIN        5    // MUST USE ANALOG INPUT NUMBERING NOT DIGITAL OUTPUT NUMBERING!!!!!!!!!
+#define TEMP_BED_PIN        1    // MUST USE ANALOG INPUT NUMBERING NOT DIGITAL OUTPUT NUMBERING!!!!!!!!!
 
 #endif // MOTHERBOARD == 33 || MOTHERBOARD == 34 || MOTHERBOARD == 35 || MOTHERBOARD == 77
 
