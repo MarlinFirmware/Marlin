@@ -623,7 +623,28 @@
         #define BTN_ENC -1
         #define SDSS 53
         #define SDCARDDETECT 49
-      #else
+       #elif defined(MINIPANEL)
+         #define BEEPER 42
+         // Pins for DOGM SPI LCD Support
+         #define DOGLCD_A0  44
+         #define DOGLCD_CS  66
+         #define LCD_PIN_BL	65	// backlight LED on A11/D65
+         #define SDSS   53
+         
+         #define KILL_PIN 64
+         // GLCD features
+         //#define LCD_CONTRAST 190
+         // Uncomment screen orientation
+           // #define LCD_SCREEN_ROT_90
+           // #define LCD_SCREEN_ROT_180
+           // #define LCD_SCREEN_ROT_270
+         //The encoder and click button
+         #define BTN_EN1 48
+         #define BTN_EN2 63
+         #define BTN_ENC 59  //the click switch
+         //not connected to a pin
+         #define SDCARDDETECT 49
+       #else
         //arduino pin which triggers an piezzo beeper
         #define BEEPER 33  // Beeper on AUX-4
 
@@ -648,6 +669,8 @@
         #endif
 
       #endif
+      
+      
 
       #if MOTHERBOARD == 77
         #define BEEPER -1
@@ -2527,13 +2550,21 @@
  #define X_STEP_PIN 62//A8
  #define X_DIR_PIN 63//A9
  #define X_ENABLE_PIN 61//A7
+#ifdef DELTA
+ #define X_MIN_PIN -1
+#else
  #define X_MIN_PIN 43
+#endif //DELTA
  #define X_MAX_PIN 42 //2 //Max endstops default to disabled "-1", set to commented value to enable.
 
  #define Y_STEP_PIN 65 // A11
  #define Y_DIR_PIN 66 // A12
  #define Y_ENABLE_PIN 64//A10
+#ifdef DELTA
+ #define Y_MIN_PIN -1
+#else
  #define Y_MIN_PIN 38
+#endif //DELTA
  #define Y_MAX_PIN 41 //15
 
  #define Z_STEP_PIN 68 // A14
@@ -2586,27 +2617,28 @@
    #define TEMP_BED_PIN 1 // ANALOG NUMBERING
  #endif
 
- #define BEEPER 46
+ #ifdef MINIPANEL
+     #define BEEPER 46
+     // Pins for DOGM SPI LCD Support
+     #define DOGLCD_A0  47
+     #define DOGLCD_CS  45
+     #define LCD_PIN_BL	44	// backlight LED on PA3
+     
+     #define KILL_PIN 12
+     // GLCD features
+     //#define LCD_CONTRAST 190
+     // Uncomment screen orientation
+       // #define LCD_SCREEN_ROT_90
+       // #define LCD_SCREEN_ROT_180
+       // #define LCD_SCREEN_ROT_270
+     //The encoder and click button
+     #define BTN_EN1 48
+     #define BTN_EN2 11
+     #define BTN_ENC 10  //the click switch
+     //not connected to a pin
+     #define SDCARDDETECT 49
+ #endif //Minipanel
 
-
- #define LCD_PINS_RS 14
- #define LCD_PINS_ENABLE 15
- #define LCD_PINS_D4 30
- #define LCD_PINS_D5 31
- #define LCD_PINS_D6 32
- #define LCD_PINS_D7 33
-
-
- //buttons are directly attached using keypad
- #define BTN_EN1 61
- #define BTN_EN2 59
- #define BTN_ENC 43 //the click
-
- #define BLEN_C 2
- #define BLEN_B 1
- #define BLEN_A 0
-
- #define SDCARDDETECT -1	// Megatronics does not use this port
 
    //encoder rotation values
  #define encrot0 0
