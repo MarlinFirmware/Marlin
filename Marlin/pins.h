@@ -639,7 +639,7 @@
            // #define LCD_SCREEN_ROT_180
            // #define LCD_SCREEN_ROT_270
          //The encoder and click button
-         #define BTN_EN1 48
+         #define BTN_EN1 40
          #define BTN_EN2 63
          #define BTN_ENC 59  //the click switch
          //not connected to a pin
