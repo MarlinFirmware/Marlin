@@ -205,7 +205,10 @@ float endstop_adj[3]={0,0,0};
 float min_pos[3] = { X_MIN_POS, Y_MIN_POS, Z_MIN_POS };
 float max_pos[3] = { X_MAX_POS, Y_MAX_POS, Z_MAX_POS };
 bool axis_known_position[3] = {false, false, false};
-float zprobe_zoffset;
+
+float zprobe_zoffset;		//Offsets from probe to extruder/tool
+float zprobe_xoffset;
+float zprobe_yoffset;
 
 // Extruder offset
 #if EXTRUDERS > 1
@@ -1425,7 +1428,7 @@ void process_commands()
                 break; // abort G29, since we don't know where we are
             }
 
-            // Allow user to enter the probe offsets as G29 Z[zoffset] Y[yoffset] X[xoffset]
+            // Allow user to enter the probe to extruder/tool offsets as G29 Z[zoffset] Y[yoffset] X[xoffset]
             if(code_seen('Z'))
             {
             	zprobe_zoffset = (float) code_value();
