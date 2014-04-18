@@ -2616,6 +2616,22 @@
  #else
    #define TEMP_BED_PIN 1 // ANALOG NUMBERING
  #endif
+ 
+ #ifdef NUM_SERVOS
+    #define SERVO0_PIN         30
+
+    #if NUM_SERVOS > 1
+      #define SERVO1_PIN         31
+    #endif
+
+    #if NUM_SERVOS > 2
+      #define SERVO2_PIN         32
+    #endif
+
+    #if NUM_SERVOS > 3
+      #define SERVO3_PIN         33
+    #endif
+  #endif
 
  #ifdef MINIPANEL
      #define BEEPER 46

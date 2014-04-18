@@ -72,7 +72,7 @@
 // 310 = Mega Controller by MakerLab
 
 #ifndef MOTHERBOARD
-#define MOTHERBOARD 33
+#define MOTHERBOARD 310
 #endif
 
 // Define this to set a custom name for your generic Mendel,
