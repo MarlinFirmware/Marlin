@@ -1976,7 +1976,7 @@ void process_commands()
         #endif //TEMP_RESIDENCY_TIME
         }
         LCD_MESSAGEPGM(MSG_HEATING_COMPLETE);
-        starttime=millis();
+        if (target_direction) starttime=millis();
         previous_millis_cmd = millis();
       }
       break;
