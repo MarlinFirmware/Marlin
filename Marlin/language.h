@@ -36,14 +36,14 @@
 #elif MOTHERBOARD == 77
 	#define MACHINE_NAME "3Drag"
 	#define FIRMWARE_URL "http://3dprint.elettronicain.it/"
-#else
-	#ifdef CUSTOM_MENDEL_NAME
-		#define MACHINE_NAME CUSTOM_MENDEL_NAME
-	#else
-		#define MACHINE_NAME "Mendel"
-	#endif
+#endif
 
-// Default firmware set to Mendel
+//Use default values for MACHINE_NAME and FIRMWARE_URL if they have not been set above or in Configuration.h
+#ifndef MACHINE_NAME // Default name set to Mendel
+        #define MACHINE_NAME "Mendel"
+#endif
+
+#ifndef FIRMWARE_URL // Default firmware set to Mendel
 	#define FIRMWARE_URL "https://github.com/ErikZalm/Marlin/"
 #endif
 
