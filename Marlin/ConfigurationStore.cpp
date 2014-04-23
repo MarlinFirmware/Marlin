@@ -40,7 +40,7 @@ void _EEPROM_readData(int &pos, uint8_t* value, uint8_t size)
 #ifdef DELTA
 #define EEPROM_VERSION "V11"
 #else
-#define EEPROM_VERSION "V10"
+#define EEPROM_VERSION "V11"
 #endif
 
 #ifdef EEPROM_SETTINGS
@@ -77,7 +77,16 @@ void Config_StoreSettings()
   EEPROM_WRITE_VAR(i,absPreheatHotendTemp);
   EEPROM_WRITE_VAR(i,absPreheatHPBTemp);
   EEPROM_WRITE_VAR(i,absPreheatFanSpeed);
+
   EEPROM_WRITE_VAR(i,zprobe_zoffset);
+  EEPROM_WRITE_VAR(i,zprobe_xoffset);
+  EEPROM_WRITE_VAR(i,zprobe_yoffset);
+  EEPROM_WRITE_VAR(i,probe_left_position);
+  EEPROM_WRITE_VAR(i,probe_right_position);
+  EEPROM_WRITE_VAR(i,probe_front_position);
+  EEPROM_WRITE_VAR(i,probe_back_position);
+  EEPROM_WRITE_VAR(i,probe_grid_points);
+
   #ifdef PIDTEMP
     EEPROM_WRITE_VAR(i,Kp);
     EEPROM_WRITE_VAR(i,Ki);
@@ -181,6 +190,28 @@ void Config_PrintSettings()
     SERIAL_ECHOPAIR(" D" ,unscalePID_d(Kd));
     SERIAL_ECHOLN(""); 
 #endif
+#ifdef ENABLE_AUTO_BED_LEVELING
+    SERIAL_ECHO_START;
+    SERIAL_ECHOLNPGM("Extruder offsets from probe:");
+    SERIAL_ECHO_START;
+    SERIAL_ECHOPAIR(" X:" ,zprobe_xoffset );
+    SERIAL_ECHOPAIR(" Y:" ,zprobe_yoffset );
+    SERIAL_ECHOPAIR(" Z:" ,zprobe_zoffset );
+	SERIAL_ECHOLN("");
+
+ #ifdef AUTO_BED_LEVELING_GRID
+    SERIAL_ECHO_START;
+    SERIAL_ECHOLNPGM("Probe positions:");
+    SERIAL_ECHO_START;
+    SERIAL_ECHOPAIR(" Left:" ,probe_left_position );
+    SERIAL_ECHOPAIR(" Right:" ,probe_right_position );
+    SERIAL_ECHOPAIR(" Front:" ,probe_front_position );
+    SERIAL_ECHOPAIR(" Back:" ,probe_back_position );
+    SERIAL_ECHOPAIR(" Grid Points:" , (float) probe_grid_points );
+	SERIAL_ECHOLN("");
+#endif // AUTO_BED_LEVELING_GRID
+
+#endif //ENABLE_AUTO_BED_LEVELING
 } 
 #endif
 
@@ -228,7 +259,17 @@ void Config_RetrieveSettings()
         EEPROM_READ_VAR(i,absPreheatHotendTemp);
         EEPROM_READ_VAR(i,absPreheatHPBTemp);
         EEPROM_READ_VAR(i,absPreheatFanSpeed);
+
         EEPROM_READ_VAR(i,zprobe_zoffset);
+        EEPROM_READ_VAR(i,zprobe_xoffset);
+        EEPROM_READ_VAR(i,zprobe_yoffset);
+
+        EEPROM_READ_VAR(i,probe_left_position);
+        EEPROM_READ_VAR(i,probe_right_position);
+        EEPROM_READ_VAR(i,probe_front_position);
+        EEPROM_READ_VAR(i,probe_back_position);
+        EEPROM_READ_VAR(i,probe_grid_points);
+
         #ifndef PIDTEMP
         float Kp,Ki,Kd;
         #endif
@@ -297,6 +338,14 @@ void Config_ResetDefault()
 #endif
 #ifdef ENABLE_AUTO_BED_LEVELING
     zprobe_zoffset = -Z_PROBE_OFFSET_FROM_EXTRUDER;
+    zprobe_xoffset = -X_PROBE_OFFSET_FROM_EXTRUDER;
+    zprobe_yoffset = -Y_PROBE_OFFSET_FROM_EXTRUDER;
+
+    probe_left_position = LEFT_PROBE_BED_POSITION;
+    probe_right_position = RIGHT_PROBE_BED_POSITION;
+    probe_front_position = FRONT_PROBE_BED_POSITION;
+    probe_back_position = BACK_PROBE_BED_POSITION;
+    probe_grid_points = AUTO_BED_LEVELING_GRID_POINTS;
 #endif
 #ifdef DOGLCD
     lcd_contrast = DEFAULT_LCD_CONTRAST;

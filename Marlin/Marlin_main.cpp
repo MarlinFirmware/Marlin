@@ -206,9 +206,15 @@ float min_pos[3] = { X_MIN_POS, Y_MIN_POS, Z_MIN_POS };
 float max_pos[3] = { X_MAX_POS, Y_MAX_POS, Z_MAX_POS };
 bool axis_known_position[3] = {false, false, false};
 
+// Bed auto leveling configuration
 float zprobe_zoffset;		//Offsets from probe to extruder/tool
 float zprobe_xoffset;
 float zprobe_yoffset;
+float probe_left_position;
+float probe_right_position;
+float probe_front_position;
+float probe_back_position;
+int   probe_grid_points;
 
 // Extruder offset
 #if EXTRUDERS > 1
@@ -995,7 +1001,8 @@ static void retract_z_probe() {
 static float probe_pt(float x, float y, float z_before) {
   // move to right place
   do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], z_before);
-  do_blocking_move_to(x - X_PROBE_OFFSET_FROM_EXTRUDER, y - Y_PROBE_OFFSET_FROM_EXTRUDER, current_position[Z_AXIS]);
+//  do_blocking_move_to(x - X_PROBE_OFFSET_FROM_EXTRUDER, y - Y_PROBE_OFFSET_FROM_EXTRUDER, current_position[Z_AXIS]);
+  do_blocking_move_to(x + zprobe_xoffset, y + zprobe_yoffset, current_position[Z_AXIS]);
 
   engage_z_probe();   // Engage Z Servo endstop if available
   run_z_probe();
@@ -1344,8 +1351,10 @@ void process_commands()
           }
         #else                      // Z Safe mode activated.
           if(home_all_axis) {
-            destination[X_AXIS] = round(Z_SAFE_HOMING_X_POINT - X_PROBE_OFFSET_FROM_EXTRUDER);
-            destination[Y_AXIS] = round(Z_SAFE_HOMING_Y_POINT - Y_PROBE_OFFSET_FROM_EXTRUDER);
+//              destination[X_AXIS] = round(Z_SAFE_HOMING_X_POINT - X_PROBE_OFFSET_FROM_EXTRUDER);
+            destination[X_AXIS] = round(Z_SAFE_HOMING_X_POINT + zprobe_xoffset);
+//              destination[Y_AXIS] = round(Z_SAFE_HOMING_Y_POINT - Y_PROBE_OFFSET_FROM_EXTRUDER);
+            destination[Y_AXIS] = round(Z_SAFE_HOMING_Y_POINT + zprobe_yoffset);
             destination[Z_AXIS] = Z_RAISE_BEFORE_HOMING * home_dir(Z_AXIS) * (-1);    // Set destination away from bed
             feedrate = XY_TRAVEL_SPEED;
             current_position[Z_AXIS] = 0;
@@ -1361,10 +1370,15 @@ void process_commands()
                                                 // Let's see if X and Y are homed and probe is inside bed area.
           if(code_seen(axis_codes[Z_AXIS])) {
             if ( (axis_known_position[X_AXIS]) && (axis_known_position[Y_AXIS]) \
-              && (current_position[X_AXIS]+X_PROBE_OFFSET_FROM_EXTRUDER >= X_MIN_POS) \
-              && (current_position[X_AXIS]+X_PROBE_OFFSET_FROM_EXTRUDER <= X_MAX_POS) \
-              && (current_position[Y_AXIS]+Y_PROBE_OFFSET_FROM_EXTRUDER >= Y_MIN_POS) \
-              && (current_position[Y_AXIS]+Y_PROBE_OFFSET_FROM_EXTRUDER <= Y_MAX_POS)) {
+                    && (current_position[X_AXIS] - zprobe_xoffset >= X_MIN_POS) \
+                    && (current_position[X_AXIS] - zprobe_xoffset <= X_MAX_POS) \
+                    && (current_position[Y_AXIS] - zprobe_yoffset >= Y_MIN_POS) \
+            		&& (current_position[Y_AXIS] - zprobe_yoffset <= Y_MAX_POS)) {
+
+            	//&& (current_position[X_AXIS]+X_PROBE_OFFSET_FROM_EXTRUDER >= X_MIN_POS) \
+                //&& (current_position[X_AXIS]+X_PROBE_OFFSET_FROM_EXTRUDER <= X_MAX_POS) \
+                //&& (current_position[Y_AXIS]+Y_PROBE_OFFSET_FROM_EXTRUDER >= Y_MIN_POS) \
+            	//&& (current_position[Y_AXIS]+Y_PROBE_OFFSET_FROM_EXTRUDER <= Y_MAX_POS)) {
 
               current_position[Z_AXIS] = 0;
               plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
@@ -1434,6 +1448,42 @@ void process_commands()
             	zprobe_zoffset = (float) code_value();
             }
 
+            if(code_seen('X'))
+            {
+            	zprobe_xoffset = (float) code_value();
+            }
+
+            if(code_seen('Y'))
+            {
+            	zprobe_yoffset = (float) code_value();
+            }
+
+            if(code_seen('Y'))
+            {
+            	zprobe_yoffset = (float) code_value();
+            }
+
+            if(code_seen('L'))
+            {
+            	probe_left_position = (float) code_value();
+            }
+            if(code_seen('R'))
+            {
+            	probe_right_position = (float) code_value();
+            }
+            if(code_seen('F'))
+            {
+            	probe_front_position = (float) code_value();
+            }
+            if(code_seen('B'))
+            {
+            	probe_back_position = (float) code_value();
+            }
+            if(code_seen('P'))
+            {
+            	probe_grid_points = (int) code_value();
+            }
+
             st_synchronize();
             // make sure the bed_level_rotation_matrix is identity or the planner will get it incorectly
             //vector_3 corrected_position = plan_get_position_mm();
@@ -1451,8 +1501,8 @@ void process_commands()
 #ifdef AUTO_BED_LEVELING_GRID
             // probe at the points of a lattice grid
 
-            int xGridSpacing = (RIGHT_PROBE_BED_POSITION - LEFT_PROBE_BED_POSITION) / (AUTO_BED_LEVELING_GRID_POINTS-1);
-            int yGridSpacing = (BACK_PROBE_BED_POSITION - FRONT_PROBE_BED_POSITION) / (AUTO_BED_LEVELING_GRID_POINTS-1);
+            int xGridSpacing = (probe_right_position - probe_left_position) / (probe_grid_points-1);
+            int yGridSpacing = (probe_back_position - probe_front_position) / (probe_grid_points-1);
 
 
             // solve the plane equation ax + by + d = z
@@ -1462,32 +1512,32 @@ void process_commands()
             // so Vx = -a Vy = -b Vz = 1 (we want the vector facing towards positive Z
 
             // "A" matrix of the linear system of equations
-            double eqnAMatrix[AUTO_BED_LEVELING_GRID_POINTS*AUTO_BED_LEVELING_GRID_POINTS*3];
+            double eqnAMatrix[probe_grid_points*probe_grid_points*3];
             // "B" vector of Z points
-            double eqnBVector[AUTO_BED_LEVELING_GRID_POINTS*AUTO_BED_LEVELING_GRID_POINTS];
+            double eqnBVector[probe_grid_points*probe_grid_points];
 
 
             int probePointCounter = 0;
             bool zig = true;
 
-            for (int yProbe=FRONT_PROBE_BED_POSITION; yProbe <= BACK_PROBE_BED_POSITION; yProbe += yGridSpacing)
+            for (int yProbe=probe_front_position; yProbe <= probe_back_position; yProbe += yGridSpacing)
             {
               int xProbe, xInc;
               if (zig)
               {
-                xProbe = LEFT_PROBE_BED_POSITION;
+                xProbe = probe_left_position;
                 //xEnd = RIGHT_PROBE_BED_POSITION;
                 xInc = xGridSpacing;
                 zig = false;
               } else // zag
               {
-                xProbe = RIGHT_PROBE_BED_POSITION;
+                xProbe = probe_right_position;
                 //xEnd = LEFT_PROBE_BED_POSITION;
                 xInc = -xGridSpacing;
                 zig = true;
               }
 
-              for (int xCount=0; xCount < AUTO_BED_LEVELING_GRID_POINTS; xCount++)
+              for (int xCount=0; xCount < probe_grid_points; xCount++)
               {
                 float z_before;
                 if (probePointCounter == 0)
@@ -1504,9 +1554,9 @@ void process_commands()
 
                 eqnBVector[probePointCounter] = measured_z;
 
-                eqnAMatrix[probePointCounter + 0*AUTO_BED_LEVELING_GRID_POINTS*AUTO_BED_LEVELING_GRID_POINTS] = xProbe;
-                eqnAMatrix[probePointCounter + 1*AUTO_BED_LEVELING_GRID_POINTS*AUTO_BED_LEVELING_GRID_POINTS] = yProbe;
-                eqnAMatrix[probePointCounter + 2*AUTO_BED_LEVELING_GRID_POINTS*AUTO_BED_LEVELING_GRID_POINTS] = 1;
+                eqnAMatrix[probePointCounter + 0*probe_grid_points*probe_grid_points] = xProbe;
+                eqnAMatrix[probePointCounter + 1*probe_grid_points*probe_grid_points] = yProbe;
+                eqnAMatrix[probePointCounter + 2*probe_grid_points*probe_grid_points] = 1;
                 probePointCounter++;
                 xProbe += xInc;
               }
@@ -1514,7 +1564,7 @@ void process_commands()
             clean_up_after_endstop_move();
 
             // solve lsq problem
-            double *plane_equation_coefficients = qr_solve(AUTO_BED_LEVELING_GRID_POINTS*AUTO_BED_LEVELING_GRID_POINTS, 3, eqnAMatrix, eqnBVector);
+            double *plane_equation_coefficients = qr_solve(probe_grid_points*probe_grid_points, 3, eqnAMatrix, eqnBVector);
 
             SERIAL_PROTOCOLPGM("Eqn coefficients: a: ");
             SERIAL_PROTOCOL(plane_equation_coefficients[0]);
@@ -1552,8 +1602,8 @@ void process_commands()
             // The Z height on homing is measured by Z-Probe, but the probe is quite far from the hotend.
             // When the bed is uneven, this height must be corrected.
             real_z = float(st_get_position(Z_AXIS))/axis_steps_per_unit[Z_AXIS];  //get the real Z (since the auto bed leveling is already correcting the plane)
-            x_tmp = current_position[X_AXIS] + X_PROBE_OFFSET_FROM_EXTRUDER;
-            y_tmp = current_position[Y_AXIS] + Y_PROBE_OFFSET_FROM_EXTRUDER;
+            x_tmp = current_position[X_AXIS] - zprobe_xoffset; //+ X_PROBE_OFFSET_FROM_EXTRUDER;
+            y_tmp = current_position[Y_AXIS] - zprobe_yoffset; //+ Y_PROBE_OFFSET_FROM_EXTRUDER;
             z_tmp = current_position[Z_AXIS];
 
             apply_rotation_xyz(plan_bed_level_matrix, x_tmp, y_tmp, z_tmp);         //Apply the correction sending the probe offset

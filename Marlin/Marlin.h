@@ -217,9 +217,17 @@ void recalc_delta_settings(float radius, float diagonal_rod);
 extern float min_pos[3];
 extern float max_pos[3];
 extern bool axis_known_position[3];
+
+// Bed auto leveling configuration
 extern float zprobe_zoffset;
 extern float zprobe_xoffset;
 extern float zprobe_yoffset;
+extern float probe_left_position;
+extern float probe_right_position;
+extern float probe_front_position;
+extern float probe_back_position;
+extern int   probe_grid_points;
+
 extern int fanSpeed;
 #ifdef BARICUDA
 extern int ValvePressure;
