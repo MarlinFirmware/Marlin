@@ -68,6 +68,7 @@
 // 91 = Final OMCA board
 // 301 = Rambo
 // 21 = Elefu Ra Board (v3)
+// 310 = Mega Controller
 
 #ifndef MOTHERBOARD
 #define MOTHERBOARD 33
@@ -472,6 +473,10 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 //#define ULTIMAKERCONTROLLER //as available from the ultimaker online store.
 //#define ULTIPANEL  //the ultipanel as on thingiverse
 
+// The MakerLab Mini Panel with graphic controller and SD support
+// http://reprap.org/wiki/Mini_panel
+//#define MINIPANEL
+
 // The MaKr3d Makr-Panel with graphic controller and SD support
 // http://reprap.org/wiki/MaKr3d_MaKrPanel
 //#define MAKRPANEL
@@ -499,6 +504,14 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 // http://www.elefu.com/index.php?route=product/product&product_id=53
 // REMEMBER TO INSTALL LiquidCrystal_I2C.h in your ARUDINO library folder: https://github.com/kiyoshigawa/LiquidCrystal_I2C
 //#define RA_CONTROL_PANEL
+
+#if defined (MINIPANEL)
+ #define DOGLCD
+ #define SDSUPPORT
+ #define ULTIPANEL
+ #define NEWPANEL
+ #define DEFAULT_LCD_CONTRAST 17
+#endif
 
 //automatic expansion
 #if defined (MAKRPANEL)

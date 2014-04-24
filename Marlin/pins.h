@@ -623,7 +623,28 @@
         #define BTN_ENC -1
         #define SDSS 53
         #define SDCARDDETECT 49
-      #else
+       #elif defined(MINIPANEL)
+         #define BEEPER 42
+         // Pins for DOGM SPI LCD Support
+         #define DOGLCD_A0  44
+         #define DOGLCD_CS  66
+         #define LCD_PIN_BL	65	// backlight LED on A11/D65
+         #define SDSS   53
+         
+         #define KILL_PIN 64
+         // GLCD features
+         //#define LCD_CONTRAST 190
+         // Uncomment screen orientation
+           // #define LCD_SCREEN_ROT_90
+           // #define LCD_SCREEN_ROT_180
+           // #define LCD_SCREEN_ROT_270
+         //The encoder and click button
+         #define BTN_EN1 40
+         #define BTN_EN2 63
+         #define BTN_ENC 59  //the click switch
+         //not connected to a pin
+         #define SDCARDDETECT 49
+       #else
         //arduino pin which triggers an piezzo beeper
         #define BEEPER 33  // Beeper on AUX-4
 
@@ -648,6 +669,8 @@
         #endif
 
       #endif
+      
+      
 
       #if MOTHERBOARD == 77
         #define BEEPER -1
@@ -2527,6 +2550,139 @@
 
 #endif
 
+/****************************************************************************************
+* Mega Controller v0.1
+*
+****************************************************************************************/
+#if MOTHERBOARD == 310
+ #define KNOWN_BOARD 1
+
+
+ #ifndef __AVR_ATmega2560__
+ #error Oops! Make sure you have 'Arduino Mega' selected from the 'Tools -> Boards' menu.
+ #endif
+
+ #define LARGE_FLASH        true
+
+ #define X_STEP_PIN 62//A8
+ #define X_DIR_PIN 63//A9
+ #define X_ENABLE_PIN 61//A7
+#ifdef DELTA
+ #define X_MIN_PIN -1
+#else
+ #define X_MIN_PIN 43
+#endif //DELTA
+ #define X_MAX_PIN 42 //2 //Max endstops default to disabled "-1", set to commented value to enable.
+
+ #define Y_STEP_PIN 65 // A11
+ #define Y_DIR_PIN 66 // A12
+ #define Y_ENABLE_PIN 64//A10
+#ifdef DELTA
+ #define Y_MIN_PIN -1
+#else
+ #define Y_MIN_PIN 38
+#endif //DELTA
+ #define Y_MAX_PIN 41 //15
+
+ #define Z_STEP_PIN 68 // A14
+ #define Z_DIR_PIN 69 // A15
+ #define Z_ENABLE_PIN 67 // A13
+ #define Z_MIN_PIN 40
+ #define Z_MAX_PIN 37
+
+ #define E0_STEP_PIN 23
+ #define E0_DIR_PIN 24
+ #define E0_ENABLE_PIN 22
+
+ #define E1_STEP_PIN 26
+ #define E1_DIR_PIN 27
+ #define E1_ENABLE_PIN 25
+
+ #define SDPOWER -1
+ #define SDSS 53
+ #define LED_PIN 13
+
+ #define FAN_PIN 39
+ #define FAN1_PIN 35
+ #define FAN2_PIN 36
+ #define CONTROLLERFAN_PIN 36
+ #define FAN_SOFT_PWM
+ #define PS_ON_PIN -1
+
+ #define HEATER_0_PIN 29 // EXTRUDER 1
+ #define HEATER_1_PIN 34 // EXTRUDER 2
+ #define HEATER_2_PIN -1
+
+ #if TEMP_SENSOR_0 == -1
+   #define TEMP_0_PIN 4 // ANALOG NUMBERING
+ #else
+   #define TEMP_0_PIN 0 // ANALOG NUMBERING
+ #endif
+
+
+ #if TEMP_SENSOR_1 == -1
+   #define TEMP_1_PIN 5 // ANALOG NUMBERING
+ #else
+   #define TEMP_1_PIN 2 // ANALOG NUMBERING
+ #endif
+
+ #define TEMP_2_PIN 3 // ANALOG NUMBERING
+
+ #define HEATER_BED_PIN 28 // BED
+
+ #if TEMP_SENSOR_BED == -1
+   #define TEMP_BED_PIN 6 // ANALOG NUMBERING
+ #else
+   #define TEMP_BED_PIN 1 // ANALOG NUMBERING
+ #endif
+ 
+ #ifdef NUM_SERVOS
+    #define SERVO0_PIN         30
+
+    #if NUM_SERVOS > 1
+      #define SERVO1_PIN         31
+    #endif
+
+    #if NUM_SERVOS > 2
+      #define SERVO2_PIN         32
+    #endif
+
+    #if NUM_SERVOS > 3
+      #define SERVO3_PIN         33
+    #endif
+  #endif
+
+ #ifdef MINIPANEL
+     #define BEEPER 46
+     // Pins for DOGM SPI LCD Support
+     #define DOGLCD_A0  47
+     #define DOGLCD_CS  45
+     #define LCD_PIN_BL	44	// backlight LED on PA3
+     
+     #define KILL_PIN 12
+     // GLCD features
+     //#define LCD_CONTRAST 190
+     // Uncomment screen orientation
+       // #define LCD_SCREEN_ROT_90
+       // #define LCD_SCREEN_ROT_180
+       // #define LCD_SCREEN_ROT_270
+     //The encoder and click button
+     #define BTN_EN1 48
+     #define BTN_EN2 11
+     #define BTN_ENC 10  //the click switch
+     //not connected to a pin
+     #define SDCARDDETECT 49
+ #endif //Minipanel
+
+
+   //encoder rotation values
+ #define encrot0 0
+ #define encrot1 2
+ #define encrot2 3
+ #define encrot3 1
+
+#endif
+
 
 
 #ifndef KNOWN_BOARD
@@ -2593,4 +2749,3 @@
                         _E0_PINS _E1_PINS _E2_PINS             \
                         analogInputToDigitalPin(TEMP_0_PIN), analogInputToDigitalPin(TEMP_1_PIN), analogInputToDigitalPin(TEMP_2_PIN), analogInputToDigitalPin(TEMP_BED_PIN) }
 #endif
-
