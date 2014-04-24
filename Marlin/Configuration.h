@@ -70,6 +70,7 @@
 // 91 = Final OMCA board
 // 301= Rambo
 // 21 = Elefu Ra Board (v3)
+// 88 = 5DPrint D8 Driver Board
 
 #ifndef MOTHERBOARD
 #define MOTHERBOARD 7
@@ -116,6 +117,7 @@
 // 9 is 100k GE Sensing AL03006-58.2K-97-G1 (4.7k pullup)
 // 10 is 100k RS thermistor 198-961 (4.7k pullup)
 // 11 is 100k beta 3950 1% thermistor (4.7k pullup)
+// 12 is 100k 0603 SMD Vishay NTCS0603E3104FXT (4.7k pullup) (calibrated for Makibox hot bed)
 // 20 is the PT100 circuit found in the Ultimainboard V2.x
 // 60 is 100k Maker's Tool Works Kapton Bed Thermistor beta=3950
 //
