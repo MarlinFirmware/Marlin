@@ -2589,6 +2589,7 @@
  #define FAN1_PIN 35
  #define FAN2_PIN 36
  #define CONTROLLERFAN_PIN 36
+ #define FAN_SOFT_PWM
  #define PS_ON_PIN -1
 
  #define HEATER_0_PIN 29 // EXTRUDER 1
@@ -2731,4 +2732,3 @@
                         _E0_PINS _E1_PINS _E2_PINS             \
                         analogInputToDigitalPin(TEMP_0_PIN), analogInputToDigitalPin(TEMP_1_PIN), analogInputToDigitalPin(TEMP_2_PIN), analogInputToDigitalPin(TEMP_BED_PIN) }
 #endif
-
