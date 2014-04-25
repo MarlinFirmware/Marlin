@@ -906,6 +906,47 @@ static void run_z_probe() {
     plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
 }
 
+
+////////////////////////////////////////
+
+static void run_z_max_probe() {
+
+
+    plan_bed_level_matrix.set_to_identity();
+    feedrate = homing_feedrate[Z_AXIS];
+
+    // move up until the bed hits the bottom
+    float zPosition = Z_MAX_POS + 10;
+    plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], zPosition, current_position[E_AXIS], feedrate/60, active_extruder);
+    st_synchronize();
+
+    // we have to let the planner know where we are right now as it is not where we said to go.
+    zPosition = st_get_position_mm(Z_AXIS);
+    plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], zPosition, current_position[E_AXIS]);
+
+    // move down the retract distance
+    zPosition -= home_retract_mm(Z_AXIS);
+    plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], zPosition, current_position[E_AXIS], feedrate/60, active_extruder);
+    st_synchronize();
+
+    // move back up slowly to find bed
+    feedrate = homing_feedrate[Z_AXIS]/4;
+    zPosition += home_retract_mm(Z_AXIS) * 2;
+    plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], zPosition, current_position[E_AXIS], feedrate/60, active_extruder);
+    st_synchronize();
+
+    current_position[Z_AXIS] = Z_MAX_POS;
+    // make sure the planner knows where we are as it may be a bit different than we last said to move to
+    plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+
+
+}
+
+
+
+
+////////////////////////////////////////
+
 static void do_blocking_move_to(float x, float y, float z) {
     float oldFeedRate = feedrate;
 
@@ -1584,6 +1625,33 @@ void process_commands()
             retract_z_probe(); // Retract Z Servo endstop if available
         }
         break;
+
+        case 31: // G31 Probe Z Max
+        {
+
+            st_synchronize();
+            // TODO: make sure the bed_level_rotation_matrix is identity or the planner will get set incorectly
+            setup_for_endstop_move();
+
+            feedrate = homing_feedrate[Z_AXIS];
+
+            run_z_max_probe();
+            SERIAL_PROTOCOLPGM(MSG_BED);
+            SERIAL_PROTOCOLPGM(" X: ");
+            SERIAL_PROTOCOL(current_position[X_AXIS]);
+            SERIAL_PROTOCOLPGM(" Y: ");
+            SERIAL_PROTOCOL(current_position[Y_AXIS]);
+            SERIAL_PROTOCOLPGM(" Z: ");
+            SERIAL_PROTOCOL(current_position[Z_AXIS]);
+            SERIAL_PROTOCOLPGM("\n");
+
+            clean_up_after_endstop_move();
+
+            retract_z_probe(); // Retract Z Servo endstop if available
+        }
+        break;
+
+
 #endif // ENABLE_AUTO_BED_LEVELING
     case 90: // G90
       relative_mode = false;
@@ -1781,8 +1849,26 @@ void process_commands()
       {
         int pin_status = code_value();
         int pin_number = LED_PIN;
+
+            SERIAL_PROTOCOLPGM(" LED_PIN Number: ");
+            SERIAL_PROTOCOL(pin_number);
+
+                                
+
+            SERIAL_PROTOCOLPGM(" FAN_PIN: ");
+            SERIAL_PROTOCOL(FAN_PIN);
+
+
+
         if (code_seen('P') && pin_status >= 0 && pin_status <= 255)
           pin_number = code_value();
+           
+
+            SERIAL_PROTOCOLPGM(" PIN Number: ");
+            SERIAL_PROTOCOL(pin_number);
+
+
+
         for(int8_t i = 0; i < (int8_t)sizeof(sensitive_pins); i++)
         {
           if (sensitive_pins[i] == pin_number)
