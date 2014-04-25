@@ -79,14 +79,16 @@
 #endif
 
 // Microstepping pins
-#define X_MS1_PIN 13
-#define X_MS2_PIN 14
-#define Y_MS1_PIN 33
-#define Y_MS2_PIN 32
-#define Z_MS1_PIN 31
-#define Z_MS2_PIN 30
-#define E0_MS1_PIN 29
-#define E0_MS2_PIN 28
+// Note that the pin mapping is not from fastio.h
+// See Sd2PinMap.h for the pin configurations
+#define X_MS1_PIN 25
+#define X_MS2_PIN 26
+#define Y_MS1_PIN 9
+#define Y_MS2_PIN 8
+#define Z_MS1_PIN 7
+#define Z_MS2_PIN 6
+#define E0_MS1_PIN 5
+#define E0_MS2_PIN 4
 
 #endif /* 88 */
 
