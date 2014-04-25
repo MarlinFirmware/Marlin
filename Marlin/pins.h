@@ -54,9 +54,9 @@
 #define HEATER_1_PIN       -1
 #define HEATER_2_PIN       -1
 #define HEATER_BED_PIN     20  // Bed
-#define FAN_PIN            22  // Fan
 // You may need to change FAN_PIN to 16 because Marlin isn't using fastio.h
 // for the fan and Teensyduino uses a different pin mapping.
+#define FAN_PIN            16  // Fan
 
 #define TEMP_0_PIN          1  // Extruder / Analog pin numbering
 #define TEMP_BED_PIN        0  // Bed / Analog pin numbering
@@ -65,11 +65,13 @@
 #define TEMP_2_PIN         -1
 
 #define SDPOWER            -1
-#define SDSS                8
 #define LED_PIN            -1
 #define PS_ON_PIN          -1
 #define KILL_PIN           -1
 #define ALARM_PIN          -1
+
+// The SDSS pin uses a different pin mapping from file Sd2PinMap.h
+#define SDSS               20
 
 #ifndef SDSUPPORT
 // these pins are defined in the SD library if building with SD support
