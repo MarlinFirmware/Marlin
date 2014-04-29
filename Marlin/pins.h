@@ -1551,11 +1551,12 @@
 #define LARGE_FLASH        true
 
 // Extra Pins used by MSM Bot
-#define LED_GREEN          16
-#define LED_RED            17
-#define LED_BUTTON         18
+#define LED_GREEN_PIN      16
+#define LED_RED_PIN        17
+#define LED_BUTTON_PIN     18
 #define BUTTON_PIN         24  
 #define DOOR_PIN           37
+#define Z_STOP_MAX_PIN     25
 
 #define X_STEP_PIN          0
 #define X_DIR_PIN           1
@@ -2555,20 +2556,20 @@
     #define Y_MAX_PIN Y_STOP_PIN
   #endif
 #endif
-/*
+
 #ifdef Z_STOP_PIN
   #if Z_HOME_DIR < 0
     #define Z_MIN_PIN Z_STOP_PIN
     #define Z_MAX_PIN -1
+  #elif Z_HOME_DIR == 2
+    #define Z_MIN_PIN Z_STOP_PIN
+    #define Z_MAX_PIN Z_STOP_MAX_PIN
   #else
     #define Z_MIN_PIN -1
     #define Z_MAX_PIN Z_STOP_PIN
   #endif
 #endif
-*/
 
-    #define Z_MIN_PIN Z_STOP_PIN
-    #define Z_MAX_PIN DOOR_PIN
 
 
 #ifdef DISABLE_MAX_ENDSTOPS

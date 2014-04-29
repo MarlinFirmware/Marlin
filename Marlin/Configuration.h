@@ -306,10 +306,10 @@ const bool Z_MAX_ENDSTOP_INVERTING = false; // set to true to invert the logic o
 #define INVERT_E2_DIR false   // for direct drive extruder v9 set to true, for geared extruder set to false
 
 // ENDSTOP SETTINGS:
-// Sets direction of endstops when homing; 1=MAX, -1=MIN
+// Sets direction of endstops when homing; 1=MAX, -1=MIN, 2=BOTH (only for Z)
 #define X_HOME_DIR -1
 #define Y_HOME_DIR -1
-#define Z_HOME_DIR -1
+#define Z_HOME_DIR 2
 
 #define min_software_endstops false // If true, axis won't move to coordinates less than HOME_POS.
 #define max_software_endstops false // If true, axis won't move to coordinates greater than the defined lengths below.

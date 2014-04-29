@@ -170,6 +170,14 @@
 // M928 - Start SD logging (M928 filename.g) - ended by M29
 // M999 - Restart after being stopped by error
 
+
+// P Codes - For Mission St Manufacturing
+// P1 - Green LED Control
+// P2 - Red LED Control
+// P3 - Push Botton LED Control
+// P4 - Lower print bed to Z-Max
+
+
 //Stepper Movement Variables
 
 //===========================================================================
@@ -1626,32 +1634,6 @@ void process_commands()
         }
         break;
 
-        case 31: // G31 Probe Z Max
-        {
-
-            st_synchronize();
-            // TODO: make sure the bed_level_rotation_matrix is identity or the planner will get set incorectly
-            setup_for_endstop_move();
-
-            feedrate = homing_feedrate[Z_AXIS];
-
-            run_z_max_probe();
-            SERIAL_PROTOCOLPGM(MSG_BED);
-            SERIAL_PROTOCOLPGM(" X: ");
-            SERIAL_PROTOCOL(current_position[X_AXIS]);
-            SERIAL_PROTOCOLPGM(" Y: ");
-            SERIAL_PROTOCOL(current_position[Y_AXIS]);
-            SERIAL_PROTOCOLPGM(" Z: ");
-            SERIAL_PROTOCOL(current_position[Z_AXIS]);
-            SERIAL_PROTOCOLPGM("\n");
-
-            clean_up_after_endstop_move();
-
-            retract_z_probe(); // Retract Z Servo endstop if available
-        }
-        break;
-
-
 #endif // ENABLE_AUTO_BED_LEVELING
     case 90: // G90
       relative_mode = false;
@@ -1849,27 +1831,9 @@ void process_commands()
       {
         int pin_status = code_value();
         int pin_number = LED_PIN;
-
-            SERIAL_PROTOCOLPGM(" LED_PIN Number: ");
-            SERIAL_PROTOCOL(pin_number);
-
-                                
-
-            SERIAL_PROTOCOLPGM(" FAN_PIN: ");
-            SERIAL_PROTOCOL(FAN_PIN);
-
-
-
         if (code_seen('P') && pin_status >= 0 && pin_status <= 255)
           pin_number = code_value();
-           
-
-            SERIAL_PROTOCOLPGM(" PIN Number: ");
-            SERIAL_PROTOCOL(pin_number);
-
-
-
-        for(int8_t i = 0; i < (int8_t)sizeof(sensitive_pins); i++)
+          for(int8_t i = 0; i < (int8_t)sizeof(sensitive_pins); i++)
         {
           if (sensitive_pins[i] == pin_number)
           {
@@ -3164,6 +3128,59 @@ void process_commands()
       SERIAL_ECHO_START;
       SERIAL_ECHO(MSG_ACTIVE_EXTRUDER);
       SERIAL_PROTOCOLLN((int)active_extruder);
+    }
+  }
+
+
+  else if(code_seen('P'))
+  {
+    switch( (int)code_value() )
+    {
+      case 1: // P1 Controls the Green (G), Red(R) and Button(B) LEDs
+              // This P-Code will turn the selected LED ON(1) or OFF(0)
+              // Example execution: P1 G1 <- turns Green LED ON
+      {
+        if (code_seen('G'))
+        {
+          int pin_number = LED_GREEN_PIN
+        }
+        else if (code_seen('R'))
+        {
+          int pin_number = LED_RED_PIN
+        }
+        else if (code_seen('B'))
+        {
+          int pin_number = LED_RED_PIN
+        }     
+        if (pin_number > -1)
+        {
+          int led_status = code_value()
+          pinMode(pin_number, OUTPUT);
+          digitalWrite(pin_number, led_status);
+        }
+      }
+      break;
+      case 11: // P11 Probe Z Max
+        {
+
+            st_synchronize(); 
+            setup_for_endstop_move();
+
+            feedrate = homing_feedrate[Z_AXIS];
+
+            run_z_max_probe();
+            SERIAL_PROTOCOLPGM(MSG_BED);
+            SERIAL_PROTOCOLPGM(" X: ");
+            SERIAL_PROTOCOL(current_position[X_AXIS]);
+            SERIAL_PROTOCOLPGM(" Y: ");
+            SERIAL_PROTOCOL(current_position[Y_AXIS]);
+            SERIAL_PROTOCOLPGM(" Z: ");
+            SERIAL_PROTOCOL(current_position[Z_AXIS]);
+            SERIAL_PROTOCOLPGM("\n");
+
+            clean_up_after_endstop_move();
+        }
+        break;
     }
   }
 
