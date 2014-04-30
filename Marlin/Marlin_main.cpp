@@ -1657,6 +1657,67 @@ void process_commands()
         }
       }
       break;
+
+      // Custon M-Codes used by Mission St Mfg
+      case 411: // G411 Turns Green LED ON
+      {       
+        int pin_number = LED_GREEN_PIN; 
+        int led_status = 1;
+        pinMode(pin_number, OUTPUT);
+        digitalWrite(pin_number, led_status);
+        SERIAL_PROTOCOLPGM("GREEN LED ON \n");
+      }
+      break;
+
+      case 412: // G412 Turns Green LED OFF
+      {
+        int pin_number = LED_GREEN_PIN; 
+        int led_status = 0;
+        pinMode(pin_number, OUTPUT);
+        digitalWrite(pin_number, led_status);
+        SERIAL_PROTOCOLPGM("GREEN LED OFF \n");
+      }
+      break;
+
+      case 413: // G413 Turns Red LED ON
+      {       
+        int pin_number = LED_RED_PIN; 
+        int led_status = 1;
+        pinMode(pin_number, OUTPUT);
+        digitalWrite(pin_number, led_status);
+        SERIAL_PROTOCOLPGM("RED LED ON \n");
+      }
+      break;
+
+      case 414: // G414 Turns Red LED OFF
+      {
+        int pin_number = LED_RED_PIN; 
+        int led_status = 0;
+        pinMode(pin_number, OUTPUT);
+        digitalWrite(pin_number, led_status);
+        SERIAL_PROTOCOLPGM("RED LED OFF \n");
+      }
+      break;
+
+      case 415: // G415 Turns Red LED ON
+      {       
+        int pin_number = LED_BUTTON_PIN; 
+        int led_status = 1;
+        pinMode(pin_number, OUTPUT);
+        digitalWrite(pin_number, led_status);
+        SERIAL_PROTOCOLPGM("BUTTON LED ON \n");
+      }
+      break;
+
+      case 416: // G416 Turns Red LED OFF
+      {
+        int pin_number = LED_BUTTON_PIN; 
+        int led_status = 0;
+        pinMode(pin_number, OUTPUT);
+        digitalWrite(pin_number, led_status);
+        SERIAL_PROTOCOLPGM("BUTTON LED OFF \n");
+      }
+      break;
     }
   }
 
@@ -3140,21 +3201,32 @@ void process_commands()
               // This P-Code will turn the selected LED ON(1) or OFF(0)
               // Example execution: P1 G1 <- turns Green LED ON
       {
+        int pin_number = -1;
+
         if (code_seen('G'))
         {
-          int pin_number = LED_GREEN_PIN
+          int pin_number = LED_GREEN_PIN;
+          SERIAL_PROTOCOLPGM(" GREEN LED ");
         }
         else if (code_seen('R'))
         {
-          int pin_number = LED_RED_PIN
+          int pin_number = LED_RED_PIN;
+                    SERIAL_PROTOCOLPGM(" red LED ");
+
         }
         else if (code_seen('B'))
         {
-          int pin_number = LED_RED_PIN
+          int pin_number = LED_RED_PIN;
+                    SERIAL_PROTOCOLPGM(" button LED ");
+
         }     
+        else
+        {
+          int pin_number = -1;
+        }
         if (pin_number > -1)
         {
-          int led_status = code_value()
+          int led_status = code_value();
           pinMode(pin_number, OUTPUT);
           digitalWrite(pin_number, led_status);
         }
@@ -3163,21 +3235,11 @@ void process_commands()
       case 11: // P11 Probe Z Max
         {
 
-            st_synchronize(); 
+            st_synchronize(); // complete all moves in buffer
+            SERIAL_PROTOCOLPGM(" Z_MAX");
             setup_for_endstop_move();
-
             feedrate = homing_feedrate[Z_AXIS];
-
             run_z_max_probe();
-            SERIAL_PROTOCOLPGM(MSG_BED);
-            SERIAL_PROTOCOLPGM(" X: ");
-            SERIAL_PROTOCOL(current_position[X_AXIS]);
-            SERIAL_PROTOCOLPGM(" Y: ");
-            SERIAL_PROTOCOL(current_position[Y_AXIS]);
-            SERIAL_PROTOCOLPGM(" Z: ");
-            SERIAL_PROTOCOL(current_position[Z_AXIS]);
-            SERIAL_PROTOCOLPGM("\n");
-
             clean_up_after_endstop_move();
         }
         break;
