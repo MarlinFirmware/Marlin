@@ -366,11 +366,11 @@ const bool Z_MAX_ENDSTOP_INVERTING = false; // set to true to invert the logic o
     // is used to esimate the plane of the print bed
 
       #define ABL_PROBE_PT_1_X 10
-      #define ABL_PROBE_PT_1_Y -24.7
-      #define ABL_PROBE_PT_2_X -5.4
-      #define ABL_PROBE_PT_2_Y 65
+      #define ABL_PROBE_PT_1_Y -16
+      #define ABL_PROBE_PT_2_X -5
+      #define ABL_PROBE_PT_2_Y 75
       #define ABL_PROBE_PT_3_X 111
-      #define ABL_PROBE_PT_3_Y -24.7
+      #define ABL_PROBE_PT_3_Y -16
 
   #endif // AUTO_BED_LEVELING_GRID
 
@@ -408,8 +408,8 @@ const bool Z_MAX_ENDSTOP_INVERTING = false; // set to true to invert the logic o
 
   #ifdef Z_SAFE_HOMING
 
-    #define Z_SAFE_HOMING_X_POINT 20  // X point for Z homing when homing all axis (G28)
-    #define Z_SAFE_HOMING_Y_POINT 20  // Y point for Z homing when homing all axis (G28)
+    #define Z_SAFE_HOMING_X_POINT -5  // X point for Z homing when homing all axis (G28)
+    #define Z_SAFE_HOMING_Y_POINT -15  // Y point for Z homing when homing all axis (G28)
 
 
 
