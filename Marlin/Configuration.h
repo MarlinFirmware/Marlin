@@ -309,7 +309,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = false; // set to true to invert the logic o
 // Sets direction of endstops when homing; 1=MAX, -1=MIN, 2=BOTH (only for Z)
 #define X_HOME_DIR -1
 #define Y_HOME_DIR -1
-#define Z_HOME_DIR 2
+#define Z_HOME_DIR -1
 
 #define min_software_endstops false // If true, axis won't move to coordinates less than HOME_POS.
 #define max_software_endstops false // If true, axis won't move to coordinates greater than the defined lengths below.
@@ -365,20 +365,20 @@ const bool Z_MAX_ENDSTOP_INVERTING = false; // set to true to invert the logic o
     // with no grid, just probe 3 arbitrary points.  A simple cross-product
     // is used to esimate the plane of the print bed
 
-      #define ABL_PROBE_PT_1_X -11
-      #define ABL_PROBE_PT_1_Y -15
-      #define ABL_PROBE_PT_2_X -11
-      #define ABL_PROBE_PT_2_Y 75
-      #define ABL_PROBE_PT_3_X 121
-      #define ABL_PROBE_PT_3_Y -15
+      #define ABL_PROBE_PT_1_X 10
+      #define ABL_PROBE_PT_1_Y -24.7
+      #define ABL_PROBE_PT_2_X -5.4
+      #define ABL_PROBE_PT_2_Y 65
+      #define ABL_PROBE_PT_3_X 111
+      #define ABL_PROBE_PT_3_Y -24.7
 
   #endif // AUTO_BED_LEVELING_GRID
 
 
   // these are the offsets to the probe relative to the extruder tip (Hotend - Probe)
-  #define X_PROBE_OFFSET_FROM_EXTRUDER -19
-  #define Y_PROBE_OFFSET_FROM_EXTRUDER -23
-  #define Z_PROBE_OFFSET_FROM_EXTRUDER -1.8
+  #define X_PROBE_OFFSET_FROM_EXTRUDER -5.4
+  #define Y_PROBE_OFFSET_FROM_EXTRUDER -24.7
+  #define Z_PROBE_OFFSET_FROM_EXTRUDER -2.325
 
   #define Z_RAISE_BEFORE_HOMING 5       // (in mm) Raise Z before homing (G28) for Probe Clearance.
                                         // Be sure you have this distance over your Z_MAX_POS in case
@@ -408,8 +408,8 @@ const bool Z_MAX_ENDSTOP_INVERTING = false; // set to true to invert the logic o
 
   #ifdef Z_SAFE_HOMING
 
-    #define Z_SAFE_HOMING_X_POINT -11    // X point for Z homing when homing all axis (G28)
-    #define Z_SAFE_HOMING_Y_POINT -16  // Y point for Z homing when homing all axis (G28)
+    #define Z_SAFE_HOMING_X_POINT 20  // X point for Z homing when homing all axis (G28)
+    #define Z_SAFE_HOMING_Y_POINT 20  // Y point for Z homing when homing all axis (G28)
 
 
 
@@ -447,8 +447,8 @@ const bool Z_MAX_ENDSTOP_INVERTING = false; // set to true to invert the logic o
 
 // default settings
 
-#define DEFAULT_AXIS_STEPS_PER_UNIT   {80,80,2667,175}  // default steps per unit for Ultimaker
-#define DEFAULT_MAX_FEEDRATE          {400, 400, 5, 12}    // (mm/sec)
+#define DEFAULT_AXIS_STEPS_PER_UNIT   {80,80,2667,146}  // default steps per unit for Ultimaker
+#define DEFAULT_MAX_FEEDRATE          {400, 400, 4, 12}    // (mm/sec)
 #define DEFAULT_MAX_ACCELERATION      {3000,3000,100,5000}    // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for Skeinforge 40+, for older versions raise them a lot.
 
 #define DEFAULT_ACCELERATION          3000    // X, Y, Z and E max acceleration in mm/s^2 for printing moves
