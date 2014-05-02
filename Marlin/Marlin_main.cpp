@@ -915,7 +915,7 @@ static void run_z_probe() {
 }
 
 
-////////////////////////////////////////
+///Modified version of run_z_probe function
 
 static void run_z_max_probe() {
 
@@ -924,24 +924,13 @@ static void run_z_max_probe() {
     feedrate = homing_feedrate[Z_AXIS];
 
     // move up until the bed hits the bottom
-    float zPosition = Z_MAX_POS + 10;
+    float zPosition = Z_MAX_POS * 3;
     plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], zPosition, current_position[E_AXIS], feedrate/60, active_extruder);
     st_synchronize();
 
     // we have to let the planner know where we are right now as it is not where we said to go.
     zPosition = st_get_position_mm(Z_AXIS);
     plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], zPosition, current_position[E_AXIS]);
-
-    // move down the retract distance
-    zPosition -= home_retract_mm(Z_AXIS);
-    plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], zPosition, current_position[E_AXIS], feedrate/60, active_extruder);
-    st_synchronize();
-
-    // move back up slowly to find bed
-    feedrate = homing_feedrate[Z_AXIS]/4;
-    zPosition += home_retract_mm(Z_AXIS) * 2;
-    plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], zPosition, current_position[E_AXIS], feedrate/60, active_extruder);
-    st_synchronize();
 
     current_position[Z_AXIS] = Z_MAX_POS;
     // make sure the planner knows where we are as it may be a bit different than we last said to move to
@@ -1659,13 +1648,35 @@ void process_commands()
       break;
 
       // Custon M-Codes used by Mission St Mfg
+      case 401: // G401 Probe Z Max
+      {
+          st_synchronize(); // complete all moves in buffer
+          SERIAL_PROTOCOLPGM("Z_MAX Probing \n");
+          setup_for_endstop_move();
+          feedrate = homing_feedrate[Z_AXIS];
+          run_z_max_probe();
+          clean_up_after_endstop_move();
+      }
+      break;
+
       case 411: // G411 Turns Green LED ON
-      {       
+      {
+        #if(LED_GREEN_PIN) 
+        {      
         int pin_number = LED_GREEN_PIN; 
         int led_status = 1;
         pinMode(pin_number, OUTPUT);
         digitalWrite(pin_number, led_status);
         SERIAL_PROTOCOLPGM("GREEN LED ON \n");
+        }
+
+        #else 
+        {
+        SERIAL_PROTOCOLPGM("LED_GREEN_PIN not defined \n");
+}
+        #endif
+
+
       }
       break;
 
@@ -1718,6 +1729,7 @@ void process_commands()
         SERIAL_PROTOCOLPGM("BUTTON LED OFF \n");
       }
       break;
+
     }
   }
 
