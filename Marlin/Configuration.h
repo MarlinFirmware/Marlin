@@ -373,11 +373,11 @@ const bool Z_MAX_ENDSTOP_INVERTING = false; // set to true to invert the logic o
     // is used to esimate the plane of the print bed
 
       #define ABL_PROBE_PT_1_X -5.0 // -28 //-5.0
-      #define ABL_PROBE_PT_1_Y -21 // 6 //-21
+      #define ABL_PROBE_PT_1_Y -18 // 6 //-21
       #define ABL_PROBE_PT_2_X -5.0 // -28 //-5.0
       #define ABL_PROBE_PT_2_Y 73 // 100 // 73
       #define ABL_PROBE_PT_3_X 114 // 90.5 // 114
-      #define ABL_PROBE_PT_3_Y -21 // 6 // -21
+      #define ABL_PROBE_PT_3_Y -18 // 6 // -21
 
   #endif // AUTO_BED_LEVELING_GRID
 
@@ -385,7 +385,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = false; // set to true to invert the logic o
   // these are the offsets to the probe relative to the extruder tip (Hotend - Probe)
   #define X_PROBE_OFFSET_FROM_EXTRUDER -5.4 // -28.5 //-5.4
   #define Y_PROBE_OFFSET_FROM_EXTRUDER -27 //0 //-27
-  #define Z_PROBE_OFFSET_FROM_EXTRUDER -2.0
+  #define Z_PROBE_OFFSET_FROM_EXTRUDER -1.9
 
   #define Z_RAISE_BEFORE_HOMING 5       // (in mm) Raise Z before homing (G28) for Probe Clearance.
                                         // Be sure you have this distance over your Z_MAX_POS in case
@@ -416,7 +416,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = false; // set to true to invert the logic o
   #ifdef Z_SAFE_HOMING
 
     #define Z_SAFE_HOMING_X_POINT -5.0 // -28 // -5.0  // X point for Z homing when homing all axis (G28)
-    #define Z_SAFE_HOMING_Y_POINT -21 // 6 // -21  // Y point for Z homing when homing all axis (G28)
+    #define Z_SAFE_HOMING_Y_POINT -18 // 6 // -21  // Y point for Z homing when homing all axis (G28)
 
 
 
