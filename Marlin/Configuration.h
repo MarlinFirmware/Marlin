@@ -63,6 +63,7 @@
 // 82 = Brainwave (AT90USB646)
 // 83 = SAV Mk-I (AT90USB1286)
 // 9  = Gen3+
+// 22 = Gen3 Monolithic Electronics
 // 70 = Megatronics
 // 701= Megatronics v2.0
 // 702= Minitronics v1.0
