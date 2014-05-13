@@ -218,16 +218,18 @@ float zprobe_zoffset;
 
 // Extruder offset
 #if EXTRUDERS > 1
-#ifndef DUAL_X_CARRIAGE
-  #define NUM_EXTRUDER_OFFSETS 2 // only in XY plane
-#else
-  #define NUM_EXTRUDER_OFFSETS 3 // supports offsets in XYZ plane
-#endif
-float extruder_offset[NUM_EXTRUDER_OFFSETS][EXTRUDERS] = {
-#if defined(EXTRUDER_OFFSET_X) && defined(EXTRUDER_OFFSET_Y)
-  EXTRUDER_OFFSET_X, EXTRUDER_OFFSET_Y
-#endif
-};
+  #ifndef FAKEDUAL
+    #ifndef DUAL_X_CARRIAGE
+      #define NUM_EXTRUDER_OFFSETS 2 // only in XY plane
+    #else
+      #define NUM_EXTRUDER_OFFSETS 3 // supports offsets in XYZ plane
+    #endif
+    float extruder_offset[NUM_EXTRUDER_OFFSETS][EXTRUDERS] = {
+    #if defined(EXTRUDER_OFFSET_X) && defined(EXTRUDER_OFFSET_Y)
+      EXTRUDER_OFFSET_X, EXTRUDER_OFFSET_Y
+    #endif
+    };
+  #endif
 #endif
 uint8_t active_extruder = 0;
 int fanSpeed=0;
@@ -1821,7 +1823,11 @@ void process_commands()
       if(setTargetedHotend(104)){
         break;
       }
-      if (code_seen('S')) setTargetHotend(code_value(), tmp_extruder);
+      #ifndef FAKEDUAL
+        if (code_seen('S')) setTargetHotend(code_value(), tmp_extruder);
+      #else
+        if (code_seen('S')) setTargetHotend(code_value(), 0);
+      #endif
 #ifdef DUAL_X_CARRIAGE
       if (dual_x_carriage_mode == DXC_DUPLICATION_MODE && tmp_extruder == 0)
         setTargetHotend1(code_value() == 0.0 ? 0.0 : code_value() + duplicate_extruder_temp_offset);
@@ -1846,7 +1852,13 @@ void process_commands()
           SERIAL_PROTOCOLPGM(" /");
           SERIAL_PROTOCOL_F(degTargetBed(),1);
         #endif //TEMP_BED_PIN
+        
+        #ifndef FAKEDUAL
         for (int8_t cur_extruder = 0; cur_extruder < EXTRUDERS; ++cur_extruder) {
+        #else
+        for (int8_t cur_extruder = 0; cur_extruder < 1; ++cur_extruder) {
+        #endif
+        
           SERIAL_PROTOCOLPGM(" T");
           SERIAL_PROTOCOL(cur_extruder);
           SERIAL_PROTOCOLPGM(":");
@@ -1882,7 +1894,11 @@ void process_commands()
             SERIAL_PROTOCOLPGM("C->");
             SERIAL_PROTOCOL_F(rawBedTemp()/OVERSAMPLENR,0);
           #endif
+          #ifndef FAKEDUAL
           for (int8_t cur_extruder = 0; cur_extruder < EXTRUDERS; ++cur_extruder) {
+          #else
+          for (int8_t cur_extruder = 0; cur_extruder < 1; ++cur_extruder) {
+          #endif
             SERIAL_PROTOCOLPGM("  T");
             SERIAL_PROTOCOL(cur_extruder);
             SERIAL_PROTOCOLPGM(":");
@@ -1905,14 +1921,22 @@ void process_commands()
         autotemp_enabled=false;
       #endif
       if (code_seen('S')) {
-        setTargetHotend(code_value(), tmp_extruder);
+        #ifndef FAKEDUAL
+          setTargetHotend(code_value(), tmp_extruder);
+        #else
+          setTargetHotend(code_value(), 0);
+        #endif
 #ifdef DUAL_X_CARRIAGE
         if (dual_x_carriage_mode == DXC_DUPLICATION_MODE && tmp_extruder == 0)
           setTargetHotend1(code_value() == 0.0 ? 0.0 : code_value() + duplicate_extruder_temp_offset);
 #endif
         CooldownNoWait = true;
       } else if (code_seen('R')) {
-        setTargetHotend(code_value(), tmp_extruder);
+        #ifndef FAKEDUAL
+          setTargetHotend(code_value(), tmp_extruder);
+        #else
+          setTargetHotend(code_value(), 0);
+        #endif
 #ifdef DUAL_X_CARRIAGE
         if (dual_x_carriage_mode == DXC_DUPLICATION_MODE && tmp_extruder == 0)
           setTargetHotend1(code_value() == 0.0 ? 0.0 : code_value() + duplicate_extruder_temp_offset);
@@ -1933,8 +1957,12 @@ void process_commands()
       codenum = millis();
 
       /* See if we are heating up or cooling down */
-      target_direction = isHeatingHotend(tmp_extruder); // true if heating, false if cooling
-
+      #ifndef FAKEDUAL
+        target_direction = isHeatingHotend(tmp_extruder); // true if heating, false if cooling
+      #else
+        target_direction = isHeatingHotend(tmp_extruder); // true if heating, false if cooling
+      #endif
+      
       #ifdef TEMP_RESIDENCY_TIME
         long residencyStart;
         residencyStart = -1;
@@ -1943,14 +1971,26 @@ void process_commands()
         while((residencyStart == -1) ||
               (residencyStart >= 0 && (((unsigned int) (millis() - residencyStart)) < (TEMP_RESIDENCY_TIME * 1000UL))) ) {
       #else
-        while ( target_direction ? (isHeatingHotend(tmp_extruder)) : (isCoolingHotend(tmp_extruder)&&(CooldownNoWait==false)) ) {
+        #ifndef FAKEDUAL
+          while ( target_direction ? (isHeatingHotend(tmp_extruder)) : (isCoolingHotend(tmp_extruder)&&(CooldownNoWait==false)) ) {
+        #else
+          while ( target_direction ? (isHeatingHotend(0)) : (isCoolingHotend(0)&&(CooldownNoWait==false)) ) {
+        #endif
       #endif //TEMP_RESIDENCY_TIME
           if( (millis() - codenum) > 1000UL )
           { //Print Temp Reading and remaining time every 1 second while heating up/cooling down
             SERIAL_PROTOCOLPGM("T:");
-            SERIAL_PROTOCOL_F(degHotend(tmp_extruder),1);
+            #ifndef FAKEDUAL
+              SERIAL_PROTOCOL_F(degHotend(tmp_extruder),1);
+            #else
+              SERIAL_PROTOCOL_F(degHotend(0),1);
+            #endif
             SERIAL_PROTOCOLPGM(" E:");
-            SERIAL_PROTOCOL((int)tmp_extruder);
+            #ifndef FAKEDUAL
+              SERIAL_PROTOCOL((int)tmp_extruder);
+            #else
+              SERIAL_PROTOCOL(0); //There's only one nozzle
+            #endif
             #ifdef TEMP_RESIDENCY_TIME
               SERIAL_PROTOCOLPGM(" W:");
               if(residencyStart > -1)
@@ -1973,12 +2013,21 @@ void process_commands()
         #ifdef TEMP_RESIDENCY_TIME
             /* start/restart the TEMP_RESIDENCY_TIME timer whenever we reach target temp for the first time
               or when current temp falls outside the hysteresis after target temp was reached */
-          if ((residencyStart == -1 &&  target_direction && (degHotend(tmp_extruder) >= (degTargetHotend(tmp_extruder)-TEMP_WINDOW))) ||
-              (residencyStart == -1 && !target_direction && (degHotend(tmp_extruder) <= (degTargetHotend(tmp_extruder)+TEMP_WINDOW))) ||
-              (residencyStart > -1 && labs(degHotend(tmp_extruder) - degTargetHotend(tmp_extruder)) > TEMP_HYSTERESIS) )
-          {
-            residencyStart = millis();
-          }
+          #ifndef FAKEDUAL
+            if ((residencyStart == -1 &&  target_direction && (degHotend(tmp_extruder) >= (degTargetHotend(tmp_extruder)-TEMP_WINDOW))) ||
+                (residencyStart == -1 && !target_direction && (degHotend(tmp_extruder) <= (degTargetHotend(tmp_extruder)+TEMP_WINDOW))) ||
+                (residencyStart > -1 && labs(degHotend(tmp_extruder) - degTargetHotend(tmp_extruder)) > TEMP_HYSTERESIS) )
+            {
+              residencyStart = millis();
+            }
+          #else
+            if ((residencyStart == -1 &&  target_direction && (degHotend(0) >= (degTargetHotend(0)-TEMP_WINDOW))) ||
+                (residencyStart == -1 && !target_direction && (degHotend(0) <= (degTargetHotend(0)+TEMP_WINDOW))) ||
+                (residencyStart > -1 && labs(degHotend(0) - degTargetHotend(0)) > TEMP_HYSTERESIS) )
+            {
+              residencyStart = millis();
+            }
+          #endif
         #endif //TEMP_RESIDENCY_TIME
         }
         LCD_MESSAGEPGM(MSG_HEATING_COMPLETE);
@@ -2390,7 +2439,7 @@ void process_commands()
 
     }break;
     #endif // FWRETRACT
-    #if EXTRUDERS > 1
+    #if EXTRUDERS > 1 && !defined(FAKEDUAL)
     case 218: // M218 - set hotend offset (in mm), T<extruder_number> X<offset_on_X> Y<offset_on_Y>
     {
       if(setTargetedHotend(218)){
@@ -2425,7 +2474,7 @@ void process_commands()
       }
       SERIAL_ECHOLN("");
     }break;
-    #endif
+    #endif //EXTRUDERS and FAKEDUAL
     case 220: // M220 S<factor in percent>- set speed factor override percentage
     {
       if(code_seen('S'))
@@ -3012,12 +3061,14 @@ void process_commands()
   else if(code_seen('T'))
   {
     tmp_extruder = code_value();
+    
     if(tmp_extruder >= EXTRUDERS) {
       SERIAL_ECHO_START;
       SERIAL_ECHO("T");
       SERIAL_ECHO(tmp_extruder);
       SERIAL_ECHOLN(MSG_INVALID_EXTRUDER);
     }
+    
     else {
       boolean make_move = false;
       if(code_seen('F')) {
@@ -3083,12 +3134,14 @@ void process_commands()
         }
       #else
         // Offset extruder (only by XY)
+      #ifndef FAKEDUAL
         int i;
         for(i = 0; i < 2; i++) {
            current_position[i] = current_position[i] -
                                  extruder_offset[i][active_extruder] +
                                  extruder_offset[i][tmp_extruder];
         }
+      #endif
         // Set the new active extruder and position
         active_extruder = tmp_extruder;
       #endif //else DUAL_X_CARRIAGE

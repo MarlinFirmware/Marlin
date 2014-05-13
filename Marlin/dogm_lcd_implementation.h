@@ -231,7 +231,7 @@ static void lcd_implementation_status_screen()
  
  // Extruder 2
  u8g.setFont(FONT_STATUSMENU);
- #if EXTRUDERS > 1
+ #if EXTRUDERS > 1 && !defined(FAKEDUAL)
  u8g.setPrintPos(31,6);
  u8g.print(itostr3(int(degTargetHotend(1) + 0.5)));
  lcd_printPGM(PSTR(LCD_STR_DEGREE " "));
@@ -252,7 +252,7 @@ static void lcd_implementation_status_screen()
  
  // Extruder 3
  u8g.setFont(FONT_STATUSMENU);
- # if EXTRUDERS > 2
+ # if EXTRUDERS > 2 && FAKEDUAL
  u8g.setPrintPos(55,6);
  u8g.print(itostr3(int(degTargetHotend(2) + 0.5)));
  lcd_printPGM(PSTR(LCD_STR_DEGREE " "));

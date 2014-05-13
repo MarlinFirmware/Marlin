@@ -214,6 +214,7 @@ void CardReader::pauseSDPrint()
 {
   if(sdprinting)
   {
+    //enquecommand_P((PSTR("G28 X0"))); // move X axis home CUIDAO CON ESTO
     sdprinting = false;
   }
 }
