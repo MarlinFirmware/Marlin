@@ -72,7 +72,7 @@
 // 21 = Elefu Ra Board (v3)
 
 #ifndef MOTHERBOARD
-#define MOTHERBOARD 7
+#define MOTHERBOARD 80
 #endif
 
 // Define this to set a custom name for your generic Mendel,
@@ -93,6 +93,13 @@
 
 // Define this to have the electronics keep the power supply off on startup. If you don't know what this is leave it.
 // #define PS_DEFAULT_OFF
+//
+
+//uncomment the following line to enable hardware based pwm on heater outputs instead of software pwm 
+//#define Hardware_pwm 1
+
+
+
 
 //===========================================================================
 //=============================Thermal Settings  ============================
