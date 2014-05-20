@@ -28,7 +28,7 @@
 #endif
 
 // public functions
-void tp_init();  //initialise the heating
+void tp_init();  //initialize the heating
 void manage_heater(); //it is critical that this is called periodically.
 
 // low level conversion routines
@@ -43,6 +43,10 @@ extern int target_temperature_bed;
 extern float current_temperature_bed;
 #ifdef TEMP_SENSOR_1_AS_REDUNDANT
   extern float redundant_temperature;
+#endif
+
+#if defined(CONTROLLERFAN_PIN) && CONTROLLERFAN_PIN > -1
+  extern unsigned char soft_pwm_bed;
 #endif
 
 #ifdef PIDTEMP
