@@ -119,6 +119,7 @@
 // M109 - Sxxx Wait for extruder current temp to reach target temp. Waits only when heating
 //        Rxxx Wait for extruder current temp to reach target temp. Waits when heating and cooling
 //        IF AUTOTEMP is enabled, S<mintemp> B<maxtemp> F<factor>. Exit autotemp by any M109 without F
+// M112 - Emergency stop
 // M114 - Output current position to serial port
 // M115 - Capabilities string
 // M117 - display message
