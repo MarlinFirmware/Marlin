@@ -128,7 +128,7 @@
 #define TEMP_SENSOR_0 1
 #define TEMP_SENSOR_1 0
 #define TEMP_SENSOR_2 0
-#define TEMP_SENSOR_BED 0 // 1 //0 Currently used to track the temperature of the electronics enclosure
+#define TEMP_SENSOR_BED 1 //0 Currently used to track the temperature of the electronics enclosure
 
 // This makes temp sensor 1 a redundant sensor for sensor 0. If the temperatures difference between these sensors is to high the print will be aborted.
 //#define TEMP_SENSOR_1_AS_REDUNDANT
@@ -374,7 +374,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = false; // set to true to invert the logic o
 
       #define ABL_PROBE_PT_1_X -4.0 // -28 //-5.0
       #define ABL_PROBE_PT_1_Y -16 // 6 //-21
-      #define ABL_PROBE_PT_2_X -5.0 // -28 //-5.0
+      #define ABL_PROBE_PT_2_X -5.4 // -28 //-5.0
       #define ABL_PROBE_PT_2_Y 73 // 100 // 73
       #define ABL_PROBE_PT_3_X 114 // 90.5 // 114
       #define ABL_PROBE_PT_3_Y -16 // 6 // -21
