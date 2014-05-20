@@ -1119,16 +1119,14 @@ static void lcd_unload_material_extrud_2()
 
     int tHotend=int(degHotend(1) + 0.5);
     int tTarget=int(degTargetHotend(1) + 0.5);
-    lcd.setCursor(5, 1);
+    lcd.setCursor(3, 1);
     lcd_printPGM(PSTR(MSG_HEATING));
-    lcd.setCursor(5, 2);
+    lcd.setCursor(3, 2);
     lcd.print(LCD_STR_THERMOMETER[0]);
     lcd.print(itostr3(tHotend));
     lcd.print('/');
     lcd.print(itostr3left(tTarget));
     lcd_printPGM(PSTR(LCD_STR_DEGREE " "));
-    lcd.setCursor(0, 3);
-    lcd_printPGM(PSTR(MSG_PUSH_BEEP));
 
     if (degHotend(1) > degTargetHotend(1))
     {

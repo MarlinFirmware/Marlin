@@ -274,12 +274,12 @@
 	#define MSG_LP_COOL_1 "Cooling..."
 	#define MSG_LP_COOL_2 "Temp:"
 	#define MSG_LP_COOL_3 "   Press to abort"
-/*
-	#if define(WITBOX_DUAL)
-		#define MSG_EXTRUDER_1 "Left extruder"
-		#define MSG_EXTRUDER_2 "Rigth extruder"
+
+	#ifdef WITBOX_DUAL
+	  #define MSG_EXTRUDER_1 "Left extruder"
+	  #define MSG_EXTRUDER_2 "Rigth extruder"
 	#endif //WITBOX_DUAL
-*/
+
 	#endif //#ifdef WITBOX
 #endif
 
