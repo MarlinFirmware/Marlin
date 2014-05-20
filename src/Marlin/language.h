@@ -28,11 +28,11 @@
 #if defined(WITBOX_DUAL)
 	#define MACHINE_NAME "bq WitboxDual"
 	#define FIRMWARE_URL "http://www.bqreaders.com/descargas-witbox.html"
-	#define FIRMWARE_VER "v1.2.b"
+	#define FIRMWARE_VER "v1.3-dual"
 #elif defined(WITBOX)
 	#define MACHINE_NAME "bq Witbox"
 	#define FIRMWARE_URL "http://www.bqreaders.com/descargas-witbox.html"
-	#define FIRMWARE_VER "v1.2"
+	#define FIRMWARE_VER "v1.3"
 #else
 	#if MOTHERBOARD == 7 || MOTHERBOARD == 71 || MOTHERBOARD == 72
 		#define MACHINE_NAME "Ultimaker"
