@@ -28,7 +28,7 @@
 #if defined(WITBOX_DUAL)
 	#define MACHINE_NAME "bq WitboxDual"
 	#define FIRMWARE_URL "http://www.bqreaders.com/descargas-witbox.html"
-	#define FIRMWARE_VER "v1.3-dual"
+	#define FIRMWARE_VER "v1.3-Dual"
 #elif defined(WITBOX)
 	#define MACHINE_NAME "bq Witbox"
 	#define FIRMWARE_URL "http://www.bqreaders.com/descargas-witbox.html"

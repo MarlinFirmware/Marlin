@@ -1552,8 +1552,13 @@ void lcd_init()
     lcd.clear();
     lcd.setCursor(6, 1);
     lcd_printPGM(PSTR(MSG_WELLCOME));
+    #ifndef WITBOX_DUAL
     lcd.setCursor(8, 3);
     lcd_printPGM(PSTR(FIRMWARE_VER));
+    #else
+    lcd.setCursor(6, 3);
+    lcd_printPGM(PSTR(FIRMWARE_VER));    
+    #endif
     delay(1500);
     lcd.clear();
 #endif
