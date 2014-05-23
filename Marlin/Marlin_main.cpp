@@ -1799,29 +1799,45 @@ void process_commands()
       }
       break;
     case 42: //M42 -Change pin status via gcode
-      if (code_seen('S'))
       {
-        int pin_status = code_value();
         int pin_number = LED_PIN;
-        if (code_seen('P') && pin_status >= 0 && pin_status <= 255)
-          pin_number = code_value();
-        for(int8_t i = 0; i < (int8_t)(sizeof(sensitive_pins)/sizeof(int)); i++)
+        if (code_seen('P'))
         {
-          if (sensitive_pins[i] == pin_number)
+          pin_number = code_value();
+          for(int8_t i = 0; i < (int8_t)(sizeof(sensitive_pins)/sizeof(int)); i++)
           {
-            pin_number = -1;
-            break;
+            if (sensitive_pins[i] == pin_number)
+            {
+              pin_number = -1;
+              break;
+            }
           }
         }
-      #if defined(FAN_PIN) && FAN_PIN > -1
-        if (pin_number == FAN_PIN)
-          fanSpeed = pin_status;
-      #endif
-        if (pin_number > -1)
+        if (code_seen('S'))
         {
-          pinMode(pin_number, OUTPUT);
-          digitalWrite(pin_number, pin_status);
-          analogWrite(pin_number, pin_status);
+          int pin_status = code_value();
+        #if defined(FAN_PIN) && FAN_PIN > -1
+          if (pin_number == FAN_PIN)
+            fanSpeed = pin_status;
+        #endif
+          if (pin_number > -1)
+          {
+            pinMode(pin_number, OUTPUT);
+            digitalWrite(pin_number, pin_status);
+            analogWrite(pin_number, pin_status);
+          }
+        } else { //read pin P and report "ok Pnn:1\n" or "ok Pnn:0\n"
+          if (pin_number > -1)
+          {
+            SERIAL_PROTOCOLPGM("ok P");
+            SERIAL_PROTOCOL(pin_number);
+            SERIAL_PROTOCOLPGM(":");
+            SERIAL_PROTOCOL(digitalRead(pin_number));
+            SERIAL_PROTOCOLPGM("\n");
+          } else {
+            SERIAL_ERROR_START;
+            SERIAL_ERRORLNPGM("M42 -- attempt to read bad/sensitive pin.");
+          }
         }
       }
      break;
