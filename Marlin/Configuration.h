@@ -204,9 +204,9 @@
 //    #define  DEFAULT_Kd 440
 
 // E3D on 15V with E3D heater - SET PID_MAX 150
-    #define  DEFAULT_Kp 12.0
-    #define  DEFAULT_Ki 0.7
-    #define  DEFAULT_Kd 32
+    #define  DEFAULT_Kp 9.5
+    #define  DEFAULT_Ki 0.35
+    #define  DEFAULT_Kd 60
 #endif // PIDTEMP
 
 // Bed Temperature Control
@@ -329,7 +329,8 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define INVERT_X_DIR false    // for Mendel set to false, for Orca set to true
 #define INVERT_Y_DIR false    // for Mendel set to true, for Orca set to false
 #define INVERT_Z_DIR false     // for Mendel set to false, for Orca set to true
-#define INVERT_E0_DIR true   // for direct drive extruder v9 set to true, for geared extruder set to false
+#define INVERT_E0_DIR false   // K8200 belt extruder
+//#define INVERT_E0_DIR true   // K8200 geared extruder
 #define INVERT_E1_DIR true    // for direct drive extruder v9 set to true, for geared extruder set to false
 #define INVERT_E2_DIR true   // for direct drive extruder v9 set to true, for geared extruder set to false
 
@@ -403,9 +404,9 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 
   // these are the offsets to the probe relative to the extruder tip (Hotend - Probe)
-  #define X_PROBE_OFFSET_FROM_EXTRUDER -50	// -25
-  #define Y_PROBE_OFFSET_FROM_EXTRUDER -6	//-29
-  #define Z_PROBE_OFFSET_FROM_EXTRUDER -20 // Safe value.  Set value in EEPROM -13-1.08-0.1	//-12.35
+  #define X_PROBE_OFFSET_FROM_EXTRUDER -35	// -25
+  #define Y_PROBE_OFFSET_FROM_EXTRUDER -9	//-29
+  #define Z_PROBE_OFFSET_FROM_EXTRUDER -5 // Safe value.  Set value in EEPROM -13-1.08-0.1	//-12.35
 
   #define Z_RAISE_BEFORE_HOMING 20       // (in mm) Raise Z before homing (G28) for Probe Clearance.
                                         // Be sure you have this distance over your Z_MAX_POS in case
@@ -461,7 +462,8 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 // default settings
 
 //#define DEFAULT_AXIS_STEPS_PER_UNIT   {64.25,64.25,2560,600}  // default steps per unit for ultimaker
-#define DEFAULT_AXIS_STEPS_PER_UNIT   {80.00,80.00,2560,600}  // GT2 20tooth x and y axis
+//#define DEFAULT_AXIS_STEPS_PER_UNIT   {80.00,80.00,2560,600}  // GT2 20tooth x and y axis
+#define DEFAULT_AXIS_STEPS_PER_UNIT   {80.00,80.00,2560,682}  // GT2 20tooth x and y axis, 16->80tooth belt extruder
 #define DEFAULT_MAX_FEEDRATE          {500, 500, 5, 500}    // (mm/sec)
 #define DEFAULT_MAX_ACCELERATION      {2000,2000,100,10000}    // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for skeinforge 40+, for older versions raise them a lot.
 
@@ -476,7 +478,8 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 // The speed change that does not require acceleration (i.e. the software might assume it can be done instanteneously)
 #define DEFAULT_XYJERK                10.0    // (mm/sec)
-#define DEFAULT_ZJERK                 0.4     // (mm/sec)
+//#define DEFAULT_ZJERK                 0.4     // (mm/sec)		Default
+#define DEFAULT_ZJERK                 0.2     // (mm/sec)		Less jerk for 2nd z axis
 #define DEFAULT_EJERK                 5.0    // (mm/sec)
 
 //===========================================================================
