@@ -1793,6 +1793,7 @@ void process_commands()
     case 42: //M42 -Change pin status via gcode
       if (code_seen('S'))
       {
+        st_synchronize();
         int pin_status = code_value();
         int pin_number = LED_PIN;
         if (code_seen('P') && pin_status >= 0 && pin_status <= 255)
@@ -2508,6 +2509,8 @@ void process_commands()
     #if NUM_SERVOS > 0
     case 280: // M280 - set servo position absolute. P: servo index, S: angle or microseconds
       {
+        st_synchronize();
+
         int servo_index = -1;
         int servo_position = 0;
         if (code_seen('P'))
