@@ -1,6 +1,8 @@
 ==========================
 Marlin 3D Printer Firmware
 ==========================
+[![Coverity Scan Build Status](https://scan.coverity.com/projects/2224/badge.svg)](https://scan.coverity.com/projects/2224)
+
 Marlin has a GPL license because I believe in open development.
 Please do not use this code in products (3D printers, CNC etc) that are closed source or are crippled by a patent.
 
@@ -193,6 +195,7 @@ M Codes
 *  M107 - Fan off
 *  M109 - Sxxx Wait for extruder current temp to reach target temp. Waits only when heating
 *         Rxxx Wait for extruder current temp to reach target temp. Waits when heating and cooling
+*  M112 - Emergency stop
 *  M114 - Output current position to serial port
 *  M115 - Capabilities string
 *  M117 - display message
