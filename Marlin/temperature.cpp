@@ -162,6 +162,7 @@ unsigned long watchmillis[EXTRUDERS] = ARRAY_BY_EXTRUDERS(0,0,0);
 //=============================   functions      ============================
 //===========================================================================
 
+
 void PID_autotune(float temp, int extruder, int ncycles)
 {
   float input = 0.0;
@@ -187,7 +188,7 @@ void PID_autotune(float temp, int extruder, int ncycles)
           SERIAL_ECHOLN("PID Autotune failed. Bad extruder number.");
           return;
         }
-	
+
   SERIAL_ECHOLN("PID Autotune start");
   
   disable_heater(); // switch off all heaters.
@@ -294,7 +295,7 @@ void PID_autotune(float temp, int extruder, int ncycles)
         p=soft_pwm[extruder];       
         SERIAL_PROTOCOLPGM("ok T:");
       }
-			
+
       SERIAL_PROTOCOL(input);   
       SERIAL_PROTOCOLPGM(" @:");
       SERIAL_PROTOCOLLN(p);       
@@ -1056,25 +1057,108 @@ ISR(TIMER0_COMPB_vect)
   
   if(pwm_count == 0){
     soft_pwm_0 = soft_pwm[0];
-    if(soft_pwm_0 > 0) { 
-      WRITE(HEATER_0_PIN,1);
+    if(soft_pwm_0 > 0) {
+      
+      #ifndef hardware_pwm
+      WRITE(HEATER_0_PIN,1); 
+      #endif
+      #ifdef hardware_pwm 
+      analogWrite(HEATER_0_PIN,soft_pwm_0);
+      #endif
+      
       #ifdef HEATERS_PARALLEL
+      #ifndef hardware_pwm
       WRITE(HEATER_1_PIN,1);
       #endif
-    } else WRITE(HEATER_0_PIN,0);
-	
+      #ifdef hardware_pwm 
+      analogWrite(HEATER_1_PIN,soft_pwm_0);
+      #endif
+      
+      
+      #endif
+    } else {
+ 
+      #ifndef hardware_pwm
+       WRITE(HEATER_0_PIN,0);
+      #endif
+      #ifdef hardware_pwm 
+      analogWrite(HEATER_0_PIN,0);
+      #endif	
+}
     #if EXTRUDERS > 1
     soft_pwm_1 = soft_pwm[1];
-    if(soft_pwm_1 > 0) WRITE(HEATER_1_PIN,1); else WRITE(HEATER_1_PIN,0);
+    if(soft_pwm_1 > 0) 
+    {
+       
+      #ifndef hardware_pwm
+      WRITE(HEATER_1_PIN,1);
+      #endif
+      #ifdef hardware_pwm 
+      analogWrite(HEATER_1_PIN,soft_pwm_1);
+      #endif
+       
+    }
+    else
+   { 
+      #ifndef hardware_pwm
+      WRITE(HEATER_1_PIN,1);
+      #endif
+      #ifdef hardware_pwm 
+      analogWrite(HEATER_1_PIN,0);
+      #endif
+   }
     #endif
     #if EXTRUDERS > 2
     soft_pwm_2 = soft_pwm[2];
-    if(soft_pwm_2 > 0) WRITE(HEATER_2_PIN,1); else WRITE(HEATER_2_PIN,0);
+    if(soft_pwm_2 > 0)
+    {
+      
+      #ifndef hardware_pwm
+      WRITE(HEATER_2_PIN,1);
+      #endif
+      #ifdef hardware_pwm 
+      analogWrite(HEATER_2_PIN,soft_pwm_2);
+      #endif
+    }
+    else
+   {
+      #ifndef hardware_pwm
+      WRITE(HEATER_2_PIN,0);
+      #endif
+      #ifdef hardware_pwm 
+      analogWrite(HEATER_2_PIN,0);
+      #endif
+   }
     #endif
+    
+    
     #if defined(HEATER_BED_PIN) && HEATER_BED_PIN > -1
     soft_pwm_b = soft_pwm_bed;
-    if(soft_pwm_b > 0) WRITE(HEATER_BED_PIN,1); else WRITE(HEATER_BED_PIN,0);
+    if(soft_pwm_b > 0){
+      #ifndef hardware_pwm
+      WRITE(HEATER_BED_PIN,1); 
+      #endif
+      #ifdef hardware_pwm 
+      analogWrite(HEATER_BED_PIN,soft_pwm_b);
+      #endif
+      
+    } 
+    else
+    {
+      #ifndef hardware_pwm
+      WRITE(HEATER_BED_PIN,0);
+      #endif
+      #ifdef hardware_pwm 
+      analogWrite(HEATER_BED_PIN,0);
+      #endif
+      
+
+    }    
+    
+    
     #endif
+       
+    
     #ifdef FAN_SOFT_PWM
     soft_pwm_fan = fanSpeedSoftPwm / 2;
     if(soft_pwm_fan > 0) WRITE(FAN_PIN,1); else WRITE(FAN_PIN,0);
@@ -1321,5 +1405,3 @@ float unscalePID_d(float d)
 }
 
 #endif //PIDTEMP
-
-
