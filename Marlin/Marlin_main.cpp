@@ -2546,11 +2546,12 @@ void process_commands()
       break;
     #endif // NUM_SERVOS > 0
 
-    #if (LARGE_FLASH == true && ( BEEPER > 0 || defined(ULTRALCD) || defined(LCD_USE_I2C_BUZZER)))
+    #if (LARGE_FLASH == true && ( BEEPER > 0 || defined(ULTRA_LCD) || defined(LCD_USE_I2C_BUZZER)))
     case 300: // M300
     {
       int beepS = code_seen('S') ? code_value() : 110;
       int beepP = code_seen('P') ? code_value() : 1000;
+
       if (beepS > 0)
       {
         #if BEEPER > 0
@@ -2565,12 +2566,14 @@ void process_commands()
       }
       else
       {
+
         delay(beepP);
+
       }
     }
     break;
     #endif // M300
-
+    
     #ifdef PIDTEMP
     case 301: // M301
       {
