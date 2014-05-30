@@ -257,6 +257,8 @@ int EtoPPressure=0;
   #else
 	  bool powersupply = true;
   #endif
+
+	bool shutdownAtFinish = false;
 #endif
 
 #ifdef DELTA

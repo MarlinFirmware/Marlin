@@ -46,7 +46,6 @@ void copy_and_scalePID_d();
 /* Different menus */
 static void lcd_status_screen();
 #ifdef ULTIPANEL
-extern bool powersupply;
 static void lcd_main_menu();
 static void lcd_tune_menu();
 static void lcd_prepare_menu();
@@ -401,6 +400,12 @@ static void lcd_tune_menu()
 #endif
 #ifdef FILAMENTCHANGEENABLE
      MENU_ITEM(gcode, MSG_FILAMENTCHANGE, PSTR("M600"));
+#endif
+#if PS_ON_PIN > -1
+if (powersupply && IS_SD_PRINTING)
+{
+	MENU_ITEM_EDIT(bool, MSG_SHUTDOWN_AT_END, &shutdownAtFinish);
+}
 #endif
     END_MENU();
 }
