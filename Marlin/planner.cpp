@@ -660,7 +660,7 @@ block->steps_y = labs((target[X_AXIS]-position[X_AXIS]) - (target[Y_AXIS]-positi
   // Enable extruder(s)
   if(block->steps_e != 0)
   {
-    if (DISABLE_UNSELECTED_E) //enable only selected extruder
+    if (DISABLE_INACTIVE_EXTRUDER) //enable only selected extruder
     {
       switch(extruder)
       {
