@@ -11,7 +11,7 @@
 
 // Uncomment to use Morgan scara mode
 #define SCARA  
-#define DELTA_SEGMENTS_PER_SECOND 200
+#define delta_segments_per_second 200
 // Length of inner support arm
 #define Linkage_1 150000 //um      Preprocessor cannot handle decimal point...
 // Length of outer support arm     Measure arm lengths precisely, and enter 
@@ -22,6 +22,9 @@
 #define SCARA_offset_x 100 //mm   
 #define SCARA_offset_y -56 //mm
 #define SCARA_RAD2DEG 57.2957795  // to convert RAD to degrees
+
+#define X_ARMLOOKUP_LENGTH (X_MAX_LENGTH / 20) + 1    // Maximum grid size: 2cm intervals (11 points per side for 200x200)
+#define Y_ARMLOOKUP_LENGTH (Y_MAX_LENGTH / 20) + 1
 
 //===========================================================================
 //========================= SCARA Settings end ==================================
@@ -324,7 +327,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 #define INVERT_X_DIR false    // for Mendel set to false, for Orca set to true
 #define INVERT_Y_DIR false    // for Mendel set to true, for Orca set to false
-#define INVERT_Z_DIR false     // for Mendel set to false, for Orca set to true
+#define INVERT_Z_DIR true     // for Mendel set to false, for Orca set to true
 #define INVERT_E0_DIR true   // for direct drive extruder v9 set to true, for geared extruder set to false
 #define INVERT_E1_DIR false    // for direct drive extruder v9 set to true, for geared extruder set to false
 #define INVERT_E2_DIR false   // for direct drive extruder v9 set to true, for geared extruder set to false
@@ -343,7 +346,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define X_MIN_POS 0
 #define Y_MAX_POS 205
 #define Y_MIN_POS 0
-#define Z_MAX_POS 200
+#define Z_MAX_POS 205
 #define Z_MIN_POS 0
 
 #define X_MAX_LENGTH (X_MAX_POS - X_MIN_POS)

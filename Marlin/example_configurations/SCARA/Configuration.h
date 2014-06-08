@@ -23,6 +23,9 @@
 #define SCARA_offset_y -56 //mm
 #define SCARA_RAD2DEG 57.2957795  // to convert RAD to degrees
 
+#define X_ARMLOOKUP_LENGTH (X_MAX_LENGTH / 20) + 1    // Maximum grid size: 2cm intervals (11 points per side for 200x200)
+#define Y_ARMLOOKUP_LENGTH (Y_MAX_LENGTH / 20) + 1
+
 //===========================================================================
 //========================= SCARA Settings end ==================================
 //===========================================================================
