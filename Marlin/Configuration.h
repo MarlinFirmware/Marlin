@@ -132,6 +132,7 @@
 // 1010 is Pt1000 with 1k pullup (non standard)
 // 147 is Pt100 with 4k7 pullup
 // 110 is Pt100 with 1k pullup (non standard)
+// 70 is 500C thermistor for Pico hot end
 
 #define TEMP_SENSOR_0 -1
 #define TEMP_SENSOR_1 -1
