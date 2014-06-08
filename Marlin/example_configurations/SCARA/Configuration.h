@@ -10,7 +10,7 @@
 //===========================================================================
 
 // Uncomment to use Morgan scara mode
-#define MORGAN_SCARA  
+#define SCARA  
 #define DELTA_SEGMENTS_PER_SECOND 200
 // Length of inner support arm
 #define Linkage_1 150000 //um      Preprocessor cannot handle decimal point...
