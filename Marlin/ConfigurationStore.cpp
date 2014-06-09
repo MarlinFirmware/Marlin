@@ -49,7 +49,10 @@ void Config_StoreSettings()
   char ver[4]= "000";
   int i=EEPROM_OFFSET;
   EEPROM_WRITE_VAR(i,ver); // invalidate data first 
-  EEPROM_WRITE_VAR(i,axis_steps_per_unit);  
+  EEPROM_WRITE_VAR(i,axis_steps_per_unit);
+  #ifdef SCARA
+  EEPROM_WRITE_VAR(i,axis_scaling);        // Add scaling for SCARA
+  #endif
   EEPROM_WRITE_VAR(i,max_feedrate);  
   EEPROM_WRITE_VAR(i,max_acceleration_units_per_sq_second);
   EEPROM_WRITE_VAR(i,acceleration);
@@ -196,7 +199,10 @@ void Config_RetrieveSettings()
     if (strncmp(ver,stored_ver,3) == 0)
     {
         // version number match
-        EEPROM_READ_VAR(i,axis_steps_per_unit);  
+        EEPROM_READ_VAR(i,axis_steps_per_unit);
+		#ifdef SCARA
+		EEPROM_READ_VAR(i,axis_scaling);
+		#endif
         EEPROM_READ_VAR(i,max_feedrate);  
         EEPROM_READ_VAR(i,max_acceleration_units_per_sq_second);
         
@@ -266,6 +272,9 @@ void Config_ResetDefault()
         axis_steps_per_unit[i]=tmp1[i];  
         max_feedrate[i]=tmp2[i];  
         max_acceleration_units_per_sq_second[i]=tmp3[i];
+		#ifdef SCARA
+		axis_scaling[i]=1;
+		#endif
     }
     
     // steps per sq second need to be updated to agree with the units per sq second

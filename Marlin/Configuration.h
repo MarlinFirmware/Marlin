@@ -11,7 +11,7 @@
 
 // Uncomment to use Morgan scara mode
 #define SCARA  
-#define delta_segments_per_second 200
+#define scara_segments_per_second 200
 // Length of inner support arm
 #define Linkage_1 150000 //um      Preprocessor cannot handle decimal point...
 // Length of outer support arm     Measure arm lengths precisely, and enter 
@@ -22,9 +22,6 @@
 #define SCARA_offset_x 100 //mm   
 #define SCARA_offset_y -56 //mm
 #define SCARA_RAD2DEG 57.2957795  // to convert RAD to degrees
-
-#define X_ARMLOOKUP_LENGTH (X_MAX_LENGTH / 20) + 1    // Maximum grid size: 2cm intervals (11 points per side for 200x200)
-#define Y_ARMLOOKUP_LENGTH (Y_MAX_LENGTH / 20) + 1
 
 //===========================================================================
 //========================= SCARA Settings end ==================================
@@ -347,7 +344,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define Y_MAX_POS 205
 #define Y_MIN_POS 0
 #define Z_MAX_POS 205
-#define Z_MIN_POS 0
+#define Z_MIN_POS MANUAL_Z_HOME_POS
 
 #define X_MAX_LENGTH (X_MAX_POS - X_MIN_POS)
 #define Y_MAX_LENGTH (Y_MAX_POS - Y_MIN_POS)
@@ -426,7 +423,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 //If you have enabled the Bed Auto Leveling and are using the same Z Probe for Z Homing,
 //it is highly recommended you let this Z_SAFE_HOMING enabled!!!
 
-  #define Z_SAFE_HOMING   // This feature is meant to avoid Z homing with probe outside the bed area.
+ // #define Z_SAFE_HOMING   // This feature is meant to avoid Z homing with probe outside the bed area.
                           // When defined, it will:
                           // - Allow Z homing only after X and Y homing AND stepper drivers still enabled
                           // - If stepper drivers timeout, it will need X and Y homing again before Z homing
@@ -444,26 +441,26 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 
 // The position of the homing switches
-//#define MANUAL_HOME_POSITIONS  // If defined, MANUAL_*_HOME_POS below will be used
+#define MANUAL_HOME_POSITIONS  // If defined, MANUAL_*_HOME_POS below will be used
 //#define BED_CENTER_AT_0_0  // If defined, the center of the bed is at (X=0, Y=0)
 
 //Manual homing switch locations:
 // For deltabots this means top and center of the Cartesian print volume.
-#define MANUAL_X_HOME_POS -91
-#define MANUAL_Y_HOME_POS -4.5
+#define MANUAL_X_HOME_POS -30
+#define MANUAL_Y_HOME_POS -55
 #define MANUAL_Z_HOME_POS 0  // Distance between nozzle and print surface after homing.
 
 //#define MANUAL_Z_HOME_POS 402 // For delta: Distance between nozzle and print surface after homing.
 
 //// MOVEMENT SETTINGS
 #define NUM_AXIS 4 // The axis order in all axis related arrays is X, Y, Z, E
-#define HOMING_FEEDRATE {50*60, 50*60, 4*60, 0}  // set the homing speeds (mm/min)
+#define HOMING_FEEDRATE {50*60, 50*60, 10*60, 0}  // set the homing speeds (mm/min)
 
 // default settings
 
-#define DEFAULT_AXIS_STEPS_PER_UNIT   {78.7402,78.7402,200.0*8/3,760*1.1}  // default steps per unit for Ultimaker
-#define DEFAULT_MAX_FEEDRATE          {300, 300, 300, 45}    // (mm/sec)
-#define DEFAULT_MAX_ACCELERATION      {400,400,400,8000}    // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for Skeinforge 40+, for older versions raise them a lot.
+#define DEFAULT_AXIS_STEPS_PER_UNIT   {85.6,85.6,200.0*4/1.25,970}  // default steps per unit for Ultimaker
+#define DEFAULT_MAX_FEEDRATE          {100, 100, 100, 45}    // (mm/sec)
+#define DEFAULT_MAX_ACCELERATION      {800,800,800,8000}    // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for Skeinforge 40+, for older versions raise them a lot.
 
 #define DEFAULT_ACCELERATION          3000    // X, Y, Z and E max acceleration in mm/s^2 for printing moves
 #define DEFAULT_RETRACT_ACCELERATION  3000   // X, Y, Z and E max acceleration in mm/s^2 for retracts
