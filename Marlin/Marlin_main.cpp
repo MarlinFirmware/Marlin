@@ -3179,7 +3179,7 @@ void process_commands()
       }
       #endif
       
-      //set rele for 4 extrusion by MagoKimbra
+      //set rele for 4 extruder by MagoKimbra
       #if defined(E0E2_CHOICE_PIN) && (E0E2_CHOICE_PIN >1) && defined(E1E3_CHOICE_PIN) && (E1E3_CHOICE_PIN > 1)
         if (tmp_extruder == 0){
           WRITE(E0E2_CHOICE_PIN,LOW);

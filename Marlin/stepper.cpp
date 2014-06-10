@@ -864,7 +864,7 @@ void st_init()
     if(!E_ENABLE_ON) WRITE(E3_ENABLE_PIN,HIGH);
   #endif
 
-  //Choice E0-E1 and E2-E3 pin
+  //Choice E0-E2 and E1-E3 pin
   #if defined(E0E2_CHOICE_PIN) && (E0E2_CHOICE_PIN > -1)
 	SET_OUTPUT(E0E2_CHOICE_PIN);
 	WRITE(E0E2_CHOICE_PIN,LOW);
