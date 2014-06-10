@@ -54,6 +54,7 @@
 // 11 = Gen7 v1.1, v1.2 = 11
 // 12 = Gen7 v1.3
 // 13 = Gen7 v1.4
+// 131 = OpenHardware.co.za custom Gen7 electronics
 // 2  = Cheaptronic v1.0
 // 20 = Sethi 3D_1
 // 3  = MEGA/RAMPS up to 1.2 = 3
@@ -282,9 +283,9 @@
   // fine endstop settings: Individual pullups. will be ignored if ENDSTOPPULLUPS is defined
   // #define ENDSTOPPULLUP_XMAX
   // #define ENDSTOPPULLUP_YMAX
-   #define ENDSTOPPULLUP_ZMAX
-   #define ENDSTOPPULLUP_XMIN
-   #define ENDSTOPPULLUP_YMIN
+   #define ENDSTOPPULLUP_ZMAX  // open pin, inverted
+   #define ENDSTOPPULLUP_XMIN  // open pin, inverted
+   #define ENDSTOPPULLUP_YMIN  // open pin, inverted
   // #define ENDSTOPPULLUP_ZMIN
 #endif
 
@@ -449,11 +450,11 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 //Manual homing switch locations:
 // For deltabots this means top and center of the Cartesian print volume.
+// For SCARA: Offset between HomingPosition and Bed X=0 / Y=0
 #define MANUAL_X_HOME_POS -30
 #define MANUAL_Y_HOME_POS -55
-#define MANUAL_Z_HOME_POS 0  // Distance between nozzle and print surface after homing.
+#define MANUAL_Z_HOME_POS 0.1  // Distance between nozzle and print surface after homing.
 
-//#define MANUAL_Z_HOME_POS 402 // For delta: Distance between nozzle and print surface after homing.
 
 //// MOVEMENT SETTINGS
 #define NUM_AXIS 4 // The axis order in all axis related arrays is X, Y, Z, E
@@ -461,9 +462,9 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 // default settings
 
-#define DEFAULT_AXIS_STEPS_PER_UNIT   {85.6,85.6,200.0*4/1.25,970}  // default steps per unit for Ultimaker
+#define DEFAULT_AXIS_STEPS_PER_UNIT   {85.6,85.6,200*4/1.25,970}  // default steps per unit for Ultimaker
 #define DEFAULT_MAX_FEEDRATE          {100, 100, 100, 45}    // (mm/sec)
-#define DEFAULT_MAX_ACCELERATION      {800,800,800,8000}    // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for Skeinforge 40+, for older versions raise them a lot.
+#define DEFAULT_MAX_ACCELERATION      {400,400,400,8000}    // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for Skeinforge 40+, for older versions raise them a lot.
 
 #define DEFAULT_ACCELERATION          3000    // X, Y, Z and E max acceleration in mm/s^2 for printing moves
 #define DEFAULT_RETRACT_ACCELERATION  3000   // X, Y, Z and E max acceleration in mm/s^2 for retracts
@@ -476,7 +477,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 // The speed change that does not require acceleration (i.e. the software might assume it can be done instantaneously)
 #define DEFAULT_XYJERK                10.0    // (mm/sec)
-#define DEFAULT_ZJERK                 1     // (mm/sec)
+#define DEFAULT_ZJERK                 10     // (mm/sec)
 #define DEFAULT_EJERK                 5.0    // (mm/sec)
 
 //===========================================================================
@@ -498,10 +499,10 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 // M501 - reads parameters from EEPROM (if you need reset them after you changed them temporarily).
 // M502 - reverts to the default "factory settings".  You still need to store them in EEPROM afterwards if you want to.
 //define this to enable EEPROM support
-//#define EEPROM_SETTINGS
+#define EEPROM_SETTINGS
 //to disable EEPROM Serial responses and decrease program space by ~1700 byte: comment this out:
 // please keep turned on if you can.
-//#define EEPROM_CHITCHAT
+#define EEPROM_CHITCHAT
 
 // Preheat Constants
 #define PLA_PREHEAT_HOTEND_TEMP 180

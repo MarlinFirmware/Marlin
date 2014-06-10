@@ -218,7 +218,6 @@ float volumetric_multiplier[EXTRUDERS] = {1.0
   #endif
 };
 float current_position[NUM_AXIS] = { 0.0, 0.0, 0.0, 0.0 };
-float add_homeing[3]={0,0,0};
 #ifdef DELTA
 float endstop_adj[3]={0,0,0};
 #endif
@@ -287,9 +286,9 @@ int EtoPPressure=0;
   float delta_segments_per_second= DELTA_SEGMENTS_PER_SECOND;
 #endif
 
-#ifdef SCARA
-static float SCARA_C2, SCARA_S2, SCARA_K1, SCARA_K2, SCARA_theta, SCARA_psi;                                 // Build size scaling
+#ifdef SCARA                              // Build size scaling
 float axis_scaling[3]={1,1,1};  // Build size scaling, default to 1
+float add_homeing[3]={0,0,0};
 #endif				
 
 //===========================================================================
@@ -297,11 +296,7 @@ float axis_scaling[3]={1,1,1};  // Build size scaling, default to 1
 //===========================================================================
 const char axis_codes[NUM_AXIS] = {'X', 'Y', 'Z', 'E'};
 static float destination[NUM_AXIS] = {  0.0, 0.0, 0.0, 0.0};
-
-#ifdef SCARA
-	static float delta[3] = {0.0, 0.0, 0.0};
-#endif // SCARA
-
+static float delta[3] = {0.0, 0.0, 0.0};
 static float offset[3] = {0.0, 0.0, 0.0};
 static bool home_all_axis = true;
 static float feedrate = 1500.0, next_feedrate, saved_feedrate;
@@ -875,35 +870,36 @@ static void axis_is_at_home(int axis) {
    float homeposition[3];
    char i;
    
-   if (axis < 2)
+   if (axis < 3)
    {
    
      for (i=0; i<2; i++)
      {
         homeposition[i] = base_home_pos(i); 
      }  
- 
+	// SERIAL_ECHOPGM("homeposition[x]= "); SERIAL_ECHO(homeposition[0]);
+   //  SERIAL_ECHOPGM("homeposition[y]= "); SERIAL_ECHOLN(homeposition[1]);
    // Works out real Homeposition angles using inverse kinematics, 
    // and calculates homing offset using forward kinematics
      calculate_delta(homeposition);
      
-     SERIAL_ECHOPGM("base Theta= "); SERIAL_ECHO(delta[X_AXIS]);
-     SERIAL_ECHOPGM(" base Psi+Theta="); SERIAL_ECHOLN(delta[Y_AXIS]);
+    // SERIAL_ECHOPGM("base Theta= "); SERIAL_ECHO(delta[X_AXIS]);
+    // SERIAL_ECHOPGM(" base Psi+Theta="); SERIAL_ECHOLN(delta[Y_AXIS]);
      
      for (i=0; i<2; i++)
      {
         delta[i] -= add_homeing[i];
      } 
      
-     SERIAL_ECHOPGM("addhome X="); SERIAL_ECHO(add_homeing[X_AXIS]);
-	 SERIAL_ECHOPGM(" addhome Y="); SERIAL_ECHO(add_homeing[Y_AXIS]);
-     SERIAL_ECHOPGM(" addhome Theta="); SERIAL_ECHO(delta[X_AXIS]);
-     SERIAL_ECHOPGM(" addhome Psi+Theta="); SERIAL_ECHOLN(delta[Y_AXIS]);
+    // SERIAL_ECHOPGM("addhome X="); SERIAL_ECHO(add_homeing[X_AXIS]);
+	// SERIAL_ECHOPGM(" addhome Y="); SERIAL_ECHO(add_homeing[Y_AXIS]);
+    // SERIAL_ECHOPGM(" addhome Theta="); SERIAL_ECHO(delta[X_AXIS]);
+    // SERIAL_ECHOPGM(" addhome Psi+Theta="); SERIAL_ECHOLN(delta[Y_AXIS]);
       
-     calculate_forward(delta);
+     calculate_SCARA_forward_Transform(delta);
      
-     SERIAL_ECHOPGM("Delta X="); SERIAL_ECHO(delta[X_AXIS]);
-     SERIAL_ECHOPGM(" Delta Y="); SERIAL_ECHOLN(delta[Y_AXIS]);
+    // SERIAL_ECHOPGM("Delta X="); SERIAL_ECHO(delta[X_AXIS]);
+    // SERIAL_ECHOPGM(" Delta Y="); SERIAL_ECHOLN(delta[Y_AXIS]);
      
     current_position[axis] = delta[axis];
     
@@ -2773,7 +2769,7 @@ void process_commands()
         //get_coordinates(); // For X Y Z E F
         delta[0] = 0;
         delta[1] = 120;
-        calculate_forward(delta);
+        calculate_SCARA_forward_Transform(delta);
         destination[0] = delta[0]/axis_scaling[X_AXIS];
         destination[1] = delta[1]/axis_scaling[Y_AXIS];
         
@@ -2790,7 +2786,7 @@ void process_commands()
         //get_coordinates(); // For X Y Z E F
         delta[0] = 90;
         delta[1] = 130;
-        calculate_forward(delta);
+        calculate_SCARA_forward_Transform(delta);
         destination[0] = delta[0]/axis_scaling[X_AXIS];
         destination[1] = delta[1]/axis_scaling[Y_AXIS];
         
@@ -2807,7 +2803,7 @@ void process_commands()
         //get_coordinates(); // For X Y Z E F
         delta[0] = 60;
         delta[1] = 180;
-        calculate_forward(delta);
+        calculate_SCARA_forward_Transform(delta);
         destination[0] = delta[0]/axis_scaling[X_AXIS];
         destination[1] = delta[1]/axis_scaling[Y_AXIS];
         
@@ -2824,7 +2820,7 @@ void process_commands()
         //get_coordinates(); // For X Y Z E F
         delta[0] = 50;
         delta[1] = 90;
-        calculate_forward(delta);
+        calculate_SCARA_forward_Transform(delta);
         destination[0] = delta[0]/axis_scaling[X_AXIS];
         destination[1] = delta[1]/axis_scaling[Y_AXIS];
         
@@ -2841,7 +2837,7 @@ void process_commands()
         //get_coordinates(); // For X Y Z E F
         delta[0] = 45;
         delta[1] = 135;
-        calculate_forward(delta);
+        calculate_SCARA_forward_Transform(delta);
         destination[0] = delta[0]/axis_scaling[X_AXIS];
         destination[1] = delta[1]/axis_scaling[Y_AXIS]; 
         
@@ -3477,11 +3473,11 @@ for (int s = 1; s <= steps; s++) {
 		destination[i] = current_position[i] + difference[i] * fraction;
 	}
 	calculate_delta(destination);
-         SERIAL_ECHOPGM("destination[0]="); SERIAL_ECHOLN(destination[0]);
-         SERIAL_ECHOPGM("destination[1]="); SERIAL_ECHOLN(destination[1]);
+         //SERIAL_ECHOPGM("destination[0]="); SERIAL_ECHOLN(destination[0]);
+         //SERIAL_ECHOPGM("destination[1]="); SERIAL_ECHOLN(destination[1]);
          //SERIAL_ECHOPGM("destination[2]="); SERIAL_ECHOLN(destination[2]);
-         SERIAL_ECHOPGM("delta[X_AXIS]="); SERIAL_ECHOLN(delta[X_AXIS]);
-         SERIAL_ECHOPGM("delta[Y_AXIS]="); SERIAL_ECHOLN(delta[Y_AXIS]);
+         //SERIAL_ECHOPGM("delta[X_AXIS]="); SERIAL_ECHOLN(delta[X_AXIS]);
+         //SERIAL_ECHOPGM("delta[Y_AXIS]="); SERIAL_ECHOLN(delta[Y_AXIS]);
          //SERIAL_ECHOPGM("delta[Z_AXIS]="); SERIAL_ECHOLN(delta[Z_AXIS]);
          
 	plan_buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS],
@@ -3609,47 +3605,54 @@ void controllerFan()
 #endif
 
 #ifdef SCARA
-void calculate_forward(float f_delta[3])
+void calculate_SCARA_forward_Transform(float f_scara[3])
 {
-  // Perform forward kinematics, and place results in delta[0]
-  // The maths and first version has been done by QHARLEY . Taken over and performance-improvved by Joachim Cerny in June 2014
+  // Perform forward kinematics, and place results in delta[3]
+  // The maths and first version has been done by QHARLEY . Integrated into masterbranch 06/2014 and slightly restructured by Joachim Cerny in June 2014
   
   float x_sin, x_cos, y_sin, y_cos;
   
-    SERIAL_ECHOPGM("f_delta x="); SERIAL_ECHO(f_delta[X_AXIS]);
-    SERIAL_ECHOPGM(" y="); SERIAL_ECHO(f_delta[Y_AXIS]);
+    //SERIAL_ECHOPGM("f_delta x="); SERIAL_ECHO(f_scara[X_AXIS]);
+    //SERIAL_ECHOPGM(" y="); SERIAL_ECHO(f_scara[Y_AXIS]);
   
-    x_sin = sin(f_delta[X_AXIS]/SCARA_RAD2DEG) * Linkage_1/1000;
-    x_cos = cos(f_delta[X_AXIS]/SCARA_RAD2DEG) * Linkage_1/1000;
-    y_sin = sin(f_delta[Y_AXIS]/SCARA_RAD2DEG) * Linkage_2/1000;
-    y_cos = cos(f_delta[Y_AXIS]/SCARA_RAD2DEG) * Linkage_2/1000;
+    x_sin = sin(f_scara[X_AXIS]/SCARA_RAD2DEG) * Linkage_1/1000;
+    x_cos = cos(f_scara[X_AXIS]/SCARA_RAD2DEG) * Linkage_1/1000;
+    y_sin = sin(f_scara[Y_AXIS]/SCARA_RAD2DEG) * Linkage_2/1000;
+    y_cos = cos(f_scara[Y_AXIS]/SCARA_RAD2DEG) * Linkage_2/1000;
    
   //  SERIAL_ECHOPGM(" x_sin="); SERIAL_ECHO(x_sin);
   //  SERIAL_ECHOPGM(" x_cos="); SERIAL_ECHO(x_cos);
   //  SERIAL_ECHOPGM(" y_sin="); SERIAL_ECHO(y_sin);
   //  SERIAL_ECHOPGM(" y_cos="); SERIAL_ECHOLN(y_cos);
   
-    delta[X_AXIS] = x_cos + y_cos + SCARA_offset_x;
-    delta[Y_AXIS] = x_sin + y_sin + SCARA_offset_y;
-  
-    SERIAL_ECHOPGM(" delta[X_AXIS]="); SERIAL_ECHO(delta[X_AXIS]);
-    SERIAL_ECHOPGM(" delta[Y_AXIS]="); SERIAL_ECHOLN(delta[Y_AXIS]);
+    delta[X_AXIS] = x_cos + y_cos + SCARA_offset_x;  //theta
+    delta[Y_AXIS] = x_sin + y_sin + SCARA_offset_y;  //theta+phi
+	
+    //SERIAL_ECHOPGM(" delta[X_AXIS]="); SERIAL_ECHO(delta[X_AXIS]);
+    //SERIAL_ECHOPGM(" delta[Y_AXIS]="); SERIAL_ECHOLN(delta[Y_AXIS]);
 }  
 
 void calculate_delta(float cartesian[3]){
-  //reverse kinematics. First implemented by QHarley. Adapted and implemented by Joachim Cerny
+  //reverse kinematics.
+  // Perform reversed kinematics, and place results in delta[3]
+  // The maths and first version has been done by QHARLEY . Integrated into masterbranch 06/2014 and slightly restructured by Joachim Cerny in June 2014
+  
   float SCARA_pos[2];
+  static float L1_2, L2_2, SCARA_C2, SCARA_S2, SCARA_K1, SCARA_K2, SCARA_theta, SCARA_psi; 
   
   SCARA_pos[X_AXIS] = cartesian[X_AXIS] * axis_scaling[X_AXIS] - SCARA_offset_x;  //Translate SCARA to standard X Y
   SCARA_pos[Y_AXIS] = cartesian[Y_AXIS] * axis_scaling[Y_AXIS] - SCARA_offset_y;  // With scaling factor.
   
+  L1_2 = pow(Linkage_1/1000,2);
+  L2_2 = pow(Linkage_2/1000,2);
+  
   #if (Linkage_1 == Linkage_2)
-    SCARA_C2 = (pow(SCARA_pos[X_AXIS],2)+pow(SCARA_pos[Y_AXIS],2)-2*pow(Linkage_1/1000,2)) / (2 * pow(Linkage_1/1000,2));
+    SCARA_C2 = ( ( pow(SCARA_pos[X_AXIS],2) + pow(SCARA_pos[Y_AXIS],2) ) / (2 * L1_2) ) - 1;
   #else
-    SCARA_C2 = (pow(SCARA_pos[X_AXIS],2)+pow(SCARA_pos[Y_AXIS],2)-pow(Linkage_1/1000,2)-pow(Linkage_2/1000,2)) / 45000; 
+    SCARA_C2 =   ( pow(SCARA_pos[X_AXIS],2) + pow(SCARA_pos[Y_AXIS],2) - L1_2 - L2_2 ) / 45000; 
   #endif
   
-  SCARA_S2 = sqrt(1-pow(SCARA_C2,2));
+  SCARA_S2 = sqrt( 1 - pow(SCARA_C2,2) );
   
   SCARA_K1 = Linkage_1/1000+Linkage_2/1000*SCARA_C2;
   SCARA_K2 = Linkage_2/1000*SCARA_S2;
@@ -3657,13 +3660,12 @@ void calculate_delta(float cartesian[3]){
   SCARA_theta = (atan2(SCARA_pos[X_AXIS],SCARA_pos[Y_AXIS])-atan2(SCARA_K1, SCARA_K2))*-1;
   SCARA_psi = atan2(SCARA_S2,SCARA_C2);
   
-  
   delta[X_AXIS] = SCARA_theta * SCARA_RAD2DEG;  // Multiply by 180/Pi  -  theta is support arm angle
   delta[Y_AXIS] = (SCARA_theta + SCARA_psi) * SCARA_RAD2DEG;  //       -  equal to sub arm angle (inverted motor)
   delta[Z_AXIS] = cartesian[Z_AXIS];
   
   
-  
+  /*
   SERIAL_ECHOPGM("cartesian x="); SERIAL_ECHO(cartesian[X_AXIS]);
   SERIAL_ECHOPGM(" y="); SERIAL_ECHO(cartesian[Y_AXIS]);
   SERIAL_ECHOPGM(" z="); SERIAL_ECHOLN(cartesian[Z_AXIS]);
@@ -3680,7 +3682,7 @@ void calculate_delta(float cartesian[3]){
   SERIAL_ECHOPGM(" Theta="); SERIAL_ECHO(SCARA_theta);
   SERIAL_ECHOPGM(" Psi="); SERIAL_ECHOLN(SCARA_psi);
   SERIAL_ECHOLN(" ");
-  
+  */
 }
 
 #endif

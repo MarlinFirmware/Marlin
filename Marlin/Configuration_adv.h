@@ -86,7 +86,7 @@
 //=============================Mechanical Settings===========================
 //===========================================================================
 
-#define ENDSTOPS_ONLY_FOR_HOMING // If defined the endstops will only be used for homing
+//#define ENDSTOPS_ONLY_FOR_HOMING // If defined the endstops will only be used for homing
 
 
 //// AUTOSET LOCATIONS OF LIMIT SWITCHES
@@ -213,8 +213,8 @@
 #endif //DUAL_X_CARRIAGE
 
 //homing hits the endstop, then retracts by this distance, before it tries to slowly bump again:
-#define X_HOME_RETRACT_MM 5
-#define Y_HOME_RETRACT_MM 5
+#define X_HOME_RETRACT_MM 2
+#define Y_HOME_RETRACT_MM 2
 #define Z_HOME_RETRACT_MM 2
 //#define QUICK_HOME  //if this is defined, if both x and y are to be homed, a diagonal move will be performed initially.
 #ifdef SCARA
@@ -252,7 +252,9 @@
 
 // If defined the movements slow down when the look ahead buffer is only half full
 #define SLOWDOWN
-
+#ifdef SCARA
+ #undef SLOWDOWN
+#endif
 // Frequency limit
 // See nophead's blog for more info
 // Not working O
@@ -329,6 +331,11 @@
       #error BABYSTEPPING only implemented for Z axis on deltabots.
     #endif
   #endif
+  
+  #ifdef SCARA
+    #error BABYSTEPPING not implemented for SCARA yet.
+  #endif
+  
 #endif
 
 // extruder advance constant (s2/mm3)
