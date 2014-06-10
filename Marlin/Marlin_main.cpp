@@ -870,10 +870,10 @@ static void axis_is_at_home(int axis) {
    float homeposition[3];
    char i;
    
-   if (axis < 3)
+   if (axis < 2)
    {
    
-     for (i=0; i<2; i++)
+     for (i=0; i<3; i++)
      {
         homeposition[i] = base_home_pos(i); 
      }  
@@ -3451,7 +3451,7 @@ void prepare_move()
   
 #endif // DELTA
  
- #ifdef SCARA //for now same as delta-code
+#ifdef SCARA //for now same as delta-code
 
 float difference[NUM_AXIS];
 for (int8_t i=0; i < NUM_AXIS; i++) {
