@@ -3699,7 +3699,7 @@ bool setTargetedHotend(int code){
   tmp_extruder = active_extruder;
   if(code_seen('T')) {
     tmp_extruder = code_value();
-    if(tmp_extruder >= EXTRUDERS){
+    if(tmp_extruder >= EXTRUDERS) {
       SERIAL_ECHO_START;
       switch(code){
         case 104:
@@ -3724,3 +3724,4 @@ bool setTargetedHotend(int code){
   }
   return false;
 }
+
