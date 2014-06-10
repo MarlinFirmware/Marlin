@@ -445,6 +445,10 @@ const unsigned int dropsegments=5; //everything with less than this number of st
   #error "You cannot use HEATERS_PARALLEL if EXTRUDERS > 1"
 #endif
 
+#if defined SINGLENOZZLE && defined TEMP_SENSOR_1_AS_REDUNDANT
+  #error "You cannot use TEMP_SENSOR_1_AS_REDUNDANT if SINGLENOZZLE"
+#endif
+
 #if TEMP_SENSOR_0 > 0
   #define THERMISTORHEATER_0 TEMP_SENSOR_0
   #define HEATER_0_USES_THERMISTOR
@@ -456,6 +460,10 @@ const unsigned int dropsegments=5; //everything with less than this number of st
 #if TEMP_SENSOR_2 > 0
   #define THERMISTORHEATER_2 TEMP_SENSOR_2
   #define HEATER_2_USES_THERMISTOR
+#endif
+#if TEMP_SENSOR_3 > 0
+  #define THERMISTORHEATER_3 TEMP_SENSOR_3
+  #define HEATER_3_USES_THERMISTOR
 #endif
 #if TEMP_SENSOR_BED > 0
   #define THERMISTORBED TEMP_SENSOR_BED
