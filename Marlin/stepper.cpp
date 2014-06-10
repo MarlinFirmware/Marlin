@@ -55,7 +55,7 @@ volatile static unsigned long step_events_completed; // The number of step event
 #ifdef ADVANCE
   static long advance_rate, advance, final_advance = 0;
   static long old_advance = 0;
-  static long e_steps[3];
+  static long e_steps[4];
 #endif
 static long acceleration_time, deceleration_time;
 //static unsigned long accelerate_until, decelerate_after, acceleration_rate, initial_rate, final_rate, nominal_rate;
@@ -760,6 +760,22 @@ ISR(TIMER1_COMPA_vect)
         }
       }
  #endif
+ #if EXTRUDERS > 3
+      if (e_steps[3] != 0) {
+        WRITE(E3_STEP_PIN, INVERT_E_STEP_PIN);
+        if (e_steps[3] < 0) {
+          WRITE(E3_DIR_PIN, INVERT_E3_DIR);
+          e_steps[3]++;
+          WRITE(E3_STEP_PIN, !INVERT_E_STEP_PIN);
+        }
+        else if (e_steps[3] > 0) {
+          WRITE(E3_DIR_PIN, !INVERT_E3_DIR);
+          e_steps[3]--;
+          WRITE(E3_STEP_PIN, !INVERT_E_STEP_PIN);
+        }
+      }
+ #endif
+
     }
   }
 #endif // ADVANCE
@@ -798,6 +814,9 @@ void st_init()
   #endif
   #if defined(E2_DIR_PIN) && (E2_DIR_PIN > -1)
     SET_OUTPUT(E2_DIR_PIN);
+  #endif
+  #if defined(E3_DIR_PIN) && (E3_DIR_PIN > -1)
+    SET_OUTPUT(E3_DIR_PIN);
   #endif
 
   //Initialize Enable Pins - steppers default to disabled.
@@ -839,6 +858,20 @@ void st_init()
   #if defined(E2_ENABLE_PIN) && (E2_ENABLE_PIN > -1)
     SET_OUTPUT(E2_ENABLE_PIN);
     if(!E_ENABLE_ON) WRITE(E2_ENABLE_PIN,HIGH);
+  #endif
+  #if defined(E3_ENABLE_PIN) && (E3_ENABLE_PIN > -1)
+    SET_OUTPUT(E3_ENABLE_PIN);
+    if(!E_ENABLE_ON) WRITE(E3_ENABLE_PIN,HIGH);
+  #endif
+
+  //Choice E0-E1 and E2-E3 pin
+  #if defined(E0E2_CHOICE_PIN) && (E0E2_CHOICE_PIN > -1)
+	SET_OUTPUT(E0E2_CHOICE_PIN);
+	WRITE(E0E2_CHOICE_PIN,LOW);
+  #endif
+  #if defined(E1E3_CHOICE_PIN) && (E1E3_CHOICE_PIN > -1)
+	SET_OUTPUT(E1E3_CHOICE_PIN);
+	WRITE(E1E3_CHOICE_PIN,LOW);
   #endif
 
   //endstops and pullups
@@ -930,7 +963,12 @@ void st_init()
     WRITE(E2_STEP_PIN,INVERT_E_STEP_PIN);
     disable_e2();
   #endif
-
+  #if defined(E3_STEP_PIN) && (E3_STEP_PIN > -1)
+    SET_OUTPUT(E3_STEP_PIN);
+    WRITE(E3_STEP_PIN,INVERT_E_STEP_PIN);
+    disable_e3();
+  #endif
+  
   // waveform generation = 0100 = CTC
   TCCR1B &= ~(1<<WGM13);
   TCCR1B |=  (1<<WGM12);
@@ -960,6 +998,7 @@ void st_init()
     e_steps[0] = 0;
     e_steps[1] = 0;
     e_steps[2] = 0;
+    e_steps[3] = 0;
     TIMSK0 |= (1<<OCIE0A);
   #endif //ADVANCE
 

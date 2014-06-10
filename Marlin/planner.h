@@ -119,10 +119,10 @@ extern float mintravelfeedrate;
 extern unsigned long axis_steps_per_sqr_second[NUM_AXIS];
 
 #ifdef AUTOTEMP
-    extern bool autotemp_enabled;
-    extern float autotemp_max;
-    extern float autotemp_min;
-    extern float autotemp_factor;
+  extern bool autotemp_enabled;
+  extern float autotemp_max;
+  extern float autotemp_min;
+  extern float autotemp_factor;
 #endif
 
     
