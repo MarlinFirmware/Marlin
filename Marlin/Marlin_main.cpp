@@ -1251,6 +1251,7 @@ void process_commands()
         return;
       }
       break;
+#ifdef SCARA //disable arc support
     case 2: // G2  - CW ARC
       if(Stopped == false) {
         get_arc_coordinates();
@@ -1265,6 +1266,7 @@ void process_commands()
         return;
       }
       break;
+#endif
     case 4: // G4 dwell
       LCD_MESSAGEPGM(MSG_DWELL);
       codenum = 0;
@@ -1383,7 +1385,9 @@ void process_commands()
 
         current_position[X_AXIS] = destination[X_AXIS];
         current_position[Y_AXIS] = destination[Y_AXIS];
+		#ifndef SCARA
         current_position[Z_AXIS] = destination[Z_AXIS];
+		#endif
       }
       #endif
 
@@ -1413,13 +1417,21 @@ void process_commands()
       if(code_seen(axis_codes[X_AXIS]))
       {
         if(code_value_long() != 0) {
-          current_position[X_AXIS]=code_value()+add_homeing[0];
+		#ifdef SCARA
+		   current_position[X_AXIS]=code_value();
+		#else
+		   current_position[X_AXIS]=code_value()+add_homeing[0];
+		#endif
         }
       }
 
       if(code_seen(axis_codes[Y_AXIS])) {
         if(code_value_long() != 0) {
-          current_position[Y_AXIS]=code_value()+add_homeing[1];
+         #ifdef SCARA
+		   current_position[Y_AXIS]=code_value();
+		#else
+		   current_position[Y_AXIS]=code_value()+add_homeing[1];
+		#endif
         }
       }
 
@@ -1493,6 +1505,11 @@ void process_commands()
       #endif
       plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
 #endif // else DELTA
+
+#ifdef SCARA
+	  calculate_delta(current_position);
+      plan_set_position(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], current_position[E_AXIS]);
+#endif SCARA
 
       #ifdef ENDSTOPS_ONLY_FOR_HOMING
         enable_endstops(false);
@@ -1690,8 +1707,17 @@ void process_commands()
              plan_set_e_position(current_position[E_AXIS]);
            }
            else {
-             current_position[i] = code_value()+add_homeing[i];
-             plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+		#ifdef SCARA
+			if (i == X_AXIS || i == Y_AXIS) {
+                current_position[i] = code_value();  
+				}
+			else {
+                current_position[i] = code_value()+add_homeing[i];  
+            }  
+		#else
+		    current_position[i] = code_value()+add_homeing[i];
+		#endif
+            plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
            }
         }
       }
@@ -2281,6 +2307,26 @@ void process_commands()
       SERIAL_PROTOCOL(float(st_get_position(Z_AXIS))/axis_steps_per_unit[Z_AXIS]);
 
       SERIAL_PROTOCOLLN("");
+#ifdef SCARA
+	  SERIAL_PROTOCOLPGM("SCARA Theta:");
+      SERIAL_PROTOCOL(delta[X_AXIS]);
+      SERIAL_PROTOCOLPGM("   Psi+Theta:");
+      SERIAL_PROTOCOL(delta[Y_AXIS]);
+      SERIAL_PROTOCOLLN("");
+      
+      SERIAL_PROTOCOLPGM("SCARA Cal - Theta:");
+      SERIAL_PROTOCOL(delta[X_AXIS]+add_homeing[0]);
+      SERIAL_PROTOCOLPGM("   Psi+Theta (90):");
+      SERIAL_PROTOCOL(delta[Y_AXIS]-delta[X_AXIS]-90+add_homeing[1]);
+      SERIAL_PROTOCOLLN("");
+      
+      SERIAL_PROTOCOLPGM("SCARA step Cal - Theta:");
+      SERIAL_PROTOCOL(delta[X_AXIS]/90*axis_steps_per_unit[X_AXIS]);
+      SERIAL_PROTOCOLPGM("   Psi+Theta:");
+      SERIAL_PROTOCOL((delta[Y_AXIS]-delta[X_AXIS])/90*axis_steps_per_unit[Y_AXIS]);
+      SERIAL_PROTOCOLLN("");
+      SERIAL_PROTOCOLLN("");
+#endif
       break;
     case 120: // M120
       enable_endstops(false) ;
@@ -2402,6 +2448,16 @@ void process_commands()
       {
         if(code_seen(axis_codes[i])) add_homeing[i] = code_value();
       }
+	  #ifdef SCARA
+	   if(code_seen('T'))       // Theta
+      {
+        add_homeing[0] = code_value() ;
+      }
+      if(code_seen('P'))       // Psi
+      {
+        add_homeing[1] = code_value() ;
+      }
+	  #endif
       break;
     #ifdef DELTA
 	case 665: // M665 set delta configurations L<diagonal_rod> R<delta_radius> S<segments_per_sec>
@@ -2760,7 +2816,7 @@ void process_commands()
       PID_autotune(temp, e, c);
     }
     break;
-	
+	#ifdef SCARA
 	case 360:  // M360 SCARA Theta pos1
       SERIAL_ECHOLN(" Cal: Theta 0 ");
       //SoftEndsEnabled = false;              // Ignore soft endstops during calibration
@@ -2857,7 +2913,7 @@ void process_commands()
         }
       }
       break;
-	
+	#endif
     case 400: // M400 finish all moves
     {
       st_synchronize();
