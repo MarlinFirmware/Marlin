@@ -664,16 +664,18 @@ block->steps_y = labs((target[X_AXIS]-position[X_AXIS]) - (target[Y_AXIS]-positi
     {
       switch(extruder)
       {
-        case 0: enable_e0(); disable_e1(); disable_e2(); break;
-        case 1: disable_e0(); enable_e1(); disable_e2(); break;
-        case 2: disable_e0(); disable_e1(); enable_e2(); break;
+        case 0: enable_e0(); disable_e1(); disable_e2(); disable_e3(); break;
+        case 1: disable_e0(); enable_e1(); disable_e2(); disable_e3(); break;
+        case 2: disable_e0(); disable_e1(); enable_e2(); disable_e3(); break;
+		case 3: disable_e0(); disable_e1(); disable_e2(); enable_e3(); break;
       }
     }
     else //enable all
     {
       enable_e0();
       enable_e1();
-      enable_e2(); 
+      enable_e2();
+	  enable_e3();
     }
   }
 
