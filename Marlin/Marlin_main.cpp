@@ -2834,6 +2834,35 @@ void process_commands()
         return;
       }
     break;
+	
+	case 901:  //testfunction
+      //SERIAL_ECHOLN(" Cal: Theta 0 ");
+      if(Stopped == false) {
+        //get_coordinates(); // For X Y Z E F
+        destination[0] = 0;
+        destination[1] = 90;
+        
+        prepare_move();
+        //ClearToSend();
+        return;
+      }
+    break;
+	
+	case 902:  //testfunction
+      //SERIAL_ECHOLN(" Cal: Theta 0 ");
+      if(Stopped == false) {
+        //get_coordinates(); // For X Y Z E F
+        destination[0] = 90;
+        destination[1] = 90;
+        
+        prepare_move();
+        //ClearToSend();
+        return;
+      }
+    break;
+	
+	
+	
     case 361:  // SCARA Theta pos2
       SERIAL_ECHOLN(" Cal: Theta 90 ");
       //SoftEndsEnabled = false;              // Ignore soft endstops during calibration
@@ -3476,8 +3505,45 @@ void calculate_delta(float cartesian[3])
 void prepare_move()
 {
   clamp_to_software_endstops(destination);
-
   previous_millis_cmd = millis();
+  
+  #ifdef SCARA //for now same as delta-code
+
+float difference[NUM_AXIS];
+for (int8_t i=0; i < NUM_AXIS; i++) {
+	difference[i] = destination[i] - current_position[i];
+}
+
+float cartesian_mm = sqrt(	sq(difference[X_AXIS]) +
+							sq(difference[Y_AXIS]) +
+							sq(difference[Z_AXIS]));
+if (cartesian_mm < 0.000001) { cartesian_mm = abs(difference[E_AXIS]); }
+if (cartesian_mm < 0.000001) { return; }
+float seconds = 6000 * cartesian_mm / feedrate / feedmultiply;
+int steps = max(1, int(scara_segments_per_second * seconds));
+ //SERIAL_ECHOPGM("mm="); SERIAL_ECHO(cartesian_mm);
+ //SERIAL_ECHOPGM(" seconds="); SERIAL_ECHO(seconds);
+ //SERIAL_ECHOPGM(" steps="); SERIAL_ECHOLN(steps);
+for (int s = 1; s <= steps; s++) {
+	float fraction = float(s) / float(steps);
+	for(int8_t i=0; i < NUM_AXIS; i++) {
+		destination[i] = current_position[i] + difference[i] * fraction;
+	}
+
+	
+	calculate_delta(destination);
+         //SERIAL_ECHOPGM("destination[0]="); SERIAL_ECHOLN(destination[0]);
+         //SERIAL_ECHOPGM("destination[1]="); SERIAL_ECHOLN(destination[1]);
+         //SERIAL_ECHOPGM("destination[2]="); SERIAL_ECHOLN(destination[2]);
+         //SERIAL_ECHOPGM("delta[X_AXIS]="); SERIAL_ECHOLN(delta[X_AXIS]);
+         //SERIAL_ECHOPGM("delta[Y_AXIS]="); SERIAL_ECHOLN(delta[Y_AXIS]);
+         //SERIAL_ECHOPGM("delta[Z_AXIS]="); SERIAL_ECHOLN(delta[Z_AXIS]);
+         
+	plan_buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS],
+	destination[E_AXIS], feedrate*feedmultiply/60/100.0,
+	active_extruder);
+}
+#endif // SCARA
   
 #ifdef DELTA
   float difference[NUM_AXIS];
@@ -3506,41 +3572,6 @@ void prepare_move()
   }
   
 #endif // DELTA
- 
-#ifdef SCARA //for now same as delta-code
-
-float difference[NUM_AXIS];
-for (int8_t i=0; i < NUM_AXIS; i++) {
-	difference[i] = destination[i] - current_position[i];
-}
-float cartesian_mm = sqrt(sq(difference[X_AXIS]) +
-sq(difference[Y_AXIS]) +
-sq(difference[Z_AXIS]));
-if (cartesian_mm < 0.000001) { cartesian_mm = abs(difference[E_AXIS]); }
-if (cartesian_mm < 0.000001) { return; }
-float seconds = 6000 * cartesian_mm / feedrate / feedmultiply;
-int steps = max(1, int(scara_segments_per_second * seconds));
- //SERIAL_ECHOPGM("mm="); SERIAL_ECHO(cartesian_mm);
- //SERIAL_ECHOPGM(" seconds="); SERIAL_ECHO(seconds);
- //SERIAL_ECHOPGM(" steps="); SERIAL_ECHOLN(steps);
-for (int s = 1; s <= steps; s++) {
-	float fraction = float(s) / float(steps);
-	for(int8_t i=0; i < NUM_AXIS; i++) {
-		destination[i] = current_position[i] + difference[i] * fraction;
-	}
-	calculate_delta(destination);
-         //SERIAL_ECHOPGM("destination[0]="); SERIAL_ECHOLN(destination[0]);
-         //SERIAL_ECHOPGM("destination[1]="); SERIAL_ECHOLN(destination[1]);
-         //SERIAL_ECHOPGM("destination[2]="); SERIAL_ECHOLN(destination[2]);
-         //SERIAL_ECHOPGM("delta[X_AXIS]="); SERIAL_ECHOLN(delta[X_AXIS]);
-         //SERIAL_ECHOPGM("delta[Y_AXIS]="); SERIAL_ECHOLN(delta[Y_AXIS]);
-         //SERIAL_ECHOPGM("delta[Z_AXIS]="); SERIAL_ECHOLN(delta[Z_AXIS]);
-         
-	plan_buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS],
-	destination[E_AXIS], feedrate*feedmultiply/60/100.0,
-	active_extruder);
-}
-#endif // SCARA
 
 #ifdef DUAL_X_CARRIAGE
   if (active_extruder_parked)
@@ -3583,7 +3614,7 @@ for (int s = 1; s <= steps; s++) {
   }
 #endif //DUAL_X_CARRIAGE
 
-#if ! (defined DELTA && defined SCARA)
+#if ! (defined DELTA || defined SCARA)
   // Do not use feedmultiply for E or Z only moves
   if( (current_position[X_AXIS] == destination [X_AXIS]) && (current_position[Y_AXIS] == destination [Y_AXIS])) {
       plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate/60, active_extruder);

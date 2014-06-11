@@ -50,9 +50,6 @@ void Config_StoreSettings()
   int i=EEPROM_OFFSET;
   EEPROM_WRITE_VAR(i,ver); // invalidate data first 
   EEPROM_WRITE_VAR(i,axis_steps_per_unit);
-  #ifdef SCARA
-  EEPROM_WRITE_VAR(i,axis_scaling);        // Add scaling for SCARA
-  #endif
   EEPROM_WRITE_VAR(i,max_feedrate);  
   EEPROM_WRITE_VAR(i,max_acceleration_units_per_sq_second);
   EEPROM_WRITE_VAR(i,acceleration);
@@ -69,6 +66,9 @@ void Config_StoreSettings()
   EEPROM_WRITE_VAR(i,delta_radius);
   EEPROM_WRITE_VAR(i,delta_diagonal_rod);
   EEPROM_WRITE_VAR(i,delta_segments_per_second);
+  #endif
+  #ifdef SCARA
+  EEPROM_WRITE_VAR(i,axis_scaling);        // Add scaling for SCARA
   #endif
   #ifndef ULTIPANEL
   int plaPreheatHotendTemp = PLA_PREHEAT_HOTEND_TEMP, plaPreheatHPBTemp = PLA_PREHEAT_HPB_TEMP, plaPreheatFanSpeed = PLA_PREHEAT_FAN_SPEED;
@@ -118,6 +118,16 @@ void Config_PrintSettings()
     SERIAL_ECHOLN("");
       
     SERIAL_ECHO_START;
+#ifdef SCARA
+SERIAL_ECHOLNPGM("Scaling factors:");
+    SERIAL_ECHO_START;
+    SERIAL_ECHOPAIR("  M365 X",axis_scaling[0]);
+    SERIAL_ECHOPAIR(" Y",axis_scaling[1]);
+    SERIAL_ECHOPAIR(" Z",axis_scaling[2]);
+    SERIAL_ECHOLN("");
+      
+    SERIAL_ECHO_START;
+#endif
     SERIAL_ECHOLNPGM("Maximum feedrates (mm/s):");
     SERIAL_ECHO_START;
     SERIAL_ECHOPAIR("  M203 X",max_feedrate[0]);

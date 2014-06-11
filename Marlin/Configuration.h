@@ -343,11 +343,11 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define max_software_endstops true  // If true, axis won't move to coordinates greater than the defined lengths below.
 
 // Travel limits after homing
-#define X_MAX_POS 205
+#define X_MAX_POS 215
 #define X_MIN_POS 0
-#define Y_MAX_POS 205
+#define Y_MAX_POS 215
 #define Y_MIN_POS 0
-#define Z_MAX_POS 205
+#define Z_MAX_POS 215
 #define Z_MIN_POS MANUAL_Z_HOME_POS
 
 #define X_MAX_LENGTH (X_MAX_POS - X_MIN_POS)
@@ -451,19 +451,19 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 //Manual homing switch locations:
 // For deltabots this means top and center of the Cartesian print volume.
 // For SCARA: Offset between HomingPosition and Bed X=0 / Y=0
-#define MANUAL_X_HOME_POS -30
-#define MANUAL_Y_HOME_POS -55
+#define MANUAL_X_HOME_POS -20
+#define MANUAL_Y_HOME_POS -48
 #define MANUAL_Z_HOME_POS 0.1  // Distance between nozzle and print surface after homing.
 
 
 //// MOVEMENT SETTINGS
 #define NUM_AXIS 4 // The axis order in all axis related arrays is X, Y, Z, E
-#define HOMING_FEEDRATE {50*60, 50*60, 10*60, 0}  // set the homing speeds (mm/min)
+#define HOMING_FEEDRATE {40*60, 40*60, 5*60, 0}  // set the homing speeds (mm/min)
 
 // default settings
 
 #define DEFAULT_AXIS_STEPS_PER_UNIT   {85.6,85.6,200*4/1.25,970}  // default steps per unit for Ultimaker
-#define DEFAULT_MAX_FEEDRATE          {300, 300, 5, 45}    // (mm/sec)
+#define DEFAULT_MAX_FEEDRATE          {400, 400, 10, 45}    // (mm/sec)
 #define DEFAULT_MAX_ACCELERATION      {400,400,200,8000}    // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for Skeinforge 40+, for older versions raise them a lot.
 
 #define DEFAULT_ACCELERATION          3000    // X, Y, Z and E max acceleration in mm/s^2 for printing moves
