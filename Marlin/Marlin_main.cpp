@@ -218,6 +218,7 @@ float volumetric_multiplier[EXTRUDERS] = {1.0
   #endif
 };
 float current_position[NUM_AXIS] = { 0.0, 0.0, 0.0, 0.0 };
+float add_homeing[3]={0,0,0};
 #ifdef DELTA
 float endstop_adj[3]={0,0,0};
 #endif
@@ -288,7 +289,6 @@ int EtoPPressure=0;
 
 #ifdef SCARA                              // Build size scaling
 float axis_scaling[3]={1,1,1};  // Build size scaling, default to 1
-float add_homeing[3]={0,0,0};
 #endif				
 
 //===========================================================================
