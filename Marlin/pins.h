@@ -2634,6 +2634,18 @@ DaveX plan for Teensylu/printrboard-type pinouts (ref teensylu & sprinter) for a
  #define encrot1 2
  #define encrot2 3
  #define encrot3 1
+ 
+  #ifdef NUM_SERVOS
+    #define SERVO0_PIN         12 //ICSP MISO pin
+
+    #if NUM_SERVOS > 1
+      #define SERVO1_PIN         11 //ICSP MOSI pin
+    #endif
+
+    #if NUM_SERVOS > 2
+      #define SERVO2_PIN         10 //ICSP SCK pin
+    #endif
+  #endif
 
 #endif
 
