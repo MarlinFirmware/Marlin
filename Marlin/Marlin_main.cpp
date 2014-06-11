@@ -3594,7 +3594,7 @@ for (int s = 1; s <= steps; s++) {
   else {
     plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate*feedmultiply/60/100.0, active_extruder);
   }
-#endif // !(DELTA && SCARA)
+#endif // !(DELTA || SCARA)
 
   for(int8_t i=0; i < NUM_AXIS; i++) {
     current_position[i] = destination[i];
