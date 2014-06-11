@@ -1707,16 +1707,16 @@ void process_commands()
              plan_set_e_position(current_position[E_AXIS]);
            }
            else {
-		#ifdef SCARA
-			if (i == X_AXIS || i == Y_AXIS) {
-                current_position[i] = code_value();  
-				}
-			else {
+#ifdef SCARA
+		if (i == X_AXIS || i == Y_AXIS) {
+                	current_position[i] = code_value();  
+		}
+		else {
                 current_position[i] = code_value()+add_homeing[i];  
-            }  
-		#else
-		    current_position[i] = code_value()+add_homeing[i];
-		#endif
+            	}  
+#else
+		current_position[i] = code_value()+add_homeing[i];
+#endif
             plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
            }
         }
