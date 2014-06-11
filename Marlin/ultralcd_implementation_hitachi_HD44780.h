@@ -383,10 +383,10 @@ static void lcd_implementation_status_screen()
     lcd.print('/');
     lcd.print(itostr3left(tTarget));
 
-# if EXTRUDERS > 1 || TEMP_SENSOR_BED != 0
+# if EXTRUDERS > 1 || TEMP_SENSOR_BED != 0 && !defined(SINGLENOZZLE)
     //If we have an 2nd extruder or heated bed, show that in the top right corner
     lcd.setCursor(8, 0);
-#  if EXTRUDERS > 1
+#  if EXTRUDERS > 1 && !defined(SINGLENOZZLE)
     tHotend = int(degHotend(1) + 0.5);
     tTarget = int(degTargetHotend(1) + 0.5);
     lcd.print(LCD_STR_THERMOMETER[0]);
@@ -410,10 +410,10 @@ static void lcd_implementation_status_screen()
     if (tTarget < 10)
         lcd.print(' ');
 
-# if EXTRUDERS > 1 || TEMP_SENSOR_BED != 0
+# if EXTRUDERS > 1 || TEMP_SENSOR_BED != 0 && !defined(SINGLENOZZLE)
     //If we have an 2nd extruder or heated bed, show that in the top right corner
     lcd.setCursor(10, 0);
-#  if EXTRUDERS > 1
+#  if EXTRUDERS > 1 && !defined(SINGLENOZZLE)
     tHotend = int(degHotend(1) + 0.5);
     tTarget = int(degTargetHotend(1) + 0.5);
     lcd.print(LCD_STR_THERMOMETER[0]);
@@ -444,7 +444,7 @@ static void lcd_implementation_status_screen()
     lcd.print('%');
 #  endif//SDSUPPORT
 # else//LCD_WIDTH > 19
-#  if EXTRUDERS > 1 && TEMP_SENSOR_BED != 0
+#  if EXTRUDERS > 1 && TEMP_SENSOR_BED != 0 && !defined(SINGLENOZZLE)
     //If we both have a 2nd extruder and a heated bed, show the heated bed temp on the 2nd line on the left, as the first line is filled with extruder temps
     tHotend=int(degBed() + 0.5);
     tTarget=int(degTargetBed() + 0.5);
@@ -748,7 +748,7 @@ static void lcd_implementation_update_indicators()
     if (target_temperature_bed > 0) leds |= LED_A;
     if (target_temperature[0] > 0) leds |= LED_B;
     if (fanSpeed) leds |= LED_C;
-    #if EXTRUDERS > 1  
+    #if EXTRUDERS > 1   && !defined(SINGLENOZZLE)
       if (target_temperature[1] > 0) leds |= LED_C;
     #endif
     if (leds != ledsprev) {
