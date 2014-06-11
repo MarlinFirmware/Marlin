@@ -2834,35 +2834,7 @@ void process_commands()
         return;
       }
     break;
-	
-	case 901:  //testfunction
-      //SERIAL_ECHOLN(" Cal: Theta 0 ");
-      if(Stopped == false) {
-        //get_coordinates(); // For X Y Z E F
-        destination[0] = 0;
-        destination[1] = 90;
-        
-        prepare_move();
-        //ClearToSend();
-        return;
-      }
-    break;
-	
-	case 902:  //testfunction
-      //SERIAL_ECHOLN(" Cal: Theta 0 ");
-      if(Stopped == false) {
-        //get_coordinates(); // For X Y Z E F
-        destination[0] = 90;
-        destination[1] = 90;
-        
-        prepare_move();
-        //ClearToSend();
-        return;
-      }
-    break;
-	
-	
-	
+
     case 361:  // SCARA Theta pos2
       SERIAL_ECHOLN(" Cal: Theta 90 ");
       //SoftEndsEnabled = false;              // Ignore soft endstops during calibration
