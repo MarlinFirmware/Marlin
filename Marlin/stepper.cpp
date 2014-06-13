@@ -68,11 +68,7 @@ volatile long endstops_trigsteps[3]={0,0,0};
 volatile long endstops_stepsTotal,endstops_stepsDone;
 static volatile bool endstop_x_hit=false;
 static volatile bool endstop_y_hit=false;
-//static volatile bool endstop_z_hit=false;
-
-static volatile bool endstop_z_min_hit=false;
-static volatile bool endstop_z_max_hit=false;
-
+static volatile bool endstop_z_hit=false;
 
 #ifdef ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED
 bool abort_on_endstop_hit = false;
@@ -174,7 +170,7 @@ asm volatile ( \
 #define ENABLE_STEPPER_DRIVER_INTERRUPT()  TIMSK1 |= (1<<OCIE1A)
 #define DISABLE_STEPPER_DRIVER_INTERRUPT() TIMSK1 &= ~(1<<OCIE1A)
 
-/*
+
 void checkHitEndstops()
 {
  if( endstop_x_hit || endstop_y_hit || endstop_z_hit) {
@@ -210,48 +206,6 @@ void checkHitEndstops()
  }
 }
 
-*/
-
-
-void checkHitEndstops()
-{
- if( endstop_x_hit || endstop_y_hit || endstop_z_min_hit || endstop_z_max_hit) {
-   SERIAL_ECHO_START;
-   SERIAL_ECHOPGM(MSG_ENDSTOPS_HIT);
-   if(endstop_x_hit) {
-     SERIAL_ECHOPAIR(" X:",(float)endstops_trigsteps[X_AXIS]/axis_steps_per_unit[X_AXIS]);
-     LCD_MESSAGEPGM(MSG_ENDSTOPS_HIT "X");
-   }
-   if(endstop_y_hit) {
-     SERIAL_ECHOPAIR(" Y:",(float)endstops_trigsteps[Y_AXIS]/axis_steps_per_unit[Y_AXIS]);
-     LCD_MESSAGEPGM(MSG_ENDSTOPS_HIT "Y");
-   }
-   if(endstop_z_min_hit) {
-     SERIAL_ECHOPAIR(" Z_min:",(float)endstops_trigsteps[Z_AXIS]/axis_steps_per_unit[Z_AXIS]);
-     LCD_MESSAGEPGM(MSG_ENDSTOPS_HIT "Z");
-   }
-   if(endstop_z_max_hit) {
-     SERIAL_ECHOPAIR(" Z_max:",(float)endstops_trigsteps[Z_AXIS]/axis_steps_per_unit[Z_AXIS]);
-     LCD_MESSAGEPGM(MSG_ENDSTOPS_HIT "Z");
-   }
-   SERIAL_ECHOLN("");
-   endstop_x_hit=false;
-   endstop_y_hit=false;
-   endstop_z_min_hit=false;
-   endstop_z_max_hit=false;
-#ifdef ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED
-   if (abort_on_endstop_hit)
-   {
-     card.sdprinting = false;
-     card.closefile();
-     quickStop();
-     setTargetHotend0(0);
-     setTargetHotend1(0);
-     setTargetHotend2(0);
-   }
-#endif
- }
-}
 
 
 
@@ -259,8 +213,8 @@ void endstops_hit_on_purpose()
 {
   endstop_x_hit=false;
   endstop_y_hit=false;
-  endstop_z_min_hit=false;
-  endstop_z_max_hit=false;
+  endstop_z_hit=false;
+
 }
 
 void enable_endstops(bool check)
@@ -549,7 +503,7 @@ ISR(TIMER1_COMPA_vect)
           bool z_min_endstop=(READ(Z_MIN_PIN) != Z_MIN_ENDSTOP_INVERTING);
           if(z_min_endstop && old_z_min_endstop && (current_block->steps_z > 0)) {
             endstops_trigsteps[Z_AXIS] = count_position[Z_AXIS];
-            endstop_z_min_hit=true;
+            endstop_z_hit=true;
             step_events_completed = current_block->step_event_count;
           }
           old_z_min_endstop = z_min_endstop;
@@ -570,7 +524,7 @@ ISR(TIMER1_COMPA_vect)
           bool z_max_endstop=(READ(Z_MAX_PIN) != Z_MAX_ENDSTOP_INVERTING);
           if(z_max_endstop && old_z_max_endstop && (current_block->steps_z > 0)) {
             endstops_trigsteps[Z_AXIS] = count_position[Z_AXIS];
-            endstop_z_max_hit=true;
+            endstop_z_hit=true;
             step_events_completed = current_block->step_event_count;
           }
           old_z_max_endstop = z_max_endstop;

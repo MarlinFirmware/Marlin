@@ -916,35 +916,6 @@ static void run_z_probe() {
 }
 
 
-///Modified version of run_z_probe function
-
-static void run_z_max_probe() {
-
-
-    plan_bed_level_matrix.set_to_identity();
-    feedrate = homing_feedrate[Z_AXIS];
-
-    // move up until the bed hits the bottom
-    float zPosition = Z_MAX_POS * 3;
-    plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], zPosition, current_position[E_AXIS], feedrate/60, active_extruder);
-    st_synchronize();
-
-    // we have to let the planner know where we are right now as it is not where we said to go.
-    zPosition = st_get_position_mm(Z_AXIS);
-    plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], zPosition, current_position[E_AXIS]);
-
-    current_position[Z_AXIS] = Z_MAX_POS;
-    // make sure the planner knows where we are as it may be a bit different than we last said to move to
-    plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
-
-
-}
-
-
-
-
-////////////////////////////////////////
-
 static void do_blocking_move_to(float x, float y, float z) {
     float oldFeedRate = feedrate;
 
