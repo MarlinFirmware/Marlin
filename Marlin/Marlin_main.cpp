@@ -82,6 +82,14 @@
 // G91 - Use Relative Coordinates
 // G92 - Set current position to cordinates given
 
+//Custom MSM G-Codes
+// G411 - Green LED ON
+// G412 - Green LED OFF
+// G413 - Red LED ON
+// G414 - Red LED OFF
+// G415 - Button LED ON
+// G416 - Button LED OFF    
+
 // M Codes
 // M0   - Unconditional stop - Wait for user to press a button on the LCD (Only if ULTRA_LCD is enabled)
 // M1   - Same as M0
@@ -169,13 +177,6 @@
 // M351 - Toggle MS1 MS2 pins directly.
 // M928 - Start SD logging (M928 filename.g) - ended by M29
 // M999 - Restart after being stopped by error
-
-
-// P Codes - For Mission St Manufacturing
-// P1 - Green LED Control
-// P2 - Red LED Control
-// P3 - Push Botton LED Control
-// P4 - Lower print bed to Z-Max
 
 
 //Stepper Movement Variables
