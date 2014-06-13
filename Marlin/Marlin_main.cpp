@@ -1648,19 +1648,10 @@ void process_commands()
       }
       break;
 
-      // Custon M-Codes used by Mission St Mfg
-      case 401: // G401 Probe Z Max
-      {
-          st_synchronize(); // complete all moves in buffer
-          SERIAL_PROTOCOLPGM("Z_MAX Probing \n");
-          setup_for_endstop_move();
-          feedrate = homing_feedrate[Z_AXIS];
-          run_z_max_probe();
-          clean_up_after_endstop_move();
-      }
-      break;
 
-      case 411: // G411 Turns Green LED ON
+      // Custom G-Codes for MSM
+      #ifdef CUSTOM_G_CODES
+      case GREEN_LED_ON: 
       {
         #if(LED_GREEN_PIN) 
         {      
@@ -1674,14 +1665,12 @@ void process_commands()
         #else 
         {
         SERIAL_PROTOCOLPGM("LED_GREEN_PIN not defined \n");
-}
+        }
         #endif
-
-
       }
       break;
 
-      case 412: // G412 Turns Green LED OFF
+      case GREEN_LED_OFF: 
       {
         int pin_number = LED_GREEN_PIN; 
         int led_status = 0;
@@ -1691,7 +1680,7 @@ void process_commands()
       }
       break;
 
-      case 413: // G413 Turns Red LED ON
+      case RED_LED_ON: 
       {       
         int pin_number = LED_RED_PIN; 
         int led_status = 1;
@@ -1701,7 +1690,7 @@ void process_commands()
       }
       break;
 
-      case 414: // G414 Turns Red LED OFF
+      case RED_LED_OFF: 
       {
         int pin_number = LED_RED_PIN; 
         int led_status = 0;
@@ -1711,7 +1700,7 @@ void process_commands()
       }
       break;
 
-      case 415: // G415 Turns Red LED ON
+      case BUTTON_LED_ON: 
       {       
         int pin_number = LED_BUTTON_PIN; 
         int led_status = 1;
@@ -1721,7 +1710,7 @@ void process_commands()
       }
       break;
 
-      case 416: // G416 Turns Red LED OFF
+      case BUTTON_LED_OFF:
       {
         int pin_number = LED_BUTTON_PIN; 
         int led_status = 0;
@@ -1730,6 +1719,7 @@ void process_commands()
         SERIAL_PROTOCOLPGM("BUTTON LED OFF \n");
       }
       break;
+      #endif
 
     }
   }
@@ -3202,60 +3192,6 @@ void process_commands()
       SERIAL_ECHO_START;
       SERIAL_ECHO(MSG_ACTIVE_EXTRUDER);
       SERIAL_PROTOCOLLN((int)active_extruder);
-    }
-  }
-
-
-  else if(code_seen('P'))
-  {
-    switch( (int)code_value() )
-    {
-      case 1: // P1 Controls the Green (G), Red(R) and Button(B) LEDs
-              // This P-Code will turn the selected LED ON(1) or OFF(0)
-              // Example execution: P1 G1 <- turns Green LED ON
-      {
-        int pin_number = -1;
-
-        if (code_seen('G'))
-        {
-          int pin_number = LED_GREEN_PIN;
-          SERIAL_PROTOCOLPGM(" GREEN LED ");
-        }
-        else if (code_seen('R'))
-        {
-          int pin_number = LED_RED_PIN;
-                    SERIAL_PROTOCOLPGM(" red LED ");
-
-        }
-        else if (code_seen('B'))
-        {
-          int pin_number = LED_RED_PIN;
-                    SERIAL_PROTOCOLPGM(" button LED ");
-
-        }     
-        else
-        {
-          int pin_number = -1;
-        }
-        if (pin_number > -1)
-        {
-          int led_status = code_value();
-          pinMode(pin_number, OUTPUT);
-          digitalWrite(pin_number, led_status);
-        }
-      }
-      break;
-      case 11: // P11 Probe Z Max
-        {
-
-            st_synchronize(); // complete all moves in buffer
-            SERIAL_PROTOCOLPGM(" Z_MAX");
-            setup_for_endstop_move();
-            feedrate = homing_feedrate[Z_AXIS];
-            run_z_max_probe();
-            clean_up_after_endstop_move();
-        }
-        break;
     }
   }
 

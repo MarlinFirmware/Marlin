@@ -487,6 +487,20 @@ const bool Z_MAX_ENDSTOP_INVERTING = false; // set to true to invert the logic o
   #define Z_PROBE_OFFSET_RANGE_MAX 0
 #endif
 
+// Custom G code points
+#define CUSTOM_G_CODES
+#ifdef CUSTOM_G_CODES
+  #define PROBE_Z_MAX 401
+  #define GREEN_LED_ON 411
+  #define GREEN_LED_OFF 412
+  #define RED_LED_ON 413
+  #define RED_LED_OFF 414
+  #define BUTTON_LED_ON 415
+  #define BUTTON_LED_OFF 416
+#endif
+
+
+
 
 // EEPROM
 // The microcontroller can store settings in the EEPROM, e.g. max velocity...
