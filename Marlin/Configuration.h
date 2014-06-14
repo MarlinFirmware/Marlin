@@ -372,22 +372,22 @@ const bool Z_MAX_ENDSTOP_INVERTING = false; // set to true to invert the logic o
     // with no grid, just probe 3 arbitrary points.  A simple cross-product
     // is used to esimate the plane of the print bed
 
-      #define ABL_PROBE_PT_1_X -2
+      #define ABL_PROBE_PT_1_X -10
       #define ABL_PROBE_PT_1_Y 121
-      #define ABL_PROBE_PT_2_X -4 
+      #define ABL_PROBE_PT_2_X -12 
       #define ABL_PROBE_PT_2_Y 32
       #define ABL_PROBE_PT_3_X 114 
-      #define ABL_PROBE_PT_3_Y 116
+      #define ABL_PROBE_PT_3_Y 123
 
   #endif // AUTO_BED_LEVELING_GRID
 
 
   // these are the offsets to the probe relative to the extruder tip (Hotend - Probe)
-  #define X_PROBE_OFFSET_FROM_EXTRUDER -5.4 
+  #define X_PROBE_OFFSET_FROM_EXTRUDER -13.6 
   #define Y_PROBE_OFFSET_FROM_EXTRUDER 27
-  #define Z_PROBE_OFFSET_FROM_EXTRUDER -2.45
+  #define Z_PROBE_OFFSET_FROM_EXTRUDER -0.5
 
-  #define Z_RAISE_BEFORE_HOMING 5       // (in mm) Raise Z before homing (G28) for Probe Clearance.
+  #define Z_RAISE_BEFORE_HOMING 0       // (in mm) Raise Z before homing (G28) for Probe Clearance.
                                         // Be sure you have this distance over your Z_MAX_POS in case
 
   #define XY_TRAVEL_SPEED 2000         // X and Y axis travel speed between probes, in mm/min
@@ -415,7 +415,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = false; // set to true to invert the logic o
 
   #ifdef Z_SAFE_HOMING
 
-    #define Z_SAFE_HOMING_X_POINT -2  // X point for Z homing when homing all axis (G28)
+    #define Z_SAFE_HOMING_X_POINT -10  // X point for Z homing when homing all axis (G28)
     #define Z_SAFE_HOMING_Y_POINT 121   // Y point for Z homing when homing all axis (G28)
 
 
@@ -454,8 +454,8 @@ const bool Z_MAX_ENDSTOP_INVERTING = false; // set to true to invert the logic o
 
 // default settings
 
-#define DEFAULT_AXIS_STEPS_PER_UNIT   {80,80,2509,162} // Z WAS 2535        // default steps per unit for Ultimaker
-#define DEFAULT_MAX_FEEDRATE          {400, 400, 5, 12}       // (mm/sec)
+#define DEFAULT_AXIS_STEPS_PER_UNIT   {80,80,2535,162} // Z WAS 2535        // default steps per unit for Ultimaker
+#define DEFAULT_MAX_FEEDRATE          {400, 400, 3, 12}       // (mm/sec)
 #define DEFAULT_MAX_ACCELERATION      {2500,2500,100,5000}    // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for Skeinforge 40+, for older versions raise them a lot.
 
 #define DEFAULT_ACCELERATION          2500 //3000    // X, Y, Z and E max acceleration in mm/s^2 for printing moves
