@@ -306,11 +306,11 @@ const bool Z_MAX_ENDSTOP_INVERTING = false; // set to true to invert the logic o
 #define DISABLE_E false // For all extruders
 
 #define INVERT_X_DIR true    // for Mendel set to false, for Orca set to true
-#define INVERT_Y_DIR false    // for Mendel set to true, for Orca set to false
-#define INVERT_Z_DIR true  // for Mendel set to false, for Orca set to true
+#define INVERT_Y_DIR false   // for Mendel set to true, for Orca set to false
+#define INVERT_Z_DIR true    // for Mendel set to false, for Orca set to true
 #define INVERT_E0_DIR true   // for direct drive extruder v9 set to true, for geared extruder set to false
-#define INVERT_E1_DIR false    // for direct drive extruder v9 set to true, for geared extruder set to false
-#define INVERT_E2_DIR false   // for direct drive extruder v9 set to true, for geared extruder set to false
+#define INVERT_E1_DIR false  // for direct drive extruder v9 set to true, for geared extruder set to false
+#define INVERT_E2_DIR false  // for direct drive extruder v9 set to true, for geared extruder set to false
 
 // ENDSTOP SETTINGS:
 // Sets direction of endstops when homing; 1=MAX, -1=MIN
@@ -373,19 +373,19 @@ const bool Z_MAX_ENDSTOP_INVERTING = false; // set to true to invert the logic o
     // is used to esimate the plane of the print bed
 
       #define ABL_PROBE_PT_1_X -4.0 
-      #define ABL_PROBE_PT_1_Y 121 // -16 
+      #define ABL_PROBE_PT_1_Y 121
       #define ABL_PROBE_PT_2_X -5.4 
-      #define ABL_PROBE_PT_2_Y 32 // 73 
+      #define ABL_PROBE_PT_2_Y 32
       #define ABL_PROBE_PT_3_X 114 
-      #define ABL_PROBE_PT_3_Y 116 // -8 
+      #define ABL_PROBE_PT_3_Y 116
 
   #endif // AUTO_BED_LEVELING_GRID
 
 
   // these are the offsets to the probe relative to the extruder tip (Hotend - Probe)
   #define X_PROBE_OFFSET_FROM_EXTRUDER -5.4 
-  #define Y_PROBE_OFFSET_FROM_EXTRUDER 27 // -27 
-  #define Z_PROBE_OFFSET_FROM_EXTRUDER -1.5 // -1.4
+  #define Y_PROBE_OFFSET_FROM_EXTRUDER 27
+  #define Z_PROBE_OFFSET_FROM_EXTRUDER -1.5
 
   #define Z_RAISE_BEFORE_HOMING 5       // (in mm) Raise Z before homing (G28) for Probe Clearance.
                                         // Be sure you have this distance over your Z_MAX_POS in case
@@ -416,7 +416,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = false; // set to true to invert the logic o
   #ifdef Z_SAFE_HOMING
 
     #define Z_SAFE_HOMING_X_POINT -4.0  // X point for Z homing when homing all axis (G28)
-    #define Z_SAFE_HOMING_Y_POINT 121 // 16 //  -16   // Y point for Z homing when homing all axis (G28)
+    #define Z_SAFE_HOMING_Y_POINT 121   // Y point for Z homing when homing all axis (G28)
 
 
 
