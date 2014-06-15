@@ -240,6 +240,7 @@ void st_wake_up() {
 
 void step_wait(){
     for(int8_t i=0; i < 6; i++){
+               delayMicroseconds(5);
     }
 }
 
@@ -564,15 +565,19 @@ ISR(TIMER1_COMPA_vect)
           if (extruder_duplication_enabled){
             WRITE(X_STEP_PIN, !INVERT_X_STEP_PIN);
             WRITE(X2_STEP_PIN, !INVERT_X_STEP_PIN);
+            step_wait();
           }
           else {
             if (current_block->active_extruder != 0)
               WRITE(X2_STEP_PIN, !INVERT_X_STEP_PIN);
+              step_wait();
             else
               WRITE(X_STEP_PIN, !INVERT_X_STEP_PIN);
+              step_wait()'
           }
         #else
           WRITE(X_STEP_PIN, !INVERT_X_STEP_PIN);
+          step_wait();
         #endif        
           counter_x -= current_block->step_event_count;
           count_position[X_AXIS]+=count_direction[X_AXIS];   
@@ -580,49 +585,61 @@ ISR(TIMER1_COMPA_vect)
           if (extruder_duplication_enabled){
             WRITE(X_STEP_PIN, INVERT_X_STEP_PIN);
             WRITE(X2_STEP_PIN, INVERT_X_STEP_PIN);
+            step_wait();
           }
           else {
             if (current_block->active_extruder != 0)
               WRITE(X2_STEP_PIN, INVERT_X_STEP_PIN);
+              step_wait();
             else
               WRITE(X_STEP_PIN, INVERT_X_STEP_PIN);
+              step_wait();
           }
         #else
           WRITE(X_STEP_PIN, INVERT_X_STEP_PIN);
+          step_wait();
         #endif
         }
 
         counter_y += current_block->steps_y;
         if (counter_y > 0) {
           WRITE(Y_STEP_PIN, !INVERT_Y_STEP_PIN);
+          step_wait();
 		  
 		  #ifdef Y_DUAL_STEPPER_DRIVERS
 			WRITE(Y2_STEP_PIN, !INVERT_Y_STEP_PIN);
+			step_wait();
 		  #endif
 		  
           counter_y -= current_block->step_event_count;
           count_position[Y_AXIS]+=count_direction[Y_AXIS];
           WRITE(Y_STEP_PIN, INVERT_Y_STEP_PIN);
+          step_wait();
 		  
 		  #ifdef Y_DUAL_STEPPER_DRIVERS
 			WRITE(Y2_STEP_PIN, INVERT_Y_STEP_PIN);
+			step_wait();
 		  #endif
         }
 
       counter_z += current_block->steps_z;
       if (counter_z > 0) {
         WRITE(Z_STEP_PIN, !INVERT_Z_STEP_PIN);
+        step_wait();
         
         #ifdef Z_DUAL_STEPPER_DRIVERS
           WRITE(Z2_STEP_PIN, !INVERT_Z_STEP_PIN);
+          step_wait();
         #endif
 
         counter_z -= current_block->step_event_count;
         count_position[Z_AXIS]+=count_direction[Z_AXIS];
         WRITE(Z_STEP_PIN, INVERT_Z_STEP_PIN);
+        step_wait();
         
         #ifdef Z_DUAL_STEPPER_DRIVERS
           WRITE(Z2_STEP_PIN, INVERT_Z_STEP_PIN);
+          step_wait();
         #endif
       }
 
@@ -630,9 +647,11 @@ ISR(TIMER1_COMPA_vect)
         counter_e += current_block->steps_e;
         if (counter_e > 0) {
           WRITE_E_STEP(!INVERT_E_STEP_PIN);
+          step_wait();
           counter_e -= current_block->step_event_count;
           count_position[E_AXIS]+=count_direction[E_AXIS];
           WRITE_E_STEP(INVERT_E_STEP_PIN);
+          step_wait();
         }
       #endif //!ADVANCE
       step_events_completed += 1;
@@ -719,44 +738,54 @@ ISR(TIMER1_COMPA_vect)
     for(unsigned char i=0; i<4;i++) {
       if (e_steps[0] != 0) {
         WRITE(E0_STEP_PIN, INVERT_E_STEP_PIN);
+        step_wait();
         if (e_steps[0] < 0) {
           WRITE(E0_DIR_PIN, INVERT_E0_DIR);
+          
           e_steps[0]++;
           WRITE(E0_STEP_PIN, !INVERT_E_STEP_PIN);
+          step_wait();
         }
         else if (e_steps[0] > 0) {
           WRITE(E0_DIR_PIN, !INVERT_E0_DIR);
           e_steps[0]--;
           WRITE(E0_STEP_PIN, !INVERT_E_STEP_PIN);
+          step_wait();
         }
       }
  #if EXTRUDERS > 1
       if (e_steps[1] != 0) {
         WRITE(E1_STEP_PIN, INVERT_E_STEP_PIN);
+        step_wait();
         if (e_steps[1] < 0) {
           WRITE(E1_DIR_PIN, INVERT_E1_DIR);
           e_steps[1]++;
           WRITE(E1_STEP_PIN, !INVERT_E_STEP_PIN);
+          step_wait();
         }
         else if (e_steps[1] > 0) {
           WRITE(E1_DIR_PIN, !INVERT_E1_DIR);
           e_steps[1]--;
           WRITE(E1_STEP_PIN, !INVERT_E_STEP_PIN);
+          step_wait();
         }
       }
  #endif
  #if EXTRUDERS > 2
       if (e_steps[2] != 0) {
         WRITE(E2_STEP_PIN, INVERT_E_STEP_PIN);
+        step_wait();
         if (e_steps[2] < 0) {
           WRITE(E2_DIR_PIN, INVERT_E2_DIR);
           e_steps[2]++;
           WRITE(E2_STEP_PIN, !INVERT_E_STEP_PIN);
+          step_wait();
         }
         else if (e_steps[2] > 0) {
           WRITE(E2_DIR_PIN, !INVERT_E2_DIR);
           e_steps[2]--;
           WRITE(E2_STEP_PIN, !INVERT_E_STEP_PIN);
+          step_wait();
         }
       }
  #endif

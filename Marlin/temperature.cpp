@@ -1059,18 +1059,18 @@ ISR(TIMER0_COMPB_vect)
     soft_pwm_0 = soft_pwm[0];
     if(soft_pwm_0 > 0) {
       
-      #ifndef hardware_pwm
+      #ifndef Hardware_pwm
       WRITE(HEATER_0_PIN,1); 
       #endif
-      #ifdef hardware_pwm 
+      #ifdef Hardware_pwm 
       analogWrite(HEATER_0_PIN,soft_pwm_0);
       #endif
       
       #ifdef HEATERS_PARALLEL
-      #ifndef hardware_pwm
+      #ifndef Hardware_pwm
       WRITE(HEATER_1_PIN,1);
       #endif
-      #ifdef hardware_pwm 
+      #ifdef Hardware_pwm
       analogWrite(HEATER_1_PIN,soft_pwm_0);
       #endif
       
@@ -1078,10 +1078,10 @@ ISR(TIMER0_COMPB_vect)
       #endif
     } else {
  
-      #ifndef hardware_pwm
+      #ifndef Hardware_pwm
        WRITE(HEATER_0_PIN,0);
       #endif
-      #ifdef hardware_pwm 
+      #ifdef Hardware_pwm 
       analogWrite(HEATER_0_PIN,0);
       #endif	
 }
@@ -1090,20 +1090,20 @@ ISR(TIMER0_COMPB_vect)
     if(soft_pwm_1 > 0) 
     {
        
-      #ifndef hardware_pwm
+      #ifndef Hardware_pwm
       WRITE(HEATER_1_PIN,1);
       #endif
-      #ifdef hardware_pwm 
+      #ifdef Hardware_pwm 
       analogWrite(HEATER_1_PIN,soft_pwm_1);
       #endif
        
     }
     else
    { 
-      #ifndef hardware_pwm
+      #ifndef Hardware_pwm
       WRITE(HEATER_1_PIN,1);
       #endif
-      #ifdef hardware_pwm 
+      #ifdef Hardware_pwm 
       analogWrite(HEATER_1_PIN,0);
       #endif
    }
@@ -1113,19 +1113,19 @@ ISR(TIMER0_COMPB_vect)
     if(soft_pwm_2 > 0)
     {
       
-      #ifndef hardware_pwm
+      #ifndef Hardware_pwm
       WRITE(HEATER_2_PIN,1);
       #endif
-      #ifdef hardware_pwm 
+      #ifdef Hardware_pwm 
       analogWrite(HEATER_2_PIN,soft_pwm_2);
       #endif
     }
     else
    {
-      #ifndef hardware_pwm
+      #ifndef Hardware_pwm
       WRITE(HEATER_2_PIN,0);
       #endif
-      #ifdef hardware_pwm 
+      #ifdef Hardware_pwm 
       analogWrite(HEATER_2_PIN,0);
       #endif
    }
@@ -1135,20 +1135,20 @@ ISR(TIMER0_COMPB_vect)
     #if defined(HEATER_BED_PIN) && HEATER_BED_PIN > -1
     soft_pwm_b = soft_pwm_bed;
     if(soft_pwm_b > 0){
-      #ifndef hardware_pwm
+      #ifndef Hardware_pwm
       WRITE(HEATER_BED_PIN,1); 
       #endif
-      #ifdef hardware_pwm 
+      #ifdef Hardware_pwm 
       analogWrite(HEATER_BED_PIN,soft_pwm_b);
       #endif
       
     } 
     else
     {
-      #ifndef hardware_pwm
+      #ifndef Hardware_pwm
       WRITE(HEATER_BED_PIN,0);
       #endif
-      #ifdef hardware_pwm 
+      #ifdef Hardware_pwm 
       analogWrite(HEATER_BED_PIN,0);
       #endif
       
