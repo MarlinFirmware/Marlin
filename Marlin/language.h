@@ -22,7 +22,7 @@
 // 13 Basque-Euskera
 
 #ifndef LANGUAGE_CHOICE
-	#define LANGUAGE_CHOICE 1  // Pick your language from the list above
+	#define LANGUAGE_CHOICE 5  // Pick your language from the list above
 #endif
 
 #define PROTOCOL_VERSION "1.0"
@@ -898,8 +898,8 @@
 	#define MSG_PREHEAT_ABS_BEDONLY "Precal. ABS Base"
 	#define MSG_PREHEAT_ABS_SETTINGS "Ajustar temp. ABS"
 	#define MSG_COOLDOWN "Enfriar"
-	#define MSG_SWITCH_PS_ON "Switch Power On"
-	#define MSG_SWITCH_PS_OFF "Switch Power Off"
+	#define MSG_SWITCH_PS_ON "Encender"
+	#define MSG_SWITCH_PS_OFF "Apagar"
 	#define MSG_EXTRUDE "Extruir"
 	#define MSG_RETRACT "Retraer"
 	#define MSG_MOVE_AXIS "Mover ejes"
@@ -996,7 +996,7 @@
 	#define MSG_BABYSTEP_Y "Babystep Y"
 	#define MSG_BABYSTEP_Z "Babystep Z"
 	#define MSG_ENDSTOP_ABORT "Endstop abort"
-	#define MSG_CONTRAST "Contrast"
+	#define MSG_CONTRAST "Contraste"
 
 // Serial Console Messages
 
@@ -1071,7 +1071,7 @@
 	#define MSG_BABYSTEPPING_X "Babystepping X"
 	#define MSG_BABYSTEPPING_Y "Babystepping Y"
 	#define MSG_BABYSTEPPING_Z "Babystepping Z"
-	#define MSG_SERIAL_ERROR_MENU_STRUCTURE "Error in menu structure"
+	#define MSG_SERIAL_ERROR_MENU_STRUCTURE "Error en estructura de menu"
 
 #endif
 

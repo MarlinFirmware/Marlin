@@ -627,7 +627,7 @@
     #define HEATER_2_PIN       -1
   #endif
 
-  #define TEMP_0_PIN         13   // ANALOG NUMBERING
+  #define TEMP_0_PIN         3   // ANALOG NUMBERING
   #define TEMP_1_PIN         15   // ANALOG NUMBERING
   #if MOTHERBOARD == 68
     #define TEMP_2_PIN         12   // ANALOG NUMBERING
@@ -681,12 +681,12 @@
   #ifdef ULTRA_LCD
 
     #ifdef NEWPANEL
-      #define LCD_PINS_RS 16
-      #define LCD_PINS_ENABLE 17
-      #define LCD_PINS_D4 23
-      #define LCD_PINS_D5 25
-      #define LCD_PINS_D6 27
-      #define LCD_PINS_D7 29
+      #define LCD_PINS_RS 63
+      #define LCD_PINS_ENABLE 65
+      #define LCD_PINS_D4 59
+      #define LCD_PINS_D5 64
+      #define LCD_PINS_D6 44
+      #define LCD_PINS_D7 66
 
       #ifdef REPRAP_DISCOUNT_SMART_CONTROLLER
         #define BEEPER 37
@@ -711,7 +711,7 @@
         #define SDCARDDETECT 49
       #else
         //arduino pin which triggers an piezzo beeper
-        #define BEEPER 33  // Beeper on AUX-4
+        #define BEEPER 32  // Beeper on AUX-4
 
         //buttons are directly attached using AUX-2
         #ifdef REPRAPWORLD_KEYPAD
@@ -722,9 +722,9 @@
           #define SHIFT_CLK 44 // shift register
           #define SHIFT_LD 42 // shift register
         #else
-          #define BTN_EN1 37
-          #define BTN_EN2 35
-          #define BTN_ENC 31  //the click
+          #define BTN_EN1 4
+          #define BTN_EN2 5
+          #define BTN_ENC 6  //the click
         #endif
 
         #ifdef G3D_PANEL
@@ -1580,7 +1580,7 @@
  #endif
 #endif
 
-#if (TEMP_SENSOR_1==0)
+#if (TEMP_SENSOR_1==0) 
  #define TEMP_1_PIN         -1
  #define HEATER_1_PIN       -1
 #else

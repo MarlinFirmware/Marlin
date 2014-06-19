@@ -33,12 +33,22 @@ void manage_heater(); //it is critical that this is called periodically.
 
 // low level conversion routines
 // do not use these routines and variables outside of temperature.cpp
-extern int target_temperature[EXTRUDERS];  
-extern float current_temperature[EXTRUDERS];
-#ifdef SHOW_TEMP_ADC_VALUES
-  extern int current_temperature_raw[EXTRUDERS];
-  extern int current_temperature_bed_raw;
-#endif
+#ifndef FAKEDUAL
+  extern int target_temperature[EXTRUDERS];  
+  extern float current_temperature[EXTRUDERS];
+  #ifdef SHOW_TEMP_ADC_VALUES
+    extern int current_temperature_raw[EXTRUDERS];
+    extern int current_temperature_bed_raw;
+  #endif
+#else
+  extern int target_temperature[1];  
+  extern float current_temperature[1];
+  #ifdef SHOW_TEMP_ADC_VALUES
+    extern int current_temperature_raw[1];
+    extern int current_temperature_bed_raw;
+  #endif
+#endif //FAKEDUAL
+
 extern int target_temperature_bed;
 extern float current_temperature_bed;
 #ifdef TEMP_SENSOR_1_AS_REDUNDANT
@@ -71,7 +81,11 @@ extern float current_temperature_bed;
 //deg=degreeCelsius
 
 FORCE_INLINE float degHotend(uint8_t extruder) {  
-  return current_temperature[extruder];
+  #ifndef FAKEDUAL
+    return current_temperature[extruder];
+  #else
+    return current_temperature[0];
+  #endif
 };
 
 #ifdef SHOW_TEMP_ADC_VALUES
@@ -125,7 +139,7 @@ FORCE_INLINE bool isCoolingBed() {
 #define setTargetHotend0(_celsius) setTargetHotend((_celsius), 0)
 #define isHeatingHotend0() isHeatingHotend(0)
 #define isCoolingHotend0() isCoolingHotend(0)
-#if EXTRUDERS > 1
+#if EXTRUDERS > 1 && !defined(FAKEDUAL)
 #define degHotend1() degHotend(1)
 #define degTargetHotend1() degTargetHotend(1)
 #define setTargetHotend1(_celsius) setTargetHotend((_celsius), 1)
@@ -134,7 +148,7 @@ FORCE_INLINE bool isCoolingBed() {
 #else
 #define setTargetHotend1(_celsius) do{}while(0)
 #endif
-#if EXTRUDERS > 2
+#if EXTRUDERS > 2 && !defined(FAKEDUAL)
 #define degHotend2() degHotend(2)
 #define degTargetHotend2() degTargetHotend(2)
 #define setTargetHotend2(_celsius) setTargetHotend((_celsius), 2)
