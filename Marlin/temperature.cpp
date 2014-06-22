@@ -171,6 +171,7 @@ void PID_autotune(float temp, int extruder, int ncycles)
   unsigned long temp_millis = millis();
   unsigned long t1=temp_millis;
   unsigned long t2=temp_millis;
+  unsigned long min_half_period = 5000;
   long t_high = 0;
   long t_low = 0;
 
@@ -216,19 +217,21 @@ void PID_autotune(float temp, int extruder, int ncycles)
       max=max(max,input);
       min=min(min,input);
       if(heating == true && input > temp) {
-        if(millis() - t2 > 5000) { 
+        if(millis() - t2 >= min_half_period || input > temp + 15) {
           heating=false;
           if (extruder<0)
             soft_pwm_bed = constrain((bias - d) >> 1, 0, PID_MAX);
           else
             soft_pwm[extruder] = constrain((bias - d) >> 1, 0, PID_MAX);
+          if(min_half_period > millis() - t2)
+            min_half_period = millis() - t2;
           t1=millis();
           t_high=t1 - t2;
           max=temp;
         }
       }
       if(heating == false && input < temp) {
-        if(millis() - t1 > 5000) {
+        if(millis() - t1 >= min_half_period) {
           heating=true;
           t2=millis();
           t_low=t2 - t1;
