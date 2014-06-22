@@ -406,6 +406,14 @@ void checkExtruderAutoFans()
 
 #endif // any extruder auto fan pins set
 
+// Backward compatibility stub:
+#ifndef PID_FUNCTIONAL_RANGE_UP
+  #define PID_FUNCTIONAL_RANGE_UP PID_FUNCTIONAL_RANGE
+#endif
+#ifndef PID_FUNCTIONAL_RANGE_DOWN
+  #define PID_FUNCTIONAL_RANGE_DOWN PID_FUNCTIONAL_RANGE
+#endif
+
 void manage_heater()
 {
   float pid_input;
@@ -424,11 +432,11 @@ void manage_heater()
 
     #ifndef PID_OPENLOOP
         pid_error[e] = target_temperature[e] - pid_input;
-        if(pid_error[e] > PID_FUNCTIONAL_RANGE) {
+        if(pid_error[e] > PID_FUNCTIONAL_RANGE_DOWN) {
           pid_output = BANG_MAX;
           pid_reset[e] = true;
         }
-        else if(pid_error[e] < -PID_FUNCTIONAL_RANGE || target_temperature[e] == 0) {
+        else if(pid_error[e] < -PID_FUNCTIONAL_RANGE_UP || target_temperature[e] == 0) {
           pid_output = 0;
           pid_reset[e] = true;
         }
