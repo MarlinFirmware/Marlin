@@ -433,18 +433,20 @@ void manage_heater()
           pid_reset[e] = true;
         }
         else {
-          if(pid_reset[e] == true) {
-            temp_iState[e] = 0.0;
-            pid_reset[e] = false;
-          }
           pTerm[e] = Kp * pid_error[e];
-          temp_iState[e] += pid_error[e];
-          temp_iState[e] = constrain(temp_iState[e], temp_iState_min[e], temp_iState_max[e]);
-          iTerm[e] = Ki * temp_iState[e];
-
           //K1 defined in Configuration.h in the PID settings
           #define K2 (1.0-K1)
           dTerm[e] = (Kd * (pid_input - temp_dState[e]))*K2 + (K1 * dTerm[e]);
+
+          if(pid_reset[e] == true) {
+            temp_iState[e] = ((soft_pwm[e]<<1) - pTerm[e] + dTerm[e]) / Ki;
+            pid_reset[e] = false;
+          } else {
+            temp_iState[e] += pid_error[e];
+          }
+          temp_iState[e] = constrain(temp_iState[e], temp_iState_min[e], temp_iState_max[e]);
+          iTerm[e] = Ki * temp_iState[e];
+
           pid_output = constrain(pTerm[e] + iTerm[e] - dTerm[e], 0, PID_MAX);
         }
         temp_dState[e] = pid_input;
