@@ -219,9 +219,9 @@ void PID_autotune(float temp, int extruder, int ncycles)
         if(millis() - t2 > 5000) { 
           heating=false;
           if (extruder<0)
-            soft_pwm_bed = (bias - d) >> 1;
+            soft_pwm_bed = constrain((bias - d) >> 1, 0, PID_MAX);
           else
-            soft_pwm[extruder] = (bias - d) >> 1;
+            soft_pwm[extruder] = constrain((bias - d) >> 1, 0, PID_MAX);
           t1=millis();
           t_high=t1 - t2;
           max=temp;
@@ -234,8 +234,8 @@ void PID_autotune(float temp, int extruder, int ncycles)
           t_low=t2 - t1;
           if(cycles > 0) {
             bias += (d*(t_high - t_low))/(t_low + t_high);
-            bias = constrain(bias, 20 ,(extruder<0?(MAX_BED_POWER):(PID_MAX))-20);
-            if(bias > (extruder<0?(MAX_BED_POWER):(PID_MAX))/2) d = (extruder<0?(MAX_BED_POWER):(PID_MAX)) - 1 - bias;
+            bias = constrain(bias, 1 ,(extruder<0?(MAX_BED_POWER):(PID_MAX))-1);
+            if(bias > (extruder<0?(MAX_BED_POWER):(PID_MAX))/2) d = (extruder<0?(MAX_BED_POWER):(PID_MAX)) - bias;
             else d = bias;
 
             SERIAL_PROTOCOLPGM(" bias: "); SERIAL_PROTOCOL(bias);
@@ -273,9 +273,9 @@ void PID_autotune(float temp, int extruder, int ncycles)
             }
           }
           if (extruder<0)
-            soft_pwm_bed = (bias + d) >> 1;
+            soft_pwm_bed = constrain((bias + d) >> 1, 0, PID_MAX);
           else
-            soft_pwm[extruder] = (bias + d) >> 1;
+            soft_pwm[extruder] = constrain((bias + d) >> 1, 0, PID_MAX);
           cycles++;
           min=temp;
         }
