@@ -47,6 +47,7 @@ Features:
 *   PID tuning
 *   CoreXY kinematics (www.corexy.com/theory.html)
 *   Delta kinematics
+*   SCARA kinematics
 *   Dual X-carriage support for multiple extruder systems
 *   Configurable serial port to support connection of wireless adaptors.
 *   Automatic operation of extruder/cold-end cooling fans based on nozzle temperature
