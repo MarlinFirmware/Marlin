@@ -725,7 +725,7 @@ void tp_init()
 #endif //PIDTEMP
 #ifdef PIDTEMPBED
     temp_iState_min_bed = 0.0;
-    temp_iState_max_bed = PID_INTEGRAL_DRIVE_MAX / bedKi;
+    temp_iState_max_bed = PID_INTEGRAL_DRIVE_MAX_BED / bedKi;
 #endif //PIDTEMPBED
   }
 
