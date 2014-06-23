@@ -187,6 +187,10 @@
   #define K1 0.95 //smoothing factor within the PID
   #define PID_dT ((OVERSAMPLENR * 8.0)/(F_CPU / 64.0 / 256.0)) //sampling period of the temperature routine
 
+  // If you need asymmetric PID functional range, change these:
+  #define PID_FUNCTIONAL_RANGE_UP   PID_FUNCTIONAL_RANGE
+  #define PID_FUNCTIONAL_RANGE_DOWN PID_FUNCTIONAL_RANGE
+
 // If you are using a pre-configured hotend then you can use one of the value sets by uncommenting it
 // Ultimaker
     #define  DEFAULT_Kp 22.2
