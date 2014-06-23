@@ -1251,7 +1251,7 @@ void process_commands()
         return;
       }
       break;
-#ifdef SCARA //disable arc support
+#ifndef SCARA //disable arc support
     case 2: // G2  - CW ARC
       if(Stopped == false) {
         get_arc_coordinates();
