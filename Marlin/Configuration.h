@@ -442,7 +442,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = false; // set to true to invert the logic o
 #define HOMING_FEEDRATE {50*60, 50*60, 150, 0}  // set the homing speeds (mm/min)
 
 // default settings
-
+// Syncromesh (400*16)/(3.81*15)
 #define DEFAULT_AXIS_STEPS_PER_UNIT   {111.99468232964598,111.99468232964598,3200,386.5425}  // default steps per unit for Ultimaker
 #define DEFAULT_MAX_FEEDRATE          {600, 600, 1.5, 22}    // (mm/sec)
 #define DEFAULT_MAX_ACCELERATION      {3000,3000,50,1000}    // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for Skeinforge 40+, for older versions raise them a lot.
