@@ -1914,19 +1914,23 @@ char *itostr31(const int &xx)
     return conv;
 }
 
-char *itostr3(const int &xx)
+char *itostr3(const int &x)
 {
-    if (xx >= 100)
-        conv[0]=(xx/100)%10+'0';
-    else
-        conv[0]=' ';
-    if (xx >= 10)
-        conv[1]=(xx/10)%10+'0';
-    else
-        conv[1]=' ';
-    conv[2]=(xx)%10+'0';
-    conv[3]=0;
-    return conv;
+  int xx = x;
+  if (xx < 0) {
+     conv[0]='-';
+     xx = -xx;
+  } else if (xx >= 100)
+    conv[0]=(xx/100)%10+'0';
+  else
+    conv[0]=' ';
+  if (xx >= 10)
+    conv[1]=(xx/10)%10+'0';
+  else
+    conv[1]=' ';
+  conv[2]=(xx)%10+'0';
+  conv[3]=0;
+  return conv;
 }
 
 char *itostr3left(const int &xx)
