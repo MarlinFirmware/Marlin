@@ -633,8 +633,8 @@ void CardReader::printingHasFinished()
           enquecommand_P(PSTR(SD_FINISHED_RELEASECOMMAND));
       }
       autotempShutdown();
-
   	  if (shutdownAtFinish) {
+	  st_synchronize();
 	  	  if (powersupply) {
 		  	  enquecommand_P(PSTR("M81"));
 	  	  } else {
