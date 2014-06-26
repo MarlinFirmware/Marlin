@@ -819,7 +819,7 @@
 
 #endif // MOTHERBOARD == 33 || MOTHERBOARD == 34 || MOTHERBOARD == 35 || MOTHERBOARD == 77
 
-// SPI for Max6675 Thermocouple
+// SPI for Max6675 or Max31855 Thermocouple
 
 #ifndef SDSUPPORT
 // these pins are defined in the SD library if building with SD support

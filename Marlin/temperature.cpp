@@ -976,9 +976,20 @@ void bed_max_temp_error(void) {
 }
 
 #ifdef HEATER_0_USES_MAX6675
-#define MAX6675_HEAT_INTERVAL 250
+#ifndef MAX6675_IS_MAX31855
+  #define MAX6675_HEAT_INTERVAL 250
+  #define MAX6675_READ_BYTES 2
+  #define MAX6675_ERROR_MASK 4
+  #define MAX6675_DISCARD_BITS 3
+  unsigned int max6675_temp = 2000;
+#else
+  #define MAX6675_HEAT_INTERVAL 250
+  #define MAX6675_READ_BYTES 4
+  #define MAX6675_ERROR_MASK 7
+  #define MAX6675_DISCARD_BITS 18
+  unsigned long max6675_temp = 2000;
+#endif
 long max6675_previous_millis = -HEAT_INTERVAL;
-int max6675_temp = 2000;
 
 int read_max6675()
 {
@@ -1003,31 +1014,28 @@ int read_max6675()
   asm("nop");//50ns on 20Mhz, 62.5ns on 16Mhz
   asm("nop");//50ns on 20Mhz, 62.5ns on 16Mhz
   
-  // read MSB
-  SPDR = 0;
-  for (;(SPSR & (1<<SPIF)) == 0;);
-  max6675_temp = SPDR;
-  max6675_temp <<= 8;
-  
-  // read LSB
-  SPDR = 0;
-  for (;(SPSR & (1<<SPIF)) == 0;);
-  max6675_temp |= SPDR;
+  // read bytes in big-endian format
+  for (byte i = MAX6675_READ_BYTES; i > 0; i--) {
+    SPDR = 0;
+    for (;(SPSR & (1<<SPIF)) == 0;);
+    max6675_temp |= SPDR;
+    if (i > 1) max6675_temp <<= 8;
+  }
   
   // disable TT_MAX6675
   WRITE(MAX6675_SS, 1);
-
-  if (max6675_temp & 4) 
+  
+  if (max6675_temp & MAX6675_ERROR_MASK)
   {
     // thermocouple open
     max6675_temp = 2000;
   }
   else 
   {
-    max6675_temp = max6675_temp >> 3;
+    max6675_temp = max6675_temp >> MAX6675_DISCARD_BITS;
   }
-
-  return max6675_temp;
+  
+  return (int)max6675_temp;
 }
 #endif
 
