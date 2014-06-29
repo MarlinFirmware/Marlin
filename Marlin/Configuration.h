@@ -224,6 +224,11 @@
 // so you shouldn't use it unless you are OK with PWM on your bed.  (see the comment on enabling PIDTEMPBED)
 #define MAX_BED_POWER 255 // limits duty cycle to bed; 255=full current
 
+// I Term of the bed PID will be inactive if the difference between the actual and the target temperature is
+// more than PIDTEMPBED_I_TERM_FUNCTIONAL_RANGE. This prevents windup for beds with very inert behaviour 
+// (e.g. aluminium or for weak heaters). Set to -1 to disable this feature
+#define PIDTEMPBED_I_TERM_FUNCTIONAL_RANGE -1
+
 #ifdef PIDTEMPBED
 //120v 250W silicone heater into 4mm borosilicate (MendelMax 1.5+)
 //from FOPDT model - kp=.39 Tp=405 Tdead=66, Tc set to 79.2, aggressive factor of .15 (vs .1, 1, 10)
@@ -680,7 +685,15 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 // affecting heaters, and the fan if FAN_SOFT_PWM is enabled.
 // However, control resolution will be halved for each increment;
 // at zero value, there are 128 effective control positions.
-#define SOFT_PWM_SCALE 0
+#define SOFT_PWM_SCALE 0        // 0 = 7,7 Hz ; 1  = 15,4 Hz ; 2  = 30,8 Hz ; 3 = 61,6 Hz ; 
+                                // 4 = 123,2Hz ; 5 = 246,4 Hz ; 6 = 492,8 Hz ; 7 = 983,6 Hz
+                                // do not set beyond 7
+
+// Activate to use the Output Compare Register for PWM scaling.
+// This keeps the pwm resolution at its maximum but disables hardware
+// pwm on pin 13 (atmega2560, usually the LED_PIN). Be aware that analogWrite (M42)
+// will no longer work with this pin.
+//#define SOFT_PWM_SCALE_USE_OCR
 
 // M240  Triggers a camera by emulating a Canon RC-1 Remote
 // Data from: http://www.doc-diy.net/photo/rc-1_hacked/

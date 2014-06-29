@@ -158,6 +158,10 @@ unsigned long watchmillis[EXTRUDERS] = ARRAY_BY_EXTRUDERS(0,0,0);
 #define SOFT_PWM_SCALE 0
 #endif
 
+#ifndef PIDTEMPBED_I_TERM_FUNCTIONAL_RANGE
+#define PIDTEMPBED_I_TERM_FUNCTIONAL_RANGE -1
+#endif
+
 //===========================================================================
 //=============================   functions      ============================
 //===========================================================================
@@ -526,26 +530,49 @@ void manage_heater()
 
   #if TEMP_SENSOR_BED != 0
   
-  #ifdef PIDTEMPBED
-    pid_input = current_temperature_bed;
+    #ifdef PIDTEMPBED
+        pid_input = current_temperature_bed;
+    
+        #ifndef PID_OPENLOOP
+            pid_error_bed = target_temperature_bed - pid_input;
+            
+            pTerm_bed = bedKp * pid_error_bed;
+            temp_iState_bed += pid_error_bed;
+            temp_iState_bed = constrain(temp_iState_bed, temp_iState_min_bed, temp_iState_max_bed);
+            iTerm_bed = bedKi * temp_iState_bed;
 
-    #ifndef PID_OPENLOOP
-		  pid_error_bed = target_temperature_bed - pid_input;
-		  pTerm_bed = bedKp * pid_error_bed;
-		  temp_iState_bed += pid_error_bed;
-		  temp_iState_bed = constrain(temp_iState_bed, temp_iState_min_bed, temp_iState_max_bed);
-		  iTerm_bed = bedKi * temp_iState_bed;
+            //K1 defined in Configuration.h in the PID settings
+            #define K2 (1.0-K1)
+            dTerm_bed= (bedKd * (pid_input - temp_dState_bed))*K2 + (K1 * dTerm_bed);
+            temp_dState_bed = pid_input;
 
-		  //K1 defined in Configuration.h in the PID settings
-		  #define K2 (1.0-K1)
-		  dTerm_bed= (bedKd * (pid_input - temp_dState_bed))*K2 + (K1 * dTerm_bed);
-		  temp_dState_bed = pid_input;
+            // PID only active within PID_FUNCTIONAL_RANGE
+            if (pid_error_bed > PID_FUNCTIONAL_RANGE) {
+                // Switch to maximum power
+                pid_output = MAX_BED_POWER;
 
-		  pid_output = constrain(pTerm_bed + iTerm_bed - dTerm_bed, 0, MAX_BED_POWER);
+            } else if (pid_error_bed < -PID_FUNCTIONAL_RANGE || target_temperature_bed == 0) {
+                // cooldown
+                pid_output = 0;
 
-    #else 
-      pid_output = constrain(target_temperature_bed, 0, MAX_BED_POWER);
-    #endif //PID_OPENLOOP
+            } else {
+
+                #if (PIDTEMPBED_I_TERM_FUNCTIONAL_RANGE > 0)  
+                    // use I term only if we are near to the target temperature
+                    // for much better anti-windup (especially needed for the inert behaviour of an aluminium bed)
+                    if (abs(pid_error_bed) > PIDTEMPBED_I_TERM_FUNCTIONAL_RANGE) {
+                        temp_iState_bed = 0;
+                        iTerm_bed = 0;
+                    }
+                #endif
+
+                // PID
+                pid_output = constrain(pTerm_bed + iTerm_bed - dTerm_bed, 0, MAX_BED_POWER);
+            }
+
+        #else 
+            pid_output = constrain(target_temperature_bed, 0, MAX_BED_POWER);
+        #endif //PID_OPENLOOP
 
 	  if((current_temperature_bed > BED_MINTEMP) && (current_temperature_bed < BED_MAXTEMP)) 
 	  {
@@ -789,10 +816,33 @@ void tp_init()
     #endif
   #endif
   
-  // Use timer0 for temperature measurement
-  // Interleave temperature interrupt with millies interrupt
-  OCR0B = 128;
-  TIMSK0 |= (1<<OCIE0B);  
+    // Use timer0 for temperature measurement
+    // timer frequency is 16Mhz/64 -> 250 khz
+    // timer overflow: 250 khz / 256 -> ~977 Hz
+    // base pwm frequency: 7,7 Hz
+  
+    #ifdef SOFT_PWM_SCALE_USE_OCR
+        // disable fast pwm mode for Timer0, 
+        // this disables Hardware PWM on Pins 4 and 13 (atmega2560)
+        TCCR0A = 0x00;   
+        
+        // maximum shift between COMPB ISR and OVF ISR (millis)
+        // The problem is that COMPB has a higher interrupt priority
+        // and if the computation in COMPB takes to long
+        // the result of millis would not be correct for all times
+        // this ensures there are at least 64 clock ticks between the interrupts
+        // (with SOFT_PWM_FREQUENCY_SCALE = 7)
+        // As only the first part (soft pwm output) of the COMP0B ISR is executed in critical case
+        // this should be enough
+        OCR0B = ((256 >> SOFT_PWM_SCALE) >> 1);
+        
+    #else
+       // Interleave temperature interrupt with millies interrupt
+       OCR0B = 128;
+    #endif
+    
+    TIMSK0 |= (1<<OCIE0B);  
+    
   
   // Wait for temperature measurement to settle
   delay(250);
@@ -1042,7 +1092,10 @@ ISR(TIMER0_COMPB_vect)
   static unsigned long raw_temp_2_value = 0;
   static unsigned long raw_temp_bed_value = 0;
   static unsigned char temp_state = 8;
-  static unsigned char pwm_count = (1 << SOFT_PWM_SCALE);
+  static unsigned char pwm_count = 1;
+  #ifdef SOFT_PWM_SCALE_USE_OCR
+  static unsigned char sample_count = 1;
+  #endif
   static unsigned char soft_pwm_0;
   #if (EXTRUDERS > 1) || defined(HEATERS_PARALLEL)
   static unsigned char soft_pwm_1;
@@ -1099,8 +1152,25 @@ ISR(TIMER0_COMPB_vect)
   if(soft_pwm_fan < pwm_count) WRITE(FAN_PIN,0);
   #endif
   
-  pwm_count += (1 << SOFT_PWM_SCALE);
+  #ifdef SOFT_PWM_SCALE_USE_OCR
+    pwm_count++;
+  #else
+    pwm_count += (1 << SOFT_PWM_SCALE);
+  #endif
+  
   pwm_count &= 0x7f;
+  
+  #ifdef SOFT_PWM_SCALE_USE_OCR
+      // pwm done, reset OCR0B
+      OCR0B = TCNT0 + (256 >> SOFT_PWM_SCALE);
+
+      // execute rest of the ISR every SOFT_PWM_SCALE times
+      if (sample_count != (1 << SOFT_PWM_SCALE)) {
+          sample_count++;
+          return;
+      }
+      sample_count = 1;
+  #endif
   
   switch(temp_state) {
     case 0: // Prepare TEMP_0
