@@ -19,6 +19,7 @@ int absPreheatHotendTemp;
 int absPreheatHPBTemp;
 int absPreheatFanSpeed;
 
+bool cancel_heatup = false ;
 
 #ifdef ULTIPANEL
 static float manual_feedrate[] = MANUAL_FEEDRATE;
@@ -256,6 +257,8 @@ static void lcd_sdcard_stop()
         enquecommand_P(PSTR(SD_FINISHED_RELEASECOMMAND));
     }
     autotempShutdown();
+    
+    cancel_heatup = true;
 }
 
 /* Menu implementation */
