@@ -43,7 +43,7 @@
   extern int absPreheatHPBTemp;
   extern int absPreheatFanSpeed;
   
-  extern boolean forced_heating_stop;
+  extern bool cancel_heatup;
     
   void lcd_buzz(long duration,uint16_t freq);
   bool lcd_clicked();
