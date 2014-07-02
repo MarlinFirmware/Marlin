@@ -37,14 +37,16 @@
 # from the commandline with "make HARDWARE_MOTHERBOARD=71" for example
 
 # This defined the board you are compiling for (see Configuration.h for the options)
-HARDWARE_MOTHERBOARD ?= 11
+HARDWARE_MOTHERBOARD ?= 33
 
 # Arduino source install directory, and version number
-ARDUINO_INSTALL_DIR  ?= /Applications/Arduino.app/Contents/Resources/Java
+# ARDUINO_INSTALL_DIR  ?= /Applications/Arduino.app/Contents/Resources/Java
+
+ARDUINO_INSTALL_DIR  =  C:/Programs/arduino-1.5.5-r2
 ARDUINO_VERSION      ?= 105
 
 # You can optionally set a path to the avr-gcc tools. Requires a trailing slash. (ex: /usr/local/avr-gcc/bin)
-AVR_TOOLS_PATH ?=
+AVR_TOOLS_PATH ?= C:/Programs/arduino-1.5.5-r2/hardware/tools/avr/bin/
 
 #Programmer configuration
 UPLOAD_RATE        ?= 115200
@@ -62,6 +64,8 @@ WIRE               ?= 0
 
 ############################################################################
 # Below here nothing should be changed...
+
+SHELL = cmd.exe
 
 # Here the Arduino variant is selected by the board type
 # HARDWARE_VARIANT = "arduino", "Sanguino", "Gen7", ...
@@ -205,7 +209,7 @@ else
 HARDWARE_DIR = ../ArduinoAddons/Arduino_0.xx
 endif
 endif
-HARDWARE_SRC = $(HARDWARE_DIR)/$(HARDWARE_VARIANT)/cores/arduino
+HARDWARE_SRC = $(HARDWARE_DIR)/$(HARDWARE_VARIANT)/avr/cores/arduino
 
 TARGET = $(notdir $(CURDIR))
 
@@ -218,7 +222,7 @@ VPATH += $(BUILD_DIR)
 VPATH += $(HARDWARE_SRC)
 ifeq ($(HARDWARE_VARIANT), arduino)
 VPATH += $(ARDUINO_INSTALL_DIR)/libraries/LiquidCrystal
-VPATH += $(ARDUINO_INSTALL_DIR)/libraries/SPI
+VPATH += $(ARDUINO_INSTALL_DIR)/hardware/arduino/avr/libraries/SPI
 ifeq ($(LIQUID_TWI2), 1)
 VPATH += $(ARDUINO_INSTALL_DIR)/libraries/Wire
 VPATH += $(ARDUINO_INSTALL_DIR)/libraries/Wire/utility
@@ -243,15 +247,21 @@ endif
 endif
 ifeq ($(HARDWARE_VARIANT), arduino)
 HARDWARE_SUB_VARIANT ?= mega
-VPATH += $(ARDUINO_INSTALL_DIR)/hardware/arduino/variants/$(HARDWARE_SUB_VARIANT)
+VPATH += $(ARDUINO_INSTALL_DIR)/hardware/arduino/avr/variants/$(HARDWARE_SUB_VARIANT)
 else
 HARDWARE_SUB_VARIANT ?= standard
 VPATH += $(HARDWARE_DIR)/$(HARDWARE_VARIANT)/variants/$(HARDWARE_SUB_VARIANT)
 endif
-SRC = wiring.c \
-	wiring_analog.c wiring_digital.c \
+
+SRC = \
+	wiring.c \
+	wiring_analog.c \
+	wiring_digital.c \
 	wiring_pulse.c \
-	wiring_shift.c WInterrupts.c
+	wiring_shift.c \
+	WInterrupts.c \
+	hooks.c
+
 ifeq ($(HARDWARE_VARIANT), Teensy)
 SRC = wiring.c
 VPATH += $(ARDUINO_INSTALL_DIR)/hardware/teensy/cores/teensy
@@ -275,7 +285,8 @@ CXXSRC += Wire.cpp
 endif
 
 #Check for Arduino 1.0.0 or higher and use the correct sourcefiles for that version
-ifeq ($(shell [ $(ARDUINO_VERSION) -ge 100 ] && echo true), true)
+#ifeq ($(shell [ $(ARDUINO_VERSION) -ge 100 ] && echo true), true)
+ifeq ($(ARDUINO_VERSION), 105)
 CXXSRC += main.cpp
 else
 SRC += pins_arduino.c main.c
@@ -293,7 +304,7 @@ DEBUG = stabs
 
 OPT = s
 
-DEFINES ?=
+DEFINES ?= ARDUINO_AVR_MEGA2560 ARDUINO_ARCH_AVR
 
 # Program settings
 CC = $(AVR_TOOLS_PATH)avr-gcc
@@ -413,8 +424,8 @@ sizebefore:
 	$P if [ -f $(BUILD_DIR)/$(TARGET).elf ]; then echo; echo $(MSG_SIZE_BEFORE); $(HEXSIZE); echo; fi
 
 sizeafter: build
-	$P if [ -f $(BUILD_DIR)/$(TARGET).elf ]; then echo; echo $(MSG_SIZE_AFTER); $(ELFSIZE); echo; fi
-
+#	$P if [ -f $(BUILD_DIR)/$(TARGET).elf ]; then echo; echo $(MSG_SIZE_AFTER); $(ELFSIZE); echo; fi
+	$(ELFSIZE) 
 
 # Convert ELF to COFF for use in debugging / simulating in AVR Studio or VMLAB.
 COFFCONVERT=$(OBJCOPY) --debugging \
