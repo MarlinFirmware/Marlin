@@ -498,9 +498,21 @@ void check_axes_activity()
   #endif//FAN_KICKSTART_TIME
   #ifdef FAN_SOFT_PWM
   fanSpeedSoftPwm = tail_fan_speed;
+  #endif//!FAN_SOFT_PWM
+  #if EXTRUDERS > 1 && FAN2_PIN > -1
+    if (extruder_duplication_enabled) {
+      analogWrite(FAN_PIN,tail_fan_speed);
+      analogWrite(FAN2_PIN,tail_fan_speed);
+    } else if (active_extruder > 0) {
+      analogWrite(FAN_PIN,0);
+      analogWrite(FAN2_PIN,tail_fan_speed);
+    } else {
+      analogWrite(FAN2_PIN,0);  
+      analogWrite(FAN_PIN,tail_fan_speed);
+    }    
   #else
   analogWrite(FAN_PIN,tail_fan_speed);
-  #endif//!FAN_SOFT_PWM
+  #endif
 #endif//FAN_PIN > -1
 #ifdef AUTOTEMP
   getHighESpeed();
