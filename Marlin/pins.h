@@ -137,6 +137,10 @@
 #define Y2_DIR_PIN          40
 #define Y2_ENABLE_PIN       36
 
+#define Z2_STEP_PIN         37
+#define Z2_DIR_PIN          40
+#define Z2_ENABLE_PIN       36
+
 #define SDPOWER            -1
 #define SDSS               11
 #define SDCARDDETECT       -1 // 10 optional also used as mode pin
