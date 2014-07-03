@@ -72,6 +72,7 @@
 // 301= Rambo
 // 21 = Elefu Ra Board (v3)
 // 88 = 5DPrint D8 Driver Board
+// 999 = Leapfrog
 
 #ifndef MOTHERBOARD
 #define MOTHERBOARD 7
