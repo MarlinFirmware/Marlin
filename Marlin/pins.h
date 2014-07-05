@@ -823,9 +823,9 @@
 
 #ifndef SDSUPPORT
 // these pins are defined in the SD library if building with SD support
-  #define MAX_SCK_PIN          52
-  #define MAX_MISO_PIN         50
-  #define MAX_MOSI_PIN         51
+  #define SCK_PIN          52
+  #define MISO_PIN         50
+  #define MOSI_PIN         51
   #define MAX6675_SS       53
 #else
   #define MAX6675_SS       49
