@@ -4,3 +4,4 @@ applet/
 *.orig
 *.rej
 *.bak
+build/

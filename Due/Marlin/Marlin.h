@@ -12,9 +12,10 @@
 #include <string.h>
 #include <inttypes.h>
 
-#include <util/delay.h>
+//due: #include <delay.h>			
+
 #include <avr/pgmspace.h>
-#include <avr/eeprom.h>
+//due: #include <avr/eeprom.h>
 #include <avr/interrupt.h>
 
 #include "HAL.h"
@@ -24,7 +25,7 @@
 #include "pins.h"
 
 #ifndef AT90USB
-#define  HardwareSerial_h // trick to disable the standard HWserial
+//due: #define  HardwareSerial_h // trick to disable the standard HWserial
 #endif
 
 #if (ARDUINO >= 100)
@@ -60,7 +61,7 @@
    #endif // BTENABLED
 #else
   #ifdef ARDUINO_ARCH_AVR
-  #define MYSERIAL MSerial
+    #define MYSERIAL MSerial
   #elif defined (ARDUINO_ARCH_SAM)
     #define MYSERIAL Serial
   #endif

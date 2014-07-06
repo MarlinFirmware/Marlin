@@ -8,6 +8,19 @@ Please do not use this code in products (3D printers, CNC etc) that are closed s
 
 [![Flattr this git repo](http://api.flattr.com/button/flattr-badge-large.png)](https://flattr.com/submit/auto?user_id=ErikZalm&url=https://github.com/ErikZalm/Marlin&title=Marlin&language=&tags=github&category=software)
 
+
+Note on this fork
+=================
+
+This is an experimental fork of Marlin in order to create a version that is portable between existing AVR targets and also Arduino Due 
+compatible targets.
+
+The following shields will be supported on Arduino Due:
+* RADDS
+* RAMPS-FD 
+
+Current Status : *** in development ***
+
 Quick Information
 ===================
 This RepRap firmware is a mashup between <a href="https://github.com/kliment/Sprinter">Sprinter</a>, <a href="https://github.com/simen/grbl/tree">grbl</a> and many original parts.
