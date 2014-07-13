@@ -18,10 +18,10 @@ public:
   //this is to delay autostart and hence the initialisaiton of the sd card to some seconds after the normal init, so the device is available quick after a reset
 
   void checkautostart(bool x); 
-  void openFile(char* name,bool read);
+  void openFile(char* name,bool read,bool replace_current=true);
   void openLogFile(char* name);
   void removeFile(char* name);
-  void closefile();
+  void closefile(bool store_location=false);
   void release();
   void startFileprint();
   void pauseSDPrint();
@@ -30,6 +30,8 @@ public:
 
   void getfilename(const uint8_t nr);
   uint16_t getnrfilenames();
+  
+  void getAbsFilename(char *t);
   
 
   void ls();
@@ -60,6 +62,11 @@ private:
   Sd2Card card;
   SdVolume volume;
   SdFile file;
+  #define SD_PROCEDURE_DEPTH 1
+  #define MAXPATHNAMELENGTH (13*MAX_DIR_DEPTH+MAX_DIR_DEPTH+1)
+  uint8_t file_subcall_ctr;
+  uint32_t filespos[SD_PROCEDURE_DEPTH];
+  char filenames[SD_PROCEDURE_DEPTH][MAXPATHNAMELENGTH];
   uint32_t filesize;
   //int16_t n;
   unsigned long autostart_atmillis;

@@ -2,8 +2,8 @@
 #define ULTRA_LCD_IMPLEMENTATION_HITACHI_HD44780_H
 
 /**
-* Implementation of the LCD display routines for a hitachi HD44780 display. These are common LCD character displays.
-* When selecting the rusian language, a slightly different LCD implementation is used to handle UTF8 characters.
+* Implementation of the LCD display routines for a Hitachi HD44780 display. These are common LCD character displays.
+* When selecting the Russian language, a slightly different LCD implementation is used to handle UTF8 characters.
 **/
 
 #ifndef REPRAPWORLD_KEYPAD
@@ -20,7 +20,7 @@ extern volatile uint16_t buttons;  //an extended version of the last checked but
 // via a shift/i2c register.
 
 #ifdef ULTIPANEL
-// All Ultipanels might have an encoder - so this is always be mapped onto first two bits
+// All UltiPanels might have an encoder - so this is always be mapped onto first two bits
 #define BLEN_B 1
 #define BLEN_A 0
 
@@ -128,17 +128,10 @@ extern volatile uint16_t buttons;  //an extended version of the last checked but
 // These values are independent of which pins are used for EN_A and EN_B indications
 // The rotary encoder part is also independent to the chipset used for the LCD
 #if defined(EN_A) && defined(EN_B)
-  #ifndef ULTIMAKERCONTROLLER
     #define encrot0 0
     #define encrot1 2
     #define encrot2 3
     #define encrot3 1
-  #else
-    #define encrot0 0
-    #define encrot1 1
-    #define encrot2 3
-    #define encrot3 2
-  #endif
 #endif 
 
 #endif //ULTIPANEL
@@ -185,7 +178,16 @@ extern volatile uint16_t buttons;  //an extended version of the last checked but
     #include <LiquidCrystal_I2C.h>
     #define LCD_CLASS LiquidCrystal_I2C
     LCD_CLASS lcd(LCD_I2C_ADDRESS, LCD_WIDTH, LCD_HEIGHT);
-  
+    
+// 2 wire Non-latching LCD SR from:
+// https://bitbucket.org/fmalpartida/new-liquidcrystal/wiki/schematics#!shiftregister-connection 
+#elif defined(SR_LCD_2W_NL)
+   
+  #include <LCD.h>
+  #include <LiquidCrystal_SR.h>
+  #define LCD_CLASS LiquidCrystal_SR
+  LCD_CLASS lcd(SR_DATA_PIN, SR_CLK_PIN);
+
 #else
   // Standard directly connected LCD implementations
   #if LANGUAGE_CHOICE == 6
@@ -295,7 +297,7 @@ static void lcd_implementation_init()
         B00000
     }; //thanks Sonny Mounicou
 
-#if defined(LCDI2C_TYPE_PCF8575)
+#if defined(LCD_I2C_TYPE_PCF8575)
     lcd.begin(LCD_WIDTH, LCD_HEIGHT);
   #ifdef LCD_I2C_PIN_BL
     lcd.setBacklightPin(LCD_I2C_PIN_BL,POSITIVE);
@@ -709,9 +711,14 @@ static void lcd_implementation_drawmenu_sddirectory(uint8_t row, const char* pst
 static void lcd_implementation_quick_feedback()
 {
 #ifdef LCD_USE_I2C_BUZZER
-    lcd.buzz(60,1000/6);
+	#if !defined(LCD_FEEDBACK_FREQUENCY_HZ) || !defined(LCD_FEEDBACK_FREQUENCY_DURATION_MS)
+	  lcd_buzz(1000/6,100);
+	#else
+	  lcd_buzz(LCD_FEEDBACK_FREQUENCY_DURATION_MS,LCD_FEEDBACK_FREQUENCY_HZ);
+	#endif
 #elif defined(BEEPER) && BEEPER > -1
     SET_OUTPUT(BEEPER);
+	#if !defined(LCD_FEEDBACK_FREQUENCY_HZ) || !defined(LCD_FEEDBACK_FREQUENCY_DURATION_MS)
     for(int8_t i=0;i<10;i++)
     {
       WRITE(BEEPER,HIGH);
@@ -719,6 +726,15 @@ static void lcd_implementation_quick_feedback()
       WRITE(BEEPER,LOW);
       delayMicroseconds(100);
     }
+    #else
+    for(int8_t i=0;i<(LCD_FEEDBACK_FREQUENCY_DURATION_MS / (1000 / LCD_FEEDBACK_FREQUENCY_HZ));i++)
+    {
+      WRITE(BEEPER,HIGH);
+      delayMicroseconds(1000000 / LCD_FEEDBACK_FREQUENCY_HZ / 2);
+      WRITE(BEEPER,LOW);
+      delayMicroseconds(1000000 / LCD_FEEDBACK_FREQUENCY_HZ / 2);
+    }
+    #endif
 #endif
 }
 
@@ -744,12 +760,23 @@ static void lcd_implementation_update_indicators()
 #endif
 
 #ifdef LCD_HAS_SLOW_BUTTONS
+extern uint32_t blocking_enc;
+
 static uint8_t lcd_implementation_read_slow_buttons()
 {
   #ifdef LCD_I2C_TYPE_MCP23017
+  uint8_t slow_buttons;
     // Reading these buttons this is likely to be too slow to call inside interrupt context
     // so they are called during normal lcd_update
-    return lcd.readButtons() << B_I2C_BTN_OFFSET; 
+    slow_buttons = lcd.readButtons() << B_I2C_BTN_OFFSET; 
+    #if defined(LCD_I2C_VIKI)
+    if(slow_buttons & (B_MI|B_RI)) { //LCD clicked
+       if(blocking_enc > millis()) {
+         slow_buttons &= ~(B_MI|B_RI); // Disable LCD clicked buttons if screen is updated
+       }
+    }
+    #endif
+    return slow_buttons; 
   #endif
 }
 #endif
