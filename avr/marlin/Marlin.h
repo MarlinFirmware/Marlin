@@ -12,9 +12,12 @@
 #include <string.h>
 #include <inttypes.h>
 
+#ifdef ARDUINO_ARCH_AVR
 #include <util/delay.h>
-#include <avr/pgmspace.h>
 #include <avr/eeprom.h>
+#endif
+
+#include <avr/pgmspace.h>
 #include <avr/interrupt.h>
 
 #include "HAL.h"
@@ -23,8 +26,10 @@
 #include "Configuration.h"
 #include "pins.h"
 
+#ifdef ARDUINO_ARCH_AVR
 #ifndef AT90USB
 #define  HardwareSerial_h // trick to disable the standard HWserial
+#endif
 #endif
 
 #if (ARDUINO >= 100)

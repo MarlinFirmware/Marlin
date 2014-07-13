@@ -803,6 +803,10 @@ void tp_init()
   // Interleave temperature interrupt with millies interrupt
   OCR0B = 128;
   TIMSK0 |= (1<<OCIE0B);  
+#elif defined(ARDUINO_ARCH_SAM)
+
+  HAL_timer_start (TEMP_TIMER_NUM, 1000);
+  HAL_timer_enable_interrupt (TEMP_TIMER_NUM);
 #endif
   
   // Wait for temperature measurement to settle
@@ -1104,7 +1108,8 @@ int read_max6675()
 
 
 // Timer 0 is shared with millies
-ISR(TIMER0_COMPB_vect)
+//ISR(TIMER0_COMPB_vect)
+HAL_TEMP_TIMER_ISR
 {
   //these variables are only accesible from the ISR, but static, so they don't lose their value
   static unsigned char temp_count = 0;
@@ -1124,6 +1129,8 @@ ISR(TIMER0_COMPB_vect)
   #if HEATER_BED_PIN > -1
   static unsigned char soft_pwm_b;
   #endif
+
+  HAL_timer_isr_prologue (TEMP_TIMER_NUM);
   
   if(pwm_count == 0){
     soft_pwm_0 = soft_pwm[0];
@@ -1263,6 +1270,73 @@ ISR(TIMER0_COMPB_vect)
 //      SERIAL_ERRORLNPGM("Temp measurement error!");
 //      break;
   }
+#elif defined(ARDUINO_ARCH_SAM)
+  switch(temp_state) {
+    case 0: // Prepare TEMP_0
+      #if defined(TEMP_0_PIN) && (TEMP_0_PIN > -1)
+    	// Start conversion
+      #endif
+      lcd_buttons_update();
+      temp_state = 1;
+      break;
+    case 1: // Measure TEMP_0
+      #if defined(TEMP_0_PIN) && (TEMP_0_PIN > -1)
+        raw_temp_0_value += analogRead (TEMP_0_PIN);
+      #endif
+      #ifdef HEATER_0_USES_MAX6675 // TODO remove the blocking
+        raw_temp_0_value = read_max6675();
+      #endif
+      temp_state = 2;
+      break;
+    case 2: // Prepare TEMP_BED
+      #if defined(TEMP_BED_PIN) && (TEMP_BED_PIN > -1)
+    	// Start conversion
+      #endif
+      lcd_buttons_update();
+      temp_state = 3;
+      break;
+    case 3: // Measure TEMP_BED
+      #if defined(TEMP_BED_PIN) && (TEMP_BED_PIN > -1)
+        raw_temp_bed_value += analogRead (TEMP_BED_PIN);
+      #endif
+      temp_state = 4;
+      break;
+    case 4: // Prepare TEMP_1
+      #if defined(TEMP_1_PIN) && (TEMP_1_PIN > -1)
+    	// Start conversion
+      #endif
+      lcd_buttons_update();
+      temp_state = 5;
+      break;
+    case 5: // Measure TEMP_1
+      #if defined(TEMP_1_PIN) && (TEMP_1_PIN > -1)
+        raw_temp_1_value += analogRead (TEMP_1_PIN);
+      #endif
+      temp_state = 6;
+      break;
+    case 6: // Prepare TEMP_2
+      #if defined(TEMP_2_PIN) && (TEMP_2_PIN > -1)
+    	// Start conversion
+      #endif
+      lcd_buttons_update();
+      temp_state = 7;
+      break;
+    case 7: // Measure TEMP_2
+      #if defined(TEMP_2_PIN) && (TEMP_2_PIN > -1)
+        raw_temp_2_value += analogRead (TEMP_2_PIN);
+      #endif
+      temp_state = 0;
+      temp_count++;
+      break;
+    case 8: //Startup, delay initial temp reading a tiny bit so the hardware can settle.
+      temp_state = 0;
+      break;
+//    default:
+//      SERIAL_ERROR_START;
+//      SERIAL_ERRORLNPGM("Temp measurement error!");
+//      break;
+  }
+
 #endif
 
   if(temp_count >= OVERSAMPLENR) // 8 * 16 * 1/(16000000/64/256)  = 131ms.

@@ -192,7 +192,18 @@ void Config_RetrieveSettings()
     char stored_ver[4];
     char ver[4]=EEPROM_VERSION;
     EEPROM_READ_VAR(i,stored_ver); //read stored version
+
+#ifdef VERBOSE
     //  SERIAL_ECHOLN("Version: [" << ver << "] Stored version: [" << stored_ver << "]");
+    SERIAL_ECHO_START;
+    SERIAL_ECHO(" Version: ");
+    SERIAL_ECHO(ver);
+    SERIAL_ECHO(" Stored: ");
+    SERIAL_ECHO(stored_ver);
+    SERIAL_ECHOLN("");
+#endif
+
+
     if (strncmp(ver,stored_ver,3) == 0)
     {
         // version number match

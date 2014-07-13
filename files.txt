@@ -1,0 +1,55 @@
+
+
+Files
+======
+
+
+Common to all platforms
+-----------------------
+
+cardreader.h
+Configuration.h
+Configuration_adv.h
+ConfigurationStore.cpp
+ConfigurationStore.h
+language.h
+Marlin.h
+Marlin.ino
+Marlin_main.cpp
+motion_control.cpp
+motion_control.h
+planner.cpp
+planner.h
+stepper.cpp
+stepper.h
+temperature.cpp
+temperature.h
+thermistortables.h
+ultralcd.h
+watchdog.h
+
+
+
+
+AVR specific
+------------
+
+fastio.h
+HAL.cpp
+HAL.h
+pins.h
+
+MarlinSerial.cpp
+MarlinSerial.h
+
+
+Due specific
+------------
+
+fastio.h
+HAL.cpp
+HAL.h
+pins.h
+
+delay.h (stub)
+math.h (stub)

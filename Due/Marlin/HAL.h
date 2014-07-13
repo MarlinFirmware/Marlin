@@ -1,5 +1,3 @@
-/* -*- c++ -*- */
-
 /*
  Contributors:
     Copyright (c) 2014 Bob Cousins bobcousins42@googlemail.com
@@ -81,19 +79,28 @@ unsigned char eeprom_read_byte(unsigned char *pos);
 
 
 // timers
-#define TICKS_PER_MICROSECOND   F_CPU/2/1000000
-#define HAL_STEP_TIMER_RATE 	F_CPU/2
+#define STEP_TIMER_NUM 3
+#define TEMP_TIMER_NUM 4
 
+#define HAL_TIMER_RATE 		   F_CPU/32.0
+#define TICKS_PER_NANOSECOND   (HAL_TIMER_RATE)/1000
+
+#define ENABLE_STEPPER_DRIVER_INTERRUPT()	HAL_timer_enable_interrupt (STEP_TIMER_NUM)
+#define DISABLE_STEPPER_DRIVER_INTERRUPT()	HAL_timer_disable_interrupt (STEP_TIMER_NUM)
+
+//
 #define HAL_STEP_TIMER_ISR 	void TC3_Handler()
+#define HAL_TEMP_TIMER_ISR 	void TC4_Handler()
 
-#define ENABLE_STEPPER_DRIVER_INTERRUPT()	TC1->TC_CHANNEL[0].TC_IER = TC_IER_CPCS;
-#define DISABLE_STEPPER_DRIVER_INTERRUPT()	TC1->TC_CHANNEL[0].TC_IDR = TC_IER_CPCS;
+void HAL_timer_start (uint8_t timer_num, uint32_t frequency);
+void HAL_timer_set_count (uint8_t timer_num, uint32_t count);
 
+void HAL_timer_enable_interrupt (uint8_t timer_num);
+void HAL_timer_disable_interrupt (uint8_t timer_num);
 
-void HAL_startTimer(Tc *tc, uint32_t channel, IRQn_Type irq, uint32_t frequency);
-void HAL_set_step_timer (uint32_t count);
+void HAL_timer_isr_prologue (uint8_t timer_num);
+//
 
-#define HAL_clear_step_timer_irq TC_GetStatus(TC1, 0)
 
 
 // --------------------------------------------------------------------------

@@ -30,6 +30,8 @@
 
 #include "HAL.h"
 
+#include <Wire.h>
+
 // --------------------------------------------------------------------------
 // Externals
 // --------------------------------------------------------------------------
@@ -90,24 +92,95 @@ int freeMemory()
 	return 0;
 }
 
-//
+// --------------------------------------------------------------------------
+// eeprom
+// --------------------------------------------------------------------------
 
-void eeprom_write_byte(unsigned char *pos, unsigned char value) {}
+static bool eeprom_initialised = false;
+static uint8_t eeprom_device_address = 0x50;
+
+static void eeprom_init(void)
+{
+	if (!eeprom_initialised)
+	{
+		Wire.begin();
+		eeprom_initialised = true;
+	}
+}
+
+void eeprom_write_byte(unsigned char *pos, unsigned char value)
+{
+	unsigned eeprom_address = (unsigned) pos;
+
+	eeprom_init();
+
+	Wire.beginTransmission(eeprom_device_address);
+	Wire.write((int)(eeprom_address >> 8));   // MSB
+	Wire.write((int)(eeprom_address & 0xFF)); // LSB
+    Wire.write(value);
+	Wire.endTransmission();
+
+	// wait for write cycle to complete
+	// this could be done more efficiently with "acknowledge polling"
+	delay(5);
+}
+
 
 unsigned char eeprom_read_byte(unsigned char *pos)
 {
-	return '\0';
+	byte data = 0xFF;
+	unsigned eeprom_address = (unsigned) pos;
+
+	eeprom_init ();
+
+	Wire.beginTransmission(eeprom_device_address);
+	Wire.write((int)(eeprom_address >> 8));   // MSB
+	Wire.write((int)(eeprom_address & 0xFF)); // LSB
+	Wire.endTransmission();
+	Wire.requestFrom(eeprom_device_address, (byte)1);
+	if (Wire.available())
+		data = Wire.read();
+	return data;
 }
 
-//
+// --------------------------------------------------------------------------
+// Timers
+// --------------------------------------------------------------------------
 
-void HAL_startTimer(Tc *tc, uint32_t channel, IRQn_Type irq, uint32_t frequency)
+typedef struct
 {
+    Tc          *pTimerRegs;
+    uint16_t    channel;
+    IRQn_Type   IRQ_Id;
+  } tTimerConfig ;
+
+#define  NUM_HARDWARE_TIMERS 9
+
+static const tTimerConfig TimerConfig [NUM_HARDWARE_TIMERS] =
+  {
+    { TC0, 0, TC0_IRQn},
+    { TC0, 1, TC1_IRQn},
+    { TC0, 2, TC2_IRQn},
+    { TC1, 0, TC3_IRQn},
+    { TC1, 1, TC4_IRQn},
+    { TC1, 2, TC5_IRQn},
+    { TC2, 0, TC6_IRQn},
+    { TC2, 1, TC7_IRQn},
+    { TC2, 2, TC8_IRQn},
+  };
+
+
+void HAL_timer_start (uint8_t timer_num, uint32_t frequency)
+{
+	Tc *tc = TimerConfig [timer_num].pTimerRegs;
+	IRQn_Type irq = TimerConfig [timer_num].IRQ_Id;
+	uint32_t channel = TimerConfig [timer_num].channel;
+
 	pmc_set_writeprotect(false);
 	pmc_enable_periph_clk((uint32_t)irq);
-	TC_Configure(tc, channel, TC_CMR_WAVE | TC_CMR_WAVSEL_UP_RC | TC_CMR_TCCLKS_TIMER_CLOCK1);
+	TC_Configure (tc, channel, TC_CMR_WAVE | TC_CMR_WAVSEL_UP_RC | TC_CMR_TCCLKS_TIMER_CLOCK3);
 
-	uint32_t rc = VARIANT_MCK/2/frequency; // divide by 2 because we selected TIMER_CLOCK1 above
+	uint32_t rc = VARIANT_MCK/32/frequency;
 
 	TC_SetRC(tc, channel, rc);
 
@@ -119,9 +192,32 @@ void HAL_startTimer(Tc *tc, uint32_t channel, IRQn_Type irq, uint32_t frequency)
 	NVIC_EnableIRQ(irq);
 }
 
-void HAL_set_step_timer (uint32_t count)
+void HAL_timer_enable_interrupt (uint8_t timer_num)
 {
-	TC_SetRC (TC1, 0, count);
+	const tTimerConfig *pConfig = &TimerConfig [timer_num];
+
+	pConfig->pTimerRegs->TC_CHANNEL [pConfig->channel].TC_IER = TC_IER_CPCS;
+}
+
+void HAL_timer_disable_interrupt (uint8_t timer_num)
+{
+	const tTimerConfig *pConfig = &TimerConfig [timer_num];
+
+	pConfig->pTimerRegs->TC_CHANNEL [pConfig->channel].TC_IDR = TC_IER_CPCS;
+}
+
+void HAL_timer_set_count (uint8_t timer_num, uint32_t count)
+{
+	const tTimerConfig *pConfig = &TimerConfig [timer_num];
+
+	TC_SetRC (pConfig->pTimerRegs, pConfig->channel, count);
+}
+
+void HAL_timer_isr_prologue (uint8_t timer_num)
+{
+	const tTimerConfig *pConfig = &TimerConfig [timer_num];
+
+	TC_GetStatus (pConfig->pTimerRegs, pConfig->channel);
 }
 
 // --------------------------------------------------------------------------

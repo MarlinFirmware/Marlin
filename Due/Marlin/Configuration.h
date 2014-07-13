@@ -75,9 +75,10 @@
 
 // 402 = RADDS
 // 403 = RAMPS-FD v1
+// 404 = RAMPS-FD v2
 
 #ifndef MOTHERBOARD
-#define MOTHERBOARD 403
+#define MOTHERBOARD 404
 #endif
 
 // Define this to set a custom name for your generic Mendel,

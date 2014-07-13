@@ -234,7 +234,7 @@
 #endif //MOTHERBOARD == 402
 
 // RAMPS-FD
-#if MOTHERBOARD == 403
+#if MOTHERBOARD == 403 || MOTHERBOARD == 404
 #define KNOWN_BOARD 1
 
 //
@@ -244,8 +244,11 @@
 
 
 //
- #define RAMPS_FD_V_1
-// #define RAMPS_FD_V_2
+#if MOTHERBOARD == 403
+  #define RAMPS_FD_V1
+#else
+  #define RAMPS_FD_V2
+#endif
 
 #define X_STEP_PIN         63
 #define X_DIR_PIN          62
@@ -283,7 +286,7 @@
 
 #define BEEPER             -1
 
-#define FAN_PIN            9
+#define FAN_PIN            -1
 
 #define CONTROLLERFAN_PIN  -1 //Pin used for the fan to cool controller
 
@@ -292,21 +295,22 @@
 #define KILL_PIN           -1
 
 
+#define HEATER_BED_PIN     8    // BED
 
-#define HEATER_0_PIN       8
-#define HEATER_1_PIN       9
-#define HEATER_2_PIN       10
+#define HEATER_0_PIN       9
+#define HEATER_1_PIN       10
+#define HEATER_2_PIN       11
 
-#define TEMP_0_PIN         54   // ANALOG NUMBERING
-#define TEMP_1_PIN         55   // ANALOG NUMBERING
-#define TEMP_2_PIN         56   // ANALOG NUMBERING
-#define TEMP_3_PIN         57   // ANALOG NUMBERING
+#define TEMP_BED_PIN       0   // ANALOG NUMBERING
 
-#define TEMP_4_PIN         58   // ANALOG NUMBERING
+#define TEMP_0_PIN         1   // ANALOG NUMBERING
+#define TEMP_1_PIN         -1  // 2    // ANALOG NUMBERING
+#define TEMP_2_PIN         -1  // 3     // ANALOG NUMBERING
 
-#define HEATER_BED_PIN     9    // BED
+#define TEMP_3_PIN         -1   // ANALOG NUMBERING
+#define TEMP_4_PIN         -1   // ANALOG NUMBERING
 
-#define TEMP_BED_PIN       14   // ANALOG NUMBERING
+
 
   #ifdef NUM_SERVOS
     #define SERVO0_PIN         11
@@ -431,7 +435,7 @@
   #define MAX6675_SS       49
 #endif
 
-#endif //MOTHERBOARD == 200
+#endif //MOTHERBOARD == 403
 
 // --------------------------------------------------------------------------
 // 

@@ -171,17 +171,15 @@ asm volatile ( \
 
 // Some useful constants
 
-#define ENABLE_STEPPER_DRIVER_INTERRUPT()  TIMSK1 |= (1<<OCIE1A)
-#define DISABLE_STEPPER_DRIVER_INTERRUPT() TIMSK1 &= ~(1<<OCIE1A)
 
 // --------------------------------------------------------------------------
 #else if defined(ARDUINO_ARCH_SAM)
 
 //TODO: port for Due
 
-#define MultiU16X8toH16(intRes, charIn1, intIn2) intRes = (charIn1) * (intIn2) >> 16
+#define MultiU16X8toH16(intRes, charIn1, intIn2)   intRes = ((charIn1) * (intIn2)) >> 16
 
-#define MultiU24X24toH16(intRes, longIn1, longIn2) intRes = (longIn1) * (longIn2) >> 16
+#define MultiU24X24toH16(intRes, longIn1, longIn2) intRes = ((longIn1) * (longIn2)) >> 24
 
 #endif
 // --------------------------------------------------------------------------
@@ -266,11 +264,11 @@ FORCE_INLINE unsigned long calc_timer(unsigned short step_rate) {
   if(step_rate > MAX_STEP_FREQUENCY) step_rate = MAX_STEP_FREQUENCY;
 
   if(step_rate > 20000) { // If steprate > 20kHz >> step 4 times
-    step_rate = (step_rate >> 2)&0x3fff;
+    step_rate = (step_rate >> 2);
     step_loops = 4;
   }
   else if(step_rate > 10000) { // If steprate > 10kHz >> step 2 times
-    step_rate = (step_rate >> 1)&0x7fff;
+    step_rate = (step_rate >> 1);
     step_loops = 2;
   }
   else {
@@ -295,7 +293,7 @@ FORCE_INLINE unsigned long calc_timer(unsigned short step_rate) {
     timer -= (((unsigned short)pgm_read_word_near(table_address+2) * (unsigned char)(step_rate & 0x0007))>>3);
   }
 #elif defined(ARDUINO_ARCH_SAM)
-  timer = (TICKS_PER_MICROSECOND * 1000000) / step_rate;
+  timer = HAL_TIMER_RATE / step_rate;
 #endif
 
   if(timer < 100) { timer = 100; MYSERIAL.print(MSG_STEPPER_TOO_HIGH); MYSERIAL.println(step_rate); }//(20kHz this should never happen)
@@ -319,7 +317,7 @@ FORCE_INLINE void trapezoid_generator_reset() {
   step_loops_nominal = step_loops;
   acc_step_rate = current_block->initial_rate;
   acceleration_time = calc_timer(acc_step_rate);
-  HAL_set_step_timer (acceleration_time);
+  HAL_timer_set_count (STEP_TIMER_NUM, acceleration_time);
 
 //    SERIAL_ECHO_START;
 //    SERIAL_ECHOPGM("advance :");
@@ -338,7 +336,7 @@ FORCE_INLINE void trapezoid_generator_reset() {
 //ISR(TIMER1_COMPA_vect)
 HAL_STEP_TIMER_ISR
 {
-  HAL_clear_step_timer_irq;
+  HAL_timer_isr_prologue (STEP_TIMER_NUM);
 
   // If there is no current block, attempt to pop one from the buffer
   if (current_block == NULL) {
@@ -367,7 +365,7 @@ HAL_STEP_TIMER_ISR
     }
     else {
         //OCR1A=2000; // 1kHz.
-    	HAL_set_step_timer (HAL_STEP_TIMER_RATE / 1000); // 1kHz
+    	HAL_timer_set_count (STEP_TIMER_NUM, HAL_TIMER_RATE / 1000); // 1kHz
     }
   }
 
@@ -669,7 +667,7 @@ HAL_STEP_TIMER_ISR
     }
     // Calculare new timer value
     unsigned long timer;
-    unsigned short step_rate;
+    unsigned long step_rate;
     if (step_events_completed <= (unsigned long int)current_block->accelerate_until) {
 
       MultiU24X24toH16(acc_step_rate, acceleration_time, current_block->acceleration_rate);
@@ -681,7 +679,7 @@ HAL_STEP_TIMER_ISR
 
       // step_rate to timer interval
       timer = calc_timer(acc_step_rate);
-      HAL_set_step_timer (timer);
+      HAL_timer_set_count (STEP_TIMER_NUM, timer);
       acceleration_time += timer;
       #ifdef ADVANCE
         for(int8_t i=0; i < step_loops; i++) {
@@ -710,7 +708,7 @@ HAL_STEP_TIMER_ISR
 
       // step_rate to timer interval
       timer = calc_timer(step_rate);
-      HAL_set_step_timer (timer);
+      HAL_timer_set_count (STEP_TIMER_NUM, timer);
       deceleration_time += timer;
       #ifdef ADVANCE
         for(int8_t i=0; i < step_loops; i++) {
@@ -723,7 +721,7 @@ HAL_STEP_TIMER_ISR
       #endif //ADVANCE
     }
     else {
-    	HAL_set_step_timer (OCR1A_nominal);
+    	HAL_timer_set_count (STEP_TIMER_NUM, OCR1A_nominal);
       // ensure we're running at the correct step rate, even if we just came off an acceleration
       step_loops = step_loops_nominal;
     }
@@ -982,7 +980,7 @@ void st_init()
 #elif defined (ARDUINO_ARCH_SAM)
   //todo: Due
 
-  HAL_startTimer(TC1, 0, TC3_IRQn, 1000);
+  HAL_timer_start (STEP_TIMER_NUM, 1000);
 
 #endif
 

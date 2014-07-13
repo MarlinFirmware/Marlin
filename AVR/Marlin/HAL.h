@@ -1,5 +1,3 @@
-/* -*- c++ -*- */
-
 /*
  Contributors:
     Copyright (c) 2014 Bob Cousins bobcousins42@googlemail.com
@@ -23,6 +21,7 @@
 //
 // Description:          *** HAL for Arduino AVR ***
 //
+// ARDUINO_ARCH_AVR
 // **************************************************************************
 
 #ifndef _HAL_H
@@ -76,15 +75,25 @@ int freeMemory(void);
 
 
 // timers
+#define STEP_TIMER_NUM OCR1A
+#define TEMP_TIMER_NUM 0
 
-#define HAL_STEP_TIMER_RATE 	F_CPU/8 
+#define HAL_TIMER_RATE 	F_CPU/8.0 
 
-//void HAL_set_step_timer (uint16_t count);
-#define HAL_set_step_timer(u16) OCR1A = (u16)
+#define ENABLE_STEPPER_DRIVER_INTERRUPT()  TIMSK1 |= (1<<OCIE1A)
+#define DISABLE_STEPPER_DRIVER_INTERRUPT() TIMSK1 &= ~(1<<OCIE1A)
+
+//void HAL_timer_start (uint8_t timer_num, uint32_t frequency);
+#define HAL_timer_start (timer_num,frequency)
+
+//void HAL_timer_set_count (uint8_t timer_num, uint16_t count);
+#define HAL_timer_set_count(timer,count) timer = (count)
+
+//void HAL_timer_isr_prologue (uint8_t timer_num);
+#define HAL_timer_isr_prologue(timer_num)
 
 #define HAL_STEP_TIMER_ISR 	ISR(TIMER1_COMPA_vect)
-
-#define HAL_clear_step_timer_irq
+#define HAL_TEMP_TIMER_ISR  ISR(TIMER0_COMPB_vect)
 
 // --------------------------------------------------------------------------
 //
