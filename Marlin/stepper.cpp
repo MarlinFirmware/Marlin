@@ -260,6 +260,7 @@ FORCE_INLINE unsigned short calc_timer(unsigned short step_rate) {
     step_loops = 1;
   }
 
+  // Note: update STEPPER_MIN_TICK_RATE if you replace F_CPU/500000 with something else
   if(step_rate < (F_CPU/500000)) step_rate = (F_CPU/500000);
   step_rate -= (F_CPU/500000); // Correct for minimal speed
   if(step_rate >= (8*256)){ // higher step rate
