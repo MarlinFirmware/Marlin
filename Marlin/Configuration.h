@@ -137,7 +137,7 @@
 #define TEMP_SENSOR_0 6
 #define TEMP_SENSOR_1 0
 #define TEMP_SENSOR_2 0
-#define TEMP_SENSOR_BED 6
+#define TEMP_SENSOR_BED 0 //we're not using heated bed
 
 // This makes temp sensor 1 a redundant sensor for sensor 0. If the temperatures difference between these sensors is to high the print will be aborted.
 //#define TEMP_SENSOR_1_AS_REDUNDANT
@@ -189,9 +189,9 @@
 
 // If you are using a pre-configured hotend then you can use one of the value sets by uncommenting it
 //Lewis group gantry
-    #define  DEFAULT_Kp 80.53
-    #define  DEFAULT_Ki 9.24
-    #define  DEFAULT_Kd 175.48
+    #define  DEFAULT_Kp 49.69
+    #define  DEFAULT_Ki 7.51
+    #define  DEFAULT_Kd 82.22
 
 // MakerGear
 //    #define  DEFAULT_Kp 7.0
@@ -228,8 +228,9 @@
 //120v 250W silicone heater into 4mm borosilicate (MendelMax 1.5+)
 //from FOPDT model - kp=.39 Tp=405 Tdead=66, Tc set to 79.2, aggressive factor of .15 (vs .1, 1, 10)
     #define  DEFAULT_bedKp 10.00
-    #define  DEFAULT_bedKi .023
+    #define  DEFAULT_bedKi 0.023
     #define  DEFAULT_bedKd 305.4
+    //will need recalibration if heated bed added
 
 //120v 250W silicone heater into 4mm borosilicate (MendelMax 1.5+)
 //from pidautotune
@@ -283,7 +284,8 @@
 // The pullups are needed if you directly connect a mechanical endswitch between the signal and ground pins.
 const bool X_MIN_ENDSTOP_INVERTING = false; // set to true to invert the logic of the endstop.
 const bool Y_MIN_ENDSTOP_INVERTING = false; // set to true to invert the logic of the endstop.
-const bool Z_MIN_ENDSTOP_INVERTING = false; // set to true to invert the logic of the endstop.
+const bool Z_MIN_ENDSTOP_INVERTING = true; // set to true to invert the logic of the endstop.
+//bed probe has inverted endstop logic compared to switch
 const bool X_MAX_ENDSTOP_INVERTING = false; // set to true to invert the logic of the endstop.
 const bool Y_MAX_ENDSTOP_INVERTING = false; // set to true to invert the logic of the endstop.
 const bool Z_MAX_ENDSTOP_INVERTING = false; // set to true to invert the logic of the endstop.
@@ -308,9 +310,9 @@ const bool Z_MAX_ENDSTOP_INVERTING = false; // set to true to invert the logic o
 #define DISABLE_E false // For all extruders
 #define DISABLE_INACTIVE_EXTRUDER true //disable only inactive extruders
 
-#define INVERT_X_DIR true    // for Mendel set to false, for Orca set to true
-#define INVERT_Y_DIR false    // for Mendel set to true, for Orca set to false
-#define INVERT_Z_DIR false     // for Mendel set to false, for Orca set to true
+#define INVERT_X_DIR false    // for Mendel set to false, for Orca set to true
+#define INVERT_Y_DIR true    // for Mendel set to true, for Orca set to false
+#define INVERT_Z_DIR true     // for Mendel set to false, for Orca set to true
 #define INVERT_E0_DIR false   // for direct drive extruder v9 set to true, for geared extruder set to false
 #define INVERT_E1_DIR false    // for direct drive extruder v9 set to true, for geared extruder set to false
 #define INVERT_E2_DIR false   // for direct drive extruder v9 set to true, for geared extruder set to false
@@ -337,7 +339,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = false; // set to true to invert the logic o
 #define Z_MAX_LENGTH (Z_MAX_POS - Z_MIN_POS)
 //============================= Bed Auto Leveling ===========================
 
-//#define ENABLE_AUTO_BED_LEVELING // Delete the comment to enable (remove // at the start of the line)
+#define ENABLE_AUTO_BED_LEVELING // Delete the comment to enable (remove // at the start of the line)
 
 #ifdef ENABLE_AUTO_BED_LEVELING
 
@@ -362,8 +364,8 @@ const bool Z_MAX_ENDSTOP_INVERTING = false; // set to true to invert the logic o
 
     // set the rectangle in which to probe
     #define LEFT_PROBE_BED_POSITION 15
-    #define RIGHT_PROBE_BED_POSITION 170
-    #define BACK_PROBE_BED_POSITION 180
+    #define RIGHT_PROBE_BED_POSITION 100
+    #define BACK_PROBE_BED_POSITION 70
     #define FRONT_PROBE_BED_POSITION 20
 
      // set the number of grid points per dimension
@@ -376,21 +378,21 @@ const bool Z_MAX_ENDSTOP_INVERTING = false; // set to true to invert the logic o
     // is used to esimate the plane of the print bed
 
       #define ABL_PROBE_PT_1_X 15
-      #define ABL_PROBE_PT_1_Y 180
+      #define ABL_PROBE_PT_1_Y 70
       #define ABL_PROBE_PT_2_X 15
       #define ABL_PROBE_PT_2_Y 20
-      #define ABL_PROBE_PT_3_X 170
+      #define ABL_PROBE_PT_3_X 100
       #define ABL_PROBE_PT_3_Y 20
 
   #endif // AUTO_BED_LEVELING_GRID
 
 
   // these are the offsets to the probe relative to the extruder tip (Hotend - Probe)
-  #define X_PROBE_OFFSET_FROM_EXTRUDER -25
-  #define Y_PROBE_OFFSET_FROM_EXTRUDER -29
-  #define Z_PROBE_OFFSET_FROM_EXTRUDER -12.35
+  #define X_PROBE_OFFSET_FROM_EXTRUDER -35
+  #define Y_PROBE_OFFSET_FROM_EXTRUDER -1
+  #define Z_PROBE_OFFSET_FROM_EXTRUDER -2
 
-  #define Z_RAISE_BEFORE_HOMING 4       // (in mm) Raise Z before homing (G28) for Probe Clearance.
+  #define Z_RAISE_BEFORE_HOMING 6       // (in mm) Raise Z before homing (G28) for Probe Clearance.
                                         // Be sure you have this distance over your Z_MAX_POS in case
 
   #define XY_TRAVEL_SPEED 8000         // X and Y axis travel speed between probes, in mm/min
@@ -418,8 +420,8 @@ const bool Z_MAX_ENDSTOP_INVERTING = false; // set to true to invert the logic o
 
   #ifdef Z_SAFE_HOMING
 
-    #define Z_SAFE_HOMING_X_POINT (X_MAX_LENGTH/2)    // X point for Z homing when homing all axis (G28)
-    #define Z_SAFE_HOMING_Y_POINT (Y_MAX_LENGTH/2)    // Y point for Z homing when homing all axis (G28)
+    #define Z_SAFE_HOMING_X_POINT (X_MAX_LENGTH/5)    // X point for Z homing when homing all axis (G28)
+    #define Z_SAFE_HOMING_Y_POINT (0)    // Y point for Z homing when homing all axis (G28)
 
   #endif
 
@@ -443,10 +445,11 @@ const bool Z_MAX_ENDSTOP_INVERTING = false; // set to true to invert the logic o
 
 // default settings
 // Syncromesh (400*16)/(3.81*15)
-#define DEFAULT_AXIS_STEPS_PER_UNIT   {111.99468232964598,111.99468232964598,3200,773.0849338289399}  // default steps per unit for Ultimaker
+//e motor 200 steps/mm, 1/16th microstepping, 8.97mm diameter toothed extruder part
+//z motor 200 steps/revolution, 2mm/revolution, 1/4th microstepping
+#define DEFAULT_AXIS_STEPS_PER_UNIT   {111.99468232964598,111.99468232964598,400,113.555366309}  // default steps per unit for Ultimaker
 #define DEFAULT_MAX_FEEDRATE          {140, 140, 1.5, 22}    // (mm/sec)
 #define DEFAULT_MAX_ACCELERATION      {3000,3000,50,1000}    // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for Skeinforge 40+, for older versions raise them a lot.
-
 #define DEFAULT_ACCELERATION          1200    // X, Y, Z and E max acceleration in mm/s^2 for printing moves
 #define DEFAULT_RETRACT_ACCELERATION  500   // X, Y, Z and E max acceleration in mm/s^2 for retracts
 
