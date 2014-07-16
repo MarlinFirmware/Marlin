@@ -103,6 +103,7 @@
  */
 #define USE_SOFTWARE_SPI 0
 // define software SPI pins so Mega can use unmodified 168/328 shields
+
 /** Software SPI chip select pin for the SD */
 uint8_t const SOFT_SPI_CS_PIN = 10;
 /** Software SPI Master Out Slave In pin */

@@ -31,6 +31,10 @@
 #include "Sd2PinMap.h"
 #include "SdInfo.h"
 //------------------------------------------------------------------------------
+
+// The following number is passed to spiInit to set clock rate
+
+#ifdef ARDUINO_ARCH_AVR
 // SPI speed is F_CPU/2^(1 + index), 0 <= index <= 6
 /** Set SCK to max rate of F_CPU/2. See Sd2Card::setSckRate(). */
 uint8_t const SPI_FULL_SPEED = 0;
@@ -42,6 +46,21 @@ uint8_t const SPI_QUARTER_SPEED = 2;
 uint8_t const SPI_EIGHTH_SPEED = 3;
 /** Set SCK rate to F_CPU/32. See Sd2Card::setSckRate(). */
 uint8_t const SPI_SIXTEENTH_SPEED = 4;
+
+//NB: also 5 and 6
+
+#elif defined(ARDUINO_ARCH_SAM)
+
+// On Due, SPI rate = MCLK / n
+// where MCK = 84 MHz
+
+uint8_t const SPI_FULL_SPEED = 8;	// 10.5 MHz
+uint8_t const SPI_HALF_SPEED = 16;	//  5.25 MHz
+
+// slow speed for initialization
+uint8_t const SPI_INIT_SPEED = 240;	// 350 kHz
+#endif
+
 //------------------------------------------------------------------------------
 /** init timeout ms */
 uint16_t const SD_INIT_TIMEOUT = 2000;
