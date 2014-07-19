@@ -19,6 +19,9 @@ Configuration.h
 Configuration_adv.h
 ConfigurationStore.cpp
 ConfigurationStore.h
+DOGMbitmaps.h
+dogm_font_data_marlin.h
+dogm_lcd_implementation.h
 language.h
 Marlin.h          [*]
 Marlin.ino
@@ -44,6 +47,9 @@ stepper.h
 temperature.cpp   [*]
 temperature.h
 thermistortables.h
+ultralcd.cpp
+ultralcd_implementation_hitahi_HD44780.h
+ultralcd_st7920_u8glib_rrd.h
 ultralcd.h
 watchdog.h
 
@@ -59,7 +65,7 @@ pins.h
 
 MarlinSerial.cpp
 MarlinSerial.h
-
+speed_lookuptable.h
 
 Due specific
 ------------
@@ -69,3 +75,25 @@ HAL.cpp
 HAL.h
 pins.h
 
+
+
+Libraries used
+==============
+
+AVR
+---
+
+Wire
+SPI
+LiquidCrystal
+
+u8glib
+
+Due
+---
+
+Wire
+SPI
+LiquidCrystal
+
+u8glib v1.16
