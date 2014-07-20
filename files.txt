@@ -7,10 +7,9 @@ Files
 Common to all platforms
 -----------------------
 
-File marked [*] have target dependent code selected by #if 
-
-ARDUINO_ARCH_AVR    All AVR variants
-ARDUINO_ARCH_SAM		Arduino Due 
+File marked [*] have target dependent code selected by #if :
+- ARDUINO_ARCH_AVR    All AVR variants
+- ARDUINO_ARCH_SAM		Arduino Due 
 
 
 cardreader.cpp 
@@ -75,6 +74,22 @@ HAL.cpp
 HAL.h
 pins.h
 
+TODO
+----
+BlinkM.cpp 
+BlinkM.h 
+digipot_mcp4451.cpp   - not used by any Due shields
+LiquidCrystalRus.cpp 
+LiquidCrystalRus.h 
+qr_solve.cpp 
+qr_solve.h 
+SdFatUtil.cpp					- not used? 
+SdFatUtil.h           - not used?
+Servo.cpp 
+Servo.h 
+vector_3.cpp 
+vector_3.h 
+watchdog.cpp          - requires arduino core change
 
 
 Libraries used
