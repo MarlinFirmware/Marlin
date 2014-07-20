@@ -36,9 +36,8 @@
 /****************************************************************************************
 * Arduino Due pin assignment
 *
+* for RADDS
 ****************************************************************************************/
-
-// RADDS
 #if MOTHERBOARD == 402
 #define KNOWN_BOARD 1
 //
@@ -51,20 +50,22 @@
 #define X_STEP_PIN         24
 #define X_DIR_PIN          23
 #define X_ENABLE_PIN       26
-#define X_MIN_PIN          28
-#define X_MAX_PIN          34   //2 //Max endstops default to disabled "-1", set to commented value to enable.
+
 
 #define Y_STEP_PIN         17
 #define Y_DIR_PIN          16
 #define Y_ENABLE_PIN       22
-#define Y_MIN_PIN          30
-#define Y_MAX_PIN          36   //15
 
 #define Z_STEP_PIN         2
 #define Z_DIR_PIN          3
 #define Z_ENABLE_PIN       15
+
+#define X_MIN_PIN          28
+#define X_MAX_PIN          -1  // 34   //Max endstops default to disabled "-1", set to commented value to enable.
+#define Y_MIN_PIN          30
+#define Y_MAX_PIN          -1  // 36
 #define Z_MIN_PIN          32
-#define Z_MAX_PIN          38
+#define Z_MAX_PIN          -1  // 38
 
 #define E0_STEP_PIN        61
 #define E0_DIR_PIN         60
@@ -92,41 +93,39 @@
 
 #define KILL_PIN           -1
 
-
-
+#define HEATER_BED_PIN     7    // BED
 #define HEATER_0_PIN       13
-#define HEATER_1_PIN       7
-#define HEATER_2_PIN       12
+#define HEATER_1_PIN       12
+#define HEATER_2_PIN       11
 
-#define TEMP_0_PIN         7   // ANALOG NUMBERING
-#define TEMP_1_PIN         3   // ANALOG NUMBERING
-#define TEMP_2_PIN         6   // ANALOG NUMBERING
-#define TEMP_3_PIN         5   // ANALOG NUMBERING
-#define TEMP_4_PIN         4   // ANALOG NUMBERING
+#define TEMP_BED_PIN       4   // ANALOG NUMBERING
+#define TEMP_0_PIN         0   // ANALOG NUMBERING
+#define TEMP_1_PIN         -1  // 1   // ANALOG NUMBERING
+#define TEMP_2_PIN         -1  // 2   // ANALOG NUMBERING
+#define TEMP_3_PIN         -1  // 3   // ANALOG NUMBERING
 
-#define HEATER_BED_PIN     9    // BED ???
 
-#define TEMP_BED_PIN       14   // ANALOG NUMBERING ??
 
   #ifdef NUM_SERVOS
-    #define SERVO0_PIN         11 //??
+    #define SERVO0_PIN         5
 
     #if NUM_SERVOS > 1
-      #define SERVO1_PIN         6 //??
+      #define SERVO1_PIN         6
     #endif
 
     #if NUM_SERVOS > 2
-      #define SERVO2_PIN         5 //??
+      #define SERVO2_PIN         39
     #endif
 
     #if NUM_SERVOS > 3
-      #define SERVO3_PIN         4 //??
+      #define SERVO3_PIN         40
     #endif
   #endif
 
 
 #ifdef ULTRA_LCD
 
+	// RADDS LCD panel
 	#ifdef NEWPANEL
 	  #define LCD_PINS_RS 16
 	  #define LCD_PINS_ENABLE 17
@@ -143,62 +142,7 @@
 		#define BTN_ENC 35
 
 		#define SDCARDDETECT 49
-	  #elif defined(LCD_I2C_PANELOLU2)
-		#define BTN_EN1 47  //reverse if the encoder turns the wrong way.
-		#define BTN_EN2 43
-		#define BTN_ENC 32
-		#define SDSS 53
-		#define SDCARDDETECT -1
-		#define KILL_PIN 41
-	  #elif defined(LCD_I2C_VIKI)
-		#define BTN_EN1 22  //reverse if the encoder turns the wrong way.
-		#define BTN_EN2 7
-		#define BTN_ENC -1
-		#define SDSS 53
-		#define SDCARDDETECT 49
-	  #else
-		//arduino pin which triggers an piezzo beeper
-		#define BEEPER 33  // Beeper on AUX-4
-
-		//buttons are directly attached using AUX-2
-		#ifdef REPRAPWORLD_KEYPAD
-		  #define BTN_EN1 64 // encoder
-		  #define BTN_EN2 59 // encoder
-		  #define BTN_ENC 63 // enter button
-		  #define SHIFT_OUT 40 // shift register
-		  #define SHIFT_CLK 44 // shift register
-		  #define SHIFT_LD 42 // shift register
-		#else
-		  #define BTN_EN1 37
-		  #define BTN_EN2 35
-		  #define BTN_ENC 31  //the click
-		#endif
-
-		#ifdef G3D_PANEL
-		  #define SDCARDDETECT 49
-		#else
-		  #define SDCARDDETECT -1  // Ramps does not use this port
-		#endif
-
 	  #endif
-
-	#else //old style panel with shift register
-	  //arduino pin witch triggers an piezzo beeper
-	  #define BEEPER 33		//No Beeper added
-
-	  //buttons are attached to a shift register
-	  // Not wired this yet
-	  //#define SHIFT_CLK 38
-	  //#define SHIFT_LD 42
-	  //#define SHIFT_OUT 40
-	  //#define SHIFT_EN 17
-
-	  #define LCD_PINS_RS 16
-	  #define LCD_PINS_ENABLE 17
-	  #define LCD_PINS_D4 23
-	  #define LCD_PINS_D5 25
-	  #define LCD_PINS_D6 27
-	  #define LCD_PINS_D7 29
 	#endif
 
 #endif //ULTRA_LCD
@@ -218,7 +162,11 @@
 
 #endif //MOTHERBOARD == 402
 
-// RAMPS-FD
+/****************************************************************************************
+* Arduino Due pin assignment
+*
+* for RAMPS-FD
+****************************************************************************************/
 #if MOTHERBOARD == 403 || MOTHERBOARD == 404
 #define KNOWN_BOARD 1
 
@@ -333,63 +281,10 @@
         #define BTN_ENC 35
 
         #define SDCARDDETECT 49
-      #elif defined(LCD_I2C_PANELOLU2)
-        #define BTN_EN1 47  //reverse if the encoder turns the wrong way.
-        #define BTN_EN2 43
-        #define BTN_ENC 32
-        #define SDSS 53
-        #define SDCARDDETECT -1
-        #define KILL_PIN 41
-      #elif defined(LCD_I2C_VIKI)
-        #define BTN_EN1 22  //reverse if the encoder turns the wrong way.
-        #define BTN_EN2 7
-        #define BTN_ENC -1
-        #define SDSS 53
-        #define SDCARDDETECT 49
-      #else
-        //arduino pin which triggers an piezzo beeper
-        #define BEEPER 33  // Beeper on AUX-4
-
-        //buttons are directly attached using AUX-2
-        #ifdef REPRAPWORLD_KEYPAD
-          #define BTN_EN1 64 // encoder
-          #define BTN_EN2 59 // encoder
-          #define BTN_ENC 63 // enter button
-          #define SHIFT_OUT 40 // shift register
-          #define SHIFT_CLK 44 // shift register
-          #define SHIFT_LD 42 // shift register
-        #else
-          #define BTN_EN1 37
-          #define BTN_EN2 35
-          #define BTN_ENC 31  //the click
-        #endif
-
-        #ifdef G3D_PANEL
-          #define SDCARDDETECT 49
-        #else
-          #define SDCARDDETECT -1  // Ramps does not use this port
         #endif
 
       #endif
 
-    #else //old style panel with shift register
-      //arduino pin witch triggers an piezzo beeper
-      #define BEEPER 33		//No Beeper added
-
-      //buttons are attached to a shift register
-	// Not wired this yet
-      //#define SHIFT_CLK 38
-      //#define SHIFT_LD 42
-      //#define SHIFT_OUT 40
-      //#define SHIFT_EN 17
-
-      #define LCD_PINS_RS 16
-      #define LCD_PINS_ENABLE 17
-      #define LCD_PINS_D4 23
-      #define LCD_PINS_D5 25
-      #define LCD_PINS_D6 27
-      #define LCD_PINS_D7 29
-    #endif
   #endif //ULTRA_LCD
 
 
