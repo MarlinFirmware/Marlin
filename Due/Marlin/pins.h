@@ -127,21 +127,21 @@
 
 	// RADDS LCD panel
 	#ifdef NEWPANEL
-	  #define LCD_PINS_RS 16
-	  #define LCD_PINS_ENABLE 17
-	  #define LCD_PINS_D4 23
-	  #define LCD_PINS_D5 25
-	  #define LCD_PINS_D6 27
-	  #define LCD_PINS_D7 29
+	  #define LCD_PINS_RS 		42
+	  #define LCD_PINS_ENABLE 	43
+	  #define LCD_PINS_D4 		44
+	  #define LCD_PINS_D5 		45
+	  #define LCD_PINS_D6 		46
+	  #define LCD_PINS_D7 		47
 
 	  #ifdef REPRAP_DISCOUNT_SMART_CONTROLLER
-		#define BEEPER 37
+			#define BEEPER 41
 
-		#define BTN_EN1 31
-		#define BTN_EN2 33
-		#define BTN_ENC 35
+			#define BTN_EN1 52
+			#define BTN_EN2 50
+			#define BTN_ENC 48
 
-		#define SDCARDDETECT 49
+			#define SDCARDDETECT 14
 	  #endif
 	#endif
 
