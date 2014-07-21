@@ -51,6 +51,8 @@ void lcd_level_bed(void);
   extern int absPreheatHotendTemp;
   extern int absPreheatHPBTemp;
   extern int absPreheatFanSpeed;
+
+  extern bool cancel_heatup;
     
   void lcd_buzz(long duration,uint16_t freq);
   bool lcd_clicked();
