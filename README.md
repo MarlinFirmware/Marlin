@@ -12,14 +12,57 @@ Please do not use this code in products (3D printers, CNC etc) that are closed s
 Note on this fork
 =================
 
-This is an experimental fork of Marlin in order to create a version that is portable between existing AVR targets and also Arduino Due 
+This is a fork of Marlin in order to create a version that is portable between existing AVR targets and also Arduino Due 
 compatible targets.
 
-The following shields will be supported on Arduino Due:
+The following shields are supported on Arduino Due:
 * RADDS
-* RAMPS-FD 
+* RAMPS-FD v1 (todo) 
+* RAMPS-FD v2 
 
-Current Status : *** in development ***
+Current Status 
+--------------
+
+Alpha test
+
+Very limited testing of a small subset of functions have been tested.
+Testers should watch out for anything going wrong, including unexpected head movement,
+program hanging and runaway heaters.
+
+
+- Most files have been ported
+- basic print functions and LCD have been tested
+- there are dozens of #defines that have not been tested at all
+
+All functions should work except 
+  - servos 
+	- PWM control
+	- watchdog
+	- BlinkM
+
+Tested features
+---------------
+Due version
+- EEPROM read/write
+- SD card, init and list files
+- stepper movement
+- thermistor reading
+- LCD display
+- mosfet control, extruder and heatbed
+
+AVR version
+- not tested!
+
+Tested boards
+-------------
+
+Arduino Due
+- RADDS
+- RAMPS-FD v2 
+  - with SDRAMPS (needs version with 4050 level converter, TXB0104 or similar do not work)
+	- LCD Panel adapter 
+	  - Reprap discount LCD controller
+	  - Reprap discount graphic controller
 
 Quick Information
 ===================
@@ -260,20 +303,22 @@ M Codes
 Configuring and compilation:
 ============================
 
+AVR targets
+-----------
 Install the arduino software IDE/toolset v23 (Some configurations also work with 1.x.x)
    http://www.arduino.cc/en/Main/Software
 
 Download the Marlin firmware
-   https://github.com/ErikZalm/Marlin/tree/Marlin_v1
+   https://github.com/bobc/Marlin/tree/Marlin_v1
    Use the "Download Zip" button on the right.
 
 For gen6/gen7 and sanguinololu the Sanguino directory in the Marlin dir needs to be copied to the arduino environment.
-  copy ArduinoAddons\Arduino_x.x.x\sanguino <arduino home>\hardware\Sanguino
+  copy AVR\ArduinoAddons\Arduino_x.x.x\sanguino <arduino home>\hardware\Sanguino
 
 Start the arduino IDE.
 Select Tools -> Board -> Arduino Mega 2560    or your microcontroller
 Select the correct serial port in Tools ->Serial Port
-Open Marlin.pde
+Open AVR\Marlin\Marlin.pde
 
 Click the Verify/Compile button
 
@@ -281,6 +326,32 @@ Click the Upload button
 If all goes well the firmware is uploading
 
 That's ok.  Enjoy Silky Smooth Printing.
+
+DUE Targets
+-----------
+
+Install the arduino software IDE/toolset 1.5.x
+   http://www.arduino.cc/en/Main/Software
+
+Download the Marlin firmware
+   https://github.com/bobc/Marlin/tree/Marlin_v1
+   Use the "Download Zip" button on the right.
+
+Copy the u8glib library to personal libraries
+  copy Due\ArduinoAddons\Arduino_1.5.x\libraries\u8glib <My Documents>\Arduino\libraries
+	      
+
+Start the Arduino IDE.
+Select Tools -> Board -> Arduino Due (programming port)
+Select the correct serial port in Tools ->Serial Port
+Open Due\Marlin\Marlin.ino
+
+Click the Verify/Compile button
+
+Click the Upload button
+If all goes well the firmware is uploading
+
+
 
 ===============================================
 Instructions for configuring Bed Auto Leveling
