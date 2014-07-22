@@ -2696,7 +2696,9 @@ void process_commands()
     case 399: // M399 Pause command
     {
       st_synchronize();
-      while (!digitalRead(RESUME_PIN)) {
+      pinMode(RESUME_PIN, INPUT);
+      digitalWrite(RESUME_PIN, HIGH);
+      while (digitalRead(RESUME_PIN)) {
             manage_heater();
             manage_inactivity();
             lcd_update();
