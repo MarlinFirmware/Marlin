@@ -2693,6 +2693,16 @@ void process_commands()
       PID_autotune(temp, e, c);
     }
     break;
+    case 399: // M399 Pause command
+    {
+      st_synchronize();
+      while (!digitalRead(RESUME_PIN)) {
+            manage_heater();
+            manage_inactivity();
+            lcd_update();
+          }
+    }
+    break;
     case 400: // M400 finish all moves
     {
       st_synchronize();
