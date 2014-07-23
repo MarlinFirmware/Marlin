@@ -175,11 +175,9 @@ asm volatile ( \
 // --------------------------------------------------------------------------
 #else if defined(ARDUINO_ARCH_SAM)
 
-//TODO: port for Due
-
 #define MultiU16X8toH16(intRes, charIn1, intIn2)   intRes = ((charIn1) * (intIn2)) >> 16
 
-#define MultiU24X24toH16(intRes, longIn1, longIn2) intRes = ((longIn1) * (longIn2)) >> 24
+#define MultiU24X24toH16(intRes, longIn1, longIn2) intRes = ((uint64_t)(longIn1) * (longIn2)) >> 24
 
 #endif
 // --------------------------------------------------------------------------

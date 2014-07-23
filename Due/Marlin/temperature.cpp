@@ -158,6 +158,12 @@ unsigned long watchmillis[EXTRUDERS] = ARRAY_BY_EXTRUDERS(0,0,0);
 #define SOFT_PWM_SCALE 0
 #endif
 
+#ifdef INVERTED_HEATER_PINS
+#define WRITE_HEATER(pin,value) WRITE(pin,!value)
+#else
+#define WRITE_HEATER(pin,value) WRITE(pin,value)
+#endif
+
 //===========================================================================
 //=============================   functions      ============================
 //===========================================================================
@@ -981,7 +987,7 @@ void disable_heater()
   target_temperature[0]=0;
   soft_pwm[0]=0;
    #if defined(HEATER_0_PIN) && HEATER_0_PIN > -1  
-     WRITE(HEATER_0_PIN,LOW);
+     WRITE_HEATER(HEATER_0_PIN,LOW);
    #endif
   #endif
      
@@ -989,7 +995,7 @@ void disable_heater()
     target_temperature[1]=0;
     soft_pwm[1]=0;
     #if defined(HEATER_1_PIN) && HEATER_1_PIN > -1 
-      WRITE(HEATER_1_PIN,LOW);
+    	WRITE_HEATER(HEATER_1_PIN,LOW);
     #endif
   #endif
       
@@ -997,7 +1003,7 @@ void disable_heater()
     target_temperature[2]=0;
     soft_pwm[2]=0;
     #if defined(HEATER_2_PIN) && HEATER_2_PIN > -1  
-      WRITE(HEATER_2_PIN,LOW);
+    	WRITE_HEATER(HEATER_2_PIN,LOW);
     #endif
   #endif 
 
@@ -1005,7 +1011,7 @@ void disable_heater()
     target_temperature_bed=0;
     soft_pwm_bed=0;
     #if defined(HEATER_BED_PIN) && HEATER_BED_PIN > -1  
-      WRITE(HEATER_BED_PIN,LOW);
+    	WRITE_HEATER(HEATER_BED_PIN,LOW);
     #endif
   #endif 
 }
@@ -1135,23 +1141,23 @@ HAL_TEMP_TIMER_ISR
   if(pwm_count == 0){
     soft_pwm_0 = soft_pwm[0];
     if(soft_pwm_0 > 0) { 
-      WRITE(HEATER_0_PIN,1);
+    	WRITE_HEATER(HEATER_0_PIN,1);
       #ifdef HEATERS_PARALLEL
-      WRITE(HEATER_1_PIN,1);
+    	WRITE_HEATER(HEATER_1_PIN,1);
       #endif
-    } else WRITE(HEATER_0_PIN,0);
+    } else WRITE_HEATER(HEATER_0_PIN,0);
 	
     #if EXTRUDERS > 1
     soft_pwm_1 = soft_pwm[1];
-    if(soft_pwm_1 > 0) WRITE(HEATER_1_PIN,1); else WRITE(HEATER_1_PIN,0);
+    if(soft_pwm_1 > 0) WRITE_HEATER(HEATER_1_PIN,1); else WRITE_HEATER(HEATER_1_PIN,0);
     #endif
     #if EXTRUDERS > 2
     soft_pwm_2 = soft_pwm[2];
-    if(soft_pwm_2 > 0) WRITE(HEATER_2_PIN,1); else WRITE(HEATER_2_PIN,0);
+    if(soft_pwm_2 > 0) WRITE_HEATER(HEATER_2_PIN,1); else WRITE_HEATER(HEATER_2_PIN,0);
     #endif
     #if defined(HEATER_BED_PIN) && HEATER_BED_PIN > -1
     soft_pwm_b = soft_pwm_bed;
-    if(soft_pwm_b > 0) WRITE(HEATER_BED_PIN,1); else WRITE(HEATER_BED_PIN,0);
+    if(soft_pwm_b > 0) WRITE_HEATER(HEATER_BED_PIN,1); else WRITE_HEATER(HEATER_BED_PIN,0);
     #endif
     #ifdef FAN_SOFT_PWM
     soft_pwm_fan = fanSpeedSoftPwm / 2;
@@ -1159,19 +1165,19 @@ HAL_TEMP_TIMER_ISR
     #endif
   }
   if(soft_pwm_0 < pwm_count) { 
-      WRITE(HEATER_0_PIN,0);
+  		WRITE_HEATER(HEATER_0_PIN,0);
       #ifdef HEATERS_PARALLEL
-      WRITE(HEATER_1_PIN,0);
+  		WRITE_HEATER(HEATER_1_PIN,0);
       #endif
     }
   #if EXTRUDERS > 1
-  if(soft_pwm_1 < pwm_count) WRITE(HEATER_1_PIN,0);
+  if(soft_pwm_1 < pwm_count) WRITE_HEATER(HEATER_1_PIN,0);
   #endif
   #if EXTRUDERS > 2
-  if(soft_pwm_2 < pwm_count) WRITE(HEATER_2_PIN,0);
+  if(soft_pwm_2 < pwm_count) WRITE_HEATER(HEATER_2_PIN,0);
   #endif
   #if defined(HEATER_BED_PIN) && HEATER_BED_PIN > -1
-  if(soft_pwm_b < pwm_count) WRITE(HEATER_BED_PIN,0);
+  if(soft_pwm_b < pwm_count) WRITE_HEATER(HEATER_BED_PIN,0);
   #endif
   #ifdef FAN_SOFT_PWM
   if(soft_pwm_fan < pwm_count) WRITE(FAN_PIN,0);

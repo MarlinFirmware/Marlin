@@ -179,8 +179,13 @@
 //
 #if MOTHERBOARD == 403
   #define RAMPS_FD_V1
+  #define INVERTED_HEATER_PINS
+  // No EEPROM
+  // Use 4k7 thermistor tables
 #else
   #define RAMPS_FD_V2
+  // EEPROM supported
+  // Use 1k thermistor tables
 #endif
 
 #define X_STEP_PIN         63
