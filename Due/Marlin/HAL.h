@@ -84,7 +84,7 @@ unsigned char eeprom_read_byte(unsigned char *pos);
 #define STEP_TIMER_NUM 3
 #define TEMP_TIMER_NUM 4
 
-#define HAL_TIMER_RATE 		   F_CPU/32.0
+#define HAL_TIMER_RATE 		     (F_CPU/32.0)
 #define TICKS_PER_NANOSECOND   (HAL_TIMER_RATE)/1000
 
 #define ENABLE_STEPPER_DRIVER_INTERRUPT()	HAL_timer_enable_interrupt (STEP_TIMER_NUM)
