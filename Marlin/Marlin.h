@@ -188,6 +188,7 @@ void enquecommand(const char *cmd); //put an ASCII command at the end of the cur
 void enquecommand_P(const char *cmd); //put an ASCII command at the end of the current buffer, read from flash
 void prepare_arc_move(char isclockwise);
 void clamp_to_software_endstops(float target[3]);
+void do_blocking_move_to(float x, float y, float z);
 
 void refresh_cmd_timeout(void);
 

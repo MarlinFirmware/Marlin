@@ -42,11 +42,13 @@
 #include "temperature.h"
 #include "motion_control.h"
 #include "cardreader.h"
+#include "gcode.h"
 #include "watchdog.h"
 #include "ConfigurationStore.h"
 #include "language.h"
 #include "pins_arduino.h"
 #include "math.h"
+#include "ManualFirmwareLeveling.h"
 
 #ifdef BLINKM
 #include "BlinkM.h"
@@ -902,7 +904,7 @@ static void set_bed_level_equation_lsq(double *plane_equation_coefficients)
 
 #else // not AUTO_BED_LEVELING_GRID
 
-static void set_bed_level_equation_3pts(float z_at_pt_1, float z_at_pt_2, float z_at_pt_3) {
+void set_bed_level_equation_3pts(float z_at_pt_1, float z_at_pt_2, float z_at_pt_3) {
 
     plan_bed_level_matrix.set_to_identity();
 
@@ -960,7 +962,7 @@ static void run_z_probe() {
     plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
 }
 
-static void do_blocking_move_to(float x, float y, float z) {
+void do_blocking_move_to(float x, float y, float z) {
     float oldFeedRate = feedrate;
 
     feedrate = XY_TRAVEL_SPEED;
@@ -1643,6 +1645,15 @@ void process_commands()
             retract_z_probe(); // Retract Z Servo endstop if available
         }
         break;
+	case 31: // Manually specify 
+			g31_manual_firmware_leveling();
+		break;
+	case 32: // Clear bed leveling matrix
+			g32_clear_manual_firmware_leveling();	
+		break;
+	case 33: // Move extruder to measure bed
+			g33_position_extruder_to_measure_bed();
+		break;
 #endif // ENABLE_AUTO_BED_LEVELING
     case 90: // G90
       relative_mode = false;
