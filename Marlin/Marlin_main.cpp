@@ -186,6 +186,7 @@
 #ifdef SDSUPPORT
 CardReader card;
 #endif
+float global_unit_modifier = 1.0;
 float homing_feedrate[] = HOMING_FEEDRATE;
 bool axis_relative_modes[] = AXIS_RELATIVE_MODES;
 int feedmultiply=100; //100->1 200->2
@@ -1258,6 +1259,12 @@ void process_commands()
        #endif 
       break;
       #endif //FWRETRACT
+    case 20: //G20 Inch Mode
+      global_unit_modifier = 25.4;
+      break;
+    case 21: //G21 MM Mode
+      global_unit_modifier = 1.0;
+      break;
     case 28: //G28 Home all Axis one at a time
 #ifdef ENABLE_AUTO_BED_LEVELING
       plan_bed_level_matrix.set_to_identity();  //Reset the plane ("erase" all leveling data)
@@ -1383,13 +1390,13 @@ void process_commands()
       if(code_seen(axis_codes[X_AXIS]))
       {
         if(code_value_long() != 0) {
-          current_position[X_AXIS]=code_value()+add_homeing[0];
+          current_position[X_AXIS]=code_value() * global_unit_modifier+add_homeing[0];
         }
       }
 
       if(code_seen(axis_codes[Y_AXIS])) {
         if(code_value_long() != 0) {
-          current_position[Y_AXIS]=code_value()+add_homeing[1];
+          current_position[Y_AXIS]=code_value() * global_unit_modifier+add_homeing[1];
         }
       }
 
@@ -1453,7 +1460,7 @@ void process_commands()
 
       if(code_seen(axis_codes[Z_AXIS])) {
         if(code_value_long() != 0) {
-          current_position[Z_AXIS]=code_value()+add_homeing[2];
+          current_position[Z_AXIS]=code_value() * global_unit_modifier+add_homeing[2];
         }
       }
       #ifdef ENABLE_AUTO_BED_LEVELING
@@ -1656,11 +1663,11 @@ void process_commands()
       for(int8_t i=0; i < NUM_AXIS; i++) {
         if(code_seen(axis_codes[i])) {
            if(i == E_AXIS) {
-             current_position[i] = code_value();
+             current_position[i] = code_value() * global_unit_modifier;
              plan_set_e_position(current_position[E_AXIS]);
            }
            else {
-             current_position[i] = code_value()+add_homeing[i];
+             current_position[i] = code_value() * global_unit_modifier+add_homeing[i];
              plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
            }
         }
@@ -2212,7 +2219,7 @@ void process_commands()
         if(code_seen(axis_codes[i]))
         {
           if(i == 3) { // E
-            float value = code_value();
+            float value = code_value() * global_unit_modifier;
             if(value < 20.0) {
               float factor = axis_steps_per_unit[i] / value; // increase e constants if M92 E14 is given for netfab.
               max_e_jerk *= factor;
@@ -2222,7 +2229,7 @@ void process_commands()
             axis_steps_per_unit[i] = value;
           }
           else {
-            axis_steps_per_unit[i] = code_value();
+            axis_steps_per_unit[i] = code_value() * global_unit_modifier;
           }
         }
       }
@@ -2336,7 +2343,7 @@ void process_commands()
       {
         if(code_seen(axis_codes[i]))
         {
-          max_acceleration_units_per_sq_second[i] = code_value();
+          max_acceleration_units_per_sq_second[i] = code_value() * global_unit_modifier;
         }
       }
       // steps per sq second need to be updated to agree with the units per sq second (as they are what is used in the planner)
@@ -2345,35 +2352,35 @@ void process_commands()
     #if 0 // Not used for Sprinter/grbl gen6
     case 202: // M202
       for(int8_t i=0; i < NUM_AXIS; i++) {
-        if(code_seen(axis_codes[i])) axis_travel_steps_per_sqr_second[i] = code_value() * axis_steps_per_unit[i];
+        if(code_seen(axis_codes[i])) axis_travel_steps_per_sqr_second[i] = code_value() * global_unit_modifier * axis_steps_per_unit[i];
       }
       break;
     #endif
     case 203: // M203 max feedrate mm/sec
       for(int8_t i=0; i < NUM_AXIS; i++) {
-        if(code_seen(axis_codes[i])) max_feedrate[i] = code_value();
+        if(code_seen(axis_codes[i])) max_feedrate[i] = code_value() * global_unit_modifier;
       }
       break;
     case 204: // M204 acclereration S normal moves T filmanent only moves
       {
-        if(code_seen('S')) acceleration = code_value() ;
-        if(code_seen('T')) retract_acceleration = code_value() ;
+        if(code_seen('S')) acceleration = code_value() * global_unit_modifier ;
+        if(code_seen('T')) retract_acceleration = code_value() * global_unit_modifier ;
       }
       break;
     case 205: //M205 advanced settings:  minimum travel speed S=while printing T=travel only,  B=minimum segment time X= maximum xy jerk, Z=maximum Z jerk
     {
-      if(code_seen('S')) minimumfeedrate = code_value();
-      if(code_seen('T')) mintravelfeedrate = code_value();
+      if(code_seen('S')) minimumfeedrate = code_value() * global_unit_modifier;
+      if(code_seen('T')) mintravelfeedrate = code_value() * global_unit_modifier;
       if(code_seen('B')) minsegmenttime = code_value() ;
-      if(code_seen('X')) max_xy_jerk = code_value() ;
-      if(code_seen('Z')) max_z_jerk = code_value() ;
-      if(code_seen('E')) max_e_jerk = code_value() ;
+      if(code_seen('X')) max_xy_jerk = code_value() * global_unit_modifier ;
+      if(code_seen('Z')) max_z_jerk = code_value() * global_unit_modifier ;
+      if(code_seen('E')) max_e_jerk = code_value() * global_unit_modifier ;
     }
     break;
     case 206: // M206 additional homeing offset
       for(int8_t i=0; i < 3; i++)
       {
-        if(code_seen(axis_codes[i])) add_homeing[i] = code_value();
+        if(code_seen(axis_codes[i])) add_homeing[i] = code_value() * global_unit_modifier;
       }
       break;
     #ifdef DELTA
@@ -2393,7 +2400,7 @@ void process_commands()
     case 666: // M666 set delta endstop adjustemnt
       for(int8_t i=0; i < 3; i++)
       {
-        if(code_seen(axis_codes[i])) endstop_adj[i] = code_value();
+        if(code_seen(axis_codes[i])) endstop_adj[i] = code_value() * global_unit_modifier;
       }
       break;
     #endif
@@ -2402,26 +2409,26 @@ void process_commands()
     {
       if(code_seen('S'))
       {
-        retract_length = code_value() ;
+        retract_length = code_value() * global_unit_modifier ;
       }
       if(code_seen('F'))
       {
-        retract_feedrate = code_value()/60 ;
+        retract_feedrate = (code_value() * global_unit_modifier)/60;
       }
       if(code_seen('Z'))
       {
-        retract_zlift = code_value() ;
+        retract_zlift = code_value() * global_unit_modifier ;
       }
     }break;
     case 208: // M208 - set retract recover length S[positive mm surplus to the M207 S*] F[feedrate mm/min]
     {
       if(code_seen('S'))
       {
-        retract_recover_length = code_value() ;
+        retract_recover_length = code_value() * global_unit_modifier ;
       }
       if(code_seen('F'))
       {
-        retract_recover_feedrate = code_value()/60 ;
+        retract_recover_feedrate = (code_value() * global_unit_modifier)/60 ;
       }
     }break;
     case 209: // M209 - S<1=true/0=false> enable automatic retract detect if the slicer did not support G10/11: every normal extrude-only move will be classified as retract depending on the direction.
@@ -2471,16 +2478,16 @@ void process_commands()
       }
       if(code_seen('X'))
       {
-        extruder_offset[X_AXIS][tmp_extruder] = code_value();
+        extruder_offset[X_AXIS][tmp_extruder] = code_value() * global_unit_modifier;
       }
       if(code_seen('Y'))
       {
-        extruder_offset[Y_AXIS][tmp_extruder] = code_value();
+        extruder_offset[Y_AXIS][tmp_extruder] = code_value() * global_unit_modifier;
       }
       #ifdef DUAL_X_CARRIAGE
       if(code_seen('Z'))
       {
-        extruder_offset[Z_AXIS][tmp_extruder] = code_value();
+        extruder_offset[Z_AXIS][tmp_extruder] = code_value() * global_unit_modifier;
       }
       #endif
       SERIAL_ECHO_START;
@@ -2851,7 +2858,7 @@ void process_commands()
         //retract by E
         if(code_seen('E'))
         {
-          target[E_AXIS]+= code_value();
+          target[E_AXIS]+= code_value() * global_unit_modifier;
         }
         else
         {
@@ -2864,7 +2871,7 @@ void process_commands()
         //lift Z
         if(code_seen('Z'))
         {
-          target[Z_AXIS]+= code_value();
+          target[Z_AXIS]+= code_value() * global_unit_modifier;
         }
         else
         {
@@ -2877,7 +2884,7 @@ void process_commands()
         //move xy
         if(code_seen('X'))
         {
-          target[X_AXIS]+= code_value();
+          target[X_AXIS]+= code_value() * global_unit_modifier;
         }
         else
         {
@@ -2887,7 +2894,7 @@ void process_commands()
         }
         if(code_seen('Y'))
         {
-          target[Y_AXIS]= code_value();
+          target[Y_AXIS]= code_value() * global_unit_modifier;
         }
         else
         {
@@ -2900,7 +2907,7 @@ void process_commands()
 
         if(code_seen('L'))
         {
-          target[E_AXIS]+= code_value();
+          target[E_AXIS]+= code_value() * global_unit_modifier;
         }
         else
         {
@@ -2947,7 +2954,7 @@ void process_commands()
         //return to normal
         if(code_seen('L'))
         {
-          target[E_AXIS]+= -code_value();
+          target[E_AXIS]+= -code_value() * global_unit_modifier;
         }
         else
         {
@@ -3095,7 +3102,7 @@ void process_commands()
       boolean make_move = false;
       if(code_seen('F')) {
         make_move = true;
-        next_feedrate = code_value();
+        next_feedrate = code_value() * global_unit_modifier;
         if(next_feedrate > 0.0) {
           feedrate = next_feedrate;
         }
@@ -3223,13 +3230,13 @@ void get_coordinates()
   for(int8_t i=0; i < NUM_AXIS; i++) {
     if(code_seen(axis_codes[i]))
     {
-      destination[i] = (float)code_value() + (axis_relative_modes[i] || relative_mode)*current_position[i];
+      destination[i] = (float)code_value() * global_unit_modifier + (axis_relative_modes[i] || relative_mode)*current_position[i];
       seen[i]=true;
     }
     else destination[i] = current_position[i]; //Are these else lines really needed?
   }
   if(code_seen('F')) {
-    next_feedrate = code_value();
+    next_feedrate = code_value() * global_unit_modifier;
     if(next_feedrate > 0.0) feedrate = next_feedrate;
   }
 }
@@ -3246,13 +3253,13 @@ void get_arc_coordinates()
 #endif
 
    if(code_seen('I')) {
-     offset[0] = code_value();
+     offset[0] = code_value() * global_unit_modifier;
    }
    else {
      offset[0] = 0.0;
    }
    if(code_seen('J')) {
-     offset[1] = code_value();
+     offset[1] = code_value() * global_unit_modifier;
    }
    else {
      offset[1] = 0.0;
