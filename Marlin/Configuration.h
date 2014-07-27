@@ -24,7 +24,6 @@
 #define SERIAL_PORT 0
 
 // This determines the communication speed of the printer
-// This determines the communication speed of the printer
 #define BAUDRATE 250000
 
 // This enables the serial port associated to the Bluetooth interface
@@ -42,6 +41,7 @@
 // 33 = RAMPS 1.3 / 1.4 (Power outputs: Extruder, Fan, Bed)
 // 34 = RAMPS 1.3 / 1.4 (Power outputs: Extruder0, Extruder1, Bed)
 // 35 = RAMPS 1.3 / 1.4 (Power outputs: Extruder, Fan, Fan)
+// 36 = RAMPS 1.3 / 1.4 (Power outputs: Extruder0, Fan, Extruder1)
 // 4  = Duemilanove w/ ATMega328P pin assignment
 // 5  = Gen6
 // 51 = Gen6 deluxe
@@ -202,6 +202,12 @@
 //    #define  DEFAULT_Kp 63.0
 //    #define  DEFAULT_Ki 2.25
 //    #define  DEFAULT_Kd 440
+
+// Witbox
+//   #define  DEFAULT_Kp 12.49
+//   #define  DEFAULT_Ki 0.62
+//   #define  DEFAULT_Kd 62.61
+
 #endif // PIDTEMP
 
 // Bed Temperature Control
@@ -431,8 +437,6 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
   #define Z_RAISE_BEFORE_HOMING 4       // (in mm) Raise Z before homing (G28) for Probe Clearance.
                                         // Be sure you have this distance over your Z_MAX_POS in case
 
-  #define XY_TRAVEL_SPEED 8000         // X and Y axis travel speed between probes, in mm/min
-
   #define Z_RAISE_BEFORE_PROBING 15    //How much the extruder will be raised before traveling to the first probing point.
   #define Z_RAISE_BETWEEN_PROBINGS 5  //How much the extruder will be raised when traveling from between next probing points
 
@@ -500,17 +504,33 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define DEFAULT_EJERK                 5.0    // (mm/sec)
 
 //===========================================================================
-//=============================Additional Features===========================
+//=============================WITBOX Features===============================
 //===========================================================================
 
-// Custom M code points
-#define CUSTOM_M_CODES
-#ifdef CUSTOM_M_CODES
-  #define CUSTOM_M_CODE_SET_Z_PROBE_OFFSET 851
-  #define Z_PROBE_OFFSET_RANGE_MIN -15
-  #define Z_PROBE_OFFSET_RANGE_MAX -5
+//#define WITBOX
+
+#ifdef WITBOX
+	//#define WITBOX_DUAL
+
+	#define EXTRUSION_SPEED 300
+	#define LEVEL_PLATE_TEMP_PROTECTION 60
+	#define Change_Filament_Target_Temp 220
+
+	#define FILAMENT_EXTRUSION_LENGTH 30
+	#define FILAMENT_UNLOAD_EXTRUSION_LENGTH 5
+	#define FILAMENT_UNLOAD_RETRACTION_LENGTH 40
+
+    #define PREHEAT_HOTEND_TEMP 200
+    #define PREHEAT_FAN_SPEED 0
+    #define COOLDOWN_FAN_SPEED 255
 #endif
 
+#if defined(ENABLE_AUTO_BED_LEVELING) || defined(WITBOX)
+  #define XY_TRAVEL_SPEED 8000 		// X and Y axis travel speed between probes and Witbox movements, in mm/min
+#endif
+//===========================================================================
+//=============================Additional Features===========================
+//===========================================================================
 
 // EEPROM
 // The microcontroller can store settings in the EEPROM, e.g. max velocity...
@@ -533,7 +553,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define ABS_PREHEAT_FAN_SPEED 255   // Insert Value between 0 and 255
 
 //LCD and SD support
-//#define ULTRA_LCD  //general LCD support, also 16x2
+#define ULTRA_LCD  //general LCD support, also 16x2
 //#define DOGLCD  // Support for SPI LCD 128x64 (Controller ST7565R graphic Display Family)
 //#define SDSUPPORT // Enable SD Card Support in Hardware Console
 //#define SDSLOW // Use slower SD transfer mode (not normally needed - uncomment if you're getting volume init error)
