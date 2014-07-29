@@ -239,6 +239,7 @@
 	#define MSG_ENDSTOP_HIT "TRIGGERED"
 	#define MSG_ENDSTOP_OPEN "open"
 	#define MSG_HOTEND_OFFSET "Hotend offsets:"
+	#define MSG_EMPTY_PLANE "Autolevel can only be execute on an actual plane, make sure width and height are not 0!"
 
 	#define MSG_SD_CANT_OPEN_SUBDIR "Cannot open subdir"
 	#define MSG_SD_INIT_FAIL "SD init fail"
@@ -442,6 +443,7 @@
 	#define MSG_ENDSTOP_HIT "Wyzwolony"
 	#define MSG_ENDSTOP_OPEN "Otwarty"
 	#define MSG_HOTEND_OFFSET "Offsety dysz:"
+	#define MSG_EMPTY_PLANE "Autolevel can only be execute on an actual plane, make sure width and height are not 0!"
 
 	#define MSG_SD_CANT_OPEN_SUBDIR "Nie mozna otworzyc podkatalogu"
 	#define MSG_SD_INIT_FAIL "Blad inicjalizacji karty SD"
@@ -645,6 +647,7 @@
 	#define MSG_ENDSTOP_HIT "DECLENCHE"
 	#define MSG_ENDSTOP_OPEN "OUVERT"
 	#define MSG_HOTEND_OFFSET "Hotend offsets:"
+	#define MSG_EMPTY_PLANE "Autolevel can only be execute on an actual plane, make sure width and height are not 0!"
 
 	#define MSG_SD_CANT_OPEN_SUBDIR "Impossible d'ouvrir le sous-repertoire"
 	#define MSG_SD_INIT_FAIL "Echec de l'initialisation de la SD"
@@ -849,6 +852,7 @@
 	#define MSG_ENDSTOP_HIT "TRIGGERED"
 	#define MSG_ENDSTOP_OPEN "open"
 	#define MSG_HOTEND_OFFSET "Hotend offsets:"
+	#define MSG_EMPTY_PLANE "Autolevel can only be execute on an actual plane, make sure width and height are not 0!"
 
 	#define MSG_SD_CANT_OPEN_SUBDIR "Cannot open subdir"
 	#define MSG_SD_INIT_FAIL "SD init fail"
@@ -1058,6 +1062,8 @@
 	#define MSG_ENDSTOP_HIT "PULSADO"
 	#define MSG_ENDSTOP_OPEN "abierto"
 	#define MSG_HOTEND_OFFSET "Hotend offsets:"
+	#define MSG_EMPTY_PLANE "Autolevel can only be execute on an actual plane, make sure width and height are not 0!"
+	
 	#define MSG_SD_CANT_OPEN_SUBDIR "No se pudo abrir la subcarpeta."
 	#define MSG_SD_INIT_FAIL "Fallo al iniciar la SD"
 	#define MSG_SD_VOL_INIT_FAIL "Fallo al montar el volumen"
@@ -1258,6 +1264,7 @@
 	#define MSG_ENDSTOP_HIT						"Срабатывание концевика"
 	#define MSG_ENDSTOP_OPEN					"Концевик освобожден"
 	#define MSG_HOTEND_OFFSET					"Hotend offsets:"
+	#define MSG_EMPTY_PLANE 					"Autolevel can only be execute on an actual plane, make sure width and height are not 0!"
 	#define MSG_SD_CANT_OPEN_SUBDIR				"Не открыть папку"
 	#define MSG_SD_INIT_FAIL					"Ошибка инициализации SD"
 	#define MSG_SD_VOL_INIT_FAIL				"Ошибка инициализации раздела"
@@ -1457,6 +1464,7 @@
 	#define MSG_ENDSTOP_HIT          "INNESCATO"
 	#define MSG_ENDSTOP_OPEN         "aperto"
 	#define MSG_HOTEND_OFFSET        "Hotend offsets:"
+	#define MSG_EMPTY_PLANE "Autolevel can only be execute on an actual plane, make sure width and height are not 0!"
 
 	#define MSG_SD_CANT_OPEN_SUBDIR  "Impossibile aprire sottocartella"
 	#define MSG_SD_INIT_FAIL         "Fallita Inizializzazione SD"
@@ -1664,6 +1672,7 @@
 	#define MSG_ENDSTOP_HIT "PULSADO"
 	#define MSG_ENDSTOP_OPEN "Aberto"
 	#define MSG_HOTEND_OFFSET "Hotend offsets:"
+	#define MSG_EMPTY_PLANE "Autolevel can only be execute on an actual plane, make sure width and height are not 0!"
 
 	#define MSG_SD_CANT_OPEN_SUBDIR "Nao pode abrir sub diretorio"
 	#define MSG_SD_INIT_FAIL "Falha ao iniciar SD"
@@ -1865,6 +1874,7 @@
 	#define MSG_ENDSTOP_HIT "AKTIIVISENA"
 	#define MSG_ENDSTOP_OPEN "avoinna"
 	#define MSG_HOTEND_OFFSET "Hotend offsets:"
+	#define MSG_EMPTY_PLANE "Autolevel can only be execute on an actual plane, make sure width and height are not 0!"
 
 	#define MSG_SD_CANT_OPEN_SUBDIR "Alihakemistoa ei voitu avata"
 	#define MSG_SD_INIT_FAIL "SD alustus epaonnistui"
@@ -2075,6 +2085,8 @@
 	#define MSG_ENDSTOP_HIT "PULSAU"
 	#define MSG_ENDSTOP_OPEN "ubierto"
 	#define MSG_HOTEND_OFFSET "Hotend offsets:"
+	#define MSG_EMPTY_PLANE "Autolevel can only be execute on an actual plane, make sure width and height are not 0!"
+	
 	#define MSG_SD_CANT_OPEN_SUBDIR "No se podió ubrir a subcarpeta."
 	#define MSG_SD_INIT_FAIL "Fallo en encetar a SD"
 	#define MSG_SD_VOL_INIT_FAIL "Fallo en amontar o volumen"
@@ -2273,6 +2285,7 @@
 	#define MSG_ENDSTOP_HIT "GERAAKT"
 	#define MSG_ENDSTOP_OPEN "open"
 	#define MSG_HOTEND_OFFSET "Hotend afwijking:"
+	#define MSG_EMPTY_PLANE "Autolevel kan niet uitgevoerd worden met een lege dimensie, zorg ervoor dat hoogte en breedte niet 0 is!"
 
 	#define MSG_SD_CANT_OPEN_SUBDIR "Kan subdirectory niet openen"
 	#define MSG_SD_INIT_FAIL "SD initialiseren mislukt"
@@ -2474,6 +2487,7 @@
 	#define MSG_ENDSTOP_HIT "Activat"
 	#define MSG_ENDSTOP_OPEN "obert"
 	#define MSG_HOTEND_OFFSET "Hotend offsets:"
+	#define MSG_EMPTY_PLANE "Autolevel can only be execute on an actual plane, make sure width and height are not 0!"
 
 	#define MSG_SD_CANT_OPEN_SUBDIR "No s'ha pogut obrir la carpeta"
 	#define MSG_SD_INIT_FAIL "Error al iniciar la SD"
@@ -2674,6 +2688,7 @@
 	#define MSG_ENDSTOP_HIT "Sakatuta"
 	#define MSG_ENDSTOP_OPEN "irekia"
 	#define MSG_HOTEND_OFFSET "Hotend offsets:"
+	#define MSG_EMPTY_PLANE "Autolevel can only be execute on an actual plane, make sure width and height are not 0!"
 
 	#define MSG_SD_CANT_OPEN_SUBDIR "Azpidirektorio ezin da ireki"
 	#define MSG_SD_INIT_FAIL "Akatsa txartela hasterakoan"
