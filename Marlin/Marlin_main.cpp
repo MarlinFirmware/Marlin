@@ -2818,6 +2818,9 @@ void process_commands()
             #endif
           }
           #else
+	  manage_heater();
+	  manage_inactivity();
+	  lcd_update();
           current_position[E_AXIS]+=0.04;
           plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS],current_position[E_AXIS], 300/60, active_extruder);
           st_synchronize();
