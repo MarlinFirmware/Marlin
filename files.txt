@@ -9,7 +9,7 @@ Common to all platforms
 
 File marked [*] have target dependent code selected by #if :
 - ARDUINO_ARCH_AVR    All AVR variants
-- ARDUINO_ARCH_SAM		Arduino Due 
+- ARDUINO_ARCH_SAM		Arduino Due (RADDS, RAMPS-FD) 
 
 
 cardreader.cpp 
@@ -41,6 +41,7 @@ SdFile.h
 SdInfo.h 
 SdVolume.cpp 
 SdVolume.h
+Servo.h
 stepper.cpp       [*]
 stepper.h
 temperature.cpp   [*]
@@ -62,6 +63,9 @@ HAL.cpp
 HAL.h
 pins.h
 
+Servo.cpp
+ServoTimers.h
+
 MarlinSerial.cpp
 MarlinSerial.h
 speed_lookuptable.h
@@ -73,20 +77,20 @@ fastio.h
 HAL.cpp
 HAL.h
 pins.h
+Servo.cpp
+ServoTimers.h
 
 TODO
 ----
-BlinkM.cpp 
+BlinkM.cpp						- should be common 
 BlinkM.h 
-digipot_mcp4451.cpp   - not used by any Due shields
+digipot_mcp4451.cpp   - may be required for Duet?
 LiquidCrystalRus.cpp 
 LiquidCrystalRus.h 
 qr_solve.cpp 
 qr_solve.h 
 SdFatUtil.cpp					- not used? 
 SdFatUtil.h           - not used?
-Servo.cpp 
-Servo.h 
 vector_3.cpp 
 vector_3.h 
 watchdog.cpp          - requires arduino core change
@@ -101,7 +105,7 @@ AVR
 Wire
 SPI
 LiquidCrystal
-
+Servo from 1.5.6, modified for Marlin
 u8glib
 
 Due
@@ -110,5 +114,5 @@ Due
 Wire
 SPI
 LiquidCrystal
-
+Servo from 1.5.6, modified for Marlin
 u8glib v1.16
