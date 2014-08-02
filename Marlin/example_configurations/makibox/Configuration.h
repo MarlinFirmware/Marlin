@@ -16,7 +16,7 @@
 // startup. Implementation of an idea by Prof Braino to inform user that any changes made to this
 // build by the user have been successfully uploaded into firmware.
 #define STRING_VERSION_CONFIG_H __DATE__ " " __TIME__ // build date and time
-#define STRING_CONFIG_H_AUTHOR "(Kit Adams, Prusa i3)" // Who made the changes.
+#define STRING_CONFIG_H_AUTHOR "(none, default config)" // Who made the changes.
 
 // SERIAL_PORT selects which serial port should be used for communication with the host.
 // This allows the connection of wireless adapters (for instance) to non-default port pins.
@@ -62,7 +62,6 @@
 // 81 = Printrboard (AT90USB1286)
 // 82 = Brainwave (AT90USB646)
 // 83 = SAV Mk-I (AT90USB1286)
-// 84 = Teensy++2.0 (AT90USB1286) // CLI compile: DEFINES=AT90USBxx_TEENSYPP_ASSIGNMENTS HARDWARE_MOTHERBOARD=84  make
 // 9  = Gen3+
 // 70 = Megatronics
 // 701= Megatronics v2.0
@@ -74,7 +73,7 @@
 // 88 = 5DPrint D8 Driver Board
 
 #ifndef MOTHERBOARD
-#define MOTHERBOARD 33
+#define MOTHERBOARD 88
 #endif
 
 // Define this to set a custom name for your generic Mendel,
@@ -120,7 +119,7 @@
 // 11 is 100k beta 3950 1% thermistor (4.7k pullup)
 // 12 is 100k 0603 SMD Vishay NTCS0603E3104FXT (4.7k pullup) (calibrated for Makibox hot bed)
 // 20 is the PT100 circuit found in the Ultimainboard V2.x
-// 60 is 100k Maker's Tool Works Kapton Bed Thermistor
+// 60 is 100k Maker's Tool Works Kapton Bed Thermistor beta=3950
 //
 //    1k ohm pullup tables - This is not normal, you would have to have changed out your 4.7k for 1k
 //                          (but gives greater accuracy and more stable PID)
@@ -132,12 +131,11 @@
 // 1010 is Pt1000 with 1k pullup (non standard)
 // 147 is Pt100 with 4k7 pullup
 // 110 is Pt100 with 1k pullup (non standard)
-// 70 is 500C thermistor for Pico hot end
 
 #define TEMP_SENSOR_0 1
 #define TEMP_SENSOR_1 0
 #define TEMP_SENSOR_2 0
-#define TEMP_SENSOR_BED 1
+#define TEMP_SENSOR_BED 12
 
 // This makes temp sensor 1 a redundant sensor for sensor 0. If the temperatures difference between these sensors is to high the print will be aborted.
 //#define TEMP_SENSOR_1_AS_REDUNDANT
@@ -159,7 +157,7 @@
 // When temperature exceeds max temp, your heater will be switched off.
 // This feature exists to protect your hotend from overheating accidentally, but *NOT* from thermistor short/failure!
 // You should use MINTEMP for thermistor short/failure protection.
-#define HEATER_0_MAXTEMP 310   //E3D
+#define HEATER_0_MAXTEMP 275
 #define HEATER_1_MAXTEMP 275
 #define HEATER_2_MAXTEMP 275
 #define BED_MAXTEMP 150
@@ -189,9 +187,9 @@
 
 // If you are using a pre-configured hotend then you can use one of the value sets by uncommenting it
 // Ultimaker
-//    #define  DEFAULT_Kp 22.2
-//    #define  DEFAULT_Ki 1.08
-//    #define  DEFAULT_Kd 114
+    #define  DEFAULT_Kp 22.2
+    #define  DEFAULT_Ki 1.08
+    #define  DEFAULT_Kd 114
 
 // MakerGear
 //    #define  DEFAULT_Kp 7.0
@@ -202,16 +200,6 @@
 //    #define  DEFAULT_Kp 63.0
 //    #define  DEFAULT_Ki 2.25
 //    #define  DEFAULT_Kd 440
-
-//Prusa i3 kit J head
-//    #define  DEFAULT_Kp 18.82
-//    #define  DEFAULT_Ki 0.77
-//    #define  DEFAULT_Kd 114.70
-    
-//Prusa i3 kit E3D un-insulated
-    #define  DEFAULT_Kp 9.67
-    #define  DEFAULT_Ki 0.44
-    #define  DEFAULT_Kd 53.22
 #endif // PIDTEMP
 
 // Bed Temperature Control
@@ -224,7 +212,7 @@
 // If your configuration is significantly different than this and you don't understand the issues involved, you probably
 // shouldn't use bed PID until someone else verifies your hardware works.
 // If this is enabled, find your own PID constants below.
-#define PIDTEMPBED
+//#define PIDTEMPBED
 //
 //#define BED_LIMIT_SWITCHING
 
@@ -232,14 +220,17 @@
 // all forms of bed control obey this (PID, bang-bang, bang-bang with hysteresis)
 // setting this to anything other than 255 enables a form of PWM to the bed just like HEATER_BED_DUTY_CYCLE_DIVIDER did,
 // so you shouldn't use it unless you are OK with PWM on your bed.  (see the comment on enabling PIDTEMPBED)
-#define MAX_BED_POWER 255 // limits duty cycle to bed; 255=full current
+#define MAX_BED_POWER 175 // limits duty cycle to bed; 255=full current
+// This limit is set to 175 by default in the Makibox configuration and it can adjusted
+// to increase the heat up rate. However, if changed, user must be aware of the safety concerns
+// of drawing too much current from the power supply.
 
 #ifdef PIDTEMPBED
 //120v 250W silicone heater into 4mm borosilicate (MendelMax 1.5+)
 //from FOPDT model - kp=.39 Tp=405 Tdead=66, Tc set to 79.2, aggressive factor of .15 (vs .1, 1, 10)
-    //#define  DEFAULT_bedKp 10.00
-    //#define  DEFAULT_bedKi .023
-    //#define  DEFAULT_bedKd 305.4
+    #define  DEFAULT_bedKp 10.00
+    #define  DEFAULT_bedKi .023
+    #define  DEFAULT_bedKd 305.4
 
 //120v 250W silicone heater into 4mm borosilicate (MendelMax 1.5+)
 //from pidautotune
@@ -248,10 +239,6 @@
 //    #define  DEFAULT_bedKd 1675.16
 
 // FIND YOUR OWN: "M303 E-1 C8 S90" to run autotune on the bed at 90 degreesC for 8 cycles.
-//RepRap 214 x 214 hot bed Mk2, 105 degrees
-    #define  DEFAULT_bedKp 236.31
-    #define  DEFAULT_bedKi 18.78
-    #define  DEFAULT_bedKd 743.34
 #endif // PIDTEMPBED
 
 
@@ -264,44 +251,6 @@
 
 #define EXTRUDE_MINTEMP 170
 #define EXTRUDE_MAXLENGTH (X_MAX_LENGTH+Y_MAX_LENGTH) //prevent extrusion of very large distances.
-
-/*================== Thermal Runaway Protection ==============================
-This is a feature to protect your printer from burn up in flames if it has
-a thermistor coming off place (this happened to a friend of mine recently and
-motivated me writing this feature).
-
-The issue: If a thermistor come off, it will read a lower temperature than actual.
-The system will turn the heater on forever, burning up the filament and anything
-else around.
-
-After the temperature reaches the target for the first time, this feature will 
-start measuring for how long the current temperature stays below the target 
-minus _HYSTERESIS (set_temperature - THERMAL_RUNAWAY_PROTECTION_HYSTERESIS).
-
-If it stays longer than _PERIOD, it means the thermistor temperature
-cannot catch up with the target, so something *may be* wrong. Then, to be on the
-safe side, the system will he halt.
-
-Bear in mind the count down will just start AFTER the first time the 
-thermistor temperature is over the target, so you will have no problem if
-your extruder heater takes 2 minutes to hit the target on heating.
-
-*/
-// If you want to enable this feature for all your extruder heaters,
-// uncomment the 2 defines below:
-
-// Parameters for all extruder heaters
-//#define THERMAL_RUNAWAY_PROTECTION_PERIOD 40 //in seconds
-//#define THERMAL_RUNAWAY_PROTECTION_HYSTERESIS 4 // in degree Celsius
-
-// If you want to enable this feature for your bed heater,
-// uncomment the 2 defines below:
-
-// Parameters for the bed heater
-//#define THERMAL_RUNAWAY_PROTECTION_BED_PERIOD 20 //in seconds
-//#define THERMAL_RUNAWAY_PROTECTION_BED_HYSTERESIS 2 // in degree Celsius
-//===========================================================================
-
 
 //===========================================================================
 //=============================Mechanical Settings===========================
@@ -339,7 +288,7 @@ const bool Z_MIN_ENDSTOP_INVERTING = false; // set to true to invert the logic o
 const bool X_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of the endstop.
 const bool Y_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of the endstop.
 const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of the endstop.
-#define DISABLE_MAX_ENDSTOPS
+//#define DISABLE_MAX_ENDSTOPS
 //#define DISABLE_MIN_ENDSTOPS
 
 // Disable max endstops for compatibility with endstop checking routine
@@ -358,11 +307,10 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define DISABLE_Y false
 #define DISABLE_Z false
 #define DISABLE_E false // For all extruders
-#define DISABLE_INACTIVE_EXTRUDER true //disable only inactive extruders and keep active extruder enabled
 
 #define INVERT_X_DIR false    // for Mendel set to false, for Orca set to true
 #define INVERT_Y_DIR false    // for Mendel set to true, for Orca set to false
-#define INVERT_Z_DIR false     // for Mendel set to false, for Orca set to true
+#define INVERT_Z_DIR false    // for Mendel set to false, for Orca set to true
 #define INVERT_E0_DIR true   // for direct drive extruder v9 set to true, for geared extruder set to false
 #define INVERT_E1_DIR false    // for direct drive extruder v9 set to true, for geared extruder set to false
 #define INVERT_E2_DIR false   // for direct drive extruder v9 set to true, for geared extruder set to false
@@ -376,44 +324,12 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define min_software_endstops true // If true, axis won't move to coordinates less than HOME_POS.
 #define max_software_endstops true  // If true, axis won't move to coordinates greater than the defined lengths below.
 
-/**
-This firmware adjust Z0 feature assumes that the hardware z min endstop is positioned so that, after homing,
-the nozzle is ~0.5 mm (i.e. < Z_MAX_TRAVEL_PAST_ENDSTOP_MM) above the bed. Enabling this feature then lets you
-set Z0 (i.e. the position of the nozzle after a G1 Z0 command) to be below this and just touching the
-bed by choosing the Move Z menu item and turning the knob. So the procedure is:
-   Auto Home
-   Move Z (in 0.02mm increments)
-   Set Z0 Here (this is the new menu command)
-   Store memory.
-Allowing z0 to be a little below the end stop position does mean you are relying on the flex in the micro-switch arm,
-since the first layer or two are printed below the min end stop position, but this does not seem to be a problem for 
-offsets < 1 mm. 
-*/
-#define ENABLE_FIRMWARE_ADJUST_Z0  //Uncomment to enable the Adjust Z0 menu (under Prepare)
-
-#ifdef ENABLE_FIRMWARE_ADJUST_Z0
-#define Z_MAX_TRAVEL_PAST_ENDSTOP_MM 1  //Allow Z0 to be up to this distance below min z endstop, even though min_software_endstops is true.
-#else
-#define Z_MAX_TRAVEL_PAST_ENDSTOP_MM 0
-#endif
-
-#define ENABLE_MANUAL_BED_LEVELING
-
-#ifdef ENABLE_MANUAL_BED_LEVELING
-  #define Z_RAISE_BEFORE_MOVING 1       // (in mm) Raise Z before moving to next corner
-                                        
-  #define XY_TRAVEL_SPEED 4000         // X and Y axis travel speed between probes, in mm/min
-
-  #define INSET_FROM_MAXMIN 0           //When moving to the corners, stop a little short of X_MAX_POS etc.
-
-#endif
-
 // Travel limits after homing
-#define X_MAX_POS 190
+#define X_MAX_POS 110
 #define X_MIN_POS 0
-#define Y_MAX_POS 183
+#define Y_MAX_POS 150
 #define Y_MIN_POS 0
-#define Z_MAX_POS 200
+#define Z_MAX_POS 86
 #define Z_MIN_POS 0
 
 #define X_MAX_LENGTH (X_MAX_POS - X_MIN_POS)
@@ -518,27 +434,21 @@ offsets < 1 mm.
 // For deltabots this means top and center of the Cartesian print volume.
 #define MANUAL_X_HOME_POS 0
 #define MANUAL_Y_HOME_POS 0
-#define MANUAL_Z_HOME_POS 0   
+#define MANUAL_Z_HOME_POS 0
 //#define MANUAL_Z_HOME_POS 402 // For delta: Distance between nozzle and print surface after homing.
 
 //// MOVEMENT SETTINGS
 #define NUM_AXIS 4 // The axis order in all axis related arrays is X, Y, Z, E
-//#define HOMING_FEEDRATE {50*60, 50*60, 4*60, 0}  // set the homing speeds (mm/min)
-#define HOMING_FEEDRATE {25*60, 25*60, 2*60, 0}  // set the homing speeds (mm/min)
+#define HOMING_FEEDRATE {1500, 1500, 120, 0}  // set the homing speeds (mm/min)   ***** MakiBox A6 *****
 
 // default settings
 
-//#define DEFAULT_AXIS_STEPS_PER_UNIT   {78.7402,78.7402,200.0*8/3,760*1.1}  // default steps per unit for Ultimaker
-//#define DEFAULT_MAX_FEEDRATE          {500, 500, 5, 25}    // (mm/sec)
-//#define DEFAULT_MAX_ACCELERATION      {9000,9000,100,10000}    // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for Skeinforge 40+, for older versions raise them a lot.
-#define DEFAULT_AXIS_STEPS_PER_UNIT   {80,80,4000,734 } /*100*700/95.4 for 2.85 mm Kiwi Green PLA*/ // X, Y, Z, E steps per unit - Metric Prusa Mendel with Wade extruder:
-#define DEFAULT_MAX_FEEDRATE          {400, 400, 2, 25}    // (mm/sec)
-#define DEFAULT_MAX_ACCELERATION      {5000,5000,50,5000}    // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for skeinforge 40+, for older versions raise them a lot.
+#define DEFAULT_AXIS_STEPS_PER_UNIT   {400, 400, 400, 163}     // default steps per unit for ***** MakiBox A6 *****
+#define DEFAULT_MAX_FEEDRATE          {60, 60, 20, 45}         // (mm/sec)    
+#define DEFAULT_MAX_ACCELERATION      {2000,2000,30,10000}    // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for skeinforge 40+, for older versions raise them a lot.
 
-//#define DEFAULT_ACCELERATION          3000    // X, Y, Z and E max acceleration in mm/s^2 for printing moves
-//#define DEFAULT_RETRACT_ACCELERATION  3000   // X, Y, Z and E max acceleration in mm/s^2 for retracts
-#define DEFAULT_ACCELERATION          1000    // X, Y, Z and E max acceleration in mm/s^2 for printing moves
-#define DEFAULT_RETRACT_ACCELERATION  2000   // X, Y, Z and E max acceleration in mm/s^2 for retracts
+#define DEFAULT_ACCELERATION          3000    // X, Y, Z and E max acceleration in mm/s^2 for printing moves
+#define DEFAULT_RETRACT_ACCELERATION  3000   // X, Y, Z and E max acceleration in mm/s^2 for retracts
 
 // Offset of the extruders (uncomment if using more than one and relying on firmware to position when changing).
 // The offset has to be X=0, Y=0 for the extruder 0 hotend (default extruder).
@@ -573,7 +483,7 @@ offsets < 1 mm.
 #define EEPROM_SETTINGS
 //to disable EEPROM Serial responses and decrease program space by ~1700 byte: comment this out:
 // please keep turned on if you can.
-#define EEPROM_CHITCHAT
+//#define EEPROM_CHITCHAT
 
 // Preheat Constants
 #define PLA_PREHEAT_HOTEND_TEMP 180
@@ -587,9 +497,8 @@ offsets < 1 mm.
 //LCD and SD support
 //#define ULTRA_LCD  //general LCD support, also 16x2
 //#define DOGLCD  // Support for SPI LCD 128x64 (Controller ST7565R graphic Display Family)
-//#define SDSUPPORT // Enable SD Card Support in Hardware Console
-//#define SDSLOW // Use slower SD transfer mode (not normally needed - uncomment if you're getting volume init error)
-//#define SD_CHECK_AND_RETRY // Use CRC checks and retries on the SD communication
+#define SDSUPPORT // Enable SD Card Support in Hardware Console
+#define SDSLOW // Use slower SD transfer mode (not normally needed - uncomment if you're getting volume init error)
 //#define ENCODER_PULSES_PER_STEP 1 // Increase if you have a high resolution encoder
 //#define ENCODER_STEPS_PER_MENU_ITEM 5 // Set according to ENCODER_PULSES_PER_STEP or your liking
 //#define ULTIMAKERCONTROLLER //as available from the Ultimaker online store.
@@ -607,7 +516,7 @@ offsets < 1 mm.
 
 // The GADGETS3D G3D LCD/SD Controller (blue PCB)
 // http://reprap.org/wiki/RAMPS_1.3/1.4_GADGETS3D_Shield_with_Panel
-#define G3D_PANEL
+//#define G3D_PANEL
 
 // The RepRapDiscount FULL GRAPHIC Smart Controller (quadratic white PCB)
 // http://reprap.org/wiki/RepRapDiscount_Full_Graphic_Smart_Controller
@@ -804,6 +713,9 @@ offsets < 1 mm.
 // This allows for servo actuated endstops, primary usage is for the Z Axis to eliminate calibration or bed height changes.
 // Use M206 command to correct for switch height offset to actual nozzle height. Store that setting with M500.
 //
+
+#define DIGIPOT_I2C
+
 //#define SERVO_ENDSTOPS {-1, -1, 0} // Servo index for X, Y, Z. Disable with -1
 //#define SERVO_ENDSTOP_ANGLES {0,0, 0,0, 70,0} // X,Y,Z Axis Extend and Retract angles
 

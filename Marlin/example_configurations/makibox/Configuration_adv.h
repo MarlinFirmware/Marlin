@@ -15,8 +15,8 @@
 // If the temperature has not increased at the end of that period, the target temperature is set to zero.
 // It can be reset with another M104/M109. This check is also only triggered if the target temperature and the current temperature
 //  differ by at least 2x WATCH_TEMP_INCREASE
-#define WATCH_TEMP_PERIOD 40000 //40 seconds
-#define WATCH_TEMP_INCREASE 10  //Heat up at least 10 degree in 20 seconds
+//#define WATCH_TEMP_PERIOD 40000 //40 seconds
+//#define WATCH_TEMP_INCREASE 10  //Heat up at least 10 degree in 20 seconds
 
 #ifdef PIDTEMP
   // this adds an experimental additional term to the heating power, proportional to the extrusion speed.
@@ -30,7 +30,7 @@
 
 //automatic temperature: The hot end target temperature is calculated by all the buffered lines of gcode.
 //The maximum buffered steps/sec of the extruder motor are called "se".
-//You enter the autotemp mode by a M109 S<mintemp> B<maxtemp> F<factor>
+//You enter the autotemp mode by a M109 S<mintemp> T<maxtemp> F<factor>
 // the target temperature is set to mintemp+factor*se[steps/sec] and limited by mintemp and maxtemp
 // you exit the value by any M109 without F*
 // Also, if the temperature is set to a value <mintemp, it is not changed by autotemp.
@@ -215,19 +215,12 @@
 //homing hits the endstop, then retracts by this distance, before it tries to slowly bump again:
 #define X_HOME_RETRACT_MM 5
 #define Y_HOME_RETRACT_MM 5
-
-#ifdef Z_MAX_TRAVEL_PAST_ENDSTOP_MM
-#define Z_HOME_RETRACT_MM (2+Z_MAX_TRAVEL_PAST_ENDSTOP_MM)
-#else
 #define Z_HOME_RETRACT_MM 2
-#endif
-
 //#define QUICK_HOME  //if this is defined, if both x and y are to be homed, a diagonal move will be performed initially.
 
 #define AXIS_RELATIVE_MODES {false, false, false, false}
 
-//#define MAX_STEP_FREQUENCY 40000 // Max step frequency for Ultimaker (5000 pps / half step)
-#define MAX_STEP_FREQUENCY 30000 // Max step frequency for Ultimaker (5000 pps / half step)
+#define MAX_STEP_FREQUENCY 40000 // Max step frequency for Ultimaker (5000 pps / half step)
 
 //By default pololu step drivers require an active high signal. However, some high power drivers require an active low signal as step.
 #define INVERT_X_STEP_PIN false
@@ -283,9 +276,10 @@
 // uncomment to enable an I2C based DIGIPOT like on the Azteeg X3 Pro
 //#define DIGIPOT_I2C
 // Number of channels available for I2C digipot, For Azteeg X3 Pro we have 8
-#define DIGIPOT_I2C_NUM_CHANNELS 8
+#define DIGIPOT_I2C_NUM_CHANNELS 4
 // actual motor currents in Amps, need as many here as DIGIPOT_I2C_NUM_CHANNELS
-#define DIGIPOT_I2C_MOTOR_CURRENTS {1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0}
+//#define DIGIPOT_I2C_MOTOR_CURRENTS {1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0}
+#define DIGIPOT_I2C_MOTOR_CURRENTS {1.7, 1.7, 1.7, 1.7}
 
 //===========================================================================
 //=============================Additional Features===========================
@@ -318,9 +312,9 @@
 // Babystepping enables the user to control the axis in tiny amounts, independently from the normal printing process
 // it can e.g. be used to change z-positions in the print startup phase in real-time
 // does not respect endstops!
-#define BABYSTEPPING
+//#define BABYSTEPPING
 #ifdef BABYSTEPPING
-  //#define BABYSTEP_XY  //not only z, but also XY in the menu. more clutter, more functions
+  #define BABYSTEP_XY  //not only z, but also XY in the menu. more clutter, more functions
   #define BABYSTEP_INVERT_Z false  //true for inverse movements in Z
   #define BABYSTEP_Z_MULTIPLICATOR 2 //faster z movements
 
@@ -364,7 +358,7 @@ const unsigned int dropsegments=5; //everything with less than this number of st
 // You can get round this by connecting a push button or single throw switch to the pin defined as SDCARDCARDDETECT
 // in the pins.h file.  When using a push button pulling the pin to ground this will need inverted.  This setting should
 // be commented out otherwise
-#define SDCARDDETECTINVERTED
+//#define SDCARDDETECTINVERTED
 
 #ifdef ULTIPANEL
  #undef SDCARDDETECTINVERTED
@@ -417,11 +411,9 @@ const unsigned int dropsegments=5; //everything with less than this number of st
 #ifdef FWRETRACT
   #define MIN_RETRACT 0.1                //minimum extruded mm to accept a automatic gcode retraction attempt
   #define RETRACT_LENGTH 3               //default retract length (positive mm)
-  #define RETRACT_LENGTH_SWAP 13         //default swap retract length (positive mm), for extruder change
   #define RETRACT_FEEDRATE 45            //default feedrate for retracting (mm/s)
   #define RETRACT_ZLIFT 0                //default retract Z-lift
   #define RETRACT_RECOVER_LENGTH 0       //default additional recover length (mm, added to retract length when recovering)
-  #define RETRACT_RECOVER_LENGTH_SWAP 0  //default additional swap recover length (mm, added to retract length when recovering from extruder change)
   #define RETRACT_RECOVER_FEEDRATE 8     //default feedrate for recovering from retraction (mm/s)
 #endif
 

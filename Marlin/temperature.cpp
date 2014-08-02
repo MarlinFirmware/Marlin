@@ -179,7 +179,7 @@ void PID_autotune(float temp, int extruder, int ncycles)
   float Kp, Ki, Kd;
   float max = 0, min = 10000;
 
-  if ((extruder > EXTRUDERS)
+  if ((extruder >= EXTRUDERS)
   #if (TEMP_BED_PIN <= -1)
        ||(extruder < 0)
   #endif
@@ -258,14 +258,14 @@ void PID_autotune(float temp, int extruder, int ncycles)
               Kp = 0.33*Ku;
               Ki = Kp/Tu;
               Kd = Kp*Tu/3;
-              SERIAL_PROTOCOLLNPGM(" Some overshoot ")
+              SERIAL_PROTOCOLLNPGM(" Some overshoot ");
               SERIAL_PROTOCOLPGM(" Kp: "); SERIAL_PROTOCOLLN(Kp);
               SERIAL_PROTOCOLPGM(" Ki: "); SERIAL_PROTOCOLLN(Ki);
               SERIAL_PROTOCOLPGM(" Kd: "); SERIAL_PROTOCOLLN(Kd);
               Kp = 0.2*Ku;
               Ki = 2*Kp/Tu;
               Kd = Kp*Tu/3;
-              SERIAL_PROTOCOLLNPGM(" No overshoot ")
+              SERIAL_PROTOCOLLNPGM(" No overshoot ");
               SERIAL_PROTOCOLPGM(" Kp: "); SERIAL_PROTOCOLLN(Kp);
               SERIAL_PROTOCOLPGM(" Ki: "); SERIAL_PROTOCOLLN(Ki);
               SERIAL_PROTOCOLPGM(" Kd: "); SERIAL_PROTOCOLLN(Kd);
@@ -416,6 +416,10 @@ void manage_heater()
   for(int e = 0; e < EXTRUDERS; e++) 
   {
 
+  #ifdef THERMAL_RUNAWAY_PROTECTION_PERIOD && THERMAL_RUNAWAY_PROTECTION_PERIOD > 0
+    thermal_runaway_protection(&thermal_runaway_state_machine[e], &thermal_runaway_timer[e], current_temperature[e], target_temperature[e], e, THERMAL_RUNAWAY_PROTECTION_PERIOD, THERMAL_RUNAWAY_PROTECTION_HYSTERESIS);
+  #endif
+
   #ifdef PIDTEMP
     pid_input = current_temperature[e];
 
@@ -526,6 +530,10 @@ void manage_heater()
 
   #if TEMP_SENSOR_BED != 0
   
+    #ifdef THERMAL_RUNAWAY_PROTECTION_PERIOD && THERMAL_RUNAWAY_PROTECTION_PERIOD > 0
+      thermal_runaway_protection(&thermal_runaway_bed_state_machine, &thermal_runaway_bed_timer, current_temperature_bed, target_temperature_bed, 9, THERMAL_RUNAWAY_PROTECTION_BED_PERIOD, THERMAL_RUNAWAY_PROTECTION_BED_HYSTERESIS);
+    #endif
+
   #ifdef PIDTEMPBED
     pid_input = current_temperature_bed;
 
@@ -609,6 +617,7 @@ static float analog2temp(int raw, uint8_t e) {
       SERIAL_ERROR((int)e);
       SERIAL_ERRORLNPGM(" - Invalid extruder number !");
       kill();
+      return 0.0;
   } 
   #ifdef HEATER_0_USES_MAX6675
     if (e == 0)
@@ -895,6 +904,66 @@ void setWatch()
 #endif 
 }
 
+#ifdef THERMAL_RUNAWAY_PROTECTION_PERIOD && THERMAL_RUNAWAY_PROTECTION_PERIOD > 0
+void thermal_runaway_protection(int *state, unsigned long *timer, float temperature, float target_temperature, int heater_id, int period_seconds, int hysteresis_degc)
+{
+/*
+      SERIAL_ECHO_START;
+      SERIAL_ECHO("Thermal Thermal Runaway Running. Heater ID:");
+      SERIAL_ECHO(heater_id);
+      SERIAL_ECHO(" ;  State:");
+      SERIAL_ECHO(*state);
+      SERIAL_ECHO(" ;  Timer:");
+      SERIAL_ECHO(*timer);
+      SERIAL_ECHO(" ;  Temperature:");
+      SERIAL_ECHO(temperature);
+      SERIAL_ECHO(" ;  Target Temp:");
+      SERIAL_ECHO(target_temperature);
+      SERIAL_ECHOLN("");    
+*/
+  if ((target_temperature == 0) || thermal_runaway)
+  {
+    *state = 0;
+    *timer = 0;
+    return;
+  }
+  switch (*state)
+  {
+    case 0: // "Heater Inactive" state
+      if (target_temperature > 0) *state = 1;
+      break;
+    case 1: // "First Heating" state
+      if (temperature >= target_temperature) *state = 2;
+      break;
+    case 2: // "Temperature Stable" state
+      if (temperature >= (target_temperature - hysteresis_degc))
+      {
+        *timer = millis();
+      } 
+      else if ( (millis() - *timer) > period_seconds*1000)
+      {
+        SERIAL_ERROR_START;
+        SERIAL_ERRORLNPGM("Thermal Runaway, system stopped! Heater_ID: ");
+        SERIAL_ERRORLN((int)heater_id);
+        LCD_ALERTMESSAGEPGM("THERMAL RUNAWAY");
+        thermal_runaway = true;
+        while(1)
+        {
+          disable_heater();
+          disable_x();
+          disable_y();
+          disable_z();
+          disable_e0();
+          disable_e1();
+          disable_e2();
+          manage_heater();
+          lcd_update();
+        }
+      }
+      break;
+  }
+}
+#endif
 
 void disable_heater()
 {
@@ -909,7 +978,7 @@ void disable_heater()
    #endif
   #endif
      
-  #if defined(TEMP_1_PIN) && TEMP_1_PIN > -1
+  #if defined(TEMP_1_PIN) && TEMP_1_PIN > -1 && EXTRUDERS > 1
     target_temperature[1]=0;
     soft_pwm[1]=0;
     #if defined(HEATER_1_PIN) && HEATER_1_PIN > -1 
@@ -917,7 +986,7 @@ void disable_heater()
     #endif
   #endif
       
-  #if defined(TEMP_2_PIN) && TEMP_2_PIN > -1
+  #if defined(TEMP_2_PIN) && TEMP_2_PIN > -1 && EXTRUDERS > 2
     target_temperature[2]=0;
     soft_pwm[2]=0;
     #if defined(HEATER_2_PIN) && HEATER_2_PIN > -1  
