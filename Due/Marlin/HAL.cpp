@@ -70,26 +70,41 @@ uint8_t MCUSR;
 // Public functions
 // --------------------------------------------------------------------------
 
+// disable interrupts
 void cli(void)
 {
-	//todo port for Due
+	noInterrupts();
 }
 
+// enable interrupts
 void sei(void)
 {
-	//todo port for Due
+	interrupts();
 }
 
 void _delay_ms (int delay_ms)
 {
-	//todo: port for Due
+	//todo: port for Due?
 	delay (delay_ms);
 }
 
+extern "C" {
+  extern unsigned int _ebss; // end of bss section
+}
+
+// return free memory between end of heap (or end bss) and whatever is current
 int freeMemory()
 {
-	//todo: port for Due
-	return 0;
+  int free_memory;
+  int heap_end = (int)_sbrk(0);
+
+  if(heap_end == 0)
+    free_memory = ((int)&free_memory) - ((int)&_ebss);
+  else
+    free_memory = ((int)&free_memory) - heap_end;
+
+  return free_memory;
+
 }
 
 // --------------------------------------------------------------------------

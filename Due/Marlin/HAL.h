@@ -41,8 +41,8 @@
 
 #define analogInputToDigitalPin(IO) IO
 
-#define     CRITICAL_SECTION_START	do {} while (0);
-#define     CRITICAL_SECTION_END    do {} while (0);
+#define     CRITICAL_SECTION_START	uint32_t primask=__get_PRIMASK(); __disable_irq();
+#define     CRITICAL_SECTION_END    if (primask==0) __enable_irq();
 
 // On AVR this is in math.h?
 #define square(x) ((x)*(x))
