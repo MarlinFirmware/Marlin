@@ -1558,9 +1558,9 @@ void process_commands()
             // so Vx = -a Vy = -b Vz = 1 (we want the vector facing towards positive Z
 
             // "A" matrix of the linear system of equations
-            double eqnAMatrix[] = (double*)malloc(sizeof(double) * (a_bed_leveling_points*a_bed_leveling_points*3));
+            double* eqnAMatrix = (double*)malloc(sizeof(double) * (a_bed_leveling_points*a_bed_leveling_points*3));
             // "B" vector of Z points
-            double eqnBVector[] = (double*)malloc(sizeof(double) * (a_bed_leveling_points*a_bed_leveling_points));
+            double* eqnBVector = (double*)malloc(sizeof(double) * (a_bed_leveling_points*a_bed_leveling_points));
 
 
             int probePointCounter = 0;
