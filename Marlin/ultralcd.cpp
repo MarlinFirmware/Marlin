@@ -1133,30 +1133,30 @@ void lcd_init()
     lcd_implementation_init();
 
 #ifdef NEWPANEL
-    pinMode(BTN_EN1,INPUT);
-    pinMode(BTN_EN2,INPUT);
+    SET_INPUT(BTN_EN1);
+    SET_INPUT(BTN_EN2);
     WRITE(BTN_EN1,HIGH);
     WRITE(BTN_EN2,HIGH);
   #if BTN_ENC > 0
-    pinMode(BTN_ENC,INPUT);
+    SET_INPUT(BTN_ENC);
     WRITE(BTN_ENC,HIGH);
   #endif
   #ifdef REPRAPWORLD_KEYPAD
-    pinMode(SHIFT_CLK,OUTPUT);
-    pinMode(SHIFT_LD,OUTPUT);
-    pinMode(SHIFT_OUT,INPUT);
+    SET_OUTPUT(SHIFT_CLK);
+    SET_OUTPUT(SHIFT_LD);
+    SET_INPUT(SHIFT_OUT);
     WRITE(SHIFT_OUT,HIGH);
     WRITE(SHIFT_LD,HIGH);
   #endif
 #else  // Not NEWPANEL
   #ifdef SR_LCD_2W_NL // Non latching 2 wire shift register
-     pinMode (SR_DATA_PIN, OUTPUT);
-     pinMode (SR_CLK_PIN, OUTPUT);
+     SET_OUTPUT(SR_DATA_PIN);
+     SET_OUTPUT(SR_CLK_PIN);
   #elif defined(SHIFT_CLK) 
-     pinMode(SHIFT_CLK,OUTPUT);
-     pinMode(SHIFT_LD,OUTPUT);
-     pinMode(SHIFT_EN,OUTPUT);
-     pinMode(SHIFT_OUT,INPUT);
+     SET_OUTPUT(SHIFT_CLK);
+     SET_OUTPUT(SHIFT_LD);
+     SET_OUTPUT(SHIFT_EN);
+     SET_INPUT(SHIFT_OUT);
      WRITE(SHIFT_OUT,HIGH);
      WRITE(SHIFT_LD,HIGH);
      WRITE(SHIFT_EN,LOW);
@@ -1168,7 +1168,7 @@ void lcd_init()
 #endif//!NEWPANEL
 
 #if defined (SDSUPPORT) && defined(SDCARDDETECT) && (SDCARDDETECT > 0)
-    pinMode(SDCARDDETECT,INPUT);
+    SET_INPUT(SDCARDDETECT);
     WRITE(SDCARDDETECT, HIGH);
     lcd_oldcardstatus = IS_SD_INSERTED;
 #endif//(SDCARDDETECT > 0)
