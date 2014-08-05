@@ -1693,7 +1693,24 @@ void process_commands()
       starttime=millis();
       break;
     case 25: //M25 - Pause SD print
-      card.pauseSDPrint();
+      #ifdef FILAMENTCHANGEENABLE
+	float target[4];
+        target[X_AXIS]= FILAMENTCHANGE_XPOS ;
+        target[Y_AXIS]= FILAMENTCHANGE_YPOS ;
+        target[Z_AXIS]+= FILAMENTCHANGE_ZADD ;
+        target[E_AXIS]=current_position[E_AXIS];
+        plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], feedrate/60, active_extruder);
+	while(!lcd_clicked()){
+	  manage_heater();
+	  manage_inactivity();
+	  lcd_update();
+          plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS],current_position[E_AXIS], 300/60, active_extruder);
+          st_synchronize();
+        }
+        st_synchronize();
+      #else
+        card.pauseSDPrint();
+      #endif
       break;
     case 26: //M26 - Set SD index
       if(card.cardOK && code_seen('S')) {

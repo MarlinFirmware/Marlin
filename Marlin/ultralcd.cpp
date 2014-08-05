@@ -279,7 +279,12 @@ static void lcd_return_to_status()
 
 static void lcd_sdcard_pause()
 {
-    card.pauseSDPrint();
+    #ifdef FILAMENTCHANGEENABLE
+      enquecommand_P(PSTR("M25"));
+      lcd_return_to_status();
+    #else
+      card.pauseSDPrint();
+    #endif
 }
 static void lcd_sdcard_resume()
 {
@@ -290,18 +295,15 @@ static void lcd_sdcard_stop()
 {
     card.sdprinting = false;
     card.closefile();
-   
-#ifdef WITBOX
-	//target_temperature[0]=0;    //temperatura del nozzle 1
-    setTargetHotend(0,0);		//setTargetHotend(celsius,extruder);
-    setTargetHotend(0,1);
-    
-    enquecommand_P(PSTR("G90"));
-    enquecommand_P(PSTR("G1 X295 Y208 Z200"));
-    enquecommand_P(PSTR("M300 S1174 P300"));
-#endif //WITBOX
 
-    quickStop();
+    #ifdef WITBOX
+      setTargetHotend(0,0);  //setTargetHotend(celsius,extruder);
+      setTargetHotend(0,1);
+      plan_buffer_line(295, 208, 200, 0, manual_feedrate[X_AXIS]/60, active_extruder);
+    #else
+      quickStop();
+    #endif //WITBOX
+
     if(SD_FINISHED_STEPPERRELEASE)
     {
         enquecommand_P(PSTR(SD_FINISHED_RELEASECOMMAND));
@@ -334,8 +336,11 @@ static void lcd_main_menu()
         {
             if (card.sdprinting)
                 MENU_ITEM(function, MSG_PAUSE_PRINT, lcd_sdcard_pause);
-            else
+	    #ifndef FILAMENTCHANGEENABLE
+	      else
                 MENU_ITEM(function, MSG_RESUME_PRINT, lcd_sdcard_resume);
+	    #endif
+
             MENU_ITEM(function, MSG_STOP_PRINT, lcd_sdcard_stop);
         }else{
             MENU_ITEM(submenu, MSG_CARD_MENU, lcd_sdcard_menu);
