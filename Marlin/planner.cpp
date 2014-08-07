@@ -117,6 +117,10 @@ static long x_segment_time[3]={MAX_FREQ_TIME + 1,0,0};     // Segment times (in 
 static long y_segment_time[3]={MAX_FREQ_TIME + 1,0,0};
 #endif
 
+#ifdef FILAMENT_SENSOR
+ static char meas_sample; //temporary variable to hold filament measurement sample
+#endif
+
 // Returns the index of the next block in the ring buffer
 // NOTE: Removed modulo (%) operator, which uses an expensive divide and multiplication.
 static int8_t next_block_index(int8_t block_index) {
@@ -736,6 +740,33 @@ block->steps_y = labs((target[X_AXIS]-position[X_AXIS]) - (target[Y_AXIS]-positi
 
   block->nominal_speed = block->millimeters * inverse_second; // (mm/sec) Always > 0
   block->nominal_rate = ceil(block->step_event_count * inverse_second); // (step/sec) Always > 0
+
+#ifdef FILAMENT_SENSOR
+  //FMM update ring buffer used for delay with filament measurements
+    
+    if(filament_sensor && (extruder==0))  //only for extruder 0
+  	  {
+    delay_dist = delay_dist + delta_mm[E_AXIS];  //increment counter with next move in e axis
+    if (delay_dist> (10*(MAX_MEASUREMENT_DELAY+1)))  //check if counter is over max buffer size in mm
+      	  delay_dist = delay_dist - 10*(MAX_MEASUREMENT_DELAY+1);  //loop around the buffer
+      if(delay_dist<0)
+    	  delay_dist = delay_dist + 10*(MAX_MEASUREMENT_DELAY+1); //loop around the buffer
+    delay_index1=delay_dist/10;  //calculate index
+    if(delay_index1 != delay_index2)  //moved index
+  	  {
+    	meas_sample=widthFil_to_size_ratio()-100;  //subtract off 100 to reduce magnitude - to store in a signed char
+  	  }
+    while( delay_index1 != delay_index2)
+  	  {
+  	  delay_index2 = delay_index2 + 1;
+  	if(delay_index2>MAX_MEASUREMENT_DELAY)
+  			  delay_index2=delay_index2-(MAX_MEASUREMENT_DELAY+1);  //loop around buffer when incrementing
+  	  measurement_delay[delay_index2]=meas_sample;
+  	  }
+    
+  	  } 
+#endif
+
 
   // Calculate and limit speed in mm/sec for each axis
   float current_speed[4];
