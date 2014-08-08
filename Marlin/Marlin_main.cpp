@@ -541,9 +541,11 @@ void setup()
   lcd_init();
   _delay_ms(1000);	// wait 1sec to display the splash screen
 
+#ifdef SAV_3DLCD
   // FMC for collition between marlin pins and Teensy pins
   pinMode (40, INPUT);
   digitalWrite (40, HIGH);
+#endif
   
   #if defined(CONTROLLERFAN_PIN) && CONTROLLERFAN_PIN > -1
     SET_OUTPUT(CONTROLLERFAN_PIN); //Set pin used for driver cooling fan
