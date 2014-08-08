@@ -299,7 +299,7 @@ static void lcd_sdcard_stop()
     #ifdef WITBOX
       setTargetHotend(0,0);  //setTargetHotend(celsius,extruder);
       setTargetHotend(0,1);
-      plan_buffer_line(295, 208, 200, 0, manual_feedrate[X_AXIS]/60, active_extruder);
+      plan_buffer_line(X_MAX_POS-15, Y_MAX_POS-15, Z_MAX_POS-15, 0, manual_feedrate[X_AXIS]/60, active_extruder);
     #else
       quickStop();
     #endif //WITBOX

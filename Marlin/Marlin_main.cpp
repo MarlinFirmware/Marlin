@@ -3022,7 +3022,11 @@ void process_commands()
         set_pageShowInfo(2); 
         
         do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS],Z_MIN_POS+10);
-        do_blocking_move_to(90, 5, current_position[Z_AXIS]);
+	#if X_MAX_POS > 250
+          do_blocking_move_to(90, 5, current_position[Z_AXIS]);
+	#else
+	  do_blocking_move_to(20, 20, current_position[Z_AXIS]);
+	#endif
         do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS],Z_MIN_POS);
           
         while(!lcd_clicked()){
@@ -3034,7 +3038,11 @@ void process_commands()
         set_pageShowInfo(3);
                   
         do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS],Z_MIN_POS+10);
-        do_blocking_move_to(205, 5, current_position[Z_AXIS]);
+	#if X_MAX_POS > 250
+          do_blocking_move_to(205, 5, current_position[Z_AXIS]);
+	#else
+	  do_blocking_move_to(195, 20, current_position[Z_AXIS]);
+	#endif
         do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS],Z_MIN_POS);
               
          while(!lcd_clicked()){
@@ -3046,7 +3054,11 @@ void process_commands()
         set_pageShowInfo(4);
                  
         do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS],Z_MIN_POS+10);
-        do_blocking_move_to(150, 105, current_position[Z_AXIS]);
+	#if X_MAX_POS > 250
+          do_blocking_move_to(150, 105, current_position[Z_AXIS]);
+	#else
+	  do_blocking_move_to((X_MAX_POS-X_MIN_POS)/2, (Y_MAX_POS-Y_MIN_POS)/2, current_position[Z_AXIS]);
+	#endif
         do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS],Z_MIN_POS);
               
         while(!lcd_clicked()){                  
