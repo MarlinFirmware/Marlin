@@ -913,7 +913,7 @@ static void set_bed_level_equation_3pts(float z_at_pt_1, float z_at_pt_2, float 
     vector_3 from_2_to_1 = (pt1 - pt2).get_normal();
     vector_3 from_2_to_3 = (pt3 - pt2).get_normal();
     vector_3 planeNormal = vector_3::cross(from_2_to_1, from_2_to_3).get_normal();
-    planeNormal = vector_3(planeNormal.x, planeNormal.y, abs(planeNormal.z));
+    planeNormal = vector_3(-planeNormal.x, -planeNormal.y, 1);
 
     plan_bed_level_matrix = matrix_3x3::create_look_at(planeNormal);
 
