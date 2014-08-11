@@ -62,6 +62,8 @@ static void lcd_control_filament_menu();
 static void lcd_move_jog_menu();
 static void lcd_speed_printing();
 static void lcd_filament_menu();
+static void lcd_control_motion_menu();
+static void lcd_splash();
 #ifdef WITBOX_DUAL
 static void select_extruder_load();
 static void select_extruder_unload();
@@ -371,6 +373,7 @@ static void lcd_main_menu()
       }
 
  #endif  //WITBOX
+    MENU_ITEM(submenu, "FW info", lcd_splash);
     END_MENU();
 }
 
@@ -1569,6 +1572,24 @@ void lcd_init()
     lcd.clear();
 #endif
 //<-WITBOX SPLASH SCREEN-
+}
+
+static void lcd_splash()
+{
+    lcd.clear();
+    lcd.setCursor(6, 1);
+    lcd_printPGM(PSTR(MSG_WELLCOME));
+    #ifndef WITBOX_DUAL
+    lcd.setCursor(8, 3);
+    lcd_printPGM(PSTR(FIRMWARE_VER));
+    #else
+    lcd.setCursor(6, 3);
+    lcd_printPGM(PSTR(FIRMWARE_VER));    
+    #endif
+    delay(1500);
+    lcd.clear(); 
+    currentMenu = lcd_status_screen;
+    lcd_status_screen();
 }
 
 void lcd_update()
