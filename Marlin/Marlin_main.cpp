@@ -3516,10 +3516,9 @@ void manage_inactivity()
   }
   
   #ifdef CHDK //Check if pin should be set to LOW after M240 set it to HIGH
-    if (chdkActive)
+    if (chdkActive && (millis() - chdkHigh > CHDK_DELAY))
     {
       chdkActive = false;
-      if (millis()-chdkHigh < CHDK_DELAY) return;
       WRITE(CHDK, LOW);
     }
   #endif
