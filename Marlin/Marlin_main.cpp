@@ -3010,7 +3010,11 @@ void process_commands()
         // prob 1
         
         do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS],Z_MIN_POS+10);
-        do_blocking_move_to((X_MAX_POS-X_MIN_POS)/2,Y_MAX_POS-10, current_position[Z_AXIS]);
+	#if X_MAX_POS > 250
+          do_blocking_move_to((X_MAX_POS-X_MIN_POS)/2,Y_MAX_POS-10, current_position[Z_AXIS]);
+	#else
+	  do_blocking_move_to(20, 190, current_position[Z_AXIS]);
+	#endif
         do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], Z_MIN_POS);
         
        while(!lcd_clicked()){          
@@ -3025,7 +3029,7 @@ void process_commands()
 	#if X_MAX_POS > 250
           do_blocking_move_to(90, 5, current_position[Z_AXIS]);
 	#else
-	  do_blocking_move_to(20, 20, current_position[Z_AXIS]);
+	  do_blocking_move_to(195, 190, current_position[Z_AXIS]);
 	#endif
         do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS],Z_MIN_POS);
           
@@ -3041,7 +3045,7 @@ void process_commands()
 	#if X_MAX_POS > 250
           do_blocking_move_to(205, 5, current_position[Z_AXIS]);
 	#else
-	  do_blocking_move_to(195, 20, current_position[Z_AXIS]);
+	  do_blocking_move_to(20, 20, current_position[Z_AXIS]);
 	#endif
         do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS],Z_MIN_POS);
               
@@ -3050,8 +3054,22 @@ void process_commands()
           manage_inactivity();
         }        
         
+	#if X_MAX_POS < 250
+	  set_ChangeScreen(true);
+          set_pageShowInfo(4);
+                  
+          do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS],Z_MIN_POS+10);
+	  do_blocking_move_to(195, 20, current_position[Z_AXIS]);
+          do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS],Z_MIN_POS);
+              
+           while(!lcd_clicked()){
+            manage_heater();
+            manage_inactivity();
+           }
+	#endif
+
         set_ChangeScreen(true);
-        set_pageShowInfo(4);
+        set_pageShowInfo(5);
                  
         do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS],Z_MIN_POS+10);
 	#if X_MAX_POS > 250
@@ -3067,7 +3085,7 @@ void process_commands()
         }
         
         set_ChangeScreen(true);
-        set_pageShowInfo(5);
+        set_pageShowInfo(6);
                 
         do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS],Z_MIN_POS+50);
         do_blocking_move_to(10, 10, current_position[Z_AXIS]);

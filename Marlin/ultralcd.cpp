@@ -872,11 +872,21 @@ void lcd_level_bed()
         }
               
         break;
-    
+
      case 5:
+        {     
+          lcd.setCursor(0, 1);
+          lcd_printPGM(PSTR(MSG_LP_5));
+              currentMenu = lcd_level_bed;
+           ChangeScreen=false;         
+        }
+              
+        break;
+    
+     case 6:
         {
           lcd.setCursor(2, 2);          
-          lcd_printPGM(PSTR(MSG_LP_5));         
+          lcd_printPGM(PSTR(MSG_LP_6));         
           
           ChangeScreen=false;
           delay(1200);    
@@ -1661,7 +1671,8 @@ void lcd_update()
 #ifdef WITBOX
         if (FilamentMenuActive)										//load or unload filament menu active
             timeoutToStatus = millis() + LCD_TIMEOUT_TO_STATUS;
-        if (ChangeScreen && pageShowInfo!=5){						//Leveling platform	
+
+	if (ChangeScreen && pageShowInfo!=6){						//Leveling platform	
             lcd_level_bed(); 
             currentMenu=lcd_level_bed;
         }
