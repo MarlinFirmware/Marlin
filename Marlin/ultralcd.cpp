@@ -1496,6 +1496,10 @@ static void menu_action_sdfile(const char* filename, char* longFilename)
     char cmd[30];
     char* c;
     sprintf_P(cmd, PSTR("M23 %s"), filename);
+
+    enquecommand_P(PSTR("G28"));
+    enquecommand_P(PSTR("G1 Z10"));
+
     for(c = &cmd[4]; *c; c++)
         *c = tolower(*c);
     enquecommand(cmd);
