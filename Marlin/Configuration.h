@@ -359,8 +359,13 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define Y_HOME_DIR -1
 #define Z_HOME_DIR -1
 
-#define min_software_endstops true // If true, axis won't move to coordinates less than HOME_POS.
-#define max_software_endstops true  // If true, axis won't move to coordinates greater than the defined lengths below.
+#define min_software_endstop_x true // If true, x axis won't move to coordinates less than HOME_POS.
+#define min_software_endstop_y true // If true, y axis won't move to coordinates less than HOME_POS.
+#define min_software_endstop_z false // If true, z axis won't move to coordinates less than HOME_POS.
+
+#define max_software_endstop_x true  // If true, x axis won't move to coordinates greater than the defined lengths below.
+#define max_software_endstop_y true  // If true, y axis won't move to coordinates greater than the defined lengths below.
+#define max_software_endstop_z true  // If true, z axis won't move to coordinates greater than the defined lengths below.
 
 // Travel limits after homing
 #define X_MAX_POS 205
