@@ -302,12 +302,12 @@ bool cancel_heatup = false ;
 
 #ifdef FILAMENT_SENSOR
   //Variables for Filament Sensor input 
-  volatile float filament_width_nominal=DEFAULT_NOMINAL_FILAMENT_DIA;  //Set nominal filament width, can be changed with M404 
-  volatile bool filament_sensor=false;  //M405 turns on filament_sensor control, M406 turns it off 
+  float filament_width_nominal=DEFAULT_NOMINAL_FILAMENT_DIA;  //Set nominal filament width, can be changed with M404 
+  bool filament_sensor=false;  //M405 turns on filament_sensor control, M406 turns it off 
   float filament_width_meas=DEFAULT_MEASURED_FILAMENT_DIA; //Stores the measured filament diameter 
   signed char measurement_delay[MAX_MEASUREMENT_DELAY+1];  //ring buffer to delay measurement  store extruder factor after subtracting 100 
-  int delay_index1=0;
-  int delay_index2=0;  //index into ring buffer
+  int delay_index1=0;  //index into ring buffer
+  int delay_index2=-1;  //index into ring buffer - set to -1 on startup to indicate ring buffer needs to be initialized
   float delay_dist=0; //delay distance counter  
   int meas_delay_cm = MEASUREMENT_DELAY_CM;  //distance delay setting
 #endif
@@ -504,6 +504,7 @@ void servo_init()
   #endif
 }
 
+
 void setup()
 {
   setup_killpin();
@@ -553,6 +554,7 @@ void setup()
   st_init();    // Initialize stepper, this enables interrupts!
   setup_photpin();
   servo_init();
+  
 
   lcd_init();
   _delay_ms(1000);	// wait 1sec to display the splash screen
@@ -2333,12 +2335,8 @@ void process_commands()
           }
         } else {
           //reserved for setting filament diameter via UFID or filament measuring device
-        	if(active_extruder == FILAMENT_SENSOR_EXTRUDER_NUM){
-        		radius = analog2widthFil() * 0.5;
-        		area = M_PI * pow(radius, 2);
-        	}else{
-        		area = 1.0;
-        	}
+          break;
+        
           
         }
         tmp_extruder = active_extruder;
@@ -2816,15 +2814,19 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
        if(meas_delay_cm> MAX_MEASUREMENT_DELAY)
        	meas_delay_cm = MAX_MEASUREMENT_DELAY;
     
-    filament_sensor = true ; 
-    int temp_ratio = widthFil_to_size_ratio(); 
+       if(delay_index2 == -1)  //initialize the ring buffer if it has not been done since startup
+    	   {
+    	   int temp_ratio = widthFil_to_size_ratio(); 
+       	    
+       	    for (delay_index1=0; delay_index1<(MAX_MEASUREMENT_DELAY+1); ++delay_index1 ){
+       	              measurement_delay[delay_index1]=temp_ratio-100;  //subtract 100 to scale within a signed byte
+       	        }
+       	    delay_index1=0;
+       	    delay_index2=0;	
+    	   }
     
-    for (delay_index1=0; delay_index1<(MAX_MEASUREMENT_DELAY+1); ++delay_index1 ){
-              measurement_delay[delay_index1]=temp_ratio-100;  //subtract 100 to scale within a signed byte
-        }
-    delay_index1=0;
-    delay_index2=0;
-              
+    filament_sensor = true ; 
+    
     //SERIAL_PROTOCOLPGM("Filament dia (measured mm):"); 
     //SERIAL_PROTOCOL(filament_width_meas); 
     //SERIAL_PROTOCOLPGM("Extrusion ratio(%):"); 
@@ -2841,7 +2843,7 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
     case 407:   //M407 Display measured filament diameter 
     { 
      
-    filament_width_meas = code_value(); 
+    
     
     SERIAL_PROTOCOLPGM("Filament dia (measured mm):"); 
     SERIAL_PROTOCOLLN(filament_width_meas);   

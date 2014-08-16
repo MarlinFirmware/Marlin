@@ -230,8 +230,8 @@ extern unsigned char fanSpeedSoftPwm;
 #endif
 
 #ifdef FILAMENT_SENSOR
-  extern volatile float filament_width_nominal;  //holds the theoretical filament diameter ie., 3.00 or 1.75 
-  extern volatile bool filament_sensor;  //indicates that filament sensor readings should control extrusion  
+  extern float filament_width_nominal;  //holds the theoretical filament diameter ie., 3.00 or 1.75 
+  extern bool filament_sensor;  //indicates that filament sensor readings should control extrusion  
   extern float filament_width_meas; //holds the filament diameter as accurately measured 
   extern signed char measurement_delay[];  //ring buffer to delay measurement
   extern int delay_index1, delay_index2;  //index into ring buffer
