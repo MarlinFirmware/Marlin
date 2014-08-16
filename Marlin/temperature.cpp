@@ -617,9 +617,16 @@ void manage_heater()
 			  meas_shift_index = meas_shift_index + (MAX_MEASUREMENT_DELAY+1);  //loop around buffer if needed
 		  
 		  //get the delayed info and add 100 to reconstitute to a percent of the nominal filament diameter
-		  //then adjust as a factor to the Standard Diameter (has an area of 1mm squared)
 		  //then square it to get an area
-		  volumetric_multiplier[FILAMENT_SENSOR_EXTRUDER_NUM] = pow((float)(100+measurement_delay[meas_shift_index])/filament_width_nominal*STANDARD_DIA/100.0,2);
+		  
+		  if(meas_shift_index<0)
+			  meas_shift_index=0;
+		  else if (meas_shift_index>MAX_MEASUREMENT_DELAY)
+			  meas_shift_index=MAX_MEASUREMENT_DELAY;
+		  
+		     volumetric_multiplier[FILAMENT_SENSOR_EXTRUDER_NUM] = pow((float)(100+measurement_delay[meas_shift_index])/100.0,2);
+		     if (volumetric_multiplier[FILAMENT_SENSOR_EXTRUDER_NUM] <0.01)
+		    	 volumetric_multiplier[FILAMENT_SENSOR_EXTRUDER_NUM]=0.01;
 	}
 #endif
 }
@@ -715,6 +722,9 @@ static void updateTemperaturesFromRawValues()
     #ifdef TEMP_SENSOR_1_AS_REDUNDANT
       redundant_temperature = analog2temp(redundant_temperature_raw, 1);
     #endif
+    #ifdef FILAMENT_SENSOR  && (FILWIDTH_PIN > -1)    //check if a sensor is supported 
+      filament_width_meas = analog2widthFil();
+    #endif  
     //Reset the watchdog after we know we have a temperature measurement.
     watchdog_reset();
 
@@ -731,15 +741,11 @@ return current_raw_filwidth/16383.0*5.0;
 //return current_raw_filwidth; 
 } 
  
-// For converting raw Filament Width to an volumetric ratio 
+// For converting raw Filament Width to a ratio 
 int widthFil_to_size_ratio() { 
  
 float temp; 
-   
-#if (FILWIDTH_PIN > -1)    //check if a sensor is supported 
-filament_width_meas=current_raw_filwidth/16383.0*5.0; 
-#endif   
- 
+      
 temp=filament_width_meas;
 if(filament_width_meas<MEASURED_LOWER_LIMIT)
 	temp=filament_width_nominal;  //assume sensor cut out
