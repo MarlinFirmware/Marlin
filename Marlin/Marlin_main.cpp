@@ -1357,6 +1357,11 @@ void process_commands()
       }
       #endif
 
+      // LearCNC[P3] - Home Y first to avoid glass clips
+      if((home_all_axis) || (code_seen(axis_codes[Y_AXIS]))) {
+        HOMEAXIS(Y);
+      }
+
       if((home_all_axis) || (code_seen(axis_codes[X_AXIS])))
       {
       #ifdef DUAL_X_CARRIAGE
@@ -1376,9 +1381,9 @@ void process_commands()
       #endif
       }
 
-      if((home_all_axis) || (code_seen(axis_codes[Y_AXIS]))) {
-        HOMEAXIS(Y);
-      }
+      //if((home_all_axis) || (code_seen(axis_codes[Y_AXIS]))) {
+      //  HOMEAXIS(Y);
+      //}
 
       if(code_seen(axis_codes[X_AXIS]))
       {
@@ -3315,6 +3320,14 @@ void calculate_delta(float cartesian[3])
 void prepare_move()
 {
   clamp_to_software_endstops(destination);
+  
+  // =========================================================================================
+  // LearCNC
+  // BL[TODO] - Hardcoded alignment correction - make this eeprom setting for a given machine
+  // Y adjustment to correct for axis mis alignment
+  // =========================================================================================
+  //float yAdj = destination[Z_AXIS] * 0.006;
+  //float xAdj = destination[Z_AXIS] * 0.006;
 
   previous_millis_cmd = millis();
 #ifdef DELTA
