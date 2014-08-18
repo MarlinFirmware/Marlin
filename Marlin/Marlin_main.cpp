@@ -422,6 +422,16 @@ void setup_killpin()
   #endif
 }
 
+// Set home pin
+void setup_homepin(void)
+{
+#if defined(HOME_PIN) && HOME_PIN > -1
+   pinMode(HOME_PIN,INPUT);
+   digitalWrite (HOME_PIN,HIGH);
+#endif
+}
+
+
 void setup_photpin()
 {
   #if defined(PHOTOGRAPH_PIN) && PHOTOGRAPH_PIN > -1
@@ -491,6 +501,7 @@ void servo_init()
 void setup()
 {
   setup_killpin();
+  setup_homepin();
   setup_powerhold();
   MYSERIAL.begin(BAUDRATE);
   SERIAL_PROTOCOLLNPGM("start");
@@ -1679,23 +1690,6 @@ void process_commands()
   {
     switch( (int)code_value() )
     {
-        // [FMC] home command    
-    case 599:
-      homeaxis (X_AXIS);
-      homeaxis (Y_AXIS);
-      homeaxis (Z_AXIS);
-      
-      disable_heater();
-
-      disable_x();
-      disable_y();
-      disable_z();
-      disable_e0();
-      disable_e1();
-      disable_e2();
-      
-      break;    
-
     
 #ifdef ULTIPANEL
     case 0: // M0 - Unconditional stop - Wait for user button press on LCD
@@ -3519,6 +3513,16 @@ void handle_status_leds(void) {
 
 void manage_inactivity()
 {
+	
+#if defined(KILL_PIN) && KILL_PIN > -1
+	static int killCount = 0;   // make the inactivity button a bit less responsive
+#endif
+
+#if defined(HOME_PIN) && HOME_PIN > -1
+   static int homeCount = 0;   // poor man's debouncing count
+#endif
+   
+	
   if(buflen < (BUFSIZE-1))
     get_command();
 
@@ -3549,9 +3553,45 @@ void manage_inactivity()
   #endif
   
   #if defined(KILL_PIN) && KILL_PIN > -1
+    
+    // Check if the kill button was pressed and wait just in case it was an accidental
+    // key kill key press
+    // -------------------------------------------------------------------------------
     if( 0 == READ(KILL_PIN) )
-      kill();
+    {
+       killCount++;
+    }
+    else if (killCount > 0)
+    {
+       killCount--;
+    }
+    // Exceeded threshold and we can confirm that it was not accidental
+    // KILL the machine
+    // ----------------------------------------------------------------
+    if ( killCount > 10000)
+    {
+       kill();
+    }
   #endif
+
+#if defined(HOME_PIN) && HOME_PIN > -1
+    // Check to see if we have to home, use poor man's debouncer
+    // ---------------------------------------------------------
+    if ( 0 == digitalRead(HOME_PIN) )
+    {
+       if (homeCount == 0)
+       {
+          enquecommand_P((PSTR("G28")));
+          homeCount++;
+          LCD_ALERTMESSAGEPGM(MSG_AUTO_HOME);
+       }
+       else if (homeCount > 10000)
+       {
+          homeCount = 0;
+       }
+    }
+#endif
+    
   #if defined(CONTROLLERFAN_PIN) && CONTROLLERFAN_PIN > -1
     controllerFan(); //Check if fan should be turned on to cool stepper drivers down
   #endif
@@ -3608,6 +3648,14 @@ void kill()
   SERIAL_ERROR_START;
   SERIAL_ERRORLNPGM(MSG_ERR_KILLED);
   LCD_ALERTMESSAGEPGM(MSG_KILLED);
+  
+  // FMC small patch to update the LCD before ending
+  sei();   // enable interrupts
+  for ( int i=3; i--; lcd_update())
+  {
+     delay(100);	
+  }
+  cli();   // disable interrupts
   suicide();
   while(1) { /* Intentionally left empty */ } // Wait for reset
 }
