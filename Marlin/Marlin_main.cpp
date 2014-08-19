@@ -132,7 +132,7 @@
 // M150 - Set BlinkM Color Output R: Red<0-255> U(!): Green<0-255> B: Blue<0-255> over i2c, G for green does not work.
 // M190 - Sxxx Wait for bed current temp to reach target temp. Waits only when heating
 //        Rxxx Wait for bed current temp to reach target temp. Waits when heating and cooling
-// M200 D<millimeters>- set filament diameter and set E axis units to cubic millimeters (use S0 to set back to millimeters).
+// M200 T<extruder> D<millimeters> S<extrusion_temp> B<bed_temp> F<flow_multiplier>- set filament diameter and set E axis units to cubic millimeters (use D0 to set back to millimeters).
 // M201 - Set max acceleration in units/s^2 for print moves (M201 X1000 Y1000)
 // M202 - Set max acceleration in units/s^2 for travel moves (M202 X1000 Y1000) Unused in Marlin!!
 // M203 - Set maximum feedrate that your machine can sustain (M203 X200 Y200 Z300 E10000) in mm/sec
@@ -207,6 +207,18 @@ float volumetric_multiplier[EXTRUDERS] = {1.0
     #endif
   #endif
 };
+
+float temp_override[EXTRUDERS] = {.0
+  #if EXTRUDERS > 1
+    , .0
+    #if EXTRUDERS > 2
+      , .0
+    #endif
+  #endif
+};
+
+float bed_temp_override = .0;
+
 float current_position[NUM_AXIS] = { 0.0, 0.0, 0.0, 0.0 };
 float add_homeing[3]={0,0,0};
 #ifdef DELTA
@@ -1866,18 +1878,28 @@ void process_commands()
       if(setTargetedHotend(104)){
         break;
       }
-      if (code_seen('S')) setTargetHotend(code_value(), tmp_extruder);
+      if (code_seen('S')) {
+    	  float temp = code_value();
+    	  if (temp > 0 && temp_override[tmp_extruder] > 0)
+    		  temp = temp_override[tmp_extruder]; // if there is a temperature override for filament-independent GCode
+    	  setTargetHotend(temp, tmp_extruder);
 #ifdef DUAL_X_CARRIAGE
-      if (dual_x_carriage_mode == DXC_DUPLICATION_MODE && tmp_extruder == 0)
-        setTargetHotend1(code_value() == 0.0 ? 0.0 : code_value() + duplicate_extruder_temp_offset);
+    	  if (dual_x_carriage_mode == DXC_DUPLICATION_MODE && tmp_extruder == 0)
+    		  setTargetHotend1(temp == 0.0 ? 0.0 : temp + duplicate_extruder_temp_offset);
 #endif
-      setWatch();
+    	  setWatch();
+      }
       break;
     case 112: //  M112 -Emergency Stop
       kill();
       break;
     case 140: // M140 set bed temp
-      if (code_seen('S')) setTargetBed(code_value());
+      if (code_seen('S')) {
+    	  float temp = code_value();
+    	  if (temp > 0 && bed_temp_override > 0)
+    	      temp = bed_temp_override; // if there is a temperature override for filament-independent GCode
+    	  setTargetBed(temp);
+      }
       break;
     case 105 : // M105
       if(setTargetedHotend(105)){
@@ -1953,17 +1975,23 @@ void process_commands()
         autotemp_enabled=false;
       #endif
       if (code_seen('S')) {
-        setTargetHotend(code_value(), tmp_extruder);
+        float temp = code_value();
+        if (temp > 0 && temp_override[tmp_extruder] > 0)
+          temp = temp_override[tmp_extruder]; // if there is a temperature override for filament-independent GCode
+        setTargetHotend(temp, tmp_extruder);
 #ifdef DUAL_X_CARRIAGE
         if (dual_x_carriage_mode == DXC_DUPLICATION_MODE && tmp_extruder == 0)
-          setTargetHotend1(code_value() == 0.0 ? 0.0 : code_value() + duplicate_extruder_temp_offset);
+          setTargetHotend1(temp == 0.0 ? 0.0 : temp + duplicate_extruder_temp_offset);
 #endif
         CooldownNoWait = true;
       } else if (code_seen('R')) {
-        setTargetHotend(code_value(), tmp_extruder);
+        float temp = code_value();
+        if (temp > 0 && temp_override[tmp_extruder] > 0)
+          temp = temp_override[tmp_extruder]; // if there is a temperature override for filament-independent GCode
+        setTargetHotend(temp, tmp_extruder);
 #ifdef DUAL_X_CARRIAGE
         if (dual_x_carriage_mode == DXC_DUPLICATION_MODE && tmp_extruder == 0)
-          setTargetHotend1(code_value() == 0.0 ? 0.0 : code_value() + duplicate_extruder_temp_offset);
+          setTargetHotend1(temp == 0.0 ? 0.0 : temp + duplicate_extruder_temp_offset);
 #endif
         CooldownNoWait = false;
       }
@@ -2037,13 +2065,20 @@ void process_commands()
       }
       break;
     case 190: // M190 - Wait for bed heater to reach target.
+    {
     #if defined(TEMP_BED_PIN) && TEMP_BED_PIN > -1
         LCD_MESSAGEPGM(MSG_BED_HEATING);
         if (code_seen('S')) {
-          setTargetBed(code_value());
+          float temp = code_value();
+          if (temp > 0 && bed_temp_override > 0)
+            temp = bed_temp_override; // if there is a temperature override for filament-independent GCode
+          setTargetBed(temp);
           CooldownNoWait = true;
         } else if (code_seen('R')) {
-          setTargetBed(code_value());
+          float temp = code_value();
+          if (temp > 0 && bed_temp_override > 0)
+            temp = bed_temp_override; // if there is a temperature override for filament-independent GCode
+          setTargetBed(temp);
           CooldownNoWait = false;
         }
         codenum = millis();
@@ -2073,7 +2108,7 @@ void process_commands()
         previous_millis_cmd = millis();
     #endif
         break;
-
+    }
     #if defined(FAN_PIN) && FAN_PIN > -1
       case 106: //M106 Fan On
         if (code_seen('S')){
@@ -2304,22 +2339,9 @@ void process_commands()
       }
       break;
     #endif //BLINKM
-    case 200: // M200 D<millimeters> set filament diameter and set E axis units to cubic millimeters (use S0 to set back to millimeters).
+    case 200: // M200 D<millimeters> set filament diameter and set E axis units to cubic millimeters (use D0 to set back to millimeters).
       {
-        float area = .0;
-        float radius = .0;
-        if(code_seen('D')) {
-          radius = (float)code_value() * .5;
-          if(radius == 0) {
-            area = 1;
-          } else {
-            area = M_PI * pow(radius, 2);
-          }
-        } else {
-          //reserved for setting filament diameter via UFID or filament measuring device
-          break;
-        }
-        tmp_extruder = active_extruder;
+    	tmp_extruder = active_extruder;
         if(code_seen('T')) {
           tmp_extruder = code_value();
           if(tmp_extruder >= EXTRUDERS) {
@@ -2328,7 +2350,26 @@ void process_commands()
             break;
           }
         }
-        volumetric_multiplier[tmp_extruder] = 1 / area;
+        float area = .0;
+        float radius = .0;
+        float flowmult = 1.0;
+        if(code_seen('D')) {
+          radius = (float)code_value() * .5;
+          if(radius == 0) { // reset everything
+            area = 1;
+            bed_temp_override = .0;
+            temp_override[tmp_extruder] = .0;
+          } else {
+            area = M_PI * pow(radius, 2);
+          }
+        } else {
+          //reserved for setting filament diameter via UFID or filament measuring device
+          break;
+        }
+        if (code_seen('S')) temp_override[tmp_extruder] = code_value();
+        if (code_seen('B')) bed_temp_override = code_value();
+        if (code_seen('F') && code_value() > 0.0) flowmult = code_value();
+        volumetric_multiplier[tmp_extruder] = 1.0 / area * flowmult;
       }
       break;
     case 201: // M201
