@@ -417,7 +417,7 @@ void enquecommand_P(const char *cmd)
 void setup_killpin()
 {
   #if defined(KILL_PIN) && KILL_PIN > -1
-    pinMode(KILL_PIN,INPUT);
+    SET_INPUT(KILL_PIN);
     WRITE(KILL_PIN,HIGH);
   #endif
 }
@@ -426,8 +426,8 @@ void setup_killpin()
 void setup_homepin(void)
 {
 #if defined(HOME_PIN) && HOME_PIN > -1
-   pinMode(HOME_PIN,INPUT);
-   digitalWrite (HOME_PIN,HIGH);
+   SET_INPUT(HOME_PIN);
+   WRITE(HOME_PIN,HIGH);
 #endif
 }
 
@@ -552,12 +552,6 @@ void setup()
   lcd_init();
   _delay_ms(1000);	// wait 1sec to display the splash screen
 
-#ifdef SAV_3DLCD
-  // FMC for collition between marlin pins and Teensy pins
-  pinMode (40, INPUT);
-  digitalWrite (40, HIGH);
-#endif
-  
   #if defined(CONTROLLERFAN_PIN) && CONTROLLERFAN_PIN > -1
     SET_OUTPUT(CONTROLLERFAN_PIN); //Set pin used for driver cooling fan
   #endif
@@ -3516,10 +3510,12 @@ void manage_inactivity()
 	
 #if defined(KILL_PIN) && KILL_PIN > -1
 	static int killCount = 0;   // make the inactivity button a bit less responsive
+   const int KILL_DELAY = 10000;
 #endif
 
 #if defined(HOME_PIN) && HOME_PIN > -1
-   static int homeCount = 0;   // poor man's debouncing count
+   static int homeDebounceCount = 0;   // poor man's debouncing count
+   const int HOME_DEBOUNCE_DELAY = 10000;
 #endif
    
 	
@@ -3568,7 +3564,7 @@ void manage_inactivity()
     // Exceeded threshold and we can confirm that it was not accidental
     // KILL the machine
     // ----------------------------------------------------------------
-    if ( killCount > 10000)
+    if ( killCount >= KILL_DELAY)
     {
        kill();
     }
@@ -3577,17 +3573,21 @@ void manage_inactivity()
 #if defined(HOME_PIN) && HOME_PIN > -1
     // Check to see if we have to home, use poor man's debouncer
     // ---------------------------------------------------------
-    if ( 0 == digitalRead(HOME_PIN) )
+    if ( 0 == READ(HOME_PIN) )
     {
-       if (homeCount == 0)
+       if (homeDebounceCount == 0)
        {
           enquecommand_P((PSTR("G28")));
-          homeCount++;
+          homeDebounceCount++;
           LCD_ALERTMESSAGEPGM(MSG_AUTO_HOME);
        }
-       else if (homeCount > 10000)
+       else if (homeDebounceCount < HOME_DEBOUNCE_DELAY)
        {
-          homeCount = 0;
+          homeDebounceCount++;
+       }
+       else
+       {
+          homeDebounceCount = 0;
        }
     }
 #endif
@@ -3651,9 +3651,9 @@ void kill()
   
   // FMC small patch to update the LCD before ending
   sei();   // enable interrupts
-  for ( int i=3; i--; lcd_update())
+  for ( int i=5; i--; lcd_update())
   {
-     delay(100);	
+     delay(200);	
   }
   cli();   // disable interrupts
   suicide();
