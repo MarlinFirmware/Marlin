@@ -417,7 +417,8 @@ void enquecommand_P(const char *cmd)
 void setup_killpin()
 {
   #if defined(KILL_PIN) && KILL_PIN > -1
-    SET_INPUT(KILL_PIN);
+    //SET_INPUT(KILL_PIN);
+	 pinMode (40, INPUT);
     WRITE(KILL_PIN,HIGH);
   #endif
 }
@@ -3525,7 +3526,7 @@ void manage_inactivity()
   if( (millis() - previous_millis_cmd) >  max_inactive_time )
     if(max_inactive_time)
       kill();
-  if(stepper_inactive_time)  {
+  if(stepper_inactive_time) {
     if( (millis() - previous_millis_cmd) >  stepper_inactive_time )
     {
       if(blocks_queued() == false) {
