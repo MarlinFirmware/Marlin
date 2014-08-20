@@ -22,7 +22,7 @@
 // 13 Basque-Euskera
 
 #ifndef LANGUAGE_CHOICE
-	#define LANGUAGE_CHOICE 1  // Pick your language from the list above
+	#define LANGUAGE_CHOICE 5  // Pick your language from the list above
 #endif
 
 #define PROTOCOL_VERSION "1.0"
