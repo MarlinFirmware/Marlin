@@ -1496,9 +1496,13 @@ char *itostr31(const int &xx)
   return conv;
 }
 
-char *itostr3(const int &xx)
+char *itostr3(const int &x)
 {
-  if (xx >= 100)
+  int xx = x;
+  if (xx < 0) {
+     conv[0]='-';
+     xx = -xx;
+  } else if (xx >= 100)
     conv[0]=(xx/100)%10+'0';
   else
     conv[0]=' ';
