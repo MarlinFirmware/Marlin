@@ -178,6 +178,10 @@ void get_coordinates();
 void calculate_delta(float cartesian[3]);
 extern float delta[3];
 #endif
+#ifdef SCARA
+void calculate_delta(float cartesian[3]);
+void calculate_SCARA_forward_Transform(float f_scara[3]);
+#endif
 void prepare_move();
 void kill();
 void Stop();
@@ -214,6 +218,9 @@ extern float delta_radius;
 extern float delta_diagonal_rod;
 extern float delta_segments_per_second;
 void recalc_delta_settings(float radius, float diagonal_rod);
+#endif
+#ifdef SCARA
+extern float axis_scaling[3];  // Build size scaling
 #endif
 extern float min_pos[3];
 extern float max_pos[3];

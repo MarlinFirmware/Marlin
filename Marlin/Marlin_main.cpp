@@ -172,6 +172,16 @@
 // M908 - Control digital trimpot directly.
 // M350 - Set microstepping mode.
 // M351 - Toggle MS1 MS2 pins directly.
+
+// ************ SCARA Specific - This can change to suit future G-code regulations
+// M360 - SCARA calibration: Move to cal-position ThetaA (0 deg calibration)
+// M361 - SCARA calibration: Move to cal-position ThetaB (90 deg calibration - steps per degree)
+// M362 - SCARA calibration: Move to cal-position PsiA (0 deg calibration)
+// M363 - SCARA calibration: Move to cal-position PsiB (90 deg calibration - steps per degree)
+// M364 - SCARA calibration: Move to cal-position PSIC (90 deg to Theta calibration position)
+// M365 - SCARA calibration: Scaling factor, X, Y, Z axis
+//************* SCARA End ***************
+
 // M928 - Start SD logging (M928 filename.g) - ended by M29
 // M999 - Restart after being stopped by error
 
@@ -214,6 +224,7 @@ float add_homeing[3]={0,0,0};
 #ifdef DELTA
 float endstop_adj[3]={0,0,0};
 #endif
+
 float min_pos[3] = { X_MIN_POS, Y_MIN_POS, Z_MIN_POS };
 float max_pos[3] = { X_MAX_POS, Y_MAX_POS, Z_MAX_POS };
 bool axis_known_position[3] = {false, false, false};
@@ -294,7 +305,11 @@ int EtoPPressure=0;
   float delta_diagonal_rod= DELTA_DIAGONAL_ROD;
   float delta_diagonal_rod_2= sq(delta_diagonal_rod);
   float delta_segments_per_second= DELTA_SEGMENTS_PER_SECOND;
-#endif					
+#endif
+
+#ifdef SCARA                              // Build size scaling
+float axis_scaling[3]={1,1,1};  // Build size scaling, default to 1
+#endif				
 
 bool cancel_heatup = false ;
 
@@ -303,6 +318,7 @@ bool cancel_heatup = false ;
 //===========================================================================
 const char axis_codes[NUM_AXIS] = {'X', 'Y', 'Z', 'E'};
 static float destination[NUM_AXIS] = {  0.0, 0.0, 0.0, 0.0};
+static float delta[3] = {0.0, 0.0, 0.0};
 static float offset[3] = {0.0, 0.0, 0.0};
 static bool home_all_axis = true;
 static float feedrate = 1500.0, next_feedrate, saved_feedrate;
@@ -876,9 +892,59 @@ static void axis_is_at_home(int axis) {
     }
   }
 #endif
+#ifdef SCARA
+   float homeposition[3];
+   char i;
+   
+   if (axis < 2)
+   {
+   
+     for (i=0; i<3; i++)
+     {
+        homeposition[i] = base_home_pos(i); 
+     }  
+	// SERIAL_ECHOPGM("homeposition[x]= "); SERIAL_ECHO(homeposition[0]);
+   //  SERIAL_ECHOPGM("homeposition[y]= "); SERIAL_ECHOLN(homeposition[1]);
+   // Works out real Homeposition angles using inverse kinematics, 
+   // and calculates homing offset using forward kinematics
+     calculate_delta(homeposition);
+     
+    // SERIAL_ECHOPGM("base Theta= "); SERIAL_ECHO(delta[X_AXIS]);
+    // SERIAL_ECHOPGM(" base Psi+Theta="); SERIAL_ECHOLN(delta[Y_AXIS]);
+     
+     for (i=0; i<2; i++)
+     {
+        delta[i] -= add_homeing[i];
+     } 
+     
+    // SERIAL_ECHOPGM("addhome X="); SERIAL_ECHO(add_homeing[X_AXIS]);
+	// SERIAL_ECHOPGM(" addhome Y="); SERIAL_ECHO(add_homeing[Y_AXIS]);
+    // SERIAL_ECHOPGM(" addhome Theta="); SERIAL_ECHO(delta[X_AXIS]);
+    // SERIAL_ECHOPGM(" addhome Psi+Theta="); SERIAL_ECHOLN(delta[Y_AXIS]);
+      
+     calculate_SCARA_forward_Transform(delta);
+     
+    // SERIAL_ECHOPGM("Delta X="); SERIAL_ECHO(delta[X_AXIS]);
+    // SERIAL_ECHOPGM(" Delta Y="); SERIAL_ECHOLN(delta[Y_AXIS]);
+     
+    current_position[axis] = delta[axis];
+    
+    // SCARA home positions are based on configuration since the actual limits are determined by the 
+    // inverse kinematic transform.
+    min_pos[axis] =          base_min_pos(axis); // + (delta[axis] - base_home_pos(axis));
+    max_pos[axis] =          base_max_pos(axis); // + (delta[axis] - base_home_pos(axis));
+   } 
+   else
+   {
+      current_position[axis] = base_home_pos(axis) + add_homeing[axis];
+      min_pos[axis] =          base_min_pos(axis) + add_homeing[axis];
+      max_pos[axis] =          base_max_pos(axis) + add_homeing[axis];
+   }
+#else
   current_position[axis] = base_home_pos(axis) + add_homeing[axis];
   min_pos[axis] =          base_min_pos(axis) + add_homeing[axis];
   max_pos[axis] =          base_max_pos(axis) + add_homeing[axis];
+#endif
 }
 
 #ifdef ENABLE_AUTO_BED_LEVELING
@@ -1142,6 +1208,7 @@ static void homeaxis(int axis) {
   }
 }
 #define HOMEAXIS(LETTER) homeaxis(LETTER##_AXIS)
+
 void refresh_cmd_timeout(void)
 {
   previous_millis_cmd = millis();
@@ -1269,6 +1336,7 @@ void process_commands()
         return;
       }
       break;
+#ifndef SCARA //disable arc support
     case 2: // G2  - CW ARC
       if(Stopped == false) {
         get_arc_coordinates();
@@ -1283,6 +1351,7 @@ void process_commands()
         return;
       }
       break;
+#endif
     case 4: // G4 dwell
       LCD_MESSAGEPGM(MSG_DWELL);
       codenum = 0;
@@ -1361,12 +1430,12 @@ void process_commands()
           HOMEAXIS(Z);
 
           calculate_delta(current_position);
-          plan_set_position(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], current_position[E_AXIS]);
-
+          plan_set_position(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], current_position[E_AXIS]);		  
+		  
 #else // NOT DELTA
 
       home_all_axis = !((code_seen(axis_codes[X_AXIS])) || (code_seen(axis_codes[Y_AXIS])) || (code_seen(axis_codes[Z_AXIS])));
-
+	  
       #if Z_HOME_DIR > 0                      // If homing away from BED do Z first
       if((home_all_axis) || (code_seen(axis_codes[Z_AXIS]))) {
         HOMEAXIS(Z);
@@ -1410,7 +1479,9 @@ void process_commands()
 
         current_position[X_AXIS] = destination[X_AXIS];
         current_position[Y_AXIS] = destination[Y_AXIS];
+		#ifndef SCARA
         current_position[Z_AXIS] = destination[Z_AXIS];
+		#endif
       }
       #endif
 
@@ -1440,13 +1511,21 @@ void process_commands()
       if(code_seen(axis_codes[X_AXIS]))
       {
         if(code_value_long() != 0) {
-          current_position[X_AXIS]=code_value()+add_homeing[0];
+		#ifdef SCARA
+		   current_position[X_AXIS]=code_value();
+		#else
+		   current_position[X_AXIS]=code_value()+add_homeing[0];
+		#endif
         }
       }
 
       if(code_seen(axis_codes[Y_AXIS])) {
         if(code_value_long() != 0) {
-          current_position[Y_AXIS]=code_value()+add_homeing[1];
+         #ifdef SCARA
+		   current_position[Y_AXIS]=code_value();
+		#else
+		   current_position[Y_AXIS]=code_value()+add_homeing[1];
+		#endif
         }
       }
 
@@ -1520,6 +1599,11 @@ void process_commands()
       #endif
       plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
 #endif // else DELTA
+
+#ifdef SCARA
+	  calculate_delta(current_position);
+      plan_set_position(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], current_position[E_AXIS]);
+#endif SCARA
 
       #ifdef ENDSTOPS_ONLY_FOR_HOMING
         enable_endstops(false);
@@ -1729,8 +1813,17 @@ void process_commands()
              plan_set_e_position(current_position[E_AXIS]);
            }
            else {
-             current_position[i] = code_value()+add_homeing[i];
-             plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+#ifdef SCARA
+		if (i == X_AXIS || i == Y_AXIS) {
+                	current_position[i] = code_value();  
+		}
+		else {
+                current_position[i] = code_value()+add_homeing[i];  
+            	}  
+#else
+		current_position[i] = code_value()+add_homeing[i];
+#endif
+            plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
            }
         }
       }
@@ -2597,6 +2690,26 @@ Sigma_Exit:
       SERIAL_PROTOCOL(float(st_get_position(Z_AXIS))/axis_steps_per_unit[Z_AXIS]);
 
       SERIAL_PROTOCOLLN("");
+#ifdef SCARA
+	  SERIAL_PROTOCOLPGM("SCARA Theta:");
+      SERIAL_PROTOCOL(delta[X_AXIS]);
+      SERIAL_PROTOCOLPGM("   Psi+Theta:");
+      SERIAL_PROTOCOL(delta[Y_AXIS]);
+      SERIAL_PROTOCOLLN("");
+      
+      SERIAL_PROTOCOLPGM("SCARA Cal - Theta:");
+      SERIAL_PROTOCOL(delta[X_AXIS]+add_homeing[0]);
+      SERIAL_PROTOCOLPGM("   Psi+Theta (90):");
+      SERIAL_PROTOCOL(delta[Y_AXIS]-delta[X_AXIS]-90+add_homeing[1]);
+      SERIAL_PROTOCOLLN("");
+      
+      SERIAL_PROTOCOLPGM("SCARA step Cal - Theta:");
+      SERIAL_PROTOCOL(delta[X_AXIS]/90*axis_steps_per_unit[X_AXIS]);
+      SERIAL_PROTOCOLPGM("   Psi+Theta:");
+      SERIAL_PROTOCOL((delta[Y_AXIS]-delta[X_AXIS])/90*axis_steps_per_unit[Y_AXIS]);
+      SERIAL_PROTOCOLLN("");
+      SERIAL_PROTOCOLLN("");
+#endif
       break;
     case 120: // M120
       enable_endstops(false) ;
@@ -2718,6 +2831,16 @@ Sigma_Exit:
       {
         if(code_seen(axis_codes[i])) add_homeing[i] = code_value();
       }
+	  #ifdef SCARA
+	   if(code_seen('T'))       // Theta
+      {
+        add_homeing[0] = code_value() ;
+      }
+      if(code_seen('P'))       // Psi
+      {
+        add_homeing[1] = code_value() ;
+      }
+	  #endif
       break;
     #ifdef DELTA
 	case 665: // M665 set delta configurations L<diagonal_rod> R<delta_radius> S<segments_per_sec>
@@ -3096,6 +3219,105 @@ Sigma_Exit:
       PID_autotune(temp, e, c);
     }
     break;
+	#ifdef SCARA
+	case 360:  // M360 SCARA Theta pos1
+      SERIAL_ECHOLN(" Cal: Theta 0 ");
+      //SoftEndsEnabled = false;              // Ignore soft endstops during calibration
+      //SERIAL_ECHOLN(" Soft endstops disabled ");
+      if(Stopped == false) {
+        //get_coordinates(); // For X Y Z E F
+        delta[0] = 0;
+        delta[1] = 120;
+        calculate_SCARA_forward_Transform(delta);
+        destination[0] = delta[0]/axis_scaling[X_AXIS];
+        destination[1] = delta[1]/axis_scaling[Y_AXIS];
+        
+        prepare_move();
+        //ClearToSend();
+        return;
+      }
+    break;
+
+    case 361:  // SCARA Theta pos2
+      SERIAL_ECHOLN(" Cal: Theta 90 ");
+      //SoftEndsEnabled = false;              // Ignore soft endstops during calibration
+      //SERIAL_ECHOLN(" Soft endstops disabled ");
+      if(Stopped == false) {
+        //get_coordinates(); // For X Y Z E F
+        delta[0] = 90;
+        delta[1] = 130;
+        calculate_SCARA_forward_Transform(delta);
+        destination[0] = delta[0]/axis_scaling[X_AXIS];
+        destination[1] = delta[1]/axis_scaling[Y_AXIS];
+        
+        prepare_move();
+        //ClearToSend();
+        return;
+      }
+    break;
+    case 362:  // SCARA Psi pos1
+      SERIAL_ECHOLN(" Cal: Psi 0 ");
+      //SoftEndsEnabled = false;              // Ignore soft endstops during calibration
+      //SERIAL_ECHOLN(" Soft endstops disabled ");
+      if(Stopped == false) {
+        //get_coordinates(); // For X Y Z E F
+        delta[0] = 60;
+        delta[1] = 180;
+        calculate_SCARA_forward_Transform(delta);
+        destination[0] = delta[0]/axis_scaling[X_AXIS];
+        destination[1] = delta[1]/axis_scaling[Y_AXIS];
+        
+        prepare_move();
+        //ClearToSend();
+        return;
+      }
+    break;
+    case 363:  // SCARA Psi pos2
+      SERIAL_ECHOLN(" Cal: Psi 90 ");
+      //SoftEndsEnabled = false;              // Ignore soft endstops during calibration
+      //SERIAL_ECHOLN(" Soft endstops disabled ");
+      if(Stopped == false) {
+        //get_coordinates(); // For X Y Z E F
+        delta[0] = 50;
+        delta[1] = 90;
+        calculate_SCARA_forward_Transform(delta);
+        destination[0] = delta[0]/axis_scaling[X_AXIS];
+        destination[1] = delta[1]/axis_scaling[Y_AXIS];
+        
+        prepare_move();
+        //ClearToSend();
+        return;
+      }
+    break;
+    case 364:  // SCARA Psi pos3 (90 deg to Theta)
+      SERIAL_ECHOLN(" Cal: Theta-Psi 90 ");
+     // SoftEndsEnabled = false;              // Ignore soft endstops during calibration
+      //SERIAL_ECHOLN(" Soft endstops disabled ");
+      if(Stopped == false) {
+        //get_coordinates(); // For X Y Z E F
+        delta[0] = 45;
+        delta[1] = 135;
+        calculate_SCARA_forward_Transform(delta);
+        destination[0] = delta[0]/axis_scaling[X_AXIS];
+        destination[1] = delta[1]/axis_scaling[Y_AXIS]; 
+        
+        prepare_move();
+        //ClearToSend();
+        return;
+      }
+    break;
+    case 365: // M364  Set SCARA scaling for X Y Z
+      for(int8_t i=0; i < 3; i++) 
+      {
+        if(code_seen(axis_codes[i])) 
+        {
+          
+            axis_scaling[i] = code_value();
+          
+        }
+      }
+      break;
+	#endif
     case 400: // M400 finish all moves
     {
       st_synchronize();
@@ -3658,8 +3880,46 @@ void calculate_delta(float cartesian[3])
 void prepare_move()
 {
   clamp_to_software_endstops(destination);
-
   previous_millis_cmd = millis();
+  
+  #ifdef SCARA //for now same as delta-code
+
+float difference[NUM_AXIS];
+for (int8_t i=0; i < NUM_AXIS; i++) {
+	difference[i] = destination[i] - current_position[i];
+}
+
+float cartesian_mm = sqrt(	sq(difference[X_AXIS]) +
+							sq(difference[Y_AXIS]) +
+							sq(difference[Z_AXIS]));
+if (cartesian_mm < 0.000001) { cartesian_mm = abs(difference[E_AXIS]); }
+if (cartesian_mm < 0.000001) { return; }
+float seconds = 6000 * cartesian_mm / feedrate / feedmultiply;
+int steps = max(1, int(scara_segments_per_second * seconds));
+ //SERIAL_ECHOPGM("mm="); SERIAL_ECHO(cartesian_mm);
+ //SERIAL_ECHOPGM(" seconds="); SERIAL_ECHO(seconds);
+ //SERIAL_ECHOPGM(" steps="); SERIAL_ECHOLN(steps);
+for (int s = 1; s <= steps; s++) {
+	float fraction = float(s) / float(steps);
+	for(int8_t i=0; i < NUM_AXIS; i++) {
+		destination[i] = current_position[i] + difference[i] * fraction;
+	}
+
+	
+	calculate_delta(destination);
+         //SERIAL_ECHOPGM("destination[0]="); SERIAL_ECHOLN(destination[0]);
+         //SERIAL_ECHOPGM("destination[1]="); SERIAL_ECHOLN(destination[1]);
+         //SERIAL_ECHOPGM("destination[2]="); SERIAL_ECHOLN(destination[2]);
+         //SERIAL_ECHOPGM("delta[X_AXIS]="); SERIAL_ECHOLN(delta[X_AXIS]);
+         //SERIAL_ECHOPGM("delta[Y_AXIS]="); SERIAL_ECHOLN(delta[Y_AXIS]);
+         //SERIAL_ECHOPGM("delta[Z_AXIS]="); SERIAL_ECHOLN(delta[Z_AXIS]);
+         
+	plan_buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS],
+	destination[E_AXIS], feedrate*feedmultiply/60/100.0,
+	active_extruder);
+}
+#endif // SCARA
+  
 #ifdef DELTA
   float difference[NUM_AXIS];
   for (int8_t i=0; i < NUM_AXIS; i++) {
@@ -3685,7 +3945,8 @@ void prepare_move()
                      destination[E_AXIS], feedrate*feedmultiply/60/100.0,
                      active_extruder);
   }
-#else
+  
+#endif // DELTA
 
 #ifdef DUAL_X_CARRIAGE
   if (active_extruder_parked)
@@ -3728,6 +3989,7 @@ void prepare_move()
   }
 #endif //DUAL_X_CARRIAGE
 
+#if ! (defined DELTA || defined SCARA)
   // Do not use feedmultiply for E or Z only moves
   if( (current_position[X_AXIS] == destination [X_AXIS]) && (current_position[Y_AXIS] == destination [Y_AXIS])) {
       plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate/60, active_extruder);
@@ -3735,7 +3997,8 @@ void prepare_move()
   else {
     plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate*feedmultiply/60/100.0, active_extruder);
   }
-#endif //else DELTA
+#endif // !(DELTA || SCARA)
+
   for(int8_t i=0; i < NUM_AXIS; i++) {
     current_position[i] = destination[i];
   }
@@ -3801,6 +4064,84 @@ void controllerFan()
     }
   }
 }
+#endif
+
+#ifdef SCARA
+void calculate_SCARA_forward_Transform(float f_scara[3])
+{
+  // Perform forward kinematics, and place results in delta[3]
+  // The maths and first version has been done by QHARLEY . Integrated into masterbranch 06/2014 and slightly restructured by Joachim Cerny in June 2014
+  
+  float x_sin, x_cos, y_sin, y_cos;
+  
+    //SERIAL_ECHOPGM("f_delta x="); SERIAL_ECHO(f_scara[X_AXIS]);
+    //SERIAL_ECHOPGM(" y="); SERIAL_ECHO(f_scara[Y_AXIS]);
+  
+    x_sin = sin(f_scara[X_AXIS]/SCARA_RAD2DEG) * Linkage_1;
+    x_cos = cos(f_scara[X_AXIS]/SCARA_RAD2DEG) * Linkage_1;
+    y_sin = sin(f_scara[Y_AXIS]/SCARA_RAD2DEG) * Linkage_2;
+    y_cos = cos(f_scara[Y_AXIS]/SCARA_RAD2DEG) * Linkage_2;
+   
+  //  SERIAL_ECHOPGM(" x_sin="); SERIAL_ECHO(x_sin);
+  //  SERIAL_ECHOPGM(" x_cos="); SERIAL_ECHO(x_cos);
+  //  SERIAL_ECHOPGM(" y_sin="); SERIAL_ECHO(y_sin);
+  //  SERIAL_ECHOPGM(" y_cos="); SERIAL_ECHOLN(y_cos);
+  
+    delta[X_AXIS] = x_cos + y_cos + SCARA_offset_x;  //theta
+    delta[Y_AXIS] = x_sin + y_sin + SCARA_offset_y;  //theta+phi
+	
+    //SERIAL_ECHOPGM(" delta[X_AXIS]="); SERIAL_ECHO(delta[X_AXIS]);
+    //SERIAL_ECHOPGM(" delta[Y_AXIS]="); SERIAL_ECHOLN(delta[Y_AXIS]);
+}  
+
+void calculate_delta(float cartesian[3]){
+  //reverse kinematics.
+  // Perform reversed kinematics, and place results in delta[3]
+  // The maths and first version has been done by QHARLEY . Integrated into masterbranch 06/2014 and slightly restructured by Joachim Cerny in June 2014
+  
+  float SCARA_pos[2];
+  static float SCARA_C2, SCARA_S2, SCARA_K1, SCARA_K2, SCARA_theta, SCARA_psi; 
+  
+  SCARA_pos[X_AXIS] = cartesian[X_AXIS] * axis_scaling[X_AXIS] - SCARA_offset_x;  //Translate SCARA to standard X Y
+  SCARA_pos[Y_AXIS] = cartesian[Y_AXIS] * axis_scaling[Y_AXIS] - SCARA_offset_y;  // With scaling factor.
+  
+  #if (Linkage_1 == Linkage_2)
+    SCARA_C2 = ( ( sq(SCARA_pos[X_AXIS]) + sq(SCARA_pos[Y_AXIS]) ) / (2 * (float)L1_2) ) - 1;
+  #else
+    SCARA_C2 =   ( sq(SCARA_pos[X_AXIS]) + sq(SCARA_pos[Y_AXIS]) - (float)L1_2 - (float)L2_2 ) / 45000; 
+  #endif
+  
+  SCARA_S2 = sqrt( 1 - sq(SCARA_C2) );
+  
+  SCARA_K1 = Linkage_1 + Linkage_2 * SCARA_C2;
+  SCARA_K2 = Linkage_2 * SCARA_S2;
+  
+  SCARA_theta = ( atan2(SCARA_pos[X_AXIS],SCARA_pos[Y_AXIS])-atan2(SCARA_K1, SCARA_K2) ) * -1;
+  SCARA_psi   =   atan2(SCARA_S2,SCARA_C2);
+  
+  delta[X_AXIS] = SCARA_theta * SCARA_RAD2DEG;  // Multiply by 180/Pi  -  theta is support arm angle
+  delta[Y_AXIS] = (SCARA_theta + SCARA_psi) * SCARA_RAD2DEG;  //       -  equal to sub arm angle (inverted motor)
+  delta[Z_AXIS] = cartesian[Z_AXIS];
+  
+  /*
+  SERIAL_ECHOPGM("cartesian x="); SERIAL_ECHO(cartesian[X_AXIS]);
+  SERIAL_ECHOPGM(" y="); SERIAL_ECHO(cartesian[Y_AXIS]);
+  SERIAL_ECHOPGM(" z="); SERIAL_ECHOLN(cartesian[Z_AXIS]);
+  
+  SERIAL_ECHOPGM("scara x="); SERIAL_ECHO(SCARA_pos[X_AXIS]);
+  SERIAL_ECHOPGM(" y="); SERIAL_ECHOLN(SCARA_pos[Y_AXIS]);
+  
+  SERIAL_ECHOPGM("delta x="); SERIAL_ECHO(delta[X_AXIS]);
+  SERIAL_ECHOPGM(" y="); SERIAL_ECHO(delta[Y_AXIS]);
+  SERIAL_ECHOPGM(" z="); SERIAL_ECHOLN(delta[Z_AXIS]);
+  
+  SERIAL_ECHOPGM("C2="); SERIAL_ECHO(SCARA_C2);
+  SERIAL_ECHOPGM(" S2="); SERIAL_ECHO(SCARA_S2);
+  SERIAL_ECHOPGM(" Theta="); SERIAL_ECHO(SCARA_theta);
+  SERIAL_ECHOPGM(" Psi="); SERIAL_ECHOLN(SCARA_psi);
+  SERIAL_ECHOLN(" ");*/
+}
+
 #endif
 
 #ifdef TEMP_STAT_LEDS
