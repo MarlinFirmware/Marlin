@@ -78,6 +78,8 @@
 // G28 - Home all Axis
 // G29 - Detailed Z-Probe, probes the bed at 3 or more points.  Will fail if you haven't homed yet.
 // G30 - Single Z Probe, probes bed at current XY location.
+// G31 - Dock sled (Z_PROBE_SLED only)
+// G32 - Undock sled (Z_PROBE_SLED only)
 // G90 - Use Absolute Coordinates
 // G91 - Use Relative Coordinates
 // G92 - Set current position to coordinates given
@@ -548,6 +550,10 @@ void setup()
   #ifdef DIGIPOT_I2C
     digipot_i2c_init();
   #endif
+#ifdef Z_PROBE_SLED
+  pinMode(SERVO0_PIN, OUTPUT);
+  digitalWrite(SERVO0_PIN, LOW); // turn it off
+#endif // Z_PROBE_SLED
 }
 
 
@@ -1035,10 +1041,14 @@ static float probe_pt(float x, float y, float z_before) {
   do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], z_before);
   do_blocking_move_to(x - X_PROBE_OFFSET_FROM_EXTRUDER, y - Y_PROBE_OFFSET_FROM_EXTRUDER, current_position[Z_AXIS]);
 
+#ifndef Z_PROBE_SLED
   engage_z_probe();   // Engage Z Servo endstop if available
+#endif // Z_PROBE_SLED
   run_z_probe();
   float measured_z = current_position[Z_AXIS];
+#ifndef Z_PROBE_SLED
   retract_z_probe();
+#endif // Z_PROBE_SLED
 
   SERIAL_PROTOCOLPGM(MSG_BED);
   SERIAL_PROTOCOLPGM(" x: ");
@@ -1071,6 +1081,7 @@ static void homeaxis(int axis) {
     plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
 
 
+#ifndef Z_PROBE_SLED
     // Engage Servo endstop if enabled
     #ifdef SERVO_ENDSTOPS
       #if defined (ENABLE_AUTO_BED_LEVELING) && (PROBE_SERVO_DEACTIVATION_DELAY > 0)
@@ -1083,7 +1094,7 @@ static void homeaxis(int axis) {
         servos[servo_endstops[axis]].write(servo_endstop_angles[axis * 2]);
       }
     #endif
-
+#endif // Z_PROBE_SLED
     destination[axis] = 1.5 * max_length(axis) * axis_home_dir;
     feedrate = homing_feedrate[axis];
     plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate/60, active_extruder);
@@ -1125,7 +1136,7 @@ static void homeaxis(int axis) {
       }
     #endif
 #if defined (ENABLE_AUTO_BED_LEVELING) && (PROBE_SERVO_DEACTIVATION_DELAY > 0)
-    if (axis==Z_AXIS) retract_z_probe();
+//    if (axis==Z_AXIS) retract_z_probe();
 #endif
 
   }
@@ -1179,6 +1190,42 @@ void refresh_cmd_timeout(void)
     }
   } //retract
 #endif //FWRETRACT
+
+#ifdef ENABLE_AUTO_BED_LEVELING
+//
+// Method to dock/undock a sled designed by Charles Bell.
+//
+// dock[in]     If true, move to MAX_X and engage the electromagnet
+// offset[in]   The additional distance to move to adjust docking location
+//
+static void dock_sled(bool dock, int offset=0) {
+ int z_loc;
+ 
+ if (!((axis_known_position[X_AXIS]) && (axis_known_position[Y_AXIS]))) {
+   LCD_MESSAGEPGM(MSG_POSITION_UNKNOWN);
+   SERIAL_ECHO_START;
+   SERIAL_ECHOLNPGM(MSG_POSITION_UNKNOWN);
+   return;
+ }
+
+ if (dock) {
+   do_blocking_move_to(X_MAX_POS + SLED_DOCKING_OFFSET + offset,
+                       current_position[Y_AXIS],
+                       current_position[Z_AXIS]);
+   // turn off magnet
+   digitalWrite(SERVO0_PIN, LOW);
+ } else {
+   if (current_position[Z_AXIS] < (Z_RAISE_BEFORE_PROBING + 5))
+     z_loc = Z_RAISE_BEFORE_PROBING;
+   else
+     z_loc = current_position[Z_AXIS];
+   do_blocking_move_to(X_MAX_POS + SLED_DOCKING_OFFSET + offset,
+                       Y_PROBE_OFFSET_FROM_EXTRUDER, z_loc);
+   // turn on magnet
+   digitalWrite(SERVO0_PIN, HIGH);
+ }
+}
+#endif
 
 void process_commands()
 {
@@ -1490,6 +1537,9 @@ void process_commands()
                 break; // abort G29, since we don't know where we are
             }
 
+#ifdef Z_PROBE_SLED
+            dock_sled(false);
+#endif // Z_PROBE_SLED
             st_synchronize();
             // make sure the bed_level_rotation_matrix is identity or the planner will get it incorectly
             //vector_3 corrected_position = plan_get_position_mm();
@@ -1615,13 +1665,15 @@ void process_commands()
             apply_rotation_xyz(plan_bed_level_matrix, x_tmp, y_tmp, z_tmp);         //Apply the correction sending the probe offset
             current_position[Z_AXIS] = z_tmp - real_z + current_position[Z_AXIS];   //The difference is added to current position and sent to planner.
             plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+#ifdef Z_PROBE_SLED
+            dock_sled(true, -SLED_DOCKING_OFFSET); // correct for over travel.
+#endif // Z_PROBE_SLED
         }
         break;
-
+#ifndef Z_PROBE_SLED
     case 30: // G30 Single Z Probe
         {
             engage_z_probe(); // Engage Z Servo endstop if available
-
             st_synchronize();
             // TODO: make sure the bed_level_rotation_matrix is identity or the planner will get set incorectly
             setup_for_endstop_move();
@@ -1639,10 +1691,17 @@ void process_commands()
             SERIAL_PROTOCOLPGM("\n");
 
             clean_up_after_endstop_move();
-
             retract_z_probe(); // Retract Z Servo endstop if available
         }
         break;
+#else
+    case 31: // dock the sled
+        dock_sled(true);
+        break;
+    case 32: // undock the sled
+        dock_sled(false);
+        break;
+#endif // Z_PROBE_SLED
 #endif // ENABLE_AUTO_BED_LEVELING
     case 90: // G90
       relative_mode = false;
@@ -2256,7 +2315,7 @@ Sigma_Exit:
 
       /* See if we are heating up or cooling down */
       target_direction = isHeatingHotend(tmp_extruder); // true if heating, false if cooling
-      
+
       cancel_heatup = false;
 
       #ifdef TEMP_RESIDENCY_TIME
@@ -3032,7 +3091,7 @@ Sigma_Exit:
       st_synchronize();
     }
     break;
-#if defined(ENABLE_AUTO_BED_LEVELING) && defined(SERVO_ENDSTOPS)
+#if defined(ENABLE_AUTO_BED_LEVELING) && defined(SERVO_ENDSTOPS) && not defined(Z_PROBE_SLED)
     case 401:
     {
         engage_z_probe();    // Engage Z Servo endstop if available
