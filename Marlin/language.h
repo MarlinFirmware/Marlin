@@ -188,6 +188,8 @@
 	#define MSG_BABYSTEP_Y "Babystep Y"
 	#define MSG_BABYSTEP_Z "Babystep Z"
 	#define MSG_ENDSTOP_ABORT "Endstop abort"
+	#define MSG_SHUTDOWN_AT_END "Shutdown @ End"
+								
 
 // Serial Console Messages
 
@@ -391,6 +393,7 @@
 	#define MSG_BABYSTEP_Z "Babystep Z"
 	#define MSG_ENDSTOP_ABORT "Blad wyl. kranc."
 	#define MSG_CONTRAST "Kontrast"
+	#define MSG_SHUTDOWN_AT_END "Shutdown @ End"
 
 // Serial Console Messages
 
@@ -594,6 +597,7 @@
 	#define MSG_BABYSTEP_Z "Babystep Z"
 	#define MSG_ENDSTOP_ABORT "Butee abandon"
 	#define MSG_CONTRAST "Contrast"
+	#define MSG_SHUTDOWN_AT_END "Shutdown @ End"
 
 // Serial Console Messages
 
@@ -798,6 +802,7 @@
 	#define MSG_BABYSTEP_Z "Babystep Z"
 	#define MSG_ENDSTOP_ABORT "Endstop abort"
 	#define MSG_CONTRAST "Contrast"
+	#define MSG_SHUTDOWN_AT_END "Shutdown @ End"
 
 // Serial Console Messages
 
@@ -1007,7 +1012,8 @@
 	#define MSG_BABYSTEP_Z "Babystep Z"
 	#define MSG_ENDSTOP_ABORT "Endstop abort"
 	#define MSG_CONTRAST "Contrast"
-
+	#define MSG_SHUTDOWN_AT_END "Shutdown @ End"
+	
 // Serial Console Messages
 
 	#define MSG_Enqueing "En cola \""
@@ -1207,6 +1213,7 @@
 	#define MSG_BABYSTEP_Z 						"Babystep Z"
 	#define MSG_ENDSTOP_ABORT 					"Endstop abort"
 	#define MSG_CONTRAST 						"Contrast"
+	#define MSG_SHUTDOWN_AT_END "Shutdown @ End"
 
 // Serial Console Messages
 
@@ -1406,6 +1413,7 @@
 	#define MSG_BABYSTEP_Z "Babystep Z"
 	#define MSG_ENDSTOP_ABORT "Endstop abort"
 	#define MSG_CONTRAST "Contrast"
+	#define MSG_SHUTDOWN_AT_END "Shutdown @ End"
 
 // Serial Console Messages
 
@@ -1613,7 +1621,8 @@
 	#define MSG_BABYSTEP_Z "Babystep Z"
 	#define MSG_ENDSTOP_ABORT "Endstop abort"
 	#define MSG_CONTRAST "Contrast"
-
+	#define MSG_SHUTDOWN_AT_END "Shutdown @ End"
+	
 // Serial Console Messages
 
 	#define MSG_Enqueing "enqueing \""
@@ -1814,6 +1823,7 @@
 	#define MSG_BABYSTEP_Y "Babystep Y"
 	#define MSG_BABYSTEP_Z "Babystep Z"
 	#define MSG_ENDSTOP_ABORT "Endstop abort"
+	#define MSG_SHUTDOWN_AT_END "Shutdown @ End"
 
 // Serial Console Messages
 
@@ -1892,6 +1902,7 @@
 	#define MSG_ENDSTOP_ABORT "Endstop abort"
 	#define MSG_CONTRAST "Kontrasti"
 	#define MSG_SERIAL_ERROR_MENU_STRUCTURE "Virhe valikon rakenteessa"
+	#define MSG_SHUTDOWN_AT_END "Shutdown @ End"
 
 #endif
 
@@ -2024,6 +2035,7 @@
 	#define MSG_BABYSTEP_Z "Babystep Z"
 	#define MSG_ENDSTOP_ABORT "Endstop abort"
 	#define MSG_CONTRAST "Contrast"
+	#define MSG_SHUTDOWN_AT_END "Shutdown @ End"
 
 // Serial Console Messages
 
@@ -2222,6 +2234,7 @@
 	#define MSG_BABYSTEP_Y "Babystap Y"
 	#define MSG_BABYSTEP_Z "Babystap Z"
 	#define MSG_ENDSTOP_ABORT "Endstop afbr."
+	#define MSG_SHUTDOWN_AT_END "Shutdown @ End"
 
 // Serial Console Messages
 
@@ -2423,6 +2436,7 @@
 	#define MSG_BABYSTEP_Y "Babystep Y"
 	#define MSG_BABYSTEP_Z "Babystep Z"
 	#define MSG_ENDSTOP_ABORT "Endstop abort"
+	#define MSG_SHUTDOWN_AT_END "Shutdown @ End"
 
 // Serial Console Messages
 
@@ -2623,6 +2637,7 @@
 	#define MSG_BABYSTEP_Y "Babystep Y"
 	#define MSG_BABYSTEP_Z "Babystep Z"
 	#define MSG_ENDSTOP_ABORT "Endstop deuseztat"
+	#define MSG_SHUTDOWN_AT_END "Shutdown @ End"
 	
 // Serial Console Messages
 
