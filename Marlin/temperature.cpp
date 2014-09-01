@@ -419,7 +419,7 @@ void manage_heater()
   for(int e = 0; e < EXTRUDERS; e++) 
   {
 
-  #ifdef THERMAL_RUNAWAY_PROTECTION_PERIOD && THERMAL_RUNAWAY_PROTECTION_PERIOD > 0
+  #if defined(THERMAL_RUNAWAY_PROTECTION_PERIOD) && THERMAL_RUNAWAY_PROTECTION_PERIOD > 0
     thermal_runaway_protection(&thermal_runaway_state_machine[e], &thermal_runaway_timer[e], current_temperature[e], target_temperature[e], e, THERMAL_RUNAWAY_PROTECTION_PERIOD, THERMAL_RUNAWAY_PROTECTION_HYSTERESIS);
   #endif
 
@@ -911,7 +911,7 @@ void setWatch()
 #endif 
 }
 
-#ifdef THERMAL_RUNAWAY_PROTECTION_PERIOD && THERMAL_RUNAWAY_PROTECTION_PERIOD > 0
+#if defined(THERMAL_RUNAWAY_PROTECTION_PERIOD) && THERMAL_RUNAWAY_PROTECTION_PERIOD > 0
 void thermal_runaway_protection(int *state, unsigned long *timer, float temperature, float target_temperature, int heater_id, int period_seconds, int hysteresis_degc)
 {
 /*
@@ -1112,10 +1112,18 @@ ISR(TIMER0_COMPB_vect)
 {
   //these variables are only accesible from the ISR, but static, so they don't lose their value
   static unsigned char temp_count = 0;
+  #if defined(TEMP_0_PIN) && (TEMP_0_PIN > -1) || EXTRUDERS > 0
   static unsigned long raw_temp_0_value = 0;
+  #endif
+  #if defined(TEMP_1_PIN) && (TEMP_1_PIN > -1) || EXTRUDERS > 1
   static unsigned long raw_temp_1_value = 0;
+  #endif
+  #if defined(TEMP_2_PIN) && (TEMP_2_PIN > -1) || EXTRUDERS > 2
   static unsigned long raw_temp_2_value = 0;
+  #endif
+  #if defined(TEMP_BED_PIN) && (TEMP_BED_PIN > -1)
   static unsigned long raw_temp_bed_value = 0;
+  #endif
   static unsigned char temp_state = 8;
   static unsigned char pwm_count = (1 << SOFT_PWM_SCALE);
   static unsigned char soft_pwm_0;
@@ -1286,10 +1294,18 @@ ISR(TIMER0_COMPB_vect)
     
     temp_meas_ready = true;
     temp_count = 0;
+#if defined(TEMP_0_PIN) && (TEMP_0_PIN > -1) || EXTRUDERS > 0
     raw_temp_0_value = 0;
+#endif
+#if defined(TEMP_1_PIN) && (TEMP_1_PIN > -1) || EXTRUDERS > 1
     raw_temp_1_value = 0;
+#endif
+#if defined(TEMP_2_PIN) && (TEMP_2_PIN > -1) || EXTRUDERS > 2
     raw_temp_2_value = 0;
+#endif
+#if defined(TEMP_BED_PIN) && (TEMP_BED_PIN > -1)
     raw_temp_bed_value = 0;
+#endif
 
 #if HEATER_0_RAW_LO_TEMP > HEATER_0_RAW_HI_TEMP
     if(current_temperature_raw[0] <= maxttemp_raw[0]) {

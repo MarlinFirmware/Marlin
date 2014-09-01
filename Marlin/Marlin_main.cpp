@@ -291,7 +291,6 @@ int EtoPPressure=0;
 #endif
 
 #ifdef DELTA
-  float delta[3] = {0.0, 0.0, 0.0};
   #define SIN_60 0.8660254037844386
   #define COS_60 0.5
   // these are the default values, can be overriden with M665
@@ -311,6 +310,10 @@ int EtoPPressure=0;
 float axis_scaling[3]={1,1,1};  // Build size scaling, default to 1
 #endif				
 
+#if defined(DELTA) || defined(SCARA)
+static float delta[3] = {0.0, 0.0, 0.0};
+#endif
+
 bool cancel_heatup = false ;
 
 //===========================================================================
@@ -318,7 +321,6 @@ bool cancel_heatup = false ;
 //===========================================================================
 const char axis_codes[NUM_AXIS] = {'X', 'Y', 'Z', 'E'};
 static float destination[NUM_AXIS] = {  0.0, 0.0, 0.0, 0.0};
-static float delta[3] = {0.0, 0.0, 0.0};
 static float offset[3] = {0.0, 0.0, 0.0};
 static bool home_all_axis = true;
 static float feedrate = 1500.0, next_feedrate, saved_feedrate;
@@ -1603,7 +1605,7 @@ void process_commands()
 #ifdef SCARA
 	  calculate_delta(current_position);
       plan_set_position(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], current_position[E_AXIS]);
-#endif SCARA
+#endif // SCARA
 
       #ifdef ENDSTOPS_ONLY_FOR_HOMING
         enable_endstops(false);
@@ -3657,9 +3659,13 @@ Sigma_Exit:
       SERIAL_ECHOLN(MSG_INVALID_EXTRUDER);
     }
     else {
+	  #if EXTRUDERS > 1
       boolean make_move = false;
+	  #endif
       if(code_seen('F')) {
+		#if EXTRUDERS > 1
         make_move = true;
+		#endif
         next_feedrate = code_value();
         if(next_feedrate > 0.0) {
           feedrate = next_feedrate;
@@ -3784,14 +3790,11 @@ void ClearToSend()
 
 void get_coordinates()
 {
-  bool seen[4]={false,false,false,false};
   for(int8_t i=0; i < NUM_AXIS; i++) {
     if(code_seen(axis_codes[i]))
-    {
       destination[i] = (float)code_value() + (axis_relative_modes[i] || relative_mode)*current_position[i];
-      seen[i]=true;
-    }
-    else destination[i] = current_position[i]; //Are these else lines really needed?
+    else 
+		destination[i] = current_position[i]; //Are these else lines really needed?
   }
   if(code_seen('F')) {
     next_feedrate = code_value();

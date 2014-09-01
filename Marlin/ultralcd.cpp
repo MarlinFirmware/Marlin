@@ -298,7 +298,7 @@ static void lcd_main_menu()
     END_MENU();
 }
 
-#ifdef SDSUPPORT
+#if defined(SDSUPPORT) && defined(MENU_ADDAUTOSTART)
 static void lcd_autostart_sd()
 {
     card.lastnr=0;
