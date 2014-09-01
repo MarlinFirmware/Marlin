@@ -1269,6 +1269,7 @@ void refresh_cmd_timeout(void)
 #endif //FWRETRACT
 
 #ifdef ENABLE_AUTO_BED_LEVELING
+#ifdef Z_PROBE_SLED
 //
 // Method to dock/undock a sled designed by Charles Bell.
 //
@@ -1302,7 +1303,8 @@ static void dock_sled(bool dock, int offset=0) {
    digitalWrite(SERVO0_PIN, HIGH);
  }
 }
-#endif
+#endif // Z_PROBE_SLED
+#endif // ENABLE_AUTO_BED_LEVELLING
 
 void process_commands()
 {
