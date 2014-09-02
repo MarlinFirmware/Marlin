@@ -112,7 +112,7 @@ uint8_t const SOFT_SPI_SCK_PIN = 13;
  * Defines for long (vfat) filenames
  */
 /** Number of VFAT entries used. Every entry has 13 UTF-16 characters */
-#define MAX_VFAT_ENTRIES (2)
+#define MAX_VFAT_ENTRIES (3)
 /** Total size of the buffer used to store the long filenames */
 #define LONG_FILENAME_LENGTH (13*MAX_VFAT_ENTRIES+1)
 #endif  // SdFatConfig_h

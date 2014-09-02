@@ -1,5 +1,6 @@
 #ifndef LANGUAGE_H
 #define LANGUAGE_H
+#include "Configuration.h"
 
 // NOTE: IF YOU CHANGE THIS FILE / MERGE THIS FILE WITH CHANGES
 //
@@ -39,6 +40,9 @@
 #elif MOTHERBOARD == 88
 	#define MACHINE_NAME "Makibox"
 	#define FIRMWARE_URL "https://github.com/ErikZalm/Marlin/"
+#elif MOTHERBOARD == 42
+	#define MACHINE_NAME "RigidBot"
+	#define FIRMWARE_URL "http://inventapart.com"
 #else
 	#ifdef CUSTOM_MENDEL_NAME
 		#define MACHINE_NAME CUSTOM_MENDEL_NAME
@@ -143,6 +147,17 @@
 #define MSG_BABYSTEPPING_Z "Babystepping Z"
 #define MSG_SERIAL_ERROR_MENU_STRUCTURE "Error in menu structure"
 
+#ifdef USB_LCD
+  #undef MSG_SD_INIT_FAIL
+  #define MSG_SD_INIT_FAIL "USB Drive init fail"
+  #undef MSG_SD_CARD_OK
+  #define MSG_SD_CARD_OK "USB Drive ok"
+  #undef MSG_SD_PRINTING_BYTE
+  #define MSG_SD_PRINTING_BYTE "USB Drive printing byte "
+  #undef MSG_SD_NOT_PRINTING
+  #define MSG_SD_NOT_PRINTING "Not USB Drive printing"
+#endif
+
 #if LANGUAGE_CHOICE == 1
 
 // LCD Menu Messages
@@ -195,7 +210,7 @@
 	#define MSG_FLOW0 "Flow 0"
 	#define MSG_FLOW1 "Flow 1"
 	#define MSG_FLOW2 "Flow 2"
-	#define MSG_CONTROL "Control"
+	#define MSG_CONTROL "Settings"
 	#define MSG_MIN " \002 Min"
 	#define MSG_MAX " \002 Max"
 	#define MSG_FACTOR " \002 Fact"
@@ -227,9 +242,9 @@
 	#define MSG_TEMPERATURE "Temperature"
 	#define MSG_MOTION "Motion"
 	#define MSG_CONTRAST "LCD contrast"
-	#define MSG_STORE_EPROM "Store memory"
-	#define MSG_LOAD_EPROM "Load memory"
-	#define MSG_RESTORE_FAILSAFE "Restore failsafe"
+	#define MSG_STORE_EPROM "Store settings"
+	#define MSG_LOAD_EPROM "Load settings"
+	#define MSG_RESTORE_FAILSAFE "Restore defaults"
 	#define MSG_REFRESH "Refresh"
 	#define MSG_WATCH "Info screen"
 	#define MSG_PREPARE "Prepare"
@@ -263,6 +278,22 @@
 	#define MSG_BABYSTEP_Y "Babystep Y"
 	#define MSG_BABYSTEP_Z "Babystep Z"
 	#define MSG_ENDSTOP_ABORT "Endstop abort"
+        #define MSG_HEAT_COOL "Heat/Cool"
+
+        #ifdef USB_LCD
+           #undef  MSG_SD_INSERTED
+           #define MSG_SD_INSERTED "USB inserted"
+           #undef  MSG_SD_REMOVED
+           #define MSG_SD_REMOVED "USB removed"
+	   #undef  MSG_CARD_MENU
+	   #define MSG_CARD_MENU "Print from USB"
+	   #undef  MSG_NO_CARD
+	   #define MSG_NO_CARD "No USB drive"
+           #undef  MSG_INIT_SDCARD
+           #define MSG_INIT_SDCARD "Init. USB Drive"
+	   #undef  MSG_CNG_SDCARD
+	   #define MSG_CNG_SDCARD "Change USB Drive"
+        #endif
 
 #endif
 
