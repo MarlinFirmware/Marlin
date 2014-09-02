@@ -76,12 +76,24 @@ bool abort_on_endstop_hit = false;
   int motor_current_setting[3] = DEFAULT_PWM_MOTOR_CURRENT;
 #endif
 
-static bool old_x_min_endstop=false;
-static bool old_x_max_endstop=false;
-static bool old_y_min_endstop=false;
-static bool old_y_max_endstop=false;
-static bool old_z_min_endstop=false;
+#if defined(X_MIN_PIN) && X_MIN_PIN > -1
+static bool old_x_min_endstop = false;
+#endif
+#if defined(X_MAX_PIN) && X_MAX_PIN > -1
+static bool old_x_max_endstop = false;
+#endif
+#if defined(Y_MIN_PIN) &&Y_MIN_PIN > -1
+static bool old_y_min_endstop = false;
+#endif
+#if defined(Y_MAX_PIN) && Y_MAX_PIN > -1
+static bool old_y_max_endstop = false;
+#endif
+#if defined(Z_MIN_PIN) && Z_MIN_PIN > -1
+static bool old_z_min_endstop = false;
+#endif
+#if defined(Z_MAX_PIN) && Z_MAX_PIN > -1
 static bool old_z_max_endstop=false;
+#endif
 
 static bool check_endstops = true;
 
@@ -409,6 +421,7 @@ ISR(TIMER1_COMPA_vect)
     #else
     if ((((out_bits & (1<<X_AXIS)) != 0)&&(out_bits & (1<<Y_AXIS)) != 0)) {   //-X occurs for -A and -B
     #endif
+      #if defined(X_MIN_PIN) && X_MIN_PIN > -1
       CHECK_ENDSTOPS
       {
         #ifdef DUAL_X_CARRIAGE
@@ -417,7 +430,6 @@ ISR(TIMER1_COMPA_vect)
             || (current_block->active_extruder != 0 && X2_HOME_DIR == -1))
         #endif          
         {
-          #if defined(X_MIN_PIN) && X_MIN_PIN > -1
             bool x_min_endstop=(READ(X_MIN_PIN) != X_MIN_ENDSTOP_INVERTING);
             if(x_min_endstop && old_x_min_endstop && (current_block->steps_x > 0)) {
               endstops_trigsteps[X_AXIS] = count_position[X_AXIS];
@@ -425,11 +437,12 @@ ISR(TIMER1_COMPA_vect)
               step_events_completed = current_block->step_event_count;
             }
             old_x_min_endstop = x_min_endstop;
-          #endif
         }
       }
+      #endif
     }
     else { // +direction
+      #if defined(X_MAX_PIN) && X_MAX_PIN > -1
       CHECK_ENDSTOPS
       {
         #ifdef DUAL_X_CARRIAGE
@@ -438,7 +451,6 @@ ISR(TIMER1_COMPA_vect)
             || (current_block->active_extruder != 0 && X2_HOME_DIR == 1))
         #endif          
         {
-          #if defined(X_MAX_PIN) && X_MAX_PIN > -1
             bool x_max_endstop=(READ(X_MAX_PIN) != X_MAX_ENDSTOP_INVERTING);
             if(x_max_endstop && old_x_max_endstop && (current_block->steps_x > 0)){
               endstops_trigsteps[X_AXIS] = count_position[X_AXIS];
@@ -446,9 +458,9 @@ ISR(TIMER1_COMPA_vect)
               step_events_completed = current_block->step_event_count;
             }
             old_x_max_endstop = x_max_endstop;
-          #endif
         }
       }
+      #endif
     }
 
     #ifndef COREXY
@@ -456,9 +468,9 @@ ISR(TIMER1_COMPA_vect)
     #else
     if ((((out_bits & (1<<X_AXIS)) != 0)&&(out_bits & (1<<Y_AXIS)) == 0)) {   // -Y occurs for -A and +B
     #endif
+      #if defined(Y_MIN_PIN) && Y_MIN_PIN > -1
       CHECK_ENDSTOPS
       {
-        #if defined(Y_MIN_PIN) && Y_MIN_PIN > -1
           bool y_min_endstop=(READ(Y_MIN_PIN) != Y_MIN_ENDSTOP_INVERTING);
           if(y_min_endstop && old_y_min_endstop && (current_block->steps_y > 0)) {
             endstops_trigsteps[Y_AXIS] = count_position[Y_AXIS];
@@ -466,13 +478,13 @@ ISR(TIMER1_COMPA_vect)
             step_events_completed = current_block->step_event_count;
           }
           old_y_min_endstop = y_min_endstop;
-        #endif
       }
+      #endif
     }
     else { // +direction
+      #if defined(Y_MAX_PIN) && Y_MAX_PIN > -1
       CHECK_ENDSTOPS
       {
-        #if defined(Y_MAX_PIN) && Y_MAX_PIN > -1
           bool y_max_endstop=(READ(Y_MAX_PIN) != Y_MAX_ENDSTOP_INVERTING);
           if(y_max_endstop && old_y_max_endstop && (current_block->steps_y > 0)){
             endstops_trigsteps[Y_AXIS] = count_position[Y_AXIS];
@@ -480,8 +492,8 @@ ISR(TIMER1_COMPA_vect)
             step_events_completed = current_block->step_event_count;
           }
           old_y_max_endstop = y_max_endstop;
-        #endif
       }
+      #endif
     }
 
     if ((out_bits & (1<<Z_AXIS)) != 0) {   // -direction
@@ -492,9 +504,9 @@ ISR(TIMER1_COMPA_vect)
       #endif
 
       count_direction[Z_AXIS]=-1;
+      #if defined(Z_MIN_PIN) && Z_MIN_PIN > -1
       CHECK_ENDSTOPS
       {
-        #if defined(Z_MIN_PIN) && Z_MIN_PIN > -1
           bool z_min_endstop=(READ(Z_MIN_PIN) != Z_MIN_ENDSTOP_INVERTING);
           if(z_min_endstop && old_z_min_endstop && (current_block->steps_z > 0)) {
             endstops_trigsteps[Z_AXIS] = count_position[Z_AXIS];
@@ -502,8 +514,8 @@ ISR(TIMER1_COMPA_vect)
             step_events_completed = current_block->step_event_count;
           }
           old_z_min_endstop = z_min_endstop;
-        #endif
       }
+      #endif
     }
     else { // +direction
       WRITE(Z_DIR_PIN,!INVERT_Z_DIR);
@@ -513,9 +525,9 @@ ISR(TIMER1_COMPA_vect)
       #endif
 
       count_direction[Z_AXIS]=1;
+      #if defined(Z_MAX_PIN) && Z_MAX_PIN > -1
       CHECK_ENDSTOPS
       {
-        #if defined(Z_MAX_PIN) && Z_MAX_PIN > -1
           bool z_max_endstop=(READ(Z_MAX_PIN) != Z_MAX_ENDSTOP_INVERTING);
           if(z_max_endstop && old_z_max_endstop && (current_block->steps_z > 0)) {
             endstops_trigsteps[Z_AXIS] = count_position[Z_AXIS];
@@ -523,8 +535,8 @@ ISR(TIMER1_COMPA_vect)
             step_events_completed = current_block->step_event_count;
           }
           old_z_max_endstop = z_max_endstop;
-        #endif
       }
+      #endif
     }
 
     #ifndef ADVANCE

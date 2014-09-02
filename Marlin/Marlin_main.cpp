@@ -436,19 +436,20 @@ void enquecommand_P(const char *cmd)
 
 void setup_killpin()
 {
-  #if defined(KILL_PIN) && KILL_PIN > -1
-    pinMode(KILL_PIN,INPUT);
+#if defined(KILL_PIN) && KILL_PIN > -1
+	pinMode(KILL_PIN,INPUT);
     WRITE(KILL_PIN,HIGH);
-  #endif
+#endif
 }
 
+
+#if defined(PHOTOGRAPH_PIN) && PHOTOGRAPH_PIN > -1
 void setup_photpin()
 {
-  #if defined(PHOTOGRAPH_PIN) && PHOTOGRAPH_PIN > -1
     SET_OUTPUT(PHOTOGRAPH_PIN);
     WRITE(PHOTOGRAPH_PIN, LOW);
-  #endif
 }
+#endif
 
 void setup_powerhold()
 {
@@ -466,14 +467,17 @@ void setup_powerhold()
   #endif
 }
 
+
 void suicide()
 {
-  #if defined(SUICIDE_PIN) && SUICIDE_PIN > -1
-    SET_OUTPUT(SUICIDE_PIN);
+#if defined(SUICIDE_PIN) && SUICIDE_PIN > -1
+	SET_OUTPUT(SUICIDE_PIN);
     WRITE(SUICIDE_PIN, LOW);
-  #endif
+#endif
 }
 
+
+#if NUM_SERVOS > 0
 void servo_init()
 {
   #if (NUM_SERVOS >= 1) && defined(SERVO0_PIN) && (SERVO0_PIN > -1)
@@ -507,6 +511,7 @@ void servo_init()
   servos[servo_endstops[Z_AXIS]].detach();
   #endif
 }
+#endif
 
 void setup()
 {
@@ -555,8 +560,12 @@ void setup()
   plan_init();  // Initialize planner;
   watchdog_init();
   st_init();    // Initialize stepper, this enables interrupts!
+#if defined(PHOTOGRAPH_PIN) && PHOTOGRAPH_PIN > -1
   setup_photpin();
+#endif
+#if NUM_SERVOS > 0
   servo_init();
+#endif
 
   lcd_init();
   _delay_ms(1000);	// wait 1sec to display the splash screen
@@ -3578,6 +3587,7 @@ Sigma_Exit:
     break;
     #endif //DUAL_X_CARRIAGE
 
+	#if (defined(DIGIPOTSS_PIN) && DIGIPOTSS_PIN > -1) || defined(MOTOR_CURRENT_PWM_XY_PIN) || defined(DIGIPOT_I2C)
     case 907: // M907 Set digital trimpot motor current using axis codes.
     {
       #if defined(DIGIPOTSS_PIN) && DIGIPOTSS_PIN > -1
@@ -3602,29 +3612,28 @@ Sigma_Exit:
       #endif
     }
     break;
+    #endif
+    #if defined(DIGIPOTSS_PIN) && DIGIPOTSS_PIN > -1
     case 908: // M908 Control digital trimpot directly.
     {
-      #if defined(DIGIPOTSS_PIN) && DIGIPOTSS_PIN > -1
         uint8_t channel,current;
         if(code_seen('P')) channel=code_value();
         if(code_seen('S')) current=code_value();
         digitalPotWrite(channel, current);
-      #endif
     }
     break;
+    #endif
+    #if defined(X_MS1_PIN) && X_MS1_PIN > -1
     case 350: // M350 Set microstepping mode. Warning: Steps per unit remains unchanged. S code sets stepping mode for all drivers.
     {
-      #if defined(X_MS1_PIN) && X_MS1_PIN > -1
         if(code_seen('S')) for(int i=0;i<=4;i++) microstep_mode(i,code_value());
         for(int i=0;i<NUM_AXIS;i++) if(code_seen(axis_codes[i])) microstep_mode(i,(uint8_t)code_value());
         if(code_seen('B')) microstep_mode(4,code_value());
         microstep_readings();
-      #endif
     }
     break;
     case 351: // M351 Toggle MS1 MS2 pins directly, S# determines MS1 or MS2, X# sets the pin high/low.
     {
-      #if defined(X_MS1_PIN) && X_MS1_PIN > -1
       if(code_seen('S')) switch((int)code_value())
       {
         case 1:
@@ -3637,9 +3646,9 @@ Sigma_Exit:
           break;
       }
       microstep_readings();
-      #endif
     }
     break;
+    #endif
     case 999: // M999: Restart after being stopped
       Stopped = false;
       lcd_reset_alert_level();
@@ -3794,7 +3803,7 @@ void get_coordinates()
     if(code_seen(axis_codes[i]))
       destination[i] = (float)code_value() + (axis_relative_modes[i] || relative_mode)*current_position[i];
     else 
-		destination[i] = current_position[i]; //Are these else lines really needed?
+	  destination[i] = current_position[i]; //Are these else lines really needed?
   }
   if(code_seen('F')) {
     next_feedrate = code_value();
