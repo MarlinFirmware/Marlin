@@ -364,8 +364,8 @@ static void lcd_main_menu()
        #ifdef FILAMENTCHANGEENABLE
         MENU_ITEM(gcode, MSG_FILAMENTCHANGE, PSTR("M600"));
        #endif
-       
-        MENU_ITEM(submenu, MSG_SPEED, lcd_speed_printing);
+       MENU_ITEM_EDIT(int3, MSG_NOZZLE, &target_temperature[0], 0, HEATER_0_MAXTEMP);
+       MENU_ITEM(submenu, MSG_SPEED, lcd_speed_printing);
        
     }
       else{
