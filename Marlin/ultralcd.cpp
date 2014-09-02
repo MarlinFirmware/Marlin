@@ -319,7 +319,7 @@ static void lcd_sdcard_stop()
 static void lcd_main_menu()
 {
     START_MENU();
-    MENU_ITEM(back, MSG_WATCH, lcd_status_screen);
+    MENU_ITEM(back, MSG_BACK, lcd_status_screen);
     
 #ifndef WITBOX
     if (movesplanned() || IS_SD_PRINTING)
@@ -498,7 +498,7 @@ static void lcd_babystep_z()
 static void lcd_tune_menu()
 {
     START_MENU();
-    MENU_ITEM(back, MSG_MAIN, lcd_main_menu);
+    MENU_ITEM(back, MSG_BACK, lcd_main_menu);
     MENU_ITEM_EDIT(int3, MSG_SPEED, &feedmultiply, 10, 999);
     MENU_ITEM_EDIT(int3, MSG_NOZZLE, &target_temperature[0], 0, HEATER_0_MAXTEMP - 15);
 #if TEMP_SENSOR_1 != 0
@@ -529,7 +529,7 @@ static void lcd_tune_menu()
 static void lcd_prepare_menu()
 {
     START_MENU();
-    MENU_ITEM(back, MSG_MAIN, lcd_main_menu);
+    MENU_ITEM(back, MSG_BACK, lcd_main_menu);
 #ifdef SDSUPPORT
     #ifdef MENU_ADDAUTOSTART
       MENU_ITEM(function, MSG_AUTOSTART, lcd_autostart_sd);
@@ -702,7 +702,7 @@ static void lcd_speed_printing()
 static void lcd_move_menu_axis()
 {
     START_MENU();
-    MENU_ITEM(back, MSG_MOVE_AXIS, lcd_move_menu);
+    MENU_ITEM(back, MSG_BACK, lcd_move_menu);
     MENU_ITEM(submenu, MSG_MOVE_X, lcd_move_x);
     MENU_ITEM(submenu, MSG_MOVE_Y, lcd_move_y);
     if (move_menu_scale < 10.0)
@@ -733,14 +733,14 @@ static void lcd_move_menu()
 {
     START_MENU();
 #ifdef WITBOX
-    MENU_ITEM(back, MSG_CONTROL, lcd_control_menu);
+    MENU_ITEM(back, MSG_BACK, lcd_control_menu);
     
     MENU_ITEM(gcode, MSG_AUTO_HOME, PSTR("G28"));
 
     MENU_ITEM(gcode, MSG_DISABLE_STEPPERS, PSTR("M84"));    
     MENU_ITEM(submenu, MSG_JOG, lcd_move_jog_menu);
 #else
-    MENU_ITEM(back, MSG_PREPARE, lcd_prepare_menu);
+    MENU_ITEM(back, MSG_BACK, lcd_prepare_menu);
     MENU_ITEM(submenu, MSG_MOVE_10MM, lcd_move_menu_10mm);
     MENU_ITEM(submenu, MSG_MOVE_1MM, lcd_move_menu_1mm);
     MENU_ITEM(submenu, MSG_MOVE_01MM, lcd_move_menu_01mm);
@@ -753,10 +753,10 @@ static void lcd_move_menu()
 static void lcd_move_jog_menu()
 {
     START_MENU();
-    MENU_ITEM(back, MSG_JOG, lcd_move_menu);
-    MENU_ITEM(submenu, "Move 10mm", lcd_move_menu_10mm);
-    MENU_ITEM(submenu, "Move 1mm", lcd_move_menu_1mm);
-    MENU_ITEM(submenu, "Move 0.1mm", lcd_move_menu_01mm);
+    MENU_ITEM(back, MSG_BACK, lcd_move_menu);
+    MENU_ITEM(submenu, MSG_MOVE_10MM, lcd_move_menu_10mm);
+    MENU_ITEM(submenu, MSG_MOVE_1MM, lcd_move_menu_1mm);
+    MENU_ITEM(submenu, MSG_MOVE_01MM, lcd_move_menu_01mm);
     END_MENU();
 }
 
@@ -908,7 +908,7 @@ static void lcd_control_menu()
 {
     START_MENU();
 #ifdef WITBOX
-     MENU_ITEM(back, MSG_MAIN, lcd_main_menu);   
+     MENU_ITEM(back, MSG_BACK, lcd_main_menu);   
      MENU_ITEM(submenu, MSG_FILAMENT, lcd_filament_menu);     //cambiar filamento
      MENU_ITEM(submenu, MSG_MOVE_AXIS, lcd_move_menu);
      MENU_ITEM(function, MSG_LEVEL_PLATE, config_lcd_level_bed);   
@@ -922,7 +922,7 @@ static void lcd_control_menu()
      else                           MENU_ITEM(function, MSG_PREHEAT, lcd_preheat);
 	#endif //WITBOX_DUAL
 #else
-    MENU_ITEM(back, MSG_MAIN, lcd_main_menu);
+    MENU_ITEM(back, MSG_BACK, lcd_main_menu);
     MENU_ITEM(submenu, MSG_TEMPERATURE, lcd_control_temperature_menu);
     MENU_ITEM(submenu, MSG_MOTION, lcd_control_motion_menu);
 #ifdef DOGLCD
@@ -946,7 +946,7 @@ static void lcd_control_menu()
 static void lcd_filament_menu()
 {
     START_MENU();
-    MENU_ITEM(back, MSG_CONTROL, lcd_control_menu);
+    MENU_ITEM(back, MSG_BACK, lcd_control_menu);
     #ifdef WITBOX_DUAL
 		MENU_ITEM(submenu, MSG_LOAD, select_extruder_load);
 		MENU_ITEM(submenu, MSG_UNLOAD, select_extruder_unload);
@@ -960,7 +960,7 @@ static void lcd_filament_menu()
 static void select_extruder_load(){
   
     START_MENU();
-    MENU_ITEM(back, MSG_LOAD, lcd_filament_menu);
+    MENU_ITEM(back, MSG_BACK, lcd_filament_menu);
     
     MENU_ITEM(submenu, MSG_EXTRUDER_1, lcd_load_material_extrud_1);
     MENU_ITEM(submenu, MSG_EXTRUDER_2, lcd_load_material_extrud_2);
@@ -971,7 +971,7 @@ static void select_extruder_load(){
 static void select_extruder_unload(){
   
     START_MENU();
-    MENU_ITEM(back, MSG_UNLOAD, lcd_filament_menu);
+    MENU_ITEM(back, MSG_BACK, lcd_filament_menu);
     
     MENU_ITEM(submenu, MSG_EXTRUDER_1, lcd_unload_material_extrud_1);
     MENU_ITEM(submenu, MSG_EXTRUDER_2, lcd_unload_material_extrud_2);
@@ -1019,7 +1019,7 @@ static void lcd_load_material_extrud_1()
 static void lcd_insert_and_press_1()
 {
     START_MENU();
-    MENU_ITEM(back, MSG_ABORT, lcd_abort_preheating_1);
+    MENU_ITEM(back, MSG_BACK, lcd_abort_preheating_1);
     active_extruder = 0;
     MENU_ITEM(gcode, MSG_PRE_EXTRUD, PSTR("M701"));
     END_MENU();
@@ -1041,7 +1041,7 @@ static void lcd_unload_material_extrud_1()
    setTargetHotend0(Change_Filament_Target_Temp);
 
     START_MENU();
-    MENU_ITEM(back, MSG_ABORT, lcd_abort_preheating_1);
+    MENU_ITEM(back, MSG_BACK, lcd_abort_preheating_1);
     END_MENU();
 
     int tHotend=int(degHotend(0) + 0.5);
@@ -1086,7 +1086,7 @@ static void lcd_load_material_extrud_2()
 	fanSpeed = PREHEAT_FAN_SPEED;
 
     START_MENU();
-    MENU_ITEM(back, MSG_ABORT, lcd_abort_preheating_2);
+    MENU_ITEM(back, MSG_BACK, lcd_abort_preheating_2);
     END_MENU();
 
     int tHotend=int(degHotend(1) + 0.5);
@@ -1110,7 +1110,7 @@ static void lcd_load_material_extrud_2()
 static void lcd_insert_and_press_2()
 {
     START_MENU();
-    MENU_ITEM(back, MSG_ABORT, lcd_abort_preheating_2);
+    MENU_ITEM(back, MSG_BACK, lcd_abort_preheating_2);
     active_extruder = 1;
     MENU_ITEM(gcode, MSG_PRE_EXTRUD, PSTR("M701")); 
     END_MENU();
@@ -1133,7 +1133,7 @@ static void lcd_unload_material_extrud_2()
    setTargetHotend1(Change_Filament_Target_Temp);
 
     START_MENU();
-    MENU_ITEM(back, MSG_ABORT, lcd_abort_preheating_2);
+    MENU_ITEM(back, MSG_BACK, lcd_abort_preheating_2);
     END_MENU();
 
     int tHotend=int(degHotend(1) + 0.5);
@@ -1170,7 +1170,7 @@ static void lcd_control_temperature_menu()
 #endif
 
     START_MENU();
-    MENU_ITEM(back, MSG_CONTROL, lcd_control_menu);
+    MENU_ITEM(back, MSG_BACK, lcd_control_menu);
     MENU_ITEM_EDIT(int3, MSG_NOZZLE, &target_temperature[0], 0, HEATER_0_MAXTEMP - 15);
 #if TEMP_SENSOR_1 != 0
     MENU_ITEM_EDIT(int3, MSG_NOZZLE1, &target_temperature[1], 0, HEATER_1_MAXTEMP - 15);
@@ -1205,7 +1205,7 @@ static void lcd_control_temperature_menu()
 static void lcd_control_temperature_preheat_pla_settings_menu()
 {
     START_MENU();
-    MENU_ITEM(back, MSG_TEMPERATURE, lcd_control_temperature_menu);
+    MENU_ITEM(back, MSG_BACK, lcd_control_temperature_menu);
     MENU_ITEM_EDIT(int3, MSG_FAN_SPEED, &plaPreheatFanSpeed, 0, 255);
     MENU_ITEM_EDIT(int3, MSG_NOZZLE, &plaPreheatHotendTemp, 0, HEATER_0_MAXTEMP - 15);
 #if TEMP_SENSOR_BED != 0
@@ -1220,7 +1220,7 @@ static void lcd_control_temperature_preheat_pla_settings_menu()
 static void lcd_control_temperature_preheat_abs_settings_menu()
 {
     START_MENU();
-    MENU_ITEM(back, MSG_TEMPERATURE, lcd_control_temperature_menu);
+    MENU_ITEM(back, MSG_BACK, lcd_control_temperature_menu);
     MENU_ITEM_EDIT(int3, MSG_FAN_SPEED, &absPreheatFanSpeed, 0, 255);
     MENU_ITEM_EDIT(int3, MSG_NOZZLE, &absPreheatHotendTemp, 0, HEATER_0_MAXTEMP - 15);
 #if TEMP_SENSOR_BED != 0
@@ -1235,7 +1235,7 @@ static void lcd_control_temperature_preheat_abs_settings_menu()
 static void lcd_control_motion_menu()
 {
     START_MENU();
-    MENU_ITEM(back, MSG_CONTROL, lcd_control_menu);
+    MENU_ITEM(back, MSG_BACK, lcd_control_menu);
 #ifdef ENABLE_AUTO_BED_LEVELING
     MENU_ITEM_EDIT(float32, MSG_ZPROBE_ZOFFSET, &zprobe_zoffset, 0.5, 50);
 #endif
@@ -1293,7 +1293,7 @@ static void lcd_set_contrast()
 static void lcd_control_retract_menu()
 {
     START_MENU();
-    MENU_ITEM(back, MSG_CONTROL, lcd_control_menu);
+    MENU_ITEM(back, MSG_BACK, lcd_control_menu);
     MENU_ITEM_EDIT(bool, MSG_AUTORETRACT, &autoretract_enabled);
     MENU_ITEM_EDIT(float52, MSG_CONTROL_RETRACT, &retract_length, 0, 100);
     MENU_ITEM_EDIT(float3, MSG_CONTROL_RETRACTF, &retract_feedrate, 1, 999);
@@ -1323,7 +1323,7 @@ void lcd_sdcard_menu()
         return;	// nothing to do (so don't thrash the SD card)
     uint16_t fileCnt = card.getnrfilenames();
     START_MENU();
-    MENU_ITEM(back, MSG_MAIN, lcd_main_menu);
+    MENU_ITEM(back, MSG_BACK, lcd_main_menu);
     card.getWorkDirName();
     if(card.filename[0]=='/')
     {
