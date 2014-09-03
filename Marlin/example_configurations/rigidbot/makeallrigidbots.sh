@@ -46,7 +46,7 @@ sed -i '' -e 's/^#define THERMAL_RUNAWAY_PROTECTION_HYSTERESIS.*/#define THERMAL
 sed -i '' -e 's/^#define THERMAL_RUNAWAY_PROTECTION_BED_PERIOD.*/#define THERMAL_RUNAWAY_PROTECTION_BED_PERIOD 20/' $CONFIGURATION_H
 sed -i '' -e 's/^#define THERMAL_RUNAWAY_PROTECTION_BED_HYSTERESIS.*/#define THERMAL_RUNAWAY_PROTECTION_BED_HYSTERESIS 2/' $CONFIGURATION_H
 ### Use "predefined mechanics" bundle for the RigidBot: endstops, build volume, feedrate, acceleration, jerk
-sed -i '' -e 's/^\/\/#define RIGIDBOT/#define RIGIDBOT/' $CONFIGURATION_H
+sed -i '' -e 's/^\/\/#include \"mechanics/rigidbot.h\"/#include \"mechanics/rigidbot.h\"/' $CONFIGURATION_H
 ### Enable IAP's "Stepper Reset Fix"
 sed -i '' -e 's/^\/\/#define STEPPER_RESET_FIX.*/#define STEPPER_RESET_FIX/' $CONFIGURATION_H
 ### Enable EEPROM support, chitchat, but not overwrite
