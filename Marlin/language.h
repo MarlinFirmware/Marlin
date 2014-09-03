@@ -279,6 +279,7 @@
 	#define MSG_BABYSTEP_Z "Babystep Z"
 	#define MSG_ENDSTOP_ABORT "Endstop abort"
         #define MSG_HEAT_COOL "Heat/Cool"
+        #define MSG_UTILITIES "Utilities"
 
         #ifdef USB_LCD
            #undef  MSG_SD_INSERTED
@@ -420,7 +421,23 @@
 	#define MSG_BABYSTEP_Y "Babystep Y"
 	#define MSG_BABYSTEP_Z "Babystep Z"
 	#define MSG_ENDSTOP_ABORT "Blad wyl. kranc."
-	#define MSG_CONTRAST "Kontrast"
+        #define MSG_HEAT_COOL "Heat/Cool"
+        #define MSG_UTILITIES "Utilities"
+
+        #ifdef USB_LCD
+           #undef  MSG_SD_INSERTED
+           #define MSG_SD_INSERTED "USB inserted"
+           #undef  MSG_SD_REMOVED
+           #define MSG_SD_REMOVED "USB removed"
+           #undef  MSG_CARD_MENU
+           #define MSG_CARD_MENU "Print from USB"
+           #undef  MSG_NO_CARD
+           #define MSG_NO_CARD "No USB drive"
+           #undef  MSG_INIT_SDCARD
+           #define MSG_INIT_SDCARD "Init. USB Drive"
+           #undef  MSG_CNG_SDCARD
+           #define MSG_CNG_SDCARD "Change USB Drive"
+        #endif
 
 #endif
 
@@ -547,7 +564,23 @@
 	#define MSG_BABYSTEP_Y "Babystep Y"
 	#define MSG_BABYSTEP_Z "Babystep Z"
 	#define MSG_ENDSTOP_ABORT "Butee abandon"
-	#define MSG_CONTRAST "Contrast"
+        #define MSG_HEAT_COOL "Heat/Cool"
+        #define MSG_UTILITIES "Utilities"
+
+        #ifdef USB_LCD
+           #undef  MSG_SD_INSERTED
+           #define MSG_SD_INSERTED "USB inserted"
+           #undef  MSG_SD_REMOVED
+           #define MSG_SD_REMOVED "USB removed"
+           #undef  MSG_CARD_MENU
+           #define MSG_CARD_MENU "Print from USB"
+           #undef  MSG_NO_CARD
+           #define MSG_NO_CARD "No USB drive"
+           #undef  MSG_INIT_SDCARD
+           #define MSG_INIT_SDCARD "Init. USB Drive"
+           #undef  MSG_CNG_SDCARD
+           #define MSG_CNG_SDCARD "Change USB Drive"
+        #endif
 
 #endif
 
@@ -675,7 +708,23 @@
 	#define MSG_BABYSTEP_Y "Babystep Y"
 	#define MSG_BABYSTEP_Z "Babystep Z"
 	#define MSG_ENDSTOP_ABORT "Endstop abort"
-	#define MSG_CONTRAST "Contrast"
+        #define MSG_HEAT_COOL "Heat/Cool"
+        #define MSG_UTILITIES "Utilities"
+
+        #ifdef USB_LCD
+           #undef  MSG_SD_INSERTED
+           #define MSG_SD_INSERTED "USB inserted"
+           #undef  MSG_SD_REMOVED
+           #define MSG_SD_REMOVED "USB removed"
+           #undef  MSG_CARD_MENU
+           #define MSG_CARD_MENU "Print from USB"
+           #undef  MSG_NO_CARD
+           #define MSG_NO_CARD "No USB drive"
+           #undef  MSG_INIT_SDCARD
+           #define MSG_INIT_SDCARD "Init. USB Drive"
+           #undef  MSG_CNG_SDCARD
+           #define MSG_CNG_SDCARD "Change USB Drive"
+        #endif
 
 #endif
 
@@ -809,6 +858,23 @@
 	#define MSG_BABYSTEP_Z "Babystep Z"
 	#define MSG_ENDSTOP_ABORT "Endstop abort"
 	#define MSG_CONTRAST "Contrast"
+        #define MSG_HEAT_COOL "Heat/Cool"
+        #define MSG_UTILITIES "Utilities"
+
+        #ifdef USB_LCD
+           #undef  MSG_SD_INSERTED
+           #define MSG_SD_INSERTED "USB inserted"
+           #undef  MSG_SD_REMOVED
+           #define MSG_SD_REMOVED "USB removed"
+           #undef  MSG_CARD_MENU
+           #define MSG_CARD_MENU "Print from USB"
+           #undef  MSG_NO_CARD
+           #define MSG_NO_CARD "No USB drive"
+           #undef  MSG_INIT_SDCARD
+           #define MSG_INIT_SDCARD "Init. USB Drive"
+           #undef  MSG_CNG_SDCARD
+           #define MSG_CNG_SDCARD "Change USB Drive"
+        #endif
 
 #endif
 
@@ -933,7 +999,23 @@
 	#define MSG_BABYSTEP_Y 						"Babystep Y"
 	#define MSG_BABYSTEP_Z 						"Babystep Z"
 	#define MSG_ENDSTOP_ABORT 					"Endstop abort"
-	#define MSG_CONTRAST 						"Contrast"
+        #define MSG_HEAT_COOL                                   "Heat/Cool"
+        #define MSG_UTILITIES                                   "Utilities"
+
+        #ifdef USB_LCD
+           #undef  MSG_SD_INSERTED
+           #define MSG_SD_INSERTED "USB inserted"
+           #undef  MSG_SD_REMOVED
+           #define MSG_SD_REMOVED "USB removed"
+           #undef  MSG_CARD_MENU
+           #define MSG_CARD_MENU "Print from USB"
+           #undef  MSG_NO_CARD
+           #define MSG_NO_CARD "No USB drive"
+           #undef  MSG_INIT_SDCARD
+           #define MSG_INIT_SDCARD "Init. USB Drive"
+           #undef  MSG_CNG_SDCARD
+           #define MSG_CNG_SDCARD "Change USB Drive"
+        #endif
 
 #endif
 
@@ -1058,7 +1140,23 @@
 	#define MSG_BABYSTEP_Y "Babystep Y"
 	#define MSG_BABYSTEP_Z "Babystep Z"
 	#define MSG_ENDSTOP_ABORT "Endstop abort"
-	#define MSG_CONTRAST "Contrast"
+        #define MSG_HEAT_COOL "Heat/Cool"
+        #define MSG_UTILITIES "Utilities"
+
+        #ifdef USB_LCD
+           #undef  MSG_SD_INSERTED
+           #define MSG_SD_INSERTED "USB inserted"
+           #undef  MSG_SD_REMOVED
+           #define MSG_SD_REMOVED "USB removed"
+           #undef  MSG_CARD_MENU
+           #define MSG_CARD_MENU "Print from USB"
+           #undef  MSG_NO_CARD
+           #define MSG_NO_CARD "No USB drive"
+           #undef  MSG_INIT_SDCARD
+           #define MSG_INIT_SDCARD "Init. USB Drive"
+           #undef  MSG_CNG_SDCARD
+           #define MSG_CNG_SDCARD "Change USB Drive"
+        #endif
 
 #endif
 
@@ -1190,6 +1288,23 @@
 	#define MSG_BABYSTEP_Z "Babystep Z"
 	#define MSG_ENDSTOP_ABORT "Endstop abort"
 	#define MSG_CONTRAST "Contrast"
+        #define MSG_HEAT_COOL "Heat/Cool"
+        #define MSG_UTILITIES "Utilities"
+
+        #ifdef USB_LCD
+           #undef  MSG_SD_INSERTED
+           #define MSG_SD_INSERTED "USB inserted"
+           #undef  MSG_SD_REMOVED
+           #define MSG_SD_REMOVED "USB removed"
+           #undef  MSG_CARD_MENU
+           #define MSG_CARD_MENU "Print from USB"
+           #undef  MSG_NO_CARD
+           #define MSG_NO_CARD "No USB drive"
+           #undef  MSG_INIT_SDCARD
+           #define MSG_INIT_SDCARD "Init. USB Drive"
+           #undef  MSG_CNG_SDCARD
+           #define MSG_CNG_SDCARD "Change USB Drive"
+        #endif
 
 #endif
 
@@ -1401,6 +1516,7 @@
 	#define MSG_RECTRACT "Retraer"
 	#define MSG_TEMPERATURE "Temperatura"
 	#define MSG_MOTION "Movimiento"
+        #define MSG_CONTRAST "Contrast"
 	#define MSG_STORE_EPROM "Alzar Memoria"
 	#define MSG_LOAD_EPROM "Cargar Memoria"
 	#define MSG_RESTORE_FAILSAFE "Rest. d'emerchen."
@@ -1446,7 +1562,23 @@
 	#define MSG_BABYSTEP_Y "Babystep Y"
 	#define MSG_BABYSTEP_Z "Babystep Z"
 	#define MSG_ENDSTOP_ABORT "Endstop abort"
-	#define MSG_CONTRAST "Contrast"
+        #define MSG_HEAT_COOL "Heat/Cool"
+        #define MSG_UTILITIES "Utilities"
+
+        #ifdef USB_LCD
+           #undef  MSG_SD_INSERTED
+           #define MSG_SD_INSERTED "USB inserted"
+           #undef  MSG_SD_REMOVED
+           #define MSG_SD_REMOVED "USB removed"
+           #undef  MSG_CARD_MENU
+           #define MSG_CARD_MENU "Print from USB"
+           #undef  MSG_NO_CARD
+           #define MSG_NO_CARD "No USB drive"
+           #undef  MSG_INIT_SDCARD
+           #define MSG_INIT_SDCARD "Init. USB Drive"
+           #undef  MSG_CNG_SDCARD
+           #define MSG_CNG_SDCARD "Change USB Drive"
+        #endif
 
 #endif
 
@@ -1570,6 +1702,23 @@
 	#define MSG_BABYSTEP_Y "Babystap Y"
 	#define MSG_BABYSTEP_Z "Babystap Z"
 	#define MSG_ENDSTOP_ABORT "Endstop afbr."
+        #define MSG_HEAT_COOL "Heat/Cool"
+        #define MSG_UTILITIES "Utilities"
+
+        #ifdef USB_LCD
+           #undef  MSG_SD_INSERTED
+           #define MSG_SD_INSERTED "USB inserted"
+           #undef  MSG_SD_REMOVED
+           #define MSG_SD_REMOVED "USB removed"
+           #undef  MSG_CARD_MENU
+           #define MSG_CARD_MENU "Print from USB"
+           #undef  MSG_NO_CARD
+           #define MSG_NO_CARD "No USB drive"
+           #undef  MSG_INIT_SDCARD
+           #define MSG_INIT_SDCARD "Init. USB Drive"
+           #undef  MSG_CNG_SDCARD
+           #define MSG_CNG_SDCARD "Change USB Drive"
+        #endif
 
 #endif
 
@@ -1695,6 +1844,23 @@
 	#define MSG_BABYSTEP_Y "Babystep Y"
 	#define MSG_BABYSTEP_Z "Babystep Z"
 	#define MSG_ENDSTOP_ABORT "Endstop abort"
+        #define MSG_HEAT_COOL "Heat/Cool"
+        #define MSG_UTILITIES "Utilities"
+
+        #ifdef USB_LCD
+           #undef  MSG_SD_INSERTED
+           #define MSG_SD_INSERTED "USB inserted"
+           #undef  MSG_SD_REMOVED
+           #define MSG_SD_REMOVED "USB removed"
+           #undef  MSG_CARD_MENU
+           #define MSG_CARD_MENU "Print from USB"
+           #undef  MSG_NO_CARD
+           #define MSG_NO_CARD "No USB drive"
+           #undef  MSG_INIT_SDCARD
+           #define MSG_INIT_SDCARD "Init. USB Drive"
+           #undef  MSG_CNG_SDCARD
+           #define MSG_CNG_SDCARD "Change USB Drive"
+        #endif
 
 #endif
 
@@ -1819,6 +1985,23 @@
 	#define MSG_BABYSTEP_Y "Babystep Y"
 	#define MSG_BABYSTEP_Z "Babystep Z"
 	#define MSG_ENDSTOP_ABORT "Endstop deuseztat"
+        #define MSG_HEAT_COOL "Heat/Cool"
+        #define MSG_UTILITIES "Utilities"
+
+        #ifdef USB_LCD
+           #undef  MSG_SD_INSERTED
+           #define MSG_SD_INSERTED "USB inserted"
+           #undef  MSG_SD_REMOVED
+           #define MSG_SD_REMOVED "USB removed"
+           #undef  MSG_CARD_MENU
+           #define MSG_CARD_MENU "Print from USB"
+           #undef  MSG_NO_CARD
+           #define MSG_NO_CARD "No USB drive"
+           #undef  MSG_INIT_SDCARD
+           #define MSG_INIT_SDCARD "Init. USB Drive"
+           #undef  MSG_CNG_SDCARD
+           #define MSG_CNG_SDCARD "Change USB Drive"
+        #endif
 	
 #endif
 
