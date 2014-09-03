@@ -281,12 +281,7 @@ static void lcd_return_to_status()
 
 static void lcd_sdcard_pause()
 {
-    #ifdef FILAMENTCHANGEENABLE
-      enquecommand_P(PSTR("M25"));
-      lcd_return_to_status();
-    #else
-      card.pauseSDPrint();
-    #endif
+    card.pauseSDPrint();
 }
 static void lcd_sdcard_resume()
 {
@@ -338,11 +333,8 @@ static void lcd_main_menu()
         {
             if (card.sdprinting)
                 MENU_ITEM(function, MSG_PAUSE_PRINT, lcd_sdcard_pause);
-	    #ifndef FILAMENTCHANGEENABLE
-	      else
+	    else
                 MENU_ITEM(function, MSG_RESUME_PRINT, lcd_sdcard_resume);
-	    #endif
-
             MENU_ITEM(function, MSG_STOP_PRINT, lcd_sdcard_stop);
         }else{
             MENU_ITEM(submenu, MSG_CARD_MENU, lcd_sdcard_menu);
