@@ -1138,8 +1138,8 @@ static void homeaxis(int axis) {
 #if defined (ENABLE_AUTO_BED_LEVELING) && (PROBE_SERVO_DEACTIVATION_DELAY > 0)
   #ifndef Z_PROBE_SLED
     if (axis==Z_AXIS) retract_z_probe();
-  #endif#
-endif
+  #endif
+#endif
 
   }
 }
@@ -1193,7 +1193,7 @@ void refresh_cmd_timeout(void)
   } //retract
 #endif //FWRETRACT
 
-#ifdef ENABLE_AUTO_BED_LEVELING
+#ifdef Z_PROBE_SLED
 //
 // Method to dock/undock a sled designed by Charles Bell.
 //
