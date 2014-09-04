@@ -56,6 +56,8 @@ static void lcd_control_temperature_preheat_pla_settings_menu();
 static void lcd_control_temperature_preheat_abs_settings_menu();
 static void lcd_control_motion_menu();
 
+extern bool pause_SD_print;
+
 //menus extras para witbox->
 #ifdef WITBOX
 static void lcd_control_filament_menu();
@@ -281,10 +283,17 @@ static void lcd_return_to_status()
 
 static void lcd_sdcard_pause()
 {
+#ifdef FILAMENTCHANGEENABLE //
+    pause_SD_print = true;
+    lcd_return_to_status();
+#else
     card.pauseSDPrint();
+#endif // FILAMENTCHANGEENABLE
 }
+
 static void lcd_sdcard_resume()
 {
+    pause_SD_print = false;
     card.startFileprint();
 }
 
