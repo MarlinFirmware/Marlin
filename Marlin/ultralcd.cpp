@@ -302,13 +302,13 @@ static void lcd_sdcard_stop()
     card.sdprinting = false;
     card.closefile();
 
-    #ifdef WITBOX
-      setTargetHotend(0,0);  //setTargetHotend(celsius,extruder);
-      setTargetHotend(0,1);
-      plan_buffer_line(X_MAX_POS-15, Y_MAX_POS-15, Z_MAX_POS-15, 0, manual_feedrate[X_AXIS]/60, active_extruder);
-    #else
-      quickStop();
-    #endif //WITBOX
+    setTargetHotend(0,0);
+#ifdef WITBOX_DUAL
+    setTargetHotend(0,1);
+#endif
+
+    quickStop();
+    plan_buffer_line(X_MAX_POS-15, Y_MAX_POS-15, Z_MAX_POS-15, 0, manual_feedrate[X_AXIS]/60, active_extruder);
 
     if(SD_FINISHED_STEPPERRELEASE)
     {
