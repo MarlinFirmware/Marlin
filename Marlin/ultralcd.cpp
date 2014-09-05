@@ -56,7 +56,8 @@ static void lcd_control_temperature_preheat_pla_settings_menu();
 static void lcd_control_temperature_preheat_abs_settings_menu();
 static void lcd_control_motion_menu();
 
-extern bool pause_SD_print;
+extern bool stop_buffer;
+extern int stop_buffer_code;
 
 //menus extras para witbox->
 #ifdef WITBOX
@@ -283,19 +284,49 @@ static void lcd_return_to_status()
 
 static void lcd_sdcard_pause()
 {
-#ifdef FILAMENTCHANGEENABLE //
-    pause_SD_print = true;
+    LCD_MESSAGEPGM("Pausing...");
+    
+    stop_buffer = true;
+    stop_buffer_code = 1;
+//   card.pauseSDPrint();
+
     lcd_return_to_status();
-#else
-    card.pauseSDPrint();
-#endif // FILAMENTCHANGEENABLE
 }
+
+///////////////////////////////////////////
+
+// #ifdef FILAMENTCHANGEENABLE //
+//     LCD_MESSAGEPGM("Pausing...");
+//     stop_buffering = true;
+//     lcd_return_to_status();
+// #else
+//     card.pauseSDPrint();
+// #endif // FILAMENTCHANGEENABLE
+// }
+
+////////////////////////////////////////////
 
 static void lcd_sdcard_resume()
 {
-    pause_SD_print = false;
+    LCD_MESSAGEPGM("Resuming...");
+
+    stop_buffer = false;
     card.startFileprint();
+
+    lcd_return_to_status();
 }
+
+////////////////////////////////////////////
+
+// #ifdef FILAMENTCHANGEENABLE
+//     stop_buffering = false;
+//     lcd_return_to_status();
+// #else
+//     card.startFileprint();
+// #endif
+// }
+
+/////////////////////////////////////////////
 
 static void lcd_sdcard_stop()
 {
@@ -317,6 +348,16 @@ static void lcd_sdcard_stop()
     autotempShutdown();
 
     cancel_heatup = true;
+}
+
+static void lcd_change_filament()
+{
+    LCD_MESSAGEPGM("Pausing...");
+
+    stop_buffer = true;
+    stop_buffer_code = 2;
+
+    lcd_return_to_status();
 }
 
 /* Menu implementation */
@@ -363,7 +404,7 @@ static void lcd_main_menu()
     if (movesplanned() || IS_SD_PRINTING)
     {
        #ifdef FILAMENTCHANGEENABLE
-        MENU_ITEM(gcode, MSG_FILAMENTCHANGE, PSTR("M600"));
+        MENU_ITEM(function, MSG_FILAMENTCHANGE, lcd_change_filament);
        #endif
        MENU_ITEM_EDIT(int3, MSG_NOZZLE, &target_temperature[0], 0, HEATER_0_MAXTEMP);
        MENU_ITEM(submenu, MSG_SPEED, lcd_speed_printing);
