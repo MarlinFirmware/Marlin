@@ -700,7 +700,7 @@ void get_command()
 				int hours, minutes;
 				minutes=(t/60)%60;
 				hours=t/60/60;
-				sprintf_P(time, PSTR("%i hours %i minutes"),hours, minutes);
+				sprintf_P(time, PSTR("%i "MSG_END_HOUR" %i "MSG_END_MINUTE),hours, minutes);
 				SERIAL_ECHO_START;
 				SERIAL_ECHOLN(time);
 				lcd_setstatus(time);
@@ -1715,8 +1715,8 @@ void process_commands()
 
       plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], feedrate/60, active_extruder);
 
-      target[X_AXIS]= FILAMENTCHANGE_XPOS ;
-      target[Y_AXIS]= FILAMENTCHANGE_YPOS ;
+      target[X_AXIS]= X_MAX_POS - 5 ;
+      target[Y_AXIS]= Y_MAX_POS - 5 ;
 
       plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], feedrate/60, active_extruder);
 
