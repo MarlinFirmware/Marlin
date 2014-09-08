@@ -1728,7 +1728,7 @@ void process_commands()
 
       st_synchronize();
 
-      LCD_MESSAGEPGM("       PAUSED       ");
+      LCD_MESSAGEPGM(MSG_PAUSED);
       lcd_update();
 
       while(!lcd_clicked()){
@@ -1747,7 +1747,7 @@ void process_commands()
 
       stop_buffer = false;
 
-      LCD_MESSAGEPGM("Printing...");
+      LCD_MESSAGEPGM(MSG_PRINTING);
       lcd_update();
       break;
 
@@ -2043,6 +2043,9 @@ void process_commands()
 	starttime=millis();
 	previous_millis_cmd = millis();
       }
+
+      if (card.sdprinting == true)
+        LCD_MESSAGEPGM(MSG_PRINTING);
       break;
     case 190: // M190 - Wait for bed heater to reach target.
     #if defined(TEMP_BED_PIN) && TEMP_BED_PIN > -1
@@ -2770,7 +2773,7 @@ void process_commands()
     
     case 600: //Pause for filament change X[pos] Y[pos] Z[relative lift] E[initial retract] L[later retract distance for removal]
     {
-      LCD_MESSAGEPGM("Pausing...");
+      LCD_MESSAGEPGM(MSG_PAUSING);
       lcd_update();
 
       float target[4];
@@ -2836,14 +2839,14 @@ void process_commands()
       disable_e2();
       delay(100);
       
-      LCD_MESSAGEPGM("Unload & Click");
+      LCD_MESSAGEPGM(MSG_UNLOAD_CLICK);
       while (!lcd_clicked()) {
         manage_heater();
         manage_inactivity();
         lcd_update();
       }
 
-      LCD_MESSAGEPGM("Load & Click");
+      LCD_MESSAGEPGM(MSG_LOAD_CLICK);
       do {
         manage_heater();
         manage_inactivity();
@@ -2853,7 +2856,7 @@ void process_commands()
         st_synchronize();
       } while(!lcd_clicked());
       
-      LCD_MESSAGEPGM("Printing...");
+      LCD_MESSAGEPGM(MSG_PRINTING);
       lcd_update();
 
       current_position[E_AXIS]=lastpos[E_AXIS];

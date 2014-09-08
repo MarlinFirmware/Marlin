@@ -284,7 +284,7 @@ static void lcd_return_to_status()
 
 static void lcd_sdcard_pause()
 {
-    LCD_MESSAGEPGM("Pausing...");
+    LCD_MESSAGEPGM(MSG_PAUSING);
     
     stop_buffer = true;
     stop_buffer_code = 1;
@@ -292,19 +292,6 @@ static void lcd_sdcard_pause()
 
     lcd_return_to_status();
 }
-
-///////////////////////////////////////////
-
-// #ifdef FILAMENTCHANGEENABLE //
-//     LCD_MESSAGEPGM("Pausing...");
-//     stop_buffering = true;
-//     lcd_return_to_status();
-// #else
-//     card.pauseSDPrint();
-// #endif // FILAMENTCHANGEENABLE
-// }
-
-////////////////////////////////////////////
 
 static void lcd_sdcard_resume()
 {
@@ -315,18 +302,6 @@ static void lcd_sdcard_resume()
 
     lcd_return_to_status();
 }
-
-////////////////////////////////////////////
-
-// #ifdef FILAMENTCHANGEENABLE
-//     stop_buffering = false;
-//     lcd_return_to_status();
-// #else
-//     card.startFileprint();
-// #endif
-// }
-
-/////////////////////////////////////////////
 
 static void lcd_sdcard_stop()
 {
@@ -348,11 +323,13 @@ static void lcd_sdcard_stop()
     autotempShutdown();
 
     cancel_heatup = true;
+
+    LCD_MESSAGEPGM(WELCOME_MSG);
 }
 
 static void lcd_change_filament()
 {
-    LCD_MESSAGEPGM("Pausing...");
+    LCD_MESSAGEPGM(MSG_PAUSING);
 
     stop_buffer = true;
     stop_buffer_code = 2;
