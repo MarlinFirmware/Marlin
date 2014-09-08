@@ -285,6 +285,7 @@ static void lcd_return_to_status()
 static void lcd_sdcard_pause()
 {
     LCD_MESSAGEPGM(MSG_PAUSING);
+    lcd_update();
     
     stop_buffer = true;
     stop_buffer_code = 1;
@@ -295,8 +296,6 @@ static void lcd_sdcard_pause()
 
 static void lcd_sdcard_resume()
 {
-    LCD_MESSAGEPGM("Resuming...");
-
     stop_buffer = false;
     card.startFileprint();
 
@@ -325,11 +324,15 @@ static void lcd_sdcard_stop()
     cancel_heatup = true;
 
     LCD_MESSAGEPGM(WELCOME_MSG);
+    lcd_update();
+
+    lcd_return_to_status();
 }
 
 static void lcd_change_filament()
 {
     LCD_MESSAGEPGM(MSG_PAUSING);
+    lcd_update();
 
     stop_buffer = true;
     stop_buffer_code = 2;
@@ -360,10 +363,10 @@ static void lcd_main_menu()
         {
             if (card.sdprinting)
                 MENU_ITEM(function, MSG_PAUSE_PRINT, lcd_sdcard_pause);
-	    else
+            else
                 MENU_ITEM(function, MSG_RESUME_PRINT, lcd_sdcard_resume);
             MENU_ITEM(function, MSG_STOP_PRINT, lcd_sdcard_stop);
-        }else{
+        } else {
             MENU_ITEM(submenu, MSG_CARD_MENU, lcd_sdcard_menu);
 #if SDCARDDETECT < 1
             MENU_ITEM(gcode, MSG_CNG_SDCARD, PSTR("M21"));  // SD-card changed by user
@@ -1879,6 +1882,11 @@ bool lcd_clicked()
   return LCD_CLICKED;
 }
 #endif//ULTIPANEL
+
+void lcd_show_status()
+{
+    lcd_status_screen();
+}
 
 /********************************/
 /** Float conversion utilities **/

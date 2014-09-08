@@ -1729,6 +1729,7 @@ void process_commands()
       st_synchronize();
 
       LCD_MESSAGEPGM(MSG_PAUSED);
+      lcd_show_status();
       lcd_update();
 
       while(!lcd_clicked()){
@@ -1748,6 +1749,7 @@ void process_commands()
       stop_buffer = false;
 
       LCD_MESSAGEPGM(MSG_PRINTING);
+      lcd_show_status();
       lcd_update();
       break;
 
@@ -2025,28 +2027,32 @@ void process_commands()
 	    #endif
 	    codenum = millis();
 	  }
-	  manage_heater();
-	  manage_inactivity();
-	  lcd_update();
-	#ifdef TEMP_RESIDENCY_TIME
-	    /* start/restart the TEMP_RESIDENCY_TIME timer whenever we reach target temp for the first time
-	      or when current temp falls outside the hysteresis after target temp was reached */
-	  if ((residencyStart == -1 &&  target_direction && (degHotend(tmp_extruder) >= (degTargetHotend(tmp_extruder)-TEMP_WINDOW))) ||
-	      (residencyStart == -1 && !target_direction && (degHotend(tmp_extruder) <= (degTargetHotend(tmp_extruder)+TEMP_WINDOW))) ||
-	      (residencyStart > -1 && labs(degHotend(tmp_extruder) - degTargetHotend(tmp_extruder)) > TEMP_HYSTERESIS) )
-	  {
-	    residencyStart = millis();
-	  }
-	#endif //TEMP_RESIDENCY_TIME
-	}
-	LCD_MESSAGEPGM(MSG_HEATING_COMPLETE);
-	starttime=millis();
-	previous_millis_cmd = millis();
+      manage_heater();
+      manage_inactivity();
+      lcd_update();
+#ifdef TEMP_RESIDENCY_TIME
+          /* start/restart the TEMP_RESIDENCY_TIME timer whenever we reach target temp for the first time
+          or when current temp falls outside the hysteresis after target temp was reached */
+          if ((residencyStart == -1 &&  target_direction && (degHotend(tmp_extruder) >= (degTargetHotend(tmp_extruder)-TEMP_WINDOW))) ||
+          (residencyStart == -1 && !target_direction && (degHotend(tmp_extruder) <= (degTargetHotend(tmp_extruder)+TEMP_WINDOW))) ||
+          (residencyStart > -1 && labs(degHotend(tmp_extruder) - degTargetHotend(tmp_extruder)) > TEMP_HYSTERESIS) )
+          {
+            residencyStart = millis();
+          }
+#endif //TEMP_RESIDENCY_TIME
+        }
+        LCD_MESSAGEPGM(MSG_HEATING_COMPLETE);
+        starttime=millis();
+        previous_millis_cmd = millis();
       }
 
-      if (card.sdprinting == true)
+      if (card.sdprinting == true){
         LCD_MESSAGEPGM(MSG_PRINTING);
+        lcd_update();
+      }
+
       break;
+
     case 190: // M190 - Wait for bed heater to reach target.
     #if defined(TEMP_BED_PIN) && TEMP_BED_PIN > -1
 	LCD_MESSAGEPGM(MSG_BED_HEATING);
@@ -2840,6 +2846,8 @@ void process_commands()
       delay(100);
       
       LCD_MESSAGEPGM(MSG_UNLOAD_CLICK);
+      lcd_update();
+      lcd_show_status();
       while (!lcd_clicked()) {
         manage_heater();
         manage_inactivity();
@@ -2847,6 +2855,8 @@ void process_commands()
       }
 
       LCD_MESSAGEPGM(MSG_LOAD_CLICK);
+      lcd_update();
+      lcd_show_status();
       do {
         manage_heater();
         manage_inactivity();
@@ -2858,6 +2868,7 @@ void process_commands()
       
       LCD_MESSAGEPGM(MSG_PRINTING);
       lcd_update();
+      lcd_show_status();
 
       current_position[E_AXIS]=lastpos[E_AXIS];
       plan_set_e_position(current_position[E_AXIS]);

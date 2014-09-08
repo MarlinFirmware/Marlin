@@ -11,6 +11,7 @@
   void lcd_setstatuspgm(const char* message);
   void lcd_setalertstatuspgm(const char* message);
   void lcd_reset_alert_level();
+  void lcd_show_status();
 
 //WITBOX->
 #ifdef WITBOX
