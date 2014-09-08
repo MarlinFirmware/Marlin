@@ -1953,38 +1953,41 @@ void process_commands()
 	SERIAL_PROTOCOLLN("");
       return;
       break;
+
+
     case 109:
     {// M109 - Wait for extruder heater to reach target.
       if(setTargetedHotend(109)){
-	break;
+        break;
       }
       LCD_MESSAGEPGM(MSG_HEATING);
+      lcd_update();
       #ifdef AUTOTEMP
-	autotemp_enabled=false;
+      autotemp_enabled=false;
       #endif
       if (code_seen('S')) {
-	setTargetHotend(code_value(), tmp_extruder);
-#ifdef DUAL_X_CARRIAGE
-	if (dual_x_carriage_mode == DXC_DUPLICATION_MODE && tmp_extruder == 0)
-	  setTargetHotend1(code_value() == 0.0 ? 0.0 : code_value() + duplicate_extruder_temp_offset);
-#endif
-	CooldownNoWait = true;
+        setTargetHotend(code_value(), tmp_extruder);
+        #ifdef DUAL_X_CARRIAGE
+        if (dual_x_carriage_mode == DXC_DUPLICATION_MODE && tmp_extruder == 0)
+          setTargetHotend1(code_value() == 0.0 ? 0.0 : code_value() + duplicate_extruder_temp_offset);
+        #endif
+        CooldownNoWait = true;
       } else if (code_seen('R')) {
-	setTargetHotend(code_value(), tmp_extruder);
-#ifdef DUAL_X_CARRIAGE
-	if (dual_x_carriage_mode == DXC_DUPLICATION_MODE && tmp_extruder == 0)
-	  setTargetHotend1(code_value() == 0.0 ? 0.0 : code_value() + duplicate_extruder_temp_offset);
-#endif
-	CooldownNoWait = false;
+        setTargetHotend(code_value(), tmp_extruder);
+        #ifdef DUAL_X_CARRIAGE
+        if (dual_x_carriage_mode == DXC_DUPLICATION_MODE && tmp_extruder == 0)
+          setTargetHotend1(code_value() == 0.0 ? 0.0 : code_value() + duplicate_extruder_temp_offset);
+        #endif
+        CooldownNoWait = false;
       }
+
       #ifdef AUTOTEMP
-	if (code_seen('S')) autotemp_min=code_value();
-	if (code_seen('B')) autotemp_max=code_value();
-	if (code_seen('F'))
-	{
-	  autotemp_factor=code_value();
-	  autotemp_enabled=true;
-	}
+      if (code_seen('S')) autotemp_min=code_value();
+      if (code_seen('B')) autotemp_max=code_value();
+      if (code_seen('F')) {
+        autotemp_factor=code_value();
+        autotemp_enabled=true;
+      }
       #endif
 
       setWatch();
@@ -2137,7 +2140,8 @@ void process_commands()
     #endif
 
     #if defined(PS_ON_PIN) && PS_ON_PIN > -1
-      case 80: // M80 - Turn on Power Supply
+  
+  case 80: // M80 - Turn on Power Supply
 	SET_OUTPUT(PS_ON_PIN); //GND
 	WRITE(PS_ON_PIN, PS_ON_AWAKE);
 
@@ -2246,12 +2250,16 @@ void process_commands()
     case 115: // M115
       SERIAL_PROTOCOLPGM(MSG_M115_REPORT);
       break;
+
     case 117: // M117 display message
+      #ifdef GCODE_MESSAGES_ENABLE
       starpos = (strchr(strchr_pointer + 5,'*'));
       if(starpos!=NULL)
-	*(starpos-1)='\0';
+        *(starpos-1)='\0';
       lcd_setstatus(strchr_pointer + 5);
+      #endif // GCODE_MESSAGES_ENABLE
       break;
+
     case 114: // M114
       SERIAL_PROTOCOLPGM("X:");
       SERIAL_PROTOCOL(current_position[X_AXIS]);
