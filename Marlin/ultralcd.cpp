@@ -1649,11 +1649,13 @@ void lcd_update()
         {
             card.initsd();
             LCD_MESSAGEPGM(MSG_SD_INSERTED);
+	    lcd_update();
         }
         else
         {
             card.release();
             LCD_MESSAGEPGM(MSG_SD_REMOVED);
+	    lcd_update();
         }
     }
     #endif//CARDINSERTED

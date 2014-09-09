@@ -664,6 +664,7 @@ void get_command()
 							} else {
 								SERIAL_ERRORLNPGM(MSG_ERR_STOPPED);
 								LCD_MESSAGEPGM(MSG_STOPPED);
+								lcd_update();
 							}
 		    					break;
 						default:
@@ -1203,6 +1204,7 @@ void process_commands()
 			}
     case 4: // G4 dwell
       LCD_MESSAGEPGM(MSG_DWELL);
+      lcd_update();
       codenum = 0;
       if(code_seen('P')) codenum = code_value(); // milliseconds to wait
       if(code_seen('S')) codenum = code_value() * 1000; // seconds to wait
@@ -1639,6 +1641,7 @@ void process_commands()
     case 1: // M1 - Conditional stop - Wait for user button press on LCD
     {
       LCD_MESSAGEPGM(MSG_USERWAIT);
+      lcd_update();
       codenum = 0;
       if(code_seen('P')) codenum = code_value(); // milliseconds to wait
       if(code_seen('S')) codenum = code_value() * 1000; // seconds to wait
@@ -1660,11 +1663,13 @@ void process_commands()
         }
       }
       LCD_MESSAGEPGM(MSG_RESUMING);
+      lcd_update();
     }
     break;
 #endif
     case 17:
 	LCD_MESSAGEPGM(MSG_NO_MOVE);
+	lcd_update();
 	enable_x();
 	enable_y();
 	enable_z();
@@ -1960,6 +1965,7 @@ void process_commands()
       if(setTargetedHotend(109)){
         break;
       }
+      lcd_update();
       LCD_MESSAGEPGM(MSG_HEATING);
       lcd_update();
       #ifdef AUTOTEMP
@@ -2045,6 +2051,7 @@ void process_commands()
 #endif //TEMP_RESIDENCY_TIME
         }
         LCD_MESSAGEPGM(MSG_HEATING_COMPLETE);
+	lcd_update();
         starttime=millis();
         previous_millis_cmd = millis();
       }
@@ -3727,6 +3734,7 @@ void Stop()
     SERIAL_ERROR_START;
     SERIAL_ERRORLNPGM(MSG_ERR_STOPPED);
     LCD_MESSAGEPGM(MSG_STOPPED);
+    lcd_update();
   }
 }
 
