@@ -2862,6 +2862,8 @@ void process_commands()
         lcd_update();
       }
 
+      lcd_show_status();
+      lcd_update();
       LCD_MESSAGEPGM(MSG_LOAD_CLICK);
       lcd_update();
       lcd_show_status();
@@ -2874,6 +2876,8 @@ void process_commands()
         st_synchronize();
       } while(!lcd_clicked());
       
+      lcd_show_status();
+      lcd_update();
       LCD_MESSAGEPGM(MSG_PRINTING);
       lcd_update();
       lcd_show_status();
