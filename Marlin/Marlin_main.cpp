@@ -1662,7 +1662,7 @@ void process_commands()
       	  lcd_update();
         }
       }
-      LCD_MESSAGEPGM(MSG_RESUMING);
+      LCD_MESSAGEPGM(MSG_PRINTING);
       lcd_update();
     }
     break;
