@@ -313,7 +313,7 @@ static void lcd_sdcard_stop()
 #endif
 
     quickStop();
-    plan_buffer_line(X_MAX_POS-15, Y_MAX_POS-15, Z_MAX_POS-15, 0, manual_feedrate[X_AXIS]/60, active_extruder);
+    plan_buffer_line(X_MAX_POS-15, Y_MAX_POS-15, Z_MAX_POS-15, current_position[E_AXIS], manual_feedrate[X_AXIS]/60, active_extruder);
 
     if(SD_FINISHED_STEPPERRELEASE)
     {
