@@ -319,6 +319,7 @@ bool cancel_heatup = false ;
 const char axis_codes[NUM_AXIS] = {'X', 'Y', 'Z', 'E'};
 static float destination[NUM_AXIS] = {  0.0, 0.0, 0.0, 0.0};
 
+#ifndef DELTA
 static float delta[3] = {0.0, 0.0, 0.0};
 #endif
 
