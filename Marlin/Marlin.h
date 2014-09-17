@@ -218,7 +218,6 @@ void recalc_delta_settings(float radius, float diagonal_rod);
 extern float min_pos[3];
 extern float max_pos[3];
 extern bool axis_known_position[3];
-extern float lastpos[4];
 extern float zprobe_zoffset;
 extern int fanSpeed;
 #ifdef BARICUDA
