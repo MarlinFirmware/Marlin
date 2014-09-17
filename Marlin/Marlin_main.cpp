@@ -78,6 +78,8 @@
 // G28 - Home all Axis
 // G29 - Detailed Z-Probe, probes the bed at 3 or more points.  Will fail if you haven't homed yet.
 // G30 - Single Z Probe, probes bed at current XY location.
+// G60 - Memory actual position
+// G61 - Move X Y Z to position in memory
 // G90 - Use Absolute Coordinates
 // G91 - Use Relative Coordinates
 // G92 - Set current position to coordinates given
@@ -215,6 +217,7 @@ float endstop_adj[3]={0,0,0};
 float min_pos[3] = { X_MIN_POS, Y_MIN_POS, Z_MIN_POS };
 float max_pos[3] = { X_MAX_POS, Y_MAX_POS, Z_MAX_POS };
 bool axis_known_position[3] = {false, false, false};
+float lastpos[4];
 float zprobe_zoffset;
 
 // Extruder offset
@@ -1607,6 +1610,44 @@ void process_commands()
         }
         break;
 #endif // ENABLE_AUTO_BED_LEVELING
+      case 60: // G60 Memory actual position
+        lastpos[X_AXIS]=current_position[X_AXIS];
+        lastpos[Y_AXIS]=current_position[Y_AXIS];
+        lastpos[Z_AXIS]=current_position[Z_AXIS];
+        lastpos[E_AXIS]=current_position[E_AXIS];
+        //SERIAL_ECHOPAIR(" Lastpos X: ", lastpos[X_AXIS]);
+        //SERIAL_ECHOPAIR(" Lastpos Y: ", lastpos[Y_AXIS]);
+        //SERIAL_ECHOPAIR(" Lastpos Z: ", lastpos[Z_AXIS]);
+        //SERIAL_ECHOPAIR(" Lastpos E: ", lastpos[E_AXIS]);
+        //SERIAL_ECHOLN("");
+      break;
+      case 61: // G61 move to X Y Z in memory
+      {
+        for(int8_t i=0; i < NUM_AXIS; i++) {
+          if(code_seen(axis_codes[i]))
+          {
+            destination[i] = lastpos[i];
+          }
+          else
+          {
+            destination[i] = current_position[i];
+          }
+        }
+        //SERIAL_ECHOPAIR(" Move to X: ", destination[X_AXIS]);
+        //SERIAL_ECHOPAIR(" Move to Y: ", destination[Y_AXIS]);
+        //SERIAL_ECHOPAIR(" Move to Z: ", destination[Z_AXIS]);
+        //SERIAL_ECHOPAIR(" Move to E: ", destination[E_AXIS]);
+        //SERIAL_ECHOLN("");
+
+        if(code_seen('F')) {
+          next_feedrate = code_value();
+          if(next_feedrate > 0.0) feedrate = next_feedrate;
+        }
+
+        //finish moves
+        prepare_move();
+      }
+      break;
     case 90: // G90
       relative_mode = false;
       break;
@@ -2779,7 +2820,6 @@ void process_commands()
     case 600: //Pause for filament change X[pos] Y[pos] Z[relative lift] E[initial retract] L[later retract distance for removal]
     {
         float target[4];
-        float lastpos[4];
         target[X_AXIS]=current_position[X_AXIS];
         target[Y_AXIS]=current_position[Y_AXIS];
         target[Z_AXIS]=current_position[Z_AXIS];
