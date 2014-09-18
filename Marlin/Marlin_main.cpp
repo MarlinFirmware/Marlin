@@ -1035,10 +1035,14 @@ static float probe_pt(float x, float y, float z_before) {
   do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], z_before);
   do_blocking_move_to(x - X_PROBE_OFFSET_FROM_EXTRUDER, y - Y_PROBE_OFFSET_FROM_EXTRUDER, current_position[Z_AXIS]);
 
-  engage_z_probe();   // Engage Z Servo endstop if available
+#ifndef AUTO_BED_LEVELING_GRID
+	engage_z_probe();   // Engage Z Servo endstop if available
+#endif
   run_z_probe();
   float measured_z = current_position[Z_AXIS];
-  retract_z_probe();
+#ifndef AUTO_BED_LEVELING_GRID	
+	retract_z_probe();
+#endif
 
   SERIAL_PROTOCOLPGM(MSG_BED);
   SERIAL_PROTOCOLPGM(" x: ");
@@ -1565,6 +1569,8 @@ void process_commands()
 
             int probePointCounter = 0;
             bool zig = true;
+            
+            engage_z_probe();
 
             for (int yProbe=f_probe_bed_position; yProbe <= b_probe_bed_position; yProbe += yGridSpacing)
             {
@@ -1607,6 +1613,9 @@ void process_commands()
                 xProbe += xInc;
               }
             }
+            
+            retract_z_probe();
+            
             clean_up_after_endstop_move();
 
             // solve lsq problem
