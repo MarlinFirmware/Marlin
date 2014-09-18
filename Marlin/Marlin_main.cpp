@@ -1965,7 +1965,6 @@ void process_commands()
       if(setTargetedHotend(109)){
         break;
       }
-      lcd_update();
       LCD_MESSAGEPGM(MSG_HEATING);
       lcd_update();
       #ifdef AUTOTEMP
