@@ -386,7 +386,7 @@ static void lcd_main_menu()
        #ifdef FILAMENTCHANGEENABLE
         MENU_ITEM(function, MSG_FILAMENTCHANGE, lcd_change_filament);
        #endif
-       MENU_ITEM_EDIT(int3, MSG_NOZZLE, &target_temperature[0], 0, HEATER_0_MAXTEMP - 10);
+       MENU_ITEM_EDIT(int3, MSG_NOZZLE, &target_temperature[0], 160, HEATER_0_MAXTEMP - 10);
        MENU_ITEM(submenu, MSG_SPEED, lcd_speed_printing);
        
     }
