@@ -1268,7 +1268,7 @@ void refresh_cmd_timeout(void)
   } //retract
 #endif //FWRETRACT
 
-#ifdef ENABLE_AUTO_BED_LEVELING
+#ifdef Z_PROBE_SLED
 //
 // Method to dock/undock a sled designed by Charles Bell.
 //
