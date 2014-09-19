@@ -1519,6 +1519,7 @@ static void menu_action_sdfile(const char* filename, char* longFilename)
     char* c;
     sprintf_P(cmd, PSTR("M23 %s"), filename);
 
+    enquecommand_P(PSTR("M104 S200"));
     enquecommand_P(PSTR("G28"));
     enquecommand_P(PSTR("G1 Z10"));
 
