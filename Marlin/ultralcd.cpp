@@ -1515,11 +1515,11 @@ static void menu_action_function(menuFunc_t data)
 }
 static void menu_action_sdfile(const char* filename, char* longFilename)
 {
+    setTargetHotend0(200);
     char cmd[30];
     char* c;
     sprintf_P(cmd, PSTR("M23 %s"), filename);
 
-    enquecommand_P(PSTR("M104 S200"));
     enquecommand_P(PSTR("G28"));
     enquecommand_P(PSTR("G1 Z10"));
 
