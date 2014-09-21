@@ -216,6 +216,9 @@ float volumetric_multiplier[EXTRUDERS] = {1.0
     , 1.0
     #if EXTRUDERS > 2
       , 1.0
+      #if EXTRUDERS > 3
+        , 1.0
+      #endif
     #endif
   #endif
 };
