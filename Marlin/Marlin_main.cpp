@@ -2860,15 +2860,15 @@ void process_commands()
         lcd_update();
       }
 
-      target[E_AXIS] += 10.0;
-      plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], 300/60, active_extruder);
-      st_synchronize(); 
-
       lcd_show_status();
       lcd_update();
       LCD_MESSAGEPGM(MSG_UNLOAD_CLICK);
       lcd_update();
       lcd_show_status();
+
+      target[E_AXIS] += 10.0;
+      plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], 300/60, active_extruder);
+      st_synchronize();
 
       if(code_seen('L')) {
         target[E_AXIS] += code_value();
