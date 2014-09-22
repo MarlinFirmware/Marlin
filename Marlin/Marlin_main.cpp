@@ -2860,6 +2860,10 @@ void process_commands()
         lcd_update();
       }
 
+      target[E_AXIS] += 10.0;
+      plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], 300/60, active_extruder);
+      st_synchronize(); 
+
       lcd_show_status();
       lcd_update();
       LCD_MESSAGEPGM(MSG_UNLOAD_CLICK);
@@ -2873,7 +2877,7 @@ void process_commands()
         target[E_AXIS]+= FILAMENTCHANGE_FINALRETRACT;
         #endif // FILAMENTCHANGE_FINALRETRACT
       }
-      plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], feedrate/60, active_extruder);
+      plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], 300/60, active_extruder);
 
       st_synchronize();
 
@@ -2896,7 +2900,7 @@ void process_commands()
         manage_heater();
         lcd_update();
         current_position[E_AXIS]+=0.04;
-        plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS],current_position[E_AXIS], 300/60, active_extruder);
+        plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS],current_position[E_AXIS], feedrate/60, active_extruder);
         st_synchronize();
       } while(!lcd_clicked());
       
