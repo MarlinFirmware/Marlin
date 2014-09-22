@@ -50,6 +50,9 @@ extern bool powersupply;
 static void lcd_main_menu();
 static void lcd_tune_menu();
 static void lcd_prepare_menu();
+#ifdef ENABLE_FIRMWARE_ADJUST_Z0
+static void lcd_adjust_z0_menu();
+#endif
 static void lcd_move_menu();
 static void lcd_control_menu();
 static void lcd_control_temperature_menu();
@@ -172,6 +175,12 @@ const char* editLabel;
 void* editValue;
 int32_t minEditValue, maxEditValue;
 menuFunc_t callbackFunc;
+static unsigned long timeoutToStatus = 0;
+
+static void prevent_lcd_timeout()
+{
+timeoutToStatus = millis() + LCD_TIMEOUT_TO_STATUS;
+}
 
 // place-holders for Ki and Kd edits
 float raw_Ki, raw_Kd;
@@ -567,6 +576,10 @@ static void lcd_prepare_menu()
     MENU_ITEM(gcode, MSG_DISABLE_STEPPERS, PSTR("M84"));
     MENU_ITEM(gcode, MSG_AUTO_HOME, PSTR("G28"));
     //MENU_ITEM(gcode, MSG_SET_ORIGIN, PSTR("G92 X0 Y0 Z0"));
+#ifdef ENABLE_FIRMWARE_ADJUST_Z0
+    MENU_ITEM(submenu, MSG_ADJUST_Z0, lcd_adjust_z0_menu);
+#endif
+
 #if TEMP_SENSOR_0 != 0
   #if TEMP_SENSOR_1 != 0 || TEMP_SENSOR_2 != 0 || TEMP_SENSOR_BED != 0
     MENU_ITEM(submenu, MSG_PREHEAT_PLA, lcd_preheat_pla_menu);
@@ -654,12 +667,18 @@ static void lcd_move_y()
 }
 static void lcd_move_z()
 {
+prevent_lcd_timeout();
+
     if (encoderPosition != 0)
     {
         refresh_cmd_timeout();
         current_position[Z_AXIS] += float((int)encoderPosition) * move_menu_scale;
-        if (min_software_endstops && current_position[Z_AXIS] < Z_MIN_POS)
-            current_position[Z_AXIS] = Z_MIN_POS;
+        if (min_software_endstops)
+           {
+           float minZ = min_pos[Z_AXIS]-Z_MAX_TRAVEL_PAST_ENDSTOP_MM;
+           if(current_position[Z_AXIS] < minZ)
+              current_position[Z_AXIS] = minZ;
+           }
         if (max_software_endstops && current_position[Z_AXIS] > Z_MAX_POS)
             current_position[Z_AXIS] = Z_MAX_POS;
         encoderPosition = 0;
@@ -673,7 +692,7 @@ static void lcd_move_z()
     }
     if (lcdDrawUpdate)
     {
-        lcd_implementation_drawedit(PSTR("Z"), ftostr31(current_position[Z_AXIS]));
+        lcd_implementation_drawedit(PSTR("Z"), ftostr32(current_position[Z_AXIS]));
     }
     if (LCD_CLICKED)
     {
@@ -707,6 +726,90 @@ static void lcd_move_e()
         encoderPosition = 0;
     }
 }
+
+#ifdef ENABLE_FIRMWARE_ADJUST_Z0
+
+enum lcd_bed_level_corner
+{
+kFrontLeft,
+kBackLeft,
+kBackRight,
+kFrontRight
+};
+
+
+static void lcd_move_to_next_corner()
+{
+static lcd_bed_level_corner corner = kBackLeft;
+float x,y;
+switch(corner)
+    {
+    case kFrontLeft:
+        x = X_MIN_POS+INSET_FROM_MAXMIN;
+        y = Y_MIN_POS+INSET_FROM_MAXMIN;
+        break;
+    case kBackLeft:
+        x = X_MIN_POS+INSET_FROM_MAXMIN;
+        y = Y_MAX_POS-INSET_FROM_MAXMIN;
+        break;
+    case kBackRight:
+        x = X_MAX_POS-INSET_FROM_MAXMIN;
+        y = Y_MAX_POS-INSET_FROM_MAXMIN;
+        break;
+    case kFrontRight:
+        x = X_MAX_POS-INSET_FROM_MAXMIN;
+        y = Y_MIN_POS+INSET_FROM_MAXMIN;
+        break;  
+    }
+blocking_raised_move_to(x,y);
+corner = lcd_bed_level_corner((corner + 1) & 3);
+}
+
+static void lcd_move_to_center()
+{
+    blocking_raised_move_to((X_MAX_POS+X_MIN_POS)/2,(Y_MAX_POS+Y_MIN_POS)/2);	
+}
+
+static void lcd_move_z_fine()
+{
+   move_menu_scale = 0.02;
+   lcd_move_z();
+   if(currentMenu == lcd_move_menu_axis)
+      currentMenu = lcd_adjust_z0_menu;
+
+}
+
+
+//Set the current position to be Z0, by adjusting homeing[Z_AXIS] in a similar fashion to M206 Znn
+static void lcd_set_z0_here()
+{
+   add_homeing[Z_AXIS] -= current_position[Z_AXIS];
+   current_position[Z_AXIS] = 0;
+   plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+}
+
+
+static void lcd_adjust_z0_menu()
+{
+
+    START_MENU();
+    MENU_ITEM(back, MSG_PREPARE, lcd_prepare_menu);
+    MENU_ITEM(function, MSG_MOVE_TO_CENTER, lcd_move_to_center);
+    MENU_ITEM(function, MSG_MOVE_TO_NEXT_CORNER, lcd_move_to_next_corner);
+    MENU_ITEM(gcode, MSG_MOVE_TO_Z0, PSTR("G1 Z0"));
+    MENU_ITEM(submenu, MSG_MOVE_Z, lcd_move_z_fine);
+    MENU_ITEM(function, MSG_SET_Z0_HERE, lcd_set_z0_here);
+    #ifdef EEPROM_SETTINGS
+    MENU_ITEM(function, MSG_STORE_EPROM, Config_StoreSettings);
+    #endif
+    END_MENU();
+
+    if(currentMenu == lcd_adjust_z0_menu)
+       prevent_lcd_timeout();
+}
+
+#endif
+
 
 static void lcd_move_menu_axis()
 {
@@ -1186,10 +1289,9 @@ void lcd_init()
 #endif
 }
 
+
 void lcd_update()
 {
-    static unsigned long timeoutToStatus = 0;
-
     #ifdef LCD_HAS_SLOW_BUTTONS
     slow_buttons = lcd_implementation_read_slow_buttons(); // buttons which take too long to read in interrupt context
     #endif
@@ -1247,10 +1349,10 @@ void lcd_update()
             lcdDrawUpdate = 1;
             encoderPosition += encoderDiff / ENCODER_PULSES_PER_STEP;
             encoderDiff = 0;
-            timeoutToStatus = millis() + LCD_TIMEOUT_TO_STATUS;
+            prevent_lcd_timeout();
         }
         if (LCD_CLICKED)
-            timeoutToStatus = millis() + LCD_TIMEOUT_TO_STATUS;
+            prevent_lcd_timeout();
 #endif//ULTIPANEL
 
 #ifdef DOGLCD        // Changes due to different driver architecture of the DOGM display
@@ -1275,7 +1377,7 @@ void lcd_update()
 #endif
 
 #ifdef ULTIPANEL
-        if(timeoutToStatus < millis() && currentMenu != lcd_status_screen)
+        if((long)timeoutToStatus - (long)millis() < 0 && currentMenu != lcd_status_screen) //subtract and use a signed 2s complement comparison to avoid wrap around issues.
         {
             lcd_return_to_status();
             lcdDrawUpdate = 2;

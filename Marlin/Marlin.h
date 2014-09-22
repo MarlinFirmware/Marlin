@@ -254,4 +254,8 @@ extern void digipot_i2c_set_current( int channel, float current );
 extern void digipot_i2c_init();
 #endif
 
+#ifdef ENABLE_MANUAL_BED_LEVELING
+extern void blocking_raised_move_to(float x, float y);
+#endif
+
 #endif

@@ -1,0 +1,359 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectVersion>6.2</ProjectVersion>
+    <ToolchainName>com.Atmel.AVRGCC8.CPP</ToolchainName>
+    <ProjectGuid>{8df72487-a36c-466f-a4ff-020a1e9015a6}</ProjectGuid>
+    <avrdevice>ATmega2560</avrdevice>
+    <avrdeviceseries>none</avrdeviceseries>
+    <OutputType>Executable</OutputType>
+    <Language>CPP</Language>
+    <OutputFileName>$(MSBuildProjectName)</OutputFileName>
+    <OutputFileExtension>.elf</OutputFileExtension>
+    <OutputDirectory>$(MSBuildProjectDirectory)\$(Configuration)</OutputDirectory>
+    <AssemblyName>MarlinAS</AssemblyName>
+    <Name>MarlinAS</Name>
+    <RootNamespace>MarlinAS</RootNamespace>
+    <ToolchainFlavour>Native</ToolchainFlavour>
+    <KeepTimersRunning>true</KeepTimersRunning>
+    <OverrideVtor>false</OverrideVtor>
+    <CacheFlash>true</CacheFlash>
+    <ProgFlashFromRam>true</ProgFlashFromRam>
+    <RamSnippetAddress />
+    <UncachedRange />
+    <OverrideVtorValue />
+    <BootSegment>2</BootSegment>
+    <eraseonlaunchrule>1</eraseonlaunchrule>
+    <AsfFrameworkConfig>
+      <framework-data xmlns="">
+        <options />
+        <configurations />
+        <files />
+        <documentation help="" />
+        <offline-documentation help="" />
+        <dependencies>
+          <content-extension eid="atmel.asf" uuidref="Atmel.ASF" version="3.15.0" />
+        </dependencies>
+      </framework-data>
+    </AsfFrameworkConfig>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <ToolchainSettings>
+      <AvrGccCpp>
+  <avrgcc.common.optimization.RelaxBranches>True</avrgcc.common.optimization.RelaxBranches>
+  <avrgcc.common.outputfiles.hex>True</avrgcc.common.outputfiles.hex>
+  <avrgcc.common.outputfiles.lss>True</avrgcc.common.outputfiles.lss>
+  <avrgcc.common.outputfiles.eep>True</avrgcc.common.outputfiles.eep>
+  <avrgcc.common.outputfiles.srec>True</avrgcc.common.outputfiles.srec>
+  <avrgcc.common.outputfiles.usersignatures>False</avrgcc.common.outputfiles.usersignatures>
+  <avrgcc.compiler.general.ChangeDefaultCharTypeUnsigned>True</avrgcc.compiler.general.ChangeDefaultCharTypeUnsigned>
+  <avrgcc.compiler.general.ChangeDefaultBitFieldUnsigned>True</avrgcc.compiler.general.ChangeDefaultBitFieldUnsigned>
+  <avrgcc.compiler.optimization.PackStructureMembers>True</avrgcc.compiler.optimization.PackStructureMembers>
+  <avrgcc.compiler.optimization.AllocateBytesNeededForEnum>True</avrgcc.compiler.optimization.AllocateBytesNeededForEnum>
+  <avrgcc.compiler.warnings.AllWarnings>True</avrgcc.compiler.warnings.AllWarnings>
+  <avrgcccpp.compiler.general.ChangeDefaultCharTypeUnsigned>True</avrgcccpp.compiler.general.ChangeDefaultCharTypeUnsigned>
+  <avrgcccpp.compiler.general.ChangeDefaultBitFieldUnsigned>True</avrgcccpp.compiler.general.ChangeDefaultBitFieldUnsigned>
+  <avrgcccpp.compiler.symbols.DefSymbols><ListValues>
+  <Value>F_CPU=16000000L</Value>
+  <Value>ARDUINO=105</Value>
+  <Value>NDEBUG</Value>
+</ListValues></avrgcccpp.compiler.symbols.DefSymbols>
+  <avrgcccpp.compiler.directories.IncludePaths><ListValues><Value>C:\Program Files (x86)\Arduino\hardware\arduino\cores\arduino</Value><Value>C:\Program Files (x86)\Arduino\hardware\arduino\variants\standard</Value><Value>..\..\ArduinoAddons\Arduino_1.x.x\libraries\LiquidCrystal</Value></ListValues></avrgcccpp.compiler.directories.IncludePaths>
+  <avrgcccpp.compiler.optimization.level>Optimize for size (-Os)</avrgcccpp.compiler.optimization.level>
+  <avrgcccpp.compiler.optimization.OtherFlags>-fdata-sections</avrgcccpp.compiler.optimization.OtherFlags>
+  <avrgcccpp.compiler.optimization.PrepareFunctionsForGarbageCollection>False</avrgcccpp.compiler.optimization.PrepareFunctionsForGarbageCollection>
+  <avrgcccpp.compiler.optimization.PackStructureMembers>True</avrgcccpp.compiler.optimization.PackStructureMembers>
+  <avrgcccpp.compiler.optimization.AllocateBytesNeededForEnum>True</avrgcccpp.compiler.optimization.AllocateBytesNeededForEnum>
+  <avrgcccpp.compiler.warnings.AllWarnings>True</avrgcccpp.compiler.warnings.AllWarnings>
+  <avrgcccpp.compiler.miscellaneous.OtherFlags>-fno-exceptions</avrgcccpp.compiler.miscellaneous.OtherFlags>
+  <avrgcccpp.linker.libraries.Libraries><ListValues><Value>libm</Value><Value>libcore</Value></ListValues></avrgcccpp.linker.libraries.Libraries>
+  <avrgcccpp.linker.libraries.LibrarySearchPaths><ListValues><Value>E:\Users\kitad_000\Documents\Atmel Studio\ArduinoCore105</Value></ListValues></avrgcccpp.linker.libraries.LibrarySearchPaths>
+  <avrgcc.compiler.symbols.DefSymbols><ListValues><Value>NDEBUG</Value></ListValues></avrgcc.compiler.symbols.DefSymbols>
+  <avrgcc.compiler.optimization.level>Optimize for size (-Os)</avrgcc.compiler.optimization.level>
+</AvrGccCpp>
+    </ToolchainSettings>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <ToolchainSettings>
+      <AvrGccCpp>
+  <avrgcc.common.optimization.RelaxBranches>True</avrgcc.common.optimization.RelaxBranches>
+  <avrgcc.common.outputfiles.hex>True</avrgcc.common.outputfiles.hex>
+  <avrgcc.common.outputfiles.lss>True</avrgcc.common.outputfiles.lss>
+  <avrgcc.common.outputfiles.eep>True</avrgcc.common.outputfiles.eep>
+  <avrgcc.common.outputfiles.srec>True</avrgcc.common.outputfiles.srec>
+  <avrgcc.common.outputfiles.usersignatures>False</avrgcc.common.outputfiles.usersignatures>
+  <avrgcc.compiler.general.ChangeDefaultCharTypeUnsigned>True</avrgcc.compiler.general.ChangeDefaultCharTypeUnsigned>
+  <avrgcc.compiler.general.ChangeDefaultBitFieldUnsigned>True</avrgcc.compiler.general.ChangeDefaultBitFieldUnsigned>
+  <avrgcc.compiler.optimization.PackStructureMembers>True</avrgcc.compiler.optimization.PackStructureMembers>
+  <avrgcc.compiler.optimization.AllocateBytesNeededForEnum>True</avrgcc.compiler.optimization.AllocateBytesNeededForEnum>
+  <avrgcc.compiler.warnings.AllWarnings>True</avrgcc.compiler.warnings.AllWarnings>
+  <avrgcccpp.compiler.general.ChangeDefaultCharTypeUnsigned>True</avrgcccpp.compiler.general.ChangeDefaultCharTypeUnsigned>
+  <avrgcccpp.compiler.general.ChangeDefaultBitFieldUnsigned>True</avrgcccpp.compiler.general.ChangeDefaultBitFieldUnsigned>
+  <avrgcccpp.compiler.symbols.DefSymbols><ListValues>
+  <Value>F_CPU=16000000L</Value>
+  <Value>ARDUINO=105</Value>
+  <Value>DEBUG</Value>
+</ListValues></avrgcccpp.compiler.symbols.DefSymbols>
+  <avrgcccpp.compiler.directories.IncludePaths><ListValues><Value>C:\Program Files (x86)\Arduino\hardware\arduino\cores\arduino</Value><Value>C:\Program Files (x86)\Arduino\hardware\arduino\variants\standard</Value><Value>..\..\ArduinoAddons\Arduino_1.x.x\libraries\LiquidCrystal</Value></ListValues></avrgcccpp.compiler.directories.IncludePaths>
+  <avrgcccpp.compiler.optimization.level>Optimize for size (-Os)</avrgcccpp.compiler.optimization.level>
+  <avrgcccpp.compiler.optimization.OtherFlags>-fdata-sections</avrgcccpp.compiler.optimization.OtherFlags>
+  <avrgcccpp.compiler.optimization.PrepareFunctionsForGarbageCollection>False</avrgcccpp.compiler.optimization.PrepareFunctionsForGarbageCollection>
+  <avrgcccpp.compiler.optimization.PackStructureMembers>True</avrgcccpp.compiler.optimization.PackStructureMembers>
+  <avrgcccpp.compiler.optimization.AllocateBytesNeededForEnum>True</avrgcccpp.compiler.optimization.AllocateBytesNeededForEnum>
+  <avrgcccpp.compiler.warnings.AllWarnings>True</avrgcccpp.compiler.warnings.AllWarnings>
+  <avrgcccpp.compiler.miscellaneous.OtherFlags>-fno-exceptions</avrgcccpp.compiler.miscellaneous.OtherFlags>
+  <avrgcccpp.linker.libraries.Libraries><ListValues><Value>libm</Value><Value>libcore</Value></ListValues></avrgcccpp.linker.libraries.Libraries>
+  <avrgcccpp.linker.libraries.LibrarySearchPaths><ListValues><Value>E:\Users\kitad_000\Documents\Atmel Studio\ArduinoCore105</Value></ListValues></avrgcccpp.linker.libraries.LibrarySearchPaths>
+  <avrgcc.compiler.symbols.DefSymbols><ListValues><Value>DEBUG</Value></ListValues></avrgcc.compiler.symbols.DefSymbols>
+  <avrgcc.compiler.optimization.level>Optimize (-O1)</avrgcc.compiler.optimization.level>
+  <avrgcc.compiler.optimization.DebugLevel>Default (-g2)</avrgcc.compiler.optimization.DebugLevel>
+  <avrgcccpp.compiler.optimization.DebugLevel>Default (-g2)</avrgcccpp.compiler.optimization.DebugLevel>
+  <avrgcccpp.assembler.debugging.DebugLevel>Default (-Wa,-g)</avrgcccpp.assembler.debugging.DebugLevel>
+</AvrGccCpp>
+    </ToolchainSettings>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="..\ArduinoAddons\Arduino_1.x.x\libraries\LiquidCrystal\LiquidCrystal.cpp">
+      <SubType>compile</SubType>
+      <Link>Libs\LiquidCrystal.cpp</Link>
+    </Compile>
+    <Compile Include="..\ArduinoAddons\Arduino_1.x.x\libraries\LiquidCrystal\LiquidCrystal.h">
+      <SubType>compile</SubType>
+      <Link>Libs\LiquidCrystal.h</Link>
+    </Compile>
+    <Compile Include="..\Marlin\BlinkM.cpp">
+      <SubType>compile</SubType>
+      <Link>BlinkM.cpp</Link>
+    </Compile>
+    <Compile Include="..\Marlin\BlinkM.h">
+      <SubType>compile</SubType>
+      <Link>Headers\BlinkM.h</Link>
+    </Compile>
+    <Compile Include="..\Marlin\cardreader.cpp">
+      <SubType>compile</SubType>
+      <Link>cardreader.cpp</Link>
+    </Compile>
+    <Compile Include="..\Marlin\cardreader.h">
+      <SubType>compile</SubType>
+      <Link>Headers\cardreader.h</Link>
+    </Compile>
+    <Compile Include="..\Marlin\Configuration.h">
+      <SubType>compile</SubType>
+      <Link>Headers\Configuration.h</Link>
+    </Compile>
+    <Compile Include="..\Marlin\ConfigurationStore.cpp">
+      <SubType>compile</SubType>
+      <Link>ConfigurationStore.cpp</Link>
+    </Compile>
+    <Compile Include="..\Marlin\ConfigurationStore.h">
+      <SubType>compile</SubType>
+      <Link>Headers\ConfigurationStore.h</Link>
+    </Compile>
+    <Compile Include="..\Marlin\Configuration_dist.h">
+      <SubType>compile</SubType>
+      <Link>Headers\Configuration_dist.h</Link>
+    </Compile>
+    <Compile Include="..\Marlin\digipot_mcp4451.cpp">
+      <SubType>compile</SubType>
+      <Link>digipot_mcp4451.cpp</Link>
+    </Compile>
+    <Compile Include="..\Marlin\DOGMbitmaps.h">
+      <SubType>compile</SubType>
+      <Link>Headers\DOGMbitmaps.h</Link>
+    </Compile>
+    <Compile Include="..\Marlin\dogm_font_data_marlin.h">
+      <SubType>compile</SubType>
+      <Link>Headers\dogm_font_data_marlin.h</Link>
+    </Compile>
+    <Compile Include="..\Marlin\dogm_lcd_implementation.h">
+      <SubType>compile</SubType>
+      <Link>Headers\dogm_lcd_implementation.h</Link>
+    </Compile>
+    <Compile Include="..\Marlin\fastio.h">
+      <SubType>compile</SubType>
+      <Link>Headers\fastio.h</Link>
+    </Compile>
+    <Compile Include="..\Marlin\language.h">
+      <SubType>compile</SubType>
+      <Link>Headers\language.h</Link>
+    </Compile>
+    <Compile Include="..\Marlin\LiquidCrystalRus.cpp">
+      <SubType>compile</SubType>
+      <Link>LiquidCrystalRus.cpp</Link>
+    </Compile>
+    <Compile Include="..\Marlin\LiquidCrystalRus.h">
+      <SubType>compile</SubType>
+      <Link>Headers\LiquidCrystalRus.h</Link>
+    </Compile>
+    <Compile Include="..\Marlin\Marlin.h">
+      <SubType>compile</SubType>
+      <Link>Headers\Marlin.h</Link>
+    </Compile>
+    <Compile Include="..\Marlin\MarlinSerial.cpp">
+      <SubType>compile</SubType>
+      <Link>MarlinSerial.cpp</Link>
+    </Compile>
+    <Compile Include="..\Marlin\MarlinSerial.h">
+      <SubType>compile</SubType>
+      <Link>Headers\MarlinSerial.h</Link>
+    </Compile>
+    <Compile Include="..\Marlin\Marlin_main.cpp">
+      <SubType>compile</SubType>
+      <Link>Marlin_main.cpp</Link>
+    </Compile>
+    <Compile Include="..\Marlin\motion_control.cpp">
+      <SubType>compile</SubType>
+      <Link>motion_control.cpp</Link>
+    </Compile>
+    <Compile Include="..\Marlin\motion_control.h">
+      <SubType>compile</SubType>
+      <Link>Headers\motion_control.h</Link>
+    </Compile>
+    <Compile Include="..\Marlin\pins.h">
+      <SubType>compile</SubType>
+      <Link>Headers\pins.h</Link>
+    </Compile>
+    <Compile Include="..\Marlin\planner.cpp">
+      <SubType>compile</SubType>
+      <Link>planner.cpp</Link>
+    </Compile>
+    <Compile Include="..\Marlin\planner.h">
+      <SubType>compile</SubType>
+      <Link>Headers\planner.h</Link>
+    </Compile>
+    <Compile Include="..\Marlin\qr_solve.cpp">
+      <SubType>compile</SubType>
+      <Link>qr_solve.cpp</Link>
+    </Compile>
+    <Compile Include="..\Marlin\qr_solve.h">
+      <SubType>compile</SubType>
+      <Link>Headers\qr_solve.h</Link>
+    </Compile>
+    <Compile Include="..\Marlin\Sd2Card.cpp">
+      <SubType>compile</SubType>
+      <Link>Sd2Card.cpp</Link>
+    </Compile>
+    <Compile Include="..\Marlin\Sd2Card.h">
+      <SubType>compile</SubType>
+      <Link>Headers\Sd2Card.h</Link>
+    </Compile>
+    <Compile Include="..\Marlin\Sd2PinMap.h">
+      <SubType>compile</SubType>
+      <Link>Headers\Sd2PinMap.h</Link>
+    </Compile>
+    <Compile Include="..\Marlin\SdBaseFile.cpp">
+      <SubType>compile</SubType>
+      <Link>SdBaseFile.cpp</Link>
+    </Compile>
+    <Compile Include="..\Marlin\SdBaseFile.h">
+      <SubType>compile</SubType>
+      <Link>Headers\SdBaseFile.h</Link>
+    </Compile>
+    <Compile Include="..\Marlin\SdFatConfig.h">
+      <SubType>compile</SubType>
+      <Link>Headers\SdFatConfig.h</Link>
+    </Compile>
+    <Compile Include="..\Marlin\SdFatStructs.h">
+      <SubType>compile</SubType>
+      <Link>Headers\SdFatStructs.h</Link>
+    </Compile>
+    <Compile Include="..\Marlin\SdFatUtil.cpp">
+      <SubType>compile</SubType>
+      <Link>SdFatUtil.cpp</Link>
+    </Compile>
+    <Compile Include="..\Marlin\SdFatUtil.h">
+      <SubType>compile</SubType>
+      <Link>Headers\SdFatUtil.h</Link>
+    </Compile>
+    <Compile Include="..\Marlin\SdFile.cpp">
+      <SubType>compile</SubType>
+      <Link>SdFile.cpp</Link>
+    </Compile>
+    <Compile Include="..\Marlin\SdFile.h">
+      <SubType>compile</SubType>
+      <Link>Headers\SdFile.h</Link>
+    </Compile>
+    <Compile Include="..\Marlin\SdInfo.h">
+      <SubType>compile</SubType>
+      <Link>Headers\SdInfo.h</Link>
+    </Compile>
+    <Compile Include="..\Marlin\SdVolume.cpp">
+      <SubType>compile</SubType>
+      <Link>SdVolume.cpp</Link>
+    </Compile>
+    <Compile Include="..\Marlin\SdVolume.h">
+      <SubType>compile</SubType>
+      <Link>Headers\SdVolume.h</Link>
+    </Compile>
+    <Compile Include="..\Marlin\Servo.cpp">
+      <SubType>compile</SubType>
+      <Link>Servo.cpp</Link>
+    </Compile>
+    <Compile Include="..\Marlin\Servo.h">
+      <SubType>compile</SubType>
+      <Link>Headers\Servo.h</Link>
+    </Compile>
+    <Compile Include="..\Marlin\speed_lookuptable.h">
+      <SubType>compile</SubType>
+      <Link>Headers\speed_lookuptable.h</Link>
+    </Compile>
+    <Compile Include="..\Marlin\stepper.cpp">
+      <SubType>compile</SubType>
+      <Link>stepper.cpp</Link>
+    </Compile>
+    <Compile Include="..\Marlin\stepper.h">
+      <SubType>compile</SubType>
+      <Link>Headers\stepper.h</Link>
+    </Compile>
+    <Compile Include="..\Marlin\temperature.cpp">
+      <SubType>compile</SubType>
+      <Link>temperature.cpp</Link>
+    </Compile>
+    <Compile Include="..\Marlin\temperature.h">
+      <SubType>compile</SubType>
+      <Link>Headers\temperature.h</Link>
+    </Compile>
+    <Compile Include="..\Marlin\thermistortables.h">
+      <SubType>compile</SubType>
+      <Link>Headers\thermistortables.h</Link>
+    </Compile>
+    <Compile Include="..\Marlin\ultralcd.cpp">
+      <SubType>compile</SubType>
+      <Link>ultralcd.cpp</Link>
+    </Compile>
+    <Compile Include="..\Marlin\ultralcd.h">
+      <SubType>compile</SubType>
+      <Link>Headers\ultralcd.h</Link>
+    </Compile>
+    <Compile Include="..\Marlin\ultralcd_implementation_hitachi_HD44780.h">
+      <SubType>compile</SubType>
+      <Link>Headers\ultralcd_implementation_hitachi_HD44780.h</Link>
+    </Compile>
+    <Compile Include="..\Marlin\ultralcd_st7920_u8glib_rrd.h">
+      <SubType>compile</SubType>
+      <Link>Headers\ultralcd_st7920_u8glib_rrd.h</Link>
+    </Compile>
+    <Compile Include="..\Marlin\vector_3.cpp">
+      <SubType>compile</SubType>
+      <Link>vector_3.cpp</Link>
+    </Compile>
+    <Compile Include="..\Marlin\vector_3.h">
+      <SubType>compile</SubType>
+      <Link>Headers\vector_3.h</Link>
+    </Compile>
+    <Compile Include="..\Marlin\watchdog.cpp">
+      <SubType>compile</SubType>
+      <Link>watchdog.cpp</Link>
+    </Compile>
+    <Compile Include="..\Marlin\watchdog.h">
+      <SubType>compile</SubType>
+      <Link>Headers\watchdog.h</Link>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Headers" />
+    <Folder Include="Libs" />
+  </ItemGroup>
+  <Import Project="$(AVRSTUDIO_EXE_PATH)\\Vs\\Compiler.targets" />
+</Project>
