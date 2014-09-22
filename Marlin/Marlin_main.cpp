@@ -1744,7 +1744,6 @@ void process_commands()
 
       while(!lcd_clicked()){
         manage_heater();
-        manage_inactivity();
         lcd_update();
         plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS],current_position[E_AXIS], 300/60, active_extruder);
         st_synchronize();
@@ -2858,7 +2857,6 @@ void process_commands()
 
       while (!lcd_clicked()) {
         manage_heater();
-        manage_inactivity();
         lcd_update();
       }
 
@@ -2886,7 +2884,6 @@ void process_commands()
       
       while (!lcd_clicked()) {
         manage_heater();
-        manage_inactivity();
         lcd_update();
       }
 
@@ -2897,10 +2894,9 @@ void process_commands()
       lcd_show_status();
       do {
         manage_heater();
-        manage_inactivity();
         lcd_update();
         current_position[E_AXIS]+=0.04;
-        plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS],current_position[E_AXIS], feedrate/60, active_extruder);
+        plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS],current_position[E_AXIS], 300/60, active_extruder);
         st_synchronize();
       } while(!lcd_clicked());
       
@@ -3077,7 +3073,6 @@ void process_commands()
 	
        while(!lcd_clicked()){          
 	  manage_heater();
-	//  manage_inactivity();
 	}
 	
 	set_ChangeScreen(true);
