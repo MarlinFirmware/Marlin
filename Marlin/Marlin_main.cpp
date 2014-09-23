@@ -2901,8 +2901,8 @@ void process_commands()
         lcd_update();
         current_position[E_AXIS]+=0.04;
         plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS],current_position[E_AXIS], feedrate/60, active_extruder);
-        st_synchronize();
       } while(!lcd_clicked());
+      st_synchronize();
       
       lcd_show_status();
       lcd_update();
