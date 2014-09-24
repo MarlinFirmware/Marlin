@@ -531,7 +531,7 @@
 * Arduino Mega pin assignment
 *
 ****************************************************************************************/
-#if MOTHERBOARD == 3 || MOTHERBOARD == 33 || MOTHERBOARD == 34 || MOTHERBOARD == 35 || MOTHERBOARD == 77 || MOTHERBOARD == 67 || MOTHERBOARD == 68
+#if MOTHERBOARD == 3 || MOTHERBOARD == 33 || MOTHERBOARD == 34 || MOTHERBOARD == 35 || MOTHERBOARD == 36 || MOTHERBOARD == 77 || MOTHERBOARD == 67 || MOTHERBOARD == 68
 #define KNOWN_BOARD 1
 
 //////////////////FIX THIS//////////////
@@ -547,7 +547,7 @@
 // #define RAMPS_V_1_0
 
 
-#if MOTHERBOARD == 33 || MOTHERBOARD == 34 || MOTHERBOARD == 35 || MOTHERBOARD == 77 || MOTHERBOARD == 67 || MOTHERBOARD == 68
+#if MOTHERBOARD == 33 || MOTHERBOARD == 34 || MOTHERBOARD == 35 ||MOTHERBOARD == 36 || MOTHERBOARD == 77 || MOTHERBOARD == 67 || MOTHERBOARD == 68
 
   #define LARGE_FLASH true
 
@@ -647,7 +647,7 @@
     #define LED_PIN            13
   #endif
 
-  #if MOTHERBOARD == 33 || MOTHERBOARD == 35 || MOTHERBOARD == 67 || MOTHERBOARD == 68
+  #if MOTHERBOARD == 33 || MOTHERBOARD == 35 ||MOTHERBOARD == 36 || MOTHERBOARD == 67 || MOTHERBOARD == 68
     #define FAN_PIN            9 // (Sprinter config)
   #else
     #define FAN_PIN            4 // IO pin. Buffer needed
@@ -669,7 +669,7 @@
     #define KILL_PIN           -1
   #endif
 
-  #if MOTHERBOARD == 35
+  #if MOTHERBOARD == 35 || MOTHERBOARD == 36
     #define HEATER_0_PIN       8
   #else
     #define HEATER_0_PIN       10   // EXTRUDER 1
@@ -677,8 +677,12 @@
 
   #if MOTHERBOARD == 33 || MOTHERBOARD == 67
     #define HEATER_1_PIN       -1
-  #else
-    #define HEATER_1_PIN       9    // EXTRUDER 2 (FAN On Sprinter)
+  #else 
+    #if MOTHERBOARD == 36  
+      #define HEATER_1_PIN       10
+    #else  
+      #define HEATER_1_PIN       9    // EXTRUDER 2 (FAN On Sprinter) 
+    #endif
   #endif
 
 
@@ -709,7 +713,7 @@
     #define TEMP_2_PIN         -1   // ANALOG NUMBERING
   #endif
 
-  #if MOTHERBOARD == 35
+  #if MOTHERBOARD == 35 || MOTHERBOARD == 36
     #define HEATER_BED_PIN     -1    // NO BED
   #else
     #if MOTHERBOARD == 77
