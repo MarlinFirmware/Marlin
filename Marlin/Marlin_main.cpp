@@ -1727,8 +1727,8 @@ void process_commands()
       plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], feedrate/60, active_extruder);
 
       #if X_MAX_POS < 250
-	target[X_AXIS]= X_MIN_POS + 5 ;
-	target[Y_AXIS]= Y_MIN_POS + 5 ;
+	target[X_AXIS]= 0 ;
+	target[Y_AXIS]= 150 ;
       #else
 	target[X_AXIS]= X_MAX_POS - 5 ;
 	target[Y_AXIS]= Y_MAX_POS - 5 ;
