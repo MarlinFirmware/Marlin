@@ -314,7 +314,7 @@ static void lcd_sdcard_stop()
 
     quickStop();
     #if X_MAX_POS < 250
-      plan_buffer_line(X_MIN_POS, Y_MIN_POS, Z_MAX_POS-25, current_position[E_AXIS], manual_feedrate[X_AXIS]/60, active_extruder);
+      plan_buffer_line(X_MIN_POS, 150, current_position[Z_AXIS]+20, current_position[E_AXIS], manual_feedrate[X_AXIS]/60, active_extruder);
     #else
       plan_buffer_line(X_MAX_POS-15, Y_MAX_POS-15, Z_MAX_POS-15, current_position[E_AXIS], manual_feedrate[X_AXIS]/60, active_extruder);
     #endif
