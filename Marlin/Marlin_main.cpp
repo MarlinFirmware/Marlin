@@ -1112,18 +1112,15 @@ static float probe_pt(float x, float y, float z_before) {
 #endif // Z_PROBE_SLED
   run_z_probe();
   float measured_z = current_position[Z_AXIS];
-<<<<<<< HEAD
-<<<<<<< HEAD
 //#ifndef Z_PROBE_SLED
 //  retract_z_probe();
 //#endif // Z_PROBE_SLED
 
-=======
+
 	// !! MOVED SERVO RETRACT TO END OF AUTO BED LEVELING
->>>>>>> origin/Marlin_v1
-=======
+
 	// !! MOVED SERVO RETRACT TO END OF AUTO BED LEVELING
->>>>>>> origin/Marlin_v1
+
   SERIAL_PROTOCOLPGM(MSG_BED);
   SERIAL_PROTOCOLPGM(" x: ");
   SERIAL_PROTOCOL(x);
@@ -1203,8 +1200,7 @@ static void homeaxis(int axis) {
     endstops_hit_on_purpose();
     axis_known_position[axis] = true;
 
-<<<<<<< HEAD
-<<<<<<< HEAD
+
     /* Retract Servo endstop if enabled
 =======
     /* Retract Servo endstop if enabled !! MOVED UP TO G28
@@ -1221,13 +1217,7 @@ static void homeaxis(int axis) {
 //    if (axis==Z_AXIS) retract_z_probe();
 #endif
 */
-<<<<<<< HEAD
-<<<<<<< HEAD
 
-=======
->>>>>>> origin/Marlin_v1
-=======
->>>>>>> origin/Marlin_v1
   }
 }
 #define HOMEAXIS(LETTER) homeaxis(LETTER##_AXIS)
@@ -1631,7 +1621,7 @@ void process_commands()
       #if defined (ENABLE_AUTO_BED_LEVELING) && (PROBE_SERVO_DEACTIVATION_DELAY > 0)
         if ((home_all_axis) || (code_seen(axis_codes[Z_AXIS]))) retract_z_probe();
       #endif
-<<<<<<< HEAD
+
 
 if((home_all_axis) || (code_seen(axis_codes[Z_AXIS]))) {
         do_blocking_move_relative(0,0,Z_RAISE_BEFORE_PROBING);
@@ -1644,8 +1634,7 @@ if((home_all_axis) || (code_seen(axis_codes[Z_AXIS]))) {
 	  calculate_delta(current_position);
       plan_set_position(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], current_position[E_AXIS]);
 #endif SCARA
-=======
->>>>>>> origin/Marlin_v1
+
 
       #ifdef ENDSTOPS_ONLY_FOR_HOMING
         enable_endstops(false);
@@ -1801,8 +1790,7 @@ if((home_all_axis) || (code_seen(axis_codes[Z_AXIS]))) {
             apply_rotation_xyz(plan_bed_level_matrix, x_tmp, y_tmp, z_tmp);         //Apply the correction sending the probe offset
             current_position[Z_AXIS] = z_tmp - real_z + current_position[Z_AXIS];   //The difference is added to current position and sent to planner.
             plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
-<<<<<<< HEAD
-<<<<<<< HEAD
+
  // Raise before z probe retract
 		do_blocking_move_relative(0,0,5);
 	    retract_z_probe();
@@ -1810,17 +1798,13 @@ if((home_all_axis) || (code_seen(axis_codes[Z_AXIS]))) {
 #ifdef Z_PROBE_SLED
             dock_sled(true, -SLED_DOCKING_OFFSET); // correct for over travel.
 #endif // Z_PROBE_SLED
-=======
-=======
->>>>>>> origin/Marlin_v1
+
+
             // Raise before z probe retract
             do_blocking_move_relative(0,0,5);
 	    retract_z_probe();
 	    do_blocking_move_relative(0,0,-5);
-<<<<<<< HEAD
->>>>>>> origin/Marlin_v1
-=======
->>>>>>> origin/Marlin_v1
+
         }
         break;
 #ifndef Z_PROBE_SLED
