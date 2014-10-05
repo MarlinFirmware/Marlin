@@ -2078,8 +2078,8 @@ DaveX plan for Teensylu/printrboard-type pinouts (ref teensylu & sprinter) for a
 #define Z_DIR_PIN          28
 #define Z_STOP_PIN         30
 
-#define E0_STEP_PIN         17
-#define E0_DIR_PIN          21
+#define E0_STEP_PIN        17
+#define E0_DIR_PIN         21
 
 #define LED_PIN            -1
 
