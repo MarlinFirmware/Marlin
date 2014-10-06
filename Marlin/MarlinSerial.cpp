@@ -73,7 +73,7 @@ void MarlinSerial::begin(long baud)
   bool useU2X = true;
 
 #if F_CPU == 16000000UL && SERIAL_PORT == 0
-  // hard coded exception for compatibility with the bootloader shipped
+  // hard-coded exception for compatibility with the bootloader shipped
   // with the Duemilanove and previous boards and the firmware on the 8U2
   // on the Uno and Mega 2560.
   if (baud == 57600) {

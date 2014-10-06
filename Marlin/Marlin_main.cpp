@@ -220,7 +220,7 @@ float volumetric_multiplier[EXTRUDERS] = {1.0
   #endif
 };
 float current_position[NUM_AXIS] = { 0.0, 0.0, 0.0, 0.0 };
-float add_homeing[3]={0,0,0};
+float add_homing[3]={0,0,0};
 #ifdef DELTA
 float endstop_adj[3]={0,0,0};
 #endif
@@ -852,7 +852,7 @@ static int dual_x_carriage_mode = DEFAULT_DUAL_X_CARRIAGE_MODE;
 
 static float x_home_pos(int extruder) {
   if (extruder == 0)
-    return base_home_pos(X_AXIS) + add_homeing[X_AXIS];
+    return base_home_pos(X_AXIS) + add_homing[X_AXIS];
   else
     // In dual carriage mode the extruder offset provides an override of the
     // second X-carriage offset when homed - otherwise X2_HOME_POS is used.
@@ -884,9 +884,9 @@ static void axis_is_at_home(int axis) {
       return;
     }
     else if (dual_x_carriage_mode == DXC_DUPLICATION_MODE && active_extruder == 0) {
-      current_position[X_AXIS] = base_home_pos(X_AXIS) + add_homeing[X_AXIS];
-      min_pos[X_AXIS] =          base_min_pos(X_AXIS) + add_homeing[X_AXIS];
-      max_pos[X_AXIS] =          min(base_max_pos(X_AXIS) + add_homeing[X_AXIS],
+      current_position[X_AXIS] = base_home_pos(X_AXIS) + add_homing[X_AXIS];
+      min_pos[X_AXIS] =          base_min_pos(X_AXIS) + add_homing[X_AXIS];
+      max_pos[X_AXIS] =          min(base_max_pos(X_AXIS) + add_homing[X_AXIS],
                                   max(extruder_offset[X_AXIS][1], X2_MAX_POS) - duplicate_extruder_x_offset);
       return;
     }
@@ -914,11 +914,11 @@ static void axis_is_at_home(int axis) {
      
      for (i=0; i<2; i++)
      {
-        delta[i] -= add_homeing[i];
+        delta[i] -= add_homing[i];
      } 
      
-    // SERIAL_ECHOPGM("addhome X="); SERIAL_ECHO(add_homeing[X_AXIS]);
-	// SERIAL_ECHOPGM(" addhome Y="); SERIAL_ECHO(add_homeing[Y_AXIS]);
+    // SERIAL_ECHOPGM("addhome X="); SERIAL_ECHO(add_homing[X_AXIS]);
+	// SERIAL_ECHOPGM(" addhome Y="); SERIAL_ECHO(add_homing[Y_AXIS]);
     // SERIAL_ECHOPGM(" addhome Theta="); SERIAL_ECHO(delta[X_AXIS]);
     // SERIAL_ECHOPGM(" addhome Psi+Theta="); SERIAL_ECHOLN(delta[Y_AXIS]);
       
@@ -936,14 +936,14 @@ static void axis_is_at_home(int axis) {
    } 
    else
    {
-      current_position[axis] = base_home_pos(axis) + add_homeing[axis];
-      min_pos[axis] =          base_min_pos(axis) + add_homeing[axis];
-      max_pos[axis] =          base_max_pos(axis) + add_homeing[axis];
+      current_position[axis] = base_home_pos(axis) + add_homing[axis];
+      min_pos[axis] =          base_min_pos(axis) + add_homing[axis];
+      max_pos[axis] =          base_max_pos(axis) + add_homing[axis];
    }
 #else
-  current_position[axis] = base_home_pos(axis) + add_homeing[axis];
-  min_pos[axis] =          base_min_pos(axis) + add_homeing[axis];
-  max_pos[axis] =          base_max_pos(axis) + add_homeing[axis];
+  current_position[axis] = base_home_pos(axis) + add_homing[axis];
+  min_pos[axis] =          base_min_pos(axis) + add_homing[axis];
+  max_pos[axis] =          base_max_pos(axis) + add_homing[axis];
 #endif
 }
 
@@ -1432,12 +1432,12 @@ void process_commands()
           HOMEAXIS(Z);
 
           calculate_delta(current_position);
-          plan_set_position(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], current_position[E_AXIS]);		  
-		  
+          plan_set_position(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], current_position[E_AXIS]);
+
 #else // NOT DELTA
 
       home_all_axis = !((code_seen(axis_codes[X_AXIS])) || (code_seen(axis_codes[Y_AXIS])) || (code_seen(axis_codes[Z_AXIS])));
-	  
+
       #if Z_HOME_DIR > 0                      // If homing away from BED do Z first
       if((home_all_axis) || (code_seen(axis_codes[Z_AXIS]))) {
         HOMEAXIS(Z);
@@ -1516,7 +1516,7 @@ void process_commands()
 		#ifdef SCARA
 		   current_position[X_AXIS]=code_value();
 		#else
-		   current_position[X_AXIS]=code_value()+add_homeing[0];
+		   current_position[X_AXIS]=code_value()+add_homing[0];
 		#endif
         }
       }
@@ -1526,7 +1526,7 @@ void process_commands()
          #ifdef SCARA
 		   current_position[Y_AXIS]=code_value();
 		#else
-		   current_position[Y_AXIS]=code_value()+add_homeing[1];
+		   current_position[Y_AXIS]=code_value()+add_homing[1];
 		#endif
         }
       }
@@ -1591,7 +1591,7 @@ void process_commands()
 
       if(code_seen(axis_codes[Z_AXIS])) {
         if(code_value_long() != 0) {
-          current_position[Z_AXIS]=code_value()+add_homeing[2];
+          current_position[Z_AXIS]=code_value()+add_homing[2];
         }
       }
       #ifdef ENABLE_AUTO_BED_LEVELING
@@ -1820,10 +1820,10 @@ void process_commands()
                 	current_position[i] = code_value();  
 		}
 		else {
-                current_position[i] = code_value()+add_homeing[i];  
+                current_position[i] = code_value()+add_homing[i];  
             	}  
 #else
-		current_position[i] = code_value()+add_homeing[i];
+		current_position[i] = code_value()+add_homing[i];
 #endif
             plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
            }
@@ -2700,9 +2700,9 @@ Sigma_Exit:
       SERIAL_PROTOCOLLN("");
       
       SERIAL_PROTOCOLPGM("SCARA Cal - Theta:");
-      SERIAL_PROTOCOL(delta[X_AXIS]+add_homeing[0]);
+      SERIAL_PROTOCOL(delta[X_AXIS]+add_homing[0]);
       SERIAL_PROTOCOLPGM("   Psi+Theta (90):");
-      SERIAL_PROTOCOL(delta[Y_AXIS]-delta[X_AXIS]-90+add_homeing[1]);
+      SERIAL_PROTOCOL(delta[Y_AXIS]-delta[X_AXIS]-90+add_homing[1]);
       SERIAL_PROTOCOLLN("");
       
       SERIAL_PROTOCOLPGM("SCARA step Cal - Theta:");
@@ -2828,19 +2828,19 @@ Sigma_Exit:
       if(code_seen('E')) max_e_jerk = code_value() ;
     }
     break;
-    case 206: // M206 additional homeing offset
+    case 206: // M206 additional homing offset
       for(int8_t i=0; i < 3; i++)
       {
-        if(code_seen(axis_codes[i])) add_homeing[i] = code_value();
+        if(code_seen(axis_codes[i])) add_homing[i] = code_value();
       }
 	  #ifdef SCARA
 	   if(code_seen('T'))       // Theta
       {
-        add_homeing[0] = code_value() ;
+        add_homing[0] = code_value() ;
       }
       if(code_seen('P'))       // Psi
       {
-        add_homeing[1] = code_value() ;
+        add_homing[1] = code_value() ;
       }
 	  #endif
       break;
