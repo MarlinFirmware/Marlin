@@ -624,7 +624,7 @@ const short temptable_11[][2] PROGMEM = {
 #if (THERMISTORHEATER_0 == 13) || (THERMISTORHEATER_1 == 13) || (THERMISTORHEATER_2 == 13) || (THERMISTORBED == 13)
 // Hisens thermistor B25/50 =3950 +/-1%
 
-const short temptable_12[][2] PROGMEM = {
+const short temptable_13[][2] PROGMEM = {
  {	22.5*OVERSAMPLENR,	300	},
 {	24.125*OVERSAMPLENR,	295	},
 {	25.875*OVERSAMPLENR,	290	},
