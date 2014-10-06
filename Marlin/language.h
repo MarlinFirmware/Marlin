@@ -30,7 +30,7 @@
 	#define FIRMWARE_URL "http://www.bqreaders.com/descargas-witbox.html"
 	#define FIRMWARE_VER "v1.3.1-Dual"
 #elif defined(WITBOX)
-	#define MACHINE_NAME "bq Witbox"
+	#define MACHINE_NAME "bq Hephestos"
 	#define FIRMWARE_URL "http://www.bqreaders.com/descargas-witbox.html"
 	#define FIRMWARE_VER "v1.3.1"
 #else
@@ -271,7 +271,7 @@
 	#define MSG_EXTRUDING "Extruding..." 
 	#define MSG_LENGTH "Length:"         
 	#define MSG_RETRACTING "Retracting"
-	#define MSG_WELLCOME "bq Witbox"
+	#define MSG_WELLCOME "bq Hephestos"
 	#define MSG_LP_INTRO "  Leveling plate...    Press to start   "
 	#define MSG_LP_1 " Adjust first point  & Press the button"
 	#define MSG_LP_2 "Adjust second point  & Press the button"
@@ -782,7 +782,7 @@
 	#define MSG_EXTRUDING "Extruyendo..."
 	#define MSG_LENGTH "Longitud:"
 	#define MSG_RETRACTING "Retrayendo"
-	#define MSG_WELLCOME "bq Witbox"
+	#define MSG_WELLCOME "bq Hephestos"
 	#define MSG_LP_INTRO "Nivelando la base... Pulsa para empezar"
 	#define MSG_LP_1 " Nivela el punto 1     Pulsa la rueda"
 	#define MSG_LP_2 " Nivela el punto 2     Pulsa la rueda"
