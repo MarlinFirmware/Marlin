@@ -11,6 +11,7 @@
   void lcd_setstatuspgm(const char* message);
   void lcd_setalertstatuspgm(const char* message);
   void lcd_reset_alert_level();
+  void lcd_show_status();
 
 //WITBOX->
 #ifdef WITBOX
@@ -51,6 +52,8 @@ void lcd_level_bed(void);
   extern int absPreheatHotendTemp;
   extern int absPreheatHPBTemp;
   extern int absPreheatFanSpeed;
+
+  extern bool cancel_heatup;
     
   void lcd_buzz(long duration,uint16_t freq);
   bool lcd_clicked();
