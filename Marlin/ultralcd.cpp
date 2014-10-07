@@ -311,7 +311,7 @@ void lcd_set_home_offsets()
 {
     for(int8_t i=0; i < NUM_AXIS; i++) {
       if (i != E_AXIS) {
-        add_homeing[i] -= current_position[i];
+        add_homing[i] -= current_position[i];
         current_position[i] = 0.0;
       }
     }
