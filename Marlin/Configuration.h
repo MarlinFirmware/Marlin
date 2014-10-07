@@ -211,7 +211,7 @@
 //    #define  DEFAULT_Ki 2.25
 //    #define  DEFAULT_Kd 440
 
-// Hegagon 3
+// Hexagon 3
 //    #define  DEFAULT_Kp 23.19
 //    #define  DEFAULT_Ki 2.02
 //    #define  DEFAULT_Kd 66.50
