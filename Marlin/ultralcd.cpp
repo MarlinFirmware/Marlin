@@ -779,6 +779,9 @@ static void lcd_control_menu()
 //    MENU_ITEM_EDIT(int3, MSG_CONTRAST, &lcd_contrast, 0, 63);
     MENU_ITEM(submenu, MSG_CONTRAST, lcd_set_contrast);
 #endif
+#if BEEPER > 0
+    MENU_ITEM_EDIT(bool, MSG_BEEP_MENU, &beep_menu_enabled);
+#endif
 #ifdef FWRETRACT
     MENU_ITEM(submenu, MSG_RETRACT, lcd_control_retract_menu);
 #endif
