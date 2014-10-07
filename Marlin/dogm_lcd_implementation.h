@@ -75,6 +75,7 @@
 #define FONT_STATUSMENU	u8g_font_6x9
 
 int lcd_contrast;
+bool beep_menu_enabled;
 
 // LCD selection
 #ifdef U8GLIB_ST7920
@@ -592,14 +593,16 @@ static void lcd_implementation_quick_feedback()
 {
 
 #if BEEPER > -1
+  if  (beep_menu_enabled) {
     SET_OUTPUT(BEEPER);
-    for(int8_t i=0;i<10;i++)
+    for (int8_t i = 0; i < 10; i++)
     {
-		WRITE(BEEPER,HIGH);
-		delay(3);
-		WRITE(BEEPER,LOW);
-		delay(3);
+      WRITE(BEEPER, HIGH);
+      delay(3);
+      WRITE(BEEPER, LOW);
+      delay(3);
     }
+  }
 #endif
 }
 #endif//ULTRA_LCD_IMPLEMENTATION_DOGM_H
