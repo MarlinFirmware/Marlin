@@ -210,6 +210,12 @@
 //    #define  DEFAULT_Kp 63.0
 //    #define  DEFAULT_Ki 2.25
 //    #define  DEFAULT_Kd 440
+
+// Hegagon 3
+//    #define  DEFAULT_Kp 23.19
+//    #define  DEFAULT_Ki 2.02
+//    #define  DEFAULT_Kd 66.50
+
 #endif // PIDTEMP
 
 // Bed Temperature Control
