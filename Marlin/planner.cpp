@@ -57,6 +57,7 @@
 #include "temperature.h"
 #include "ultralcd.h"
 #include "language.h"
+#include <limits.h>
 
 //===========================================================================
 //=============================public variables ============================
@@ -179,11 +180,11 @@ void calculate_trapezoid_for_block(block_t *block, float entry_factor, float exi
   unsigned long final_rate = ceil(block->nominal_rate*exit_factor); // (step/min)
 
   // Limit minimal step rate (Otherwise the timer will overflow.)
-  if(initial_rate <120) {
-    initial_rate=120; 
+  if(initial_rate < 120) {
+    initial_rate=120;
   }
   if(final_rate < 120) {
-    final_rate=120;  
+    final_rate=120;
   }
 
   long acceleration = block->acceleration_st;
@@ -761,6 +762,11 @@ block->steps_y = labs((target[X_AXIS]-position[X_AXIS]) - (target[Y_AXIS]-positi
 
   block->nominal_speed = block->millimeters * inverse_second; // (mm/sec) Always > 0
   block->nominal_rate = ceil(block->step_event_count * inverse_second); // (step/sec) Always > 0
+
+  while(block->nominal_rate < STEPPER_MIN_TICK_RATE && block->step_event_count < ULONG_MAX/2+1) {
+    block->step_event_count <<= 1;
+    block->nominal_rate = ceil(block->step_event_count * inverse_second);
+  }
 
   // Calculate and limit speed in mm/sec for each axis
   float current_speed[4];

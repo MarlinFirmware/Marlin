@@ -48,6 +48,9 @@
 extern bool abort_on_endstop_hit;
 #endif
 
+// This tells planner.cpp the minimum timer tick rate stepper.cpp supports. Twice more to be sure.
+#define STEPPER_MIN_TICK_RATE (F_CPU / 500000 * 2)
+
 // Initialize and start the stepper motor subsystem
 void st_init();
 
