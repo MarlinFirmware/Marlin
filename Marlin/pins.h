@@ -628,6 +628,15 @@
     #define E1_DIR_PIN         34
     #define E1_ENABLE_PIN      30
 
+#if MOTHERBOARD == 34  //FMM added for Filament Extruder
+#ifdef FILAMENT_SENSOR
+	  //define analog pin for the filament width sensor input
+	  //Use the RAMPS 1.4 Analog input 5 on the AUX2 connector
+      #define FILWIDTH_PIN        5
+#endif
+#endif
+
+
     #if MOTHERBOARD == 68
       #define E2_STEP_PIN        23
       #define E2_DIR_PIN         25
@@ -1762,6 +1771,9 @@
   #define Z_STOP_PIN         36
   #define TEMP_0_PIN          1  // Extruder / Analog pin numbering
   #define TEMP_BED_PIN        0  // Bed / Analog pin numbering
+  #ifdef FILAMENT_SENSOR
+   #define FILWIDTH_PIN        2
+  #endif //FILAMENT_SENSOR
 #endif
 
 #define TEMP_1_PIN         -1
@@ -2396,6 +2408,10 @@ DaveX plan for Teensylu/printrboard-type pinouts (ref teensylu & sprinter) for a
   #endif
 #endif //ULTRA_LCD
 
+#ifdef FILAMENT_SENSOR
+  //Filip added pin for Filament sensor analog input 
+  #define FILWIDTH_PIN        3
+#endif //FILAMENT_SENSOR
 
 #endif
 
