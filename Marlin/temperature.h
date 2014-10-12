@@ -31,6 +31,14 @@
 void tp_init();  //initialize the heating
 void manage_heater(); //it is critical that this is called periodically.
 
+#ifdef FILAMENT_SENSOR
+// For converting raw Filament Width to milimeters 
+ float analog2widthFil(); 
+ 
+// For converting raw Filament Width to an extrusion ratio 
+ int widthFil_to_size_ratio();
+#endif
+
 // low level conversion routines
 // do not use these routines and variables outside of temperature.cpp
 extern int target_temperature[EXTRUDERS];  
