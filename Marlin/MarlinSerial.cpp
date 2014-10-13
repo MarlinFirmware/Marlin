@@ -25,7 +25,7 @@
 
 #ifndef AT90USB
 // this next line disables the entire HardwareSerial.cpp, 
-// this is so I can support Attiny series and any other chip without a uart
+// this is so I can support Attiny series and any other chip without a UART
 #if defined(UBRRH) || defined(UBRR0H) || defined(UBRR1H) || defined(UBRR2H) || defined(UBRR3H)
 
 #if UART_PRESENT(SERIAL_PORT)
@@ -73,7 +73,7 @@ void MarlinSerial::begin(long baud)
   bool useU2X = true;
 
 #if F_CPU == 16000000UL && SERIAL_PORT == 0
-  // hardcoded exception for compatibility with the bootloader shipped
+  // hard-coded exception for compatibility with the bootloader shipped
   // with the Duemilanove and previous boards and the firmware on the 8U2
   // on the Uno and Mega 2560.
   if (baud == 57600) {
@@ -320,3 +320,9 @@ MarlinSerial MSerial;
 
 #endif // whole file
 #endif // !AT90USB
+
+// For AT90USB targets use the UART for BT interfacing
+#if defined(AT90USB) && defined (BTENABLED)
+   HardwareSerial bt;
+#endif
+

@@ -1,6 +1,7 @@
 #ifndef PINS_H
 #define PINS_H
 
+#if MOTHERBOARD != 88
 #define X_MS1_PIN -1
 #define X_MS2_PIN -1
 #define Y_MS1_PIN -1
@@ -12,6 +13,161 @@
 #define E1_MS1_PIN -1
 #define E1_MS2_PIN -1
 #define DIGIPOTSS_PIN -1
+#endif
+
+/****************************************************************************************
+* 5DPrint D8 Driver board
+* https://bitbucket.org/makible/5dprint-d8-controller-board
+****************************************************************************************/
+
+#if MOTHERBOARD == 88
+
+#define KNOWN_BOARD 1
+#define AT90USB 1286  // Disable MarlinSerial etc.
+
+#ifndef __AVR_AT90USB1286__
+#error Oops!  Make sure you have 'Teensy++ 2.0' selected from the 'Tools -> Boards' menu.
+#endif
+
+#define LARGE_FLASH        true
+
+#define X_STEP_PIN          0
+#define X_DIR_PIN           1
+#define X_ENABLE_PIN       23
+#define X_STOP_PIN         37
+
+#define Y_STEP_PIN          2
+#define Y_DIR_PIN           3
+#define Y_ENABLE_PIN       19
+#define Y_STOP_PIN         36
+
+#define Z_STEP_PIN          4
+#define Z_DIR_PIN           5
+#define Z_ENABLE_PIN       18
+#define Z_STOP_PIN         39
+
+#define E0_STEP_PIN         6
+#define E0_DIR_PIN          7
+#define E0_ENABLE_PIN      17
+
+#define HEATER_0_PIN       21  // Extruder
+#define HEATER_1_PIN       -1
+#define HEATER_2_PIN       -1
+#define HEATER_BED_PIN     20  // Bed
+// You may need to change FAN_PIN to 16 because Marlin isn't using fastio.h
+// for the fan and Teensyduino uses a different pin mapping.
+#define FAN_PIN            16  // Fan
+
+#define TEMP_0_PIN          1  // Extruder / Analog pin numbering
+#define TEMP_BED_PIN        0  // Bed / Analog pin numbering
+
+#define TEMP_1_PIN         -1
+#define TEMP_2_PIN         -1
+
+#define SDPOWER            -1
+#define LED_PIN            -1
+#define PS_ON_PIN          -1
+#define KILL_PIN           -1
+#define ALARM_PIN          -1
+
+// The SDSS pin uses a different pin mapping from file Sd2PinMap.h
+#define SDSS               20
+
+#ifndef SDSUPPORT
+// these pins are defined in the SD library if building with SD support
+  #define SCK_PIN           9
+  #define MISO_PIN         11
+  #define MOSI_PIN         10
+#endif
+
+// Microstepping pins
+// Note that the pin mapping is not from fastio.h
+// See Sd2PinMap.h for the pin configurations
+#define X_MS1_PIN 25
+#define X_MS2_PIN 26
+#define Y_MS1_PIN 9
+#define Y_MS2_PIN 8
+#define Z_MS1_PIN 7
+#define Z_MS2_PIN 6
+#define E0_MS1_PIN 5
+#define E0_MS2_PIN 4
+
+#endif /* 88 */
+
+/****************************************************************************************
+* Leapfrog Driver board
+* 
+****************************************************************************************/
+#if MOTHERBOARD == 999  // Leapfrog board
+#define KNOWN_BOARD 1
+
+#ifndef __AVR_ATmega1280__
+ #ifndef __AVR_ATmega2560__
+ #error Oops!  Make sure you have 'Arduino Mega' selected from the 'Tools -> Boards' menu.
+ #endif
+#endif
+
+#define X_STEP_PIN         28
+#define X_DIR_PIN          63
+#define X_ENABLE_PIN       29
+#define X_MIN_PIN          47
+#define X_MAX_PIN          -1   //2 //Max endstops default to disabled "-1", set to commented value to enable.
+
+#define Y_STEP_PIN         14 // A6
+#define Y_DIR_PIN          15 // A0
+#define Y_ENABLE_PIN       39
+#define Y_MIN_PIN          48
+#define Y_MAX_PIN          -1   //15
+
+#define Z_STEP_PIN         31 // A2
+#define Z_DIR_PIN          32 // A6
+#define Z_ENABLE_PIN       30 // A1
+#define Z_MIN_PIN          49
+#define Z_MAX_PIN          -1
+
+#define E0_STEP_PIN         34  //34
+#define E0_DIR_PIN          35 //35
+#define E0_ENABLE_PIN       33 //33
+
+#define E1_STEP_PIN         37 //37
+#define E1_DIR_PIN          40 //40
+#define E1_ENABLE_PIN       36 //36
+
+#define Y2_STEP_PIN         37
+#define Y2_DIR_PIN          40
+#define Y2_ENABLE_PIN       36
+
+#define Z2_STEP_PIN         37
+#define Z2_DIR_PIN          40
+#define Z2_ENABLE_PIN       36
+
+#define SDPOWER            -1
+#define SDSS               11
+#define SDCARDDETECT       -1 // 10 optional also used as mode pin
+#define LED_PIN            13
+#define FAN_PIN            7
+#define PS_ON_PIN          -1
+#define KILL_PIN           -1
+#define SOL1_PIN   16
+#define SOL2_PIN    17
+
+#define HEATER_0_PIN       9
+#define HEATER_1_PIN       8 // 12
+#define HEATER_2_PIN       11 //-1 // 13
+#define TEMP_0_PIN         13 //D27   // MUST USE ANALOG INPUT NUMBERING NOT DIGITAL OUTPUT NUMBERING!!!!!!!!!
+#define TEMP_1_PIN         15 // 1
+#define TEMP_2_PIN         -1 // 2
+#define HEATER_BED_PIN     10 // 14/15
+#define TEMP_BED_PIN       14 // 1,2 or I2C
+/*  Unused (1) (2) (3) 4 5 6 7 8 9 10 11 12 13 (14) (15) (16) 17 (18) (19) (20) (21) (22) (23) 24 (25) (26) (27) 28 (29) (30) (31)  */
+
+
+#endif
+
+/****************************************************************************************
+*
+*
+****************************************************************************************/
 
 #if MOTHERBOARD == 99
 #define KNOWN_BOARD 1
@@ -375,7 +531,7 @@
 * Arduino Mega pin assignment
 *
 ****************************************************************************************/
-#if MOTHERBOARD == 3 || MOTHERBOARD == 33 || MOTHERBOARD == 34 || MOTHERBOARD == 35 || MOTHERBOARD == 77 || MOTHERBOARD == 67
+#if MOTHERBOARD == 3 || MOTHERBOARD == 33 || MOTHERBOARD == 34 || MOTHERBOARD == 35 || MOTHERBOARD == 36 || MOTHERBOARD == 77 || MOTHERBOARD == 67 || MOTHERBOARD == 68
 #define KNOWN_BOARD 1
 
 //////////////////FIX THIS//////////////
@@ -391,10 +547,10 @@
 // #define RAMPS_V_1_0
 
 
-#if MOTHERBOARD == 33 || MOTHERBOARD == 34 || MOTHERBOARD == 35 || MOTHERBOARD == 77 || MOTHERBOARD == 67
+#if MOTHERBOARD == 33 || MOTHERBOARD == 34 || MOTHERBOARD == 35 || MOTHERBOARD == 36 ||  MOTHERBOARD == 77 || MOTHERBOARD == 67 || MOTHERBOARD == 68
 
   #define LARGE_FLASH true
-  
+
   #if MOTHERBOARD == 77
     #define X_STEP_PIN         54
     #define X_DIR_PIN          55
@@ -414,6 +570,10 @@
     #define Z_MIN_PIN          18
     #define Z_MAX_PIN          -1
 
+    #define Y2_STEP_PIN        36
+    #define Y2_DIR_PIN         34
+    #define Y2_ENABLE_PIN      30
+
     #define Z2_STEP_PIN        36
     #define Z2_DIR_PIN         34
     #define Z2_ENABLE_PIN      30
@@ -430,7 +590,7 @@
     #define SDSS               25//53
     #define LED_PIN            13
 
-    #define BEEPER             33    
+    #define BEEPER             33
 
   #else
 
@@ -452,6 +612,10 @@
     #define Z_MIN_PIN          18
     #define Z_MAX_PIN          19
 
+    #define Y2_STEP_PIN        36
+    #define Y2_DIR_PIN         34
+    #define Y2_ENABLE_PIN      30
+
     #define Z2_STEP_PIN        36
     #define Z2_DIR_PIN         34
     #define Z2_ENABLE_PIN      30
@@ -464,23 +628,46 @@
     #define E1_DIR_PIN         34
     #define E1_ENABLE_PIN      30
 
+#if MOTHERBOARD == 34  //FMM added for Filament Extruder
+#ifdef FILAMENT_SENSOR
+	  //define analog pin for the filament width sensor input
+	  //Use the RAMPS 1.4 Analog input 5 on the AUX2 connector
+      #define FILWIDTH_PIN        5
+#endif
+#endif
+
+
+    #if MOTHERBOARD == 68
+      #define E2_STEP_PIN        23
+      #define E2_DIR_PIN         25
+      #define E2_ENABLE_PIN      40
+
+      #define E3_STEP_PIN        27
+      #define E3_DIR_PIN         29
+      #define E3_ENABLE_PIN      41
+
+      #define E4_STEP_PIN        43
+      #define E4_DIR_PIN         37
+      #define E4_ENABLE_PIN      42
+    #endif
+
     #define SDPOWER            -1
     #define SDSS               53
     #define LED_PIN            13
   #endif
 
-  #if MOTHERBOARD == 33 || MOTHERBOARD == 35 || MOTHERBOARD == 67
+  #if MOTHERBOARD == 33 || MOTHERBOARD == 35 || MOTHERBOARD == 67 || MOTHERBOARD == 68
     #define FAN_PIN            9 // (Sprinter config)
   #else
     #define FAN_PIN            4 // IO pin. Buffer needed
   #endif
 
-  #if MOTHERBOARD == 77
-    #define FAN_PIN            8 
+  #if MOTHERBOARD == 77 || MOTHERBOARD == 36
+    #define FAN_PIN            8
   #endif
-  
+
   #if MOTHERBOARD == 35
-    #define CONTROLLERFAN_PIN  10 //Pin used for the fan to cool controller
+    #define CONTROLLERFAN_PIN  -1 //Pin used for the fan to cool controller
   #endif
 
   #define PS_ON_PIN          12
@@ -503,19 +690,35 @@
     #define HEATER_1_PIN       9    // EXTRUDER 2 (FAN On Sprinter)
   #endif
 
-  #define HEATER_2_PIN       -1 
 
   #if MOTHERBOARD == 77
-    #define HEATER_0_PIN       10   
-    #define HEATER_1_PIN       12 
-    #define HEATER_2_PIN       6   
+    #define HEATER_0_PIN       10
+    #define HEATER_1_PIN       12
+    #define HEATER_2_PIN       6
+  #elif MOTHERBOARD == 68
+    #define HEATER_2_PIN       16
+    #define HEATER_3_PIN       17
+    #define HEATER_4_PIN       4
+    #define HEATER_5_PIN       5
+    #define HEATER_6_PIN       6
+    #define HEATER_7_PIN       11
+  #else
+    #define HEATER_2_PIN       -1
   #endif
 
   #define TEMP_0_PIN         13   // ANALOG NUMBERING
   #define TEMP_1_PIN         15   // ANALOG NUMBERING
-  #define TEMP_2_PIN         -1   // ANALOG NUMBERING
+  #if MOTHERBOARD == 68
+    #define TEMP_2_PIN         12   // ANALOG NUMBERING
+    #define TEMP_3_PIN         11   // ANALOG NUMBERING
+    #define TEMP_4_PIN         10   // ANALOG NUMBERING
+    #define TC1                4    // ANALOG NUMBERING Thermo couple on Azteeg X3Pro
+    #define TC2                5    // ANALOG NUMBERING Thermo couple on Azteeg X3Pro
+  #else
+    #define TEMP_2_PIN         -1   // ANALOG NUMBERING
+  #endif
 
-  #if MOTHERBOARD == 35
+  #if MOTHERBOARD == 35 || MOTHERBOARD == 36
     #define HEATER_BED_PIN     -1    // NO BED
   #else
     #if MOTHERBOARD == 77
@@ -524,9 +727,8 @@
       #define HEATER_BED_PIN     8    // BED
     #endif
   #endif
+
   #define TEMP_BED_PIN       14   // ANALOG NUMBERING
-
-
 
   #ifdef NUM_SERVOS
     #define SERVO0_PIN         11
@@ -544,13 +746,24 @@
     #endif
   #endif
 
+  #if MOTHERBOARD == 68
+    #define BEEPER 33
+  #endif
+
+  #ifdef TEMP_STAT_LEDS
+    #if MOTHERBOARD == 67
+      #define STAT_LED_RED       6
+      #define STAT_LED_BLUE     11
+    #endif
+  #endif
+
   #ifdef ULTRA_LCD
 
     #ifdef NEWPANEL
-      #define LCD_PINS_RS 16 
+      #define LCD_PINS_RS 16
       #define LCD_PINS_ENABLE 17
       #define LCD_PINS_D4 23
-      #define LCD_PINS_D5 25 
+      #define LCD_PINS_D5 25
       #define LCD_PINS_D6 27
       #define LCD_PINS_D7 29
 
@@ -598,25 +811,25 @@
         #else
           #define SDCARDDETECT -1  // Ramps does not use this port
         #endif
-    
+
       #endif
-    
-      #if MOTHERBOARD == 77 
-        #define BEEPER -1 
 
-        #define LCD_PINS_RS 27 
-        #define LCD_PINS_ENABLE 29 
-        #define LCD_PINS_D4 37 
-        #define LCD_PINS_D5 35 
-        #define LCD_PINS_D6 33 
-        #define LCD_PINS_D7 31 
+      #if MOTHERBOARD == 77
+        #define BEEPER -1
 
-       //buttons 
-       #define BTN_EN1 16 
-       #define BTN_EN2 17 
-       #define BTN_ENC 23 //the click 
+        #define LCD_PINS_RS 27
+        #define LCD_PINS_ENABLE 29
+        #define LCD_PINS_D4 37
+        #define LCD_PINS_D5 35
+        #define LCD_PINS_D6 33
+        #define LCD_PINS_D7 31
 
-    #endif 
+       //buttons
+       #define BTN_EN1 16
+       #define BTN_EN2 17
+       #define BTN_ENC 23 //the click
+
+    #endif
     #else //old style panel with shift register
       //arduino pin witch triggers an piezzo beeper
       #define BEEPER 33		//No Beeper added
@@ -627,14 +840,14 @@
       //#define SHIFT_LD 42
       //#define SHIFT_OUT 40
       //#define SHIFT_EN 17
-    
-      #define LCD_PINS_RS 16 
+
+      #define LCD_PINS_RS 16
       #define LCD_PINS_ENABLE 17
       #define LCD_PINS_D4 23
-      #define LCD_PINS_D5 25 
+      #define LCD_PINS_D5 25
       #define LCD_PINS_D6 27
       #define LCD_PINS_D7 29
-    #endif 
+    #endif
   #endif //ULTRA_LCD
 
 #else // RAMPS_V_1_1 or RAMPS_V_1_2 as default (MOTHERBOARD == 3)
@@ -679,19 +892,19 @@
 #define HEATER_1_PIN        -1
 #define HEATER_2_PIN        -1
 #define TEMP_0_PIN          2    // MUST USE ANALOG INPUT NUMBERING NOT DIGITAL OUTPUT NUMBERING!!!!!!!!!
-#define TEMP_1_PIN          -1   
-#define TEMP_2_PIN          -1   
+#define TEMP_1_PIN          -1
+#define TEMP_2_PIN          -1
 #define TEMP_BED_PIN        1    // MUST USE ANALOG INPUT NUMBERING NOT DIGITAL OUTPUT NUMBERING!!!!!!!!!
 
 #endif // MOTHERBOARD == 33 || MOTHERBOARD == 34 || MOTHERBOARD == 35 || MOTHERBOARD == 77
 
-// SPI for Max6675 Thermocouple 
+// SPI for Max6675 Thermocouple
 
 #ifndef SDSUPPORT
-// these pins are defined in the SD library if building with SD support  
-  #define MAX_SCK_PIN          52
-  #define MAX_MISO_PIN         50
-  #define MAX_MOSI_PIN         51
+// these pins are defined in the SD library if building with SD support
+  #define SCK_PIN          52
+  #define MISO_PIN         50
+  #define MOSI_PIN         51
   #define MAX6675_SS       53
 #else
   #define MAX6675_SS       49
@@ -822,17 +1035,17 @@
   #define BTN_EN1          14
   #define BTN_EN2          39
   #define BTN_ENC          15  //the click
-    
+
   #define BLEN_C           2
   #define BLEN_B           1
   #define BLEN_A           0
-    
+
   //encoder rotation values
   #define encrot0          0
   #define encrot1          2
   #define encrot2          3
   #define encrot3          1
-  
+
 #endif //RA_CONTROL_PANEL
 
 #ifdef RA_DISCO
@@ -846,7 +1059,7 @@
   //This currently only works with the RA Board.
   #define TLC_CLOCK_BIT 3 //bit 3 on port A
   #define TLC_CLOCK_PORT &PORTA //bit 3 on port A
-  
+
   #define TLC_BLANK_BIT 1 //bit 1 on port A
   #define TLC_BLANK_PORT &PORTA //bit 1 on port A
 
@@ -856,12 +1069,12 @@
   #define TLC_XLAT_BIT 0 //bit 0 on port A
   #define TLC_XLAT_PORT &PORTA //bit 0 on port A
 
-  //change this to match your situation. Lots of TLCs takes up the arduino SRAM very quickly, so be careful 
+  //change this to match your situation. Lots of TLCs takes up the arduino SRAM very quickly, so be careful
   //Leave it at at least 1 if you have enabled RA_LIGHTING
   //The number of TLC5947 boards chained together for use with the animation, additional ones will repeat the animation on them, but are not individually addressable and mimic those before them. You can leave the default at 2 even if you only have 1 TLC5947 module.
-  #define NUM_TLCS 2 
+  #define NUM_TLCS 2
 
-  //These TRANS_ARRAY values let you change the order the LEDs on the lighting modules will animate for chase functions. 
+  //These TRANS_ARRAY values let you change the order the LEDs on the lighting modules will animate for chase functions.
   //Modify them according to your specific situation.
   //NOTE: the array should be 8 long for every TLC you have. These defaults assume (2) TLCs.
   #define TRANS_ARRAY {0, 1, 2, 3, 4, 5, 6, 7, 15, 14, 13, 12, 11, 10, 9, 8} //forwards
@@ -956,6 +1169,10 @@
 #undef MOTHERBOARD
 #define MOTHERBOARD 6
 #define SANGUINOLOLU_V_1_2
+
+#if defined(__AVR_ATmega1284P__)
+	#define LARGE_FLASH true
+#endif
 #endif
 #if MOTHERBOARD == 6
 #define KNOWN_BOARD 1
@@ -1000,6 +1217,22 @@
 
 #ifdef AZTEEG_X1
  #define FAN_PIN            4
+#endif
+
+#ifdef NUM_SERVOS
+  #define SERVO0_PIN          -1
+
+  #if NUM_SERVOS > 1
+    #define SERVO1_PIN        -1
+  #endif
+
+  #if NUM_SERVOS > 2
+    #define SERVO2_PIN        -1
+  #endif
+
+  #if NUM_SERVOS > 3
+    #define SERVO3_PIN        -1
+  #endif
 #endif
 
 #define PS_ON_PIN          -1
@@ -1066,8 +1299,8 @@
        #define LCD_PINS_D7        27
      #endif
      //The encoder and click button
-     #define BTN_EN1 11  
-     #define BTN_EN2 10 
+     #define BTN_EN1 11
+     #define BTN_EN2 10
      #ifdef LCD_I2C_PANELOLU2
        #ifdef MELZI
          #define BTN_ENC 29 //the click switch
@@ -1079,8 +1312,8 @@
        #define BTN_ENC 16  //the click switch
      #endif //Panelolu2
      //not connected to a pin
-     #define SDCARDDETECT -1    
-    
+     #define SDCARDDETECT -1
+
    #endif //Newpanel
  #endif //Ultipanel
 
@@ -1102,7 +1335,7 @@
      #define BTN_EN2 10
      #define BTN_ENC 16  //the click switch
      //not connected to a pin
-     #define SDCARDDETECT -1    
+     #define SDCARDDETECT -1
  #endif //Makrpanel
 
 #endif
@@ -1185,9 +1418,9 @@
     #define BTN_EN1 40
     #define BTN_EN2 42
     #define BTN_ENC 19  //the click
-    
+
     #define SDCARDDETECT 38
-    
+
   #else //old style panel with shift register
     //arduino pin witch triggers an piezzo beeper
     #define BEEPER 18
@@ -1204,9 +1437,9 @@
     #define LCD_PINS_D5 21
     #define LCD_PINS_D6 20
     #define LCD_PINS_D7 19
-  
+
     #define SDCARDDETECT -1
-  #endif 
+  #endif
 #endif //ULTRA_LCD
 
 #endif
@@ -1280,6 +1513,90 @@
 
 #endif
 
+#if MOTHERBOARD == 72
+#define KNOWN_BOARD
+/*****************************************************************
+* Ultiboard v2.0 pin assignment
+******************************************************************/
+
+#ifndef __AVR_ATmega2560__
+ #error Oops!  Make sure you have 'Arduino Mega 2560' selected from the 'Tools -> Boards' menu.
+#endif
+
+#define X_STEP_PIN 25
+#define X_DIR_PIN 23
+#define X_STOP_PIN 22
+#define X_ENABLE_PIN 27
+
+#define Y_STEP_PIN 32
+#define Y_DIR_PIN 33
+#define Y_STOP_PIN 26
+#define Y_ENABLE_PIN 31
+
+#define Z_STEP_PIN 35
+#define Z_DIR_PIN 36
+#define Z_STOP_PIN 29
+#define Z_ENABLE_PIN 34
+
+#define HEATER_BED_PIN 4
+#define TEMP_BED_PIN 10
+
+#define HEATER_0_PIN  2
+#define TEMP_0_PIN 8
+
+#define HEATER_1_PIN 3
+#define TEMP_1_PIN 9
+
+#define HEATER_2_PIN -1
+#define TEMP_2_PIN -1
+
+#define E0_STEP_PIN         42
+#define E0_DIR_PIN          43
+#define E0_ENABLE_PIN       37
+
+#define E1_STEP_PIN         49
+#define E1_DIR_PIN          47
+#define E1_ENABLE_PIN       48
+
+#define SDPOWER            -1
+#define SDSS               53
+#define LED_PIN            8
+#define FAN_PIN            7
+#define PS_ON_PIN          -1
+#define KILL_PIN           -1
+#define SUICIDE_PIN        -1  //PIN that has to be turned on right after start, to keep power flowing.
+#define SAFETY_TRIGGERED_PIN     28 //PIN to detect the safety circuit has triggered
+#define MAIN_VOLTAGE_MEASURE_PIN 14 //Analogue PIN to measure the main voltage, with a 100k - 4k7 resitor divider.
+
+#define MOTOR_CURRENT_PWM_XY_PIN 44
+#define MOTOR_CURRENT_PWM_Z_PIN 45
+#define MOTOR_CURRENT_PWM_E_PIN 46
+//Motor current PWM conversion, PWM value = MotorCurrentSetting * 255 / range
+#define MOTOR_CURRENT_PWM_RANGE 2000
+#define DEFAULT_PWM_MOTOR_CURRENT  {1300, 1300, 1250}
+
+//arduino pin witch triggers an piezzo beeper
+#define BEEPER 18
+
+#define LCD_PINS_RS 20
+#define LCD_PINS_ENABLE 15
+#define LCD_PINS_D4 14
+#define LCD_PINS_D5 21
+#define LCD_PINS_D6 5
+#define LCD_PINS_D7 6
+
+//buttons are directly attached
+#define BTN_EN1 40
+#define BTN_EN2 41
+#define BTN_ENC 19  //the click
+
+#define BLEN_C 2
+#define BLEN_B 1
+#define BLEN_A 0
+
+#define SDCARDDETECT 39
+
+#endif//MOTHERBOARD == 72
 
 /****************************************************************************************
 * RUMBA pin assignment
@@ -1340,7 +1657,7 @@
  #else
   #define TEMP_0_PIN         15   // ANALOG NUMBERING - default connector for thermistor *T0* on rumba board is used
  #endif
-#endif 
+#endif
 
 #if (TEMP_SENSOR_1==0)
  #define TEMP_1_PIN         -1
@@ -1412,6 +1729,10 @@
 #error Oops!  Make sure you have 'Teensy++ 2.0' selected from the 'Tools -> Boards' menu.
 #endif
 
+#ifdef AT90USBxx_TEENSYPP_ASSIGNMENTS  // use Teensyduino Teensy++2.0 pin assignments instead of Marlin traditional.
+#error These Teensylu/Printrboard assignments depend on traditional Marlin assignments, not AT90USBxx_TEENSYPP_ASSIGNMENTS in fastio.h
+#endif
+
 #define LARGE_FLASH        true
 
 #define X_STEP_PIN          0
@@ -1450,6 +1771,9 @@
   #define Z_STOP_PIN         36
   #define TEMP_0_PIN          1  // Extruder / Analog pin numbering
   #define TEMP_BED_PIN        0  // Bed / Analog pin numbering
+  #ifdef FILAMENT_SENSOR
+   #define FILWIDTH_PIN        2
+  #endif //FILAMENT_SENSOR
 #endif
 
 #define TEMP_1_PIN         -1
@@ -1534,6 +1858,213 @@
 
 #endif  // MOTHERBOARD == 82 (Brainwave)
 
+//
+// SAV Mk-I
+// -----------------------------------------------------------------------------------
+/****************************************************************************************
+* SAV MkI pin assignments (AT90USB1286)
+* Requires the Teensyduino software with Teensy++ 2.0 selected in Arduino IDE!
+  http://www.pjrc.com/teensy/teensyduino.html
+   RepRap Clone Wars project board.
+****************************************************************************************/
+#if MOTHERBOARD == 83  // SAV Mk-I
+#define KNOWN_BOARD 1
+#define AT90USB 1286  // Disable MarlinSerial etc.
+
+#ifndef __AVR_AT90USB1286__
+#error Oops!  Make sure you have 'Teensy++ 2.0' selected from the 'Tools -> Boards' menu.
+#endif
+
+#define LARGE_FLASH        true
+
+
+#define X_STEP_PIN         0
+#define X_DIR_PIN          1
+#define X_ENABLE_PIN       39
+
+#define Y_STEP_PIN         2
+#define Y_DIR_PIN          3
+#define Y_ENABLE_PIN       38
+
+#define Z_STEP_PIN         4
+#define Z_DIR_PIN          5
+#define Z_ENABLE_PIN       23
+
+#define E0_STEP_PIN         6
+#define E0_DIR_PIN          7
+#define E0_ENABLE_PIN       19
+
+#define HEATER_0_PIN       21  // Extruder
+#define HEATER_1_PIN       -1
+#define HEATER_2_PIN       -1
+#define HEATER_BED_PIN     20  // Bed
+#define FAN_PIN            16  // Fan   -- from Teensyduino environment.
+                               // For the fan and Teensyduino uses a different pin mapping.
+
+  #define X_STOP_PIN         13
+  #define Y_STOP_PIN         14
+  #define Z_STOP_PIN         15
+  #define TEMP_0_PIN          7  // Extruder / Analog pin numbering
+  #define TEMP_BED_PIN        6  // Bed / Analog pin numbering
+
+#define TEMP_1_PIN         -1
+#define TEMP_2_PIN         -1
+
+#define SDPOWER            -1
+#define SDSS               20  // PB0 - 8 in marlin env.
+#define LED_PIN            -1
+#define PS_ON_PIN          -1
+#define KILL_PIN           -1
+#define ALARM_PIN          -1
+#define SDCARDDETECT       -1
+
+
+#ifndef SDSUPPORT
+   // these pins are defined in the SD library if building with SD support
+  #define SCK_PIN          9
+  #define MISO_PIN         11
+  #define MOSI_PIN         10
+#endif
+
+#define BEEPER             -1
+#define LCD_PINS_RS        -1
+#define LCD_PINS_ENABLE    -1
+#define LCD_PINS_D4        -1
+#define LCD_PINS_D5        -1
+#define LCD_PINS_D6        -1
+#define LCD_PINS_D7        -1
+#define BTN_EN1            -1
+#define BTN_EN2            -1
+#define BTN_ENC            -1
+
+// For LCD SHIFT register LCD
+#define SR_DATA_PIN         0
+#define SR_CLK_PIN          1
+
+#endif  // MOTHERBOARD == 83
+
+/****************************************************************************************
+* Teensy++ 2.0 Breadboard pin assignments (AT90USB1286)
+* Requires the Teensyduino software with Teensy++ 2.0 selected in Arduino IDE!
+  http://www.pjrc.com/teensy/teensyduino.html
+* See http://reprap.org/wiki/Printrboard for more info
+* CLI build: DEFINES=AT90USBxx_TEENSYPP_ASSIGNMENTS HARDWARE_MOTHERBOARD=84  make
+* 
+****************************************************************************************/
+#if MOTHERBOARD == 84
+#define KNOWN_BOARD 1
+#define AT90USB 1286  // Disable MarlinSerial etc.
+
+#ifndef __AVR_AT90USB1286__
+#error Oops!  Make sure you have 'Teensy++ 2.0' selected from the 'Tools -> Boards' menu.
+#endif
+
+#define LARGE_FLASH        true
+
+/* 
+DaveX plan for Teensylu/printrboard-type pinouts (ref teensylu & sprinter) for a TeensyBreadboard:
+
+                               USB
+           GND       GND |-----#####-----| +5V              ATX +5SB
+     ATX PS_ON    PWM 27 |b7   #####   b6| 26    PWM*       Stepper Enable 
+                  PWM  0 |d0           b5| 25    PWM*        
+                  PWM  1 |d1           b4| 24    PWM        
+         X_MIN         2 |d2           b3| 23               MISO_PIN
+         Y_MIN         3 |d3           b2| 22               MOSI_PIN
+         Z_MIN         4 |d4  * *      b1| 21               SCK_PIN       
+                       5 |d5  e e      b0| 20               SDSS              
+                LED    6 |d6  5 4      e7| 19               
+                       7 |d7           e6| 18               
+       LCD  RS         8 |e0             | GND              
+       LCD  EN         9 |e1   a4 a0    R| AREF             
+       LCD  D4        10 |c0   a5 a1   f0| 38 A0            ENC_1           
+       LCD  D5        11 |c1   a6 a2   f1| 39 A1            ENC_2
+       LCD  D6        12 |c2   a7 a3   f2| 40 A2            ENC_CLK
+       LCD  D6        13 |c3           f3| 41 A3            
+      Bed Heat    PWM 14 |c4   V G R   f4| 42 A4            
+ Extruder Heat    PWM 15 |c5   c n S   f5| 43 A5            
+           Fan    PWM 16 |c6   c d T   f6| 44 A6            Bed TC
+                      17 |c7   * * *   f7| 45 A7            Extruder TC * 4.7k * +5        
+                         -----------------                  
+
+      Interior E4: 36, INT4
+      Interior E5: 37, INT5
+      Interior PA0-7: 28-35  -- Printrboard and Teensylu use these pins for step & direction:
+             T++ PA Signal  Marlin
+    
+       Z STEP  32 a4  a0 28 X STEP
+       Z DIR   33 a5  a1 29 X DIR
+       E STEP  34 a6  a2 30 Y STEP
+       E DIR   35 a7  a3 31 Y DIR
+
+*/
+
+#ifndef AT90USBxx_TEENSYPP_ASSIGNMENTS  // use Teensyduino Teensy++2.0 pin assignments instead of Marlin alphabetical.
+  #error  Uncomment #define AT90USBxx_TEENSYPP_ASSIGNMENTS in fastio.h for this config
+  // or build from command line with:  DEFINES=AT90USBxx_TEENSYPP_ASSIGNMENTS HARDWARE_MOTHERBOARD=84  make
+#endif
+
+#define X_STEP_PIN         28 //  0 Marlin
+#define X_DIR_PIN          29 //  1 Marlin
+#define X_ENABLE_PIN       26 
+
+#define Y_STEP_PIN         30 //  2 Marlin
+#define Y_DIR_PIN          31 //  3
+#define Y_ENABLE_PIN       26     // Shared w/x
+
+#define Z_STEP_PIN         32 //  4
+#define Z_DIR_PIN          33 //  5
+#define Z_ENABLE_PIN       26 // Shared w/x
+
+#define E0_STEP_PIN        34 //  6
+#define E0_DIR_PIN         35 //  7
+#define E0_ENABLE_PIN      26 // Shared w/x
+
+#define HEATER_0_PIN       15 //  21  // Extruder
+#define HEATER_1_PIN       -1
+#define HEATER_2_PIN       -1
+#define HEATER_BED_PIN     14 // 20  // Bed
+#define FAN_PIN            16 // 22  // Fan
+
+#define X_STOP_PIN          2
+#define Y_STOP_PIN          3
+#define Z_STOP_PIN          4
+
+#define TEMP_0_PIN          7 // Extruder / Analog pin numbering
+#define TEMP_BED_PIN        6 // Bed / Analog pin numbering
+#define TEMP_1_PIN         -1
+#define TEMP_2_PIN         -1
+
+#define SDPOWER            -1
+#define SDCARDDETECT       -1		
+#define SDSS               20 // 8
+#define LED_PIN             6
+#define PS_ON_PIN          27
+#define KILL_PIN           -1
+#define ALARM_PIN          -1
+
+#ifndef SDSUPPORT
+// these pins are defined in the SD library if building with SD support
+  #define SCK_PIN         21 // 9
+  #define MISO_PIN        23 // 11
+  #define MOSI_PIN        22 // 10
+#endif
+
+#ifdef ULTIPANEL
+#define LCD_PINS_RS         8
+#define LCD_PINS_ENABLE     9
+#define LCD_PINS_D4        10
+#define LCD_PINS_D5        11
+#define LCD_PINS_D6        12
+#define LCD_PINS_D7        13
+#define BTN_EN1            38
+#define BTN_EN2            39
+#define BTN_ENC            40
+#endif
+
+#endif  // MOTHERBOARD == 84 (Teensy++2.0 Breadboard)
+
+
 /****************************************************************************************
 * Gen3+ pin assignment
 *
@@ -1559,8 +2090,8 @@
 #define Z_DIR_PIN          28
 #define Z_STOP_PIN         30
 
-#define E_STEP_PIN         17
-#define E_DIR_PIN          21
+#define E0_STEP_PIN        17
+#define E0_DIR_PIN         21
 
 #define LED_PIN            -1
 
@@ -1571,15 +2102,16 @@
 
 #define HEATER_0_PIN       12 // (extruder)
 
-#define HEATER_1_PIN       16 // (bed)
+#define HEATER_BED_PIN     16 // (bed)
 #define X_ENABLE_PIN       19
 #define Y_ENABLE_PIN       24
 #define Z_ENABLE_PIN       29
-#define E_ENABLE_PIN       13
+#define E0_ENABLE_PIN      13
 
 #define TEMP_0_PIN          0   // MUST USE ANALOG INPUT NUMBERING NOT DIGITAL OUTPUT NUMBERING!!!!!!!!! (pin 33 extruder)
-#define TEMP_1_PIN          5   // MUST USE ANALOG INPUT NUMBERING NOT DIGITAL OUTPUT NUMBERING!!!!!!!!! (pin 34 bed)
+#define TEMP_1_PIN         -1   
 #define TEMP_2_PIN         -1
+#define TEMP_BED_PIN        5   // MUST USE ANALOG INPUT NUMBERING NOT DIGITAL OUTPUT NUMBERING!!!!!!!!! (pin 34 bed)  
 #define SDPOWER            -1
 #define SDSS               4
 #define HEATER_2_PIN       -1
@@ -1876,6 +2408,10 @@
   #endif
 #endif //ULTRA_LCD
 
+#ifdef FILAMENT_SENSOR
+  //Filip added pin for Filament sensor analog input 
+  #define FILWIDTH_PIN        3
+#endif //FILAMENT_SENSOR
 
 #endif
 
@@ -1964,13 +2500,13 @@
     #define BTN_EN1 59
     #define BTN_EN2 64
     #define BTN_ENC 43  //the click
-    
+
     #define BLEN_C 2
     #define BLEN_B 1
     #define BLEN_A 0
-    
+
     #define SDCARDDETECT -1		// Ramps does not use this port
-    
+
       //encoder rotation values
     #define encrot0 0
     #define encrot1 2
@@ -1987,102 +2523,102 @@
 ****************************************************************************************/
 #if MOTHERBOARD == 701
  #define KNOWN_BOARD 1
- 
- 
+
+
  #ifndef __AVR_ATmega2560__
  #error Oops! Make sure you have 'Arduino Mega' selected from the 'Tools -> Boards' menu.
  #endif
- 
+
  #define LARGE_FLASH        true
- 
+
  #define X_STEP_PIN 26
  #define X_DIR_PIN 27
  #define X_ENABLE_PIN 25
  #define X_MIN_PIN 37
  #define X_MAX_PIN 40 //2 //Max endstops default to disabled "-1", set to commented value to enable.
- 
+
  #define Y_STEP_PIN 4 // A6
  #define Y_DIR_PIN 54 // A0
  #define Y_ENABLE_PIN 5
  #define Y_MIN_PIN 41
  #define Y_MAX_PIN 38 //15
- 
+
  #define Z_STEP_PIN 56 // A2
  #define Z_DIR_PIN 60 // A6
  #define Z_ENABLE_PIN 55 // A1
  #define Z_MIN_PIN 18
  #define Z_MAX_PIN 19
- 
+
  #define E0_STEP_PIN 35
  #define E0_DIR_PIN 36
  #define E0_ENABLE_PIN 34
- 
+
  #define E1_STEP_PIN 29
  #define E1_DIR_PIN 39
  #define E1_ENABLE_PIN 28
- 
+
  #define E2_STEP_PIN 23
  #define E2_DIR_PIN 24
  #define E2_ENABLE_PIN 22
- 
+
  #define SDPOWER -1
  #define SDSS 53
  #define LED_PIN 13
- 
+
  #define FAN_PIN 7
  #define FAN2_PIN 6
  #define PS_ON_PIN 12
  #define KILL_PIN -1
- 
+
  #define HEATER_0_PIN 9 // EXTRUDER 1
  #define HEATER_1_PIN 8 // EXTRUDER 2
  #define HEATER_2_PIN -1
- 
+
  #if TEMP_SENSOR_0 == -1
    #define TEMP_0_PIN 4 // ANALOG NUMBERING
  #else
    #define TEMP_0_PIN 13 // ANALOG NUMBERING
  #endif
- 
- 
+
+
  #if TEMP_SENSOR_1 == -1
    #define TEMP_1_PIN 8 // ANALOG NUMBERING
  #else
    #define TEMP_1_PIN 15 // ANALOG NUMBERING
  #endif
- 
+
  #define TEMP_2_PIN -1 // ANALOG NUMBERING
- 
+
  #define HEATER_BED_PIN 10 // BED
- 
+
  #if TEMP_SENSOR_BED == -1
    #define TEMP_BED_PIN 8 // ANALOG NUMBERING
- #else 
+ #else
    #define TEMP_BED_PIN 14 // ANALOG NUMBERING
  #endif
- 
- #define BEEPER 64	
- 
- 
+
+ #define BEEPER 64
+
+
  #define LCD_PINS_RS 14
  #define LCD_PINS_ENABLE 15
  #define LCD_PINS_D4 30
  #define LCD_PINS_D5 31
  #define LCD_PINS_D6 32
  #define LCD_PINS_D7 33
- 
- 
+
+
  //buttons are directly attached using keypad
  #define BTN_EN1 61
  #define BTN_EN2 59
  #define BTN_ENC 43 //the click
- 
+
  #define BLEN_C 2
  #define BLEN_B 1
  #define BLEN_A 0
- 
+
  #define SDCARDDETECT -1	// Megatronics does not use this port
- 
+
    //encoder rotation values
  #define encrot0 0
  #define encrot1 2
@@ -2098,88 +2634,189 @@
 ****************************************************************************************/
 #if MOTHERBOARD == 702
  #define KNOWN_BOARD 1
- 
- 
+
+
  #ifndef __AVR_ATmega1281__
  #error Oops! Make sure you have 'Minitronics ' selected from the 'Tools -> Boards' menu.
  #endif
- 
+
  #define LARGE_FLASH        true
- 
+
  #define X_STEP_PIN 48
  #define X_DIR_PIN 47
  #define X_ENABLE_PIN 49
  #define X_MIN_PIN 5
  #define X_MAX_PIN -1 //2 //Max endstops default to disabled "-1", set to commented value to enable.
- 
+
  #define Y_STEP_PIN 39 // A6
  #define Y_DIR_PIN 40 // A0
  #define Y_ENABLE_PIN 38
  #define Y_MIN_PIN 2
  #define Y_MAX_PIN -1 //15
- 
+
  #define Z_STEP_PIN 42 // A2
  #define Z_DIR_PIN 43 // A6
  #define Z_ENABLE_PIN 41 // A1
  #define Z_MIN_PIN 6
  #define Z_MAX_PIN -1
- 
+
  #define E0_STEP_PIN 45
  #define E0_DIR_PIN 44
  #define E0_ENABLE_PIN 27
- 
+
  #define E1_STEP_PIN 36
  #define E1_DIR_PIN 35
  #define E1_ENABLE_PIN 37
- 
+
  #define E2_STEP_PIN -1
  #define E2_DIR_PIN -1
  #define E2_ENABLE_PIN -1
- 
+
  #define SDPOWER -1
  #define SDSS 16
  #define LED_PIN 46
- 
+
  #define FAN_PIN 9
  #define FAN2_PIN -1
  #define PS_ON_PIN -1
  #define KILL_PIN -1
- 
+
  #define HEATER_0_PIN 7 // EXTRUDER 1
  #define HEATER_1_PIN 8 // EXTRUDER 2
  #define HEATER_2_PIN -1
- 
+
 
  #define TEMP_0_PIN 7 // ANALOG NUMBERING
  #define TEMP_1_PIN 6 // ANALOG NUMBERING
  #define TEMP_2_PIN -1 // ANALOG NUMBERING
- 
+
  #define HEATER_BED_PIN 3 // BED
  #define TEMP_BED_PIN 6 // ANALOG NUMBERING
- 
- #define BEEPER -1	
- 
- 
+
+ #define BEEPER -1
+
+
  #define LCD_PINS_RS -1
  #define LCD_PINS_ENABLE -1
  #define LCD_PINS_D4 -1
  #define LCD_PINS_D5 -1
  #define LCD_PINS_D6 -1
  #define LCD_PINS_D7 -1
- 
- 
+
+
  //buttons are directly attached using keypad
  #define BTN_EN1 -1
  #define BTN_EN2 -1
  #define BTN_ENC -1 //the click
- 
+
  #define BLEN_C 2
  #define BLEN_B 1
  #define BLEN_A 0
- 
+
  #define SDCARDDETECT -1	// Megatronics does not use this port
- 
+
    //encoder rotation values
+ #define encrot0 0
+ #define encrot1 2
+ #define encrot2 3
+ #define encrot3 1
+
+#endif
+
+/****************************************************************************************
+* Cheaptronic v1.0
+*
+****************************************************************************************/
+#if MOTHERBOARD == 2
+ #define KNOWN_BOARD 1
+
+ #ifndef __AVR_ATmega2560__
+ #error Oops! Make sure you have 'Arduino Mega' selected from the 'Tools -> Boards' menu.
+ #endif
+
+ #define LARGE_FLASH        true
+
+ //X motor stepper
+ #define X_STEP_PIN 14
+ #define X_DIR_PIN 15
+ #define X_ENABLE_PIN 24
+
+ //X endstop
+ #define X_MIN_PIN 3
+ #define X_MAX_PIN -1
+
+ //Y motor stepper
+ #define Y_STEP_PIN 35
+ #define Y_DIR_PIN 36
+ #define Y_ENABLE_PIN 31
+
+ //Y endstop
+ #define Y_MIN_PIN 2
+ #define Y_MAX_PIN -1
+
+ //Z motor stepper
+ #define Z_STEP_PIN 40
+ #define Z_DIR_PIN 41
+ #define Z_ENABLE_PIN 37
+
+ //Z endstop
+ #define Z_MIN_PIN 5
+ #define Z_MAX_PIN -1
+
+ //Extruder 0 stepper
+ #define E0_STEP_PIN 26
+ #define E0_DIR_PIN 28
+ #define E0_ENABLE_PIN 25
+
+ //Extruder 1 stepper
+ #define E1_STEP_PIN 33
+ #define E1_DIR_PIN 34
+ #define E1_ENABLE_PIN 30
+
+ #define SDPOWER -1
+ #define SDSS -1
+ #define LED_PIN -1
+
+ //FAN
+ #define FAN_PIN -1
+
+ #define PS_ON_PIN -1
+ #define KILL_PIN -1
+
+ #define HEATER_0_PIN 19 // EXTRUDER 1
+ #define HEATER_1_PIN 23 // EXTRUDER 2
+ //HeatedBad
+ #define HEATER_BED_PIN 22
+ //Cheaptronic v1.0 hasent EXTRUDER 3
+ #define HEATER_2_PIN -1
+
+ //Temperature sensors
+ #define TEMP_0_PIN 15
+ #define TEMP_1_PIN 14
+ #define TEMP_2_PIN -1
+ #define TEMP_BED_PIN 13
+
+ //Cheaptronic v1.0 dont support LCD
+ #define LCD_PINS_RS -1
+ #define LCD_PINS_ENABLE -1
+ #define LCD_PINS_D4 -1
+ #define LCD_PINS_D5 -1
+ #define LCD_PINS_D6 -1
+ #define LCD_PINS_D7 -1
+
+ //Cheaptronic v1.0 dont support keypad
+ #define BTN_EN1 -1
+ #define BTN_EN2 -1
+ #define BTN_ENC -1
+
+ #define BLEN_C 2
+ #define BLEN_B 1
+ #define BLEN_A 0
+
+ //Cheaptronic v1.0 does not use this port
+ #define SDCARDDETECT -1
+
+ //encoder rotation values
  #define encrot0 0
  #define encrot1 2
  #define encrot2 3
