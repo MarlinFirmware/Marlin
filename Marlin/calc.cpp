@@ -9,13 +9,33 @@
 //===========================================================================
 //=============================public variables=============================
 //===========================================================================
-double homing_feedrate[] = HOMING_FEEDRATE;
+float homing_feedrate[] = HOMING_FEEDRATE;
 bool axis_relative_modes[] = AXIS_RELATIVE_MODES;
 int feedmultiply=100; //100->1 200->2
 int saved_feedmultiply;
 int extrudemultiply=100; //100->1 200->2
-double current_position[NUM_AXIS] = { 0.0, 0.0, 0.0, 0.0 };
-double add_homeing[3]={0,0,0};
+int extruder_multiply[EXTRUDERS] = {100
+  #if EXTRUDERS > 1
+    , 100
+    #if EXTRUDERS > 2
+      , 100
+    #endif
+  #endif
+};
+float volumetric_multiplier[EXTRUDERS] = {1.0
+  #if EXTRUDERS > 1
+    , 1.0
+    #if EXTRUDERS > 2
+      , 1.0
+    #endif
+  #endif
+};
+float current_position[NUM_AXIS] = { 0.0, 0.0, 0.0, 0.0 };
+float add_homing[3]={0,0,0};
+#ifdef DELTA
+float endstop_adj[3]={0,0,0};
+#endif
+
 double min_pos[3] = { X_MIN_POS, Y_MIN_POS, Z_MIN_POS };
 double max_pos[3] = { X_MAX_POS, Y_MAX_POS, Z_MAX_POS };
 uint8_t active_extruder = 0;
@@ -241,7 +261,7 @@ void process_commands() {
              plan_set_e_position(current_position[E_AXIS]);
            }
            else {
-             current_position[i] = code_value()+add_homeing[i];  
+             current_position[i] = code_value()+add_homing[i];  
              plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
            }
         }

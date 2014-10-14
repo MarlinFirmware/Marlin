@@ -52,6 +52,7 @@
  */
 
 //#include "Marlin.h"
+#include "calc.h"
 #include "planner.h"
 #include "Configuration.h"
 //#include "stepper.h"
