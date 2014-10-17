@@ -1044,7 +1044,7 @@ static void run_z_probe() {
     st_synchronize();
 
     // move back down slowly to find bed
-    feedrate = homing_feedrate[Z_AXIS]/4;
+    feedrate = homing_feedrate[Z_AXIS]/8;
     zPosition -= home_retract_mm(Z_AXIS) * 2;
     plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], zPosition, current_position[E_AXIS], feedrate/60, active_extruder);
     st_synchronize();
@@ -1134,9 +1134,14 @@ static float probe_pt(float x, float y, float z_before) {
 #endif // Z_PROBE_SLED
   run_z_probe();
   float measured_z = current_position[Z_AXIS];
-#ifndef Z_PROBE_SLED
-  retract_z_probe();
-#endif // Z_PROBE_SLED
+//#ifndef Z_PROBE_SLED
+//  retract_z_probe();
+//#endif // Z_PROBE_SLED
+
+
+	// !! MOVED SERVO RETRACT TO END OF AUTO BED LEVELING
+
+	// !! MOVED SERVO RETRACT TO END OF AUTO BED LEVELING
 
   SERIAL_PROTOCOLPGM(MSG_BED);
   SERIAL_PROTOCOLPGM(" x: ");
@@ -1217,17 +1222,23 @@ static void homeaxis(int axis) {
     endstops_hit_on_purpose();
     axis_known_position[axis] = true;
 
-    // Retract Servo endstop if enabled
+
+    /* Retract Servo endstop if enabled
+=======
+    /* Retract Servo endstop if enabled !! MOVED UP TO G28
+>>>>>>> origin/Marlin_v1
+=======
+    /* Retract Servo endstop if enabled !! MOVED UP TO G28
+>>>>>>> origin/Marlin_v1
     #ifdef SERVO_ENDSTOPS
       if (servo_endstops[axis] > -1) {
         servos[servo_endstops[axis]].write(servo_endstop_angles[axis * 2 + 1]);
       }
     #endif
 #if defined (ENABLE_AUTO_BED_LEVELING) && (PROBE_SERVO_DEACTIVATION_DELAY > 0)
-  #ifndef Z_PROBE_SLED
-    if (axis==Z_AXIS) retract_z_probe();
-  #endif
+//    if (axis==Z_AXIS) retract_z_probe();
 #endif
+*/
 
   }
 }
@@ -1292,7 +1303,7 @@ void refresh_cmd_timeout(void)
   } //retract
 #endif //FWRETRACT
 
-#ifdef Z_PROBE_SLED
+#ifdef ENABLE_AUTO_BED_LEVELING
 //
 // Method to dock/undock a sled designed by Charles Bell.
 //
@@ -1623,11 +1634,29 @@ void process_commands()
       #endif
       plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
 #endif // else DELTA
+      // Move up for servo retraction
+	  
+      if((home_all_axis) || (code_seen(axis_codes[Z_AXIS]))) {
+        do_blocking_move_relative(0,0,Z_RAISE_BEFORE_PROBING);
+      }
 
+      #if defined (ENABLE_AUTO_BED_LEVELING) && (PROBE_SERVO_DEACTIVATION_DELAY > 0)
+        if ((home_all_axis) || (code_seen(axis_codes[Z_AXIS]))) retract_z_probe();
+      #endif
+
+
+if((home_all_axis) || (code_seen(axis_codes[Z_AXIS]))) {
+        do_blocking_move_relative(0,0,Z_RAISE_BEFORE_PROBING);
+      }
+
+      #if defined (ENABLE_AUTO_BED_LEVELING) && (PROBE_SERVO_DEACTIVATION_DELAY > 0)
+        if ((home_all_axis) || (code_seen(axis_codes[Z_AXIS]))) retract_z_probe();
+      #endif
 #ifdef SCARA
 	  calculate_delta(current_position);
       plan_set_position(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], current_position[E_AXIS]);
 #endif SCARA
+
 
       #ifdef ENDSTOPS_ONLY_FOR_HOMING
         enable_endstops(false);
@@ -1783,9 +1812,21 @@ void process_commands()
             apply_rotation_xyz(plan_bed_level_matrix, x_tmp, y_tmp, z_tmp);         //Apply the correction sending the probe offset
             current_position[Z_AXIS] = z_tmp - real_z + current_position[Z_AXIS];   //The difference is added to current position and sent to planner.
             plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+
+ // Raise before z probe retract
+		do_blocking_move_relative(0,0,5);
+	    retract_z_probe();
+	    do_blocking_move_relative(0,0,-5);
 #ifdef Z_PROBE_SLED
             dock_sled(true, -SLED_DOCKING_OFFSET); // correct for over travel.
 #endif // Z_PROBE_SLED
+
+
+            // Raise before z probe retract
+            do_blocking_move_relative(0,0,5);
+	    retract_z_probe();
+	    do_blocking_move_relative(0,0,-5);
+
         }
         break;
 #ifndef Z_PROBE_SLED
