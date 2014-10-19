@@ -531,7 +531,7 @@
 * Arduino Mega pin assignment
 *
 ****************************************************************************************/
-#if MOTHERBOARD == 3 || MOTHERBOARD == 33 || MOTHERBOARD == 34 || MOTHERBOARD == 35 || MOTHERBOARD == 77 || MOTHERBOARD == 67 || MOTHERBOARD == 68
+#if MOTHERBOARD == 3 || MOTHERBOARD == 33 || MOTHERBOARD == 34 || MOTHERBOARD == 35 || MOTHERBOARD == 36 || MOTHERBOARD == 77 || MOTHERBOARD == 67 || MOTHERBOARD == 68
 #define KNOWN_BOARD 1
 
 //////////////////FIX THIS//////////////
@@ -547,7 +547,7 @@
 // #define RAMPS_V_1_0
 
 
-#if MOTHERBOARD == 33 || MOTHERBOARD == 34 || MOTHERBOARD == 35 || MOTHERBOARD == 77 || MOTHERBOARD == 67 || MOTHERBOARD == 68
+#if MOTHERBOARD == 33 || MOTHERBOARD == 34 || MOTHERBOARD == 35 || MOTHERBOARD == 36 ||  MOTHERBOARD == 77 || MOTHERBOARD == 67 || MOTHERBOARD == 68
 
   #define LARGE_FLASH true
 
@@ -628,6 +628,15 @@
     #define E1_DIR_PIN         34
     #define E1_ENABLE_PIN      30
 
+#if MOTHERBOARD == 34  //FMM added for Filament Extruder
+#ifdef FILAMENT_SENSOR
+	  //define analog pin for the filament width sensor input
+	  //Use the RAMPS 1.4 Analog input 5 on the AUX2 connector
+      #define FILWIDTH_PIN        5
+#endif
+#endif
+
+
     #if MOTHERBOARD == 68
       #define E2_STEP_PIN        23
       #define E2_DIR_PIN         25
@@ -653,7 +662,7 @@
     #define FAN_PIN            4 // IO pin. Buffer needed
   #endif
 
-  #if MOTHERBOARD == 77
+  #if MOTHERBOARD == 77 || MOTHERBOARD == 36
     #define FAN_PIN            8
   #endif
 
@@ -709,7 +718,7 @@
     #define TEMP_2_PIN         -1   // ANALOG NUMBERING
   #endif
 
-  #if MOTHERBOARD == 35
+  #if MOTHERBOARD == 35 || MOTHERBOARD == 36
     #define HEATER_BED_PIN     -1    // NO BED
   #else
     #if MOTHERBOARD == 77
@@ -1762,6 +1771,9 @@
   #define Z_STOP_PIN         36
   #define TEMP_0_PIN          1  // Extruder / Analog pin numbering
   #define TEMP_BED_PIN        0  // Bed / Analog pin numbering
+  #ifdef FILAMENT_SENSOR
+   #define FILWIDTH_PIN        2
+  #endif //FILAMENT_SENSOR
 #endif
 
 #define TEMP_1_PIN         -1
@@ -2078,8 +2090,8 @@ DaveX plan for Teensylu/printrboard-type pinouts (ref teensylu & sprinter) for a
 #define Z_DIR_PIN          28
 #define Z_STOP_PIN         30
 
-#define E0_STEP_PIN         17
-#define E0_DIR_PIN          21
+#define E0_STEP_PIN        17
+#define E0_DIR_PIN         21
 
 #define LED_PIN            -1
 
@@ -2396,6 +2408,10 @@ DaveX plan for Teensylu/printrboard-type pinouts (ref teensylu & sprinter) for a
   #endif
 #endif //ULTRA_LCD
 
+#ifdef FILAMENT_SENSOR
+  //Filip added pin for Filament sensor analog input 
+  #define FILWIDTH_PIN        3
+#endif //FILAMENT_SENSOR
 
 #endif
 
