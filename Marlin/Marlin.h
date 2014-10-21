@@ -211,7 +211,7 @@ extern int extrudemultiply; // Sets extrude multiply factor (in percent) for all
 extern int extruder_multiply[EXTRUDERS]; // sets extrude multiply factor (in percent) for each extruder individually
 extern float volumetric_multiplier[EXTRUDERS]; // reciprocal of cross-sectional area of filament (in square millimeters), stored this way to reduce computational burden in planner
 extern float current_position[NUM_AXIS] ;
-extern float add_homeing[3];
+extern float add_homing[3];
 #ifdef DELTA
 extern float endstop_adj[3];
 extern float delta_radius;
@@ -234,6 +234,16 @@ extern int EtoPPressure;
 
 #ifdef FAN_SOFT_PWM
 extern unsigned char fanSpeedSoftPwm;
+#endif
+
+#ifdef FILAMENT_SENSOR
+  extern float filament_width_nominal;  //holds the theoretical filament diameter ie., 3.00 or 1.75 
+  extern bool filament_sensor;  //indicates that filament sensor readings should control extrusion  
+  extern float filament_width_meas; //holds the filament diameter as accurately measured 
+  extern signed char measurement_delay[];  //ring buffer to delay measurement
+  extern int delay_index1, delay_index2;  //index into ring buffer
+  extern float delay_dist; //delay distance counter
+  extern int meas_delay_cm; //delay distance
 #endif
 
 #ifdef FWRETRACT
