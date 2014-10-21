@@ -2224,7 +2224,7 @@ DaveX plan for Teensylu/printrboard-type pinouts (ref teensylu & sprinter) for a
 #define Z_MS2_PIN 67
 
 #define HEATER_BED_PIN 3
-#define TEMP_BED_PIN 2
+#define TEMP_BED_PIN 3 // Connect the pressure sensor to pin A3 on the Rambo
 
 #define HEATER_0_PIN  9
 #define TEMP_0_PIN 0
