@@ -367,7 +367,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = false; // set to true to invert the logic o
   #ifdef AUTO_BED_LEVELING_GRID
 
     // set the rectangle in which to probe
-    #define LEFT_PROBE_BED_POSITION 15
+    #define LEFT_PROBE_BED_POSITION 40
     #define RIGHT_PROBE_BED_POSITION 100
     #define BACK_PROBE_BED_POSITION 60
     #define FRONT_PROBE_BED_POSITION 20
@@ -381,9 +381,9 @@ const bool Z_MAX_ENDSTOP_INVERTING = false; // set to true to invert the logic o
     // with no grid, just probe 3 arbitrary points.  A simple cross-product
     // is used to esimate the plane of the print bed
 
-      #define ABL_PROBE_PT_1_X 15
+      #define ABL_PROBE_PT_1_X 40
       #define ABL_PROBE_PT_1_Y 60
-      #define ABL_PROBE_PT_2_X 15
+      #define ABL_PROBE_PT_2_X 40
       #define ABL_PROBE_PT_2_Y 20
       #define ABL_PROBE_PT_3_X 100
       #define ABL_PROBE_PT_3_Y 20
@@ -392,8 +392,8 @@ const bool Z_MAX_ENDSTOP_INVERTING = false; // set to true to invert the logic o
 
 
   // these are the offsets to the probe relative to the extruder tip (Hotend - Probe)
-  #define X_PROBE_OFFSET_FROM_EXTRUDER -35
-  #define Y_PROBE_OFFSET_FROM_EXTRUDER -1
+  #define X_PROBE_OFFSET_FROM_EXTRUDER 27.3
+  #define Y_PROBE_OFFSET_FROM_EXTRUDER 9
   #define Z_PROBE_OFFSET_FROM_EXTRUDER 0
 
   #define Z_RAISE_BEFORE_HOMING 6       // (in mm) Raise Z before homing (G28) for Probe Clearance.
