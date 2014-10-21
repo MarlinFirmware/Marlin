@@ -367,9 +367,9 @@ const bool Z_MAX_ENDSTOP_INVERTING = false; // set to true to invert the logic o
   #ifdef AUTO_BED_LEVELING_GRID
 
     // set the rectangle in which to probe
-    #define LEFT_PROBE_BED_POSITION 40
+    #define LEFT_PROBE_BED_POSITION 30
     #define RIGHT_PROBE_BED_POSITION 100
-    #define BACK_PROBE_BED_POSITION 60
+    #define BACK_PROBE_BED_POSITION 50
     #define FRONT_PROBE_BED_POSITION 20
 
      // set the number of grid points per dimension
@@ -381,9 +381,9 @@ const bool Z_MAX_ENDSTOP_INVERTING = false; // set to true to invert the logic o
     // with no grid, just probe 3 arbitrary points.  A simple cross-product
     // is used to esimate the plane of the print bed
 
-      #define ABL_PROBE_PT_1_X 40
+      #define ABL_PROBE_PT_1_X 30
       #define ABL_PROBE_PT_1_Y 60
-      #define ABL_PROBE_PT_2_X 40
+      #define ABL_PROBE_PT_2_X 30
       #define ABL_PROBE_PT_2_Y 20
       #define ABL_PROBE_PT_3_X 100
       #define ABL_PROBE_PT_3_Y 20
@@ -424,8 +424,8 @@ const bool Z_MAX_ENDSTOP_INVERTING = false; // set to true to invert the logic o
 
   #ifdef Z_SAFE_HOMING
 
-    #define Z_SAFE_HOMING_X_POINT (X_MAX_LENGTH/5)    // X point for Z homing when homing all axis (G28)
-    #define Z_SAFE_HOMING_Y_POINT (0)    // Y point for Z homing when homing all axis (G28)
+    #define Z_SAFE_HOMING_X_POINT (40)    // X point for Z homing when homing all axis (G28)
+    #define Z_SAFE_HOMING_Y_POINT (10)    // Y point for Z homing when homing all axis (G28)
 
   #endif
 
