@@ -546,13 +546,18 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
   target[X_AXIS] = lround(x*axis_steps_per_unit[X_AXIS]);
     
   #ifdef R_360 
+
+#ifdef R_360_SHORTER_WAY_DETECTION_METHOD_1 
  	//This is hack to identyfy 0 position
        if (R_360_STEPS_PER_ROTATION == abs(y)){
  		target[Y_AXIS] = y;
   	}else{
   		target[Y_AXIS] = lround(y*axis_steps_per_unit[Y_AXIS]);
   	}
-  /*
+#endif
+
+#ifdef R_360_SHORTER_WAY_DETECTION_METHOD_2
+  
       //identyfy 0 position
       target[Y_AXIS] = lround(y*axis_steps_per_unit[Y_AXIS]);
       SERIAL_ECHOPGM(" position="); SERIAL_ECHO( position[Y_AXIS]   );
@@ -572,7 +577,8 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
              cross_direction = -1;
            }
       } 
-  */    
+#endif
+   
   #else
   	target[Y_AXIS] = lround(y*axis_steps_per_unit[Y_AXIS]);
   #endif
@@ -965,18 +971,17 @@ block->steps_y = labs((target[X_AXIS]-position[X_AXIS]) - (target[Y_AXIS]-positi
   st_wake_up();
   
 #ifdef R_360
-      /*
+ #ifdef R_360_SHORTER_WAY_DETECTION_METHOD_2
       //compensate for crossing 0
       float new_y = 0;
       if (cross_flag ){
-        //if (cross_direction == 1){  new_y = R_360_STEPS_PER_ROTATION / axis_steps_per_unit[Y_AXIS]; }else{ new_y = -R_360_STEPS_PER_ROTATION / axis_steps_per_unit[Y_AXIS]; }
         new_y = -target[Y_AXIS] / axis_steps_per_unit[Y_AXIS];
         SERIAL_ECHOPGM(" new_y=");SERIAL_ECHOLN(new_y);
         plan_set_position(x, new_y , z, e);
       }
       
       SERIAL_ECHOPGM(" cross dir=");SERIAL_ECHOLN(cross_direction);
-      */
+  #endif
 #endif  
 }
 #ifdef R_360 
@@ -990,6 +995,8 @@ void plan_set_position(const float &x, const float &y, const float &z, const flo
 {	
   position[X_AXIS] = lround(x*axis_steps_per_unit[X_AXIS]);
  #ifdef R_360 
+ 
+#ifdef R_360_SHORTER_WAY_DETECTION_METHOD_1
        //this is a hack to set 0 position
  	if (R_360_STEPS_PER_ROTATION == abs(y)){
   		position[Y_AXIS] = y;
@@ -997,7 +1004,9 @@ void plan_set_position(const float &x, const float &y, const float &z, const flo
   	else{
   		position[Y_AXIS] = lround(y*axis_steps_per_unit[Y_AXIS]);
   	}
-  /*
+#endif 
+ 
+#ifdef R_360_SHORTER_WAY_DETECTION_METHOD_2
       position[Y_AXIS] = lround(y*axis_steps_per_unit[Y_AXIS]);
       if (abs(position[Y_AXIS] > R_360_STEPS_PER_ROTATION )){
         if(position[Y_AXIS] > 0 ){
@@ -1006,7 +1015,7 @@ void plan_set_position(const float &x, const float &y, const float &z, const flo
           position[Y_AXIS] +=  R_360_STEPS_PER_ROTATION;
         }
       }
-      */
+#endif
       //position[Y_AXIS] = lround(y*axis_steps_per_unit[Y_AXIS]);
   #else
   	position[Y_AXIS] = lround(y*axis_steps_per_unit[Y_AXIS]);

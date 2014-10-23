@@ -1070,6 +1070,14 @@ void process_commands()
       }
       break;
     }
+    case 101: // G101 turn degree
+      if(Stopped == false) {
+        get_coordinates(); // For X Y Z
+        prepare_move_degree();
+        //ClearToSend();
+        return;
+      }
+      //break;
   }
 
   else if(code_seen('M'))
@@ -2449,8 +2457,9 @@ void calculate_r_360(float current_cartesian_position[4],float destination[5]){
     alpha = (atan2( destination[Y_AXIS], destination[X_AXIS] ) - atan2(current_cartesian_position[Y_AXIS], current_cartesian_position[X_AXIS])) *-1;  
  
     new_target_y =  (R_360_OUTER_RADIUS * alpha) + r_360[Y_AXIS] ;  
-   //Go the shorter way
    
+#ifdef R_360_SHORTER_WAY_DETECTION_METHOD_1
+   //Go the shorter way
    if(abs(alpha) >= PI){
      //SERIAL_ECHOPGM("Large alpha detected "); SERIAL_ECHOLN( alpha );
       if (alpha > 0){
@@ -2464,10 +2473,9 @@ void calculate_r_360(float current_cartesian_position[4],float destination[5]){
         plan_buffer_line(abs(r_360[X_AXIS]),  rotation_max, destination[Z_AXIS],destination[E_AXIS], feedrate*feedmultiply/60/100.0,active_extruder);
        //we may need to adjust the E
        plan_set_position(abs(r_360[X_AXIS]),  rotation_min, destination[Z_AXIS], destination[E_AXIS]);  
-       
       } 
    }
-   
+#endif
    r_360[Y_AXIS] = new_target_y;
    r_360_alpha =  alpha;
 }
@@ -2515,6 +2523,8 @@ void prepare_move()
 
     calculate_r_360(current_cartesian_position,destination);
 
+   
+#ifdef R_360_QUICK_CROSSING_ON
    //speed up large Y rotations on tiny X movements
    if (abs(r_360_alpha) > R_360_ALPHA_CONDITION && x_diff < R_360_X_DIFF_CONDITION) {
      plan_buffer_line(abs(r_360[X_AXIS]), r_360[Y_AXIS], current_cartesian_position[Z_AXIS], current_cartesian_position[E_AXIS], max_feedrate[Y_AXIS], active_extruder);    
@@ -2522,7 +2532,9 @@ void prepare_move()
    }else{
      plan_buffer_line(abs(r_360[X_AXIS]),  r_360[Y_AXIS], destination[Z_AXIS],destination[E_AXIS], feedrate*feedmultiply/60/100.0,active_extruder);
    }
-   
+#else
+  plan_buffer_line(abs(r_360[X_AXIS]),  r_360[Y_AXIS], destination[Z_AXIS],destination[E_AXIS], feedrate*feedmultiply/60/100.0,active_extruder);
+#endif
    //SERIAL_ECHOPGM("Current Y="); SERIAL_ECHO( current_position[Y_AXIS] );
    //SERIAL_ECHOPGM(" Current X="); SERIAL_ECHO( current_position[X_AXIS] );
    //SERIAL_ECHOPGM("Current Cartesian Y="); SERIAL_ECHO( current_cartesian_position[Y_AXIS] );

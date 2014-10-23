@@ -86,13 +86,20 @@
 // and processor overload (too many expensive atan2 calls).
 #define R_360_DELTA_SEGMENTS_PER_SECOND 250 //normal 250
 
-//steps for full rotation -5760 to 5760 //TODO Use the full rotation not the half
+//steps for full rotation -5760 to 5760 //TODO Use the full rotation here not half
 #define R_360_STEPS_PER_ROTATION 5760
 
-//Speed up in the middle
+//Speed up in the middle. It helps if there is too much fillamet get deposited to the center of the printing bed
 //Will make a quick move when larger than alpha condition(tn) and smaller than x_diff condition(mm)
-#define R_360_ALPHA_CONDITION 0.03
-#define R_360_X_DIFF_CONDITION 2
+//#define R_360_QUICK_CROSSING_ON
+//#define R_360_ALPHA_CONDITION 0.03
+//#define R_360_X_DIFF_CONDITION 2
+
+//Choose only one 
+//Method 1 uses angles for detecting shorter paths. Arduino MEGA can't handle more than 5 digit accuracy with floats. Accuracy problems can couse skipping and twisted prints.(prepare_move)
+//#define R_360_SHORTER_WAY_DETECTION_METHOD_1
+//Method 2 Works with steps and integers. This is experiental. (plan_buffer_line)
+#define R_360_SHORTER_WAY_DETECTION_METHOD_2
 
 
 //===========================================================================
