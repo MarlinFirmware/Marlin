@@ -191,6 +191,7 @@ static void lcd_status_screen()
 #ifdef ULTIPANEL
     if (LCD_CLICKED)
     {
+    lcd_init();
         currentMenu = lcd_main_menu;
         encoderPosition = 0;
         lcd_quick_feedback();

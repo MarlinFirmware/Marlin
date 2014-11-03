@@ -574,6 +574,7 @@ void loop()
   manage_heater();
   manage_inactivity();
   checkHitEndstops();
+  //lcd_init();
   lcd_update();
 }
 
