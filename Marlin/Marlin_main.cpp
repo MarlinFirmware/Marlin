@@ -273,6 +273,7 @@ int stop_buffer_code = 0;
 #endif					
 
 bool cancel_heatup = false;
+bool input_enabled = true;
 
 //===========================================================================
 //=============================Private Variables=============================
@@ -1696,7 +1697,7 @@ void process_commands()
     case 23: //M23 - Select file
       starpos = (strchr(strchr_pointer + 4,'*'));
       if(starpos!=NULL)
-	*(starpos-1)='\0';
+        *(starpos-1)='\0';
       card.openFile(strchr_pointer + 4,true);
       break;
     case 24: //M24 - Start SD print
@@ -1736,11 +1737,14 @@ void process_commands()
 
       plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], feedrate/60, active_extruder);
 
+
       st_synchronize();
 
       LCD_MESSAGEPGM(MSG_PAUSED);
       lcd_show_status();
       lcd_update();
+
+      lcd_enable_inputs();
 
       while(!lcd_clicked()){
         manage_heater();
@@ -1748,18 +1752,21 @@ void process_commands()
         plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS],current_position[E_AXIS], 300/60, active_extruder);
         st_synchronize();
       }
-      st_synchronize();
+
+      lcd_disable_inputs();
 
       plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], feedrate/60, active_extruder); //should do nothing
       plan_buffer_line(lastpos[X_AXIS], lastpos[Y_AXIS], target[Z_AXIS], target[E_AXIS], feedrate/60, active_extruder); //move xy back
       plan_buffer_line(lastpos[X_AXIS], lastpos[Y_AXIS], lastpos[Z_AXIS], target[E_AXIS], feedrate/60, active_extruder); //move z back
       plan_buffer_line(lastpos[X_AXIS], lastpos[Y_AXIS], lastpos[Z_AXIS], lastpos[E_AXIS], feedrate/60, active_extruder); //final untretract
+      st_synchronize();
 
       stop_buffer = false;
 
       LCD_MESSAGEPGM(MSG_PRINTING);
       lcd_show_status();
       lcd_update();
+      lcd_enable_inputs();
       break;
 
     case 26: //M26 - Set SD index

@@ -36,6 +36,8 @@ void lcd_level_bed(void);
   #define LCD_TIMEOUT_TO_STATUS 15000
 
   #ifdef ULTIPANEL
+  void lcd_disable_inputs();
+  void lcd_enable_inputs();
   void lcd_buttons_update();
   extern volatile uint8_t buttons;  //the last checked buttons in a bit array.
   #ifdef REPRAPWORLD_KEYPAD
@@ -43,6 +45,8 @@ void lcd_level_bed(void);
   #endif
   #else
   FORCE_INLINE void lcd_buttons_update() {}
+  FORCE_INLINE void lcd_disable_inputs() {}
+  FORCE_INLINE void lcd_enable_inputs() {}
   #endif
 
   extern int plaPreheatHotendTemp;
@@ -54,7 +58,7 @@ void lcd_level_bed(void);
   extern int absPreheatFanSpeed;
 
   extern bool cancel_heatup;
-    
+
   void lcd_buzz(long duration,uint16_t freq);
   bool lcd_clicked();
 

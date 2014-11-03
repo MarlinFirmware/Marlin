@@ -59,6 +59,7 @@ static void lcd_control_motion_menu();
 extern bool stop_buffer;
 extern int stop_buffer_code;
 
+extern bool input_enabled;
 //menus extras para witbox->
 #ifdef WITBOX
 static void lcd_control_filament_menu();
@@ -285,13 +286,15 @@ static void lcd_return_to_status()
 static void lcd_sdcard_pause()
 {
     LCD_MESSAGEPGM(MSG_PAUSING);
+    lcd_disable_inputs();
     lcd_update();
-    
+
     stop_buffer = true;
     stop_buffer_code = 1;
 //   card.pauseSDPrint();
 
     lcd_return_to_status();
+
 }
 
 static void lcd_sdcard_resume()
@@ -1647,11 +1650,13 @@ void lcd_update()
 {
     static unsigned long timeoutToStatus = 0;
 
-    #ifdef LCD_HAS_SLOW_BUTTONS
-    slow_buttons = lcd_implementation_read_slow_buttons(); // buttons which take too long to read in interrupt context
-    #endif
+    if (input_enabled == true) {
+#ifdef LCD_HAS_SLOW_BUTTONS
+        slow_buttons = lcd_implementation_read_slow_buttons(); // buttons which take too long to read in interrupt context
+#endif // LCD_HAS_SLOW_BUTTONS
 
-    lcd_buttons_update();
+        lcd_buttons_update();
+    }
 
     #if (SDCARDDETECT > 0)
     if((IS_SD_INSERTED != lcd_oldcardstatus))
@@ -1804,6 +1809,16 @@ void lcd_setcontrast(uint8_t value)
 
 #ifdef ULTIPANEL
 /* Warning: This function is called from interrupt context */
+void lcd_disable_inputs() {
+    input_enabled = false;
+
+    buttons &= ~(EN_C);
+}
+
+void lcd_enable_inputs() {
+    input_enabled = true;
+}
+
 void lcd_buttons_update()
 {
 #ifdef NEWPANEL
