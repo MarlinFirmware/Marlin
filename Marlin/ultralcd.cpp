@@ -1519,9 +1519,19 @@ static void menu_action_function(menuFunc_t data)
 }
 static void menu_action_sdfile(const char* filename, char* longFilename)
 {
-    setTargetHotend0(200);
     char cmd[30];
     char* c;
+
+    strcpy(cmd, longFilename);
+    for (c = &cmd[0]; *c; c++)
+        if ((uint8_t)*c > 127) {
+            SERIAL_ECHOLN(MSG_SD_BAD_FILENAME);
+            LCD_MESSAGEPGM(MSG_SD_BAD_FILENAME);
+            lcd_return_to_status();
+            return;
+    }
+
+    setTargetHotend0(200);
     sprintf_P(cmd, PSTR("M23 %s"), filename);
 
     enquecommand_P(PSTR("G28"));
