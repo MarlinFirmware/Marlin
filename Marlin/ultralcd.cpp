@@ -19,6 +19,7 @@ int absPreheatHotendTemp;
 int absPreheatHPBTemp;
 int absPreheatFanSpeed;
 
+
 #ifdef ULTIPANEL
 static float manual_feedrate[] = MANUAL_FEEDRATE;
 #endif // ULTIPANEL
@@ -255,8 +256,8 @@ static void lcd_sdcard_stop()
         enquecommand_P(PSTR(SD_FINISHED_RELEASECOMMAND));
     }
     autotempShutdown();
-    
-    cancel_heatup = true;
+
+	cancel_heatup = true;
 }
 
 /* Menu implementation */
@@ -305,6 +306,23 @@ static void lcd_autostart_sd()
     card.checkautostart(true);
 }
 #endif
+
+void lcd_set_home_offsets()
+{
+    for(int8_t i=0; i < NUM_AXIS; i++) {
+      if (i != E_AXIS) {
+        add_homing[i] -= current_position[i];
+        current_position[i] = 0.0;
+      }
+    }
+    plan_set_position(0.0, 0.0, 0.0, current_position[E_AXIS]);
+
+    // Audio feedback
+    enquecommand_P(PSTR("M300 S659 P200"));
+    enquecommand_P(PSTR("M300 S698 P200"));
+    lcd_return_to_status();
+}
+
 
 #ifdef BABYSTEPPING
 static void lcd_babystep_x()
@@ -373,7 +391,9 @@ static void lcd_tune_menu()
     START_MENU();
     MENU_ITEM(back, MSG_MAIN, lcd_main_menu);
     MENU_ITEM_EDIT(int3, MSG_SPEED, &feedmultiply, 10, 999);
+#if TEMP_SENSOR_0 != 0
     MENU_ITEM_EDIT(int3, MSG_NOZZLE, &target_temperature[0], 0, HEATER_0_MAXTEMP - 15);
+#endif
 #if TEMP_SENSOR_1 != 0
     MENU_ITEM_EDIT(int3, MSG_NOZZLE1, &target_temperature[1], 0, HEATER_1_MAXTEMP - 15);
 #endif
@@ -565,6 +585,7 @@ static void lcd_prepare_menu()
 #endif
     MENU_ITEM(gcode, MSG_DISABLE_STEPPERS, PSTR("M84"));
     MENU_ITEM(gcode, MSG_AUTO_HOME, PSTR("G28"));
+    MENU_ITEM(function, MSG_SET_HOME_OFFSETS, lcd_set_home_offsets);
     //MENU_ITEM(gcode, MSG_SET_ORIGIN, PSTR("G92 X0 Y0 Z0"));
 #if TEMP_SENSOR_0 != 0
   #if TEMP_SENSOR_1 != 0 || TEMP_SENSOR_2 != 0 || TEMP_SENSOR_BED != 0
@@ -779,7 +800,9 @@ static void lcd_control_temperature_menu()
 
     START_MENU();
     MENU_ITEM(back, MSG_CONTROL, lcd_control_menu);
+#if TEMP_SENSOR_0 != 0
     MENU_ITEM_EDIT(int3, MSG_NOZZLE, &target_temperature[0], 0, HEATER_0_MAXTEMP - 15);
+#endif
 #if TEMP_SENSOR_1 != 0
     MENU_ITEM_EDIT(int3, MSG_NOZZLE1, &target_temperature[1], 0, HEATER_1_MAXTEMP - 15);
 #endif
@@ -790,7 +813,7 @@ static void lcd_control_temperature_menu()
     MENU_ITEM_EDIT(int3, MSG_BED, &target_temperature_bed, 0, BED_MAXTEMP - 15);
 #endif
     MENU_ITEM_EDIT(int3, MSG_FAN_SPEED, &fanSpeed, 0, 255);
-#ifdef AUTOTEMP
+#if defined AUTOTEMP && (TEMP_SENSOR_0 != 0)
     MENU_ITEM_EDIT(bool, MSG_AUTOTEMP, &autotemp_enabled);
     MENU_ITEM_EDIT(float3, MSG_MIN, &autotemp_min, 0, HEATER_0_MAXTEMP - 15);
     MENU_ITEM_EDIT(float3, MSG_MAX, &autotemp_max, 0, HEATER_0_MAXTEMP - 15);
@@ -815,7 +838,9 @@ static void lcd_control_temperature_preheat_pla_settings_menu()
     START_MENU();
     MENU_ITEM(back, MSG_TEMPERATURE, lcd_control_temperature_menu);
     MENU_ITEM_EDIT(int3, MSG_FAN_SPEED, &plaPreheatFanSpeed, 0, 255);
+#if TEMP_SENSOR_0 != 0
     MENU_ITEM_EDIT(int3, MSG_NOZZLE, &plaPreheatHotendTemp, 0, HEATER_0_MAXTEMP - 15);
+#endif
 #if TEMP_SENSOR_BED != 0
     MENU_ITEM_EDIT(int3, MSG_BED, &plaPreheatHPBTemp, 0, BED_MAXTEMP - 15);
 #endif
@@ -830,7 +855,9 @@ static void lcd_control_temperature_preheat_abs_settings_menu()
     START_MENU();
     MENU_ITEM(back, MSG_TEMPERATURE, lcd_control_temperature_menu);
     MENU_ITEM_EDIT(int3, MSG_FAN_SPEED, &absPreheatFanSpeed, 0, 255);
+#if TEMP_SENSOR_0 != 0
     MENU_ITEM_EDIT(int3, MSG_NOZZLE, &absPreheatHotendTemp, 0, HEATER_0_MAXTEMP - 15);
+#endif
 #if TEMP_SENSOR_BED != 0
     MENU_ITEM_EDIT(int3, MSG_BED, &absPreheatHPBTemp, 0, BED_MAXTEMP - 15);
 #endif
@@ -869,6 +896,10 @@ static void lcd_control_motion_menu()
 #ifdef ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED
     MENU_ITEM_EDIT(bool, MSG_ENDSTOP_ABORT, &abort_on_endstop_hit);
 #endif
+#ifdef SCARA
+    MENU_ITEM_EDIT(float74, MSG_XSCALE, &axis_scaling[X_AXIS],0.5,2);
+    MENU_ITEM_EDIT(float74, MSG_YSCALE, &axis_scaling[Y_AXIS],0.5,2);
+#endif
     END_MENU();
 }
 
@@ -904,13 +935,13 @@ static void lcd_control_retract_menu()
     MENU_ITEM(back, MSG_CONTROL, lcd_control_menu);
     MENU_ITEM_EDIT(bool, MSG_AUTORETRACT, &autoretract_enabled);
     MENU_ITEM_EDIT(float52, MSG_CONTROL_RETRACT, &retract_length, 0, 100);
-    #if EXTRUDERS > 1
+	#if EXTRUDERS > 1
       MENU_ITEM_EDIT(float52, MSG_CONTROL_RETRACT_SWAP, &retract_length_swap, 0, 100);
     #endif
     MENU_ITEM_EDIT(float3, MSG_CONTROL_RETRACTF, &retract_feedrate, 1, 999);
     MENU_ITEM_EDIT(float52, MSG_CONTROL_RETRACT_ZLIFT, &retract_zlift, 0, 999);
     MENU_ITEM_EDIT(float52, MSG_CONTROL_RETRACT_RECOVER, &retract_recover_length, 0, 100);
-    #if EXTRUDERS > 1
+	#if EXTRUDERS > 1
       MENU_ITEM_EDIT(float52, MSG_CONTROL_RETRACT_RECOVER_SWAP, &retract_recover_length_swap, 0, 100);
     #endif
     MENU_ITEM_EDIT(float3, MSG_CONTROL_RETRACT_RECOVERF, &retract_recover_feedrate, 1, 999);
@@ -1496,9 +1527,13 @@ char *itostr31(const int &xx)
   return conv;
 }
 
-char *itostr3(const int &xx)
+char *itostr3(const int &x)
 {
-  if (xx >= 100)
+  int xx = x;
+  if (xx < 0) {
+     conv[0]='-';
+     xx = -xx;
+  } else if (xx >= 100)
     conv[0]=(xx/100)%10+'0';
   else
     conv[0]=' ';
