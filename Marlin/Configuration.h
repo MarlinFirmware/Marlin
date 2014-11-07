@@ -451,7 +451,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = false; // set to true to invert the logic o
 // Syncromesh (400*16)/(3.81*15)
 //e motor 200 steps/mm, 1/16th microstepping, 8.97mm diameter toothed extruder part
 //z motor 200 steps/revolution, 2mm/revolution, 1/4th microstepping
-#define DEFAULT_AXIS_STEPS_PER_UNIT   {55.99734116482295,55.99734116482295,1600,113.555366309}  // default steps per unit for Ultimaker
+#define DEFAULT_AXIS_STEPS_PER_UNIT   {111.99468232964598,111.99468232964598,1600,113.555366309}  // default steps per unit for Ultimaker
 #define DEFAULT_MAX_FEEDRATE          {250, 250, 3, 1000}    // (mm/sec)
 #define DEFAULT_MAX_ACCELERATION      {3000,3000,50,1000}    // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for Skeinforge 40+, for older versions raise them a lot.
 #define DEFAULT_ACCELERATION          1200    // X, Y, Z and E max acceleration in mm/s^2 for printing moves
