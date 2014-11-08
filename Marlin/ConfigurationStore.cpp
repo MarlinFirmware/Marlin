@@ -37,10 +37,15 @@ void _EEPROM_readData(int &pos, uint8_t* value, uint8_t size)
 // the default values are used whenever there is a change to the data, to prevent
 // wrong data being written to the variables.
 // ALSO:  always make sure the variables in the Store and retrieve sections are in the same order.
-#ifdef DELTA
-#define EEPROM_VERSION "V11"
-#else
+
 #define EEPROM_VERSION "V10"
+#ifdef DELTA
+	#undef EEPROM_VERSION
+	#define EEPROM_VERSION "V11"
+#endif
+#ifdef SCARA
+	#undef EEPROM_VERSION
+	#define EEPROM_VERSION "V12"
 #endif
 
 #ifdef EEPROM_SETTINGS
@@ -49,7 +54,7 @@ void Config_StoreSettings()
   char ver[4]= "000";
   int i=EEPROM_OFFSET;
   EEPROM_WRITE_VAR(i,ver); // invalidate data first 
-  EEPROM_WRITE_VAR(i,axis_steps_per_unit);  
+  EEPROM_WRITE_VAR(i,axis_steps_per_unit);
   EEPROM_WRITE_VAR(i,max_feedrate);  
   EEPROM_WRITE_VAR(i,max_acceleration_units_per_sq_second);
   EEPROM_WRITE_VAR(i,acceleration);
@@ -60,7 +65,7 @@ void Config_StoreSettings()
   EEPROM_WRITE_VAR(i,max_xy_jerk);
   EEPROM_WRITE_VAR(i,max_z_jerk);
   EEPROM_WRITE_VAR(i,max_e_jerk);
-  EEPROM_WRITE_VAR(i,add_homeing);
+  EEPROM_WRITE_VAR(i,add_homing);
   #ifdef DELTA
   EEPROM_WRITE_VAR(i,endstop_adj);
   EEPROM_WRITE_VAR(i,delta_radius);
@@ -93,6 +98,9 @@ void Config_StoreSettings()
     int lcd_contrast = 32;
   #endif
   EEPROM_WRITE_VAR(i,lcd_contrast);
+  #ifdef SCARA
+  EEPROM_WRITE_VAR(i,axis_scaling);        // Add scaling for SCARA
+  #endif
   char ver2[4]=EEPROM_VERSION;
   i=EEPROM_OFFSET;
   EEPROM_WRITE_VAR(i,ver2); // validate data
@@ -115,6 +123,16 @@ void Config_PrintSettings()
     SERIAL_ECHOLN("");
       
     SERIAL_ECHO_START;
+#ifdef SCARA
+SERIAL_ECHOLNPGM("Scaling factors:");
+    SERIAL_ECHO_START;
+    SERIAL_ECHOPAIR("  M365 X",axis_scaling[0]);
+    SERIAL_ECHOPAIR(" Y",axis_scaling[1]);
+    SERIAL_ECHOPAIR(" Z",axis_scaling[2]);
+    SERIAL_ECHOLN("");
+      
+    SERIAL_ECHO_START;
+#endif
     SERIAL_ECHOLNPGM("Maximum feedrates (mm/s):");
     SERIAL_ECHO_START;
     SERIAL_ECHOPAIR("  M203 X",max_feedrate[0]);
@@ -152,9 +170,9 @@ void Config_PrintSettings()
     SERIAL_ECHO_START;
     SERIAL_ECHOLNPGM("Home offset (mm):");
     SERIAL_ECHO_START;
-    SERIAL_ECHOPAIR("  M206 X",add_homeing[0] );
-    SERIAL_ECHOPAIR(" Y" ,add_homeing[1] );
-    SERIAL_ECHOPAIR(" Z" ,add_homeing[2] );
+    SERIAL_ECHOPAIR("  M206 X",add_homing[0] );
+    SERIAL_ECHOPAIR(" Y" ,add_homing[1] );
+    SERIAL_ECHOPAIR(" Z" ,add_homing[2] );
     SERIAL_ECHOLN("");
 #ifdef DELTA
     SERIAL_ECHO_START;
@@ -196,7 +214,7 @@ void Config_RetrieveSettings()
     if (strncmp(ver,stored_ver,3) == 0)
     {
         // version number match
-        EEPROM_READ_VAR(i,axis_steps_per_unit);  
+        EEPROM_READ_VAR(i,axis_steps_per_unit);
         EEPROM_READ_VAR(i,max_feedrate);  
         EEPROM_READ_VAR(i,max_acceleration_units_per_sq_second);
         
@@ -211,7 +229,7 @@ void Config_RetrieveSettings()
         EEPROM_READ_VAR(i,max_xy_jerk);
         EEPROM_READ_VAR(i,max_z_jerk);
         EEPROM_READ_VAR(i,max_e_jerk);
-        EEPROM_READ_VAR(i,add_homeing);
+        EEPROM_READ_VAR(i,add_homing);
         #ifdef DELTA
 		EEPROM_READ_VAR(i,endstop_adj);
 		EEPROM_READ_VAR(i,delta_radius);
@@ -240,6 +258,9 @@ void Config_RetrieveSettings()
         int lcd_contrast;
         #endif
         EEPROM_READ_VAR(i,lcd_contrast);
+		#ifdef SCARA
+		EEPROM_READ_VAR(i,axis_scaling);
+		#endif
 
 		// Call updatePID (similar to when we have processed M301)
 		updatePID();
@@ -266,6 +287,9 @@ void Config_ResetDefault()
         axis_steps_per_unit[i]=tmp1[i];  
         max_feedrate[i]=tmp2[i];  
         max_acceleration_units_per_sq_second[i]=tmp3[i];
+		#ifdef SCARA
+		axis_scaling[i]=1;
+		#endif
     }
     
     // steps per sq second need to be updated to agree with the units per sq second
@@ -279,7 +303,7 @@ void Config_ResetDefault()
     max_xy_jerk=DEFAULT_XYJERK;
     max_z_jerk=DEFAULT_ZJERK;
     max_e_jerk=DEFAULT_EJERK;
-    add_homeing[0] = add_homeing[1] = add_homeing[2] = 0;
+    add_homing[0] = add_homing[1] = add_homing[2] = 0;
 #ifdef DELTA
 	endstop_adj[0] = endstop_adj[1] = endstop_adj[2] = 0;
 	delta_radius= DELTA_RADIUS;
