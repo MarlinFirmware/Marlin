@@ -154,7 +154,8 @@
 // M300 - Play beep sound S<frequency Hz> P<duration ms>
 // M301 - Set PID parameters P I and D
 // M302 - Allow cold extrudes, or set the minimum extrude S<temperature>.
-// M303 - PID relay autotune S<temperature> sets the target temperature. (default target temperature = 150C)
+// M303 - PID relay autotune Optional S<temperature> sets the target temperature. (default = 150C)
+//                           E<extruder> (default = 0, -1 = bed), C<cycles> (default = 5)
 // M304 - Set bed PID parameters P I and D
 // M400 - Finish all moves
 // M401 - Lower z-probe if present
