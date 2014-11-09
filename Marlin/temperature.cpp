@@ -34,6 +34,9 @@
 #include "temperature.h"
 #include "watchdog.h"
 
+#include "Sd2PinMap.h"
+
+
 //===========================================================================
 //=============================public variables============================
 //===========================================================================
@@ -809,18 +812,22 @@ void tp_init()
 
   #ifdef HEATER_0_USES_MAX6675
     #ifndef SDSUPPORT
-      SET_OUTPUT(MAX_SCK_PIN);
-      WRITE(MAX_SCK_PIN,0);
+      SET_OUTPUT(SCK_PIN);
+      WRITE(SCK_PIN,0);
     
-      SET_OUTPUT(MAX_MOSI_PIN);
-      WRITE(MAX_MOSI_PIN,1);
+      SET_OUTPUT(MOSI_PIN);
+      WRITE(MOSI_PIN,1);
     
-      SET_INPUT(MAX_MISO_PIN);
-      WRITE(MAX_MISO_PIN,1);
+      SET_INPUT(MISO_PIN);
+      WRITE(MISO_PIN,1);
     #endif
+    /* Using pinMode and digitalWrite, as that was the only way I could get it to compile */
     
-    SET_OUTPUT(MAX6675_SS);
-    WRITE(MAX6675_SS,1);
+    //Have to toggle SD card CS pin to low first, to enable firmware to talk with SD card
+	pinMode(SS_PIN, OUTPUT);
+	digitalWrite(SS_PIN,0);  
+	pinMode(MAX6675_SS, OUTPUT);
+	digitalWrite(MAX6675_SS,1);
   #endif
 
   // Set analog inputs
@@ -1117,7 +1124,7 @@ void bed_max_temp_error(void) {
 
 #ifdef HEATER_0_USES_MAX6675
 #define MAX6675_HEAT_INTERVAL 250
-long max6675_previous_millis = -HEAT_INTERVAL;
+long max6675_previous_millis = MAX6675_HEAT_INTERVAL;
 int max6675_temp = 2000;
 
 int read_max6675()

@@ -178,6 +178,10 @@ void get_coordinates();
 void calculate_delta(float cartesian[3]);
 extern float delta[3];
 #endif
+#ifdef SCARA
+void calculate_delta(float cartesian[3]);
+void calculate_SCARA_forward_Transform(float f_scara[3]);
+#endif
 void prepare_move();
 void kill();
 void Stop();
@@ -207,13 +211,16 @@ extern int extrudemultiply; // Sets extrude multiply factor (in percent) for all
 extern int extruder_multiply[EXTRUDERS]; // sets extrude multiply factor (in percent) for each extruder individually
 extern float volumetric_multiplier[EXTRUDERS]; // reciprocal of cross-sectional area of filament (in square millimeters), stored this way to reduce computational burden in planner
 extern float current_position[NUM_AXIS] ;
-extern float add_homeing[3];
+extern float add_homing[3];
 #ifdef DELTA
 extern float endstop_adj[3];
 extern float delta_radius;
 extern float delta_diagonal_rod;
 extern float delta_segments_per_second;
 void recalc_delta_settings(float radius, float diagonal_rod);
+#endif
+#ifdef SCARA
+extern float axis_scaling[3];  // Build size scaling
 #endif
 extern float min_pos[3];
 extern float max_pos[3];

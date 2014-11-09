@@ -78,6 +78,8 @@
 // G28 - Home all Axis
 // G29 - Detailed Z-Probe, probes the bed at 3 or more points.  Will fail if you haven't homed yet.
 // G30 - Single Z Probe, probes bed at current XY location.
+// G31 - Dock sled (Z_PROBE_SLED only)
+// G32 - Undock sled (Z_PROBE_SLED only)
 // G90 - Use Absolute Coordinates
 // G91 - Use Relative Coordinates
 // G92 - Set current position to coordinates given
@@ -174,6 +176,16 @@
 // M908 - Control digital trimpot directly.
 // M350 - Set microstepping mode.
 // M351 - Toggle MS1 MS2 pins directly.
+
+// ************ SCARA Specific - This can change to suit future G-code regulations
+// M360 - SCARA calibration: Move to cal-position ThetaA (0 deg calibration)
+// M361 - SCARA calibration: Move to cal-position ThetaB (90 deg calibration - steps per degree)
+// M362 - SCARA calibration: Move to cal-position PsiA (0 deg calibration)
+// M363 - SCARA calibration: Move to cal-position PsiB (90 deg calibration - steps per degree)
+// M364 - SCARA calibration: Move to cal-position PSIC (90 deg to Theta calibration position)
+// M365 - SCARA calibration: Scaling factor, X, Y, Z axis
+//************* SCARA End ***************
+
 // M928 - Start SD logging (M928 filename.g) - ended by M29
 // M999 - Restart after being stopped by error
 
@@ -212,10 +224,11 @@ float volumetric_multiplier[EXTRUDERS] = {1.0
   #endif
 };
 float current_position[NUM_AXIS] = { 0.0, 0.0, 0.0, 0.0 };
-float add_homeing[3]={0,0,0};
+float add_homing[3]={0,0,0};
 #ifdef DELTA
 float endstop_adj[3]={0,0,0};
 #endif
+
 float min_pos[3] = { X_MIN_POS, Y_MIN_POS, Z_MIN_POS };
 float max_pos[3] = { X_MAX_POS, Y_MAX_POS, Z_MAX_POS };
 bool axis_known_position[3] = {false, false, false};
@@ -296,7 +309,11 @@ int EtoPPressure=0;
   float delta_diagonal_rod= DELTA_DIAGONAL_ROD;
   float delta_diagonal_rod_2= sq(delta_diagonal_rod);
   float delta_segments_per_second= DELTA_SEGMENTS_PER_SECOND;
-#endif					
+#endif
+
+#ifdef SCARA                              // Build size scaling
+float axis_scaling[3]={1,1,1};  // Build size scaling, default to 1
+#endif				
 
 bool cancel_heatup = false ;
 
@@ -317,6 +334,11 @@ bool cancel_heatup = false ;
 //===========================================================================
 const char axis_codes[NUM_AXIS] = {'X', 'Y', 'Z', 'E'};
 static float destination[NUM_AXIS] = {  0.0, 0.0, 0.0, 0.0};
+
+#ifndef DELTA
+static float delta[3] = {0.0, 0.0, 0.0};
+#endif
+
 static float offset[3] = {0.0, 0.0, 0.0};
 static bool home_all_axis = true;
 static float feedrate = 1500.0, next_feedrate, saved_feedrate;
@@ -566,6 +588,10 @@ void setup()
   #ifdef DIGIPOT_I2C
     digipot_i2c_init();
   #endif
+#ifdef Z_PROBE_SLED
+  pinMode(SERVO0_PIN, OUTPUT);
+  digitalWrite(SERVO0_PIN, LOW); // turn it off
+#endif // Z_PROBE_SLED
 }
 
 
@@ -848,7 +874,7 @@ static int dual_x_carriage_mode = DEFAULT_DUAL_X_CARRIAGE_MODE;
 
 static float x_home_pos(int extruder) {
   if (extruder == 0)
-    return base_home_pos(X_AXIS) + add_homeing[X_AXIS];
+    return base_home_pos(X_AXIS) + add_homing[X_AXIS];
   else
     // In dual carriage mode the extruder offset provides an override of the
     // second X-carriage offset when homed - otherwise X2_HOME_POS is used.
@@ -880,17 +906,67 @@ static void axis_is_at_home(int axis) {
       return;
     }
     else if (dual_x_carriage_mode == DXC_DUPLICATION_MODE && active_extruder == 0) {
-      current_position[X_AXIS] = base_home_pos(X_AXIS) + add_homeing[X_AXIS];
-      min_pos[X_AXIS] =          base_min_pos(X_AXIS) + add_homeing[X_AXIS];
-      max_pos[X_AXIS] =          min(base_max_pos(X_AXIS) + add_homeing[X_AXIS],
+      current_position[X_AXIS] = base_home_pos(X_AXIS) + add_homing[X_AXIS];
+      min_pos[X_AXIS] =          base_min_pos(X_AXIS) + add_homing[X_AXIS];
+      max_pos[X_AXIS] =          min(base_max_pos(X_AXIS) + add_homing[X_AXIS],
                                   max(extruder_offset[X_AXIS][1], X2_MAX_POS) - duplicate_extruder_x_offset);
       return;
     }
   }
 #endif
-  current_position[axis] = base_home_pos(axis) + add_homeing[axis];
-  min_pos[axis] =          base_min_pos(axis) + add_homeing[axis];
-  max_pos[axis] =          base_max_pos(axis) + add_homeing[axis];
+#ifdef SCARA
+   float homeposition[3];
+   char i;
+   
+   if (axis < 2)
+   {
+   
+     for (i=0; i<3; i++)
+     {
+        homeposition[i] = base_home_pos(i); 
+     }  
+	// SERIAL_ECHOPGM("homeposition[x]= "); SERIAL_ECHO(homeposition[0]);
+   //  SERIAL_ECHOPGM("homeposition[y]= "); SERIAL_ECHOLN(homeposition[1]);
+   // Works out real Homeposition angles using inverse kinematics, 
+   // and calculates homing offset using forward kinematics
+     calculate_delta(homeposition);
+     
+    // SERIAL_ECHOPGM("base Theta= "); SERIAL_ECHO(delta[X_AXIS]);
+    // SERIAL_ECHOPGM(" base Psi+Theta="); SERIAL_ECHOLN(delta[Y_AXIS]);
+     
+     for (i=0; i<2; i++)
+     {
+        delta[i] -= add_homing[i];
+     } 
+     
+    // SERIAL_ECHOPGM("addhome X="); SERIAL_ECHO(add_homing[X_AXIS]);
+	// SERIAL_ECHOPGM(" addhome Y="); SERIAL_ECHO(add_homing[Y_AXIS]);
+    // SERIAL_ECHOPGM(" addhome Theta="); SERIAL_ECHO(delta[X_AXIS]);
+    // SERIAL_ECHOPGM(" addhome Psi+Theta="); SERIAL_ECHOLN(delta[Y_AXIS]);
+      
+     calculate_SCARA_forward_Transform(delta);
+     
+    // SERIAL_ECHOPGM("Delta X="); SERIAL_ECHO(delta[X_AXIS]);
+    // SERIAL_ECHOPGM(" Delta Y="); SERIAL_ECHOLN(delta[Y_AXIS]);
+     
+    current_position[axis] = delta[axis];
+    
+    // SCARA home positions are based on configuration since the actual limits are determined by the 
+    // inverse kinematic transform.
+    min_pos[axis] =          base_min_pos(axis); // + (delta[axis] - base_home_pos(axis));
+    max_pos[axis] =          base_max_pos(axis); // + (delta[axis] - base_home_pos(axis));
+   } 
+   else
+   {
+      current_position[axis] = base_home_pos(axis) + add_homing[axis];
+      min_pos[axis] =          base_min_pos(axis) + add_homing[axis];
+      max_pos[axis] =          base_max_pos(axis) + add_homing[axis];
+   }
+#else
+  current_position[axis] = base_home_pos(axis) + add_homing[axis];
+  min_pos[axis] =          base_min_pos(axis) + add_homing[axis];
+  max_pos[axis] =          base_max_pos(axis) + add_homing[axis];
+#endif
 }
 
 #ifdef ENABLE_AUTO_BED_LEVELING
@@ -912,7 +988,7 @@ static void set_bed_level_equation_lsq(double *plane_equation_coefficients)
     current_position[Y_AXIS] = corrected_position.y;
     current_position[Z_AXIS] = corrected_position.z;
 
-    // but the bed at 0 so we don't go below it.
+    // put the bed at 0 so we don't go below it.
     current_position[Z_AXIS] = zprobe_zoffset; // in the lsq we reach here after raising the extruder due to the loop structure
 
     plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
@@ -1053,10 +1129,14 @@ static float probe_pt(float x, float y, float z_before) {
   do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], z_before);
   do_blocking_move_to(x - X_PROBE_OFFSET_FROM_EXTRUDER, y - Y_PROBE_OFFSET_FROM_EXTRUDER, current_position[Z_AXIS]);
 
+#ifndef Z_PROBE_SLED
   engage_z_probe();   // Engage Z Servo endstop if available
+#endif // Z_PROBE_SLED
   run_z_probe();
   float measured_z = current_position[Z_AXIS];
+#ifndef Z_PROBE_SLED
   retract_z_probe();
+#endif // Z_PROBE_SLED
 
   SERIAL_PROTOCOLPGM(MSG_BED);
   SERIAL_PROTOCOLPGM(" x: ");
@@ -1089,6 +1169,7 @@ static void homeaxis(int axis) {
     plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
 
 
+#ifndef Z_PROBE_SLED
     // Engage Servo endstop if enabled
     #ifdef SERVO_ENDSTOPS
       #if defined (ENABLE_AUTO_BED_LEVELING) && (PROBE_SERVO_DEACTIVATION_DELAY > 0)
@@ -1101,7 +1182,7 @@ static void homeaxis(int axis) {
         servos[servo_endstops[axis]].write(servo_endstop_angles[axis * 2]);
       }
     #endif
-
+#endif // Z_PROBE_SLED
     destination[axis] = 1.5 * max_length(axis) * axis_home_dir;
     feedrate = homing_feedrate[axis];
     plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate/60, active_extruder);
@@ -1143,12 +1224,15 @@ static void homeaxis(int axis) {
       }
     #endif
 #if defined (ENABLE_AUTO_BED_LEVELING) && (PROBE_SERVO_DEACTIVATION_DELAY > 0)
+  #ifndef Z_PROBE_SLED
     if (axis==Z_AXIS) retract_z_probe();
+  #endif
 #endif
 
   }
 }
 #define HOMEAXIS(LETTER) homeaxis(LETTER##_AXIS)
+
 void refresh_cmd_timeout(void)
 {
   previous_millis_cmd = millis();
@@ -1172,7 +1256,12 @@ void refresh_cmd_timeout(void)
       retracted[active_extruder]=true;
       prepare_move();
       current_position[Z_AXIS]-=retract_zlift;
+#ifdef DELTA
+      calculate_delta(current_position); // change cartesian kinematic to  delta kinematic;
+      plan_set_position(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], current_position[E_AXIS]);
+#else
       plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+#endif
       prepare_move();
       feedrate = oldFeedrate;
     } else if(!retracting && retracted[active_extruder]) {
@@ -1181,7 +1270,12 @@ void refresh_cmd_timeout(void)
       destination[Z_AXIS]=current_position[Z_AXIS];
       destination[E_AXIS]=current_position[E_AXIS];
       current_position[Z_AXIS]+=retract_zlift;
+#ifdef DELTA
+      calculate_delta(current_position); // change cartesian kinematic  to  delta kinematic;
+      plan_set_position(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], current_position[E_AXIS]);
+#else
       plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+#endif
       //prepare_move();
       if (swapretract) {
         current_position[E_AXIS]-=(retract_length_swap+retract_recover_length_swap)/volumetric_multiplier[active_extruder]; 
@@ -1197,6 +1291,42 @@ void refresh_cmd_timeout(void)
     }
   } //retract
 #endif //FWRETRACT
+
+#ifdef Z_PROBE_SLED
+//
+// Method to dock/undock a sled designed by Charles Bell.
+//
+// dock[in]     If true, move to MAX_X and engage the electromagnet
+// offset[in]   The additional distance to move to adjust docking location
+//
+static void dock_sled(bool dock, int offset=0) {
+ int z_loc;
+ 
+ if (!((axis_known_position[X_AXIS]) && (axis_known_position[Y_AXIS]))) {
+   LCD_MESSAGEPGM(MSG_POSITION_UNKNOWN);
+   SERIAL_ECHO_START;
+   SERIAL_ECHOLNPGM(MSG_POSITION_UNKNOWN);
+   return;
+ }
+
+ if (dock) {
+   do_blocking_move_to(X_MAX_POS + SLED_DOCKING_OFFSET + offset,
+                       current_position[Y_AXIS],
+                       current_position[Z_AXIS]);
+   // turn off magnet
+   digitalWrite(SERVO0_PIN, LOW);
+ } else {
+   if (current_position[Z_AXIS] < (Z_RAISE_BEFORE_PROBING + 5))
+     z_loc = Z_RAISE_BEFORE_PROBING;
+   else
+     z_loc = current_position[Z_AXIS];
+   do_blocking_move_to(X_MAX_POS + SLED_DOCKING_OFFSET + offset,
+                       Y_PROBE_OFFSET_FROM_EXTRUDER, z_loc);
+   // turn on magnet
+   digitalWrite(SERVO0_PIN, HIGH);
+ }
+}
+#endif
 
 void process_commands()
 {
@@ -1230,6 +1360,7 @@ void process_commands()
         return;
       }
       break;
+#ifndef SCARA //disable arc support
     case 2: // G2  - CW ARC
       if(Stopped == false) {
         get_arc_coordinates();
@@ -1244,6 +1375,7 @@ void process_commands()
         return;
       }
       break;
+#endif
     case 4: // G4 dwell
       LCD_MESSAGEPGM(MSG_DWELL);
       codenum = 0;
@@ -1371,7 +1503,9 @@ void process_commands()
 
         current_position[X_AXIS] = destination[X_AXIS];
         current_position[Y_AXIS] = destination[Y_AXIS];
+		#ifndef SCARA
         current_position[Z_AXIS] = destination[Z_AXIS];
+		#endif
       }
       #endif
 
@@ -1401,13 +1535,21 @@ void process_commands()
       if(code_seen(axis_codes[X_AXIS]))
       {
         if(code_value_long() != 0) {
-          current_position[X_AXIS]=code_value()+add_homeing[0];
+		#ifdef SCARA
+		   current_position[X_AXIS]=code_value();
+		#else
+		   current_position[X_AXIS]=code_value()+add_homing[0];
+		#endif
         }
       }
 
       if(code_seen(axis_codes[Y_AXIS])) {
         if(code_value_long() != 0) {
-          current_position[Y_AXIS]=code_value()+add_homeing[1];
+         #ifdef SCARA
+		   current_position[Y_AXIS]=code_value();
+		#else
+		   current_position[Y_AXIS]=code_value()+add_homing[1];
+		#endif
         }
       }
 
@@ -1471,7 +1613,7 @@ void process_commands()
 
       if(code_seen(axis_codes[Z_AXIS])) {
         if(code_value_long() != 0) {
-          current_position[Z_AXIS]=code_value()+add_homeing[2];
+          current_position[Z_AXIS]=code_value()+add_homing[2];
         }
       }
       #ifdef ENABLE_AUTO_BED_LEVELING
@@ -1481,6 +1623,11 @@ void process_commands()
       #endif
       plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
 #endif // else DELTA
+
+#ifdef SCARA
+	  calculate_delta(current_position);
+      plan_set_position(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], current_position[E_AXIS]);
+#endif SCARA
 
       #ifdef ENDSTOPS_ONLY_FOR_HOMING
         enable_endstops(false);
@@ -1508,6 +1655,9 @@ void process_commands()
                 break; // abort G29, since we don't know where we are
             }
 
+#ifdef Z_PROBE_SLED
+            dock_sled(false);
+#endif // Z_PROBE_SLED
             st_synchronize();
             // make sure the bed_level_rotation_matrix is identity or the planner will get it incorectly
             //vector_3 corrected_position = plan_get_position_mm();
@@ -1633,13 +1783,15 @@ void process_commands()
             apply_rotation_xyz(plan_bed_level_matrix, x_tmp, y_tmp, z_tmp);         //Apply the correction sending the probe offset
             current_position[Z_AXIS] = z_tmp - real_z + current_position[Z_AXIS];   //The difference is added to current position and sent to planner.
             plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+#ifdef Z_PROBE_SLED
+            dock_sled(true, -SLED_DOCKING_OFFSET); // correct for over travel.
+#endif // Z_PROBE_SLED
         }
         break;
-
+#ifndef Z_PROBE_SLED
     case 30: // G30 Single Z Probe
         {
             engage_z_probe(); // Engage Z Servo endstop if available
-
             st_synchronize();
             // TODO: make sure the bed_level_rotation_matrix is identity or the planner will get set incorectly
             setup_for_endstop_move();
@@ -1657,10 +1809,17 @@ void process_commands()
             SERIAL_PROTOCOLPGM("\n");
 
             clean_up_after_endstop_move();
-
             retract_z_probe(); // Retract Z Servo endstop if available
         }
         break;
+#else
+    case 31: // dock the sled
+        dock_sled(true);
+        break;
+    case 32: // undock the sled
+        dock_sled(false);
+        break;
+#endif // Z_PROBE_SLED
 #endif // ENABLE_AUTO_BED_LEVELING
     case 90: // G90
       relative_mode = false;
@@ -1678,8 +1837,17 @@ void process_commands()
              plan_set_e_position(current_position[E_AXIS]);
            }
            else {
-             current_position[i] = code_value()+add_homeing[i];
-             plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+#ifdef SCARA
+		if (i == X_AXIS || i == Y_AXIS) {
+                	current_position[i] = code_value();  
+		}
+		else {
+                current_position[i] = code_value()+add_homing[i];  
+            	}  
+#else
+		current_position[i] = code_value()+add_homing[i];
+#endif
+            plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
            }
         }
       }
@@ -1880,6 +2048,280 @@ void process_commands()
         }
       }
      break;
+
+// M48 Z-Probe repeatability measurement function.
+//
+// Usage:   M48 <n #_samples> <X X_position_for_samples> <Y Y_position_for_samples> <V Verbose_Level> <Engage_probe_for_each_reading> <L legs_of_movement_prior_to_doing_probe>
+//	
+// This function assumes the bed has been homed.  Specificaly, that a G28 command
+// as been issued prior to invoking the M48 Z-Probe repeatability measurement function.
+// Any information generated by a prior G29 Bed leveling command will be lost and need to be
+// regenerated.
+//
+// The number of samples will default to 10 if not specified.  You can use upper or lower case
+// letters for any of the options EXCEPT n.  n must be in lower case because Marlin uses a capital
+// N for its communication protocol and will get horribly confused if you send it a capital N.
+//
+
+#ifdef ENABLE_AUTO_BED_LEVELING
+#ifdef Z_PROBE_REPEATABILITY_TEST 
+
+    case 48: // M48 Z-Probe repeatability
+        {
+            #if Z_MIN_PIN == -1
+            #error "You must have a Z_MIN endstop in order to enable calculation of Z-Probe repeatability."
+            #endif
+
+	double sum=0.0; 
+	double mean=0.0; 
+	double sigma=0.0;
+	double sample_set[50];
+	int verbose_level=1, n=0, j, n_samples = 10, n_legs=0, engage_probe_for_each_reading=0 ;
+	double X_current, Y_current, Z_current;
+	double X_probe_location, Y_probe_location, Z_start_location, ext_position;
+	
+	if (code_seen('V') || code_seen('v')) {
+        	verbose_level = code_value();
+		if (verbose_level<0 || verbose_level>4 ) {
+			SERIAL_PROTOCOLPGM("?Verbose Level not plausable.\n");
+			goto Sigma_Exit;
+		}
+	}
+
+	if (verbose_level > 0)   {
+		SERIAL_PROTOCOLPGM("M48 Z-Probe Repeatability test.   Version 2.00\n");
+		SERIAL_PROTOCOLPGM("Full support at: http://3dprintboard.com/forum.php\n");
+	}
+
+	if (code_seen('n')) {
+        	n_samples = code_value();
+		if (n_samples<4 || n_samples>50 ) {
+			SERIAL_PROTOCOLPGM("?Specified sample size not plausable.\n");
+			goto Sigma_Exit;
+		}
+	}
+
+	X_current = X_probe_location = st_get_position_mm(X_AXIS);
+	Y_current = Y_probe_location = st_get_position_mm(Y_AXIS);
+	Z_current = st_get_position_mm(Z_AXIS);
+	Z_start_location = st_get_position_mm(Z_AXIS) + Z_RAISE_BEFORE_PROBING;
+	ext_position	 = st_get_position_mm(E_AXIS);
+
+	if (code_seen('E') || code_seen('e') ) 
+		engage_probe_for_each_reading++;
+
+	if (code_seen('X') || code_seen('x') ) {
+        	X_probe_location = code_value() -  X_PROBE_OFFSET_FROM_EXTRUDER;
+		if (X_probe_location<X_MIN_POS || X_probe_location>X_MAX_POS ) {
+			SERIAL_PROTOCOLPGM("?Specified X position out of range.\n");
+			goto Sigma_Exit;
+		}
+	}
+
+	if (code_seen('Y') || code_seen('y') ) {
+        	Y_probe_location = code_value() -  Y_PROBE_OFFSET_FROM_EXTRUDER;
+		if (Y_probe_location<Y_MIN_POS || Y_probe_location>Y_MAX_POS ) {
+			SERIAL_PROTOCOLPGM("?Specified Y position out of range.\n");
+			goto Sigma_Exit;
+		}
+	}
+
+	if (code_seen('L') || code_seen('l') ) {
+        	n_legs = code_value();
+		if ( n_legs==1 ) 
+			n_legs = 2;
+		if ( n_legs<0 || n_legs>15 ) {
+			SERIAL_PROTOCOLPGM("?Specified number of legs in movement not plausable.\n");
+			goto Sigma_Exit;
+		}
+	}
+
+//
+// Do all the preliminary setup work.   First raise the probe.
+//
+
+        st_synchronize();
+        plan_bed_level_matrix.set_to_identity();
+	plan_buffer_line( X_current, Y_current, Z_start_location,
+			ext_position,
+    			homing_feedrate[Z_AXIS]/60,
+			active_extruder);
+        st_synchronize();
+
+//
+// Now get everything to the specified probe point So we can safely do a probe to
+// get us close to the bed.  If the Z-Axis is far from the bed, we don't want to 
+// use that as a starting point for each probe.
+//
+	if (verbose_level > 2) 
+		SERIAL_PROTOCOL("Positioning probe for the test.\n");
+
+	plan_buffer_line( X_probe_location, Y_probe_location, Z_start_location,
+			ext_position,
+    			homing_feedrate[X_AXIS]/60,
+			active_extruder);
+        st_synchronize();
+
+	current_position[X_AXIS] = X_current = st_get_position_mm(X_AXIS);
+	current_position[Y_AXIS] = Y_current = st_get_position_mm(Y_AXIS);
+	current_position[Z_AXIS] = Z_current = st_get_position_mm(Z_AXIS);
+	current_position[E_AXIS] = ext_position = st_get_position_mm(E_AXIS);
+
+// 
+// OK, do the inital probe to get us close to the bed.
+// Then retrace the right amount and use that in subsequent probes
+//
+
+        engage_z_probe();	
+
+	setup_for_endstop_move();
+	run_z_probe();
+
+	current_position[Z_AXIS] = Z_current = st_get_position_mm(Z_AXIS);
+	Z_start_location = st_get_position_mm(Z_AXIS) + Z_RAISE_BEFORE_PROBING;
+
+	plan_buffer_line( X_probe_location, Y_probe_location, Z_start_location,
+			ext_position,
+    			homing_feedrate[X_AXIS]/60,
+			active_extruder);
+        st_synchronize();
+	current_position[Z_AXIS] = Z_current = st_get_position_mm(Z_AXIS);
+
+	if (engage_probe_for_each_reading)
+        	retract_z_probe();
+
+        for( n=0; n<n_samples; n++) {
+
+		do_blocking_move_to( X_probe_location, Y_probe_location, Z_start_location); // Make sure we are at the probe location
+
+		if ( n_legs)  {
+		double radius=0.0, theta=0.0, x_sweep, y_sweep;
+		int rotational_direction, l;
+
+			rotational_direction = (unsigned long) millis() & 0x0001;			// clockwise or counter clockwise
+			radius = (unsigned long) millis() % (long) (X_MAX_LENGTH/4); 			// limit how far out to go 
+			theta = (float) ((unsigned long) millis() % (long) 360) / (360./(2*3.1415926));	// turn into radians
+
+//SERIAL_ECHOPAIR("starting radius: ",radius);
+//SERIAL_ECHOPAIR("   theta: ",theta);
+//SERIAL_ECHOPAIR("   direction: ",rotational_direction);
+//SERIAL_PROTOCOLLNPGM("");
+
+			for( l=0; l<n_legs-1; l++) {
+				if (rotational_direction==1)
+					theta += (float) ((unsigned long) millis() % (long) 20) / (360.0/(2*3.1415926)); // turn into radians
+				else
+					theta -= (float) ((unsigned long) millis() % (long) 20) / (360.0/(2*3.1415926)); // turn into radians
+
+				radius += (float) ( ((long) ((unsigned long) millis() % (long) 10)) - 5);
+				if ( radius<0.0 )
+					radius = -radius;
+
+				X_current = X_probe_location + cos(theta) * radius;
+				Y_current = Y_probe_location + sin(theta) * radius;
+
+				if ( X_current<X_MIN_POS)		// Make sure our X & Y are sane
+					 X_current = X_MIN_POS;
+				if ( X_current>X_MAX_POS)
+					 X_current = X_MAX_POS;
+
+				if ( Y_current<Y_MIN_POS)		// Make sure our X & Y are sane
+					 Y_current = Y_MIN_POS;
+				if ( Y_current>Y_MAX_POS)
+					 Y_current = Y_MAX_POS;
+
+				if (verbose_level>3 ) {
+					SERIAL_ECHOPAIR("x: ", X_current);
+					SERIAL_ECHOPAIR("y: ", Y_current);
+					SERIAL_PROTOCOLLNPGM("");
+				}
+
+				do_blocking_move_to( X_current, Y_current, Z_current );
+			}
+			do_blocking_move_to( X_probe_location, Y_probe_location, Z_start_location); // Go back to the probe location
+		}
+
+		if (engage_probe_for_each_reading)  {
+        		engage_z_probe();	
+          		delay(1000);
+		}
+
+		setup_for_endstop_move();
+                run_z_probe();
+
+		sample_set[n] = current_position[Z_AXIS];
+
+//
+// Get the current mean for the data points we have so far
+//
+		sum=0.0; 
+		for( j=0; j<=n; j++) {
+			sum = sum + sample_set[j];
+		}
+		mean = sum / (double (n+1));
+//
+// Now, use that mean to calculate the standard deviation for the
+// data points we have so far
+//
+
+		sum=0.0; 
+		for( j=0; j<=n; j++) {
+			sum = sum + (sample_set[j]-mean) * (sample_set[j]-mean);
+		}
+		sigma = sqrt( sum / (double (n+1)) );
+
+		if (verbose_level > 1) {
+			SERIAL_PROTOCOL(n+1);
+			SERIAL_PROTOCOL(" of ");
+			SERIAL_PROTOCOL(n_samples);
+			SERIAL_PROTOCOLPGM("   z: ");
+			SERIAL_PROTOCOL_F(current_position[Z_AXIS], 6);
+		}
+
+		if (verbose_level > 2) {
+			SERIAL_PROTOCOL(" mean: ");
+			SERIAL_PROTOCOL_F(mean,6);
+
+			SERIAL_PROTOCOL("   sigma: ");
+			SERIAL_PROTOCOL_F(sigma,6);
+		}
+
+		if (verbose_level > 0) 
+			SERIAL_PROTOCOLPGM("\n");
+
+		plan_buffer_line( X_probe_location, Y_probe_location, Z_start_location, 
+				  current_position[E_AXIS], homing_feedrate[Z_AXIS]/60, active_extruder);
+        	st_synchronize();
+
+		if (engage_probe_for_each_reading)  {
+        		retract_z_probe();	
+          		delay(1000);
+		}
+	}
+
+        retract_z_probe();
+	delay(1000);
+
+        clean_up_after_endstop_move();
+
+//      enable_endstops(true);
+
+	if (verbose_level > 0) {
+		SERIAL_PROTOCOLPGM("Mean: ");
+		SERIAL_PROTOCOL_F(mean, 6);
+		SERIAL_PROTOCOLPGM("\n");
+	}
+
+SERIAL_PROTOCOLPGM("Standard Deviation: ");
+SERIAL_PROTOCOL_F(sigma, 6);
+SERIAL_PROTOCOLPGM("\n\n");
+
+Sigma_Exit:
+        break;
+	}
+#endif		// Z_PROBE_REPEATABILITY_TEST 
+#endif		// ENABLE_AUTO_BED_LEVELING
+
     case 104: // M104
       if(setTargetedHotend(104)){
         break;
@@ -2000,7 +2442,7 @@ void process_commands()
 
       /* See if we are heating up or cooling down */
       target_direction = isHeatingHotend(tmp_extruder); // true if heating, false if cooling
-      
+
       cancel_heatup = false;
 
       #ifdef TEMP_RESIDENCY_TIME
@@ -2272,6 +2714,26 @@ void process_commands()
       SERIAL_PROTOCOL(float(st_get_position(Z_AXIS))/axis_steps_per_unit[Z_AXIS]);
 
       SERIAL_PROTOCOLLN("");
+#ifdef SCARA
+	  SERIAL_PROTOCOLPGM("SCARA Theta:");
+      SERIAL_PROTOCOL(delta[X_AXIS]);
+      SERIAL_PROTOCOLPGM("   Psi+Theta:");
+      SERIAL_PROTOCOL(delta[Y_AXIS]);
+      SERIAL_PROTOCOLLN("");
+      
+      SERIAL_PROTOCOLPGM("SCARA Cal - Theta:");
+      SERIAL_PROTOCOL(delta[X_AXIS]+add_homing[0]);
+      SERIAL_PROTOCOLPGM("   Psi+Theta (90):");
+      SERIAL_PROTOCOL(delta[Y_AXIS]-delta[X_AXIS]-90+add_homing[1]);
+      SERIAL_PROTOCOLLN("");
+      
+      SERIAL_PROTOCOLPGM("SCARA step Cal - Theta:");
+      SERIAL_PROTOCOL(delta[X_AXIS]/90*axis_steps_per_unit[X_AXIS]);
+      SERIAL_PROTOCOLPGM("   Psi+Theta:");
+      SERIAL_PROTOCOL((delta[Y_AXIS]-delta[X_AXIS])/90*axis_steps_per_unit[Y_AXIS]);
+      SERIAL_PROTOCOLLN("");
+      SERIAL_PROTOCOLLN("");
+#endif
       break;
     case 120: // M120
       enable_endstops(false) ;
@@ -2390,11 +2852,21 @@ void process_commands()
       if(code_seen('E')) max_e_jerk = code_value() ;
     }
     break;
-    case 206: // M206 additional homeing offset
+    case 206: // M206 additional homing offset
       for(int8_t i=0; i < 3; i++)
       {
-        if(code_seen(axis_codes[i])) add_homeing[i] = code_value();
+        if(code_seen(axis_codes[i])) add_homing[i] = code_value();
       }
+	  #ifdef SCARA
+	   if(code_seen('T'))       // Theta
+      {
+        add_homing[0] = code_value() ;
+      }
+      if(code_seen('P'))       // Psi
+      {
+        add_homing[1] = code_value() ;
+      }
+	  #endif
       break;
     #ifdef DELTA
 	case 665: // M665 set delta configurations L<diagonal_rod> R<delta_radius> S<segments_per_sec>
@@ -2773,12 +3245,111 @@ void process_commands()
       PID_autotune(temp, e, c);
     }
     break;
+	#ifdef SCARA
+	case 360:  // M360 SCARA Theta pos1
+      SERIAL_ECHOLN(" Cal: Theta 0 ");
+      //SoftEndsEnabled = false;              // Ignore soft endstops during calibration
+      //SERIAL_ECHOLN(" Soft endstops disabled ");
+      if(Stopped == false) {
+        //get_coordinates(); // For X Y Z E F
+        delta[0] = 0;
+        delta[1] = 120;
+        calculate_SCARA_forward_Transform(delta);
+        destination[0] = delta[0]/axis_scaling[X_AXIS];
+        destination[1] = delta[1]/axis_scaling[Y_AXIS];
+        
+        prepare_move();
+        //ClearToSend();
+        return;
+      }
+    break;
+
+    case 361:  // SCARA Theta pos2
+      SERIAL_ECHOLN(" Cal: Theta 90 ");
+      //SoftEndsEnabled = false;              // Ignore soft endstops during calibration
+      //SERIAL_ECHOLN(" Soft endstops disabled ");
+      if(Stopped == false) {
+        //get_coordinates(); // For X Y Z E F
+        delta[0] = 90;
+        delta[1] = 130;
+        calculate_SCARA_forward_Transform(delta);
+        destination[0] = delta[0]/axis_scaling[X_AXIS];
+        destination[1] = delta[1]/axis_scaling[Y_AXIS];
+        
+        prepare_move();
+        //ClearToSend();
+        return;
+      }
+    break;
+    case 362:  // SCARA Psi pos1
+      SERIAL_ECHOLN(" Cal: Psi 0 ");
+      //SoftEndsEnabled = false;              // Ignore soft endstops during calibration
+      //SERIAL_ECHOLN(" Soft endstops disabled ");
+      if(Stopped == false) {
+        //get_coordinates(); // For X Y Z E F
+        delta[0] = 60;
+        delta[1] = 180;
+        calculate_SCARA_forward_Transform(delta);
+        destination[0] = delta[0]/axis_scaling[X_AXIS];
+        destination[1] = delta[1]/axis_scaling[Y_AXIS];
+        
+        prepare_move();
+        //ClearToSend();
+        return;
+      }
+    break;
+    case 363:  // SCARA Psi pos2
+      SERIAL_ECHOLN(" Cal: Psi 90 ");
+      //SoftEndsEnabled = false;              // Ignore soft endstops during calibration
+      //SERIAL_ECHOLN(" Soft endstops disabled ");
+      if(Stopped == false) {
+        //get_coordinates(); // For X Y Z E F
+        delta[0] = 50;
+        delta[1] = 90;
+        calculate_SCARA_forward_Transform(delta);
+        destination[0] = delta[0]/axis_scaling[X_AXIS];
+        destination[1] = delta[1]/axis_scaling[Y_AXIS];
+        
+        prepare_move();
+        //ClearToSend();
+        return;
+      }
+    break;
+    case 364:  // SCARA Psi pos3 (90 deg to Theta)
+      SERIAL_ECHOLN(" Cal: Theta-Psi 90 ");
+     // SoftEndsEnabled = false;              // Ignore soft endstops during calibration
+      //SERIAL_ECHOLN(" Soft endstops disabled ");
+      if(Stopped == false) {
+        //get_coordinates(); // For X Y Z E F
+        delta[0] = 45;
+        delta[1] = 135;
+        calculate_SCARA_forward_Transform(delta);
+        destination[0] = delta[0]/axis_scaling[X_AXIS];
+        destination[1] = delta[1]/axis_scaling[Y_AXIS]; 
+        
+        prepare_move();
+        //ClearToSend();
+        return;
+      }
+    break;
+    case 365: // M364  Set SCARA scaling for X Y Z
+      for(int8_t i=0; i < 3; i++) 
+      {
+        if(code_seen(axis_codes[i])) 
+        {
+          
+            axis_scaling[i] = code_value();
+          
+        }
+      }
+      break;
+	#endif
     case 400: // M400 finish all moves
     {
       st_synchronize();
     }
     break;
-#if defined(ENABLE_AUTO_BED_LEVELING) && defined(SERVO_ENDSTOPS)
+#if defined(ENABLE_AUTO_BED_LEVELING) && defined(SERVO_ENDSTOPS) && not defined(Z_PROBE_SLED)
     case 401:
     {
         engage_z_probe();    // Engage Z Servo endstop if available
@@ -3399,8 +3970,46 @@ void calculate_delta(float cartesian[3])
 void prepare_move()
 {
   clamp_to_software_endstops(destination);
-
   previous_millis_cmd = millis();
+  
+  #ifdef SCARA //for now same as delta-code
+
+float difference[NUM_AXIS];
+for (int8_t i=0; i < NUM_AXIS; i++) {
+	difference[i] = destination[i] - current_position[i];
+}
+
+float cartesian_mm = sqrt(	sq(difference[X_AXIS]) +
+							sq(difference[Y_AXIS]) +
+							sq(difference[Z_AXIS]));
+if (cartesian_mm < 0.000001) { cartesian_mm = abs(difference[E_AXIS]); }
+if (cartesian_mm < 0.000001) { return; }
+float seconds = 6000 * cartesian_mm / feedrate / feedmultiply;
+int steps = max(1, int(scara_segments_per_second * seconds));
+ //SERIAL_ECHOPGM("mm="); SERIAL_ECHO(cartesian_mm);
+ //SERIAL_ECHOPGM(" seconds="); SERIAL_ECHO(seconds);
+ //SERIAL_ECHOPGM(" steps="); SERIAL_ECHOLN(steps);
+for (int s = 1; s <= steps; s++) {
+	float fraction = float(s) / float(steps);
+	for(int8_t i=0; i < NUM_AXIS; i++) {
+		destination[i] = current_position[i] + difference[i] * fraction;
+	}
+
+	
+	calculate_delta(destination);
+         //SERIAL_ECHOPGM("destination[0]="); SERIAL_ECHOLN(destination[0]);
+         //SERIAL_ECHOPGM("destination[1]="); SERIAL_ECHOLN(destination[1]);
+         //SERIAL_ECHOPGM("destination[2]="); SERIAL_ECHOLN(destination[2]);
+         //SERIAL_ECHOPGM("delta[X_AXIS]="); SERIAL_ECHOLN(delta[X_AXIS]);
+         //SERIAL_ECHOPGM("delta[Y_AXIS]="); SERIAL_ECHOLN(delta[Y_AXIS]);
+         //SERIAL_ECHOPGM("delta[Z_AXIS]="); SERIAL_ECHOLN(delta[Z_AXIS]);
+         
+	plan_buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS],
+	destination[E_AXIS], feedrate*feedmultiply/60/100.0,
+	active_extruder);
+}
+#endif // SCARA
+  
 #ifdef DELTA
   float difference[NUM_AXIS];
   for (int8_t i=0; i < NUM_AXIS; i++) {
@@ -3426,7 +4035,8 @@ void prepare_move()
                      destination[E_AXIS], feedrate*feedmultiply/60/100.0,
                      active_extruder);
   }
-#else
+  
+#endif // DELTA
 
 #ifdef DUAL_X_CARRIAGE
   if (active_extruder_parked)
@@ -3469,6 +4079,7 @@ void prepare_move()
   }
 #endif //DUAL_X_CARRIAGE
 
+#if ! (defined DELTA || defined SCARA)
   // Do not use feedmultiply for E or Z only moves
   if( (current_position[X_AXIS] == destination [X_AXIS]) && (current_position[Y_AXIS] == destination [Y_AXIS])) {
       plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate/60, active_extruder);
@@ -3476,7 +4087,8 @@ void prepare_move()
   else {
     plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate*feedmultiply/60/100.0, active_extruder);
   }
-#endif //else DELTA
+#endif // !(DELTA || SCARA)
+
   for(int8_t i=0; i < NUM_AXIS; i++) {
     current_position[i] = destination[i];
   }
@@ -3544,6 +4156,84 @@ void controllerFan()
 }
 #endif
 
+#ifdef SCARA
+void calculate_SCARA_forward_Transform(float f_scara[3])
+{
+  // Perform forward kinematics, and place results in delta[3]
+  // The maths and first version has been done by QHARLEY . Integrated into masterbranch 06/2014 and slightly restructured by Joachim Cerny in June 2014
+  
+  float x_sin, x_cos, y_sin, y_cos;
+  
+    //SERIAL_ECHOPGM("f_delta x="); SERIAL_ECHO(f_scara[X_AXIS]);
+    //SERIAL_ECHOPGM(" y="); SERIAL_ECHO(f_scara[Y_AXIS]);
+  
+    x_sin = sin(f_scara[X_AXIS]/SCARA_RAD2DEG) * Linkage_1;
+    x_cos = cos(f_scara[X_AXIS]/SCARA_RAD2DEG) * Linkage_1;
+    y_sin = sin(f_scara[Y_AXIS]/SCARA_RAD2DEG) * Linkage_2;
+    y_cos = cos(f_scara[Y_AXIS]/SCARA_RAD2DEG) * Linkage_2;
+   
+  //  SERIAL_ECHOPGM(" x_sin="); SERIAL_ECHO(x_sin);
+  //  SERIAL_ECHOPGM(" x_cos="); SERIAL_ECHO(x_cos);
+  //  SERIAL_ECHOPGM(" y_sin="); SERIAL_ECHO(y_sin);
+  //  SERIAL_ECHOPGM(" y_cos="); SERIAL_ECHOLN(y_cos);
+  
+    delta[X_AXIS] = x_cos + y_cos + SCARA_offset_x;  //theta
+    delta[Y_AXIS] = x_sin + y_sin + SCARA_offset_y;  //theta+phi
+	
+    //SERIAL_ECHOPGM(" delta[X_AXIS]="); SERIAL_ECHO(delta[X_AXIS]);
+    //SERIAL_ECHOPGM(" delta[Y_AXIS]="); SERIAL_ECHOLN(delta[Y_AXIS]);
+}  
+
+void calculate_delta(float cartesian[3]){
+  //reverse kinematics.
+  // Perform reversed kinematics, and place results in delta[3]
+  // The maths and first version has been done by QHARLEY . Integrated into masterbranch 06/2014 and slightly restructured by Joachim Cerny in June 2014
+  
+  float SCARA_pos[2];
+  static float SCARA_C2, SCARA_S2, SCARA_K1, SCARA_K2, SCARA_theta, SCARA_psi; 
+  
+  SCARA_pos[X_AXIS] = cartesian[X_AXIS] * axis_scaling[X_AXIS] - SCARA_offset_x;  //Translate SCARA to standard X Y
+  SCARA_pos[Y_AXIS] = cartesian[Y_AXIS] * axis_scaling[Y_AXIS] - SCARA_offset_y;  // With scaling factor.
+  
+  #if (Linkage_1 == Linkage_2)
+    SCARA_C2 = ( ( sq(SCARA_pos[X_AXIS]) + sq(SCARA_pos[Y_AXIS]) ) / (2 * (float)L1_2) ) - 1;
+  #else
+    SCARA_C2 =   ( sq(SCARA_pos[X_AXIS]) + sq(SCARA_pos[Y_AXIS]) - (float)L1_2 - (float)L2_2 ) / 45000; 
+  #endif
+  
+  SCARA_S2 = sqrt( 1 - sq(SCARA_C2) );
+  
+  SCARA_K1 = Linkage_1 + Linkage_2 * SCARA_C2;
+  SCARA_K2 = Linkage_2 * SCARA_S2;
+  
+  SCARA_theta = ( atan2(SCARA_pos[X_AXIS],SCARA_pos[Y_AXIS])-atan2(SCARA_K1, SCARA_K2) ) * -1;
+  SCARA_psi   =   atan2(SCARA_S2,SCARA_C2);
+  
+  delta[X_AXIS] = SCARA_theta * SCARA_RAD2DEG;  // Multiply by 180/Pi  -  theta is support arm angle
+  delta[Y_AXIS] = (SCARA_theta + SCARA_psi) * SCARA_RAD2DEG;  //       -  equal to sub arm angle (inverted motor)
+  delta[Z_AXIS] = cartesian[Z_AXIS];
+  
+  /*
+  SERIAL_ECHOPGM("cartesian x="); SERIAL_ECHO(cartesian[X_AXIS]);
+  SERIAL_ECHOPGM(" y="); SERIAL_ECHO(cartesian[Y_AXIS]);
+  SERIAL_ECHOPGM(" z="); SERIAL_ECHOLN(cartesian[Z_AXIS]);
+  
+  SERIAL_ECHOPGM("scara x="); SERIAL_ECHO(SCARA_pos[X_AXIS]);
+  SERIAL_ECHOPGM(" y="); SERIAL_ECHOLN(SCARA_pos[Y_AXIS]);
+  
+  SERIAL_ECHOPGM("delta x="); SERIAL_ECHO(delta[X_AXIS]);
+  SERIAL_ECHOPGM(" y="); SERIAL_ECHO(delta[Y_AXIS]);
+  SERIAL_ECHOPGM(" z="); SERIAL_ECHOLN(delta[Z_AXIS]);
+  
+  SERIAL_ECHOPGM("C2="); SERIAL_ECHO(SCARA_C2);
+  SERIAL_ECHOPGM(" S2="); SERIAL_ECHO(SCARA_S2);
+  SERIAL_ECHOPGM(" Theta="); SERIAL_ECHO(SCARA_theta);
+  SERIAL_ECHOPGM(" Psi="); SERIAL_ECHOLN(SCARA_psi);
+  SERIAL_ECHOLN(" ");*/
+}
+
+#endif
+
 #ifdef TEMP_STAT_LEDS
 static bool blue_led = false;
 static bool red_led = false;
@@ -3600,10 +4290,9 @@ void manage_inactivity()
   }
   
   #ifdef CHDK //Check if pin should be set to LOW after M240 set it to HIGH
-    if (chdkActive)
+    if (chdkActive && (millis() - chdkHigh > CHDK_DELAY))
     {
       chdkActive = false;
-      if (millis()-chdkHigh < CHDK_DELAY) return;
       WRITE(CHDK, LOW);
     }
   #endif
