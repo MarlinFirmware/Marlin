@@ -2328,6 +2328,19 @@ DaveX plan for Teensylu/printrboard-type pinouts (ref teensylu & sprinter) for a
 #endif //ULTRA_LCD
 
 
+#ifdef NUM_SERVOS
+  #define SERVO0_PIN         22
+
+  #if NUM_SERVOS > 1
+    #define SERVO1_PIN         24
+  #endif
+
+  #if NUM_SERVOS > 2
+    #define SERVO2_PIN         23
+  #endif
+#endif
+
+
 #endif
 
 /****************************************************************************************
