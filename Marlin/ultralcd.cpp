@@ -336,6 +336,14 @@ static void lcd_sdcard_stop()
     lcd_return_to_status();
 }
 
+static void lcd_stop_confirm()
+{
+  START_MENU();
+  MENU_ITEM(back, MSG_BACK, lcd_status_screen);
+  MENU_ITEM(function, MSG_STOP_PRINT, lcd_sdcard_stop);
+  END_MENU();
+}
+
 static void lcd_change_filament()
 {
     LCD_MESSAGEPGM(MSG_PAUSING);
@@ -372,7 +380,7 @@ static void lcd_main_menu()
                 MENU_ITEM(function, MSG_PAUSE_PRINT, lcd_sdcard_pause);
             else
                 MENU_ITEM(function, MSG_RESUME_PRINT, lcd_sdcard_resume);
-            MENU_ITEM(function, MSG_STOP_PRINT, lcd_sdcard_stop);
+            MENU_ITEM(function, MSG_STOP_PRINT, lcd_stop_confirm);
         } else {
             MENU_ITEM(submenu, MSG_CARD_MENU, lcd_sdcard_menu);
 #if SDCARDDETECT < 1
