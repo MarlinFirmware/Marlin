@@ -2995,8 +2995,8 @@ void process_commands()
 	set_ChangeScreen(true);
 	
 	while(!lcd_clicked()){
-	set_pageShowInfo(0);      
-	lcd_update();        
+  	set_pageShowInfo(0);
+    lcd_update();
 	}
 	
 	set_pageShowInfo(1);
@@ -3082,8 +3082,9 @@ void process_commands()
 	#endif
 	do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], Z_MIN_POS);
 	
-       while(!lcd_clicked()){          
+  while(!lcd_clicked()){          
 	  manage_heater();
+    lcd_buttons_update();
 	}
 	
 	set_ChangeScreen(true);
@@ -3100,6 +3101,7 @@ void process_commands()
 	while(!lcd_clicked()){
 	  manage_heater();
 	  manage_inactivity();
+    lcd_buttons_update();
 	}
 	
 	set_ChangeScreen(true);
@@ -3116,6 +3118,7 @@ void process_commands()
 	 while(!lcd_clicked()){
 	  manage_heater();
 	  manage_inactivity();
+    lcd_buttons_update();
 	}        
 	
 	#if X_MAX_POS < 250
@@ -3126,9 +3129,10 @@ void process_commands()
 	  do_blocking_move_to(195, 20, current_position[Z_AXIS]);
 	  do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS],Z_MIN_POS);
 	      
-	   while(!lcd_clicked()){
+	  while(!lcd_clicked()){
 	    manage_heater();
 	    manage_inactivity();
+      lcd_buttons_update();
 	   }
 	#endif
 
@@ -3146,6 +3150,7 @@ void process_commands()
 	while(!lcd_clicked()){                  
 	  manage_heater();
 	  manage_inactivity();
+    lcd_buttons_update();
 	}
 	
 	set_ChangeScreen(true);
