@@ -380,7 +380,7 @@ static void lcd_main_menu()
                 MENU_ITEM(function, MSG_PAUSE_PRINT, lcd_sdcard_pause);
             else
                 MENU_ITEM(function, MSG_RESUME_PRINT, lcd_sdcard_resume);
-            MENU_ITEM(function, MSG_STOP_PRINT, lcd_stop_confirm);
+            MENU_ITEM(submenu, MSG_STOP_PRINT, lcd_stop_confirm);
         } else {
             MENU_ITEM(submenu, MSG_CARD_MENU, lcd_sdcard_menu);
 #if SDCARDDETECT < 1
