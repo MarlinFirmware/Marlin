@@ -2261,7 +2261,7 @@ DaveX plan for Teensylu/printrboard-type pinouts (ref teensylu & sprinter) for a
 #define PS_ON_PIN          4
 #define KILL_PIN           -1 //80 with Smart Controller LCD
 #define SUICIDE_PIN        -1  //PIN that has to be turned on right after start, to keep power flowing.
-#define RESUME_PIN         18
+#define RESUME_PIN         24
 
 #ifdef ULTRA_LCD
   #define KILL_PIN 80
