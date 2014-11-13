@@ -1070,14 +1070,14 @@ void process_commands()
       }
       break;
     }
-    case 101: // G101 turn degree
-      if(Stopped == false) {
-        get_coordinates(); // For X Y Z
-        prepare_move_degree();
-        //ClearToSend();
-        return;
-      }
-      //break;
+    //case 101: // G101 turn degree
+    //  if(Stopped == false) {
+    //    get_coordinates(); // For X Y Z
+    //    prepare_move_degree();
+    //    //ClearToSend();
+    //    return;
+    //  }
+     //break;
   }
 
   else if(code_seen('M'))
