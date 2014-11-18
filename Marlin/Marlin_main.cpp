@@ -3391,12 +3391,12 @@ void FlushSerialRequestResend()
 
 void ClearToSend()
 {
-  /*previous_millis_cmd = millis();
+  previous_millis_cmd = millis();
   #ifdef SDSUPPORT
   if(fromsd[bufindr])
     return;
   #endif //SDSUPPORT
-  SERIAL_PROTOCOLLNPGM(MSG_OK);*/
+  SERIAL_PROTOCOLLNPGM(MSG_OK);
 }
 
 void get_coordinates()
