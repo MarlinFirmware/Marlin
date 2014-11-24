@@ -11,6 +11,10 @@
 
 CardReader::CardReader()
 {
+  #if SORT_USES_MORE_RAM
+   sortnames = NULL;
+   sort_count = 0;
+  #endif
    filesize = 0;
    sdpos = 0;
    sdprinting = false;
@@ -53,15 +57,15 @@ char *createFilename(char *buffer,const dir_t &p) //buffer>12characters
 void  CardReader::lsDive(const char *prepend,SdFile parent)
 {
   dir_t p;
- uint8_t cnt=0;
+  uint8_t cnt=0;
  
-  while (parent.readDir(p, longFilename) > 0)
+  while (parent.readDir(p, diveFilename) > 0)
   {
     if( DIR_IS_SUBDIR(&p) && lsAction!=LS_Count && lsAction!=LS_GetFilename) // hence LS_SerialPrint
     {
 
-      char path[13*2];
-      char lfilename[13];
+      char path[FILENAME_LENGTH*2];
+      char lfilename[FILENAME_LENGTH];
       createFilename(lfilename,p);
       
       path[0]=0;
@@ -87,25 +91,22 @@ void  CardReader::lsDive(const char *prepend,SdFile parent)
       }
       lsDive(path,dir);
       //close done automatically by destructor of SdFile
-
-      
     }
     else
     {
       if (p.name[0] == DIR_NAME_FREE) break;
       if (p.name[0] == DIR_NAME_DELETED || p.name[0] == '.'|| p.name[0] == '_') continue;
-      if (longFilename[0] != '\0' &&
-          (longFilename[0] == '.' || longFilename[0] == '_')) continue;
+      if (diveFilename[0] != '\0' &&
+          (diveFilename[0] == '.' || diveFilename[0] == '_')) continue;
       if ( p.name[0] == '.')
       {
         if ( p.name[1] != '.')
         continue;
       }
-      
+
       if (!DIR_IS_FILE_OR_SUBDIR(&p)) continue;
       filenameIsDir=DIR_IS_SUBDIR(&p);
-      
-      
+
       if(!filenameIsDir)
       {
         if(p.name[8]!='G') continue;
@@ -124,10 +125,8 @@ void  CardReader::lsDive(const char *prepend,SdFile parent)
       } 
       else if(lsAction==LS_GetFilename)
       {
-        if(cnt==nrFiles)
-          return;
+        if (cnt == nrFiles) return;
         cnt++;
-        
       }
     }
   }
@@ -136,9 +135,6 @@ void  CardReader::lsDive(const char *prepend,SdFile parent)
 void CardReader::ls() 
 {
   lsAction=LS_SerialPrint;
-  if(lsAction==LS_Count)
-  nrFiles=0;
-
   root.rewind();
   lsDive("",root);
 }
@@ -177,6 +173,9 @@ void CardReader::initsd()
   }
   workDir=root;
   curDir=&root;
+  #ifdef SDCARD_SORT_ALPHA
+    presort();
+  #endif
   /*
   if(!workDir.openRoot(&volume))
   {
@@ -193,8 +192,10 @@ void CardReader::setroot()
     SERIAL_ECHOLNPGM(MSG_SD_WORKDIR_FAIL);
   }*/
   workDir=root;
-  
   curDir=&workDir;
+  #ifdef SDCARD_SORT_ALPHA
+    presort();
+  #endif
 }
 void CardReader::release()
 {
@@ -235,7 +236,7 @@ void CardReader::getAbsFilename(char *t)
     while(*t!=0 && cnt< MAXPATHNAMELENGTH) 
     {t++;cnt++;}  //crawl counter forward.
   }
-  if(cnt<MAXPATHNAMELENGTH-13)
+  if(cnt<MAXPATHNAMELENGTH-FILENAME_LENGTH)
     file.getFilename(t);
   else
     t[0]=0;
@@ -305,7 +306,7 @@ void CardReader::openFile(char* name,bool read, bool replace_current/*=true*/)
       //SERIAL_ECHO("end  :");SERIAL_ECHOLN((int)(dirname_end-name));
       if(dirname_end>0 && dirname_end>dirname_start)
       {
-        char subdirname[13];
+        char subdirname[FILENAME_LENGTH];
         strncpy(subdirname, dirname_start, dirname_end-dirname_start);
         subdirname[dirname_end-dirname_start]=0;
         SERIAL_ECHOLN(subdirname);
@@ -401,7 +402,7 @@ void CardReader::removeFile(char* name)
       //SERIAL_ECHO("end  :");SERIAL_ECHOLN((int)(dirname_end-name));
       if(dirname_end>0 && dirname_end>dirname_start)
       {
-        char subdirname[13];
+        char subdirname[FILENAME_LENGTH];
         strncpy(subdirname, dirname_start, dirname_end-dirname_start);
         subdirname[dirname_end-dirname_start]=0;
         SERIAL_ECHOLN(subdirname);
@@ -439,6 +440,9 @@ void CardReader::removeFile(char* name)
       SERIAL_PROTOCOLPGM("File deleted:");
       SERIAL_PROTOCOLLN(fname);
       sdpos = 0;
+      #ifdef SDCARD_SORT_ALPHA
+        presort();
+      #endif
     }
     else
     {
@@ -577,7 +581,7 @@ void CardReader::chdir(const char * relpath)
 {
   SdFile newfile;
   SdFile *parent=&root;
-  
+
   if(workDir.isOpen())
     parent=&workDir;
   
@@ -595,21 +599,156 @@ void CardReader::chdir(const char * relpath)
       workDirParents[0]=*parent;
     }
     workDir=newfile;
+    #ifdef SDCARD_SORT_ALPHA
+      presort();
+    #endif
   }
 }
 
 void CardReader::updir()
 {
-  if(workDirDepth > 0)
+  if (workDirDepth > 0)
   {
     --workDirDepth;
     workDir = workDirParents[0];
-    int d;
     for (int d = 0; d < workDirDepth; d++)
       workDirParents[d] = workDirParents[d+1];
+    #ifdef SDCARD_SORT_ALPHA
+      presort();
+    #endif
   }
 }
 
+#ifdef SDCARD_SORT_ALPHA
+
+/**
+ * Get the name of a file in the current directory by sort-index
+ */
+void CardReader::getfilename_sorted(const uint8_t nr) {
+  #if SORT_USES_MORE_RAM
+    getfilename(nr < sort_count ? sort_order[nr] : nr);
+  #else
+    getfilename(nr < SORT_LIMIT ? sort_order[nr] : nr);
+  #endif
+}
+
+/**
+ * Read all the files and produce a sort key
+ *
+ * We can do this in 3 ways...
+ *  - Minimal RAM: Read two filenames at a time sorting along...
+ *  - Some RAM: Buffer the directory and return filenames from RAM
+ *  - Some RAM: Buffer the directory just for this sort
+ */
+void CardReader::presort()
+{
+  #if SORT_USES_MORE_RAM
+    flush_presort();
+  #endif
+
+  uint16_t fileCnt = getnrfilenames();
+  if (fileCnt > 0) {
+
+    if (fileCnt > SORT_LIMIT) fileCnt = SORT_LIMIT;
+
+    #if SORT_USES_MORE_RAM
+      sortnames = malloc(fileCnt * sizeof(char*));
+      sort_count = fileCnt;
+    #elif SORT_USES_RAM
+      char *sortnames[fileCnt];
+      #if FOLDER_SORTING != 0
+        uint8_t isdir[fileCnt];
+      #endif
+    #else
+      char sortname[LONG_FILENAME_LENGTH+1];
+    #endif
+
+    if (fileCnt > 1) {
+
+      // Init sort order [and get filenames]
+      for (int i=0; i<fileCnt; i++) {
+        int byte=i/8, bit=1<<(i%8);
+        sort_order[i] = i;
+        #if SORT_USES_RAM
+          getfilename(i);
+          char *name = diveFilename[0] ? diveFilename : filename;
+          // SERIAL_ECHOPGM("--- ");
+          // SERIAL_ECHOLN(name);
+          sortnames[i] = (char*)malloc(strlen(name) + 1);
+          strcpy(sortnames[i], name);
+          #if FOLDER_SORTING != 0
+            isdir[i] = filenameIsDir;
+          #endif
+        #endif
+      }
+
+      // Bubble Sort
+      for (uint8_t i=fileCnt; --i;) {
+        bool cmp, didSwap = false;
+        for (uint8_t j=0; j<i; ++j) {
+          int s1 = j, s2 = j+1, o1 = sort_order[s1], o2 = sort_order[s2];
+          #if SORT_USES_RAM
+            #if FOLDER_SORTING != 0
+              cmp = (isdir[o1] == isdir[o2]) ? (strcasecmp(sortnames[o1], sortnames[o2]) > 0) : isdir[FOLDER_SORTING > 0 ? o1 : o2];
+            #else
+              cmp = strcasecmp(sortnames[o1], sortnames[o2]) > 0);
+            #endif
+          #else
+            getfilename(o1);
+            #if FOLDER_SORTING != 0
+              bool dir1 = filenameIsDir;
+            #endif
+            char *name = diveFilename[0] ? diveFilename : filename;
+            strcpy(sortname, name);
+            getfilename(o2);
+            name = diveFilename[0] ? diveFilename : filename;
+            #if FOLDER_SORTING != 0
+              cmp = (dir1 == filenameIsDir) ? (strcasecmp(sortname, name) > 0) : (FOLDER_SORTING > 0 ? dir1 : !dir1);
+            #else
+              cmp = strcasecmp(sortname, name) > 0);
+            #endif
+          #endif
+          if (cmp) {
+            // SERIAL_ECHOPGM("Swap ");
+            // SERIAL_ECHOLN(sortnames[o1]);
+            // SERIAL_ECHOPGM(" for ");
+            // SERIAL_ECHOLN(sortnames[o2]);
+            sort_order[s1] = o2;
+            sort_order[s2] = o1;
+            didSwap = true;
+          }
+        }
+        if (!didSwap) break;
+      }
+
+      #if SORT_USES_RAM && !SORT_USES_MORE_RAM
+        for (int i=0; i < fileCnt; ++i) free(sortnames[i]);
+      #endif
+    }
+    else {
+      sort_order[0] = 0;
+    }
+
+  }
+}
+
+void CardReader::flush_presort() {
+  #if SORT_USES_MORE_RAM
+    if (sort_count > 0) {
+      for (int i=0; i < sort_count; ++i) {
+        free(sortnames[i]);
+        sort_order[i] = i;
+      }
+      free(sortnames);
+      sortnames = NULL;
+      sort_count = 0;
+    }
+  #else
+    for (int i=SORT_LIMIT; --i;) sort_order[i] = i;
+  #endif
+}
+
+#endif
 
 void CardReader::printingHasFinished()
 {
