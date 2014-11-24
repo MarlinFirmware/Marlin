@@ -3,7 +3,11 @@
 
 #ifdef SDSUPPORT
 
-#define MAX_DIR_DEPTH 10
+#define MAX_DIR_DEPTH 10          // Maximum folder depth
+#define SORT_USES_RAM false       // Buffer while sorting, else re-read from SD
+#define SORT_USES_MORE_RAM false  // Always keep the directory in RAM
+#define SORT_LIMIT 256            // Maximum number of sorted items
+#define FOLDER_SORTING -1         // -1=above  0=none  1=below
 
 #include "SdFile.h"
 enum LsAction {LS_SerialPrint,LS_Count,LS_GetFilename};
@@ -39,6 +43,12 @@ public:
   void updir();
   void setroot();
 
+#ifdef SDCARD_SORT_ALPHA
+  void presort();
+  void flush_presort();
+  void getfilename_sorted(const uint8_t nr);
+#endif
+
 
   FORCE_INLINE bool isFileOpen() { return file.isOpen(); }
   FORCE_INLINE bool eof() { return sdpos>=filesize ;};
@@ -51,19 +61,27 @@ public:
   bool saving;
   bool logging;
   bool sdprinting ;  
-  bool cardOK ;
-  char filename[13];
-  char longFilename[LONG_FILENAME_LENGTH];
+  bool cardOK;
+  char filename[FILENAME_LENGTH];
+  char diveFilename[LONG_FILENAME_LENGTH];
   bool filenameIsDir;
   int lastnr; //last number of the autostart;
 private:
   SdFile root,*curDir,workDir,workDirParents[MAX_DIR_DEPTH];
   uint16_t workDirDepth;
+#ifdef SDCARD_SORT_ALPHA
+  #if SORT_USES_MORE_RAM
+    uint16_t sort_count;
+    char **sortnames;
+  #else
+    uint8_t sort_order[SORT_LIMIT];
+  #endif
+#endif
   Sd2Card card;
   SdVolume volume;
   SdFile file;
   #define SD_PROCEDURE_DEPTH 1
-  #define MAXPATHNAMELENGTH (13*MAX_DIR_DEPTH+MAX_DIR_DEPTH+1)
+  #define MAXPATHNAMELENGTH (FILENAME_LENGTH*MAX_DIR_DEPTH+MAX_DIR_DEPTH+1)
   uint8_t file_subcall_ctr;
   uint32_t filespos[SD_PROCEDURE_DEPTH];
   char filenames[SD_PROCEDURE_DEPTH][MAXPATHNAMELENGTH];
