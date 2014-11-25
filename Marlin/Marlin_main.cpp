@@ -1385,7 +1385,7 @@ void process_commands()
       st_synchronize();
       codenum += millis();  // keep track of when we started waiting
       previous_millis_cmd = millis();
-      while(millis()  < codenum ){
+      while(millis() < codenum) {
         manage_heater();
         manage_inactivity();
         lcd_update();
@@ -1412,7 +1412,6 @@ void process_commands()
 #ifdef ENABLE_AUTO_BED_LEVELING
       plan_bed_level_matrix.set_to_identity();  //Reset the plane ("erase" all leveling data)
 #endif //ENABLE_AUTO_BED_LEVELING
-
 
       saved_feedrate = feedrate;
       saved_feedmultiply = feedmultiply;
@@ -1874,9 +1873,9 @@ void process_commands()
       if (hasS) codenum = code_value() * 1000; // seconds to wait
 
       if (!hasP && !hasS && *src != '\0') {
-        while (*src == ' ') ++src;
         starpos = strchr(src, '*');
         if (starpos != NULL) *(starpos) = '\0';
+        while (*src == ' ') ++src;
         lcd_setstatus(src);
       } else {
         LCD_MESSAGEPGM(MSG_USERWAIT);
@@ -1887,7 +1886,7 @@ void process_commands()
       previous_millis_cmd = millis();
       if (codenum > 0){
         codenum += millis();  // keep track of when we started waiting
-        while(millis()  < codenum && !lcd_clicked()){
+        while(millis() < codenum && !lcd_clicked()){
           manage_heater();
           manage_inactivity();
           lcd_update();
@@ -1900,7 +1899,10 @@ void process_commands()
           lcd_update();
         }
       }
-      LCD_MESSAGEPGM(MSG_RESUMING);
+      if (IS_SD_PRINTING)
+        LCD_MESSAGEPGM(MSG_RESUMING);
+      else
+        LCD_MESSAGEPGM(WELCOME_MSG);
     }
     break;
 #endif
