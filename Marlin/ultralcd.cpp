@@ -163,6 +163,7 @@ menuFunc_t currentMenu = lcd_status_screen; /* function pointer to the currently
 uint32_t lcd_next_update_millis;
 uint8_t lcd_status_update_delay;
 bool ignore_click = false;
+bool wait_for_unclick;
 uint8_t lcdDrawUpdate = 2;                  /* Set to none-zero when the LCD needs to draw, decreased after every draw. Set to 2 in LCD routines so the LCD gets at least 1 full redraw (first redraw is partial) */
 
 //prevMenu and prevEncoderPosition are used to store the previous menu location when editing settings.
@@ -191,7 +192,25 @@ static void lcd_status_screen()
     }
 #ifdef ULTIPANEL
 
-    if (lcd_clicked())
+    bool current_click = LCD_CLICKED;
+
+    if (ignore_click) {
+        if (wait_for_unclick) {
+          if (!current_click) {
+              ignore_click = wait_for_unclick = false;
+          }
+          else {
+              current_click = false;
+          }
+        }
+        else if (current_click) {
+            lcd_quick_feedback();
+            wait_for_unclick = true;
+            current_click = false;
+        }
+    }
+
+    if (current_click)
     {
         currentMenu = lcd_main_menu;
         encoderPosition = 0;
@@ -1320,6 +1339,7 @@ void lcd_update()
 void lcd_ignore_click(bool b)
 {
     ignore_click = b;
+    wait_for_unclick = false;
 }
 
 void lcd_setstatus(const char* message)
@@ -1451,26 +1471,7 @@ void lcd_buzz(long duration, uint16_t freq)
 
 bool lcd_clicked()
 {
-  static bool wait_for_unclick = false;
-  bool current_click = LCD_CLICKED;
-
-  if (ignore_click) {
-    if (wait_for_unclick) {
-      if (!current_click) {
-        ignore_click = wait_for_unclick = false;
-      }
-      else {
-        current_click = false;
-      }
-    }
-    else if (current_click) {
-      wait_for_unclick = true;
-      current_click = false;
-      lcd_quick_feedback();
-    }
-  }
-
-  return current_click;
+  return LCD_CLICKED;
 }
 #endif//ULTIPANEL
 
