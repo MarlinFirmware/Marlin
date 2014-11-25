@@ -11,7 +11,7 @@
 
 CardReader::CardReader()
 {
-  #if SORT_USES_MORE_RAM
+  #if defined(SDCARD_SORT_ALPHA) && SORT_USES_MORE_RAM
    sortnames = NULL;
    sort_count = 0;
   #endif
@@ -558,6 +558,13 @@ void CardReader::closefile(bool store_location)
 
 void CardReader::getfilename(const uint8_t nr)
 {
+  #if defined(SDCARD_SORT_ALPHA) && SORT_USES_MORE_RAM
+    if (nr < sort_count) {
+      strcpy(diveFilename, sortnames[nr]);
+      return;
+    }
+  #endif
+
   curDir=&workDir;
   lsAction=LS_GetFilename;
   nrFiles=nr;
@@ -642,9 +649,7 @@ void CardReader::getfilename_sorted(const uint8_t nr) {
  */
 void CardReader::presort()
 {
-  #if SORT_USES_MORE_RAM
-    flush_presort();
-  #endif
+  flush_presort();
 
   uint16_t fileCnt = getnrfilenames();
   if (fileCnt > 0) {
@@ -652,7 +657,7 @@ void CardReader::presort()
     if (fileCnt > SORT_LIMIT) fileCnt = SORT_LIMIT;
 
     #if SORT_USES_MORE_RAM
-      sortnames = malloc(fileCnt * sizeof(char*));
+      sortnames = (char**)malloc(fileCnt * sizeof(char*));
       sort_count = fileCnt;
     #elif SORT_USES_RAM
       char *sortnames[fileCnt];
@@ -748,7 +753,7 @@ void CardReader::flush_presort() {
   #endif
 }
 
-#endif
+#endif // SDCARD_SORT_ALPHA
 
 void CardReader::printingHasFinished()
 {
