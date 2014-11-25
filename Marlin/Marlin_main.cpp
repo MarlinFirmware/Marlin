@@ -1841,11 +1841,26 @@ void process_commands()
     case 0: // M0 - Unconditional stop - Wait for user button press on LCD
     case 1: // M1 - Conditional stop - Wait for user button press on LCD
     {
-      LCD_MESSAGEPGM(MSG_USERWAIT);
-      codenum = 0;
-      if(code_seen('P')) codenum = code_value(); // milliseconds to wait
-      if(code_seen('S')) codenum = code_value() * 1000; // seconds to wait
+      char *src = strchr_pointer + 2;
 
+      codenum = 0;
+
+      bool hasP = code_seen('P');
+      if (hasP) codenum = code_value(); // milliseconds to wait
+
+      bool hasS = code_seen('S');
+      if (hasS) codenum = code_value() * 1000; // seconds to wait
+
+      if (!hasP && !hasS && *src != '\0') {
+        while (*src == ' ') ++src;
+        starpos = strchr(src, '*');
+        if (starpos != NULL) *(starpos) = '\0';
+        lcd_setstatus(src);
+      } else {
+        LCD_MESSAGEPGM(MSG_USERWAIT);
+      }
+
+      lcd_ignore_click();
       st_synchronize();
       previous_millis_cmd = millis();
       if (codenum > 0){
@@ -1855,6 +1870,7 @@ void process_commands()
           manage_inactivity();
           lcd_update();
         }
+        lcd_ignore_click(false);
       }else{
         while(!lcd_clicked()){
           manage_heater();
