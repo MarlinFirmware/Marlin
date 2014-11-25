@@ -46,11 +46,7 @@ public:
 #ifdef SDCARD_SORT_ALPHA
   void presort();
   void flush_presort();
-<<<<<<< HEAD
   void getfilename_sorted(const uint16_t nr);
-=======
-  void getfilename_sorted(const uint8_t nr);
->>>>>>> SD Card Alpha Sorting
 #endif
 
 
@@ -64,37 +60,22 @@ public:
 public:
   bool saving;
   bool logging;
-<<<<<<< HEAD
   bool sdprinting;
   bool cardOK;
   char filename[FILENAME_LENGTH];
   char longFilename[LONG_FILENAME_LENGTH];
-=======
-  bool sdprinting ;  
-  bool cardOK;
-  char filename[FILENAME_LENGTH];
-  char diveFilename[LONG_FILENAME_LENGTH];
->>>>>>> SD Card Alpha Sorting
   bool filenameIsDir;
   int lastnr; //last number of the autostart;
 private:
   SdFile root,*curDir,workDir,workDirParents[MAX_DIR_DEPTH];
   uint16_t workDirDepth;
 #ifdef SDCARD_SORT_ALPHA
-<<<<<<< HEAD
   uint16_t sort_count;
   uint8_t *sort_order;
   #if SORT_USES_MORE_RAM
     char **sortshort;
     char **sortnames;
     uint8_t *isDir;
-=======
-  #if SORT_USES_MORE_RAM
-    uint16_t sort_count;
-    char **sortnames;
-  #else
-    uint8_t sort_order[SORT_LIMIT];
->>>>>>> SD Card Alpha Sorting
   #endif
 #endif
   Sd2Card card;
