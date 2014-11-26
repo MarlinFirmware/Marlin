@@ -6,7 +6,7 @@
 #define MAX_DIR_DEPTH 10          // Maximum folder depth
 #define SORT_USES_RAM false       // Buffer while sorting, else re-read from SD
 #define SORT_USES_MORE_RAM false  // Always keep the directory in RAM
-#define SORT_LIMIT 256            // Maximum number of sorted items
+#define SORT_LIMIT 64             // Maximum number of sorted items
 #define FOLDER_SORTING -1         // -1=above  0=none  1=below
 
 #include "SdFile.h"
@@ -32,7 +32,7 @@ public:
   void getStatus();
   void printingHasFinished();
 
-  void getfilename(const uint8_t nr);
+  void getfilename(const uint16_t nr);
   uint16_t getnrfilenames();
   
   void getAbsFilename(char *t);
@@ -46,7 +46,7 @@ public:
 #ifdef SDCARD_SORT_ALPHA
   void presort();
   void flush_presort();
-  void getfilename_sorted(const uint8_t nr);
+  void getfilename_sorted(const uint16_t nr);
 #endif
 
 
@@ -60,21 +60,21 @@ public:
 public:
   bool saving;
   bool logging;
-  bool sdprinting ;  
+  bool sdprinting;
   bool cardOK;
   char filename[FILENAME_LENGTH];
-  char diveFilename[LONG_FILENAME_LENGTH];
+  char longFilename[LONG_FILENAME_LENGTH];
   bool filenameIsDir;
   int lastnr; //last number of the autostart;
 private:
   SdFile root,*curDir,workDir,workDirParents[MAX_DIR_DEPTH];
   uint16_t workDirDepth;
 #ifdef SDCARD_SORT_ALPHA
+  uint16_t sort_count;
+  uint8_t *sort_order;
   #if SORT_USES_MORE_RAM
-    uint16_t sort_count;
     char **sortnames;
-  #else
-    uint8_t sort_order[SORT_LIMIT];
+    uint8_t *isDir;
   #endif
 #endif
   Sd2Card card;
@@ -93,7 +93,7 @@ private:
   bool autostart_stilltocheck; //the sd start is delayed, because otherwise the serial cannot answer fast enought to make contact with the hostsoftware.
   
   LsAction lsAction; //stored for recursion.
-  int16_t nrFiles; //counter for the files in the current directory and recycled as position counter for getting the nrFiles'th name in the directory.
+  uint16_t nrFiles; //counter for the files in the current directory and recycled as position counter for getting the nrFiles'th name in the directory.
   char* diveDirName;
   void lsDive(const char *prepend,SdFile parent);
 };
