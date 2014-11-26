@@ -1866,12 +1866,15 @@ void process_commands()
 
       codenum = 0;
 
-      bool hasP = code_seen('P');
-      if (hasP) codenum = code_value(); // milliseconds to wait
-
-      bool hasS = code_seen('S');
-      if (hasS) codenum = code_value() * 1000; // seconds to wait
-
+      bool hasP = false, hasS = false;
+      if (code_seen('P')) {
+        codenum = code_value(); // milliseconds to wait
+        hasP = codenum > 0;
+      }
+      if (code_seen('S')) {
+        codenum = code_value() * 1000; // seconds to wait
+        hasS = codenum > 0;
+      }
       if (!hasP && !hasS && *src != '\0') {
         starpos = strchr(src, '*');
         if (starpos != NULL) *(starpos) = '\0';
