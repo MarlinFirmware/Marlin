@@ -203,6 +203,7 @@ void CardReader::startFileprint()
   if(cardOK)
   {
     sdprinting = true;
+    flush_presort();
   }
 }
 
@@ -555,6 +556,7 @@ void CardReader::getfilename(const uint16_t nr)
 {
   #if defined(SDCARD_SORT_ALPHA) && SORT_USES_RAM && SORT_USES_MORE_RAM
     if (nr < sort_count) {
+      strcpy(filename, sortshort[nr]);
       strcpy(longFilename, sortnames[nr]);
       filenameIsDir = isDir[nr];
       return;
@@ -648,6 +650,7 @@ void CardReader::presort()
 
     #if SORT_USES_RAM
       #if SORT_USES_MORE_RAM
+        sortshort = (char**)calloc(fileCnt, sizeof(char*));
         sortnames = (char**)calloc(fileCnt, sizeof(char*));
       #else
         char *sortnames[fileCnt];
@@ -664,7 +667,6 @@ void CardReader::presort()
       #endif
     #endif
 
-    sort_count = fileCnt;
     sort_order = new uint8_t[fileCnt];
 
     if (fileCnt > 1) {
@@ -675,6 +677,9 @@ void CardReader::presort()
         #if SORT_USES_RAM
           getfilename(i);
           sortnames[i] = strdup(longFilename[0] ? longFilename : filename);
+          #if SORT_USES_MORE_RAM
+            sortshort[i] = strdup(filename);
+          #endif
           // char out[30];
           // sprintf_P(out, PSTR("---- %i %s %s"), i, filenameIsDir ? "D" : " ", sortnames[i]);
           // SERIAL_ECHOLN(out);
@@ -729,20 +734,27 @@ void CardReader::presort()
       sort_order[0] = 0;
       #if SORT_USES_RAM && SORT_USES_MORE_RAM
         sortnames = (char**)malloc(sizeof(char*));
+        sortshort = (char**)malloc(sizeof(char*));
         isDir = (uint8_t*)malloc(sizeof(uint8_t));
         getfilename(0);
         sortnames[0] = strdup(longFilename[0] ? longFilename : filename);
+        sortshort[0] = strdup(filename);
         isDir[0] = filenameIsDir;
       #endif
     }
 
+    sort_count = fileCnt;
   }
 }
 
 void CardReader::flush_presort() {
   if (sort_count > 0) {
     #if SORT_USES_RAM && SORT_USES_MORE_RAM
-      for (uint8_t i=0; i<sort_count; ++i) free(sortnames[i]);
+      for (uint8_t i=0; i<sort_count; ++i) {
+        free(sortshort[i]);
+        free(sortnames[i]);
+      }
+      free(sortshort);
       free(sortnames);
     #endif
     delete sort_order;
@@ -774,6 +786,9 @@ void CardReader::printingHasFinished()
           enquecommand_P(PSTR(SD_FINISHED_RELEASECOMMAND));
       }
       autotempShutdown();
+      #ifdef SDCARD_SORT_ALPHA
+        presort();
+      #endif
     }
 }
 #endif //SDSUPPORT
