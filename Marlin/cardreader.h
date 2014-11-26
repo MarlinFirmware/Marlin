@@ -73,6 +73,7 @@ private:
   uint16_t sort_count;
   uint8_t *sort_order;
   #if SORT_USES_MORE_RAM
+    char **sortshort;
     char **sortnames;
     uint8_t *isDir;
   #endif
