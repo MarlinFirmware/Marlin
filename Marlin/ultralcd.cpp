@@ -315,6 +315,10 @@ static void lcd_sdcard_stop()
     setTargetHotend(0,1);
 #endif
 
+#ifdef HEATED_BED_SUPPORT
+    setTargetBed(0);
+#endif
+
     quickStop();
     #if X_MAX_POS < 250
       plan_buffer_line(X_MIN_POS, 150, current_position[Z_AXIS]+20, current_position[E_AXIS], manual_feedrate[X_AXIS]/60, active_extruder);
@@ -402,6 +406,11 @@ static void lcd_main_menu()
         MENU_ITEM(function, MSG_FILAMENTCHANGE, lcd_change_filament);
        #endif
        MENU_ITEM_EDIT(int3, MSG_NOZZLE, &target_temperature[0], EXTRUDE_MINTEMP, HEATER_0_MAXTEMP - 10);
+
+       #ifdef HEATED_BED_SUPPORT
+        MENU_ITEM_EDIT(int3, MSG_BED, &target_temperature_bed, BED_MINTEMP + 10, BED_MAXTEMP - 10);
+       #endif // HEATED_BED_SUPPORT
+
        MENU_ITEM(submenu, MSG_SPEED, lcd_speed_printing);
        
     }
@@ -451,6 +460,9 @@ static void lcd_preheat()
 	#ifdef WITBOX_DUAL
 	setTargetHotend1(plaPreheatHotendTemp); 
 	#endif
+	#ifdef HEATED_BED_SUPPORT
+	setTargetBed(HBP_PREHEAT_TEMP);
+	#endif // HEATED_BED_SUPPORT
     setTargetHotend0(PREHEAT_HOTEND_TEMP);
     fanSpeed = PREHEAT_FAN_SPEED;
     setWatch(); // heater sanity check timer
