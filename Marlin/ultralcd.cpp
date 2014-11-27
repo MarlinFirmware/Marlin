@@ -1375,7 +1375,6 @@ static void view_picture_set_temperature()
     }
 
     display_refresh_mode == NO_UPDATE_SCREEN;
-    lcd_clear_triggered_flags();
 }
 
 #ifdef HEATED_BED_SUPPORT
@@ -1421,7 +1420,6 @@ static void view_picture_set_temperature_bed()
     }
 
     display_refresh_mode == NO_UPDATE_SCREEN;
-    lcd_clear_triggered_flags();
 }
 #endif
 
@@ -1464,7 +1462,6 @@ static void view_picture_speed_printing()
     }
 
     display_refresh_mode == NO_UPDATE_SCREEN;
-    lcd_clear_triggered_flags();
 }
 
 void draw_picture_splash()
