@@ -536,8 +536,7 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
   while(block_buffer_tail == next_buffer_head)
   {
     manage_heater(); 
-    manage_inactivity(); 
-    lcd_update();
+    manage_inactivity();
   }
 
 #ifdef ENABLE_AUTO_BED_LEVELING

@@ -158,7 +158,7 @@ static void lcd_implementation_clear()
 }
 
 /* Arduino < 1.0.0 is missing a function to print PROGMEM strings, so we need to implement our own */
-static void lcd_printPGM(const char* str)
+static void lcd_implementation_print_P(const char* str)
 {
     char c;
     while((c = pgm_read_byte(str++)) != '\0')
@@ -209,7 +209,7 @@ static void lcd_implementation_status_screen()
 		u8g.print(':');
 		u8g.print(itostr2(time%60));
     }else{
-			lcd_printPGM(PSTR("--:--"));
+			lcd_implementation_print_P(PSTR("--:--"));
 		 }
  #endif
  
@@ -217,10 +217,10 @@ static void lcd_implementation_status_screen()
  u8g.setFont(FONT_STATUSMENU);
  u8g.setPrintPos(6,6);
  u8g.print(itostr3(int(degTargetHotend(0) + 0.5)));
- lcd_printPGM(PSTR(LCD_STR_DEGREE " "));
+ lcd_implementation_print_P(PSTR(LCD_STR_DEGREE " "));
  u8g.setPrintPos(6,27);
  u8g.print(itostr3(int(degHotend(0) + 0.5)));
- lcd_printPGM(PSTR(LCD_STR_DEGREE " "));
+ lcd_implementation_print_P(PSTR(LCD_STR_DEGREE " "));
  if (!isHeatingHotend(0)) u8g.drawBox(13,17,2,2);
 	else
 		{
@@ -234,10 +234,10 @@ static void lcd_implementation_status_screen()
  #if EXTRUDERS > 1
  u8g.setPrintPos(31,6);
  u8g.print(itostr3(int(degTargetHotend(1) + 0.5)));
- lcd_printPGM(PSTR(LCD_STR_DEGREE " "));
+ lcd_implementation_print_P(PSTR(LCD_STR_DEGREE " "));
  u8g.setPrintPos(31,27);
  u8g.print(itostr3(int(degHotend(1) + 0.5)));
- lcd_printPGM(PSTR(LCD_STR_DEGREE " "));
+ lcd_implementation_print_P(PSTR(LCD_STR_DEGREE " "));
  if (!isHeatingHotend(1)) u8g.drawBox(38,17,2,2);
 	else
 		{
@@ -255,10 +255,10 @@ static void lcd_implementation_status_screen()
  # if EXTRUDERS > 2
  u8g.setPrintPos(55,6);
  u8g.print(itostr3(int(degTargetHotend(2) + 0.5)));
- lcd_printPGM(PSTR(LCD_STR_DEGREE " "));
+ lcd_implementation_print_P(PSTR(LCD_STR_DEGREE " "));
  u8g.setPrintPos(55,27);
  u8g.print(itostr3(int(degHotend(2) + 0.5)));
- lcd_printPGM(PSTR(LCD_STR_DEGREE " "));
+ lcd_implementation_print_P(PSTR(LCD_STR_DEGREE " "));
  if (!isHeatingHotend(2)) u8g.drawBox(62,17,2,2);
 	else
 		{
@@ -275,10 +275,10 @@ static void lcd_implementation_status_screen()
  u8g.setFont(FONT_STATUSMENU);
  u8g.setPrintPos(81,6);
  u8g.print(itostr3(int(degTargetBed() + 0.5)));
- lcd_printPGM(PSTR(LCD_STR_DEGREE " "));
+ lcd_implementation_print_P(PSTR(LCD_STR_DEGREE " "));
  u8g.setPrintPos(81,27);
  u8g.print(itostr3(int(degBed() + 0.5)));
- lcd_printPGM(PSTR(LCD_STR_DEGREE " "));
+ lcd_implementation_print_P(PSTR(LCD_STR_DEGREE " "));
  if (!isHeatingBed()) u8g.drawBox(88,18,2,2);
 	else
 		{
@@ -309,7 +309,7 @@ static void lcd_implementation_status_screen()
  u8g.setPrintPos(10,37);
  u8g.print(ftostr31ns(current_position[X_AXIS]));
  u8g.setPrintPos(43,37);
- lcd_printPGM(PSTR("Y"));
+ lcd_implementation_print_P(PSTR("Y"));
  u8g.drawPixel(49,33);
  u8g.drawPixel(49,35);
  u8g.setPrintPos(51,37);
@@ -418,7 +418,7 @@ static void lcd_implementation_drawmenu_setting_edit_generic_P(uint8_t row, cons
 					u8g.print(' ');
 			  }
 
-		lcd_printPGM(data);
+		lcd_implementation_print_P(data);
 }
 
 #define lcd_implementation_drawmenu_setting_edit_int3_selected(row, pstr, pstr2, data, minValue, maxValue) lcd_implementation_drawmenu_setting_edit_generic(row, pstr, '>', itostr3(*(data)))
@@ -460,7 +460,7 @@ void lcd_implementation_drawedit(const char* pstr, char* value)
 {
 		u8g.setPrintPos(0 * DOG_CHAR_WIDTH_LARGE, (u8g.getHeight() - 1 - DOG_CHAR_HEIGHT_LARGE) - (1 * DOG_CHAR_HEIGHT_LARGE) - START_ROW );
 		u8g.setFont(u8g_font_9x18);
-		lcd_printPGM(pstr);
+		lcd_implementation_print_P(pstr);
 		u8g.print(':');
 		u8g.setPrintPos((14 - strlen(value)) * DOG_CHAR_WIDTH_LARGE, (u8g.getHeight() - 1 - DOG_CHAR_HEIGHT_LARGE) - (1 * DOG_CHAR_HEIGHT_LARGE) - START_ROW );
 		u8g.print(value);

@@ -273,7 +273,6 @@ int stop_buffer_code = 0;
 #endif					
 
 bool cancel_heatup = false;
-bool input_enabled = true;
 
 //===========================================================================
 //=============================Private Variables=============================
@@ -322,6 +321,7 @@ bool Stopped=false;
 
 bool CooldownNoWait = true;
 bool target_direction;
+
 
 //===========================================================================
 //=============================Routines======================================
@@ -385,6 +385,13 @@ void enquecommand_P(const char *cmd)
     bufindw= (bufindw + 1)%BUFSIZE;
     buflen += 1;
   }
+}
+
+// Discard all gcodes enqueued in the gcode-buffer
+void flush_commands()
+{
+  bufindr = bufindw;
+  buflen = 0;
 }
 
 void setup_killpin()
@@ -507,11 +514,14 @@ void setup()
   tp_init();    // Initialize temperature loop
   plan_init();  // Initialize planner;
   watchdog_init();
+  
+  lcd_init();
+
   st_init();    // Initialize stepper, this enables interrupts!
   setup_photpin();
   servo_init();
 
-  lcd_init();
+
   _delay_ms(1000);	// wait 1sec to display the splash screen
 
   #if defined(CONTROLLERFAN_PIN) && CONTROLLERFAN_PIN > -1
@@ -578,7 +588,7 @@ void loop()
 	manage_heater();
 	manage_inactivity();
 	checkHitEndstops();
-	lcd_update();
+  lcd_update();
 }
 
 void get_command() 
@@ -665,7 +675,7 @@ void get_command()
 							} else {
 								SERIAL_ERRORLNPGM(MSG_ERR_STOPPED);
 								LCD_MESSAGEPGM(MSG_STOPPED);
-								lcd_update();
+                lcd_update();
 							}
 		    					break;
 						default:
@@ -1205,7 +1215,6 @@ void process_commands()
 			}
     case 4: // G4 dwell
       LCD_MESSAGEPGM(MSG_DWELL);
-      lcd_update();
       codenum = 0;
       if(code_seen('P')) codenum = code_value(); // milliseconds to wait
       if(code_seen('S')) codenum = code_value() * 1000; // seconds to wait
@@ -1216,7 +1225,6 @@ void process_commands()
       while(millis()  < codenum ){
 	manage_heater();
 	manage_inactivity();
-	lcd_update();
       }
       break;
       #ifdef FWRETRACT
@@ -1227,7 +1235,9 @@ void process_commands()
 	retract(false);
       break;
       #endif //FWRETRACT
+
     case 28: //G28 Home all Axis one at a time
+    lcd_disable_interrupt();
 #ifdef ENABLE_AUTO_BED_LEVELING
       plan_bed_level_matrix.set_to_identity();  //Reset the plane ("erase" all leveling data)
 #endif //ENABLE_AUTO_BED_LEVELING
@@ -1436,6 +1446,7 @@ void process_commands()
       feedmultiply = saved_feedmultiply;
       previous_millis_cmd = millis();
       endstops_hit_on_purpose();
+      lcd_enable_interrupt();
       break;
 
 #ifdef ENABLE_AUTO_BED_LEVELING
@@ -1642,7 +1653,6 @@ void process_commands()
     case 1: // M1 - Conditional stop - Wait for user button press on LCD
     {
       LCD_MESSAGEPGM(MSG_USERWAIT);
-      lcd_update();
       codenum = 0;
       if(code_seen('P')) codenum = code_value(); // milliseconds to wait
       if(code_seen('S')) codenum = code_value() * 1000; // seconds to wait
@@ -1651,26 +1661,22 @@ void process_commands()
       previous_millis_cmd = millis();
       if (codenum > 0){
   	    codenum += millis();  // keep track of when we started waiting
-  	    while(millis()  < codenum && !lcd_clicked()) {
+  	    while(millis()  < codenum && !LCD_CLICKED) {
   	      manage_heater();
           manage_inactivity();
-  	      lcd_update();
   	    }
       } else {
-	      while(!lcd_clicked()){
+	      while(!LCD_CLICKED){
       	  manage_heater();
       	  manage_inactivity();
-      	  lcd_update();
         }
       }
       LCD_MESSAGEPGM(MSG_PRINTING);
-      lcd_update();
     }
     break;
 #endif
     case 17:
 	LCD_MESSAGEPGM(MSG_NO_MOVE);
-	lcd_update();
 	enable_x();
 	enable_y();
 	enable_z();
@@ -1727,13 +1733,13 @@ void process_commands()
       target[Z_AXIS]+= FILAMENTCHANGE_ZADD;
       plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], feedrate/60, active_extruder);
 
-      #if X_MAX_POS < 250
-	target[X_AXIS]= 0 ;
-	target[Y_AXIS]= 150 ;
-      #else
-	target[X_AXIS]= X_MAX_POS - 5 ;
-	target[Y_AXIS]= Y_MAX_POS - 5 ;
-      #endif
+#if X_MAX_POS < 250
+      target[X_AXIS]= 0 ;
+      target[Y_AXIS]= 150 ;
+#else
+      target[X_AXIS]= X_MAX_POS - 5 ;
+      target[Y_AXIS]= Y_MAX_POS - 5 ;
+#endif
 
       plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], feedrate/60, active_extruder);
 
@@ -1741,19 +1747,21 @@ void process_commands()
       st_synchronize();
 
       LCD_MESSAGEPGM(MSG_PAUSED);
-      lcd_show_status();
       lcd_update();
 
-      lcd_enable_inputs();
+      lcd_enable_button();
 
-      while(!lcd_clicked()){
-        manage_heater();
+      while(!LCD_CLICKED){
         lcd_update();
+        manage_heater();
         plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS],current_position[E_AXIS], 300/60, active_extruder);
         st_synchronize();
       }
+      
+      lcd_disable_button();
 
-      lcd_disable_inputs();
+      LCD_MESSAGEPGM(MSG_PRINTING);
+      lcd_update();
 
       plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], feedrate/60, active_extruder); //should do nothing
       plan_buffer_line(lastpos[X_AXIS], lastpos[Y_AXIS], target[Z_AXIS], target[E_AXIS], feedrate/60, active_extruder); //move xy back
@@ -1761,12 +1769,10 @@ void process_commands()
       plan_buffer_line(lastpos[X_AXIS], lastpos[Y_AXIS], lastpos[Z_AXIS], lastpos[E_AXIS], feedrate/60, active_extruder); //final untretract
       st_synchronize();
 
+      lcd_enable_button();
+
       stop_buffer = false;
 
-      LCD_MESSAGEPGM(MSG_PRINTING);
-      lcd_show_status();
-      lcd_update();
-      lcd_enable_inputs();
       break;
 
     case 26: //M26 - Set SD index
@@ -1978,6 +1984,7 @@ void process_commands()
       }
       LCD_MESSAGEPGM(MSG_HEATING);
       lcd_update();
+      
       #ifdef AUTOTEMP
       autotemp_enabled=false;
       #endif
@@ -2049,6 +2056,7 @@ void process_commands()
       manage_heater();
       manage_inactivity();
       lcd_update();
+      
 #ifdef TEMP_RESIDENCY_TIME
           /* start/restart the TEMP_RESIDENCY_TIME timer whenever we reach target temp for the first time
           or when current temp falls outside the hysteresis after target temp was reached */
@@ -2061,7 +2069,8 @@ void process_commands()
 #endif //TEMP_RESIDENCY_TIME
         }
         LCD_MESSAGEPGM(MSG_HEATING_COMPLETE);
-	lcd_update();
+        lcd_update();
+
         starttime=millis();
         previous_millis_cmd = millis();
       }
@@ -2173,7 +2182,7 @@ void process_commands()
 	#ifdef ULTIPANEL
 	  powersupply = true;
 	  LCD_MESSAGEPGM(WELCOME_MSG);
-	  lcd_update();
+	  
 	#endif
 	break;
       #endif
@@ -2197,7 +2206,7 @@ void process_commands()
       #ifdef ULTIPANEL
 	powersupply = false;
 	LCD_MESSAGEPGM(MACHINE_NAME" "MSG_OFF".");
-	lcd_update();
+	
       #endif
 	  break;
 
@@ -2581,7 +2590,7 @@ void process_commands()
 	    while(digitalRead(pin_number) != target){
 	      manage_heater();
 	      manage_inactivity();
-	      lcd_update();
+	      
 	    }
 	  }
 	}
@@ -2804,9 +2813,8 @@ void process_commands()
     
     case 600: //Pause for filament change X[pos] Y[pos] Z[relative lift] E[initial retract] L[later retract distance for removal]
     {
-      LCD_MESSAGEPGM(MSG_PAUSING);
-      lcd_update();
-
+      lcd_disable_display_timeout();
+      
       float target[4];
       float lastpos[4];
 
@@ -2853,31 +2861,26 @@ void process_commands()
         #endif // FILAMENTCHANGE_YPOS    
       }
       plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], feedrate/60, active_extruder);
-      
       st_synchronize();
 
-      lcd_show_status();
-      lcd_update();
-      LCD_MESSAGEPGM(MSG_READY_UNLOAD);
-      lcd_update();
-      lcd_show_status();
-
-      while (!lcd_clicked()) {
+      lcd_enable_button();
+      draw_wizard_change_filament();
+      SERIAL_ECHOLN("Wizard set to 0");
+  
+      lcd_clear_triggered_flags();
+      while (!LCD_CLICKED){
         manage_heater();
-        lcd_update();
       }
 
-      lcd_show_status();
-      lcd_update();
-      LCD_MESSAGEPGM(MSG_UNLOAD_CLICK);
-      lcd_update();
-      lcd_show_status();
+      lcd_wizard_set_page(1);
+      lcd_update(); 
+      SERIAL_ECHOLN("Wizard set to 1");
 
       target[E_AXIS] += 10.0;
       plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], 300/60, active_extruder);
       st_synchronize();
 
-      if(code_seen('L')) {
+      if (code_seen('L')) {
         target[E_AXIS] += code_value();
       } else {
         #ifdef FILAMENTCHANGE_FINALRETRACT
@@ -2885,50 +2888,52 @@ void process_commands()
         #endif // FILAMENTCHANGE_FINALRETRACT
       }
       plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], 300/60, active_extruder);
-
       st_synchronize();
+
+      lcd_wizard_set_page(2);
+      lcd_update();
+      SERIAL_ECHOLN("Wizard set to 2");
 
       disable_e0();
       disable_e1();
       disable_e2();
-      delay(100);
       
-      while (!lcd_clicked()) {
+      lcd_clear_triggered_flags();
+      while (!LCD_CLICKED){
         manage_heater();
-        lcd_update();
       }
 
-      lcd_show_status();
+      lcd_wizard_set_page(3);
       lcd_update();
-      LCD_MESSAGEPGM(MSG_LOAD_CLICK);
-      lcd_update();
-      lcd_show_status();
-      do {
+      SERIAL_ECHOLN("Wizard set to 3");
+
+      lcd_clear_triggered_flags();
+      while (!LCD_CLICKED) {
         manage_heater();
-        lcd_update();
         current_position[E_AXIS]+=0.04;
         plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS],current_position[E_AXIS], feedrate/60, active_extruder);
-      } while(!lcd_clicked());
-      st_synchronize();
-      
-      lcd_show_status();
+        st_synchronize();
+      } 
+      lcd_wizard_set_page(4);      
       lcd_update();
-      LCD_MESSAGEPGM(MSG_PRINTING);
-      lcd_update();
-      lcd_show_status();
+      SERIAL_ECHOLN("Wizard set to 4");
 
       current_position[E_AXIS]=lastpos[E_AXIS];
       plan_set_e_position(current_position[E_AXIS]);
-	  
+    
       plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], lastpos[E_AXIS], feedrate/60, active_extruder); //should do nothing
       plan_buffer_line(lastpos[X_AXIS], lastpos[Y_AXIS], target[Z_AXIS], lastpos[E_AXIS], feedrate/60, active_extruder); //move xy back
       plan_buffer_line(lastpos[X_AXIS], lastpos[Y_AXIS], lastpos[Z_AXIS], lastpos[E_AXIS], feedrate/60, active_extruder); //move z back
       plan_buffer_line(lastpos[X_AXIS], lastpos[Y_AXIS], lastpos[Z_AXIS], lastpos[E_AXIS], feedrate/60, active_extruder); //final untretract
 
-      stop_buffer = false;
+      lcd_wizard_set_page(5);
+      lcd_update();      
+      lcd_enable_display_timeout();
+      SERIAL_ECHOLN("Wizard set to 5");
       
-      break;
+      stop_buffer = false;
     }
+    break;
     #endif //FILAMENTCHANGEENABLE
 
     #ifdef DUAL_X_CARRIAGE
@@ -2991,175 +2996,173 @@ void process_commands()
    
     case 700: // Script for level the build plate going to 3 points
     {
-	SERIAL_ECHOLN(" --LEVEL PLATE SCRIPT--");         
-	set_ChangeScreen(true);
-	
-	while(!lcd_clicked()){
-  	set_pageShowInfo(0);
+  	SERIAL_ECHOLN(" --LEVEL PLATE SCRIPT--");
+    lcd_disable_display_timeout();
     lcd_update();
-	}
-	
-	set_pageShowInfo(1);
-	set_ChangeScreen(true);        
-//        st_synchronize();       
-       //hacer homing
-       
-      saved_feedrate = feedrate;
-      saved_feedmultiply = feedmultiply;
-      feedmultiply = 100;
-      previous_millis_cmd = millis();
 
-      enable_endstops(true);
+    lcd_clear_triggered_flags();
+  	while(!LCD_CLICKED) {
+      manage_heater();
+    }
+  	
+  	lcd_wizard_set_page(1);
+    lcd_update();
+         
+    saved_feedrate = feedrate;
+    saved_feedmultiply = feedmultiply;
+    feedmultiply = 100;
+    previous_millis_cmd = millis();
 
-      for(int8_t i=0; i < NUM_AXIS; i++) {
-	destination[i] = current_position[i];
-      }
-      feedrate = 0.0;
-      home_all_axis = !((code_seen(axis_codes[0])) || (code_seen(axis_codes[1])) || (code_seen(axis_codes[2])));
+    lcd_disable_interrupt();
+    enable_endstops(true);
 
-      #if Z_HOME_DIR > 0                      // If homing away from BED do Z first
-      if((home_all_axis) || (code_seen(axis_codes[Z_AXIS]))) {
-	HOMEAXIS(Z);
-      }
-      #endif
+    for(int8_t i=0; i < NUM_AXIS; i++) {
+    	destination[i] = current_position[i];
+    }
+    feedrate = 0.0;
+    home_all_axis = !((code_seen(axis_codes[0])) || (code_seen(axis_codes[1])) || (code_seen(axis_codes[2])));
 
-      if((home_all_axis) || (code_seen(axis_codes[X_AXIS])))
-      {
+  #if Z_HOME_DIR > 0                      // If homing away from BED do Z first
+    if((home_all_axis) || (code_seen(axis_codes[Z_AXIS]))) {
+    	HOMEAXIS(Z);
+    }
+  #endif
+
+    if((home_all_axis) || (code_seen(axis_codes[X_AXIS]))) {
       HOMEAXIS(X);
-  
+    }
+
+    if((home_all_axis) || (code_seen(axis_codes[Y_AXIS]))) {
+      HOMEAXIS(Y);
+    }
+
+  #if Z_HOME_DIR < 0                      // If homing towards BED do Z last
+    if((home_all_axis) || (code_seen(axis_codes[Z_AXIS]))) {
+    	HOMEAXIS(Z);
+    }
+  #endif
+
+    if(code_seen(axis_codes[X_AXIS])) {
+      if(code_value_long() != 0) {
+        current_position[X_AXIS]=code_value()+add_homeing[0];
       }
+    }
 
-      if((home_all_axis) || (code_seen(axis_codes[Y_AXIS]))) {
-	HOMEAXIS(Y);
+    if(code_seen(axis_codes[Y_AXIS])) {
+      if(code_value_long() != 0) {
+        current_position[Y_AXIS]=code_value()+add_homeing[1];
       }
+    }
 
-      #if Z_HOME_DIR < 0                      // If homing towards BED do Z last
-      if((home_all_axis) || (code_seen(axis_codes[Z_AXIS]))) {
-	HOMEAXIS(Z);
+    if(code_seen(axis_codes[Z_AXIS])) {
+      if(code_value_long() != 0) {
+        current_position[Z_AXIS]=code_value()+add_homeing[2];
       }
-      #endif
+    }
 
-      if(code_seen(axis_codes[X_AXIS]))
-      {
-	if(code_value_long() != 0) {
-	  current_position[X_AXIS]=code_value()+add_homeing[0];
-	}
-      }
+    plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
 
-      if(code_seen(axis_codes[Y_AXIS])) {
-	if(code_value_long() != 0) {
-	  current_position[Y_AXIS]=code_value()+add_homeing[1];
-	}
-      }
+  #ifdef ENDSTOPS_ONLY_FOR_HOMING
+  	enable_endstops(false);
+  #endif
 
-      if(code_seen(axis_codes[Z_AXIS])) {
-	if(code_value_long() != 0) {
-	  current_position[Z_AXIS]=code_value()+add_homeing[2];
-	}
-      }
+    feedrate = saved_feedrate;
+    feedmultiply = saved_feedmultiply;
+    previous_millis_cmd = millis();
+    endstops_hit_on_purpose();        
+  	
+    plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
 
-      plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+  	// prob 1
+  	do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS],Z_MIN_POS+10);
+  #if X_MAX_POS > 250
+    do_blocking_move_to((X_MAX_POS-X_MIN_POS)/2,Y_MAX_POS-10, current_position[Z_AXIS]);
+  #else
+    do_blocking_move_to(20, 190, current_position[Z_AXIS]);
+  #endif
+    do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], Z_MIN_POS);
+  	
+    lcd_enable_interrupt();
+    lcd_clear_triggered_flags();
+    while(!LCD_CLICKED) {          
+      manage_heater();
+    }
+  	
+  	lcd_wizard_set_page(2);
+    lcd_update();
+  	
+  	do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS],Z_MIN_POS+10);
+  	#if X_MAX_POS > 250
+  	do_blocking_move_to(90, 5, current_position[Z_AXIS]);
+  	#else
+  	do_blocking_move_to(195, 190, current_position[Z_AXIS]);
+  	#endif
+  	do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS],Z_MIN_POS);
+  	  
+    lcd_clear_triggered_flags();
+  	while(!LCD_CLICKED) {
+  	  manage_heater();
+  	  manage_inactivity();
+  	}
+  	
+  	lcd_wizard_set_page(3);
+    lcd_update();
+  		  
+  	do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS],Z_MIN_POS+10);
+  	#if X_MAX_POS > 250
+    do_blocking_move_to(205, 5, current_position[Z_AXIS]);
+  	#else
+    do_blocking_move_to(20, 20, current_position[Z_AXIS]);
+  	#endif
+  	do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS],Z_MIN_POS);
 
+    lcd_clear_triggered_flags();
+  	 while(!LCD_CLICKED) {
+  	  manage_heater();
+  	  manage_inactivity();
+  	}        
+  	
+  	#if X_MAX_POS < 250
+    lcd_wizard_set_page(4);
+    lcd_update();
+  		  
+    do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS],Z_MIN_POS+10);
+    do_blocking_move_to(195, 20, current_position[Z_AXIS]);
+    do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS],Z_MIN_POS);
+  	
+    lcd_clear_triggered_flags();
+    while(!LCD_CLICKED){
+      manage_heater();
+      manage_inactivity();
+    }
+  	#endif
 
-      #ifdef ENDSTOPS_ONLY_FOR_HOMING
-	enable_endstops(false);
-      #endif
-
-      feedrate = saved_feedrate;
-      feedmultiply = saved_feedmultiply;
-      previous_millis_cmd = millis();
-      endstops_hit_on_purpose();        
-	
-	plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
-
-	// prob 1
-	
-	do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS],Z_MIN_POS+10);
-	#if X_MAX_POS > 250
-	  do_blocking_move_to((X_MAX_POS-X_MIN_POS)/2,Y_MAX_POS-10, current_position[Z_AXIS]);
-	#else
-	  do_blocking_move_to(20, 190, current_position[Z_AXIS]);
-	#endif
-	do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], Z_MIN_POS);
-	
-  while(!lcd_clicked()){          
-	  manage_heater();
-    lcd_buttons_update();
-	}
-	
-	set_ChangeScreen(true);
-	set_pageShowInfo(2); 
-	
-	do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS],Z_MIN_POS+10);
-	#if X_MAX_POS > 250
-	  do_blocking_move_to(90, 5, current_position[Z_AXIS]);
-	#else
-	  do_blocking_move_to(195, 190, current_position[Z_AXIS]);
-	#endif
-	do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS],Z_MIN_POS);
-	  
-	while(!lcd_clicked()){
-	  manage_heater();
-	  manage_inactivity();
-    lcd_buttons_update();
-	}
-	
-	set_ChangeScreen(true);
-	set_pageShowInfo(3);
-		  
-	do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS],Z_MIN_POS+10);
-	#if X_MAX_POS > 250
-	  do_blocking_move_to(205, 5, current_position[Z_AXIS]);
-	#else
-	  do_blocking_move_to(20, 20, current_position[Z_AXIS]);
-	#endif
-	do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS],Z_MIN_POS);
-	      
-	 while(!lcd_clicked()){
-	  manage_heater();
-	  manage_inactivity();
-    lcd_buttons_update();
-	}        
-	
-	#if X_MAX_POS < 250
-	  set_ChangeScreen(true);
-	  set_pageShowInfo(4);
-		  
-	  do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS],Z_MIN_POS+10);
-	  do_blocking_move_to(195, 20, current_position[Z_AXIS]);
-	  do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS],Z_MIN_POS);
-	      
-	  while(!lcd_clicked()){
-	    manage_heater();
-	    manage_inactivity();
-      lcd_buttons_update();
-	   }
-	#endif
-
-	set_ChangeScreen(true);
-	set_pageShowInfo(5);
-		 
-	do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS],Z_MIN_POS+10);
-	#if X_MAX_POS > 250
-	  do_blocking_move_to(150, 105, current_position[Z_AXIS]);
-	#else
-	  do_blocking_move_to((X_MAX_POS-X_MIN_POS)/2, (Y_MAX_POS-Y_MIN_POS)/2, current_position[Z_AXIS]);
-	#endif
-	do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS],Z_MIN_POS);
-	      
-	while(!lcd_clicked()){                  
-	  manage_heater();
-	  manage_inactivity();
-    lcd_buttons_update();
-	}
-	
-	set_ChangeScreen(true);
-	set_pageShowInfo(6);
-		
-	do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS],Z_MIN_POS+50);
-	do_blocking_move_to(10, 10, current_position[Z_AXIS]);
-	//do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS],Z_MIN_POS);       
-   
+    lcd_wizard_set_page(5);
+    lcd_update();
+  		 
+  	do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS],Z_MIN_POS+10);
+  	#if X_MAX_POS > 250
+  	  do_blocking_move_to(150, 105, current_position[Z_AXIS]);
+  	#else
+    do_blocking_move_to((X_MAX_POS-X_MIN_POS)/2, (Y_MAX_POS-Y_MIN_POS)/2, current_position[Z_AXIS]);
+  	#endif
+  	do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS],Z_MIN_POS);
+  	      
+    lcd_clear_triggered_flags();
+  	while(!LCD_CLICKED){                  
+  	  manage_heater();
+  	  manage_inactivity();
+  	}
+  	
+  	lcd_wizard_set_page(6);
+    lcd_update();
+  		
+  	do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS],Z_MIN_POS+50);
+  	do_blocking_move_to(10, 10, current_position[Z_AXIS]);
+  	//do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS],Z_MIN_POS);
+    lcd_wizard_set_page(7);
+    lcd_update();      
+    lcd_enable_display_timeout();
     }
     break;
     
@@ -3766,7 +3769,7 @@ void Stop()
     SERIAL_ERROR_START;
     SERIAL_ERRORLNPGM(MSG_ERR_STOPPED);
     LCD_MESSAGEPGM(MSG_STOPPED);
-    lcd_update();
+    
   }
 }
 
@@ -3796,19 +3799,19 @@ void setPwmFrequency(uint8_t pin, int val)
     #endif
 
     #if defined(TCCR2)
-    case TIMER2:
-    case TIMER2:
-	 TCCR2 &= ~(_BV(CS10) | _BV(CS11) | _BV(CS12));
-	 TCCR2 |= val;
-	 break;
+  //   case TIMER2:
+  //   case TIMER2:
+	 // TCCR2 &= ~(_BV(CS10) | _BV(CS11) | _BV(CS12));
+	 // TCCR2 |= val;
+	 // break;
     #endif
 
     #if defined(TCCR2A)
-    case TIMER2A:
-    case TIMER2B:
-	 TCCR2B &= ~(_BV(CS20) | _BV(CS21) | _BV(CS22));
-	 TCCR2B |= val;
-	 break;
+    //case TIMER2A:
+    //case TIMER2B:
+	 //TCCR2B &= ~(_BV(CS20) | _BV(CS21) | _BV(CS22));
+	 //TCCR2B |= val;
+	 //break;
     #endif
 
     #if defined(TCCR3A)
@@ -3837,6 +3840,8 @@ void setPwmFrequency(uint8_t pin, int val)
 	 TCCR5B |= val;
 	 break;
    #endif
+    default:
+      break;
 
   }
 }
@@ -3868,4 +3873,3 @@ bool setTargetedHotend(int code){
   }
   return false;
 }
-

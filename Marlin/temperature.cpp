@@ -309,7 +309,6 @@ void PID_autotune(float temp, int extruder, int ncycles)
       SERIAL_PROTOCOLLNPGM("PID Autotune finished! Put the last Kp, Ki and Kd constants from above into Configuration.h");
       return;
     }
-    lcd_update();
   }
 }
 
