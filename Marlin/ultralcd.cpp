@@ -632,7 +632,7 @@ static void view_menu_main()
        MENU_ITEM(submenu, MSG_NOZZLE, draw_picture_set_temperature);
 
 #ifdef HEATED_BED_SUPPORT
-       MENU_ITEM_EDIT(submenu, MSG_BED, draw_picture_set_temperature_bed);
+       MENU_ITEM(submenu, MSG_BED, draw_picture_set_temperature_bed);
 #endif // HEATED_BED_SUPPORT
 
        MENU_ITEM(submenu, MSG_SPEED, draw_picture_set_feedrate);
