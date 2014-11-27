@@ -1538,7 +1538,8 @@ static void menu_action_sdfile(const char* filename, char* longFilename)
         if ((uint8_t)*c > 127) {
             SERIAL_ECHOLN(MSG_SD_BAD_FILENAME);
             LCD_MESSAGEPGM(MSG_SD_BAD_FILENAME);
-            display_view_next = view_status_screen;
+            draw_status_screen();
+	    lcd_update();
             return;
         }
     }
