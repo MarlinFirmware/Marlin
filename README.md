@@ -2,6 +2,7 @@
 Marlin 3D Printer Firmware
 ==========================
 [![Coverity Scan Build Status](https://scan.coverity.com/projects/2224/badge.svg)](https://scan.coverity.com/projects/2224)
+[![Travis Build Status](https://travis-ci.org/ErikZalm/Marlin.svg)](https://travis-ci.org/ErikZalm/Marlin)
 
 Marlin has a GPL license because I believe in open development.
 Please do not use this code in products (3D printers, CNC etc) that are closed source or are crippled by a patent.
@@ -233,6 +234,10 @@ M Codes
 *  M400 - Finish all moves
 *  M401 - Lower z-probe if present
 *  M402 - Raise z-probe if present
+*  M404 - N<dia in mm> Enter the nominal filament width (3mm, 1.75mm ) or will display nominal filament width without parameters
+*  M405 - Turn on Filament Sensor extrusion control.  Optional D<delay in cm> to set delay in centimeters between sensor and extruder
+*  M406 - Turn off Filament Sensor extrusion control
+*  M407 - Displays measured filament diameter
 *  M500 - stores paramters in EEPROM
 *  M501 - reads parameters from EEPROM (if you need reset them after you changed them temporarily).
 *  M502 - reverts to the default "factory settings".  You still need to store them in EEPROM afterwards if you want to.
