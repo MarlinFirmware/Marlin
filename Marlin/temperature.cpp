@@ -455,7 +455,11 @@ void manage_heater()
           //K1 defined in Configuration.h in the PID settings
           #define K2 (1.0-K1)
           dTerm[e] = (Kd * (pid_input - temp_dState[e]))*K2 + (K1 * dTerm[e]);
-          pid_output = constrain(pTerm[e] + iTerm[e] - dTerm[e], 0, PID_MAX);
+          #ifdef PID_ADD_EXTRUSION_RATE
+            pid_output = constrain(pTerm[e] + iTerm[e] - dTerm[e] + Kc*255*DEFAULT_AXIS_STEPS_PER_UNIT[E_AXIS]*current_block->nominal_speed*current_block->steps_e/(144*current_block->steps_event_count), 0, PID_MAX); //including the feedrate additional term.
+          #else
+            pid_output = constrain(pTerm[e] + iTerm[e] - dTerm[e] , 0, PID_MAX);
+          #endif
         }
         temp_dState[e] = pid_input;
     #else 
