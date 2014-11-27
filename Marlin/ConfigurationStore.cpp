@@ -65,7 +65,7 @@ void Config_StoreSettings()
   EEPROM_WRITE_VAR(i,max_xy_jerk);
   EEPROM_WRITE_VAR(i,max_z_jerk);
   EEPROM_WRITE_VAR(i,max_e_jerk);
-  EEPROM_WRITE_VAR(i,add_homeing);
+  EEPROM_WRITE_VAR(i,add_homing);
   #ifdef DELTA
   EEPROM_WRITE_VAR(i,endstop_adj);
   EEPROM_WRITE_VAR(i,delta_radius);
@@ -170,9 +170,9 @@ SERIAL_ECHOLNPGM("Scaling factors:");
     SERIAL_ECHO_START;
     SERIAL_ECHOLNPGM("Home offset (mm):");
     SERIAL_ECHO_START;
-    SERIAL_ECHOPAIR("  M206 X",add_homeing[0] );
-    SERIAL_ECHOPAIR(" Y" ,add_homeing[1] );
-    SERIAL_ECHOPAIR(" Z" ,add_homeing[2] );
+    SERIAL_ECHOPAIR("  M206 X",add_homing[0] );
+    SERIAL_ECHOPAIR(" Y" ,add_homing[1] );
+    SERIAL_ECHOPAIR(" Z" ,add_homing[2] );
     SERIAL_ECHOLN("");
 #ifdef DELTA
     SERIAL_ECHO_START;
@@ -229,7 +229,7 @@ void Config_RetrieveSettings()
         EEPROM_READ_VAR(i,max_xy_jerk);
         EEPROM_READ_VAR(i,max_z_jerk);
         EEPROM_READ_VAR(i,max_e_jerk);
-        EEPROM_READ_VAR(i,add_homeing);
+        EEPROM_READ_VAR(i,add_homing);
         #ifdef DELTA
 		EEPROM_READ_VAR(i,endstop_adj);
 		EEPROM_READ_VAR(i,delta_radius);
@@ -303,7 +303,7 @@ void Config_ResetDefault()
     max_xy_jerk=DEFAULT_XYJERK;
     max_z_jerk=DEFAULT_ZJERK;
     max_e_jerk=DEFAULT_EJERK;
-    add_homeing[0] = add_homeing[1] = add_homeing[2] = 0;
+    add_homing[0] = add_homing[1] = add_homing[2] = 0;
 #ifdef DELTA
 	endstop_adj[0] = endstop_adj[1] = endstop_adj[2] = 0;
 	delta_radius= DELTA_RADIUS;
