@@ -975,6 +975,7 @@ static void view_menu_move_axis()
 void draw_picture_move_x()
 {
     lcd_disable_display_timeout();
+    display_time_refresh = millis() + LCD_MOVE_RESIDENCY_TIME;
     lcd_set_picture(view_picture_move_x);
 }
 static void view_picture_move_x()
@@ -983,25 +984,32 @@ static void view_picture_move_x()
         lcd_implementation_clear();
         display_refresh_mode = UPDATE_SCREEN;
     }
-    if (encoder_position != 0) {
-        refresh_cmd_timeout();
+    if (lcd_get_encoder_updated()) {
         current_position[X_AXIS] += float((int)encoder_position) * move_menu_scale;
         if (min_software_endstops && current_position[X_AXIS] < X_MIN_POS)
             current_position[X_AXIS] = X_MIN_POS;
         if (max_software_endstops && current_position[X_AXIS] > X_MAX_POS)
             current_position[X_AXIS] = X_MAX_POS;
         encoder_position = 0;
+
+        display_time_refresh = millis() + LCD_MOVE_RESIDENCY_TIME;
+        display_refresh_mode = UPDATE_SCREEN;
+    }
+
+    if (display_refresh_mode == UPDATE_SCREEN) {
+        lcd_implementation_drawedit(PSTR("X"), ftostr31(current_position[X_AXIS]));
+    }
+
+    if (display_time_refresh < millis()) {
         #ifdef DELTA
         calculate_delta(current_position);
         plan_buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], current_position[E_AXIS], manual_feedrate[X_AXIS]/60, active_extruder);
         #else
         plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], manual_feedrate[X_AXIS]/60, active_extruder);
         #endif
-        display_refresh_mode = UPDATE_SCREEN;
+        display_time_refresh = millis() + LCD_MOVE_RESIDENCY_TIME;
     }
-    if (display_refresh_mode == UPDATE_SCREEN) {
-        lcd_implementation_drawedit(PSTR("X"), ftostr31(current_position[X_AXIS]));
-    }
+
     if (LCD_CLICKED) {
         lcd_set_menu(view_menu_move_axis);
         lcd_enable_display_timeout();
@@ -1011,6 +1019,7 @@ static void view_picture_move_x()
 void draw_picture_move_y()
 {
     lcd_disable_display_timeout();
+    display_time_refresh = millis() + LCD_MOVE_RESIDENCY_TIME;
     lcd_set_picture(view_picture_move_y);
 }
 static void view_picture_move_y()
@@ -1019,33 +1028,42 @@ static void view_picture_move_y()
         lcd_implementation_clear();
         display_refresh_mode = UPDATE_SCREEN;
     }
-    if (encoder_position != 0) {
-        refresh_cmd_timeout();
+    if (lcd_get_encoder_updated()) {
         current_position[Y_AXIS] += float((int)encoder_position) * move_menu_scale;
         if (min_software_endstops && current_position[Y_AXIS] < Y_MIN_POS)
             current_position[Y_AXIS] = Y_MIN_POS;
         if (max_software_endstops && current_position[Y_AXIS] > Y_MAX_POS)
             current_position[Y_AXIS] = Y_MAX_POS;
         encoder_position = 0;
+
+        display_time_refresh = millis() + LCD_MOVE_RESIDENCY_TIME;
+        display_refresh_mode = UPDATE_SCREEN;
+    }
+
+    if (display_refresh_mode == UPDATE_SCREEN) {
+        lcd_implementation_drawedit(PSTR("Y"), ftostr31(current_position[Y_AXIS]));
+    }
+
+    if (display_time_refresh < millis()) {
         #ifdef DELTA
         calculate_delta(current_position);
         plan_buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], current_position[E_AXIS], manual_feedrate[Y_AXIS]/60, active_extruder);
         #else
         plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], manual_feedrate[Y_AXIS]/60, active_extruder);
         #endif
-        display_refresh_mode = UPDATE_SCREEN;
+        display_time_refresh = millis() + LCD_MOVE_RESIDENCY_TIME;
     }
-    if (display_refresh_mode == UPDATE_SCREEN) {
-        lcd_implementation_drawedit(PSTR("Y"), ftostr31(current_position[Y_AXIS]));
-    }
+
     if (LCD_CLICKED) {
         lcd_set_menu(view_menu_move_axis);
         lcd_enable_display_timeout();
     }
 }
+
 void draw_picture_move_z()
 {
     lcd_disable_display_timeout();
+    display_time_refresh = millis() + LCD_MOVE_RESIDENCY_TIME;
     lcd_set_picture(view_picture_move_z);
 }
 static void view_picture_move_z()
@@ -1054,25 +1072,32 @@ static void view_picture_move_z()
         lcd_implementation_clear();
         display_refresh_mode = UPDATE_SCREEN;
     }
-    if (encoder_position != 0) {
-        refresh_cmd_timeout();
+    if (lcd_get_encoder_updated()) {
         current_position[Z_AXIS] += float((int)encoder_position) * move_menu_scale;
         if (min_software_endstops && current_position[Z_AXIS] < Z_MIN_POS)
             current_position[Z_AXIS] = Z_MIN_POS;
         if (max_software_endstops && current_position[Z_AXIS] > Z_MAX_POS)
             current_position[Z_AXIS] = Z_MAX_POS;
         encoder_position = 0;
-        #ifdef DELTA
-        calculate_delta(current_position);
-        plan_buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], current_position[E_AXIS], manual_feedrate[Z_AXIS]/60, active_extruder);
-        #else
-        plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], manual_feedrate[Z_AXIS]/60, active_extruder);
-        #endif
+
+        display_time_refresh = millis() + LCD_MOVE_RESIDENCY_TIME;
         display_refresh_mode = UPDATE_SCREEN;
     }
+
     if (display_refresh_mode == UPDATE_SCREEN) {
         lcd_implementation_drawedit(PSTR("Z"), ftostr31(current_position[Z_AXIS]));
     }
+
+    if (display_time_refresh < millis()) {
+        #ifdef DELTA
+        calculate_delta(current_position);
+        plan_buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], current_position[E_AXIS], manual_feedrate[Y_AXIS]/60, active_extruder);
+        #else
+        plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], manual_feedrate[Y_AXIS]/60, active_extruder);
+        #endif
+        display_time_refresh = millis() + LCD_MOVE_RESIDENCY_TIME;
+    }
+
     if (LCD_CLICKED) {
         lcd_set_menu(view_menu_move_axis);
         lcd_enable_display_timeout();
@@ -1082,34 +1107,42 @@ static void view_picture_move_z()
 void draw_picture_move_e()
 {
     lcd_disable_display_timeout();
+    display_time_refresh = millis() + LCD_MOVE_RESIDENCY_TIME;
     lcd_set_picture(view_picture_move_e);
 }
 static void view_picture_move_e()
 {
-    if (display_refresh_mode == CLEAR_AND_UPDATE_SCREEN) {
+if (display_refresh_mode == CLEAR_AND_UPDATE_SCREEN) {
         lcd_implementation_clear();
         display_refresh_mode = UPDATE_SCREEN;
     }
     if (lcd_get_encoder_updated()) {
         current_position[E_AXIS] += float((int)encoder_position) * move_menu_scale;
         encoder_position = 0;
-        #ifdef DELTA
-        calculate_delta(current_position);
-        plan_buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], current_position[E_AXIS], manual_feedrate[E_AXIS]/60, active_extruder);
-        #else
-        plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], manual_feedrate[E_AXIS]/60, active_extruder);
-        #endif
+
+        display_time_refresh = millis() + LCD_MOVE_RESIDENCY_TIME;
         display_refresh_mode = UPDATE_SCREEN;
     }
+
     if (display_refresh_mode == UPDATE_SCREEN) {
         lcd_implementation_drawedit(PSTR("Extruder"), ftostr31(current_position[E_AXIS]));
     }
+
+    if (display_time_refresh < millis()) {
+        #ifdef DELTA
+        calculate_delta(current_position);
+        plan_buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], current_position[E_AXIS], manual_feedrate[Y_AXIS]/60, active_extruder);
+        #else
+        plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], manual_feedrate[Y_AXIS]/60, active_extruder);
+        #endif
+        display_time_refresh = millis() + LCD_MOVE_RESIDENCY_TIME;
+    }
+
     if (LCD_CLICKED) {
         lcd_set_menu(view_menu_move_axis);
         lcd_enable_display_timeout();
     }
 }
-
 
 static void function_config_level_bed()
 {
