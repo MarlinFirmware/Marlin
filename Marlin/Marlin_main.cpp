@@ -1875,10 +1875,10 @@ void process_commands()
         codenum = code_value() * 1000; // seconds to wait
         hasS = codenum > 0;
       }
+      starpos = strchr(src, '*');
+      if (starpos != NULL) *(starpos) = '\0';
+      while (*src == ' ') ++src;
       if (!hasP && !hasS && *src != '\0') {
-        starpos = strchr(src, '*');
-        if (starpos != NULL) *(starpos) = '\0';
-        while (*src == ' ') ++src;
         lcd_setstatus(src);
       } else {
         LCD_MESSAGEPGM(MSG_USERWAIT);
