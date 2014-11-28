@@ -217,14 +217,14 @@ void PID_autotune(float temp, int extruder, int ncycles)
 
  for(;;) {
 
-    if(temp_meas_ready == true) { // temp sample ready
+    if(temp_meas_ready) { // temp sample ready
       updateTemperaturesFromRawValues();
 
       input = (extruder<0)?current_temperature_bed:current_temperature[extruder];
 
       max=max(max,input);
       min=min(min,input);
-      if(heating == true && input > temp) {
+      if(heating && input > temp) {
         if(millis() - t2 > 5000) { 
           heating=false;
           if (extruder<0)
@@ -236,7 +236,7 @@ void PID_autotune(float temp, int extruder, int ncycles)
           max=temp;
         }
       }
-      if(heating == false && input < temp) {
+      if(!heating && input < temp) {
         if(millis() - t1 > 5000) {
           heating=true;
           t2=millis();
@@ -443,7 +443,7 @@ void manage_heater()
           pid_reset[e] = true;
         }
         else {
-          if(pid_reset[e] == true) {
+          if(pid_reset[e]) {
             temp_iState[e] = 0.0;
             pid_reset[e] = false;
           }
@@ -509,7 +509,7 @@ void manage_heater()
     #ifdef TEMP_SENSOR_1_AS_REDUNDANT
       if(fabs(current_temperature[0] - redundant_temperature) > MAX_REDUNDANT_TEMP_SENSOR_DIFF) {
         disable_heater();
-        if(IsStopped() == false) {
+        if(!IsStopped()) {
           SERIAL_ERROR_START;
           SERIAL_ERRORLNPGM("Extruder switched off. Temperature difference between temp sensors is too high !");
           LCD_ALERTMESSAGEPGM("Err: REDUNDANT TEMP ERROR");
@@ -1084,7 +1084,7 @@ void disable_heater()
 
 void max_temp_error(uint8_t e) {
   disable_heater();
-  if(IsStopped() == false) {
+  if(!IsStopped()) {
     SERIAL_ERROR_START;
     SERIAL_ERRORLN((int)e);
     SERIAL_ERRORLNPGM(": Extruder switched off. MAXTEMP triggered !");
@@ -1097,7 +1097,7 @@ void max_temp_error(uint8_t e) {
 
 void min_temp_error(uint8_t e) {
   disable_heater();
-  if(IsStopped() == false) {
+  if(!IsStopped()) {
     SERIAL_ERROR_START;
     SERIAL_ERRORLN((int)e);
     SERIAL_ERRORLNPGM(": Extruder switched off. MINTEMP triggered !");
@@ -1112,7 +1112,7 @@ void bed_max_temp_error(void) {
 #if HEATER_BED_PIN > -1
   WRITE(HEATER_BED_PIN, 0);
 #endif
-  if(IsStopped() == false) {
+  if(!IsStopped()) {
     SERIAL_ERROR_START;
     SERIAL_ERRORLNPGM("Temperature heated bed switched off. MAXTEMP triggered !!");
     LCD_ALERTMESSAGEPGM("Err: MAXTEMP BED");

@@ -264,4 +264,4 @@ extern void digipot_i2c_set_current( int channel, float current );
 extern void digipot_i2c_init();
 #endif
 
-#endif
+#endif //__MARLIN_H
