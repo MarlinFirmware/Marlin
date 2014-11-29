@@ -48,6 +48,8 @@
   void lcd_buzz(long duration,uint16_t freq);
   bool lcd_clicked();
 
+  void lcd_ignore_click(bool b=true);
+
   #ifdef NEWPANEL
     #define EN_C (1<<BLEN_C)
     #define EN_B (1<<BLEN_B)
