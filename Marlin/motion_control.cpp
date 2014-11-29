@@ -55,7 +55,7 @@ void mc_arc(float *position, float *target, float *offset, uint8_t axis_0, uint8
   float millimeters_of_travel = hypot(angular_travel*radius, fabs(linear_travel));
   if (millimeters_of_travel < 0.001) { return; }
   uint16_t segments = floor(millimeters_of_travel/MM_PER_ARC_SEGMENT);
-  if(segments == 0) segments = 1;
+  if (segments == 0) segments = 1;
   
   /*  
     // Multiply inverse feed_rate to compensate for the fact that this movement is approximated

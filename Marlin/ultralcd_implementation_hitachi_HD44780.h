@@ -481,7 +481,7 @@ static void lcd_implementation_status_screen() {
     #endif //LCD_WIDTH > 19
     lcd.setCursor(LCD_WIDTH - 6, 2);
     lcd.print(LCD_STR_CLOCK[0]);
-    if(starttime != 0) {
+    if (starttime != 0) {
         uint16_t time = millis()/60000 - starttime/60000;
         lcd.print(itostr2(time/60));
         lcd.print(':');
@@ -741,8 +741,8 @@ static uint8_t lcd_implementation_read_slow_buttons()
     // so they are called during normal lcd_update
     slow_buttons = lcd.readButtons() << B_I2C_BTN_OFFSET; 
     #if defined(LCD_I2C_VIKI)
-    if(slow_buttons & (B_MI|B_RI)) { //LCD clicked
-       if(blocking_enc > millis()) {
+    if (slow_buttons & (B_MI|B_RI)) { //LCD clicked
+       if (blocking_enc > millis()) {
          slow_buttons &= ~(B_MI|B_RI); // Disable LCD clicked buttons if screen is updated
        }
     }

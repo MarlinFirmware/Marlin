@@ -85,7 +85,7 @@
     #define EN_A (1<<BLEN_A)
     
     #define LCD_CLICKED ((buttons&B_MI)||(buttons&B_ST))
-  #endif//NEWPANEL
+  #endif //NEWPANEL
 
 #else //no LCD
   FORCE_INLINE void lcd_update() {}

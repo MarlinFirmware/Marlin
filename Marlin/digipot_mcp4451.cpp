@@ -33,7 +33,7 @@ void digipot_i2c_set_current( int channel, float current )
     // these addresses are specific to Azteeg X3 Pro, can be set to others,
     // In this case first digipot is at address A0=0, A1= 0, second one is at A0=0, A1= 1
     byte addr= 0x2C; // channel 0-3
-    if(channel >= 4) {
+    if (channel >= 4) {
     	addr= 0x2E; // channel 4-7
     	channel-= 4;
     }

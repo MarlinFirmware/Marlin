@@ -157,7 +157,7 @@ uint32_t encoderPosition;
 #if (SDCARDDETECT > 0)
 bool lcd_oldcardstatus;
 #endif
-#endif//ULTIPANEL
+#endif //ULTIPANEL
 
 menuFunc_t currentMenu = lcd_status_screen; /* function pointer to the currently active menu */
 uint32_t lcd_next_update_millis;
@@ -221,13 +221,13 @@ static void lcd_status_screen()
         feedmultiply += int(encoderPosition);
         encoderPosition = 0;
     }
-#endif//ULTIPANEL_FEEDMULTIPLY
+#endif //ULTIPANEL_FEEDMULTIPLY
 
     if (feedmultiply < 10)
         feedmultiply = 10;
     if (feedmultiply > 999)
         feedmultiply = 999;
-#endif//ULTIPANEL
+#endif //ULTIPANEL
 }
 
 #ifdef ULTIPANEL
@@ -251,7 +251,7 @@ static void lcd_sdcard_stop()
     card.sdprinting = false;
     card.closefile();
     quickStop();
-    if(SD_FINISHED_STEPPERRELEASE)
+    if (SD_FINISHED_STEPPERRELEASE)
     {
         enquecommand_P(PSTR(SD_FINISHED_RELEASECOMMAND));
     }
@@ -301,7 +301,7 @@ static void lcd_main_menu()
 #ifdef SDSUPPORT
 static void lcd_autostart_sd()
 {
-    card.lastnr=0;
+    card.autostart_index = 0;
     card.setroot();
     card.checkautostart(true);
 }
@@ -813,7 +813,7 @@ static void lcd_control_temperature_menu()
     MENU_ITEM_EDIT(int3, MSG_BED, &target_temperature_bed, 0, BED_MAXTEMP - 15);
 #endif
     MENU_ITEM_EDIT(int3, MSG_FAN_SPEED, &fanSpeed, 0, 255);
-#if defined AUTOTEMP && (TEMP_SENSOR_0 != 0)
+#if defined(AUTOTEMP) && (TEMP_SENSOR_0 != 0)
     MENU_ITEM_EDIT(bool, MSG_AUTOTEMP, &autotemp_enabled);
     MENU_ITEM_EDIT(float3, MSG_MIN, &autotemp_min, 0, HEATER_0_MAXTEMP - 15);
     MENU_ITEM_EDIT(float3, MSG_MAX, &autotemp_max, 0, HEATER_0_MAXTEMP - 15);
@@ -826,8 +826,8 @@ static void lcd_control_temperature_menu()
     MENU_ITEM_EDIT_CALLBACK(float52, MSG_PID_D, &raw_Kd, 1, 9990, copy_and_scalePID_d);
 # ifdef PID_ADD_EXTRUSION_RATE
     MENU_ITEM_EDIT(float3, MSG_PID_C, &Kc, 1, 9990);
-# endif//PID_ADD_EXTRUSION_RATE
-#endif//PIDTEMP
+# endif //PID_ADD_EXTRUSION_RATE
+#endif //PIDTEMP
     MENU_ITEM(submenu, MSG_PREHEAT_PLA_SETTINGS, lcd_control_temperature_preheat_pla_settings_menu);
     MENU_ITEM(submenu, MSG_PREHEAT_ABS_SETTINGS, lcd_control_temperature_preheat_abs_settings_menu);
     END_MENU();
@@ -970,11 +970,11 @@ void lcd_sdcard_menu()
     START_MENU();
     MENU_ITEM(back, MSG_MAIN, lcd_main_menu);
     card.getWorkDirName();
-    if(card.filename[0]=='/')
+    if (card.filename[0]=='/')
     {
-#if SDCARDDETECT == -1
+      #if SDCARDDETECT == -1
         MENU_ITEM(function, LCD_STR_REFRESH MSG_REFRESH, lcd_sd_refresh);
-#endif
+      #endif
     }else{
         MENU_ITEM(function, LCD_STR_FOLDER "..", lcd_sd_updir);
     }
@@ -1156,7 +1156,7 @@ static void menu_action_setting_edit_bool(const char* pstr, bool* ptr)
 {
     *ptr = !(*ptr);
 }
-#endif//ULTIPANEL
+#endif //ULTIPANEL
 
 /** LCD API **/
 void lcd_init()
@@ -1196,13 +1196,13 @@ void lcd_init()
      #error ULTIPANEL requires an encoder
      #endif
   #endif // SR_LCD_2W_NL
-#endif//!NEWPANEL
+#endif //!NEWPANEL
 
-#if defined (SDSUPPORT) && defined(SDCARDDETECT) && (SDCARDDETECT > 0)
+#if defined(SDSUPPORT) && defined(SDCARDDETECT) && (SDCARDDETECT > 0)
     pinMode(SDCARDDETECT,INPUT);
     WRITE(SDCARDDETECT, HIGH);
     lcd_oldcardstatus = IS_SD_INSERTED;
-#endif//(SDCARDDETECT > 0)
+#endif //(SDCARDDETECT > 0)
 #ifdef LCD_HAS_SLOW_BUTTONS
     slow_buttons = 0;
 #endif
@@ -1223,13 +1223,13 @@ void lcd_update()
     lcd_buttons_update();
 
     #if (SDCARDDETECT > 0)
-    if((IS_SD_INSERTED != lcd_oldcardstatus))
+    if ((IS_SD_INSERTED != lcd_oldcardstatus))
     {
         lcdDrawUpdate = 2;
         lcd_oldcardstatus = IS_SD_INSERTED;
         lcd_implementation_init(); // to maybe revive the LCD if static electricity killed it.
 
-        if(lcd_oldcardstatus)
+        if (lcd_oldcardstatus)
         {
             card.initsd();
             LCD_MESSAGEPGM(MSG_SD_INSERTED);
@@ -1240,7 +1240,7 @@ void lcd_update()
             LCD_MESSAGEPGM(MSG_SD_REMOVED);
         }
     }
-    #endif//CARDINSERTED
+    #endif //CARDINSERTED
 
     if (lcd_next_update_millis < millis())
     {
@@ -1277,7 +1277,7 @@ void lcd_update()
         }
         if (LCD_CLICKED)
             timeoutToStatus = millis() + LCD_TIMEOUT_TO_STATUS;
-#endif//ULTIPANEL
+#endif //ULTIPANEL
 
 #ifdef DOGLCD        // Changes due to different driver architecture of the DOGM display
         blink++;     // Variable for fan animation and alive dot
@@ -1301,12 +1301,12 @@ void lcd_update()
 #endif
 
 #ifdef ULTIPANEL
-        if(timeoutToStatus < millis() && currentMenu != lcd_status_screen)
+        if (timeoutToStatus < millis() && currentMenu != lcd_status_screen)
         {
             lcd_return_to_status();
             lcdDrawUpdate = 2;
         }
-#endif//ULTIPANEL
+#endif //ULTIPANEL
         if (lcdDrawUpdate == 2)
             lcd_implementation_clear();
         if (lcdDrawUpdate)
@@ -1335,7 +1335,7 @@ void lcd_setalertstatuspgm(const char* message)
     lcd_status_message_level = 1;
 #ifdef ULTIPANEL
     lcd_return_to_status();
-#endif//ULTIPANEL
+#endif //ULTIPANEL
 }
 void lcd_reset_alert_level()
 {
@@ -1356,10 +1356,10 @@ void lcd_buttons_update()
 {
 #ifdef NEWPANEL
     uint8_t newbutton=0;
-    if(READ(BTN_EN1)==0)  newbutton|=EN_A;
-    if(READ(BTN_EN2)==0)  newbutton|=EN_B;
+    if (READ(BTN_EN1)==0)  newbutton|=EN_A;
+    if (READ(BTN_EN2)==0)  newbutton|=EN_B;
   #if BTN_ENC > 0
-    if((blocking_enc<millis()) && (READ(BTN_ENC)==0))
+    if ((blocking_enc<millis()) && (READ(BTN_ENC)==0))
         newbutton |= EN_C;
   #endif
     buttons = newbutton;
@@ -1373,7 +1373,7 @@ void lcd_buttons_update()
       WRITE(SHIFT_LD,HIGH);
       for(int8_t i=0;i<8;i++) {
           newbutton_reprapworld_keypad = newbutton_reprapworld_keypad>>1;
-          if(READ(SHIFT_OUT))
+          if (READ(SHIFT_OUT))
               newbutton_reprapworld_keypad|=(1<<7);
           WRITE(SHIFT_CLK,HIGH);
           WRITE(SHIFT_CLK,LOW);
@@ -1388,46 +1388,46 @@ void lcd_buttons_update()
     for(int8_t i=0;i<8;i++)
     {
         newbutton = newbutton>>1;
-        if(READ(SHIFT_OUT))
+        if (READ(SHIFT_OUT))
             newbutton|=(1<<7);
         WRITE(SHIFT_CLK,HIGH);
         WRITE(SHIFT_CLK,LOW);
     }
     buttons=~newbutton; //invert it, because a pressed switch produces a logical 0
-#endif//!NEWPANEL
+#endif //!NEWPANEL
 
     //manage encoder rotation
     uint8_t enc=0;
-    if(buttons&EN_A)
+    if (buttons&EN_A)
         enc|=(1<<0);
-    if(buttons&EN_B)
+    if (buttons&EN_B)
         enc|=(1<<1);
-    if(enc != lastEncoderBits)
+    if (enc != lastEncoderBits)
     {
         switch(enc)
         {
         case encrot0:
-            if(lastEncoderBits==encrot3)
+            if (lastEncoderBits==encrot3)
                 encoderDiff++;
-            else if(lastEncoderBits==encrot1)
+            else if (lastEncoderBits==encrot1)
                 encoderDiff--;
             break;
         case encrot1:
-            if(lastEncoderBits==encrot0)
+            if (lastEncoderBits==encrot0)
                 encoderDiff++;
-            else if(lastEncoderBits==encrot2)
+            else if (lastEncoderBits==encrot2)
                 encoderDiff--;
             break;
         case encrot2:
-            if(lastEncoderBits==encrot1)
+            if (lastEncoderBits==encrot1)
                 encoderDiff++;
-            else if(lastEncoderBits==encrot3)
+            else if (lastEncoderBits==encrot3)
                 encoderDiff--;
             break;
         case encrot3:
-            if(lastEncoderBits==encrot2)
+            if (lastEncoderBits==encrot2)
                 encoderDiff++;
-            else if(lastEncoderBits==encrot0)
+            else if (lastEncoderBits==encrot0)
                 encoderDiff--;
             break;
         }
@@ -1446,7 +1446,7 @@ bool lcd_clicked()
 {
   return LCD_CLICKED;
 }
-#endif//ULTIPANEL
+#endif //ULTIPANEL
 
 /********************************/
 /** Float conversion utilities **/

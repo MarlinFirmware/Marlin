@@ -76,22 +76,22 @@ uint8_t ServoCount = 0;                                     // the total number 
 
 static inline void handle_interrupts(timer16_Sequence_t timer, volatile uint16_t *TCNTn, volatile uint16_t* OCRnA)
 {
-  if( Channel[timer] < 0 )
+  if ( Channel[timer] < 0 )
     *TCNTn = 0; // channel set to -1 indicated that refresh interval completed so reset the timer
   else{
-    if( SERVO_INDEX(timer,Channel[timer]) < ServoCount && SERVO(timer,Channel[timer]).Pin.isActive )
+    if ( SERVO_INDEX(timer,Channel[timer]) < ServoCount && SERVO(timer,Channel[timer]).Pin.isActive )
       digitalWrite( SERVO(timer,Channel[timer]).Pin.nbr,LOW); // pulse this channel low if activated
   }
 
   Channel[timer]++;    // increment to the next channel
-  if( SERVO_INDEX(timer,Channel[timer]) < ServoCount && Channel[timer] < SERVOS_PER_TIMER) {
+  if ( SERVO_INDEX(timer,Channel[timer]) < ServoCount && Channel[timer] < SERVOS_PER_TIMER) {
     *OCRnA = *TCNTn + SERVO(timer,Channel[timer]).ticks;
-    if(SERVO(timer,Channel[timer]).Pin.isActive)     // check if activated
+    if (SERVO(timer,Channel[timer]).Pin.isActive)     // check if activated
       digitalWrite( SERVO(timer,Channel[timer]).Pin.nbr,HIGH); // its an active channel so pulse it high
   }
   else {
     // finished all channels so wait for the refresh period to expire before starting over
-    if( ((unsigned)*TCNTn) + 4 < usToTicks(REFRESH_INTERVAL) )  // allow a few ticks to ensure the next OCR1A not missed
+    if ( ((unsigned)*TCNTn) + 4 < usToTicks(REFRESH_INTERVAL) )  // allow a few ticks to ensure the next OCR1A not missed
       *OCRnA = (unsigned int)usToTicks(REFRESH_INTERVAL);
     else
       *OCRnA = *TCNTn + 4;  // at least REFRESH_INTERVAL has elapsed
@@ -149,7 +149,7 @@ void Timer3Service()
 static void initISR(timer16_Sequence_t timer)
 {
 #if defined (_useTimer1)
-  if(timer == _timer1) {
+  if (timer == _timer1) {
     TCCR1A = 0;             // normal counting mode
     TCCR1B = _BV(CS11);     // set prescaler of 8
     TCNT1 = 0;              // clear the timer count
@@ -168,7 +168,7 @@ static void initISR(timer16_Sequence_t timer)
 #endif
 
 #if defined (_useTimer3)
-  if(timer == _timer3) {
+  if (timer == _timer3) {
     TCCR3A = 0;             // normal counting mode
     TCCR3B = _BV(CS31);     // set prescaler of 8
     TCNT3 = 0;              // clear the timer count
@@ -186,7 +186,7 @@ static void initISR(timer16_Sequence_t timer)
 #endif
 
 #if defined (_useTimer4)
-  if(timer == _timer4) {
+  if (timer == _timer4) {
     TCCR4A = 0;             // normal counting mode
     TCCR4B = _BV(CS41);     // set prescaler of 8
     TCNT4 = 0;              // clear the timer count
@@ -196,7 +196,7 @@ static void initISR(timer16_Sequence_t timer)
 #endif
 
 #if defined (_useTimer5)
-  if(timer == _timer5) {
+  if (timer == _timer5) {
     TCCR5A = 0;             // normal counting mode
     TCCR5B = _BV(CS51);     // set prescaler of 8
     TCNT5 = 0;              // clear the timer count
@@ -210,7 +210,7 @@ static void finISR(timer16_Sequence_t timer)
 {
     //disable use of the given timer
 #if defined WIRING   // Wiring
-  if(timer == _timer1) {
+  if (timer == _timer1) {
     #if defined(__AVR_ATmega1281__)||defined(__AVR_ATmega2561__)
     TIMSK1 &=  ~_BV(OCIE1A) ;  // disable timer 1 output compare interrupt
     #else
@@ -218,7 +218,7 @@ static void finISR(timer16_Sequence_t timer)
     #endif
     timerDetach(TIMER1OUTCOMPAREA_INT);
   }
-  else if(timer == _timer3) {
+  else if (timer == _timer3) {
     #if defined(__AVR_ATmega1281__)||defined(__AVR_ATmega2561__)
     TIMSK3 &= ~_BV(OCIE3A);    // disable the timer3 output compare A interrupt
     #else
@@ -235,7 +235,7 @@ static boolean isTimerActive(timer16_Sequence_t timer)
 {
   // returns true if any servo is active on this timer
   for(uint8_t channel=0; channel < SERVOS_PER_TIMER; channel++) {
-    if(SERVO(timer,channel).Pin.isActive)
+    if (SERVO(timer,channel).Pin.isActive)
       return true;
   }
   return false;
@@ -246,7 +246,7 @@ static boolean isTimerActive(timer16_Sequence_t timer)
 
 Servo::Servo()
 {
-  if( ServoCount < MAX_SERVOS) {
+  if ( ServoCount < MAX_SERVOS) {
     this->servoIndex = ServoCount++;                    // assign a servo index to this instance
 	servos[this->servoIndex].ticks = usToTicks(DEFAULT_PULSE_WIDTH);   // store default values  - 12 Aug 2009
   }
@@ -261,7 +261,7 @@ uint8_t Servo::attach(int pin)
 
 uint8_t Servo::attach(int pin, int min, int max)
 {
-  if(this->servoIndex < MAX_SERVOS ) {
+  if (this->servoIndex < MAX_SERVOS ) {
 #if defined (ENABLE_AUTO_BED_LEVELING) && (PROBE_SERVO_DEACTIVATION_DELAY > 0)
     if (pin > 0) this->pin = pin; else pin = this->pin;
 #endif
@@ -272,7 +272,7 @@ uint8_t Servo::attach(int pin, int min, int max)
     this->max  = (MAX_PULSE_WIDTH - max)/4;
     // initialize the timer if it has not already been initialized
     timer16_Sequence_t timer = SERVO_INDEX_TO_TIMER(servoIndex);
-    if(!isTimerActive(timer)) initISR(timer);
+    if (!isTimerActive(timer)) initISR(timer);
     servos[this->servoIndex].Pin.isActive = true;  // this must be set after the check for isTimerActive
   }
   return this->servoIndex ;
@@ -282,15 +282,15 @@ void Servo::detach()
 {
   servos[this->servoIndex].Pin.isActive = false;
   timer16_Sequence_t timer = SERVO_INDEX_TO_TIMER(servoIndex);
-  if(!isTimerActive(timer)) finISR(timer);
+  if (!isTimerActive(timer)) finISR(timer);
 }
 
 void Servo::write(int value)
 {
-  if(value < MIN_PULSE_WIDTH)
+  if (value < MIN_PULSE_WIDTH)
   {  // treat values less than 544 as angles in degrees (valid values in microseconds are handled as microseconds)
-    if(value < 0) value = 0;
-    if(value > 180) value = 180;
+    if (value < 0) value = 0;
+    if (value > 180) value = 180;
     value = map(value, 0, 180, SERVO_MIN(),  SERVO_MAX());
   }
   this->writeMicroseconds(value);
@@ -300,11 +300,11 @@ void Servo::writeMicroseconds(int value)
 {
   // calculate and store the values for the given channel
   byte channel = this->servoIndex;
-  if( (channel < MAX_SERVOS) )   // ensure channel is valid
+  if ( (channel < MAX_SERVOS) )   // ensure channel is valid
   {
-    if( value < SERVO_MIN() )          // ensure pulse width is valid
+    if ( value < SERVO_MIN() )          // ensure pulse width is valid
       value = SERVO_MIN();
-    else if( value > SERVO_MAX() )
+    else if ( value > SERVO_MAX() )
       value = SERVO_MAX();
 
   	value = value - TRIM_DURATION;
@@ -325,7 +325,7 @@ int Servo::read() // return the value as degrees
 int Servo::readMicroseconds()
 {
   unsigned int pulsewidth;
-  if( this->servoIndex != INVALID_SERVO )
+  if ( this->servoIndex != INVALID_SERVO )
     pulsewidth = ticksToUs(servos[this->servoIndex].ticks)  + TRIM_DURATION ;   // 12 aug 2009
   else
     pulsewidth  = 0;

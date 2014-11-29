@@ -44,7 +44,7 @@ public:
   FORCE_INLINE bool eof() { return sdpos>=filesize ;};
   FORCE_INLINE int16_t get() {  sdpos = file.curPosition();return (int16_t)file.read();};
   FORCE_INLINE void setIndex(long index) {sdpos = index;file.seekSet(index);};
-  FORCE_INLINE uint8_t percentDone(){if(!isFileOpen()) return 0; if(filesize) return sdpos/((filesize+99)/100); else return 0;};
+  FORCE_INLINE uint8_t percentDone(){if (!isFileOpen()) return 0; if (filesize) return sdpos/((filesize+99)/100); else return 0;};
   FORCE_INLINE char* getWorkDirName(){workDir.getFilename(filename);return filename;};
 
 public:
@@ -55,7 +55,7 @@ public:
   char filename[13];
   char longFilename[LONG_FILENAME_LENGTH];
   bool filenameIsDir;
-  int lastnr; //last number of the autostart;
+  int autostart_index;
 private:
   SdFile root,*curDir,workDir,workDirParents[MAX_DIR_DEPTH];
   uint16_t workDirDepth;
@@ -98,4 +98,4 @@ extern CardReader card;
 #define IS_SD_PRINTING (false)
 
 #endif //SDSUPPORT
-#endif
+#endif //__CARDREADER_H

@@ -111,7 +111,7 @@ class MarlinSerial //: public Stream
     
     FORCE_INLINE void checkRx(void)
     {
-      if((M_UCSRxA & (1<<M_RXCx)) != 0) {
+      if ((M_UCSRxA & (1<<M_RXCx)) != 0) {
         unsigned char c  =  M_UDRx;
         int i = (unsigned int)(rx_buffer.head + 1) % RX_BUFFER_SIZE;
 

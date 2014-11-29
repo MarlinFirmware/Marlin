@@ -1596,7 +1596,7 @@
 
 #define SDCARDDETECT 39
 
-#endif//MOTHERBOARD == 72
+#endif //MOTHERBOARD == 72
 
 /****************************************************************************************
 * RUMBA pin assignment

@@ -335,8 +335,8 @@ void Config_ResetDefault()
     
 #ifdef PID_ADD_EXTRUSION_RATE
     Kc = DEFAULT_Kc;
-#endif//PID_ADD_EXTRUSION_RATE
-#endif//PIDTEMP
+#endif //PID_ADD_EXTRUSION_RATE
+#endif //PIDTEMP
 
 SERIAL_ECHO_START;
 SERIAL_ECHOLNPGM("Hardcoded Default Settings Loaded");
