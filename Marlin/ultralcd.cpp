@@ -1009,11 +1009,12 @@ void lcd_sdcard_menu()
             #else
               card.getfilename(fileCnt-1-i);
             #endif
-            if (card.filenameIsDir)
-            {
-                MENU_ITEM(sddirectory, MSG_CARD_MENU, card.filename, card.longFilename);
-            }else{
-                MENU_ITEM(sdfile, MSG_CARD_MENU, card.filename, card.longFilename);
+
+            if (card.filenameIsDir) {
+              MENU_ITEM(sddirectory, MSG_CARD_MENU, card.filename, card.longFilename);
+            }
+            else {
+              MENU_ITEM(sdfile, MSG_CARD_MENU, card.filename, card.longFilename);
             }
         }else{
             MENU_ITEM_DUMMY();

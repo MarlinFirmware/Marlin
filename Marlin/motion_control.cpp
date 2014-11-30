@@ -109,7 +109,7 @@ void mc_arc(float *position, float *target, float *offset, uint8_t axis_0, uint8
   // Initialize the extruder axis
   arc_target[E_AXIS] = position[E_AXIS];
 
-  for (i = 1; i<segments; i++) { // Increment (segments-1)
+  for (i = 1; i < segments; i++) { // Increment (segments-1)
     
     if (count < N_ARC_CORRECTION) {
       // Apply vector rotation matrix 
