@@ -46,7 +46,7 @@ void  CardReader::lsDive(const char *prepend, SdFile parent) {
   uint8_t cnt = 0;
  
   while (parent.readDir(p, longFilename) > 0) {
-    if ( DIR_IS_SUBDIR(&p) && lsAction != LS_Count && lsAction != LS_GetFilename) { // hence LS_SerialPrint
+    if (DIR_IS_SUBDIR(&p) && lsAction != LS_Count && lsAction != LS_GetFilename) { // hence LS_SerialPrint
       char path[13*2];
       char lfilename[13];
       createFilename(lfilename, p);
@@ -76,9 +76,13 @@ void  CardReader::lsDive(const char *prepend, SdFile parent) {
       if (pn0 == DIR_NAME_DELETED || pn0 == '.' || pn0 == '_') continue;
       // if (pn0 == '.' && p.name[1] != '.') continue;
       char lf0 = longFilename[0];
-      if (lf0 != '\0' && (lf0 == '.' || lf0 == '_')) continue;
+      if (lf0 == '.' || lf0 == '_') continue;
 
-      if (!DIR_IS_FILE_OR_SUBDIR(&p) || !DIR_IS_SUBDIR(&p) && (p.name[8] != 'G' || p.name[9] == '~')) continue;
+      if (!DIR_IS_FILE_OR_SUBDIR(&p)) continue;
+
+      filenameIsDir = DIR_IS_SUBDIR(&p);
+
+      if (!filenameIsDir && (p.name[8] != 'G' || p.name[9] == '~')) continue;
 
       //if (cnt++ != nr) continue;
       createFilename(filename, p);
@@ -482,25 +486,25 @@ void CardReader::updir() {
 }
 
 void CardReader::printingHasFinished() {
-    st_synchronize();
-    if (file_subcall_ctr > 0) {
-      //heading up to a parent file that called current as a procedure.
-      file.close();
-      file_subcall_ctr--;
-      openFile(filenames[file_subcall_ctr], true, true);
-      setIndex(filespos[file_subcall_ctr]);
-      startFileprint();
+  st_synchronize();
+  if (file_subcall_ctr > 0) {
+    //heading up to a parent file that called current as a procedure.
+    file.close();
+    file_subcall_ctr--;
+    openFile(filenames[file_subcall_ctr], true, true);
+    setIndex(filespos[file_subcall_ctr]);
+    startFileprint();
+  }
+  else {
+    quickStop();
+    file.close();
+    sdprinting = false;
+    if (SD_FINISHED_STEPPERRELEASE) {
+      //finishAndDisableSteppers();
+      enquecommand_P(PSTR(SD_FINISHED_RELEASECOMMAND));
     }
-    else {
-      quickStop();
-      file.close();
-      sdprinting = false;
-      if (SD_FINISHED_STEPPERRELEASE) {
-        //finishAndDisableSteppers();
-        enquecommand_P(PSTR(SD_FINISHED_RELEASECOMMAND));
-      }
-      autotempShutdown();
-    }
+    autotempShutdown();
+  }
 }
 
 #endif //SDSUPPORT
