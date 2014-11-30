@@ -159,7 +159,9 @@ void CardReader::release() {
 }
 
 void CardReader::startFileprint() {
-  if (cardOK) sdprinting = true;
+  if (cardOK) {
+    sdprinting = true;
+  }
 }
 
 void CardReader::pauseSDPrint() {
@@ -176,7 +178,7 @@ void CardReader::getAbsFilename(char *t) {
   *t = '/'; t++; cnt++;
   for(uint8_t i = 0; i < workDirDepth; i++) {
     workDirParents[i].getFilename(t); //SDBaseFile.getfilename!
-    while(*t != 0 && cnt< MAXPATHNAMELENGTH) { t++; cnt++; } //crawl counter forward.
+    while(*t != 0 && cnt < MAXPATHNAMELENGTH) { t++; cnt++; } //crawl counter forward.
   }
   if (cnt < MAXPATHNAMELENGTH - 13)
     file.getFilename(t);
