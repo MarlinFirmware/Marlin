@@ -54,7 +54,7 @@ void  CardReader::lsDive(const char *prepend,SdFile parent)
   dir_t p;
   uint8_t cnt=0;
  
-  while (parent.readDir(p, longFilename) > 0)
+  while (parent.readDir(p, diveFilename) > 0)
   {
     if( DIR_IS_SUBDIR(&p) && lsAction!=LS_Count && lsAction!=LS_GetFilename) // hence LS_SerialPrint
     {
@@ -91,8 +91,8 @@ void  CardReader::lsDive(const char *prepend,SdFile parent)
     {
       if (p.name[0] == DIR_NAME_FREE) break;
       if (p.name[0] == DIR_NAME_DELETED || p.name[0] == '.'|| p.name[0] == '_') continue;
-      if (longFilename[0] != '\0' &&
-          (longFilename[0] == '.' || longFilename[0] == '_')) continue;
+      if (diveFilename[0] != '\0' &&
+          (diveFilename[0] == '.' || diveFilename[0] == '_')) continue;
       if ( p.name[0] == '.')
       {
         if ( p.name[1] != '.')
