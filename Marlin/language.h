@@ -247,7 +247,7 @@
 	#define MSG_KILLED "KILLED. "
 	#define MSG_STOPPED "STOPPED. "
 	#define MSG_CONTROL_RETRACT  "Retract mm"
-	#define MSG_CONTROL_RETRACT_SWAP  "Swap Re.mm"
+	#define MSG_CONTROL_RETRACT_SWAP "Swap Re.mm"
 	#define MSG_CONTROL_RETRACTF "Retract  V"
 	#define MSG_CONTROL_RETRACT_ZLIFT "Hop mm"
 	#define MSG_CONTROL_RETRACT_RECOVER "UnRet +mm"

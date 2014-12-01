@@ -12,10 +12,10 @@
   void lcd_setalertstatuspgm(const char* message);
   void lcd_reset_alert_level();
 
-#ifdef DOGLCD
-  extern int lcd_contrast;
-  void lcd_setcontrast(uint8_t value);
-#endif
+  #ifdef DOGLCD
+    extern int lcd_contrast;
+    void lcd_setcontrast(uint8_t value);
+  #endif
 
   static unsigned char blink = 0;	// Variable for visualization of fan rotation in GLCD
 
@@ -26,13 +26,13 @@
   #define LCD_TIMEOUT_TO_STATUS 15000
 
   #ifdef ULTIPANEL
-  void lcd_buttons_update();
-  extern volatile uint8_t buttons;  //the last checked buttons in a bit array.
-  #ifdef REPRAPWORLD_KEYPAD
-    extern volatile uint8_t buttons_reprapworld_keypad; // to store the keypad shift register values
-  #endif
+    void lcd_buttons_update();
+    extern volatile uint8_t buttons;  //the last checked buttons in a bit array.
+    #ifdef REPRAPWORLD_KEYPAD
+      extern volatile uint8_t buttons_reprapworld_keypad; // to store the keypad shift register values
+    #endif
   #else
-  FORCE_INLINE void lcd_buttons_update() {}
+    FORCE_INLINE void lcd_buttons_update() {}
   #endif
 
   extern int plaPreheatHotendTemp;
@@ -90,6 +90,7 @@
   #endif //NEWPANEL
 
 #else //no LCD
+
   FORCE_INLINE void lcd_update() {}
   FORCE_INLINE void lcd_init() {}
   FORCE_INLINE void lcd_setstatus(const char* message) {}
@@ -99,7 +100,8 @@
 
   #define LCD_MESSAGEPGM(x) 
   #define LCD_ALERTMESSAGEPGM(x) 
-#endif 
+
+#endif //ULTRA_LCD
 
 char *itostr2(const uint8_t &x);
 char *itostr31(const int &xx);
@@ -115,4 +117,4 @@ char *ftostr5(const float &x);
 char *ftostr51(const float &x);
 char *ftostr52(const float &x);
 
-#endif //ULTRALCD
+#endif //__ULTRALCD_H
