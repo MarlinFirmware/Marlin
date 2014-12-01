@@ -77,9 +77,9 @@
 
   #if (SDCARDDETECT > -1)
     #ifdef SDCARDDETECTINVERTED
-      #define IS_SD_INSERTED (READ(SDCARDDETECT)!=0)
+      #define IS_SD_INSERTED (READ(SDCARDDETECT) != 0)
     #else
-      #define IS_SD_INSERTED (READ(SDCARDDETECT)==0)
+      #define IS_SD_INSERTED (READ(SDCARDDETECT) == 0)
     #endif
   #else
     //No card detect line? Assume the card is inserted.

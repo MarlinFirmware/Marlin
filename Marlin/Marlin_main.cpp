@@ -160,9 +160,9 @@
 // M401 - Lower z-probe if present
 // M402 - Raise z-probe if present
 // M404 - N<dia in mm> Enter the nominal filament width (3mm, 1.75mm ) or will display nominal filament width without parameters
-// M405 - Turn on Filament Sensor extrusion control.  Optional D<delay in cm> to set delay in centimeters between sensor and extruder 
-// M406 - Turn off Filament Sensor extrusion control 
-// M407 - Displays measured filament diameter 
+// M405 - Turn on Filament Sensor extrusion control.  Optional D<delay in cm> to set delay in centimeters between sensor and extruder
+// M406 - Turn off Filament Sensor extrusion control
+// M407 - Displays measured filament diameter
 // M500 - stores parameters in EEPROM
 // M501 - Read parameters from EEPROM (if you need reset them after you changed them temporarily).
 // M502 - Revert to the default "factory settings". You still need to store them in EEPROM afterwards if you want to.
@@ -308,9 +308,9 @@ int fanSpeed = 0;
   // these are the default values, can be overriden with M665
   float delta_radius= DELTA_RADIUS;
   float delta_tower1_x= -SIN_60*delta_radius; // front left tower
-  float delta_tower1_y= -COS_60*delta_radius;	   
+  float delta_tower1_y= -COS_60*delta_radius;
   float delta_tower2_x=  SIN_60*delta_radius; // front right tower
-  float delta_tower2_y= -COS_60*delta_radius;	   
+  float delta_tower2_y= -COS_60*delta_radius;
   float delta_tower3_x= 0;                    // back middle tower
   float delta_tower3_y= delta_radius;
   float delta_diagonal_rod= DELTA_DIAGONAL_ROD;
@@ -320,19 +320,19 @@ int fanSpeed = 0;
 
 #ifdef SCARA                              // Build size scaling
   float axis_scaling[3] = {1,1,1};  // Build size scaling, default to 1
-#endif				
+#endif
 
 bool cancel_heatup = false;
 
 #ifdef FILAMENT_SENSOR
-  //Variables for Filament Sensor input 
-  float filament_width_nominal = DEFAULT_NOMINAL_FILAMENT_DIA;  //Set nominal filament width, can be changed with M404 
-  bool filament_sensor = false;  //M405 turns on filament_sensor control, M406 turns it off 
-  float filament_width_meas = DEFAULT_MEASURED_FILAMENT_DIA; //Stores the measured filament diameter 
-  signed char measurement_delay[MAX_MEASUREMENT_DELAY+1];  //ring buffer to delay measurement  store extruder factor after subtracting 100 
+  //Variables for Filament Sensor input
+  float filament_width_nominal = DEFAULT_NOMINAL_FILAMENT_DIA;  //Set nominal filament width, can be changed with M404
+  bool filament_sensor = false;  //M405 turns on filament_sensor control, M406 turns it off
+  float filament_width_meas = DEFAULT_MEASURED_FILAMENT_DIA; //Stores the measured filament diameter
+  signed char measurement_delay[MAX_MEASUREMENT_DELAY+1];  //ring buffer to delay measurement  store extruder factor after subtracting 100
   int delay_index1 = 0;  //index into ring buffer
   int delay_index2 = -1;  //index into ring buffer - set to -1 on startup to indicate ring buffer needs to be initialized
-  float delay_dist = 0; //delay distance counter  
+  float delay_dist = 0; //delay distance counter
   int meas_delay_cm = MEASUREMENT_DELAY_CM;  //distance delay setting
 #endif
 
@@ -713,7 +713,7 @@ void get_command() {
 
         //If command was e-stop process now
         if (strcmp(cmdbuffer[bufindw], "M112") == 0) kill();
-        
+
         bufindw = (bufindw + 1)%BUFSIZE;
         buflen += 1;
       }
@@ -886,11 +886,11 @@ static void axis_is_at_home(int axis) {
 
     if (axis < 2) {
 
-      for (i=0; i<3; i++) homeposition[i] = base_home_pos(i); 
+      for (i=0; i<3; i++) homeposition[i] = base_home_pos(i);
 
       // SERIAL_ECHOPGM("homeposition[x]= "); SERIAL_ECHO(homeposition[0]);
       // SERIAL_ECHOPGM("homeposition[y]= "); SERIAL_ECHOLN(homeposition[1]);
-      // Works out real Homeposition angles using inverse kinematics, 
+      // Works out real Homeposition angles using inverse kinematics,
       // and calculates homing offset using forward kinematics
       calculate_delta(homeposition);
 
@@ -912,11 +912,11 @@ static void axis_is_at_home(int axis) {
 
       current_position[axis] = delta[axis];
 
-      // SCARA home positions are based on configuration since the actual limits are determined by the 
+      // SCARA home positions are based on configuration since the actual limits are determined by the
       // inverse kinematic transform.
       min_pos[axis] = base_min_pos(axis); // + (delta[axis] - base_home_pos(axis));
       max_pos[axis] = base_max_pos(axis); // + (delta[axis] - base_home_pos(axis));
-    } 
+    }
     else {
       current_position[axis] = base_home_pos(axis) + add_homing[axis];
       min_pos[axis] = base_min_pos(axis) + add_homing[axis];
@@ -1241,9 +1241,9 @@ void refresh_cmd_timeout(void) {
       #endif
       //prepare_move();
       if (swapretract) {
-        current_position[E_AXIS] -= (retract_length_swap+retract_recover_length_swap)/volumetric_multiplier[active_extruder]; 
+        current_position[E_AXIS] -= (retract_length_swap+retract_recover_length_swap)/volumetric_multiplier[active_extruder];
       } else {
-        current_position[E_AXIS] -= (retract_length+retract_recover_length)/volumetric_multiplier[active_extruder]; 
+        current_position[E_AXIS] -= (retract_length+retract_recover_length)/volumetric_multiplier[active_extruder];
       }
       plan_set_e_position(current_position[E_AXIS]);
       float oldFeedrate = feedrate;
@@ -1266,7 +1266,7 @@ void refresh_cmd_timeout(void) {
   //
   static void dock_sled(bool dock, int offset=0) {
    int z_loc;
-   
+
    if (!axis_known_position[X_AXIS] || !axis_known_position[Y_AXIS]) {
      LCD_MESSAGEPGM(MSG_POSITION_UNKNOWN);
      SERIAL_ECHO_START;
@@ -1374,7 +1374,7 @@ void process_commands() {
           retract(false,retracted_swap[active_extruder]);
          #else
           retract(false);
-         #endif 
+         #endif
         break;
       #endif //FWRETRACT
 
@@ -2028,7 +2028,7 @@ void process_commands() {
         // M48 Z-Probe repeatability measurement function.
         //
         // Usage:   M48 <n #_samples> <X X_position_for_samples> <Y Y_position_for_samples> <V Verbose_Level> <Engage_probe_for_each_reading> <L legs_of_movement_prior_to_doing_probe>
-        //	
+        //
         // This function assumes the bed has been homed.  Specificaly, that a G28 command
         // as been issued prior to invoking the M48 Z-Probe repeatability measurement function.
         // Any information generated by a prior G29 Bed leveling command will be lost and need to be
@@ -2120,10 +2120,10 @@ void process_commands() {
 
             //
             // Now get everything to the specified probe point So we can safely do a probe to
-            // get us close to the bed.  If the Z-Axis is far from the bed, we don't want to 
+            // get us close to the bed.  If the Z-Axis is far from the bed, we don't want to
             // use that as a starting point for each probe.
             //
-          	if (verbose_level > 2) 
+          	if (verbose_level > 2)
           		SERIAL_PROTOCOL("Positioning probe for the test.\n");
 
             plan_buffer_line( X_probe_location, Y_probe_location, Z_start_location,
@@ -2137,7 +2137,7 @@ void process_commands() {
             current_position[Z_AXIS] = Z_current = st_get_position_mm(Z_AXIS);
             current_position[E_AXIS] = ext_position = st_get_position_mm(E_AXIS);
 
-            // 
+            //
             // OK, do the inital probe to get us close to the bed.
             // Then retrace the right amount and use that in subsequent probes
             //
@@ -2168,7 +2168,7 @@ void process_commands() {
                 int rotational_direction, l;
 
                 rotational_direction = (unsigned long) millis() & 0x0001;			// clockwise or counter clockwise
-                radius = (unsigned long) millis() % (long) (X_MAX_LENGTH/4); 			// limit how far out to go 
+                radius = (unsigned long) millis() % (long) (X_MAX_LENGTH/4); 			// limit how far out to go
                 theta = (float) ((unsigned long) millis() % 360L) / (360.0/(2*3.1415926));	// turn into radians
 
                 //SERIAL_ECHOPAIR("starting radius: ",radius);
@@ -2206,7 +2206,7 @@ void process_commands() {
               }
 
               if (engage_probe_for_each_reading) {
-                engage_z_probe();	
+                engage_z_probe();
                 delay(1000);
               }
 
@@ -2218,7 +2218,7 @@ void process_commands() {
               //
               // Get the current mean for the data points we have so far
               //
-              sum = 0; 
+              sum = 0;
               for (j=0; j<=n; j++) sum = sum + sample_set[j];
               mean = sum / double(n+1);
 
@@ -2226,7 +2226,7 @@ void process_commands() {
               // Now, use that mean to calculate the standard deviation for the
               // data points we have so far
               //
-              sum = 0; 
+              sum = 0;
               for(j=0; j<=n; j++) sum = sum + (sample_set[j]-mean) * (sample_set[j]-mean);
               sigma = sqrt(sum / double(n+1));
 
@@ -2247,12 +2247,12 @@ void process_commands() {
 
               if (verbose_level > 0) SERIAL_PROTOCOLPGM("\n");
 
-              plan_buffer_line( X_probe_location, Y_probe_location, Z_start_location, 
+              plan_buffer_line( X_probe_location, Y_probe_location, Z_start_location,
                 current_position[E_AXIS], homing_feedrate[Z_AXIS]/60, active_extruder);
               st_synchronize();
 
               if (engage_probe_for_each_reading) {
-                retract_z_probe();	
+                retract_z_probe();
                 delay(1000);
               }
             }
@@ -2411,7 +2411,7 @@ void process_commands() {
                         ((unsigned int) (millis() - residencyStart)) < (TEMP_RESIDENCY_TIME * 1000UL)
                       )
                     )
-                  ) 
+                  )
                 )
           #else
             while ( target_direction ? (isHeatingHotend(tmp_extruder)) : (isCoolingHotend(tmp_extruder)&&(CooldownNoWait == false)) )
@@ -2470,7 +2470,7 @@ void process_commands() {
               CooldownNoWait = false;
             }
             codenum = millis();
-            
+
             cancel_heatup = false;
             target_direction = isHeatingBed(); // true if heating, false if cooling
 
@@ -2680,13 +2680,13 @@ void process_commands() {
               SERIAL_PROTOCOLPGM("   Psi+Theta:");
               SERIAL_PROTOCOL(delta[Y_AXIS]);
               SERIAL_PROTOCOLLN("");
-            
+
               SERIAL_PROTOCOLPGM("SCARA Cal - Theta:");
               SERIAL_PROTOCOL(delta[X_AXIS]+add_homing[X_AXIS]);
               SERIAL_PROTOCOLPGM("   Psi+Theta (90):");
               SERIAL_PROTOCOL(delta[Y_AXIS]-delta[X_AXIS]-90+add_homing[Y_AXIS]);
               SERIAL_PROTOCOLLN("");
-              
+
               SERIAL_PROTOCOLPGM("SCARA step Cal - Theta:");
               SERIAL_PROTOCOL(delta[X_AXIS]/90*axis_steps_per_unit[X_AXIS]);
               SERIAL_PROTOCOLPGM("   Psi+Theta:");
@@ -3109,9 +3109,9 @@ void process_commands() {
                WRITE(CHDK, HIGH);
                chdkHigh = millis();
                chdkActive = true;
-             
+
             #else
-           	
+
               #if defined(PHOTOGRAPH_PIN) && PHOTOGRAPH_PIN > -1
                 const uint8_t NUM_PULSES = 16;
                 const float PULSE_LENGTH = 0.01524;
@@ -3171,7 +3171,7 @@ void process_commands() {
                 calculate_SCARA_forward_Transform(delta);
                 destination[0] = delta[0]/axis_scaling[X_AXIS];
                 destination[1] = delta[1]/axis_scaling[Y_AXIS];
-                
+
                 prepare_move();
                 //ClearToSend();
                 return;
@@ -3189,7 +3189,7 @@ void process_commands() {
                 calculate_SCARA_forward_Transform(delta);
                 destination[0] = delta[0]/axis_scaling[X_AXIS];
                 destination[1] = delta[1]/axis_scaling[Y_AXIS];
-                
+
                 prepare_move();
                 //ClearToSend();
                 return;
@@ -3207,7 +3207,7 @@ void process_commands() {
                 calculate_SCARA_forward_Transform(delta);
                 destination[0] = delta[0]/axis_scaling[X_AXIS];
                 destination[1] = delta[1]/axis_scaling[Y_AXIS];
-                
+
                 prepare_move();
                 //ClearToSend();
                 return;
@@ -3225,7 +3225,7 @@ void process_commands() {
                 calculate_SCARA_forward_Transform(delta);
                 destination[0] = delta[0]/axis_scaling[X_AXIS];
                 destination[1] = delta[1]/axis_scaling[Y_AXIS];
-                
+
                 prepare_move();
                 //ClearToSend();
                 return;
@@ -3242,8 +3242,8 @@ void process_commands() {
                 delta[1] = 135;
                 calculate_SCARA_forward_Transform(delta);
                 destination[0] = delta[0]/axis_scaling[X_AXIS];
-                destination[1] = delta[1]/axis_scaling[Y_AXIS]; 
-                
+                destination[1] = delta[1]/axis_scaling[Y_AXIS];
+
                 prepare_move();
                 // ClearToSend();
                 return;
@@ -3276,9 +3276,9 @@ void process_commands() {
 
           #ifdef FILAMENT_SENSOR
 
-            case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or display nominal filament width 
+            case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or display nominal filament width
             {
-              #if (FILWIDTH_PIN > -1) 
+              #if (FILWIDTH_PIN > -1)
                 if (code_seen('N')) filament_width_nominal = code_value();
                 else {
                   SERIAL_PROTOCOLPGM("Filament dia (nominal mm):");
@@ -3288,12 +3288,12 @@ void process_commands() {
             }
               break;
 
-            case 405:  //M405 Turn on filament sensor for control 
+            case 405:  //M405 Turn on filament sensor for control
             {
               if (code_seen('D')) meas_delay_cm = min(code_value(), MAX_MEASUREMENT_DELAY);
 
               if (delay_index2 == -1) { // initialize the ring buffer if it has not been done since startup
-                int temp_ratio = widthFil_to_size_ratio(); 
+                int temp_ratio = widthFil_to_size_ratio();
                 for (delay_index1 = 0; delay_index1 < MAX_MEASUREMENT_DELAY + 1; ++delay_index1) {
                   measurement_delay[delay_index1] = temp_ratio - 100;  //subtract 100 to scale within a signed byte
                 }
@@ -3681,7 +3681,7 @@ void process_commands() {
           #ifdef DELTA
             calculate_delta(current_position); // change cartesian kinematic  to  delta kinematic;
             //sent position to plan_set_position();
-            plan_set_position(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS],current_position[E_AXIS]);            
+            plan_set_position(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS],current_position[E_AXIS]);
           #else
             plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
           #endif
@@ -3771,9 +3771,9 @@ void clamp_to_software_endstops(float target[3]) {
 
   void recalc_delta_settings(float radius, float diagonal_rod) {
   	 delta_tower1_x= -SIN_60*radius; // front left tower
-  	 delta_tower1_y= -COS_60*radius;	   
+  	 delta_tower1_y= -COS_60*radius;
   	 delta_tower2_x=  SIN_60*radius; // front right tower
-  	 delta_tower2_y= -COS_60*radius;	   
+  	 delta_tower2_y= -COS_60*radius;
   	 delta_tower3_x= 0.0;                  // back middle tower
   	 delta_tower3_y= radius;
   	 delta_diagonal_rod_2= sq(diagonal_rod);
@@ -3808,7 +3808,7 @@ void clamp_to_software_endstops(float target[3]) {
 void prepare_move() {
   clamp_to_software_endstops(destination);
   previous_millis_cmd = millis();
-  
+
   #ifdef SCARA //for now same as delta-code
 
     float difference[NUM_AXIS];
@@ -3837,14 +3837,14 @@ void prepare_move() {
      // SERIAL_ECHOPGM("delta[X_AXIS]="); SERIAL_ECHOLN(delta[X_AXIS]);
      // SERIAL_ECHOPGM("delta[Y_AXIS]="); SERIAL_ECHOLN(delta[Y_AXIS]);
      // SERIAL_ECHOPGM("delta[Z_AXIS]="); SERIAL_ECHOLN(delta[Z_AXIS]);
-         
+
       plan_buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS],
       destination[E_AXIS], feedrate*feedmultiply/60/100.0,
       active_extruder);
     }
 
   #endif //SCARA
-  
+
   #ifdef DELTA
     float difference[NUM_AXIS];
     for (int8_t i=0; i < NUM_AXIS; i++) {
@@ -3868,7 +3868,7 @@ void prepare_move() {
                        destination[E_AXIS], feedrate*feedmultiply/60/100.0,
                        active_extruder);
     }
-  
+
   #endif //DELTA
 
   #ifdef DUAL_X_CARRIAGE
@@ -4006,49 +4006,49 @@ void prepare_arc_move(char isclockwise) {
 
     // SERIAL_ECHOPGM(" delta[X_AXIS]="); SERIAL_ECHO(delta[X_AXIS]);
     // SERIAL_ECHOPGM(" delta[Y_AXIS]="); SERIAL_ECHOLN(delta[Y_AXIS]);
-  }  
+  }
 
   void calculate_delta(float cartesian[3]) {
     //reverse kinematics.
     // Perform reversed kinematics, and place results in delta[3]
     // The maths and first version has been done by QHARLEY . Integrated into masterbranch 06/2014 and slightly restructured by Joachim Cerny in June 2014
-    
+
     float SCARA_pos[2];
-    static float SCARA_C2, SCARA_S2, SCARA_K1, SCARA_K2, SCARA_theta, SCARA_psi; 
-    
+    static float SCARA_C2, SCARA_S2, SCARA_K1, SCARA_K2, SCARA_theta, SCARA_psi;
+
     SCARA_pos[X_AXIS] = cartesian[X_AXIS] * axis_scaling[X_AXIS] - SCARA_offset_x;  //Translate SCARA to standard X Y
     SCARA_pos[Y_AXIS] = cartesian[Y_AXIS] * axis_scaling[Y_AXIS] - SCARA_offset_y;  // With scaling factor.
-    
+
     #if (Linkage_1 == Linkage_2)
       SCARA_C2 = ( ( sq(SCARA_pos[X_AXIS]) + sq(SCARA_pos[Y_AXIS]) ) / (2 * (float)L1_2) ) - 1;
     #else
-      SCARA_C2 =   ( sq(SCARA_pos[X_AXIS]) + sq(SCARA_pos[Y_AXIS]) - (float)L1_2 - (float)L2_2 ) / 45000; 
+      SCARA_C2 =   ( sq(SCARA_pos[X_AXIS]) + sq(SCARA_pos[Y_AXIS]) - (float)L1_2 - (float)L2_2 ) / 45000;
     #endif
-    
+
     SCARA_S2 = sqrt( 1 - sq(SCARA_C2) );
-    
+
     SCARA_K1 = Linkage_1 + Linkage_2 * SCARA_C2;
     SCARA_K2 = Linkage_2 * SCARA_S2;
-    
+
     SCARA_theta = ( atan2(SCARA_pos[X_AXIS],SCARA_pos[Y_AXIS])-atan2(SCARA_K1, SCARA_K2) ) * -1;
     SCARA_psi   =   atan2(SCARA_S2,SCARA_C2);
-    
+
     delta[X_AXIS] = SCARA_theta * SCARA_RAD2DEG;  // Multiply by 180/Pi  - theta is support arm angle
     delta[Y_AXIS] = (SCARA_theta + SCARA_psi) * SCARA_RAD2DEG;  //       - equal to sub arm angle (inverted motor)
     delta[Z_AXIS] = cartesian[Z_AXIS];
-    
+
     /*
     SERIAL_ECHOPGM("cartesian x="); SERIAL_ECHO(cartesian[X_AXIS]);
     SERIAL_ECHOPGM(" y="); SERIAL_ECHO(cartesian[Y_AXIS]);
     SERIAL_ECHOPGM(" z="); SERIAL_ECHOLN(cartesian[Z_AXIS]);
-    
+
     SERIAL_ECHOPGM("scara x="); SERIAL_ECHO(SCARA_pos[X_AXIS]);
     SERIAL_ECHOPGM(" y="); SERIAL_ECHOLN(SCARA_pos[Y_AXIS]);
-    
+
     SERIAL_ECHOPGM("delta x="); SERIAL_ECHO(delta[X_AXIS]);
     SERIAL_ECHOPGM(" y="); SERIAL_ECHO(delta[Y_AXIS]);
     SERIAL_ECHOPGM(" z="); SERIAL_ECHOLN(delta[Z_AXIS]);
-    
+
     SERIAL_ECHOPGM("C2="); SERIAL_ECHO(SCARA_C2);
     SERIAL_ECHOPGM(" S2="); SERIAL_ECHO(SCARA_S2);
     SERIAL_ECHOPGM(" Theta="); SERIAL_ECHO(SCARA_theta);
@@ -4104,14 +4104,14 @@ void manage_inactivity() {
     disable_e1();
     disable_e2();
   }
-  
+
   #ifdef CHDK //Check if pin should be set to LOW after M240 set it to HIGH
     if (chdkActive && (millis() - chdkHigh > CHDK_DELAY)) {
       chdkActive = false;
       WRITE(CHDK, LOW);
     }
   #endif
-  
+
   #if defined(KILL_PIN) && KILL_PIN > -1
     if (0 == READ(KILL_PIN)) kill();
   #endif
@@ -4264,7 +4264,7 @@ bool setTargetedHotend(int code) {
     tmp_extruder = code_value();
     if (tmp_extruder >= EXTRUDERS) {
       SERIAL_ECHO_START;
-      switch(code){
+      switch(code) {
         case 104:
           SERIAL_ECHO(MSG_M104_INVALID_EXTRUDER);
           break;

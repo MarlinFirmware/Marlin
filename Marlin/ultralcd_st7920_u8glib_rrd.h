@@ -103,7 +103,7 @@ uint8_t u8g_dev_rrd_st7920_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t msg, vo
   #elif PAGE_HEIGHT == 16
     return u8g_dev_pb16h1_base_fn(u8g, dev, msg, arg);
   #else
-    return u8g_dev_pb32h1_base_fn
+    return u8g_dev_pb32h1_base_fn(u8g, dev, msg, arg);
   #endif
 }
 
