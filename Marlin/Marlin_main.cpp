@@ -4094,28 +4094,23 @@ void prepare_arc_move(char isclockwise) {
 void manage_inactivity() {
   if (buflen < BUFSIZE - 1) get_command();
 
-  if (millis() - previous_millis_cmd > max_inactive_time)
+  if ( max_inactive_time && (millis() - previous_millis_cmd > max_inactive_time)) kill();
 
-    if (max_inactive_time) kill();
-    if (stepper_inactive_time) {
-      if (millis() - previous_millis_cmd > stepper_inactive_time) {
-        if (!blocks_queued()) {
-          disable_x();
-          disable_y();
-          disable_z();
-          disable_e0();
-          disable_e1();
-          disable_e2();
-        }
-      }
-    }
+  if (stepper_inactive_time && (millis() - previous_millis_cmd > stepper_inactive_time) && !blocks_queued()) {
+    disable_x();
+    disable_y();
+    disable_z();
+    disable_e0();
+    disable_e1();
+    disable_e2();
+  }
   
-    #ifdef CHDK //Check if pin should be set to LOW after M240 set it to HIGH
-      if (chdkActive && (millis() - chdkHigh > CHDK_DELAY)) {
-        chdkActive = false;
-        WRITE(CHDK, LOW);
-      }
-    #endif
+  #ifdef CHDK //Check if pin should be set to LOW after M240 set it to HIGH
+    if (chdkActive && (millis() - chdkHigh > CHDK_DELAY)) {
+      chdkActive = false;
+      WRITE(CHDK, LOW);
+    }
+  #endif
   
   #if defined(KILL_PIN) && KILL_PIN > -1
     if (0 == READ(KILL_PIN)) kill();
