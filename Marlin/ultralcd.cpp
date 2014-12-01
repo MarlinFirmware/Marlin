@@ -316,6 +316,22 @@ static void lcd_update_encoder()
 
 void lcd_update()
 {
+#  if (SDCARDDETECT > 0)
+    if ((IS_SD_INSERTED != lcd_oldcardstatus)) {
+        display_refresh_mode = CLEAR_AND_UPDATE_SCREEN;
+        lcd_oldcardstatus = IS_SD_INSERTED;
+        lcd_implementation_init(); // to maybe revive the LCD if static electricity killed it.
+
+        if(lcd_oldcardstatus) {
+            card.initsd();
+            LCD_MESSAGEPGM(MSG_SD_INSERTED);
+        } else {
+            card.release();
+            LCD_MESSAGEPGM(MSG_SD_REMOVED);
+        }
+    }
+#  endif // (SDCARDDETECT > 0)
+
     if ( display_view == view_status_screen || display_timeout_blocked || button_input_updated || encoder_input_updated ) {
         display_timeout = millis() + LCD_TIMEOUT_STATUS;
     }
