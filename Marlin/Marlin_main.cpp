@@ -3078,7 +3078,7 @@ void process_commands()
   #if X_MAX_POS > 250
     do_blocking_move_to((X_MAX_POS-X_MIN_POS)/2,Y_MAX_POS-10, current_position[Z_AXIS]);
   #else
-    do_blocking_move_to(20, 190, current_position[Z_AXIS]);
+    do_blocking_move_to(30, 180, current_position[Z_AXIS]);
   #endif
     do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], Z_MIN_POS);
   	
@@ -3095,7 +3095,7 @@ void process_commands()
   	#if X_MAX_POS > 250
   	do_blocking_move_to(90, 5, current_position[Z_AXIS]);
   	#else
-  	do_blocking_move_to(195, 190, current_position[Z_AXIS]);
+  	do_blocking_move_to(180, 180, current_position[Z_AXIS]);
   	#endif
   	do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS],Z_MIN_POS);
   	  
@@ -3112,7 +3112,7 @@ void process_commands()
   	#if X_MAX_POS > 250
     do_blocking_move_to(205, 5, current_position[Z_AXIS]);
   	#else
-    do_blocking_move_to(20, 20, current_position[Z_AXIS]);
+    do_blocking_move_to((X_MAX_POS-X_MIN_POS)/2, 20, current_position[Z_AXIS]);
   	#endif
   	do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS],Z_MIN_POS);
 
@@ -3121,21 +3121,6 @@ void process_commands()
   	  manage_heater();
   	  manage_inactivity();
   	}        
-  	
-  	#if X_MAX_POS < 250
-    lcd_wizard_set_page(4);
-    lcd_update();
-  		  
-    do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS],Z_MIN_POS+10);
-    do_blocking_move_to(195, 20, current_position[Z_AXIS]);
-    do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS],Z_MIN_POS);
-  	
-    lcd_clear_triggered_flags();
-    while(!LCD_CLICKED){
-      manage_heater();
-      manage_inactivity();
-    }
-  	#endif
 
     lcd_wizard_set_page(5);
     lcd_update();
