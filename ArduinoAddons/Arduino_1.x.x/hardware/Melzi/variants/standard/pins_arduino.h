@@ -50,9 +50,10 @@
 #define TIMER4A 11
 #define TIMER4B 12
 #define TIMER4C 13
-#define TIMER5A 14
-#define TIMER5B 15
-#define TIMER5C 16
+#define TIMER4D 14
+#define TIMER5A 15
+#define TIMER5B 16
+#define TIMER5C 17
 
 const static uint8_t SS   = 4;
 const static uint8_t MOSI = 5;
