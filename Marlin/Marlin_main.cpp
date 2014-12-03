@@ -3138,10 +3138,13 @@ void process_commands()
   	
   	lcd_wizard_set_page(6);
     lcd_update();
+
+	lcd_disable_interrupt();
   		
   	do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS],Z_MIN_POS+50);
   	do_blocking_move_to(10, 10, current_position[Z_AXIS]);
   	//do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS],Z_MIN_POS);
+	lcd_enable_interrupt();
     lcd_wizard_set_page(7);
     lcd_update();      
     lcd_enable_display_timeout();
