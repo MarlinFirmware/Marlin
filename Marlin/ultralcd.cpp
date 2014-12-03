@@ -1320,6 +1320,28 @@ static void view_wizard_level_bed()
                 #endif 
                 break;
 
+            case 6:
+                #ifdef MSG_WIZARD_LEVELBED_6_0
+                lcd_implementation_set_cursor(0, 0);
+                lcd_implementation_print_P(PSTR(MSG_WIZARD_LEVELBED_6_0));
+                #endif
+
+                #ifdef MSG_WIZARD_LEVELBED_6_1
+                lcd_implementation_set_cursor(1, 0);
+                lcd_implementation_print_P(PSTR(MSG_WIZARD_LEVELBED_6_1));
+                #endif                
+
+                #ifdef MSG_WIZARD_LEVELBED_6_2
+                lcd_implementation_set_cursor(2, 0);
+                lcd_implementation_print_P(PSTR(MSG_WIZARD_LEVELBED_6_2));
+                #endif                
+
+                #ifdef MSG_WIZARD_LEVELBED_6_3            
+                lcd_implementation_set_cursor(3, 0);
+                lcd_implementation_print_P(PSTR(MSG_WIZARD_LEVELBED_6_3));
+                #endif 
+                break;
+
             default:
                 lcd_enable_display_timeout();
                 draw_status_screen();
