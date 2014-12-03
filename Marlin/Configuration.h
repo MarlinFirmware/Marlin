@@ -6,6 +6,13 @@
 // BASIC SETTINGS: select your board type, temperature sensor type, axis scaling, and endstop configuration
 
 //===========================================================================
+//============================= Mendel90 Printer ===============================
+//===========================================================================
+// For a Mendel90 printer replace the configuration files with the files in the
+// example_configurations/mendel90 directory.
+//
+
+//===========================================================================
 //============================= DELTA Printer ===============================
 //===========================================================================
 // For a Delta printer replace the configuration files with the files in the
