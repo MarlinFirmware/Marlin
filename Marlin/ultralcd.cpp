@@ -1188,49 +1188,139 @@ static void view_wizard_level_bed()
 
     if (display_refresh_mode == UPDATE_SCREEN) {
         switch (display_view_wizard_page) {
-            case 0:
-                lcd_implementation_clear();
+             case 0:
+                #ifdef MSG_WIZARD_LEVELBED_0_0
+                lcd_implementation_set_cursor(0, 0);
+                lcd_implementation_print_P(PSTR(MSG_WIZARD_LEVELBED_0_0));
+                #endif
+
+                #ifdef MSG_WIZARD_LEVELBED_0_1
                 lcd_implementation_set_cursor(1, 0);
-                lcd_implementation_print_P(PSTR(MSG_LP_INTRO));
+                lcd_implementation_print_P(PSTR(MSG_WIZARD_LEVELBED_0_1));
+                #endif                
+
+                #ifdef MSG_WIZARD_LEVELBED_0_2
+                lcd_implementation_set_cursor(2, 0);
+                lcd_implementation_print_P(PSTR(MSG_WIZARD_LEVELBED_0_2));
+                #endif                
+
+                #ifdef MSG_WIZARD_LEVELBED_0_3            
+                lcd_implementation_set_cursor(3, 0);
+                lcd_implementation_print_P(PSTR(MSG_WIZARD_LEVELBED_0_3));
+                #endif 
                 break;
 
             case 1:
-                lcd_implementation_clear();
+                #ifdef MSG_WIZARD_LEVELBED_1_0
+                lcd_implementation_set_cursor(0, 0);
+                lcd_implementation_print_P(PSTR(MSG_WIZARD_LEVELBED_1_0));
+                #endif
+
+                #ifdef MSG_WIZARD_LEVELBED_1_1
                 lcd_implementation_set_cursor(1, 0);
-                lcd_implementation_print_P(PSTR(MSG_LP_1));
+                lcd_implementation_print_P(PSTR(MSG_WIZARD_LEVELBED_1_1));
+                #endif                
+
+                #ifdef MSG_WIZARD_LEVELBED_1_2
+                lcd_implementation_set_cursor(2, 0);
+                lcd_implementation_print_P(PSTR(MSG_WIZARD_LEVELBED_1_2));
+                #endif                
+
+                #ifdef MSG_WIZARD_LEVELBED_1_3            
+                lcd_implementation_set_cursor(3, 0);
+                lcd_implementation_print_P(PSTR(MSG_WIZARD_LEVELBED_1_3));
+                #endif 
                 break;
 
             case 2:
-                lcd_implementation_clear();
+                #ifdef MSG_WIZARD_LEVELBED_2_0
+                lcd_implementation_set_cursor(0, 0);
+                lcd_implementation_print_P(PSTR(MSG_WIZARD_LEVELBED_2_0));
+                #endif
+
+                #ifdef MSG_WIZARD_LEVELBED_2_1
                 lcd_implementation_set_cursor(1, 0);
-                lcd_implementation_print_P(PSTR(MSG_LP_2));
+                lcd_implementation_print_P(PSTR(MSG_WIZARD_LEVELBED_2_1));
+                #endif                
+
+                #ifdef MSG_WIZARD_LEVELBED_2_2
+                lcd_implementation_set_cursor(2, 0);
+                lcd_implementation_print_P(PSTR(MSG_WIZARD_LEVELBED_2_2));
+                #endif                
+
+                #ifdef MSG_WIZARD_LEVELBED_2_3            
+                lcd_implementation_set_cursor(3, 0);
+                lcd_implementation_print_P(PSTR(MSG_WIZARD_LEVELBED_2_3));
+                #endif 
                 break;
 
             case 3:
-                lcd_implementation_clear();
+                #ifdef MSG_WIZARD_LEVELBED_3_0
+                lcd_implementation_set_cursor(0, 0);
+                lcd_implementation_print_P(PSTR(MSG_WIZARD_LEVELBED_3_0));
+                #endif
+
+                #ifdef MSG_WIZARD_LEVELBED_3_1
                 lcd_implementation_set_cursor(1, 0);
-                lcd_implementation_print_P(PSTR(MSG_LP_3));
+                lcd_implementation_print_P(PSTR(MSG_WIZARD_LEVELBED_3_1));
+                #endif                
+
+                #ifdef MSG_WIZARD_LEVELBED_3_2
+                lcd_implementation_set_cursor(2, 0);
+                lcd_implementation_print_P(PSTR(MSG_WIZARD_LEVELBED_3_2));
+                #endif                
+
+                #ifdef MSG_WIZARD_LEVELBED_3_3            
+                lcd_implementation_set_cursor(3, 0);
+                lcd_implementation_print_P(PSTR(MSG_WIZARD_LEVELBED_3_3));
+                #endif 
                 break;
 
             case 4:
-                lcd_implementation_clear();
+                #ifdef MSG_WIZARD_LEVELBED_4_0
+                lcd_implementation_set_cursor(0, 0);
+                lcd_implementation_print_P(PSTR(MSG_WIZARD_LEVELBED_4_0));
+                #endif
+
+                #ifdef MSG_WIZARD_LEVELBED_4_1
                 lcd_implementation_set_cursor(1, 0);
-                lcd_implementation_print_P(PSTR(MSG_LP_4));
+                lcd_implementation_print_P(PSTR(MSG_WIZARD_LEVELBED_4_1));
+                #endif                
+
+                #ifdef MSG_WIZARD_LEVELBED_4_2
+                lcd_implementation_set_cursor(2, 0);
+                lcd_implementation_print_P(PSTR(MSG_WIZARD_LEVELBED_4_2));
+                #endif                
+
+                #ifdef MSG_WIZARD_LEVELBED_4_3            
+                lcd_implementation_set_cursor(3, 0);
+                lcd_implementation_print_P(PSTR(MSG_WIZARD_LEVELBED_4_3));
+                #endif 
                 break;
 
             case 5:
-                lcd_implementation_clear();
+                #ifdef MSG_WIZARD_LEVELBED_5_0
+                lcd_implementation_set_cursor(0, 0);
+                lcd_implementation_print_P(PSTR(MSG_WIZARD_LEVELBED_5_0));
+                #endif
+
+                #ifdef MSG_WIZARD_LEVELBED_5_1
                 lcd_implementation_set_cursor(1, 0);
-                lcd_implementation_print_P(PSTR(MSG_LP_5));
+                lcd_implementation_print_P(PSTR(MSG_WIZARD_LEVELBED_5_1));
+                #endif                
+
+                #ifdef MSG_WIZARD_LEVELBED_5_2
+                lcd_implementation_set_cursor(2, 0);
+                lcd_implementation_print_P(PSTR(MSG_WIZARD_LEVELBED_5_2));
+                #endif                
+
+                #ifdef MSG_WIZARD_LEVELBED_5_3            
+                lcd_implementation_set_cursor(3, 0);
+                lcd_implementation_print_P(PSTR(MSG_WIZARD_LEVELBED_5_3));
+                #endif 
                 break;
 
-            case 6:
-                lcd_implementation_clear();
-                lcd_implementation_set_cursor(2, 2);
-                lcd_implementation_print_P(PSTR(MSG_LP_6));
-                break;
-
-            case 7:
+            default:
                 lcd_enable_display_timeout();
                 draw_status_screen();
                 break;
@@ -1348,36 +1438,100 @@ static void view_wizard_change_filament()
     if (display_refresh_mode == UPDATE_SCREEN) {
         switch (display_view_wizard_page) {
             case 0:
+                #ifdef MSG_WIZARD_CHANGEFILAMENT_0_0
+                lcd_implementation_set_cursor(0, 0);
+                lcd_implementation_print_P(PSTR(MSG_WIZARD_CHANGEFILAMENT_0_0));
+                #endif
+
+                #ifdef MSG_WIZARD_CHANGEFILAMENT_0_1
                 lcd_implementation_set_cursor(1, 0);
-                lcd_implementation_print_P(PSTR(MSG_F_INTRO));
+                lcd_implementation_print_P(PSTR(MSG_WIZARD_CHANGEFILAMENT_0_1));
+                #endif                
+
+                #ifdef MSG_WIZARD_CHANGEFILAMENT_0_2
+                lcd_implementation_set_cursor(2, 0);
+                lcd_implementation_print_P(PSTR(MSG_WIZARD_CHANGEFILAMENT_0_2));
+                #endif                
+
+                #ifdef MSG_WIZARD_CHANGEFILAMENT_0_3            
+                lcd_implementation_set_cursor(3, 0);
+                lcd_implementation_print_P(PSTR(MSG_WIZARD_CHANGEFILAMENT_0_3));
+                #endif 
                 break;
 
             case 1:
+                #ifdef MSG_WIZARD_CHANGEFILAMENT_1_0
+                lcd_implementation_set_cursor(0, 0);
+                lcd_implementation_print_P(PSTR(MSG_WIZARD_CHANGEFILAMENT_1_0));
+                #endif
+
+                #ifdef MSG_WIZARD_CHANGEFILAMENT_1_1
                 lcd_implementation_set_cursor(1, 0);
-                lcd_implementation_print_P(PSTR(MSG_F_1));
+                lcd_implementation_print_P(PSTR(MSG_WIZARD_CHANGEFILAMENT_1_1));
+                #endif                
+
+                #ifdef MSG_WIZARD_CHANGEFILAMENT_1_2
+                lcd_implementation_set_cursor(2, 0);
+                lcd_implementation_print_P(PSTR(MSG_WIZARD_CHANGEFILAMENT_1_2));
+                #endif                
+
+                #ifdef MSG_WIZARD_CHANGEFILAMENT_1_3            
+                lcd_implementation_set_cursor(3, 0);
+                lcd_implementation_print_P(PSTR(MSG_WIZARD_CHANGEFILAMENT_1_3));
+                #endif 
                 break;
 
             case 2:
+                #ifdef MSG_WIZARD_CHANGEFILAMENT_2_0
+                lcd_implementation_set_cursor(0, 0);
+                lcd_implementation_print_P(PSTR(MSG_WIZARD_CHANGEFILAMENT_2_0));
+                #endif
+
+                #ifdef MSG_WIZARD_CHANGEFILAMENT_2_1
                 lcd_implementation_set_cursor(1, 0);
-                lcd_implementation_print_P(PSTR(MSG_F_2));
+                lcd_implementation_print_P(PSTR(MSG_WIZARD_CHANGEFILAMENT_2_1));
+                #endif                
+
+                #ifdef MSG_WIZARD_CHANGEFILAMENT_2_2
+                lcd_implementation_set_cursor(2, 0);
+                lcd_implementation_print_P(PSTR(MSG_WIZARD_CHANGEFILAMENT_2_2));
+                #endif                
+
+                #ifdef MSG_WIZARD_CHANGEFILAMENT_2_3            
+                lcd_implementation_set_cursor(3, 0);
+                lcd_implementation_print_P(PSTR(MSG_WIZARD_CHANGEFILAMENT_2_3));
+                #endif 
                 break;
 
             case 3:
+                #ifdef MSG_WIZARD_CHANGEFILAMENT_3_0
+                lcd_implementation_set_cursor(0, 0);
+                lcd_implementation_print_P(PSTR(MSG_WIZARD_CHANGEFILAMENT_3_0));
+                #endif
+
+                #ifdef MSG_WIZARD_CHANGEFILAMENT_3_1
                 lcd_implementation_set_cursor(1, 0);
-                lcd_implementation_print_P(PSTR(MSG_F_3));
+                lcd_implementation_print_P(PSTR(MSG_WIZARD_CHANGEFILAMENT_3_1));
+                #endif                
+
+                #ifdef MSG_WIZARD_CHANGEFILAMENT_3_2
+                lcd_implementation_set_cursor(2, 0);
+                lcd_implementation_print_P(PSTR(MSG_WIZARD_CHANGEFILAMENT_3_2));
+                #endif                
+
+                #ifdef MSG_WIZARD_CHANGEFILAMENT_3_3            
+                lcd_implementation_set_cursor(3, 0);
+                lcd_implementation_print_P(PSTR(MSG_WIZARD_CHANGEFILAMENT_3_3));
+                #endif 
                 break;
 
-            case 4:
-                lcd_implementation_set_cursor(1, 0);
-                lcd_implementation_print_P(PSTR(MSG_F_4));
-                break;
-
-            case 5:
+            default:
                 lcd_enable_display_timeout();
                 lcd_setstatuspgm(PSTR(MSG_PRINTING));
                 draw_status_screen();
                 break;
         }
+
         display_refresh_mode = NO_UPDATE_SCREEN;
     }
 }

@@ -2914,9 +2914,6 @@ void process_commands()
         plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS],current_position[E_AXIS], feedrate/60, active_extruder);
         st_synchronize();
       } 
-      lcd_wizard_set_page(4);      
-      lcd_update();
-      SERIAL_ECHOLN("Wizard set to 4");
 
       current_position[E_AXIS]=lastpos[E_AXIS];
       plan_set_e_position(current_position[E_AXIS]);
@@ -2926,10 +2923,10 @@ void process_commands()
       plan_buffer_line(lastpos[X_AXIS], lastpos[Y_AXIS], lastpos[Z_AXIS], lastpos[E_AXIS], feedrate/60, active_extruder); //move z back
       plan_buffer_line(lastpos[X_AXIS], lastpos[Y_AXIS], lastpos[Z_AXIS], lastpos[E_AXIS], feedrate/60, active_extruder); //final untretract
 
-      lcd_wizard_set_page(5);
+      lcd_wizard_set_page(4);
       lcd_update();      
       lcd_enable_display_timeout();
-      SERIAL_ECHOLN("Wizard set to 5");
+      SERIAL_ECHOLN("Wizard set to 4");
       
       stop_buffer = false;
     }
