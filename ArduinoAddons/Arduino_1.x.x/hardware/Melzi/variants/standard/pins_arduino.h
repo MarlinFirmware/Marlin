@@ -21,7 +21,7 @@
 
   $Id: wiring.h 249 2007-02-03 16:52:51Z mellis $
 
-  Changelog
+  Changelog 
   -----------
   11/25/11  - ryan@ryanmsutton.com - Add pins for Sanguino 644P and 1284P
   07/15/12  - ryan@ryanmsutton.com - Updated for arduino0101
