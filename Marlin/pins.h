@@ -1304,6 +1304,7 @@
      #ifdef LCD_I2C_PANELOLU2
        #ifdef MELZI
          #define BTN_ENC 29 //the click switch
+         #define MB_SDSS 31 //alternate SD card reader on the MELZI
          #define SDSS 30 //to use the SD card reader on the Panelolu2 rather than the melzi board
        #else
          #define BTN_ENC 30 //the click switch
