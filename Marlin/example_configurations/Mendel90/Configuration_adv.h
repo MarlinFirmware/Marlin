@@ -99,9 +99,9 @@
   //X axis
   #if X_HOME_DIR == -1
     #ifdef BED_CENTER_AT_0_0
-      #define X_HOME_POS X_MAX_LENGTH * -0.5
+      #define X_HOME_POS (X_MAX_LENGTH * -0.5) - 1
     #else
-      #define X_HOME_POS X_MIN_POS
+      #define X_HOME_POS (X_MIN_POS - 1)
     #endif //BED_CENTER_AT_0_0
   #else
     #ifdef BED_CENTER_AT_0_0
@@ -114,9 +114,9 @@
   //Y axis
   #if Y_HOME_DIR == -1
     #ifdef BED_CENTER_AT_0_0
-      #define Y_HOME_POS Y_MAX_LENGTH * -0.5
+      #define Y_HOME_POS (Y_MAX_LENGTH * -0.5) - 1
     #else
-      #define Y_HOME_POS Y_MIN_POS
+       #define Y_HOME_POS (Y_MIN_POS - 1)
     #endif //BED_CENTER_AT_0_0
   #else
     #ifdef BED_CENTER_AT_0_0
