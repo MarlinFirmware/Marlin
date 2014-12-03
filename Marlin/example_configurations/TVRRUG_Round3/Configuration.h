@@ -29,7 +29,7 @@
 #define DEFAULT_XYJERK                20.0    // (mm/sec)
 #define DEFAULT_ZJERK                 0.4     // (mm/sec)
 #define DEFAULT_EJERK                 5.0    // (mm/sec)
-
+#define CONFIG_STEPPERS_TOSHIBA	1
 
 //===========================================================================
 //============================= Mendel90 Printer ===============================
