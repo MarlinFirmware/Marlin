@@ -1205,7 +1205,7 @@
 #endif
 
 #ifdef MELZI
- #define LED_PIN            27 /* On some broken versions of the Sanguino libraries the pin definitions are wrong, which then needs LED_PIN as pin 28. But you better upgrade your Sanguino libraries! See #368. */
+ //#define LED_PIN            27 /* On some broken versions of the Sanguino libraries the pin definitions are wrong, which then needs LED_PIN as pin 28. But you better upgrade your Sanguino libraries! See #368. */
  #define FAN_PIN            4 // Works for Panelolu2 too
 #endif
 
