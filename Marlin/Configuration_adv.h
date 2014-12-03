@@ -219,9 +219,11 @@
 //#define QUICK_HOME  //if this is defined, if both x and y are to be homed, a diagonal move will be performed initially.
 
 #define AXIS_RELATIVE_MODES {false, false, false, false}
-
+#ifdef CONFIG_STEPPERS_TOSHIBA
+#define MAX_STEP_FREQUENCY 10000 // Max step frequency for Toshiba Stepper Controllers
+#else
 #define MAX_STEP_FREQUENCY 40000 // Max step frequency for Ultimaker (5000 pps / half step)
-
+#endif
 //By default pololu step drivers require an active high signal. However, some high power drivers require an active low signal as step.
 #define INVERT_X_STEP_PIN false
 #define INVERT_Y_STEP_PIN false
