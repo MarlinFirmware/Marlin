@@ -6,19 +6,37 @@
 // BASIC SETTINGS: select your board type, temperature sensor type, axis scaling, and endstop configuration
 
 //===========================================================================
+//========================= TVRRUG Round 3 Printer ==========================
+//===========================================================================
+// For a TVRRUG Round 3 printer replace the configuration files with the files 
+//in the example_configurations/tvrrug_round3 directory.
+//
+// default settings
+#define X_MAX_POS 102.5
+#define X_MIN_POS -102.5
+#define Y_MAX_POS 102.5
+#define Y_MIN_POS -102.5
+#define Z_MAX_POS 120
+#define Z_MIN_POS 0
+#define HOMING_FEEDRATE {50*60, 50*60, 4*60, 0}  // set the homing speeds (mm/min)
+#define DEFAULT_AXIS_STEPS_PER_UNIT   {80.00, 79.84, 2560, 599.14} // Michel TVRR
+#define DEFAULT_MAX_FEEDRATE          {500, 500, 5, 45}    // (mm/sec)
+#define DEFAULT_MAX_ACCELERATION      {9000,9000,100,10000}    // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for skeinforge 40+, for older versions raise them a lot.
+/* MICHEL: This has an impact on the "ripples" in print walls */
+#define DEFAULT_ACCELERATION          500    // X, Y, Z and E max acceleration in mm/s^2 for printing moves 
+#define DEFAULT_RETRACT_ACCELERATION  3000   // X, Y, Z and E max acceleration in mm/s^2 for r retracts
+// 
+#define DEFAULT_XYJERK                20.0    // (mm/sec)
+#define DEFAULT_ZJERK                 0.4     // (mm/sec)
+#define DEFAULT_EJERK                 5.0    // (mm/sec)
+
+
+//===========================================================================
 //============================= Mendel90 Printer ===============================
 //===========================================================================
 // For a Mendel90 printer replace the configuration files with the files in the
 // example_configurations/mendel90 directory.
 //
-
-// Mendel90 Z-axis height adjustment
-#define Z_HEIGHT_MM 203.0
-
-// Mendel90 hobbed bolt and 39:11 Wade's gears
-#define E_STEPS_PER_MM ((3200 * 39.0)/(11.0 * 6.75 * 3.142)) * (100.0/100.0)
-
-
 
 //===========================================================================
 //============================= SCARA Printer ===============================
@@ -46,7 +64,7 @@
 #define SERIAL_PORT 0
 
 // This determines the communication speed of the printer
-#define BAUDRATE 250000
+#define BAUDRATE 115200
 
 // This enables the serial port associated to the Bluetooth interface
 //#define BTENABLED              // Enable BT interface on AT90USB devices
@@ -97,7 +115,7 @@
 // 999 = Leapfrog
 
 #ifndef MOTHERBOARD
-#define MOTHERBOARD 63
+#define MOTHERBOARD 91
 #endif
 
 // Define this to set a custom name for your generic Mendel,
@@ -159,18 +177,18 @@
 // 111 is Epcos B57560G104F 100K
 // 112 is Epcos B57861S104F40 100K 155C for bed only
 
-#define TEMP_SENSOR_0 11
+#define TEMP_SENSOR_0 111
 #define TEMP_SENSOR_1 0
 #define TEMP_SENSOR_2 0
-#define TEMP_SENSOR_BED 12
+#define TEMP_SENSOR_BED 112
 
 // This makes temp sensor 1 a redundant sensor for sensor 0. If the temperatures difference between these sensors is to high the print will be aborted.
 //#define TEMP_SENSOR_1_AS_REDUNDANT
 #define MAX_REDUNDANT_TEMP_SENSOR_DIFF 10
 
 // Actual temperature must be close to target for this long before M109 returns success
-#define TEMP_RESIDENCY_TIME 60  // (seconds)
-#define TEMP_HYSTERESIS 5       // (degC) range of +/- temperatures considered "close" to the target one
+#define TEMP_RESIDENCY_TIME 10  // (seconds)
+#define TEMP_HYSTERESIS 3       // (degC) range of +/- temperatures considered "close" to the target one
 #define TEMP_WINDOW     1       // (degC) Window around target to start the residency timer x degC early.
 
 // The minimal temperature defines the temperature below which the heater will not be enabled It is used
@@ -350,12 +368,12 @@ your extruder heater takes 2 minutes to hit the target on heating.
 #endif
 
 // The pullups are needed if you directly connect a mechanical endswitch between the signal and ground pins.
-const bool X_MIN_ENDSTOP_INVERTING = false; // set to true to invert the logic of the endstop.
-const bool Y_MIN_ENDSTOP_INVERTING = false; // set to true to invert the logic of the endstop.
-const bool Z_MIN_ENDSTOP_INVERTING = false; // set to true to invert the logic of the endstop.
-const bool X_MAX_ENDSTOP_INVERTING = false; // set to true to invert the logic of the endstop.
-const bool Y_MAX_ENDSTOP_INVERTING = false; // set to true to invert the logic of the endstop.
-const bool Z_MAX_ENDSTOP_INVERTING = false; // set to true to invert the logic of the endstop.
+const bool X_MIN_ENDSTOP_INVERTING = true; // set to true to invert the logic of the endstop.
+const bool Y_MIN_ENDSTOP_INVERTING = true; // set to true to invert the logic of the endstop.
+const bool Z_MIN_ENDSTOP_INVERTING = true; // set to true to invert the logic of the endstop.
+const bool X_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of the endstop.
+const bool Y_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of the endstop.
+const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of the endstop.
 //#define DISABLE_MAX_ENDSTOPS
 //#define DISABLE_MIN_ENDSTOPS
 
@@ -365,10 +383,10 @@ const bool Z_MAX_ENDSTOP_INVERTING = false; // set to true to invert the logic o
 #endif
 
 // For Inverting Stepper Enable Pins (Active Low) use 0, Non Inverting (Active High) use 1
-#define X_ENABLE_ON 0
-#define Y_ENABLE_ON 0
-#define Z_ENABLE_ON 0
-#define E_ENABLE_ON 0 // For all extruders
+#define X_ENABLE_ON 1
+#define Y_ENABLE_ON 1
+#define Z_ENABLE_ON 1
+#define E_ENABLE_ON 1 // For all extruders
 
 // Disables axis when it's not being used.
 #define DISABLE_X false
@@ -378,9 +396,9 @@ const bool Z_MAX_ENDSTOP_INVERTING = false; // set to true to invert the logic o
 #define DISABLE_INACTIVE_EXTRUDER true //disable only inactive extruders and keep active extruder enabled
 
 #define INVERT_X_DIR false    // for Mendel set to false, for Orca set to true
-#define INVERT_Y_DIR false    // for Mendel set to true, for Orca set to false
-#define INVERT_Z_DIR true     // for Mendel set to false, for Orca set to true
-#define INVERT_E0_DIR true   // for direct drive extruder v9 set to true, for geared extruder set to false
+#define INVERT_Y_DIR true    // for Mendel set to true, for Orca set to false
+#define INVERT_Z_DIR false     // for Mendel set to false, for Orca set to true
+#define INVERT_E0_DIR false   // for direct drive extruder v9 set to true, for geared extruder set to false
 #define INVERT_E1_DIR false    // for direct drive extruder v9 set to true, for geared extruder set to false
 #define INVERT_E2_DIR false   // for direct drive extruder v9 set to true, for geared extruder set to false
 
@@ -388,18 +406,13 @@ const bool Z_MAX_ENDSTOP_INVERTING = false; // set to true to invert the logic o
 // Sets direction of endstops when homing; 1=MAX, -1=MIN
 #define X_HOME_DIR -1
 #define Y_HOME_DIR -1
-#define Z_HOME_DIR 1
+#define Z_HOME_DIR -1
 
 #define min_software_endstops true // If true, axis won't move to coordinates less than HOME_POS.
 #define max_software_endstops true  // If true, axis won't move to coordinates greater than the defined lengths below.
 
 // Travel limits after homing
-+#define X_MAX_POS 100
-+#define X_MIN_POS -100
-+#define Y_MAX_POS 100
-+#define Y_MIN_POS -100
-#define Z_MAX_POS 200
-#define Z_MIN_POS 0
+
 
 #define X_MAX_LENGTH (X_MAX_POS - X_MIN_POS)
 #define Y_MAX_LENGTH (Y_MAX_POS - Y_MIN_POS)
@@ -511,16 +524,15 @@ const bool Z_MAX_ENDSTOP_INVERTING = false; // set to true to invert the logic o
 
 //// MOVEMENT SETTINGS
 #define NUM_AXIS 4 // The axis order in all axis related arrays is X, Y, Z, E
-#define HOMING_FEEDRATE {35*60, 35*60, 4*60, 0}  // set the homing speeds (mm/min)
 
-// default settings
 
-#define DEFAULT_AXIS_STEPS_PER_UNIT   {80,80,200*16/1,E_STEPS_PER_MM}  // default steps per unit for Ultimaker
-#define DEFAULT_MAX_FEEDRATE          {400, 400, 4, 30}    // (mm/sec)
-#define DEFAULT_MAX_ACCELERATION      {2000,2000,150,5000}    // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for Skeinforge 40+, for older versions raise them a lot.
+
+
+
+
+
  
-#define DEFAULT_ACCELERATION          2000    // X, Y, Z and E max acceleration in mm/s^2 for printing moves
-#define DEFAULT_RETRACT_ACCELERATION  5000   // X, Y, Z and E max acceleration in mm/s^2 for retracts
+
 
 // Offset of the extruders (uncomment if using more than one and relying on firmware to position when changing).
 // The offset has to be X=0, Y=0 for the extruder 0 hotend (default extruder).
@@ -529,9 +541,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = false; // set to true to invert the logic o
 // #define EXTRUDER_OFFSET_Y {0.0, 5.00}  // (in mm) for each extruder, offset of the hotend on the Y axis
 
 // The speed change that does not require acceleration (i.e. the software might assume it can be done instantaneously)
-#define DEFAULT_XYJERK                10.0    // (mm/sec)
-#define DEFAULT_ZJERK                 0.0     // (mm/sec)
-#define DEFAULT_EJERK                 10.0    // (mm/sec)
+
 
 //===========================================================================
 //=============================Additional Features===========================
