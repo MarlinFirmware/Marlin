@@ -61,7 +61,7 @@
 //This is for controlling a fan to cool down the stepper drivers
 //it will turn on when any driver is enabled
 //and turn off after the set amount of seconds from last driver being disabled again
-#define CONTROLLERFAN_PIN -1 //Pin used for the fan to cool controller (-1 to disable)
+#define CONTROLLERFAN_PIN 23 //Pin used for the fan to cool controller (-1 to disable)
 #define CONTROLLERFAN_SECS 60 //How many seconds, after all motors were disabled, the fan should run
 #define CONTROLLERFAN_SPEED 255  // == full speed
 
@@ -99,9 +99,9 @@
   //X axis
   #if X_HOME_DIR == -1
     #ifdef BED_CENTER_AT_0_0
-      #define X_HOME_POS X_MAX_LENGTH * -0.5
+      #define X_HOME_POS (X_MAX_LENGTH * -0.5) - 1
     #else
-      #define X_HOME_POS X_MIN_POS
+      #define X_HOME_POS (X_MIN_POS - 1)
     #endif //BED_CENTER_AT_0_0
   #else
     #ifdef BED_CENTER_AT_0_0
@@ -114,9 +114,9 @@
   //Y axis
   #if Y_HOME_DIR == -1
     #ifdef BED_CENTER_AT_0_0
-      #define Y_HOME_POS Y_MAX_LENGTH * -0.5
+      #define Y_HOME_POS (Y_MAX_LENGTH * -0.5) - 1
     #else
-      #define Y_HOME_POS Y_MIN_POS
+       #define Y_HOME_POS (Y_MIN_POS - 1)
     #endif //BED_CENTER_AT_0_0
   #else
     #ifdef BED_CENTER_AT_0_0
@@ -130,7 +130,7 @@
   #if Z_HOME_DIR == -1 //BED_CENTER_AT_0_0 not used
     #define Z_HOME_POS Z_MIN_POS
   #else
-    #define Z_HOME_POS Z_MAX_POS
+    #define Z_HOME_POS Z_HEIGHT_MM
   #endif //Z_HOME_DIR == -1
 #endif //End auto min/max positions
 //END AUTOSET LOCATIONS OF LIMIT SWITCHES -ZP
@@ -215,8 +215,8 @@
 //homing hits the endstop, then retracts by this distance, before it tries to slowly bump again:
 #define X_HOME_RETRACT_MM 5
 #define Y_HOME_RETRACT_MM 5
-#define Z_HOME_RETRACT_MM 2
-//#define QUICK_HOME  //if this is defined, if both x and y are to be homed, a diagonal move will be performed initially.
+#define Z_HOME_RETRACT_MM 1
+#define QUICK_HOME  //if this is defined, if both x and y are to be homed, a diagonal move will be performed initially.
 
 #define AXIS_RELATIVE_MODES {false, false, false, false}
 #ifdef CONFIG_STEPPERS_TOSHIBA
@@ -231,7 +231,7 @@
 #define INVERT_E_STEP_PIN false
 
 //default stepper release if idle
-#define DEFAULT_STEPPER_DEACTIVE_TIME 60
++#define DEFAULT_STEPPER_DEACTIVE_TIME 0
 
 #define DEFAULT_MINIMUMFEEDRATE       0.0     // minimum feedrate
 #define DEFAULT_MINTRAVELFEEDRATE     0.0
@@ -241,10 +241,6 @@
 #define MANUAL_FEEDRATE {50*60, 50*60, 4*60, 60}  // set the speeds for manual moves (mm/min)
 #endif
 
-//Comment to disable setting feedrate multiplier via encoder
-#ifdef ULTIPANEL
-    #define ULTIPANEL_FEEDMULTIPLY
-#endif
 //Comment to disable setting feedrate multiplier via encoder
 #ifdef ULTIPANEL
     #define ULTIPANEL_FEEDMULTIPLY
@@ -363,7 +359,7 @@ const unsigned int dropsegments=5; //everything with less than this number of st
 // You can get round this by connecting a push button or single throw switch to the pin defined as SDCARDCARDDETECT
 // in the pins.h file.  When using a push button pulling the pin to ground this will need inverted.  This setting should
 // be commented out otherwise
-#define SDCARDDETECTINVERTED
+//#define SDCARDDETECTINVERTED
 
 #ifdef ULTIPANEL
  #undef SDCARDDETECTINVERTED

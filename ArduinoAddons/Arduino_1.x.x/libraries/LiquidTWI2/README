@@ -1,0 +1,127 @@
+LiquidTWI2
+==========
+
+A lean, high speed I2C LCD Library for Arduino, which supports MCP23008 (Adafruit LCD Backpack) and MCP23017 (Adafruit RGB LCD Shield)
+
+hacked by Sam C. Lin / http://www.lincomatic.com
+from 
+  LiquidTWI by Matt Falcon (FalconFour) / http://falconfour.com
+  logic gleaned from Adafruit RGB LCD Shield library
+  Panelolu2 support by Tony Lock / http://blog.think3dprint3d.com
+  Panelolu2 integration by Robert F-C / https://github.com/buildrob
+  enhancements by Nick Sayer / https://github.com/nsayer
+
+Compatible with Adafruit I2C LCD backpack (MCP23008) and
+Adafruit RGB LCD Shield (and optionally, Panelolu2)
+
+For more information see 
+ http://blog.lincomatic.com/?tag=LiquidTWI2
+ http://forums.adafruit.com/viewtopic.php?f=19&t=21586
+ Panelolu2 usage see
+ http://blog.think3dprint3d.com/2012/12/mcp23017-i2c.html
+
+  Version 1.2.6
+
+  Changelog:
+
+  * 1.2.6 / 20140220 SCL
+  added device detected guard to home() & buzz()
+
+  * 1.2.5 / 20130725 SCL
+  added LcdDetected() from Scott Rubin
+
+  * 1.2.4 / 20130409 SCL
+  buzz() fixes from buildrob
+
+  * 1.2.3 / 20130322 SCL
+  PANELOLU2 support cleanup and always enabled when MCP23017 by buildrob
+  buzz() now works for Panucatt Viki as well
+
+  * 1.2.2 / 20130120 SCL
+  make setMCPType() a no-op when only one MCPxxxx defined instead
+  of removing it
+
+  * 1.2.1 / 20130102 SCL
+  disable PANELOLU2 by default
+
+  * 1.2.0 / 20130101 SCL
+  added DETECT_DEVICE
+
+  * 1.1.1 / 20121219 SCL
+  added Tony Lock's Panelolu2 enhancements
+
+  * 1.1.0 / 20121018 SCL
+  use 8-bit GPIO for writing on MCP23017 for 25% speed increase
+  with only 14 byte size increase
+
+  * 1.0.0 / 20121016 SCL
+  initial release
+
+  Distributed with as free-will a license as is available given this code's long
+  associative chain of licenses (LiquidCrystal -> Arduino -> Wiring -> ...?). Use
+  it in any way you feel fit, profit or free, provided it fits in the licenses of
+  its associated works.
+
+  Installation:
+  extract LiquidTWI2/ into <arduinosketchbook>/libraries/LiquidTWI2
+
+  To use with Panelolu2
+	lcd.setMCPType(LTI_TYPE_MCP23017);
+    Panelolu2 only has encoder.. use PANELOLU_ENCODER_X bits instead of BUTTON_xxx
+
+  Usage:
+  Compatible with Arduino LiquidCrystal library except that setMCPType() MUST
+  be called at least once before begin() is called
+
+  // MCP23008 (Adafruit LCD Backpack)
+  #include <Wire.h>
+  #include <LiquidTWI2.h>
+  LiquidTWI2 lcd(0x20);
+  void setup() {
+   lcd.setMCPType(LTI_TYPE_MCP23008); // must be called before begin()
+   lcd.begin(16,2);
+   lcd.setBacklight(HIGH); // only supports HIGH or LOW
+  }
+  void loop() {
+   lcd.print("Hello World!");
+   delay(500);
+   lcd.clear();
+   delay(500);
+  }
+
+  // MCP23017 (Adafruit RGB LCD Shield)
+  #include <Wire.h>
+  #include <LiquidTWI2.h>
+  LiquidTWI2 lcd(0x20);
+  void setup() {
+   lcd.setMCPType(LTI_TYPE_MCP23017); // must be called before begin()
+   lcd.begin(16,2);
+   lcd.setBacklight(WHITE); // see LiquidTWI2.h for color options
+  }
+  void loop() {
+   lcd.print("Hello World!");
+   delay(500);
+   lcd.clear();
+   delay(500);
+   uint8_t btns = lcd.readButtons();
+  }
+
+  If you change the i2c address of the board, set "lcd(0x20)" to your new 3-bit
+  address.
+  If you have more than a 16x2 LCD, change "lcd.begin(16,2)" to reflect the
+  columns and rows of your LCD.
+
+  Normally, the code will hang if the device is not detected at the specified
+  i2c address.  If you want to compile your code for an optionally installed
+  LCD, call the constructor with 2nd parameter deviceDetect=1. E.g:
+     LiquidTWI2 lcd(0x20,1);
+  When enabled, if the device is not detected at the specified address when
+  begin() is called, then the rest of the function calls become NOOPs
+
+  Note that the library can switch modes at runtime. Simply call setMCPType(),
+  followed by begin().
+  This allows you to create a firmware which is compatible with either kind
+  of LCD module, and select the type from EEPROM.
+
+  For memory-constrained projects, disable the unnecessary support by
+  commenting out the corresponding MCP230xx in LiquidTWI2.h, and DETECT_DEVICE

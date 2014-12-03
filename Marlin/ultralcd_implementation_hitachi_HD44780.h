@@ -166,13 +166,21 @@ extern volatile uint16_t buttons;  //an extended version of the last checked but
   #include <Wire.h>
   #include <LiquidTWI2.h>
   #define LCD_CLASS LiquidTWI2
-  LCD_CLASS lcd(LCD_I2C_ADDRESS);
+    #if defined(DETECT_DEVICE)
+     LCD_CLASS lcd(LCD_I2C_ADDRESS, 1);
+  #else
+     LCD_CLASS lcd(LCD_I2C_ADDRESS);
+  #endif
   
 #elif defined(LCD_I2C_TYPE_MCP23008)
   #include <Wire.h>
   #include <LiquidTWI2.h>
   #define LCD_CLASS LiquidTWI2
-  LCD_CLASS lcd(LCD_I2C_ADDRESS);  
+    #if defined(DETECT_DEVICE)
+     LCD_CLASS lcd(LCD_I2C_ADDRESS, 1);
+  #else
+     LCD_CLASS lcd(LCD_I2C_ADDRESS);
+  #endif 
 
 #elif defined(LCD_I2C_TYPE_PCA8574)
     #include <LiquidCrystal_I2C.h>
@@ -459,14 +467,25 @@ static void lcd_implementation_status_screen()
         lcd.print(' ');
 #  else
     lcd.setCursor(0,1);
+     #if defined(BED_CENTER_AT_0_0)
+    lcd.print(ftostr31(current_position[X_AXIS]));
+    lcd.print(' ');
+    lcd.print(ftostr31(current_position[Y_AXIS]));
+    lcd.print(' ');
+  #else
     lcd.print('X');
     lcd.print(ftostr3(current_position[X_AXIS]));
     lcd_printPGM(PSTR(" Y"));
     lcd.print(ftostr3(current_position[Y_AXIS]));
+    #endif //BED_CENTER_AT_0_0
 #  endif//EXTRUDERS > 1 || TEMP_SENSOR_BED != 0
 # endif//LCD_WIDTH > 19
+  #if defined(BED_CENTER_AT_0_0)
+    lcd.setCursor(LCD_WIDTH - 6, 1);
+  #else
     lcd.setCursor(LCD_WIDTH - 8, 1);
     lcd.print('Z');
+    #endif //BED_CENTER_AT_0_0
     lcd.print(ftostr32(current_position[Z_AXIS] + 0.00001));
 #endif//LCD_HEIGHT > 2
 
