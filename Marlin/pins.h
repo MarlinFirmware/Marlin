@@ -779,14 +779,14 @@
         #define BTN_EN1 47  //reverse if the encoder turns the wrong way.
         #define BTN_EN2 43
         #define BTN_ENC 32
-        #define SDSS 53
+        #define LCD_SDSS 53
         #define SDCARDDETECT -1
         #define KILL_PIN 41
       #elif defined(LCD_I2C_VIKI)
         #define BTN_EN1 22  //reverse if the encoder turns the wrong way.
         #define BTN_EN2 7
         #define BTN_ENC -1
-        #define SDSS 53
+        #define LCD_SDSS 53
         #define SDCARDDETECT 49
       #else
         //arduino pin which triggers an piezzo beeper
@@ -2563,7 +2563,7 @@ DaveX plan for Teensylu/printrboard-type pinouts (ref teensylu & sprinter) for a
  #define E2_ENABLE_PIN 22
 
  #define SDPOWER -1
- #define SDSS 53
+ #define LCD_SDSS 53
  #define LED_PIN 13
 
  #define FAN_PIN 7
