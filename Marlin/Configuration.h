@@ -777,7 +777,9 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
  * 301 - Rambo  - uses Analog input 3
  * Note may require analog pins to be defined for different motherboards
  **********************************************************************/
-#define FILAMENT_SENSOR
+// Uncomment below to enable
+//#define FILAMENT_SENSOR
+
 #define FILAMENT_SENSOR_EXTRUDER_NUM	0  //The number of the extruder that has the filament sensor (0,1,2)
 #define MEASUREMENT_DELAY_CM			14  //measurement delay in cm.  This is the distance from filament sensor to middle of barrel
 
