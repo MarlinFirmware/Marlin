@@ -730,6 +730,7 @@ static void function_sdcard_pause()
 
 static void function_sdcard_stop()
 {
+    lcd_disable_interrupt();
     card.sdprinting = false;
     card.closefile();
 
@@ -754,6 +755,7 @@ static void function_sdcard_stop()
 #    else // X_MAX_POS < 250
     plan_buffer_line(X_MAX_POS-15, Y_MAX_POS-15, Z_MAX_POS-15, current_position[E_AXIS], manual_feedrate[X_AXIS]/60, active_extruder);
 #    endif // X_MAX_POS < 250
+    st_synchronize();
 
     if (SD_FINISHED_STEPPERRELEASE) {
         enquecommand_P(PSTR(SD_FINISHED_RELEASECOMMAND));
@@ -761,6 +763,8 @@ static void function_sdcard_stop()
     autotempShutdown();
 
     cancel_heatup = true;
+
+    lcd_enable_interrupt();
 }
 
 void draw_menu_stop_confirm()
