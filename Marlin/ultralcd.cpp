@@ -162,6 +162,8 @@ bool lcd_oldcardstatus;
 menuFunc_t currentMenu = lcd_status_screen; /* function pointer to the currently active menu */
 uint32_t lcd_next_update_millis;
 uint8_t lcd_status_update_delay;
+bool ignore_click = false;
+bool wait_for_unclick;
 uint8_t lcdDrawUpdate = 2;                  /* Set to none-zero when the LCD needs to draw, decreased after every draw. Set to 2 in LCD routines so the LCD gets at least 1 full redraw (first redraw is partial) */
 
 //prevMenu and prevEncoderPosition are used to store the previous menu location when editing settings.
@@ -189,7 +191,26 @@ static void lcd_status_screen()
         lcd_status_update_delay = 10;   /* redraw the main screen every second. This is easier then trying keep track of all things that change on the screen */
     }
 #ifdef ULTIPANEL
-    if (LCD_CLICKED)
+
+    bool current_click = LCD_CLICKED;
+
+    if (ignore_click) {
+        if (wait_for_unclick) {
+          if (!current_click) {
+              ignore_click = wait_for_unclick = false;
+          }
+          else {
+              current_click = false;
+          }
+        }
+        else if (current_click) {
+            lcd_quick_feedback();
+            wait_for_unclick = true;
+            current_click = false;
+        }
+    }
+
+    if (current_click)
     {
         currentMenu = lcd_main_menu;
         encoderPosition = 0;
@@ -1313,6 +1334,12 @@ void lcd_update()
             lcdDrawUpdate--;
         lcd_next_update_millis = millis() + 100;
     }
+}
+
+void lcd_ignore_click(bool b)
+{
+    ignore_click = b;
+    wait_for_unclick = false;
 }
 
 void lcd_setstatus(const char* message)
