@@ -1749,7 +1749,7 @@ void process_commands()
       LCD_MESSAGEPGM(MSG_PAUSED);
       lcd_update();
 
-      lcd_enable_button();
+      lcd_enable_interrupt();
 
       while(!LCD_CLICKED){
         lcd_update();
@@ -1758,7 +1758,7 @@ void process_commands()
         st_synchronize();
       }
       
-      lcd_disable_button();
+      lcd_disable_interrupt();
 
       LCD_MESSAGEPGM(MSG_PRINTING);
       lcd_update();
@@ -1769,7 +1769,7 @@ void process_commands()
       plan_buffer_line(lastpos[X_AXIS], lastpos[Y_AXIS], lastpos[Z_AXIS], lastpos[E_AXIS], feedrate/60, active_extruder); //final untretract
       st_synchronize();
 
-      lcd_enable_button();
+      lcd_enable_interrupt();
 
       stop_buffer = false;
 
@@ -2863,7 +2863,7 @@ void process_commands()
       plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], feedrate/60, active_extruder);
       st_synchronize();
 
-      lcd_enable_button();
+      lcd_enable_interrupt();
       draw_wizard_change_filament();
       SERIAL_ECHOLN("Wizard set to 0");
   
@@ -2915,6 +2915,8 @@ void process_commands()
         st_synchronize();
       } 
 
+      lcd_disable_interrupt();
+
       current_position[E_AXIS]=lastpos[E_AXIS];
       plan_set_e_position(current_position[E_AXIS]);
     
@@ -2927,6 +2929,9 @@ void process_commands()
       lcd_update();      
       lcd_enable_display_timeout();
       SERIAL_ECHOLN("Wizard set to 4");
+
+      st_synchronize();
+      lcd_enable_interrupt();
       
       stop_buffer = false;
     }

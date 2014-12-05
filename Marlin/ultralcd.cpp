@@ -719,7 +719,7 @@ static void function_menu_sdcard_updir()
 static void function_sdcard_pause()
 {
     LCD_MESSAGEPGM(MSG_PAUSING);
-    lcd_disable_button();
+    lcd_disable_interrupt();
 
     stop_buffer = true;
     stop_buffer_code = 1;
@@ -1446,7 +1446,7 @@ static void function_prepare_change_filament()
     LCD_MESSAGEPGM(MSG_PAUSING);
     draw_status_screen();
 
-    lcd_disable_button();
+    lcd_disable_interrupt();
 }
 
 void draw_wizard_change_filament()
