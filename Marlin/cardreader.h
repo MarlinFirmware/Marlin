@@ -4,10 +4,13 @@
 #ifdef SDSUPPORT
 
 #define MAX_DIR_DEPTH 10          // Maximum folder depth
-#define SORT_USES_RAM false       // Buffer while sorting, else re-read from SD
-#define SORT_USES_MORE_RAM false  // Always keep the directory in RAM
-#define SORT_LIMIT 64             // Maximum number of sorted items
-#define FOLDER_SORTING -1         // -1=above  0=none  1=below
+
+#ifdef SDCARD_SORT_ALPHA
+  #define SORT_USES_RAM false      // Buffer while sorting, else re-read from SD
+  #define SORT_USES_MORE_RAM false // Always keep the directory in RAM
+  #define SORT_LIMIT 256           // Maximum number of sorted items
+  #define FOLDER_SORTING -1        // -1=above  0=none  1=below
+#endif
 
 #include "SdFile.h"
 enum LsAction {LS_SerialPrint,LS_Count,LS_GetFilename};
