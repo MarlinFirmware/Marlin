@@ -92,7 +92,7 @@ volatile signed char count_direction[NUM_AXIS] = { 1, 1, 1, 1};
 //=============================functions         ============================
 //===========================================================================
 
-#define CHECK_ENDSTOPS  if(check_endstops)
+#define CHECK_ENDSTOPS  if (check_endstops)
 
 // intRes = intIn1 * intIn2 >> 16
 // uses:
@@ -172,18 +172,18 @@ asm volatile ( \
 
 void checkHitEndstops()
 {
- if( endstop_x_hit || endstop_y_hit || endstop_z_hit) {
+ if ( endstop_x_hit || endstop_y_hit || endstop_z_hit) {
    SERIAL_ECHO_START;
    SERIAL_ECHOPGM(MSG_ENDSTOPS_HIT);
-   if(endstop_x_hit) {
+   if (endstop_x_hit) {
      SERIAL_ECHOPAIR(" X:",(float)endstops_trigsteps[X_AXIS]/axis_steps_per_unit[X_AXIS]);
      LCD_MESSAGEPGM(MSG_ENDSTOPS_HIT "X");
    }
-   if(endstop_y_hit) {
+   if (endstop_y_hit) {
      SERIAL_ECHOPAIR(" Y:",(float)endstops_trigsteps[Y_AXIS]/axis_steps_per_unit[Y_AXIS]);
      LCD_MESSAGEPGM(MSG_ENDSTOPS_HIT "Y");
    }
-   if(endstop_z_hit) {
+   if (endstop_z_hit) {
      SERIAL_ECHOPAIR(" Z:",(float)endstops_trigsteps[Z_AXIS]/axis_steps_per_unit[Z_AXIS]);
      LCD_MESSAGEPGM(MSG_ENDSTOPS_HIT "Z");
    }
@@ -246,13 +246,13 @@ void step_wait(){
 
 FORCE_INLINE unsigned short calc_timer(unsigned short step_rate) {
   unsigned short timer;
-  if(step_rate > MAX_STEP_FREQUENCY) step_rate = MAX_STEP_FREQUENCY;
+  if (step_rate > MAX_STEP_FREQUENCY) step_rate = MAX_STEP_FREQUENCY;
 
-  if(step_rate > 20000) { // If steprate > 20kHz >> step 4 times
+  if (step_rate > 20000) { // If steprate > 20kHz >> step 4 times
     step_rate = (step_rate >> 2)&0x3fff;
     step_loops = 4;
   }
-  else if(step_rate > 10000) { // If steprate > 10kHz >> step 2 times
+  else if (step_rate > 10000) { // If steprate > 10kHz >> step 2 times
     step_rate = (step_rate >> 1)&0x7fff;
     step_loops = 2;
   }
@@ -260,9 +260,9 @@ FORCE_INLINE unsigned short calc_timer(unsigned short step_rate) {
     step_loops = 1;
   }
 
-  if(step_rate < (F_CPU/500000)) step_rate = (F_CPU/500000);
+  if (step_rate < (F_CPU/500000)) step_rate = (F_CPU/500000);
   step_rate -= (F_CPU/500000); // Correct for minimal speed
-  if(step_rate >= (8*256)){ // higher step rate
+  if (step_rate >= (8*256)){ // higher step rate
     unsigned short table_address = (unsigned short)&speed_lookuptable_fast[(unsigned char)(step_rate>>8)][0];
     unsigned char tmp_step_rate = (step_rate & 0x00ff);
     unsigned short gain = (unsigned short)pgm_read_word_near(table_address+2);
@@ -275,7 +275,7 @@ FORCE_INLINE unsigned short calc_timer(unsigned short step_rate) {
     timer = (unsigned short)pgm_read_word_near(table_address);
     timer -= (((unsigned short)pgm_read_word_near(table_address+2) * (unsigned char)(step_rate & 0x0007))>>3);
   }
-  if(timer < 100) { timer = 100; MYSERIAL.print(MSG_STEPPER_TOO_HIGH); MYSERIAL.println(step_rate); }//(20kHz this should never happen)
+  if (timer < 100) { timer = 100; MYSERIAL.print(MSG_STEPPER_TOO_HIGH); MYSERIAL.println(step_rate); }//(20kHz this should never happen)
   return timer;
 }
 
@@ -328,7 +328,7 @@ ISR(TIMER1_COMPA_vect)
       step_events_completed = 0;
 
       #ifdef Z_LATE_ENABLE
-        if(current_block->steps_z > 0) {
+        if (current_block->steps_z > 0) {
           enable_z();
           OCR1A = 2000; //1ms wait
           return;
@@ -350,7 +350,7 @@ ISR(TIMER1_COMPA_vect)
 
 
     // Set the direction bits (X_AXIS=A_AXIS and Y_AXIS=B_AXIS for COREXY)
-    if((out_bits & (1<<X_AXIS))!=0){
+    if ((out_bits & (1<<X_AXIS))!=0){
       #ifdef DUAL_X_CARRIAGE
         if (extruder_duplication_enabled){
           WRITE(X_DIR_PIN, INVERT_X_DIR);
@@ -384,7 +384,7 @@ ISR(TIMER1_COMPA_vect)
       #endif        
       count_direction[X_AXIS]=1;
     }
-    if((out_bits & (1<<Y_AXIS))!=0){
+    if ((out_bits & (1<<Y_AXIS))!=0){
       WRITE(Y_DIR_PIN, INVERT_Y_DIR);
 	  
 	  #ifdef Y_DUAL_STEPPER_DRIVERS
@@ -419,7 +419,7 @@ ISR(TIMER1_COMPA_vect)
         {
           #if defined(X_MIN_PIN) && X_MIN_PIN > -1
             bool x_min_endstop=(READ(X_MIN_PIN) != X_MIN_ENDSTOP_INVERTING);
-            if(x_min_endstop && old_x_min_endstop && (current_block->steps_x > 0)) {
+            if (x_min_endstop && old_x_min_endstop && (current_block->steps_x > 0)) {
               endstops_trigsteps[X_AXIS] = count_position[X_AXIS];
               endstop_x_hit=true;
               step_events_completed = current_block->step_event_count;
@@ -440,7 +440,7 @@ ISR(TIMER1_COMPA_vect)
         {
           #if defined(X_MAX_PIN) && X_MAX_PIN > -1
             bool x_max_endstop=(READ(X_MAX_PIN) != X_MAX_ENDSTOP_INVERTING);
-            if(x_max_endstop && old_x_max_endstop && (current_block->steps_x > 0)){
+            if (x_max_endstop && old_x_max_endstop && (current_block->steps_x > 0)){
               endstops_trigsteps[X_AXIS] = count_position[X_AXIS];
               endstop_x_hit=true;
               step_events_completed = current_block->step_event_count;
@@ -460,7 +460,7 @@ ISR(TIMER1_COMPA_vect)
       {
         #if defined(Y_MIN_PIN) && Y_MIN_PIN > -1
           bool y_min_endstop=(READ(Y_MIN_PIN) != Y_MIN_ENDSTOP_INVERTING);
-          if(y_min_endstop && old_y_min_endstop && (current_block->steps_y > 0)) {
+          if (y_min_endstop && old_y_min_endstop && (current_block->steps_y > 0)) {
             endstops_trigsteps[Y_AXIS] = count_position[Y_AXIS];
             endstop_y_hit=true;
             step_events_completed = current_block->step_event_count;
@@ -474,7 +474,7 @@ ISR(TIMER1_COMPA_vect)
       {
         #if defined(Y_MAX_PIN) && Y_MAX_PIN > -1
           bool y_max_endstop=(READ(Y_MAX_PIN) != Y_MAX_ENDSTOP_INVERTING);
-          if(y_max_endstop && old_y_max_endstop && (current_block->steps_y > 0)){
+          if (y_max_endstop && old_y_max_endstop && (current_block->steps_y > 0)){
             endstops_trigsteps[Y_AXIS] = count_position[Y_AXIS];
             endstop_y_hit=true;
             step_events_completed = current_block->step_event_count;
@@ -496,7 +496,7 @@ ISR(TIMER1_COMPA_vect)
       {
         #if defined(Z_MIN_PIN) && Z_MIN_PIN > -1
           bool z_min_endstop=(READ(Z_MIN_PIN) != Z_MIN_ENDSTOP_INVERTING);
-          if(z_min_endstop && old_z_min_endstop && (current_block->steps_z > 0)) {
+          if (z_min_endstop && old_z_min_endstop && (current_block->steps_z > 0)) {
             endstops_trigsteps[Z_AXIS] = count_position[Z_AXIS];
             endstop_z_hit=true;
             step_events_completed = current_block->step_event_count;
@@ -517,7 +517,7 @@ ISR(TIMER1_COMPA_vect)
       {
         #if defined(Z_MAX_PIN) && Z_MAX_PIN > -1
           bool z_max_endstop=(READ(Z_MAX_PIN) != Z_MAX_ENDSTOP_INVERTING);
-          if(z_max_endstop && old_z_max_endstop && (current_block->steps_z > 0)) {
+          if (z_max_endstop && old_z_max_endstop && (current_block->steps_z > 0)) {
             endstops_trigsteps[Z_AXIS] = count_position[Z_AXIS];
             endstop_z_hit=true;
             step_events_completed = current_block->step_event_count;
@@ -689,7 +689,7 @@ ISR(TIMER1_COMPA_vect)
       #endif //!ADVANCE
       #endif
       step_events_completed += 1;
-      if(step_events_completed >= current_block->step_event_count) break;
+      if (step_events_completed >= current_block->step_event_count) break;
     }
     // Calculare new timer value
     unsigned short timer;
@@ -700,7 +700,7 @@ ISR(TIMER1_COMPA_vect)
       acc_step_rate += current_block->initial_rate;
 
       // upper limit
-      if(acc_step_rate > current_block->nominal_rate)
+      if (acc_step_rate > current_block->nominal_rate)
         acc_step_rate = current_block->nominal_rate;
 
       // step_rate to timer interval
@@ -711,7 +711,7 @@ ISR(TIMER1_COMPA_vect)
         for(int8_t i=0; i < step_loops; i++) {
           advance += advance_rate;
         }
-        //if(advance > current_block->advance) advance = current_block->advance;
+        //if (advance > current_block->advance) advance = current_block->advance;
         // Do E steps + advance steps
         e_steps[current_block->active_extruder] += ((advance >>8) - old_advance);
         old_advance = advance >>8;
@@ -721,7 +721,7 @@ ISR(TIMER1_COMPA_vect)
     else if (step_events_completed > (unsigned long int)current_block->decelerate_after) {
       MultiU24X24toH16(step_rate, deceleration_time, current_block->acceleration_rate);
 
-      if(step_rate > acc_step_rate) { // Check step_rate stays positive
+      if (step_rate > acc_step_rate) { // Check step_rate stays positive
         step_rate = current_block->final_rate;
       }
       else {
@@ -729,7 +729,7 @@ ISR(TIMER1_COMPA_vect)
       }
 
       // lower limit
-      if(step_rate < current_block->final_rate)
+      if (step_rate < current_block->final_rate)
         step_rate = current_block->final_rate;
 
       // step_rate to timer interval
@@ -740,7 +740,7 @@ ISR(TIMER1_COMPA_vect)
         for(int8_t i=0; i < step_loops; i++) {
           advance -= advance_rate;
         }
-        if(advance < final_advance) advance = final_advance;
+        if (advance < final_advance) advance = final_advance;
         // Do E steps + advance steps
         e_steps[current_block->active_extruder] += ((advance >>8) - old_advance);
         old_advance = advance >>8;
@@ -857,41 +857,41 @@ void st_init()
 
   #if defined(X_ENABLE_PIN) && X_ENABLE_PIN > -1
     SET_OUTPUT(X_ENABLE_PIN);
-    if(!X_ENABLE_ON) WRITE(X_ENABLE_PIN,HIGH);
+    if (!X_ENABLE_ON) WRITE(X_ENABLE_PIN,HIGH);
   #endif
   #if defined(X2_ENABLE_PIN) && X2_ENABLE_PIN > -1
     SET_OUTPUT(X2_ENABLE_PIN);
-    if(!X_ENABLE_ON) WRITE(X2_ENABLE_PIN,HIGH);
+    if (!X_ENABLE_ON) WRITE(X2_ENABLE_PIN,HIGH);
   #endif
   #if defined(Y_ENABLE_PIN) && Y_ENABLE_PIN > -1
     SET_OUTPUT(Y_ENABLE_PIN);
-    if(!Y_ENABLE_ON) WRITE(Y_ENABLE_PIN,HIGH);
+    if (!Y_ENABLE_ON) WRITE(Y_ENABLE_PIN,HIGH);
 	
 	#if defined(Y_DUAL_STEPPER_DRIVERS) && defined(Y2_ENABLE_PIN) && (Y2_ENABLE_PIN > -1)
 	  SET_OUTPUT(Y2_ENABLE_PIN);
-	  if(!Y_ENABLE_ON) WRITE(Y2_ENABLE_PIN,HIGH);
+	  if (!Y_ENABLE_ON) WRITE(Y2_ENABLE_PIN,HIGH);
 	#endif
   #endif
   #if defined(Z_ENABLE_PIN) && Z_ENABLE_PIN > -1
     SET_OUTPUT(Z_ENABLE_PIN);
-    if(!Z_ENABLE_ON) WRITE(Z_ENABLE_PIN,HIGH);
+    if (!Z_ENABLE_ON) WRITE(Z_ENABLE_PIN,HIGH);
 
     #if defined(Z_DUAL_STEPPER_DRIVERS) && defined(Z2_ENABLE_PIN) && (Z2_ENABLE_PIN > -1)
       SET_OUTPUT(Z2_ENABLE_PIN);
-      if(!Z_ENABLE_ON) WRITE(Z2_ENABLE_PIN,HIGH);
+      if (!Z_ENABLE_ON) WRITE(Z2_ENABLE_PIN,HIGH);
     #endif
   #endif
   #if defined(E0_ENABLE_PIN) && (E0_ENABLE_PIN > -1)
     SET_OUTPUT(E0_ENABLE_PIN);
-    if(!E_ENABLE_ON) WRITE(E0_ENABLE_PIN,HIGH);
+    if (!E_ENABLE_ON) WRITE(E0_ENABLE_PIN,HIGH);
   #endif
   #if defined(E1_ENABLE_PIN) && (E1_ENABLE_PIN > -1)
     SET_OUTPUT(E1_ENABLE_PIN);
-    if(!E_ENABLE_ON) WRITE(E1_ENABLE_PIN,HIGH);
+    if (!E_ENABLE_ON) WRITE(E1_ENABLE_PIN,HIGH);
   #endif
   #if defined(E2_ENABLE_PIN) && (E2_ENABLE_PIN > -1)
     SET_OUTPUT(E2_ENABLE_PIN);
-    if(!E_ENABLE_ON) WRITE(E2_ENABLE_PIN,HIGH);
+    if (!E_ENABLE_ON) WRITE(E2_ENABLE_PIN,HIGH);
   #endif
 
   //endstops and pullups
@@ -1303,7 +1303,7 @@ void microstep_init()
 
 void microstep_ms(uint8_t driver, int8_t ms1, int8_t ms2)
 {
-  if(ms1 > -1) switch(driver)
+  if (ms1 > -1) switch(driver)
   {
     case 0: digitalWrite( X_MS1_PIN,ms1); break;
     case 1: digitalWrite( Y_MS1_PIN,ms1); break;
@@ -1313,7 +1313,7 @@ void microstep_ms(uint8_t driver, int8_t ms1, int8_t ms2)
     case 4: digitalWrite(E1_MS1_PIN,ms1); break;
     #endif
   }
-  if(ms2 > -1) switch(driver)
+  if (ms2 > -1) switch(driver)
   {
     case 0: digitalWrite( X_MS2_PIN,ms2); break;
     case 1: digitalWrite( Y_MS2_PIN,ms2); break;

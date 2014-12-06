@@ -184,7 +184,7 @@ class SdBaseFile {
   /** Create an instance. */
   SdBaseFile() : writeError(false), type_(FAT_FILE_TYPE_CLOSED) {}
   SdBaseFile(const char* path, uint8_t oflag);
-  ~SdBaseFile() {if(isOpen()) close();}
+  ~SdBaseFile() {if (isOpen()) close();}
   /**
    * writeError is set to true if an error occurs during a write().
    * Set writeError to false before calling print() and/or write() and check

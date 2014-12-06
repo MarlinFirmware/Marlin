@@ -88,13 +88,11 @@ void serial_echopair_P(const char *s_P, unsigned long v);
 
 
 //Things to write to serial from Program memory. Saves 400 to 2k of RAM.
-FORCE_INLINE void serialprintPGM(const char *str)
-{
-  char ch=pgm_read_byte(str);
-  while(ch)
-  {
+FORCE_INLINE void serialprintPGM(const char *str) {
+  char ch = pgm_read_byte(str);
+  while (ch) {
     MYSERIAL.write(ch);
-    ch=pgm_read_byte(++str);
+    ch = pgm_read_byte(++str);
   }
 }
 
@@ -175,12 +173,12 @@ void ClearToSend();
 
 void get_coordinates();
 #ifdef DELTA
-void calculate_delta(float cartesian[3]);
-extern float delta[3];
+  void calculate_delta(float cartesian[3]);
+  extern float delta[3];
 #endif
 #ifdef SCARA
-void calculate_delta(float cartesian[3]);
-void calculate_SCARA_forward_Transform(float f_scara[3]);
+  void calculate_delta(float cartesian[3]);
+  void calculate_SCARA_forward_Transform(float f_scara[3]);
 #endif
 void prepare_move();
 void kill();
@@ -196,13 +194,13 @@ void clamp_to_software_endstops(float target[3]);
 void refresh_cmd_timeout(void);
 
 #ifdef FAST_PWM_FAN
-void setPwmFrequency(uint8_t pin, int val);
+  void setPwmFrequency(uint8_t pin, int val);
 #endif
 
 #ifndef CRITICAL_SECTION_START
   #define CRITICAL_SECTION_START  unsigned char _sreg = SREG; cli();
   #define CRITICAL_SECTION_END    SREG = _sreg;
-#endif //CRITICAL_SECTION_START
+#endif
 
 extern float homing_feedrate[];
 extern bool axis_relative_modes[];
@@ -213,14 +211,14 @@ extern float volumetric_multiplier[EXTRUDERS]; // reciprocal of cross-sectional 
 extern float current_position[NUM_AXIS] ;
 extern float add_homing[3];
 #ifdef DELTA
-extern float endstop_adj[3];
-extern float delta_radius;
-extern float delta_diagonal_rod;
-extern float delta_segments_per_second;
-void recalc_delta_settings(float radius, float diagonal_rod);
+  extern float endstop_adj[3];
+  extern float delta_radius;
+  extern float delta_diagonal_rod;
+  extern float delta_segments_per_second;
+  void recalc_delta_settings(float radius, float diagonal_rod);
 #endif
 #ifdef SCARA
-extern float axis_scaling[3];  // Build size scaling
+  extern float axis_scaling[3];  // Build size scaling
 #endif
 extern float min_pos[3];
 extern float max_pos[3];
@@ -228,12 +226,12 @@ extern bool axis_known_position[3];
 extern float zprobe_zoffset;
 extern int fanSpeed;
 #ifdef BARICUDA
-extern int ValvePressure;
-extern int EtoPPressure;
+  extern int ValvePressure;
+  extern int EtoPPressure;
 #endif
 
 #ifdef FAN_SOFT_PWM
-extern unsigned char fanSpeedSoftPwm;
+  extern unsigned char fanSpeedSoftPwm;
 #endif
 
 #ifdef FILAMENT_SENSOR
@@ -247,10 +245,10 @@ extern unsigned char fanSpeedSoftPwm;
 #endif
 
 #ifdef FWRETRACT
-extern bool autoretract_enabled;
-extern bool retracted[EXTRUDERS];
-extern float retract_length, retract_length_swap, retract_feedrate, retract_zlift;
-extern float retract_recover_length, retract_recover_length_swap, retract_recover_feedrate;
+  extern bool autoretract_enabled;
+  extern bool retracted[EXTRUDERS];
+  extern float retract_length, retract_length_swap, retract_feedrate, retract_zlift;
+  extern float retract_recover_length, retract_recover_length_swap, retract_recover_feedrate;
 #endif
 
 extern unsigned long starttime;
@@ -260,8 +258,8 @@ extern unsigned long stoptime;
 extern uint8_t active_extruder;
 
 #ifdef DIGIPOT_I2C
-extern void digipot_i2c_set_current( int channel, float current );
-extern void digipot_i2c_init();
+  extern void digipot_i2c_set_current( int channel, float current );
+  extern void digipot_i2c_init();
 #endif
 
-#endif
+#endif //__MARLIN_H

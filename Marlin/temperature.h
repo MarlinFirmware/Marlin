@@ -175,10 +175,10 @@ static bool thermal_runaway = false;
 
 FORCE_INLINE void autotempShutdown(){
  #ifdef AUTOTEMP
- if(autotemp_enabled)
+ if (autotemp_enabled)
  {
   autotemp_enabled=false;
-  if(degTargetHotend(active_extruder)>autotemp_min)
+  if (degTargetHotend(active_extruder)>autotemp_min)
     setTargetHotend(0,active_extruder);
  }
  #endif
