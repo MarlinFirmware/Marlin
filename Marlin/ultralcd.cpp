@@ -539,7 +539,7 @@ static void _lcd_move(char *name, int axis, int min, int max) {
     lcdDrawUpdate = 1;
   }
   if (lcdDrawUpdate) {
-    lcd_implementation_drawedit(PSTR("X"), ftostr31(current_position[axis]));
+    lcd_implementation_drawedit(name, ftostr31(current_position[axis]));
   }
   if (LCD_CLICKED) {
     lcd_quick_feedback();
