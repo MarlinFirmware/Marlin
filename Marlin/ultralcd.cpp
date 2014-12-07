@@ -1443,6 +1443,20 @@ char *ftostr12ns(const float &x)
   return conv;
 }
 
+//  convert float to space-padded string with -_23.4_ format
+char *ftostr32np(const float &x) {
+  char *c = ftostr32(x);
+  if (c[0] == '0' || c[0] == '-') {
+    if (c[0] == '0') c[0] = ' ';
+    if (c[1] == '0') c[1] = ' ';
+  }
+  if (c[5] == '0') {
+    c[5] = ' ';
+    if (c[4] == '0') c[4] = c[3] = ' ';
+  }
+  return c;
+}
+
 char *itostr31(const int &xx)
 {
   conv[0]=(xx>=0)?'+':'-';
