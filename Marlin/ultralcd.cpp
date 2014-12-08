@@ -1544,16 +1544,49 @@ char *ftostr32(const float &x)
 
 //  convert float to space-padded string with -_23.4_ format
 char *ftostr32np(const float &x) {
-  char *c = ftostr32(x);
-  if (c[0] == '0' || c[0] == '-') {
-    if (c[0] == '0') c[0] = ' ';
-    if (c[1] == '0') c[1] = ' ';
+  long xx = abs(x * 100);
+  uint8_t dig;
+
+  if (x < 0) { // negative val = -_0
+    conv[0] = '-';
+    dig = (xx / 1000) % 10;
+    conv[1] = dig ? '0' + dig : ' ';
   }
-  if (c[5] == '0') {
-    c[5] = ' ';
-    if (c[4] == '0') c[4] = c[3] = ' ';
+  else { // positive val = __0
+    dig = (xx / 10000) % 10;
+    if (dig) {
+      conv[0] = '0' + dig;
+      conv[1] = '0' + (xx / 1000) % 10;
+    }
+    else {
+      conv[0] = ' ';
+      dig = (xx / 1000) % 10;
+      conv[1] = dig ? '0' + dig : ' ';
+    }
   }
-  return c;
+
+  conv[2] = '0' + (xx / 100) % 10; // lsd always
+
+  dig = xx % 10;
+  if (dig) { // 2 decimal places
+    conv[5] = '0' + dig;
+    dig = (xx / 10) % 10;
+    conv[4] = '0' + dig;
+    conv[3] = '.';
+  }
+  else { // 1 or 0 decimal place
+    dig = (xx / 10) % 10;
+    if (dig) {
+      conv[4] = '0' + dig;
+      conv[3] = '.';
+    }
+    else {
+      conv[3] = conv[4] = ' ';
+    }
+    conv[5] = ' ';
+  }
+  conv[6] = '\0';
+  return conv;
 }
 
 char *itostr31(const int &xx)
