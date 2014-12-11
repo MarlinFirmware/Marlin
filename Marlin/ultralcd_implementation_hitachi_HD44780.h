@@ -235,17 +235,6 @@ static void lcd_implementation_init()
         B00000,
         B00000
     }; //thanks Sonny Mounicou
-    byte degree[8] =
-    {
-        B01100,
-        B10010,
-        B10010,
-        B01100,
-        B00000,
-        B00000,
-        B00000,
-        B00000
-    };
     byte thermometer[8] =
     {
         B00100,
@@ -257,16 +246,6 @@ static void lcd_implementation_init()
         B10001,
         B01110
     };
-    byte uplevel[8]={
-        B00100,
-        B01110,
-        B11111,
-        B00100,
-        B11100,
-        B00000,
-        B00000,
-        B00000
-    }; //thanks joris
     byte refresh[8]={
         B00000,
         B00110,
@@ -295,16 +274,6 @@ static void lcd_implementation_init()
         B00101,
         B00110,
         B00101,
-        B00000
-    }; //thanks Sonny Mounicou
-    byte clock [8]={
-        B00000,
-        B01110,
-        B10011,
-        B10101,
-        B10001,
-        B01110,
-        B00000,
         B00000
     }; //thanks Sonny Mounicou
 
@@ -340,6 +309,38 @@ static void lcd_implementation_init()
         B10101,
         B10101
     };
+#else
+    byte degree[8] =
+    {
+        B01100,
+        B10010,
+        B10010,
+        B01100,
+        B00000,
+        B00000,
+        B00000,
+        B00000
+    };
+    byte uplevel[8]={
+        B00100,
+        B01110,
+        B11111,
+        B00100,
+        B11100,
+        B00000,
+        B00000,
+        B00000
+    }; //thanks joris
+    byte clock [8]={
+        B00000,
+        B01110,
+        B10011,
+        B10101,
+        B10001,
+        B01110,
+        B00000,
+        B00000
+    }; //thanks Sonny Mounicou
 #endif
 
 #if defined(LCD_I2C_TYPE_PCF8575)
