@@ -3323,10 +3323,10 @@ void clamp_to_software_endstops(float target[3])
 	if (max_software_endstop_x) {
 		if (target[X_AXIS] > max_pos[X_AXIS]) target[X_AXIS] = max_pos[X_AXIS];
 	}
-	if (max_software_endstop_x) {
+	if (max_software_endstop_y) {
 		if (target[Y_AXIS] > max_pos[Y_AXIS]) target[Y_AXIS] = max_pos[Y_AXIS];
 	}
-	if (max_software_endstop_x) {
+	if (max_software_endstop_z) {
 		if (target[Z_AXIS] > max_pos[Z_AXIS]) target[Z_AXIS] = max_pos[Z_AXIS];
 	}
 }
