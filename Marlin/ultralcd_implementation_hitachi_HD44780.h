@@ -200,19 +200,25 @@ extern volatile uint16_t buttons;  //an extended version of the last checked but
   LCD_CLASS lcd(LCD_PINS_RS, LCD_PINS_ENABLE, LCD_PINS_D4, LCD_PINS_D5,LCD_PINS_D6,LCD_PINS_D7);  //RS,Enable,D4,D5,D6,D7
 #endif
 
-/* Custom characters defined in the first few characters of the LCD */
+/* Custom characters defined in the first 8 characters of the LCD */
+#ifdef LCD_PROGRESS_BAR
+    #define LCD_STR_PROGRESS_1  "\x01"
+    #define LCD_STR_PROGRESS_2  "\x03"
+    #define LCD_STR_PROGRESS_3  "\x07"
+    #define LCD_STR_DEGREE      "\xDF"
+    #define LCD_STR_UPLEVEL     "^"
+    #define LCD_STR_CLOCK       " "
+#else
+    #define LCD_STR_DEGREE      "\x01"
+    #define LCD_STR_UPLEVEL     "\x03"
+    #define LCD_STR_CLOCK       "\x07"
+#endif
+
 #define LCD_STR_BEDTEMP     "\x00"
-#define LCD_STR_DEGREE      "\x01"
 #define LCD_STR_THERMOMETER "\x02"
-#define LCD_STR_UPLEVEL     "\x03"
 #define LCD_STR_REFRESH     "\x04"
 #define LCD_STR_FOLDER      "\x05"
 #define LCD_STR_FEEDRATE    "\x06"
-#define LCD_STR_CLOCK       "\x07"
-
-#ifdef LCD_PROGRESS_BAR
-  #define LCD_STR_PROGRESS  "\x08\x09\x0A"
-#endif
 
 #define LCD_STR_ARROW_RIGHT "\x7E"  /* from the default character set */
 
@@ -360,20 +366,21 @@ static void lcd_implementation_init()
     lcd.begin(LCD_WIDTH, LCD_HEIGHT);
 #endif
 
-    lcd.createChar(LCD_STR_BEDTEMP[0], bedTemp);
+#ifdef LCD_PROGRESS_BAR
+    lcd.createChar(LCD_STR_PROGRESS_1[0], progress1);
+    lcd.createChar(LCD_STR_PROGRESS_2[0], progress2);
+    lcd.createChar(LCD_STR_PROGRESS_3[0], progress3);
+#else
     lcd.createChar(LCD_STR_DEGREE[0], degree);
-    lcd.createChar(LCD_STR_THERMOMETER[0], thermometer);
     lcd.createChar(LCD_STR_UPLEVEL[0], uplevel);
+    lcd.createChar(LCD_STR_CLOCK[0], clock);
+#endif
+
+    lcd.createChar(LCD_STR_BEDTEMP[0], bedTemp);
+    lcd.createChar(LCD_STR_THERMOMETER[0], thermometer);
     lcd.createChar(LCD_STR_REFRESH[0], refresh);
     lcd.createChar(LCD_STR_FOLDER[0], folder);
     lcd.createChar(LCD_STR_FEEDRATE[0], feedrate);
-    lcd.createChar(LCD_STR_CLOCK[0], clock);
-
-#ifdef LCD_PROGRESS_BAR
-    lcd.createChar(LCD_STR_PROGRESS[0], progress1);
-    lcd.createChar(LCD_STR_PROGRESS[1], progress2);
-    lcd.createChar(LCD_STR_PROGRESS[2], progress3);
-#endif
 
     lcd.clear();
 }
@@ -549,17 +556,18 @@ static void lcd_implementation_status_screen()
     lcd.setCursor(0, LCD_HEIGHT - 1);
 
 #if defined(LCD_PROGRESS_BAR) && defined(SDSUPPORT)
-    if (IS_SD_PRINTING && lcd_status_message[0] == ':') {
+    if (card.isFileOpen() && !lcd_status_message[0]) {
+        int tix = (int)(card.percentDone() * LCD_WIDTH * 3) / 100, // 0-60
+            cel = tix / 3, rem = tix % 3,  // 0-20, 0-2
+            i = LCD_WIDTH;
         char msg[LCD_WIDTH+1], b = ' ';
-        int p = card.percentDone(),
-            tix = (p * LCD_WIDTH * 3) / 100,
-            cel = tix / 3, rem = tix % 3;
-        for (int i=LCD_WIDTH; i--;) {
+        msg[i] = '\0';
+        while (i--) {
             if (i == cel && rem > 0) {
-              b = b = LCD_STR_PROGRESS[rem-1];
+                b = rem == 1 ? LCD_STR_PROGRESS_1[0] : LCD_STR_PROGRESS_2[0];
             }
             else if (i == cel - 1) {
-                b = LCD_STR_PROGRESS[2];
+                b = LCD_STR_PROGRESS_3[0];
             }
             msg[i] = b;
         }
