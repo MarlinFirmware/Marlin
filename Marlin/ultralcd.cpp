@@ -1260,7 +1260,10 @@ void lcd_finishstatus() {
 #endif
     lcdDrawUpdate = 2;
 #ifdef FILAMENT_LCD_DISPLAY
-        message_millis=millis();  //get status message to show up for a while
+    message_millis = millis();  //get status message to show up for a while
+#endif
+#if defined(LCD_PROGRESS_BAR) && defined(SDSUPPORT)
+    progressBarTick = 0;
 #endif
 }
 void lcd_setstatus(const char* message)
