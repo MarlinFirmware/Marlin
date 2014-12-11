@@ -1348,6 +1348,9 @@ void lcd_setstatus(const char* message)
         return;
     strncpy(lcd_status_message, message, LCD_WIDTH);
     lcdDrawUpdate = 2;
+#if defined(LCD_PROGRESS_BAR) && defined(SDSUPPORT)
+    progressBarTick = 0;
+#endif
 }
 void lcd_setstatuspgm(const char* message)
 {
@@ -1355,6 +1358,9 @@ void lcd_setstatuspgm(const char* message)
         return;
     strncpy_P(lcd_status_message, message, LCD_WIDTH);
     lcdDrawUpdate = 2;
+#if defined(LCD_PROGRESS_BAR) && defined(SDSUPPORT)
+    progressBarTick = 0;
+#endif
 }
 void lcd_setalertstatuspgm(const char* message)
 {
