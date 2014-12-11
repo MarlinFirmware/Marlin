@@ -259,11 +259,6 @@ static void lcd_status_screen()
     if (current_click)
     {
         lcd_goto_menu(lcd_main_menu);
-        lcd_implementation_init( // to maybe revive the LCD if static electricity killed it.
-#if defined(LCD_PROGRESS_BAR) && defined(SDSUPPORT)
-            currentMenu == lcd_status_screen
-#endif
-        );
 #ifdef FILAMENT_LCD_DISPLAY
         message_millis = millis();  //get status message to show up for a while
 #endif
