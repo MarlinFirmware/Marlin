@@ -218,7 +218,9 @@ extern volatile uint16_t buttons;  //an extended version of the last checked but
 #endif
 
 #define LCD_STR_BEDTEMP     "\x00"
+#define LCD_STR_DEGREE      "\x01"
 #define LCD_STR_THERMOMETER "\x02"
+#define LCD_STR_UPLEVEL     "\x03"
 #define LCD_STR_REFRESH     "\x04"
 #define LCD_STR_FOLDER      "\x05"
 #define LCD_STR_FEEDRATE    "\x06"
