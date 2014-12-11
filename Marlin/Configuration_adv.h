@@ -298,6 +298,9 @@
 // using:
 //#define MENU_ADDAUTOSTART
 
+// Show a progress bar on the LCD when printing from SD
+#define LCD_PROGRESS_BAR
+
 // The hardware watchdog should reset the microcontroller disabling all outputs, in case the firmware gets stuck and doesn't do temperature regulation.
 //#define USE_WATCHDOG
 

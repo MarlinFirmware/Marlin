@@ -217,6 +217,11 @@ extern volatile uint16_t buttons;  //an extended version of the last checked but
 #define LCD_STR_FOLDER      "\x05"
 #define LCD_STR_FEEDRATE    "\x06"
 #define LCD_STR_CLOCK       "\x07"
+
+#ifdef LCD_PROGRESS_BAR
+  #define LCD_STR_PROGRESS  "\x08\x09\x0A"
+#endif
+
 #define LCD_STR_ARROW_RIGHT "\x7E"  /* from the default character set */
 
 static void lcd_implementation_init()
@@ -305,6 +310,40 @@ static void lcd_implementation_init()
         B00000
     }; //thanks Sonny Mounicou
 
+// Characters for a progress bar
+#ifdef LCD_PROGRESS_BAR
+    byte progress1[8] = {
+        B10000,
+        B10000,
+        B10000,
+        B10000,
+        B10000,
+        B10000,
+        B10000,
+        B10000
+    };
+    byte progress2[8] = {
+        B10100,
+        B10100,
+        B10100,
+        B10100,
+        B10100,
+        B10100,
+        B10100,
+        B10100
+    };
+    byte progress3[8] = {
+        B10101,
+        B10101,
+        B10101,
+        B10101,
+        B10101,
+        B10101,
+        B10101,
+        B10101
+    };
+#endif
+
 #if defined(LCD_I2C_TYPE_PCF8575)
     lcd.begin(LCD_WIDTH, LCD_HEIGHT);
   #ifdef LCD_I2C_PIN_BL
@@ -337,6 +376,13 @@ static void lcd_implementation_init()
     lcd.createChar(LCD_STR_FOLDER[0], folder);
     lcd.createChar(LCD_STR_FEEDRATE[0], feedrate);
     lcd.createChar(LCD_STR_CLOCK[0], clock);
+
+#ifdef LCD_PROGRESS_BAR
+    lcd.createChar(LCD_STR_PROGRESS[0], progress1);
+    lcd.createChar(LCD_STR_PROGRESS[1], progress2);
+    lcd.createChar(LCD_STR_PROGRESS[2], progress3);
+#endif
+
     lcd.clear();
 }
 static void lcd_implementation_clear()
@@ -522,8 +568,30 @@ static void lcd_implementation_status_screen()
         }
     #else
     lcd.setCursor(0, LCD_HEIGHT - 1);
+
+#if defined(LCD_PROGRESS_BAR) && defined(SDSUPPORT)
+    if (IS_SD_PRINTING && lcd_status_message[0] == ':') {
+        char msg[LCD_WIDTH+1], b = ' ';
+        int p = card.percentDone(),
+            tix = (p * LCD_WIDTH * 3) / 100,
+            cel = tix / 3, rem = tix % 3;
+        for (int i=LCD_WIDTH; i--;) {
+            if (i == cel && rem > 0) {
+              b = b = LCD_STR_PROGRESS[rem-1];
+            }
+            else if (i == cel - 1) {
+                b = LCD_STR_PROGRESS[2];
+            }
+            msg[i] = b;
+        }
+        lcd.print(msg);
+    }
+    else {
+        lcd.print(lcd_status_message);
+    }
+#else
     lcd.print(lcd_status_message);
-    #endif
+#endif
 }
 static void lcd_implementation_drawmenu_generic(uint8_t row, const char* pstr, char pre_char, char post_char)
 {
