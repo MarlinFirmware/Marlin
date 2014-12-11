@@ -215,18 +215,18 @@ extern volatile uint16_t buttons;  //an extended version of the last checked but
     #define LCD_STR_PROGRESS_3  "\x07"
     #define LCD_STR_DEGREE      "\xDF"
     #define LCD_STR_UPLEVEL     "^"
-    #define LCD_STR_CLOCK       " "
+    #define LCD_STR_REFRESH     "\xF3"
 #else
     #define LCD_STR_DEGREE      "\x01"
     #define LCD_STR_UPLEVEL     "\x03"
-    #define LCD_STR_CLOCK       "\x07"
+    #define LCD_STR_REFRESH     "\x04"
 #endif
 
 #define LCD_STR_BEDTEMP     "\x00"
 #define LCD_STR_THERMOMETER "\x02"
-#define LCD_STR_REFRESH     "\x04"
 #define LCD_STR_FOLDER      "\x05"
 #define LCD_STR_FEEDRATE    "\x06"
+#define LCD_STR_CLOCK       "\x07"
 
 #define LCD_STR_ARROW_RIGHT "\x7E"  /* from the default character set */
 
@@ -254,16 +254,6 @@ static void lcd_implementation_init()
         B10001,
         B01110
     };
-    byte refresh[8]={
-        B00000,
-        B00110,
-        B11001,
-        B11000,
-        B00011,
-        B10011,
-        B01100,
-        B00000,
-    }; //thanks joris
     byte folder [8]={
         B00000,
         B11100,
@@ -282,6 +272,16 @@ static void lcd_implementation_init()
         B00101,
         B00110,
         B00101,
+        B00000
+    }; //thanks Sonny Mounicou
+    byte clock [8]={
+        B00000,
+        B01110,
+        B10011,
+        B10101,
+        B10001,
+        B01110,
+        B00000,
         B00000
     }; //thanks Sonny Mounicou
 
@@ -339,16 +339,16 @@ static void lcd_implementation_init()
         B00000,
         B00000
     }; //thanks joris
-    byte clock [8]={
+    byte refresh[8]={
         B00000,
-        B01110,
+        B00110,
+        B11001,
+        B11000,
+        B00011,
         B10011,
-        B10101,
-        B10001,
-        B01110,
+        B01100,
         B00000,
-        B00000
-    }; //thanks Sonny Mounicou
+    }; //thanks joris
 #endif
 
 #if defined(LCD_I2C_TYPE_PCF8575)
@@ -382,14 +382,14 @@ static void lcd_implementation_init()
 #else
     lcd.createChar(LCD_STR_DEGREE[0], degree);
     lcd.createChar(LCD_STR_UPLEVEL[0], uplevel);
-    lcd.createChar(LCD_STR_CLOCK[0], clock);
+    lcd.createChar(LCD_STR_REFRESH[0], refresh);
 #endif
 
     lcd.createChar(LCD_STR_BEDTEMP[0], bedTemp);
     lcd.createChar(LCD_STR_THERMOMETER[0], thermometer);
-    lcd.createChar(LCD_STR_REFRESH[0], refresh);
     lcd.createChar(LCD_STR_FOLDER[0], folder);
     lcd.createChar(LCD_STR_FEEDRATE[0], feedrate);
+    lcd.createChar(LCD_STR_CLOCK[0], clock);
 
     lcd.clear();
 }
@@ -578,9 +578,10 @@ static void lcd_implementation_status_screen()
     lcd.setCursor(0, LCD_HEIGHT - 1);
 
 #if defined(LCD_PROGRESS_BAR) && defined(SDSUPPORT)
-    if (card.isFileOpen() && !lcd_status_message[0]) {
-        int tix = (int)(card.percentDone() * LCD_WIDTH * 3) / 100, // 0-60
-            cel = tix / 3, rem = tix % 3,  // 0-20, 0-2
+    static uint8_t alt = 0;
+    if (card.isFileOpen() && (alt < 2 || !lcd_status_message[0])) {
+        int tix = (int)(card.percentDone() * LCD_WIDTH * 3) / 100,
+            cel = tix / 3, rem = tix % 3,
             i = LCD_WIDTH;
         char msg[LCD_WIDTH+1], b = ' ';
         msg[i] = '\0';
@@ -598,6 +599,7 @@ static void lcd_implementation_status_screen()
     else {
         lcd.print(lcd_status_message);
     }
+    alt = (alt + 1) % 4;
 #else
     lcd.print(lcd_status_message);
 #endif
