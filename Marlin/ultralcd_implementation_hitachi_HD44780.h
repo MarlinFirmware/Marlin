@@ -208,7 +208,6 @@ extern volatile uint16_t buttons;  //an extended version of the last checked but
   LCD_CLASS lcd(LCD_PINS_RS, LCD_PINS_ENABLE, LCD_PINS_D4, LCD_PINS_D5,LCD_PINS_D6,LCD_PINS_D7);  //RS,Enable,D4,D5,D6,D7
 #endif
 
-/* Custom characters defined in the first 8 characters of the LCD */
 #if defined(LCD_PROGRESS_BAR) && defined(SDSUPPORT)
   static uint16_t progressBarTick = 0;
   #if PROGRESS_MSG_EXPIRE > 0
@@ -217,6 +216,7 @@ extern volatile uint16_t buttons;  //an extended version of the last checked but
   #define LCD_STR_PROGRESS  "\x03\x04\x05"
 #endif
 
+/* Custom characters defined in the first few characters of the LCD */
 #define LCD_STR_BEDTEMP     "\x00"
 #define LCD_STR_DEGREE      "\x01"
 #define LCD_STR_THERMOMETER "\x02"
