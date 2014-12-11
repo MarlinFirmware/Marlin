@@ -209,10 +209,11 @@ extern volatile uint16_t buttons;  //an extended version of the last checked but
 #endif
 
 /* Custom characters defined in the first 8 characters of the LCD */
-#ifdef LCD_PROGRESS_BAR
+#if defined(LCD_PROGRESS_BAR) && defined(SDSUPPORT)
+    static uint8_t progressBarTick = 0;
     #define LCD_STR_PROGRESS_1  "\x01"
     #define LCD_STR_PROGRESS_2  "\x03"
-    #define LCD_STR_PROGRESS_3  "\x07"
+    #define LCD_STR_PROGRESS_3  "\x04"
     #define LCD_STR_DEGREE      "\xDF"
     #define LCD_STR_UPLEVEL     "^"
     #define LCD_STR_REFRESH     "\xF3"
@@ -286,7 +287,7 @@ static void lcd_implementation_init()
     }; //thanks Sonny Mounicou
 
 // Characters for a progress bar
-#ifdef LCD_PROGRESS_BAR
+#if defined(LCD_PROGRESS_BAR) && defined(SDSUPPORT)
     byte progress1[8] = {
         B10000,
         B10000,
@@ -375,7 +376,7 @@ static void lcd_implementation_init()
     lcd.begin(LCD_WIDTH, LCD_HEIGHT);
 #endif
 
-#ifdef LCD_PROGRESS_BAR
+#if defined(LCD_PROGRESS_BAR) && defined(SDSUPPORT)
     lcd.createChar(LCD_STR_PROGRESS_1[0], progress1);
     lcd.createChar(LCD_STR_PROGRESS_2[0], progress2);
     lcd.createChar(LCD_STR_PROGRESS_3[0], progress3);
@@ -579,15 +580,17 @@ static void lcd_implementation_status_screen()
 
 #if defined(LCD_PROGRESS_BAR) && defined(SDSUPPORT)
     static uint8_t alt = 0;
-    if (card.isFileOpen() && (alt < 2 || !lcd_status_message[0])) {
+    if (card.isFileOpen() && (progressBarTick > 1 || !lcd_status_message[0])) {
         int tix = (int)(card.percentDone() * LCD_WIDTH * 3) / 100,
-            cel = tix / 3, rem = tix % 3,
-            i = LCD_WIDTH;
+            cel = tix / 3, i = LCD_WIDTH;
         char msg[LCD_WIDTH+1], b = ' ';
         msg[i] = '\0';
         while (i--) {
-            if (i == cel && rem > 0) {
-                b = rem == 1 ? LCD_STR_PROGRESS_1[0] : LCD_STR_PROGRESS_2[0];
+            if (i == cel) {
+                int rem = tix % 3;
+                if (rem > 0) {
+                    b = rem == 1 ? LCD_STR_PROGRESS_1[0] : LCD_STR_PROGRESS_2[0];
+                }
             }
             else if (i == cel - 1) {
                 b = LCD_STR_PROGRESS_3[0];
@@ -599,7 +602,7 @@ static void lcd_implementation_status_screen()
     else {
         lcd.print(lcd_status_message);
     }
-    alt = (alt + 1) % 4;
+    progressBarTick = (alt + 1) % 4;
 #else
     lcd.print(lcd_status_message);
 #endif
