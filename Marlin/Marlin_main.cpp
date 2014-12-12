@@ -1749,7 +1749,7 @@ void process_commands()
       LCD_MESSAGEPGM(MSG_PAUSED);
       lcd_update();
 
-      lcd_enable_interrupt();
+      lcd_enable_button();
 
       while(!LCD_CLICKED){
         lcd_update();
@@ -1758,7 +1758,7 @@ void process_commands()
         st_synchronize();
       }
       
-      lcd_disable_interrupt();
+      lcd_disable_button();
 
       LCD_MESSAGEPGM(MSG_PRINTING);
       lcd_update();
@@ -1769,7 +1769,7 @@ void process_commands()
       plan_buffer_line(lastpos[X_AXIS], lastpos[Y_AXIS], lastpos[Z_AXIS], lastpos[E_AXIS], feedrate/60, active_extruder); //final untretract
       st_synchronize();
 
-      lcd_enable_interrupt();
+      lcd_enable_button();
 
       stop_buffer = false;
 
@@ -2863,7 +2863,7 @@ void process_commands()
       plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], feedrate/60, active_extruder);
       st_synchronize();
 
-      lcd_enable_interrupt();
+      lcd_enable_button();
       draw_wizard_change_filament();
       SERIAL_ECHOLN("Wizard set to 0");
   
@@ -2915,8 +2915,6 @@ void process_commands()
         st_synchronize();
       } 
 
-      lcd_disable_interrupt();
-
       current_position[E_AXIS]=lastpos[E_AXIS];
       plan_set_e_position(current_position[E_AXIS]);
     
@@ -2931,7 +2929,6 @@ void process_commands()
       SERIAL_ECHOLN("Wizard set to 4");
 
       st_synchronize();
-      lcd_enable_interrupt();
       
       stop_buffer = false;
     }
@@ -3077,6 +3074,8 @@ void process_commands()
 
   	// prob 1
   	do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS],Z_MIN_POS+10);
+    lcd_enable_interrupt();
+    
   #if X_MAX_POS > 250
     do_blocking_move_to((X_MAX_POS-X_MIN_POS)/2,Y_MAX_POS-10, current_position[Z_AXIS]);
   #else
@@ -3084,7 +3083,7 @@ void process_commands()
   #endif
     do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], Z_MIN_POS);
   	
-    lcd_enable_interrupt();
+
     lcd_clear_triggered_flags();
     while(!LCD_CLICKED) {          
       manage_heater();
@@ -3143,13 +3142,10 @@ void process_commands()
   	
   	lcd_wizard_set_page(6);
     lcd_update();
-
-	lcd_disable_interrupt();
   		
   	do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS],Z_MIN_POS+50);
   	do_blocking_move_to(10, 10, current_position[Z_AXIS]);
   	//do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS],Z_MIN_POS);
-	lcd_enable_interrupt();
     lcd_wizard_set_page(7);
     lcd_update();      
     lcd_enable_display_timeout();

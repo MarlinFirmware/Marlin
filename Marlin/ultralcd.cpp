@@ -62,6 +62,10 @@ bool    button_input_updated;
 
 bool    button_clicked_triggered;
 
+// Beeper related variables
+bool beeper_level = false;
+uint8_t beeper_duration = 0;
+
 
 // ISR related variables
 uint8_t lcd_timer = 0;
@@ -213,7 +217,7 @@ void lcd_init()
 
     // Init Timer 2 and set the OVF interrupt
     TCCR2A = 0x23;
-    TCCR2B = 0x04;
+    TCCR2B = 0x02;
     lcd_enable_interrupt();
 
     display_view_next = view_status_screen;
@@ -719,7 +723,7 @@ static void function_menu_sdcard_updir()
 static void function_sdcard_pause()
 {
     LCD_MESSAGEPGM(MSG_PAUSING);
-    lcd_disable_interrupt();
+    lcd_disable_button();
 
     stop_buffer = true;
     stop_buffer_code = 1;
@@ -730,7 +734,6 @@ static void function_sdcard_pause()
 
 static void function_sdcard_stop()
 {
-    lcd_disable_interrupt();
     card.sdprinting = false;
     card.closefile();
 
@@ -763,8 +766,6 @@ static void function_sdcard_stop()
     autotempShutdown();
 
     cancel_heatup = true;
-
-    lcd_enable_interrupt();
 }
 
 void draw_menu_stop_confirm()
@@ -1446,7 +1447,7 @@ static void function_prepare_change_filament()
     LCD_MESSAGEPGM(MSG_PAUSING);
     draw_status_screen();
 
-    lcd_disable_interrupt();
+    lcd_disable_button();
 }
 
 void draw_wizard_change_filament()
@@ -2029,10 +2030,22 @@ char *ftostr52(const float &x)
 
 ISR(TIMER2_OVF_vect)
 {
-    lcd_update_encoder();
     lcd_timer++;
 
-    if (lcd_timer == 50) {
+#if ( defined(BEEPER) && (BEEPER > 0) )
+    if (beeper_duration) {
+        beeper_level = !beeper_level;
+        beeper_duration--;
+    } else {
+        beeper_level = false;
+    }
+    WRITE(BEEPER, beeper_level);
+#endif // ( defined(BEEPER) && (BEEPER > 0) )
+
+    if (lcd_timer % 8 == 0)
+        lcd_update_encoder();
+
+    if (lcd_timer % 400 == 0) {
         lcd_update_button();
         lcd_timer = 0;
     }

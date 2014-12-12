@@ -204,22 +204,8 @@ static void lcd_implementation_quick_feedback()
 {
 #  if ( defined(BEEPER) && (BEEPER > 0) )
   SET_OUTPUT(BEEPER);
-#    if ( defined(LCD_FEEDBACK_FREQUENCY_HZ) && defined(LCD_FEEDBACK_FREQUENCY_DURATION_MS) )
-  for (int8_t i = 0; i < (LCD_FEEDBACK_FREQUENCY_DURATION_MS / (1000 / LCD_FEEDBACK_FREQUENCY_HZ)); i++) {
-    WRITE(BEEPER,HIGH);
-    delayMicroseconds(1000000 / LCD_FEEDBACK_FREQUENCY_HZ / 2);
-    WRITE(BEEPER,LOW);
-    delayMicroseconds(1000000 / LCD_FEEDBACK_FREQUENCY_HZ / 2);
-  }
-#    else // ( defined(LCD_FEEDBACK_FREQUENCY_HZ) && defined(LCD_FEEDBACK_FREQUENCY_DURATION_MS) )
-  for (int8_t i = 0; i < 10 ; i++) {
-    WRITE(BEEPER,HIGH);
-    delayMicroseconds(100);
-    WRITE(BEEPER,LOW);
-    delayMicroseconds(100);
-  }
-#    endif // ( defined(LCD_FEEDBACK_FREQUENCY_HZ) && defined(LCD_FEEDBACK_FREQUENCY_DURATION_MS) )
-
+  beeper_duration = 19;
+  beeper_level = false;
 #  endif // ( defined(BEEPER) && (BEEPER > 0) )
 }
 
