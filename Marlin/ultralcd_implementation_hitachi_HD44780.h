@@ -279,34 +279,34 @@ static void lcd_implementation_init()
 // Characters for a progress bar
 #if defined(LCD_PROGRESS_BAR) && defined(SDSUPPORT)
     byte progress1[8] = {
+        B00000,
         B10000,
         B10000,
         B10000,
         B10000,
         B10000,
         B10000,
-        B10000,
-        B10000
+        B00000
     };
     byte progress2[8] = {
+        B00000,
         B10100,
         B10100,
         B10100,
         B10100,
         B10100,
         B10100,
-        B10100,
-        B10100
+        B00000
     };
     byte progress3[8] = {
+        B00000,
         B10101,
         B10101,
         B10101,
         B10101,
         B10101,
         B10101,
-        B10101,
-        B10101
+        B00000
     };
 #else
     byte degree[8] =
