@@ -1186,7 +1186,7 @@ void lcd_update()
 #endif
 
 #ifdef ULTIPANEL
-        if(timeoutToStatus < millis() && currentMenu != lcd_status_screen)
+        if(currentMenu != lcd_status_screen && timeoutToStatus < millis())
         {
             lcd_return_to_status();
             lcdDrawUpdate = 2;
@@ -1221,7 +1221,7 @@ void lcd_setstatus(const char* message)
         message_millis=millis();  //get status message to show up for a while
 #endif
 #if defined(LCD_PROGRESS_BAR) && defined(SDSUPPORT)
-    progressBarTick = 0;
+    progressBarTick = millis();
 #endif
 }
 void lcd_setstatuspgm(const char* message)
@@ -1239,7 +1239,7 @@ void lcd_setstatuspgm(const char* message)
         message_millis=millis();  //get status message to show up for a while
 #endif
 #if defined(LCD_PROGRESS_BAR) && defined(SDSUPPORT)
-    progressBarTick = 0;
+    progressBarTick = millis();
 #endif
 }
 void lcd_setalertstatuspgm(const char* message)
