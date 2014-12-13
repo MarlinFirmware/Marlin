@@ -210,7 +210,7 @@ extern volatile uint16_t buttons;  //an extended version of the last checked but
 
 /* Custom characters defined in the first 8 characters of the LCD */
 #if defined(LCD_PROGRESS_BAR) && defined(SDSUPPORT)
-    static uint8_t progressBarTick = 0;
+    static uint16_t progressBarTick = 0;
     #define LCD_STR_PROGRESS    "\x01\x03\x04"
     #define LCD_STR_DEGREE      "\xDF"
     #define LCD_STR_UPLEVEL     "^"
@@ -577,28 +577,28 @@ static void lcd_implementation_status_screen()
     lcd.setCursor(0, LCD_HEIGHT - 1);
 
 #if defined(LCD_PROGRESS_BAR) && defined(SDSUPPORT)
-    static uint8_t alt = 0;
-    if (card.isFileOpen() && (progressBarTick > 1 || !lcd_status_message[0])) {
-        int tix = (int)(card.percentDone() * LCD_WIDTH * 3) / 100,
-            cel = tix / 3, rem = tix % 3, i = LCD_WIDTH;
-        char msg[LCD_WIDTH+1], b = ' ';
-        msg[i] = '\0';
-        while (i--) {
-            if (i == cel - 1)
-                b = LCD_STR_PROGRESS[2];
-            else if (i == cel && rem != 0)
-                b = LCD_STR_PROGRESS[rem-1];
-            msg[i] = b;
+    if (card.isFileOpen()) {
+        uint16_t mil = millis(), diff = mil - progressBarTick;
+        if (diff >= PROGRESS_BAR_INTERVAL || !lcd_status_message[0]) {
+            if (diff >= PROGRESS_BAR_INTERVAL * 2)
+                progressBarTick = mil;
+            int tix = (int)(card.percentDone() * LCD_WIDTH * 3) / 100,
+                cel = tix / 3, rem = tix % 3, i = LCD_WIDTH;
+            char msg[LCD_WIDTH+1], b = ' ';
+            msg[i] = '\0';
+            while (i--) {
+                if (i == cel - 1)
+                    b = LCD_STR_PROGRESS[2];
+                else if (i == cel && rem != 0)
+                    b = LCD_STR_PROGRESS[rem-1];
+                msg[i] = b;
+            }
+            lcd.print(msg);
+            return;
         }
-        lcd.print(msg);
     }
-    else {
-        lcd.print(lcd_status_message);
-    }
-    progressBarTick = (progressBarTick + 1) % 4;
-#else
-    lcd.print(lcd_status_message);
 #endif
+    lcd.print(lcd_status_message);
 }
 static void lcd_implementation_drawmenu_generic(uint8_t row, const char* pstr, char pre_char, char post_char)
 {
