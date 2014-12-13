@@ -715,9 +715,6 @@ void CardReader::presort()
             #endif
           #endif
           if (cmp) {
-            // char out[LONG_FILENAME_LENGTH*2+20];
-            // sprintf_P(out, PSTR("Swap %i %s for %i %s"), o1, sortnames[o1], o2, sortnames[o2]);
-            // SERIAL_ECHOLN(out);
             sort_order[s1] = o2;
             sort_order[s2] = o1;
             didSwap = true;
