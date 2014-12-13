@@ -311,10 +311,6 @@
   //#define PROGRESS_MSG_ONCE
 #endif
 
-#ifdef LCD_PROGRESS_BAR
-#define PROGRESS_BAR_INTERVAL 2000
-#endif
-
 // The hardware watchdog should reset the microcontroller disabling all outputs, in case the firmware gets stuck and doesn't do temperature regulation.
 //#define USE_WATCHDOG
 
