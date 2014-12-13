@@ -286,7 +286,8 @@ static void lcd_implementation_init()
 
 // Characters for a progress bar
 #if defined(LCD_PROGRESS_BAR) && defined(SDSUPPORT)
-    byte progress1[8] = {
+    byte progress[3][8] = {
+      {
         B00000,
         B10000,
         B10000,
@@ -295,8 +296,8 @@ static void lcd_implementation_init()
         B10000,
         B10000,
         B00000
-    };
-    byte progress2[8] = {
+      },
+      {
         B00000,
         B10100,
         B10100,
@@ -305,8 +306,8 @@ static void lcd_implementation_init()
         B10100,
         B10100,
         B00000
-    };
-    byte progress3[8] = {
+      },
+      {
         B00000,
         B10101,
         B10101,
@@ -315,6 +316,7 @@ static void lcd_implementation_init()
         B10101,
         B10101,
         B00000
+      }
     };
 #else
     byte degree[8] =
@@ -375,9 +377,7 @@ static void lcd_implementation_init()
 #endif
 
 #if defined(LCD_PROGRESS_BAR) && defined(SDSUPPORT)
-    lcd.createChar(LCD_STR_PROGRESS[0], progress1);
-    lcd.createChar(LCD_STR_PROGRESS[1], progress2);
-    lcd.createChar(LCD_STR_PROGRESS[2], progress3);
+    for (int i=3; i--;) lcd.createChar(LCD_STR_PROGRESS[i], progress[i]);
 #else
     lcd.createChar(LCD_STR_DEGREE[0], degree);
     lcd.createChar(LCD_STR_UPLEVEL[0], uplevel);
