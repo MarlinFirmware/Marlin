@@ -1268,7 +1268,7 @@ void lcd_finishstatus() {
     message_millis = millis();  //get status message to show up for a while
 #endif
 #if defined(LCD_PROGRESS_BAR) && defined(SDSUPPORT)
-    progressBarTick = 0;
+    progressBarTick = millis();
 #endif
 }
 void lcd_setstatus(const char* message)
