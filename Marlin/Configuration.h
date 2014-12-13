@@ -23,7 +23,7 @@
 // startup. Implementation of an idea by Prof Braino to inform user that any changes made to this
 // build by the user have been successfully uploaded into firmware.
 #define STRING_VERSION_CONFIG_H __DATE__ "2014-NOV-26" __TIME__ "00:01" // build date and time
-#define STRING_CONFIG_H_AUTHOR "(Lucio, LCD ready, bahamas coper big printer, auto cal, new PID)" // Who made the changes.
+#define STRING_CONFIG_H_AUTHOR "(Lucio, LCD ready, bahamas black big printer, auto cal, new PID)" // Who made the changes.
 
 // SERIAL_PORT selects which serial port should be used for communication with the host.
 // This allows the connection of wireless adapters (for instance) to non-default port pins.
@@ -197,9 +197,9 @@
 
 // If you are using a pre-configured hotend then you can use one of the value sets by uncommenting it
 // Ultimaker
-    #define  DEFAULT_Kp 28.52
-    #define  DEFAULT_Ki 5.61
-    #define  DEFAULT_Kd 36.21
+    #define  DEFAULT_Kp 74.97
+    #define  DEFAULT_Ki 14.53
+    #define  DEFAULT_Kd 96.73
 
 // MakerGear
 //    #define  DEFAULT_Kp 7.0
@@ -355,7 +355,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = false; // set to true to invert the logic o
 #define DISABLE_INACTIVE_EXTRUDER true //disable only inactive extruders and keep active extruder enabled
 
 #define INVERT_X_DIR true    // for Mendel set to false, for Orca set to true
-#define INVERT_Y_DIR true    // for Mendel set to true, for Orca set to false
+#define INVERT_Y_DIR false    // for Mendel set to true, for Orca set to false
 #define INVERT_Z_DIR true     // for Mendel set to false, for Orca set to true
 #define INVERT_E0_DIR false   // for direct drive extruder v9 set to true, for geared extruder set to false
 #define INVERT_E1_DIR false    // for direct drive extruder v9 set to true, for geared extruder set to false
@@ -435,7 +435,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = false; // set to true to invert the logic o
   // these are the offsets to the probe relative to the extruder tip (Hotend - Probe)
   #define X_PROBE_OFFSET_FROM_EXTRUDER 0
   #define Y_PROBE_OFFSET_FROM_EXTRUDER 0
-  #define Z_PROBE_OFFSET_FROM_EXTRUDER 0.68
+  #define Z_PROBE_OFFSET_FROM_EXTRUDER 1.1
 
   #define Z_RAISE_BEFORE_HOMING 25       // (in mm) Raise Z before homing (G28) for Probe Clearance.
                                         // Be sure you have this distance over your Z_MAX_POS in case
