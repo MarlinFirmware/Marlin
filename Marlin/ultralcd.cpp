@@ -1259,6 +1259,7 @@ void lcd_finishstatus() {
     progressBarTick = millis();
 #endif
     lcdDrawUpdate = 2;
+
 #ifdef FILAMENT_LCD_DISPLAY
     message_millis = millis();  //get status message to show up for a while
 #endif
