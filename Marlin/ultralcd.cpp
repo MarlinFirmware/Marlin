@@ -194,6 +194,33 @@ static void lcd_goto_menu(menuFunc_t menu, const uint32_t encoder=0, const bool 
 /* Main status screen. It's up to the implementation specific part to show what is needed. As this is very display dependent */
 static void lcd_status_screen()
 {
+#if defined(LCD_PROGRESS_BAR) && defined(SDSUPPORT)
+    uint16_t mil = millis();
+#ifndef PROGRESS_MSG_ONCE
+    if (mil > progressBarTick + PROGRESS_BAR_MSG_TIME + PROGRESS_BAR_BAR_TIME) {
+        progressBarTick = mil;
+    }
+#endif
+#if PROGRESS_MSG_EXPIRE > 0
+    // keep the message alive if paused, count down otherwise
+    if (messageTick > 0) {
+        if (card.isFileOpen()) {
+            if (IS_SD_PRINTING) {
+                if ((mil-messageTick) >= PROGRESS_MSG_EXPIRE) {
+                    lcd_status_message[0] = '\0';
+                    messageTick = 0;
+                }
+            }
+            else {
+                messageTick += LCD_UPDATE_INTERVAL;
+            }
+        }
+        else {
+            messageTick = 0;
+        }
+    }
+#endif
+#endif //LCD_PROGRESS_BAR
     if (lcd_status_update_delay)
         lcd_status_update_delay--;
     else
@@ -1339,6 +1366,9 @@ void lcd_setstatus(const char* message)
     strncpy(lcd_status_message, message, LCD_WIDTH);
     lcdDrawUpdate = 2;
 #if defined(LCD_PROGRESS_BAR) && defined(SDSUPPORT)
+#if PROGRESS_MSG_EXPIRE > 0
+    messageTick =
+#endif
     progressBarTick = millis();
 #endif
 }
