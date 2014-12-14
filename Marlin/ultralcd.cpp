@@ -1359,28 +1359,28 @@ void lcd_ignore_click(bool b)
     wait_for_unclick = false;
 }
 
-void lcd_setstatus(const char* message)
-{
-    if (lcd_status_message_level > 0)
-        return;
-    strncpy(lcd_status_message, message, LCD_WIDTH);
-    lcdDrawUpdate = 2;
+void lcd_finishstatus() {
 #if defined(LCD_PROGRESS_BAR) && defined(SDSUPPORT)
 #if PROGRESS_MSG_EXPIRE > 0
     messageTick =
 #endif
     progressBarTick = millis();
 #endif
+    lcdDrawUpdate = 2;
+}
+void lcd_setstatus(const char* message)
+{
+    if (lcd_status_message_level > 0)
+        return;
+    strncpy(lcd_status_message, message, LCD_WIDTH);
+    lcd_finishstatus();
 }
 void lcd_setstatuspgm(const char* message)
 {
     if (lcd_status_message_level > 0)
         return;
     strncpy_P(lcd_status_message, message, LCD_WIDTH);
-    lcdDrawUpdate = 2;
-#if defined(LCD_PROGRESS_BAR) && defined(SDSUPPORT)
-    progressBarTick = millis();
-#endif
+    lcd_finishstatus();
 }
 void lcd_setalertstatuspgm(const char* message)
 {
