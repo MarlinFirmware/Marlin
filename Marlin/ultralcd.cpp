@@ -1247,44 +1247,35 @@ void lcd_ignore_click(bool b)
     wait_for_unclick = false;
 }
 
-void lcd_setstatus(const char* message)
-{
-    if (lcd_status_message_level > 0)
-        return;
-    strncpy(lcd_status_message, message, LCD_WIDTH);
-
+void lcd_finishstatus() {
     size_t i = strlen(lcd_status_message);
     memset(lcd_status_message + i, ' ', LCD_WIDTH - i);
     lcd_status_message[LCD_WIDTH] = '\0';
 
-    lcdDrawUpdate = 2;
-#ifdef FILAMENT_LCD_DISPLAY
-        message_millis=millis();  //get status message to show up for a while
-#endif
 #if defined(LCD_PROGRESS_BAR) && defined(SDSUPPORT)
 #if PROGRESS_MSG_EXPIRE > 0
     messageTick =
 #endif
     progressBarTick = millis();
 #endif
+    lcdDrawUpdate = 2;
+#ifdef FILAMENT_LCD_DISPLAY
+        message_millis=millis();  //get status message to show up for a while
+#endif
+}
+void lcd_setstatus(const char* message)
+{
+    if (lcd_status_message_level > 0)
+        return;
+    strncpy(lcd_status_message, message, LCD_WIDTH);
+    lcd_finishstatus();
 }
 void lcd_setstatuspgm(const char* message)
 {
     if (lcd_status_message_level > 0)
         return;
     strncpy_P(lcd_status_message, message, LCD_WIDTH);
-
-    size_t i = strlen(lcd_status_message);
-    memset(lcd_status_message + i, ' ', LCD_WIDTH - i);
-    lcd_status_message[LCD_WIDTH] = '\0';
-
-    lcdDrawUpdate = 2;
-#ifdef FILAMENT_LCD_DISPLAY
-        message_millis=millis();  //get status message to show up for a while
-#endif
-#if defined(LCD_PROGRESS_BAR) && defined(SDSUPPORT)
-    progressBarTick = millis();
-#endif
+    lcd_finishstatus();
 }
 void lcd_setalertstatuspgm(const char* message)
 {
