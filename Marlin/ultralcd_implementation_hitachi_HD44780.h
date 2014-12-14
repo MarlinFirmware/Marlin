@@ -380,7 +380,6 @@ static void lcd_implementation_init(
 #endif
 )
 {
-
 #if defined(LCD_I2C_TYPE_PCF8575)
     lcd.begin(LCD_WIDTH, LCD_HEIGHT);
   #ifdef LCD_I2C_PIN_BL
@@ -621,7 +620,7 @@ static void lcd_implementation_status_screen()
     } //card.isFileOpen
 #endif //LCD_PROGRESS_BAR
     lcd.print(lcd_status_message);
-#endif
+#endif // FILAMENT_LCD_DISPLAY
 }
 static void lcd_implementation_drawmenu_generic(uint8_t row, const char* pstr, char pre_char, char post_char)
 {
