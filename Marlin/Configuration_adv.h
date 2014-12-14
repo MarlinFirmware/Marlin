@@ -299,8 +299,9 @@
 //#define MENU_ADDAUTOSTART
 
 // Show a progress bar on the LCD when printing from SD
-// This replaces 3 custom characters (degree, refresh, and updir) with similar glyphs
-//  from the HD44780 Japanese extended character set
+//  This needs 3 custom characters, so refresh ∫ and degree ° are
+//  replaced by HD44780 Japanese extended character set glyphs,
+//  while uplevel is replaced by caret ^
 //#define LCD_PROGRESS_BAR
 
 #ifdef LCD_PROGRESS_BAR
