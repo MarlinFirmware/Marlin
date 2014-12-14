@@ -178,6 +178,19 @@ menuFunc_t callbackFunc;
 // place-holders for Ki and Kd edits
 float raw_Ki, raw_Kd;
 
+static void lcd_goto_menu(menuFunc_t menu, const uint32_t encoder=0, const bool feedback=true) {
+    if (currentMenu != menu) {
+        currentMenu = menu;
+        encoderPosition = encoder;
+        if (feedback) lcd_quick_feedback();
+
+        // For LCD_PROGRESS_BAR re-initialize the custom characters
+        #if defined(LCD_PROGRESS_BAR) && defined(SDSUPPORT)
+            lcd_set_custom_characters(menu == lcd_status_screen);
+        #endif
+    }
+}
+
 /* Main status screen. It's up to the implementation specific part to show what is needed. As this is very display dependent */
 static void lcd_status_screen()
 {
@@ -212,10 +225,12 @@ static void lcd_status_screen()
 
     if (current_click)
     {
-        currentMenu = lcd_main_menu;
-        encoderPosition = 0;
-        lcd_quick_feedback();
-        lcd_implementation_init(); // to maybe revive the LCD if static electricity killed it.
+        lcd_goto_menu(lcd_main_menu);
+        lcd_implementation_init( // to maybe revive the LCD if static electricity killed it.
+#if defined(LCD_PROGRESS_BAR) && defined(SDSUPPORT)
+            currentMenu == lcd_status_screen
+#endif
+        );
     }
 
 #ifdef ULTIPANEL_FEEDMULTIPLY
@@ -252,10 +267,10 @@ static void lcd_status_screen()
 }
 
 #ifdef ULTIPANEL
+
 static void lcd_return_to_status()
 {
-    encoderPosition = 0;
-    currentMenu = lcd_status_screen;
+    lcd_goto_menu(lcd_status_screen);
 }
 
 static void lcd_sdcard_pause()
@@ -360,9 +375,7 @@ static void lcd_babystep_x()
     }
     if (LCD_CLICKED)
     {
-        lcd_quick_feedback();
-        currentMenu = lcd_tune_menu;
-        encoderPosition = 0;
+        lcd_goto_menu(lcd_tune_menu);
     }
 }
 
@@ -380,9 +393,7 @@ static void lcd_babystep_y()
     }
     if (LCD_CLICKED)
     {
-        lcd_quick_feedback();
-        currentMenu = lcd_tune_menu;
-        encoderPosition = 0;
+        lcd_goto_menu(lcd_tune_menu);
     }
 }
 
@@ -400,9 +411,7 @@ static void lcd_babystep_z()
     }
     if (LCD_CLICKED)
     {
-        lcd_quick_feedback();
-        currentMenu = lcd_tune_menu;
-        encoderPosition = 0;
+        lcd_goto_menu(lcd_tune_menu);
     }
 }
 #endif //BABYSTEPPING
@@ -658,9 +667,7 @@ static void lcd_move_x()
     }
     if (LCD_CLICKED)
     {
-        lcd_quick_feedback();
-        currentMenu = lcd_move_menu_axis;
-        encoderPosition = 0;
+        lcd_goto_menu(lcd_move_menu_axis);
     }
 }
 static void lcd_move_y()
@@ -688,9 +695,7 @@ static void lcd_move_y()
     }
     if (LCD_CLICKED)
     {
-        lcd_quick_feedback();
-        currentMenu = lcd_move_menu_axis;
-        encoderPosition = 0;
+        lcd_goto_menu(lcd_move_menu_axis);
     }
 }
 static void lcd_move_z()
@@ -718,9 +723,7 @@ static void lcd_move_z()
     }
     if (LCD_CLICKED)
     {
-        lcd_quick_feedback();
-        currentMenu = lcd_move_menu_axis;
-        encoderPosition = 0;
+        lcd_goto_menu(lcd_move_menu_axis);
     }
 }
 static void lcd_move_e()
@@ -743,9 +746,7 @@ static void lcd_move_e()
     }
     if (LCD_CLICKED)
     {
-        lcd_quick_feedback();
-        currentMenu = lcd_move_menu_axis;
-        encoderPosition = 0;
+        lcd_goto_menu(lcd_move_menu_axis);
     }
 }
 
@@ -942,9 +943,7 @@ static void lcd_set_contrast()
     }
     if (LCD_CLICKED)
     {
-        lcd_quick_feedback();
-        currentMenu = lcd_control_menu;
-        encoderPosition = 0;
+        lcd_goto_menu(lcd_control_menu);
     }
 }
 #endif
@@ -1034,26 +1033,14 @@ void lcd_sdcard_menu()
         if (LCD_CLICKED) \
         { \
             *((_type*)editValue) = ((_type)encoderPosition) / scale; \
-            lcd_quick_feedback(); \
-            currentMenu = prevMenu; \
-            encoderPosition = prevEncoderPosition; \
+            lcd_goto_menu(prevMenu, prevEncoderPosition); \
         } \
     } \
     void menu_edit_callback_ ## _name () \
     { \
-        if ((int32_t)encoderPosition < minEditValue) \
-            encoderPosition = minEditValue; \
-        if ((int32_t)encoderPosition > maxEditValue) \
-            encoderPosition = maxEditValue; \
-        if (lcdDrawUpdate) \
-            lcd_implementation_drawedit(editLabel, _strFunc(((_type)encoderPosition) / scale)); \
-        if (LCD_CLICKED) \
-        { \
-            *((_type*)editValue) = ((_type)encoderPosition) / scale; \
-            lcd_quick_feedback(); \
-            currentMenu = prevMenu; \
-            encoderPosition = prevEncoderPosition; \
-            (*callbackFunc)();\
+        menu_edit_ ## _name (); \
+        if (LCD_CLICKED) { \
+            (*callbackFunc)(); \
         } \
     } \
     static void menu_action_setting_edit_ ## _name (const char* pstr, _type* ptr, _type minValue, _type maxValue) \
@@ -1141,13 +1128,11 @@ static void lcd_quick_feedback()
 /** Menu action functions **/
 static void menu_action_back(menuFunc_t data)
 {
-    currentMenu = data;
-    encoderPosition = 0;
+    lcd_goto_menu(data);
 }
 static void menu_action_submenu(menuFunc_t data)
 {
-    currentMenu = data;
-    encoderPosition = 0;
+    lcd_goto_menu(data);
 }
 static void menu_action_gcode(const char* pgcode)
 {
@@ -1248,7 +1233,11 @@ void lcd_update()
     {
         lcdDrawUpdate = 2;
         lcd_oldcardstatus = IS_SD_INSERTED;
-        lcd_implementation_init(); // to maybe revive the LCD if static electricity killed it.
+        lcd_implementation_init( // to maybe revive the LCD if static electricity killed it.
+#if defined(LCD_PROGRESS_BAR) && defined(SDSUPPORT)
+            currentMenu == lcd_status_screen
+#endif
+        );
 
         if(lcd_oldcardstatus)
         {
@@ -1289,15 +1278,16 @@ void lcd_update()
         		reprapworld_keypad_move_home();
         	}
 		#endif
-        if (abs(encoderDiff) >= ENCODER_PULSES_PER_STEP)
-        {
-            lcdDrawUpdate = 1;
-            encoderPosition += encoderDiff / ENCODER_PULSES_PER_STEP;
-            encoderDiff = 0;
+        bool encoderPastThreshold = (abs(encoderDiff) >= ENCODER_PULSES_PER_STEP);
+        if (encoderPastThreshold || LCD_CLICKED) {
+            if (encoderPastThreshold)
+            {
+                lcdDrawUpdate = 1;
+                encoderPosition += encoderDiff / ENCODER_PULSES_PER_STEP;
+                encoderDiff = 0;
+            }
             timeoutToStatus = millis() + LCD_TIMEOUT_TO_STATUS;
         }
-        if (LCD_CLICKED)
-            timeoutToStatus = millis() + LCD_TIMEOUT_TO_STATUS;
 #endif//ULTIPANEL
 
 #ifdef DOGLCD        // Changes due to different driver architecture of the DOGM display
