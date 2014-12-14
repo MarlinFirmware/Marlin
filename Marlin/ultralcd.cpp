@@ -1267,12 +1267,13 @@ void lcd_finishstatus() {
 #ifdef FILAMENT_LCD_DISPLAY
     message_millis = millis();  //get status message to show up for a while
 #endif
-#if defined(LCD_PROGRESS_BAR) && defined(SDSUPPORT)
-#if PROGRESS_MSG_EXPIRE > 0
-    messageTick =
-#endif
-    progressBarTick = millis();
-#endif
+}
+void lcd_setstatus(const char* message)
+{
+    if (lcd_status_message_level > 0)
+        return;
+    strncpy(lcd_status_message, message, LCD_WIDTH);
+    lcd_finishstatus();
 }
 void lcd_setstatus(const char* message)
 {
