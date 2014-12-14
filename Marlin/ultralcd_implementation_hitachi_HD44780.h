@@ -576,8 +576,8 @@ static void lcd_implementation_status_screen()
 #if defined(LCD_PROGRESS_BAR) && defined(SDSUPPORT)
     if (card.isFileOpen()) {
         uint16_t mil = millis(), diff = mil - progressBarTick;
-        if (diff >= PROGRESS_BAR_INTERVAL || !lcd_status_message[0]) {
-            if (diff >= PROGRESS_BAR_INTERVAL * 2)
+        if (diff >= PROGRESS_BAR_MSG_TIME || !lcd_status_message[0]) {
+            if (diff >= PROGRESS_BAR_MSG_TIME + PROGRESS_BAR_BAR_TIME)
                 progressBarTick = mil;
             int tix = (int)(card.percentDone() * LCD_WIDTH * 3) / 100,
                 cel = tix / 3, rem = tix % 3, i = LCD_WIDTH;
