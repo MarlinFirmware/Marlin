@@ -211,6 +211,9 @@ extern volatile uint16_t buttons;  //an extended version of the last checked but
 /* Custom characters defined in the first 8 characters of the LCD */
 #if defined(LCD_PROGRESS_BAR) && defined(SDSUPPORT)
   static uint16_t progressBarTick = 0;
+  #if PROGRESS_MSG_EXPIRE > 0
+    static uint16_t messageTick = 0;
+  #endif
   #define LCD_STR_PROGRESS  "\x03\x04\x05"
 #endif
 
@@ -599,9 +602,8 @@ static void lcd_implementation_status_screen()
 #if defined(LCD_PROGRESS_BAR) && defined(SDSUPPORT)
     if (card.isFileOpen()) {
         uint16_t mil = millis(), diff = mil - progressBarTick;
-        if (diff >= PROGRESS_BAR_MSG_TIME || !lcd_status_message[0]) {
-            if (diff >= PROGRESS_BAR_MSG_TIME + PROGRESS_BAR_BAR_TIME)
-                progressBarTick = mil;
+        if (diff > PROGRESS_BAR_MSG_TIME || !lcd_status_message[0]) {
+            // draw the progress bar
             int tix = (int)(card.percentDone() * LCD_WIDTH * 3) / 100,
                 cel = tix / 3, rem = tix % 3, i = LCD_WIDTH;
             char msg[LCD_WIDTH+1], b = ' ';
@@ -616,8 +618,8 @@ static void lcd_implementation_status_screen()
             lcd.print(msg);
             return;
         }
-    }
-#endif
+    } //card.isFileOpen
+#endif //LCD_PROGRESS_BAR
     lcd.print(lcd_status_message);
 }
 static void lcd_implementation_drawmenu_generic(uint8_t row, const char* pstr, char pre_char, char post_char)
