@@ -1263,6 +1263,9 @@ void lcd_finishstatus() {
     message_millis = millis();  //get status message to show up for a while
 #endif
 #if defined(LCD_PROGRESS_BAR) && defined(SDSUPPORT)
+#if PROGRESS_MSG_EXPIRE > 0
+    messageTick =
+#endif
     progressBarTick = millis();
 #endif
 }
