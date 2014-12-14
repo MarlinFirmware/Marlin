@@ -264,7 +264,7 @@ static void lcd_status_screen()
 #endif
         );
 #ifdef FILAMENT_LCD_DISPLAY
-        message_millis=millis();  //get status message to show up for a while
+        message_millis = millis();  //get status message to show up for a while
 #endif
     }
 
