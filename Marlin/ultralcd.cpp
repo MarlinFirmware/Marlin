@@ -185,11 +185,16 @@ menuFunc_t callbackFunc;
 float raw_Ki, raw_Kd;
 
 static void lcd_goto_menu(menuFunc_t menu, const uint32_t encoder=0, const bool feedback=true) {
-  if (currentMenu != menu) {
-    currentMenu = menu;
-    encoderPosition = encoder;
-    if (feedback) lcd_quick_feedback();
-  }
+    if (currentMenu != menu) {
+        currentMenu = menu;
+        encoderPosition = encoder;
+        if (feedback) lcd_quick_feedback();
+
+        // For LCD_PROGRESS_BAR re-initialize the custom characters
+        #if defined(LCD_PROGRESS_BAR) && defined(SDSUPPORT)
+            lcd_set_custom_characters(menu == lcd_status_screen);
+        #endif
+    }
 }
 
 /* Main status screen. It's up to the implementation specific part to show what is needed. As this is very display dependent */
@@ -227,10 +232,14 @@ static void lcd_status_screen()
     if (current_click)
     {
         lcd_goto_menu(lcd_main_menu);
-        lcd_implementation_init(); // to maybe revive the LCD if static electricity killed it.
 #ifdef FILAMENT_LCD_DISPLAY
         message_millis=millis();  //get status message to show up for a while
 #endif
+        lcd_implementation_init( // to maybe revive the LCD if static electricity killed it.
+#if defined(LCD_PROGRESS_BAR) && defined(SDSUPPORT)
+            currentMenu == lcd_status_screen
+#endif
+        );
     }
 
 #ifdef ULTIPANEL_FEEDMULTIPLY
@@ -267,6 +276,7 @@ static void lcd_status_screen()
 }
 
 #ifdef ULTIPANEL
+
 static void lcd_return_to_status()
 {
     lcd_goto_menu(lcd_status_screen, 0, false);
@@ -1112,7 +1122,11 @@ void lcd_update()
     {
         lcdDrawUpdate = 2;
         lcd_oldcardstatus = IS_SD_INSERTED;
-        lcd_implementation_init(); // to maybe revive the LCD if static electricity killed it.
+        lcd_implementation_init( // to maybe revive the LCD if static electricity killed it.
+#if defined(LCD_PROGRESS_BAR) && defined(SDSUPPORT)
+            currentMenu == lcd_status_screen
+#endif
+        );
 
         if(lcd_oldcardstatus)
         {
@@ -1153,15 +1167,16 @@ void lcd_update()
         		reprapworld_keypad_move_home();
         	}
 		#endif
-        if (abs(encoderDiff) >= ENCODER_PULSES_PER_STEP)
-        {
-            lcdDrawUpdate = 1;
-            encoderPosition += encoderDiff / ENCODER_PULSES_PER_STEP;
-            encoderDiff = 0;
+        bool encoderPastThreshold = (abs(encoderDiff) >= ENCODER_PULSES_PER_STEP);
+        if (encoderPastThreshold || LCD_CLICKED) {
+            if (encoderPastThreshold)
+            {
+                lcdDrawUpdate = 1;
+                encoderPosition += encoderDiff / ENCODER_PULSES_PER_STEP;
+                encoderDiff = 0;
+            }
             timeoutToStatus = millis() + LCD_TIMEOUT_TO_STATUS;
         }
-        if (LCD_CLICKED)
-            timeoutToStatus = millis() + LCD_TIMEOUT_TO_STATUS;
 #endif//ULTIPANEL
 
 #ifdef DOGLCD        // Changes due to different driver architecture of the DOGM display
