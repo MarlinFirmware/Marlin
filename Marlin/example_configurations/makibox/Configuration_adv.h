@@ -296,6 +296,16 @@
 // using:
 //#define MENU_ADDAUTOSTART
 
+// Show a progress bar on the LCD when printing from SD
+//  This needs 3 custom characters, so refresh ∫ and degree ° are
+//  replaced by HD44780 Japanese extended character set glyphs,
+//  while uplevel is replaced by caret ^
+//#define LCD_PROGRESS_BAR
+
+#ifdef LCD_PROGRESS_BAR
+    #define PROGRESS_BAR_INTERVAL 2000
+#endif
+
 // The hardware watchdog should reset the microcontroller disabling all outputs, in case the firmware gets stuck and doesn't do temperature regulation.
 //#define USE_WATCHDOG
 
