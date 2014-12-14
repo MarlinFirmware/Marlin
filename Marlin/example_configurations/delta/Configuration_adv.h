@@ -296,8 +296,14 @@
 //#define LCD_PROGRESS_BAR
 
 #ifdef LCD_PROGRESS_BAR
-    #define PROGRESS_BAR_BAR_TIME 2000
-    #define PROGRESS_BAR_MSG_TIME 2000
+  // Amount of time (ms) to show the bar
+  #define PROGRESS_BAR_BAR_TIME 2000
+  // Amount of time (ms) to show the status message
+  #define PROGRESS_BAR_MSG_TIME 2000
+  // Amount of time (ms) to retain the status message (0=forever)
+  #define PROGRESS_MSG_EXPIRE   0
+  // Enable this to show messages for MSG_TIME then hide them
+  //#define PROGRESS_MSG_ONCE
 #endif
 
 // The hardware watchdog should reset the Microcontroller disabling all outputs, in case the firmware gets stuck and doesn't do temperature regulation.
