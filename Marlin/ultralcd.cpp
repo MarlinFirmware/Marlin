@@ -803,6 +803,7 @@ static void view_menu_control()
 
 void draw_menu_filament()
 {
+    lcd_enable_display_timeout();
     lcd_set_menu(view_menu_filament);
 }
 
@@ -865,6 +866,7 @@ static void view_menu_filament_load()
 
 void draw_menu_filament_insert()
 {
+    lcd_disable_display_timeout();
     lcd_set_menu(view_menu_filament_insert);
 }
 
