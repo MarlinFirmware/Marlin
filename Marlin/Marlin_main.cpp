@@ -247,6 +247,8 @@ int EtoPPressure=0;
 bool stop_buffer = false;
 int stop_buffer_code = 0;
 
+uint8_t buffer_recursivity = 0;
+
 #ifdef ULTIPANEL
   #ifdef PS_DEFAULT_OFF
     bool powersupply = false;

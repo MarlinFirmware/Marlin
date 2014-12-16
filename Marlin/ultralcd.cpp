@@ -14,6 +14,7 @@
 // Extern variables
 extern bool stop_buffer;
 extern int stop_buffer_code;
+extern uint8_t buffer_recursivity;
 
 static float manual_feedrate[] = MANUAL_FEEDRATE;
 
@@ -734,38 +735,49 @@ static void function_sdcard_pause()
 
 static void function_sdcard_stop()
 {
-    card.sdprinting = false;
-    card.closefile();
+    if (buffer_recursivity > 0) {
+        display_view_next = function_sdcard_stop;
+    } else {
 
-    setTargetHotend(0,0);
+        card.sdprinting = false;
+        card.closefile();
+
+        setTargetHotend(0,0);
 #    ifdef WITBOX_DUAL
-    setTargetHotend(0,1);
+        setTargetHotend(0,1);
 #    endif // WITBOX_DUAL
 
 #ifdef HEATED_BED_SUPPORT
-    setTargetBed(0);
+        setTargetBed(0);
 #endif
 
-    flush_commands();
-    quickStop();
+        flush_commands();
+        quickStop();
 
-    LCD_MESSAGEPGM(WELCOME_MSG);
-    draw_status_screen();
-    lcd_update();
+        LCD_MESSAGEPGM(WELCOME_MSG);
+        draw_status_screen();
+        lcd_update();
 
-    #    if X_MAX_POS < 250
-    plan_buffer_line(X_MIN_POS, 150, current_position[Z_AXIS]+20, current_position[E_AXIS], manual_feedrate[X_AXIS]/60, active_extruder);
+#    if X_MAX_POS < 250
+        current_position[X_AXIS] = X_MIN_POS;
+        current_position[Y_AXIS] = 150;
+        current_position[Z_AXIS] += 20;
 #    else // X_MAX_POS < 250
-    plan_buffer_line(X_MAX_POS-15, Y_MAX_POS-15, Z_MAX_POS-15, current_position[E_AXIS], manual_feedrate[X_AXIS]/60, active_extruder);
+        current_position[X_AXIS] = X_MAX_POS - 15;
+        current_position[Y_AXIS] = Y_MAX_POS - 15;
+        current_position[Z_AXIS] = Z_MAX_POS - 15;
 #    endif // X_MAX_POS < 250
-    st_synchronize();
 
-    if (SD_FINISHED_STEPPERRELEASE) {
-        enquecommand_P(PSTR(SD_FINISHED_RELEASECOMMAND));
+        plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 300/60, active_extruder);
+        st_synchronize();
+
+        if (SD_FINISHED_STEPPERRELEASE) {
+            enquecommand_P(PSTR(SD_FINISHED_RELEASECOMMAND));
+        }
+        autotempShutdown();
+
+        cancel_heatup = true;
     }
-    autotempShutdown();
-
-    cancel_heatup = true;
 }
 
 void draw_menu_stop_confirm()
@@ -1768,7 +1780,7 @@ static void menu_action_sdfile(const char* filename, char* longFilename)
             SERIAL_ECHOLN(MSG_SD_BAD_FILENAME);
             LCD_MESSAGEPGM(MSG_SD_BAD_FILENAME);
             draw_status_screen();
-	    lcd_update();
+            lcd_update();
             return;
         }
     }
