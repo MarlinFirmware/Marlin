@@ -773,7 +773,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
  * 
  * Motherboards
  * 34 - RAMPS1.4 - uses Analog input 5 on the AUX2 connector 
- * 81 - Printrboard - Uses Analog input 2 on the Aux 2 connector
+ * 81 - Printrboard - Uses Analog input 2 on the Exp1 connector (version B,C,D,E)
  * 301 - Rambo  - uses Analog input 3
  * Note may require analog pins to be defined for different motherboards
  **********************************************************************/
@@ -791,6 +791,8 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 //defines used in the code
 #define DEFAULT_MEASURED_FILAMENT_DIA  DEFAULT_NOMINAL_FILAMENT_DIA  //set measured to nominal initially 
 
+//When using an LCD, uncomment the line below to display the Filament sensor data on the last line instead of status.  Status will appear for 5 sec.
+//#define FILAMENT_LCD_DISPLAY
 
 
 
