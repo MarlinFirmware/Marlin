@@ -288,6 +288,8 @@ static void lcd_sdcard_stop()
     autotempShutdown();
 
 	cancel_heatup = true;
+
+	lcd_setstatus(MSG_PRINT_ABORTED);
 }
 
 /* Menu implementation */
