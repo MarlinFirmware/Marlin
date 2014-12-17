@@ -2917,6 +2917,8 @@ void process_commands()
         st_synchronize();
       } 
 
+      lcd_disable_button();
+
       current_position[E_AXIS]=lastpos[E_AXIS];
       plan_set_e_position(current_position[E_AXIS]);
     
@@ -2931,6 +2933,8 @@ void process_commands()
       SERIAL_ECHOLN("Wizard set to 4");
 
       st_synchronize();
+
+      lcd_enable_button();
       
       stop_buffer = false;
     }
