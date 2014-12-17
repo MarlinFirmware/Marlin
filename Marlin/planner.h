@@ -100,6 +100,8 @@ void plan_set_position(const float &x, const float &y, const float &z, const flo
 
 void plan_set_e_position(const float &e);
 
+void plan_reset_position();
+
 
 
 void check_axes_activity();

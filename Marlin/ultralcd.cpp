@@ -758,6 +758,8 @@ static void function_sdcard_stop()
         draw_status_screen();
         lcd_update();
 
+        plan_reset_position();
+
 #    if X_MAX_POS < 250
         current_position[X_AXIS] = X_MIN_POS;
         current_position[Y_AXIS] = 150;
@@ -767,8 +769,8 @@ static void function_sdcard_stop()
         current_position[Y_AXIS] = Y_MAX_POS - 15;
         current_position[Z_AXIS] = Z_MAX_POS - 15;
 #    endif // X_MAX_POS < 250
+        plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], manual_feedrate[X_AXIS] / 60, active_extruder);
 
-        plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 300/60, active_extruder);
         st_synchronize();
 
         if (SD_FINISHED_STEPPERRELEASE) {

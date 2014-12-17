@@ -986,6 +986,13 @@ void plan_set_e_position(const float &e)
   st_set_e_position(position[E_AXIS]);
 }
 
+void plan_reset_position() {
+  position[X_AXIS] = st_get_position(X_AXIS);
+  position[Y_AXIS] = st_get_position(Y_AXIS);
+  position[Z_AXIS] = st_get_position(Z_AXIS);     
+  position[E_AXIS] = st_get_position(E_AXIS);  
+}
+
 uint8_t movesplanned()
 {
   return (block_buffer_head-block_buffer_tail + BLOCK_BUFFER_SIZE) & (BLOCK_BUFFER_SIZE - 1);
