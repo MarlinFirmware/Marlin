@@ -1,6 +1,8 @@
 #ifndef CONFIGURATION_ADV_H
 #define CONFIGURATION_ADV_H
 
+#include "Configuration.h"
+
 //===========================================================================
 //=============================Thermal Settings  ============================
 //===========================================================================
@@ -277,10 +279,15 @@
 
 // uncomment to enable an I2C based DIGIPOT like on the Azteeg X3 Pro
 //#define DIGIPOT_I2C
-// Number of channels available for I2C digipot, For Azteeg X3 Pro we have 8
+#ifdef DIGIPOT_I2C
+// Number of channels available for I2C digipot
 #define DIGIPOT_I2C_NUM_CHANNELS 8
 // actual motor currents in Amps, need as many here as DIGIPOT_I2C_NUM_CHANNELS
 #define DIGIPOT_I2C_MOTOR_CURRENTS {1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0}
+// Settings for the I2C based DIGIPOT (MCP4451) on Azteeg X3 Pro
+#define DIGIPOT_I2C_FACTOR 117.96
+#define DIGIPOT_I2C_MAX_CURRENT 1.736
+#endif
 
 //===========================================================================
 //=============================Additional Features===========================

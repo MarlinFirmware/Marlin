@@ -295,7 +295,6 @@ int EtoPPressure=0;
 #endif
 
 #ifdef DELTA
-  float delta[3] = {0.0, 0.0, 0.0};
   #define SIN_60 0.8660254037844386
   #define COS_60 0.5
   // these are the default values, can be overriden with M665
@@ -314,6 +313,10 @@ int EtoPPressure=0;
 #ifdef SCARA                              // Build size scaling
 float axis_scaling[3]={1,1,1};  // Build size scaling, default to 1
 #endif				
+
+#if defined(DELTA) || defined(SCARA)
+static float delta[3] = {0.0, 0.0, 0.0};
+#endif
 
 bool cancel_heatup = false ;
 
@@ -334,10 +337,6 @@ bool cancel_heatup = false ;
 //===========================================================================
 const char axis_codes[NUM_AXIS] = {'X', 'Y', 'Z', 'E'};
 static float destination[NUM_AXIS] = {  0.0, 0.0, 0.0, 0.0};
-
-#ifndef DELTA
-static float delta[3] = {0.0, 0.0, 0.0};
-#endif
 
 static float offset[3] = {0.0, 0.0, 0.0};
 static bool home_all_axis = true;
@@ -454,19 +453,20 @@ void enquecommand_P(const char *cmd)
 
 void setup_killpin()
 {
-  #if defined(KILL_PIN) && KILL_PIN > -1
-    pinMode(KILL_PIN,INPUT);
+#if defined(KILL_PIN) && KILL_PIN > -1
+	pinMode(KILL_PIN,INPUT);
     WRITE(KILL_PIN,HIGH);
-  #endif
+#endif
 }
 
+
+#if defined(PHOTOGRAPH_PIN) && PHOTOGRAPH_PIN > -1
 void setup_photpin()
 {
-  #if defined(PHOTOGRAPH_PIN) && PHOTOGRAPH_PIN > -1
     SET_OUTPUT(PHOTOGRAPH_PIN);
     WRITE(PHOTOGRAPH_PIN, LOW);
-  #endif
 }
+#endif
 
 void setup_powerhold()
 {
@@ -484,14 +484,17 @@ void setup_powerhold()
   #endif
 }
 
+
 void suicide()
 {
-  #if defined(SUICIDE_PIN) && SUICIDE_PIN > -1
-    SET_OUTPUT(SUICIDE_PIN);
+#if defined(SUICIDE_PIN) && SUICIDE_PIN > -1
+	SET_OUTPUT(SUICIDE_PIN);
     WRITE(SUICIDE_PIN, LOW);
-  #endif
+#endif
 }
 
+
+#if NUM_SERVOS > 0
 void servo_init()
 {
   #if (NUM_SERVOS >= 1) && defined(SERVO0_PIN) && (SERVO0_PIN > -1)
@@ -525,6 +528,7 @@ void servo_init()
   servos[servo_endstops[Z_AXIS]].detach();
   #endif
 }
+#endif
 
 
 void setup()
@@ -574,9 +578,12 @@ void setup()
   plan_init();  // Initialize planner;
   watchdog_init();
   st_init();    // Initialize stepper, this enables interrupts!
+#if defined(PHOTOGRAPH_PIN) && PHOTOGRAPH_PIN > -1
   setup_photpin();
+#endif
+#if NUM_SERVOS > 0
   servo_init();
-  
+#endif
 
   lcd_init();
   _delay_ms(1000);	// wait 1sec to display the splash screen
@@ -1626,7 +1633,7 @@ void process_commands()
 #ifdef SCARA
 	  calculate_delta(current_position);
       plan_set_position(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], current_position[E_AXIS]);
-#endif SCARA
+#endif // SCARA
 
       #ifdef ENDSTOPS_ONLY_FOR_HOMING
         enable_endstops(false);
@@ -3689,6 +3696,7 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
     break;
     #endif //DUAL_X_CARRIAGE
 
+	#if (defined(DIGIPOTSS_PIN) && DIGIPOTSS_PIN > -1) || defined(MOTOR_CURRENT_PWM_XY_PIN) || defined(DIGIPOT_I2C)
     case 907: // M907 Set digital trimpot motor current using axis codes.
     {
       #if defined(DIGIPOTSS_PIN) && DIGIPOTSS_PIN > -1
@@ -3713,29 +3721,28 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
       #endif
     }
     break;
+    #endif
+    #if defined(DIGIPOTSS_PIN) && DIGIPOTSS_PIN > -1
     case 908: // M908 Control digital trimpot directly.
     {
-      #if defined(DIGIPOTSS_PIN) && DIGIPOTSS_PIN > -1
         uint8_t channel,current;
         if(code_seen('P')) channel=code_value();
         if(code_seen('S')) current=code_value();
         digitalPotWrite(channel, current);
-      #endif
     }
     break;
+    #endif
+    #if defined(X_MS1_PIN) && X_MS1_PIN > -1
     case 350: // M350 Set microstepping mode. Warning: Steps per unit remains unchanged. S code sets stepping mode for all drivers.
     {
-      #if defined(X_MS1_PIN) && X_MS1_PIN > -1
         if(code_seen('S')) for(int i=0;i<=4;i++) microstep_mode(i,code_value());
         for(int i=0;i<NUM_AXIS;i++) if(code_seen(axis_codes[i])) microstep_mode(i,(uint8_t)code_value());
         if(code_seen('B')) microstep_mode(4,code_value());
         microstep_readings();
-      #endif
     }
     break;
     case 351: // M351 Toggle MS1 MS2 pins directly, S# determines MS1 or MS2, X# sets the pin high/low.
     {
-      #if defined(X_MS1_PIN) && X_MS1_PIN > -1
       if(code_seen('S')) switch((int)code_value())
       {
         case 1:
@@ -3748,9 +3755,9 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
           break;
       }
       microstep_readings();
-      #endif
     }
     break;
+    #endif
     case 999: // M999: Restart after being stopped
       Stopped = false;
       lcd_reset_alert_level();
@@ -3770,9 +3777,13 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
       SERIAL_ECHOLN(MSG_INVALID_EXTRUDER);
     }
     else {
+	  #if EXTRUDERS > 1
       boolean make_move = false;
+	  #endif
       if(code_seen('F')) {
+		#if EXTRUDERS > 1
         make_move = true;
+		#endif
         next_feedrate = code_value();
         if(next_feedrate > 0.0) {
           feedrate = next_feedrate;
@@ -3897,14 +3908,11 @@ void ClearToSend()
 
 void get_coordinates()
 {
-  bool seen[4]={false,false,false,false};
   for(int8_t i=0; i < NUM_AXIS; i++) {
     if(code_seen(axis_codes[i]))
-    {
       destination[i] = (float)code_value() + (axis_relative_modes[i] || relative_mode)*current_position[i];
-      seen[i]=true;
-    }
-    else destination[i] = current_position[i]; //Are these else lines really needed?
+    else 
+	  destination[i] = current_position[i]; //Are these else lines really needed?
   }
   if(code_seen('F')) {
     next_feedrate = code_value();

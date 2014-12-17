@@ -76,12 +76,24 @@ bool abort_on_endstop_hit = false;
   int motor_current_setting[3] = DEFAULT_PWM_MOTOR_CURRENT;
 #endif
 
-static bool old_x_min_endstop=false;
-static bool old_x_max_endstop=false;
-static bool old_y_min_endstop=false;
-static bool old_y_max_endstop=false;
-static bool old_z_min_endstop=false;
+#if defined(X_MIN_PIN) && X_MIN_PIN > -1
+static bool old_x_min_endstop = false;
+#endif
+#if defined(X_MAX_PIN) && X_MAX_PIN > -1
+static bool old_x_max_endstop = false;
+#endif
+#if defined(Y_MIN_PIN) &&Y_MIN_PIN > -1
+static bool old_y_min_endstop = false;
+#endif
+#if defined(Y_MAX_PIN) && Y_MAX_PIN > -1
+static bool old_y_max_endstop = false;
+#endif
+#if defined(Z_MIN_PIN) && Z_MIN_PIN > -1
+static bool old_z_min_endstop = false;
+#endif
+#if defined(Z_MAX_PIN) && Z_MAX_PIN > -1
 static bool old_z_max_endstop=false;
+#endif
 
 static bool check_endstops = true;
 
@@ -409,6 +421,7 @@ ISR(TIMER1_COMPA_vect)
     #else
     if ((((out_bits & (1<<X_AXIS)) != 0)&&(out_bits & (1<<Y_AXIS)) != 0)) {   //-X occurs for -A and -B
     #endif
+      #if defined(X_MIN_PIN) && X_MIN_PIN > -1
       CHECK_ENDSTOPS
       {
         #ifdef DUAL_X_CARRIAGE
@@ -417,7 +430,6 @@ ISR(TIMER1_COMPA_vect)
             || (current_block->active_extruder != 0 && X2_HOME_DIR == -1))
         #endif          
         {
-          #if defined(X_MIN_PIN) && X_MIN_PIN > -1
             bool x_min_endstop=(READ(X_MIN_PIN) != X_MIN_ENDSTOP_INVERTING);
             if(x_min_endstop && old_x_min_endstop && (current_block->steps_x > 0)) {
               endstops_trigsteps[X_AXIS] = count_position[X_AXIS];
@@ -425,11 +437,12 @@ ISR(TIMER1_COMPA_vect)
               step_events_completed = current_block->step_event_count;
             }
             old_x_min_endstop = x_min_endstop;
-          #endif
         }
       }
+      #endif
     }
     else { // +direction
+      #if defined(X_MAX_PIN) && X_MAX_PIN > -1
       CHECK_ENDSTOPS
       {
         #ifdef DUAL_X_CARRIAGE
@@ -438,7 +451,6 @@ ISR(TIMER1_COMPA_vect)
             || (current_block->active_extruder != 0 && X2_HOME_DIR == 1))
         #endif          
         {
-          #if defined(X_MAX_PIN) && X_MAX_PIN > -1
             bool x_max_endstop=(READ(X_MAX_PIN) != X_MAX_ENDSTOP_INVERTING);
             if(x_max_endstop && old_x_max_endstop && (current_block->steps_x > 0)){
               endstops_trigsteps[X_AXIS] = count_position[X_AXIS];
@@ -446,9 +458,9 @@ ISR(TIMER1_COMPA_vect)
               step_events_completed = current_block->step_event_count;
             }
             old_x_max_endstop = x_max_endstop;
-          #endif
         }
       }
+      #endif
     }
 
     #ifndef COREXY
@@ -456,9 +468,9 @@ ISR(TIMER1_COMPA_vect)
     #else
     if ((((out_bits & (1<<X_AXIS)) != 0)&&(out_bits & (1<<Y_AXIS)) == 0)) {   // -Y occurs for -A and +B
     #endif
+      #if defined(Y_MIN_PIN) && Y_MIN_PIN > -1
       CHECK_ENDSTOPS
       {
-        #if defined(Y_MIN_PIN) && Y_MIN_PIN > -1
           bool y_min_endstop=(READ(Y_MIN_PIN) != Y_MIN_ENDSTOP_INVERTING);
           if(y_min_endstop && old_y_min_endstop && (current_block->steps_y > 0)) {
             endstops_trigsteps[Y_AXIS] = count_position[Y_AXIS];
@@ -466,13 +478,13 @@ ISR(TIMER1_COMPA_vect)
             step_events_completed = current_block->step_event_count;
           }
           old_y_min_endstop = y_min_endstop;
-        #endif
       }
+      #endif
     }
     else { // +direction
+      #if defined(Y_MAX_PIN) && Y_MAX_PIN > -1
       CHECK_ENDSTOPS
       {
-        #if defined(Y_MAX_PIN) && Y_MAX_PIN > -1
           bool y_max_endstop=(READ(Y_MAX_PIN) != Y_MAX_ENDSTOP_INVERTING);
           if(y_max_endstop && old_y_max_endstop && (current_block->steps_y > 0)){
             endstops_trigsteps[Y_AXIS] = count_position[Y_AXIS];
@@ -480,8 +492,8 @@ ISR(TIMER1_COMPA_vect)
             step_events_completed = current_block->step_event_count;
           }
           old_y_max_endstop = y_max_endstop;
-        #endif
       }
+      #endif
     }
 
     if ((out_bits & (1<<Z_AXIS)) != 0) {   // -direction
@@ -492,9 +504,9 @@ ISR(TIMER1_COMPA_vect)
       #endif
 
       count_direction[Z_AXIS]=-1;
+      #if defined(Z_MIN_PIN) && Z_MIN_PIN > -1
       CHECK_ENDSTOPS
       {
-        #if defined(Z_MIN_PIN) && Z_MIN_PIN > -1
           bool z_min_endstop=(READ(Z_MIN_PIN) != Z_MIN_ENDSTOP_INVERTING);
           if(z_min_endstop && old_z_min_endstop && (current_block->steps_z > 0)) {
             endstops_trigsteps[Z_AXIS] = count_position[Z_AXIS];
@@ -502,8 +514,8 @@ ISR(TIMER1_COMPA_vect)
             step_events_completed = current_block->step_event_count;
           }
           old_z_min_endstop = z_min_endstop;
-        #endif
       }
+      #endif
     }
     else { // +direction
       WRITE(Z_DIR_PIN,!INVERT_Z_DIR);
@@ -513,9 +525,9 @@ ISR(TIMER1_COMPA_vect)
       #endif
 
       count_direction[Z_AXIS]=1;
+      #if defined(Z_MAX_PIN) && Z_MAX_PIN > -1
       CHECK_ENDSTOPS
       {
-        #if defined(Z_MAX_PIN) && Z_MAX_PIN > -1
           bool z_max_endstop=(READ(Z_MAX_PIN) != Z_MAX_ENDSTOP_INVERTING);
           if(z_max_endstop && old_z_max_endstop && (current_block->steps_z > 0)) {
             endstops_trigsteps[Z_AXIS] = count_position[Z_AXIS];
@@ -523,8 +535,8 @@ ISR(TIMER1_COMPA_vect)
             step_events_completed = current_block->step_event_count;
           }
           old_z_max_endstop = z_max_endstop;
-        #endif
       }
+      #endif
     }
 
     #ifndef ADVANCE
@@ -819,8 +831,13 @@ ISR(TIMER1_COMPA_vect)
 
 void st_init()
 {
+  #if (defined(DIGIPOTSS_PIN) && DIGIPOTSS_PIN > -1) || defined(MOTOR_CURRENT_PWM_XY_PIN)
   digipot_init(); //Initialize Digipot Motor Current
+  #endif
+
+  #if (defined(X_MS1_PIN) && X_MS1_PIN > -1) || (defined(E1_MS1_PIN) && E1_MS1_PIN > -1)
   microstep_init(); //Initialize Microstepping Pins
+  #endif
 
   //Initialize Dir Pins
   #if defined(X_DIR_PIN) && X_DIR_PIN > -1
@@ -1232,17 +1249,19 @@ void babystep(const uint8_t axis,const bool direction)
 }
 #endif //BABYSTEPPING
 
+
+#if defined(DIGIPOTSS_PIN) && DIGIPOTSS_PIN > -1
 void digitalPotWrite(int address, int value) // From Arduino DigitalPotControl example
 {
-  #if defined(DIGIPOTSS_PIN) && DIGIPOTSS_PIN > -1
     digitalWrite(DIGIPOTSS_PIN,LOW); // take the SS pin low to select the chip
     SPI.transfer(address); //  send in the address and value via SPI:
     SPI.transfer(value);
     digitalWrite(DIGIPOTSS_PIN,HIGH); // take the SS pin high to de-select the chip:
     //delay(10);
-  #endif
 }
+#endif
 
+#if (defined(DIGIPOTSS_PIN) && DIGIPOTSS_PIN > -1) || defined(MOTOR_CURRENT_PWM_XY_PIN)
 void digipot_init() //Initialize Digipot Motor Current
 {
   #if defined(DIGIPOTSS_PIN) && DIGIPOTSS_PIN > -1
@@ -1278,17 +1297,18 @@ void digipot_current(uint8_t driver, int current)
   if (driver == 2) analogWrite(MOTOR_CURRENT_PWM_E_PIN, (long)current * 255L / (long)MOTOR_CURRENT_PWM_RANGE);
   #endif
 }
+#endif
 
+#if (defined(X_MS1_PIN) && X_MS1_PIN > -1) || (defined(E1_MS1_PIN) && E1_MS1_PIN > -1)
 void microstep_init()
 {
-  const uint8_t microstep_modes[] = MICROSTEP_MODES;
-
   #if defined(E1_MS1_PIN) && E1_MS1_PIN > -1
   pinMode(E1_MS1_PIN,OUTPUT);
   pinMode(E1_MS2_PIN,OUTPUT); 
   #endif
 
   #if defined(X_MS1_PIN) && X_MS1_PIN > -1
+  const uint8_t microstep_modes[] = MICROSTEP_MODES;
   pinMode(X_MS1_PIN,OUTPUT);
   pinMode(X_MS2_PIN,OUTPUT);  
   pinMode(Y_MS1_PIN,OUTPUT);
@@ -1305,20 +1325,24 @@ void microstep_ms(uint8_t driver, int8_t ms1, int8_t ms2)
 {
   if(ms1 > -1) switch(driver)
   {
+	#if defined(X_MS1_PIN) && X_MS1_PIN > -1
     case 0: digitalWrite( X_MS1_PIN,ms1); break;
     case 1: digitalWrite( Y_MS1_PIN,ms1); break;
     case 2: digitalWrite( Z_MS1_PIN,ms1); break;
     case 3: digitalWrite(E0_MS1_PIN,ms1); break;
+	#endif
     #if defined(E1_MS1_PIN) && E1_MS1_PIN > -1
     case 4: digitalWrite(E1_MS1_PIN,ms1); break;
     #endif
   }
   if(ms2 > -1) switch(driver)
   {
+	#if defined(X_MS1_PIN) && X_MS1_PIN > -1
     case 0: digitalWrite( X_MS2_PIN,ms2); break;
     case 1: digitalWrite( Y_MS2_PIN,ms2); break;
     case 2: digitalWrite( Z_MS2_PIN,ms2); break;
     case 3: digitalWrite(E0_MS2_PIN,ms2); break;
+	#endif
     #if defined(E1_MS2_PIN) && E1_MS2_PIN > -1
     case 4: digitalWrite(E1_MS2_PIN,ms2); break;
     #endif
@@ -1339,23 +1363,26 @@ void microstep_mode(uint8_t driver, uint8_t stepping_mode)
 
 void microstep_readings()
 {
-      SERIAL_PROTOCOLPGM("MS1,MS2 Pins\n");
-      SERIAL_PROTOCOLPGM("X: ");
-      SERIAL_PROTOCOL(   digitalRead(X_MS1_PIN));
-      SERIAL_PROTOCOLLN( digitalRead(X_MS2_PIN));
-      SERIAL_PROTOCOLPGM("Y: ");
-      SERIAL_PROTOCOL(   digitalRead(Y_MS1_PIN));
-      SERIAL_PROTOCOLLN( digitalRead(Y_MS2_PIN));
-      SERIAL_PROTOCOLPGM("Z: ");
-      SERIAL_PROTOCOL(   digitalRead(Z_MS1_PIN));
-      SERIAL_PROTOCOLLN( digitalRead(Z_MS2_PIN));
-      SERIAL_PROTOCOLPGM("E0: ");
-      SERIAL_PROTOCOL(   digitalRead(E0_MS1_PIN));
-      SERIAL_PROTOCOLLN( digitalRead(E0_MS2_PIN));
-      #if defined(E1_MS1_PIN) && E1_MS1_PIN > -1
-      SERIAL_PROTOCOLPGM("E1: ");
-      SERIAL_PROTOCOL(   digitalRead(E1_MS1_PIN));
-      SERIAL_PROTOCOLLN( digitalRead(E1_MS2_PIN));
-      #endif
+	SERIAL_PROTOCOLPGM("MS1,MS2 Pins\n");
+	#if defined(X_MS1_PIN) && X_MS1_PIN > -1
+    SERIAL_PROTOCOLPGM("X: ");
+    SERIAL_PROTOCOL(   digitalRead(X_MS1_PIN));
+    SERIAL_PROTOCOLLN( digitalRead(X_MS2_PIN));
+    SERIAL_PROTOCOLPGM("Y: ");
+    SERIAL_PROTOCOL(   digitalRead(Y_MS1_PIN));
+    SERIAL_PROTOCOLLN( digitalRead(Y_MS2_PIN));
+    SERIAL_PROTOCOLPGM("Z: ");
+    SERIAL_PROTOCOL(   digitalRead(Z_MS1_PIN));
+    SERIAL_PROTOCOLLN( digitalRead(Z_MS2_PIN));
+    SERIAL_PROTOCOLPGM("E0: ");
+    SERIAL_PROTOCOL(   digitalRead(E0_MS1_PIN));
+	SERIAL_PROTOCOLLN(digitalRead(E0_MS2_PIN));
+	#endif
+    #if defined(E1_MS1_PIN) && E1_MS1_PIN > -1
+    SERIAL_PROTOCOLPGM("E1: ");
+    SERIAL_PROTOCOL(   digitalRead(E1_MS1_PIN));
+    SERIAL_PROTOCOLLN( digitalRead(E1_MS2_PIN));
+    #endif
 }
+#endif
 
