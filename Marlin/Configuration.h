@@ -71,6 +71,7 @@
 // 83 = SAV Mk-I (AT90USB1286)
 // 84 = Teensy++2.0 (AT90USB1286) // CLI compile: DEFINES=AT90USBxx_TEENSYPP_ASSIGNMENTS HARDWARE_MOTHERBOARD=84  make
 // 9  = Gen3+
+// 22 = Gen3 Monolithic Electronics
 // 70 = Megatronics
 // 701= Megatronics v2.0
 // 702= Minitronics v1.0
