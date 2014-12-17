@@ -166,13 +166,21 @@ extern volatile uint16_t buttons;  //an extended version of the last checked but
   #include <Wire.h>
   #include <LiquidTWI2.h>
   #define LCD_CLASS LiquidTWI2
-  LCD_CLASS lcd(LCD_I2C_ADDRESS);
+  #if defined(DETECT_DEVICE)
+     LCD_CLASS lcd(LCD_I2C_ADDRESS, 1);
+  #else
+     LCD_CLASS lcd(LCD_I2C_ADDRESS);
+  #endif
   
 #elif defined(LCD_I2C_TYPE_MCP23008)
   #include <Wire.h>
   #include <LiquidTWI2.h>
   #define LCD_CLASS LiquidTWI2
-  LCD_CLASS lcd(LCD_I2C_ADDRESS);  
+  #if defined(DETECT_DEVICE)
+     LCD_CLASS lcd(LCD_I2C_ADDRESS, 1);
+  #else
+     LCD_CLASS lcd(LCD_I2C_ADDRESS);
+  #endif
 
 #elif defined(LCD_I2C_TYPE_PCA8574)
     #include <LiquidCrystal_I2C.h>
