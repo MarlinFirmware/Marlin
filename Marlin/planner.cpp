@@ -959,6 +959,11 @@ vector_3 plan_get_position() {
 }
 #endif // ENABLE_AUTO_BED_LEVELING
 
+float plan_get_axis_position(uint8_t axis)
+{
+  return position[axis] / axis_steps_per_unit[axis];
+}
+
 #ifdef ENABLE_AUTO_BED_LEVELING
 void plan_set_position(float x, float y, float z, const float &e)
 {

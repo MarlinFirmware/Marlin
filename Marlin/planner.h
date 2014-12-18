@@ -91,6 +91,8 @@ vector_3 plan_get_position();
 void plan_buffer_line(const float &x, const float &y, const float &z, const float &e, float feed_rate, const uint8_t &extruder);
 #endif // ENABLE_AUTO_BED_LEVELING
 
+float plan_get_axis_position(uint8_t axis);
+
 // Set position. Used for G92 instructions.
 #ifdef ENABLE_AUTO_BED_LEVELING
 void plan_set_position(float x, float y, float z, const float &e);
