@@ -1332,7 +1332,7 @@ void lcd_update()
             lcd_implementation_clear();
         if (lcdDrawUpdate)
             lcdDrawUpdate--;
-        lcd_next_update_millis = millis() + 100;
+        lcd_next_update_millis = millis() + LCD_UPDATE_INTERVAL;
     }
 }
 
