@@ -73,7 +73,7 @@
 // 88 = 5DPrint D8 Driver Board
 
 #ifndef MOTHERBOARD
-#define MOTHERBOARD 88
+  #define MOTHERBOARD BOARD_5DPRINT
 #endif
 
 // Define this to set a custom name for your generic Mendel,
