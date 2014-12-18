@@ -1,8 +1,12 @@
+/**
+ * Dutch
+ *
+ * LCD Menu Messages
+ * Please note these are limited to 17 characters!
+ *
+ */
 #ifndef LANGUAGE_NL_H
 #define LANGUAGE_NL_H
-
-// LCD Menu Messages
-// Please note these are limited to 17 characters!
 
 #define WELCOME_MSG                         MACHINE_NAME " gereed."
 #define MSG_SD_INSERTED                     "Kaart ingestoken"
@@ -80,7 +84,6 @@
 #define MSG_YSTEPS                          "Ysteps/mm"
 #define MSG_ZSTEPS                          "Zsteps/mm"
 #define MSG_ESTEPS                          "Esteps/mm"
-#define MSG_RECTRACT                        "Terugtrekken"
 #define MSG_TEMPERATURE                     "Temperatuur"
 #define MSG_MOTION                          "Beweging"
 #define MSG_CONTRAST                        "LCD contrast"
@@ -121,5 +124,7 @@
 #define MSG_BABYSTEP_Y                      "Babystap Y"
 #define MSG_BABYSTEP_Z                      "Babystap Z"
 #define MSG_ENDSTOP_ABORT                   "Endstop afbr."
+
+#define MSG_RECTRACT                        "Terugtrekken"
 
 #endif // LANGUAGE_NL_H

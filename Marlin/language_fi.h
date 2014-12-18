@@ -1,8 +1,12 @@
+/**
+ * Finnish
+ *
+ * LCD Menu Messages
+ * Please note these are limited to 17 characters!
+ *
+ */
 #ifndef LANGUAGE_FI_H
 #define LANGUAGE_FI_H
-
-// LCD Menu Messages
-// Please note these are limited to 17 characters!
 
 #define WELCOME_MSG                         MACHINE_NAME " valmis."
 #define MSG_SD_INSERTED                     "Kortti asetettu"
@@ -80,7 +84,6 @@
 #define MSG_YSTEPS                          "Ysteps/mm"
 #define MSG_ZSTEPS                          "Zsteps/mm"
 #define MSG_ESTEPS                          "Esteps/mm"
-#define MSG_RECTRACT                        "Veda takaisin"
 #define MSG_TEMPERATURE                     "Lampotila"
 #define MSG_MOTION                          "Liike"
 #define MSG_CONTRAST                        "LCD contrast"
@@ -121,5 +124,7 @@
 #define MSG_BABYSTEP_Y                      "Babystep Y"
 #define MSG_BABYSTEP_Z                      "Babystep Z"
 #define MSG_ENDSTOP_ABORT                   "Endstop abort"
+
+#define MSG_RECTRACT                        "Veda takaisin"
 
 #endif // LANGUAGE_FI_H

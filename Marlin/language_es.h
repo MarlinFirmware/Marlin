@@ -1,8 +1,12 @@
+/**
+ * Spanish
+ *
+ * LCD Menu Messages
+ * Please note these are limited to 17 characters!
+ *
+ */
 #ifndef LANGUAGE_ES_H
 #define LANGUAGE_ES_H
-
-// LCD Menu Messages
-// Please note these are limited to 17 characters!
 
 #define WELCOME_MSG                         MACHINE_NAME " lista."
 #define MSG_SD_INSERTED                     "Tarjeta colocada"
@@ -80,9 +84,9 @@
 #define MSG_YSTEPS                          "Y pasos/mm"
 #define MSG_ZSTEPS                          "Z pasos/mm"
 #define MSG_ESTEPS                          "E pasos/mm"
-#define MSG_RECTRACT                        "Retraer"
 #define MSG_TEMPERATURE                     "Temperatura"
 #define MSG_MOTION                          "Movimiento"
+#define MSG_CONTRAST                        "Contraste"
 #define MSG_STORE_EPROM                     "Guardar memoria"
 #define MSG_LOAD_EPROM                      "Cargar memoria"
 #define MSG_RESTORE_FAILSAFE                "Rest. de emergen."
@@ -113,15 +117,6 @@
 #define MSG_FILAMENTCHANGE                  "Cambiar filamento"
 #define MSG_INIT_SDCARD                     "Iniciando tarjeta"
 #define MSG_CNG_SDCARD                      "Cambiar tarjeta"
-#define MSG_RECTRACT_WIDE                   "Retraer"
-#define MSG_TEMPERATURE_WIDE                "Temperatura"
-#define MSG_TEMPERATURE_RTN                 "Temperatura"
-#define MSG_MAIN_WIDE                       "Menu principal"
-#define MSG_MOTION_WIDE                     "Movimiento"
-#define MSG_PREPARE_ALT                     "Preparar"
-#define MSG_CONTROL_ARROW                   "Control"
-#define MSG_RETRACT_ARROW                   "Retraer"
-#define MSG_STEPPER_RELEASED                "Desacoplada."
 #define MSG_ZPROBE_OUT                      "sonda Z fuera"
 #define MSG_POSITION_UNKNOWN                "Reiniciar X/Y y Z"
 #define MSG_ZPROBE_ZOFFSET                  "Offset Z"
@@ -129,6 +124,16 @@
 #define MSG_BABYSTEP_Y                      "Babystep Y"
 #define MSG_BABYSTEP_Z                      "Babystep Z"
 #define MSG_ENDSTOP_ABORT                   "Endstop abort"
-#define MSG_CONTRAST                        "Contraste"
+
+#define MSG_RECTRACT                        "Retraer"
+#define MSG_RECTRACT_WIDE                   "Retraer"
+#define MSG_TEMPERATURE_WIDE                "Temperatura"
+#define MSG_TEMPERATURE_RTN                 "Temperatura"
+#define MSG_MAIN_WIDE                       "Menu principal"
+#define MSG_MOTION_WIDE                     "Movimiento"
+#define MSG_PREPARE_ALT                     "Preparar"
+#define MSG_CONTROL_ARROW                   "Control \x7E"
+#define MSG_RETRACT_ARROW                   "Retraer \x7E"
+#define MSG_STEPPER_RELEASED                "Desacoplada."
 
 #endif // LANGUAGE_ES_H

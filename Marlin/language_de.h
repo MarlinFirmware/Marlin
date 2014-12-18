@@ -1,8 +1,12 @@
+/**
+ * German
+ *
+ * LCD Menu Messages
+ * Please note these are limited to 17 characters!
+ *
+ */
 #ifndef LANGUAGE_DE_H
 #define LANGUAGE_DE_H
-
-// LCD Menu Messages
-// Please note these are limited to 17 characters!
 
 #define WELCOME_MSG                         MACHINE_NAME " Bereit."
 #define MSG_SD_INSERTED                     "SDKarte erkannt"
@@ -80,8 +84,6 @@
 #define MSG_YSTEPS                          "Ysteps/mm"
 #define MSG_ZSTEPS                          "Zsteps/mm"
 #define MSG_ESTEPS                          "Esteps/mm"
-#define MSG_RECTRACT_WIDE                   "Rectract"
-#define MSG_WATCH                           "Beobachten"
 #define MSG_TEMPERATURE                     "Temperatur"
 #define MSG_MOTION                          "Bewegung"
 #define MSG_CONTRAST                        "LCD contrast"
@@ -89,8 +91,8 @@
 #define MSG_LOAD_EPROM                      "EPROM laden"
 #define MSG_RESTORE_FAILSAFE                "Standardkonfig."
 #define MSG_REFRESH                         "Aktualisieren"
+#define MSG_WATCH                           "Beobachten"
 #define MSG_PREPARE                         "Vorbereitung"
-#define MSG_CONTROL                         "Einstellungen"
 #define MSG_TUNE                            "Justierung"
 #define MSG_PAUSE_PRINT                     "Druck anhalten"
 #define MSG_RESUME_PRINT                    "Druck fortsetz"
@@ -104,7 +106,6 @@
 #define MSG_NO_MOVE                         "Kein Zug."
 #define MSG_KILLED                          "KILLED"
 #define MSG_STOPPED                         "GESTOPPT"
-#define MSG_STEPPER_RELEASED                "Stepper frei"
 #define MSG_CONTROL_RETRACT                 "Retract mm"
 #define MSG_CONTROL_RETRACT_SWAP            "Wechs. Retract mm"
 #define MSG_CONTROL_RETRACTF                "Retract  V"
@@ -123,6 +124,8 @@
 #define MSG_BABYSTEP_Y                      "Babystep Y"
 #define MSG_BABYSTEP_Z                      "Babystep Z"
 #define MSG_ENDSTOP_ABORT                   "Endstop abort"
-#define MSG_CONTRAST                        "Contrast"
+
+#define MSG_STEPPER_RELEASED                "Stepper frei"
+#define MSG_RECTRACT_WIDE                   "Rectract"
 
 #endif // LANGUAGE_DE_H

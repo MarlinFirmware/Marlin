@@ -1,8 +1,12 @@
+/**
+ * Portuguese
+ *
+ * LCD Menu Messages
+ * Please note these are limited to 17 characters!
+ *
+ */
 #ifndef LANGUAGE_PT_H
 #define LANGUAGE_PT_H
-
-// LCD Menu Messages
-// Please note these are limited to 17 characters!
 
 #define WELCOME_MSG							MACHINE_NAME " pronto."
 #define MSG_SD_INSERTED                     "Cartao inserido"
@@ -80,7 +84,6 @@
 #define MSG_YSTEPS                          "Ypasso/mm:"
 #define MSG_ZSTEPS                          "Zpasso/mm:"
 #define MSG_ESTEPS                          "Epasso/mm:"
-#define MSG_RECTRACT                        "Retrair"
 #define MSG_TEMPERATURE                     "Temperatura"
 #define MSG_MOTION                          "Movimento"
 #define MSG_CONTRAST                        "Contrast"
@@ -122,10 +125,11 @@
 #define MSG_BABYSTEP_Z                      "Babystep Z"
 #define MSG_ENDSTOP_ABORT                   "Endstop abort"
 
+#define MSG_RECTRACT                        "Retrair"
+#define MSG_MAIN_WIDE                       "Menu Principal  \003"
 #define MSG_PREPARE_ALT                     "Preparar \003"
 #define MSG_CONTROL_ARROW                   "Controle \x7E"
 #define MSG_RETRACT_ARROW                   "Retrair \x7E"
-#define MSG_MAIN_WIDE                       "Menu Principal  \003"
 #define MSG_STEPPER_RELEASED                "Lancado."
 
 #endif // LANGUAGE_PT_H

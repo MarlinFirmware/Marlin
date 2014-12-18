@@ -1,8 +1,12 @@
+/**
+ * Basque-Euskera
+ *
+ * LCD Menu Messages
+ * Please note these are limited to 17 characters!
+ *
+ */
 #ifndef LANGUAGE_EU_H
 #define LANGUAGE_EU_H
-
-// LCD Menu Messages
-// Please note these are limited to 17 characters!
 
 #define WELCOME_MSG                         MACHINE_NAME " prest."
 #define MSG_SD_INSERTED                     "Txartela sartuta"
@@ -80,7 +84,6 @@
 #define MSG_YSTEPS                          "Y pausoak/mm"
 #define MSG_ZSTEPS                          "Z pausoak/mm"
 #define MSG_ESTEPS                          "E pausoak/mm"
-#define MSG_RECTRACT                        "Atzera eragin"
 #define MSG_TEMPERATURE                     "Tenperatura"
 #define MSG_MOTION                          "Mugimendua"
 #define MSG_CONTRAST                        "LCD kontrastea"
@@ -121,5 +124,7 @@
 #define MSG_BABYSTEP_Y                      "Babystep Y"
 #define MSG_BABYSTEP_Z                      "Babystep Z"
 #define MSG_ENDSTOP_ABORT                   "Endstop deuseztat"
+
+#define MSG_RECTRACT                        "Atzera eragin"
 
 #endif // LANGUAGE_EU_H
