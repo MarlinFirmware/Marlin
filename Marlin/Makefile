@@ -57,8 +57,15 @@ BUILD_DIR          ?= applet
 # This defines whether Liquid_TWI2 support will be built
 LIQUID_TWI2        ?= 0
 
-# this defines if Wire is needed
+# This defines if Wire is needed
 WIRE               ?= 0
+
+# This defines if U8glib is needed, for the RepRap Discount Full Graphic LCD for example
+U8GLIB		   ?= 0
+
+# The RigidPanel LCD controller displaces the original ultralcd.cpp/.h implementation entirely
+# Unless you have a RigidPanel from Invent-A-Part, leave this at 0
+RIGIDPANEL         ?= 0
 
 ############################################################################
 # Below here nothing should be changed...
@@ -101,6 +108,11 @@ else ifeq  ($(HARDWARE_MOTHERBOARD),4)
 HARDWARE_VARIANT ?= arduino
 HARDWARE_SUB_VARIANT ?= standard
 MCU              ?= atmega328p
+
+#Invent-A-Part RigidBoard
+else ifeq  ($(HARDWARE_MOTHERBOARD),42)
+HARDWARE_VARIANT ?= arduino
+MCU              ?= atmega2560
 
 #Gen6
 else ifeq  ($(HARDWARE_MOTHERBOARD),5)
@@ -233,6 +245,10 @@ ifeq ($(WIRE), 1)
 VPATH += $(ARDUINO_INSTALL_DIR)/libraries/Wire
 VPATH += $(ARDUINO_INSTALL_DIR)/libraries/Wire/utility
 endif
+ifeq ($(U8GLIB), 1)
+VPATH += $(ARDUINO_INSTALL_DIR)/libraries/U8glib
+VPATH += $(ARDUINO_INSTALL_DIR)/libraries/U8glib/utility
+endif
 else
 VPATH += $(HARDWARE_DIR)/libraries/LiquidCrystal
 VPATH += $(HARDWARE_DIR)/libraries/SPI
@@ -277,6 +293,16 @@ endif
 ifeq ($(WIRE), 1)
 SRC += twi.c
 CXXSRC += Wire.cpp
+endif
+
+ifeq ($(U8GLIB), 1)
+SRC += u8g_delay.c u8g_ll_api.c u8g_bitmap.c u8g_rect.c u8g_font.c u8g_com_null.c \
+       u8g_pb32h1.c u8g_font_data.c u8g_clip.c u8g_page.c u8g_pb.c u8g_state.c
+CXXSRC += U8glib.cpp
+endif
+
+ifeq ($(RIGIDPANEL), 1)
+CXXSRC += LiquidCrystalFast_Mod.cpp rigidpanel.cpp
 endif
 
 #Check for Arduino 1.0.0 or higher and use the correct sourcefiles for that version

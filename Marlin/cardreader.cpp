@@ -139,7 +139,11 @@ void CardReader::initsd()
   cardOK = false;
   if(root.isOpen())
     root.close();
-#ifdef SDSLOW
+#ifdef SDSPEED
+  if (!card.init(SDSPEED,SDSS))
+#elif defined(SDEXTRASLOW)
+  if (!card.init(SPI_SIXTEENTH_SPEED,SDSS))
+#elif defined(SDSLOW)
   if (!card.init(SPI_HALF_SPEED,SDSS)
   #if defined(LCD_SDSS) && (LCD_SDSS != SDSS)
     && !card.init(SPI_HALF_SPEED,LCD_SDSS)

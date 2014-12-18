@@ -174,7 +174,7 @@ uint8_t Sd2Card::cardCommand(uint8_t cmd, uint32_t arg) {
   if (cmd == CMD12) spiRec();
 
   // wait for response
-  for (uint8_t i = 0; ((status_ = spiRec()) & 0X80) && i != 0XFF; i++) { /* Intentionally left empty */ }
+  for (uint16_t i = 0; ((status_ = spiRec()) & 0X80) && i < 1024; i++) { /* Intentionally left empty */ }
   return status_;
 }
 //------------------------------------------------------------------------------

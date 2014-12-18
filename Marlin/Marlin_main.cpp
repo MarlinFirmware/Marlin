@@ -531,6 +531,11 @@ void setup()
 {
   setup_killpin();
   setup_powerhold();
+
+  #ifdef STEPPER_RESET_FIX
+  disableStepperDrivers();
+  #endif
+
   MYSERIAL.begin(BAUDRATE);
   SERIAL_PROTOCOLLNPGM("start");
   SERIAL_ECHO_START;
@@ -583,6 +588,10 @@ void setup()
 
   #if defined(CONTROLLERFAN_PIN) && CONTROLLERFAN_PIN > -1
     SET_OUTPUT(CONTROLLERFAN_PIN); //Set pin used for driver cooling fan
+  #endif
+
+  #ifdef STEPPER_RESET_FIX
+  enableStepperDrivers();
   #endif
 
   #ifdef DIGIPOT_I2C
@@ -819,6 +828,22 @@ void get_command()
 
 }
 
+#ifdef STEPPER_RESET_PIN
+void disableStepperDrivers()
+{
+  pinMode(STEPPER_RESET_PIN, OUTPUT);    // set to output
+  digitalWrite(STEPPER_RESET_PIN, LOW);  // drive it down to hold in reset motor driver chips
+
+  return;
+}
+
+void enableStepperDrivers()
+{
+  pinMode(STEPPER_RESET_PIN, INPUT);     // set to input, which allows it to be pulled high by pullups
+
+  return;
+}
+#endif //STEPPER_RESET_PIN
 
 float code_value()
 {
@@ -1911,7 +1936,7 @@ void process_commands()
     }
     break;
 #endif
-    case 17:
+    case 17: // M17 - Enable/Power all stepper motors
         LCD_MESSAGEPGM(MSG_NO_MOVE);
         enable_x();
         enable_y();

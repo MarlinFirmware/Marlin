@@ -1,6 +1,6 @@
 #include "temperature.h"
 #include "ultralcd.h"
-#ifdef ULTRA_LCD
+#if defined(ULTRA_LCD) && !defined(RIGIDPANEL)
 #include "Marlin.h"
 #include "language.h"
 #include "cardreader.h"
