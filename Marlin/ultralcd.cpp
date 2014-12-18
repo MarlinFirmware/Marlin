@@ -261,7 +261,7 @@ static void lcd_status_screen()
 
     if (feedmultiply < 10)
         feedmultiply = 10;
-    if (feedmultiply > 999)
+    else if (feedmultiply > 999)
         feedmultiply = 999;
 #endif//ULTIPANEL
 }
