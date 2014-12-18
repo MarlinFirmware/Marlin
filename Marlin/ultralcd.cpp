@@ -886,9 +886,9 @@ void lcd_sdcard_menu()
     card.getWorkDirName();
     if(card.filename[0]=='/')
     {
-      #if SDCARDDETECT == -1
+#if SDCARDDETECT == -1
         MENU_ITEM(function, LCD_STR_REFRESH MSG_REFRESH, lcd_sd_refresh);
-      #endif
+#endif
     }else{
         MENU_ITEM(function, LCD_STR_FOLDER "..", lcd_sd_updir);
     }
@@ -897,23 +897,16 @@ void lcd_sdcard_menu()
     {
         if (_menuItemNr == _lineNr)
         {
-            #if defined(SDCARD_RATHERRECENTFIRST) && !defined(SDCARD_SORT_ALPHA)
-              int nr = fileCnt-1-i;
+            #ifndef SDCARD_RATHERRECENTFIRST
+              card.getfilename(i);
             #else
-              int nr = i;
+              card.getfilename(fileCnt-1-i);
             #endif
-
-            #ifdef SDCARD_SORT_ALPHA
-              card.getfilename_sorted(nr);
-            #else
-              card.getfilename(nr);
-            #endif
-
-            if (card.filenameIsDir) {
-              MENU_ITEM(sddirectory, MSG_CARD_MENU, card.filename, card.longFilename);
-            }
-            else {
-              MENU_ITEM(sdfile, MSG_CARD_MENU, card.filename, card.longFilename);
+            if (card.filenameIsDir)
+            {
+                MENU_ITEM(sddirectory, MSG_CARD_MENU, card.filename, card.longFilename);
+            }else{
+                MENU_ITEM(sdfile, MSG_CARD_MENU, card.filename, card.longFilename);
             }
         }else{
             MENU_ITEM_DUMMY();
@@ -1090,7 +1083,7 @@ void lcd_init()
   #endif // SR_LCD_2W_NL
 #endif//!NEWPANEL
 
-#if defined(SDSUPPORT) && defined(SDCARDDETECT) && (SDCARDDETECT > 0)
+#if defined (SDSUPPORT) && defined(SDCARDDETECT) && (SDCARDDETECT > 0)
     pinMode(SDCARDDETECT,INPUT);
     WRITE(SDCARDDETECT, HIGH);
     lcd_oldcardstatus = IS_SD_INSERTED;
