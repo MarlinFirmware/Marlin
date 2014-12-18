@@ -3169,6 +3169,7 @@ void process_commands()
       plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS], 300/60, active_extruder);
       st_synchronize(); 
 
+      SERIAL_ECHOLN("ok");
 	//  do_blocking_extrude_to(100);
 	  
       break;
@@ -3189,7 +3190,7 @@ void process_commands()
       plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS], 300/60, active_extruder);
       st_synchronize();
 
-
+      SERIAL_ECHOLN("ok");
 	//  do_blocking_extrude_to(30);
 	//  do_blocking_extrude_to(-100);
 
