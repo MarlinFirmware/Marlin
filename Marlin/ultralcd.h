@@ -105,7 +105,8 @@
 
   #define LCD_MESSAGEPGM(x) 
   #define LCD_ALERTMESSAGEPGM(x) 
-#endif 
+
+#endif //ULTRA_LCD
 
 char *itostr2(const uint8_t &x);
 char *itostr31(const int &xx);
@@ -122,4 +123,4 @@ char *ftostr5(const float &x);
 char *ftostr51(const float &x);
 char *ftostr52(const float &x);
 
-#endif //ULTRALCD
+#endif //ULTRALCD_H
