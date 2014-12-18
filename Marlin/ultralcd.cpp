@@ -67,6 +67,9 @@ static void lcd_set_contrast();
 #endif
 static void lcd_control_retract_menu();
 static void lcd_sdcard_menu();
+#ifdef DELTA_CALIBRATION_MENU
+static void lcd_delta_calibrate_menu();
+#endif // DELTA_CALIBRATION_MENU
 
 static void lcd_quick_feedback();//Cause an LCD refresh, and give the user visual or audible feedback that something has happened
 
@@ -303,6 +306,9 @@ static void lcd_main_menu()
     }else{
         MENU_ITEM(submenu, MSG_PREPARE, lcd_prepare_menu);
     }
+#ifdef DELTA_CALIBRATION_MENU
+    MENU_ITEM(submenu, MSG_DELTA_CALIBRATE, lcd_delta_calibrate_menu);
+#endif // DELTA_CALIBRATION_MENU
     MENU_ITEM(submenu, MSG_CONTROL, lcd_control_menu);
 #ifdef SDSUPPORT
     if (card.cardOK)
@@ -640,6 +646,20 @@ static void lcd_prepare_menu()
     MENU_ITEM(submenu, MSG_MOVE_AXIS, lcd_move_menu);
     END_MENU();
 }
+
+#ifdef DELTA_CALIBRATION_MENU
+static void lcd_delta_calibrate_menu()
+{
+    START_MENU();
+    MENU_ITEM(back, MSG_MAIN, lcd_main_menu);
+    MENU_ITEM(gcode, MSG_AUTO_HOME, PSTR("G28"));
+    MENU_ITEM(gcode, MSG_DELTA_CALIBRATE_X, PSTR("G0 F8000 X-77.94 Y-45 Z0"));
+    MENU_ITEM(gcode, MSG_DELTA_CALIBRATE_Y, PSTR("G0 F8000 X77.94 Y-45 Z0"));
+    MENU_ITEM(gcode, MSG_DELTA_CALIBRATE_Z, PSTR("G0 F8000 X0 Y90 Z0"));
+    MENU_ITEM(gcode, MSG_DELTA_CALIBRATE_CENTER, PSTR("G0 F8000 X0 Y0 Z0"));
+    END_MENU();
+}
+#endif // DELTA_CALIBRATION_MENU
 
 float move_menu_scale;
 static void lcd_move_menu_axis();

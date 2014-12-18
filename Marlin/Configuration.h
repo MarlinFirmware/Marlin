@@ -3,7 +3,7 @@
 
 // This configuration file contains the basic settings.
 // Advanced settings can be found in Configuration_adv.h
-// BASIC SETTINGS: select your board type, temperature sensor type, axis scaling, and endstop configuration
+// BASIC SETTINGS: select your boaderd type, temperature sensor type, axis scaling, and endstop configuration
 
 //===========================================================================
 //============================= DELTA Printer ===============================
@@ -564,6 +564,11 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 // The RepRapDiscount Smart Controller (white PCB)
 // http://reprap.org/wiki/RepRapDiscount_Smart_Controller
 //#define REPRAP_DISCOUNT_SMART_CONTROLLER
+
+// Delta calibration menu
+// uncomment to add three points calibration menu option.
+// See http://minow.blogspot.com/index.html#4918805519571907051
+//#define DELTA_CALIBRATION_MENU
 
 // The GADGETS3D G3D LCD/SD Controller (blue PCB)
 // http://reprap.org/wiki/RAMPS_1.3/1.4_GADGETS3D_Shield_with_Panel

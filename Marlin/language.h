@@ -258,6 +258,13 @@
 	#define MSG_FILAMENTCHANGE "Change filament"
 	#define MSG_INIT_SDCARD "Init. SD card"
 	#define MSG_CNG_SDCARD "Change SD card"
+#ifdef DELTA_CALIBRATION_MENU
+	#define MSG_DELTA_CALIBRATE "Delta Calibration"
+	#define MSG_DELTA_CALIBRATE_X "Calibrate X"
+	#define MSG_DELTA_CALIBRATE_Y "Calibrate Y"
+	#define MSG_DELTA_CALIBRATE_Z "Calibrate Z"
+	#define MSG_DELTA_CALIBRATE_CENTER "Calibrate Center"
+#endif // DELTA_CALIBRATION_MENU
 	#define MSG_ZPROBE_OUT "Z probe out. bed"
 	#define MSG_POSITION_UNKNOWN "Home X/Y before Z"
 	#define MSG_ZPROBE_ZOFFSET "Z Offset"
