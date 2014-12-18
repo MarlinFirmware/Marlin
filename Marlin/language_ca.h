@@ -1,8 +1,12 @@
+/**
+ * Catalan
+ *
+ * LCD Menu Messages
+ * Please note these are limited to 17 characters!
+ *
+ */
 #ifndef LANGUAGE_CA_H
 #define LANGUAGE_CA_H
-
-// LCD Menu Messages
-// Please note these are limited to 17 characters!
 
 #define WELCOME_MSG                         MACHINE_NAME " preparada."
 #define MSG_SD_INSERTED                     "SD detectada."
@@ -80,7 +84,6 @@
 #define MSG_YSTEPS                          "Ypassos/mm"
 #define MSG_ZSTEPS                          "Zpassos/mm"
 #define MSG_ESTEPS                          "Epassos/mm"
-#define MSG_RECTRACT                        "Retreure"
 #define MSG_TEMPERATURE                     "Temperatura"
 #define MSG_MOTION                          "Moviment"
 #define MSG_CONTRAST                        "Contrast de LCD"
@@ -121,5 +124,7 @@
 #define MSG_BABYSTEP_Y                      "Babystep Y"
 #define MSG_BABYSTEP_Z                      "Babystep Z"
 #define MSG_ENDSTOP_ABORT                   "Endstop abort"
+
+#define MSG_RECTRACT                        "Retreure"
 
 #endif // LANGUAGE_CA_H

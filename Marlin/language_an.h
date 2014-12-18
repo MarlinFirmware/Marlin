@@ -1,8 +1,12 @@
+/**
+ * Aragonese
+ *
+ * LCD Menu Messages
+ * Please note these are limited to 17 characters!
+ *
+ */
 #ifndef LANGUAGE_AN_H
 #define LANGUAGE_AN_H
-
-// LCD Menu Messages
-// Please note these are limited to 17 characters!
 
 #define WELCOME_MSG                         MACHINE_NAME " parada."
 #define MSG_SD_INSERTED                     "Tarcheta colocada"
@@ -80,7 +84,6 @@
 #define MSG_YSTEPS                          "Y trangos/mm"
 #define MSG_ZSTEPS                          "Z trangos/mm"
 #define MSG_ESTEPS                          "E trangos/mm"
-#define MSG_RECTRACT                        "Retraer"
 #define MSG_TEMPERATURE                     "Temperatura"
 #define MSG_MOTION                          "Movimiento"
 #define MSG_CONTRAST                        "Contrast"
@@ -122,14 +125,15 @@
 #define MSG_BABYSTEP_Z                      "Babystep Z"
 #define MSG_ENDSTOP_ABORT                   "Endstop abort"
 
+#define MSG_RECTRACT                        "Retraer"
 #define MSG_RECTRACT_WIDE                   "Retraer"
 #define MSG_TEMPERATURE_WIDE                "Temperatura"
 #define MSG_TEMPERATURE_RTN                 "Temperatura"
 #define MSG_MAIN_WIDE                       "Menu Prencipal"
 #define MSG_MOTION_WIDE                     "Movimiento"
 #define MSG_PREPARE_ALT                     "Preparar"
-#define MSG_CONTROL_ARROW                   "Control"
-#define MSG_RETRACT_ARROW                   "Retraer"
+#define MSG_CONTROL_ARROW                   "Control \x7E"
+#define MSG_RETRACT_ARROW                   "Retraer \x7E"
 #define MSG_STEPPER_RELEASED                "Desacoplada."
 
 #endif // LANGUAGE_AN_H

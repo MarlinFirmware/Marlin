@@ -1,8 +1,12 @@
+/**
+ * Italian
+ *
+ * LCD Menu Messages
+ * Please note these are limited to 17 characters!
+ *
+ */
 #ifndef LANGUAGE_IT_H
 #define LANGUAGE_IT_H
-
-// LCD Menu Messages
-// Please note these are limited to 17 characters!
 
 #define WELCOME_MSG                         MACHINE_NAME " pronto."
 #define MSG_SD_INSERTED                     "SD Card inserita"
@@ -80,7 +84,6 @@
 #define MSG_YSTEPS                          "Ypassi/mm"
 #define MSG_ZSTEPS                          "Zpassi/mm"
 #define MSG_ESTEPS                          "Epassi/mm"
-#define MSG_RECTRACT                        "Ritrai"
 #define MSG_TEMPERATURE                     "Temperatura"
 #define MSG_MOTION                          "Movimento"
 #define MSG_CONTRAST                        "LCD contrast"
@@ -121,6 +124,7 @@
 #define MSG_BABYSTEP_Y                      "Babystep Y"
 #define MSG_BABYSTEP_Z                      "Babystep Z"
 #define MSG_ENDSTOP_ABORT                   "Endstop abort"
-#define MSG_CONTRAST                        "Contrast"
+
+#define MSG_RECTRACT                        "Ritrai"
 
 #endif // LANGUAGE_IT_H
