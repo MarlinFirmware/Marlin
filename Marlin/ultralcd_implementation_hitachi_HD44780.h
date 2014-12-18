@@ -208,6 +208,29 @@ extern volatile uint16_t buttons;  //an extended version of the last checked but
   LCD_CLASS lcd(LCD_PINS_RS, LCD_PINS_ENABLE, LCD_PINS_D4, LCD_PINS_D5,LCD_PINS_D6,LCD_PINS_D7);  //RS,Enable,D4,D5,D6,D7
 #endif
 
+#ifdef LCD_HAS_STATUS_INDICATORS
+static void lcd_implementation_update_indicators()
+{
+  #if defined(LCD_I2C_PANELOLU2) || defined(LCD_I2C_VIKI)
+    //set the LEDS - referred to as backlights by the LiquidTWI2 library 
+    static uint8_t ledsprev = 0;
+    uint8_t leds = 0;
+    if (target_temperature_bed > 0) leds |= LED_A;
+    if (target_temperature[0] > 0) leds |= LED_B;
+    if (fanSpeed) leds |= LED_C;
+    #if EXTRUDERS > 1  
+      if (target_temperature[1] > 0) leds |= LED_C;
+    #endif
+    if (leds != ledsprev) {
+      lcd.setBacklight(leds);
+      ledsprev = leds;
+    }
+  #endif
+}
+#endif
+
+
+
 /* Custom characters defined in the first 8 characters of the LCD */
 #define LCD_STR_BEDTEMP     "\x00"
 #define LCD_STR_DEGREE      "\x01"
@@ -315,7 +338,7 @@ static void lcd_implementation_init()
 #elif defined(LCD_I2C_TYPE_MCP23017)
     lcd.setMCPType(LTI_TYPE_MCP23017);
     lcd.begin(LCD_WIDTH, LCD_HEIGHT);
-    lcd.setBacklight(0); //set all the LEDs off to begin with
+    lcd_implementation_update_indicators();
     
 #elif defined(LCD_I2C_TYPE_MCP23008)
     lcd.setMCPType(LTI_TYPE_MCP23008);
@@ -760,26 +783,7 @@ static void lcd_implementation_quick_feedback()
 #endif
 }
 
-#ifdef LCD_HAS_STATUS_INDICATORS
-static void lcd_implementation_update_indicators()
-{
-  #if defined(LCD_I2C_PANELOLU2) || defined(LCD_I2C_VIKI)
-    //set the LEDS - referred to as backlights by the LiquidTWI2 library 
-    static uint8_t ledsprev = 0;
-    uint8_t leds = 0;
-    if (target_temperature_bed > 0) leds |= LED_A;
-    if (target_temperature[0] > 0) leds |= LED_B;
-    if (fanSpeed) leds |= LED_C;
-    #if EXTRUDERS > 1  
-      if (target_temperature[1] > 0) leds |= LED_C;
-    #endif
-    if (leds != ledsprev) {
-      lcd.setBacklight(leds);
-      ledsprev = leds;
-    }
-  #endif
-}
-#endif
+
 
 #ifdef LCD_HAS_SLOW_BUTTONS
 extern uint32_t blocking_enc;

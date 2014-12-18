@@ -1793,6 +1793,34 @@
   #define MOSI_PIN         10
 #endif
 
+#ifdef ULTRA_LCD
+   #ifdef NEWPANEL
+     //we have no buzzer installed
+     #define BEEPER -1
+     //LCD Pins
+     #ifdef LCD_I2C_PANELOLU2     
+	     #define BTN_EN1 27  //RX1 - fastio.h pin mapping 27
+	     #define BTN_EN2 26  //TX1 - fastio.h pin mapping 26
+	     #define BTN_ENC 43 //A3 - fastio.h pin mapping 43
+	     #define SDSS   40 //use SD card on Panelolu2 (Teensyduino pin mapping)
+	 #endif //LCD_I2C_PANELOLU2
+     //not connected to a pin
+     #define SDCARDDETECT -1    
+   
+    //encoder rotation values
+    #define encrot0 0
+    #define encrot1 2
+    #define encrot2 3
+    #define encrot3 1
+   
+    #define BLEN_C 2
+    #define BLEN_B 1
+    #define BLEN_A 0
+
+  #endif //Newpanel
+#endif //Ultipanel
+
+
 #endif  // MOTHERBOARD == 8 (Teensylu) or 81 (Printrboard)
 
 /****************************************************************************************
