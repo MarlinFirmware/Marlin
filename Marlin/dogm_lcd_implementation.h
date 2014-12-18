@@ -42,7 +42,7 @@
 
 /* Russian language not supported yet, needs custom font
 
-#if LANGUAGE_CHOICE == 6
+#if LANGUAGE_CHOICE == ru
 #include "LiquidCrystalRus.h"
 #define LCD_CLASS LiquidCrystalRus
 #else
