@@ -60,8 +60,8 @@ void  CardReader::lsDive(const char *prepend,SdFile parent)
     if( DIR_IS_SUBDIR(&p) && lsAction!=LS_Count && lsAction!=LS_GetFilename) // hence LS_SerialPrint
     {
 
-      char path[13*2];
-      char lfilename[13];
+      char path[FILENAME_LENGTH*2];
+      char lfilename[FILENAME_LENGTH];
       createFilename(lfilename,p);
       
       path[0]=0;
@@ -235,7 +235,7 @@ void CardReader::getAbsFilename(char *t)
     while(*t!=0 && cnt< MAXPATHNAMELENGTH) 
     {t++;cnt++;}  //crawl counter forward.
   }
-  if(cnt<MAXPATHNAMELENGTH-13)
+  if(cnt<MAXPATHNAMELENGTH-FILENAME_LENGTH)
     file.getFilename(t);
   else
     t[0]=0;
@@ -305,7 +305,7 @@ void CardReader::openFile(char* name,bool read, bool replace_current/*=true*/)
       //SERIAL_ECHO("end  :");SERIAL_ECHOLN((int)(dirname_end-name));
       if(dirname_end>0 && dirname_end>dirname_start)
       {
-        char subdirname[13];
+        char subdirname[FILENAME_LENGTH];
         strncpy(subdirname, dirname_start, dirname_end-dirname_start);
         subdirname[dirname_end-dirname_start]=0;
         SERIAL_ECHOLN(subdirname);
@@ -401,7 +401,7 @@ void CardReader::removeFile(char* name)
       //SERIAL_ECHO("end  :");SERIAL_ECHOLN((int)(dirname_end-name));
       if(dirname_end>0 && dirname_end>dirname_start)
       {
-        char subdirname[13];
+        char subdirname[FILENAME_LENGTH];
         strncpy(subdirname, dirname_start, dirname_end-dirname_start);
         subdirname[dirname_end-dirname_start]=0;
         SERIAL_ECHOLN(subdirname);
