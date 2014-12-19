@@ -1,6 +1,6 @@
 #include "qr_solve.h"
 
-#ifdef AUTO_BED_LEVELING_GRID
+#ifdef AUTO_BED_COMPENSATION_GRID
 
 #include <stdlib.h>
 #include <math.h>
