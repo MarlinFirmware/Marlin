@@ -1,5 +1,5 @@
 /*
-  vector_3.cpp - Vector library for bed leveling
+  vector_3.cpp - Vector library for bed compensation
   Copyright (c) 2012 Lars Brubaker.  All right reserved.
 
   This library is free software; you can redistribute it and/or
@@ -19,7 +19,7 @@
 #ifndef VECTOR_3_H
 #define VECTOR_3_H
 
-#ifdef ENABLE_AUTO_BED_LEVELING
+#ifdef ENABLE_AUTO_BED_COMPENSATION
 class matrix_3x3;
 
 struct vector_3
@@ -57,6 +57,6 @@ struct matrix_3x3
 
 
 void apply_rotation_xyz(matrix_3x3 rotationMatrix, float &x, float& y, float& z);
-#endif // ENABLE_AUTO_BED_LEVELING
+#endif // ENABLE_AUTO_BED_COMPENSATION
 
 #endif // VECTOR_3_H
