@@ -1344,7 +1344,7 @@ void process_commands()
                   current_position[E_AXIS] = destination[E_AXIS]; //hide the slicer-generated retract/recover from calculations
                   plan_set_e_position(current_position[E_AXIS]); //AND from the planner
                   retract(!retracted[active_extruder]);
-                  return;
+                  break;
               }
             }
           #endif //FWRETRACT
