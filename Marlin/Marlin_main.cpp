@@ -1616,7 +1616,7 @@ void process_commands()
 #ifdef SCARA
 	  calculate_delta(current_position);
       plan_set_position(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], current_position[E_AXIS]);
-#endif SCARA
+#endif // SCARA
 
       #ifdef ENDSTOPS_ONLY_FOR_HOMING
         enable_endstops(false);
@@ -3053,11 +3053,12 @@ Sigma_Exit:
 
           if (pin_number > -1)
           {
+            int target = LOW;
+
             st_synchronize();
 
             pinMode(pin_number, INPUT);
 
-            int target;
             switch(pin_state){
             case 1:
               target = HIGH;
