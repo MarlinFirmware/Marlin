@@ -340,12 +340,12 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define X_MAX_LENGTH (X_MAX_POS - X_MIN_POS)
 #define Y_MAX_LENGTH (Y_MAX_POS - Y_MIN_POS)
 #define Z_MAX_LENGTH (Z_MAX_POS - Z_MIN_POS)
-//============================= Bed Auto Leveling ===========================
+//============================= Bed Auto Compensation ===========================
 
-//#define ENABLE_AUTO_BED_LEVELING // Delete the comment to enable (remove // at the start of the line)
-#define Z_PROBE_REPEATABILITY_TEST  // If not commented out, Z-Probe Repeatability test will be included if Auto Bed Leveling is Enabled.
+//#define ENABLE_AUTO_BED_COMPENSATION // Delete the comment to enable (remove // at the start of the line)
+#define Z_PROBE_REPEATABILITY_TEST  // If not commented out, Z-Probe Repeatability test will be included if Auto Bed Compensation is Enabled.
 
-#ifdef ENABLE_AUTO_BED_LEVELING
+#ifdef ENABLE_AUTO_BED_COMPENSATION
 
 // There are 2 different ways to pick the X and Y locations to probe:
 
@@ -353,18 +353,18 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 //    Probe every point in a rectangular grid
 //    You must specify the rectangle, and the density of sample points
 //    This mode is preferred because there are more measurements.
-//    It used to be called ACCURATE_BED_LEVELING but "grid" is more descriptive
+//    It used to be called ACCURATE_BED_COMPENSATION but "grid" is more descriptive
 
 //  - "3-point" mode
 //    Probe 3 arbitrary points on the bed (that aren't colinear)
 //    You must specify the X & Y coordinates of all 3 points
 
-  #define AUTO_BED_LEVELING_GRID
-  // with AUTO_BED_LEVELING_GRID, the bed is sampled in a
-  // AUTO_BED_LEVELING_GRID_POINTSxAUTO_BED_LEVELING_GRID_POINTS grid
+  #define AUTO_BED_COMPENSATION_GRID
+  // with AUTO_BED_COMPENSATION_GRID, the bed is sampled in a
+  // AUTO_BED_COMPENSATION_GRID_POINTSxAUTO_BED_COMPENSATION_GRID_POINTS grid
   // and least squares solution is calculated
   // Note: this feature occupies 10'206 byte
-  #ifdef AUTO_BED_LEVELING_GRID
+  #ifdef AUTO_BED_COMPENSATION_GRID
 
     // set the rectangle in which to probe
     #define LEFT_PROBE_BED_POSITION 15
@@ -374,10 +374,10 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
      // set the number of grid points per dimension
      // I wouldn't see a reason to go above 3 (=9 probing points on the bed)
-    #define AUTO_BED_LEVELING_GRID_POINTS 2
+    #define AUTO_BED_COMPENSATION_GRID_POINTS 2
 
 
-  #else  // not AUTO_BED_LEVELING_GRID
+  #else  // not AUTO_BED_COMPENSATION_GRID
     // with no grid, just probe 3 arbitrary points.  A simple cross-product
     // is used to esimate the plane of the print bed
 
@@ -388,7 +388,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
       #define ABL_PROBE_PT_3_X 170
       #define ABL_PROBE_PT_3_Y 20
 
-  #endif // AUTO_BED_LEVELING_GRID
+  #endif // AUTO_BED_COMPENSATION_GRID
 
 
   // these are the offsets to the probe relative to the extruder tip (Hotend - Probe)
@@ -414,7 +414,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 //  #define PROBE_SERVO_DEACTIVATION_DELAY 300
 
 
-//If you have enabled the Bed Auto Leveling and are using the same Z Probe for Z Homing,
+//If you have enabled the Bed Auto Compensation and are using the same Z Probe for Z Homing,
 //it is highly recommended you let this Z_SAFE_HOMING enabled!!!
 
   #define Z_SAFE_HOMING   // This feature is meant to avoid Z homing with probe outside the bed area.
@@ -431,7 +431,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
   #endif
 
-#endif // ENABLE_AUTO_BED_LEVELING
+#endif // ENABLE_AUTO_BED_COMPENSATION
 
 
 // The position of the homing switches

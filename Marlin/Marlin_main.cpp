@@ -29,12 +29,12 @@
 
 #include "Marlin.h"
 
-#ifdef ENABLE_AUTO_BED_LEVELING
+#ifdef ENABLE_AUTO_BED_COMPENSATION
 #include "vector_3.h"
-  #ifdef AUTO_BED_LEVELING_GRID
+  #ifdef AUTO_BED_COMPENSATION_GRID
     #include "qr_solve.h"
   #endif
-#endif // ENABLE_AUTO_BED_LEVELING
+#endif // ENABLE_AUTO_BED_COMPENSATION
 
 #include "ultralcd.h"
 #include "planner.h"
@@ -520,7 +520,7 @@ void servo_init()
   }
   #endif
 
-  #if defined (ENABLE_AUTO_BED_LEVELING) && (PROBE_SERVO_DEACTIVATION_DELAY > 0)
+  #if defined (ENABLE_AUTO_BED_COMPENSATION) && (PROBE_SERVO_DEACTIVATION_DELAY > 0)
   delay(PROBE_SERVO_DEACTIVATION_DELAY);
   servos[servo_endstops[Z_AXIS]].detach();
   #endif
@@ -962,16 +962,16 @@ static void axis_is_at_home(int axis) {
 #endif
 }
 
-#ifdef ENABLE_AUTO_BED_LEVELING
-#ifdef AUTO_BED_LEVELING_GRID
-static void set_bed_level_equation_lsq(double *plane_equation_coefficients)
+#ifdef ENABLE_AUTO_BED_COMPENSATION
+#ifdef AUTO_BED_COMPENSATION_GRID
+static void set_bed_compensation_equation_lsq(double *plane_equation_coefficients)
 {
     vector_3 planeNormal = vector_3(-plane_equation_coefficients[0], -plane_equation_coefficients[1], 1);
     planeNormal.debug("planeNormal");
-    plan_bed_level_matrix = matrix_3x3::create_look_at(planeNormal);
-    //bedLevel.debug("bedLevel");
+    plan_bed_compensation_matrix = matrix_3x3::create_look_at(planeNormal);
+    //bedCompensation.debug("bedCompensation");
 
-    //plan_bed_level_matrix.debug("bed level before");
+    //plan_bed_compensation_matrix.debug("bed compensation before");
     //vector_3 uncorrected_position = plan_get_position_mm();
     //uncorrected_position.debug("position before");
 
@@ -987,11 +987,11 @@ static void set_bed_level_equation_lsq(double *plane_equation_coefficients)
     plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
 }
 
-#else // not AUTO_BED_LEVELING_GRID
+#else // not AUTO_BED_COMPENSATION_GRID
 
-static void set_bed_level_equation_3pts(float z_at_pt_1, float z_at_pt_2, float z_at_pt_3) {
+static void set_bed_compensation_equation_3pts(float z_at_pt_1, float z_at_pt_2, float z_at_pt_3) {
 
-    plan_bed_level_matrix.set_to_identity();
+    plan_bed_compensation_matrix.set_to_identity();
 
     vector_3 pt1 = vector_3(ABL_PROBE_PT_1_X, ABL_PROBE_PT_1_Y, z_at_pt_1);
     vector_3 pt2 = vector_3(ABL_PROBE_PT_2_X, ABL_PROBE_PT_2_Y, z_at_pt_2);
@@ -1002,7 +1002,7 @@ static void set_bed_level_equation_3pts(float z_at_pt_1, float z_at_pt_2, float 
     vector_3 planeNormal = vector_3::cross(from_2_to_1, from_2_to_3).get_normal();
     planeNormal = vector_3(planeNormal.x, planeNormal.y, abs(planeNormal.z));
 
-    plan_bed_level_matrix = matrix_3x3::create_look_at(planeNormal);
+    plan_bed_compensation_matrix = matrix_3x3::create_look_at(planeNormal);
 
     vector_3 corrected_position = plan_get_position();
     current_position[X_AXIS] = corrected_position.x;
@@ -1016,10 +1016,10 @@ static void set_bed_level_equation_3pts(float z_at_pt_1, float z_at_pt_2, float 
 
 }
 
-#endif // AUTO_BED_LEVELING_GRID
+#endif // AUTO_BED_COMPENSATION_GRID
 
 static void run_z_probe() {
-    plan_bed_level_matrix.set_to_identity();
+    plan_bed_compensation_matrix.set_to_identity();
     feedrate = homing_feedrate[Z_AXIS];
 
     // move down until you find the bed
@@ -1088,11 +1088,11 @@ static void engage_z_probe() {
     // Engage Z Servo endstop if enabled
     #ifdef SERVO_ENDSTOPS
     if (servo_endstops[Z_AXIS] > -1) {
-#if defined (ENABLE_AUTO_BED_LEVELING) && (PROBE_SERVO_DEACTIVATION_DELAY > 0)
+#if defined (ENABLE_AUTO_BED_COMPENSATION) && (PROBE_SERVO_DEACTIVATION_DELAY > 0)
         servos[servo_endstops[Z_AXIS]].attach(0);
 #endif
         servos[servo_endstops[Z_AXIS]].write(servo_endstop_angles[Z_AXIS * 2]);
-#if defined (ENABLE_AUTO_BED_LEVELING) && (PROBE_SERVO_DEACTIVATION_DELAY > 0)
+#if defined (ENABLE_AUTO_BED_COMPENSATION) && (PROBE_SERVO_DEACTIVATION_DELAY > 0)
         delay(PROBE_SERVO_DEACTIVATION_DELAY);
         servos[servo_endstops[Z_AXIS]].detach();
 #endif
@@ -1104,11 +1104,11 @@ static void retract_z_probe() {
     // Retract Z Servo endstop if enabled
     #ifdef SERVO_ENDSTOPS
     if (servo_endstops[Z_AXIS] > -1) {
-#if defined (ENABLE_AUTO_BED_LEVELING) && (PROBE_SERVO_DEACTIVATION_DELAY > 0)
+#if defined (ENABLE_AUTO_BED_COMPENSATION) && (PROBE_SERVO_DEACTIVATION_DELAY > 0)
         servos[servo_endstops[Z_AXIS]].attach(0);
 #endif
         servos[servo_endstops[Z_AXIS]].write(servo_endstop_angles[Z_AXIS * 2 + 1]);
-#if defined (ENABLE_AUTO_BED_LEVELING) && (PROBE_SERVO_DEACTIVATION_DELAY > 0)
+#if defined (ENABLE_AUTO_BED_COMPENSATION) && (PROBE_SERVO_DEACTIVATION_DELAY > 0)
         delay(PROBE_SERVO_DEACTIVATION_DELAY);
         servos[servo_endstops[Z_AXIS]].detach();
 #endif
@@ -1142,7 +1142,7 @@ static float probe_pt(float x, float y, float z_before) {
   return measured_z;
 }
 
-#endif // #ifdef ENABLE_AUTO_BED_LEVELING
+#endif // #ifdef ENABLE_AUTO_BED_COMPENSATION
 
 static void homeaxis(int axis) {
 #define HOMEAXIS_DO(LETTER) \
@@ -1165,7 +1165,7 @@ static void homeaxis(int axis) {
 #ifndef Z_PROBE_SLED
     // Engage Servo endstop if enabled
     #ifdef SERVO_ENDSTOPS
-      #if defined (ENABLE_AUTO_BED_LEVELING) && (PROBE_SERVO_DEACTIVATION_DELAY > 0)
+      #if defined (ENABLE_AUTO_BED_COMPENSATION) && (PROBE_SERVO_DEACTIVATION_DELAY > 0)
         if (axis==Z_AXIS) {
           engage_z_probe();
         }
@@ -1216,7 +1216,7 @@ static void homeaxis(int axis) {
         servos[servo_endstops[axis]].write(servo_endstop_angles[axis * 2 + 1]);
       }
     #endif
-#if defined (ENABLE_AUTO_BED_LEVELING) && (PROBE_SERVO_DEACTIVATION_DELAY > 0)
+#if defined (ENABLE_AUTO_BED_COMPENSATION) && (PROBE_SERVO_DEACTIVATION_DELAY > 0)
   #ifndef Z_PROBE_SLED
     if (axis==Z_AXIS) retract_z_probe();
   #endif
@@ -1325,7 +1325,7 @@ void process_commands()
 {
   unsigned long codenum; //throw away variable
   char *starpos = NULL;
-#ifdef ENABLE_AUTO_BED_LEVELING
+#ifdef ENABLE_AUTO_BED_COMPENSATION
   float x_tmp, y_tmp, z_tmp, real_z;
 #endif
   if(code_seen('G'))
@@ -1399,9 +1399,9 @@ void process_commands()
       break;
       #endif //FWRETRACT
     case 28: //G28 Home all Axis one at a time
-#ifdef ENABLE_AUTO_BED_LEVELING
-      plan_bed_level_matrix.set_to_identity();  //Reset the plane ("erase" all leveling data)
-#endif //ENABLE_AUTO_BED_LEVELING
+#ifdef ENABLE_AUTO_BED_COMPENSATION
+      plan_bed_compensation_matrix.set_to_identity();  //Reset the plane ("erase" all compensation data)
+#endif //ENABLE_AUTO_BED_COMPENSATION
 
       saved_feedrate = feedrate;
       saved_feedmultiply = feedmultiply;
@@ -1605,7 +1605,7 @@ void process_commands()
           current_position[Z_AXIS]=code_value()+add_homing[Z_AXIS];
         }
       }
-      #ifdef ENABLE_AUTO_BED_LEVELING
+      #ifdef ENABLE_AUTO_BED_COMPENSATION
         if((home_all_axis) || (code_seen(axis_codes[Z_AXIS]))) {
           current_position[Z_AXIS] += zprobe_zoffset;  //Add Z_Probe offset (the distance is negative)
         }
@@ -1628,11 +1628,11 @@ void process_commands()
       endstops_hit_on_purpose();
       break;
 
-#ifdef ENABLE_AUTO_BED_LEVELING
+#ifdef ENABLE_AUTO_BED_COMPENSATION
     case 29: // G29 Detailed Z-Probe, probes the bed at 3 or more points.
         {
             #if Z_MIN_PIN == -1
-            #error "You must have a Z_MIN endstop in order to enable Auto Bed Leveling feature!!! Z_MIN_PIN must point to a valid hardware pin."
+            #error "You must have a Z_MIN endstop in order to enable Auto Bed Compensation feature!!! Z_MIN_PIN must point to a valid hardware pin."
             #endif
 
             // Prevent user from running a G29 without first homing in X and Y
@@ -1648,10 +1648,10 @@ void process_commands()
             dock_sled(false);
 #endif // Z_PROBE_SLED
             st_synchronize();
-            // make sure the bed_level_rotation_matrix is identity or the planner will get it incorectly
+            // make sure the bed_compensation_rotation_matrix is identity or the planner will get it incorectly
             //vector_3 corrected_position = plan_get_position_mm();
             //corrected_position.debug("position before G29");
-            plan_bed_level_matrix.set_to_identity();
+            plan_bed_compensation_matrix.set_to_identity();
             vector_3 uncorrected_position = plan_get_position();
             //uncorrected_position.debug("position durring G29");
             current_position[X_AXIS] = uncorrected_position.x;
@@ -1661,11 +1661,11 @@ void process_commands()
             setup_for_endstop_move();
 
             feedrate = homing_feedrate[Z_AXIS];
-#ifdef AUTO_BED_LEVELING_GRID
+#ifdef AUTO_BED_COMPENSATION_GRID
             // probe at the points of a lattice grid
 
-            int xGridSpacing = (RIGHT_PROBE_BED_POSITION - LEFT_PROBE_BED_POSITION) / (AUTO_BED_LEVELING_GRID_POINTS-1);
-            int yGridSpacing = (BACK_PROBE_BED_POSITION - FRONT_PROBE_BED_POSITION) / (AUTO_BED_LEVELING_GRID_POINTS-1);
+            int xGridSpacing = (RIGHT_PROBE_BED_POSITION - LEFT_PROBE_BED_POSITION) / (AUTO_BED_COMPENSATION_GRID_POINTS-1);
+            int yGridSpacing = (BACK_PROBE_BED_POSITION - FRONT_PROBE_BED_POSITION) / (AUTO_BED_COMPENSATION_GRID_POINTS-1);
 
 
             // solve the plane equation ax + by + d = z
@@ -1675,9 +1675,9 @@ void process_commands()
             // so Vx = -a Vy = -b Vz = 1 (we want the vector facing towards positive Z
 
             // "A" matrix of the linear system of equations
-            double eqnAMatrix[AUTO_BED_LEVELING_GRID_POINTS*AUTO_BED_LEVELING_GRID_POINTS*3];
+            double eqnAMatrix[AUTO_BED_COMPENSATION_GRID_POINTS*AUTO_BED_COMPENSATION_GRID_POINTS*3];
             // "B" vector of Z points
-            double eqnBVector[AUTO_BED_LEVELING_GRID_POINTS*AUTO_BED_LEVELING_GRID_POINTS];
+            double eqnBVector[AUTO_BED_COMPENSATION_GRID_POINTS*AUTO_BED_COMPENSATION_GRID_POINTS];
 
 
             int probePointCounter = 0;
@@ -1700,7 +1700,7 @@ void process_commands()
                 zig = true;
               }
 
-              for (int xCount=0; xCount < AUTO_BED_LEVELING_GRID_POINTS; xCount++)
+              for (int xCount=0; xCount < AUTO_BED_COMPENSATION_GRID_POINTS; xCount++)
               {
                 float z_before;
                 if (probePointCounter == 0)
@@ -1717,9 +1717,9 @@ void process_commands()
 
                 eqnBVector[probePointCounter] = measured_z;
 
-                eqnAMatrix[probePointCounter + 0*AUTO_BED_LEVELING_GRID_POINTS*AUTO_BED_LEVELING_GRID_POINTS] = xProbe;
-                eqnAMatrix[probePointCounter + 1*AUTO_BED_LEVELING_GRID_POINTS*AUTO_BED_LEVELING_GRID_POINTS] = yProbe;
-                eqnAMatrix[probePointCounter + 2*AUTO_BED_LEVELING_GRID_POINTS*AUTO_BED_LEVELING_GRID_POINTS] = 1;
+                eqnAMatrix[probePointCounter + 0*AUTO_BED_COMPENSATION_GRID_POINTS*AUTO_BED_COMPENSATION_GRID_POINTS] = xProbe;
+                eqnAMatrix[probePointCounter + 1*AUTO_BED_COMPENSATION_GRID_POINTS*AUTO_BED_COMPENSATION_GRID_POINTS] = yProbe;
+                eqnAMatrix[probePointCounter + 2*AUTO_BED_COMPENSATION_GRID_POINTS*AUTO_BED_COMPENSATION_GRID_POINTS] = 1;
                 probePointCounter++;
                 xProbe += xInc;
               }
@@ -1727,7 +1727,7 @@ void process_commands()
             clean_up_after_endstop_move();
 
             // solve lsq problem
-            double *plane_equation_coefficients = qr_solve(AUTO_BED_LEVELING_GRID_POINTS*AUTO_BED_LEVELING_GRID_POINTS, 3, eqnAMatrix, eqnBVector);
+            double *plane_equation_coefficients = qr_solve(AUTO_BED_COMPENSATION_GRID_POINTS*AUTO_BED_COMPENSATION_GRID_POINTS, 3, eqnAMatrix, eqnBVector);
 
             SERIAL_PROTOCOLPGM("Eqn coefficients: a: ");
             SERIAL_PROTOCOL(plane_equation_coefficients[0]);
@@ -1737,11 +1737,11 @@ void process_commands()
             SERIAL_PROTOCOLLN(plane_equation_coefficients[2]);
 
 
-            set_bed_level_equation_lsq(plane_equation_coefficients);
+            set_bed_compensation_equation_lsq(plane_equation_coefficients);
 
             free(plane_equation_coefficients);
 
-#else // AUTO_BED_LEVELING_GRID not defined
+#else // AUTO_BED_COMPENSATION_GRID not defined
 
             // Probe at 3 arbitrary points
             // probe 1
@@ -1755,21 +1755,21 @@ void process_commands()
 
             clean_up_after_endstop_move();
 
-            set_bed_level_equation_3pts(z_at_pt_1, z_at_pt_2, z_at_pt_3);
+            set_bed_compensation_equation_3pts(z_at_pt_1, z_at_pt_2, z_at_pt_3);
 
 
-#endif // AUTO_BED_LEVELING_GRID
+#endif // AUTO_BED_COMPENSATION_GRID
             st_synchronize();
 
             // The following code correct the Z height difference from z-probe position and hotend tip position.
             // The Z height on homing is measured by Z-Probe, but the probe is quite far from the hotend.
             // When the bed is uneven, this height must be corrected.
-            real_z = float(st_get_position(Z_AXIS))/axis_steps_per_unit[Z_AXIS];  //get the real Z (since the auto bed leveling is already correcting the plane)
+            real_z = float(st_get_position(Z_AXIS))/axis_steps_per_unit[Z_AXIS];  //get the real Z (since the auto bed compensation is already correcting the plane)
             x_tmp = current_position[X_AXIS] + X_PROBE_OFFSET_FROM_EXTRUDER;
             y_tmp = current_position[Y_AXIS] + Y_PROBE_OFFSET_FROM_EXTRUDER;
             z_tmp = current_position[Z_AXIS];
 
-            apply_rotation_xyz(plan_bed_level_matrix, x_tmp, y_tmp, z_tmp);         //Apply the correction sending the probe offset
+            apply_rotation_xyz(plan_bed_compensation_matrix, x_tmp, y_tmp, z_tmp);         //Apply the correction sending the probe offset
             current_position[Z_AXIS] = z_tmp - real_z + current_position[Z_AXIS];   //The difference is added to current position and sent to planner.
             plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
 #ifdef Z_PROBE_SLED
@@ -1782,7 +1782,7 @@ void process_commands()
         {
             engage_z_probe(); // Engage Z Servo endstop if available
             st_synchronize();
-            // TODO: make sure the bed_level_rotation_matrix is identity or the planner will get set incorectly
+            // TODO: make sure the bed_compensation_rotation_matrix is identity or the planner will get set incorectly
             setup_for_endstop_move();
 
             feedrate = homing_feedrate[Z_AXIS];
@@ -1809,7 +1809,7 @@ void process_commands()
         dock_sled(false);
         break;
 #endif // Z_PROBE_SLED
-#endif // ENABLE_AUTO_BED_LEVELING
+#endif // ENABLE_AUTO_BED_COMPENSATION
     case 90: // G90
       relative_mode = false;
       break;
@@ -2068,7 +2068,7 @@ void process_commands()
 //	
 // This function assumes the bed has been homed.  Specificaly, that a G28 command
 // as been issued prior to invoking the M48 Z-Probe repeatability measurement function.
-// Any information generated by a prior G29 Bed leveling command will be lost and need to be
+// Any information generated by a prior G29 Bed compensation command will be lost and need to be
 // regenerated.
 //
 // The number of samples will default to 10 if not specified.  You can use upper or lower case
@@ -2076,7 +2076,7 @@ void process_commands()
 // N for its communication protocol and will get horribly confused if you send it a capital N.
 //
 
-#ifdef ENABLE_AUTO_BED_LEVELING
+#ifdef ENABLE_AUTO_BED_COMPENSATION
 #ifdef Z_PROBE_REPEATABILITY_TEST 
 
     case 48: // M48 Z-Probe repeatability
@@ -2154,7 +2154,7 @@ void process_commands()
 //
 
         st_synchronize();
-        plan_bed_level_matrix.set_to_identity();
+        plan_bed_compensation_matrix.set_to_identity();
 	plan_buffer_line( X_current, Y_current, Z_start_location,
 			ext_position,
     			homing_feedrate[Z_AXIS]/60,
@@ -2333,7 +2333,7 @@ Sigma_Exit:
         break;
 	}
 #endif		// Z_PROBE_REPEATABILITY_TEST 
-#endif		// ENABLE_AUTO_BED_LEVELING
+#endif		// ENABLE_AUTO_BED_COMPENSATION
 
     case 104: // M104
       if(setTargetedHotend(104)){
@@ -3093,11 +3093,11 @@ Sigma_Exit:
         if (code_seen('S')) {
           servo_position = code_value();
           if ((servo_index >= 0) && (servo_index < NUM_SERVOS)) {
-#if defined (ENABLE_AUTO_BED_LEVELING) && (PROBE_SERVO_DEACTIVATION_DELAY > 0)
+#if defined (ENABLE_AUTO_BED_COMPENSATION) && (PROBE_SERVO_DEACTIVATION_DELAY > 0)
 		      servos[servo_index].attach(0);
 #endif
             servos[servo_index].write(servo_position);
-#if defined (ENABLE_AUTO_BED_LEVELING) && (PROBE_SERVO_DEACTIVATION_DELAY > 0)
+#if defined (ENABLE_AUTO_BED_COMPENSATION) && (PROBE_SERVO_DEACTIVATION_DELAY > 0)
               delay(PROBE_SERVO_DEACTIVATION_DELAY);
               servos[servo_index].detach();
 #endif
@@ -3362,7 +3362,7 @@ Sigma_Exit:
       st_synchronize();
     }
     break;
-#if defined(ENABLE_AUTO_BED_LEVELING) && defined(SERVO_ENDSTOPS) && not defined(Z_PROBE_SLED)
+#if defined(ENABLE_AUTO_BED_COMPENSATION) && defined(SERVO_ENDSTOPS) && not defined(Z_PROBE_SLED)
     case 401:
     {
         engage_z_probe();    // Engage Z Servo endstop if available

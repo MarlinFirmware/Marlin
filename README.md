@@ -53,7 +53,7 @@ Features:
 *   Configurable serial port to support connection of wireless adaptors.
 *   Automatic operation of extruder/cold-end cooling fans based on nozzle temperature
 *   RC Servo Support, specify angle or duration for continuous rotation servos.
-*   Bed Auto Leveling.
+*   Auto Bed Compensation.
 *   Support for a filament diameter sensor, which adjusts extrusion volume
 
 The default baudrate is 250000. This baudrate has less jitter and hence errors than the usual 115200 baud, but is less supported by drivers and host-environments.
@@ -279,7 +279,7 @@ If all goes well the firmware is uploading
 That's ok.  Enjoy Silky Smooth Printing.
 
 ===============================================
-Instructions for configuring Bed Auto Leveling
+Instructions for configuring Auto Bed Compensation
 ===============================================
 There are two options for this feature. You may choose to use a servo mounted on the X carriage or you may use a sled that mounts on the X axis and can be docked when not in use.
 See the section for each option below for specifics about installation and configuration. Also included are instructions that apply to both options.
@@ -295,7 +295,7 @@ If jumping the arduino Vcc do RAMPS 5V rail, take care to not use a power hungry
 Instructions for Both Options
 -----------------------------
 
-Uncomment the "ENABLE_AUTO_BED_LEVELING" define (commented by default)
+Uncomment the "ENABLE_AUTO_BED_COMPENSATION" define (commented by default)
 
 The following options define the probing positions. These are good starting values.
 I recommend to keep a better clearance from borders in the first run and then make the probes as close as possible to borders:
@@ -391,7 +391,7 @@ For example, suppose you measured the endstop position and it was 20mm to the ri
 * \#define Y_PROBE_OFFSET_FROM_EXTRUDER 10
 * \#define Z_PROBE_OFFSET_FROM_EXTRUDER 2.75
 
-That's it.. enjoy never having to calibrate your Z endstop neither leveling your bed by hand anymore ;-)
+That's it.. enjoy never having to calibrate your Z endstop neither tramming your bed by hand anymore ;-)
 
 Filament Sensor
 ---------------
