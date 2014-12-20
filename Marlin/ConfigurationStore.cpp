@@ -220,13 +220,13 @@ SERIAL_ECHOLNPGM("Scaling factors:");
       SERIAL_ECHO(" X retract angle");
       SERIAL_ECHO(servo_endstop_angles[X_AXIS * 2 + 1] );
 	}
-    if (servo_endstops[X_AXIS] > -1) {
+    if (servo_endstops[Y_AXIS] > -1) {
       SERIAL_ECHO(" Y extend angle");
       SERIAL_ECHO(servo_endstop_angles[Y_AXIS * 2] );
       SERIAL_ECHO(" Y retract angle");
       SERIAL_ECHO(servo_endstop_angles[Y_AXIS * 2 + 1] );
 	}
-    if (servo_endstops[X_AXIS] > -1) {
+    if (servo_endstops[Z_AXIS] > -1) {
       SERIAL_ECHO(" Z extend angle");
       SERIAL_ECHO(servo_endstop_angles[Z_AXIS * 2] );
       SERIAL_ECHO(" Z retract angle");
