@@ -40,6 +40,7 @@
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 //// The following define selects which electronics board you have. Please choose the one that matches your setup
 // 10 = Gen7 custom (Alfons3 Version) "https://github.com/Alfons3/Generation_7_Electronics"
@@ -85,6 +86,10 @@
 // 88 = 5DPrint D8 Driver Board
 // 999 = Leapfrog
 
+=======
+// The following define selects which electronics board you have.
+// Please choose the name from boards.h that matches your setup
+>>>>>>> SAV-MkI-config
 =======
 // The following define selects which electronics board you have.
 // Please choose the name from boards.h that matches your setup
@@ -364,6 +369,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 // Disables axis when it's not being used.
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 #define DISABLE_X false
 #define DISABLE_Y false
 #define DISABLE_Z false
@@ -371,6 +377,17 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define DISABLE_INACTIVE_EXTRUDER true //disable only inactive extruders and keep active extruder enabled
 
 #define INVERT_X_DIR true    // for Mendel set to false, for Orca set to true
+=======
+#define DISABLE_X true
+#define DISABLE_Y true
+#define DISABLE_Z true
+#define DISABLE_E true // For all extruders
+#define DISABLE_INACTIVE_EXTRUDER true //disable only inactive extruders and keep active extruder enabled
+
+//#define INVERT_X_DIR false    // for Mendel set to false, for Orca set to true
+#define INVERT_X_DIR false    // for Mendel set to false, for Orca set to true - vinciBot
+//#define INVERT_Y_DIR false    // for Mendel set to true, for Orca set to false  - T800 (false)
+>>>>>>> SAV-MkI-config
 =======
 #define DISABLE_X true
 #define DISABLE_Y true
@@ -583,10 +600,13 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 #define DEFAULT_AXIS_STEPS_PER_UNIT   {78.7402,78.7402,200.0*8/3,760*1.1}  // default steps per unit for Ultimaker
 #define DEFAULT_MAX_FEEDRATE          {500, 500, 5, 25}    // (mm/sec)
 #define DEFAULT_MAX_ACCELERATION      {9000,9000,100,10000}    // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for Skeinforge 40+, for older versions raise them a lot.
 =======
+=======
+>>>>>>> SAV-MkI-config
 =======
 >>>>>>> SAV-MkI-config
 //#define DEFAULT_AXIS_STEPS_PER_UNIT   {160.50, 160.16, 8000.00, 1938.7}  // default steps per unit for ultimaker (T800)
@@ -785,7 +805,11 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 //[FMC]#define SAV_3DLCD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 //#define SAV_3DLCD
+=======
+#define SAV_3DLCD
+>>>>>>> SAV-MkI-config
 =======
 #define SAV_3DLCD
 >>>>>>> SAV-MkI-config
@@ -892,7 +916,11 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
  * 34 - RAMPS1.4 - uses Analog input 5 on the AUX2 connector 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
  * 81 - Printrboard - Uses Analog input 2 on the Aux 2 connector
+=======
+ * 81 - Printrboard - Uses Analog input 2 on the Exp1 connector (version B,C,D,E)
+>>>>>>> SAV-MkI-config
 =======
  * 81 - Printrboard - Uses Analog input 2 on the Exp1 connector (version B,C,D,E)
 >>>>>>> SAV-MkI-config
@@ -918,6 +946,11 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+//When using an LCD, uncomment the line below to display the Filament sensor data on the last line instead of status.  Status will appear for 5 sec.
+//#define FILAMENT_LCD_DISPLAY
+>>>>>>> SAV-MkI-config
 =======
 //When using an LCD, uncomment the line below to display the Filament sensor data on the last line instead of status.  Status will appear for 5 sec.
 //#define FILAMENT_LCD_DISPLAY

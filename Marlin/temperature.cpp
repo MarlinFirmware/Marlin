@@ -427,7 +427,11 @@ void manage_heater()
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   #ifdef THERMAL_RUNAWAY_PROTECTION_PERIOD && THERMAL_RUNAWAY_PROTECTION_PERIOD > 0
+=======
+#if defined (THERMAL_RUNAWAY_PROTECTION_PERIOD) && THERMAL_RUNAWAY_PROTECTION_PERIOD > 0
+>>>>>>> SAV-MkI-config
 =======
 #if defined (THERMAL_RUNAWAY_PROTECTION_PERIOD) && THERMAL_RUNAWAY_PROTECTION_PERIOD > 0
 >>>>>>> SAV-MkI-config
@@ -735,7 +739,11 @@ static void updateTemperaturesFromRawValues()
     #endif
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     #ifdef FILAMENT_SENSOR  && (FILWIDTH_PIN > -1)    //check if a sensor is supported 
+=======
+    #if defined (FILAMENT_SENSOR) && (FILWIDTH_PIN > -1)    //check if a sensor is supported 
+>>>>>>> SAV-MkI-config
 =======
     #if defined (FILAMENT_SENSOR) && (FILWIDTH_PIN > -1)    //check if a sensor is supported 
 >>>>>>> SAV-MkI-config
@@ -1001,7 +1009,11 @@ void setWatch()
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 #ifdef THERMAL_RUNAWAY_PROTECTION_PERIOD && THERMAL_RUNAWAY_PROTECTION_PERIOD > 0
+=======
+#if defined (THERMAL_RUNAWAY_PROTECTION_PERIOD) && THERMAL_RUNAWAY_PROTECTION_PERIOD > 0
+>>>>>>> SAV-MkI-config
 =======
 #if defined (THERMAL_RUNAWAY_PROTECTION_PERIOD) && THERMAL_RUNAWAY_PROTECTION_PERIOD > 0
 >>>>>>> SAV-MkI-config

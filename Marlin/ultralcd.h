@@ -47,7 +47,10 @@
   extern bool cancel_heatup;
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> SAV-MkI-config
 =======
 >>>>>>> SAV-MkI-config
   
@@ -55,6 +58,9 @@
         extern unsigned long message_millis;
   #endif
 <<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> SAV-MkI-config
+=======
 >>>>>>> SAV-MkI-config
 =======
 >>>>>>> SAV-MkI-config

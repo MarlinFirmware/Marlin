@@ -3,7 +3,13 @@
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 #if MOTHERBOARD != 88
+=======
+#include "boards.h"
+
+#if !MB(5DPRINT)
+>>>>>>> SAV-MkI-config
 =======
 #include "boards.h"
 
@@ -34,7 +40,11 @@
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 #if MOTHERBOARD == 88
+=======
+#if MB(5DPRINT)
+>>>>>>> SAV-MkI-config
 =======
 #if MB(5DPRINT)
 >>>>>>> SAV-MkI-config
@@ -180,6 +190,7 @@
 
 
 #endif // LEAPFROG
+<<<<<<< HEAD
 
 /****************************************************************************************
 *
@@ -274,6 +285,8 @@
  #error Oops!  Make sure you have 'Arduino Mega' selected from the 'Tools -> Boards' menu.
  #endif
 #endif
+=======
+>>>>>>> SAV-MkI-config
 
 #define X_STEP_PIN         28
 #define X_DIR_PIN          63
@@ -337,6 +350,9 @@
 *
 ****************************************************************************************/
 
+<<<<<<< HEAD
+=======
+>>>>>>> SAV-MkI-config
 =======
 >>>>>>> SAV-MkI-config
 #if MB(99)
@@ -700,7 +716,11 @@
 ****************************************************************************************/
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 #if MOTHERBOARD == 3 || MOTHERBOARD == 33 || MOTHERBOARD == 34 || MOTHERBOARD == 35 || MOTHERBOARD == 36 || MOTHERBOARD == 77 || MOTHERBOARD == 67 || MOTHERBOARD == 68
+=======
+#if IS_RAMPS || MB(3DRAG) || MB(AZTEEG_X3) || MB(AZTEEG_X3_PRO)
+>>>>>>> SAV-MkI-config
 =======
 #if IS_RAMPS || MB(3DRAG) || MB(AZTEEG_X3) || MB(AZTEEG_X3_PRO)
 >>>>>>> SAV-MkI-config
@@ -724,11 +744,19 @@
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 #if MOTHERBOARD == 33 || MOTHERBOARD == 34 || MOTHERBOARD == 35 || MOTHERBOARD == 36 ||  MOTHERBOARD == 77 || MOTHERBOARD == 67 || MOTHERBOARD == 68
 
   #define LARGE_FLASH true
 
   #if MOTHERBOARD == 77
+=======
+#if (IS_RAMPS && !MB(RAMPS_OLD)) || MB(3DRAG) || MB(AZTEEG_X3) || MB(AZTEEG_X3_PRO)
+
+  #define LARGE_FLASH true
+
+  #if MB(3DRAG)
+>>>>>>> SAV-MkI-config
 =======
 #if (IS_RAMPS && !MB(RAMPS_OLD)) || MB(3DRAG) || MB(AZTEEG_X3) || MB(AZTEEG_X3_PRO)
 
@@ -821,10 +849,17 @@
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 #if MOTHERBOARD == 34  //FMM added for Filament Extruder
 #ifdef FILAMENT_SENSOR
 	  //define analog pin for the filament width sensor input
 	  //Use the RAMPS 1.4 Analog input 5 on the AUX2 connector
+=======
+#if MB(RAMPS_13_EEB)  //FMM added for Filament Extruder
+#ifdef FILAMENT_SENSOR
+    //define analog pin for the filament width sensor input
+    //Use the RAMPS 1.4 Analog input 5 on the AUX2 connector
+>>>>>>> SAV-MkI-config
 =======
 #if MB(RAMPS_13_EEB)  //FMM added for Filament Extruder
 #ifdef FILAMENT_SENSOR
@@ -844,7 +879,11 @@
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     #if MOTHERBOARD == 68
+=======
+    #if MB(AZTEEG_X3_PRO)
+>>>>>>> SAV-MkI-config
 =======
     #if MB(AZTEEG_X3_PRO)
 >>>>>>> SAV-MkI-config
@@ -871,7 +910,11 @@
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   #if MOTHERBOARD == 33 || MOTHERBOARD == 35 || MOTHERBOARD == 67 || MOTHERBOARD == 68
+=======
+  #if MB(RAMPS_13_EFB) || MB(RAMPS_13_EFF) || MB(AZTEEG_X3) || MB(AZTEEG_X3_PRO)
+>>>>>>> SAV-MkI-config
 =======
   #if MB(RAMPS_13_EFB) || MB(RAMPS_13_EFF) || MB(AZTEEG_X3) || MB(AZTEEG_X3_PRO)
 >>>>>>> SAV-MkI-config
@@ -885,11 +928,19 @@
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   #if MOTHERBOARD == 77 || MOTHERBOARD == 36
     #define FAN_PIN            8
   #endif
 
   #if MOTHERBOARD == 35
+=======
+  #if MB(3DRAG) || MB(RAMPS_13_EEF)
+    #define FAN_PIN            8
+  #endif
+
+  #if MB(RAMPS_13_EFF)
+>>>>>>> SAV-MkI-config
 =======
   #if MB(3DRAG) || MB(RAMPS_13_EEF)
     #define FAN_PIN            8
@@ -930,11 +981,19 @@
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   #if MOTHERBOARD == 77
     #define HEATER_0_PIN       10
     #define HEATER_1_PIN       12
     #define HEATER_2_PIN       6
   #elif MOTHERBOARD == 68
+=======
+  #if MB(3DRAG)
+    #define HEATER_0_PIN       10
+    #define HEATER_1_PIN       12
+    #define HEATER_2_PIN       6
+  #elif MB(AZTEEG_X3_PRO)
+>>>>>>> SAV-MkI-config
 =======
   #if MB(3DRAG)
     #define HEATER_0_PIN       10
@@ -963,7 +1022,11 @@
   #define TEMP_1_PIN         15   // ANALOG NUMBERING
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   #if MOTHERBOARD == 68
+=======
+  #if MB(AZTEEG_X3_PRO)
+>>>>>>> SAV-MkI-config
 =======
   #if MB(AZTEEG_X3_PRO)
 >>>>>>> SAV-MkI-config
@@ -981,7 +1044,11 @@
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   #if MOTHERBOARD == 35 || MOTHERBOARD == 36
+=======
+  #if MB(RAMPS_13_EFF) || MB(RAMPS_13_EEF)
+>>>>>>> SAV-MkI-config
 =======
   #if MB(RAMPS_13_EFF) || MB(RAMPS_13_EEF)
 >>>>>>> SAV-MkI-config
@@ -1017,7 +1084,11 @@
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   #if MOTHERBOARD == 68
+=======
+  #if MB(AZTEEG_X3_PRO)
+>>>>>>> SAV-MkI-config
 =======
   #if MB(AZTEEG_X3_PRO)
 >>>>>>> SAV-MkI-config
@@ -1093,7 +1164,11 @@
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
       #if MOTHERBOARD == 77
+=======
+      #if MB(3DRAG)
+>>>>>>> SAV-MkI-config
 =======
       #if MB(3DRAG)
 >>>>>>> SAV-MkI-config
@@ -1457,7 +1532,11 @@
 #if defined(__AVR_ATmega1284P__)
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 	#define LARGE_FLASH true
+=======
+  #define LARGE_FLASH true
+>>>>>>> SAV-MkI-config
 =======
   #define LARGE_FLASH true
 >>>>>>> SAV-MkI-config
@@ -1807,6 +1886,7 @@
 
 #endif // ULTIMAKER_OLD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 #if MB(ULTIMAIN_2)
 #define KNOWN_BOARD
@@ -1820,6 +1900,10 @@
 
 <<<<<<< HEAD
 #if MOTHERBOARD == 72
+=======
+
+#if MB(ULTIMAIN_2)
+>>>>>>> SAV-MkI-config
 =======
 
 #if MB(ULTIMAIN_2)
@@ -1910,7 +1994,11 @@
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 #endif//MOTHERBOARD == 72
+=======
+#endif // ULTIMAIN_2
+>>>>>>> SAV-MkI-config
 =======
 #endif // ULTIMAIN_2
 >>>>>>> SAV-MkI-config
@@ -2285,7 +2373,11 @@
 ****************************************************************************************/
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 #if MOTHERBOARD == 84
+=======
+#if MB(TEENSY2)
+>>>>>>> SAV-MkI-config
 =======
 #if MB(TEENSY2)
 >>>>>>> SAV-MkI-config
@@ -2378,7 +2470,11 @@ DaveX plan for Teensylu/printrboard-type pinouts (ref teensylu & sprinter) for a
 #define SDPOWER            -1
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 #define SDCARDDETECT       -1		
+=======
+#define SDCARDDETECT       -1   
+>>>>>>> SAV-MkI-config
 =======
 #define SDCARDDETECT       -1   
 >>>>>>> SAV-MkI-config
@@ -2412,7 +2508,11 @@ DaveX plan for Teensylu/printrboard-type pinouts (ref teensylu & sprinter) for a
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 #endif  // MOTHERBOARD == 84 (Teensy++2.0 Breadboard)
+=======
+#endif // TEENSY2
+>>>>>>> SAV-MkI-config
 =======
 #endif // TEENSY2
 >>>>>>> SAV-MkI-config
@@ -2487,6 +2587,7 @@ DaveX plan for Teensylu/printrboard-type pinouts (ref teensylu & sprinter) for a
 
 #define DEBUG_PIN 0
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 // x axis
 #define X_STEP_PIN 15
@@ -2559,6 +2660,48 @@ DaveX plan for Teensylu/printrboard-type pinouts (ref teensylu & sprinter) for a
 #define TEMP_BED_PIN -1
 
 
+=======
+
+// x axis
+#define X_STEP_PIN 15
+#define X_DIR_PIN 18
+#define X_MIN_PIN 20
+//Alex Checar #define X_STOP_PIN         20
+#define X_ENABLE_PIN 24 //actually uses Y_enable_pin
+#define X_MAX_PIN -1
+
+// y axes
+#define Y_STEP_PIN 23
+#define Y_DIR_PIN 22
+#define Y_MIN_PIN 25
+//Alex Checar #define Y_STOP_PIN         25
+#define Y_ENABLE_PIN 24 //shared with X_enable_pin
+#define Y_MAX_PIN -1
+
+// z axes
+#define Z_STEP_PIN 27
+#define Z_DIR_PIN 28
+#define Z_MIN_PIN 30
+//Alex Checar #define Z_STOP_PIN         30
+#define Z_ENABLE_PIN 29
+#define Z_MAX_PIN -1
+
+//extruder pins
+#define E0_STEP_PIN         12
+#define E0_DIR_PIN          17
+#define E0_ENABLE_PIN       3
+
+#define HEATER_0_PIN 16
+#define TEMP_0_PIN 0
+
+#define FAN_PIN -1
+
+//bed pins
+#define HEATER_BED_PIN -1
+#define TEMP_BED_PIN -1
+
+
+>>>>>>> SAV-MkI-config
 #define SDSS     -1
 #define SDPOWER          -1
 #define LED_PIN          -1
@@ -2960,7 +3103,11 @@ DaveX plan for Teensylu/printrboard-type pinouts (ref teensylu & sprinter) for a
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     #define SDCARDDETECT -1		// Ramps does not use this port
+=======
+    #define SDCARDDETECT -1   // Ramps does not use this port
+>>>>>>> SAV-MkI-config
 =======
     #define SDCARDDETECT -1   // Ramps does not use this port
 >>>>>>> SAV-MkI-config
@@ -3080,7 +3227,11 @@ DaveX plan for Teensylu/printrboard-type pinouts (ref teensylu & sprinter) for a
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
  #define SDCARDDETECT -1	// Megatronics does not use this port
+=======
+ #define SDCARDDETECT -1  // Megatronics does not use this port
+>>>>>>> SAV-MkI-config
 =======
  #define SDCARDDETECT -1  // Megatronics does not use this port
 >>>>>>> SAV-MkI-config
@@ -3184,7 +3335,11 @@ DaveX plan for Teensylu/printrboard-type pinouts (ref teensylu & sprinter) for a
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
  #define SDCARDDETECT -1	// Megatronics does not use this port
+=======
+ #define SDCARDDETECT -1  // Megatronics does not use this port
+>>>>>>> SAV-MkI-config
 =======
  #define SDCARDDETECT -1  // Megatronics does not use this port
 >>>>>>> SAV-MkI-config
@@ -3200,107 +3355,7 @@ DaveX plan for Teensylu/printrboard-type pinouts (ref teensylu & sprinter) for a
 
 #endif // MEGATRONICS_1
 <<<<<<< HEAD
-
-/****************************************************************************************
-* Cheaptronic v1.0
-*
-****************************************************************************************/
-#if MB(CHEAPTRONIC)
- #define KNOWN_BOARD 1
-
- #ifndef __AVR_ATmega2560__
- #error Oops! Make sure you have 'Arduino Mega' selected from the 'Tools -> Boards' menu.
- #endif
-
- #define LARGE_FLASH        true
-
- //X motor stepper
- #define X_STEP_PIN 14
- #define X_DIR_PIN 15
- #define X_ENABLE_PIN 24
-
- //X endstop
- #define X_MIN_PIN 3
- #define X_MAX_PIN -1
-
- //Y motor stepper
- #define Y_STEP_PIN 35
- #define Y_DIR_PIN 36
- #define Y_ENABLE_PIN 31
-
- //Y endstop
- #define Y_MIN_PIN 2
- #define Y_MAX_PIN -1
-
- //Z motor stepper
- #define Z_STEP_PIN 40
- #define Z_DIR_PIN 41
- #define Z_ENABLE_PIN 37
-
- //Z endstop
- #define Z_MIN_PIN 5
- #define Z_MAX_PIN -1
-
- //Extruder 0 stepper
- #define E0_STEP_PIN 26
- #define E0_DIR_PIN 28
- #define E0_ENABLE_PIN 25
-
- //Extruder 1 stepper
- #define E1_STEP_PIN 33
- #define E1_DIR_PIN 34
- #define E1_ENABLE_PIN 30
-
- #define SDPOWER -1
- #define SDSS -1
- #define LED_PIN -1
-
- //FAN
- #define FAN_PIN -1
-
- #define PS_ON_PIN -1
- #define KILL_PIN -1
-
- #define HEATER_0_PIN 19 // EXTRUDER 1
- #define HEATER_1_PIN 23 // EXTRUDER 2
- //HeatedBad
- #define HEATER_BED_PIN 22
- //Cheaptronic v1.0 hasent EXTRUDER 3
- #define HEATER_2_PIN -1
-
- //Temperature sensors
- #define TEMP_0_PIN 15
- #define TEMP_1_PIN 14
- #define TEMP_2_PIN -1
- #define TEMP_BED_PIN 13
-
- //Cheaptronic v1.0 dont support LCD
- #define LCD_PINS_RS -1
- #define LCD_PINS_ENABLE -1
- #define LCD_PINS_D4 -1
- #define LCD_PINS_D5 -1
- #define LCD_PINS_D6 -1
- #define LCD_PINS_D7 -1
-
- //Cheaptronic v1.0 dont support keypad
- #define BTN_EN1 -1
- #define BTN_EN2 -1
- #define BTN_ENC -1
-
- #define BLEN_C 2
- #define BLEN_B 1
- #define BLEN_A 0
-
- //Cheaptronic v1.0 does not use this port
- #define SDCARDDETECT -1
-
- //encoder rotation values
- #define encrot0 0
- #define encrot1 2
- #define encrot2 3
- #define encrot3 1
-
-#endif // CHEAPTRONIC
+<<<<<<< HEAD
 =======
 >>>>>>> SAV-MkI-config
 
@@ -3404,6 +3459,112 @@ DaveX plan for Teensylu/printrboard-type pinouts (ref teensylu & sprinter) for a
  #define encrot3 1
 
 #endif // CHEAPTRONIC
+<<<<<<< HEAD
+=======
+>>>>>>> SAV-MkI-config
+
+/****************************************************************************************
+* Cheaptronic v1.0
+*
+****************************************************************************************/
+#if MB(CHEAPTRONIC)
+ #define KNOWN_BOARD 1
+
+ #ifndef __AVR_ATmega2560__
+ #error Oops! Make sure you have 'Arduino Mega' selected from the 'Tools -> Boards' menu.
+ #endif
+
+ #define LARGE_FLASH        true
+
+ //X motor stepper
+ #define X_STEP_PIN 14
+ #define X_DIR_PIN 15
+ #define X_ENABLE_PIN 24
+
+ //X endstop
+ #define X_MIN_PIN 3
+ #define X_MAX_PIN -1
+
+ //Y motor stepper
+ #define Y_STEP_PIN 35
+ #define Y_DIR_PIN 36
+ #define Y_ENABLE_PIN 31
+
+ //Y endstop
+ #define Y_MIN_PIN 2
+ #define Y_MAX_PIN -1
+
+ //Z motor stepper
+ #define Z_STEP_PIN 40
+ #define Z_DIR_PIN 41
+ #define Z_ENABLE_PIN 37
+
+ //Z endstop
+ #define Z_MIN_PIN 5
+ #define Z_MAX_PIN -1
+
+ //Extruder 0 stepper
+ #define E0_STEP_PIN 26
+ #define E0_DIR_PIN 28
+ #define E0_ENABLE_PIN 25
+
+ //Extruder 1 stepper
+ #define E1_STEP_PIN 33
+ #define E1_DIR_PIN 34
+ #define E1_ENABLE_PIN 30
+
+ #define SDPOWER -1
+ #define SDSS -1
+ #define LED_PIN -1
+
+ //FAN
+ #define FAN_PIN -1
+
+ #define PS_ON_PIN -1
+ #define KILL_PIN -1
+
+ #define HEATER_0_PIN 19 // EXTRUDER 1
+ #define HEATER_1_PIN 23 // EXTRUDER 2
+ //HeatedBad
+ #define HEATER_BED_PIN 22
+ //Cheaptronic v1.0 hasent EXTRUDER 3
+ #define HEATER_2_PIN -1
+
+ //Temperature sensors
+ #define TEMP_0_PIN 15
+ #define TEMP_1_PIN 14
+ #define TEMP_2_PIN -1
+ #define TEMP_BED_PIN 13
+
+ //Cheaptronic v1.0 dont support LCD
+ #define LCD_PINS_RS -1
+ #define LCD_PINS_ENABLE -1
+ #define LCD_PINS_D4 -1
+ #define LCD_PINS_D5 -1
+ #define LCD_PINS_D6 -1
+ #define LCD_PINS_D7 -1
+
+ //Cheaptronic v1.0 dont support keypad
+ #define BTN_EN1 -1
+ #define BTN_EN2 -1
+ #define BTN_ENC -1
+
+ #define BLEN_C 2
+ #define BLEN_B 1
+ #define BLEN_A 0
+
+ //Cheaptronic v1.0 does not use this port
+ #define SDCARDDETECT -1
+
+ //encoder rotation values
+ #define encrot0 0
+ #define encrot1 2
+ #define encrot2 3
+ #define encrot3 1
+
+#endif // CHEAPTRONIC
+=======
+>>>>>>> SAV-MkI-config
 
 
 

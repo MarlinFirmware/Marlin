@@ -230,6 +230,7 @@ static void lcd_implementation_status_screen()
  
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
  // Extruder 1
  u8g.setFont(FONT_STATUSMENU);
  u8g.setPrintPos(6,6);
@@ -300,6 +301,8 @@ static void lcd_implementation_status_screen()
 =======
 =======
 >>>>>>> SAV-MkI-config
+=======
+>>>>>>> SAV-MkI-config
   // Extruders
   _draw_heater_status(6, 0);
   #if EXTRUDERS > 1
@@ -312,6 +315,9 @@ static void lcd_implementation_status_screen()
   // Heatbed
   _draw_heater_status(81, -1);
 <<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> SAV-MkI-config
+=======
 >>>>>>> SAV-MkI-config
 =======
 >>>>>>> SAV-MkI-config
@@ -420,6 +426,7 @@ static void _drawmenu_setting_edit_generic(uint8_t row, const char* pstr, char p
   u8g.setPrintPos(0 * DOG_CHAR_WIDTH, (row + 1) * DOG_CHAR_HEIGHT);
   u8g.print(pre_char);
 <<<<<<< HEAD
+<<<<<<< HEAD
 
   while( (c = pgm_read_byte(pstr)) != '\0' ) {
     u8g.print(c);
@@ -431,6 +438,19 @@ static void _drawmenu_setting_edit_generic(uint8_t row, const char* pstr, char p
 
   while(n--) u8g.print(' ');
 
+=======
+
+  while( (c = pgm_read_byte(pstr)) != '\0' ) {
+    u8g.print(c);
+    pstr++;
+    n--;
+  }
+
+  u8g.print(':');
+
+  while(n--) u8g.print(' ');
+
+>>>>>>> SAV-MkI-config
 =======
 
   while( (c = pgm_read_byte(pstr)) != '\0' ) {
@@ -499,6 +519,7 @@ static void _drawmenu_sd(uint8_t row, const char* pstr, const char* filename, ch
   char c;
   uint8_t n = LCD_WIDTH - 1;
 <<<<<<< HEAD
+<<<<<<< HEAD
 
   if (longFilename[0] != '\0') {
     filename = longFilename;
@@ -533,6 +554,39 @@ static void _drawmenu_sd(uint8_t row, const char* pstr, const char* filename, ch
 
   if (isSelected) u8g.setColorIndex(1); // black on white
 }
+=======
+
+  if (longFilename[0] != '\0') {
+    filename = longFilename;
+    longFilename[n] = '\0';
+  }
+
+  if (isSelected) {
+    u8g.setColorIndex(1); // black on white
+    u8g.drawBox (0, row*DOG_CHAR_HEIGHT + 3, 128, DOG_CHAR_HEIGHT);
+    u8g.setColorIndex(0); // following text must be white on black
+  }
+
+  u8g.setPrintPos(0 * DOG_CHAR_WIDTH, (row + 1) * DOG_CHAR_HEIGHT);
+  u8g.print(' ');	// Indent by 1 char
+
+  if (isDir) u8g.print(LCD_STR_FOLDER[0]);
+
+  while((c = *filename) != '\0') {
+    u8g.print(c);
+    filename++;
+    n--;
+  }
+  while(n--) u8g.print(' ');
+
+  if (isSelected) u8g.setColorIndex(1); // black on white
+}
+
+#define lcd_implementation_drawmenu_sdfile_selected(row, pstr, filename, longFilename) _drawmenu_sd(row, pstr, filename, longFilename, false, true)
+#define lcd_implementation_drawmenu_sdfile(row, pstr, filename, longFilename) _drawmenu_sd(row, pstr, filename, longFilename, false, false)
+#define lcd_implementation_drawmenu_sddirectory_selected(row, pstr, filename, longFilename) _drawmenu_sd(row, pstr, filename, longFilename, true, true)
+#define lcd_implementation_drawmenu_sddirectory(row, pstr, filename, longFilename) _drawmenu_sd(row, pstr, filename, longFilename, true, false)
+>>>>>>> SAV-MkI-config
 
 #define lcd_implementation_drawmenu_sdfile_selected(row, pstr, filename, longFilename) _drawmenu_sd(row, pstr, filename, longFilename, false, true)
 #define lcd_implementation_drawmenu_sdfile(row, pstr, filename, longFilename) _drawmenu_sd(row, pstr, filename, longFilename, false, false)

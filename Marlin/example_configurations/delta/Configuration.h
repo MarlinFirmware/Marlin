@@ -33,6 +33,7 @@
 //#define BTENABLED              // Enable BT interface on AT90USB devices
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 //// The following define selects which electronics board you have. Please choose the one that matches your setup
 // 10 = Gen7 custom (Alfons3 Version) "https://github.com/Alfons3/Generation_7_Electronics"
@@ -83,6 +84,8 @@
 // This enables the serial port associated to the Bluetooth interface
 //#define BTENABLED              // Enable BT interface on AT90USB devices
 
+=======
+>>>>>>> SAV-MkI-config
 =======
 >>>>>>> SAV-MkI-config
 // The following define selects which electronics board you have.

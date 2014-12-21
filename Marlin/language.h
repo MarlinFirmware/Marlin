@@ -9,6 +9,7 @@
 // Languages
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 // 1  English
 // 2  Polish
 // 3  French
@@ -58,12 +59,32 @@
 
 #ifndef LANGUAGE_CHOICE
 >>>>>>> SAV-MkI-config
+=======
+// en English
+// pl Polish
+// fr French
+// de German
+// es Spanish
+// ru Russian
+// it Italian
+// pt Portuguese
+// fi Finnish
+// an Aragonese
+// nl Dutch
+// ca Catalan
+// eu Basque-Euskera
+
+#ifndef LANGUAGE_CHOICE
+>>>>>>> SAV-MkI-config
 	#define LANGUAGE_CHOICE en  // Pick your language from the list above
 #endif
 
 #if LANGUAGE_CHOICE >= 1
   #error "Languages now uses ISO language codes instead of numbers."
 <<<<<<< HEAD
+<<<<<<< HEAD
+>>>>>>> SAV-MkI-config
+=======
 >>>>>>> SAV-MkI-config
 =======
 >>>>>>> SAV-MkI-config
@@ -73,7 +94,11 @@
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 #if MOTHERBOARD == 7 || MOTHERBOARD == 71 || MOTHERBOARD == 72
+=======
+#if MB(ULTIMAKER)|| MB(ULTIMAKER_OLD)|| MB(ULTIMAIN_2)
+>>>>>>> SAV-MkI-config
 =======
 #if MB(ULTIMAKER)|| MB(ULTIMAKER_OLD)|| MB(ULTIMAIN_2)
 >>>>>>> SAV-MkI-config
@@ -87,10 +112,14 @@
 	#define FIRMWARE_URL "https://github.com/ErikZalm/Marlin/"
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 #elif MOTHERBOARD == 83
 	#define MACHINE_NAME "SAV MkI"
 	#define FIRMWARE_URL "https://github.com/fmalpartida/Marlin/tree/SAV-MkI-config"
 #elif MOTHERBOARD == 77
+=======
+#elif MB(3DRAG)
+>>>>>>> SAV-MkI-config
 =======
 #elif MB(3DRAG)
 >>>>>>> SAV-MkI-config
@@ -100,6 +129,7 @@
 	#define MACHINE_NAME "Makibox"
 	#define FIRMWARE_URL "https://github.com/ErikZalm/Marlin/"
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 #elif MB(3DRAG)
 	#define MACHINE_NAME "3Drag"
@@ -107,6 +137,11 @@
 #elif MB(5DPRINT)
 	#define MACHINE_NAME "Makibox"
 	#define FIRMWARE_URL "https://github.com/ErikZalm/Marlin/"
+#elif MB(SAV_MKI)
+	#define MACHINE_NAME "SAV MkI"
+	#define FIRMWARE_URL "https://github.com/fmalpartida/Marlin/tree/SAV-MkI-config"
+>>>>>>> SAV-MkI-config
+=======
 #elif MB(SAV_MKI)
 	#define MACHINE_NAME "SAV MkI"
 	#define FIRMWARE_URL "https://github.com/fmalpartida/Marlin/tree/SAV-MkI-config"
@@ -140,7 +175,12 @@
 // Common LCD messages
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 /* nothing here as of yet */
+=======
+
+  /* nothing here yet */
+>>>>>>> SAV-MkI-config
 =======
 
   /* nothing here yet */
@@ -155,7 +195,10 @@
 
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 
+=======
+>>>>>>> SAV-MkI-config
 =======
 >>>>>>> SAV-MkI-config
 // Serial Console Messages (do not translate those!)
@@ -235,6 +278,7 @@
 #define MSG_SERIAL_ERROR_MENU_STRUCTURE		"Error in menu structure"
 
 // LCD Menu Messages
+<<<<<<< HEAD
 <<<<<<< HEAD
 // Please note these are limited to 17 characters!
 
@@ -1751,6 +1795,9 @@
 >>>>>>> SAV-MkI-config
 =======
 
+=======
+
+>>>>>>> SAV-MkI-config
 #if   LANGUAGE_CHOICE == en // English
   #include "language_en.h"
 #elif LANGUAGE_CHOICE == pl // Polish
@@ -1780,4 +1827,7 @@
 #endif
 
 #endif //__LANGUAGE_H
+<<<<<<< HEAD
+>>>>>>> SAV-MkI-config
+=======
 >>>>>>> SAV-MkI-config

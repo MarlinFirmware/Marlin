@@ -1296,7 +1296,11 @@ void microstep_init()
   pinMode(Z_MS1_PIN,OUTPUT);
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   pinMode(Z_MS2_PIN,OUTPUT);  
+=======
+  pinMode(Z_MS2_PIN,OUTPUT);
+>>>>>>> SAV-MkI-config
 =======
   pinMode(Z_MS2_PIN,OUTPUT);
 >>>>>>> SAV-MkI-config
