@@ -425,7 +425,11 @@ void manage_heater()
   for(int e = 0; e < EXTRUDERS; e++) 
   {
 
+<<<<<<< HEAD
   #ifdef THERMAL_RUNAWAY_PROTECTION_PERIOD && THERMAL_RUNAWAY_PROTECTION_PERIOD > 0
+=======
+#if defined (THERMAL_RUNAWAY_PROTECTION_PERIOD) && THERMAL_RUNAWAY_PROTECTION_PERIOD > 0
+>>>>>>> SAV-MkI-config
     thermal_runaway_protection(&thermal_runaway_state_machine[e], &thermal_runaway_timer[e], current_temperature[e], target_temperature[e], e, THERMAL_RUNAWAY_PROTECTION_PERIOD, THERMAL_RUNAWAY_PROTECTION_HYSTERESIS);
   #endif
 
@@ -725,7 +729,11 @@ static void updateTemperaturesFromRawValues()
     #ifdef TEMP_SENSOR_1_AS_REDUNDANT
       redundant_temperature = analog2temp(redundant_temperature_raw, 1);
     #endif
+<<<<<<< HEAD
     #ifdef FILAMENT_SENSOR  && (FILWIDTH_PIN > -1)    //check if a sensor is supported 
+=======
+    #if defined (FILAMENT_SENSOR) && (FILWIDTH_PIN > -1)    //check if a sensor is supported 
+>>>>>>> SAV-MkI-config
       filament_width_meas = analog2widthFil();
     #endif  
     //Reset the watchdog after we know we have a temperature measurement.
@@ -768,7 +776,7 @@ return(filament_width_nominal/temp*100);
 
 void tp_init()
 {
-#if (MOTHERBOARD == 80) && ((TEMP_SENSOR_0==-1)||(TEMP_SENSOR_1==-1)||(TEMP_SENSOR_2==-1)||(TEMP_SENSOR_BED==-1))
+#if MB(RUMBA) && ((TEMP_SENSOR_0==-1)||(TEMP_SENSOR_1==-1)||(TEMP_SENSOR_2==-1)||(TEMP_SENSOR_BED==-1))
   //disable RUMBA JTAG in case the thermocouple extension is plugged on top of JTAG connector
   MCUCR=(1<<JTD); 
   MCUCR=(1<<JTD);
@@ -983,7 +991,11 @@ void setWatch()
 #endif 
 }
 
+<<<<<<< HEAD
 #ifdef THERMAL_RUNAWAY_PROTECTION_PERIOD && THERMAL_RUNAWAY_PROTECTION_PERIOD > 0
+=======
+#if defined (THERMAL_RUNAWAY_PROTECTION_PERIOD) && THERMAL_RUNAWAY_PROTECTION_PERIOD > 0
+>>>>>>> SAV-MkI-config
 void thermal_runaway_protection(int *state, unsigned long *timer, float temperature, float target_temperature, int heater_id, int period_seconds, int hysteresis_degc)
 {
 /*

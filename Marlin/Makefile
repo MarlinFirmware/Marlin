@@ -157,6 +157,11 @@ else ifeq  ($(HARDWARE_MOTHERBOARD),9)
 HARDWARE_VARIANT ?= Sanguino
 MCU              ?= atmega644p
 
+#Gen3 Monolithic Electronics
+else ifeq  ($(HARDWARE_MOTHERBOARD),22)
+HARDWARE_VARIANT ?= Sanguino
+MCU              ?= atmega644p
+
 #Megatronics
 else ifeq  ($(HARDWARE_MOTHERBOARD),70)
 HARDWARE_VARIANT ?= arduino

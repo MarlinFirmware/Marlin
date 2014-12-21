@@ -1,6 +1,8 @@
 #ifndef CONFIGURATION_H
 #define CONFIGURATION_H
 
+#include "boards.h"
+
 // This configuration file contains the basic settings.
 // Advanced settings can be found in Configuration_adv.h
 // BASIC SETTINGS: select your board type, temperature sensor type, axis scaling, and endstop configuration
@@ -23,7 +25,7 @@
 // startup. Implementation of an idea by Prof Braino to inform user that any changes made to this
 // build by the user have been successfully uploaded into firmware.
 #define STRING_VERSION_CONFIG_H __DATE__ " " __TIME__ // build date and time
-#define STRING_CONFIG_H_AUTHOR "(none, default config)" // Who made the changes.
+#define STRING_CONFIG_H_AUTHOR "(fm, SAV MkI)" //Who made the changes.
 
 // SERIAL_PORT selects which serial port should be used for communication with the host.
 // This allows the connection of wireless adapters (for instance) to non-default port pins.
@@ -36,6 +38,7 @@
 // This enables the serial port associated to the Bluetooth interface
 //#define BTENABLED              // Enable BT interface on AT90USB devices
 
+<<<<<<< HEAD
 
 //// The following define selects which electronics board you have. Please choose the one that matches your setup
 // 10 = Gen7 custom (Alfons3 Version) "https://github.com/Alfons3/Generation_7_Electronics"
@@ -81,16 +84,20 @@
 // 88 = 5DPrint D8 Driver Board
 // 999 = Leapfrog
 
+=======
+// The following define selects which electronics board you have.
+// Please choose the name from boards.h that matches your setup
+>>>>>>> SAV-MkI-config
 #ifndef MOTHERBOARD
-#define MOTHERBOARD 7
+  #define MOTHERBOARD BOARD_SAV_MKI
 #endif
 
 // Define this to set a custom name for your generic Mendel,
-// #define CUSTOM_MENDEL_NAME "This Mendel"
+#define CUSTOM_MENDEL_NAME "SAV MkI"
 
 // Define this to set a unique identifier for this printer, (Used by some programs to differentiate between machines)
 // You can use an online service to generate a random UUID. (eg http://www.uuidgenerator.net/version4)
-// #define MACHINE_UUID "00000000-0000-0000-0000-000000000000"
+#define MACHINE_UUID "0e3df20b-f1c8-45d7-a2e5-d33a6f96d9ed"
 
 // This defines the number of extruders
 #define EXTRUDERS 1
@@ -142,10 +149,11 @@
 // 147 is Pt100 with 4k7 pullup
 // 110 is Pt100 with 1k pullup (non standard)
 
-#define TEMP_SENSOR_0 -1
-#define TEMP_SENSOR_1 -1
+#define TEMP_SENSOR_0 5
+#define TEMP_SENSOR_1 0
 #define TEMP_SENSOR_2 0
-#define TEMP_SENSOR_BED 0
+#define TEMP_SENSOR_BED 1
+
 
 // This makes temp sensor 1 a redundant sensor for sensor 0. If the temperatures difference between these sensors is to high the print will be aborted.
 //#define TEMP_SENSOR_1_AS_REDUNDANT
@@ -328,7 +336,8 @@ your extruder heater takes 2 minutes to hit the target on heating.
 
 // The pullups are needed if you directly connect a mechanical endswitch between the signal and ground pins.
 const bool X_MIN_ENDSTOP_INVERTING = true; // set to true to invert the logic of the endstop.
-const bool Y_MIN_ENDSTOP_INVERTING = true; // set to true to invert the logic of the endstop.
+const bool Y_MIN_ENDSTOP_INVERTING = true; // set to true to invert the logic of the endstop. - vinciBot
+//const bool Y_MIN_ENDSTOP_INVERTING = false; // set to true to invert the logic of the endstop - T800
 const bool Z_MIN_ENDSTOP_INVERTING = true; // set to true to invert the logic of the endstop.
 const bool X_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of the endstop.
 const bool Y_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of the endstop.
@@ -348,6 +357,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define E_ENABLE_ON 0 // For all extruders
 
 // Disables axis when it's not being used.
+<<<<<<< HEAD
 #define DISABLE_X false
 #define DISABLE_Y false
 #define DISABLE_Z false
@@ -355,6 +365,17 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define DISABLE_INACTIVE_EXTRUDER true //disable only inactive extruders and keep active extruder enabled
 
 #define INVERT_X_DIR true    // for Mendel set to false, for Orca set to true
+=======
+#define DISABLE_X true
+#define DISABLE_Y true
+#define DISABLE_Z true
+#define DISABLE_E true // For all extruders
+#define DISABLE_INACTIVE_EXTRUDER true //disable only inactive extruders and keep active extruder enabled
+
+//#define INVERT_X_DIR false    // for Mendel set to false, for Orca set to true
+#define INVERT_X_DIR false    // for Mendel set to false, for Orca set to true - vinciBot
+//#define INVERT_Y_DIR false    // for Mendel set to true, for Orca set to false  - T800 (false)
+>>>>>>> SAV-MkI-config
 #define INVERT_Y_DIR false    // for Mendel set to true, for Orca set to false
 #define INVERT_Z_DIR true     // for Mendel set to false, for Orca set to true
 #define INVERT_E0_DIR false   // for direct drive extruder v9 set to true, for geared extruder set to false
@@ -395,6 +416,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 //    You must specify the rectangle, and the density of sample points
 //    This mode is preferred because there are more measurements.
 //    It used to be called ACCURATE_BED_LEVELING but "grid" is more descriptive
+<<<<<<< HEAD
 
 //  - "3-point" mode
 //    Probe 3 arbitrary points on the bed (that aren't colinear)
@@ -436,15 +458,65 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
   #define X_PROBE_OFFSET_FROM_EXTRUDER -25
   #define Y_PROBE_OFFSET_FROM_EXTRUDER -29
   #define Z_PROBE_OFFSET_FROM_EXTRUDER -12.35
+=======
+
+//  - "3-point" mode
+//    Probe 3 arbitrary points on the bed (that aren't colinear)
+//    You must specify the X & Y coordinates of all 3 points
+
+  #define AUTO_BED_LEVELING_GRID
+  // with AUTO_BED_LEVELING_GRID, the bed is sampled in a
+  // AUTO_BED_LEVELING_GRID_POINTSxAUTO_BED_LEVELING_GRID_POINTS grid
+  // and least squares solution is calculated
+  // Note: this feature occupies 10'206 byte
+  #ifdef AUTO_BED_LEVELING_GRID
+
+    // set the rectangle in which to probe
+    #define LEFT_PROBE_BED_POSITION 50
+    #define RIGHT_PROBE_BED_POSITION 160
+    #define BACK_PROBE_BED_POSITION 160
+    #define FRONT_PROBE_BED_POSITION 50
+
+     // set the number of grid points per dimension
+     // I wouldn't see a reason to go above 3 (=9 probing points on the bed)
+    #define AUTO_BED_LEVELING_GRID_POINTS 2
+
+
+  #else  // not AUTO_BED_LEVELING_GRID
+    // with no grid, just probe 3 arbitrary points.  A simple cross-product
+    // is used to esimate the plane of the print bed
+
+      #define ABL_PROBE_PT_1_X 15
+      #define ABL_PROBE_PT_1_Y 180
+      #define ABL_PROBE_PT_2_X 15
+      #define ABL_PROBE_PT_2_Y 20
+      #define ABL_PROBE_PT_3_X 170
+      #define ABL_PROBE_PT_3_Y 20
+
+  #endif // AUTO_BED_LEVELING_GRID
+
+
+  // these are the offsets to the probe relative to the extruder tip (Hotend - Probe)
+  #define X_PROBE_OFFSET_FROM_EXTRUDER 45
+  #define Y_PROBE_OFFSET_FROM_EXTRUDER 0
+  #define Z_PROBE_OFFSET_FROM_EXTRUDER -0.35
+>>>>>>> SAV-MkI-config
 
   #define Z_RAISE_BEFORE_HOMING 4       // (in mm) Raise Z before homing (G28) for Probe Clearance.
                                         // Be sure you have this distance over your Z_MAX_POS in case
 
   #define XY_TRAVEL_SPEED 8000         // X and Y axis travel speed between probes, in mm/min
+<<<<<<< HEAD
 
   #define Z_RAISE_BEFORE_PROBING 15    //How much the extruder will be raised before traveling to the first probing point.
   #define Z_RAISE_BETWEEN_PROBINGS 5  //How much the extruder will be raised when traveling from between next probing points
 
+=======
+
+  #define Z_RAISE_BEFORE_PROBING 5    //How much the extruder will be raised before traveling to the first probing point.
+  #define Z_RAISE_BETWEEN_PROBINGS 3  //How much the extruder will be raised when traveling from between next probing points
+
+>>>>>>> SAV-MkI-config
   //#define Z_PROBE_SLED // turn on if you have a z-probe mounted on a sled like those designed by Charles Bell
   //#define SLED_DOCKING_OFFSET 5 // the extra distance the X axis must travel to pickup the sled. 0 should be fine but you can push it further if you'd like.
 
@@ -492,12 +564,20 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 // default settings
 
+<<<<<<< HEAD
 #define DEFAULT_AXIS_STEPS_PER_UNIT   {78.7402,78.7402,200.0*8/3,760*1.1}  // default steps per unit for Ultimaker
 #define DEFAULT_MAX_FEEDRATE          {500, 500, 5, 25}    // (mm/sec)
 #define DEFAULT_MAX_ACCELERATION      {9000,9000,100,10000}    // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for Skeinforge 40+, for older versions raise them a lot.
+=======
+//#define DEFAULT_AXIS_STEPS_PER_UNIT   {160.50, 160.16, 8000.00, 1938.7}  // default steps per unit for ultimaker (T800)
+//#define DEFAULT_AXIS_STEPS_PER_UNIT   {159.06, 158.89, 8000.00, 2*797.07494}  // default steps per unit for ultimaker (vinciBot)
+#define DEFAULT_AXIS_STEPS_PER_UNIT   {159.06, 158.89, 8000.00, 100}  // default steps per unit for ultimaker (vincibot direct drive)
+#define DEFAULT_MAX_FEEDRATE          {500, 500, 2, 25}    // (mm/sec)
+#define DEFAULT_MAX_ACCELERATION      {1000,1000,100,10000}    // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for skeinforge 40+, for older versions raise them a lot.
+>>>>>>> SAV-MkI-config
 
-#define DEFAULT_ACCELERATION          3000    // X, Y, Z and E max acceleration in mm/s^2 for printing moves
-#define DEFAULT_RETRACT_ACCELERATION  3000   // X, Y, Z and E max acceleration in mm/s^2 for retracts
+#define DEFAULT_ACCELERATION          800    // X, Y, Z and E max acceleration in mm/s^2 for printing moves
+#define DEFAULT_RETRACT_ACCELERATION  1000   // X, Y, Z and E max acceleration in mm/s^2 for retracts
 
 // Offset of the extruders (uncomment if using more than one and relying on firmware to position when changing).
 // The offset has to be X=0, Y=0 for the extruder 0 hotend (default extruder).
@@ -529,10 +609,16 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 // M501 - reads parameters from EEPROM (if you need reset them after you changed them temporarily).
 // M502 - reverts to the default "factory settings".  You still need to store them in EEPROM afterwards if you want to.
 //define this to enable EEPROM support
+<<<<<<< HEAD
 //#define EEPROM_SETTINGS
+=======
+//[FMC]#define EEPROM_SETTINGS
+#define EEPROM_SETTINGS
+>>>>>>> SAV-MkI-config
 //to disable EEPROM Serial responses and decrease program space by ~1700 byte: comment this out:
 // please keep turned on if you can.
-//#define EEPROM_CHITCHAT
+//[FMC]#define EEPROM_CHITCHAT
+#define EEPROM_CHITCHAT
 
 // Preheat Constants
 #define PLA_PREHEAT_HOTEND_TEMP 180
@@ -546,7 +632,8 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 //LCD and SD support
 //#define ULTRA_LCD  //general LCD support, also 16x2
 //#define DOGLCD  // Support for SPI LCD 128x64 (Controller ST7565R graphic Display Family)
-//#define SDSUPPORT // Enable SD Card Support in Hardware Console
+//[FMC]#define SDSUPPORT // Enable SD Card Support in Hardware Console
+#define SDSUPPORT // Enable SD Card Support in Hardware Console
 //#define SDSLOW // Use slower SD transfer mode (not normally needed - uncomment if you're getting volume init error)
 //#define SD_CHECK_AND_RETRY // Use CRC checks and retries on the SD communication
 //#define ENCODER_PULSES_PER_STEP 1 // Increase if you have a high resolution encoder
@@ -676,7 +763,11 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 // 2 wire Non-latching LCD SR from:
 // https://bitbucket.org/fmalpartida/new-liquidcrystal/wiki/schematics#!shiftregister-connection 
 //[FMC]#define SAV_3DLCD
+<<<<<<< HEAD
 //#define SAV_3DLCD
+=======
+#define SAV_3DLCD
+>>>>>>> SAV-MkI-config
 #ifdef SAV_3DLCD
    #define SR_LCD_2W_NL    // Non latching 2 wire shiftregister
    #define NEWPANEL
@@ -701,8 +792,8 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
     #define LCD_WIDTH 20
     #define LCD_HEIGHT 5
   #else
-    #define LCD_WIDTH 16
-    #define LCD_HEIGHT 2
+    #define LCD_WIDTH 20
+    #define LCD_HEIGHT 4
   #endif
   #endif
 #endif
@@ -775,7 +866,11 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
  * 
  * Motherboards
  * 34 - RAMPS1.4 - uses Analog input 5 on the AUX2 connector 
+<<<<<<< HEAD
  * 81 - Printrboard - Uses Analog input 2 on the Aux 2 connector
+=======
+ * 81 - Printrboard - Uses Analog input 2 on the Exp1 connector (version B,C,D,E)
+>>>>>>> SAV-MkI-config
  * 301 - Rambo  - uses Analog input 3
  * Note may require analog pins to be defined for different motherboards
  **********************************************************************/
@@ -793,6 +888,11 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 //defines used in the code
 #define DEFAULT_MEASURED_FILAMENT_DIA  DEFAULT_NOMINAL_FILAMENT_DIA  //set measured to nominal initially 
 
+<<<<<<< HEAD
+=======
+//When using an LCD, uncomment the line below to display the Filament sensor data on the last line instead of status.  Status will appear for 5 sec.
+//#define FILAMENT_LCD_DISPLAY
+>>>>>>> SAV-MkI-config
 
 
 
