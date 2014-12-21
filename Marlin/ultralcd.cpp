@@ -21,13 +21,19 @@ int absPreheatFanSpeed;
 
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> SAV-MkI-config
 #ifdef FILAMENT_LCD_DISPLAY
 unsigned long message_millis=0;
 #endif
 
 
 
+<<<<<<< HEAD
+>>>>>>> SAV-MkI-config
+=======
 >>>>>>> SAV-MkI-config
 #ifdef ULTIPANEL
 static float manual_feedrate[] = MANUAL_FEEDRATE;
@@ -188,7 +194,10 @@ menuFunc_t callbackFunc;
 float raw_Ki, raw_Kd;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> SAV-MkI-config
 static void lcd_goto_menu(menuFunc_t menu, const uint32_t encoder=0, const bool feedback=true) {
   if (currentMenu != menu) {
     currentMenu = menu;
@@ -197,6 +206,9 @@ static void lcd_goto_menu(menuFunc_t menu, const uint32_t encoder=0, const bool 
   }
 }
 
+<<<<<<< HEAD
+>>>>>>> SAV-MkI-config
+=======
 >>>>>>> SAV-MkI-config
 /* Main status screen. It's up to the implementation specific part to show what is needed. As this is very display dependent */
 static void lcd_status_screen()
@@ -233,10 +245,18 @@ static void lcd_status_screen()
     if (current_click)
     {
 <<<<<<< HEAD
+<<<<<<< HEAD
         currentMenu = lcd_main_menu;
         encoderPosition = 0;
         lcd_quick_feedback();
         lcd_implementation_init(); // to maybe revive the LCD if static electricity killed it.
+=======
+        lcd_goto_menu(lcd_main_menu);
+        lcd_implementation_init(); // to maybe revive the LCD if static electricity killed it.
+#ifdef FILAMENT_LCD_DISPLAY
+        message_millis=millis();  //get status message to show up for a while
+#endif
+>>>>>>> SAV-MkI-config
 =======
         lcd_goto_menu(lcd_main_menu);
         lcd_implementation_init(); // to maybe revive the LCD if static electricity killed it.
@@ -306,6 +326,11 @@ static void lcd_sdcard_stop()
 
 	cancel_heatup = true;
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+
+	lcd_setstatus(MSG_PRINT_ABORTED);
+>>>>>>> SAV-MkI-config
 =======
 
 	lcd_setstatus(MSG_PRINT_ABORTED);
@@ -378,6 +403,7 @@ void lcd_set_home_offsets()
 
 #ifdef BABYSTEPPING
 <<<<<<< HEAD
+<<<<<<< HEAD
 static void lcd_babystep_x()
 {
     if (encoderPosition != 0)
@@ -399,6 +425,8 @@ static void lcd_babystep_x()
 }
 =======
 >>>>>>> SAV-MkI-config
+=======
+>>>>>>> SAV-MkI-config
 
   static void _lcd_babystep(int axis, const char *msg) {
     if (encoderPosition != 0) {
@@ -406,6 +434,7 @@ static void lcd_babystep_x()
       encoderPosition = 0;
       lcdDrawUpdate = 1;
     }
+<<<<<<< HEAD
 <<<<<<< HEAD
     if (lcdDrawUpdate)
     {
@@ -438,6 +467,15 @@ static void lcd_babystep_z()
         encoderPosition = 0;
     }
 }
+=======
+    if (lcdDrawUpdate) lcd_implementation_drawedit(PSTR(msg), "");
+    if (LCD_CLICKED) lcd_goto_menu(lcd_tune_menu);
+  }
+  static void lcd_babystep_x() { _lcd_babystep(X_AXIS, MSG_BABYSTEPPING_X); }
+  static void lcd_babystep_y() { _lcd_babystep(Y_AXIS, MSG_BABYSTEPPING_Y); }
+  static void lcd_babystep_z() { _lcd_babystep(Z_AXIS, MSG_BABYSTEPPING_Z); }
+
+>>>>>>> SAV-MkI-config
 =======
     if (lcdDrawUpdate) lcd_implementation_drawedit(PSTR(msg), "");
     if (LCD_CLICKED) lcd_goto_menu(lcd_tune_menu);
@@ -676,6 +714,7 @@ float move_menu_scale;
 static void lcd_move_menu_axis();
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 static void lcd_move_x()
 {
     if (encoderPosition != 0)
@@ -766,6 +805,8 @@ static void lcd_move_z()
         encoderPosition = 0;
     }
 =======
+=======
+>>>>>>> SAV-MkI-config
 static void _lcd_move(const char *name, int axis, int min, int max) {
   if (encoderPosition != 0) {
     refresh_cmd_timeout();
@@ -783,6 +824,9 @@ static void _lcd_move(const char *name, int axis, int min, int max) {
   }
   if (lcdDrawUpdate) lcd_implementation_drawedit(name, ftostr31(current_position[axis]));
   if (LCD_CLICKED) lcd_goto_menu(lcd_move_menu_axis);
+<<<<<<< HEAD
+>>>>>>> SAV-MkI-config
+=======
 >>>>>>> SAV-MkI-config
 }
 static void lcd_move_x() { _lcd_move(PSTR("X"), X_AXIS, X_MIN_POS, X_MAX_POS); }
@@ -1002,6 +1046,7 @@ static void lcd_set_contrast()
         lcd_implementation_drawedit(PSTR(MSG_CONTRAST), itostr2(lcd_contrast));
 <<<<<<< HEAD
     }
+<<<<<<< HEAD
     if (LCD_CLICKED)
     {
         lcd_quick_feedback();
@@ -1010,6 +1055,8 @@ static void lcd_set_contrast()
 =======
 >>>>>>> SAV-MkI-config
     }
+=======
+>>>>>>> SAV-MkI-config
     if (LCD_CLICKED) lcd_goto_menu(lcd_control_menu);
 }
 #endif
@@ -1242,7 +1289,11 @@ void lcd_init()
      pinMode (SR_DATA_PIN, OUTPUT);
      pinMode (SR_CLK_PIN, OUTPUT);
 <<<<<<< HEAD
+<<<<<<< HEAD
   #elif defined(SHIFT_CLK) 
+=======
+  #elif defined(SHIFT_CLK)
+>>>>>>> SAV-MkI-config
 =======
   #elif defined(SHIFT_CLK)
 >>>>>>> SAV-MkI-config
@@ -1633,6 +1684,10 @@ char *itostr31(const int &xx)
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+// Convert int to rj string with 123 or -12 format
+>>>>>>> SAV-MkI-config
 =======
 // Convert int to rj string with 123 or -12 format
 >>>>>>> SAV-MkI-config

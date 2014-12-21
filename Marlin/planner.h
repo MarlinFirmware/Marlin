@@ -153,6 +153,7 @@ FORCE_INLINE block_t *plan_get_current_block()
 
 // Returns true if the buffer has a queued block, false otherwise
 <<<<<<< HEAD
+<<<<<<< HEAD
 FORCE_INLINE bool blocks_queued() 
 {
   if (block_buffer_head == block_buffer_tail) { 
@@ -161,6 +162,9 @@ FORCE_INLINE bool blocks_queued()
   else
     return true;
 }
+=======
+FORCE_INLINE bool blocks_queued() { return (block_buffer_head != block_buffer_tail); }
+>>>>>>> SAV-MkI-config
 =======
 FORCE_INLINE bool blocks_queued() { return (block_buffer_head != block_buffer_tail); }
 >>>>>>> SAV-MkI-config

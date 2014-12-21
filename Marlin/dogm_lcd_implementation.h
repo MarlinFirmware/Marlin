@@ -229,6 +229,7 @@ static void lcd_implementation_status_screen()
  #endif
  
 <<<<<<< HEAD
+<<<<<<< HEAD
  // Extruder 1
  u8g.setFont(FONT_STATUSMENU);
  u8g.setPrintPos(6,6);
@@ -297,6 +298,8 @@ static void lcd_implementation_status_screen()
 		 u8g.setColorIndex(1);	// black on white
 		}
 =======
+=======
+>>>>>>> SAV-MkI-config
   // Extruders
   _draw_heater_status(6, 0);
   #if EXTRUDERS > 1
@@ -308,6 +311,9 @@ static void lcd_implementation_status_screen()
 
   // Heatbed
   _draw_heater_status(81, -1);
+<<<<<<< HEAD
+>>>>>>> SAV-MkI-config
+=======
 >>>>>>> SAV-MkI-config
  
  // Fan
@@ -413,6 +419,7 @@ static void _drawmenu_setting_edit_generic(uint8_t row, const char* pstr, char p
 		
   u8g.setPrintPos(0 * DOG_CHAR_WIDTH, (row + 1) * DOG_CHAR_HEIGHT);
   u8g.print(pre_char);
+<<<<<<< HEAD
 
   while( (c = pgm_read_byte(pstr)) != '\0' ) {
     u8g.print(c);
@@ -424,6 +431,19 @@ static void _drawmenu_setting_edit_generic(uint8_t row, const char* pstr, char p
 
   while(n--) u8g.print(' ');
 
+=======
+
+  while( (c = pgm_read_byte(pstr)) != '\0' ) {
+    u8g.print(c);
+    pstr++;
+    n--;
+  }
+
+  u8g.print(':');
+
+  while(n--) u8g.print(' ');
+
+>>>>>>> SAV-MkI-config
   if (pgm) { lcd_printPGM(data); } else { u8g.print(data); }
 }
 
@@ -478,12 +498,21 @@ void lcd_implementation_drawedit(const char* pstr, char* value)
 static void _drawmenu_sd(uint8_t row, const char* pstr, const char* filename, char * const longFilename, bool isDir, bool isSelected) {
   char c;
   uint8_t n = LCD_WIDTH - 1;
+<<<<<<< HEAD
 
   if (longFilename[0] != '\0') {
     filename = longFilename;
     longFilename[n] = '\0';
   }
 
+=======
+
+  if (longFilename[0] != '\0') {
+    filename = longFilename;
+    longFilename[n] = '\0';
+  }
+
+>>>>>>> SAV-MkI-config
   if (isSelected) {
     u8g.setColorIndex(1); // black on white
     u8g.drawBox (0, row*DOG_CHAR_HEIGHT + 3, 128, DOG_CHAR_HEIGHT);

@@ -46,11 +46,17 @@
   
   extern bool cancel_heatup;
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> SAV-MkI-config
   
   #ifdef FILAMENT_LCD_DISPLAY
         extern unsigned long message_millis;
   #endif
+<<<<<<< HEAD
+>>>>>>> SAV-MkI-config
+=======
 >>>>>>> SAV-MkI-config
     
   void lcd_buzz(long duration,uint16_t freq);
