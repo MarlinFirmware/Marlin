@@ -319,7 +319,7 @@ void Config_ResetDefault()
     absPreheatHPBTemp = ABS_PREHEAT_HPB_TEMP;
     absPreheatFanSpeed = ABS_PREHEAT_FAN_SPEED;
 #endif
-#ifdef ENABLE_AUTO_BED_COMPENSATION
+#ifdef ENABLE_AUTO_BED_LEVELING
     zprobe_zoffset = -Z_PROBE_OFFSET_FROM_EXTRUDER;
 #endif
 #ifdef DOGLCD

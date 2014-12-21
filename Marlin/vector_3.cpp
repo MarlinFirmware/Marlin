@@ -1,5 +1,5 @@
 /*
-  vector_3.cpp - Vector library for bed compensation
+  vector_3.cpp - Vector library for bed leveling
   Copyright (c) 2012 Lars Brubaker.  All right reserved.
 
   This library is free software; you can redistribute it and/or
@@ -19,7 +19,7 @@
 #include <math.h>
 #include "Marlin.h"
 
-#ifdef ENABLE_AUTO_BED_COMPENSATION
+#ifdef ENABLE_AUTO_BED_LEVELING
 #include "vector_3.h"
 
 vector_3::vector_3() : x(0), y(0), z(0) { }
@@ -163,5 +163,5 @@ void matrix_3x3::debug(char* title)
 	}
 }
 
-#endif // #ifdef ENABLE_AUTO_BED_COMPENSATION
+#endif // #ifdef ENABLE_AUTO_BED_LEVELING
 
