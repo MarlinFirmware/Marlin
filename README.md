@@ -1,8 +1,10 @@
-NOTE: We are doing a kind of clean up in the list of issues and pull requests, the aim is to get to a kind of state where we can stamp it stable, and of course a more updated version we stamp unstable that will need testing. For the last part we need a lot of people with different machines that are willing to test the firmware so we can stamp it as stable. If you want to help out testing go to this issue and let us know: https://github.com/ErikZalm/Marlin/issues/1209
+NOTE: As per 21/12/2014 all stale branches have been thrown in the trash can, some where not updated in 3 years and some not in 2 years, currently we/i (boelle) suggest you use the "bug fixing branch" as we need to get sorted out any issues before we start to add more festures. A "stable" marlin is the goal
 
-NOTE1: For submitting pull requests we ask that you PLEASE test the code first before submitting. When creating the pull request let us know what hardware you have tested on and how, just in short words. Pull requests that are not tested will likely not be merged as one slight change can risk breaking the code.
+NOTE1: We are doing a kind of clean up in the list of issues and pull requests, the aim is to get to a kind of state where we can stamp it stable, and of course a more updated version we stamp unstable that will need testing. For the last part we need a lot of people with different machines that are willing to test the firmware so we can stamp it as stable. If you want to help out testing go to this issue and let us know: https://github.com/ErikZalm/Marlin/issues/1209
 
-NOTE2: If you have a fix don't open an issue telling about it, but test the code and submit a pull request.
+NOTE2: For submitting pull requests we ask that you PLEASE test the code first before submitting. When creating the pull request let us know what hardware you have tested on and how, just in short words. Pull requests that are not tested will likely not be merged as one slight change can risk breaking the code.
+
+NOTE3: If you have a fix don't open an issue telling about it, but test the code and submit a pull request.
 
 ==========================
 Marlin 3D Printer Firmware
