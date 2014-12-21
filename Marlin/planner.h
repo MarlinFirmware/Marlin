@@ -152,26 +152,7 @@ FORCE_INLINE block_t *plan_get_current_block()
 }
 
 // Returns true if the buffer has a queued block, false otherwise
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-FORCE_INLINE bool blocks_queued() 
-{
-  if (block_buffer_head == block_buffer_tail) { 
-    return false; 
-  }
-  else
-    return true;
-}
-=======
 FORCE_INLINE bool blocks_queued() { return (block_buffer_head != block_buffer_tail); }
->>>>>>> SAV-MkI-config
-=======
-FORCE_INLINE bool blocks_queued() { return (block_buffer_head != block_buffer_tail); }
->>>>>>> SAV-MkI-config
-=======
-FORCE_INLINE bool blocks_queued() { return (block_buffer_head != block_buffer_tail); }
->>>>>>> SAV-MkI-config
 
 #ifdef PREVENT_DANGEROUS_EXTRUDE
 void set_extrude_min_temp(float temp);

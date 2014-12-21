@@ -20,27 +20,12 @@ int absPreheatHPBTemp;
 int absPreheatFanSpeed;
 
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
->>>>>>> SAV-MkI-config
-=======
->>>>>>> SAV-MkI-config
 #ifdef FILAMENT_LCD_DISPLAY
 unsigned long message_millis=0;
 #endif
 
 
 
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> SAV-MkI-config
-=======
->>>>>>> SAV-MkI-config
-=======
->>>>>>> SAV-MkI-config
 #ifdef ULTIPANEL
 static float manual_feedrate[] = MANUAL_FEEDRATE;
 #endif // ULTIPANEL
@@ -199,14 +184,6 @@ menuFunc_t callbackFunc;
 // place-holders for Ki and Kd edits
 float raw_Ki, raw_Kd;
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
->>>>>>> SAV-MkI-config
-=======
->>>>>>> SAV-MkI-config
 static void lcd_goto_menu(menuFunc_t menu, const uint32_t encoder=0, const bool feedback=true) {
   if (currentMenu != menu) {
     currentMenu = menu;
@@ -215,13 +192,6 @@ static void lcd_goto_menu(menuFunc_t menu, const uint32_t encoder=0, const bool 
   }
 }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> SAV-MkI-config
-=======
->>>>>>> SAV-MkI-config
-=======
->>>>>>> SAV-MkI-config
 /* Main status screen. It's up to the implementation specific part to show what is needed. As this is very display dependent */
 static void lcd_status_screen()
 {
@@ -256,34 +226,11 @@ static void lcd_status_screen()
 
     if (current_click)
     {
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-        currentMenu = lcd_main_menu;
-        encoderPosition = 0;
-        lcd_quick_feedback();
-        lcd_implementation_init(); // to maybe revive the LCD if static electricity killed it.
-=======
         lcd_goto_menu(lcd_main_menu);
         lcd_implementation_init(); // to maybe revive the LCD if static electricity killed it.
 #ifdef FILAMENT_LCD_DISPLAY
         message_millis=millis();  //get status message to show up for a while
 #endif
->>>>>>> SAV-MkI-config
-=======
-        lcd_goto_menu(lcd_main_menu);
-        lcd_implementation_init(); // to maybe revive the LCD if static electricity killed it.
-#ifdef FILAMENT_LCD_DISPLAY
-        message_millis=millis();  //get status message to show up for a while
-#endif
->>>>>>> SAV-MkI-config
-=======
-        lcd_goto_menu(lcd_main_menu);
-        lcd_implementation_init(); // to maybe revive the LCD if static electricity killed it.
-#ifdef FILAMENT_LCD_DISPLAY
-        message_millis=millis();  //get status message to show up for a while
-#endif
->>>>>>> SAV-MkI-config
     }
 
 #ifdef ULTIPANEL_FEEDMULTIPLY
@@ -345,21 +292,8 @@ static void lcd_sdcard_stop()
     autotempShutdown();
 
 	cancel_heatup = true;
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
 
 	lcd_setstatus(MSG_PRINT_ABORTED);
->>>>>>> SAV-MkI-config
-=======
-
-	lcd_setstatus(MSG_PRINT_ABORTED);
->>>>>>> SAV-MkI-config
-=======
-
-	lcd_setstatus(MSG_PRINT_ABORTED);
->>>>>>> SAV-MkI-config
 }
 
 /* Menu implementation */
@@ -427,34 +361,6 @@ void lcd_set_home_offsets()
 
 
 #ifdef BABYSTEPPING
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-static void lcd_babystep_x()
-{
-    if (encoderPosition != 0)
-    {
-        babystepsTodo[X_AXIS]+=(int)encoderPosition;
-        encoderPosition=0;
-        lcdDrawUpdate = 1;
-    }
-    if (lcdDrawUpdate)
-    {
-        lcd_implementation_drawedit(PSTR(MSG_BABYSTEPPING_X),"");
-    }
-    if (LCD_CLICKED)
-    {
-        lcd_quick_feedback();
-        currentMenu = lcd_tune_menu;
-        encoderPosition = 0;
-    }
-}
-=======
->>>>>>> SAV-MkI-config
-=======
->>>>>>> SAV-MkI-config
-=======
->>>>>>> SAV-MkI-config
 
   static void _lcd_babystep(int axis, const char *msg) {
     if (encoderPosition != 0) {
@@ -462,41 +368,6 @@ static void lcd_babystep_x()
       encoderPosition = 0;
       lcdDrawUpdate = 1;
     }
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-    if (lcdDrawUpdate)
-    {
-        lcd_implementation_drawedit(PSTR(MSG_BABYSTEPPING_Y),"");
-    }
-    if (LCD_CLICKED)
-    {
-        lcd_quick_feedback();
-        currentMenu = lcd_tune_menu;
-        encoderPosition = 0;
-    }
-}
-
-static void lcd_babystep_z()
-{
-    if (encoderPosition != 0)
-    {
-        babystepsTodo[Z_AXIS]+=BABYSTEP_Z_MULTIPLICATOR*(int)encoderPosition;
-        encoderPosition=0;
-        lcdDrawUpdate = 1;
-    }
-    if (lcdDrawUpdate)
-    {
-        lcd_implementation_drawedit(PSTR(MSG_BABYSTEPPING_Z),"");
-    }
-    if (LCD_CLICKED)
-    {
-        lcd_quick_feedback();
-        currentMenu = lcd_tune_menu;
-        encoderPosition = 0;
-    }
-}
-=======
     if (lcdDrawUpdate) lcd_implementation_drawedit(PSTR(msg), "");
     if (LCD_CLICKED) lcd_goto_menu(lcd_tune_menu);
   }
@@ -504,25 +375,6 @@ static void lcd_babystep_z()
   static void lcd_babystep_y() { _lcd_babystep(Y_AXIS, MSG_BABYSTEPPING_Y); }
   static void lcd_babystep_z() { _lcd_babystep(Z_AXIS, MSG_BABYSTEPPING_Z); }
 
->>>>>>> SAV-MkI-config
-=======
-    if (lcdDrawUpdate) lcd_implementation_drawedit(PSTR(msg), "");
-    if (LCD_CLICKED) lcd_goto_menu(lcd_tune_menu);
-  }
-  static void lcd_babystep_x() { _lcd_babystep(X_AXIS, MSG_BABYSTEPPING_X); }
-  static void lcd_babystep_y() { _lcd_babystep(Y_AXIS, MSG_BABYSTEPPING_Y); }
-  static void lcd_babystep_z() { _lcd_babystep(Z_AXIS, MSG_BABYSTEPPING_Z); }
-
->>>>>>> SAV-MkI-config
-=======
-    if (lcdDrawUpdate) lcd_implementation_drawedit(PSTR(msg), "");
-    if (LCD_CLICKED) lcd_goto_menu(lcd_tune_menu);
-  }
-  static void lcd_babystep_x() { _lcd_babystep(X_AXIS, MSG_BABYSTEPPING_X); }
-  static void lcd_babystep_y() { _lcd_babystep(Y_AXIS, MSG_BABYSTEPPING_Y); }
-  static void lcd_babystep_z() { _lcd_babystep(Z_AXIS, MSG_BABYSTEPPING_Z); }
-
->>>>>>> SAV-MkI-config
 #endif //BABYSTEPPING
 
 static void lcd_tune_menu()
@@ -751,103 +603,6 @@ static void lcd_prepare_menu()
 float move_menu_scale;
 static void lcd_move_menu_axis();
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-static void lcd_move_x()
-{
-    if (encoderPosition != 0)
-    {
-        refresh_cmd_timeout();
-        current_position[X_AXIS] += float((int)encoderPosition) * move_menu_scale;
-        if (min_software_endstops && current_position[X_AXIS] < X_MIN_POS)
-            current_position[X_AXIS] = X_MIN_POS;
-        if (max_software_endstops && current_position[X_AXIS] > X_MAX_POS)
-            current_position[X_AXIS] = X_MAX_POS;
-        encoderPosition = 0;
-        #ifdef DELTA
-        calculate_delta(current_position);
-        plan_buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], current_position[E_AXIS], manual_feedrate[X_AXIS]/60, active_extruder);
-        #else
-        plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], manual_feedrate[X_AXIS]/60, active_extruder);
-        #endif
-        lcdDrawUpdate = 1;
-    }
-    if (lcdDrawUpdate)
-    {
-        lcd_implementation_drawedit(PSTR("X"), ftostr31(current_position[X_AXIS]));
-    }
-    if (LCD_CLICKED)
-    {
-        lcd_quick_feedback();
-        currentMenu = lcd_move_menu_axis;
-        encoderPosition = 0;
-    }
-}
-static void lcd_move_y()
-{
-    if (encoderPosition != 0)
-    {
-        refresh_cmd_timeout();
-        current_position[Y_AXIS] += float((int)encoderPosition) * move_menu_scale;
-        if (min_software_endstops && current_position[Y_AXIS] < Y_MIN_POS)
-            current_position[Y_AXIS] = Y_MIN_POS;
-        if (max_software_endstops && current_position[Y_AXIS] > Y_MAX_POS)
-            current_position[Y_AXIS] = Y_MAX_POS;
-        encoderPosition = 0;
-        #ifdef DELTA
-        calculate_delta(current_position);
-        plan_buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], current_position[E_AXIS], manual_feedrate[Y_AXIS]/60, active_extruder);
-        #else
-        plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], manual_feedrate[Y_AXIS]/60, active_extruder);
-        #endif
-        lcdDrawUpdate = 1;
-    }
-    if (lcdDrawUpdate)
-    {
-        lcd_implementation_drawedit(PSTR("Y"), ftostr31(current_position[Y_AXIS]));
-    }
-    if (LCD_CLICKED)
-    {
-        lcd_quick_feedback();
-        currentMenu = lcd_move_menu_axis;
-        encoderPosition = 0;
-    }
-}
-static void lcd_move_z()
-{
-    if (encoderPosition != 0)
-    {
-        refresh_cmd_timeout();
-        current_position[Z_AXIS] += float((int)encoderPosition) * move_menu_scale;
-        if (min_software_endstops && current_position[Z_AXIS] < Z_MIN_POS)
-            current_position[Z_AXIS] = Z_MIN_POS;
-        if (max_software_endstops && current_position[Z_AXIS] > Z_MAX_POS)
-            current_position[Z_AXIS] = Z_MAX_POS;
-        encoderPosition = 0;
-        #ifdef DELTA
-        calculate_delta(current_position);
-        plan_buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], current_position[E_AXIS], manual_feedrate[Z_AXIS]/60, active_extruder);
-        #else
-        plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], manual_feedrate[Z_AXIS]/60, active_extruder);
-        #endif
-        lcdDrawUpdate = 1;
-    }
-    if (lcdDrawUpdate)
-    {
-        lcd_implementation_drawedit(PSTR("Z"), ftostr31(current_position[Z_AXIS]));
-    }
-    if (LCD_CLICKED)
-    {
-        lcd_quick_feedback();
-        currentMenu = lcd_move_menu_axis;
-        encoderPosition = 0;
-    }
-=======
-=======
->>>>>>> SAV-MkI-config
-=======
->>>>>>> SAV-MkI-config
 static void _lcd_move(const char *name, int axis, int min, int max) {
   if (encoderPosition != 0) {
     refresh_cmd_timeout();
@@ -865,13 +620,6 @@ static void _lcd_move(const char *name, int axis, int min, int max) {
   }
   if (lcdDrawUpdate) lcd_implementation_drawedit(name, ftostr31(current_position[axis]));
   if (LCD_CLICKED) lcd_goto_menu(lcd_move_menu_axis);
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> SAV-MkI-config
-=======
->>>>>>> SAV-MkI-config
-=======
->>>>>>> SAV-MkI-config
 }
 static void lcd_move_x() { _lcd_move(PSTR("X"), X_AXIS, X_MIN_POS, X_MAX_POS); }
 static void lcd_move_y() { _lcd_move(PSTR("Y"), Y_AXIS, Y_MIN_POS, Y_MAX_POS); }
@@ -1088,22 +836,7 @@ static void lcd_set_contrast()
     if (lcdDrawUpdate)
     {
         lcd_implementation_drawedit(PSTR(MSG_CONTRAST), itostr2(lcd_contrast));
-<<<<<<< HEAD
     }
-<<<<<<< HEAD
-<<<<<<< HEAD
-    if (LCD_CLICKED)
-    {
-        lcd_quick_feedback();
-        currentMenu = lcd_control_menu;
-        encoderPosition = 0;
-=======
->>>>>>> SAV-MkI-config
-    }
-=======
->>>>>>> SAV-MkI-config
-=======
->>>>>>> SAV-MkI-config
     if (LCD_CLICKED) lcd_goto_menu(lcd_control_menu);
 }
 #endif
@@ -1335,19 +1068,7 @@ void lcd_init()
   #ifdef SR_LCD_2W_NL // Non latching 2 wire shift register
      pinMode (SR_DATA_PIN, OUTPUT);
      pinMode (SR_CLK_PIN, OUTPUT);
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-  #elif defined(SHIFT_CLK) 
-=======
   #elif defined(SHIFT_CLK)
->>>>>>> SAV-MkI-config
-=======
-  #elif defined(SHIFT_CLK)
->>>>>>> SAV-MkI-config
-=======
-  #elif defined(SHIFT_CLK)
->>>>>>> SAV-MkI-config
      pinMode(SHIFT_CLK,OUTPUT);
      pinMode(SHIFT_LD,OUTPUT);
      pinMode(SHIFT_EN,OUTPUT);
@@ -1734,18 +1455,7 @@ char *itostr31(const int &xx)
   return conv;
 }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
 // Convert int to rj string with 123 or -12 format
->>>>>>> SAV-MkI-config
-=======
-// Convert int to rj string with 123 or -12 format
->>>>>>> SAV-MkI-config
-=======
-// Convert int to rj string with 123 or -12 format
->>>>>>> SAV-MkI-config
 char *itostr3(const int &x)
 {
   int xx = x;

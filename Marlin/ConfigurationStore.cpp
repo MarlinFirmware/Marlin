@@ -129,27 +129,9 @@ SERIAL_ECHOLNPGM("Scaling factors:");
     SERIAL_ECHOPAIR("  M365 X",axis_scaling[X_AXIS]);
     SERIAL_ECHOPAIR(" Y",axis_scaling[Y_AXIS]);
     SERIAL_ECHOPAIR(" Z",axis_scaling[Z_AXIS]);
-<<<<<<< HEAD
-<<<<<<< HEAD
     SERIAL_ECHOLN("");
       
     SERIAL_ECHO_START;
-<<<<<<< HEAD
-#ifdef SCARA
-SERIAL_ECHOLNPGM("Scaling factors:");
-    SERIAL_ECHO_START;
-    SERIAL_ECHOPAIR("  M365 X",axis_scaling[0]);
-    SERIAL_ECHOPAIR(" Y",axis_scaling[1]);
-    SERIAL_ECHOPAIR(" Z",axis_scaling[2]);
-=======
->>>>>>> SAV-MkI-config
-=======
->>>>>>> SAV-MkI-config
-    SERIAL_ECHOLN("");
-      
-    SERIAL_ECHO_START;
-=======
->>>>>>> SAV-MkI-config
 #endif
     SERIAL_ECHOLNPGM("Maximum feedrates (mm/s):");
     SERIAL_ECHO_START;
@@ -188,53 +170,17 @@ SERIAL_ECHOLNPGM("Scaling factors:");
     SERIAL_ECHO_START;
     SERIAL_ECHOLNPGM("Home offset (mm):");
     SERIAL_ECHO_START;
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-    SERIAL_ECHOPAIR("  M206 X",add_homing[0] );
-    SERIAL_ECHOPAIR(" Y" ,add_homing[1] );
-    SERIAL_ECHOPAIR(" Z" ,add_homing[2] );
-=======
     SERIAL_ECHOPAIR("  M206 X",add_homing[X_AXIS] );
     SERIAL_ECHOPAIR(" Y" ,add_homing[Y_AXIS] );
     SERIAL_ECHOPAIR(" Z" ,add_homing[Z_AXIS] );
->>>>>>> SAV-MkI-config
-=======
-    SERIAL_ECHOPAIR("  M206 X",add_homing[X_AXIS] );
-    SERIAL_ECHOPAIR(" Y" ,add_homing[Y_AXIS] );
-    SERIAL_ECHOPAIR(" Z" ,add_homing[Z_AXIS] );
->>>>>>> SAV-MkI-config
-=======
-    SERIAL_ECHOPAIR("  M206 X",add_homing[X_AXIS] );
-    SERIAL_ECHOPAIR(" Y" ,add_homing[Y_AXIS] );
-    SERIAL_ECHOPAIR(" Z" ,add_homing[Z_AXIS] );
->>>>>>> SAV-MkI-config
     SERIAL_ECHOLN("");
 #ifdef DELTA
     SERIAL_ECHO_START;
     SERIAL_ECHOLNPGM("Endstop adjustement (mm):");
     SERIAL_ECHO_START;
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-    SERIAL_ECHOPAIR("  M666 X",endstop_adj[0] );
-    SERIAL_ECHOPAIR(" Y" ,endstop_adj[1] );
-    SERIAL_ECHOPAIR(" Z" ,endstop_adj[2] );
-=======
     SERIAL_ECHOPAIR("  M666 X",endstop_adj[X_AXIS] );
     SERIAL_ECHOPAIR(" Y" ,endstop_adj[Y_AXIS] );
     SERIAL_ECHOPAIR(" Z" ,endstop_adj[Z_AXIS] );
->>>>>>> SAV-MkI-config
-=======
-    SERIAL_ECHOPAIR("  M666 X",endstop_adj[X_AXIS] );
-    SERIAL_ECHOPAIR(" Y" ,endstop_adj[Y_AXIS] );
-    SERIAL_ECHOPAIR(" Z" ,endstop_adj[Z_AXIS] );
->>>>>>> SAV-MkI-config
-=======
-    SERIAL_ECHOPAIR("  M666 X",endstop_adj[X_AXIS] );
-    SERIAL_ECHOPAIR(" Y" ,endstop_adj[Y_AXIS] );
-    SERIAL_ECHOPAIR(" Z" ,endstop_adj[Z_AXIS] );
->>>>>>> SAV-MkI-config
 	SERIAL_ECHOLN("");
 	SERIAL_ECHO_START;
 	SERIAL_ECHOLNPGM("Delta settings: L=delta_diagonal_rod, R=delta_radius, S=delta_segments_per_second");
@@ -357,27 +303,9 @@ void Config_ResetDefault()
     max_xy_jerk=DEFAULT_XYJERK;
     max_z_jerk=DEFAULT_ZJERK;
     max_e_jerk=DEFAULT_EJERK;
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-    add_homing[0] = add_homing[1] = add_homing[2] = 0;
-#ifdef DELTA
-	endstop_adj[0] = endstop_adj[1] = endstop_adj[2] = 0;
-=======
     add_homing[X_AXIS] = add_homing[Y_AXIS] = add_homing[Z_AXIS] = 0;
 #ifdef DELTA
 	endstop_adj[X_AXIS] = endstop_adj[Y_AXIS] = endstop_adj[Z_AXIS] = 0;
->>>>>>> SAV-MkI-config
-=======
-    add_homing[X_AXIS] = add_homing[Y_AXIS] = add_homing[Z_AXIS] = 0;
-#ifdef DELTA
-	endstop_adj[X_AXIS] = endstop_adj[Y_AXIS] = endstop_adj[Z_AXIS] = 0;
->>>>>>> SAV-MkI-config
-=======
-    add_homing[X_AXIS] = add_homing[Y_AXIS] = add_homing[Z_AXIS] = 0;
-#ifdef DELTA
-	endstop_adj[X_AXIS] = endstop_adj[Y_AXIS] = endstop_adj[Z_AXIS] = 0;
->>>>>>> SAV-MkI-config
 	delta_radius= DELTA_RADIUS;
 	delta_diagonal_rod= DELTA_DIAGONAL_ROD;
 	delta_segments_per_second= DELTA_SEGMENTS_PER_SECOND;

@@ -45,25 +45,10 @@
   extern int absPreheatFanSpeed;
   
   extern bool cancel_heatup;
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
->>>>>>> SAV-MkI-config
-=======
->>>>>>> SAV-MkI-config
   
   #ifdef FILAMENT_LCD_DISPLAY
         extern unsigned long message_millis;
   #endif
-<<<<<<< HEAD
-<<<<<<< HEAD
->>>>>>> SAV-MkI-config
-=======
->>>>>>> SAV-MkI-config
-=======
->>>>>>> SAV-MkI-config
     
   void lcd_buzz(long duration,uint16_t freq);
   bool lcd_clicked();

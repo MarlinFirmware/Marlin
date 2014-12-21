@@ -1548,19 +1548,7 @@ void process_commands()
 		#ifdef SCARA
 		   current_position[X_AXIS]=code_value();
 		#else
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-		   current_position[X_AXIS]=code_value()+add_homing[0];
-=======
 		   current_position[X_AXIS]=code_value()+add_homing[X_AXIS];
->>>>>>> SAV-MkI-config
-=======
-		   current_position[X_AXIS]=code_value()+add_homing[X_AXIS];
->>>>>>> SAV-MkI-config
-=======
-		   current_position[X_AXIS]=code_value()+add_homing[X_AXIS];
->>>>>>> SAV-MkI-config
 		#endif
         }
       }
@@ -1570,19 +1558,7 @@ void process_commands()
          #ifdef SCARA
 		   current_position[Y_AXIS]=code_value();
 		#else
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-		   current_position[Y_AXIS]=code_value()+add_homing[1];
-=======
 		   current_position[Y_AXIS]=code_value()+add_homing[Y_AXIS];
->>>>>>> SAV-MkI-config
-=======
-		   current_position[Y_AXIS]=code_value()+add_homing[Y_AXIS];
->>>>>>> SAV-MkI-config
-=======
-		   current_position[Y_AXIS]=code_value()+add_homing[Y_AXIS];
->>>>>>> SAV-MkI-config
 		#endif
         }
       }
@@ -1647,19 +1623,7 @@ void process_commands()
 
       if(code_seen(axis_codes[Z_AXIS])) {
         if(code_value_long() != 0) {
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-          current_position[Z_AXIS]=code_value()+add_homing[2];
-=======
           current_position[Z_AXIS]=code_value()+add_homing[Z_AXIS];
->>>>>>> SAV-MkI-config
-=======
-          current_position[Z_AXIS]=code_value()+add_homing[Z_AXIS];
->>>>>>> SAV-MkI-config
-=======
-          current_position[Z_AXIS]=code_value()+add_homing[Z_AXIS];
->>>>>>> SAV-MkI-config
         }
       }
       #ifdef ENABLE_AUTO_BED_LEVELING
@@ -1673,19 +1637,7 @@ void process_commands()
 #ifdef SCARA
 	  calculate_delta(current_position);
       plan_set_position(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], current_position[E_AXIS]);
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-#endif SCARA
-=======
 #endif // SCARA
->>>>>>> SAV-MkI-config
-=======
-#endif // SCARA
->>>>>>> SAV-MkI-config
-=======
-#endif // SCARA
->>>>>>> SAV-MkI-config
 
       #ifdef ENDSTOPS_ONLY_FOR_HOMING
         enable_endstops(false);
@@ -1797,7 +1749,6 @@ void process_commands()
 
             // solve lsq problem
             double *plane_equation_coefficients = qr_solve(AUTO_BED_LEVELING_GRID_POINTS*AUTO_BED_LEVELING_GRID_POINTS, 3, eqnAMatrix, eqnBVector);
-<<<<<<< HEAD
 
             SERIAL_PROTOCOLPGM("Eqn coefficients: a: ");
             SERIAL_PROTOCOL(plane_equation_coefficients[0]);
@@ -1806,16 +1757,6 @@ void process_commands()
             SERIAL_PROTOCOLPGM(" d: ");
             SERIAL_PROTOCOLLN(plane_equation_coefficients[2]);
 
-=======
-
-            SERIAL_PROTOCOLPGM("Eqn coefficients: a: ");
-            SERIAL_PROTOCOL(plane_equation_coefficients[0]);
-            SERIAL_PROTOCOLPGM(" b: ");
-            SERIAL_PROTOCOL(plane_equation_coefficients[1]);
-            SERIAL_PROTOCOLPGM(" d: ");
-            SERIAL_PROTOCOLLN(plane_equation_coefficients[2]);
-
->>>>>>> SAV-MkI-config
 
             set_bed_level_equation_lsq(plane_equation_coefficients);
 
@@ -2815,27 +2756,9 @@ Sigma_Exit:
       SERIAL_PROTOCOLLN("");
       
       SERIAL_PROTOCOLPGM("SCARA Cal - Theta:");
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-      SERIAL_PROTOCOL(delta[X_AXIS]+add_homing[0]);
-      SERIAL_PROTOCOLPGM("   Psi+Theta (90):");
-      SERIAL_PROTOCOL(delta[Y_AXIS]-delta[X_AXIS]-90+add_homing[1]);
-=======
       SERIAL_PROTOCOL(delta[X_AXIS]+add_homing[X_AXIS]);
       SERIAL_PROTOCOLPGM("   Psi+Theta (90):");
       SERIAL_PROTOCOL(delta[Y_AXIS]-delta[X_AXIS]-90+add_homing[Y_AXIS]);
->>>>>>> SAV-MkI-config
-=======
-      SERIAL_PROTOCOL(delta[X_AXIS]+add_homing[X_AXIS]);
-      SERIAL_PROTOCOLPGM("   Psi+Theta (90):");
-      SERIAL_PROTOCOL(delta[Y_AXIS]-delta[X_AXIS]-90+add_homing[Y_AXIS]);
->>>>>>> SAV-MkI-config
-=======
-      SERIAL_PROTOCOL(delta[X_AXIS]+add_homing[X_AXIS]);
-      SERIAL_PROTOCOLPGM("   Psi+Theta (90):");
-      SERIAL_PROTOCOL(delta[Y_AXIS]-delta[X_AXIS]-90+add_homing[Y_AXIS]);
->>>>>>> SAV-MkI-config
       SERIAL_PROTOCOLLN("");
       
       SERIAL_PROTOCOLPGM("SCARA step Cal - Theta:");
@@ -2967,7 +2890,6 @@ Sigma_Exit:
       for(int8_t i=0; i < 3; i++)
       {
         if(code_seen(axis_codes[i])) add_homing[i] = code_value();
-<<<<<<< HEAD
       }
 	  #ifdef SCARA
 	   if(code_seen('T'))       // Theta
@@ -2978,18 +2900,6 @@ Sigma_Exit:
       {
         add_homing[Y_AXIS] = code_value() ;
       }
-=======
-      }
-	  #ifdef SCARA
-	   if(code_seen('T'))       // Theta
-      {
-        add_homing[X_AXIS] = code_value() ;
-      }
-      if(code_seen('P'))       // Psi
-      {
-        add_homing[Y_AXIS] = code_value() ;
-      }
->>>>>>> SAV-MkI-config
 	  #endif
       break;
     #ifdef DELTA
@@ -3170,16 +3080,6 @@ Sigma_Exit:
 
             pinMode(pin_number, INPUT);
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-            int target;
-=======
->>>>>>> SAV-MkI-config
-=======
->>>>>>> SAV-MkI-config
-=======
->>>>>>> SAV-MkI-config
             switch(pin_state){
             case 1:
               target = HIGH;
@@ -3387,35 +3287,11 @@ Sigma_Exit:
       //SERIAL_ECHOLN(" Soft endstops disabled ");
       if(Stopped == false) {
         //get_coordinates(); // For X Y Z E F
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-        delta[0] = 0;
-        delta[1] = 120;
-        calculate_SCARA_forward_Transform(delta);
-        destination[0] = delta[0]/axis_scaling[X_AXIS];
-        destination[1] = delta[1]/axis_scaling[Y_AXIS];
-=======
         delta[X_AXIS] = 0;
         delta[Y_AXIS] = 120;
         calculate_SCARA_forward_Transform(delta);
         destination[X_AXIS] = delta[X_AXIS]/axis_scaling[X_AXIS];
         destination[Y_AXIS] = delta[Y_AXIS]/axis_scaling[Y_AXIS];
->>>>>>> SAV-MkI-config
-=======
-        delta[X_AXIS] = 0;
-        delta[Y_AXIS] = 120;
-        calculate_SCARA_forward_Transform(delta);
-        destination[X_AXIS] = delta[X_AXIS]/axis_scaling[X_AXIS];
-        destination[Y_AXIS] = delta[Y_AXIS]/axis_scaling[Y_AXIS];
->>>>>>> SAV-MkI-config
-=======
-        delta[X_AXIS] = 0;
-        delta[Y_AXIS] = 120;
-        calculate_SCARA_forward_Transform(delta);
-        destination[X_AXIS] = delta[X_AXIS]/axis_scaling[X_AXIS];
-        destination[Y_AXIS] = delta[Y_AXIS]/axis_scaling[Y_AXIS];
->>>>>>> SAV-MkI-config
         
         prepare_move();
         //ClearToSend();
@@ -3429,35 +3305,11 @@ Sigma_Exit:
       //SERIAL_ECHOLN(" Soft endstops disabled ");
       if(Stopped == false) {
         //get_coordinates(); // For X Y Z E F
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-        delta[0] = 90;
-        delta[1] = 130;
-        calculate_SCARA_forward_Transform(delta);
-        destination[0] = delta[0]/axis_scaling[X_AXIS];
-        destination[1] = delta[1]/axis_scaling[Y_AXIS];
-=======
         delta[X_AXIS] = 90;
         delta[Y_AXIS] = 130;
         calculate_SCARA_forward_Transform(delta);
         destination[X_AXIS] = delta[X_AXIS]/axis_scaling[X_AXIS];
         destination[Y_AXIS] = delta[Y_AXIS]/axis_scaling[Y_AXIS];
->>>>>>> SAV-MkI-config
-=======
-        delta[X_AXIS] = 90;
-        delta[Y_AXIS] = 130;
-        calculate_SCARA_forward_Transform(delta);
-        destination[X_AXIS] = delta[X_AXIS]/axis_scaling[X_AXIS];
-        destination[Y_AXIS] = delta[Y_AXIS]/axis_scaling[Y_AXIS];
->>>>>>> SAV-MkI-config
-=======
-        delta[X_AXIS] = 90;
-        delta[Y_AXIS] = 130;
-        calculate_SCARA_forward_Transform(delta);
-        destination[X_AXIS] = delta[X_AXIS]/axis_scaling[X_AXIS];
-        destination[Y_AXIS] = delta[Y_AXIS]/axis_scaling[Y_AXIS];
->>>>>>> SAV-MkI-config
         
         prepare_move();
         //ClearToSend();
@@ -3470,35 +3322,11 @@ Sigma_Exit:
       //SERIAL_ECHOLN(" Soft endstops disabled ");
       if(Stopped == false) {
         //get_coordinates(); // For X Y Z E F
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-        delta[0] = 60;
-        delta[1] = 180;
-        calculate_SCARA_forward_Transform(delta);
-        destination[0] = delta[0]/axis_scaling[X_AXIS];
-        destination[1] = delta[1]/axis_scaling[Y_AXIS];
-=======
         delta[X_AXIS] = 60;
         delta[Y_AXIS] = 180;
         calculate_SCARA_forward_Transform(delta);
         destination[X_AXIS] = delta[X_AXIS]/axis_scaling[X_AXIS];
         destination[Y_AXIS] = delta[Y_AXIS]/axis_scaling[Y_AXIS];
->>>>>>> SAV-MkI-config
-=======
-        delta[X_AXIS] = 60;
-        delta[Y_AXIS] = 180;
-        calculate_SCARA_forward_Transform(delta);
-        destination[X_AXIS] = delta[X_AXIS]/axis_scaling[X_AXIS];
-        destination[Y_AXIS] = delta[Y_AXIS]/axis_scaling[Y_AXIS];
->>>>>>> SAV-MkI-config
-=======
-        delta[X_AXIS] = 60;
-        delta[Y_AXIS] = 180;
-        calculate_SCARA_forward_Transform(delta);
-        destination[X_AXIS] = delta[X_AXIS]/axis_scaling[X_AXIS];
-        destination[Y_AXIS] = delta[Y_AXIS]/axis_scaling[Y_AXIS];
->>>>>>> SAV-MkI-config
         
         prepare_move();
         //ClearToSend();
@@ -3511,35 +3339,11 @@ Sigma_Exit:
       //SERIAL_ECHOLN(" Soft endstops disabled ");
       if(Stopped == false) {
         //get_coordinates(); // For X Y Z E F
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-        delta[0] = 50;
-        delta[1] = 90;
-        calculate_SCARA_forward_Transform(delta);
-        destination[0] = delta[0]/axis_scaling[X_AXIS];
-        destination[1] = delta[1]/axis_scaling[Y_AXIS];
-=======
         delta[X_AXIS] = 50;
         delta[Y_AXIS] = 90;
         calculate_SCARA_forward_Transform(delta);
         destination[X_AXIS] = delta[X_AXIS]/axis_scaling[X_AXIS];
         destination[Y_AXIS] = delta[Y_AXIS]/axis_scaling[Y_AXIS];
->>>>>>> SAV-MkI-config
-=======
-        delta[X_AXIS] = 50;
-        delta[Y_AXIS] = 90;
-        calculate_SCARA_forward_Transform(delta);
-        destination[X_AXIS] = delta[X_AXIS]/axis_scaling[X_AXIS];
-        destination[Y_AXIS] = delta[Y_AXIS]/axis_scaling[Y_AXIS];
->>>>>>> SAV-MkI-config
-=======
-        delta[X_AXIS] = 50;
-        delta[Y_AXIS] = 90;
-        calculate_SCARA_forward_Transform(delta);
-        destination[X_AXIS] = delta[X_AXIS]/axis_scaling[X_AXIS];
-        destination[Y_AXIS] = delta[Y_AXIS]/axis_scaling[Y_AXIS];
->>>>>>> SAV-MkI-config
         
         prepare_move();
         //ClearToSend();
@@ -3552,35 +3356,11 @@ Sigma_Exit:
       //SERIAL_ECHOLN(" Soft endstops disabled ");
       if(Stopped == false) {
         //get_coordinates(); // For X Y Z E F
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-        delta[0] = 45;
-        delta[1] = 135;
-        calculate_SCARA_forward_Transform(delta);
-        destination[0] = delta[0]/axis_scaling[X_AXIS];
-        destination[1] = delta[1]/axis_scaling[Y_AXIS]; 
-=======
         delta[X_AXIS] = 45;
         delta[Y_AXIS] = 135;
         calculate_SCARA_forward_Transform(delta);
         destination[X_AXIS] = delta[X_AXIS]/axis_scaling[X_AXIS];
         destination[Y_AXIS] = delta[Y_AXIS]/axis_scaling[Y_AXIS]; 
->>>>>>> SAV-MkI-config
-=======
-        delta[X_AXIS] = 45;
-        delta[Y_AXIS] = 135;
-        calculate_SCARA_forward_Transform(delta);
-        destination[X_AXIS] = delta[X_AXIS]/axis_scaling[X_AXIS];
-        destination[Y_AXIS] = delta[Y_AXIS]/axis_scaling[Y_AXIS]; 
->>>>>>> SAV-MkI-config
-=======
-        delta[X_AXIS] = 45;
-        delta[Y_AXIS] = 135;
-        calculate_SCARA_forward_Transform(delta);
-        destination[X_AXIS] = delta[X_AXIS]/axis_scaling[X_AXIS];
-        destination[Y_AXIS] = delta[Y_AXIS]/axis_scaling[Y_AXIS]; 
->>>>>>> SAV-MkI-config
         
         prepare_move();
         //ClearToSend();
@@ -4252,27 +4032,9 @@ for (int s = 1; s <= steps; s++) {
 
 	
 	calculate_delta(destination);
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-         //SERIAL_ECHOPGM("destination[0]="); SERIAL_ECHOLN(destination[0]);
-         //SERIAL_ECHOPGM("destination[1]="); SERIAL_ECHOLN(destination[1]);
-         //SERIAL_ECHOPGM("destination[2]="); SERIAL_ECHOLN(destination[2]);
-=======
          //SERIAL_ECHOPGM("destination[X_AXIS]="); SERIAL_ECHOLN(destination[X_AXIS]);
          //SERIAL_ECHOPGM("destination[Y_AXIS]="); SERIAL_ECHOLN(destination[Y_AXIS]);
          //SERIAL_ECHOPGM("destination[Z_AXIS]="); SERIAL_ECHOLN(destination[Z_AXIS]);
->>>>>>> SAV-MkI-config
-=======
-         //SERIAL_ECHOPGM("destination[X_AXIS]="); SERIAL_ECHOLN(destination[X_AXIS]);
-         //SERIAL_ECHOPGM("destination[Y_AXIS]="); SERIAL_ECHOLN(destination[Y_AXIS]);
-         //SERIAL_ECHOPGM("destination[Z_AXIS]="); SERIAL_ECHOLN(destination[Z_AXIS]);
->>>>>>> SAV-MkI-config
-=======
-         //SERIAL_ECHOPGM("destination[X_AXIS]="); SERIAL_ECHOLN(destination[X_AXIS]);
-         //SERIAL_ECHOPGM("destination[Y_AXIS]="); SERIAL_ECHOLN(destination[Y_AXIS]);
-         //SERIAL_ECHOPGM("destination[Z_AXIS]="); SERIAL_ECHOLN(destination[Z_AXIS]);
->>>>>>> SAV-MkI-config
          //SERIAL_ECHOPGM("delta[X_AXIS]="); SERIAL_ECHOLN(delta[X_AXIS]);
          //SERIAL_ECHOPGM("delta[Y_AXIS]="); SERIAL_ECHOLN(delta[Y_AXIS]);
          //SERIAL_ECHOPGM("delta[Z_AXIS]="); SERIAL_ECHOLN(delta[Z_AXIS]);
