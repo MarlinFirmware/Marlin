@@ -137,7 +137,7 @@
 #define MSG_SD_PRINTING_BYTE                "SD printing byte "
 #define MSG_SD_NOT_PRINTING                 "Not SD printing"
 #define MSG_SD_ERR_WRITE_TO_FILE            "error writing to file"
-#define MSG_SD_CANT_ENTER_SUBDIR      "Cannot enter subdir: "
+#define MSG_SD_CANT_ENTER_SUBDIR            "Cannot enter subdir: "
 
 #define MSG_STEPPER_TOO_HIGH                "Steprate too high: "
 #define MSG_ENDSTOPS_HIT                    "endstops hit: "
@@ -146,7 +146,7 @@
 #define MSG_BABYSTEPPING_X                  "Babystepping X"
 #define MSG_BABYSTEPPING_Y                  "Babystepping Y"
 #define MSG_BABYSTEPPING_Z                  "Babystepping Z"
-#define MSG_SERIAL_ERROR_MENU_STRUCTURE   "Error in menu structure"
+#define MSG_SERIAL_ERROR_MENU_STRUCTURE     "Error in menu structure"
 
 // LCD Menu Messages
 
