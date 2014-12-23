@@ -1,10 +1,13 @@
-NOTE: There are now 3 branches, development where the new features and bugs are sorted out, this one can have bugs in it so please let us know if you find a bug. When the development branch has reached a state where its stable it will be moved to the stable branch and in the end it will land in the main branch.
+Developer Notes
+===================
 
-NOTE1: We are doing a kind of clean up in the list of issues and pull requests, the aim is to get to a kind of state where we can stamp it stable. For this part we need a lot of people with different machines that are willing to test the firmware so we can stamp it as stable. If you want to help out testing go to this issue and let us know: https://github.com/ErikZalm/Marlin/issues/1209
+- There are now 3 branches: The __development__ branch is where new features and code changes will be sorted out. This branch may have untested code in it, so please let us know if you find any bugs. When the __development__ branch has reached a state where it is stable, it will be moved to the __stable__ branch and in the end it will land in the __main__ branch.
 
-NOTE2: For submitting pull requests we ask that you PLEASE test the code first before submitting. When creating the pull request let us know what hardware you have tested on and how, just in short words. Pull requests that are not tested will likely not be merged as one slight change can risk breaking the code.
+- We are doing a kind of cleanup in the list of Issues and Pull Requests, the aim is to get to a state where we can certify the code as stable. To get the code tested as widely as possible we require several volunteers with a wide variety of hardware configurations willing to test the firmware and help us to certify it as stable. If you want to help out testing go to this issue and let us know: https://github.com/ErikZalm/Marlin/issues/1209
 
-NOTE3: If you have a fix don't open an issue telling about it, but test the code and submit a pull request.
+- Before you submit any pull request, we ask that you _PLEASE_ test your code before submission, even if the change seems innocuous. When creating the pull request, please include the hardware you used for testing and a short synopsis of your testing procedure. Untested pull requests are less likely to be merged, as even slight changes create the risk of breaking the main branch.
+
+- If you have a fix don't open an issue telling about it, but test the code and submit a pull request.
 
 ==========================
 Marlin 3D Printer Firmware
