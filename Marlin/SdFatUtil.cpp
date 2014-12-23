@@ -27,19 +27,12 @@
  * \return The number of free bytes.
  */
 int SdFatUtil::FreeRam() {
-  extern int  __bss_end;
-  extern int* __brkval;
-  int free_memory;
-  if (reinterpret_cast<int>(__brkval) == 0) {
-    // if no heap use from end of bss section
-    free_memory = reinterpret_cast<int>(&free_memory)
-                  - reinterpret_cast<int>(&__bss_end);
-  } else {
-    // use from top of stack to heap
-    free_memory = reinterpret_cast<int>(&free_memory)
-                  - reinterpret_cast<int>(__brkval);
-  }
-  return free_memory;
+  char top;
+#ifdef __arm__
+  return &top - reinterpret_cast<char*>(sbrk(0));
+#else  // __arm__
+  return __brkval ? &top - __brkval : &top - &__bss_end;
+#endif  // __arm__
 }
 //------------------------------------------------------------------------------
 /** %Print a string in flash memory.
