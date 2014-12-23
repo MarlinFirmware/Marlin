@@ -27,10 +27,8 @@
  * \return The number of free bytes.
  */
 int SdFatUtil::FreeRam() {
-  extern "C" {
-    extern int  __bss_end;
-    extern int* __brkval;
-  }
+  extern int  __bss_end;
+  extern int* __brkval;
   int free_memory;
   if (reinterpret_cast<int>(__brkval) == 0) {
     // if no heap use from end of bss section
