@@ -1445,6 +1445,7 @@ char *ftostr12ns(const float &x)
 
 //  convert float to space-padded string with -_23.4_ format
 char *ftostr32np(const float &x) {
+<<<<<<< HEAD
   long xx = abs(x * 100);
   uint8_t dig;
 
@@ -1488,6 +1489,18 @@ char *ftostr32np(const float &x) {
   }
   conv[6] = '\0';
   return conv;
+=======
+  char *c = ftostr32(x);
+  if (c[0] == '0' || c[0] == '-') {
+    if (c[0] == '0') c[0] = ' ';
+    if (c[1] == '0') c[1] = ' ';
+  }
+  if (c[5] == '0') {
+    c[5] = ' ';
+    if (c[4] == '0') c[4] = c[3] = ' ';
+  }
+  return c;
+>>>>>>> Patch to make Z look more like X and Y on UltraLCD
 }
 
 char *itostr31(const int &xx)
