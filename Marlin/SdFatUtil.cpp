@@ -22,6 +22,13 @@
 #ifdef SDSUPPORT
 #include "SdFatUtil.h"
 
+#ifdef __arm__
+// should use uinstd.h to define sbrk but Due causes a conflict
+extern "C" char* sbrk(int incr);
+#else  // __ARM__
+extern char *__brkval;
+extern char __bss_end;
+#endif  // __arm__
 //------------------------------------------------------------------------------
 /** Amount of free RAM
  * \return The number of free bytes.
