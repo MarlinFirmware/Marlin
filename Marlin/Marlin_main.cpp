@@ -2927,6 +2927,14 @@ Sigma_Exit:
       {
         retract_zlift = code_value() ;
       }
+    SERIAL_PROTOCOL(MSG_OK);
+    SERIAL_PROTOCOL(" S:");
+    SERIAL_PROTOCOL(retract_length);
+    SERIAL_PROTOCOL(" F:");
+    SERIAL_PROTOCOL(retract_feedrate);
+    SERIAL_PROTOCOL(" Z:");
+    SERIAL_PROTOCOL(retract_zlift);
+    SERIAL_PROTOCOLLN("");
     }break;
     case 208: // M208 - set retract recover length S[positive mm surplus to the M207 S*] F[feedrate mm/min]
     {
@@ -2938,6 +2946,12 @@ Sigma_Exit:
       {
         retract_recover_feedrate = code_value()/60 ;
       }
+    SERIAL_PROTOCOL(MSG_OK);
+    SERIAL_PROTOCOL(" S:");
+    SERIAL_PROTOCOL(retract_recover_length);
+    SERIAL_PROTOCOL(" F:");
+    SERIAL_PROTOCOL(retract_recover_feedrate);
+    SERIAL_PROTOCOLLN("");
     }break;
     case 209: // M209 - S<1=true/0=false> enable automatic retract detect if the slicer did not support G10/11: every normal extrude-only move will be classified as retract depending on the direction.
     {
