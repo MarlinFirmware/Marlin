@@ -1444,7 +1444,7 @@ char *ftostr12ns(const float &x)
 }
 
 //  convert float to space-padded string with -_23.4_ format
-char *ftostr32np(const float &x) {
+char *ftostr32sp(const float &x) {
   long xx = abs(x * 100);
   uint8_t dig;
 
