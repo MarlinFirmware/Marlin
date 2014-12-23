@@ -368,12 +368,12 @@ void lcd_set_home_offsets()
       encoderPosition = 0;
       lcdDrawUpdate = 1;
     }
-    if (lcdDrawUpdate) lcd_implementation_drawedit(PSTR(msg), "");
+    if (lcdDrawUpdate) lcd_implementation_drawedit(msg, "");
     if (LCD_CLICKED) lcd_goto_menu(lcd_tune_menu);
   }
-  static void lcd_babystep_x() { _lcd_babystep(X_AXIS, MSG_BABYSTEPPING_X); }
-  static void lcd_babystep_y() { _lcd_babystep(Y_AXIS, MSG_BABYSTEPPING_Y); }
-  static void lcd_babystep_z() { _lcd_babystep(Z_AXIS, MSG_BABYSTEPPING_Z); }
+  static void lcd_babystep_x() { _lcd_babystep(X_AXIS, PSTR(MSG_BABYSTEPPING_X)); }
+  static void lcd_babystep_y() { _lcd_babystep(Y_AXIS, PSTR(MSG_BABYSTEPPING_Y)); }
+  static void lcd_babystep_z() { _lcd_babystep(Z_AXIS, PSTR(MSG_BABYSTEPPING_Z)); }
 
 #endif //BABYSTEPPING
 
