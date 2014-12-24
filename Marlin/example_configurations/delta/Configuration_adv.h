@@ -270,10 +270,19 @@
 // Motor Current setting (Only functional when motor driver current ref pins are connected to a digital trimpot on supported boards)
 #define DIGIPOT_MOTOR_CURRENT {135,135,135,135,135} // Values 0-255 (RAMBO 135 = ~0.75A, 185 = ~1A)
 
+// uncomment to enable an I2C based DIGIPOT like on the Azteeg X3 Pro
+//#define DIGIPOT_I2C
+// Number of channels available for I2C digipot, For Azteeg X3 Pro we have 8
+#define DIGIPOT_I2C_NUM_CHANNELS 8
+// actual motor currents in Amps, need as many here as DIGIPOT_I2C_NUM_CHANNELS
+#define DIGIPOT_I2C_MOTOR_CURRENTS {1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0}
 
 //===========================================================================
 //=============================Additional Features===========================
 //===========================================================================
+
+//#define CHDK 4        //Pin for triggering CHDK to take a picture see how to use it here http://captain-slow.dk/2014/03/09/3d-printing-timelapses/
+#define CHDK_DELAY 50 //How long in ms the pin should stay HIGH before going LOW again
 
 #define SD_FINISHED_STEPPERRELEASE true  //if sd support and the file is finished: disable steppers?
 #define SD_FINISHED_RELEASECOMMAND "M84 X Y Z E" // You might want to keep the z enabled so your bed stays in place.
@@ -330,8 +339,8 @@
 
   #define D_FILAMENT 2.85
   #define STEPS_MM_E 836
-  #define EXTRUTION_AREA (0.25 * D_FILAMENT * D_FILAMENT * 3.14159)
-  #define STEPS_PER_CUBIC_MM_E (axis_steps_per_unit[E_AXIS]/ EXTRUTION_AREA)
+  #define EXTRUSION_AREA (0.25 * D_FILAMENT * D_FILAMENT * 3.14159)
+  #define STEPS_PER_CUBIC_MM_E (axis_steps_per_unit[E_AXIS]/ EXTRUSION_AREA)
 
 #endif // ADVANCE
 
@@ -395,8 +404,16 @@ const unsigned int dropsegments=5; //everything with less than this number of st
 // the moves are than replaced by the firmware controlled ones.
 
 // #define FWRETRACT  //ONLY PARTIALLY TESTED
-#define MIN_RETRACT 0.1 //minimum extruded mm to accept a automatic gcode retraction attempt
-
+#ifdef FWRETRACT
+  #define MIN_RETRACT 0.1                //minimum extruded mm to accept a automatic gcode retraction attempt
+  #define RETRACT_LENGTH 3               //default retract length (positive mm)
+  #define RETRACT_LENGTH_SWAP 13         //default swap retract length (positive mm), for extruder change
+  #define RETRACT_FEEDRATE 45            //default feedrate for retracting (mm/s)
+  #define RETRACT_ZLIFT 0                //default retract Z-lift
+  #define RETRACT_RECOVER_LENGTH 0       //default additional recover length (mm, added to retract length when recovering)
+  #define RETRACT_RECOVER_LENGTH_SWAP 0  //default additional swap recover length (mm, added to retract length when recovering from extruder change)
+  #define RETRACT_RECOVER_FEEDRATE 8     //default feedrate for recovering from retraction (mm/s)
+#endif
 
 //adds support for experimental filament exchange support M600; requires display
 #ifdef ULTIPANEL

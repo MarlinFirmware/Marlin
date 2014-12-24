@@ -30,7 +30,7 @@
 
 //automatic temperature: The hot end target temperature is calculated by all the buffered lines of gcode.
 //The maximum buffered steps/sec of the extruder motor are called "se".
-//You enter the autotemp mode by a M109 S<mintemp> T<maxtemp> F<factor>
+//You enter the autotemp mode by a M109 S<mintemp> B<maxtemp> F<factor>
 // the target temperature is set to mintemp+factor*se[steps/sec] and limited by mintemp and maxtemp
 // you exit the value by any M109 without F*
 // Also, if the temperature is set to a value <mintemp, it is not changed by autotemp.
@@ -219,9 +219,11 @@
 //#define QUICK_HOME  //if this is defined, if both x and y are to be homed, a diagonal move will be performed initially.
 
 #define AXIS_RELATIVE_MODES {false, false, false, false}
-
+#ifdef CONFIG_STEPPERS_TOSHIBA
+#define MAX_STEP_FREQUENCY 10000 // Max step frequency for Toshiba Stepper Controllers
+#else
 #define MAX_STEP_FREQUENCY 40000 // Max step frequency for Ultimaker (5000 pps / half step)
-
+#endif
 //By default pololu step drivers require an active high signal. However, some high power drivers require an active low signal as step.
 #define INVERT_X_STEP_PIN false
 #define INVERT_Y_STEP_PIN false
@@ -237,6 +239,11 @@
 // Feedrates for manual moves along X, Y, Z, E from panel
 #ifdef ULTIPANEL
 #define MANUAL_FEEDRATE {50*60, 50*60, 4*60, 60}  // set the speeds for manual moves (mm/min)
+#endif
+
+//Comment to disable setting feedrate multiplier via encoder
+#ifdef ULTIPANEL
+    #define ULTIPANEL_FEEDMULTIPLY
 #endif
 
 // minimum time in microseconds that a movement needs to take if the buffer is emptied.
@@ -279,6 +286,9 @@
 //===========================================================================
 //=============================Additional Features===========================
 //===========================================================================
+
+//#define CHDK 4        //Pin for triggering CHDK to take a picture see how to use it here http://captain-slow.dk/2014/03/09/3d-printing-timelapses/
+#define CHDK_DELAY 50 //How long in ms the pin should stay HIGH before going LOW again
 
 #define SD_FINISHED_STEPPERRELEASE true  //if sd support and the file is finished: disable steppers?
 #define SD_FINISHED_RELEASECOMMAND "M84 X Y Z E" // You might want to keep the z enabled so your bed stays in place.
@@ -335,8 +345,8 @@
 
   #define D_FILAMENT 2.85
   #define STEPS_MM_E 836
-  #define EXTRUTION_AREA (0.25 * D_FILAMENT * D_FILAMENT * 3.14159)
-  #define STEPS_PER_CUBIC_MM_E (axis_steps_per_unit[E_AXIS]/ EXTRUTION_AREA)
+  #define EXTRUSION_AREA (0.25 * D_FILAMENT * D_FILAMENT * 3.14159)
+  #define STEPS_PER_CUBIC_MM_E (axis_steps_per_unit[E_AXIS]/ EXTRUSION_AREA)
 
 #endif // ADVANCE
 
@@ -400,8 +410,16 @@ const unsigned int dropsegments=5; //everything with less than this number of st
 // the moves are than replaced by the firmware controlled ones.
 
 // #define FWRETRACT  //ONLY PARTIALLY TESTED
-#define MIN_RETRACT 0.1 //minimum extruded mm to accept a automatic gcode retraction attempt
-
+#ifdef FWRETRACT
+  #define MIN_RETRACT 0.1                //minimum extruded mm to accept a automatic gcode retraction attempt
+  #define RETRACT_LENGTH 3               //default retract length (positive mm)
+  #define RETRACT_LENGTH_SWAP 13         //default swap retract length (positive mm), for extruder change
+  #define RETRACT_FEEDRATE 45            //default feedrate for retracting (mm/s)
+  #define RETRACT_ZLIFT 0                //default retract Z-lift
+  #define RETRACT_RECOVER_LENGTH 0       //default additional recover length (mm, added to retract length when recovering)
+  #define RETRACT_RECOVER_LENGTH_SWAP 0  //default additional swap recover length (mm, added to retract length when recovering from extruder change)
+  #define RETRACT_RECOVER_FEEDRATE 8     //default feedrate for recovering from retraction (mm/s)
+#endif
 
 //adds support for experimental filament exchange support M600; requires display
 #ifdef ULTIPANEL

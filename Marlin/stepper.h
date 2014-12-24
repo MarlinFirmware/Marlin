@@ -71,8 +71,8 @@ float st_get_position_mm(uint8_t axis);
 void st_wake_up();
 
   
-void checkHitEndstops(); //call from somwhere to create an serial error message with the locations the endstops where hit, in case they were triggered
-void endstops_hit_on_purpose(); //avoid creation of the message, i.e. after homeing and before a routine call of checkHitEndstops();
+void checkHitEndstops(); //call from somewhere to create an serial error message with the locations the endstops where hit, in case they were triggered
+void endstops_hit_on_purpose(); //avoid creation of the message, i.e. after homing and before a routine call of checkHitEndstops();
 
 void enable_endstops(bool check); // Enable/disable endstop checking
 
