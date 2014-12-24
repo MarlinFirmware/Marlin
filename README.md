@@ -7,7 +7,7 @@ Developer Notes
 
 - Before you submit any pull request, we ask that you _PLEASE_ test your code before submission, even if the change seems innocuous. When creating the pull request, please include the hardware you used for testing and a short synopsis of your testing procedure. Untested pull requests are less likely to be merged, as even slight changes create the risk of breaking the main branch.
 
-- If you have a fix don't open an issue telling about it, but test the code and submit a pull request.
+- If you have a fix don't open an issue telling about it, but test the code and submit a pull request. Use the __development__ branch when you submit, current its not the default one so please check that you submit to the __development__ branch
 
 ==========================
 Marlin 3D Printer Firmware
