@@ -1034,7 +1034,7 @@ static void run_z_probe() {
     float start_z = current_position[Z_AXIS];
     long start_steps = st_get_position(Z_AXIS);
 
-    feedrate = homing_feedrate[Z_AXIS]/4;
+    feedrate = homing_feedrate[Z_AXIS]/10;
     destination[Z_AXIS] = -10;
     prepare_move_raw();
     st_synchronize();
@@ -1079,12 +1079,6 @@ static void run_z_probe() {
 static void do_blocking_move_to(float x, float y, float z) {
     float oldFeedRate = feedrate;
 
-    feedrate = homing_feedrate[Z_AXIS];
-
-    current_position[Z_AXIS] = z;
-    plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
-    st_synchronize();
-
     feedrate = XY_TRAVEL_SPEED;
 
 #ifdef DELTA
@@ -1095,6 +1089,7 @@ static void do_blocking_move_to(float x, float y, float z) {
 #else  // cartesian
     current_position[X_AXIS] = x;
     current_position[Y_AXIS] = y;
+    current_position[Z_AXIS] = z;
     plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
 #endif //DELTA
     st_synchronize();
@@ -1833,27 +1828,23 @@ void process_commands()
             #endif //NONLINEAR_BED_LEVELING
 
             int probePointCounter = 0;
-            bool zig = true;
-            for (int yCount=0; yCount < AUTO_BED_LEVELING_GRID_POINTS; yCount++)
+            for (int yCount=0; yCount < ACCURATE_BED_LEVELING_POINTS; yCount++)
             {
-              float yProbe = FRONT_PROBE_BED_POSITION + AUTO_BED_LEVELING_GRID_Y * yCount;
-              float xProbe, xInc;
-              if (zig)
-              {
-                xProbe = LEFT_PROBE_BED_POSITION;
-                //xEnd = RIGHT_PROBE_BED_POSITION;
-                xInc = AUTO_BED_LEVELING_GRID_X;
-                zig = false;
-              } else // zag
-              {
-                xProbe = RIGHT_PROBE_BED_POSITION;
-                //xEnd = LEFT_PROBE_BED_POSITION;
-                xInc = -AUTO_BED_LEVELING_GRID_X;
-                zig = true;
+              float yProbe = FRONT_PROBE_BED_POSITION + ACCURATE_BED_LEVELING_GRID_Y * yCount;
+              int xStart, xStop, xInc;
+              if (yCount % 2) {
+                xStart = 0;
+                xStop = ACCURATE_BED_LEVELING_POINTS;
+                xInc = 1;
+              } else {
+                xStart = ACCURATE_BED_LEVELING_POINTS - 1;
+                xStop = -1;
+                xInc = -1;
               }
 
-              for (int xCount=0; xCount < AUTO_BED_LEVELING_GRID_POINTS; xCount++)
+              for (int xCount=xStart; xCount != xStop; xCount += xInc)
               {
+                float xProbe = LEFT_PROBE_BED_POSITION + ACCURATE_BED_LEVELING_GRID_X * xCount;
                 float z_before;
                 if (probePointCounter == 0)
                 {
@@ -1868,10 +1859,7 @@ void process_commands()
                 #ifdef DELTA
                 // Avoid probing the corners (outside the round or hexagon print surface) on a delta printer.
                 float distance_from_center = sqrt(xProbe*xProbe + yProbe*yProbe);
-                if (distance_from_center > DELTA_PRINTABLE_RADIUS) {
-                  xProbe += xInc;
-                  continue;
-                }
+                if (distance_from_center > DELTA_PROBABLE_RADIUS) continue;
                 #endif //DELTA
 
                 float measured_z = probe_pt(xProbe, yProbe, z_before);
@@ -1886,7 +1874,10 @@ void process_commands()
                 eqnAMatrix[probePointCounter + 1*AUTO_BED_LEVELING_GRID_POINTS*AUTO_BED_LEVELING_GRID_POINTS] = yProbe;
                 eqnAMatrix[probePointCounter + 2*AUTO_BED_LEVELING_GRID_POINTS*AUTO_BED_LEVELING_GRID_POINTS] = 1;
                 probePointCounter++;
-                xProbe += xInc;
+
+                manage_heater();
+                manage_inactivity();
+                lcd_update();
               }
             }
             clean_up_after_endstop_move();
