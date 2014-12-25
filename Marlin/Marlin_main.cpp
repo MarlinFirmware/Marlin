@@ -1828,23 +1828,23 @@ void process_commands()
             #endif //NONLINEAR_BED_LEVELING
 
             int probePointCounter = 0;
-            for (int yCount=0; yCount < ACCURATE_BED_LEVELING_POINTS; yCount++)
+            for (int yCount=0; yCount < AUTO_BED_LEVELING_GRID_POINTS; yCount++)
             {
-              float yProbe = FRONT_PROBE_BED_POSITION + ACCURATE_BED_LEVELING_GRID_Y * yCount;
+              float yProbe = FRONT_PROBE_BED_POSITION + AUTO_BED_LEVELING_GRID_Y * yCount;
               int xStart, xStop, xInc;
               if (yCount % 2) {
                 xStart = 0;
-                xStop = ACCURATE_BED_LEVELING_POINTS;
+                xStop = AUTO_BED_LEVELING_GRID_POINTS;
                 xInc = 1;
               } else {
-                xStart = ACCURATE_BED_LEVELING_POINTS - 1;
+                xStart = AUTO_BED_LEVELING_GRID_POINTS - 1;
                 xStop = -1;
                 xInc = -1;
               }
 
               for (int xCount=xStart; xCount != xStop; xCount += xInc)
               {
-                float xProbe = LEFT_PROBE_BED_POSITION + ACCURATE_BED_LEVELING_GRID_X * xCount;
+                float xProbe = LEFT_PROBE_BED_POSITION + AUTO_BED_LEVELING_GRID_X * xCount;
                 float z_before;
                 if (probePointCounter == 0)
                 {
