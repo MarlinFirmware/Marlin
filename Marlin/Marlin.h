@@ -177,9 +177,9 @@ void get_coordinates();
 #ifdef DELTA
 void calculate_delta(float cartesian[3]);
 void adjust_delta(float cartesian[3]);
+void prepare_move_raw();
 extern float delta[3];
 #endif
-void prepare_move_raw();
 #ifdef SCARA
 void calculate_delta(float cartesian[3]);
 void calculate_SCARA_forward_Transform(float f_scara[3]);

@@ -312,8 +312,8 @@ int EtoPPressure=0;
 #endif
 
 #ifdef NONLINEAR_BED_LEVELING
-float bed_level[ACCURATE_BED_LEVELING_POINTS][ACCURATE_BED_LEVELING_POINTS];
-#endif
+float bed_level[AUTO_BED_LEVELING_GRID_POINTS][AUTO_BED_LEVELING_GRID_POINTS];
+#endif //NONLINEAR_BED_LEVELING
 #ifdef SCARA                              // Build size scaling
 float axis_scaling[3]={1,1,1};  // Build size scaling, default to 1
 #endif				
@@ -1244,7 +1244,7 @@ static void extrapolate_one_point(int x, int y, int xdir, int ydir) {
 // Fill in the unprobed points (corners of circular print surface)
 // using linear extrapolation, away from the center.
 static void extrapolate_unprobed_bed_level() {
-  int half = (ACCURATE_BED_LEVELING_POINTS-1)/2;
+  int half = (AUTO_BED_LEVELING_GRID_POINTS-1)/2;
   for (int y = 0; y <= half; y++) {
     for (int x = 0; x <= half; x++) {
       if (x + y < 3) continue;
@@ -1258,8 +1258,8 @@ static void extrapolate_unprobed_bed_level() {
 
 // Print calibration results for plotting or manual frame adjustment.
 static void print_bed_level() {
-  for (int y = 0; y < ACCURATE_BED_LEVELING_POINTS; y++) {
-    for (int x = 0; x < ACCURATE_BED_LEVELING_POINTS; x++) {
+  for (int y = 0; y < AUTO_BED_LEVELING_GRID_POINTS; y++) {
+    for (int x = 0; x < AUTO_BED_LEVELING_GRID_POINTS; x++) {
       SERIAL_PROTOCOL_F(bed_level[x][y], 2);
       SERIAL_PROTOCOLPGM(" ");
     }
@@ -1269,8 +1269,8 @@ static void print_bed_level() {
 
 // Reset calibration results to zero.
 static void reset_bed_level() {
-  for (int y = 0; y < ACCURATE_BED_LEVELING_POINTS; y++) {
-    for (int x = 0; x < ACCURATE_BED_LEVELING_POINTS; x++) {
+  for (int y = 0; y < AUTO_BED_LEVELING_GRID_POINTS; y++) {
+    for (int x = 0; x < AUTO_BED_LEVELING_GRID_POINTS; x++) {
       bed_level[x][y] = 0.0;
     }
   }
@@ -1797,7 +1797,7 @@ void process_commands()
 
           #ifdef NONLINEAR_BED_LEVELING
             reset_bed_level();
-          #else
+          #else //NONLINEAR_BED_LEVELING
             vector_3 uncorrected_position = plan_get_position();
             //uncorrected_position.debug("position durring G29");
             current_position[X_AXIS] = uncorrected_position.x;
@@ -1839,23 +1839,23 @@ void process_commands()
             #endif //NONLINEAR_BED_LEVELING
 
             int probePointCounter = 0;
-            for (int yCount=0; yCount < ACCURATE_BED_LEVELING_POINTS; yCount++)
+            for (int yCount=0; yCount < AUTO_BED_LEVELING_GRID_POINTS; yCount++)
             {
-              float yProbe = FRONT_PROBE_BED_POSITION + ACCURATE_BED_LEVELING_GRID_Y * yCount;
+              float yProbe = FRONT_PROBE_BED_POSITION + AUTO_BED_LEVELING_GRID_Y * yCount;
               int xStart, xStop, xInc;
               if (yCount % 2) {
                 xStart = 0;
-                xStop = ACCURATE_BED_LEVELING_POINTS;
+                xStop = AUTO_BED_LEVELING_GRID_POINTS;
                 xInc = 1;
               } else {
-                xStart = ACCURATE_BED_LEVELING_POINTS - 1;
+                xStart = AUTO_BED_LEVELING_GRID_POINTS - 1;
                 xStop = -1;
                 xInc = -1;
               }
 
               for (int xCount=0; xCount < AUTO_BED_LEVELING_GRID_POINTS; xCount++)
               {
-                float xProbe = LEFT_PROBE_BED_POSITION + ACCURATE_BED_LEVELING_GRID_X * xCount;
+                float xProbe = LEFT_PROBE_BED_POSITION + AUTO_BED_LEVELING_GRID_X * xCount;
 
                 #ifdef DELTA
                 // Avoid probing the corners (outside the round or hexagon print surface) on a delta printer.
@@ -1884,7 +1884,7 @@ void process_commands()
           #ifdef NONLINEAR_BED_LEVELING
             extrapolate_unprobed_bed_level();
             print_bed_level();
-          #else
+          #else //NONLINEAR_BED_LEVELING
             // solve lsq problem
             double *plane_equation_coefficients = qr_solve(AUTO_BED_LEVELING_GRID_POINTS*AUTO_BED_LEVELING_GRID_POINTS, 3, eqnAMatrix, eqnBVector);
 
@@ -1937,6 +1937,8 @@ void process_commands()
             apply_rotation_xyz(plan_bed_level_matrix, x_tmp, y_tmp, z_tmp);         //Apply the correction sending the probe offset
             current_position[Z_AXIS] = z_tmp - real_z + current_position[Z_AXIS];   //The difference is added to current position and sent to planner.
             plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+          #endif //NONLINEAR_BED_LEVELING
+
 #ifdef Z_PROBE_SLED
             dock_sled(true, -SLED_DOCKING_OFFSET); // correct for over travel.
 #endif // Z_PROBE_SLED
@@ -4148,9 +4150,9 @@ void calculate_delta(float cartesian[3])
 // Adjust print surface height by linear interpolation over the bed_level array.
 void adjust_delta(float cartesian[3])
 {
-  int half = (ACCURATE_BED_LEVELING_POINTS - 1) / 2;
-  float grid_x = max(0.001-half, min(half-0.001, cartesian[X_AXIS] / ACCURATE_BED_LEVELING_GRID_X));
-  float grid_y = max(0.001-half, min(half-0.001, cartesian[Y_AXIS] / ACCURATE_BED_LEVELING_GRID_Y));
+  int half = (AUTO_BED_LEVELING_GRID_POINTS - 1) / 2;
+  float grid_x = max(0.001-half, min(half-0.001, cartesian[X_AXIS] / AUTO_BED_LEVELING_GRID_X));
+  float grid_y = max(0.001-half, min(half-0.001, cartesian[Y_AXIS] / AUTO_BED_LEVELING_GRID_Y));
   int floor_x = floor(grid_x);
   int floor_y = floor(grid_y);
   float ratio_x = grid_x - floor_x;
