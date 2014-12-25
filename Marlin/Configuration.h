@@ -409,11 +409,13 @@ const bool Z_MAX_ENDSTOP_INVERTING = false; // set to true to invert the logic o
   #ifdef AUTO_BED_LEVELING_GRID
 
     // set the rectangle in which to probe
-    #define LEFT_PROBE_BED_POSITION -70
-    #define RIGHT_PROBE_BED_POSITION 70
-    #define BACK_PROBE_BED_POSITION 70
-    #define FRONT_PROBE_BED_POSITION -70
+    #define DELTA_PROBABLE_RADIUS (DELTA_PRINTABLE_RADIUS-10)
+    #define LEFT_PROBE_BED_POSITION -DELTA_PROBABLE_RADIUS
+    #define RIGHT_PROBE_BED_POSITION DELTA_PROBABLE_RADIUS
+    #define BACK_PROBE_BED_POSITION DELTA_PROBABLE_RADIUS
+    #define FRONT_PROBE_BED_POSITION -DELTA_PROBABLE_RADIUS
 
+    // probe at the points of a lattice grid
     #define AUTO_BED_LEVELING_GRID_POINTS 7
     #define AUTO_BED_LEVELING_GRID_X ((RIGHT_PROBE_BED_POSITION - LEFT_PROBE_BED_POSITION) / (AUTO_BED_LEVELING_GRID_POINTS - 1))
     #define AUTO_BED_LEVELING_GRID_Y ((BACK_PROBE_BED_POSITION - FRONT_PROBE_BED_POSITION) / (AUTO_BED_LEVELING_GRID_POINTS - 1))
@@ -448,7 +450,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = false; // set to true to invert the logic o
 
   #define XY_TRAVEL_SPEED 8000         // X and Y axis travel speed between probes, in mm/min
 
-  #define Z_RAISE_BEFORE_PROBING 15    //How much the extruder will be raised before traveling to the first probing point.
+  #define Z_RAISE_BEFORE_PROBING 100  //How much the extruder will be raised before traveling to the first probing point.
   #define Z_RAISE_BETWEEN_PROBINGS 5  //How much the extruder will be raised when traveling from between next probing points
 
   //#define Z_PROBE_SLED // turn on if you have a z-probe mounted on a sled like those designed by Charles Bell
