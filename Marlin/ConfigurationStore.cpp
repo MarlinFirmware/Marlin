@@ -2,6 +2,9 @@
 #include "planner.h"
 #include "temperature.h"
 #include "ultralcd.h"
+#ifdef HYSTERESIS_PATCH
+  #include "Hysteresis.h"
+#endif
 #include "ConfigurationStore.h"
 
 void _EEPROM_writeData(int &pos, uint8_t* value, uint8_t size)
@@ -26,11 +29,7 @@ void _EEPROM_readData(int &pos, uint8_t* value, uint8_t size)
 #define EEPROM_READ_VAR(pos, value) _EEPROM_readData(pos, (uint8_t*)&value, sizeof(value))
 //======================================================================================
 
-
-
-
 #define EEPROM_OFFSET 100
-
 
 // IMPORTANT:  Whenever there are changes made to the variables stored in EEPROM
 // in the functions below, also increment the version number. This makes sure that
@@ -38,21 +37,14 @@ void _EEPROM_readData(int &pos, uint8_t* value, uint8_t size)
 // wrong data being written to the variables.
 // ALSO:  always make sure the variables in the Store and retrieve sections are in the same order.
 
-#define EEPROM_VERSION "V10"
-#ifdef DELTA
-	#undef EEPROM_VERSION
-	#define EEPROM_VERSION "V11"
-#endif
-#ifdef SCARA
-	#undef EEPROM_VERSION
-	#define EEPROM_VERSION "V12"
-#endif
+#define EEPROM_VERSION "X13"
 
 #ifdef EEPROM_SETTINGS
 void Config_StoreSettings() 
 {
   char ver[4]= "000";
   int i=EEPROM_OFFSET;
+  float dummyfloat = 0.0f;
   EEPROM_WRITE_VAR(i,ver); // invalidate data first 
   EEPROM_WRITE_VAR(i,axis_steps_per_unit);
   EEPROM_WRITE_VAR(i,max_feedrate);  
@@ -67,14 +59,19 @@ void Config_StoreSettings()
   EEPROM_WRITE_VAR(i,max_e_jerk);
   EEPROM_WRITE_VAR(i,add_homing);
   #ifdef DELTA
-  EEPROM_WRITE_VAR(i,endstop_adj);
-  EEPROM_WRITE_VAR(i,delta_radius);
-  EEPROM_WRITE_VAR(i,delta_diagonal_rod);
-  EEPROM_WRITE_VAR(i,delta_segments_per_second);
+    EEPROM_WRITE_VAR(i,endstop_adj);
+    EEPROM_WRITE_VAR(i,delta_radius);
+    EEPROM_WRITE_VAR(i,delta_diagonal_rod);
+    EEPROM_WRITE_VAR(i,delta_segments_per_second);
+  #else
+    for (int n = 0; n < 6; n++)
+    {
+  	  EEPROM_WRITE_VAR(i,dummyfloat);
+    }
   #endif
   #ifndef ULTIPANEL
-  int plaPreheatHotendTemp = PLA_PREHEAT_HOTEND_TEMP, plaPreheatHPBTemp = PLA_PREHEAT_HPB_TEMP, plaPreheatFanSpeed = PLA_PREHEAT_FAN_SPEED;
-  int absPreheatHotendTemp = ABS_PREHEAT_HOTEND_TEMP, absPreheatHPBTemp = ABS_PREHEAT_HPB_TEMP, absPreheatFanSpeed = ABS_PREHEAT_FAN_SPEED;
+	int plaPreheatHotendTemp = PLA_PREHEAT_HOTEND_TEMP, plaPreheatHPBTemp = PLA_PREHEAT_HPB_TEMP, plaPreheatFanSpeed = PLA_PREHEAT_FAN_SPEED;
+	int absPreheatHotendTemp = ABS_PREHEAT_HOTEND_TEMP, absPreheatHPBTemp = ABS_PREHEAT_HPB_TEMP, absPreheatFanSpeed = ABS_PREHEAT_FAN_SPEED;
   #endif
   EEPROM_WRITE_VAR(i,plaPreheatHotendTemp);
   EEPROM_WRITE_VAR(i,plaPreheatHPBTemp);
@@ -84,22 +81,48 @@ void Config_StoreSettings()
   EEPROM_WRITE_VAR(i,absPreheatFanSpeed);
   EEPROM_WRITE_VAR(i,zprobe_zoffset);
   #ifdef PIDTEMP
-    EEPROM_WRITE_VAR(i,Kp);
-    EEPROM_WRITE_VAR(i,Ki);
-    EEPROM_WRITE_VAR(i,Kd);
+	EEPROM_WRITE_VAR(i,Kp);
+	EEPROM_WRITE_VAR(i,Ki);
+	EEPROM_WRITE_VAR(i,Kd);
   #else
-		float dummy = 3000.0f;
-    EEPROM_WRITE_VAR(i,dummy);
-		dummy = 0.0f;
-    EEPROM_WRITE_VAR(i,dummy);
-    EEPROM_WRITE_VAR(i,dummy);
+	EEPROM_WRITE_VAR(i,dummyfloat);
+	EEPROM_WRITE_VAR(i,dummyfloat);
+	EEPROM_WRITE_VAR(i,dummyfloat);
+  #endif
+  #ifdef PIDTEMPBED
+	EEPROM_WRITE_VAR(i, bedKp);
+	EEPROM_WRITE_VAR(i, bedKi);
+	EEPROM_WRITE_VAR(i, bedKd);
+  #else
+	EEPROM_WRITE_VAR(i, dummy);
+	EEPROM_WRITE_VAR(i, dummy);
+	EEPROM_WRITE_VAR(i, dummy);
   #endif
   #ifndef DOGLCD
     int lcd_contrast = 32;
   #endif
   EEPROM_WRITE_VAR(i,lcd_contrast);
   #ifdef SCARA
-  EEPROM_WRITE_VAR(i,axis_scaling);        // Add scaling for SCARA
+    EEPROM_WRITE_VAR(i,axis_scaling);        // Add scaling for SCARA
+  #else
+	EEPROM_WRITE_VAR(i,dummyfloat);
+	EEPROM_WRITE_VAR(i,dummyfloat);
+	EEPROM_WRITE_VAR(i,dummyfloat);
+  #endif
+  #ifdef HYSTERESIS_PATCH
+    float h = hysteresis.GetAxis(X_AXIS);
+    EEPROM_WRITE_VAR(i, h);
+    h = hysteresis.GetAxis(Y_AXIS);
+    EEPROM_WRITE_VAR(i, h);
+    h = hysteresis.GetAxis(Z_AXIS);
+    EEPROM_WRITE_VAR(i, h);
+    h = hysteresis.GetAxis(E_AXIS);
+    EEPROM_WRITE_VAR(i, h);
+  #else
+    EEPROM_WRITE_VAR(i, dummyfloat);
+    EEPROM_WRITE_VAR(i, dummyfloat);
+    EEPROM_WRITE_VAR(i, dummyfloat);
+    EEPROM_WRITE_VAR(i, dummyfloat);
   #endif
   char ver2[4]=EEPROM_VERSION;
   i=EEPROM_OFFSET;
@@ -199,6 +222,20 @@ SERIAL_ECHOLNPGM("Scaling factors:");
     SERIAL_ECHOPAIR(" D" ,unscalePID_d(Kd));
     SERIAL_ECHOLN(""); 
 #endif
+#ifdef PIDTEMPBED
+	SERIAL_ECHO_START;
+	SERIAL_ECHOLNPGM("PID Bed settings:");
+	SERIAL_ECHO_START;
+	SERIAL_ECHOPAIR("   M304 P", bedKp);
+	SERIAL_ECHOPAIR(" I", unscalePID_i(bedKi));
+	SERIAL_ECHOPAIR(" D", unscalePID_d(bedKd));
+	SERIAL_ECHOLN("");
+#endif
+#ifdef HYSTERESIS_PATCH
+	SERIAL_ECHO_START;
+	SERIAL_ECHOLNPGM("Hysteresis Settings:");
+	hysteresis.ReportToSerial();
+#endif
 } 
 #endif
 
@@ -211,9 +248,12 @@ void Config_RetrieveSettings()
     char ver[4]=EEPROM_VERSION;
     EEPROM_READ_VAR(i,stored_ver); //read stored version
     //  SERIAL_ECHOLN("Version: [" << ver << "] Stored version: [" << stored_ver << "]");
-    if (strncmp(ver,stored_ver,3) == 0)
+    if (strncmp(ver,stored_ver,3) == 0) // version number match
     {
-        // version number match
+		// dummy variable for dumping unused parameters
+		float dummyfloat = 0.0f;
+		unsigned int dummyint = 0;
+	
         EEPROM_READ_VAR(i,axis_steps_per_unit);
         EEPROM_READ_VAR(i,max_feedrate);  
         EEPROM_READ_VAR(i,max_acceleration_units_per_sq_second);
@@ -231,37 +271,82 @@ void Config_RetrieveSettings()
         EEPROM_READ_VAR(i,max_e_jerk);
         EEPROM_READ_VAR(i,add_homing);
         #ifdef DELTA
-		EEPROM_READ_VAR(i,endstop_adj);
-		EEPROM_READ_VAR(i,delta_radius);
-		EEPROM_READ_VAR(i,delta_diagonal_rod);
-		EEPROM_READ_VAR(i,delta_segments_per_second);
+			EEPROM_READ_VAR(i,endstop_adj);
+			EEPROM_READ_VAR(i,delta_radius);
+			EEPROM_READ_VAR(i,delta_diagonal_rod);
+			EEPROM_READ_VAR(i,delta_segments_per_second);
+		#else
+			EEPROM_READ_VAR(i,dummyfloat);
+			EEPROM_READ_VAR(i,dummyfloat);
+			EEPROM_READ_VAR(i,dummyfloat);
+			EEPROM_READ_VAR(i,dummyfloat);
+			EEPROM_READ_VAR(i,dummyfloat);
+			EEPROM_READ_VAR(i,dummyfloat);
         #endif
-        #ifndef ULTIPANEL
-        int plaPreheatHotendTemp, plaPreheatHPBTemp, plaPreheatFanSpeed;
-        int absPreheatHotendTemp, absPreheatHPBTemp, absPreheatFanSpeed;
+        #ifdef ULTIPANEL
+			EEPROM_READ_VAR(i, plaPreheatHotendTemp);
+			EEPROM_READ_VAR(i, plaPreheatHPBTemp);
+			EEPROM_READ_VAR(i, plaPreheatFanSpeed);
+			EEPROM_READ_VAR(i, absPreheatHotendTemp);
+			EEPROM_READ_VAR(i, absPreheatHPBTemp);
+			EEPROM_READ_VAR(i, absPreheatFanSpeed);
+			EEPROM_READ_VAR(i, zprobe_zoffset);
+		#else
+			EEPROM_READ_VAR(i, dummyint);
+			EEPROM_READ_VAR(i, dummyint);
+			EEPROM_READ_VAR(i, dummyint);
+			EEPROM_READ_VAR(i, dummyint);
+			EEPROM_READ_VAR(i, dummyint);
+			EEPROM_READ_VAR(i, dummyint);
+			EEPROM_READ_VAR(i, dummyfloat);
         #endif
-        EEPROM_READ_VAR(i,plaPreheatHotendTemp);
-        EEPROM_READ_VAR(i,plaPreheatHPBTemp);
-        EEPROM_READ_VAR(i,plaPreheatFanSpeed);
-        EEPROM_READ_VAR(i,absPreheatHotendTemp);
-        EEPROM_READ_VAR(i,absPreheatHPBTemp);
-        EEPROM_READ_VAR(i,absPreheatFanSpeed);
-        EEPROM_READ_VAR(i,zprobe_zoffset);
-        #ifndef PIDTEMP
-        float Kp,Ki,Kd;
-        #endif
-        // do not need to scale PID values as the values in EEPROM are already scaled		
-        EEPROM_READ_VAR(i,Kp);
-        EEPROM_READ_VAR(i,Ki);
-        EEPROM_READ_VAR(i,Kd);
+
+        #ifdef PIDTEMP
+			// do not need to scale PID values as the values in EEPROM are already scaled
+			EEPROM_READ_VAR(i, Kp);
+			EEPROM_READ_VAR(i, Ki);
+			EEPROM_READ_VAR(i, Kd);
+        #else
+			EEPROM_READ_VAR(i, dummyfloat);
+			EEPROM_READ_VAR(i, dummyfloat);
+			EEPROM_READ_VAR(i, dummyfloat);
+		#endif
+		#ifdef PIDTEMPBED
+			EEPROM_READ_VAR(i, bedKp);
+			EEPROM_READ_VAR(i, bedKi);
+			EEPROM_READ_VAR(i, bedKd);
+		#else
+			EEPROM_READ_VAR(i, dummyfloat);
+			EEPROM_READ_VAR(i, dummyfloat);
+			EEPROM_READ_VAR(i, dummyfloat);
+		#endif
         #ifndef DOGLCD
         int lcd_contrast;
         #endif
         EEPROM_READ_VAR(i,lcd_contrast);
 		#ifdef SCARA
-		EEPROM_READ_VAR(i,axis_scaling);
+			EEPROM_READ_VAR(i,axis_scaling);
+		#else
+			EEPROM_READ_VAR(i, dummyfloat);
+			EEPROM_READ_VAR(i, dummyfloat);
+			EEPROM_READ_VAR(i, dummyfloat);
 		#endif
-
+		#ifdef HYSTERESIS_PATCH
+			float h = 0.0f;
+			EEPROM_READ_VAR(i,h);
+			hysteresis.SetAxis(X_AXIS, h);
+			EEPROM_READ_VAR(i,h);
+			hysteresis.SetAxis(Y_AXIS, h);
+			EEPROM_READ_VAR(i,h);
+			hysteresis.SetAxis(Z_AXIS, h);
+			EEPROM_READ_VAR(i,h);
+			hysteresis.SetAxis(E_AXIS, h);   
+		#else
+			EEPROM_READ_VAR(i, dummyfloat);
+			EEPROM_READ_VAR(i, dummyfloat);
+			EEPROM_READ_VAR(i, dummyfloat);
+			EEPROM_READ_VAR(i, dummyfloat);
+		#endif
 		// Call updatePID (similar to when we have processed M301)
 		updatePID();
         SERIAL_ECHO_START;
@@ -337,7 +422,14 @@ void Config_ResetDefault()
     Kc = DEFAULT_Kc;
 #endif//PID_ADD_EXTRUSION_RATE
 #endif//PIDTEMP
-
+#ifdef PIDTEMPBED
+	bedKp = DEFAULT_bedKp;
+	bedKi = DEFAULT_bedKi;
+	bedKd = DEFAULT_bedKd;
+#endif
+#ifdef HYSTERESIS_PATCH
+	hysteresis.Set(0.0f, 0.0f, 0.0f, 0.0f); // zero is the default
+#endif
 SERIAL_ECHO_START;
 SERIAL_ECHOLNPGM("Hardcoded Default Settings Loaded");
 

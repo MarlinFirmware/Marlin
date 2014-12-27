@@ -57,6 +57,9 @@
 #include "temperature.h"
 #include "ultralcd.h"
 #include "language.h"
+#ifdef HYSTERESIS_PATCH
+  #include "Hysteresis.h"
+#endif
 
 //===========================================================================
 //=============================public variables ============================
@@ -534,6 +537,9 @@ void plan_buffer_line(float x, float y, float z, const float &e, float feed_rate
 void plan_buffer_line(const float &x, const float &y, const float &z, const float &e, float feed_rate, const uint8_t &extruder)
 #endif  //ENABLE_AUTO_BED_LEVELING
 {
+  #ifdef HYSTERESIS_PATCH
+    hysteresis.InsertCorrection(x,y,z,e);
+  #endif
   // Calculate the buffer head after we push this byte
   int next_buffer_head = next_block_index(block_buffer_head);
 
