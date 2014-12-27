@@ -455,7 +455,14 @@ void manage_heater()
           //K1 defined in Configuration.h in the PID settings
           #define K2 (1.0-K1)
           dTerm[e] = (Kd * (pid_input - temp_dState[e]))*K2 + (K1 * dTerm[e]);
-          pid_output = constrain(pTerm[e] + iTerm[e] - dTerm[e], 0, PID_MAX);
+          pid_output = pTerm[e] + iTerm[e] - dTerm[e];
+          if (pid_output > PID_MAX) {
+            if (pid_error[e] > 0 )  temp_iState[e] -= pid_error[e]; // conditional un-integration
+            pid_output=PID_MAX;
+          } else if (pid_output < 0){
+            if (pid_error[e] < 0 )  temp_iState[e] -= pid_error[e]; // conditional un-integration
+            pid_output=0;
+          }
         }
         temp_dState[e] = pid_input;
     #else 
@@ -558,7 +565,14 @@ void manage_heater()
 		  dTerm_bed= (bedKd * (pid_input - temp_dState_bed))*K2 + (K1 * dTerm_bed);
 		  temp_dState_bed = pid_input;
 
-		  pid_output = constrain(pTerm_bed + iTerm_bed - dTerm_bed, 0, MAX_BED_POWER);
+		  pid_output = pTerm_bed + iTerm_bed - dTerm_bed;
+          	  if (pid_output > MAX_BED_PID) {
+            	    if (pid_error_bed > 0 )  temp_iState_bed -= pid_error_bed; // conditional un-integration
+                    pid_output=PID_MAX;
+          	  } else if (pid_output < 0){
+            	    if (pid_error_bed < 0 )  temp_iState_bed -= pid_error_bed; // conditional un-integration
+                    pid_output=0;
+                  }
 
     #else 
       pid_output = constrain(target_temperature_bed, 0, MAX_BED_POWER);
