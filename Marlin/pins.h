@@ -2099,7 +2099,7 @@ DaveX plan for Teensylu/printrboard-type pinouts (ref teensylu & sprinter) for a
 #define E0_ENABLE_PIN      19
 #define E_STOP_PIN         23
 
-#define HEATER_0_PIN       21 // was 33 - Terence  // Extruder
+#define HEATER_0_PIN       21 // Extruder
 #define HEATER_1_PIN       -1
 #define HEATER_2_PIN       -1
 #define HEATER_BED_PIN     20  // Bed
@@ -2111,12 +2111,16 @@ DaveX plan for Teensylu/printrboard-type pinouts (ref teensylu & sprinter) for a
 #define TEMP_BED_PIN        0  // Bed / Analog pin numbering
 
 #define SDPOWER            -1
-#define SDSS               8 //17
+#define SDSS                8 //17
 #define LED_PIN            39
 #define PS_ON_PIN          -1
 #define KILL_PIN           -1
 #define ALARM_PIN          -1
 #define SDCARDDETECT       18
+
+#define BTN_EN1            13 // OC1A
+#define BTN_EN2            14 // OC1B
+#define BTN_ENC            15 // OC1C
 
 #ifndef SDSUPPORT
 // these pins are defined in the SD library if building with SD support
