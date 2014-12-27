@@ -47,6 +47,9 @@
 #include "language.h"
 #include "pins_arduino.h"
 #include "math.h"
+#ifdef HYSTERESIS_PATCH
+  #include "Hysteresis.h"
+#endif
 
 #ifdef BLINKM
 #include "BlinkM.h"
@@ -3513,6 +3516,23 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
       break;
     }
     #endif // CUSTOM_M_CODE_SET_Z_PROBE_OFFSET
+
+	// hysteresis fix: M598 and M599
+    #ifdef HYSTERESIS_PATCH
+	case 598: //M598
+	{
+		hysteresis.ReportToSerial();
+	}
+	break;
+	case 599: //M599
+	{
+		if (code_seen('X')) hysteresis.SetAxis(X_AXIS, code_value());    
+		if (code_seen('Y')) hysteresis.SetAxis(Y_AXIS, code_value());    
+		if (code_seen('Z')) hysteresis.SetAxis(Z_AXIS, code_value());    
+		if (code_seen('E')) hysteresis.SetAxis(E_AXIS, code_value());
+	}
+	break;
+    #endif // HYSTERESIS_PATCH
 
     #ifdef FILAMENTCHANGEENABLE
     case 600: //Pause for filament change X[pos] Y[pos] Z[relative lift] E[initial retract] L[later retract distance for removal]

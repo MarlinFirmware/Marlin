@@ -25,7 +25,7 @@
 // startup. Implementation of an idea by Prof Braino to inform user that any changes made to this
 // build by the user have been successfully uploaded into firmware.
 #define STRING_VERSION_CONFIG_H __DATE__ " " __TIME__ // build date and time
-#define STRING_CONFIG_H_AUTHOR "(none, default config)" // Who made the changes.
+#define STRING_CONFIG_H_AUTHOR "grob" // Who made the changes.
 
 // SERIAL_PORT selects which serial port should be used for communication with the host.
 // This allows the connection of wireless adapters (for instance) to non-default port pins.
@@ -41,7 +41,7 @@
 // The following define selects which electronics board you have.
 // Please choose the name from boards.h that matches your setup
 #ifndef MOTHERBOARD
-  #define MOTHERBOARD BOARD_ULTIMAKER
+  #define MOTHERBOARD BOARD_RUMBA
 #endif
 
 // Define this to set a custom name for your generic Mendel,
@@ -52,7 +52,7 @@
 // #define MACHINE_UUID "00000000-0000-0000-0000-000000000000"
 
 // This defines the number of extruders
-#define EXTRUDERS 1
+#define EXTRUDERS 2 // 2nd extruder used for chamber
 
 //// The following define selects which power supply you have. Please choose the one that matches your setup
 // 1 = ATX
@@ -101,10 +101,10 @@
 // 147 is Pt100 with 4k7 pullup
 // 110 is Pt100 with 1k pullup (non standard)
 
-#define TEMP_SENSOR_0 -1
-#define TEMP_SENSOR_1 -1
-#define TEMP_SENSOR_2 0
-#define TEMP_SENSOR_BED 0
+#define TEMP_SENSOR_0 5 //e3d thermistor
+#define TEMP_SENSOR_1 1 //epcos 100k for chamber
+#define TEMP_SENSOR_2 -1 //not used
+#define TEMP_SENSOR_BED 1 //solidoodle bed
 
 // This makes temp sensor 1 a redundant sensor for sensor 0. If the temperatures difference between these sensors is to high the print will be aborted.
 //#define TEMP_SENSOR_1_AS_REDUNDANT
@@ -126,10 +126,10 @@
 // When temperature exceeds max temp, your heater will be switched off.
 // This feature exists to protect your hotend from overheating accidentally, but *NOT* from thermistor short/failure!
 // You should use MINTEMP for thermistor short/failure protection.
-#define HEATER_0_MAXTEMP 275
-#define HEATER_1_MAXTEMP 275
-#define HEATER_2_MAXTEMP 275
-#define BED_MAXTEMP 150
+#define HEATER_0_MAXTEMP 350 //e3d
+#define HEATER_1_MAXTEMP 100 //chamber
+#define HEATER_2_MAXTEMP 100 //not used
+#define BED_MAXTEMP 150 // solidoodle bed
 
 // If your bed has low resistance e.g. .6 ohm and throws the fuse you can duty cycle it to reduce the
 // average current. The value should be an integer and the heat bed will be turned on for 1 interval of
@@ -154,21 +154,11 @@
   #define K1 0.95 //smoothing factor within the PID
   #define PID_dT ((OVERSAMPLENR * 10.0)/(F_CPU / 64.0 / 256.0)) //sampling period of the temperature routine
 
-// If you are using a pre-configured hotend then you can use one of the value sets by uncommenting it
-// Ultimaker
-    #define  DEFAULT_Kp 22.2
-    #define  DEFAULT_Ki 1.08
-    #define  DEFAULT_Kd 114
+  // grob: measured from E3D on rumba
+  #define DEFAULT_Kp 22.0
+  #define DEFAULT_Ki 2.0
+  #define DEFAULT_Kd 58.0
 
-// MakerGear
-//    #define  DEFAULT_Kp 7.0
-//    #define  DEFAULT_Ki 0.1
-//    #define  DEFAULT_Kd 12
-
-// Mendel Parts V9 on 12V
-//    #define  DEFAULT_Kp 63.0
-//    #define  DEFAULT_Ki 2.25
-//    #define  DEFAULT_Kd 440
 #endif // PIDTEMP
 
 // Bed Temperature Control
@@ -181,7 +171,7 @@
 // If your configuration is significantly different than this and you don't understand the issues involved, you probably
 // shouldn't use bed PID until someone else verifies your hardware works.
 // If this is enabled, find your own PID constants below.
-//#define PIDTEMPBED
+#define PIDTEMPBED
 //
 //#define BED_LIMIT_SWITCHING
 
@@ -192,22 +182,13 @@
 #define MAX_BED_POWER 255 // limits duty cycle to bed; 255=full current
 
 #ifdef PIDTEMPBED
-//120v 250W silicone heater into 4mm borosilicate (MendelMax 1.5+)
-//from FOPDT model - kp=.39 Tp=405 Tdead=66, Tc set to 79.2, aggressive factor of .15 (vs .1, 1, 10)
-    #define  DEFAULT_bedKp 10.00
-    #define  DEFAULT_bedKi .023
-    #define  DEFAULT_bedKd 305.4
 
-//120v 250W silicone heater into 4mm borosilicate (MendelMax 1.5+)
-//from pidautotune
-//    #define  DEFAULT_bedKp 97.1
-//    #define  DEFAULT_bedKi 1.41
-//    #define  DEFAULT_bedKd 1675.16
+//grob: use approximately solidoodle bed defaults
+#define  DEFAULT_bedKp 100.0 //{SD Patch}
+#define  DEFAULT_bedKi 8.0 //{SD Patch}
+#define  DEFAULT_bedKd 328.0 //{SD Patch}
 
-// FIND YOUR OWN: "M303 E-1 C8 S90" to run autotune on the bed at 90 degreesC for 8 cycles.
 #endif // PIDTEMPBED
-
-
 
 //this prevents dangerous Extruder moves, i.e. if the temperature is under the limit
 //can be software-disabled for whatever purposes by
@@ -322,17 +303,17 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 // ENDSTOP SETTINGS:
 // Sets direction of endstops when homing; 1=MAX, -1=MIN
-#define X_HOME_DIR -1
-#define Y_HOME_DIR -1
+#define X_HOME_DIR 1 //grob: solidoodle
+#define Y_HOME_DIR 1 //grob: solidoodle
 #define Z_HOME_DIR -1
 
 #define min_software_endstops true // If true, axis won't move to coordinates less than HOME_POS.
 #define max_software_endstops true  // If true, axis won't move to coordinates greater than the defined lengths below.
 
-// Travel limits after homing
-#define X_MAX_POS 205
+// Travel limits after homing //grob: solidoodle 3
+#define X_MAX_POS 209
 #define X_MIN_POS 0
-#define Y_MAX_POS 205
+#define Y_MAX_POS 200
 #define Y_MIN_POS 0
 #define Z_MAX_POS 200
 #define Z_MIN_POS 0
@@ -340,6 +321,10 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define X_MAX_LENGTH (X_MAX_POS - X_MIN_POS)
 #define Y_MAX_LENGTH (Y_MAX_POS - Y_MIN_POS)
 #define Z_MAX_LENGTH (Z_MAX_POS - Z_MIN_POS)
+
+// uncomment to implement Neil Martin's hysteresis patch
+#define HYSTERESIS_PATCH
+
 //============================= Bed Auto Leveling ===========================
 
 //#define ENABLE_AUTO_BED_LEVELING // Delete the comment to enable (remove // at the start of the line)
@@ -435,13 +420,13 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 
 // The position of the homing switches
-//#define MANUAL_HOME_POSITIONS  // If defined, MANUAL_*_HOME_POS below will be used
+#define MANUAL_HOME_POSITIONS  // If defined, MANUAL_*_HOME_POS below will be used
 //#define BED_CENTER_AT_0_0  // If defined, the center of the bed is at (X=0, Y=0)
 
 //Manual homing switch locations:
 // For deltabots this means top and center of the Cartesian print volume.
-#define MANUAL_X_HOME_POS 0
-#define MANUAL_Y_HOME_POS 0
+#define MANUAL_X_HOME_POS 209
+#define MANUAL_Y_HOME_POS 200
 #define MANUAL_Z_HOME_POS 0
 //#define MANUAL_Z_HOME_POS 402 // For delta: Distance between nozzle and print surface after homing.
 
@@ -451,7 +436,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 // default settings
 
-#define DEFAULT_AXIS_STEPS_PER_UNIT   {78.7402,78.7402,200.0*8/3,760*1.1}  // default steps per unit for Ultimaker
+#define DEFAULT_AXIS_STEPS_PER_UNIT   {40,40,500,436}  // grob's sd3
 #define DEFAULT_MAX_FEEDRATE          {500, 500, 5, 25}    // (mm/sec)
 #define DEFAULT_MAX_ACCELERATION      {9000,9000,100,10000}    // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for Skeinforge 40+, for older versions raise them a lot.
 
@@ -488,10 +473,10 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 // M501 - reads parameters from EEPROM (if you need reset them after you changed them temporarily).
 // M502 - reverts to the default "factory settings".  You still need to store them in EEPROM afterwards if you want to.
 //define this to enable EEPROM support
-//#define EEPROM_SETTINGS
+#define EEPROM_SETTINGS
 //to disable EEPROM Serial responses and decrease program space by ~1700 byte: comment this out:
 // please keep turned on if you can.
-//#define EEPROM_CHITCHAT
+#define EEPROM_CHITCHAT
 
 // Preheat Constants
 #define PLA_PREHEAT_HOTEND_TEMP 180
