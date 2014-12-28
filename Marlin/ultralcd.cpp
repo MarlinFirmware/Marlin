@@ -655,7 +655,19 @@ static void lcd_move_menu_axis()
     if (move_menu_scale < 10.0)
     {
         MENU_ITEM(submenu, MSG_MOVE_Z, lcd_move_z);
-        MENU_ITEM(submenu, MSG_MOVE_E, lcd_move_e);
+        // modificated for printers till 3 extruders
+		#if TEMP_SENSOR_0 != 0
+			active_extruder = 0;
+			MENU_ITEM(submenu, MSG_MOVE_E, lcd_move_e);
+		#endif
+		#if TEMP_SENSOR_1 != 0
+			active_extruder = 1;
+			MENU_ITEM(submenu, MSG_MOVE_E1, lcd_move_e);
+		#endif
+		#if TEMP_SENSOR_2 != 0
+			active_extruder = 2;
+			MENU_ITEM(submenu, MSG_MOVE_E2, lcd_move_e);
+		#endif
     }
     END_MENU();
 }
