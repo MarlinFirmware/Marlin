@@ -204,6 +204,7 @@ CardReader card;
 #endif
 float homing_feedrate[] = HOMING_FEEDRATE;
 bool axis_relative_modes[] = AXIS_RELATIVE_MODES;
+bool change_filament_inactivity = false;
 int feedmultiply=100; //100->1 200->2
 int saved_feedmultiply;
 int extrudemultiply=100; //100->1 200->2
@@ -3602,12 +3603,9 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
         while(!lcd_clicked()){
           cnt++;
           manage_heater();
+          change_filament_inactivity=true;
           manage_inactivity();
-          //workaround for disabled x,y,z steppers causing carriage movement
-          enable_x();
-          enable_y();
-          enable_z();
-          //end of disabled steppers workaround
+          change_filament_inactivity=false;
           lcd_update();
           if(cnt==0)
           {
@@ -4308,9 +4306,11 @@ void manage_inactivity()
     if( (millis() - previous_millis_cmd) >  stepper_inactive_time )
     {
       if(blocks_queued() == false) {
-        disable_x();
-        disable_y();
-        disable_z();
+      	if (change_filament_inactivity == false) {
+           disable_x();
+           disable_y();
+           disable_z();
+      	}   
         disable_e0();
         disable_e1();
         disable_e2();
