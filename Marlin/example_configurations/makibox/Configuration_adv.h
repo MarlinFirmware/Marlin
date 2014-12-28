@@ -296,6 +296,20 @@
 // using:
 //#define MENU_ADDAUTOSTART
 
+// Show a progress bar on the LCD when printing from SD
+//#define LCD_PROGRESS_BAR
+
+#ifdef LCD_PROGRESS_BAR
+  // Amount of time (ms) to show the bar
+  #define PROGRESS_BAR_BAR_TIME 2000
+  // Amount of time (ms) to show the status message
+  #define PROGRESS_BAR_MSG_TIME 2000
+  // Amount of time (ms) to retain the status message (0=forever)
+  #define PROGRESS_MSG_EXPIRE   0
+  // Enable this to show messages for MSG_TIME then hide them
+  //#define PROGRESS_MSG_ONCE
+#endif
+
 // The hardware watchdog should reset the microcontroller disabling all outputs, in case the firmware gets stuck and doesn't do temperature regulation.
 //#define USE_WATCHDOG
 
@@ -331,7 +345,7 @@
 
 // extruder advance constant (s2/mm3)
 //
-// advance (steps) = STEPS_PER_CUBIC_MM_E * EXTUDER_ADVANCE_K * cubic mm per second ^ 2
+// advance (steps) = STEPS_PER_CUBIC_MM_E * EXTRUDER_ADVANCE_K * cubic mm per second ^ 2
 //
 // Hooke's law says:		force = k * distance
 // Bernoulli's principle says:	v ^ 2 / 2 + g . h + pressure / density = constant
