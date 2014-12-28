@@ -19,9 +19,12 @@ int absPreheatHotendTemp;
 int absPreheatHPBTemp;
 int absPreheatFanSpeed;
 
+
 #ifdef FILAMENT_LCD_DISPLAY
   unsigned long message_millis = 0;
 #endif
+
+
 
 #ifdef ULTIPANEL
   static float manual_feedrate[] = MANUAL_FEEDRATE;
@@ -1075,12 +1078,12 @@ void lcd_init()
     lcd_implementation_init();
 
 #ifdef NEWPANEL
-    pinMode(BTN_EN1,INPUT);
-    pinMode(BTN_EN2,INPUT);
+    SET_INPUT(BTN_EN1);
+    SET_INPUT(BTN_EN2);
     WRITE(BTN_EN1,HIGH);
     WRITE(BTN_EN2,HIGH);
   #if BTN_ENC > 0
-    pinMode(BTN_ENC,INPUT);
+    SET_INPUT(BTN_ENC);
     WRITE(BTN_ENC,HIGH);
   #endif
   #ifdef REPRAPWORLD_KEYPAD
