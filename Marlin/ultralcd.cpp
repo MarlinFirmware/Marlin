@@ -19,15 +19,12 @@ int absPreheatHotendTemp;
 int absPreheatHPBTemp;
 int absPreheatFanSpeed;
 
-
 #ifdef FILAMENT_LCD_DISPLAY
-unsigned long message_millis=0;
+  unsigned long message_millis = 0;
 #endif
 
-
-
 #ifdef ULTIPANEL
-static float manual_feedrate[] = MANUAL_FEEDRATE;
+  static float manual_feedrate[] = MANUAL_FEEDRATE;
 #endif // ULTIPANEL
 
 /* !Configuration settings */
@@ -163,7 +160,7 @@ uint32_t encoderPosition;
 #if (SDCARDDETECT > 0)
 bool lcd_oldcardstatus;
 #endif
-#endif//ULTIPANEL
+#endif //ULTIPANEL
 
 menuFunc_t currentMenu = lcd_status_screen; /* function pointer to the currently active menu */
 uint32_t lcd_next_update_millis;
@@ -189,6 +186,7 @@ static void lcd_goto_menu(menuFunc_t menu, const uint32_t encoder=0, const bool 
     currentMenu = menu;
     encoderPosition = encoder;
     if (feedback) lcd_quick_feedback();
+
     // For LCD_PROGRESS_BAR re-initialize the custom characters
     #if defined(LCD_PROGRESS_BAR) && defined(SDSUPPORT)
       lcd_set_custom_characters(menu == lcd_status_screen);
@@ -199,42 +197,43 @@ static void lcd_goto_menu(menuFunc_t menu, const uint32_t encoder=0, const bool 
 /* Main status screen. It's up to the implementation specific part to show what is needed. As this is very display dependent */
 static void lcd_status_screen()
 {
-#if defined(LCD_PROGRESS_BAR) && defined(SDSUPPORT)
+  #if defined(LCD_PROGRESS_BAR) && defined(SDSUPPORT)
     uint16_t mil = millis();
-#ifndef PROGRESS_MSG_ONCE
-    if (mil > progressBarTick + PROGRESS_BAR_MSG_TIME + PROGRESS_BAR_BAR_TIME) {
+    #ifndef PROGRESS_MSG_ONCE
+      if (mil > progressBarTick + PROGRESS_BAR_MSG_TIME + PROGRESS_BAR_BAR_TIME) {
         progressBarTick = mil;
-    }
-#endif
-#if PROGRESS_MSG_EXPIRE > 0
-    // keep the message alive if paused, count down otherwise
-    if (messageTick > 0) {
+      }
+    #endif
+    #if PROGRESS_MSG_EXPIRE > 0
+      // keep the message alive if paused, count down otherwise
+      if (messageTick > 0) {
         if (card.isFileOpen()) {
-            if (IS_SD_PRINTING) {
-                if ((mil-messageTick) >= PROGRESS_MSG_EXPIRE) {
-                    lcd_status_message[0] = '\0';
-                    messageTick = 0;
-                }
+          if (IS_SD_PRINTING) {
+            if ((mil-messageTick) >= PROGRESS_MSG_EXPIRE) {
+              lcd_status_message[0] = '\0';
+              messageTick = 0;
             }
-            else {
-                messageTick += LCD_UPDATE_INTERVAL;
-            }
+          }
+          else {
+            messageTick += LCD_UPDATE_INTERVAL;
+          }
         }
         else {
-            messageTick = 0;
+          messageTick = 0;
         }
-    }
-#endif
-#endif //LCD_PROGRESS_BAR
-    if (lcd_status_update_delay)
-        lcd_status_update_delay--;
-    else
-        lcdDrawUpdate = 1;
-    if (lcdDrawUpdate)
-    {
-        lcd_implementation_status_screen();
-        lcd_status_update_delay = 10;   /* redraw the main screen every second. This is easier then trying keep track of all things that change on the screen */
-    }
+      }
+    #endif
+  #endif //LCD_PROGRESS_BAR
+
+  if (lcd_status_update_delay)
+    lcd_status_update_delay--;
+  else
+    lcdDrawUpdate = 1;
+
+  if (lcdDrawUpdate) {
+    lcd_implementation_status_screen();
+    lcd_status_update_delay = 10;   /* redraw the main screen every second. This is easier then trying keep track of all things that change on the screen */
+  }
 #ifdef ULTIPANEL
 
     bool current_click = LCD_CLICKED;
@@ -259,13 +258,13 @@ static void lcd_status_screen()
     {
         lcd_goto_menu(lcd_main_menu);
         lcd_implementation_init( // to maybe revive the LCD if static electricity killed it.
-#if defined(LCD_PROGRESS_BAR) && defined(SDSUPPORT)
+          #if defined(LCD_PROGRESS_BAR) && defined(SDSUPPORT)
             currentMenu == lcd_status_screen
-#endif
+          #endif
         );
-#ifdef FILAMENT_LCD_DISPLAY
-        message_millis = millis();  //get status message to show up for a while
-#endif
+        #ifdef FILAMENT_LCD_DISPLAY
+          message_millis = millis();  // get status message to show up for a while
+        #endif
     }
 
 #ifdef ULTIPANEL_FEEDMULTIPLY
@@ -292,44 +291,35 @@ static void lcd_status_screen()
         feedmultiply += int(encoderPosition);
         encoderPosition = 0;
     }
-#endif//ULTIPANEL_FEEDMULTIPLY
+#endif //ULTIPANEL_FEEDMULTIPLY
 
     if (feedmultiply < 10)
         feedmultiply = 10;
     else if (feedmultiply > 999)
         feedmultiply = 999;
-#endif//ULTIPANEL
+#endif //ULTIPANEL
 }
 
 #ifdef ULTIPANEL
 
-static void lcd_return_to_status()
-{
-    lcd_goto_menu(lcd_status_screen, 0, false);
-}
-static void lcd_sdcard_pause()
-{
-    card.pauseSDPrint();
-}
-static void lcd_sdcard_resume()
-{
-    card.startFileprint();
-}
+static void lcd_return_to_status() { lcd_goto_menu(lcd_status_screen, 0, false); }
 
-static void lcd_sdcard_stop()
-{
-    card.sdprinting = false;
-    card.closefile();
-    quickStop();
-    if(SD_FINISHED_STEPPERRELEASE)
-    {
-        enquecommand_P(PSTR(SD_FINISHED_RELEASECOMMAND));
-    }
-    autotempShutdown();
+static void lcd_sdcard_pause() { card.pauseSDPrint(); }
 
-	cancel_heatup = true;
+static void lcd_sdcard_resume() { card.startFileprint(); }
 
-	lcd_setstatus(MSG_PRINT_ABORTED);
+static void lcd_sdcard_stop() {
+  card.sdprinting = false;
+  card.closefile();
+  quickStop();
+  if (SD_FINISHED_STEPPERRELEASE) {
+    enquecommand_P(PSTR(SD_FINISHED_RELEASECOMMAND));
+  }
+  autotempShutdown();
+
+  cancel_heatup = true;
+
+  lcd_setstatus(MSG_PRINT_ABORTED);
 }
 
 /* Menu implementation */
@@ -875,7 +865,8 @@ static void lcd_set_contrast()
     }
     if (LCD_CLICKED) lcd_goto_menu(lcd_control_menu);
 }
-#endif
+
+#endif //DOGLCD
 
 #ifdef FWRETRACT
 static void lcd_control_retract_menu()
@@ -1041,7 +1032,7 @@ menu_edit_type(unsigned long, long5, ftostr5, 0.01)
 	static void reprapworld_keypad_move_home() {
 		enquecommand_P((PSTR("G28"))); // move all axis home
 	}
-#endif
+#endif //REPRAPWORLD_KEYPAD
 
 /** End of menus **/
 
@@ -1073,11 +1064,9 @@ static void menu_action_sddirectory(const char* filename, char* longFilename)
     card.chdir(filename);
     encoderPosition = 0;
 }
-static void menu_action_setting_edit_bool(const char* pstr, bool* ptr)
-{
-    *ptr = !(*ptr);
-}
-#endif//ULTIPANEL
+static void menu_action_setting_edit_bool(const char* pstr, bool* ptr) { *ptr = !(*ptr); }
+
+#endif //ULTIPANEL
 
 /** LCD API **/
 void lcd_init()
@@ -1248,28 +1237,24 @@ void lcd_ignore_click(bool b)
 }
 
 void lcd_finishstatus() {
-    size_t i = strlen(lcd_status_message);
-    memset(lcd_status_message + i, ' ', LCD_WIDTH - i);
-    lcd_status_message[LCD_WIDTH] = '\0';
-
-#if defined(LCD_PROGRESS_BAR) && defined(SDSUPPORT)
-#if PROGRESS_MSG_EXPIRE > 0
-    messageTick =
-#endif
+  int len = strlen(lcd_status_message);
+  if (len > 0) {
+    while (len < LCD_WIDTH) {
+      lcd_status_message[len++] = ' ';
+    }
+  }
+  lcd_status_message[LCD_WIDTH] = '\0';
+  #if defined(LCD_PROGRESS_BAR) && defined(SDSUPPORT)
+    #if PROGRESS_MSG_EXPIRE > 0
+      messageTick =
+    #endif
     progressBarTick = millis();
-#endif
-    lcdDrawUpdate = 2;
+  #endif
+  lcdDrawUpdate = 2;
 
-#ifdef FILAMENT_LCD_DISPLAY
+  #ifdef FILAMENT_LCD_DISPLAY
     message_millis = millis();  //get status message to show up for a while
-#endif
-}
-void lcd_setstatus(const char* message)
-{
-    if (lcd_status_message_level > 0)
-        return;
-    strncpy(lcd_status_message, message, LCD_WIDTH);
-    lcd_finishstatus();
+  #endif
 }
 void lcd_setstatus(const char* message)
 {
@@ -1293,10 +1278,8 @@ void lcd_setalertstatuspgm(const char* message)
     lcd_return_to_status();
 #endif//ULTIPANEL
 }
-void lcd_reset_alert_level()
-{
-    lcd_status_message_level = 0;
-}
+
+void lcd_reset_alert_level() { lcd_status_message_level = 0; }
 
 #ifdef DOGLCD
 void lcd_setcontrast(uint8_t value)
@@ -1405,22 +1388,22 @@ void lcd_buzz(long duration, uint16_t freq)
 #endif
 }
 
-bool lcd_clicked()
-{
-  return LCD_CLICKED;
-}
-#endif//ULTIPANEL
+bool lcd_clicked() { return LCD_CLICKED; }
 
-/********************************/
-/** Float conversion utilities **/
-/********************************/
-//  convert float to string with +123.4 format
+#endif //ULTIPANEL
+
+/*********************************/
+/** Number to string conversion **/
+/*********************************/
+
 char conv[8];
-char *ftostr3(const float &x)
-{
+
+// Convert float to string with +123.4 format
+char *ftostr3(const float &x) {
   return itostr3((int)x);
 }
 
+// Convert int to string with 12 format
 char *itostr2(const uint8_t &x)
 {
   //sprintf(conv,"%5.1f",x);
@@ -1431,7 +1414,7 @@ char *itostr2(const uint8_t &x)
   return conv;
 }
 
-//  convert float to string with +123.4 format
+// Convert float to string with +123.4 format
 char *ftostr31(const float &x)
 {
   int xx=x*10;
@@ -1446,7 +1429,7 @@ char *ftostr31(const float &x)
   return conv;
 }
 
-//  convert float to string with 123.4 format
+// Convert float to string with 123.4 format, dropping sign
 char *ftostr31ns(const float &x)
 {
   int xx=x*10;
@@ -1461,6 +1444,7 @@ char *ftostr31ns(const float &x)
   return conv;
 }
 
+// Convert float to space-padded string with -_23.4_ format
 char *ftostr32(const float &x)
 {
   long xx=x*100;
@@ -1492,6 +1476,7 @@ char *ftostr12ns(const float &x)
   return conv;
 }
 
+// Convert int to lj string with +123.0 format
 char *itostr31(const int &xx)
 {
   conv[0]=(xx>=0)?'+':'-';
@@ -1524,6 +1509,7 @@ char *itostr3(const int &x)
   return conv;
 }
 
+// Convert int to lj string with 123 format
 char *itostr3left(const int &xx)
 {
   if (xx >= 100)
@@ -1557,7 +1543,7 @@ char *itostr4(const int &xx) {
   return conv;
 }
 
-//  convert float to rj string with 12345 format
+// Convert float to rj string with 12345 format
 char *ftostr5(const float &x) {
   long xx = abs(x);
   conv[0] = xx >= 10000 ? (xx / 10000) % 10 + '0' : ' ';
