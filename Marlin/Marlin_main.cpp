@@ -329,6 +329,9 @@ bool cancel_heatup = false ;
   int meas_delay_cm = MEASUREMENT_DELAY_CM;  //distance delay setting
 #endif
 
+const char errormagic[] PROGMEM = "Error:";
+const char echomagic[] PROGMEM = "echo:";
+
 //===========================================================================
 //=============================Private Variables=============================
 //===========================================================================
