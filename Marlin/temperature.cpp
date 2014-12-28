@@ -180,6 +180,7 @@ void PID_autotune(float temp, int extruder, int ncycles)
   unsigned long temp_millis = millis();
   unsigned long t1=temp_millis;
   unsigned long t2=temp_millis;
+  unsigned long min_half_period = 5000;
   long t_high = 0;
   long t_low = 0;
 
@@ -225,26 +226,28 @@ void PID_autotune(float temp, int extruder, int ncycles)
       max=max(max,input);
       min=min(min,input);
       if(heating == true && input > temp) {
-        if(millis() - t2 > 5000) { 
+        if(millis() - t2 >= min_half_period || input > temp + 15) {
           heating=false;
           if (extruder<0)
-            soft_pwm_bed = (bias - d) >> 1;
+            soft_pwm_bed = constrain((bias - d) >> 1, 0, PID_MAX);
           else
-            soft_pwm[extruder] = (bias - d) >> 1;
+            soft_pwm[extruder] = constrain((bias - d) >> 1, 0, PID_MAX);
+          if(min_half_period > millis() - t2)
+            min_half_period = millis() - t2;
           t1=millis();
           t_high=t1 - t2;
           max=temp;
         }
       }
       if(heating == false && input < temp) {
-        if(millis() - t1 > 5000) {
+        if(millis() - t1 >= min_half_period) {
           heating=true;
           t2=millis();
           t_low=t2 - t1;
           if(cycles > 0) {
             bias += (d*(t_high - t_low))/(t_low + t_high);
-            bias = constrain(bias, 20 ,(extruder<0?(MAX_BED_POWER):(PID_MAX))-20);
-            if(bias > (extruder<0?(MAX_BED_POWER):(PID_MAX))/2) d = (extruder<0?(MAX_BED_POWER):(PID_MAX)) - 1 - bias;
+            bias = constrain(bias, 1 ,(extruder<0?(MAX_BED_POWER):(PID_MAX))-1);
+            if(bias > (extruder<0?(MAX_BED_POWER):(PID_MAX))/2) d = (extruder<0?(MAX_BED_POWER):(PID_MAX)) - bias;
             else d = bias;
 
             SERIAL_PROTOCOLPGM(" bias: "); SERIAL_PROTOCOL(bias);
@@ -282,9 +285,9 @@ void PID_autotune(float temp, int extruder, int ncycles)
             }
           }
           if (extruder<0)
-            soft_pwm_bed = (bias + d) >> 1;
+            soft_pwm_bed = constrain((bias + d) >> 1, 0, PID_MAX);
           else
-            soft_pwm[extruder] = (bias + d) >> 1;
+            soft_pwm[extruder] = constrain((bias + d) >> 1, 0, PID_MAX);
           cycles++;
           min=temp;
         }
@@ -412,6 +415,14 @@ void checkExtruderAutoFans()
 
 #endif // any extruder auto fan pins set
 
+// Backward compatibility stub:
+#ifndef PID_FUNCTIONAL_RANGE_UP
+  #define PID_FUNCTIONAL_RANGE_UP PID_FUNCTIONAL_RANGE
+#endif
+#ifndef PID_FUNCTIONAL_RANGE_DOWN
+  #define PID_FUNCTIONAL_RANGE_DOWN PID_FUNCTIONAL_RANGE
+#endif
+
 void manage_heater()
 {
   float pid_input;
@@ -434,27 +445,29 @@ void manage_heater()
 
     #ifndef PID_OPENLOOP
         pid_error[e] = target_temperature[e] - pid_input;
-        if(pid_error[e] > PID_FUNCTIONAL_RANGE) {
+        if(pid_error[e] > PID_FUNCTIONAL_RANGE_DOWN) {
           pid_output = BANG_MAX;
           pid_reset[e] = true;
         }
-        else if(pid_error[e] < -PID_FUNCTIONAL_RANGE || target_temperature[e] == 0) {
+        else if(pid_error[e] < -PID_FUNCTIONAL_RANGE_UP || target_temperature[e] == 0) {
           pid_output = 0;
           pid_reset[e] = true;
         }
         else {
-          if(pid_reset[e] == true) {
-            temp_iState[e] = 0.0;
-            pid_reset[e] = false;
-          }
           pTerm[e] = Kp * pid_error[e];
-          temp_iState[e] += pid_error[e];
-          temp_iState[e] = constrain(temp_iState[e], temp_iState_min[e], temp_iState_max[e]);
-          iTerm[e] = Ki * temp_iState[e];
-
           //K1 defined in Configuration.h in the PID settings
           #define K2 (1.0-K1)
           dTerm[e] = (Kd * (pid_input - temp_dState[e]))*K2 + (K1 * dTerm[e]);
+
+          if(pid_reset[e] == true) {
+            temp_iState[e] = ((soft_pwm[e]<<1) - pTerm[e] + dTerm[e]) / Ki;
+            pid_reset[e] = false;
+          } else {
+            temp_iState[e] += pid_error[e];
+          }
+          temp_iState[e] = constrain(temp_iState[e], temp_iState_min[e], temp_iState_max[e]);
+          iTerm[e] = Ki * temp_iState[e];
+
           pid_output = constrain(pTerm[e] + iTerm[e] - dTerm[e], 0, PID_MAX);
         }
         temp_dState[e] = pid_input;
@@ -784,7 +797,7 @@ void tp_init()
 #endif //PIDTEMP
 #ifdef PIDTEMPBED
     temp_iState_min_bed = 0.0;
-    temp_iState_max_bed = PID_INTEGRAL_DRIVE_MAX / bedKi;
+    temp_iState_max_bed = PID_INTEGRAL_DRIVE_MAX_BED / bedKi;
 #endif //PIDTEMPBED
   }
 
