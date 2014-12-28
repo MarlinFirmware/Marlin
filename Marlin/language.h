@@ -42,8 +42,11 @@
   #define MACHINE_NAME "3Drag"
   #define FIRMWARE_URL "http://3dprint.elettronicain.it/"
 #elif MB(5DPRINT)
-  #define MACHINE_NAME "Makibox"
-  #define FIRMWARE_URL "https://github.com/ErikZalm/Marlin/"
+	#define MACHINE_NAME "Makibox"
+	#define FIRMWARE_URL "https://github.com/ErikZalm/Marlin/"
+#elif MB(SAV_MKI)
+	#define MACHINE_NAME "SAV MkI"
+	#define FIRMWARE_URL "https://github.com/fmalpartida/Marlin/tree/SAV-MkI-config"
 #else
   #ifdef CUSTOM_MENDEL_NAME
     #define MACHINE_NAME CUSTOM_MENDEL_NAME
