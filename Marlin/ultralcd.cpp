@@ -7,6 +7,13 @@
 #include "temperature.h"
 #include "stepper.h"
 #include "ConfigurationStore.h"
+#if NUM_SERVOS > 0
+#include "Servo.h"
+#endif
+
+#if NUM_SERVOS > 0
+extern Servo servos[NUM_SERVOS];
+#endif
 
 int8_t encoderDiff; /* encoderDiff is updated from interrupt context and added to encoderPosition every LCD update */
 
@@ -785,12 +792,275 @@ static void lcd_control_temperature_preheat_abs_settings_menu()
     END_MENU();
 }
 
+#ifdef SERVO_ENDSTOPS
+static void x_servo_extend()
+{
+    if (encoderPosition != 0)
+    {
+        servo_endstop_angles[X_AXIS * 2] += (int)encoderPosition;
+        if (servo_endstop_angles[X_AXIS * 2] < 0)
+            servo_endstop_angles[X_AXIS * 2] = 0;
+        if (servo_endstop_angles[X_AXIS * 2] > 180)
+            servo_endstop_angles[X_AXIS * 2] = 180;
+        encoderPosition = 0;
+        lcdDrawUpdate = 1;
+    }
+    if (lcdDrawUpdate)
+    {
+        lcd_implementation_drawedit(PSTR("X Extend "), ftostr3(servo_endstop_angles[X_AXIS * 2]));
+    }
+    if (LCD_CLICKED)
+    {
+        lcd_quick_feedback();
+        currentMenu = lcd_control_motion_menu;
+        encoderPosition = 0;
+#if PROBE_SERVO_DEACTIVATION_DELAY > 0
+        if(! servos[servo_endstops[X_AXIS]].attached() )
+            servos[servo_endstops[X_AXIS]].attach(0);
+#endif
+        servos[servo_endstops[X_AXIS]].write(servo_endstop_angles[X_AXIS * 2]);
+#if PROBE_SERVO_DEACTIVATION_DELAY > 0
+        delay(PROBE_SERVO_DEACTIVATION_DELAY);
+        servos[servo_endstops[X_AXIS]].detach();
+#endif
+    }
+    else
+    {
+#if PROBE_SERVO_DEACTIVATION_DELAY > 0
+        if(! servos[servo_endstops[X_AXIS]].attached() )
+            servos[servo_endstops[X_AXIS]].attach(0);
+#endif
+        servos[servo_endstops[X_AXIS]].write(servo_endstop_angles[X_AXIS * 2]);
+    }
+}
+
+static void x_servo_retract()
+{
+    if (encoderPosition != 0)
+    {
+        servo_endstop_angles[X_AXIS * 2 + 1] += (int)encoderPosition;
+        if (servo_endstop_angles[X_AXIS * 2 + 1] < 0)
+            servo_endstop_angles[X_AXIS * 2 + 1] = 0;
+        if (servo_endstop_angles[X_AXIS * 2 + 1] > 180)
+            servo_endstop_angles[X_AXIS * 2 + 1] = 180;
+        encoderPosition = 0;
+        lcdDrawUpdate = 1;
+    }
+    if (lcdDrawUpdate)
+    {
+        lcd_implementation_drawedit(PSTR("X Retract "), ftostr3(servo_endstop_angles[X_AXIS * 2 + 1]));
+    }
+    if (LCD_CLICKED)
+    {
+        lcd_quick_feedback();
+        currentMenu = lcd_control_motion_menu;
+        encoderPosition = 0;
+#if PROBE_SERVO_DEACTIVATION_DELAY > 0
+        if(! servos[servo_endstops[X_AXIS]].attached() )
+            servos[servo_endstops[X_AXIS]].attach(0);
+#endif
+        servos[servo_endstops[X_AXIS]].write(servo_endstop_angles[X_AXIS * 2 + 1]);
+#if PROBE_SERVO_DEACTIVATION_DELAY > 0
+        delay(PROBE_SERVO_DEACTIVATION_DELAY);
+        servos[servo_endstops[X_AXIS]].detach();
+#endif
+    }
+    else
+    {
+#if PROBE_SERVO_DEACTIVATION_DELAY > 0
+        if(! servos[servo_endstops[X_AXIS]].attached() )
+            servos[servo_endstops[X_AXIS]].attach(0);
+#endif
+        servos[servo_endstops[X_AXIS]].write(servo_endstop_angles[X_AXIS * 2 + 1]);
+    }
+}
+
+static void y_servo_extend()
+{
+    if (encoderPosition != 0)
+    {
+        servo_endstop_angles[Y_AXIS * 2] += (int)encoderPosition;
+        if (servo_endstop_angles[Y_AXIS * 2] < 0)
+            servo_endstop_angles[Y_AXIS * 2] = 0;
+        if (servo_endstop_angles[Y_AXIS * 2] > 180)
+            servo_endstop_angles[Y_AXIS * 2] = 180;
+        encoderPosition = 0;
+        lcdDrawUpdate = 1;
+    }
+    if (lcdDrawUpdate)
+    {
+        lcd_implementation_drawedit(PSTR("Y Extend"), ftostr3(servo_endstop_angles[Y_AXIS * 2]));
+    }
+    if (LCD_CLICKED)
+    {
+        lcd_quick_feedback();
+        currentMenu = lcd_control_motion_menu;
+        encoderPosition = 0;
+#if PROBE_SERVO_DEACTIVATION_DELAY > 0
+        if(! servos[servo_endstops[Y_AXIS]].attached() )
+            servos[servo_endstops[Y_AXIS]].attach(0);
+#endif
+        servos[servo_endstops[Y_AXIS]].write(servo_endstop_angles[Y_AXIS * 2]);
+#if PROBE_SERVO_DEACTIVATION_DELAY > 0
+        delay(PROBE_SERVO_DEACTIVATION_DELAY);
+        servos[servo_endstops[Y_AXIS]].detach();
+#endif
+    }
+    else
+    {
+#if PROBE_SERVO_DEACTIVATION_DELAY > 0
+		if(! servos[servo_endstops[Y_AXIS]].attached() )
+            servos[servo_endstops[Y_AXIS]].attach(0);
+#endif
+        servos[servo_endstops[Y_AXIS]].write(servo_endstop_angles[Y_AXIS * 2]);
+    }
+}
+
+static void y_servo_retract()
+{
+    if (encoderPosition != 0)
+    {
+        servo_endstop_angles[Y_AXIS * 2 + 1] += (int)encoderPosition;
+        if (servo_endstop_angles[Y_AXIS * 2 + 1] < 0)
+            servo_endstop_angles[Y_AXIS * 2 + 1] = 0;
+        if (servo_endstop_angles[Y_AXIS * 2 + 1] > 180)
+            servo_endstop_angles[Y_AXIS * 2 + 1] = 180;
+        encoderPosition = 0;
+        lcdDrawUpdate = 1;
+    }
+    if (lcdDrawUpdate)
+    {
+        lcd_implementation_drawedit(PSTR("Y Retract"), ftostr3(servo_endstop_angles[Y_AXIS * 2 + 1]));
+    }
+    if (LCD_CLICKED)
+    {
+        lcd_quick_feedback();
+        currentMenu = lcd_control_motion_menu;
+        encoderPosition = 0;
+#if PROBE_SERVO_DEACTIVATION_DELAY > 0
+		if(! servos[servo_endstops[Y_AXIS]].attached() )
+            servos[servo_endstops[Y_AXIS]].attach(0);
+#endif
+        servos[servo_endstops[Y_AXIS]].write(servo_endstop_angles[Y_AXIS * 2 + 1]);
+#if PROBE_SERVO_DEACTIVATION_DELAY > 0
+        delay(PROBE_SERVO_DEACTIVATION_DELAY);
+        servos[servo_endstops[Y_AXIS]].detach();
+#endif
+    }
+    else
+    {
+#if PROBE_SERVO_DEACTIVATION_DELAY > 0
+        if(! servos[servo_endstops[Y_AXIS]].attached() )
+            servos[servo_endstops[Y_AXIS]].attach(0);
+#endif
+        servos[servo_endstops[Y_AXIS]].write(servo_endstop_angles[Y_AXIS * 2 + 1]);
+    }
+}
+
+static void z_servo_extend()
+{
+    if (encoderPosition != 0)
+    {
+        servo_endstop_angles[Z_AXIS * 2] += (int)encoderPosition;
+        if (servo_endstop_angles[Z_AXIS * 2] < 0)
+            servo_endstop_angles[Z_AXIS * 2] = 0;
+        if (servo_endstop_angles[Z_AXIS * 2] > 180)
+            servo_endstop_angles[Z_AXIS * 2] = 180;
+        encoderPosition = 0;
+        lcdDrawUpdate = 1;
+    }
+    if (lcdDrawUpdate)
+    {
+        lcd_implementation_drawedit(PSTR("Z Extend"), ftostr3(servo_endstop_angles[Z_AXIS * 2]));
+    }
+    if (LCD_CLICKED)
+    {
+        lcd_quick_feedback();
+        currentMenu = lcd_control_motion_menu;
+        encoderPosition = 0;
+#if PROBE_SERVO_DEACTIVATION_DELAY > 0
+		if(! servos[servo_endstops[Z_AXIS]].attached() )
+            servos[servo_endstops[Z_AXIS]].attach(0);
+#endif
+        servos[servo_endstops[Z_AXIS]].write(servo_endstop_angles[Z_AXIS * 2 + 1]);
+#if PROBE_SERVO_DEACTIVATION_DELAY > 0
+        delay(PROBE_SERVO_DEACTIVATION_DELAY);
+        servos[servo_endstops[Z_AXIS]].detach();
+#endif
+    }
+    else
+    {
+#if PROBE_SERVO_DEACTIVATION_DELAY > 0
+		if(! servos[servo_endstops[Z_AXIS]].attached() )
+            servos[servo_endstops[Z_AXIS]].attach(0);
+#endif
+        servos[servo_endstops[Z_AXIS]].write(servo_endstop_angles[Z_AXIS * 2]);
+    }
+}
+
+static void z_servo_retract()
+{
+    if (encoderPosition != 0)
+    {
+        servo_endstop_angles[Z_AXIS * 2 + 1] += (int)encoderPosition;
+        if (servo_endstop_angles[Z_AXIS * 2 + 1] < 0)
+            servo_endstop_angles[Z_AXIS * 2 + 1] = 0;
+        if (servo_endstop_angles[Z_AXIS * 2 + 1] > 180)
+            servo_endstop_angles[Z_AXIS * 2 + 1] = 180;
+        encoderPosition = 0;
+        lcdDrawUpdate = 1;
+    }
+    if (lcdDrawUpdate)
+    {
+        lcd_implementation_drawedit(PSTR("Z Retract"), ftostr3(servo_endstop_angles[Z_AXIS * 2 + 1]));
+    }
+    if (LCD_CLICKED)
+    {
+        lcd_quick_feedback();
+        currentMenu = lcd_control_motion_menu;
+        encoderPosition = 0;
+#if PROBE_SERVO_DEACTIVATION_DELAY > 0
+		if(! servos[servo_endstops[Z_AXIS]].attached() )
+            servos[servo_endstops[Z_AXIS]].attach(0);
+#endif
+        servos[servo_endstops[Z_AXIS]].write(servo_endstop_angles[Z_AXIS * 2 + 1]);
+#if PROBE_SERVO_DEACTIVATION_DELAY > 0
+        delay(PROBE_SERVO_DEACTIVATION_DELAY);
+        servos[servo_endstops[Z_AXIS]].detach();
+#endif
+    }
+    else
+    {
+#if PROBE_SERVO_DEACTIVATION_DELAY > 0
+		if(! servos[servo_endstops[Z_AXIS]].attached() )
+            servos[servo_endstops[Z_AXIS]].attach(0);
+#endif
+        servos[servo_endstops[Z_AXIS]].write(servo_endstop_angles[Z_AXIS * 2 + 1]);
+    }
+}
+#endif
+
+
 static void lcd_control_motion_menu()
 {
     START_MENU();
     MENU_ITEM(back, MSG_CONTROL, lcd_control_menu);
 #ifdef ENABLE_AUTO_BED_LEVELING
     MENU_ITEM_EDIT(float32, MSG_ZPROBE_ZOFFSET, &zprobe_zoffset, 0.5, 50);
+#endif
+#ifdef SERVO_ENDSTOPS
+if (servo_endstops[X_AXIS] > -1) {
+	MENU_ITEM(submenu, MSG_X_SERVO_EXTEND, x_servo_extend);
+    MENU_ITEM(submenu, MSG_X_SERVO_RETRACT, x_servo_retract);
+}
+if (servo_endstops[Y_AXIS] > -1) {
+    MENU_ITEM(submenu, MSG_Y_SERVO_EXTEND, y_servo_extend);
+    MENU_ITEM(submenu, MSG_Y_SERVO_RETRACT, y_servo_retract);
+}
+if (servo_endstops[Z_AXIS] > -1) {
+    MENU_ITEM(submenu, MSG_Z_SERVO_EXTEND, z_servo_extend);
+    MENU_ITEM(submenu, MSG_Z_SERVO_RETRACT, z_servo_retract);
+}
 #endif
     MENU_ITEM_EDIT(float5, MSG_ACC, &acceleration, 500, 99000);
     MENU_ITEM_EDIT(float3, MSG_VXY_JERK, &max_xy_jerk, 1, 990);
