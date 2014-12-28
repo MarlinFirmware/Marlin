@@ -1256,6 +1256,13 @@ void lcd_finishstatus() {
     message_millis = millis();  //get status message to show up for a while
   #endif
 }
+void lcd_setstatus(const char* message)
+{
+    if (lcd_status_message_level > 0)
+        return;
+    strncpy(lcd_status_message, message, LCD_WIDTH);
+    lcd_finishstatus();
+}
 void lcd_setstatuspgm(const char* message)
 {
     if (lcd_status_message_level > 0)
@@ -1267,9 +1274,9 @@ void lcd_setalertstatuspgm(const char* message)
 {
     lcd_setstatuspgm(message);
     lcd_status_message_level = 1;
-#ifdef ULTIPANEL
+  #ifdef ULTIPANEL
     lcd_return_to_status();
-#endif//ULTIPANEL
+  #endif
 }
 
 void lcd_reset_alert_level() { lcd_status_message_level = 0; }
