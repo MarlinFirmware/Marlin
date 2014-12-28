@@ -230,7 +230,7 @@ extern volatile uint16_t buttons;  //an extended version of the last checked but
 
 static void lcd_set_custom_characters(
   #if defined(LCD_PROGRESS_BAR) && defined(SDSUPPORT)
-    bool progress_bar=true
+    bool progress_bar_set=true
   #endif
 ) {
   byte bedTemp[8] = {
@@ -344,14 +344,14 @@ static void lcd_set_custom_characters(
       B10101,
       B00000
     } };
-    if (progress_bar != char_mode) {
-      char_mode = progress_bar;
+    if (progress_bar_set != char_mode) {
+      char_mode = progress_bar_set;
       lcd.createChar(LCD_STR_BEDTEMP[0], bedTemp);
       lcd.createChar(LCD_STR_DEGREE[0], degree);
       lcd.createChar(LCD_STR_THERMOMETER[0], thermometer);
       lcd.createChar(LCD_STR_FEEDRATE[0], feedrate);
       lcd.createChar(LCD_STR_CLOCK[0], clock);
-      if (progress_bar) {
+      if (progress_bar_set) {
         // Progress bar characters for info screen
         for (int i=3; i--;) lcd.createChar(LCD_STR_PROGRESS[i], progress[i]);
       }
@@ -376,7 +376,7 @@ static void lcd_set_custom_characters(
 
 static void lcd_implementation_init(
 #if defined(LCD_PROGRESS_BAR) && defined(SDSUPPORT)
-  bool progress_bar=true
+  bool progress_bar_set=true
 #endif
 )
 {
@@ -406,7 +406,7 @@ static void lcd_implementation_init(
 
     lcd_set_custom_characters(
 #if defined(LCD_PROGRESS_BAR) && defined(SDSUPPORT)
-        progress_bar
+        progress_bar_set
 #endif
     );
 
@@ -581,20 +581,6 @@ static void lcd_implementation_status_screen()
     }
 #endif
 
-    //Display both Status message line and Filament display on the last line
-    #ifdef FILAMENT_LCD_DISPLAY
-      if(message_millis+5000>millis()){  //display any status for the first 5 sec after screen is initiated
-         	 lcd.setCursor(0, LCD_HEIGHT - 1);
-        	 lcd.print(lcd_status_message);
-        } else {
-		     lcd.setCursor(0,LCD_HEIGHT - 1);
-		     lcd_printPGM(PSTR("Dia "));
-		     lcd.print(ftostr12ns(filament_width_meas));
-		     lcd_printPGM(PSTR(" V"));
-		     lcd.print(itostr3(100.0*volumetric_multiplier[FILAMENT_SENSOR_EXTRUDER_NUM]));
-    		 lcd.print('%');
-        }
-    #else
     // Status message line at the bottom
     lcd.setCursor(0, LCD_HEIGHT - 1);
 
@@ -619,8 +605,20 @@ static void lcd_implementation_status_screen()
         }
     } //card.isFileOpen
 #endif //LCD_PROGRESS_BAR
-    lcd.print(lcd_status_message);
+
+    // Display both Status message line and Filament display on the last line
+#ifdef FILAMENT_LCD_DISPLAY
+    if (message_millis + 5000 <= millis()) {  //display any status for the first 5 sec after screen is initiated
+        lcd_printPGM(PSTR("Dia "));
+        lcd.print(ftostr12ns(filament_width_meas));
+        lcd_printPGM(PSTR(" V"));
+        lcd.print(itostr3(100.0*volumetric_multiplier[FILAMENT_SENSOR_EXTRUDER_NUM]));
+        lcd.print('%');
+        return;
+    }
 #endif // FILAMENT_LCD_DISPLAY
+
+    lcd.print(lcd_status_message);
 }
 static void lcd_implementation_drawmenu_generic(uint8_t row, const char* pstr, char pre_char, char post_char)
 {
