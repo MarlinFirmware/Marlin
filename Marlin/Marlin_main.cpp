@@ -329,11 +329,14 @@ bool cancel_heatup = false ;
   int meas_delay_cm = MEASUREMENT_DELAY_CM;  //distance delay setting
 #endif
 
+const char errormagic[] = "Error:";
+const char echomagic[] = "echo:";
+
 //===========================================================================
 //=============================Private Variables=============================
 //===========================================================================
 const char axis_codes[NUM_AXIS] = {'X', 'Y', 'Z', 'E'};
-static float destination[NUM_AXIS] = {  0.0, 0.0, 0.0, 0.0};
+static float destination[NUM_AXIS] = {0.0, 0.0, 0.0, 0.0};
 
 #ifndef DELTA
 static float delta[3] = {0.0, 0.0, 0.0};
