@@ -124,6 +124,8 @@
 #define MSG_BABYSTEP_Y                      "Babystap Y"
 #define MSG_BABYSTEP_Z                      "Babystap Z"
 #define MSG_ENDSTOP_ABORT                   "Endstop afbr."
+#define MSG_CALIBRATE_Z_OFFSET              "Calibrate Zoffset"
+#define MSG_CALIBRATE_WAIT                  "Please wait"
 
 #define MSG_RECTRACT                        "Terugtrekken"
 

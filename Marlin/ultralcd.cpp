@@ -192,6 +192,9 @@ static void lcd_goto_menu(menuFunc_t menu, const uint32_t encoder=0, const bool 
   }
 }
 
+// Pause for timeout that forces to return to main menu. Is used for long commands.
+bool pauseTimeoutToStatus = false;
+
 /* Main status screen. It's up to the implementation specific part to show what is needed. As this is very display dependent */
 static void lcd_status_screen()
 {
@@ -376,6 +379,89 @@ void lcd_set_home_offsets()
   static void lcd_babystep_z() { _lcd_babystep(Z_AXIS, MSG_BABYSTEPPING_Z); }
 
 #endif //BABYSTEPPING
+
+#ifdef ENABLE_AUTO_BED_LEVELING
+static void lcd_calibrate_z_offset_tune()
+{
+    if (encoderPosition != 0)
+    {
+        zprobe_zoffset+=0.1*float((int)encoderPosition);
+
+        current_position[Z_AXIS]-=0.1*float((int)encoderPosition);
+        if (min_software_endstops && current_position[Z_AXIS] < Z_MIN_POS)
+            current_position[Z_AXIS] = Z_MIN_POS;
+        if (max_software_endstops && current_position[Z_AXIS] > Z_MAX_POS)
+            current_position[Z_AXIS] = Z_MAX_POS;
+        encoderPosition = 0;
+        #ifdef DELTA
+        calculate_delta(current_position);
+        plan_buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], current_position[E_AXIS], (homing_feedrate[Z_AXIS]/60)/4, active_extruder);
+        #else
+        plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], (homing_feedrate[Z_AXIS]/60)/4, active_extruder);
+        #endif
+
+        lcdDrawUpdate = 1;
+    }
+    if (lcdDrawUpdate)
+    {
+        lcd_implementation_drawedit(PSTR(MSG_ZPROBE_ZOFFSET), ftostr51(zprobe_zoffset));
+    }
+    if (LCD_CLICKED)
+    {
+        lcd_quick_feedback();
+        currentMenu = lcd_status_screen;
+        encoderPosition = 0;
+
+        // Move up a little bit
+        current_position[Z_AXIS] = Z_RAISE_BEFORE_HOMING;
+        #ifdef DELTA
+        calculate_delta(current_position);
+        plan_buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], current_position[E_AXIS], homing_feedrate[Z_AXIS]/60, active_extruder);
+        #else
+        plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], homing_feedrate[Z_AXIS]/60, active_extruder);
+        #endif
+        Config_StoreSettings();
+
+      }
+}
+
+static void lcd_calibrate_z_offset_wait()
+{
+    if( !movesplanned() )
+    {
+      lcdDrawUpdate = 1;
+      lcd_implementation_drawedit(PSTR(MSG_ZPROBE_ZOFFSET), ftostr51(zprobe_zoffset));
+      currentMenu = lcd_calibrate_z_offset_tune;
+      pauseTimeoutToStatus = false;
+    }
+    else
+    {
+      lcdDrawUpdate = 1;
+      lcd_implementation_drawedit(PSTR(MSG_CALIBRATE_WAIT), "");
+    }
+}
+
+static void lcd_calibrate_z_offset_prepare()
+{
+
+    char cmd[30];
+#if BUFSIZE < 4
+#error Please increase BUFSIZE value. Calibration script needs at least 4 commands buffer
+#endif
+    // Home all axis
+    enquecommand_P(PSTR("G28"));
+    // Probe the build plate
+    enquecommand_P(PSTR("G29"));
+    // Move up a little bit and move to the middle of the platform with z-axis home speed (usually it is the slowest)
+    sprintf_P(cmd, PSTR("G1 X%i Y%i Z%i"), (X_MIN_POS + X_MAX_POS)/2, (Y_MIN_POS + Y_MAX_POS)/2, Z_RAISE_BEFORE_HOMING);
+    enquecommand(cmd);
+    // Slowly move down to the platform
+    enquecommand_P(PSTR("G1 Z0"));
+
+    pauseTimeoutToStatus = true;
+    currentMenu = lcd_calibrate_z_offset_wait;
+}
+#endif //ENABLE_AUTO_BED_LEVELING
 
 static void lcd_tune_menu()
 {
@@ -597,6 +683,9 @@ static void lcd_prepare_menu()
     }
 #endif
     MENU_ITEM(submenu, MSG_MOVE_AXIS, lcd_move_menu);
+#ifdef ENABLE_AUTO_BED_LEVELING
+    MENU_ITEM(submenu, MSG_CALIBRATE_Z_OFFSET, lcd_calibrate_z_offset_prepare);
+#endif //ENABLE_AUTO_BED_LEVELING
     END_MENU();
 }
 
@@ -1186,10 +1275,15 @@ void lcd_update()
 #endif
 
 #ifdef ULTIPANEL
-        if(timeoutToStatus < millis() && currentMenu != lcd_status_screen)
+        if(timeoutToStatus < millis() && currentMenu != lcd_status_screen && !pauseTimeoutToStatus)
         {
             lcd_return_to_status();
             lcdDrawUpdate = 2;
+        }
+        else if(pauseTimeoutToStatus)
+        {
+            // Reset timeout
+            timeoutToStatus = millis() + LCD_TIMEOUT_TO_STATUS;
         }
 #endif//ULTIPANEL
         if (lcdDrawUpdate == 2)
