@@ -1263,6 +1263,13 @@ void lcd_setstatus(const char* message)
     strncpy(lcd_status_message, message, LCD_WIDTH);
     lcd_finishstatus();
 }
+void lcd_setstatus(const char* message)
+{
+    if (lcd_status_message_level > 0)
+        return;
+    strncpy(lcd_status_message, message, LCD_WIDTH);
+    lcd_finishstatus();
+}
 void lcd_setstatuspgm(const char* message)
 {
     if (lcd_status_message_level > 0)
