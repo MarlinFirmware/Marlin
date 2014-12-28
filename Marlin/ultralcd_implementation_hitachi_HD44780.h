@@ -208,6 +208,14 @@ extern volatile uint16_t buttons;  //an extended version of the last checked but
   LCD_CLASS lcd(LCD_PINS_RS, LCD_PINS_ENABLE, LCD_PINS_D4, LCD_PINS_D5,LCD_PINS_D6,LCD_PINS_D7);  //RS,Enable,D4,D5,D6,D7
 #endif
 
+#if defined(LCD_PROGRESS_BAR) && defined(SDSUPPORT)
+  static uint16_t progressBarTick = 0;
+  #if PROGRESS_MSG_EXPIRE > 0
+    static uint16_t messageTick = 0;
+  #endif
+  #define LCD_STR_PROGRESS  "\x03\x04\x05"
+#endif
+
 /* Custom characters defined in the first 8 characters of the LCD */
 #define LCD_STR_BEDTEMP     "\x00"
 #define LCD_STR_DEGREE      "\x01"
@@ -219,91 +227,157 @@ extern volatile uint16_t buttons;  //an extended version of the last checked but
 #define LCD_STR_CLOCK       "\x07"
 #define LCD_STR_ARROW_RIGHT "\x7E"  /* from the default character set */
 
-static void lcd_implementation_init()
-{
-    byte bedTemp[8] =
-    {
-        B00000,
-        B11111,
-        B10101,
-        B10001,
-        B10101,
-        B11111,
-        B00000,
-        B00000
-    }; //thanks Sonny Mounicou
-    byte degree[8] =
-    {
-        B01100,
-        B10010,
-        B10010,
-        B01100,
-        B00000,
-        B00000,
-        B00000,
-        B00000
-    };
-    byte thermometer[8] =
-    {
-        B00100,
-        B01010,
-        B01010,
-        B01010,
-        B01010,
-        B10001,
-        B10001,
-        B01110
-    };
-    byte uplevel[8]={
-        B00100,
-        B01110,
-        B11111,
-        B00100,
-        B11100,
-        B00000,
-        B00000,
-        B00000
-    }; //thanks joris
-    byte refresh[8]={
-        B00000,
-        B00110,
-        B11001,
-        B11000,
-        B00011,
-        B10011,
-        B01100,
-        B00000,
-    }; //thanks joris
-    byte folder [8]={
-        B00000,
-        B11100,
-        B11111,
-        B10001,
-        B10001,
-        B11111,
-        B00000,
-        B00000
-    }; //thanks joris
-    byte feedrate [8]={
-        B11100,
-        B10000,
-        B11000,
-        B10111,
-        B00101,
-        B00110,
-        B00101,
-        B00000
-    }; //thanks Sonny Mounicou
-    byte clock [8]={
-        B00000,
-        B01110,
-        B10011,
-        B10101,
-        B10001,
-        B01110,
-        B00000,
-        B00000
-    }; //thanks Sonny Mounicou
+static void lcd_set_custom_characters(
+  #if defined(LCD_PROGRESS_BAR) && defined(SDSUPPORT)
+    bool progress_bar_set=true
+  #endif
+) {
+  byte bedTemp[8] = {
+    B00000,
+    B11111,
+    B10101,
+    B10001,
+    B10101,
+    B11111,
+    B00000,
+    B00000
+  }; //thanks Sonny Mounicou
+  byte degree[8] = {
+    B01100,
+    B10010,
+    B10010,
+    B01100,
+    B00000,
+    B00000,
+    B00000,
+    B00000
+  };
+  byte thermometer[8] = {
+    B00100,
+    B01010,
+    B01010,
+    B01010,
+    B01010,
+    B10001,
+    B10001,
+    B01110
+  };
+  byte uplevel[8] = {
+    B00100,
+    B01110,
+    B11111,
+    B00100,
+    B11100,
+    B00000,
+    B00000,
+    B00000
+  }; //thanks joris
+  byte refresh[8] = {
+    B00000,
+    B00110,
+    B11001,
+    B11000,
+    B00011,
+    B10011,
+    B01100,
+    B00000,
+  }; //thanks joris
+  byte folder[8] = {
+    B00000,
+    B11100,
+    B11111,
+    B10001,
+    B10001,
+    B11111,
+    B00000,
+    B00000
+  }; //thanks joris
+  byte feedrate[8] = {
+    B11100,
+    B10000,
+    B11000,
+    B10111,
+    B00101,
+    B00110,
+    B00101,
+    B00000
+  }; //thanks Sonny Mounicou
+  byte clock[8] = {
+    B00000,
+    B01110,
+    B10011,
+    B10101,
+    B10001,
+    B01110,
+    B00000,
+    B00000
+  }; //thanks Sonny Mounicou
+
+  #if defined(LCD_PROGRESS_BAR) && defined(SDSUPPORT)
+    static bool char_mode = false;
+    byte progress[3][8] = { {
+      B00000,
+      B10000,
+      B10000,
+      B10000,
+      B10000,
+      B10000,
+      B10000,
+      B00000
+    }, {
+      B00000,
+      B10100,
+      B10100,
+      B10100,
+      B10100,
+      B10100,
+      B10100,
+      B00000
+    }, {
+      B00000,
+      B10101,
+      B10101,
+      B10101,
+      B10101,
+      B10101,
+      B10101,
+      B00000
+    } };
+    if (progress_bar_set != char_mode) {
+      char_mode = progress_bar_set;
+      lcd.createChar(LCD_STR_BEDTEMP[0], bedTemp);
+      lcd.createChar(LCD_STR_DEGREE[0], degree);
+      lcd.createChar(LCD_STR_THERMOMETER[0], thermometer);
+      lcd.createChar(LCD_STR_FEEDRATE[0], feedrate);
+      lcd.createChar(LCD_STR_CLOCK[0], clock);
+      if (progress_bar_set) {
+        // Progress bar characters for info screen
+        for (int i=3; i--;) lcd.createChar(LCD_STR_PROGRESS[i], progress[i]);
+      }
+      else {
+        // Custom characters for submenus
+        lcd.createChar(LCD_STR_UPLEVEL[0], uplevel);
+        lcd.createChar(LCD_STR_REFRESH[0], refresh);
+        lcd.createChar(LCD_STR_FOLDER[0], folder);
+      }
+    }
+  #else
+    lcd.createChar(LCD_STR_BEDTEMP[0], bedTemp);
+    lcd.createChar(LCD_STR_DEGREE[0], degree);
+    lcd.createChar(LCD_STR_THERMOMETER[0], thermometer);
+    lcd.createChar(LCD_STR_UPLEVEL[0], uplevel);
+    lcd.createChar(LCD_STR_REFRESH[0], refresh);
+    lcd.createChar(LCD_STR_FOLDER[0], folder);
+    lcd.createChar(LCD_STR_FEEDRATE[0], feedrate);
+    lcd.createChar(LCD_STR_CLOCK[0], clock);
+  #endif
+}
+
+static void lcd_implementation_init(
+  #if defined(LCD_PROGRESS_BAR) && defined(SDSUPPORT)
+    bool progress_bar_set=true
+  #endif
+) {
 
 #if defined(LCD_I2C_TYPE_PCF8575)
     lcd.begin(LCD_WIDTH, LCD_HEIGHT);
@@ -329,14 +403,12 @@ static void lcd_implementation_init()
     lcd.begin(LCD_WIDTH, LCD_HEIGHT);
 #endif
 
-    lcd.createChar(LCD_STR_BEDTEMP[0], bedTemp);
-    lcd.createChar(LCD_STR_DEGREE[0], degree);
-    lcd.createChar(LCD_STR_THERMOMETER[0], thermometer);
-    lcd.createChar(LCD_STR_UPLEVEL[0], uplevel);
-    lcd.createChar(LCD_STR_REFRESH[0], refresh);
-    lcd.createChar(LCD_STR_FOLDER[0], folder);
-    lcd.createChar(LCD_STR_FEEDRATE[0], feedrate);
-    lcd.createChar(LCD_STR_CLOCK[0], clock);
+    lcd_set_custom_characters(
+        #if defined(LCD_PROGRESS_BAR) && defined(SDSUPPORT)
+            progress_bar_set
+        #endif
+    );
+
     lcd.clear();
 }
 static void lcd_implementation_clear()
@@ -507,23 +579,46 @@ static void lcd_implementation_status_screen()
     }
 #endif
 
-    //Display both Status message line and Filament display on the last line
-    #ifdef FILAMENT_LCD_DISPLAY
-      if(message_millis+5000>millis()){  //display any status for the first 5 sec after screen is initiated
-         	 lcd.setCursor(0, LCD_HEIGHT - 1);
-        	 lcd.print(lcd_status_message);
-        } else {
-		     lcd.setCursor(0,LCD_HEIGHT - 1);
-		     lcd_printPGM(PSTR("Dia "));
-		     lcd.print(ftostr12ns(filament_width_meas));
-		     lcd_printPGM(PSTR(" V"));
-		     lcd.print(itostr3(100.0*volumetric_multiplier[FILAMENT_SENSOR_EXTRUDER_NUM]));
-    		 lcd.print('%');
+  // Status message line at the bottom
+  lcd.setCursor(0, LCD_HEIGHT - 1);
+
+  #if defined(LCD_PROGRESS_BAR) && defined(SDSUPPORT)
+
+    if (card.isFileOpen()) {
+      uint16_t mil = millis(), diff = mil - progressBarTick;
+      if (diff >= PROGRESS_BAR_MSG_TIME || !lcd_status_message[0]) {
+        // draw the progress bar
+        int tix = (int)(card.percentDone() * LCD_WIDTH * 3) / 100,
+          cel = tix / 3, rem = tix % 3, i = LCD_WIDTH;
+        char msg[LCD_WIDTH+1], b = ' ';
+        msg[i] = '\0';
+        while (i--) {
+          if (i == cel - 1)
+            b = LCD_STR_PROGRESS[2];
+          else if (i == cel && rem != 0)
+            b = LCD_STR_PROGRESS[rem-1];
+          msg[i] = b;
         }
-    #else
-    lcd.setCursor(0, LCD_HEIGHT - 1);
-    lcd.print(lcd_status_message);
-    #endif
+        lcd.print(msg);
+        return;
+      }
+    } //card.isFileOpen
+
+  #endif //LCD_PROGRESS_BAR
+
+  //Display both Status message line and Filament display on the last line
+  #ifdef FILAMENT_LCD_DISPLAY
+    if (message_millis + 5000 <= millis()) {  //display any status for the first 5 sec after screen is initiated
+      lcd_printPGM(PSTR("Dia "));
+      lcd.print(ftostr12ns(filament_width_meas));
+      lcd_printPGM(PSTR(" V"));
+      lcd.print(itostr3(100.0*volumetric_multiplier[FILAMENT_SENSOR_EXTRUDER_NUM]));
+  	  lcd.print('%');
+  	  return;
+    }
+  #endif //FILAMENT_LCD_DISPLAY
+
+  lcd.print(lcd_status_message);
 }
 static void lcd_implementation_drawmenu_generic(uint8_t row, const char* pstr, char pre_char, char post_char)
 {
