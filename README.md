@@ -1,6 +1,5 @@
 Current Status: Bug Fixing
 ===================
-As we are fixing bugs use the development branch: https://github.com/ErikZalm/Marlin/tree/Development
 
 What bugs are we working on: https://github.com/ErikZalm/Marlin/milestones
 
