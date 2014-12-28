@@ -1313,7 +1313,11 @@ static void dock_sled(bool dock, int offset=0) {
  }
 
  if (dock) {
+   #ifdef SLED_DOCKING_OFFSET
    do_blocking_move_to(X_MAX_POS + SLED_DOCKING_OFFSET + offset,
+   #else
+   do_blocking_move_to(X_MAX_POS + offset,
+   #endif
                        current_position[Y_AXIS],
                        current_position[Z_AXIS]);
    // turn off magnet
@@ -1323,13 +1327,18 @@ static void dock_sled(bool dock, int offset=0) {
      z_loc = Z_RAISE_BEFORE_PROBING;
    else
      z_loc = current_position[Z_AXIS];
+
+   #ifdef SLED_DOCKING_OFFSET
    do_blocking_move_to(X_MAX_POS + SLED_DOCKING_OFFSET + offset,
+   #else
+   do_blocking_move_to(X_MAX_POS + offset,
+   #endif
                        Y_PROBE_OFFSET_FROM_EXTRUDER, z_loc);
    // turn on magnet
    digitalWrite(SERVO0_PIN, HIGH);
  }
 }
-#endif
+#endif //Z_PROBE_SLED
 
 void process_commands()
 {
@@ -1572,7 +1581,7 @@ void process_commands()
             current_position[Z_AXIS] = 0;
 
             plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
-            plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate, active_extruder);
+            plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate/60, active_extruder);
             st_synchronize();
             current_position[X_AXIS] = destination[X_AXIS];
             current_position[Y_AXIS] = destination[Y_AXIS];
