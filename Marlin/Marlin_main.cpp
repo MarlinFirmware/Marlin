@@ -3600,28 +3600,39 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
         LCD_ALERTMESSAGEPGM(MSG_FILAMENTCHANGE);
         uint8_t cnt=0;
         while(!lcd_clicked()){
-          cnt++;
-          manage_heater();
-          manage_inactivity();
-          lcd_update();
-          if(cnt==0)
-          {
-          #if BEEPER > 0
-            SET_OUTPUT(BEEPER);
+          #ifndef AUTO_FILAMENT_CHANGE
+			  cnt++;
+			  manage_heater();
+			  manage_inactivity();
+			  lcd_update();
+			  if(cnt==0)
+			  {
+			#if BEEPER > 0
+				SET_OUTPUT(BEEPER);
 
-            WRITE(BEEPER,HIGH);
-            delay(3);
-            WRITE(BEEPER,LOW);
-            delay(3);
-          #else
-			#if !defined(LCD_FEEDBACK_FREQUENCY_HZ) || !defined(LCD_FEEDBACK_FREQUENCY_DURATION_MS)
-              lcd_buzz(1000/6,100);
+				WRITE(BEEPER,HIGH);
+				delay(3);
+				WRITE(BEEPER,LOW);
+				delay(3);
 			#else
-			  lcd_buzz(LCD_FEEDBACK_FREQUENCY_DURATION_MS,LCD_FEEDBACK_FREQUENCY_HZ);
+					#if !defined(LCD_FEEDBACK_FREQUENCY_HZ) || !defined(LCD_FEEDBACK_FREQUENCY_DURATION_MS)
+				lcd_buzz(1000/6,100);
+					#else
+				lcd_buzz(LCD_FEEDBACK_FREQUENCY_DURATION_MS,LCD_FEEDBACK_FREQUENCY_HZ);
+					#endif
 			#endif
-          #endif
           }
+          #else
+          current_position[E_AXIS]+=0.04;
+          plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS],current_position[E_AXIS], 300/60, active_extruder);
+          st_synchronize();
+          #endif
         }
+
+		#ifdef AUTO_FILAMENT_CHANGE
+          current_position[E_AXIS]=0;
+          st_synchronize();
+		#endif
 
         //return to normal
         if(code_seen('L'))
