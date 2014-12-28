@@ -182,16 +182,16 @@ menuFunc_t callbackFunc;
 float raw_Ki, raw_Kd;
 
 static void lcd_goto_menu(menuFunc_t menu, const uint32_t encoder=0, const bool feedback=true) {
-    if (currentMenu != menu) {
-        currentMenu = menu;
-        encoderPosition = encoder;
-        if (feedback) lcd_quick_feedback();
+  if (currentMenu != menu) {
+    currentMenu = menu;
+    encoderPosition = encoder;
+    if (feedback) lcd_quick_feedback();
 
-        // For LCD_PROGRESS_BAR re-initialize the custom characters
-        #if defined(LCD_PROGRESS_BAR) && defined(SDSUPPORT)
-            lcd_set_custom_characters(menu == lcd_status_screen);
-        #endif
-    }
+    // For LCD_PROGRESS_BAR re-initialize the custom characters
+    #if defined(LCD_PROGRESS_BAR) && defined(SDSUPPORT)
+      lcd_set_custom_characters(menu == lcd_status_screen);
+    #endif
+  }
 }
 
 /* Main status screen. It's up to the implementation specific part to show what is needed. As this is very display dependent */
