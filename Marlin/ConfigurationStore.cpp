@@ -264,8 +264,8 @@ SERIAL_ECHOLNPGM("Scaling factors:");
     } else {
         SERIAL_ECHOLNPGM("Filament settings: Disabled");
     }
-} 
 #endif
+}
 #endif
 
 
