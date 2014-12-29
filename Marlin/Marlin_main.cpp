@@ -3616,7 +3616,7 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
         while(!lcd_clicked()){
           cnt++;
           manage_heater();
-          manage_inactivity(false);
+          manage_inactivity(true);
           lcd_update();
           if(cnt==0)
           {
@@ -4335,7 +4335,7 @@ void manage_inactivity(bool ignore_stepper_queue=false)
   if(stepper_inactive_time)  {
     if( (millis() - previous_millis_cmd) >  stepper_inactive_time )
     {
-      if(blocks_queued() == false && ignore_stepper_queue != true) {
+      if(blocks_queued() == false && ignore_stepper_queue == false) {
         disable_x();
         disable_y();
         disable_z();
