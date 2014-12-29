@@ -3616,7 +3616,7 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
         while(!lcd_clicked()){
           cnt++;
           manage_heater();
-          manage_inactivity(false);
+          manage_inactivity(true);
           lcd_update();
           if(cnt==0)
           {
