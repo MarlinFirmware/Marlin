@@ -1,6 +1,12 @@
 /* -*- c++ -*- */
 
 /*
+
+
+Beginning to modify for ERIS Delta ~ johnoly99
+
+
+
     Reprap firmware based on Sprinter and grbl.
  Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
 
