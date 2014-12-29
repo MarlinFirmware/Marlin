@@ -4312,7 +4312,7 @@ void handle_status_leds(void) {
 }
 #endif
 
-void manage_inactivity(bool ignore_stepper_queue=false)
+void manage_inactivity(bool ignore_stepper_queue)
 {
 	
 #if defined(KILL_PIN) && KILL_PIN > -1
@@ -4335,7 +4335,7 @@ void manage_inactivity(bool ignore_stepper_queue=false)
   if(stepper_inactive_time)  {
     if( (millis() - previous_millis_cmd) >  stepper_inactive_time )
     {
-      if(blocks_queued() == false && ignore_stepper_queue != true) {
+      if(blocks_queued() == false && !ignore_stepper_queue) {
         disable_x();
         disable_y();
         disable_z();
