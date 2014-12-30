@@ -478,6 +478,13 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 // REMEMBER TO INSTALL LiquidCrystal_I2C.h in your ARUDINO library folder: https://github.com/kiyoshigawa/LiquidCrystal_I2C
 //#define RA_CONTROL_PANEL
 
+// Delta calibration menu
+// uncomment to add three points calibration menu option.
+// See http://minow.blogspot.com/index.html#4918805519571907051
+// If needed, adjust the X, Y, Z calibration coordinates
+// in ultralcd.cpp@lcd_delta_calibrate_menu()
+// #define DELTA_CALIBRATION_MENU
+
 //automatic expansion
 #if defined (MAKRPANEL)
  #define DOGLCD
