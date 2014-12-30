@@ -4332,7 +4332,7 @@ void handle_status_leds(void) {
 }
 #endif
 
-void manage_inactivity(bool ignore_stepper_queue=false)
+void manage_inactivity(bool ignore_stepper_queue/*=false*/) //default argument set in Marlin.h
 {
 	
 #if defined(KILL_PIN) && KILL_PIN > -1
