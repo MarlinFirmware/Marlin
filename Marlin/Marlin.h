@@ -103,7 +103,7 @@ FORCE_INLINE void serialprintPGM(const char *str)
 void get_command();
 void process_commands();
 
-void manage_inactivity();
+void manage_inactivity(bool ignore_stepper_queue=false);
 
 #if defined(DUAL_X_CARRIAGE) && defined(X_ENABLE_PIN) && X_ENABLE_PIN > -1 \
     && defined(X2_ENABLE_PIN) && X2_ENABLE_PIN > -1

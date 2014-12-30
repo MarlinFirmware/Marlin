@@ -1,3 +1,19 @@
+Current Status: Bug Fixing
+===================
+
+What bugs are we working on: https://github.com/ErikZalm/Marlin/milestones
+
+Developer Notes
+===================
+
+- There are now 2 branches: The __development__ branch is where new features and code changes will be sorted out. This branch may have untested code in it, so please let us know if you find any bugs. When the __development__ branch has reached a state where it is stable, it will be moved to the __stable__ branch.
+
+- We are doing a kind of cleanup in the list of Issues and Pull Requests, the aim is to get to a state where we can certify the code as stable. To get the code tested as widely as possible we require several volunteers with a wide variety of hardware configurations willing to test the firmware and help us to certify it as stable. If you want to help out testing go to this issue and let us know: https://github.com/ErikZalm/Marlin/issues/1209
+
+- Before you submit any pull request, we ask that you _PLEASE_ test your code before submission, even if the change seems innocuous. When creating the pull request, please include the hardware you used for testing and a short synopsis of your testing procedure. Untested pull requests are less likely to be merged, as even slight changes create the risk of breaking the main branch.
+
+- If you have a fix don't open an issue telling about it, but test the code and submit a pull request. Use the __development__ branch when you submit.
+
 ==========================
 Marlin 3D Printer Firmware
 ==========================
@@ -54,6 +70,7 @@ Features:
 *   Automatic operation of extruder/cold-end cooling fans based on nozzle temperature
 *   RC Servo Support, specify angle or duration for continuous rotation servos.
 *   Bed Auto Leveling.
+*   Support for a filament diameter sensor, which adjusts extrusion volume
 
 The default baudrate is 250000. This baudrate has less jitter and hence errors than the usual 115200 baud, but is less supported by drivers and host-environments.
 
@@ -392,6 +409,13 @@ For example, suppose you measured the endstop position and it was 20mm to the ri
 
 That's it.. enjoy never having to calibrate your Z endstop neither leveling your bed by hand anymore ;-)
 
+Filament Sensor
+---------------
+Supports the use of a real time filament diameter sensor that measures the diameter of the filament going into the extruder and then adjusts the extrusion rate to compensate for filament that does not match what is defined in the g-code.  The diameter can also be displayed on the LCD screen. This potentially eliminates the need to measure filament diameter when changing spools of filament. Gcode becomes independent of the filament diameter. Can also compensate for changing diameter.
 
+For examples of these sensors, see: http://www.thingiverse.com/thing:454584, https://www.youmagine.com/designs/filament-diameter-sensor, http://diy3dprinting.blogspot.com/2014/01/diy-filament-diameter-sensor.html. Any sensor which produces a voltage equivalent to the diameter in mm (i.e. 1v = 1mm) can be used. This provides a very simple interface and may encourage more innovation in this area.
 
+4 new Mcodes are defined to set relevant parameters: M404, M405, M406, M407 - see above.
+
+ Implements a delay buffer to handle the transit delay between where the filament is measured and when it gets to the extruder.
 
