@@ -132,4 +132,12 @@
 #define MSG_RETRACT_ARROW                   "Retrair \x7E"
 #define MSG_STEPPER_RELEASED                "Lancado."
 
+#ifdef DELTA_CALIBRATION_MENU
+    #define MSG_DELTA_CALIBRATE             "Delta Calibration"
+    #define MSG_DELTA_CALIBRATE_X           "Calibrate X"
+    #define MSG_DELTA_CALIBRATE_Y           "Calibrate Y"
+    #define MSG_DELTA_CALIBRATE_Z           "Calibrate Z"
+    #define MSG_DELTA_CALIBRATE_CENTER      "Calibrate Center"
+#endif // DELTA_CALIBRATION_MENU
+
 #endif // LANGUAGE_PT_H

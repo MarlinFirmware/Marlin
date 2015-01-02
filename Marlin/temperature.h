@@ -186,5 +186,8 @@ FORCE_INLINE void autotempShutdown(){
 
 void PID_autotune(float temp, int extruder, int ncycles);
 
+void setExtruderAutoFanState(int pin, bool state);
+void checkExtruderAutoFans();
+
 #endif
 

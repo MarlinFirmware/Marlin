@@ -41,7 +41,7 @@
 
 /* Russian language not supported yet, needs custom font
 
-#if LANGUAGE_CHOICE == ru
+#ifdef LANGUAGE_RU
 #include "LiquidCrystalRus.h"
 #define LCD_CLASS LiquidCrystalRus
 #else
@@ -337,7 +337,7 @@ static void lcd_implementation_drawmenu_generic(uint8_t row, const char* pstr, c
 		u8g.setColorIndex(1);		// restore settings to black on white
 }
 
-static void _drawmenu_setting_edit_generic(uint8_t row, const char* pstr, char pre_char, char* data, bool pgm) {
+static void _drawmenu_setting_edit_generic(uint8_t row, const char* pstr, char pre_char, const char* data, bool pgm) {
   char c;
   uint8_t n = LCD_WIDTH - 1 - 2 - (pgm ? strlen_P(data) : strlen(data));
 		
