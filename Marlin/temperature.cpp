@@ -566,7 +566,7 @@ void manage_heater()
 		  temp_dState_bed = pid_input;
 
 		  pid_output = pTerm_bed + iTerm_bed - dTerm_bed;
-          	  if (pid_output > MAX_BED_PID) {
+          	  if (pid_output > MAX_BED_POWER) {
             	    if (pid_error_bed > 0 )  temp_iState_bed -= pid_error_bed; // conditional un-integration
                     pid_output=PID_MAX;
           	  } else if (pid_output < 0){
