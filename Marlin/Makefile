@@ -204,13 +204,17 @@ F_CPU ?= 16000000
 ifeq ($(HARDWARE_VARIANT), arduino)
 HARDWARE_DIR = $(ARDUINO_INSTALL_DIR)/hardware
 else
-ifeq ($(shell [ $(ARDUINO_VERSION) -ge 100 ] && echo true), true)
+ifeq ($(shell [ $(ARDUINO_VERSION) -ge 110 ] && echo true), true)
 HARDWARE_DIR = ../ArduinoAddons/Arduino_1.x.x
+else
+ifeq ($(shell [ $(ARDUINO_VERSION) -ge 100 ] && echo true), true)
+HARDWARE_DIR = ../ArduinoAddons/Arduino_1.0.x
 else
 HARDWARE_DIR = ../ArduinoAddons/Arduino_0.xx
 endif
 endif
-HARDWARE_SRC = $(HARDWARE_DIR)/$(HARDWARE_VARIANT)/cores/arduino
+endif
+HARDWARE_SRC = $(HARDWARE_DIR)/hardware/$(HARDWARE_VARIANT)/cores/arduino
 
 TARGET = $(notdir $(CURDIR))
 
@@ -251,7 +255,7 @@ HARDWARE_SUB_VARIANT ?= mega
 VPATH += $(ARDUINO_INSTALL_DIR)/hardware/arduino/variants/$(HARDWARE_SUB_VARIANT)
 else
 HARDWARE_SUB_VARIANT ?= standard
-VPATH += $(HARDWARE_DIR)/$(HARDWARE_VARIANT)/variants/$(HARDWARE_SUB_VARIANT)
+VPATH += $(HARDWARE_DIR)/hardware/$(HARDWARE_VARIANT)/variants/$(HARDWARE_SUB_VARIANT)
 endif
 SRC = wiring.c \
 	wiring_analog.c wiring_digital.c \
