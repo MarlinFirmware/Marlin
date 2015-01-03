@@ -14,6 +14,16 @@
 
 #include <util/delay.h>
 #include <avr/pgmspace.h>
+
+#define GCC_VERSION (__GNUC__ * 10000 + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__)
+/* Omit buggy avr-g++ warnings. It's gcc bug 34734.  */
+#if GCC_VERSION < 40602
+#undef PROGMEM
+#undef PSTR
+#define PROGMEM __attribute__((section (".progmem.data")))
+#define PSTR(s) (__extension__ ({static const char __c[] PROGMEM = (s); &__c[0];}))
+#endif
+
 #include <avr/eeprom.h>
 #include <avr/interrupt.h>
 
@@ -270,3 +280,4 @@ extern void digipot_i2c_init();
 #endif
 
 extern void calculate_volumetric_multipliers();
+
