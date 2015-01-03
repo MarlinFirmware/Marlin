@@ -1,9 +1,6 @@
 #include "LiquidCrystalRus.h"
 
-#include <stdio.h>
-#include <string.h>
-#include <inttypes.h>
-#include <avr/pgmspace.h>
+#include "Marlin.h"
 
 #if defined(ARDUINO) && ARDUINO >= 100
   #include "Arduino.h"
