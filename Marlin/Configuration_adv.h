@@ -75,10 +75,10 @@
 // extruder temperature is above/below EXTRUDER_AUTO_FAN_TEMPERATURE.
 // Multiple extruders can be assigned to the same pin in which case 
 // the fan will turn on when any selected extruder is above the threshold.
-#define EXTRUDER_0_AUTO_FAN_PIN   -1
+#define EXTRUDER_0_AUTO_FAN_PIN   4 // using heated bed output on mini rambo to toggle case fan and hotend cooling fan at the same time
 #define EXTRUDER_1_AUTO_FAN_PIN   -1
 #define EXTRUDER_2_AUTO_FAN_PIN   -1
-#define EXTRUDER_AUTO_FAN_TEMPERATURE 50
+#define EXTRUDER_AUTO_FAN_TEMPERATURE 35   //  Should be good for all conditions.  This triggers the hotend cooling fan AND the lower case fan both wired to the heated bed mosfets
 #define EXTRUDER_AUTO_FAN_SPEED   255  // == full speed
 
 
@@ -273,7 +273,7 @@
 // Motor Current settings for MINI_RAMBO 
 // Motor current PWM conversion, PWM value = MotorCurrentSetting * 255 / range
 #define MOTOR_CURRENT_PWM_RANGE 2000 
-#define DEFAULT_PWM_MOTOR_CURRENT  {250, 250, 1000}  //{x/y, Z, E}
+#define DEFAULT_PWM_MOTOR_CURRENT  {900, 900, 1200}  //{x/y, Z, E}
 
 // uncomment to enable an I2C based DIGIPOT like on the Azteeg X3 Pro
 //#define DIGIPOT_I2C
