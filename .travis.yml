@@ -23,7 +23,7 @@ before_script:
   # remove Robot_Control library to stop compile error!
   - sudo rm -rf /usr/share/arduino/libraries/Robot_Control
   # change back to home directory for compiling
-  - cd /home/travis/build/ErikZalm/Marlin
+  - cd $TRAVIS_BUILD_DIR
   # ino needs files in src directory
   - ln -s Marlin src
   # remove Marlin.pde as it confuses ino after it finds Marlin.ino
