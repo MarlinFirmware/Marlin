@@ -4,3 +4,5 @@ applet/
 *.orig
 *.rej
 *.bak
+*.DS_Store
+*.idea
