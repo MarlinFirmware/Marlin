@@ -1,0 +1,38 @@
+---
+language: c
+
+before_install:
+  - pwd
+  - wget https://bootstrap.pypa.io/get-pip.py
+  - wget https://bintray.com/artifact/download/olikraus/u8glib/u8glib_arduino_v1.17.zip
+install:
+  - sudo python get-pip.py
+  - sudo pip install ino
+  # add ppa for newer version of Arduino than available in ubuntu 12.04
+  - sudo add-apt-repository ppa:michael-gruz/elektronik -y
+  - sudo apt-get update -q 
+  - sudo apt-get install arduino
+before_script:
+ # add U8glib, LiquidCrystal_I2C & LiquidTWI2 libraries 
+  - sudo unzip u8glib_arduino_v1.17.zip -d /usr/share/arduino/libraries/
+  - cd /usr/share/arduino/libraries/
+  - sudo git clone https://github.com/kiyoshigawa/LiquidCrystal_I2C.git
+  - ls -la
+  - ls -la LiquidCrystal_I2C/
+  - sudo git clone https://github.com/lincomatic/LiquidTWI2.git
+  # remove Robot_Control library to stop compile error!
+  - sudo rm -rf /usr/share/arduino/libraries/Robot_Control
+  # change back to home directory for compiling
+  - cd /home/travis/build/ErikZalm/Marlin
+  # ino needs files in src directory
+  - ln -s Marlin src
+  # remove Marlin.pde as it confuses ino after it finds Marlin.ino
+  - rm Marlin/Marlin.pde
+script:
+  - ino build -m mega2560
+  - cp Marlin/example_configurations/delta/Configuration* Marlin/
+  - rm -rf .build/
+  - ino build -m mega2560
+  - sed -i 's/#define MOTHERBOARD BOARD_RAMPS_13_EFB/#define MOTHERBOARD BOARD_DUEMILANOVE_328P/g' Marlin/Configuration.h
+  - rm -rf .build/
+  - ino build -m atmega328
