@@ -40,10 +40,11 @@
 
 
 #ifdef __GNUC__
-#ifndef GCC_VERSION
-#define GCC_VERSION (__GNUC__ * 10000 + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__)
+#ifndef GCC_VERSION2
+#define GCC_VERSION2 (__GNUC__ * 10000 + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__)
 #endif
-#if GCC_VERSION < 40602 // Test for GCC < 4.6.2
+
+#if GCC_VERSION2 < 40602 // Test for GCC < 4.6.2
 #ifdef PROGMEM
 #undef PROGMEM
 #define PROGMEM __attribute__((section(".progmem.data"))) // Workaround for http://gcc.gnu.org/bugzilla/show_bug.cgi?id=34734#c4
