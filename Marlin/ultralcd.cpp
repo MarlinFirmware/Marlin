@@ -614,9 +614,6 @@ static void lcd_prepare_menu()
 #endif
     MENU_ITEM(gcode, MSG_DISABLE_STEPPERS, PSTR("M84"));
     MENU_ITEM(gcode, MSG_AUTO_HOME, PSTR("G28"));
-#ifdef ENABLE_AUTO_BED_LEVELING
-	MENU_ITEM(gcode, MSG_DETAILED_Z_PROBE, PSTR("G29"));
-#endif
     MENU_ITEM(function, MSG_SET_HOME_OFFSETS, lcd_set_home_offsets);
     //MENU_ITEM(gcode, MSG_SET_ORIGIN, PSTR("G92 X0 Y0 Z0"));
 #if TEMP_SENSOR_0 != 0
