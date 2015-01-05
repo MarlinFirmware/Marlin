@@ -883,7 +883,7 @@ static void lcd_control_volumetric_menu()
 	START_MENU();
 	MENU_ITEM(back, MSG_CONTROL, lcd_control_menu);
 
-	MENU_ITEM_EDIT(bool, MSG_VOLUMETRIC_ENABLED, &volumetric_enabled);
+	MENU_ITEM_EDIT_CALLBACK(bool, MSG_VOLUMETRIC_ENABLED, &volumetric_enabled, calculate_volumetric_multipliers);
 
 	if (volumetric_enabled) {
 		MENU_ITEM_EDIT_CALLBACK(float43, MSG_FILAMENT_SIZE_EXTRUDER_0, &filament_size[0], DEFAULT_NOMINAL_FILAMENT_DIA - .5, DEFAULT_NOMINAL_FILAMENT_DIA + .5, calculate_volumetric_multipliers);
