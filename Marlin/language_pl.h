@@ -15,7 +15,6 @@
 #define MSG_AUTOSTART                       "Autostart"
 #define MSG_DISABLE_STEPPERS                "Wylacz silniki"
 #define MSG_AUTO_HOME                       "Auto. poz. zerowa"
-#define MSG_DETAILED_Z_PROBE                "Detailed Z probe"
 #define MSG_SET_HOME_OFFSETS                "Set home offsets"
 #define MSG_SET_ORIGIN                      "Ustaw punkt zero"
 #define MSG_PREHEAT_PLA                     "Rozgrzej PLA"
