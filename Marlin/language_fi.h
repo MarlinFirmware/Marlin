@@ -15,6 +15,7 @@
 #define MSG_AUTOSTART                       "Automaatti"
 #define MSG_DISABLE_STEPPERS                "Vapauta moottorit"
 #define MSG_AUTO_HOME                       "Aja referenssiin"
+#define MSG_DETAILED_Z_PROBE                "Detailed Z probe"
 #define MSG_SET_HOME_OFFSETS                "Set home offsets"
 #define MSG_SET_ORIGIN                      "Aseta origo"
 #define MSG_PREHEAT_PLA                     "Esilammita PLA"

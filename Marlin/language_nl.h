@@ -15,6 +15,7 @@
 #define MSG_AUTOSTART                       "Autostart"
 #define MSG_DISABLE_STEPPERS                "Motoren uit"
 #define MSG_AUTO_HOME                       "Auto home"
+#define MSG_DETAILED_Z_PROBE                "Detailed Z probe"
 #define MSG_SET_HOME_OFFSETS                "Set home offsets"
 #define MSG_SET_ORIGIN                      "Nulpunt instellen"
 #define MSG_PREHEAT_PLA                     "PLA voorverwarmen"
