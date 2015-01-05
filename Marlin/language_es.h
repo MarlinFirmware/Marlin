@@ -15,7 +15,6 @@
 #define MSG_AUTOSTART                       " Autostart"
 #define MSG_DISABLE_STEPPERS                "Apagar motores"
 #define MSG_AUTO_HOME                       "Llevar al origen"
-#define MSG_DETAILED_Z_PROBE                "Detailed Z probe"
 #define MSG_SET_HOME_OFFSETS                "Ajustar offsets"
 #define MSG_SET_ORIGIN                      "Establecer cero"
 #define MSG_PREHEAT_PLA                     "Precalentar PLA"
