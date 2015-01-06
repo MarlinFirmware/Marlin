@@ -43,6 +43,14 @@ class Thermistor:
         x = (y2 - y1) / (l2 - l1)
         y = (y3 - y1) / (l3 - l1)
         c = (y - x) / ((l3 - l2) * (l1 + l2 + l3))
+        b = x - c * (l1**2 + l2**2 + l1*l2)
+        a = y1 - (b + l1**2 *c)*l1
+        
+        if c < 0:
+            print "//////////////////////////////////////////////////////////////////////////////////////"
+            print "// WARNING: negative coefficient 'c'! Something may be wrong with the measurements! //"
+            print "//////////////////////////////////////////////////////////////////////////////////////"
+            c = -c
         self.c1 = a                         # Steinhart-Hart coefficients
         self.c2 = b
         self.c3 = c
