@@ -1,12 +1,8 @@
 #!/usr/bin/python
-#
-# Creates a C code lookup table for doing ADC to temperature conversion
-# on a microcontroller
-# based on: http://hydraraptor.blogspot.com/2007/10/measuring-temperature-easy-way.html
 """Thermistor Value Lookup Table Generator
 
 Generates lookup to temperature values for use in a microcontroller in C format based on: 
-http://hydraraptor.blogspot.com/2007/10/measuring-temperature-easy-way.html
+http://en.wikipedia.org/wiki/Steinhart-Hart_equation
 
 The main use is for Arduino programs that read data from the circuit board described here:
 http://make.rrrf.org/ts-1.0
@@ -19,7 +15,7 @@ Options:
   --t1=ttt:rrr      low temperature temperature:resistance point (around 25C)
   --t2=ttt:rrr      middle temperature temperature:resistance point (around 150C)
   --t3=ttt:rrr      high temperature temperature:resistance point (around 250C)
-  --num-temps=...   the number of temperature points to calculate (default: 20)
+  --num-temps=...   the number of temperature points to calculate (default: 36)
 """
 
 from math import *
@@ -86,15 +82,15 @@ class Thermistor:
         return (r / (self.rp + r)) * (1024)
 
 def main(argv):
-
-    rp = 4700;
-    t1 = 25;
-    r1 = 100000;
-    t2 = 150;
-    r2 = 1641.9;
-    t3 = 250;
-    r3 = 226.15;
-    num_temps = int(36);
+    "Default values"
+    t1 = 25                                 # low temperature in Kelvin (25 degC)
+    r1 = 100000                             # resistance at low temperature (10 kOhm)
+    t2 = 150                                # middle temperature in Kelvin (150 degC)
+    r2 = 1641.9                             # resistance at middle temperature (1.6 KOhm)
+    t3 = 250                                # high temperature in Kelvin (250 degC)
+    r3 = 226.15                             # resistance at high temperature (226.15 Ohm)
+    rp = 4700;                              # pull-up resistor (4.7 kOhm)
+    num_temps = int(36);                    # number of entries for look-up table
     
     try:
         opts, args = getopt.getopt(argv, "h", ["help", "rp=", "t1=", "t2=", "t3=", "num-temps="])
@@ -102,7 +98,7 @@ def main(argv):
         print  str(err)
         usage()
         sys.exit(2)
-        
+
     for opt, arg in opts:
         if opt in ("-h", "--help"):
             usage()
@@ -111,16 +107,16 @@ def main(argv):
             rp = int(arg)
         elif opt == "--t1":
             arg =  arg.split(':')
-            t1 = float( arg[0])
-            r1 = float( arg[1])
+            t1 = float(arg[0])
+            r1 = float(arg[1])
         elif opt == "--t2":
             arg =  arg.split(':')
-            t2 = float( arg[0])
-            r2 = float( arg[1])
+            t2 = float(arg[0])
+            r2 = float(arg[1])
         elif opt == "--t3":
             arg =  arg.split(':')
-            t3 = float( arg[0])
-            r3 = float( arg[1])
+            t3 = float(arg[0])
+            r3 = float(arg[1])
         elif opt == "--num-temps":
             num_temps =  int(arg)
 
@@ -136,8 +132,9 @@ def main(argv):
 
     print "// Thermistor lookup table for Marlin"
     print "// ./createTemperatureLookupMarlin.py --rp=%s --t1=%s:%s --t2=%s:%s --t3=%s:%s --num-temps=%s" % (rp, t1, r1, t2, r2, t3, r3, num_temps)
-    print "// Steinhart-Hart Coefficients: %.15g, %.15g,  %.15g " % (t.c1, t.c2, t.c3)
-    print "//#define NUMTEMPS %s" % (len(temps))
+    print "// Steinhart-Hart Coefficients: a=%.15g, b=%.15g, c=%.15g " % (t.c1, t.c2, t.c3)
+    print
+    print "#define NUMTEMPS %s" % (len(temps))
     print "const short temptable[NUMTEMPS][2] PROGMEM = {"
 
     counter = 0
@@ -148,7 +145,7 @@ def main(argv):
         else:
             print "   {(short)(%.2f*OVERSAMPLENR), %s}, // v=%s r=%s res=%s C/count" % ((t.adc(temp)), temp, t.v(t.adc(temp)), t.r(t.adc(temp)),t.res(t.adc(temp)))
     print "};"
-    
+
 def usage():
     print __doc__
 
