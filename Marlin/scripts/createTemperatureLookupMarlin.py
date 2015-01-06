@@ -23,68 +23,60 @@ import sys
 import getopt
 
 "Constants"
+ZERO   = 273.15                             # zero point of Kelvin scale
+VADC   = 5                                  # ADC voltage
+VCC    = 5                                  # supply voltage
 ARES   = pow(2,10)                          # 10 Bit ADC resolution
+VSTEP  = VADC / ARES                        # ADC voltage resolution
 TMIN   = 0                                  # lowest temperature in table
 TMAX   = 350                                # highest temperature in table
 
 class Thermistor:
     "Class to do the thermistor maths"
     def __init__(self, rp, t1, r1, t2, r2, t3, r3):
-        t1 = t1 + 273.15               # low temperature (25C)
-        r1 = r1                        # resistance at low temperature
-        t2 = t2 + 273.15               # middle temperature (150C)
-        r2 = r2                        # resistance at middle temperature
-        t3 = t3 + 273.15               # high temperature (250C)
-        r3 = r3                        # resistance at high temperature
-        self.rp = rp                   # pull-up resistance
-        self.vadc = 5.0                # ADC reference
-        self.vcc = 5.0                 # supply voltage to potential divider
-        a1 = log(r1)
-        a2 = log(r2)
-        a3 = log(r3)
-        z = a1 - a2
-        y = a1 - a3
-        x = 1/t1 - 1/t2
-        w = 1/t1 - 1/t3
-        v = pow(a1,3) - pow(a2,3)
-        u = pow(a1,3) - pow(a3,3)
-        c3 = (x-z*w/y)/(v-z*u/y)
-        c2 = (x-c3*v)/z
-        c1 = 1/t1-c3*pow(a1,3)-c2*a1
-        self.c1 = c1
-        self.c2 = c2
-        self.c3 = c3
+        l1 = log(r1)
+        l2 = log(r2)
+        l3 = log(r3)
+        y1 = 1.0 / (t1 + ZERO)              # adjust scale
+        y2 = 1.0 / (t2 + ZERO)
+        y3 = 1.0 / (t3 + ZERO)
+        x = (y2 - y1) / (l2 - l1)
+        y = (y3 - y1) / (l3 - l1)
+        c = (y - x) / ((l3 - l2) * (l1 + l2 + l3))
+        b = x - c * (pow(l1,2) + pow(l2,2) + l1*l2)
+        a = y1 - (b + pow(l1,2)*c)*l1
+        self.c1 = a                         # Steinhart-Hart coefficients
+        self.c2 = b
+        self.c3 = c
+        self.rp = rp                        # pull-up resistance
 
-    def res(self,adc):
+    def res(self, adc):
         "Convert ADC reading into a resolution"
         res = self.temp(adc)-self.temp(adc+1)
         return res
 
-    def v(self,adc):
+    def v(self, adc):
         "Convert ADC reading into a Voltage"
-        v = adc * self.vadc / (1024 )   # convert the 10 bit ADC value to a voltage
-        return v
+        return adc * VSTEP                     # convert the 10 bit ADC value to a voltage
 
-    def r(self,adc):
+    def r(self, adc):
         "Convert ADC reading into a resistance in Ohms"
-        v = adc * self.vadc / (1024 )   # convert the 10 bit ADC value to a voltage
-        r = self.rp * v / (self.vcc - v)    # resistance of thermistor
+        r = self.rp * self.v(adc) / (VCC - self.v(adc)) # resistance of thermistor
         return r
 
-    def temp(self,adc):
+    def temp(self, adc):
         "Convert ADC reading into a temperature in Celcius"
-        v = adc * self.vadc / (1024 )   # convert the 10 bit ADC value to a voltage
-        r = self.rp * v / (self.vcc - v)    # resistance of thermistor
+        r = self.rp * self.v(adc) / (VCC - self.v(adc)) # resistance of thermistor
         lnr = log(r)
         Tinv = self.c1 + (self.c2*lnr) + (self.c3*pow(lnr,3))
-        return (1/Tinv) - 273.15        # temperature
+        return (1/Tinv) - ZERO              # temperature
 
-    def adc(self,temp):
+    def adc(self, temp):
         "Convert temperature into a ADC reading"
-        y = (self.c1 - (1/(temp+273.15))) / (2*self.c3)
-	x = sqrt(pow(self.c2 / (3*self.c3),3) + pow(y,2))
-        r = exp(pow(x-y,1.0/3) - pow(x+y,1.0/3)) # resistance of thermistor
-        return (r / (self.rp + r)) * (1024)
+        x = (self.c1 - (1.0 / (temp+ZERO))) / (2*self.c3)
+        y = sqrt(pow(self.c2 / (3*self.c3),3) + pow(x,2))
+        r = exp(pow(y-x,1.0/3) - pow(y+x,1.0/3)) # resistance of thermistor
+        return (r / (self.rp + r)) * ARES
 
 def main(argv):
     "Default values"
