@@ -26,7 +26,7 @@ import getopt
 ZERO   = 273.15                             # zero point of Kelvin scale
 VADC   = 5                                  # ADC voltage
 VCC    = 5                                  # supply voltage
-ARES   = pow(2,10)                          # 10 Bit ADC resolution
+ARES   = 2**10                              # 10 Bit ADC resolution
 VSTEP  = VADC / ARES                        # ADC voltage resolution
 TMIN   = 0                                  # lowest temperature in table
 TMAX   = 350                                # highest temperature in table
@@ -43,8 +43,6 @@ class Thermistor:
         x = (y2 - y1) / (l2 - l1)
         y = (y3 - y1) / (l3 - l1)
         c = (y - x) / ((l3 - l2) * (l1 + l2 + l3))
-        b = x - c * (pow(l1,2) + pow(l2,2) + l1*l2)
-        a = y1 - (b + pow(l1,2)*c)*l1
         self.c1 = a                         # Steinhart-Hart coefficients
         self.c2 = b
         self.c3 = c
@@ -67,14 +65,14 @@ class Thermistor:
     def temp(self, adc):
         "Convert ADC reading into a temperature in Celcius"
         l = log(self.resist(adc))
-        Tinv = self.c1 + self.c2*l + self.c3*pow(l,3) # inverse temperature
+        Tinv = self.c1 + self.c2*l + self.c3* l**3) # inverse temperature
         return (1/Tinv) - ZERO              # temperature
 
     def adc(self, temp):
         "Convert temperature into a ADC reading"
         x = (self.c1 - (1.0 / (temp+ZERO))) / (2*self.c3)
-        y = sqrt(pow(self.c2 / (3*self.c3),3) + pow(x,2))
-        r = exp(pow(y-x,1.0/3) - pow(y+x,1.0/3)) # resistance of thermistor
+        y = sqrt((self.c2 / (3*self.c3)**3 + x**2)
+        r = exp((y-x)**(1.0/3) - (y+x)**(1.0/3))
         return (r / (self.rp + r)) * ARES
 
 def main(argv):
