@@ -114,16 +114,21 @@ def main(argv):
             t3 = float(arg[0])
             r3 = float(arg[1])
         elif opt == "--num-temps":
-            num_temps =  int(arg)
+            num_temps = int(arg)
 
-    increment = int((ARES-1)/(num_temps-1));
     t = Thermistor(rp, t1, r1, t2, r2, t3, r3)
-    tmp = (TMIN-TMAX) / (num_temps-1)
-    temps = range(TMAX, TMIN+tmp, tmp);
+    increment = int((ARES-1)/(num_temps-1));
+    step = (TMIN-TMAX) / (num_temps-1)
+    low_bound = t.temp(ARES-1);
+    up_bound = t.temp(1);
+    min_temp = int(TMIN if TMIN > low_bound else low_bound)
+    max_temp = int(TMAX if TMAX < up_bound else up_bound)
+    temps = range(max_temp, TMIN+step, step);
 
     print "// Thermistor lookup table for Marlin"
     print "// ./createTemperatureLookupMarlin.py --rp=%s --t1=%s:%s --t2=%s:%s --t3=%s:%s --num-temps=%s" % (rp, t1, r1, t2, r2, t3, r3, num_temps)
     print "// Steinhart-Hart Coefficients: a=%.15g, b=%.15g, c=%.15g " % (t.c1, t.c2, t.c3)
+    print "// Theoretical limits of termistor: %.2f to %.2f degC" % (low_bound, up_bound)
     print
     print "#define NUMTEMPS %s" % (len(temps))
     print "const short temptable[NUMTEMPS][2] PROGMEM = {"
