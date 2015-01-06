@@ -582,9 +582,9 @@ void manage_heater()
 		  temp_dState_bed = pid_input;
 
 		  pid_output = pTerm_bed + iTerm_bed - dTerm_bed;
-          	  if (pid_output > MAX_BED_PID) {
+          	  if (pid_output > MAX_BED_POWER) {
             	    if (pid_error_bed > 0 )  temp_iState_bed -= pid_error_bed; // conditional un-integration
-                    pid_output=PID_MAX;
+                    pid_output=MAX_BED_POWER;
           	  } else if (pid_output < 0){
             	    if (pid_error_bed < 0 )  temp_iState_bed -= pid_error_bed; // conditional un-integration
                     pid_output=0;
@@ -1049,7 +1049,7 @@ void thermal_runaway_protection(int *state, unsigned long *timer, float temperat
       {
         *timer = millis();
       } 
-      else if ( (millis() - *timer) > period_seconds*1000)
+      else if ( (millis() - *timer) > ((unsigned long) period_seconds) * 1000)
       {
         SERIAL_ERROR_START;
         SERIAL_ERRORLNPGM("Thermal Runaway, system stopped! Heater_ID: ");
