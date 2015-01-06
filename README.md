@@ -276,20 +276,26 @@ M Codes
 Configuring and compilation:
 ============================
 
-Install the arduino software IDE/toolset v23 (Some configurations also work with 1.x.x)
+Install the latest non-beta arduino software IDE/toolset
    http://www.arduino.cc/en/Main/Software
 
 Download the Marlin firmware
-   https://github.com/ErikZalm/Marlin/tree/Marlin_v1
-   Use the "Download Zip" button on the right.
+   https://github.com/MarlinFirmware/Marlin/tree/development
+   
+   For the latest development, or 
+   
+   
+   
+   For the latest stable release
+   
+   In both cases use the "Download Zip" button on the right.
 
-For gen6/gen7 and sanguinololu the Sanguino directory in the Marlin dir needs to be copied to the arduino environment.
-  copy ArduinoAddons\Arduino_x.x.x\sanguino <arduino home>\hardware\Sanguino
+For some spec. boards a spec. dir in the ArduinoAddons directory in the Marlin dir needs to be copied to the arduino environment. <arduino home>\hardware\
 
 Start the arduino IDE.
 Select Tools -> Board -> Arduino Mega 2560    or your microcontroller
 Select the correct serial port in Tools ->Serial Port
-Open Marlin.pde
+Open Marlin.pde or .ino
 
 Click the Verify/Compile button
 
