@@ -745,7 +745,7 @@ static void lcd_control_menu()
     MENU_ITEM(back, MSG_MAIN, lcd_main_menu);
     MENU_ITEM(submenu, MSG_TEMPERATURE, lcd_control_temperature_menu);
     MENU_ITEM(submenu, MSG_MOTION, lcd_control_motion_menu);
-	//MENU_ITEM(submenu, MSG_VOLUMETRIC, lcd_control_volumetric_menu);
+	MENU_ITEM(submenu, MSG_VOLUMETRIC, lcd_control_volumetric_menu);
 
 #ifdef DOGLCD
 //    MENU_ITEM_EDIT(int3, MSG_CONTRAST, &lcd_contrast, 0, 63);
@@ -880,7 +880,7 @@ static void lcd_control_volumetric_menu()
 	START_MENU();
 	MENU_ITEM(back, MSG_CONTROL, lcd_control_menu);
 
-	MENU_ITEM_EDIT(bool, MSG_VOLUMETRIC_ENABLED, &volumetric_enabled);
+	MENU_ITEM_EDIT_CALLBACK(bool, MSG_VOLUMETRIC_ENABLED, &volumetric_enabled, calculate_volumetric_multipliers);
 
 	if (volumetric_enabled) {
 		MENU_ITEM_EDIT_CALLBACK(float43, MSG_FILAMENT_SIZE_EXTRUDER_0, &filament_size[0], DEFAULT_NOMINAL_FILAMENT_DIA - .5, DEFAULT_NOMINAL_FILAMENT_DIA + .5, calculate_volumetric_multipliers);
@@ -1113,6 +1113,11 @@ static void menu_action_sddirectory(const char* filename, char* longFilename)
 static void menu_action_setting_edit_bool(const char* pstr, bool* ptr)
 {
     *ptr = !(*ptr);
+}
+static void menu_action_setting_edit_callback_bool(const char* pstr, bool* ptr, menuFunc_t callback)
+{
+	menu_action_setting_edit_bool(pstr, ptr);
+	(*callback)();
 }
 #endif//ULTIPANEL
 
