@@ -171,7 +171,7 @@ void manage_inactivity(bool ignore_stepper_queue=false);
 #endif
 
 
-enum AxisEnum {X_AXIS=0, Y_AXIS=1, Z_AXIS=2, E_AXIS=3};
+enum AxisEnum {X_AXIS=0, Y_AXIS=1, Z_AXIS=2, E_AXIS=3, X_HEAD=4, Y_HEAD=5};
 
 
 void FlushSerialRequestResend();
