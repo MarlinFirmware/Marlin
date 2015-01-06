@@ -137,13 +137,13 @@ def main(argv):
     print "#define NUMTEMPS %s" % (len(temps))
     print "const short temptable[NUMTEMPS][2] PROGMEM = {"
 
-    counter = 0
     for temp in temps:
-        counter = counter +1
-        if counter == len(temps):
-            print "   {(short)(%.2f*OVERSAMPLENR), %s}  // v=%s r=%s res=%s C/count" % ((t.adc(temp)), temp, t.v(t.adc(temp)), t.r(t.adc(temp)),t.res(t.adc(temp)))
-        else:
-            print "   {(short)(%.2f*OVERSAMPLENR), %s}, // v=%s r=%s res=%s C/count" % ((t.adc(temp)), temp, t.v(t.adc(temp)), t.r(t.adc(temp)),t.res(t.adc(temp)))
+        print "    { (short) (%7.2f * OVERSAMPLENR ), %s\t}%s // v=%.3f\tr=%.3f\tres=%.3f degC/count" % ( t.adc(temp), temp, \
+                        ',' if temp != temps[-1] else ' ', \
+                        t.v(  t.adc(temp)), \
+                        t.r(  t.adc(temp)), \
+                        t.res(t.adc(temp)) \
+                    )
     print "};"
 
 def usage():
