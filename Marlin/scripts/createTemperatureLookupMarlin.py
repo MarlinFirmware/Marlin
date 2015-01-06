@@ -1,12 +1,8 @@
 #!/usr/bin/python
-#
-# Creates a C code lookup table for doing ADC to temperature conversion
-# on a microcontroller
-# based on: http://hydraraptor.blogspot.com/2007/10/measuring-temperature-easy-way.html
 """Thermistor Value Lookup Table Generator
 
 Generates lookup to temperature values for use in a microcontroller in C format based on: 
-http://hydraraptor.blogspot.com/2007/10/measuring-temperature-easy-way.html
+http://en.wikipedia.org/wiki/Steinhart-Hart_equation
 
 The main use is for Arduino programs that read data from the circuit board described here:
 http://make.rrrf.org/ts-1.0
@@ -16,85 +12,87 @@ Usage: python createTemperatureLookup.py [options]
 Options:
   -h, --help        show this help
   --rp=...          pull-up resistor
-  --t1=ttt:rrr      low temperature temperature:resistance point (around 25C)
-  --t2=ttt:rrr      middle temperature temperature:resistance point (around 150C)
-  --t3=ttt:rrr      high temperature temperature:resistance point (around 250C)
-  --num-temps=...   the number of temperature points to calculate (default: 20)
+  --t1=ttt:rrr      low temperature temperature:resistance point (around 25 degC)
+  --t2=ttt:rrr      middle temperature temperature:resistance point (around 150 degC)
+  --t3=ttt:rrr      high temperature temperature:resistance point (around 250 degC)
+  --num-temps=...   the number of temperature points to calculate (default: 36)
 """
 
 from math import *
 import sys
 import getopt
 
+"Constants"
+ZERO   = 273.15                             # zero point of Kelvin scale
+VADC   = 5                                  # ADC voltage
+VCC    = 5                                  # supply voltage
+ARES   = 2**10                              # 10 Bit ADC resolution
+VSTEP  = VADC / ARES                        # ADC voltage resolution
+TMIN   = 0                                  # lowest temperature in table
+TMAX   = 350                                # highest temperature in table
+
 class Thermistor:
     "Class to do the thermistor maths"
     def __init__(self, rp, t1, r1, t2, r2, t3, r3):
-        t1 = t1 + 273.15               # low temperature (25C)
-        r1 = r1                        # resistance at low temperature
-        t2 = t2 + 273.15               # middle temperature (150C)
-        r2 = r2                        # resistance at middle temperature
-        t3 = t3 + 273.15               # high temperature (250C)
-        r3 = r3                        # resistance at high temperature
-        self.rp = rp                   # pull-up resistance
-        self.vadc = 5.0                # ADC reference
-        self.vcc = 5.0                 # supply voltage to potential divider
-        a1 = log(r1)
-        a2 = log(r2)
-        a3 = log(r3)
-        z = a1 - a2
-        y = a1 - a3
-        x = 1/t1 - 1/t2
-        w = 1/t1 - 1/t3
-        v = pow(a1,3) - pow(a2,3)
-        u = pow(a1,3) - pow(a3,3)
-        c3 = (x-z*w/y)/(v-z*u/y)
-        c2 = (x-c3*v)/z
-        c1 = 1/t1-c3*pow(a1,3)-c2*a1
-        self.c1 = c1
-        self.c2 = c2
-        self.c3 = c3
+        l1 = log(r1)
+        l2 = log(r2)
+        l3 = log(r3)
+        y1 = 1.0 / (t1 + ZERO)              # adjust scale
+        y2 = 1.0 / (t2 + ZERO)
+        y3 = 1.0 / (t3 + ZERO)
+        x = (y2 - y1) / (l2 - l1)
+        y = (y3 - y1) / (l3 - l1)
+        c = (y - x) / ((l3 - l2) * (l1 + l2 + l3))
+        b = x - c * (l1**2 + l2**2 + l1*l2)
+        a = y1 - (b + l1**2 *c)*l1
+        
+        if c < 0:
+            print "//////////////////////////////////////////////////////////////////////////////////////"
+            print "// WARNING: negative coefficient 'c'! Something may be wrong with the measurements! //"
+            print "//////////////////////////////////////////////////////////////////////////////////////"
+            c = -c
+        self.c1 = a                         # Steinhart-Hart coefficients
+        self.c2 = b
+        self.c3 = c
+        self.rp = rp                        # pull-up resistance
 
-    def res(self,adc):
+    def resol(self, adc):
         "Convert ADC reading into a resolution"
         res = self.temp(adc)-self.temp(adc+1)
         return res
 
-    def v(self,adc):
+    def voltage(self, adc):
         "Convert ADC reading into a Voltage"
-        v = adc * self.vadc / (1024 )   # convert the 10 bit ADC value to a voltage
-        return v
+        return adc * VSTEP                     # convert the 10 bit ADC value to a voltage
 
-    def r(self,adc):
+    def resist(self, adc):
         "Convert ADC reading into a resistance in Ohms"
-        v = adc * self.vadc / (1024 )   # convert the 10 bit ADC value to a voltage
-        r = self.rp * v / (self.vcc - v)    # resistance of thermistor
+        r = self.rp * self.voltage(adc) / (VCC - self.voltage(adc)) # resistance of thermistor
         return r
 
-    def temp(self,adc):
+    def temp(self, adc):
         "Convert ADC reading into a temperature in Celcius"
-        v = adc * self.vadc / (1024 )   # convert the 10 bit ADC value to a voltage
-        r = self.rp * v / (self.vcc - v)    # resistance of thermistor
-        lnr = log(r)
-        Tinv = self.c1 + (self.c2*lnr) + (self.c3*pow(lnr,3))
-        return (1/Tinv) - 273.15        # temperature
+        l = log(self.resist(adc))
+        Tinv = self.c1 + self.c2*l + self.c3* l**3) # inverse temperature
+        return (1/Tinv) - ZERO              # temperature
 
-    def adc(self,temp):
+    def adc(self, temp):
         "Convert temperature into a ADC reading"
-        y = (self.c1 - (1/(temp+273.15))) / (2*self.c3)
-	x = sqrt(pow(self.c2 / (3*self.c3),3) + pow(y,2))
-        r = exp(pow(x-y,1.0/3) - pow(x+y,1.0/3)) # resistance of thermistor
-        return (r / (self.rp + r)) * (1024)
+        x = (self.c1 - (1.0 / (temp+ZERO))) / (2*self.c3)
+        y = sqrt((self.c2 / (3*self.c3)**3 + x**2)
+        r = exp((y-x)**(1.0/3) - (y+x)**(1.0/3))
+        return (r / (self.rp + r)) * ARES
 
 def main(argv):
-
-    rp = 4700;
-    t1 = 25;
-    r1 = 100000;
-    t2 = 150;
-    r2 = 1641.9;
-    t3 = 250;
-    r3 = 226.15;
-    num_temps = int(36);
+    "Default values"
+    t1 = 25                                 # low temperature in Kelvin (25 degC)
+    r1 = 100000                             # resistance at low temperature (10 kOhm)
+    t2 = 150                                # middle temperature in Kelvin (150 degC)
+    r2 = 1641.9                             # resistance at middle temperature (1.6 KOhm)
+    t3 = 250                                # high temperature in Kelvin (250 degC)
+    r3 = 226.15                             # resistance at high temperature (226.15 Ohm)
+    rp = 4700;                              # pull-up resistor (4.7 kOhm)
+    num_temps = 36;                         # number of entries for look-up table
     
     try:
         opts, args = getopt.getopt(argv, "h", ["help", "rp=", "t1=", "t2=", "t3=", "num-temps="])
@@ -102,7 +100,7 @@ def main(argv):
         print  str(err)
         usage()
         sys.exit(2)
-        
+
     for opt, arg in opts:
         if opt in ("-h", "--help"):
             usage()
@@ -111,44 +109,46 @@ def main(argv):
             rp = int(arg)
         elif opt == "--t1":
             arg =  arg.split(':')
-            t1 = float( arg[0])
-            r1 = float( arg[1])
+            t1 = float(arg[0])
+            r1 = float(arg[1])
         elif opt == "--t2":
             arg =  arg.split(':')
-            t2 = float( arg[0])
-            r2 = float( arg[1])
+            t2 = float(arg[0])
+            r2 = float(arg[1])
         elif opt == "--t3":
             arg =  arg.split(':')
-            t3 = float( arg[0])
-            r3 = float( arg[1])
+            t3 = float(arg[0])
+            r3 = float(arg[1])
         elif opt == "--num-temps":
-            num_temps =  int(arg)
+            num_temps = int(arg)
 
-    max_adc = (1024 ) - 1
-    min_temp = 0
-    max_temp = 350
-    increment = int(max_adc/(num_temps-1));
-            
     t = Thermistor(rp, t1, r1, t2, r2, t3, r3)
-    tmp = (min_temp - max_temp) / (num_temps-1)
-    print tmp
-    temps = range(max_temp, min_temp + tmp, tmp);
+    increment = int((ARES-1)/(num_temps-1));
+    step = (TMIN-TMAX) / (num_temps-1)
+    low_bound = t.temp(ARES-1);
+    up_bound = t.temp(1);
+    min_temp = int(TMIN if TMIN > low_bound else low_bound)
+    max_temp = int(TMAX if TMAX < up_bound else up_bound)
+    temps = range(max_temp, TMIN+step, step);
 
     print "// Thermistor lookup table for Marlin"
     print "// ./createTemperatureLookupMarlin.py --rp=%s --t1=%s:%s --t2=%s:%s --t3=%s:%s --num-temps=%s" % (rp, t1, r1, t2, r2, t3, r3, num_temps)
-    print "// Steinhart-Hart Coefficients: %.15g, %.15g,  %.15g " % (t.c1, t.c2, t.c3)
-    print "//#define NUMTEMPS %s" % (len(temps))
+    print "// Steinhart-Hart Coefficients: a=%.15g, b=%.15g, c=%.15g " % (t.c1, t.c2, t.c3)
+    print "// Theoretical limits of termistor: %.2f to %.2f degC" % (low_bound, up_bound)
+    print
+    print "#define NUMTEMPS %s" % (len(temps))
     print "const short temptable[NUMTEMPS][2] PROGMEM = {"
 
-    counter = 0
     for temp in temps:
-        counter = counter +1
-        if counter == len(temps):
-            print "   {(short)(%.2f*OVERSAMPLENR), %s}  // v=%s r=%s res=%s C/count" % ((t.adc(temp)), temp, t.v(t.adc(temp)), t.r(t.adc(temp)),t.res(t.adc(temp)))
-        else:
-            print "   {(short)(%.2f*OVERSAMPLENR), %s}, // v=%s r=%s res=%s C/count" % ((t.adc(temp)), temp, t.v(t.adc(temp)), t.r(t.adc(temp)),t.res(t.adc(temp)))
+        adc = t.adc(temp)
+        print "    { (short) (%7.2f * OVERSAMPLENR ), %4s }%s // v=%.3f\tr=%.3f\tres=%.3f degC/count" % (adc , temp, \
+                        ',' if temp != temps[-1] else ' ', \
+                        t.voltage(adc), \
+                        t.resist( adc), \
+                        t.resol(  adc) \
+                    )
     print "};"
-    
+
 def usage():
     print __doc__
 
