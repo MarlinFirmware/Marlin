@@ -1,7 +1,7 @@
 Current Status: Bug Fixing
 ===================
 
-What bugs are we working on: https://github.com/ErikZalm/Marlin/milestones
+What bugs are we working on: https://github.com/MarlinFirmware/Development/milestones/Bug%20Fixing%20Round%201
 
 IRC channel on freenode: #marlin-firmware
 
