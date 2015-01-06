@@ -12,9 +12,9 @@ Usage: python createTemperatureLookup.py [options]
 Options:
   -h, --help        show this help
   --rp=...          pull-up resistor
-  --t1=ttt:rrr      low temperature temperature:resistance point (around 25C)
-  --t2=ttt:rrr      middle temperature temperature:resistance point (around 150C)
-  --t3=ttt:rrr      high temperature temperature:resistance point (around 250C)
+  --t1=ttt:rrr      low temperature temperature:resistance point (around 25 degC)
+  --t2=ttt:rrr      middle temperature temperature:resistance point (around 150 degC)
+  --t3=ttt:rrr      high temperature temperature:resistance point (around 250 degC)
   --num-temps=...   the number of temperature points to calculate (default: 36)
 """
 
@@ -50,25 +50,24 @@ class Thermistor:
         self.c3 = c
         self.rp = rp                        # pull-up resistance
 
-    def res(self, adc):
+    def resol(self, adc):
         "Convert ADC reading into a resolution"
         res = self.temp(adc)-self.temp(adc+1)
         return res
 
-    def v(self, adc):
+    def voltage(self, adc):
         "Convert ADC reading into a Voltage"
         return adc * VSTEP                     # convert the 10 bit ADC value to a voltage
 
-    def r(self, adc):
+    def resist(self, adc):
         "Convert ADC reading into a resistance in Ohms"
-        r = self.rp * self.v(adc) / (VCC - self.v(adc)) # resistance of thermistor
+        r = self.rp * self.voltage(adc) / (VCC - self.voltage(adc)) # resistance of thermistor
         return r
 
     def temp(self, adc):
         "Convert ADC reading into a temperature in Celcius"
-        r = self.rp * self.v(adc) / (VCC - self.v(adc)) # resistance of thermistor
-        lnr = log(r)
-        Tinv = self.c1 + (self.c2*lnr) + (self.c3*pow(lnr,3))
+        l = log(self.resist(adc))
+        Tinv = self.c1 + self.c2*l + self.c3*pow(l,3) # inverse temperature
         return (1/Tinv) - ZERO              # temperature
 
     def adc(self, temp):
@@ -87,7 +86,7 @@ def main(argv):
     t3 = 250                                # high temperature in Kelvin (250 degC)
     r3 = 226.15                             # resistance at high temperature (226.15 Ohm)
     rp = 4700;                              # pull-up resistor (4.7 kOhm)
-    num_temps = int(36);                    # number of entries for look-up table
+    num_temps = 36;                         # number of entries for look-up table
     
     try:
         opts, args = getopt.getopt(argv, "h", ["help", "rp=", "t1=", "t2=", "t3=", "num-temps="])
@@ -130,11 +129,12 @@ def main(argv):
     print "const short temptable[NUMTEMPS][2] PROGMEM = {"
 
     for temp in temps:
-        print "    { (short) (%7.2f * OVERSAMPLENR ), %s\t}%s // v=%.3f\tr=%.3f\tres=%.3f degC/count" % ( t.adc(temp), temp, \
+        adc = t.adc(temp)
+        print "    { (short) (%7.2f * OVERSAMPLENR ), %4s }%s // v=%.3f\tr=%.3f\tres=%.3f degC/count" % (adc , temp, \
                         ',' if temp != temps[-1] else ' ', \
-                        t.v(  t.adc(temp)), \
-                        t.r(  t.adc(temp)), \
-                        t.res(t.adc(temp)) \
+                        t.voltage(adc), \
+                        t.resist( adc), \
+                        t.resol(  adc) \
                     )
     print "};"
 
