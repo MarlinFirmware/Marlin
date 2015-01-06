@@ -22,6 +22,11 @@ from math import *
 import sys
 import getopt
 
+"Constants"
+ARES   = pow(2,10)                          # 10 Bit ADC resolution
+TMIN   = 0                                  # lowest temperature in table
+TMAX   = 350                                # highest temperature in table
+
 class Thermistor:
     "Class to do the thermistor maths"
     def __init__(self, rp, t1, r1, t2, r2, t3, r3):
@@ -120,15 +125,10 @@ def main(argv):
         elif opt == "--num-temps":
             num_temps =  int(arg)
 
-    max_adc = (1024 ) - 1
-    min_temp = 0
-    max_temp = 350
-    increment = int(max_adc/(num_temps-1));
-            
+    increment = int((ARES-1)/(num_temps-1));
     t = Thermistor(rp, t1, r1, t2, r2, t3, r3)
-    tmp = (min_temp - max_temp) / (num_temps-1)
-    print tmp
-    temps = range(max_temp, min_temp + tmp, tmp);
+    tmp = (TMIN-TMAX) / (num_temps-1)
+    temps = range(TMAX, TMIN+tmp, tmp);
 
     print "// Thermistor lookup table for Marlin"
     print "// ./createTemperatureLookupMarlin.py --rp=%s --t1=%s:%s --t2=%s:%s --t3=%s:%s --num-temps=%s" % (rp, t1, r1, t2, r2, t3, r3, num_temps)
