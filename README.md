@@ -7,6 +7,12 @@ IRC channel on freenode: #marlin-firmware
 
 (baaaah, #marlin was taken)
 
+If a google hangout is needed then use this link: 
+
+https://plus.google.com/hangouts/_/event/cps5d0ru0iruhl6ebqbk9dpqpa4?authuser=0&hl=da
+
+It's valid for the next 10 years, must remember to renew then :-P
+
 Developer Notes
 ===================
 
