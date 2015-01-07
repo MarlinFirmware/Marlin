@@ -1,4 +1,4 @@
-#define START_BMPWIDTH 	60	//Width in pixels
+#define START_BMPWIDTH 	60	//Width in pixels - http://www.digole.com/tools/PicturetoC_Hex_converter.php
 #define START_BMPHEIGHT 	64	//Height in pixels
 #define START_BMPBYTEWIDTH 	8	//Width in bytes
 const unsigned char start_bmp[574] PROGMEM = { //AVR-GCC, WinAVR
