@@ -376,7 +376,6 @@ const int sensitive_pins[] = SENSITIVE_PINS; // Sensitive pin list for M42
 
 //Inactivity shutdown variables
 static unsigned long previous_millis_cmd = 0;
-static unsigned long previous_millis_ok = 0;
 static unsigned long max_inactive_time = 0;
 static unsigned long stepper_inactive_time = DEFAULT_STEPPER_DEACTIVE_TIME*1000l;
 
@@ -646,7 +645,6 @@ void loop()
           else
           {
             SERIAL_PROTOCOLLNPGM(MSG_OK);
-						previous_millis_ok = millis();
           }
         }
         else
@@ -3157,13 +3155,12 @@ Sigma_Exit:
           }
         }
         else if (servo_index >= 0) {
-					SERIAL_PROTOCOL(MSG_OK);
+          SERIAL_PROTOCOL(MSG_OK);
           SERIAL_PROTOCOL(" Servo ");
           SERIAL_PROTOCOL(servo_index);
           SERIAL_PROTOCOL(": ");
           SERIAL_PROTOCOL(servos[servo_index].read());
           SERIAL_PROTOCOLLN("");
-					previous_millis_ok = millis();
         }
       }
       break;
@@ -3238,7 +3235,6 @@ Sigma_Exit:
         SERIAL_PROTOCOL(" d:");
         SERIAL_PROTOCOL(unscalePID_d(bedKd));
         SERIAL_PROTOCOLLN("");
-				previous_millis_ok = millis();
       }
       break;
     #endif //PIDTEMP
@@ -3529,7 +3525,6 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
           SERIAL_ECHO_START;
           SERIAL_ECHOLNPGM(MSG_ZPROBE_ZOFFSET " " MSG_OK);
           SERIAL_PROTOCOLLN("");
-					previous_millis_ok = millis();
         }
         else
         {
@@ -3916,7 +3911,6 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
   ClearToSend();
 }
 
-
 void FlushSerialRequestResend()
 {
   //char cmdbuffer[bufindr][100]="Resend:";
@@ -3934,7 +3928,6 @@ void ClearToSend()
     return;
   #endif //SDSUPPORT
   SERIAL_PROTOCOLLNPGM(MSG_OK);
-	previous_millis_ok = millis();
 }
 
 void get_coordinates()
@@ -4359,14 +4352,6 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) //default argument s
   if( (millis() - previous_millis_cmd) >  max_inactive_time )
     if(max_inactive_time)
       kill();
-
-	// If 'OK' is garbled on sending PC won't receive it.  Both machines will wait on each other forever.
-	// This resends OK if nothing is heard from PC for a while to avoid this bad case.
-  if( (millis() - previous_millis_ok) >  max_inactive_time/4 ) {
-		SERIAL_PROTOCOL(MSG_OK);
-		previous_millis_ok=millis();
-  }
-
   if(stepper_inactive_time)  {
     if( (millis() - previous_millis_cmd) >  stepper_inactive_time )
     {
