@@ -19,8 +19,6 @@ http://reprap.org/wiki/RAMPS
 #define BOARD_RAMPS_13_EEF      36   // RAMPS 1.3 / 1.4 (Power outputs: Extruder0, Extruder1, Fan)
 ```
 
-#define BOARD_DUEMILANOVE_328P  4    // Duemilanove w/ ATMega328P pin assignment
-
 ##### Generation 3 Electronics
 
 http://reprap.org/wiki/Generation_3_Electronics
@@ -98,6 +96,7 @@ http://reprap.org/wiki/RUMBA
 #### Others
 
 ```
+#define BOARD_DUEMILANOVE_328P  4    // Duemilanove w/ ATMega328P pin assignment
 #define BOARD_STB_11            64   // STB V1.1
 #define BOARD_ULTIMAKER         7    // Ultimaker
 #define BOARD_ULTIMAKER_OLD     71   // Ultimaker (Older electronics. Pre 1.5.4. This is rare)
