@@ -4,8 +4,7 @@
 *   High steprate
 *   Look ahead (Keep the speed high when possible. High cornering speed)
 *   Interrupt based temperature protection
-*   preliminary support for Matthew Roberts advance algorithm
-    For more info see: http://reprap.org/pipermail/reprap-dev/2011-May/003323.html
+*   Preliminary support for [Matthew Roberts Advance Algorithm](http://reprap.org/pipermail/reprap-dev/2011-May/003323.html)
 *   Full endstop support
 *   SD Card support
 *   SD Card folders (works in pronterface)
