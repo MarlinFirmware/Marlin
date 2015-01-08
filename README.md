@@ -1,13 +1,13 @@
 # Marlin 3D Printer Firmware
 
-  * [Configuration & Compilation](/MarlinFirmware/Marlin/blob/Development/Documentation/Compilation.md)
+  * [Configuration & Compilation](/Documentation/Compilation.md)
   * Supported
-    * [Features](/MarlinFirmware/Marlin/blob/Development/Documentation/Features.md)
-    * [Hardware](/MarlinFirmware/Marlin/blob/Development/Documentation/Hardware.md)
-    * [GCodes](/MarlinFirmware/Marlin/blob/Development/Documentation/GCodes.md)
+    * [Features](/Documentation/Features.md)
+    * [Hardware](/Documentation/Hardware.md)
+    * [GCodes](/Documentation/GCodes.md)
   * Notes
-    * [Auto Bed Leveling](/MarlinFirmware/Marlin/blob/Development/Documentation/BedLeveling.md)
-    * [Filament Sensor](/MarlinFirmware/Marlin/blob/Development/Documentation/FilamentSensor.md)
+    * [Auto Bed Leveling](/Documentation/BedLeveling.md)
+    * [Filament Sensor](/Documentation/FilamentSensor.md)
 
 ## Quick Information
 
@@ -25,7 +25,7 @@ Lampmaker, Bradley Feldman, and others...
 [![Coverity Scan Build Status](https://scan.coverity.com/projects/2224/badge.svg)](https://scan.coverity.com/projects/2224)
 [![Travis Build Status](https://travis-ci.org/MarlinFirmware/Marlin.svg)](https://travis-ci.org/MarlinFirmware/Marlin)
 
-What bugs are we working on: https://github.com/MarlinFirmware/Marlin/milestones/Bug%20Fixing%20Round%201
+What bugs are we working on: https://github.com/MarlinFirmware/Marlin/milestones/Bug%20Fixing%20Round%201
 
 ## Contact
 
@@ -38,3 +38,4 @@ Marlin has a GPL license because I believe in open development.
 Please do not use this code in products (3D printers, CNC etc) that are closed source or are crippled by a patent.
 
 [![Flattr this git repo](http://api.flattr.com/button/flattr-badge-large.png)](https://flattr.com/submit/auto?user_id=ErikZalm&url=https://github.com/MarlinFirmware/Marlin&title=Marlin&language=&tags=github&category=software)
+
