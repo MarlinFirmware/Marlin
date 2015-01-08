@@ -1810,6 +1810,7 @@ static void menu_action_sdfile(const char* filename, char* longFilename)
 
 static void menu_action_sddirectory(const char* filename, char* longFilename)
 {
+    display_refresh_mode = CLEAR_AND_UPDATE_SCREEN;
     card.chdir(filename);
     encoder_position = 0;
 }
