@@ -38,7 +38,7 @@ __Google Hangouts:__ https://plus.google.com/hangouts/_/event/cps5d0ru0iruhl6ebq
 
 The current Marlin dev team consists of:
 
- - Erik van der Zalm ([@ErikZalm](https://github.com/ErikZalm)
+ - Erik van der Zalm ([@ErikZalm](https://github.com/ErikZalm))
  - [@daid](https://github.com/daid)
  - Bo Herrmannsen ([@boelle](https://github.com/boelle))
 
