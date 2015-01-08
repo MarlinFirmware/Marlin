@@ -1,4 +1,5 @@
 # Marlin 3D Printer Firmware
+<img align="right" src="Documentation/Logo/Marlin%20Logo%20GitHub.png" />
 
   * [Configuration & Compilation](/Documentation/Compilation.md)
   * Supported
@@ -8,6 +9,8 @@
   * Notes
     * [Auto Bed Leveling](/Documentation/BedLeveling.md)
     * [Filament Sensor](/Documentation/FilamentSensor.md)
+
+##### [RepRap.org Wiki Page](http://reprap.org/wiki/Marlin)
 
 ## Quick Information
 
@@ -30,12 +33,12 @@ What bugs are we working on: https://github.com/MarlinFirmware/Marlin/milestones
 ## Contact
 
 __IRC:__ #marlin-firmware @freenode
+
 __Google Hangouts:__ https://plus.google.com/hangouts/_/event/cps5d0ru0iruhl6ebqbk9dpqpa4?authuser=0&hl=da
 
 ## Licence
 
-Marlin has a GPL license because I believe in open development.
+Marlin is published unde the [GPL license](/Documentation/COPYING.md) because I believe in open development.
 Please do not use this code in products (3D printers, CNC etc) that are closed source or are crippled by a patent.
 
 [![Flattr this git repo](http://api.flattr.com/button/flattr-badge-large.png)](https://flattr.com/submit/auto?user_id=ErikZalm&url=https://github.com/MarlinFirmware/Marlin&title=Marlin&language=&tags=github&category=software)
-
