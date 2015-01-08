@@ -25,7 +25,11 @@ Lampmaker, Bradley Feldman, and others...
 [![Coverity Scan Build Status](https://scan.coverity.com/projects/2224/badge.svg)](https://scan.coverity.com/projects/2224)
 [![Travis Build Status](https://travis-ci.org/MarlinFirmware/Marlin.svg)](https://travis-ci.org/MarlinFirmware/Marlin)
 
+<<<<<<< HEAD
 What bugs are we working on: https://github.com/MarlinFirmware/Marlin/milestones/Bug%20Fixing%20Round%201
+=======
+What bugs are we working on: https://github.com/MarlinFirmware/Marlin/milestones/Bug%20Fixing%20Round%201
+>>>>>>> fixed line endings
 
 ## Contact
 
@@ -38,4 +42,3 @@ Marlin has a GPL license because I believe in open development.
 Please do not use this code in products (3D printers, CNC etc) that are closed source or are crippled by a patent.
 
 [![Flattr this git repo](http://api.flattr.com/button/flattr-badge-large.png)](https://flattr.com/submit/auto?user_id=ErikZalm&url=https://github.com/MarlinFirmware/Marlin&title=Marlin&language=&tags=github&category=software)
-
