@@ -14,16 +14,14 @@
 
 ## Quick Information
 
-This RepRap firmware is a mashup between <a href="https://github.com/kliment/Sprinter">Sprinter</a>, <a href="https://github.com/simen/grbl/tree">grbl</a> and many original parts.
-
-Derived from Sprinter and Grbl by Erik van der Zalm.
-Sprinters lead developers are Kliment and caru.
-Grbls lead developer is Simen Svale Skogsrud. Sonney Jeon (Chamnit) improved some parts of grbl
-A fork by bkubicek for the Ultimaker was merged, and further development was aided by him.
-Some features have been added by:
-Lampmaker, Bradley Feldman, and others...
+This is a firmware for reprap single-processor electronics setups.
+It also works on the Ultimaker PCB. It supports printing from SD card+Folders, and look-ahead trajectory planning.
+This firmware is a mashup between [Sprinter](https://github.com/kliment/Sprinter), [grbl](https://github.com/simen/grbl) and many original parts.
 
 ## Current Status: Bug Fixing
+
+The Marlin development is currently revived. There's a long list of reported issues and pull requests, which we are working on currently.
+We are actively looking for testers. So please try the current development version and report new issues and feedback.
 
 [![Coverity Scan Build Status](https://scan.coverity.com/projects/2224/badge.svg)](https://scan.coverity.com/projects/2224)
 [![Travis Build Status](https://travis-ci.org/MarlinFirmware/Marlin.svg)](https://travis-ci.org/MarlinFirmware/Marlin)
@@ -35,6 +33,14 @@ What bugs are we working on: https://github.com/MarlinFirmware/Marlin/milestones
 __IRC:__ #marlin-firmware @freenode
 
 __Google Hangouts:__ https://plus.google.com/hangouts/_/event/cps5d0ru0iruhl6ebqbk9dpqpa4?authuser=0&hl=da
+
+## Credits
+
+Sprinters lead developers are Kliment and caru.
+Grbls lead developer is Simen Svale Skogsrud. Sonney Jeon (Chamnit) improved some parts of grbl
+A fork by bkubicek for the Ultimaker was merged, and further development was aided by him.
+Some features have been added by:
+Lampmaker, Bradley Feldman, and others...
 
 ## Licence
 
