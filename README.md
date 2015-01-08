@@ -36,11 +36,21 @@ __Google Hangouts:__ https://plus.google.com/hangouts/_/event/cps5d0ru0iruhl6ebq
 
 ## Credits
 
+The current Marlin dev team consists of:
+
+ - Erik van der Zalm ([@ErikZalm](https://github.com/ErikZalm)
+ - [@daid](https://github.com/daid)
+ - Bo Herrmannsen ([@boelle](https://github.com/boelle))
+
 Sprinters lead developers are Kliment and caru.
-Grbls lead developer is Simen Svale Skogsrud. Sonney Jeon (Chamnit) improved some parts of grbl
-A fork by bkubicek for the Ultimaker was merged, and further development was aided by him.
-Some features have been added by:
-Lampmaker, Bradley Feldman, and others...
+Grbls lead developer is Simen Svale Skogsrud.
+Sonney Jeon (Chamnit) improved some parts of grbl
+A fork by bkubicek for the Ultimaker was merged.
+
+More features have been added by:
+  - Lampmaker,
+  - Bradley Feldman,
+  - and others...
 
 ## Licence
 
