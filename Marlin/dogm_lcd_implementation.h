@@ -121,13 +121,13 @@ static void lcd_implementation_init()
 	u8g.firstPage();
 	do {
 			// RepRap init bmp
-			u8g.drawBitmapP(9,9,START_BMPBYTEWIDTH,START_BMPHEIGHT,start_bmp);
+			u8g.drawBitmapP(7,7,START_BMPBYTEWIDTH,START_BMPHEIGHT,start_bmp);
 			// Welcome message
 			
 			
 			
 			u8g.setFont(u8g_font_5x8);
-			u8g.drawStr(49,50,"     V1.0.2");
+			u8g.drawStr(7,51,"V1.0.2 - marlin.reprap.org");
 			
 	   } while( u8g.nextPage() );
 }
