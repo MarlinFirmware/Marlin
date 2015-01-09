@@ -32,8 +32,6 @@ What bugs are we working on: [Bug Fixing Round 2](https://github.com/MarlinFirmw
 
 __IRC:__ #marlin-firmware @freenode
 
-__Google Hangouts:__ https://plus.google.com/hangouts/_/event/cps5d0ru0iruhl6ebqbk9dpqpa4?authuser=0&hl=da
-
 ## Credits
 
 The current Marlin dev team consists of:
