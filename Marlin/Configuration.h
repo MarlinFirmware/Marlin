@@ -33,8 +33,8 @@
 // Serial port 0 is still used by the Arduino bootloader regardless of this setting.
 #define SERIAL_PORT 0
 
-// This determines the communication speed of the printer in baud/s.
-#define BAUDRATE 250000
+// This determines the communication speed of the printer
+#define BAUDRATE 250000 // baud/s
 
 // This enables the serial port associated to the Bluetooth interface on AT90USB devices
 //#define BTENABLED
@@ -101,30 +101,30 @@
 // This makes temp sensor 1 a redundant sensor for sensor 0.
 // If the temperatures difference between these sensors is to high the print will be aborted.
 //#define TEMP_SENSOR_1_AS_REDUNDANT
-#define MAX_REDUNDANT_TEMP_SENSOR_DIFF 10
+#define MAX_REDUNDANT_TEMP_SENSOR_DIFF 10 // degC
 
 // Actual temperature must be close to target for this long before M109 returns success
-#define TEMP_RESIDENCY_TIME 10  // seconds
+#define TEMP_RESIDENCY_TIME 10 // seconds
 // Range of +/- temperatures considered "close" to the target one
-#define TEMP_HYSTERESIS 3       // degC
+#define TEMP_HYSTERESIS 3 // degC
 // Window around target to start the residency timer x degC early.
-#define TEMP_WINDOW     1       // degC
+#define TEMP_WINDOW 1 // degC
 
 // The minimal temperature defines the temperature below which the heater will not be enabled It is used
 // to check that the wiring to the thermistor is not broken.
 // Otherwise this would lead to the heater being powered on all the time.
-#define HEATER_0_MINTEMP 5
-#define HEATER_1_MINTEMP 5
-#define HEATER_2_MINTEMP 5
-#define BED_MINTEMP 5
+#define HEATER_0_MINTEMP 5 // degC
+#define HEATER_1_MINTEMP 5 // degC
+#define HEATER_2_MINTEMP 5 // degC
+#define BED_MINTEMP 5 // degC
 
 // When temperature exceeds max temp, your heater will be switched off.
 // This feature exists to protect your hotend from overheating accidentally, but *NOT* from thermistor short/failure!
 // You should use MINTEMP for thermistor short/failure protection.
-#define HEATER_0_MAXTEMP 275
-#define HEATER_1_MAXTEMP 275
-#define HEATER_2_MAXTEMP 275
-#define BED_MAXTEMP 150
+#define HEATER_0_MAXTEMP 275 // degC
+#define HEATER_1_MAXTEMP 275 // degC
+#define HEATER_2_MAXTEMP 275 // degC
+#define BED_MAXTEMP 150 // degC
 
 // If your bed has low resistance e.g. 0.6 ohm and throws the fuse you can duty cycle it to reduce the
 // average current. The value should be an integer and the heat bed will be turned on for 1 interval of
@@ -139,10 +139,10 @@
 // Comment the following line to disable PID and enable bang-bang.
 #define PIDTEMP
 #ifdef PIDTEMP
-  // Limits current to nozzle while in bang-bang mode; 255=full current
-  #define BANG_MAX 255
-  // Limits current to nozzle while PID is active (see PID_FUNCTIONAL_RANGE below); 255=full current
-  #define PID_MAX BANG_MAX
+  // Limits current to nozzle while in bang-bang mode
+  #define BANG_MAX 255 // 255 is full current
+  // Limits current to nozzle while PID is active (see PID_FUNCTIONAL_RANGE below)
+  #define PID_MAX BANG_MAX // 255 is full current
   // Sends debug data to the serial port
   //#define PID_DEBUG
   // Puts PID in open loop. M104/M140 sets the output power from 0 to PID_MAX
@@ -153,7 +153,7 @@
 
   // If the temperature difference between the target temperature and the actual temperature
   // is more then PID_FUNCTIONAL_RANGE then the PID will be shut off and the heater will be set to min/max.
-  #define PID_FUNCTIONAL_RANGE 10
+  #define PID_FUNCTIONAL_RANGE 10 // degC
   
   // Limit for the integral term
   #define PID_INTEGRAL_DRIVE_MAX PID_MAX
@@ -164,19 +164,19 @@
 
   // If you are using a pre-configured hotend then you can use one of the value sets by uncommenting it
   // Ultimaker
-  #define  DEFAULT_Kp 22.2
-  #define  DEFAULT_Ki 1.08
-  #define  DEFAULT_Kd 114
+  #define DEFAULT_Kp 22.2
+  #define DEFAULT_Ki 1.08
+  #define DEFAULT_Kd 114
 
   // MakerGear
-  //#define  DEFAULT_Kp 7.0
-  //#define  DEFAULT_Ki 0.1
-  //#define  DEFAULT_Kd 12
+  //#define DEFAULT_Kp 7.0
+  //#define DEFAULT_Ki 0.1
+  //#define DEFAULT_Kd 12
 
   // Mendel Parts V9 on 12V
-  //#define  DEFAULT_Kp 63.0
-  //#define  DEFAULT_Ki 2.25
-  //#define  DEFAULT_Kd 440
+  //#define DEFAULT_Kp 63.0
+  //#define DEFAULT_Ki 2.25
+  //#define DEFAULT_Kd 440
 #endif // PIDTEMP
 
 //========================= Bed Temperature Control =========================
@@ -196,8 +196,8 @@
 // all forms of bed control obey this (PID, bang-bang, bang-bang with hysteresis)
 // setting this to anything other than 255 enables a form of PWM to the bed just like HEATER_BED_DUTY_CYCLE_DIVIDER did,
 // so you shouldn't use it unless you are OK with PWM on your bed.  (see the comment on enabling PIDTEMPBED)
-// Limits duty cycle to bed; 255=full current
-#define MAX_BED_POWER 255
+// Limits duty cycle to bed
+#define MAX_BED_POWER 255 // 255 is full current
 
 #ifdef PIDTEMPBED
   // 120v 250W silicone heater into 4mm borosilicate (MendelMax 1.5+)
@@ -221,8 +221,9 @@
 //if PREVENT_DANGEROUS_EXTRUDE is on, you can still disable (uncomment) very long bits of extrusion separately.
 #define PREVENT_LENGTHY_EXTRUDE
 
-#define EXTRUDE_MINTEMP 170
-#define EXTRUDE_MAXLENGTH (X_MAX_LENGTH+Y_MAX_LENGTH) //prevent extrusion of very large distances.
+#define EXTRUDE_MINTEMP 170 // degC
+// Prevent extrusion of very large distances.
+#define EXTRUDE_MAXLENGTH (X_MAX_LENGTH+Y_MAX_LENGTH) // mm
 
 //================== Thermal Runaway Protection ==============================
 // This is a feature to protect your printer from burn up in flames if it has
@@ -244,15 +245,15 @@
 // If you want to enable this feature for all your extruder heaters,
 // uncomment the 2 defines below:
 // Parameters for all extruder heaters
-//#define THERMAL_RUNAWAY_PROTECTION_PERIOD 40 //in seconds
-//#define THERMAL_RUNAWAY_PROTECTION_HYSTERESIS 4 // in degree Celsius
+//#define THERMAL_RUNAWAY_PROTECTION_PERIOD 40 // seconds
+//#define THERMAL_RUNAWAY_PROTECTION_HYSTERESIS 4 // degC
 
 // If you want to enable this feature for your bed heater,
 // uncomment the 2 defines below:
 // Parameters for the bed heater
-//#define THERMAL_RUNAWAY_PROTECTION_BED_PERIOD 20 //in seconds
-//#define THERMAL_RUNAWAY_PROTECTION_BED_HYSTERESIS 2 // in degree Celsius
-
+//#define THERMAL_RUNAWAY_PROTECTION_BED_PERIOD 20 // seconds
+//#define THERMAL_RUNAWAY_PROTECTION_BED_HYSTERESIS 2 // degC
+‚
 //===========================================================================
 //============================ Mechanical Settings ==========================
 //===========================================================================
@@ -327,16 +328,16 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define max_software_endstops true
 
 // Travel limits after homing
-#define X_MAX_POS 205
-#define X_MIN_POS 0
-#define Y_MAX_POS 205
-#define Y_MIN_POS 0
-#define Z_MAX_POS 200
-#define Z_MIN_POS 0
+#define X_MAX_POS 205 // mm
+#define X_MIN_POS 0 // mm
+#define Y_MAX_POS 205 // mm
+#define Y_MIN_POS 0 // mm
+#define Z_MAX_POS 200 // mm
+#define Z_MIN_POS 0 // mm
 
-#define X_MAX_LENGTH (X_MAX_POS - X_MIN_POS)
-#define Y_MAX_LENGTH (Y_MAX_POS - Y_MIN_POS)
-#define Z_MAX_LENGTH (Z_MAX_POS - Z_MIN_POS)
+#define X_MAX_LENGTH (X_MAX_POS - X_MIN_POS) // mm
+#define Y_MAX_LENGTH (Y_MAX_POS - Y_MIN_POS) // mm
+#define Z_MAX_LENGTH (Z_MAX_POS - Z_MIN_POS) // mm
 
 //===========================================================================
 //============================= Bed Auto Leveling ===========================
@@ -365,10 +366,10 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
   // Note: this feature occupies 10'206 byte
   #ifdef AUTO_BED_LEVELING_GRID
     // Set the rectangle in which to probe
-    #define LEFT_PROBE_BED_POSITION 15
-    #define RIGHT_PROBE_BED_POSITION 170
-    #define BACK_PROBE_BED_POSITION 180
-    #define FRONT_PROBE_BED_POSITION 20
+    #define LEFT_PROBE_BED_POSITION 15 // mm
+    #define RIGHT_PROBE_BED_POSITION 170 // mm
+    #define BACK_PROBE_BED_POSITION 180 // mm
+    #define FRONT_PROBE_BED_POSITION 20 // mm
 
     // Set the number of grid points per dimension
     // I wouldn't see a reason to go above 3 (=9 probing points on the bed)
@@ -376,19 +377,19 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
   #else  // not AUTO_BED_LEVELING_GRID
     // With no grid, just probe 3 arbitrary points.  A simple cross-product
     // is used to esimate the plane of the print bed
-    #define ABL_PROBE_PT_1_X 15
-    #define ABL_PROBE_PT_1_Y 180
-    #define ABL_PROBE_PT_2_X 15
-    #define ABL_PROBE_PT_2_Y 20
-    #define ABL_PROBE_PT_3_X 170
-    #define ABL_PROBE_PT_3_Y 20
+    #define ABL_PROBE_PT_1_X 15 // mm
+    #define ABL_PROBE_PT_1_Y 180 // mm
+    #define ABL_PROBE_PT_2_X 15 // mm
+    #define ABL_PROBE_PT_2_Y 20 // mm
+    #define ABL_PROBE_PT_3_X 170 // mm
+    #define ABL_PROBE_PT_3_Y 20 // mm
   #endif // AUTO_BED_LEVELING_GRID
 
   // These are the offsets to the probe relative to the extruder tip (Hotend - Probe)
   // X and Y offsets must be integers
-  #define X_PROBE_OFFSET_FROM_EXTRUDER -25
-  #define Y_PROBE_OFFSET_FROM_EXTRUDER -29
-  #define Z_PROBE_OFFSET_FROM_EXTRUDER -12.35
+  #define X_PROBE_OFFSET_FROM_EXTRUDER -25 // mm
+  #define Y_PROBE_OFFSET_FROM_EXTRUDER -29 // mm
+  #define Z_PROBE_OFFSET_FROM_EXTRUDER -12.35 // mm
 
   // Raise Z before homing (G28) for Probe Clearance.
   // Be sure you have this distance over your Z_MAX_POS in case
@@ -398,9 +399,9 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
   #define XY_TRAVEL_SPEED 8000  // mm/min
 
   // How much the extruder will be raised before traveling to the first probing point.
-  #define Z_RAISE_BEFORE_PROBING 15
+  #define Z_RAISE_BEFORE_PROBING 15 // mm
   // How much the extruder will be raised when traveling from between next probing points
-  #define Z_RAISE_BETWEEN_PROBINGS 5
+  #define Z_RAISE_BETWEEN_PROBINGS 5 // mm
 
   // Turn on if you have a z-probe mounted on a sled like those designed by Charles Bell
   //#define Z_PROBE_SLED
@@ -424,9 +425,9 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
   #define Z_SAFE_HOMING
   #ifdef Z_SAFE_HOMING
     // X point for Z homing when homing all axis (G28)
-    #define Z_SAFE_HOMING_X_POINT (X_MAX_LENGTH/2)
+    #define Z_SAFE_HOMING_X_POINT (X_MAX_LENGTH/2) // mm
     // Y point for Z homing when homing all axis (G28)
-    #define Z_SAFE_HOMING_Y_POINT (Y_MAX_LENGTH/2)
+    #define Z_SAFE_HOMING_Y_POINT (Y_MAX_LENGTH/2) // mm
   #endif // Z_SAFE_HOMING
 
   // Check if Probe_Offset * Grid Points is greater than Probing Range
@@ -502,8 +503,8 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define CUSTOM_M_CODES
 #ifdef CUSTOM_M_CODES
   #define CUSTOM_M_CODE_SET_Z_PROBE_OFFSET 851
-  #define Z_PROBE_OFFSET_RANGE_MIN -15
-  #define Z_PROBE_OFFSET_RANGE_MAX -5
+  #define Z_PROBE_OFFSET_RANGE_MIN -15 // mm
+  #define Z_PROBE_OFFSET_RANGE_MAX -5 // mm
 #endif // CUSTOM_M_CODES
 
 
@@ -520,13 +521,13 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 
 //============================== Preheat Constants ==========================
-#define PLA_PREHEAT_HOTEND_TEMP 180
-#define PLA_PREHEAT_HPB_TEMP 70
-#define PLA_PREHEAT_FAN_SPEED 255   // Insert Value between 0 and 255
+#define PLA_PREHEAT_HOTEND_TEMP 180 // degC
+#define PLA_PREHEAT_HPB_TEMP 70 // degC
+#define PLA_PREHEAT_FAN_SPEED 255 // between 0 and 255
 
-#define ABS_PREHEAT_HOTEND_TEMP 240
-#define ABS_PREHEAT_HPB_TEMP 100
-#define ABS_PREHEAT_FAN_SPEED 255   // Insert Value between 0 and 255
+#define ABS_PREHEAT_HOTEND_TEMP 240 // degC
+#define ABS_PREHEAT_HPB_TEMP 100 // degC
+#define ABS_PREHEAT_FAN_SPEED 255 // between 0 and 255
 
 //============================== LCD and SD support =========================
 //#define ULTRA_LCD // General LCD support, also 16x2
@@ -562,8 +563,8 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 // http://reprapworld.com/?products_details&products_id=202&cPath=1591_1626
 #define REPRAPWORLD_KEYPAD
 #ifdef REPRAPWORLD_KEYPAD
-  // How much should be moved when a key is pressed, eg 10.0 means 10mm per click
-  #define REPRAPWORLD_KEYPAD_MOVE_STEP 10.0
+  // How much should be moved when a key is pressed per click
+  #define REPRAPWORLD_KEYPAD_MOVE_STEP 10.0 // mm
 #endif
 
 // The Elefu RA Board Control Panel
@@ -713,13 +714,16 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 // set it manually if you have more servos than extruders and wish to manually control some
 // leaving it undefined or defining as 0 will disable the servo subsystem
 // If unsure, leave commented / disabled
-//#define NUM_SERVOS 3 // Servo index starts with 0 for M280 command
+// Servo index starts with 0 for M280 command
+//#define NUM_SERVOS 3
 
 // Servo Endstops
 // This allows for servo actuated endstops, primary usage is for the Z Axis to eliminate calibration or bed height changes.
 // Use M206 command to correct for switch height offset to actual nozzle height. Store that setting with M500.
-//#define SERVO_ENDSTOPS {-1, -1, 0} // Servo index for X, Y, Z. Disable with -1
-//#define SERVO_ENDSTOP_ANGLES {0,0, 0,0, 70,0} // X,Y,Z Axis Extend and Retract angles
+// Servo index for X, Y, Z. Disable with -1
+//#define SERVO_ENDSTOPS {-1, -1, 0}
+// X,Y,Z Axis Extend and Retract angles
+//#define SERVO_ENDSTOP_ANGLES {0,0, 0,0, 70,0}
 
 //============================== Filament Sensor ============================
 // Also allows adjustment of diameter at print time (vs  at slicing)
@@ -730,28 +734,29 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 // 301 - Rambo  - uses Analog input 3
 // Note may require analog pins to be defined for different motherboards
 //#define FILAMENT_SENSOR
+// Enter the diameter of the filament generally used (3.0 mm or 1.75 mm)
+// This is then used in the slicer software. Used for sensor reading validation
+#define DEFAULT_NOMINAL_FILAMENT_DIA 3.0 // mm
+
 #ifdef FILAMENT_SENSOR
-  // The number of the extruder that has the filament sensor (0,1,2)
+  // The number of the extruder that has the filament sensor (0, 1, 2)
   #define FILAMENT_SENSOR_EXTRUDER_NUM 0
   // Measurement delay in cm.  This is the distance from filament sensor to middle of barrel
-  #define MEASUREMENT_DELAY_CM 14
-  // Enter the diameter of the filament generally used (3.0 mm or 1.75 mm)
-  // This is then used in the slicer software. Used for sensor reading validation
-  #define DEFAULT_NOMINAL_FILAMENT_DIA 3.0 // mm
+  #define MEASUREMENT_DELAY_CM 14 // cm
   // Upper limit factor used for sensor reading validation
   #define MEASURED_UPPER_LIMIT 3.30 // mm
   // Lower limit factor for sensor reading validation
   #define MEASURED_LOWER_LIMIT 1.90 // mm
   // Delay buffer size in bytes (1 byte = 1cm)
   // Limits maximum measurement delay allowable (must be larger than MEASUREMENT_DELAY_CM  and lower number saves RAM)
-  #define MAX_MEASUREMENT_DELAY	20
+  #define MAX_MEASUREMENT_DELAY	20 // cm
   // When using an LCD, uncomment the line below to display the Filament
   // sensor data on the last line instead of status.  Status will appear for 5 sec.
   //#define FILAMENT_LCD_DISPLAY
 
   // FIXME; move this to the code
   // Defines used in the code
-  #define DEFAULT_MEASURED_FILAMENT_DIA  DEFAULT_NOMINAL_FILAMENT_DIA  //set measured to nominal initially 
+  #define DEFAULT_MEASURED_FILAMENT_DIA  DEFAULT_NOMINAL_FILAMENT_DIA  // Set measured to nominal initially 
 #endif // FILAMENT_SENSOR
 
 //=================================== Misc =================================
