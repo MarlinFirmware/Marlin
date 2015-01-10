@@ -116,7 +116,7 @@
 #define HEATER_0_MINTEMP 5 // degC
 #define HEATER_1_MINTEMP 5 // degC
 #define HEATER_2_MINTEMP 5 // degC
-#define BED_MINTEMP 5 // degC
+#define BED_MINTEMP      5 // degC
 
 // When temperature exceeds max temp, your heater will be switched off.
 // This feature exists to protect your hotend from overheating accidentally, but *NOT* from thermistor short/failure!
@@ -124,7 +124,7 @@
 #define HEATER_0_MAXTEMP 275 // degC
 #define HEATER_1_MAXTEMP 275 // degC
 #define HEATER_2_MAXTEMP 275 // degC
-#define BED_MAXTEMP 150 // degC
+#define BED_MAXTEMP      150 // degC
 
 // If your bed has low resistance e.g. 0.6 ohm and throws the fuse you can duty cycle it to reduce the
 // average current. The value should be an integer and the heat bed will be turned on for 1 interval of
@@ -132,8 +132,8 @@
 //#define HEATER_BED_DUTY_CYCLE_DIVIDER 4
 
 // If you want the M105 heater power reported in watts, define the BED_WATTS, and (shared for all extruders) EXTRUDER_WATTS
-//#define EXTRUDER_WATTS (12.0*12.0/6.7) //  P=I^2/R
-//#define BED_WATTS (12.0*12.0/1.1)      // P=I^2/R
+//#define EXTRUDER_WATTS (12.0*12.0/6.7) // Watt (P=I^2/R)
+//#define BED_WATTS (12.0*12.0/1.1) // Watt (P=I^2/R)
 
 //=============================== PID settings ==============================
 // Comment the following line to disable PID and enable bang-bang.
@@ -189,7 +189,6 @@
 // shouldn't use bed PID until someone else verifies your hardware works.
 // If this is enabled, find your own PID constants below.
 //#define PIDTEMPBED
-
 //#define BED_LIMIT_SWITCHING
 
 // This sets the max power delivered to the bed, and replaces the HEATER_BED_DUTY_CYCLE_DIVIDER option.
@@ -199,6 +198,7 @@
 // Limits duty cycle to bed
 #define MAX_BED_POWER 255 // 255 is full current
 
+// FIND YOUR OWN: "M303 E-1 C8 S90" to run autotune on the bed at 90 degreesC for 8 cycles.
 #ifdef PIDTEMPBED
   // 120v 250W silicone heater into 4mm borosilicate (MendelMax 1.5+)
   // from FOPDT model - kp=.39 Tp=405 Tdead=66, Tc set to 79.2, aggressive factor of 0.15 (vs 0.1, 1, 10)
@@ -211,8 +211,6 @@
   //#define DEFAULT_bedKp 97.1
   //#define DEFAULT_bedKi 1.41
   //#define DEFAULT_bedKd 1675.16
-
-  // FIND YOUR OWN: "M303 E-1 C8 S90" to run autotune on the bed at 90 degreesC for 8 cycles.
 #endif // PIDTEMPBED
 
 //this prevents dangerous Extruder moves, i.e. if the temperature is under the limit
@@ -253,35 +251,46 @@
 // Parameters for the bed heater
 //#define THERMAL_RUNAWAY_PROTECTION_BED_PERIOD 20 // seconds
 //#define THERMAL_RUNAWAY_PROTECTION_BED_HYSTERESIS 2 // degC
-‚
+
 //===========================================================================
 //============================ Mechanical Settings ==========================
 //===========================================================================
 
-// Uncomment the following line to enable CoreXY kinematics
+// Uncomment the following line for a specific kinematic (see ExampleConfigurations)
 //#define COREXY
+//#define DELTA
 
-// Comment this to disable the endstop pullup resistors
-#define ENDSTOPPULLUPS 
+//================================= Endstops ================================
 
-// Fine endstop settings: Individual pullups. will be ignored if ENDSTOPPULLUPS is defined
-#ifndef ENDSTOPPULLUPS
-  #define ENDSTOPPULLUP_XMAX
-  #define ENDSTOPPULLUP_YMAX
-  #define ENDSTOPPULLUP_ZMAX
-  #define ENDSTOPPULLUP_XMIN
-  #define ENDSTOPPULLUP_YMIN
-  #define ENDSTOPPULLUP_ZMIN
-#endif // ENDSTOPPULLUPS
+// ENDSTOP SETTINGS:
+// Sets direction of endstops when homing; 1=MAX, -1=MIN
+#define X_HOME_DIR -1
+#define Y_HOME_DIR -1
+#define Z_HOME_DIR -1
+
+// If true, axis won't move to coordinates less than HOME_POS.
+#define MIN_SOFTWARE_ENDSTOPS true
+// If true, axis won't move to coordinates greater than the defined lengths below.
+#define MAX_SOFTWARE_ENDSTOPS true
+
+// Enable pullup resistors for individual enstops
+#define ENDSTOPPULLUP_XMAX
+#define ENDSTOPPULLUP_YMAX
+#define ENDSTOPPULLUP_ZMAX
+#define ENDSTOPPULLUP_XMIN
+#define ENDSTOPPULLUP_YMIN
+#define ENDSTOPPULLUP_ZMIN
 
 // The pullups are needed if you directly connect a mechanical endswitch between the signal and ground pins.
-// FIXME: Why not preprocessor macros?
-const bool X_MIN_ENDSTOP_INVERTING = true; // set to true to invert the logic of the endstop.
-const bool Y_MIN_ENDSTOP_INVERTING = true; // set to true to invert the logic of the endstop.
-const bool Z_MIN_ENDSTOP_INVERTING = true; // set to true to invert the logic of the endstop.
-const bool X_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of the endstop.
-const bool Y_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of the endstop.
-const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of the endstop.
+// Set to true to invert the logic of the endstop.
+#define X_MIN_ENDSTOP_INVERTING true
+#define Y_MIN_ENDSTOP_INVERTING true
+#define Z_MIN_ENDSTOP_INVERTING true
+#define X_MAX_ENDSTOP_INVERTING true
+#define Y_MAX_ENDSTOP_INVERTING true
+#define Z_MAX_ENDSTOP_INVERTING true
+
+// Disable endstops completly
 //#define DISABLE_MAX_ENDSTOPS
 //#define DISABLE_MIN_ENDSTOPS
 
@@ -289,6 +298,8 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #if defined(COREXY) && !defined(DISABLE_MAX_ENDSTOPS)
   #define DISABLE_MAX_ENDSTOPS
 #endif
+
+//================================= Steppers ================================
 
 // For Inverting Stepper Enable Pins (Active Low) use 0, Non Inverting (Active High) use 1
 #define X_ENABLE_ON 0
@@ -316,32 +327,21 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
  // For direct drive extruder v9 set to true, for geared extruder set to false
 #define INVERT_E2_DIR false
 
-// ENDSTOP SETTINGS:
-// Sets direction of endstops when homing; 1=MAX, -1=MIN
-#define X_HOME_DIR -1
-#define Y_HOME_DIR -1
-#define Z_HOME_DIR -1
 
-// If true, axis won't move to coordinates less than HOME_POS.
-#define min_software_endstops true
-// If true, axis won't move to coordinates greater than the defined lengths below.
-#define max_software_endstops true
 
 // Travel limits after homing
 #define X_MAX_POS 205 // mm
-#define X_MIN_POS 0 // mm
+#define X_MIN_POS 0   // mm
 #define Y_MAX_POS 205 // mm
-#define Y_MIN_POS 0 // mm
+#define Y_MIN_POS 0   // mm
 #define Z_MAX_POS 200 // mm
-#define Z_MIN_POS 0 // mm
+#define Z_MIN_POS 0   // mm
 
 #define X_MAX_LENGTH (X_MAX_POS - X_MIN_POS) // mm
 #define Y_MAX_LENGTH (Y_MAX_POS - Y_MIN_POS) // mm
 #define Z_MAX_LENGTH (Z_MAX_POS - Z_MIN_POS) // mm
 
-//===========================================================================
 //============================= Bed Auto Leveling ===========================
-//===========================================================================
 // Delete the comment to enable (remove // at the start of the line)
 //#define ENABLE_AUTO_BED_LEVELING
 #ifdef ENABLE_AUTO_BED_LEVELING
@@ -431,6 +431,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
   #endif // Z_SAFE_HOMING
 
   // Check if Probe_Offset * Grid Points is greater than Probing Range
+  // FIXME: move this out of Configuration.h
   #ifdef AUTO_BED_LEVELING_GRID
     #if X_PROBE_OFFSET_FROM_EXTRUDER < 0
       #if (-(X_PROBE_OFFSET_FROM_EXTRUDER * (AUTO_BED_LEVELING_GRID_POINTS-1)) >= (RIGHT_PROBE_BED_POSITION - LEFT_PROBE_BED_POSITION))
@@ -643,8 +644,8 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 
   #ifdef LCD_USE_I2C_BUZZER
-	  #define LCD_FEEDBACK_FREQUENCY_HZ 1000
-    #define LCD_FEEDBACK_FREQUENCY_DURATION_MS 100
+	  #define LCD_FEEDBACK_FREQUENCY_HZ 1000 // Hz
+    #define LCD_FEEDBACK_FREQUENCY_DURATION_MS 100 // ms
   #endif // LCD_USE_I2C_BUZZER
 #endif // LCD_I2C_PANELOLU2
 
@@ -726,6 +727,10 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 //#define SERVO_ENDSTOP_ANGLES {0,0, 0,0, 70,0}
 
 //============================== Filament Sensor ============================
+// Enter the diameter of the filament generally used (3.0 mm or 1.75 mm)
+// This is then used in the slicer software. Used for sensor reading validation
+#define DEFAULT_NOMINAL_FILAMENT_DIA 3.0 // mm
+
 // Also allows adjustment of diameter at print time (vs  at slicing)
 // Single extruder only at this point (extruder 0)
 // Motherboards
@@ -734,10 +739,6 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 // 301 - Rambo  - uses Analog input 3
 // Note may require analog pins to be defined for different motherboards
 //#define FILAMENT_SENSOR
-// Enter the diameter of the filament generally used (3.0 mm or 1.75 mm)
-// This is then used in the slicer software. Used for sensor reading validation
-#define DEFAULT_NOMINAL_FILAMENT_DIA 3.0 // mm
-
 #ifdef FILAMENT_SENSOR
   // The number of the extruder that has the filament sensor (0, 1, 2)
   #define FILAMENT_SENSOR_EXTRUDER_NUM 0
@@ -782,7 +783,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 // M240  Triggers a camera by emulating a Canon RC-1 Remote
 // Data from: http://www.doc-diy.net/photo/rc-1_hacked/
-//#define PHOTOGRAPH_PIN     23
+//#define PHOTOGRAPH_PIN 23
 
 // SF send wrong arc g-codes when using Arc Point as fillet procedure
 //#define SF_ARC_FIX

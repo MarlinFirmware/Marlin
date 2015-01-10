@@ -61,8 +61,6 @@
 #include <SPI.h>
 #endif
 
-#define VERSION_STRING  "1.0.0"
-
 // look here for descriptions of G-codes: http://linuxcnc.org/handbook/gcode/g-code.html
 // http://objects.reprap.org/wiki/Mendel_User_Manual:_RepRapGCodes
 
@@ -572,7 +570,7 @@ void setup()
   MCUSR=0;
 
   SERIAL_ECHOPGM(MSG_MARLIN);
-  SERIAL_ECHOLNPGM(VERSION_STRING);
+  SERIAL_ECHOLNPGM(STRING_STRING);
   #ifdef STRING_BUILD_DATE
     #ifdef STRING_AUTHOR
       SERIAL_ECHO_START;
@@ -3978,7 +3976,7 @@ void get_arc_coordinates()
 
 void clamp_to_software_endstops(float target[3])
 {
-  if (min_software_endstops) {
+  if (MIN_SOFTWARE_ENDSTOPS) {
     if (target[X_AXIS] < min_pos[X_AXIS]) target[X_AXIS] = min_pos[X_AXIS];
     if (target[Y_AXIS] < min_pos[Y_AXIS]) target[Y_AXIS] = min_pos[Y_AXIS];
     
@@ -3991,7 +3989,7 @@ void clamp_to_software_endstops(float target[3])
     if (target[Z_AXIS] < min_pos[Z_AXIS]+negative_z_offset) target[Z_AXIS] = min_pos[Z_AXIS]+negative_z_offset;
   }
 
-  if (max_software_endstops) {
+  if (MAX_SOFTWARE_ENDSTOPS) {
     if (target[X_AXIS] > max_pos[X_AXIS]) target[X_AXIS] = max_pos[X_AXIS];
     if (target[Y_AXIS] > max_pos[Y_AXIS]) target[Y_AXIS] = max_pos[Y_AXIS];
     if (target[Z_AXIS] > max_pos[Z_AXIS]) target[Z_AXIS] = max_pos[Z_AXIS];
