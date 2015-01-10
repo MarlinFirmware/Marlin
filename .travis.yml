@@ -139,7 +139,7 @@ script:
   - ino build -m mega2560
   ######## Example Configurations ##############
   # Delta Config
-  - cp Marlin/example_configurations/delta/Configuration* Marlin/
+  - cp ExampleConfigurations/Delta/Configuration* Marlin/
   - rm -rf .build/
   - ino build -m mega2560
   # Makibox Config  need to check board type for Teensy++ 2.0
@@ -147,11 +147,11 @@ script:
   #- rm -rf .build/
   #- ino build -m mega2560
   # SCARA Config
-  - cp Marlin/example_configurations/SCARA/Configuration* Marlin/
+  - cp ExampleConfigurations/SCARA/Configuration* Marlin/
   - rm -rf .build/
   - ino build -m mega2560
   # tvrrug Config need to check board type for sanguino atmega644p
-  #- cp Marlin/example_configurations/tvrrug/Round2/Configuration* Marlin/
+  #- cp ExampleConfigurations/TVRRUG/Configuration* Marlin/
   #- rm -rf .build/
   #- ino build -m mega2560
   ######## Board Types #############
