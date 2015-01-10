@@ -1281,28 +1281,32 @@ void refresh_cmd_timeout(void)
       feedrate=retract_feedrate*60;
       retracted[active_extruder]=true;
       prepare_move();
-      current_position[Z_AXIS]-=retract_zlift;
+      if(retract_zlift > 0.01) {
+         current_position[Z_AXIS]-=retract_zlift;
 #ifdef DELTA
-      calculate_delta(current_position); // change cartesian kinematic to  delta kinematic;
-      plan_set_position(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], current_position[E_AXIS]);
+         calculate_delta(current_position); // change cartesian kinematic to  delta kinematic;
+         plan_set_position(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], current_position[E_AXIS]);
 #else
-      plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+         plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
 #endif
-      prepare_move();
+         prepare_move();
+      }
       feedrate = oldFeedrate;
     } else if(!retracting && retracted[active_extruder]) {
       destination[X_AXIS]=current_position[X_AXIS];
       destination[Y_AXIS]=current_position[Y_AXIS];
       destination[Z_AXIS]=current_position[Z_AXIS];
       destination[E_AXIS]=current_position[E_AXIS];
-      current_position[Z_AXIS]+=retract_zlift;
+      if(retract_zlift > 0.01) {
+         current_position[Z_AXIS]+=retract_zlift;
 #ifdef DELTA
-      calculate_delta(current_position); // change cartesian kinematic  to  delta kinematic;
-      plan_set_position(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], current_position[E_AXIS]);
+         calculate_delta(current_position); // change cartesian kinematic  to  delta kinematic;
+         plan_set_position(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], current_position[E_AXIS]);
 #else
-      plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+         plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
 #endif
-      //prepare_move();
+         //prepare_move();
+      }
       if (swapretract) {
         current_position[E_AXIS]-=(retract_length_swap+retract_recover_length_swap)/volumetric_multiplier[active_extruder]; 
       } else {
