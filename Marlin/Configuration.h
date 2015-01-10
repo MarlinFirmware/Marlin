@@ -562,7 +562,7 @@
 
 // The RepRapWorld REPRAPWORLD_KEYPAD v1.1
 // http://reprapworld.com/?products_details&products_id=202&cPath=1591_1626
-#define REPRAPWORLD_KEYPAD
+//#define REPRAPWORLD_KEYPAD
 #ifdef REPRAPWORLD_KEYPAD
   // How much should be moved when a key is pressed per click
   #define REPRAPWORLD_KEYPAD_MOVE_STEP 10.0 // mm
