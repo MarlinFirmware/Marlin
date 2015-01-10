@@ -8,7 +8,7 @@
 //  - and endstop configuration
 //
 // Advanced settings can be found in Configuration_adv.h
-// Please take a look at the ExampleConfigurations folder for
+// Please take a look at the "/ExampleConfigurations" folder for
 // preconfigured Delta and Scara setups!
 
 // Choose your board type.
