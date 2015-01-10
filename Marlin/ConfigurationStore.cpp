@@ -231,18 +231,11 @@ SERIAL_ECHOLNPGM("Scaling factors:");
 #ifdef PIDTEMP
     SERIAL_ECHO_START;
     SERIAL_ECHOLNPGM("PID settings:");
-	for (int e = 0; e < EXTRUDERS; e++)
-	{
-	  SERIAL_ECHO_START;
-      SERIAL_ECHOPAIR("   M301 E", (long unsigned int)e);
-	  SERIAL_ECHOPAIR(" P", Kp[e]);
-      SERIAL_ECHOPAIR(" I" ,unscalePID_i(Ki[e])); 
-      SERIAL_ECHOPAIR(" D" ,unscalePID_d(Kd[e]));
-#ifdef PID_ADD_EXTRUSION_RATE
-      SERIAL_ECHOPAIR(" C" ,Kc[e]);
-#endif//PID_ADD_EXTRUSION_RATE	  
-      SERIAL_ECHOLN(""); 
-	}
+	SERIAL_ECHO_START;
+    SERIAL_ECHOPAIR("   M301 P", Kp[0]); // for compatibility with hosts, only echos values for E0
+    SERIAL_ECHOPAIR(" I" ,unscalePID_i(Ki[0])); 
+    SERIAL_ECHOPAIR(" D" ,unscalePID_d(Kd[0]));  
+    SERIAL_ECHOLN(""); 
 #endif//PIDTEMP
 #ifdef FWRETRACT
     SERIAL_ECHO_START;
