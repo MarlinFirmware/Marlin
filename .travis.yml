@@ -147,11 +147,11 @@ script:
   #- rm -rf .build/
   #- ino build -m mega2560
   # SCARA Config
-  - cp ExampleConfigurations/Scara/Configuration* Marlin/
+  - cp ExampleConfigurations/SCARA/Configuration* Marlin/
   - rm -rf .build/
   - ino build -m mega2560
   # tvrrug Config need to check board type for sanguino atmega644p
-  #- cp ExampleConfigurations/tvrrug/Round2/Configuration* Marlin/
+  #- cp ExampleConfigurations/TVRRUG/Configuration* Marlin/
   #- rm -rf .build/
   #- ino build -m mega2560
   ######## Board Types #############
