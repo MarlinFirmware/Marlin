@@ -9,6 +9,7 @@
   * Notes
     * [Auto Bed Leveling](/Documentation/BedLeveling.md)
     * [Filament Sensor](/Documentation/FilamentSensor.md)
+    * [Ramps Servo Power](/Documentation/RampsServoPower.md)
 
 ##### [RepRap.org Wiki Page](http://reprap.org/wiki/Marlin)
 
