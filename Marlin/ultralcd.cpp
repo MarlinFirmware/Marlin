@@ -196,7 +196,7 @@ static void lcd_goto_menu(menuFunc_t menu, const uint32_t encoder=0, const bool 
     if (feedback) lcd_quick_feedback();
 
     // For LCD_PROGRESS_BAR re-initialize the custom characters
-    #if defined(LCD_PROGRESS_BAR) && defined(SDSUPPORT)
+    #if defined(LCD_PROGRESS_BAR) && defined(SDSUPPORT) && !defined(DOGLCD)
       lcd_set_custom_characters(menu == lcd_status_screen);
     #endif
   }
@@ -205,7 +205,7 @@ static void lcd_goto_menu(menuFunc_t menu, const uint32_t encoder=0, const bool 
 /* Main status screen. It's up to the implementation specific part to show what is needed. As this is very display dependent */
 static void lcd_status_screen()
 {
-  #if defined(LCD_PROGRESS_BAR) && defined(SDSUPPORT)
+  #if defined(LCD_PROGRESS_BAR) && defined(SDSUPPORT) && !defined(DOGLCD)
     uint16_t mil = millis();
     #ifndef PROGRESS_MSG_ONCE
       if (mil > progressBarTick + PROGRESS_BAR_MSG_TIME + PROGRESS_BAR_BAR_TIME) {
@@ -237,11 +237,12 @@ static void lcd_status_screen()
         lcd_status_update_delay--;
     else
         lcdDrawUpdate = 1;
-    if (lcdDrawUpdate)
-    {
+
+    if (lcdDrawUpdate) {
         lcd_implementation_status_screen();
         lcd_status_update_delay = 10;   /* redraw the main screen every second. This is easier then trying keep track of all things that change on the screen */
     }
+
 #ifdef ULTIPANEL
 
     bool current_click = LCD_CLICKED;
@@ -266,7 +267,7 @@ static void lcd_status_screen()
     {
         lcd_goto_menu(lcd_main_menu);
         lcd_implementation_init( // to maybe revive the LCD if static electricity killed it.
-          #if defined(LCD_PROGRESS_BAR) && defined(SDSUPPORT)
+          #if defined(LCD_PROGRESS_BAR) && defined(SDSUPPORT) && !defined(DOGLCD)
             currentMenu == lcd_status_screen
           #endif
         );
@@ -1216,7 +1217,7 @@ void lcd_update()
         lcdDrawUpdate = 2;
         lcd_oldcardstatus = IS_SD_INSERTED;
         lcd_implementation_init( // to maybe revive the LCD if static electricity killed it.
-          #if defined(LCD_PROGRESS_BAR) && defined(SDSUPPORT)
+          #if defined(LCD_PROGRESS_BAR) && defined(SDSUPPORT) && !defined(DOGLCD)
             currentMenu == lcd_status_screen
           #endif
         );
@@ -1319,7 +1320,7 @@ void lcd_finishstatus() {
     }
   }
   lcd_status_message[LCD_WIDTH] = '\0';
-  #if defined(LCD_PROGRESS_BAR) && defined(SDSUPPORT)
+  #if defined(LCD_PROGRESS_BAR) && defined(SDSUPPORT) && !defined(DOGLCD)
     #if PROGRESS_MSG_EXPIRE > 0
       messageTick =
     #endif
