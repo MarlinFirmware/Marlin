@@ -81,11 +81,11 @@ void Config_StoreSettings()
 	{
 	  if (e < EXTRUDERS)
 	  {
-        EEPROM_WRITE_VAR(i,Kp[e]);
-        EEPROM_WRITE_VAR(i,Ki[e]);
-        EEPROM_WRITE_VAR(i,Kd[e]);
+        EEPROM_WRITE_VAR(i,PID_PARAM(Kp,e));
+        EEPROM_WRITE_VAR(i,PID_PARAM(Ki,e));
+        EEPROM_WRITE_VAR(i,PID_PARAM(Kd,e));
         #ifdef PID_ADD_EXTRUSION_RATE
-        EEPROM_WRITE_VAR(i,Kc[e]);
+        EEPROM_WRITE_VAR(i,PID_PARAM(Kc,e));
         #else//PID_ADD_EXTRUSION_RATE
 		dummy = 1.0f; // 1.0 = default kc
 	    EEPROM_WRITE_VAR(dummmy);
@@ -232,9 +232,9 @@ SERIAL_ECHOLNPGM("Scaling factors:");
     SERIAL_ECHO_START;
     SERIAL_ECHOLNPGM("PID settings:");
 	SERIAL_ECHO_START;
-    SERIAL_ECHOPAIR("   M301 P", Kp[0]); // for compatibility with hosts, only echos values for E0
-    SERIAL_ECHOPAIR(" I" ,unscalePID_i(Ki[0])); 
-    SERIAL_ECHOPAIR(" D" ,unscalePID_d(Kd[0]));  
+    SERIAL_ECHOPAIR("   M301 P", PID_PARAM(Kp,0)); // for compatibility with hosts, only echos values for E0
+	SERIAL_ECHOPAIR(" I", unscalePID_i(PID_PARAM(Ki, 0)));
+	SERIAL_ECHOPAIR(" D", unscalePID_d(PID_PARAM(Kd, 0)));
     SERIAL_ECHOLN(""); 
 #endif//PIDTEMP
 #ifdef FWRETRACT
@@ -341,11 +341,11 @@ void Config_RetrieveSettings()
 		  if (e < EXTRUDERS)
 		  {
 		    // do not need to scale PID values as the values in EEPROM are already scaled			  
-            EEPROM_READ_VAR(i,Kp[e]);
-            EEPROM_READ_VAR(i,Ki[e]);
-		    EEPROM_READ_VAR(i,Kd[e]);
+            EEPROM_READ_VAR(i,PID_PARAM(Kp,e));
+            EEPROM_READ_VAR(i,PID_PARAM(Ki,e));
+		    EEPROM_READ_VAR(i,PID_PARAM(Kd,e));
 #ifdef PID_ADD_EXTRUSION_RATE
-            EEPROM_READ_VAR(i,Kc[e]);
+            EEPROM_READ_VAR(i,PID_PARAM(Kc,e));
 #else//PID_ADD_EXTRUSION_RATE
 	        EEPROM_READ_VAR(i,dummy);
 #endif//PID_ADD_EXTRUSION_RATE
@@ -470,14 +470,18 @@ void Config_ResetDefault()
     lcd_contrast = DEFAULT_LCD_CONTRAST;
 #endif//DOGLCD
 #ifdef PIDTEMP
+#ifdef PID_PARAMS_PER_EXTRUDER
 	for (int e = 0; e < EXTRUDERS; e++)
+#else // PID_PARAMS_PER_EXTRUDER
+	int e = 0; // only need to write once
+#endif // PID_PARAMS_PER_EXTRUDER
 	{
-      Kp[e] = DEFAULT_Kp;
-      Ki[e] = scalePID_i(DEFAULT_Ki);
-      Kd[e] = scalePID_d(DEFAULT_Kd);
-#ifdef PID_ADD_EXTRUSION_RATE
-      Kc[e] = DEFAULT_Kc;
-#endif//PID_ADD_EXTRUSION_RATE
+      PID_PARAM(Kp,e) = DEFAULT_Kp;
+      PID_PARAM(Ki,e) = scalePID_i(DEFAULT_Ki);
+      PID_PARAM(Kd,e) = scalePID_d(DEFAULT_Kd);
+      #ifdef PID_ADD_EXTRUSION_RATE
+        PID_PARAM(Kc,e) = DEFAULT_Kc;
+      #endif//PID_ADD_EXTRUSION_RATE
     }
     // call updatePID (similar to when we have processed M301)
     updatePID();

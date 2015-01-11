@@ -3209,27 +3209,29 @@ Sigma_Exit:
 		if (e < EXTRUDERS) // catch bad input value
 		{
 
-			if (code_seen('P')) Kp[e] = code_value();
-			if (code_seen('I')) Ki[e] = scalePID_i(code_value());
-			if (code_seen('D')) Kd[e] = scalePID_d(code_value());
+			if (code_seen('P')) PID_PARAM(Kp,e) = code_value();
+			if (code_seen('I')) PID_PARAM(Ki,e) = scalePID_i(code_value());
+			if (code_seen('D')) PID_PARAM(Kd,e) = scalePID_d(code_value());
 			#ifdef PID_ADD_EXTRUSION_RATE
-			if (code_seen('C')) Kc[e] = code_value();
+			if (code_seen('C')) PID_PARAM(Kc,e) = code_value();
 			#endif			
 
 			updatePID();
 			SERIAL_PROTOCOL(MSG_OK);
-			SERIAL_PROTOCOL(" e:"); // specify extruder in serial output
-			SERIAL_PROTOCOL(e);
+            #ifdef PID_PARAMS_PER_EXTRUDER
+			  SERIAL_PROTOCOL(" e:"); // specify extruder in serial output
+			  SERIAL_PROTOCOL(e);
+            #endif // PID_PARAMS_PER_EXTRUDER
 			SERIAL_PROTOCOL(" p:");
-			SERIAL_PROTOCOL(Kp[e]);
+			SERIAL_PROTOCOL(PID_PARAM(Kp,e));
 			SERIAL_PROTOCOL(" i:");
-			SERIAL_PROTOCOL(unscalePID_i(Ki[e]));
+			SERIAL_PROTOCOL(unscalePID_i(PID_PARAM(Ki,e)));
 			SERIAL_PROTOCOL(" d:");
-			SERIAL_PROTOCOL(unscalePID_d(Kd[e]));
+			SERIAL_PROTOCOL(unscalePID_d(PID_PARAM(Kd,e)));
 			#ifdef PID_ADD_EXTRUSION_RATE
 			SERIAL_PROTOCOL(" c:");
 			//Kc does not have scaling applied above, or in resetting defaults
-			SERIAL_PROTOCOL(Kc[e]);
+			SERIAL_PROTOCOL(PID_PARAM(Kc,e));
 			#endif
 			SERIAL_PROTOCOLLN("");
 		
