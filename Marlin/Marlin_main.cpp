@@ -1759,7 +1759,7 @@ void process_commands()
                    if ((yProbe==FRONT_PROBE_BED_POSITION) && (xCount==0))
                        {
                         measured_z = probe_pt(xProbe, yProbe, z_before,1);
-                       } else if ((yProbe==BACK_PROBE_BED_POSITION) && (xCount == AUTO_BED_LEVELING_GRID_POINTS-1))
+                       } else if ((yProbe==FRONT_PROBE_BED_POSITION + (yGridSpacing * (AUTO_BED_LEVELING_GRID_POINTS-1))) && (xCount == AUTO_BED_LEVELING_GRID_POINTS-1))
                          {
                          measured_z = probe_pt(xProbe, yProbe, z_before,3);
                          } else {
