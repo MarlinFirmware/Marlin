@@ -11,6 +11,7 @@
   void lcd_setstatuspgm(const char* message);
   void lcd_setalertstatuspgm(const char* message);
   void lcd_reset_alert_level();
+  bool lcd_detected(void);
 
 #ifdef DOGLCD
   extern int lcd_contrast;
@@ -42,9 +43,17 @@
   extern int absPreheatHotendTemp;
   extern int absPreheatHPBTemp;
   extern int absPreheatFanSpeed;
-    
+  
+  extern bool cancel_heatup;
+  
+  #ifdef FILAMENT_LCD_DISPLAY
+        extern unsigned long message_millis;
+  #endif
+
   void lcd_buzz(long duration,uint16_t freq);
   bool lcd_clicked();
+
+  void lcd_ignore_click(bool b=true);
 
   #ifdef NEWPANEL
     #define EN_C (1<<BLEN_C)
@@ -92,10 +101,12 @@
   FORCE_INLINE void lcd_buttons_update() {}
   FORCE_INLINE void lcd_reset_alert_level() {}
   FORCE_INLINE void lcd_buzz(long duration,uint16_t freq) {}
+  FORCE_INLINE bool lcd_detected(void) { return true; }
 
   #define LCD_MESSAGEPGM(x) 
   #define LCD_ALERTMESSAGEPGM(x) 
-#endif 
+
+#endif //ULTRA_LCD
 
 char *itostr2(const uint8_t &x);
 char *itostr31(const int &xx);
@@ -107,8 +118,11 @@ char *ftostr3(const float &x);
 char *ftostr31ns(const float &x); // float to string without sign character
 char *ftostr31(const float &x);
 char *ftostr32(const float &x);
+char *ftostr43(const float &x);
+char *ftostr12ns(const float &x); 
+char *ftostr32sp(const float &x); // remove zero-padding from ftostr32
 char *ftostr5(const float &x);
 char *ftostr51(const float &x);
 char *ftostr52(const float &x);
 
-#endif //ULTRALCD
+#endif //ULTRALCD_H

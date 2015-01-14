@@ -6,7 +6,7 @@
 #include "Wire.h"
 
 // Settings for the I2C based DIGIPOT (MCP4451) on Azteeg X3 Pro
-#if MOTHERBOARD == 88
+#if MB(5DPRINT)
 #define DIGIPOT_I2C_FACTOR 117.96
 #define DIGIPOT_I2C_MAX_CURRENT 1.736
 #else

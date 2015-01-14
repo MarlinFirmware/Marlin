@@ -1,0 +1,72 @@
+# See: https://github.com/arduino/Arduino/wiki/Arduino-IDE-1.5---3rd-party-Hardware-specification
+
+##############################################################
+
+menu.cpu=Processor
+
+########################################
+## RAMBo
+########################################
+rambo.name=RAMBo
+
+rambo.upload.tool=arduino:avrdude
+rambo.upload.protocol=wiring
+rambo.upload.maximum_size=258048
+rambo.upload.speed=115200
+
+rambo.bootloader.low_fuses=0xFF
+rambo.bootloader.high_fuses=0xD8
+rambo.bootloader.extended_fuses=0xFD
+rambo.bootloader.path=stk500v2
+rambo.bootloader.file=stk500boot_v2_mega2560.hex
+rambo.bootloader.unlock_bits=0x3F
+rambo.bootloader.lock_bits=0x0F
+
+rambo.build.mcu=atmega2560
+rambo.build.f_cpu=16000000L
+rambo.build.board=AVR_RAMBO
+rambo.build.core=arduino:arduino
+rambo.build.variant=rambo
+
+########################################
+## Sanguino
+########################################
+sanguino.name=Sanguino
+
+sanguino.upload.tool=ardunio:avrdude
+sanguino.upload.protocol=stk500
+sanguino.upload.maximum_size=131072
+sanguino.upload.speed=57600
+
+sanguino.bootloader.low_fuses=0xD6
+sanguino.bootloader.high_fuses=0xDA
+sanguino.bootloader.extended_fuses=0xFD
+sanguino.bootloader.path=atmega
+sanguino.bootloader.unlock_bits=0x3F
+sanguino.bootloader.lock_bits=0x0F
+
+sanguino.build.mcu=atmega1284p
+sanguino.build.f_cpu=16000000L
+sanguino.build.board=AVR_SANGUINO
+sanguino.build.core=arduino:arduino
+sanguino.build.variant=sanguino
+
+sanguino.menu.cpu.atmega644=ATmega644P
+sanguino.menu.cpu.atmega644.upload.maximum_size=63488
+sanguino.menu.cpu.atmega644.bootloader.low_fuses=0xFF
+sanguino.menu.cpu.atmega644.bootloader.high_fuses=0x9A
+sanguino.menu.cpu.atmega644.bootloader.extended_fuses=0xFF
+sanguino.menu.cpu.atmega644.bootloader.file=ATmegaBOOT_168_atmega644p.hex
+sanguino.menu.cpu.atmega644.build.mcu=atmega644p
+
+sanguino.menu.cpu.atmega12848m=ATmega1284p 8MHz
+sanguino.menu.cpu.atmega12848m.upload.speed=19200
+sanguino.menu.cpu.atmega12848m.bootloader.file=ATmegaBOOT_168_atmega1284p_8m.hex
+sanguino.menu.cpu.atmega12848m.build.f_cpu=8000000L
+
+sanguino.menu.cpu.atmega1284=ATmega1284p 16MHz
+sanguino.menu.cpu.atmega1284.bootloader.file=ATmegaBOOT_168_atmega1284p.hex
+
+sanguino.menu.cpu.atmega1284m=ATmega1284p 20MHz
+sanguino.menu.cpu.atmega1284m.bootloader.file=ATmegaBOOT_168_atmega1284p.hex
+sanguino.menu.cpu.atmega1284m.build.f_cpu=20000000L
