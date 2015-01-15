@@ -17,8 +17,9 @@
  * along with the Arduino SdFat Library.  If not, see
  * <http://www.gnu.org/licenses/>.
  */
-#include "SdFat.h"
-#include <Print.h>
+#include "Marlin.h"
+
+#ifdef SDSUPPORT
 #include "SdFatUtil.h"
 
 //------------------------------------------------------------------------------
@@ -49,8 +50,7 @@ int SdFatUtil::FreeRam() {
  * \param[in] pr Print object for output.
  * \param[in] str Pointer to string stored in flash memory.
  */
-void SdFatUtil::print_P( Print *p, PGM_P str) {
-	Print &MYSERIAL = *p;
+void SdFatUtil::print_P( PGM_P str) {
   for (uint8_t c; (c = pgm_read_byte(str)); str++) MYSERIAL.write(c);
 }
 //------------------------------------------------------------------------------
@@ -59,9 +59,8 @@ void SdFatUtil::print_P( Print *p, PGM_P str) {
  * \param[in] pr Print object for output.
  * \param[in] str Pointer to string stored in flash memory.
  */
-void SdFatUtil::println_P( Print *p, PGM_P str) {
-	Print &MYSERIAL = *p;
-  print_P( p, str);
+void SdFatUtil::println_P( PGM_P str) {
+  print_P( str);
   MYSERIAL.println();
 }
 //------------------------------------------------------------------------------
@@ -69,14 +68,15 @@ void SdFatUtil::println_P( Print *p, PGM_P str) {
  *
  * \param[in] str Pointer to string stored in flash memory.
  */
-void SdFatUtil::SerialPrint_P( Print *p, PGM_P str) {
-  print_P(p, str);
+void SdFatUtil::SerialPrint_P(PGM_P str) {
+  print_P(str);
 }
 //------------------------------------------------------------------------------
 /** %Print a string in flash memory to Serial followed by a CR/LF.
  *
  * \param[in] str Pointer to string stored in flash memory.
  */
-void SdFatUtil::SerialPrintln_P(Print *p, PGM_P str) {
-  println_P( p, str);
+void SdFatUtil::SerialPrintln_P(PGM_P str) {
+  println_P( str);
 }
+#endif

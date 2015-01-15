@@ -17,6 +17,9 @@
  * along with the Arduino Sd2Card Library.  If not, see
  * <http://www.gnu.org/licenses/>.
  */
+#include "Marlin.h"
+#ifdef SDSUPPORT
+
 #ifndef SdInfo_h
 #define SdInfo_h
 #include <stdint.h>
@@ -273,3 +276,5 @@ union csd_t {
   csd2_t v2;
 };
 #endif  // SdInfo_h
+
+#endif

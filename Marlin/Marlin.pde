@@ -54,8 +54,3 @@
 #if defined(DIGIPOT_I2C)
   #include <Wire.h>
 #endif
-
-#if defined(HEATER_0_USES_MAX6675) || defined(SDSUPPORT)
-#include <Sd2Card.h>
-#endif
-
