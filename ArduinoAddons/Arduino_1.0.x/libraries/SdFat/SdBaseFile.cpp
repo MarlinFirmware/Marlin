@@ -17,9 +17,8 @@
  * along with the Arduino SdFat Library.  If not, see
  * <http://www.gnu.org/licenses/>.
  */
-
-#include "Marlin.h"
-#ifdef SDSUPPORT
+#include "SdFat.h"
+#include <Print.h>
 
 #include "SdBaseFile.h"
 //------------------------------------------------------------------------------
@@ -315,14 +314,14 @@ void SdBaseFile::getpos(fpos_t* pos) {
  * \param[in] indent Amount of space before file name. Used for recursive
  * list to indicate subdirectory level.
  */
-void SdBaseFile::ls(uint8_t flags, uint8_t indent) {
+void SdBaseFile::ls(Print *p, uint8_t flags, uint8_t indent) {
   rewind();
   int8_t status;
-  while ((status = lsPrintNext( flags, indent))) {
+  while ((status = lsPrintNext( p, flags, indent))) {
     if (status > 1 && (flags & LS_R)) {
       uint16_t index = curPosition()/32 - 1;
       SdBaseFile s;
-      if (s.open(this, index, O_READ)) s.ls( flags, indent + 2);
+      if (s.open(this, index, O_READ)) s.ls( p, flags, indent + 2);
       seekSet(32 * (index + 1));
     }
   }
@@ -330,7 +329,8 @@ void SdBaseFile::ls(uint8_t flags, uint8_t indent) {
 //------------------------------------------------------------------------------
 // saves 32 bytes on stack for ls recursion
 // return 0 - EOF, 1 - normal file, or 2 - directory
-int8_t SdBaseFile::lsPrintNext( uint8_t flags, uint8_t indent) {
+int8_t SdBaseFile::lsPrintNext( Print *p, uint8_t flags, uint8_t indent) {
+	Print &MYSERIAL = *p;
   dir_t dir;
   uint8_t w = 0;
 
@@ -365,9 +365,9 @@ int8_t SdBaseFile::lsPrintNext( uint8_t flags, uint8_t indent) {
   // print modify date/time if requested
   if (flags & LS_DATE) {
     MYSERIAL.write(' ');
-    printFatDate( dir.lastWriteDate);
+    printFatDate( p, dir.lastWriteDate);
     MYSERIAL.write(' ');
-    printFatTime( dir.lastWriteTime);
+    printFatTime( p, dir.lastWriteTime);
   }
   // print size if requested
   if (!DIR_IS_SUBDIR(&dir) && (flags & LS_SIZE)) {
@@ -939,8 +939,8 @@ int SdBaseFile::peek() {
  * \param[in] width Blank fill name if length is less than \a width.
  * \param[in] printSlash Print '/' after directory names if true.
  */
-void SdBaseFile::printDirName(const dir_t& dir,
-  uint8_t width, bool printSlash) {
+void SdBaseFile::printDirName(Print *p, const dir_t& dir, uint8_t width, bool printSlash) {
+		Print &MYSERIAL = *p;
   uint8_t w = 0;
   for (uint8_t i = 0; i < 11; i++) {
     if (dir.name[i] == ' ')continue;
@@ -962,7 +962,8 @@ void SdBaseFile::printDirName(const dir_t& dir,
 }
 //------------------------------------------------------------------------------
 // print uint8_t with width 2
-static void print2u( uint8_t v) {
+static void print2u( Print *p, uint8_t v) {
+	Print &MYSERIAL = *p;
   if (v < 10) MYSERIAL.write('0');
   MYSERIAL.print(v, DEC);
 }
@@ -982,12 +983,14 @@ static void print2u( uint8_t v) {
  * \param[in] pr Print stream for output.
  * \param[in] fatDate The date field from a directory entry.
  */
-void SdBaseFile::printFatDate(uint16_t fatDate) {
+void SdBaseFile::printFatDate(Print *p, uint16_t fatDate) {
+	Print &MYSERIAL = *p;
+
   MYSERIAL.print(FAT_YEAR(fatDate));
   MYSERIAL.write('-');
-  print2u( FAT_MONTH(fatDate));
+  print2u( p, FAT_MONTH(fatDate));
   MYSERIAL.write('-');
-  print2u( FAT_DAY(fatDate));
+  print2u( p, FAT_DAY(fatDate));
 }
 
 //------------------------------------------------------------------------------
@@ -998,12 +1001,14 @@ void SdBaseFile::printFatDate(uint16_t fatDate) {
  * \param[in] pr Print stream for output.
  * \param[in] fatTime The time field from a directory entry.
  */
-void SdBaseFile::printFatTime( uint16_t fatTime) {
-  print2u( FAT_HOUR(fatTime));
+void SdBaseFile::printFatTime( Print *p, uint16_t fatTime) {
+	Print &MYSERIAL = *p;
+
+  print2u( p, FAT_HOUR(fatTime));
   MYSERIAL.write(':');
-  print2u( FAT_MINUTE(fatTime));
+  print2u( p, FAT_MINUTE(fatTime));
   MYSERIAL.write(':');
-  print2u( FAT_SECOND(fatTime));
+  print2u( p, FAT_SECOND(fatTime));
 }
 //------------------------------------------------------------------------------
 /** Print a file's name to Serial
@@ -1011,7 +1016,8 @@ void SdBaseFile::printFatTime( uint16_t fatTime) {
  * \return The value one, true, is returned for success and
  * the value zero, false, is returned for failure.
  */
-bool SdBaseFile::printName() {
+bool SdBaseFile::printName(Print *p) {
+	Print &MYSERIAL = *p;
   char name[13];
   if (!getFilename(name)) return false;
   MYSERIAL.print(name);
@@ -1820,6 +1826,3 @@ int16_t SdBaseFile::write(const void* buf, uint16_t nbyte) {
 #if ALLOW_DEPRECATED_FUNCTIONS && !defined(DOXYGEN)
 void (*SdBaseFile::oldDateTime_)(uint16_t& date, uint16_t& time) = 0;  // NOLINT
 #endif  // ALLOW_DEPRECATED_FUNCTIONS
-
-
-#endif
