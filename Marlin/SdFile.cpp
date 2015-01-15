@@ -17,6 +17,9 @@
  * along with the Arduino SdFat Library.  If not, see
  * <http://www.gnu.org/licenses/>.
  */
+#include "Marlin.h"
+
+#ifdef SDSUPPORT
 #include "SdFile.h"
 /**  Create a file object and open it in the current working directory.
  *
@@ -87,3 +90,6 @@ void SdFile::writeln_P(PGM_P str) {
   write_P(str);
   write_P(PSTR("\r\n"));
 }
+
+
+#endif
