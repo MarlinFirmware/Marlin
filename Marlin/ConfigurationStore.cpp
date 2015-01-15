@@ -423,9 +423,9 @@ void Config_RetrieveSettings()
 
 void Config_ResetDefault()
 {
-    const static float tmp1[] MARLIN_PROGMEM =DEFAULT_AXIS_STEPS_PER_UNIT;
-    const static float tmp2[] MARLIN_PROGMEM =DEFAULT_MAX_FEEDRATE;
-    const static long tmp3[] MARLIN_PROGMEM =DEFAULT_MAX_ACCELERATION;
+    const static float tmp1[] MARLIN_PROGMEM = AXIS_STEPS_PER_UNIT;
+    const static float tmp2[] MARLIN_PROGMEM = MAX_FEEDRATE;
+    const static long tmp3[] MARLIN_PROGMEM = MAX_ACCELERATION;
     for (short i=0;i<4;i++) 
     {
         axis_steps_per_unit[i]=pgm_read_float(&tmp1[i]);  
@@ -439,14 +439,14 @@ void Config_ResetDefault()
     // steps per sq second need to be updated to agree with the units per sq second
     reset_acceleration_rates();
     
-    acceleration=DEFAULT_ACCELERATION;
-    retract_acceleration=DEFAULT_RETRACT_ACCELERATION;
+    acceleration=ACCELERATION;
+    retract_acceleration=RETRACT_ACCELERATION;
     minimumfeedrate=DEFAULT_MINIMUMFEEDRATE;
     minsegmenttime=DEFAULT_MINSEGMENTTIME;       
     mintravelfeedrate=DEFAULT_MINTRAVELFEEDRATE;
-    max_xy_jerk=DEFAULT_XYJERK;
-    max_z_jerk=DEFAULT_ZJERK;
-    max_e_jerk=DEFAULT_EJERK;
+    max_xy_jerk=MAX_XY_JERK;
+    max_z_jerk=MAX_Z_JERK;
+    max_e_jerk=MAX_E_JERK;
     add_homing[X_AXIS] = add_homing[Y_AXIS] = add_homing[Z_AXIS] = 0;
 #ifdef DELTA
 	endstop_adj[X_AXIS] = endstop_adj[Y_AXIS] = endstop_adj[Z_AXIS] = 0;
