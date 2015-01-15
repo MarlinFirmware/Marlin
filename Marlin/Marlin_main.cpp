@@ -204,12 +204,12 @@ CardReader card;
 #endif
 float homing_feedrate[] = HOMING_FEEDRATE;
 bool axis_relative_modes[] = AXIS_RELATIVE_MODES;
-float max_feedrate[4] = MAX_FEEDRATE;
-float move_acceleration = ACCELERTION;
-float retract_acceleration = RETRACT_ACCELERATION;
-float max_xy_jerk = MAX_XY_JERK;
-float max_z_jerk = MAX_Z_JERK;
-float max_e_jerk = MAX_E_JERK;
+//float max_feedrate[4] = MAX_FEEDRATE;
+//float move_acceleration = ACCELERTION;
+//float retract_acceleration = RETRACT_ACCELERATION;
+//float max_xy_jerk = MAX_XY_JERK;
+//float max_z_jerk = MAX_Z_JERK;
+//float max_e_jerk = MAX_E_JERK;
 int feedmultiply=100; //100->1 200->2
 int saved_feedmultiply;
 int extrudemultiply=100; //100->1 200->2
