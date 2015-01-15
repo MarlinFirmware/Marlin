@@ -17,8 +17,6 @@
  * along with the Arduino SdFat Library.  If not, see
  * <http://www.gnu.org/licenses/>.
  */
-#include "Marlin.h"
-#ifdef SDSUPPORT
 #ifndef SdVolume_h
 #define SdVolume_h
 /**
@@ -211,4 +209,3 @@ class SdVolume {
 #endif  // ALLOW_DEPRECATED_FUNCTIONS
 };
 #endif  // SdVolume
-#endif

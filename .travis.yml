@@ -26,6 +26,9 @@ before_script:
   - cd $TRAVIS_BUILD_DIR
   # ino needs files in src directory
   - ln -s Marlin src
+  - mkdir lib
+  - ln -s ../ArduinoAddons/Arduino_1.0.x/libraries/SdFat lib/SdFat
+  - ls -la lib/SdFat
   # remove Marlin.pde as it confuses ino after it finds Marlin.ino
   - rm Marlin/Marlin.pde
 script:
