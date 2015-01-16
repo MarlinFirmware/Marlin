@@ -1753,12 +1753,16 @@
 #define E0_ENABLE_PIN      19
 
 #define HEATER_0_PIN       21  // Extruder
-#define HEATER_1_PIN       -1
-#define HEATER_2_PIN       -1
+#define HEATER_1_PIN       46
+#define HEATER_2_PIN       47
 #define HEATER_BED_PIN     20  // Bed
-#define FAN_PIN            22  // Fan
-// You may need to change FAN_PIN to 16 because Marlin isn't using fastio.h
-// for the fan and Teensyduino uses a different pin mapping.
+// If soft or fast PWM is off then use Teensyduino pin numbering, Marlin
+// fastio pin numbering otherwise
+#ifdef FAN_SOFT_PWM || FAST_PWM_FAN
+        #define FAN_PIN        22  // Fan
+#else
+        #define FAN_PIN        16  // Fan
+#endif
 
 #if MB(TEENSYLU)  // Teensylu
   #define X_STOP_PIN         13
@@ -1777,8 +1781,8 @@
   #endif //FILAMENT_SENSOR
 #endif
 
-#define TEMP_1_PIN         -1
-#define TEMP_2_PIN         -1
+#define TEMP_1_PIN         2
+#define TEMP_2_PIN         3
 
 #define SDPOWER            -1
 #define SDSS                8
