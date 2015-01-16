@@ -33,7 +33,6 @@
 #include "ultralcd.h"
 #include "temperature.h"
 #include "watchdog.h"
-#include "thermistortables.h"
 
 #include "Sd2PinMap.h"
 
