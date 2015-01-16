@@ -191,7 +191,7 @@ void MarlinSerial::print(unsigned long n, int base)
   else printNumber(n, base);
 }
 
-void MarlinSerial::print(double n, int digits)
+void MarlinSerial::print(float n, int digits)
 {
   printFloat(n, digits);
 }
@@ -250,7 +250,7 @@ void MarlinSerial::println(unsigned long n, int base)
   println();
 }
 
-void MarlinSerial::println(double n, int digits)
+void MarlinSerial::println(float n, int digits)
 {
   print(n, digits);
   println();
@@ -279,7 +279,7 @@ void MarlinSerial::printNumber(unsigned long n, uint8_t base)
       'A' + buf[i - 1] - 10));
 }
 
-void MarlinSerial::printFloat(double number, uint8_t digits) 
+void MarlinSerial::printFloat(float number, uint8_t digits) 
 { 
   // Handle negative numbers
   if (number < 0.0)
@@ -289,7 +289,7 @@ void MarlinSerial::printFloat(double number, uint8_t digits)
   }
 
   // Round correctly so that print(1.999, 2) prints as "2.00"
-  double rounding = 0.5;
+  float rounding = 0.5;
   for (uint8_t i=0; i<digits; ++i)
     rounding /= 10.0;
   
@@ -297,7 +297,7 @@ void MarlinSerial::printFloat(double number, uint8_t digits)
 
   // Extract the integer part of the number and print it
   unsigned long int_part = (unsigned long)number;
-  double remainder = number - (double)int_part;
+  float remainder = number - (float)int_part;
   print(int_part);
 
   // Print the decimal point, but only if there are digits beyond
