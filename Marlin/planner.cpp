@@ -308,7 +308,7 @@ void planner_forward_pass_kernel(block_t *previous, block_t *current, block_t *n
   // If nominal length is true, max junction speed is guaranteed to be reached. No need to recheck.
   if (!previous->nominal_length_flag) {
     if (previous->entry_speed < current->entry_speed) {
-      double entry_speed = min( current->entry_speed,
+      float entry_speed = min( current->entry_speed,
       max_allowable_speed(-previous->acceleration,previous->entry_speed,previous->millimeters) );
 
       // Check for junction speed change
@@ -903,7 +903,7 @@ Having the real displacement of the head, we can calculate the total movement le
 
 #if 0  // Use old jerk for now
   // Compute path unit vector
-  double unit_vec[3];
+  float unit_vec[3];
 
   unit_vec[X_AXIS] = delta_mm[X_AXIS]*inverse_millimeters;
   unit_vec[Y_AXIS] = delta_mm[Y_AXIS]*inverse_millimeters;
@@ -918,13 +918,13 @@ Having the real displacement of the head, we can calculate the total movement le
   // path width or max_jerk in the previous grbl version. This approach does not actually deviate
   // from path, but used as a robust way to compute cornering speeds, as it takes into account the
   // nonlinearities of both the junction angle and junction velocity.
-  double vmax_junction = MINIMUM_PLANNER_SPEED; // Set default max junction speed
+  float vmax_junction = MINIMUM_PLANNER_SPEED; // Set default max junction speed
 
   // Skip first block or when previous_nominal_speed is used as a flag for homing and offset cycles.
   if ((block_buffer_head != block_buffer_tail) && (previous_nominal_speed > 0.0)) {
     // Compute cosine of angle between previous and current path. (prev_unit_vec is negative)
     // NOTE: Max junction velocity is computed without sin() or acos() by trig half angle identity.
-    double cos_theta = - previous_unit_vec[X_AXIS] * unit_vec[X_AXIS]
+    float cos_theta = - previous_unit_vec[X_AXIS] * unit_vec[X_AXIS]
       - previous_unit_vec[Y_AXIS] * unit_vec[Y_AXIS]
       - previous_unit_vec[Z_AXIS] * unit_vec[Z_AXIS] ;
 
@@ -934,7 +934,7 @@ Having the real displacement of the head, we can calculate the total movement le
       // Skip and avoid divide by zero for straight junctions at 180 degrees. Limit to min() of nominal speeds.
       if (cos_theta > -0.95) {
         // Compute maximum junction velocity based on maximum acceleration and junction deviation
-        double sin_theta_d2 = sqrt(0.5*(1.0-cos_theta)); // Trig half angle identity. Always positive.
+        float sin_theta_d2 = sqrt(0.5*(1.0-cos_theta)); // Trig half angle identity. Always positive.
         vmax_junction = min(vmax_junction,
         sqrt(block->acceleration * junction_deviation * sin_theta_d2/(1.0-sin_theta_d2)) );
       }
@@ -970,7 +970,7 @@ Having the real displacement of the head, we can calculate the total movement le
   block->max_entry_speed = vmax_junction;
 
   // Initialize block entry speed. Compute based on deceleration to user-defined MINIMUM_PLANNER_SPEED.
-  double v_allowable = max_allowable_speed(-block->acceleration,MINIMUM_PLANNER_SPEED,block->millimeters);
+  float v_allowable = max_allowable_speed(-block->acceleration,MINIMUM_PLANNER_SPEED,block->millimeters);
   block->entry_speed = min(vmax_junction, v_allowable);
 
   // Initialize planner efficiency flags
