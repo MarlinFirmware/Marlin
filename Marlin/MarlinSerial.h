@@ -129,7 +129,7 @@ class MarlinSerial //: public Stream
     
     private:
     void printNumber(unsigned long, uint8_t);
-    void printFloat(double, uint8_t);
+    void printFloat(float, uint8_t);
     
     
   public:
@@ -164,7 +164,7 @@ class MarlinSerial //: public Stream
     void print(unsigned int, int = DEC);
     void print(long, int = DEC);
     void print(unsigned long, int = DEC);
-    void print(double, int = 2);
+    void print(float, int = 2);
 
     void println(const String &s);
     void println(const char[]);
@@ -174,7 +174,7 @@ class MarlinSerial //: public Stream
     void println(unsigned int, int = DEC);
     void println(long, int = DEC);
     void println(unsigned long, int = DEC);
-    void println(double, int = 2);
+    void println(float, int = 2);
     void println(void);
 };
 

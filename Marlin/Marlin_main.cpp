@@ -409,8 +409,6 @@ bool setTargetedHotend(int code);
 
 void serial_echopair_P(const char *s_P, float v)
     { serialprintPGM(s_P); SERIAL_ECHO(v); }
-void serial_echopair_P(const char *s_P, double v)
-    { serialprintPGM(s_P); SERIAL_ECHO(v); }
 void serial_echopair_P(const char *s_P, unsigned long v)
     { serialprintPGM(s_P); SERIAL_ECHO(v); }
 
@@ -992,7 +990,7 @@ static void axis_is_at_home(int axis) {
 
 #ifdef ENABLE_AUTO_BED_LEVELING
 #ifdef AUTO_BED_LEVELING_GRID
-static void set_bed_level_equation_lsq(double *plane_equation_coefficients)
+static void set_bed_level_equation_lsq(float *plane_equation_coefficients)
 {
     vector_3 planeNormal = vector_3(-plane_equation_coefficients[0], -plane_equation_coefficients[1], 1);
     planeNormal.debug("planeNormal");
@@ -1714,9 +1712,9 @@ void process_commands()
             // so Vx = -a Vy = -b Vz = 1 (we want the vector facing towards positive Z
 
             // "A" matrix of the linear system of equations
-            double eqnAMatrix[AUTO_BED_LEVELING_GRID_POINTS*AUTO_BED_LEVELING_GRID_POINTS*3];
+            float eqnAMatrix[AUTO_BED_LEVELING_GRID_POINTS*AUTO_BED_LEVELING_GRID_POINTS*3];
             // "B" vector of Z points
-            double eqnBVector[AUTO_BED_LEVELING_GRID_POINTS*AUTO_BED_LEVELING_GRID_POINTS];
+            float eqnBVector[AUTO_BED_LEVELING_GRID_POINTS*AUTO_BED_LEVELING_GRID_POINTS];
 
 
             int probePointCounter = 0;
@@ -1781,7 +1779,7 @@ void process_commands()
             clean_up_after_endstop_move();
 
             // solve lsq problem
-            double *plane_equation_coefficients = qr_solve(AUTO_BED_LEVELING_GRID_POINTS*AUTO_BED_LEVELING_GRID_POINTS, 3, eqnAMatrix, eqnBVector);
+            float *plane_equation_coefficients = qr_solve(AUTO_BED_LEVELING_GRID_POINTS*AUTO_BED_LEVELING_GRID_POINTS, 3, eqnAMatrix, eqnBVector);
 
             SERIAL_PROTOCOLPGM("Eqn coefficients: a: ");
             SERIAL_PROTOCOL(plane_equation_coefficients[0]);
@@ -2154,13 +2152,13 @@ void process_commands()
             #error "You must have a Z_MIN endstop in order to enable calculation of Z-Probe repeatability."
             #endif
 
-	double sum=0.0; 
-	double mean=0.0; 
-	double sigma=0.0;
-	double sample_set[50];
+	float sum=0.0; 
+	float mean=0.0; 
+	float sigma=0.0;
+	float sample_set[50];
 	int verbose_level=1, n=0, j, n_samples = 10, n_legs=0, engage_probe_for_each_reading=0 ;
-	double X_current, Y_current, Z_current;
-	double X_probe_location, Y_probe_location, Z_start_location, ext_position;
+	float X_current, Y_current, Z_current;
+	float X_probe_location, Y_probe_location, Z_start_location, ext_position;
 	
 	if (code_seen('V') || code_seen('v')) {
         	verbose_level = code_value();
@@ -2277,7 +2275,7 @@ void process_commands()
 		do_blocking_move_to( X_probe_location, Y_probe_location, Z_start_location); // Make sure we are at the probe location
 
 		if ( n_legs)  {
-		double radius=0.0, theta=0.0, x_sweep, y_sweep;
+		float radius=0.0, theta=0.0, x_sweep, y_sweep;
 		int rotational_direction, l;
 
 			rotational_direction = (unsigned long) millis() & 0x0001;			// clockwise or counter clockwise
@@ -2340,7 +2338,7 @@ void process_commands()
 		for( j=0; j<=n; j++) {
 			sum = sum + sample_set[j];
 		}
-		mean = sum / (double (n+1));
+		mean = sum / (float (n+1));
 //
 // Now, use that mean to calculate the standard deviation for the
 // data points we have so far
@@ -2350,7 +2348,7 @@ void process_commands()
 		for( j=0; j<=n; j++) {
 			sum = sum + (sample_set[j]-mean) * (sample_set[j]-mean);
 		}
-		sigma = sqrt( sum / (double (n+1)) );
+		sigma = sqrt( sum / (float (n+1)) );
 
 		if (verbose_level > 1) {
 			SERIAL_PROTOCOL(n+1);
