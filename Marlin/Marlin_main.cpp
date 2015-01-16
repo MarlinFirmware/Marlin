@@ -338,8 +338,8 @@ bool cancel_heatup = false ;
   int meas_delay_cm = MEASUREMENT_DELAY_CM;  //distance delay setting
 #endif
 
-const prog_char errormagic[] MARLIN_PROGMEM = "Error:";
-const prog_char echomagic[] MARLIN_PROGMEM = "echo:";
+const char errormagic[] PROGMEM = "Error:";
+const char echomagic[] PROGMEM = "echo:";
 
 //===========================================================================
 //=============================Private Variables=============================
@@ -865,7 +865,7 @@ DEFINE_PGM_READ_ANY(float,       float);
 DEFINE_PGM_READ_ANY(signed char, byte);
 
 #define XYZ_CONSTS_FROM_CONFIG(type, array, CONFIG) \
-static const type array##_P[3] MARLIN_PROGMEM =        \
+static const PROGMEM type array##_P[3] =        \
     { X_##CONFIG, Y_##CONFIG, Z_##CONFIG };     \
 static inline type array(int axis)          \
     { return pgm_read_any(&array##_P[axis]); }

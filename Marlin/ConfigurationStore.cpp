@@ -423,14 +423,14 @@ void Config_RetrieveSettings()
 
 void Config_ResetDefault()
 {
-    const static float tmp1[] MARLIN_PROGMEM =DEFAULT_AXIS_STEPS_PER_UNIT;
-    const static float tmp2[] MARLIN_PROGMEM =DEFAULT_MAX_FEEDRATE;
-    const static long tmp3[] MARLIN_PROGMEM =DEFAULT_MAX_ACCELERATION;
+    float tmp1[]=DEFAULT_AXIS_STEPS_PER_UNIT;
+    float tmp2[]=DEFAULT_MAX_FEEDRATE;
+    long tmp3[]=DEFAULT_MAX_ACCELERATION;
     for (short i=0;i<4;i++) 
     {
-        axis_steps_per_unit[i]=pgm_read_float(&tmp1[i]);  
-        max_feedrate[i]=pgm_read_float(&tmp2[i]);  
-        max_acceleration_units_per_sq_second[i]=pgm_read_float(&tmp3[i]);
+        axis_steps_per_unit[i]=tmp1[i];  
+        max_feedrate[i]=tmp2[i];  
+        max_acceleration_units_per_sq_second[i]=tmp3[i];
 		#ifdef SCARA
 		axis_scaling[i]=1;
 		#endif//SCARA
