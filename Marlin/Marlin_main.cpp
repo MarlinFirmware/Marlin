@@ -2916,18 +2916,27 @@ Sigma_Exit:
     case 206: // M206 additional homing offset
       for(int8_t i=0; i < 3; i++)
       {
-        if(code_seen(axis_codes[i])) add_homing[i] = code_value();
+        if(code_seen(axis_codes[i])) {
+	  current_position[i] -= add_homing[i]; // remove old offsset
+	  add_homing[i] = code_value();
+	  current_position[i] += add_homing[i]; // add new offsset
+	}
       }
-	  #ifdef SCARA
+          #ifdef SCARA
 	   if(code_seen('T'))       // Theta
       {
+	current_position[X_AXIS] -= add_homing[X_AXIS];
         add_homing[X_AXIS] = code_value() ;
+	current_position[X_AXIS] += add_homing[X_AXIS];
       }
       if(code_seen('P'))       // Psi
       {
+	current_position[Y_AXIS] -= add_homing[Y_AXIS];
         add_homing[Y_AXIS] = code_value() ;
+	current_position[Y_AXIS] += add_homing[Y_AXIS];
       }
 	  #endif
+      plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]); // tell planer about new position
       break;
     #ifdef DELTA
 	case 665: // M665 set delta configurations L<diagonal_rod> R<delta_radius> S<segments_per_sec>
