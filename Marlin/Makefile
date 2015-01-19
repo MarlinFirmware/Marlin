@@ -49,7 +49,7 @@ AVR_TOOLS_PATH ?=
 
 #Programmer configuration
 UPLOAD_RATE        ?= 115200
-AVRDUDE_PROGRAMMER ?= arduino
+AVRDUDE_PROGRAMMER ?= wiring
 # on most linuxes this will be /dev/ttyACM0 or /dev/ttyACM1 
 UPLOAD_PORT        ?= /dev/arduino
 
@@ -361,7 +361,7 @@ else
 AVRDUDE_CONF = $(ARDUINO_INSTALL_DIR)/hardware/tools/avr/etc/avrdude.conf
 endif
 AVRDUDE_FLAGS = -q -q -D -C$(AVRDUDE_CONF) \
-	-p$(MCU) -P$(AVRDUDE_PORT) -c $(AVRDUDE_PROGRAMMER) -cwiring\
+	-p$(MCU) -P$(AVRDUDE_PORT) -c$(AVRDUDE_PROGRAMMER) \
 	-b$(UPLOAD_RATE)
 
 # Define all object files.
