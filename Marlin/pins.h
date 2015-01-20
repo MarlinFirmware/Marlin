@@ -530,7 +530,7 @@
 * Arduino Mega pin assignment
 *
 ****************************************************************************************/
-#if IS_RAMPS || MB(3DRAG) || MB(AZTEEG_X3) || MB(AZTEEG_X3_PRO)
+#if IS_RAMPS || MB(3DRAG) || MB(K8200) || MB(AZTEEG_X3) || MB(AZTEEG_X3_PRO)
 #define KNOWN_BOARD 1
 
 //////////////////FIX THIS//////////////
@@ -546,11 +546,11 @@
 // #define RAMPS_V_1_0
 
 
-#if (IS_RAMPS && !MB(RAMPS_OLD)) || MB(3DRAG) || MB(AZTEEG_X3) || MB(AZTEEG_X3_PRO)
+#if (IS_RAMPS && !MB(RAMPS_OLD)) || MB(3DRAG) || MB(K8200) || MB(AZTEEG_X3) || MB(AZTEEG_X3_PRO)
 
   #define LARGE_FLASH true
 
-  #if MB(3DRAG)
+  #if MB(3DRAG) || MB(K8200)
     #define X_STEP_PIN         54
     #define X_DIR_PIN          55
     #define X_ENABLE_PIN       38
@@ -661,7 +661,7 @@
     #define FAN_PIN            4 // IO pin. Buffer needed
   #endif
 
-  #if MB(3DRAG) || MB(RAMPS_13_EEF)
+  #if MB(3DRAG) || MB(K8200) || MB(RAMPS_13_EEF)
     #define FAN_PIN            8
   #endif
 
@@ -690,7 +690,7 @@
   #endif
 
 
-  #if MB(3DRAG)
+  #if MB(3DRAG) || MB(K8200)
     #define HEATER_0_PIN       10
     #define HEATER_1_PIN       12
     #define HEATER_2_PIN       6
@@ -720,7 +720,7 @@
   #if MB(RAMPS_13_EFF) || MB(RAMPS_13_EEF)
     #define HEATER_BED_PIN     -1    // NO BED
   #else
-    #if MB(3DRAG)
+    #if MB(3DRAG) || MB(K8200)
       #define HEATER_BED_PIN     9    // BED
     #else
       #define HEATER_BED_PIN     8    // BED
@@ -813,7 +813,7 @@
 
       #endif
 
-      #if MB(3DRAG)
+      #if MB(3DRAG) || MB(K8200)
         #define BEEPER -1
 
         #define LCD_PINS_RS 27
@@ -895,7 +895,7 @@
 #define TEMP_2_PIN          -1
 #define TEMP_BED_PIN        1    // MUST USE ANALOG INPUT NUMBERING NOT DIGITAL OUTPUT NUMBERING!!!!!!!!!
 
-#endif // RAMPS_13_EFB || RAMPS_13_EEB || RAMPS_13_EFF || 3DRAG
+#endif // RAMPS_13_EFB || RAMPS_13_EEB || RAMPS_13_EFF || 3DRAG || K8200
 
 // SPI for Max6675 Thermocouple
 
@@ -909,7 +909,7 @@
   #define MAX6675_SS       66// Do not use pin 49 as this is tied to the switch inside the SD card socket to detect if there is an SD card present
 #endif
 
-#endif // RAMPS_OLD || RAMPS_13_EFB || RAMPS_13_EEB || RAMPS_13_EFF || 3DRAG
+#endif // RAMPS_OLD || RAMPS_13_EFB || RAMPS_13_EEB || RAMPS_13_EFF || 3DRAG || K8200
 
 /****************************************************************************************
 * Duemilanove w/ ATMega328P pin assignment
