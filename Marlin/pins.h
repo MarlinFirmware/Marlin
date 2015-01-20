@@ -1799,42 +1799,38 @@
 #endif
 
 #ifdef ULTRA_LCD
-   #ifdef NEWPANEL
-     //now no buzzer installed
-     #define BEEPER -1
-     //LCD Pins option 1 works with rs-micro.com LCD option 2 works with Panelolu the easy way
-                           //option 1 //option 2   
-     #define LCD_PINS_RS        33     //32
-     #define LCD_PINS_ENABLE    32     //33
-     #define LCD_PINS_D4        31     //28
-     #define LCD_PINS_D5        30     //29
-     #define LCD_PINS_D6        29     //30
-     #define LCD_PINS_D7        28     //31
- 
-     //The encoder and click button
-     #define BTN_EN1 16// must be a hardware interrupt pin
-     #define BTN_EN2 17// must be hardware interrupt pin
-     #define BTN_ENC 18// the click
-     //not connected to a pin currently
-     #define SDCARDDETECT -1
+      #ifdef NEWPANEL
+        //now no buzzer installed
+        #define BEEPER -1
+        //LCD Pins option 1 works with rs-micro.com LCD option 2 works with Panelolu the easy way
+                              //option 1 //option 2   
+        #define LCD_PINS_RS        9     //8
+        #define LCD_PINS_ENABLE    8     //9
+        #define LCD_PINS_D4        7     //4
+        #define LCD_PINS_D5        6     //5
+        #define LCD_PINS_D6        5     //6
+        #define LCD_PINS_D7        4     //7
     
-     //from the same bit in the RAMPS Newpanel define
-     //encoder rotation values
-     #define encrot0 0
-     #define encrot1 2
-     #define encrot2 3
-     #define encrot3 1
+        //The encoder and click button
+        #define BTN_EN1 10// must be a hardware interrupt pin
+        #define BTN_EN2 11// must be hardware interrupt pin
+        #define BTN_ENC 12// the click
+        //not connected to a pin currently
+        #define SDCARDDETECT -1
     
-     #define BLEN_C 2
-     #define BLEN_B 1
-     #define BLEN_A 0
+        //from the same bit in the RAMPS Newpanel define
+        //encoder rotation values
+        #define encrot0 0
+        #define encrot1 2
+        #define encrot2 3
+        #define encrot3 1
+    
+        #define BLEN_C 2
+        #define BLEN_B 1
+        #define BLEN_A 0
  
-   #endif //Newpanel
- #endif //Ultipanel
-
-#ifdef NUM_SERVOS
-#define SERVO0_PIN 25
-#endif
+      #endif //Newpanel
+    #endif //Ultipanel
 
 #endif // TEENSYLU || PRINTRBOARD
 
