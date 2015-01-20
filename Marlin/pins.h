@@ -1798,6 +1798,40 @@
   #define MOSI_PIN         10
 #endif
 
+#ifdef ULTRA_LCD
+      #ifdef NEWPANEL
+        //now no buzzer installed
+        #define BEEPER -1
+        //LCD Pins option 1 works with rs-micro.com LCD option 2 works with Panelolu the easy way
+                              //option 1 //option 2   
+        #define LCD_PINS_RS        9     //8
+        #define LCD_PINS_ENABLE    8     //9
+        #define LCD_PINS_D4        7     //4
+        #define LCD_PINS_D5        6     //5
+        #define LCD_PINS_D6        5     //6
+        #define LCD_PINS_D7        4     //7
+    
+        //The encoder and click button
+        #define BTN_EN1 10// must be a hardware interrupt pin
+        #define BTN_EN2 11// must be hardware interrupt pin
+        #define BTN_ENC 12// the click
+        //not connected to a pin currently
+        #define SDCARDDETECT -1
+    
+        //from the same bit in the RAMPS Newpanel define
+        //encoder rotation values
+        #define encrot0 0
+        #define encrot1 2
+        #define encrot2 3
+        #define encrot3 1
+    
+        #define BLEN_C 2
+        #define BLEN_B 1
+        #define BLEN_A 0
+ 
+      #endif //Newpanel
+    #endif //Ultipanel
+
 #endif // TEENSYLU || PRINTRBOARD
 
 /****************************************************************************************
