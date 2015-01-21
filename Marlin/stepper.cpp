@@ -1111,7 +1111,7 @@ void babystep(const uint8_t axis,const bool direction)
       WRITE(X2_STEP_PIN, !INVERT_X_STEP_PIN);
     #endif
     {
-    float x=1./float(axis+1)/float(axis+2); //wait a tiny bit
+      _delay_us(1U); // wait 1 microsecond
     }
     WRITE(X_STEP_PIN, INVERT_X_STEP_PIN);
     #ifdef DUAL_X_CARRIAGE
