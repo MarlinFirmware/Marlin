@@ -93,7 +93,11 @@ bool lcd_oldcardstatus;
 // 
 
 // TODO : Review structure of this file to include it above.
+#ifdef DOGLCD
+#include "dogm_lcd_implementation.h"
+#else
 #include "ultralcd_implementation_hitachi_HD44780.h"
+#endif
 //
 
 
@@ -236,6 +240,8 @@ void lcd_init()
     encoder_position = 0;
 
     lcd_get_button_clicked();
+
+    SERIAL_ECHOLN("LCD initialized!");
 }
 
 
@@ -350,6 +356,7 @@ void lcd_update()
     }
 
     display_view = display_view_next;
+    
     (*display_view)();
 }
 
@@ -478,7 +485,12 @@ uint8_t lcd_get_encoder_position()
     return encoder_position;
 }
 
-
+#ifdef DOGLCD
+void lcd_setcontrast(uint8_t value) {
+    pinMode(39, OUTPUT);   //Contraste = 4.5V
+    digitalWrite(39, HIGH);
+}
+#endif // DOGLCD
 
 // Alert/status messages
 void lcd_setstatus(const char* message)
@@ -516,47 +528,79 @@ static void lcd_set_encoder_position(int8_t position)
 
 
 /* Helper macros for menus */
-#define START_MENU() do {\
-    lcd_disable_encoder();\
-    if (encoder_position > 0x8000) encoder_position = 0;\
-    if (encoder_position / ENCODER_STEPS_PER_MENU_ITEM < display_view_menu_offset) {\
-        display_view_menu_offset = encoder_position / ENCODER_STEPS_PER_MENU_ITEM;\
-        display_refresh_mode == CLEAR_AND_UPDATE_SCREEN;\
-    }\
-    if (display_refresh_mode == CLEAR_AND_UPDATE_SCREEN) {\
-        lcd_implementation_clear();\
-        display_refresh_mode = UPDATE_SCREEN;\
-    } else if (lcd_get_button_updated() || lcd_get_encoder_updated()) {\
-        display_refresh_mode = UPDATE_SCREEN;\
-    }\
-    uint8_t _lineNr = display_view_menu_offset, _menuItemNr; \
-    for(uint8_t _drawLineNr = 0; _drawLineNr < LCD_HEIGHT; _drawLineNr++, _lineNr++) { \
-        _menuItemNr = 0;     
+#ifdef DOGLCD
+  #define START_MENU() do {\
+    u8g.firstPage(); \
+    do { \
+        u8g.setFont(u8g_font_6x10_marlin);\
+        lcd_disable_encoder();\
+        if (encoder_position > 0x8000) encoder_position = 0;\
+        if (encoder_position / ENCODER_STEPS_PER_MENU_ITEM < display_view_menu_offset) {\
+            display_view_menu_offset = encoder_position / ENCODER_STEPS_PER_MENU_ITEM;\
+            display_refresh_mode == CLEAR_AND_UPDATE_SCREEN;\
+        }\
+        if (display_refresh_mode == CLEAR_AND_UPDATE_SCREEN) {\
+            lcd_implementation_clear();\
+            display_refresh_mode = UPDATE_SCREEN;\
+        } else if (lcd_get_button_updated() || lcd_get_encoder_updated()) {\
+            display_refresh_mode = UPDATE_SCREEN;\
+        }\
+        uint8_t _lineNr = display_view_menu_offset, _menuItemNr; \
+        for (uint8_t _drawLineNr = 0; _drawLineNr < LCD_HEIGHT; _drawLineNr++, _lineNr++) { \
+            _menuItemNr = 0;
+#else
+  #define START_MENU() do {\
+        lcd_disable_encoder();\
+        if (encoder_position > 0x8000) encoder_position = 0;\
+        if (encoder_position / ENCODER_STEPS_PER_MENU_ITEM < display_view_menu_offset) {\
+            display_view_menu_offset = encoder_position / ENCODER_STEPS_PER_MENU_ITEM;\
+            display_refresh_mode == CLEAR_AND_UPDATE_SCREEN;\
+        }\
+        if (display_refresh_mode == CLEAR_AND_UPDATE_SCREEN) {\
+            lcd_implementation_clear();\
+            display_refresh_mode = UPDATE_SCREEN;\
+        } else if (lcd_get_button_updated() || lcd_get_encoder_updated()) {\
+            display_refresh_mode = UPDATE_SCREEN;\
+        }\
+        uint8_t _lineNr = display_view_menu_offset, _menuItemNr; \
+        for (uint8_t _drawLineNr = 0; _drawLineNr < LCD_HEIGHT; _drawLineNr++, _lineNr++) { \
+            _menuItemNr = 0;
+#endif
 #define MENU_ITEM(type, label, args...) do { \
-    if (_menuItemNr == _lineNr) { \
-        if (display_refresh_mode == UPDATE_SCREEN) {\
-            const char* _label_pstr = PSTR(label); \
-            if ((encoder_position / ENCODER_STEPS_PER_MENU_ITEM) == _menuItemNr) { \
-                lcd_implementation_drawmenu_ ## type ## _selected (_drawLineNr, _label_pstr , ## args ); \
-            }else{\
-                lcd_implementation_drawmenu_ ## type (_drawLineNr, _label_pstr , ## args ); \
-            }\
-        }\
-        if (((encoder_position / ENCODER_STEPS_PER_MENU_ITEM) == _menuItemNr) && lcd_get_button_clicked()) {\
-            menu_action_ ## type ( args );\
-            return;\
-        }\
-    }\
-    _menuItemNr++;\
-} while(0)
+                if (_menuItemNr == _lineNr) { \
+                    if (display_refresh_mode == UPDATE_SCREEN) {\
+                        const char* _label_pstr = PSTR(label); \
+                        if ((encoder_position / ENCODER_STEPS_PER_MENU_ITEM) == _menuItemNr) { \
+                            lcd_implementation_drawmenu_ ## type ## _selected (_drawLineNr, _label_pstr , ## args ); \
+                        }else{\
+                            lcd_implementation_drawmenu_ ## type (_drawLineNr, _label_pstr , ## args ); \
+                        }\
+                    }\
+                    if (((encoder_position / ENCODER_STEPS_PER_MENU_ITEM) == _menuItemNr) && lcd_get_button_clicked()) {\
+                        menu_action_ ## type ( args );\
+                        return;\
+                    }\
+                }\
+                _menuItemNr++;\
+            } while(0)
 #define MENU_ITEM_DUMMY() do { _menuItemNr++; } while(0)
 #define MENU_ITEM_EDIT(type, label, args...) MENU_ITEM(setting_edit_ ## type, label, PSTR(label) , ## args )
 #define MENU_ITEM_EDIT_CALLBACK(type, label, args...) MENU_ITEM(setting_edit_callback_ ## type, label, PSTR(label) , ## args )
+#ifdef DOGLCD
 #define END_MENU() \
-    if (encoder_position / ENCODER_STEPS_PER_MENU_ITEM >= _menuItemNr) encoder_position = _menuItemNr * ENCODER_STEPS_PER_MENU_ITEM - 1; \
-    if ((uint8_t)(encoder_position / ENCODER_STEPS_PER_MENU_ITEM) >= display_view_menu_offset + LCD_HEIGHT) { display_view_menu_offset = (encoder_position / ENCODER_STEPS_PER_MENU_ITEM) - LCD_HEIGHT + 1; _lineNr = display_view_menu_offset - 1; _drawLineNr = -1; } \
-    lcd_enable_encoder();\
-    } } while(0)
+        if (encoder_position / ENCODER_STEPS_PER_MENU_ITEM >= _menuItemNr) encoder_position = _menuItemNr * ENCODER_STEPS_PER_MENU_ITEM - 1; \
+        if ((uint8_t)(encoder_position / ENCODER_STEPS_PER_MENU_ITEM) >= display_view_menu_offset + LCD_HEIGHT) { display_view_menu_offset = (encoder_position / ENCODER_STEPS_PER_MENU_ITEM) - LCD_HEIGHT + 1; _lineNr = display_view_menu_offset - 1; _drawLineNr = -1; } \
+        lcd_enable_encoder();\
+    } } while( u8g.nextPage() );\
+} while(0)
+#else
+#define END_MENU() \
+	if (encoder_position / ENCODER_STEPS_PER_MENU_ITEM >= _menuItemNr) encoder_position = _menuItemNr * ENCODER_STEPS_PER_MENU_ITEM - 1; \
+	if ((uint8_t)(encoder_position / ENCODER_STEPS_PER_MENU_ITEM) >= display_view_menu_offset + LCD_HEIGHT) { display_view_menu_offset = (encoder_position / ENCODER_STEPS_PER_MENU_ITEM) - LCD_HEIGHT + 1; _lineNr = display_view_menu_offset - 1; _drawLineNr = -1; } \
+	lcd_enable_encoder();\
+	} } while(0)
+#endif
+    
 
 // Menu Drawers
 static void menu_action_back(func_t function);
@@ -860,13 +904,27 @@ static void view_menu_filament_load()
     }
 
     if (display_refresh_mode == UPDATE_SCREEN) {
-        START_MENU();
-        MENU_ITEM(back, MSG_ABORT, draw_menu_filament);
-        END_MENU();  
-    
         int tHotend=int(degHotend(0) + 0.5);
         int tTarget=int(degTargetHotend(0) + 0.5);
-        lcd_implementation_set_cursor(3, 2);
+#ifdef DOGLCD
+        u8g.firstPage();
+        do {
+            lcd_implementation_set_cursor(0, 0);
+            lcd_implementation_print_P(PSTR(MSG_CF_HEAT_1));
+            lcd_implementation_set_cursor(1, 0);
+            lcd_implementation_print_P(PSTR(MSG_CF_HEAT_2));
+            lcd_implementation_set_cursor(1, 6);
+            lcd_implementation_print(LCD_STR_THERMOMETER[0]);
+            lcd_implementation_print(itostr3(int(degHotend(0))));
+            lcd_implementation_print_P(PSTR(LCD_STR_DEGREE " "));
+            lcd_implementation_set_cursor(3,0);
+            lcd_implementation_print_P(PSTR(MSG_EXIT));
+        } while ( u8g.nextPage() );
+#else
+	START_MENU();
+        MENU_ITEM(back, MSG_ABORT, draw_menu_filament);
+        END_MENU();
+	lcd_implementation_set_cursor(3, 2);
         lcd_implementation_print_P(PSTR(MSG_HEATING));
         lcd_implementation_set_cursor(5, 3);
         lcd_implementation_print(LCD_STR_THERMOMETER[0]);
@@ -874,6 +932,7 @@ static void view_menu_filament_load()
         lcd_implementation_print('/');
         lcd_implementation_print(itostr3left(tTarget));
         lcd_implementation_print_P(PSTR(LCD_STR_DEGREE " "));
+#endif
     }
 
     if ((degHotend(0) > degTargetHotend(0))) {
@@ -881,6 +940,13 @@ static void view_menu_filament_load()
         lcd_enable_display_timeout();
         draw_menu_filament_insert();
     }
+
+#ifdef DOGLCD
+    if (lcd_get_button_clicked()) {
+        lcd_enable_display_timeout();
+        lcd_set_status_screen();
+    }
+#endif
 
     display_refresh_mode = NO_UPDATE_SCREEN;
 }
@@ -923,13 +989,27 @@ static void view_menu_filament_unload()
     }
 
     if (display_refresh_mode == UPDATE_SCREEN) {
-        START_MENU();
-        MENU_ITEM(back, MSG_ABORT, draw_menu_filament);
-        END_MENU();  
-    
         int tHotend=int(degHotend(0) + 0.5);
         int tTarget=int(degTargetHotend(0) + 0.5);
-        lcd_implementation_set_cursor(3, 2);
+#ifdef DOGLCD
+        u8g.firstPage();
+        do {
+            lcd_implementation_set_cursor(0, 0);
+            lcd_implementation_print_P(PSTR(MSG_CF_HEAT_1));
+            lcd_implementation_set_cursor(1, 0);
+            lcd_implementation_print_P(PSTR(MSG_CF_HEAT_2));
+            lcd_implementation_set_cursor(1, 6);
+            lcd_implementation_print(LCD_STR_THERMOMETER[0]);
+            lcd_implementation_print(itostr3(int(degHotend(0))));
+            lcd_implementation_print_P(PSTR(LCD_STR_DEGREE " "));
+            lcd_implementation_set_cursor(3,0);
+            lcd_implementation_print_P(PSTR(MSG_EXIT));
+        } while ( u8g.nextPage() );
+#else
+        START_MENU();
+        MENU_ITEM(back, MSG_ABORT, draw_menu_filament);
+        END_MENU();
+	lcd_implementation_set_cursor(3, 2);
         lcd_implementation_print_P(PSTR(MSG_HEATING));
         lcd_implementation_set_cursor(5, 3);
         lcd_implementation_print(LCD_STR_THERMOMETER[0]);
@@ -937,19 +1017,25 @@ static void view_menu_filament_unload()
         lcd_implementation_print('/');
         lcd_implementation_print(itostr3left(tTarget));
         lcd_implementation_print_P(PSTR(LCD_STR_DEGREE " "));
+#endif
     }
 
     if (degHotend(0) > degTargetHotend(0))
     {
         lcd_implementation_quick_feedback();
-
         //-- Ejecutar gcode
         active_extruder = 0;
         enquecommand_P(PSTR("M702"));
-
         lcd_enable_display_timeout();
         draw_menu_filament();
     }
+
+#ifdef DOGLCD
+    if (lcd_get_button_clicked()) {
+        lcd_enable_display_timeout();
+        lcd_set_status_screen();
+    }
+#endif
 
     display_refresh_mode = NO_UPDATE_SCREEN;
 }
@@ -1215,7 +1301,172 @@ static void view_wizard_level_bed()
     }
 
     if (display_refresh_mode == UPDATE_SCREEN) {
-        switch (display_view_wizard_page) {
+#ifdef DOGLCD
+        u8g.firstPage();
+        do {
+            switch (display_view_wizard_page) {
+                 case 0:
+                    #ifdef MSG_WIZARD_LEVELBED_0_0
+                    lcd_implementation_set_cursor(0, 0);
+                    lcd_implementation_print_P(PSTR(MSG_WIZARD_LEVELBED_0_0));
+                    #endif
+
+                    #ifdef MSG_WIZARD_LEVELBED_0_1
+                    lcd_implementation_set_cursor(1, 0);
+                    lcd_implementation_print_P(PSTR(MSG_WIZARD_LEVELBED_0_1));
+                    #endif                
+
+                    #ifdef MSG_WIZARD_LEVELBED_0_2
+                    lcd_implementation_set_cursor(2, 0);
+                    lcd_implementation_print_P(PSTR(MSG_WIZARD_LEVELBED_0_2));
+                    #endif                
+
+                    #ifdef MSG_WIZARD_LEVELBED_0_3            
+                    lcd_implementation_set_cursor(3, 0);
+                    lcd_implementation_print_P(PSTR(MSG_WIZARD_LEVELBED_0_3));
+                    #endif 
+                    break;
+
+                case 1:
+                    #ifdef MSG_WIZARD_LEVELBED_1_0
+                    lcd_implementation_set_cursor(0, 0);
+                    lcd_implementation_print_P(PSTR(MSG_WIZARD_LEVELBED_1_0));
+                    #endif
+
+                    #ifdef MSG_WIZARD_LEVELBED_1_1
+                    lcd_implementation_set_cursor(1, 0);
+                    lcd_implementation_print_P(PSTR(MSG_WIZARD_LEVELBED_1_1));
+                    #endif                
+
+                    #ifdef MSG_WIZARD_LEVELBED_1_2
+                    lcd_implementation_set_cursor(2, 0);
+                    lcd_implementation_print_P(PSTR(MSG_WIZARD_LEVELBED_1_2));
+                    #endif                
+
+                    #ifdef MSG_WIZARD_LEVELBED_1_3            
+                    lcd_implementation_set_cursor(3, 0);
+                    lcd_implementation_print_P(PSTR(MSG_WIZARD_LEVELBED_1_3));
+                    #endif 
+                    break;
+
+                case 2:
+                    #ifdef MSG_WIZARD_LEVELBED_2_0
+                    lcd_implementation_set_cursor(0, 0);
+                    lcd_implementation_print_P(PSTR(MSG_WIZARD_LEVELBED_2_0));
+                    #endif
+
+                    #ifdef MSG_WIZARD_LEVELBED_2_1
+                    lcd_implementation_set_cursor(1, 0);
+                    lcd_implementation_print_P(PSTR(MSG_WIZARD_LEVELBED_2_1));
+                    #endif                
+
+                    #ifdef MSG_WIZARD_LEVELBED_2_2
+                    lcd_implementation_set_cursor(2, 0);
+                    lcd_implementation_print_P(PSTR(MSG_WIZARD_LEVELBED_2_2));
+                    #endif                
+
+                    #ifdef MSG_WIZARD_LEVELBED_2_3            
+                    lcd_implementation_set_cursor(3, 0);
+                    lcd_implementation_print_P(PSTR(MSG_WIZARD_LEVELBED_2_3));
+                    #endif 
+                    break;
+
+                case 3:
+                    #ifdef MSG_WIZARD_LEVELBED_3_0
+                    lcd_implementation_set_cursor(0, 0);
+                    lcd_implementation_print_P(PSTR(MSG_WIZARD_LEVELBED_3_0));
+                    #endif
+
+                    #ifdef MSG_WIZARD_LEVELBED_3_1
+                    lcd_implementation_set_cursor(1, 0);
+                    lcd_implementation_print_P(PSTR(MSG_WIZARD_LEVELBED_3_1));
+                    #endif                
+
+                    #ifdef MSG_WIZARD_LEVELBED_3_2
+                    lcd_implementation_set_cursor(2, 0);
+                    lcd_implementation_print_P(PSTR(MSG_WIZARD_LEVELBED_3_2));
+                    #endif                
+
+                    #ifdef MSG_WIZARD_LEVELBED_3_3            
+                    lcd_implementation_set_cursor(3, 0);
+                    lcd_implementation_print_P(PSTR(MSG_WIZARD_LEVELBED_3_3));
+                    #endif 
+                    break;
+
+                case 4:
+                    #ifdef MSG_WIZARD_LEVELBED_4_0
+                    lcd_implementation_set_cursor(0, 0);
+                    lcd_implementation_print_P(PSTR(MSG_WIZARD_LEVELBED_4_0));
+                    #endif
+
+                    #ifdef MSG_WIZARD_LEVELBED_4_1
+                    lcd_implementation_set_cursor(1, 0);
+                    lcd_implementation_print_P(PSTR(MSG_WIZARD_LEVELBED_4_1));
+                    #endif                
+
+                    #ifdef MSG_WIZARD_LEVELBED_4_2
+                    lcd_implementation_set_cursor(2, 0);
+                    lcd_implementation_print_P(PSTR(MSG_WIZARD_LEVELBED_4_2));
+                    #endif                
+
+                    #ifdef MSG_WIZARD_LEVELBED_4_3            
+                    lcd_implementation_set_cursor(3, 0);
+                    lcd_implementation_print_P(PSTR(MSG_WIZARD_LEVELBED_4_3));
+                    #endif 
+                    break;
+
+                case 5:
+                    #ifdef MSG_WIZARD_LEVELBED_5_0
+                    lcd_implementation_set_cursor(0, 0);
+                    lcd_implementation_print_P(PSTR(MSG_WIZARD_LEVELBED_5_0));
+                    #endif
+
+                    #ifdef MSG_WIZARD_LEVELBED_5_1
+                    lcd_implementation_set_cursor(1, 0);
+                    lcd_implementation_print_P(PSTR(MSG_WIZARD_LEVELBED_5_1));
+                    #endif                
+
+                    #ifdef MSG_WIZARD_LEVELBED_5_2
+                    lcd_implementation_set_cursor(2, 0);
+                    lcd_implementation_print_P(PSTR(MSG_WIZARD_LEVELBED_5_2));
+                    #endif                
+
+                    #ifdef MSG_WIZARD_LEVELBED_5_3            
+                    lcd_implementation_set_cursor(3, 0);
+                    lcd_implementation_print_P(PSTR(MSG_WIZARD_LEVELBED_5_3));
+                    #endif 
+                    break;
+
+                case 6:
+                    #ifdef MSG_WIZARD_LEVELBED_6_0
+                    lcd_implementation_set_cursor(0, 0);
+                    lcd_implementation_print_P(PSTR(MSG_WIZARD_LEVELBED_6_0));
+                    #endif
+
+                    #ifdef MSG_WIZARD_LEVELBED_6_1
+                    lcd_implementation_set_cursor(1, 0);
+                    lcd_implementation_print_P(PSTR(MSG_WIZARD_LEVELBED_6_1));
+                    #endif                
+
+                    #ifdef MSG_WIZARD_LEVELBED_6_2
+                    lcd_implementation_set_cursor(2, 0);
+                    lcd_implementation_print_P(PSTR(MSG_WIZARD_LEVELBED_6_2));
+                    #endif                
+
+                    #ifdef MSG_WIZARD_LEVELBED_6_3            
+                    lcd_implementation_set_cursor(3, 0);
+                    lcd_implementation_print_P(PSTR(MSG_WIZARD_LEVELBED_6_3));
+                    #endif 
+                    break;
+
+                default:
+                    lcd_enable_display_timeout();
+                    draw_status_screen();
+                    break;
+            }
+        } while (u8g.nextPage());
+#else
+	switch (display_view_wizard_page) {
              case 0:
                 #ifdef MSG_WIZARD_LEVELBED_0_0
                 lcd_implementation_set_cursor(0, 0);
@@ -1375,6 +1626,7 @@ static void view_wizard_level_bed()
                 draw_status_screen();
                 break;
         }
+#endif
         display_refresh_mode = NO_UPDATE_SCREEN;
     }
 }
@@ -1400,7 +1652,22 @@ static void view_picture_level_bed_cooling()
     }
 
     if (display_refresh_mode == UPDATE_SCREEN) {
-        lcd_implementation_set_cursor(0, 0);
+#ifdef DOGLCD
+        u8g.firstPage();
+        do {
+            lcd_implementation_set_cursor(0, 0);
+            lcd_implementation_print_P(PSTR(MSG_LB_COOL_1));
+            lcd_implementation_set_cursor(1, 0);
+            lcd_implementation_print_P(PSTR(MSG_LB_COOL_2));
+            lcd_implementation_set_cursor(1, 6);
+            lcd_implementation_print(LCD_STR_THERMOMETER[0]);
+            lcd_implementation_print(itostr3(int(degHotend(0))));
+            lcd_implementation_print_P(PSTR(LCD_STR_DEGREE " "));
+            lcd_implementation_set_cursor(3,0);
+            lcd_implementation_print_P(PSTR(MSG_EXIT));
+        } while ( u8g.nextPage() );
+#else
+	lcd_implementation_set_cursor(0, 0);
         lcd_implementation_print_P(PSTR(MSG_LP_COOL_1));
         lcd_implementation_set_cursor(1, 0);
         lcd_implementation_print_P(PSTR(MSG_LP_COOL_2));
@@ -1410,6 +1677,7 @@ static void view_picture_level_bed_cooling()
         lcd_implementation_print_P(PSTR(LCD_STR_DEGREE " "));
         lcd_implementation_set_cursor(3,0);
         lcd_implementation_print_P(PSTR(MSG_LP_COOL_3));
+#endif
     }
 
     if (degHotend(0) < LEVEL_PLATE_TEMP_PROTECTION) {
@@ -1486,7 +1754,107 @@ static void view_wizard_change_filament()
     }
 
     if (display_refresh_mode == UPDATE_SCREEN) {
-        switch (display_view_wizard_page) {
+#ifdef DOGLCD
+        u8g.firstPage();
+        do {
+            switch (display_view_wizard_page) {
+                case 0:
+                    #ifdef MSG_WIZARD_CHANGEFILAMENT_0_0
+                    lcd_implementation_set_cursor(0, 0);
+                    lcd_implementation_print_P(PSTR(MSG_WIZARD_CHANGEFILAMENT_0_0));
+                    #endif
+
+                    #ifdef MSG_WIZARD_CHANGEFILAMENT_0_1
+                    lcd_implementation_set_cursor(1, 0);
+                    lcd_implementation_print_P(PSTR(MSG_WIZARD_CHANGEFILAMENT_0_1));
+                    #endif                
+
+                    #ifdef MSG_WIZARD_CHANGEFILAMENT_0_2
+                    lcd_implementation_set_cursor(2, 0);
+                    lcd_implementation_print_P(PSTR(MSG_WIZARD_CHANGEFILAMENT_0_2));
+                    #endif                
+
+                    #ifdef MSG_WIZARD_CHANGEFILAMENT_0_3            
+                    lcd_implementation_set_cursor(3, 0);
+                    lcd_implementation_print_P(PSTR(MSG_WIZARD_CHANGEFILAMENT_0_3));
+                    #endif 
+                    break;
+
+                case 1:
+                    #ifdef MSG_WIZARD_CHANGEFILAMENT_1_0
+                    lcd_implementation_set_cursor(0, 0);
+                    lcd_implementation_print_P(PSTR(MSG_WIZARD_CHANGEFILAMENT_1_0));
+                    #endif
+
+                    #ifdef MSG_WIZARD_CHANGEFILAMENT_1_1
+                    lcd_implementation_set_cursor(1, 0);
+                    lcd_implementation_print_P(PSTR(MSG_WIZARD_CHANGEFILAMENT_1_1));
+                    #endif                
+
+                    #ifdef MSG_WIZARD_CHANGEFILAMENT_1_2
+                    lcd_implementation_set_cursor(2, 0);
+                    lcd_implementation_print_P(PSTR(MSG_WIZARD_CHANGEFILAMENT_1_2));
+                    #endif                
+
+                    #ifdef MSG_WIZARD_CHANGEFILAMENT_1_3            
+                    lcd_implementation_set_cursor(3, 0);
+                    lcd_implementation_print_P(PSTR(MSG_WIZARD_CHANGEFILAMENT_1_3));
+                    #endif 
+                    break;
+
+                case 2:
+                    #ifdef MSG_WIZARD_CHANGEFILAMENT_2_0
+                    lcd_implementation_set_cursor(0, 0);
+                    lcd_implementation_print_P(PSTR(MSG_WIZARD_CHANGEFILAMENT_2_0));
+                    #endif
+
+                    #ifdef MSG_WIZARD_CHANGEFILAMENT_2_1
+                    lcd_implementation_set_cursor(1, 0);
+                    lcd_implementation_print_P(PSTR(MSG_WIZARD_CHANGEFILAMENT_2_1));
+                    #endif                
+
+                    #ifdef MSG_WIZARD_CHANGEFILAMENT_2_2
+                    lcd_implementation_set_cursor(2, 0);
+                    lcd_implementation_print_P(PSTR(MSG_WIZARD_CHANGEFILAMENT_2_2));
+                    #endif                
+
+                    #ifdef MSG_WIZARD_CHANGEFILAMENT_2_3            
+                    lcd_implementation_set_cursor(3, 0);
+                    lcd_implementation_print_P(PSTR(MSG_WIZARD_CHANGEFILAMENT_2_3));
+                    #endif 
+                    break;
+
+                case 3:
+                    #ifdef MSG_WIZARD_CHANGEFILAMENT_3_0
+                    lcd_implementation_set_cursor(0, 0);
+                    lcd_implementation_print_P(PSTR(MSG_WIZARD_CHANGEFILAMENT_3_0));
+                    #endif
+
+                    #ifdef MSG_WIZARD_CHANGEFILAMENT_3_1
+                    lcd_implementation_set_cursor(1, 0);
+                    lcd_implementation_print_P(PSTR(MSG_WIZARD_CHANGEFILAMENT_3_1));
+                    #endif                
+
+                    #ifdef MSG_WIZARD_CHANGEFILAMENT_3_2
+                    lcd_implementation_set_cursor(2, 0);
+                    lcd_implementation_print_P(PSTR(MSG_WIZARD_CHANGEFILAMENT_3_2));
+                    #endif                
+
+                    #ifdef MSG_WIZARD_CHANGEFILAMENT_3_3            
+                    lcd_implementation_set_cursor(3, 0);
+                    lcd_implementation_print_P(PSTR(MSG_WIZARD_CHANGEFILAMENT_3_3));
+                    #endif 
+                    break;
+
+                default:
+                    lcd_enable_display_timeout();
+                    lcd_setstatuspgm(PSTR(MSG_PRINTING));
+                    draw_status_screen();
+                    break;
+            }
+        } while (u8g.nextPage());
+#else
+	switch (display_view_wizard_page) {
             case 0:
                 #ifdef MSG_WIZARD_CHANGEFILAMENT_0_0
                 lcd_implementation_set_cursor(0, 0);
@@ -1581,7 +1949,7 @@ static void view_wizard_change_filament()
                 draw_status_screen();
                 break;
         }
-
+#endif
         display_refresh_mode = NO_UPDATE_SCREEN;
     }
 }
@@ -1614,13 +1982,24 @@ static void view_picture_set_temperature()
     }
 
     if (display_refresh_mode == UPDATE_SCREEN) {
-        lcd_implementation_set_cursor(1, 1);
+#ifdef DOGLCD
+        u8g.firstPage();
+        do {
+            lcd_implementation_set_cursor(1, 1);
+            lcd_implementation_print_P(PSTR(MSG_NOZZLE));
+            lcd_implementation_print(':');
+
+            lcd_implementation_set_cursor(1, 17);
+            lcd_implementation_print(itostr3(target_temperature[0]));    
+        } while ( u8g.nextPage() );
+#else
+	lcd_implementation_set_cursor(1, 1);
         lcd_implementation_print_P(PSTR(MSG_NOZZLE));
         lcd_implementation_print(':');
 
         lcd_implementation_set_cursor(1, 17);
-        lcd_implementation_print(itostr3(target_temperature[0]));    
-
+        lcd_implementation_print(itostr3(target_temperature[0]));
+#endif
     }
 
     if (lcd_get_button_clicked()) {
@@ -1659,13 +2038,24 @@ static void view_picture_set_temperature_bed()
     }
 
     if (display_refresh_mode == UPDATE_SCREEN) {
-        lcd_implementation_set_cursor(1, 1);
+#ifdef DOGLCD
+        u8g.firstPage();
+        do {
+            lcd_implementation_set_cursor(1, 1);
+            lcd_implementation_print_P(PSTR(MSG_BED));
+            lcd_implementation_print(':');
+
+            lcd_implementation_set_cursor(1, 17);
+            lcd_implementation_print(itostr3(target_temperature_bed));    
+        } while ( u8g.nextPage() );
+#else
+	lcd_implementation_set_cursor(1, 1);
         lcd_implementation_print_P(PSTR(MSG_BED));
         lcd_implementation_print(':');
 
         lcd_implementation_set_cursor(1, 17);
-        lcd_implementation_print(itostr3(target_temperature_bed));    
-
+        lcd_implementation_print(itostr3(target_temperature_bed));
+#endif
     }
 
     if (lcd_get_button_clicked()) {
@@ -1701,13 +2091,24 @@ static void view_picture_speed_printing()
     }
     
     if (display_refresh_mode == UPDATE_SCREEN) {
-        lcd_implementation_set_cursor(1, 1);
+#ifdef DOGLCD
+        u8g.firstPage();
+        do {
+            lcd_implementation_set_cursor(1, 1);
+            lcd_implementation_print_P(PSTR(MSG_SPEED));
+            lcd_implementation_print(':');
+
+            lcd_implementation_set_cursor(1, 17);
+            lcd_implementation_print(itostr3(feedmultiply));    
+        } while ( u8g.nextPage() );
+#else
+	lcd_implementation_set_cursor(1, 1);
         lcd_implementation_print_P(PSTR(MSG_SPEED));
         lcd_implementation_print(':');
 
         lcd_implementation_set_cursor(1, 17);
-        lcd_implementation_print(itostr3(feedmultiply));    
-
+        lcd_implementation_print(itostr3(feedmultiply));
+#endif
     }
 
     if (lcd_get_button_clicked()) {
@@ -1730,15 +2131,22 @@ static void view_picture_splash()
     }
     
     if (display_refresh_mode == UPDATE_SCREEN) {
-        lcd_implementation_set_cursor(1, 6);
-        lcd_implementation_print_P(PSTR(MSG_WELLCOME));
+#ifdef DOGLCD
+        u8g.firstPage();
+        do {
+#endif
+            lcd_implementation_set_cursor(1, 6);
+            lcd_implementation_print_P(PSTR(MSG_WELLCOME));
 #  ifndef WITBOX_DUAL
-        lcd_implementation_set_cursor(3, 8);
-        lcd_implementation_print_P(PSTR(FIRMWARE_VER));
+            lcd_implementation_set_cursor(3, 8);
+            lcd_implementation_print_P(PSTR(FIRMWARE_VER));
 #  else // WITBOX_DUAL
-        lcd_implementation_set_cursor(3, 6);
-        lcd_implementation_print_P(PSTR(FIRMWARE_VER));    
+            lcd_implementation_set_cursor(3, 6);
+            lcd_implementation_print_P(PSTR(FIRMWARE_VER));
 #  endif // WITBOX_DUAL
+#ifdef DOGLCD
+        } while ( u8g.nextPage() );
+#endif
     }
 
     if (lcd_get_button_clicked()) {

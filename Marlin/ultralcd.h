@@ -76,6 +76,11 @@ void lcd_beep();
 void lcd_set_refresh(uint8_t mode);
 // uint8_t lcd_get_encoder_position();
 
+#ifdef DOGLCD
+	extern int lcd_contrast;
+	void lcd_setcontrast(uint8_t value);
+#endif
+
 // Alert/status messages
 void lcd_setstatus(const char* message);
 void lcd_setstatuspgm(const char* message);
