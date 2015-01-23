@@ -1279,15 +1279,21 @@
      #define BEEPER -1
      //LCD Pins
      #ifdef DOGLCD
-       // Pins for DOGM SPI LCD Support
-       #define DOGLCD_A0  30
-       #define DOGLCD_CS  29
-       // GLCD features
-       #define LCD_CONTRAST 1
+	   #ifdef U8GLIB_ST7920 //SPI GLCD 12864 ST7920 ( like [www.digole.com] ) For Melzi V2.0
+	  	 #define LCD_PINS_RS 30 //CS chip select /SS chip slave select
+	  	 #define LCD_PINS_ENABLE 29 //SID (MOSI)
+	  	 #define LCD_PINS_D4 17 //SCK (CLK) clock
+	  	 #define BEEPER 27 // Pin 27 is take by LED_Pin, but Melzi LED do nothing with Marlin and I take this pin for BEEPER.... See here > [github.com] , If you want use this pin with Gcode M42 instead BEEPER
+	   #else
+	  	 // Pins for DOGM SPI LCD Support
+	  	 #define DOGLCD_A0 30
+	  	 #define DOGLCD_CS 29
+	  	 #define LCD_CONTRAST 1
+	   #endif
        // Uncomment screen orientation
-         // #define LCD_SCREEN_ROT_0
+       #define LCD_SCREEN_ROT_0
          // #define LCD_SCREEN_ROT_90
-       #define LCD_SCREEN_ROT_180
+         // #define LCD_SCREEN_ROT_180
          // #define LCD_SCREEN_ROT_270
        #else // standard Hitachi LCD controller
        #define LCD_PINS_RS        4
@@ -1309,6 +1315,7 @@
        #endif
      #else
        #define BTN_ENC 16  //the click switch
+       #define LCD_SDSS 28 //to use the SD card reader on the smart controller rather than the melzi board
      #endif //Panelolu2
      //not connected to a pin
      #define SDCARDDETECT -1
