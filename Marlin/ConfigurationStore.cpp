@@ -77,7 +77,7 @@ void Config_StoreSettings()
   EEPROM_WRITE_VAR(i,zprobe_zoffset);
   #ifdef PIDTEMP
     float dummy = 0.0f;
-    for (int e = 0; e < 3; e++)
+    for (int e = 0; e < 4; e++)
 	{
 	  if (e < EXTRUDERS)
 	  {
@@ -132,12 +132,15 @@ void Config_StoreSettings()
   // Save filament sizes
   EEPROM_WRITE_VAR(i, volumetric_enabled);
   EEPROM_WRITE_VAR(i, filament_size[0]);
-  #if EXTRUDERS > 1
+#if EXTRUDERS > 1
   EEPROM_WRITE_VAR(i, filament_size[1]);
-  #if EXTRUDERS > 2
+#if EXTRUDERS > 2
   EEPROM_WRITE_VAR(i, filament_size[2]);
-  #endif//EXTRUDERS > 2
-  #endif//EXTRUDERS > 1
+#if EXTRUDERS > 3
+  EEPROM_WRITE_VAR(i, filament_size[3]);
+#endif //EXTRUDERS > 3
+#endif //EXTRUDERS > 2
+#endif //EXTRUDERS > 1
   
   char ver2[4]=EEPROM_VERSION;
   i=EEPROM_OFFSET;
@@ -280,8 +283,13 @@ SERIAL_ECHOLNPGM("Scaling factors:");
 		SERIAL_ECHO_START;
         SERIAL_ECHOPAIR("   M200 T2 D", filament_size[2]);
 		SERIAL_ECHOLN("");
-#endif//EXTRUDERS > 2
-#endif//EXTRUDERS > 1
+#if EXTRUDERS > 3
+        SERIAL_ECHO_START;
+        SERIAL_ECHOPAIR("   M200 T3 D", filament_size[3]);
+        SERIAL_ECHOLN("");
+#endif //EXTRUDERS > 3
+#endif //EXTRUDERS > 2
+#endif //EXTRUDERS > 1
     } else {
         SERIAL_ECHOLNPGM("Filament settings: Disabled");
     }
@@ -345,7 +353,7 @@ void Config_RetrieveSettings()
         EEPROM_READ_VAR(i,zprobe_zoffset);
         #ifdef PIDTEMP
 		float dummy = 0.0f;
-		for (int e = 0; e < 3; e++) // 3 = max extruders supported by marlin
+		for (int e = 0; e < 4; e++) // 4 = max extruders supported by marlin
 		{
 		  if (e < EXTRUDERS)
 		  {
@@ -412,8 +420,11 @@ void Config_RetrieveSettings()
 		EEPROM_READ_VAR(i, filament_size[1]);
 #if EXTRUDERS > 2
 		EEPROM_READ_VAR(i, filament_size[2]);
-#endif//EXTRUDERS > 2
-#endif//EXTRUDERS > 1
+#if EXTRUDERS > 3
+    EEPROM_READ_VAR(i, filament_size[3]);
+#endif //EXTRUDERS > 3
+#endif //EXTRUDERS > 2
+#endif //EXTRUDERS > 1
 		calculate_volumetric_multipliers();
 		// Call updatePID (similar to when we have processed M301)
 		updatePID();
@@ -517,8 +528,11 @@ void Config_ResetDefault()
 	filament_size[1] = DEFAULT_NOMINAL_FILAMENT_DIA;
 #if EXTRUDERS > 2
 	filament_size[2] = DEFAULT_NOMINAL_FILAMENT_DIA;
-#endif//EXTRUDERS > 2
-#endif//EXTRUDERS > 1
+#if EXTRUDERS > 3
+  filament_size[3] = DEFAULT_NOMINAL_FILAMENT_DIA;
+#endif //EXTRUDERS > 3
+#endif //EXTRUDERS > 2
+#endif //EXTRUDERS > 1
 	calculate_volumetric_multipliers();
 
 SERIAL_ECHO_START;
