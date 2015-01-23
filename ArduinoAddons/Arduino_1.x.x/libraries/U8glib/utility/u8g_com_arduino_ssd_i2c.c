@@ -59,6 +59,7 @@
 #define I2C_CMD_MODE	0x000
 #define I2C_DATA_MODE	0x040
 
+#if defined(U8G_WITH_PINLIST)
 
 uint8_t u8g_com_arduino_ssd_start_sequence(u8g_t *u8g)
 {
@@ -199,3 +200,13 @@ uint8_t u8g_com_arduino_ssd_i2c_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, voi
   }
   return 1;
 }
+
+#else  /* defined(U8G_WITH_PINLIST) */
+
+uint8_t u8g_com_arduino_ssd_i2c_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void *arg_ptr)
+{
+  return 1;
+}
+
+#endif /* defined(U8G_WITH_PINLIST) */
+

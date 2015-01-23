@@ -30,7 +30,12 @@
   STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
   ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF 
   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.  
-  
+
+
+  void u8g_Delay(uint16_t val)		Delay by "val" milliseconds
+  void u8g_MicroDelay(void)		Delay be one microsecond
+  void u8g_10MicroDelay(void)	Delay by 10 microseconds
+
   
 */
 
@@ -40,11 +45,18 @@
 /*==== Part 1: Derive suitable delay procedure ====*/
 
 #if defined(ARDUINO)
+
+#  if ARDUINO < 100 
+#    include <WProgram.h> 
+#  else 
+#    include <Arduino.h> 
+#  endif
+
 #  if defined(__AVR__)
 #    define USE_AVR_DELAY
 #  elif defined(__PIC32MX)
 #    define USE_PIC32_DELAY
-#  elif defined(__arm__)		/* Arduino Due */
+#  elif defined(__arm__)		/* Arduino Due & Teensy */
 #    define USE_ARDUINO_DELAY
 #  else
 #    define USE_ARDUINO_DELAY
@@ -53,6 +65,15 @@
 #  define USE_AVR_DELAY
 #elif defined(__18CXX)
 #  define USE_PIC18_DELAY
+#elif defined(__arm__)
+/* do not define anything, all procedures are expected to be defined outside u8glib */
+
+/*
+void u8g_Delay(uint16_t val);
+void u8g_MicroDelay(void);
+void u8g_10MicroDelay(void);
+*/
+
 #else
 #  define USE_DUMMY_DELAY
 #endif
@@ -144,7 +165,11 @@ void u8g_10MicroDelay(void)
 #if defined(USE_ARDUINO_DELAY)
 void u8g_Delay(uint16_t val)
 {
+#if defined(__arm__)
+	delayMicroseconds((uint32_t)val*(uint32_t)1000);
+#else
 	delay(val);
+#endif
 }
 void u8g_MicroDelay(void)
 {

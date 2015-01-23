@@ -105,7 +105,7 @@ uint8_t u8g_dev_st7565_c12832_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t msg, void *
   switch(msg)
   {
     case U8G_DEV_MSG_INIT:
-      u8g_InitCom(u8g, dev);
+      u8g_InitCom(u8g, dev, U8G_SPI_CLK_CYCLE_400NS);
       u8g_WriteEscSeqP(u8g, dev, u8g_dev_st7565_c12832_init_seq);
       break;
     case U8G_DEV_MSG_STOP:
@@ -141,3 +141,5 @@ uint8_t u8g_dev_st7565_c12832_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t msg, void *
 U8G_PB_DEV(u8g_dev_st7565_nhd_c12832_sw_spi, WIDTH, HEIGHT, PAGE_HEIGHT, u8g_dev_st7565_c12832_fn, U8G_COM_SW_SPI);
 U8G_PB_DEV(u8g_dev_st7565_nhd_c12832_hw_spi, WIDTH, HEIGHT, PAGE_HEIGHT, u8g_dev_st7565_c12832_fn, U8G_COM_HW_SPI);
 U8G_PB_DEV(u8g_dev_st7565_nhd_c12832_parallel, WIDTH, HEIGHT, PAGE_HEIGHT, u8g_dev_st7565_c12832_fn, U8G_COM_PARALLEL);
+U8G_PB_DEV(u8g_dev_st7565_nhd_c12832_hw_usart_spi, WIDTH, HEIGHT, PAGE_HEIGHT, u8g_dev_st7565_c12832_fn, U8G_COM_HW_USART_SPI);
+

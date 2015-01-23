@@ -35,9 +35,13 @@
   
 */
 
+
 #include "u8g.h"
 
+#define U8G_I2C_WITH_NO_ACK
+
 static uint8_t u8g_i2c_err_code;
+static uint8_t u8g_i2c_opt;		/* U8G_I2C_OPT_NO_ACK */
 
 /*
   position values
@@ -117,6 +121,7 @@ void u8g_i2c_init(uint8_t options)
 
     F_CPU/(2*100000)-8  --> calculate TWBR value for 100KHz
 */
+  u8g_i2c_opt = options;
   TWSR = 0;
   TWBR = F_CPU/(2*100000)-8;
   u8g_i2c_clear_error();
@@ -129,8 +134,15 @@ uint8_t u8g_i2c_wait(uint8_t mask, uint8_t pos)
   {
       if ( cnt == 0 )
       {
-	u8g_i2c_set_error(U8G_I2C_ERR_TIMEOUT, pos);
-	return 0; /* error */
+	if ( u8g_i2c_opt & U8G_I2C_OPT_NO_ACK )
+	{
+	  return 1;	/* all ok */
+	}
+	else
+	{
+	  u8g_i2c_set_error(U8G_I2C_ERR_TIMEOUT, pos);
+	  return 0; /* error */
+	}
       }
       cnt--;
     }
@@ -167,13 +179,20 @@ uint8_t u8g_i2c_start(uint8_t sla)
   /* wait */
   if ( u8g_i2c_wait(_BV(TWINT), 2) == 0 )
     return 0;
-  status = TW_STATUS;
 
-  /* check status after sla */  
-  if ( status != TW_MT_SLA_ACK )
+  if ( u8g_i2c_opt & U8G_I2C_OPT_NO_ACK )
   {
-    u8g_i2c_set_error(U8G_I2C_ERR_BUS, 2);
-    return 0;
+    /* do not check for ACK */
+  }
+  else
+  {
+    status = TW_STATUS;
+    /* check status after sla */  
+    if ( status != TW_MT_SLA_ACK )
+    {
+      u8g_i2c_set_error(U8G_I2C_ERR_BUS, 2);
+      return 0;
+    }
   }
 
    return 1;
@@ -186,14 +205,21 @@ uint8_t u8g_i2c_send_byte(uint8_t data)
   TWCR = _BV(TWINT)  |  _BV(TWEN);
   if ( u8g_i2c_wait(_BV(TWINT), 3) == 0 )
     return 0;
-  status = TW_STATUS;
-  
-  if ( status != TW_MT_DATA_ACK )
+    
+  if ( u8g_i2c_opt & U8G_I2C_OPT_NO_ACK )
   {
-    u8g_i2c_set_error(U8G_I2C_ERR_BUS, 3);
-    return 0;
+    /* do not check for ACK */
   }
-  
+  else
+  {
+    status = TW_STATUS;  
+    if ( status != TW_MT_DATA_ACK )
+    {
+      u8g_i2c_set_error(U8G_I2C_ERR_BUS, 3);
+      return 0;
+    }
+  }
+
   return 1;  
 }
 

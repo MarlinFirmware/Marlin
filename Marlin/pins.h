@@ -249,8 +249,8 @@
 #   define LCD_PINS_ENABLE     17
 #   define LCD_PINS_D4         23
 // Button & Encoder
-#   define BTN_EN1             33
-#   define BTN_EN2             31
+#   define BTN_EN1             31
+#   define BTN_EN2             33
 #   define BTN_ENC             35
 // Buzzer
 #   define BEEPER              37

@@ -33,7 +33,6 @@
   ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF 
   ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.  
   
-
 */
 
 #include "u8g.h"
@@ -120,6 +119,7 @@ static uint8_t u8g_font_GetFontGlyphStructureSize(const u8g_fntpgm_uint8_t *font
   {
     case 0: return 6;
     case 1: return 3;
+    case 2: return 6;
   }
   return 3;
 }
@@ -281,6 +281,7 @@ static void u8g_CopyGlyphDataToCache(u8g_t *u8g, u8g_glyph_t g)
   switch( u8g_font_GetFormat(u8g->font) )
   {
     case 0:
+    case 2:
   /*
     format 0
     glyph information 
@@ -961,6 +962,7 @@ int8_t u8g_DrawGlyphFontBBX(u8g_t *u8g, u8g_uint_t x, u8g_uint_t y, uint8_t dir,
   x -= u8g_GetFontBBXOffX(u8g);
   y += u8g_GetFontBBXOffY(u8g);
   u8g_draw_glyph(u8g, x, y, encoding);
+  return 0;
 }
 
 
@@ -1420,3 +1422,79 @@ void u8g_SetFont(u8g_t *u8g, const u8g_fntpgm_uint8_t  *font)
   }
 }
 
+/*========================================================================*/
+/* anti aliasing fonts */
+
+int8_t u8g_draw_aa_glyph(u8g_t *u8g, u8g_uint_t x, u8g_uint_t y, uint8_t encoding)
+{
+  const u8g_pgm_uint8_t *data;
+  uint8_t w, h;
+  uint8_t i, j;
+  u8g_uint_t ix, iy;
+
+  {
+    u8g_glyph_t g = u8g_GetGlyph(u8g, encoding);
+    if ( g == NULL  )
+      return 0;
+    data = u8g_font_GetGlyphDataStart(u8g->font, g);
+  }
+  
+  w = u8g->glyph_width;
+  h = u8g->glyph_height;
+  
+  x += u8g->glyph_x;
+  y -= u8g->glyph_y;
+  y--;
+  
+  if ( u8g_IsBBXIntersection(u8g, x, y-h+1, w, h) == 0 )
+    return u8g->glyph_dx;
+
+  /* now, w is reused as bytes per line */
+  w += 3;
+  w /= 4;
+  
+  iy = y;
+  iy -= h;
+  iy++;
+
+  for( j = 0; j < h; j++ )
+  {
+    ix = x;
+    for( i = 0; i < w; i++ )
+    {
+      u8g_Draw4TPixel(u8g, ix, iy, 0, u8g_pgm_read(data));
+      data++;
+      ix+=4;
+    }
+    iy++;
+  }
+  return u8g->glyph_dx;
+}
+
+int8_t u8g_DrawAAGlyph(u8g_t *u8g, u8g_uint_t x, u8g_uint_t y, uint8_t encoding)
+{
+  y += u8g->font_calc_vref(u8g);
+  return u8g_draw_aa_glyph(u8g, x, y, encoding);
+}
+
+u8g_uint_t u8g_DrawAAStr(u8g_t *u8g, u8g_uint_t x, u8g_uint_t y, const char *s)
+{
+  u8g_uint_t t = 0;
+  int8_t d;
+
+  if ( u8g_font_GetFormat(u8g->font)  != 2 )
+    return 0;
+  //u8g_uint_t u8g_GetStrWidth(u8g, s);
+  //u8g_font_GetFontAscent(u8g->font)-u8g_font_GetFontDescent(u8g->font);
+  
+  y += u8g->font_calc_vref(u8g);
+  
+  while( *s != '\0' )
+  {
+    d = u8g_draw_aa_glyph(u8g, x, y, *s);
+    x += d;
+    t += d;
+    s++;
+  }
+  return t;
+}
