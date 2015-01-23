@@ -159,6 +159,15 @@ FORCE_INLINE bool isCoolingBed() {
 #define setTargetHotend2(_celsius) do{}while(0)
 #endif
 #if EXTRUDERS > 3
+#define degHotend3() degHotend(3)
+#define degTargetHotend3() degTargetHotend(3)
+#define setTargetHotend3(_celsius) setTargetHotend((_celsius), 3)
+#define isHeatingHotend3() isHeatingHotend(3)
+#define isCoolingHotend3() isCoolingHotend(3)
+#else
+#define setTargetHotend3(_celsius) do{}while(0)
+#endif
+#if EXTRUDERS > 4
 #error Invalid number of extruders
 #endif
 
@@ -171,24 +180,24 @@ void updatePID();
 
 #if defined (THERMAL_RUNAWAY_PROTECTION_PERIOD) && THERMAL_RUNAWAY_PROTECTION_PERIOD > 0
 void thermal_runaway_protection(int *state, unsigned long *timer, float temperature, float target_temperature, int heater_id, int period_seconds, int hysteresis_degc);
-static int thermal_runaway_state_machine[3]; // = {0,0,0};
-static unsigned long thermal_runaway_timer[3]; // = {0,0,0};
+static int thermal_runaway_state_machine[4]; // = {0,0,0,0};
+static unsigned long thermal_runaway_timer[4]; // = {0,0,0,0};
 static bool thermal_runaway = false;
-  #if TEMP_SENSOR_BED != 0
-    static int thermal_runaway_bed_state_machine;
-    static unsigned long thermal_runaway_bed_timer;
-  #endif
+#if TEMP_SENSOR_BED != 0
+  static int thermal_runaway_bed_state_machine;
+  static unsigned long thermal_runaway_bed_timer;
+#endif
 #endif
 
 FORCE_INLINE void autotempShutdown(){
- #ifdef AUTOTEMP
- if(autotemp_enabled)
- {
-  autotemp_enabled=false;
-  if(degTargetHotend(active_extruder)>autotemp_min)
-    setTargetHotend(0,active_extruder);
- }
- #endif
+#ifdef AUTOTEMP
+  if(autotemp_enabled)
+  {
+    autotemp_enabled=false;
+    if(degTargetHotend(active_extruder)>autotemp_min)
+      setTargetHotend(0,active_extruder);
+  }
+#endif
 }
 
 void PID_autotune(float temp, int extruder, int ncycles);
@@ -197,4 +206,3 @@ void setExtruderAutoFanState(int pin, bool state);
 void checkExtruderAutoFans();
 
 #endif
-
