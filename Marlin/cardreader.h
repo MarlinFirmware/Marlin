@@ -50,12 +50,12 @@ public:
 public:
   bool saving;
   bool logging;
-  bool sdprinting ;  
-  bool cardOK ;
-  char filename[13];
+  bool sdprinting;  
+  bool cardOK;
+  char filename[FILENAME_LENGTH];
   char longFilename[LONG_FILENAME_LENGTH];
   bool filenameIsDir;
-  int lastnr; //last number of the autostart;
+  int autostart_index;
 private:
   SdFile root,*curDir,workDir,workDirParents[MAX_DIR_DEPTH];
   uint16_t workDirDepth;
@@ -63,7 +63,7 @@ private:
   SdVolume volume;
   SdFile file;
   #define SD_PROCEDURE_DEPTH 1
-  #define MAXPATHNAMELENGTH (13*MAX_DIR_DEPTH+MAX_DIR_DEPTH+1)
+  #define MAXPATHNAMELENGTH (FILENAME_LENGTH*MAX_DIR_DEPTH+MAX_DIR_DEPTH+1)
   uint8_t file_subcall_ctr;
   uint32_t filespos[SD_PROCEDURE_DEPTH];
   char filenames[SD_PROCEDURE_DEPTH][MAXPATHNAMELENGTH];
