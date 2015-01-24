@@ -286,6 +286,15 @@ SERIAL_ECHOLNPGM("Scaling factors:");
         SERIAL_ECHOLNPGM("Filament settings: Disabled");
     }
 #endif//FWRETRACT
+#ifdef CUSTOM_M_CODES
+  SERIAL_ECHO_START;
+  SERIAL_ECHOLNPGM("Z-Probe Offset (mm):");
+  SERIAL_ECHO_START;
+  SERIAL_ECHO("   M");
+  SERIAL_ECHO(CUSTOM_M_CODE_SET_Z_PROBE_OFFSET);
+  SERIAL_ECHOPAIR(" Z",-zprobe_zoffset);
+  SERIAL_ECHOLN("");
+#endif
 }
 #endif//DISABLE_M503
 
