@@ -377,7 +377,7 @@ static void lcd_main_menu()
 #ifdef SDSUPPORT
 static void lcd_autostart_sd()
 {
-    card.lastnr=0;
+    card.autostart_index=0;
     card.setroot();
     card.checkautostart(true);
 }
