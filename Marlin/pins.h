@@ -1788,8 +1788,8 @@
   #endif //FILAMENT_SENSOR
 #endif
 
-#define TEMP_1_PIN         2
-#define TEMP_2_PIN         3
+#define TEMP_1_PIN         -1
+#define TEMP_2_PIN         -1
 
 #define SDPOWER            -1
 #define SDSS                8
