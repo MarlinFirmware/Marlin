@@ -177,6 +177,11 @@ unsigned long watchmillis[EXTRUDERS] = ARRAY_BY_EXTRUDERS(0,0,0);
 #ifdef FILAMENT_SENSOR
   static int meas_shift_index;  //used to point to a delayed sample in buffer for filament width sensor
 #endif
+
+#ifdef HEATER_0_USES_MAX6675
+  static int read_max6675();
+#endif
+
 //===========================================================================
 //=============================   functions      ============================
 //===========================================================================
@@ -447,6 +452,15 @@ void manage_heater()
     return; 
 
   updateTemperaturesFromRawValues();
+
+  #ifdef HEATER_0_USES_MAX6675
+    if (current_temperature[0] > 1023 || current_temperature[0] > HEATER_0_MAXTEMP) {
+      max_temp_error(0);
+    }
+    if (current_temperature[0] == 0  || current_temperature[0] < HEATER_0_MINTEMP) {
+      min_temp_error(0);
+    }
+  #endif //HEATER_0_USES_MAX6675
 
   for(int e = 0; e < EXTRUDERS; e++) 
   {
@@ -757,6 +771,9 @@ static float analog2tempBed(int raw) {
     and this function is called from normal context as it is too slow to run in interrupts and will block the stepper routine otherwise */
 static void updateTemperaturesFromRawValues()
 {
+    #ifdef HEATER_0_USES_MAX6675
+        current_temperature_raw[0] = read_max6675();
+    #endif
     for(uint8_t e=0;e<EXTRUDERS;e++)
     {
         current_temperature[e] = analog2temp(current_temperature_raw[e], e);
@@ -833,7 +850,7 @@ void tp_init()
   #endif  
   #if defined(HEATER_1_PIN) && (HEATER_1_PIN > -1) 
     SET_OUTPUT(HEATER_1_PIN);
-  #endif  
+  #endif
   #if defined(HEATER_2_PIN) && (HEATER_2_PIN > -1) 
     SET_OUTPUT(HEATER_2_PIN);
   #endif  
@@ -851,6 +868,7 @@ void tp_init()
   #endif  
 
   #ifdef HEATER_0_USES_MAX6675
+
     #ifndef SDSUPPORT
       SET_OUTPUT(SCK_PIN);
       WRITE(SCK_PIN,0);
@@ -860,15 +878,15 @@ void tp_init()
     
       SET_INPUT(MISO_PIN);
       WRITE(MISO_PIN,1);
+    #else
+      pinMode(SS_PIN, OUTPUT);
+      digitalWrite(SS_PIN, HIGH);
     #endif
-    /* Using pinMode and digitalWrite, as that was the only way I could get it to compile */
     
-    //Have to toggle SD card CS pin to low first, to enable firmware to talk with SD card
-	pinMode(SS_PIN, OUTPUT);
-	digitalWrite(SS_PIN,0);  
-	pinMode(MAX6675_SS, OUTPUT);
-	digitalWrite(MAX6675_SS,1);
-  #endif
+    SET_OUTPUT(MAX6675_SS);
+    WRITE(MAX6675_SS,1);
+
+  #endif //HEATER_0_USES_MAX6675
 
   // Set analog inputs
   ADCSRA = 1<<ADEN | 1<<ADSC | 1<<ADIF | 0x07;
@@ -1167,7 +1185,7 @@ void bed_max_temp_error(void) {
 long max6675_previous_millis = MAX6675_HEAT_INTERVAL;
 int max6675_temp = 2000;
 
-int read_max6675()
+static int read_max6675()
 {
   if (millis() - max6675_previous_millis < MAX6675_HEAT_INTERVAL) 
     return max6675_temp;
@@ -1175,9 +1193,9 @@ int read_max6675()
   max6675_previous_millis = millis();
   max6675_temp = 0;
     
-  #ifdef	PRR
+  #ifdef PRR
     PRR &= ~(1<<PRSPI);
-  #elif defined PRR0
+  #elif defined(PRR0)
     PRR0 &= ~(1<<PRSPI);
   #endif
   
@@ -1204,10 +1222,10 @@ int read_max6675()
   // disable TT_MAX6675
   WRITE(MAX6675_SS, 1);
 
-  if (max6675_temp & 4) 
+  if (max6675_temp & 4)
   {
     // thermocouple open
-    max6675_temp = 2000;
+    max6675_temp = 4000;
   }
   else 
   {
@@ -1216,7 +1234,8 @@ int read_max6675()
 
   return max6675_temp;
 }
-#endif
+
+#endif //HEATER_0_USES_MAX6675
 
 
 // Timer 0 is shared with millies
@@ -1554,9 +1573,6 @@ ISR(TIMER0_COMPB_vect)
       #if defined(TEMP_0_PIN) && (TEMP_0_PIN > -1)
         raw_temp_0_value += ADC;
       #endif
-      #ifdef HEATER_0_USES_MAX6675 // TODO remove the blocking
-        raw_temp_0_value = read_max6675();
-      #endif
       temp_state = 2;
       break;
     case 2: // Prepare TEMP_BED
@@ -1659,7 +1675,9 @@ ISR(TIMER0_COMPB_vect)
   {
     if (!temp_meas_ready) //Only update the raw values if they have been read. Else we could be updating them during reading.
     {
+#ifndef HEATER_0_USES_MAX6675
       current_temperature_raw[0] = raw_temp_0_value;
+#endif
 #if EXTRUDERS > 1
       current_temperature_raw[1] = raw_temp_1_value;
 #endif
@@ -1690,14 +1708,18 @@ ISR(TIMER0_COMPB_vect)
 #else
     if(current_temperature_raw[0] >= maxttemp_raw[0]) {
 #endif
+#ifndef HEATER_0_USES_MAX6675
         max_temp_error(0);
+#endif
     }
 #if HEATER_0_RAW_LO_TEMP > HEATER_0_RAW_HI_TEMP
     if(current_temperature_raw[0] >= minttemp_raw[0]) {
 #else
     if(current_temperature_raw[0] <= minttemp_raw[0]) {
 #endif
+#ifndef HEATER_0_USES_MAX6675
         min_temp_error(0);
+#endif
     }
 #if EXTRUDERS > 1
 #if HEATER_1_RAW_LO_TEMP > HEATER_1_RAW_HI_TEMP
