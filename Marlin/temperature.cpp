@@ -1764,6 +1764,7 @@ ISR(TIMER0_COMPB_vect)
         raw_temp_2_value += ADC;
       #endif
       temp_state = 8;
+<<<<<<< HEAD
       break;
     case 8: // Prepare TEMP_3
       #if defined(TEMP_3_PIN) && (TEMP_3_PIN > -1)
@@ -1784,6 +1785,28 @@ ISR(TIMER0_COMPB_vect)
       #endif
       temp_state = 10; //change so that Filament Width is also measured
       break;
+=======
+      break;
+    case 8: // Prepare TEMP_3
+      #if defined(TEMP_3_PIN) && (TEMP_3_PIN > -1)
+        #if TEMP_3_PIN > 7
+          ADCSRB = 1<<MUX5;
+        #else
+          ADCSRB = 0;
+        #endif
+        ADMUX = ((1 << REFS0) | (TEMP_3_PIN & 0x07));
+        ADCSRA |= 1<<ADSC; // Start conversion
+      #endif
+      lcd_buttons_update();
+      temp_state = 9;
+      break;
+    case 9: // Measure TEMP_3
+      #if defined(TEMP_3_PIN) && (TEMP_3_PIN > -1)
+        raw_temp_3_value += ADC;
+      #endif
+      temp_state = 10; //change so that Filament Width is also measured
+      break;
+>>>>>>> 0ebf896070e8364252df3b3f59111218f1918cc8
     case 10: //Prepare FILWIDTH 
      #if defined(FILWIDTH_PIN) && (FILWIDTH_PIN> -1) 
       #if FILWIDTH_PIN>7 
