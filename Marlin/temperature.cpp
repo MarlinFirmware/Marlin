@@ -38,8 +38,15 @@
 
 
 //===========================================================================
-//=============================public variables============================
+//============================= public variables ============================
 //===========================================================================
+
+// Sampling period of the temperature routine
+#ifdef PID_dT
+  #undef PID_dT
+#endif
+#define PID_dT ((OVERSAMPLENR * 12.0)/(F_CPU / 64.0 / 256.0))
+
 int target_temperature[EXTRUDERS] = { 0 };
 int target_temperature_bed = 0;
 int current_temperature_raw[EXTRUDERS] = { 0 };
