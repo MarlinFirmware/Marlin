@@ -1788,8 +1788,8 @@
   #endif //FILAMENT_SENSOR
 #endif
 
-#define TEMP_1_PIN         2
-#define TEMP_2_PIN         3
+#define TEMP_1_PIN         -1
+#define TEMP_2_PIN         -1
 
 #define SDPOWER            -1
 #define SDSS                8
@@ -1804,6 +1804,20 @@
   #define MISO_PIN         11
   #define MOSI_PIN         10
 #endif
+
+#if defined(ULTRA_LCD) && defined(NEWPANEL)
+  //we have no buzzer installed
+  #define BEEPER -1
+  //LCD Pins
+  #ifdef LCD_I2C_PANELOLU2
+    #define BTN_EN1 27  //RX1 - fastio.h pin mapping 27
+    #define BTN_EN2 26  //TX1 - fastio.h pin mapping 26
+    #define BTN_ENC 43 //A3 - fastio.h pin mapping 43
+    #define SDSS   40 //use SD card on Panelolu2 (Teensyduino pin mapping)
+  #endif //LCD_I2C_PANELOLU2
+  //not connected to a pin
+  #define SDCARDDETECT -1    
+#endif //Ultipanel && Newpanel
 
 #endif // TEENSYLU || PRINTRBOARD
 
