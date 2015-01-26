@@ -10,6 +10,8 @@
 
 int8_t encoderDiff; /* encoderDiff is updated from interrupt context and added to encoderPosition every LCD update */
 
+const char* pgcode_seq= NULL; /* pointer to the current line in the active sequence of commands, or NULL when none */
+
 /* Configuration settings */
 int plaPreheatHotendTemp;
 int plaPreheatHPBTemp;
@@ -76,6 +78,7 @@ static void lcd_quick_feedback();//Cause an LCD refresh, and give the user visua
 static void menu_action_back(menuFunc_t data);
 static void menu_action_submenu(menuFunc_t data);
 static void menu_action_gcode(const char* pgcode);
+static void menu_action_gcode_next();
 static void menu_action_function(menuFunc_t data);
 static void menu_action_sdfile(const char* filename, char* longFilename);
 static void menu_action_sddirectory(const char* filename, char* longFilename);
@@ -1164,7 +1167,37 @@ static void lcd_quick_feedback()
 /** Menu action functions **/
 static void menu_action_back(menuFunc_t data) { lcd_goto_menu(data); }
 static void menu_action_submenu(menuFunc_t data) { lcd_goto_menu(data); }
-static void menu_action_gcode(const char* pgcode) { enquecommand_P(pgcode); }
+
+static void menu_action_gcode(const char* pgcode)
+{
+	// No more calling enquecommand_P(pgcode) as it allows only one command!
+	pgcode_seq= pgcode;
+	menu_action_gcode_next();
+}
+
+static void menu_action_gcode_next()
+{
+	// Inject the next command from the pending sequence, when not empty.
+	char cmd[30];
+	if(!pgcode_seq) return;
+        // Get the next 30 chars from the sequence of gcodes to run
+        strncpy_P(cmd, pgcode_seq, sizeof(cmd)-1);
+        cmd[sizeof(cmd)-1]= 0;
+        // Look for the end of line, or the end of sequence
+	size_t i= 0;
+        char c;
+        while( (c= cmd[i]) && c!='\n' )
+          ++i; // look for the end of this gcode command
+ 	cmd[i]= 0;
+        if(!enquecommand(cmd)) // buffer was full, will retry later
+          return;
+        if(c)
+          pgcode_seq+= i+1; // move to next command
+        else
+          pgcode_seq= NULL; // mark the end of the sequence of gcodes
+}
+
+
 static void menu_action_function(menuFunc_t data) { (*data)(); }
 static void menu_action_sdfile(const char* filename, char* longFilename)
 {
@@ -1256,6 +1289,8 @@ void lcd_update()
     #endif
 
     lcd_buttons_update();
+
+    menu_action_gcode_next(); // inject the next pending command in the pending sequence (if any)
 
     #if (SDCARDDETECT > 0)
     if((IS_SD_INSERTED != lcd_oldcardstatus && lcd_detected()))

@@ -454,9 +454,12 @@ void serial_echopair_P(const char *s_P, unsigned long v)
 //adds an command to the main command buffer
 //thats really done in a non-safe way.
 //needs overworking someday
-void enquecommand(const char *cmd)
+//(or return false if it failed to do so)
+bool enquecommand(const char *cmd)
 {
-  if(buflen < BUFSIZE)
+  if(buflen >= BUFSIZE)
+    return false;
+  else
   {
     //this is dangerous if a mixing of serial and this happens
     strcpy(&(cmdbuffer[bufindw][0]),cmd);
@@ -466,6 +469,7 @@ void enquecommand(const char *cmd)
     SERIAL_ECHOLNPGM("\"");
     bufindw= (bufindw + 1)%BUFSIZE;
     buflen += 1;
+    return true;
   }
 }
 
