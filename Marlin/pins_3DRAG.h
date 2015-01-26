@@ -4,10 +4,8 @@
 
 #include "pins_RAMPS_13.h"
 
-#define X_MAX_PIN           -1   //2 //Max endstops default to disabled "-1", set to commented value to enable.
-
-#define Y_MAX_PIN          -1   //15
-
+#define X_MAX_PIN          2
+#define Y_MAX_PIN          15
 #define Z_MAX_PIN          -1
 
 #define SDSS               25//53
