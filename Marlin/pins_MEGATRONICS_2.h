@@ -12,13 +12,13 @@
 #define X_DIR_PIN 27
 #define X_ENABLE_PIN 25
 #define X_MIN_PIN 37
-#define X_MAX_PIN 40 //2 //Max endstops default to disabled "-1", set to commented value to enable.
+#define X_MAX_PIN 40
 
 #define Y_STEP_PIN 4 // A6
 #define Y_DIR_PIN 54 // A0
 #define Y_ENABLE_PIN 5
 #define Y_MIN_PIN 41
-#define Y_MAX_PIN 38 //15
+#define Y_MAX_PIN 38
 
 #define Z_STEP_PIN 56 // A2
 #define Z_DIR_PIN 60 // A6
