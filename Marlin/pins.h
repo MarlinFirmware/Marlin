@@ -2947,6 +2947,12 @@ Fan_2 2
 #endif // CHEAPTRONIC
 
 
+#ifndef HEATER_3_PIN
+  #define HEATER_3_PIN -1
+#endif
+#ifndef TEMP_3_PIN
+  #define TEMP_3_PIN -1
+#endif
 
 #ifndef KNOWN_BOARD
 #error Unknown MOTHERBOARD value in configuration.h
@@ -2963,6 +2969,11 @@ Fan_2 2
   #define _E2_PINS E2_STEP_PIN, E2_DIR_PIN, E2_ENABLE_PIN, HEATER_2_PIN,
 #else
   #define _E2_PINS
+#endif
+#if EXTRUDERS > 3
+  #define _E3_PINS E3_STEP_PIN, E3_DIR_PIN, E3_ENABLE_PIN, HEATER_3_PIN,
+#else
+  #define _E3_PINS
 #endif
 
 #ifdef X_STOP_PIN
@@ -3009,7 +3020,6 @@ Fan_2 2
 
 #define SENSITIVE_PINS {0, 1, X_STEP_PIN, X_DIR_PIN, X_ENABLE_PIN, X_MIN_PIN, X_MAX_PIN, Y_STEP_PIN, Y_DIR_PIN, Y_ENABLE_PIN, Y_MIN_PIN, Y_MAX_PIN, Z_STEP_PIN, Z_DIR_PIN, Z_ENABLE_PIN, Z_MIN_PIN, Z_MAX_PIN, PS_ON_PIN, \
                         HEATER_BED_PIN, FAN_PIN,                  \
-                        _E0_PINS _E1_PINS _E2_PINS             \
-                        analogInputToDigitalPin(TEMP_0_PIN), analogInputToDigitalPin(TEMP_1_PIN), analogInputToDigitalPin(TEMP_2_PIN), analogInputToDigitalPin(TEMP_BED_PIN) }
-
+                        _E0_PINS _E1_PINS _E2_PINS _E3_PINS           \
+                        analogInputToDigitalPin(TEMP_0_PIN), analogInputToDigitalPin(TEMP_1_PIN), analogInputToDigitalPin(TEMP_2_PIN), analogInputToDigitalPin(TEMP_3_PIN), analogInputToDigitalPin(TEMP_BED_PIN) }
 #endif //__PINS_H
