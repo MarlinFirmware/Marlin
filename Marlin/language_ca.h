@@ -21,7 +21,7 @@
 #define MSG_PREHEAT_PLA0                    "Preescalfar PLA 1"
 #define MSG_PREHEAT_PLA1                    "Preescalfar PLA 2"
 #define MSG_PREHEAT_PLA2                    "Preescalfar PLA 3"
-#define MSG_PREHEAT_PLA3                    "Preescalfar PLA 4"
+#define MSG_PREHEAT_PLA3                    "Preescalfar PLA 4" 
 #define MSG_PREHEAT_PLA0123                 "Preesc. tot PLA"
 #define MSG_PREHEAT_PLA_BEDONLY             "Preesc. llit PLA"
 #define MSG_PREHEAT_PLA_SETTINGS            "Configuració PLA"
