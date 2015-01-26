@@ -125,6 +125,7 @@ static void view_menu_main();
   static void function_sdcard_stop();
   void draw_menu_stop_confirm();
   static void lcd_stop_confirm();
+  static void lcd_emergency_stop();
 
   // When the printer is stopped
   void draw_menu_control();
@@ -264,8 +265,11 @@ static void lcd_update_button()
     }
 
     // Beeper feedback
-    if ((button_clicked == true) || (button_pressed_count > 10))
+    if ((button_clicked == true) || (button_pressed_count > 10)) {
         lcd_implementation_quick_feedback();  // Review code!!
+	if (button_pressed_count > 100)
+	    lcd_emergency_stop();
+    }
 
 
     // Update button trigger
@@ -845,6 +849,29 @@ static void lcd_stop_confirm()
   MENU_ITEM(function, MSG_STOP_PRINT, function_sdcard_stop);
   END_MENU();
 }
+
+#ifdef WITBOX
+static void lcd_emergency_stop()
+{
+    LCD_ALERTMESSAGEPGM("EMERGENCY STOP!"); //TODO
+    SERIAL_ECHOLN("KILLED: Emergency stop active!");
+    stop_buffer = true;
+    stop_buffer_code = 999;
+    if (IS_SD_PRINTING) {
+        card.sdprinting = false;
+        card.closefile();
+    }
+    quickStop();
+    disable_x();
+    disable_y();
+    disable_z();
+    disable_e0();
+    disable_e1();
+    disable_e2();
+    cancel_heatup = true;
+    function_control_cooldown();
+}
+#endif //WITBOX
 
 void draw_menu_control()
 {

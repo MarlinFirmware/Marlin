@@ -535,6 +535,7 @@ void setup()
   #endif
 }
 
+char *test;
 
 void loop()
 {
@@ -546,15 +547,35 @@ void loop()
       switch (stop_buffer_code) {
       case 1:
         enquecommand_P(PSTR("M25"));
+	stop_buffer_code = 0;
         break;
       case 2:
         enquecommand_P(PSTR("M600"));
+	stop_buffer_code = 0;
+        break;
+      case 999:
+        get_command();
+        bufindr = (bufindw - 1);
+        if (bufindr < 0) { bufindr = BUFSIZE - 1; };
+	test = cmdbuffer[bufindr];
+        if (strstr(test, "M999") == NULL) {
+          bufindr = bufindw;
+          buflen = 0;
+        } else {
+          stop_buffer = false;
+          stop_buffer_code = 0;
+          bufindr = 0;
+          bufindw = 0;
+          buflen = 0;
+          FlushSerialRequestResend();
+          lcd_reset_alert_level();
+          LCD_MESSAGEPGM(WELCOME_MSG);
+        }
         break;
       default:
         break;
       }
-      stop_buffer_code = 0;
-	}
+    }
 	
 #ifdef SDSUPPORT
 	card.checkautostart(false);
