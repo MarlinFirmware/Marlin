@@ -80,7 +80,7 @@ unsigned long axis_steps_per_sqr_second[NUM_AXIS];
 matrix_3x3 plan_bed_level_matrix = {
 	1.0, 0.0, 0.0,
 	0.0, 1.0, 0.0,
-	0.0, 0.0, 1.0,
+	0.0, 0.0, 1.0
 };
 #endif // #ifdef ENABLE_AUTO_BED_LEVELING
 
@@ -96,7 +96,7 @@ float autotemp_factor=0.1;
 bool autotemp_enabled=false;
 #endif
 
-unsigned char g_uc_extruder_last_move[3] = {0,0,0};
+unsigned char g_uc_extruder_last_move[4] = {0,0,0,0};
 
 //===========================================================================
 //=================semi-private variables, used in inline  functions    =====
@@ -486,6 +486,7 @@ void check_axes_activity()
     disable_e0();
     disable_e1();
     disable_e2(); 
+    disable_e3();
   }
 #if defined(FAN_PIN) && FAN_PIN > -1
   #ifdef FAN_KICKSTART_TIME
@@ -672,6 +673,7 @@ block->steps_y = labs((target[X_AXIS]-position[X_AXIS]) - (target[Y_AXIS]-positi
       if(g_uc_extruder_last_move[0] > 0) g_uc_extruder_last_move[0]--;
       if(g_uc_extruder_last_move[1] > 0) g_uc_extruder_last_move[1]--;
       if(g_uc_extruder_last_move[2] > 0) g_uc_extruder_last_move[2]--;
+      if(g_uc_extruder_last_move[3] > 0) g_uc_extruder_last_move[3]--;
       
       switch(extruder)
       {
@@ -681,6 +683,7 @@ block->steps_y = labs((target[X_AXIS]-position[X_AXIS]) - (target[Y_AXIS]-positi
           
           if(g_uc_extruder_last_move[1] == 0) disable_e1(); 
           if(g_uc_extruder_last_move[2] == 0) disable_e2(); 
+          if(g_uc_extruder_last_move[3] == 0) disable_e3(); 
         break;
         case 1:
           enable_e1(); 
@@ -688,6 +691,7 @@ block->steps_y = labs((target[X_AXIS]-position[X_AXIS]) - (target[Y_AXIS]-positi
           
           if(g_uc_extruder_last_move[0] == 0) disable_e0(); 
           if(g_uc_extruder_last_move[2] == 0) disable_e2(); 
+          if(g_uc_extruder_last_move[3] == 0) disable_e3(); 
         break;
         case 2:
           enable_e2(); 
@@ -695,6 +699,15 @@ block->steps_y = labs((target[X_AXIS]-position[X_AXIS]) - (target[Y_AXIS]-positi
           
           if(g_uc_extruder_last_move[0] == 0) disable_e0(); 
           if(g_uc_extruder_last_move[1] == 0) disable_e1(); 
+          if(g_uc_extruder_last_move[3] == 0) disable_e3(); 
+        break;        
+        case 3:
+          enable_e3(); 
+          g_uc_extruder_last_move[3] = BLOCK_BUFFER_SIZE*2;
+          
+          if(g_uc_extruder_last_move[0] == 0) disable_e0(); 
+          if(g_uc_extruder_last_move[1] == 0) disable_e1(); 
+          if(g_uc_extruder_last_move[2] == 0) disable_e2(); 
         break;        
       }
     }
@@ -702,7 +715,8 @@ block->steps_y = labs((target[X_AXIS]-position[X_AXIS]) - (target[Y_AXIS]-positi
     {
       enable_e0();
       enable_e1();
-      enable_e2(); 
+      enable_e2();
+      enable_e3();
     }
   }
 
@@ -866,7 +880,7 @@ Having the real displacement of the head, we can calculate the total movement le
   long min_xy_segment_time =min(max_x_segment_time, max_y_segment_time);
   if(min_xy_segment_time < MAX_FREQ_TIME)
     speed_factor = min(speed_factor, speed_factor * (float)min_xy_segment_time / (float)MAX_FREQ_TIME);
-#endif
+#endif // XY_FREQUENCY_LIMIT
 
   // Correct the speed  
   if( speed_factor < 1.0)
