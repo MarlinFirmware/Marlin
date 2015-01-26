@@ -59,9 +59,9 @@
 
 // Default filament diameters used for volumetric extrusion,
 // also used for the default nominal filament diameter of the filament sensor
-#define EXTRUDER_0_NOMINAL_FILAMENT_DIA 1.75
-#define EXTRUDER_1_NOMINAL_FILAMENT_DIA 1.75
-#define EXTRUDER_2_NOMINAL_FILAMENT_DIA 1.75
+#define EXTRUDER_0_NOMINAL_FILAMENT_DIA 3.00
+#define EXTRUDER_1_NOMINAL_FILAMENT_DIA 3.00
+#define EXTRUDER_2_NOMINAL_FILAMENT_DIA 3.00
 
 //// The following define selects which power supply you have. Please choose the one that matches your setup
 // 1 = ATX
