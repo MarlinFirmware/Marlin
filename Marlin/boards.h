@@ -14,7 +14,7 @@
 #define BOARD_RAMPS_13_EEB      34   // RAMPS 1.3 / 1.4 (Power outputs: Extruder0, Extruder1, Bed)
 #define BOARD_RAMPS_13_EFF      35   // RAMPS 1.3 / 1.4 (Power outputs: Extruder, Fan, Fan)
 #define BOARD_RAMPS_13_EEF      36   // RAMPS 1.3 / 1.4 (Power outputs: Extruder0, Extruder1, Fan)
-#define BOARD_DUEMILANOVE_328P  4    // Duemilanove w/ ATMega328P pin assignment
+#define BOARD_DUEMILANOVE_328P  4    // Duemilanove w/ ATMega328P pin assignments
 #define BOARD_GEN6              5    // Gen6
 #define BOARD_GEN6_DELUXE       51   // Gen6 deluxe
 #define BOARD_SANGUINOLOLU_11   6    // Sanguinololu < 1.2
