@@ -21,7 +21,7 @@
 #define MSG_PREHEAT_PLA0                    "Vorwärmen PLA 1"
 #define MSG_PREHEAT_PLA1                    "Vorwärmen PLA 2"
 #define MSG_PREHEAT_PLA2                    "Vorwärmen PLA 3"
-#define MSG_PREHEAT_PLA3                    "Vorwärmen PLA 4"
+#define MSG_PREHEAT_PLA3                    "Vorwärmen PLA 4" 
 #define MSG_PREHEAT_PLA0123                 "Vorw. PLA Alle"
 #define MSG_PREHEAT_PLA_BEDONLY             "Vorw. PLA Bett"
 #define MSG_PREHEAT_PLA_SETTINGS            "Vorwärm. PLA Ein."
