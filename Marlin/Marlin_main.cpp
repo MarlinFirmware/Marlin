@@ -216,12 +216,12 @@ int extruder_multiply[EXTRUDERS] = {100
   #endif
 };
 bool volumetric_enabled = false;
-float filament_size[EXTRUDERS] = { DEFAULT_NOMINAL_FILAMENT_DIA
+float filament_size[EXTRUDERS] = { EXTRUDER_0_NOMINAL_FILAMENT_DIA
   #if EXTRUDERS > 1
-      , DEFAULT_NOMINAL_FILAMENT_DIA
-    #if EXTRUDERS > 2
-       , DEFAULT_NOMINAL_FILAMENT_DIA
-    #endif
+    , EXTRUDER_1_NOMINAL_FILAMENT_DIA
+  #if EXTRUDERS > 2
+    , EXTRUDER_2_NOMINAL_FILAMENT_DIA
+  #endif
   #endif
 };
 float volumetric_multiplier[EXTRUDERS] = {1.0
@@ -328,7 +328,14 @@ bool cancel_heatup = false ;
 
 #ifdef FILAMENT_SENSOR
   //Variables for Filament Sensor input 
-  float filament_width_nominal=DEFAULT_NOMINAL_FILAMENT_DIA;  //Set nominal filament width, can be changed with M404 
+float filament_width_nominal = { EXTRUDER_0_NOMINAL_FILAMENT_DIA  //Set nominal filament width, can be changed with M404 
+  #if FILAMENT_SENSOR_EXTRUDER_NUM > 1
+    , EXTRUDER_1_NOMINAL_FILAMENT_DIA
+  #if FILAMENT_SENSOR_EXTRUDER_NUM > 2
+    , EXTRUDER_2_NOMINAL_FILAMENT_DIA
+  #endif
+  #endif
+};
   bool filament_sensor=false;  //M405 turns on filament_sensor control, M406 turns it off 
   float filament_width_meas=DEFAULT_MEASURED_FILAMENT_DIA; //Stores the measured filament diameter 
   signed char measurement_delay[MAX_MEASUREMENT_DELAY+1];  //ring buffer to delay measurement  store extruder factor after subtracting 100 
@@ -2890,11 +2897,11 @@ Sigma_Exit:
 		  } else {
             filament_size[tmp_extruder] = (float)code_value();
 			// make sure all extruders have some sane value for the filament size
-			filament_size[0] = (filament_size[0] == 0.0 ? DEFAULT_NOMINAL_FILAMENT_DIA : filament_size[0]);
+			filament_size[0] = (filament_size[0] == 0.0 ? EXTRUDER_0_NOMINAL_FILAMENT_DIA : filament_size[0]);
             #if EXTRUDERS > 1
-			filament_size[1] = (filament_size[1] == 0.0 ? DEFAULT_NOMINAL_FILAMENT_DIA : filament_size[1]);
+			filament_size[1] = (filament_size[1] == 0.0 ? EXTRUDER_1_NOMINAL_FILAMENT_DIA : filament_size[1]);
             #if EXTRUDERS > 2
-			filament_size[2] = (filament_size[2] == 0.0 ? DEFAULT_NOMINAL_FILAMENT_DIA : filament_size[2]);
+			filament_size[2] = (filament_size[2] == 0.0 ? EXTRUDER_2_NOMINAL_FILAMENT_DIA : filament_size[2]);
             #endif
             #endif
 			volumetric_enabled = true;
