@@ -41,6 +41,9 @@
 #elif MB(3DRAG)
   #define MACHINE_NAME "3Drag"
   #define FIRMWARE_URL "http://3dprint.elettronicain.it/"
+#elif MB(K8200)
+  #define MACHINE_NAME "K8200"
+  #define FIRMWARE_URL "https://github.com/MarlinFirmware/Marlin"
 #elif MB(5DPRINT)
   #define MACHINE_NAME "Makibox"
   #define FIRMWARE_URL "https://github.com/MarlinFirmware/Marlin"

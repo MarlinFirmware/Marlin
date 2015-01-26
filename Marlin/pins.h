@@ -530,7 +530,7 @@
 * Arduino Mega pin assignment
 *
 ****************************************************************************************/
-#if IS_RAMPS || MB(3DRAG) || MB(AZTEEG_X3) || MB(AZTEEG_X3_PRO)
+#if IS_RAMPS || MB(3DRAG) || MB(K8200) || MB(AZTEEG_X3) || MB(AZTEEG_X3_PRO)
 #define KNOWN_BOARD 1
 
 //////////////////FIX THIS//////////////
@@ -546,11 +546,11 @@
 // #define RAMPS_V_1_0
 
 
-#if (IS_RAMPS && !MB(RAMPS_OLD)) || MB(3DRAG) || MB(AZTEEG_X3) || MB(AZTEEG_X3_PRO)
+#if (IS_RAMPS && !MB(RAMPS_OLD)) || MB(3DRAG) || MB(K8200) || MB(AZTEEG_X3) || MB(AZTEEG_X3_PRO)
 
   #define LARGE_FLASH true
 
-  #if MB(3DRAG)
+  #if MB(3DRAG) || MB(K8200)
     #define X_STEP_PIN         54
     #define X_DIR_PIN          55
     #define X_ENABLE_PIN       38
@@ -661,7 +661,7 @@
     #define FAN_PIN            4 // IO pin. Buffer needed
   #endif
 
-  #if MB(3DRAG) || MB(RAMPS_13_EEF)
+  #if MB(3DRAG) || MB(K8200) || MB(RAMPS_13_EEF)
     #define FAN_PIN            8
   #endif
 
@@ -690,7 +690,7 @@
   #endif
 
 
-  #if MB(3DRAG)
+  #if MB(3DRAG) || MB(K8200)
     #define HEATER_0_PIN       10
     #define HEATER_1_PIN       12
     #define HEATER_2_PIN       6
@@ -720,7 +720,7 @@
   #if MB(RAMPS_13_EFF) || MB(RAMPS_13_EEF)
     #define HEATER_BED_PIN     -1    // NO BED
   #else
-    #if MB(3DRAG)
+    #if MB(3DRAG) || MB(K8200)
       #define HEATER_BED_PIN     9    // BED
     #else
       #define HEATER_BED_PIN     8    // BED
@@ -813,7 +813,7 @@
 
       #endif
 
-      #if MB(3DRAG)
+      #if MB(3DRAG) || MB(K8200)
         #define BEEPER -1
 
         #define LCD_PINS_RS 27
@@ -895,7 +895,7 @@
 #define TEMP_2_PIN          -1
 #define TEMP_BED_PIN        1    // MUST USE ANALOG INPUT NUMBERING NOT DIGITAL OUTPUT NUMBERING!!!!!!!!!
 
-#endif // RAMPS_13_EFB || RAMPS_13_EEB || RAMPS_13_EFF || 3DRAG
+#endif // RAMPS_13_EFB || RAMPS_13_EEB || RAMPS_13_EFF || 3DRAG || K8200
 
 // SPI for Max6675 Thermocouple
 
@@ -904,12 +904,12 @@
   #define SCK_PIN          52
   #define MISO_PIN         50
   #define MOSI_PIN         51
-  #define MAX6675_SS       66// Do not use pin 53 if there is even the remote possibility of using Dsplay/SD card
+  #define MAX6675_SS       66// Do not use pin 53 if there is even the remote possibility of using Display/SD card
 #else
   #define MAX6675_SS       66// Do not use pin 49 as this is tied to the switch inside the SD card socket to detect if there is an SD card present
 #endif
 
-#endif // RAMPS_OLD || RAMPS_13_EFB || RAMPS_13_EEB || RAMPS_13_EFF || 3DRAG
+#endif // RAMPS_OLD || RAMPS_13_EFB || RAMPS_13_EEB || RAMPS_13_EFF || 3DRAG || K8200
 
 /****************************************************************************************
 * Duemilanove w/ ATMega328P pin assignment
@@ -1279,15 +1279,21 @@
      #define BEEPER -1
      //LCD Pins
      #ifdef DOGLCD
-       // Pins for DOGM SPI LCD Support
-       #define DOGLCD_A0  30
-       #define DOGLCD_CS  29
-       // GLCD features
-       #define LCD_CONTRAST 1
+	   #ifdef U8GLIB_ST7920 //SPI GLCD 12864 ST7920 ( like [www.digole.com] ) For Melzi V2.0
+	  	 #define LCD_PINS_RS 30 //CS chip select /SS chip slave select
+	  	 #define LCD_PINS_ENABLE 29 //SID (MOSI)
+	  	 #define LCD_PINS_D4 17 //SCK (CLK) clock
+	  	 #define BEEPER 27 // Pin 27 is take by LED_Pin, but Melzi LED do nothing with Marlin and I take this pin for BEEPER.... See here > [github.com] , If you want use this pin with Gcode M42 instead BEEPER
+	   #else
+	  	 // Pins for DOGM SPI LCD Support
+	  	 #define DOGLCD_A0 30
+	  	 #define DOGLCD_CS 29
+	  	 #define LCD_CONTRAST 1
+	   #endif
        // Uncomment screen orientation
-         // #define LCD_SCREEN_ROT_0
+       #define LCD_SCREEN_ROT_0
          // #define LCD_SCREEN_ROT_90
-       #define LCD_SCREEN_ROT_180
+         // #define LCD_SCREEN_ROT_180
          // #define LCD_SCREEN_ROT_270
        #else // standard Hitachi LCD controller
        #define LCD_PINS_RS        4
@@ -1309,6 +1315,7 @@
        #endif
      #else
        #define BTN_ENC 16  //the click switch
+       #define LCD_SDSS 28 //to use the SD card reader on the smart controller rather than the melzi board
      #endif //Panelolu2
      //not connected to a pin
      #define SDCARDDETECT -1
@@ -1781,8 +1788,8 @@
   #endif //FILAMENT_SENSOR
 #endif
 
-#define TEMP_1_PIN         2
-#define TEMP_2_PIN         3
+#define TEMP_1_PIN         -1
+#define TEMP_2_PIN         -1
 
 #define SDPOWER            -1
 #define SDSS                8
@@ -1797,6 +1804,20 @@
   #define MISO_PIN         11
   #define MOSI_PIN         10
 #endif
+
+#if defined(ULTRA_LCD) && defined(NEWPANEL)
+  //we have no buzzer installed
+  #define BEEPER -1
+  //LCD Pins
+  #ifdef LCD_I2C_PANELOLU2
+    #define BTN_EN1 27  //RX1 - fastio.h pin mapping 27
+    #define BTN_EN2 26  //TX1 - fastio.h pin mapping 26
+    #define BTN_ENC 43 //A3 - fastio.h pin mapping 43
+    #define SDSS   40 //use SD card on Panelolu2 (Teensyduino pin mapping)
+  #endif //LCD_I2C_PANELOLU2
+  //not connected to a pin
+  #define SDCARDDETECT -1    
+#endif //Ultipanel && Newpanel
 
 #endif // TEENSYLU || PRINTRBOARD
 
@@ -2926,6 +2947,12 @@ Fan_2 2
 #endif // CHEAPTRONIC
 
 
+#ifndef HEATER_3_PIN
+  #define HEATER_3_PIN -1
+#endif
+#ifndef TEMP_3_PIN
+  #define TEMP_3_PIN -1
+#endif
 
 #ifndef KNOWN_BOARD
 #error Unknown MOTHERBOARD value in configuration.h
@@ -2942,6 +2969,11 @@ Fan_2 2
   #define _E2_PINS E2_STEP_PIN, E2_DIR_PIN, E2_ENABLE_PIN, HEATER_2_PIN,
 #else
   #define _E2_PINS
+#endif
+#if EXTRUDERS > 3
+  #define _E3_PINS E3_STEP_PIN, E3_DIR_PIN, E3_ENABLE_PIN, HEATER_3_PIN,
+#else
+  #define _E3_PINS
 #endif
 
 #ifdef X_STOP_PIN
@@ -2988,7 +3020,6 @@ Fan_2 2
 
 #define SENSITIVE_PINS {0, 1, X_STEP_PIN, X_DIR_PIN, X_ENABLE_PIN, X_MIN_PIN, X_MAX_PIN, Y_STEP_PIN, Y_DIR_PIN, Y_ENABLE_PIN, Y_MIN_PIN, Y_MAX_PIN, Z_STEP_PIN, Z_DIR_PIN, Z_ENABLE_PIN, Z_MIN_PIN, Z_MAX_PIN, PS_ON_PIN, \
                         HEATER_BED_PIN, FAN_PIN,                  \
-                        _E0_PINS _E1_PINS _E2_PINS             \
-                        analogInputToDigitalPin(TEMP_0_PIN), analogInputToDigitalPin(TEMP_1_PIN), analogInputToDigitalPin(TEMP_2_PIN), analogInputToDigitalPin(TEMP_BED_PIN) }
-
+                        _E0_PINS _E1_PINS _E2_PINS _E3_PINS           \
+                        analogInputToDigitalPin(TEMP_0_PIN), analogInputToDigitalPin(TEMP_1_PIN), analogInputToDigitalPin(TEMP_2_PIN), analogInputToDigitalPin(TEMP_3_PIN), analogInputToDigitalPin(TEMP_BED_PIN) }
 #endif //__PINS_H
