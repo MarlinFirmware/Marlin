@@ -221,9 +221,14 @@ void lcd_init()
     lcd_oldcardstatus = IS_SD_INSERTED;
 #  endif // (defined (SDSUPPORT) && defined(SDCARDDETECT) && (SDCARDDETECT > 0))
 
-    // Init Timer 2 and set the OVF interrupt
-    TCCR2A = 0x23;
-    TCCR2B = 0x02;
+    // Init Timer 5 and set the OVF interrupt
+    TCCR5A = 0x03;
+    TCCR5B = 0x19;
+
+    OCR5AH = 0x1F;
+    OCR5AL = 0x40;
+
+
     lcd_enable_interrupt();
 
     display_view_next = view_status_screen;
@@ -452,7 +457,7 @@ void lcd_disable_display_timeout()
 
 void lcd_enable_interrupt()
 {
-    TIMSK2 |= 0x01;
+    TIMSK5 |= 0x01;
     lcd_enable_button();
     lcd_enable_encoder();
 }
@@ -461,7 +466,7 @@ void lcd_disable_interrupt()
 {
     lcd_disable_button();
     lcd_disable_encoder();
-    TIMSK2 &= ~(0x01);
+    TIMSK5 &= ~(0x01);
 }
 
 
@@ -2487,7 +2492,7 @@ char *ftostr52(const float &x)
     return conv;
 }
 
-ISR(TIMER2_OVF_vect)
+ISR(TIMER5_OVF_vect)
 {
     lcd_timer++;
 
