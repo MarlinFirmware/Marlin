@@ -88,10 +88,12 @@
   #include "pins_GEN3_MONOLITHIC.h"
 #elif MB(MEGATRONICS)
   #include "pins_MEGATRONICS.h"
-#elif MB(MEGATRONICS_2)
-  #include "pins_MEGATRONICS_2.h"
 #elif MB(MEGATRONICS_1)
   #include "pins_MEGATRONICS_1.h"
+#elif MB(MEGATRONICS_2)
+  #include "pins_MEGATRONICS_2.h"
+#elif MB(MEGATRONICS_3)
+  #include "pins_MEGATRONICS_3.h"
 #elif MB(OMCA_A)
   #include "pins_OMCA_A.h"
 #elif MB(OMCA)
