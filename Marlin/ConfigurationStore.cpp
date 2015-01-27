@@ -98,12 +98,14 @@ void Config_StoreSettings()
 		dummy = 0.0f;
         EEPROM_WRITE_VAR(i,dummy);
         EEPROM_WRITE_VAR(i,dummy);
+        EEPROM_WRITE_VAR(i,dummy);
 	  }
 	}
   #else//PIDTEMP
 		float dummy = 3000.0f;
     EEPROM_WRITE_VAR(i,dummy);
 		dummy = 0.0f;
+    EEPROM_WRITE_VAR(i,dummy);
     EEPROM_WRITE_VAR(i,dummy);
     EEPROM_WRITE_VAR(i,dummy);
   #endif//PIDTEMP
