@@ -61,8 +61,6 @@
 #include <SPI.h>
 #endif
 
-#define VERSION_STRING  "1.0.0"
-
 // look here for descriptions of G-codes: http://linuxcnc.org/handbook/gcode/g-code.html
 // http://objects.reprap.org/wiki/Mendel_User_Manual:_RepRapGCodes
 
@@ -587,7 +585,7 @@ void setup()
   MCUSR=0;
 
   SERIAL_ECHOPGM(MSG_MARLIN);
-  SERIAL_ECHOLNPGM(VERSION_STRING);
+  SERIAL_ECHOLNPGM(STRING_VERSION);
   #ifdef STRING_VERSION_CONFIG_H
     #ifdef STRING_CONFIG_H_AUTHOR
       SERIAL_ECHO_START;
