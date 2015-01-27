@@ -271,6 +271,7 @@ SERIAL_ECHOLNPGM("Scaling factors:");
     SERIAL_ECHOPAIR("   Swap rec. addl. length (mm): ", retract_recover_length_swap);
     SERIAL_ECHOLN("");
 #endif//EXTRUDERS > 1
+#endif//FWRETRACT
     SERIAL_ECHO_START;
     if (volumetric_enabled) {
         SERIAL_ECHOLNPGM("Filament settings:");
@@ -295,7 +296,6 @@ SERIAL_ECHOLNPGM("Scaling factors:");
     } else {
         SERIAL_ECHOLNPGM("Filament settings: Disabled");
     }
-#endif//FWRETRACT
 #ifdef CUSTOM_M_CODES
   SERIAL_ECHO_START;
   SERIAL_ECHOLNPGM("Z-Probe Offset (mm):");
