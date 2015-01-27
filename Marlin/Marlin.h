@@ -34,7 +34,7 @@
 
 // Arduino < 1.0.0 does not define this, so we need to do it ourselves
 #ifndef analogInputToDigitalPin
-# define analogInputToDigitalPin(p) ((p) + A0)
+# define analogInputToDigitalPin(p) ((p) + 0xA0)
 #endif
 
 #ifdef AT90USB
