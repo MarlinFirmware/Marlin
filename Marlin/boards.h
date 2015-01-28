@@ -48,6 +48,7 @@
 #define BOARD_ELEFU_3           21   // Elefu Ra Board (v3)
 #define BOARD_5DPRINT           88   // 5DPrint D8 Driver Board
 #define BOARD_LEAPFROG          999  // Leapfrog
+#define BOARD_WITBOX		41  // bq WITBOX
 
 #define BOARD_99                99   // This is in pins.h but...?
 

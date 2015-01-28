@@ -51,6 +51,9 @@
 #elif MB(SAV_MKI)
   #define MACHINE_NAME "SAV MkI"
   #define FIRMWARE_URL "https://github.com/fmalpartida/Marlin/tree/SAV-MkI-config"
+#elif MB(WITBOX)
+  #define MACHINE_NAME "WITBOX"
+  #define FIRMWARE_URL "http://www.bqreaders.com/descargas-witbox.html"
 #else
   #ifdef CUSTOM_MENDEL_NAME
     #define MACHINE_NAME CUSTOM_MENDEL_NAME
