@@ -426,13 +426,13 @@ static void lcd_tune_menu()
     MENU_ITEM_EDIT(int3, MSG_NOZZLE, &target_temperature[0], 0, HEATER_0_MAXTEMP - 15);
 #endif
 #if TEMP_SENSOR_1 != 0
-    MENU_ITEM_EDIT(int3, MSG_NOZZLE1, &target_temperature[1], 0, HEATER_1_MAXTEMP - 15);
+    MENU_ITEM_EDIT(int3, MSG_NOZZLE " 2", &target_temperature[1], 0, HEATER_1_MAXTEMP - 15);
 #endif
 #if TEMP_SENSOR_2 != 0
-    MENU_ITEM_EDIT(int3, MSG_NOZZLE2, &target_temperature[2], 0, HEATER_2_MAXTEMP - 15);
+    MENU_ITEM_EDIT(int3, MSG_NOZZLE " 3", &target_temperature[2], 0, HEATER_2_MAXTEMP - 15);
 #endif
 #if TEMP_SENSOR_3 != 0
-    MENU_ITEM_EDIT(int3, MSG_NOZZLE3, &target_temperature[3], 0, HEATER_3_MAXTEMP - 15);
+    MENU_ITEM_EDIT(int3, MSG_NOZZLE " 4", &target_temperature[3], 0, HEATER_3_MAXTEMP - 15);
 #endif
 
 
@@ -441,15 +441,15 @@ static void lcd_tune_menu()
 #endif
     MENU_ITEM_EDIT(int3, MSG_FAN_SPEED, &fanSpeed, 0, 255);
     MENU_ITEM_EDIT(int3, MSG_FLOW, &extrudemultiply, 10, 999);
-    MENU_ITEM_EDIT(int3, MSG_FLOW0, &extruder_multiply[0], 10, 999);
+    MENU_ITEM_EDIT(int3, MSG_FLOW " 0", &extruder_multiply[0], 10, 999);
 #if TEMP_SENSOR_1 != 0
-    MENU_ITEM_EDIT(int3, MSG_FLOW1, &extruder_multiply[1], 10, 999);
+    MENU_ITEM_EDIT(int3, MSG_FLOW " 1", &extruder_multiply[1], 10, 999);
 #endif
 #if TEMP_SENSOR_2 != 0
-    MENU_ITEM_EDIT(int3, MSG_FLOW2, &extruder_multiply[2], 10, 999);
+    MENU_ITEM_EDIT(int3, MSG_FLOW " 2", &extruder_multiply[2], 10, 999);
 #endif
 #if TEMP_SENSOR_3 != 0
-    MENU_ITEM_EDIT(int3, MSG_FLOW3, &extruder_multiply[3], 10, 999);
+    MENU_ITEM_EDIT(int3, MSG_FLOW " 3", &extruder_multiply[3], 10, 999);
 #endif
 
 
@@ -591,18 +591,18 @@ static void lcd_preheat_pla_menu()
 {
   START_MENU();
   MENU_ITEM(back, MSG_PREPARE, lcd_prepare_menu);
-  MENU_ITEM(function, MSG_PREHEAT_PLA0, lcd_preheat_pla0);
+  MENU_ITEM(function, MSG_PREHEAT_PLA_N "1", lcd_preheat_pla0);
 #if TEMP_SENSOR_1 != 0 //2 extruder preheat
-  MENU_ITEM(function, MSG_PREHEAT_PLA1, lcd_preheat_pla1);
+  MENU_ITEM(function, MSG_PREHEAT_PLA_N "2", lcd_preheat_pla1);
 #endif //2 extruder preheat
 #if TEMP_SENSOR_2 != 0 //3 extruder preheat
-  MENU_ITEM(function, MSG_PREHEAT_PLA2, lcd_preheat_pla2);
+  MENU_ITEM(function, MSG_PREHEAT_PLA_N "3", lcd_preheat_pla2);
 #endif //3 extruder preheat
 #if TEMP_SENSOR_3 != 0 //4 extruder preheat
-  MENU_ITEM(function, MSG_PREHEAT_PLA3, lcd_preheat_pla3);
+  MENU_ITEM(function, MSG_PREHEAT_PLA_N "4", lcd_preheat_pla3);
 #endif //4 extruder preheat
 #if TEMP_SENSOR_1 != 0 || TEMP_SENSOR_2 != 0 || TEMP_SENSOR_3 != 0 //all extruder preheat
-  MENU_ITEM(function, MSG_PREHEAT_PLA0123, lcd_preheat_pla0123);
+  MENU_ITEM(function, MSG_PREHEAT_PLA_ALL, lcd_preheat_pla0123);
 #endif //all extruder preheat
 #if TEMP_SENSOR_BED != 0
   MENU_ITEM(function, MSG_PREHEAT_PLA_BEDONLY, lcd_preheat_pla_bedonly);
@@ -614,18 +614,18 @@ static void lcd_preheat_abs_menu()
 {
   START_MENU();
   MENU_ITEM(back, MSG_PREPARE, lcd_prepare_menu);
-  MENU_ITEM(function, MSG_PREHEAT_ABS0, lcd_preheat_abs0);
+  MENU_ITEM(function, MSG_PREHEAT_ABS_N "1", lcd_preheat_abs0);
 #if TEMP_SENSOR_1 != 0 //2 extruder preheat
-	MENU_ITEM(function, MSG_PREHEAT_ABS1, lcd_preheat_abs1);
+	MENU_ITEM(function, MSG_PREHEAT_ABS_N "2", lcd_preheat_abs1);
 #endif //2 extruder preheat
 #if TEMP_SENSOR_2 != 0 //3 extruder preheat
-  MENU_ITEM(function, MSG_PREHEAT_ABS2, lcd_preheat_abs2);
+  MENU_ITEM(function, MSG_PREHEAT_ABS_N "3", lcd_preheat_abs2);
 #endif //3 extruder preheat
 #if TEMP_SENSOR_3 != 0 //4 extruder preheat
-  MENU_ITEM(function, MSG_PREHEAT_ABS3, lcd_preheat_abs3);
+  MENU_ITEM(function, MSG_PREHEAT_ABS_N "4", lcd_preheat_abs3);
 #endif //4 extruder preheat
 #if TEMP_SENSOR_1 != 0 || TEMP_SENSOR_2 != 0 || TEMP_SENSOR_3 != 0 //all extruder preheat
-  MENU_ITEM(function, MSG_PREHEAT_ABS0123, lcd_preheat_abs0123);
+  MENU_ITEM(function, MSG_PREHEAT_ABS_ALL, lcd_preheat_abs0123);
 #endif //all extruder preheat
 
 #if TEMP_SENSOR_BED != 0
@@ -848,12 +848,12 @@ static void lcd_control_temperature_menu()
 	  pid_current_extruder = 0;
 	  raw_Ki = unscalePID_i(PID_PARAM(Ki,1));
 	  raw_Kd = unscalePID_d(PID_PARAM(Kd,1));
-	  MENU_ITEM_EDIT(float52, MSG_PID_P1, &PID_PARAM(Kp,1), 1, 9990);
+	  MENU_ITEM_EDIT(float52, MSG_PID_P " E2", &PID_PARAM(Kp,1), 1, 9990);
 	  // i is typically a small value so allows values below 1
-	  MENU_ITEM_EDIT_CALLBACK(float52, MSG_PID_I1, &raw_Ki, 0.01, 9990, copy_and_scalePID_i);
-	  MENU_ITEM_EDIT_CALLBACK(float52, MSG_PID_D1, &raw_Kd, 1, 9990, copy_and_scalePID_d);
+	  MENU_ITEM_EDIT_CALLBACK(float52, MSG_PID_I " E2", &raw_Ki, 0.01, 9990, copy_and_scalePID_i);
+	  MENU_ITEM_EDIT_CALLBACK(float52, MSG_PID_D " E2", &raw_Kd, 1, 9990, copy_and_scalePID_d);
       #ifdef PID_ADD_EXTRUSION_RATE
-	    MENU_ITEM_EDIT(float3, MSG_PID_C1, &PID_PARAM(Kc,1), 1, 9990);
+	    MENU_ITEM_EDIT(float3, MSG_PID_C " E2", &PID_PARAM(Kc,1), 1, 9990);
       #endif//PID_ADD_EXTRUSION_RATE
   #endif//EXTRUDERS > 1
   #if EXTRUDERS > 2
@@ -861,12 +861,12 @@ static void lcd_control_temperature_menu()
 	    pid_current_extruder = 0;
 	    raw_Ki = unscalePID_i(PID_PARAM(Ki,2));
 	    raw_Kd = unscalePID_d(PID_PARAM(Kd,2));
-	    MENU_ITEM_EDIT(float52, MSG_PID_P2, &PID_PARAM(Kp,2), 1, 9990);
+	    MENU_ITEM_EDIT(float52, MSG_PID_P " E3", &PID_PARAM(Kp,2), 1, 9990);
 	    // i is typically a small value so allows values below 1
-	    MENU_ITEM_EDIT_CALLBACK(float52, MSG_PID_I2, &raw_Ki, 0.01, 9990, copy_and_scalePID_i);
-	    MENU_ITEM_EDIT_CALLBACK(float52, MSG_PID_D2, &raw_Kd, 1, 9990, copy_and_scalePID_d);
+	    MENU_ITEM_EDIT_CALLBACK(float52, MSG_PID_I " E3", &raw_Ki, 0.01, 9990, copy_and_scalePID_i);
+	    MENU_ITEM_EDIT_CALLBACK(float52, MSG_PID_D " E3", &raw_Kd, 1, 9990, copy_and_scalePID_d);
         #ifdef PID_ADD_EXTRUSION_RATE
-	      MENU_ITEM_EDIT(float3, MSG_PID_C2, &PID_PARAM(Kc,2), 1, 9990);
+	      MENU_ITEM_EDIT(float3, MSG_PID_C " E3", &PID_PARAM(Kc,2), 1, 9990);
         #endif//PID_ADD_EXTRUSION_RATE
   #endif//EXTRUDERS > 2
 #endif // PID_PARAMS_PER_EXTRUDER
