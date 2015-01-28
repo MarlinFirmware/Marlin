@@ -11,19 +11,20 @@
 //   ==> ALSO TRY ALL AVAILABLE LANGUAGE OPTIONS
 
 // Languages
-// en English
-// pl Polish
-// fr French
-// de German
-// es Spanish
-// ru Russian
-// it Italian
-// pt Portuguese
-// fi Finnish
-// an Aragonese
-// nl Dutch
-// ca Catalan
-// eu Basque-Euskera
+// en    English
+// pl    Polish
+// fr    French
+// de    German
+// es    Spanish
+// ru    Russian
+// it    Italian
+// pt    Portuguese
+// pt-br Portuguese (Brazil)
+// fi    Finnish
+// an    Aragonese
+// nl    Dutch
+// ca    Catalan
+// eu    Basque-Euskera
 
 #ifndef LANGUAGE_INCLUDE
   // pick your language from the list above
