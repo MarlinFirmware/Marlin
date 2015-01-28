@@ -8,26 +8,87 @@
 #ifndef LANGUAGE_DE_H
 #define LANGUAGE_DE_H
 
+// uncomment your style
+//#define UMLAUTE_DE 1 //                     ü > ü
+//#define UMLAUTE_DE 2 // for HITACHI_HD44780 ü > \365
+//#define UMLAUTE_DE 3 // for Langform        ü > ue
+//#define UMLAUTE_DE 4 // for my (your) way
+
+//please test next. REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER defines  REPRAP_DISCOUNT_SMART_CONTROLLER to.
+
+#ifndef UMLAUTE_DE
+  #if defined (REPRAP_DISCOUNT_SMART_CONTROLLER) && !( defined ( REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER ) )
+    #define UMLAUTE_DE 2
+  #else
+	#define UMLAUTE_DE 3
+  #endif
+#endif
+
+#if UMLAUTE_DE <= 1
+  #define MSG_MAIN                            "Hauptmenü"
+  #define MSG_PREHEAT_PLA                     "Vorwärmen PLA"
+  #define MSG_PREHEAT_PLA_N                   "Vorwärmen PLA "
+  #define MSG_PREHEAT_PLA_SETTINGS            "Vorwärm. PLA Ein."
+  #define MSG_PREHEAT_ABS                     "Vorwärmen ABS"
+  #define MSG_PREHEAT_ABS_N                   "Vorwärmen ABS "
+  #define MSG_PREHEAT_ABS_SETTINGS            "Vorwärm. ABS Ein."
+  #define MSG_COOLDOWN                        "Abkühlen"
+  #define MSG_NOZZLE                          "Düse"
+  #define MSG_FAN_SPEED                       "Lüftergeschw."
+  #define MSG_CARD_MENU                       "SDKarten Menü"
+#elif UMLAUTE_DE <= 2
+  // Romcode A00; ä > \341 \xe1, ö > \357 \xef, ü > \365 \xf5, ß > \342 \xe2, ° > \337 \xdf               // octal hex
+  // Romcode A02; ä > \344 \xe4, ö > \366 \xe6, ü > \374 \xfc, ß > \337 \xdf, ° > \260 \xb0, Ä > \304 \xc4, Ö > \326 \xd6, Ü > \334 \xdc
+  #define MSG_MAIN                            "Hauptmen\365"
+  #define MSG_PREHEAT_PLA                     "Vorw\341rmen PLA"
+  #define MSG_PREHEAT_PLA_N                   "Vorw\341rmen PLA "
+  #define MSG_PREHEAT_PLA_SETTINGS            "Vorw\341rm. PLA Ein."
+  #define MSG_PREHEAT_ABS                     "Vorw\341rmen ABS"
+  #define MSG_PREHEAT_ABS_N                   "Vorw\341rmen ABS "
+  #define MSG_PREHEAT_ABS_SETTINGS            "Vorw\341rm. ABS Ein."
+  #define MSG_COOLDOWN                        "Abk\365hlen"
+  #define MSG_NOZZLE                          "D\365se"
+  #define MSG_FAN_SPEED                       "L\365ftergeschw."
+  #define MSG_CARD_MENU                       "SDKarten Men\365"
+#elif UMLAUTE_DE <= 3 
+  #define MSG_MAIN                            "Hauptmenue"
+  #define MSG_PREHEAT_PLA                     "Vorwaermen PLA"
+  #define MSG_PREHEAT_PLA_N                   "Vorwaermen PLA "
+  #define MSG_PREHEAT_PLA_SETTINGS            "Vorwaer. PLA Ein."
+  #define MSG_PREHEAT_ABS                     "Vorwaermen ABS"
+  #define MSG_PREHEAT_ABS_N                   "Vorwaermen ABS "
+  #define MSG_PREHEAT_ABS_SETTINGS            "Vorwaer. ABS Ein."
+  #define MSG_COOLDOWN                        "Abkuehlen"
+  #define MSG_NOZZLE                          "Duese"
+  #define MSG_FAN_SPEED                       "Lueftergeschw."
+  #define MSG_CARD_MENU                       "SDKarten Menue"
+#elif UMLAUTE_DE <= 4 
+  #define MSG_MAIN                            "Hauptauswahl.."
+  #define MSG_PREHEAT_PLA                     "Vorheizen PLA"
+  #define MSG_PREHEAT_PLA_N                   "Vorheizen PLA "
+  #define MSG_PREHEAT_PLA_SETTINGS            "Vorh. PLA Einst."
+  #define MSG_PREHEAT_ABS                     "Vorheizen ABS"
+  #define MSG_PREHEAT_ABS_N                   "Vorheizen ABS "
+  #define MSG_PREHEAT_ABS_SETTINGS            "Vorh. ABS Einst."
+  #define MSG_COOLDOWN                        "Heizungen Aus"
+  #define MSG_NOZZLE                          "Duese"
+  #define MSG_FAN_SPEED                       "Luftmenge"
+  #define MSG_CARD_MENU                       "SDKarte.."
+#endif
+
+
 #define WELCOME_MSG                         MACHINE_NAME " Bereit."
 #define MSG_SD_INSERTED                     "SDKarte erkannt"
 #define MSG_SD_REMOVED                      "SDKarte entfernt"
-#define MSG_MAIN                            "Hauptmenü"
 #define MSG_AUTOSTART                       "Autostart"
 #define MSG_DISABLE_STEPPERS                "Stepper abschalt."
 #define MSG_AUTO_HOME                       "Auto Nullpunkt"
 #define MSG_SET_HOME_OFFSETS                "Set home offsets"
 #define MSG_SET_ORIGIN                      "Setze Nullpunkt"
-#define MSG_PREHEAT_PLA                     "Vorwärmen PLA"
-#define MSG_PREHEAT_PLA_N                   "Vorwärmen PLA "
 #define MSG_PREHEAT_PLA_ALL                 "Vorw. PLA Alle"
 #define MSG_PREHEAT_PLA_BEDONLY             "Vorw. PLA Bett"
-#define MSG_PREHEAT_PLA_SETTINGS            "Vorwärm. PLA Ein."
-#define MSG_PREHEAT_ABS                     "Vorwärmen ABS"
-#define MSG_PREHEAT_ABS_N                   "Vorwärmen ABS "
 #define MSG_PREHEAT_ABS_ALL                 "Vorw. ABS Alle"
 #define MSG_PREHEAT_ABS_BEDONLY             "Vorw. ABS Bett"
-#define MSG_PREHEAT_ABS_SETTINGS            "Vorwärm. ABS Ein."
-#define MSG_COOLDOWN                        "Abkühlen"
 #define MSG_SWITCH_PS_ON                    "Switch Power On"
 #define MSG_SWITCH_PS_OFF                   "Switch Power Off"
 #define MSG_EXTRUDE                         "Extrude"
@@ -41,9 +102,7 @@
 #define MSG_MOVE_1MM                        "1mm bewegen"
 #define MSG_MOVE_10MM                       "10mm bewegen"
 #define MSG_SPEED                           "Geschw"
-#define MSG_NOZZLE                          "Düse"
 #define MSG_BED                             "Bett"
-#define MSG_FAN_SPEED                       "Lüftergeschw."
 #define MSG_FLOW                            "Fluss"
 #define MSG_CONTROL                         "Einstellungen"
 #define MSG_MIN                             "\002 Min"
@@ -91,7 +150,6 @@
 #define MSG_PAUSE_PRINT                     "Druck anhalten"
 #define MSG_RESUME_PRINT                    "Druck fortsetz"
 #define MSG_STOP_PRINT                      "Druck stoppen"
-#define MSG_CARD_MENU                       "SDKarten Menü"
 #define MSG_NO_CARD                         "Keine SDKarte"
 #define MSG_DWELL                           "Warten..."
 #define MSG_USERWAIT                        "Warte auf Nutzer"
