@@ -16,7 +16,7 @@
 #define MSG_DISABLE_STEPPERS                "Motoren Aus" // M84
 #define MSG_AUTO_HOME                       "Home" // G28
 #define MSG_SET_HOME_OFFSETS                "Setze Home hier"
-#define MSG_SET_ORIGIN                      "Setze Nullpunkt"
+#define MSG_SET_ORIGIN                      "Setze Null hier" //"G92 X0 Y0 Z0" commented out in ultralcd.cpp
 #define MSG_PREHEAT_PLA                     "Vorwärmen PLA"
 #define MSG_PREHEAT_PLA_N                   "Vorwärmen PLA "
 #define MSG_PREHEAT_PLA_ALL                 "Vorw. PLA Alle"
