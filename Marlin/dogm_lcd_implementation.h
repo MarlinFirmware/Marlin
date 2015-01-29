@@ -167,7 +167,7 @@ static void lcd_implementation_quick_feedback()
 {
 #if ( defined(BEEPER) && (BEEPER > 0) )
 	SET_OUTPUT(BEEPER);
-	beeper_duration = 19;
+	beeper_duration = 100;
   	beeper_level = false;
 #endif
 }

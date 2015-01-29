@@ -69,7 +69,7 @@ uint8_t beeper_duration = 0;
 
 
 // ISR related variables
-uint8_t lcd_timer = 0;
+uint16_t lcd_timer = 0;
 
 
 // Status screen drawer variables
@@ -221,12 +221,12 @@ void lcd_init()
     lcd_oldcardstatus = IS_SD_INSERTED;
 #  endif // (defined (SDSUPPORT) && defined(SDCARDDETECT) && (SDCARDDETECT > 0))
 
-    // Init Timer 5 and set the OVF interrupt
+    // Init Timer 5 and set the OVF interrupt (triggered every 125 us)
     TCCR5A = 0x03;
     TCCR5B = 0x19;
 
-    OCR5AH = 0x1F;
-    OCR5AL = 0x40;
+    OCR5AH = 0x07;
+    OCR5AL = 0xD0;
 
 
     lcd_enable_interrupt();
@@ -270,9 +270,9 @@ static void lcd_update_button()
     }
 
     // Beeper feedback
-    if ((button_clicked == true) || (button_pressed_count > 10)) {
-        lcd_implementation_quick_feedback();  // Review code!!
-	if (button_pressed_count > 100)
+    if ((button_clicked == true) || (button_pressed_count > 50)) {
+        lcd_implementation_quick_feedback();
+	if (button_pressed_count == 200)
 	    lcd_emergency_stop();
     }
 
@@ -2503,13 +2503,13 @@ ISR(TIMER5_OVF_vect)
     } else {
         beeper_level = false;
     }
-    WRITE(BEEPER, beeper_level);
+    WRITE(BEEPER, beeper_level);    // Tone: 4 KHz (every 125 us)
 #endif // ( defined(BEEPER) && (BEEPER > 0) )
 
-    if (lcd_timer % 8 == 0)
+    if (lcd_timer % 4 == 0)     // Every 500 us
         lcd_update_encoder();
 
-    if (lcd_timer % 400 == 0) {
+    if (lcd_timer % 80 == 0) {  // Every 10 ms
         lcd_update_button();
         lcd_timer = 0;
     }
