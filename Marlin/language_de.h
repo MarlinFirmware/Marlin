@@ -84,7 +84,7 @@
 #define MSG_USERWAIT                          "Warte auf Nutzer."
 #define MSG_RESUMING                          "Druck geht weiter"
 #define MSG_PRINT_ABORTED                     "Druck abgebrochen"
-#define MSG_NO_MOVE                           "Kein Zug." // ?
+#define MSG_NO_MOVE                           "Motoren Eingesch."
 #define MSG_KILLED                            "KILLED"
 #define MSG_STOPPED                           "GESTOPPT"
 #define MSG_ZPROBE_OUT                        "Sensor ausserhalb"
