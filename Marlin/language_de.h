@@ -28,7 +28,7 @@
 #define MSG_PREHEAT_ABS_BEDONLY             "Vorw. ABS Bett"
 #define MSG_PREHEAT_ABS_SETTINGS            "Vorwärm. ABS Ein."
 #define MSG_COOLDOWN                        "Abkühlen"
-#define MSG_SWITCH_PS_ON                    "Switch Power On"
+#define MSG_SWITCH_PS_ON                    "Netzteil Ein"
 #define MSG_SWITCH_PS_OFF                   "Switch Power Off"
 #define MSG_EXTRUDE                         "Extrude"
 #define MSG_RETRACT                         "Retract"
