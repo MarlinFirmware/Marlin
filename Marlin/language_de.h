@@ -14,7 +14,7 @@
 #define MSG_MAIN                            "Hauptmenü"
 #define MSG_AUTOSTART                       "Autostart"
 #define MSG_DISABLE_STEPPERS                "Motoren Aus" // M84
-#define MSG_AUTO_HOME                       "Auto Nullpunkt"
+#define MSG_AUTO_HOME                       "Home" // G28
 #define MSG_SET_HOME_OFFSETS                "Set home offsets"
 #define MSG_SET_ORIGIN                      "Setze Nullpunkt"
 #define MSG_PREHEAT_PLA                     "Vorwärmen PLA"
