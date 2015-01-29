@@ -72,7 +72,7 @@ void _EEPROM_writeData(int &pos, uint8_t* value, uint8_t size) {
   uint8_t c;
   while(size--) {
     eeprom_write_byte((unsigned char*)pos, *value);
-    eeprom_read_byte((unsigned char*)pos, *c);
+    *c = eeprom_read_byte((unsigned char*)pos);
     if (*c != *value) {
       SERIAL_ECHO_START;
       SERIAL_ECHOLNPGM(MSG_ERR_EEPROM_WRITE);
