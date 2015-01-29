@@ -155,6 +155,8 @@
 #define MSG_BABYSTEPPING_Z                  "Babystepping Z"
 #define MSG_SERIAL_ERROR_MENU_STRUCTURE     "Error in menu structure"
 
+#define MSG_ERR_EEPROM_WRITE                "Error writing to EEPROM!"
+
 // LCD Menu Messages
 
 #include LANGUAGE_INCLUDE
