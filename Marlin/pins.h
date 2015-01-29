@@ -106,6 +106,8 @@
   #include "pins_5DPRINT.h"
 #elif MB(LEAPFROG)
   #include "pins_LEAPFROG.h"
+#elif MB(WITBOX)
+  #include "pins_WITBOX.h"
 #elif MB(99)
   #include "pins_99.h"
 #else
