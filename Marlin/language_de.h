@@ -119,11 +119,11 @@
 #define MSG_ENDSTOP_ABORT                   "Endstop Abbr. Ein"
 
 #ifdef DELTA_CALIBRATION_MENU
-    #define MSG_DELTA_CALIBRATE             "Delta Calibration"
-    #define MSG_DELTA_CALIBRATE_X           "Calibrate X"
-    #define MSG_DELTA_CALIBRATE_Y           "Calibrate Y"
-    #define MSG_DELTA_CALIBRATE_Z           "Calibrate Z"
-    #define MSG_DELTA_CALIBRATE_CENTER      "Calibrate Center"
+    #define MSG_DELTA_CALIBRATE             "Delta Kalibrieren"
+    #define MSG_DELTA_CALIBRATE_X           "Kalibriere X"
+    #define MSG_DELTA_CALIBRATE_Y           "Kalibriere Y"
+    #define MSG_DELTA_CALIBRATE_Z           "Kalibriere Z"
+    #define MSG_DELTA_CALIBRATE_CENTER      "Kalibriere Mitte"
 #endif // DELTA_CALIBRATION_MENU
 
 #endif // LANGUAGE_DE_H
