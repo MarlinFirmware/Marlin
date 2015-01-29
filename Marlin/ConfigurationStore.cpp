@@ -161,11 +161,12 @@ void Config_StoreSettings()  {
       {
     #endif // !PIDTEMP
 
-      dummy = DUMMY_PID_VALUE;
-      EEPROM_WRITE_VAR(i, dummy);
-      dummy = 0.0f;
-      for (int q = 3; q--;) EEPROM_WRITE_VAR(i, dummy);
-    }
+        dummy = DUMMY_PID_VALUE;
+        EEPROM_WRITE_VAR(i, dummy);
+        dummy = 0.0f;
+        for (int q = 3; q--;) EEPROM_WRITE_VAR(i, dummy);
+      }
+
   } // Extruders Loop
 
   #ifndef DOGLCD
@@ -290,12 +291,12 @@ void Config_RetrieveSettings() {
           #endif
         }
         else {
-          for (int q=3; q--;) EEPROM_READ_VAR(i, dummy);
+          for (int q=3; q--;) EEPROM_READ_VAR(i, dummy); // Ki, Kd, Kc
         }
       }
     #else // !PIDTEMP
-      // 4 x 3 = 12 slots for PID parameters
-      for (int q=12; q--;) EEPROM_READ_VAR(i, dummy);
+      // 4 x 4 = 16 slots for PID parameters
+      for (int q=16; q--;) EEPROM_READ_VAR(i, dummy);  // 4x Kp, Ki, Kd, Kc
     #endif // !PIDTEMP
 
     #ifndef DOGLCD
