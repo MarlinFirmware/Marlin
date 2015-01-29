@@ -31,7 +31,7 @@
 #define MSG_SWITCH_PS_ON                    "Netzteil Ein"
 #define MSG_SWITCH_PS_OFF                   "Netzteil Aus"
 #define MSG_RETRACT                         "Retract"
-#define MSG_MOVE_AXIS                       "Achsen bewegen"
+#define MSG_MOVE_AXIS                       "Bewegen"
 #define MSG_MOVE_X                          "X bewegen"
 #define MSG_MOVE_Y                          "Y bewegen"
 #define MSG_MOVE_Z                          "Z bewegen"
