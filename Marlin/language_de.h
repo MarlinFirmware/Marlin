@@ -30,7 +30,6 @@
 #define MSG_COOLDOWN                        "Abkühlen"
 #define MSG_SWITCH_PS_ON                    "Netzteil Ein"
 #define MSG_SWITCH_PS_OFF                   "Netzteil Aus"
-#define MSG_EXTRUDE                         "Extrude"
 #define MSG_RETRACT                         "Retract"
 #define MSG_MOVE_AXIS                       "Achsen bewegen"
 #define MSG_MOVE_X                          "X bewegen"
