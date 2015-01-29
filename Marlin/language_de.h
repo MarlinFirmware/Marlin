@@ -84,7 +84,7 @@
 #define MSG_LOAD_EPROM                      "EPROM laden"
 #define MSG_RESTORE_FAILSAFE                "Standardkonfig."
 #define MSG_REFRESH                         "Aktualisieren"
-#define MSG_WATCH                           "Beobachten"
+#define MSG_WATCH                           "Info"
 #define MSG_PREPARE                         "Vorbereitung"
 #define MSG_TUNE                            "Justierung"
 #define MSG_PAUSE_PRINT                     "Druck anhalten"
