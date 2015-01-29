@@ -108,8 +108,8 @@
 #define MSG_CONTROL_RETRACT_RECOVERF        "UnRet  V"
 #define MSG_AUTORETRACT                     "AutoRetr."
 #define MSG_FILAMENTCHANGE                  "Filament wechseln"
-#define MSG_INIT_SDCARD                     "Init. SD-Card"
-#define MSG_CNG_SDCARD                      "Change SD-Card"
+#define MSG_INIT_SDCARD                     "SDKarte erkennen"// Manually initialize the SD-card via user interface
+#define MSG_CNG_SDCARD                      "SDKarte erkennen"// SD-card changed by user. For machines with no autocarddetect. Both send "M21"
 #define MSG_ZPROBE_OUT                      "Sensor ausserhalb"
 #define MSG_POSITION_UNKNOWN                "X/Y vor Z Homen."
 #define MSG_ZPROBE_ZOFFSET                  "Z Offset"
