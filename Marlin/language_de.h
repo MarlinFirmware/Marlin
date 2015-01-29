@@ -39,7 +39,7 @@
 #define MSG_MOVE_01MM                       " 0.1 mm"
 #define MSG_MOVE_1MM                        " 1.0 mm"
 #define MSG_MOVE_10MM                       "10.0 mm"
-#define MSG_SPEED                           "Geschw"
+#define MSG_SPEED                           "Geschw."
 #define MSG_NOZZLE                          "Düse"
 #define MSG_BED                             "Bett"
 #define MSG_FAN_SPEED                       "Lüftergeschw."
