@@ -62,17 +62,24 @@
  *
  */
 #include "Marlin.h"
+#include "language.h"
 #include "planner.h"
 #include "temperature.h"
 #include "ultralcd.h"
 #include "ConfigurationStore.h"
 
 void _EEPROM_writeData(int &pos, uint8_t* value, uint8_t size) {
-  do {
+  uint8_t c;
+  while(size--) {
     eeprom_write_byte((unsigned char*)pos, *value);
+    eeprom_read_byte((unsigned char*)pos, *c);
+    if (*c != *value) {
+      SERIAL_ECHO_START;
+      SERIAL_ECHOLNPGM(MSG_ERR_EEPROM_WRITE);
+    }
     pos++;
     value++;
-  } while (--size);
+  };
 }
 void _EEPROM_readData(int &pos, uint8_t* value, uint8_t size) {
   do {
@@ -471,7 +478,7 @@ void Config_PrintSettings(bool forReplay) {
   SERIAL_ECHOPAIR(" Y", axis_steps_per_unit[Y_AXIS]);
   SERIAL_ECHOPAIR(" Z", axis_steps_per_unit[Z_AXIS]);
   SERIAL_ECHOPAIR(" E", axis_steps_per_unit[E_AXIS]);
-  SERIAL_ECHOLN("");
+  SERIAL_EOL;
 
   SERIAL_ECHO_START;
 
@@ -483,7 +490,7 @@ void Config_PrintSettings(bool forReplay) {
     SERIAL_ECHOPAIR("  M365 X", axis_scaling[X_AXIS]);
     SERIAL_ECHOPAIR(" Y", axis_scaling[Y_AXIS]);
     SERIAL_ECHOPAIR(" Z", axis_scaling[Z_AXIS]);
-    SERIAL_ECHOLN("");
+    SERIAL_EOL;
     SERIAL_ECHO_START;
   #endif // SCARA
 
@@ -495,7 +502,7 @@ void Config_PrintSettings(bool forReplay) {
   SERIAL_ECHOPAIR(" Y", max_feedrate[Y_AXIS]);
   SERIAL_ECHOPAIR(" Z", max_feedrate[Z_AXIS]);
   SERIAL_ECHOPAIR(" E", max_feedrate[E_AXIS]);
-  SERIAL_ECHOLN("");
+  SERIAL_EOL;
 
   SERIAL_ECHO_START;
   if (!forReplay) {
@@ -506,7 +513,7 @@ void Config_PrintSettings(bool forReplay) {
   SERIAL_ECHOPAIR(" Y", max_acceleration_units_per_sq_second[Y_AXIS] );
   SERIAL_ECHOPAIR(" Z", max_acceleration_units_per_sq_second[Z_AXIS] );
   SERIAL_ECHOPAIR(" E", max_acceleration_units_per_sq_second[E_AXIS]);
-  SERIAL_ECHOLN("");
+  SERIAL_EOL;
   SERIAL_ECHO_START;
   if (!forReplay) {
     SERIAL_ECHOLNPGM("Acceleration: S=acceleration, T=retract acceleration");
@@ -514,7 +521,7 @@ void Config_PrintSettings(bool forReplay) {
   }
   SERIAL_ECHOPAIR("  M204 S", acceleration );
   SERIAL_ECHOPAIR(" T", retract_acceleration);
-  SERIAL_ECHOLN("");
+  SERIAL_EOL;
 
   SERIAL_ECHO_START;
   if (!forReplay) {
@@ -527,7 +534,7 @@ void Config_PrintSettings(bool forReplay) {
   SERIAL_ECHOPAIR(" X", max_xy_jerk );
   SERIAL_ECHOPAIR(" Z", max_z_jerk);
   SERIAL_ECHOPAIR(" E", max_e_jerk);
-  SERIAL_ECHOLN("");
+  SERIAL_EOL;
 
   SERIAL_ECHO_START;
   if (!forReplay) {
@@ -537,7 +544,7 @@ void Config_PrintSettings(bool forReplay) {
   SERIAL_ECHOPAIR("  M206 X", add_homing[X_AXIS] );
   SERIAL_ECHOPAIR(" Y", add_homing[Y_AXIS] );
   SERIAL_ECHOPAIR(" Z", add_homing[Z_AXIS] );
-  SERIAL_ECHOLN("");
+  SERIAL_EOL;
 
   #ifdef DELTA
     SERIAL_ECHO_START;
@@ -548,14 +555,14 @@ void Config_PrintSettings(bool forReplay) {
     SERIAL_ECHOPAIR("  M666 X", endstop_adj[X_AXIS] );
     SERIAL_ECHOPAIR(" Y", endstop_adj[Y_AXIS] );
     SERIAL_ECHOPAIR(" Z", endstop_adj[Z_AXIS] );
-    SERIAL_ECHOLN("");
+    SERIAL_EOL;
     SERIAL_ECHO_START;
     SERIAL_ECHOLNPGM("Delta settings: L=delta_diagonal_rod, R=delta_radius, S=delta_segments_per_second");
     SERIAL_ECHO_START;
     SERIAL_ECHOPAIR("  M665 L", delta_diagonal_rod );
     SERIAL_ECHOPAIR(" R", delta_radius );
     SERIAL_ECHOPAIR(" S", delta_segments_per_second );
-    SERIAL_ECHOLN("");
+    SERIAL_EOL;
   #endif // DELTA
 
   #ifdef PIDTEMP
@@ -567,7 +574,7 @@ void Config_PrintSettings(bool forReplay) {
     SERIAL_ECHOPAIR("   M301 P", PID_PARAM(Kp, 0)); // for compatibility with hosts, only echos values for E0
     SERIAL_ECHOPAIR(" I", unscalePID_i(PID_PARAM(Ki, 0)));
     SERIAL_ECHOPAIR(" D", unscalePID_d(PID_PARAM(Kd, 0)));
-    SERIAL_ECHOLN("");
+    SERIAL_EOL;
   #endif // PIDTEMP
 
   #ifdef FWRETRACT
@@ -580,7 +587,7 @@ void Config_PrintSettings(bool forReplay) {
     SERIAL_ECHOPAIR("   M207 S", retract_length);
     SERIAL_ECHOPAIR(" F", retract_feedrate*60);
     SERIAL_ECHOPAIR(" Z", retract_zlift);
-    SERIAL_ECHOLN("");
+    SERIAL_EOL;
     SERIAL_ECHO_START;
     if (!forReplay) {
       SERIAL_ECHOLNPGM("Recover: S=Extra length (mm) F:Speed (mm/m)");
@@ -588,14 +595,14 @@ void Config_PrintSettings(bool forReplay) {
     }
     SERIAL_ECHOPAIR("   M208 S", retract_recover_length);
     SERIAL_ECHOPAIR(" F", retract_recover_feedrate*60);
-    SERIAL_ECHOLN("");
+    SERIAL_EOL;
     SERIAL_ECHO_START;
     if (!forReplay) {
       SERIAL_ECHOLNPGM("Auto-Retract: S=0 to disable, 1 to interpret extrude-only moves as retracts or recoveries");
       SERIAL_ECHO_START;
     }
     SERIAL_ECHOPAIR("   M209 S", (unsigned long)(autoretract_enabled ? 1 : 0));
-    SERIAL_ECHOLN("");
+    SERIAL_EOL;
 
     #if EXTRUDERS > 1
       if (!forReplay) {
@@ -603,10 +610,10 @@ void Config_PrintSettings(bool forReplay) {
         SERIAL_ECHOLNPGM("Multi-extruder settings:");
         SERIAL_ECHO_START;
         SERIAL_ECHOPAIR("   Swap retract length (mm):    ", retract_length_swap);
-        SERIAL_ECHOLN("");
+        SERIAL_EOL;
         SERIAL_ECHO_START;
         SERIAL_ECHOPAIR("   Swap rec. addl. length (mm): ", retract_recover_length_swap);
-        SERIAL_ECHOLN("");
+        SERIAL_EOL;
       }
     #endif // EXTRUDERS > 1
 
@@ -619,20 +626,20 @@ void Config_PrintSettings(bool forReplay) {
       SERIAL_ECHO_START;
     }
     SERIAL_ECHOPAIR("   M200 D", filament_size[0]);
-    SERIAL_ECHOLN("");
+    SERIAL_EOL;
 
     #if EXTRUDERS > 1
       SERIAL_ECHO_START;
       SERIAL_ECHOPAIR("   M200 T1 D", filament_size[1]);
-      SERIAL_ECHOLN("");
+      SERIAL_EOL;
       #if EXTRUDERS > 2
         SERIAL_ECHO_START;
         SERIAL_ECHOPAIR("   M200 T2 D", filament_size[2]);
-        SERIAL_ECHOLN("");
+        SERIAL_EOL;
         #if EXTRUDERS > 3
           SERIAL_ECHO_START;
           SERIAL_ECHOPAIR("   M200 T3 D", filament_size[3]);
-          SERIAL_ECHOLN("");
+          SERIAL_EOL;
         #endif
       #endif
     #endif
@@ -652,7 +659,7 @@ void Config_PrintSettings(bool forReplay) {
     SERIAL_ECHO("   M");
     SERIAL_ECHO(CUSTOM_M_CODE_SET_Z_PROBE_OFFSET);
     SERIAL_ECHOPAIR(" Z", -zprobe_zoffset);
-    SERIAL_ECHOLN("");
+    SERIAL_EOL;
   #endif
 }
 
