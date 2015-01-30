@@ -1163,12 +1163,7 @@ static void view_picture_move_x()
     }
 
     if (display_time_refresh < millis()) {
-        #ifdef DELTA
-        calculate_delta(current_position);
-        plan_buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], current_position[E_AXIS], manual_feedrate[X_AXIS]/60, active_extruder);
-        #else
         plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], manual_feedrate[X_AXIS]/60, active_extruder);
-        #endif
         display_time_refresh = millis() + LCD_MOVE_RESIDENCY_TIME;
     }
 
@@ -1207,12 +1202,7 @@ static void view_picture_move_y()
     }
 
     if (display_time_refresh < millis()) {
-        #ifdef DELTA
-        calculate_delta(current_position);
-        plan_buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], current_position[E_AXIS], manual_feedrate[Y_AXIS]/60, active_extruder);
-        #else
         plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], manual_feedrate[Y_AXIS]/60, active_extruder);
-        #endif
         display_time_refresh = millis() + LCD_MOVE_RESIDENCY_TIME;
     }
 
@@ -1251,12 +1241,7 @@ static void view_picture_move_z()
     }
 
     if (display_time_refresh < millis()) {
-        #ifdef DELTA
-        calculate_delta(current_position);
-        plan_buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], current_position[E_AXIS], manual_feedrate[Y_AXIS]/60, active_extruder);
-        #else
         plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], manual_feedrate[Y_AXIS]/60, active_extruder);
-        #endif
         display_time_refresh = millis() + LCD_MOVE_RESIDENCY_TIME;
     }
 
@@ -1291,12 +1276,7 @@ if (display_refresh_mode == CLEAR_AND_UPDATE_SCREEN) {
     }
 
     if (display_time_refresh < millis()) {
-        #ifdef DELTA
-        calculate_delta(current_position);
-        plan_buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], current_position[E_AXIS], manual_feedrate[Y_AXIS]/60, active_extruder);
-        #else
         plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], manual_feedrate[Y_AXIS]/60, active_extruder);
-        #endif
         display_time_refresh = millis() + LCD_MOVE_RESIDENCY_TIME;
     }
 
