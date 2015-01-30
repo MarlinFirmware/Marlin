@@ -2,7 +2,6 @@
 #define LANGUAGE_H
 
 #include "Configuration.h"
-#include "ultralcd_implementation_hitachi_HD44780.h"
 
 #define LANGUAGE_CONCAT(M)       #M
 #define GENERATE_LANGUAGE_INCLUDE(M)  LANGUAGE_CONCAT(language_##M.h)
@@ -173,7 +172,7 @@
 #define STR_ue "ue"
 #define STR_sz "ss"
 #define STR_Deg ""
-#define STR_THERMOMETER LCD_STR_THERMOMETER
+#define STR_THERMOMETER "\302"
 
 #ifdef DISPLAY_CHARSET_DOGM
   #define STR_Ae "\304" // U8glib
@@ -195,7 +194,7 @@
   #define STR_Ue STR_ue
   #define STR_sz "\342"
   #define STR_Deg "\271"
-  #define STR_THERMOMETER LCD_STR_THERMOMETER
+  #define STR_THERMOMETER "\302"
 #endif
 #ifdef DISPLAY_CHARSET_HD44870_WESTERN // HD44870 ROM Code: A02 (Western)
   #define STR_Ae "\216"
@@ -206,7 +205,7 @@
   #define STR_ue "\201"
   #define STR_sz "\160"
   #define STR_Deg "\337"
-  #define STR_THERMOMETER LCD_STR_THERMOMETER
+  #define STR_THERMOMETER "\302"
 #endif
 
 /*
