@@ -164,7 +164,7 @@
 
 // LCD Menu Messages
 
-#define STR_Ae "Ae" // no charset we know now. Will be overruled when we know.
+#define STR_Ae "Ae" // No charset known now. Default will be overruled when we know.
 #define STR_ae "ae"
 #define STR_Oe "Oe"
 #define STR_oe "oe"
