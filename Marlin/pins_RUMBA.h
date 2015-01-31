@@ -39,7 +39,7 @@
 #define LED_PIN            13
 
 #define FAN_PIN            7
-//additional FAN1 PIN (e.g. useful for electronics fan or light on/off) on PIN 8
+#define FAN1_PIN           8
 
 #define PS_ON_PIN          45
 #define KILL_PIN           46
@@ -108,3 +108,6 @@
 #define BTN_EN1            11
 #define BTN_EN2            12
 #define BTN_ENC            43
+
+#define SERVO0_PIN         5
+
