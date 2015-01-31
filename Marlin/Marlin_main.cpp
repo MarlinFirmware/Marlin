@@ -1481,10 +1481,10 @@ void gcode_G28() {
     // all axis have to home at the same time
 
     // Move all carriages up together until the first endstop is hit.
-    current_position[X_AXIS] = current_position[Y_AXIS] = current_position[Z_AXIS] = 0;
+    for (int i = X_AXIS; i <= Z_AXIS; i++) current_position[i] = 0;
     plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
 
-    destination[X_AXIS] = destination[Y_AXIS] = destination[Z_AXIS] = 3 * Z_MAX_LENGTH;
+    for (int i = X_AXIS; i <= Z_AXIS; i++) destination[i] = 3 * Z_MAX_LENGTH;
     feedrate = 1.732 * homing_feedrate[X_AXIS];
     plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate/60, active_extruder);
     st_synchronize();
@@ -1503,16 +1503,16 @@ void gcode_G28() {
 
   #else // NOT DELTA
 
-    home_all_axis = !((code_seen(axis_codes[X_AXIS])) || (code_seen(axis_codes[Y_AXIS])) || (code_seen(axis_codes[Z_AXIS])));
+    home_all_axis = !(code_seen(axis_codes[X_AXIS]) || code_seen(axis_codes[Y_AXIS]) || code_seen(axis_codes[Z_AXIS]));
 
     #if Z_HOME_DIR > 0                      // If homing away from BED do Z first
-      if ((home_all_axis) || (code_seen(axis_codes[Z_AXIS]))) {
+      if (home_all_axis || code_seen(axis_codes[Z_AXIS])) {
         HOMEAXIS(Z);
       }
     #endif
 
     #ifdef QUICK_HOME
-      if (home_all_axis || (code_seen(axis_codes[X_AXIS]) && code_seen(axis_codes[Y_AXIS]))) {  //first diagonal move
+      if (home_all_axis || code_seen(axis_codes[X_AXIS] && code_seen(axis_codes[Y_AXIS]))) {  //first diagonal move
         current_position[X_AXIS] = current_position[Y_AXIS] = 0;
 
         #ifndef DUAL_X_CARRIAGE
@@ -3755,7 +3755,7 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
         else
         {
           #ifdef FILAMENTCHANGE_FINALRETRACT
-            target[E_AXIS]+= FILAMENTCHANGE_FINALRETRACT ;
+            target[E_AXIS] += FILAMENTCHANGE_FINALRETRACT;
           #endif
         }
 
@@ -3802,7 +3802,7 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
         else
         {
           #ifdef FILAMENTCHANGE_FINALRETRACT
-            target[E_AXIS]+=(-1)*FILAMENTCHANGE_FINALRETRACT ;
+            target[E_AXIS] -= FILAMENTCHANGE_FINALRETRACT;
           #endif
         }
         current_position[E_AXIS]=target[E_AXIS]; //the long retract of L is compensated by manual filament feeding
