@@ -2221,14 +2221,14 @@ void process_commands()
 // N for its communication protocol and will get horribly confused if you send it a capital N.
 //
 
-#ifdef ENABLE_AUTO_BED_LEVELING
-#ifdef Z_PROBE_REPEATABILITY_TEST 
+#if defined(ENABLE_AUTO_BED_LEVELING) && defined(Z_PROBE_REPEATABILITY_TEST)
+
+  #if Z_MIN_PIN == -1
+    #error "You must have a Z_MIN endstop in order to enable calculation of Z-Probe repeatability."
+  #endif
 
     case 48: // M48 Z-Probe repeatability
         {
-            #if Z_MIN_PIN == -1
-            #error "You must have a Z_MIN endstop in order to enable calculation of Z-Probe repeatability."
-            #endif
 
   double sum=0.0; 
   double mean=0.0; 
@@ -2477,8 +2477,7 @@ SERIAL_PROTOCOLPGM("\n\n");
 Sigma_Exit:
         break;
   }
-#endif    // Z_PROBE_REPEATABILITY_TEST 
-#endif    // ENABLE_AUTO_BED_LEVELING
+#endif    // ENABLE_AUTO_BED_LEVELING && Z_PROBE_REPEATABILITY_TEST 
 
     case 104: // M104
       if(setTargetedHotend(104)){
