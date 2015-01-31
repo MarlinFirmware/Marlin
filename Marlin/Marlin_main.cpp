@@ -1403,9 +1403,6 @@ void process_commands()
 {
   unsigned long codenum; //throw away variable
   char *starpos = NULL;
-  #ifdef ENABLE_AUTO_BED_LEVELING
-    float x_tmp, y_tmp, z_tmp, real_z;
-  #endif
 
   if (code_seen('G')) {
 
@@ -3872,6 +3869,8 @@ void gcode_G28() {
    *      Will fail if the printer has not been homed with G28.
    */
   void gcode_G29() {
+
+    float x_tmp, y_tmp, z_tmp, real_z;
 
     // Prevent user from running a G29 without first homing in X and Y
     if (!axis_known_position[X_AXIS] || !axis_known_position[Y_AXIS]) {
