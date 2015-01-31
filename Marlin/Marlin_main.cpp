@@ -1464,7 +1464,7 @@ void gcode_G4() {
 void gcode_G28() {
   #ifdef ENABLE_AUTO_BED_LEVELING
     plan_bed_level_matrix.set_to_identity();  //Reset the plane ("erase" all leveling data)
-  #endif //ENABLE_AUTO_BED_LEVELING
+  #endif
 
   saved_feedrate = feedrate;
   saved_feedmultiply = feedmultiply;
@@ -1473,9 +1473,7 @@ void gcode_G28() {
 
   enable_endstops(true);
 
-  for (int i = 0; i < NUM_AXIS; i++) {
-    destination[i] = current_position[i];
-  }
+  for (int i = X_AXIS; i <= Z_AXIS; i++) destination[i] = current_position[i];
 
   feedrate = 0.0;
 
@@ -1494,9 +1492,7 @@ void gcode_G28() {
     endstops_hit_on_purpose();
 
     // Destination reached
-    current_position[X_AXIS] = destination[X_AXIS];
-    current_position[Y_AXIS] = destination[Y_AXIS];
-    current_position[Z_AXIS] = destination[Z_AXIS];
+    for (int i = X_AXIS; i <= Z_AXIS; i++) current_position[i] = destination[i];
 
     // take care of back off and rehome now we are all at the top
     HOMEAXIS(X);
