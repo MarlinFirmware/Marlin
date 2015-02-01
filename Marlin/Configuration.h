@@ -534,10 +534,9 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 //LCD and SD support
 
-// Character based displays can have different extended charsets. If you see strange or missing characters on yours - try an other definition below.
-#define DISPLAY_CHARSET_HD44870_JAPAN  //  "ääööüüß°"
-//#define DISPLAY_CHARSET_HD44870_WESTERN // with better support for European languages. "ÄäÖöÜüß°"
-//#define DISPLAY_CHARSET_DOGM // for full graphics display "ÄäÖÖÜÜß°"
+// Character based displays can have different extended charsets.
+#define DISPLAY_CHARSET_HD44870_JAPAN  //  "ääööüüß23°"
+//#define DISPLAY_CHARSET_HD44870_WESTERN // "ÄäÖöÜüß²³°" if you see a '~' instead of a 'arrow_right' at the right of submenuitems - this is the right one.
 
 //#define ULTRA_LCD  //general LCD support, also 16x2
 //#define DOGLCD  // Support for SPI LCD 128x64 (Controller ST7565R graphic Display Family)
