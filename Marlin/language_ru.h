@@ -10,7 +10,7 @@
 
 #define LANGUAGE_RU
 
-#define WELCOME_MSG                         MACHINE_NAME "Готов."
+#define WELCOME_MSG                         MACHINE_NAME " Готов."
 #define MSG_SD_INSERTED                     "Карта вставлена"
 #define MSG_SD_REMOVED                      "Карта извлечена"
 #define MSG_MAIN                            "Меню \003"
