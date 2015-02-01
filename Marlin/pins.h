@@ -108,6 +108,8 @@
   #include "pins_LEAPFROG.h"
 #elif MB(WITBOX)
   #include "pins_WITBOX.h"
+#elif MB(HEPHESTOS)
+  #include "pins_HEPHESTOS.h"
 #elif MB(99)
   #include "pins_99.h"
 #else
