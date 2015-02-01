@@ -56,17 +56,18 @@
 #elif MB(WITBOX)
   #define MACHINE_NAME "WITBOX"
   #define FIRMWARE_URL "https://github.com/MarlinFirmware/Marlin"
+#elif MB(HEPHESTOS)
+  #define MACHINE_NAME "Hephestos"
+  #define FIRMWARE_URL "https://github.com/MarlinFirmware/Marlin"
 #else
-  #ifdef CUSTOM_MENDEL_NAME
-    #define MACHINE_NAME CUSTOM_MENDEL_NAME
-  #else
-    #define MACHINE_NAME "Mendel"
-  #endif
-
-// Default firmware set to Mendel
+  // Default firmware set to Mendel
+  #define MACHINE_NAME "Mendel"
   #define FIRMWARE_URL "https://github.com/MarlinFirmware/Marlin"
 #endif
 
+#ifdef CUSTOM_MENDEL_NAME
+  #define MACHINE_NAME CUSTOM_MENDEL_NAME
+#else
 
 #ifndef MACHINE_UUID
    #define MACHINE_UUID "00000000-0000-0000-0000-000000000000"
