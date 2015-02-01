@@ -75,7 +75,7 @@
 #define MSG_TEMPERATURE                     "Temperatur"
 #define MSG_MOTION                          "Bewegung"
 #define MSG_VOLUMETRIC                      "Filament"
-#define MSG_VOLUMETRIC_ENABLED		          "E in mm3"
+#define MSG_VOLUMETRIC_ENABLED		          "E in mm" STR_h3
 #define MSG_FILAMENT_SIZE_EXTRUDER_0        "Filament D 1"
 #define MSG_FILAMENT_SIZE_EXTRUDER_1        "Filament D 2"
 #define MSG_FILAMENT_SIZE_EXTRUDER_2        "Filament D 3"
