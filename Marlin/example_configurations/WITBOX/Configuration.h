@@ -27,7 +27,7 @@
 #define STRING_VERSION "1.0.2"
 #define STRING_URL "reprap.org"
 #define STRING_VERSION_CONFIG_H __DATE__ " " __TIME__ // build date and time
-#define STRING_CONFIG_H_AUTHOR "(bq WITBOX)" // Who made the changes.
+#define STRING_CONFIG_H_AUTHOR "(bq Witbox)" // Who made the changes.
 #define STRING_SPLASH "v" STRING_VERSION " - " STRING_URL // will be shown during bootup
 
 // SERIAL_PORT selects which serial port should be used for communication with the host.
