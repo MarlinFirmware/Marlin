@@ -55,14 +55,12 @@
   #define FIRMWARE_URL "https://github.com/fmalpartida/Marlin/tree/SAV-MkI-config"
 #elif MB(WITBOX)
   #define MACHINE_NAME "WITBOX"
-  #define FIRMWARE_URL "https://github.com/MarlinFirmware/Marlin"
+  #define FIRMWARE_URL "http://www.bq.com/gb/downloads-witbox.html"
 #elif MB(HEPHESTOS)
-  #define MACHINE_NAME "Hephestos"
-  #define FIRMWARE_URL "https://github.com/MarlinFirmware/Marlin"
-#else
-  // Default firmware set to Mendel
+  #define MACHINE_NAME "HEPHESTOS"
+  #define FIRMWARE_URL "http://www.bq.com/gb/downloads-prusa-i3-hephestos.html"
+#else // Default firmware set to Mendel
   #define MACHINE_NAME "Mendel"
-  #define FIRMWARE_URL "https://github.com/MarlinFirmware/Marlin"
 #endif
 
 #ifdef CUSTOM_MENDEL_NAME
