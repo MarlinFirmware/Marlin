@@ -34,39 +34,36 @@
 #endif
 
 #define PROTOCOL_VERSION "1.0"
+#define FIRMWARE_URL "https://github.com/MarlinFirmware/Marlin"
 
 #if MB(ULTIMAKER)|| MB(ULTIMAKER_OLD)|| MB(ULTIMAIN_2)
   #define MACHINE_NAME "Ultimaker"
   #define FIRMWARE_URL "http://firmware.ultimaker.com"
 #elif MB(RUMBA)
   #define MACHINE_NAME "Rumba"
-  #define FIRMWARE_URL "https://github.com/MarlinFirmware/Marlin"
 #elif MB(3DRAG)
   #define MACHINE_NAME "3Drag"
   #define FIRMWARE_URL "http://3dprint.elettronicain.it/"
 #elif MB(K8200)
   #define MACHINE_NAME "K8200"
-  #define FIRMWARE_URL "https://github.com/MarlinFirmware/Marlin"
 #elif MB(5DPRINT)
   #define MACHINE_NAME "Makibox"
-  #define FIRMWARE_URL "https://github.com/MarlinFirmware/Marlin"
 #elif MB(SAV_MKI)
   #define MACHINE_NAME "SAV MkI"
   #define FIRMWARE_URL "https://github.com/fmalpartida/Marlin/tree/SAV-MkI-config"
 #elif MB(WITBOX)
   #define MACHINE_NAME "WITBOX"
-  #define FIRMWARE_URL "https://github.com/MarlinFirmware/Marlin"
-#else
-  #ifdef CUSTOM_MENDEL_NAME
-    #define MACHINE_NAME CUSTOM_MENDEL_NAME
-  #else
-    #define MACHINE_NAME "Mendel"
-  #endif
-
-// Default firmware set to Mendel
-  #define FIRMWARE_URL "https://github.com/MarlinFirmware/Marlin"
+  #define FIRMWARE_URL "http://www.bq.com/gb/downloads-witbox.html"
+#elif MB(HEPHESTOS)
+  #define MACHINE_NAME "HEPHESTOS"
+  #define FIRMWARE_URL "http://www.bq.com/gb/downloads-prusa-i3-hephestos.html"
+#else // Default firmware set to Mendel
+  #define MACHINE_NAME "Mendel"
 #endif
 
+#ifdef CUSTOM_MENDEL_NAME
+  #define MACHINE_NAME CUSTOM_MENDEL_NAME
+#endif
 
 #ifndef MACHINE_UUID
    #define MACHINE_UUID "00000000-0000-0000-0000-000000000000"

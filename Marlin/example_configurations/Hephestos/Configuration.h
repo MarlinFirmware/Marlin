@@ -27,7 +27,7 @@
 #define STRING_VERSION "1.0.2"
 #define STRING_URL "reprap.org"
 #define STRING_VERSION_CONFIG_H __DATE__ " " __TIME__ // build date and time
-#define STRING_CONFIG_H_AUTHOR "(bq Witbox)" // Who made the changes.
+#define STRING_CONFIG_H_AUTHOR "(bq Hephestos)" // Who made the changes.
 #define STRING_SPLASH "v" STRING_VERSION " - " STRING_URL // will be shown during bootup
 
 // SERIAL_PORT selects which serial port should be used for communication with the host.
@@ -44,7 +44,7 @@
 // The following define selects which electronics board you have.
 // Please choose the name from boards.h that matches your setup
 #ifndef MOTHERBOARD
-  #define MOTHERBOARD BOARD_WITBOX
+  #define MOTHERBOARD BOARD_HEPHESTOS
 #endif
 
 // Define this to set a custom name for your generic Mendel,
@@ -158,7 +158,7 @@
                                   // is more then PID_FUNCTIONAL_RANGE then the PID will be shut off and the heater will be set to min/max.
   #define PID_INTEGRAL_DRIVE_MAX PID_MAX  //limit for the integral term
   #define K1 0.95 //smoothing factor within the PID
-  #define PID_dT ((OVERSAMPLENR * 8.0)/(F_CPU / 64.0 / 256.0)) //sampling period of the temperature routine
+  #define PID_dT ((OVERSAMPLENR * 10.0)/(F_CPU / 64.0 / 256.0)) //sampling period of the temperature routine
 
 // If you are using a pre-configured hotend then you can use one of the value sets by uncommenting it
 // Ultimaker
@@ -176,10 +176,11 @@
 //    #define  DEFAULT_Ki 2.25
 //    #define  DEFAULT_Kd 440
 
-// Witbox
-      #define  DEFAULT_Kp 22.2
-      #define  DEFAULT_Ki 1.08
-      #define  DEFAULT_Kd 114
+// Hephestos (i3)
+    #define  DEFAULT_Kp 23.05
+    #define  DEFAULT_Ki 2.00
+    #define  DEFAULT_Kd 66.47
+
 #endif // PIDTEMP
 
 // Bed Temperature Control
@@ -320,7 +321,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 // Disables axis when it's not being used.
 #define DISABLE_X false
 #define DISABLE_Y false
-#define DISABLE_Z true
+#define DISABLE_Z false
 #define DISABLE_E false // For all extruders
 #define DISABLE_INACTIVE_EXTRUDER true //disable only inactive extruders and keep active extruder enabled
 
@@ -333,19 +334,19 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 // ENDSTOP SETTINGS:
 // Sets direction of endstops when homing; 1=MAX, -1=MIN
-#define X_HOME_DIR 1
-#define Y_HOME_DIR 1
+#define X_HOME_DIR -1
+#define Y_HOME_DIR -1
 #define Z_HOME_DIR -1
 
 #define min_software_endstops true // If true, axis won't move to coordinates less than HOME_POS.
 #define max_software_endstops true  // If true, axis won't move to coordinates greater than the defined lengths below.
 
 // Travel limits after homing
-#define X_MAX_POS 297
+#define X_MAX_POS 215
 #define X_MIN_POS 0
 #define Y_MAX_POS 210
 #define Y_MIN_POS 0
-#define Z_MAX_POS 200
+#define Z_MAX_POS 180
 #define Z_MIN_POS 0
 
 #define X_MAX_LENGTH (X_MAX_POS - X_MIN_POS)
@@ -482,16 +483,16 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 //// MOVEMENT SETTINGS
 #define NUM_AXIS 4 // The axis order in all axis related arrays is X, Y, Z, E
-#define HOMING_FEEDRATE {120*60, 120*60, 7.2*60, 0}  // set the homing speeds (mm/min)
+#define HOMING_FEEDRATE {2000, 2000, 150, 0}  // set the homing speeds (mm/min)
 
 // default settings
 
-#define DEFAULT_AXIS_STEPS_PER_UNIT   {80,80,600.0*8/3,102.073}  // default steps per unit for Ultimaker
-#define DEFAULT_MAX_FEEDRATE          {350, 350, 7.2, 80}    // (mm/sec)
-#define DEFAULT_MAX_ACCELERATION      {1000,1000,10,1000}    // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for Skeinforge 40+, for older versions raise them a lot.
+#define DEFAULT_AXIS_STEPS_PER_UNIT   {80,80,4000,100.47095761381482}  // default steps per unit for Ultimaker
+#define DEFAULT_MAX_FEEDRATE          {250, 250, 3.3, 25}    // (mm/sec)
+#define DEFAULT_MAX_ACCELERATION      {3000,3000,100,10000}    // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for Skeinforge 40+, for older versions raise them a lot.
 
-#define DEFAULT_ACCELERATION          3000    // X, Y, Z and E max acceleration in mm/s^2 for printing moves
-#define DEFAULT_RETRACT_ACCELERATION  3000   // X, Y, Z and E max acceleration in mm/s^2 for retracts
+#define DEFAULT_ACCELERATION          1000    // X, Y, Z and E max acceleration in mm/s^2 for printing moves
+#define DEFAULT_RETRACT_ACCELERATION  1000   // X, Y, Z and E max acceleration in mm/s^2 for retracts
 
 // Offset of the extruders (uncomment if using more than one and relying on firmware to position when changing).
 // The offset has to be X=0, Y=0 for the extruder 0 hotend (default extruder).
@@ -538,6 +539,12 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define ABS_PREHEAT_FAN_SPEED 255   // Insert Value between 0 and 255
 
 //LCD and SD support
+
+// Character based displays can have different extended charsets. If you see strange or missing characters on yours - try an other definition below.
+#define DISPLAY_CHARSET_HD44870_JAPAN  //  "ääööüüß°"
+//#define DISPLAY_CHARSET_HD44870_WESTERN // with better support for European languages. "ÄäÖöÜüß°"
+//#define DISPLAY_CHARSET_DOGM // for full graphics display "ÄäÖÖÜÜß°"
+
 #define ULTRA_LCD  //general LCD support, also 16x2
 //#define DOGLCD  // Support for SPI LCD 128x64 (Controller ST7565R graphic Display Family)
 #define SDSUPPORT // Enable SD Card Support in Hardware Console
