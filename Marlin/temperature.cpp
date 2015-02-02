@@ -872,6 +872,23 @@ void tp_init()
 #endif
   }
 #endif //BED_MAXTEMP
+
+#ifdef WITBOX_CE
+  // Initializes the built-in fans of the Witbox.
+  //  Configuration  for TIMER 3
+  //  Mode: Fast PWM (8 bits)
+  //  Prescaler: x1
+  //  OC Channel A: -
+  //  OC Channel B: Set on BOTTOM, clear on COMPARE
+  //  OC Channel C: -
+
+  TCCR3A = 0b00100001;
+  TCCR3B = 0b00001001;
+  TCCR3C = 0x00;
+
+  // Set as output the AUX_DRIVER GPIO
+  SET_OUTPUT(AUX_DRIVER_PIN);
+#endif // WITBOX_CE
 }
 
 void setWatch() 

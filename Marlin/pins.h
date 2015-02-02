@@ -193,6 +193,9 @@
 #define FAN_1_PIN       	7
 #define FAN_PIN         	FAN_0_PIN    
 
+// Auxiliar Power Channel Driver
+#define AUX_DRIVER_PIN    2
+
 // External Power Supply
 #define PS_ON_PIN       	81
 
