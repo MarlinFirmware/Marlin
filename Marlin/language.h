@@ -161,50 +161,48 @@
 
 // LCD Menu Messages
 
-#define STR_Ae "Ae" // No charset known now. Default will be overruled when we know.
-#define STR_ae "ae"
-#define STR_Oe "Oe"
-#define STR_oe "oe"
-#define STR_Ue "Ue"
-#define STR_ue "ue"
-#define STR_sz "ss"
-#define STR_Deg ""
-#define STR_THERMOMETER "\302"
-
-#ifdef DISPLAY_CHARSET_DOGM
-  #define STR_Ae "\304" // U8glib
-  #define STR_ae "\344"
-  #define STR_Oe "\326"
-  #define STR_oe STR_Oe
-  #define STR_Ue "\334"
-  #define STR_ue STR_Ue
-  #define STR_sz "\337"
-  #define STR_Deg "\260"
+// Add your own character. Reference: https://github.com/MarlinFirmware/Marlin/pull/1434 photos
+//                                and https://www.sparkfun.com/datasheets/LCD/HD44780.pdf page 17-18
+#ifdef DOGLCD
+  #define STR_Ae "\304"               // 'Ä' U8glib
+  #define STR_ae "\344"               // 'ä'
+  #define STR_Oe "\326"               // 'Ö'
+  #define STR_oe STR_Oe               // 'ö'
+  #define STR_Ue "\334"               // 'Ü'
+  #define STR_ue STR_Ue               // 'ü'
+  #define STR_sz "\337"               // 'ß'
+  #define STR_h2 "\262"               // '²'
+  #define STR_h3 "\263"               // '³'
+  #define STR_Deg "\260"              // '°'
   #define STR_THERMOMETER "\377"
+#else
+  #ifdef DISPLAY_CHARSET_HD44870_JAPAN // HD44870 ROM Code: A00 (Japan)
+    #define STR_ae "\xe1"
+    #define STR_Ae STR_ae
+    #define STR_oe "\357"
+    #define STR_Oe STR_oe
+    #define STR_ue "\365"
+    #define STR_Ue STR_ue
+    #define STR_sz "\342"
+    #define STR_h2 "2"
+    #define STR_h3 "3"
+    #define STR_Deg "\271"
+    #define STR_THERMOMETER "\002"
+  #endif
+  #ifdef DISPLAY_CHARSET_HD44870_WESTERN // HD44870 ROM Code: A02 (Western)
+    #define STR_Ae "\216"
+    #define STR_ae "\204"
+    #define STR_Oe "\211"
+    #define STR_oe "\204"
+    #define STR_Ue "\212"
+    #define STR_ue "\201"
+    #define STR_sz "\160"
+    #define STR_h2 "\262"
+    #define STR_h3 "\263"
+    #define STR_Deg "\337"
+    #define STR_THERMOMETER "\002"
+  #endif
 #endif
-#ifdef DISPLAY_CHARSET_HD44870_JAPAN // HD44870 ROM Code: A00 (Japan)
-  #define STR_ae "\xe1"
-  #define STR_Ae STR_ae
-  #define STR_oe "\357"
-  #define STR_Oe STR_oe
-  #define STR_ue "\365"
-  #define STR_Ue STR_ue
-  #define STR_sz "\342"
-  #define STR_Deg "\271"
-  #define STR_THERMOMETER "\302"
-#endif
-#ifdef DISPLAY_CHARSET_HD44870_WESTERN // HD44870 ROM Code: A02 (Western)
-  #define STR_Ae "\216"
-  #define STR_ae "\204"
-  #define STR_Oe "\211"
-  #define STR_oe "\204"
-  #define STR_Ue "\212"
-  #define STR_ue "\201"
-  #define STR_sz "\160"
-  #define STR_Deg "\337"
-  #define STR_THERMOMETER "\302"
-#endif
-
 /*
 #define TESTSTRING000 "\000\001\002\003\004\005\006\007\010\011\012\013\014\015\016\017"
 #define TESTSTRING020 "\020\021\022\023\024\025\026\027\030\031\032\033\034\035\036\037"
