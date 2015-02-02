@@ -1969,8 +1969,10 @@ void process_commands()
     #endif // ENABLE_AUTO_BED_LEVELING
 
     case 90: // G90
+      relative_mode = false;
+      break;
     case 91: // G91
-      relative_mode = gCode == 91;
+      relative_mode = true;
       break;
 
     case 92: // G92
