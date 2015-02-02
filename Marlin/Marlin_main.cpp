@@ -3021,33 +3021,11 @@ Sigma_Exit:
         int t= code_value() ;
         switch(t)
         {
-          case 0: 
+          case 0:
+          case 1:
           {
-            autoretract_enabled=false;
-            retracted[0]=false;
-#if EXTRUDERS > 1
-            retracted[1]=false;
-#endif
-#if EXTRUDERS > 2
-            retracted[2]=false;
-#endif
-#if EXTRUDERS > 3
-            retracted[3]=false;
-#endif
-          }break;
-          case 1: 
-          {
-            autoretract_enabled=true;
-            retracted[0]=false;
-#if EXTRUDERS > 1
-            retracted[1]=false;
-#endif
-#if EXTRUDERS > 2
-            retracted[2]=false;
-#endif
-#if EXTRUDERS > 3
-            retracted[3]=false;
-#endif
+            autoretract_enabled = (t == 1);
+            for (int i=EXTRUDERS; i--;) retracted[i] = false;
           }break;
           default:
             SERIAL_ECHO_START;
@@ -4686,15 +4664,6 @@ float calculate_volumetric_multiplier(float diameter) {
 }
 
 void calculate_volumetric_multipliers() {
-	volumetric_multiplier[0] = calculate_volumetric_multiplier(filament_size[0]);
-#if EXTRUDERS > 1
-	volumetric_multiplier[1] = calculate_volumetric_multiplier(filament_size[1]);
-#if EXTRUDERS > 2
-	volumetric_multiplier[2] = calculate_volumetric_multiplier(filament_size[2]);
-#if EXTRUDERS > 3
-	volumetric_multiplier[3] = calculate_volumetric_multiplier(filament_size[3]);
-#endif //EXTRUDERS > 3
-#endif //EXTRUDERS > 2
-#endif //EXTRUDERS > 1
+  for (int i=EXTRUDERS; i--;)
+  	volumetric_multiplier[i] = calculate_volumetric_multiplier(filament_size[i]);
 }
-
