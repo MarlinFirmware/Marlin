@@ -254,10 +254,10 @@ Here are some standard links for getting your machine calibrated:
 #define EXTRUDE_MAXLENGTH (X_MAX_LENGTH+Y_MAX_LENGTH) //prevent extrusion of very large distances.
 
 
-+//===========================================================================
-+//============================= Thermal Runaway Protection ==================
-+//===========================================================================
-+/*
+//===========================================================================
+//============================= Thermal Runaway Protection ==================
+//===========================================================================
+/*
 This is a feature to protect your printer from burn up in flames if it has
 a thermistor coming off place (this happened to a friend of mine recently and
 motivated me writing this feature).
