@@ -3082,9 +3082,11 @@ void process_commands()
   	do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS],Z_MIN_POS+10);
     lcd_enable_interrupt();
     
-  #if X_MAX_POS > 250
+  #if X_MAX_POS > 250 //Witbox
     do_blocking_move_to((X_MAX_POS-X_MIN_POS)/2,Y_MAX_POS-10, current_position[Z_AXIS]);
-  #else
+  #elif Y_MAX_POS > 250 //Hephestos XL
+    do_blocking_move_to(20, 260, current_position[Z_AXIS]);
+  #else //Hephestos
     do_blocking_move_to(20, 190, current_position[Z_AXIS]);
   #endif
     do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], Z_MIN_POS);
@@ -3099,9 +3101,11 @@ void process_commands()
     lcd_update();
   	
   	do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS],Z_MIN_POS+10);
-  	#if X_MAX_POS > 250
+  	#if X_MAX_POS > 250 //Witbox
   	do_blocking_move_to(90, 5, current_position[Z_AXIS]);
-  	#else
+	#elif Y_MAX_POS > 250 //Hephestos XL
+	do_blocking_move_to(190, 260, current_position[Z_AXIS]);
+  	#else //Hephestos
   	do_blocking_move_to(195, 190, current_position[Z_AXIS]);
   	#endif
   	do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS],Z_MIN_POS);
@@ -3116,9 +3120,11 @@ void process_commands()
     lcd_update();
   		  
   	do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS],Z_MIN_POS+10);
-  	#if X_MAX_POS > 250
+  	#if X_MAX_POS > 250 //Witbox
     do_blocking_move_to(205, 5, current_position[Z_AXIS]);
-  	#else
+	#elif Y_MAX_POS > 250 //Hephestos XL
+	do_blocking_move_to(20, 40, current_position[Z_AXIS]);
+  	#else //Hephestos
     do_blocking_move_to(20, 20, current_position[Z_AXIS]);
   	#endif
   	do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS],Z_MIN_POS);
@@ -3134,7 +3140,11 @@ void process_commands()
     lcd_update();
   		  
     do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS],Z_MIN_POS+10);
+    #if Y_MAX_POS > 250 //Hephestos XL
+    do_blocking_move_to(190, 40, current_position[Z_AXIS]);
+    #else //Hephestos
     do_blocking_move_to(195, 20, current_position[Z_AXIS]);
+    #endif
     do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS],Z_MIN_POS);
   	
     lcd_clear_triggered_flags();
