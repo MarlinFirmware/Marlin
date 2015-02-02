@@ -1384,7 +1384,7 @@ static void dock_sled(bool dock, int offset=0) {
 /**
  * G0 / G1: Coordinated movement of X Y Z E axes
  */
-void gcode_G0_G1() {
+inline void gcode_G0_G1() {
   if (!Stopped) {
     get_coordinates(); // For X Y Z E F
     #ifdef FWRETRACT
@@ -1409,7 +1409,7 @@ void gcode_G0_G1() {
  * G2: Clockwise Arc
  * G3: Counterclockwise Arc
  */
-void gcode_G2_G3(bool clockwise) {
+inline void gcode_G2_G3(bool clockwise) {
   if (!Stopped) {
     get_arc_coordinates();
     prepare_arc_move(clockwise);
@@ -1419,7 +1419,7 @@ void gcode_G2_G3(bool clockwise) {
 /**
  * G4: Dwell S<seconds> or P<milliseconds>
  */
-void gcode_G4() {
+inline void gcode_G4() {
   unsigned long codenum;
 
   LCD_MESSAGEPGM(MSG_DWELL);
@@ -1443,7 +1443,7 @@ void gcode_G4() {
    * G10 - Retract filament according to settings of M207
    * G11 - Recover filament according to settings of M208
    */
-  void gcode_G10_G11(bool doRetract=false) {
+  inline void gcode_G10_G11(bool doRetract=false) {
     #if EXTRUDERS > 1
       if (doRetract) {
         retracted_swap[active_extruder] = (code_seen('S') && code_value_long() == 1); // checks for swap retract argument
@@ -1461,7 +1461,7 @@ void gcode_G4() {
 /**
  * G28: Home all axes, one at a time
  */
-void gcode_G28() {
+inline void gcode_G28() {
   #ifdef ENABLE_AUTO_BED_LEVELING
     plan_bed_level_matrix.set_to_identity();  //Reset the plane ("erase" all leveling data)
   #endif
@@ -1691,7 +1691,7 @@ void gcode_G28() {
    * G29: Detailed Z-Probe, probes the bed at 3 or more points.
    *      Will fail if the printer has not been homed with G28.
    */
-  void gcode_G29() {
+  inline void gcode_G29() {
 
     float x_tmp, y_tmp, z_tmp, real_z;
 
@@ -1846,7 +1846,7 @@ void gcode_G28() {
 
   #ifndef Z_PROBE_SLED
 
-    void gcode_G30() {
+    inline void gcode_G30() {
       engage_z_probe(); // Engage Z Servo endstop if available
       st_synchronize();
       // TODO: make sure the bed_level_rotation_matrix is identity or the planner will get set incorectly
@@ -1875,7 +1875,7 @@ void gcode_G28() {
 /**
  * G92: Set current position to given X Y Z E
  */
-void gcode_G92() {
+inline void gcode_G92() {
   if (!code_seen(axis_codes[E_AXIS]))
     st_synchronize();
 
@@ -1909,7 +1909,9 @@ void process_commands()
 
   if (code_seen('G')) {
 
-    switch((int)code_value()) {
+    int gCode = code_value_long();
+
+    switch(gCode) {
 
     // G0, G1
     case 0:
@@ -1920,10 +1922,8 @@ void process_commands()
     // G2, G3
     #ifndef SCARA
       case 2: // G2  - CW ARC
-        gcode_G2_G3(true);
-        break;
       case 3: // G3  - CCW ARC
-        gcode_G2_G3(false);
+        gcode_G2_G3(gCode == 2);
         break;
     #endif
 
@@ -1935,11 +1935,8 @@ void process_commands()
     #ifdef FWRETRACT
 
       case 10: // G10: retract
-        gcode_G10_G11(true);
-        break;
-
       case 11: // G11: retract_recover
-        gcode_G10_G11(false);
+        gcode_G10_G11(gCode == 10);
         break;
 
     #endif //FWRETRACT
@@ -1963,22 +1960,19 @@ void process_commands()
       #else // Z_PROBE_SLED
 
           case 31: // G31: dock the sled
-              dock_sled(true);
-              break;
           case 32: // G32: undock the sled
-              dock_sled(false);
-              break;
+            dock_sled(gCode == 31);
+            break;
 
       #endif // Z_PROBE_SLED
 
     #endif // ENABLE_AUTO_BED_LEVELING
 
     case 90: // G90
-      relative_mode = false;
-      break;
     case 91: // G91
-      relative_mode = true;
+      relative_mode = gCode == 91;
       break;
+
     case 92: // G92
       gcode_G92();
       break;
