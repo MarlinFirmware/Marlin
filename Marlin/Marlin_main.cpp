@@ -2901,7 +2901,7 @@ Sigma_Exit:
           if (volumetric_enabled) {
             filament_size[tmp_extruder] = diameter;
             // make sure all extruders have some sane value for the filament size
-            for (int i=EXTRUDERS; i--;)
+            for (int i=0; i<EXTRUDERS; i++)
               if (! filament_size[i]) filament_size[i] = DEFAULT_NOMINAL_FILAMENT_DIA;
           }
         } else {
@@ -3025,7 +3025,7 @@ Sigma_Exit:
           case 1:
           {
             autoretract_enabled = (t == 1);
-            for (int i=EXTRUDERS; i--;) retracted[i] = false;
+            for (int i=0; i<EXTRUDERS; i++) retracted[i] = false;
           }break;
           default:
             SERIAL_ECHO_START;
@@ -4664,6 +4664,6 @@ float calculate_volumetric_multiplier(float diameter) {
 }
 
 void calculate_volumetric_multipliers() {
-  for (int i=EXTRUDERS; i--;)
+  for (int i=0; i<EXTRUDERS; i++)
   	volumetric_multiplier[i] = calculate_volumetric_multiplier(filament_size[i]);
 }
