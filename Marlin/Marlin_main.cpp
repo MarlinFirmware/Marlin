@@ -2901,16 +2901,8 @@ Sigma_Exit:
           if (volumetric_enabled) {
             filament_size[tmp_extruder] = diameter;
             // make sure all extruders have some sane value for the filament size
-            if (! filament_size[0]) filament_size[0] = DEFAULT_NOMINAL_FILAMENT_DIA;
-            #if EXTRUDERS > 1
-              if (! filament_size[1]) filament_size[1] = DEFAULT_NOMINAL_FILAMENT_DIA;
-              #if EXTRUDERS > 2
-                if (! filament_size[2]) filament_size[2] = DEFAULT_NOMINAL_FILAMENT_DIA;
-                #if EXTRUDERS > 3
-                  if (! filament_size[3]) filament_size[3] = DEFAULT_NOMINAL_FILAMENT_DIA;
-                #endif
-              #endif
-            #endif
+            for (int i=EXTRUDERS; i--;)
+              if (! filament_size[i]) filament_size[i] = DEFAULT_NOMINAL_FILAMENT_DIA;
           }
         } else {
           //reserved for setting filament diameter via UFID or filament measuring device
