@@ -2893,26 +2893,24 @@ Sigma_Exit:
 
         float area = .0;
         if(code_seen('D')) {
-          float diameter = (float)code_value();
-          if (diameter == 0.0) {
-            // setting any extruder filament size disables volumetric on the assumption that
-            // slicers either generate in extruder values as cubic mm or as as filament feeds
-            // for all extruders
-            volumetric_enabled = false;
-          } else {
-            filament_size[tmp_extruder] = (float)code_value();
+          float diameter = code_value();
+          // setting any extruder filament size disables volumetric on the assumption that
+          // slicers either generate in extruder values as cubic mm or as as filament feeds
+          // for all extruders
+          volumetric_enabled = (diameter != 0.0);
+          if (volumetric_enabled) {
+            filament_size[tmp_extruder] = diameter;
             // make sure all extruders have some sane value for the filament size
-            filament_size[0] = (filament_size[0] == 0.0 ? DEFAULT_NOMINAL_FILAMENT_DIA : filament_size[0]);
-#if EXTRUDERS > 1
-            filament_size[1] = (filament_size[1] == 0.0 ? DEFAULT_NOMINAL_FILAMENT_DIA : filament_size[1]);
-#if EXTRUDERS > 2
-            filament_size[2] = (filament_size[2] == 0.0 ? DEFAULT_NOMINAL_FILAMENT_DIA : filament_size[2]);
-#if EXTRUDERS > 3
-            filament_size[3] = (filament_size[3] == 0.0 ? DEFAULT_NOMINAL_FILAMENT_DIA : filament_size[3]);
-#endif //EXTRUDERS > 3
-#endif //EXTRUDERS > 2
-#endif //EXTRUDERS > 1
-            volumetric_enabled = true;
+            if (! filament_size[0]) filament_size[0] = DEFAULT_NOMINAL_FILAMENT_DIA;
+            #if EXTRUDERS > 1
+              if (! filament_size[1]) filament_size[1] = DEFAULT_NOMINAL_FILAMENT_DIA;
+              #if EXTRUDERS > 2
+                if (! filament_size[2]) filament_size[2] = DEFAULT_NOMINAL_FILAMENT_DIA;
+                #if EXTRUDERS > 3
+                  if (! filament_size[3]) filament_size[3] = DEFAULT_NOMINAL_FILAMENT_DIA;
+                #endif
+              #endif
+            #endif
           }
         } else {
           //reserved for setting filament diameter via UFID or filament measuring device
