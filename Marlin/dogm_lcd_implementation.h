@@ -109,9 +109,13 @@ static void lcd_implementation_init()
 	
   // Show splashscreen
   int offx = (u8g.getWidth() - START_BMPWIDTH) / 2;
-  int offy = (u8g.getHeight() - 18 - START_BMPHEIGHT) / 2;
-  int txtX = (u8g.getWidth() - (sizeof(STRING_SPLASH) - 1)*6) / 2; // 6 is fontwidth in pixel
-  int txtY = u8g.getHeight() - 10;
+  #ifdef START_BMPHIGH
+    int offy = 0;
+  #else
+    int offy = DOG_CHAR_HEIGHT;
+  #endif
+  int txtX = (u8g.getWidth() - (sizeof(STRING_SPLASH) - 1)*DOG_CHAR_WIDTH) / 2;
+  int txtY = u8g.getHeight() - DOG_CHAR_HEIGHT;
 	u8g.firstPage();
 	do {
 	  u8g.drawBitmapP(offx, offy, START_BMPBYTEWIDTH, START_BMPHEIGHT, start_bmp);
