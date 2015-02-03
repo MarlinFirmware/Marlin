@@ -107,15 +107,6 @@ static void lcd_implementation_init()
 	u8g.setRot270();	// Rotate screen by 270°
 #endif
 	
-  // FIXME: whats the purpose of the box? Maybe clear screen?
-	u8g.firstPage();
-  do {
-		u8g.setFont(u8g_font_6x10_marlin);
-		u8g.setColorIndex(1);
-		u8g.drawBox (0, 0, u8g.getWidth(), u8g.getHeight());
-		u8g.setColorIndex(1);
-	} while(u8g.nextPage());
-
   // Show splashscreen
   int offx = (u8g.getWidth() - START_BMPWIDTH) / 2;
   int offy = (u8g.getHeight() - 18 - START_BMPHEIGHT) / 2;
