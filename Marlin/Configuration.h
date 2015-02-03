@@ -710,7 +710,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
   #define SDSUPPORT
   #define ULTRA_LCD
   #ifdef DOGLCD // Change number of lines to match the DOG graphic display
-    #define LCD_WIDTH 20
+    #define LCD_WIDTH 22
     #define LCD_HEIGHT 5
   #else
     #define LCD_WIDTH 20
@@ -719,7 +719,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #else //no panel but just LCD
   #ifdef ULTRA_LCD
   #ifdef DOGLCD // Change number of lines to match the 128x64 graphics display
-    #define LCD_WIDTH 20
+    #define LCD_WIDTH 22
     #define LCD_HEIGHT 5
   #else
     #define LCD_WIDTH 16
