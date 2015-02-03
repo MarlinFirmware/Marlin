@@ -1918,7 +1918,7 @@ inline void gcode_G92() {
       codenum = code_value() * 1000; // seconds to wait
       hasS = codenum > 0;
     }
-    starpos = strchr(src, '*');
+    char* starpos = strchr(src, '*');
     if (starpos != NULL) *(starpos) = '\0';
     while (*src == ' ') ++src;
     if (!hasP && !hasS && *src != '\0')
@@ -1951,7 +1951,7 @@ inline void gcode_G92() {
     else
       LCD_MESSAGEPGM(WELCOME_MSG);
 
-    ExitM0M1:
+    ExitM0M1: ;
   }
 
 #endif // ULTIPANEL
@@ -2311,7 +2311,7 @@ inline void gcode_M42() {
 
     if (engage_probe_for_each_reading) retract_z_probe();
 
-    for(n=0; n < n_samples; n++) {
+    for (n=0; n < n_samples; n++) {
 
       do_blocking_move_to( X_probe_location, Y_probe_location, Z_start_location); // Make sure we are at the probe location
 
@@ -2422,7 +2422,7 @@ inline void gcode_M42() {
     SERIAL_PROTOCOL_F(sigma, 6);
     SERIAL_PROTOCOLPGM("\n\n");
 
-    Sigma_Exit:
+    Sigma_Exit: ;
   }
 
 #endif // ENABLE_AUTO_BED_LEVELING && Z_PROBE_REPEATABILITY_TEST
