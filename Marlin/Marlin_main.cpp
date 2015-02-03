@@ -1939,7 +1939,7 @@ inline void gcode_G92() {
       lcd_ignore_click(false);
     }
     else {
-      if (!lcd_detected()) goto ExitM0M1;
+      if (!lcd_detected()) return;
       while (!lcd_clicked()) {
         manage_heater();
         manage_inactivity();
@@ -1950,8 +1950,6 @@ inline void gcode_G92() {
       LCD_MESSAGEPGM(MSG_RESUMING);
     else
       LCD_MESSAGEPGM(WELCOME_MSG);
-
-    ExitM0M1: ;
   }
 
 #endif // ULTIPANEL
@@ -2207,7 +2205,7 @@ inline void gcode_M42() {
       verbose_level = code_value();
       if (verbose_level < 0 || verbose_level > 4 ) {
         SERIAL_PROTOCOLPGM("?Verbose Level not plausible (0-4).\n");
-        goto Sigma_Exit;
+        return;
       }
     }
 
@@ -2220,7 +2218,7 @@ inline void gcode_M42() {
       n_samples = code_value();
       if (n_samples < 4 || n_samples > 50) {
         SERIAL_PROTOCOLPGM("?Specified sample size not plausible (4-50).\n");
-        goto Sigma_Exit;
+        return;
       }
     }
 
@@ -2230,31 +2228,31 @@ inline void gcode_M42() {
     Z_start_location = st_get_position_mm(Z_AXIS) + Z_RAISE_BEFORE_PROBING;
     ext_position   = st_get_position_mm(E_AXIS);
 
-    if (code_seen('E') || code_seen('e') ) 
+    if (code_seen('E') || code_seen('e'))
       engage_probe_for_each_reading++;
 
-    if (code_seen('X') || code_seen('x') ) {
+    if (code_seen('X') || code_seen('x')) {
       X_probe_location = code_value() - X_PROBE_OFFSET_FROM_EXTRUDER;
       if (X_probe_location < X_MIN_POS || X_probe_location > X_MAX_POS) {
         SERIAL_PROTOCOLPGM("?Specified X position out of range.\n");
-        goto Sigma_Exit;
+        return;
       }
     }
 
-    if (code_seen('Y') || code_seen('y') ) {
+    if (code_seen('Y') || code_seen('y')) {
       Y_probe_location = code_value() -  Y_PROBE_OFFSET_FROM_EXTRUDER;
       if (Y_probe_location < Y_MIN_POS || Y_probe_location > Y_MAX_POS) {
         SERIAL_PROTOCOLPGM("?Specified Y position out of range.\n");
-        goto Sigma_Exit;
+        return;
       }
     }
 
-    if (code_seen('L') || code_seen('l') ) {
+    if (code_seen('L') || code_seen('l')) {
       n_legs = code_value();
       if (n_legs == 1) n_legs = 2;
       if (n_legs < 0 || n_legs > 15) {
         SERIAL_PROTOCOLPGM("?Specified number of legs in movement not plausible (0-15).\n");
-        goto Sigma_Exit;
+        return;
       }
     }
 
@@ -2421,8 +2419,6 @@ inline void gcode_M42() {
     SERIAL_PROTOCOLPGM("Standard Deviation: ");
     SERIAL_PROTOCOL_F(sigma, 6);
     SERIAL_PROTOCOLPGM("\n\n");
-
-    Sigma_Exit: ;
   }
 
 #endif // ENABLE_AUTO_BED_LEVELING && Z_PROBE_REPEATABILITY_TEST
