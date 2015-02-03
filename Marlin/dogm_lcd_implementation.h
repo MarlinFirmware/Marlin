@@ -51,11 +51,24 @@
 #endif
 */
 
+#define USE_BIG_EDIT_FONT
+#define FONT_STATUSMENU u8g_font_6x9
+#define FONT_MENU u8g_font_6x10_marlin
+
 // DOGM parameters (size in pixels)
 #define DOG_CHAR_WIDTH         6
 #define DOG_CHAR_HEIGHT        12
-#define DOG_CHAR_WIDTH_LARGE   9
-#define DOG_CHAR_HEIGHT_LARGE  18
+#ifdef USE_BIG_EDIT_FONT
+  #define FONT_MENU_EDIT u8g_font_9x18
+  #define DOG_CHAR_WIDTH_EDIT  9
+  #define DOG_CHAR_HEIGHT_EDIT 18
+  #define LCD_WIDTH_EDIT       14
+#else
+  #define FONT_MENU_EDIT u8g_font_6x10_marlin
+  #define DOG_CHAR_WIDTH_EDIT 6
+  #define DOG_CHAR_HEIGHT_EDIT 12
+  #define LCD_WIDTH_EDIT 22
+#endif
 
 #define START_ROW              0
 
@@ -69,8 +82,6 @@
 #define LCD_STR_FEEDRATE    "\xFD"
 #define LCD_STR_BEDTEMP     "\xFE"
 #define LCD_STR_THERMOMETER "\xFF"
-
-#define FONT_STATUSMENU u8g_font_6x9
 
 int lcd_contrast;
 
@@ -107,26 +118,27 @@ static void lcd_implementation_init()
 	u8g.setRot270();	// Rotate screen by 270°
 #endif
 	
-  // FIXME: whats the purpose of the box? Maybe clear screen?
-	u8g.firstPage();
-  do {
-		u8g.setFont(u8g_font_6x10_marlin);
-		u8g.setColorIndex(1);
-		u8g.drawBox (0, 0, u8g.getWidth(), u8g.getHeight());
-		u8g.setColorIndex(1);
-	} while(u8g.nextPage());
-
   // Show splashscreen
   int offx = (u8g.getWidth() - START_BMPWIDTH) / 2;
-  int offy = (u8g.getHeight() - 18 - START_BMPHEIGHT) / 2;
-  int txtX = (u8g.getWidth() - (sizeof(STRING_SPLASH) - 1)*5) / 2; // 5 is fontwidth in pixel
-  int txtY = u8g.getHeight() - 10;
+  #ifdef START_BMPHIGH
+    int offy = 0;
+  #else
+    int offy = DOG_CHAR_HEIGHT;
+  #endif
+
+  int txt1X = (u8g.getWidth() - (sizeof(STRING_SPLASH_LINE1) - 1)*DOG_CHAR_WIDTH) / 2;
+
 	u8g.firstPage();
 	do {
-	  u8g.drawBitmapP(offx, offy, START_BMPBYTEWIDTH, START_BMPHEIGHT, start_bmp);
-			
-    u8g.setFont(u8g_font_5x8);
-		u8g.drawStr(txtX, txtY, STRING_SPLASH);
+    u8g.drawBitmapP(offx, offy, START_BMPBYTEWIDTH, START_BMPHEIGHT, start_bmp);
+    u8g.setFont(FONT_MENU);
+    #ifndef STRING_SPLASH_LINE2
+      u8g.drawStr(txt1X, u8g.getHeight() - DOG_CHAR_HEIGHT, STRING_SPLASH_LINE1);
+    #else
+      int txt2X = (u8g.getWidth() - (sizeof(STRING_SPLASH_LINE2) - 1)*DOG_CHAR_WIDTH) / 2;
+      u8g.drawStr(txt1X, u8g.getHeight() - DOG_CHAR_HEIGHT*3/2, STRING_SPLASH_LINE1);
+      u8g.drawStr(txt2X, u8g.getHeight() - DOG_CHAR_HEIGHT*1/2, STRING_SPLASH_LINE2);
+    #endif
 	} while(u8g.nextPage());
 }
 
@@ -244,7 +256,7 @@ static void lcd_implementation_status_screen() {
   u8g.setColorIndex(1); // black on white
  
   // Feedrate
-  u8g.setFont(u8g_font_6x10_marlin);
+  u8g.setFont(FONT_MENU);
   u8g.setPrintPos(3,49);
   u8g.print(LCD_STR_FEEDRATE[0]);
   u8g.setFont(FONT_STATUSMENU);
@@ -363,11 +375,11 @@ static void _drawmenu_setting_edit_generic(uint8_t row, const char* pstr, char p
 #define lcd_implementation_drawmenu_setting_edit_callback_bool(row, pstr, pstr2, data, callback) lcd_implementation_drawmenu_setting_edit_generic_P(row, pstr, ' ', (*(data))?PSTR(MSG_ON):PSTR(MSG_OFF))
 
 void lcd_implementation_drawedit(const char* pstr, char* value) {
-  u8g.setPrintPos(0 * DOG_CHAR_WIDTH_LARGE, (u8g.getHeight() - 1 - DOG_CHAR_HEIGHT_LARGE) - (1 * DOG_CHAR_HEIGHT_LARGE) - START_ROW );
-  u8g.setFont(u8g_font_9x18);
+  u8g.setPrintPos(0 * DOG_CHAR_WIDTH_EDIT, (u8g.getHeight() - 1 - DOG_CHAR_HEIGHT_EDIT) - (1 * DOG_CHAR_HEIGHT_EDIT) - START_ROW );
+  u8g.setFont(FONT_MENU_EDIT);
   lcd_printPGM(pstr);
   u8g.print(':');
-  u8g.setPrintPos((14 - strlen(value)) * DOG_CHAR_WIDTH_LARGE, (u8g.getHeight() - 1 - DOG_CHAR_HEIGHT_LARGE) - (1 * DOG_CHAR_HEIGHT_LARGE) - START_ROW );
+  u8g.setPrintPos((14 - strlen(value)) * DOG_CHAR_WIDTH_EDIT, (u8g.getHeight() - 1 - DOG_CHAR_HEIGHT_EDIT) - (1 * DOG_CHAR_HEIGHT_EDIT) - START_ROW );
   u8g.print(value);
 }
 
