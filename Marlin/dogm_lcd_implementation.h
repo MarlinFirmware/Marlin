@@ -379,24 +379,27 @@ void lcd_implementation_drawedit(const char* pstr, char* value) {
   uint8_t lcd_width = LCD_WIDTH;
   uint8_t char_width = DOG_CHAR_WIDTH;
 
-#ifdef USE_BIG_EDIT_FONT
-  if (strlen_P(pstr) <= LCD_WIDTH_EDIT - 1) {
-    u8g.setFont(FONT_MENU_EDIT);
-    lcd_width = LCD_WIDTH_EDIT + 1;
-    char_width = DOG_CHAR_WIDTH_EDIT;
-    if (strlen_P(pstr) >= LCD_WIDTH_EDIT - strlen(value)) rows = 2;
-  }
-  else {
-    u8g.setFont(FONT_MENU);
-  }
-#endif
+  #ifdef USE_BIG_EDIT_FONT
+    if (strlen_P(pstr) <= LCD_WIDTH_EDIT - 1) {
+      u8g.setFont(FONT_MENU_EDIT);
+      lcd_width = LCD_WIDTH_EDIT + 1;
+      char_width = DOG_CHAR_WIDTH_EDIT;
+      if (strlen_P(pstr) >= LCD_WIDTH_EDIT - strlen(value)) rows = 2;
+    }
+    else {
+      u8g.setFont(FONT_MENU);
+    }
+  #endif
 
-  if ( strlen_P(pstr) > LCD_WIDTH - 2 - strlen(value) ) rows = 2;
+  if (strlen_P(pstr) > LCD_WIDTH - 2 - strlen(value)) rows = 2;
 
-  u8g.setPrintPos(                                     0, u8g.getHeight() *  1/(1+rows) + DOG_CHAR_HEIGHT_EDIT/2); //1/(1+rows) = 1/2 or 1/3
+  const float kHalfChar = DOG_CHAR_HEIGHT_EDIT / 2;
+  float rowHeight = u8g.getHeight() / (rows + 1); // 1/(rows+1) = 1/2 or 1/3
+
+  u8g.setPrintPos(0, rowHeight + kHalfChar);
   lcd_printPGM(pstr);
   u8g.print(':');
-  u8g.setPrintPos((lcd_width-1-strlen(value))*char_width, u8g.getHeight()*rows/(1+rows) + DOG_CHAR_HEIGHT_EDIT/2); //rows/(1+rows) = 1/2 or 2/3
+  u8g.setPrintPos((lcd_width-1-strlen(value)) * char_width, rows * rowHeight + kHalfChar);
   u8g.print(value);
 }
 
