@@ -3693,15 +3693,16 @@ inline void gcode_M503() {
    * M600: Pause for filament change X[pos] Y[pos] Z[relative lift] E[initial retract] L[later retract distance for removal]
    */
   inline void gcode_M600() {
-    #ifdef DELTA
-      #define RUNPLAN calculate_delta(target); plan_buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], target[E_AXIS], fr60, active_extruder)
-    #else
-      #define RUNPLAN plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], fr60, active_extruder)
-    #endif
-
     float target[4], lastpos[4], fr60 = feedrate / 60;
     for (int i=X_AXIS; i<=E_AXIS; i++)
       target[i] = lastpos[i] = current_position[i];
+
+    #define BASICPLAN plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], fr60, active_extruder);
+    #ifdef DELTA
+      #define RUNPLAN calculate_delta(target); BASICPLAN
+    #else
+      #define RUNPLAN BASICPLAN
+    #endif
 
     //retract by E
     if (code_seen('E')) target[E_AXIS] += code_value();
