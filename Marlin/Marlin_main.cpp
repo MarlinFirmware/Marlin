@@ -3693,6 +3693,12 @@ inline void gcode_M503() {
    * M600: Pause for filament change X[pos] Y[pos] Z[relative lift] E[initial retract] L[later retract distance for removal]
    */
   inline void gcode_M600() {
+    #ifdef DELTA
+      #define RUNPLAN calculate_delta(target); plan_buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], target[E_AXIS], fr60, active_extruder)
+    #else
+      #define RUNPLAN plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], fr60, active_extruder)
+    #endif
+
     float target[4], lastpos[4], fr60 = feedrate / 60;
     for (int i=X_AXIS; i<=E_AXIS; i++)
       target[i] = lastpos[i] = current_position[i];
@@ -3702,7 +3708,8 @@ inline void gcode_M503() {
     #ifdef FILAMENTCHANGE_FIRSTRETRACT
       else target[E_AXIS] += FILAMENTCHANGE_FIRSTRETRACT;
     #endif
-    plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], fr60, active_extruder);
+
+    RUNPLAN;
 
     //lift Z
     if (code_seen('Z')) target[Z_AXIS] += code_value();
@@ -3710,7 +3717,7 @@ inline void gcode_M503() {
       else target[Z_AXIS] += FILAMENTCHANGE_ZADD;
     #endif
 
-    plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], fr60, active_extruder);
+    RUNPLAN;
 
     //move xy
     if (code_seen('X')) target[X_AXIS] = code_value();
@@ -3723,14 +3730,14 @@ inline void gcode_M503() {
       else target[Y_AXIS] = FILAMENTCHANGE_YPOS;
     #endif
 
-    plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], fr60, active_extruder);
+    RUNPLAN;
 
     if (code_seen('L')) target[E_AXIS] += code_value();
     #ifdef FILAMENTCHANGE_FINALRETRACT
       else target[E_AXIS] += FILAMENTCHANGE_FINALRETRACT;
     #endif
 
-    plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], fr60, active_extruder);
+    RUNPLAN;
 
     //finish moves
     st_synchronize();
@@ -3771,10 +3778,18 @@ inline void gcode_M503() {
 
     current_position[E_AXIS] = target[E_AXIS]; //the long retract of L is compensated by manual filament feeding
     plan_set_e_position(current_position[E_AXIS]);
-    plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], fr60, active_extruder); //should do nothing
-    plan_buffer_line(lastpos[X_AXIS], lastpos[Y_AXIS], target[Z_AXIS], target[E_AXIS], fr60, active_extruder); //move xy back
-    plan_buffer_line(lastpos[X_AXIS], lastpos[Y_AXIS], lastpos[Z_AXIS], target[E_AXIS], fr60, active_extruder); //move z back
-    plan_buffer_line(lastpos[X_AXIS], lastpos[Y_AXIS], lastpos[Z_AXIS], lastpos[E_AXIS], fr60, active_extruder); //final untretract
+
+    RUNPLAN; //should do nothing
+
+    #ifdef DELTA
+      calculate_delta(lastpos);
+      plan_buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], target[E_AXIS], fr60, active_extruder); //move xyz back
+      plan_buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], lastpos[E_AXIS], fr60, active_extruder); //final untretract
+    #else
+      plan_buffer_line(lastpos[X_AXIS], lastpos[Y_AXIS], target[Z_AXIS], target[E_AXIS], fr60, active_extruder); //move xy back
+      plan_buffer_line(lastpos[X_AXIS], lastpos[Y_AXIS], lastpos[Z_AXIS], target[E_AXIS], fr60, active_extruder); //move z back
+      plan_buffer_line(lastpos[X_AXIS], lastpos[Y_AXIS], lastpos[Z_AXIS], lastpos[E_AXIS], fr60, active_extruder); //final untretract
+    #endif        
   }
 
 #endif // FILAMENTCHANGEENABLE
