@@ -114,14 +114,20 @@ static void lcd_implementation_init()
   #else
     int offy = DOG_CHAR_HEIGHT;
   #endif
-  int txtX = (u8g.getWidth() - (sizeof(STRING_SPLASH) - 1)*DOG_CHAR_WIDTH) / 2;
-  int txtY = u8g.getHeight() - DOG_CHAR_HEIGHT;
+
+  int txt1X = (u8g.getWidth() - (sizeof(STRING_SPLASH_LINE1) - 1)*DOG_CHAR_WIDTH) / 2;
+
 	u8g.firstPage();
 	do {
-	  u8g.drawBitmapP(offx, offy, START_BMPBYTEWIDTH, START_BMPHEIGHT, start_bmp);
-			
+    u8g.drawBitmapP(offx, offy, START_BMPBYTEWIDTH, START_BMPHEIGHT, start_bmp);
     u8g.setFont(u8g_font_6x10_marlin);
-		u8g.drawStr(txtX, txtY, STRING_SPLASH);
+    #ifndef STRING_SPLASH_LINE2
+      u8g.drawStr(txt1X, u8g.getHeight() - DOG_CHAR_HEIGHT, STRING_SPLASH_LINE1);
+    #else
+      int txt2X = (u8g.getWidth() - (sizeof(STRING_SPLASH_LINE2) - 1)*DOG_CHAR_WIDTH) / 2;
+      u8g.drawStr(txt1X, u8g.getHeight() - DOG_CHAR_HEIGHT*3/2, STRING_SPLASH_LINE1);
+      u8g.drawStr(txt2X, u8g.getHeight() - DOG_CHAR_HEIGHT*1/2, STRING_SPLASH_LINE2);
+    #endif
 	} while(u8g.nextPage());
 }
 
