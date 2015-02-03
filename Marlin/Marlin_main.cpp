@@ -2893,26 +2893,16 @@ Sigma_Exit:
 
         float area = .0;
         if(code_seen('D')) {
-          float diameter = (float)code_value();
-          if (diameter == 0.0) {
-            // setting any extruder filament size disables volumetric on the assumption that
-            // slicers either generate in extruder values as cubic mm or as as filament feeds
-            // for all extruders
-            volumetric_enabled = false;
-          } else {
-            filament_size[tmp_extruder] = (float)code_value();
+          float diameter = code_value();
+          // setting any extruder filament size disables volumetric on the assumption that
+          // slicers either generate in extruder values as cubic mm or as as filament feeds
+          // for all extruders
+          volumetric_enabled = (diameter != 0.0);
+          if (volumetric_enabled) {
+            filament_size[tmp_extruder] = diameter;
             // make sure all extruders have some sane value for the filament size
-            filament_size[0] = (filament_size[0] == 0.0 ? DEFAULT_NOMINAL_FILAMENT_DIA : filament_size[0]);
-#if EXTRUDERS > 1
-            filament_size[1] = (filament_size[1] == 0.0 ? DEFAULT_NOMINAL_FILAMENT_DIA : filament_size[1]);
-#if EXTRUDERS > 2
-            filament_size[2] = (filament_size[2] == 0.0 ? DEFAULT_NOMINAL_FILAMENT_DIA : filament_size[2]);
-#if EXTRUDERS > 3
-            filament_size[3] = (filament_size[3] == 0.0 ? DEFAULT_NOMINAL_FILAMENT_DIA : filament_size[3]);
-#endif //EXTRUDERS > 3
-#endif //EXTRUDERS > 2
-#endif //EXTRUDERS > 1
-            volumetric_enabled = true;
+            for (int i=0; i<EXTRUDERS; i++)
+              if (! filament_size[i]) filament_size[i] = DEFAULT_NOMINAL_FILAMENT_DIA;
           }
         } else {
           //reserved for setting filament diameter via UFID or filament measuring device
@@ -3031,33 +3021,11 @@ Sigma_Exit:
         int t= code_value() ;
         switch(t)
         {
-          case 0: 
+          case 0:
+          case 1:
           {
-            autoretract_enabled=false;
-            retracted[0]=false;
-#if EXTRUDERS > 1
-            retracted[1]=false;
-#endif
-#if EXTRUDERS > 2
-            retracted[2]=false;
-#endif
-#if EXTRUDERS > 3
-            retracted[3]=false;
-#endif
-          }break;
-          case 1: 
-          {
-            autoretract_enabled=true;
-            retracted[0]=false;
-#if EXTRUDERS > 1
-            retracted[1]=false;
-#endif
-#if EXTRUDERS > 2
-            retracted[2]=false;
-#endif
-#if EXTRUDERS > 3
-            retracted[3]=false;
-#endif
+            autoretract_enabled = (t == 1);
+            for (int i=0; i<EXTRUDERS; i++) retracted[i] = false;
           }break;
           default:
             SERIAL_ECHO_START;
@@ -4696,15 +4664,6 @@ float calculate_volumetric_multiplier(float diameter) {
 }
 
 void calculate_volumetric_multipliers() {
-	volumetric_multiplier[0] = calculate_volumetric_multiplier(filament_size[0]);
-#if EXTRUDERS > 1
-	volumetric_multiplier[1] = calculate_volumetric_multiplier(filament_size[1]);
-#if EXTRUDERS > 2
-	volumetric_multiplier[2] = calculate_volumetric_multiplier(filament_size[2]);
-#if EXTRUDERS > 3
-	volumetric_multiplier[3] = calculate_volumetric_multiplier(filament_size[3]);
-#endif //EXTRUDERS > 3
-#endif //EXTRUDERS > 2
-#endif //EXTRUDERS > 1
+  for (int i=0; i<EXTRUDERS; i++)
+  	volumetric_multiplier[i] = calculate_volumetric_multiplier(filament_size[i]);
 }
-
