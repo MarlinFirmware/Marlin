@@ -3693,8 +3693,8 @@ inline void gcode_M503() {
    * M600: Pause for filament change X[pos] Y[pos] Z[relative lift] E[initial retract] L[later retract distance for removal]
    */
   inline void gcode_M600() {
-    float target[4], lastpos[4], fr60 = feedrate / 60;
-    for (int i=X_AXIS; i<=E_AXIS; i++)
+    float target[NUM_AXIS], lastpos[NUM_AXIS], fr60 = feedrate / 60;
+    for (int i=0; i<NUM_AXIS; i++)
       target[i] = lastpos[i] = current_position[i];
 
     #define BASICPLAN plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], fr60, active_extruder);
