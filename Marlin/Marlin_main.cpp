@@ -2645,6 +2645,32 @@ inline void gcode_M112() {
   kill();
 }
 
+#ifdef BARICUDA
+
+  #if defined(HEATER_1_PIN) && HEATER_1_PIN > -1
+    /**
+     * M126: Heater 1 valve open
+     */
+    inline void gcode_M126() { ValvePressure = code_seen('S') ? constrain(code_value(), 0, 255) : 255; }
+    /**
+     * M127: Heater 1 valve close
+     */
+    inline void gcode_M127() { ValvePressure = 0; }
+  #endif
+
+  #if defined(HEATER_2_PIN) && HEATER_2_PIN > -1
+    /**
+     * M128: Heater 2 valve open
+     */
+    inline void gcode_M128() { EtoPPressure = code_seen('S') ? constrain(code_value(), 0, 255) : 255; }
+    /**
+     * M129: Heater 2 valve close
+     */
+    inline void gcode_M129() { EtoPPressure = 0; }
+  #endif
+
+#endif //BARICUDA
+
 /**
  * M140: Set bed temperature
  */
@@ -2835,34 +2861,24 @@ void process_commands()
     #ifdef BARICUDA
       // PWM for HEATER_1_PIN
       #if defined(HEATER_1_PIN) && HEATER_1_PIN > -1
-        case 126: //M126 valve open
-          if (code_seen('S')){
-             ValvePressure=constrain(code_value(),0,255);
-          }
-          else {
-            ValvePressure=255;
-          }
+        case 126: // M126 valve open
+          gcode_M126();
           break;
-        case 127: //M127 valve closed
-          ValvePressure = 0;
+        case 127: // M127 valve closed
+          gcode_M127();
           break;
       #endif //HEATER_1_PIN
 
       // PWM for HEATER_2_PIN
       #if defined(HEATER_2_PIN) && HEATER_2_PIN > -1
-        case 128: //M128 valve open
-          if (code_seen('S')){
-             EtoPPressure=constrain(code_value(),0,255);
-          }
-          else {
-            EtoPPressure=255;
-          }
+        case 128: // M128 valve open
+          gcode_M128();
           break;
-        case 129: //M129 valve closed
-          EtoPPressure = 0;
+        case 129: // M129 valve closed
+          gcode_M129();
           break;
       #endif //HEATER_2_PIN
-    #endif
+    #endif //BARICUDA
 
     #if defined(PS_ON_PIN) && PS_ON_PIN > -1
       case 80: // M80 - Turn on Power Supply
