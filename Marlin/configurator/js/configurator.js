@@ -247,10 +247,10 @@ var configuratorApp = (function(){
       this.initField('TEMP_SENSOR_2');
       this.initField('TEMP_SENSOR_BED');
 
-/*
+
       $('#serial_stepper').jstepper({
         min: 0,
-        max: 3,
+        max: 7,
         val: $('#SERIAL_PORT').val(),
         arrowWidth: '18px',
         arrowHeight: '15px',
@@ -258,11 +258,10 @@ var configuratorApp = (function(){
         acolor: '#F70',
         hcolor: '#FF0',
         id: 'select-me',
-        stepperClass: 'inner',
         textStyle: {width:'1.5em',fontSize:'120%',textAlign:'center'},
-        // onChange: function(v) { },
+        onChange: function(v) { $('#SERIAL_PORT').val(v).trigger('change'); }
       });
-*/
+
 
       // prettyPrint();
     },
