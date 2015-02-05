@@ -14,7 +14,7 @@ img { display: none; }
 label, input, select, textarea { display: block; float: left; margin: 1px 0; }
 label.newline, textarea { clear: both; }
 label { width: 130px; height: 1em; padding: 10px 480px 10px 1em; margin-right: -470px; text-align: right; }
-input[type="text"], select, .jstepper { margin: 0.75em 0 0; }
+input[type="text"], select { margin: 0.75em 0 0; }
 input[type="checkbox"], input[type="radio"], input[type="file"] { margin: 1em 0 0; }
 #config_form { display: block; background: #DDD; padding: 20px; color: #000; }
 /*#config_text, #config_adv_text { font-family: "Andale mono", monospace; clear: both; }*/
@@ -24,4 +24,5 @@ input:disabled { color: #BBB; }
 .clear { clear: both; }
 h1, h2, h3, h4, h5, h6 { clear: both; }
 h2 { margin: 0; padding: 1em 0 0; }
-.jstepper { display: block; }
+#serial_stepper { padding-top: 0.75em; display: block; float: left; }
+#SERIAL_PORT { display: none; }
