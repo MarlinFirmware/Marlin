@@ -15,7 +15,7 @@ label, input, select, textarea { display: block; float: left; margin: 1px 0; }
 label.newline, textarea { clear: both; }
 label { width: 130px; height: 1em; padding: 10px 480px 10px 1em; margin-right: -470px; text-align: right; }
 input[type="text"], select, .jstepper { margin: 0.75em 0 0; }
-input[type="checkbox"], input[type="radio"] { margin: 1em 0 0; }
+input[type="checkbox"], input[type="radio"], input[type="file"] { margin: 1em 0 0; }
 #config_form { display: block; background: #DDD; padding: 20px; color: #000; }
 /*#config_text, #config_adv_text { font-family: "Andale mono", monospace; clear: both; }*/
 #config_text, #config_adv_text { height: 25em; overflow: auto; background-color: #FFF; color: #888; padding: 10px; }
