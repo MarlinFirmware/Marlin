@@ -68,15 +68,23 @@ var configuratorApp = (function(){
       boards_list = {};
       $.get(marlin_config + "/boards.h", function(txt) {
         // Get all the boards and save them into an object
-        var r, findDef = new RegExp('[ \\t]*#define[ \\t]+(BOARD_[^ \\t]+)[ \\t]+(\\d+)[ \\t]*(//[ \\t]*)?(.+)?', 'mg');
+        var r, findDef = new RegExp('[ \\t]*#define[ \\t]+(BOARD_[^ \\t]+)[ \\t]+(\\d+)[ \\t]*(//[ \\t]*)?(.+)?', 'gm');
         while((r = findDef.exec(txt)) !== null) {
-          boards_list[r[1]] = r[2].prePad(r[2] < 100 ? (r[2] < 10 ? 5 : 4) : 0, ' ') + " — " + r[4].replace(/\).*/, ')');
+          boards_list[r[1]] = r[2].prePad(3, '  ') + " — " + r[4].replace(/\).*/, ')');
         }
       });
 
       // Read Configuration.h
       $.get(marlin_config+"/Configuration.h", function(txt) {
+        // File contents into the textarea
         $config.text(txt);
+        // Get all the thermistors and save them into an object
+        var r, s, findDef = new RegExp('(//.*\n)+\\s+(#define[ \\t]+TEMP_SENSOR_0)', 'g');
+        r = findDef.exec(txt);
+        findDef = new RegExp('^//[ \\t]*([-\\d]+)[ \\t]+is[ \\t]+(.*)[ \\t]*$', 'gm');
+        while((s = findDef.exec(r[0])) !== null) {
+          therms_list[s[1]] = s[1].prePad(4, '  ') + " — " + s[2];
+        }
       });
 
       // Read Configuration.h
@@ -152,6 +160,12 @@ var configuratorApp = (function(){
 
       this.initField('PS_DEFAULT_OFF');
 
+      $('#TEMP_SENSOR_0, #TEMP_SENSOR_1, #TEMP_SENSOR_2, #TEMP_SENSOR_BED').addOptions(therms_list);
+      this.initField('TEMP_SENSOR_0');
+      this.initField('TEMP_SENSOR_1');
+      this.initField('TEMP_SENSOR_2');
+      this.initField('TEMP_SENSOR_BED');
+
 /*
       $('#serial_stepper').jstepper({
         min: 0,
@@ -224,8 +238,6 @@ var configuratorApp = (function(){
       }
       // Now set the text in the field
       $config.text(txt);
-
-      // $config.scrollTo(500);
     },
 
     setFieldFromDefine: function(name, adv) {
