@@ -539,24 +539,26 @@ static void lcd_set_encoder_position(int8_t position)
 /* Helper macros for menus */
 #ifdef DOGLCD
   #define START_MENU() do {\
-    u8g.firstPage(); \
-    do { \
-        u8g.setFont(u8g_font_6x10_marlin);\
-        lcd_disable_encoder();\
-        if (encoder_position > 0x8000) encoder_position = 0;\
-        if (encoder_position / ENCODER_STEPS_PER_MENU_ITEM < display_view_menu_offset) {\
-            display_view_menu_offset = encoder_position / ENCODER_STEPS_PER_MENU_ITEM;\
-            display_refresh_mode == CLEAR_AND_UPDATE_SCREEN;\
-        }\
-        if (display_refresh_mode == CLEAR_AND_UPDATE_SCREEN) {\
-            lcd_implementation_clear();\
-            display_refresh_mode = UPDATE_SCREEN;\
-        } else if (lcd_get_button_updated() || lcd_get_encoder_updated()) {\
-            display_refresh_mode = UPDATE_SCREEN;\
-        }\
-        uint8_t _lineNr = display_view_menu_offset, _menuItemNr; \
-        for (uint8_t _drawLineNr = 0; _drawLineNr < LCD_HEIGHT; _drawLineNr++, _lineNr++) { \
-            _menuItemNr = 0;
+    if (display_refresh_mode == CLEAR_AND_UPDATE_SCREEN) {\
+        lcd_implementation_clear();\
+        display_refresh_mode = UPDATE_SCREEN;\
+    }\
+    if (lcd_get_encoder_updated() || lcd_get_button_clicked()) {\
+        display_refresh_mode = UPDATE_SCREEN;\
+    }\
+    \
+    if (display_refresh_mode == UPDATE_SCREEN) {\
+        u8g.firstPage(); \
+        do { \
+            u8g.setFont(u8g_font_6x10_marlin);\
+            if (encoder_position > 0x8000) encoder_position = 0;\
+            if (encoder_position / ENCODER_STEPS_PER_MENU_ITEM < display_view_menu_offset) {\
+                display_view_menu_offset = encoder_position / ENCODER_STEPS_PER_MENU_ITEM;\
+                display_refresh_mode == CLEAR_AND_UPDATE_SCREEN;\
+            }\
+            uint8_t _lineNr = display_view_menu_offset, _menuItemNr; \
+            for (uint8_t _drawLineNr = 0; _drawLineNr < LCD_HEIGHT; _drawLineNr++, _lineNr++) { \
+                _menuItemNr = 0;
 #else
   #define START_MENU() do {\
         lcd_disable_encoder();\
@@ -597,11 +599,12 @@ static void lcd_set_encoder_position(int8_t position)
 #define MENU_ITEM_EDIT_CALLBACK(type, label, args...) MENU_ITEM(setting_edit_callback_ ## type, label, PSTR(label) , ## args )
 #ifdef DOGLCD
 #define END_MENU() \
-        if (encoder_position / ENCODER_STEPS_PER_MENU_ITEM >= _menuItemNr) encoder_position = _menuItemNr * ENCODER_STEPS_PER_MENU_ITEM - 1; \
-        if ((uint8_t)(encoder_position / ENCODER_STEPS_PER_MENU_ITEM) >= display_view_menu_offset + LCD_HEIGHT) { display_view_menu_offset = (encoder_position / ENCODER_STEPS_PER_MENU_ITEM) - LCD_HEIGHT + 1; _lineNr = display_view_menu_offset - 1; _drawLineNr = -1; } \
-        lcd_enable_encoder();\
-    } } while( u8g.nextPage() );\
-} while(0)
+            if (encoder_position / ENCODER_STEPS_PER_MENU_ITEM >= _menuItemNr) encoder_position = _menuItemNr * ENCODER_STEPS_PER_MENU_ITEM - 1; \
+            if ((uint8_t)(encoder_position / ENCODER_STEPS_PER_MENU_ITEM) >= display_view_menu_offset + LCD_HEIGHT) { display_view_menu_offset = (encoder_position / ENCODER_STEPS_PER_MENU_ITEM) - LCD_HEIGHT + 1; _lineNr = display_view_menu_offset - 1; _drawLineNr = -1; } \
+        } } while( u8g.nextPage() );\
+        display_refresh_mode = NO_UPDATE_SCREEN;\
+    }\
+    } while(0)
 #else
 #define END_MENU() \
 	if (encoder_position / ENCODER_STEPS_PER_MENU_ITEM >= _menuItemNr) encoder_position = _menuItemNr * ENCODER_STEPS_PER_MENU_ITEM - 1; \
