@@ -1,0 +1,52 @@
+<html>
+  <head>
+    <title>Marlin Configurator</title>
+    <meta charset="UTF-8">
+    <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
+    <script src="js/configurator.js"></script>
+    <script src="js/jcanvas.js"></script>
+    <script src="js/jstepper.js"></script>
+    <link rel="stylesheet" href="css/configurator.css" type="text/css" media="all" />
+  </head>
+  <body>
+    <div id="main">
+      <h1>Marlin Configurator 0.1a</h1>
+      <p>Enter values in the form, get a Marlin configuration.<br/>Will include a drop-down of known configurations.</p>
+      <ul id="help">
+        <li><strong>HELP</strong> - This is the help region</li>
+      </ul>
+
+      <form id="config_form">
+
+        <!-- label>Serial Port:</label><input name="SERIAL_PORT" type="text" size="4" maxlength="2" value="99" / -->
+
+        <label>Serial Port:</label><select name="SERIAL_PORT"></select><div id="serial_stepper"></div>
+
+        <label>Baud Rate:</label><select name="BAUDRATE"></select>
+
+        <label>AT90USB BT IF:</label>
+          <input name="BTENABLED" type="checkbox" value="1" checked />
+
+        <label class="newline">Motherboard:</label><select name="MOTHERBOARD"></select>
+
+        <label class="newline">Custom Name:</label><input name="CUSTOM_MENDEL_NAME" class="switchable" type="text" size="14" maxlength="12" value="" />
+
+        <label class="newline">Machine UUID:</label><input name="MACHINE_UUID" class="switchable" type="text" size="38" maxlength="36" value="" />
+
+        <label class="newline">Extruders:</label><select name="EXTRUDERS"></select>
+
+        <label class="newline">Power Supply:</label><select name="POWER_SUPPLY"></select>
+
+        <label>PS Default Off:</label>
+          <input name="PS_DEFAULT_OFF" type="checkbox" value="1" checked />
+
+        <h2>Marlin/Configuration.h</h2>
+        <pre id="config_text" class="prettyprint linenums"></pre>
+        <h2>Marlin/Configuration_adv.h</h2>
+        <pre id="config_adv_text" class="prettyprint linenums"></pre>
+
+        <br class="clear" />
+      </form>
+    </div>
+  </body>
+</html>
