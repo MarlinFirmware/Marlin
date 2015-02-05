@@ -11,6 +11,9 @@
  *    - Parser to read Marlin Configuration.h and Configuration_adv.h files
  *    - Utilities to replace values in configuration files
  */
+
+"use strict";
+
 $(function(){
 
 var marlin_config = '..';
