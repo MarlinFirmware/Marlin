@@ -55,6 +55,9 @@ var configuratorApp = (function(){
   // private variables and functions go here
   var self,
       pi2 = Math.PI * 2,
+      boards_file = 'boards.h',
+      config_file = 'Configuration.h',
+      config_adv_file = 'Configuration_adv.h',
       $config = $('#config_text'),
       $config_adv = $('#config_adv_text'),
       boards_list = {},
@@ -67,35 +70,104 @@ var configuratorApp = (function(){
     init: function() {
       self = this; // a 'this' for use when 'this' is something else
 
+      // Make a droppable file uploader
+      var $uploader = $('#file-upload');
+      var fileUploader = new BinaryFileUploader({
+        element:    $uploader[0],
+        onFileLoad: function(file) { console.log(this); self.handleFileLoad(file, $uploader); }
+      });
+
+      if (!fileUploader.hasFileUploaderSupport()) alert('Your browser doesn\'t support the file reading API');
+
       // Read boards.h
       boards_list = {};
-      $.get(marlin_config + "/boards.h", function(txt) {
-        // Get all the boards and save them into an object
-        var r, findDef = new RegExp('[ \\t]*#define[ \\t]+(BOARD_[^ \\t]+)[ \\t]+(\\d+)[ \\t]*(//[ \\t]*)?(.+)?', 'gm');
-        while((r = findDef.exec(txt)) !== null) {
-          boards_list[r[1]] = r[2].prePad(3, '  ') + " — " + r[4].replace(/\).*/, ')');
-        }
+
+      var errFunc = function(jqXHR, textStatus, errorThrown) {
+                      alert('Failed to load '+this.url+'. Try the file field.');
+                    };
+
+      $.ajax({
+        url: marlin_config+'/'+boards_file,
+        type: 'GET',
+        async: false,
+        cache: false,
+        success: function(txt) {
+          // Get all the boards and save them into an object
+          self.initBoardsFromText(txt);
+        },
+        error: errFunc
       });
 
       // Read Configuration.h
-      $.get(marlin_config+"/Configuration.h", function(txt) {
-        // File contents into the textarea
-        $config.text(txt);
-        // Get all the thermistors and save them into an object
-        var r, s, findDef = new RegExp('(//.*\n)+\\s+(#define[ \\t]+TEMP_SENSOR_0)', 'g');
-        r = findDef.exec(txt);
-        findDef = new RegExp('^//[ \\t]*([-\\d]+)[ \\t]+is[ \\t]+(.*)[ \\t]*$', 'gm');
-        while((s = findDef.exec(r[0])) !== null) {
-          therms_list[s[1]] = s[1].prePad(4, '  ') + " — " + s[2];
-        }
+      $.ajax({
+        url: marlin_config+'/'+config_file,
+        type: 'GET',
+        async: false,
+        cache: false,
+        success: function(txt) {
+          // File contents into the textarea
+          $config.text(txt);
+          self.initThermistorsFromText(txt);
+        },
+        error: errFunc
       });
 
       // Read Configuration.h
-      $.get(marlin_config+"/Configuration_adv.h", function(txt) {
-        $config_adv.text(txt);
-        self.setupConfigForm();
+      $.ajax({
+        url: marlin_config+'/'+config_adv_file,
+        type: 'GET',
+        async: false,
+        cache: false,
+        success: function(txt) {
+          // File contents into the textarea
+          $config_adv.text(txt);
+          self.setupConfigForm();
+        },
+        error: errFunc
       });
 
+    },
+
+    initBoardsFromText: function(txt) {
+      boards_list = {};
+      var r, findDef = new RegExp('[ \\t]*#define[ \\t]+(BOARD_[^ \\t]+)[ \\t]+(\\d+)[ \\t]*(//[ \\t]*)?(.+)?', 'gm');
+      while((r = findDef.exec(txt)) !== null) {
+        boards_list[r[1]] = r[2].prePad(3, '  ') + " — " + r[4].replace(/\).*/, ')');
+      }
+    },
+
+    initThermistorsFromText: function(txt) {
+      // Get all the thermistors and save them into an object
+      var r, s, findDef = new RegExp('(//.*\n)+\\s+(#define[ \\t]+TEMP_SENSOR_0)', 'g');
+      r = findDef.exec(txt);
+      findDef = new RegExp('^//[ \\t]*([-\\d]+)[ \\t]+is[ \\t]+(.*)[ \\t]*$', 'gm');
+      while((s = findDef.exec(r[0])) !== null) {
+        therms_list[s[1]] = s[1].prePad(4, '  ') + " — " + s[2];
+      }
+    },
+
+    handleFileLoad: function(file, $uploader) {
+      file += '';
+      var filename = $uploader.val().replace(/.*[\/\\](.*)$/, '$1');
+      switch(filename) {
+        case config_file:
+          $config.text(file);
+          this.initThermistorsFromText(file);
+          this.refreshConfigForm();
+          break;
+        case config_adv_file:
+          $config_adv.text(file);
+          this.refreshConfigForm();
+          break;
+        case boards_file:
+          this.initBoardsFromText(file);
+          $('#MOTHERBOARD').html('').addOptions(boards_list);
+          this.initField('MOTHERBOARD');
+          break;
+        default:
+          console.log("Can't parse "+filename);
+          break;
+      }
     },
 
     setupConfigForm: function() {
@@ -128,6 +200,17 @@ var configuratorApp = (function(){
         );
       });
 
+      $('#SERIAL_PORT').addOptions([0,1,2,3,4,5,6,7]);
+      $('#BAUDRATE').addOptions([2400,9600,19200,38400,57600,115200,250000]);
+      $('#MOTHERBOARD').addOptions(boards_list);
+      $('#EXTRUDERS').addOptions([1,2,3,4]);
+      $('#POWER_SUPPLY').addOptions({'1':'ATX','2':'Xbox 360'});
+
+      this.refreshConfigForm();
+    },
+
+    refreshConfigForm: function() {
+
       /**
        * For now I'm manually creating these references
        * but I should be able to parse Configuration.h
@@ -140,30 +223,25 @@ var configuratorApp = (function(){
        * Then we only need to specify exceptions to
        * standard behavior, (which is to add a text field)
        */
-      $('#SERIAL_PORT').addOptions([0,1,2,3,4,5,6,7]);
       this.initField('SERIAL_PORT');
 
-      $('#BAUDRATE').addOptions([2400,9600,19200,38400,57600,115200,250000]);
       this.initField('BAUDRATE');
 
       this.initField('BTENABLED');
 
-      $('#MOTHERBOARD').addOptions(boards_list);
       this.initField('MOTHERBOARD');
 
       this.initField('CUSTOM_MENDEL_NAME');
 
       this.initField('MACHINE_UUID');
 
-      $('#EXTRUDERS').addOptions([1,2,3,4]);
       this.initField('EXTRUDERS');
 
-      $('#POWER_SUPPLY').addOptions({'1':'ATX','2':'Xbox 360'});
       this.initField('POWER_SUPPLY');
 
       this.initField('PS_DEFAULT_OFF');
 
-      $('#TEMP_SENSOR_0, #TEMP_SENSOR_1, #TEMP_SENSOR_2, #TEMP_SENSOR_BED').addOptions(therms_list);
+      $('#TEMP_SENSOR_0, #TEMP_SENSOR_1, #TEMP_SENSOR_2, #TEMP_SENSOR_BED').html('').addOptions(therms_list);
       this.initField('TEMP_SENSOR_0');
       this.initField('TEMP_SENSOR_1');
       this.initField('TEMP_SENSOR_2');
