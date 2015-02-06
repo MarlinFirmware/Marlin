@@ -157,7 +157,7 @@
 // M400 - Finish all moves
 // M401 - Lower z-probe if present
 // M402 - Raise z-probe if present
-// M404 - N<dia in mm> Enter the nominal filament width (3mm, 1.75mm ) or will display nominal filament width without parameters
+// M404 - N<dia in mm> S<extruder> Enter the nominal filament width (3mm, 1.75mm ) or will display nominal filament width without new value
 // M405 - Turn on Filament Sensor extrusion control.  Optional D<delay in cm> to set delay in centimeters between sensor and extruder 
 // M406 - Turn off Filament Sensor extrusion control 
 // M407 - Displays measured filament diameter 
@@ -208,13 +208,13 @@ int extruder_multiply[EXTRUDERS] = { 100
   #endif
 };
 bool volumetric_enabled = false;
-float filament_size[EXTRUDERS] = { DEFAULT_NOMINAL_FILAMENT_DIA
+float filament_size[EXTRUDERS] = { EXTRUDER_0_NOMINAL_FILAMENT_DIA
   #if EXTRUDERS > 1
-      , DEFAULT_NOMINAL_FILAMENT_DIA
+      , EXTRUDER_1_NOMINAL_FILAMENT_DIA
     #if EXTRUDERS > 2
-       , DEFAULT_NOMINAL_FILAMENT_DIA
+       , EXTRUDER_2_NOMINAL_FILAMENT_DIA
       #if EXTRUDERS > 3
-        , DEFAULT_NOMINAL_FILAMENT_DIA
+        , EXTRUDER_3_NOMINAL_FILAMENT_DIA
       #endif
     #endif
   #endif
@@ -347,7 +347,18 @@ bool cancel_heatup = false;
 
 #ifdef FILAMENT_SENSOR
   //Variables for Filament Sensor input 
-  float filament_width_nominal=DEFAULT_NOMINAL_FILAMENT_DIA;  //Set nominal filament width, can be changed with M404 
+  float filament_width_nominal[EXTRUDERS] = {
+    EXTRUDER_0_NOMINAL_FILAMENT_DIA  //Set nominal filament width, can be changed with M404 
+    #if EXTRUDERS > 1
+        , EXTRUDER_1_NOMINAL_FILAMENT_DIA
+      #if EXTRUDERS > 2
+         , EXTRUDER_2_NOMINAL_FILAMENT_DIA
+        #if EXTRUDERS > 3
+          , EXTRUDER_3_NOMINAL_FILAMENT_DIA
+        #endif
+      #endif
+    #endif
+  };
   bool filament_sensor=false;  //M405 turns on filament_sensor control, M406 turns it off 
   float filament_width_meas=DEFAULT_MEASURED_FILAMENT_DIA; //Stores the measured filament diameter 
   signed char measurement_delay[MAX_MEASUREMENT_DELAY+1];  //ring buffer to delay measurement  store extruder factor after subtracting 100 
@@ -2901,8 +2912,16 @@ Sigma_Exit:
           if (volumetric_enabled) {
             filament_size[tmp_extruder] = diameter;
             // make sure all extruders have some sane value for the filament size
-            for (int i=0; i<EXTRUDERS; i++)
-              if (! filament_size[i]) filament_size[i] = DEFAULT_NOMINAL_FILAMENT_DIA;
+            if (! filament_size[0]) filament_size[0] = EXTRUDER_0_NOMINAL_FILAMENT_DIA;
+            #if EXTRUDERS > 1
+              if (! filament_size[1]) filament_size[1] = EXTRUDER_1_NOMINAL_FILAMENT_DIA;
+              #if EXTRUDERS > 2
+                if (! filament_size[2]) filament_size[2] = EXTRUDER_2_NOMINAL_FILAMENT_DIA;
+                #if EXTRUDERS > 3
+                  if (! filament_size[3]) filament_size[3] = EXTRUDER_3_NOMINAL_FILAMENT_DIA;
+                #endif
+              #endif
+            #endif
           }
         } else {
           //reserved for setting filament diameter via UFID or filament measuring device
@@ -3469,13 +3488,25 @@ Sigma_Exit:
 #endif
 
 #ifdef FILAMENT_SENSOR
-case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or display nominal filament width 
+case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) S<extruder> N<3.0> or display nominal filament width
     {
     #if (FILWIDTH_PIN > -1) 
-    if(code_seen('N')) filament_width_nominal=code_value();
-    else{
-    SERIAL_PROTOCOLPGM("Filament dia (nominal mm):"); 
-    SERIAL_PROTOCOLLN(filament_width_nominal); 
+    tmp_extruder = code_seen('S') ? code_value() : 0;
+    if (tmp_extruder < EXTRUDERS) {
+      if (code_seen('N')) {
+        filament_width_nominal[tmp_extruder] = code_value();
+        // TODO: sanity check the input
+      }
+      else {
+        SERIAL_PROTOCOLPGM("Filament dia (nominal mm):"); 
+        SERIAL_PROTOCOLLN(filament_width_nominal[tmp_extruder]); 
+      }
+    }
+    else {
+      SERIAL_ECHO_START;
+      SERIAL_ECHO("S");
+      SERIAL_ECHO(tmp_extruder);
+      SERIAL_ECHOLN(MSG_INVALID_EXTRUDER);
     }
     #endif
     }

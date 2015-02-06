@@ -822,13 +822,25 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define FILAMENT_SENSOR_EXTRUDER_NUM	0  //The number of the extruder that has the filament sensor (0,1,2)
 #define MEASUREMENT_DELAY_CM			14  //measurement delay in cm.  This is the distance from filament sensor to middle of barrel
 
-#define DEFAULT_NOMINAL_FILAMENT_DIA  3.0  //Enter the diameter (in mm) of the filament generally used (3.0 mm or 1.75 mm) - this is then used in the slicer software.  Used for sensor reading validation
-#define MEASURED_UPPER_LIMIT          3.30  //upper limit factor used for sensor reading validation in mm
-#define MEASURED_LOWER_LIMIT          1.90  //lower limit factor for sensor reading validation in mm
+// Enter the diameter (in mm) of the filament in each extruder (e.g., 3.0 or 1.75)
+// This is then used in the slicer software.  Used for sensor reading validation.
+#define EXTRUDER_0_NOMINAL_FILAMENT_DIA 3.0
+#if EXTRUDERS > 1
+  #define EXTRUDER_1_NOMINAL_FILAMENT_DIA 3.0
+  #if EXTRUDERS > 2
+    #define EXTRUDER_2_NOMINAL_FILAMENT_DIA 3.0
+    #if EXTRUDERS > 3
+      #define EXTRUDER_3_NOMINAL_FILAMENT_DIA 3.0
+    #endif
+  #endif
+#endif
+
+#define MEASURED_UPPER_MARGIN          0.3  // (mm) sensor reading validation upper margin (3.0 + 0.3 = 3.3 upper limit)
+#define MEASURED_LOWER_MARGIN          1.1  // (mm) sensor reading validation lower margin (3.0 - 1.1 = 1.9 lower limit)
 #define MAX_MEASUREMENT_DELAY			20  //delay buffer size in bytes (1 byte = 1cm)- limits maximum measurement delay allowable (must be larger than MEASUREMENT_DELAY_CM  and lower number saves RAM)
 
 //defines used in the code
-#define DEFAULT_MEASURED_FILAMENT_DIA  DEFAULT_NOMINAL_FILAMENT_DIA  //set measured to nominal initially 
+#define DEFAULT_MEASURED_FILAMENT_DIA  EXTRUDER_0_NOMINAL_FILAMENT_DIA  //set measured to nominal initially 
 
 //When using an LCD, uncomment the line below to display the Filament sensor data on the last line instead of status.  Status will appear for 5 sec.
 //#define FILAMENT_LCD_DISPLAY

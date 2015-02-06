@@ -824,30 +824,26 @@ static void updateTemperaturesFromRawValues()
 }
 
 
-// For converting raw Filament Width to milimeters 
 #ifdef FILAMENT_SENSOR
-float analog2widthFil() { 
-return current_raw_filwidth/16383.0*5.0; 
-//return current_raw_filwidth; 
-} 
- 
-// For converting raw Filament Width to a ratio 
-int widthFil_to_size_ratio() { 
- 
-float temp; 
-      
-temp=filament_width_meas;
-if(filament_width_meas<MEASURED_LOWER_LIMIT)
-	temp=filament_width_nominal;  //assume sensor cut out
-else if (filament_width_meas>MEASURED_UPPER_LIMIT)
-	temp= MEASURED_UPPER_LIMIT;
 
+  // Convert raw Filament Width to millimeters
+  float analog2widthFil() {
+    return current_raw_filwidth / 16383.0 * 5.0;
+    //return current_raw_filwidth;
+  } 
+   
+  // Convert raw Filament Width to a ratio
+  int widthFil_to_size_ratio() {
+    float temp = filament_width_meas, nominal_width = filament_width_nominal[active_extruder];
+    if (filament_width_meas < nominal_width - MEASURED_LOWER_MARGIN)
+      temp = nominal_width;  //assume sensor cut out
+    else if (filament_width_meas > nominal_width + MEASURED_UPPER_MARGIN)
+      temp = nominal_width + MEASURED_UPPER_MARGIN;
 
-return(filament_width_nominal/temp*100); 
+    return(nominal_width / temp * 100);
+  }
 
-
-} 
-#endif
+#endif //FILAMENT_SENSOR
 
 
 
