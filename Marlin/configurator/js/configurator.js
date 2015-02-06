@@ -16,7 +16,7 @@
 
 $(function(){
 
-var marlin_config = '..';
+var marlin_config = 'config';
 
 // Extend String
 String.prototype.lpad = function(len, chr) {
@@ -295,7 +295,6 @@ var configuratorApp = (function(){
         textStyle: {width:'1.5em',fontSize:'120%',textAlign:'center'},
         onChange: function(v) { $('#SERIAL_PORT').val(v).trigger('change'); }
       });
-
 
       // prettyPrint();
     },

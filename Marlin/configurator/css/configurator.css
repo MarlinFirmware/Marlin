@@ -1,8 +1,8 @@
 /* configurator.css */
 /* Styles for Marlin Configurator */
 
-body { margin: 0; padding: 0; background: #458; color: #FFC; font-family: sans-serif; }
-#main { float: left; width: 100%; margin-right: -100%; }
+body { margin: 0; padding: 0; background: #56A; color: #FFC; font-family: sans-serif; }
+#main { max-width: 1000px; margin: 0 auto; }
 #main { padding: 0 4%; width: 92%; }
 #main { font-family: monospace; }
 .info { color: #AAF; }
