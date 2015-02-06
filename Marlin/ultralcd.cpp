@@ -344,12 +344,16 @@ static void lcd_update_encoder()
 void lcd_update()
 {
 #  if (SDCARDDETECT > 0)
-    if ((IS_SD_INSERTED != lcd_oldcardstatus)) {
-        display_refresh_mode = CLEAR_AND_UPDATE_SCREEN;
+    if (lcd_oldcardstatus != IS_SD_INSERTED) {
         lcd_oldcardstatus = IS_SD_INSERTED;
-        lcd_implementation_init(); // to maybe revive the LCD if static electricity killed it.
 
-        if(lcd_oldcardstatus) {
+#ifdef DOGLCD
+        lcd_set_status_screen();
+#else // DOGLCD
+        lcd_implementation_init(); // to maybe revive the LCD if static electricity killed it.
+#endif // DOGLCD
+
+        if (lcd_oldcardstatus) {
             card.initsd();
             LCD_MESSAGEPGM(MSG_SD_INSERTED);
         } else {
