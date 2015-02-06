@@ -307,10 +307,10 @@ var configuratorApp = (function(){
       var $c = $config; // for now
       var txt = $c.text();
 
-      var slash = val ? '' : '// ';
+      var slash = val ? '' : '//';
       var newline = inf.line
         .replace(/^([ \t]*)(\/\/)([ \t]*)/, '$1$3') // remove slashes
-        .replace('#define', slash + '#define');     // add them back
+        .replace(inf.pre+inf.define, inf.pre+slash+inf.define);     // add them back
 
       txt = txt.replace(inf.line, newline);
       inf.line = newline;
