@@ -12,7 +12,7 @@ p { width: 80%; color: #FF0; }
 #help strong { color: #0DD; }
 img { display: none; }
 label, input, select, textarea { display: block; float: left; margin: 1px 0; }
-label.newline, textarea { clear: both; }
+label.newline, textarea, fieldset { clear: both; }
 label { width: 130px; height: 1em; padding: 10px 480px 10px 1em; margin-right: -470px; text-align: right; }
 input[type="text"], select { margin: 0.75em 0 0; }
 input[type="checkbox"], input[type="radio"], input[type="file"] { margin: 1em 0 0; }
@@ -26,3 +26,33 @@ h1, h2, h3, h4, h5, h6 { clear: both; }
 h2 { margin: 0; padding: 1em 0 0; }
 #serial_stepper { padding-top: 0.75em; display: block; float: left; }
 #SERIAL_PORT { display: none; }
+
+ul.tabs { display: inline; list-style: none; }
+ul.tabs li { display: inline; }
+ul.tabs li a,
+ul.tabs li a.active:hover,
+ul.tabs li a.active:active {
+	display: block;
+	float: left;
+	background: #666;
+	color: #CCC;
+	font-size: 150%;
+	border-radius: 0.25em 0.25em 0 0;
+	margin: 0 4px 0 0;
+	padding: 2px 4px;
+	text-decoration: none;
+	}
+ul.tabs li a.active:link,
+ul.tabs li a.active:visited {
+	background: #DDD;
+	color: #900;
+	cursor: default;
+	}
+ul.tabs li a:hover,
+ul.tabs li a:active {
+	background: #777;
+	color: #DDD;
+	}
+
+fieldset { display: none; border: 1px solid #AAA; border-radius: 1em; }
+fieldset legend { display: none; }

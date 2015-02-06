@@ -19,43 +19,52 @@
         <li><strong>HELP</strong> - This is the help region</li>
       </ul>
 
+      <div id="tabs"></div>
+
       <form id="config_form">
 
         <label>Drop Files Here:</label><input type="file" id="file-upload" />
 
-        <label class="newline">Serial Port:</label><select name="SERIAL_PORT"></select><div id="serial_stepper"></div>
+        <fieldset id="machine">
+          <legend>Machine</legend>
 
-        <label>Baud Rate:</label><select name="BAUDRATE"></select>
+          <label class="newline">Serial Port:</label><select name="SERIAL_PORT"></select><div id="serial_stepper"></div>
 
-        <label>AT90USB BT IF:</label>
-          <input name="BTENABLED" type="checkbox" value="1" checked />
+          <label>Baud Rate:</label><select name="BAUDRATE"></select>
 
-        <label class="newline">Motherboard:</label><select name="MOTHERBOARD"></select>
+          <label>AT90USB BT IF:</label>
+            <input name="BTENABLED" type="checkbox" value="1" checked />
 
-        <label class="newline">Custom Name:</label><input name="CUSTOM_MENDEL_NAME" class="switchable" type="text" size="14" maxlength="12" value="" />
+          <label class="newline">Motherboard:</label><select name="MOTHERBOARD"></select>
 
-        <label class="newline">Machine UUID:</label><input name="MACHINE_UUID" class="switchable" type="text" size="38" maxlength="36" value="" />
+          <label class="newline">Custom Name:</label><input name="CUSTOM_MENDEL_NAME" class="switchable" type="text" size="14" maxlength="12" value="" />
 
-        <label class="newline">Extruders:</label><select name="EXTRUDERS"></select>
+          <label class="newline">Machine UUID:</label><input name="MACHINE_UUID" class="switchable" type="text" size="38" maxlength="36" value="" />
 
-        <label class="newline">Power Supply:</label><select name="POWER_SUPPLY"></select>
+          <label class="newline">Extruders:</label><select name="EXTRUDERS"></select>
 
-        <label>PS Default Off:</label>
-          <input name="PS_DEFAULT_OFF" type="checkbox" value="1" checked />
+          <label class="newline">Power Supply:</label><select name="POWER_SUPPLY"></select>
 
-        <label class="newline">Temp Sensor 0:</label><select name="TEMP_SENSOR_0"></select>
-        <label class="newline">Temp Sensor 1:</label><select name="TEMP_SENSOR_1"></select>
-        <label class="newline">Temp Sensor 2:</label><select name="TEMP_SENSOR_2"></select>
-        <label class="newline">Bed Temp Sensor:</label><select name="TEMP_SENSOR_BED"></select>
+          <label>PS Default Off:</label>
+            <input name="PS_DEFAULT_OFF" type="checkbox" value="1" checked />
+        </fieldset>
 
-        <label class="newline">Redundant Sensor:</label>
-          <input name="TEMP_SENSOR_1_AS_REDUNDANT" type="checkbox" value="1" checked />
+        <fieldset id="temperature">
+          <legend>Temperature</legend>
+          <label class="newline">Temp Sensor 0:</label><select name="TEMP_SENSOR_0"></select>
+          <label class="newline">Temp Sensor 1:</label><select name="TEMP_SENSOR_1"></select>
+          <label class="newline">Temp Sensor 2:</label><select name="TEMP_SENSOR_2"></select>
+          <label class="newline">Bed Temp Sensor:</label><select name="TEMP_SENSOR_BED"></select>
 
-        <label>Max Diff:</label>
-          <input name="MAX_REDUNDANT_TEMP_SENSOR_DIFF" type="text" size="3" maxlength="2" />
+          <label class="newline">Redundant Sensor:</label>
+            <input name="TEMP_SENSOR_1_AS_REDUNDANT" type="checkbox" value="1" checked />
 
-        <label class="newline">Temp Residency Time (s):</label>
-          <input name="TEMP_RESIDENCY_TIME" type="text" size="3" maxlength="2" />
+          <label>Max Diff:</label>
+            <input name="MAX_REDUNDANT_TEMP_SENSOR_DIFF" type="text" size="3" maxlength="2" />
+
+          <label class="newline">Temp Residency Time (s):</label>
+            <input name="TEMP_RESIDENCY_TIME" type="text" size="3" maxlength="2" />
+        </fieldset>
 
         <h2>Marlin/Configuration.h</h2>
         <pre id="config_text" class="prettyprint linenums"></pre>

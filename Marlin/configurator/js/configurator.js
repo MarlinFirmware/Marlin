@@ -75,6 +75,30 @@ var configuratorApp = (function(){
     init: function() {
       self = this; // a 'this' for use when 'this' is something else
 
+      // Make tabs for the fieldsets
+      var $fset = $('#config_form fieldset');
+      var $tabs = $('<ul>',{class:'tabs'}), ind = 1;
+      $('#config_form fieldset').each(function(){
+        var tabID = 'TAB'+ind;
+        $(this).addClass(tabID);
+        var $leg = $(this).find('legend');
+        var $link = $('<a>',{href:'#'+ind,id:tabID}).text($leg.text());
+        $tabs.append($('<li>').append($link));
+        $link.click(function(e){
+          e.preventDefault;
+          var ind = this.id;
+          $tabs.find('.active').removeClass('active');
+          $(this).addClass('active');
+          $fset.hide();
+          $fset.filter('.'+this.id).show();
+          return false;
+        });
+        ind++;
+      });
+      $tabs.appendTo('#tabs');
+      $('<br>',{class:'clear'}).appendTo('#tabs');
+      $tabs.find('a:first').trigger('click');
+
       // Make a droppable file uploader
       var $uploader = $('#file-upload');
       var fileUploader = new BinaryFileUploader({
