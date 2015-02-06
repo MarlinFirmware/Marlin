@@ -835,9 +835,9 @@ static void updateTemperaturesFromRawValues()
   // Convert raw Filament Width to a ratio
   int widthFil_to_size_ratio() {
     float temp = filament_width_meas, nominal_width = filament_width_nominal[active_extruder];
-    if (filament_width_meas < nominal_width - MEASURED_LOWER_MARGIN)
+    if (temp < nominal_width - MEASURED_LOWER_MARGIN)
       temp = nominal_width;  //assume sensor cut out
-    else if (filament_width_meas > nominal_width + MEASURED_UPPER_MARGIN)
+    else if (temp > nominal_width + MEASURED_UPPER_MARGIN)
       temp = nominal_width + MEASURED_UPPER_MARGIN;
 
     return(nominal_width / temp * 100);
