@@ -160,7 +160,7 @@ void Config_StoreSettings()  {
           EEPROM_WRITE_VAR(i, PID_PARAM(Kc, e));
         #else
           dummy = 1.0f; // 1.0 = default kc
-          EEPROM_WRITE_VAR(dummmy);
+          EEPROM_WRITE_VAR(i, dummy);
         #endif
       }
       else {
