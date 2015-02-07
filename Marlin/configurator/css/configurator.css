@@ -3,7 +3,7 @@
 
 body { margin: 0; padding: 0; background: #56A; color: #FFC; font-family: sans-serif; }
 
-#main { max-width: 1000px; margin: 0 auto; position: relative; }
+#main { max-width: 1000px; margin: 0 auto; }
 #main { padding: 0 4%; width: 92%; }
 #main { font-family: monospace; }
 h1, #message { text-align: center; }
@@ -22,7 +22,7 @@ label.newline, textarea, fieldset { clear: both; }
 label { width: 130px; height: 1em; padding: 10px 480px 10px 1em; margin-right: -470px; text-align: right; }
 input[type="text"], select { margin: 0.75em 0 0; }
 input[type="checkbox"], input[type="radio"], input[type="file"] { margin: 1em 0 0; }
-#config_form { display: block; background: #DDD; padding: 20px; color: #000; }
+#config_form { display: block; background: #DDD; padding: 20px; color: #000; position: relative; }
 /*#config_text, #config_adv_text { font-family: "Andale mono", monospace; clear: both; }*/
 #config_text, #config_adv_text { height: 25em; overflow: auto; background-color: #FFF; color: #888; padding: 10px; }
 input[type="checkbox"], input[type="radio"].enabler { margin-left: 1em; }

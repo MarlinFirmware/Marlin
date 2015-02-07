@@ -55,6 +55,7 @@ var configuratorApp = (function(){
       boards_file = 'boards.h',
       config_file = 'Configuration.h',
       config_adv_file = 'Configuration_adv.h',
+      $tooltip = $('#tooltip'),
       $config = $('#config_text'),
       $config_adv = $('#config_adv_text'),
       boards_list = {},
@@ -360,14 +361,13 @@ var configuratorApp = (function(){
 
         if (inf.comment) {
           var $tipme = $elm.prev('label');
-          if (inf.comment && $tipme.length) {
-            var $tt = $('#tooltip');
+          if ($tipme.length) {
             $tipme.hover(
               function() {
-                var offs = $tipme.offset();
-                $tt.text(inf.comment)
+                var pos = $tipme.position();
+                $tooltip.text(inf.comment)
                   .append('<span>')
-                  .css({bottom:($tt.parent().height()-offs.top+20)+'px',left:(offs.left+70)+'px'})
+                  .css({bottom:($tooltip.parent().outerHeight()-pos.top)+'px',left:(pos.left+70)+'px'})
                   .show();
                 if (hover_timer) {
                   clearTimeout(hover_timer);
@@ -377,7 +377,7 @@ var configuratorApp = (function(){
               function() {
                 hover_timer = setTimeout(function(){
                   hover_timer = null;
-                  $tt.fadeOut(400);
+                  $tooltip.fadeOut(400);
                 }, 400);
               }
             );
