@@ -523,8 +523,9 @@ var configuratorApp = (function(){
      */
     purgeDefineInfo: function(adv) {
       if (adv === undefined) adv = false;
-      $('[defineInfo]').each(function() {
-        if (adv === this.defineInfo.adv) $(this).removeProp('defineInfo');
+      $('[name]').each(function() {
+        var inf = this.defineInfo;
+        if (inf && adv === inf.adv) $(this).removeProp('defineInfo');
       });
     },
 
@@ -533,8 +534,9 @@ var configuratorApp = (function(){
      */
     refreshDefineInfo: function(adv) {
       if (adv === undefined) adv = false;
-      $('[defineInfo]').each(function() {
-        if (adv == this.defineInfo.adv) this.defineInfo = self.getDefineInfo(this.id, adv);
+      $('[name]').each(function() {
+        var inf = this.defineInfo;
+        if (inf && adv == inf.adv) this.defineInfo = self.getDefineInfo(this.id, adv);
       });
     },
 
