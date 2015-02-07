@@ -28,7 +28,7 @@ String.prototype.lpad = function(len, chr) {
 String.prototype.prePad = function(len, chr) { return len ? this.lpad(len, chr) : this; };
 String.prototype.zeroPad = function(len)     { return this.prePad(len, '0'); };
 String.prototype.regEsc = function()         { return this.replace(/[.?*+^$[\]\\(){}|-]/g, "\\$&"); }
-String.prototype.lineCount = function()      { return this.split(/\r?\n|\r/).length; };
+String.prototype.lineCount = function()      { var len = this.split(/\r?\n|\r/).length; return len > 0 ? len - 1 : len; };
 
 /**
  * selectField.addOptions takes an array or keyed object
@@ -206,6 +206,9 @@ var configuratorApp = (function(){
       }
     },
 
+    /**
+     * Process a file after it's been successfully loaded
+     */
     fileLoaded: function(filename, txt) {
       this.log("fileLoaded:"+filename,4);
       switch(filename) {
@@ -263,10 +266,8 @@ var configuratorApp = (function(){
         var name = $(this).attr('name');
         $(this).attr({id: name});
         // Attach its label sibling
-        var $label = $(this).prev();
-        if ($label[0].tagName == 'LABEL') {
-          $label.attr('for',name);
-        }
+        var $label = $(this).prev('label');
+        if ($label.length) $label.attr('for',name);
       });
 
       // Get all 'switchable' class items and add a checkbox
@@ -300,6 +301,9 @@ var configuratorApp = (function(){
       });
     },
 
+    /**
+     * Update all fields on the form after loading a configuration
+     */
     refreshConfigForm: function() {
 
       /**
@@ -345,11 +349,6 @@ var configuratorApp = (function(){
       this.initField('TEMP_RESIDENCY_TIME');
     },
 
-    setTextAndHighlight: function($field, txt, name) {
-      var $elm = $('#'+name), elm = $elm[0], inf = elm.defineInfo;
-      if (inf == null) return;
-    },
-
     /**
      * Make a field responsive and initialize its defineInfo
      */
@@ -357,8 +356,15 @@ var configuratorApp = (function(){
       this.log("initField:"+name,4);
       var $elm = $('#'+name), elm = $elm[0];
       if (elm.defineInfo == null) {
-        elm.defineInfo = this.getDefineInfo(name, adv);
+        var inf = elm.defineInfo = this.getDefineInfo(name, adv);
         $elm.on($elm.attr('type') == 'text' ? 'input' : 'change', this.handleChange);
+        var comm = inf.comment;
+        var $tipme = $elm.prev('label');
+        if ($tipme.length) {
+          comm ?
+            $tipme.addClass('tooltip').attr('data-tooltip',comm) :
+            $tipme.removeClass('tooltip').removeAttr('data-tooltip');
+        }
       }
       this.setFieldFromDefine(name);
     },
@@ -551,13 +557,14 @@ var configuratorApp = (function(){
     getDefineInfo: function(name, adv) {
       if (adv === undefined) adv = false;
       this.log('getDefineInfo:'+name,4);
-      var $elm = $('#'+name), elm = $elm[0];
-      var $c = adv ? $config_adv : $config;
+      var $elm = $('#'+name), elm = $elm[0],
+          $c = adv ? $config_adv : $config,
+          txt = $c.text();
 
       // a switch line with no value
-      var findDef = new RegExp('^(.*//)?(.*#define[ \\t]+' + elm.id + ')([ \\t]*/[*/].*)?$', 'm');
-      var result = findDef.exec($c.text());
-      var info = { type:0, adv:adv, field:$c[0], val_i: 2 };
+      var findDef = new RegExp('^([ \\t]*//)?([ \\t]*#define[ \\t]+' + elm.id + ')([ \\t]*/[*/].*)?$', 'm'),
+          result = findDef.exec(txt),
+          info = { type:0, adv:adv, field:$c[0], val_i: 2 };
       if (result !== null) {
         $.extend(info, {
           val_i:  1,
@@ -567,13 +574,13 @@ var configuratorApp = (function(){
           define: result[2],
           post:   result[3] === undefined ? '' : result[3]
         });
-        info.regex = new RegExp('( *//)?( *' + info.define.regEsc() + info.post.regEsc() + ')', 'm');
-        info.repl =  new RegExp('( *)(\/\/)?( *' + info.define.regEsc() + info.post.regEsc() + ')', 'm');
+        info.regex = new RegExp('([ \\t]*//)?([ \\t]*' + info.define.regEsc() + info.post.regEsc() + ')', 'm');
+        info.repl =  new RegExp('([ \\t]*)(\/\/)?([ \\t]*' + info.define.regEsc() + info.post.regEsc() + ')', 'm');
       }
       else {
         // a define with quotes
         findDef = new RegExp('^(.*//)?(.*#define[ \\t]+' + elm.id + '[ \\t]+)("[^"]*")([ \\t]*/[*/].*)?$', 'm');
-        result = findDef.exec($c.text());
+        result = findDef.exec(txt);
         if (result !== null) {
           $.extend(info, {
             type:   'quoted',
@@ -582,13 +589,13 @@ var configuratorApp = (function(){
             define: result[2],
             post:   result[4] === undefined ? '' : result[4]
           });
-          info.regex = new RegExp('( *//)? *' + info.define.regEsc() + '"([^"]*)"' + info.post.regEsc(), 'm');
-          info.repl  = new RegExp('(( *//)? *' + info.define.regEsc() + '")[^"]*("' + info.post.regEsc() + ')', 'm');
+          info.regex = new RegExp('([ \\t]*//)?[ \\t]*' + info.define.regEsc() + '"([^"]*)"' + info.post.regEsc(), 'm');
+          info.repl  = new RegExp('(([ \\t]*//)?[ \\t]*' + info.define.regEsc() + '")[^"]*("' + info.post.regEsc() + ')', 'm');
         }
         else {
           // a define with no quotes
-          findDef = new RegExp('^( *//)?( *#define[ \\t]+' + elm.id + '[ \\t]+)(\\S*)([ \\t]*/[*/].*)?$', 'm');
-          result = findDef.exec($c.text());
+          findDef = new RegExp('^([ \\t]*//)?([ \\t]*#define[ \\t]+' + elm.id + '[ \\t]+)(\\S*)([ \\t]*/[*/].*)?$', 'm');
+          result = findDef.exec(txt);
           if (result !== null) {
             $.extend(info, {
               type:   'plain',
@@ -597,18 +604,40 @@ var configuratorApp = (function(){
               define: result[2],
               post:   result[4] === undefined ? '' : result[4]
             });
-            info.regex = new RegExp('( *//)? *' + info.define.regEsc() + '(\\S*)' + info.post.regEsc(), 'm');
-            info.repl  = new RegExp('(( *//)? *' + info.define.regEsc() + ')\\S*(' + info.post.regEsc() + ')', 'm');
+            info.regex = new RegExp('([ \\t]*//)?[ \\t]*' + info.define.regEsc() + '(\\S*)' + info.post.regEsc(), 'm');
+            info.repl  = new RegExp('(([ \\t]*//)?[ \\t]*' + info.define.regEsc() + ')\\S*(' + info.post.regEsc() + ')', 'm');
           }
         }
       }
 
       if (info.type) {
-        info.lineNum = this.getLineNumberOfText(info.line, $c.text());
-        this.log(info,2);
+        var comment = '';
+        // Get the end-of-line comment, if there is one
+        findDef = new RegExp('.*#define[ \\t].*/[/*]+[ \\t]*(.*)');
+        if (info.line.search(findDef) >= 0) {
+          comment = info.line.replace(findDef, '$1');
+        }
+        else {
+          // Get all the comments immediately before the item
+          var r, s;
+          findDef = new RegExp('([ \\t]*(//|#)[^\n]+\n){1,4}\\s{0,1}' + info.line, 'g');
+          if (r = findDef.exec(txt)) {
+            findDef = new RegExp('^[ \\t]*//+[ \\t]*(.*)[ \\t]*$', 'gm');
+            while((s = findDef.exec(r[0])) !== null) {
+              if (s[1].match(/\/\/[ \\t]*#define/) == null)
+                comment += s[1] + "\n";
+            }
+          }
+        }
+        $.extend(info, {
+          comment: comment.trim(),
+          lineNum: this.getLineNumberOfText(info.line, txt)
+        });
       }
       else
         info = null;
+
+      this.log(info,2);
 
       return info;
     },
