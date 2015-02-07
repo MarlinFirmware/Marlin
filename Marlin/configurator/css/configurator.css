@@ -2,13 +2,19 @@
 /* Styles for Marlin Configurator */
 
 body { margin: 0; padding: 0; background: #56A; color: #FFC; font-family: sans-serif; }
+
 #main { max-width: 1000px; margin: 0 auto; }
 #main { padding: 0 4%; width: 92%; }
 #main { font-family: monospace; }
+
+#message { width: 80%; margin: 0 auto 0.25em; color: #FF0; text-align: center; }
+#message p { padding: 2px 0; }
+#message p.error, #message p.message { color: #F00; background: #FF4; font-weight: bold; border-radius: 0.8em; }
+#message p.message { color: #080; background: #CFC; }
+
 .info { color: #AAF; }
 .info span { color: #FFF; }
 .info span span { color: #000; font-weight: bold; }
-p { width: 80%; color: #FF0; }
 #help strong { color: #0DD; }
 img { display: none; }
 label, input, select, textarea { display: block; float: left; margin: 1px 0; }
@@ -24,8 +30,6 @@ input:disabled { color: #BBB; }
 .clear { clear: both; }
 h1, h2, h3, h4, h5, h6 { clear: both; }
 h2 { margin: 0; padding: 1em 0 0; }
-#serial_stepper { padding-top: 0.75em; display: block; float: left; }
-#SERIAL_PORT { display: none; }
 
 ul.tabs { display: inline; list-style: none; }
 ul.tabs li { display: inline; }
@@ -56,3 +60,15 @@ ul.tabs li a:active {
 
 fieldset { display: none; border: 1px solid #AAA; border-radius: 1em; }
 fieldset legend { display: none; }
+
+.hilightable span {
+	display: block;
+	float: left;
+	width: 100%;
+	height: 1.3em;
+	background: rgba(225,255,0,1);
+	margin: 0 -100% -1em 0;
+	}
+
+#serial_stepper { padding-top: 0.75em; display: block; float: left; }
+#SERIAL_PORT { display: none; }

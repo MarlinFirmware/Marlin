@@ -14,7 +14,10 @@
   <body>
     <section id="main">
       <h1>Marlin Configurator 0.1a</h1>
-      <p>Enter values in the form, get a Marlin configuration. Will include a drop-down of known configurations.</p>
+
+      <div id="message">
+        <p class="info">Enter values in the form, get a Marlin configuration.<br/>Will include a drop-down of known configurations.</p>
+      </div>
 
       <div id="tabs"></div>
 
@@ -64,9 +67,9 @@
         </fieldset>
 
         <h2>Marlin/Configuration.h</h2>
-        <pre id="config_text" class="prettyprint linenums"></pre>
+        <pre id="config_text" class="hilightable"></pre>
         <h2>Marlin/Configuration_adv.h</h2>
-        <pre id="config_adv_text" class="prettyprint linenums"></pre>
+        <pre id="config_adv_text" class="hilightable"></pre>
 
         <br class="clear" />
       </form>
