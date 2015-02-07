@@ -24,7 +24,15 @@ input[type="text"], select { margin: 0.75em 0 0; }
 input[type="checkbox"], input[type="radio"], input[type="file"] { margin: 1em 0 0; }
 #config_form { display: block; background: #DDD; padding: 20px; color: #000; position: relative; }
 /*#config_text, #config_adv_text { font-family: "Andale mono", monospace; clear: both; }*/
-#config_text, #config_adv_text { height: 25em; overflow: auto; background-color: #FFF; color: #888; padding: 10px; }
+#config_text, #config_adv_text {
+	height: 25em;
+	padding: 10px;
+	border: 2px solid #888;
+	border-radius: 5px;
+	overflow: auto;
+	background-color: #FFF;
+	color: #000;
+	}
 input[type="checkbox"], input[type="radio"].enabler { margin-left: 1em; }
 input:disabled { color: #BBB; }
 .clear { clear: both; }
@@ -109,3 +117,4 @@ fieldset legend { display: none; }
 	bottom: -10px;
 	left: 20px;
 	}
+#tooltip>strong { color: #00B; }

@@ -27,6 +27,7 @@ String.prototype.lpad = function(len, chr) {
 };
 String.prototype.prePad = function(len, chr) { return len ? this.lpad(len, chr) : this; };
 String.prototype.zeroPad = function(len)     { return this.prePad(len, '0'); };
+String.prototype.toHTML = function()         { return jQuery('<div>').text(this).html(); };
 String.prototype.regEsc = function()         { return this.replace(/[.?*+^$[\]\\(){}|-]/g, "\\$&"); }
 String.prototype.lineCount = function()      { var len = this.split(/\r?\n|\r/).length; return len > 0 ? len - 1 : len; };
 
@@ -367,7 +368,7 @@ var configuratorApp = (function(){
             $tipme.hover(
               function() {
                 var pos = $tipme.position();
-                $tooltip.text(inf.comment)
+                $tooltip.html(inf.comment)
                   .append('<span>')
                   .css({bottom:($tooltip.parent().outerHeight()-pos.top)+'px',left:(pos.left+70)+'px'})
                   .show();
@@ -484,6 +485,7 @@ var configuratorApp = (function(){
      *   then update, highlight, and scroll to the line
      */
     setDefineLine: function(name, newline) {
+      this.log('setDefineLine:'+name+'\n'+newline,4);
       var $elm = $('#'+name), elm = $elm[0], inf = elm.defineInfo;
       var $c = $(inf.field), txt = $c.text();
 
@@ -492,10 +494,8 @@ var configuratorApp = (function(){
       txt = txt.replace(inf.line, hilite_token + newline);
       inf.line = newline;
 
-      this.log(newline, 2);
-
       // Convert txt into HTML before storing
-      var html = $('<div/>').text(txt).html().replace(hilite_token, '<span></span>');
+      var html = txt.toHTML().replace(hilite_token, '<span></span>');
 
       // Set the final text including the highlighter
       $c.html(html);
@@ -634,26 +634,26 @@ var configuratorApp = (function(){
         // Get the end-of-line comment, if there is one
         var comment = '';
         findDef = new RegExp('.*#define[ \\t].*/[/*]+[ \\t]*(.*)');
-        if (info.line.search(findDef) >= 0) {
+        if (info.line.search(findDef) >= 0)
           comment = info.line.replace(findDef, '$1');
-        }
-        else {
-          // Get all the comments immediately before the item
-          var r, s;
-          findDef = new RegExp('(([ \\t]*(//|#)[^\n]+\n){1,4})([ \\t]*\n){0,1}' + info.line, 'g');
-          if (r = findDef.exec(txt)) {
-            findDef = new RegExp('^[ \\t]*//+[ \\t]*(.*)[ \\t]*$', 'gm');
-            while((s = findDef.exec(r[1])) !== null) {
-              if (s[1].match(/^#define[ \\t]/) != null) {
-                comment = '';
-                break;
-              }
-              comment += s[1] + "\n";
+
+        // Get all the comments immediately before the item
+        var r, s;
+        findDef = new RegExp('(([ \\t]*(//|#)[^\n]+\n){1,4})([ \\t]*\n){0,1}' + info.line.regEsc(), 'g');
+        if (r = findDef.exec(txt)) {
+          findDef = new RegExp('^[ \\t]*//+[ \\t]*(.*)[ \\t]*$', 'gm');
+          while((s = findDef.exec(r[1])) !== null) {
+            if (s[1].match(/^#define[ \\t]/) != null) {
+              comment = '';
+              break;
             }
+            comment += ' ' + s[1] + "\n";
           }
         }
+
+        findDef = new RegExp('^[ \\t]*'+name+'[ \\t]*', 'm');
         $.extend(info, {
-          comment: comment.trim(),
+          comment: '<strong>'+name+'</strong> '+comment.replace(findDef,'').trim().toHTML(),
           lineNum: this.getLineNumberOfText(info.line, txt)
         });
       }
