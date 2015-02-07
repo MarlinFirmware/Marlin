@@ -59,13 +59,16 @@ var configuratorApp = (function(){
   // private variables and functions go here
   var self,
       pi2 = Math.PI * 2,
+      has_boards = false, has_config = false, has_config_adv = false,
       boards_file = 'boards.h',
       config_file = 'Configuration.h',
       config_adv_file = 'Configuration_adv.h',
       $config = $('#config_text'),
       $config_adv = $('#config_adv_text'),
       boards_list = {},
-      therms_list = {};
+      therms_list = {},
+      total_config_lines,
+      total_config_adv_lines;
 
   // Return this anonymous object as configuratorApp
   return {
@@ -74,6 +77,9 @@ var configuratorApp = (function(){
 
     init: function() {
       self = this; // a 'this' for use when 'this' is something else
+
+      // Set up the form
+      this.setupConfigForm();
 
       // Make tabs for the fieldsets
       var $fset = $('#config_form fieldset');
@@ -123,6 +129,7 @@ var configuratorApp = (function(){
         success: function(txt) {
           // Get all the boards and save them into an object
           self.initBoardsFromText(txt);
+          has_boards = true;
         },
         error: errFunc
       });
@@ -138,6 +145,7 @@ var configuratorApp = (function(){
           $config.text(txt);
           // Get thermistor info too
           self.initThermistorsFromText(txt);
+          has_config = true;
         },
         error: errFunc
       });
@@ -151,7 +159,8 @@ var configuratorApp = (function(){
         success: function(txt) {
           // File contents into the textarea
           $config_adv.text(txt);
-          self.setupConfigForm();
+          has_config_adv = true;
+          self.refreshConfigForm();
         },
         error: errFunc
       });
@@ -164,6 +173,8 @@ var configuratorApp = (function(){
       while((r = findDef.exec(txt)) !== null) {
         boards_list[r[1]] = r[2].prePad(3, '  ') + " — " + r[4].replace(/\).*/, ')');
       }
+      this.log("Loaded boards", 0);
+      this.log(boards_list, 0);
     },
 
     initThermistorsFromText: function(txt) {
@@ -180,19 +191,36 @@ var configuratorApp = (function(){
       file += '';
       var filename = $uploader.val().replace(/.*[\/\\](.*)$/, '$1');
       switch(filename) {
-        case config_file:
-          $config.text(file);
-          this.initThermistorsFromText(file);
-          this.refreshConfigForm();
-          break;
-        case config_adv_file:
-          $config_adv.text(file);
-          this.refreshConfigForm();
-          break;
         case boards_file:
           this.initBoardsFromText(file);
+          has_boards = true;
           $('#MOTHERBOARD').html('').addOptions(boards_list);
-          this.initField('MOTHERBOARD');
+          if (has_config) this.initField('MOTHERBOARD');
+          break;
+        case config_file:
+          if (has_boards) {
+            $config.text(file);
+            has_config = true;
+            total_config_lines = file.replace(/[^\n]+/g, '').length;
+            this.initThermistorsFromText(file);
+            this.purgeDefineInfo(false);
+            this.refreshConfigForm();
+          }
+          else {
+            alert("Upload a " + boards_file + " file first!");
+          }
+          break;
+        case config_adv_file:
+          if (has_config) {
+            $config_adv.text(file);
+            has_config_adv = true;
+            total_config_adv_lines = file.replace(/[^\n]+/g, '').length;
+            this.purgeDefineInfo(true);
+            this.refreshConfigForm();
+          }
+          else {
+            alert("Upload a " + config_file + " file first!");
+          }
           break;
         default:
           this.log("Can't parse "+filename, 1);
@@ -232,11 +260,23 @@ var configuratorApp = (function(){
 
       $('#SERIAL_PORT').addOptions([0,1,2,3,4,5,6,7]);
       $('#BAUDRATE').addOptions([2400,9600,19200,38400,57600,115200,250000]);
-      $('#MOTHERBOARD').addOptions(boards_list);
       $('#EXTRUDERS').addOptions([1,2,3,4]);
       $('#POWER_SUPPLY').addOptions({'1':'ATX','2':'Xbox 360'});
 
-      this.refreshConfigForm();
+      $('#serial_stepper').jstepper({
+        min: 0,
+        max: 7,
+        val: $('#SERIAL_PORT').val(),
+        arrowWidth: '18px',
+        arrowHeight: '15px',
+        color: '#FFF',
+        acolor: '#F70',
+        hcolor: '#FF0',
+        id: 'select-me',
+        textStyle: {width:'1.5em',fontSize:'120%',textAlign:'center'},
+        onChange: function(v) { $('#SERIAL_PORT').val(v).trigger('change'); }
+      });
+
     },
 
     refreshConfigForm: function() {
@@ -259,6 +299,7 @@ var configuratorApp = (function(){
 
       this.initField('BTENABLED');
 
+      $('#MOTHERBOARD').html('').addOptions(boards_list);
       this.initField('MOTHERBOARD');
 
       this.initField('CUSTOM_MENDEL_NAME');
@@ -282,20 +323,6 @@ var configuratorApp = (function(){
 
       this.initField('TEMP_RESIDENCY_TIME');
 
-      $('#serial_stepper').jstepper({
-        min: 0,
-        max: 7,
-        val: $('#SERIAL_PORT').val(),
-        arrowWidth: '18px',
-        arrowHeight: '15px',
-        color: '#FFF',
-        acolor: '#F70',
-        hcolor: '#FF0',
-        id: 'select-me',
-        textStyle: {width:'1.5em',fontSize:'120%',textAlign:'center'},
-        onChange: function(v) { $('#SERIAL_PORT').val(v).trigger('change'); }
-      });
-
       // prettyPrint();
     },
 
@@ -303,17 +330,18 @@ var configuratorApp = (function(){
      * initField - make a field responsive and get info
      * about its configuration file define
      */
-    initField: function(name) {
+    initField: function(name, adv) {
+      this.log("initField:"+name,3);
       var $elm = $('#'+name), elm = $elm[0];
-      if (elm.configInfo === undefined) {
-        elm.configInfo = this.getDefineInfo(name);
+      if (elm.defineInfo === undefined) {
+        elm.defineInfo = this.getDefineInfo(name, adv);
         $elm.on($elm.attr('type') == 'text' ? 'input' : 'change', this.handleChange);
       }
       this.setFieldFromDefine(name);
     },
 
     handleChange: function(e) {
-      self.updateDefineForField(e.target.id);
+      self.updateDefineFromField(e.target.id);
     },
 
     handleSwitch: function(e) {
@@ -323,12 +351,43 @@ var configuratorApp = (function(){
       self.setDefineEnabled($prev[0].id, on);
     },
 
-    setDefineEnabled: function(name, val) {
-      this.log('setDefineEnabled:'+name,3);
+    /**
+     * Get the current value of a #define (from the config text)
+     */
+    defineValue: function(name) {
+      this.log('defineValue:'+name,4);
+      var $elm = $('#'+name), elm = $elm[0], inf = elm.defineInfo;
+      var result = inf.regex.exec($(inf.field).text());
 
-      var $elm = $('#'+name), elm = $elm[0], inf = elm.configInfo;
-      var $c = $config; // for now
-      var txt = $c.text();
+      this.log(result,2);
+
+      return inf.type == 'switch' ? result[inf.val_i] != '//' : result[inf.val_i];
+    },
+
+    /**
+     * Get the current enabled state of a #define (from the config text)
+     */
+    defineIsEnabled: function(name) {
+      this.log('defineIsEnabled:'+name,4);
+      var $elm = $('#'+name), elm = $elm[0], inf = elm.defineInfo;
+      var result = inf.regex.exec($(inf.field).text());
+
+      this.log(result,2);
+
+      var on = result !== null ? result[1].trim() != '//' : true;
+      this.log(name + ' = ' + on, 4);
+
+      return on;
+    },
+
+    /**
+     * Set a #define enabled or disabled by altering the config text
+     */
+    setDefineEnabled: function(name, val) {
+      this.log('setDefineEnabled:'+name,4);
+
+      var $elm = $('#'+name), elm = $elm[0], inf = elm.defineInfo;
+      var $c = $(inf.field), txt = $c.text();
 
       var slash = val ? '' : '//';
       var newline = inf.line
@@ -342,25 +401,13 @@ var configuratorApp = (function(){
       $c.text(txt);
     },
 
-    defineIsEnabled: function(name, adv) {
-      this.log('defineIsEnabled:'+name,4);
-      var $elm = $('#'+name), elm = $elm[0];
-      var $c = adv ? $config_adv : $config;
-
-      var result = elm.configInfo.regex.exec($c.text());
-      this.log(result,2);
-
-      var on = result !== null ? result[1].trim() != '//' : true;
-      this.log(name + ' = ' + on, 4);
-
-      return on;
-    },
-
-    updateDefineForField: function(name, adv) {
-      this.log('updateDefineForField:'+name,4);
-      var $elm = $('#'+name), elm = $elm[0], inf = elm.configInfo;
-      var $c = adv ? $config_adv : $config;
-      var txt = $c.text();
+    /**
+     * Update a #define (from the form) by altering the config text
+     */
+    updateDefineFromField: function(name) {
+      this.log('updateDefineFromField:'+name,4);
+      var $elm = $('#'+name), elm = $elm[0], inf = elm.defineInfo;
+      var $c = $(inf.field), txt = $c.text();
 
       // var result = inf.repl.exec(txt);
       // this.log(result, 2);
@@ -401,27 +448,71 @@ var configuratorApp = (function(){
       this.log(newline, 2);
 
       $c.text(txt);
+
+      // Scroll to the altered text if it isn't visible
+      var halfHeight = $c.height()/2, scrollHeight = $c.prop('scrollHeight'),
+          textScrollY = inf.lineNum * scrollHeight/(inf.adv ? total_config_adv_lines : total_config_lines) - halfHeight;
+
+      if (textScrollY < 0)
+        textScrollY = 0;
+      else if (textScrollY > scrollHeight)
+        textScrollY = scrollHeight - 1;
+
+      if (Math.abs($c.prop('scrollTop') - textScrollY) > halfHeight)
+        $c.animate({ scrollTop: textScrollY < 0 ? 0 : textScrollY });
+
     },
 
-    setFieldFromDefine: function(name, adv) {
-      var $elm = $('#'+name), elm = $elm[0];
-      var isCheck = $elm.attr('type') == 'checkbox';
-      var val = this.defineValue(name, adv);
+    /**
+     * Set a form field to the current #define value in the config text
+     */
+    setFieldFromDefine: function(name) {
+      var $elm = $('#'+name), val = this.defineValue(name);
 
       this.log('setFieldFromDefine:' + name + ' to ' + val, 4);
 
-      isCheck ? $elm.prop('checked', val) : $elm.val("" + val);
+      // Set the field value
+      $elm.attr('type') == 'checkbox' ? $elm.prop('checked', val) : $elm.val(''+val);
 
       // If the item has a checkbox then set enabled state too
       var $cb = $('#'+name+'-switch');
       if ($cb.length) {
-        var on = self.defineIsEnabled(name,adv);
-        $elm.attr('disabled', !on);
-        $cb.prop('checked', on);
+        var on = self.defineIsEnabled(name);
+        $elm.attr('disabled', !on); // enable/disable the form field (could also dim it)
+        $cb.prop('checked', on);    // check/uncheck the checkbox
       }
     },
 
+    /**
+     * Purge #define information for one of the config files
+     */
+    purgeDefineInfo: function(adv) {
+      if (typeof adv == 'undefined') adv = false;
+      $('[defineInfo]').each(function() {
+        if (adv === this.defineInfo.adv) $(this).removeProp('defineInfo');
+      });
+    },
+
+    /**
+     * Update #define information for one of the config files
+     */
+    refreshDefineInfo: function(adv) {
+      if (typeof adv == 'undefined') adv = false;
+      $('[defineInfo]').each(function() {
+        if (adv == this.defineInfo.adv) this.defineInfo = self.getDefineInfo(this.id, adv);
+      });
+    },
+
+    /**
+     * Get information about a #define from configuration file text:
+     *
+     *   Pre-examine the #define for its prefix, value position, suffix, etc.
+     *   Construct a regex for the #define to quickly find (and replace) values.
+     *   Store the existing #define line as the key to finding it later.
+     *   Determine the line number of the #define so it can be scrolled to.
+     */
     getDefineInfo: function(name, adv) {
+      if (typeof adv == 'undefined') adv = false;
       this.log('getDefineInfo:'+name,4);
       var $elm = $('#'+name), elm = $elm[0];
       var $c = adv ? $config_adv : $config;
@@ -431,14 +522,14 @@ var configuratorApp = (function(){
       var result = findDef.exec($c.text());
       if (result !== null) {
         var info = {
-          type: 'switch',
+          type:'switch', adv:adv, field:$c[0], val_i: 1,
           line: result[0], // whole line
           pre: result[1] === undefined ? '' : result[1].replace('//',''),
           define: result[2],
           post: result[3] === undefined ? '' : result[3]
         };
-        info.regex = new RegExp('(.*//)?(.*' + info.define.regEsc() + info.post.regEsc() + ')', 'm');
-        info.repl = info.regex;
+        info.repl = info.regex = new RegExp('(.*//)?(.*' + info.define.regEsc() + info.post.regEsc() + ')', 'm');
+        info.lineNum = this.getLineInText(info.line, $c.text());
         this.log(info,2);
         return info;
       }
@@ -448,7 +539,7 @@ var configuratorApp = (function(){
       result = findDef.exec($c.text());
       if (result !== null) {
         var info = {
-          type: 'quoted',
+          type:'quoted', adv:adv, field:$c[0], val_i: 2,
           line: result[0],
           pre: result[1] === undefined ? '' : result[1].replace('//',''),
           define: result[2],
@@ -456,6 +547,7 @@ var configuratorApp = (function(){
         };
         info.regex = new RegExp('(.*//)?.*' + info.define.regEsc() + '"([^"]*)"' + info.post.regEsc(), 'm');
         info.repl  = new RegExp('((.*//)?.*' + info.define.regEsc() + '")[^"]*("' + info.post.regEsc() + ')', 'm');
+        info.lineNum = this.getLineInText(info.line, $c.text());
         this.log(info,2);
         return info;
       }
@@ -465,7 +557,7 @@ var configuratorApp = (function(){
       result = findDef.exec($c.text());
       if (result !== null) {
         var info = {
-          type: 'plain',
+          type:'plain', adv:adv, field:$c[0], val_i: 2,
           line: result[0],
           pre: result[1] === undefined ? '' : result[1].replace('//',''),
           define: result[2],
@@ -473,6 +565,7 @@ var configuratorApp = (function(){
         };
         info.regex = new RegExp('(.*//)?.*' + info.define.regEsc() + '(\\S*)' + info.post.regEsc(), 'm');
         info.repl = new RegExp('((.*//)?.*' + info.define.regEsc() + ')\\S*(' + info.post.regEsc() + ')', 'm');
+        info.lineNum = this.getLineInText(info.line, $c.text());
         this.log(info,2);
         return info;
       }
@@ -480,19 +573,9 @@ var configuratorApp = (function(){
       return null;
     },
 
-    defineValue: function(name, adv) {
-      this.log('defineValue:'+name,4);
-      var $elm = $('#'+name), elm = $elm[0];
-      var $c = adv ? $config_adv : $config;
-      var inf = elm.configInfo;
-
-      var result = inf.regex.exec($c.text());
-      this.log(result,2);
-      switch(inf.type) {
-        case 'switch': return result[1] != '//';
-        case 'quoted': return result[2];
-        case 'plain':  return result[2];
-      }
+    getLineInText: function(line, txt) {
+      var pos = txt.indexOf(line);
+      return (pos < 0) ? pos : txt.substr(0, pos).replace(/[^\n]+/g, '').length;
     },
 
     log: function(o,l) {
