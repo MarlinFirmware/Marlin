@@ -399,6 +399,9 @@ var configuratorApp = (function(){
       this.log(newline, 2);
 
       $c.text(txt);
+
+      // Scroll to reveal the define
+      this.scrollToDefine(name);
     },
 
     /**
@@ -449,6 +452,17 @@ var configuratorApp = (function(){
 
       $c.text(txt);
 
+      // Scroll to reveal the define
+      this.scrollToDefine(name);
+    },
+
+    /**
+     * Scroll the field to show a define
+     */
+    scrollToDefine: function(name, always) {
+      this.log('scrollToDefine:'+name,4);
+      var $elm = $('#'+name), inf = $elm[0].defineInfo, $c = $(inf.field);
+
       // Scroll to the altered text if it isn't visible
       var halfHeight = $c.height()/2, scrollHeight = $c.prop('scrollHeight'),
           textScrollY = inf.lineNum * scrollHeight/(inf.adv ? total_config_adv_lines : total_config_lines) - halfHeight;
@@ -458,7 +472,7 @@ var configuratorApp = (function(){
       else if (textScrollY > scrollHeight)
         textScrollY = scrollHeight - 1;
 
-      if (Math.abs($c.prop('scrollTop') - textScrollY) > halfHeight)
+      if (always == true || Math.abs($c.prop('scrollTop') - textScrollY) > halfHeight)
         $c.animate({ scrollTop: textScrollY < 0 ? 0 : textScrollY });
 
     },
