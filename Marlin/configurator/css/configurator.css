@@ -3,7 +3,7 @@
 
 body { margin: 0; padding: 0; background: #56A; color: #FFC; font-family: sans-serif; }
 
-#main { max-width: 1000px; margin: 0 auto; }
+#main { max-width: 1000px; margin: 0 auto; position: relative; }
 #main { padding: 0 4%; width: 92%; }
 #main { font-family: monospace; }
 h1, #message { text-align: center; }
@@ -73,24 +73,18 @@ fieldset legend { display: none; }
 #serial_stepper { padding-top: 0.75em; display: block; float: left; }
 #SERIAL_PORT { display: none; }
 
-.tooltip { position: relative; }
-.tooltip::before {
-	content: attr(data-tooltip);
-	font-family: sans-serif;
-	font-size: 85%;
-	text-align: left;
+#tooltip {
+	display: none;
+	max-width: 30em;
+	padding: 8px;
+	border: 2px solid #73d699;
+	border-radius: 1em;
 	position: absolute;
 	z-index: 999;
-	/*white-space:pre-wrap;*/
-	bottom: 9999px;
-	left: 110px;
+	font-family: sans-serif;
+	font-size: 85%;
 	color: #000;
-	padding: 8px;
 	line-height: 1.1;
-	max-width: 30em;
-	opacity: 0;
-	border-radius: 1em;
-	border: 2px solid #73d699;
 	background: #e2ff99; /* Old browsers */
 	background: -moz-linear-gradient(top,  #e2ff99 0%, #73d699 100%); /* FF3.6+ */
 	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#e2ff99), color-stop(100%,#73d699)); /* Chrome,Safari4+ */
@@ -103,21 +97,15 @@ fieldset legend { display: none; }
 	-moz-box-shadow: 0px 6px 25px -4px rgba(0,0,0,0.75);
 	box-shadow: 0px 6px 25px -4px rgba(0,0,0,0.75);
 	}
-.tooltip:hover::before {
-	opacity: 1;
-	bottom: 30px;
-	}
-.tooltip:hover::after {
+#tooltip>span {
+	position: absolute;
 	content: "";
-	opacity: 1;
 	width: 0;
 	height: 0;
 	border-left: 8px solid transparent;
 	border-right: 8px solid transparent;
 	border-top: 8px solid #73d699;
 	z-index: 999;
-	position: absolute;
-	/*white-space: nowrap;*/
-	top: 2px;
-	left: 130px;
+	bottom: -10px;
+	left: 20px;
 	}

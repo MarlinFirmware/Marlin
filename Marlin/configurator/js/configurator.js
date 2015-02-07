@@ -60,7 +60,8 @@ var configuratorApp = (function(){
       boards_list = {},
       therms_list = {},
       total_config_lines,
-      total_config_adv_lines;
+      total_config_adv_lines,
+      hover_timer;
 
   // Return this anonymous object as configuratorApp
   return {
@@ -111,14 +112,12 @@ var configuratorApp = (function(){
       var loaded_items = {};
       var config_files = [boards_file, config_file, config_adv_file];
       $.each(config_files, function(i,fname){
-        self.log("Loading " + fname + "...", 3);
         $.ajax({
           url: marlin_config+'/'+fname,
           type: 'GET',
           async: true,
           cache: false,
           success: function(txt) {
-            self.log("Loaded " + fname + "...", 3);
             loaded_items[fname] = function(){ self.fileLoaded(fname, txt); };
             success_count++;
           },
@@ -358,12 +357,31 @@ var configuratorApp = (function(){
       if (elm.defineInfo == null) {
         var inf = elm.defineInfo = this.getDefineInfo(name, adv);
         $elm.on($elm.attr('type') == 'text' ? 'input' : 'change', this.handleChange);
-        var comm = inf.comment;
-        var $tipme = $elm.prev('label');
-        if ($tipme.length) {
-          comm ?
-            $tipme.addClass('tooltip').attr('data-tooltip',comm) :
-            $tipme.removeClass('tooltip').removeAttr('data-tooltip');
+
+        if (inf.comment) {
+          var $tipme = $elm.prev('label');
+          if (inf.comment && $tipme.length) {
+            var $tt = $('#tooltip');
+            $tipme.hover(
+              function() {
+                var offs = $tipme.offset();
+                $tt.text(inf.comment)
+                  .append('<span>')
+                  .css({bottom:($tt.parent().height()-offs.top+20)+'px',left:(offs.left+70)+'px'})
+                  .show();
+                if (hover_timer) {
+                  clearTimeout(hover_timer);
+                  hover_timer = null;
+                }
+              },
+              function() {
+                hover_timer = setTimeout(function(){
+                  hover_timer = null;
+                  $tt.fadeOut(400);
+                }, 400);
+              }
+            );
+          }
         }
       }
       this.setFieldFromDefine(name);
@@ -622,7 +640,7 @@ var configuratorApp = (function(){
           var r, s;
           findDef = new RegExp('([ \\t]*(//|#)[^\n]+\n){1,4}\\s{0,1}' + info.line, 'g');
           if (r = findDef.exec(txt)) {
-            findDef = new RegExp('^[ \\t]*//+[ \\t]*(.*)[ \\t]*$', 'gm');
+            findDef = new RegExp('^[ \\t]*//+[ \\t]*([^#].*)[ \\t]*$', 'gm');
             while((s = findDef.exec(r[0])) !== null) {
               if (s[1].match(/\/\/[ \\t]*#define/) == null)
                 comment += s[1] + "\n";
