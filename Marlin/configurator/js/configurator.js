@@ -642,9 +642,9 @@ var configuratorApp = (function(){
           var r, s;
           findDef = new RegExp('(([ \\t]*(//|#)[^\n]+\n){1,4})([ \\t]*\n){0,1}' + info.line, 'g');
           if (r = findDef.exec(txt)) {
-            findDef = new RegExp('^[ \\t]*(//+[ \\t]*.*)[ \\t]*$', 'gm');
+            findDef = new RegExp('^[ \\t]*//+[ \\t]*(.*)[ \\t]*$', 'gm');
             while((s = findDef.exec(r[1])) !== null) {
-              if (s[1].match(/^\/\/[ \\t]*#define[ \\t]/) != null) {
+              if (s[1].match(/^#define[ \\t]/) != null) {
                 comment = '';
                 break;
               }
