@@ -6,8 +6,8 @@ body { margin: 0; padding: 0; background: #56A; color: #FFC; font-family: sans-s
 #main { max-width: 1000px; margin: 0 auto; }
 #main { padding: 0 4%; width: 92%; }
 #main { font-family: monospace; }
-
-#message { width: 80%; margin: 0 auto 0.25em; color: #FF0; text-align: center; }
+h1, #message { text-align: center; }
+#message { width: 80%; margin: 0 auto 0.25em; color: #FF0; }
 #message p { padding: 2px 0; }
 #message p.error, #message p.message { color: #F00; background: #FF4; font-weight: bold; border-radius: 0.8em; }
 #message p.message { color: #080; background: #CFC; }
