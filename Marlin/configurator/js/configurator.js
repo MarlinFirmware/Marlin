@@ -25,18 +25,10 @@ String.prototype.lpad = function(len, chr) {
   if (need > 0) { s = new Array(need+1).join(chr) + s; }
   return s;
 };
-
-String.prototype.prePad = function(len, chr) {
-  return len ? this.lpad(len, chr) : this;
-};
-
-String.prototype.zeroPad = function(len) {
-  return len ? this.prePad(len, '0') : this;
-};
-
-String.prototype.regEsc = function() {
-  return this.replace(/[.?*+^$[\]\\(){}|-]/g, "\\$&");
-}
+String.prototype.prePad = function(len, chr) { return len ? this.lpad(len, chr) : this; };
+String.prototype.zeroPad = function(len)     { return this.prePad(len, '0'); };
+String.prototype.regEsc = function()         { return this.replace(/[.?*+^$[\]\\(){}|-]/g, "\\$&"); }
+String.prototype.lineCount = function()      { return this.split(/\r?\n|\r/).length; };
 
 /**
  * selectField.addOptions takes an array or keyed object
@@ -226,7 +218,7 @@ var configuratorApp = (function(){
         case config_file:
           if (has_boards) {
             $config.text(txt);
-            total_config_lines = txt.split(/\r?\n|\r/).length;
+            total_config_lines = txt.lineCount();
             this.initThermistorsFromText(txt);
             this.purgeDefineInfo(false);
             this.refreshConfigForm();
@@ -240,7 +232,7 @@ var configuratorApp = (function(){
         case config_adv_file:
           if (has_config) {
             $config_adv.text(txt);
-            total_config_adv_lines = txt.split(/\r?\n|\r/).length;
+            total_config_adv_lines = txt.lineCount();
             this.purgeDefineInfo(true);
             this.refreshConfigForm();
             this.setMessage(config_adv_file+' loaded successfully.');
@@ -635,7 +627,7 @@ var configuratorApp = (function(){
      */
     getLineInText: function(line, txt) {
       var pos = txt.indexOf(line);
-      return (pos < 0) ? pos : txt.substr(0, pos).replace(/[^\n]+/g, '').length;
+      return (pos < 0) ? pos : txt.substr(0, pos).lineCount();
     },
 
     log: function(o,l) {
