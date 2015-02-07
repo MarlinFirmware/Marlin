@@ -10,8 +10,6 @@
 
 int8_t encoderDiff; /* encoderDiff is updated from interrupt context and added to encoderPosition every LCD update */
 
-const char* pgcode_seq= NULL; /* pointer to the current line in the active sequence of commands, or NULL when none */
-
 /* Configuration settings */
 int plaPreheatHotendTemp;
 int plaPreheatHPBTemp;
@@ -78,7 +76,6 @@ static void lcd_quick_feedback();//Cause an LCD refresh, and give the user visua
 static void menu_action_back(menuFunc_t data);
 static void menu_action_submenu(menuFunc_t data);
 static void menu_action_gcode(const char* pgcode);
-static void menu_action_gcode_next();
 static void menu_action_function(menuFunc_t data);
 static void menu_action_sdfile(const char* filename, char* longFilename);
 static void menu_action_sddirectory(const char* filename, char* longFilename);
@@ -327,7 +324,7 @@ static void lcd_sdcard_stop()
     quickStop();
     if(SD_FINISHED_STEPPERRELEASE)
     {
-        enquecommand_P(PSTR(SD_FINISHED_RELEASECOMMAND));
+        enquecommands_P(PSTR(SD_FINISHED_RELEASECOMMAND));
     }
     autotempShutdown();
 
@@ -350,6 +347,7 @@ static void lcd_main_menu()
         MENU_ITEM(submenu, MSG_DELTA_CALIBRATE, lcd_delta_calibrate_menu);
 #endif // DELTA_CALIBRATION_MENU
     }
+/*JFR TEST*/            MENU_ITEM(gcode, "test multiline", PSTR("G4 S3\nM104 S50\nG4 S1\nM104 S200\nG4 S2\nM104 S0"));  // SD-card changed by user
     MENU_ITEM(submenu, MSG_CONTROL, lcd_control_menu);
 #ifdef SDSUPPORT
     if (card.cardOK)
@@ -397,8 +395,7 @@ void lcd_set_home_offsets()
     plan_set_position(0.0, 0.0, 0.0, current_position[E_AXIS]);
 
     // Audio feedback
-    enquecommand_P(PSTR("M300 S659 P200"));
-    enquecommand_P(PSTR("M300 S698 P200"));
+    enquecommands_P(PSTR("M300 S659 P200\nM300 S698 P200"));
     lcd_return_to_status();
 }
 
@@ -680,6 +677,13 @@ static void lcd_prepare_menu()
     }
 #endif
     MENU_ITEM(submenu, MSG_MOVE_AXIS, lcd_move_menu);
+		
+    // JFR for RMud delta printer
+    MENU_ITEM(gcode, "Calibrate bed", PSTR("M702\nG28\nG1 X-77.94 Y-45 Z36 F8000\nG4 S3\nM701 P0\nG1 X77.94 Y-45 Z36\nG4 S3\nM701 P1\nG1 X0 Y90 Z36\nG4 S3\nM701 P2\nM700\nG1 X0 Y0 Z100 F8000"));
+    MENU_ITEM(gcode, "Check level", PSTR("G28\nG1 X0 Y0 Z1 F4000\nG1 X-77.94 Y-45 Z1\nG1 X77.94 Y-45\nG1 X0 Y90\nG1 X-77.94 Y-45\nG4 S2\nG1 X-77.94 Y-45 Z0.3 F2000\nG1 X-77.94 Y-45\nG1 X77.94 Y-45\nG1 X0 Y90\nG1 X-77.94 Y-45\nG1 X0 Y0 Z0"));
+    MENU_ITEM(gcode, "Retract filament", PSTR("M302\nM82\nG92 E0\nG1 F4000 E-800"));
+    MENU_ITEM(gcode, "Insert filament", PSTR("M302\nM82\nG92 E0\nG1 F4000 E60"));
+    MENU_ITEM(gcode, "Finalize filament", PSTR("G1 F4000 E790"));
     END_MENU();
 }
 
@@ -1151,7 +1155,7 @@ menu_edit_type(unsigned long, long5, ftostr5, 0.01)
     lcd_move_y();
 	}
 	static void reprapworld_keypad_move_home() {
-		enquecommand_P((PSTR("G28"))); // move all axis home
+		enquecommands_P((PSTR("G28"))); // move all axis home
 	}
 #endif
 
@@ -1170,31 +1174,7 @@ static void menu_action_submenu(menuFunc_t data) { lcd_goto_menu(data); }
 
 static void menu_action_gcode(const char* pgcode)
 {
-	// No more calling enquecommand_P(pgcode) as it allows only one command!
-	pgcode_seq= pgcode;
-	menu_action_gcode_next();
-}
-
-static void menu_action_gcode_next()
-{
-	// Inject the next command from the pending sequence, when not empty.
-	char cmd[30];
-	if(!pgcode_seq) return;
-        // Get the next 30 chars from the sequence of gcodes to run
-        strncpy_P(cmd, pgcode_seq, sizeof(cmd)-1);
-        cmd[sizeof(cmd)-1]= 0;
-        // Look for the end of line, or the end of sequence
-	size_t i= 0;
-        char c;
-        while( (c= cmd[i]) && c!='\n' )
-          ++i; // look for the end of this gcode command
- 	cmd[i]= 0;
-        if(!enquecommand(cmd)) // buffer was full, will retry later
-          return;
-        if(c)
-          pgcode_seq+= i+1; // move to next command
-        else
-          pgcode_seq= NULL; // mark the end of the sequence of gcodes
+    enquecommands_P(pgcode);
 }
 
 
@@ -1207,7 +1187,7 @@ static void menu_action_sdfile(const char* filename, char* longFilename)
     for(c = &cmd[4]; *c; c++)
         *c = tolower(*c);
     enquecommand(cmd);
-    enquecommand_P(PSTR("M24"));
+    enquecommands_P(PSTR("M24"));
     lcd_return_to_status();
 }
 static void menu_action_sddirectory(const char* filename, char* longFilename)
@@ -1289,8 +1269,6 @@ void lcd_update()
     #endif
 
     lcd_buttons_update();
-
-    menu_action_gcode_next(); // inject the next pending command in the pending sequence (if any)
 
     #if (SDCARDDETECT > 0)
     if((IS_SD_INSERTED != lcd_oldcardstatus && lcd_detected()))
