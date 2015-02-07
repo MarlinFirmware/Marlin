@@ -629,8 +629,8 @@ var configuratorApp = (function(){
       }
 
       if (info.type) {
-        var comment = '';
         // Get the end-of-line comment, if there is one
+        var comment = '';
         findDef = new RegExp('.*#define[ \\t].*/[/*]+[ \\t]*(.*)');
         if (info.line.search(findDef) >= 0) {
           comment = info.line.replace(findDef, '$1');
@@ -638,12 +638,15 @@ var configuratorApp = (function(){
         else {
           // Get all the comments immediately before the item
           var r, s;
-          findDef = new RegExp('([ \\t]*(//|#)[^\n]+\n){1,4}\\s{0,1}' + info.line, 'g');
+          findDef = new RegExp('(([ \\t]*(//|#)[^\n]+\n){1,4})([ \\t]*\n){0,1}' + info.line, 'g');
           if (r = findDef.exec(txt)) {
-            findDef = new RegExp('^[ \\t]*//+[ \\t]*([^#].*)[ \\t]*$', 'gm');
-            while((s = findDef.exec(r[0])) !== null) {
-              if (s[1].match(/\/\/[ \\t]*#define/) == null)
-                comment += s[1] + "\n";
+            findDef = new RegExp('^[ \\t]*(//+[ \\t]*.*)[ \\t]*$', 'gm');
+            while((s = findDef.exec(r[1])) !== null) {
+              if (s[1].match(/^\/\/[ \\t]*#define[ \\t]/) != null) {
+                comment = '';
+                break;
+              }
+              comment += s[1] + "\n";
             }
           }
         }
