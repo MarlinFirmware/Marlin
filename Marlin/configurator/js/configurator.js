@@ -62,7 +62,8 @@ var configuratorApp = (function(){
       therms_list = {},
       total_config_lines,
       total_config_adv_lines,
-      hover_timer;
+      hover_timer,
+      pulse_offset = 0;
 
   // Return this anonymous object as configuratorApp
   return {
@@ -142,12 +143,13 @@ var configuratorApp = (function(){
         $('#message').prepend($err);
         var baseColor = $err.css('color').replace(/rgba?\(([^),]+,[^),]+,[^),]+).*/, 'rgba($1,');
         var d = new Date();
-        err.startTime = d.getTime();
+        err.pulse_offset = (pulse_offset += 200);
+        err.startTime = d.getTime() + pulse_offset;
         err.pulser = setInterval(function(){
             d = new Date();
-            var pulse_time = (d.getTime() - err.startTime);
+            var pulse_time = d.getTime() + err.pulse_offset;
             $err.css({color:baseColor+(0.5+Math.sin(pulse_time/200)*0.4)+')'});
-            if (pulse_time > 5000) {
+            if (pulse_time - err.startTime > 5000) {
               clearInterval(err.pulser);
               $err.remove();
             }
