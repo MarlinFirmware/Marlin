@@ -1,4 +1,4 @@
-#ifndef CONFIGURATION_H
+﻿#ifndef CONFIGURATION_H
 #define CONFIGURATION_H
 
 #include "boards.h"
@@ -126,6 +126,7 @@ Here are some standard links for getting your machine calibrated:
 #define TEMP_SENSOR_0 5
 #define TEMP_SENSOR_1 0
 #define TEMP_SENSOR_2 0
+#define TEMP_SENSOR_3 0
 #define TEMP_SENSOR_BED 5
 
 // This makes temp sensor 1 a redundant sensor for sensor 0. If the temperatures difference between these sensors is to high the print will be aborted.
@@ -143,6 +144,7 @@ Here are some standard links for getting your machine calibrated:
 #define HEATER_0_MINTEMP 5
 #define HEATER_1_MINTEMP 5
 #define HEATER_2_MINTEMP 5
+#define HEATER_3_MINTEMP 5
 #define BED_MINTEMP 5
 
 // When temperature exceeds max temp, your heater will be switched off.
@@ -151,6 +153,7 @@ Here are some standard links for getting your machine calibrated:
 #define HEATER_0_MAXTEMP 275
 #define HEATER_1_MAXTEMP 275
 #define HEATER_2_MAXTEMP 275
+#define HEATER_3_MAXTEMP 275
 #define BED_MAXTEMP 150
 
 #define CONFIG_STEPPERS_TOSHIBA	1
