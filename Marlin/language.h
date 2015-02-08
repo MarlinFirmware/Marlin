@@ -222,7 +222,7 @@
 #define TESTSTRING360 "\360\361\362\363\364\365\366\367\370\371\372\373\374\375\376\377"
 */
 
-#include "language_en.h"
 #include LANGUAGE_INCLUDE
+#include "language_en.h"
 
 #endif //__LANGUAGE_H
