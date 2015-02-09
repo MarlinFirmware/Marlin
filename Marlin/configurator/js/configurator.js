@@ -16,9 +16,9 @@
 
 $(function(){
 
-var marlin_config = 'config';
+var marlin_config = 'https://api.github.com/repos/MarlinFirmware/Marlin/contents/Marlin';
 
-// Extend String
+// Extend builtins
 String.prototype.lpad = function(len, chr) {
   if (chr === undefined) { chr = '&nbsp;'; }
   var s = this+'', need = len - s.length;
@@ -29,7 +29,13 @@ String.prototype.prePad = function(len, chr) { return len ? this.lpad(len, chr) 
 String.prototype.zeroPad = function(len)     { return this.prePad(len, '0'); };
 String.prototype.toHTML = function()         { return jQuery('<div>').text(this).html(); };
 String.prototype.regEsc = function()         { return this.replace(/[.?*+^$[\]\\(){}|-]/g, "\\$&"); }
-String.prototype.lineCount = function()      { var len = this.split(/\r?\n|\r/).length; return len > 0 ? len - 1 : len; };
+String.prototype.lineCount = function()      { var len = this.split(/\r?\n|\r/).length; return len > 0 ? len - 1 : 0; };
+String.prototype.toLabel = function()        { return this.replace(/_/g, ' ').toTitleCase(); }
+String.prototype.toTitleCase = function()    { return this.replace(/([A-Z])(\w+)/gi, function(m,p1,p2) { return p1.toUpperCase() + p2.toLowerCase(); }); }
+Number.prototype.limit = function(m1, m2)  {
+  if (m2 == null) return this > m1 ? m1 : this;
+  return this < m1 ? m1 : this > m2 ? m2 : this;
+};
 
 /**
  * selectField.addOptions takes an array or keyed object
@@ -56,9 +62,11 @@ var configuratorApp = (function(){
       boards_file = 'boards.h',
       config_file = 'Configuration.h',
       config_adv_file = 'Configuration_adv.h',
+      $form = $('#config_form'),
       $tooltip = $('#tooltip'),
       $config = $('#config_text'),
       $config_adv = $('#config_adv_text'),
+      define_list = [[],[]],
       boards_list = {},
       therms_list = {},
       total_config_lines,
@@ -74,32 +82,11 @@ var configuratorApp = (function(){
     init: function() {
       self = this; // a 'this' for use when 'this' is something else
 
-      // Set up the form
+      // Set up the form, creating fields and fieldsets as-needed
       this.initConfigForm();
 
-      // Make tabs for the fieldsets
-      var $fset = $('#config_form fieldset');
-      var $tabs = $('<ul>',{class:'tabs'}), ind = 1;
-      $('#config_form fieldset').each(function(){
-        var tabID = 'TAB'+ind;
-        $(this).addClass(tabID);
-        var $leg = $(this).find('legend');
-        var $link = $('<a>',{href:'#'+ind,id:tabID}).text($leg.text());
-        $tabs.append($('<li>').append($link));
-        $link.click(function(e){
-          e.preventDefault;
-          var ind = this.id;
-          $tabs.find('.active').removeClass('active');
-          $(this).addClass('active');
-          $fset.hide();
-          $fset.filter('.'+this.id).show();
-          return false;
-        });
-        ind++;
-      });
-      $tabs.appendTo('#tabs');
-      $('<br>',{class:'clear'}).appendTo('#tabs');
-      $tabs.find('a:first').trigger('click');
+      // Make tabs for all the fieldsets
+      this.makeTabsForFieldsets();
 
       // Make a droppable file uploader, if possible
       var $uploader = $('#file-upload');
@@ -110,59 +97,41 @@ var configuratorApp = (function(){
       if (!fileUploader.hasFileUploaderSupport())
         this.setMessage("Your browser doesn't support the file reading API.", 'error');
 
+      // Make the disclosure items work
+      $('.disclose').click(function(){
+        var $dis = $(this), $pre = $dis.next('pre');
+        var didAnim = function() {$dis.toggleClass('closed almost');};
+        $dis.addClass('almost').hasClass('closed')
+          ? $pre.slideDown(500, didAnim)
+          : $pre.slideUp(500, didAnim);
+      });
+
       // Read boards.h, Configuration.h, Configuration_adv.h
       var ajax_count = 0, success_count = 0;
       var loaded_items = {};
       var config_files = [boards_file, config_file, config_adv_file];
+      var isGithub = marlin_config.match('api.github');
       $.each(config_files, function(i,fname){
         $.ajax({
           url: marlin_config+'/'+fname,
           type: 'GET',
+          dataType: isGithub ? 'jsonp' : 'script',
           async: true,
           cache: false,
           success: function(txt) {
-            loaded_items[fname] = function(){ self.fileLoaded(fname, txt); };
+            loaded_items[fname] = function(){ self.fileLoaded(fname, isGithub ? atob(txt.data.content) : txt); };
             success_count++;
           },
           complete: function() {
             ajax_count++;
             if (ajax_count >= 3) {
-              $.each(config_files, function(i,fname){ if (loaded_items[fname] !== undefined) loaded_items[fname](); });
-              self.refreshConfigForm();
+              $.each(config_files, function(){ if (loaded_items[this]) loaded_items[this](); });
               if (success_count < ajax_count)
                 self.setMessage('Unable to load configurations. Use the upload field instead.', 'error');
             }
           }
         });
       });
-    },
-
-    setMessage: function(msg,type) {
-      if (msg) {
-        if (type === undefined) type = 'message';
-        var $err = $('<p class="'+type+'">'+msg+'</p>'), err = $err[0];
-        $('#message').prepend($err);
-        var baseColor = $err.css('color').replace(/rgba?\(([^),]+,[^),]+,[^),]+).*/, 'rgba($1,');
-        var d = new Date();
-        err.pulse_offset = (pulse_offset += 200);
-        err.startTime = d.getTime() + pulse_offset;
-        err.pulser = setInterval(function(){
-            d = new Date();
-            var pulse_time = d.getTime() + err.pulse_offset;
-            $err.css({color:baseColor+(0.5+Math.sin(pulse_time/200)*0.4)+')'});
-            if (pulse_time - err.startTime > 5000) {
-              clearInterval(err.pulser);
-              $err.remove();
-            }
-          }, 50);
-      }
-      else {
-        $('#message p.error, #message p.warning').each(function() {
-          if (this.pulser !== undefined && this.pulser)
-            clearInterval(this.pulser);
-          $(this).remove();
-        });
-      }
     },
 
     /**
@@ -174,7 +143,7 @@ var configuratorApp = (function(){
       while((r = findDef.exec(txt)) !== null) {
         boards_list[r[1]] = r[2].prePad(3, '  ') + " — " + r[4].replace(/\).*/, ')');
       }
-      this.log("Loaded boards", 3); this.log(boards_list, 3);
+      this.log("Loaded boards " + boards_list.join(' '), 3);
       has_boards = true;
     },
 
@@ -192,6 +161,45 @@ var configuratorApp = (function(){
     },
 
     /**
+     * Get all the unique define names
+     */
+    getDefinesFromText: function(txt) {
+      // Get all the unique #define's and save them in an array
+      var r, define_obj = {}, findDef = new RegExp('#define[ \\t]+(\\w+)', 'gm');
+      var cnt = 0;
+      while((r = findDef.exec(txt)) !== null) {
+        if (cnt++ && !(r[1] in define_obj)) define_obj[r[1]] = null;
+      }
+      this.log(Object.keys(define_obj), 2);
+      return Object.keys(define_obj);
+    },
+
+    /**
+     * Create placeholder fields for defines, as needed
+     */
+    createFieldsForDefines: function(adv) {
+      var e = adv ? 1 : 0, n = 0;
+      var fail_list = [];
+      $.each(define_list[e], function(i,name) {
+        if (!$('#'+name).length) {
+          var $ff = $('#more');
+          var inf = self.getDefineInfo(name, adv);
+          if (inf) {
+            var $newlabel = $('<label>',{for:name}).text(name.toLabel());
+            // if (!(++n % 3))
+              $newlabel.addClass('newline');
+            var $newfield = inf.type == 'switch' ? $('<input>',{type:'checkbox'}) : $('<input>',{type:'text',size:10,maxlength:40});
+            $newfield.attr({id:name,name:name}).prop({defineInfo:inf});
+            $ff.append($newlabel, $newfield);
+          }
+          else
+            fail_list.push(name);
+        }
+      });
+      if (fail_list) this.log('Unable to parse:\n' + fail_list.join('\n'), 2);
+    },
+
+    /**
      * Handle a file being dropped on the file field
      */
     handleFileLoad: function(txt, $uploader) {
@@ -204,7 +212,7 @@ var configuratorApp = (function(){
           this.fileLoaded(filename, txt);
           break;
         default:
-          this.log("Can't parse "+filename, 1);
+          this.setMessage("Can't parse '"+filename+"'!");
           break;
       }
     },
@@ -214,12 +222,12 @@ var configuratorApp = (function(){
      */
     fileLoaded: function(filename, txt) {
       this.log("fileLoaded:"+filename,4);
+      var err;
       switch(filename) {
         case boards_file:
           this.initBoardsFromText(txt);
           $('#MOTHERBOARD').html('').addOptions(boards_list);
           if (has_config) this.initField('MOTHERBOARD');
-          this.setMessage(boards_file+' loaded successfully.');
           break;
         case config_file:
           if (has_boards) {
@@ -227,12 +235,14 @@ var configuratorApp = (function(){
             total_config_lines = txt.lineCount();
             this.initThermistorsFromText(txt);
             this.purgeDefineInfo(false);
+            define_list[0] = this.getDefinesFromText(txt);
+            this.log(define_list[0], 2);
+            this.createFieldsForDefines(0);
             this.refreshConfigForm();
-            this.setMessage(config_file+' loaded successfully.');
             has_config = true;
           }
           else {
-            this.setMessage("Upload a " + boards_file + " file first!", 'error');
+            err = boards_file;
           }
           break;
         case config_adv_file:
@@ -240,15 +250,20 @@ var configuratorApp = (function(){
             $config_adv.text(txt);
             total_config_adv_lines = txt.lineCount();
             this.purgeDefineInfo(true);
+            define_list[1] = this.getDefinesFromText(txt);
+            this.log(define_list[1], 2);
             this.refreshConfigForm();
-            this.setMessage(config_adv_file+' loaded successfully.');
             has_config_adv = true;
           }
           else {
-            this.setMessage("Upload a " + config_file + " file first!", 'error');
+            err = config_file;
           }
           break;
       }
+      this.setMessage(err
+        ? 'Please upload a "' + boards_file + '" file first!'
+        : '"' + filename + '" loaded successfully.', err ? 'error' : 'message'
+      );
     },
 
     /**
@@ -264,7 +279,7 @@ var configuratorApp = (function(){
       // while(!$config.text() == null) {}
 
       // Go through all form items with names
-      $('#config_form').find('[name]').each(function() {
+      $form.find('[name]').each(function() {
         // Set its id to its name
         var name = $(this).attr('name');
         $(this).attr({id: name});
@@ -305,51 +320,58 @@ var configuratorApp = (function(){
     },
 
     /**
+     * Make tabs to switch between fieldsets
+     */
+    makeTabsForFieldsets: function() {
+      // Make tabs for the fieldsets
+      var $fset = $form.find('fieldset');
+      var $tabs = $('<ul>',{class:'tabs'}), ind = 1;
+      $fset.each(function(){
+        var tabID = 'TAB'+ind;
+        $(this).addClass(tabID);
+        var $leg = $(this).find('legend');
+        var $link = $('<a>',{href:'#'+ind,id:tabID}).text($leg.text());
+        $tabs.append($('<li>').append($link));
+        $link.click(function(e){
+          e.preventDefault;
+          var ind = this.id;
+          $tabs.find('.active').removeClass('active');
+          $(this).addClass('active');
+          $fset.hide();
+          $fset.filter('.'+this.id).show();
+          return false;
+        });
+        ind++;
+      });
+      $('#tabs').html('').append($tabs);
+      $('<br>',{class:'clear'}).appendTo('#tabs');
+      $tabs.find('a:first').trigger('click');
+    },
+
+    /**
      * Update all fields on the form after loading a configuration
      */
     refreshConfigForm: function() {
 
       /**
-       * For now I'm manually creating these references
-       * but I should be able to parse Configuration.h
-       * and iterate the #defines.
+       * Any manually-created form elements will remain
+       * where they are. Unknown defines (currently most)
+       * are added to the "More..." tab for now.
        *
-       * For any #ifdef blocks I can create field groups
-       * which can be dimmed together when the option
-       * is disabled.
+       * Specific exceptions can be managed by applying
+       * classes to the associated form fields.
+       * Sorting and arrangement can come from an included
+       * js file that describes the configuration in JSON.
        *
-       * Then we only need to specify exceptions to
-       * standard behavior, (which is to add a text field)
+       * For now I'm trying to derive information
+       * about options directly from the config file.
        */
-      this.initField('SERIAL_PORT');
-
-      this.initField('BAUDRATE');
-
-      this.initField('BTENABLED');
 
       $('#MOTHERBOARD').html('').addOptions(boards_list);
-      this.initField('MOTHERBOARD');
-
-      this.initField('CUSTOM_MENDEL_NAME');
-
-      this.initField('MACHINE_UUID');
-
-      this.initField('EXTRUDERS');
-
-      this.initField('POWER_SUPPLY');
-
-      this.initField('PS_DEFAULT_OFF');
 
       $('#TEMP_SENSOR_0, #TEMP_SENSOR_1, #TEMP_SENSOR_2, #TEMP_SENSOR_BED').html('').addOptions(therms_list);
-      this.initField('TEMP_SENSOR_0');
-      this.initField('TEMP_SENSOR_1');
-      this.initField('TEMP_SENSOR_2');
-      this.initField('TEMP_SENSOR_BED');
 
-      this.initField('TEMP_SENSOR_1_AS_REDUNDANT');
-      this.initField('MAX_REDUNDANT_TEMP_SENSOR_DIFF');
-
-      this.initField('TEMP_RESIDENCY_TIME');
+      $.each(define_list, function() { $.each(this, function() { if ($('#'+this).length) self.initField(this); }); });
     },
 
     /**
@@ -362,19 +384,21 @@ var configuratorApp = (function(){
         var inf = elm.defineInfo = this.getDefineInfo(name, adv);
         $elm.on($elm.attr('type') == 'text' ? 'input' : 'change', this.handleChange);
 
-        if (inf.comment) {
+        if (inf.tooltip) {
           var $tipme = $elm.prev('label');
           if ($tipme.length) {
             $tipme.hover(
               function() {
-                var pos = $tipme.position();
-                $tooltip.html(inf.comment)
-                  .append('<span>')
-                  .css({bottom:($tooltip.parent().outerHeight()-pos.top)+'px',left:(pos.left+70)+'px'})
-                  .show();
-                if (hover_timer) {
-                  clearTimeout(hover_timer);
-                  hover_timer = null;
+                if ($('#tipson input').prop('checked')) {
+                  var pos = $tipme.position();
+                  $tooltip.html(inf.tooltip)
+                    .append('<span>')
+                    .css({bottom:($tooltip.parent().outerHeight()-pos.top)+'px',left:(pos.left+70)+'px'})
+                    .show();
+                  if (hover_timer) {
+                    clearTimeout(hover_timer);
+                    hover_timer = null;
+                  }
                 }
               },
               function() {
@@ -410,7 +434,7 @@ var configuratorApp = (function(){
      */
     defineValue: function(name) {
       this.log('defineValue:'+name,4);
-      var $elm = $('#'+name), elm = $elm[0], inf = elm.defineInfo;
+      var inf = $('#'+name)[0].defineInfo;
       if (inf == null) return 'n/a';
       var result = inf.regex.exec($(inf.field).text());
 
@@ -424,7 +448,7 @@ var configuratorApp = (function(){
      */
     defineIsEnabled: function(name) {
       this.log('defineIsEnabled:'+name,4);
-      var $elm = $('#'+name), elm = $elm[0], inf = elm.defineInfo;
+      var inf = $('#'+name)[0].defineInfo;
       if (inf == null) return false;
       var result = inf.regex.exec($(inf.field).text());
 
@@ -441,15 +465,14 @@ var configuratorApp = (function(){
      */
     setDefineEnabled: function(name, val) {
       this.log('setDefineEnabled:'+name,4);
-      var $elm = $('#'+name), inf = $elm[0].defineInfo;
-      if (inf == null) return;
-
-      var slash = val ? '' : '//';
-      var newline = inf.line
-        .replace(/^([ \t]*)(\/\/)([ \t]*)/, '$1$3')              // remove slashes
-        .replace(inf.pre+inf.define, inf.pre+slash+inf.define);  // add them back
-
-      this.setDefineLine(name, newline);
+      var inf = $('#'+name)[0].defineInfo;
+      if (inf) {
+        var slash = val ? '' : '//';
+        var newline = inf.line
+          .replace(/^([ \t]*)(\/\/)([ \t]*)/, '$1$3')              // remove slashes
+          .replace(inf.pre+inf.define, inf.pre+slash+inf.define);  // add them back
+        this.setDefineLine(name, newline);
+      }
     },
 
     /**
@@ -486,7 +509,7 @@ var configuratorApp = (function(){
      */
     setDefineLine: function(name, newline) {
       this.log('setDefineLine:'+name+'\n'+newline,4);
-      var $elm = $('#'+name), elm = $elm[0], inf = elm.defineInfo;
+      var inf = $('#'+name)[0].defineInfo;
       var $c = $(inf.field), txt = $c.text();
 
       var hilite_token = '[HIGHLIGHTER-TOKEN]';
@@ -501,7 +524,7 @@ var configuratorApp = (function(){
       $c.html(html);
 
       // Scroll to reveal the define
-      this.scrollToDefine(name);
+      if ($c.is(':visible')) this.scrollToDefine(name);
     },
 
     /**
@@ -509,19 +532,17 @@ var configuratorApp = (function(){
      */
     scrollToDefine: function(name, always) {
       this.log('scrollToDefine:'+name,4);
-      var $elm = $('#'+name), inf = $elm[0].defineInfo, $c = $(inf.field);
+      var inf = $('#'+name)[0].defineInfo, $c = $(inf.field);
 
       // Scroll to the altered text if it isn't visible
       var halfHeight = $c.height()/2, scrollHeight = $c.prop('scrollHeight'),
-          textScrollY = inf.lineNum * scrollHeight/(inf.adv ? total_config_adv_lines : total_config_lines) - halfHeight;
+          lineHeight = scrollHeight/(inf.adv ? total_config_adv_lines : total_config_lines),
+          textScrollY = (inf.lineNum * lineHeight - halfHeight).limit(0, scrollHeight - 1);
 
-      if (textScrollY < 0)
-        textScrollY = 0;
-      else if (textScrollY > scrollHeight)
-        textScrollY = scrollHeight - 1;
-
-      if (always == true || Math.abs($c.prop('scrollTop') - textScrollY) > halfHeight)
-        $c.animate({ scrollTop: textScrollY < 0 ? 0 : textScrollY });
+      if (always || Math.abs($c.prop('scrollTop') - textScrollY) > halfHeight) {
+        $c.find('span').height(lineHeight);
+        $c.animate({ scrollTop: textScrollY });
+      }
     },
 
     /**
@@ -530,7 +551,7 @@ var configuratorApp = (function(){
     setFieldFromDefine: function(name) {
       var $elm = $('#'+name), val = this.defineValue(name);
 
-      this.log('setFieldFromDefine:' + name + ' to ' + val, 4);
+      this.log('setFieldFromDefine:' + name + ' to ' + val, 2);
 
       // Set the field value
       $elm.attr('type') == 'checkbox' ? $elm.prop('checked', val) : $elm.val(''+val);
@@ -569,20 +590,20 @@ var configuratorApp = (function(){
     /**
      * Get information about a #define from configuration file text:
      *
-     *   Pre-examine the #define for its prefix, value position, suffix, etc.
-     *   Construct a regex for the #define to quickly find (and replace) values.
-     *   Store the existing #define line as the key to finding it later.
-     *   Determine the line number of the #define so it can be scrolled to.
+     *   - Pre-examine the #define for its prefix, value position, suffix, etc.
+     *   - Construct RegExp's for the #define to quickly find (and replace) values.
+     *   - Store the existing #define line as a fast key to finding it later.
+     *   - Determine the line number of the #define so it can be scrolled to.
+     *   - Gather nearby comments to be used as tooltips.
      */
     getDefineInfo: function(name, adv) {
       if (adv === undefined) adv = false;
       this.log('getDefineInfo:'+name,4);
-      var $elm = $('#'+name), elm = $elm[0],
-          $c = adv ? $config_adv : $config,
+      var $c = adv ? $config_adv : $config,
           txt = $c.text();
 
       // a switch line with no value
-      var findDef = new RegExp('^([ \\t]*//)?([ \\t]*#define[ \\t]+' + elm.id + ')([ \\t]*/[*/].*)?$', 'm'),
+      var findDef = new RegExp('^([ \\t]*//)?([ \\t]*#define[ \\t]+' + name + ')([ \\t]*/[*/].*)?$', 'm'),
           result = findDef.exec(txt),
           info = { type:0, adv:adv, field:$c[0], val_i: 2 };
       if (result !== null) {
@@ -599,7 +620,7 @@ var configuratorApp = (function(){
       }
       else {
         // a define with quotes
-        findDef = new RegExp('^(.*//)?(.*#define[ \\t]+' + elm.id + '[ \\t]+)("[^"]*")([ \\t]*/[*/].*)?$', 'm');
+        findDef = new RegExp('^(.*//)?(.*#define[ \\t]+' + name + '[ \\t]+)("[^"]*")([ \\t]*/[*/].*)?$', 'm');
         result = findDef.exec(txt);
         if (result !== null) {
           $.extend(info, {
@@ -614,7 +635,7 @@ var configuratorApp = (function(){
         }
         else {
           // a define with no quotes
-          findDef = new RegExp('^([ \\t]*//)?([ \\t]*#define[ \\t]+' + elm.id + '[ \\t]+)(\\S*)([ \\t]*/[*/].*)?$', 'm');
+          findDef = new RegExp('^([ \\t]*//)?([ \\t]*#define[ \\t]+' + name + '[ \\t]+)(\\S*)([ \\t]*/[*/].*)?$', 'm');
           result = findDef.exec(txt);
           if (result !== null) {
             $.extend(info, {
@@ -632,10 +653,10 @@ var configuratorApp = (function(){
 
       if (info.type) {
         // Get the end-of-line comment, if there is one
-        var comment = '';
+        var tooltip = '';
         findDef = new RegExp('.*#define[ \\t].*/[/*]+[ \\t]*(.*)');
         if (info.line.search(findDef) >= 0)
-          comment = info.line.replace(findDef, '$1');
+          tooltip = info.line.replace(findDef, '$1');
 
         // Get all the comments immediately before the item
         var r, s;
@@ -644,16 +665,16 @@ var configuratorApp = (function(){
           findDef = new RegExp('^[ \\t]*//+[ \\t]*(.*)[ \\t]*$', 'gm');
           while((s = findDef.exec(r[1])) !== null) {
             if (s[1].match(/^#define[ \\t]/) != null) {
-              comment = '';
+              tooltip = '';
               break;
             }
-            comment += ' ' + s[1] + "\n";
+            tooltip += ' ' + s[1] + "\n";
           }
         }
 
         findDef = new RegExp('^[ \\t]*'+name+'[ \\t]*', 'm');
         $.extend(info, {
-          comment: '<strong>'+name+'</strong> '+comment.replace(findDef,'').trim().toHTML(),
+          tooltip: '<strong>'+name+'</strong> '+tooltip.replace(findDef,'').trim().toHTML(),
           lineNum: this.getLineNumberOfText(info.line, txt)
         });
       }
@@ -671,6 +692,37 @@ var configuratorApp = (function(){
     getLineNumberOfText: function(line, txt) {
       var pos = txt.indexOf(line);
       return (pos < 0) ? pos : txt.substr(0, pos).lineCount();
+    },
+
+    /**
+     * Add a temporary message to the page
+     */
+    setMessage: function(msg,type) {
+      if (msg) {
+        if (type === undefined) type = 'message';
+        var $err = $('<p class="'+type+'">'+msg+'</p>'), err = $err[0];
+        $('#message').prepend($err);
+        var baseColor = $err.css('color').replace(/rgba?\(([^),]+,[^),]+,[^),]+).*/, 'rgba($1,');
+        var d = new Date();
+        err.pulse_offset = (pulse_offset += 200);
+        err.startTime = d.getTime() + pulse_offset;
+        err.pulser = setInterval(function(){
+            d = new Date();
+            var pulse_time = d.getTime() + err.pulse_offset;
+            $err.css({color:baseColor+(0.5+Math.sin(pulse_time/200)*0.4)+')'});
+            if (pulse_time - err.startTime > 5000) {
+              clearInterval(err.pulser);
+              $err.remove();
+            }
+          }, 50);
+      }
+      else {
+        $('#message p.error, #message p.warning').each(function() {
+          if (this.pulser !== undefined && this.pulser)
+            clearInterval(this.pulser);
+          $(this).remove();
+        });
+      }
     },
 
     log: function(o,l) {
