@@ -143,7 +143,7 @@ var configuratorApp = (function(){
       while((r = findDef.exec(txt)) !== null) {
         boards_list[r[1]] = r[2].prePad(3, '  ') + " — " + r[4].replace(/\).*/, ')');
       }
-      this.log("Loaded boards " + boards_list.join(' '), 3);
+      this.log("Loaded boards:\n" + Object.keys(boards_list).join('\n'), 3);
       has_boards = true;
     },
 
