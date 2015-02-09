@@ -2,7 +2,7 @@
 /* Styles for Marlin Configurator */
 
 body { margin: 0; padding: 0; background: #56A; color: #FFC; font-family: sans-serif; }
-
+fieldset { height: 16.1em; overflow: auto; margin-top: 10px; }
 #main { max-width: 1000px; margin: 0 auto; }
 #main { padding: 0 4%; width: 92%; }
 #main { font-family: monospace; }
@@ -19,10 +19,23 @@ h1, #message { text-align: center; }
 img { display: none; }
 label, input, select, textarea { display: block; float: left; margin: 1px 0; }
 label.newline, textarea, fieldset { clear: both; }
-label { width: 130px; height: 1em; padding: 10px 480px 10px 1em; margin-right: -470px; text-align: right; }
+label {
+	width: 140px; /* label area */
+	height: 1em;
+	padding: 10px 460px 10px 1em;
+	margin-right: -450px;
+	text-align: right;
+	}
 input[type="text"], select { margin: 0.75em 0 0; }
 input[type="checkbox"], input[type="radio"], input[type="file"] { margin: 1em 0 0; }
-#config_form { display: block; background: #DDD; padding: 20px; color: #000; position: relative; }
+#config_form {
+	display: block;
+	background: #EEE;
+	padding: 6px 20px 20px;
+	color: #000;
+	position: relative;
+	}
+
 /*#config_text, #config_adv_text { font-family: "Andale mono", monospace; clear: both; }*/
 #config_text, #config_adv_text {
 	height: 25em;
@@ -32,6 +45,8 @@ input[type="checkbox"], input[type="radio"], input[type="file"] { margin: 1em 0 
 	overflow: auto;
 	background-color: #FFF;
 	color: #000;
+	font-family: "Fira Mono";
+	font-size: small;
 	}
 input[type="checkbox"], input[type="radio"].enabler { margin-left: 1em; }
 input:disabled { color: #BBB; }
@@ -39,31 +54,35 @@ input:disabled { color: #BBB; }
 h1, h2, h3, h4, h5, h6 { clear: both; }
 h2 { margin: 0; padding: 1em 0 0; }
 
-ul.tabs { display: inline; list-style: none; }
+ul.tabs { padding: 0; list-style: none; }
 ul.tabs li { display: inline; }
 ul.tabs li a,
 ul.tabs li a.active:hover,
 ul.tabs li a.active:active {
 	display: block;
 	float: left;
-	background: #666;
+	background: #1E4059;
 	color: #CCC;
-	font-size: 150%;
+	font-size: 110%;
 	border-radius: 0.25em 0.25em 0 0;
 	margin: 0 4px 0 0;
-	padding: 2px 4px;
+	padding: 2px 8px;
 	text-decoration: none;
+	font-family: georgia,"times new roman",times;
 	}
 ul.tabs li a.active:link,
 ul.tabs li a.active:visited {
 	background: #DDD;
-	color: #900;
+	color: #06F;
 	cursor: default;
+	margin-top: -4px;
+	padding-bottom: 4px;
+	padding-top: 4px;
 	}
 ul.tabs li a:hover,
 ul.tabs li a:active {
-	background: #777;
-	color: #DDD;
+	background: #000;
+	color: #FFF;
 	}
 
 fieldset { display: none; border: 1px solid #AAA; border-radius: 1em; }
@@ -118,3 +137,32 @@ fieldset legend { display: none; }
 	left: 20px;
 	}
 #tooltip>strong { color: #00B; }
+
+span.disclose {
+	float: right;
+	margin-top: -10px;
+	width: 0;
+	height: 0;
+	cursor: pointer;
+	border-left: 8px solid transparent;
+	border-right: 8px solid transparent;
+	border-top: 10px solid #000;
+	}
+span.disclose.closed {
+	margin: -14px 4px 0 0;
+	border-top: 8px solid transparent;
+	border-bottom: 8px solid transparent;
+	border-right: 10px solid #000;
+	}
+span.disclose.almost {
+    -ms-transform: rotate(45deg); /* IE 9 */
+    -webkit-transform: rotate(45deg); /* Chrome, Safari, Opera */
+    transform: rotate(45deg);
+	}
+span.disclose.closed.almost {
+    -ms-transform: rotate(315deg); /* IE 9 */
+    -webkit-transform: rotate(315deg); /* Chrome, Safari, Opera */
+    transform: rotate(315deg);
+	}
+#tipson { float: right; font-weight: bold; font-size: 100%; font-family: helvetica; }
+#tipson input { float: none; display: inline; }
