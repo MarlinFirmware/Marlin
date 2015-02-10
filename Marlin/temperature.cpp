@@ -647,6 +647,20 @@ void manage_heater()
     #else 
       pid_output = constrain(target_temperature_bed, 0, MAX_BED_POWER);
     #endif //PID_OPENLOOP
+        #ifdef PID_BED_DEBUG
+    SERIAL_ECHO_START;
+    SERIAL_ECHO(" PID_BED_DEBUG ");
+    SERIAL_ECHO(": Input ");
+    SERIAL_ECHO(pid_input);
+    SERIAL_ECHO(" Output ");
+    SERIAL_ECHO(pid_output);
+    SERIAL_ECHO(" pTerm ");
+    SERIAL_ECHO(pTerm_bed);
+    SERIAL_ECHO(" iTerm ");
+    SERIAL_ECHO(iTerm_bed);
+    SERIAL_ECHO(" dTerm ");
+    SERIAL_ECHOLN(dTerm_bed);
+    #endif //PID_BED_DEBUG
 
 	  if((current_temperature_bed > BED_MINTEMP) && (current_temperature_bed < BED_MAXTEMP)) 
 	  {
