@@ -16,7 +16,62 @@
 
 $(function(){
 
-var marlin_config = 'https://api.github.com/repos/MarlinFirmware/Marlin/contents/Marlin';
+/**
+ * Github API useful GET paths. (Start with "https://api.github.com/repos/:owner/:repo/")
+ *
+ *   contributors                               Get a list of contributors
+ *   tags                                       Get a list of tags
+ *   contents/[path]?ref=branch/tag/commit      Get the contents of a file
+ */
+
+ // GitHub
+ // Warning! Limited to 60 requests per hour!
+var config = {
+  type:  'github',
+  host:  'https://api.github.com',
+  owner: 'thinkyhead',
+  repo:  'Marlin',
+  ref:   'marlin_configurator',
+  path:  'Marlin/configurator/config'
+};
+/**/
+
+/* // Remote
+var config = {
+  type:  'remote',
+  host:  'http://www.thinkyhead.com',
+  path:  '_marlin/config'
+};
+/**/
+
+/* // Local
+var config = {
+  type:  'local',
+  path:  'config'
+};
+/**/
+
+function github_command(conf, command, path) {
+  var req = conf.host+'/repos/'+conf.owner+'/'+conf.repo+'/'+command;
+  if (path) req += '/' + path;
+  return req;
+}
+function config_path(item) {
+  var path = '', ref = '';
+  switch(config.type) {
+    case 'github':
+      path = github_command(config, 'contents', config.path);
+      if (config.ref !== undefined) ref = '?ref=' + config.ref;
+      break;
+    case 'remote':
+      path = config.host + '/' + config.path + '/';
+      break;
+    case 'local':
+      path = config.path + '/';
+      break;
+  }
+  return path + '/' + item + ref;
+}
 
 // Extend builtins
 String.prototype.lpad = function(len, chr) {
@@ -25,6 +80,7 @@ String.prototype.lpad = function(len, chr) {
   if (need > 0) { s = new Array(need+1).join(chr) + s; }
   return s;
 };
+
 String.prototype.prePad = function(len, chr) { return len ? this.lpad(len, chr) : this; };
 String.prototype.zeroPad = function(len)     { return this.prePad(len, '0'); };
 String.prototype.toHTML = function()         { return jQuery('<div>').text(this).html(); };
@@ -36,6 +92,19 @@ Number.prototype.limit = function(m1, m2)  {
   if (m2 == null) return this > m1 ? m1 : this;
   return this < m1 ? m1 : this > m2 ? m2 : this;
 };
+Date.prototype.fileStamp = function(filename) {
+  var fs = this.getFullYear()
+    + ((this.getMonth()+1)+'').zeroPad(2)
+    + (this.getDate()+'').zeroPad(2)
+    + (this.getHours()+'').zeroPad(2)
+    + (this.getMinutes()+'').zeroPad(2)
+    + (this.getSeconds()+'').zeroPad(2);
+
+  if (filename !== undefined)
+    return filename.replace(/^(.+)(\.\w+)$/g, '$1-['+fs+']$2');
+
+  return fs;
+}
 
 /**
  * selectField.addOptions takes an array or keyed object
@@ -49,6 +118,12 @@ $.fn.extend({
         sel.append( $('<option>',{value:isArr?v:k}).text(v) );
       });
     });
+  },
+  noSelect: function() {
+    return this
+            .attr('unselectable', 'on')
+            .css('user-select', 'none')
+            .on('selectstart', false);
   }
 });
 
@@ -62,10 +137,11 @@ var configuratorApp = (function(){
       boards_file = 'boards.h',
       config_file = 'Configuration.h',
       config_adv_file = 'Configuration_adv.h',
+      $msgbox = $('#message'),
       $form = $('#config_form'),
       $tooltip = $('#tooltip'),
-      $config = $('#config_text'),
-      $config_adv = $('#config_adv_text'),
+      $config = $('#config_text pre'),
+      $config_adv = $('#config_adv_text pre'),
       define_list = [[],[]],
       boards_list = {},
       therms_list = {},
@@ -88,6 +164,9 @@ var configuratorApp = (function(){
       // Make tabs for all the fieldsets
       this.makeTabsForFieldsets();
 
+      // No selection on errors
+      $msgbox.noSelect();
+
       // Make a droppable file uploader, if possible
       var $uploader = $('#file-upload');
       var fileUploader = new BinaryFileUploader({
@@ -99,39 +178,96 @@ var configuratorApp = (function(){
 
       // Make the disclosure items work
       $('.disclose').click(function(){
-        var $dis = $(this), $pre = $dis.next('pre');
+        var $dis = $(this), $pre = $dis.nextAll('pre:first');
         var didAnim = function() {$dis.toggleClass('closed almost');};
         $dis.addClass('almost').hasClass('closed')
-          ? $pre.slideDown(500, didAnim)
-          : $pre.slideUp(500, didAnim);
+          ? $pre.slideDown(200, didAnim)
+          : $pre.slideUp(200, didAnim);
       });
 
       // Read boards.h, Configuration.h, Configuration_adv.h
       var ajax_count = 0, success_count = 0;
       var loaded_items = {};
       var config_files = [boards_file, config_file, config_adv_file];
-      var isGithub = marlin_config.match('api.github');
+      var isGithub = config.type == 'github';
+      var rateLimit = 0;
       $.each(config_files, function(i,fname){
+        var url = config_path(fname);
         $.ajax({
-          url: marlin_config+'/'+fname,
+          url: url,
           type: 'GET',
-          dataType: isGithub ? 'jsonp' : 'script',
+          dataType: isGithub ? 'jsonp' : undefined,
           async: true,
           cache: false,
+          error: function(req, stat, err) {
+            self.log(req, 1);
+            if (req.status == 200) {
+              if (typeof req.responseText === 'string') {
+                var txt = req.responseText;
+                loaded_items[fname] = function(){ self.fileLoaded(fname, txt); };
+                success_count++;
+                // self.setMessage('The request for "'+fname+'" may be malformed.', 'error');
+              }
+            }
+            else {
+              self.setRequestError(req.status ? req.status : '(Access-Control-Allow-Origin?)', url);
+            }
+          },
           success: function(txt) {
-            loaded_items[fname] = function(){ self.fileLoaded(fname, isGithub ? atob(txt.data.content) : txt); };
-            success_count++;
+            if (isGithub && typeof txt.meta.status !== undefined && txt.meta.status != 200) {
+              self.setRequestError(txt.meta.status, url);
+            }
+            else {
+              // self.log(txt, 1);
+              if (isGithub) {
+                rateLimit = {
+                  quota: 1 * txt.meta['X-RateLimit-Remaining'],
+                  timeLeft: Math.floor(txt.meta['X-RateLimit-Reset'] - Date.now()/1000),
+                };
+              }
+              loaded_items[fname] = function(){ self.fileLoaded(fname, isGithub ? atob(txt.data.content) : txt); };
+              success_count++;
+            }
           },
           complete: function() {
             ajax_count++;
             if (ajax_count >= 3) {
               $.each(config_files, function(){ if (loaded_items[this]) loaded_items[this](); });
               if (success_count < ajax_count)
-                self.setMessage('Unable to load configurations. Use the upload field instead.', 'error');
+                self.setMessage('Unable to load configurations. Try the upload field.', 'error');
+              var r;
+              if (r = rateLimit) {
+                if (r.quota < 20) {
+                  self.setMessage(
+                    'Approaching request limit (' +
+                    r.quota + ' remaining.' +
+                    ' Reset in ' + Math.floor(r.timeLeft/60) + ':' + (r.timeLeft%60+'').zeroPad(2) + ')'
+                  );
+                }
+              }
             }
           }
         });
       });
+    },
+
+    createDownloadLink: function(adv) {
+      var $c = adv ? $config_adv : $config, txt = $c.text();
+      var filename = (adv ? config_adv_file : config_file);
+      $c.prevAll('.download:first')
+        .mouseover(function() {
+          var d = new Date(), fn = d.fileStamp(filename);
+          $(this).attr({ download:fn, href:'download:'+fn, title:'download:'+fn });
+        })
+        .click(function(){
+          var $button = $(this);
+          $(this).attr({ href:'data:text/plain;charset=utf-8,' + encodeURIComponent($c.text()) });
+          setTimeout(function(){
+            $button.attr({ href:$button.attr('title') });
+          }, 100);
+          return true;
+        })
+        .css({visibility:'visible'});
     },
 
     /**
@@ -239,6 +375,7 @@ var configuratorApp = (function(){
             this.log(define_list[0], 2);
             this.createFieldsForDefines(0);
             this.refreshConfigForm();
+            this.createDownloadLink(false);
             has_config = true;
           }
           else {
@@ -253,6 +390,7 @@ var configuratorApp = (function(){
             define_list[1] = this.getDefinesFromText(txt);
             this.log(define_list[1], 2);
             this.refreshConfigForm();
+            this.createDownloadLink(true);
             has_config_adv = true;
           }
           else {
@@ -289,7 +427,7 @@ var configuratorApp = (function(){
       });
 
       // Get all 'switchable' class items and add a checkbox
-      $('#config_form .switchable').each(function(){
+      $form.find('.switchable').each(function(){
         $(this).after(
           $('<input>',{type:'checkbox',value:'1',class:'enabler'}).prop('checked',true)
             .attr('id',this.id + '-switch')
@@ -651,6 +789,7 @@ var configuratorApp = (function(){
         }
       }
 
+      // Success?
       if (info.type) {
         // Get the end-of-line comment, if there is one
         var tooltip = '';
@@ -668,11 +807,11 @@ var configuratorApp = (function(){
               tooltip = '';
               break;
             }
-            tooltip += ' ' + s[1] + "\n";
+            tooltip += ' ' + s[1] + '\n';
           }
         }
 
-        findDef = new RegExp('^[ \\t]*'+name+'[ \\t]*', 'm');
+        findDef = new RegExp('^[ \\t]*'+name); // To strip the name from the start
         $.extend(info, {
           tooltip: '<strong>'+name+'</strong> '+tooltip.replace(findDef,'').trim().toHTML(),
           lineNum: this.getLineNumberOfText(info.line, txt)
@@ -700,29 +839,31 @@ var configuratorApp = (function(){
     setMessage: function(msg,type) {
       if (msg) {
         if (type === undefined) type = 'message';
-        var $err = $('<p class="'+type+'">'+msg+'</p>'), err = $err[0];
-        $('#message').prepend($err);
+        var $err = $('<p class="'+type+'">'+msg+'<span>x</span></p>').appendTo($msgbox), err = $err[0];
         var baseColor = $err.css('color').replace(/rgba?\(([^),]+,[^),]+,[^),]+).*/, 'rgba($1,');
-        var d = new Date();
         err.pulse_offset = (pulse_offset += 200);
-        err.startTime = d.getTime() + pulse_offset;
+        err.startTime = Date.now() + pulse_offset;
         err.pulser = setInterval(function(){
-            d = new Date();
-            var pulse_time = d.getTime() + err.pulse_offset;
-            $err.css({color:baseColor+(0.5+Math.sin(pulse_time/200)*0.4)+')'});
-            if (pulse_time - err.startTime > 5000) {
+            var pulse_time = Date.now() + err.pulse_offset;
+            var opac = 0.5+Math.sin(pulse_time/200)*0.4;
+            $err.css({color:baseColor+(opac)+')'});
+            if (pulse_time - err.startTime > 2500 && opac > 0.899) {
               clearInterval(err.pulser);
-              $err.remove();
             }
           }, 50);
+        $err.click(function(e) { $(this).remove(); return false; }).css({cursor:'pointer'});
       }
       else {
-        $('#message p.error, #message p.warning').each(function() {
+        $msgbox.find('p.error, p.warning').each(function() {
           if (this.pulser !== undefined && this.pulser)
             clearInterval(this.pulser);
           $(this).remove();
         });
       }
+    },
+
+    setRequestError: function(stat, path) {
+      self.setMessage('Error '+stat+' – ' + path.replace(/^(https:\/\/[^\/]+\/)?.+(\/[^\/]+)$/, '$1...$2'), 'error');
     },
 
     log: function(o,l) {

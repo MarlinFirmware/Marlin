@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta charset="UTF-8">
-    <title>Marlin Configurator</title>
+    <title>Marlin Firmware Configurator</title>
     <link href='http://fonts.googleapis.com/css?family=Fira+Mono&amp;subset=latin,latin-ext' rel='stylesheet' type='text/css' />
     <script src="js/jquery-2.1.3.min.js"></script>
     <script src="js/binarystring.js"></script>
@@ -15,11 +15,9 @@
   <body>
     <section id="main">
       <h1>Marlin Configurator</h1>
+      <p class="info">Select presets (coming soon), modify, and download.</p>
 
-      <div id="message">
-        <p class="info">Enter values in the form, get a Marlin configuration.<br/>Will include a drop-down of known configurations.</p>
-      </div>
-
+      <div id="message"></div>
       <div id="tabs"></div>
 
       <form id="config_form">
@@ -83,10 +81,19 @@
           <legend>More…</legend>
         </fieldset>
 
-        <h2>Marlin/Configuration.h</h2><span class="disclose"></span>
-        <pre id="config_text" class="hilightable"></pre>
-        <h2>Marlin/Configuration_adv.h</h2><span class="disclose"></span>
-        <pre id="config_adv_text" class="hilightable"></pre>
+        <section id="config_text">
+          <h2>Configuration.h</h2>
+          <span class="disclose"></span>
+          <a href="" class="download">Download</a>
+          <pre class="hilightable config"></pre>
+        </section>
+
+        <section id="config_adv_text">
+          <h2>Configuration_adv.h</h2>
+          <span class="disclose"></span>
+          <a href="" class="download">Download</a>
+          <pre class="hilightable config"></pre>
+        </section>
 
         <br class="clear" />
       </form>
