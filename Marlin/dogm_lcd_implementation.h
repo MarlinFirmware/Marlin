@@ -375,6 +375,38 @@ static void lcd_implementation_drawmenu_generic(uint8_t row, const char* pstr, c
 		u8g.setColorIndex(1);		// restore settings to black on white
 }
 
+static void lcd_implementation_drawmenu_generic_R(uint8_t row, const char* pstr, char pre_char, char post_char)
+{
+    char c;
+    
+    uint8_t n = LCD_WIDTH - 1 - 2;
+		
+		if ((pre_char == '>') || (pre_char == LCD_STR_UPLEVEL[0] ))
+		   {
+			u8g.setColorIndex(1);		// black on white
+			u8g.drawBox (0, row*DOG_CHAR_HEIGHT + 3, 128, DOG_CHAR_HEIGHT);
+			u8g.setColorIndex(0);		// following text must be white on black
+		   } else u8g.setColorIndex(1); // unmarked text is black on white
+		
+		u8g.setPrintPos(0 * DOG_CHAR_WIDTH, (row + 1) * DOG_CHAR_HEIGHT);
+		if (pre_char != '>') u8g.print(pre_char); else u8g.print(' ');	// Row selector is obsolete
+
+
+    while( (c = *pstr) != '\0' )
+    {
+		u8g.print(c);
+        pstr++;
+        n--;
+    }
+    while(n--){
+					u8g.print(' ');
+		}
+	   
+		u8g.print(post_char);
+		u8g.print(' ');
+		u8g.setColorIndex(1);		// restore settings to black on white
+}
+
 static void lcd_implementation_drawmenu_setting_edit_generic(uint8_t row, const char* pstr, char pre_char, char* data)
 {
     static unsigned int fkt_cnt = 0;
@@ -599,6 +631,12 @@ static void lcd_implementation_drawmenu_sddirectory(uint8_t row, const char* pst
 #define lcd_implementation_drawmenu_function(row, pstr, data) lcd_implementation_drawmenu_generic(row, pstr, ' ', ' ')
 #define lcd_implementation_drawmenu_wizard_selected(row, pstr, data) lcd_implementation_drawmenu_generic(row, pstr, '>', ' ')
 #define lcd_implementation_drawmenu_wizard(row, pstr, data) lcd_implementation_drawmenu_generic(row, pstr, ' ', ' ')
+
+#define lcd_implementation_drawmenu_back_selected_R(row, pstr, data) lcd_implementation_drawmenu_generic_R(row, pstr, LCD_STR_UPLEVEL[0], LCD_STR_UPLEVEL[0])
+#define lcd_implementation_drawmenu_back_R(row, pstr, data) lcd_implementation_drawmenu_generic_R(row, pstr, ' ', LCD_STR_UPLEVEL[0])
+#define lcd_implementation_drawmenu_function_selected_R(row, pstr, data) lcd_implementation_drawmenu_generic_R(row, pstr, '>', ' ')
+#define lcd_implementation_drawmenu_function_R(row, pstr, data) lcd_implementation_drawmenu_generic_R(row, pstr, ' ', ' ')
+
 
 #endif//ULTRA_LCD_IMPLEMENTATION_DOGM_H
 

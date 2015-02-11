@@ -18,11 +18,14 @@
 #define UPDATE_SCREEN               1
 #define CLEAR_AND_UPDATE_SCREEN     2
 
+#define MAX_WINDOW_SIZE             5
+#define MAX_CACHE_SIZE              7
 
 //
 // Typedefs
 //
 typedef void (*func_t)();
+typedef void (*func_p)(void *);
 typedef void (*view_t)();
 
 //
