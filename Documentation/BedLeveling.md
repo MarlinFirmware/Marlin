@@ -60,9 +60,9 @@ My preferred method:
 * g) You can raise the z probe with M402 command;
 * h) Fill the defines bellow multiplying the values by "-1" (just change the signal)
 
-
-* \#define X_PROBE_OFFSET_FROM_EXTRUDER -24.3
-* \#define Y_PROBE_OFFSET_FROM_EXTRUDER 31.4
+* X and Y-Offset must be Integers!
+* \#define X_PROBE_OFFSET_FROM_EXTRUDER -24
+* \#define Y_PROBE_OFFSET_FROM_EXTRUDER 31
 * \#define Z_PROBE_OFFSET_FROM_EXTRUDER -5.1
 
 Sled Option Notes
