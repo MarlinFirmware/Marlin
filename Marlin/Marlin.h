@@ -34,7 +34,7 @@
 
 // Arduino < 1.0.0 does not define this, so we need to do it ourselves
 #ifndef analogInputToDigitalPin
-# define analogInputToDigitalPin(p) ((p) + A0)
+# define analogInputToDigitalPin(p) ((p) + 0xA0)
 #endif
 
 #ifdef AT90USB
@@ -85,6 +85,8 @@ extern const char echomagic[] PROGMEM;
 #define SERIAL_ECHOLNPGM(x) SERIAL_PROTOCOLLNPGM(x)
 
 #define SERIAL_ECHOPAIR(name,value) (serial_echopair_P(PSTR(name),(value)))
+
+#define SERIAL_EOL SERIAL_ECHOLN("")
 
 void serial_echopair_P(const char *s_P, float v);
 void serial_echopair_P(const char *s_P, double v);

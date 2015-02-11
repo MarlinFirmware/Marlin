@@ -3,6 +3,21 @@
 
 #include "boards.h"
 
+
+//===========================================================================
+//============================= Getting Started =============================
+//===========================================================================
+/*
+Here are some standard links for getting your machine calibrated:
+ * http://reprap.org/wiki/Calibration 
+ * http://youtu.be/wAL9d7FgInk
+ * http://calculator.josefprusa.cz
+ * http://reprap.org/wiki/Triffid_Hunter%27s_Calibration_Guide
+ * http://www.thingiverse.com/thing:5573
+ * https://sites.google.com/site/repraplogphase/calibration-of-your-reprap
+ * http://www.thingiverse.com/thing:298812
+*/
+
 // This configuration file contains the basic settings.
 // Advanced settings can be found in Configuration_adv.h
 // BASIC SETTINGS: select your board type, temperature sensor type, axis scaling, and endstop configuration
@@ -28,7 +43,8 @@
 #define STRING_URL "reprap.org"
 #define STRING_VERSION_CONFIG_H __DATE__ " " __TIME__ // build date and time
 #define STRING_CONFIG_H_AUTHOR "(K8200, CONSULitAS)" // Who made the changes.
-#define STRING_SPLASH STRING_VERSION " - " STRING_URL // will be shown during bootup
+#define STRING_SPLASH_LINE1 "v" STRING_VERSION // will be shown during bootup in line 1
+//#define STRING_SPLASH_LINE2 STRING_VERSION_CONFIG_H // will be shown during bootup in line2
 
 // SERIAL_PORT selects which serial port should be used for communication with the host.
 // This allows the connection of wireless adapters (for instance) to non-default port pins.
@@ -66,8 +82,9 @@
 // Define this to have the electronics keep the power supply off on startup. If you don't know what this is leave it.
 // #define PS_DEFAULT_OFF
 
+
 //===========================================================================
-//=============================Thermal Settings  ============================
+//============================= Thermal Settings ============================
 //===========================================================================
 //
 //--NORMAL IS 4.7kohm PULLUP!-- 1kohm pullup can be used on hotend sensor, using correct resistor and table
@@ -143,7 +160,11 @@
 //#define EXTRUDER_WATTS (12.0*12.0/6.7) //  P=I^2/R
 //#define BED_WATTS (12.0*12.0/1.1)      // P=I^2/R
 
-// PID settings:
+//===========================================================================
+//============================= PID Settings ================================
+//===========================================================================
+// PID Tuning Guide here: http://reprap.org/wiki/PID_Tuning
+
 // Comment the following line to disable PID and enable bang-bang.
 #define PIDTEMP
 #define BANG_MAX 255 // limits current to nozzle while in bang-bang mode; 255=full current
@@ -182,7 +203,9 @@
    #define  DEFAULT_Kd 93.51
 #endif // PIDTEMP
 
-// Bed Temperature Control
+//===========================================================================
+//============================= PID > Bed Temperature Control ===============
+//===========================================================================
 // Select PID or bang-bang with PIDTEMPBED. If bang-bang, BED_LIMIT_SWITCHING will enable hysteresis
 //
 // Uncomment this to enable PID on the bed. It uses the same frequency PWM as the extruder.
@@ -225,7 +248,6 @@
 #endif // PIDTEMPBED
 
 
-
 //this prevents dangerous Extruder moves, i.e. if the temperature is under the limit
 //can be software-disabled for whatever purposes by
 #define PREVENT_DANGEROUS_EXTRUDE
@@ -235,7 +257,11 @@
 #define EXTRUDE_MINTEMP 170
 #define EXTRUDE_MAXLENGTH (X_MAX_LENGTH+Y_MAX_LENGTH) //prevent extrusion of very large distances.
 
-/*================== Thermal Runaway Protection ==============================
+
+//===========================================================================
+//============================= Thermal Runaway Protection ==================
+//===========================================================================
+/*
 This is a feature to protect your printer from burn up in flames if it has
 a thermistor coming off place (this happened to a friend of mine recently and
 motivated me writing this feature).
@@ -270,11 +296,10 @@ your extruder heater takes 2 minutes to hit the target on heating.
 // Parameters for the bed heater
 //#define THERMAL_RUNAWAY_PROTECTION_BED_PERIOD 20 //in seconds
 //#define THERMAL_RUNAWAY_PROTECTION_BED_HYSTERESIS 2 // in degree Celsius
-//===========================================================================
 
 
 //===========================================================================
-//=============================Mechanical Settings===========================
+//============================= Mechanical Settings =========================
 //===========================================================================
 
 // Uncomment the following line to enable CoreXY kinematics
@@ -346,7 +371,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define min_software_endstops true // If true, axis won't move to coordinates less than HOME_POS.
 #define max_software_endstops true  // If true, axis won't move to coordinates greater than the defined lengths below.
 
-// Travel limits after homing
+// Travel limits after homing (units are in mm)
 #define X_MAX_POS 200
 #define X_MIN_POS 0
 #define Y_MAX_POS 200
@@ -357,7 +382,11 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define X_MAX_LENGTH (X_MAX_POS - X_MIN_POS)
 #define Y_MAX_LENGTH (Y_MAX_POS - Y_MIN_POS)
 #define Z_MAX_LENGTH (Z_MAX_POS - Z_MIN_POS)
+
+
+//===========================================================================
 //============================= Bed Auto Leveling ===========================
+//===========================================================================
 
 //#define ENABLE_AUTO_BED_LEVELING // Delete the comment to enable (remove // at the start of the line)
 #define Z_PROBE_REPEATABILITY_TEST  // If not commented out, Z-Probe Repeatability test will be included if Auto Bed Leveling is Enabled.
@@ -492,7 +521,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 // default settings
 
-#define DEFAULT_AXIS_STEPS_PER_UNIT   {64.25,64.25,2560,600}  // default steps per unit for Ultimaker
+#define DEFAULT_AXIS_STEPS_PER_UNIT   {64.25,64.25,2560,600}  // default steps per unit for K8200
 #define DEFAULT_MAX_FEEDRATE          {500, 500, 5, 500}    // (mm/sec)
 #define DEFAULT_MAX_ACCELERATION      {9000,9000,100,10000}    // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for Skeinforge 40+, for older versions raise them a lot.
 
@@ -510,8 +539,9 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define DEFAULT_ZJERK                 0.4     // (mm/sec)
 #define DEFAULT_EJERK                 5.0    // (mm/sec)
 
+
 //===========================================================================
-//=============================Additional Features===========================
+//============================= Additional Features =========================
 //===========================================================================
 
 // Custom M code points
@@ -544,6 +574,13 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define ABS_PREHEAT_FAN_SPEED 0   // Insert Value between 0 and 255
 
 //LCD and SD support
+
+// VM8201 (LCD Option for K8200) uses "DISPLAY_CHARSET_HD44870_JAPAN" and "ULTIMAKERCONTROLLER"
+
+// Character based displays can have different extended charsets.
+#define DISPLAY_CHARSET_HD44780_JAPAN     // "ääööüüß23°"
+//#define DISPLAY_CHARSET_HD44780_WESTERN // "ÄäÖöÜüß²³°" if you see a '~' instead of a 'arrow_right' at the right of submenuitems - this is the right one.
+
 //#define ULTRA_LCD  //general LCD support, also 16x2
 //#define DOGLCD  // Support for SPI LCD 128x64 (Controller ST7565R graphic Display Family)
 //#define SDSUPPORT // Enable SD Card Support in Hardware Console
@@ -551,9 +588,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 //#define SD_CHECK_AND_RETRY // Use CRC checks and retries on the SD communication
 //#define ENCODER_PULSES_PER_STEP 1 // Increase if you have a high resolution encoder
 //#define ENCODER_STEPS_PER_MENU_ITEM 5 // Set according to ENCODER_PULSES_PER_STEP or your liking
-
 #define ULTIMAKERCONTROLLER //as available from the Ultimaker online store.
-
 //#define ULTIPANEL  //the UltiPanel as on Thingiverse
 //#define LCD_FEEDBACK_FREQUENCY_HZ 1000	// this is the tone frequency the buzzer plays when on UI feedback. ie Screen Click
 //#define LCD_FEEDBACK_FREQUENCY_DURATION_MS 100 // the duration the buzzer plays the UI feedback sound. ie Screen Click

@@ -14,7 +14,7 @@
 #define BOARD_RAMPS_13_EEB      34   // RAMPS 1.3 / 1.4 (Power outputs: Extruder0, Extruder1, Bed)
 #define BOARD_RAMPS_13_EFF      35   // RAMPS 1.3 / 1.4 (Power outputs: Extruder, Fan, Fan)
 #define BOARD_RAMPS_13_EEF      36   // RAMPS 1.3 / 1.4 (Power outputs: Extruder0, Extruder1, Fan)
-#define BOARD_DUEMILANOVE_328P  4    // Duemilanove w/ ATMega328P pin assignment
+#define BOARD_DUEMILANOVE_328P  4    // Duemilanove w/ ATMega328P pin assignments
 #define BOARD_GEN6              5    // Gen6
 #define BOARD_GEN6_DELUXE       51   // Gen6 deluxe
 #define BOARD_SANGUINOLOLU_11   6    // Sanguinololu < 1.2
@@ -41,12 +41,15 @@
 #define BOARD_MEGATRONICS       70   // Megatronics
 #define BOARD_MEGATRONICS_2     701  // Megatronics v2.0
 #define BOARD_MEGATRONICS_1     702  // Minitronics v1.0
+#define BOARD_MEGATRONICS_3     703  // Megatronics v3.0
 #define BOARD_OMCA_A            90   // Alpha OMCA board
 #define BOARD_OMCA              91   // Final OMCA board
 #define BOARD_RAMBO             301  // Rambo
 #define BOARD_ELEFU_3           21   // Elefu Ra Board (v3)
 #define BOARD_5DPRINT           88   // 5DPrint D8 Driver Board
 #define BOARD_LEAPFROG          999  // Leapfrog
+#define BOARD_WITBOX            41   // bq WITBOX
+#define BOARD_HEPHESTOS         42   // bq Prusa i3 Hephestos
 
 #define BOARD_99                99   // This is in pins.h but...?
 
