@@ -11,7 +11,7 @@
 #define WELCOME_MSG                         MACHINE_NAME " valmis."
 #define MSG_SD_INSERTED                     "Kortti asetettu"
 #define MSG_SD_REMOVED                      "Kortti poistettu"
-#define MSG_MAIN                            "Status"
+#define MSG_MAIN                            "Palaa"
 #define MSG_AUTOSTART                       "Automaatti"
 #define MSG_DISABLE_STEPPERS                "Vapauta moottorit"
 #define MSG_AUTO_HOME                       "Aja referenssiin"
