@@ -582,13 +582,7 @@ void get_command()
 						case 1:
 						case 2:
 						case 3:
-							if(Stopped == false) { // If printer is stopped by an error the G[0-3] codes are ignored.
-								#ifdef SDSUPPORT
-	      							if(card.saving)
-									break;
-								#endif // SDSUPPORT
-		   						SERIAL_PROTOCOLLNPGM(MSG_OK);
-							} else {
+							if (Stopped == true) {
 								SERIAL_ERRORLNPGM(MSG_ERR_STOPPED);
 								LCD_MESSAGEPGM(MSG_STOPPED);
                 				lcd_update();
@@ -985,22 +979,20 @@ void process_commands()
       			if(Stopped == false) {
 				get_coordinates(); // For X Y Z E F
 				prepare_move();
-				//ClearToSend();
-				return;
-
-			}
+				}
+				break;
     		case 2: // G2  - CW ARC
 				if(Stopped == false) {
 					get_arc_coordinates();
 					prepare_arc_move(true);
-					return;
 				}
+				break;
 			case 3: // G3  - CCW ARC
 				if(Stopped == false) {
 					get_arc_coordinates();
 					prepare_arc_move(false);
-					return;
 				}
+				break;
     		case 4: // G4 dwell
       			LCD_MESSAGEPGM(MSG_DWELL);
       			codenum = 0;
