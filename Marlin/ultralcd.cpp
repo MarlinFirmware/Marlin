@@ -615,6 +615,7 @@ static void lcd_set_encoder_position(int8_t position)
     
 
 // Menu Drawers
+static void menu_action_text();
 static void menu_action_back(func_t function);
 static void menu_action_submenu(func_t function);
 static void menu_action_gcode(const char* pgcode);
@@ -691,7 +692,7 @@ static void view_menu_main()
         }
 
     } else {
-        MENU_ITEM(submenu, MSG_NO_CARD, draw_menu_sdcard);
+        MENU_ITEM(text, MSG_NO_CARD);
 
 #  if (SDCARDDETECT < 1)
         MENU_ITEM(gcode, MSG_INIT_SDCARD, PSTR("M21")); // Manually initialize the SD-card via user interface
@@ -2171,6 +2172,8 @@ static void view_picture_splash()
     display_refresh_mode == NO_UPDATE_SCREEN;
     lcd_clear_triggered_flags();
 }
+
+static void menu_action_text() {}
 
 static void menu_action_back(func_t function)
 {

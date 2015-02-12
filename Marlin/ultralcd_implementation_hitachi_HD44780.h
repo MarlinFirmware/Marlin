@@ -570,6 +570,8 @@ static void lcd_implementation_drawmenu_sddirectory(uint8_t row, const char* pst
     lcd.print(' ');
 }
 
+#define lcd_implementation_drawmenu_text_selected(row, pstr) lcd_implementation_drawmenu_generic(row, pstr, '>', ' ')
+#define lcd_implementation_drawmenu_text(row, pstr) lcd_implementation_drawmenu_generic(row, pstr, ' ', ' ')
 #define lcd_implementation_drawmenu_back_selected(row, pstr, data) lcd_implementation_drawmenu_generic(row, pstr, LCD_STR_UPLEVEL[0], LCD_STR_UPLEVEL[0])
 #define lcd_implementation_drawmenu_back(row, pstr, data) lcd_implementation_drawmenu_generic(row, pstr, ' ', LCD_STR_UPLEVEL[0])
 #define lcd_implementation_drawmenu_submenu_selected(row, pstr, data) lcd_implementation_drawmenu_generic(row, pstr, '>', LCD_STR_ARROW_RIGHT[0])
