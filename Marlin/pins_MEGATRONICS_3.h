@@ -8,6 +8,20 @@
 
 #define LARGE_FLASH        true
 
+// Servo support
+#ifdef NUM_SERVOS
+  #define SERVO0_PIN       46 //AUX3-6
+  #if NUM_SERVOS > 1
+    #define SERVO1_PIN     47 //AUX3-5
+    #if NUM_SERVOS > 2
+      #define SERVO2_PIN   48 //AUX3-4
+      #if NUM_SERVOS > 3
+        #define SERVO2_PIN 49 //AUX3-3
+      #endif
+    #endif
+  #endif
+#endif
+
 #define X_STEP_PIN         58
 #define X_DIR_PIN          57
 #define X_ENABLE_PIN       59
