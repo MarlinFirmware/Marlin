@@ -201,8 +201,9 @@ void Stop();
 
 bool IsStopped();
 
-void enquecommand(const char *cmd); //put an ASCII command at the end of the current buffer.
-void enquecommand_P(const char *cmd); //put an ASCII command at the end of the current buffer, read from flash
+bool enquecommand(const char *cmd); //put a single ASCII command at the end of the current buffer or return false when it is full
+void enquecommands_P(const char *cmd); //put one or many ASCII commands at the end of the current buffer, read from flash
+
 void prepare_arc_move(char isclockwise);
 void clamp_to_software_endstops(float target[3]);
 
