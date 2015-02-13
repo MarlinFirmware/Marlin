@@ -165,7 +165,7 @@ var configuratorApp = (function(){
       this.makeTabsForFieldsets();
 
       // No selection on errors
-      $msgbox.noSelect();
+      // $msgbox.noSelect();
 
       // Make a droppable file uploader, if possible
       var $uploader = $('#file-upload');
@@ -231,30 +231,39 @@ var configuratorApp = (function(){
           },
           complete: function() {
             ajax_count++;
-            if (ajax_count >= 3) {
-              $.each(config_files, function(){ if (loaded_items[this]) loaded_items[this](); });
+            if (ajax_count >= config_files.length) {
+              // If not all files loaded set an error
               if (success_count < ajax_count)
                 self.setMessage('Unable to load configurations. Try the upload field.', 'error');
+
+              // Is the request near the rate limit? Set an error.
               var r;
               if (r = rateLimit) {
                 if (r.quota < 20) {
                   self.setMessage(
                     'Approaching request limit (' +
                     r.quota + ' remaining.' +
-                    ' Reset in ' + Math.floor(r.timeLeft/60) + ':' + (r.timeLeft%60+'').zeroPad(2) + ')'
+                    ' Reset in ' + Math.floor(r.timeLeft/60) + ':' + (r.timeLeft%60+'').zeroPad(2) + ')',
+                    'warning'
                   );
                 }
               }
+              // Post-process all the loaded files
+              $.each(config_files, function(){ if (loaded_items[this]) loaded_items[this](); });
             }
           }
         });
       });
     },
 
-    createDownloadLink: function(adv) {
+    /**
+     * Make a download link visible and active
+     */
+    activateDownloadLink: function(adv) {
       var $c = adv ? $config_adv : $config, txt = $c.text();
       var filename = (adv ? config_adv_file : config_file);
       $c.prevAll('.download:first')
+        .unbind('mouseover click')
         .mouseover(function() {
           var d = new Date(), fn = d.fileStamp(filename);
           $(this).attr({ download:fn, href:'download:'+fn, title:'download:'+fn });
@@ -300,32 +309,41 @@ var configuratorApp = (function(){
      * Get all the unique define names
      */
     getDefinesFromText: function(txt) {
+      var leave_out_defines = ['CONFIGURATION_H', 'CONFIGURATION_ADV_H', 'STRING_VERSION', 'STRING_URL', 'STRING_VERSION_CONFIG_H', 'STRING_CONFIG_H_AUTHOR', 'STRING_SPLASH_LINE1', 'STRING_SPLASH_LINE2'];
       // Get all the unique #define's and save them in an array
       var r, define_obj = {}, findDef = new RegExp('#define[ \\t]+(\\w+)', 'gm');
-      var cnt = 0;
       while((r = findDef.exec(txt)) !== null) {
-        if (cnt++ && !(r[1] in define_obj)) define_obj[r[1]] = null;
+        if ($.inArray(r[1], leave_out_defines) < 0 && !(r[1] in define_obj))
+          define_obj[r[1]] = null;
       }
       this.log(Object.keys(define_obj), 2);
       return Object.keys(define_obj);
     },
 
     /**
-     * Create placeholder fields for defines, as needed
+     * Create fields for any defines that have none
      */
     createFieldsForDefines: function(adv) {
       var e = adv ? 1 : 0, n = 0;
       var fail_list = [];
       $.each(define_list[e], function(i,name) {
         if (!$('#'+name).length) {
-          var $ff = $('#more');
-          var inf = self.getDefineInfo(name, adv);
+          var $ff = $('#more'),
+              inf = self.getDefineInfo(name, adv);
           if (inf) {
             var $newlabel = $('<label>',{for:name}).text(name.toLabel());
             // if (!(++n % 3))
               $newlabel.addClass('newline');
-            var $newfield = inf.type == 'switch' ? $('<input>',{type:'checkbox'}) : $('<input>',{type:'text',size:10,maxlength:40});
+
+            var $newfield;
+            if (inf.options !== undefined) {
+              $newfield = $('<select>'); //.addOptions(inf.options);
+            }
+            else {
+              $newfield = inf.type == 'switch' ? $('<input>',{type:'checkbox'}) : $('<input>',{type:'text',size:10,maxlength:40});
+            }
             $newfield.attr({id:name,name:name}).prop({defineInfo:inf});
+            // Add the new field to the form
             $ff.append($newlabel, $newfield);
           }
           else
@@ -358,7 +376,7 @@ var configuratorApp = (function(){
      */
     fileLoaded: function(filename, txt) {
       this.log("fileLoaded:"+filename,4);
-      var err;
+      var err, init_index;
       switch(filename) {
         case boards_file:
           this.initBoardsFromText(txt);
@@ -369,13 +387,8 @@ var configuratorApp = (function(){
           if (has_boards) {
             $config.text(txt);
             total_config_lines = txt.lineCount();
-            this.initThermistorsFromText(txt);
-            this.purgeDefineInfo(false);
-            define_list[0] = this.getDefinesFromText(txt);
-            this.log(define_list[0], 2);
-            this.createFieldsForDefines(0);
-            this.refreshConfigForm();
-            this.createDownloadLink(false);
+            // this.initThermistorsFromText(txt);
+            init_index = 0;
             has_config = true;
           }
           else {
@@ -386,17 +399,23 @@ var configuratorApp = (function(){
           if (has_config) {
             $config_adv.text(txt);
             total_config_adv_lines = txt.lineCount();
-            this.purgeDefineInfo(true);
-            define_list[1] = this.getDefinesFromText(txt);
-            this.log(define_list[1], 2);
-            this.refreshConfigForm();
-            this.createDownloadLink(true);
+            init_index = 1;
             has_config_adv = true;
           }
           else {
             err = config_file;
           }
           break;
+      }
+      // When a config file loads defines might change
+      if (init_index != null) {
+        var adv = init_index == 1;
+        define_list[init_index] = this.getDefinesFromText(txt);
+        this.log(define_list[init_index], 2);
+        this.purgeDefineInfo(adv);
+        this.createFieldsForDefines(init_index);
+        this.refreshConfigForm(init_index);
+        this.activateDownloadLink(adv);
       }
       this.setMessage(err
         ? 'Please upload a "' + boards_file + '" file first!'
@@ -405,7 +424,7 @@ var configuratorApp = (function(){
     },
 
     /**
-     * Add enhancements to the form
+     * Add initial enhancements to the existing form
      */
     initConfigForm: function() {
       // Modify form fields and make the form responsive.
@@ -436,12 +455,13 @@ var configuratorApp = (function(){
       });
 
       // Add options to the popup menus
-      $('#SERIAL_PORT').addOptions([0,1,2,3,4,5,6,7]);
-      $('#BAUDRATE').addOptions([2400,9600,19200,38400,57600,115200,250000]);
-      $('#EXTRUDERS').addOptions([1,2,3,4]);
-      $('#POWER_SUPPLY').addOptions({'1':'ATX','2':'Xbox 360'});
+      // $('#SERIAL_PORT').addOptions([0,1,2,3,4,5,6,7]);
+      // $('#BAUDRATE').addOptions([2400,9600,19200,38400,57600,115200,250000]);
+      // $('#EXTRUDERS').addOptions([1,2,3,4]);
+      // $('#POWER_SUPPLY').addOptions({'1':'ATX','2':'Xbox 360'});
 
       // Replace the Serial popup menu with a stepper control
+      /*
       $('#serial_stepper').jstepper({
         min: 0,
         max: 3,
@@ -455,6 +475,7 @@ var configuratorApp = (function(){
         textStyle: {width:'1.5em',fontSize:'120%',textAlign:'center'},
         onChange: function(v) { $('#SERIAL_PORT').val(v).trigger('change'); }
       });
+      */
     },
 
     /**
@@ -462,8 +483,9 @@ var configuratorApp = (function(){
      */
     makeTabsForFieldsets: function() {
       // Make tabs for the fieldsets
-      var $fset = $form.find('fieldset');
-      var $tabs = $('<ul>',{class:'tabs'}), ind = 1;
+      var $fset = $form.find('fieldset'),
+          $tabs = $('<ul>',{class:'tabs'}),
+          ind = 1;
       $fset.each(function(){
         var tabID = 'TAB'+ind;
         $(this).addClass(tabID);
@@ -489,7 +511,7 @@ var configuratorApp = (function(){
     /**
      * Update all fields on the form after loading a configuration
      */
-    refreshConfigForm: function() {
+    refreshConfigForm: function(init_index) {
 
       /**
        * Any manually-created form elements will remain
@@ -499,56 +521,72 @@ var configuratorApp = (function(){
        * Specific exceptions can be managed by applying
        * classes to the associated form fields.
        * Sorting and arrangement can come from an included
-       * js file that describes the configuration in JSON.
+       * Javascript file that describes the configuration
+       * in JSON, or using information added to the config
+       * files.
        *
-       * For now I'm trying to derive information
-       * about options directly from the config file.
        */
 
+      // Refresh the motherboard menu with new options
       $('#MOTHERBOARD').html('').addOptions(boards_list);
 
-      $('#TEMP_SENSOR_0, #TEMP_SENSOR_1, #TEMP_SENSOR_2, #TEMP_SENSOR_BED').html('').addOptions(therms_list);
-
-      $.each(define_list, function() { $.each(this, function() { if ($('#'+this).length) self.initField(this); }); });
+      // Init all existing fields, getting define info for any that need it
+      // refreshing the options and updating their current values
+      $.each(define_list[init_index], function() {
+        if ($('#'+this).length)
+          self.initField(this,init_index==1);
+        else
+          self.log(this + " is not on the page yet.", 2);
+      });
     },
 
     /**
-     * Make a field responsive and initialize its defineInfo
+     * Get the defineInfo for a field on the form
+     * Make it responsive, add a tooltip
      */
     initField: function(name, adv) {
       this.log("initField:"+name,4);
-      var $elm = $('#'+name), elm = $elm[0];
-      if (elm.defineInfo == null) {
-        var inf = elm.defineInfo = this.getDefineInfo(name, adv);
-        $elm.on($elm.attr('type') == 'text' ? 'input' : 'change', this.handleChange);
+      var $elm = $('#'+name), elm = $elm[0], inf = elm.defineInfo;
+      if (inf == null)
+        inf = elm.defineInfo = this.getDefineInfo(name, adv);
 
-        if (inf.tooltip) {
-          var $tipme = $elm.prev('label');
-          if ($tipme.length) {
-            $tipme.hover(
-              function() {
-                if ($('#tipson input').prop('checked')) {
-                  var pos = $tipme.position();
-                  $tooltip.html(inf.tooltip)
-                    .append('<span>')
-                    .css({bottom:($tooltip.parent().outerHeight()-pos.top)+'px',left:(pos.left+70)+'px'})
-                    .show();
-                  if (hover_timer) {
-                    clearTimeout(hover_timer);
-                    hover_timer = null;
-                  }
-                }
-              },
-              function() {
-                hover_timer = setTimeout(function(){
+      // Set options on the field if there are any
+      if (inf.options !== undefined)
+        $elm.html('').addOptions(inf.options);
+
+      // Create a tooltip if there is one
+      if (inf.tooltip) {
+        var $tipme = $elm.prev('label');
+        if ($tipme.length) {
+          $tipme.unbind('mouseenter mouseleave');
+          $tipme.hover(
+            function() {
+              if ($('#tipson input').prop('checked')) {
+                var pos = $tipme.position();
+                $tooltip.html(inf.tooltip)
+                  .append('<span>')
+                  .css({bottom:($tooltip.parent().outerHeight()-pos.top)+'px',left:(pos.left+70)+'px'})
+                  .show();
+                if (hover_timer) {
+                  clearTimeout(hover_timer);
                   hover_timer = null;
-                  $tooltip.fadeOut(400);
-                }, 400);
+                }
               }
-            );
-          }
+            },
+            function() {
+              hover_timer = setTimeout(function(){
+                hover_timer = null;
+                $tooltip.fadeOut(400);
+              }, 400);
+            }
+          );
         }
       }
+
+      $elm.unbind('input change');
+      $elm.on($elm.attr('type') == 'text' ? 'input' : 'change', this.handleChange);
+
+      // Set the field's initial value from the define
       this.setFieldFromDefine(name);
     },
 
@@ -733,6 +771,7 @@ var configuratorApp = (function(){
      *   - Store the existing #define line as a fast key to finding it later.
      *   - Determine the line number of the #define so it can be scrolled to.
      *   - Gather nearby comments to be used as tooltips.
+     *   - Look for JSON in nearby comments to use as select options.
      */
     getDefineInfo: function(name, adv) {
       if (adv === undefined) adv = false;
@@ -757,34 +796,50 @@ var configuratorApp = (function(){
         info.repl =  new RegExp('([ \\t]*)(\/\/)?([ \\t]*' + info.define.regEsc() + info.post.regEsc() + ')', 'm');
       }
       else {
-        // a define with quotes
-        findDef = new RegExp('^(.*//)?(.*#define[ \\t]+' + name + '[ \\t]+)("[^"]*")([ \\t]*/[*/].*)?$', 'm');
+        // a define with curly braces
+        findDef = new RegExp('^(.*//)?(.*#define[ \\t]+' + name + '[ \\t]+)(\{[^\}]*\})([ \\t]*/[*/].*)?$', 'm');
         result = findDef.exec(txt);
         if (result !== null) {
           $.extend(info, {
-            type:   'quoted',
+            type:   'list',
             line:   result[0],
             pre:    result[1] === undefined ? '' : result[1].replace('//',''),
             define: result[2],
             post:   result[4] === undefined ? '' : result[4]
           });
-          info.regex = new RegExp('([ \\t]*//)?[ \\t]*' + info.define.regEsc() + '"([^"]*)"' + info.post.regEsc(), 'm');
-          info.repl  = new RegExp('(([ \\t]*//)?[ \\t]*' + info.define.regEsc() + '")[^"]*("' + info.post.regEsc() + ')', 'm');
+          info.regex = new RegExp('([ \\t]*//)?[ \\t]*' + info.define.regEsc() + '\{([^\}]*)\}' + info.post.regEsc(), 'm');
+          info.repl  = new RegExp('(([ \\t]*//)?[ \\t]*' + info.define.regEsc() + '\{)[^\}]*(\}' + info.post.regEsc() + ')', 'm');
         }
         else {
-          // a define with no quotes
-          findDef = new RegExp('^([ \\t]*//)?([ \\t]*#define[ \\t]+' + name + '[ \\t]+)(\\S*)([ \\t]*/[*/].*)?$', 'm');
+          // a define with quotes
+          findDef = new RegExp('^(.*//)?(.*#define[ \\t]+' + name + '[ \\t]+)("[^"]*")([ \\t]*/[*/].*)?$', 'm');
           result = findDef.exec(txt);
           if (result !== null) {
             $.extend(info, {
-              type:   'plain',
+              type:   'quoted',
               line:   result[0],
               pre:    result[1] === undefined ? '' : result[1].replace('//',''),
               define: result[2],
               post:   result[4] === undefined ? '' : result[4]
             });
-            info.regex = new RegExp('([ \\t]*//)?[ \\t]*' + info.define.regEsc() + '(\\S*)' + info.post.regEsc(), 'm');
-            info.repl  = new RegExp('(([ \\t]*//)?[ \\t]*' + info.define.regEsc() + ')\\S*(' + info.post.regEsc() + ')', 'm');
+            info.regex = new RegExp('([ \\t]*//)?[ \\t]*' + info.define.regEsc() + '"([^"]*)"' + info.post.regEsc(), 'm');
+            info.repl  = new RegExp('(([ \\t]*//)?[ \\t]*' + info.define.regEsc() + '")[^"]*("' + info.post.regEsc() + ')', 'm');
+          }
+          else {
+            // a define with no quotes
+            findDef = new RegExp('^([ \\t]*//)?([ \\t]*#define[ \\t]+' + name + '[ \\t]+)(\\S*)([ \\t]*/[*/].*)?$', 'm');
+            result = findDef.exec(txt);
+            if (result !== null) {
+              $.extend(info, {
+                type:   'plain',
+                line:   result[0],
+                pre:    result[1] === undefined ? '' : result[1].replace('//',''),
+                define: result[2],
+                post:   result[4] === undefined ? '' : result[4]
+              });
+              info.regex = new RegExp('([ \\t]*//)?[ \\t]*' + info.define.regEsc() + '(\\S*)' + info.post.regEsc(), 'm');
+              info.repl  = new RegExp('(([ \\t]*//)?[ \\t]*' + info.define.regEsc() + ')\\S*(' + info.post.regEsc() + ')', 'm');
+            }
           }
         }
       }
@@ -807,13 +862,22 @@ var configuratorApp = (function(){
               tooltip = '';
               break;
             }
-            tooltip += ' ' + s[1] + '\n';
+            // JSON data? Save as select options
+            if (s[1].match(/:[\[{]/) != null) {
+              // TODO
+              // :[1-6] = value limits
+              eval('info.options = ' + s[1].substr(1));
+            }
+            else {
+              // Other lines added to the tooltip
+              tooltip += ' ' + s[1] + '\n';
+            }
           }
         }
 
-        findDef = new RegExp('^[ \\t]*'+name); // To strip the name from the start
+        findDef = new RegExp('^'+name); // To strip the name from the start
         $.extend(info, {
-          tooltip: '<strong>'+name+'</strong> '+tooltip.replace(findDef,'').trim().toHTML(),
+          tooltip: '<strong>'+name+'</strong> '+tooltip.trim().replace(findDef,'').toHTML(),
           lineNum: this.getLineNumberOfText(info.line, txt)
         });
       }
