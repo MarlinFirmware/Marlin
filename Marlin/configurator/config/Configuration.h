@@ -48,6 +48,7 @@ Here are some standard links for getting your machine calibrated:
 // SERIAL_PORT selects which serial port should be used for communication with the host.
 // This allows the connection of wireless adapters (for instance) to non-default port pins.
 // Serial port 0 is still used by the Arduino bootloader regardless of this setting.
+// :[0,1,2,3,4,5,6,7]
 #define SERIAL_PORT 0
 
 // This determines the communication speed of the printer
@@ -71,12 +72,13 @@ Here are some standard links for getting your machine calibrated:
 // #define MACHINE_UUID "00000000-0000-0000-0000-000000000000"
 
 // This defines the number of extruders
+// :[1,2,3,4]
 #define EXTRUDERS 1
 
 //// The following define selects which power supply you have. Please choose the one that matches your setup
 // 1 = ATX
 // 2 = X-Box 360 203Watts (the blue wire connected to PS_ON and the red wire to VCC)
-
+// :{1:'ATX',2:'X-Box 360'}
 #define POWER_SUPPLY 1
 
 // Define this to have the electronics keep the power supply off on startup. If you don't know what this is leave it.
@@ -119,7 +121,7 @@ Here are some standard links for getting your machine calibrated:
 // 1010 is Pt1000 with 1k pullup (non standard)
 // 147 is Pt100 with 4k7 pullup
 // 110 is Pt100 with 1k pullup (non standard)
-
+// :{ 0: "Not used", 4: "10k !! do not use for a hotend. Bad resolution at high temp. !!", 1: "100k / 4.7k - EPCOS", 51: "100k / 1k - EPCOS", 6: "100k / 4.7k EPCOS - Not as accurate as Table 1", 5: "100K / 4.7k - ATC Semitec 104GT-2 (Used in ParCan & J-Head)", 7: "100k / 4.7k Honeywell 135-104LAG-J01", 71: "100k / 4.7k Honeywell 135-104LAF-J01", 8: "100k / 4.7k 0603 SMD Vishay NTCS0603E3104FXT", 9: "100k / 4.7k GE Sensing AL03006-58.2K-97-G1", 10: "100k / 4.7k RS 198-961", 11: "100k / 4.7k beta 3950 1%", 12: "100k / 4.7k 0603 SMD Vishay NTCS0603E3104FXT (calibrated for Makibox hot bed)", 13: "100k Hisens 3950  1% up to 300°C for hotend 'Simple ONE ' & hotend 'All In ONE'", 60: "100k Maker's Tool Works Kapton Bed Thermistor beta=3950", 55: "100k / 1k - ATC Semitec 104GT-2 (Used in ParCan & J-Head)", 2: "200k / 4.7k - ATC Semitec 204GT-2", 52: "200k / 1k - ATC Semitec 204GT-2", '-2': "Thermocouple + MAX6675 (only for sensor 0)", '-1': "Thermocouple + AD595", 3: "Mendel-parts / 4.7k", 1047: "Pt1000 / 4.7k", 1010: "Pt1000 / 1k (non standard)", 20: "PT100 (Ultimainboard V2.x)", 147: "Pt100 / 4.7k", 110: "Pt100 / 1k (non-standard)" }
 #define TEMP_SENSOR_0 -1
 #define TEMP_SENSOR_1 -1
 #define TEMP_SENSOR_2 0

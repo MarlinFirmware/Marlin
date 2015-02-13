@@ -41,9 +41,10 @@ p.info span { color: #800; }
 
 #message { text-align: center; }
 #message { width: 80%; margin: 0 auto 0.25em; color: #FF0; }
-#message p { padding: 2px 0; }
-#message p.error, #message p.message { color: #F00; background: #FF4; font-weight: bold; border-radius: 0.8em; }
+#message p { padding: 2px 0; font-weight: bold; border-radius: 0.8em; }
 #message p.message { color: #080; background: #CFC; }
+#message p.error { color: #F00; background: #FF4; }
+#message p.warning { color: #FF0; background: #BA4; }
 #message p.message span {
 	color: #A00;
 	background: rgba(255, 255, 255, 1);
@@ -92,6 +93,17 @@ input[type="checkbox"], input[type="radio"].enabler { margin-left: 1em; }
 
 input:disabled { color: #BBB; }
 
+#more input[type="text"] { width: 20em; }
+
+#more label {
+	width: 240px; /* label area */
+	height: 1em;
+	padding: 10px 360px 10px 1em;
+	margin-right: -350px;
+	text-align: right;
+	}
+
+
 ul.tabs { padding: 0; list-style: none; }
 ul.tabs li { display: inline; }
 ul.tabs li a,
@@ -136,7 +148,7 @@ fieldset legend { display: none; }
 	}
 
 #serial_stepper { padding-top: 0.75em; display: block; float: left; }
-#SERIAL_PORT { display: none; }
+/*#SERIAL_PORT { display: none; }*/
 
 /* Tooltips */
 
