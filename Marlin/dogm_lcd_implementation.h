@@ -199,7 +199,7 @@ static void lcd_implementation_status_screen() {
 
     u8g.setPrintPos(80,47);
     if (starttime != 0) {
-      uint16_t time = millis()/60000 - starttime/60000;
+      uint16_t time = (millis() - starttime) / 60000;
       u8g.print(itostr2(time/60));
       u8g.print(':');
       u8g.print(itostr2(time%60));
@@ -210,26 +210,25 @@ static void lcd_implementation_status_screen() {
   #endif
  
   // Extruders
-  _draw_heater_status(6, 0);
-  #if EXTRUDERS > 1
-    _draw_heater_status(31, 1);
-    #if EXTRUDERS > 2
-      _draw_heater_status(55, 2);
-    #endif
-  #endif
+  for (int i=0; i<EXTRUDERS; i++) _draw_heater_status(6 + i * 25, i);
 
   // Heatbed
-  _draw_heater_status(81, -1);
+  if (EXTRUDERS < 4) _draw_heater_status(81, -1);
  
   // Fan
   u8g.setFont(FONT_STATUSMENU);
   u8g.setPrintPos(104,27);
   #if defined(FAN_PIN) && FAN_PIN > -1
-    u8g.print(itostr3(int((fanSpeed*100)/256 + 1)));
-    u8g.print("%");
-  #else
-    u8g.print("---");
+    int per = ((fanSpeed + 1) * 100) / 256;
+    if (per) {
+      u8g.print(itostr3(per));
+      u8g.print("%");
+    }
+    else
   #endif
+    {
+      u8g.print("---");
+    }
 
   // X, Y, Z-Coordinates
   u8g.setFont(FONT_STATUSMENU);
