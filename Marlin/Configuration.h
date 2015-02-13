@@ -559,7 +559,12 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define ABS_PREHEAT_HPB_TEMP 100
 #define ABS_PREHEAT_FAN_SPEED 255   // Insert Value between 0 and 255
 
-//LCD and SD support
+//==============================LCD and SD support=============================
+
+// Define your display language below. Replace (en) with your language code and uncomment.
+// en, pl, fr, de, es, ru, it, pt, pt-br, fi, an, nl, ca, eu
+// See also language.h
+//#define LANGUAGE_INCLUDE GENERATE_LANGUAGE_INCLUDE(en)
 
 // Character based displays can have different extended charsets.
 #define DISPLAY_CHARSET_HD44780_JAPAN     // "ääööüüß23°"
