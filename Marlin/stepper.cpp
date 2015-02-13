@@ -401,10 +401,11 @@ ISR(TIMER1_COMPA_vect)
 
     // Set direction en check limit switches
     #ifndef COREXY
-    if ((out_bits & (1<<X_AXIS)) != 0) {   // stepping along -X axis
+    if ((out_bits & (1<<X_AXIS)) != 0)   // stepping along -X axis
     #else
-    if ((((out_bits & (1<<X_AXIS)) != 0)&&(out_bits & (1<<Y_AXIS)) != 0)) {   //-X occurs for -A and -B
+    if ((out_bits & (1<<X_HEAD)) != 0)   //AlexBorro: Head direction in -X axis for CoreXY bots.
     #endif
+    {
       CHECK_ENDSTOPS
       {
         #ifdef DUAL_X_CARRIAGE
@@ -425,7 +426,8 @@ ISR(TIMER1_COMPA_vect)
         }
       }
     }
-    else { // +direction
+    else 
+    { // +direction
       CHECK_ENDSTOPS
       {
         #ifdef DUAL_X_CARRIAGE
@@ -448,10 +450,11 @@ ISR(TIMER1_COMPA_vect)
     }
 
     #ifndef COREXY
-    if ((out_bits & (1<<Y_AXIS)) != 0) {   // -direction
+    if ((out_bits & (1<<Y_AXIS)) != 0)   // -direction
     #else
-    if ((((out_bits & (1<<X_AXIS)) != 0)&&(out_bits & (1<<Y_AXIS)) == 0)) {   // -Y occurs for -A and +B
+    if ((out_bits & (1<<Y_HEAD)) != 0)  //AlexBorro: Head direction in -Y axis for CoreXY bots.
     #endif
+    {
       CHECK_ENDSTOPS
       {
         #if defined(Y_MIN_PIN) && Y_MIN_PIN > -1
@@ -465,7 +468,8 @@ ISR(TIMER1_COMPA_vect)
         #endif
       }
     }
-    else { // +direction
+    else 
+    { // +direction
       CHECK_ENDSTOPS
       {
         #if defined(Y_MAX_PIN) && Y_MAX_PIN > -1
