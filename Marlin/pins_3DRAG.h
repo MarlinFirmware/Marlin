@@ -4,8 +4,10 @@
 
 #include "pins_RAMPS_13.h"
 
+// Differences to RAMPS_13
 #define X_MAX_PIN          2
 #define Y_MAX_PIN          15
+#define Z_ENABLE_PIN       63 // 62 is wrong for K8200 and should be 63 for 3Drag, too - Could a 3Drag user please check? Thanks, @consulitas 
 #define Z_MAX_PIN          -1
 
 #define SDSS               25//53
