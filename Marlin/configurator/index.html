@@ -25,7 +25,7 @@
         <div id="tooltip"></div>
 
         <label>Drop Files Here:</label><input type="file" id="file-upload" />
-        <div id="tipson"><input type="checkbox" checked /> ?</div>
+        <label id="tipson"><input type="checkbox" checked /> ?</label>
         <br class="clear" />
 
         <fieldset id="machine">
@@ -40,9 +40,9 @@
 
           <label class="newline">Motherboard:</label><select name="MOTHERBOARD"></select>
 
-          <label class="newline">Custom Name:</label><input name="CUSTOM_MENDEL_NAME" class="switchable" type="text" size="14" maxlength="12" value="" />
+          <label class="newline">Custom Name:</label><input name="CUSTOM_MENDEL_NAME" type="text" size="14" maxlength="12" value="" />
 
-          <label class="newline">Machine UUID:</label><input name="MACHINE_UUID" class="switchable" type="text" size="38" maxlength="36" value="" />
+          <label class="newline">Machine UUID:</label><input name="MACHINE_UUID" type="text" size="38" maxlength="36" value="" />
 
           <label class="newline">Extruders:</label><select name="EXTRUDERS"></select>
 
@@ -50,6 +50,10 @@
 
           <label>PS Default Off:</label>
             <input name="PS_DEFAULT_OFF" type="checkbox" value="1" checked />
+        </fieldset>
+
+        <fieldset id="homing">
+          <legend>Homing</legend>
         </fieldset>
 
         <fieldset id="temperature">
@@ -69,12 +73,20 @@
             <input name="TEMP_RESIDENCY_TIME" type="text" size="3" maxlength="2" />
         </fieldset>
 
-        <fieldset id="hotends">
-          <legend>Hot Ends</legend>
+        <fieldset id="extruder">
+          <legend>Extruder</legend>
         </fieldset>
 
-        <fieldset id="heatbed">
-          <legend>Heated Bed</legend>
+        <fieldset id="lcd">
+          <legend>LCD / SD</legend>
+        </fieldset>
+
+        <fieldset id="bedlevel">
+          <legend>Bed Leveling</legend>
+        </fieldset>
+
+        <fieldset id="extras">
+          <legend>Extras</legend>
         </fieldset>
 
         <fieldset id="more">
