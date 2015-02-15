@@ -1720,6 +1720,7 @@ void process_commands()
 
 #ifdef ENABLE_AUTO_BED_LEVELING
     case 29: // G29 Detailed Z-Probe, probes the bed at 3 or more points.
+    	     // Override probing area by providing [F]ront [B]ack [L]eft [R]ight Grid[P]oints values
         {
             #if Z_MIN_PIN == -1
             #error "You must have a Z_MIN endstop in order to enable Auto Bed Leveling feature!!! Z_MIN_PIN must point to a valid hardware pin."
@@ -1733,6 +1734,16 @@ void process_commands()
                 SERIAL_ECHOLNPGM(MSG_POSITION_UNKNOWN);
                 break; // abort G29, since we don't know where we are
             }
+            int left_probe_bed_position=LEFT_PROBE_BED_POSITION;
+            int right_probe_bed_position=RIGHT_PROBE_BED_POSITION;
+            int back_probe_bed_position=BACK_PROBE_BED_POSITION;
+            int front_probe_bed_position=FRONT_PROBE_BED_POSITION;
+            int auto_bed_leveling_grid_points=AUTO_BED_LEVELING_GRID_POINTS;
+            if (code_seen('L')) left_probe_bed_position=(int)code_value();
+            if (code_seen('R')) right_probe_bed_position=(int)code_value();
+            if (code_seen('B')) back_probe_bed_position=(int)code_value();
+            if (code_seen('F')) front_probe_bed_position=(int)code_value();
+            if (code_seen('P')) auto_bed_leveling_grid_points=(int)code_value();
 
 #ifdef Z_PROBE_SLED
             dock_sled(false);
@@ -1754,8 +1765,8 @@ void process_commands()
 #ifdef AUTO_BED_LEVELING_GRID
             // probe at the points of a lattice grid
 
-            int xGridSpacing = (RIGHT_PROBE_BED_POSITION - LEFT_PROBE_BED_POSITION) / (AUTO_BED_LEVELING_GRID_POINTS-1);
-            int yGridSpacing = (BACK_PROBE_BED_POSITION - FRONT_PROBE_BED_POSITION) / (AUTO_BED_LEVELING_GRID_POINTS-1);
+            int xGridSpacing = (right_probe_bed_position - left_probe_bed_position) / (auto_bed_leveling_grid_points-1);
+            int yGridSpacing = (back_probe_bed_position - front_probe_bed_position) / (auto_bed_leveling_grid_points-1);
 
 
             // solve the plane equation ax + by + d = z
@@ -1765,32 +1776,35 @@ void process_commands()
             // so Vx = -a Vy = -b Vz = 1 (we want the vector facing towards positive Z
 
             // "A" matrix of the linear system of equations
-            double eqnAMatrix[AUTO_BED_LEVELING_GRID_POINTS*AUTO_BED_LEVELING_GRID_POINTS*3];
+            double eqnAMatrix[auto_bed_leveling_grid_points*auto_bed_leveling_grid_points*3];
+
             // "B" vector of Z points
-            double eqnBVector[AUTO_BED_LEVELING_GRID_POINTS*AUTO_BED_LEVELING_GRID_POINTS];
+            double eqnBVector[auto_bed_leveling_grid_points*auto_bed_leveling_grid_points];
+
 
 
             int probePointCounter = 0;
             bool zig = true;
 
-            for (int yProbe=FRONT_PROBE_BED_POSITION; yProbe <= BACK_PROBE_BED_POSITION; yProbe += yGridSpacing)
+            for (int yProbe=front_probe_bed_position; yProbe <= back_probe_bed_position; yProbe += yGridSpacing)
+
             {
               int xProbe, xInc;
               if (zig)
               {
-                xProbe = LEFT_PROBE_BED_POSITION;
-                //xEnd = RIGHT_PROBE_BED_POSITION;
+                xProbe = left_probe_bed_position;
+                //xEnd = right_probe_bed_position;
                 xInc = xGridSpacing;
                 zig = false;
               } else // zag
               {
-                xProbe = RIGHT_PROBE_BED_POSITION;
-                //xEnd = LEFT_PROBE_BED_POSITION;
+                xProbe = right_probe_bed_position;
+                //xEnd = left_probe_bed_position;
                 xInc = -xGridSpacing;
                 zig = true;
               }
 
-              for (int xCount=0; xCount < AUTO_BED_LEVELING_GRID_POINTS; xCount++)
+              for (int xCount=0; xCount < auto_bed_leveling_grid_points; xCount++)
               {
                 float z_before;
                 if (probePointCounter == 0)
@@ -1822,9 +1836,9 @@ void process_commands()
 
                 eqnBVector[probePointCounter] = measured_z;
 
-                eqnAMatrix[probePointCounter + 0*AUTO_BED_LEVELING_GRID_POINTS*AUTO_BED_LEVELING_GRID_POINTS] = xProbe;
-                eqnAMatrix[probePointCounter + 1*AUTO_BED_LEVELING_GRID_POINTS*AUTO_BED_LEVELING_GRID_POINTS] = yProbe;
-                eqnAMatrix[probePointCounter + 2*AUTO_BED_LEVELING_GRID_POINTS*AUTO_BED_LEVELING_GRID_POINTS] = 1;
+                eqnAMatrix[probePointCounter + 0*auto_bed_leveling_grid_points*auto_bed_leveling_grid_points] = xProbe;
+                eqnAMatrix[probePointCounter + 1*auto_bed_leveling_grid_points*auto_bed_leveling_grid_points] = yProbe;
+                eqnAMatrix[probePointCounter + 2*auto_bed_leveling_grid_points*auto_bed_leveling_grid_points] = 1;
                 probePointCounter++;
                 xProbe += xInc;
               }
@@ -1832,7 +1846,7 @@ void process_commands()
             clean_up_after_endstop_move();
 
             // solve lsq problem
-            double *plane_equation_coefficients = qr_solve(AUTO_BED_LEVELING_GRID_POINTS*AUTO_BED_LEVELING_GRID_POINTS, 3, eqnAMatrix, eqnBVector);
+            double *plane_equation_coefficients = qr_solve(auto_bed_leveling_grid_points*auto_bed_leveling_grid_points, 3, eqnAMatrix, eqnBVector);
 
             SERIAL_PROTOCOLPGM("Eqn coefficients: a: ");
             SERIAL_PROTOCOL(plane_equation_coefficients[0]);
