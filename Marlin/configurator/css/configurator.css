@@ -45,7 +45,9 @@ p.info span { color: #800; }
 #message p.message { color: #080; background: #CFC; }
 #message p.error { color: #F00; background: #FF4; }
 #message p.warning { color: #FF0; background: #BA4; }
-#message p.message span {
+#message p.message span,
+#message p.error span,
+#message p.warning span {
 	color: #A00;
 	background: rgba(255, 255, 255, 1);
 	border: 1px solid rgba(0,0,0,0.5);
@@ -89,20 +91,21 @@ label {
 	}
 input[type="text"], select { margin: 0.75em 0 0; }
 input[type="checkbox"], input[type="radio"], input[type="file"] { margin: 1em 0 0; }
-input[type="checkbox"], input[type="radio"].enabler { margin-left: 1em; }
+input[type="checkbox"].enabler, input[type="radio"].enabler { margin-left: 1em; }
 
 input:disabled { color: #BBB; }
 
-#more input[type="text"] { width: 20em; }
+#config_form input[type="text"].subitem { width: 4em; }
+#config_form input[type="text"].subitem+.subitem { margin-left: 4px; }
 
-#more label {
-	width: 240px; /* label area */
+input[type="text"].added { width: 20em; }
+label.added {
+	width: 275px; /* label area */
 	height: 1em;
 	padding: 10px 360px 10px 1em;
 	margin-right: -350px;
 	text-align: right;
 	}
-
 
 ul.tabs { padding: 0; list-style: none; }
 ul.tabs li { display: inline; }
@@ -192,8 +195,19 @@ fieldset legend { display: none; }
 
 /* Tooltips Checkbox */
 
-#tipson { float: right; font-weight: bold; font-size: 100%; font-family: helvetica; }
-#tipson input { float: none; display: inline; }
+#tipson {
+	width: auto;
+	height: auto;
+	padding: 0;
+	margin-right: 0;
+	float: right;
+	font-weight: bold;
+	font-size: 100%;
+	font-family: helvetica;
+	text-align: left;
+	cursor: pointer;
+	}
+#tipson input { float: none; display: inline; cursor: pointer; }
 
 /* Config Text */
 
@@ -206,7 +220,7 @@ pre.config {
 	clear: both;
 	background-color: #FFF;
 	color: #000;
-	font-family: "Fira Mono";
+	font-family: "Fira Mono", monospace;
 	font-size: small;
 	}
 

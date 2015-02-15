@@ -143,6 +143,7 @@ var configuratorApp = (function(){
       $config = $('#config_text pre'),
       $config_adv = $('#config_adv_text pre'),
       define_list = [[],[]],
+      define_section = {},
       boards_list = {},
       therms_list = {},
       total_config_lines,
@@ -308,16 +309,21 @@ var configuratorApp = (function(){
     /**
      * Get all the unique define names
      */
-    getDefinesFromText: function(txt) {
-      var leave_out_defines = ['CONFIGURATION_H', 'CONFIGURATION_ADV_H', 'STRING_VERSION', 'STRING_URL', 'STRING_VERSION_CONFIG_H', 'STRING_CONFIG_H_AUTHOR', 'STRING_SPLASH_LINE1', 'STRING_SPLASH_LINE2'];
-      // Get all the unique #define's and save them in an array
-      var r, define_obj = {}, findDef = new RegExp('#define[ \\t]+(\\w+)', 'gm');
+    updateDefinesFromText: function(index, txt) {
+      var section = 'machine',
+          leave_out_defines = ['CONFIGURATION_H', 'CONFIGURATION_ADV_H', 'STRING_VERSION', 'STRING_URL', 'STRING_VERSION_CONFIG_H', 'STRING_CONFIG_H_AUTHOR', 'STRING_SPLASH_LINE1', 'STRING_SPLASH_LINE2'],
+          define_sect = {},
+          r, findDef = new RegExp('(@section|#define)[ \\t]+(\\w+)', 'gm');
       while((r = findDef.exec(txt)) !== null) {
-        if ($.inArray(r[1], leave_out_defines) < 0 && !(r[1] in define_obj))
-          define_obj[r[1]] = null;
+        var name = r[2];
+        if (r[1] == '@section')
+          section = name;
+        else if ($.inArray(name, leave_out_defines) < 0 && !(name in define_sect))
+          define_sect[name] = section;
       }
-      this.log(Object.keys(define_obj), 2);
-      return Object.keys(define_obj);
+      define_list[index] = Object.keys(define_sect);
+      $.extend(define_section, define_sect);
+      this.log(define_list[index], 2);
     },
 
     /**
@@ -327,24 +333,48 @@ var configuratorApp = (function(){
       var e = adv ? 1 : 0, n = 0;
       var fail_list = [];
       $.each(define_list[e], function(i,name) {
-        if (!$('#'+name).length) {
-          var $ff = $('#more'),
-              inf = self.getDefineInfo(name, adv);
+        var section = define_section[name];
+        if (section != 'hidden' && !$('#'+name).length) {
+          var inf = self.getDefineInfo(name, adv);
+
           if (inf) {
-            var $newlabel = $('<label>',{for:name}).text(name.toLabel());
+
+            var $ff = $('#'+section), $newfield,
+                $newlabel = $('<label>',{for:name,class:'added'}).text(name.toLabel());
+
             // if (!(++n % 3))
               $newlabel.addClass('newline');
 
-            var $newfield;
-            if (inf.options !== undefined) {
-              $newfield = $('<select>'); //.addOptions(inf.options);
+            $ff.append($newlabel);
+
+            // Multiple fields?
+            if (inf.type == 'list') {
+              for (var i=0; i<inf.size; i++) {
+                var fieldname = i > 0 ? name+'-'+i : name;
+                $newfield = $('<input>',{type:'text',size:6,maxlength:10,id:fieldname,name:fieldname,class:'subitem added'}).prop({defineInfo:inf});
+                $ff.append($newfield);
+              }
             }
             else {
-              $newfield = inf.type == 'switch' ? $('<input>',{type:'checkbox'}) : $('<input>',{type:'text',size:10,maxlength:40});
+              // Items with options, either toggle or select
+              // TODO: Radio buttons for other values
+              if (inf.options !== undefined) {
+                if (inf.type == 'toggle') {
+                  $newfield = $('<input>',{type:'checkbox'});
+                }
+                else {
+                  // Otherwise selectable
+                  $newfield = $('<select>');
+                }
+                // ...Options added when field initialized
+              }
+              else {
+                $newfield = inf.type == 'switch' ? $('<input>',{type:'checkbox'}) : $('<input>',{type:'text',size:10,maxlength:40});
+              }
+              $newfield.attr({id:name,name:name,class:'added'}).prop({defineInfo:inf});
+              // Add the new field to the form
+              $ff.append($newfield);
             }
-            $newfield.attr({id:name,name:name}).prop({defineInfo:inf});
-            // Add the new field to the form
-            $ff.append($newlabel, $newfield);
           }
           else
             fail_list.push(name);
@@ -410,10 +440,9 @@ var configuratorApp = (function(){
       // When a config file loads defines might change
       if (init_index != null) {
         var adv = init_index == 1;
-        define_list[init_index] = this.getDefinesFromText(txt);
-        this.log(define_list[init_index], 2);
-        this.purgeDefineInfo(adv);
-        this.createFieldsForDefines(init_index);
+        this.purgeAddedFields(init_index);
+        this.updateDefinesFromText(init_index, txt);
+        this.createFieldsForDefines(adv);
         this.refreshConfigForm(init_index);
         this.activateDownloadLink(adv);
       }
@@ -446,13 +475,14 @@ var configuratorApp = (function(){
       });
 
       // Get all 'switchable' class items and add a checkbox
-      $form.find('.switchable').each(function(){
-        $(this).after(
-          $('<input>',{type:'checkbox',value:'1',class:'enabler'}).prop('checked',true)
-            .attr('id',this.id + '-switch')
-            .change(self.handleSwitch)
-        );
-      });
+      // $form.find('.switchable').each(function(){
+      //   $(this).after(
+      //     $('<input>',{type:'checkbox',value:'1',class:'enabler added'})
+      //       .prop('checked',true)
+      //       .attr('id',this.id + '-switch')
+      //       .change(self.handleSwitch)
+      //   );
+      // });
 
       // Add options to the popup menus
       // $('#SERIAL_PORT').addOptions([0,1,2,3,4,5,6,7]);
@@ -516,7 +546,7 @@ var configuratorApp = (function(){
       /**
        * Any manually-created form elements will remain
        * where they are. Unknown defines (currently most)
-       * are added to the "More..." tab for now.
+       * are added to tabs based on section
        *
        * Specific exceptions can be managed by applying
        * classes to the associated form fields.
@@ -550,11 +580,7 @@ var configuratorApp = (function(){
       if (inf == null)
         inf = elm.defineInfo = this.getDefineInfo(name, adv);
 
-      // Set options on the field if there are any
-      if (inf.options !== undefined)
-        $elm.html('').addOptions(inf.options);
-
-      // Create a tooltip if there is one
+      // Create a tooltip on the label if there is one
       if (inf.tooltip) {
         var $tipme = $elm.prev('label');
         if ($tipme.length) {
@@ -583,8 +609,34 @@ var configuratorApp = (function(){
         }
       }
 
-      $elm.unbind('input change');
-      $elm.on($elm.attr('type') == 'text' ? 'input' : 'change', this.handleChange);
+      // Make the element(s) respond to events
+      if (inf.type == 'list') {
+        // Multiple fields need to respond
+        for (var i=0; i<inf.size; i++) {
+          if (i > 0) $elm = $('#'+name+'-'+i);
+          $elm.unbind('input');
+          $elm.on('input', this.handleChange);
+        }
+      }
+      else {
+        var elmtype = $elm.attr('type');
+        // Set options on single fields if there are any
+        if (inf.options !== undefined && elmtype === undefined)
+          $elm.html('').addOptions(inf.options);
+        $elm.unbind('input change');
+        $elm.on(elmtype == 'text' ? 'input' : 'change', this.handleChange);
+      }
+
+      // Add an enabler checkbox if it needs one
+      if (inf.switchable && $('#'+name+'-switch').length == 0) {
+        // $elm = the last element added
+        $elm.after(
+          $('<input>',{type:'checkbox',value:'1',class:'enabler added'})
+            .prop('checked',self.defineIsEnabled(name))
+            .attr({id: name+'-switch'})
+            .change(self.handleSwitch)
+        );
+      }
 
       // Set the field's initial value from the define
       this.setFieldFromDefine(name);
@@ -592,17 +644,31 @@ var configuratorApp = (function(){
 
     /**
      * Handle any value field being changed
+     * this = the field
      */
     handleChange: function() { self.updateDefineFromField(this.id); },
 
     /**
      * Handle a switch checkbox being changed
+     * this = the switch checkbox
      */
     handleSwitch: function() {
-      var $elm = $(this), $prev = $elm.prev();
-      var on = $elm.prop('checked') || false;
-      $prev.attr('disabled', !on);
-      self.setDefineEnabled($prev[0].id, on);
+      var $elm = $(this),
+          name = $elm[0].id.replace(/-.+/,''),
+          inf = $('#'+name)[0].defineInfo,
+          on = $elm.prop('checked') || false;
+
+      self.setDefineEnabled(name, on);
+
+      if (inf.type == 'list') {
+        // Multiple fields?
+        for (var i=0; i<inf.size; i++) {
+          $('#'+name+(i?'-'+i:'')).attr('disabled', !on);
+        }
+      }
+      else {
+        $elm.prev().attr('disabled', !on);
+      }
     },
 
     /**
@@ -656,11 +722,15 @@ var configuratorApp = (function(){
      */
     updateDefineFromField: function(name) {
       this.log('updateDefineFromField:'+name,4);
+
+      // Drop the suffix on sub-fields
+      name = name.replace(/-\d+$/, '');
+
       var $elm = $('#'+name), inf = $elm[0].defineInfo;
       if (inf == null) return;
 
       var isCheck = $elm.attr('type') == 'checkbox',
-          val = isCheck ? $elm.prop('checked') : $elm.val();
+          val = isCheck ? $elm.prop('checked') : $elm.val().trim();
 
       var newline;
       switch(inf.type) {
@@ -668,12 +738,19 @@ var configuratorApp = (function(){
           var slash = val ? '' : '//';
           newline = inf.line.replace(inf.repl, '$1'+slash+'$3');
           break;
+        case 'list':
         case 'quoted':
         case 'plain':
-          if (isCheck)
-            this.setMessage(name + ' should not be a checkbox!', 'error');
-          else
-            newline = inf.line.replace(inf.repl, '$1'+val.replace('$','\\$')+'$3');
+          if (isCheck) this.setMessage(name + ' should not be a checkbox!', 'error');
+        case 'toggle':
+          if (isCheck) {
+            val = val ? inf.options[1] : inf.options[0];
+          }
+          else {
+            if (inf.type == 'list')
+              for (var i=1; i<inf.size; i++) val += ', ' + $('#'+name+'-'+i).val().trim();
+          }
+          newline = inf.line.replace(inf.repl, '$1'+(''+val).replace('$','\\$')+'$3');
           break;
       }
       this.setDefineLine(name, newline);
@@ -725,31 +802,40 @@ var configuratorApp = (function(){
      * Set a form field to the current #define value in the config text
      */
     setFieldFromDefine: function(name) {
-      var $elm = $('#'+name), val = this.defineValue(name);
+      var $elm = $('#'+name), inf = $elm[0].defineInfo,
+          val = this.defineValue(name);
 
       this.log('setFieldFromDefine:' + name + ' to ' + val, 2);
 
-      // Set the field value
-      $elm.attr('type') == 'checkbox' ? $elm.prop('checked', val) : $elm.val(''+val);
-
       // If the item has a checkbox then set enabled state too
-      var $cb = $('#'+name+'-switch');
+      var $cb = $('#'+name+'-switch'), on = true;
       if ($cb.length) {
-        var on = self.defineIsEnabled(name);
+        on = self.defineIsEnabled(name);
+        $cb.prop('checked', on);
+      }
+
+      if (inf.type == 'list') {
+        $.each(val.split(','),function(i,v){
+          var $e = i > 0 ? $('#'+name+'-'+i) : $elm;
+          $e.val(v.trim());
+          $e.attr('disabled', !on);
+        });
+      }
+      else {
+        if (inf.type == 'toggle') val = val == inf.options[1];
+        $elm.attr('type') == 'checkbox' ? $elm.prop('checked', val) : $elm.val(''+val);
         $elm.attr('disabled', !on); // enable/disable the form field (could also dim it)
-        $cb.prop('checked', on);    // check/uncheck the checkbox
       }
     },
 
     /**
-     * Purge #define information for one of the config files
+     * Purge added fields and all their define info
      */
-    purgeDefineInfo: function(adv) {
-      if (adv === undefined) adv = false;
-      $('[name]').each(function() {
-        var inf = this.defineInfo;
-        if (inf && adv === inf.adv) $(this).removeProp('defineInfo');
+    purgeAddedFields: function(index) {
+      $.each(define_list[index], function(){
+        $('#'+this + ",[id^='"+this+"-'],label[for='"+this+"']").filter('.added').remove();
       });
+      define_list[index] = [];
     },
 
     /**
@@ -805,6 +891,7 @@ var configuratorApp = (function(){
             line:   result[0],
             pre:    result[1] === undefined ? '' : result[1].replace('//',''),
             define: result[2],
+            size:   result[3].split(',').length,
             post:   result[4] === undefined ? '' : result[4]
           });
           info.regex = new RegExp('([ \\t]*//)?[ \\t]*' + info.define.regEsc() + '\{([^\}]*)\}' + info.post.regEsc(), 'm');
@@ -837,6 +924,10 @@ var configuratorApp = (function(){
                 define: result[2],
                 post:   result[4] === undefined ? '' : result[4]
               });
+              if (result[3].match(/false|true/)) {
+                info.type = 'toggle';
+                info.options = ['false','true'];
+              }
               info.regex = new RegExp('([ \\t]*//)?[ \\t]*' + info.define.regEsc() + '(\\S*)' + info.post.regEsc(), 'm');
               info.repl  = new RegExp('(([ \\t]*//)?[ \\t]*' + info.define.regEsc() + ')\\S*(' + info.post.regEsc() + ')', 'm');
             }
@@ -854,31 +945,41 @@ var configuratorApp = (function(){
 
         // Get all the comments immediately before the item
         var r, s;
-        findDef = new RegExp('(([ \\t]*(//|#)[^\n]+\n){1,4})([ \\t]*\n){0,1}' + info.line.regEsc(), 'g');
+        findDef = new RegExp('(([ \\t]*(//|#)[^\n]+\n){1,4})([ \\t]*\n)?' + info.line.regEsc(), 'g');
         if (r = findDef.exec(txt)) {
+          // Get the text of the found comments
           findDef = new RegExp('^[ \\t]*//+[ \\t]*(.*)[ \\t]*$', 'gm');
           while((s = findDef.exec(r[1])) !== null) {
-            if (s[1].match(/^#define[ \\t]/) != null) {
-              tooltip = '';
-              break;
-            }
-            // JSON data? Save as select options
-            if (s[1].match(/:[\[{]/) != null) {
-              // TODO
-              // :[1-6] = value limits
-              eval('info.options = ' + s[1].substr(1));
-            }
-            else {
-              // Other lines added to the tooltip
-              tooltip += ' ' + s[1] + '\n';
+            var tip = s[1].replace(/[ \\t]*(={5,}|@section[ \\t]+\w+)[ \\t]*/g, '');
+            if (tip.length) {
+              if (tip.match(/^#define[ \\t]/) != null) {
+                tooltip = '';
+                break;
+              }
+              // JSON data? Save as select options
+              if (!info.options && tip.match(/:[\[{]/) != null) {
+                // TODO
+                // :[1-6] = value limits
+                var o; eval('o=' + tip.substr(1));
+                info.options = o;
+                if (Object.prototype.toString.call(o) == "[object Array]" && o.length == 2 && !eval(''+o[0]))
+                  info.type = 'toggle';
+              }
+              else {
+                // Other lines added to the tooltip
+                tooltip += ' ' + tip + '\n';
+              }
             }
           }
         }
 
-        findDef = new RegExp('^'+name); // To strip the name from the start
+
+        // Add .tooltip and .lineNum properties to the info
+        findDef = new RegExp('^'+name); // Strip the name from the tooltip
         $.extend(info, {
           tooltip: '<strong>'+name+'</strong> '+tooltip.trim().replace(findDef,'').toHTML(),
-          lineNum: this.getLineNumberOfText(info.line, txt)
+          lineNum: this.getLineNumberOfText(info.line, txt),
+          switchable: (info.type != 'switch' && info.line.match(/^[ \t]*\/\//)) || false // Disabled? Mark as "switchable"
         });
       }
       else
