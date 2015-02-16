@@ -403,6 +403,29 @@ static void lcd_implementation_drawmenu_generic(uint8_t row, const char* pstr, c
   lcd.print(' ');
 }
 
+static void lcd_implementation_drawmenu_generic_R(uint8_t row, const char* pstr, char pre_char, char post_char)
+{
+  char c;
+//Use all characters in narrow LCDs
+#  if LCD_WIDTH < 20
+  uint8_t n = LCD_WIDTH - 1 - 1;
+#  else // LCD_WITH < 20
+  uint8_t n = LCD_WIDTH - 1 - 2;
+#  endif // LCD_WIDTH < 20
+  lcd.setCursor(0, row);
+  lcd.print(pre_char);
+  while (((c = *pstr) != '\0') && (n>0)) {
+    lcd.print(c);
+    pstr++;
+    n--;
+  }
+
+  while(n--)
+    lcd.print(' ');
+  lcd.print(post_char);
+  lcd.print(' ');
+}
+
 static void lcd_implementation_drawmenu_setting_edit_generic(uint8_t row, const char* pstr, char pre_char, char* data)
 {
   char c;
@@ -572,6 +595,11 @@ static void lcd_implementation_drawmenu_sddirectory(uint8_t row, const char* pst
 #define lcd_implementation_drawmenu_function(row, pstr, data) lcd_implementation_drawmenu_generic(row, pstr, ' ', ' ')
 #define lcd_implementation_drawmenu_wizard_selected(row, pstr, data) lcd_implementation_drawmenu_generic(row, pstr, '>', ' ')
 #define lcd_implementation_drawmenu_wizard(row, pstr, data) lcd_implementation_drawmenu_generic(row, pstr, ' ', ' ')
+
+#define lcd_implementation_drawmenu_back_selected_R(row, pstr, data) lcd_implementation_drawmenu_generic_R(row, pstr, LCD_STR_UPLEVEL[0], LCD_STR_UPLEVEL[0])
+#define lcd_implementation_drawmenu_back_R(row, pstr, data) lcd_implementation_drawmenu_generic_R(row, pstr, ' ', LCD_STR_UPLEVEL[0])
+#define lcd_implementation_drawmenu_function_selected_R(row, pstr, data) lcd_implementation_drawmenu_generic_R(row, pstr, '>', ' ')
+#define lcd_implementation_drawmenu_function_R(row, pstr, data) lcd_implementation_drawmenu_generic_R(row, pstr, ' ', ' ')
 
 void lcd_implementation_drawline(uint8_t row, const char* pstr)
 {

@@ -376,11 +376,10 @@ void lcd_update()
     if (lcd_oldcardstatus != IS_SD_INSERTED) {
         lcd_oldcardstatus = IS_SD_INSERTED;
 
-#ifdef DOGLCD
-        lcd_set_status_screen();
-#else // DOGLCD
+#ifndef DOGLCD
         lcd_implementation_init(); // to maybe revive the LCD if static electricity killed it.
-#endif // DOGLCD
+#endif // !DOGLCD
+        lcd_set_status_screen();
 
         if (lcd_oldcardstatus) {
             card.initsd();
@@ -804,6 +803,9 @@ static void view_menu_sdcard()
             cache_size = MAX_CACHE_SIZE;
         }
 
+        // Reset the encoder position
+        encoder_position = 0;
+
         // Set the edges of the windows
         window_min = 0;
         window_max = window_size - 1;
@@ -812,6 +814,8 @@ static void view_menu_sdcard()
 
         // The content of the cache must be updated
         cache_update = true;
+
+        display_refresh_mode = CLEAR_AND_UPDATE_SCREEN;
     }
 
     // Input Adquisition
@@ -971,13 +975,10 @@ static void view_menu_sdcard()
 #endif // DEBUG_DYNAMIC_MENU
 
         // Draw the cache content
+#ifdef DOGLCD
         u8g.firstPage();
         do {
             for (uint8_t k = 0; k < window_size; k++) {
-#ifdef DEBUG_DYNAMIC_MENU
-                SERIAL_ECHO(itostr2(k)); SERIAL_ECHO(" | ");
-#endif // DEBUG_DYNAMIC_MENU
-
                 switch (cache[window_offset+k].type) {
                 case 1:
                     if (k == cursor_offset)
@@ -1013,6 +1014,47 @@ static void view_menu_sdcard()
                 }
             }
         } while(u8g.nextPage());
+#else
+        if (display_refresh_mode == CLEAR_AND_UPDATE_SCREEN) {
+            lcd_implementation_clear();
+            display_refresh_mode = NO_UPDATE_SCREEN;
+        }
+        for (uint8_t k = 0; k < window_size; k++) {
+            switch (cache[window_offset+k].type) {
+            case 1:
+                if (k == cursor_offset)
+                    lcd_implementation_drawmenu_back_selected_R(k, cache[window_offset+k].text, NULL);
+                else
+
+                    lcd_implementation_drawmenu_back_R(k, cache[window_offset+k].text, NULL);
+                break;
+            case 2:
+                if (k == cursor_offset)
+                    lcd_implementation_drawmenu_function_selected_R(k, cache[window_offset+k].text, NULL);
+                else
+
+                    lcd_implementation_drawmenu_function_R(k, cache[window_offset+k].text, NULL);
+                break;
+
+            case 3:
+                if (k == cursor_offset)
+                    lcd_implementation_drawmenu_sddirectory_selected(k, NULL, cache_data[window_offset+k].filename, cache_data[window_offset+k].longFilename);
+                else
+
+                    lcd_implementation_drawmenu_sddirectory(k, NULL, cache_data[window_offset+k].filename, cache_data[window_offset+k].longFilename);
+                break;
+            case 4:
+                if (k == cursor_offset)
+                    lcd_implementation_drawmenu_sdfile_selected(k, NULL, cache_data[window_offset+k].filename, cache_data[window_offset+k].longFilename);
+                else
+
+                    lcd_implementation_drawmenu_sdfile(k, NULL, cache_data[window_offset+k].filename, cache_data[window_offset+k].longFilename);
+                break;
+            default:
+                break;
+            }
+        }
+#endif // DOGLCD
 
         item_selected = new_item_selected;
         cache_menu_first_time = false;
@@ -1034,6 +1076,7 @@ static void function_sdcard_refresh()
 
 static void function_menu_sdcard_updir(void *)
 {
+    display_refresh_mode = CLEAR_AND_UPDATE_SCREEN;
     card.updir();
 
     item_selected = -1;
