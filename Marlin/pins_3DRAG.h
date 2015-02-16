@@ -4,6 +4,8 @@
 
 #include "pins_RAMPS_13.h"
 
+#define Z_ENABLE_PIN       63
+
 #define X_MAX_PIN          2
 #define Y_MAX_PIN          15
 #define Z_MAX_PIN          -1
