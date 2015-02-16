@@ -324,7 +324,7 @@ static void lcd_sdcard_stop()
     quickStop();
     if(SD_FINISHED_STEPPERRELEASE)
     {
-        enquecommand_P(PSTR(SD_FINISHED_RELEASECOMMAND));
+        enquecommands_P(PSTR(SD_FINISHED_RELEASECOMMAND));
     }
     autotempShutdown();
 
@@ -347,6 +347,7 @@ static void lcd_main_menu()
         MENU_ITEM(submenu, MSG_DELTA_CALIBRATE, lcd_delta_calibrate_menu);
 #endif // DELTA_CALIBRATION_MENU
     }
+/*JFR TEST*/            MENU_ITEM(gcode, "test multiline", PSTR("G4 S3\nM104 S50\nG4 S1\nM104 S200\nG4 S2\nM104 S0"));  // SD-card changed by user
     MENU_ITEM(submenu, MSG_CONTROL, lcd_control_menu);
 #ifdef SDSUPPORT
     if (card.cardOK)
@@ -394,8 +395,7 @@ void lcd_set_home_offsets()
     plan_set_position(0.0, 0.0, 0.0, current_position[E_AXIS]);
 
     // Audio feedback
-    enquecommand_P(PSTR("M300 S659 P200"));
-    enquecommand_P(PSTR("M300 S698 P200"));
+    enquecommands_P(PSTR("M300 S659 P200\nM300 S698 P200"));
     lcd_return_to_status();
 }
 
@@ -677,6 +677,13 @@ static void lcd_prepare_menu()
     }
 #endif
     MENU_ITEM(submenu, MSG_MOVE_AXIS, lcd_move_menu);
+		
+    // JFR for RMud delta printer
+    MENU_ITEM(gcode, "Calibrate bed", PSTR("M702\nG28\nG1 X-77.94 Y-45 Z36 F8000\nG4 S3\nM701 P0\nG1 X77.94 Y-45 Z36\nG4 S3\nM701 P1\nG1 X0 Y90 Z36\nG4 S3\nM701 P2\nM700\nG1 X0 Y0 Z100 F8000"));
+    MENU_ITEM(gcode, "Check level", PSTR("G28\nG1 X0 Y0 Z1 F4000\nG1 X-77.94 Y-45 Z1\nG1 X77.94 Y-45\nG1 X0 Y90\nG1 X-77.94 Y-45\nG4 S2\nG1 X-77.94 Y-45 Z0.3 F2000\nG1 X-77.94 Y-45\nG1 X77.94 Y-45\nG1 X0 Y90\nG1 X-77.94 Y-45\nG1 X0 Y0 Z0"));
+    MENU_ITEM(gcode, "Retract filament", PSTR("M302\nM82\nG92 E0\nG1 F4000 E-800"));
+    MENU_ITEM(gcode, "Insert filament", PSTR("M302\nM82\nG92 E0\nG1 F4000 E60"));
+    MENU_ITEM(gcode, "Finalize filament", PSTR("G1 F4000 E790"));
     END_MENU();
 }
 
@@ -1148,7 +1155,7 @@ menu_edit_type(unsigned long, long5, ftostr5, 0.01)
     lcd_move_y();
 	}
 	static void reprapworld_keypad_move_home() {
-		enquecommand_P((PSTR("G28"))); // move all axis home
+		enquecommands_P((PSTR("G28"))); // move all axis home
 	}
 #endif
 
@@ -1164,7 +1171,13 @@ static void lcd_quick_feedback()
 /** Menu action functions **/
 static void menu_action_back(menuFunc_t data) { lcd_goto_menu(data); }
 static void menu_action_submenu(menuFunc_t data) { lcd_goto_menu(data); }
-static void menu_action_gcode(const char* pgcode) { enquecommand_P(pgcode); }
+
+static void menu_action_gcode(const char* pgcode)
+{
+    enquecommands_P(pgcode);
+}
+
+
 static void menu_action_function(menuFunc_t data) { (*data)(); }
 static void menu_action_sdfile(const char* filename, char* longFilename)
 {
@@ -1174,7 +1187,7 @@ static void menu_action_sdfile(const char* filename, char* longFilename)
     for(c = &cmd[4]; *c; c++)
         *c = tolower(*c);
     enquecommand(cmd);
-    enquecommand_P(PSTR("M24"));
+    enquecommands_P(PSTR("M24"));
     lcd_return_to_status();
 }
 static void menu_action_sddirectory(const char* filename, char* longFilename)

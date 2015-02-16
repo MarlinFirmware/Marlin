@@ -532,7 +532,7 @@ void CardReader::checkautostart(bool force)
 
       sprintf_P(cmd, PSTR("M23 %s"), autoname);
       enquecommand(cmd);
-      enquecommand_P(PSTR("M24"));
+      enquecommands_P(PSTR("M24"));
       found=true;
     }
   }
@@ -637,7 +637,7 @@ void CardReader::printingHasFinished()
       if(SD_FINISHED_STEPPERRELEASE)
       {
           //finishAndDisableSteppers();
-          enquecommand_P(PSTR(SD_FINISHED_RELEASECOMMAND));
+          enquecommands_P(PSTR(SD_FINISHED_RELEASECOMMAND));
       }
       autotempShutdown();
     }
