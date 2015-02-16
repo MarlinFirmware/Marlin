@@ -174,6 +174,7 @@
   #define STR_h2 "\262"               // '²'
   #define STR_h3 "\263"               // '³'
   #define STR_Deg "\260"              // '°'
+  #define STR_ARROW_RIGHT "\372"      // '>'  "\176"
   #define STR_THERMOMETER "\377"
 #else
   #ifdef DISPLAY_CHARSET_HD44780_JAPAN // HD44780 ROM Code: A00 (Japan)
@@ -187,6 +188,7 @@
     #define STR_h2 "2"
     #define STR_h3 "3"
     #define STR_Deg "\271"
+    #define STR_ARROW_RIGHT "\376"
     #define STR_THERMOMETER "\002"
   #endif
   #ifdef DISPLAY_CHARSET_HD44780_WESTERN // HD44780 ROM Code: A02 (Western)
@@ -200,6 +202,7 @@
     #define STR_h2 "\262"
     #define STR_h3 "\263"
     #define STR_Deg "\337"
+    #define STR_ARROW_RIGHT "\032"
     #define STR_THERMOMETER "\002"
   #endif
 #endif
