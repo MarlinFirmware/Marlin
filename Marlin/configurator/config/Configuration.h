@@ -344,16 +344,14 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
   #define DISABLE_MAX_ENDSTOPS
 #endif
 
-// @section homing
+// @section machine
 
 // For Inverting Stepper Enable Pins (Active Low) use 0, Non Inverting (Active High) use 1
-// :[0,1]
+// :{0:'Active Low',1:'Active High'}
 #define X_ENABLE_ON 0
 #define Y_ENABLE_ON 0
 #define Z_ENABLE_ON 0
 #define E_ENABLE_ON 0 // For all extruders
-
-// @section machine
 
 // Disables axis when it's not being used.
 #define DISABLE_X false
@@ -367,15 +365,18 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 // @section machine
 
-#define INVERT_X_DIR true    // for Mendel set to false, for Orca set to true
-#define INVERT_Y_DIR false    // for Mendel set to true, for Orca set to false
-#define INVERT_Z_DIR true     // for Mendel set to false, for Orca set to true
+// Invert the stepper direction. Change (or reverse the motor connector) if an axis goes the wrong way.
+#define INVERT_X_DIR true     // Mendel: false
+#define INVERT_Y_DIR false    // Mendel: true
+#define INVERT_Z_DIR true     // Mendel: false
 
 // @section extruder
 
-#define INVERT_E0_DIR false   // for direct drive extruder v9 set to true, for geared extruder set to false
-#define INVERT_E1_DIR false    // for direct drive extruder v9 set to true, for geared extruder set to false
-#define INVERT_E2_DIR false   // for direct drive extruder v9 set to true, for geared extruder set to false
+// For direct drive extruder v9 set to true, for geared extruder set to false.
+#define INVERT_E0_DIR false   
+#define INVERT_E1_DIR false
+#define INVERT_E2_DIR false
+#define INVERT_E3_DIR false
 
 // @section homing
 

@@ -95,7 +95,7 @@
 //=============================Mechanical Settings===========================
 //===========================================================================
 
-// @section machine
+// @section homing
 
 #define ENDSTOPS_ONLY_FOR_HOMING // If defined the endstops will only be used for homing
 
@@ -146,6 +146,7 @@
 #endif //End auto min/max positions
 //END AUTOSET LOCATIONS OF LIMIT SWITCHES -ZP
 
+// @section extras
 
 //#define Z_LATE_ENABLE // Enable Z the last moment. Needed if your Z driver overheats.
 
