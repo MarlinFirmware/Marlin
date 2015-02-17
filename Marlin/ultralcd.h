@@ -18,13 +18,9 @@
 #define UPDATE_SCREEN               1
 #define CLEAR_AND_UPDATE_SCREEN     2
 
-#   ifdef DOGLCD
-#define MAX_WINDOW_SIZE             5
-#define MAX_CACHE_SIZE              7
-#   else
-#define MAX_WINDOW_SIZE             4
-#define MAX_CACHE_SIZE              6
-#   endif // DOGLCD
+#define MAX_WINDOW_SIZE LCD_HEIGHT
+#define MAX_CACHE_SIZE LCD_HEIGHT+2
+
 //
 // Typedefs
 //
