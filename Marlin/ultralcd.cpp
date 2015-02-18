@@ -60,6 +60,7 @@ bool       display_timeout_blocked;
 view_t display_view_next;
 view_t display_view;
 
+uint32_t refresh_interval;
 
 // Encoder related variables
 uint8_t encoder_input;
@@ -272,6 +273,7 @@ void lcd_init()
 
     display_time_refresh = millis();
     display_timeout = millis();
+    refresh_interval = millis();
     lcd_enable_display_timeout();
 
     lcd_enable_button();
@@ -405,7 +407,14 @@ void lcd_update()
 
     display_view = display_view_next;
     
-    (*display_view)();
+    if (IS_SD_PRINTING == true) {
+        if (refresh_interval < millis()) {
+            (*display_view)();
+            refresh_interval = millis() + LCD_REFRESH_LIMIT;
+        }
+    } else {
+        (*display_view)();
+    }
 }
 
 

@@ -12,6 +12,7 @@
 
 #define LCD_TIMEOUT_STATUS      15000
 #define LCD_REFRESH              1500
+#define LCD_REFRESH_LIMIT          60
 #define LCD_MOVE_RESIDENCY_TIME   500
 
 #define NO_UPDATE_SCREEN            0
