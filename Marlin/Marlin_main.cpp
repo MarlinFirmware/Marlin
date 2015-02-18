@@ -3760,6 +3760,9 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
 
         RUNPLAN; //should do nothing
 
+        //reset LCD alert message
+    	lcd_reset_alert_level();
+
         #ifdef DELTA
           calculate_delta(lastpos);
           plan_buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], target[E_AXIS], fr60, active_extruder); //move xyz back
