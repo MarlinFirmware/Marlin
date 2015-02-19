@@ -17,8 +17,8 @@
 #define MARLIN_VERSION "1.0.2"
 
 /**
-* Implementation of the LCD display routines for a DOGM128 graphic display. These are common LCD 128x64 pixel graphic displays.
-**/
+ * Implementation of the LCD display routines for a DOGM128 graphic display. These are common LCD 128x64 pixel graphic displays.
+ */
 
 #ifdef ULTIPANEL
 #define BLEN_A 0
@@ -36,7 +36,13 @@
 
 #include <U8glib.h>
 #include "DOGMbitmaps.h"
-#include "dogm_font_data_marlin.h"
+
+#ifdef KANA
+  #include "dogm_font_data_marlin.h"
+#else
+  #include "dogm_font_data_marlin_jp.h"
+#endif
+
 #include "ultralcd.h"
 #include "ultralcd_st7920_u8glib_rrd.h"
 
@@ -51,7 +57,9 @@
 #endif
 */
 
-#define USE_BIG_EDIT_FONT                // save 3120 bytes of PROGMEM by commenting out this line
+#ifndef KANA
+  #define USE_BIG_EDIT_FONT              // save 3120 bytes of PROGMEM by commenting out this line
+#endif
 #define FONT_STATUSMENU u8g_font_6x9
 #define FONT_MENU u8g_font_6x10_marlin
 
@@ -267,8 +275,15 @@ static void lcd_implementation_status_screen() {
   u8g.print('%');
 
   // Status line
-  u8g.setFont(FONT_STATUSMENU);
+  #ifdef KANA
+    u8g.setFont(u8g_font_6x10_marlin);
+  #else
+    u8g.setFont(FONT_STATUSMENU);
+  #endif 
   u8g.setPrintPos(0,61);
+  #ifdef KANA
+    u8g.print( "\xe0\xe1\xe2" );
+  #endif
   #ifndef FILAMENT_LCD_DISPLAY
     u8g.print(lcd_status_message);
   #else
