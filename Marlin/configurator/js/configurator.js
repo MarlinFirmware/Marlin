@@ -226,7 +226,7 @@ var configuratorApp = (function(){
                   timeLeft: Math.floor(txt.meta['X-RateLimit-Reset'] - Date.now()/1000),
                 };
               }
-              loaded_items[fname] = function(){ self.fileLoaded(fname, isGithub ? atob(txt.data.content) : txt); };
+              loaded_items[fname] = function(){ self.fileLoaded(fname, isGithub ? atob(txt.data.content.replace(/\s/g, '')) : txt); };
               success_count++;
             }
           },
