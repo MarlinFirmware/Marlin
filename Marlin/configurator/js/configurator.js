@@ -938,24 +938,21 @@ var configuratorApp = (function(){
       // Success?
       if (info.type) {
         // Get the end-of-line comment, if there is one
-        var tooltip = '';
+        var tooltip = '', eoltip = '';
         findDef = new RegExp('.*#define[ \\t].*/[/*]+[ \\t]*(.*)');
         if (info.line.search(findDef) >= 0)
-          tooltip = info.line.replace(findDef, '$1');
+          eoltip = tooltip = info.line.replace(findDef, '$1');
 
         // Get all the comments immediately before the item
         var r, s;
-        findDef = new RegExp('(([ \\t]*(//|#)[^\n]+\n){1,4})([ \\t]*\n)?' + info.line.regEsc(), 'g');
+        findDef = new RegExp('(([ \\t]*(//|#)[^\n]+\n){1,4})' + info.line.regEsc(), 'g');
         if (r = findDef.exec(txt)) {
           // Get the text of the found comments
           findDef = new RegExp('^[ \\t]*//+[ \\t]*(.*)[ \\t]*$', 'gm');
           while((s = findDef.exec(r[1])) !== null) {
-            var tip = s[1].replace(/[ \\t]*(={5,}|@section[ \\t]+\w+)[ \\t]*/g, '');
+            var tip = s[1].replace(/[ \\t]*(={5,}|(#define[ \\t]+.*|@section[ \\t]+\w+))[ \\t]*/g, '');
             if (tip.length) {
-              if (tip.match(/^#define[ \\t]/) != null) {
-                tooltip = '';
-                break;
-              }
+              if (tip.match(/^#define[ \\t]/) != null) tooltip = eoltip;
               // JSON data? Save as select options
               if (!info.options && tip.match(/:[\[{]/) != null) {
                 // TODO

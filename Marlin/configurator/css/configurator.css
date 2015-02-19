@@ -25,7 +25,7 @@ body { margin: 0; padding: 0; background: #56A; color: #000; font-family: monosp
 #main {
 	max-width: 1000px;
 	margin: 0 auto;
- 	padding: 0 4%; width: 92%;
+ 	padding: 0 2%; width: 96%;
 	}
 
 h1, h2, h3, h4, h5, h6 { clear: both; }
@@ -83,7 +83,7 @@ fieldset {
 label, input, select, textarea { display: block; float: left; margin: 1px 0; }
 label.newline, textarea, fieldset { clear: both; }
 label {
-	width: 140px; /* label area */
+	width: 120px; /* label area */
 	height: 1em;
 	padding: 10px 460px 10px 1em;
 	margin-right: -450px;
@@ -292,3 +292,12 @@ a.download {
 	text-decoration: none;
 	}
 
+@media all and (min-width: 1100px) {
+
+	#main { max-width: 10000px; }
+
+	fieldset { float: left; width: 50%; height: auto; }
+
+	#config_text, #config_adv_text { float: right; clear: right; width: 45%; }
+
+}
