@@ -655,6 +655,8 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 // REMEMBER TO INSTALL LiquidCrystal_I2C.h in your ARDUINO library folder: https://github.com/kiyoshigawa/LiquidCrystal_I2C
 //#define RA_CONTROL_PANEL
 
+// @section hidden
+
 //automatic expansion
 #if defined (MAKRPANEL)
  #define DOGLCD
@@ -777,6 +779,8 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
   #endif
   #endif
 #endif
+
+// @section lcd
 
 // default LCD contrast for dogm-like LCD displays
 #ifdef DOGLCD
