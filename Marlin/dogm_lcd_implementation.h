@@ -37,10 +37,11 @@
 #include <U8glib.h>
 #include "DOGMbitmaps.h"
 
+#include "dogm_font_data_6x9_marlin.h"
 #ifdef KANA
-  #include "dogm_font_data_marlin.h"
+  #include "dogm_font_data_6x10_marlin_jp.h"
 #else
-  #include "dogm_font_data_marlin_jp.h"
+  #include "dogm_font_data_6x10_marlin.h"
 #endif
 
 #include "ultralcd.h"
