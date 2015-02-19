@@ -53,8 +53,8 @@
 
 //#define USE_BIG_EDIT_FONT                // save 3120 bytes of PROGMEM by commenting out this line
 #define FONT_STATUSMENU_NAME u8g_font_6x9
-#define FONT_MENU_NAME u8g_font_6x10
-#define FONT_SPECIAL_NAME u8g_font_6x10_marlin_symbols
+#define FONT_MENU_NAME u8g_font_6x10_marlin
+#define FONT_SPECIAL_NAME u8g_font_6x10_marlin
 
 #define FONT_STATUSMENU 1
 #define FONT_MENU 2
@@ -80,15 +80,15 @@
 #define START_ROW              0
 
 /* Custom characters defined in font font_6x10_marlin.c */
-#define LCD_STR_DEGREE      "\260"
-#define LCD_STR_REFRESH     "\001"
-#define LCD_STR_FOLDER      "\002"
-#define LCD_STR_ARROW_RIGHT "\003"
-#define LCD_STR_UPLEVEL     "\004"
-#define LCD_STR_CLOCK       "\005"
-#define LCD_STR_FEEDRATE    "\006"
-#define LCD_STR_BEDTEMP     "\007"
-#define LCD_STR_THERMOMETER "\011"
+#define LCD_STR_DEGREE      "\xB0"
+#define LCD_STR_REFRESH     "\x01"
+#define LCD_STR_FOLDER      "\x02"
+#define LCD_STR_ARROW_RIGHT "\x03"
+#define LCD_STR_UPLEVEL     "\x04"
+#define LCD_STR_CLOCK       "\x05"
+#define LCD_STR_FEEDRATE    "\x06"
+#define LCD_STR_BEDTEMP     "\x07"
+#define LCD_STR_THERMOMETER "\x08"
 #define LCD_STR_SPECIAL_MAX LCD_STR_THERMOMETER
 int lcd_contrast;
 
@@ -106,46 +106,6 @@ U8GLIB_NHD_C12864 u8g(DOGLCD_CS, DOGLCD_A0);
 // for regular DOGM128 display with HW-SPI
 U8GLIB_DOGM128 u8g(DOGLCD_CS, DOGLCD_A0);  // HW-SPI Com: CS, A0
 #endif
-
-char currentfont = 0;
-
-static void lcd_setFont(char font_nr) {
-  switch(font_nr) {
-    case FONT_STATUSMENU : {u8g.setFont(FONT_STATUSMENU_NAME); currentfont = FONT_STATUSMENU;}; break;
-    case FONT_MENU       : {u8g.setFont(FONT_MENU_NAME); currentfont = FONT_MENU;}; break;
-    case FONT_SPECIAL    : {u8g.setFont(FONT_SPECIAL_NAME); currentfont = FONT_SPECIAL;}; break;
-    case FONT_MENU_EDIT  : {u8g.setFont(FONT_MENU_EDIT_NAME); currentfont = FONT_MENU_EDIT;}; break;
-    break;
-  }
-}
-
-static void lcd_print_c(unsigned char c) {
-  if (c < ' ') {
-    u8g.setFont(FONT_SPECIAL_NAME);
-    u8g.print((char)c);
-    lcd_setFont(currentfont);
-//    SERIAL_ECHOLNPGM("#");SERIAL_ECHO(((char)c+'\360'));SERIAL_ECHO((unsigned char)(c+'\360'));SERIAL_ECHOLNPGM("#");
-  } else {
-    u8g.print((char)c);
-//    SERIAL_ECHO((char)c);
-  }
-}
-
-/* Arduino < 1.0.0 is missing a function to print PROGMEM strings, so we need to implement our own */
-static void lcd_printPGM(const char* str) {
-  char c;
-  while ((c = pgm_read_byte(str++))) {
-    lcd_print_c(c);
-  }
-}
-
-static void lcd_print_s(char* str) {
-  char c; 
-  int i = 0;
-  while ((c = str[i++])) {
-    lcd_print_c(c);
-  }
-}
 
 static void lcd_implementation_init()
 {
@@ -181,7 +141,7 @@ static void lcd_implementation_init()
 	u8g.firstPage();
 	do {
     u8g.drawBitmapP(offx, offy, START_BMPBYTEWIDTH, START_BMPHEIGHT, start_bmp);
-    lcd_setFont(FONT_MENU);
+    u8g.setFont(FONT_MENU_NAME);
     #ifndef STRING_SPLASH_LINE2
       u8g.drawStr(txt1X, u8g.getHeight() - DOG_CHAR_HEIGHT, STRING_SPLASH_LINE1);
     #else
@@ -193,6 +153,59 @@ static void lcd_implementation_init()
 }
 
 static void lcd_implementation_clear() { } // Automatically cleared by Picture Loop
+
+char currentfont = 0;
+
+static void lcd_setFont(int font_nr) {
+  switch(font_nr) {
+    case FONT_STATUSMENU : {u8g.setFont(FONT_STATUSMENU_NAME); currentfont = FONT_STATUSMENU;}; break;
+    case FONT_MENU       : {u8g.setFont(FONT_MENU_NAME); currentfont = FONT_MENU;}; break;
+    case FONT_SPECIAL    : {u8g.setFont(FONT_SPECIAL_NAME); currentfont = FONT_SPECIAL;}; break;
+    case FONT_MENU_EDIT  : {u8g.setFont(FONT_MENU_EDIT_NAME); currentfont = FONT_MENU_EDIT;}; break;
+    break;
+  }
+}
+
+static void lcd_restoreFont() {
+  lcd_setFont( currentfont );
+}
+
+/* Arduino < 1.0.0 is missing a function to print PROGMEM strings, so we need to implement our own */
+static void lcd_printPGM(const char* str) {
+  char c;
+  while ((c = pgm_read_byte(str++))) {
+    if (c <= LCD_STR_SPECIAL_MAX[0]) {
+      u8g.setFont(FONT_SPECIAL_NAME);
+      u8g.print(c & 0xf8);
+      lcd_setFont(currentfont);
+    } else {
+      u8g.print(c);
+    }
+  }
+}
+
+static void lcd_print_s(char* str) {
+  char c;
+  while ((c = pgm_read_byte(str++))) {
+    if (&c <= LCD_STR_SPECIAL_MAX) {
+      u8g.setFont(FONT_SPECIAL_NAME);
+      u8g.print(c & 0xf8);
+      lcd_setFont(currentfont);
+    } else {
+      u8g.print(c);
+    }
+  }
+}
+
+static void lcd_print_c(char c) {
+  if (c <= LCD_STR_SPECIAL_MAX[0]) {
+    u8g.setFont(FONT_SPECIAL_NAME);
+    u8g.print(c & 0xf8);
+    lcd_setFont(currentfont);
+  } else {
+    u8g.print(c);
+  }
+}
 
 static void _draw_heater_status(int x, int heater) {
   bool isBed = heater < 0;
@@ -266,7 +279,7 @@ static void lcd_implementation_status_screen() {
     int per = ((fanSpeed + 1) * 100) / 256;
     if (per) {
       lcd_print_s(itostr3(per));
-      lcd_print_s("%");
+      lcd_print_c('%');
     }
     else
   #endif

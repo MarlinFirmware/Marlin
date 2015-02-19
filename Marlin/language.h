@@ -167,14 +167,14 @@
   #define STR_Ae "\304"               // 'Ä' U8glib
   #define STR_ae "\344"               // 'ä'
   #define STR_Oe "\326"               // 'Ö'
-  #define STR_oe STR_Oe               // 'ö'
+  #define STR_oe "\366"               // 'ö'
   #define STR_Ue "\334"               // 'Ü'
-  #define STR_ue STR_Ue               // 'ü'
+  #define STR_ue "\374"               // 'ü'
   #define STR_sz "\337"               // 'ß'
   #define STR_h2 "\262"               // '²'
   #define STR_h3 "\263"               // '³'
   #define STR_Deg "\260"              // '°'
-  #define STR_THERMOMETER "\377"
+  #define STR_THERMOMETER LCD_STR_THERMOMETER
 #else
   #ifdef DISPLAY_CHARSET_HD44780_JAPAN // HD44780 ROM Code: A00 (Japan)
     #define STR_ae "\xe1"
