@@ -186,6 +186,12 @@ var configuratorApp = (function(){
           : $pre.slideUp(200, didAnim);
       });
 
+      // Fix the config boxes on the screen (in wide style)
+      $(window).bind('scroll resize', function(){
+        var $cfg = $('#config_text'), wtop = $(window).scrollTop(), ctop = $cfg.offset().top;
+        $cfg.css({ paddingTop: ctop < $form.offset().top+100 && wtop > ctop ? wtop-ctop : 0 });
+      });
+
       // Read boards.h, Configuration.h, Configuration_adv.h
       var ajax_count = 0, success_count = 0;
       var loaded_items = {};
