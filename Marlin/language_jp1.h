@@ -115,7 +115,7 @@
 #define MSG_INIT_SDCARD                     "SD\xb6\xb0\xc4\xde\xbb\xb2\xd6\xd0\xba\xd0"                   // "Init. SD card"
 #define MSG_CNG_SDCARD                      "SD\xb6\xb0\xc4\xde\xba\xb3\xb6\xdd"                           // "Change SD card"
 #define MSG_ZPROBE_OUT                      "Z\xcc\xdf\xdb\xb0\xcc\xde \xcd\xde\xaf\xc4\xee\xb6\xde\xb2"   // "Z probe out. bed"
-#define MSG_POSITION_UNKNOWN                "\xb9\xde\xdd\xc3\xdd\xcaXY\xb2\xc4\xde\xb3\xba\deZ"           // "Home X/Y before Z"
+#define MSG_POSITION_UNKNOWN                "\xb9\xde\xdd\xc3\xdd\xcaXY\xb2\xc4\xde\xb3\xba\xdeZ"           // "Home X/Y before Z"
 #define MSG_ZPROBE_ZOFFSET                  "Z\xb5\xcc\xbe\xaf\xc4"                                        // "Z Offset"
 #define MSG_BABYSTEP_X                      "\xcb\xde\xc4\xde\xb3 X"                                       // "Babystep X"
 #define MSG_BABYSTEP_Y                      "\xcb\xde\xc4\xde\xb3 Y"                                       // "Babystep Y"
