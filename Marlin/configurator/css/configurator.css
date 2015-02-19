@@ -300,4 +300,5 @@ a.download {
 
 	#config_text, #config_adv_text { float: right; clear: right; width: 45%; }
 
+	pre.config { height: 20em; }
 }
