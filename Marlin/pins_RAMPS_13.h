@@ -7,10 +7,8 @@
  *  RAMPS_13_EEB (Extruder, Extruder, Bed)
  *  RAMPS_13_EFF (Extruder, Fan, Fan)
  *  RAMPS_13_EEF (Extruder, Extruder, Fan)
- *  3DRAG
- *  K8200
- *  AZTEEG_X3
- *  AZTEEG_X3_PRO
+ *
+ *  Other pins_MYBOARD.h files may override these defaults
  */
 
 #if !defined(__AVR_ATmega1280__) && !defined(__AVR_ATmega2560__)
@@ -63,7 +61,7 @@
   #define FILWIDTH_PIN        5
 #endif
 
-#if MB(RAMPS_13_EFB) || MB(RAMPS_13_EFF) || MB(AZTEEG_X3) || MB(AZTEEG_X3_PRO) || MB(WITBOX) || MB(HEPHESTOS)
+#if MB(RAMPS_13_EFB) || MB(RAMPS_13_EFF)
   #define FAN_PIN            9 // (Sprinter config)
   #if MB(RAMPS_13_EFF)
     #define CONTROLLERFAN_PIN  -1 // Pin used for the fan to cool controller
@@ -88,7 +86,7 @@
   #define HEATER_0_PIN       10   // EXTRUDER 1
 #endif
 
-#if MB(RAMPS_13_EFB) || MB(AZTEEG_X3) || MB(WITBOX) || MB(HEPHESTOS)
+#if MB(RAMPS_13_EFB)
   #define HEATER_1_PIN       -1
 #else
   #define HEATER_1_PIN       9    // EXTRUDER 2 (FAN On Sprinter)
@@ -110,28 +108,14 @@
 
 #ifdef NUM_SERVOS
   #define SERVO0_PIN         11
-
   #if NUM_SERVOS > 1
-    #define SERVO1_PIN         6
-  #endif
-
-  #if NUM_SERVOS > 2
-    #define SERVO2_PIN         5
-  #endif
-
-  #if NUM_SERVOS > 3
-    #define SERVO3_PIN         4
-  #endif
-#endif
-
-#if MB(AZTEEG_X3_PRO)
-  #define BEEPER 33
-#endif
-
-#ifdef TEMP_STAT_LEDS
-  #if MB(AZTEEG_X3)
-    #define STAT_LED_RED       6
-    #define STAT_LED_BLUE     11
+    #define SERVO1_PIN        6
+    #if NUM_SERVOS > 2
+      #define SERVO2_PIN      5
+      #if NUM_SERVOS > 3
+        #define SERVO3_PIN    4
+      #endif
+    #endif
   #endif
 #endif
 
