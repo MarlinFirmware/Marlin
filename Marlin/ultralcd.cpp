@@ -806,6 +806,7 @@ static void lcd_control_menu()
 }
 
 #ifdef PIDTEMP
+
   // Helpers for editing PID Ki & Kd values
   // grab the PID value out of the temp variable; scale it; then update the PID driver
   void copy_and_scalePID_i(int e) {
@@ -818,19 +819,22 @@ static void lcd_control_menu()
   }
   void copy_and_scalePID_i_E1() { copy_and_scalePID_i(0); }
   void copy_and_scalePID_d_E1() { copy_and_scalePID_d(0); }
-  #if EXTRUDERS > 1
-    void copy_and_scalePID_i_E2() { copy_and_scalePID_i(1); }
-    void copy_and_scalePID_d_E2() { copy_and_scalePID_d(1); }
-    #if EXTRUDERS > 2
-      void copy_and_scalePID_i_E3() { copy_and_scalePID_i(2); }
-      void copy_and_scalePID_d_E3() { copy_and_scalePID_d(2); }
-      #if EXTRUDERS > 3
-        void copy_and_scalePID_i_E4() { copy_and_scalePID_i(3); }
-        void copy_and_scalePID_d_E5() { copy_and_scalePID_d(3); }
-      #endif
-    #endif
-  #endif
-#endif
+  #ifdef PID_PARAMS_PER_EXTRUDER
+    #if EXTRUDERS > 1
+      void copy_and_scalePID_i_E2() { copy_and_scalePID_i(1); }
+      void copy_and_scalePID_d_E2() { copy_and_scalePID_d(1); }
+      #if EXTRUDERS > 2
+        void copy_and_scalePID_i_E3() { copy_and_scalePID_i(2); }
+        void copy_and_scalePID_d_E3() { copy_and_scalePID_d(2); }
+        #if EXTRUDERS > 3
+          void copy_and_scalePID_i_E4() { copy_and_scalePID_i(3); }
+          void copy_and_scalePID_d_E5() { copy_and_scalePID_d(3); }
+        #endif //EXTRUDERS > 3
+      #endif //EXTRUDERS > 2
+    #endif //EXTRUDERS > 1
+  #endif //PID_PARAMS_PER_EXTRUDER
+
+#endif //PIDTEMP
 
 static void lcd_control_temperature_menu()
 {
