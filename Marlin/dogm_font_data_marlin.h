@@ -339,7 +339,7 @@ const u8g_fntpgm_uint8_t u8g_font_6x10_marlin[2617] U8G_SECTION(".progmem.u8g_fo
 
 
 /*
-  Fontname: u8g_font_6x10_marlin_short
+  Fontname: u8g_font_6x10_marlin_symbols
   Copyright: Public domain terminal emulator font.  Share and enjoy.
   Capital A Height: 7, '1' Height: 7
   Calculated Max Values w= 6 h=10 x= 2 y= 7 dx= 6 dy= 0 ascent= 8 len=10
@@ -349,13 +349,14 @@ const u8g_fntpgm_uint8_t u8g_font_6x10_marlin[2617] U8G_SECTION(".progmem.u8g_fo
   X Font      ascent = 7 descent=-2
   Max Font    ascent = 8 descent=-2
 */
+
 #include <utility/u8g.h>
-const u8g_fntpgm_uint8_t u8g_font_6x10_marlin_symbols[132] U8G_SECTION(".progmem.u8g_font_6x10_marlin_symbols") = {
-  
-  0,6,9,0,254,7,0,0,0,0,1,10,254,8,254,7,254,5,8,8,6,0,0,
+const u8g_fntpgm_uint8_t u8g_font_6x10_marlin_symbols[131] U8G_SECTION(".progmem.u8g_font_6x10_marlin_symbols") = {
+  0,6,9,0,254,7,0,0,0,0,1,8,254,8,254,7,254,5,8,8,6,0,0,
   64,240,200,136,136,152,120,16,5,8,8,6,0,0,224,248,136,
   136,136,136,136,248,5,5,5,6,0,1,32,48,248,48,32,5,8,8,
   6,0,0,32,112,248,32,32,32,32,224,5,9,9,6,0,255,32,112,
   168,168,184,136,136,80,32,5,9,9,6,0,255,224,128,192,176,
   168,168,48,40,40,5,9,9,6,0,255,248,168,136,136,136,136,
-136,168,248,255,5,10,10,6,0,254,32,80,80,80,80,136,168,168,136,112};
+  136,168,248,5,10,10,6,0,254,32,80,80,80,80,136,168,168,136,112
+};
