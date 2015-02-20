@@ -23,8 +23,8 @@ pre {
 
 body { margin: 0; padding: 0; background: #56A; color: #000; font-family: monospace; }
 #main {
-	max-width: 1000px;
-	margin: 0 auto;
+	max-width: 1100px;
+	margin: 0 auto 10px;
  	padding: 0 2%; width: 96%;
 	}
 
@@ -32,9 +32,10 @@ h1, h2, h3, h4, h5, h6 { clear: both; }
 
 h1, p.info { font-family: sans-serif; }
 h1 {
-	background: transparent url(logo.png) right top no-repeat;
 	height: 38px;
 	margin-bottom: -30px;
+	color: #FFF;
+	background: transparent url(logo.png) right top no-repeat;
 	}
 p.info { padding: 0; color: #000; }
 p.info span { color: #800; }
@@ -72,7 +73,8 @@ img { display: none; }
 	padding: 6px 20px 20px;
 	color: #000;
 	position: relative;
-	border-top-right-radius: 1.5em;
+	border-radius: 1.5em;
+	border-top-left-radius: 0;
 	}
 fieldset {
 	height: 16.1em;
@@ -235,7 +237,7 @@ h2 {
 
 /* Disclosure Widget */
 
-span.disclose, a.download {︎
+span.disclose, a.download, a.download-all {︎
 	display: block;
 	float: right;
 	margin-top: 12px;
@@ -278,7 +280,7 @@ span.disclose.closed.almost {
 
 /* Download Button */
 
-a.download {
+a.download, a.download-all {
 	visibility: hidden;
 	padding: 2px;
 	border: 1px solid #494;
@@ -291,8 +293,9 @@ a.download {
 	font-weight: bold;
 	text-decoration: none;
 	}
+a.download-all { margin: 9px 2em 0; color: #449; border-color: #449; }
 
-@media all and (min-width: 1100px) {
+@media all and (min-width: 1140px) {
 
 	#main { max-width: 10000px; }
 
@@ -301,4 +304,7 @@ a.download {
 	#config_text, #config_adv_text { float: right; clear: right; width: 45%; }
 
 	pre.config { height: 20em; }
+
+	.disclose { display: none; }
+
 }

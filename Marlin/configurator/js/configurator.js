@@ -140,8 +140,8 @@ var configuratorApp = (function(){
       $msgbox = $('#message'),
       $form = $('#config_form'),
       $tooltip = $('#tooltip'),
-      $config = $('#config_text pre'),
-      $config_adv = $('#config_adv_text pre'),
+      $cfg = $('#config_text'), $adv = $('#config_adv_text'),
+      $config = $cfg.find('pre'), $config_adv = $adv.find('pre'),
       define_list = [[],[]],
       define_section = {},
       boards_list = {},
@@ -186,11 +186,8 @@ var configuratorApp = (function(){
           : $pre.slideUp(200, didAnim);
       });
 
-      // Fix the config boxes on the screen (in wide style)
-      $(window).bind('scroll resize', function(){
-        var $cfg = $('#config_text'), wtop = $(window).scrollTop(), ctop = $cfg.offset().top;
-        $cfg.css({ paddingTop: ctop < $form.offset().top+100 && wtop > ctop ? wtop-ctop : 0 });
-      });
+      // Adjust the form layout for the window size
+      $(window).bind('scroll resize', this.adjustFormLayout).trigger('resize');
 
       // Read boards.h, Configuration.h, Configuration_adv.h
       var ajax_count = 0, success_count = 0;
@@ -287,6 +284,28 @@ var configuratorApp = (function(){
     },
 
     /**
+     * Make the download-all link visible and active
+     */
+    activateDownloadAllLink: function() {
+      $('.download-all')
+        .unbind('mouseover click')
+        .mouseover(function() {
+          var d = new Date(), fn = d.fileStamp('MarlinConfig.zip');
+          $(this).attr({ download:fn, href:'download:'+fn, title:'download:'+fn });
+        })
+        .click(function(){
+          var $button = $(this);
+          var zip = new JSZip();
+          zip.file(config_file, $config.text());
+          zip.file(config_adv_file, $config_adv.text());
+          var zipped = zip.generate({type:'blob'});
+          saveAs(zipped, $button.attr('download'));
+          return false;
+        })
+        .css({visibility:'visible'});
+    },
+
+    /**
      * Init the boards array from a boards.h file
      */
     initBoardsFromText: function(txt) {
@@ -316,8 +335,8 @@ var configuratorApp = (function(){
      * Get all the unique define names
      */
     updateDefinesFromText: function(index, txt) {
-      var section = 'machine',
-          leave_out_defines = ['CONFIGURATION_H', 'CONFIGURATION_ADV_H', 'STRING_VERSION', 'STRING_URL', 'STRING_VERSION_CONFIG_H', 'STRING_CONFIG_H_AUTHOR', 'STRING_SPLASH_LINE1', 'STRING_SPLASH_LINE2'],
+      var section = 'hidden',
+          leave_out_defines = ['CONFIGURATION_H', 'CONFIGURATION_ADV_H'],
           define_sect = {},
           r, findDef = new RegExp('(@section|#define)[ \\t]+(\\w+)', 'gm');
       while((r = findDef.exec(txt)) !== null) {
@@ -426,6 +445,8 @@ var configuratorApp = (function(){
             // this.initThermistorsFromText(txt);
             init_index = 0;
             has_config = true;
+            if (has_config_adv)
+              this.activateDownloadAllLink();
           }
           else {
             err = boards_file;
@@ -437,6 +458,8 @@ var configuratorApp = (function(){
             total_config_adv_lines = txt.lineCount();
             init_index = 1;
             has_config_adv = true;
+            if (has_config)
+              this.activateDownloadAllLink();
           }
           else {
             err = config_file;
@@ -448,8 +471,14 @@ var configuratorApp = (function(){
         var adv = init_index == 1;
         this.purgeAddedFields(init_index);
         this.updateDefinesFromText(init_index, txt);
+        // TODO: Find sequential names and group them
+        //       Allows related settings to occupy one line in the form
+          // this.refreshSequentialDefines();
+        // TODO: Get dependent groups (#ifdef's) from text
+        //       Allows parent to hide/show or disable/enable dependent fields!
+          // this.refreshDependentGroups(); // (from all config text)
         this.createFieldsForDefines(adv);
-        this.refreshConfigForm(init_index);
+        this.refreshConfigForm(init_index); // TODO: <-- hide dependent fields
         this.activateDownloadLink(adv);
       }
       this.setMessage(err
@@ -1019,7 +1048,11 @@ var configuratorApp = (function(){
               clearInterval(err.pulser);
             }
           }, 50);
-        $err.click(function(e) { $(this).remove(); return false; }).css({cursor:'pointer'});
+        $err.click(function(e) {
+          $(this).remove();
+          self.adjustFormLayout();
+          return false;
+        }).css({cursor:'pointer'});
       }
       else {
         $msgbox.find('p.error, p.warning').each(function() {
@@ -1027,6 +1060,27 @@ var configuratorApp = (function(){
             clearInterval(this.pulser);
           $(this).remove();
         });
+      }
+      self.adjustFormLayout();
+    },
+
+    adjustFormLayout: function() {
+      var wtop = $(window).scrollTop(),
+          ctop = $cfg.offset().top,
+          thresh = $form.offset().top+100;
+      if (ctop < thresh) {
+        var maxhi = $form.height(); // pad plus heights of config boxes can't be more than this
+        var pad = wtop > ctop ? wtop-ctop : 0; // pad the top box to stay in view
+        var innerpad = Math.ceil($cfg.height() - $cfg.find('pre').height());
+        // height to use for the inner boxes
+        var hi = ($(window).height() - ($cfg.offset().top - pad) + wtop - innerpad)/2;
+        if (hi < 200) hi = 200;
+        $cfg.css({ paddingTop: pad });
+        var $pre = $('pre.config');
+        $pre.css({ height: Math.floor(hi) - $pre.position().top });
+      }
+      else {
+        $cfg.css({ paddingTop: wtop > ctop ? wtop-ctop : 0, height: '' });
       }
     },
 
