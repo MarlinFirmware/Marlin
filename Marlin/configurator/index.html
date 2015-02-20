@@ -7,6 +7,8 @@
     <script src="js/jquery-2.1.3.min.js"></script>
     <script src="js/binarystring.js"></script>
     <script src="js/binaryfileuploader.js"></script>
+    <script src="js/FileSaver.min.js"></script>
+    <script src="js/jszip.min.js"></script>
     <script src="js/jcanvas.js"></script>
     <script src="js/jstepper.js"></script>
     <script src="js/configurator.js"></script>
@@ -26,7 +28,7 @@
 
         <label>Drop Files Here:</label><input type="file" id="file-upload" />
         <label id="tipson"><input type="checkbox" checked /> ?</label>
-        <br class="clear" />
+        <a href="" class="download-all">Download Zip</a>
 
         <fieldset id="machine">
           <legend>Machine</legend>
@@ -87,6 +89,10 @@
 
         <fieldset id="extras">
           <legend>Extras</legend>
+        </fieldset>
+
+        <fieldset id="info">
+          <legend>Info</legend>
         </fieldset>
 
         <fieldset id="more">
