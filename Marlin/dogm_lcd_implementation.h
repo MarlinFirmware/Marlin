@@ -71,7 +71,7 @@
   #define DOG_CHAR_HEIGHT_EDIT 18
   #define LCD_WIDTH_EDIT       14
 #else
-  #define FONT_MENU_EDIT_NAME u8g_font_6x9
+  #define FONT_MENU_EDIT_NAME u8g_font_6x10
   #define DOG_CHAR_WIDTH_EDIT  6
   #define DOG_CHAR_HEIGHT_EDIT 12
   #define LCD_WIDTH_EDIT       22
