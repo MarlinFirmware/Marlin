@@ -52,19 +52,26 @@
 */
 
 #define USE_BIG_EDIT_FONT                // save 3120 bytes of PROGMEM by commenting out this line
-#define FONT_STATUSMENU u8g_font_6x9
-#define FONT_MENU u8g_font_6x10_marlin
+#define FONT_STATUSMENU_NAME u8g_font_6x9
+#define FONT_MENU_NAME u8g_font_6x10
+#define FONT_SPECIAL_NAME u8g_font_6x10_marlin_symbols
+
+#define FONT_STATUSMENU 1
+#define FONT_MENU 2
+#define FONT_SPECIAL 3
+#define FONT_MENU_EDIT 4
+
 
 // DOGM parameters (size in pixels)
 #define DOG_CHAR_WIDTH         6
 #define DOG_CHAR_HEIGHT        12
 #ifdef USE_BIG_EDIT_FONT
-  #define FONT_MENU_EDIT u8g_font_9x18
+  #define FONT_MENU_EDIT_NAME u8g_font_9x18
   #define DOG_CHAR_WIDTH_EDIT  9
   #define DOG_CHAR_HEIGHT_EDIT 18
   #define LCD_WIDTH_EDIT       14
 #else
-  #define FONT_MENU_EDIT u8g_font_6x10_marlin
+  #define FONT_MENU_EDIT_NAME u8g_font_6x10
   #define DOG_CHAR_WIDTH_EDIT  6
   #define DOG_CHAR_HEIGHT_EDIT 12
   #define LCD_WIDTH_EDIT       22
@@ -73,16 +80,16 @@
 #define START_ROW              0
 
 /* Custom characters defined in font font_6x10_marlin.c */
-#define LCD_STR_DEGREE      "\xB0"
-#define LCD_STR_REFRESH     "\xF8"
-#define LCD_STR_FOLDER      "\xF9"
-#define LCD_STR_ARROW_RIGHT "\xFA"
-#define LCD_STR_UPLEVEL     "\xFB"
-#define LCD_STR_CLOCK       "\xFC"
-#define LCD_STR_FEEDRATE    "\xFD"
-#define LCD_STR_BEDTEMP     "\xFE"
-#define LCD_STR_THERMOMETER "\xFF"
-
+#define LCD_STR_DEGREE      "\260"
+#define LCD_STR_REFRESH     "\001"
+#define LCD_STR_FOLDER      "\002"
+#define LCD_STR_ARROW_RIGHT "\003"
+#define LCD_STR_UPLEVEL     "\004"
+#define LCD_STR_CLOCK       "\005"
+#define LCD_STR_FEEDRATE    "\006"
+#define LCD_STR_BEDTEMP     "\007"
+#define LCD_STR_THERMOMETER "\010"
+#define LCD_STR_SPECIAL_MAX LCD_STR_THERMOMETER
 int lcd_contrast;
 
 // LCD selection
@@ -99,6 +106,44 @@ U8GLIB_NHD_C12864 u8g(DOGLCD_CS, DOGLCD_A0);
 // for regular DOGM128 display with HW-SPI
 U8GLIB_DOGM128 u8g(DOGLCD_CS, DOGLCD_A0);  // HW-SPI Com: CS, A0
 #endif
+
+char currentfont = 0;
+
+static void lcd_setFont(char font_nr) {
+  switch(font_nr) {
+    case FONT_STATUSMENU : {u8g.setFont(FONT_STATUSMENU_NAME); currentfont = FONT_STATUSMENU;}; break;
+    case FONT_MENU       : {u8g.setFont(FONT_MENU_NAME); currentfont = FONT_MENU;}; break;
+    case FONT_SPECIAL    : {u8g.setFont(FONT_SPECIAL_NAME); currentfont = FONT_SPECIAL;}; break;
+    case FONT_MENU_EDIT  : {u8g.setFont(FONT_MENU_EDIT_NAME); currentfont = FONT_MENU_EDIT;}; break;
+    break;
+  }
+}
+
+static void lcd_print(char c) {
+  if ((c > 0) && (c < ' ')) {
+    u8g.setFont(FONT_SPECIAL_NAME);
+    u8g.print(c);
+    lcd_setFont(currentfont);
+  } else {
+    u8g.print(c);
+  }
+}
+
+static void lcd_print(char* str) {
+  char c; 
+  int i = 0;
+  while ((c = str[i++])) {
+    lcd_print(c);
+  }
+}
+
+/* Arduino < 1.0.0 is missing a function to print PROGMEM strings, so we need to implement our own */
+static void lcd_printPGM(const char* str) {
+  char c;
+  while ((c = pgm_read_byte(str++))) {
+    lcd_print(c);
+  }
+}
 
 static void lcd_implementation_init()
 {
@@ -134,7 +179,7 @@ static void lcd_implementation_init()
 	u8g.firstPage();
 	do {
     u8g.drawBitmapP(offx, offy, START_BMPBYTEWIDTH, START_BMPHEIGHT, start_bmp);
-    u8g.setFont(FONT_MENU);
+    lcd_setFont(FONT_MENU);
     #ifndef STRING_SPLASH_LINE2
       u8g.drawStr(txt1X, u8g.getHeight() - DOG_CHAR_HEIGHT, STRING_SPLASH_LINE1);
     #else
@@ -147,21 +192,15 @@ static void lcd_implementation_init()
 
 static void lcd_implementation_clear() { } // Automatically cleared by Picture Loop
 
-/* Arduino < 1.0.0 is missing a function to print PROGMEM strings, so we need to implement our own */
-static void lcd_printPGM(const char* str) {
-  char c;
-  while ((c = pgm_read_byte(str++))) u8g.print(c);
-}
-
 static void _draw_heater_status(int x, int heater) {
   bool isBed = heater < 0;
   int y = 17 + (isBed ? 1 : 0);
-  u8g.setFont(FONT_STATUSMENU);
+  lcd_setFont(FONT_STATUSMENU);
   u8g.setPrintPos(x,6);
-  u8g.print(itostr3(int((heater >= 0 ? degTargetHotend(heater) : degTargetBed()) + 0.5)));
+  lcd_print(itostr3(int((heater >= 0 ? degTargetHotend(heater) : degTargetBed()) + 0.5)));
   lcd_printPGM(PSTR(LCD_STR_DEGREE " "));
   u8g.setPrintPos(x,27);
-  u8g.print(itostr3(int(heater >= 0 ? degHotend(heater) : degBed()) + 0.5));
+  lcd_print(itostr3(int(heater >= 0 ? degHotend(heater) : degBed()) + 0.5));
   lcd_printPGM(PSTR(LCD_STR_DEGREE " "));
   if (!isHeatingHotend(0)) {
     u8g.drawBox(x+7,y,2,2);
@@ -193,7 +232,7 @@ static void lcd_implementation_status_screen() {
     u8g.drawFrame(54,49,73,4);
 
     // SD Card Progress bar and clock
-    u8g.setFont(FONT_STATUSMENU);
+    lcd_setFont(FONT_STATUSMENU);
  
     if (IS_SD_PRINTING) {
       // Progress bar solid part
@@ -203,9 +242,9 @@ static void lcd_implementation_status_screen() {
     u8g.setPrintPos(80,47);
     if (starttime != 0) {
       uint16_t time = (millis() - starttime) / 60000;
-      u8g.print(itostr2(time/60));
-      u8g.print(':');
-      u8g.print(itostr2(time%60));
+      lcd_print(itostr2(time/60));
+      lcd_print(':');
+      lcd_print(itostr2(time%60));
     }
     else {
       lcd_printPGM(PSTR("--:--"));
@@ -219,68 +258,68 @@ static void lcd_implementation_status_screen() {
   if (EXTRUDERS < 4) _draw_heater_status(81, -1);
  
   // Fan
-  u8g.setFont(FONT_STATUSMENU);
+  lcd_setFont(FONT_STATUSMENU);
   u8g.setPrintPos(104,27);
   #if defined(FAN_PIN) && FAN_PIN > -1
     int per = ((fanSpeed + 1) * 100) / 256;
     if (per) {
-      u8g.print(itostr3(per));
-      u8g.print("%");
+      lcd_print(itostr3(per));
+      lcd_print("%");
     }
     else
   #endif
     {
-      u8g.print("---");
+      lcd_print("---");
     }
 
   // X, Y, Z-Coordinates
-  u8g.setFont(FONT_STATUSMENU);
+  lcd_setFont(FONT_STATUSMENU);
   u8g.drawBox(0,29,128,10);
   u8g.setColorIndex(0); // white on black
   u8g.setPrintPos(2,37);
-  u8g.print("X");
+  lcd_print("X");
   u8g.drawPixel(8,33);
   u8g.drawPixel(8,35);
   u8g.setPrintPos(10,37);
-  u8g.print(ftostr31ns(current_position[X_AXIS]));
+  lcd_print(ftostr31ns(current_position[X_AXIS]));
   u8g.setPrintPos(43,37);
   lcd_printPGM(PSTR("Y"));
   u8g.drawPixel(49,33);
   u8g.drawPixel(49,35);
   u8g.setPrintPos(51,37);
-  u8g.print(ftostr31ns(current_position[Y_AXIS]));
+  lcd_print(ftostr31ns(current_position[Y_AXIS]));
   u8g.setPrintPos(83,37);
-  u8g.print("Z");
+  lcd_print("Z");
   u8g.drawPixel(89,33);
   u8g.drawPixel(89,35);
   u8g.setPrintPos(91,37);
-  u8g.print(ftostr31(current_position[Z_AXIS]));
+  lcd_print(ftostr31(current_position[Z_AXIS]));
   u8g.setColorIndex(1); // black on white
  
   // Feedrate
-  u8g.setFont(FONT_MENU);
+  lcd_setFont(FONT_MENU);
   u8g.setPrintPos(3,49);
-  u8g.print(LCD_STR_FEEDRATE[0]);
-  u8g.setFont(FONT_STATUSMENU);
+  lcd_print(LCD_STR_FEEDRATE[0]);
+  lcd_setFont(FONT_STATUSMENU);
   u8g.setPrintPos(12,48);
-  u8g.print(itostr3(feedmultiply));
-  u8g.print('%');
+  lcd_print(itostr3(feedmultiply));
+  lcd_print('%');
 
   // Status line
-  u8g.setFont(FONT_STATUSMENU);
+  lcd_setFont(FONT_STATUSMENU);
   u8g.setPrintPos(0,61);
   #ifndef FILAMENT_LCD_DISPLAY
-    u8g.print(lcd_status_message);
+    lcd_print(lcd_status_message);
   #else
     if (millis() < message_millis + 5000) {  //Display both Status message line and Filament display on the last line
-      u8g.print(lcd_status_message);
+      lcd_print(lcd_status_message);
     }
     else {
       lcd_printPGM(PSTR("dia:"));
-      u8g.print(ftostr12ns(filament_width_meas));
+      lcd_print(ftostr12ns(filament_width_meas));
       lcd_printPGM(PSTR(" factor:"));
-      u8g.print(itostr3(extrudemultiply));
-      u8g.print('%');
+      lcd_print(itostr3(extrudemultiply));
+      lcd_print('%');
     }
   #endif
 }
@@ -304,13 +343,13 @@ static void lcd_implementation_drawmenu_generic(uint8_t row, const char* pstr, c
   lcd_implementation_mark_as_selected(row, pre_char);
 
   while((c = pgm_read_byte(pstr))) {
-    u8g.print(c);
+    lcd_print(c);
     pstr++;
     n--;
   }
-  while(n--) u8g.print(' ');
-  u8g.print(post_char);
-  u8g.print(' ');
+  while(n--) lcd_print(' ');
+  lcd_print(post_char);
+  lcd_print(' ');
 }
 
 static void _drawmenu_setting_edit_generic(uint8_t row, const char* pstr, char pre_char, const char* data, bool pgm) {
@@ -320,13 +359,13 @@ static void _drawmenu_setting_edit_generic(uint8_t row, const char* pstr, char p
   lcd_implementation_mark_as_selected(row, pre_char);
 
   while( (c = pgm_read_byte(pstr))) {
-    u8g.print(c);
+    lcd_print(c);
     pstr++;
     n--;
   }
-  u8g.print(':');
-  while(n--) u8g.print(' ');
-  if (pgm) { lcd_printPGM(data); } else { u8g.print(data); }
+  lcd_print(':');
+  while(n--) lcd_print(' ');
+  if (pgm) { lcd_printPGM(data); } else { lcd_print((char *)data); }
 }
 
 #define lcd_implementation_drawmenu_setting_edit_generic(row, pstr, pre_char, data) _drawmenu_setting_edit_generic(row, pstr, pre_char, data, false)
@@ -378,13 +417,13 @@ void lcd_implementation_drawedit(const char* pstr, char* value) {
 
   #ifdef USE_BIG_EDIT_FONT
     if (strlen_P(pstr) <= LCD_WIDTH_EDIT - 1) {
-      u8g.setFont(FONT_MENU_EDIT);
+      lcd_setFont(FONT_MENU_EDIT);
       lcd_width = LCD_WIDTH_EDIT + 1;
       char_width = DOG_CHAR_WIDTH_EDIT;
       if (strlen_P(pstr) >= LCD_WIDTH_EDIT - strlen(value)) rows = 2;
     }
     else {
-      u8g.setFont(FONT_MENU);
+      lcd_setFont(FONT_MENU);
     }
   #endif
 
@@ -395,9 +434,9 @@ void lcd_implementation_drawedit(const char* pstr, char* value) {
 
   u8g.setPrintPos(0, rowHeight + kHalfChar);
   lcd_printPGM(pstr);
-  u8g.print(':');
+  lcd_print(':');
   u8g.setPrintPos((lcd_width-1-strlen(value)) * char_width, rows * rowHeight + kHalfChar);
-  u8g.print(value);
+  lcd_print(value);
 }
 
 static void _drawmenu_sd(uint8_t row, const char* pstr, const char* filename, char * const longFilename, bool isDir, bool isSelected) {
@@ -411,13 +450,13 @@ static void _drawmenu_sd(uint8_t row, const char* pstr, const char* filename, ch
 
   lcd_implementation_mark_as_selected(row, ((isSelected) ? '>' : ' '));
 
-  if (isDir) u8g.print(LCD_STR_FOLDER[0]);
+  if (isDir) lcd_print(LCD_STR_FOLDER[0]);
   while((c = *filename) != '\0') {
-    u8g.print(c);
+    lcd_print(c);
     filename++;
     n--;
   }
-  while(n--) u8g.print(' ');
+  while(n--) lcd_print(' ');
 }
 
 #define lcd_implementation_drawmenu_sdfile_selected(row, pstr, filename, longFilename) _drawmenu_sd(row, pstr, filename, longFilename, false, true)
