@@ -150,22 +150,23 @@ static void menu_action_setting_edit_callback_long5(const char* pstr, unsigned l
 #ifdef ENCODER_RATE_MULTIPLIER
 #define MENU_MULTIPLIER_ITEM(type, label, args...) do { \
     if (_menuItemNr == _lineNr) { \
-        if (lcdDrawUpdate) { \
-            const char* _label_pstr = PSTR(label); \
-            if ((encoderPosition / ENCODER_STEPS_PER_MENU_ITEM) == _menuItemNr) { \
-                lcd_implementation_drawmenu_ ## type ## _selected (_drawLineNr, _label_pstr , ## args ); \
-                              }else{\
-                lcd_implementation_drawmenu_ ## type (_drawLineNr, _label_pstr , ## args ); \
-                              }\
-                    }\
-        if (wasClicked && (encoderPosition / ENCODER_STEPS_PER_MENU_ITEM) == _menuItemNr) {\
-            lcd_quick_feedback(); \
-      encoderRateMultiplierEnabled = true; \
-      lastEncoderMovementMillis = 0; \
-            menu_action_ ## type ( args ); \
-            return;\
-                }\
+      if (lcdDrawUpdate) { \
+        const char* _label_pstr = PSTR(label); \
+        if ((encoderPosition / ENCODER_STEPS_PER_MENU_ITEM) == _menuItemNr) { \
+          lcd_implementation_drawmenu_ ## type ## _selected (_drawLineNr, _label_pstr , ## args ); \
+        }
+        else {\
+          lcd_implementation_drawmenu_ ## type (_drawLineNr, _label_pstr , ## args ); \
         }\
+      }\
+      if (wasClicked && (encoderPosition / ENCODER_STEPS_PER_MENU_ITEM) == _menuItemNr) {\
+        lcd_quick_feedback(); \
+        encoderRateMultiplierEnabled = true; \
+        lastEncoderMovementMillis = 0; \
+        menu_action_ ## type ( args ); \
+        return;\
+      }\
+    }\
     _menuItemNr++;\
 } while(0)
 #endif
