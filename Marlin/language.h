@@ -27,6 +27,7 @@
 // nl    Dutch
 // ca    Catalan
 // eu    Basque-Euskera
+// jp    Japanese Kana
 
 #ifndef LANGUAGE_INCLUDE
   // pick your language from the list above
