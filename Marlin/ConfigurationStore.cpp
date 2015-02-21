@@ -626,19 +626,27 @@ void Config_PrintSettings(bool forReplay) {
       SERIAL_ECHO_START;
     }
     SERIAL_ECHOPAIR("   M200 D", filament_size[0]);
+    SERIAL_ECHOPAIR(" [M", volumetric_multiplier[0]);
+    SERIAL_ECHO("]");
     SERIAL_EOL;
 
     #if EXTRUDERS > 1
       SERIAL_ECHO_START;
       SERIAL_ECHOPAIR("   M200 T1 D", filament_size[1]);
+      SERIAL_ECHOPAIR(" [M", volumetric_multiplier[1]);
+      SERIAL_ECHO("]");
       SERIAL_EOL;
       #if EXTRUDERS > 2
         SERIAL_ECHO_START;
         SERIAL_ECHOPAIR("   M200 T2 D", filament_size[2]);
+        SERIAL_ECHOPAIR(" [M", volumetric_multiplier[2]);
+        SERIAL_ECHO("]");
         SERIAL_EOL;
         #if EXTRUDERS > 3
           SERIAL_ECHO_START;
           SERIAL_ECHOPAIR("   M200 T3 D", filament_size[3]);
+          SERIAL_ECHOPAIR(" [M", volumetric_multiplier[3]);
+          SERIAL_ECHO("]");
           SERIAL_EOL;
         #endif
       #endif
