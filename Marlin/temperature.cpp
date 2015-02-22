@@ -464,6 +464,40 @@ void checkExtruderAutoFans()
 
 #endif // any extruder auto fan pins set
 
+//
+// Error checking and Write Routines
+//
+#if !defined(HEATER_0_PIN) || HEATER_0_PIN < 0
+  #error HEATER_0_PIN not defined for this board
+#endif
+#define WRITE_HEATER_0P(v) WRITE(HEATER_0_PIN, v)
+#if EXTRUDERS > 1 || defined(HEATERS_PARALLEL)
+  #if !defined(HEATER_1_PIN) || HEATER_1_PIN < 0
+    #error HEATER_1_PIN not defined for this board
+  #endif
+  #define WRITE_HEATER_1(v) WRITE(HEATER_1_PIN, v)
+  #if EXTRUDERS > 2
+    #if !defined(HEATER_2_PIN) || HEATER_2_PIN < 0
+      #error HEATER_2_PIN not defined for this board
+    #endif
+    #define WRITE_HEATER_2(v) WRITE(HEATER_2_PIN, v)
+    #if EXTRUDERS > 3
+      #if !defined(HEATER_3_PIN) || HEATER_3_PIN < 0
+        #error HEATER_3_PIN not defined for this board
+      #endif
+      #define WRITE_HEATER_3(v) WRITE(HEATER_3_PIN, v)
+    #endif
+  #endif
+#endif
+#ifdef HEATERS_PARALLEL
+  #define WRITE_HEATER_0(v) { WRITE_HEATER_0P(v); WRITE_HEATER_1(v); }
+#else
+  #define WRITE_HEATER_0(v) WRITE_HEATER_0P(v)
+#endif
+#if defined(HEATER_BED_PIN) && HEATER_BED_PIN > -1
+  #define WRITE_HEATER_BED(v) WRITE(HEATER_BED_PIN, v)
+#endif
+
 void manage_heater() {
 
   if (!temp_meas_ready) return;
@@ -642,7 +676,7 @@ void manage_heater() {
       }
       else {
         soft_pwm_bed = 0;
-        WRITE(HEATER_BED_PIN, LOW);
+        WRITE_HEATER_BED(LOW);
       }
     #else //#ifdef BED_LIMIT_SWITCHING
       // Check if temperature is within the correct band
@@ -654,7 +688,7 @@ void manage_heater() {
       }
       else {
         soft_pwm_bed = 0;
-        WRITE(HEATER_BED_PIN, LOW);
+        WRITE_HEATER_BED(LOW);
       }
     #endif
   #endif //TEMP_SENSOR_BED != 0
@@ -1122,6 +1156,7 @@ void thermal_runaway_protection(int *state, unsigned long *timer, float temperat
 }
 #endif //THERMAL_RUNAWAY_PROTECTION_PERIOD
 
+
 void disable_heater() {
   for (int i=0; i<EXTRUDERS; i++) setTargetHotend(0, i);
   setTargetBed(0);
@@ -1129,40 +1164,32 @@ void disable_heater() {
   #if defined(TEMP_0_PIN) && TEMP_0_PIN > -1
     target_temperature[0] = 0;
     soft_pwm[0] = 0;
-    #if defined(HEATER_0_PIN) && HEATER_0_PIN > -1
-      WRITE(HEATER_0_PIN, LOW);
-    #endif
+    WRITE_HEATER_0P(LOW); // If HEATERS_PARALLEL should apply, change to WRITE_HEATER_0
   #endif
 
-  #if defined(TEMP_1_PIN) && TEMP_1_PIN > -1 && EXTRUDERS > 1
+  #if EXTRUDERS > 1 && defined(TEMP_1_PIN) && TEMP_1_PIN > -1
     target_temperature[1] = 0;
     soft_pwm[1] = 0;
-    #if defined(HEATER_1_PIN) && HEATER_1_PIN > -1
-      WRITE(HEATER_1_PIN, LOW);
-    #endif
+    WRITE_HEATER_1(LOW);
   #endif
 
-  #if defined(TEMP_2_PIN) && TEMP_2_PIN > -1 && EXTRUDERS > 2
+  #if EXTRUDERS > 2 && defined(TEMP_2_PIN) && TEMP_2_PIN > -1
     target_temperature[2] = 0;
     soft_pwm[2] = 0;
-    #if defined(HEATER_2_PIN) && HEATER_2_PIN > -1
-      WRITE(HEATER_2_PIN, LOW);
-    #endif
+    WRITE_HEATER_2(LOW);
   #endif
 
-  #if defined(TEMP_3_PIN) && TEMP_3_PIN > -1 && EXTRUDERS > 3
+  #if EXTRUDERS > 3 && defined(TEMP_3_PIN) && TEMP_3_PIN > -1
     target_temperature[3] = 0;
     soft_pwm[3] = 0;
-    #if defined(HEATER_3_PIN) && HEATER_3_PIN > -1
-      WRITE(HEATER_3_PIN, LOW);
-    #endif
+    WRITE_HEATER_3(LOW);
   #endif
 
   #if defined(TEMP_BED_PIN) && TEMP_BED_PIN > -1
     target_temperature_bed = 0;
     soft_pwm_bed = 0;
     #if defined(HEATER_BED_PIN) && HEATER_BED_PIN > -1
-      WRITE(HEATER_BED_PIN, LOW);
+      WRITE_HEATER_BED(LOW);
     #endif
   #endif
 }
@@ -1195,7 +1222,7 @@ void min_temp_error(uint8_t e) {
 
 void bed_max_temp_error(void) {
   #if defined(HEATER_BED_PIN) && HEATER_BED_PIN > -1
-    WRITE(HEATER_BED_PIN, 0);
+    WRITE_HEATER_BED(0);
   #endif
   if (IsStopped() == false) {
     SERIAL_ERROR_START;
@@ -1264,39 +1291,6 @@ void bed_max_temp_error(void) {
 #endif //HEATER_0_USES_MAX6675
 
 //
-// Error checking and Write Routines
-//
-#if !defined(HEATER_0_PIN) || HEATER_0_PIN < 0
-  #error HEATER_0_PIN not defined for this board
-#endif
-#ifdef HEATERS_PARALLEL
-  #define WRITE_HEATER_0(v) { WRITE(HEATER_0_PIN, v); WRITE(HEATER_1_PIN, v); }
-#else
-  #define WRITE_HEATER_0(v) WRITE(HEATER_0_PIN, v)
-#endif
-#if EXTRUDERS > 1
-  #if !defined(HEATER_1_PIN) || HEATER_1_PIN < 0
-    #error HEATER_1_PIN not defined for this board
-  #endif
-  #define WRITE_HEATER_1(v) WRITE(HEATER_1_PIN, v)
-  #if EXTRUDERS > 2
-    #if !defined(HEATER_2_PIN) || HEATER_2_PIN < 0
-      #error HEATER_2_PIN not defined for this board
-    #endif
-    #define WRITE_HEATER_2(v) WRITE(HEATER_2_PIN, v)
-    #if EXTRUDERS > 3
-      #if !defined(HEATER_3_PIN) || HEATER_3_PIN < 0
-        #error HEATER_3_PIN not defined for this board
-      #endif
-      #define WRITE_HEATER_3(v) WRITE(HEATER_3_PIN, v)
-    #endif
-  #endif
-#endif
-#if defined(HEATER_BED_PIN) && HEATER_BED_PIN > -1
-  #define WRITE_HEATER_b(v) WRITE(HEATER_BED_PIN, v)
-#endif
-
-//
 // Static members for each heater
 //
 #ifdef SLOW_PWM_HEATERS
@@ -1337,7 +1331,7 @@ ISR(TIMER0_COMPB_vect) {
     #endif
   #endif
   #if defined(HEATER_BED_PIN) && HEATER_BED_PIN > -1
-    ISR_STATICS(b);
+    ISR_STATICS(BED);
   #endif
 
   #if defined(FILWIDTH_PIN) && FILWIDTH_PIN > -1
@@ -1353,7 +1347,7 @@ ISR(TIMER0_COMPB_vect) {
       if (soft_pwm_0 > 0) {
         WRITE_HEATER_0(1);
       }
-      else WRITE(HEATER_0_PIN, 0);
+      else WRITE_HEATER_0P(0); // If HEATERS_PARALLEL should apply, change to WRITE_HEATER_0
 
       #if EXTRUDERS > 1
         soft_pwm_1 = soft_pwm[1];
@@ -1369,8 +1363,8 @@ ISR(TIMER0_COMPB_vect) {
       #endif
 
       #if defined(HEATER_BED_PIN) && HEATER_BED_PIN > -1
-        soft_pwm_b = soft_pwm_bed;
-        WRITE_HEATER_b(soft_pwm_b > 0 ? 1 : 0);
+        soft_pwm_BED = soft_pwm_bed;
+        WRITE_HEATER_BED(soft_pwm_BED > 0 ? 1 : 0);
       #endif
       #ifdef FAN_SOFT_PWM
         soft_pwm_fan = fanSpeedSoftPwm / 2;
@@ -1390,7 +1384,7 @@ ISR(TIMER0_COMPB_vect) {
     #endif
 
     #if defined(HEATER_BED_PIN) && HEATER_BED_PIN > -1
-      if (soft_pwm_b < pwm_count) WRITE_HEATER_b(0);
+      if (soft_pwm_BED < pwm_count) WRITE_HEATER_BED(0);
     #endif
 
     #ifdef FAN_SOFT_PWM
@@ -1410,7 +1404,7 @@ ISR(TIMER0_COMPB_vect) {
       #define MIN_STATE_TIME 16 // MIN_STATE_TIME * 65.5 = time in milliseconds
     #endif
 
-    // Macros for Slow PWM timer logic
+    // Macros for Slow PWM timer logic - HEATERS_PARALLEL applies
     #define _SLOW_PWM_ROUTINE(NR, src) \
       soft_pwm_ ## NR = src; \
       if (soft_pwm_ ## NR > 0) { \
@@ -1451,7 +1445,7 @@ ISR(TIMER0_COMPB_vect) {
         #endif
       #endif
       #if defined(HEATER_BED_PIN) && HEATER_BED_PIN > -1
-        _SLOW_PWM_ROUTINE(b, soft_pwm_bed); // BED
+        _SLOW_PWM_ROUTINE(BED, soft_pwm_bed); // BED
       #endif
 
     } // slow_pwm_count == 0
@@ -1467,7 +1461,7 @@ ISR(TIMER0_COMPB_vect) {
       #endif
     #endif
     #if defined(HEATER_BED_PIN) && HEATER_BED_PIN > -1
-      PWM_OFF_ROUTINE(b); // BED
+      PWM_OFF_ROUTINE(BED); // BED
     #endif
 
     #ifdef FAN_SOFT_PWM
@@ -1497,8 +1491,8 @@ ISR(TIMER0_COMPB_vect) {
           #endif
         #endif
       #endif
-      #if defined(HEATER_BED_PIN) && HEATER_BED_PIN > -1 // Bed
-        if (state_timer_heater_b > 0) state_timer_heater_b--;
+      #if defined(HEATER_BED_PIN) && HEATER_BED_PIN > -1 // BED
+        if (state_timer_heater_BED > 0) state_timer_heater_BED--;
       #endif
     } // (pwm_count % 64) == 0
   
