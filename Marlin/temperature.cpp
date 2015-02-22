@@ -846,50 +846,50 @@ return(filament_width_nominal/temp*100);
 
 void tp_init()
 {
-#if MB(RUMBA) && ((TEMP_SENSOR_0==-1)||(TEMP_SENSOR_1==-1)||(TEMP_SENSOR_2==-1)||(TEMP_SENSOR_BED==-1))
-  //disable RUMBA JTAG in case the thermocouple extension is plugged on top of JTAG connector
-  MCUCR=(1<<JTD); 
-  MCUCR=(1<<JTD);
-#endif
+  #if MB(RUMBA) && ((TEMP_SENSOR_0==-1)||(TEMP_SENSOR_1==-1)||(TEMP_SENSOR_2==-1)||(TEMP_SENSOR_BED==-1))
+    //disable RUMBA JTAG in case the thermocouple extension is plugged on top of JTAG connector
+    MCUCR=(1<<JTD); 
+    MCUCR=(1<<JTD);
+  #endif
   
   // Finish init of mult extruder arrays 
-  for(int e = 0; e < EXTRUDERS; e++) {
+  for (int e = 0; e < EXTRUDERS; e++) {
     // populate with the first value 
     maxttemp[e] = maxttemp[0];
-#ifdef PIDTEMP
-    temp_iState_min[e] = 0.0;
-    temp_iState_max[e] = PID_INTEGRAL_DRIVE_MAX / PID_PARAM(Ki,e);
-#endif //PIDTEMP
-#ifdef PIDTEMPBED
-    temp_iState_min_bed = 0.0;
-    temp_iState_max_bed = PID_INTEGRAL_DRIVE_MAX / bedKi;
-#endif //PIDTEMPBED
+    #ifdef PIDTEMP
+      temp_iState_min[e] = 0.0;
+      temp_iState_max[e] = PID_INTEGRAL_DRIVE_MAX / PID_PARAM(Ki,e);
+    #endif //PIDTEMP
+    #ifdef PIDTEMPBED
+      temp_iState_min_bed = 0.0;
+      temp_iState_max_bed = PID_INTEGRAL_DRIVE_MAX / bedKi;
+    #endif //PIDTEMPBED
   }
 
-  #if defined(HEATER_0_PIN) && (HEATER_0_PIN > -1) 
+  #if defined(HEATER_0_PIN) && (HEATER_0_PIN > -1)
     SET_OUTPUT(HEATER_0_PIN);
   #endif
-  #if defined(HEATER_1_PIN) && (HEATER_1_PIN > -1) 
+  #if defined(HEATER_1_PIN) && (HEATER_1_PIN > -1)
     SET_OUTPUT(HEATER_1_PIN);
   #endif
-  #if defined(HEATER_2_PIN) && (HEATER_2_PIN > -1) 
+  #if defined(HEATER_2_PIN) && (HEATER_2_PIN > -1)
     SET_OUTPUT(HEATER_2_PIN);
   #endif
-  #if defined(HEATER_3_PIN) && (HEATER_3_PIN > -1) 
+  #if defined(HEATER_3_PIN) && (HEATER_3_PIN > -1)
     SET_OUTPUT(HEATER_3_PIN);
   #endif
   #if defined(HEATER_BED_PIN) && (HEATER_BED_PIN > -1)
     SET_OUTPUT(HEATER_BED_PIN);
   #endif  
-  #if defined(FAN_PIN) && (FAN_PIN > -1) 
+  #if defined(FAN_PIN) && (FAN_PIN > -1)
     SET_OUTPUT(FAN_PIN);
     #ifdef FAST_PWM_FAN
-    setPwmFrequency(FAN_PIN, 1); // No prescaling. Pwm frequency = F_CPU/256/8
+      setPwmFrequency(FAN_PIN, 1); // No prescaling. Pwm frequency = F_CPU/256/8
     #endif
     #ifdef FAN_SOFT_PWM
-    soft_pwm_fan = fanSpeedSoftPwm / 2;
+      soft_pwm_fan = fanSpeedSoftPwm / 2;
     #endif
-  #endif  
+  #endif
 
   #ifdef HEATER_0_USES_MAX6675
 
@@ -973,111 +973,74 @@ void tp_init()
   // Wait for temperature measurement to settle
   delay(250);
 
-#ifdef HEATER_0_MINTEMP
-  minttemp[0] = HEATER_0_MINTEMP;
-  while(analog2temp(minttemp_raw[0], 0) < HEATER_0_MINTEMP) {
-#if HEATER_0_RAW_LO_TEMP < HEATER_0_RAW_HI_TEMP
-    minttemp_raw[0] += OVERSAMPLENR;
-#else
-    minttemp_raw[0] -= OVERSAMPLENR;
-#endif
-  }
-#endif //MINTEMP
-#ifdef HEATER_0_MAXTEMP
-  maxttemp[0] = HEATER_0_MAXTEMP;
-  while(analog2temp(maxttemp_raw[0], 0) > HEATER_0_MAXTEMP) {
-#if HEATER_0_RAW_LO_TEMP < HEATER_0_RAW_HI_TEMP
-    maxttemp_raw[0] -= OVERSAMPLENR;
-#else
-    maxttemp_raw[0] += OVERSAMPLENR;
-#endif
-  }
-#endif //MAXTEMP
+  #define TEMP_MIN_ROUTINE(NR) \
+    minttemp[NR] = HEATER_ ## NR ## _MINTEMP;
+    while(analog2temp(minttemp_raw[NR], NR) < HEATER_ ## NR ## _MINTEMP) {
+      if (HEATER_ ## NR ## _RAW_LO_TEMP < HEATER_ ## NR ## _RAW_HI_TEMP)
+        minttemp_raw[NR] += OVERSAMPLENR;
+      else
+        minttemp_raw[NR] -= OVERSAMPLENR;
+    }
+  #define TEMP_MAX_ROUTINE(NR) \
+    maxttemp[NR] = HEATER_ ## NR ## _MAXTEMP;
+    while(analog2temp(maxttemp_raw[NR], NR) > HEATER_ ## NR ## _MAXTEMP) {
+      if (HEATER_ ## NR ## _RAW_LO_TEMP < HEATER_ ## NR ## _RAW_HI_TEMP)
+        maxttemp_raw[NR] -= OVERSAMPLENR;
+      else
+        maxttemp_raw[NR] += OVERSAMPLENR;
+    }
 
-#if (EXTRUDERS > 1) && defined(HEATER_1_MINTEMP)
-  minttemp[1] = HEATER_1_MINTEMP;
-  while(analog2temp(minttemp_raw[1], 1) < HEATER_1_MINTEMP) {
-#if HEATER_1_RAW_LO_TEMP < HEATER_1_RAW_HI_TEMP
-    minttemp_raw[1] += OVERSAMPLENR;
-#else
-    minttemp_raw[1] -= OVERSAMPLENR;
-#endif
-  }
-#endif // MINTEMP 1
-#if (EXTRUDERS > 1) && defined(HEATER_1_MAXTEMP)
-  maxttemp[1] = HEATER_1_MAXTEMP;
-  while(analog2temp(maxttemp_raw[1], 1) > HEATER_1_MAXTEMP) {
-#if HEATER_1_RAW_LO_TEMP < HEATER_1_RAW_HI_TEMP
-    maxttemp_raw[1] -= OVERSAMPLENR;
-#else
-    maxttemp_raw[1] += OVERSAMPLENR;
-#endif
-  }
-#endif //MAXTEMP 1
+  #ifdef HEATER_0_MINTEMP
+    TEMP_MIN_ROUTINE(0);
+  #endif
+  #ifdef HEATER_0_MAXTEMP
+    TEMP_MAX_ROUTINE(0);
+  #endif
+  #if EXTRUDERS > 1
+    #ifdef HEATER_1_MINTEMP
+      TEMP_MIN_ROUTINE(1);
+    #endif
+    #ifdef HEATER_1_MAXTEMP
+      TEMP_MAX_ROUTINE(1);
+    #endif
+    #if EXTRUDERS > 2
+      #ifdef HEATER_2_MINTEMP
+        TEMP_MIN_ROUTINE(2);
+      #endif
+      #ifdef HEATER_2_MAXTEMP
+        TEMP_MAX_ROUTINE(2);
+      #endif
+      #if EXTRUDERS > 3
+        #ifdef HEATER_3_MINTEMP
+          TEMP_MIN_ROUTINE(3);
+        #endif
+        #ifdef HEATER_3_MAXTEMP
+          TEMP_MAX_ROUTINE(3);
+        #endif
+      #endif // EXTRUDERS > 3
+    #endif // EXTRUDERS > 2
+  #endif // EXTRUDERS > 1
 
-#if (EXTRUDERS > 2) && defined(HEATER_2_MINTEMP)
-  minttemp[2] = HEATER_2_MINTEMP;
-  while(analog2temp(minttemp_raw[2], 2) < HEATER_2_MINTEMP) {
-#if HEATER_2_RAW_LO_TEMP < HEATER_2_RAW_HI_TEMP
-    minttemp_raw[2] += OVERSAMPLENR;
-#else
-    minttemp_raw[2] -= OVERSAMPLENR;
-#endif
-  }
-#endif //MINTEMP 2
-#if (EXTRUDERS > 2) && defined(HEATER_2_MAXTEMP)
-  maxttemp[2] = HEATER_2_MAXTEMP;
-  while(analog2temp(maxttemp_raw[2], 2) > HEATER_2_MAXTEMP) {
-#if HEATER_2_RAW_LO_TEMP < HEATER_2_RAW_HI_TEMP
-    maxttemp_raw[2] -= OVERSAMPLENR;
-#else
-    maxttemp_raw[2] += OVERSAMPLENR;
-#endif
-  }
-#endif //MAXTEMP 2
-
-#if (EXTRUDERS > 3) && defined(HEATER_3_MINTEMP)
-  minttemp[3] = HEATER_3_MINTEMP;
-  while(analog2temp(minttemp_raw[3], 3) < HEATER_3_MINTEMP) {
-#if HEATER_3_RAW_LO_TEMP < HEATER_3_RAW_HI_TEMP
-    minttemp_raw[3] += OVERSAMPLENR;
-#else
-    minttemp_raw[3] -= OVERSAMPLENR;
-#endif
-  }
-#endif //MINTEMP 3
-#if (EXTRUDERS > 3) && defined(HEATER_3_MAXTEMP)
-  maxttemp[3] = HEATER_3_MAXTEMP;
-  while(analog2temp(maxttemp_raw[3], 3) > HEATER_3_MAXTEMP) {
-#if HEATER_3_RAW_LO_TEMP < HEATER_3_RAW_HI_TEMP
-    maxttemp_raw[3] -= OVERSAMPLENR;
-#else
-    maxttemp_raw[3] += OVERSAMPLENR;
-#endif
-  }
-#endif // MAXTEMP 3
-
-
-#ifdef BED_MINTEMP
-  /* No bed MINTEMP error implemented?!? */ /*
-  while(analog2tempBed(bed_minttemp_raw) < BED_MINTEMP) {
-#if HEATER_BED_RAW_LO_TEMP < HEATER_BED_RAW_HI_TEMP
-    bed_minttemp_raw += OVERSAMPLENR;
-#else
-    bed_minttemp_raw -= OVERSAMPLENR;
-#endif
-  }
-  */
-#endif //BED_MINTEMP
-#ifdef BED_MAXTEMP
-  while(analog2tempBed(bed_maxttemp_raw) > BED_MAXTEMP) {
-#if HEATER_BED_RAW_LO_TEMP < HEATER_BED_RAW_HI_TEMP
-    bed_maxttemp_raw -= OVERSAMPLENR;
-#else
-    bed_maxttemp_raw += OVERSAMPLENR;
-#endif
-  }
-#endif //BED_MAXTEMP
+  #ifdef BED_MINTEMP
+    /* No bed MINTEMP error implemented?!? */ /*
+    while(analog2tempBed(bed_minttemp_raw) < BED_MINTEMP) {
+      #if HEATER_BED_RAW_LO_TEMP < HEATER_BED_RAW_HI_TEMP
+        bed_minttemp_raw += OVERSAMPLENR;
+      #else
+        bed_minttemp_raw -= OVERSAMPLENR;
+      #endif
+    }
+    */
+  #endif //BED_MINTEMP
+  #ifdef BED_MAXTEMP
+    while(analog2tempBed(bed_maxttemp_raw) > BED_MAXTEMP) {
+      #if HEATER_BED_RAW_LO_TEMP < HEATER_BED_RAW_HI_TEMP
+        bed_maxttemp_raw -= OVERSAMPLENR;
+      #else
+        bed_maxttemp_raw += OVERSAMPLENR;
+      #endif
+    }
+  #endif //BED_MAXTEMP
 }
 
 void setWatch() {
