@@ -1291,18 +1291,6 @@ void bed_max_temp_error(void) {
 #endif //HEATER_0_USES_MAX6675
 
 //
-// Static members for each heater
-//
-#ifdef SLOW_PWM_HEATERS
-  #define ISR_STATICS(n) \
-    static unsigned char soft_pwm_ ## n; \
-    static unsigned char state_heater_ ## n = 0; \
-    static unsigned char state_timer_heater_ ## n = 0
-#else
-  #define ISR_STATICS(n) static unsigned char soft_pwm_ ## n
-#endif 
-
-//
 // Timer 0 is shared with millies
 //
 ISR(TIMER0_COMPB_vect) {
@@ -1315,8 +1303,16 @@ ISR(TIMER0_COMPB_vect) {
   static unsigned long raw_temp_bed_value = 0;
   static unsigned char temp_state = 12;
   static unsigned char pwm_count = (1 << SOFT_PWM_SCALE);
+
+  // Static members for each heater
   #ifdef SLOW_PWM_HEATERS
     static unsigned char slow_pwm_count = 0;
+    #define ISR_STATICS(n) \
+      static unsigned char soft_pwm_ ## n; \
+      static unsigned char state_heater_ ## n = 0; \
+      static unsigned char state_timer_heater_ ## n = 0
+  #else
+    #define ISR_STATICS(n) static unsigned char soft_pwm_ ## n
   #endif 
 
   // Statics per heater
