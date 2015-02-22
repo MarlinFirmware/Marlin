@@ -337,6 +337,9 @@ int fanSpeed = 0;
   float delta_diagonal_rod = DELTA_DIAGONAL_ROD;
   float delta_diagonal_rod_2 = sq(delta_diagonal_rod);
   float delta_segments_per_second = DELTA_SEGMENTS_PER_SECOND;
+  #ifdef ENABLE_AUTO_BED_LEVELING
+    float bed_level[AUTO_BED_LEVELING_GRID_POINTS][AUTO_BED_LEVELING_GRID_POINTS];
+  #endif
 #endif
 
 #ifdef SCARA
@@ -1043,6 +1046,7 @@ static void axis_is_at_home(int axis) {
 
 #ifdef ENABLE_AUTO_BED_LEVELING
 #ifdef AUTO_BED_LEVELING_GRID
+#ifndef DELTA
 static void set_bed_level_equation_lsq(double *plane_equation_coefficients)
 {
     vector_3 planeNormal = vector_3(-plane_equation_coefficients[0], -plane_equation_coefficients[1], 1);
@@ -1065,6 +1069,7 @@ static void set_bed_level_equation_lsq(double *plane_equation_coefficients)
 
     plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
 }
+#endif
 
 #else // not AUTO_BED_LEVELING_GRID
 
@@ -1098,7 +1103,29 @@ static void set_bed_level_equation_3pts(float z_at_pt_1, float z_at_pt_2, float 
 #endif // AUTO_BED_LEVELING_GRID
 
 static void run_z_probe() {
+  #ifdef DELTA
+    
+    float start_z = current_position[Z_AXIS];
+    long start_steps = st_get_position(Z_AXIS);
+  
+    // move down slowly until you find the bed
+    feedrate = homing_feedrate[Z_AXIS] / 4;
+    destination[Z_AXIS] = -10;
+    prepare_move_raw();
+    st_synchronize();
+    endstops_hit_on_purpose();
+    
+    // we have to let the planner know where we are right now as it is not where we said to go.
+    long stop_steps = st_get_position(Z_AXIS);
+    float mm = start_z - float(start_steps - stop_steps) / axis_steps_per_unit[Z_AXIS];
+    current_position[Z_AXIS] = mm;
+    calculate_delta(current_position);
+    plan_set_position(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], current_position[E_AXIS]);
+    
+  #else
+    
     plan_bed_level_matrix.set_to_identity();
+    
     feedrate = homing_feedrate[Z_AXIS];
 
     // move down until you find the bed
@@ -1124,11 +1151,22 @@ static void run_z_probe() {
     current_position[Z_AXIS] = st_get_position_mm(Z_AXIS);
     // make sure the planner knows where we are as it may be a bit different than we last said to move to
     plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+    
+  #endif
 }
 
 static void do_blocking_move_to(float x, float y, float z) {
     float oldFeedRate = feedrate;
 
+#ifdef DELTA
+    feedrate = XY_TRAVEL_SPEED;
+    
+    destination[X_AXIS] = x;
+    destination[Y_AXIS] = y;
+    destination[Z_AXIS] = z;
+    prepare_move_raw();
+    st_synchronize();
+#else
     feedrate = homing_feedrate[Z_AXIS];
 
     current_position[Z_AXIS] = z;
@@ -1142,6 +1180,8 @@ static void do_blocking_move_to(float x, float y, float z) {
     plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
     st_synchronize();
 
+#endif
+    
     feedrate = oldFeedRate;
 }
 
@@ -1227,6 +1267,62 @@ static float probe_pt(float x, float y, float z_before, int retract_action=0) {
   SERIAL_PROTOCOLPGM("\n");
   return measured_z;
 }
+
+#ifdef DELTA
+static void extrapolate_one_point(int x, int y, int xdir, int ydir) {
+  if (bed_level[x][y] != 0.0) {
+    return;  // Don't overwrite good values.
+  }
+  float a = 2*bed_level[x+xdir][y] - bed_level[x+xdir*2][y];  // Left to right.
+  float b = 2*bed_level[x][y+ydir] - bed_level[x][y+ydir*2];  // Front to back.
+  float c = 2*bed_level[x+xdir][y+ydir] - bed_level[x+xdir*2][y+ydir*2];  // Diagonal.
+  float median = c;  // Median is robust (ignores outliers).
+  if (a < b) {
+    if (b < c) median = b;
+    if (c < a) median = a;
+  } else {  // b <= a
+    if (c < b) median = b;
+    if (a < c) median = a;
+  }
+  bed_level[x][y] = median;
+}
+
+// Fill in the unprobed points (corners of circular print surface)
+// using linear extrapolation, away from the center.
+static void extrapolate_unprobed_bed_level() {
+  int half = (AUTO_BED_LEVELING_GRID_POINTS-1)/2;
+  for (int y = 0; y <= half; y++) {
+    for (int x = 0; x <= half; x++) {
+      if (x + y < 3) continue;
+      extrapolate_one_point(half-x, half-y, x>1?+1:0, y>1?+1:0);
+      extrapolate_one_point(half+x, half-y, x>1?-1:0, y>1?+1:0);
+      extrapolate_one_point(half-x, half+y, x>1?+1:0, y>1?-1:0);
+      extrapolate_one_point(half+x, half+y, x>1?-1:0, y>1?-1:0);
+    }
+  }
+}
+
+// Print calibration results for plotting or manual frame adjustment.
+static void print_bed_level() {
+  for (int y = 0; y < AUTO_BED_LEVELING_GRID_POINTS; y++) {
+    for (int x = 0; x < AUTO_BED_LEVELING_GRID_POINTS; x++) {
+      SERIAL_PROTOCOL_F(bed_level[x][y], 2);
+      SERIAL_PROTOCOLPGM(" ");
+    }
+    SERIAL_ECHOLN("");
+  }
+}
+
+// Reset calibration results to zero.
+void reset_bed_level() {
+  for (int y = 0; y < AUTO_BED_LEVELING_GRID_POINTS; y++) {
+    for (int x = 0; x < AUTO_BED_LEVELING_GRID_POINTS; x++) {
+      bed_level[x][y] = 0.0;
+    }
+  }
+}
+
+#endif // DELTA
 
 #endif // #ifdef ENABLE_AUTO_BED_LEVELING
 
@@ -1490,7 +1586,11 @@ void process_commands()
       #endif //FWRETRACT
     case 28: //G28 Home all Axis one at a time
 #ifdef ENABLE_AUTO_BED_LEVELING
+    #ifdef DELTA
+      reset_bed_level();
+    #else
       plan_bed_level_matrix.set_to_identity();  //Reset the plane ("erase" all leveling data)
+    #endif
 #endif //ENABLE_AUTO_BED_LEVELING
 
       saved_feedrate = feedrate;
@@ -1738,26 +1838,29 @@ void process_commands()
             dock_sled(false);
 #endif // Z_PROBE_SLED
             st_synchronize();
+          
+          #ifdef DELTA
+            reset_bed_level();
+          #else
             // make sure the bed_level_rotation_matrix is identity or the planner will get it incorectly
             //vector_3 corrected_position = plan_get_position_mm();
             //corrected_position.debug("position before G29");
             plan_bed_level_matrix.set_to_identity();
             vector_3 uncorrected_position = plan_get_position();
-            //uncorrected_position.debug("position durring G29");
+            //uncorrected_position.debug("position during G29");
             current_position[X_AXIS] = uncorrected_position.x;
             current_position[Y_AXIS] = uncorrected_position.y;
             current_position[Z_AXIS] = uncorrected_position.z;
             plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+          #endif
+            
             setup_for_endstop_move();
 
             feedrate = homing_feedrate[Z_AXIS];
 #ifdef AUTO_BED_LEVELING_GRID
             // probe at the points of a lattice grid
 
-            int xGridSpacing = (RIGHT_PROBE_BED_POSITION - LEFT_PROBE_BED_POSITION) / (AUTO_BED_LEVELING_GRID_POINTS-1);
-            int yGridSpacing = (BACK_PROBE_BED_POSITION - FRONT_PROBE_BED_POSITION) / (AUTO_BED_LEVELING_GRID_POINTS-1);
-
-
+          #ifndef DELTA
             // solve the plane equation ax + by + d = z
             // A is the matrix with rows [x y 1] for all the probed points
             // B is the vector of the Z positions
@@ -1769,29 +1872,37 @@ void process_commands()
             // "B" vector of Z points
             double eqnBVector[AUTO_BED_LEVELING_GRID_POINTS*AUTO_BED_LEVELING_GRID_POINTS];
 
+          #else
+            float z_offset = Z_PROBE_OFFSET_FROM_EXTRUDER;
+            if (code_seen(axis_codes[Z_AXIS])) {
+              z_offset += code_value();
+            }
+          #endif
 
             int probePointCounter = 0;
             bool zig = true;
 
-            for (int yProbe=FRONT_PROBE_BED_POSITION; yProbe <= BACK_PROBE_BED_POSITION; yProbe += yGridSpacing)
+            for (int yCount=0; yCount < AUTO_BED_LEVELING_GRID_POINTS; yCount++)
             {
-              int xProbe, xInc;
+              double yProbe = FRONT_PROBE_BED_POSITION + AUTO_BED_LEVELING_GRID_Y * yCount;
+              int xStart, xStop, xInc;
               if (zig)
               {
-                xProbe = LEFT_PROBE_BED_POSITION;
-                //xEnd = RIGHT_PROBE_BED_POSITION;
-                xInc = xGridSpacing;
+                xStart = 0;
+                xStop = AUTO_BED_LEVELING_GRID_POINTS;
+                xInc = 1;
                 zig = false;
               } else // zag
               {
-                xProbe = RIGHT_PROBE_BED_POSITION;
-                //xEnd = LEFT_PROBE_BED_POSITION;
-                xInc = -xGridSpacing;
+                xStart = AUTO_BED_LEVELING_GRID_POINTS - 1;
+                xStop = -1;
+                xInc = -1;
                 zig = true;
               }
 
-              for (int xCount=0; xCount < AUTO_BED_LEVELING_GRID_POINTS; xCount++)
+              for (int xCount=xStart; xCount != xStop; xCount += xInc)
               {
+                double xProbe = LEFT_PROBE_BED_POSITION + AUTO_BED_LEVELING_GRID_X * xCount;
                 float z_before;
                 if (probePointCounter == 0)
                 {
@@ -1803,34 +1914,46 @@ void process_commands()
                   z_before = current_position[Z_AXIS] + Z_RAISE_BETWEEN_PROBINGS;
                 }
 
+                #ifdef DELTA
+                // Avoid probing the corners (outside the round or hexagon print surface) on a delta printer.
+                float distance_from_center = sqrt(xProbe*xProbe + yProbe*yProbe);
+                if (distance_from_center > DELTA_PROBABLE_RADIUS)
+                  continue;
+                #endif //DELTA
+
                 float measured_z;
                 //Enhanced G29 - Do not retract servo between probes
                 if (code_seen('E') || code_seen('e') )
-                   {
-                   if ((yProbe==FRONT_PROBE_BED_POSITION) && (xCount==0))
-                       {
+                {
+                    if ((yProbe==FRONT_PROBE_BED_POSITION) && (xCount==0))
+                    {
                         measured_z = probe_pt(xProbe, yProbe, z_before,1);
-                       } else if ((yProbe==FRONT_PROBE_BED_POSITION + (yGridSpacing * (AUTO_BED_LEVELING_GRID_POINTS-1))) && (xCount == AUTO_BED_LEVELING_GRID_POINTS-1))
-                         {
-                         measured_z = probe_pt(xProbe, yProbe, z_before,3);
-                         } else {
-                           measured_z = probe_pt(xProbe, yProbe, z_before,2);
-                         }
+                    } else if ((yProbe==FRONT_PROBE_BED_POSITION + (AUTO_BED_LEVELING_GRID_Y * (AUTO_BED_LEVELING_GRID_POINTS-1))) && (xCount == AUTO_BED_LEVELING_GRID_POINTS-1))
+                    {
+                        measured_z = probe_pt(xProbe, yProbe, z_before,3);
                     } else {
-                    measured_z = probe_pt(xProbe, yProbe, z_before);
+                        measured_z = probe_pt(xProbe, yProbe, z_before,2);
                     }
+                } else {
+                    measured_z = probe_pt(xProbe, yProbe, z_before);
+                }
 
+              #ifndef DELTA
                 eqnBVector[probePointCounter] = measured_z;
 
                 eqnAMatrix[probePointCounter + 0*AUTO_BED_LEVELING_GRID_POINTS*AUTO_BED_LEVELING_GRID_POINTS] = xProbe;
                 eqnAMatrix[probePointCounter + 1*AUTO_BED_LEVELING_GRID_POINTS*AUTO_BED_LEVELING_GRID_POINTS] = yProbe;
                 eqnAMatrix[probePointCounter + 2*AUTO_BED_LEVELING_GRID_POINTS*AUTO_BED_LEVELING_GRID_POINTS] = 1;
+              #else
+                bed_level[xCount][yCount] = measured_z + z_offset;
+              #endif
+
                 probePointCounter++;
-                xProbe += xInc;
               }
             }
             clean_up_after_endstop_move();
 
+          #ifndef DELTA
             // solve lsq problem
             double *plane_equation_coefficients = qr_solve(AUTO_BED_LEVELING_GRID_POINTS*AUTO_BED_LEVELING_GRID_POINTS, 3, eqnAMatrix, eqnBVector);
 
@@ -1845,6 +1968,10 @@ void process_commands()
             set_bed_level_equation_lsq(plane_equation_coefficients);
 
             free(plane_equation_coefficients);
+          #else
+            extrapolate_unprobed_bed_level();
+            print_bed_level();
+          #endif
 
 #else // AUTO_BED_LEVELING_GRID not defined
 
@@ -1874,8 +2001,11 @@ void process_commands()
 
 
 #endif // AUTO_BED_LEVELING_GRID
+
+            do_blocking_move_to(MANUAL_X_HOME_POS, MANUAL_Y_HOME_POS, Z_RAISE_AFTER_PROBING);
             st_synchronize();
 
+          #ifndef DELTA
             // The following code correct the Z height difference from z-probe position and hotend tip position.
             // The Z height on homing is measured by Z-Probe, but the probe is quite far from the hotend.
             // When the bed is uneven, this height must be corrected.
@@ -1887,6 +2017,8 @@ void process_commands()
             apply_rotation_xyz(plan_bed_level_matrix, x_tmp, y_tmp, z_tmp);         //Apply the correction sending the probe offset
             current_position[Z_AXIS] = z_tmp - real_z + current_position[Z_AXIS];   //The difference is added to current position and sent to planner.
             plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+          #endif
+
 #ifdef Z_PROBE_SLED
             dock_sled(true, -SLED_DOCKING_OFFSET); // correct for over travel.
 #endif // Z_PROBE_SLED
@@ -4123,6 +4255,59 @@ void calculate_delta(float cartesian[3])
   SERIAL_ECHOPGM(" z="); SERIAL_ECHOLN(delta[Z_AXIS]);
   */
 }
+
+#ifdef ENABLE_AUTO_BED_LEVELING
+// Adjust print surface height by linear interpolation over the bed_level array.
+void adjust_delta(float cartesian[3])
+{
+  int half = (AUTO_BED_LEVELING_GRID_POINTS - 1) / 2;
+  float grid_x = max(0.001-half, min(half-0.001, cartesian[X_AXIS] / AUTO_BED_LEVELING_GRID_X));
+  float grid_y = max(0.001-half, min(half-0.001, cartesian[Y_AXIS] / AUTO_BED_LEVELING_GRID_Y));
+  int floor_x = floor(grid_x);
+  int floor_y = floor(grid_y);
+  float ratio_x = grid_x - floor_x;
+  float ratio_y = grid_y - floor_y;
+  float z1 = bed_level[floor_x+half][floor_y+half];
+  float z2 = bed_level[floor_x+half][floor_y+half+1];
+  float z3 = bed_level[floor_x+half+1][floor_y+half];
+  float z4 = bed_level[floor_x+half+1][floor_y+half+1];
+  float left = (1-ratio_y)*z1 + ratio_y*z2;
+  float right = (1-ratio_y)*z3 + ratio_y*z4;
+  float offset = (1-ratio_x)*left + ratio_x*right;
+
+  delta[X_AXIS] += offset;
+  delta[Y_AXIS] += offset;
+  delta[Z_AXIS] += offset;
+
+  /*
+  SERIAL_ECHOPGM("grid_x="); SERIAL_ECHO(grid_x);
+  SERIAL_ECHOPGM(" grid_y="); SERIAL_ECHO(grid_y);
+  SERIAL_ECHOPGM(" floor_x="); SERIAL_ECHO(floor_x);
+  SERIAL_ECHOPGM(" floor_y="); SERIAL_ECHO(floor_y);
+  SERIAL_ECHOPGM(" ratio_x="); SERIAL_ECHO(ratio_x);
+  SERIAL_ECHOPGM(" ratio_y="); SERIAL_ECHO(ratio_y);
+  SERIAL_ECHOPGM(" z1="); SERIAL_ECHO(z1);
+  SERIAL_ECHOPGM(" z2="); SERIAL_ECHO(z2);
+  SERIAL_ECHOPGM(" z3="); SERIAL_ECHO(z3);
+  SERIAL_ECHOPGM(" z4="); SERIAL_ECHO(z4);
+  SERIAL_ECHOPGM(" left="); SERIAL_ECHO(left);
+  SERIAL_ECHOPGM(" right="); SERIAL_ECHO(right);
+  SERIAL_ECHOPGM(" offset="); SERIAL_ECHOLN(offset);
+  */
+}
+#endif
+
+void prepare_move_raw()
+{
+  previous_millis_cmd = millis();
+  calculate_delta(destination);
+  plan_buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS],
+                   destination[E_AXIS], feedrate*feedmultiply/60/100.0,
+                   active_extruder);
+  for(int8_t i=0; i < NUM_AXIS; i++) {
+    current_position[i] = destination[i];
+  }
+}
 #endif
 
 void prepare_move()
@@ -4189,6 +4374,9 @@ for (int s = 1; s <= steps; s++) {
       destination[i] = current_position[i] + difference[i] * fraction;
     }
     calculate_delta(destination);
+  #ifdef ENABLE_AUTO_BED_LEVELING
+    adjust_delta(destination);
+  #endif
     plan_buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS],
                      destination[E_AXIS], feedrate*feedmultiply/60/100.0,
                      active_extruder);

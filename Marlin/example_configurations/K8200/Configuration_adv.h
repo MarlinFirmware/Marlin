@@ -466,7 +466,19 @@ const unsigned int dropsegments=5; //everything with less than this number of st
 //===========================================================================
 
 #if defined (ENABLE_AUTO_BED_LEVELING) && defined (DELTA)
-  #error "Bed Auto Leveling is still not compatible with Delta Kinematics."
+  
+  #if not defined(AUTO_BED_LEVELING_GRID)
+    #error "Only Grid Bed Auto Leveling is supported on Deltas."
+  #endif
+  
+  #if defined(Z_PROBE_SLED)
+    #error "You cannot use Z_PROBE_SLED together with DELTA."
+  #endif
+
+  #if defined(Z_PROBE_REPEATABILITY_TEST)
+    #error "Z-probe repeatability test is not supported on Deltas yet."
+  #endif
+  
 #endif
 
 #if EXTRUDERS > 1 && defined TEMP_SENSOR_1_AS_REDUNDANT

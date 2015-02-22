@@ -85,8 +85,10 @@ void plan_init();
 #ifdef ENABLE_AUTO_BED_LEVELING
 void plan_buffer_line(float x, float y, float z, const float &e, float feed_rate, const uint8_t &extruder);
 
-// Get the position applying the bed level matrix if enabled
-vector_3 plan_get_position();
+  #ifndef DELTA
+  // Get the position applying the bed level matrix if enabled
+  vector_3 plan_get_position();
+  #endif
 #else
 void plan_buffer_line(const float &x, const float &y, const float &z, const float &e, float feed_rate, const uint8_t &extruder);
 #endif // ENABLE_AUTO_BED_LEVELING
