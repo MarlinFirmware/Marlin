@@ -616,12 +616,6 @@ static void lcd_prepare_menu() {
   #endif
   MENU_ITEM(submenu, MSG_MOVE_AXIS, lcd_move_menu);
 	
-  // JFR for RMud delta printer
-  MENU_ITEM(gcode, "Calibrate bed", PSTR("M702\nG28\nG1 X-77.94 Y-45 Z36 F8000\nG4 S3\nM701 P0\nG1 X77.94 Y-45 Z36\nG4 S3\nM701 P1\nG1 X0 Y90 Z36\nG4 S3\nM701 P2\nM700\nG1 X0 Y0 Z100 F8000"));
-  MENU_ITEM(gcode, "Check level", PSTR("G28\nG1 X0 Y0 Z1 F4000\nG1 X-77.94 Y-45 Z1\nG1 X77.94 Y-45\nG1 X0 Y90\nG1 X-77.94 Y-45\nG4 S2\nG1 X-77.94 Y-45 Z0.3 F2000\nG1 X-77.94 Y-45\nG1 X77.94 Y-45\nG1 X0 Y90\nG1 X-77.94 Y-45\nG1 X0 Y0 Z0"));
-  MENU_ITEM(gcode, "Retract filament", PSTR("M302\nM82\nG92 E0\nG1 F4000 E-800"));
-  MENU_ITEM(gcode, "Insert filament", PSTR("M302\nM82\nG92 E0\nG1 F4000 E60"));
-  MENU_ITEM(gcode, "Finalize filament", PSTR("G1 F4000 E790"));
   END_MENU();
 }
 
