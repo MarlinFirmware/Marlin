@@ -50,10 +50,11 @@
 #define BOARD_LEAPFROG          999  // Leapfrog
 #define BOARD_WITBOX            41   // bq WITBOX
 #define BOARD_HEPHESTOS         42   // bq Prusa i3 Hephestos
+#define BOARD_BAM_DICE          401  // 2PrintBeta BAM&DICE with STK drivers
+#define BOARD_BAM_DICE_DUE      402  // 2PrintBeta BAM&DICE Due with STK drivers
 
 #define BOARD_99                99   // This is in pins.h but...?
 
 #define MB(board) (MOTHERBOARD==BOARD_##board)
-#define IS_RAMPS (MB(RAMPS_OLD) || MB(RAMPS_13_EFB) || MB(RAMPS_13_EEB) || MB(RAMPS_13_EFF) || MB(RAMPS_13_EEF))
 
 #endif //__BOARDS_H
