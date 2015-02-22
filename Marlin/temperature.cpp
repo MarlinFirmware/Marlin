@@ -1661,85 +1661,21 @@ ISR(TIMER0_COMPB_vect) {
     raw_temp_3_value = 0;
     raw_temp_bed_value = 0;
 
-    if (current_temperature_raw[0]
-      #if HEATER_0_RAW_LO_TEMP > HEATER_0_RAW_HI_TEMP
-        <=
-      #else
-        >=
-      #endif
-      maxttemp_raw[0]) max_temp_error(0);
-
-    if (current_temperature_raw[0]
-      #if HEATER_0_RAW_LO_TEMP > HEATER_0_RAW_HI_TEMP
-        >=
-      #else
-        <=
-      #endif
-      minttemp_raw[0]) min_temp_error(0);
-
-    #if EXTRUDERS > 1
-      if (current_temperature_raw[1]
-        #if HEATER_1_RAW_LO_TEMP > HEATER_1_RAW_HI_TEMP
-          <=
-        #else
-          >=
-        #endif
-        maxttemp_raw[1]) max_temp_error(1);
-
-      if (current_temperature_raw[1]
-        #if HEATER_1_RAW_LO_TEMP > HEATER_1_RAW_HI_TEMP
-          >=
-        #else
-          <=
-        #endif
-        minttemp_raw[1]) min_temp_error(1);
+    #if HEATER_0_RAW_LO_TEMP > HEATER_0_RAW_HI_TEMP
+      #define MAXTEST <=
+      #define MINTEST >=
+    #else
+      #define MAXTEST >=
+      #define MINTEST <=
     #endif
 
-    #if EXTRUDERS > 2
-      if (current_temperature_raw[2]
-        #if HEATER_2_RAW_LO_TEMP > HEATER_2_RAW_HI_TEMP
-          <=
-        #else
-          >=
-        #endif
-        maxttemp_raw[2]) max_temp_error(2);
-
-      if (current_temperature_raw[2]
-        #if HEATER_2_RAW_LO_TEMP > HEATER_2_RAW_HI_TEMP
-          >=
-        #else
-          <=
-        #endif
-        minttemp_raw[2]) min_temp_error(2);
-    #endif
-
-    #if EXTRUDERS > 3
-      if (current_temperature_raw[3]
-        #if HEATER_3_RAW_LO_TEMP > HEATER_3_RAW_HI_TEMP
-          <=
-        #else
-          >=
-        #endif
-        maxttemp_raw[3]) max_temp_error(3);
-
-      if (current_temperature_raw[3]
-        #if HEATER_3_RAW_LO_TEMP > HEATER_3_RAW_HI_TEMP
-          >=
-        #else
-          <=
-        #endif
-        minttemp_raw[3]) min_temp_error(3);
-    #endif
-
+    for (int i=0; i<EXTRUDERS; i++) {
+      if (current_temperature_raw[i] MAXTEST maxttemp_raw[i]) max_temp_error(i);
+      else if (current_temperature_raw[i] MINTEST minttemp_raw[i]) min_temp_error(i);
+    }
     /* No bed MINTEMP error? */
     #if defined(BED_MAXTEMP) && (TEMP_SENSOR_BED != 0)
-      if (current_temperature_bed_raw
-        #if HEATER_BED_RAW_LO_TEMP > HEATER_BED_RAW_HI_TEMP
-          <=
-        #else
-          >=
-        #endif
-        bed_maxttemp_raw) {
+      if (current_temperature_bed_raw MAXTEST bed_maxttemp_raw) {
           target_temperature_bed = 0;
           bed_max_temp_error();
         }
