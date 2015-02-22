@@ -1,5 +1,5 @@
 /**
- * Japanese (Graphical Display)
+ * Japanese (Graphical Display) 漢字混じり表示
  *
  * LCD Menu Messages
  * Please note these are limited to 17 characters!
@@ -9,7 +9,6 @@
 #ifndef LANGUAGE_JP2_H
 #define LANGUAGE_JP2_H
 
-// 漢字混じり表示
 #define WELCOME_MSG                         MACHINE_NAME "\x8a\x8b\x90\x91\xa4\xa5\x7f"                    // "ready."
 #define MSG_SD_INSERTED                     "SD\xb6\xb0\xc4\xde\x20\x84\xa2\xa3\xbb\xda\xcf\xbc\xc0"       // "Card inserted"
 #define MSG_SD_REMOVED                      "SD\xb6\xb0\xc4\xde\x20\x84\xe3\xb6\xda\xcf\xbc\xc0"           // "Card removed"

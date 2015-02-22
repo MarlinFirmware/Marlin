@@ -1,5 +1,5 @@
 /**
- * Japanese (HD44780)
+ * Japanese (HD44780) 片仮名表示定義
  *
  * LCD Menu Messages
  * Please note these are limited to 17 characters!
@@ -9,7 +9,6 @@
 #ifndef LANGUAGE_JP1_H
 #define LANGUAGE_JP1_H
 
-// 片仮名表示定義
 #define WELCOME_MSG                         MACHINE_NAME " ready."
 #define MSG_SD_INSERTED                     "\xb6\xb0\xc4\xde\x20\xbf\xb3\xc6\xad\xb3\xbb\xda\xcf\xbc\xc0" // "Card inserted"
 #define MSG_SD_REMOVED                      "\xb6\xb0\xc4\xde\xb6xde\xb1\xd8\xcf\xbe\xdd"                  // "Card removed"
