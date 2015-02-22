@@ -1095,6 +1095,16 @@ const short temptable_1047[][2] PROGMEM = {
 };
 #endif
 
+#if (THERMISTORHEATER_0 == 999) || (THERMISTORHEATER_1 == 999) || (THERMISTORHEATER_2 == 999) || (THERMISTORHEATER_3 == 999) || (THERMISTORBED == 999) //User defined table
+// Dummy Thermistor table.. It will ALWAYS read 25C.
+const short temptable_999[][2] PROGMEM = {
+   {1*OVERSAMPLENR, 25},
+   {1023*OVERSAMPLENR, 25}
+};
+#endif
+
+
+
 #define _TT_NAME(_N) temptable_ ## _N
 #define TT_NAME(_N) _TT_NAME(_N)
 
