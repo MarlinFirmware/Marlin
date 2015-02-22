@@ -59,10 +59,10 @@ volatile static unsigned long step_events_completed; // The number of step event
 #endif
 static long acceleration_time, deceleration_time;
 //static unsigned long accelerate_until, decelerate_after, acceleration_rate, initial_rate, final_rate, nominal_rate;
-static unsigned short acc_step_rate; // needed for deccelaration start point
+static unsigned long acc_step_rate; // needed for deccelaration start point
 static char step_loops;
-static unsigned short OCR1A_nominal;
-static unsigned short step_loops_nominal;
+static unsigned long OCR1A_nominal;
+static unsigned long step_loops_nominal;
 
 volatile long endstops_trigsteps[3]={0,0,0};
 volatile long endstops_stepsTotal,endstops_stepsDone;
@@ -240,7 +240,7 @@ void st_wake_up() {
   ENABLE_STEPPER_DRIVER_INTERRUPT();
 }
 
-FORCE_INLINE unsigned short calc_timer(unsigned short step_rate) {
+FORCE_INLINE unsigned short calc_timer(unsigned long step_rate) {
   unsigned short timer;
   if(step_rate > MAX_STEP_FREQUENCY) step_rate = MAX_STEP_FREQUENCY;
 
