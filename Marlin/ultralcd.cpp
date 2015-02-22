@@ -1260,6 +1260,26 @@ void lcd_init()
 #endif
 }
 
+int lcd_strlen(char *s) {
+     int i = 0, j = 0;
+   while (s[i]) {
+     if ((s[i] & 0xc0) != 0x80) j++;
+     i++;
+   }
+   return j;
+}
+
+int lcd_strlen_P(const char *s) {
+     int j = 0;
+   while (pgm_read_byte(s)) {
+     if ((pgm_read_byte(s) & 0xc0) != 0x80) j++;
+     s++;
+   }
+   return j;
+}
+
+
+
 void lcd_update()
 {
     static unsigned long timeoutToStatus = 0;
@@ -1372,7 +1392,7 @@ void lcd_ignore_click(bool b)
 }
 
 void lcd_finishstatus() {
-  int len = strlen(lcd_status_message);
+  int len = lcd_strlen(lcd_status_message);
   if (len > 0) {
     while (len < LCD_WIDTH) {
       lcd_status_message[len++] = ' ';
