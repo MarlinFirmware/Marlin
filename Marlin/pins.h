@@ -36,7 +36,7 @@
   #include "pins_SETHI.h"
 #elif MB(RAMPS_OLD)
   #include "pins_RAMPS_OLD.h"
-#elif IS_RAMPS
+#elif MB(RAMPS_13_EFB) || MB(RAMPS_13_EEB) || MB(RAMPS_13_EFF) || MB(RAMPS_13_EEF)
   #include "pins_RAMPS_13.h"
 #elif MB(DUEMILANOVE_328P)
   #include "pins_DUEMILANOVE_328P.h"
@@ -110,6 +110,10 @@
   #include "pins_WITBOX.h"
 #elif MB(HEPHESTOS)
   #include "pins_HEPHESTOS.h"
+#elif MB(BAM_DICE)
+  #include "pins_RAMPS_13.h"
+#elif MB(BAM_DICE_DUE)
+  #include "pins_BAM_DICE_DUE.h"
 #elif MB(99)
   #include "pins_99.h"
 #else
