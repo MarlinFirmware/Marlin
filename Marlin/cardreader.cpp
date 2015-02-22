@@ -65,7 +65,7 @@ void CardReader::lsDive(const char *prepend, SdFile parent, const char * const m
       createFilename(lfilename,p);
       
       path[0]=0;
-      if(strlen(prepend)==0) //avoid leading / if already in prepend
+      if(prepend[0]==0) //avoid leading / if already in prepend
       {
        strcat(path,"/");
       }
