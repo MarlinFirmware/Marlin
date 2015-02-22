@@ -974,20 +974,20 @@ void tp_init()
   delay(250);
 
   #define TEMP_MIN_ROUTINE(NR) \
-    minttemp[NR] = HEATER_ ## NR ## _MINTEMP;
-    while(analog2temp(minttemp_raw[NR], NR) < HEATER_ ## NR ## _MINTEMP) {
-      if (HEATER_ ## NR ## _RAW_LO_TEMP < HEATER_ ## NR ## _RAW_HI_TEMP)
-        minttemp_raw[NR] += OVERSAMPLENR;
-      else
-        minttemp_raw[NR] -= OVERSAMPLENR;
+    minttemp[NR] = HEATER_ ## NR ## _MINTEMP; \
+    while(analog2temp(minttemp_raw[NR], NR) < HEATER_ ## NR ## _MINTEMP) { \
+      if (HEATER_ ## NR ## _RAW_LO_TEMP < HEATER_ ## NR ## _RAW_HI_TEMP) \
+        minttemp_raw[NR] += OVERSAMPLENR; \
+      else \
+        minttemp_raw[NR] -= OVERSAMPLENR; \
     }
   #define TEMP_MAX_ROUTINE(NR) \
-    maxttemp[NR] = HEATER_ ## NR ## _MAXTEMP;
-    while(analog2temp(maxttemp_raw[NR], NR) > HEATER_ ## NR ## _MAXTEMP) {
-      if (HEATER_ ## NR ## _RAW_LO_TEMP < HEATER_ ## NR ## _RAW_HI_TEMP)
-        maxttemp_raw[NR] -= OVERSAMPLENR;
-      else
-        maxttemp_raw[NR] += OVERSAMPLENR;
+    maxttemp[NR] = HEATER_ ## NR ## _MAXTEMP; \
+    while(analog2temp(maxttemp_raw[NR], NR) > HEATER_ ## NR ## _MAXTEMP) { \
+      if (HEATER_ ## NR ## _RAW_LO_TEMP < HEATER_ ## NR ## _RAW_HI_TEMP) \
+        maxttemp_raw[NR] -= OVERSAMPLENR; \
+      else \
+        maxttemp_raw[NR] += OVERSAMPLENR; \
     }
 
   #ifdef HEATER_0_MINTEMP
