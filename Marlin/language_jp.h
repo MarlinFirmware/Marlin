@@ -17,7 +17,7 @@
   #endif
   #include "language_jp1.h" // HD44780
 #else
-  #include "language_jp1.h" // DOGM
+  #include "language_jp2.h" // DOGM
 #endif
 
 #endif // LANGUAGE_JP_H
