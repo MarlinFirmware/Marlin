@@ -863,7 +863,7 @@ static void lcd_control_menu()
         void copy_and_scalePID_d_E3() { copy_and_scalePID_d(2); }
         #if EXTRUDERS > 3
           void copy_and_scalePID_i_E4() { copy_and_scalePID_i(3); }
-          void copy_and_scalePID_d_E5() { copy_and_scalePID_d(3); }
+          void copy_and_scalePID_d_E4() { copy_and_scalePID_d(3); }
         #endif //EXTRUDERS > 3
       #endif //EXTRUDERS > 2
     #endif //EXTRUDERS > 1
@@ -905,13 +905,12 @@ static void lcd_control_temperature_menu()
   #endif
   #ifdef PIDTEMP
     // set up temp variables - undo the default scaling
-    pid_current_extruder = 0;
     raw_Ki = unscalePID_i(PID_PARAM(Ki,0));
     raw_Kd = unscalePID_d(PID_PARAM(Kd,0));
     MENU_ITEM_EDIT(float52, MSG_PID_P, &PID_PARAM(Kp,0), 1, 9990);
     // i is typically a small value so allows values below 1
-    MENU_ITEM_EDIT_CALLBACK(float52, MSG_PID_I, &raw_Ki, 0.01, 9990, copy_and_scalePID_i);
-    MENU_ITEM_EDIT_CALLBACK(float52, MSG_PID_D, &raw_Kd, 1, 9990, copy_and_scalePID_d);
+    MENU_ITEM_EDIT_CALLBACK(float52, MSG_PID_I, &raw_Ki, 0.01, 9990, copy_and_scalePID_i_E1);
+    MENU_ITEM_EDIT_CALLBACK(float52, MSG_PID_D, &raw_Kd, 1, 9990, copy_and_scalePID_d_E1);
     #ifdef PID_ADD_EXTRUSION_RATE
       MENU_ITEM_EDIT(float3, MSG_PID_C, &PID_PARAM(Kc,0), 1, 9990);
     #endif//PID_ADD_EXTRUSION_RATE
