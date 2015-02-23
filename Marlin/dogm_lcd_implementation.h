@@ -250,19 +250,11 @@ static void lcd_implementation_status_screen() {
   u8g.setPrintPos(51,37);
   u8g.print(ftostr31ns(current_position[Y_AXIS]));
   u8g.setPrintPos(83,37);
-  # ifdef LCD_SHOW_FREE_RAM
-  u8g.print("RAM");
-  u8g.drawPixel(101,33);
-  u8g.drawPixel(101,35);
-  u8g.setPrintPos(103,37);
-  u8g.print(freeMemory());
-  # else
   u8g.print("Z");
   u8g.drawPixel(89,33);
   u8g.drawPixel(89,35);
   u8g.setPrintPos(91,37);
   u8g.print(ftostr31(current_position[Z_AXIS]));
-  # endif//LCD_SHOW_FREE_RAM
   u8g.setColorIndex(1); // black on white
  
   // Feedrate
