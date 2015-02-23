@@ -461,6 +461,67 @@ const unsigned int dropsegments=5; //everything with less than this number of st
   #endif
 #endif
 
+
+/******************************************************************************\
+ * enable this section if you have TMC26X motor drivers. 
+ * you need to import the TMC26XStepper library into the arduino IDE for this
+ ******************************************************************************/
+
+#define HAVE_TMCDRIVER
+#ifdef HAVE_TMCDRIVER
+
+	#define X_IS_TMC
+	#define X_MAX_CURRENT 2000  //in mA
+	#define X_SENSE_RESISTOR 91 //in mOhms
+	#define X_MICROSTEPS 16     //number of microsteps
+	
+//	#define X2_IS_TMC
+	#define X2_MAX_CURRENT 2000  //in mA
+	#define X2_SENSE_RESISTOR 91 //in mOhms
+	#define X2_MICROSTEPS 16     //number of microsteps
+	
+	#define Y_IS_TMC
+	#define Y_MAX_CURRENT 2000  //in mA
+	#define Y_SENSE_RESISTOR 91 //in mOhms
+	#define Y_MICROSTEPS 16     //number of microsteps
+	
+//	#define Y2_IS_TMC
+	#define Y2_MAX_CURRENT 2000  //in mA
+	#define Y2_SENSE_RESISTOR 91 //in mOhms
+	#define Y2_MICROSTEPS 16     //number of microsteps	
+	
+	#define Z_IS_TMC
+	#define Z_MAX_CURRENT 2000  //in mA
+	#define Z_SENSE_RESISTOR 91 //in mOhms
+	#define Z_MICROSTEPS 16     //number of microsteps
+	
+//	#define Z2_IS_TMC
+	#define Z2_MAX_CURRENT 2000  //in mA
+	#define Z2_SENSE_RESISTOR 91 //in mOhms
+	#define Z2_MICROSTEPS 16     //number of microsteps
+	
+	#define E0_IS_TMC
+	#define E0_MAX_CURRENT 2000  //in mA
+	#define E0_SENSE_RESISTOR 91 //in mOhms
+	#define E0_MICROSTEPS 16     //number of microsteps
+	
+	#define E1_IS_TMC
+	#define E1_MAX_CURRENT 2000  //in mA
+	#define E1_SENSE_RESISTOR 91 //in mOhms
+	#define E1_MICROSTEPS 16     //number of microsteps	
+	
+//	#define E2_IS_TMC
+	#define E2_MAX_CURRENT 2000  //in mA
+	#define E2_SENSE_RESISTOR 91 //in mOhms
+	#define E2_MICROSTEPS 16     //number of microsteps	
+	
+//	#define E3_IS_TMC
+	#define E3_MAX_CURRENT 2000  //in mA
+	#define E3_SENSE_RESISTOR 91 //in mOhms
+	#define E3_MICROSTEPS 16     //number of microsteps		
+
+#endif
+
 //===========================================================================
 //=============================  Define Defines  ============================
 //===========================================================================
