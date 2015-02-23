@@ -152,5 +152,111 @@
 #define E3_ENABLE_WRITE(STATE) WRITE(E3_ENABLE_PIN,STATE)
 #define E3_ENABLE_READ READ(E3_ENABLE_PIN)
 
+//////////////////////////////////
+// Pin redefines for TMC drivers. 
+// TMC26X drivers have step and dir on normal pins, but everything else via SPI
+//////////////////////////////////
+#ifdef HAVE_TMCDRIVER
+#ifdef X_IS_TMC
+   #undef X_ENABLE_INIT 
+   #define X_ENABLE_INIT 
+   
+   #undef X_ENABLE_WRITE
+   #define X_ENABLE_WRITE(STATE) stepperX.setEnabled(STATE)
+   
+   #undef X_ENABLE_READ
+   #define X_ENABLE_READ stepperX.isEnabled()
+#endif
+#ifdef X2_IS_TMC
+   #undef X2_ENABLE_INIT
+   #define X2_ENABLE_INIT
+   
+   #undef X2_ENABLE_WRITE
+   #define X2_ENABLE_WRITE(STATE) stepperX2.setEnabled(STATE)
+   
+   #undef X2_ENABLE_READ
+   #define X2_ENABLE_READ stepperX2.isEnabled()   
+#endif
+#ifdef Y_IS_TMC
+   #undef Y_ENABLE_INIT
+   #define Y_ENABLE_INIT
+   
+   #undef Y_ENABLE_WRITE
+   #define Y_ENABLE_WRITE(STATE) stepperY.setEnabled(STATE)
+   
+   #undef Y_ENABLE_READ
+   #define Y_ENABLE_READ stepperY.isEnabled()   
+#endif
+#ifdef Y2_IS_TMC
+   #undef Y2_ENABLE_INIT
+   #define Y2_ENABLE_INIT
+   
+   #undef Y2_ENABLE_WRITE
+   #define Y2_ENABLE_WRITE(STATE) stepperY2.setEnabled(STATE)
+   
+   #undef Y2_ENABLE_READ
+   #define Y2_ENABLE_READ stepperY2.isEnabled()     
+#endif
+#ifdef Z_IS_TMC
+   #undef Z_ENABLE_INIT
+   #define Z_ENABLE_INIT
+   
+   #undef Z_ENABLE_WRITE
+   #define Z_ENABLE_WRITE(STATE) stepperZ.setEnabled(STATE)
+   
+   #undef Z_ENABLE_READ
+   #define Z_ENABLE_READ stepperZ.isEnabled()       
+#endif
+#ifdef Z2_IS_TMC
+   #undef Z2_ENABLE_INIT
+   #define Z2_ENABLE_INIT
+   
+   #undef Z2_ENABLE_WRITE
+   #define Z2_ENABLE_WRITE(STATE) stepperZ2.setEnabled(STATE)
+   
+   #undef Z2_ENABLE_READ
+   #define Z2_ENABLE_READ stepperZ2.isEnabled()   
+#endif
+#ifdef E0_IS_TMC
+   #undef E0_ENABLE_INIT
+   #define E0_ENABLE_INIT
+   
+   #undef E0_ENABLE_WRITE
+   #define E0_ENABLE_WRITE(STATE) stepperE0.setEnabled(STATE)
+   
+   #undef E0_ENABLE_READ
+   #define E0_ENABLE_READ stepperE0.isEnabled()   
+#endif
+#ifdef E1_IS_TMC
+   #undef E1_ENABLE_INIT
+   #define E1_ENABLE_INIT
+   
+   #undef E1_ENABLE_WRITE
+   #define E1_ENABLE_WRITE(STATE) stepperE1.setEnabled(STATE)
+   
+   #undef E1_ENABLE_READ
+   #define E1_ENABLE_READ stepperE1.isEnabled()   
+#endif
+#ifdef E2_IS_TMC
+   #undef E2_ENABLE_INIT
+   #define E2_ENABLE_INIT
+   
+   #undef E2_ENABLE_WRITE
+   #define E2_ENABLE_WRITE(STATE) stepperE2.setEnabled(STATE)
+   
+   #undef E2_ENABLE_READ
+   #define E2_ENABLE_READ stepperE2.isEnabled()   
+#endif
+#ifdef E3_IS_TMC
+   #undef E3_ENABLE_INIT
+   #define E3_ENABLE_INIT
+   
+   #undef E3_ENABLE_WRITE
+   #define E3_ENABLE_WRITE(STATE) stepperE3.setEnabled(STATE)
+   
+   #undef E3_ENABLE_READ
+   #define E3_ENABLE_READ stepperE3.isEnabled()   
+#endif
+#endif
 
 #endif
