@@ -547,8 +547,13 @@ static void lcd_implementation_status_screen()
 #  endif//EXTRUDERS > 1 || TEMP_SENSOR_BED != 0
 # endif//LCD_WIDTH > 19
     lcd.setCursor(LCD_WIDTH - 8, 1);
+# ifdef LCD_SHOW_FREE_RAM
+    lcd_printPGM(PSTR("RAM:"));
+    lcd.print(freeMemory());
+# else
     lcd.print('Z');
     lcd.print(ftostr32sp(current_position[Z_AXIS] + 0.00001));
+# endif//LCD_SHOW_FREE_RAM
 #endif//LCD_HEIGHT > 2
 
 #if LCD_HEIGHT > 3
