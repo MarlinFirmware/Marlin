@@ -636,7 +636,7 @@ static void lcd_implementation_drawmenu_generic(uint8_t row, const char* pstr, c
     {
         lcd.print(c);
         pstr++;
-        n--;
+        if ((pgm_read_byte(pstr) & 0xc0) != 0x80) n--;
     }
     while(n--)
         lcd.print(' ');
@@ -648,9 +648,9 @@ static void lcd_implementation_drawmenu_setting_edit_generic(uint8_t row, const 
     char c;
     //Use all characters in narrow LCDs
   #if LCD_WIDTH < 20
-      uint8_t n = LCD_WIDTH - 1 - 1 - strlen(data);
+      uint8_t n = LCD_WIDTH - 1 - 1 - lcd_strlen(data);
     #else
-      uint8_t n = LCD_WIDTH - 1 - 2 - strlen(data);
+      uint8_t n = LCD_WIDTH - 1 - 2 - lcd_strlen(data);
   #endif
     lcd.setCursor(0, row);
     lcd.print(pre_char);
@@ -658,7 +658,7 @@ static void lcd_implementation_drawmenu_setting_edit_generic(uint8_t row, const 
     {
         lcd.print(c);
         pstr++;
-        n--;
+        if ((pgm_read_byte(pstr) & 0xc0) != 0x80) n--;
     }
     lcd.print(':');
     while(n--)
@@ -670,9 +670,9 @@ static void lcd_implementation_drawmenu_setting_edit_generic_P(uint8_t row, cons
     char c;
     //Use all characters in narrow LCDs
   #if LCD_WIDTH < 20
-      uint8_t n = LCD_WIDTH - 1 - 1 - strlen_P(data);
+      uint8_t n = LCD_WIDTH - 1 - 1 - lcd_strlen_P(data);
     #else
-      uint8_t n = LCD_WIDTH - 1 - 2 - strlen_P(data);
+      uint8_t n = LCD_WIDTH - 1 - 2 - lcd_strlen_P(data);
   #endif
     lcd.setCursor(0, row);
     lcd.print(pre_char);
@@ -680,7 +680,7 @@ static void lcd_implementation_drawmenu_setting_edit_generic_P(uint8_t row, cons
     {
         lcd.print(c);
         pstr++;
-        n--;
+        if ((pgm_read_byte(pstr) & 0xc0) != 0x80) n--;
     }
     lcd.print(':');
     while(n--)
@@ -733,9 +733,9 @@ void lcd_implementation_drawedit(const char* pstr, char* value)
     lcd_printPGM(pstr);
     lcd.print(':');
    #if LCD_WIDTH < 20
-      lcd.setCursor(LCD_WIDTH - strlen(value), 1);
+      lcd.setCursor(LCD_WIDTH - lcd_strlen(value), 1);
     #else
-      lcd.setCursor(LCD_WIDTH -1 - strlen(value), 1);
+      lcd.setCursor(LCD_WIDTH -1 - lcd_strlen(value), 1);
    #endif
     lcd.print(value);
 }
