@@ -912,7 +912,11 @@ void tp_init()
 
   #endif //HEATER_0_USES_MAX6675
 
-  #define ANALOG_SELECT(pin) do{ if (pin < 8) DIDR0 |= 1 << pin; else DIDR2 |= 1 << (pin - 8); }while(0)
+  #ifdef DIDR2
+    #define ANALOG_SELECT(pin) do{ if (pin < 8) DIDR0 |= 1 << pin; else DIDR2 |= 1 << (pin - 8); }while(0)
+  #else
+    #define ANALOG_SELECT(pin) do{ DIDR0 |= 1 << pin; }while(0)
+  #endif
 
   // Set analog inputs
   ADCSRA = 1<<ADEN | 1<<ADSC | 1<<ADIF | 0x07;
