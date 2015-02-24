@@ -912,7 +912,7 @@ void tp_init()
 
   #endif //HEATER_0_USES_MAX6675
 
-  #define ANALOG_SELECT(pin) do{ if (pin < 8) { DIDR0 |= 1 << pin; } else { DIDR2 |= 1 << (pin - 8); }while(0)
+  #define ANALOG_SELECT(pin) do{ if (pin < 8) DIDR0 |= 1 << pin; else DIDR2 |= 1 << (pin - 8); }while(0)
 
   // Set analog inputs
   ADCSRA = 1<<ADEN | 1<<ADSC | 1<<ADIF | 0x07;
@@ -1522,7 +1522,7 @@ ISR(TIMER0_COMPB_vect) {
       #if HAS_FILAMENT_SENSOR
         // raw_filwidth_value += ADC;  //remove to use an IIR filter approach
         if (ADC > 102) { //check that ADC is reading a voltage > 0.5 volts, otherwise don't take in the data.
-          raw_filwidth_value -= (raw_filwidth_value>>7);  //multipliy raw_filwidth_value by 127/128
+          raw_filwidth_value -= (raw_filwidth_value>>7);  //multiply raw_filwidth_value by 127/128
           raw_filwidth_value += ((unsigned long)ADC<<7);  //add new ADC reading
         }
       #endif
