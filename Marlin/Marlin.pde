@@ -31,7 +31,8 @@
 /* Use this file to help the Arduino IDE find which Arduino libraries are needed and to keep documentation on GCode */
 
 #include "Configuration.h"
-#include "pins.h"
+#include "MarlinPins.h"
+#include "MarlinLanguage.h"
 
 #ifdef ULTRA_LCD
   #if defined(LCD_I2C_TYPE_PCF8575)

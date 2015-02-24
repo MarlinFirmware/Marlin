@@ -62,7 +62,7 @@
  *
  */
 #include "Marlin.h"
-#include "language.h"
+#include "MarlinLanguage.h"
 #include "planner.h"
 #include "temperature.h"
 #include "ultralcd.h"

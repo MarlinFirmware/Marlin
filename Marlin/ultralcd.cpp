@@ -2,7 +2,7 @@
 #include "ultralcd.h"
 #ifdef ULTRA_LCD
 #include "Marlin.h"
-#include "language.h"
+#include "MarlinLanguage.h"
 #include "cardreader.h"
 #include "temperature.h"
 #include "stepper.h"

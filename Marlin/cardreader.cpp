@@ -3,7 +3,7 @@
 #include "ultralcd.h"
 #include "stepper.h"
 #include "temperature.h"
-#include "language.h"
+#include "MarlinLanguage.h"
 
 #ifdef SDSUPPORT
 

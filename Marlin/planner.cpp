@@ -56,7 +56,7 @@
 #include "stepper.h"
 #include "temperature.h"
 #include "ultralcd.h"
-#include "language.h"
+#include "MarlinLanguage.h"
 
 //===========================================================================
 //=============================public variables ============================
