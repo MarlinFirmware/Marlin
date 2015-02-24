@@ -1435,7 +1435,7 @@ ISR(TIMER0_COMPB_vect) {
   
   #endif // SLOW_PWM_HEATERS
 
-  #define SET_ADCSRB(pin) do{ ADCSRB = (pin > 7) ? 1 << MUX5 : 0; }while(0)
+  #define SET_ADCSRB(pin) do{ if (pin > 7) ADCSRB = 1 << MUX5; else ADCSRB = 0; }while(0)
 
   switch(temp_state) {
     case 0: // Prepare TEMP_0
