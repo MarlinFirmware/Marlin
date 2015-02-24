@@ -44,7 +44,7 @@
 #include "cardreader.h"
 #include "watchdog.h"
 #include "ConfigurationStore.h"
-#include "MarlinLanguage.h"
+#include <MarlinLanguage.h>
 #include "pins_arduino.h"
 #include "math.h"
 
