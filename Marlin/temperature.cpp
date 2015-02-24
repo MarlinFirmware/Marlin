@@ -1501,7 +1501,7 @@ ISR(TIMER0_COMPB_vect) {
       #if HAS_TEMP_1
         raw_temp_1_value += ADC;
       #endif
-      temp_state = 6;
+      temp_state = PrepareTemp_2;
       break;
     case PrepareTemp_2:
       #if HAS_TEMP_2
