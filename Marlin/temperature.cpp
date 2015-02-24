@@ -191,6 +191,13 @@ static void updateTemperaturesFromRawValues();
   static int read_max6675();
 #endif
 
+#define HAS_TEMP_0 (defined(TEMP_0_PIN) && TEMP_0_PIN > -1)
+#define HAS_TEMP_1 (defined(TEMP_1_PIN) && TEMP_1_PIN > -1)
+#define HAS_TEMP_2 (defined(TEMP_2_PIN) && TEMP_2_PIN > -1)
+#define HAS_TEMP_3 (defined(TEMP_3_PIN) && TEMP_3_PIN > -1)
+#define HAS_TEMP_BED (defined(TEMP_BED_PIN) && TEMP_BED_PIN > -1)
+#define HAS_FILAMENT_SENSOR (defined(FILAMENT_SENSOR) && defined(FILWIDTH_PIN) && FILWIDTH_PIN > -1)
+
 //===========================================================================
 //=============================   functions      ============================
 //===========================================================================
@@ -217,7 +224,7 @@ void PID_autotune(float temp, int extruder, int ncycles)
   #endif
 
   if (extruder >= EXTRUDERS
-    #if (TEMP_BED_PIN <= -1)
+    #if !HAS_TEMP_BED
        || extruder < 0
     #endif
   ) {
@@ -803,7 +810,7 @@ static void updateTemperaturesFromRawValues()
     #ifdef TEMP_SENSOR_1_AS_REDUNDANT
       redundant_temperature = analog2temp(redundant_temperature_raw, 1);
     #endif
-    #if defined (FILAMENT_SENSOR) && (FILWIDTH_PIN > -1)    //check if a sensor is supported 
+    #if HAS_FILAMENT_SENSOR
       filament_width_meas = analog2widthFil();
     #endif  
     //Reset the watchdog after we know we have a temperature measurement.
@@ -815,29 +822,22 @@ static void updateTemperaturesFromRawValues()
 }
 
 
-// For converting raw Filament Width to milimeters 
 #ifdef FILAMENT_SENSOR
-float analog2widthFil() { 
-return current_raw_filwidth/16383.0*5.0; 
-//return current_raw_filwidth; 
-} 
- 
-// For converting raw Filament Width to a ratio 
-int widthFil_to_size_ratio() { 
- 
-float temp; 
-      
-temp=filament_width_meas;
-if(filament_width_meas<MEASURED_LOWER_LIMIT)
-	temp=filament_width_nominal;  //assume sensor cut out
-else if (filament_width_meas>MEASURED_UPPER_LIMIT)
-	temp= MEASURED_UPPER_LIMIT;
 
+  // Convert raw Filament Width to millimeters
+  float analog2widthFil() {
+    return current_raw_filwidth / 16383.0 * 5.0;
+    //return current_raw_filwidth;
+  }
 
-return(filament_width_nominal/temp*100); 
+  // Convert raw Filament Width to a ratio
+  int widthFil_to_size_ratio() {
+    float temp = filament_width_meas;
+    if (temp < MEASURED_LOWER_LIMIT) temp = filament_width_nominal;  //assume sensor cut out
+    else if (temp > MEASURED_UPPER_LIMIT) temp = MEASURED_UPPER_LIMIT;
+    return filament_width_nominal / temp * 100;
+  } 
 
-
-} 
 #endif
 
 
@@ -848,7 +848,7 @@ void tp_init()
 {
   #if MB(RUMBA) && ((TEMP_SENSOR_0==-1)||(TEMP_SENSOR_1==-1)||(TEMP_SENSOR_2==-1)||(TEMP_SENSOR_BED==-1))
     //disable RUMBA JTAG in case the thermocouple extension is plugged on top of JTAG connector
-    MCUCR=(1<<JTD); 
+    MCUCR=(1<<JTD);
     MCUCR=(1<<JTD);
   #endif
   
@@ -912,57 +912,31 @@ void tp_init()
 
   #endif //HEATER_0_USES_MAX6675
 
+  #define ANALOG_SELECT(pin) do{ if (pin < 8) { DIDR0 |= 1 << pin; } else { DIDR2 |= 1 << (pin - 8); }while(0)
+
   // Set analog inputs
   ADCSRA = 1<<ADEN | 1<<ADSC | 1<<ADIF | 0x07;
   DIDR0 = 0;
   #ifdef DIDR2
     DIDR2 = 0;
   #endif
-  #if defined(TEMP_0_PIN) && (TEMP_0_PIN > -1)
-    #if TEMP_0_PIN < 8
-       DIDR0 |= 1 << TEMP_0_PIN; 
-    #else
-       DIDR2 |= 1<<(TEMP_0_PIN - 8); 
-    #endif
+  #if HAS_TEMP_0
+    ANALOG_SELECT(TEMP_0_PIN);
   #endif
-  #if defined(TEMP_1_PIN) && (TEMP_1_PIN > -1)
-    #if TEMP_1_PIN < 8
-      DIDR0 |= 1<<TEMP_1_PIN; 
-    #else
-    	DIDR2 |= 1<<(TEMP_1_PIN - 8); 
-    #endif
+  #if HAS_TEMP_1
+    ANALOG_SELECT(TEMP_1_PIN);
   #endif
-  #if defined(TEMP_2_PIN) && (TEMP_2_PIN > -1)
-    #if TEMP_2_PIN < 8
-      DIDR0 |= 1 << TEMP_2_PIN; 
-    #else
-      DIDR2 |= 1<<(TEMP_2_PIN - 8); 
-    #endif
+  #if HAS_TEMP_2
+    ANALOG_SELECT(TEMP_2_PIN);
   #endif
-  #if defined(TEMP_3_PIN) && (TEMP_3_PIN > -1)
-    #if TEMP_3_PIN < 8
-      DIDR0 |= 1 << TEMP_3_PIN; 
-    #else
-      DIDR2 |= 1<<(TEMP_3_PIN - 8); 
-    #endif
+  #if HAS_TEMP_3
+    ANALOG_SELECT(TEMP_3_PIN);
   #endif
-  #if defined(TEMP_BED_PIN) && (TEMP_BED_PIN > -1)
-    #if TEMP_BED_PIN < 8
-       DIDR0 |= 1<<TEMP_BED_PIN; 
-    #else
-       DIDR2 |= 1<<(TEMP_BED_PIN - 8); 
-    #endif
+  #if HAS_TEMP_BED
+    ANALOG_SELECT(TEMP_BED_PIN);
   #endif
-  
-  //Added for Filament Sensor 
-  #ifdef FILAMENT_SENSOR
-    #if defined(FILWIDTH_PIN) && (FILWIDTH_PIN > -1) 
-      #if FILWIDTH_PIN < 8 
-        DIDR0 |= 1<<FILWIDTH_PIN;  
-      #else
-        DIDR2 |= 1<<(FILWIDTH_PIN - 8);  
-      #endif 
-    #endif
+  #if HAS_FILAMENT_SENSOR
+    ANALOG_SELECT(FILWIDTH_PIN);
   #endif
   
   // Use timer0 for temperature measurement
@@ -1124,31 +1098,31 @@ void disable_heater() {
   for (int i=0; i<EXTRUDERS; i++) setTargetHotend(0, i);
   setTargetBed(0);
 
-  #if defined(TEMP_0_PIN) && TEMP_0_PIN > -1
+  #if HAS_TEMP_0
     target_temperature[0] = 0;
     soft_pwm[0] = 0;
     WRITE_HEATER_0P(LOW); // If HEATERS_PARALLEL should apply, change to WRITE_HEATER_0
   #endif
 
-  #if EXTRUDERS > 1 && defined(TEMP_1_PIN) && TEMP_1_PIN > -1
+  #if EXTRUDERS > 1 && HAS_TEMP_1
     target_temperature[1] = 0;
     soft_pwm[1] = 0;
     WRITE_HEATER_1(LOW);
   #endif
 
-  #if EXTRUDERS > 2 && defined(TEMP_2_PIN) && TEMP_2_PIN > -1
+  #if EXTRUDERS > 2 && HAS_TEMP_2
     target_temperature[2] = 0;
     soft_pwm[2] = 0;
     WRITE_HEATER_2(LOW);
   #endif
 
-  #if EXTRUDERS > 3 && defined(TEMP_3_PIN) && TEMP_3_PIN > -1
+  #if EXTRUDERS > 3 && HAS_TEMP_3
     target_temperature[3] = 0;
     soft_pwm[3] = 0;
     WRITE_HEATER_3(LOW);
   #endif
 
-  #if defined(TEMP_BED_PIN) && TEMP_BED_PIN > -1
+  #if HAS_TEMP_BED
     target_temperature_bed = 0;
     soft_pwm_bed = 0;
     #if defined(HEATER_BED_PIN) && HEATER_BED_PIN > -1
@@ -1293,8 +1267,8 @@ ISR(TIMER0_COMPB_vect) {
     ISR_STATICS(BED);
   #endif
 
-  #if defined(FILWIDTH_PIN) && FILWIDTH_PIN > -1
-    static unsigned long raw_filwidth_value = 0;  //added for filament width sensor
+  #if HAS_FILAMENT_SENSOR
+    static unsigned long raw_filwidth_value = 0;
   #endif
   
   #ifndef SLOW_PWM_HEATERS
@@ -1456,15 +1430,13 @@ ISR(TIMER0_COMPB_vect) {
     } // (pwm_count % 64) == 0
   
   #endif // SLOW_PWM_HEATERS
-  
+
+  #define SET_ADCSRB(pin) do{ ADCSRB = (pin > 7) ? 1 << MUX5 : 0; }while(0)
+
   switch(temp_state) {
     case 0: // Prepare TEMP_0
-      #if defined(TEMP_0_PIN) && (TEMP_0_PIN > -1)
-        #if TEMP_0_PIN > 7
-          ADCSRB = 1<<MUX5;
-        #else
-          ADCSRB = 0;
-        #endif
+      #if HAS_TEMP_0
+        SET_ADCSRB(TEMP_0_PIN);
         ADMUX = ((1 << REFS0) | (TEMP_0_PIN & 0x07));
         ADCSRA |= 1<<ADSC; // Start conversion
       #endif
@@ -1472,18 +1444,14 @@ ISR(TIMER0_COMPB_vect) {
       temp_state = 1;
       break;
     case 1: // Measure TEMP_0
-      #if defined(TEMP_0_PIN) && (TEMP_0_PIN > -1)
+      #if HAS_TEMP_0
         raw_temp_0_value += ADC;
       #endif
       temp_state = 2;
       break;
     case 2: // Prepare TEMP_BED
-      #if defined(TEMP_BED_PIN) && (TEMP_BED_PIN > -1)
-        #if TEMP_BED_PIN > 7
-          ADCSRB = 1<<MUX5;
-        #else
-          ADCSRB = 0;
-        #endif
+      #if HAS_TEMP_BED
+        SET_ADCSRB(TEMP_BED_PIN);
         ADMUX = ((1 << REFS0) | (TEMP_BED_PIN & 0x07));
         ADCSRA |= 1<<ADSC; // Start conversion
       #endif
@@ -1491,18 +1459,14 @@ ISR(TIMER0_COMPB_vect) {
       temp_state = 3;
       break;
     case 3: // Measure TEMP_BED
-      #if defined(TEMP_BED_PIN) && (TEMP_BED_PIN > -1)
+      #if HAS_TEMP_BED
         raw_temp_bed_value += ADC;
       #endif
       temp_state = 4;
       break;
     case 4: // Prepare TEMP_1
-      #if defined(TEMP_1_PIN) && (TEMP_1_PIN > -1)
-        #if TEMP_1_PIN > 7
-          ADCSRB = 1 << MUX5;
-        #else
-          ADCSRB = 0;
-        #endif
+      #if HAS_TEMP_1
+        SET_ADCSRB(TEMP_1_PIN);
         ADMUX = ((1 << REFS0) | (TEMP_1_PIN & 0x07));
         ADCSRA |= 1<<ADSC; // Start conversion
       #endif
@@ -1510,18 +1474,14 @@ ISR(TIMER0_COMPB_vect) {
       temp_state = 5;
       break;
     case 5: // Measure TEMP_1
-      #if defined(TEMP_1_PIN) && (TEMP_1_PIN > -1)
+      #if HAS_TEMP_1
         raw_temp_1_value += ADC;
       #endif
       temp_state = 6;
       break;
     case 6: // Prepare TEMP_2
-      #if defined(TEMP_2_PIN) && (TEMP_2_PIN > -1)
-        #if TEMP_2_PIN > 7
-          ADCSRB = 1<<MUX5;
-        #else
-          ADCSRB = 0;
-        #endif
+      #if HAS_TEMP_2
+        SET_ADCSRB(TEMP_2_PIN);
         ADMUX = ((1 << REFS0) | (TEMP_2_PIN & 0x07));
         ADCSRA |= 1<<ADSC; // Start conversion
       #endif
@@ -1529,18 +1489,14 @@ ISR(TIMER0_COMPB_vect) {
       temp_state = 7;
       break;
     case 7: // Measure TEMP_2
-      #if defined(TEMP_2_PIN) && (TEMP_2_PIN > -1)
+      #if HAS_TEMP_2
         raw_temp_2_value += ADC;
       #endif
       temp_state = 8;
       break;
     case 8: // Prepare TEMP_3
-      #if defined(TEMP_3_PIN) && (TEMP_3_PIN > -1)
-        #if TEMP_3_PIN > 7
-          ADCSRB = 1 << MUX5;
-        #else
-          ADCSRB = 0;
-        #endif
+      #if HAS_TEMP_3
+        SET_ADCSRB(TEMP_3_PIN);
         ADMUX = ((1 << REFS0) | (TEMP_3_PIN & 0x07));
         ADCSRA |= 1<<ADSC; // Start conversion
       #endif
@@ -1548,18 +1504,14 @@ ISR(TIMER0_COMPB_vect) {
       temp_state = 9;
       break;
     case 9: // Measure TEMP_3
-      #if defined(TEMP_3_PIN) && (TEMP_3_PIN > -1)
+      #if HAS_TEMP_3
         raw_temp_3_value += ADC;
       #endif
       temp_state = 10; //change so that Filament Width is also measured
       break;
     case 10: //Prepare FILWIDTH
-      #if defined(FILWIDTH_PIN) && (FILWIDTH_PIN> -1)
-        #if FILWIDTH_PIN > 7
-          ADCSRB = 1 << MUX5;
-        #else
-          ADCSRB = 0;
-        #endif
+      #if HAS_FILAMENT_SENSOR
+        SET_ADCSRB(FILWIDTH_PIN);
         ADMUX = ((1 << REFS0) | (FILWIDTH_PIN & 0x07));
         ADCSRA |= 1<<ADSC; // Start conversion
       #endif
@@ -1567,7 +1519,7 @@ ISR(TIMER0_COMPB_vect) {
       temp_state = 11;
       break;
     case 11:   //Measure FILWIDTH
-      #if defined(FILWIDTH_PIN) &&(FILWIDTH_PIN > -1)
+      #if HAS_FILAMENT_SENSOR
         // raw_filwidth_value += ADC;  //remove to use an IIR filter approach
         if (ADC > 102) { //check that ADC is reading a voltage > 0.5 volts, otherwise don't take in the data.
           raw_filwidth_value -= (raw_filwidth_value>>7);  //multipliy raw_filwidth_value by 127/128
@@ -1607,9 +1559,9 @@ ISR(TIMER0_COMPB_vect) {
       current_temperature_bed_raw = raw_temp_bed_value;
     } //!temp_meas_ready
 
-    //Add similar code for Filament Sensor - can be read any time since IIR filtering is used 
-    #if defined(FILWIDTH_PIN) &&(FILWIDTH_PIN > -1)
-      current_raw_filwidth = raw_filwidth_value>>10;  //need to divide to get to 0-16384 range since we used 1/128 IIR filter approach 
+    // Filament Sensor - can be read any time since IIR filtering is used
+    #if HAS_FILAMENT_SENSOR
+      current_raw_filwidth = raw_filwidth_value >> 10;  // Divide to get to 0-16384 range since we used 1/128 IIR filter approach
     #endif
     
     temp_meas_ready = true;
