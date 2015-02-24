@@ -1026,7 +1026,7 @@ void lcd_sdcard_menu() {
 
 #define menu_edit_type(_type, _name, _strFunc, scale) \
     bool menu_edit_ ## _name () { \
-      bool isClicked = LCD_CLICKED;
+      bool isClicked = LCD_CLICKED; \
       if ((int32_t)encoderPosition < 0) encoderPosition = 0; \
       if ((int32_t)encoderPosition > maxEditValue) encoderPosition = maxEditValue; \
       if (lcdDrawUpdate) \
