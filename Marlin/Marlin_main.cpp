@@ -4695,12 +4695,12 @@ bool setTargetedHotend(int code){
 
 
 float calculate_volumetric_multiplier(float diameter) {
-	if (!volumetric_enabled || diameter == 0) return 1.0;
+  if (!volumetric_enabled || diameter == 0) return 1.0;
   float d2 = diameter * 0.5;
-	return 1.0 / (M_PI * d2 * d2);
+  return 1.0 / (M_PI * d2 * d2);
 }
 
 void calculate_volumetric_multipliers() {
   for (int i=0; i<EXTRUDERS; i++)
-  	volumetric_multiplier[i] = calculate_volumetric_multiplier(filament_size[i]);
+    volumetric_multiplier[i] = calculate_volumetric_multiplier(filament_size[i]);
 }
