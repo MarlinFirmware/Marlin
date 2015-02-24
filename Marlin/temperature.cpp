@@ -1453,15 +1453,15 @@ ISR(TIMER0_COMPB_vect) {
 
   #define SET_ADMUX_ADCSRA(pin) ADMUX = (1 << REFS0) | (pin & 0x07); ADCSRA |= 1<<ADSC
   #ifdef MUX5
-    #define SET_ADCSRB(pin) if (pin > 7) ADCSRB = 1 << MUX5; else ADCSRB = 0; SET_ADMUX_ADCSRA(pin)
+    #define START_ADC(pin) if (pin > 7) ADCSRB = 1 << MUX5; else ADCSRB = 0; SET_ADMUX_ADCSRA(pin)
   #else
-    #define SET_ADCSRB(pin) ADCSRB = 0; SET_ADMUX_ADCSRA(pin)
+    #define START_ADC(pin) ADCSRB = 0; SET_ADMUX_ADCSRA(pin)
   #endif
 
   switch(temp_state) {
     case PrepareTemp_0:
       #if HAS_TEMP_0
-        SET_ADCSRB(TEMP_0_PIN);
+        START_ADC(TEMP_0_PIN);
       #endif
       lcd_buttons_update();
       temp_state = MeasureTemp_0;
@@ -1474,7 +1474,7 @@ ISR(TIMER0_COMPB_vect) {
       break;
     case PrepareTemp_BED:
       #if HAS_TEMP_BED
-        SET_ADCSRB(TEMP_BED_PIN);
+        START_ADC(TEMP_BED_PIN);
       #endif
       lcd_buttons_update();
       temp_state = MeasureTemp_BED;
@@ -1487,7 +1487,7 @@ ISR(TIMER0_COMPB_vect) {
       break;
     case PrepareTemp_1:
       #if HAS_TEMP_1
-        SET_ADCSRB(TEMP_1_PIN);
+        START_ADC(TEMP_1_PIN);
       #endif
       lcd_buttons_update();
       temp_state = MeasureTemp_1;
@@ -1500,7 +1500,7 @@ ISR(TIMER0_COMPB_vect) {
       break;
     case PrepareTemp_2:
       #if HAS_TEMP_2
-        SET_ADCSRB(TEMP_2_PIN);
+        START_ADC(TEMP_2_PIN);
       #endif
       lcd_buttons_update();
       temp_state = MeasureTemp_2;
@@ -1513,7 +1513,7 @@ ISR(TIMER0_COMPB_vect) {
       break;
     case PrepareTemp_3:
       #if HAS_TEMP_3
-        SET_ADCSRB(TEMP_3_PIN);
+        START_ADC(TEMP_3_PIN);
       #endif
       lcd_buttons_update();
       temp_state = MeasureTemp_3;
@@ -1526,7 +1526,7 @@ ISR(TIMER0_COMPB_vect) {
       break;
     case Prepare_FILWIDTH:
       #if HAS_FILAMENT_SENSOR
-        SET_ADCSRB(FILWIDTH_PIN);
+        START_ADC(FILWIDTH_PIN);
       #endif
       lcd_buttons_update();
       temp_state = Measure_FILWIDTH;
