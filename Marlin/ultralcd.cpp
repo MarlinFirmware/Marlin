@@ -1025,7 +1025,7 @@ void lcd_sdcard_menu() {
 }
 
 #define menu_edit_type(_type, _name, _strFunc, scale) \
-  bool menu_edit_ ## _name () { \
+  bool _menu_edit_ ## _name () { \
     bool isClicked = LCD_CLICKED; \
     if ((int32_t)encoderPosition < 0) encoderPosition = 0; \
     if ((int32_t)encoderPosition > maxEditValue) encoderPosition = maxEditValue; \
@@ -1037,9 +1037,8 @@ void lcd_sdcard_menu() {
     } \
     return isClicked; \
   } \
-  void menu_edit_callback_ ## _name () { \
-    if (menu_edit_ ## _name ()) (*callbackFunc)(); \
-  } \
+  void menu_edit_ ## _name () { _menu_edit_ ## _name(); } \
+  void menu_edit_callback_ ## _name () { if (_menu_edit_ ## _name ()) (*callbackFunc)(); } \
   static void _menu_action_setting_edit_ ## _name (const char* pstr, _type* ptr, _type minValue, _type maxValue) { \
     prevMenu = currentMenu; \
     prevEncoderPosition = encoderPosition; \
