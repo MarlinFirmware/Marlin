@@ -383,6 +383,24 @@
 #ifndef MSG_ENDSTOP_ABORT
 #define MSG_ENDSTOP_ABORT                   "Endstop abort"
 #endif
+#ifndef MSG_HEATIG_FAILD
+#define MSG_HEATIG_FAILD                   "Heating failed"
+#endif
+#ifndef MSG_REDUNDANT_TEMP
+#define MSG_REDUNDANT_TEMP                 "Err: REDUNDANT TEMP ERROR"
+#endif
+#ifndef MSG_THERMAL_RUNAWAY
+#define MSG_THERMAL_RUNAWAY                "Err: THERMAL RUNAWAY"
+#endif
+#ifndef MSG_MAXTEMP
+#define MSG_MAXTEMP                        "Err: MAXTEMP"
+#endif
+#ifndef MSG_MINTEMP
+#define MSG_MINTEMP                        "Err: MINTEMP"
+#endif
+#ifndef MSG_MAXTEMP_BED
+#define MSG_MAXTEMP_BED                    "Err: MAXTEMP BED"
+#endif
 
 #ifdef DELTA_CALIBRATION_MENU
     #ifndef MSG_DELTA_CALIBRATE

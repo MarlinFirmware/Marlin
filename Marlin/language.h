@@ -159,6 +159,20 @@
 
 #define MSG_ERR_EEPROM_WRITE                "Error writing to EEPROM!"
 
+#define MSG_ERR_HEATIG_FAILD                "Heating failed"
+#define MSG_ERR_REDUNDANT_TEMP              "Extruder switched off. Temperature difference between temp sensors is too high !"
+#define MSG_ERR_THERMAL_RUNAWAY             "Thermal Runaway, system stopped! Heater_ID: "
+#define MSG_ERR_MAXTEMP                     ": Extruder switched off. MAXTEMP triggered !"
+#define MSG_ERR_MINTEMP                     ": Extruder switched off. MINTEMP triggered !"
+#define MSG_ERR_MAXTEMP_BED                 "Temperature heated bed switched off. MAXTEMP triggered !!"
+#define MSG_ERR_AUTOTUNE_NR                 "PID Autotune failed. Bad extruder number."
+#define MSG_ERR_AUTOTUNE_HIGH               "PID Autotune failed! Temperature too high"
+#define MSG_ERR_AUTOTUNE_TIME               "PID Autotune failed! timeout"
+#define MSG_AUTOTUNE_START                  "PID Autotune start"
+#define MSG_AUTOTUNE_END                    "PID Autotune finished! Put the last Kp, Ki and Kd constants from above into Configuration.h"
+#define MSG_ERR_EXTRUDER_NR                 " - Invalid extruder number !"
+
+
 // LCD Menu Messages
 
 // Add your own character. Reference: https://github.com/MarlinFirmware/Marlin/pull/1434 photos
