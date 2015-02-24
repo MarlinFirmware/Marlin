@@ -33,7 +33,7 @@ rambo.build.variant=rambo
 ########################################
 sanguino.name=Sanguino
 
-sanguino.upload.tool=ardunio:avrdude
+sanguino.upload.tool=arduino:avrdude
 sanguino.upload.protocol=stk500
 sanguino.upload.maximum_size=131072
 sanguino.upload.speed=57600
