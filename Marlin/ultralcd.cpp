@@ -1158,9 +1158,18 @@ void lcd_sdcard_menu()
             lcd_goto_menu(prevMenu, prevEncoderPosition); \
         } \
     } \
-    void menu_edit_callback_ ## _name () { \
-        menu_edit_ ## _name (); \
-        if (LCD_CLICKED) (*callbackFunc)(); \
+    void menu_edit_callback_ ## _name () \
+    { \
+        if ((int32_t)encoderPosition < 0) encoderPosition = 0; \
+        if ((int32_t)encoderPosition > maxEditValue) encoderPosition = maxEditValue; \
+        if (lcdDrawUpdate) \
+            lcd_implementation_drawedit(editLabel, _strFunc(((_type)((int32_t)encoderPosition + minEditValue)) / scale)); \
+        if (LCD_CLICKED) \
+        { \
+            *((_type*)editValue) = ((_type)((int32_t)encoderPosition + minEditValue)) / scale; \
+            lcd_goto_menu(prevMenu, prevEncoderPosition); \
+            (*callbackFunc)(); \
+        } \
     } \
     static void menu_action_setting_edit_ ## _name (const char* pstr, _type* ptr, _type minValue, _type maxValue) \
     { \

@@ -320,6 +320,10 @@
   #endif
 #endif
 
+// Show the amount of free RAM memory on the LCD, replacing the Y information.
+// Only useful for debugging or introducing new functionalities.
+//#define LCD_SHOW_FREE_RAM
+
 // The hardware watchdog should reset the microcontroller disabling all outputs, in case the firmware gets stuck and doesn't do temperature regulation.
 //#define USE_WATCHDOG
 
