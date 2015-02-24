@@ -1231,6 +1231,22 @@ void bed_max_temp_error(void) {
 
 #endif //HEATER_0_USES_MAX6675
 
+enum TempState {
+  PrepareTemp_0,
+  MeasureTemp_0,
+  PrepareTemp_BED,
+  MeasureTemp_BED,
+  PrepareTemp_1,
+  MeasureTemp_1,
+  PrepareTemp_2,
+  MeasureTemp_2,
+  PrepareTemp_3,
+  MeasureTemp_3,
+  Prepare_FILWIDTH,
+  Measure_FILWIDTH,
+  StartupDelay // Startup, delay initial temp reading a tiny bit so the hardware can settle
+};
+
 //
 // Timer 0 is shared with millies
 //
@@ -1242,7 +1258,7 @@ ISR(TIMER0_COMPB_vect) {
   static unsigned long raw_temp_2_value = 0;
   static unsigned long raw_temp_3_value = 0;
   static unsigned long raw_temp_bed_value = 0;
-  static unsigned char temp_state = 12;
+  static TempState temp_state = StartupDelay;
   static unsigned char pwm_count = (1 << SOFT_PWM_SCALE);
 
   // Static members for each heater
@@ -1435,94 +1451,98 @@ ISR(TIMER0_COMPB_vect) {
   
   #endif // SLOW_PWM_HEATERS
 
-  #define SET_ADCSRB(pin) do{ if (pin > 7) ADCSRB = 1 << MUX5; else ADCSRB = 0; }while(0)
+  #ifdef MUX5
+    #define SET_ADCSRB(pin) if (pin > 7) ADCSRB = 1 << MUX5; else ADCSRB = 0
+  #else
+    #define SET_ADCSRB(pin) ADCSRB = 0
+  #endif
 
   switch(temp_state) {
-    case 0: // Prepare TEMP_0
+    case PrepareTemp_0:
       #if HAS_TEMP_0
         SET_ADCSRB(TEMP_0_PIN);
         ADMUX = ((1 << REFS0) | (TEMP_0_PIN & 0x07));
         ADCSRA |= 1<<ADSC; // Start conversion
       #endif
       lcd_buttons_update();
-      temp_state = 1;
+      temp_state = MeasureTemp_0;
       break;
-    case 1: // Measure TEMP_0
+    case MeasureTemp_0:
       #if HAS_TEMP_0
         raw_temp_0_value += ADC;
       #endif
-      temp_state = 2;
+      temp_state = PrepareTemp_BED;
       break;
-    case 2: // Prepare TEMP_BED
+    case PrepareTemp_BED:
       #if HAS_TEMP_BED
         SET_ADCSRB(TEMP_BED_PIN);
         ADMUX = ((1 << REFS0) | (TEMP_BED_PIN & 0x07));
         ADCSRA |= 1<<ADSC; // Start conversion
       #endif
       lcd_buttons_update();
-      temp_state = 3;
+      temp_state = MeasureTemp_BED;
       break;
-    case 3: // Measure TEMP_BED
+    case MeasureTemp_BED:
       #if HAS_TEMP_BED
         raw_temp_bed_value += ADC;
       #endif
-      temp_state = 4;
+      temp_state = PrepareTemp_1;
       break;
-    case 4: // Prepare TEMP_1
+    case PrepareTemp_1:
       #if HAS_TEMP_1
         SET_ADCSRB(TEMP_1_PIN);
         ADMUX = ((1 << REFS0) | (TEMP_1_PIN & 0x07));
         ADCSRA |= 1<<ADSC; // Start conversion
       #endif
       lcd_buttons_update();
-      temp_state = 5;
+      temp_state = MeasureTemp_1;
       break;
-    case 5: // Measure TEMP_1
+    case MeasureTemp_1:
       #if HAS_TEMP_1
         raw_temp_1_value += ADC;
       #endif
       temp_state = 6;
       break;
-    case 6: // Prepare TEMP_2
+    case PrepareTemp_2:
       #if HAS_TEMP_2
         SET_ADCSRB(TEMP_2_PIN);
         ADMUX = ((1 << REFS0) | (TEMP_2_PIN & 0x07));
         ADCSRA |= 1<<ADSC; // Start conversion
       #endif
       lcd_buttons_update();
-      temp_state = 7;
+      temp_state = MeasureTemp_2;
       break;
-    case 7: // Measure TEMP_2
+    case MeasureTemp_2:
       #if HAS_TEMP_2
         raw_temp_2_value += ADC;
       #endif
-      temp_state = 8;
+      temp_state = PrepareTemp_3;
       break;
-    case 8: // Prepare TEMP_3
+    case PrepareTemp_3:
       #if HAS_TEMP_3
         SET_ADCSRB(TEMP_3_PIN);
         ADMUX = ((1 << REFS0) | (TEMP_3_PIN & 0x07));
         ADCSRA |= 1<<ADSC; // Start conversion
       #endif
       lcd_buttons_update();
-      temp_state = 9;
+      temp_state = MeasureTemp_3;
       break;
-    case 9: // Measure TEMP_3
+    case MeasureTemp_3:
       #if HAS_TEMP_3
         raw_temp_3_value += ADC;
       #endif
-      temp_state = 10; //change so that Filament Width is also measured
+      temp_state = Prepare_FILWIDTH;
       break;
-    case 10: //Prepare FILWIDTH
+    case Prepare_FILWIDTH:
       #if HAS_FILAMENT_SENSOR
         SET_ADCSRB(FILWIDTH_PIN);
         ADMUX = ((1 << REFS0) | (FILWIDTH_PIN & 0x07));
         ADCSRA |= 1<<ADSC; // Start conversion
       #endif
       lcd_buttons_update();
-      temp_state = 11;
+      temp_state = Measure_FILWIDTH;
       break;
-    case 11:   //Measure FILWIDTH
+    case Measure_FILWIDTH:
       #if HAS_FILAMENT_SENSOR
         // raw_filwidth_value += ADC;  //remove to use an IIR filter approach
         if (ADC > 102) { //check that ADC is reading a voltage > 0.5 volts, otherwise don't take in the data.
@@ -1530,11 +1550,11 @@ ISR(TIMER0_COMPB_vect) {
           raw_filwidth_value += ((unsigned long)ADC<<7);  //add new ADC reading
         }
       #endif
-      temp_state = 0;
+      temp_state = PrepareTemp_0;
       temp_count++;
       break;
-    case 12: //Startup, delay initial temp reading a tiny bit so the hardware can settle.
-      temp_state = 0;
+    case StartupDelay:
+      temp_state = PrepareTemp_0;
       break;
 
     // default:
