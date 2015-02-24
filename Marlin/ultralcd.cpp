@@ -81,8 +81,9 @@ bool    button_clicked_triggered;
 
 // Beeper related variables
 bool beeper_level = false;
-uint8_t beeper_duration = 0;
+uint32_t beeper_duration = 0;
 
+uint8_t beep_count, frequency_ratio;
 
 // ISR related variables
 uint16_t lcd_timer = 0;
@@ -530,6 +531,23 @@ void lcd_wizard_set_page(uint8_t page)
 void lcd_beep()
 {
     lcd_implementation_quick_feedback();
+}
+
+void lcd_beep_ms(uint16_t ms)
+{
+    beeper_duration = 8 * ms;
+    while (beeper_duration) {
+        lcd_update();
+    }
+}
+
+void lcd_beep_hz_ms(uint16_t frequency, uint16_t ms)
+{
+    beeper_duration = 8 * ms;
+    frequency_ratio = (4000 / frequency) - 1;
+    while (beeper_duration) {
+        lcd_update();
+    }
 }
 
 void lcd_set_refresh(uint8_t mode)
@@ -2831,10 +2849,16 @@ ISR(TIMER5_OVF_vect)
 
 #if ( defined(BEEPER) && (BEEPER > 0) )
     if (beeper_duration) {
-        beeper_level = !beeper_level;
+        if (beep_count == 0) {
+            beeper_level = !beeper_level;
+            beep_count = frequency_ratio;
+        } else {
+            beep_count--;
+        }
         beeper_duration--;
     } else {
         beeper_level = false;
+        beep_count = 0;
     }
     WRITE(BEEPER, beeper_level);    // Tone: 4 KHz (every 125 us)
 #endif // ( defined(BEEPER) && (BEEPER > 0) )

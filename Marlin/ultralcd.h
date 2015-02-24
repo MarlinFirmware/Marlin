@@ -77,6 +77,8 @@ void lcd_wizard_set_page(uint8_t page);
 
 // Temporal
 void lcd_beep();
+void lcd_beep_ms(uint16_t ms);
+void lcd_beep_hz_ms(uint16_t frequency, uint16_t ms);
 void lcd_set_refresh(uint8_t mode);
 // uint8_t lcd_get_encoder_position();
 

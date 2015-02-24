@@ -2141,30 +2141,25 @@ void process_commands()
     		}
     		break;
 
-			#if (LARGE_FLASH == true && ( BEEPER > 0 || defined(ULTRALCD)))
-    		case 300: // M300
-    		{
-      			int beepS = code_seen('S') ? code_value() : 110;
-      			int beepP = code_seen('P') ? code_value() : 1000;
-      			if (beepS > 0)
-      			{
-					#if BEEPER > 0
-	  					tone(BEEPER, beepS);
-	  					delay(beepP);
-	  					noTone(BEEPER);
-					#elif defined(ULTRALCD)
-		  				lcd_buzz(beepS, beepP);
-					#endif
-      			}
-      			else
-      			{
-					delay(beepP);
-      			}
-    		}
-    		break;
-    		#endif // M300
+#if (LARGE_FLASH == true && ( BEEPER > 0 || defined(ULTRALCD)))
+            case 300: // M300
+            {
+                int beepS = code_seen('S') ? code_value() : 110;
+                int beepP = code_seen('P') ? code_value() : 1000;
 
-    		#ifdef PIDTEMP
+                if (beepS > 4000) {
+                    beepS = 4000;
+                } else if (beepS < 16) {
+                    _delay_ms(beepP);
+                    break;
+                }
+
+                lcd_beep_hz_ms(beepS, beepP);
+            }
+                break;
+#endif // (LARGE_FLASH == true && ( BEEPER > 0 || defined(ULTRALCD)))
+
+#ifdef PIDTEMP
     		case 301: // M301
       		{
 				if(code_seen('P')) Kp = code_value();
