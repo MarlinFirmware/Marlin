@@ -33,6 +33,7 @@
 #include "ultralcd.h"
 #include "temperature.h"
 #include "watchdog.h"
+#include "language.h"
 
 #include "Sd2PinMap.h"
 
@@ -224,11 +225,11 @@ void PID_autotune(float temp, int extruder, int ncycles)
        ||(extruder < 0)
   #endif
        ){
-          SERIAL_ECHOLN("PID Autotune failed. Bad extruder number.");
+          SERIAL_ECHOLN(MSG_ERR_AUTOTUNE_NR);
           return;
         }
 	
-  SERIAL_ECHOLN("PID Autotune start");
+  SERIAL_ECHOLN(MSG_AUTOTUNE_START);
   
   disable_heater(); // switch off all heaters.
 
@@ -333,7 +334,7 @@ void PID_autotune(float temp, int extruder, int ncycles)
       } 
     }
     if(input > (temp + 20)) {
-      SERIAL_PROTOCOLLNPGM("PID Autotune failed! Temperature too high");
+      SERIAL_PROTOCOLLNPGM(MSG_ERR_AUTOTUNE_HIGH);
       return;
     }
     if(millis() - temp_millis > 2000) {
@@ -353,11 +354,11 @@ void PID_autotune(float temp, int extruder, int ncycles)
       temp_millis = millis();
     }
     if(((millis() - t1) + (millis() - t2)) > (10L*60L*1000L*2L)) {
-      SERIAL_PROTOCOLLNPGM("PID Autotune failed! timeout");
+      SERIAL_PROTOCOLLNPGM(MSG_ERR_AUTOTUNE_TIME);
       return;
     }
     if(cycles > ncycles) {
-      SERIAL_PROTOCOLLNPGM("PID Autotune finished! Put the last Kp, Ki and Kd constants from above into Configuration.h");
+      SERIAL_PROTOCOLLNPGM(MSG_AUTOTUNE_END);
       return;
     }
     lcd_update();
@@ -575,9 +576,9 @@ void manage_heater()
         if(degHotend(e) < watch_start_temp[e] + WATCH_TEMP_INCREASE)
         {
             setTargetHotend(0, e);
-            LCD_MESSAGEPGM("Heating failed");
+            LCD_MESSAGEPGM(MSG_ERR_HEATIG_FAILD);
             SERIAL_ECHO_START;
-            SERIAL_ECHOLN("Heating failed");
+            SERIAL_ECHOLN(MSG_HEATIG_FAILD);
         }else{
             watchmillis[e] = 0;
         }
@@ -588,8 +589,8 @@ void manage_heater()
         disable_heater();
         if(IsStopped() == false) {
           SERIAL_ERROR_START;
-          SERIAL_ERRORLNPGM("Extruder switched off. Temperature difference between temp sensors is too high !");
-          LCD_ALERTMESSAGEPGM("Err: REDUNDANT TEMP ERROR");
+          SERIAL_ERRORLNPGM(MSG_ERR_REDUNDANT_TEMP);
+          LCD_ALERTMESSAGEPGM(REDUNDANT_TEMP);
         }
         #ifndef BOGUS_TEMPERATURE_FAILSAFE_OVERRIDE
           Stop();
@@ -730,7 +731,7 @@ static float analog2temp(int raw, uint8_t e) {
   {
       SERIAL_ERROR_START;
       SERIAL_ERROR((int)e);
-      SERIAL_ERRORLNPGM(" - Invalid extruder number !");
+      SERIAL_ERRORLNPGM(MSG_ERR_EXTRUDER_NR);
       kill();
       return 0.0;
   } 
@@ -1142,9 +1143,9 @@ void thermal_runaway_protection(int *state, unsigned long *timer, float temperat
       else if ( (millis() - *timer) > ((unsigned long) period_seconds) * 1000)
       {
         SERIAL_ERROR_START;
-        SERIAL_ERRORLNPGM("Thermal Runaway, system stopped! Heater_ID: ");
+        SERIAL_ERRORLNPGM(MSG_ERR_THERMAL_RUNAWAY);
         SERIAL_ERRORLN((int)heater_id);
-        LCD_ALERTMESSAGEPGM("THERMAL RUNAWAY");
+        LCD_ALERTMESSAGEPGM(MSG_THERMAL_RUNAWAY);
         thermal_runaway = true;
         while(1)
         {
@@ -1217,8 +1218,8 @@ void max_temp_error(uint8_t e) {
   if(IsStopped() == false) {
     SERIAL_ERROR_START;
     SERIAL_ERRORLN((int)e);
-    SERIAL_ERRORLNPGM(": Extruder switched off. MAXTEMP triggered !");
-    LCD_ALERTMESSAGEPGM("Err: MAXTEMP");
+    SERIAL_ERRORLNPGM(MSG_ERR_MAXTEMP);
+    LCD_ALERTMESSAGEPGM(MSG_MAXTEMP);
   }
   #ifndef BOGUS_TEMPERATURE_FAILSAFE_OVERRIDE
   Stop();
@@ -1230,8 +1231,8 @@ void min_temp_error(uint8_t e) {
   if(IsStopped() == false) {
     SERIAL_ERROR_START;
     SERIAL_ERRORLN((int)e);
-    SERIAL_ERRORLNPGM(": Extruder switched off. MINTEMP triggered !");
-    LCD_ALERTMESSAGEPGM("Err: MINTEMP");
+    SERIAL_ERRORLNPGM(MSG_ERR_MINTEMP);
+    LCD_ALERTMESSAGEPGM(MSG_MINTEMP);
   }
   #ifndef BOGUS_TEMPERATURE_FAILSAFE_OVERRIDE
   Stop();
@@ -1244,8 +1245,8 @@ void bed_max_temp_error(void) {
 #endif
   if(IsStopped() == false) {
     SERIAL_ERROR_START;
-    SERIAL_ERRORLNPGM("Temperature heated bed switched off. MAXTEMP triggered !!");
-    LCD_ALERTMESSAGEPGM("Err: MAXTEMP BED");
+    SERIAL_ERRORLNPGM(MSG_ERR_MAXTEMP_BED);
+    LCD_ALERTMESSAGEPGM(MSG_MAXTEMP_BED);
   }
   #ifndef BOGUS_TEMPERATURE_FAILSAFE_OVERRIDE
   Stop();
