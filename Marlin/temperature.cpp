@@ -33,6 +33,7 @@
 #include "ultralcd.h"
 #include "temperature.h"
 #include "watchdog.h"
+#include "language.h"
 
 #include "Sd2PinMap.h"
 
@@ -228,11 +229,11 @@ void PID_autotune(float temp, int extruder, int ncycles)
        || extruder < 0
     #endif
   ) {
-    SERIAL_ECHOLN("PID Autotune failed. Bad extruder number.");
+    SERIAL_ECHOLN(MSG_PID_BAD_EXTRUDER_NUM);
     return;
   }
 	
-  SERIAL_ECHOLN("PID Autotune start");
+  SERIAL_ECHOLN(MSG_PID_AUTOTUNE_START);
 
   disable_heater(); // switch off all heaters.
 
@@ -287,22 +288,22 @@ void PID_autotune(float temp, int extruder, int ncycles)
             bias = constrain(bias, 20, max_pow - 20);
             d = (bias > max_pow / 2) ? max_pow - 1 - bias : bias;
 
-            SERIAL_PROTOCOLPGM(" bias: "); SERIAL_PROTOCOL(bias);
-            SERIAL_PROTOCOLPGM(" d: ");    SERIAL_PROTOCOL(d);
-            SERIAL_PROTOCOLPGM(" min: ");  SERIAL_PROTOCOL(min);
-            SERIAL_PROTOCOLPGM(" max: ");  SERIAL_PROTOCOLLN(max);
+            SERIAL_PROTOCOLPGM(MSG_BIAS); SERIAL_PROTOCOL(bias);
+            SERIAL_PROTOCOLPGM(MSG_D);    SERIAL_PROTOCOL(d);
+            SERIAL_PROTOCOLPGM(MSG_MIN);  SERIAL_PROTOCOL(min);
+            SERIAL_PROTOCOLPGM(MSG_MAX);  SERIAL_PROTOCOLLN(max);
             if (cycles > 2) {
               Ku = (4.0 * d) / (3.14159265 * (max - min) / 2.0);
               Tu = ((float)(t_low + t_high) / 1000.0);
-              SERIAL_PROTOCOLPGM(" Ku: "); SERIAL_PROTOCOL(Ku);
-              SERIAL_PROTOCOLPGM(" Tu: "); SERIAL_PROTOCOLLN(Tu);
+              SERIAL_PROTOCOLPGM(MSG_KU); SERIAL_PROTOCOL(Ku);
+              SERIAL_PROTOCOLPGM(MSG_TU); SERIAL_PROTOCOLLN(Tu);
               Kp = 0.6 * Ku;
               Ki = 2 * Kp / Tu;
               Kd = Kp * Tu / 8;
-              SERIAL_PROTOCOLLNPGM(" Classic PID ");
-              SERIAL_PROTOCOLPGM(" Kp: "); SERIAL_PROTOCOLLN(Kp);
-              SERIAL_PROTOCOLPGM(" Ki: "); SERIAL_PROTOCOLLN(Ki);
-              SERIAL_PROTOCOLPGM(" Kd: "); SERIAL_PROTOCOLLN(Kd);
+              SERIAL_PROTOCOLLNPGM(MSG_CLASSIC_PID);
+              SERIAL_PROTOCOLPGM(MSG_KP); SERIAL_PROTOCOLLN(Kp);
+              SERIAL_PROTOCOLPGM(MSG_KI); SERIAL_PROTOCOLLN(Ki);
+              SERIAL_PROTOCOLPGM(MSG_KD); SERIAL_PROTOCOLLN(Kd);
               /*
               Kp = 0.33*Ku;
               Ki = Kp/Tu;
@@ -331,7 +332,7 @@ void PID_autotune(float temp, int extruder, int ncycles)
       } 
     }
     if (input > temp + 20) {
-      SERIAL_PROTOCOLLNPGM("PID Autotune failed! Temperature too high");
+      SERIAL_PROTOCOLLNPGM(MSG_PID_TEMP_TOO_HIGH);
       return;
     }
     // Every 2 seconds...
@@ -339,26 +340,26 @@ void PID_autotune(float temp, int extruder, int ncycles)
       int p;
       if (extruder < 0) {
         p = soft_pwm_bed;
-        SERIAL_PROTOCOLPGM("ok B:");
+        SERIAL_PROTOCOLPGM(MSG_OK_B);
       }
       else {
         p = soft_pwm[extruder];
-        SERIAL_PROTOCOLPGM("ok T:");
+        SERIAL_PROTOCOLPGM(MSG_OK_T);
       }
 
       SERIAL_PROTOCOL(input);
-      SERIAL_PROTOCOLPGM(" @:");
+      SERIAL_PROTOCOLPGM(MSG_AT);
       SERIAL_PROTOCOLLN(p);
 
       temp_millis = ms;
     } // every 2 seconds
     // Over 2 minutes?
     if (((ms - t1) + (ms - t2)) > (10L*60L*1000L*2L)) {
-      SERIAL_PROTOCOLLNPGM("PID Autotune failed! timeout");
+      SERIAL_PROTOCOLLNPGM(MSG_PID_TIMEOUT);
       return;
     }
     if (cycles > ncycles) {
-      SERIAL_PROTOCOLLNPGM("PID Autotune finished! Put the last Kp, Ki and Kd constants from above into Configuration.h");
+      SERIAL_PROTOCOLLNPGM(MSG_PID_AUTOTUNE_FINISHED);
       return;
     }
     lcd_update();
@@ -571,17 +572,17 @@ void manage_heater() {
 
       #ifdef PID_DEBUG
         SERIAL_ECHO_START;
-        SERIAL_ECHO(" PID_DEBUG ");
+        SERIAL_ECHO(MSG_PID_DEBUG);
         SERIAL_ECHO(e);
-        SERIAL_ECHO(": Input ");
+        SERIAL_ECHO(MSG_PID_DEBUG_INPUT);
         SERIAL_ECHO(pid_input);
-        SERIAL_ECHO(" Output ");
+        SERIAL_ECHO(MSG_PID_DEBUG_OUTPUT);
         SERIAL_ECHO(pid_output);
-        SERIAL_ECHO(" pTerm ");
+        SERIAL_ECHO(MSG_PID_DEBUG_PTERM);
         SERIAL_ECHO(pTerm[e]);
-        SERIAL_ECHO(" iTerm ");
+        SERIAL_ECHO(MSG_PID_DEBUG_ITERM);
         SERIAL_ECHO(iTerm[e]);
-        SERIAL_ECHO(" dTerm ");
+        SERIAL_ECHO(MSG_PID_DEBUG_DTERM);
         SERIAL_ECHOLN(dTerm[e]);
       #endif //PID_DEBUG
 
@@ -599,9 +600,9 @@ void manage_heater() {
       if (watchmillis[e] && ms > watchmillis[e] + WATCH_TEMP_PERIOD) {
         if (degHotend(e) < watch_start_temp[e] + WATCH_TEMP_INCREASE) {
           setTargetHotend(0, e);
-          LCD_MESSAGEPGM("Heating failed");
+          LCD_MESSAGEPGM(MSG_HEATING_FAILED_LCD); // translatable
           SERIAL_ECHO_START;
-          SERIAL_ECHOLNPGM("Heating failed");
+          SERIAL_ECHOLNPGM(MSG_HEATING_FAILED);
         }
         else {
           watchmillis[e] = 0;
@@ -614,8 +615,8 @@ void manage_heater() {
         disable_heater();
         if (IsStopped() == false) {
           SERIAL_ERROR_START;
-          SERIAL_ERRORLNPGM("Extruder switched off. Temperature difference between temp sensors is too high !");
-          LCD_ALERTMESSAGEPGM("Err: REDUNDANT TEMP ERROR");
+          SERIAL_ERRORLNPGM(MSG_EXTRUDER_SWITCHED_OFF);
+          LCD_ALERTMESSAGEPGM(MSG_ERR_REDUNDANT_TEMP); // translatable
         }
         #ifndef BOGUS_TEMPERATURE_FAILSAFE_OVERRIDE
           Stop();
@@ -728,7 +729,7 @@ static float analog2temp(int raw, uint8_t e) {
   {
       SERIAL_ERROR_START;
       SERIAL_ERROR((int)e);
-      SERIAL_ERRORLNPGM(" - Invalid extruder number !");
+      SERIAL_ERRORLNPGM(MSG_INVALID_EXTRUDER_NUM);
       kill();
       return 0.0;
   } 
@@ -1074,9 +1075,9 @@ void thermal_runaway_protection(int *state, unsigned long *timer, float temperat
       else if ( (ms - *timer) > ((unsigned long) period_seconds) * 1000)
       {
         SERIAL_ERROR_START;
-        SERIAL_ERRORLNPGM("Thermal Runaway, system stopped! Heater_ID: ");
+        SERIAL_ERRORLNPGM(MSG_THERMAL_RUNAWAY_STOP);
         SERIAL_ERRORLN((int)heater_id);
-        LCD_ALERTMESSAGEPGM("THERMAL RUNAWAY");
+        LCD_ALERTMESSAGEPGM(MSG_THERMAL_RUNAWAY); // translatable
         thermal_runaway = true;
         while(1)
         {
@@ -1140,8 +1141,8 @@ void max_temp_error(uint8_t e) {
   if(IsStopped() == false) {
     SERIAL_ERROR_START;
     SERIAL_ERRORLN((int)e);
-    SERIAL_ERRORLNPGM(": Extruder switched off. MAXTEMP triggered !");
-    LCD_ALERTMESSAGEPGM("Err: MAXTEMP");
+    SERIAL_ERRORLNPGM(MSG_MAXTEMP_EXTRUDER_OFF);
+    LCD_ALERTMESSAGEPGM(MSG_ERR_MAXTEMP); // translatable
   }
   #ifndef BOGUS_TEMPERATURE_FAILSAFE_OVERRIDE
   Stop();
@@ -1153,8 +1154,8 @@ void min_temp_error(uint8_t e) {
   if(IsStopped() == false) {
     SERIAL_ERROR_START;
     SERIAL_ERRORLN((int)e);
-    SERIAL_ERRORLNPGM(": Extruder switched off. MINTEMP triggered !");
-    LCD_ALERTMESSAGEPGM("Err: MINTEMP");
+    SERIAL_ERRORLNPGM(MSG_MINTEMP_EXTRUDER_OFF);
+    LCD_ALERTMESSAGEPGM(MSG_ERR_MINTEMP); // translatable
   }
   #ifndef BOGUS_TEMPERATURE_FAILSAFE_OVERRIDE
   Stop();
@@ -1167,8 +1168,8 @@ void bed_max_temp_error(void) {
   #endif
   if (IsStopped() == false) {
     SERIAL_ERROR_START;
-    SERIAL_ERRORLNPGM("Temperature heated bed switched off. MAXTEMP triggered !!");
-    LCD_ALERTMESSAGEPGM("Err: MAXTEMP BED");
+    SERIAL_ERRORLNPGM(MSG_MAXTEMP_BED_OFF);
+    LCD_ALERTMESSAGEPGM(MSG_ERR_MAXTEMP_BED); // translatable
   }
   #ifndef BOGUS_TEMPERATURE_FAILSAFE_OVERRIDE
   Stop();
