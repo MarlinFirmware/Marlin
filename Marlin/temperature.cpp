@@ -37,6 +37,36 @@
 
 #include "Sd2PinMap.h"
 
+//===========================================================================
+//================================== macros =================================
+//===========================================================================
+
+#if EXTRUDERS > 4
+  #error Unsupported number of extruders
+#elif EXTRUDERS > 3
+  #define ARRAY_BY_EXTRUDERS(v1, v2, v3, v4) { v1, v2, v3, v4 }
+#elif EXTRUDERS > 2
+  #define ARRAY_BY_EXTRUDERS(v1, v2, v3, v4) { v1, v2, v3 }
+#elif EXTRUDERS > 1
+  #define ARRAY_BY_EXTRUDERS(v1, v2, v3, v4) { v1, v2 }
+#else
+  #define ARRAY_BY_EXTRUDERS(v1, v2, v3, v4) { v1 }
+#endif
+
+#define PIN_EXISTS(PIN) (defined(PIN) && PIN >= 0)
+#define HAS_TEMP_0 PIN_EXISTS(TEMP_0_PIN)
+#define HAS_TEMP_1 PIN_EXISTS(TEMP_1_PIN)
+#define HAS_TEMP_2 PIN_EXISTS(TEMP_2_PIN)
+#define HAS_TEMP_3 PIN_EXISTS(TEMP_3_PIN)
+#define HAS_TEMP_BED PIN_EXISTS(TEMP_BED_PIN)
+#define HAS_FILAMENT_SENSOR (defined(FILAMENT_SENSOR) && PIN_EXISTS(FILWIDTH_PIN))
+#define HAS_HEATER_0 PIN_EXISTS(HEATER_0_PIN)
+#define HAS_HEATER_1 PIN_EXISTS(HEATER_1_PIN)
+#define HAS_HEATER_2 PIN_EXISTS(HEATER_2_PIN)
+#define HAS_HEATER_3 PIN_EXISTS(HEATER_3_PIN)
+#define HAS_HEATER_BED PIN_EXISTS(HEATER_BED_PIN)
+#define HAS_AUTO_FAN  PIN_EXISTS(EXTRUDER_0_AUTO_FAN_PIN) || PIN_EXISTS(EXTRUDER_1_AUTO_FAN_PIN) || \
+                      PIN_EXISTS(EXTRUDER_2_AUTO_FAN_PIN) || PIN_EXISTS(EXTRUDER_3_AUTO_FAN_PIN)
 
 //===========================================================================
 //============================= public variables ============================
@@ -117,23 +147,10 @@ static volatile bool temp_meas_ready = false;
 #ifdef FAN_SOFT_PWM
   static unsigned char soft_pwm_fan;
 #endif
-#if (defined(EXTRUDER_0_AUTO_FAN_PIN) && EXTRUDER_0_AUTO_FAN_PIN > -1) || \
-    (defined(EXTRUDER_1_AUTO_FAN_PIN) && EXTRUDER_1_AUTO_FAN_PIN > -1) || \
-    (defined(EXTRUDER_2_AUTO_FAN_PIN) && EXTRUDER_2_AUTO_FAN_PIN > -1)
+#if PIN_EXISTS(EXTRUDER_0_AUTO_FAN_PIN) || PIN_EXISTS(EXTRUDER_1_AUTO_FAN_PIN) || \
+    PIN_EXISTS(EXTRUDER_2_AUTO_FAN_PIN) || PIN_EXISTS(EXTRUDER_3_AUTO_FAN_PIN)
   static unsigned long extruder_autofan_last_check;
 #endif  
-
-#if EXTRUDERS > 4
-  #error Unsupported number of extruders
-#elif EXTRUDERS > 3
-  #define ARRAY_BY_EXTRUDERS(v1, v2, v3, v4) { v1, v2, v3, v4 }
-#elif EXTRUDERS > 2
-  #define ARRAY_BY_EXTRUDERS(v1, v2, v3, v4) { v1, v2, v3 }
-#elif EXTRUDERS > 1
-  #define ARRAY_BY_EXTRUDERS(v1, v2, v3, v4) { v1, v2 }
-#else
-  #define ARRAY_BY_EXTRUDERS(v1, v2, v3, v4) { v1 }
-#endif
 
 #ifdef PIDTEMP
   #ifdef PID_PARAMS_PER_EXTRUDER
@@ -192,13 +209,6 @@ static void updateTemperaturesFromRawValues();
   static int read_max6675();
 #endif
 
-#define HAS_TEMP_0 (defined(TEMP_0_PIN) && TEMP_0_PIN > -1)
-#define HAS_TEMP_1 (defined(TEMP_1_PIN) && TEMP_1_PIN > -1)
-#define HAS_TEMP_2 (defined(TEMP_2_PIN) && TEMP_2_PIN > -1)
-#define HAS_TEMP_3 (defined(TEMP_3_PIN) && TEMP_3_PIN > -1)
-#define HAS_TEMP_BED (defined(TEMP_BED_PIN) && TEMP_BED_PIN > -1)
-#define HAS_FILAMENT_SENSOR (defined(FILAMENT_SENSOR) && defined(FILWIDTH_PIN) && FILWIDTH_PIN > -1)
-
 //===========================================================================
 //=============================   functions      ============================
 //===========================================================================
@@ -217,10 +227,8 @@ void PID_autotune(float temp, int extruder, int ncycles)
   float Kp, Ki, Kd;
   float max = 0, min = 10000;
 
-  #if (defined(EXTRUDER_0_AUTO_FAN_PIN) && EXTRUDER_0_AUTO_FAN_PIN > -1) || \
-      (defined(EXTRUDER_1_AUTO_FAN_PIN) && EXTRUDER_1_AUTO_FAN_PIN > -1) || \
-      (defined(EXTRUDER_2_AUTO_FAN_PIN) && EXTRUDER_2_AUTO_FAN_PIN > -1) || \
-      (defined(EXTRUDER_3_AUTO_FAN_PIN) && EXTRUDER_3_AUTO_FAN_PIN > -1)
+  #if PIN_EXISTS(EXTRUDER_0_AUTO_FAN_PIN) || PIN_EXISTS(EXTRUDER_1_AUTO_FAN_PIN) || \
+      PIN_EXISTS(EXTRUDER_2_AUTO_FAN_PIN) || PIN_EXISTS(EXTRUDER_3_AUTO_FAN_PIN)
         unsigned long extruder_autofan_last_check = temp_millis;
   #endif
 
@@ -255,10 +263,8 @@ void PID_autotune(float temp, int extruder, int ncycles)
       max = max(max, input);
       min = min(min, input);
 
-      #if (defined(EXTRUDER_0_AUTO_FAN_PIN) && EXTRUDER_0_AUTO_FAN_PIN > -1) || \
-          (defined(EXTRUDER_1_AUTO_FAN_PIN) && EXTRUDER_1_AUTO_FAN_PIN > -1) || \
-          (defined(EXTRUDER_2_AUTO_FAN_PIN) && EXTRUDER_2_AUTO_FAN_PIN > -1) || \
-          (defined(EXTRUDER_3_AUTO_FAN_PIN) && EXTRUDER_3_AUTO_FAN_PIN > -1)
+      #if PIN_EXISTS(EXTRUDER_0_AUTO_FAN_PIN) || PIN_EXISTS(EXTRUDER_1_AUTO_FAN_PIN) || \
+          PIN_EXISTS(EXTRUDER_2_AUTO_FAN_PIN) || PIN_EXISTS(EXTRUDER_3_AUTO_FAN_PIN)
         if (ms > extruder_autofan_last_check + 2500) {
           checkExtruderAutoFans();
           extruder_autofan_last_check = ms;
@@ -336,7 +342,7 @@ void PID_autotune(float temp, int extruder, int ncycles)
       return;
     }
     // Every 2 seconds...
-    if (ms - temp_millis > 2000) {
+    if (ms > temp_millis + 2000) {
       int p;
       if (extruder < 0) {
         p = soft_pwm_bed;
@@ -381,11 +387,10 @@ int getHeaterPower(int heater) {
   return heater < 0 ? soft_pwm_bed : soft_pwm[heater];
 }
 
-#if (defined(EXTRUDER_0_AUTO_FAN_PIN) && EXTRUDER_0_AUTO_FAN_PIN > -1) || \
-    (defined(EXTRUDER_1_AUTO_FAN_PIN) && EXTRUDER_1_AUTO_FAN_PIN > -1) || \
-    (defined(EXTRUDER_2_AUTO_FAN_PIN) && EXTRUDER_2_AUTO_FAN_PIN > -1)
+#if PIN_EXISTS(EXTRUDER_0_AUTO_FAN_PIN) || PIN_EXISTS(EXTRUDER_1_AUTO_FAN_PIN) || \
+    PIN_EXISTS(EXTRUDER_2_AUTO_FAN_PIN)
 
-  #if defined(FAN_PIN) && FAN_PIN > -1
+  #if PIN_EXISTS(FAN_PIN)
     #if EXTRUDER_0_AUTO_FAN_PIN == FAN_PIN 
        #error "You cannot set EXTRUDER_0_AUTO_FAN_PIN equal to FAN_PIN"
     #endif
@@ -411,11 +416,11 @@ void checkExtruderAutoFans()
   uint8_t fanState = 0;
 
   // which fan pins need to be turned on?      
-  #if defined(EXTRUDER_0_AUTO_FAN_PIN) && EXTRUDER_0_AUTO_FAN_PIN > -1
+  #if PIN_EXISTS(EXTRUDER_0_AUTO_FAN_PIN)
     if (current_temperature[0] > EXTRUDER_AUTO_FAN_TEMPERATURE) 
       fanState |= 1;
   #endif
-  #if defined(EXTRUDER_1_AUTO_FAN_PIN) && EXTRUDER_1_AUTO_FAN_PIN > -1
+  #if PIN_EXISTS(EXTRUDER_1_AUTO_FAN_PIN)
     if (current_temperature[1] > EXTRUDER_AUTO_FAN_TEMPERATURE) 
     {
       if (EXTRUDER_1_AUTO_FAN_PIN == EXTRUDER_0_AUTO_FAN_PIN) 
@@ -424,7 +429,7 @@ void checkExtruderAutoFans()
         fanState |= 2;
     }
   #endif
-  #if defined(EXTRUDER_2_AUTO_FAN_PIN) && EXTRUDER_2_AUTO_FAN_PIN > -1
+  #if PIN_EXISTS(EXTRUDER_2_AUTO_FAN_PIN)
     if (current_temperature[2] > EXTRUDER_AUTO_FAN_TEMPERATURE) 
     {
       if (EXTRUDER_2_AUTO_FAN_PIN == EXTRUDER_0_AUTO_FAN_PIN) 
@@ -435,7 +440,7 @@ void checkExtruderAutoFans()
         fanState |= 4;
     }
   #endif
-  #if defined(EXTRUDER_3_AUTO_FAN_PIN) && EXTRUDER_3_AUTO_FAN_PIN > -1
+  #if PIN_EXISTS(EXTRUDER_3_AUTO_FAN_PIN)
     if (current_temperature[3] > EXTRUDER_AUTO_FAN_TEMPERATURE) 
     {
       if (EXTRUDER_3_AUTO_FAN_PIN == EXTRUDER_0_AUTO_FAN_PIN) 
@@ -450,19 +455,19 @@ void checkExtruderAutoFans()
   #endif
   
   // update extruder auto fan states
-  #if defined(EXTRUDER_0_AUTO_FAN_PIN) && EXTRUDER_0_AUTO_FAN_PIN > -1
+  #if PIN_EXISTS(EXTRUDER_0_AUTO_FAN_PIN)
     setExtruderAutoFanState(EXTRUDER_0_AUTO_FAN_PIN, (fanState & 1) != 0);
   #endif 
-  #if defined(EXTRUDER_1_AUTO_FAN_PIN) && EXTRUDER_1_AUTO_FAN_PIN > -1
+  #if PIN_EXISTS(EXTRUDER_1_AUTO_FAN_PIN)
     if (EXTRUDER_1_AUTO_FAN_PIN != EXTRUDER_0_AUTO_FAN_PIN)
       setExtruderAutoFanState(EXTRUDER_1_AUTO_FAN_PIN, (fanState & 2) != 0);
   #endif 
-  #if defined(EXTRUDER_2_AUTO_FAN_PIN) && EXTRUDER_2_AUTO_FAN_PIN > -1
+  #if PIN_EXISTS(EXTRUDER_2_AUTO_FAN_PIN)
     if (EXTRUDER_2_AUTO_FAN_PIN != EXTRUDER_0_AUTO_FAN_PIN
         && EXTRUDER_2_AUTO_FAN_PIN != EXTRUDER_1_AUTO_FAN_PIN)
       setExtruderAutoFanState(EXTRUDER_2_AUTO_FAN_PIN, (fanState & 4) != 0);
   #endif
-  #if defined(EXTRUDER_3_AUTO_FAN_PIN) && EXTRUDER_3_AUTO_FAN_PIN > -1
+  #if PIN_EXISTS(EXTRUDER_3_AUTO_FAN_PIN)
     if (EXTRUDER_3_AUTO_FAN_PIN != EXTRUDER_0_AUTO_FAN_PIN
         && EXTRUDER_3_AUTO_FAN_PIN != EXTRUDER_1_AUTO_FAN_PIN
         && EXTRUDER_3_AUTO_FAN_PIN != EXTRUDER_2_AUTO_FAN_PIN)
@@ -475,22 +480,22 @@ void checkExtruderAutoFans()
 //
 // Error checking and Write Routines
 //
-#if !defined(HEATER_0_PIN) || HEATER_0_PIN < 0
+#if !HAS_HEATER_0
   #error HEATER_0_PIN not defined for this board
 #endif
 #define WRITE_HEATER_0P(v) WRITE(HEATER_0_PIN, v)
 #if EXTRUDERS > 1 || defined(HEATERS_PARALLEL)
-  #if !defined(HEATER_1_PIN) || HEATER_1_PIN < 0
+  #if !HAS_HEATER_1
     #error HEATER_1_PIN not defined for this board
   #endif
   #define WRITE_HEATER_1(v) WRITE(HEATER_1_PIN, v)
   #if EXTRUDERS > 2
-    #if !defined(HEATER_2_PIN) || HEATER_2_PIN < 0
+    #if !HAS_HEATER_2
       #error HEATER_2_PIN not defined for this board
     #endif
     #define WRITE_HEATER_2(v) WRITE(HEATER_2_PIN, v)
     #if EXTRUDERS > 3
-      #if !defined(HEATER_3_PIN) || HEATER_3_PIN < 0
+      #if !HAS_HEATER_3
         #error HEATER_3_PIN not defined for this board
       #endif
       #define WRITE_HEATER_3(v) WRITE(HEATER_3_PIN, v)
@@ -502,7 +507,7 @@ void checkExtruderAutoFans()
 #else
   #define WRITE_HEATER_0(v) WRITE_HEATER_0P(v)
 #endif
-#if defined(HEATER_BED_PIN) && HEATER_BED_PIN > -1
+#if HAS_HEATER_BED
   #define WRITE_HEATER_BED(v) WRITE(HEATER_BED_PIN, v)
 #endif
 
@@ -626,9 +631,8 @@ void manage_heater() {
 
   } // Extruders Loop
 
-  #if (defined(EXTRUDER_0_AUTO_FAN_PIN) && EXTRUDER_0_AUTO_FAN_PIN > -1) || \
-      (defined(EXTRUDER_1_AUTO_FAN_PIN) && EXTRUDER_1_AUTO_FAN_PIN > -1) || \
-      (defined(EXTRUDER_2_AUTO_FAN_PIN) && EXTRUDER_2_AUTO_FAN_PIN > -1)
+  #if PIN_EXISTS(EXTRUDER_0_AUTO_FAN_PIN) || PIN_EXISTS(EXTRUDER_1_AUTO_FAN_PIN) || \
+      PIN_EXISTS(EXTRUDER_2_AUTO_FAN_PIN) || PIN_EXISTS(EXTRUDER_3_AUTO_FAN_PIN)
     if (ms > extruder_autofan_last_check + 2500) { // only need to check fan state very infrequently
       checkExtruderAutoFans();
       extruder_autofan_last_check = ms;
@@ -680,7 +684,7 @@ void manage_heater() {
     #elif !defined(BED_LIMIT_SWITCHING)
       // Check if temperature is within the correct range
       if (current_temperature_bed > BED_MINTEMP && current_temperature_bed < BED_MAXTEMP) {
-        soft_pwm_bed = current_temperature_bed >= target_temperature_bed ? 0 : MAX_BED_POWER >> 1;
+        soft_pwm_bed = current_temperature_bed < target_temperature_bed ? MAX_BED_POWER >> 1 : 0;
       }
       else {
         soft_pwm_bed = 0;
@@ -707,9 +711,9 @@ void manage_heater() {
       meas_shift_index = delay_index1 - meas_delay_cm;
 		  if (meas_shift_index < 0) meas_shift_index += MAX_MEASUREMENT_DELAY + 1;  //loop around buffer if needed
 		  
-		  // Get the delayed info and add 100 to reconstitute to a percent of
+      // Get the delayed info and add 100 to reconstitute to a percent of
       // the nominal filament diameter then square it to get an area
-		  meas_shift_index = constrain(meas_shift_index, 0, MAX_MEASUREMENT_DELAY);
+      meas_shift_index = constrain(meas_shift_index, 0, MAX_MEASUREMENT_DELAY);
       float vm = pow((measurement_delay[meas_shift_index] + 100.0) / 100.0, 2);
       if (vm < 0.01) vm = 0.01;
       volumetric_multiplier[FILAMENT_SENSOR_EXTRUDER_NUM] = vm;
@@ -722,9 +726,9 @@ void manage_heater() {
 // For hot end temperature measurement.
 static float analog2temp(int raw, uint8_t e) {
 #ifdef TEMP_SENSOR_1_AS_REDUNDANT
-  if(e > EXTRUDERS)
+  if (e > EXTRUDERS)
 #else
-  if(e >= EXTRUDERS)
+  if (e >= EXTRUDERS)
 #endif
   {
       SERIAL_ERROR_START;
@@ -798,28 +802,26 @@ static float analog2tempBed(int raw) {
 
 /* Called to get the raw values into the the actual temperatures. The raw values are created in interrupt context,
     and this function is called from normal context as it is too slow to run in interrupts and will block the stepper routine otherwise */
-static void updateTemperaturesFromRawValues()
-{
-    #ifdef HEATER_0_USES_MAX6675
-        current_temperature_raw[0] = read_max6675();
-    #endif
-    for(uint8_t e=0;e<EXTRUDERS;e++)
-    {
-        current_temperature[e] = analog2temp(current_temperature_raw[e], e);
-    }
-    current_temperature_bed = analog2tempBed(current_temperature_bed_raw);
-    #ifdef TEMP_SENSOR_1_AS_REDUNDANT
-      redundant_temperature = analog2temp(redundant_temperature_raw, 1);
-    #endif
-    #if HAS_FILAMENT_SENSOR
-      filament_width_meas = analog2widthFil();
-    #endif  
-    //Reset the watchdog after we know we have a temperature measurement.
-    watchdog_reset();
+static void updateTemperaturesFromRawValues() {
+  #ifdef HEATER_0_USES_MAX6675
+    current_temperature_raw[0] = read_max6675();
+  #endif
+  for(uint8_t e = 0; e < EXTRUDERS; e++) {
+    current_temperature[e] = analog2temp(current_temperature_raw[e], e);
+  }
+  current_temperature_bed = analog2tempBed(current_temperature_bed_raw);
+  #ifdef TEMP_SENSOR_1_AS_REDUNDANT
+    redundant_temperature = analog2temp(redundant_temperature_raw, 1);
+  #endif
+  #if HAS_FILAMENT_SENSOR
+    filament_width_meas = analog2widthFil();
+  #endif
+  //Reset the watchdog after we know we have a temperature measurement.
+  watchdog_reset();
 
-    CRITICAL_SECTION_START;
-    temp_meas_ready = false;
-    CRITICAL_SECTION_END;
+  CRITICAL_SECTION_START;
+  temp_meas_ready = false;
+  CRITICAL_SECTION_END;
 }
 
 
@@ -867,22 +869,22 @@ void tp_init()
     #endif //PIDTEMPBED
   }
 
-  #if defined(HEATER_0_PIN) && (HEATER_0_PIN > -1)
+  #if HAS_HEATER_0
     SET_OUTPUT(HEATER_0_PIN);
   #endif
-  #if defined(HEATER_1_PIN) && (HEATER_1_PIN > -1)
+  #if HAS_HEATER_1
     SET_OUTPUT(HEATER_1_PIN);
   #endif
-  #if defined(HEATER_2_PIN) && (HEATER_2_PIN > -1)
+  #if HAS_HEATER_2
     SET_OUTPUT(HEATER_2_PIN);
   #endif
-  #if defined(HEATER_3_PIN) && (HEATER_3_PIN > -1)
+  #if HAS_HEATER_3
     SET_OUTPUT(HEATER_3_PIN);
   #endif
-  #if defined(HEATER_BED_PIN) && (HEATER_BED_PIN > -1)
+  #if HAS_HEATER_BED
     SET_OUTPUT(HEATER_BED_PIN);
   #endif  
-  #if defined(FAN_PIN) && (FAN_PIN > -1)
+  #if PIN_EXISTS(FAN_PIN)
     SET_OUTPUT(FAN_PIN);
     #ifdef FAST_PWM_FAN
       setPwmFrequency(FAN_PIN, 1); // No prescaling. Pwm frequency = F_CPU/256/8
@@ -1130,7 +1132,7 @@ void disable_heater() {
   #if HAS_TEMP_BED
     target_temperature_bed = 0;
     soft_pwm_bed = 0;
-    #if defined(HEATER_BED_PIN) && HEATER_BED_PIN > -1
+    #if HAS_HEATER_BED
       WRITE_HEATER_BED(LOW);
     #endif
   #endif
@@ -1163,7 +1165,7 @@ void min_temp_error(uint8_t e) {
 }
 
 void bed_max_temp_error(void) {
-  #if defined(HEATER_BED_PIN) && HEATER_BED_PIN > -1
+  #if HAS_HEATER_BED
     WRITE_HEATER_BED(0);
   #endif
   if (IsStopped() == false) {
@@ -1232,6 +1234,9 @@ void bed_max_temp_error(void) {
 
 #endif //HEATER_0_USES_MAX6675
 
+/**
+ * Stages in the ISR loop
+ */
 enum TempState {
   PrepareTemp_0,
   MeasureTemp_0,
@@ -1284,7 +1289,7 @@ ISR(TIMER0_COMPB_vect) {
       #endif
     #endif
   #endif
-  #if defined(HEATER_BED_PIN) && HEATER_BED_PIN > -1
+  #if HAS_HEATER_BED
     ISR_STATICS(BED);
   #endif
 
@@ -1316,7 +1321,7 @@ ISR(TIMER0_COMPB_vect) {
         #endif
       #endif
 
-      #if defined(HEATER_BED_PIN) && HEATER_BED_PIN > -1
+      #if HAS_HEATER_BED
         soft_pwm_BED = soft_pwm_bed;
         WRITE_HEATER_BED(soft_pwm_BED > 0 ? 1 : 0);
       #endif
@@ -1337,7 +1342,7 @@ ISR(TIMER0_COMPB_vect) {
       #endif
     #endif
 
-    #if defined(HEATER_BED_PIN) && HEATER_BED_PIN > -1
+    #if HAS_HEATER_BED
       if (soft_pwm_BED < pwm_count) WRITE_HEATER_BED(0);
     #endif
 
@@ -1398,7 +1403,7 @@ ISR(TIMER0_COMPB_vect) {
           #endif
         #endif
       #endif
-      #if defined(HEATER_BED_PIN) && HEATER_BED_PIN > -1
+      #if HAS_HEATER_BED
         _SLOW_PWM_ROUTINE(BED, soft_pwm_bed); // BED
       #endif
 
@@ -1414,7 +1419,7 @@ ISR(TIMER0_COMPB_vect) {
         #endif
       #endif
     #endif
-    #if defined(HEATER_BED_PIN) && HEATER_BED_PIN > -1
+    #if HAS_HEATER_BED
       PWM_OFF_ROUTINE(BED); // BED
     #endif
 
@@ -1445,7 +1450,7 @@ ISR(TIMER0_COMPB_vect) {
           #endif
         #endif
       #endif
-      #if defined(HEATER_BED_PIN) && HEATER_BED_PIN > -1 // BED
+      #if HAS_HEATER_BED
         if (state_timer_heater_BED > 0) state_timer_heater_BED--;
       #endif
     } // (pwm_count % 64) == 0
