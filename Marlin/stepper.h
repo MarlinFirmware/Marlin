@@ -24,11 +24,6 @@
 #include "planner.h"
 #include "stepper_indirection.h"
 
-#ifdef HAVE_TMCDRIVER
-#include <SPI.h>
-#include <TMC26XStepper.h>
-#endif
-
 #if EXTRUDERS > 3
   #define WRITE_E_STEP(v) { if(current_block->active_extruder == 3) { E3_STEP_WRITE(v); } else { if(current_block->active_extruder == 2) { E2_STEP_WRITE(v); } else { if(current_block->active_extruder == 1) { E1_STEP_WRITE(v); } else { E0_STEP_WRITE(v); }}}}
   #define NORM_E_DIR() { if(current_block->active_extruder == 3) { E3_DIR_WRITE( !INVERT_E3_DIR); } else { if(current_block->active_extruder == 2) { E2_DIR_WRITE(!INVERT_E2_DIR); } else { if(current_block->active_extruder == 1) { E1_DIR_WRITE(!INVERT_E1_DIR); } else { E0_DIR_WRITE(!INVERT_E0_DIR); }}}}
@@ -106,39 +101,4 @@ void microstep_readings();
   void babystep(const uint8_t axis,const bool direction); // perform a short step with a single stepper motor, outside of any convention
 #endif
      
-#ifdef HAVE_TMCDRIVER
-void tmc_init();
-	 
-#ifdef X_IS_TMC
-	extern TMC26XStepper stepperX;
-#endif
-#ifdef X2_IS_TMC
-	extern TMC26XStepper stepperX2;
-#endif
-#ifdef Y_IS_TMC
-	extern TMC26XStepper stepperY;
-#endif
-#ifdef Y2_IS_TMC
-	extern TMC26XStepper stepperY2;
-#endif
-#ifdef Z_IS_TMC
-	extern TMC26XStepper stepperZ;
-#endif
-#ifdef Z2_IS_TMC
-	extern TMC26XStepper stepperZ2;
-#endif
-#ifdef E0_IS_TMC
-	extern TMC26XStepper stepperE0;
-#endif
-#ifdef E1_IS_TMC
-	extern TMC26XStepper stepperE1;
-#endif
-#ifdef E2_IS_TMC
-	extern TMC26XStepper stepperE2;
-#endif
-#ifdef E3_IS_TMC
-	extern TMC26XStepper stepperE3;
-#endif	
-#endif
-
 #endif
