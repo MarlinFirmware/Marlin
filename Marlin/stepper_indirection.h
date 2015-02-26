@@ -157,9 +157,43 @@
 // TMC26X drivers have step and dir on normal pins, but everything else via SPI
 //////////////////////////////////
 #ifdef HAVE_TMCDRIVER
+#include <SPI.h>
+#include <TMC26XStepper.h>
+
+#ifdef X_IS_TMC
+	extern TMC26XStepper stepperX;
+#endif
+#ifdef X2_IS_TMC
+	extern TMC26XStepper stepperX2;
+#endif
+#ifdef Y_IS_TMC
+	extern TMC26XStepper stepperY;
+#endif
+#ifdef Y2_IS_TMC
+	extern TMC26XStepper stepperY2;
+#endif
+#ifdef Z_IS_TMC
+	extern TMC26XStepper stepperZ;
+#endif
+#ifdef Z2_IS_TMC
+	extern TMC26XStepper stepperZ2;
+#endif
+#ifdef E0_IS_TMC
+	extern TMC26XStepper stepperE0;
+#endif
+#ifdef E1_IS_TMC
+	extern TMC26XStepper stepperE1;
+#endif
+#ifdef E2_IS_TMC
+	extern TMC26XStepper stepperE2;
+#endif
+#ifdef E3_IS_TMC
+	extern TMC26XStepper stepperE3;
+#endif	
+  void tmc_init();
 #ifdef X_IS_TMC
    #undef X_ENABLE_INIT 
-   #define X_ENABLE_INIT 
+   #define X_ENABLE_INIT ((void)0)
    
    #undef X_ENABLE_WRITE
    #define X_ENABLE_WRITE(STATE) stepperX.setEnabled(STATE)
@@ -169,7 +203,7 @@
 #endif
 #ifdef X2_IS_TMC
    #undef X2_ENABLE_INIT
-   #define X2_ENABLE_INIT
+   #define X2_ENABLE_INIT ((void)0)
    
    #undef X2_ENABLE_WRITE
    #define X2_ENABLE_WRITE(STATE) stepperX2.setEnabled(STATE)
@@ -179,7 +213,7 @@
 #endif
 #ifdef Y_IS_TMC
    #undef Y_ENABLE_INIT
-   #define Y_ENABLE_INIT
+   #define Y_ENABLE_INIT ((void)0)
    
    #undef Y_ENABLE_WRITE
    #define Y_ENABLE_WRITE(STATE) stepperY.setEnabled(STATE)
@@ -189,7 +223,7 @@
 #endif
 #ifdef Y2_IS_TMC
    #undef Y2_ENABLE_INIT
-   #define Y2_ENABLE_INIT
+   #define Y2_ENABLE_INIT ((void)0)
    
    #undef Y2_ENABLE_WRITE
    #define Y2_ENABLE_WRITE(STATE) stepperY2.setEnabled(STATE)
@@ -199,7 +233,7 @@
 #endif
 #ifdef Z_IS_TMC
    #undef Z_ENABLE_INIT
-   #define Z_ENABLE_INIT
+   #define Z_ENABLE_INIT ((void)0)
    
    #undef Z_ENABLE_WRITE
    #define Z_ENABLE_WRITE(STATE) stepperZ.setEnabled(STATE)
@@ -209,7 +243,7 @@
 #endif
 #ifdef Z2_IS_TMC
    #undef Z2_ENABLE_INIT
-   #define Z2_ENABLE_INIT
+   #define Z2_ENABLE_INIT ((void)0)
    
    #undef Z2_ENABLE_WRITE
    #define Z2_ENABLE_WRITE(STATE) stepperZ2.setEnabled(STATE)
@@ -219,7 +253,7 @@
 #endif
 #ifdef E0_IS_TMC
    #undef E0_ENABLE_INIT
-   #define E0_ENABLE_INIT
+   #define E0_ENABLE_INIT ((void)0)
    
    #undef E0_ENABLE_WRITE
    #define E0_ENABLE_WRITE(STATE) stepperE0.setEnabled(STATE)
@@ -229,7 +263,7 @@
 #endif
 #ifdef E1_IS_TMC
    #undef E1_ENABLE_INIT
-   #define E1_ENABLE_INIT
+   #define E1_ENABLE_INIT ((void)0)
    
    #undef E1_ENABLE_WRITE
    #define E1_ENABLE_WRITE(STATE) stepperE1.setEnabled(STATE)
@@ -239,7 +273,7 @@
 #endif
 #ifdef E2_IS_TMC
    #undef E2_ENABLE_INIT
-   #define E2_ENABLE_INIT
+   #define E2_ENABLE_INIT ((void)0)
    
    #undef E2_ENABLE_WRITE
    #define E2_ENABLE_WRITE(STATE) stepperE2.setEnabled(STATE)
@@ -249,7 +283,7 @@
 #endif
 #ifdef E3_IS_TMC
    #undef E3_ENABLE_INIT
-   #define E3_ENABLE_INIT
+   #define E3_ENABLE_INIT ((void)0)
    
    #undef E3_ENABLE_WRITE
    #define E3_ENABLE_WRITE(STATE) stepperE3.setEnabled(STATE)
