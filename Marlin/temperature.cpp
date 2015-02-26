@@ -53,20 +53,23 @@
   #define ARRAY_BY_EXTRUDERS(v1, v2, v3, v4) { v1 }
 #endif
 
-#define PIN_EXISTS(PIN) (defined(PIN) && PIN >= 0)
-#define HAS_TEMP_0 PIN_EXISTS(TEMP_0_PIN)
-#define HAS_TEMP_1 PIN_EXISTS(TEMP_1_PIN)
-#define HAS_TEMP_2 PIN_EXISTS(TEMP_2_PIN)
-#define HAS_TEMP_3 PIN_EXISTS(TEMP_3_PIN)
-#define HAS_TEMP_BED PIN_EXISTS(TEMP_BED_PIN)
-#define HAS_FILAMENT_SENSOR (defined(FILAMENT_SENSOR) && PIN_EXISTS(FILWIDTH_PIN))
-#define HAS_HEATER_0 PIN_EXISTS(HEATER_0_PIN)
-#define HAS_HEATER_1 PIN_EXISTS(HEATER_1_PIN)
-#define HAS_HEATER_2 PIN_EXISTS(HEATER_2_PIN)
-#define HAS_HEATER_3 PIN_EXISTS(HEATER_3_PIN)
-#define HAS_HEATER_BED PIN_EXISTS(HEATER_BED_PIN)
-#define HAS_AUTO_FAN  PIN_EXISTS(EXTRUDER_0_AUTO_FAN_PIN) || PIN_EXISTS(EXTRUDER_1_AUTO_FAN_PIN) || \
-                      PIN_EXISTS(EXTRUDER_2_AUTO_FAN_PIN) || PIN_EXISTS(EXTRUDER_3_AUTO_FAN_PIN)
+#define HAS_TEMP_0 (defined(TEMP_0_PIN) && TEMP_0_PIN >= 0)
+#define HAS_TEMP_1 (defined(TEMP_1_PIN) && TEMP_1_PIN >= 0)
+#define HAS_TEMP_2 (defined(TEMP_2_PIN) && TEMP_2_PIN >= 0)
+#define HAS_TEMP_3 (defined(TEMP_3_PIN) && TEMP_3_PIN >= 0)
+#define HAS_TEMP_BED (defined(TEMP_BED_PIN) && TEMP_BED_PIN >= 0)
+#define HAS_FILAMENT_SENSOR (defined(FILAMENT_SENSOR) && defined(FILWIDTH_PIN) && FILWIDTH_PIN >= 0)
+#define HAS_HEATER_0 (defined(HEATER_0_PIN) && HEATER_0_PIN >= 0)
+#define HAS_HEATER_1 (defined(HEATER_1_PIN) && HEATER_1_PIN >= 0)
+#define HAS_HEATER_2 (defined(HEATER_2_PIN) && HEATER_2_PIN >= 0)
+#define HAS_HEATER_3 (defined(HEATER_3_PIN) && HEATER_3_PIN >= 0)
+#define HAS_HEATER_BED (defined(HEATER_BED_PIN) && HEATER_BED_PIN >= 0)
+#define HAS_AUTO_FAN_0 (defined(EXTRUDER_0_AUTO_FAN_PIN) && EXTRUDER_0_AUTO_FAN_PIN >= 0)
+#define HAS_AUTO_FAN_1 (defined(EXTRUDER_1_AUTO_FAN_PIN) && EXTRUDER_1_AUTO_FAN_PIN >= 0)
+#define HAS_AUTO_FAN_2 (defined(EXTRUDER_2_AUTO_FAN_PIN) && EXTRUDER_2_AUTO_FAN_PIN >= 0)
+#define HAS_AUTO_FAN_3 (defined(EXTRUDER_3_AUTO_FAN_PIN) && EXTRUDER_3_AUTO_FAN_PIN >= 0)
+#define HAS_AUTO_FAN HAS_AUTO_FAN_0 || HAS_AUTO_FAN_1 || HAS_AUTO_FAN_2 || HAS_AUTO_FAN_3
+#define HAS_FAN (defined(FAN_PIN) && FAN_PIN >= 0)
 
 //===========================================================================
 //============================= public variables ============================
@@ -147,8 +150,7 @@ static volatile bool temp_meas_ready = false;
 #ifdef FAN_SOFT_PWM
   static unsigned char soft_pwm_fan;
 #endif
-#if PIN_EXISTS(EXTRUDER_0_AUTO_FAN_PIN) || PIN_EXISTS(EXTRUDER_1_AUTO_FAN_PIN) || \
-    PIN_EXISTS(EXTRUDER_2_AUTO_FAN_PIN) || PIN_EXISTS(EXTRUDER_3_AUTO_FAN_PIN)
+#if HAS_AUTO_FAN
   static unsigned long extruder_autofan_last_check;
 #endif  
 
@@ -227,8 +229,7 @@ void PID_autotune(float temp, int extruder, int ncycles)
   float Kp, Ki, Kd;
   float max = 0, min = 10000;
 
-  #if PIN_EXISTS(EXTRUDER_0_AUTO_FAN_PIN) || PIN_EXISTS(EXTRUDER_1_AUTO_FAN_PIN) || \
-      PIN_EXISTS(EXTRUDER_2_AUTO_FAN_PIN) || PIN_EXISTS(EXTRUDER_3_AUTO_FAN_PIN)
+  #if HAS_AUTO_FAN
         unsigned long extruder_autofan_last_check = temp_millis;
   #endif
 
@@ -263,8 +264,7 @@ void PID_autotune(float temp, int extruder, int ncycles)
       max = max(max, input);
       min = min(min, input);
 
-      #if PIN_EXISTS(EXTRUDER_0_AUTO_FAN_PIN) || PIN_EXISTS(EXTRUDER_1_AUTO_FAN_PIN) || \
-          PIN_EXISTS(EXTRUDER_2_AUTO_FAN_PIN) || PIN_EXISTS(EXTRUDER_3_AUTO_FAN_PIN)
+      #if HAS_AUTO_FAN
         if (ms > extruder_autofan_last_check + 2500) {
           checkExtruderAutoFans();
           extruder_autofan_last_check = ms;
@@ -387,18 +387,20 @@ int getHeaterPower(int heater) {
   return heater < 0 ? soft_pwm_bed : soft_pwm[heater];
 }
 
-#if PIN_EXISTS(EXTRUDER_0_AUTO_FAN_PIN) || PIN_EXISTS(EXTRUDER_1_AUTO_FAN_PIN) || \
-    PIN_EXISTS(EXTRUDER_2_AUTO_FAN_PIN)
+#if HAS_AUTO_FAN
 
-  #if PIN_EXISTS(FAN_PIN)
-    #if EXTRUDER_0_AUTO_FAN_PIN == FAN_PIN 
+  #if HAS_FAN
+    #if EXTRUDER_0_AUTO_FAN_PIN == FAN_PIN
        #error "You cannot set EXTRUDER_0_AUTO_FAN_PIN equal to FAN_PIN"
     #endif
-    #if EXTRUDER_1_AUTO_FAN_PIN == FAN_PIN 
+    #if EXTRUDER_1_AUTO_FAN_PIN == FAN_PIN
        #error "You cannot set EXTRUDER_1_AUTO_FAN_PIN equal to FAN_PIN"
     #endif
-    #if EXTRUDER_2_AUTO_FAN_PIN == FAN_PIN 
+    #if EXTRUDER_2_AUTO_FAN_PIN == FAN_PIN
        #error "You cannot set EXTRUDER_2_AUTO_FAN_PIN equal to FAN_PIN"
+    #endif
+    #if EXTRUDER_3_AUTO_FAN_PIN == FAN_PIN
+       #error "You cannot set EXTRUDER_3_AUTO_FAN_PIN equal to FAN_PIN"
     #endif
   #endif 
 
@@ -416,20 +418,20 @@ void checkExtruderAutoFans()
   uint8_t fanState = 0;
 
   // which fan pins need to be turned on?      
-  #if PIN_EXISTS(EXTRUDER_0_AUTO_FAN_PIN)
+  #if HAS_AUTO_FAN_0
     if (current_temperature[0] > EXTRUDER_AUTO_FAN_TEMPERATURE) 
       fanState |= 1;
   #endif
-  #if PIN_EXISTS(EXTRUDER_1_AUTO_FAN_PIN)
+  #if HAS_AUTO_FAN_1
     if (current_temperature[1] > EXTRUDER_AUTO_FAN_TEMPERATURE) 
     {
-      if (EXTRUDER_1_AUTO_FAN_PIN == EXTRUDER_0_AUTO_FAN_PIN) 
+      if (EXTRUDER_1_AUTO_FAN_PIN == EXTRUDER_0_AUTO_FAN_PIN)
         fanState |= 1;
       else
         fanState |= 2;
     }
   #endif
-  #if PIN_EXISTS(EXTRUDER_2_AUTO_FAN_PIN)
+  #if HAS_AUTO_FAN_2
     if (current_temperature[2] > EXTRUDER_AUTO_FAN_TEMPERATURE) 
     {
       if (EXTRUDER_2_AUTO_FAN_PIN == EXTRUDER_0_AUTO_FAN_PIN) 
@@ -440,7 +442,7 @@ void checkExtruderAutoFans()
         fanState |= 4;
     }
   #endif
-  #if PIN_EXISTS(EXTRUDER_3_AUTO_FAN_PIN)
+  #if HAS_AUTO_FAN_3
     if (current_temperature[3] > EXTRUDER_AUTO_FAN_TEMPERATURE) 
     {
       if (EXTRUDER_3_AUTO_FAN_PIN == EXTRUDER_0_AUTO_FAN_PIN) 
@@ -455,19 +457,19 @@ void checkExtruderAutoFans()
   #endif
   
   // update extruder auto fan states
-  #if PIN_EXISTS(EXTRUDER_0_AUTO_FAN_PIN)
+  #if HAS_AUTO_FAN_0
     setExtruderAutoFanState(EXTRUDER_0_AUTO_FAN_PIN, (fanState & 1) != 0);
   #endif 
-  #if PIN_EXISTS(EXTRUDER_1_AUTO_FAN_PIN)
+  #if HAS_AUTO_FAN_1
     if (EXTRUDER_1_AUTO_FAN_PIN != EXTRUDER_0_AUTO_FAN_PIN)
       setExtruderAutoFanState(EXTRUDER_1_AUTO_FAN_PIN, (fanState & 2) != 0);
   #endif 
-  #if PIN_EXISTS(EXTRUDER_2_AUTO_FAN_PIN)
+  #if HAS_AUTO_FAN_2
     if (EXTRUDER_2_AUTO_FAN_PIN != EXTRUDER_0_AUTO_FAN_PIN
         && EXTRUDER_2_AUTO_FAN_PIN != EXTRUDER_1_AUTO_FAN_PIN)
       setExtruderAutoFanState(EXTRUDER_2_AUTO_FAN_PIN, (fanState & 4) != 0);
   #endif
-  #if PIN_EXISTS(EXTRUDER_3_AUTO_FAN_PIN)
+  #if HAS_AUTO_FAN_3
     if (EXTRUDER_3_AUTO_FAN_PIN != EXTRUDER_0_AUTO_FAN_PIN
         && EXTRUDER_3_AUTO_FAN_PIN != EXTRUDER_1_AUTO_FAN_PIN
         && EXTRUDER_3_AUTO_FAN_PIN != EXTRUDER_2_AUTO_FAN_PIN)
@@ -509,6 +511,9 @@ void checkExtruderAutoFans()
 #endif
 #if HAS_HEATER_BED
   #define WRITE_HEATER_BED(v) WRITE(HEATER_BED_PIN, v)
+#endif
+#if HAS_FAN
+  #define WRITE_FAN(v) WRITE(FAN_PIN, v)
 #endif
 
 void manage_heater() {
@@ -631,8 +636,7 @@ void manage_heater() {
 
   } // Extruders Loop
 
-  #if PIN_EXISTS(EXTRUDER_0_AUTO_FAN_PIN) || PIN_EXISTS(EXTRUDER_1_AUTO_FAN_PIN) || \
-      PIN_EXISTS(EXTRUDER_2_AUTO_FAN_PIN) || PIN_EXISTS(EXTRUDER_3_AUTO_FAN_PIN)
+  #if HAS_AUTO_FAN
     if (ms > extruder_autofan_last_check + 2500) { // only need to check fan state very infrequently
       checkExtruderAutoFans();
       extruder_autofan_last_check = ms;
@@ -884,7 +888,7 @@ void tp_init()
   #if HAS_HEATER_BED
     SET_OUTPUT(HEATER_BED_PIN);
   #endif  
-  #if PIN_EXISTS(FAN_PIN)
+  #if HAS_FAN
     SET_OUTPUT(FAN_PIN);
     #ifdef FAST_PWM_FAN
       setPwmFrequency(FAN_PIN, 1); // No prescaling. Pwm frequency = F_CPU/256/8
@@ -1327,7 +1331,7 @@ ISR(TIMER0_COMPB_vect) {
       #endif
       #ifdef FAN_SOFT_PWM
         soft_pwm_fan = fanSpeedSoftPwm / 2;
-        WRITE(FAN_PIN, soft_pwm_fan > 0 ? 1 : 0);
+        WRITE_FAN(soft_pwm_fan > 0 ? 1 : 0);
       #endif
     }
 
@@ -1347,7 +1351,7 @@ ISR(TIMER0_COMPB_vect) {
     #endif
 
     #ifdef FAN_SOFT_PWM
-      if (soft_pwm_fan < pwm_count) WRITE(FAN_PIN, 0);
+      if (soft_pwm_fan < pwm_count) WRITE_FAN(0);
     #endif
     
     pwm_count += (1 << SOFT_PWM_SCALE);
@@ -1426,9 +1430,9 @@ ISR(TIMER0_COMPB_vect) {
     #ifdef FAN_SOFT_PWM
       if (pwm_count == 0) {
         soft_pwm_fan = fanSpeedSoftPwm / 2;
-        WRITE(FAN_PIN, soft_pwm_fan > 0 ? 1 : 0);
+        WRITE_FAN(soft_pwm_fan > 0 ? 1 : 0);
       }
-      if (soft_pwm_fan < pwm_count) WRITE(FAN_PIN, 0);
+      if (soft_pwm_fan < pwm_count) WRITE_FAN(0);
     #endif //FAN_SOFT_PWM
 
     pwm_count += (1 << SOFT_PWM_SCALE);
