@@ -2634,24 +2634,17 @@ void process_commands()
     {
       int beepS = code_seen('S') ? code_value() : 110;
       int beepP = code_seen('P') ? code_value() : 1000;
-      if (beepS > 0)
-      {
-	#if BEEPER > 0
-	  tone(BEEPER, beepS);
-	  delay(beepP);
-	  noTone(BEEPER);
-	#elif defined(ULTRALCD)
-		  lcd_buzz(beepS, beepP);
-		#elif defined(LCD_USE_I2C_BUZZER)
-		  lcd_buzz(beepP, beepS);
-	#endif
-      }
-      else
-      {
-	delay(beepP);
-      }
-    }
-    break;
+
+      if (beepS > 4000) {
+		beepS = 4000;
+	  } else if (beepS < 16) {
+		_delay_ms(beepP);
+		break;
+	  }
+
+	  lcd_beep_hz_ms(beepS, beepP);
+	}
+	break;
     #endif // M300
 
     #ifdef PIDTEMP
