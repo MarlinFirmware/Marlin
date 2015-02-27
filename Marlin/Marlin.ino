@@ -59,3 +59,8 @@
   #include <SPI.h>
   #include <TMC26XStepper.h>
 #endif
+
+#ifdef HAVE_L6470DRIVER
+  #include <SPI.h>
+  #include <L6470.h>
+#endif

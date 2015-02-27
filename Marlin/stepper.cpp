@@ -842,6 +842,11 @@ void st_init()
   #ifdef HAVE_TMCDRIVER
      tmc_init();
   #endif
+    // initialise L6470 Steppers
+  #ifdef HAVE_L6470DRIVER
+     L6470_init();
+  #endif
+  
   
   //Initialize Dir Pins
   #if defined(X_DIR_PIN) && X_DIR_PIN > -1
