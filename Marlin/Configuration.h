@@ -118,7 +118,10 @@ Here are some standard links for getting your machine calibrated:
 // 1010 is Pt1000 with 1k pullup (non standard)
 // 147 is Pt100 with 4k7 pullup
 // 110 is Pt100 with 1k pullup (non standard)
-// 999 is a Dummy Table. It will ALWAYS read 25C.. Use it for Testing or Development purposes. NEVER for production machine.
+// 998 and 999 are Dummy Tables. They will ALWAYS read 25°C or the temperature defined below. 
+//     Use it for Testing or Development purposes. NEVER for production machine.
+//     #define DUMMY_THERMISTOR_998_VALUE 25
+//     #define DUMMY_THERMISTOR_999_VALUE 100
 
 #define TEMP_SENSOR_0 -1
 #define TEMP_SENSOR_1 -1
@@ -582,6 +585,10 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 //#define LCD_FEEDBACK_FREQUENCY_HZ 1000	// this is the tone frequency the buzzer plays when on UI feedback. ie Screen Click
 //#define LCD_FEEDBACK_FREQUENCY_DURATION_MS 100 // the duration the buzzer plays the UI feedback sound. ie Screen Click
 
+// PanelOne from T3P3 (via RAMPS 1.4 AUX2/AUX3)
+// http://reprap.org/wiki/PanelOne
+//#define PANEL_ONE
+
 // The MaKr3d Makr-Panel with graphic controller and SD support
 // http://reprap.org/wiki/MaKr3d_MaKrPanel
 //#define MAKRPANEL
@@ -640,6 +647,10 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
  #define ENCODER_STEPS_PER_MENU_ITEM 1
 #endif
 
+#if defined (PANEL_ONE)
+ #define SDSUPPORT
+ #define ULTIMAKERCONTROLLER
+#endif
 
 #if defined (REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
  #define DOGLCD
