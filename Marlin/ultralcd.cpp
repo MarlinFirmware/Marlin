@@ -88,7 +88,6 @@ uint8_t beep_count, frequency_ratio;
 // ISR related variables
 uint16_t lcd_timer = 0;
 
-
 // Status screen drawer variables
 uint8_t lcd_status_message_level;
 char lcd_status_message[LCD_WIDTH+1] = WELCOME_MSG;
@@ -266,7 +265,6 @@ void lcd_init()
     OCR5AH = 0x07;
     OCR5AL = 0xD0;
 
-
     lcd_enable_interrupt();
 
     display_view_next = view_status_screen;
@@ -314,7 +312,6 @@ static void lcd_update_button()
 	if (button_pressed_count == 200)
 	    lcd_emergency_stop();
     }
-
 
     // Update button trigger
     if ((button_clicked == true) && (button_input_blocked == false)) {
@@ -376,7 +373,8 @@ static void lcd_update_encoder()
 void lcd_update()
 {
 #  if (SDCARDDETECT > 0)
-    if (lcd_oldcardstatus != IS_SD_INSERTED) {
+    if ((lcd_oldcardstatus != IS_SD_INSERTED)) {
+        display_refresh_mode = CLEAR_AND_UPDATE_SCREEN;
         lcd_oldcardstatus = IS_SD_INSERTED;
 
 #ifndef DOGLCD
@@ -474,7 +472,15 @@ void lcd_clear_triggered_flags() {
 }
 
 
-// Enable/disable functions
+void lcd_disable_buzzer()
+{
+    beep_count = 0;
+    beeper_duration = 0;
+    beeper_level = false;
+    WRITE(BEEPER, beeper_level);
+}
+
+// Enable/disable function
 void lcd_enable_button() {
     button_input = lcd_implementation_update_buttons();
     button_input_last = button_input;
@@ -515,6 +521,7 @@ void lcd_disable_interrupt()
 {
     lcd_disable_button();
     lcd_disable_encoder();
+    lcd_disable_buzzer();
     TIMSK5 &= ~(0x01);
 }
 
@@ -535,6 +542,7 @@ void lcd_beep()
 
 void lcd_beep_ms(uint16_t ms)
 {
+    frequency_ratio = 0;
     beeper_duration = 8 * ms;
     while (beeper_duration) {
         lcd_update();
@@ -543,8 +551,8 @@ void lcd_beep_ms(uint16_t ms)
 
 void lcd_beep_hz_ms(uint16_t frequency, uint16_t ms)
 {
-    beeper_duration = 8 * ms;
     frequency_ratio = (4000 / frequency) - 1;
+    beeper_duration = 8 * ms;
     while (beeper_duration) {
         lcd_update();
     }
