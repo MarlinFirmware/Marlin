@@ -118,6 +118,10 @@ Here are some standard links for getting your machine calibrated:
 // 1010 is Pt1000 with 1k pullup (non standard)
 // 147 is Pt100 with 4k7 pullup
 // 110 is Pt100 with 1k pullup (non standard)
+// 998 and 999 are Dummy Tables. They will ALWAYS read 25°C or the temperature defined below. 
+//     Use it for Testing or Development purposes. NEVER for production machine.
+//     #define DUMMY_THERMISTOR_998_VALUE 25
+//     #define DUMMY_THERMISTOR_999_VALUE 100
 
 #define TEMP_SENSOR_0 -1
 #define TEMP_SENSOR_1 -1
@@ -422,9 +426,6 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
       // I wouldn't see a reason to go above 3 (=9 probing points on the bed) for cartesian printers
       #define AUTO_BED_LEVELING_GRID_POINTS 2
     #endif
-
-    #define AUTO_BED_LEVELING_GRID_X ((RIGHT_PROBE_BED_POSITION - LEFT_PROBE_BED_POSITION) / (AUTO_BED_LEVELING_GRID_POINTS-1))
-    #define AUTO_BED_LEVELING_GRID_Y ((BACK_PROBE_BED_POSITION - FRONT_PROBE_BED_POSITION) / (AUTO_BED_LEVELING_GRID_POINTS-1))
 
   #else  // not AUTO_BED_LEVELING_GRID
     // with no grid, just probe 3 arbitrary points.  A simple cross-product

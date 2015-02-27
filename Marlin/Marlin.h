@@ -190,6 +190,7 @@ void get_coordinates();
 #ifdef DELTA
 void calculate_delta(float cartesian[3]);
   #ifdef ENABLE_AUTO_BED_LEVELING
+  extern int delta_grid_spacing[2];
   void adjust_delta(float cartesian[3]);
   #endif
 extern float delta[3];

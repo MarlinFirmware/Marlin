@@ -438,9 +438,6 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
       #define AUTO_BED_LEVELING_GRID_POINTS 2
     #endif
 
-    #define AUTO_BED_LEVELING_GRID_X ((RIGHT_PROBE_BED_POSITION - LEFT_PROBE_BED_POSITION) / (AUTO_BED_LEVELING_GRID_POINTS-1))
-    #define AUTO_BED_LEVELING_GRID_Y ((BACK_PROBE_BED_POSITION - FRONT_PROBE_BED_POSITION) / (AUTO_BED_LEVELING_GRID_POINTS-1))
-
   #else  // not AUTO_BED_LEVELING_GRID
     // with no grid, just probe 3 arbitrary points.  A simple cross-product
     // is used to esimate the plane of the print bed

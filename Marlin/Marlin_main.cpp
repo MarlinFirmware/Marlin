@@ -1820,6 +1820,8 @@ void process_commands()
 
 #ifdef ENABLE_AUTO_BED_LEVELING
     case 29: // G29 Detailed Z-Probe, probes the bed at 3 or more points.
+             // Override probing area by providing [F]ront [B]ack [L]eft [R]ight Grid[P]oints values
+             // Changing GridPoints is not supported by non-linear delta printer bed leveling
         {
             #if Z_MIN_PIN == -1
             #error "You must have a Z_MIN endstop in order to enable Auto Bed Leveling feature!!! Z_MIN_PIN must point to a valid hardware pin."
@@ -1833,6 +1835,19 @@ void process_commands()
                 SERIAL_ECHOLNPGM(MSG_POSITION_UNKNOWN);
                 break; // abort G29, since we don't know where we are
             }
+
+            int left_probe_bed_position=LEFT_PROBE_BED_POSITION;
+            int right_probe_bed_position=RIGHT_PROBE_BED_POSITION;
+            int back_probe_bed_position=BACK_PROBE_BED_POSITION;
+            int front_probe_bed_position=FRONT_PROBE_BED_POSITION;
+            int auto_bed_leveling_grid_points=AUTO_BED_LEVELING_GRID_POINTS;
+            if (code_seen('L')) left_probe_bed_position=(int)code_value();
+            if (code_seen('R')) right_probe_bed_position=(int)code_value();
+            if (code_seen('B')) back_probe_bed_position=(int)code_value();
+            if (code_seen('F')) front_probe_bed_position=(int)code_value();
+          #ifndef DELTA
+            if (code_seen('P')) auto_bed_leveling_grid_points=(int)code_value();
+          #endif
 
 #ifdef Z_PROBE_SLED
             dock_sled(false);
@@ -1859,6 +1874,8 @@ void process_commands()
             feedrate = homing_feedrate[Z_AXIS];
 #ifdef AUTO_BED_LEVELING_GRID
             // probe at the points of a lattice grid
+            const int xGridSpacing = (right_probe_bed_position - left_probe_bed_position) / (auto_bed_leveling_grid_points-1);
+            const int yGridSpacing = (back_probe_bed_position - front_probe_bed_position) / (auto_bed_leveling_grid_points-1);
 
           #ifndef DELTA
             // solve the plane equation ax + by + d = z
@@ -1868,11 +1885,15 @@ void process_commands()
             // so Vx = -a Vy = -b Vz = 1 (we want the vector facing towards positive Z
 
             // "A" matrix of the linear system of equations
-            double eqnAMatrix[AUTO_BED_LEVELING_GRID_POINTS*AUTO_BED_LEVELING_GRID_POINTS*3];
+            double eqnAMatrix[auto_bed_leveling_grid_points*auto_bed_leveling_grid_points*3];
+
             // "B" vector of Z points
-            double eqnBVector[AUTO_BED_LEVELING_GRID_POINTS*AUTO_BED_LEVELING_GRID_POINTS];
+            double eqnBVector[auto_bed_leveling_grid_points*auto_bed_leveling_grid_points];
 
           #else
+            delta_grid_spacing[0] = xGridSpacing;
+            delta_grid_spacing[1] = yGridSpacing;
+
             float z_offset = Z_PROBE_OFFSET_FROM_EXTRUDER;
             if (code_seen(axis_codes[Z_AXIS])) {
               z_offset += code_value();
@@ -1882,19 +1903,19 @@ void process_commands()
             int probePointCounter = 0;
             bool zig = true;
 
-            for (int yCount=0; yCount < AUTO_BED_LEVELING_GRID_POINTS; yCount++)
+            for (int yCount=0; yCount < auto_bed_leveling_grid_points; yCount++)
             {
-              double yProbe = FRONT_PROBE_BED_POSITION + AUTO_BED_LEVELING_GRID_Y * yCount;
+              double yProbe = front_probe_bed_position + yGridSpacing * yCount;
               int xStart, xStop, xInc;
               if (zig)
               {
                 xStart = 0;
-                xStop = AUTO_BED_LEVELING_GRID_POINTS;
+                xStop = auto_bed_leveling_grid_points;
                 xInc = 1;
                 zig = false;
               } else // zag
               {
-                xStart = AUTO_BED_LEVELING_GRID_POINTS - 1;
+                xStart = auto_bed_leveling_grid_points - 1;
                 xStop = -1;
                 xInc = -1;
                 zig = true;
@@ -1902,7 +1923,7 @@ void process_commands()
 
               for (int xCount=xStart; xCount != xStop; xCount += xInc)
               {
-                double xProbe = LEFT_PROBE_BED_POSITION + AUTO_BED_LEVELING_GRID_X * xCount;
+                double xProbe = left_probe_bed_position + xGridSpacing * xCount;
                 float z_before;
                 if (probePointCounter == 0)
                 {
@@ -1925,10 +1946,10 @@ void process_commands()
                 //Enhanced G29 - Do not retract servo between probes
                 if (code_seen('E') || code_seen('e') )
                 {
-                    if ((yProbe==FRONT_PROBE_BED_POSITION) && (xCount==0))
+                    if ((yProbe==front_probe_bed_position) && (xCount==0))
                     {
                         measured_z = probe_pt(xProbe, yProbe, z_before,1);
-                    } else if ((yProbe==FRONT_PROBE_BED_POSITION + (AUTO_BED_LEVELING_GRID_Y * (AUTO_BED_LEVELING_GRID_POINTS-1))) && (xCount == AUTO_BED_LEVELING_GRID_POINTS-1))
+                    } else if ((yProbe==front_probe_bed_position + (yGridSpacing * (auto_bed_leveling_grid_points-1))) && (xCount == auto_bed_leveling_grid_points-1))
                     {
                         measured_z = probe_pt(xProbe, yProbe, z_before,3);
                     } else {
@@ -1941,9 +1962,9 @@ void process_commands()
               #ifndef DELTA
                 eqnBVector[probePointCounter] = measured_z;
 
-                eqnAMatrix[probePointCounter + 0*AUTO_BED_LEVELING_GRID_POINTS*AUTO_BED_LEVELING_GRID_POINTS] = xProbe;
-                eqnAMatrix[probePointCounter + 1*AUTO_BED_LEVELING_GRID_POINTS*AUTO_BED_LEVELING_GRID_POINTS] = yProbe;
-                eqnAMatrix[probePointCounter + 2*AUTO_BED_LEVELING_GRID_POINTS*AUTO_BED_LEVELING_GRID_POINTS] = 1;
+                eqnAMatrix[probePointCounter + 0*auto_bed_leveling_grid_points*auto_bed_leveling_grid_points] = xProbe;
+                eqnAMatrix[probePointCounter + 1*auto_bed_leveling_grid_points*auto_bed_leveling_grid_points] = yProbe;
+                eqnAMatrix[probePointCounter + 2*auto_bed_leveling_grid_points*auto_bed_leveling_grid_points] = 1;
               #else
                 bed_level[xCount][yCount] = measured_z + z_offset;
               #endif
@@ -1955,7 +1976,7 @@ void process_commands()
 
           #ifndef DELTA
             // solve lsq problem
-            double *plane_equation_coefficients = qr_solve(AUTO_BED_LEVELING_GRID_POINTS*AUTO_BED_LEVELING_GRID_POINTS, 3, eqnAMatrix, eqnBVector);
+            double *plane_equation_coefficients = qr_solve(auto_bed_leveling_grid_points*auto_bed_leveling_grid_points, 3, eqnAMatrix, eqnBVector);
 
             SERIAL_PROTOCOLPGM("Eqn coefficients: a: ");
             SERIAL_PROTOCOL(plane_equation_coefficients[0]);
@@ -4258,11 +4279,15 @@ void calculate_delta(float cartesian[3])
 
 #ifdef ENABLE_AUTO_BED_LEVELING
 // Adjust print surface height by linear interpolation over the bed_level array.
+int delta_grid_spacing[2] = { 0, 0 };
 void adjust_delta(float cartesian[3])
 {
+  if (delta_grid_spacing[0] == 0 || delta_grid_spacing[1] == 0)
+    return; // G29 not done
+
   int half = (AUTO_BED_LEVELING_GRID_POINTS - 1) / 2;
-  float grid_x = max(0.001-half, min(half-0.001, cartesian[X_AXIS] / AUTO_BED_LEVELING_GRID_X));
-  float grid_y = max(0.001-half, min(half-0.001, cartesian[Y_AXIS] / AUTO_BED_LEVELING_GRID_Y));
+  float grid_x = max(0.001-half, min(half-0.001, cartesian[X_AXIS] / delta_grid_spacing[0]));
+  float grid_y = max(0.001-half, min(half-0.001, cartesian[Y_AXIS] / delta_grid_spacing[1]));
   int floor_x = floor(grid_x);
   int floor_y = floor(grid_y);
   float ratio_x = grid_x - floor_x;
@@ -4883,21 +4908,12 @@ bool setTargetedHotend(int code){
 
 
 float calculate_volumetric_multiplier(float diameter) {
-	float area = .0;
-	float radius = .0;
-
-	radius = diameter * .5;
-	if (! volumetric_enabled || radius == 0) {
-		area = 1;
-	}
-	else {
-		area = M_PI * pow(radius, 2);
-	}
-
-	return 1.0 / area;
+  if (!volumetric_enabled || diameter == 0) return 1.0;
+  float d2 = diameter * 0.5;
+  return 1.0 / (M_PI * d2 * d2);
 }
 
 void calculate_volumetric_multipliers() {
   for (int i=0; i<EXTRUDERS; i++)
-  	volumetric_multiplier[i] = calculate_volumetric_multiplier(filament_size[i]);
+    volumetric_multiplier[i] = calculate_volumetric_multiplier(filament_size[i]);
 }
