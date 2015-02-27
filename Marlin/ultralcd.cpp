@@ -74,8 +74,7 @@ uint32_t beeper_duration = 0;
 uint8_t beep_count, frequency_ratio;
 
 // ISR related variables
-uint8_t lcd_timer = 0;
-
+uint16_t lcd_timer = 0;
 
 // Status screen drawer variables
 uint8_t lcd_status_message_level;
@@ -227,9 +226,13 @@ void lcd_init()
     lcd_oldcardstatus = IS_SD_INSERTED;
 #  endif // (defined (SDSUPPORT) && defined(SDCARDDETECT) && (SDCARDDETECT > 0))
 
-    // Init Timer 2 and set the OVF interrupt
-    TCCR2A = 0x23;
-    TCCR2B = 0x02;
+    // Init Timer 5 and set the OVF interrupt (triggered every 125 us)
+    TCCR5A = 0x03;
+    TCCR5B = 0x19;
+
+    OCR5AH = 0x07;
+    OCR5AL = 0xD0;
+
     lcd_enable_interrupt();
 
     display_view_next = view_status_screen;
@@ -271,9 +274,8 @@ static void lcd_update_button()
     }
 
     // Beeper feedback
-    if ((button_clicked == true) || (button_pressed_count > 10))
-        lcd_implementation_quick_feedback();  // Review code!!
-
+    if ((button_clicked == true) || (button_pressed_count > 50))
+        lcd_implementation_quick_feedback();
 
     // Update button trigger
     if ((button_clicked == true) && (button_input_blocked == false)) {
@@ -335,7 +337,7 @@ static void lcd_update_encoder()
 void lcd_update()
 {
 #  if (SDCARDDETECT > 0)
-    if ((IS_SD_INSERTED != lcd_oldcardstatus)) {
+    if ((lcd_oldcardstatus != IS_SD_INSERTED)) {
         display_refresh_mode = CLEAR_AND_UPDATE_SCREEN;
         lcd_oldcardstatus = IS_SD_INSERTED;
         lcd_implementation_init(); // to maybe revive the LCD if static electricity killed it.
@@ -423,7 +425,15 @@ void lcd_clear_triggered_flags() {
 }
 
 
-// Enable/disable functions
+void lcd_disable_buzzer()
+{
+    beep_count = 0;
+    beeper_duration = 0;
+    beeper_level = false;
+    WRITE(BEEPER, beeper_level);
+}
+
+// Enable/disable function
 void lcd_enable_button() {
     button_input = lcd_implementation_update_buttons();
     button_input_last = button_input;
@@ -455,7 +465,7 @@ void lcd_disable_display_timeout()
 
 void lcd_enable_interrupt()
 {
-    TIMSK2 |= 0x01;
+    TIMSK5 |= 0x01;
     lcd_enable_button();
     lcd_enable_encoder();
 }
@@ -464,7 +474,8 @@ void lcd_disable_interrupt()
 {
     lcd_disable_button();
     lcd_disable_encoder();
-    TIMSK2 &= ~(0x01);
+    lcd_disable_buzzer();
+    TIMSK5 &= ~(0x01);
 }
 
 
@@ -484,6 +495,7 @@ void lcd_beep()
 
 void lcd_beep_ms(uint16_t ms)
 {
+    frequency_ratio = 0;
     beeper_duration = 8 * ms;
     while (beeper_duration) {
         lcd_update();
@@ -492,8 +504,8 @@ void lcd_beep_ms(uint16_t ms)
 
 void lcd_beep_hz_ms(uint16_t frequency, uint16_t ms)
 {
-    beeper_duration = 8 * ms;
     frequency_ratio = (4000 / frequency) - 1;
+    beeper_duration = 8 * ms;
     while (beeper_duration) {
         lcd_update();
     }
@@ -2506,7 +2518,7 @@ char *ftostr52(const float &x)
     return conv;
 }
 
-ISR(TIMER2_OVF_vect)
+ISR(TIMER5_OVF_vect)
 {
     lcd_timer++;
 
@@ -2521,15 +2533,15 @@ ISR(TIMER2_OVF_vect)
         beeper_duration--;
     } else {
         beeper_level = false;
-		beep_count = 0;
+        beep_count = 0;
     }
     WRITE(BEEPER, beeper_level);
 #endif // ( defined(BEEPER) && (BEEPER > 0) )
 
-    if (lcd_timer % 8 == 0)
+    if (lcd_timer % 4 == 0)
         lcd_update_encoder();
 
-    if (lcd_timer % 400 == 0) {
+    if (lcd_timer % 80 == 0) {
         lcd_update_button();
         lcd_timer = 0;
     }
