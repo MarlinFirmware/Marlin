@@ -172,6 +172,10 @@
         #define SHIFT_OUT 40 // shift register
         #define SHIFT_CLK 44 // shift register
         #define SHIFT_LD 42 // shift register
+      #elif defined(PANEL_ONE)
+        #define BTN_EN1 59 // AUX2 PIN 3
+        #define BTN_EN2 63 // AUX2 PIN 4
+        #define BTN_ENC 49 // AUX3 PIN 7
       #else
         #define BTN_EN1 37
         #define BTN_EN2 35
