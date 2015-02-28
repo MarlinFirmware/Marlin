@@ -65,6 +65,18 @@
 #ifndef MSG_PREHEAT_ABS_SETTINGS
 #define MSG_PREHEAT_ABS_SETTINGS            MSG_PREHEAT_ABS " conf"
 #endif
+#ifndef MSG_H1
+#define MSG_H1                              "1"
+#endif
+#ifndef MSG_H2
+#define MSG_H2                              "2"
+#endif
+#ifndef MSG_H3
+#define MSG_H3                              "3"
+#endif
+#ifndef MSG_H4
+#define MSG_H4                              "4"
+#endif
 #ifndef MSG_COOLDOWN
 #define MSG_COOLDOWN                        "Cooldown"
 #endif
@@ -110,6 +122,15 @@
 #ifndef MSG_NOZZLE
 #define MSG_NOZZLE                          "Nozzle"
 #endif
+#ifndef MSG_N2
+#define MSG_N2                              " 2"
+#endif
+#ifndef MSG_N3
+#define MSG_N3                              " 3"
+#endif
+#ifndef MSG_N4
+#define MSG_N4                              " 4"
+#endif
 #ifndef MSG_BED
 #define MSG_BED                             "Bed"
 #endif
@@ -118,6 +139,18 @@
 #endif
 #ifndef MSG_FLOW
 #define MSG_FLOW                            "Flow"
+#endif
+#ifndef MSG_F0
+#define MSG_F0                              " 0"
+#endif
+#ifndef MSG_F1
+#define MSG_F1                              " 1"
+#endif
+#ifndef MSG_F2
+#define MSG_F2                              " 2"
+#endif
+#ifndef MSG_F3
+#define MSG_F3                              " 3"
 #endif
 #ifndef MSG_CONTROL
 #define MSG_CONTROL                         "Control"
@@ -151,6 +184,15 @@
 #endif
 #ifndef MSG_PID_C
 #define MSG_PID_C                           "PID-C"
+#endif
+#ifndef MSG_E2
+#define MSG_E2                              " E2"
+#endif
+#ifndef MSG_E3
+#define MSG_E3                              " E3"
+#endif
+#ifndef MSG_E4
+#define MSG_E4                              " E4"
 #endif
 #ifndef MSG_ACC
 #define MSG_ACC                             "Accel"
@@ -213,7 +255,7 @@
 #define MSG_VOLUMETRIC                      "Filament"
 #endif
 #ifndef MSG_VOLUMETRIC_ENABLED
-#define MSG_VOLUMETRIC_ENABLED		          "E in mm" STR_h3
+#define MSG_VOLUMETRIC_ENABLED		        "E in mm" STR_h3
 #endif
 #ifndef MSG_FILAMENT_SIZE_EXTRUDER_0
 #define MSG_FILAMENT_SIZE_EXTRUDER_0        "Fil. Dia. 1"
