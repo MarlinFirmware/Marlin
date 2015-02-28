@@ -481,6 +481,12 @@ const unsigned int dropsegments=5; //everything with less than this number of st
   
 #endif
 
+#if defined(Z_PROBE_ALLEN_KEY)
+  #if !defined(AUTO_BED_LEVELING_GRID) || !defined(DELTA)
+    #error "Invalid use of Z_PROBE_ALLEN_KEY."
+  #endif
+#endif
+
 #if EXTRUDERS > 1 && defined TEMP_SENSOR_1_AS_REDUNDANT
   #error "You cannot use TEMP_SENSOR_1_AS_REDUNDANT if EXTRUDERS > 1"
 #endif
