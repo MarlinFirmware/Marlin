@@ -1096,13 +1096,26 @@ const short temptable_1047[][2] PROGMEM = {
 #endif
 
 #if (THERMISTORHEATER_0 == 999) || (THERMISTORHEATER_1 == 999) || (THERMISTORHEATER_2 == 999) || (THERMISTORHEATER_3 == 999) || (THERMISTORBED == 999) //User defined table
-// Dummy Thermistor table.. It will ALWAYS read 25C.
-const short temptable_999[][2] PROGMEM = {
-   {1*OVERSAMPLENR, 25},
-   {1023*OVERSAMPLENR, 25}
+  // Dummy Thermistor table.. It will ALWAYS read a fixed value.
+  #ifndef DUMMY_THERMISTOR_999_VALUE
+    #define DUMMY_THERMISTOR_999_VALUE 25
+  #endif
+  const short temptable_999[][2] PROGMEM = {
+    {1*OVERSAMPLENR, DUMMY_THERMISTOR_999_VALUE},
+    {1023*OVERSAMPLENR, DUMMY_THERMISTOR_999_VALUE}
 };
 #endif
 
+#if (THERMISTORHEATER_0 == 998) || (THERMISTORHEATER_1 == 998) || (THERMISTORHEATER_2 == 998) || (THERMISTORHEATER_3 == 998) || (THERMISTORBED == 998) //User defined table
+  // Dummy Thermistor table.. It will ALWAYS read a fixed value.
+  #ifndef DUMMY_THERMISTOR_998_VALUE
+    #define DUMMY_THERMISTOR_998_VALUE 25
+  #endif
+  const short temptable_998[][2] PROGMEM = {
+    {1*OVERSAMPLENR, DUMMY_THERMISTOR_998_VALUE},
+    {1023*OVERSAMPLENR, DUMMY_THERMISTOR_998_VALUE}
+};
+#endif
 
 
 #define _TT_NAME(_N) temptable_ ## _N
