@@ -128,7 +128,7 @@ $.fn.extend({
 });
 
 // The app is a singleton
-var configuratorApp = (function(){
+window.configuratorApp = (function(){
 
   // private variables and functions go here
   var self,
@@ -717,7 +717,7 @@ var configuratorApp = (function(){
 
       this.log(result,2);
 
-      return inf.type == 'switch' ? result[inf.val_i] != '//' : result[inf.val_i];
+      return (inf.type == 'switch') ? (result[inf.val_i] === undefined || result[inf.val_i].trim() != '//') : result[inf.val_i];
     },
 
     /**
@@ -1106,6 +1106,6 @@ var configuratorApp = (function(){
 })();
 
 // Typically the app would be in its own file, but this would be here
-configuratorApp.init();
+window.configuratorApp.init();
 
 });
