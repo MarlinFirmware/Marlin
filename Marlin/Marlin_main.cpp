@@ -1210,7 +1210,7 @@ static void clean_up_after_endstop_move() {
 
 static void engage_z_probe() {
     // Engage Z Servo endstop if enabled
-    #ifdef SERVO_ENDSTOPS
+  #ifdef SERVO_ENDSTOPS
     if (servo_endstops[Z_AXIS] > -1) {
 #if defined (ENABLE_AUTO_BED_LEVELING) && (PROBE_SERVO_DEACTIVATION_DELAY > 0)
         servos[servo_endstops[Z_AXIS]].attach(0);
@@ -1221,12 +1221,45 @@ static void engage_z_probe() {
         servos[servo_endstops[Z_AXIS]].detach();
 #endif
     }
-    #endif
+  #elif defined(Z_PROBE_ALLEN_KEY)
+    feedrate = homing_feedrate[X_AXIS];
+    
+    // Move to the start position to initiate deployment
+    destination[X_AXIS] = Z_PROBE_ALLEN_KEY_DEPLOY_X;
+    destination[Y_AXIS] = Z_PROBE_ALLEN_KEY_DEPLOY_Y;
+    destination[Z_AXIS] = Z_PROBE_ALLEN_KEY_DEPLOY_Z;
+    prepare_move_raw();
+
+    // Home X to touch the belt
+    feedrate = homing_feedrate[X_AXIS]/10;
+    destination[X_AXIS] = 0;
+    prepare_move_raw();
+    
+    // Home Y for safety
+    feedrate = homing_feedrate[X_AXIS]/2;
+    destination[Y_AXIS] = 0;
+    prepare_move_raw();
+    
+    st_synchronize();
+    
+    bool z_min_endstop = (READ(Z_MIN_PIN) != Z_MIN_ENDSTOP_INVERTING);
+    if (z_min_endstop)
+    {
+        if (!Stopped)
+        {
+            SERIAL_ERROR_START;
+            SERIAL_ERRORLNPGM("Z-Probe failed to engage!");
+            LCD_ALERTMESSAGEPGM("Err: ZPROBE");
+        }
+        Stop();
+    }
+  #endif
+
 }
 
 static void retract_z_probe() {
     // Retract Z Servo endstop if enabled
-    #ifdef SERVO_ENDSTOPS
+  #ifdef SERVO_ENDSTOPS
     if (servo_endstops[Z_AXIS] > -1) {
 #if defined (ENABLE_AUTO_BED_LEVELING) && (PROBE_SERVO_DEACTIVATION_DELAY > 0)
         servos[servo_endstops[Z_AXIS]].attach(0);
@@ -1237,7 +1270,49 @@ static void retract_z_probe() {
         servos[servo_endstops[Z_AXIS]].detach();
 #endif
     }
-    #endif
+  #elif defined(Z_PROBE_ALLEN_KEY)
+    // Move up for safety
+    feedrate = homing_feedrate[X_AXIS];
+    destination[Z_AXIS] = current_position[Z_AXIS] + 20;
+    prepare_move_raw();
+
+    // Move to the start position to initiate retraction
+    destination[X_AXIS] = Z_PROBE_ALLEN_KEY_RETRACT_X;
+    destination[Y_AXIS] = Z_PROBE_ALLEN_KEY_RETRACT_Y;
+    destination[Z_AXIS] = Z_PROBE_ALLEN_KEY_RETRACT_Z;
+    prepare_move_raw();
+
+    // Move the nozzle down to push the probe into retracted position
+    feedrate = homing_feedrate[Z_AXIS]/10;
+    destination[Z_AXIS] = current_position[Z_AXIS] - Z_PROBE_ALLEN_KEY_RETRACT_DEPTH;
+    prepare_move_raw();
+    
+    // Move up for safety
+    feedrate = homing_feedrate[Z_AXIS]/2;
+    destination[Z_AXIS] = current_position[Z_AXIS] + Z_PROBE_ALLEN_KEY_RETRACT_DEPTH * 2;
+    prepare_move_raw();
+    
+    // Home XY for safety
+    feedrate = homing_feedrate[X_AXIS]/2;
+    destination[X_AXIS] = 0;
+    destination[Y_AXIS] = 0;
+    prepare_move_raw();
+    
+    st_synchronize();
+    
+    bool z_min_endstop = (READ(Z_MIN_PIN) != Z_MIN_ENDSTOP_INVERTING);
+    if (!z_min_endstop)
+    {
+        if (!Stopped)
+        {
+            SERIAL_ERROR_START;
+            SERIAL_ERRORLNPGM("Z-Probe failed to retract!");
+            LCD_ALERTMESSAGEPGM("Err: ZPROBE");
+        }
+        Stop();
+    }
+  #endif
+
 }
 
 /// Probe bed height at position (x,y), returns the measured z value
@@ -1246,16 +1321,16 @@ static float probe_pt(float x, float y, float z_before, int retract_action=0) {
   do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], z_before);
   do_blocking_move_to(x - X_PROBE_OFFSET_FROM_EXTRUDER, y - Y_PROBE_OFFSET_FROM_EXTRUDER, current_position[Z_AXIS]);
 
-#ifndef Z_PROBE_SLED
+#if !defined(Z_PROBE_SLED) && !defined(Z_PROBE_ALLEN_KEY)
    if ((retract_action==0) || (retract_action==1)) 
      engage_z_probe();   // Engage Z Servo endstop if available
-#endif // Z_PROBE_SLED
+#endif
   run_z_probe();
   float measured_z = current_position[Z_AXIS];
-#ifndef Z_PROBE_SLED
+#if !defined(Z_PROBE_SLED) && !defined(Z_PROBE_ALLEN_KEY)
   if ((retract_action==0) || (retract_action==3)) 
      retract_z_probe();
-#endif // Z_PROBE_SLED
+#endif
 
   SERIAL_PROTOCOLPGM(MSG_BED);
   SERIAL_PROTOCOLPGM(" x: ");
@@ -1851,7 +1926,9 @@ void process_commands()
 
 #ifdef Z_PROBE_SLED
             dock_sled(false);
-#endif // Z_PROBE_SLED
+#elif not defined(SERVO_ENDSTOPS)
+            engage_z_probe();
+#endif
             st_synchronize();
           
           #ifdef DELTA
@@ -2042,7 +2119,9 @@ void process_commands()
 
 #ifdef Z_PROBE_SLED
             dock_sled(true, -SLED_DOCKING_OFFSET); // correct for over travel.
-#endif // Z_PROBE_SLED
+#elif not defined(SERVO_ENDSTOPS)
+            retract_z_probe();
+#endif
         }
         break;
 #ifndef Z_PROBE_SLED
@@ -3641,7 +3720,7 @@ Sigma_Exit:
       st_synchronize();
     }
     break;
-#if defined(ENABLE_AUTO_BED_LEVELING) && defined(SERVO_ENDSTOPS) && not defined(Z_PROBE_SLED)
+#if defined(ENABLE_AUTO_BED_LEVELING) && (defined(SERVO_ENDSTOPS) || defined(Z_PROBE_ALLEN_KEY)) && not defined(Z_PROBE_SLED)
     case 401:
     {
         engage_z_probe();    // Engage Z Servo endstop if available
