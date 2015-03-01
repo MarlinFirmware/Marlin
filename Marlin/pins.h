@@ -114,6 +114,8 @@
   #include "pins_RAMPS_13.h"
 #elif MB(BAM_DICE_DUE)
   #include "pins_BAM_DICE_DUE.h"
+#elif MB(FELIX2)
+  #include "pins_FELIX2.h"
 #elif MB(99)
   #include "pins_99.h"
 #else
@@ -185,3 +187,4 @@
                        }
 
 #endif //__PINS_H
+
