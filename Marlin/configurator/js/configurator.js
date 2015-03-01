@@ -142,8 +142,10 @@ window.configuratorApp = (function(){
       $tooltip = $('#tooltip'),
       $cfg = $('#config_text'), $adv = $('#config_adv_text'),
       $config = $cfg.find('pre'), $config_adv = $adv.find('pre'),
+      define_info = {},
       define_list = [[],[]],
       define_section = {},
+      dependentGroups = {},
       boards_list = {},
       therms_list = {},
       total_config_lines,
@@ -321,7 +323,7 @@ window.configuratorApp = (function(){
     /**
      * Init the thermistors array from the Configuration.h file
      */
-    initThermistorsFromText: function(txt) {
+    initThermistorList: function(txt) {
       // Get all the thermistors and save them into an object
       var r, s, findDef = new RegExp('(//.*\n)+\\s+(#define[ \\t]+TEMP_SENSOR_0)', 'g');
       r = findDef.exec(txt);
@@ -334,7 +336,7 @@ window.configuratorApp = (function(){
     /**
      * Get all the unique define names
      */
-    updateDefinesFromText: function(index, txt) {
+    initDefineList: function(index, txt) {
       var section = 'hidden',
           leave_out_defines = ['CONFIGURATION_H', 'CONFIGURATION_ADV_H'],
           define_sect = {},
@@ -343,7 +345,7 @@ window.configuratorApp = (function(){
         var name = r[2];
         if (r[1] == '@section')
           section = name;
-        else if ($.inArray(name, leave_out_defines) < 0 && !(name in define_sect))
+        else if ($.inArray(name, leave_out_defines) < 0 && !(name in define_section) && !(name in define_sect))
           define_sect[name] = section;
       }
       define_list[index] = Object.keys(define_sect);
@@ -352,20 +354,99 @@ window.configuratorApp = (function(){
     },
 
     /**
+     * Get all condition blocks and their line ranges.
+     * Conditions may control multiple line-ranges
+     * across both config files.
+     */
+    initDependentGroups: function() {
+      var findDef = /^[ \t]*#(ifn?def|if|else|endif)[ \t]*(.*)([ \t]*\/\/[^\n]+)?$/gm,
+          leave_out_defines = ['CONFIGURATION_H', 'CONFIGURATION_ADV_H'];
+      $.each([$config, $config_adv], function(i, $v) {
+        var ifStack = [];
+        var r, txt = $v.text();
+        while((r = findDef.exec(txt)) !== null) {
+          var lineNum = txt.substr(0, r.index).lineCount();
+          var code = r[2].replace(/[ \t]*\/\/.*$/, '');
+          switch(r[1]) {
+            case 'if':
+              var code = code
+                .replace(/([A-Z][A-Z0-9_]+)/g, 'self.defineValue("$1")')
+                .replace(/defined[ \t]*\(?[ \t]*self.defineValue\(("[A-Z][A-Z0-9_]+")\)[ \t]*\)?/g, 'self.defineIsEnabled($1)');
+              ifStack.push(['('+code+')', lineNum]);  // #if starts on next line
+              self.log("push     if " + code, 4);
+              break;
+            case 'ifdef':
+              if ($.inArray(code, leave_out_defines) < 0) {
+                ifStack.push(['self.defineIsEnabled("' + code + '")', lineNum]);
+                self.log("push  ifdef " + code, 4);
+              }
+              else {
+                ifStack.push(0);
+              }
+              break;
+            case 'ifndef':
+              if ($.inArray(code, leave_out_defines) < 0) {
+                ifStack.push(['!self.defineIsEnabled("' + code + '")', lineNum]);
+                self.log("push ifndef " + code, 4);
+              }
+              else {
+                ifStack.push(0);
+              }
+              break;
+            case 'else':
+            case 'endif':
+              var c = ifStack.pop();
+              if (c) {
+                var cond = c[0], line = c[1];
+                self.log("pop " + c[0], 4);
+                if (dependentGroups[cond] === undefined) dependentGroups[cond] = [];
+                dependentGroups[cond].push({adv:i,start:line,end:lineNum});
+                if (r[1] == 'else') {
+                  // Reverse the condition
+                  cond = (cond.indexOf('!') === 0) ? cond.substr(1) : ('!'+cond);
+                  ifStack.push([cond, lineNum]);
+                  self.log("push " + cond, 4);
+                }
+              }
+              else {
+                if (r[1] == 'else') ifStack.push(0);
+              }
+              break;
+          }
+        }
+      }); // text blobs loop
+    },
+
+    /**
+     * Init all the defineInfo structures after reload
+     * The "enabled" field may need an update for newly-loaded dependencies
+     */
+    initDefineInfo: function() {
+      $.each(define_list, function(e,def_list){
+        var adv = e == 1;
+        $.each(def_list, function(i,name) {
+          define_info[name] = self.getDefineInfo(name, adv);
+        });
+      });
+    },
+
+    /**
      * Create fields for any defines that have none
      */
-    createFieldsForDefines: function(adv) {
-      var e = adv ? 1 : 0, n = 0;
-      var fail_list = [];
+    createFieldsForDefines: function(e) {
+      var n = 0, fail_list = [];
       $.each(define_list[e], function(i,name) {
         var section = define_section[name];
         if (section != 'hidden' && !$('#'+name).length) {
-          var inf = self.getDefineInfo(name, adv);
+          var inf = define_info[name];
 
           if (inf) {
 
             var $ff = $('#'+section), $newfield,
+                avail = eval(inf.enabled),
                 $newlabel = $('<label>',{for:name,class:'added'}).text(name.toLabel());
+
+            if (!avail) $newlabel.addClass('blocked');
 
             // if (!(++n % 3))
               $newlabel.addClass('newline');
@@ -376,7 +457,8 @@ window.configuratorApp = (function(){
             if (inf.type == 'list') {
               for (var i=0; i<inf.size; i++) {
                 var fieldname = i > 0 ? name+'-'+i : name;
-                $newfield = $('<input>',{type:'text',size:6,maxlength:10,id:fieldname,name:fieldname,class:'subitem added'}).prop({defineInfo:inf});
+                $newfield = $('<input>',{type:'text',size:6,maxlength:10,id:fieldname,name:fieldname,class:'subitem added',disabled:!avail});
+                if (!avail) $newfield.addClass('blocked');
                 $ff.append($newfield);
               }
             }
@@ -396,7 +478,8 @@ window.configuratorApp = (function(){
               else {
                 $newfield = inf.type == 'switch' ? $('<input>',{type:'checkbox'}) : $('<input>',{type:'text',size:10,maxlength:40});
               }
-              $newfield.attr({id:name,name:name,class:'added'}).prop({defineInfo:inf});
+              $newfield.attr({id:name,name:name,class:'added',disabled:!avail});
+              if (!avail) $newfield.addClass('blocked');
               // Add the new field to the form
               $ff.append($newfield);
             }
@@ -442,7 +525,7 @@ window.configuratorApp = (function(){
           if (has_boards) {
             $config.text(txt);
             total_config_lines = txt.lineCount();
-            // this.initThermistorsFromText(txt);
+            // this.initThermistorList(txt);
             init_index = 0;
             has_config = true;
             if (has_config_adv)
@@ -466,19 +549,24 @@ window.configuratorApp = (function(){
           }
           break;
       }
-      // When a config file loads defines might change
+      // When a config file loads defines need update
       if (init_index != null) {
         var adv = init_index == 1;
+        // Purge old fields from the form, clear the define list
         this.purgeAddedFields(init_index);
-        this.updateDefinesFromText(init_index, txt);
+        // Build the define_list
+        this.initDefineList(init_index, txt);
         // TODO: Find sequential names and group them
         //       Allows related settings to occupy one line in the form
           // this.refreshSequentialDefines();
-        // TODO: Get dependent groups (#ifdef's) from text
-        //       Allows parent to hide/show or disable/enable dependent fields!
-          // this.refreshDependentGroups(); // (from all config text)
-        this.createFieldsForDefines(adv);
-        this.refreshConfigForm(init_index); // TODO: <-- hide dependent fields
+        // Build the dependent defines list
+        this.initDependentGroups(); // all config text
+        // Get define_info for all known defines
+        this.initDefineInfo();      // all config text
+        // Create new fields
+        this.createFieldsForDefines(init_index); // create new fields
+        // Init the fields, set values, etc
+        this.refreshConfigForm(init_index);
         this.activateDownloadLink(adv);
       }
       this.setMessage(err
@@ -595,25 +683,65 @@ window.configuratorApp = (function(){
       // Refresh the motherboard menu with new options
       $('#MOTHERBOARD').html('').addOptions(boards_list);
 
-      // Init all existing fields, getting define info for any that need it
+      // Init all existing fields, getting define info for those that need it
       // refreshing the options and updating their current values
       $.each(define_list[init_index], function() {
-        if ($('#'+this).length)
-          self.initField(this,init_index==1);
+        if ($('#'+this).length) {
+          self.initField(this);
+          self.initFieldValue(this);
+        }
         else
           self.log(this + " is not on the page yet.", 2);
+      });
+
+      // Set enabled state based on dependencies
+      // this.enableForDependentConditions();
+    },
+
+    /**
+     * Enable / disable fields based on condition tests
+     */
+    refreshDependentFields: function() {
+      // Simplest way is to go through all define_info
+      // and run a test on all fields that have one.
+      //
+      // Each define_info caches its enable test as code.
+      //
+      // The fields that act as switches for these dependencies
+      // are not currently modified, but they will soon be.
+      //
+      // Once all conditions have been gathered into define_info
+      // the conditions can be scraped for define names.
+      //
+      // Those named fields will be given a .change action to
+      // check and update enabled state for the field.
+      //
+      $.each(define_list, function(e,def_list){
+        $.each(def_list, function() {
+          var inf = define_info[this];
+          if (inf && inf.enabled != 'true') {
+            var $elm = $('#'+this), ena = eval(inf.enabled);
+            // Make any switch toggle also
+            $('#'+this+'-switch').attr('disabled', !ena);
+            var alreadyEnabled = inf.type == 'switch' || self.defineIsEnabled(this);
+            $elm.attr('disabled', !(ena && alreadyEnabled));
+            ena ? $elm.removeClass('blocked') : $elm.addClass('blocked');
+            // Dim label for unavailable element
+            var $lbl = $elm.prev('label');
+            if ($lbl.length)
+              ena ? $lbl.removeClass('blocked') : $lbl.addClass('blocked');
+          }
+        });
       });
     },
 
     /**
-     * Get the defineInfo for a field on the form
-     * Make it responsive, add a tooltip
+     * Make the field responsive, add optional tooltip, enabler box
      */
-    initField: function(name, adv) {
+    initField: function(name) {
       this.log("initField:"+name,4);
-      var $elm = $('#'+name), elm = $elm[0], inf = elm.defineInfo;
-      if (inf == null)
-        inf = elm.defineInfo = this.getDefineInfo(name, adv);
+      var $elm = $('#'+name), inf = define_info[name];
+      $elm[0].defineInfo = inf;
 
       // Create a tooltip on the label if there is one
       if (inf.tooltip) {
@@ -672,16 +800,16 @@ window.configuratorApp = (function(){
             .change(self.handleSwitch)
         );
       }
-
-      // Set the field's initial value from the define
-      this.setFieldFromDefine(name);
     },
 
     /**
      * Handle any value field being changed
      * this = the field
      */
-    handleChange: function() { self.updateDefineFromField(this.id); },
+    handleChange: function() {
+      self.updateDefineFromField(this.id);
+      self.refreshDependentFields();
+    },
 
     /**
      * Handle a switch checkbox being changed
@@ -690,7 +818,7 @@ window.configuratorApp = (function(){
     handleSwitch: function() {
       var $elm = $(this),
           name = $elm[0].id.replace(/-.+/,''),
-          inf = $('#'+name)[0].defineInfo,
+          inf = define_info[name],
           on = $elm.prop('checked') || false;
 
       self.setDefineEnabled(name, on);
@@ -711,9 +839,10 @@ window.configuratorApp = (function(){
      */
     defineValue: function(name) {
       this.log('defineValue:'+name,4);
-      var inf = $('#'+name)[0].defineInfo;
+      var inf = define_info[name];
       if (inf == null) return 'n/a';
-      var result = inf.regex.exec($(inf.field).text());
+      // var result = inf.regex.exec($(inf.field).text());
+      var result = inf.regex.exec(inf.line);
 
       this.log(result,2);
 
@@ -725,13 +854,14 @@ window.configuratorApp = (function(){
      */
     defineIsEnabled: function(name) {
       this.log('defineIsEnabled:'+name,4);
-      var inf = $('#'+name)[0].defineInfo;
+      var inf = define_info[name];
       if (inf == null) return false;
-      var result = inf.regex.exec($(inf.field).text());
+      // var result = inf.regex.exec($(inf.field).text());
+      var result = inf.regex.exec(inf.line);
 
       this.log(result,2);
 
-      var on = result !== null ? result[1].trim() != '//' : true;
+      var on = result[1] != null ? result[1].trim() != '//' : true;
       this.log(name + ' = ' + on, 2);
 
       return on;
@@ -742,7 +872,7 @@ window.configuratorApp = (function(){
      */
     setDefineEnabled: function(name, val) {
       this.log('setDefineEnabled:'+name,4);
-      var inf = $('#'+name)[0].defineInfo;
+      var inf = define_info[name];
       if (inf) {
         var slash = val ? '' : '//';
         var newline = inf.line
@@ -761,7 +891,7 @@ window.configuratorApp = (function(){
       // Drop the suffix on sub-fields
       name = name.replace(/-\d+$/, '');
 
-      var $elm = $('#'+name), inf = $elm[0].defineInfo;
+      var $elm = $('#'+name), inf = define_info[name];
       if (inf == null) return;
 
       var isCheck = $elm.attr('type') == 'checkbox',
@@ -797,7 +927,7 @@ window.configuratorApp = (function(){
      */
     setDefineLine: function(name, newline) {
       this.log('setDefineLine:'+name+'\n'+newline,4);
-      var inf = $('#'+name)[0].defineInfo;
+      var inf = define_info[name];
       var $c = $(inf.field), txt = $c.text();
 
       var hilite_token = '[HIGHLIGHTER-TOKEN]';
@@ -820,7 +950,7 @@ window.configuratorApp = (function(){
      */
     scrollToDefine: function(name, always) {
       this.log('scrollToDefine:'+name,4);
-      var inf = $('#'+name)[0].defineInfo, $c = $(inf.field);
+      var inf = define_info[name], $c = $(inf.field);
 
       // Scroll to the altered text if it isn't visible
       var halfHeight = $c.height()/2, scrollHeight = $c.prop('scrollHeight'),
@@ -836,14 +966,14 @@ window.configuratorApp = (function(){
     /**
      * Set a form field to the current #define value in the config text
      */
-    setFieldFromDefine: function(name) {
-      var $elm = $('#'+name), inf = $elm[0].defineInfo,
+    initFieldValue: function(name) {
+      var $elm = $('#'+name), inf = define_info[name],
           val = this.defineValue(name);
 
-      this.log('setFieldFromDefine:' + name + ' to ' + val, 2);
+      this.log('initFieldValue:' + name + ' to ' + val, 2);
 
       // If the item has a checkbox then set enabled state too
-      var $cb = $('#'+name+'-switch'), on = true;
+      var $cb = $('#'+name+'-switch'), avail = eval(inf.enabled), on = true;
       if ($cb.length) {
         on = self.defineIsEnabled(name);
         $cb.prop('checked', on);
@@ -854,13 +984,19 @@ window.configuratorApp = (function(){
           var $e = i > 0 ? $('#'+name+'-'+i) : $elm;
           $e.val(v.trim());
           $e.attr('disabled', !on);
+          avail ? $e.removeClass('blocked') : $e.addClass('blocked');
         });
       }
       else {
         if (inf.type == 'toggle') val = val == inf.options[1];
         $elm.attr('type') == 'checkbox' ? $elm.prop('checked', val) : $elm.val(''+val);
         $elm.attr('disabled', !on); // enable/disable the form field (could also dim it)
+        avail ? $elm.removeClass('blocked') : $elm.addClass('blocked');
       }
+
+      // set label color
+      var $lbl = $elm.prev('label');
+      avail ? $lbl.removeClass('blocked') : $lbl.addClass('blocked');
     },
 
     /**
@@ -871,17 +1007,6 @@ window.configuratorApp = (function(){
         $('#'+this + ",[id^='"+this+"-'],label[for='"+this+"']").filter('.added').remove();
       });
       define_list[index] = [];
-    },
-
-    /**
-     * Update #define information for one of the config files
-     */
-    refreshDefineInfo: function(adv) {
-      if (adv === undefined) adv = false;
-      $('[name]').each(function() {
-        var inf = this.defineInfo;
-        if (inf && adv == inf.adv) this.defineInfo = self.getDefineInfo(this.id, adv);
-      });
     },
 
     /**
@@ -909,9 +1034,9 @@ window.configuratorApp = (function(){
           val_i:  1,
           type:   'switch',
           line:   result[0], // whole line
-          pre:    result[1] === undefined ? '' : result[1].replace('//',''),
+          pre:    result[1] == null ? '' : result[1].replace('//',''),
           define: result[2],
-          post:   result[3] === undefined ? '' : result[3]
+          post:   result[3] == null ? '' : result[3]
         });
         info.regex = new RegExp('([ \\t]*//)?([ \\t]*' + info.define.regEsc() + info.post.regEsc() + ')', 'm');
         info.repl =  new RegExp('([ \\t]*)(\/\/)?([ \\t]*' + info.define.regEsc() + info.post.regEsc() + ')', 'm');
@@ -924,10 +1049,10 @@ window.configuratorApp = (function(){
           $.extend(info, {
             type:   'list',
             line:   result[0],
-            pre:    result[1] === undefined ? '' : result[1].replace('//',''),
+            pre:    result[1] == null ? '' : result[1].replace('//',''),
             define: result[2],
             size:   result[3].split(',').length,
-            post:   result[4] === undefined ? '' : result[4]
+            post:   result[4] == null ? '' : result[4]
           });
           info.regex = new RegExp('([ \\t]*//)?[ \\t]*' + info.define.regEsc() + '\{([^\}]*)\}' + info.post.regEsc(), 'm');
           info.repl  = new RegExp('(([ \\t]*//)?[ \\t]*' + info.define.regEsc() + '\{)[^\}]*(\}' + info.post.regEsc() + ')', 'm');
@@ -940,9 +1065,9 @@ window.configuratorApp = (function(){
             $.extend(info, {
               type:   'quoted',
               line:   result[0],
-              pre:    result[1] === undefined ? '' : result[1].replace('//',''),
+              pre:    result[1] == null ? '' : result[1].replace('//',''),
               define: result[2],
-              post:   result[4] === undefined ? '' : result[4]
+              post:   result[4] == null ? '' : result[4]
             });
             info.regex = new RegExp('([ \\t]*//)?[ \\t]*' + info.define.regEsc() + '"([^"]*)"' + info.post.regEsc(), 'm');
             info.repl  = new RegExp('(([ \\t]*//)?[ \\t]*' + info.define.regEsc() + '")[^"]*("' + info.post.regEsc() + ')', 'm');
@@ -955,9 +1080,9 @@ window.configuratorApp = (function(){
               $.extend(info, {
                 type:   'plain',
                 line:   result[0],
-                pre:    result[1] === undefined ? '' : result[1].replace('//',''),
+                pre:    result[1] == null ? '' : result[1].replace('//',''),
                 define: result[2],
-                post:   result[4] === undefined ? '' : result[4]
+                post:   result[4] == null ? '' : result[4]
               });
               if (result[3].match(/false|true/)) {
                 info.type = 'toggle';
@@ -1005,19 +1130,36 @@ window.configuratorApp = (function(){
           }
         }
 
-
         // Add .tooltip and .lineNum properties to the info
         findDef = new RegExp('^'+name); // Strip the name from the tooltip
+        var lineNum = this.getLineNumberOfText(info.line, txt);
+
+        // See if this define is enabled conditionally
+        var enable_cond = '';
+        var adv_index = adv ? 1 : 0;
+        $.each(dependentGroups, function(cond,dat){
+          $.each(dat, function(i,o){
+            if (o.adv == adv_index && lineNum > o.start && lineNum < o.end) {
+              // self.log(name + " is in range " + o.start + "-" + o.end, 2);
+              // if this setting is in a range, conditions are added
+              if (enable_cond != '') enable_cond += ' && ';
+              enable_cond += '(' + cond + ')';
+            }
+          });
+        });
+
         $.extend(info, {
           tooltip: '<strong>'+name+'</strong> '+tooltip.trim().replace(findDef,'').toHTML(),
-          lineNum: this.getLineNumberOfText(info.line, txt),
-          switchable: (info.type != 'switch' && info.line.match(/^[ \t]*\/\//)) || false // Disabled? Mark as "switchable"
+          lineNum: lineNum,
+          switchable: (info.type != 'switch' && info.line.match(/^[ \t]*\/\//)) || false, // Disabled? Mark as "switchable"
+          enabled: enable_cond ? enable_cond : 'true'
         });
+
       }
       else
         info = null;
 
-      this.log(info,2);
+      this.log(info, 2);
 
       return info;
     },

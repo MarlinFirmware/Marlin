@@ -91,6 +91,8 @@ label {
 	margin-right: -450px;
 	text-align: right;
 	}
+label.blocked { color: #AAA; }
+
 input[type="text"], select { margin: 0.75em 0 0; }
 input[type="checkbox"], input[type="radio"], input[type="file"] { margin: 1em 0 0; }
 input[type="checkbox"].enabler, input[type="radio"].enabler { margin-left: 1em; }
@@ -308,3 +310,5 @@ a.download-all { margin: 9px 2em 0; color: #449; border-color: #449; }
 	.disclose { display: none; }
 
 }
+
+/*.blocked { display: none; }*/
