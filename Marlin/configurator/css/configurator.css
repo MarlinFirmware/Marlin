@@ -91,17 +91,16 @@ label {
 	margin-right: -450px;
 	text-align: right;
 	}
-label.blocked, span.label.blocked { color: #AAA; }
+label.blocked, label.added.blocked, label.added.blocked.sublabel { color: #AAA; }
 
-span.label {
-	display: block;
-	float: left;
+label.added.sublabel {
+	width: auto;
 	margin: 11px -2.5em 0 1em;
-	padding-right: 3em;
+	padding: 0 3em 0 0;
 	font-style: italic;
 	color: #444;
 	}
-label+span.label {
+label+label.added.sublabel {
 	margin-left: 0;
 	}
 
@@ -341,5 +340,5 @@ select.one_of_4+span.label+select.one_of_4+span.label+select.one_of_4+span.label
 
 }
 
-/*span.label.blocked, .blocked { display: none; }*/
+/*label.blocked, .blocked { display: none; }*/
 
