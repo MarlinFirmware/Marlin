@@ -14,6 +14,7 @@
 #define BOARD_RAMPS_13_EEB      34   // RAMPS 1.3 / 1.4 (Power outputs: Extruder0, Extruder1, Bed)
 #define BOARD_RAMPS_13_EFF      35   // RAMPS 1.3 / 1.4 (Power outputs: Extruder, Fan, Fan)
 #define BOARD_RAMPS_13_EEF      36   // RAMPS 1.3 / 1.4 (Power outputs: Extruder0, Extruder1, Fan)
+#define BOARD_FELIX2            37   // Felix 2.0+ Electronics Board (RAMPS like)
 #define BOARD_DUEMILANOVE_328P  4    // Duemilanove w/ ATMega328P pin assignments
 #define BOARD_GEN6              5    // Gen6
 #define BOARD_GEN6_DELUXE       51   // Gen6 deluxe
@@ -52,11 +53,9 @@
 #define BOARD_HEPHESTOS         42   // bq Prusa i3 Hephestos
 #define BOARD_BAM_DICE          401  // 2PrintBeta BAM&DICE with STK drivers
 #define BOARD_BAM_DICE_DUE      402  // 2PrintBeta BAM&DICE Due with STK drivers
-#define BOARD_FELIX2			101  // Felix 2.0+ Electronics
 
 #define BOARD_99                99   // This is in pins.h but...?
 
 #define MB(board) (MOTHERBOARD==BOARD_##board)
 
 #endif //__BOARDS_H
-
