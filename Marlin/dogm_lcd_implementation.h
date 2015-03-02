@@ -21,17 +21,13 @@
 **/
 
 #ifdef ULTIPANEL
-#define BLEN_A 0
-#define BLEN_B 1
-#define BLEN_C 2
-#define EN_A (1<<BLEN_A)
-#define EN_B (1<<BLEN_B)
-#define EN_C (1<<BLEN_C)
-#define encrot0 0
-#define encrot1 2
-#define encrot2 3
-#define encrot3 1
-#define LCD_CLICKED (buttons&EN_C)
+  #define BLEN_A 0
+  #define BLEN_B 1
+  #define BLEN_C 2
+  #define EN_A (1<<BLEN_A)
+  #define EN_B (1<<BLEN_B)
+  #define EN_C (1<<BLEN_C)
+  #define LCD_CLICKED (buttons&EN_C)
 #endif
 
 #include <U8glib.h>
