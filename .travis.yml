@@ -24,6 +24,8 @@ before_script:
   - sudo rm -rf /usr/share/arduino/libraries/Robot_Control
   # change back to home directory for compiling
   - cd $TRAVIS_BUILD_DIR
+  # copy TMC and L6470 libraries to arduino dir, as conditional includes do not work in .ino files
+  - cp -r ../ArduinoAddons/Arduino_1.x.x/libraries/ /usr/share/arduino/libraries/  
   # ino needs files in src directory
   - ln -s Marlin src
   # remove Marlin.pde as it confuses ino after it finds Marlin.ino
