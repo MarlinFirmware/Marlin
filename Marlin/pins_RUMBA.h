@@ -6,6 +6,10 @@
   #error Oops!  Make sure you have 'Arduino Mega' selected from the 'Tools -> Boards' menu.
 #endif
 
+#if EXTRUDERS > 3
+  #error RUMBA supports up to 3 extruders. Comment this line to keep going.
+#endif
+
 #define X_STEP_PIN         17
 #define X_DIR_PIN          16
 #define X_ENABLE_PIN       48
