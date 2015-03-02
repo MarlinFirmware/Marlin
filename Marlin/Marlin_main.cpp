@@ -1767,8 +1767,19 @@ inline void gcode_G28() {
     #ifdef AUTO_BED_LEVELING_GRID
 
       // probe at the points of a lattice grid
-      int xGridSpacing = (RIGHT_PROBE_BED_POSITION - LEFT_PROBE_BED_POSITION) / (AUTO_BED_LEVELING_GRID_POINTS - 1);
-      int yGridSpacing = (BACK_PROBE_BED_POSITION - FRONT_PROBE_BED_POSITION) / (AUTO_BED_LEVELING_GRID_POINTS - 1);
+      int left_probe_bed_position = LEFT_PROBE_BED_POSITION;
+      int right_probe_bed_position = RIGHT_PROBE_BED_POSITION;
+      int back_probe_bed_position = BACK_PROBE_BED_POSITION;
+      int front_probe_bed_position = FRONT_PROBE_BED_POSITION;
+      int auto_bed_leveling_grid_points = AUTO_BED_LEVELING_GRID_POINTS;
+      if (code_seen('L')) left_probe_bed_position = (int)code_value();
+      if (code_seen('R')) right_probe_bed_position = (int)code_value();
+      if (code_seen('B')) back_probe_bed_position = (int)code_value();
+      if (code_seen('F')) front_probe_bed_position = (int)code_value();
+      if (code_seen('P')) auto_bed_leveling_grid_points = (int)code_value();
+
+      int xGridSpacing = (right_probe_bed_position - left_probe_bed_position) / (auto_bed_leveling_grid_points - 1);
+      int yGridSpacing = (back_probe_bed_position - front_probe_bed_position) / (auto_bed_leveling_grid_points - 1);
 
       // solve the plane equation ax + by + d = z
       // A is the matrix with rows [x y 1] for all the probed points
@@ -1777,33 +1788,34 @@ inline void gcode_G28() {
       // so Vx = -a Vy = -b Vz = 1 (we want the vector facing towards positive Z
 
       // "A" matrix of the linear system of equations
-      double eqnAMatrix[AUTO_BED_LEVELING_GRID_POINTS * AUTO_BED_LEVELING_GRID_POINTS * 3];
+      double eqnAMatrix[auto_bed_leveling_grid_points * auto_bed_leveling_grid_points * 3];
       // "B" vector of Z points
-      double eqnBVector[AUTO_BED_LEVELING_GRID_POINTS * AUTO_BED_LEVELING_GRID_POINTS];
+      double eqnBVector[auto_bed_leveling_grid_points * auto_bed_leveling_grid_points];
 
       int probePointCounter = 0;
       bool zig = true;
 
-      for (int yProbe=FRONT_PROBE_BED_POSITION; yProbe <= BACK_PROBE_BED_POSITION; yProbe += yGridSpacing) {
+      for (int yProbe = front_probe_bed_position; yProbe <= back_probe_bed_position; yProbe += yGridSpacing) {
         int xProbe, xInc;
         if (zig) {
-          xProbe = LEFT_PROBE_BED_POSITION;
-          //xEnd = RIGHT_PROBE_BED_POSITION;
+          xProbe = left_probe_bed_position;
+          //xEnd = right_probe_bed_position;
           xInc = xGridSpacing;
           zig = false;
         }
         else { // zag
-          xProbe = RIGHT_PROBE_BED_POSITION;
-          //xEnd = LEFT_PROBE_BED_POSITION;
+          xProbe = right_probe_bed_position;
+          //xEnd = left_probe_bed_position;
           xInc = -xGridSpacing;
           zig = true;
         }
 
-        for (int xCount=0; xCount < AUTO_BED_LEVELING_GRID_POINTS; xCount++) {
+        for (int xCount = 0; xCount < auto_bed_leveling_grid_points; xCount++) {
+          // raise extruder
           float measured_z,
                 z_before = probePointCounter == 0 ? Z_RAISE_BEFORE_PROBING : current_position[Z_AXIS] + Z_RAISE_BETWEEN_PROBINGS;
 
-          // Enhanced G29 - No servo retract between probes
+          // Enhanced G29 - Do not retract servo between probes
           if (code_seen('E') || code_seen('e')) {
             if (yProbe == FRONT_PROBE_BED_POSITION && xCount == 0)
               measured_z = probe_pt(xProbe, yProbe, z_before, 1);
@@ -1811,23 +1823,25 @@ inline void gcode_G28() {
               measured_z = probe_pt(xProbe, yProbe, z_before, 3);
             else
               measured_z = probe_pt(xProbe, yProbe, z_before, 2);
-          } else {
-            measured_z = probe_pt(xProbe, yProbe, z_before);
           }
+          else
+            measured_z = probe_pt(xProbe, yProbe, z_before);
 
           eqnBVector[probePointCounter] = measured_z;
-
-          eqnAMatrix[probePointCounter + 0 * AUTO_BED_LEVELING_GRID_POINTS * AUTO_BED_LEVELING_GRID_POINTS] = xProbe;
-          eqnAMatrix[probePointCounter + 1 * AUTO_BED_LEVELING_GRID_POINTS * AUTO_BED_LEVELING_GRID_POINTS] = yProbe;
-          eqnAMatrix[probePointCounter + 2 * AUTO_BED_LEVELING_GRID_POINTS * AUTO_BED_LEVELING_GRID_POINTS] = 1;
+          eqnAMatrix[probePointCounter + 0 * auto_bed_leveling_grid_points * auto_bed_leveling_grid_points] = xProbe;
+          eqnAMatrix[probePointCounter + 1 * auto_bed_leveling_grid_points * auto_bed_leveling_grid_points] = yProbe;
+          eqnAMatrix[probePointCounter + 2 * auto_bed_leveling_grid_points * auto_bed_leveling_grid_points] = 1;
           probePointCounter++;
           xProbe += xInc;
-        }
-      }
+
+        } //xProbe
+
+      } //yProbe
+
       clean_up_after_endstop_move();
 
       // solve lsq problem
-      double *plane_equation_coefficients = qr_solve(AUTO_BED_LEVELING_GRID_POINTS*AUTO_BED_LEVELING_GRID_POINTS, 3, eqnAMatrix, eqnBVector);
+      double *plane_equation_coefficients = qr_solve(auto_bed_leveling_grid_points * auto_bed_leveling_grid_points, 3, eqnAMatrix, eqnBVector);
 
       SERIAL_PROTOCOLPGM("Eqn coefficients: a: ");
       SERIAL_PROTOCOL(plane_equation_coefficients[0]);
@@ -1835,7 +1849,6 @@ inline void gcode_G28() {
       SERIAL_PROTOCOL(plane_equation_coefficients[1]);
       SERIAL_PROTOCOLPGM(" d: ");
       SERIAL_PROTOCOLLN(plane_equation_coefficients[2]);
-
 
       set_bed_level_equation_lsq(plane_equation_coefficients);
 
@@ -5226,21 +5239,12 @@ bool setTargetedHotend(int code){
 
 
 float calculate_volumetric_multiplier(float diameter) {
-	float area = .0;
-	float radius = .0;
-
-	radius = diameter * .5;
-	if (! volumetric_enabled || radius == 0) {
-		area = 1;
-	}
-	else {
-		area = M_PI * pow(radius, 2);
-	}
-
-	return 1.0 / area;
+  if (!volumetric_enabled || diameter == 0) return 1.0;
+  float d2 = diameter * 0.5;
+  return 1.0 / (M_PI * d2 * d2);
 }
 
 void calculate_volumetric_multipliers() {
   for (int i=0; i<EXTRUDERS; i++)
-  	volumetric_multiplier[i] = calculate_volumetric_multiplier(filament_size[i]);
+    volumetric_multiplier[i] = calculate_volumetric_multiplier(filament_size[i]);
 }

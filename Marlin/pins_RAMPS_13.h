@@ -122,12 +122,22 @@
 #ifdef ULTRA_LCD
 
   #ifdef NEWPANEL
-    #define LCD_PINS_RS 16
-    #define LCD_PINS_ENABLE 17
-    #define LCD_PINS_D4 23
-    #define LCD_PINS_D5 25
-    #define LCD_PINS_D6 27
-    #define LCD_PINS_D7 29
+    #ifdef PANEL_ONE
+      #define LCD_PINS_RS 40
+      #define LCD_PINS_ENABLE 42
+      #define LCD_PINS_D4 65
+      #define LCD_PINS_D5 66
+      #define LCD_PINS_D6 44
+      #define LCD_PINS_D7 64
+    #else
+      #define LCD_PINS_RS 16
+      #define LCD_PINS_ENABLE 17
+      #define LCD_PINS_D4 23
+      #define LCD_PINS_D5 25
+      #define LCD_PINS_D6 27
+      #define LCD_PINS_D7 29
+    #endif
+
 
     #ifdef REPRAP_DISCOUNT_SMART_CONTROLLER
       #define BEEPER 37
@@ -162,6 +172,10 @@
         #define SHIFT_OUT 40 // shift register
         #define SHIFT_CLK 44 // shift register
         #define SHIFT_LD 42 // shift register
+      #elif defined(PANEL_ONE)
+        #define BTN_EN1 59 // AUX2 PIN 3
+        #define BTN_EN2 63 // AUX2 PIN 4
+        #define BTN_ENC 49 // AUX3 PIN 7
       #else
         #define BTN_EN1 37
         #define BTN_EN2 35
