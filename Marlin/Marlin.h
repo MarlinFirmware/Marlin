@@ -20,7 +20,7 @@
 
 #include "fastio.h"
 #include "Configuration.h"
-#include "pins.h"
+#include <MarlinPins.h>
 
 #ifndef AT90USB
 #define  HardwareSerial_h // trick to disable the standard HWserial

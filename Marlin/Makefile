@@ -222,6 +222,8 @@ TARGET = $(notdir $(CURDIR))
 # directory is added here
 
 VPATH = .
+VPATH += ./libraries/MarlinPins
+VPATH += ./libraries/MarlinLanguage
 VPATH += $(BUILD_DIR)
 VPATH += $(HARDWARE_SRC)
 ifeq ($(HARDWARE_VARIANT), $(filter $(HARDWARE_VARIANT),arduino Teensy))
