@@ -399,89 +399,84 @@ ISR(TIMER1_COMPA_vect)
       count_direction[Y_AXIS]=1;
     }
 
-    // Set direction en check limit switches
-    #ifndef COREXY
-    if ((out_bits & (1<<X_AXIS)) != 0)   // stepping along -X axis
-    #else
-    if ((out_bits & (1<<X_HEAD)) != 0)   //AlexBorro: Head direction in -X axis for CoreXY bots.
-    #endif
+    if(check_endstops) // check X and Y Endstops
     {
-      CHECK_ENDSTOPS
-      {
-        #ifdef DUAL_X_CARRIAGE
-        // with 2 x-carriages, endstops are only checked in the homing direction for the active extruder
-        if ((current_block->active_extruder == 0 && X_HOME_DIR == -1) 
-            || (current_block->active_extruder != 0 && X2_HOME_DIR == -1))
-        #endif          
-        {
-          #if defined(X_MIN_PIN) && X_MIN_PIN > -1
-            bool x_min_endstop=(READ(X_MIN_PIN) != X_MIN_ENDSTOP_INVERTING);
-            if(x_min_endstop && old_x_min_endstop && (current_block->steps_x > 0)) {
-              endstops_trigsteps[X_AXIS] = count_position[X_AXIS];
-              endstop_x_hit=true;
-              step_events_completed = current_block->step_event_count;
+        #ifndef COREXY
+        if ((out_bits & (1<<X_AXIS)) != 0)   // stepping along -X axis (regular cartesians bot)
+        #else
+        if (!((current_block->steps_x == current_block->steps_y) && ((out_bits & (1<<X_AXIS))>>X_AXIS != (out_bits & (1<<Y_AXIS))>>Y_AXIS))) // AlexBorro: If DeltaX == -DeltaY, the movement is only in Y axis
+        if ((out_bits & (1<<X_HEAD)) != 0) //AlexBorro: Head direction in -X axis for CoreXY bots.
+        #endif
+        { // -direction
+            #ifdef DUAL_X_CARRIAGE
+            // with 2 x-carriages, endstops are only checked in the homing direction for the active extruder
+            if ((current_block->active_extruder == 0 && X_HOME_DIR == -1) || (current_block->active_extruder != 0 && X2_HOME_DIR == -1))
+            #endif          
+            {
+                #if defined(X_MIN_PIN) && X_MIN_PIN > -1
+                bool x_min_endstop=(READ(X_MIN_PIN) != X_MIN_ENDSTOP_INVERTING);
+                if(x_min_endstop && old_x_min_endstop && (current_block->steps_x > 0))
+                {
+                    endstops_trigsteps[X_AXIS] = count_position[X_AXIS];
+                    endstop_x_hit=true;
+                    step_events_completed = current_block->step_event_count;
+                }
+                old_x_min_endstop = x_min_endstop;
+                #endif
             }
-            old_x_min_endstop = x_min_endstop;
-          #endif
         }
-      }
-    }
-    else 
-    { // +direction
-      CHECK_ENDSTOPS
-      {
-        #ifdef DUAL_X_CARRIAGE
-        // with 2 x-carriages, endstops are only checked in the homing direction for the active extruder
-        if ((current_block->active_extruder == 0 && X_HOME_DIR == 1) 
-            || (current_block->active_extruder != 0 && X2_HOME_DIR == 1))
-        #endif          
-        {
-          #if defined(X_MAX_PIN) && X_MAX_PIN > -1
-            bool x_max_endstop=(READ(X_MAX_PIN) != X_MAX_ENDSTOP_INVERTING);
-            if(x_max_endstop && old_x_max_endstop && (current_block->steps_x > 0)){
-              endstops_trigsteps[X_AXIS] = count_position[X_AXIS];
-              endstop_x_hit=true;
-              step_events_completed = current_block->step_event_count;
+        else 
+        { // +direction
+            #ifdef DUAL_X_CARRIAGE
+            // with 2 x-carriages, endstops are only checked in the homing direction for the active extruder
+            if ((current_block->active_extruder == 0 && X_HOME_DIR == 1) || (current_block->active_extruder != 0 && X2_HOME_DIR == 1))
+            #endif          
+            {
+                #if defined(X_MAX_PIN) && X_MAX_PIN > -1
+                bool x_max_endstop=(READ(X_MAX_PIN) != X_MAX_ENDSTOP_INVERTING);
+                if(x_max_endstop && old_x_max_endstop && (current_block->steps_x > 0))
+                {
+                    endstops_trigsteps[X_AXIS] = count_position[X_AXIS];
+                    endstop_x_hit=true;
+                    step_events_completed = current_block->step_event_count;
+                }
+                old_x_max_endstop = x_max_endstop;
+                #endif
             }
-            old_x_max_endstop = x_max_endstop;
-          #endif
         }
-      }
-    }
 
-    #ifndef COREXY
-    if ((out_bits & (1<<Y_AXIS)) != 0)   // -direction
-    #else
-    if ((out_bits & (1<<Y_HEAD)) != 0)  //AlexBorro: Head direction in -Y axis for CoreXY bots.
-    #endif
-    {
-      CHECK_ENDSTOPS
-      {
-        #if defined(Y_MIN_PIN) && Y_MIN_PIN > -1
-          bool y_min_endstop=(READ(Y_MIN_PIN) != Y_MIN_ENDSTOP_INVERTING);
-          if(y_min_endstop && old_y_min_endstop && (current_block->steps_y > 0)) {
-            endstops_trigsteps[Y_AXIS] = count_position[Y_AXIS];
-            endstop_y_hit=true;
-            step_events_completed = current_block->step_event_count;
-          }
-          old_y_min_endstop = y_min_endstop;
+        #ifndef COREXY
+        if ((out_bits & (1<<Y_AXIS)) != 0)   // -direction
+        #else
+        if (!((current_block->steps_x == current_block->steps_y) && ((out_bits & (1<<X_AXIS))>>X_AXIS == (out_bits & (1<<Y_AXIS))>>Y_AXIS))) // AlexBorro: If DeltaX == DeltaY, the movement is only in X axis
+        if ((out_bits & (1<<Y_HEAD)) != 0)  //AlexBorro: Head direction in -Y axis for CoreXY bots.
         #endif
-      }
-    }
-    else 
-    { // +direction
-      CHECK_ENDSTOPS
-      {
-        #if defined(Y_MAX_PIN) && Y_MAX_PIN > -1
-          bool y_max_endstop=(READ(Y_MAX_PIN) != Y_MAX_ENDSTOP_INVERTING);
-          if(y_max_endstop && old_y_max_endstop && (current_block->steps_y > 0)){
-            endstops_trigsteps[Y_AXIS] = count_position[Y_AXIS];
-            endstop_y_hit=true;
-            step_events_completed = current_block->step_event_count;
-          }
-          old_y_max_endstop = y_max_endstop;
-        #endif
-      }
+        { // -direction
+            #if defined(Y_MIN_PIN) && Y_MIN_PIN > -1
+            bool y_min_endstop=(READ(Y_MIN_PIN) != Y_MIN_ENDSTOP_INVERTING);
+            if(y_min_endstop && old_y_min_endstop && (current_block->steps_y > 0))
+            {
+                endstops_trigsteps[Y_AXIS] = count_position[Y_AXIS];
+                endstop_y_hit=true;
+                step_events_completed = current_block->step_event_count;
+            }
+            old_y_min_endstop = y_min_endstop;
+            #endif
+        }
+        else 
+        { // +direction
+            #if defined(Y_MAX_PIN) && Y_MAX_PIN > -1
+            bool y_max_endstop=(READ(Y_MAX_PIN) != Y_MAX_ENDSTOP_INVERTING);
+            if(y_max_endstop && old_y_max_endstop && (current_block->steps_y > 0))
+            {
+                endstops_trigsteps[Y_AXIS] = count_position[Y_AXIS];
+                endstop_y_hit=true;
+                step_events_completed = current_block->step_event_count;
+            }
+            old_y_max_endstop = y_max_endstop;
+            #endif
+
+        }
     }
 
     if ((out_bits & (1<<Z_AXIS)) != 0) {   // -direction

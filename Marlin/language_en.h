@@ -255,7 +255,7 @@
 #define MSG_VOLUMETRIC                      "Filament"
 #endif
 #ifndef MSG_VOLUMETRIC_ENABLED
-#define MSG_VOLUMETRIC_ENABLED		        "E in mm" STR_h3
+#define MSG_VOLUMETRIC_ENABLED              "E in mm" STR_h3
 #endif
 #ifndef MSG_FILAMENT_SIZE_EXTRUDER_0
 #define MSG_FILAMENT_SIZE_EXTRUDER_0        "Fil. Dia. 1"
@@ -383,23 +383,41 @@
 #ifndef MSG_ENDSTOP_ABORT
 #define MSG_ENDSTOP_ABORT                   "Endstop abort"
 #endif
+#ifndef MSG_HEATING_FAILED_LCD
+#define MSG_HEATING_FAILED_LCD              "Heating failed"
+#endif
+#ifndef MSG_ERR_REDUNDANT_TEMP
+#define MSG_ERR_REDUNDANT_TEMP              "Err: REDUNDANT TEMP ERROR"
+#endif
+#ifndef MSG_THERMAL_RUNAWAY
+#define MSG_THERMAL_RUNAWAY                 "THERMAL RUNAWAY"
+#endif
+#ifndef MSG_ERR_MAXTEMP
+#define MSG_ERR_MAXTEMP                     "Err: MAXTEMP"
+#endif
+#ifndef MSG_ERR_MINTEMP
+#define MSG_ERR_MINTEMP                     "Err: MINTEMP"
+#endif
+#ifndef MSG_ERR_MAXTEMP_BED
+#define MSG_ERR_MAXTEMP_BED                 "Err: MAXTEMP BED"
+#endif
 
 #ifdef DELTA_CALIBRATION_MENU
-    #ifndef MSG_DELTA_CALIBRATE
-    #define MSG_DELTA_CALIBRATE             "Delta Calibration"
-    #endif
-    #ifndef MSG_DELTA_CALIBRATE_X
-    #define MSG_DELTA_CALIBRATE_X           "Calibrate X"
-    #endif
-    #ifndef MSG_DELTA_CALIBRATE_Y
-    #define MSG_DELTA_CALIBRATE_Y           "Calibrate Y"
-    #endif
-    #ifndef MSG_DELTA_CALIBRATE_Z
-    #define MSG_DELTA_CALIBRATE_Z           "Calibrate Z"
-    #endif
-    #ifndef MSG_DELTA_CALIBRATE_CENTER
-    #define MSG_DELTA_CALIBRATE_CENTER      "Calibrate Center"
-    #endif
+  #ifndef MSG_DELTA_CALIBRATE
+  #define MSG_DELTA_CALIBRATE             "Delta Calibration"
+  #endif
+  #ifndef MSG_DELTA_CALIBRATE_X
+  #define MSG_DELTA_CALIBRATE_X           "Calibrate X"
+  #endif
+  #ifndef MSG_DELTA_CALIBRATE_Y
+  #define MSG_DELTA_CALIBRATE_Y           "Calibrate Y"
+  #endif
+  #ifndef MSG_DELTA_CALIBRATE_Z
+  #define MSG_DELTA_CALIBRATE_Z           "Calibrate Z"
+  #endif
+  #ifndef MSG_DELTA_CALIBRATE_CENTER
+  #define MSG_DELTA_CALIBRATE_CENTER      "Calibrate Center"
+  #endif
 #endif // DELTA_CALIBRATION_MENU
 
 #endif // LANGUAGE_EN_H
