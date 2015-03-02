@@ -146,6 +146,8 @@ window.configuratorApp = (function(){
       $tooltip = $('#tooltip'),
       $cfg = $('#config_text'), $adv = $('#config_adv_text'),
       $config = $cfg.find('pre'), $config_adv = $adv.find('pre'),
+      config_file_list = [ boards_file, config_file, config_adv_file ],
+      config_list = [ $config, $config_adv ],
       define_info = {},
       define_list = [[],[]],
       define_groups = [{},{}],
@@ -199,10 +201,9 @@ window.configuratorApp = (function(){
       // Read boards.h, Configuration.h, Configuration_adv.h
       var ajax_count = 0, success_count = 0;
       var loaded_items = {};
-      var config_files = [boards_file, config_file, config_adv_file];
       var isGithub = config.type == 'github';
       var rateLimit = 0;
-      $.each(config_files, function(i,fname){
+      $.each(config_file_list, function(i,fname){
         var url = config_path(fname);
         $.ajax({
           url: url,
@@ -215,7 +216,7 @@ window.configuratorApp = (function(){
             if (req.status == 200) {
               if (typeof req.responseText === 'string') {
                 var txt = req.responseText;
-                loaded_items[fname] = function(){ self.fileLoaded(fname, txt); };
+                loaded_items[fname] = function(){ self.fileLoaded(fname, txt, true); };
                 success_count++;
                 // self.setMessage('The request for "'+fname+'" may be malformed.', 'error');
               }
@@ -236,13 +237,13 @@ window.configuratorApp = (function(){
                   timeLeft: Math.floor(txt.meta['X-RateLimit-Reset'] - Date.now()/1000),
                 };
               }
-              loaded_items[fname] = function(){ self.fileLoaded(fname, isGithub ? atob(txt.data.content.replace(/\s/g, '')) : txt); };
+              loaded_items[fname] = function(){ self.fileLoaded(fname, isGithub ? atob(txt.data.content.replace(/\s/g, '')) : txt, true); };
               success_count++;
             }
           },
           complete: function() {
             ajax_count++;
-            if (ajax_count >= config_files.length) {
+            if (ajax_count >= config_file_list.length) {
               // If not all files loaded set an error
               if (success_count < ajax_count)
                 self.setMessage('Unable to load configurations. Try the upload field.', 'error');
@@ -260,7 +261,7 @@ window.configuratorApp = (function(){
                 }
               }
               // Post-process all the loaded files
-              $.each(config_files, function(){ if (loaded_items[this]) loaded_items[this](); });
+              $.each(config_file_list, function(){ if (loaded_items[this]) loaded_items[this](); });
             }
           }
         });
@@ -270,9 +271,9 @@ window.configuratorApp = (function(){
     /**
      * Make a download link visible and active
      */
-    activateDownloadLink: function(adv) {
-      var $c = adv ? $config_adv : $config, txt = $c.text();
-      var filename = (adv ? config_adv_file : config_file);
+    activateDownloadLink: function(cindex) {
+      var filename = config_file_list[cindex+1];
+      var $c = config_list[cindex], txt = $c.text();
       $c.prevAll('.download:first')
         .unbind('mouseover click')
         .mouseover(function() {
@@ -303,8 +304,7 @@ window.configuratorApp = (function(){
         .click(function(){
           var $button = $(this);
           var zip = new JSZip();
-          zip.file(config_file, $config.text());
-          zip.file(config_adv_file, $config_adv.text());
+          for (var e in [0,1]) zip.file(config_file_list[e+1], config_list[e].text());
           var zipped = zip.generate({type:'blob'});
           saveAs(zipped, $button.attr('download'));
           return false;
@@ -341,10 +341,11 @@ window.configuratorApp = (function(){
     /**
      * Get all the unique define names
      */
-    initDefineList: function(index, txt) {
+    initDefineList: function(cindex) {
       var section = 'hidden',
           leave_out_defines = ['CONFIGURATION_H', 'CONFIGURATION_ADV_H'],
           define_sect = {},
+          txt = config_list[cindex].text(),
           r, findDef = new RegExp('(@section|#define)[ \\t]+(\\w+)', 'gm');
       while((r = findDef.exec(txt)) !== null) {
         var name = r[2];
@@ -353,27 +354,27 @@ window.configuratorApp = (function(){
         else if ($.inArray(name, leave_out_defines) < 0 && !(name in define_section) && !(name in define_sect))
           define_sect[name] = section;
       }
-      define_list[index] = Object.keys(define_sect);
+      define_list[cindex] = Object.keys(define_sect);
       $.extend(define_section, define_sect);
-      this.log(define_list[index], 2);
+      this.log(define_list[cindex], 2);
     },
 
     /**
      * Find the defines in one of the configs that are just variants.
      * Group them together for form-building and other uses.
      */
-    refreshDefineGroups: function(index) {
+    refreshDefineGroups: function(cindex) {
       var findDef = /^(|.*_)(([XYZE](MAX|MIN))|(E[0-3]|[XYZE01234])|MAX|MIN|(bed)?K[pid])(_.*|)$/;
       var match_prev, patt, title, nameList, groups = {}, match_section;
-      $.each(define_list[index], function() {
+      $.each(define_list[cindex], function(i, name) {
         if (match_prev) {
-          if (match_prev.exec(this) && define_section[this] == match_section) {
-            nameList.push(this);
+          if (match_prev.exec(name) && define_section[name] == match_section) {
+            nameList.push(name);
           }
           else {
             if (nameList.length > 1) {
-              $.each(nameList, function(){
-                groups[this] = {
+              $.each(nameList, function(i,n){
+                groups[n] = {
                   pattern: patt,
                   title: title,
                   count: nameList.length
@@ -384,7 +385,7 @@ window.configuratorApp = (function(){
           }
         }
         if (!match_prev) {
-          var r = findDef.exec(this);
+          var r = findDef.exec(name);
           if (r != null) {
             switch(r[2]) {
               case '0':
@@ -425,13 +426,13 @@ window.configuratorApp = (function(){
               patt = '^' + r[1] + patt + r[7] + '$';
               title = r[1] + title + r[7];
               match_prev = new RegExp(patt);
-              match_section = define_section[this];
-              nameList = [ this ];
+              match_section = define_section[name];
+              nameList = [ name ];
             }
           }
         }
       });
-      define_groups[index] = groups;
+      define_groups[cindex] = groups;
     },
 
     /**
@@ -442,7 +443,7 @@ window.configuratorApp = (function(){
     initDependentGroups: function() {
       var findBlock = /^[ \t]*#(ifn?def|if|else|endif)[ \t]*(.*)([ \t]*\/\/[^\n]+)?$/gm,
           leave_out_defines = ['CONFIGURATION_H', 'CONFIGURATION_ADV_H'];
-      $.each([$config, $config_adv], function(i, $v) {
+      $.each(config_list, function(i, $v) {
         var ifStack = [];
         var r, txt = $v.text();
         while((r = findBlock.exec(txt)) !== null) {
@@ -481,7 +482,7 @@ window.configuratorApp = (function(){
                 var cond = c[0], line = c[1];
                 self.log("pop " + c[0], 4);
                 if (dependentGroups[cond] === undefined) dependentGroups[cond] = [];
-                dependentGroups[cond].push({adv:i,start:line,end:lineNum});
+                dependentGroups[cond].push({cindex:i,start:line,end:lineNum});
                 if (r[1] == 'else') {
                   // Reverse the condition
                   cond = (cond.indexOf('!') === 0) ? cond.substr(1) : ('!'+cond);
@@ -504,9 +505,8 @@ window.configuratorApp = (function(){
      */
     initDefineInfo: function() {
       $.each(define_list, function(e,def_list){
-        var adv = e == 1;
-        $.each(def_list, function(i,name) {
-          define_info[name] = self.getDefineInfo(name, adv);
+        $.each(def_list, function(i, name) {
+          define_info[name] = self.getDefineInfo(name, e);
         });
       });
     },
@@ -515,10 +515,12 @@ window.configuratorApp = (function(){
      * Create fields for defines in a config that have none
      * Use define_groups data to group fields together
      */
-    createFieldsForDefines: function(index) {
-      var n = 0, fail_list = [];
-      var grouping = false, group_pattern, group_regex, subitem, group_section, group_class;
-      $.each(define_list[index], function(i,name) {
+    createFieldsForDefines: function(cindex) {
+      // var n = 0;
+      var grouping = false, group = define_groups[cindex],
+          g_pattern, g_regex, g_subitem, g_section, g_class,
+          fail_list = [];
+      $.each(define_list[cindex], function(i, name) {
         var section = define_section[name];
         if (section != 'hidden' && !$('#'+name).length) {
           var inf = define_info[name];
@@ -529,11 +531,10 @@ window.configuratorApp = (function(){
 
             // Is this field in a sequence?
             // Then see if it's the second or after
-            var group = define_groups[index];
             if (grouping) {
-              if (name in group && group_pattern == group[name].pattern && group_section == section) {
-                subitem = true;
-                sublabel = group_regex.exec(name)[1];
+              if (name in group && g_pattern == group[name].pattern && g_section == section) {
+                g_subitem = true;
+                sublabel = g_regex.exec(name)[1];
               }
               else
                 grouping = false;
@@ -541,20 +542,20 @@ window.configuratorApp = (function(){
             // Start grouping?
             if (!grouping && name in group) {
               grouping = true;
-              subitem = false;
+              g_subitem = false;
               var grp = group[name];
-              group_pattern = grp.pattern;
-              group_class = 'one_of_' + grp.count;
+              g_pattern = grp.pattern;
+              g_class = 'one_of_' + grp.count;
               label_text = grp.title;
-              group_regex = new RegExp(group_pattern);
-              group_section = section;
-              sublabel = group_regex.exec(name)[1];
+              g_regex = new RegExp(g_pattern);
+              g_section = section;
+              sublabel = g_regex.exec(name)[1];
             }
 
             var $ff = $('#'+section), $newfield,
                 avail = eval(inf.enabled);
 
-            if (!(grouping && subitem)) {
+            if (!(grouping && g_subitem)) {
 
               var $newlabel = $('<label>',{for:name,class:'added'}).text(label_text.toLabel());
 
@@ -572,7 +573,7 @@ window.configuratorApp = (function(){
               for (var i=0; i<inf.size; i++) {
                 var fieldname = i > 0 ? name+'-'+i : name;
                 $newfield = $('<input>',{type:'text',size:6,maxlength:10,id:fieldname,name:fieldname,class:'subitem added',disabled:!avail}).unblock(avail);
-                if (grouping) $newfield.addClass(group_class);
+                if (grouping) $newfield.addClass(g_class);
                 $ff.append($newfield);
               }
             }
@@ -594,9 +595,9 @@ window.configuratorApp = (function(){
               }
               $newfield.attr({id:name,name:name,class:'added',disabled:!avail}).unblock(avail);
               if (grouping) {
-                $newfield.addClass(group_class);
+                $newfield.addClass(g_class);
                 if (sublabel)
-                  $ff.append($('<span class="label"/>').text(sublabel.toTitleCase()).unblock(avail));
+                  $ff.append($('<label>',{class:'added sublabel',for:name}).text(sublabel.toTitleCase()).unblock(avail));
               }
               // Add the new field to the form
               $ff.append($newfield);
@@ -606,7 +607,7 @@ window.configuratorApp = (function(){
             fail_list.push(name);
         }
       });
-      if (fail_list) this.log('Unable to parse:\n' + fail_list.join('\n'), 2);
+      if (fail_list.length) this.log('Unable to parse:\n' + fail_list.join('\n'), 2);
     },
 
     /**
@@ -615,24 +616,18 @@ window.configuratorApp = (function(){
     handleFileLoad: function(txt, $uploader) {
       txt += '';
       var filename = $uploader.val().replace(/.*[\/\\](.*)$/, '$1');
-      switch(filename) {
-        case boards_file:
-        case config_file:
-        case config_adv_file:
-          this.fileLoaded(filename, txt);
-          break;
-        default:
-          this.setMessage("Can't parse '"+filename+"'!");
-          break;
-      }
+      if ($.inArray(filename, config_file_list))
+        this.fileLoaded(filename, txt);
+      else
+        this.setMessage("Can't parse '"+filename+"'!");
     },
 
     /**
      * Process a file after it's been successfully loaded
      */
-    fileLoaded: function(filename, txt) {
+    fileLoaded: function(filename, txt, wait) {
       this.log("fileLoaded:"+filename,4);
-      var err, init_index;
+      var err, cindex;
       switch(filename) {
         case boards_file:
           this.initBoardsFromText(txt);
@@ -644,10 +639,12 @@ window.configuratorApp = (function(){
             $config.text(txt);
             total_config_lines = txt.lineCount();
             // this.initThermistorList(txt);
-            init_index = 0;
+            if (!wait) cindex = 0;
             has_config = true;
-            if (has_config_adv)
+            if (has_config_adv) {
               this.activateDownloadAllLink();
+              if (wait) cindex = 2;
+            }
           }
           else {
             err = boards_file;
@@ -657,10 +654,12 @@ window.configuratorApp = (function(){
           if (has_config) {
             $config_adv.text(txt);
             total_config_adv_lines = txt.lineCount();
-            init_index = 1;
+            if (!wait) cindex = 1;
             has_config_adv = true;
-            if (has_config)
+            if (has_config) {
               this.activateDownloadAllLink();
+              if (wait) cindex = 2;
+            }
           }
           else {
             err = config_file;
@@ -668,29 +667,36 @@ window.configuratorApp = (function(){
           break;
       }
       // When a config file loads defines need update
-      if (init_index != null) {
-        var adv = init_index == 1;
-        // Purge old fields from the form, clear the define list
-        this.purgeAddedFields(init_index);
-        // Build the define_list
-        this.initDefineList(init_index, txt);
-        // TODO: Find sequential names and group them
-        //       Allows related settings to occupy one line in the form
-        this.refreshDefineGroups(init_index);
-        // Build the dependent defines list
-        this.initDependentGroups(); // all config text
-        // Get define_info for all known defines
-        this.initDefineInfo();      // all config text
-        // Create new fields
-        this.createFieldsForDefines(init_index); // create new fields
-        // Init the fields, set values, etc
-        this.refreshConfigForm(init_index);
-        this.activateDownloadLink(adv);
-      }
+      if (cindex != null) this.prepareConfigData(cindex);
+
       this.setMessage(err
         ? 'Please upload a "' + boards_file + '" file first!'
         : '"' + filename + '" loaded successfully.', err ? 'error' : 'message'
       );
+    },
+
+    prepareConfigData: function(cindex) {
+      var inds = (cindex == 2) ? [ 0, 1 ] : [ cindex ];
+      $.each(inds, function(i,e){
+        // Purge old fields from the form, clear the define list
+        self.purgeAddedFields(e);
+        // Build the define_list
+        self.initDefineList(e);
+        // TODO: Find sequential names and group them
+        //       Allows related settings to occupy one line in the form
+        self.refreshDefineGroups(e);
+      });
+      // Build the dependent defines list
+      this.initDependentGroups(); // all config text
+      // Get define_info for all known defines
+      this.initDefineInfo();      // all config text
+      $.each(inds, function(i,e){
+        // Create new fields
+        self.createFieldsForDefines(e); // create new fields
+        // Init the fields, set values, etc
+        self.refreshConfigForm(e);
+        self.activateDownloadLink(e);
+      });
     },
 
     /**
@@ -782,7 +788,7 @@ window.configuratorApp = (function(){
     /**
      * Update all fields on the form after loading a configuration
      */
-    refreshConfigForm: function(init_index) {
+    refreshConfigForm: function(cindex) {
 
       /**
        * Any manually-created form elements will remain
@@ -803,13 +809,13 @@ window.configuratorApp = (function(){
 
       // Init all existing fields, getting define info for those that need it
       // refreshing the options and updating their current values
-      $.each(define_list[init_index], function() {
-        if ($('#'+this).length) {
-          self.initField(this);
-          self.initFieldValue(this);
+      $.each(define_list[cindex], function(i, name) {
+        if ($('#'+name).length) {
+          self.initField(name);
+          self.initFieldValue(name);
         }
         else
-          self.log(this + " is not on the page yet.", 2);
+          self.log(name + " is not on the page yet.", 2);
       });
 
       // Set enabled state based on dependencies
@@ -835,24 +841,23 @@ window.configuratorApp = (function(){
       // check and update enabled state for the field.
       //
       $.each(define_list, function(e,def_list){
-        $.each(def_list, function() {
-          var inf = define_info[this];
+        $.each(def_list, function(i, name) {
+          var inf = define_info[name];
           if (inf && inf.enabled != 'true') {
-            var $elm = $('#'+this), ena = eval(inf.enabled);
-            var isEnabled = (inf.type == 'switch') || self.defineIsEnabled(this);
+            var $elm = $('#'+name), ena = eval(inf.enabled);
+            var isEnabled = (inf.type == 'switch') || self.defineIsEnabled(name);
             // Make any switch toggle also
-            $('#'+this+'-switch').attr('disabled', !ena);
+            $('#'+name+'-switch').attr('disabled', !ena);
             $elm.attr('disabled', !(ena && isEnabled)).unblock(ena);
-            //self.log("Setting " + this + " to " + (ena && isEnabled ? 'enabled' : 'disabled'));
-            // Dim label for unavailable element
-            $elm.prevAll('label, span.label').filter(':first').unblock(ena);
+            //self.log("Setting " + name + " to " + (ena && isEnabled ? 'enabled' : 'disabled'));
+            $('label[for="'+name+'"]').unblock(ena);
           }
         });
       });
     },
 
     /**
-     * Make the field responsive, add optional tooltip, enabler box
+     * Make a field responsive, tooltip its label(s), add enabler if needed
      */
     initField: function(name) {
       this.log("initField:"+name,4);
@@ -861,8 +866,8 @@ window.configuratorApp = (function(){
 
       // Create a tooltip on the label if there is one
       if (inf.tooltip) {
-        // previous label or 
-        var $tipme = $elm.prevAll('label, span.label').filter(':first');
+        // label for the item
+        var $tipme = $('label[for="'+name+'"]');
         if ($tipme.length) {
           $tipme.unbind('mouseenter mouseleave');
           $tipme.hover(
@@ -1071,7 +1076,7 @@ window.configuratorApp = (function(){
 
       // Scroll to the altered text if it isn't visible
       var halfHeight = $c.height()/2, scrollHeight = $c.prop('scrollHeight'),
-          lineHeight = scrollHeight/(inf.adv ? total_config_adv_lines : total_config_lines),
+          lineHeight = scrollHeight/[total_config_lines, total_config_adv_lines][inf.cindex],
           textScrollY = (inf.lineNum * lineHeight - halfHeight).limit(0, scrollHeight - 1);
 
       if (always || Math.abs($c.prop('scrollTop') - textScrollY) > halfHeight) {
@@ -1109,18 +1114,17 @@ window.configuratorApp = (function(){
         $elm.attr('disabled', !(on && avail)).unblock(avail); // enable/disable the form field (could also dim it)
       }
 
-      // set label color
-      $elm.prevAll('label, span.label').filter(':first').unblock(avail);
+      $('label[for="'+name+'"]').unblock(avail);
     },
 
     /**
      * Purge added fields and all their define info
      */
-    purgeAddedFields: function(index) {
-      $.each(define_list[index], function(){
-        $('#'+this + ",[id^='"+this+"-'],label[for='"+this+"']").filter('.added').remove();
+    purgeAddedFields: function(cindex) {
+      $.each(define_list[cindex], function(i, name){
+        $('#'+name + ",[id^='"+name+"-'],label[for='"+name+"']").filter('.added').remove();
       });
-      define_list[index] = [];
+      define_list[cindex] = [];
     },
 
     /**
@@ -1133,16 +1137,15 @@ window.configuratorApp = (function(){
      *   - Gather nearby comments to be used as tooltips.
      *   - Look for JSON in nearby comments to use as select options.
      */
-    getDefineInfo: function(name, adv) {
-      if (adv === undefined) adv = false;
+    getDefineInfo: function(name, cindex) {
+      if (cindex === undefined) cindex = 0;
       this.log('getDefineInfo:'+name,4);
-      var $c = adv ? $config_adv : $config,
-          txt = $c.text();
+      var $c = config_list[cindex], txt = $c.text();
 
       // a switch line with no value
       var findDef = new RegExp('^([ \\t]*//)?([ \\t]*#define[ \\t]+' + name + ')([ \\t]*/[*/].*)?$', 'm'),
           result = findDef.exec(txt),
-          info = { type:0, adv:adv, field:$c[0], val_i: 2 };
+          info = { type:0, cindex:cindex, field:$c[0], val_i: 2 };
       if (result !== null) {
         $.extend(info, {
           val_i:  1,
@@ -1250,10 +1253,9 @@ window.configuratorApp = (function(){
 
         // See if this define is enabled conditionally
         var enable_cond = '';
-        var adv_index = adv ? 1 : 0;
         $.each(dependentGroups, function(cond,dat){
           $.each(dat, function(i,o){
-            if (o.adv == adv_index && lineNum > o.start && lineNum < o.end) {
+            if (o.cindex == cindex && lineNum > o.start && lineNum < o.end) {
               // self.log(name + " is in range " + o.start + "-" + o.end, 2);
               // if this setting is in a range, conditions are added
               if (enable_cond != '') enable_cond += ' && ';
