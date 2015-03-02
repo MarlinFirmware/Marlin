@@ -393,12 +393,12 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 // @section machine
 
 // Travel limits after homing (units are in mm)
-#define X_MAX_POS 205
 #define X_MIN_POS 0
-#define Y_MAX_POS 205
 #define Y_MIN_POS 0
-#define Z_MAX_POS 200
 #define Z_MIN_POS 0
+#define X_MAX_POS 205
+#define Y_MAX_POS 205
+#define Z_MAX_POS 200
 
 // @section hidden
 
@@ -535,12 +535,14 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 //#define MANUAL_HOME_POSITIONS  // If defined, MANUAL_*_HOME_POS below will be used
 //#define BED_CENTER_AT_0_0  // If defined, the center of the bed is at (X=0, Y=0)
 
-//Manual homing switch locations:
+// Manual homing switch locations:
 // For deltabots this means top and center of the Cartesian print volume.
-#define MANUAL_X_HOME_POS 0
-#define MANUAL_Y_HOME_POS 0
-#define MANUAL_Z_HOME_POS 0
-//#define MANUAL_Z_HOME_POS 402 // For delta: Distance between nozzle and print surface after homing.
+#ifdef MANUAL_HOME_POSITIONS
+  #define MANUAL_X_HOME_POS 0
+  #define MANUAL_Y_HOME_POS 0
+  #define MANUAL_Z_HOME_POS 0
+  //#define MANUAL_Z_HOME_POS 402 // For delta: Distance between nozzle and print surface after homing.
+#endif
 
 // @section movement
 

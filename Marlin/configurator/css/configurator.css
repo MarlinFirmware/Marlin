@@ -91,7 +91,19 @@ label {
 	margin-right: -450px;
 	text-align: right;
 	}
-label.blocked { color: #AAA; }
+label.blocked, span.label.blocked { color: #AAA; }
+
+span.label {
+	display: block;
+	float: left;
+	margin: 11px -2.5em 0 1em;
+	padding-right: 3em;
+	font-style: italic;
+	color: #444;
+	}
+label+span.label {
+	margin-left: 0;
+	}
 
 input[type="text"], select { margin: 0.75em 0 0; }
 input[type="checkbox"], input[type="radio"], input[type="file"] { margin: 1em 0 0; }
@@ -104,10 +116,10 @@ input:disabled { color: #BBB; }
 
 input[type="text"].added { width: 20em; }
 label.added {
-	width: 275px; /* label area */
+	width: 265px; /* label area */
 	height: 1em;
-	padding: 10px 360px 10px 1em;
-	margin-right: -350px;
+	padding: 10px 370px 10px 1em;
+	margin-right: -360px;
 	text-align: right;
 	}
 
@@ -297,6 +309,16 @@ a.download, a.download-all {
 	}
 a.download-all { margin: 9px 2em 0; color: #449; border-color: #449; }
 
+input[type="text"].one_of_2 { max-width: 15%; }
+input[type="text"].one_of_3 { max-width: 10%; }
+input[type="text"].one_of_4 { max-width: 7%; }
+
+select.one_of_2 { max-width: 15%; }
+select.one_of_3 { max-width: 10%; }
+select.one_of_4 { max-width: 14%; }
+select.one_of_4+span.label+select.one_of_4+span.label { clear: both; margin-left: 265px; padding-left: 1.75em; }
+select.one_of_4+span.label+select.one_of_4+span.label+select.one_of_4+span.label { clear: none; margin-left: 1em; padding-left: 0; }
+
 @media all and (min-width: 1140px) {
 
 	#main { max-width: 10000px; }
@@ -309,6 +331,15 @@ a.download-all { margin: 9px 2em 0; color: #449; border-color: #449; }
 
 	.disclose { display: none; }
 
+	input[type="text"].one_of_2 { max-width: 15%; }
+	input[type="text"].one_of_3 { max-width: 9%; }
+	input[type="text"].one_of_4 { max-width: 8%; }
+
+	select.one_of_2 { max-width: 15%; }
+	select.one_of_3 { max-width: 10%; }
+	select.one_of_4 { max-width: 16%; }
+
 }
 
-/*.blocked { display: none; }*/
+/*span.label.blocked, .blocked { display: none; }*/
+

@@ -86,7 +86,7 @@ String.prototype.zeroPad = function(len)     { return this.prePad(len, '0'); };
 String.prototype.toHTML = function()         { return jQuery('<div>').text(this).html(); };
 String.prototype.regEsc = function()         { return this.replace(/[.?*+^$[\]\\(){}|-]/g, "\\$&"); }
 String.prototype.lineCount = function()      { var len = this.split(/\r?\n|\r/).length; return len > 0 ? len - 1 : 0; };
-String.prototype.toLabel = function()        { return this.replace(/_/g, ' ').toTitleCase(); }
+String.prototype.toLabel = function()        { return this.replace(/[\[\]]/g, '').replace(/_/g, ' ').toTitleCase(); }
 String.prototype.toTitleCase = function()    { return this.replace(/([A-Z])(\w+)/gi, function(m,p1,p2) { return p1.toUpperCase() + p2.toLowerCase(); }); }
 Number.prototype.limit = function(m1, m2)  {
   if (m2 == null) return this > m1 ? m1 : this;
@@ -124,6 +124,10 @@ $.fn.extend({
             .attr('unselectable', 'on')
             .css('user-select', 'none')
             .on('selectstart', false);
+  },
+  unblock: function(on) {
+    on ? this.removeClass('blocked') : this.addClass('blocked');
+    return this;
   }
 });
 
@@ -144,6 +148,7 @@ window.configuratorApp = (function(){
       $config = $cfg.find('pre'), $config_adv = $adv.find('pre'),
       define_info = {},
       define_list = [[],[]],
+      define_groups = [{},{}],
       define_section = {},
       dependentGroups = {},
       boards_list = {},
@@ -354,17 +359,93 @@ window.configuratorApp = (function(){
     },
 
     /**
+     * Find the defines in one of the configs that are just variants.
+     * Group them together for form-building and other uses.
+     */
+    refreshDefineGroups: function(index) {
+      var findDef = /^(|.*_)(([XYZE](MAX|MIN))|(E[0-3]|[XYZE01234])|MAX|MIN|(bed)?K[pid])(_.*|)$/;
+      var match_prev, patt, title, nameList, groups = {}, match_section;
+      $.each(define_list[index], function() {
+        if (match_prev) {
+          if (match_prev.exec(this) && define_section[this] == match_section) {
+            nameList.push(this);
+          }
+          else {
+            if (nameList.length > 1) {
+              $.each(nameList, function(){
+                groups[this] = {
+                  pattern: patt,
+                  title: title,
+                  count: nameList.length
+                };
+              });
+            }
+            match_prev = null;
+          }
+        }
+        if (!match_prev) {
+          var r = findDef.exec(this);
+          if (r != null) {
+            switch(r[2]) {
+              case '0':
+                patt = '([0123])';
+                title = 'N';
+                break;
+              case 'X':
+                patt = '([XYZE])';
+                title = 'AXIS';
+                break;
+              case 'E0':
+                patt = 'E([0-3])';
+                title = 'E';
+                break;
+              case 'bedKp':
+                patt = 'bed(K[pid])';
+                title = 'BED_PID';
+                break;
+              case 'Kp':
+                patt = '(K[pid])';
+                title = 'PID';
+                break;
+              case 'MAX':
+              case 'MIN':
+                patt = '(MAX|MIN)';
+                title = '';
+                break;
+              case 'XMIN':
+              case 'XMAX':
+                patt = '([XYZ])'+r[4];
+                title = 'XYZ_'+r[4];
+                break;
+              default:
+                patt = null;
+                break;
+            }
+            if (patt) {
+              patt = '^' + r[1] + patt + r[7] + '$';
+              title = r[1] + title + r[7];
+              match_prev = new RegExp(patt);
+              match_section = define_section[this];
+              nameList = [ this ];
+            }
+          }
+        }
+      });
+      define_groups[index] = groups;
+    },
+
+    /**
      * Get all condition blocks and their line ranges.
      * Conditions may control multiple line-ranges
      * across both config files.
      */
     initDependentGroups: function() {
-      var findDef = /^[ \t]*#(ifn?def|if|else|endif)[ \t]*(.*)([ \t]*\/\/[^\n]+)?$/gm,
+      var findBlock = /^[ \t]*#(ifn?def|if|else|endif)[ \t]*(.*)([ \t]*\/\/[^\n]+)?$/gm,
           leave_out_defines = ['CONFIGURATION_H', 'CONFIGURATION_ADV_H'];
       $.each([$config, $config_adv], function(i, $v) {
         var ifStack = [];
         var r, txt = $v.text();
-        while((r = findDef.exec(txt)) !== null) {
+        while((r = findBlock.exec(txt)) !== null) {
           var lineNum = txt.substr(0, r.index).lineCount();
           var code = r[2].replace(/[ \t]*\/\/.*$/, '');
           switch(r[1]) {
@@ -431,34 +512,67 @@ window.configuratorApp = (function(){
     },
 
     /**
-     * Create fields for any defines that have none
+     * Create fields for defines in a config that have none
+     * Use define_groups data to group fields together
      */
-    createFieldsForDefines: function(e) {
+    createFieldsForDefines: function(index) {
       var n = 0, fail_list = [];
-      $.each(define_list[e], function(i,name) {
+      var grouping = false, group_pattern, group_regex, subitem, group_section, group_class;
+      $.each(define_list[index], function(i,name) {
         var section = define_section[name];
         if (section != 'hidden' && !$('#'+name).length) {
           var inf = define_info[name];
 
           if (inf) {
 
+            var label_text = name, sublabel;
+
+            // Is this field in a sequence?
+            // Then see if it's the second or after
+            var group = define_groups[index];
+            if (grouping) {
+              if (name in group && group_pattern == group[name].pattern && group_section == section) {
+                subitem = true;
+                sublabel = group_regex.exec(name)[1];
+              }
+              else
+                grouping = false;
+            }
+            // Start grouping?
+            if (!grouping && name in group) {
+              grouping = true;
+              subitem = false;
+              var grp = group[name];
+              group_pattern = grp.pattern;
+              group_class = 'one_of_' + grp.count;
+              label_text = grp.title;
+              group_regex = new RegExp(group_pattern);
+              group_section = section;
+              sublabel = group_regex.exec(name)[1];
+            }
+
             var $ff = $('#'+section), $newfield,
-                avail = eval(inf.enabled),
-                $newlabel = $('<label>',{for:name,class:'added'}).text(name.toLabel());
+                avail = eval(inf.enabled);
 
-            if (!avail) $newlabel.addClass('blocked');
+            if (!(grouping && subitem)) {
 
-            // if (!(++n % 3))
-              $newlabel.addClass('newline');
+              var $newlabel = $('<label>',{for:name,class:'added'}).text(label_text.toLabel());
 
-            $ff.append($newlabel);
+              $newlabel.unblock(avail);
+
+              // if (!(++n % 3))
+                $newlabel.addClass('newline');
+
+              $ff.append($newlabel);
+
+            }
 
             // Multiple fields?
             if (inf.type == 'list') {
               for (var i=0; i<inf.size; i++) {
                 var fieldname = i > 0 ? name+'-'+i : name;
-                $newfield = $('<input>',{type:'text',size:6,maxlength:10,id:fieldname,name:fieldname,class:'subitem added',disabled:!avail});
-                if (!avail) $newfield.addClass('blocked');
+                $newfield = $('<input>',{type:'text',size:6,maxlength:10,id:fieldname,name:fieldname,class:'subitem added',disabled:!avail}).unblock(avail);
+                if (grouping) $newfield.addClass(group_class);
                 $ff.append($newfield);
               }
             }
@@ -478,8 +592,12 @@ window.configuratorApp = (function(){
               else {
                 $newfield = inf.type == 'switch' ? $('<input>',{type:'checkbox'}) : $('<input>',{type:'text',size:10,maxlength:40});
               }
-              $newfield.attr({id:name,name:name,class:'added',disabled:!avail});
-              if (!avail) $newfield.addClass('blocked');
+              $newfield.attr({id:name,name:name,class:'added',disabled:!avail}).unblock(avail);
+              if (grouping) {
+                $newfield.addClass(group_class);
+                if (sublabel)
+                  $ff.append($('<span class="label"/>').text(sublabel.toTitleCase()).unblock(avail));
+              }
               // Add the new field to the form
               $ff.append($newfield);
             }
@@ -558,7 +676,7 @@ window.configuratorApp = (function(){
         this.initDefineList(init_index, txt);
         // TODO: Find sequential names and group them
         //       Allows related settings to occupy one line in the form
-          // this.refreshSequentialDefines();
+        this.refreshDefineGroups(init_index);
         // Build the dependent defines list
         this.initDependentGroups(); // all config text
         // Get define_info for all known defines
@@ -721,15 +839,13 @@ window.configuratorApp = (function(){
           var inf = define_info[this];
           if (inf && inf.enabled != 'true') {
             var $elm = $('#'+this), ena = eval(inf.enabled);
+            var isEnabled = (inf.type == 'switch') || self.defineIsEnabled(this);
             // Make any switch toggle also
             $('#'+this+'-switch').attr('disabled', !ena);
-            var alreadyEnabled = inf.type == 'switch' || self.defineIsEnabled(this);
-            $elm.attr('disabled', !(ena && alreadyEnabled));
-            ena ? $elm.removeClass('blocked') : $elm.addClass('blocked');
+            $elm.attr('disabled', !(ena && isEnabled)).unblock(ena);
+            //self.log("Setting " + this + " to " + (ena && isEnabled ? 'enabled' : 'disabled'));
             // Dim label for unavailable element
-            var $lbl = $elm.prev('label');
-            if ($lbl.length)
-              ena ? $lbl.removeClass('blocked') : $lbl.addClass('blocked');
+            $elm.prevAll('label, span.label').filter(':first').unblock(ena);
           }
         });
       });
@@ -745,7 +861,8 @@ window.configuratorApp = (function(){
 
       // Create a tooltip on the label if there is one
       if (inf.tooltip) {
-        var $tipme = $elm.prev('label');
+        // previous label or 
+        var $tipme = $elm.prevAll('label, span.label').filter(':first');
         if ($tipme.length) {
           $tipme.unbind('mouseenter mouseleave');
           $tipme.hover(
@@ -972,7 +1089,7 @@ window.configuratorApp = (function(){
 
       this.log('initFieldValue:' + name + ' to ' + val, 2);
 
-      // If the item has a checkbox then set enabled state too
+      // If the item is switchable then set enabled state too
       var $cb = $('#'+name+'-switch'), avail = eval(inf.enabled), on = true;
       if ($cb.length) {
         on = self.defineIsEnabled(name);
@@ -983,20 +1100,17 @@ window.configuratorApp = (function(){
         $.each(val.split(','),function(i,v){
           var $e = i > 0 ? $('#'+name+'-'+i) : $elm;
           $e.val(v.trim());
-          $e.attr('disabled', !on);
-          avail ? $e.removeClass('blocked') : $e.addClass('blocked');
+          $e.attr('disabled', !(on && avail)).unblock(avail);
         });
       }
       else {
         if (inf.type == 'toggle') val = val == inf.options[1];
         $elm.attr('type') == 'checkbox' ? $elm.prop('checked', val) : $elm.val(''+val);
-        $elm.attr('disabled', !on); // enable/disable the form field (could also dim it)
-        avail ? $elm.removeClass('blocked') : $elm.addClass('blocked');
+        $elm.attr('disabled', !(on && avail)).unblock(avail); // enable/disable the form field (could also dim it)
       }
 
       // set label color
-      var $lbl = $elm.prev('label');
-      avail ? $lbl.removeClass('blocked') : $lbl.addClass('blocked');
+      $elm.prevAll('label, span.label').filter(':first').unblock(avail);
     },
 
     /**
