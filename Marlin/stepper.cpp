@@ -187,7 +187,7 @@ void checkHitEndstops()
      SERIAL_ECHOPAIR(" Z:",(float)endstops_trigsteps[Z_AXIS]/axis_steps_per_unit[Z_AXIS]);
      LCD_MESSAGEPGM(MSG_ENDSTOPS_HIT "Z");
    }
-   SERIAL_ECHOLN("");
+   SERIAL_EOL;
    endstop_x_hit=false;
    endstop_y_hit=false;
    endstop_z_hit=false;
@@ -959,51 +959,41 @@ void st_init()
 
   //Initialize Step Pins
   #if defined(X_STEP_PIN) && (X_STEP_PIN > -1)
-    SET_OUTPUT(X_STEP_PIN);
-    WRITE(X_STEP_PIN,INVERT_X_STEP_PIN);
+    OUT_WRITE(X_STEP_PIN,INVERT_X_STEP_PIN);
     disable_x();
   #endif
   #if defined(X2_STEP_PIN) && (X2_STEP_PIN > -1)
-    SET_OUTPUT(X2_STEP_PIN);
-    WRITE(X2_STEP_PIN,INVERT_X_STEP_PIN);
+    OUT_WRITE(X2_STEP_PIN,INVERT_X_STEP_PIN);
     disable_x();
   #endif
   #if defined(Y_STEP_PIN) && (Y_STEP_PIN > -1)
-    SET_OUTPUT(Y_STEP_PIN);
-    WRITE(Y_STEP_PIN,INVERT_Y_STEP_PIN);
+    OUT_WRITE(Y_STEP_PIN,INVERT_Y_STEP_PIN);
     #if defined(Y_DUAL_STEPPER_DRIVERS) && defined(Y2_STEP_PIN) && (Y2_STEP_PIN > -1)
-      SET_OUTPUT(Y2_STEP_PIN);
-      WRITE(Y2_STEP_PIN,INVERT_Y_STEP_PIN);
+      OUT_WRITE(Y2_STEP_PIN,INVERT_Y_STEP_PIN);
     #endif
     disable_y();
   #endif
   #if defined(Z_STEP_PIN) && (Z_STEP_PIN > -1)
-    SET_OUTPUT(Z_STEP_PIN);
-    WRITE(Z_STEP_PIN,INVERT_Z_STEP_PIN);
+    OUT_WRITE(Z_STEP_PIN,INVERT_Z_STEP_PIN);
     #if defined(Z_DUAL_STEPPER_DRIVERS) && defined(Z2_STEP_PIN) && (Z2_STEP_PIN > -1)
-      SET_OUTPUT(Z2_STEP_PIN);
-      WRITE(Z2_STEP_PIN,INVERT_Z_STEP_PIN);
+      OUT_WRITE(Z2_STEP_PIN,INVERT_Z_STEP_PIN);
     #endif
     disable_z();
   #endif
   #if defined(E0_STEP_PIN) && (E0_STEP_PIN > -1)
-    SET_OUTPUT(E0_STEP_PIN);
-    WRITE(E0_STEP_PIN,INVERT_E_STEP_PIN);
+    OUT_WRITE(E0_STEP_PIN,INVERT_E_STEP_PIN);
     disable_e0();
   #endif
   #if defined(E1_STEP_PIN) && (E1_STEP_PIN > -1)
-    SET_OUTPUT(E1_STEP_PIN);
-    WRITE(E1_STEP_PIN,INVERT_E_STEP_PIN);
+    OUT_WRITE(E1_STEP_PIN,INVERT_E_STEP_PIN);
     disable_e1();
   #endif
   #if defined(E2_STEP_PIN) && (E2_STEP_PIN > -1)
-    SET_OUTPUT(E2_STEP_PIN);
-    WRITE(E2_STEP_PIN,INVERT_E_STEP_PIN);
+    OUT_WRITE(E2_STEP_PIN,INVERT_E_STEP_PIN);
     disable_e2();
   #endif
   #if defined(E3_STEP_PIN) && (E3_STEP_PIN > -1)
-    SET_OUTPUT(E3_STEP_PIN);
-    WRITE(E3_STEP_PIN,INVERT_E_STEP_PIN);
+    OUT_WRITE(E3_STEP_PIN,INVERT_E_STEP_PIN);
     disable_e3();
   #endif
 

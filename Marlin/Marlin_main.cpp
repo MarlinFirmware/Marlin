@@ -531,32 +531,28 @@ void setup_homepin(void)
 void setup_photpin()
 {
   #if defined(PHOTOGRAPH_PIN) && PHOTOGRAPH_PIN > -1
-    SET_OUTPUT(PHOTOGRAPH_PIN);
-    WRITE(PHOTOGRAPH_PIN, LOW);
+    OUT_WRITE(PHOTOGRAPH_PIN, LOW);
   #endif
 }
 
 void setup_powerhold()
 {
   #if defined(SUICIDE_PIN) && SUICIDE_PIN > -1
-    SET_OUTPUT(SUICIDE_PIN);
-    WRITE(SUICIDE_PIN, HIGH);
+    OUT_WRITE(SUICIDE_PIN, HIGH);
   #endif
   #if defined(PS_ON_PIN) && PS_ON_PIN > -1
-    SET_OUTPUT(PS_ON_PIN);
-	#if defined(PS_DEFAULT_OFF)
-	  WRITE(PS_ON_PIN, PS_ON_ASLEEP);
-    #else
-	  WRITE(PS_ON_PIN, PS_ON_AWAKE);
-	#endif
+    #if defined(PS_DEFAULT_OFF)
+      OUT_WRITE(PS_ON_PIN, PS_ON_ASLEEP);
+      #else
+      OUT_WRITE(PS_ON_PIN, PS_ON_AWAKE);
+    #endif
   #endif
 }
 
 void suicide()
 {
   #if defined(SUICIDE_PIN) && SUICIDE_PIN > -1
-    SET_OUTPUT(SUICIDE_PIN);
-    WRITE(SUICIDE_PIN, LOW);
+    OUT_WRITE(SUICIDE_PIN, LOW);
   #endif
 }
 
@@ -2725,15 +2721,13 @@ Sigma_Exit:
 
     #if defined(PS_ON_PIN) && PS_ON_PIN > -1
       case 80: // M80 - Turn on Power Supply
-        SET_OUTPUT(PS_ON_PIN); //GND
-        WRITE(PS_ON_PIN, PS_ON_AWAKE);
+        OUT_WRITE(PS_ON_PIN, PS_ON_AWAKE); // GND
 
         // If you have a switch on suicide pin, this is useful
         // if you want to start another print with suicide feature after
         // a print without suicide...
         #if defined SUICIDE_PIN && SUICIDE_PIN > -1
-            SET_OUTPUT(SUICIDE_PIN);
-            WRITE(SUICIDE_PIN, HIGH);
+            OUT_WRITE(SUICIDE_PIN, HIGH);
         #endif
 
         #ifdef ULTIPANEL
@@ -2757,8 +2751,7 @@ Sigma_Exit:
         st_synchronize();
         suicide();
       #elif defined(PS_ON_PIN) && PS_ON_PIN > -1
-        SET_OUTPUT(PS_ON_PIN);
-        WRITE(PS_ON_PIN, PS_ON_ASLEEP);
+        OUT_WRITE(PS_ON_PIN, PS_ON_ASLEEP);
       #endif
       #ifdef ULTIPANEL
         powersupply = false;
@@ -3120,7 +3113,7 @@ Sigma_Exit:
          SERIAL_ECHO(extruder_offset[Z_AXIS][tmp_extruder]);
       #endif
       }
-      SERIAL_ECHOLN("");
+      SERIAL_EOL;
     }break;
     #endif
     case 220: // M220 S<factor in percent>- set speed factor override percentage
@@ -3339,8 +3332,7 @@ Sigma_Exit:
      {
      	#ifdef CHDK
        
-         SET_OUTPUT(CHDK);
-         WRITE(CHDK, HIGH);
+         OUT_WRITE(CHDK, HIGH);
          chdkHigh = millis();
          chdkActive = true;
        
@@ -3750,9 +3742,7 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
           if(cnt==0)
           {
           #if BEEPER > 0
-            SET_OUTPUT(BEEPER);
-
-            WRITE(BEEPER,HIGH);
+            OUT_WRITE(BEEPER,HIGH);
             delay(3);
             WRITE(BEEPER,LOW);
             delay(3);
@@ -4739,47 +4729,41 @@ void calculate_volumetric_multipliers() {
 }
 
 #ifdef EXT_SOLENOID
-void enable_solenoid(uint8_t num) {
-         if(num == 0) {
-         SET_OUTPUT(SOL0_PIN);
-         WRITE(SOL0_PIN,HIGH);
-    }
-        
-         if(num == 1){
-         SET_OUTPUT(SOL1_PIN);
-         WRITE(SOL1_PIN,HIGH);
-    }
-         
-         if(num == 2){
-         SET_OUTPUT(SOL2_PIN);
-         WRITE(SOL2_PIN,HIGH);
-    }
-         
-         if(num == 3){
-         SET_OUTPUT(SOL3_PIN);
-         WRITE(SOL3_PIN,HIGH);
-    }
-         
-         return;
-    }
 
-void enable_solenoid_on_active_extruder() {
-         enable_solenoid(active_extruder);
-         return;
-    }
+void enable_solenoid(uint8_t num) {
+  switch(num) {
+    case 0:
+      OUT_WRITE(SOL0_PIN, HIGH);
+      break;
+      #if defined(SOL1_PIN) && SOL1_PIN > -1
+        case 1:
+          OUT_WRITE(SOL1_PIN, HIGH);
+          break;
+      #endif
+      #if defined(SOL2_PIN) && SOL2_PIN > -1
+        case 2:
+          OUT_WRITE(SOL2_PIN, HIGH);
+          break;
+      #endif
+      #if defined(SOL3_PIN) && SOL3_PIN > -1
+        case 3:
+          OUT_WRITE(SOL3_PIN, HIGH);
+          break;
+      #endif
+    default:
+      SERIAL_ECHO_START;
+      SERIAL_ECHOLNPGM(MSG_INVALID_SOLENOID);
+      break;
+  }
+}
+
+void enable_solenoid_on_active_extruder() { enable_solenoid(active_extruder); }
 
 void disable_all_solenoids() {
-         SET_OUTPUT(SOL0_PIN);
-         SET_OUTPUT(SOL1_PIN);
-         SET_OUTPUT(SOL2_PIN);
-         SET_OUTPUT(SOL3_PIN);
-         
-         WRITE(SOL0_PIN,LOW);
-         WRITE(SOL1_PIN,LOW);
-         WRITE(SOL2_PIN,LOW);
-         WRITE(SOL3_PIN,LOW);
-         
-         return;
-    }
+  OUT_WRITE(SOL0_PIN, LOW);
+  OUT_WRITE(SOL1_PIN, LOW);
+  OUT_WRITE(SOL2_PIN, LOW);
+  OUT_WRITE(SOL3_PIN, LOW);
+}
 
 #endif //EXT_SOLENOID
