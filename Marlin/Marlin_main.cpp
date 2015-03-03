@@ -1200,7 +1200,7 @@ static void retract_z_probe() {
     #endif
 }
 
-enum ProbeAction { ProbeEngageRetract, ProbeEngage, ProbeStay, ProbeRetract };
+enum ProbeAction { ProbeStay, ProbeEngage, ProbeRetract, ProbeEngageRetract };
 
 /// Probe bed height at position (x,y), returns the measured z value
 static float probe_pt(float x, float y, float z_before, ProbeAction retract_action=ProbeEngageRetract) {
@@ -1209,14 +1209,14 @@ static float probe_pt(float x, float y, float z_before, ProbeAction retract_acti
   do_blocking_move_to(x - X_PROBE_OFFSET_FROM_EXTRUDER, y - Y_PROBE_OFFSET_FROM_EXTRUDER, current_position[Z_AXIS]);
 
   #ifndef Z_PROBE_SLED
-    if (retract_action == ProbeEngageRetract || retract_action == ProbeEngage) engage_z_probe();
+    if (retract_action & ProbeEngage) engage_z_probe();
   #endif
 
   run_z_probe();
   float measured_z = current_position[Z_AXIS];
 
   #ifndef Z_PROBE_SLED
-    if (retract_action == ProbeEngageRetract || retract_action == ProbeRetract) retract_z_probe();
+    if (retract_action & ProbeRetract) retract_z_probe();
   #endif
 
   SERIAL_PROTOCOLPGM(MSG_BED);
