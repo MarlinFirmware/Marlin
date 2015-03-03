@@ -4298,7 +4298,7 @@ void controllerFan()
   {
     lastMotorCheck = millis();
 
-    if(!READ(X_ENABLE_PIN) || !Y_ENABLE_READ || !Z_ENABLE_READ || (soft_pwm_bed > 0)
+    if(!X_ENABLE_READ || !Y_ENABLE_READ || !Z_ENABLE_READ || (soft_pwm_bed > 0)
     #if EXTRUDERS > 2
        || !E2_ENABLE_READ
     #endif
