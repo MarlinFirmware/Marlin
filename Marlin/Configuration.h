@@ -3,6 +3,20 @@
 
 #include "boards.h"
 
+//===========================================================================
+//============================= Getting Started =============================
+//===========================================================================
+/*
+Here are some standard links for getting your machine calibrated:
+ * http://reprap.org/wiki/Calibration 
+ * http://youtu.be/wAL9d7FgInk
+ * http://calculator.josefprusa.cz
+ * http://reprap.org/wiki/Triffid_Hunter%27s_Calibration_Guide
+ * http://www.thingiverse.com/thing:5573
+ * https://sites.google.com/site/repraplogphase/calibration-of-your-reprap
+ * http://www.thingiverse.com/thing:298812
+*/
+
 // This configuration file contains the basic settings.
 // Advanced settings can be found in Configuration_adv.h
 // BASIC SETTINGS: select your board type, temperature sensor type, axis scaling, and endstop configuration
@@ -24,8 +38,12 @@
 // User-specified version info of this build to display in [Pronterface, etc] terminal window during
 // startup. Implementation of an idea by Prof Braino to inform user that any changes made to this
 // build by the user have been successfully uploaded into firmware.
+#define STRING_VERSION "1.0.2"
+#define STRING_URL "reprap.org"
 #define STRING_VERSION_CONFIG_H __DATE__ " " __TIME__ // build date and time
 #define STRING_CONFIG_H_AUTHOR "(none, default config)" // Who made the changes.
+#define STRING_SPLASH_LINE1 "v" STRING_VERSION // will be shown during bootup in line 1
+//#define STRING_SPLASH_LINE2 STRING_VERSION_CONFIG_H // will be shown during bootup in line2
 
 // SERIAL_PORT selects which serial port should be used for communication with the host.
 // This allows the connection of wireless adapters (for instance) to non-default port pins.
@@ -64,7 +82,7 @@
 // #define PS_DEFAULT_OFF
 
 //===========================================================================
-//=============================Thermal Settings  ============================
+//============================= Thermal Settings ============================
 //===========================================================================
 //
 //--NORMAL IS 4.7kohm PULLUP!-- 1kohm pullup can be used on hotend sensor, using correct resistor and table
@@ -140,7 +158,11 @@
 //#define EXTRUDER_WATTS (12.0*12.0/6.7) //  P=I^2/R
 //#define BED_WATTS (12.0*12.0/1.1)      // P=I^2/R
 
-// PID settings:
+//===========================================================================
+//============================= PID Settings ================================
+//===========================================================================
+// PID Tuning Guide here: http://reprap.org/wiki/PID_Tuning
+
 // Comment the following line to disable PID and enable bang-bang.
 #define PIDTEMP
 #define BANG_MAX 255 // limits current to nozzle while in bang-bang mode; 255=full current
@@ -148,6 +170,9 @@
 #ifdef PIDTEMP
   //#define PID_DEBUG // Sends debug data to the serial port.
   //#define PID_OPENLOOP 1 // Puts PID in open loop. M104/M140 sets the output power from 0 to PID_MAX
+  //#define SLOW_PWM_HEATERS // PWM with very low frequency (roughly 0.125Hz=8s) and minimum state time of approximately 1s useful for heaters driven by a relay
+  //#define PID_PARAMS_PER_EXTRUDER // Uses separate PID parameters for each extruder (useful for mismatched extruders)
+                                    // Set/get with gcode: M301 E[extruder number, 0-2]
   #define PID_FUNCTIONAL_RANGE 10 // If the temperature difference between the target temperature and the actual temperature
                                   // is more then PID_FUNCTIONAL_RANGE then the PID will be shut off and the heater will be set to min/max.
   #define PID_INTEGRAL_DRIVE_MAX PID_MAX  //limit for the integral term
@@ -171,7 +196,9 @@
 //    #define  DEFAULT_Kd 440
 #endif // PIDTEMP
 
-// Bed Temperature Control
+//===========================================================================
+//============================= PID > Bed Temperature Control ===============
+//===========================================================================
 // Select PID or bang-bang with PIDTEMPBED. If bang-bang, BED_LIMIT_SWITCHING will enable hysteresis
 //
 // Uncomment this to enable PID on the bed. It uses the same frequency PWM as the extruder.
@@ -208,7 +235,6 @@
 #endif // PIDTEMPBED
 
 
-
 //this prevents dangerous Extruder moves, i.e. if the temperature is under the limit
 //can be software-disabled for whatever purposes by
 #define PREVENT_DANGEROUS_EXTRUDE
@@ -218,7 +244,10 @@
 #define EXTRUDE_MINTEMP 170
 #define EXTRUDE_MAXLENGTH (X_MAX_LENGTH+Y_MAX_LENGTH) //prevent extrusion of very large distances.
 
-/*================== Thermal Runaway Protection ==============================
+//===========================================================================
+//============================= Thermal Runaway Protection ==================
+//===========================================================================
+/*
 This is a feature to protect your printer from burn up in flames if it has
 a thermistor coming off place (this happened to a friend of mine recently and
 motivated me writing this feature).
@@ -253,11 +282,10 @@ your extruder heater takes 2 minutes to hit the target on heating.
 // Parameters for the bed heater
 //#define THERMAL_RUNAWAY_PROTECTION_BED_PERIOD 20 //in seconds
 //#define THERMAL_RUNAWAY_PROTECTION_BED_HYSTERESIS 2 // in degree Celsius
-//===========================================================================
 
 
 //===========================================================================
-//=============================Mechanical Settings===========================
+//============================= Mechanical Settings =========================
 //===========================================================================
 
 // Uncomment the following line to enable CoreXY kinematics
@@ -329,7 +357,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define min_software_endstops true // If true, axis won't move to coordinates less than HOME_POS.
 #define max_software_endstops true  // If true, axis won't move to coordinates greater than the defined lengths below.
 
-// Travel limits after homing
+// Travel limits after homing (units are in mm)
 #define X_MAX_POS 205
 #define X_MIN_POS 0
 #define Y_MAX_POS 205
@@ -340,7 +368,11 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define X_MAX_LENGTH (X_MAX_POS - X_MIN_POS)
 #define Y_MAX_LENGTH (Y_MAX_POS - Y_MIN_POS)
 #define Z_MAX_LENGTH (Z_MAX_POS - Z_MIN_POS)
+
+
+//===========================================================================
 //============================= Bed Auto Leveling ===========================
+//===========================================================================
 
 //#define ENABLE_AUTO_BED_LEVELING // Delete the comment to enable (remove // at the start of the line)
 #define Z_PROBE_REPEATABILITY_TEST  // If not commented out, Z-Probe Repeatability test will be included if Auto Bed Leveling is Enabled.
@@ -434,20 +466,20 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
   #ifdef AUTO_BED_LEVELING_GRID	// Check if Probe_Offset * Grid Points is greater than Probing Range
     #if X_PROBE_OFFSET_FROM_EXTRUDER < 0
-      #if (-(X_PROBE_OFFSET_FROM_EXTRUDER * AUTO_BED_LEVELING_GRID_POINTS) >= (RIGHT_PROBE_BED_POSITION - LEFT_PROBE_BED_POSITION))
+      #if (-(X_PROBE_OFFSET_FROM_EXTRUDER * (AUTO_BED_LEVELING_GRID_POINTS-1)) >= (RIGHT_PROBE_BED_POSITION - LEFT_PROBE_BED_POSITION))
 	     #error "The X axis probing range is not enough to fit all the points defined in AUTO_BED_LEVELING_GRID_POINTS"
 	  #endif
 	#else
-      #if ((X_PROBE_OFFSET_FROM_EXTRUDER * AUTO_BED_LEVELING_GRID_POINTS) >= (RIGHT_PROBE_BED_POSITION - LEFT_PROBE_BED_POSITION))
+      #if ((X_PROBE_OFFSET_FROM_EXTRUDER * (AUTO_BED_LEVELING_GRID_POINTS-1)) >= (RIGHT_PROBE_BED_POSITION - LEFT_PROBE_BED_POSITION))
 	     #error "The X axis probing range is not enough to fit all the points defined in AUTO_BED_LEVELING_GRID_POINTS"
 	  #endif
 	#endif
     #if Y_PROBE_OFFSET_FROM_EXTRUDER < 0
-      #if (-(Y_PROBE_OFFSET_FROM_EXTRUDER * AUTO_BED_LEVELING_GRID_POINTS) >= (BACK_PROBE_BED_POSITION - FRONT_PROBE_BED_POSITION))
+      #if (-(Y_PROBE_OFFSET_FROM_EXTRUDER * (AUTO_BED_LEVELING_GRID_POINTS-1)) >= (BACK_PROBE_BED_POSITION - FRONT_PROBE_BED_POSITION))
 	     #error "The Y axis probing range is not enough to fit all the points defined in AUTO_BED_LEVELING_GRID_POINTS"
 	  #endif
 	#else
-      #if ((Y_PROBE_OFFSET_FROM_EXTRUDER * AUTO_BED_LEVELING_GRID_POINTS) >= (BACK_PROBE_BED_POSITION - FRONT_PROBE_BED_POSITION))
+      #if ((Y_PROBE_OFFSET_FROM_EXTRUDER * (AUTO_BED_LEVELING_GRID_POINTS-1)) >= (BACK_PROBE_BED_POSITION - FRONT_PROBE_BED_POSITION))
 	     #error "The Y axis probing range is not enough to fit all the points defined in AUTO_BED_LEVELING_GRID_POINTS"
 	  #endif
 	#endif
@@ -493,9 +525,10 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define DEFAULT_ZJERK                 0.4     // (mm/sec)
 #define DEFAULT_EJERK                 5.0    // (mm/sec)
 
-//===========================================================================
-//=============================Additional Features===========================
-//===========================================================================
+
+//=============================================================================
+//============================= Additional Features ===========================
+//=============================================================================
 
 // Custom M code points
 #define CUSTOM_M_CODES
@@ -526,7 +559,17 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define ABS_PREHEAT_HPB_TEMP 100
 #define ABS_PREHEAT_FAN_SPEED 255   // Insert Value between 0 and 255
 
-//LCD and SD support
+//==============================LCD and SD support=============================
+
+// Define your display language below. Replace (en) with your language code and uncomment.
+// en, pl, fr, de, es, ru, it, pt, pt-br, fi, an, nl, ca, eu
+// See also language.h
+//#define LANGUAGE_INCLUDE GENERATE_LANGUAGE_INCLUDE(en)
+
+// Character based displays can have different extended charsets.
+#define DISPLAY_CHARSET_HD44780_JAPAN     // "ääööüüß23°"
+//#define DISPLAY_CHARSET_HD44780_WESTERN // "ÄäÖöÜüß²³°" if you see a '~' instead of a 'arrow_right' at the right of submenuitems - this is the right one.
+
 //#define ULTRA_LCD  //general LCD support, also 16x2
 //#define DOGLCD  // Support for SPI LCD 128x64 (Controller ST7565R graphic Display Family)
 //#define SDSUPPORT // Enable SD Card Support in Hardware Console
@@ -564,7 +607,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 // The Elefu RA Board Control Panel
 // http://www.elefu.com/index.php?route=product/product&product_id=53
-// REMEMBER TO INSTALL LiquidCrystal_I2C.h in your ARUDINO library folder: https://github.com/kiyoshigawa/LiquidCrystal_I2C
+// REMEMBER TO INSTALL LiquidCrystal_I2C.h in your ARDUINO library folder: https://github.com/kiyoshigawa/LiquidCrystal_I2C
 //#define RA_CONTROL_PANEL
 
 //automatic expansion
@@ -672,7 +715,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
   #define SDSUPPORT
   #define ULTRA_LCD
   #ifdef DOGLCD // Change number of lines to match the DOG graphic display
-    #define LCD_WIDTH 20
+    #define LCD_WIDTH 22
     #define LCD_HEIGHT 5
   #else
     #define LCD_WIDTH 20
@@ -681,7 +724,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #else //no panel but just LCD
   #ifdef ULTRA_LCD
   #ifdef DOGLCD // Change number of lines to match the 128x64 graphics display
-    #define LCD_WIDTH 20
+    #define LCD_WIDTH 22
     #define LCD_HEIGHT 5
   #else
     #define LCD_WIDTH 16

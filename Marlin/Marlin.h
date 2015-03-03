@@ -34,7 +34,7 @@
 
 // Arduino < 1.0.0 does not define this, so we need to do it ourselves
 #ifndef analogInputToDigitalPin
-# define analogInputToDigitalPin(p) ((p) + A0)
+# define analogInputToDigitalPin(p) ((p) + 0xA0)
 #endif
 
 #ifdef AT90USB
@@ -85,6 +85,8 @@ extern const char echomagic[] PROGMEM;
 #define SERIAL_ECHOLNPGM(x) SERIAL_PROTOCOLLNPGM(x)
 
 #define SERIAL_ECHOPAIR(name,value) (serial_echopair_P(PSTR(name),(value)))
+
+#define SERIAL_EOL SERIAL_ECHOLN("")
 
 void serial_echopair_P(const char *s_P, float v);
 void serial_echopair_P(const char *s_P, double v);
@@ -170,6 +172,13 @@ void manage_inactivity(bool ignore_stepper_queue=false);
   #define disable_e2() /* nothing */
 #endif
 
+#if (EXTRUDERS > 3) && defined(E3_ENABLE_PIN) && (E3_ENABLE_PIN > -1)
+  #define enable_e3() WRITE(E3_ENABLE_PIN, E_ENABLE_ON)
+  #define disable_e3() WRITE(E3_ENABLE_PIN,!E_ENABLE_ON)
+#else
+  #define enable_e3()  /* nothing */
+  #define disable_e3() /* nothing */
+#endif
 
 enum AxisEnum {X_AXIS=0, Y_AXIS=1, Z_AXIS=2, E_AXIS=3, X_HEAD=4, Y_HEAD=5};
 

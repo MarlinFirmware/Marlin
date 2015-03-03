@@ -185,8 +185,9 @@ void* editValue;
 int32_t minEditValue, maxEditValue;
 menuFunc_t callbackFunc;
 
-// place-holders for Ki and Kd edits
+// place-holders for Ki and Kd edits, and the extruder # being edited
 float raw_Ki, raw_Kd;
+int pid_current_extruder;
 
 static void lcd_goto_menu(menuFunc_t menu, const uint32_t encoder=0, const bool feedback=true) {
   if (currentMenu != menu) {
@@ -195,7 +196,7 @@ static void lcd_goto_menu(menuFunc_t menu, const uint32_t encoder=0, const bool 
     if (feedback) lcd_quick_feedback();
 
     // For LCD_PROGRESS_BAR re-initialize the custom characters
-    #if defined(LCD_PROGRESS_BAR) && defined(SDSUPPORT)
+    #if defined(LCD_PROGRESS_BAR) && defined(SDSUPPORT) && !defined(DOGLCD)
       lcd_set_custom_characters(menu == lcd_status_screen);
     #endif
   }
@@ -204,7 +205,7 @@ static void lcd_goto_menu(menuFunc_t menu, const uint32_t encoder=0, const bool 
 /* Main status screen. It's up to the implementation specific part to show what is needed. As this is very display dependent */
 static void lcd_status_screen()
 {
-  #if defined(LCD_PROGRESS_BAR) && defined(SDSUPPORT)
+  #if defined(LCD_PROGRESS_BAR) && defined(SDSUPPORT) && !defined(DOGLCD)
     uint16_t mil = millis();
     #ifndef PROGRESS_MSG_ONCE
       if (mil > progressBarTick + PROGRESS_BAR_MSG_TIME + PROGRESS_BAR_BAR_TIME) {
@@ -236,11 +237,12 @@ static void lcd_status_screen()
         lcd_status_update_delay--;
     else
         lcdDrawUpdate = 1;
-    if (lcdDrawUpdate)
-    {
+
+    if (lcdDrawUpdate) {
         lcd_implementation_status_screen();
         lcd_status_update_delay = 10;   /* redraw the main screen every second. This is easier then trying keep track of all things that change on the screen */
     }
+
 #ifdef ULTIPANEL
 
     bool current_click = LCD_CLICKED;
@@ -265,7 +267,7 @@ static void lcd_status_screen()
     {
         lcd_goto_menu(lcd_main_menu);
         lcd_implementation_init( // to maybe revive the LCD if static electricity killed it.
-          #if defined(LCD_PROGRESS_BAR) && defined(SDSUPPORT)
+          #if defined(LCD_PROGRESS_BAR) && defined(SDSUPPORT) && !defined(DOGLCD)
             currentMenu == lcd_status_screen
           #endif
         );
@@ -375,7 +377,7 @@ static void lcd_main_menu()
 #ifdef SDSUPPORT
 static void lcd_autostart_sd()
 {
-    card.lastnr=0;
+    card.autostart_index=0;
     card.setroot();
     card.checkautostart(true);
 }
@@ -424,23 +426,32 @@ static void lcd_tune_menu()
     MENU_ITEM_EDIT(int3, MSG_NOZZLE, &target_temperature[0], 0, HEATER_0_MAXTEMP - 15);
 #endif
 #if TEMP_SENSOR_1 != 0
-    MENU_ITEM_EDIT(int3, MSG_NOZZLE1, &target_temperature[1], 0, HEATER_1_MAXTEMP - 15);
+    MENU_ITEM_EDIT(int3, MSG_NOZZLE " 2", &target_temperature[1], 0, HEATER_1_MAXTEMP - 15);
 #endif
 #if TEMP_SENSOR_2 != 0
-    MENU_ITEM_EDIT(int3, MSG_NOZZLE2, &target_temperature[2], 0, HEATER_2_MAXTEMP - 15);
+    MENU_ITEM_EDIT(int3, MSG_NOZZLE " 3", &target_temperature[2], 0, HEATER_2_MAXTEMP - 15);
 #endif
+#if TEMP_SENSOR_3 != 0
+    MENU_ITEM_EDIT(int3, MSG_NOZZLE " 4", &target_temperature[3], 0, HEATER_3_MAXTEMP - 15);
+#endif
+
+
 #if TEMP_SENSOR_BED != 0
     MENU_ITEM_EDIT(int3, MSG_BED, &target_temperature_bed, 0, BED_MAXTEMP - 15);
 #endif
     MENU_ITEM_EDIT(int3, MSG_FAN_SPEED, &fanSpeed, 0, 255);
     MENU_ITEM_EDIT(int3, MSG_FLOW, &extrudemultiply, 10, 999);
-    MENU_ITEM_EDIT(int3, MSG_FLOW0, &extruder_multiply[0], 10, 999);
+    MENU_ITEM_EDIT(int3, MSG_FLOW " 0", &extruder_multiply[0], 10, 999);
 #if TEMP_SENSOR_1 != 0
-    MENU_ITEM_EDIT(int3, MSG_FLOW1, &extruder_multiply[1], 10, 999);
+    MENU_ITEM_EDIT(int3, MSG_FLOW " 1", &extruder_multiply[1], 10, 999);
 #endif
 #if TEMP_SENSOR_2 != 0
-    MENU_ITEM_EDIT(int3, MSG_FLOW2, &extruder_multiply[2], 10, 999);
+    MENU_ITEM_EDIT(int3, MSG_FLOW " 2", &extruder_multiply[2], 10, 999);
 #endif
+#if TEMP_SENSOR_3 != 0
+    MENU_ITEM_EDIT(int3, MSG_FLOW " 3", &extruder_multiply[3], 10, 999);
+#endif
+
 
 #ifdef BABYSTEPPING
     #ifdef BABYSTEP_XY
@@ -513,23 +524,46 @@ void lcd_preheat_abs2()
 }
 #endif //3 extruder preheat
 
-#if TEMP_SENSOR_1 != 0 || TEMP_SENSOR_2 != 0 //more than one extruder present
-void lcd_preheat_pla012()
+#if TEMP_SENSOR_3 != 0 //4 extruder preheat
+void lcd_preheat_pla3()
 {
-    setTargetHotend0(plaPreheatHotendTemp);
-    setTargetHotend1(plaPreheatHotendTemp);
-    setTargetHotend2(plaPreheatHotendTemp);
+    setTargetHotend3(plaPreheatHotendTemp);
     setTargetBed(plaPreheatHPBTemp);
     fanSpeed = plaPreheatFanSpeed;
     lcd_return_to_status();
     setWatch(); // heater sanity check timer
 }
 
-void lcd_preheat_abs012()
+void lcd_preheat_abs3()
+{
+    setTargetHotend3(absPreheatHotendTemp);
+    setTargetBed(absPreheatHPBTemp);
+    fanSpeed = absPreheatFanSpeed;
+    lcd_return_to_status();
+    setWatch(); // heater sanity check timer
+}
+
+#endif //4 extruder preheat
+
+#if TEMP_SENSOR_1 != 0 || TEMP_SENSOR_2 != 0 || TEMP_SENSOR_3 != 0 //more than one extruder present
+void lcd_preheat_pla0123()
+{
+    setTargetHotend0(plaPreheatHotendTemp);
+    setTargetHotend1(plaPreheatHotendTemp);
+    setTargetHotend2(plaPreheatHotendTemp);
+    setTargetHotend3(plaPreheatHotendTemp);
+    setTargetBed(plaPreheatHPBTemp);
+    fanSpeed = plaPreheatFanSpeed;
+    lcd_return_to_status();
+    setWatch(); // heater sanity check timer
+}
+
+void lcd_preheat_abs0123()
 {
     setTargetHotend0(absPreheatHotendTemp);
     setTargetHotend1(absPreheatHotendTemp);
     setTargetHotend2(absPreheatHotendTemp);
+    setTargetHotend3(absPreheatHotendTemp);
     setTargetBed(absPreheatHPBTemp);
     fanSpeed = absPreheatFanSpeed;
     lcd_return_to_status();
@@ -555,42 +589,49 @@ void lcd_preheat_abs_bedonly()
 
 static void lcd_preheat_pla_menu()
 {
-    START_MENU();
-    MENU_ITEM(back, MSG_PREPARE, lcd_prepare_menu);
-    MENU_ITEM(function, MSG_PREHEAT_PLA0, lcd_preheat_pla0);
+  START_MENU();
+  MENU_ITEM(back, MSG_PREPARE, lcd_prepare_menu);
+  MENU_ITEM(function, MSG_PREHEAT_PLA_N "1", lcd_preheat_pla0);
 #if TEMP_SENSOR_1 != 0 //2 extruder preheat
-    MENU_ITEM(function, MSG_PREHEAT_PLA1, lcd_preheat_pla1);
+  MENU_ITEM(function, MSG_PREHEAT_PLA_N "2", lcd_preheat_pla1);
 #endif //2 extruder preheat
 #if TEMP_SENSOR_2 != 0 //3 extruder preheat
-    MENU_ITEM(function, MSG_PREHEAT_PLA2, lcd_preheat_pla2);
+  MENU_ITEM(function, MSG_PREHEAT_PLA_N "3", lcd_preheat_pla2);
 #endif //3 extruder preheat
-#if TEMP_SENSOR_1 != 0 || TEMP_SENSOR_2 != 0 //all extruder preheat
-    MENU_ITEM(function, MSG_PREHEAT_PLA012, lcd_preheat_pla012);
-#endif //2 extruder preheat
+#if TEMP_SENSOR_3 != 0 //4 extruder preheat
+  MENU_ITEM(function, MSG_PREHEAT_PLA_N "4", lcd_preheat_pla3);
+#endif //4 extruder preheat
+#if TEMP_SENSOR_1 != 0 || TEMP_SENSOR_2 != 0 || TEMP_SENSOR_3 != 0 //all extruder preheat
+  MENU_ITEM(function, MSG_PREHEAT_PLA_ALL, lcd_preheat_pla0123);
+#endif //all extruder preheat
 #if TEMP_SENSOR_BED != 0
-    MENU_ITEM(function, MSG_PREHEAT_PLA_BEDONLY, lcd_preheat_pla_bedonly);
+  MENU_ITEM(function, MSG_PREHEAT_PLA_BEDONLY, lcd_preheat_pla_bedonly);
 #endif
-    END_MENU();
+  END_MENU();
 }
 
 static void lcd_preheat_abs_menu()
 {
-    START_MENU();
-    MENU_ITEM(back, MSG_PREPARE, lcd_prepare_menu);
-    MENU_ITEM(function, MSG_PREHEAT_ABS0, lcd_preheat_abs0);
+  START_MENU();
+  MENU_ITEM(back, MSG_PREPARE, lcd_prepare_menu);
+  MENU_ITEM(function, MSG_PREHEAT_ABS_N "1", lcd_preheat_abs0);
 #if TEMP_SENSOR_1 != 0 //2 extruder preheat
-    MENU_ITEM(function, MSG_PREHEAT_ABS1, lcd_preheat_abs1);
+	MENU_ITEM(function, MSG_PREHEAT_ABS_N "2", lcd_preheat_abs1);
 #endif //2 extruder preheat
 #if TEMP_SENSOR_2 != 0 //3 extruder preheat
-    MENU_ITEM(function, MSG_PREHEAT_ABS2, lcd_preheat_abs2);
+  MENU_ITEM(function, MSG_PREHEAT_ABS_N "3", lcd_preheat_abs2);
 #endif //3 extruder preheat
-#if TEMP_SENSOR_1 != 0 || TEMP_SENSOR_2 != 0 //all extruder preheat
-    MENU_ITEM(function, MSG_PREHEAT_ABS012, lcd_preheat_abs012);
-#endif //2 extruder preheat
+#if TEMP_SENSOR_3 != 0 //4 extruder preheat
+  MENU_ITEM(function, MSG_PREHEAT_ABS_N "4", lcd_preheat_abs3);
+#endif //4 extruder preheat
+#if TEMP_SENSOR_1 != 0 || TEMP_SENSOR_2 != 0 || TEMP_SENSOR_3 != 0 //all extruder preheat
+  MENU_ITEM(function, MSG_PREHEAT_ABS_ALL, lcd_preheat_abs0123);
+#endif //all extruder preheat
+
 #if TEMP_SENSOR_BED != 0
-    MENU_ITEM(function, MSG_PREHEAT_ABS_BEDONLY, lcd_preheat_abs_bedonly);
+ MENU_ITEM(function, MSG_PREHEAT_ABS_BEDONLY, lcd_preheat_abs_bedonly);
 #endif
-    END_MENU();
+  END_MENU();
 }
 
 void lcd_cooldown()
@@ -598,6 +639,7 @@ void lcd_cooldown()
     setTargetHotend0(0);
     setTargetHotend1(0);
     setTargetHotend2(0);
+    setTargetHotend3(0);
     setTargetBed(0);
     fanSpeed = 0;
     lcd_return_to_status();
@@ -745,7 +787,7 @@ static void lcd_control_menu()
     MENU_ITEM(back, MSG_MAIN, lcd_main_menu);
     MENU_ITEM(submenu, MSG_TEMPERATURE, lcd_control_temperature_menu);
     MENU_ITEM(submenu, MSG_MOTION, lcd_control_motion_menu);
-	MENU_ITEM(submenu, MSG_VOLUMETRIC, lcd_control_volumetric_menu);
+    MENU_ITEM(submenu, MSG_VOLUMETRIC, lcd_control_volumetric_menu);
 
 #ifdef DOGLCD
 //    MENU_ITEM_EDIT(int3, MSG_CONTRAST, &lcd_contrast, 0, 63);
@@ -764,41 +806,70 @@ static void lcd_control_menu()
 
 static void lcd_control_temperature_menu()
 {
-#ifdef PIDTEMP
-    // set up temp variables - undo the default scaling
-    raw_Ki = unscalePID_i(Ki);
-    raw_Kd = unscalePID_d(Kd);
-#endif
-
-    START_MENU();
-    MENU_ITEM(back, MSG_CONTROL, lcd_control_menu);
+  START_MENU();
+  MENU_ITEM(back, MSG_CONTROL, lcd_control_menu);
 #if TEMP_SENSOR_0 != 0
-    MENU_ITEM_EDIT(int3, MSG_NOZZLE, &target_temperature[0], 0, HEATER_0_MAXTEMP - 15);
+  MENU_ITEM_EDIT(int3, MSG_NOZZLE, &target_temperature[0], 0, HEATER_0_MAXTEMP - 15);
 #endif
-#if TEMP_SENSOR_1 != 0
-    MENU_ITEM_EDIT(int3, MSG_NOZZLE1, &target_temperature[1], 0, HEATER_1_MAXTEMP - 15);
+#if TEMP_SENSOR_1 != 0 && EXTRUDERS > 1
+  MENU_ITEM_EDIT(int3, MSG_NOZZLE " 2", &target_temperature[1], 0, HEATER_1_MAXTEMP - 15);
 #endif
-#if TEMP_SENSOR_2 != 0
-    MENU_ITEM_EDIT(int3, MSG_NOZZLE2, &target_temperature[2], 0, HEATER_2_MAXTEMP - 15);
+#if TEMP_SENSOR_2 != 0 && EXTRUDERS > 2
+  MENU_ITEM_EDIT(int3, MSG_NOZZLE " 3", &target_temperature[2], 0, HEATER_2_MAXTEMP - 15);
+#endif
+#if TEMP_SENSOR_3 != 0 && EXTRUDERS > 3
+  MENU_ITEM_EDIT(int3, MSG_NOZZLE " 4", &target_temperature[3], 0, HEATER_3_MAXTEMP - 15);
 #endif
 #if TEMP_SENSOR_BED != 0
-    MENU_ITEM_EDIT(int3, MSG_BED, &target_temperature_bed, 0, BED_MAXTEMP - 15);
+  MENU_ITEM_EDIT(int3, MSG_BED, &target_temperature_bed, 0, BED_MAXTEMP - 15);
 #endif
-    MENU_ITEM_EDIT(int3, MSG_FAN_SPEED, &fanSpeed, 0, 255);
+  MENU_ITEM_EDIT(int3, MSG_FAN_SPEED, &fanSpeed, 0, 255);
 #if defined AUTOTEMP && (TEMP_SENSOR_0 != 0)
-    MENU_ITEM_EDIT(bool, MSG_AUTOTEMP, &autotemp_enabled);
-    MENU_ITEM_EDIT(float3, MSG_MIN, &autotemp_min, 0, HEATER_0_MAXTEMP - 15);
-    MENU_ITEM_EDIT(float3, MSG_MAX, &autotemp_max, 0, HEATER_0_MAXTEMP - 15);
-    MENU_ITEM_EDIT(float32, MSG_FACTOR, &autotemp_factor, 0.0, 1.0);
+  MENU_ITEM_EDIT(bool, MSG_AUTOTEMP, &autotemp_enabled);
+  MENU_ITEM_EDIT(float3, MSG_MIN, &autotemp_min, 0, HEATER_0_MAXTEMP - 15);
+  MENU_ITEM_EDIT(float3, MSG_MAX, &autotemp_max, 0, HEATER_0_MAXTEMP - 15);
+  MENU_ITEM_EDIT(float32, MSG_FACTOR, &autotemp_factor, 0.0, 1.0);
 #endif
 #ifdef PIDTEMP
-    MENU_ITEM_EDIT(float52, MSG_PID_P, &Kp, 1, 9990);
-    // i is typically a small value so allows values below 1
-    MENU_ITEM_EDIT_CALLBACK(float52, MSG_PID_I, &raw_Ki, 0.01, 9990, copy_and_scalePID_i);
-    MENU_ITEM_EDIT_CALLBACK(float52, MSG_PID_D, &raw_Kd, 1, 9990, copy_and_scalePID_d);
-# ifdef PID_ADD_EXTRUSION_RATE
-    MENU_ITEM_EDIT(float3, MSG_PID_C, &Kc, 1, 9990);
-# endif//PID_ADD_EXTRUSION_RATE
+	// set up temp variables - undo the default scaling
+	pid_current_extruder = 0;
+	raw_Ki = unscalePID_i(PID_PARAM(Ki,0));
+	raw_Kd = unscalePID_d(PID_PARAM(Kd,0));
+	MENU_ITEM_EDIT(float52, MSG_PID_P, &PID_PARAM(Kp,0), 1, 9990);
+	// i is typically a small value so allows values below 1
+	MENU_ITEM_EDIT_CALLBACK(float52, MSG_PID_I, &raw_Ki, 0.01, 9990, copy_and_scalePID_i);
+	MENU_ITEM_EDIT_CALLBACK(float52, MSG_PID_D, &raw_Kd, 1, 9990, copy_and_scalePID_d);
+    #ifdef PID_ADD_EXTRUSION_RATE
+	  MENU_ITEM_EDIT(float3, MSG_PID_C, &PID_PARAM(Kc,0), 1, 9990);
+    #endif//PID_ADD_EXTRUSION_RATE
+#ifdef PID_PARAMS_PER_EXTRUDER
+  #if EXTRUDERS > 1
+	  // set up temp variables - undo the default scaling
+	  pid_current_extruder = 0;
+	  raw_Ki = unscalePID_i(PID_PARAM(Ki,1));
+	  raw_Kd = unscalePID_d(PID_PARAM(Kd,1));
+	  MENU_ITEM_EDIT(float52, MSG_PID_P " E2", &PID_PARAM(Kp,1), 1, 9990);
+	  // i is typically a small value so allows values below 1
+	  MENU_ITEM_EDIT_CALLBACK(float52, MSG_PID_I " E2", &raw_Ki, 0.01, 9990, copy_and_scalePID_i);
+	  MENU_ITEM_EDIT_CALLBACK(float52, MSG_PID_D " E2", &raw_Kd, 1, 9990, copy_and_scalePID_d);
+      #ifdef PID_ADD_EXTRUSION_RATE
+	    MENU_ITEM_EDIT(float3, MSG_PID_C " E2", &PID_PARAM(Kc,1), 1, 9990);
+      #endif//PID_ADD_EXTRUSION_RATE
+  #endif//EXTRUDERS > 1
+  #if EXTRUDERS > 2
+	    // set up temp variables - undo the default scaling
+	    pid_current_extruder = 0;
+	    raw_Ki = unscalePID_i(PID_PARAM(Ki,2));
+	    raw_Kd = unscalePID_d(PID_PARAM(Kd,2));
+	    MENU_ITEM_EDIT(float52, MSG_PID_P " E3", &PID_PARAM(Kp,2), 1, 9990);
+	    // i is typically a small value so allows values below 1
+	    MENU_ITEM_EDIT_CALLBACK(float52, MSG_PID_I " E3", &raw_Ki, 0.01, 9990, copy_and_scalePID_i);
+	    MENU_ITEM_EDIT_CALLBACK(float52, MSG_PID_D " E3", &raw_Kd, 1, 9990, copy_and_scalePID_d);
+        #ifdef PID_ADD_EXTRUSION_RATE
+	      MENU_ITEM_EDIT(float3, MSG_PID_C " E3", &PID_PARAM(Kc,2), 1, 9990);
+        #endif//PID_ADD_EXTRUSION_RATE
+  #endif//EXTRUDERS > 2
+#endif // PID_PARAMS_PER_EXTRUDER
 #endif//PIDTEMP
     MENU_ITEM(submenu, MSG_PREHEAT_PLA_SETTINGS, lcd_control_temperature_preheat_pla_settings_menu);
     MENU_ITEM(submenu, MSG_PREHEAT_ABS_SETTINGS, lcd_control_temperature_preheat_abs_settings_menu);
@@ -888,13 +959,15 @@ static void lcd_control_volumetric_menu()
 		MENU_ITEM_EDIT_CALLBACK(float43, MSG_FILAMENT_SIZE_EXTRUDER_1, &filament_size[1], DEFAULT_NOMINAL_FILAMENT_DIA - .5, DEFAULT_NOMINAL_FILAMENT_DIA + .5, calculate_volumetric_multipliers);
 #if EXTRUDERS > 2
 		MENU_ITEM_EDIT_CALLBACK(float43, MSG_FILAMENT_SIZE_EXTRUDER_2, &filament_size[2], DEFAULT_NOMINAL_FILAMENT_DIA - .5, DEFAULT_NOMINAL_FILAMENT_DIA + .5, calculate_volumetric_multipliers);
-#endif
-#endif
+#if EXTRUDERS > 3
+		MENU_ITEM_EDIT_CALLBACK(float43, MSG_FILAMENT_SIZE_EXTRUDER_3, &filament_size[3], DEFAULT_NOMINAL_FILAMENT_DIA - .5, DEFAULT_NOMINAL_FILAMENT_DIA + .5, calculate_volumetric_multipliers);
+#endif //EXTRUDERS > 3
+#endif //EXTRUDERS > 2
+#endif //EXTRUDERS > 1
 	}
 
 	END_MENU();
 }
-
 #ifdef DOGLCD
 static void lcd_set_contrast()
 {
@@ -922,19 +995,18 @@ static void lcd_control_retract_menu()
     MENU_ITEM(back, MSG_CONTROL, lcd_control_menu);
     MENU_ITEM_EDIT(bool, MSG_AUTORETRACT, &autoretract_enabled);
     MENU_ITEM_EDIT(float52, MSG_CONTROL_RETRACT, &retract_length, 0, 100);
-	#if EXTRUDERS > 1
+    #if EXTRUDERS > 1
       MENU_ITEM_EDIT(float52, MSG_CONTROL_RETRACT_SWAP, &retract_length_swap, 0, 100);
     #endif
     MENU_ITEM_EDIT(float3, MSG_CONTROL_RETRACTF, &retract_feedrate, 1, 999);
     MENU_ITEM_EDIT(float52, MSG_CONTROL_RETRACT_ZLIFT, &retract_zlift, 0, 999);
     MENU_ITEM_EDIT(float52, MSG_CONTROL_RETRACT_RECOVER, &retract_recover_length, 0, 100);
-	#if EXTRUDERS > 1
+    #if EXTRUDERS > 1
       MENU_ITEM_EDIT(float52, MSG_CONTROL_RETRACT_RECOVER_SWAP, &retract_recover_length_swap, 0, 100);
     #endif
     MENU_ITEM_EDIT(float3, MSG_CONTROL_RETRACT_RECOVERF, &retract_recover_feedrate, 1, 999);
     END_MENU();
 }
-
 #endif //FWRETRACT
 
 #if SDCARDDETECT == -1
@@ -1191,7 +1263,7 @@ void lcd_update()
         lcdDrawUpdate = 2;
         lcd_oldcardstatus = IS_SD_INSERTED;
         lcd_implementation_init( // to maybe revive the LCD if static electricity killed it.
-          #if defined(LCD_PROGRESS_BAR) && defined(SDSUPPORT)
+          #if defined(LCD_PROGRESS_BAR) && defined(SDSUPPORT) && !defined(DOGLCD)
             currentMenu == lcd_status_screen
           #endif
         );
@@ -1251,7 +1323,7 @@ void lcd_update()
         u8g.firstPage();
         do
         {
-            u8g.setFont(u8g_font_6x10_marlin);
+            u8g.setFont(FONT_MENU);
             u8g.setPrintPos(125,0);
             if (blink % 2) u8g.setColorIndex(1); else u8g.setColorIndex(0); // Set color for the alive dot
             u8g.drawPixel(127,63); // draw alive dot
@@ -1294,7 +1366,7 @@ void lcd_finishstatus() {
     }
   }
   lcd_status_message[LCD_WIDTH] = '\0';
-  #if defined(LCD_PROGRESS_BAR) && defined(SDSUPPORT)
+  #if defined(LCD_PROGRESS_BAR) && defined(SDSUPPORT) && !defined(DOGLCD)
     #if PROGRESS_MSG_EXPIRE > 0
       messageTick =
     #endif
@@ -1705,7 +1777,7 @@ char *ftostr52(const float &x)
 void copy_and_scalePID_i()
 {
 #ifdef PIDTEMP
-  Ki = scalePID_i(raw_Ki);
+  PID_PARAM(Ki, pid_current_extruder) = scalePID_i(raw_Ki);
   updatePID();
 #endif
 }
@@ -1715,7 +1787,7 @@ void copy_and_scalePID_i()
 void copy_and_scalePID_d()
 {
 #ifdef PIDTEMP
-  Kd = scalePID_d(raw_Kd);
+	PID_PARAM(Kd, pid_current_extruder) = scalePID_d(raw_Kd);
   updatePID();
 #endif
 }
