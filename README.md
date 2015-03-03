@@ -1,14 +1,4 @@
-# Marlin 3D Printer Firmware Package for Felix 2.0/3.0
-
-## Felix Modifications
-
-This is a snapshot of upstream Marlin from 20150301 modified to be
-used directly with Felix Electronic Boards and Printers. Dual-Head
-has been activated but is not tested. Neither are LCD and SDCARD
-since Ocotprint is in use here. A pull-request to have direct
-upstream hardware support has already been submitted.
-
-
+# Marlin 3D Printer Firmware
 <img align="right" src="Documentation/Logo/Marlin%20Logo%20GitHub.png" />
 
   * [Configuration & Compilation](/Documentation/Compilation.md)
@@ -51,7 +41,7 @@ The current Marlin dev team consists of:
 
  - Erik van der Zalm ([@ErikZalm](https://github.com/ErikZalm))
  - [@daid](https://github.com/daid)
-
+ 
 Sprinters lead developers are Kliment and caru.
 Grbls lead developer is Simen Svale Skogsrud.
 Sonney Jeon (Chamnit) improved some parts of grbl
