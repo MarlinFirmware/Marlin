@@ -154,6 +154,8 @@
 // M302 - Allow cold extrudes, or set the minimum extrude S<temperature>.
 // M303 - PID relay autotune S<temperature> sets the target temperature. (default target temperature = 150C)
 // M304 - Set bed PID parameters P I and D
+// M380 - Activate solenoid on active extruder
+// M381 - Disable all solenoids
 // M400 - Finish all moves
 // M401 - Lower z-probe if present
 // M402 - Raise z-probe if present
@@ -3497,6 +3499,17 @@ Sigma_Exit:
       }
       break;
 	#endif
+    
+#ifdef EXT_SOLENOID
+    case 380:
+        enable_solenoid_on_active_extruder();
+        break;
+
+    case 381:
+        disable_all_solenoids();
+        break;
+#endif //EXT_SOLENOID
+
     case 400: // M400 finish all moves
     {
       st_synchronize();
@@ -4000,6 +4013,13 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
            prepare_move();
         }
       }
+
+#ifdef EXT_SOLENOID
+      st_synchronize();
+      disable_all_solenoids();
+      enable_solenoid_on_active_extruder();
+#endif //EXT_SOLENOID
+
       #endif
       SERIAL_ECHO_START;
       SERIAL_ECHO(MSG_ACTIVE_EXTRUDER);
@@ -4707,7 +4727,6 @@ bool setTargetedHotend(int code){
   return false;
 }
 
-
 float calculate_volumetric_multiplier(float diameter) {
   if (!volumetric_enabled || diameter == 0) return 1.0;
   float d2 = diameter * 0.5;
@@ -4718,3 +4737,49 @@ void calculate_volumetric_multipliers() {
   for (int i=0; i<EXTRUDERS; i++)
     volumetric_multiplier[i] = calculate_volumetric_multiplier(filament_size[i]);
 }
+
+#ifdef EXT_SOLENOID
+void enable_solenoid(uint8_t num) {
+         if(num == 0) {
+         SET_OUTPUT(SOL0_PIN);
+         WRITE(SOL0_PIN,HIGH);
+    }
+        
+         if(num == 1){
+         SET_OUTPUT(SOL1_PIN);
+         WRITE(SOL1_PIN,HIGH);
+    }
+         
+         if(num == 2){
+         SET_OUTPUT(SOL2_PIN);
+         WRITE(SOL2_PIN,HIGH);
+    }
+         
+         if(num == 3){
+         SET_OUTPUT(SOL3_PIN);
+         WRITE(SOL3_PIN,HIGH);
+    }
+         
+         return;
+    }
+
+void enable_solenoid_on_active_extruder() {
+         enable_solenoid(active_extruder);
+         return;
+    }
+
+void disable_all_solenoids() {
+         SET_OUTPUT(SOL0_PIN);
+         SET_OUTPUT(SOL1_PIN);
+         SET_OUTPUT(SOL2_PIN);
+         SET_OUTPUT(SOL3_PIN);
+         
+         WRITE(SOL0_PIN,LOW);
+         WRITE(SOL1_PIN,LOW);
+         WRITE(SOL2_PIN,LOW);
+         WRITE(SOL3_PIN,LOW);
+         
+         return;
+    }
+
+#endif //EXT_SOLENOID
