@@ -116,11 +116,6 @@
 
     #define SDCARDDETECT 81    // Ramps does not use this port
 
-    //encoder rotation values
-    #define encrot0 0
-    #define encrot1 2
-    #define encrot2 3
-    #define encrot3 1
   #else //!NEWPANEL - old style panel with shift register
     //arduino pin witch triggers an piezzo beeper
     #define BEEPER 33    No Beeper added
@@ -137,12 +132,6 @@
     #define LCD_PINS_D5 25
     #define LCD_PINS_D6 27
     #define LCD_PINS_D7 29
-
-    //encoder rotation values
-    #define encrot0 0
-    #define encrot1 2
-    #define encrot2 3
-    #define encrot3 1
 
     //bits in the shift register that carry the buttons for:
     // left up center down right red
