@@ -50,7 +50,7 @@ Copy the firmware to your printer host:
 
     scp /tmp/build6072035599686630843.tmp/Marlin.cpp.hex a.b.c.d:/tmp/
 
-Connect to your printer host via ssh, stop Octoprint or any other service that may block your USB device and make sure you have avrdude installed, the run:
+Connect to your printer host via ssh, stop Octoprint or any other service that may block your USB device and make sure you have avrdude installed, then run:
 
     avrdude -C/etc/avrdude.conf -v -v -v -patmega2560 -cwiring -P/dev/ttyUSB0 \
     -b115200 -D -Uflash:w:/tmp/Marlin.cpp.hex:i
