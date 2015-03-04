@@ -95,9 +95,3 @@
 #define BLEN_A 0
 
 #define SDCARDDETECT -1  // Megatronics does not use this port
-
-// Encoder rotation values
-#define encrot0 0
-#define encrot1 2
-#define encrot2 3
-#define encrot3 1
