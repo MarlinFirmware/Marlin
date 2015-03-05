@@ -180,8 +180,8 @@ void manage_inactivity(bool ignore_stepper_queue=false);
   #define disable_e3() /* nothing */
 #endif
 
-enum AxisEnum {X_AXIS=0, Y_AXIS=1, Z_AXIS=2, E_AXIS=3, X_HEAD=4, Y_HEAD=5};
-
+enum AxisEnum {X_AXIS=0, Y_AXIS=1, Z_AXIS=2, E_AXIS=3, X_HEAD=4, Y_HEAD=5}; 
+//X_HEAD and Y_HEAD is used for systems that don't have a 1:1 relationship between X_AXIS and X Head movement, like CoreXY bots.
 
 void FlushSerialRequestResend();
 void ClearToSend();
@@ -201,8 +201,9 @@ void Stop();
 
 bool IsStopped();
 
-void enquecommand(const char *cmd); //put an ASCII command at the end of the current buffer.
-void enquecommand_P(const char *cmd); //put an ASCII command at the end of the current buffer, read from flash
+bool enquecommand(const char *cmd); //put a single ASCII command at the end of the current buffer or return false when it is full
+void enquecommands_P(const char *cmd); //put one or many ASCII commands at the end of the current buffer, read from flash
+
 void prepare_arc_move(char isclockwise);
 void clamp_to_software_endstops(float target[3]);
 
