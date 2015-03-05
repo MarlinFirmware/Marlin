@@ -1173,6 +1173,9 @@ static void function_sdcard_stop()
         current_position[Y_AXIS] = Y_MAX_POS - 15;
         current_position[Z_AXIS] = Z_MAX_POS - 15;
 #    endif // X_MAX_POS < 250
+        if (current_position[Z_AXIS] > Z_MAX_POS) {
+            current_position[Z_AXIS] = Z_MAX_POS;
+        }
 
         plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], manual_feedrate[X_AXIS] / 60, active_extruder);
         st_synchronize();
