@@ -2179,6 +2179,7 @@ void process_commands()
         enable_e0();
         enable_e1();
         enable_e2();
+        enable_e3();
       break;
 
 #ifdef SDSUPPORT
@@ -2889,6 +2890,7 @@ Sigma_Exit:
         disable_e0();
         disable_e1();
         disable_e2();
+        disable_e3();
         finishAndDisableSteppers();
         fanSpeed = 0;
         delay(1000); // Wait a little before to switch off
@@ -2926,6 +2928,7 @@ Sigma_Exit:
           disable_e0();
           disable_e1();
           disable_e2();
+          disable_e3();
           finishAndDisableSteppers();
         }
         else
@@ -2939,6 +2942,7 @@ Sigma_Exit:
               disable_e0();
               disable_e1();
               disable_e2();
+              disable_e3();
             }
           #endif
         }
@@ -3867,6 +3871,7 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
         disable_e0();
         disable_e1();
         disable_e2();
+        disable_e3();
         delay(100);
         LCD_ALERTMESSAGEPGM(MSG_FILAMENTCHANGE);
         uint8_t cnt=0;
@@ -4610,6 +4615,7 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) //default argument s
         disable_e0();
         disable_e1();
         disable_e2();
+        disable_e3();
       }
     }
   }
@@ -4715,6 +4721,7 @@ void kill()
   disable_e0();
   disable_e1();
   disable_e2();
+  disable_e3();
 
 #if defined(PS_ON_PIN) && PS_ON_PIN > -1
   pinMode(PS_ON_PIN,INPUT);
