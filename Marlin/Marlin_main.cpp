@@ -1808,10 +1808,10 @@ void process_commands()
         // Define the possible boundaries for probing based on the set limits.
         // Code above (in G28) might have these limits wrong, or I am wrong here.
         #define MIN_PROBE_EDGE 10 // Edges of the probe square can be no less
-        const int min_probe_x = max(X_MIN, X_MIN + X_PROBE_OFFSET_FROM_EXTRUDER),
-                  max_probe_x = min(X_MAX, X_MAX + X_PROBE_OFFSET_FROM_EXTRUDER);
-                  min_probe_y = max(Y_MIN, Y_MIN + Y_PROBE_OFFSET_FROM_EXTRUDER);
-                  max_probe_y = min(Y_MAX, Y_MAX + Y_PROBE_OFFSET_FROM_EXTRUDER);
+        const int min_probe_x = max(X_MIN_POS, X_MIN_POS + X_PROBE_OFFSET_FROM_EXTRUDER),
+                  max_probe_x = min(X_MAX_POS, X_MAX_POS + X_PROBE_OFFSET_FROM_EXTRUDER),
+                  min_probe_y = max(Y_MIN_POS, Y_MIN_POS + Y_PROBE_OFFSET_FROM_EXTRUDER),
+                  max_probe_y = min(Y_MAX_POS, Y_MAX_POS + Y_PROBE_OFFSET_FROM_EXTRUDER);
 
         int left_probe_bed_position = code_seen('L') ? code_value_long() : LEFT_PROBE_BED_POSITION,
             right_probe_bed_position = code_seen('R') ? code_value_long() : RIGHT_PROBE_BED_POSITION,
