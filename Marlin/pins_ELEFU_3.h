@@ -74,12 +74,6 @@
   #define BLEN_B           1
   #define BLEN_A           0
 
-  //encoder rotation values
-  #define encrot0          0
-  #define encrot1          2
-  #define encrot2          3
-  #define encrot3          1
-
 #endif // RA_CONTROL_PANEL
 
 #ifdef RA_DISCO

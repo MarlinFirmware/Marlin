@@ -1394,6 +1394,17 @@ void lcd_reset_alert_level() { lcd_status_message_level = 0; }
 
 #ifdef ULTIPANEL
 
+////////////////////////
+// Setup Rotary Encoder Bit Values (for two pin encoders to indicate movement)
+// These values are independent of which pins are used for EN_A and EN_B indications
+// The rotary encoder part is also independent to the chipset used for the LCD
+#if defined(EN_A) && defined(EN_B)
+  #define encrot0 0
+  #define encrot1 2
+  #define encrot2 3
+  #define encrot3 1
+#endif 
+
 /* Warning: This function is called from interrupt context */
 void lcd_buttons_update() {
   #ifdef NEWPANEL
