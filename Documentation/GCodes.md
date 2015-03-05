@@ -101,3 +101,25 @@
 *  M908 - Control digital trimpot directly.
 *  M928 - Start SD logging (M928 filename.g) - ended by M29
 *  M999 - Restart after being stopped by error
+
+# Comments
+
+Comments start at a `;` (semicolon) and end with the end of the line:
+
+    N3 T0*57 ; This is a comment
+    N4 G92 E0*67
+    ; So is this
+    N5 G28*22
+
+(example taken from the [RepRap wiki](http://reprap.org/wiki/Gcode#Comments))
+
+If you need to use a literal `;` somewhere (for example within `M117`), you can escape semicolons with a `\`
+(backslash):
+
+     M117 Hello \;)
+
+`\` can also be used to escape `\` itself, if you need a literal `\` in front of a `;`:
+
+    M117 backslash: \\;and a comment
+
+Please note that hosts should strip any comments before sending GCODE to the printer in order to save bandwidth.
