@@ -296,8 +296,8 @@ void PID_autotune(float temp, int extruder, int ncycles)
 
             SERIAL_PROTOCOLPGM(MSG_BIAS); SERIAL_PROTOCOL(bias);
             SERIAL_PROTOCOLPGM(MSG_D);    SERIAL_PROTOCOL(d);
-            SERIAL_PROTOCOLPGM(MSG_MIN);  SERIAL_PROTOCOL(min);
-            SERIAL_PROTOCOLPGM(MSG_MAX);  SERIAL_PROTOCOLLN(max);
+            SERIAL_PROTOCOLPGM(MSG_T_MIN);  SERIAL_PROTOCOL(min);
+            SERIAL_PROTOCOLPGM(MSG_T_MAX);  SERIAL_PROTOCOLLN(max);
             if (cycles > 2) {
               Ku = (4.0 * d) / (3.14159265 * (max - min) / 2.0);
               Tu = ((float)(t_low + t_high) / 1000.0);
