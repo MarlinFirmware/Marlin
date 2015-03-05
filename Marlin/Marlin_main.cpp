@@ -1669,10 +1669,10 @@ void process_commands()
                                                 // Let's see if X and Y are homed and probe is inside bed area.
           if(code_seen(axis_codes[Z_AXIS])) {
             if ( (axis_known_position[X_AXIS]) && (axis_known_position[Y_AXIS]) \
-              && (current_position[X_AXIS]+X_PROBE_OFFSET_FROM_EXTRUDER >= X_MIN_POS) \
-              && (current_position[X_AXIS]+X_PROBE_OFFSET_FROM_EXTRUDER <= X_MAX_POS) \
-              && (current_position[Y_AXIS]+Y_PROBE_OFFSET_FROM_EXTRUDER >= Y_MIN_POS) \
-              && (current_position[Y_AXIS]+Y_PROBE_OFFSET_FROM_EXTRUDER <= Y_MAX_POS)) {
+              && (current_position[X_AXIS] >= X_MIN_POS - X_PROBE_OFFSET_FROM_EXTRUDER) \
+              && (current_position[X_AXIS] <= X_MAX_POS - X_PROBE_OFFSET_FROM_EXTRUDER) \
+              && (current_position[Y_AXIS] >= Y_MIN_POS - Y_PROBE_OFFSET_FROM_EXTRUDER) \
+              && (current_position[Y_AXIS] <= Y_MAX_POS - Y_PROBE_OFFSET_FROM_EXTRUDER)) {
 
               current_position[Z_AXIS] = 0;
               plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
@@ -1789,26 +1789,67 @@ void process_commands()
         if (code_seen('V') || code_seen('v')) {
           verbose_level = code_value();
           if (verbose_level < 0 || verbose_level > 4) {
-            SERIAL_PROTOCOLPGM("?Verbose Level not plausible (0-4).\n");
+            SERIAL_PROTOCOLPGM("?(V)erbose Level is implausible (0-4).\n");
             break;
           }
           if (verbose_level > 0) {
-            SERIAL_PROTOCOLPGM("Enhanced G29 Auto_Bed_Leveling Code V1.25:\n");
-            SERIAL_PROTOCOLPGM("Full support at http://3dprintboard.com\n");
+            SERIAL_PROTOCOLPGM("G29 Enhanced Auto Bed Leveling Code V1.25:\n");
+            SERIAL_PROTOCOLPGM("Full support at: http://3dprintboard.com/forum.php\n");
             if (verbose_level > 2) topo_flag = true;
           }
         }
 
         int auto_bed_leveling_grid_points = code_seen('P') ? code_value_long() : AUTO_BED_LEVELING_GRID_POINTS;
         if (auto_bed_leveling_grid_points < 2 || auto_bed_leveling_grid_points > AUTO_BED_LEVELING_GRID_POINTS) {
-          SERIAL_PROTOCOLPGM("?Number of probed points not plausible (2 minimum).\n");
+          SERIAL_PROTOCOLPGM("?Number of probed (P)oints is implausible (2 minimum).\n");
           break;
         }
 
-        int left_probe_bed_position = code_seen('L') ? code_value_long() : LEFT_PROBE_BED_POSITION;
-        int right_probe_bed_position = code_seen('R') ? code_value_long() : RIGHT_PROBE_BED_POSITION;
-        int back_probe_bed_position = code_seen('B') ? code_value_long() : BACK_PROBE_BED_POSITION;
-        int front_probe_bed_position = code_seen('F') ? code_value_long() : FRONT_PROBE_BED_POSITION;
+        // Define the possible boundaries for probing based on the set limits.
+        // Code above (in G28) might have these limits wrong, or I am wrong here.
+        #define MIN_PROBE_EDGE 10 // Edges of the probe square can be no less
+        const int min_probe_x = max(X_MIN, X_MIN + X_PROBE_OFFSET_FROM_EXTRUDER),
+                  max_probe_x = min(X_MAX, X_MAX + X_PROBE_OFFSET_FROM_EXTRUDER);
+                  min_probe_y = max(Y_MIN, Y_MIN + Y_PROBE_OFFSET_FROM_EXTRUDER);
+                  max_probe_y = min(Y_MAX, Y_MAX + Y_PROBE_OFFSET_FROM_EXTRUDER);
+
+        int left_probe_bed_position = code_seen('L') ? code_value_long() : LEFT_PROBE_BED_POSITION,
+            right_probe_bed_position = code_seen('R') ? code_value_long() : RIGHT_PROBE_BED_POSITION,
+            front_probe_bed_position = code_seen('F') ? code_value_long() : FRONT_PROBE_BED_POSITION,
+            back_probe_bed_position = code_seen('B') ? code_value_long() : BACK_PROBE_BED_POSITION;
+
+        bool left_out_l = left_probe_bed_position < min_probe_x,
+             left_out_r = left_probe_bed_position > right_probe_bed_position - MIN_PROBE_EDGE,
+             left_out = left_out_l || left_out_r,
+             right_out_r = right_probe_bed_position > max_probe_x,
+             right_out_l =right_probe_bed_position < left_probe_bed_position + MIN_PROBE_EDGE,
+             right_out = right_out_l || right_out_r,
+             front_out_f = front_probe_bed_position < min_probe_y,
+             front_out_b = front_probe_bed_position > back_probe_bed_position - MIN_PROBE_EDGE,
+             front_out = front_out_f || front_out_b,
+             back_out_b = back_probe_bed_position > max_probe_y,
+             back_out_f = back_probe_bed_position < front_probe_bed_position + MIN_PROBE_EDGE,
+             back_out = back_out_f || back_out_b;
+
+        if (left_out || right_out || front_out || back_out) {
+          if (left_out) {
+            SERIAL_PROTOCOLPGM("?Probe (L)eft position out of range.\n");
+            left_probe_bed_position = left_out_l ? min_probe_x : right_probe_bed_position - MIN_PROBE_EDGE;
+          }
+          if (right_out) {
+            SERIAL_PROTOCOLPGM("?Probe (R)ight position out of range.\n");
+            right_probe_bed_position = right_out_r ? max_probe_x : left_probe_bed_position + MIN_PROBE_EDGE;
+          }
+          if (front_out) {
+            SERIAL_PROTOCOLPGM("?Probe (F)ront position out of range.\n");
+            front_probe_bed_position = front_out_f ? min_probe_y : back_probe_bed_position - MIN_PROBE_EDGE;
+          }
+          if (back_out) {
+            SERIAL_PROTOCOLPGM("?Probe (B)ack position out of range.\n");
+            back_probe_bed_position = back_out_b ? max_probe_y : front_probe_bed_position + MIN_PROBE_EDGE;
+          }
+          break;
+        }
 
       #endif
 
