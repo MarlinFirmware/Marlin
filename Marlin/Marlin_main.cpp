@@ -732,100 +732,103 @@ void get_command()
        serial_char == '\r' ||
        serial_count >= (MAX_CMD_SIZE - 1) )
     {
-      if(!serial_count) { //if empty line
-        comment_mode = false; //for new command
+      // end of line == end of comment
+      comment_mode = false;
+
+      if(!serial_count) {
+        // short cut for empty lines
         return;
       }
       cmdbuffer[bufindw][serial_count] = 0; //terminate string
-      if(!comment_mode){
-        fromsd[bufindw] = false;
-        if(strchr(cmdbuffer[bufindw], 'N') != NULL)
+
+      fromsd[bufindw] = false;
+      if(strchr(cmdbuffer[bufindw], 'N') != NULL)
+      {
+        strchr_pointer = strchr(cmdbuffer[bufindw], 'N');
+        gcode_N = (strtol(strchr_pointer + 1, NULL, 10));
+        if(gcode_N != gcode_LastN+1 && (strstr_P(cmdbuffer[bufindw], PSTR("M110")) == NULL) ) {
+          SERIAL_ERROR_START;
+          SERIAL_ERRORPGM(MSG_ERR_LINE_NO);
+          SERIAL_ERRORLN(gcode_LastN);
+          //Serial.println(gcode_N);
+          FlushSerialRequestResend();
+          serial_count = 0;
+          return;
+        }
+
+        if(strchr(cmdbuffer[bufindw], '*') != NULL)
         {
-          strchr_pointer = strchr(cmdbuffer[bufindw], 'N');
-          gcode_N = (strtol(strchr_pointer + 1, NULL, 10));
-          if(gcode_N != gcode_LastN+1 && (strstr_P(cmdbuffer[bufindw], PSTR("M110")) == NULL) ) {
-            SERIAL_ERROR_START;
-            SERIAL_ERRORPGM(MSG_ERR_LINE_NO);
-            SERIAL_ERRORLN(gcode_LastN);
-            //Serial.println(gcode_N);
-            FlushSerialRequestResend();
-            serial_count = 0;
-            return;
-          }
+          byte checksum = 0;
+          byte count = 0;
+          while(cmdbuffer[bufindw][count] != '*') checksum = checksum^cmdbuffer[bufindw][count++];
+          strchr_pointer = strchr(cmdbuffer[bufindw], '*');
 
-          if(strchr(cmdbuffer[bufindw], '*') != NULL)
-          {
-            byte checksum = 0;
-            byte count = 0;
-            while(cmdbuffer[bufindw][count] != '*') checksum = checksum^cmdbuffer[bufindw][count++];
-            strchr_pointer = strchr(cmdbuffer[bufindw], '*');
-
-            if( (int)(strtod(strchr_pointer + 1, NULL)) != checksum) {
-              SERIAL_ERROR_START;
-              SERIAL_ERRORPGM(MSG_ERR_CHECKSUM_MISMATCH);
-              SERIAL_ERRORLN(gcode_LastN);
-              FlushSerialRequestResend();
-              serial_count = 0;
-              return;
-            }
-            //if no errors, continue parsing
-          }
-          else
-          {
+          if( (int)(strtod(strchr_pointer + 1, NULL)) != checksum) {
             SERIAL_ERROR_START;
-            SERIAL_ERRORPGM(MSG_ERR_NO_CHECKSUM);
+            SERIAL_ERRORPGM(MSG_ERR_CHECKSUM_MISMATCH);
             SERIAL_ERRORLN(gcode_LastN);
             FlushSerialRequestResend();
             serial_count = 0;
             return;
           }
-
-          gcode_LastN = gcode_N;
           //if no errors, continue parsing
         }
-        else  // if we don't receive 'N' but still see '*'
+        else
         {
-          if((strchr(cmdbuffer[bufindw], '*') != NULL))
-          {
-            SERIAL_ERROR_START;
-            SERIAL_ERRORPGM(MSG_ERR_NO_LINENUMBER_WITH_CHECKSUM);
-            SERIAL_ERRORLN(gcode_LastN);
-            serial_count = 0;
-            return;
-          }
-        }
-        if((strchr(cmdbuffer[bufindw], 'G') != NULL)){
-          strchr_pointer = strchr(cmdbuffer[bufindw], 'G');
-          switch((int)((strtod(strchr_pointer + 1, NULL)))){
-          case 0:
-          case 1:
-          case 2:
-          case 3:
-            if (Stopped == true) {
-              SERIAL_ERRORLNPGM(MSG_ERR_STOPPED);
-              LCD_MESSAGEPGM(MSG_STOPPED);
-            }
-            break;
-          default:
-            break;
-          }
-
+          SERIAL_ERROR_START;
+          SERIAL_ERRORPGM(MSG_ERR_NO_CHECKSUM);
+          SERIAL_ERRORLN(gcode_LastN);
+          FlushSerialRequestResend();
+          serial_count = 0;
+          return;
         }
 
-        //If command was e-stop process now
-        if(strcmp(cmdbuffer[bufindw], "M112") == 0)
-          kill();
-        
-        bufindw = (bufindw + 1)%BUFSIZE;
-        buflen += 1;
+        gcode_LastN = gcode_N;
+        //if no errors, continue parsing
       }
+      else  // if we don't receive 'N' but still see '*'
+      {
+        if((strchr(cmdbuffer[bufindw], '*') != NULL))
+        {
+          SERIAL_ERROR_START;
+          SERIAL_ERRORPGM(MSG_ERR_NO_LINENUMBER_WITH_CHECKSUM);
+          SERIAL_ERRORLN(gcode_LastN);
+          serial_count = 0;
+          return;
+        }
+      }
+      if((strchr(cmdbuffer[bufindw], 'G') != NULL)){
+        strchr_pointer = strchr(cmdbuffer[bufindw], 'G');
+        switch((int)((strtod(strchr_pointer + 1, NULL)))){
+        case 0:
+        case 1:
+        case 2:
+        case 3:
+          if (Stopped == true) {
+            SERIAL_ERRORLNPGM(MSG_ERR_STOPPED);
+            LCD_MESSAGEPGM(MSG_STOPPED);
+          }
+          break;
+        default:
+          break;
+        }
+
+      }
+
+      //If command was e-stop process now
+      if(strcmp(cmdbuffer[bufindw], "M112") == 0)
+        kill();
+
+      bufindw = (bufindw + 1)%BUFSIZE;
+      buflen += 1;
+
       serial_count = 0; //clear buffer
     }
     else if(serial_char == '\\') {  //Handle escapes
        
         if(MYSERIAL.available() > 0  && buflen < BUFSIZE) {
             // if we have one more character, copy it over
-            MYSERIAL.read();
+            serial_char = MYSERIAL.read();
             cmdbuffer[bufindw][serial_count++] = serial_char;
         }
 
