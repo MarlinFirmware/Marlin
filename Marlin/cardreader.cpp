@@ -22,8 +22,7 @@ CardReader::CardReader() {
   autostart_index = 0;
   //power to SD reader
   #if SDPOWER > -1
-    SET_OUTPUT(SDPOWER);
-    WRITE(SDPOWER, HIGH);
+    OUT_WRITE(SDPOWER, HIGH);
   #endif //SDPOWER
 
   autostart_atmillis = millis() + 5000;
