@@ -1438,10 +1438,10 @@ inline void gcode_G0_G1() {
       if (!(code_seen('X') || code_seen('Y') || code_seen('Z')) && code_seen('E')) {
         float echange = destination[E_AXIS] - current_position[E_AXIS];
         // Is this move an attempt to retract or recover?
-        if ((echange < -MIN_RETRACT && !retracted) || (echange > MIN_RETRACT && retracted)) {
+        if ((echange < -MIN_RETRACT && !retracted[active_extruder]) || (echange > MIN_RETRACT && retracted[active_extruder])) {
           current_position[E_AXIS] = destination[E_AXIS]; // hide the slicer-generated retract/recover from calculations
           plan_set_e_position(current_position[E_AXIS]);  // AND from the planner
-          retract(!retracted);
+          retract(!retracted[active_extruder]);
           return;
         }
       }
