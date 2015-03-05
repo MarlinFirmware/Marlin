@@ -31,7 +31,7 @@
 
 #ifdef ENABLE_AUTO_BED_LEVELING
   #if Z_MIN_PIN == -1
-    #error "You must have a Z_MIN endstop in order to enable Auto Bed Leveling feature!!! Z_MIN_PIN must point to a valid hardware pin."
+    #error "You must have a Z_MIN endstop to enable Auto Bed Leveling feature. Z_MIN_PIN must point to a valid hardware pin."
   #endif
   #include "vector_3.h"
   #ifdef AUTO_BED_LEVELING_GRID
