@@ -87,9 +87,3 @@
 
 // Cheaptronic v1.0 does not use this port
 #define SDCARDDETECT -1
-
-// Encoder rotation values
-#define encrot0 0
-#define encrot1 2
-#define encrot2 3
-#define encrot3 1

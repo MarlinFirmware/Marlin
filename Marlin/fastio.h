@@ -83,6 +83,9 @@
 /// check if pin is an timer wrapper
 #define GET_TIMER(IO)  _GET_TIMER(IO)
 
+// Shorthand
+#define OUT_WRITE(IO, v) { SET_OUTPUT(IO); WRITE(IO, v); }
+
 /*
 	ports and functions
 
