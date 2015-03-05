@@ -629,13 +629,21 @@ block->steps_y = labs((target[X_AXIS]-position[X_AXIS]) - (target[Y_AXIS]-positi
     block->direction_bits |= (1<<Y_AXIS); 
   }
 #else
+  if (target[X_AXIS] < position[X_AXIS])
+  {
+    block->direction_bits |= (1<<X_HEAD); //AlexBorro: Save the real Extruder (head) direction in X Axis
+  }
+  if (target[Y_AXIS] < position[Y_AXIS])
+  {
+    block->direction_bits |= (1<<Y_HEAD); //AlexBorro: Save the real Extruder (head) direction in Y Axis
+  }
   if ((target[X_AXIS]-position[X_AXIS]) + (target[Y_AXIS]-position[Y_AXIS]) < 0)
   {
-    block->direction_bits |= (1<<X_AXIS); 
+    block->direction_bits |= (1<<X_AXIS); //AlexBorro: Motor A direction (Incorrectly implemented as X_AXIS)
   }
   if ((target[X_AXIS]-position[X_AXIS]) - (target[Y_AXIS]-position[Y_AXIS]) < 0)
   {
-    block->direction_bits |= (1<<Y_AXIS); 
+    block->direction_bits |= (1<<Y_AXIS); //AlexBorro: Motor B direction (Incorrectly implemented as Y_AXIS)
   }
 #endif
   if (target[Z_AXIS] < position[Z_AXIS])
