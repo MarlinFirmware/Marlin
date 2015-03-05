@@ -1767,11 +1767,8 @@ inline void gcode_G28() {
 
   // Use one of these defines to specify the origin
   // for a topographical map to be printed for your bed.
-  #define ORIGIN_BACK_LEFT   1
-  #define ORIGIN_FRONT_RIGHT 2
-  #define ORIGIN_BACK_RIGHT  3
-  #define ORIGIN_FRONT_LEFT  4
-  #define TOPO_ORIGIN        ORIGIN_FRONT_LEFT
+  enum { OriginBackLeft, OriginFrontLeft, OriginBackRight, OriginFrontRight };
+  #define TOPO_ORIGIN OriginFrontLeft
 
   inline void gcode_G29() {
 
@@ -1974,24 +1971,24 @@ inline void gcode_G28() {
         int xx, yy;
 
         SERIAL_PROTOCOLPGM(" \nBed Height Topography: \n");
-        #if TOPO_ORIGIN == ORIGIN_FRONT_LEFT
+        #if TOPO_ORIGIN == OriginFrontLeft
           for (yy = auto_bed_leveling_grid_points - 1; yy >= 0; yy--)
         #else
           for (yy = 0; yy < auto_bed_leveling_grid_points; yy++)
         #endif
           {
-            #if TOPO_ORIGIN == ORIGIN_BACK_RIGHT
+            #if TOPO_ORIGIN == OriginBackRight
               for (xx = auto_bed_leveling_grid_points - 1; xx >= 0; xx--)
             #else
               for (xx = 0; xx < auto_bed_leveling_grid_points; xx++)
             #endif
               {
                 int ind =
-                  #if TOPO_ORIGIN == ORIGIN_BACK_RIGHT || TOPO_ORIGIN == ORIGIN_FRONT_LEFT
+                  #if TOPO_ORIGIN == OriginBackRight || TOPO_ORIGIN == OriginFrontLeft
                     yy * auto_bed_leveling_grid_points + xx
-                  #elif TOPO_ORIGIN == ORIGIN_BACK_LEFT
+                  #elif TOPO_ORIGIN == OriginBackLeft
                     xx * auto_bed_leveling_grid_points + yy
-                  #elif TOPO_ORIGIN == ORIGIN_FRONT_RIGHT
+                  #elif TOPO_ORIGIN == OriginFrontRight
                     abl2 - xx * auto_bed_leveling_grid_points - yy - 1
                   #endif
                 ;
