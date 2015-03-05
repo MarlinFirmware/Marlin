@@ -730,7 +730,6 @@ void get_command()
     serial_char = MYSERIAL.read();
     if(serial_char == '\n' ||
        serial_char == '\r' ||
-       (serial_char == ':' && comment_mode == false) ||
        serial_count >= (MAX_CMD_SIZE - 1) )
     {
       if(!serial_count) { //if empty line
@@ -739,7 +738,6 @@ void get_command()
       }
       cmdbuffer[bufindw][serial_count] = 0; //terminate string
       if(!comment_mode){
-        comment_mode = false; //for new command
         fromsd[bufindw] = false;
         if(strchr(cmdbuffer[bufindw], 'N') != NULL)
         {
@@ -823,10 +821,19 @@ void get_command()
       }
       serial_count = 0; //clear buffer
     }
-    else
-    {
-      if(serial_char == ';') comment_mode = true;
-      if(!comment_mode) cmdbuffer[bufindw][serial_count++] = serial_char;
+    else if(serial_char == '\\') {  //Handle escapes
+       
+        if(MYSERIAL.available() > 0  && buflen < BUFSIZE) {
+            // if we have one more character, copy it over
+            MYSERIAL.read();
+            cmdbuffer[bufindw][serial_count++] = serial_char;
+        }
+
+        //otherwise do nothing        
+    }
+    else { // its not a newline, carriage return or escape char
+        if(serial_char == ';') comment_mode = true;
+        if(!comment_mode) cmdbuffer[bufindw][serial_count++] = serial_char;
     }
   }
   #ifdef SDSUPPORT
