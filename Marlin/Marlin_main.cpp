@@ -2414,10 +2414,8 @@ inline void gcode_M42() {
       }
     }
 
-    if (verbose_level > 0)   {
-      SERIAL_PROTOCOLPGM("M48 Z-Probe Repeatability test.   Version 2.00\n");
-      SERIAL_PROTOCOLPGM("Full support at: http://3dprintboard.com/forum.php\n");
-    }
+    if (verbose_level > 0)
+      SERIAL_PROTOCOLPGM("M48 Z-Probe Repeatability test\n");
 
     if (code_seen('n')) {
       n_samples = code_value();
@@ -2431,7 +2429,7 @@ inline void gcode_M42() {
     Y_current = Y_probe_location = st_get_position_mm(Y_AXIS);
     Z_current = st_get_position_mm(Z_AXIS);
     Z_start_location = st_get_position_mm(Z_AXIS) + Z_RAISE_BEFORE_PROBING;
-    ext_position   = st_get_position_mm(E_AXIS);
+    ext_position = st_get_position_mm(E_AXIS);
 
     if (code_seen('E') || code_seen('e'))
       engage_probe_for_each_reading++;
