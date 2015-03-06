@@ -226,8 +226,7 @@
     #define STR_h3 "3"
     #define STR_Deg "\271"
     #define STR_THERMOMETER "\002"
-  #endif
-  #ifdef DISPLAY_CHARSET_HD44780_WESTERN // HD44780 ROM Code: A02 (Western)
+  #elif defined(DISPLAY_CHARSET_HD44780_WESTERN) // HD44780 ROM Code: A02 (Western)
     #define STR_Ae "\216"
     #define STR_ae "\204"
     #define STR_Oe "\211"
@@ -239,6 +238,8 @@
     #define STR_h3 "\263"
     #define STR_Deg "\337"
     #define STR_THERMOMETER "\002"
+  #elif defined(ULTRA_LCD)
+    #error You must enable either DISPLAY_CHARSET_HD44780_JAPAN or DISPLAY_CHARSET_HD44780_WESTERN for your LCD controller.
   #endif
 #endif
 /*
