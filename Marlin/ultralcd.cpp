@@ -81,6 +81,8 @@ uint8_t lcd_status_message_level;
 char lcd_status_message[LCD_WIDTH+1] = WELCOME_MSG;
 
 // View drawers variables
+bool is_wizard = false;
+
 uint8_t display_view_menu_offset = 0;
 uint8_t display_view_wizard_page = 0;
 
@@ -366,7 +368,14 @@ void lcd_update()
 
     display_view = display_view_next;
     
-    (*display_view)();
+    if (IS_SD_PRINTING == true && !(is_wizard)) {
+        if (refresh_interval < millis()) {
+            (*display_view)();
+            refresh_interval = millis() + LCD_REFRESH_LIMIT;
+        }
+    } else {
+        (*display_view)();
+    }
 }
 
 
@@ -394,6 +403,7 @@ void lcd_set_picture(view_t picture)
 }
 void lcd_set_wizard(view_t wizard)
 {
+    is_wizard = true;
     display_view_next = wizard;
     lcd_wizard_set_page(0);
 
@@ -1899,6 +1909,7 @@ static void view_wizard_change_filament()
                     break;
 
                 default:
+                    is_wizard = false;
                     lcd_enable_display_timeout();
                     lcd_setstatuspgm(PSTR(MSG_PRINTING));
                     draw_status_screen();
@@ -1996,6 +2007,7 @@ static void view_wizard_change_filament()
                 break;
 
             default:
+                is_wizard = false;
                 lcd_enable_display_timeout();
                 lcd_setstatuspgm(PSTR(MSG_PRINTING));
                 draw_status_screen();
