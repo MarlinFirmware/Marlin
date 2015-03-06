@@ -1772,6 +1772,8 @@ inline void gcode_G28() {
 
   inline void gcode_G29() {
 
+    // Example Syntax:  G29 N4 V2 E T
+    int verbose_level = 1;
     float x_tmp, y_tmp, z_tmp, real_z;
 
     // Prevent user from running a G29 without first homing in X and Y
@@ -1782,27 +1784,24 @@ inline void gcode_G28() {
       return;
     }
 
+    if (code_seen('V') || code_seen('v')) {
+      verbose_level = code_value();
+      if (verbose_level < 0 || verbose_level > 4) {
+        SERIAL_PROTOCOLPGM("?(V)erbose Level is implausible (0-4).\n");
+        return;
+      }
+      if (verbose_level > 0) {
+        SERIAL_PROTOCOLPGM("G29 Enhanced Auto Bed Leveling Code V1.25:\n");
+        SERIAL_PROTOCOLPGM("Full support at: http://3dprintboard.com/forum.php\n");
+        if (verbose_level > 2) topo_flag = true;
+      }
+    }
+
     bool enhanced_g29 = code_seen('E') || code_seen('e');
 
     #ifdef AUTO_BED_LEVELING_GRID
 
-      // Example Syntax:  G29 N4 V2 E T
-      int verbose_level = 1;
-
       bool topo_flag = code_seen('T') || code_seen('t');
-
-      if (code_seen('V') || code_seen('v')) {
-        verbose_level = code_value();
-        if (verbose_level < 0 || verbose_level > 4) {
-          SERIAL_PROTOCOLPGM("?(V)erbose Level is implausible (0-4).\n");
-          return;
-        }
-        if (verbose_level > 0) {
-          SERIAL_PROTOCOLPGM("G29 Enhanced Auto Bed Leveling Code V1.25:\n");
-          SERIAL_PROTOCOLPGM("Full support at: http://3dprintboard.com/forum.php\n");
-          if (verbose_level > 2) topo_flag = true;
-        }
-      }
 
       int auto_bed_leveling_grid_points = code_seen('P') ? code_value_long() : AUTO_BED_LEVELING_GRID_POINTS;
       if (auto_bed_leveling_grid_points < 2 || auto_bed_leveling_grid_points > AUTO_BED_LEVELING_GRID_POINTS) {
