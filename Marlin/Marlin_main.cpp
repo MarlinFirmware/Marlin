@@ -2815,47 +2815,49 @@ void process_commands()
       lastpos[E_AXIS]=current_position[E_AXIS];
 
       if (code_seen('E')) {
-        target[E_AXIS] += code_value();
+            target[E_AXIS] += code_value();
       } else {
-        #ifdef FILAMENTCHANGE_FIRSTRETRACT
-        target[E_AXIS] += FILAMENTCHANGE_FIRSTRETRACT;
-        #endif // FILAMENTCHANGE_FIRSTRETRACT
+#ifdef FILAMENTCHANGE_FIRSTRETRACT
+            target[E_AXIS] += FILAMENTCHANGE_FIRSTRETRACT;
+#endif // FILAMENTCHANGE_FIRSTRETRACT
       }
       plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], feedrate/60, active_extruder);
 
       if (code_seen('Z')) {
-        target[Z_AXIS] += code_value();
+            target[Z_AXIS] += code_value();
       } else {
-        #ifdef FILAMENTCHANGE_ZADD
-        target[Z_AXIS] += FILAMENTCHANGE_ZADD;
-        #endif // FILAMENTCHANGE_ZADD
+#ifdef FILAMENTCHANGE_ZADD
+            target[Z_AXIS] += FILAMENTCHANGE_ZADD;
+#endif // FILAMENTCHANGE_ZADD
       }
       plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], feedrate/60, active_extruder);
 
       if (code_seen('X')) {
-        target[X_AXIS] = code_value();
+            target[X_AXIS] = code_value();
       } else {
-        #ifdef FILAMENTCHANGE_XPOS
-        target[X_AXIS] = FILAMENTCHANGE_XPOS;
-        #endif // FILAMENTCHANGE_XPOS
+#ifdef FILAMENTCHANGE_XPOS
+            target[X_AXIS] = FILAMENTCHANGE_XPOS;
+#endif // FILAMENTCHANGE_XPOS
       }
       if(code_seen('Y')) {
-        target[Y_AXIS] = code_value();
+            target[Y_AXIS] = code_value();
       } else {
-        #ifdef FILAMENTCHANGE_YPOS
-        target[Y_AXIS] = FILAMENTCHANGE_YPOS;
-        #endif // FILAMENTCHANGE_YPOS    
+#ifdef FILAMENTCHANGE_YPOS
+            target[Y_AXIS] = FILAMENTCHANGE_YPOS;
+#endif // FILAMENTCHANGE_YPOS    
       }
       plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], feedrate/60, active_extruder);
       st_synchronize();
+      enable_x();
+      enable_y();
 
       lcd_enable_button();
       draw_wizard_change_filament();
       SERIAL_ECHOLN("Wizard set to 0");
-  
+
       lcd_clear_triggered_flags();
       while (!LCD_CLICKED){
-        manage_heater();
+            manage_heater();
       }
 
       lcd_wizard_set_page(1);
@@ -2865,16 +2867,20 @@ void process_commands()
       target[E_AXIS] += 10.0;
       plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], 300/60, active_extruder);
       st_synchronize();
+      enable_x();
+      enable_y();
 
       if (code_seen('L')) {
-        target[E_AXIS] += code_value();
+            target[E_AXIS] += code_value();
       } else {
-        #ifdef FILAMENTCHANGE_FINALRETRACT
-        target[E_AXIS]+= FILAMENTCHANGE_FINALRETRACT;
-        #endif // FILAMENTCHANGE_FINALRETRACT
+#ifdef FILAMENTCHANGE_FINALRETRACT
+            target[E_AXIS]+= FILAMENTCHANGE_FINALRETRACT;
+#endif // FILAMENTCHANGE_FINALRETRACT
       }
       plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], 300/60, active_extruder);
       st_synchronize();
+      enable_x();
+      enable_y();
 
       lcd_wizard_set_page(2);
       lcd_update();
@@ -2883,10 +2889,10 @@ void process_commands()
       disable_e0();
       disable_e1();
       disable_e2();
-      
+
       lcd_clear_triggered_flags();
       while (!LCD_CLICKED){
-        manage_heater();
+            manage_heater();
       }
 
       lcd_wizard_set_page(3);
@@ -2895,10 +2901,12 @@ void process_commands()
 
       lcd_clear_triggered_flags();
       while (!LCD_CLICKED) {
-        manage_heater();
-        current_position[E_AXIS]+=0.04;
-        plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS],current_position[E_AXIS], feedrate/60, active_extruder);
-        st_synchronize();
+            manage_heater();
+            current_position[E_AXIS]+=0.04;
+            plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS],current_position[E_AXIS], feedrate/60, active_extruder);
+            st_synchronize();
+            enable_x();
+            enable_y();
       } 
 
       lcd_disable_button();
