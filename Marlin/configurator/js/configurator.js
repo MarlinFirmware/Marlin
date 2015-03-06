@@ -85,7 +85,9 @@ String.prototype.prePad = function(len, chr) { return len ? this.lpad(len, chr) 
 String.prototype.zeroPad = function(len)     { return this.prePad(len, '0'); };
 String.prototype.toHTML = function()         { return jQuery('<div>').text(this).html(); };
 String.prototype.regEsc = function()         { return this.replace(/[.?*+^$[\]\\(){}|-]/g, "\\$&"); }
-String.prototype.lineCount = function()      { var len = this.split(/\r?\n|\r/).length; return len > 0 ? len - 1 : 0; };
+String.prototype.lineCount = function(ind)   { var len = (ind === undefined ? this : this.substr(0,ind*1)).split(/\r?\n|\r/).length; return len > 0 ? len - 1 : 0; };
+String.prototype.line = function(num)        { var arr = this.split(/\r?\n|\r/); return num < arr.length ? arr[1*num] : ''; };
+String.prototype.replaceLine = function(num,txt) { var arr = this.split(/\r?\n|\r/); if (num < arr.length) { arr[num] = txt; return arr.join('\n'); } else return this; }
 String.prototype.toLabel = function()        { return this.replace(/[\[\]]/g, '').replace(/_/g, ' ').toTitleCase(); }
 String.prototype.toTitleCase = function()    { return this.replace(/([A-Z])(\w+)/gi, function(m,p1,p2) { return p1.toUpperCase() + p2.toLowerCase(); }); }
 Number.prototype.limit = function(m1, m2)  {
@@ -148,11 +150,12 @@ window.configuratorApp = (function(){
       $config = $cfg.find('pre'), $config_adv = $adv.find('pre'),
       config_file_list = [ boards_file, config_file, config_adv_file ],
       config_list = [ $config, $config_adv ],
-      define_info = {},
-      define_list = [[],[]],
-      define_groups = [{},{}],
-      define_section = {},
-      dependentGroups = {},
+      define_info = {},         // info for all defines, by name
+      define_list = [[],[]],    // arrays with all define names
+      define_occur = [{},{}],   // lines where defines occur in each file
+      define_groups = [{},{}],  // similarly-named defines that group in the form
+      define_section = {},      // the section of each define
+      dependent_groups = {},
       boards_list = {},
       therms_list = {},
       total_config_lines,
@@ -339,32 +342,62 @@ window.configuratorApp = (function(){
     },
 
     /**
-     * Get all the unique define names
+     * Get all the unique define names, building lists that will be used
+     * when gathering info about each define.
+     *
+     * define_list[c][j]        : Define names in each config (in order of occurrence)
+     * define_section[name]     : Section where define should appear in the form
+     * define_occur[c][name][i] : Lines in each config where the same define occurs
+     *   .cindex   Config file index
+     *   .lineNum  Line number of the occurrence
+     *   .line     The occurrence line
      */
     initDefineList: function(cindex) {
       var section = 'hidden',
           leave_out_defines = ['CONFIGURATION_H', 'CONFIGURATION_ADV_H'],
           define_sect = {},
+          occ_list = {},
           txt = config_list[cindex].text(),
-          r, findDef = new RegExp('(@section|#define)[ \\t]+(\\w+)', 'gm');
+          r, findDef = new RegExp('^.*(@section|#define)[ \\t]+(\\w+).*$', 'gm');
       while((r = findDef.exec(txt)) !== null) {
         var name = r[2];
-        if (r[1] == '@section')
+        if (r[1] == '@section') {
           section = name;
-        else if ($.inArray(name, leave_out_defines) < 0 && !(name in define_section) && !(name in define_sect))
-          define_sect[name] = section;
+        }
+        else if ($.inArray(name, leave_out_defines) < 0) {
+          var lineNum = txt.lineCount(r.index),
+              inst = { cindex:cindex, lineNum:lineNum, line:r[0] },
+              in_sect = (name in define_sect);
+          if (!in_sect) {
+            occ_list[name] = [ inst ];
+          }
+          if (!(name in define_section) && !in_sect) {
+            define_sect[name] = section; // new first-time define
+          }
+          else {
+            occ_list[name].push(inst);
+          }
+        }
       }
       define_list[cindex] = Object.keys(define_sect);
+      define_occur[cindex] = occ_list;
       $.extend(define_section, define_sect);
       this.log(define_list[cindex], 2);
+      this.log(occ_list, 2);
+      this.log(define_sect, 2);
     },
 
     /**
      * Find the defines in one of the configs that are just variants.
      * Group them together for form-building and other uses.
+     *
+     * define_groups[c][name]
+     *   .pattern regexp matching items in the group
+     *   .title   title substitution
+     *   .count   number of items in the group
      */
     refreshDefineGroups: function(cindex) {
-      var findDef = /^(|.*_)(([XYZE](MAX|MIN))|(E[0-3]|[XYZE01234])|MAX|MIN|(bed)?K[pid])(_.*|)$/;
+      var findDef = /^(|.*_)(([XYZE](MAX|MIN))|(E[0-3]|[XYZE01234])|MAX|MIN|(bed)?K[pid]|HOTEND|HPB|JAPAN|WESTERN|LEFT|RIGHT|BACK|FRONT|[XYZ]_POINT)(_.*|)$/i;
       var match_prev, patt, title, nameList, groups = {}, match_section;
       $.each(define_list[cindex], function(i, name) {
         if (match_prev) {
@@ -387,7 +420,8 @@ window.configuratorApp = (function(){
         if (!match_prev) {
           var r = findDef.exec(name);
           if (r != null) {
-            switch(r[2]) {
+            title = '';
+            switch(r[2].toUpperCase()) {
               case '0':
                 patt = '([0123])';
                 title = 'N';
@@ -400,18 +434,31 @@ window.configuratorApp = (function(){
                 patt = 'E([0-3])';
                 title = 'E';
                 break;
-              case 'bedKp':
+              case 'BEDKP':
                 patt = 'bed(K[pid])';
                 title = 'BED_PID';
                 break;
-              case 'Kp':
+              case 'KP':
                 patt = '(K[pid])';
                 title = 'PID';
+                break;
+              case 'LEFT':
+              case 'RIGHT':
+              case 'BACK':
+              case 'FRONT':
+                patt = '([LRBF])(EFT|IGHT|ACK|RONT)';
                 break;
               case 'MAX':
               case 'MIN':
                 patt = '(MAX|MIN)';
-                title = '';
+                break;
+              case 'HOTEND':
+              case 'HPB':
+                patt = '(HOTEND|HPB)';
+                break;
+              case 'JAPAN':
+              case 'WESTERN':
+                patt = '(JAPAN|WESTERN)';
                 break;
               case 'XMIN':
               case 'XMAX':
@@ -425,7 +472,7 @@ window.configuratorApp = (function(){
             if (patt) {
               patt = '^' + r[1] + patt + r[7] + '$';
               title = r[1] + title + r[7];
-              match_prev = new RegExp(patt);
+              match_prev = new RegExp(patt, 'i');
               match_section = define_section[name];
               nameList = [ name ];
             }
@@ -433,21 +480,29 @@ window.configuratorApp = (function(){
         }
       });
       define_groups[cindex] = groups;
+      this.log(define_groups[cindex], 2);
     },
 
     /**
-     * Get all condition blocks and their line ranges.
-     * Conditions may control multiple line-ranges
-     * across both config files.
+     * Get all conditional blocks and their line ranges
+     * and store them in the dependent_groups list.
+     *
+     * dependent_groups[condition][i]
+     *
+     *   .cindex config file index
+     *   .start  starting line
+     *   .end    ending line
+     *
      */
     initDependentGroups: function() {
       var findBlock = /^[ \t]*#(ifn?def|if|else|endif)[ \t]*(.*)([ \t]*\/\/[^\n]+)?$/gm,
           leave_out_defines = ['CONFIGURATION_H', 'CONFIGURATION_ADV_H'];
+      dependent_groups = {};
       $.each(config_list, function(i, $v) {
         var ifStack = [];
         var r, txt = $v.text();
         while((r = findBlock.exec(txt)) !== null) {
-          var lineNum = txt.substr(0, r.index).lineCount();
+          var lineNum = txt.lineCount(r.index);
           var code = r[2].replace(/[ \t]*\/\/.*$/, '');
           switch(r[1]) {
             case 'if':
@@ -481,8 +536,8 @@ window.configuratorApp = (function(){
               if (c) {
                 var cond = c[0], line = c[1];
                 self.log("pop " + c[0], 4);
-                if (dependentGroups[cond] === undefined) dependentGroups[cond] = [];
-                dependentGroups[cond].push({cindex:i,start:line,end:lineNum});
+                if (dependent_groups[cond] === undefined) dependent_groups[cond] = [];
+                dependent_groups[cond].push({cindex:i,start:line,end:lineNum});
                 if (r[1] == 'else') {
                   // Reverse the condition
                   cond = (cond.indexOf('!') === 0) ? cond.substr(1) : ('!'+cond);
@@ -544,11 +599,11 @@ window.configuratorApp = (function(){
               grouping = true;
               g_subitem = false;
               var grp = group[name];
-              g_pattern = grp.pattern;
-              g_class = 'one_of_' + grp.count;
-              label_text = grp.title;
-              g_regex = new RegExp(g_pattern);
               g_section = section;
+              g_class = 'one_of_' + grp.count;
+              g_pattern = grp.pattern;
+              g_regex = new RegExp(g_pattern, 'i');
+              label_text = grp.title;
               sublabel = g_regex.exec(name)[1];
             }
 
@@ -596,8 +651,9 @@ window.configuratorApp = (function(){
               $newfield.attr({id:name,name:name,class:'added',disabled:!avail}).unblock(avail);
               if (grouping) {
                 $newfield.addClass(g_class);
-                if (sublabel)
+                if (sublabel) {
                   $ff.append($('<label>',{class:'added sublabel',for:name}).text(sublabel.toTitleCase()).unblock(avail));
+                }
               }
               // Add the new field to the form
               $ff.append($newfield);
@@ -823,33 +879,18 @@ window.configuratorApp = (function(){
     },
 
     /**
-     * Enable / disable fields based on condition tests
+     * Enable / disable fields in dependent groups
+     * based on their dependencies.
      */
     refreshDependentFields: function() {
-      // Simplest way is to go through all define_info
-      // and run a test on all fields that have one.
-      //
-      // Each define_info caches its enable test as code.
-      //
-      // The fields that act as switches for these dependencies
-      // are not currently modified, but they will soon be.
-      //
-      // Once all conditions have been gathered into define_info
-      // the conditions can be scraped for define names.
-      //
-      // Those named fields will be given a .change action to
-      // check and update enabled state for the field.
-      //
       $.each(define_list, function(e,def_list){
         $.each(def_list, function(i, name) {
           var inf = define_info[name];
           if (inf && inf.enabled != 'true') {
             var $elm = $('#'+name), ena = eval(inf.enabled);
             var isEnabled = (inf.type == 'switch') || self.defineIsEnabled(name);
-            // Make any switch toggle also
             $('#'+name+'-switch').attr('disabled', !ena);
             $elm.attr('disabled', !(ena && isEnabled)).unblock(ena);
-            //self.log("Setting " + name + " to " + (ena && isEnabled ? 'enabled' : 'disabled'));
             $('label[for="'+name+'"]').unblock(ena);
           }
         });
@@ -873,10 +914,10 @@ window.configuratorApp = (function(){
           $tipme.hover(
             function() {
               if ($('#tipson input').prop('checked')) {
-                var pos = $tipme.position();
+                var pos = $tipme.position(), px = $tipme.width()/2;
                 $tooltip.html(inf.tooltip)
                   .append('<span>')
-                  .css({bottom:($tooltip.parent().outerHeight()-pos.top)+'px',left:(pos.left+70)+'px'})
+                  .css({bottom:($tooltip.parent().outerHeight()-pos.top+10)+'px',left:(pos.left+px)+'px'})
                   .show();
                 if (hover_timer) {
                   clearTimeout(hover_timer);
@@ -957,33 +998,31 @@ window.configuratorApp = (function(){
     },
 
     /**
-     * Get the current value of a #define (from the config text)
+     * Get the current value of a #define
      */
     defineValue: function(name) {
       this.log('defineValue:'+name,4);
       var inf = define_info[name];
       if (inf == null) return 'n/a';
-      // var result = inf.regex.exec($(inf.field).text());
-      var result = inf.regex.exec(inf.line);
+      var r = inf.regex.exec(inf.line), val = r[inf.val_i];
 
-      this.log(result,2);
+      this.log(r,2);
 
-      return (inf.type == 'switch') ? (result[inf.val_i] === undefined || result[inf.val_i].trim() != '//') : result[inf.val_i];
+      return (inf.type == 'switch') ? (val === undefined || val.trim() != '//') : val;
     },
 
     /**
-     * Get the current enabled state of a #define (from the config text)
+     * Get the current enabled state of a #define
      */
     defineIsEnabled: function(name) {
       this.log('defineIsEnabled:'+name,4);
       var inf = define_info[name];
       if (inf == null) return false;
-      // var result = inf.regex.exec($(inf.field).text());
-      var result = inf.regex.exec(inf.line);
+      var r = inf.regex.exec(inf.line);
 
-      this.log(result,2);
+      this.log(r,2);
 
-      var on = result[1] != null ? result[1].trim() != '//' : true;
+      var on = r[1] != null ? r[1].trim() != '//' : true;
       this.log(name + ' = ' + on, 2);
 
       return on;
@@ -1054,7 +1093,7 @@ window.configuratorApp = (function(){
 
       var hilite_token = '[HIGHLIGHTER-TOKEN]';
 
-      txt = txt.replace(inf.line, hilite_token + newline);
+      txt = txt.replaceLine(inf.lineNum, hilite_token + newline); // for override line and lineNum would be changed
       inf.line = newline;
 
       // Convert txt into HTML before storing
@@ -1131,82 +1170,84 @@ window.configuratorApp = (function(){
      * Get information about a #define from configuration file text:
      *
      *   - Pre-examine the #define for its prefix, value position, suffix, etc.
-     *   - Construct RegExp's for the #define to quickly find (and replace) values.
+     *   - Construct RegExp's for the #define to find and replace values.
      *   - Store the existing #define line as a fast key to finding it later.
-     *   - Determine the line number of the #define so it can be scrolled to.
+     *   - Determine the line number of the #define
      *   - Gather nearby comments to be used as tooltips.
-     *   - Look for JSON in nearby comments to use as select options.
+     *   - Look for JSON in nearby comments for use as select options.
+     *
+     *  define_info[name]
+     *    .type    type of define: switch, list, quoted, plain, or toggle
+     *    .size    the number of items in a "list" type
+     *    .options select options, if any
+     *    .cindex  config index
+     *    .field   pre containing the config text (config_list[cindex][0])
+     *    .line    the full line from the config text
+     *    .pre     any text preceding #define
+     *    .define  the "#define NAME" text (may have leading spaces)
+     *    .post    the text following the "#define NAME val" part
+     *    .regex   regexp to get the value from the line
+     *    .repl    regexp to replace the value in the line
+     *    .val_i   the value's index in the .regex result
      */
     getDefineInfo: function(name, cindex) {
       if (cindex === undefined) cindex = 0;
       this.log('getDefineInfo:'+name,4);
-      var $c = config_list[cindex], txt = $c.text();
+      var $c = config_list[cindex], txt = $c.text(),
+          info = { type:0, cindex:cindex, field:$c[0], val_i:2 }, post;
 
       // a switch line with no value
-      var findDef = new RegExp('^([ \\t]*//)?([ \\t]*#define[ \\t]+' + name + ')([ \\t]*/[*/].*)?$', 'm'),
-          result = findDef.exec(txt),
-          info = { type:0, cindex:cindex, field:$c[0], val_i: 2 };
-      if (result !== null) {
+      var find = new RegExp('^([ \\t]*//)?([ \\t]*#define[ \\t]+' + name + ')([ \\t]*(/[*/].*)?)$', 'm'),
+          r = find.exec(txt);
+      if (r !== null) {
+        post = r[3] == null ? '' : r[3];
         $.extend(info, {
-          val_i:  1,
-          type:   'switch',
-          line:   result[0], // whole line
-          pre:    result[1] == null ? '' : result[1].replace('//',''),
-          define: result[2],
-          post:   result[3] == null ? '' : result[3]
+          type: 'switch',
+          val_i: 1,
+          regex: new RegExp('([ \\t]*//)?([ \\t]*' + r[2].regEsc() + post.regEsc() + ')', 'm'),
+          repl:  new RegExp('([ \\t]*)(\/\/)?([ \\t]*' + r[2].regEsc() + post.regEsc() + ')', 'm')
         });
-        info.regex = new RegExp('([ \\t]*//)?([ \\t]*' + info.define.regEsc() + info.post.regEsc() + ')', 'm');
-        info.repl =  new RegExp('([ \\t]*)(\/\/)?([ \\t]*' + info.define.regEsc() + info.post.regEsc() + ')', 'm');
       }
       else {
         // a define with curly braces
-        findDef = new RegExp('^(.*//)?(.*#define[ \\t]+' + name + '[ \\t]+)(\{[^\}]*\})([ \\t]*/[*/].*)?$', 'm');
-        result = findDef.exec(txt);
-        if (result !== null) {
+        find = new RegExp('^(.*//)?(.*#define[ \\t]+' + name + '[ \\t]+)(\{[^\}]*\})([ \\t]*(/[*/].*)?)$', 'm');
+        r = find.exec(txt);
+        if (r !== null) {
+          post = r[4] == null ? '' : r[4];
           $.extend(info, {
-            type:   'list',
-            line:   result[0],
-            pre:    result[1] == null ? '' : result[1].replace('//',''),
-            define: result[2],
-            size:   result[3].split(',').length,
-            post:   result[4] == null ? '' : result[4]
+            type:  'list',
+            size:  r[3].split(',').length,
+            regex: new RegExp('([ \\t]*//)?[ \\t]*' + r[2].regEsc() + '\{([^\}]*)\}' + post.regEsc(), 'm'),
+            repl:  new RegExp('(([ \\t]*//)?[ \\t]*' + r[2].regEsc() + '\{)[^\}]*(\}' + post.regEsc() + ')', 'm')
           });
-          info.regex = new RegExp('([ \\t]*//)?[ \\t]*' + info.define.regEsc() + '\{([^\}]*)\}' + info.post.regEsc(), 'm');
-          info.repl  = new RegExp('(([ \\t]*//)?[ \\t]*' + info.define.regEsc() + '\{)[^\}]*(\}' + info.post.regEsc() + ')', 'm');
         }
         else {
           // a define with quotes
-          findDef = new RegExp('^(.*//)?(.*#define[ \\t]+' + name + '[ \\t]+)("[^"]*")([ \\t]*/[*/].*)?$', 'm');
-          result = findDef.exec(txt);
-          if (result !== null) {
+          find = new RegExp('^(.*//)?(.*#define[ \\t]+' + name + '[ \\t]+)("[^"]*")([ \\t]*(/[*/].*)?)$', 'm');
+          r = find.exec(txt);
+          if (r !== null) {
+            post = r[4] == null ? '' : r[4];
             $.extend(info, {
-              type:   'quoted',
-              line:   result[0],
-              pre:    result[1] == null ? '' : result[1].replace('//',''),
-              define: result[2],
-              post:   result[4] == null ? '' : result[4]
+              type:  'quoted',
+              regex: new RegExp('([ \\t]*//)?[ \\t]*' + r[2].regEsc() + '"([^"]*)"' + post.regEsc(), 'm'),
+              repl:  new RegExp('(([ \\t]*//)?[ \\t]*' + r[2].regEsc() + '")[^"]*("' + post.regEsc() + ')', 'm')
             });
-            info.regex = new RegExp('([ \\t]*//)?[ \\t]*' + info.define.regEsc() + '"([^"]*)"' + info.post.regEsc(), 'm');
-            info.repl  = new RegExp('(([ \\t]*//)?[ \\t]*' + info.define.regEsc() + '")[^"]*("' + info.post.regEsc() + ')', 'm');
           }
           else {
             // a define with no quotes
-            findDef = new RegExp('^([ \\t]*//)?([ \\t]*#define[ \\t]+' + name + '[ \\t]+)(\\S*)([ \\t]*/[*/].*)?$', 'm');
-            result = findDef.exec(txt);
-            if (result !== null) {
+            find = new RegExp('^([ \\t]*//)?([ \\t]*#define[ \\t]+' + name + '[ \\t]+)(\\S*)([ \\t]*(/[*/].*)?)$', 'm');
+            r = find.exec(txt);
+            if (r !== null) {
+              post = r[4] == null ? '' : r[4];
               $.extend(info, {
-                type:   'plain',
-                line:   result[0],
-                pre:    result[1] == null ? '' : result[1].replace('//',''),
-                define: result[2],
-                post:   result[4] == null ? '' : result[4]
+                type:  'plain',
+                regex: new RegExp('([ \\t]*//)?[ \\t]*' + r[2].regEsc() + '(\\S*)' + post.regEsc(), 'm'),
+                repl:  new RegExp('(([ \\t]*//)?[ \\t]*' + r[2].regEsc() + ')\\S*(' + post.regEsc() + ')', 'm')
               });
-              if (result[3].match(/false|true/)) {
+              if (r[3].match(/false|true/)) {
                 info.type = 'toggle';
                 info.options = ['false','true'];
               }
-              info.regex = new RegExp('([ \\t]*//)?[ \\t]*' + info.define.regEsc() + '(\\S*)' + info.post.regEsc(), 'm');
-              info.repl  = new RegExp('(([ \\t]*//)?[ \\t]*' + info.define.regEsc() + ')\\S*(' + info.post.regEsc() + ')', 'm');
             }
           }
         }
@@ -1214,19 +1255,25 @@ window.configuratorApp = (function(){
 
       // Success?
       if (info.type) {
+        $.extend(info, {
+          line:   r[0],
+          pre:    r[1] == null ? '' : r[1].replace('//',''),
+          define: r[2],
+          post:   post
+        });
         // Get the end-of-line comment, if there is one
         var tooltip = '', eoltip = '';
-        findDef = new RegExp('.*#define[ \\t].*/[/*]+[ \\t]*(.*)');
-        if (info.line.search(findDef) >= 0)
-          eoltip = tooltip = info.line.replace(findDef, '$1');
+        find = new RegExp('.*#define[ \\t].*/[/*]+[ \\t]*(.*)');
+        if (info.line.search(find) >= 0)
+          eoltip = tooltip = info.line.replace(find, '$1');
 
         // Get all the comments immediately before the item
-        var r, s;
-        findDef = new RegExp('(([ \\t]*(//|#)[^\n]+\n){1,4})' + info.line.regEsc(), 'g');
-        if (r = findDef.exec(txt)) {
+        var s;
+        find = new RegExp('(([ \\t]*(//|#)[^\n]+\n){1,4})' + info.line.regEsc(), 'g');
+        if (r = find.exec(txt)) {
           // Get the text of the found comments
-          findDef = new RegExp('^[ \\t]*//+[ \\t]*(.*)[ \\t]*$', 'gm');
-          while((s = findDef.exec(r[1])) !== null) {
+          find = new RegExp('^[ \\t]*//+[ \\t]*(.*)[ \\t]*$', 'gm');
+          while((s = find.exec(r[1])) !== null) {
             var tip = s[1].replace(/[ \\t]*(={5,}|(#define[ \\t]+.*|@section[ \\t]+\w+))[ \\t]*/g, '');
             if (tip.length) {
               if (tip.match(/^#define[ \\t]/) != null) tooltip = eoltip;
@@ -1248,16 +1295,14 @@ window.configuratorApp = (function(){
         }
 
         // Add .tooltip and .lineNum properties to the info
-        findDef = new RegExp('^'+name); // Strip the name from the tooltip
+        find = new RegExp('^'+name); // Strip the name from the tooltip
         var lineNum = this.getLineNumberOfText(info.line, txt);
 
         // See if this define is enabled conditionally
         var enable_cond = '';
-        $.each(dependentGroups, function(cond,dat){
+        $.each(dependent_groups, function(cond,dat){
           $.each(dat, function(i,o){
             if (o.cindex == cindex && lineNum > o.start && lineNum < o.end) {
-              // self.log(name + " is in range " + o.start + "-" + o.end, 2);
-              // if this setting is in a range, conditions are added
               if (enable_cond != '') enable_cond += ' && ';
               enable_cond += '(' + cond + ')';
             }
@@ -1265,7 +1310,7 @@ window.configuratorApp = (function(){
         });
 
         $.extend(info, {
-          tooltip: '<strong>'+name+'</strong> '+tooltip.trim().replace(findDef,'').toHTML(),
+          tooltip: '<strong>'+name+'</strong> '+tooltip.trim().replace(find,'').toHTML(),
           lineNum: lineNum,
           switchable: (info.type != 'switch' && info.line.match(/^[ \t]*\/\//)) || false, // Disabled? Mark as "switchable"
           enabled: enable_cond ? enable_cond : 'true'
@@ -1285,7 +1330,7 @@ window.configuratorApp = (function(){
      */
     getLineNumberOfText: function(line, txt) {
       var pos = txt.indexOf(line);
-      return (pos < 0) ? pos : txt.substr(0, pos).lineCount();
+      return (pos < 0) ? pos : txt.lineCount(pos);
     },
 
     /**
