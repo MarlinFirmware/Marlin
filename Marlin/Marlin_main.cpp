@@ -2323,6 +2323,8 @@ void process_commands()
       			}
       			plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], feedrate/60, active_extruder);
       			st_synchronize();
+				enable_x();
+				enable_y();
 
       			lcd_enable_button();
       			draw_wizard_change_filament();
@@ -2340,6 +2342,8 @@ void process_commands()
       			target[E_AXIS] += 10.0;
       			plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], 300/60, active_extruder);
       			st_synchronize();
+				enable_x();
+				enable_y();
 
       			if (code_seen('L')) {
         			target[E_AXIS] += code_value();
@@ -2350,6 +2354,8 @@ void process_commands()
       			}
       			plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], 300/60, active_extruder);
       			st_synchronize();
+				enable_x();
+				enable_y();
 
       			lcd_wizard_set_page(2);
       			lcd_update();
@@ -2374,6 +2380,8 @@ void process_commands()
         			current_position[E_AXIS]+=0.04;
         			plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS],current_position[E_AXIS], feedrate/60, active_extruder);
         			st_synchronize();
+					enable_x();
+					enable_y();
       			} 
 
       			lcd_disable_button();
