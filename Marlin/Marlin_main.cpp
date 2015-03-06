@@ -1355,10 +1355,12 @@ void process_commands()
 					codenum += millis();  // keep track of when we started waiting
 					while(millis()  < codenum && !LCD_CLICKED) {
 						manage_heater();
+						manage_inactivity();
 					}
 				} else {
 					while(!LCD_CLICKED){
 						manage_heater();
+						manage_inactivity();
 					}
 				}
 				LCD_MESSAGEPGM(MSG_PRINTING);
