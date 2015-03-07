@@ -554,54 +554,48 @@ ISR(TIMER1_COMPA_vect)
       #endif //ADVANCE
 
       counter_x += current_block->steps_x;
+
 #ifdef CONFIG_STEPPERS_TOSHIBA
-	/* The toshiba stepper controller require much longer pulses
-	 * tjerfore we 'stage' decompose the pulses between high, and
-	 * low instead of doing each in turn. The extra tests add enough
-	 * lag to allow it work with without needing NOPs */ 
-      if (counter_x > 0) {
-        WRITE(X_STEP_PIN, HIGH);
-      }
+    /* The Toshiba stepper controller require much longer pulses.
+     * So we 'stage' decompose the pulses between high and low
+     * instead of doing each in turn. The extra tests add enough
+     * lag to allow it work with without needing NOPs
+     */
+      if (counter_x > 0) WRITE(X_STEP_PIN, HIGH);
 
       counter_y += current_block->steps_y;
-      if (counter_y > 0) {
-        WRITE(Y_STEP_PIN, HIGH);
-      }
+      if (counter_y > 0) WRITE(Y_STEP_PIN, HIGH);
 
       counter_z += current_block->steps_z;
-      if (counter_z > 0) {
-        WRITE(Z_STEP_PIN, HIGH);
-      }
+      if (counter_z > 0) WRITE(Z_STEP_PIN, HIGH);
 
       #ifndef ADVANCE
         counter_e += current_block->steps_e;
-        if (counter_e > 0) {
-          WRITE_E_STEP(HIGH);
-        }
+        if (counter_e > 0) WRITE_E_STEP(HIGH);
       #endif //!ADVANCE
 
       if (counter_x > 0) {
         counter_x -= current_block->step_event_count;
-        count_position[X_AXIS]+=count_direction[X_AXIS];   
+        count_position[X_AXIS] += count_direction[X_AXIS];   
         WRITE(X_STEP_PIN, LOW);
       }
 
       if (counter_y > 0) {
         counter_y -= current_block->step_event_count;
-        count_position[Y_AXIS]+=count_direction[Y_AXIS];
+        count_position[Y_AXIS] += count_direction[Y_AXIS];
         WRITE(Y_STEP_PIN, LOW);
       }
 
       if (counter_z > 0) {
         counter_z -= current_block->step_event_count;
-        count_position[Z_AXIS]+=count_direction[Z_AXIS];
+        count_position[Z_AXIS] += count_direction[Z_AXIS];
         WRITE(Z_STEP_PIN, LOW);
       }
 
       #ifndef ADVANCE
         if (counter_e > 0) {
           counter_e -= current_block->step_event_count;
-          count_position[E_AXIS]+=count_direction[E_AXIS];
+          count_position[E_AXIS] += count_direction[E_AXIS];
           WRITE_E_STEP(LOW);
         }
       #endif //!ADVANCE
@@ -622,7 +616,7 @@ ISR(TIMER1_COMPA_vect)
           WRITE(X_STEP_PIN, !INVERT_X_STEP_PIN);
         #endif        
           counter_x -= current_block->step_event_count;
-          count_position[X_AXIS]+=count_direction[X_AXIS];   
+          count_position[X_AXIS] += count_direction[X_AXIS];   
         #ifdef DUAL_X_CARRIAGE
           if (extruder_duplication_enabled){
             WRITE(X_STEP_PIN, INVERT_X_STEP_PIN);
@@ -648,7 +642,7 @@ ISR(TIMER1_COMPA_vect)
 		  #endif
 		  
           counter_y -= current_block->step_event_count;
-          count_position[Y_AXIS]+=count_direction[Y_AXIS];
+          count_position[Y_AXIS] += count_direction[Y_AXIS];
           WRITE(Y_STEP_PIN, INVERT_Y_STEP_PIN);
 		  
 		  #ifdef Y_DUAL_STEPPER_DRIVERS
@@ -659,15 +653,14 @@ ISR(TIMER1_COMPA_vect)
       counter_z += current_block->steps_z;
       if (counter_z > 0) {
         WRITE(Z_STEP_PIN, !INVERT_Z_STEP_PIN);
-        
         #ifdef Z_DUAL_STEPPER_DRIVERS
           WRITE(Z2_STEP_PIN, !INVERT_Z_STEP_PIN);
         #endif
 
         counter_z -= current_block->step_event_count;
-        count_position[Z_AXIS]+=count_direction[Z_AXIS];
+        count_position[Z_AXIS] += count_direction[Z_AXIS];
         WRITE(Z_STEP_PIN, INVERT_Z_STEP_PIN);
-        
+
         #ifdef Z_DUAL_STEPPER_DRIVERS
           WRITE(Z2_STEP_PIN, INVERT_Z_STEP_PIN);
         #endif
@@ -678,7 +671,7 @@ ISR(TIMER1_COMPA_vect)
         if (counter_e > 0) {
           WRITE_E_STEP(!INVERT_E_STEP_PIN);
           counter_e -= current_block->step_event_count;
-          count_position[E_AXIS]+=count_direction[E_AXIS];
+          count_position[E_AXIS] += count_direction[E_AXIS];
           WRITE_E_STEP(INVERT_E_STEP_PIN);
         }
       #endif //!ADVANCE
