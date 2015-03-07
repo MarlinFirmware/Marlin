@@ -4198,7 +4198,7 @@ inline void gcode_M350() {
  */
 inline void gcode_M351() {
   #if defined(X_MS1_PIN) && X_MS1_PIN > -1
-    if (code_seen('S')) switch((int)code_value()) {
+    if (code_seen('S')) switch(code_value_long()) {
       case 1:
         for(int i=0;i<NUM_AXIS;i++) if (code_seen(axis_codes[i])) microstep_ms(i, code_value(), -1);
         if (code_seen('B')) microstep_ms(4, code_value(), -1);
@@ -4397,7 +4397,7 @@ void process_commands() {
   }
 
   else if (code_seen('M')) {
-    switch( (int)code_value() ) {
+    switch( code_value_long() ) {
       #ifdef ULTIPANEL
         case 0: // M0 - Unconditional stop - Wait for user button press on LCD
         case 1: // M1 - Conditional stop - Wait for user button press on LCD
