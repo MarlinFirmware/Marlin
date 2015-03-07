@@ -765,7 +765,7 @@ void get_command()
           while(cmdbuffer[bufindw][count] != '*') checksum = checksum^cmdbuffer[bufindw][count++];
           strchr_pointer = strchr(cmdbuffer[bufindw], '*');
 
-          if( (int)(strtod(strchr_pointer + 1, NULL)) != checksum) {
+          if(strtol(strchr_pointer + 1, NULL, 10) != checksum) {
             SERIAL_ERROR_START;
             SERIAL_ERRORPGM(MSG_ERR_CHECKSUM_MISMATCH);
             SERIAL_ERRORLN(gcode_LastN);
@@ -801,7 +801,7 @@ void get_command()
       }
       if((strchr(cmdbuffer[bufindw], 'G') != NULL)){
         strchr_pointer = strchr(cmdbuffer[bufindw], 'G');
-        switch((int)((strtod(strchr_pointer + 1, NULL)))){
+        switch(strtol(strchr_pointer + 1, NULL, 10)){
         case 0:
         case 1:
         case 2:
