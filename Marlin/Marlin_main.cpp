@@ -909,7 +909,12 @@ void get_command()
 
 float code_value()
 {
-  return (strtod(strchr_pointer + 1, NULL));
+  float ret;
+  char *e = strchr(strchr_pointer, 'E');
+  if (e != NULL) *e = 0;
+  ret = strtod(strchr_pointer+1, NULL);
+  if (e != NULL) *e = 'E';
+  return ret;
 }
 
 long code_value_long()
