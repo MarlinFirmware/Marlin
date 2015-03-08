@@ -627,6 +627,18 @@ const bool Z_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the logic
 
 // @section temperature
 
+// Filament management
+// #define EASY_LOAD
+#ifdef EASY_LOAD
+  #define BOWDEN_LENGTH 555
+  #define LCD_PURGE_LENGTH 3
+  #define LCD_RETRACT_LENGTH 3
+  #define LCD_PURGE_FEEDRATE 200
+  #define LCD_RETRACT_FEEDRATE 600
+  #define LCD_LOAD_FEEDRATE 500
+  #define LCD_UNLOAD_FEEDRATE 500
+#endif
+
 // Preheat Constants
 #define PLA_PREHEAT_HOTEND_TEMP 180
 #define PLA_PREHEAT_HPB_TEMP 70

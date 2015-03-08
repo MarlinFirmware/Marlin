@@ -604,6 +604,43 @@ void lcd_cooldown() {
   lcd_return_to_status();
 }
 
+#if defined(EASY_LOAD)
+static void lcd_extrude(float length, float feedrate)
+{
+  current_position[E_AXIS] += length;
+  #ifdef DELTA
+  calculate_delta(current_position);
+  plan_buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], current_position[E_AXIS], feedrate, active_extruder);
+  #else
+  plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate, active_extruder);
+  #endif
+}
+
+static void lcd_purge()
+{
+  lcd_extrude(LCD_PURGE_LENGTH, LCD_PURGE_FEEDRATE/60);
+}
+
+static void lcd_retract()
+{
+  lcd_extrude(-LCD_RETRACT_LENGTH, LCD_RETRACT_FEEDRATE/60);
+}
+
+static void lcd_easy_load()
+{
+  allow_lengthy_extrude_once = true;
+  lcd_extrude(BOWDEN_LENGTH, LCD_LOAD_FEEDRATE/60);
+  lcd_return_to_status();
+}
+
+static void lcd_easy_unload()
+{
+  allow_lengthy_extrude_once = true;
+  lcd_extrude(-BOWDEN_LENGTH, LCD_UNLOAD_FEEDRATE/60);
+  lcd_return_to_status();
+}
+#endif //EASY_LOAD
+
 static void lcd_prepare_menu() {
   START_MENU();
   MENU_ITEM(back, MSG_MAIN, lcd_main_menu);
@@ -626,6 +663,13 @@ static void lcd_prepare_menu() {
   #endif
 
   MENU_ITEM(function, MSG_COOLDOWN, lcd_cooldown);
+
+  #if defined(EASY_LOAD)
+  MENU_ITEM(function, MSG_E_BOWDEN_LENGTH, lcd_easy_load);
+  MENU_ITEM(function, MSG_R_BOWDEN_LENGTH, lcd_easy_unload);
+  MENU_ITEM(function, MSG_PURGE_XMM, lcd_purge);
+  MENU_ITEM(function, MSG_RETRACT_XMM, lcd_retract);
+  #endif //EASY_LOAD
 
   #if HAS_POWER_SWITCH
     if (powersupply)

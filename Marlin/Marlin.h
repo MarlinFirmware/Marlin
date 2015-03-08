@@ -311,6 +311,10 @@ extern unsigned long stoptime;
 // Handling multiple extruders pins
 extern uint8_t active_extruder;
 
+#ifdef EASY_LOAD
+extern bool allow_lengthy_extrude_once; // for load/unload
+#endif
+
 #ifdef DIGIPOT_I2C
   extern void digipot_i2c_set_current( int channel, float current );
   extern void digipot_i2c_init();

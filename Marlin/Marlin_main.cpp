@@ -368,6 +368,10 @@ bool target_direction;
   Servo servos[NUM_SERVOS];
 #endif
 
+#ifdef EASY_LOAD
+bool allow_lengthy_extrude_once = false; // for load/unload
+#endif
+
 #ifdef CHDK
   unsigned long chdkHigh = 0;
   boolean chdkActive = false;
