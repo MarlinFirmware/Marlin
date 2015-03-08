@@ -2311,10 +2311,10 @@ inline void gcode_G28() {
     do_blocking_move_to(MANUAL_X_HOME_POS, MANUAL_Y_HOME_POS, Z_RAISE_AFTER_PROBING);
     st_synchronize();
 
+  #ifndef DELTA
     if (verbose_level > 0)
       plan_bed_level_matrix.debug(" \n\nBed Level Correction Matrix:");
 
-  #ifndef DELTA
     // Correct the Z height difference from z-probe position and hotend tip position.
     // The Z height on homing is measured by Z-Probe, but the probe is quite far from the hotend.
     // When the bed is uneven, this height must be corrected.
