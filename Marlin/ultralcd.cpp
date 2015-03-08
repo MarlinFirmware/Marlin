@@ -9,6 +9,13 @@
 #include "ConfigurationStore.h"
 
 int8_t encoderDiff; /* encoderDiff is updated from interrupt context and added to encoderPosition every LCD update */
+#if ENCODER_COUNT_REVERSED
+  #define ENC_INC(_v) (_v--)
+  #define ENC_DEC(_v) (_v++)
+#else
+  #define ENC_INC(_v) (_v++)
+  #define ENC_DEC(_v) (_v--)
+#endif
 
 bool encoderRateMultiplierEnabled;
 int32_t lastEncoderMovementMillis;
@@ -1452,20 +1459,20 @@ void lcd_buttons_update() {
   if (enc != lastEncoderBits) {
     switch(enc) {
       case encrot0:
-        if (lastEncoderBits==encrot3) encoderDiff++;
-        else if (lastEncoderBits==encrot1) encoderDiff--;
+        if (lastEncoderBits==encrot3) ENC_INC(encoderDiff);
+        else if (lastEncoderBits==encrot1) ENC_DEC(encoderDiff);
         break;
       case encrot1:
-        if (lastEncoderBits==encrot0) encoderDiff++;
-        else if (lastEncoderBits==encrot2) encoderDiff--;
+        if (lastEncoderBits==encrot0) ENC_INC(encoderDiff);
+        else if (lastEncoderBits==encrot2) ENC_DEC(encoderDiff);
         break;
       case encrot2:
-        if (lastEncoderBits==encrot1) encoderDiff++;
-        else if (lastEncoderBits==encrot3) encoderDiff--;
+        if (lastEncoderBits==encrot1) ENC_INC(encoderDiff);
+        else if (lastEncoderBits==encrot3) ENC_DEC(encoderDiff);
         break;
       case encrot3:
-        if (lastEncoderBits==encrot2) encoderDiff++;
-        else if (lastEncoderBits==encrot0) encoderDiff--;
+        if (lastEncoderBits==encrot2) ENC_INC(encoderDiff);
+        else if (lastEncoderBits==encrot0) ENC_DEC(encoderDiff);
         break;
     }
   }
