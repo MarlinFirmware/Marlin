@@ -45,6 +45,7 @@ extern bool cancel_heatup;
 void lcd_init();
 
 void lcd_update();
+void lcd_force_update();
 
 void lcd_set_status_screen();
 void lcd_set_menu(view_t menu);
@@ -94,6 +95,7 @@ void lcd_reset_alert_level();
 #define LCD_MESSAGEPGM(x) do { lcd_setstatuspgm(PSTR(x)); lcd_set_refresh(CLEAR_AND_UPDATE_SCREEN); } while (0)
 #define LCD_ALERTMESSAGEPGM(x) lcd_setalertstatuspgm(PSTR(x))
 
+void draw_status_screen();
 void draw_wizard_change_filament();
 
 

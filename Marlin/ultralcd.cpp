@@ -81,8 +81,6 @@ uint8_t lcd_status_message_level;
 char lcd_status_message[LCD_WIDTH+1] = WELCOME_MSG;
 
 // View drawers variables
-bool is_wizard = false;
-
 uint8_t display_view_menu_offset = 0;
 uint8_t display_view_wizard_page = 0;
 
@@ -368,7 +366,7 @@ void lcd_update()
 
     display_view = display_view_next;
     
-    if (IS_SD_PRINTING == true && !(is_wizard)) {
+    if (IS_SD_PRINTING == true) {
         if (refresh_interval < millis()) {
             (*display_view)();
             refresh_interval = millis() + LCD_REFRESH_LIMIT;
@@ -376,6 +374,44 @@ void lcd_update()
     } else {
         (*display_view)();
     }
+}
+
+void lcd_force_update()
+{
+    #  if (SDCARDDETECT > 0)
+    if ((lcd_oldcardstatus != IS_SD_INSERTED)) {
+        display_refresh_mode = CLEAR_AND_UPDATE_SCREEN;
+        lcd_oldcardstatus = IS_SD_INSERTED;
+
+#ifndef DOGLCD
+        lcd_implementation_init(); // to maybe revive the LCD if static electricity killed it.
+#endif // !DOGLCD
+        lcd_set_status_screen();
+
+        if (lcd_oldcardstatus) {
+            card.initsd();
+            LCD_MESSAGEPGM(MSG_SD_INSERTED);
+        } else {
+            card.release();
+            LCD_MESSAGEPGM(MSG_SD_REMOVED);
+        }
+    }
+#  endif // (SDCARDDETECT > 0)
+
+    if ( display_view == view_status_screen || display_timeout_blocked || button_input_updated || encoder_input_updated ) {
+        display_timeout = millis() + LCD_TIMEOUT_STATUS;
+    }
+
+    if (display_timeout < millis())
+        lcd_set_status_screen();
+
+    if (display_view != display_view_next) {
+        display_refresh_mode = CLEAR_AND_UPDATE_SCREEN;
+        lcd_clear_triggered_flags();
+    }
+
+    display_view = display_view_next;
+    (*display_view)();
 }
 
 
@@ -403,7 +439,6 @@ void lcd_set_picture(view_t picture)
 }
 void lcd_set_wizard(view_t wizard)
 {
-    is_wizard = true;
     display_view_next = wizard;
     lcd_wizard_set_page(0);
 
@@ -674,7 +709,7 @@ static void menu_action_setting_edit_long5(const char* pstr, unsigned long* ptr,
 
 void draw_status_screen() {
     lcd_set_status_screen();
-    lcd_update();
+    lcd_force_update();
 }
 
 static void view_status_screen()
@@ -1806,7 +1841,7 @@ static void function_prepare_change_filament()
 void draw_wizard_change_filament()
 {
     lcd_set_wizard(view_wizard_change_filament);
-    lcd_update();
+    lcd_force_update();
 }
 static void view_wizard_change_filament()
 {
@@ -1909,7 +1944,6 @@ static void view_wizard_change_filament()
                     break;
 
                 default:
-                    is_wizard = false;
                     lcd_enable_display_timeout();
                     lcd_setstatuspgm(PSTR(MSG_PRINTING));
                     draw_status_screen();
@@ -2007,7 +2041,6 @@ static void view_wizard_change_filament()
                 break;
 
             default:
-                is_wizard = false;
                 lcd_enable_display_timeout();
                 lcd_setstatuspgm(PSTR(MSG_PRINTING));
                 draw_status_screen();
