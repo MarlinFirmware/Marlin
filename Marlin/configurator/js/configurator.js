@@ -240,7 +240,7 @@ window.configuratorApp = (function(){
                   timeLeft: Math.floor(txt.meta['X-RateLimit-Reset'] - Date.now()/1000),
                 };
               }
-              loaded_items[fname] = function(){ self.fileLoaded(fname, isGithub ? atob(txt.data.content.replace(/\s/g, '')) : txt, true); };
+              loaded_items[fname] = function(){ self.fileLoaded(fname, isGithub ? decodeURIComponent(escape(atob(txt.data.content))) : txt, true); };
               success_count++;
             }
           },
