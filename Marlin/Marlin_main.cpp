@@ -1518,11 +1518,11 @@ void process_commands()
 		{
 		  // raise before probing
 		  z_before = Z_RAISE_BEFORE_PROBING;
-		} else
-		{
+		} else {
 		  // raise extruder
 		  z_before = current_position[Z_AXIS] + Z_RAISE_BETWEEN_PROBINGS;
 		}
+
 
 		float measured_z = probe_pt(xProbe, yProbe, z_before);
 
@@ -1707,9 +1707,10 @@ void process_commands()
       card.openFile(strchr_pointer + 4,true);
       break;
     case 24: //M24 - Start SD print
-      card.startFileprint();
-      starttime=millis();
-      break;
+        card.startFileprint();
+        starttime=millis();
+        feedmultiply = 100;
+        break;
 
 
 
