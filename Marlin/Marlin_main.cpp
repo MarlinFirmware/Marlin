@@ -5080,18 +5080,18 @@ void controllerFan()
   if ((millis() - lastMotorCheck) >= 2500) //Not a time critical function, so we only check every 2500ms
   {
     lastMotorCheck = millis();
-
-    if(!READ(X_ENABLE_PIN) || !READ(Y_ENABLE_PIN) || !READ(Z_ENABLE_PIN) || (soft_pwm_bed > 0)
+	
+    if((READ(X_ENABLE_PIN) == (X_ENABLE_ON)) || (READ(Y_ENABLE_PIN) == (Y_ENABLE_ON)) || (READ(Z_ENABLE_PIN) == (Z_ENABLE_ON)) || (soft_pwm_bed > 0)
     #if EXTRUDERS > 2
-       || !READ(E2_ENABLE_PIN)
+       || (READ(E2_ENABLE_PIN) == (E_ENABLE_ON))
     #endif
     #if EXTRUDER > 1
       #if defined(X2_ENABLE_PIN) && X2_ENABLE_PIN > -1
-       || !READ(X2_ENABLE_PIN)
+       || (READ(X2_ENABLE_PIN) == (X_ENABLE_ON))
       #endif
-       || !READ(E1_ENABLE_PIN)
+       || (READ(E1_ENABLE_PIN) == (E_ENABLE_ON))
     #endif
-       || !READ(E0_ENABLE_PIN)) //If any of the drivers are enabled...
+       || (READ(E0_ENABLE_PIN) == (E_ENABLE_ON))) //If any of the drivers are enabled...
     {
       lastMotor = millis(); //... set time to NOW so the fan will turn on
     }
