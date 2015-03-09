@@ -1405,6 +1405,7 @@ void process_commands()
 			case 24: //M24 - Start SD print
 				card.startFileprint();
 				starttime=millis();
+				feedmultiply = 100;
 				break;
 
     		case 25: //M25 - Pause SD print
