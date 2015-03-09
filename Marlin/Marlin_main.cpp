@@ -1645,7 +1645,10 @@ void process_commands()
     case 0: // M0 - Unconditional stop - Wait for user button press on LCD
     case 1: // M1 - Conditional stop - Wait for user button press on LCD
     {
+        lcd_disable_button();
         LCD_MESSAGEPGM(MSG_USERWAIT);
+        lcd_update();
+
         codenum = 0;
         if(code_seen('P')) codenum = code_value(); // milliseconds to wait
         if(code_seen('S')) codenum = code_value() * 1000; // seconds to wait
@@ -1654,15 +1657,21 @@ void process_commands()
         previous_millis_cmd = millis();
         if (codenum > 0){
             codenum += millis();  // keep track of when we started waiting
+            lcd_enable_button();
             while(millis()  < codenum && !LCD_CLICKED) {
                 manage_heater();
             }
+            lcd_disable_button();
         } else {
+            lcd_enable_button();
             while(!LCD_CLICKED){
                 manage_heater();
             }
+            lcd_disable_button();
         }
         LCD_MESSAGEPGM(MSG_PRINTING);
+        lcd_update();
+        lcd_enable_button();
     }
     break;
 #endif
