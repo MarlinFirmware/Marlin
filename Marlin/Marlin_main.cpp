@@ -1346,7 +1346,8 @@ void process_commands()
 			{
 				lcd_disable_button();
 				LCD_MESSAGEPGM(MSG_USERWAIT);
-				lcd_update();
+				draw_status_screen();
+				lcd_force_update();
 
 				codenum = 0;
 				if(code_seen('P')) codenum = code_value(); // milliseconds to wait
@@ -2336,6 +2337,7 @@ void process_commands()
 
       			lcd_enable_button();
       			draw_wizard_change_filament();
+      			lcd_force_update();
       			SERIAL_ECHOLN("Wizard set to 0");
   
       			lcd_clear_triggered_flags();
@@ -2344,7 +2346,7 @@ void process_commands()
       			}
 
       			lcd_wizard_set_page(1);
-      			lcd_update(); 
+      			lcd_force_update();
       			SERIAL_ECHOLN("Wizard set to 1");
 
       			target[E_AXIS] += 10.0;
@@ -2366,7 +2368,7 @@ void process_commands()
 				enable_y();
 
       			lcd_wizard_set_page(2);
-      			lcd_update();
+      			lcd_force_update();
       			SERIAL_ECHOLN("Wizard set to 2");
 
       			disable_e0();
@@ -2379,7 +2381,7 @@ void process_commands()
       			}
 
       			lcd_wizard_set_page(3);
-      			lcd_update();
+      			lcd_force_update();
       			SERIAL_ECHOLN("Wizard set to 3");
 
       			lcd_clear_triggered_flags();
@@ -2403,7 +2405,7 @@ void process_commands()
       			plan_buffer_line(lastpos[X_AXIS], lastpos[Y_AXIS], lastpos[Z_AXIS], lastpos[E_AXIS], feedrate/60, active_extruder); //final untretract
 
       			lcd_wizard_set_page(4);
-      			lcd_update();      
+      			lcd_force_update();
       			lcd_enable_display_timeout();
       			SERIAL_ECHOLN("Wizard set to 4");
 
