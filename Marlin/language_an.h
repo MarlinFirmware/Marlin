@@ -8,6 +8,8 @@
 #ifndef LANGUAGE_AN_H
 #define LANGUAGE_AN_H
 
+#define MAPPER_NON
+
 #define WELCOME_MSG                         MACHINE_NAME " parada."
 #define MSG_SD_INSERTED                     "Tarcheta colocada"
 #define MSG_SD_REMOVED                      "Tarcheta retirada"
@@ -46,9 +48,9 @@
 #define MSG_FAN_SPEED                       "Ixoriador"
 #define MSG_FLOW                            "Fluxo"
 #define MSG_CONTROL                         "Control"
-#define MSG_MIN                             "\002 Min"
-#define MSG_MAX                             "\002 Max"
-#define MSG_FACTOR                          "\002 Fact"
+#define MSG_MIN                             LCD_STR_THERMOMETER " Min"
+#define MSG_MAX                             LCD_STR_THERMOMETER " Max"
+#define MSG_FACTOR                          LCD_STR_THERMOMETER " Fact"
 #define MSG_AUTOTEMP                        "Autotemp"
 #define MSG_ON                              "On"
 #define MSG_OFF                             "Off"

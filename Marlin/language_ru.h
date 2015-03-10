@@ -8,7 +8,7 @@
 #ifndef LANGUAGE_RU_H
 #define LANGUAGE_RU_H
 
-#define LANGUAGE_RU
+#define MAPPER_D0D1        // For Cyrillic
 
 #define WELCOME_MSG                         MACHINE_NAME " Готов."
 #define MSG_SD_INSERTED                     "Карта вставлена"

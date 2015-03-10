@@ -8,6 +8,10 @@
 #ifndef LANGUAGE_EN_H
 #define LANGUAGE_EN_H
 
+#if !(defined(MAPPER_NON) || defined(MAPPER_C2C3) || defined(MAPPER_D0D1_MOD) || defined(MAPPER_E382E383))
+  #define MAPPER_NON         // For direct asci codes
+#endif
+
 #ifndef WELCOME_MSG
 #define WELCOME_MSG                         MACHINE_NAME " ready."
 #endif
@@ -156,13 +160,13 @@
 #define MSG_CONTROL                         "Control"
 #endif
 #ifndef MSG_MIN
-#define MSG_MIN                             " " STR_THERMOMETER " Min"
+#define MSG_MIN                             " "LCD_STR_THERMOMETER " Min"
 #endif
 #ifndef MSG_MAX
-#define MSG_MAX                             " " STR_THERMOMETER " Max"
+#define MSG_MAX                             " "LCD_STR_THERMOMETER " Max"
 #endif
 #ifndef MSG_FACTOR
-#define MSG_FACTOR                          " " STR_THERMOMETER " Fact"
+#define MSG_FACTOR                          " "LCD_STR_THERMOMETER " Fact"
 #endif
 #ifndef MSG_AUTOTEMP
 #define MSG_AUTOTEMP                        "Autotemp"
@@ -255,7 +259,7 @@
 #define MSG_VOLUMETRIC                      "Filament"
 #endif
 #ifndef MSG_VOLUMETRIC_ENABLED
-#define MSG_VOLUMETRIC_ENABLED              "E in mm" STR_h3
+#define MSG_VOLUMETRIC_ENABLED              "E in mm3"
 #endif
 #ifndef MSG_FILAMENT_SIZE_EXTRUDER_0
 #define MSG_FILAMENT_SIZE_EXTRUDER_0        "Fil. Dia. 1"

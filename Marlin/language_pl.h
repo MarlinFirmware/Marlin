@@ -8,6 +8,8 @@
 #ifndef LANGUAGE_PL_H
 #define LANGUAGE_PL_H
 
+#define MAPPER_NON
+
 #define WELCOME_MSG                         MACHINE_NAME " gotowy."
 #define MSG_SD_INSERTED                     "Karta wlozona"
 #define MSG_SD_REMOVED                      "Karta usunieta"
@@ -46,9 +48,9 @@
 #define MSG_FAN_SPEED                       "Obroty wiatraka"
 #define MSG_FLOW                            "Przeplyw"
 #define MSG_CONTROL                         "Ustawienia"
-#define MSG_MIN                             " \002 Min"
-#define MSG_MAX                             " \002 Max"
-#define MSG_FACTOR                          " \002 Mnoznik"
+#define MSG_MIN                             LCD_STR_THERMOMETER " Min"
+#define MSG_MAX                             LCD_STR_THERMOMETER " Max"
+#define MSG_FACTOR                          LCD_STR_THERMOMETER " Mnoznik"
 #define MSG_AUTOTEMP                        "Auto. temperatura"
 #define MSG_ON                              "Wl. "
 #define MSG_OFF                             "Wyl."
@@ -84,7 +86,7 @@
 #define MSG_STORE_EPROM                     "Zapisz w pamieci"
 #define MSG_LOAD_EPROM                      "Wczytaj z pamieci"
 #define MSG_RESTORE_FAILSAFE                "Ustaw. fabryczne"
-#define MSG_REFRESH                         "\004Odswiez"
+#define MSG_REFRESH                         LCD_STR_REFRESH " Odswiez"
 #define MSG_WATCH                           "Ekran glowny"
 #define MSG_PREPARE                         "Przygotuj"
 #define MSG_TUNE                            "Strojenie"

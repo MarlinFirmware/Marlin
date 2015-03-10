@@ -8,6 +8,9 @@
 #ifndef LANGUAGE_CA_H
 #define LANGUAGE_CA_H
 
+//#define MAPPER_NON 
+#define MAPPER_C2C3  // because of "ó"
+
 #define WELCOME_MSG                         MACHINE_NAME " preparada."
 #define MSG_SD_INSERTED                     "SD detectada."
 #define MSG_SD_REMOVED                      "SD expulsada."
@@ -46,9 +49,9 @@
 #define MSG_FAN_SPEED                       "Vel. Ventilador"
 #define MSG_FLOW                            "Fluxe"
 #define MSG_CONTROL                         "Control"
-#define MSG_MIN                             " \002 Min"
-#define MSG_MAX                             " \002 Max"
-#define MSG_FACTOR                          " \002 Fact"
+#define MSG_MIN                             LCD_STR_THERMOMETER " Min"
+#define MSG_MAX                             LCD_STR_THERMOMETER " Max"
+#define MSG_FACTOR                          LCD_STR_THERMOMETER " Fact"
 #define MSG_AUTOTEMP                        "Autotemp"
 #define MSG_ON                              "On "
 #define MSG_OFF                             "Off"
@@ -76,7 +79,7 @@
 #define MSG_TEMPERATURE                     "Temperatura"
 #define MSG_MOTION                          "Moviment"
 #define MSG_VOLUMETRIC                      "Filament"
-#define MSG_VOLUMETRIC_ENABLED		        "E in mm3"
+#define MSG_VOLUMETRIC_ENABLED              "E in mm3"
 #define MSG_FILAMENT_SIZE_EXTRUDER_0        "Fil. Dia. 1"
 #define MSG_FILAMENT_SIZE_EXTRUDER_1        "Fil. Dia. 2"
 #define MSG_FILAMENT_SIZE_EXTRUDER_2        "Fil. Dia. 3"
