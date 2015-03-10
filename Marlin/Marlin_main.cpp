@@ -201,6 +201,7 @@
 #endif
 
 float homing_feedrate[] = HOMING_FEEDRATE;
+int homing_bump_divisor[] = HOMING_BUMP_DIVISOR;
 bool axis_relative_modes[] = AXIS_RELATIVE_MODES;
 int feedmultiply = 100; //100->1 200->2
 int saved_feedmultiply;
@@ -1131,7 +1132,18 @@ static void run_z_probe() {
     st_synchronize();
 
     // move back down slowly to find bed
-    feedrate = homing_feedrate[Z_AXIS]/4;
+    
+    if (homing_bump_divisor[Z_AXIS] >= 1)
+    {
+        feedrate = homing_feedrate[Z_AXIS]/homing_bump_divisor[Z_AXIS];
+    } 
+    else
+    {
+        feedrate = homing_feedrate[Z_AXIS]/10;
+        SERIAL_ECHOLN("Warning: The Homing Bump Feedrate Divisor cannot be less then 1");
+    }
+
+    
     zPosition -= home_retract_mm(Z_AXIS) * 2;
     plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], zPosition, current_position[E_AXIS], feedrate/60, active_extruder);
     st_synchronize();
@@ -1293,11 +1305,17 @@ static void homeaxis(int axis) {
     st_synchronize();
 
     destination[axis] = 2*home_retract_mm(axis) * axis_home_dir;
-#ifdef DELTA
-    feedrate = homing_feedrate[axis]/10;
-#else
-    feedrate = homing_feedrate[axis]/2 ;
-#endif
+
+    if (homing_bump_divisor[axis] >= 1)
+    {
+        feedrate = homing_feedrate[axis]/homing_bump_divisor[axis];
+    } 
+    else
+    {
+        feedrate = homing_feedrate[axis]/10;
+        SERIAL_ECHOLN("Warning: The Homing Bump Feedrate Divisor cannot be less then 1");
+    }
+
     plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate/60, active_extruder);
     st_synchronize();
 #ifdef DELTA
@@ -1756,41 +1774,32 @@ inline void gcode_G28() {
 
   #ifdef AUTO_BED_LEVELING_GRID
 
-    #define MIN_PROBE_EDGE 20 // The probe square sides can be no smaller than this
-
     // Make sure probing points are reachable
 
     #if LEFT_PROBE_BED_POSITION < MIN_PROBE_X
-      #error The given LEFT_PROBE_BED_POSITION can't be reached by the probe.
+      #error "The given LEFT_PROBE_BED_POSITION can't be reached by the probe."
     #elif RIGHT_PROBE_BED_POSITION > MAX_PROBE_X
-      #error The given RIGHT_PROBE_BED_POSITION can't be reached by the probe.
+      #error "The given RIGHT_PROBE_BED_POSITION can't be reached by the probe."
     #elif FRONT_PROBE_BED_POSITION < MIN_PROBE_Y
-      #error The given FRONT_PROBE_BED_POSITION can't be reached by the probe.
+      #error "The given FRONT_PROBE_BED_POSITION can't be reached by the probe."
     #elif BACK_PROBE_BED_POSITION > MAX_PROBE_Y
-      #error The given BACK_PROBE_BED_POSITION can't be reached by the probe.
-
-    // Check if Probe_Offset * Grid Points is greater than Probing Range
-
-    #elif abs(X_PROBE_OFFSET_FROM_EXTRUDER) * (AUTO_BED_LEVELING_GRID_POINTS-1) >= RIGHT_PROBE_BED_POSITION - LEFT_PROBE_BED_POSITION
-      #error "The X axis probing range is not enough to fit all the points defined in AUTO_BED_LEVELING_GRID_POINTS"
-    #elif abs(Y_PROBE_OFFSET_FROM_EXTRUDER) * (AUTO_BED_LEVELING_GRID_POINTS-1) >= BACK_PROBE_BED_POSITION - FRONT_PROBE_BED_POSITION
-      #error "The Y axis probing range is not enough to fit all the points defined in AUTO_BED_LEVELING_GRID_POINTS"
+      #error "The given BACK_PROBE_BED_POSITION can't be reached by the probe."
     #endif
 
   #else // !AUTO_BED_LEVELING_GRID
 
     #if ABL_PROBE_PT_1_X < MIN_PROBE_X || ABL_PROBE_PT_1_X > MAX_PROBE_X
-      #error The given ABL_PROBE_PT_1_X can't be reached by the probe.
+      #error "The given ABL_PROBE_PT_1_X can't be reached by the probe."
     #elif ABL_PROBE_PT_2_X < MIN_PROBE_X || ABL_PROBE_PT_2_X > MAX_PROBE_X
-      #error The given ABL_PROBE_PT_2_X can't be reached by the probe.
+      #error "The given ABL_PROBE_PT_2_X can't be reached by the probe."
     #elif ABL_PROBE_PT_3_X < MIN_PROBE_X || ABL_PROBE_PT_3_X > MAX_PROBE_X
-      #error The given ABL_PROBE_PT_3_X can't be reached by the probe.
+      #error "The given ABL_PROBE_PT_3_X can't be reached by the probe."
     #elif ABL_PROBE_PT_1_Y < MIN_PROBE_Y || ABL_PROBE_PT_1_Y > MAX_PROBE_Y
-      #error The given ABL_PROBE_PT_1_Y can't be reached by the probe.
+      #error "The given ABL_PROBE_PT_1_Y can't be reached by the probe."
     #elif ABL_PROBE_PT_2_Y < MIN_PROBE_Y || ABL_PROBE_PT_2_Y > MAX_PROBE_Y
-      #error The given ABL_PROBE_PT_2_Y can't be reached by the probe.
+      #error "The given ABL_PROBE_PT_2_Y can't be reached by the probe."
     #elif ABL_PROBE_PT_3_Y < MIN_PROBE_Y || ABL_PROBE_PT_3_Y > MAX_PROBE_Y
-      #error The given ABL_PROBE_PT_3_Y can't be reached by the probe.
+      #error "The given ABL_PROBE_PT_3_Y can't be reached by the probe."
     #endif
 
   #endif // !AUTO_BED_LEVELING_GRID
@@ -1862,7 +1871,7 @@ inline void gcode_G28() {
         SERIAL_PROTOCOLPGM("G29 Auto Bed Leveling\n");
 
       int auto_bed_leveling_grid_points = code_seen('P') ? code_value_long() : AUTO_BED_LEVELING_GRID_POINTS;
-      if (auto_bed_leveling_grid_points < 2 || auto_bed_leveling_grid_points > AUTO_BED_LEVELING_GRID_POINTS) {
+      if (auto_bed_leveling_grid_points < 2) {
         SERIAL_PROTOCOLPGM("?Number of probed (P)oints is implausible (2 minimum).\n");
         return;
       }
@@ -2094,6 +2103,11 @@ inline void gcode_G28() {
 
     #ifdef Z_PROBE_SLED
       dock_sled(true, -SLED_DOCKING_OFFSET); // dock the probe, correcting for over-travel
+    #endif
+    
+    #ifdef Z_PROBE_END_SCRIPT
+      enquecommands_P(PSTR(Z_PROBE_END_SCRIPT));
+      st_synchronize();
     #endif
   }
 
