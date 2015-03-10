@@ -2,6 +2,9 @@
   Fontname : Japanese Original font, Version 0.1
   Author   : http://www.thingiverse.com/ichibey
   License  : Creative Commons BY-NC
+
+  営利目的で利用する際は、かならず許可を得てください。非営利の場合は、CCライセンスに従い使用ください。
+  http://creativecommons.org/licenses/by-nc/2.1/jp/legalcode
 */
 #include <utility/u8g.h>
 const u8g_fntpgm_uint8_t u8g_font_6x10_marlin[2911] U8G_SECTION(".progmem.u8g_font_6x10_marlin") = {
