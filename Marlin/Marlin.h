@@ -23,41 +23,41 @@
 #include "pins.h"
 
 #ifndef AT90USB
-#define  HardwareSerial_h // trick to disable the standard HWserial
+  #define  HardwareSerial_h // trick to disable the standard HWserial
 #endif
 
 #if (ARDUINO >= 100)
-# include "Arduino.h"
+  #include "Arduino.h"
 #else
-# include "WProgram.h"
+  #include "WProgram.h"
 #endif
 
 // Arduino < 1.0.0 does not define this, so we need to do it ourselves
 #ifndef analogInputToDigitalPin
-# define analogInputToDigitalPin(p) ((p) + 0xA0)
+  #define analogInputToDigitalPin(p) ((p) + 0xA0)
 #endif
 
 #ifdef AT90USB
-#include "HardwareSerial.h"
+  #include "HardwareSerial.h"
 #endif
 
 #include "MarlinSerial.h"
 
 #ifndef cbi
-#define cbi(sfr, bit) (_SFR_BYTE(sfr) &= ~_BV(bit))
+  #define cbi(sfr, bit) (_SFR_BYTE(sfr) &= ~_BV(bit))
 #endif
 #ifndef sbi
-#define sbi(sfr, bit) (_SFR_BYTE(sfr) |= _BV(bit))
+  #define sbi(sfr, bit) (_SFR_BYTE(sfr) |= _BV(bit))
 #endif
 
 #include "WString.h"
 
 #ifdef AT90USB
-   #ifdef BTENABLED
-         #define MYSERIAL bt
-   #else
-         #define MYSERIAL Serial
-   #endif // BTENABLED
+  #ifdef BTENABLED
+    #define MYSERIAL bt
+  #else
+    #define MYSERIAL Serial
+  #endif // BTENABLED
 #else
   #define MYSERIAL MSerial
 #endif
@@ -86,7 +86,7 @@ extern const char echomagic[] PROGMEM;
 
 #define SERIAL_ECHOPAIR(name,value) (serial_echopair_P(PSTR(name),(value)))
 
-#define SERIAL_EOL SERIAL_ECHOLN("")
+#define SERIAL_EOL MYSERIAL.write('\n')
 
 void serial_echopair_P(const char *s_P, float v);
 void serial_echopair_P(const char *s_P, double v);

@@ -3,13 +3,12 @@
 
 #include "boards.h"
 
-
 //===========================================================================
 //============================= Getting Started =============================
 //===========================================================================
 /*
 Here are some standard links for getting your machine calibrated:
- * http://reprap.org/wiki/Calibration 
+ * http://reprap.org/wiki/Calibration
  * http://youtu.be/wAL9d7FgInk
  * http://calculator.josefprusa.cz
  * http://reprap.org/wiki/Triffid_Hunter%27s_Calibration_Guide
@@ -18,11 +17,9 @@ Here are some standard links for getting your machine calibrated:
  * http://www.thingiverse.com/thing:298812
 */
 
-
 // This configuration file contains the basic settings.
 // Advanced settings can be found in Configuration_adv.h
 // BASIC SETTINGS: select your board type, temperature sensor type, axis scaling, and endstop configuration
-
 
 //===========================================================================
 //============================= DELTA Printer ===============================
@@ -30,7 +27,6 @@ Here are some standard links for getting your machine calibrated:
 // For a Delta printer replace the configuration files with the files in the
 // example_configurations/delta directory.
 //
-
 
 //===========================================================================
 //============================= SCARA Printer ===============================
@@ -85,7 +81,6 @@ Here are some standard links for getting your machine calibrated:
 // Define this to have the electronics keep the power supply off on startup. If you don't know what this is leave it.
 // #define PS_DEFAULT_OFF
 
-
 //===========================================================================
 //============================= Thermal Settings ============================
 //===========================================================================
@@ -123,6 +118,10 @@ Here are some standard links for getting your machine calibrated:
 // 1010 is Pt1000 with 1k pullup (non standard)
 // 147 is Pt100 with 4k7 pullup
 // 110 is Pt100 with 1k pullup (non standard)
+// 998 and 999 are Dummy Tables. They will ALWAYS read 25°C or the temperature defined below. 
+//     Use it for Testing or Development purposes. NEVER for production machine.
+//     #define DUMMY_THERMISTOR_998_VALUE 25
+//     #define DUMMY_THERMISTOR_999_VALUE 100
 
 #define TEMP_SENSOR_0 1
 #define TEMP_SENSOR_1 0
@@ -166,7 +165,6 @@ Here are some standard links for getting your machine calibrated:
 //#define EXTRUDER_WATTS (12.0*12.0/6.7) //  P=I^2/R
 //#define BED_WATTS (12.0*12.0/1.1)      // P=I^2/R
 
-
 //===========================================================================
 //============================= PID Settings ================================
 //===========================================================================
@@ -175,13 +173,16 @@ Here are some standard links for getting your machine calibrated:
 // Comment the following line to disable PID and enable bang-bang.
 #define PIDTEMP
 #define BANG_MAX 255 // limits current to nozzle while in bang-bang mode; 255=full current
-#define PID_MAX 255 // limits current to nozzle while PID is active (see PID_FUNCTIONAL_RANGE below); 255=full current
+#define PID_MAX BANG_MAX // limits current to nozzle while PID is active (see PID_FUNCTIONAL_RANGE below); 255=full current
 #ifdef PIDTEMP
   //#define PID_DEBUG // Sends debug data to the serial port.
   //#define PID_OPENLOOP 1 // Puts PID in open loop. M104/M140 sets the output power from 0 to PID_MAX
+  //#define SLOW_PWM_HEATERS // PWM with very low frequency (roughly 0.125Hz=8s) and minimum state time of approximately 1s useful for heaters driven by a relay
+  //#define PID_PARAMS_PER_EXTRUDER // Uses separate PID parameters for each extruder (useful for mismatched extruders)
+                                    // Set/get with gcode: M301 E[extruder number, 0-2]
   #define PID_FUNCTIONAL_RANGE 10 // If the temperature difference between the target temperature and the actual temperature
                                   // is more then PID_FUNCTIONAL_RANGE then the PID will be shut off and the heater will be set to min/max.
-  #define PID_INTEGRAL_DRIVE_MAX 255  //limit for the integral term
+  #define PID_INTEGRAL_DRIVE_MAX PID_MAX  //limit for the integral term
   #define K1 0.95 //smoothing factor within the PID
   #define PID_dT ((OVERSAMPLENR * 10.0)/(F_CPU / 64.0 / 256.0)) //sampling period of the temperature routine
 
@@ -201,7 +202,6 @@ Here are some standard links for getting your machine calibrated:
 //    #define  DEFAULT_Ki 2.25
 //    #define  DEFAULT_Kd 440
 #endif // PIDTEMP
-
 
 //===========================================================================
 //============================= PID > Bed Temperature Control ===============
@@ -254,7 +254,6 @@ Here are some standard links for getting your machine calibrated:
 #define EXTRUDE_MINTEMP 170
 #define EXTRUDE_MAXLENGTH (X_MAX_LENGTH+Y_MAX_LENGTH) //prevent extrusion of very large distances.
 
-
 //===========================================================================
 //============================= Thermal Runaway Protection ==================
 //===========================================================================
@@ -296,11 +295,14 @@ your extruder heater takes 2 minutes to hit the target on heating.
 
 
 //===========================================================================
-//============================ Mechanical Settings ==========================
+//============================= Mechanical Settings =========================
 //===========================================================================
 
-// Uncomment the following line to enable CoreXY kinematics
+// Uncomment this option to enable CoreXY kinematics
 // #define COREXY
+
+// Enable this option for Toshiba steppers
+// #define CONFIG_STEPPERS_TOSHIBA
 
 // coarse Endstop Settings
 #define ENDSTOPPULLUPS // Comment this out (using // at the start of the line) to disable the endstop pullup resistors
@@ -333,11 +335,6 @@ const bool Y_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of the endstop.
 //#define DISABLE_MAX_ENDSTOPS
 //#define DISABLE_MIN_ENDSTOPS
-
-// Disable max endstops for compatibility with endstop checking routine
-#if defined(COREXY) && !defined(DISABLE_MAX_ENDSTOPS)
-  #define DISABLE_MAX_ENDSTOPS
-#endif
 
 // For Inverting Stepper Enable Pins (Active Low) use 0, Non Inverting (Active High) use 1
 #define X_ENABLE_ON 0
@@ -391,40 +388,38 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 #ifdef ENABLE_AUTO_BED_LEVELING
 
-// There are 2 different ways to pick the X and Y locations to probe:
+  // There are 2 different ways to specify probing locations
+  //
+  // - "grid" mode
+  //   Probe several points in a rectangular grid.
+  //   You specify the rectangle and the density of sample points.
+  //   This mode is preferred because there are more measurements.
+  //
+  // - "3-point" mode
+  //   Probe 3 arbitrary points on the bed (that aren't colinear)
+  //   You specify the XY coordinates of all 3 points.
 
-//  - "grid" mode
-//    Probe every point in a rectangular grid
-//    You must specify the rectangle, and the density of sample points
-//    This mode is preferred because there are more measurements.
-//    It used to be called ACCURATE_BED_LEVELING but "grid" is more descriptive
-
-//  - "3-point" mode
-//    Probe 3 arbitrary points on the bed (that aren't colinear)
-//    You must specify the X & Y coordinates of all 3 points
-
+  // Enable this to sample the bed in a grid (least squares solution)
+  // Note: this feature generates 10KB extra code size
   #define AUTO_BED_LEVELING_GRID
-  // with AUTO_BED_LEVELING_GRID, the bed is sampled in a
-  // AUTO_BED_LEVELING_GRID_POINTSxAUTO_BED_LEVELING_GRID_POINTS grid
-  // and least squares solution is calculated
-  // Note: this feature occupies 10'206 byte
+
   #ifdef AUTO_BED_LEVELING_GRID
 
-    // set the rectangle in which to probe
+    // The edges of the rectangle in which to probe
     #define LEFT_PROBE_BED_POSITION 15
     #define RIGHT_PROBE_BED_POSITION 170
-    #define BACK_PROBE_BED_POSITION 180
     #define FRONT_PROBE_BED_POSITION 20
+    #define BACK_PROBE_BED_POSITION 170
 
-     // set the number of grid points per dimension
-     // I wouldn't see a reason to go above 3 (=9 probing points on the bed)
+    // Set the number of grid points per dimension
+    // You probably don't need more than 3 (squared=9)
     #define AUTO_BED_LEVELING_GRID_POINTS 2
 
 
-  #else  // not AUTO_BED_LEVELING_GRID
-    // with no grid, just probe 3 arbitrary points.  A simple cross-product
-    // is used to esimate the plane of the print bed
+  #else  // !AUTO_BED_LEVELING_GRID
 
+      // Arbitrary points to probe. A simple cross-product
+      // is used to estimate the plane of the bed.
       #define ABL_PROBE_PT_1_X 15
       #define ABL_PROBE_PT_1_Y 180
       #define ABL_PROBE_PT_2_X 15
@@ -435,10 +430,11 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
   #endif // AUTO_BED_LEVELING_GRID
 
 
-  // these are the offsets to the probe relative to the extruder tip (Hotend - Probe)
-  #define X_PROBE_OFFSET_FROM_EXTRUDER -25
-  #define Y_PROBE_OFFSET_FROM_EXTRUDER -29
-  #define Z_PROBE_OFFSET_FROM_EXTRUDER -12.35
+  // Offsets to the probe relative to the extruder tip (Hotend - Probe)
+  // X and Y offsets must be integers
+  #define X_PROBE_OFFSET_FROM_EXTRUDER -25     // -left  +right
+  #define Y_PROBE_OFFSET_FROM_EXTRUDER -29     // -front +behind
+  #define Z_PROBE_OFFSET_FROM_EXTRUDER -12.35  // -below (always!)
 
   #define Z_RAISE_BEFORE_HOMING 4       // (in mm) Raise Z before homing (G28) for Probe Clearance.
                                         // Be sure you have this distance over your Z_MAX_POS in case
@@ -514,9 +510,9 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define DEFAULT_EJERK                 5.0    // (mm/sec)
 
 
-//===========================================================================
-//============================ Additional Features ==========================
-//===========================================================================
+//=============================================================================
+//============================= Additional Features ===========================
+//=============================================================================
 
 // Custom M code points
 #define CUSTOM_M_CODES
@@ -547,7 +543,12 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define ABS_PREHEAT_HPB_TEMP 100
 #define ABS_PREHEAT_FAN_SPEED 255   // Insert Value between 0 and 255
 
-//LCD and SD support
+//==============================LCD and SD support=============================
+
+// Define your display language below. Replace (en) with your language code and uncomment.
+// en, pl, fr, de, es, ru, it, pt, pt-br, fi, an, nl, ca, eu
+// See also language.h
+//#define LANGUAGE_INCLUDE GENERATE_LANGUAGE_INCLUDE(en)
 
 // Character based displays can have different extended charsets.
 #define DISPLAY_CHARSET_HD44780_JAPAN     // "ääööüüß23°"
@@ -713,11 +714,13 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 // Shift register panels
 // ---------------------
 // 2 wire Non-latching LCD SR from:
-// https://bitbucket.org/fmalpartida/new-liquidcrystal/wiki/schematics#!shiftregister-connection
-//#define SR_LCD
-#ifdef SR_LCD
-   #define SR_LCD_2W_NL    // Non latching 2 wire shift register
-   //#define NEWPANEL
+// https://bitbucket.org/fmalpartida/new-liquidcrystal/wiki/schematics#!shiftregister-connection 
+
+//#define SAV_3DLCD
+#ifdef SAV_3DLCD
+   #define SR_LCD_2W_NL    // Non latching 2 wire shiftregister
+   #define NEWPANEL
+   #define ULTIPANEL
 #endif
 
 
@@ -726,7 +729,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
   #define SDSUPPORT
   #define ULTRA_LCD
   #ifdef DOGLCD // Change number of lines to match the DOG graphic display
-    #define LCD_WIDTH 20
+    #define LCD_WIDTH 22
     #define LCD_HEIGHT 5
   #else
     #define LCD_WIDTH 20
@@ -735,7 +738,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #else //no panel but just LCD
   #ifdef ULTRA_LCD
   #ifdef DOGLCD // Change number of lines to match the 128x64 graphics display
-    #define LCD_WIDTH 20
+    #define LCD_WIDTH 22
     #define LCD_HEIGHT 5
   #else
     #define LCD_WIDTH 16
