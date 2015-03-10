@@ -2057,6 +2057,7 @@ static void view_wizard_change_filament()
 void draw_picture_set_temperature() 
 {
     encoder_position = 0;
+    target_temperature[0] = FILAMENT_CHANGE_TEMP;
     lcd_set_picture(view_picture_set_temperature);
 }
 
@@ -2072,7 +2073,7 @@ static void view_picture_set_temperature()
         encoder_position = 0;
         
         if (target_temperature[0] < EXTRUDE_MINTEMP) {
-            target_temperature[0] = Change_Filament_Target_Temp;
+            target_temperature[0] = EXTRUDE_MINTEMP;
         }
         if (target_temperature[0] > (HEATER_0_MAXTEMP - 10)) {
             target_temperature[0] = (HEATER_0_MAXTEMP - 10);
