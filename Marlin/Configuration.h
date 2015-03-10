@@ -407,6 +407,8 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
     #define RIGHT_PROBE_BED_POSITION 170
     #define FRONT_PROBE_BED_POSITION 20
     #define BACK_PROBE_BED_POSITION 170
+    
+    #define MIN_PROBE_EDGE 10 // The probe square sides can be no smaller than this
 
     // Set the number of grid points per dimension
     // You probably don't need more than 3 (squared=9)
@@ -429,8 +431,8 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
   // Offsets to the probe relative to the extruder tip (Hotend - Probe)
   // X and Y offsets must be integers
-  #define X_PROBE_OFFSET_FROM_EXTRUDER -25     // -left  +right
-  #define Y_PROBE_OFFSET_FROM_EXTRUDER -29     // -front +behind
+  #define X_PROBE_OFFSET_FROM_EXTRUDER -25     // Probe on: -left  +right
+  #define Y_PROBE_OFFSET_FROM_EXTRUDER -29     // Probe on: -front +behind
   #define Z_PROBE_OFFSET_FROM_EXTRUDER -12.35  // -below (always!)
 
   #define Z_RAISE_BEFORE_HOMING 4       // (in mm) Raise Z before homing (G28) for Probe Clearance.
@@ -441,6 +443,9 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
   #define Z_RAISE_BEFORE_PROBING 15    //How much the extruder will be raised before traveling to the first probing point.
   #define Z_RAISE_BETWEEN_PROBINGS 5  //How much the extruder will be raised when traveling from between next probing points
 
+   #define Z_PROBE_END_SCRIPT "G1 Z10 F12000\nG1 X15 Y330\nG1 Z0.5\nG1 Z10" //These commands will be executed in the end of G29 routine.
+                                                                            //Useful to retract a deployable probe.
+                                                                           
   //#define Z_PROBE_SLED // turn on if you have a z-probe mounted on a sled like those designed by Charles Bell
   //#define SLED_DOCKING_OFFSET 5 // the extra distance the X axis must travel to pickup the sled. 0 should be fine but you can push it further if you'd like.
 

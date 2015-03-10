@@ -411,6 +411,8 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
     #define FRONT_PROBE_BED_POSITION 20
     #define BACK_PROBE_BED_POSITION 170
 
+    #define MIN_PROBE_EDGE 10 // The probe square sides can be no smaller than this    
+    
     // Set the number of grid points per dimension
     // You probably don't need more than 3 (squared=9)
     #define AUTO_BED_LEVELING_GRID_POINTS 2
