@@ -3,7 +3,7 @@
  *
  * Configuration and EEPROM storage
  *
- * V15 EEPROM Layout:
+ * V16 EEPROM Layout:
  *
  *  ver
  *  axis_steps_per_unit (x4)
@@ -11,6 +11,7 @@
  *  max_acceleration_units_per_sq_second (x4)
  *  acceleration
  *  retract_acceleration
+ *  travel_aceeleration
  *  minimumfeedrate
  *  mintravelfeedrate
  *  minsegmenttime
@@ -104,7 +105,7 @@ void _EEPROM_readData(int &pos, uint8_t* value, uint8_t size) {
 // wrong data being written to the variables.
 // ALSO:  always make sure the variables in the Store and retrieve sections are in the same order.
 
-#define EEPROM_VERSION "V15"
+#define EEPROM_VERSION "V16"
 
 #ifdef EEPROM_SETTINGS
 
@@ -118,6 +119,7 @@ void Config_StoreSettings()  {
   EEPROM_WRITE_VAR(i, max_acceleration_units_per_sq_second);
   EEPROM_WRITE_VAR(i, acceleration);
   EEPROM_WRITE_VAR(i, retract_acceleration);
+  EEPROM_WRITE_VAR(i, travel_acceleration);
   EEPROM_WRITE_VAR(i, minimumfeedrate);
   EEPROM_WRITE_VAR(i, mintravelfeedrate);
   EEPROM_WRITE_VAR(i, minsegmenttime);
@@ -253,6 +255,7 @@ void Config_RetrieveSettings() {
 
     EEPROM_READ_VAR(i, acceleration);
     EEPROM_READ_VAR(i, retract_acceleration);
+    EEPROM_READ_VAR(i, travel_acceleration);
     EEPROM_READ_VAR(i, minimumfeedrate);
     EEPROM_READ_VAR(i, mintravelfeedrate);
     EEPROM_READ_VAR(i, minsegmenttime);
@@ -380,6 +383,7 @@ void Config_ResetDefault() {
 
   acceleration = DEFAULT_ACCELERATION;
   retract_acceleration = DEFAULT_RETRACT_ACCELERATION;
+  travel_acceleration = DEFAULT_TRAVEL_ACCELERATION;
   minimumfeedrate = DEFAULT_MINIMUMFEEDRATE;
   minsegmenttime = DEFAULT_MINSEGMENTTIME;
   mintravelfeedrate = DEFAULT_MINTRAVELFEEDRATE;
@@ -516,11 +520,12 @@ void Config_PrintSettings(bool forReplay) {
   SERIAL_EOL;
   SERIAL_ECHO_START;
   if (!forReplay) {
-    SERIAL_ECHOLNPGM("Acceleration: S=acceleration, T=retract acceleration");
+    SERIAL_ECHOLNPGM("Accelerations: P=printing, R=retract and T=travel");
     SERIAL_ECHO_START;
   }
-  SERIAL_ECHOPAIR("  M204 S", acceleration );
-  SERIAL_ECHOPAIR(" T", retract_acceleration);
+  SERIAL_ECHOPAIR("  M204 P", acceleration );
+  SERIAL_ECHOPAIR(" R", retract_acceleration);
+  SERIAL_ECHOPAIR(" T", travel_acceleration);
   SERIAL_EOL;
 
   SERIAL_ECHO_START;

@@ -3263,16 +3263,34 @@ inline void gcode_M203() {
 }
 
 /**
- * M204: Set Default Acceleration and/or Default Filament Acceleration in mm/sec^2 (M204 S3000 T7000)
+ * M204: Set Accelerations in mm/sec^2 (M204 P1200 R3000 T3000)
  *
- *    S = normal moves
- *    T = filament only moves
+ *    P = Printing moves
+ *    R = Retract only (no X, Y, Z) moves
+ *    T = Travel (non printing) moves
  *
  *  Also sets minimum segment time in ms (B20000) to prevent buffer under-runs and M20 minimum feedrate
  */
 inline void gcode_M204() {
-  if (code_seen('S')) acceleration = code_value();
-  if (code_seen('T')) retract_acceleration = code_value();
+  if (code_seen('P'))
+  {
+    acceleration = code_value();
+    SERIAL_ECHOPAIR("Setting Printing Acceleration: ", acceleration );
+    SERIAL_EOL;
+  }
+  if (code_seen('R'))
+  {
+    retract_acceleration = code_value();
+    SERIAL_ECHOPAIR("Setting Retract Acceleration: ", retract_acceleration );
+    SERIAL_EOL;
+  }
+  if (code_seen('T'))
+  {
+    travel_acceleration = code_value();
+    SERIAL_ECHOPAIR("Setting Travel Acceleration: ", travel_acceleration );
+    SERIAL_EOL;
+  }
+  
 }
 
 /**

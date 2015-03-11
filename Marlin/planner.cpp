@@ -67,8 +67,9 @@ float max_feedrate[NUM_AXIS]; // set the max speeds
 float axis_steps_per_unit[NUM_AXIS];
 unsigned long max_acceleration_units_per_sq_second[NUM_AXIS]; // Use M201 to override by software
 float minimumfeedrate;
-float acceleration;         // Normal acceleration mm/s^2  THIS IS THE DEFAULT ACCELERATION for all moves. M204 SXXXX
+float acceleration;         // Normal acceleration mm/s^2  THIS IS THE DEFAULT ACCELERATION for all printing moves. M204 SXXXX
 float retract_acceleration; //  mm/s^2   filament pull-pack and push-forward  while standing still in the other axis M204 TXXXX
+float travel_acceleration;  // Travel acceleration mm/s^2  THIS IS THE DEFAULT ACCELERATION for all NON printing moves. M204 MXXXX
 float max_xy_jerk; //speed than can be stopped at once, if i understand correctly.
 float max_z_jerk;
 float max_e_jerk;
@@ -906,6 +907,10 @@ Having the real displacement of the head, we can calculate the total movement le
   if(block->steps_x == 0 && block->steps_y == 0 && block->steps_z == 0)
   {
     block->acceleration_st = ceil(retract_acceleration * steps_per_mm); // convert to: acceleration steps/sec^2
+  }
+  else if(block->steps_e == 0)
+  {
+    block->acceleration_st = ceil(travel_acceleration * steps_per_mm); // convert to: acceleration steps/sec^2
   }
   else
   {
