@@ -201,6 +201,7 @@
 #endif
 
 float homing_feedrate[] = HOMING_FEEDRATE;
+int xy_travel_speed = XY_TRAVEL_SPEED;
 int homing_bump_divisor[] = HOMING_BUMP_DIVISOR;
 bool axis_relative_modes[] = AXIS_RELATIVE_MODES;
 int feedmultiply = 100; //100->1 200->2
@@ -1162,7 +1163,7 @@ static void do_blocking_move_to(float x, float y, float z) {
     plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
     st_synchronize();
 
-    feedrate = XY_TRAVEL_SPEED;
+    feedrate = xy_travel_speed;
 
     current_position[X_AXIS] = x;
     current_position[Y_AXIS] = y;
@@ -1815,6 +1816,8 @@ inline void gcode_G28() {
    *  P  Set the size of the grid that will be probed (P x P points).
    *     Example: "G29 P4"
    *
+   *  S  Set the XY travel speed between probe points (in mm/min)
+   *
    *  V  Set the verbose level (0-4). Example: "G29 V3"
    *
    *  T  Generate a Bed Topology Report. Example: "G29 P5 T" for a detailed report.
@@ -1875,6 +1878,8 @@ inline void gcode_G28() {
         SERIAL_PROTOCOLPGM("?Number of probed (P)oints is implausible (2 minimum).\n");
         return;
       }
+
+      xy_travel_speed = code_seen('S') ? code_value_long() : XY_TRAVEL_SPEED;
 
       int left_probe_bed_position = code_seen('L') ? code_value_long() : LEFT_PROBE_BED_POSITION,
           right_probe_bed_position = code_seen('R') ? code_value_long() : RIGHT_PROBE_BED_POSITION,
