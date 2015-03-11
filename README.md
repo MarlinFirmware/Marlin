@@ -27,11 +27,11 @@ We are actively looking for testers. So please try the current development versi
 [![Coverity Scan Build Status](https://scan.coverity.com/projects/2224/badge.svg)](https://scan.coverity.com/projects/2224)
 [![Travis Build Status](https://travis-ci.org/MarlinFirmware/Marlin.svg)](https://travis-ci.org/MarlinFirmware/Marlin)
 
-What bugs are we working on: [Bug Fixing Round 2](https://github.com/MarlinFirmware/Marlin/milestones/Bug%20Fixing%20Round%202)
+What bugs are we working on: [Bug Fixing Round 3](https://github.com/MarlinFirmware/Marlin/milestones/Bug%20Fixing%20Round%203)
 
 ## Contact
 
-__IRC:__ #marlin-firmware @freenode ([WebChat Client](https://webchat.freenode.net/?channels=marlin-firmware), [Archive](http://energymonitor-dk.dns4e.net/marlin-firmware-log/))
+__IRC:__ #marlin-firmware @freenode ([WebChat Client](https://webchat.freenode.net/?channels=marlin-firmware)
 
 __Mailing List:__ marlin@lists.0l.de ([Subscribe](http://lists.0l.de/mailman/listinfo/marlin), [Archive](http://lists.0l.de/pipermail/marlin/))
 
@@ -41,7 +41,7 @@ The current Marlin dev team consists of:
 
  - Erik van der Zalm ([@ErikZalm](https://github.com/ErikZalm))
  - [@daid](https://github.com/daid)
- 
+
 Sprinters lead developers are Kliment and caru.
 Grbls lead developer is Simen Svale Skogsrud.
 Sonney Jeon (Chamnit) improved some parts of grbl
@@ -52,9 +52,9 @@ More features have been added by:
   - Bradley Feldman,
   - and others...
 
-## Licence
+## License
 
-Marlin is published unde the [GPL license](/Documentation/COPYING.md) because I believe in open development.
+Marlin is published under the [GPL license](/Documentation/COPYING.md) because I believe in open development.
 Please do not use this code in products (3D printers, CNC etc) that are closed source or are crippled by a patent.
 
 [![Flattr this git repo](http://api.flattr.com/button/flattr-badge-large.png)](https://flattr.com/submit/auto?user_id=ErikZalm&url=https://github.com/MarlinFirmware/Marlin&title=Marlin&language=&tags=github&category=software)
