@@ -201,7 +201,9 @@
 #endif
 
 float homing_feedrate[] = HOMING_FEEDRATE;
+#ifdef ENABLE_AUTO_BED_LEVELING
 int xy_travel_speed = XY_TRAVEL_SPEED;
+#endif
 int homing_bump_divisor[] = HOMING_BUMP_DIVISOR;
 bool axis_relative_modes[] = AXIS_RELATIVE_MODES;
 int feedmultiply = 100; //100->1 200->2
