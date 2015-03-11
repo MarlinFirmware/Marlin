@@ -570,7 +570,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 //#define LANGUAGE_INCLUDE GENERATE_LANGUAGE_INCLUDE(en)
 
 // Chose ONE of the next three charsets. This has to match your hardware. In case of a full graphic display chose that one best fitting to your language.
-// to find out what type you have - compile with language_test.h - upload - click to get the menu.
+// to find out what type you have - compile with language_test.h - upload - click to get the menu. You'll see two typical lines from the upper half of the charset.
   #define DISPLAY_CHARSET_HD44780_JAPAN        // this is the most common hardware
   //#define DISPLAY_CHARSET_HD44780_WESTERN
   //#define DISPLAY_CHARSET_HD44780_CYRILIC

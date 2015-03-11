@@ -25,16 +25,17 @@
 //   impossible to have a close to direct mapping but will need giant conversion tables and fonts (we don't want to have in a embedded system).
 // d.) So for Kanji we use a very special and selected subset of symbols and the direct mapping like in a).
 
-//#define MAPPER_NON         // For direct asci codes ( until now all languages except ru, de, ... )
-#define MAPPER_C2C3        // For most European languages when language file is in utf8
+#define MAPPER_NON         // For direct asci codes ( until now all languages except ru, de, ... )
+//#define MAPPER_C2C3        // For most European languages when language file is in utf8
 //#define MAPPER_D0D1        // For Cyrillic
-//#define MAPPER_D0D1_MOD    // For Cyrillic on HD44780_CYRILIC (will save 32 byte in the mapper but adds some more decisions)
+////#define MAPPER_D0D1_MOD    // For Cyrillic on HD44780_CYRILIC (will save 32 byte in the mapper but adds some more decisions)
 //#define MAPPER_E382E383    // For Katakana
 
 
 // next 4 lines select variants in this file only
+#define DISPLAYTEST
 //#define WEST
-#define CYRIL
+//#define CYRIL
 //#define KANA
 //#define KANJI
 
@@ -47,6 +48,8 @@
 #define STRG_ASCII_6 "`abcdefghijklmno"
 #define STRG_ASCII_7 "pqrstuvwxyz{|}~"
 
+#define STRG_C2_8 ""
+#define STRG_C2_9 ""
 #define STRG_C2_a " ¡¢£¤¥¦§¨©ª«¬­®¯"
 #define STRG_C2_b "°±²³´µ¶·¸¹º»¼½¾¿"
 #define STRG_C3_8 "ÈÁÂÃÄÅÆÇÈÉÊËÌÍÎÏ"
@@ -88,6 +91,14 @@
 #define STRG_OKTAL_d "\320\321\322\323\324\325\326\327\330\331\332\333\334\335\336\337"
 #define STRG_OKTAL_e "\340\341\342\343\344\345\346\347\350\351\352\353\354\355\356\357"
 #define STRG_OKTAL_f "\360\361\362\363\364\365\366\367\370\371\372\373\374\375\376\377"
+
+#ifdef DISPLAYTEST
+  #define WELCOME_MSG                         "Language TEST"
+
+  #define MSG_WATCH                           "Display test"
+  #define MSG_PREPARE                         STRG_OKTAL_c
+  #define MSG_CONTROL                         STRG_OKTAL_d
+#endif
 
 #ifdef WEST
   #define WELCOME_MSG                         "Language TEST"
