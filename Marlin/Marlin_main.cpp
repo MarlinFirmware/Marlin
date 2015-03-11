@@ -5120,17 +5120,17 @@ void controllerFan()
   {
     lastMotorCheck = millis();
 	
-    if((READ(X_ENABLE_PIN) == (X_ENABLE_ON)) || (READ(Y_ENABLE_PIN) == (Y_ENABLE_ON)) || (READ(Z_ENABLE_PIN) == (Z_ENABLE_ON)) || (soft_pwm_bed > 0)
+    if((X_ENABLE_READ) == (X_ENABLE_ON)) || (Y_ENABLE_READ) == (Y_ENABLE_ON)) || (Z_ENABLE_READ) == (Z_ENABLE_ON)) || (soft_pwm_bed > 0)
     #if EXTRUDERS > 2
-       || (READ(E2_ENABLE_PIN) == (E_ENABLE_ON))
+       || (E2_ENABLE_READ) == (E_ENABLE_ON))
     #endif
     #if EXTRUDER > 1
       #if defined(X2_ENABLE_PIN) && X2_ENABLE_PIN > -1
-       || (READ(X2_ENABLE_PIN) == (X_ENABLE_ON))
+       || (X2_ENABLE_READ) == (X_ENABLE_ON))
       #endif
-       || (READ(E1_ENABLE_PIN) == (E_ENABLE_ON))
+       || (E1_ENABLE_READ) == (E_ENABLE_ON))
     #endif
-       || (READ(E0_ENABLE_PIN) == (E_ENABLE_ON))) //If any of the drivers are enabled...
+       || (E0_ENABLE_READ) == (E_ENABLE_ON))) //If any of the drivers are enabled...
     {
       lastMotor = millis(); //... set time to NOW so the fan will turn on
     }
@@ -5355,7 +5355,7 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) //default argument s
     if( (millis() - previous_millis_cmd) >  EXTRUDER_RUNOUT_SECONDS*1000 )
     if(degHotend(active_extruder)>EXTRUDER_RUNOUT_MINTEMP)
     {
-     bool oldstatus=READ(E0_ENABLE_PIN);
+     bool oldstatus=E0_ENABLE_READ;
      enable_e0();
      float oldepos=current_position[E_AXIS];
      float oldedes=destination[E_AXIS];
@@ -5367,7 +5367,7 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) //default argument s
      plan_set_e_position(oldepos);
      previous_millis_cmd=millis();
      st_synchronize();
-     WRITE(E0_ENABLE_PIN,oldstatus);
+     E0_ENABLE_WRITE(oldstatus);
     }
   #endif
   #if defined(DUAL_X_CARRIAGE)
