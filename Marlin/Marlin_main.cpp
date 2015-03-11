@@ -201,6 +201,10 @@
 #endif
 
 float homing_feedrate[] = HOMING_FEEDRATE;
+#ifdef ENABLE_AUTO_BED_LEVELING
+int xy_travel_speed = XY_TRAVEL_SPEED;
+#endif
+int homing_bump_divisor[] = HOMING_BUMP_DIVISOR;
 bool axis_relative_modes[] = AXIS_RELATIVE_MODES;
 int feedmultiply = 100; //100->1 200->2
 int saved_feedmultiply;
@@ -780,7 +784,7 @@ void get_command()
           while(cmdbuffer[bufindw][count] != '*') checksum = checksum^cmdbuffer[bufindw][count++];
           strchr_pointer = strchr(cmdbuffer[bufindw], '*');
 
-          if( (int)(strtod(strchr_pointer + 1, NULL)) != checksum) {
+          if(strtol(strchr_pointer + 1, NULL, 10) != checksum) {
             SERIAL_ERROR_START;
             SERIAL_ERRORPGM(MSG_ERR_CHECKSUM_MISMATCH);
             SERIAL_ERRORLN(gcode_LastN);
@@ -816,7 +820,7 @@ void get_command()
       }
       if((strchr(cmdbuffer[bufindw], 'G') != NULL)){
         strchr_pointer = strchr(cmdbuffer[bufindw], 'G');
-        switch((int)((strtod(strchr_pointer + 1, NULL)))){
+        switch(strtol(strchr_pointer + 1, NULL, 10)){
         case 0:
         case 1:
         case 2:
@@ -1146,7 +1150,18 @@ static void run_z_probe() {
     st_synchronize();
 
     // move back down slowly to find bed
-    feedrate = homing_feedrate[Z_AXIS]/4;
+    
+    if (homing_bump_divisor[Z_AXIS] >= 1)
+    {
+        feedrate = homing_feedrate[Z_AXIS]/homing_bump_divisor[Z_AXIS];
+    } 
+    else
+    {
+        feedrate = homing_feedrate[Z_AXIS]/10;
+        SERIAL_ECHOLN("Warning: The Homing Bump Feedrate Divisor cannot be less then 1");
+    }
+
+    
     zPosition -= home_retract_mm(Z_AXIS) * 2;
     plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], zPosition, current_position[E_AXIS], feedrate/60, active_extruder);
     st_synchronize();
@@ -1165,7 +1180,7 @@ static void do_blocking_move_to(float x, float y, float z) {
     plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
     st_synchronize();
 
-    feedrate = XY_TRAVEL_SPEED;
+    feedrate = xy_travel_speed;
 
     current_position[X_AXIS] = x;
     current_position[Y_AXIS] = y;
@@ -1308,11 +1323,17 @@ static void homeaxis(int axis) {
     st_synchronize();
 
     destination[axis] = 2*home_retract_mm(axis) * axis_home_dir;
-#ifdef DELTA
-    feedrate = homing_feedrate[axis]/10;
-#else
-    feedrate = homing_feedrate[axis]/2 ;
-#endif
+
+    if (homing_bump_divisor[axis] >= 1)
+    {
+        feedrate = homing_feedrate[axis]/homing_bump_divisor[axis];
+    } 
+    else
+    {
+        feedrate = homing_feedrate[axis]/10;
+        SERIAL_ECHOLN("Warning: The Homing Bump Feedrate Divisor cannot be less then 1");
+    }
+
     plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate/60, active_extruder);
     st_synchronize();
 #ifdef DELTA
@@ -1771,41 +1792,32 @@ inline void gcode_G28() {
 
   #ifdef AUTO_BED_LEVELING_GRID
 
-    #define MIN_PROBE_EDGE 20 // The probe square sides can be no smaller than this
-
     // Make sure probing points are reachable
 
     #if LEFT_PROBE_BED_POSITION < MIN_PROBE_X
-      #error The given LEFT_PROBE_BED_POSITION can't be reached by the probe.
+      #error "The given LEFT_PROBE_BED_POSITION can't be reached by the probe."
     #elif RIGHT_PROBE_BED_POSITION > MAX_PROBE_X
-      #error The given RIGHT_PROBE_BED_POSITION can't be reached by the probe.
+      #error "The given RIGHT_PROBE_BED_POSITION can't be reached by the probe."
     #elif FRONT_PROBE_BED_POSITION < MIN_PROBE_Y
-      #error The given FRONT_PROBE_BED_POSITION can't be reached by the probe.
+      #error "The given FRONT_PROBE_BED_POSITION can't be reached by the probe."
     #elif BACK_PROBE_BED_POSITION > MAX_PROBE_Y
-      #error The given BACK_PROBE_BED_POSITION can't be reached by the probe.
-
-    // Check if Probe_Offset * Grid Points is greater than Probing Range
-
-    #elif abs(X_PROBE_OFFSET_FROM_EXTRUDER) * (AUTO_BED_LEVELING_GRID_POINTS-1) >= RIGHT_PROBE_BED_POSITION - LEFT_PROBE_BED_POSITION
-      #error "The X axis probing range is not enough to fit all the points defined in AUTO_BED_LEVELING_GRID_POINTS"
-    #elif abs(Y_PROBE_OFFSET_FROM_EXTRUDER) * (AUTO_BED_LEVELING_GRID_POINTS-1) >= BACK_PROBE_BED_POSITION - FRONT_PROBE_BED_POSITION
-      #error "The Y axis probing range is not enough to fit all the points defined in AUTO_BED_LEVELING_GRID_POINTS"
+      #error "The given BACK_PROBE_BED_POSITION can't be reached by the probe."
     #endif
 
   #else // !AUTO_BED_LEVELING_GRID
 
     #if ABL_PROBE_PT_1_X < MIN_PROBE_X || ABL_PROBE_PT_1_X > MAX_PROBE_X
-      #error The given ABL_PROBE_PT_1_X can't be reached by the probe.
+      #error "The given ABL_PROBE_PT_1_X can't be reached by the probe."
     #elif ABL_PROBE_PT_2_X < MIN_PROBE_X || ABL_PROBE_PT_2_X > MAX_PROBE_X
-      #error The given ABL_PROBE_PT_2_X can't be reached by the probe.
+      #error "The given ABL_PROBE_PT_2_X can't be reached by the probe."
     #elif ABL_PROBE_PT_3_X < MIN_PROBE_X || ABL_PROBE_PT_3_X > MAX_PROBE_X
-      #error The given ABL_PROBE_PT_3_X can't be reached by the probe.
+      #error "The given ABL_PROBE_PT_3_X can't be reached by the probe."
     #elif ABL_PROBE_PT_1_Y < MIN_PROBE_Y || ABL_PROBE_PT_1_Y > MAX_PROBE_Y
-      #error The given ABL_PROBE_PT_1_Y can't be reached by the probe.
+      #error "The given ABL_PROBE_PT_1_Y can't be reached by the probe."
     #elif ABL_PROBE_PT_2_Y < MIN_PROBE_Y || ABL_PROBE_PT_2_Y > MAX_PROBE_Y
-      #error The given ABL_PROBE_PT_2_Y can't be reached by the probe.
+      #error "The given ABL_PROBE_PT_2_Y can't be reached by the probe."
     #elif ABL_PROBE_PT_3_Y < MIN_PROBE_Y || ABL_PROBE_PT_3_Y > MAX_PROBE_Y
-      #error The given ABL_PROBE_PT_3_Y can't be reached by the probe.
+      #error "The given ABL_PROBE_PT_3_Y can't be reached by the probe."
     #endif
 
   #endif // !AUTO_BED_LEVELING_GRID
@@ -1820,6 +1832,8 @@ inline void gcode_G28() {
    *
    *  P  Set the size of the grid that will be probed (P x P points).
    *     Example: "G29 P4"
+   *
+   *  S  Set the XY travel speed between probe points (in mm/min)
    *
    *  V  Set the verbose level (0-4). Example: "G29 V3"
    *
@@ -1877,10 +1891,12 @@ inline void gcode_G28() {
         SERIAL_PROTOCOLPGM("G29 Auto Bed Leveling\n");
 
       int auto_bed_leveling_grid_points = code_seen('P') ? code_value_long() : AUTO_BED_LEVELING_GRID_POINTS;
-      if (auto_bed_leveling_grid_points < 2 || auto_bed_leveling_grid_points > AUTO_BED_LEVELING_GRID_POINTS) {
+      if (auto_bed_leveling_grid_points < 2) {
         SERIAL_PROTOCOLPGM("?Number of probed (P)oints is implausible (2 minimum).\n");
         return;
       }
+
+      xy_travel_speed = code_seen('S') ? code_value_long() : XY_TRAVEL_SPEED;
 
       int left_probe_bed_position = code_seen('L') ? code_value_long() : LEFT_PROBE_BED_POSITION,
           right_probe_bed_position = code_seen('R') ? code_value_long() : RIGHT_PROBE_BED_POSITION,
@@ -2109,6 +2125,11 @@ inline void gcode_G28() {
 
     #ifdef Z_PROBE_SLED
       dock_sled(true, -SLED_DOCKING_OFFSET); // dock the probe, correcting for over-travel
+    #endif
+    
+    #ifdef Z_PROBE_END_SCRIPT
+      enquecommands_P(PSTR(Z_PROBE_END_SCRIPT));
+      st_synchronize();
     #endif
   }
 
@@ -3257,16 +3278,34 @@ inline void gcode_M203() {
 }
 
 /**
- * M204: Set Default Acceleration and/or Default Filament Acceleration in mm/sec^2 (M204 S3000 T7000)
+ * M204: Set Accelerations in mm/sec^2 (M204 P1200 R3000 T3000)
  *
- *    S = normal moves
- *    T = filament only moves
+ *    P = Printing moves
+ *    R = Retract only (no X, Y, Z) moves
+ *    T = Travel (non printing) moves
  *
  *  Also sets minimum segment time in ms (B20000) to prevent buffer under-runs and M20 minimum feedrate
  */
 inline void gcode_M204() {
-  if (code_seen('S')) acceleration = code_value();
-  if (code_seen('T')) retract_acceleration = code_value();
+  if (code_seen('P'))
+  {
+    acceleration = code_value();
+    SERIAL_ECHOPAIR("Setting Printing Acceleration: ", acceleration );
+    SERIAL_EOL;
+  }
+  if (code_seen('R'))
+  {
+    retract_acceleration = code_value();
+    SERIAL_ECHOPAIR("Setting Retract Acceleration: ", retract_acceleration );
+    SERIAL_EOL;
+  }
+  if (code_seen('T'))
+  {
+    travel_acceleration = code_value();
+    SERIAL_ECHOPAIR("Setting Travel Acceleration: ", travel_acceleration );
+    SERIAL_EOL;
+  }
+  
 }
 
 /**
@@ -4218,7 +4257,7 @@ inline void gcode_M350() {
  */
 inline void gcode_M351() {
   #if defined(X_MS1_PIN) && X_MS1_PIN > -1
-    if (code_seen('S')) switch((int)code_value()) {
+    if (code_seen('S')) switch(code_value_long()) {
       case 1:
         for(int i=0;i<NUM_AXIS;i++) if (code_seen(axis_codes[i])) microstep_ms(i, code_value(), -1);
         if (code_seen('B')) microstep_ms(4, code_value(), -1);
@@ -4417,7 +4456,7 @@ void process_commands() {
   }
 
   else if (code_seen('M')) {
-    switch( (int)code_value() ) {
+    switch( code_value_long() ) {
       #ifdef ULTIPANEL
         case 0: // M0 - Unconditional stop - Wait for user button press on LCD
         case 1: // M1 - Conditional stop - Wait for user button press on LCD
