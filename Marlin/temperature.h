@@ -171,5 +171,8 @@ void PID_autotune(float temp, int extruder, int ncycles);
 
 void setExtruderAutoFanState(int pin, bool state);
 void checkExtruderAutoFans();
+void max_temp_error(uint8_t e);
+void bed_max_temp_error(void);
+void min_temp_error(uint8_t e);
 
 #endif
