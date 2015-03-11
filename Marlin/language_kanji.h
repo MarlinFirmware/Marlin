@@ -5,6 +5,7 @@
  * Please note these are limited to 17 characters!
  *
  */
+#include "Configuration.h" 
 #ifndef DOGLCD
   #include "language_kana.h" // fallback to kana
   #define LANGUAGE_KANJI_H
@@ -130,11 +131,15 @@
 #define MSG_BABYSTEP_Y                      "\xcb\xde\xc4\xde\xb3 Y"                                       // "Babystep Y"
 #define MSG_BABYSTEP_Z                      "\xcb\xde\xc4\xde\xb3 Z"                                       // "Babystep Z"
 #define MSG_ENDSTOP_ABORT                   "Endstop abort"
+
+/* These are from language.h. PLEASE DON'T TRANSLATE!  All translatable messages can be found in language_en.h
 #define MSG_HEATING                         "\xb6\xe5\x94\x95\x89..."                                      // "Heating..."
 #define MSG_HEATING_COMPLETE                "\xb6\xe5\x94\x95\xa4\xa5\x7f"                                 // "Heating done."
 #define MSG_BED_HEATING                     "\xcd\xde\xaf\xc4\xde\xb6\xe5\x94\x95\x89"                     // "Bed Heating."
 #define MSG_BED_DONE                        "\xcd\xde\xaf\xc4\xde\xb6\xe5\x94\x95\xa4\xa5\x7f"             // "Bed done."
 #define MSG_ENDSTOPS_HIT                    "endstops hit: "
+                   ^ typho
+*/
 
 #ifdef DELTA_CALIBRATION_MENU
     #define MSG_DELTA_CALIBRATE             "Delta Calibration"

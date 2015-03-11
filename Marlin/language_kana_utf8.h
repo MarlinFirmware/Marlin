@@ -128,12 +128,6 @@
 #define MSG_BABYSTEP_Z                      "ヒ゛ト゛ウ Z"                    // "Babystep Z"
 #define MSG_ENDSTOP_ABORT                   "Endstop abort"
 
-#define MSG_HEATING                         "セネシチユウ..."                // "Heating..."
-#define MSG_HEATING_COMPLETE                "セネシセンリxョウ"                // "Heating done."
-#define MSG_BED_HEATING                     "ヘ゛ツト゛セネシチユウ"             // "Bed Heating."  5C 33 34 33
-#define MSG_BED_DONE                        "ヘ゛ツト゛セネシセンリxョウ"           // "Bed done."
-#define MSG_ENDSTOPS_HIT                    "endstops hit: "
-
 #ifdef DELTA_CALIBRATION_MENU
     #define MSG_DELTA_CALIBRATE             "Delta Calibration"
     #define MSG_DELTA_CALIBRATE_X           "Calibrate X"
