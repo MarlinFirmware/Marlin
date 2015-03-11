@@ -83,10 +83,4 @@
 
   #define SDCARDDETECT -1   // Ramps does not use this port
 
-    //encoder rotation values
-  #define encrot0 0
-  #define encrot1 2
-  #define encrot2 3
-  #define encrot3 1
-
 #endif // ULTRA_LCD && NEWPANEL

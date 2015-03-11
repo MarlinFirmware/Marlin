@@ -233,6 +233,9 @@
 #ifndef MSG_A_RETRACT
 #define MSG_A_RETRACT                       "A-retract"
 #endif
+#ifndef MSG_A_TRAVEL
+#define MSG_A_TRAVEL                        "A-travel"
+#endif
 #ifndef MSG_XSTEPS
 #define MSG_XSTEPS                          "Xsteps/mm"
 #endif

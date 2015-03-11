@@ -903,6 +903,7 @@ static void lcd_control_motion_menu() {
   MENU_ITEM_EDIT_CALLBACK(long5, MSG_AMAX MSG_Z, &max_acceleration_units_per_sq_second[Z_AXIS], 100, 99000, reset_acceleration_rates);
   MENU_ITEM_EDIT_CALLBACK(long5, MSG_AMAX MSG_E, &max_acceleration_units_per_sq_second[E_AXIS], 100, 99000, reset_acceleration_rates);
   MENU_ITEM_EDIT(float5, MSG_A_RETRACT, &retract_acceleration, 100, 99000);
+  MENU_ITEM_EDIT(float5, MSG_A_TRAVEL, &travel_acceleration, 100, 99000);
   MENU_ITEM_EDIT(float52, MSG_XSTEPS, &axis_steps_per_unit[X_AXIS], 5, 9999);
   MENU_ITEM_EDIT(float52, MSG_YSTEPS, &axis_steps_per_unit[Y_AXIS], 5, 9999);
   MENU_ITEM_EDIT(float51, MSG_ZSTEPS, &axis_steps_per_unit[Z_AXIS], 5, 9999);
@@ -1393,6 +1394,17 @@ void lcd_reset_alert_level() { lcd_status_message_level = 0; }
 #endif
 
 #ifdef ULTIPANEL
+
+////////////////////////
+// Setup Rotary Encoder Bit Values (for two pin encoders to indicate movement)
+// These values are independent of which pins are used for EN_A and EN_B indications
+// The rotary encoder part is also independent to the chipset used for the LCD
+#if defined(EN_A) && defined(EN_B)
+  #define encrot0 0
+  #define encrot1 2
+  #define encrot2 3
+  #define encrot3 1
+#endif 
 
 /* Warning: This function is called from interrupt context */
 void lcd_buttons_update() {
