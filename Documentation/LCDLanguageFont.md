@@ -55,8 +55,8 @@ We have two different technologies for the displays:
 ## The Problem
   All of this languages, except the English, normally use extended symbol sets, not contained in US-ASCII.
   Even the English translation uses some Symbols not in US-ASCII. ( '\002' for Thermometer, STR_h3 for '³')
-  And worse, in the code itself symbols are used, not taking in account, on what display they are written. [(This is thrue only for Displays with Japanese charset](https://github.com/MarlinFirmware/Marlin/blob/Development/Marlin/ultralcd_implementation_hitachi_HD44780.h#L218) on Western displays you'll see a '~' and on Cyrillic an 'arrow coming from top - pointing to left', what is quite the opposite of the programmer wanted.)
-  The Germans want to use "ÄäÖöÜüß" the Finnish at least "äö". Other European languages want to see their accents an their letters.
+  And worse, in the code itself symbols are used, not taking in account, on what display they are written. [(This is thrue only for Displays with Japanese charset](https://github.com/MarlinFirmware/Marlin/blob/Development/Marlin/ultralcd_implementation_hitachi_HD44780.h#L218) on Western displays you'll see a '~' and on Cyrillic an 'arrow coming from top - pointing to left', what is quite the opposite of what the programmer wanted.)
+  The Germans want to use "ÄäÖöÜüß" the Finnish at least "äö". Other European languages want to see their accents on their letters.
   For other scripts like Cyrillic, Japanese, Greek, Hebrew, ... you have to find totally different symbol sets.
 
   Until now the problems where ignored widely.
@@ -104,9 +104,10 @@ We have two different technologies for the displays:
       If you want to make use of more than a view symbols outside standard ASCII or want to improve the portability to more different types of displays use UTF8 input. That means define an other mapper.
   * d.) With a mapper different to MAPPER_NON UTF8 input is used. Instead of "\xe1" (on a display with Japanese font) or STR_ae simply use "ä". When the string is read byte by byte , the "ä" will expand to "\0xc3\0xa4" or "Я" will expand to "0xd0\0xaf" or "ホ" will expand to "\0xe3\0x83\0x9b"
       To limit the used memory we can't use all the possibilities UTF8 gives at the same time. We define a subset matching to the language or script we use.
-      MAPPER_C2C3 correspondents good with west European languages the possible symbols are listed at (http://en.wikipedia.org/wiki/Latin-1_Supplement_(Unicode_block))
-      MAPPER_D0D1 correspondents well with the Cyrillic languages. See (http://en.wikipedia.org/wiki/Cyrillic_(Unicode_block))
-      MAPPER_E382E383 works with the Japanese Katakana script. See (http://en.wikipedia.org/wiki/Katakana_(Unicode_block))
+      * MAPPER_C2C3 correspondents good with west European languages the possible symbols are listed at (http://en.wikipedia.org/wiki/Latin-1_Supplement_(Unicode_block))
+      * MAPPER_D0D1 correspondents well with the Cyrillic languages. See (http://en.wikipedia.org/wiki/Cyrillic_(Unicode_block))
+      * MAPPER_E382E383 works with the Japanese Katakana script. See (http://en.wikipedia.org/wiki/Katakana_(Unicode_block))
+
       The mapper functions will only catch the 'lead in' described in the mappers name. If the input they get does not match they'll put out a '?' or garbage.
       The last byte in the sequence ether points directly into a matching ISO10646 font or via a mapper_table into one of the HD44780 fonts.
       The mapper_tables do their best to find a similar symbol in the HD44780_fonts. For example replacing small letters with the matching capital letters. But they may fail to find something matching and will output a '?'. There are combinations of language and display what simply have no corresponding symbols - like Cyrillic on a Japanese display or visa versa - than the compiler will throw an error.
@@ -126,7 +127,9 @@ We have two different technologies for the displays:
       Add it in 'Configuration.h'. Define mapper tables in 'utf_mapper.h'. Maybe you need a new mapper function. 
 
   The length of the strings is limited. '17 chars' was crude rule of thumb. Obviously 17 is to long for the 16x2 displays. A more exact rule would be max_strlen = Displaywidth - 2 - strlen(value to display behind). This is a bit complicated. So try and count is my rule of thumb. 
+
   On the 16x2 displays the strings are cut at the end to fit on the display. So it's a good idea to make them differ early. ('Somverylongoptionname x' -> 'x Somverylongoptionname')
+
   You'll find all translatable strings in 'language_en.h'. Please don't translate any strings from 'language.h', this may break the serial protocol.
 
 ## User Instructions
