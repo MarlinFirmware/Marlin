@@ -38,11 +38,11 @@ lines_of_g1 = 0
 gcode = []
 
 
-def found_g1(line):
+def has_g1(line):
     return line[:2].upper() == "G1"
 
 
-def find(line, axis):
+def find_axis(line, axis):
     found = False
     number = ""
     for char in line:
@@ -66,8 +66,8 @@ def find(line, axis):
 def set_mima(line):
     global min_x, max_x, min_y, max_y, last_z
 
-    current_x = find(line, 'x')
-    current_y = find(line, 'y')
+    current_x = find_axis(line, 'x')
+    current_y = find_axis(line, 'y')
 
     if current_x is not None:
         min_x = min(current_x, min_x)
@@ -81,7 +81,7 @@ def set_mima(line):
 
 def find_z(gcode, start_at_line=0):
     for i in range(start_at_line, len(gcode)):
-        my_z = find(gcode[i], 'Z')
+        my_z = find_axis(gcode[i], 'Z')
         if my_z is not None:
             return my_z, i
 
@@ -122,13 +122,13 @@ def get_lines(gcode, minimum):
             return z_at_line[i - 1], z_at_line[i]
 
 
-with open(my_file, 'r') as file:
+with open(folder+my_file, 'r') as file:
     lines = 0
     for line in file:
         lines += 1
         if lines > 1000:
             break
-        if found_g1(line):
+        if has_g1(line):
             gcode.append(line)
 file.close()
 
