@@ -126,7 +126,7 @@ We have two different technologies for the displays:
   * h.) If you want to integrate an entirely new variant of a Hitachi based display.
       Add it in 'Configuration.h'. Define mapper tables in 'utf_mapper.h'. Maybe you need a new mapper function. 
 
-  The length of the strings is limited. '17 chars' was crude rule of thumb. Obviously 17 is to long for the 16x2 displays. A more exact rule would be max_strlen = Displaywidth - 2 - strlen(value to display behind). This is a bit complicated. So try and count is my rule of thumb. 
+  The length of the strings is limited. '17 chars' a was crude rule of thumb. Obviously 17 is to long for the 16x2 displays. A more exact rule would be max_strlen = Displaywidth - 2 - strlen(value to display behind). This is a bit complicated. So try and count is my rule of thumb. 
 
   On the 16x2 displays the strings are cut at the end to fit on the display. So it's a good idea to make them differ early. ('Somverylongoptionname x' -> 'x Somverylongoptionname')
 
@@ -139,5 +139,7 @@ We have two different technologies for the displays:
    * DISPLAY_CHARSET_HD44780_WESTERN locks like "ÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞß"
    * DISPLAY_CHARSET_HD44780_CYRILIC locks like "РСТУФХЦЧШЩЪЫЬЭЮЯ"
 
-   If you get an error about missing mappers during compilation - lie about your displays hardware font to see at lest some garbage, or select an other language. English works on all hardware.
+   If you get an error about missing mappers during compilation - lie about your displays hardware font to see at lest some garbage, or select an other language.
+   
+   English works on all hardware.
 
