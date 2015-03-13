@@ -46,9 +46,11 @@ We have two different technologies for the displays:
   * nl    Dutch
   * ca    Catalan
   * eu    Basque-Euskera
+
   and recently on [Thingiverse](http://www.thingiverse.com/) a new port to
   * jp    [Japanese](http://www.thingiverse.com/thing:664397)
-  appeared.
+
+ appeared.
 
 ## The Problem
   All of this languages, except the English, normally use extended symbol sets, not contained in US-ASCII.
