@@ -113,9 +113,9 @@ We have two different technologies for the displays:
       The mapper_tables do their best to find a similar symbol in the HD44780_fonts. For example replacing small letters with the matching capital letters. But they may fail to find something matching and will output a '?'. There are combinations of language and display what simply have no corresponding symbols - like Cyrillic on a Japanese display or visa versa - than the compiler will throw an error.
       In short: Chose a Mapper working with the symbols you want to use. Use only symbols matching the mapper. On FULL graphic displays all will be fine, but check for daring replacements or question-marks in the output of character based displays by defining SIMULATE_ROMFONT and trying the different variants.
       If you get a lot of question-marks on the Hitachi based displays with your new translation, maybe creating an additional language file with the format 'language_xx_utf8.h' is the way to go.
-      MAPPER_NON is the fastest and least memory consuming variant.
-      Mappers together with a ISO10646_font are the second best choice regarding speed and memory consumption. Only a few more decisions are mad per character.
-      Mappers together with the HD44780_fonts use about additional 128 bytes for the mapping_table.
+      * MAPPER_NON is the fastest and least memory consuming variant.
+      * Mappers together with a ISO10646_font are the second best choice regarding speed and memory consumption. Only a few more decisions are mad per character.
+      * Mappers together with the HD44780_fonts use about additional 128 bytes for the mapping_table.
   * e.) Creating a new language file is not a big thing. Just make a new file with the format 'language_xx.h' or maybe 'language.xx.utf8.h', define a mapper and a font in there and translate some of the strings defined in language_en.h. You can drop the surrounding  #ifndef #endif. You don't have to translate all the stings - the missing one will be added by language_en.h - in English - of cause.
   * f.) If you cant find a matching mapper things will be a bit more complex. With the Hitachi based displays you will not have big chance to make something useful unless you have one with a matching charset. For a full graphic display - lets explain with - let's say Greece.
       Find a matching charset. (http://en.wikipedia.org/wiki/Greek_and_Coptic)
