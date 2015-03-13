@@ -2,13 +2,16 @@
  * Finnish
  *
  * LCD Menu Messages
- * Please note these are limited to 17 characters!
+ * Se also documentation/LCDLanguageFont.md
  *
  */
 #ifndef LANGUAGE_FI_H
 #define LANGUAGE_FI_H
 
 #define MAPPER_C2C3
+// Define SIMULATE_ROMFONT to see what is seen on the character based display defined in Configuration.h
+//#define SIMULATE_ROMFONT
+#define DISPLAY_CHARSET_ISO10646_1
 
 #define WELCOME_MSG                         MACHINE_NAME " valmis."
 #define MSG_SD_INSERTED                     "Kortti asetettu"

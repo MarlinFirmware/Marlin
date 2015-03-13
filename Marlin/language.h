@@ -11,6 +11,7 @@
 //
 //   ==> ALWAYS TRY TO COMPILE MARLIN WITH/WITHOUT "ULTIPANEL" / "ULTRALCD" / "SDSUPPORT" #define IN "Configuration.h"
 //   ==> ALSO TRY ALL AVAILABLE LANGUAGE OPTIONS
+// Se also documentation/LCDLanguageFont.md
 
 // Languages
 // en       English
@@ -201,6 +202,11 @@
 #define MSG_MAXTEMP_BED_OFF                 "Heated bed" MSG_SWITCHED_OFF_MAX
 
 // LCD Menu Messages
+
+#if !(defined( DISPLAY_CHARSET_HD44780_JAPAN ) || defined( DISPLAY_CHARSET_HD44780_WESTERN ) || defined( DISPLAY_CHARSET_HD44780_CYRILIC ))
+  #define DISPLAY_CHARSET_HD44780_JAPAN
+#endif
+
 #include LANGUAGE_INCLUDE
 #include "language_en.h"
 

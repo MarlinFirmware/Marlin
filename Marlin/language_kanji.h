@@ -2,7 +2,7 @@
  * Japanese (Kanji)
  *
  * LCD Menu Messages
- * Please note these are limited to 17 characters!
+ * Se also documentation/LCDLanguageFont.md
  *
  */
 #include "Configuration.h" 
