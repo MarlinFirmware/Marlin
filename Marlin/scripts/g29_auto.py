@@ -1,3 +1,5 @@
+#!/usr/bin/python3
+
 # This file is for preprocessing gcode and the new G29 Autobedleveling from Marlin
 # It will analyse the first 2 Layer and return the maximum size for this part
 # After this it will replace with g29_keyword = ';MarlinG29Script' with the new G29 LRFB
