@@ -12,12 +12,13 @@ We have two different technologies for the displays:
   All of them have a similar but not identical symbol set at the positions 0 to 127 similar to US-ASCII.
   On the other hand symbols at places higher than 127 have mayor differences.
   Until now we know of (and support):
-  ** 1.) HD44780 and similar with Kana charset A00 https://www.sparkfun.com/datasheets/LCD/HD44780.pdf Page 17
+  * 1.) HD44780 and similar with Kana charset A00 https://www.sparkfun.com/datasheets/LCD/HD44780.pdf Page 17
       These are very common, but sadly not very useful when writing in European languages.
-  ** 2.) HD44780 and similar with Western charset A02 https://www.sparkfun.com/datasheets/LCD/HD44780.pdf Page 18
+  * 2.) HD44780 and similar with Western charset A02 https://www.sparkfun.com/datasheets/LCD/HD44780.pdf Page 18
       These are rare, but fairly useful for European languages. Also a limited number of Cyrillic symbols is available.
-  ** 3.) HD44780 and similar with Cyrillic charset http://store.comet.bg/download-file.php?id=466 Page 14
+  * 3.) HD44780 and similar with Cyrillic charset http://store.comet.bg/download-file.php?id=466 Page 14
       Some of our Russian friends use them.
+
   At all of them you can define 8 different symbols by yourself. In Marlin they are used for the Feedrate-, Thermometer-, ... symbols
 
 * Full graphic displays
@@ -25,9 +26,9 @@ We have two different technologies for the displays:
   Currently we deal with 128x64 Pixel Displays and divide this area in about 5 Lines with about 22 columns.
   Therefore we need fonts with a bounding box of about 6x10.
   Until now we used a
-  ** 1.) Marlin-font similar to ISO10646-1 but with special Symbols at the end, what made 'ü' and 'ä' inaccessible, in the size 6x10.
-  ** 2.) Because these letters are to big for some locations on the info-screen we use a full ISO10646-1 font in the size of 6x9.
-  ** 3.) When we define USE_BIG_EDIT_FONT we use an additional ISO10646-1 font with 9x18, eating up another 3120 bytes of progmem - but readable without glasses.
+  * 1.) Marlin-font similar to ISO10646-1 but with special Symbols at the end, what made 'ü' and 'ä' inaccessible, in the size 6x10.
+  * 2.) Because these letters are to big for some locations on the info-screen we use a full ISO10646-1 font in the size of 6x9.
+  * 3.) When we define USE_BIG_EDIT_FONT we use an additional ISO10646-1 font with 9x18, eating up another 3120 bytes of progmem - but readable without glasses.
 
 ## The Languages
   For the moment Marlin wants to support a lot of languages:
@@ -63,7 +64,7 @@ We have two different technologies for the displays:
   Other languages ether tried to avoid wording with their special symbols or ignored the problem at all and used the basic symbols without the accents, dots, ... whatever.
 
 ## The (partial) Solution
-  On a 'perfect' system like Windows or Linux we'd dig out unifont.ttf and some code from the libraries and they'd do what we want. But we are on a embedded system with very limited resources. So we had to find ways so limit the used space (Alone unifont.ttf is about 12MB) and have to make some compromise.
+  On a 'perfect' system like Windows or Linux we'd dig out unifont.ttf and some code from the libraries and they'd do what we want. But we are on a embedded system with very limited resources. So we had to find ways to limit the used space (Alone unifont.ttf is about 12MB) and have to make some compromise.
 
 ### Aims:
   * 1.) Make the input for translators as convenient as possible. (Unicode UTF8)
@@ -128,7 +129,7 @@ We have two different technologies for the displays:
 
 ## User Instructions
    Define your hardware and the wanted language in 'Configuration.h'.
-   To find out what charset you harware is define language 'test' and compile. In the menu you will see two lines from the upper half of the charset.
+   To find out what charset your hardware is define language 'test' and compile. In the menu you will see two lines from the upper half of the charset.
    * DISPLAY_CHARSET_HD44780_JAPAN   locks like "バパヒビピフブプヘベペホボポマミ"
    * DISPLAY_CHARSET_HD44780_WESTERN locks like "ÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞß"
    * DISPLAY_CHARSET_HD44780_CYRILIC locks like "РСТУФХЦЧШЩЪЫЬЭЮЯ"
