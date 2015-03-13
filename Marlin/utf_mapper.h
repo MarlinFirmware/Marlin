@@ -9,14 +9,14 @@
   #define HARDWAERE_CHAR_OUT lcd.write
 #endif
 
-#ifndef SIMULATE_ROMFONT
-  #if defined( DISPLAY_CHARSET_ISO10646_1 ) && defined( DOGLCD )
+#if !(defined( SIMULATE_ROMFONT )) && defined( DOGLCD )
+  #if defined( DISPLAY_CHARSET_ISO10646_1 )
     #define MAPPER_ONE_TO_ONE
-  #elif defined( DISPLAY_CHARSET_ISO10646_5 ) && defined( DOGLCD )
+  #elif defined( DISPLAY_CHARSET_ISO10646_5 )
     #define MAPPER_ONE_TO_ONE
-  #elif defined( DISPLAY_CHARSET_ISO10646_KANA ) && defined( DOGLCD )
+  #elif defined( DISPLAY_CHARSET_ISO10646_KANA )
     #define MAPPER_ONE_TO_ONE
-  #elif defined( DISPLAY_CHARSET_KANJI ) && defined( DOGLCD )
+  #elif defined( DISPLAY_CHARSET_KANJI )
     #define MAPPER_NON
   #endif
 #else // SIMULATE_ROMFONT
@@ -59,6 +59,7 @@
 
   #elif defined( DISPLAY_CHARSET_HD44780_WESTERN )
     #if defined( MAPPER_C2C3 )
+    :
       const PROGMEM uint8_t utf_recode[] =
            { // 0    1    2    3    4    5    6    7    8    9    a    b    c    d    e    f   This is relative complete.
              0x20,0xa1,0xa2,0xa3,0xa4,0xa5,0xa6,0xa7,0x22,0xa9,0xaa,0xab,0x3f,0x3f,0xae,0x3f,  // c2a ¡¢£¤¥¦§¨©ª«¬­®¯
@@ -119,6 +120,8 @@
     #elif defined( MAPPER_E382E383 )
       #error( "Katakana on a cyrillic display makes no sense. There are no matching symbols." );
     #endif
+  #else
+    #error("Something went wrong in the selection of DISPLAY_CHARSET_HD44780's");
   #endif // DISPLAY_CHARSET_HD44780_CYRILIC
 #endif // SIMULATE_ROMFONT
 
@@ -141,7 +144,7 @@
       else if (seen_c2){
         d &= 0x3f;
         #ifndef MAPPER_ONE_TO_ONE
-          HARDWAERE_CHAR_OUT( (char) pgm_read_byte_near( utf_recode + d + ( utf_hi_char << 6 ) - 0x20)       );
+          HARDWAERE_CHAR_OUT( (char) pgm_read_byte_near( utf_recode + d + ( utf_hi_char << 6 ) - 0x20 ) );
         #else
           HARDWAERE_CHAR_OUT( (char) (0x80 + ( utf_hi_char << 6 ) + d) ) ;
         #endif
@@ -175,7 +178,7 @@
         } else if ((utf_hi_char == 1) && (d == 0x11)) {
             HARDWAERE_CHAR_OUT((char) 0xb5 ); // ё
           } else {
-            HARDWAERE_CHAR_OUT((char) pgm_read_byte_near( utf_recode + d + ( utf_hi_char << 6 ) - 0x10 ));
+            HARDWAERE_CHAR_OUT((char) pgm_read_byte_near( utf_recode + d + ( utf_hi_char << 6 ) - 0x10 ) );
           }
         }
         else {
@@ -200,9 +203,9 @@
       } else if (seen_d5) {
           d &= 0x3fu;
         #ifndef MAPPER_ONE_TO_ONE
-          HARDWAERE_CHAR_OUT( (char) pgm_read_byte_near( utf_recode + d + ( utf_hi_char << 6 ) - 0x20)       );
+          HARDWAERE_CHAR_OUT( (char) pgm_read_byte_near( utf_recode + d + ( utf_hi_char << 6 ) - 0x20 ) );
         #else
-          HARDWAERE_CHAR_OUT( (char) (0xa0u + ( utf_hi_char << 6 ) + d) ) ;
+          HARDWAERE_CHAR_OUT( (char) (0xa0u + ( utf_hi_char << 6 ) + d ) ) ;
         #endif
       } else {
         HARDWAERE_CHAR_OUT('?');
@@ -230,9 +233,9 @@
       } else if ((seen_e3 == true) && (seen_82_83 == true)){
         d &= 0x3f;
         #ifndef MAPPER_ONE_TO_ONE
-          HARDWAERE_CHAR_OUT( (char) pgm_read_byte_near( utf_recode + d + ( utf_hi_char << 6 ) - 0x20)       );
+          HARDWAERE_CHAR_OUT( (char) pgm_read_byte_near( utf_recode + d + ( utf_hi_char << 6 ) - 0x20 ) );
         #else
-          HARDWAERE_CHAR_OUT( (char) (0x80 + ( utf_hi_char << 6 ) + d) ) ;
+          HARDWAERE_CHAR_OUT( (char) (0x80 + ( utf_hi_char << 6 ) + d ) ) ;
         #endif
       } else {
         HARDWAERE_CHAR_OUT((char) '?' );
