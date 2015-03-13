@@ -567,10 +567,11 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 // Define your display language below. Replace (en) with your language code and uncomment.
 // en, pl, fr, de, es, ru, it, pt, pt-br, fi, an, nl, ca, eu, kana, kana_utf8, kanji, test
 // See also language.h
-//#define LANGUAGE_INCLUDE GENERATE_LANGUAGE_INCLUDE(en)
+#define LANGUAGE_INCLUDE GENERATE_LANGUAGE_INCLUDE(en)
 
-// Chose ONE of the next three charsets. This has to match your hardware. In case of a full graphic display chose that one best fitting to your language.
-// to find out what type you have - compile with language_test.h - upload - click to get the menu. You'll see two typical lines from the upper half of the charset.
+// Chose ONE of the next three charsets. This has to match your hardware. In case of a full graphic display this information is not important.
+// To find out what type you have - compile with (test) - upload - click to get the menu. You'll see two typical lines from the upper half of the charset.
+// Se also documentation/LCDLanguageFont.md
   #define DISPLAY_CHARSET_HD44780_JAPAN        // this is the most common hardware
   //#define DISPLAY_CHARSET_HD44780_WESTERN
   //#define DISPLAY_CHARSET_HD44780_CYRILIC

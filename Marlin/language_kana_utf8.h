@@ -2,7 +2,7 @@
  * Japanese (Kana UTF8 version)
  *
  * LCD Menu Messages
- * Please note these are limited to 17 characters!
+ * Se also documentation/LCDLanguageFont.md
  *
  */
  
@@ -10,6 +10,9 @@
 #define LANGUAGE_KANA_UTF_H
 
 #define MAPPER_E382E383
+// Define SIMULATE_ROMFONT to see what is seen on the character based display defined in Configuration.h
+//#define SIMULATE_ROMFONT
+#define DISPLAY_CHARSET_ISO10646_KANA
 
 // This is very crude replacement of the codes used in language_kana.h from somebody who really does not know what he is doing.
 // Just to show the potential benefit of unicode. 

@@ -2,7 +2,7 @@
  * TEST
  *
  * LCD Menu Messages
- * Please note these are limited to 17 characters!
+ * Se also documentation/LCDLanguageFont.md
  *
  */
 #ifndef LANGUAGE_TEST_H
@@ -10,12 +10,12 @@
 
 // Select ONE of the following Mappers. 
 // They decide what to do with a symbol in the area of [0x80:0xFF]. They take a symbol of this language file and make them point 
-// into an array with 128 cells, where they find the place of the symbol in the font in use.
+// into an array with 128 cells, where they'll find the place of the symbol of the font in use.
 //
 // a.)For ASCII coded Language_xx.h files like (en) there are no occurrences of symbols above 0x7F so no mapper is needed. 
-//   If such a symbol appers it is mapped directly into the font. This is the case for the language files we used until now, with all the STR_XX or
+//   If such a symbol appears it is mapped directly into the font. This is the case for the language files we used until now, with all the STR_XX or
 //   "\xxx" symbols. All Symbols are only one byte long.
-// b.) For Unicoded Language_xx.h files (currently ru and de) the non ASCII [0x00-0x7F] symbols are represented by more then one byte.
+// b.) For Unicoded Language_xx.h files (currently ru, de and kana_utf8 ) the non ASCII [0x00-0x7F] symbols are represented by more then one byte.
 //   In the case of two bytes the first is pointing to a 'codepage' and the second to a place in the codepage. These codepages contain 64 symbols.
 //   So two of them can be mapped. For most of the European languages the necessary symbols are contained in the pages C2 and C3. Cyrillic uses D0 
 //   and D1.
@@ -25,14 +25,22 @@
 //   impossible to have a close to direct mapping but will need giant conversion tables and fonts (we don't want to have in a embedded system).
 // d.) So for Kanji we use a very special and selected subset of symbols and the direct mapping like in a).
 
-#define MAPPER_NON         // For direct asci codes ( until now all languages except ru, de, ... )
+#define MAPPER_NON         // For direct asci codes ( until now all languages except ru, de, fi, kana_utf8, ... )
 //#define MAPPER_C2C3        // For most European languages when language file is in utf8
 //#define MAPPER_D0D1        // For Cyrillic
-////#define MAPPER_D0D1_MOD    // For Cyrillic on HD44780_CYRILIC (will save 32 byte in the mapper but adds some more decisions)
 //#define MAPPER_E382E383    // For Katakana
 
+// Define SIMULATE_ROMFONT to see what is seen on the character based display defined in Configuration.h
+//#define SIMULATE_ROMFONT
 
-// next 4 lines select variants in this file only
+// Select the better font for full graphic displays.
+//#define DISPLAY_CHARSET_ISO10646_1
+//#define DISPLAY_CHARSET_ISO10646_5
+//#define DISPLAY_CHARSET_ISO10646_KANA
+//#define DISPLAY_CHARSET_KANJI
+
+
+// next 5 lines select variants in this file only
 #define DISPLAYTEST
 //#define WEST
 //#define CYRIL
@@ -96,8 +104,8 @@
   #define WELCOME_MSG                         "Language TEST"
 
   #define MSG_WATCH                           "Display test"
-  #define MSG_PREPARE                         STRG_OKTAL_c
-  #define MSG_CONTROL                         STRG_OKTAL_d
+  #define MSG_PREPARE                         STRG_OKTAL_b
+  #define MSG_CONTROL                         STRG_OKTAL_c
 #endif
 
 #ifdef WEST

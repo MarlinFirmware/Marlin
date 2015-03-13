@@ -9,14 +9,18 @@
   #define HARDWAERE_CHAR_OUT lcd.write
 #endif
 
-#if !(defined( DISPLAY_CHARSET_HD44780_JAPAN ) || defined( DISPLAY_CHARSET_HD44780_WESTERN ) || defined( DISPLAY_CHARSET_HD44780_CYRILIC ))
-  #define DISPLAY_CHARSET_HD44780_JAPAN
-#endif
-
-#ifndef DOGLCD
-  #ifdef DISPLAY_CHARSET_KANJI
-    #error("Kanji does not work on character based displays!");
-  #elif defined( DISPLAY_CHARSET_HD44780_JAPAN )
+#ifndef SIMULATE_ROMFONT
+  #if defined( DISPLAY_CHARSET_ISO10646_1 ) && defined( DOGLCD )
+    #define MAPPER_ONE_TO_ONE
+  #elif defined( DISPLAY_CHARSET_ISO10646_5 ) && defined( DOGLCD )
+    #define MAPPER_ONE_TO_ONE
+  #elif defined( DISPLAY_CHARSET_ISO10646_KANA ) && defined( DOGLCD )
+    #define MAPPER_ONE_TO_ONE
+  #elif defined( DISPLAY_CHARSET_KANJI ) && defined( DOGLCD )
+    #define MAPPER_NON
+  #endif
+#else // SIMULATE_ROMFONT
+  #if defined( DISPLAY_CHARSET_HD44780_JAPAN )
     #if defined( MAPPER_C2C3 )
       const PROGMEM uint8_t utf_recode[] =
            { // 0    1    2    3    4    5    6    7    8    9    a    b    c    d    e    f          This is fair for symbols
@@ -27,11 +31,11 @@
              0x3f,0x3f,0x3f,0x3f,0xe1,0x3f,0x3f,0x3f,0x3f,0x3f,0x3f,0x3f,0x3f,0x3f,0x3f,0x3f,  // c38
   //                              ä
              0x3f,0x3f,0x3f,0x3f,0x3f,0x3f,0xef,0x78,0x3f,0x3f,0x3f,0x3f,0xf5,0x3f,0x3f,0xe2,  // c39 missing characters display as '?'
-  //                                        ö     x                       ü              ä
+  //                                        ö     x                       ü              ß
              0x3f,0x3f,0x3f,0x3f,0xe1,0x3f,0x3f,0x3f,0x3f,0x3f,0x3f,0x3f,0x3f,0x3f,0x3f,0x3f,  // c3a
   //                              ä
-             0x3f,0xee,0x3f,0x3f,0x3f,0x3f,0xef,0xed,0x3f,0x3f,0x3f,0x3f,0xf5,0x3f,0x3f,0x3f   // c3b
-  //               n                        ö                             ü
+             0x3f,0xee,0x3f,0x3f,0x3f,0x3f,0xef,0xfd,0x3f,0x3f,0x3f,0x3f,0xf5,0x3f,0x3f,0x3f   // c3b
+  //               n                        ö    ÷                        ü
            };
     #elif defined( MAPPER_E382E383 )
       const PROGMEM uint8_t utf_recode[] =
@@ -115,14 +119,8 @@
     #elif defined( MAPPER_E382E383 )
       #error( "Katakana on a cyrillic display makes no sense. There are no matching symbols." );
     #endif
-  #endif
-#else //DOGLCD
-  #if defined( DISPLAY_CHARSET_KANJI )
-    #define MAPPER_NON
-  #else
-    #define MAPPER_ONE_TO_ONE
-  #endif
-#endif //DOGLCD
+  #endif // DISPLAY_CHARSET_HD44780_CYRILIC
+#endif // SIMULATE_ROMFONT
 
 #if defined( MAPPER_NON )
   char charset_mapper(char c){
@@ -193,20 +191,18 @@
   uint8_t utf_hi_char; // UTF-8 high part
   bool seen_d5 = false;
   char charset_mapper(char c){
-    // it is a Russian alphabet translation
-    // except 0401 --> 0xa2 = Ё, 0451 --> 0xb5 = ё
     uint8_t d = c;
-    if ( d >= 0x80 ) { // UTF-8 handling
-      if ((d >= 0xd0) && (!seen_d5)) {
-        utf_hi_char = d - 0xd0;
+    if ( d >= 0x80u ) { // UTF-8 handling
+      if ((d >= 0xd0u) && (!seen_d5)) {
+        utf_hi_char = d - 0xd0u;
         seen_d5 = true;
         return 0;
       } else if (seen_d5) {
-          d &= 0x3f;
+          d &= 0x3fu;
         #ifndef MAPPER_ONE_TO_ONE
           HARDWAERE_CHAR_OUT( (char) pgm_read_byte_near( utf_recode + d + ( utf_hi_char << 6 ) - 0x20)       );
         #else
-          HARDWAERE_CHAR_OUT( (char) (0x80 + ( utf_hi_char << 6 ) + d) ) ;
+          HARDWAERE_CHAR_OUT( (char) (0xa0u + ( utf_hi_char << 6 ) + d) ) ;
         #endif
       } else {
         HARDWAERE_CHAR_OUT('?');

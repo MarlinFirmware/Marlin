@@ -2,15 +2,21 @@
  * English
  *
  * LCD Menu Messages
- * Please note these are limited to 17 characters!
+ * Se also documentation/LCDLanguageFont.md
  *
  */
 #ifndef LANGUAGE_EN_H
 #define LANGUAGE_EN_H
 
-#if !(defined(MAPPER_NON) || defined(MAPPER_C2C3) || defined(MAPPER_D0D1_MOD) || defined(MAPPER_E382E383))
+#if !( defined(MAPPER_NON)|| defined(MAPPER_C2C3)|| defined(MAPPER_D0D1)|| defined(MAPPER_D0D1_MOD)|| defined(MAPPER_E382E383) )
   #define MAPPER_NON         // For direct asci codes
 #endif
+
+//#define SIMULATE_ROMFONT //Comment in to see what is seen on the character based displays
+#if !( defined(SIMULATE_ROMFONT)|| defined(DISPLAY_CHARSET_ISO10646_1)|| defined(DISPLAY_CHARSET_ISO10646_5)|| defined(DISPLAY_CHARSET_ISO10646_KANA)|| defined(DISPLAY_CHARSET_KANJI) )
+  #define DISPLAY_CHARSET_ISO10646_1 // use the better font on full graphic displays.
+#endif
+
 
 #ifndef WELCOME_MSG
 #define WELCOME_MSG                         MACHINE_NAME " ready."
