@@ -2015,14 +2015,15 @@ inline void gcode_G28() {
 
       if (verbose_level) {
         SERIAL_PROTOCOLPGM("Eqn coefficients: a: ");
-        SERIAL_PROTOCOL(plane_equation_coefficients[0] + 0.0001);
+        SERIAL_PROTOCOL_F(plane_equation_coefficients[0], 8);
         SERIAL_PROTOCOLPGM(" b: ");
-        SERIAL_PROTOCOL(plane_equation_coefficients[1] + 0.0001);
+        SERIAL_PROTOCOL_F(plane_equation_coefficients[1], 8);
         SERIAL_PROTOCOLPGM(" d: ");
-        SERIAL_PROTOCOLLN(plane_equation_coefficients[2] + 0.0001);
+        SERIAL_PROTOCOL_F(plane_equation_coefficients[2], 8);
+        SERIAL_EOL;
         if (verbose_level > 2) {
           SERIAL_PROTOCOLPGM("Mean of sampled points: ");
-          SERIAL_PROTOCOL_F(mean, 6);
+          SERIAL_PROTOCOL_F(mean, 8);
           SERIAL_EOL;
         }
       }
@@ -2033,15 +2034,20 @@ inline void gcode_G28() {
 
         SERIAL_PROTOCOLPGM(" \nBed Height Topography: \n");
         #if TOPO_ORIGIN == OriginFrontLeft
+          SERIAL_PROTOCOLPGM("+-----------+\n");
+          SERIAL_PROTOCOLPGM("|...Back....|\n");
+          SERIAL_PROTOCOLPGM("|Left..Right|\n");
+          SERIAL_PROTOCOLPGM("|...Front...|\n");
+          SERIAL_PROTOCOLPGM("+-----------+\n");
           for (yy = auto_bed_leveling_grid_points - 1; yy >= 0; yy--)
         #else
           for (yy = 0; yy < auto_bed_leveling_grid_points; yy++)
         #endif
           {
             #if TOPO_ORIGIN == OriginBackRight
-              for (xx = auto_bed_leveling_grid_points - 1; xx >= 0; xx--)
-            #else
               for (xx = 0; xx < auto_bed_leveling_grid_points; xx++)
+            #else
+              for (xx = auto_bed_leveling_grid_points - 1; xx >= 0; xx--)
             #endif
               {
                 int ind =
