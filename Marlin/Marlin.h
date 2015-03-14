@@ -199,6 +199,10 @@ void prepare_move();
 void kill();
 void Stop();
 
+#ifdef FILAMENT_RUNOUT_SENSOR
+void filrunout();
+#endif
+
 bool IsStopped();
 
 bool enquecommand(const char *cmd); //put a single ASCII command at the end of the current buffer or return false when it is full
