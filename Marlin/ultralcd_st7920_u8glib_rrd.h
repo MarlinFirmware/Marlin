@@ -47,12 +47,9 @@ uint8_t u8g_dev_rrd_st7920_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t msg, vo
   {
     case U8G_DEV_MSG_INIT:
       {
-        SET_OUTPUT(ST7920_CS_PIN);
-        WRITE(ST7920_CS_PIN,0);
-        SET_OUTPUT(ST7920_DAT_PIN);
-        WRITE(ST7920_DAT_PIN,0);
-        SET_OUTPUT(ST7920_CLK_PIN);
-        WRITE(ST7920_CLK_PIN,1);
+        OUT_WRITE(ST7920_CS_PIN,LOW);
+        OUT_WRITE(ST7920_DAT_PIN,LOW);
+        OUT_WRITE(ST7920_CLK_PIN,HIGH);
 
         ST7920_CS();
         u8g_Delay(120);                 //initial delay for boot up
