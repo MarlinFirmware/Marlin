@@ -62,7 +62,7 @@
   #include "Servo.h"
 #endif
 
-#if defined(DIGIPOTSS_PIN) && DIGIPOTSS_PIN > -1
+#if HAS_DIGIPOTSS
   #include <SPI.h>
 #endif
 
@@ -4190,7 +4190,7 @@ inline void gcode_M503() {
  * M907: Set digital trimpot motor current using axis codes X, Y, Z, E, B, S
  */
 inline void gcode_M907() {
-  #if defined(DIGIPOTSS_PIN) && DIGIPOTSS_PIN > -1
+  #if HAS_DIGIPOTSS
     for (int i=0;i<NUM_AXIS;i++)
       if (code_seen(axis_codes[i])) digipot_current(i, code_value());
     if (code_seen('B')) digipot_current(4, code_value());
@@ -4213,7 +4213,7 @@ inline void gcode_M907() {
   #endif
 }
 
-#if defined(DIGIPOTSS_PIN) && DIGIPOTSS_PIN > -1
+#if HAS_DIGIPOTSS
 
   /**
    * M908: Control digital trimpot directly (M908 P<pin> S<current>)
@@ -4225,7 +4225,7 @@ inline void gcode_M907() {
       );
   }
 
-#endif // DIGIPOTSS_PIN
+#endif // HAS_DIGIPOTSS
 
 // M350 Set microstepping mode. Warning: Steps per unit remains unchanged. S code sets stepping mode for all drivers.
 inline void gcode_M350() {
@@ -4812,11 +4812,11 @@ void process_commands() {
         gcode_M907();
         break;
 
-      #if defined(DIGIPOTSS_PIN) && DIGIPOTSS_PIN > -1
+      #if HAS_DIGIPOTSS
         case 908: // M908 Control digital trimpot directly.
           gcode_M908();
           break;
-      #endif // DIGIPOTSS_PIN
+      #endif // HAS_DIGIPOTSS
 
       case 350: // M350 Set microstepping mode. Warning: Steps per unit remains unchanged. S code sets stepping mode for all drivers.
         gcode_M350();

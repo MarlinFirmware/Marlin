@@ -59,7 +59,7 @@
 #include "language.h"
 
 //===========================================================================
-//=============================public variables ============================
+//============================= public variables ============================
 //===========================================================================
 
 unsigned long minsegmenttime;
@@ -623,37 +623,37 @@ block->steps_y = labs((target[X_AXIS]-position[X_AXIS]) - (target[Y_AXIS]-positi
 #ifndef COREXY
   if (target[X_AXIS] < position[X_AXIS])
   {
-    block->direction_bits |= (1<<X_AXIS); 
+    block->direction_bits |= BIT(X_AXIS); 
   }
   if (target[Y_AXIS] < position[Y_AXIS])
   {
-    block->direction_bits |= (1<<Y_AXIS); 
+    block->direction_bits |= BIT(Y_AXIS); 
   }
 #else
   if (target[X_AXIS] < position[X_AXIS])
   {
-    block->direction_bits |= (1<<X_HEAD); //AlexBorro: Save the real Extruder (head) direction in X Axis
+    block->direction_bits |= BIT(X_HEAD); //AlexBorro: Save the real Extruder (head) direction in X Axis
   }
   if (target[Y_AXIS] < position[Y_AXIS])
   {
-    block->direction_bits |= (1<<Y_HEAD); //AlexBorro: Save the real Extruder (head) direction in Y Axis
+    block->direction_bits |= BIT(Y_HEAD); //AlexBorro: Save the real Extruder (head) direction in Y Axis
   }
   if ((target[X_AXIS]-position[X_AXIS]) + (target[Y_AXIS]-position[Y_AXIS]) < 0)
   {
-    block->direction_bits |= (1<<X_AXIS); //AlexBorro: Motor A direction (Incorrectly implemented as X_AXIS)
+    block->direction_bits |= BIT(X_AXIS); //AlexBorro: Motor A direction (Incorrectly implemented as X_AXIS)
   }
   if ((target[X_AXIS]-position[X_AXIS]) - (target[Y_AXIS]-position[Y_AXIS]) < 0)
   {
-    block->direction_bits |= (1<<Y_AXIS); //AlexBorro: Motor B direction (Incorrectly implemented as Y_AXIS)
+    block->direction_bits |= BIT(Y_AXIS); //AlexBorro: Motor B direction (Incorrectly implemented as Y_AXIS)
   }
 #endif
   if (target[Z_AXIS] < position[Z_AXIS])
   {
-    block->direction_bits |= (1<<Z_AXIS); 
+    block->direction_bits |= BIT(Z_AXIS); 
   }
   if (target[E_AXIS] < position[E_AXIS])
   {
-    block->direction_bits |= (1<<E_AXIS); 
+    block->direction_bits |= BIT(E_AXIS); 
   }
 
   block->active_extruder = extruder;
@@ -864,7 +864,7 @@ Having the real displacement of the head, we can calculate the total movement le
   old_direction_bits = block->direction_bits;
   segment_time = lround((float)segment_time / speed_factor);
   
-  if((direction_change & (1<<X_AXIS)) == 0)
+  if((direction_change & BIT(X_AXIS)) == 0)
   {
     x_segment_time[0] += segment_time;
   }
@@ -874,7 +874,7 @@ Having the real displacement of the head, we can calculate the total movement le
     x_segment_time[1] = x_segment_time[0];
     x_segment_time[0] = segment_time;
   }
-  if((direction_change & (1<<Y_AXIS)) == 0)
+  if((direction_change & BIT(Y_AXIS)) == 0)
   {
     y_segment_time[0] += segment_time;
   }
