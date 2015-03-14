@@ -65,11 +65,11 @@
 #define STRG_C3_a "àáâãäåæçèéêëìíîï"
 #define STRG_C3_b "ðñòóôõö÷øùúûüýþÿ"
 
-#define STRG_D0_8 "ЈЁЂЃЄЅІЇЈЉЊЋЌЍЎЏ"
+#define STRG_D0_8 "ЀЁЂЃЄЅІЇЈЉЊЋЌЍЎЏ"
 #define STRG_D0_9 "АБВГДЕЖЗИЙКЛМНОП"
 #define STRG_D0_a "РСТУФХЦЧШЩЪЫЬЭЮЯ"
 #define STRG_D0_b "абвгдежзийклмноп"
-#define STRG_D1_8 "шстуфхцчшщъыьэюя"
+#define STRG_D1_8 "рстуфхцчшщъыьэюя"
 #define STRG_D1_9 "ѐёђѓєѕіїјљњћќѝўџ"
 #define STRG_D1_a "ѠѡѢѣѤѥѦѧѨѩѪѫѬѭѮѯ"
 #define STRG_D1_b "ѰѱѲѳѴѵѶѷѸѹѺѻѼѽѾѿ"
