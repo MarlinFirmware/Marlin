@@ -123,17 +123,6 @@
   #define LCD_CLICKED (buttons&(B_MI|B_ST))
 #endif
 
-////////////////////////
-// Setup Rotary Encoder Bit Values (for two pin encoders to indicate movement)
-// These values are independent of which pins are used for EN_A and EN_B indications
-// The rotary encoder part is also independent to the chipset used for the LCD
-#if defined(EN_A) && defined(EN_B)
-    #define encrot0 0
-    #define encrot1 2
-    #define encrot2 3
-    #define encrot3 1
-#endif 
-
 #endif //ULTIPANEL
 
 ////////////////////////////////////
@@ -832,32 +821,28 @@ static void lcd_implementation_drawmenu_sddirectory(uint8_t row, const char* pst
 
 static void lcd_implementation_quick_feedback()
 {
-#ifdef LCD_USE_I2C_BUZZER
-	#if !defined(LCD_FEEDBACK_FREQUENCY_HZ) || !defined(LCD_FEEDBACK_FREQUENCY_DURATION_MS)
-	  lcd_buzz(1000/6,100);
-	#else
-	  lcd_buzz(LCD_FEEDBACK_FREQUENCY_DURATION_MS,LCD_FEEDBACK_FREQUENCY_HZ);
-	#endif
-#elif defined(BEEPER) && BEEPER > -1
-    SET_OUTPUT(BEEPER);
-	#if !defined(LCD_FEEDBACK_FREQUENCY_HZ) || !defined(LCD_FEEDBACK_FREQUENCY_DURATION_MS)
-    for(int8_t i=0;i<10;i++)
-    {
-      WRITE(BEEPER,HIGH);
-      delayMicroseconds(100);
-      WRITE(BEEPER,LOW);
-      delayMicroseconds(100);
-    }
+  #ifdef LCD_USE_I2C_BUZZER
+    #if defined(LCD_FEEDBACK_FREQUENCY_DURATION_MS) && defined(LCD_FEEDBACK_FREQUENCY_HZ)
+      lcd_buzz(LCD_FEEDBACK_FREQUENCY_DURATION_MS, LCD_FEEDBACK_FREQUENCY_HZ);
     #else
-    for(int8_t i=0;i<(LCD_FEEDBACK_FREQUENCY_DURATION_MS / (1000 / LCD_FEEDBACK_FREQUENCY_HZ));i++)
-    {
-      WRITE(BEEPER,HIGH);
-      delayMicroseconds(1000000 / LCD_FEEDBACK_FREQUENCY_HZ / 2);
-      WRITE(BEEPER,LOW);
-      delayMicroseconds(1000000 / LCD_FEEDBACK_FREQUENCY_HZ / 2);
-    }
+      lcd_buzz(1000/6, 100);
     #endif
-#endif
+  #elif defined(BEEPER) && BEEPER > -1
+    SET_OUTPUT(BEEPER);
+    #if !defined(LCD_FEEDBACK_FREQUENCY_HZ) || !defined(LCD_FEEDBACK_FREQUENCY_DURATION_MS)
+      const unsigned int delay = 100;
+      uint8_t i = 10;
+    #else
+      const unsigned int delay = 1000000 / LCD_FEEDBACK_FREQUENCY_HZ / 2;
+      int8_t i = LCD_FEEDBACK_FREQUENCY_DURATION_MS * LCD_FEEDBACK_FREQUENCY_HZ / 1000;
+    #endif
+    while (i--) {
+      WRITE(BEEPER,HIGH);
+      delayMicroseconds(delay);
+      WRITE(BEEPER,LOW);
+      delayMicroseconds(delay);
+    }
+  #endif
 }
 
 #ifdef LCD_HAS_STATUS_INDICATORS
