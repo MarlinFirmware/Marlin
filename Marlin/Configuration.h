@@ -362,6 +362,15 @@ const bool Z_MAX_ENDSTOP_INVERTING = false; // set to true to invert the logic o
 #define Y_MAX_LENGTH (Y_MAX_POS - Y_MIN_POS)
 #define Z_MAX_LENGTH (Z_MAX_POS - Z_MIN_POS)
 
+//===========================================================================
+//============================= Filament Runout Sensor ======================
+//===========================================================================
+//#define FILAMENT_RUNOUT_SENSOR // Uncomment for defining a filament runout sensor such as a mechanical or opto endstop to check the existence of filament
+                                 // In RAMPS uses servo pin 2. Can be changed in pins file. For other boards pin definition should be made.
+                                 // It is assumed that when logic high = filament available
+                                 //                    when logic  low = filament ran out
+//const bool FIL_RUNOUT_INVERTING = true;  // Should be uncommented and true or false should assigned
+//#define ENDSTOPPULLUP_FIL_RUNOUT // Uncomment to use internal pullup for filament runout pins if the sensor is defined.
 
 //===========================================================================
 //============================= Bed Auto Leveling ===========================

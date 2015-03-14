@@ -370,6 +370,10 @@ bool cancel_heatup = false;
   int meas_delay_cm = MEASUREMENT_DELAY_CM;  //distance delay setting
 #endif
 
+#ifdef FILAMENT_RUNOUT_SENSOR
+   static bool filrunoutEnqued = false;
+#endif
+
 const char errormagic[] PROGMEM = "Error:";
 const char echomagic[] PROGMEM = "echo:";
 
@@ -529,6 +533,16 @@ void setup_killpin()
   #endif
 }
 
+void setup_filrunoutpin()
+{
+#if defined(FILRUNOUT_PIN) && FILRUNOUT_PIN > -1
+   pinMode(FILRUNOUT_PIN,INPUT);
+   #if defined(ENDSTOPPULLUP_FIL_RUNOUT)
+      WRITE(FILLRUNOUT_PIN,HIGH);
+   #endif
+#endif
+}
+
 // Set home pin
 void setup_homepin(void)
 {
@@ -605,6 +619,7 @@ void servo_init()
 void setup()
 {
   setup_killpin();
+  setup_filrunoutpin();
   setup_powerhold();
   MYSERIAL.begin(BAUDRATE);
   SERIAL_PROTOCOLLNPGM("start");
@@ -4136,6 +4151,11 @@ inline void gcode_M503() {
       plan_buffer_line(lastpos[X_AXIS], lastpos[Y_AXIS], lastpos[Z_AXIS], target[E_AXIS], fr60, active_extruder); //move z back
       plan_buffer_line(lastpos[X_AXIS], lastpos[Y_AXIS], lastpos[Z_AXIS], lastpos[E_AXIS], fr60, active_extruder); //final untretract
     #endif        
+
+    #ifdef FILAMENT_RUNOUT_SENSOR
+      filrunoutEnqued = false;
+    #endif
+    
   }
 
 #endif // FILAMENTCHANGEENABLE
@@ -5275,6 +5295,12 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) //default argument s
    const int KILL_DELAY = 10000;
 #endif
 
+#if defined(FILRUNOUT_PIN) && FILRUNOUT_PIN > -1
+    if(card.sdprinting) {
+      if(!(READ(FILRUNOUT_PIN))^FIL_RUNOUT_INVERTING)
+      filrunout();        }
+#endif
+
 #if defined(HOME_PIN) && HOME_PIN > -1
    static int homeDebounceCount = 0;   // poor man's debouncing count
    const int HOME_DEBOUNCE_DELAY = 10000;
@@ -5422,6 +5448,16 @@ void kill()
   suicide();
   while(1) { /* Intentionally left empty */ } // Wait for reset
 }
+
+#ifdef FILAMENT_RUNOUT_SENSOR
+   void filrunout()
+   {
+      if filrunoutEnqued == false {
+         filrunoutEnqued = true;
+         enquecommand("M600");
+      }
+   }
+#endif
 
 void Stop()
 {
