@@ -553,7 +553,9 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
   }
 
 #if defined(MESH_BED_LEVELING)
-  z += mbl.get_z(x, y);
+  if (mbl.active) {
+    z += mbl.get_z(x, y);
+  }
 #endif  // MESH_BED_LEVELING
 
 #ifdef ENABLE_AUTO_BED_LEVELING
@@ -1095,7 +1097,9 @@ void plan_set_position(const float &x, const float &y, const float &z, const flo
 #if defined(ENABLE_AUTO_BED_LEVELING)
   apply_rotation_xyz(plan_bed_level_matrix, x, y, z);
 #elif defined(MESH_BED_LEVELING)
-  z += mbl.get_z(x, y);
+  if (mbl.active) {
+    z += mbl.get_z(x, y);
+  }
 #endif  // ENABLE_AUTO_BED_LEVELING
 
   position[X_AXIS] = lround(x*axis_steps_per_unit[X_AXIS]);

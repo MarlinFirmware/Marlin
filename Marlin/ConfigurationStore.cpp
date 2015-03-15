@@ -20,6 +20,10 @@
  *  max_e_jerk
  *  add_homing (x3)
  *
+ * Mesh bed leveling:
+ *  active
+ *  z_values[][]
+ *
  * DELTA:
  *  endstop_adj (x3)
  *  delta_radius
@@ -68,6 +72,10 @@
 #include "temperature.h"
 #include "ultralcd.h"
 #include "ConfigurationStore.h"
+
+#if defined(MESH_BED_LEVELING)
+   #include "mesh_bed_leveling.h"
+#endif  // MESH_BED_LEVELING
 
 void _EEPROM_writeData(int &pos, uint8_t* value, uint8_t size) {
   uint8_t c;
@@ -127,6 +135,11 @@ void Config_StoreSettings()  {
   EEPROM_WRITE_VAR(i, max_z_jerk);
   EEPROM_WRITE_VAR(i, max_e_jerk);
   EEPROM_WRITE_VAR(i, add_homing);
+
+  #if defined(MESH_BED_LEVELING)
+    EEPROM_WRITE_VAR(i, mbl.active);
+    EEPROM_WRITE_VAR(i, mbl.z_values);
+  #endif  // MESH_BED_LEVELING
 
   #ifdef DELTA
     EEPROM_WRITE_VAR(i, endstop_adj);               // 3 floats
@@ -250,7 +263,7 @@ void Config_RetrieveSettings() {
     EEPROM_READ_VAR(i, max_feedrate);
     EEPROM_READ_VAR(i, max_acceleration_units_per_sq_second);
 
-        // steps per sq second need to be updated to agree with the units per sq second (as they are what is used in the planner)
+    // steps per sq second need to be updated to agree with the units per sq second (as they are what is used in the planner)
     reset_acceleration_rates();
 
     EEPROM_READ_VAR(i, acceleration);
@@ -263,6 +276,11 @@ void Config_RetrieveSettings() {
     EEPROM_READ_VAR(i, max_z_jerk);
     EEPROM_READ_VAR(i, max_e_jerk);
     EEPROM_READ_VAR(i, add_homing);
+
+    #if defined(MESH_BED_LEVELING)
+      EEPROM_READ_VAR(i, mbl.active);
+      EEPROM_READ_VAR(i, mbl.z_values);
+    #endif  // MESH_BED_LEVELING
 
     #ifdef DELTA
       EEPROM_READ_VAR(i, endstop_adj);                // 3 floats
@@ -391,6 +409,10 @@ void Config_ResetDefault() {
   max_z_jerk = DEFAULT_ZJERK;
   max_e_jerk = DEFAULT_EJERK;
   add_homing[X_AXIS] = add_homing[Y_AXIS] = add_homing[Z_AXIS] = 0;
+
+  #if defined(MESH_BED_LEVELING)
+    mbl.active = 0;
+  #endif  // MESH_BED_LEVELING
 
   #ifdef DELTA
     endstop_adj[X_AXIS] = endstop_adj[Y_AXIS] = endstop_adj[Z_AXIS] = 0;
