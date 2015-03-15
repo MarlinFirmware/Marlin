@@ -13,8 +13,7 @@
 */
 
 #ifndef MASK
-/// MASKING- returns \f$2^PIN\f$
-#define MASK(PIN)  (1 << PIN)
+  #define MASK(PIN)  (1 << PIN)
 #endif
 
 /*
