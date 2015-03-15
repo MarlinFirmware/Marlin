@@ -3921,11 +3921,11 @@ inline void gcode_M400() { st_synchronize(); }
 #ifdef FILAMENT_SENSOR
 
   /**
-   * M404: Display or set the nominal filament width (3mm, 1.75mm ) N<3.0>
+   * M404: Display or set the nominal filament width (3mm, 1.75mm ) W<3.0>
    */
   inline void gcode_M404() {
     #if FILWIDTH_PIN > -1
-      if (code_seen('N')) {
+      if (code_seen('W')) {
         filament_width_nominal = code_value();
       }
       else {
