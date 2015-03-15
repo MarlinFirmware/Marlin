@@ -398,6 +398,11 @@ const bool Z_MAX_ENDSTOP_INVERTING = false; // set to true to invert the logic o
 
   #ifdef AUTO_BED_LEVELING_GRID
 
+    // Use one of these defines to specify the origin
+    // for a topographical map to be printed for your bed.
+    enum { OriginBackLeft, OriginFrontLeft, OriginBackRight, OriginFrontRight };
+    #define TOPO_ORIGIN OriginFrontLeft
+
     // The edges of the rectangle in which to probe
     #define LEFT_PROBE_BED_POSITION 15
     #define RIGHT_PROBE_BED_POSITION 170
