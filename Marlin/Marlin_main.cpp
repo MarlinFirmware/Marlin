@@ -41,6 +41,10 @@
 
 #define SERVO_LEVELING defined(ENABLE_AUTO_BED_LEVELING) && PROBE_SERVO_DEACTIVATION_DELAY > 0
 
+#if defined(MESH_BED_LEVELING)
+  #include "mesh_bed_leveling.h"
+#endif  // MESH_BED_LEVELING
+
 #include "ultralcd.h"
 #include "planner.h"
 #include "stepper.h"
@@ -4987,6 +4991,65 @@ void calculate_delta(float cartesian[3])
 }
 #endif
 
+#if defined(MESH_BED_LEVELING)
+#if !defined(MIN)
+#define MIN(_v1, _v2) (((_v1) < (_v2)) ? (_v1) : (_v2))
+#endif  // ! MIN
+// This function is used to split lines on mesh borders so each segment is only part of one mesh area
+void mesh_plan_buffer_line(float x, float y, float z, const float &e, float feed_rate, const uint8_t &extruder, uint8_t x_splits=0xff, uint8_t y_splits=0xff)
+{
+  int pix = mbl.select_x_index(current_position[X_AXIS]);
+  int piy = mbl.select_y_index(current_position[Y_AXIS]);
+  int ix = mbl.select_x_index(x);
+  int iy = mbl.select_y_index(y);
+  pix = MIN(pix, MESH_NUM_X_POINTS-2);
+  piy = MIN(piy, MESH_NUM_Y_POINTS-2);
+  ix = MIN(ix, MESH_NUM_X_POINTS-2);
+  iy = MIN(iy, MESH_NUM_Y_POINTS-2);
+  if (ix > pix && (x_splits)&(1<<ix)) {
+    float nx = mbl.get_x(ix);
+    float normalized_dist = (nx - current_position[X_AXIS])/(x - current_position[X_AXIS]);
+    float ny = current_position[Y_AXIS] + (y - current_position[Y_AXIS]) * normalized_dist;
+    float ne = current_position[E_AXIS] + (e - current_position[E_AXIS]) * normalized_dist;
+    x_splits ^= 1 << ix;
+    mesh_plan_buffer_line(nx, ny, z, ne, feed_rate, extruder, x_splits, y_splits);
+    mesh_plan_buffer_line(x, y, z, e, feed_rate, extruder, x_splits, y_splits);
+    return;
+  } else if (ix < pix && (x_splits)&(1<<pix)) {
+    float nx = mbl.get_x(pix);
+    float normalized_dist = (nx - current_position[X_AXIS])/(x - current_position[X_AXIS]);
+    float ny = current_position[Y_AXIS] + (y - current_position[Y_AXIS]) * normalized_dist;
+    float ne = current_position[E_AXIS] + (e - current_position[E_AXIS]) * normalized_dist;
+    x_splits ^= 1 << pix;
+    mesh_plan_buffer_line(nx, ny, z, ne, feed_rate, extruder, x_splits, y_splits);
+    mesh_plan_buffer_line(x, y, z, e, feed_rate, extruder, x_splits, y_splits);
+    return;
+  } else if (iy > piy && (y_splits)&(1<<iy)) {
+    float ny = mbl.get_y(iy);
+    float normalized_dist = (ny - current_position[Y_AXIS])/(y - current_position[Y_AXIS]);
+    float nx = current_position[X_AXIS] + (x - current_position[X_AXIS]) * normalized_dist;
+    float ne = current_position[E_AXIS] + (e - current_position[E_AXIS]) * normalized_dist;
+    y_splits ^= 1 << iy;
+    mesh_plan_buffer_line(nx, ny, z, ne, feed_rate, extruder, x_splits, y_splits);
+    mesh_plan_buffer_line(x, y, z, e, feed_rate, extruder, x_splits, y_splits);
+    return;
+  } else if (iy < piy && (y_splits)&(1<<piy)) {
+    float ny = mbl.get_y(piy);
+    float normalized_dist = (ny - current_position[Y_AXIS])/(y - current_position[Y_AXIS]);
+    float nx = current_position[X_AXIS] + (x - current_position[X_AXIS]) * normalized_dist;
+    float ne = current_position[E_AXIS] + (e - current_position[E_AXIS]) * normalized_dist;
+    y_splits ^= 1 << piy;
+    mesh_plan_buffer_line(nx, ny, z, ne, feed_rate, extruder, x_splits, y_splits);
+    mesh_plan_buffer_line(x, y, z, e, feed_rate, extruder, x_splits, y_splits);
+    return;
+  }
+  plan_buffer_line(x, y, z, e, feedrate, extruder);
+  for(int8_t i=0; i < NUM_AXIS; i++) {
+    current_position[i] = destination[i];
+  }
+}
+#endif  // MESH_BED_LEVELING
+
 void prepare_move()
 {
   clamp_to_software_endstops(destination);
@@ -5102,10 +5165,14 @@ for (int s = 1; s <= steps; s++) {
 #if ! (defined DELTA || defined SCARA)
   // Do not use feedmultiply for E or Z only moves
   if( (current_position[X_AXIS] == destination [X_AXIS]) && (current_position[Y_AXIS] == destination [Y_AXIS])) {
-      plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate/60, active_extruder);
-  }
-  else {
+    plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate/60, active_extruder);
+  } else {
+#if defined(MESH_BED_LEVELING)
+    mesh_plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate*feedmultiply/60/100.0, active_extruder);
+    return;
+#else
     plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate*feedmultiply/60/100.0, active_extruder);
+#endif  // MESH_BED_LEVELING
   }
 #endif // !(DELTA || SCARA)
 
