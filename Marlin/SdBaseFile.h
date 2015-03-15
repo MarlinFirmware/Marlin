@@ -171,9 +171,9 @@ static inline uint8_t FAT_SECOND(uint16_t fatTime) {
   return 2*(fatTime & 0X1F);
 }
 /** Default date for file timestamps is 1 Jan 2000 */
-uint16_t const FAT_DEFAULT_DATE = ((2000 - 1980) << 9) | (1 << 5) | 1;
+uint16_t const FAT_DEFAULT_DATE = ((2000 - 1980) << 9) | BIT(5) | 1;
 /** Default time for file timestamp is 1 am */
-uint16_t const FAT_DEFAULT_TIME = (1 << 11);
+uint16_t const FAT_DEFAULT_TIME = BIT(11);
 //------------------------------------------------------------------------------
 /**
  * \class SdBaseFile
