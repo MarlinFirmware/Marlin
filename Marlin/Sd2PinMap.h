@@ -334,9 +334,9 @@ static inline __attribute__((always_inline))
   void setPinMode(uint8_t pin, uint8_t mode) {
   if (__builtin_constant_p(pin) && pin < digitalPinCount) {
     if (mode) {
-      *digitalPinMap[pin].ddr |= 1 << digitalPinMap[pin].bit;
+      *digitalPinMap[pin].ddr |= BIT(digitalPinMap[pin].bit);
     } else {
-      *digitalPinMap[pin].ddr &= ~(1 << digitalPinMap[pin].bit);
+      *digitalPinMap[pin].ddr &= ~BIT(digitalPinMap[pin].bit);
     }
   } else {
     badPinNumber();
@@ -354,9 +354,9 @@ static inline __attribute__((always_inline))
   void fastDigitalWrite(uint8_t pin, uint8_t value) {
   if (__builtin_constant_p(pin) && pin < digitalPinCount) {
     if (value) {
-      *digitalPinMap[pin].port |= 1 << digitalPinMap[pin].bit;
+      *digitalPinMap[pin].port |= BIT(digitalPinMap[pin].bit);
     } else {
-      *digitalPinMap[pin].port &= ~(1 << digitalPinMap[pin].bit);
+      *digitalPinMap[pin].port &= ~BIT(digitalPinMap[pin].bit);
     }
   } else {
     badPinNumber();
