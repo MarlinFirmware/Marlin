@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Marlin Firmware Configurator</title>
+    <link href='http://fonts.googleapis.com/css?family=Fira+Mono&amp;subset=latin,latin-ext' rel='stylesheet' type='text/css' />
+    <script src="js/jquery-2.1.3.min.js"></script>
+    <script src="js/binarystring.js"></script>
+    <script src="js/binaryfileuploader.js"></script>
+    <script src="js/FileSaver.min.js"></script>
+    <script src="js/jszip.min.js"></script>
+    <script src="js/jcanvas.js"></script>
+    <script src="js/jstepper.js"></script>
+    <script src="js/configurator.js"></script>
+    <link rel="stylesheet" href="css/configurator.css" type="text/css" media="all" />
+  </head>
+  <body>
+    <section id="main">
+      <h1>Marlin Configurator</h1>
+      <p class="info">Select presets (coming soon), modify, and download.</p>
+
+      <div id="message"></div>
+      <div id="tabs"></div>
+
+      <form id="config_form">
+
+        <div id="tooltip"></div>
+
+        <label>Drop Files:</label><input type="file" id="file-upload" />
+        <label id="tipson"><input type="checkbox" checked /> ?</label>
+        <a href="" class="download-all">Download Zip</a>
+
+        <fieldset id="machine">
+          <legend>Machine</legend>
+
+          <label class="newline">Serial Port:</label><select name="SERIAL_PORT"></select><div id="serial_stepper"></div>
+
+          <label>Baud Rate:</label><select name="BAUDRATE"></select>
+
+          <label>AT90USB BT IF:</label>
+            <input name="BTENABLED" type="checkbox" value="1" checked />
+
+          <label class="newline">Motherboard:</label><select name="MOTHERBOARD"></select>
+
+          <label class="newline">Custom Name:</label><input name="CUSTOM_MENDEL_NAME" type="text" size="14" maxlength="12" value="" />
+
+          <label class="newline">Machine UUID:</label><input name="MACHINE_UUID" type="text" size="38" maxlength="36" value="" />
+
+          <label class="newline">Extruders:</label><select name="EXTRUDERS"></select>
+
+          <label class="newline">Power Supply:</label><select name="POWER_SUPPLY"></select>
+
+          <label>PS Default Off:</label>
+            <input name="PS_DEFAULT_OFF" type="checkbox" value="1" checked />
+        </fieldset>
+
+        <fieldset id="homing">
+          <legend>Homing</legend>
+        </fieldset>
+
+        <fieldset id="temperature">
+          <legend>Temperature</legend>
+          <label class="newline">Temp Sensor 0:</label><select name="TEMP_SENSOR_0"></select>
+          <label class="newline">Temp Sensor 1:</label><select name="TEMP_SENSOR_1"></select>
+          <label class="newline">Temp Sensor 2:</label><select name="TEMP_SENSOR_2"></select>
+          <label class="newline">Bed Temp Sensor:</label><select name="TEMP_SENSOR_BED"></select>
+
+          <label>Max Diff:</label>
+            <input name="MAX_REDUNDANT_TEMP_SENSOR_DIFF" type="text" size="3" maxlength="2" />
+
+          <label>Temp Residency Time (s):</label>
+            <input name="TEMP_RESIDENCY_TIME" type="text" size="3" maxlength="2" />
+        </fieldset>
+
+        <fieldset id="extruder">
+          <legend>Extruder</legend>
+        </fieldset>
+
+        <fieldset id="lcd">
+          <legend>LCD / SD</legend>
+        </fieldset>
+
+        <fieldset id="bedlevel">
+          <legend>Bed Leveling</legend>
+        </fieldset>
+
+        <fieldset id="extras">
+          <legend>Extras</legend>
+        </fieldset>
+
+        <fieldset id="info">
+          <legend>Info</legend>
+        </fieldset>
+
+        <fieldset id="more">
+          <legend>More…</legend>
+        </fieldset>
+
+        <section id="config_text">
+          <h2>Configuration.h</h2>
+          <span class="disclose"></span>
+          <a href="" class="download">Download</a>
+          <pre class="hilightable config"></pre>
+        </section>
+
+        <section id="config_adv_text">
+          <h2>Configuration_adv.h</h2>
+          <span class="disclose"></span>
+          <a href="" class="download">Download</a>
+          <pre class="hilightable config"></pre>
+        </section>
+
+        <br class="clear" />
+      </form>
+    </section>
+  </body>
+</html>
