@@ -535,17 +535,17 @@ inline void _temp_error(int e, const char *msg1, const char *msg2) {
 
 void max_temp_error(uint8_t e) {
   disable_heater();
-  _temp_error(e, MSG_MAXTEMP_EXTRUDER_OFF, MSG_ERR_MAXTEMP);
+  _temp_error(e, PSTR(MSG_MAXTEMP_EXTRUDER_OFF), PSTR(MSG_ERR_MAXTEMP));
 }
 void min_temp_error(uint8_t e) {
   disable_heater();
-  _temp_error(e, MSG_MINTEMP_EXTRUDER_OFF, MSG_ERR_MINTEMP);
+  _temp_error(e, PSTR(MSG_MINTEMP_EXTRUDER_OFF), PSTR(MSG_ERR_MINTEMP));
 }
 void bed_max_temp_error(void) {
   #if HAS_HEATER_BED
     WRITE_HEATER_BED(0);
   #endif
-  _temp_error(-1, MSG_MAXTEMP_BED_OFF, MSG_ERR_MAXTEMP_BED);
+  _temp_error(-1, PSTR(MSG_MAXTEMP_BED_OFF), PSTR(MSG_ERR_MAXTEMP_BED));
 }
 
 float get_pid_output(int e) {
