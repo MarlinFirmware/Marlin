@@ -75,6 +75,10 @@
 //============================= public variables ============================
 //===========================================================================
 
+#ifdef K1 // Defined in Configuration.h in the PID settings
+  #define K2 (1.0-K1)
+#endif
+
 // Sampling period of the temperature routine
 #ifdef PID_dT
   #undef PID_dT
@@ -127,8 +131,6 @@ static volatile bool temp_meas_ready = false;
   static float pid_error[EXTRUDERS];
   static float temp_iState_min[EXTRUDERS];
   static float temp_iState_max[EXTRUDERS];
-  // static float pid_input[EXTRUDERS];
-  // static float pid_output[EXTRUDERS];
   static bool pid_reset[EXTRUDERS];
 #endif //PIDTEMP
 #ifdef PIDTEMPBED
@@ -546,11 +548,101 @@ void bed_max_temp_error(void) {
   _temp_error(-1, MSG_MAXTEMP_BED_OFF, MSG_ERR_MAXTEMP_BED);
 }
 
+float get_pid_output(int e) {
+  float pid_output;
+  #ifdef PIDTEMP
+    #ifndef PID_OPENLOOP
+      pid_error[e] = target_temperature[e] - current_temperature[e];
+      if (pid_error[e] > PID_FUNCTIONAL_RANGE) {
+        pid_output = BANG_MAX;
+        pid_reset[e] = true;
+      }
+      else if (pid_error[e] < -PID_FUNCTIONAL_RANGE || target_temperature[e] == 0) {
+        pid_output = 0;
+        pid_reset[e] = true;
+      }
+      else {
+        if (pid_reset[e]) {
+          temp_iState[e] = 0.0;
+          pid_reset[e] = false;
+        }
+        pTerm[e] = PID_PARAM(Kp,e) * pid_error[e];
+        temp_iState[e] += pid_error[e];
+        temp_iState[e] = constrain(temp_iState[e], temp_iState_min[e], temp_iState_max[e]);
+        iTerm[e] = PID_PARAM(Ki,e) * temp_iState[e];
+
+        dTerm[e] = K2 * PID_PARAM(Kd,e) * (current_temperature[e] - temp_dState[e]) + K1 * dTerm[e];
+        pid_output = pTerm[e] + iTerm[e] - dTerm[e];
+        if (pid_output > PID_MAX) {
+          if (pid_error[e] > 0) temp_iState[e] -= pid_error[e]; // conditional un-integration
+          pid_output = PID_MAX;
+        }
+        else if (pid_output < 0) {
+          if (pid_error[e] < 0) temp_iState[e] -= pid_error[e]; // conditional un-integration
+          pid_output = 0;
+        }
+      }
+      temp_dState[e] = current_temperature[e];
+    #else
+      pid_output = constrain(target_temperature[e], 0, PID_MAX);
+    #endif //PID_OPENLOOP
+
+    #ifdef PID_DEBUG
+      SERIAL_ECHO_START;
+      SERIAL_ECHO(MSG_PID_DEBUG);
+      SERIAL_ECHO(e);
+      SERIAL_ECHO(MSG_PID_DEBUG_INPUT);
+      SERIAL_ECHO(current_temperature[e]);
+      SERIAL_ECHO(MSG_PID_DEBUG_OUTPUT);
+      SERIAL_ECHO(pid_output);
+      SERIAL_ECHO(MSG_PID_DEBUG_PTERM);
+      SERIAL_ECHO(pTerm[e]);
+      SERIAL_ECHO(MSG_PID_DEBUG_ITERM);
+      SERIAL_ECHO(iTerm[e]);
+      SERIAL_ECHO(MSG_PID_DEBUG_DTERM);
+      SERIAL_ECHOLN(dTerm[e]);
+    #endif //PID_DEBUG
+
+  #else /* PID off */
+    pid_output = (current_temperature[e] < target_temperature[e]) ? PID_MAX : 0;
+  #endif
+
+  return pid_output;
+}
+
+#ifdef PIDTEMPBED
+  float get_pid_output_bed() {
+    float pid_output;
+    #ifndef PID_OPENLOOP
+      pid_error_bed = target_temperature_bed - current_temperature_bed;
+      pTerm_bed = bedKp * pid_error_bed;
+      temp_iState_bed += pid_error_bed;
+      temp_iState_bed = constrain(temp_iState_bed, temp_iState_min_bed, temp_iState_max_bed);
+      iTerm_bed = bedKi * temp_iState_bed;
+
+      dTerm_bed = K2 * bedKd * (current_temperature_bed - temp_dState_bed) + K1 * dTerm_bed;
+      temp_dState_bed = current_temperature_bed;
+
+      pid_output = pTerm_bed + iTerm_bed - dTerm_bed;
+      if (pid_output > MAX_BED_POWER) {
+        if (pid_error_bed > 0) temp_iState_bed -= pid_error_bed; // conditional un-integration
+        pid_output = MAX_BED_POWER;
+      }
+      else if (pid_output < 0) {
+        if (pid_error_bed < 0) temp_iState_bed -= pid_error_bed; // conditional un-integration
+        pid_output = 0;
+      }
+    #else
+      pid_output = constrain(target_temperature_bed, 0, MAX_BED_POWER);
+    #endif // PID_OPENLOOP
+
+    return pid_output;
+  }
+#endif
+
 void manage_heater() {
 
   if (!temp_meas_ready) return;
-
-  float pid_input, pid_output;
 
   updateTemperaturesFromRawValues();
 
@@ -569,69 +661,7 @@ void manage_heater() {
       thermal_runaway_protection(&thermal_runaway_state_machine[e], &thermal_runaway_timer[e], current_temperature[e], target_temperature[e], e, THERMAL_RUNAWAY_PROTECTION_PERIOD, THERMAL_RUNAWAY_PROTECTION_HYSTERESIS);
     #endif
 
-    #ifdef PIDTEMP
-      pid_input = current_temperature[e];
-
-      #ifndef PID_OPENLOOP
-        pid_error[e] = target_temperature[e] - pid_input;
-        if (pid_error[e] > PID_FUNCTIONAL_RANGE) {
-          pid_output = BANG_MAX;
-          pid_reset[e] = true;
-        }
-        else if (pid_error[e] < -PID_FUNCTIONAL_RANGE || target_temperature[e] == 0) {
-          pid_output = 0;
-          pid_reset[e] = true;
-        }
-        else {
-          if (pid_reset[e] == true) {
-            temp_iState[e] = 0.0;
-            pid_reset[e] = false;
-          }
-          pTerm[e] = PID_PARAM(Kp,e) * pid_error[e];
-          temp_iState[e] += pid_error[e];
-          temp_iState[e] = constrain(temp_iState[e], temp_iState_min[e], temp_iState_max[e]);
-          iTerm[e] = PID_PARAM(Ki,e) * temp_iState[e];
-
-          //K1 defined in Configuration.h in the PID settings
-          #define K2 (1.0-K1)
-          dTerm[e] = (PID_PARAM(Kd,e) * (pid_input - temp_dState[e])) * K2 + (K1 * dTerm[e]);
-          pid_output = pTerm[e] + iTerm[e] - dTerm[e];
-          if (pid_output > PID_MAX) {
-            if (pid_error[e] > 0) temp_iState[e] -= pid_error[e]; // conditional un-integration
-            pid_output = PID_MAX;
-          }
-          else if (pid_output < 0) {
-            if (pid_error[e] < 0) temp_iState[e] -= pid_error[e]; // conditional un-integration
-            pid_output = 0;
-          }
-        }
-        temp_dState[e] = pid_input;
-      #else
-        pid_output = constrain(target_temperature[e], 0, PID_MAX);
-      #endif //PID_OPENLOOP
-
-      #ifdef PID_DEBUG
-        SERIAL_ECHO_START;
-        SERIAL_ECHO(MSG_PID_DEBUG);
-        SERIAL_ECHO(e);
-        SERIAL_ECHO(MSG_PID_DEBUG_INPUT);
-        SERIAL_ECHO(pid_input);
-        SERIAL_ECHO(MSG_PID_DEBUG_OUTPUT);
-        SERIAL_ECHO(pid_output);
-        SERIAL_ECHO(MSG_PID_DEBUG_PTERM);
-        SERIAL_ECHO(pTerm[e]);
-        SERIAL_ECHO(MSG_PID_DEBUG_ITERM);
-        SERIAL_ECHO(iTerm[e]);
-        SERIAL_ECHO(MSG_PID_DEBUG_DTERM);
-        SERIAL_ECHOLN(dTerm[e]);
-      #endif //PID_DEBUG
-
-    #else /* PID off */
-
-      pid_output = 0;
-      if (current_temperature[e] < target_temperature[e]) pid_output = PID_MAX;
-
-    #endif
+    float pid_output = get_pid_output(e);
 
     // Check if temperature is within the correct range
     soft_pwm[e] = current_temperature[e] > minttemp[e] && current_temperature[e] < maxttemp[e] ? (int)pid_output >> 1 : 0;
@@ -678,33 +708,7 @@ void manage_heater() {
     #endif
 
     #ifdef PIDTEMPBED
-      pid_input = current_temperature_bed;
-
-      #ifndef PID_OPENLOOP
-        pid_error_bed = target_temperature_bed - pid_input;
-        pTerm_bed = bedKp * pid_error_bed;
-        temp_iState_bed += pid_error_bed;
-        temp_iState_bed = constrain(temp_iState_bed, temp_iState_min_bed, temp_iState_max_bed);
-        iTerm_bed = bedKi * temp_iState_bed;
-
-        //K1 defined in Configuration.h in the PID settings
-  		  #define K2 (1.0-K1)
-  		  dTerm_bed = (bedKd * (pid_input - temp_dState_bed))*K2 + (K1 * dTerm_bed);
-        temp_dState_bed = pid_input;
-
-        pid_output = pTerm_bed + iTerm_bed - dTerm_bed;
-        if (pid_output > MAX_BED_POWER) {
-          if (pid_error_bed > 0) temp_iState_bed -= pid_error_bed; // conditional un-integration
-          pid_output = MAX_BED_POWER;
-        }
-        else if (pid_output < 0) {
-          if (pid_error_bed < 0) temp_iState_bed -= pid_error_bed; // conditional un-integration
-          pid_output = 0;
-        }
-
-      #else
-        pid_output = constrain(target_temperature_bed, 0, MAX_BED_POWER);
-      #endif //PID_OPENLOOP
+      float pid_output = get_pid_output_bed();
 
       soft_pwm_bed = current_temperature_bed > BED_MINTEMP && current_temperature_bed < BED_MAXTEMP ? (int)pid_output >> 1 : 0;
 
@@ -878,8 +882,8 @@ void tp_init()
 {
   #if MB(RUMBA) && ((TEMP_SENSOR_0==-1)||(TEMP_SENSOR_1==-1)||(TEMP_SENSOR_2==-1)||(TEMP_SENSOR_BED==-1))
     //disable RUMBA JTAG in case the thermocouple extension is plugged on top of JTAG connector
-    MCUCR=(1<<JTD);
-    MCUCR=(1<<JTD);
+    MCUCR=BIT(JTD);
+    MCUCR=BIT(JTD);
   #endif
   
   // Finish init of mult extruder arrays 
@@ -937,13 +941,13 @@ void tp_init()
   #endif //HEATER_0_USES_MAX6675
 
   #ifdef DIDR2
-    #define ANALOG_SELECT(pin) do{ if (pin < 8) DIDR0 |= 1 << pin; else DIDR2 |= 1 << (pin - 8); }while(0)
+    #define ANALOG_SELECT(pin) do{ if (pin < 8) DIDR0 |= BIT(pin); else DIDR2 |= BIT(pin - 8); }while(0)
   #else
-    #define ANALOG_SELECT(pin) do{ DIDR0 |= 1 << pin; }while(0)
+    #define ANALOG_SELECT(pin) do{ DIDR0 |= BIT(pin); }while(0)
   #endif
 
   // Set analog inputs
-  ADCSRA = 1<<ADEN | 1<<ADSC | 1<<ADIF | 0x07;
+  ADCSRA = BIT(ADEN) | BIT(ADSC) | BIT(ADIF) | 0x07;
   DIDR0 = 0;
   #ifdef DIDR2
     DIDR2 = 0;
@@ -970,7 +974,7 @@ void tp_init()
   // Use timer0 for temperature measurement
   // Interleave temperature interrupt with millies interrupt
   OCR0B = 128;
-  TIMSK0 |= (1<<OCIE0B);  
+  TIMSK0 |= BIT(OCIE0B);  
   
   // Wait for temperature measurement to settle
   delay(250);
@@ -1174,12 +1178,12 @@ void disable_heater() {
     max6675_temp = 0;
 
     #ifdef PRR
-      PRR &= ~(1<<PRSPI);
+      PRR &= ~BIT(PRSPI);
     #elif defined(PRR0)
-      PRR0 &= ~(1<<PRSPI);
+      PRR0 &= ~BIT(PRSPI);
     #endif
 
-    SPCR = (1<<MSTR) | (1<<SPE) | (1<<SPR0);
+    SPCR = BIT(MSTR) | BIT(SPE) | BIT(SPR0);
 
     // enable TT_MAX6675
     WRITE(MAX6675_SS, 0);
@@ -1190,13 +1194,13 @@ void disable_heater() {
 
     // read MSB
     SPDR = 0;
-    for (;(SPSR & (1<<SPIF)) == 0;);
+    for (;(SPSR & BIT(SPIF)) == 0;);
     max6675_temp = SPDR;
     max6675_temp <<= 8;
 
     // read LSB
     SPDR = 0;
-    for (;(SPSR & (1<<SPIF)) == 0;);
+    for (;(SPSR & BIT(SPIF)) == 0;);
     max6675_temp |= SPDR;
 
     // disable TT_MAX6675
@@ -1246,7 +1250,7 @@ ISR(TIMER0_COMPB_vect) {
   static unsigned long raw_temp_3_value = 0;
   static unsigned long raw_temp_bed_value = 0;
   static TempState temp_state = StartupDelay;
-  static unsigned char pwm_count = (1 << SOFT_PWM_SCALE);
+  static unsigned char pwm_count = BIT(SOFT_PWM_SCALE);
 
   // Static members for each heater
   #ifdef SLOW_PWM_HEATERS
@@ -1331,7 +1335,7 @@ ISR(TIMER0_COMPB_vect) {
       if (soft_pwm_fan < pwm_count) WRITE_FAN(0);
     #endif
     
-    pwm_count += (1 << SOFT_PWM_SCALE);
+    pwm_count += BIT(SOFT_PWM_SCALE);
     pwm_count &= 0x7f;
   
   #else // SLOW_PWM_HEATERS
@@ -1412,7 +1416,7 @@ ISR(TIMER0_COMPB_vect) {
       if (soft_pwm_fan < pwm_count) WRITE_FAN(0);
     #endif //FAN_SOFT_PWM
 
-    pwm_count += (1 << SOFT_PWM_SCALE);
+    pwm_count += BIT(SOFT_PWM_SCALE);
     pwm_count &= 0x7f;
 
     // increment slow_pwm_count only every 64 pwm_count circa 65.5ms
@@ -1438,9 +1442,9 @@ ISR(TIMER0_COMPB_vect) {
   
   #endif // SLOW_PWM_HEATERS
 
-  #define SET_ADMUX_ADCSRA(pin) ADMUX = (1 << REFS0) | (pin & 0x07); ADCSRA |= 1<<ADSC
+  #define SET_ADMUX_ADCSRA(pin) ADMUX = BIT(REFS0) | (pin & 0x07); ADCSRA |= BIT(ADSC)
   #ifdef MUX5
-    #define START_ADC(pin) if (pin > 7) ADCSRB = 1 << MUX5; else ADCSRB = 0; SET_ADMUX_ADCSRA(pin)
+    #define START_ADC(pin) if (pin > 7) ADCSRB = BIT(MUX5); else ADCSRB = 0; SET_ADMUX_ADCSRA(pin)
   #else
     #define START_ADC(pin) ADCSRB = 0; SET_ADMUX_ADCSRA(pin)
   #endif

@@ -57,20 +57,20 @@
   void lcd_ignore_click(bool b=true);
 
   #ifdef NEWPANEL
-    #define EN_C (1<<BLEN_C)
-    #define EN_B (1<<BLEN_B)
-    #define EN_A (1<<BLEN_A)
+    #define EN_C BIT(BLEN_C)
+    #define EN_B BIT(BLEN_B)
+    #define EN_A BIT(BLEN_A)
 
     #define LCD_CLICKED (buttons&EN_C)
     #ifdef REPRAPWORLD_KEYPAD
-  	  #define EN_REPRAPWORLD_KEYPAD_F3 (1<<BLEN_REPRAPWORLD_KEYPAD_F3)
-  	  #define EN_REPRAPWORLD_KEYPAD_F2 (1<<BLEN_REPRAPWORLD_KEYPAD_F2)
-  	  #define EN_REPRAPWORLD_KEYPAD_F1 (1<<BLEN_REPRAPWORLD_KEYPAD_F1)
-  	  #define EN_REPRAPWORLD_KEYPAD_UP (1<<BLEN_REPRAPWORLD_KEYPAD_UP)
-  	  #define EN_REPRAPWORLD_KEYPAD_RIGHT (1<<BLEN_REPRAPWORLD_KEYPAD_RIGHT)
-  	  #define EN_REPRAPWORLD_KEYPAD_MIDDLE (1<<BLEN_REPRAPWORLD_KEYPAD_MIDDLE)
-  	  #define EN_REPRAPWORLD_KEYPAD_DOWN (1<<BLEN_REPRAPWORLD_KEYPAD_DOWN)
-  	  #define EN_REPRAPWORLD_KEYPAD_LEFT (1<<BLEN_REPRAPWORLD_KEYPAD_LEFT)
+  	  #define EN_REPRAPWORLD_KEYPAD_F3 BIT(BLEN_REPRAPWORLD_KEYPAD_F3)
+  	  #define EN_REPRAPWORLD_KEYPAD_F2 BIT(BLEN_REPRAPWORLD_KEYPAD_F2)
+  	  #define EN_REPRAPWORLD_KEYPAD_F1 BIT(BLEN_REPRAPWORLD_KEYPAD_F1)
+  	  #define EN_REPRAPWORLD_KEYPAD_UP BIT(BLEN_REPRAPWORLD_KEYPAD_UP)
+  	  #define EN_REPRAPWORLD_KEYPAD_RIGHT BIT(BLEN_REPRAPWORLD_KEYPAD_RIGHT)
+  	  #define EN_REPRAPWORLD_KEYPAD_MIDDLE BIT(BLEN_REPRAPWORLD_KEYPAD_MIDDLE)
+  	  #define EN_REPRAPWORLD_KEYPAD_DOWN BIT(BLEN_REPRAPWORLD_KEYPAD_DOWN)
+  	  #define EN_REPRAPWORLD_KEYPAD_LEFT BIT(BLEN_REPRAPWORLD_KEYPAD_LEFT)
 
   	  #define LCD_CLICKED ((buttons&EN_C) || (buttons_reprapworld_keypad&EN_REPRAPWORLD_KEYPAD_F1))
   	  #define REPRAPWORLD_KEYPAD_MOVE_Z_UP (buttons_reprapworld_keypad&EN_REPRAPWORLD_KEYPAD_F2)
@@ -83,14 +83,14 @@
     #endif //REPRAPWORLD_KEYPAD
   #else
     //atomic, do not change
-    #define B_LE (1<<BL_LE)
-    #define B_UP (1<<BL_UP)
-    #define B_MI (1<<BL_MI)
-    #define B_DW (1<<BL_DW)
-    #define B_RI (1<<BL_RI)
-    #define B_ST (1<<BL_ST)
-    #define EN_B (1<<BLEN_B)
-    #define EN_A (1<<BLEN_A)
+    #define B_LE BIT(BL_LE)
+    #define B_UP BIT(BL_UP)
+    #define B_MI BIT(BL_MI)
+    #define B_DW BIT(BL_DW)
+    #define B_RI BIT(BL_RI)
+    #define B_ST BIT(BL_ST)
+    #define EN_B BIT(BLEN_B)
+    #define EN_A BIT(BLEN_A)
     
     #define LCD_CLICKED ((buttons&B_MI)||(buttons&B_ST))
   #endif//NEWPANEL

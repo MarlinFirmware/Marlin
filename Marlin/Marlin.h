@@ -32,6 +32,9 @@
   #include "WProgram.h"
 #endif
 
+#define BIT(b) (1<<(b))
+#define TEST(n,b) ((n)&BIT(b)!=0)
+
 // Arduino < 1.0.0 does not define this, so we need to do it ourselves
 #ifndef analogInputToDigitalPin
   #define analogInputToDigitalPin(p) ((p) + 0xA0)
@@ -198,6 +201,10 @@ void calculate_SCARA_forward_Transform(float f_scara[3]);
 void prepare_move();
 void kill();
 void Stop();
+
+#ifdef FILAMENT_RUNOUT_SENSOR
+void filrunout();
+#endif
 
 bool IsStopped();
 
