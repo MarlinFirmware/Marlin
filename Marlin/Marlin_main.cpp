@@ -1566,6 +1566,11 @@ inline void gcode_G28() {
     plan_bed_level_matrix.set_to_identity();  //Reset the plane ("erase" all leveling data)
   #endif
 
+  #if defined(MESH_BED_LEVELING)
+    uint8_t mbl_was_active = mbl.active;
+    mbl.active = 0;
+  #endif  // MESH_BED_LEVELING
+
   saved_feedrate = feedrate;
   saved_feedmultiply = feedmultiply;
   feedmultiply = 100;
@@ -1778,6 +1783,23 @@ inline void gcode_G28() {
 
   #ifdef ENDSTOPS_ONLY_FOR_HOMING
     enable_endstops(false);
+  #endif
+
+  #if defined(MESH_BED_LEVELING)
+    if (mbl_was_active) {
+      current_position[X_AXIS] = mbl.get_x(0);
+      current_position[Y_AXIS] = mbl.get_y(0);
+      destination[X_AXIS] = current_position[X_AXIS];
+      destination[Y_AXIS] = current_position[Y_AXIS];
+      destination[Z_AXIS] = current_position[Z_AXIS];
+      destination[E_AXIS] = current_position[E_AXIS];
+      feedrate = homing_feedrate[X_AXIS];
+      plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate, active_extruder);
+      st_synchronize();
+      current_position[Z_AXIS] = MESH_HOME_SEARCH_Z;
+      plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+      mbl.active = 1;
+    }
   #endif
 
   feedrate = saved_feedrate;
@@ -4998,6 +5020,13 @@ void calculate_delta(float cartesian[3])
 // This function is used to split lines on mesh borders so each segment is only part of one mesh area
 void mesh_plan_buffer_line(float x, float y, float z, const float &e, float feed_rate, const uint8_t &extruder, uint8_t x_splits=0xff, uint8_t y_splits=0xff)
 {
+  if (!mbl.active) {
+    plan_buffer_line(x, y, z, e, feed_rate, extruder);
+    for(int8_t i=0; i < NUM_AXIS; i++) {
+      current_position[i] = destination[i];
+    }
+    return;
+  }
   int pix = mbl.select_x_index(current_position[X_AXIS]);
   int piy = mbl.select_y_index(current_position[Y_AXIS]);
   int ix = mbl.select_x_index(x);
@@ -5012,7 +5041,13 @@ void mesh_plan_buffer_line(float x, float y, float z, const float &e, float feed
     float ny = current_position[Y_AXIS] + (y - current_position[Y_AXIS]) * normalized_dist;
     float ne = current_position[E_AXIS] + (e - current_position[E_AXIS]) * normalized_dist;
     x_splits ^= 1 << ix;
+    destination[X_AXIS] = nx;
+    destination[Y_AXIS] = ny;
+    destination[E_AXIS] = ne;
     mesh_plan_buffer_line(nx, ny, z, ne, feed_rate, extruder, x_splits, y_splits);
+    destination[X_AXIS] = x;
+    destination[Y_AXIS] = y;
+    destination[E_AXIS] = e;
     mesh_plan_buffer_line(x, y, z, e, feed_rate, extruder, x_splits, y_splits);
     return;
   } else if (ix < pix && (x_splits)&(1<<pix)) {
@@ -5021,7 +5056,13 @@ void mesh_plan_buffer_line(float x, float y, float z, const float &e, float feed
     float ny = current_position[Y_AXIS] + (y - current_position[Y_AXIS]) * normalized_dist;
     float ne = current_position[E_AXIS] + (e - current_position[E_AXIS]) * normalized_dist;
     x_splits ^= 1 << pix;
+    destination[X_AXIS] = nx;
+    destination[Y_AXIS] = ny;
+    destination[E_AXIS] = ne;
     mesh_plan_buffer_line(nx, ny, z, ne, feed_rate, extruder, x_splits, y_splits);
+    destination[X_AXIS] = x;
+    destination[Y_AXIS] = y;
+    destination[E_AXIS] = e;
     mesh_plan_buffer_line(x, y, z, e, feed_rate, extruder, x_splits, y_splits);
     return;
   } else if (iy > piy && (y_splits)&(1<<iy)) {
@@ -5030,7 +5071,13 @@ void mesh_plan_buffer_line(float x, float y, float z, const float &e, float feed
     float nx = current_position[X_AXIS] + (x - current_position[X_AXIS]) * normalized_dist;
     float ne = current_position[E_AXIS] + (e - current_position[E_AXIS]) * normalized_dist;
     y_splits ^= 1 << iy;
+    destination[X_AXIS] = nx;
+    destination[Y_AXIS] = ny;
+    destination[E_AXIS] = ne;
     mesh_plan_buffer_line(nx, ny, z, ne, feed_rate, extruder, x_splits, y_splits);
+    destination[X_AXIS] = x;
+    destination[Y_AXIS] = y;
+    destination[E_AXIS] = e;
     mesh_plan_buffer_line(x, y, z, e, feed_rate, extruder, x_splits, y_splits);
     return;
   } else if (iy < piy && (y_splits)&(1<<piy)) {
@@ -5039,11 +5086,17 @@ void mesh_plan_buffer_line(float x, float y, float z, const float &e, float feed
     float nx = current_position[X_AXIS] + (x - current_position[X_AXIS]) * normalized_dist;
     float ne = current_position[E_AXIS] + (e - current_position[E_AXIS]) * normalized_dist;
     y_splits ^= 1 << piy;
+    destination[X_AXIS] = nx;
+    destination[Y_AXIS] = ny;
+    destination[E_AXIS] = ne;
     mesh_plan_buffer_line(nx, ny, z, ne, feed_rate, extruder, x_splits, y_splits);
+    destination[X_AXIS] = x;
+    destination[Y_AXIS] = y;
+    destination[E_AXIS] = e;
     mesh_plan_buffer_line(x, y, z, e, feed_rate, extruder, x_splits, y_splits);
     return;
   }
-  plan_buffer_line(x, y, z, e, feedrate, extruder);
+  plan_buffer_line(x, y, z, e, feed_rate, extruder);
   for(int8_t i=0; i < NUM_AXIS; i++) {
     current_position[i] = destination[i];
   }

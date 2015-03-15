@@ -7,20 +7,12 @@
 
 class mesh_bed_leveling {
 public:
-    
+    uint8_t active;
     float z_values[MESH_NUM_Y_POINTS][MESH_NUM_X_POINTS];
     
-    mesh_bed_leveling() {
-        reset();
-    }
+    mesh_bed_leveling();
     
-    void reset() {
-        for (int y=0; y<MESH_NUM_Y_POINTS; y++) {
-            for (int x=0; x<MESH_NUM_X_POINTS; x++) {
-                z_values[y][x] = 0;
-            }
-        }
-    }
+    void reset();
     
     float get_x(int i) { return MESH_MIN_X + MESH_X_DIST*i; }
     float get_y(int i) { return MESH_MIN_Y + MESH_Y_DIST*i; }
