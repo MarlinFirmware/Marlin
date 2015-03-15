@@ -119,27 +119,27 @@ volatile signed char count_direction[NUM_AXIS] = { 1 };
         X_STEP_WRITE(v); \
     }
 #else
-  #define X_APPLY_DIR(v) X_DIR_WRITE(v)
-  #define X_APPLY_STEP(v) X_STEP_WRITE(v)
+  #define X_APPLY_DIR(v,Q) X_DIR_WRITE(v)
+  #define X_APPLY_STEP(v,Q) X_STEP_WRITE(v)
 #endif
 
 #ifdef Y_DUAL_STEPPER_DRIVERS
-  #define Y_APPLY_DIR(v) Y_DIR_WRITE(v), Y2_DIR_WRITE((v) != INVERT_Y2_VS_Y_DIR)
-  #define Y_APPLY_STEP(v) Y_STEP_WRITE(v), Y2_STEP_WRITE(v)
+  #define Y_APPLY_DIR(v,Q) Y_DIR_WRITE(v), Y2_DIR_WRITE((v) != INVERT_Y2_VS_Y_DIR)
+  #define Y_APPLY_STEP(v,Q) Y_STEP_WRITE(v), Y2_STEP_WRITE(v)
 #else
-  #define Y_APPLY_DIR(v) Y_DIR_WRITE(v)
-  #define Y_APPLY_STEP(v) Y_STEP_WRITE(v)
+  #define Y_APPLY_DIR(v,Q) Y_DIR_WRITE(v)
+  #define Y_APPLY_STEP(v,Q) Y_STEP_WRITE(v)
 #endif
 
 #ifdef Z_DUAL_STEPPER_DRIVERS
-  #define Z_APPLY_DIR(v) Z_DIR_WRITE(v), Z2_DIR_WRITE(v)
-  #define Z_APPLY_STEP(v) Z_STEP_WRITE(v), Z2_STEP_WRITE(v)
+  #define Z_APPLY_DIR(v,Q) Z_DIR_WRITE(v), Z2_DIR_WRITE(v)
+  #define Z_APPLY_STEP(v,Q) Z_STEP_WRITE(v), Z2_STEP_WRITE(v)
 #else
-  #define Z_APPLY_DIR(v) Z_DIR_WRITE(v)
-  #define Z_APPLY_STEP(v) Z_STEP_WRITE(v)
+  #define Z_APPLY_DIR(v,Q) Z_DIR_WRITE(v)
+  #define Z_APPLY_STEP(v,Q) Z_STEP_WRITE(v)
 #endif
 
-#define E_APPLY_STEP(v) E_STEP_WRITE(v)
+#define E_APPLY_STEP(v,Q) E_STEP_WRITE(v)
 
 // intRes = intIn1 * intIn2 >> 16
 // uses:
@@ -380,20 +380,20 @@ ISR(TIMER1_COMPA_vect) {
 
     // Set the direction bits (X_AXIS=A_AXIS and Y_AXIS=B_AXIS for COREXY)
     if (TEST(out_bits, X_AXIS)) {
-      X_APPLY_DIR(INVERT_X_DIR);
+      X_APPLY_DIR(INVERT_X_DIR,0);
       count_direction[X_AXIS] = -1;
     }
     else {
-      X_APPLY_DIR(!INVERT_X_DIR);
+      X_APPLY_DIR(!INVERT_X_DIR,0);
       count_direction[X_AXIS] = 1;
     }
 
     if (TEST(out_bits, Y_AXIS)) {
-      Y_APPLY_DIR(INVERT_Y_DIR);
+      Y_APPLY_DIR(INVERT_Y_DIR,0);
       count_direction[Y_AXIS] = -1;
     }
     else {
-      Y_APPLY_DIR(!INVERT_Y_DIR);
+      Y_APPLY_DIR(!INVERT_Y_DIR,0);
       count_direction[Y_AXIS] = 1;
     }
 
@@ -546,10 +546,10 @@ ISR(TIMER1_COMPA_vect) {
         #define APPLY_MOVEMENT(axis, AXIS) \
           counter_## axis += current_block->steps_## axis; \
           if (counter_## axis > 0) { \
-            AXIS ##_APPLY_STEP(!INVERT_## AXIS ##_STEP_PIN); \
+            AXIS ##_APPLY_STEP(!INVERT_## AXIS ##_STEP_PIN,0); \
             counter_## axis -= current_block->step_event_count; \
             count_position[AXIS ##_AXIS] += count_direction[AXIS ##_AXIS]; \
-            AXIS ##_APPLY_STEP(INVERT_## AXIS ##_STEP_PIN); \
+            AXIS ##_APPLY_STEP(INVERT_## AXIS ##_STEP_PIN,0); \
           }
 
         APPLY_MOVEMENT(x, X);
@@ -986,11 +986,11 @@ void quickStop() {
     #define BABYSTEP_AXIS(axis, AXIS, INVERT) { \
         enable_## axis(); \
         uint8_t old_pin = AXIS ##_DIR_READ; \
-        AXIS ##_APPLY_DIR(INVERT_## AXIS ##_DIR^direction^INVERT); \
-        AXIS ##_APPLY_STEP(!INVERT_## AXIS ##_STEP_PIN); \
+        AXIS ##_APPLY_DIR(INVERT_## AXIS ##_DIR^direction^INVERT, true); \
+        AXIS ##_APPLY_STEP(!INVERT_## AXIS ##_STEP_PIN, true); \
         _delay_us(1U); \
-        AXIS ##_APPLY_STEP(INVERT_## AXIS ##_STEP_PIN); \
-        AXIS ##_APPLY_DIR(old_pin); \
+        AXIS ##_APPLY_STEP(INVERT_## AXIS ##_STEP_PIN, true); \
+        AXIS ##_APPLY_DIR(old_pin, true); \
       }
 
     switch(axis) {
