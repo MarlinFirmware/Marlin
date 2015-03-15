@@ -41,11 +41,11 @@
 #include "dogm_font_data_6x9_marlin.h"       // Height of 'A' is only 6 pixel.
 #include "dogm_font_data_Marlin_symbols.h"   // The Marlin special symbols
 
-#define FONT_STATUSMENU_NAME u8g_font_6x9    // we don't have a small font for Cyrillic, Kana or Kanji
+#define FONT_STATUSMENU_NAME u8g_font_6x9    // we don't have a small font for Cyrillic, Kana
 #define FONT_SPECIAL_NAME Marlin_symbols
 
 // save 3120 bytes of PROGMEM by commenting out the next #define
-// we don't have a big font for Cyrillic, Kana or Kanji
+// we don't have a big font for Cyrillic, Kana
 #if defined( MAPPER_C2C3 ) || defined( MAPPER_NON )
   #define USE_BIG_EDIT_FONT
 #endif
@@ -60,9 +60,6 @@
   #elif defined( DISPLAY_CHARSET_ISO10646_KANA )
     #include "dogm_font_data_ISO10646_Kana.h"
     #define FONT_MENU_NAME ISO10646_Kana_5x7
-  #elif defined( DISPLAY_CHARSET_KANJI )
-    #include "dogm_font_data_6x10_marlin_Kanji.h"
-    #define FONT_MENU_NAME u8g_font_6x10_marlin
   #else // fall-back
     #include <utility/u8g.h> // system font
     #define FONT_MENU_NAME u8g_font_6x10

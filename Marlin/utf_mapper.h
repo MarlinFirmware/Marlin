@@ -16,8 +16,6 @@
     #define MAPPER_ONE_TO_ONE
   #elif defined( DISPLAY_CHARSET_ISO10646_KANA )
     #define MAPPER_ONE_TO_ONE
-  #elif defined( DISPLAY_CHARSET_KANJI )
-    #define MAPPER_NON
   #endif
 #else // SIMULATE_ROMFONT
   #if defined( DISPLAY_CHARSET_HD44780_JAPAN )

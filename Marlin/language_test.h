@@ -23,7 +23,7 @@
 //   I hope the pages E282 and E283 are sufficient to write katakana.
 //   Kanji (an other Japanese symbol set) uses far more than two codepages. So currently I don't see a chance to map the Unicodes. Its not
 //   impossible to have a close to direct mapping but will need giant conversion tables and fonts (we don't want to have in a embedded system).
-// d.) So for Kanji we use a very special and selected subset of symbols and the direct mapping like in a).
+
 
 #define MAPPER_NON         // For direct asci codes ( until now all languages except ru, de, fi, kana_utf8, ... )
 //#define MAPPER_C2C3        // For most European languages when language file is in utf8
@@ -37,7 +37,7 @@
 //#define DISPLAY_CHARSET_ISO10646_1
 //#define DISPLAY_CHARSET_ISO10646_5
 //#define DISPLAY_CHARSET_ISO10646_KANA
-//#define DISPLAY_CHARSET_KANJI
+
 
 
 // next 5 lines select variants in this file only
@@ -45,7 +45,7 @@
 //#define WEST
 //#define CYRIL
 //#define KANA
-//#define KANJI
+
 
 // TESTSTRINGS
 
@@ -178,15 +178,11 @@
 
 #endif
 
-#if defined( KANA ) || defined (KANJI) 
+#if defined( KANA )
   #define WELCOME_MSG                         "Language TEST"
 
   #define MSG_WATCH                           "\001\002\003\004\005\006\007\010\011"
-  #ifdef KANJI
-    #define MSG_PREPARE                       "No UTF8 for Kanji"
-  #else
-    #define MSG_PREPARE                       "UTF8"
-  #endif
+  #define MSG_PREPARE                         "UTF8"
   #define MSG_CONTROL                         "ASCII"
 
   //#define MSG_MAIN                            ".."
