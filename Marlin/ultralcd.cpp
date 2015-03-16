@@ -1309,7 +1309,7 @@ void lcd_update() {
       blink++;     // Variable for fan animation and alive dot
       u8g.firstPage();
       do {
-        u8g.setFont(FONT_MENU);
+        lcd_setFont(FONT_MENU);
         u8g.setPrintPos(125, 0);
         if (blink % 2) u8g.setColorIndex(1); else u8g.setColorIndex(0); // Set color for the alive dot
         u8g.drawPixel(127, 63); // draw alive dot

@@ -179,24 +179,19 @@
 // 2 wire Non-latching LCD SR from:
 // https://bitbucket.org/fmalpartida/new-liquidcrystal/wiki/schematics#!shiftregister-connection 
 #elif defined(SR_LCD_2W_NL)
-
   extern "C" void __cxa_pure_virtual() { while (1); }
   #include <LCD.h>
   #include <LiquidCrystal_SR.h>
   #define LCD_CLASS LiquidCrystal_SR
   LCD_CLASS lcd(SR_DATA_PIN, SR_CLK_PIN);
-
 #else
   // Standard directly connected LCD implementations
-  #ifdef LANGUAGE_RU
-    #include "LiquidCrystalRus.h"
-    #define LCD_CLASS LiquidCrystalRus
-  #else 
-    #include <LiquidCrystal.h>
-    #define LCD_CLASS LiquidCrystal
-  #endif  
+  #include <LiquidCrystal.h>
+  #define LCD_CLASS LiquidCrystal
   LCD_CLASS lcd(LCD_PINS_RS, LCD_PINS_ENABLE, LCD_PINS_D4, LCD_PINS_D5,LCD_PINS_D6,LCD_PINS_D7);  //RS,Enable,D4,D5,D6,D7
 #endif
+
+#include "utf_mapper.h"
 
 #if defined(LCD_PROGRESS_BAR) && defined(SDSUPPORT)
   static uint16_t progressBarTick = 0;
@@ -207,7 +202,7 @@
 #endif
 
 /* Custom characters defined in the first 8 characters of the LCD */
-#define LCD_STR_BEDTEMP     "\x00"
+#define LCD_STR_BEDTEMP     "\x00"  // this will have 'unexpected' results when used in a string!
 #define LCD_STR_DEGREE      "\x01"
 #define LCD_STR_THERMOMETER "\x02"
 #define LCD_STR_UPLEVEL     "\x03"
@@ -215,7 +210,8 @@
 #define LCD_STR_FOLDER      "\x05"
 #define LCD_STR_FEEDRATE    "\x06"
 #define LCD_STR_CLOCK       "\x07"
-#define LCD_STR_ARROW_RIGHT "\x7E"  /* from the default character set */
+//#define LCD_STR_ARROW_RIGHT "\x7E"  /* from the default character set. Only available on DISPLAY_CHARSET_HD44780_JAPAN - at this place!*/
+#define LCD_STR_ARROW_RIGHT ">"  /* from the default character set */
 
 static void lcd_set_custom_characters(
   #if defined(LCD_PROGRESS_BAR) && defined(SDSUPPORT)
@@ -405,15 +401,31 @@ static void lcd_implementation_clear()
 {
     lcd.clear();
 }
+
 /* Arduino < 1.0.0 is missing a function to print PROGMEM strings, so we need to implement our own */
-static void lcd_printPGM(const char* str)
-{
-    char c;
-    while((c = pgm_read_byte(str++)) != '\0')
-    {
-        lcd.write(c);
-    }
+char lcd_printPGM(const char* str) {
+  char c;
+  char n = 0;
+  while((c = pgm_read_byte(str++))) {
+      n += charset_mapper(c);
+  }
+  return n;
 }
+
+char lcd_print(char* str) {
+  char c;
+  char i = 0;
+  char n = 0;
+  while((c = str[i++])) {
+      n += charset_mapper(c);
+  }
+  return n;
+}
+
+unsigned lcd_print(char c) {
+    return charset_mapper(c);
+}
+
 /*
 Possible status screens:
 16x2   |0123456789012345|
@@ -608,8 +620,9 @@ static void lcd_implementation_status_screen()
     }
   #endif //FILAMENT_LCD_DISPLAY
 
-  lcd.print(lcd_status_message);
+  lcd_print(lcd_status_message);
 }
+
 static void lcd_implementation_drawmenu_generic(uint8_t row, const char* pstr, char pre_char, char post_char)
 {
     char c;
@@ -623,12 +636,12 @@ static void lcd_implementation_drawmenu_generic(uint8_t row, const char* pstr, c
     lcd.print(pre_char);
     while( ((c = pgm_read_byte(pstr)) != '\0') && (n>0) )
     {
-        lcd.print(c);
+        n -= lcd_print(c);
         pstr++;
-        if ((pgm_read_byte(pstr) & 0xc0) != 0x80) n--;
     }
-    while(n--)
-        lcd.print(' ');
+    while(n--) {
+      lcd.print(' ');
+    }
     lcd.print(post_char);
     lcd.print(' ');
 }
@@ -643,16 +656,14 @@ static void lcd_implementation_drawmenu_setting_edit_generic(uint8_t row, const 
   #endif
     lcd.setCursor(0, row);
     lcd.print(pre_char);
-    while( ((c = pgm_read_byte(pstr)) != '\0') && (n>0) )
-    {
-        lcd.print(c);
-        pstr++;
-        if ((pgm_read_byte(pstr) & 0xc0) != 0x80) n--;
+    while( ((c = pgm_read_byte(pstr)) != '\0') && (n>0) ) {
+      n -= lcd_print(c);
+      pstr++;
     }
     lcd.print(':');
     while(n--)
-        lcd.print(' ');
-    lcd.print(data);
+      lcd.print(' ');
+    lcd_print(data);
 }
 static void lcd_implementation_drawmenu_setting_edit_generic_P(uint8_t row, const char* pstr, char pre_char, const char* data)
 {
@@ -665,15 +676,13 @@ static void lcd_implementation_drawmenu_setting_edit_generic_P(uint8_t row, cons
   #endif
     lcd.setCursor(0, row);
     lcd.print(pre_char);
-    while( ((c = pgm_read_byte(pstr)) != '\0') && (n>0) )
-    {
-        lcd.print(c);
-        pstr++;
-        if ((pgm_read_byte(pstr) & 0xc0) != 0x80) n--;
+    while( ((c = pgm_read_byte(pstr)) != '\0') && (n>0) ) {
+      n -= lcd_print(c);
+      pstr++;
     }
     lcd.print(':');
     while(n--)
-        lcd.print(' ');
+      lcd.print(' ');
     lcd_printPGM(data);
 }
 #define lcd_implementation_drawmenu_setting_edit_int3_selected(row, pstr, pstr2, data, minValue, maxValue) lcd_implementation_drawmenu_setting_edit_generic(row, pstr, '>', itostr3(*(data)))
@@ -726,7 +735,7 @@ void lcd_implementation_drawedit(const char* pstr, char* value)
     #else
       lcd.setCursor(LCD_WIDTH -1 - lcd_strlen(value), 1);
    #endif
-    lcd.print(value);
+    lcd_print(value);
 }
 static void lcd_implementation_drawmenu_sdfile_selected(uint8_t row, const char* pstr, const char* filename, char* longFilename)
 {
@@ -741,9 +750,8 @@ static void lcd_implementation_drawmenu_sdfile_selected(uint8_t row, const char*
     }
     while( ((c = *filename) != '\0') && (n>0) )
     {
-        lcd.print(c);
+        n -= lcd_print(c);
         filename++;
-        n--;
     }
     while(n--)
         lcd.print(' ');
@@ -761,54 +769,45 @@ static void lcd_implementation_drawmenu_sdfile(uint8_t row, const char* pstr, co
     }
     while( ((c = *filename) != '\0') && (n>0) )
     {
-        lcd.print(c);
+        n -= lcd_print(c);
         filename++;
-        n--;
     }
     while(n--)
         lcd.print(' ');
 }
-static void lcd_implementation_drawmenu_sddirectory_selected(uint8_t row, const char* pstr, const char* filename, char* longFilename)
-{
-    char c;
-    uint8_t n = LCD_WIDTH - 2;
-    lcd.setCursor(0, row);
-    lcd.print('>');
-    lcd.print(LCD_STR_FOLDER[0]);
-    if (longFilename[0] != '\0')
-    {
-        filename = longFilename;
-        longFilename[LCD_WIDTH-2] = '\0';
-    }
-    while( ((c = *filename) != '\0') && (n>0) )
-    {
-        lcd.print(c);
-        filename++;
-        n--;
-    }
-    while(n--)
-        lcd.print(' ');
-}
-static void lcd_implementation_drawmenu_sddirectory(uint8_t row, const char* pstr, const char* filename, char* longFilename)
-{
-    char c;
-    uint8_t n = LCD_WIDTH - 2;
-    lcd.setCursor(0, row);
+static void lcd_implementation_drawmenu_sddirectory_selected(uint8_t row, const char* pstr, const char* filename, char* longFilename) {
+  char c;
+  uint8_t n = LCD_WIDTH - 2;
+  lcd.setCursor(0, row);
+  lcd.print('>');
+  lcd.print(LCD_STR_FOLDER[0]);
+  if (longFilename[0] != '\0') {
+    filename = longFilename;
+    longFilename[LCD_WIDTH-2] = '\0';
+  }
+  while( ((c = *filename) != '\0') && (n>0) ) {
+    n -= lcd_print(c);
+    filename++;
+  }
+  while(n--)
     lcd.print(' ');
-    lcd.print(LCD_STR_FOLDER[0]);
-    if (longFilename[0] != '\0')
-    {
-        filename = longFilename;
-        longFilename[LCD_WIDTH-2] = '\0';
-    }
-    while( ((c = *filename) != '\0') && (n>0) )
-    {
-        lcd.print(c);
-        filename++;
-        n--;
-    }
-    while(n--)
-        lcd.print(' ');
+}
+static void lcd_implementation_drawmenu_sddirectory(uint8_t row, const char* pstr, const char* filename, char* longFilename) {
+  char c;
+  uint8_t n = LCD_WIDTH - 2;
+  lcd.setCursor(0, row);
+  lcd.print(' ');
+  lcd.print(LCD_STR_FOLDER[0]);
+  if (longFilename[0] != '\0') {
+    filename = longFilename;
+    longFilename[LCD_WIDTH-2] = '\0';
+  }
+  while( ((c = *filename) != '\0') && (n>0) ) {
+    n -= lcd_print(c);
+    filename++;
+  }
+  while(n--)
+    lcd.print(' ');
 }
 #define lcd_implementation_drawmenu_back_selected(row, pstr, data) lcd_implementation_drawmenu_generic(row, pstr, LCD_STR_UPLEVEL[0], LCD_STR_UPLEVEL[0])
 #define lcd_implementation_drawmenu_back(row, pstr, data) lcd_implementation_drawmenu_generic(row, pstr, ' ', LCD_STR_UPLEVEL[0])
