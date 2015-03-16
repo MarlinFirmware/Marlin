@@ -376,8 +376,8 @@ const bool Z_MAX_ENDSTOP_INVERTING = false; // set to true to invert the logic o
 //============================ Manual Bed Leveling ==========================
 //===========================================================================
 
-#define MANUAL_BED_LEVELING  // Add display menu option for bed leveling
-#define MESH_BED_LEVELING    // Enable mesh bed leveling
+// #define MANUAL_BED_LEVELING  // Add display menu option for bed leveling
+// #define MESH_BED_LEVELING    // Enable mesh bed leveling
 
 #if defined(MESH_BED_LEVELING)
   #define MESH_MIN_X 10
