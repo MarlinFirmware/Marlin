@@ -384,7 +384,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = false; // set to true to invert the logic o
   #define MESH_MAX_X (X_MAX_POS - MESH_MIN_X)
   #define MESH_MIN_Y 10
   #define MESH_MAX_Y (Y_MAX_POS - MESH_MIN_Y)
-  #define MESH_NUM_X_POINTS 3
+  #define MESH_NUM_X_POINTS 3  // Don't use more than 7 points per axis, implementation limited
   #define MESH_NUM_Y_POINTS 3
   #define MESH_HOME_SEARCH_Z 4  // Z after Home, bed somewhere below but above 0.0
 #endif  // MESH_BED_LEVELING
