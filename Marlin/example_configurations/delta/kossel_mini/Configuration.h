@@ -428,7 +428,9 @@ const bool Z_MAX_ENDSTOP_INVERTING = false; // set to true to invert the logic o
   #define LEFT_PROBE_BED_POSITION -DELTA_PROBABLE_RADIUS
   #define RIGHT_PROBE_BED_POSITION DELTA_PROBABLE_RADIUS
   #define BACK_PROBE_BED_POSITION DELTA_PROBABLE_RADIUS
-  #define FRONT_PROBE_BED_POSITION -DELTA_PROBABLE_RADIUS   
+  #define FRONT_PROBE_BED_POSITION -DELTA_PROBABLE_RADIUS  
+
+  #define MIN_PROBE_EDGE 10 // The probe square sides can be no smaller than this      
 
   // Non-linear bed leveling will be used.
   // Compensate by interpolating between the nearest four Z probe values for each point.
