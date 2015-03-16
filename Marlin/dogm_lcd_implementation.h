@@ -34,7 +34,7 @@
 #include "DOGMbitmaps.h"
 #include "ultralcd.h"
 #include "ultralcd_st7920_u8glib_rrd.h"
-#include "configuration.h"
+#include "Configuration.h"
 
 
 #include <utility/u8g.h>
