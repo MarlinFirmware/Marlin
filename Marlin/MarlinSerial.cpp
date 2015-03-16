@@ -76,7 +76,7 @@ void MarlinSerial::begin(long baud) {
   #endif
   
   if (useU2X) {
-    M_UCSRxA = 1 << M_U2Xx;
+    M_UCSRxA = BIT(M_U2Xx);
     baud_setting = (F_CPU / 4 / baud - 1) / 2;
   } else {
     M_UCSRxA = 0;
