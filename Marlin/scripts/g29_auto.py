@@ -14,7 +14,7 @@ min_g1 = 3
 
 # maximum number of lines to parse, I don't want to parse the complete file
 # only the first plane is we are interested in
-max_g1 = 1000
+max_g1 = 100000000
 
 # g29 keyword
 g29_keyword = 'g29'
@@ -25,9 +25,8 @@ output_file = folder + 'g29_' + my_file
 # input filename
 input_file = folder + my_file
 
-# offset makes the plane a little bit bigger
-offset_x = 10
-offset_y = 10
+# minimum scan size
+min_size = 40
 probing_points = 3  # points x points
 
 # other stuff
@@ -152,10 +151,18 @@ for i in range(start, end):
 
 print('x_min:{} x_max:{}\ny_min:{} y_max:{}'.format(min_x, max_x, min_y, max_y))
 
-min_x = int(min_x) - offset_x
-max_x = int(max_x) + offset_x
-min_y = int(min_y) - offset_y
-max_y = int(max_y) + offset_y
+# resize min/max - values for minimum scan
+if max_x - min_x < min_size:
+    offset_x = int((min_size - (max_x - min_x)) / 2 + 0.5)  # int round up
+    # print('min_x! with {}'.format(int(max_x - min_x)))
+    min_x = int(min_x) - offset_x
+    max_x = int(max_x) + offset_x
+if max_y - min_y < min_size:
+    offset_y = int((min_size - (max_y - min_y)) / 2 + 0.5)  # int round up
+    # print('min_y! with {}'.format(int(max_y - min_y)))
+    min_y = int(min_y) - offset_y
+    max_y = int(max_y) + offset_y
+
 
 new_command = 'G29 L{0} R{1} F{2} B{3} P{4}\n'.format(min_x,
                                                       max_x,
