@@ -903,6 +903,7 @@ static void lcd_control_motion_menu() {
   MENU_ITEM_EDIT_CALLBACK(long5, MSG_AMAX MSG_Z, &max_acceleration_units_per_sq_second[Z_AXIS], 100, 99000, reset_acceleration_rates);
   MENU_ITEM_EDIT_CALLBACK(long5, MSG_AMAX MSG_E, &max_acceleration_units_per_sq_second[E_AXIS], 100, 99000, reset_acceleration_rates);
   MENU_ITEM_EDIT(float5, MSG_A_RETRACT, &retract_acceleration, 100, 99000);
+  MENU_ITEM_EDIT(float5, MSG_A_TRAVEL, &travel_acceleration, 100, 99000);
   MENU_ITEM_EDIT(float52, MSG_XSTEPS, &axis_steps_per_unit[X_AXIS], 5, 9999);
   MENU_ITEM_EDIT(float52, MSG_YSTEPS, &axis_steps_per_unit[Y_AXIS], 5, 9999);
   MENU_ITEM_EDIT(float51, MSG_ZSTEPS, &axis_steps_per_unit[Z_AXIS], 5, 9999);
@@ -1425,7 +1426,7 @@ void lcd_buttons_update() {
       WRITE(SHIFT_LD, HIGH);
       for(int8_t i = 0; i < 8; i++) {
         newbutton_reprapworld_keypad >>= 1;
-        if (READ(SHIFT_OUT)) newbutton_reprapworld_keypad |= (1 << 7);
+        if (READ(SHIFT_OUT)) newbutton_reprapworld_keypad |= BIT(7);
         WRITE(SHIFT_CLK, HIGH);
         WRITE(SHIFT_CLK, LOW);
       }
@@ -1438,7 +1439,7 @@ void lcd_buttons_update() {
     unsigned char tmp_buttons = 0;
     for(int8_t i=0; i<8; i++) {
       newbutton >>= 1;
-      if (READ(SHIFT_OUT)) newbutton |= (1 << 7);
+      if (READ(SHIFT_OUT)) newbutton |= BIT(7);
       WRITE(SHIFT_CLK, HIGH);
       WRITE(SHIFT_CLK, LOW);
     }
