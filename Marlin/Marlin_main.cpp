@@ -1854,12 +1854,6 @@ inline void gcode_G28() {
    *     Usage: "G29 E" or "G29 e"
    *
    */
-
-  // Use one of these defines to specify the origin
-  // for a topographical map to be printed for your bed.
-  enum { OriginBackLeft, OriginFrontLeft, OriginBackRight, OriginFrontRight };
-  #define TOPO_ORIGIN OriginFrontLeft
-
   inline void gcode_G29() {
 
     // Prevent user from running a G29 without first homing in X and Y

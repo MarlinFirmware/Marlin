@@ -33,7 +33,7 @@
 #endif
 
 #define BIT(b) (1<<(b))
-#define TEST(n,b) ((n)&BIT(b)!=0)
+#define TEST(n,b) (((n)&BIT(b))!=0)
 
 // Arduino < 1.0.0 does not define this, so we need to do it ourselves
 #ifndef analogInputToDigitalPin
