@@ -79,7 +79,9 @@
 
 #define PS_ON_PIN          12
 
-#if defined(REPRAP_DISCOUNT_SMART_CONTROLLER) || defined(G3D_PANEL)
+#if defined(REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER)
+  #define KILL_PIN           29
+#elif defined(REPRAP_DISCOUNT_SMART_CONTROLLER) || defined(G3D_PANEL)
   #define KILL_PIN           41
 #else
   #define KILL_PIN           -1
