@@ -48,7 +48,6 @@
 */
 
 #define USE_BIG_EDIT_FONT                // save 3120 bytes of PROGMEM by commenting out this line
-#define FONT_STATUSMENU u8g_font_6x9
 #define FONT_MENU u8g_font_6x10_marlin
 
 // DOGM parameters (size in pixels)
@@ -65,6 +64,8 @@
   #define DOG_CHAR_HEIGHT_EDIT 12
   #define LCD_WIDTH_EDIT       22
 #endif
+
+#define FONT_STATUSMENU FONT_MENU
 
 #define START_ROW              0
 
@@ -153,10 +154,10 @@ static void _draw_heater_status(int x, int heater) {
   bool isBed = heater < 0;
   int y = 17 + (isBed ? 1 : 0);
   u8g.setFont(FONT_STATUSMENU);
-  u8g.setPrintPos(x,6);
+  u8g.setPrintPos(x,7);
   u8g.print(itostr3(int((heater >= 0 ? degTargetHotend(heater) : degTargetBed()) + 0.5)));
   lcd_printPGM(PSTR(LCD_STR_DEGREE " "));
-  u8g.setPrintPos(x,27);
+  u8g.setPrintPos(x,28);
   u8g.print(itostr3(int(heater >= 0 ? degHotend(heater) : degBed()) + 0.5));
   lcd_printPGM(PSTR(LCD_STR_DEGREE " "));
   if (!isHeatingHotend(0)) {
