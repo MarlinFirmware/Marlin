@@ -12,15 +12,18 @@ my_file = 'test.gcode'
 # this is the minimum of G1 instructions which should be between 2 different heights
 min_g1 = 3
 
-#  maximum number of lines to parse, I don't want to parse the complete file
+# maximum number of lines to parse, I don't want to parse the complete file
 # only the first plane is we are interested in
 max_g1 = 1000
 
 # g29 keyword
-g29_keyword = ';MarlinG29Script'
+g29_keyword = 'g29'
+g29_keyword = g29_keyword.upper()
 
 # output filename
 output_file = folder + 'g29_' + my_file
+# input filename
+input_file = folder + my_file
 
 # offset makes the plane a little bit bigger
 offset_x = 10
@@ -40,16 +43,20 @@ lines_of_g1 = 0
 gcode = []
 
 
+# return only g1-lines
 def has_g1(line):
     return line[:2].upper() == "G1"
 
 
+# find position in g1 (x,y,z)
 def find_axis(line, axis):
     found = False
     number = ""
     for char in line:
         if found:
             if char == ".":
+                number += char
+            elif char == "-":
                 number += char
             else:
                 try:
@@ -65,6 +72,7 @@ def find_axis(line, axis):
         return None
 
 
+# save the min or max-values for each axis
 def set_mima(line):
     global min_x, max_x, min_y, max_y, last_z
 
@@ -81,6 +89,7 @@ def set_mima(line):
     return min_x, max_x, min_y, max_y
 
 
+# find z in the code and return it
 def find_z(gcode, start_at_line=0):
     for i in range(start_at_line, len(gcode)):
         my_z = find_axis(gcode[i], 'Z')
@@ -104,27 +113,30 @@ def z_parse(gcode, start_at_line=0, end_at_line=0):
 
         all_z.append(z)
         z_at_line.append(i)
+        temp_line = i - last_i -1
         line_between_z.append(i - last_i - 1)
         # last_z = z
         last_i = i
-        if 0 < end_at_line <= i:
+        if 0 < end_at_line <= i or temp_line >= min_g1:
+            # print('break at line {} at heigth {}'.format(i, z))
             break
-            # print('{}:{}'.format(last_z, last_i))
 
     line_between_z = line_between_z[1:]
     return all_z, line_between_z, z_at_line
 
 
+# get the lines which should be the first layer
 def get_lines(gcode, minimum):
     i = 0
     all_z, line_between_z, z_at_line = z_parse(gcode, end_at_line=max_g1)
     for count in line_between_z:
         i += 1
         if count > minimum:
+            # print('layer: {}:{}'.format(z_at_line[i-1], z_at_line[i]))
             return z_at_line[i - 1], z_at_line[i]
 
 
-with open(folder+my_file, 'r') as file:
+with open(input_file, 'r') as file:
     lines = 0
     for line in file:
         lines += 1
@@ -138,6 +150,8 @@ start, end = get_lines(gcode, min_g1)
 for i in range(start, end):
     set_mima(gcode[i])
 
+print('x_min:{} x_max:{}\ny_min:{} y_max:{}'.format(min_x, max_x, min_y, max_y))
+
 min_x = int(min_x) - offset_x
 max_x = int(max_x) + offset_x
 min_y = int(min_y) - offset_y
@@ -149,18 +163,17 @@ new_command = 'G29 L{0} R{1} F{2} B{3} P{4}\n'.format(min_x,
                                                       max_y,
                                                       probing_points)
 
-
 out_file = open(output_file, 'w')
-print('out_file open')
-input_file = open(my_file, 'r')
-print('input_file open')
+in_file = open(input_file, 'r')
 
-for line in input_file:
-    if line[:len(g29_keyword)] == g29_keyword:
+for line in in_file:
+    if line[:len(g29_keyword)].upper() == g29_keyword:
         out_file.write(new_command)
-        print('write new_command')
+        print('write G29')
     else:
         out_file.write(line)
 
 file.close()
 out_file.close()
+
+print('auto G29 finished')
