@@ -243,7 +243,6 @@
 #define DEFAULT_MINSEGMENTTIME        20000
 
 // If defined the movements slow down when the look ahead buffer is only half full
-// (don't use SLOWDOWN with DELTA because DELTA generates hundreds of segments per second)
 //#define SLOWDOWN
 
 // Frequency limit
@@ -456,8 +455,26 @@ const unsigned int dropsegments=5; //everything with less than this number of st
 //===========================================================================
 
 #if defined (ENABLE_AUTO_BED_LEVELING) && defined (DELTA)
-  #error "Bed Auto Leveling is still not compatible with Delta Kinematics."
+
+  #if not defined(AUTO_BED_LEVELING_GRID)
+    #error "Only Grid Bed Auto Leveling is supported on Deltas."
+  #endif
+  
+  #if defined(Z_PROBE_SLED)
+    #error "You cannot use Z_PROBE_SLED together with DELTA."
+  #endif
+
+  #if defined(Z_PROBE_REPEATABILITY_TEST)
+    #error "Z-probe repeatability test is not supported on Deltas yet."
+  #endif
+
 #endif  
+
+#if defined(Z_PROBE_ALLEN_KEY)
+  #if !defined(AUTO_BED_LEVELING_GRID) || !defined(DELTA)
+    #error "Invalid use of Z_PROBE_ALLEN_KEY."
+  #endif
+#endif
 
 #if EXTRUDERS > 1 && defined TEMP_SENSOR_1_AS_REDUNDANT
   #error "You cannot use TEMP_SENSOR_1_AS_REDUNDANT if EXTRUDERS > 1"
