@@ -5307,7 +5307,7 @@ void prepare_move_raw()
 #define MIN(_v1, _v2) (((_v1) < (_v2)) ? (_v1) : (_v2))
 #endif  // ! MIN
 // This function is used to split lines on mesh borders so each segment is only part of one mesh area
-void mesh_plan_buffer_line(float x, float y, float z, const float &e, float feed_rate, const uint8_t &extruder, uint8_t x_splits=0xff, uint8_t y_splits=0xff)
+void mesh_plan_buffer_line(float x, float y, float z, const float e, float feed_rate, const uint8_t &extruder, uint8_t x_splits=0xff, uint8_t y_splits=0xff)
 {
   if (!mbl.active) {
     plan_buffer_line(x, y, z, e, feed_rate, extruder);
