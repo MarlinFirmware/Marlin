@@ -2,7 +2,7 @@
  * Russian
  *
  * LCD Menu Messages
- * Se also documentation/LCDLanguageFont.md
+ * See also documentation/LCDLanguageFont.md
  *
  */
 #ifndef LANGUAGE_RU_H

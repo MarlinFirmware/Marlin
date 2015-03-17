@@ -2,7 +2,7 @@
  * Japanese (Kana)
  *
  * LCD Menu Messages
- * Se also documentation/LCDLanguageFont.md
+ * See also documentation/LCDLanguageFont.md
  *
  */
  

@@ -2,7 +2,7 @@
  * Basque-Euskera
  *
  * LCD Menu Messages
- * Se also documentation/LCDLanguageFont.md
+ * See also documentation/LCDLanguageFont.md
  *
  */
 #ifndef LANGUAGE_EU_H

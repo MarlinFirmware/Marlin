@@ -4,9 +4,9 @@
 #include  "language.h"
 
 #ifdef DOGLCD
-  #define HARDWAERE_CHAR_OUT u8g.print
+  #define HARDWARE_CHAR_OUT u8g.print
 #else
-  #define HARDWAERE_CHAR_OUT lcd.write
+  #define HARDWARE_CHAR_OUT lcd.write
 #endif
 
 #if !(defined( SIMULATE_ROMFONT )) && defined( DOGLCD )
@@ -90,7 +90,7 @@
       #error( "Katakana on a western display makes no sense. There are no matching symbols." );
     #endif
 
-  #elif defined( DISPLAY_CHARSET_HD44780_CYRILIC )
+  #elif defined( DISPLAY_CHARSET_HD44780_CYRILLIC )
     #if defined( MAPPER_D0D1 )
       #define MAPPER_D0D1_MOD
       // it is a Russian alphabet translation
@@ -120,12 +120,12 @@
     #endif
   #else
     #error("Something went wrong in the selection of DISPLAY_CHARSET_HD44780's");
-  #endif // DISPLAY_CHARSET_HD44780_CYRILIC
+  #endif // DISPLAY_CHARSET_HD44780_CYRILLIC
 #endif // SIMULATE_ROMFONT
 
 #if defined( MAPPER_NON )
   char charset_mapper(char c){
-    HARDWAERE_CHAR_OUT( c );
+    HARDWARE_CHAR_OUT( c );
     return 1;
   }
 #elif defined( MAPPER_C2C3 )
@@ -142,17 +142,17 @@
       else if (seen_c2){
         d &= 0x3f;
         #ifndef MAPPER_ONE_TO_ONE
-          HARDWAERE_CHAR_OUT( (char) pgm_read_byte_near( utf_recode + d + ( utf_hi_char << 6 ) - 0x20 ) );
+          HARDWARE_CHAR_OUT( (char) pgm_read_byte_near( utf_recode + d + ( utf_hi_char << 6 ) - 0x20 ) );
         #else
-          HARDWAERE_CHAR_OUT( (char) (0x80 + ( utf_hi_char << 6 ) + d) ) ;
+          HARDWARE_CHAR_OUT( (char) (0x80 + ( utf_hi_char << 6 ) + d) ) ;
         #endif
       }
       else {
-          HARDWAERE_CHAR_OUT('?');
+          HARDWARE_CHAR_OUT('?');
       }
     }
     else {
-      HARDWAERE_CHAR_OUT((char) c );
+      HARDWARE_CHAR_OUT((char) c );
     }
     seen_c2 = false;
     return 1;
@@ -172,18 +172,18 @@
       } else if (seen_d5) {
           d &= 0x3f;
           if ( !utf_hi_char && ( d == 1 )) {
-            HARDWAERE_CHAR_OUT((char) 0xa2 ); // Ё
+            HARDWARE_CHAR_OUT((char) 0xa2 ); // Ё
         } else if ((utf_hi_char == 1) && (d == 0x11)) {
-            HARDWAERE_CHAR_OUT((char) 0xb5 ); // ё
+            HARDWARE_CHAR_OUT((char) 0xb5 ); // ё
           } else {
-            HARDWAERE_CHAR_OUT((char) pgm_read_byte_near( utf_recode + d + ( utf_hi_char << 6 ) - 0x10 ) );
+            HARDWARE_CHAR_OUT((char) pgm_read_byte_near( utf_recode + d + ( utf_hi_char << 6 ) - 0x10 ) );
           }
         }
         else {
-          HARDWAERE_CHAR_OUT('?');
+          HARDWARE_CHAR_OUT('?');
         }
     } else {
-      HARDWAERE_CHAR_OUT((char) c );
+      HARDWARE_CHAR_OUT((char) c );
     }
     seen_d5 = false;
     return 1;
@@ -201,15 +201,15 @@
       } else if (seen_d5) {
           d &= 0x3fu;
         #ifndef MAPPER_ONE_TO_ONE
-          HARDWAERE_CHAR_OUT( (char) pgm_read_byte_near( utf_recode + d + ( utf_hi_char << 6 ) - 0x20 ) );
+          HARDWARE_CHAR_OUT( (char) pgm_read_byte_near( utf_recode + d + ( utf_hi_char << 6 ) - 0x20 ) );
         #else
-          HARDWAERE_CHAR_OUT( (char) (0xa0u + ( utf_hi_char << 6 ) + d ) ) ;
+          HARDWARE_CHAR_OUT( (char) (0xa0u + ( utf_hi_char << 6 ) + d ) ) ;
         #endif
       } else {
-        HARDWAERE_CHAR_OUT('?');
+        HARDWARE_CHAR_OUT('?');
       }
     } else {
-      HARDWAERE_CHAR_OUT((char) c );
+      HARDWARE_CHAR_OUT((char) c );
     }
     seen_d5 = false;
     return 1;
@@ -231,15 +231,15 @@
       } else if ((seen_e3 == true) && (seen_82_83 == true)){
         d &= 0x3f;
         #ifndef MAPPER_ONE_TO_ONE
-          HARDWAERE_CHAR_OUT( (char) pgm_read_byte_near( utf_recode + d + ( utf_hi_char << 6 ) - 0x20 ) );
+          HARDWARE_CHAR_OUT( (char) pgm_read_byte_near( utf_recode + d + ( utf_hi_char << 6 ) - 0x20 ) );
         #else
-          HARDWAERE_CHAR_OUT( (char) (0x80 + ( utf_hi_char << 6 ) + d ) ) ;
+          HARDWARE_CHAR_OUT( (char) (0x80 + ( utf_hi_char << 6 ) + d ) ) ;
         #endif
       } else {
-        HARDWAERE_CHAR_OUT((char) '?' );
+        HARDWARE_CHAR_OUT((char) '?' );
       }
     } else {
-      HARDWAERE_CHAR_OUT((char) c );
+      HARDWARE_CHAR_OUT((char) c );
     }
     seen_e3 = false;
     seen_82_83 = false;

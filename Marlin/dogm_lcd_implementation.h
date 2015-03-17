@@ -14,8 +14,6 @@
 #ifndef DOGM_LCD_IMPLEMENTATION_H
 #define DOGM_LCD_IMPLEMENTATION_H
 
-#define MARLIN_VERSION "1.0.2"
-
 /**
  * Implementation of the LCD display routines for a DOGM128 graphic display. These are common LCD 128x64 pixel graphic displays.
  */
@@ -71,7 +69,7 @@
   #elif defined( DISPLAY_CHARSET_HD44780_WESTERN )
     #include "dogm_font_data_HD44780_W.h"
     #define FONT_MENU_NAME HD44780_W_5x7
-  #elif defined( DISPLAY_CHARSET_HD44780_CYRILIC )
+  #elif defined( DISPLAY_CHARSET_HD44780_CYRILLIC )
     #include "dogm_font_data_HD44780_C.h"
     #define FONT_MENU_NAME HD44780_C_5x7
   #else // fall-back
