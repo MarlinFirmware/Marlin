@@ -192,12 +192,18 @@ void ClearToSend();
 void get_coordinates();
 #ifdef DELTA
 void calculate_delta(float cartesian[3]);
+  #ifdef ENABLE_AUTO_BED_LEVELING
+  extern int delta_grid_spacing[2];
+  void adjust_delta(float cartesian[3]);
+  #endif
 extern float delta[3];
+void prepare_move_raw();
 #endif
 #ifdef SCARA
 void calculate_delta(float cartesian[3]);
 void calculate_SCARA_forward_Transform(float f_scara[3]);
 #endif
+void reset_bed_level();
 void prepare_move();
 void kill();
 void Stop();
