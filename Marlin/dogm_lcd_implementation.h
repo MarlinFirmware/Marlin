@@ -32,7 +32,7 @@
 
 #include <U8glib.h>
 #include "DOGMbitmaps.h"
-#include "dogm_font_data_marlin.h"
+#include "dogm_font_data_ISO10646_1_Marlin.h"
 #include "ultralcd.h"
 #include "ultralcd_st7920_u8glib_rrd.h"
 
@@ -48,7 +48,7 @@
 */
 
 #define USE_BIG_EDIT_FONT                // save 3120 bytes of PROGMEM by commenting out this line
-#define FONT_MENU u8g_font_6x10_marlin
+#define FONT_MENU ISO10646_1_Marlin_5x7
 
 // DOGM parameters (size in pixels)
 #define DOG_CHAR_WIDTH         6
@@ -59,7 +59,7 @@
   #define DOG_CHAR_HEIGHT_EDIT 18
   #define LCD_WIDTH_EDIT       14
 #else
-  #define FONT_MENU_EDIT u8g_font_6x10_marlin
+  #define FONT_MENU_EDIT ISO10646_1_Marlin_5x7
   #define DOG_CHAR_WIDTH_EDIT  6
   #define DOG_CHAR_HEIGHT_EDIT 12
   #define LCD_WIDTH_EDIT       22
