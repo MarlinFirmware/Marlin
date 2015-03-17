@@ -529,10 +529,10 @@ ISR(TIMER1_COMPA_vect) {
         #endif
 
         #define STEP_IF_COUNTER(axis, AXIS) \
-          if (counter_## axis > 0) {
+          if (counter_## axis > 0) { \
             counter_## axis -= current_block->step_event_count; \
             count_position[AXIS ##_AXIS] += count_direction[AXIS ##_AXIS]; \
-            AXIS ##_STEP_WRITE(LOW);
+            AXIS ##_STEP_WRITE(LOW); \
           }
 
         STEP_IF_COUNTER(x, X);
