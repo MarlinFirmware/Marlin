@@ -41,12 +41,22 @@ void manage_heater(); //it is critical that this is called periodically.
 
 // low level conversion routines
 // do not use these routines and variables outside of temperature.cpp
-extern int target_temperature[EXTRUDERS];  
-extern float current_temperature[EXTRUDERS];
-#ifdef SHOW_TEMP_ADC_VALUES
-  extern int current_temperature_raw[EXTRUDERS];
-  extern int current_temperature_bed_raw;
-#endif
+#ifndef SINGLENOZZLE
+  extern int target_temperature[EXTRUDERS];  
+  extern float current_temperature[EXTRUDERS];
+  #ifdef SHOW_TEMP_ADC_VALUES
+    extern int current_temperature_raw[EXTRUDERS];
+    extern int current_temperature_bed_raw;
+  #endif
+#else
+  extern int target_temperature[1];  
+  extern float current_temperature[1];
+  #ifdef SHOW_TEMP_ADC_VALUES
+    extern int current_temperature_raw[1];
+    extern int current_temperature_bed_raw;
+  #endif
+#endif //SINGLENOZZLE
+
 extern int target_temperature_bed;
 extern float current_temperature_bed;
 #ifdef TEMP_SENSOR_1_AS_REDUNDANT
@@ -85,24 +95,64 @@ extern float current_temperature_bed;
 //inline so that there is no performance decrease.
 //deg=degreeCelsius
 
-FORCE_INLINE float degHotend(uint8_t extruder) { return current_temperature[extruder]; }
-FORCE_INLINE float degBed() { return current_temperature_bed; }
+FORCE_INLINE float degHotend(uint8_t extruder) {  
+#ifndef SINGLENOZZLE
+  return current_temperature[extruder];
+#else
+  return current_temperature[0];
+#endif
+}
 
 #ifdef SHOW_TEMP_ADC_VALUES
-  FORCE_INLINE float rawHotendTemp(uint8_t extruder) { return current_temperature_raw[extruder]; }
-  FORCE_INLINE float rawBedTemp() { return current_temperature_bed_raw; }
-#endif
+  FORCE_INLINE float rawHotendTemp(uint8_t extruder) {
+  #ifndef SINGLENOZZLE  
+   return current_temperature_raw[extruder];
+  #else
+   return current_temperature_raw[0];
+  #endif
+  }
 
-FORCE_INLINE float degTargetHotend(uint8_t extruder) { return target_temperature[extruder]; }
+  FORCE_INLINE float rawBedTemp() { return current_temperature_bed_raw; }
+#endif //SHOW_TEMP_ADC_VALUES
+
+FORCE_INLINE float degBed() { return current_temperature_bed; }
+
+FORCE_INLINE float degTargetHotend(uint8_t extruder) {
+  #ifndef SINGLENOZZLE  
+    return target_temperature[extruder];
+  #else
+    return target_temperature[0];
+  #endif
+}
 FORCE_INLINE float degTargetBed() { return target_temperature_bed; }
 
-FORCE_INLINE void setTargetHotend(const float &celsius, uint8_t extruder) { target_temperature[extruder] = celsius; }
+FORCE_INLINE void setTargetHotend(const float &celsius, uint8_t extruder) {
+  #ifndef SINGLENOZZLE  
+    target_temperature[extruder] = celsius;
+  #else
+    target_temperature[0] = celsius;
+  #endif
+}
 FORCE_INLINE void setTargetBed(const float &celsius) { target_temperature_bed = celsius; }
 
-FORCE_INLINE bool isHeatingHotend(uint8_t extruder) { return target_temperature[extruder] > current_temperature[extruder]; }
+FORCE_INLINE bool isHeatingHotend(uint8_t extruder) {
+  #ifndef SINGLENOZZLE
+    return target_temperature[extruder] > current_temperature[extruder];
+  #else
+    return target_temperature[0] > current_temperature[0];
+  #endif
+}
+
 FORCE_INLINE bool isHeatingBed() { return target_temperature_bed > current_temperature_bed; }
 
-FORCE_INLINE bool isCoolingHotend(uint8_t extruder) { return target_temperature[extruder] < current_temperature[extruder]; }
+FORCE_INLINE bool isCoolingHotend(uint8_t extruder) {
+#ifndef SINGLENOZZLE
+  return target_temperature[extruder] < current_temperature[extruder];
+#else
+  return target_temperature[0] < current_temperature[0];
+#endif
+}
+
 FORCE_INLINE bool isCoolingBed() { return target_temperature_bed < current_temperature_bed; }
 
 #define degHotend0() degHotend(0)
@@ -110,7 +160,7 @@ FORCE_INLINE bool isCoolingBed() { return target_temperature_bed < current_tempe
 #define setTargetHotend0(_celsius) setTargetHotend((_celsius), 0)
 #define isHeatingHotend0() isHeatingHotend(0)
 #define isCoolingHotend0() isCoolingHotend(0)
-#if EXTRUDERS > 1
+#if EXTRUDERS > 1 && !defined(SINGLENOZZLE)
   #define degHotend1() degHotend(1)
   #define degTargetHotend1() degTargetHotend(1)
   #define setTargetHotend1(_celsius) setTargetHotend((_celsius), 1)
@@ -119,7 +169,7 @@ FORCE_INLINE bool isCoolingBed() { return target_temperature_bed < current_tempe
 #else
   #define setTargetHotend1(_celsius) do{}while(0)
 #endif
-#if EXTRUDERS > 2
+#if EXTRUDERS > 2 && !defined(SINGLENOZZLE)
   #define degHotend2() degHotend(2)
   #define degTargetHotend2() degTargetHotend(2)
   #define setTargetHotend2(_celsius) setTargetHotend((_celsius), 2)
@@ -128,7 +178,7 @@ FORCE_INLINE bool isCoolingBed() { return target_temperature_bed < current_tempe
 #else
   #define setTargetHotend2(_celsius) do{}while(0)
 #endif
-#if EXTRUDERS > 3
+#if EXTRUDERS > 3 && !defined(SINGLENOZZLE)
   #define degHotend3() degHotend(3)
   #define degTargetHotend3() degTargetHotend(3)
   #define setTargetHotend3(_celsius) setTargetHotend((_celsius), 3)

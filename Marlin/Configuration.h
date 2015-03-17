@@ -72,6 +72,10 @@ Here are some standard links for getting your machine calibrated:
 // This defines the number of extruders
 #define EXTRUDERS 1
 
+// This is used for single nozzle and multiple extrusion configuration
+// Uncomment below to enable (One Hotend)
+//#define SINGLENOZZLE
+
 //// The following define selects which power supply you have. Please choose the one that matches your setup
 // 1 = ATX
 // 2 = X-Box 360 203Watts (the blue wire connected to PS_ON and the red wire to VCC)
