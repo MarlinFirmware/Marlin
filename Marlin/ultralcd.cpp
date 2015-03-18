@@ -402,7 +402,7 @@ static void lcd_main_menu() {
   END_MENU();
 }
 
-#ifdef SDSUPPORT
+#if defined( SDSUPPORT ) && defined( MENU_ADDAUTOSTART )
   static void lcd_autostart_sd() {
     card.autostart_index = 0;
     card.setroot();
@@ -587,10 +587,8 @@ void lcd_cooldown() {
 static void lcd_prepare_menu() {
   START_MENU();
   MENU_ITEM(back, MSG_MAIN, lcd_main_menu);
-  #ifdef SDSUPPORT
-    #ifdef MENU_ADDAUTOSTART
-      MENU_ITEM(function, MSG_AUTOSTART, lcd_autostart_sd);
-    #endif
+  #if defined( SDSUPPORT ) && defined( MENU_ADDAUTOSTART )
+    MENU_ITEM(function, MSG_AUTOSTART, lcd_autostart_sd);
   #endif
   MENU_ITEM(gcode, MSG_DISABLE_STEPPERS, PSTR("M84"));
   MENU_ITEM(gcode, MSG_AUTO_HOME, PSTR("G28"));
