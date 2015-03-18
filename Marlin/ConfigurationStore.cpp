@@ -113,7 +113,7 @@ void _EEPROM_readData(int &pos, uint8_t* value, uint8_t size) {
 // wrong data being written to the variables.
 // ALSO:  always make sure the variables in the Store and retrieve sections are in the same order.
 
-#define EEPROM_VERSION "V16"
+#define EEPROM_VERSION "V17"
 
 #ifdef EEPROM_SETTINGS
 
@@ -136,9 +136,26 @@ void Config_StoreSettings()  {
   EEPROM_WRITE_VAR(i, max_e_jerk);
   EEPROM_WRITE_VAR(i, add_homing);
 
+  uint8_t mesh_num_x = 3;
+  uint8_t mesh_num_y = 3;
   #if defined(MESH_BED_LEVELING)
+    // Compile time test that sizeof(mbl.z_values) is as expected
+    typedef char c_assert[(sizeof(mbl.z_values) == MESH_NUM_X_POINTS*MESH_NUM_Y_POINTS*sizeof(dummy)) ? 1 : -1];
+    mesh_num_x = MESH_NUM_X_POINTS;
+    mesh_num_y = MESH_NUM_Y_POINTS;
     EEPROM_WRITE_VAR(i, mbl.active);
+    EEPROM_WRITE_VAR(i, mesh_num_x);
+    EEPROM_WRITE_VAR(i, mesh_num_y);
     EEPROM_WRITE_VAR(i, mbl.z_values);
+  #else
+    uint8_t dummy_uint8 = 0;
+    EEPROM_WRITE_VAR(i, dummy_uint8);
+    EEPROM_WRITE_VAR(i, mesh_num_x);
+    EEPROM_WRITE_VAR(i, mesh_num_y);
+    dummy = 0.0f;
+    for (int q=0; q<mesh_num_x*mesh_num_y; q++) {
+      EEPROM_WRITE_VAR(i, dummy);
+    }
   #endif  // MESH_BED_LEVELING
 
   #ifdef DELTA
@@ -277,9 +294,29 @@ void Config_RetrieveSettings() {
     EEPROM_READ_VAR(i, max_e_jerk);
     EEPROM_READ_VAR(i, add_homing);
 
+    uint8_t mesh_num_x = 0;
+    uint8_t mesh_num_y = 0;
     #if defined(MESH_BED_LEVELING)
       EEPROM_READ_VAR(i, mbl.active);
-      EEPROM_READ_VAR(i, mbl.z_values);
+      EEPROM_READ_VAR(i, mesh_num_x);
+      EEPROM_READ_VAR(i, mesh_num_y);
+      if (mesh_num_x != MESH_NUM_X_POINTS ||
+          mesh_num_y != MESH_NUM_Y_POINTS) {
+        mbl.reset();
+        for (int q=0; q<mesh_num_x*mesh_num_y; q++) {
+          EEPROM_READ_VAR(i, dummy);
+        }
+      } else {
+        EEPROM_READ_VAR(i, mbl.z_values);
+      }
+    #else
+      uint8_t dummy_uint8 = 0;
+      EEPROM_READ_VAR(i, dummy_uint8);
+      EEPROM_READ_VAR(i, mesh_num_x);
+      EEPROM_READ_VAR(i, mesh_num_y);
+      for (int q=0; q<mesh_num_x*mesh_num_y; q++) {
+        EEPROM_READ_VAR(i, dummy);
+      }
     #endif  // MESH_BED_LEVELING
 
     #ifdef DELTA
