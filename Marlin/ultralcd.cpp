@@ -6,6 +6,7 @@
 #include "temperature.h"
 #include "language.h"
 
+// Only for new LCD
 typedef struct {
     uint8_t type;
     char text[18];
@@ -13,6 +14,7 @@ typedef struct {
     void * data;
 } cache_entry;
 
+// Only for new LCD
 typedef struct {
     char filename[13];
     char longFilename[LONG_FILENAME_LENGTH];
@@ -82,7 +84,7 @@ bool    button_clicked_triggered;
 // Beeper related variables
 bool beeper_level = false;
 uint32_t beeper_duration = 0;
-
+uint8_t beep_count, frequency_ratio;
 uint8_t beep_count, frequency_ratio;
 
 // ISR related variables
@@ -376,6 +378,48 @@ void lcd_update()
     if ((lcd_oldcardstatus != IS_SD_INSERTED)) {
         display_refresh_mode = CLEAR_AND_UPDATE_SCREEN;
         lcd_oldcardstatus = IS_SD_INSERTED;
+        lcd_implementation_init(); // to maybe revive the LCD if static electricity killed it.
+
+        if(lcd_oldcardstatus) {
+            card.initsd();
+            LCD_MESSAGEPGM(MSG_SD_INSERTED);
+        } else {
+            card.release();
+            LCD_MESSAGEPGM(MSG_SD_REMOVED);
+        }
+    }
+#  endif // (SDCARDDETECT > 0)
+
+    if ( display_view == view_status_screen || display_timeout_blocked || button_input_updated || encoder_input_updated ) {
+        display_timeout = millis() + LCD_TIMEOUT_STATUS;
+    }
+
+    if (display_timeout < millis())
+        lcd_set_status_screen();
+
+    if (display_view != display_view_next) {
+        display_refresh_mode = CLEAR_AND_UPDATE_SCREEN;
+        lcd_clear_triggered_flags();
+    }
+
+    display_view = display_view_next;
+    
+    if (IS_SD_PRINTING == true) {
+        if (refresh_interval < millis()) {
+            (*display_view)();
+            refresh_interval = millis() + LCD_REFRESH_LIMIT;
+        }
+    } else {
+        (*display_view)();
+    }
+}
+
+void lcd_force_update()
+{
+    #  if (SDCARDDETECT > 0)
+    if ((lcd_oldcardstatus != IS_SD_INSERTED)) {
+        display_refresh_mode = CLEAR_AND_UPDATE_SCREEN;
+        lcd_oldcardstatus = IS_SD_INSERTED;
 
 #ifndef DOGLCD
         lcd_implementation_init(); // to maybe revive the LCD if static electricity killed it.
@@ -405,7 +449,7 @@ void lcd_update()
     }
 
     display_view = display_view_next;
-    
+
     if (IS_SD_PRINTING == true) {
         if (refresh_interval < millis()) {
             (*display_view)();
