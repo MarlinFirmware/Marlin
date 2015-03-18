@@ -61,7 +61,9 @@ static void lcd_control_volumetric_menu();
 #ifdef DOGLCD
 static void lcd_set_contrast();
 #endif
+#ifdef FWRETRACT
 static void lcd_control_retract_menu();
+#endif
 static void lcd_sdcard_menu();
 
 #ifdef DELTA_CALIBRATION_MENU
