@@ -3525,6 +3525,13 @@ inline void gcode_M203() {
  *  Also sets minimum segment time in ms (B20000) to prevent buffer under-runs and M20 minimum feedrate
  */
 inline void gcode_M204() {
+  if (code_seen('S'))   // Kept for legacy compatibility. Should NOT BE USED for new developments.
+  {
+    acceleration = code_value();
+    travel_acceleration = acceleration;
+    SERIAL_ECHOPAIR("Setting Printing and Travelling Acceleration: ", acceleration );
+    SERIAL_EOL;
+  }
   if (code_seen('P'))
   {
     acceleration = code_value();
