@@ -25,14 +25,10 @@
 
 #define PROTOCOL_VERSION "1.0"
 
-#if defined(WITBOX_DUAL)
-	#define MACHINE_NAME "bq WitboxDual"
-	#define FIRMWARE_URL "http://www.bqreaders.com/descargas-witbox.html"
-	#define FIRMWARE_VER "v1.4.1-Dual"
-#elif defined(WITBOX)
+#if defined(WITBOX)
 	#define MACHINE_NAME "bq Hephestos"
 	#define FIRMWARE_URL "http://www.bqreaders.com/descargas-witbox.html"
-	#define FIRMWARE_VER "v1.4.1"
+	#define FIRMWARE_VER "v1.4.2"
 #elif defined(CUSTOM_MENDEL_NAME)
 	#define MACHINE_NAME CUSTOM_MENDEL_NAME
 #else
