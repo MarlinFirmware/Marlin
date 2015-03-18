@@ -2564,7 +2564,7 @@ inline void gcode_M17() {
    * M28: Start SD Write
    */
   inline void gcode_M28() {
-    char* codepos = strchr_pointer + 4;
+//    char* codepos = strchr_pointer + 4; // ??? not used ???
     char* starpos = strchr(strchr_pointer + 4, '*');
     if (starpos) {
       char* npos = strchr(cmdbuffer[bufindr], 'N');
