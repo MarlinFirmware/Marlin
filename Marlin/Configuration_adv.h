@@ -312,12 +312,6 @@
   #ifdef COREXY
     #error BABYSTEPPING not implemented for COREXY yet.
   #endif
-
-  #ifdef DELTA
-    #ifdef BABYSTEP_XY
-      #error BABYSTEPPING only implemented for Z axis on deltabots.
-    #endif
-  #endif
 #endif
 
 // extruder advance constant (s2/mm3)

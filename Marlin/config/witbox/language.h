@@ -305,11 +305,6 @@
 		#define MSG_WIZARD_CHANGEFILAMENT_3_2	"  button to resume  "
 		#define MSG_WIZARD_CHANGEFILAMENT_3_3	"      printing      "
 
-		#ifdef WITBOX_DUAL
-			#define MSG_EXTRUDER_1 "Left extruder"
-			#define MSG_EXTRUDER_2 "Rigth extruder"
-		#endif // WITBOX_DUAL
-
 		#define MSG_SD_BAD_FILENAME "Bad filename!"
 	#endif // WITBOX
 #endif

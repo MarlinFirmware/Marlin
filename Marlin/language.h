@@ -25,33 +25,16 @@
 
 #define PROTOCOL_VERSION "1.0"
 
-#if defined(WITBOX_DUAL)
-	#define MACHINE_NAME "bq WitboxDual"
-	#define FIRMWARE_URL "http://www.bqreaders.com/descargas-witbox.html"
-	#define FIRMWARE_VER "v1.4-Dual"
-#elif defined(WITBOX)
+#if defined(WITBOX)
 	#define MACHINE_NAME "bq Witbox"
 	#define FIRMWARE_URL "http://www.bqreaders.com/descargas-witbox.html"
-	#define FIRMWARE_VER "v1.4"
+	#define FIRMWARE_VER "v1.4.2"
+#elif defined(CUSTOM_MENDEL_NAME)
+	#define MACHINE_NAME CUSTOM_MENDEL_NAME
 #else
-	#if MOTHERBOARD == 7 || MOTHERBOARD == 71 || MOTHERBOARD == 72
-		#define MACHINE_NAME "Ultimaker"
-		#define FIRMWARE_URL "http://firmware.ultimaker.com"
-	#elif MOTHERBOARD == 80
-		#define MACHINE_NAME "Rumba"
-		#define FIRMWARE_URL "https://github.com/ErikZalm/Marlin/"
-	#elif MOTHERBOARD == 77
-		#define MACHINE_NAME "3Drag"
-		#define FIRMWARE_URL "http://3dprint.elettronicain.it/"
-	#else
-		#ifdef CUSTOM_MENDEL_NAME
-			#define MACHINE_NAME CUSTOM_MENDEL_NAME
-		#else
-			#define MACHINE_NAME "Mendel"
-		#endif
-// Default firmware set to Mendel
+	// Default firmware set to Mendel
+	#define MACHINE_NAME "Mendel"
 	#define FIRMWARE_URL "https://github.com/ErikZalm/Marlin/"
-#endif
 #endif
 
 #ifndef MACHINE_UUID
@@ -176,7 +159,7 @@
 	#define MSG_MOVE_1MM "Move 1mm"
 	#define MSG_MOVE_10MM "Move 10mm"
 	#define MSG_SPEED "Speed"
-	#define MSG_NOZZLE "Nozzle"
+	#define MSG_NOZZLE "Temperature"
 	#define MSG_NOZZLE1 "Nozzle2"
 	#define MSG_NOZZLE2 "Nozzle3"
 	#define MSG_BED "Bed"
@@ -321,11 +304,6 @@
 		#define MSG_WIZARD_CHANGEFILAMENT_3_1	"extrudes, press the "
 		#define MSG_WIZARD_CHANGEFILAMENT_3_2	"  button to resume  "
 		#define MSG_WIZARD_CHANGEFILAMENT_3_3	"      printing      "
-
-		#ifdef WITBOX_DUAL
-			#define MSG_EXTRUDER_1 "Left extruder"
-			#define MSG_EXTRUDER_2 "Rigth extruder"
-		#endif // WITBOX_DUAL
 
 		#define MSG_SD_BAD_FILENAME "Bad filename!"
 	#endif // WITBOX
@@ -708,7 +686,7 @@
 	#define MSG_MOVE_1MM "Mover 1 mm"
 	#define MSG_MOVE_10MM "Mover 10 mm"
 	#define MSG_SPEED "Velocidad"
-	#define MSG_NOZZLE "Inyector"
+	#define MSG_NOZZLE "Temperatura"
 	#define MSG_NOZZLE1 "Inyector2"
 	#define MSG_NOZZLE2 "Inyector3"
 	#define MSG_BED "Base"

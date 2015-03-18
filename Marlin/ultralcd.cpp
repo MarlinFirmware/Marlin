@@ -1182,9 +1182,6 @@ static void function_sdcard_stop()
         card.closefile();
 
         setTargetHotend(0,0);
-#    ifdef WITBOX_DUAL
-        setTargetHotend(0,1);
-#    endif // WITBOX_DUAL
 
 #ifdef HEATED_BED_SUPPORT
         setTargetBed(0);
@@ -2558,13 +2555,8 @@ static void view_picture_splash()
 #endif
             lcd_implementation_set_cursor(1, 6);
             lcd_implementation_print_P(PSTR(MSG_WELLCOME));
-#  ifndef WITBOX_DUAL
             lcd_implementation_set_cursor(3, 8);
             lcd_implementation_print_P(PSTR(FIRMWARE_VER));
-#  else // WITBOX_DUAL
-            lcd_implementation_set_cursor(3, 6);
-            lcd_implementation_print_P(PSTR(FIRMWARE_VER));
-#  endif // WITBOX_DUAL
 #ifdef DOGLCD
         } while ( u8g.nextPage() );
 #endif

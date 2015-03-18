@@ -407,7 +407,6 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define WITBOX
 
 #ifdef WITBOX
-	//#define WITBOX_DUAL
 
 	#define EXTRUSION_SPEED 300
 	#define LEVEL_PLATE_TEMP_PROTECTION 60
