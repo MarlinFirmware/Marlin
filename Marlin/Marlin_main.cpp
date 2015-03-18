@@ -1230,6 +1230,7 @@ void process_commands()
 		  						z_before = current_position[Z_AXIS] + Z_RAISE_BETWEEN_PROBINGS;
 							}
 
+
 							float measured_z = probe_pt(xProbe, yProbe, z_before);
 
 							eqnBVector[probePointCounter] = measured_z;
@@ -2339,7 +2340,7 @@ void process_commands()
       			draw_wizard_change_filament();
       			lcd_force_update();
       			SERIAL_ECHOLN("Wizard set to 0");
-  
+
       			lcd_clear_triggered_flags();
       			while (!LCD_CLICKED){
         			manage_heater();
@@ -2374,7 +2375,7 @@ void process_commands()
       			disable_e0();
       			disable_e1();
       			disable_e2();
-      
+
       			lcd_clear_triggered_flags();
       			while (!LCD_CLICKED){
        				manage_heater();
