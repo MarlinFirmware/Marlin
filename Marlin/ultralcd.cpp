@@ -754,6 +754,7 @@ static void menu_action_setting_edit_long5(const char* pstr, unsigned long* ptr,
 
 void draw_status_screen() {
     lcd_set_status_screen();
+    encoder_position = 0;
     lcd_force_update();
 }
 
@@ -768,9 +769,22 @@ static void view_status_screen()
     if (display_time_refresh < millis())
         display_refresh_mode = UPDATE_SCREEN;
 
+    int8_t my_item = encoder_position / ENCODER_STEPS_PER_MENU_ITEM;
+
+    if (my_item > 9)
+    {
+        my_item = 9;
+        encoder_position = 9 * ENCODER_STEPS_PER_MENU_ITEM - 1;
+    }
+    else if (my_item < 0)
+    {
+        my_item = 0;
+        encoder_position = 0;
+    }
+
     // Printing the view
     if (display_refresh_mode == UPDATE_SCREEN) {
-        lcd_implementation_status_screen();
+        lcd_implementation_status_screen(my_item);
         display_time_refresh = millis() + LCD_REFRESH;
         display_refresh_mode = NO_UPDATE_SCREEN;
     }
