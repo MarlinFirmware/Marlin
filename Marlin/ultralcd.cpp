@@ -85,7 +85,6 @@ bool    button_clicked_triggered;
 bool beeper_level = false;
 uint32_t beeper_duration = 0;
 uint8_t beep_count, frequency_ratio;
-uint8_t beep_count, frequency_ratio;
 
 // ISR related variables
 uint16_t lcd_timer = 0;
@@ -460,52 +459,13 @@ void lcd_force_update()
     }
 }
 
-void lcd_force_update()
-{
-    #  if (SDCARDDETECT > 0)
-    if ((lcd_oldcardstatus != IS_SD_INSERTED)) {
-        display_refresh_mode = CLEAR_AND_UPDATE_SCREEN;
-        lcd_oldcardstatus = IS_SD_INSERTED;
-
-#ifndef DOGLCD
-        lcd_implementation_init(); // to maybe revive the LCD if static electricity killed it.
-#endif // !DOGLCD
-        lcd_set_status_screen();
-
-        if (lcd_oldcardstatus) {
-            card.initsd();
-            LCD_MESSAGEPGM(MSG_SD_INSERTED);
-        } else {
-            card.release();
-            LCD_MESSAGEPGM(MSG_SD_REMOVED);
-        }
-    }
-#  endif // (SDCARDDETECT > 0)
-
-    if ( display_view == view_status_screen || display_timeout_blocked || button_input_updated || encoder_input_updated ) {
-        display_timeout = millis() + LCD_TIMEOUT_STATUS;
-    }
-
-    if (display_timeout < millis())
-        lcd_set_status_screen();
-
-    if (display_view != display_view_next) {
-        display_refresh_mode = CLEAR_AND_UPDATE_SCREEN;
-        lcd_clear_triggered_flags();
-    }
-
-    display_view = display_view_next;
-    (*display_view)();
-}
-
-
-//
 void lcd_set_status_screen()
 {
     display_view_next = view_status_screen;
 
     lcd_clear_triggered_flags();
 }
+
 void lcd_set_menu(view_t menu)
 {
     display_view_next = menu;
