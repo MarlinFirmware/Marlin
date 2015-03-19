@@ -413,48 +413,49 @@ ISR(TIMER1_COMPA_vect) {
       #else
         // Head direction in -X axis for CoreXY bots.
         // If DeltaX == -DeltaY, the movement is only in Y axis
-        if (TEST(out_bits, X_HEAD) && (current_block->steps_x != current_block->steps_y || (TEST(out_bits, X_AXIS) == TEST(out_bits, Y_AXIS))))
+        if (current_block->steps_x != current_block->steps_y || (TEST(out_bits, X_AXIS) == TEST(out_bits, Y_AXIS)))      
+            if (TEST(out_bits, X_HEAD))
       #endif
-        { // -direction
-          #ifdef DUAL_X_CARRIAGE
-            // with 2 x-carriages, endstops are only checked in the homing direction for the active extruder
-            if ((current_block->active_extruder == 0 && X_HOME_DIR == -1) || (current_block->active_extruder != 0 && X2_HOME_DIR == -1))
-          #endif          
-            {
-              #if defined(X_MIN_PIN) && X_MIN_PIN >= 0
-                UPDATE_ENDSTOP(x, X, min, MIN);
+            { // -direction
+              #ifdef DUAL_X_CARRIAGE
+                // with 2 x-carriages, endstops are only checked in the homing direction for the active extruder
+                if ((current_block->active_extruder == 0 && X_HOME_DIR == -1) || (current_block->active_extruder != 0 && X2_HOME_DIR == -1))
+              #endif          
+                {
+                  #if defined(X_MIN_PIN) && X_MIN_PIN >= 0
+                    UPDATE_ENDSTOP(x, X, min, MIN);
+                  #endif
+                }
+            }
+            else { // +direction
+              #ifdef DUAL_X_CARRIAGE
+                // with 2 x-carriages, endstops are only checked in the homing direction for the active extruder
+                if ((current_block->active_extruder == 0 && X_HOME_DIR == 1) || (current_block->active_extruder != 0 && X2_HOME_DIR == 1))
+              #endif
+                {
+                  #if defined(X_MAX_PIN) && X_MAX_PIN >= 0
+                    UPDATE_ENDSTOP(x, X, max, MAX);
+                  #endif
+                }
+            }
+      #ifndef COREXY
+        if (TEST(out_bits, Y_AXIS))   // -direction
+      #else
+        // Head direction in -Y axis for CoreXY bots.
+        // If DeltaX == DeltaY, the movement is only in X axis
+        if (current_block->steps_x != current_block->steps_y || (TEST(out_bits, X_AXIS) != TEST(out_bits, Y_AXIS)))
+            if (TEST(out_bits, Y_HEAD))             
+      #endif
+            { // -direction
+              #if defined(Y_MIN_PIN) && Y_MIN_PIN >= 0
+                UPDATE_ENDSTOP(y, Y, min, MIN);
               #endif
             }
-        }
-        else { // +direction
-          #ifdef DUAL_X_CARRIAGE
-            // with 2 x-carriages, endstops are only checked in the homing direction for the active extruder
-            if ((current_block->active_extruder == 0 && X_HOME_DIR == 1) || (current_block->active_extruder != 0 && X2_HOME_DIR == 1))
-          #endif
-            {
-              #if defined(X_MAX_PIN) && X_MAX_PIN >= 0
-                UPDATE_ENDSTOP(x, X, max, MAX);
+            else { // +direction
+              #if defined(Y_MAX_PIN) && Y_MAX_PIN >= 0
+                UPDATE_ENDSTOP(y, Y, max, MAX);
               #endif
             }
-        }
-
-        #ifndef COREXY
-          if (TEST(out_bits, Y_AXIS))   // -direction
-        #else
-          // Head direction in -Y axis for CoreXY bots.
-          // If DeltaX == DeltaY, the movement is only in X axis
-          if (TEST(out_bits, Y_HEAD) && (current_block->steps_x != current_block->steps_y || (TEST(out_bits, X_AXIS) != TEST(out_bits, Y_AXIS))))
-        #endif
-        { // -direction
-          #if defined(Y_MIN_PIN) && Y_MIN_PIN >= 0
-            UPDATE_ENDSTOP(y, Y, min, MIN);
-          #endif
-        }
-        else { // +direction
-          #if defined(Y_MAX_PIN) && Y_MAX_PIN >= 0
-            UPDATE_ENDSTOP(y, Y, max, MAX);
-          #endif
-        }
     }
 
     if (TEST(out_bits, Z_AXIS)) {   // -direction
@@ -528,10 +529,10 @@ ISR(TIMER1_COMPA_vect) {
         #endif
 
         #define STEP_IF_COUNTER(axis, AXIS) \
-          if (counter_## axis > 0) {
+          if (counter_## axis > 0) { \
             counter_## axis -= current_block->step_event_count; \
             count_position[AXIS ##_AXIS] += count_direction[AXIS ##_AXIS]; \
-            AXIS ##_STEP_WRITE(LOW);
+            AXIS ##_STEP_WRITE(LOW); \
           }
 
         STEP_IF_COUNTER(x, X);

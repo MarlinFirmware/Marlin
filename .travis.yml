@@ -140,8 +140,12 @@ script:
   - rm -rf .build/
   - ino build -m mega2560
   ######## Example Configurations ##############
-  # Delta Config
-  - cp Marlin/example_configurations/delta/Configuration* Marlin/
+  # Delta Config (generic)
+  - cp Marlin/example_configurations/delta/generic/Configuration* Marlin/
+  - rm -rf .build/
+  - ino build -m mega2560
+  # Delta Config (Mini Kossel)
+  - cp Marlin/example_configurations/delta/kossel_mini/Configuration* Marlin/
   - rm -rf .build/
   - ino build -m mega2560
   # Makibox Config  need to check board type for Teensy++ 2.0
