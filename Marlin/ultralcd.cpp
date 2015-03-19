@@ -1246,7 +1246,7 @@ void lcd_update() {
     }
   #endif//CARDINSERTED
 
-  long ms = millis();
+  uint32_t ms = millis();
   if (ms > lcd_next_update_millis) {
 
     #ifdef ULTIPANEL
