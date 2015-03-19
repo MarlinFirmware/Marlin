@@ -414,7 +414,7 @@ char lcd_printPGM(const char* str) {
 
 char lcd_print(char* str) {
   char c;
-  char i = 0;
+  unsigned char i = 0;
   char n = 0;
   while((c = str[i++])) {
       n += charset_mapper(c);
