@@ -30,19 +30,15 @@
 
 #include <U8glib.h>
 #include "DOGMbitmaps.h"
+
 #include "ultralcd.h"
 #include "ultralcd_st7920_u8glib_rrd.h"
 #include "Configuration.h"
 
-
-#include <utility/u8g.h>
-#include "dogm_font_data_6x9_marlin.h"       // Height of 'A' is only 6 pixel.
 #include "dogm_font_data_Marlin_symbols.h"   // The Marlin special symbols
-
-#define FONT_STATUSMENU_NAME u8g_font_6x9    // we don't have a small font for Cyrillic, Kana
 #define FONT_SPECIAL_NAME Marlin_symbols
 
-// save 3120 bytes of PROGMEM by commenting out the next #define
+// save 3120 bytes of PROGMEM by commenting out #define USE_BIG_EDIT_FONT
 // we don't have a big font for Cyrillic, Kana
 #if defined( MAPPER_C2C3 ) || defined( MAPPER_NON )
   #define USE_BIG_EDIT_FONT
@@ -50,8 +46,8 @@
 
 #ifndef SIMULATE_ROMFONT
   #if defined( DISPLAY_CHARSET_ISO10646_1 )
-    #include <utility/u8g.h> // System font.
-    #define FONT_MENU_NAME u8g_font_6x10
+    #include "dogm_font_data_ISO10646_1.h"
+    #define FONT_MENU_NAME ISO10646_1_5x7
   #elif defined( DISPLAY_CHARSET_ISO10646_5 )
     #include "dogm_font_data_ISO10646_5_Cyrillic.h"
     #define FONT_MENU_NAME ISO10646_5_Cyrillic_5x7
@@ -59,8 +55,8 @@
     #include "dogm_font_data_ISO10646_Kana.h"
     #define FONT_MENU_NAME ISO10646_Kana_5x7
   #else // fall-back
-    #include <utility/u8g.h> // system font
-    #define FONT_MENU_NAME u8g_font_6x10
+    #include "dogm_font_data_ISO10646_1.h"
+    #define FONT_MENU_NAME ISO10646_1_5x7
   #endif
 #else // SIMULATE_ROMFONT
   #if defined( DISPLAY_CHARSET_HD44780_JAPAN )
@@ -73,10 +69,12 @@
     #include "dogm_font_data_HD44780_C.h"
     #define FONT_MENU_NAME HD44780_C_5x7
   #else // fall-back
-    #include <utility/u8g.h> // system font
-    #define FONT_MENU_NAME u8g_font_6x10
+    #include "dogm_font_data_ISO10646_1.h"
+    #define FONT_MENU_NAME ISO10646_1_5x7
   #endif
 #endif // SIMULATE_ROMFONT
+
+#define FONT_STATUSMENU_NAME FONT_MENU_NAME
 
 #define FONT_STATUSMENU 1
 #define FONT_SPECIAL 2
@@ -112,7 +110,7 @@
 #define LCD_STR_THERMOMETER "\x08"
 #define LCD_STR_DEGREE      "\x09"
 
-#define LCD_STR_SPECIAL_MAX LCD_STR_DEGREE
+#define LCD_STR_SPECIAL_MAX '\x09'
 // Maximum here is 0x1f because 0x20 is ' ' (space) and the normal charsets begin.
 // Better stay below 0x10 because DISPLAY_CHARSET_HD44780_WESTERN begins here.
 
@@ -148,7 +146,7 @@ static void lcd_setFont(char font_nr) {
 }
 
 char lcd_print(char c) {
-  if ((c > 0) && (c < ' ')) {
+  if ((c > 0) && (c <= LCD_STR_SPECIAL_MAX)) {
     u8g.setFont(FONT_SPECIAL_NAME);
     u8g.print(c);
     lcd_setFont(currentfont);
@@ -228,11 +226,12 @@ static void lcd_implementation_clear() { } // Automatically cleared by Picture L
 static void _draw_heater_status(int x, int heater) {
   bool isBed = heater < 0;
   int y = 17 + (isBed ? 1 : 0);
+
   lcd_setFont(FONT_STATUSMENU);
-  u8g.setPrintPos(x,6);
+  u8g.setPrintPos(x,7);
   lcd_print(itostr3(int((heater >= 0 ? degTargetHotend(heater) : degTargetBed()) + 0.5)));
   lcd_printPGM(PSTR(LCD_STR_DEGREE " "));
-  u8g.setPrintPos(x,27);
+  u8g.setPrintPos(x,28);
   lcd_print(itostr3(int(heater >= 0 ? degHotend(heater) : degBed()) + 0.5));
   lcd_printPGM(PSTR(LCD_STR_DEGREE " "));
   if (!isHeatingHotend(0)) {
