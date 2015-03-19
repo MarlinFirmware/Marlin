@@ -349,16 +349,11 @@ static void lcd_sdcard_pause() { card.pauseSDPrint(); }
 static void lcd_sdcard_resume() { card.startFileprint(); }
 
 static void lcd_sdcard_stop() {
+  quickStop();
   card.sdprinting = false;
   card.closefile();
-  quickStop();
-  if (SD_FINISHED_STEPPERRELEASE) {
-    enquecommands_P(PSTR(SD_FINISHED_RELEASECOMMAND));
-  }
   autotempShutdown();
-
   cancel_heatup = true;
-
   lcd_setstatus(MSG_PRINT_ABORTED);
 }
 
