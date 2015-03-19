@@ -118,64 +118,84 @@ static void menu_action_setting_edit_callback_long5(const char* pstr, unsigned l
 
 
 /* Helper macros for menus */
+
+/**
+ * START_MENU generates the init code for a menu function
+ */
 #define START_MENU() do { \
-	encoderRateMultiplierEnabled = false; \
-    if (encoderPosition > 0x8000) encoderPosition = 0; \
-    if (encoderPosition / ENCODER_STEPS_PER_MENU_ITEM < currentMenuViewOffset) currentMenuViewOffset = encoderPosition / ENCODER_STEPS_PER_MENU_ITEM;\
-    uint8_t _lineNr = currentMenuViewOffset, _menuItemNr; \
-    bool wasClicked = LCD_CLICKED;\
-    for(uint8_t _drawLineNr = 0; _drawLineNr < LCD_HEIGHT; _drawLineNr++, _lineNr++) { \
-        _menuItemNr = 0;
+  encoderRateMultiplierEnabled = false; \
+  if (encoderPosition > 0x8000) encoderPosition = 0; \
+  uint8_t encoderLine = encoderPosition / ENCODER_STEPS_PER_MENU_ITEM; \
+  if (encoderLine < currentMenuViewOffset) currentMenuViewOffset = encoderLine; \
+  uint8_t _lineNr = currentMenuViewOffset, _menuItemNr; \
+  bool wasClicked = LCD_CLICKED, itemSelected; \
+  if (wasClicked) lcd_quick_feedback(); \
+  for (uint8_t _drawLineNr = 0; _drawLineNr < LCD_HEIGHT; _drawLineNr++, _lineNr++) { \
+    _menuItemNr = 0;
+
+/**
+ * MENU_ITEM generates draw & handler code for a menu item, potentially calling:
+ *
+ *   lcd_implementation_drawmenu_[type](sel, row, label, arg3...)
+ *   menu_action_[type](arg3...)
+ *
+ * Examples:
+ *   MENU_ITEM(back, MSG_WATCH, lcd_status_screen)
+ *     lcd_implementation_drawmenu_back(sel, row, PSTR(MSG_WATCH), lcd_status_screen)
+ *     menu_action_back(lcd_status_screen)
+ *
+ *   MENU_ITEM(function, MSG_PAUSE_PRINT, lcd_sdcard_pause)
+ *     lcd_implementation_drawmenu_function(sel, row, PSTR(MSG_PAUSE_PRINT), lcd_sdcard_pause)
+ *     menu_action_function(lcd_sdcard_pause)
+ *
+ *   MENU_ITEM_EDIT(int3, MSG_SPEED, &feedmultiply, 10, 999)
+ *   MENU_ITEM(setting_edit_int3, MSG_SPEED, PSTR(MSG_SPEED), &feedmultiply, 10, 999)
+ *     lcd_implementation_drawmenu_setting_edit_int3(sel, row, PSTR(MSG_SPEED), PSTR(MSG_SPEED), &feedmultiply, 10, 999)
+ *     menu_action_setting_edit_int3(PSTR(MSG_SPEED), &feedmultiply, 10, 999)
+ *
+ */
 #define MENU_ITEM(type, label, args...) do { \
-    if (_menuItemNr == _lineNr) { \
-        if (lcdDrawUpdate) { \
-            const char* _label_pstr = PSTR(label); \
-            if ((encoderPosition / ENCODER_STEPS_PER_MENU_ITEM) == _menuItemNr) { \
-                lcd_implementation_drawmenu_ ## type ## _selected (_drawLineNr, _label_pstr , ## args ); \
-            }else{\
-                lcd_implementation_drawmenu_ ## type (_drawLineNr, _label_pstr , ## args ); \
-            }\
-        }\
-        if (wasClicked && (encoderPosition / ENCODER_STEPS_PER_MENU_ITEM) == _menuItemNr) {\
-            lcd_quick_feedback(); \
-            menu_action_ ## type ( args ); \
-            return;\
-        }\
-    }\
-    _menuItemNr++;\
+  if (_menuItemNr == _lineNr) { \
+    itemSelected = encoderLine == _menuItemNr; \
+    if (lcdDrawUpdate) \
+      lcd_implementation_drawmenu_ ## type(itemSelected, _drawLineNr, PSTR(label), ## args); \
+    if (wasClicked && itemSelected) { \
+      menu_action_ ## type(args); \
+      return; \
+    } \
+  } \
+  _menuItemNr++; \
 } while(0)
+
 #ifdef ENCODER_RATE_MULTIPLIER
+  /**
+   * MENU_MULTIPLIER_ITEM generates drawing and handling code for a multiplier menu item
+   */
   #define MENU_MULTIPLIER_ITEM(type, label, args...) do { \
     if (_menuItemNr == _lineNr) { \
-      if (lcdDrawUpdate) { \
-        const char* _label_pstr = PSTR(label); \
-        if ((encoderPosition / ENCODER_STEPS_PER_MENU_ITEM) == _menuItemNr) { \
-          lcd_implementation_drawmenu_ ## type ## _selected (_drawLineNr, _label_pstr , ## args ); \
-        } \
-        else { \
-          lcd_implementation_drawmenu_ ## type (_drawLineNr, _label_pstr , ## args ); \
-        } \
-      } \
-      if (wasClicked && (encoderPosition / ENCODER_STEPS_PER_MENU_ITEM) == _menuItemNr) { \
-        lcd_quick_feedback(); \
+      itemSelected = encoderLine == _menuItemNr; \
+      if (lcdDrawUpdate) \
+        lcd_implementation_drawmenu_ ## type(itemSelected, _drawLineNr, PSTR(label), ## args); \
+      if (wasClicked && itemSelected) { \
         encoderRateMultiplierEnabled = true; \
         lastEncoderMovementMillis = 0; \
-        menu_action_ ## type ( args ); \
+        menu_action_ ## type(args); \
         return; \
       } \
     } \
     _menuItemNr++; \
   } while(0)
 #endif //ENCODER_RATE_MULTIPLIER
+
 #define MENU_ITEM_DUMMY() do { _menuItemNr++; } while(0)
-#define MENU_ITEM_EDIT(type, label, args...) MENU_ITEM(setting_edit_ ## type, label, PSTR(label) , ## args )
-#define MENU_ITEM_EDIT_CALLBACK(type, label, args...) MENU_ITEM(setting_edit_callback_ ## type, label, PSTR(label) , ## args )
+#define MENU_ITEM_EDIT(type, label, args...) MENU_ITEM(setting_edit_ ## type, label, PSTR(label), ## args)
+#define MENU_ITEM_EDIT_CALLBACK(type, label, args...) MENU_ITEM(setting_edit_callback_ ## type, label, PSTR(label), ## args)
 #ifdef ENCODER_RATE_MULTIPLIER
-  #define MENU_MULTIPLIER_ITEM_EDIT(type, label, args...) MENU_MULTIPLIER_ITEM(setting_edit_ ## type, label, PSTR(label) , ## args )
-  #define MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(type, label, args...) MENU_MULTIPLIER_ITEM(setting_edit_callback_ ## type, label, PSTR(label) , ## args )
+  #define MENU_MULTIPLIER_ITEM_EDIT(type, label, args...) MENU_MULTIPLIER_ITEM(setting_edit_ ## type, label, PSTR(label), ## args)
+  #define MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(type, label, args...) MENU_MULTIPLIER_ITEM(setting_edit_callback_ ## type, label, PSTR(label), ## args)
 #else //!ENCODER_RATE_MULTIPLIER
-  #define MENU_MULTIPLIER_ITEM_EDIT(type, label, args...) MENU_ITEM(setting_edit_ ## type, label, PSTR(label) , ## args )
-  #define MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(type, label, args...) MENU_ITEM(setting_edit_callback_ ## type, label, PSTR(label) , ## args )
+  #define MENU_MULTIPLIER_ITEM_EDIT(type, label, args...) MENU_ITEM(setting_edit_ ## type, label, PSTR(label), ## args)
+  #define MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(type, label, args...) MENU_ITEM(setting_edit_callback_ ## type, label, PSTR(label), ## args)
 #endif //!ENCODER_RATE_MULTIPLIER
 #define END_MENU() \
     if (encoderPosition / ENCODER_STEPS_PER_MENU_ITEM >= _menuItemNr) encoderPosition = _menuItemNr * ENCODER_STEPS_PER_MENU_ITEM - 1; \
@@ -458,9 +478,9 @@ static void lcd_tune_menu() {
   #if TEMP_SENSOR_BED != 0
     MENU_MULTIPLIER_ITEM_EDIT(int3, MSG_BED, &target_temperature_bed, 0, BED_MAXTEMP - 15);
   #endif
-    MENU_MULTIPLIER_ITEM_EDIT(int3, MSG_FAN_SPEED, &fanSpeed, 0, 255);
-    MENU_ITEM_EDIT(int3, MSG_FLOW, &extrudemultiply, 10, 999);
-    MENU_ITEM_EDIT(int3, MSG_FLOW MSG_F0, &extruder_multiply[0], 10, 999);
+  MENU_MULTIPLIER_ITEM_EDIT(int3, MSG_FAN_SPEED, &fanSpeed, 0, 255);
+  MENU_ITEM_EDIT(int3, MSG_FLOW, &extrudemultiply, 10, 999);
+  MENU_ITEM_EDIT(int3, MSG_FLOW MSG_F0, &extruder_multiply[0], 10, 999);
   #if TEMP_SENSOR_1 != 0
     MENU_ITEM_EDIT(int3, MSG_FLOW MSG_F1, &extruder_multiply[1], 10, 999);
   #endif
