@@ -357,6 +357,7 @@ int fanSpeed = 0;
 
 #ifdef SCARA
   float axis_scaling[3] = { 1, 1, 1 };    // Build size scaling, default to 1
+  static float delta[3] = { 0, 0, 0 };		
 #endif        
 
 bool cancel_heatup = false;
@@ -382,10 +383,6 @@ const char echomagic[] PROGMEM = "echo:";
 
 const char axis_codes[NUM_AXIS] = {'X', 'Y', 'Z', 'E'};
 static float destination[NUM_AXIS] = { 0, 0, 0, 0 };
-
-#ifndef DELTA
-  static float delta[3] = { 0, 0, 0 };
-#endif
 
 static float offset[3] = { 0, 0, 0 };
 static bool home_all_axis = true;
