@@ -65,6 +65,18 @@
 #ifndef MSG_PREHEAT_ABS_SETTINGS
 #define MSG_PREHEAT_ABS_SETTINGS            MSG_PREHEAT_ABS " conf"
 #endif
+#ifndef MSG_H1
+#define MSG_H1                              "1"
+#endif
+#ifndef MSG_H2
+#define MSG_H2                              "2"
+#endif
+#ifndef MSG_H3
+#define MSG_H3                              "3"
+#endif
+#ifndef MSG_H4
+#define MSG_H4                              "4"
+#endif
 #ifndef MSG_COOLDOWN
 #define MSG_COOLDOWN                        "Cooldown"
 #endif
@@ -110,6 +122,15 @@
 #ifndef MSG_NOZZLE
 #define MSG_NOZZLE                          "Nozzle"
 #endif
+#ifndef MSG_N2
+#define MSG_N2                              " 2"
+#endif
+#ifndef MSG_N3
+#define MSG_N3                              " 3"
+#endif
+#ifndef MSG_N4
+#define MSG_N4                              " 4"
+#endif
 #ifndef MSG_BED
 #define MSG_BED                             "Bed"
 #endif
@@ -118,6 +139,18 @@
 #endif
 #ifndef MSG_FLOW
 #define MSG_FLOW                            "Flow"
+#endif
+#ifndef MSG_F0
+#define MSG_F0                              " 0"
+#endif
+#ifndef MSG_F1
+#define MSG_F1                              " 1"
+#endif
+#ifndef MSG_F2
+#define MSG_F2                              " 2"
+#endif
+#ifndef MSG_F3
+#define MSG_F3                              " 3"
 #endif
 #ifndef MSG_CONTROL
 #define MSG_CONTROL                         "Control"
@@ -151,6 +184,15 @@
 #endif
 #ifndef MSG_PID_C
 #define MSG_PID_C                           "PID-C"
+#endif
+#ifndef MSG_E2
+#define MSG_E2                              " E2"
+#endif
+#ifndef MSG_E3
+#define MSG_E3                              " E3"
+#endif
+#ifndef MSG_E4
+#define MSG_E4                              " E4"
 #endif
 #ifndef MSG_ACC
 #define MSG_ACC                             "Accel"
@@ -191,6 +233,9 @@
 #ifndef MSG_A_RETRACT
 #define MSG_A_RETRACT                       "A-retract"
 #endif
+#ifndef MSG_A_TRAVEL
+#define MSG_A_TRAVEL                        "A-travel"
+#endif
 #ifndef MSG_XSTEPS
 #define MSG_XSTEPS                          "Xsteps/mm"
 #endif
@@ -213,7 +258,7 @@
 #define MSG_VOLUMETRIC                      "Filament"
 #endif
 #ifndef MSG_VOLUMETRIC_ENABLED
-#define MSG_VOLUMETRIC_ENABLED		          "E in mm" STR_h3
+#define MSG_VOLUMETRIC_ENABLED              "E in mm" STR_h3
 #endif
 #ifndef MSG_FILAMENT_SIZE_EXTRUDER_0
 #define MSG_FILAMENT_SIZE_EXTRUDER_0        "Fil. Dia. 1"
@@ -341,23 +386,41 @@
 #ifndef MSG_ENDSTOP_ABORT
 #define MSG_ENDSTOP_ABORT                   "Endstop abort"
 #endif
+#ifndef MSG_HEATING_FAILED_LCD
+#define MSG_HEATING_FAILED_LCD              "Heating failed"
+#endif
+#ifndef MSG_ERR_REDUNDANT_TEMP
+#define MSG_ERR_REDUNDANT_TEMP              "Err: REDUNDANT TEMP ERROR"
+#endif
+#ifndef MSG_THERMAL_RUNAWAY
+#define MSG_THERMAL_RUNAWAY                 "THERMAL RUNAWAY"
+#endif
+#ifndef MSG_ERR_MAXTEMP
+#define MSG_ERR_MAXTEMP                     "Err: MAXTEMP"
+#endif
+#ifndef MSG_ERR_MINTEMP
+#define MSG_ERR_MINTEMP                     "Err: MINTEMP"
+#endif
+#ifndef MSG_ERR_MAXTEMP_BED
+#define MSG_ERR_MAXTEMP_BED                 "Err: MAXTEMP BED"
+#endif
 
 #ifdef DELTA_CALIBRATION_MENU
-    #ifndef MSG_DELTA_CALIBRATE
-    #define MSG_DELTA_CALIBRATE             "Delta Calibration"
-    #endif
-    #ifndef MSG_DELTA_CALIBRATE_X
-    #define MSG_DELTA_CALIBRATE_X           "Calibrate X"
-    #endif
-    #ifndef MSG_DELTA_CALIBRATE_Y
-    #define MSG_DELTA_CALIBRATE_Y           "Calibrate Y"
-    #endif
-    #ifndef MSG_DELTA_CALIBRATE_Z
-    #define MSG_DELTA_CALIBRATE_Z           "Calibrate Z"
-    #endif
-    #ifndef MSG_DELTA_CALIBRATE_CENTER
-    #define MSG_DELTA_CALIBRATE_CENTER      "Calibrate Center"
-    #endif
+  #ifndef MSG_DELTA_CALIBRATE
+  #define MSG_DELTA_CALIBRATE             "Delta Calibration"
+  #endif
+  #ifndef MSG_DELTA_CALIBRATE_X
+  #define MSG_DELTA_CALIBRATE_X           "Calibrate X"
+  #endif
+  #ifndef MSG_DELTA_CALIBRATE_Y
+  #define MSG_DELTA_CALIBRATE_Y           "Calibrate Y"
+  #endif
+  #ifndef MSG_DELTA_CALIBRATE_Z
+  #define MSG_DELTA_CALIBRATE_Z           "Calibrate Z"
+  #endif
+  #ifndef MSG_DELTA_CALIBRATE_CENTER
+  #define MSG_DELTA_CALIBRATE_CENTER      "Calibrate Center"
+  #endif
 #endif // DELTA_CALIBRATION_MENU
 
 #endif // LANGUAGE_EN_H

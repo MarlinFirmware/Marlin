@@ -121,6 +121,7 @@
 #define MSG_UNKNOWN_COMMAND                 "Unknown command: \""
 #define MSG_ACTIVE_EXTRUDER                 "Active Extruder: "
 #define MSG_INVALID_EXTRUDER                "Invalid extruder"
+#define MSG_INVALID_SOLENOID                "Invalid solenoid"
 #define MSG_X_MIN                           "x_min: "
 #define MSG_X_MAX                           "x_max: "
 #define MSG_Y_MIN                           "y_min: "
@@ -159,6 +160,43 @@
 
 #define MSG_ERR_EEPROM_WRITE                "Error writing to EEPROM!"
 
+// temperature.cpp strings
+#define MSG_PID_AUTOTUNE                    "PID Autotune"
+#define MSG_PID_AUTOTUNE_START              MSG_PID_AUTOTUNE " start"
+#define MSG_PID_AUTOTUNE_FAILED             MSG_PID_AUTOTUNE " failed!"
+#define MSG_PID_BAD_EXTRUDER_NUM            MSG_PID_AUTOTUNE_FAILED " Bad extruder number"
+#define MSG_PID_TEMP_TOO_HIGH               MSG_PID_AUTOTUNE_FAILED " Temperature too high"
+#define MSG_PID_TIMEOUT                     MSG_PID_AUTOTUNE_FAILED " timeout"
+#define MSG_BIAS                            " bias: "
+#define MSG_D                               " d: "
+#define MSG_T_MIN                           " min: "
+#define MSG_T_MAX                           " max: "
+#define MSG_KU                              " Ku: "
+#define MSG_TU                              " Tu: "
+#define MSG_CLASSIC_PID                     " Classic PID "
+#define MSG_KP                              " Kp: "
+#define MSG_KI                              " Ki: "
+#define MSG_KD                              " Kd: "
+#define MSG_OK_B                            "ok B:"
+#define MSG_OK_T                            "ok T:"
+#define MSG_AT                              " @:"
+#define MSG_PID_AUTOTUNE_FINISHED           MSG_PID_AUTOTUNE " finished! Put the last Kp, Ki and Kd constants from above into Configuration.h"
+#define MSG_PID_DEBUG                       " PID_DEBUG "
+#define MSG_PID_DEBUG_INPUT                 ": Input "
+#define MSG_PID_DEBUG_OUTPUT                " Output "
+#define MSG_PID_DEBUG_PTERM                 " pTerm "
+#define MSG_PID_DEBUG_ITERM                 " iTerm "
+#define MSG_PID_DEBUG_DTERM                 " dTerm "
+#define MSG_HEATING_FAILED                  "Heating failed"
+#define MSG_EXTRUDER_SWITCHED_OFF           "Extruder switched off. Temperature difference between temp sensors is too high !"
+
+#define MSG_INVALID_EXTRUDER_NUM            " - Invalid extruder number !"
+#define MSG_THERMAL_RUNAWAY_STOP            "Thermal Runaway, system stopped! Heater_ID: "
+#define MSG_SWITCHED_OFF_MAX                " switched off. MAXTEMP triggered !!"
+#define MSG_MINTEMP_EXTRUDER_OFF            ": Extruder switched off. MINTEMP triggered !"
+#define MSG_MAXTEMP_EXTRUDER_OFF            ": Extruder" MSG_SWITCHED_OFF_MAX
+#define MSG_MAXTEMP_BED_OFF                 "Heated bed" MSG_SWITCHED_OFF_MAX
+
 // LCD Menu Messages
 
 // Add your own character. Reference: https://github.com/MarlinFirmware/Marlin/pull/1434 photos
@@ -188,8 +226,7 @@
     #define STR_h3 "3"
     #define STR_Deg "\271"
     #define STR_THERMOMETER "\002"
-  #endif
-  #ifdef DISPLAY_CHARSET_HD44780_WESTERN // HD44780 ROM Code: A02 (Western)
+  #elif defined(DISPLAY_CHARSET_HD44780_WESTERN) // HD44780 ROM Code: A02 (Western)
     #define STR_Ae "\216"
     #define STR_ae "\204"
     #define STR_Oe "\211"
@@ -201,6 +238,8 @@
     #define STR_h3 "\263"
     #define STR_Deg "\337"
     #define STR_THERMOMETER "\002"
+  #elif defined(ULTRA_LCD)
+    #error You must enable either DISPLAY_CHARSET_HD44780_JAPAN or DISPLAY_CHARSET_HD44780_WESTERN for your LCD controller.
   #endif
 #endif
 /*

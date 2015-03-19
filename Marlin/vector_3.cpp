@@ -79,12 +79,12 @@ void vector_3::debug(char* title)
 {
 	SERIAL_PROTOCOL(title);
 	SERIAL_PROTOCOLPGM(" x: ");
-	SERIAL_PROTOCOL(x);
+	SERIAL_PROTOCOL_F(x, 6);
 	SERIAL_PROTOCOLPGM(" y: ");
-	SERIAL_PROTOCOL(y);
+	SERIAL_PROTOCOL_F(y, 6);
 	SERIAL_PROTOCOLPGM(" z: ");
-	SERIAL_PROTOCOL(z);
-	SERIAL_PROTOCOLPGM("\n");
+	SERIAL_PROTOCOL_F(z, 6);
+	SERIAL_EOL;
 }
 
 void apply_rotation_xyz(matrix_3x3 matrix, float &x, float& y, float& z)
@@ -145,22 +145,17 @@ matrix_3x3 matrix_3x3::transpose(matrix_3x3 original)
   return new_matrix;
 }
 
-void matrix_3x3::debug(char* title)
-{
-	SERIAL_PROTOCOL(title);
-	SERIAL_PROTOCOL("\n");
-	int count = 0;
-	for(int i=0; i<3; i++)
-	{
-		for(int j=0; j<3; j++)
-		{
-			SERIAL_PROTOCOL(matrix[count]);
-			SERIAL_PROTOCOLPGM(" ");
-		        count++;
-		}
-
-		SERIAL_PROTOCOLPGM("\n");
-	}
+void matrix_3x3::debug(char* title) {
+  SERIAL_PROTOCOLLN(title);
+  int count = 0;
+  for(int i=0; i<3; i++) {
+    for(int j=0; j<3; j++) {
+      SERIAL_PROTOCOL_F(matrix[count], 6);
+      SERIAL_PROTOCOLPGM(" ");
+      count++;
+    }
+    SERIAL_EOL;
+  }
 }
 
 #endif // #ifdef ENABLE_AUTO_BED_LEVELING
