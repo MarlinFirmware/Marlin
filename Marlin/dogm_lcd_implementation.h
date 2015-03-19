@@ -282,8 +282,8 @@ static void lcd_implementation_status_screen() {
   #endif
 }
 
-static void lcd_implementation_mark_as_selected(uint8_t row, char pr_char) {
-  if (pr_char != ' ') {
+static void lcd_implementation_mark_as_selected(uint8_t row, bool isSelected) {
+  if (isSelected) {
     u8g.setColorIndex(1);  // black on white
     u8g.drawBox (0, row*DOG_CHAR_HEIGHT + 3, 128, DOG_CHAR_HEIGHT);
     u8g.setColorIndex(0);  // following text must be white on black
@@ -294,11 +294,11 @@ static void lcd_implementation_mark_as_selected(uint8_t row, char pr_char) {
   u8g.setPrintPos(START_ROW * DOG_CHAR_WIDTH, (row + 1) * DOG_CHAR_HEIGHT);
 }
 
-static void lcd_implementation_drawmenu_generic(bool sel, uint8_t row, const char* pstr, char pre_char, char post_char) {
+static void lcd_implementation_drawmenu_generic(bool isSelected, uint8_t row, const char* pstr, char pre_char, char post_char) {
   char c;
   uint8_t n = LCD_WIDTH - 2;
 
-  lcd_implementation_mark_as_selected(row, sel ? pre_char : ' ');
+  lcd_implementation_mark_as_selected(row, isSelected);
 
   while ((c = pgm_read_byte(pstr))) {
     u8g.print(c);
@@ -310,11 +310,11 @@ static void lcd_implementation_drawmenu_generic(bool sel, uint8_t row, const cha
   u8g.print(' ');
 }
 
-static void _drawmenu_setting_edit_generic(bool sel, uint8_t row, const char* pstr, const char* data, bool pgm) {
+static void _drawmenu_setting_edit_generic(bool isSelected, uint8_t row, const char* pstr, const char* data, bool pgm) {
   char c;
   uint8_t n = LCD_WIDTH - 2 - (pgm ? lcd_strlen_P(data) : (lcd_strlen((char*)data)));
 
-  lcd_implementation_mark_as_selected(row, sel ? '>' : ' ');
+  lcd_implementation_mark_as_selected(row, isSelected);
 
   while ((c = pgm_read_byte(pstr))) {
     u8g.print(c);
@@ -379,7 +379,7 @@ void lcd_implementation_drawedit(const char* pstr, char* value) {
   u8g.print(value);
 }
 
-static void _drawmenu_sd(bool sel, uint8_t row, const char* pstr, const char* filename, char * const longFilename, bool isDir) {
+static void _drawmenu_sd(bool isSelected, uint8_t row, const char* pstr, const char* filename, char * const longFilename, bool isDir) {
   char c;
   uint8_t n = LCD_WIDTH - 1;
 
@@ -388,7 +388,7 @@ static void _drawmenu_sd(bool sel, uint8_t row, const char* pstr, const char* fi
     longFilename[n] = '\0';
   }
 
-  lcd_implementation_mark_as_selected(row, sel ? '>' : ' ');
+  lcd_implementation_mark_as_selected(row, isSelected);
 
   if (isDir) u8g.print(LCD_STR_FOLDER[0]);
   while ((c = *filename)) {
