@@ -1063,7 +1063,7 @@ Having the real displacement of the head, we can calculate the total movement le
   st_wake_up();
 }
 
-#ifdef ENABLE_AUTO_BED_LEVELING
+#if defined(ENABLE_AUTO_BED_LEVELING) && not defined(DELTA)
 vector_3 plan_get_position() {
 	vector_3 position = vector_3(st_get_position_mm(X_AXIS), st_get_position_mm(Y_AXIS), st_get_position_mm(Z_AXIS));
 
