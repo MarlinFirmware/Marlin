@@ -139,7 +139,7 @@ static void lcd_implementation_init()
       u8g.drawStr(txt1X, u8g.getHeight() - DOG_CHAR_HEIGHT*3/2, STRING_SPLASH_LINE1);
       u8g.drawStr(txt2X, u8g.getHeight() - DOG_CHAR_HEIGHT*1/2, STRING_SPLASH_LINE2);
     #endif
-	} while(u8g.nextPage());
+	} while (u8g.nextPage());
 }
 
 static void lcd_implementation_clear() { } // Automatically cleared by Picture Loop
@@ -222,7 +222,7 @@ static void lcd_implementation_status_screen() {
     int per = ((fanSpeed + 1) * 100) / 256;
     if (per) {
       u8g.print(itostr3(per));
-      u8g.print("%");
+      u8g.print('%');
     }
     else
   #endif
@@ -235,7 +235,7 @@ static void lcd_implementation_status_screen() {
   u8g.drawBox(0,29,128,10);
   u8g.setColorIndex(0); // white on black
   u8g.setPrintPos(2,37);
-  u8g.print("X");
+  u8g.print('X');
   u8g.drawPixel(8,33);
   u8g.drawPixel(8,35);
   u8g.setPrintPos(10,37);
@@ -247,7 +247,7 @@ static void lcd_implementation_status_screen() {
   u8g.setPrintPos(51,37);
   u8g.print(ftostr31ns(current_position[Y_AXIS]));
   u8g.setPrintPos(83,37);
-  u8g.print("Z");
+  u8g.print('Z');
   u8g.drawPixel(89,33);
   u8g.drawPixel(89,35);
   u8g.setPrintPos(91,37);
@@ -285,7 +285,7 @@ static void lcd_implementation_status_screen() {
 static void lcd_implementation_mark_as_selected(uint8_t row, bool isSelected) {
   if (isSelected) {
     u8g.setColorIndex(1);  // black on white
-    u8g.drawBox (0, row*DOG_CHAR_HEIGHT + 3, 128, DOG_CHAR_HEIGHT);
+    u8g.drawBox(0, row * DOG_CHAR_HEIGHT + 3, 128, DOG_CHAR_HEIGHT);
     u8g.setColorIndex(0);  // following text must be white on black
   }
   else {
@@ -322,7 +322,7 @@ static void _drawmenu_setting_edit_generic(bool isSelected, uint8_t row, const c
     n--;
   }
   u8g.print(':');
-  while(n--) u8g.print(' ');
+  while (n--) u8g.print(' ');
   if (pgm) { lcd_printPGM(data); } else { u8g.print(data); }
 }
 
@@ -396,7 +396,7 @@ static void _drawmenu_sd(bool isSelected, uint8_t row, const char* pstr, const c
     filename++;
     n--;
   }
-  while(n--) u8g.print(' ');
+  while (n--) u8g.print(' ');
 }
 
 #define lcd_implementation_drawmenu_sdfile(sel, row, pstr, filename, longFilename) _drawmenu_sd(sel, row, pstr, filename, longFilename, false)
