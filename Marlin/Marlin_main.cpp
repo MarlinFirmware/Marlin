@@ -5578,7 +5578,7 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) //default argument s
   
 #if defined(KILL_PIN) && KILL_PIN > -1
   static int killCount = 0;   // make the inactivity button a bit less responsive
-   const int KILL_DELAY = 10000;
+   const int KILL_DELAY = 750;
 #endif
 
 #if defined(FILRUNOUT_PIN) && FILRUNOUT_PIN > -1
@@ -5589,7 +5589,7 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) //default argument s
 
 #if defined(HOME_PIN) && HOME_PIN > -1
    static int homeDebounceCount = 0;   // poor man's debouncing count
-   const int HOME_DEBOUNCE_DELAY = 10000;
+   const int HOME_DEBOUNCE_DELAY = 750;
 #endif
    
   
