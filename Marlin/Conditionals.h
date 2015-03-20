@@ -5,6 +5,7 @@
 #ifndef CONDITIONALS_H
   #define CONDITIONALS_H
 
+  #include "Arduino.h"
   #include "pins.h"
 
   /**
