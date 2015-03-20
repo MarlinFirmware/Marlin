@@ -361,6 +361,7 @@ int fanSpeed = 0;
 
 #ifdef SCARA
   float axis_scaling[3] = { 1, 1, 1 };    // Build size scaling, default to 1
+  static float delta[3] = { 0, 0, 0 };		
 #endif        
 
 bool cancel_heatup = false;
@@ -386,10 +387,6 @@ const char echomagic[] PROGMEM = "echo:";
 
 const char axis_codes[NUM_AXIS] = {'X', 'Y', 'Z', 'E'};
 static float destination[NUM_AXIS] = { 0, 0, 0, 0 };
-
-#ifndef DELTA
-  static float delta[3] = { 0, 0, 0 };
-#endif
 
 static float offset[3] = { 0, 0, 0 };
 static bool home_all_axis = true;
@@ -1694,7 +1691,7 @@ inline void gcode_G2_G3(bool clockwise) {
  * G4: Dwell S<seconds> or P<milliseconds>
  */
 inline void gcode_G4() {
-  unsigned long codenum;
+  unsigned long codenum=0;
 
   LCD_MESSAGEPGM(MSG_DWELL);
 
@@ -2356,9 +2353,9 @@ inline void gcode_G28() {
         z_at_pt_3 = probe_pt(ABL_PROBE_PT_3_X, ABL_PROBE_PT_3_Y, current_position[Z_AXIS] + Z_RAISE_BETWEEN_PROBINGS, ProbeRetract, verbose_level);
       }
       else {
-        z_at_pt_1 = probe_pt(ABL_PROBE_PT_1_X, ABL_PROBE_PT_1_Y, Z_RAISE_BEFORE_PROBING, verbose_level);
-        z_at_pt_2 = probe_pt(ABL_PROBE_PT_2_X, ABL_PROBE_PT_2_Y, current_position[Z_AXIS] + Z_RAISE_BETWEEN_PROBINGS, verbose_level);
-        z_at_pt_3 = probe_pt(ABL_PROBE_PT_3_X, ABL_PROBE_PT_3_Y, current_position[Z_AXIS] + Z_RAISE_BETWEEN_PROBINGS, verbose_level);
+        z_at_pt_1 = probe_pt(ABL_PROBE_PT_1_X, ABL_PROBE_PT_1_Y, Z_RAISE_BEFORE_PROBING, verbose_level=verbose_level);
+        z_at_pt_2 = probe_pt(ABL_PROBE_PT_2_X, ABL_PROBE_PT_2_Y, current_position[Z_AXIS] + Z_RAISE_BETWEEN_PROBINGS, verbose_level=verbose_level);
+        z_at_pt_3 = probe_pt(ABL_PROBE_PT_3_X, ABL_PROBE_PT_3_Y, current_position[Z_AXIS] + Z_RAISE_BETWEEN_PROBINGS, verbose_level=verbose_level);
       }
       clean_up_after_endstop_move();
       set_bed_level_equation_3pts(z_at_pt_1, z_at_pt_2, z_at_pt_3);
@@ -5686,7 +5683,7 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) //default argument s
   
 #if defined(KILL_PIN) && KILL_PIN > -1
   static int killCount = 0;   // make the inactivity button a bit less responsive
-   const int KILL_DELAY = 10000;
+   const int KILL_DELAY = 750;
 #endif
 
 #if defined(FILRUNOUT_PIN) && FILRUNOUT_PIN > -1
@@ -5697,7 +5694,7 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) //default argument s
 
 #if defined(HOME_PIN) && HOME_PIN > -1
    static int homeDebounceCount = 0;   // poor man's debouncing count
-   const int HOME_DEBOUNCE_DELAY = 10000;
+   const int HOME_DEBOUNCE_DELAY = 750;
 #endif
    
   
