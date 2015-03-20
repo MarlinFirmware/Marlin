@@ -504,7 +504,6 @@ void CardReader::printingHasFinished() {
     startFileprint();
   }
   else {
-    quickStop();
     file.close();
     sdprinting = false;
     if (SD_FINISHED_STEPPERRELEASE) {
