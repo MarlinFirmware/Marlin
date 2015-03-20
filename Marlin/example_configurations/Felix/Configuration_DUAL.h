@@ -215,6 +215,8 @@ Here are some standard links for getting your machine calibrated:
 // so you shouldn't use it unless you are OK with PWM on your bed.  (see the comment on enabling PIDTEMPBED)
 #define MAX_BED_POWER 255 // limits duty cycle to bed; 255=full current
 
+//#define PID_BED_DEBUG // Sends debug data to the serial port.
+
 #ifdef PIDTEMPBED
 // Felix Foil Heater
    #define DEFAULT_bedKp 103.37
@@ -383,6 +385,11 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
   // and least squares solution is calculated
   // Note: this feature occupies 10'206 byte
   #ifdef AUTO_BED_LEVELING_GRID
+
+    // Use one of these defines to specify the origin
+    // for a topographical map to be printed for your bed.
+    enum { OriginBackLeft, OriginFrontLeft, OriginBackRight, OriginFrontRight };
+    #define TOPO_ORIGIN OriginFrontLeft
 
     // set the rectangle in which to probe
     #define LEFT_PROBE_BED_POSITION 15

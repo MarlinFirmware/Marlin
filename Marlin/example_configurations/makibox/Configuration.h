@@ -228,6 +228,8 @@ Here are some standard links for getting your machine calibrated:
 // to increase the heat up rate. However, if changed, user must be aware of the safety concerns
 // of drawing too much current from the power supply.
 
+//#define PID_BED_DEBUG // Sends debug data to the serial port.
+
 #ifdef PIDTEMPBED
 //120v 250W silicone heater into 4mm borosilicate (MendelMax 1.5+)
 //from FOPDT model - kp=.39 Tp=405 Tdead=66, Tc set to 79.2, aggressive factor of .15 (vs .1, 1, 10)
@@ -405,6 +407,11 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
   #ifdef AUTO_BED_LEVELING_GRID
 
+    // Use one of these defines to specify the origin
+    // for a topographical map to be printed for your bed.
+    enum { OriginBackLeft, OriginFrontLeft, OriginBackRight, OriginFrontRight };
+    #define TOPO_ORIGIN OriginFrontLeft
+
     // The edges of the rectangle in which to probe
     #define LEFT_PROBE_BED_POSITION 15
     #define RIGHT_PROBE_BED_POSITION 170
@@ -445,6 +452,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
   #define Z_RAISE_BEFORE_PROBING 15    //How much the extruder will be raised before traveling to the first probing point.
   #define Z_RAISE_BETWEEN_PROBINGS 5  //How much the extruder will be raised when traveling from between next probing points
+  #define Z_RAISE_AFTER_PROBING 15    //How much the extruder will be raised after the last probing point.
 
   //#define Z_PROBE_SLED // turn on if you have a z-probe mounted on a sled like those designed by Charles Bell
   //#define SLED_DOCKING_OFFSET 5 // the extra distance the X axis must travel to pickup the sled. 0 should be fine but you can push it further if you'd like.
