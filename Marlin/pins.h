@@ -5,8 +5,6 @@
 #ifndef PINS_H
 #define PINS_H
 
-#include "boards.h"
-
 // Preset optional pins
 #define X_MS1_PIN -1
 #define X_MS2_PIN -1

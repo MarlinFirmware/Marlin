@@ -33,9 +33,7 @@ struct pin_map_t {
   uint8_t bit;
 };
 //------------------------------------------------------------------------------
-#if defined(__AVR_ATmega1280__)\
-|| defined(__AVR_ATmega2560__)
-// Mega
+#if defined(__AVR_ATmega1280__) || defined(__AVR_ATmega2560__) // Mega
 
 // Two Wire (aka I2C) ports
 uint8_t const SDA_PIN = 20;  // D1
@@ -43,6 +41,7 @@ uint8_t const SCL_PIN = 21;  // D0
 
 #undef MOSI_PIN
 #undef MISO_PIN
+#undef SCK_PIN
 // SPI port
 uint8_t const SS_PIN = 53;    // B0
 uint8_t const MOSI_PIN = 51;  // B2
