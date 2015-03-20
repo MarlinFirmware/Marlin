@@ -2562,13 +2562,13 @@ inline void gcode_M17() {
    */
   inline void gcode_M28() {
     char* codepos = strchr_pointer + 4;
-    char* starpos = strchr(strchr_pointer + 4, '*');
+    char* starpos = strchr(codepos, '*');
     if (starpos) {
       char* npos = strchr(cmdbuffer[bufindr], 'N');
       strchr_pointer = strchr(npos, ' ') + 1;
       *(starpos) = '\0';
     }
-    card.openFile(strchr_pointer + 4, false);
+    card.openFile(codepos, false);
   }
 
   /**
