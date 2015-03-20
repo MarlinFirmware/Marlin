@@ -166,7 +166,7 @@
 #define INVERT_Z_STEP_PIN false
 #define INVERT_E_STEP_PIN false
 
-//default stepper release if idle. Set to 0 to deactivate.
+// Default stepper release if idle. Set to 0 to deactivate.
 #define DEFAULT_STEPPER_DEACTIVE_TIME 60
 
 #define DEFAULT_MINIMUMFEEDRATE       0.0     // minimum feedrate
@@ -174,7 +174,7 @@
 
 // Feedrates for manual moves along X, Y, Z, E from panel
 #ifdef ULTIPANEL
-  #define MANUAL_FEEDRATE {50*60, 50*60, 4*60, 60}  // set the speeds for manual moves (mm/min)
+  #define MANUAL_FEEDRATE {50*60, 50*60, 4*60, 60} // Feedrates for manual moves along X, Y, Z, E from panel
 #endif
 
 // minimum time in microseconds that a movement needs to take if the buffer is emptied.
@@ -330,9 +330,9 @@ const unsigned int dropsegments=5; //everything with less than this number of st
   #define RETRACT_RECOVER_FEEDRATE 8     //default feedrate for recovering from retraction (mm/s)
 #endif
 
-//adds support for experimental filament exchange support M600; requires display
+// Add support for experimental filament exchange support M600; requires display
 #ifdef ULTIPANEL
-  #define FILAMENTCHANGEENABLE
+  //#define FILAMENTCHANGEENABLE
   #ifdef FILAMENTCHANGEENABLE
     #define FILAMENTCHANGE_XPOS 3
     #define FILAMENTCHANGE_YPOS 3

@@ -713,6 +713,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = false; // set to true to invert the logic o
 
 
 
+#include "Conditionals_lcd.h"
 #include "Configuration_adv.h"
 #include "Conditionals.h"
 #include "SanityCheck.h"
