@@ -48,13 +48,6 @@
   #endif
 
   /**
-   * Auto Bed Leveling and Delta
-   */
-  #if defined(ENABLE_AUTO_BED_LEVELING) && defined(DELTA)
-    #error Bed Auto Leveling is still not compatible with Delta Kinematics.
-  #endif
-
-  /**
    * Options only for EXTRUDERS == 1
    */
   #if EXTRUDERS > 1
@@ -181,7 +174,7 @@
   /**
    * Delta has limited bed leveling options
    */
-  #if defined(DELTA)
+  #ifdef DELTA
 
     #ifdef ENABLE_AUTO_BED_LEVELING
 
