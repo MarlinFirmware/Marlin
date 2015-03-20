@@ -74,12 +74,9 @@
   #endif
 #endif // SIMULATE_ROMFONT
 
-#define FONT_STATUSMENU_NAME FONT_MENU_NAME
-
-#define FONT_STATUSMENU 1
+#define FONT_MENU 1
 #define FONT_SPECIAL 2
 #define FONT_MENU_EDIT 3
-#define FONT_MENU 4
 
 // DOGM parameters (size in pixels)
 #define DOG_CHAR_WIDTH         6
@@ -137,7 +134,6 @@ char currentfont = 0;
 
 static void lcd_setFont(char font_nr) {
   switch(font_nr) {
-    case FONT_STATUSMENU : {u8g.setFont(FONT_STATUSMENU_NAME); currentfont = FONT_STATUSMENU;}; break;
     case FONT_MENU       : {u8g.setFont(FONT_MENU_NAME); currentfont = FONT_MENU;}; break;
     case FONT_SPECIAL    : {u8g.setFont(FONT_SPECIAL_NAME); currentfont = FONT_SPECIAL;}; break;
     case FONT_MENU_EDIT  : {u8g.setFont(FONT_MENU_EDIT_NAME); currentfont = FONT_MENU_EDIT;}; break;
@@ -227,7 +223,7 @@ static void _draw_heater_status(int x, int heater) {
   bool isBed = heater < 0;
   int y = 17 + (isBed ? 1 : 0);
 
-  lcd_setFont(FONT_STATUSMENU);
+  lcd_setFont(FONT_MENU);
   u8g.setPrintPos(x,7);
   lcd_print(itostr3(int((heater >= 0 ? degTargetHotend(heater) : degTargetBed()) + 0.5)));
   lcd_printPGM(PSTR(LCD_STR_DEGREE " "));
@@ -252,7 +248,8 @@ static void lcd_implementation_status_screen() {
 
   // Symbols menu graphics, animated fan
   u8g.drawBitmapP(9,1,STATUS_SCREENBYTEWIDTH,STATUS_SCREENHEIGHT, (blink % 2) && fanSpeed ? status_screen0_bmp : status_screen1_bmp);
- 
+  lcd_setFont(FONT_MENU);
+
   #ifdef SDSUPPORT
     // SD Card Symbol
     u8g.drawBox(42,42,8,7);
@@ -264,8 +261,6 @@ static void lcd_implementation_status_screen() {
     u8g.drawFrame(54,49,73,4);
 
     // SD Card Progress bar and clock
-    lcd_setFont(FONT_STATUSMENU);
- 
     if (IS_SD_PRINTING) {
       // Progress bar solid part
       u8g.drawBox(55, 50, (unsigned int)(71.f * card.percentDone() / 100.f), 2);
@@ -290,7 +285,6 @@ static void lcd_implementation_status_screen() {
   if (EXTRUDERS < 4) _draw_heater_status(81, -1);
  
   // Fan
-  lcd_setFont(FONT_STATUSMENU);
   u8g.setPrintPos(104,27);
   #if defined(FAN_PIN) && FAN_PIN > -1
     int per = ((fanSpeed + 1) * 100) / 256;
@@ -307,7 +301,6 @@ static void lcd_implementation_status_screen() {
 
   // X, Y, Z-Coordinates
   #define XYZ_BASELINE 38
-  u8g.setFont(FONT_STATUSMENU);
   u8g.drawBox(0,30,128,9);
   u8g.setColorIndex(0); // white on black
   u8g.setPrintPos(2,XYZ_BASELINE);
@@ -331,16 +324,13 @@ static void lcd_implementation_status_screen() {
   u8g.setColorIndex(1); // black on white
  
   // Feedrate
-  lcd_setFont(FONT_MENU);
   u8g.setPrintPos(3,49);
   lcd_print(LCD_STR_FEEDRATE[0]);
-  u8g.setFont(FONT_STATUSMENU);
   u8g.setPrintPos(12,49);
   lcd_print(itostr3(feedmultiply));
   lcd_print('%');
 
   // Status line
-  u8g.setFont(FONT_STATUSMENU);
   u8g.setPrintPos(0,63);
   #ifndef FILAMENT_LCD_DISPLAY
     lcd_print(lcd_status_message);
