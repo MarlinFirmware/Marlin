@@ -197,7 +197,7 @@ static void lcd_implementation_status_screen() {
       u8g.drawBox(55, 50, (unsigned int)(71.f * card.percentDone() / 100.f), 2);
     }
 
-    u8g.setPrintPos(80,47);
+    u8g.setPrintPos(80,48);
     if (starttime != 0) {
       uint16_t time = (millis() - starttime) / 60000;
       u8g.print(itostr2(time/60));
@@ -231,26 +231,27 @@ static void lcd_implementation_status_screen() {
     }
 
   // X, Y, Z-Coordinates
+  #define XYZ_BASELINE 38
   u8g.setFont(FONT_STATUSMENU);
-  u8g.drawBox(0,29,128,10);
+  u8g.drawBox(0,30,128,9);
   u8g.setColorIndex(0); // white on black
-  u8g.setPrintPos(2,37);
+  u8g.setPrintPos(2,XYZ_BASELINE);
   u8g.print('X');
-  u8g.drawPixel(8,33);
-  u8g.drawPixel(8,35);
-  u8g.setPrintPos(10,37);
+  u8g.drawPixel(8,XYZ_BASELINE - 5);
+  u8g.drawPixel(8,XYZ_BASELINE - 3);
+  u8g.setPrintPos(10,XYZ_BASELINE);
   u8g.print(ftostr31ns(current_position[X_AXIS]));
-  u8g.setPrintPos(43,37);
-  lcd_printPGM(PSTR("Y"));
-  u8g.drawPixel(49,33);
-  u8g.drawPixel(49,35);
-  u8g.setPrintPos(51,37);
+  u8g.setPrintPos(43,XYZ_BASELINE);
+  u8g.print('Y');
+  u8g.drawPixel(49,XYZ_BASELINE - 5);
+  u8g.drawPixel(49,XYZ_BASELINE - 3);
+  u8g.setPrintPos(51,XYZ_BASELINE);
   u8g.print(ftostr31ns(current_position[Y_AXIS]));
-  u8g.setPrintPos(83,37);
+  u8g.setPrintPos(83,XYZ_BASELINE);
   u8g.print('Z');
-  u8g.drawPixel(89,33);
-  u8g.drawPixel(89,35);
-  u8g.setPrintPos(91,37);
+  u8g.drawPixel(89,XYZ_BASELINE - 5);
+  u8g.drawPixel(89,XYZ_BASELINE - 3);
+  u8g.setPrintPos(91,XYZ_BASELINE);
   u8g.print(ftostr31(current_position[Z_AXIS]));
   u8g.setColorIndex(1); // black on white
  
@@ -259,13 +260,13 @@ static void lcd_implementation_status_screen() {
   u8g.setPrintPos(3,49);
   u8g.print(LCD_STR_FEEDRATE[0]);
   u8g.setFont(FONT_STATUSMENU);
-  u8g.setPrintPos(12,48);
+  u8g.setPrintPos(12,49);
   u8g.print(itostr3(feedmultiply));
   u8g.print('%');
 
   // Status line
   u8g.setFont(FONT_STATUSMENU);
-  u8g.setPrintPos(0,61);
+  u8g.setPrintPos(0,63);
   #ifndef FILAMENT_LCD_DISPLAY
     u8g.print(lcd_status_message);
   #else
