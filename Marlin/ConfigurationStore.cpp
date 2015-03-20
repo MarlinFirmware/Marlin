@@ -22,6 +22,8 @@
  *
  * Mesh bed leveling:
  *  active
+ *  mesh_num_x
+ *  mesh_num_y
  *  z_values[][]
  *
  * DELTA:
