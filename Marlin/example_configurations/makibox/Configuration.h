@@ -228,6 +228,8 @@ Here are some standard links for getting your machine calibrated:
 // to increase the heat up rate. However, if changed, user must be aware of the safety concerns
 // of drawing too much current from the power supply.
 
+//#define PID_BED_DEBUG // Sends debug data to the serial port.
+
 #ifdef PIDTEMPBED
 //120v 250W silicone heater into 4mm borosilicate (MendelMax 1.5+)
 //from FOPDT model - kp=.39 Tp=405 Tdead=66, Tc set to 79.2, aggressive factor of .15 (vs .1, 1, 10)
