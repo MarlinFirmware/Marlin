@@ -41,49 +41,13 @@
 //================================== macros =================================
 //===========================================================================
 
-#if EXTRUDERS > 4
-  #error Unsupported number of extruders
-#elif EXTRUDERS > 3
-  #define ARRAY_BY_EXTRUDERS(v1, v2, v3, v4) { v1, v2, v3, v4 }
-#elif EXTRUDERS > 2
-  #define ARRAY_BY_EXTRUDERS(v1, v2, v3, v4) { v1, v2, v3 }
-#elif EXTRUDERS > 1
-  #define ARRAY_BY_EXTRUDERS(v1, v2, v3, v4) { v1, v2 }
-#else
-  #define ARRAY_BY_EXTRUDERS(v1, v2, v3, v4) { v1 }
-#endif
-
-#define HAS_TEMP_0 (defined(TEMP_0_PIN) && TEMP_0_PIN >= 0)
-#define HAS_TEMP_1 (defined(TEMP_1_PIN) && TEMP_1_PIN >= 0)
-#define HAS_TEMP_2 (defined(TEMP_2_PIN) && TEMP_2_PIN >= 0)
-#define HAS_TEMP_3 (defined(TEMP_3_PIN) && TEMP_3_PIN >= 0)
-#define HAS_TEMP_BED (defined(TEMP_BED_PIN) && TEMP_BED_PIN >= 0)
-#define HAS_FILAMENT_SENSOR (defined(FILAMENT_SENSOR) && defined(FILWIDTH_PIN) && FILWIDTH_PIN >= 0)
-#define HAS_HEATER_0 (defined(HEATER_0_PIN) && HEATER_0_PIN >= 0)
-#define HAS_HEATER_1 (defined(HEATER_1_PIN) && HEATER_1_PIN >= 0)
-#define HAS_HEATER_2 (defined(HEATER_2_PIN) && HEATER_2_PIN >= 0)
-#define HAS_HEATER_3 (defined(HEATER_3_PIN) && HEATER_3_PIN >= 0)
-#define HAS_HEATER_BED (defined(HEATER_BED_PIN) && HEATER_BED_PIN >= 0)
-#define HAS_AUTO_FAN_0 (defined(EXTRUDER_0_AUTO_FAN_PIN) && EXTRUDER_0_AUTO_FAN_PIN >= 0)
-#define HAS_AUTO_FAN_1 (defined(EXTRUDER_1_AUTO_FAN_PIN) && EXTRUDER_1_AUTO_FAN_PIN >= 0)
-#define HAS_AUTO_FAN_2 (defined(EXTRUDER_2_AUTO_FAN_PIN) && EXTRUDER_2_AUTO_FAN_PIN >= 0)
-#define HAS_AUTO_FAN_3 (defined(EXTRUDER_3_AUTO_FAN_PIN) && EXTRUDER_3_AUTO_FAN_PIN >= 0)
-#define HAS_AUTO_FAN HAS_AUTO_FAN_0 || HAS_AUTO_FAN_1 || HAS_AUTO_FAN_2 || HAS_AUTO_FAN_3
-#define HAS_FAN (defined(FAN_PIN) && FAN_PIN >= 0)
-
-//===========================================================================
-//============================= public variables ============================
-//===========================================================================
-
 #ifdef K1 // Defined in Configuration.h in the PID settings
   #define K2 (1.0-K1)
 #endif
 
-// Sampling period of the temperature routine
-#ifdef PID_dT
-  #undef PID_dT
-#endif
-#define PID_dT ((OVERSAMPLENR * 12.0)/(F_CPU / 64.0 / 256.0))
+//===========================================================================
+//============================= public variables ============================
+//===========================================================================
 
 int target_temperature[EXTRUDERS] = { 0 };
 int target_temperature_bed = 0;
@@ -391,21 +355,6 @@ int getHeaterPower(int heater) {
 
 #if HAS_AUTO_FAN
 
-  #if HAS_FAN
-    #if EXTRUDER_0_AUTO_FAN_PIN == FAN_PIN
-       #error "You cannot set EXTRUDER_0_AUTO_FAN_PIN equal to FAN_PIN"
-    #endif
-    #if EXTRUDER_1_AUTO_FAN_PIN == FAN_PIN
-       #error "You cannot set EXTRUDER_1_AUTO_FAN_PIN equal to FAN_PIN"
-    #endif
-    #if EXTRUDER_2_AUTO_FAN_PIN == FAN_PIN
-       #error "You cannot set EXTRUDER_2_AUTO_FAN_PIN equal to FAN_PIN"
-    #endif
-    #if EXTRUDER_3_AUTO_FAN_PIN == FAN_PIN
-       #error "You cannot set EXTRUDER_3_AUTO_FAN_PIN equal to FAN_PIN"
-    #endif
-  #endif 
-
 void setExtruderAutoFanState(int pin, bool state)
 {
   unsigned char newFanSpeed = (state != 0) ? EXTRUDER_AUTO_FAN_SPEED : 0;
@@ -482,42 +431,8 @@ void checkExtruderAutoFans()
 #endif // any extruder auto fan pins set
 
 //
-// Error checking and Write Routines
+// Temperature Error Handlers
 //
-#if !HAS_HEATER_0
-  #error HEATER_0_PIN not defined for this board
-#endif
-#define WRITE_HEATER_0P(v) WRITE(HEATER_0_PIN, v)
-#if EXTRUDERS > 1 || defined(HEATERS_PARALLEL)
-  #if !HAS_HEATER_1
-    #error HEATER_1_PIN not defined for this board
-  #endif
-  #define WRITE_HEATER_1(v) WRITE(HEATER_1_PIN, v)
-  #if EXTRUDERS > 2
-    #if !HAS_HEATER_2
-      #error HEATER_2_PIN not defined for this board
-    #endif
-    #define WRITE_HEATER_2(v) WRITE(HEATER_2_PIN, v)
-    #if EXTRUDERS > 3
-      #if !HAS_HEATER_3
-        #error HEATER_3_PIN not defined for this board
-      #endif
-      #define WRITE_HEATER_3(v) WRITE(HEATER_3_PIN, v)
-    #endif
-  #endif
-#endif
-#ifdef HEATERS_PARALLEL
-  #define WRITE_HEATER_0(v) { WRITE_HEATER_0P(v); WRITE_HEATER_1(v); }
-#else
-  #define WRITE_HEATER_0(v) WRITE_HEATER_0P(v)
-#endif
-#if HAS_HEATER_BED
-  #define WRITE_HEATER_BED(v) WRITE(HEATER_BED_PIN, v)
-#endif
-#if HAS_FAN
-  #define WRITE_FAN(v) WRITE(FAN_PIN, v)
-#endif
-
 inline void _temp_error(int e, const char *msg1, const char *msg2) {
   if (!IsStopped()) {
     SERIAL_ERROR_START;
