@@ -238,8 +238,6 @@
     #define STR_h3 "\263"
     #define STR_Deg "\337"
     #define STR_THERMOMETER "\002"
-  #elif defined(ULTRA_LCD)
-    #error You must enable either DISPLAY_CHARSET_HD44780_JAPAN or DISPLAY_CHARSET_HD44780_WESTERN for your LCD controller.
   #endif
 #endif
 /*
