@@ -20,6 +20,12 @@
  *  max_e_jerk
  *  add_homing (x3)
  *
+ * Mesh bed leveling:
+ *  active
+ *  mesh_num_x
+ *  mesh_num_y
+ *  z_values[][]
+ *
  * DELTA:
  *  endstop_adj (x3)
  *  delta_radius
@@ -69,6 +75,10 @@
 #include "ultralcd.h"
 #include "ConfigurationStore.h"
 
+#if defined(MESH_BED_LEVELING)
+   #include "mesh_bed_leveling.h"
+#endif  // MESH_BED_LEVELING
+
 void _EEPROM_writeData(int &pos, uint8_t* value, uint8_t size) {
   uint8_t c;
   while(size--) {
@@ -105,7 +115,7 @@ void _EEPROM_readData(int &pos, uint8_t* value, uint8_t size) {
 // wrong data being written to the variables.
 // ALSO:  always make sure the variables in the Store and retrieve sections are in the same order.
 
-#define EEPROM_VERSION "V16"
+#define EEPROM_VERSION "V17"
 
 #ifdef EEPROM_SETTINGS
 
@@ -127,6 +137,28 @@ void Config_StoreSettings()  {
   EEPROM_WRITE_VAR(i, max_z_jerk);
   EEPROM_WRITE_VAR(i, max_e_jerk);
   EEPROM_WRITE_VAR(i, add_homing);
+
+  uint8_t mesh_num_x = 3;
+  uint8_t mesh_num_y = 3;
+  #if defined(MESH_BED_LEVELING)
+    // Compile time test that sizeof(mbl.z_values) is as expected
+    typedef char c_assert[(sizeof(mbl.z_values) == MESH_NUM_X_POINTS*MESH_NUM_Y_POINTS*sizeof(dummy)) ? 1 : -1];
+    mesh_num_x = MESH_NUM_X_POINTS;
+    mesh_num_y = MESH_NUM_Y_POINTS;
+    EEPROM_WRITE_VAR(i, mbl.active);
+    EEPROM_WRITE_VAR(i, mesh_num_x);
+    EEPROM_WRITE_VAR(i, mesh_num_y);
+    EEPROM_WRITE_VAR(i, mbl.z_values);
+  #else
+    uint8_t dummy_uint8 = 0;
+    EEPROM_WRITE_VAR(i, dummy_uint8);
+    EEPROM_WRITE_VAR(i, mesh_num_x);
+    EEPROM_WRITE_VAR(i, mesh_num_y);
+    dummy = 0.0f;
+    for (int q=0; q<mesh_num_x*mesh_num_y; q++) {
+      EEPROM_WRITE_VAR(i, dummy);
+    }
+  #endif  // MESH_BED_LEVELING
 
   #ifdef DELTA
     EEPROM_WRITE_VAR(i, endstop_adj);               // 3 floats
@@ -250,7 +282,7 @@ void Config_RetrieveSettings() {
     EEPROM_READ_VAR(i, max_feedrate);
     EEPROM_READ_VAR(i, max_acceleration_units_per_sq_second);
 
-        // steps per sq second need to be updated to agree with the units per sq second (as they are what is used in the planner)
+    // steps per sq second need to be updated to agree with the units per sq second (as they are what is used in the planner)
     reset_acceleration_rates();
 
     EEPROM_READ_VAR(i, acceleration);
@@ -263,6 +295,31 @@ void Config_RetrieveSettings() {
     EEPROM_READ_VAR(i, max_z_jerk);
     EEPROM_READ_VAR(i, max_e_jerk);
     EEPROM_READ_VAR(i, add_homing);
+
+    uint8_t mesh_num_x = 0;
+    uint8_t mesh_num_y = 0;
+    #if defined(MESH_BED_LEVELING)
+      EEPROM_READ_VAR(i, mbl.active);
+      EEPROM_READ_VAR(i, mesh_num_x);
+      EEPROM_READ_VAR(i, mesh_num_y);
+      if (mesh_num_x != MESH_NUM_X_POINTS ||
+          mesh_num_y != MESH_NUM_Y_POINTS) {
+        mbl.reset();
+        for (int q=0; q<mesh_num_x*mesh_num_y; q++) {
+          EEPROM_READ_VAR(i, dummy);
+        }
+      } else {
+        EEPROM_READ_VAR(i, mbl.z_values);
+      }
+    #else
+      uint8_t dummy_uint8 = 0;
+      EEPROM_READ_VAR(i, dummy_uint8);
+      EEPROM_READ_VAR(i, mesh_num_x);
+      EEPROM_READ_VAR(i, mesh_num_y);
+      for (int q=0; q<mesh_num_x*mesh_num_y; q++) {
+        EEPROM_READ_VAR(i, dummy);
+      }
+    #endif  // MESH_BED_LEVELING
 
     #ifdef DELTA
       EEPROM_READ_VAR(i, endstop_adj);                // 3 floats
@@ -391,6 +448,10 @@ void Config_ResetDefault() {
   max_z_jerk = DEFAULT_ZJERK;
   max_e_jerk = DEFAULT_EJERK;
   add_homing[X_AXIS] = add_homing[Y_AXIS] = add_homing[Z_AXIS] = 0;
+
+  #if defined(MESH_BED_LEVELING)
+    mbl.active = 0;
+  #endif  // MESH_BED_LEVELING
 
   #ifdef DELTA
     endstop_adj[X_AXIS] = endstop_adj[Y_AXIS] = endstop_adj[Z_AXIS] = 0;
