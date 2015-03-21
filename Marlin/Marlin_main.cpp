@@ -1309,7 +1309,11 @@ static void engage_z_probe() {
 static void retract_z_probe() {
   // Retract Z Servo endstop if enabled
   #ifdef SERVO_ENDSTOPS
-    if (servo_endstops[Z_AXIS] > -1) {
+    if (servo_endstops[Z_AXIS] > -1)
+    {
+        do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], Z_RAISE_AFTER_PROBING);
+        st_synchronize();
+    
       #if SERVO_LEVELING
         servos[servo_endstops[Z_AXIS]].attach(0);
       #endif
@@ -1364,10 +1368,16 @@ static void retract_z_probe() {
 
 }
 
-enum ProbeAction { ProbeStay, ProbeEngage, ProbeRetract, ProbeEngageRetract };
+enum ProbeAction
+{
+    ProbeStay              = 0,
+    ProbeEngage            = (1 << 0),
+    ProbeRetract           = (1 << 1),
+    ProbeEngageAndRectract = (ProbeEngage | ProbeRetract),
+};
 
 /// Probe bed height at position (x,y), returns the measured z value
-static float probe_pt(float x, float y, float z_before, ProbeAction retract_action=ProbeEngageRetract, int verbose_level=1) {
+static float probe_pt(float x, float y, float z_before, ProbeAction retract_action=ProbeEngageAndRectract, int verbose_level=1) {
   // move to right place
   do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], z_before);
   do_blocking_move_to(x - X_PROBE_OFFSET_FROM_EXTRUDER, y - Y_PROBE_OFFSET_FROM_EXTRUDER, current_position[Z_AXIS]);
@@ -2330,7 +2340,7 @@ inline void gcode_G28() {
               act = ProbeStay;
           }
           else
-            act = ProbeEngageRetract;
+            act = ProbeEngageAndRectract;
 
           measured_z = probe_pt(xProbe, yProbe, z_before, act, verbose_level);
 
@@ -2444,9 +2454,6 @@ inline void gcode_G28() {
       set_bed_level_equation_3pts(z_at_pt_1, z_at_pt_2, z_at_pt_3);
 
     #endif // !AUTO_BED_LEVELING_GRID
-
-    do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], Z_RAISE_AFTER_PROBING);
-    st_synchronize();
 
   #ifndef DELTA
     if (verbose_level > 0)
