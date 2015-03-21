@@ -138,6 +138,27 @@
   #endif
 #endif
 
+/****************************************************************************************
+************************************* FEATURE *******************************************
+/****************************************************************************************/
+
+#ifdef SINGLENOZZLE
+  #undef HEATER_1_PIN
+  #undef HEATER_2_PIN
+  #undef HEATER_3_PIN
+  #define HEATER_1_PIN  -1
+  #define HEATER_2_PIN  -1
+  #define HEATER_3_PIN  -1
+  #undef TEMP_1_PIN
+  #undef TEMP_2_PIN
+  #undef TEMP_3_PIN
+  #define TEMP_1_PIN    -1
+  #define TEMP_2_PIN    -1
+  #define TEMP_3_PIN    -1
+#endif //SINGLENOZZLE
+
+/**************************************************************************************/
+
 #ifdef X_STOP_PIN
   #if X_HOME_DIR < 0
     #define X_MIN_PIN X_STOP_PIN
