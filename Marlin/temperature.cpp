@@ -145,7 +145,7 @@ static volatile bool temp_meas_ready = false;
   static float temp_iState_min_bed;
   static float temp_iState_max_bed;
 #else //PIDTEMPBED
-	static unsigned long  previous_millis_bed_heater;
+  static unsigned long  previous_millis_bed_heater;
 #endif //PIDTEMPBED
   static unsigned char soft_pwm[EXTRUDERS];
 
@@ -243,7 +243,7 @@ void PID_autotune(float temp, int extruder, int ncycles)
     SERIAL_ECHOLN(MSG_PID_BAD_EXTRUDER_NUM);
     return;
   }
-	
+  
   SERIAL_ECHOLN(MSG_PID_AUTOTUNE_START);
 
   disable_heater(); // switch off all heaters.
@@ -755,8 +755,8 @@ void manage_heater() {
   #ifdef FILAMENT_SENSOR
     if (filament_sensor) {
       meas_shift_index = delay_index1 - meas_delay_cm;
-		  if (meas_shift_index < 0) meas_shift_index += MAX_MEASUREMENT_DELAY + 1;  //loop around buffer if needed
-		  
+      if (meas_shift_index < 0) meas_shift_index += MAX_MEASUREMENT_DELAY + 1;  //loop around buffer if needed
+      
       // Get the delayed info and add 100 to reconstitute to a percent of
       // the nominal filament diameter then square it to get an area
       meas_shift_index = constrain(meas_shift_index, 0, MAX_MEASUREMENT_DELAY);
@@ -1259,10 +1259,7 @@ enum TempState {
 ISR(TIMER0_COMPB_vect) {
   //these variables are only accesible from the ISR, but static, so they don't lose their value
   static unsigned char temp_count = 0;
-  static unsigned long raw_temp_0_value = 0;
-  static unsigned long raw_temp_1_value = 0;
-  static unsigned long raw_temp_2_value = 0;
-  static unsigned long raw_temp_3_value = 0;
+  static unsigned long raw_temp_value[EXTRUDERS] = { 0 };
   static unsigned long raw_temp_bed_value = 0;
   static TempState temp_state = StartupDelay;
   static unsigned char pwm_count = BIT(SOFT_PWM_SCALE);
@@ -1474,7 +1471,7 @@ ISR(TIMER0_COMPB_vect) {
       break;
     case MeasureTemp_0:
       #if HAS_TEMP_0
-        raw_temp_0_value += ADC;
+        raw_temp_value[0] += ADC;
       #endif
       temp_state = PrepareTemp_BED;
       break;
@@ -1500,7 +1497,7 @@ ISR(TIMER0_COMPB_vect) {
       break;
     case MeasureTemp_1:
       #if HAS_TEMP_1
-        raw_temp_1_value += ADC;
+        raw_temp_value[1] += ADC;
       #endif
       temp_state = PrepareTemp_2;
       break;
@@ -1513,7 +1510,7 @@ ISR(TIMER0_COMPB_vect) {
       break;
     case MeasureTemp_2:
       #if HAS_TEMP_2
-        raw_temp_2_value += ADC;
+        raw_temp_value[2] += ADC;
       #endif
       temp_state = PrepareTemp_3;
       break;
@@ -1526,7 +1523,7 @@ ISR(TIMER0_COMPB_vect) {
       break;
     case MeasureTemp_3:
       #if HAS_TEMP_3
-        raw_temp_3_value += ADC;
+        raw_temp_value[3] += ADC;
       #endif
       temp_state = Prepare_FILWIDTH;
       break;
@@ -1561,19 +1558,19 @@ ISR(TIMER0_COMPB_vect) {
   if (temp_count >= OVERSAMPLENR) { // 10 * 16 * 1/(16000000/64/256)  = 164ms.
     if (!temp_meas_ready) { //Only update the raw values if they have been read. Else we could be updating them during reading.
       #ifndef HEATER_0_USES_MAX6675
-        current_temperature_raw[0] = raw_temp_0_value;
+        current_temperature_raw[0] = raw_temp_value[0];
       #endif
       #if EXTRUDERS > 1
-        current_temperature_raw[1] = raw_temp_1_value;
+        current_temperature_raw[1] = raw_temp_value[1];
         #if EXTRUDERS > 2
-          current_temperature_raw[2] = raw_temp_2_value;
+          current_temperature_raw[2] = raw_temp_value[2];
           #if EXTRUDERS > 3
-            current_temperature_raw[3] = raw_temp_3_value;
+            current_temperature_raw[3] = raw_temp_value[3];
           #endif
         #endif
       #endif
       #ifdef TEMP_SENSOR_1_AS_REDUNDANT
-        redundant_temperature_raw = raw_temp_1_value;
+        redundant_temperature_raw = raw_temp_value[1];
       #endif
       current_temperature_bed_raw = raw_temp_bed_value;
     } //!temp_meas_ready
@@ -1585,31 +1582,67 @@ ISR(TIMER0_COMPB_vect) {
     
     temp_meas_ready = true;
     temp_count = 0;
-    raw_temp_0_value = 0;
-    raw_temp_1_value = 0;
-    raw_temp_2_value = 0;
-    raw_temp_3_value = 0;
+    for (int i = 0; i < EXTRUDERS; i++) raw_temp_value[i] = 0;
     raw_temp_bed_value = 0;
 
     #if HEATER_0_RAW_LO_TEMP > HEATER_0_RAW_HI_TEMP
-      #define MAXTEST <=
-      #define MINTEST >=
+      #define GE0 <=
+      #define LE0 >=
     #else
-      #define MAXTEST >=
-      #define MINTEST <=
+      #define GE0 >=
+      #define LE0 <=
+    #endif
+    if (current_temperature_raw[0] GE0 maxttemp_raw[0]) max_temp_error(0);
+    if (current_temperature_raw[0] LE0 minttemp_raw[0]) min_temp_error(0);
+
+    #if EXTRUDERS > 1
+      #if HEATER_1_RAW_LO_TEMP > HEATER_1_RAW_HI_TEMP
+        #define GE1 <=
+        #define LE1 >=
+      #else
+        #define GE1 >=
+        #define LE1 <=
+      #endif
+      if (current_temperature_raw[1] GE1 maxttemp_raw[1]) max_temp_error(1);
+      if (current_temperature_raw[1] LE1 minttemp_raw[1]) min_temp_error(1);
+      #if EXTRUDERS > 2
+        #if HEATER_2_RAW_LO_TEMP > HEATER_2_RAW_HI_TEMP
+          #define GE2 <=
+          #define LE2 >=
+        #else
+          #define GE2 >=
+          #define LE2 <=
+        #endif
+        if (current_temperature_raw[2] GE2 maxttemp_raw[2]) max_temp_error(2);
+        if (current_temperature_raw[2] LE2 minttemp_raw[2]) min_temp_error(2);
+        #if EXTRUDERS > 3
+          #if HEATER_3_RAW_LO_TEMP > HEATER_3_RAW_HI_TEMP
+            #define GE3 <=
+            #define LE3 >=
+          #else
+            #define GE3 >=
+            #define LE3 <=
+          #endif
+          if (current_temperature_raw[3] GE3 maxttemp_raw[3]) max_temp_error(3);
+          if (current_temperature_raw[3] LE3 minttemp_raw[3]) min_temp_error(3);
+        #endif // EXTRUDERS > 3
+      #endif // EXTRUDERS > 2
+    #endif // EXTRUDERS > 1
+
+    #if defined(BED_MAXTEMP) && (TEMP_SENSOR_BED != 0)
+      #if HEATER_BED_RAW_LO_TEMP > HEATER_BED_RAW_HI_TEMP
+        #define GEBED <=
+        #define LEBED >=
+      #else
+        #define GEBED >=
+        #define LEBED <=
+      #endif
+      if (current_temperature_bed_raw GEBED bed_maxttemp_raw) {
+        target_temperature_bed = 0;
+        bed_max_temp_error();
+      }
     #endif
 
-    for (int i=0; i<EXTRUDERS; i++) {
-      if (current_temperature_raw[i] MAXTEST maxttemp_raw[i]) max_temp_error(i);
-      else if (current_temperature_raw[i] MINTEST minttemp_raw[i]) min_temp_error(i);
-    }
-    /* No bed MINTEMP error? */
-    #if defined(BED_MAXTEMP) && (TEMP_SENSOR_BED != 0)
-      if (current_temperature_bed_raw MAXTEST bed_maxttemp_raw) {
-          target_temperature_bed = 0;
-          bed_max_temp_error();
-        }
-    #endif
   } // temp_count >= OVERSAMPLENR
 
   #ifdef BABYSTEPPING
