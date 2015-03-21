@@ -1,6 +1,8 @@
 #ifndef CONFIGURATION_ADV_H
 #define CONFIGURATION_ADV_H
 
+#include "Conditionals.h"
+
 //===========================================================================
 //=============================Thermal Settings  ============================
 //===========================================================================
@@ -345,5 +347,8 @@ const unsigned int dropsegments=5; //everything with less than this number of st
     #define FILAMENTCHANGE_FINALRETRACT -100
   #endif
 #endif
+
+#include "Conditionals.h"
+#include "SanityCheck.h"
 
 #endif //CONFIGURATION_ADV_H
