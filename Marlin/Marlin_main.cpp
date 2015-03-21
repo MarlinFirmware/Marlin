@@ -3967,18 +3967,16 @@ inline void gcode_M303() {
 }
 
 #ifdef SCARA
-
   /**
    * M360: SCARA calibration: Move to cal-position ThetaA (0 deg calibration)
    */
-  inline bool gcode_M360() {
-    SERIAL_ECHOLN(" Cal: Theta 0 ");
+  bool SCARA_move_to_cal(uint8_t delta_x, uint8_t delta_y) {
     //SoftEndsEnabled = false;              // Ignore soft endstops during calibration
     //SERIAL_ECHOLN(" Soft endstops disabled ");
     if (! Stopped) {
       //get_coordinates(); // For X Y Z E F
-      delta[X_AXIS] = 0;
-      delta[Y_AXIS] = 120;
+      delta[X_AXIS] = delta_x;
+      delta[Y_AXIS] = delta_y;
       calculate_SCARA_forward_Transform(delta);
       destination[X_AXIS] = delta[X_AXIS]/axis_scaling[X_AXIS];
       destination[Y_AXIS] = delta[Y_AXIS]/axis_scaling[Y_AXIS];
@@ -3987,6 +3985,14 @@ inline void gcode_M303() {
       return true;
     }
     return false;
+  }
+
+  /**
+   * M360: SCARA calibration: Move to cal-position ThetaA (0 deg calibration)
+   */
+  inline bool gcode_M360() {
+    SERIAL_ECHOLN(" Cal: Theta 0 ");
+    return SCARA_move_to_cal(0, 120);
   }
 
   /**
@@ -3994,20 +4000,7 @@ inline void gcode_M303() {
    */
   inline bool gcode_M361() {
     SERIAL_ECHOLN(" Cal: Theta 90 ");
-    //SoftEndsEnabled = false;              // Ignore soft endstops during calibration
-    //SERIAL_ECHOLN(" Soft endstops disabled ");
-    if (! Stopped) {
-      //get_coordinates(); // For X Y Z E F
-      delta[X_AXIS] = 90;
-      delta[Y_AXIS] = 130;
-      calculate_SCARA_forward_Transform(delta);
-      destination[X_AXIS] = delta[X_AXIS]/axis_scaling[X_AXIS];
-      destination[Y_AXIS] = delta[Y_AXIS]/axis_scaling[Y_AXIS];
-      prepare_move();
-      //ClearToSend();
-      return true;
-    }
-    return false;
+    return SCARA_move_to_cal(90, 130);
   }
 
   /**
@@ -4015,20 +4008,7 @@ inline void gcode_M303() {
    */
   inline bool gcode_M362() {
     SERIAL_ECHOLN(" Cal: Psi 0 ");
-    //SoftEndsEnabled = false;              // Ignore soft endstops during calibration
-    //SERIAL_ECHOLN(" Soft endstops disabled ");
-    if (! Stopped) {
-      //get_coordinates(); // For X Y Z E F
-      delta[X_AXIS] = 60;
-      delta[Y_AXIS] = 180;
-      calculate_SCARA_forward_Transform(delta);
-      destination[X_AXIS] = delta[X_AXIS]/axis_scaling[X_AXIS];
-      destination[Y_AXIS] = delta[Y_AXIS]/axis_scaling[Y_AXIS];
-      prepare_move();
-      //ClearToSend();
-      return true;
-    }
-    return false;
+    return SCARA_move_to_cal(60, 180);
   }
 
   /**
@@ -4036,20 +4016,7 @@ inline void gcode_M303() {
    */
   inline bool gcode_M363() {
     SERIAL_ECHOLN(" Cal: Psi 90 ");
-    //SoftEndsEnabled = false;              // Ignore soft endstops during calibration
-    //SERIAL_ECHOLN(" Soft endstops disabled ");
-    if (! Stopped) {
-      //get_coordinates(); // For X Y Z E F
-      delta[X_AXIS] = 50;
-      delta[Y_AXIS] = 90;
-      calculate_SCARA_forward_Transform(delta);
-      destination[X_AXIS] = delta[X_AXIS]/axis_scaling[X_AXIS];
-      destination[Y_AXIS] = delta[Y_AXIS]/axis_scaling[Y_AXIS];
-      prepare_move();
-      //ClearToSend();
-      return true;
-    }
-    return false;
+    return SCARA_move_to_cal(50, 90);
   }
 
   /**
@@ -4057,20 +4024,7 @@ inline void gcode_M303() {
    */
   inline bool gcode_M364() {
     SERIAL_ECHOLN(" Cal: Theta-Psi 90 ");
-   // SoftEndsEnabled = false;              // Ignore soft endstops during calibration
-    //SERIAL_ECHOLN(" Soft endstops disabled ");
-    if (! Stopped) {
-      //get_coordinates(); // For X Y Z E F
-      delta[X_AXIS] = 45;
-      delta[Y_AXIS] = 135;
-      calculate_SCARA_forward_Transform(delta);
-      destination[X_AXIS] = delta[X_AXIS] / axis_scaling[X_AXIS];
-      destination[Y_AXIS] = delta[Y_AXIS] / axis_scaling[Y_AXIS];
-      prepare_move();
-      //ClearToSend();
-      return true;
-    }
-    return false;
+    return SCARA_move_to_cal(45, 135);
   }
 
   /**
