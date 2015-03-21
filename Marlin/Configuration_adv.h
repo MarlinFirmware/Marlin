@@ -1,6 +1,8 @@
 #ifndef CONFIGURATION_ADV_H
 #define CONFIGURATION_ADV_H
 
+#include "Conditionals.h"
+
 //===========================================================================
 //=============================Thermal Settings  ============================
 //===========================================================================
@@ -470,5 +472,8 @@ const unsigned int dropsegments=5; //everything with less than this number of st
 	#define E3_STALLCURRENT 1500 //current in mA where the driver will detect a stall
 	
 #endif
+
+#include "Conditionals.h"
+#include "SanityCheck.h"
 
 #endif //CONFIGURATION_ADV_H
