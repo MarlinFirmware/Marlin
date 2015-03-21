@@ -315,9 +315,8 @@ void planner_recalculate_trapezoids() {
       // Recalculate if current block entry or exit junction speed has changed.
       if (current->recalculate_flag || next->recalculate_flag) {
         // NOTE: Entry and exit factors always > 0 by all previous logic operations.
-        calculate_trapezoid_for_block(current,
-          current->entry_speed / current->nominal_speed,
-          next->entry_speed / current->nominal_speed);
+        float nom = current->nominal_speed;
+        calculate_trapezoid_for_block(current, current->entry_speed / nom, next->entry_speed / nom);
         current->recalculate_flag = false; // Reset current only to ensure next trapezoid is computed
       }
     }
@@ -325,8 +324,8 @@ void planner_recalculate_trapezoids() {
   }
   // Last/newest block in buffer. Exit speed is set with MINIMUM_PLANNER_SPEED. Always recalculated.
   if (next) {
-    calculate_trapezoid_for_block(next, next->entry_speed/next->nominal_speed,
-    MINIMUM_PLANNER_SPEED/next->nominal_speed);
+    float nom = next->nominal_speed;
+    calculate_trapezoid_for_block(next, next->entry_speed / nom, MINIMUM_PLANNER_SPEED / nom);
     next->recalculate_flag = false;
   }
 }
@@ -373,11 +372,9 @@ void plan_init() {
     uint8_t block_index = block_buffer_tail;
 
     while (block_index != block_buffer_head) {
-      if ((block_buffer[block_index].steps[X_AXIS] != 0) ||
-          (block_buffer[block_index].steps[Y_AXIS] != 0) ||
-          (block_buffer[block_index].steps[Z_AXIS] != 0)) {
-        float se=(float(block_buffer[block_index].steps[E_AXIS])/float(block_buffer[block_index].step_event_count))*block_buffer[block_index].nominal_speed;
-        //se; mm/sec;
+      block_t *block = &block_buffer[block_index];
+      if (block->steps[X_AXIS] || block->steps[Y_AXIS] || block->steps[Z_AXIS]) {
+        float se = (float)block->steps[E_AXIS] / block->step_event_count * block->nominal_speed; // mm/sec;
         if (se > high) high = se;
       }
       block_index = next_block_index(block_index);
@@ -399,14 +396,16 @@ void check_axes_activity() {
     unsigned char tail_valve_pressure = ValvePressure,
                   tail_e_to_p_pressure = EtoPPressure;
   #endif
+
   block_t *block;
 
   if (blocks_queued()) {
     uint8_t block_index = block_buffer_tail;
     tail_fan_speed = block_buffer[block_index].fan_speed;
     #ifdef BARICUDA
-      tail_valve_pressure = block_buffer[block_index].valve_pressure;
-      tail_e_to_p_pressure = block_buffer[block_index].e_to_p_pressure;
+      block = &block_buffer[block_index];
+      tail_valve_pressure = block->valve_pressure;
+      tail_e_to_p_pressure = block->e_to_p_pressure;
     #endif
     while (block_index != block_buffer_head) {
       block = &block_buffer[block_index];
