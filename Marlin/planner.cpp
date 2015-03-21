@@ -58,6 +58,10 @@
 #include "ultralcd.h"
 #include "language.h"
 
+#if defined(MESH_BED_LEVELING)
+  #include "mesh_bed_leveling.h"
+#endif  // MESH_BED_LEVELING
+
 //===========================================================================
 //============================= public variables ============================
 //===========================================================================
@@ -464,7 +468,7 @@ float junction_deviation = 0.1;
 // Add a new linear movement to the buffer. steps[X_AXIS], _y and _z is the absolute position in 
 // mm. Microseconds specify how many microseconds the move should take to perform. To aid acceleration
 // calculation the caller must also provide the physical length of the line in millimeters.
-#ifdef ENABLE_AUTO_BED_LEVELING
+#if defined(ENABLE_AUTO_BED_LEVELING) || defined(MESH_BED_LEVELING)
   void plan_buffer_line(float x, float y, float z, const float &e, float feed_rate, const uint8_t &extruder)
 #else
   void plan_buffer_line(const float &x, const float &y, const float &z, const float &e, float feed_rate, const uint8_t &extruder)
@@ -480,6 +484,10 @@ float junction_deviation = 0.1;
     manage_inactivity(); 
     lcd_update();
   }
+
+  #ifdef MESH_BED_LEVELING
+    if (mbl.active) z += mbl.get_z(x, y);
+  #endif
 
   #ifdef ENABLE_AUTO_BED_LEVELING
     apply_rotation_xyz(plan_bed_level_matrix, x, y, z);
@@ -948,30 +956,31 @@ float junction_deviation = 0.1;
 
 } // plan_buffer_line()
 
-#ifdef ENABLE_AUTO_BED_LEVELING
+#if defined(ENABLE_AUTO_BED_LEVELING) && !defined(DELTA)
+  vector_3 plan_get_position() {
+    vector_3 position = vector_3(st_get_position_mm(X_AXIS), st_get_position_mm(Y_AXIS), st_get_position_mm(Z_AXIS));
 
-  #ifndef DELTA
-    vector_3 plan_get_position() {
-      vector_3 position = vector_3(st_get_position_mm(X_AXIS), st_get_position_mm(Y_AXIS), st_get_position_mm(Z_AXIS));
+    //position.debug("in plan_get position");
+    //plan_bed_level_matrix.debug("in plan_get bed_level");
+    matrix_3x3 inverse = matrix_3x3::transpose(plan_bed_level_matrix);
+    //inverse.debug("in plan_get inverse");
+    position.apply_rotation(inverse);
+    //position.debug("after rotation");
 
-      //position.debug("in plan_get position");
-      //plan_bed_level_matrix.debug("in plan_get bed_level");
-      matrix_3x3 inverse = matrix_3x3::transpose(plan_bed_level_matrix);
-      //inverse.debug("in plan_get inverse");
-      position.apply_rotation(inverse);
-      //position.debug("after rotation");
+    return position;
+  }
+#endif // ENABLE_AUTO_BED_LEVELING && !DELTA
 
-      return position;
-    }
-  #endif //!DELTA
-
+#if defined(ENABLE_AUTO_BED_LEVELING) || defined(MESH_BED_LEVELING)
   void plan_set_position(float x, float y, float z, const float &e)
 #else
   void plan_set_position(const float &x, const float &y, const float &z, const float &e)
-#endif // ENABLE_AUTO_BED_LEVELING
+#endif // ENABLE_AUTO_BED_LEVELING || MESH_BED_LEVELING
   {
     #ifdef ENABLE_AUTO_BED_LEVELING
       apply_rotation_xyz(plan_bed_level_matrix, x, y, z);
+    #elif defined(MESH_BED_LEVELING)
+      if (mbl.active) z += mbl.get_z(x, y);
     #endif
 
     float nx = position[X_AXIS] = lround(x * axis_steps_per_unit[X_AXIS]);
