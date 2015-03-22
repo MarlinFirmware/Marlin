@@ -1326,7 +1326,7 @@ static void retract_z_probe() {
   #elif defined(Z_PROBE_ALLEN_KEY)
     // Move up for safety
     feedrate = homing_feedrate[X_AXIS];
-    destination[Z_AXIS] = current_position[Z_AXIS] + 20;
+    destination[Z_AXIS] = current_position[Z_AXIS] + Z_RAISE_AFTER_PROBING;
     prepare_move_raw();
 
     // Move to the start position to initiate retraction
@@ -1370,26 +1370,26 @@ static void retract_z_probe() {
 
 enum ProbeAction
 {
-    ProbeStay              = 0,
-    ProbeEngage            = (1 << 0),
-    ProbeRetract           = (1 << 1),
-    ProbeEngageAndRectract = (ProbeEngage | ProbeRetract),
+    ProbeStay             = 0,
+    ProbeEngage           = (1 << 0),
+    ProbeRetract          = (1 << 1),
+    ProbeEngageAndRetract = (ProbeEngage | ProbeRetract),
 };
 
 /// Probe bed height at position (x,y), returns the measured z value
-static float probe_pt(float x, float y, float z_before, ProbeAction retract_action=ProbeEngageAndRectract, int verbose_level=1) {
+static float probe_pt(float x, float y, float z_before, ProbeAction retract_action=ProbeEngageAndRetract, int verbose_level=1) {
   // move to right place
   do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], z_before);
   do_blocking_move_to(x - X_PROBE_OFFSET_FROM_EXTRUDER, y - Y_PROBE_OFFSET_FROM_EXTRUDER, current_position[Z_AXIS]);
 
-  #if !defined(Z_PROBE_SLED) && !defined(Z_PROBE_ALLEN_KEY)
+  #if !defined(Z_PROBE_SLED)
     if (retract_action & ProbeEngage) engage_z_probe();
   #endif
 
   run_z_probe();
   float measured_z = current_position[Z_AXIS];
 
-  #if !defined(Z_PROBE_SLED) && !defined(Z_PROBE_ALLEN_KEY)
+  #if !defined(Z_PROBE_SLED)
     if (retract_action & ProbeRetract) retract_z_probe();
   #endif
 
@@ -2231,8 +2231,6 @@ inline void gcode_G28() {
 
     #ifdef Z_PROBE_SLED
       dock_sled(false); // engage (un-dock) the probe
-    #elif not defined(SERVO_ENDSTOPS)
-      engage_z_probe();
     #endif
 
     st_synchronize();
@@ -2340,7 +2338,7 @@ inline void gcode_G28() {
               act = ProbeStay;
           }
           else
-            act = ProbeEngageAndRectract;
+            act = ProbeEngageAndRetract;
 
           measured_z = probe_pt(xProbe, yProbe, z_before, act, verbose_level);
 
@@ -2474,8 +2472,6 @@ inline void gcode_G28() {
 
   #ifdef Z_PROBE_SLED
     dock_sled(true, -SLED_DOCKING_OFFSET); // dock the probe, correcting for over-travel
-  #elif not defined(SERVO_ENDSTOPS)
-    retract_z_probe();
   #endif
     
   #ifdef Z_PROBE_END_SCRIPT
