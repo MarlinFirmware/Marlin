@@ -951,7 +951,8 @@ void tp_init()
       digitalWrite(SS_PIN, HIGH);
     #endif
     
-    OUT_WRITE(MAX6675_SS,HIGH);
+  pinMode(MAX6675_SS, OUTPUT);
+  digitalWrite(MAX6675_SS, HIGH);
 
   #endif //HEATER_0_USES_MAX6675
 
@@ -1201,7 +1202,7 @@ void disable_heater() {
     SPCR = BIT(MSTR) | BIT(SPE) | BIT(SPR0);
 
     // enable TT_MAX6675
-    WRITE(MAX6675_SS, 0);
+    WRITE(MAX6675_SS, LOW);
 
     // ensure 100ns delay - a bit extra is fine
     asm("nop");//50ns on 20Mhz, 62.5ns on 16Mhz
@@ -1219,7 +1220,7 @@ void disable_heater() {
     max6675_temp |= SPDR;
 
     // disable TT_MAX6675
-    WRITE(MAX6675_SS, 1);
+    WRITE(MAX6675_SS, HIGH);
 
     if (max6675_temp & 4) {
       // thermocouple open
