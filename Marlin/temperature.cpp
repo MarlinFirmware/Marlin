@@ -1145,28 +1145,28 @@ void disable_heater() {
   for (int i=0; i<EXTRUDERS; i++) setTargetHotend(0, i);
   setTargetBed(0);
 
+  #define DISABLE_HEATER(NR) { \
+    target_temperature[NR] = 0; \
+    soft_pwm[NR] = 0; \
+    WRITE_HEATER_ ## NR (LOW); \
+  }
+
   #if HAS_TEMP_0
     target_temperature[0] = 0;
     soft_pwm[0] = 0;
-    WRITE_HEATER_0P(LOW); // If HEATERS_PARALLEL should apply, change to WRITE_HEATER_0
+    WRITE_HEATER_0P(LOW); // Should HEATERS_PARALLEL apply here? Then change to DISABLE_HEATER(0)
   #endif
 
   #if EXTRUDERS > 1 && HAS_TEMP_1
-    target_temperature[1] = 0;
-    soft_pwm[1] = 0;
-    WRITE_HEATER_1(LOW);
+    DISABLE_HEATER(1);
   #endif
 
   #if EXTRUDERS > 2 && HAS_TEMP_2
-    target_temperature[2] = 0;
-    soft_pwm[2] = 0;
-    WRITE_HEATER_2(LOW);
+    DISABLE_HEATER(2);
   #endif
 
   #if EXTRUDERS > 3 && HAS_TEMP_3
-    target_temperature[3] = 0;
-    soft_pwm[3] = 0;
-    WRITE_HEATER_3(LOW);
+    DISABLE_HEATER(3);
   #endif
 
   #if HAS_TEMP_BED
@@ -1240,26 +1240,16 @@ void disable_heater() {
 enum TempState {
   PrepareTemp_0,
   MeasureTemp_0,
-  #if HAS_TEMP_BED
-    PrepareTemp_BED,
-    MeasureTemp_BED,
-  #endif
-  #if HAS_TEMP_1
-    PrepareTemp_1,
-    MeasureTemp_1,
-  #endif
-  #if HAS_TEMP_2
-    PrepareTemp_2,
-    MeasureTemp_2,
-  #endif
-  #if HAS_TEMP_3
-    PrepareTemp_3,
-    MeasureTemp_3,
-  #endif
-  #if HAS_FILAMENT_SENSOR
-    Prepare_FILWIDTH,
-    Measure_FILWIDTH,
-  #endif
+  PrepareTemp_BED,
+  MeasureTemp_BED,
+  PrepareTemp_1,
+  MeasureTemp_1,
+  PrepareTemp_2,
+  MeasureTemp_2,
+  PrepareTemp_3,
+  MeasureTemp_3,
+  Prepare_FILWIDTH,
+  Measure_FILWIDTH,
   StartupDelay // Startup, delay initial temp reading a tiny bit so the hardware can settle
 };
 
@@ -1483,123 +1473,83 @@ ISR(TIMER0_COMPB_vect) {
       #if HAS_TEMP_0
         raw_temp_value[0] += ADC;
       #endif
-      temp_state =
-        #if HAS_TEMP_BED
-          PrepareTemp_BED
-        #elif HAS_TEMP_1
-          PrepareTemp_1
-        #elif HAS_TEMP_2
-          PrepareTemp_2
-        #elif HAS_TEMP_3
-          PrepareTemp_3
-        #elif HAS_FILAMENT_SENSOR
-          Prepare_FILWIDTH
-        #else
-          PrepareTemp_0
-        #endif
-      ;
+      temp_state = PrepareTemp_BED;
       break;
 
-    #if HAS_TEMP_BED
-      case PrepareTemp_BED:
+    case PrepareTemp_BED:
+      #if HAS_TEMP_BED
         START_ADC(TEMP_BED_PIN);
-        lcd_buttons_update();
-        temp_state = MeasureTemp_BED;
-        break;
-      case MeasureTemp_BED:
+      #endif
+      lcd_buttons_update();
+      temp_state = MeasureTemp_BED;
+      break;
+    case MeasureTemp_BED:
+      #if HAS_TEMP_BED
         raw_temp_bed_value += ADC;
-        temp_state =
-          #if HAS_TEMP_1
-            PrepareTemp_1
-          #elif HAS_TEMP_2
-            PrepareTemp_2
-          #elif HAS_TEMP_3
-            PrepareTemp_3
-          #elif HAS_FILAMENT_SENSOR
-            Prepare_FILWIDTH
-          #else
-            PrepareTemp_0
-          #endif
-        ;
-        break;
-    #endif
+      #endif
+      temp_state = PrepareTemp_1;
+      break;
 
-    #if HAS_TEMP_1
-      case PrepareTemp_1:
+    case PrepareTemp_1:
+      #if HAS_TEMP_1
         START_ADC(TEMP_1_PIN);
-        lcd_buttons_update();
-        temp_state = MeasureTemp_1;
-        break;
-      case MeasureTemp_1:
+      #endif
+      lcd_buttons_update();
+      temp_state = MeasureTemp_1;
+      break;
+    case MeasureTemp_1:
+      #if HAS_TEMP_1
         raw_temp_value[1] += ADC;
-        temp_state =
-          #if HAS_TEMP_2
-            PrepareTemp_2
-          #elif HAS_TEMP_3
-            PrepareTemp_3
-          #elif HAS_FILAMENT_SENSOR
-            Prepare_FILWIDTH
-          #else
-            PrepareTemp_0
-          #endif
-        ;
-        break;
-    #endif
+      #endif
+      temp_state = PrepareTemp_2;
+      break;
 
-    #if HAS_TEMP_2
-      case PrepareTemp_2:
+    case PrepareTemp_2:
+      #if HAS_TEMP_2
         START_ADC(TEMP_2_PIN);
-        lcd_buttons_update();
-        temp_state = MeasureTemp_2;
-        break;
-      case MeasureTemp_2:
+      #endif
+      lcd_buttons_update();
+      temp_state = MeasureTemp_2;
+      break;
+    case MeasureTemp_2:
+      #if HAS_TEMP_2
         raw_temp_value[2] += ADC;
-        temp_state =
-          #if HAS_TEMP_3
-            PrepareTemp_3
-          #elif HAS_FILAMENT_SENSOR
-            Prepare_FILWIDTH
-          #else
-            PrepareTemp_0
-          #endif
-        ;
-        break;
-    #endif
+      #endif
+      temp_state = PrepareTemp_3;
+      break;
 
-    #if HAS_TEMP_3
-      case PrepareTemp_3:
+    case PrepareTemp_3:
+      #if HAS_TEMP_3
         START_ADC(TEMP_3_PIN);
-        lcd_buttons_update();
-        temp_state = MeasureTemp_3;
-        break;
-      case MeasureTemp_3:
+      #endif
+      lcd_buttons_update();
+      temp_state = MeasureTemp_3;
+      break;
+    case MeasureTemp_3:
+      #if HAS_TEMP_3
         raw_temp_value[3] += ADC;
-        temp_state =
-          #if HAS_FILAMENT_SENSOR
-            Prepare_FILWIDTH
-          #else
-            PrepareTemp_0
-          #endif
-        ;
-        break;
-    #endif
+      #endif
+      temp_state = Prepare_FILWIDTH;
+      break;
 
-    #if HAS_FILAMENT_SENSOR
-      case Prepare_FILWIDTH:
+    case Prepare_FILWIDTH:
+      #if HAS_FILAMENT_SENSOR
         START_ADC(FILWIDTH_PIN);
-        lcd_buttons_update();
-        temp_state = Measure_FILWIDTH;
-        break;
-      case Measure_FILWIDTH:
+      #endif
+      lcd_buttons_update();
+      temp_state = Measure_FILWIDTH;
+      break;
+    case Measure_FILWIDTH:
+      #if HAS_FILAMENT_SENSOR
         // raw_filwidth_value += ADC;  //remove to use an IIR filter approach
         if (ADC > 102) { //check that ADC is reading a voltage > 0.5 volts, otherwise don't take in the data.
           raw_filwidth_value -= (raw_filwidth_value>>7);  //multiply raw_filwidth_value by 127/128
           raw_filwidth_value += ((unsigned long)ADC<<7);  //add new ADC reading
         }
-        temp_state = PrepareTemp_0;
-        temp_count++;
-        break;
-    #endif
+      #endif
+      temp_state = PrepareTemp_0;
+      temp_count++;
+      break;
 
     case StartupDelay:
       temp_state = PrepareTemp_0;
