@@ -1309,7 +1309,13 @@ static void engage_z_probe() {
 static void retract_z_probe() {
   // Retract Z Servo endstop if enabled
   #ifdef SERVO_ENDSTOPS
-    if (servo_endstops[Z_AXIS] > -1) {
+    if (servo_endstops[Z_AXIS] > -1)
+    {
+      #if Z_RAISE_AFTER_PROBING > 0
+        do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], Z_RAISE_AFTER_PROBING);
+        st_synchronize();
+      #endif
+    
       #if SERVO_LEVELING
         servos[servo_endstops[Z_AXIS]].attach(0);
       #endif
@@ -1322,7 +1328,7 @@ static void retract_z_probe() {
   #elif defined(Z_PROBE_ALLEN_KEY)
     // Move up for safety
     feedrate = homing_feedrate[X_AXIS];
-    destination[Z_AXIS] = current_position[Z_AXIS] + 20;
+    destination[Z_AXIS] = current_position[Z_AXIS] + Z_RAISE_AFTER_PROBING;
     prepare_move_raw();
 
     // Move to the start position to initiate retraction
@@ -1364,10 +1370,15 @@ static void retract_z_probe() {
 
 }
 
-enum ProbeAction { ProbeStay, ProbeEngage, ProbeRetract, ProbeEngageRetract };
+enum ProbeAction {
+  ProbeStay             = 0,
+  ProbeEngage           = BIT(0),
+  ProbeRetract          = BIT(1),
+  ProbeEngageAndRetract = (ProbeEngage | ProbeRetract)
+};
 
 /// Probe bed height at position (x,y), returns the measured z value
-static float probe_pt(float x, float y, float z_before, ProbeAction retract_action=ProbeEngageRetract, int verbose_level=1) {
+static float probe_pt(float x, float y, float z_before, ProbeAction retract_action=ProbeEngageAndRetract, int verbose_level=1) {
   // move to right place
   do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], z_before);
   do_blocking_move_to(x - X_PROBE_OFFSET_FROM_EXTRUDER, y - Y_PROBE_OFFSET_FROM_EXTRUDER, current_position[Z_AXIS]);
@@ -2166,7 +2177,7 @@ inline void gcode_G28() {
     #ifdef AUTO_BED_LEVELING_GRID
 
     #ifndef DELTA
-      bool topo_flag = verbose_level > 2 || code_seen('T') || code_seen('t');
+      bool do_topography_map = verbose_level > 2 || code_seen('T') || code_seen('t');
     #endif
 
       if (verbose_level > 0)
@@ -2221,15 +2232,16 @@ inline void gcode_G28() {
 
     #ifdef Z_PROBE_SLED
       dock_sled(false); // engage (un-dock) the probe
-    #elif not defined(SERVO_ENDSTOPS)
+    #elif defined(Z_PROBE_ALLEN_KEY)
       engage_z_probe();
     #endif
 
     st_synchronize();
 
-  #ifdef DELTA
-    reset_bed_level();
-  #else
+    #ifdef DELTA
+      reset_bed_level();
+    #else
+
     // make sure the bed_level_rotation_matrix is identity or the planner will get it incorectly
     //vector_3 corrected_position = plan_get_position_mm();
     //corrected_position.debug("position before G29");
@@ -2270,42 +2282,36 @@ inline void gcode_G28() {
       delta_grid_spacing[1] = yGridSpacing;
 
       float z_offset = Z_PROBE_OFFSET_FROM_EXTRUDER;
-      if (code_seen(axis_codes[Z_AXIS])) {
-        z_offset += code_value();
-      }
+      if (code_seen(axis_codes[Z_AXIS])) z_offset += code_value();
     #endif
 
       int probePointCounter = 0;
       bool zig = true;
 
-      for (int yCount=0; yCount < auto_bed_leveling_grid_points; yCount++)
-      {
+      for (int yCount = 0; yCount < auto_bed_leveling_grid_points; yCount++) {
         double yProbe = front_probe_bed_position + yGridSpacing * yCount;
         int xStart, xStop, xInc;
 
-        if (zig)
-        {
+        if (zig) {
           xStart = 0;
           xStop = auto_bed_leveling_grid_points;
           xInc = 1;
           zig = false;
         }
-        else
-        {
+        else {
           xStart = auto_bed_leveling_grid_points - 1;
           xStop = -1;
           xInc = -1;
           zig = true;
         }
 
-      #ifndef DELTA
-        // If topo_flag is set then don't zig-zag. Just scan in one direction.
-        // This gets the probe points in more readable order.
-        if (!topo_flag) zig = !zig;
-      #endif
+        #ifndef DELTA
+          // If do_topography_map is set then don't zig-zag. Just scan in one direction.
+          // This gets the probe points in more readable order.
+          if (!do_topography_map) zig = !zig;
+        #endif
 
-        for (int xCount=xStart; xCount != xStop; xCount += xInc)
-        {
+        for (int xCount = xStart; xCount != xStop; xCount += xInc) {
           double xProbe = left_probe_bed_position + xGridSpacing * xCount;
 
           // raise extruder
@@ -2330,7 +2336,7 @@ inline void gcode_G28() {
               act = ProbeStay;
           }
           else
-            act = ProbeEngageRetract;
+            act = ProbeEngageAndRetract;
 
           measured_z = probe_pt(xProbe, yProbe, z_before, act, verbose_level);
 
@@ -2372,49 +2378,31 @@ inline void gcode_G28() {
         }
       }
 
-      if (topo_flag) {
-
-        int xx, yy;
+      // Show the Topography map if enabled
+      if (do_topography_map) {
 
         SERIAL_PROTOCOLPGM(" \nBed Height Topography: \n");
-        #if TOPO_ORIGIN == OriginFrontLeft
-          SERIAL_PROTOCOLPGM("+-----------+\n");
-          SERIAL_PROTOCOLPGM("|...Back....|\n");
-          SERIAL_PROTOCOLPGM("|Left..Right|\n");
-          SERIAL_PROTOCOLPGM("|...Front...|\n");
-          SERIAL_PROTOCOLPGM("+-----------+\n");
-          for (yy = auto_bed_leveling_grid_points - 1; yy >= 0; yy--)
-        #else
-          for (yy = 0; yy < auto_bed_leveling_grid_points; yy++)
-        #endif
-          {
-            #if TOPO_ORIGIN == OriginBackRight
-              for (xx = 0; xx < auto_bed_leveling_grid_points; xx++)
-            #else
-              for (xx = auto_bed_leveling_grid_points - 1; xx >= 0; xx--)
-            #endif
-              {
-                int ind =
-                  #if TOPO_ORIGIN == OriginBackRight || TOPO_ORIGIN == OriginFrontLeft
-                    yy * auto_bed_leveling_grid_points + xx
-                  #elif TOPO_ORIGIN == OriginBackLeft
-                    xx * auto_bed_leveling_grid_points + yy
-                  #elif TOPO_ORIGIN == OriginFrontRight
-                    abl2 - xx * auto_bed_leveling_grid_points - yy - 1
-                  #endif
-                ;
-                float diff = eqnBVector[ind] - mean;
-                if (diff >= 0.0)
-                  SERIAL_PROTOCOLPGM(" +");   // Include + for column alignment
-                else
-                  SERIAL_PROTOCOLPGM(" ");
-                SERIAL_PROTOCOL_F(diff, 5);
-              } // xx
-              SERIAL_EOL;
-          } // yy
-          SERIAL_EOL;
+        SERIAL_PROTOCOLPGM("+-----------+\n");
+        SERIAL_PROTOCOLPGM("|...Back....|\n");
+        SERIAL_PROTOCOLPGM("|Left..Right|\n");
+        SERIAL_PROTOCOLPGM("|...Front...|\n");
+        SERIAL_PROTOCOLPGM("+-----------+\n");
 
-      } //topo_flag
+        for (int yy = auto_bed_leveling_grid_points - 1; yy >= 0; yy--) {
+          for (int xx = auto_bed_leveling_grid_points - 1; xx >= 0; xx--) {
+            int ind = yy * auto_bed_leveling_grid_points + xx;
+            float diff = eqnBVector[ind] - mean;
+            if (diff >= 0.0)
+              SERIAL_PROTOCOLPGM(" +");   // Include + for column alignment
+            else
+              SERIAL_PROTOCOLPGM(" ");
+            SERIAL_PROTOCOL_F(diff, 5);
+          } // xx
+          SERIAL_EOL;
+        } // yy
+        SERIAL_EOL;
+
+      } //do_topography_map
 
 
       set_bed_level_equation_lsq(plane_equation_coefficients);
@@ -2436,17 +2424,14 @@ inline void gcode_G28() {
         z_at_pt_3 = probe_pt(ABL_PROBE_PT_3_X, ABL_PROBE_PT_3_Y, current_position[Z_AXIS] + Z_RAISE_BETWEEN_PROBINGS, ProbeRetract, verbose_level);
       }
       else {
-        z_at_pt_1 = probe_pt(ABL_PROBE_PT_1_X, ABL_PROBE_PT_1_Y, Z_RAISE_BEFORE_PROBING, verbose_level=verbose_level);
-        z_at_pt_2 = probe_pt(ABL_PROBE_PT_2_X, ABL_PROBE_PT_2_Y, current_position[Z_AXIS] + Z_RAISE_BETWEEN_PROBINGS, verbose_level=verbose_level);
-        z_at_pt_3 = probe_pt(ABL_PROBE_PT_3_X, ABL_PROBE_PT_3_Y, current_position[Z_AXIS] + Z_RAISE_BETWEEN_PROBINGS, verbose_level=verbose_level);
+        z_at_pt_1 = probe_pt(ABL_PROBE_PT_1_X, ABL_PROBE_PT_1_Y, Z_RAISE_BEFORE_PROBING, ProbeEngageAndRetract, verbose_level);
+        z_at_pt_2 = probe_pt(ABL_PROBE_PT_2_X, ABL_PROBE_PT_2_Y, current_position[Z_AXIS] + Z_RAISE_BETWEEN_PROBINGS, ProbeEngageAndRetract, verbose_level);
+        z_at_pt_3 = probe_pt(ABL_PROBE_PT_3_X, ABL_PROBE_PT_3_Y, current_position[Z_AXIS] + Z_RAISE_BETWEEN_PROBINGS, ProbeEngageAndRetract, verbose_level);
       }
       clean_up_after_endstop_move();
       set_bed_level_equation_3pts(z_at_pt_1, z_at_pt_2, z_at_pt_3);
 
     #endif // !AUTO_BED_LEVELING_GRID
-
-    do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], Z_RAISE_AFTER_PROBING);
-    st_synchronize();
 
   #ifndef DELTA
     if (verbose_level > 0)
@@ -2467,7 +2452,7 @@ inline void gcode_G28() {
 
   #ifdef Z_PROBE_SLED
     dock_sled(true, -SLED_DOCKING_OFFSET); // dock the probe, correcting for over-travel
-  #elif not defined(SERVO_ENDSTOPS)
+  #elif defined(Z_PROBE_ALLEN_KEY)
     retract_z_probe();
   #endif
     
@@ -4067,18 +4052,13 @@ inline void gcode_M303() {
 }
 
 #ifdef SCARA
-
-  /**
-   * M360: SCARA calibration: Move to cal-position ThetaA (0 deg calibration)
-   */
-  inline bool gcode_M360() {
-    SERIAL_ECHOLN(" Cal: Theta 0 ");
+  bool SCARA_move_to_cal(uint8_t delta_x, uint8_t delta_y) {
     //SoftEndsEnabled = false;              // Ignore soft endstops during calibration
     //SERIAL_ECHOLN(" Soft endstops disabled ");
     if (! Stopped) {
       //get_coordinates(); // For X Y Z E F
-      delta[X_AXIS] = 0;
-      delta[Y_AXIS] = 120;
+      delta[X_AXIS] = delta_x;
+      delta[Y_AXIS] = delta_y;
       calculate_SCARA_forward_Transform(delta);
       destination[X_AXIS] = delta[X_AXIS]/axis_scaling[X_AXIS];
       destination[Y_AXIS] = delta[Y_AXIS]/axis_scaling[Y_AXIS];
@@ -4087,6 +4067,14 @@ inline void gcode_M303() {
       return true;
     }
     return false;
+  }
+
+  /**
+   * M360: SCARA calibration: Move to cal-position ThetaA (0 deg calibration)
+   */
+  inline bool gcode_M360() {
+    SERIAL_ECHOLN(" Cal: Theta 0 ");
+    return SCARA_move_to_cal(0, 120);
   }
 
   /**
@@ -4094,20 +4082,7 @@ inline void gcode_M303() {
    */
   inline bool gcode_M361() {
     SERIAL_ECHOLN(" Cal: Theta 90 ");
-    //SoftEndsEnabled = false;              // Ignore soft endstops during calibration
-    //SERIAL_ECHOLN(" Soft endstops disabled ");
-    if (! Stopped) {
-      //get_coordinates(); // For X Y Z E F
-      delta[X_AXIS] = 90;
-      delta[Y_AXIS] = 130;
-      calculate_SCARA_forward_Transform(delta);
-      destination[X_AXIS] = delta[X_AXIS]/axis_scaling[X_AXIS];
-      destination[Y_AXIS] = delta[Y_AXIS]/axis_scaling[Y_AXIS];
-      prepare_move();
-      //ClearToSend();
-      return true;
-    }
-    return false;
+    return SCARA_move_to_cal(90, 130);
   }
 
   /**
@@ -4115,20 +4090,7 @@ inline void gcode_M303() {
    */
   inline bool gcode_M362() {
     SERIAL_ECHOLN(" Cal: Psi 0 ");
-    //SoftEndsEnabled = false;              // Ignore soft endstops during calibration
-    //SERIAL_ECHOLN(" Soft endstops disabled ");
-    if (! Stopped) {
-      //get_coordinates(); // For X Y Z E F
-      delta[X_AXIS] = 60;
-      delta[Y_AXIS] = 180;
-      calculate_SCARA_forward_Transform(delta);
-      destination[X_AXIS] = delta[X_AXIS]/axis_scaling[X_AXIS];
-      destination[Y_AXIS] = delta[Y_AXIS]/axis_scaling[Y_AXIS];
-      prepare_move();
-      //ClearToSend();
-      return true;
-    }
-    return false;
+    return SCARA_move_to_cal(60, 180);
   }
 
   /**
@@ -4136,20 +4098,7 @@ inline void gcode_M303() {
    */
   inline bool gcode_M363() {
     SERIAL_ECHOLN(" Cal: Psi 90 ");
-    //SoftEndsEnabled = false;              // Ignore soft endstops during calibration
-    //SERIAL_ECHOLN(" Soft endstops disabled ");
-    if (! Stopped) {
-      //get_coordinates(); // For X Y Z E F
-      delta[X_AXIS] = 50;
-      delta[Y_AXIS] = 90;
-      calculate_SCARA_forward_Transform(delta);
-      destination[X_AXIS] = delta[X_AXIS]/axis_scaling[X_AXIS];
-      destination[Y_AXIS] = delta[Y_AXIS]/axis_scaling[Y_AXIS];
-      prepare_move();
-      //ClearToSend();
-      return true;
-    }
-    return false;
+    return SCARA_move_to_cal(50, 90);
   }
 
   /**
@@ -4157,20 +4106,7 @@ inline void gcode_M303() {
    */
   inline bool gcode_M364() {
     SERIAL_ECHOLN(" Cal: Theta-Psi 90 ");
-   // SoftEndsEnabled = false;              // Ignore soft endstops during calibration
-    //SERIAL_ECHOLN(" Soft endstops disabled ");
-    if (! Stopped) {
-      //get_coordinates(); // For X Y Z E F
-      delta[X_AXIS] = 45;
-      delta[Y_AXIS] = 135;
-      calculate_SCARA_forward_Transform(delta);
-      destination[X_AXIS] = delta[X_AXIS] / axis_scaling[X_AXIS];
-      destination[Y_AXIS] = delta[Y_AXIS] / axis_scaling[Y_AXIS];
-      prepare_move();
-      //ClearToSend();
-      return true;
-    }
-    return false;
+    return SCARA_move_to_cal(45, 135);
   }
 
   /**
