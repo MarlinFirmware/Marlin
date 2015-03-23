@@ -1370,12 +1370,11 @@ static void retract_z_probe() {
 
 }
 
-enum ProbeAction
-{
-    ProbeStay             = 0,
-    ProbeEngage           = (1 << 0),
-    ProbeRetract          = (1 << 1),
-    ProbeEngageAndRetract = (ProbeEngage | ProbeRetract),
+enum ProbeAction {
+  ProbeStay             = 0,
+  ProbeEngage           = BIT(0),
+  ProbeRetract          = BIT(1),
+  ProbeEngageAndRetract = (ProbeEngage | ProbeRetract)
 };
 
 /// Probe bed height at position (x,y), returns the measured z value
@@ -2178,7 +2177,7 @@ inline void gcode_G28() {
     #ifdef AUTO_BED_LEVELING_GRID
 
     #ifndef DELTA
-      bool topo_flag = verbose_level > 2 || code_seen('T') || code_seen('t');
+      bool do_topography_map = verbose_level > 2 || code_seen('T') || code_seen('t');
     #endif
 
       if (verbose_level > 0)
@@ -2239,9 +2238,10 @@ inline void gcode_G28() {
 
     st_synchronize();
 
-  #ifdef DELTA
-    reset_bed_level();
-  #else
+    #ifdef DELTA
+      reset_bed_level();
+    #else
+
     // make sure the bed_level_rotation_matrix is identity or the planner will get it incorectly
     //vector_3 corrected_position = plan_get_position_mm();
     //corrected_position.debug("position before G29");
@@ -2282,42 +2282,36 @@ inline void gcode_G28() {
       delta_grid_spacing[1] = yGridSpacing;
 
       float z_offset = Z_PROBE_OFFSET_FROM_EXTRUDER;
-      if (code_seen(axis_codes[Z_AXIS])) {
-        z_offset += code_value();
-      }
+      if (code_seen(axis_codes[Z_AXIS])) z_offset += code_value();
     #endif
 
       int probePointCounter = 0;
       bool zig = true;
 
-      for (int yCount=0; yCount < auto_bed_leveling_grid_points; yCount++)
-      {
+      for (int yCount = 0; yCount < auto_bed_leveling_grid_points; yCount++) {
         double yProbe = front_probe_bed_position + yGridSpacing * yCount;
         int xStart, xStop, xInc;
 
-        if (zig)
-        {
+        if (zig) {
           xStart = 0;
           xStop = auto_bed_leveling_grid_points;
           xInc = 1;
           zig = false;
         }
-        else
-        {
+        else {
           xStart = auto_bed_leveling_grid_points - 1;
           xStop = -1;
           xInc = -1;
           zig = true;
         }
 
-      #ifndef DELTA
-        // If topo_flag is set then don't zig-zag. Just scan in one direction.
-        // This gets the probe points in more readable order.
-        if (!topo_flag) zig = !zig;
-      #endif
+        #ifndef DELTA
+          // If do_topography_map is set then don't zig-zag. Just scan in one direction.
+          // This gets the probe points in more readable order.
+          if (!do_topography_map) zig = !zig;
+        #endif
 
-        for (int xCount=xStart; xCount != xStop; xCount += xInc)
-        {
+        for (int xCount = xStart; xCount != xStop; xCount += xInc) {
           double xProbe = left_probe_bed_position + xGridSpacing * xCount;
 
           // raise extruder
@@ -2384,49 +2378,31 @@ inline void gcode_G28() {
         }
       }
 
-      if (topo_flag) {
-
-        int xx, yy;
+      // Show the Topography map if enabled
+      if (do_topography_map) {
 
         SERIAL_PROTOCOLPGM(" \nBed Height Topography: \n");
-        #if TOPO_ORIGIN == OriginFrontLeft
-          SERIAL_PROTOCOLPGM("+-----------+\n");
-          SERIAL_PROTOCOLPGM("|...Back....|\n");
-          SERIAL_PROTOCOLPGM("|Left..Right|\n");
-          SERIAL_PROTOCOLPGM("|...Front...|\n");
-          SERIAL_PROTOCOLPGM("+-----------+\n");
-          for (yy = auto_bed_leveling_grid_points - 1; yy >= 0; yy--)
-        #else
-          for (yy = 0; yy < auto_bed_leveling_grid_points; yy++)
-        #endif
-          {
-            #if TOPO_ORIGIN == OriginBackRight
-              for (xx = 0; xx < auto_bed_leveling_grid_points; xx++)
-            #else
-              for (xx = auto_bed_leveling_grid_points - 1; xx >= 0; xx--)
-            #endif
-              {
-                int ind =
-                  #if TOPO_ORIGIN == OriginBackRight || TOPO_ORIGIN == OriginFrontLeft
-                    yy * auto_bed_leveling_grid_points + xx
-                  #elif TOPO_ORIGIN == OriginBackLeft
-                    xx * auto_bed_leveling_grid_points + yy
-                  #elif TOPO_ORIGIN == OriginFrontRight
-                    abl2 - xx * auto_bed_leveling_grid_points - yy - 1
-                  #endif
-                ;
-                float diff = eqnBVector[ind] - mean;
-                if (diff >= 0.0)
-                  SERIAL_PROTOCOLPGM(" +");   // Include + for column alignment
-                else
-                  SERIAL_PROTOCOLPGM(" ");
-                SERIAL_PROTOCOL_F(diff, 5);
-              } // xx
-              SERIAL_EOL;
-          } // yy
-          SERIAL_EOL;
+        SERIAL_PROTOCOLPGM("+-----------+\n");
+        SERIAL_PROTOCOLPGM("|...Back....|\n");
+        SERIAL_PROTOCOLPGM("|Left..Right|\n");
+        SERIAL_PROTOCOLPGM("|...Front...|\n");
+        SERIAL_PROTOCOLPGM("+-----------+\n");
 
-      } //topo_flag
+        for (int yy = auto_bed_leveling_grid_points - 1; yy >= 0; yy--) {
+          for (int xx = auto_bed_leveling_grid_points - 1; xx >= 0; xx--) {
+            int ind = yy * auto_bed_leveling_grid_points + xx;
+            float diff = eqnBVector[ind] - mean;
+            if (diff >= 0.0)
+              SERIAL_PROTOCOLPGM(" +");   // Include + for column alignment
+            else
+              SERIAL_PROTOCOLPGM(" ");
+            SERIAL_PROTOCOL_F(diff, 5);
+          } // xx
+          SERIAL_EOL;
+        } // yy
+        SERIAL_EOL;
+
+      } //do_topography_map
 
 
       set_bed_level_equation_lsq(plane_equation_coefficients);
@@ -2448,9 +2424,9 @@ inline void gcode_G28() {
         z_at_pt_3 = probe_pt(ABL_PROBE_PT_3_X, ABL_PROBE_PT_3_Y, current_position[Z_AXIS] + Z_RAISE_BETWEEN_PROBINGS, ProbeRetract, verbose_level);
       }
       else {
-        z_at_pt_1 = probe_pt(ABL_PROBE_PT_1_X, ABL_PROBE_PT_1_Y, Z_RAISE_BEFORE_PROBING, verbose_level=verbose_level);
-        z_at_pt_2 = probe_pt(ABL_PROBE_PT_2_X, ABL_PROBE_PT_2_Y, current_position[Z_AXIS] + Z_RAISE_BETWEEN_PROBINGS, verbose_level=verbose_level);
-        z_at_pt_3 = probe_pt(ABL_PROBE_PT_3_X, ABL_PROBE_PT_3_Y, current_position[Z_AXIS] + Z_RAISE_BETWEEN_PROBINGS, verbose_level=verbose_level);
+        z_at_pt_1 = probe_pt(ABL_PROBE_PT_1_X, ABL_PROBE_PT_1_Y, Z_RAISE_BEFORE_PROBING, ProbeEngageAndRetract, verbose_level);
+        z_at_pt_2 = probe_pt(ABL_PROBE_PT_2_X, ABL_PROBE_PT_2_Y, current_position[Z_AXIS] + Z_RAISE_BETWEEN_PROBINGS, ProbeEngageAndRetract, verbose_level);
+        z_at_pt_3 = probe_pt(ABL_PROBE_PT_3_X, ABL_PROBE_PT_3_Y, current_position[Z_AXIS] + Z_RAISE_BETWEEN_PROBINGS, ProbeEngageAndRetract, verbose_level);
       }
       clean_up_after_endstop_move();
       set_bed_level_equation_3pts(z_at_pt_1, z_at_pt_2, z_at_pt_3);
