@@ -102,11 +102,8 @@ volatile signed char count_direction[NUM_AXIS] = { 1, 1, 1, 1 };
       X_DIR_WRITE(v); \
       X2_DIR_WRITE(v); \
     } \
-    else{ \
-      if (current_block->active_extruder) \
-        X2_DIR_WRITE(v); \
-      else \
-        X_DIR_WRITE(v); \
+    else { \
+      if (current_block->active_extruder) X2_DIR_WRITE(v); else X_DIR_WRITE(v); \
     }
   #define X_APPLY_STEP(v,ALWAYS) \
     if (extruder_duplication_enabled || ALWAYS) { \
@@ -114,10 +111,7 @@ volatile signed char count_direction[NUM_AXIS] = { 1, 1, 1, 1 };
       X2_STEP_WRITE(v); \
     } \
     else { \
-      if (current_block->active_extruder != 0) \
-        X2_STEP_WRITE(v); \
-      else \
-        X_STEP_WRITE(v); \
+      if (current_block->active_extruder != 0) X2_STEP_WRITE(v); else X_STEP_WRITE(v); \
     }
 #else
   #define X_APPLY_DIR(v,Q) X_DIR_WRITE(v)
@@ -125,16 +119,16 @@ volatile signed char count_direction[NUM_AXIS] = { 1, 1, 1, 1 };
 #endif
 
 #ifdef Y_DUAL_STEPPER_DRIVERS
-  #define Y_APPLY_DIR(v,Q) Y_DIR_WRITE(v), Y2_DIR_WRITE((v) != INVERT_Y2_VS_Y_DIR)
-  #define Y_APPLY_STEP(v,Q) Y_STEP_WRITE(v), Y2_STEP_WRITE(v)
+  #define Y_APPLY_DIR(v,Q) { Y_DIR_WRITE(v); Y2_DIR_WRITE((v) != INVERT_Y2_VS_Y_DIR); }
+  #define Y_APPLY_STEP(v,Q) { Y_STEP_WRITE(v); Y2_STEP_WRITE(v); }
 #else
   #define Y_APPLY_DIR(v,Q) Y_DIR_WRITE(v)
   #define Y_APPLY_STEP(v,Q) Y_STEP_WRITE(v)
 #endif
 
 #ifdef Z_DUAL_STEPPER_DRIVERS
-  #define Z_APPLY_DIR(v,Q) Z_DIR_WRITE(v), Z2_DIR_WRITE(v)
-  #define Z_APPLY_STEP(v,Q) Z_STEP_WRITE(v), Z2_STEP_WRITE(v)
+  #define Z_APPLY_DIR(v,Q) { Z_DIR_WRITE(v); Z2_DIR_WRITE(v); }
+  #define Z_APPLY_STEP(v,Q) { Z_STEP_WRITE(v); Z2_STEP_WRITE(v); }
 #else
   #define Z_APPLY_DIR(v,Q) Z_DIR_WRITE(v)
   #define Z_APPLY_STEP(v,Q) Z_STEP_WRITE(v)
