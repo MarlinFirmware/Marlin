@@ -18,7 +18,7 @@
  *  max_xy_jerk
  *  max_z_jerk
  *  max_e_jerk
- *  add_homing (x3)
+ *  home_offset (x3)
  *
  * Mesh bed leveling:
  *  active
@@ -136,7 +136,7 @@ void Config_StoreSettings()  {
   EEPROM_WRITE_VAR(i, max_xy_jerk);
   EEPROM_WRITE_VAR(i, max_z_jerk);
   EEPROM_WRITE_VAR(i, max_e_jerk);
-  EEPROM_WRITE_VAR(i, add_homing);
+  EEPROM_WRITE_VAR(i, home_offset);
 
   uint8_t mesh_num_x = 3;
   uint8_t mesh_num_y = 3;
@@ -294,7 +294,7 @@ void Config_RetrieveSettings() {
     EEPROM_READ_VAR(i, max_xy_jerk);
     EEPROM_READ_VAR(i, max_z_jerk);
     EEPROM_READ_VAR(i, max_e_jerk);
-    EEPROM_READ_VAR(i, add_homing);
+    EEPROM_READ_VAR(i, home_offset);
 
     uint8_t mesh_num_x = 0;
     uint8_t mesh_num_y = 0;
@@ -447,7 +447,7 @@ void Config_ResetDefault() {
   max_xy_jerk = DEFAULT_XYJERK;
   max_z_jerk = DEFAULT_ZJERK;
   max_e_jerk = DEFAULT_EJERK;
-  add_homing[X_AXIS] = add_homing[Y_AXIS] = add_homing[Z_AXIS] = 0;
+  home_offset[X_AXIS] = home_offset[Y_AXIS] = home_offset[Z_AXIS] = 0;
 
   #if defined(MESH_BED_LEVELING)
     mbl.active = 0;
@@ -607,9 +607,9 @@ void Config_PrintSettings(bool forReplay) {
     SERIAL_ECHOLNPGM("Home offset (mm):");
     SERIAL_ECHO_START;
   }
-  SERIAL_ECHOPAIR("  M206 X", add_homing[X_AXIS] );
-  SERIAL_ECHOPAIR(" Y", add_homing[Y_AXIS] );
-  SERIAL_ECHOPAIR(" Z", add_homing[Z_AXIS] );
+  SERIAL_ECHOPAIR("  M206 X", home_offset[X_AXIS] );
+  SERIAL_ECHOPAIR(" Y", home_offset[Y_AXIS] );
+  SERIAL_ECHOPAIR(" Z", home_offset[Z_AXIS] );
   SERIAL_EOL;
 
   #ifdef DELTA
