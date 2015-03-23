@@ -1240,16 +1240,26 @@ void disable_heater() {
 enum TempState {
   PrepareTemp_0,
   MeasureTemp_0,
-  PrepareTemp_BED,
-  MeasureTemp_BED,
-  PrepareTemp_1,
-  MeasureTemp_1,
-  PrepareTemp_2,
-  MeasureTemp_2,
-  PrepareTemp_3,
-  MeasureTemp_3,
-  Prepare_FILWIDTH,
-  Measure_FILWIDTH,
+  #if HAS_TEMP_BED
+    PrepareTemp_BED,
+    MeasureTemp_BED,
+  #endif
+  #if HAS_TEMP_1
+    PrepareTemp_1,
+    MeasureTemp_1,
+  #endif
+  #if HAS_TEMP_2
+    PrepareTemp_2,
+    MeasureTemp_2,
+  #endif
+  #if HAS_TEMP_3
+    PrepareTemp_3,
+    MeasureTemp_3,
+  #endif
+  #if HAS_FILAMENT_SENSOR
+    Prepare_FILWIDTH,
+    Measure_FILWIDTH,
+  #endif
   StartupDelay // Startup, delay initial temp reading a tiny bit so the hardware can settle
 };
 
@@ -1473,78 +1483,124 @@ ISR(TIMER0_COMPB_vect) {
       #if HAS_TEMP_0
         raw_temp_value[0] += ADC;
       #endif
-      temp_state = PrepareTemp_BED;
+      temp_state =
+        #if HAS_TEMP_BED
+          PrepareTemp_BED
+        #elif HAS_TEMP_1
+          PrepareTemp_1
+        #elif HAS_TEMP_2
+          PrepareTemp_2
+        #elif HAS_TEMP_3
+          PrepareTemp_3
+        #elif HAS_FILAMENT_SENSOR
+          Prepare_FILWIDTH
+        #else
+          PrepareTemp_0
+        #endif
+      ;
       break;
-    case PrepareTemp_BED:
-      #if HAS_TEMP_BED
+
+    #if HAS_TEMP_BED
+      case PrepareTemp_BED:
         START_ADC(TEMP_BED_PIN);
-      #endif
-      lcd_buttons_update();
-      temp_state = MeasureTemp_BED;
-      break;
-    case MeasureTemp_BED:
-      #if HAS_TEMP_BED
+        lcd_buttons_update();
+        temp_state = MeasureTemp_BED;
+        break;
+      case MeasureTemp_BED:
         raw_temp_bed_value += ADC;
-      #endif
-      temp_state = PrepareTemp_1;
-      break;
-    case PrepareTemp_1:
-      #if HAS_TEMP_1
+        temp_state =
+          #if HAS_TEMP_1
+            PrepareTemp_1
+          #elif HAS_TEMP_2
+            PrepareTemp_2
+          #elif HAS_TEMP_3
+            PrepareTemp_3
+          #elif HAS_FILAMENT_SENSOR
+            Prepare_FILWIDTH
+          #else
+            PrepareTemp_0
+          #endif
+        ;
+        break;
+    #endif
+
+    #if HAS_TEMP_1
+      case PrepareTemp_1:
         START_ADC(TEMP_1_PIN);
-      #endif
-      lcd_buttons_update();
-      temp_state = MeasureTemp_1;
-      break;
-    case MeasureTemp_1:
-      #if HAS_TEMP_1
+        lcd_buttons_update();
+        temp_state = MeasureTemp_1;
+        break;
+      case MeasureTemp_1:
         raw_temp_value[1] += ADC;
-      #endif
-      temp_state = PrepareTemp_2;
-      break;
-    case PrepareTemp_2:
-      #if HAS_TEMP_2
+        temp_state =
+          #if HAS_TEMP_2
+            PrepareTemp_2
+          #elif HAS_TEMP_3
+            PrepareTemp_3
+          #elif HAS_FILAMENT_SENSOR
+            Prepare_FILWIDTH
+          #else
+            PrepareTemp_0
+          #endif
+        ;
+        break;
+    #endif
+
+    #if HAS_TEMP_2
+      case PrepareTemp_2:
         START_ADC(TEMP_2_PIN);
-      #endif
-      lcd_buttons_update();
-      temp_state = MeasureTemp_2;
-      break;
-    case MeasureTemp_2:
-      #if HAS_TEMP_2
+        lcd_buttons_update();
+        temp_state = MeasureTemp_2;
+        break;
+      case MeasureTemp_2:
         raw_temp_value[2] += ADC;
-      #endif
-      temp_state = PrepareTemp_3;
-      break;
-    case PrepareTemp_3:
-      #if HAS_TEMP_3
+        temp_state =
+          #if HAS_TEMP_3
+            PrepareTemp_3
+          #elif HAS_FILAMENT_SENSOR
+            Prepare_FILWIDTH
+          #else
+            PrepareTemp_0
+          #endif
+        ;
+        break;
+    #endif
+
+    #if HAS_TEMP_3
+      case PrepareTemp_3:
         START_ADC(TEMP_3_PIN);
-      #endif
-      lcd_buttons_update();
-      temp_state = MeasureTemp_3;
-      break;
-    case MeasureTemp_3:
-      #if HAS_TEMP_3
+        lcd_buttons_update();
+        temp_state = MeasureTemp_3;
+        break;
+      case MeasureTemp_3:
         raw_temp_value[3] += ADC;
-      #endif
-      temp_state = Prepare_FILWIDTH;
-      break;
-    case Prepare_FILWIDTH:
-      #if HAS_FILAMENT_SENSOR
+        temp_state =
+          #if HAS_FILAMENT_SENSOR
+            Prepare_FILWIDTH
+          #else
+            PrepareTemp_0
+          #endif
+        ;
+        break;
+    #endif
+
+    #if HAS_FILAMENT_SENSOR
+      case Prepare_FILWIDTH:
         START_ADC(FILWIDTH_PIN);
-      #endif
-      lcd_buttons_update();
-      temp_state = Measure_FILWIDTH;
-      break;
-    case Measure_FILWIDTH:
-      #if HAS_FILAMENT_SENSOR
+        lcd_buttons_update();
+        temp_state = Measure_FILWIDTH;
+        break;
+      case Measure_FILWIDTH:
         // raw_filwidth_value += ADC;  //remove to use an IIR filter approach
         if (ADC > 102) { //check that ADC is reading a voltage > 0.5 volts, otherwise don't take in the data.
           raw_filwidth_value -= (raw_filwidth_value>>7);  //multiply raw_filwidth_value by 127/128
           raw_filwidth_value += ((unsigned long)ADC<<7);  //add new ADC reading
         }
-      #endif
-      temp_state = PrepareTemp_0;
-      temp_count++;
-      break;
+        temp_state = PrepareTemp_0;
+        temp_count++;
+        break;
+    #endif
+
     case StartupDelay:
       temp_state = PrepareTemp_0;
       break;
@@ -1554,7 +1610,7 @@ ISR(TIMER0_COMPB_vect) {
     //   SERIAL_ERRORLNPGM("Temp measurement error!");
     //   break;
   } // switch(temp_state)
-    
+
   if (temp_count >= OVERSAMPLENR) { // 10 * 16 * 1/(16000000/64/256)  = 164ms.
     if (!temp_meas_ready) { //Only update the raw values if they have been read. Else we could be updating them during reading.
       #ifndef HEATER_0_USES_MAX6675
@@ -1579,7 +1635,7 @@ ISR(TIMER0_COMPB_vect) {
     #if HAS_FILAMENT_SENSOR
       current_raw_filwidth = raw_filwidth_value >> 10;  // Divide to get to 0-16384 range since we used 1/128 IIR filter approach
     #endif
-    
+
     temp_meas_ready = true;
     temp_count = 0;
     for (int i = 0; i < EXTRUDERS; i++) raw_temp_value[i] = 0;
@@ -1587,44 +1643,39 @@ ISR(TIMER0_COMPB_vect) {
 
     #if HEATER_0_RAW_LO_TEMP > HEATER_0_RAW_HI_TEMP
       #define GE0 <=
-      #define LE0 >=
     #else
       #define GE0 >=
-      #define LE0 <=
     #endif
     if (current_temperature_raw[0] GE0 maxttemp_raw[0]) max_temp_error(0);
-    if (current_temperature_raw[0] LE0 minttemp_raw[0]) min_temp_error(0);
+    if (minttemp_raw[0] GE0 current_temperature_raw[0]) min_temp_error(0);
 
     #if EXTRUDERS > 1
       #if HEATER_1_RAW_LO_TEMP > HEATER_1_RAW_HI_TEMP
         #define GE1 <=
-        #define LE1 >=
       #else
         #define GE1 >=
-        #define LE1 <=
       #endif
       if (current_temperature_raw[1] GE1 maxttemp_raw[1]) max_temp_error(1);
-      if (current_temperature_raw[1] LE1 minttemp_raw[1]) min_temp_error(1);
+      if (minttemp_raw[1] GE0 current_temperature_raw[1]) min_temp_error(1);
+
       #if EXTRUDERS > 2
         #if HEATER_2_RAW_LO_TEMP > HEATER_2_RAW_HI_TEMP
           #define GE2 <=
-          #define LE2 >=
         #else
           #define GE2 >=
-          #define LE2 <=
         #endif
         if (current_temperature_raw[2] GE2 maxttemp_raw[2]) max_temp_error(2);
-        if (current_temperature_raw[2] LE2 minttemp_raw[2]) min_temp_error(2);
+        if (minttemp_raw[2] GE0 current_temperature_raw[2]) min_temp_error(2);
+
         #if EXTRUDERS > 3
           #if HEATER_3_RAW_LO_TEMP > HEATER_3_RAW_HI_TEMP
             #define GE3 <=
-            #define LE3 >=
           #else
             #define GE3 >=
-            #define LE3 <=
           #endif
           if (current_temperature_raw[3] GE3 maxttemp_raw[3]) max_temp_error(3);
-          if (current_temperature_raw[3] LE3 minttemp_raw[3]) min_temp_error(3);
+          if (minttemp_raw[3] GE0 current_temperature_raw[3]) min_temp_error(3);
+
         #endif // EXTRUDERS > 3
       #endif // EXTRUDERS > 2
     #endif // EXTRUDERS > 1
@@ -1632,10 +1683,8 @@ ISR(TIMER0_COMPB_vect) {
     #if defined(BED_MAXTEMP) && (TEMP_SENSOR_BED != 0)
       #if HEATER_BED_RAW_LO_TEMP > HEATER_BED_RAW_HI_TEMP
         #define GEBED <=
-        #define LEBED >=
       #else
         #define GEBED >=
-        #define LEBED <=
       #endif
       if (current_temperature_bed_raw GEBED bed_maxttemp_raw) {
         target_temperature_bed = 0;
