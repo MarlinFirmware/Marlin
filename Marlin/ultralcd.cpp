@@ -436,7 +436,7 @@ static void lcd_main_menu() {
 void lcd_set_home_offsets() {
   for(int8_t i=0; i < NUM_AXIS; i++) {
     if (i != E_AXIS) {
-      add_homing[i] -= current_position[i];
+      home_offset[i] -= current_position[i];
       current_position[i] = 0.0;
     }
   }
