@@ -1309,7 +1309,13 @@ static void engage_z_probe() {
 static void retract_z_probe() {
   // Retract Z Servo endstop if enabled
   #ifdef SERVO_ENDSTOPS
-    if (servo_endstops[Z_AXIS] > -1) {
+    if (servo_endstops[Z_AXIS] > -1)
+    {
+      #if Z_RAISE_AFTER_PROBING > 0
+        do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], Z_RAISE_AFTER_PROBING);
+        st_synchronize();
+      #endif
+    
       #if SERVO_LEVELING
         servos[servo_endstops[Z_AXIS]].attach(0);
       #endif
@@ -1322,7 +1328,7 @@ static void retract_z_probe() {
   #elif defined(Z_PROBE_ALLEN_KEY)
     // Move up for safety
     feedrate = homing_feedrate[X_AXIS];
-    destination[Z_AXIS] = current_position[Z_AXIS] + 20;
+    destination[Z_AXIS] = current_position[Z_AXIS] + Z_RAISE_AFTER_PROBING;
     prepare_move_raw();
 
     // Move to the start position to initiate retraction
@@ -1364,10 +1370,16 @@ static void retract_z_probe() {
 
 }
 
-enum ProbeAction { ProbeStay, ProbeEngage, ProbeRetract, ProbeEngageRetract };
+enum ProbeAction
+{
+    ProbeStay             = 0,
+    ProbeEngage           = (1 << 0),
+    ProbeRetract          = (1 << 1),
+    ProbeEngageAndRetract = (ProbeEngage | ProbeRetract),
+};
 
 /// Probe bed height at position (x,y), returns the measured z value
-static float probe_pt(float x, float y, float z_before, ProbeAction retract_action=ProbeEngageRetract, int verbose_level=1) {
+static float probe_pt(float x, float y, float z_before, ProbeAction retract_action=ProbeEngageAndRetract, int verbose_level=1) {
   // move to right place
   do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], z_before);
   do_blocking_move_to(x - X_PROBE_OFFSET_FROM_EXTRUDER, y - Y_PROBE_OFFSET_FROM_EXTRUDER, current_position[Z_AXIS]);
@@ -2221,7 +2233,7 @@ inline void gcode_G28() {
 
     #ifdef Z_PROBE_SLED
       dock_sled(false); // engage (un-dock) the probe
-    #elif not defined(SERVO_ENDSTOPS)
+    #elif defined(Z_PROBE_ALLEN_KEY)
       engage_z_probe();
     #endif
 
@@ -2330,7 +2342,7 @@ inline void gcode_G28() {
               act = ProbeStay;
           }
           else
-            act = ProbeEngageRetract;
+            act = ProbeEngageAndRetract;
 
           measured_z = probe_pt(xProbe, yProbe, z_before, act, verbose_level);
 
@@ -2445,9 +2457,6 @@ inline void gcode_G28() {
 
     #endif // !AUTO_BED_LEVELING_GRID
 
-    do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], Z_RAISE_AFTER_PROBING);
-    st_synchronize();
-
   #ifndef DELTA
     if (verbose_level > 0)
       plan_bed_level_matrix.debug(" \n\nBed Level Correction Matrix:");
@@ -2467,7 +2476,7 @@ inline void gcode_G28() {
 
   #ifdef Z_PROBE_SLED
     dock_sled(true, -SLED_DOCKING_OFFSET); // dock the probe, correcting for over-travel
-  #elif not defined(SERVO_ENDSTOPS)
+  #elif defined(Z_PROBE_ALLEN_KEY)
     retract_z_probe();
   #endif
     
