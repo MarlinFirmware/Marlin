@@ -122,6 +122,28 @@
   #error Unknown MOTHERBOARD value set in Configuration.h
 #endif
 
+
+
+/****************************************************************************************
+************************************* FEATURE *******************************************
+****************************************************************************************/
+#ifdef SINGLENOZZLE
+  #undef HEATER_1_PIN
+  #undef HEATER_2_PIN
+  #undef HEATER_3_PIN
+  #define HEATER_1_PIN  -1
+  #define HEATER_2_PIN  -1
+  #define HEATER_3_PIN  -1
+  #undef TEMP_1_PIN
+  #undef TEMP_2_PIN
+  #undef TEMP_3_PIN
+  #define TEMP_1_PIN    -1
+  #define TEMP_2_PIN    -1
+  #define TEMP_3_PIN    -1
+#endif //SINGLENOZZLE
+/****************************************************************************************/
+
+
 // List of pins which to ignore when asked to change by gcode, 0 and 1 are RX and TX, do not mess with those!
 #define _E0_PINS E0_STEP_PIN, E0_DIR_PIN, E0_ENABLE_PIN, HEATER_0_PIN, analogInputToDigitalPin(TEMP_0_PIN),
 #define _E1_PINS

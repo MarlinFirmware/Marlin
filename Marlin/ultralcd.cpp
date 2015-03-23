@@ -771,20 +771,20 @@ static void lcd_control_menu() {
   }
   void copy_and_scalePID_i_E1() { copy_and_scalePID_i(0); }
   void copy_and_scalePID_d_E1() { copy_and_scalePID_d(0); }
-  #ifdef PID_PARAMS_PER_EXTRUDER
-    #if EXTRUDERS > 1
+  #ifdef PID_PARAMS_PER_HOTEND
+    #if HOTENDS > 1
       void copy_and_scalePID_i_E2() { copy_and_scalePID_i(1); }
       void copy_and_scalePID_d_E2() { copy_and_scalePID_d(1); }
-      #if EXTRUDERS > 2
+      #if HOTENDS > 2
         void copy_and_scalePID_i_E3() { copy_and_scalePID_i(2); }
         void copy_and_scalePID_d_E3() { copy_and_scalePID_d(2); }
-        #if EXTRUDERS > 3
+        #if HOTENDS > 3
           void copy_and_scalePID_i_E4() { copy_and_scalePID_i(3); }
           void copy_and_scalePID_d_E4() { copy_and_scalePID_d(3); }
-        #endif //EXTRUDERS > 3
-      #endif //EXTRUDERS > 2
-    #endif //EXTRUDERS > 1
-  #endif //PID_PARAMS_PER_EXTRUDER
+        #endif //HOTENDS > 3
+      #endif //HOTENDS > 2
+    #endif //HOTENDS > 1
+  #endif //PID_PARAMS_PER_HOTEND
 
 #endif //PIDTEMP
 
@@ -794,21 +794,21 @@ static void lcd_control_temperature_menu() {
   #if TEMP_SENSOR_0 != 0
     MENU_MULTIPLIER_ITEM_EDIT(int3, MSG_NOZZLE, &target_temperature[0], 0, HEATER_0_MAXTEMP - 15);
   #endif
-  #if EXTRUDERS > 1
+  #if HOTENDS > 1
     #if TEMP_SENSOR_1 != 0
       MENU_MULTIPLIER_ITEM_EDIT(int3, MSG_NOZZLE MSG_N2, &target_temperature[1], 0, HEATER_1_MAXTEMP - 15);
     #endif
-    #if EXTRUDERS > 2
+    #if HOTENDS > 2
       #if TEMP_SENSOR_2 != 0
         MENU_MULTIPLIER_ITEM_EDIT(int3, MSG_NOZZLE MSG_N3, &target_temperature[2], 0, HEATER_2_MAXTEMP - 15);
       #endif
-      #if EXTRUDERS > 3
+      #if HOTENDS > 3
         #if TEMP_SENSOR_3 != 0
           MENU_MULTIPLIER_ITEM_EDIT(int3, MSG_NOZZLE MSG_N4, &target_temperature[3], 0, HEATER_3_MAXTEMP - 15);
         #endif
-      #endif // EXTRUDERS > 3
-    #endif // EXTRUDERS > 2
-  #endif // EXTRUDERS > 1
+      #endif //HOTENDS > 3
+    #endif //HOTENDS > 2
+  #endif //HOTENDS > 1
   #if TEMP_SENSOR_BED != 0
     MENU_MULTIPLIER_ITEM_EDIT(int3, MSG_BED, &target_temperature_bed, 0, BED_MAXTEMP - 15);
   #endif
@@ -830,8 +830,8 @@ static void lcd_control_temperature_menu() {
     #ifdef PID_ADD_EXTRUSION_RATE
       MENU_ITEM_EDIT(float3, MSG_PID_C, &PID_PARAM(Kc,0), 1, 9990);
     #endif//PID_ADD_EXTRUSION_RATE
-    #ifdef PID_PARAMS_PER_EXTRUDER
-      #if EXTRUDERS > 1
+    #ifdef PID_PARAMS_PER_HOTEND
+      #if HOTENDS > 1
         // set up temp variables - undo the default scaling
         raw_Ki = unscalePID_i(PID_PARAM(Ki,1));
         raw_Kd = unscalePID_d(PID_PARAM(Kd,1));
@@ -843,7 +843,7 @@ static void lcd_control_temperature_menu() {
           MENU_ITEM_EDIT(float3, MSG_PID_C MSG_E2, &PID_PARAM(Kc,1), 1, 9990);
         #endif//PID_ADD_EXTRUSION_RATE
 
-        #if EXTRUDERS > 2
+        #if HOTENDS > 2
           // set up temp variables - undo the default scaling
           raw_Ki = unscalePID_i(PID_PARAM(Ki,2));
           raw_Kd = unscalePID_d(PID_PARAM(Kd,2));
@@ -855,7 +855,7 @@ static void lcd_control_temperature_menu() {
             MENU_ITEM_EDIT(float3, MSG_PID_C MSG_E3, &PID_PARAM(Kc,2), 1, 9990);
           #endif//PID_ADD_EXTRUSION_RATE
 
-          #if EXTRUDERS > 3
+          #if HOTENDS > 3
             // set up temp variables - undo the default scaling
             raw_Ki = unscalePID_i(PID_PARAM(Ki,3));
             raw_Kd = unscalePID_d(PID_PARAM(Kd,3));
@@ -866,10 +866,10 @@ static void lcd_control_temperature_menu() {
             #ifdef PID_ADD_EXTRUSION_RATE
               MENU_ITEM_EDIT(float3, MSG_PID_C MSG_E4, &PID_PARAM(Kc,3), 1, 9990);
             #endif//PID_ADD_EXTRUSION_RATE
-          #endif//EXTRUDERS > 3
-        #endif//EXTRUDERS > 2
-      #endif//EXTRUDERS > 1
-    #endif //PID_PARAMS_PER_EXTRUDER
+          #endif//HOTENDS > 3
+        #endif//HOTENDS > 2
+      #endif//HOTENDS > 1
+    #endif //PID_PARAMS_PER_HOTEND
   #endif//PIDTEMP
   MENU_ITEM(submenu, MSG_PREHEAT_PLA_SETTINGS, lcd_control_temperature_preheat_pla_settings_menu);
   MENU_ITEM(submenu, MSG_PREHEAT_ABS_SETTINGS, lcd_control_temperature_preheat_abs_settings_menu);
