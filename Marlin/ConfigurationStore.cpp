@@ -186,7 +186,7 @@ void Config_StoreSettings()  {
   for (int e = 0; e < 4; e++) {
 
     #ifdef PIDTEMP
-      if (e < HOTENDS) {
+      if (e < EXTRUDERS) {
         EEPROM_WRITE_VAR(i, PID_PARAM(Kp, e));
         EEPROM_WRITE_VAR(i, PID_PARAM(Ki, e));
         EEPROM_WRITE_VAR(i, PID_PARAM(Kd, e));
@@ -208,7 +208,7 @@ void Config_StoreSettings()  {
         for (int q = 3; q--;) EEPROM_WRITE_VAR(i, dummy);
       }
 
-  } // Hotends Loop
+  } // Extruders Loop
 
   #ifndef DOGLCD
     int lcd_contrast = 32;
@@ -344,9 +344,9 @@ void Config_RetrieveSettings() {
     EEPROM_READ_VAR(i, zprobe_zoffset);
 
     #ifdef PIDTEMP
-      for (int e = 0; e < 4; e++) { // 4 = max hotends currently supported by Marlin
+      for (int e = 0; e < 4; e++) { // 4 = max extruders currently supported by Marlin
         EEPROM_READ_VAR(i, dummy);
-        if (e < HOTENDS && dummy != DUMMY_PID_VALUE) {
+        if (e < EXTRUDERS && dummy != DUMMY_PID_VALUE) {
           // do not need to scale PID values as the values in EEPROM are already scaled
           PID_PARAM(Kp, e) = dummy;
           EEPROM_READ_VAR(i, PID_PARAM(Ki, e));
@@ -479,8 +479,8 @@ void Config_ResetDefault() {
   #endif
 
   #ifdef PIDTEMP
-    #ifdef PID_PARAMS_PER_HOTEND
-      for (int e = 0; e < HOTENDS; e++)
+    #ifdef PID_PARAMS_PER_EXTRUDER
+      for (int e = 0; e < EXTRUDERS; e++)
     #else
       int e = 0; // only need to write once
     #endif
