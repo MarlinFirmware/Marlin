@@ -1,13 +1,13 @@
 # LCD Language Font System
 
 We deal with a variety of different displays.
-And we try to display a lot of different languages on them.
+And we try to display a lot of different languages in different scripts on them.
 This system is ought to solve some of the related problems.
 
 ## The Displays
 We have two different technologies for the displays:
 
-* Character based displays
+* Character based displays:
   Have a fixed set of symbols (charset - font) in their ROM.
   All of them have a similar but not identical symbol set at the positions 0 to 127 similar to US-ASCII.
   On the other hand symbols at places higher than 127 have mayor differences.
@@ -21,13 +21,13 @@ We have two different technologies for the displays:
 
   At all of them you can define 8 different symbols by yourself. In Marlin they are used for the Feedrate-, Thermometer-, ... symbols
 
-* Full graphic displays
+* Full graphic displays:
   Where we have the full freedom to display whatever we want, when we can make a program for it.
   Currently we deal with 128x64 Pixel Displays and divide this area in about 5 Lines with about 22 columns.
   Therefore we need fonts with a bounding box of about 6x10.
   Until now we used a
   * 1.) Marlin-font similar to ISO10646-1 but with special Symbols at the end, what made 'ü' and 'ä' inaccessible, in the size 6x10.
-  * 2.) Because these letters are to big for some locations on the info-screen we use a full ISO10646-1 font in the size of 6x9.
+  * 2.) Because these letters where to big for some locations on the info-screen we use a full ISO10646-1 font in the size of 6x9.(3200 byte)
   * 3.) When we define USE_BIG_EDIT_FONT we use an additional ISO10646-1 font with 9x18, eating up another 3120 bytes of progmem - but readable without glasses.
 
 ## The Languages
@@ -55,7 +55,7 @@ We have two different technologies for the displays:
 ## The Problem
   All of this languages, except the English, normally use extended symbol sets, not contained in US-ASCII.
   Even the English translation uses some Symbols not in US-ASCII. ( '\002' for Thermometer, STR_h3 for '³')
-  And worse, in the code itself symbols are used, not taking in account, on what display they are written. [(This is thrue only for Displays with Japanese charset](https://github.com/MarlinFirmware/Marlin/blob/Development/Marlin/ultralcd_implementation_hitachi_HD44780.h#L218) on Western displays you'll see a '~' and on Cyrillic an 'arrow coming from top - pointing to left', what is quite the opposite of what the programmer wanted.)
+  And worse, in the code itself symbols are used, not taking in account, on what display they are written. [(This is true only for Displays with Japanese charset](https://github.com/MarlinFirmware/Marlin/blob/Development/Marlin/ultralcd_implementation_hitachi_HD44780.h#L218) on Western displays you'll see a '~' and on Cyrillic an 'arrow coming from top - pointing to left', what is quite the opposite of what the programmer wanted.)
   The Germans want to use "ÄäÖöÜüß" the Finnish at least "äö". Other European languages want to see their accents on their letters.
   For other scripts like Cyrillic, Japanese, Greek, Hebrew, ... you have to find totally different symbol sets.
 
@@ -126,7 +126,7 @@ We have two different technologies for the displays:
   * h.) If you want to integrate an entirely new variant of a Hitachi based display.
       Add it in 'Configuration.h'. Define mapper tables in 'utf_mapper.h'. Maybe you need a new mapper function. 
 
-  The length of the strings is limited. '17 chars' a was crude rule of thumb. Obviously 17 is to long for the 16x2 displays. A more exact rule would be max_strlen = Displaywidth - 2 - strlen(value to display behind). This is a bit complicated. So try and count is my rule of thumb. 
+  The length of the strings is limited. '17 chars' was crude rule of thumb. Obviously 17 is to long for the 16x2 displays. A more exact rule would be max_strlen = Displaywidth - 2 - strlen(value to display behind). This is a bit complicated. So try and count is my rule of thumb. 
 
   On the 16x2 displays the strings are cut at the end to fit on the display. So it's a good idea to make them differ early. ('Somverylongoptionname x' -> 'x Somverylongoptionname')
 
@@ -134,7 +134,7 @@ We have two different technologies for the displays:
 
 ## User Instructions
    Define your hardware and the wanted language in 'Configuration.h'.
-   To find out what charset your hardware is define language 'test' and compile. In the menu you will see two lines from the upper half of the charset.
+   To find out what charset your hardware is, define language 'test' and compile. In the menu you will see two lines from the upper half of the charset.
    * DISPLAY_CHARSET_HD44780_JAPAN   locks like "バパヒビピフブプヘベペホボポマミ"
    * DISPLAY_CHARSET_HD44780_WESTERN locks like "ÐÑÒÓÔÕÖ×ØÙÚÛÜÝÞß"
    * DISPLAY_CHARSET_HD44780_CYRILIC locks like "РСТУФХЦЧШЩЪЫЬЭЮЯ"
