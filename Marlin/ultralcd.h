@@ -14,10 +14,10 @@
   void lcd_reset_alert_level();
   bool lcd_detected(void);
 
-#ifdef DOGLCD
-  extern int lcd_contrast;
-  void lcd_setcontrast(uint8_t value);
-#endif
+  #ifdef DOGLCD
+    extern int lcd_contrast;
+    void lcd_setcontrast(uint8_t value);
+  #endif
 
   static unsigned char blink = 0;	// Variable for visualization of fan rotation in GLCD
 
@@ -28,27 +28,26 @@
   #define LCD_TIMEOUT_TO_STATUS 15000
 
   #ifdef ULTIPANEL
-  void lcd_buttons_update();
-  extern volatile uint8_t buttons;  //the last checked buttons in a bit array.
-  #ifdef REPRAPWORLD_KEYPAD
-    extern volatile uint8_t buttons_reprapworld_keypad; // to store the keypad shift register values
-  #endif
+    void lcd_buttons_update();
+    extern volatile uint8_t buttons;  //the last checked buttons in a bit array.
+    #ifdef REPRAPWORLD_KEYPAD
+      extern volatile uint8_t buttons_reprapworld_keypad; // to store the keypad shift register values
+    #endif
   #else
-  FORCE_INLINE void lcd_buttons_update() {}
+    FORCE_INLINE void lcd_buttons_update() {}
   #endif
 
   extern int plaPreheatHotendTemp;
   extern int plaPreheatHPBTemp;
   extern int plaPreheatFanSpeed;
-
   extern int absPreheatHotendTemp;
   extern int absPreheatHPBTemp;
   extern int absPreheatFanSpeed;
-  
+
   extern bool cancel_heatup;
   
   #ifdef FILAMENT_LCD_DISPLAY
-        extern unsigned long message_millis;
+    extern unsigned long message_millis;
   #endif
 
   void lcd_buzz(long duration,uint16_t freq);

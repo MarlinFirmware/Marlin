@@ -30,9 +30,6 @@
 #include "Marlin.h"
 
 #ifdef ENABLE_AUTO_BED_LEVELING
-  #if Z_MIN_PIN == -1
-    #error "You must have a Z_MIN endstop to enable Auto Bed Leveling feature. Z_MIN_PIN must point to a valid hardware pin."
-  #endif
   #include "vector_3.h"
   #ifdef AUTO_BED_LEVELING_GRID
     #include "qr_solve.h"
@@ -251,6 +248,8 @@ float current_position[NUM_AXIS] = { 0.0, 0.0, 0.0, 0.0 };
 float home_offset[3] = { 0, 0, 0 };
 #ifdef DELTA
   float endstop_adj[3] = { 0, 0, 0 };
+#elif defined(Z_DUAL_ENDSTOPS)
+  float z_endstop_adj = 0;
 #endif
 
 float min_pos[3] = { X_MIN_POS, Y_MIN_POS, Z_MIN_POS };
@@ -967,43 +966,36 @@ XYZ_CONSTS_FROM_CONFIG(float, home_retract_mm, HOME_RETRACT_MM);
 XYZ_CONSTS_FROM_CONFIG(signed char, home_dir,  HOME_DIR);
 
 #ifdef DUAL_X_CARRIAGE
-  #if EXTRUDERS == 1 || defined(COREXY) \
-      || !defined(X2_ENABLE_PIN) || !defined(X2_STEP_PIN) || !defined(X2_DIR_PIN) \
-      || !defined(X2_HOME_POS) || !defined(X2_MIN_POS) || !defined(X2_MAX_POS) \
-      || !defined(X_MAX_PIN) || X_MAX_PIN < 0
-    #error "Missing or invalid definitions for DUAL_X_CARRIAGE mode."
-  #endif
-  #if X_HOME_DIR != -1 || X2_HOME_DIR != 1
-    #error "Please use canonical x-carriage assignment" // the x-carriages are defined by their homing directions
-  #endif
 
-#define DXC_FULL_CONTROL_MODE 0
-#define DXC_AUTO_PARK_MODE    1
-#define DXC_DUPLICATION_MODE  2
-static int dual_x_carriage_mode = DEFAULT_DUAL_X_CARRIAGE_MODE;
+  #define DXC_FULL_CONTROL_MODE 0
+  #define DXC_AUTO_PARK_MODE    1
+  #define DXC_DUPLICATION_MODE  2
 
-static float x_home_pos(int extruder) {
-  if (extruder == 0)
+  static int dual_x_carriage_mode = DEFAULT_DUAL_X_CARRIAGE_MODE;
+
+  static float x_home_pos(int extruder) {
+    if (extruder == 0)
     return base_home_pos(X_AXIS) + home_offset[X_AXIS];
-  else
-    // In dual carriage mode the extruder offset provides an override of the
-    // second X-carriage offset when homed - otherwise X2_HOME_POS is used.
-    // This allow soft recalibration of the second extruder offset position without firmware reflash
-    // (through the M218 command).
-    return (extruder_offset[X_AXIS][1] > 0) ? extruder_offset[X_AXIS][1] : X2_HOME_POS;
-}
+    else
+      // In dual carriage mode the extruder offset provides an override of the
+      // second X-carriage offset when homed - otherwise X2_HOME_POS is used.
+      // This allow soft recalibration of the second extruder offset position without firmware reflash
+      // (through the M218 command).
+      return (extruder_offset[X_AXIS][1] > 0) ? extruder_offset[X_AXIS][1] : X2_HOME_POS;
+  }
 
-static int x_home_dir(int extruder) {
-  return (extruder == 0) ? X_HOME_DIR : X2_HOME_DIR;
-}
+  static int x_home_dir(int extruder) {
+    return (extruder == 0) ? X_HOME_DIR : X2_HOME_DIR;
+  }
 
-static float inactive_extruder_x_pos = X2_MAX_POS; // used in mode 0 & 1
-static bool active_extruder_parked = false; // used in mode 1 & 2
-static float raised_parked_position[NUM_AXIS]; // used in mode 1
-static unsigned long delayed_move_time = 0; // used in mode 1
-static float duplicate_extruder_x_offset = DEFAULT_DUPLICATION_X_OFFSET; // used in mode 2
-static float duplicate_extruder_temp_offset = 0; // used in mode 2
-bool extruder_duplication_enabled = false; // used in mode 2
+  static float inactive_extruder_x_pos = X2_MAX_POS; // used in mode 0 & 1
+  static bool active_extruder_parked = false; // used in mode 1 & 2
+  static float raised_parked_position[NUM_AXIS]; // used in mode 1
+  static unsigned long delayed_move_time = 0; // used in mode 1
+  static float duplicate_extruder_x_offset = DEFAULT_DUPLICATION_X_OFFSET; // used in mode 2
+  static float duplicate_extruder_temp_offset = 0; // used in mode 2
+  bool extruder_duplication_enabled = false; // used in mode 2
+
 #endif //DUAL_X_CARRIAGE
 
 static void axis_is_at_home(int axis) {
@@ -1497,6 +1489,9 @@ static void homeaxis(int axis) {
       }
     #endif
 #endif // Z_PROBE_SLED
+    #ifdef Z_DUAL_ENDSTOPS
+      if (axis==Z_AXIS) In_Homing_Process(true);
+    #endif
     destination[axis] = 1.5 * max_length(axis) * axis_home_dir;
     feedrate = homing_feedrate[axis];
     plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate/60, active_extruder);
@@ -1522,6 +1517,27 @@ static void homeaxis(int axis) {
 
     plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate/60, active_extruder);
     st_synchronize();
+    #ifdef Z_DUAL_ENDSTOPS
+      if (axis==Z_AXIS)
+      {
+        feedrate = homing_feedrate[axis];
+        plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+        if (axis_home_dir > 0)
+        {
+          destination[axis] = (-1) * fabs(z_endstop_adj);
+          if (z_endstop_adj > 0) Lock_z_motor(true); else Lock_z2_motor(true);
+        } else {
+          destination[axis] = fabs(z_endstop_adj);
+          if (z_endstop_adj < 0) Lock_z_motor(true); else Lock_z2_motor(true);        
+        }
+        plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate/60, active_extruder);
+        st_synchronize();
+        Lock_z_motor(false);
+        Lock_z2_motor(false);
+        In_Homing_Process(false);
+      }
+    #endif
+
 #ifdef DELTA
     // retrace by the amount specified in endstop_adj
     if (endstop_adj[axis] * axis_home_dir < 0) {
@@ -1764,7 +1780,7 @@ inline void gcode_G28() {
 
   enable_endstops(true);
 
-  for (int i = X_AXIS; i <= Z_AXIS; i++) destination[i] = current_position[i];
+  for (int i = X_AXIS; i <= NUM_AXIS; i++) destination[i] = current_position[i];
 
   feedrate = 0.0;
 
@@ -1954,7 +1970,7 @@ inline void gcode_G28() {
     if (code_seen(axis_codes[Z_AXIS]) && code_value_long() != 0)
       current_position[Z_AXIS] = code_value() + home_offset[Z_AXIS];
 
-    #ifdef ENABLE_AUTO_BED_LEVELING
+    #if defined(ENABLE_AUTO_BED_LEVELING) && (Z_HOME_DIR < 0)
       if (home_all_axis || code_seen(axis_codes[Z_AXIS]))
         current_position[Z_AXIS] += zprobe_zoffset;  //Add Z_Probe offset (the distance is negative)
     #endif
@@ -2078,44 +2094,6 @@ inline void gcode_G28() {
 #endif
 
 #ifdef ENABLE_AUTO_BED_LEVELING
-
-  // Define the possible boundaries for probing based on set limits
-  #define MIN_PROBE_X (max(X_MIN_POS, X_MIN_POS + X_PROBE_OFFSET_FROM_EXTRUDER))
-  #define MAX_PROBE_X (min(X_MAX_POS, X_MAX_POS + X_PROBE_OFFSET_FROM_EXTRUDER))
-  #define MIN_PROBE_Y (max(Y_MIN_POS, Y_MIN_POS + Y_PROBE_OFFSET_FROM_EXTRUDER))
-  #define MAX_PROBE_Y (min(Y_MAX_POS, Y_MAX_POS + Y_PROBE_OFFSET_FROM_EXTRUDER))
-
-  #ifdef AUTO_BED_LEVELING_GRID
-
-    // Make sure probing points are reachable
-
-    #if LEFT_PROBE_BED_POSITION < MIN_PROBE_X
-      #error "The given LEFT_PROBE_BED_POSITION can't be reached by the probe."
-    #elif RIGHT_PROBE_BED_POSITION > MAX_PROBE_X
-      #error "The given RIGHT_PROBE_BED_POSITION can't be reached by the probe."
-    #elif FRONT_PROBE_BED_POSITION < MIN_PROBE_Y
-      #error "The given FRONT_PROBE_BED_POSITION can't be reached by the probe."
-    #elif BACK_PROBE_BED_POSITION > MAX_PROBE_Y
-      #error "The given BACK_PROBE_BED_POSITION can't be reached by the probe."
-    #endif
-
-  #else // !AUTO_BED_LEVELING_GRID
-
-    #if ABL_PROBE_PT_1_X < MIN_PROBE_X || ABL_PROBE_PT_1_X > MAX_PROBE_X
-      #error "The given ABL_PROBE_PT_1_X can't be reached by the probe."
-    #elif ABL_PROBE_PT_2_X < MIN_PROBE_X || ABL_PROBE_PT_2_X > MAX_PROBE_X
-      #error "The given ABL_PROBE_PT_2_X can't be reached by the probe."
-    #elif ABL_PROBE_PT_3_X < MIN_PROBE_X || ABL_PROBE_PT_3_X > MAX_PROBE_X
-      #error "The given ABL_PROBE_PT_3_X can't be reached by the probe."
-    #elif ABL_PROBE_PT_1_Y < MIN_PROBE_Y || ABL_PROBE_PT_1_Y > MAX_PROBE_Y
-      #error "The given ABL_PROBE_PT_1_Y can't be reached by the probe."
-    #elif ABL_PROBE_PT_2_Y < MIN_PROBE_Y || ABL_PROBE_PT_2_Y > MAX_PROBE_Y
-      #error "The given ABL_PROBE_PT_2_Y can't be reached by the probe."
-    #elif ABL_PROBE_PT_3_Y < MIN_PROBE_Y || ABL_PROBE_PT_3_Y > MAX_PROBE_Y
-      #error "The given ABL_PROBE_PT_3_Y can't be reached by the probe."
-    #endif
-
-  #endif // !AUTO_BED_LEVELING_GRID
 
   /**
    * G29: Detailed Z-Probe, probes the bed at 3 or more points.
@@ -2296,13 +2274,11 @@ inline void gcode_G28() {
           xStart = 0;
           xStop = auto_bed_leveling_grid_points;
           xInc = 1;
-          zig = false;
         }
         else {
           xStart = auto_bed_leveling_grid_points - 1;
           xStop = -1;
           xInc = -1;
-          zig = true;
         }
 
         #ifndef DELTA
@@ -2389,7 +2365,7 @@ inline void gcode_G28() {
         SERIAL_PROTOCOLPGM("+-----------+\n");
 
         for (int yy = auto_bed_leveling_grid_points - 1; yy >= 0; yy--) {
-          for (int xx = auto_bed_leveling_grid_points - 1; xx >= 0; xx--) {
+          for (int xx = 0; xx < auto_bed_leveling_grid_points; xx++) {
             int ind = yy * auto_bed_leveling_grid_points + xx;
             float diff = eqnBVector[ind] - mean;
             if (diff >= 0.0)
@@ -3500,6 +3476,11 @@ inline void gcode_M119() {
     SERIAL_PROTOCOLPGM(MSG_Z_MAX);
     SERIAL_PROTOCOLLN(((READ(Z_MAX_PIN)^Z_MAX_ENDSTOP_INVERTING)?MSG_ENDSTOP_HIT:MSG_ENDSTOP_OPEN));
   #endif
+  #if defined(Z2_MAX_PIN) && Z2_MAX_PIN > -1
+    SERIAL_PROTOCOLPGM(MSG_Z2_MAX);
+    SERIAL_PROTOCOLLN(((READ(Z2_MAX_PIN)^Z2_MAX_ENDSTOP_INVERTING)?MSG_ENDSTOP_HIT:MSG_ENDSTOP_OPEN));
+  #endif
+  
 }
 
 /**
@@ -3693,6 +3674,16 @@ inline void gcode_M206() {
       }
     }
   }
+#elif defined(Z_DUAL_ENDSTOPS)
+  /**
+   * M666: For Z Dual Endstop setup, set z axis offset to the z2 axis.
+   */
+  inline void gcode_M666() {
+   if (code_seen('Z')) z_endstop_adj = code_value();
+   SERIAL_ECHOPAIR("Z Endstop Adjustment set to (mm):", z_endstop_adj );
+   SERIAL_EOL;
+  }
+  
 #endif // DELTA
 
 #ifdef FWRETRACT
@@ -4939,6 +4930,10 @@ void process_commands() {
         case 665: // M665 set delta configurations L<diagonal_rod> R<delta_radius> S<segments_per_sec>
           gcode_M665();
           break;
+        case 666: // M666 set delta endstop adjustment
+          gcode_M666();
+          break;
+      #elif defined(Z_DUAL_ENDSTOPS)
         case 666: // M666 set delta endstop adjustment
           gcode_M666();
           break;

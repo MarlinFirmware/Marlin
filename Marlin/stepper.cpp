@@ -48,6 +48,12 @@ block_t *current_block;  // A pointer to the block currently being traced
 static unsigned char out_bits;        // The next stepping-bits to be output
 static unsigned int cleaning_buffer_counter;  
 
+#ifdef Z_DUAL_ENDSTOPS
+  static bool performing_homing = false, 
+              locked_z_motor = false, 
+              locked_z2_motor = false;
+#endif
+
 // Counter variables for the bresenham line tracer
 static long counter_x, counter_y, counter_z, counter_e;
 volatile static unsigned long step_events_completed; // The number of step events executed in the current block
@@ -84,7 +90,13 @@ static bool old_x_min_endstop = false,
             old_y_min_endstop = false,
             old_y_max_endstop = false,
             old_z_min_endstop = false,
+            #ifndef Z_DUAL_ENDSTOPS
             old_z_max_endstop = false;
+            #else
+              old_z_max_endstop = false,
+              old_z2_min_endstop = false,
+              old_z2_max_endstop = false;
+            #endif
 
 static bool check_endstops = true;
 
@@ -128,7 +140,23 @@ volatile signed char count_direction[NUM_AXIS] = { 1, 1, 1, 1 };
 
 #ifdef Z_DUAL_STEPPER_DRIVERS
   #define Z_APPLY_DIR(v,Q) { Z_DIR_WRITE(v); Z2_DIR_WRITE(v); }
-  #define Z_APPLY_STEP(v,Q) { Z_STEP_WRITE(v); Z2_STEP_WRITE(v); }
+  #ifdef Z_DUAL_ENDSTOPS
+    #define Z_APPLY_STEP(v,Q) \
+    if (performing_homing) { \
+      if (Z_HOME_DIR > 0) {\
+        if (!(old_z_max_endstop && (count_direction[Z_AXIS] > 0)) && !locked_z_motor) Z_STEP_WRITE(v); \
+        if (!(old_z2_max_endstop && (count_direction[Z_AXIS] > 0)) && !locked_z2_motor) Z2_STEP_WRITE(v); \
+      } else {\
+        if (!(old_z_min_endstop && (count_direction[Z_AXIS] < 0)) && !locked_z_motor) Z_STEP_WRITE(v); \
+        if (!(old_z2_min_endstop && (count_direction[Z_AXIS] < 0)) && !locked_z2_motor) Z2_STEP_WRITE(v); \
+      } \
+    } else { \
+      Z_STEP_WRITE(v); \
+      Z2_STEP_WRITE(v); \
+    }
+  #else
+    #define Z_APPLY_STEP(v,Q) Z_STEP_WRITE(v), Z2_STEP_WRITE(v)
+  #endif
 #else
   #define Z_APPLY_DIR(v,Q) Z_DIR_WRITE(v)
   #define Z_APPLY_STEP(v,Q) Z_STEP_WRITE(v)
@@ -364,7 +392,7 @@ ISR(TIMER1_COMPA_vect) {
       step_events_completed = 0;
 
       #ifdef Z_LATE_ENABLE
-        if (current_block->steps_z > 0) {
+        if (current_block->steps[Z_AXIS] > 0) {
           enable_z();
           OCR1A = 2000; //1ms wait
           return;
@@ -405,7 +433,7 @@ ISR(TIMER1_COMPA_vect) {
 
     #define UPDATE_ENDSTOP(axis,AXIS,minmax,MINMAX) \
       bool axis ##_## minmax ##_endstop = (READ(AXIS ##_## MINMAX ##_PIN) != AXIS ##_## MINMAX ##_ENDSTOP_INVERTING); \
-      if (axis ##_## minmax ##_endstop && old_## axis ##_## minmax ##_endstop && (current_block->steps_## axis > 0)) { \
+      if (axis ##_## minmax ##_endstop && old_## axis ##_## minmax ##_endstop && (current_block->steps[AXIS ##_AXIS] > 0)) { \
         endstops_trigsteps[AXIS ##_AXIS] = count_position[AXIS ##_AXIS]; \
         endstop_## axis ##_hit = true; \
         step_events_completed = current_block->step_event_count; \
@@ -414,79 +442,117 @@ ISR(TIMER1_COMPA_vect) {
 
     // Check X and Y endstops
     if (check_endstops) {
-      #ifndef COREXY
-        if (TEST(out_bits, X_AXIS))   // stepping along -X axis (regular cartesians bot)
-      #else
+      #ifdef COREXY
         // Head direction in -X axis for CoreXY bots.
         // If DeltaX == -DeltaY, the movement is only in Y axis
-        if (current_block->steps_x != current_block->steps_y || (TEST(out_bits, X_AXIS) == TEST(out_bits, Y_AXIS)))      
-            if (TEST(out_bits, X_HEAD))
-      #endif
-            { // -direction
-              #ifdef DUAL_X_CARRIAGE
-                // with 2 x-carriages, endstops are only checked in the homing direction for the active extruder
-                if ((current_block->active_extruder == 0 && X_HOME_DIR == -1) || (current_block->active_extruder != 0 && X2_HOME_DIR == -1))
-              #endif          
-                {
-                  #if defined(X_MIN_PIN) && X_MIN_PIN >= 0
-                    UPDATE_ENDSTOP(x, X, min, MIN);
-                  #endif
-                }
-            }
-            else { // +direction
-              #ifdef DUAL_X_CARRIAGE
-                // with 2 x-carriages, endstops are only checked in the homing direction for the active extruder
-                if ((current_block->active_extruder == 0 && X_HOME_DIR == 1) || (current_block->active_extruder != 0 && X2_HOME_DIR == 1))
-              #endif
-                {
-                  #if defined(X_MAX_PIN) && X_MAX_PIN >= 0
-                    UPDATE_ENDSTOP(x, X, max, MAX);
-                  #endif
-                }
-            }
-      #ifndef COREXY
-        if (TEST(out_bits, Y_AXIS))   // -direction
+        if (current_block->steps[A_AXIS] != current_block->steps[B_AXIS] || (TEST(out_bits, A_AXIS) == TEST(out_bits, B_AXIS)))
+          if (TEST(out_bits, X_HEAD))
       #else
+          if (TEST(out_bits, X_AXIS))   // stepping along -X axis (regular cartesians bot)
+      #endif
+          { // -direction
+            #ifdef DUAL_X_CARRIAGE
+              // with 2 x-carriages, endstops are only checked in the homing direction for the active extruder
+              if ((current_block->active_extruder == 0 && X_HOME_DIR == -1) || (current_block->active_extruder != 0 && X2_HOME_DIR == -1))
+            #endif          
+              {
+                #if defined(X_MIN_PIN) && X_MIN_PIN >= 0
+                  UPDATE_ENDSTOP(x, X, min, MIN);
+                #endif
+              }
+          }
+          else { // +direction
+            #ifdef DUAL_X_CARRIAGE
+              // with 2 x-carriages, endstops are only checked in the homing direction for the active extruder
+              if ((current_block->active_extruder == 0 && X_HOME_DIR == 1) || (current_block->active_extruder != 0 && X2_HOME_DIR == 1))
+            #endif
+              {
+                #if defined(X_MAX_PIN) && X_MAX_PIN >= 0
+                  UPDATE_ENDSTOP(x, X, max, MAX);
+                #endif
+              }
+          }
+      #ifdef COREXY
         // Head direction in -Y axis for CoreXY bots.
         // If DeltaX == DeltaY, the movement is only in X axis
-        if (current_block->steps_x != current_block->steps_y || (TEST(out_bits, X_AXIS) != TEST(out_bits, Y_AXIS)))
-            if (TEST(out_bits, Y_HEAD))             
+        if (current_block->steps[A_AXIS] != current_block->steps[B_AXIS] || (TEST(out_bits, A_AXIS) != TEST(out_bits, B_AXIS)))
+          if (TEST(out_bits, Y_HEAD))
+      #else
+          if (TEST(out_bits, Y_AXIS))   // -direction
       #endif
-            { // -direction
-              #if defined(Y_MIN_PIN) && Y_MIN_PIN >= 0
-                UPDATE_ENDSTOP(y, Y, min, MIN);
-              #endif
-            }
-            else { // +direction
-              #if defined(Y_MAX_PIN) && Y_MAX_PIN >= 0
-                UPDATE_ENDSTOP(y, Y, max, MAX);
-              #endif
-            }
+          { // -direction
+            #if defined(Y_MIN_PIN) && Y_MIN_PIN >= 0
+              UPDATE_ENDSTOP(y, Y, min, MIN);
+            #endif
+          }
+          else { // +direction
+            #if defined(Y_MAX_PIN) && Y_MAX_PIN >= 0
+              UPDATE_ENDSTOP(y, Y, max, MAX);
+            #endif
+          }
     }
 
     if (TEST(out_bits, Z_AXIS)) {   // -direction
-      Z_DIR_WRITE(INVERT_Z_DIR);
-      #ifdef Z_DUAL_STEPPER_DRIVERS
-        Z2_DIR_WRITE(INVERT_Z_DIR);
-      #endif
-
+      Z_APPLY_DIR(INVERT_Z_DIR,0);
       count_direction[Z_AXIS] = -1;
-      if (check_endstops) {
-        #if defined(Z_MIN_PIN) && Z_MIN_PIN >= 0
-          UPDATE_ENDSTOP(z, Z, min, MIN);
+      if (check_endstops) 
+      {
+        #if defined(Z_MIN_PIN) && Z_MIN_PIN > -1
+          #ifndef Z_DUAL_ENDSTOPS
+            UPDATE_ENDSTOP(z, Z, min, MIN);
+          #else
+            bool z_min_endstop=(READ(Z_MIN_PIN) != Z_MIN_ENDSTOP_INVERTING);
+            #if defined(Z2_MIN_PIN) && Z2_MIN_PIN > -1
+              bool z2_min_endstop=(READ(Z2_MIN_PIN) != Z2_MIN_ENDSTOP_INVERTING);
+            #else
+              bool z2_min_endstop=z_min_endstop;
+            #endif
+            if(((z_min_endstop && old_z_min_endstop) || (z2_min_endstop && old_z2_min_endstop)) && (current_block->steps[Z_AXIS] > 0))
+            {
+              endstops_trigsteps[Z_AXIS] = count_position[Z_AXIS];
+              endstop_z_hit=true;
+              if (!(performing_homing) || ((performing_homing)&&(z_min_endstop && old_z_min_endstop)&&(z2_min_endstop && old_z2_min_endstop))) //if not performing home or if both endstops were trigged during homing...
+              {
+                step_events_completed = current_block->step_event_count;
+              } 
+            }
+            old_z_min_endstop = z_min_endstop;
+            old_z2_min_endstop = z2_min_endstop;
+          #endif
         #endif
       }
     }
     else { // +direction
-      Z_DIR_WRITE(!INVERT_Z_DIR);
-      #ifdef Z_DUAL_STEPPER_DRIVERS
-        Z2_DIR_WRITE(!INVERT_Z_DIR);
-      #endif
-
+      Z_APPLY_DIR(!INVERT_Z_DIR,0);
       count_direction[Z_AXIS] = 1;
       if (check_endstops) {
         #if defined(Z_MAX_PIN) && Z_MAX_PIN >= 0
-          UPDATE_ENDSTOP(z, Z, max, MAX);
+          #ifndef Z_DUAL_ENDSTOPS
+            UPDATE_ENDSTOP(z, Z, max, MAX);
+          #else
+            bool z_max_endstop=(READ(Z_MAX_PIN) != Z_MAX_ENDSTOP_INVERTING);
+            #if defined(Z2_MAX_PIN) && Z2_MAX_PIN > -1
+              bool z2_max_endstop=(READ(Z2_MAX_PIN) != Z2_MAX_ENDSTOP_INVERTING);
+            #else
+              bool z2_max_endstop=z_max_endstop;
+            #endif
+            if(((z_max_endstop && old_z_max_endstop) || (z2_max_endstop && old_z2_max_endstop)) && (current_block->steps[Z_AXIS] > 0))
+            {
+              endstops_trigsteps[Z_AXIS] = count_position[Z_AXIS];
+              endstop_z_hit=true;
+
+//              if (z_max_endstop && old_z_max_endstop) SERIAL_ECHOLN("z_max_endstop = true");
+//              if (z2_max_endstop && old_z2_max_endstop) SERIAL_ECHOLN("z2_max_endstop = true");
+
+            
+              if (!(performing_homing) || ((performing_homing)&&(z_max_endstop && old_z_max_endstop)&&(z2_max_endstop && old_z2_max_endstop))) //if not performing home or if both endstops were trigged during homing...
+              {
+                step_events_completed = current_block->step_event_count;
+              } 
+            }
+            old_z_max_endstop = z_max_endstop;
+            old_z2_max_endstop = z2_max_endstop;
+          #endif
         #endif
       }
     }
@@ -509,7 +575,7 @@ ISR(TIMER1_COMPA_vect) {
       #endif
 
       #ifdef ADVANCE
-        counter_e += current_block->steps_e;
+        counter_e += current_block->steps[E_AXIS];
         if (counter_e > 0) {
           counter_e -= current_block->step_event_count;
           e_steps[current_block->active_extruder] += TEST(out_bits, E_AXIS) ? -1 : 1;
@@ -523,15 +589,14 @@ ISR(TIMER1_COMPA_vect) {
          * instead of doing each in turn. The extra tests add enough
          * lag to allow it work with without needing NOPs
          */
-        counter_x += current_block->steps_x;
-        if (counter_x > 0) X_STEP_WRITE(HIGH);
-        counter_y += current_block->steps_y;
-        if (counter_y > 0) Y_STEP_WRITE(HIGH);
-        counter_z += current_block->steps_z;
-        if (counter_z > 0) Z_STEP_WRITE(HIGH);
+        #define STEP_ADD(axis, AXIS) \
+         counter_## axis += current_block->steps[AXIS ##_AXIS]; \
+         if (counter_## axis > 0) { AXIS ##_STEP_WRITE(HIGH); }
+        STEP_ADD(x,X);
+        STEP_ADD(y,Y);
+        STEP_ADD(z,Z);
         #ifndef ADVANCE
-          counter_e += current_block->steps_e;
-          if (counter_e > 0) E_STEP_WRITE(HIGH);
+          STEP_ADD(e,E);
         #endif
 
         #define STEP_IF_COUNTER(axis, AXIS) \
@@ -551,7 +616,7 @@ ISR(TIMER1_COMPA_vect) {
       #else // !CONFIG_STEPPERS_TOSHIBA
 
         #define APPLY_MOVEMENT(axis, AXIS) \
-          counter_## axis += current_block->steps_## axis; \
+          counter_## axis += current_block->steps[AXIS ##_AXIS]; \
           if (counter_## axis > 0) { \
             AXIS ##_APPLY_STEP(!INVERT_## AXIS ##_STEP_PIN,0); \
             counter_## axis -= current_block->step_event_count; \
@@ -846,6 +911,13 @@ void st_init() {
     #endif
   #endif
 
+  #if defined(Z2_MAX_PIN) && Z2_MAX_PIN >= 0
+    SET_INPUT(Z2_MAX_PIN);
+    #ifdef ENDSTOPPULLUP_ZMAX
+      WRITE(Z2_MAX_PIN,HIGH);
+    #endif
+  #endif  
+  
   #define AXIS_INIT(axis, AXIS, PIN) \
     AXIS ##_STEP_INIT; \
     AXIS ##_STEP_WRITE(INVERT_## PIN ##_STEP_PIN); \
@@ -1175,3 +1247,9 @@ void microstep_readings() {
     SERIAL_PROTOCOLLN(digitalRead(E1_MS2_PIN));
   #endif
 }
+
+#ifdef Z_DUAL_ENDSTOPS
+  void In_Homing_Process(bool state) { performing_homing = state; }
+  void Lock_z_motor(bool state) { locked_z_motor = state; }
+  void Lock_z2_motor(bool state) { locked_z2_motor = state; }
+#endif
