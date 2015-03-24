@@ -177,7 +177,7 @@ static volatile bool temp_meas_ready = false;
 // Init min and max temp with extreme values to prevent false errors during startup
 static int minttemp_raw[EXTRUDERS] = ARRAY_BY_EXTRUDERS( HEATER_0_RAW_LO_TEMP , HEATER_1_RAW_LO_TEMP , HEATER_2_RAW_LO_TEMP, HEATER_3_RAW_LO_TEMP);
 static int maxttemp_raw[EXTRUDERS] = ARRAY_BY_EXTRUDERS( HEATER_0_RAW_HI_TEMP , HEATER_1_RAW_HI_TEMP , HEATER_2_RAW_HI_TEMP, HEATER_3_RAW_HI_TEMP);
-static int minttemp[EXTRUDERS] = ARRAY_BY_EXTRUDERS( 0, 0, 0, 0 );
+static int minttemp[EXTRUDERS] = { 0 };
 static int maxttemp[EXTRUDERS] = ARRAY_BY_EXTRUDERS( 16383, 16383, 16383, 16383 );
 //static int bed_minttemp_raw = HEATER_BED_RAW_LO_TEMP; /* No bed mintemp error implemented?!? */
 #ifdef BED_MAXTEMP
@@ -197,8 +197,8 @@ static float analog2tempBed(int raw);
 static void updateTemperaturesFromRawValues();
 
 #ifdef WATCH_TEMP_PERIOD
-  int watch_start_temp[EXTRUDERS] = ARRAY_BY_EXTRUDERS(0,0,0,0);
-  unsigned long watchmillis[EXTRUDERS] = ARRAY_BY_EXTRUDERS(0,0,0,0);
+  int watch_start_temp[EXTRUDERS] = { 0 };
+  unsigned long watchmillis[EXTRUDERS] = { 0 };
 #endif //WATCH_TEMP_PERIOD
 
 #ifndef SOFT_PWM_SCALE
@@ -660,12 +660,6 @@ void manage_heater() {
   if (!temp_meas_ready) return;
 
   updateTemperaturesFromRawValues();
-
-  #ifdef HEATER_0_USES_MAX6675
-    float ct = current_temperature[0];
-    if (ct > min(HEATER_0_MAXTEMP, 1023)) max_temp_error(0);
-    if (ct < max(HEATER_0_MINTEMP, 0.01)) min_temp_error(0);
-  #endif //HEATER_0_USES_MAX6675
 
   unsigned long ms = millis();
 
@@ -1145,28 +1139,28 @@ void disable_heater() {
   for (int i=0; i<EXTRUDERS; i++) setTargetHotend(0, i);
   setTargetBed(0);
 
+  #define DISABLE_HEATER(NR) { \
+    target_temperature[NR] = 0; \
+    soft_pwm[NR] = 0; \
+    WRITE_HEATER_ ## NR (LOW); \
+  }
+
   #if HAS_TEMP_0
     target_temperature[0] = 0;
     soft_pwm[0] = 0;
-    WRITE_HEATER_0P(LOW); // If HEATERS_PARALLEL should apply, change to WRITE_HEATER_0
+    WRITE_HEATER_0P(LOW); // Should HEATERS_PARALLEL apply here? Then change to DISABLE_HEATER(0)
   #endif
 
   #if EXTRUDERS > 1 && HAS_TEMP_1
-    target_temperature[1] = 0;
-    soft_pwm[1] = 0;
-    WRITE_HEATER_1(LOW);
+    DISABLE_HEATER(1);
   #endif
 
   #if EXTRUDERS > 2 && HAS_TEMP_2
-    target_temperature[2] = 0;
-    soft_pwm[2] = 0;
-    WRITE_HEATER_2(LOW);
+    DISABLE_HEATER(2);
   #endif
 
   #if EXTRUDERS > 3 && HAS_TEMP_3
-    target_temperature[3] = 0;
-    soft_pwm[3] = 0;
-    WRITE_HEATER_3(LOW);
+    DISABLE_HEATER(3);
   #endif
 
   #if HAS_TEMP_BED
@@ -1257,9 +1251,15 @@ enum TempState {
 // Timer 0 is shared with millies
 //
 ISR(TIMER0_COMPB_vect) {
+  #ifdef TEMP_SENSOR_1_AS_REDUNDANT
+    #define TEMP_SENSOR_COUNT 2
+  #else 
+    #define TEMP_SENSOR_COUNT EXTRUDERS
+  #endif
+
   //these variables are only accesible from the ISR, but static, so they don't lose their value
   static unsigned char temp_count = 0;
-  static unsigned long raw_temp_value[EXTRUDERS] = { 0 };
+  static unsigned long raw_temp_value[TEMP_SENSOR_COUNT] = { 0 };
   static unsigned long raw_temp_bed_value = 0;
   static TempState temp_state = StartupDelay;
   static unsigned char pwm_count = BIT(SOFT_PWM_SCALE);
@@ -1475,6 +1475,7 @@ ISR(TIMER0_COMPB_vect) {
       #endif
       temp_state = PrepareTemp_BED;
       break;
+
     case PrepareTemp_BED:
       #if HAS_TEMP_BED
         START_ADC(TEMP_BED_PIN);
@@ -1488,6 +1489,7 @@ ISR(TIMER0_COMPB_vect) {
       #endif
       temp_state = PrepareTemp_1;
       break;
+
     case PrepareTemp_1:
       #if HAS_TEMP_1
         START_ADC(TEMP_1_PIN);
@@ -1501,6 +1503,7 @@ ISR(TIMER0_COMPB_vect) {
       #endif
       temp_state = PrepareTemp_2;
       break;
+
     case PrepareTemp_2:
       #if HAS_TEMP_2
         START_ADC(TEMP_2_PIN);
@@ -1514,6 +1517,7 @@ ISR(TIMER0_COMPB_vect) {
       #endif
       temp_state = PrepareTemp_3;
       break;
+
     case PrepareTemp_3:
       #if HAS_TEMP_3
         START_ADC(TEMP_3_PIN);
@@ -1527,6 +1531,7 @@ ISR(TIMER0_COMPB_vect) {
       #endif
       temp_state = Prepare_FILWIDTH;
       break;
+
     case Prepare_FILWIDTH:
       #if HAS_FILAMENT_SENSOR
         START_ADC(FILWIDTH_PIN);
@@ -1545,6 +1550,7 @@ ISR(TIMER0_COMPB_vect) {
       temp_state = PrepareTemp_0;
       temp_count++;
       break;
+
     case StartupDelay:
       temp_state = PrepareTemp_0;
       break;
@@ -1554,7 +1560,7 @@ ISR(TIMER0_COMPB_vect) {
     //   SERIAL_ERRORLNPGM("Temp measurement error!");
     //   break;
   } // switch(temp_state)
-    
+
   if (temp_count >= OVERSAMPLENR) { // 10 * 16 * 1/(16000000/64/256)  = 164ms.
     if (!temp_meas_ready) { //Only update the raw values if they have been read. Else we could be updating them during reading.
       #ifndef HEATER_0_USES_MAX6675
@@ -1579,52 +1585,53 @@ ISR(TIMER0_COMPB_vect) {
     #if HAS_FILAMENT_SENSOR
       current_raw_filwidth = raw_filwidth_value >> 10;  // Divide to get to 0-16384 range since we used 1/128 IIR filter approach
     #endif
-    
+
     temp_meas_ready = true;
     temp_count = 0;
-    for (int i = 0; i < EXTRUDERS; i++) raw_temp_value[i] = 0;
+    for (int i = 0; i < TEMP_SENSOR_COUNT; i++) raw_temp_value[i] = 0;
     raw_temp_bed_value = 0;
 
-    #if HEATER_0_RAW_LO_TEMP > HEATER_0_RAW_HI_TEMP
-      #define GE0 <=
-      #define LE0 >=
+    #ifdef HEATER_0_USES_MAX6675
+      float ct = current_temperature[0];
+      if (ct > min(HEATER_0_MAXTEMP, 1023)) max_temp_error(0);
+      if (ct < max(HEATER_0_MINTEMP, 0.01)) min_temp_error(0);
     #else
-      #define GE0 >=
-      #define LE0 <=
+      #if HEATER_0_RAW_LO_TEMP > HEATER_0_RAW_HI_TEMP
+        #define GE0 <=
+      #else
+        #define GE0 >=
+      #endif
+      if (current_temperature_raw[0] GE0 maxttemp_raw[0]) max_temp_error(0);
+      if (minttemp_raw[0] GE0 current_temperature_raw[0]) min_temp_error(0);
     #endif
-    if (current_temperature_raw[0] GE0 maxttemp_raw[0]) max_temp_error(0);
-    if (current_temperature_raw[0] LE0 minttemp_raw[0]) min_temp_error(0);
 
     #if EXTRUDERS > 1
       #if HEATER_1_RAW_LO_TEMP > HEATER_1_RAW_HI_TEMP
         #define GE1 <=
-        #define LE1 >=
       #else
         #define GE1 >=
-        #define LE1 <=
       #endif
       if (current_temperature_raw[1] GE1 maxttemp_raw[1]) max_temp_error(1);
-      if (current_temperature_raw[1] LE1 minttemp_raw[1]) min_temp_error(1);
+      if (minttemp_raw[1] GE0 current_temperature_raw[1]) min_temp_error(1);
+
       #if EXTRUDERS > 2
         #if HEATER_2_RAW_LO_TEMP > HEATER_2_RAW_HI_TEMP
           #define GE2 <=
-          #define LE2 >=
         #else
           #define GE2 >=
-          #define LE2 <=
         #endif
         if (current_temperature_raw[2] GE2 maxttemp_raw[2]) max_temp_error(2);
-        if (current_temperature_raw[2] LE2 minttemp_raw[2]) min_temp_error(2);
+        if (minttemp_raw[2] GE0 current_temperature_raw[2]) min_temp_error(2);
+
         #if EXTRUDERS > 3
           #if HEATER_3_RAW_LO_TEMP > HEATER_3_RAW_HI_TEMP
             #define GE3 <=
-            #define LE3 >=
           #else
             #define GE3 >=
-            #define LE3 <=
           #endif
           if (current_temperature_raw[3] GE3 maxttemp_raw[3]) max_temp_error(3);
-          if (current_temperature_raw[3] LE3 minttemp_raw[3]) min_temp_error(3);
+          if (minttemp_raw[3] GE0 current_temperature_raw[3]) min_temp_error(3);
+
         #endif // EXTRUDERS > 3
       #endif // EXTRUDERS > 2
     #endif // EXTRUDERS > 1
@@ -1632,10 +1639,8 @@ ISR(TIMER0_COMPB_vect) {
     #if defined(BED_MAXTEMP) && (TEMP_SENSOR_BED != 0)
       #if HEATER_BED_RAW_LO_TEMP > HEATER_BED_RAW_HI_TEMP
         #define GEBED <=
-        #define LEBED >=
       #else
         #define GEBED >=
-        #define LEBED <=
       #endif
       if (current_temperature_bed_raw GEBED bed_maxttemp_raw) {
         target_temperature_bed = 0;
