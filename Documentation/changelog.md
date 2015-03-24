@@ -7,7 +7,7 @@
 * Various bugs fixed from 1.0.2.
 * EEPROM layout updated to `V17`.
 * Added `M204` travel acceleration options.
-* `M204` "P" parameter replaces "`S`." "`S`" retained for backward compatibility.
+* `M204` "`P`" parameter replaces "`S`." "`S`" retained for backward compatibility.
 * Support for more RAMPS-based boards.
 * Configurator utility under development.
 * `M404` "`N`" parameter replaced with "`W`." ("`N`" is for line numbers only).
