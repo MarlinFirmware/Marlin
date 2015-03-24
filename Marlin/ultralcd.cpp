@@ -1,4 +1,3 @@
-#include "temperature.h"
 #include "ultralcd.h"
 #ifdef ULTRA_LCD
 #include "Marlin.h"
@@ -1200,10 +1199,6 @@ void lcd_init() {
      WRITE(SHIFT_OUT,HIGH);
      WRITE(SHIFT_LD,HIGH);
      WRITE(SHIFT_EN,LOW);
-  #else
-     #ifdef ULTIPANEL
-     #error ULTIPANEL requires an encoder
-     #endif
   #endif // SR_LCD_2W_NL
 #endif//!NEWPANEL
 
