@@ -35,16 +35,24 @@
 #include "ultralcd_st7920_u8glib_rrd.h"
 #include "Configuration.h"
 
-#include "dogm_font_data_Marlin_symbols.h"   // The Marlin special symbols
-#define FONT_SPECIAL_NAME Marlin_symbols
-
 // save 3120 bytes of PROGMEM by commenting out #define USE_BIG_EDIT_FONT
 // we don't have a big font for Cyrillic, Kana
 #if defined( MAPPER_C2C3 ) || defined( MAPPER_NON )
-  #define USE_BIG_EDIT_FONT
+//  #define USE_BIG_EDIT_FONT
 #endif
-#define FONT_STATUSMENU u8g_font_6x9
-#define FONT_MENU u8g_font_6x10_marlin
+
+// If you have spare 2300Byte of progmem and want to use a 
+// smaller font on the Info-screen uncomment the next line.
+//#define USE_SMALL_INFOFONT
+#ifdef USE_SMALL_INFOFONT
+  #include "dogm_font_data_6x9_marlin.h"
+  #define FONT_STATUSMENU_NAME u8g_font_6x9
+#else
+  #define FONT_STATUSMENU_NAME FONT_MENU_NAME
+#endif
+
+#include "dogm_font_data_Marlin_symbols.h"   // The Marlin special symbols
+#define FONT_SPECIAL_NAME Marlin_symbols
 
 #ifndef SIMULATE_ROMFONT
   #if defined( DISPLAY_CHARSET_ISO10646_1 )
@@ -76,7 +84,7 @@
   #endif
 #endif // SIMULATE_ROMFONT
 
-#define FONT_STATUSMENU_NAME FONT_MENU_NAME
+//#define FONT_STATUSMENU_NAME FONT_MENU_NAME
 
 #define FONT_STATUSMENU 1
 #define FONT_SPECIAL 2
@@ -310,8 +318,13 @@ static void lcd_implementation_status_screen() {
 
   // X, Y, Z-Coordinates
   #define XYZ_BASELINE 38
-  u8g.setFont(FONT_STATUSMENU);
-  u8g.drawBox(0,30,128,9);
+  lcd_setFont(FONT_STATUSMENU);
+
+  #ifdef USE_SMALL_INFOFONT
+    u8g.drawBox(0,30,128,10);
+  #else
+    u8g.drawBox(0,30,128,9);
+  #endif
   u8g.setColorIndex(0); // white on black
   u8g.setPrintPos(2,XYZ_BASELINE);
   lcd_print('X');
@@ -337,14 +350,18 @@ static void lcd_implementation_status_screen() {
   lcd_setFont(FONT_MENU);
   u8g.setPrintPos(3,49);
   lcd_print(LCD_STR_FEEDRATE[0]);
-  u8g.setFont(FONT_STATUSMENU);
+  lcd_setFont(FONT_STATUSMENU);
   u8g.setPrintPos(12,49);
   lcd_print(itostr3(feedmultiply));
   lcd_print('%');
 
   // Status line
-  u8g.setFont(FONT_STATUSMENU);
+  lcd_setFont(FONT_STATUSMENU);
+  #ifdef USE_SMALL_INFOFONT
+  u8g.setPrintPos(0,62);
+  #else
   u8g.setPrintPos(0,63);
+  #endif
   #ifndef FILAMENT_LCD_DISPLAY
     lcd_print(lcd_status_message);
   #else
