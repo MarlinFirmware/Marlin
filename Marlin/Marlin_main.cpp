@@ -30,9 +30,6 @@
 #include "Marlin.h"
 
 #ifdef ENABLE_AUTO_BED_LEVELING
-  #if Z_MIN_PIN == -1
-    #error "You must have a Z_MIN endstop to enable Auto Bed Leveling feature. Z_MIN_PIN must point to a valid hardware pin."
-  #endif
   #include "vector_3.h"
   #ifdef AUTO_BED_LEVELING_GRID
     #include "qr_solve.h"
@@ -967,43 +964,36 @@ XYZ_CONSTS_FROM_CONFIG(float, home_retract_mm, HOME_RETRACT_MM);
 XYZ_CONSTS_FROM_CONFIG(signed char, home_dir,  HOME_DIR);
 
 #ifdef DUAL_X_CARRIAGE
-  #if EXTRUDERS == 1 || defined(COREXY) \
-      || !defined(X2_ENABLE_PIN) || !defined(X2_STEP_PIN) || !defined(X2_DIR_PIN) \
-      || !defined(X2_HOME_POS) || !defined(X2_MIN_POS) || !defined(X2_MAX_POS) \
-      || !defined(X_MAX_PIN) || X_MAX_PIN < 0
-    #error "Missing or invalid definitions for DUAL_X_CARRIAGE mode."
-  #endif
-  #if X_HOME_DIR != -1 || X2_HOME_DIR != 1
-    #error "Please use canonical x-carriage assignment" // the x-carriages are defined by their homing directions
-  #endif
 
-#define DXC_FULL_CONTROL_MODE 0
-#define DXC_AUTO_PARK_MODE    1
-#define DXC_DUPLICATION_MODE  2
-static int dual_x_carriage_mode = DEFAULT_DUAL_X_CARRIAGE_MODE;
+  #define DXC_FULL_CONTROL_MODE 0
+  #define DXC_AUTO_PARK_MODE    1
+  #define DXC_DUPLICATION_MODE  2
 
-static float x_home_pos(int extruder) {
-  if (extruder == 0)
-    return base_home_pos(X_AXIS) + home_offset[X_AXIS];
-  else
-    // In dual carriage mode the extruder offset provides an override of the
-    // second X-carriage offset when homed - otherwise X2_HOME_POS is used.
-    // This allow soft recalibration of the second extruder offset position without firmware reflash
-    // (through the M218 command).
-    return (extruder_offset[X_AXIS][1] > 0) ? extruder_offset[X_AXIS][1] : X2_HOME_POS;
-}
+  static int dual_x_carriage_mode = DEFAULT_DUAL_X_CARRIAGE_MODE;
 
-static int x_home_dir(int extruder) {
-  return (extruder == 0) ? X_HOME_DIR : X2_HOME_DIR;
-}
+  static float x_home_pos(int extruder) {
+    if (extruder == 0)
+      return base_home_pos(X_AXIS) + add_homing[X_AXIS];
+    else
+      // In dual carriage mode the extruder offset provides an override of the
+      // second X-carriage offset when homed - otherwise X2_HOME_POS is used.
+      // This allow soft recalibration of the second extruder offset position without firmware reflash
+      // (through the M218 command).
+      return (extruder_offset[X_AXIS][1] > 0) ? extruder_offset[X_AXIS][1] : X2_HOME_POS;
+  }
 
-static float inactive_extruder_x_pos = X2_MAX_POS; // used in mode 0 & 1
-static bool active_extruder_parked = false; // used in mode 1 & 2
-static float raised_parked_position[NUM_AXIS]; // used in mode 1
-static unsigned long delayed_move_time = 0; // used in mode 1
-static float duplicate_extruder_x_offset = DEFAULT_DUPLICATION_X_OFFSET; // used in mode 2
-static float duplicate_extruder_temp_offset = 0; // used in mode 2
-bool extruder_duplication_enabled = false; // used in mode 2
+  static int x_home_dir(int extruder) {
+    return (extruder == 0) ? X_HOME_DIR : X2_HOME_DIR;
+  }
+
+  static float inactive_extruder_x_pos = X2_MAX_POS; // used in mode 0 & 1
+  static bool active_extruder_parked = false; // used in mode 1 & 2
+  static float raised_parked_position[NUM_AXIS]; // used in mode 1
+  static unsigned long delayed_move_time = 0; // used in mode 1
+  static float duplicate_extruder_x_offset = DEFAULT_DUPLICATION_X_OFFSET; // used in mode 2
+  static float duplicate_extruder_temp_offset = 0; // used in mode 2
+  bool extruder_duplication_enabled = false; // used in mode 2
+
 #endif //DUAL_X_CARRIAGE
 
 static void axis_is_at_home(int axis) {
@@ -2078,44 +2068,6 @@ inline void gcode_G28() {
 #endif
 
 #ifdef ENABLE_AUTO_BED_LEVELING
-
-  // Define the possible boundaries for probing based on set limits
-  #define MIN_PROBE_X (max(X_MIN_POS, X_MIN_POS + X_PROBE_OFFSET_FROM_EXTRUDER))
-  #define MAX_PROBE_X (min(X_MAX_POS, X_MAX_POS + X_PROBE_OFFSET_FROM_EXTRUDER))
-  #define MIN_PROBE_Y (max(Y_MIN_POS, Y_MIN_POS + Y_PROBE_OFFSET_FROM_EXTRUDER))
-  #define MAX_PROBE_Y (min(Y_MAX_POS, Y_MAX_POS + Y_PROBE_OFFSET_FROM_EXTRUDER))
-
-  #ifdef AUTO_BED_LEVELING_GRID
-
-    // Make sure probing points are reachable
-
-    #if LEFT_PROBE_BED_POSITION < MIN_PROBE_X
-      #error "The given LEFT_PROBE_BED_POSITION can't be reached by the probe."
-    #elif RIGHT_PROBE_BED_POSITION > MAX_PROBE_X
-      #error "The given RIGHT_PROBE_BED_POSITION can't be reached by the probe."
-    #elif FRONT_PROBE_BED_POSITION < MIN_PROBE_Y
-      #error "The given FRONT_PROBE_BED_POSITION can't be reached by the probe."
-    #elif BACK_PROBE_BED_POSITION > MAX_PROBE_Y
-      #error "The given BACK_PROBE_BED_POSITION can't be reached by the probe."
-    #endif
-
-  #else // !AUTO_BED_LEVELING_GRID
-
-    #if ABL_PROBE_PT_1_X < MIN_PROBE_X || ABL_PROBE_PT_1_X > MAX_PROBE_X
-      #error "The given ABL_PROBE_PT_1_X can't be reached by the probe."
-    #elif ABL_PROBE_PT_2_X < MIN_PROBE_X || ABL_PROBE_PT_2_X > MAX_PROBE_X
-      #error "The given ABL_PROBE_PT_2_X can't be reached by the probe."
-    #elif ABL_PROBE_PT_3_X < MIN_PROBE_X || ABL_PROBE_PT_3_X > MAX_PROBE_X
-      #error "The given ABL_PROBE_PT_3_X can't be reached by the probe."
-    #elif ABL_PROBE_PT_1_Y < MIN_PROBE_Y || ABL_PROBE_PT_1_Y > MAX_PROBE_Y
-      #error "The given ABL_PROBE_PT_1_Y can't be reached by the probe."
-    #elif ABL_PROBE_PT_2_Y < MIN_PROBE_Y || ABL_PROBE_PT_2_Y > MAX_PROBE_Y
-      #error "The given ABL_PROBE_PT_2_Y can't be reached by the probe."
-    #elif ABL_PROBE_PT_3_Y < MIN_PROBE_Y || ABL_PROBE_PT_3_Y > MAX_PROBE_Y
-      #error "The given ABL_PROBE_PT_3_Y can't be reached by the probe."
-    #endif
-
-  #endif // !AUTO_BED_LEVELING_GRID
 
   /**
    * G29: Detailed Z-Probe, probes the bed at 3 or more points.
