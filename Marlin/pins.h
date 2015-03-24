@@ -178,6 +178,35 @@
   #define Z_MIN_PIN          -1
 #endif
 
+#ifdef DISABLE_XMAX_ENDSTOP
+  #undef X_MAX_PIN
+  #define X_MAX_PIN          -1
+#endif
+
+#ifdef DISABLE_XMIN_ENDSTOP
+  #undef X_MIN_PIN 
+  #define X_MIN_PIN          -1
+#endif
+
+#ifdef DISABLE_YMAX_ENDSTOP
+  #define Y_MAX_PIN          -1
+#endif
+
+#ifdef DISABLE_YMIN_ENDSTOP
+  #undef Y_MIN_PIN
+  #define Y_MIN_PIN          -1
+#endif
+
+#ifdef DISABLE_ZMAX_ENDSTOP
+  #undef Z_MAX_PIN
+  #define Z_MAX_PIN          -1
+#endif
+
+#ifdef DISABLE_ZMIN_ENDSTOP
+  #undef Z_MIN_PIN 
+  #define Z_MIN_PIN          -1
+#endif
+
 #define SENSITIVE_PINS { 0, 1, X_STEP_PIN, X_DIR_PIN, X_ENABLE_PIN, X_MIN_PIN, X_MAX_PIN, Y_STEP_PIN, Y_DIR_PIN, Y_ENABLE_PIN, Y_MIN_PIN, Y_MAX_PIN, Z_STEP_PIN, Z_DIR_PIN, Z_ENABLE_PIN, Z_MIN_PIN, Z_MAX_PIN, PS_ON_PIN, \
                         HEATER_BED_PIN, FAN_PIN, \
                         _E0_PINS _E1_PINS _E2_PINS _E3_PINS \

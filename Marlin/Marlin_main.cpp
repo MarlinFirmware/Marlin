@@ -248,6 +248,8 @@ float current_position[NUM_AXIS] = { 0.0, 0.0, 0.0, 0.0 };
 float home_offset[3] = { 0, 0, 0 };
 #ifdef DELTA
   float endstop_adj[3] = { 0, 0, 0 };
+#elif defined(Z_DUAL_ENDSTOPS)
+  float z_endstop_adj = 0;
 #endif
 
 float min_pos[3] = { X_MIN_POS, Y_MIN_POS, Z_MIN_POS };
@@ -973,7 +975,7 @@ XYZ_CONSTS_FROM_CONFIG(signed char, home_dir,  HOME_DIR);
 
   static float x_home_pos(int extruder) {
     if (extruder == 0)
-      return base_home_pos(X_AXIS) + add_homing[X_AXIS];
+    return base_home_pos(X_AXIS) + home_offset[X_AXIS];
     else
       // In dual carriage mode the extruder offset provides an override of the
       // second X-carriage offset when homed - otherwise X2_HOME_POS is used.
@@ -1487,6 +1489,9 @@ static void homeaxis(int axis) {
       }
     #endif
 #endif // Z_PROBE_SLED
+    #ifdef Z_DUAL_ENDSTOPS
+      if (axis==Z_AXIS) In_Homing_Process(true);
+    #endif
     destination[axis] = 1.5 * max_length(axis) * axis_home_dir;
     feedrate = homing_feedrate[axis];
     plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate/60, active_extruder);
@@ -1512,6 +1517,27 @@ static void homeaxis(int axis) {
 
     plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate/60, active_extruder);
     st_synchronize();
+    #ifdef Z_DUAL_ENDSTOPS
+      if (axis==Z_AXIS)
+      {
+        feedrate = homing_feedrate[axis];
+        plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+        if (axis_home_dir > 0)
+        {
+          destination[axis] = (-1) * fabs(z_endstop_adj);
+          if (z_endstop_adj > 0) Lock_z_motor(true); else Lock_z2_motor(true);
+        } else {
+          destination[axis] = fabs(z_endstop_adj);
+          if (z_endstop_adj < 0) Lock_z_motor(true); else Lock_z2_motor(true);        
+        }
+        plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate/60, active_extruder);
+        st_synchronize();
+        Lock_z_motor(false);
+        Lock_z2_motor(false);
+        In_Homing_Process(false);
+      }
+    #endif
+
 #ifdef DELTA
     // retrace by the amount specified in endstop_adj
     if (endstop_adj[axis] * axis_home_dir < 0) {
@@ -1754,7 +1780,7 @@ inline void gcode_G28() {
 
   enable_endstops(true);
 
-  for (int i = X_AXIS; i <= Z_AXIS; i++) destination[i] = current_position[i];
+  for (int i = X_AXIS; i <= NUM_AXIS; i++) destination[i] = current_position[i];
 
   feedrate = 0.0;
 
@@ -1944,7 +1970,7 @@ inline void gcode_G28() {
     if (code_seen(axis_codes[Z_AXIS]) && code_value_long() != 0)
       current_position[Z_AXIS] = code_value() + home_offset[Z_AXIS];
 
-    #ifdef ENABLE_AUTO_BED_LEVELING
+    #if defined(ENABLE_AUTO_BED_LEVELING) && (Z_HOME_DIR < 0)
       if (home_all_axis || code_seen(axis_codes[Z_AXIS]))
         current_position[Z_AXIS] += zprobe_zoffset;  //Add Z_Probe offset (the distance is negative)
     #endif
@@ -3452,6 +3478,11 @@ inline void gcode_M119() {
     SERIAL_PROTOCOLPGM(MSG_Z_MAX);
     SERIAL_PROTOCOLLN(((READ(Z_MAX_PIN)^Z_MAX_ENDSTOP_INVERTING)?MSG_ENDSTOP_HIT:MSG_ENDSTOP_OPEN));
   #endif
+  #if defined(Z2_MAX_PIN) && Z2_MAX_PIN > -1
+    SERIAL_PROTOCOLPGM(MSG_Z2_MAX);
+    SERIAL_PROTOCOLLN(((READ(Z2_MAX_PIN)^Z2_MAX_ENDSTOP_INVERTING)?MSG_ENDSTOP_HIT:MSG_ENDSTOP_OPEN));
+  #endif
+  
 }
 
 /**
@@ -3645,6 +3676,16 @@ inline void gcode_M206() {
       }
     }
   }
+#elif defined(Z_DUAL_ENDSTOPS)
+  /**
+   * M666: For Z Dual Endstop setup, set z axis offset to the z2 axis.
+   */
+  inline void gcode_M666() {
+   if (code_seen('Z')) z_endstop_adj = code_value();
+   SERIAL_ECHOPAIR("Z Endstop Adjustment set to (mm):", z_endstop_adj );
+   SERIAL_EOL;
+  }
+  
 #endif // DELTA
 
 #ifdef FWRETRACT
@@ -4891,6 +4932,10 @@ void process_commands() {
         case 665: // M665 set delta configurations L<diagonal_rod> R<delta_radius> S<segments_per_sec>
           gcode_M665();
           break;
+        case 666: // M666 set delta endstop adjustment
+          gcode_M666();
+          break;
+      #elif defined(Z_DUAL_ENDSTOPS)
         case 666: // M666 set delta endstop adjustment
           gcode_M666();
           break;

@@ -67,6 +67,9 @@
  *
  *  filament_size (x4)
  *
+ * Z_DUAL_ENDSTOPS
+ *  z_endstop_adj
+ *
  */
 #include "Marlin.h"
 #include "language.h"
@@ -165,6 +168,10 @@ void Config_StoreSettings()  {
     EEPROM_WRITE_VAR(i, delta_radius);              // 1 float
     EEPROM_WRITE_VAR(i, delta_diagonal_rod);        // 1 float
     EEPROM_WRITE_VAR(i, delta_segments_per_second); // 1 float
+  #elif defined(Z_DUAL_ENDSTOPS)
+    EEPROM_WRITE_VAR(i, z_endstop_adj);            // 1 floats
+    dummy = 0.0f;
+    for (int q=5; q--;) EEPROM_WRITE_VAR(i, dummy);
   #else
     dummy = 0.0f;
     for (int q=6; q--;) EEPROM_WRITE_VAR(i, dummy);
@@ -326,7 +333,12 @@ void Config_RetrieveSettings() {
       EEPROM_READ_VAR(i, delta_radius);               // 1 float
       EEPROM_READ_VAR(i, delta_diagonal_rod);         // 1 float
       EEPROM_READ_VAR(i, delta_segments_per_second);  // 1 float
+    #elif defined(Z_DUAL_ENDSTOPS)
+      EEPROM_READ_VAR(i, z_endstop_adj);
+      dummy = 0.0f;
+      for (int q=5; q--;) EEPROM_READ_VAR(i, dummy);
     #else
+      dummy = 0.0f;
       for (int q=6; q--;) EEPROM_READ_VAR(i, dummy);
     #endif
 
@@ -459,6 +471,8 @@ void Config_ResetDefault() {
     delta_diagonal_rod =  DELTA_DIAGONAL_ROD;
     delta_segments_per_second =  DELTA_SEGMENTS_PER_SECOND;
     recalc_delta_settings(delta_radius, delta_diagonal_rod);
+  #elif defined(Z_DUAL_ENDSTOPS)
+    z_endstop_adj = 0;
   #endif
 
   #ifdef ULTIPANEL
@@ -629,6 +643,14 @@ void Config_PrintSettings(bool forReplay) {
     SERIAL_ECHOPAIR(" R", delta_radius );
     SERIAL_ECHOPAIR(" S", delta_segments_per_second );
     SERIAL_EOL;
+  #elif defined(Z_DUAL_ENDSTOPS)
+    SERIAL_ECHO_START;
+    if (!forReplay) {
+      SERIAL_ECHOLNPGM("Z2 Endstop adjustement (mm):");
+      SERIAL_ECHO_START;
+    }
+    SERIAL_ECHOPAIR("  M666 Z", z_endstop_adj );
+    SERIAL_EOL;  
   #endif // DELTA
 
   #ifdef PIDTEMP
