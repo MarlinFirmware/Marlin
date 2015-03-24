@@ -242,6 +242,8 @@ extern float home_offset[3];
   extern float delta_diagonal_rod;
   extern float delta_segments_per_second;
   void recalc_delta_settings(float radius, float diagonal_rod);
+#elif defined(Z_DUAL_ENDSTOPS)
+extern float z_endstop_adj;
 #endif
 #ifdef SCARA
   extern float axis_scaling[3];  // Build size scaling

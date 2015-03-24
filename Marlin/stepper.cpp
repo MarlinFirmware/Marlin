@@ -48,6 +48,12 @@ block_t *current_block;  // A pointer to the block currently being traced
 static unsigned char out_bits;        // The next stepping-bits to be output
 static unsigned int cleaning_buffer_counter;  
 
+#ifdef Z_DUAL_ENDSTOPS
+  static bool performing_homing = false, 
+              locked_z_motor = false, 
+              locked_z2_motor = false;
+#endif
+
 // Counter variables for the bresenham line tracer
 static long counter_x, counter_y, counter_z, counter_e;
 volatile static unsigned long step_events_completed; // The number of step events executed in the current block
@@ -84,7 +90,13 @@ static bool old_x_min_endstop = false,
             old_y_min_endstop = false,
             old_y_max_endstop = false,
             old_z_min_endstop = false,
+            #ifndef Z_DUAL_ENDSTOPS
             old_z_max_endstop = false;
+            #else
+              old_z_max_endstop = false,
+              old_z2_min_endstop = false,
+              old_z2_max_endstop = false;
+            #endif
 
 static bool check_endstops = true;
 
@@ -128,7 +140,23 @@ volatile signed char count_direction[NUM_AXIS] = { 1, 1, 1, 1 };
 
 #ifdef Z_DUAL_STEPPER_DRIVERS
   #define Z_APPLY_DIR(v,Q) { Z_DIR_WRITE(v); Z2_DIR_WRITE(v); }
-  #define Z_APPLY_STEP(v,Q) { Z_STEP_WRITE(v); Z2_STEP_WRITE(v); }
+  #ifdef Z_DUAL_ENDSTOPS
+    #define Z_APPLY_STEP(v,Q) \
+    if (performing_homing) { \
+      if (Z_HOME_DIR > 0) {\
+        if (!(old_z_max_endstop && (count_direction[Z_AXIS] > 0)) && !locked_z_motor) Z_STEP_WRITE(v); \
+        if (!(old_z2_max_endstop && (count_direction[Z_AXIS] > 0)) && !locked_z2_motor) Z2_STEP_WRITE(v); \
+      } else {\
+        if (!(old_z_min_endstop && (count_direction[Z_AXIS] < 0)) && !locked_z_motor) Z_STEP_WRITE(v); \
+        if (!(old_z2_min_endstop && (count_direction[Z_AXIS] < 0)) && !locked_z2_motor) Z2_STEP_WRITE(v); \
+      } \
+    } else { \
+      Z_STEP_WRITE(v); \
+      Z2_STEP_WRITE(v); \
+    }
+  #else
+    #define Z_APPLY_STEP(v,Q) Z_STEP_WRITE(v), Z2_STEP_WRITE(v)
+  #endif
 #else
   #define Z_APPLY_DIR(v,Q) Z_DIR_WRITE(v)
   #define Z_APPLY_STEP(v,Q) Z_STEP_WRITE(v)
@@ -465,28 +493,66 @@ ISR(TIMER1_COMPA_vect) {
     }
 
     if (TEST(out_bits, Z_AXIS)) {   // -direction
-      Z_DIR_WRITE(INVERT_Z_DIR);
-      #ifdef Z_DUAL_STEPPER_DRIVERS
-        Z2_DIR_WRITE(INVERT_Z_DIR);
-      #endif
-
+      Z_APPLY_DIR(INVERT_Z_DIR,0);
       count_direction[Z_AXIS] = -1;
-      if (check_endstops) {
-        #if defined(Z_MIN_PIN) && Z_MIN_PIN >= 0
-          UPDATE_ENDSTOP(z, Z, min, MIN);
+      if (check_endstops) 
+      {
+        #if defined(Z_MIN_PIN) && Z_MIN_PIN > -1
+          #ifndef Z_DUAL_ENDSTOPS
+            UPDATE_ENDSTOP(z, Z, min, MIN);
+          #else
+            bool z_min_endstop=(READ(Z_MIN_PIN) != Z_MIN_ENDSTOP_INVERTING);
+            #if defined(Z2_MIN_PIN) && Z2_MIN_PIN > -1
+              bool z2_min_endstop=(READ(Z2_MIN_PIN) != Z2_MIN_ENDSTOP_INVERTING);
+            #else
+              bool z2_min_endstop=z_min_endstop;
+            #endif
+            if(((z_min_endstop && old_z_min_endstop) || (z2_min_endstop && old_z2_min_endstop)) && (current_block->steps[Z_AXIS] > 0))
+            {
+              endstops_trigsteps[Z_AXIS] = count_position[Z_AXIS];
+              endstop_z_hit=true;
+              if (!(performing_homing) || ((performing_homing)&&(z_min_endstop && old_z_min_endstop)&&(z2_min_endstop && old_z2_min_endstop))) //if not performing home or if both endstops were trigged during homing...
+              {
+                step_events_completed = current_block->step_event_count;
+              } 
+            }
+            old_z_min_endstop = z_min_endstop;
+            old_z2_min_endstop = z2_min_endstop;
+          #endif
         #endif
       }
     }
     else { // +direction
-      Z_DIR_WRITE(!INVERT_Z_DIR);
-      #ifdef Z_DUAL_STEPPER_DRIVERS
-        Z2_DIR_WRITE(!INVERT_Z_DIR);
-      #endif
-
+      Z_APPLY_DIR(!INVERT_Z_DIR,0);
       count_direction[Z_AXIS] = 1;
       if (check_endstops) {
         #if defined(Z_MAX_PIN) && Z_MAX_PIN >= 0
-          UPDATE_ENDSTOP(z, Z, max, MAX);
+          #ifndef Z_DUAL_ENDSTOPS
+            UPDATE_ENDSTOP(z, Z, max, MAX);
+          #else
+            bool z_max_endstop=(READ(Z_MAX_PIN) != Z_MAX_ENDSTOP_INVERTING);
+            #if defined(Z2_MAX_PIN) && Z2_MAX_PIN > -1
+              bool z2_max_endstop=(READ(Z2_MAX_PIN) != Z2_MAX_ENDSTOP_INVERTING);
+            #else
+              bool z2_max_endstop=z_max_endstop;
+            #endif
+            if(((z_max_endstop && old_z_max_endstop) || (z2_max_endstop && old_z2_max_endstop)) && (current_block->steps[Z_AXIS] > 0))
+            {
+              endstops_trigsteps[Z_AXIS] = count_position[Z_AXIS];
+              endstop_z_hit=true;
+
+//              if (z_max_endstop && old_z_max_endstop) SERIAL_ECHOLN("z_max_endstop = true");
+//              if (z2_max_endstop && old_z2_max_endstop) SERIAL_ECHOLN("z2_max_endstop = true");
+
+            
+              if (!(performing_homing) || ((performing_homing)&&(z_max_endstop && old_z_max_endstop)&&(z2_max_endstop && old_z2_max_endstop))) //if not performing home or if both endstops were trigged during homing...
+              {
+                step_events_completed = current_block->step_event_count;
+              } 
+            }
+            old_z_max_endstop = z_max_endstop;
+            old_z2_max_endstop = z2_max_endstop;
+          #endif
         #endif
       }
     }
@@ -845,6 +911,13 @@ void st_init() {
     #endif
   #endif
 
+  #if defined(Z2_MAX_PIN) && Z2_MAX_PIN >= 0
+    SET_INPUT(Z2_MAX_PIN);
+    #ifdef ENDSTOPPULLUP_ZMAX
+      WRITE(Z2_MAX_PIN,HIGH);
+    #endif
+  #endif  
+  
   #define AXIS_INIT(axis, AXIS, PIN) \
     AXIS ##_STEP_INIT; \
     AXIS ##_STEP_WRITE(INVERT_## PIN ##_STEP_PIN); \
@@ -1174,3 +1247,9 @@ void microstep_readings() {
     SERIAL_PROTOCOLLN(digitalRead(E1_MS2_PIN));
   #endif
 }
+
+#ifdef Z_DUAL_ENDSTOPS
+  void In_Homing_Process(bool state) { performing_homing = state; }
+  void Lock_z_motor(bool state) { locked_z_motor = state; }
+  void Lock_z2_motor(bool state) { locked_z2_motor = state; }
+#endif
