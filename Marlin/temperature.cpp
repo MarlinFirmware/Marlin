@@ -177,7 +177,7 @@ static volatile bool temp_meas_ready = false;
 // Init min and max temp with extreme values to prevent false errors during startup
 static int minttemp_raw[EXTRUDERS] = ARRAY_BY_EXTRUDERS( HEATER_0_RAW_LO_TEMP , HEATER_1_RAW_LO_TEMP , HEATER_2_RAW_LO_TEMP, HEATER_3_RAW_LO_TEMP);
 static int maxttemp_raw[EXTRUDERS] = ARRAY_BY_EXTRUDERS( HEATER_0_RAW_HI_TEMP , HEATER_1_RAW_HI_TEMP , HEATER_2_RAW_HI_TEMP, HEATER_3_RAW_HI_TEMP);
-static int minttemp[EXTRUDERS] = ARRAY_BY_EXTRUDERS( 0, 0, 0, 0 );
+static int minttemp[EXTRUDERS] = { 0 };
 static int maxttemp[EXTRUDERS] = ARRAY_BY_EXTRUDERS( 16383, 16383, 16383, 16383 );
 //static int bed_minttemp_raw = HEATER_BED_RAW_LO_TEMP; /* No bed mintemp error implemented?!? */
 #ifdef BED_MAXTEMP
@@ -197,8 +197,8 @@ static float analog2tempBed(int raw);
 static void updateTemperaturesFromRawValues();
 
 #ifdef WATCH_TEMP_PERIOD
-  int watch_start_temp[EXTRUDERS] = ARRAY_BY_EXTRUDERS(0,0,0,0);
-  unsigned long watchmillis[EXTRUDERS] = ARRAY_BY_EXTRUDERS(0,0,0,0);
+  int watch_start_temp[EXTRUDERS] = { 0 };
+  unsigned long watchmillis[EXTRUDERS] = { 0 };
 #endif //WATCH_TEMP_PERIOD
 
 #ifndef SOFT_PWM_SCALE
@@ -660,12 +660,6 @@ void manage_heater() {
   if (!temp_meas_ready) return;
 
   updateTemperaturesFromRawValues();
-
-  #ifdef HEATER_0_USES_MAX6675
-    float ct = current_temperature[0];
-    if (ct > min(HEATER_0_MAXTEMP, 1023)) max_temp_error(0);
-    if (ct < max(HEATER_0_MINTEMP, 0.01)) min_temp_error(0);
-  #endif //HEATER_0_USES_MAX6675
 
   unsigned long ms = millis();
 
@@ -1257,9 +1251,15 @@ enum TempState {
 // Timer 0 is shared with millies
 //
 ISR(TIMER0_COMPB_vect) {
+  #ifdef TEMP_SENSOR_1_AS_REDUNDANT
+    #define TEMP_SENSOR_COUNT 2
+  #else 
+    #define TEMP_SENSOR_COUNT EXTRUDERS
+  #endif
+
   //these variables are only accesible from the ISR, but static, so they don't lose their value
   static unsigned char temp_count = 0;
-  static unsigned long raw_temp_value[EXTRUDERS] = { 0 };
+  static unsigned long raw_temp_value[TEMP_SENSOR_COUNT] = { 0 };
   static unsigned long raw_temp_bed_value = 0;
   static TempState temp_state = StartupDelay;
   static unsigned char pwm_count = BIT(SOFT_PWM_SCALE);
@@ -1588,16 +1588,22 @@ ISR(TIMER0_COMPB_vect) {
 
     temp_meas_ready = true;
     temp_count = 0;
-    for (int i = 0; i < EXTRUDERS; i++) raw_temp_value[i] = 0;
+    for (int i = 0; i < TEMP_SENSOR_COUNT; i++) raw_temp_value[i] = 0;
     raw_temp_bed_value = 0;
 
-    #if HEATER_0_RAW_LO_TEMP > HEATER_0_RAW_HI_TEMP
-      #define GE0 <=
+    #ifdef HEATER_0_USES_MAX6675
+      float ct = current_temperature[0];
+      if (ct > min(HEATER_0_MAXTEMP, 1023)) max_temp_error(0);
+      if (ct < max(HEATER_0_MINTEMP, 0.01)) min_temp_error(0);
     #else
-      #define GE0 >=
+      #if HEATER_0_RAW_LO_TEMP > HEATER_0_RAW_HI_TEMP
+        #define GE0 <=
+      #else
+        #define GE0 >=
+      #endif
+      if (current_temperature_raw[0] GE0 maxttemp_raw[0]) max_temp_error(0);
+      if (minttemp_raw[0] GE0 current_temperature_raw[0]) min_temp_error(0);
     #endif
-    if (current_temperature_raw[0] GE0 maxttemp_raw[0]) max_temp_error(0);
-    if (minttemp_raw[0] GE0 current_temperature_raw[0]) min_temp_error(0);
 
     #if EXTRUDERS > 1
       #if HEATER_1_RAW_LO_TEMP > HEATER_1_RAW_HI_TEMP
