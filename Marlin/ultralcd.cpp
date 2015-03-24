@@ -1,4 +1,3 @@
-#include "temperature.h"
 #include "ultralcd.h"
 #ifdef ULTRA_LCD
 #include "Marlin.h"
@@ -69,6 +68,13 @@ static void lcd_sdcard_menu();
 #ifdef DELTA_CALIBRATION_MENU
 static void lcd_delta_calibrate_menu();
 #endif // DELTA_CALIBRATION_MENU
+
+#if defined(MANUAL_BED_LEVELING)
+#include "mesh_bed_leveling.h"
+static void _lcd_level_bed();
+static void _lcd_level_bed_homing();
+static void lcd_level_bed();
+#endif  // MANUAL_BED_LEVELING
 
 static void lcd_quick_feedback();//Cause an LCD refresh, and give the user visual or audible feedback that something has happened
 
@@ -198,8 +204,8 @@ static void menu_action_setting_edit_callback_long5(const char* pstr, unsigned l
   #define MENU_MULTIPLIER_ITEM_EDIT_CALLBACK(type, label, args...) MENU_ITEM(setting_edit_callback_ ## type, label, PSTR(label), ## args)
 #endif //!ENCODER_RATE_MULTIPLIER
 #define END_MENU() \
-    if (encoderPosition / ENCODER_STEPS_PER_MENU_ITEM >= _menuItemNr) encoderPosition = _menuItemNr * ENCODER_STEPS_PER_MENU_ITEM - 1; \
-    if ((uint8_t)(encoderPosition / ENCODER_STEPS_PER_MENU_ITEM) >= currentMenuViewOffset + LCD_HEIGHT) { currentMenuViewOffset = (encoderPosition / ENCODER_STEPS_PER_MENU_ITEM) - LCD_HEIGHT + 1; lcdDrawUpdate = 1; _lineNr = currentMenuViewOffset - 1; _drawLineNr = -1; } \
+    if (encoderLine >= _menuItemNr) encoderPosition = _menuItemNr * ENCODER_STEPS_PER_MENU_ITEM - 1; encoderLine = encoderPosition / ENCODER_STEPS_PER_MENU_ITEM;\
+    if (encoderLine >= currentMenuViewOffset + LCD_HEIGHT) { currentMenuViewOffset = encoderLine - LCD_HEIGHT + 1; lcdDrawUpdate = 1; _lineNr = currentMenuViewOffset - 1; _drawLineNr = -1; } \
     } } while(0)
 
 /** Used variables to keep track of the menu */
@@ -430,7 +436,7 @@ static void lcd_main_menu() {
 void lcd_set_home_offsets() {
   for(int8_t i=0; i < NUM_AXIS; i++) {
     if (i != E_AXIS) {
-      add_homing[i] -= current_position[i];
+      home_offset[i] -= current_position[i];
       current_position[i] = 0.0;
     }
   }
@@ -630,6 +636,10 @@ static void lcd_prepare_menu() {
     }
   #endif
   MENU_ITEM(submenu, MSG_MOVE_AXIS, lcd_move_menu);
+
+  #if defined(MANUAL_BED_LEVELING)
+    MENU_ITEM(submenu, MSG_LEVEL_BED, lcd_level_bed);
+  #endif
 	
   END_MENU();
 }
@@ -901,9 +911,9 @@ static void lcd_control_motion_menu() {
   START_MENU();
   MENU_ITEM(back, MSG_CONTROL, lcd_control_menu);
   #ifdef ENABLE_AUTO_BED_LEVELING
-    MENU_ITEM_EDIT(float32, MSG_ZPROBE_ZOFFSET, &zprobe_zoffset, 0.5, 50);
+    MENU_ITEM_EDIT(float32, MSG_ZPROBE_ZOFFSET, &zprobe_zoffset, 0.0, 50);
   #endif
-  MENU_ITEM_EDIT(float5, MSG_ACC, &acceleration, 500, 99000);
+  MENU_ITEM_EDIT(float5, MSG_ACC, &acceleration, 10, 99000);
   MENU_ITEM_EDIT(float3, MSG_VXY_JERK, &max_xy_jerk, 1, 990);
   MENU_ITEM_EDIT(float52, MSG_VZ_JERK, &max_z_jerk, 0.1, 990);
   MENU_ITEM_EDIT(float3, MSG_VE_JERK, &max_e_jerk, 1, 990);
@@ -915,7 +925,7 @@ static void lcd_control_motion_menu() {
   MENU_ITEM_EDIT(float3, MSG_VTRAV_MIN, &mintravelfeedrate, 0, 999);
   MENU_ITEM_EDIT_CALLBACK(long5, MSG_AMAX MSG_X, &max_acceleration_units_per_sq_second[X_AXIS], 100, 99000, reset_acceleration_rates);
   MENU_ITEM_EDIT_CALLBACK(long5, MSG_AMAX MSG_Y, &max_acceleration_units_per_sq_second[Y_AXIS], 100, 99000, reset_acceleration_rates);
-  MENU_ITEM_EDIT_CALLBACK(long5, MSG_AMAX MSG_Z, &max_acceleration_units_per_sq_second[Z_AXIS], 100, 99000, reset_acceleration_rates);
+  MENU_ITEM_EDIT_CALLBACK(long5, MSG_AMAX MSG_Z, &max_acceleration_units_per_sq_second[Z_AXIS], 10, 99000, reset_acceleration_rates);
   MENU_ITEM_EDIT_CALLBACK(long5, MSG_AMAX MSG_E, &max_acceleration_units_per_sq_second[E_AXIS], 100, 99000, reset_acceleration_rates);
   MENU_ITEM_EDIT(float5, MSG_A_RETRACT, &retract_acceleration, 100, 99000);
   MENU_ITEM_EDIT(float5, MSG_A_TRAVEL, &travel_acceleration, 100, 99000);
@@ -1189,10 +1199,6 @@ void lcd_init() {
      WRITE(SHIFT_OUT,HIGH);
      WRITE(SHIFT_LD,HIGH);
      WRITE(SHIFT_EN,LOW);
-  #else
-     #ifdef ULTIPANEL
-     #error ULTIPANEL requires an encoder
-     #endif
   #endif // SR_LCD_2W_NL
 #endif//!NEWPANEL
 
@@ -1341,7 +1347,12 @@ void lcd_update() {
     #endif
 
     #ifdef ULTIPANEL
-      if (currentMenu != lcd_status_screen && millis() > timeoutToStatus) {
+      if (currentMenu != lcd_status_screen &&
+        #if defined(MANUAL_BED_LEVELING)
+          currentMenu != _lcd_level_bed && 
+          currentMenu != _lcd_level_bed_homing && 
+        #endif  // MANUAL_BED_LEVELING
+          millis() > timeoutToStatus) {
         lcd_return_to_status();
         lcdDrawUpdate = 2;
       }
@@ -1759,5 +1770,76 @@ char *ftostr52(const float &x)
   conv[7]=0;
   return conv;
 }
+
+#if defined(MANUAL_BED_LEVELING)
+static int _lcd_level_bed_position;
+static void _lcd_level_bed()
+{
+  if (encoderPosition != 0) {
+    refresh_cmd_timeout();
+    current_position[Z_AXIS] += float((int)encoderPosition) * 0.05;
+    if (min_software_endstops && current_position[Z_AXIS] < Z_MIN_POS) current_position[Z_AXIS] = Z_MIN_POS;
+    if (max_software_endstops && current_position[Z_AXIS] > Z_MAX_POS) current_position[Z_AXIS] = Z_MAX_POS;
+    encoderPosition = 0;
+    plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], manual_feedrate[Z_AXIS]/60, active_extruder);
+    lcdDrawUpdate = 1;
+  }
+  if (lcdDrawUpdate) lcd_implementation_drawedit(PSTR("Z"), ftostr32(current_position[Z_AXIS]));
+  static bool debounce_click = false;
+  if (LCD_CLICKED) {
+    if (!debounce_click) {
+      debounce_click = true;
+      int ix = _lcd_level_bed_position % MESH_NUM_X_POINTS;
+      int iy = _lcd_level_bed_position / MESH_NUM_X_POINTS;
+      mbl.set_z(ix, iy, current_position[Z_AXIS]);
+      _lcd_level_bed_position++;
+      if (_lcd_level_bed_position == MESH_NUM_X_POINTS*MESH_NUM_Y_POINTS) {
+        current_position[Z_AXIS] = MESH_HOME_SEARCH_Z;
+        plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], manual_feedrate[X_AXIS]/60, active_extruder);
+        mbl.active = 1;
+        enquecommands_P(PSTR("G28"));
+        lcd_return_to_status();
+      } else {
+        current_position[Z_AXIS] = MESH_HOME_SEARCH_Z;
+        plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], manual_feedrate[X_AXIS]/60, active_extruder);
+        ix = _lcd_level_bed_position % MESH_NUM_X_POINTS;
+        iy = _lcd_level_bed_position / MESH_NUM_X_POINTS;
+        if (iy&1) { // Zig zag
+          ix = (MESH_NUM_X_POINTS - 1) - ix;
+        }
+        current_position[X_AXIS] = mbl.get_x(ix);
+        current_position[Y_AXIS] = mbl.get_y(iy);
+        plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], manual_feedrate[X_AXIS]/60, active_extruder);
+        lcdDrawUpdate = 1;
+      }
+    }
+  } else {
+    debounce_click = false;
+  }
+}
+static void _lcd_level_bed_homing()
+{
+  if (axis_known_position[X_AXIS] &&
+      axis_known_position[Y_AXIS] &&
+      axis_known_position[Z_AXIS]) {
+    current_position[Z_AXIS] = MESH_HOME_SEARCH_Z;
+    plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+    current_position[X_AXIS] = MESH_MIN_X;
+    current_position[Y_AXIS] = MESH_MIN_Y;
+    plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], manual_feedrate[X_AXIS]/60, active_extruder);
+    _lcd_level_bed_position = 0;
+    lcd_goto_menu(_lcd_level_bed);
+  }
+}
+static void lcd_level_bed()
+{
+  axis_known_position[X_AXIS] = false;
+  axis_known_position[Y_AXIS] = false;
+  axis_known_position[Z_AXIS] = false;
+  mbl.reset();
+  enquecommands_P(PSTR("G28"));
+  lcd_goto_menu(_lcd_level_bed_homing);
+}
+#endif  // MANUAL_BED_LEVELING
 
 #endif //ULTRA_LCD

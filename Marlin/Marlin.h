@@ -20,11 +20,6 @@
 
 #include "fastio.h"
 #include "Configuration.h"
-#include "pins.h"
-
-#ifndef AT90USB
-  #define  HardwareSerial_h // trick to disable the standard HWserial
-#endif
 
 #if (ARDUINO >= 100)
   #include "Arduino.h"
@@ -183,7 +178,7 @@ void manage_inactivity(bool ignore_stepper_queue=false);
   #define disable_e3() /* nothing */
 #endif
 
-enum AxisEnum {X_AXIS=0, Y_AXIS=1, Z_AXIS=2, E_AXIS=3, X_HEAD=4, Y_HEAD=5}; 
+enum AxisEnum {X_AXIS=0, Y_AXIS=1, A_AXIS=0, B_AXIS=1, Z_AXIS=2, E_AXIS=3, X_HEAD=4, Y_HEAD=5};
 //X_HEAD and Y_HEAD is used for systems that don't have a 1:1 relationship between X_AXIS and X Head movement, like CoreXY bots.
 
 void FlushSerialRequestResend();
@@ -191,17 +186,17 @@ void ClearToSend();
 
 void get_coordinates();
 #ifdef DELTA
-void calculate_delta(float cartesian[3]);
+  void calculate_delta(float cartesian[3]);
   #ifdef ENABLE_AUTO_BED_LEVELING
-  extern int delta_grid_spacing[2];
-  void adjust_delta(float cartesian[3]);
+    extern int delta_grid_spacing[2];
+    void adjust_delta(float cartesian[3]);
   #endif
-extern float delta[3];
-void prepare_move_raw();
+  extern float delta[3];
+  void prepare_move_raw();
 #endif
 #ifdef SCARA
-void calculate_delta(float cartesian[3]);
-void calculate_SCARA_forward_Transform(float f_scara[3]);
+  void calculate_delta(float cartesian[3]);
+  void calculate_SCARA_forward_Transform(float f_scara[3]);
 #endif
 void reset_bed_level();
 void prepare_move();
@@ -209,7 +204,7 @@ void kill();
 void Stop();
 
 #ifdef FILAMENT_RUNOUT_SENSOR
-void filrunout();
+  void filrunout();
 #endif
 
 bool IsStopped();
@@ -223,7 +218,7 @@ void clamp_to_software_endstops(float target[3]);
 void refresh_cmd_timeout(void);
 
 #ifdef FAST_PWM_FAN
-void setPwmFrequency(uint8_t pin, int val);
+  void setPwmFrequency(uint8_t pin, int val);
 #endif
 
 #ifndef CRITICAL_SECTION_START
@@ -240,16 +235,16 @@ extern int extruder_multiply[EXTRUDERS]; // sets extrude multiply factor (in per
 extern float filament_size[EXTRUDERS]; // cross-sectional area of filament (in millimeters), typically around 1.75 or 2.85, 0 disables the volumetric calculations for the extruder.
 extern float volumetric_multiplier[EXTRUDERS]; // reciprocal of cross-sectional area of filament (in square millimeters), stored this way to reduce computational burden in planner
 extern float current_position[NUM_AXIS] ;
-extern float add_homing[3];
+extern float home_offset[3];
 #ifdef DELTA
-extern float endstop_adj[3];
-extern float delta_radius;
-extern float delta_diagonal_rod;
-extern float delta_segments_per_second;
-void recalc_delta_settings(float radius, float diagonal_rod);
+  extern float endstop_adj[3];
+  extern float delta_radius;
+  extern float delta_diagonal_rod;
+  extern float delta_segments_per_second;
+  void recalc_delta_settings(float radius, float diagonal_rod);
 #endif
 #ifdef SCARA
-extern float axis_scaling[3];  // Build size scaling
+  extern float axis_scaling[3];  // Build size scaling
 #endif
 extern float min_pos[3];
 extern float max_pos[3];
@@ -257,12 +252,12 @@ extern bool axis_known_position[3];
 extern float zprobe_zoffset;
 extern int fanSpeed;
 #ifdef BARICUDA
-extern int ValvePressure;
-extern int EtoPPressure;
+  extern int ValvePressure;
+  extern int EtoPPressure;
 #endif
 
 #ifdef FAN_SOFT_PWM
-extern unsigned char fanSpeedSoftPwm;
+  extern unsigned char fanSpeedSoftPwm;
 #endif
 
 #ifdef FILAMENT_SENSOR
@@ -270,16 +265,16 @@ extern unsigned char fanSpeedSoftPwm;
   extern bool filament_sensor;  //indicates that filament sensor readings should control extrusion
   extern float filament_width_meas; //holds the filament diameter as accurately measured
   extern signed char measurement_delay[];  //ring buffer to delay measurement
-  extern int delay_index1, delay_index2;  //index into ring buffer
+  extern int delay_index1, delay_index2;  //ring buffer index. used by planner, temperature, and main code
   extern float delay_dist; //delay distance counter
   extern int meas_delay_cm; //delay distance
 #endif
 
 #ifdef FWRETRACT
-extern bool autoretract_enabled;
-extern bool retracted[EXTRUDERS];
-extern float retract_length, retract_length_swap, retract_feedrate, retract_zlift;
-extern float retract_recover_length, retract_recover_length_swap, retract_recover_feedrate;
+  extern bool autoretract_enabled;
+  extern bool retracted[EXTRUDERS];
+  extern float retract_length, retract_length_swap, retract_feedrate, retract_zlift;
+  extern float retract_recover_length, retract_recover_length_swap, retract_recover_feedrate;
 #endif
 
 extern unsigned long starttime;
@@ -289,11 +284,10 @@ extern unsigned long stoptime;
 extern uint8_t active_extruder;
 
 #ifdef DIGIPOT_I2C
-extern void digipot_i2c_set_current( int channel, float current );
-extern void digipot_i2c_init();
-#endif
-
+  extern void digipot_i2c_set_current( int channel, float current );
+  extern void digipot_i2c_init();
 #endif
 
 extern void calculate_volumetric_multipliers();
 
+#endif //MARLIN_H
