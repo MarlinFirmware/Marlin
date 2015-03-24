@@ -178,7 +178,7 @@ void manage_inactivity(bool ignore_stepper_queue=false);
   #define disable_e3() /* nothing */
 #endif
 
-enum AxisEnum {X_AXIS=0, Y_AXIS=1, Z_AXIS=2, E_AXIS=3, X_HEAD=4, Y_HEAD=5}; 
+enum AxisEnum {X_AXIS=0, Y_AXIS=1, A_AXIS=0, B_AXIS=1, Z_AXIS=2, E_AXIS=3, X_HEAD=4, Y_HEAD=5};
 //X_HEAD and Y_HEAD is used for systems that don't have a 1:1 relationship between X_AXIS and X Head movement, like CoreXY bots.
 
 void FlushSerialRequestResend();
@@ -265,7 +265,7 @@ extern int fanSpeed;
   extern bool filament_sensor;  //indicates that filament sensor readings should control extrusion
   extern float filament_width_meas; //holds the filament diameter as accurately measured
   extern signed char measurement_delay[];  //ring buffer to delay measurement
-  extern int delay_index1, delay_index2;  //index into ring buffer
+  extern int delay_index1, delay_index2;  //ring buffer index. used by planner, temperature, and main code
   extern float delay_dist; //delay distance counter
   extern int meas_delay_cm; //delay distance
 #endif
