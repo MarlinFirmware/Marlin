@@ -5,8 +5,6 @@
 #ifndef PINS_H
 #define PINS_H
 
-#include "boards.h"
-
 // Preset optional pins
 #define X_MS1_PIN -1
 #define X_MS2_PIN -1
@@ -177,6 +175,35 @@
 #ifdef DISABLE_MIN_ENDSTOPS
   #define X_MIN_PIN          -1
   #define Y_MIN_PIN          -1
+  #define Z_MIN_PIN          -1
+#endif
+
+#ifdef DISABLE_XMAX_ENDSTOP
+  #undef X_MAX_PIN
+  #define X_MAX_PIN          -1
+#endif
+
+#ifdef DISABLE_XMIN_ENDSTOP
+  #undef X_MIN_PIN 
+  #define X_MIN_PIN          -1
+#endif
+
+#ifdef DISABLE_YMAX_ENDSTOP
+  #define Y_MAX_PIN          -1
+#endif
+
+#ifdef DISABLE_YMIN_ENDSTOP
+  #undef Y_MIN_PIN
+  #define Y_MIN_PIN          -1
+#endif
+
+#ifdef DISABLE_ZMAX_ENDSTOP
+  #undef Z_MAX_PIN
+  #define Z_MAX_PIN          -1
+#endif
+
+#ifdef DISABLE_ZMIN_ENDSTOP
+  #undef Z_MIN_PIN 
   #define Z_MIN_PIN          -1
 #endif
 
