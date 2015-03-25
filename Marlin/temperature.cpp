@@ -50,10 +50,9 @@
 //===========================================================================
 
 int target_temperature[HOTENDS] = { 0 };
+int target_temperature_bed = 0;
 int current_temperature_raw[HOTENDS] = { 0 };
 float current_temperature[HOTENDS] = { 0.0 };
-
-int target_temperature_bed = 0;
 int current_temperature_bed_raw = 0;
 float current_temperature_bed = 0.0;
 #ifdef TEMP_SENSOR_1_AS_REDUNDANT
@@ -143,7 +142,7 @@ static unsigned char soft_pwm[HOTENDS];
 // Init min and max temp with extreme values to prevent false errors during startup
 static int minttemp_raw[HOTENDS] = ARRAY_BY_HOTENDS( HEATER_0_RAW_LO_TEMP , HEATER_1_RAW_LO_TEMP , HEATER_2_RAW_LO_TEMP, HEATER_3_RAW_LO_TEMP);
 static int maxttemp_raw[HOTENDS] = ARRAY_BY_HOTENDS( HEATER_0_RAW_HI_TEMP , HEATER_1_RAW_HI_TEMP , HEATER_2_RAW_HI_TEMP, HEATER_3_RAW_HI_TEMP);
-static int minttemp[HOTENDS] = ARRAY_BY_HOTENDS( 0, 0, 0, 0 );
+static int minttemp[HOTENDS] = { 0 };
 static int maxttemp[HOTENDS] = ARRAY_BY_HOTENDS( 16383, 16383, 16383, 16383 );
 //static int bed_minttemp_raw = HEATER_BED_RAW_LO_TEMP; /* No bed mintemp error implemented?!? */
 
@@ -164,8 +163,8 @@ static float analog2tempBed(int raw);
 static void updateTemperaturesFromRawValues();
 
 #ifdef WATCH_TEMP_PERIOD
-  int watch_start_temp[HOTENDS] = ARRAY_BY_HOTENDS(0,0,0,0);
-  unsigned long watchmillis[HOTENDS] = ARRAY_BY_HOTENDS(0,0,0,0);
+  int watch_start_temp[HOTENDS] = { 0 };
+  unsigned long watchmillis[HOTENDS] = { 0 };
 #endif //WATCH_TEMP_PERIOD
 
 #ifndef SOFT_PWM_SCALE
@@ -357,84 +356,85 @@ int getHeaterPower(int heater) {
 }
 
 #if HAS_AUTO_FAN
-  void setExtruderAutoFanState(int pin, bool state)
-  {
-    unsigned char newFanSpeed = (state != 0) ? EXTRUDER_AUTO_FAN_SPEED : 0;
-    // this idiom allows both digital and PWM fan outputs (see M42 handling).
-    pinMode(pin, OUTPUT);
-    digitalWrite(pin, newFanSpeed);
-    analogWrite(pin, newFanSpeed);
-  }
 
-  void checkExtruderAutoFans()
-  {
-    uint8_t fanState = 0;
+void setExtruderAutoFanState(int pin, bool state)
+{
+  unsigned char newFanSpeed = (state != 0) ? EXTRUDER_AUTO_FAN_SPEED : 0;
+  // this idiom allows both digital and PWM fan outputs (see M42 handling).
+  pinMode(pin, OUTPUT);
+  digitalWrite(pin, newFanSpeed);
+  analogWrite(pin, newFanSpeed);
+}
 
-    // which fan pins need to be turned on?      
-    #if HAS_AUTO_FAN_0
-      if (current_temperature[0] > EXTRUDER_AUTO_FAN_TEMPERATURE)
+void checkExtruderAutoFans()
+{
+  uint8_t fanState = 0;
+
+  // which fan pins need to be turned on?      
+  #if HAS_AUTO_FAN_0
+    if (current_temperature[0] > EXTRUDER_AUTO_FAN_TEMPERATURE) 
+      fanState |= 1;
+  #endif
+  #if HAS_AUTO_FAN_1
+    if (current_temperature[1] > EXTRUDER_AUTO_FAN_TEMPERATURE) 
+    {
+      if (EXTRUDER_1_AUTO_FAN_PIN == EXTRUDER_0_AUTO_FAN_PIN)
         fanState |= 1;
-    #endif
+      else
+        fanState |= 2;
+    }
+  #endif
+  #if HAS_AUTO_FAN_2
+    if (current_temperature[2] > EXTRUDER_AUTO_FAN_TEMPERATURE) 
+    {
+      if (EXTRUDER_2_AUTO_FAN_PIN == EXTRUDER_0_AUTO_FAN_PIN) 
+        fanState |= 1;
+      else if (EXTRUDER_2_AUTO_FAN_PIN == EXTRUDER_1_AUTO_FAN_PIN) 
+        fanState |= 2;
+      else
+        fanState |= 4;
+    }
+  #endif
+  #if HAS_AUTO_FAN_3
+    if (current_temperature[3] > EXTRUDER_AUTO_FAN_TEMPERATURE) 
+    {
+      if (EXTRUDER_3_AUTO_FAN_PIN == EXTRUDER_0_AUTO_FAN_PIN) 
+        fanState |= 1;
+      else if (EXTRUDER_3_AUTO_FAN_PIN == EXTRUDER_1_AUTO_FAN_PIN) 
+        fanState |= 2;
+      else if (EXTRUDER_3_AUTO_FAN_PIN == EXTRUDER_2_AUTO_FAN_PIN) 
+        fanState |= 4;
+      else
+        fanState |= 8;
+    }
+  #endif
+  
+  // update extruder auto fan states
+  #if HAS_AUTO_FAN_0
+    setExtruderAutoFanState(EXTRUDER_0_AUTO_FAN_PIN, (fanState & 1) != 0);
+  #endif 
+  #if HAS_AUTO_FAN_1
+    if (EXTRUDER_1_AUTO_FAN_PIN != EXTRUDER_0_AUTO_FAN_PIN)
+      setExtruderAutoFanState(EXTRUDER_1_AUTO_FAN_PIN, (fanState & 2) != 0);
+  #endif 
+  #if HAS_AUTO_FAN_2
+    if (EXTRUDER_2_AUTO_FAN_PIN != EXTRUDER_0_AUTO_FAN_PIN
+        && EXTRUDER_2_AUTO_FAN_PIN != EXTRUDER_1_AUTO_FAN_PIN)
+      setExtruderAutoFanState(EXTRUDER_2_AUTO_FAN_PIN, (fanState & 4) != 0);
+  #endif
+  #if HAS_AUTO_FAN_3
+    if (EXTRUDER_3_AUTO_FAN_PIN != EXTRUDER_0_AUTO_FAN_PIN
+        && EXTRUDER_3_AUTO_FAN_PIN != EXTRUDER_1_AUTO_FAN_PIN
+        && EXTRUDER_3_AUTO_FAN_PIN != EXTRUDER_2_AUTO_FAN_PIN)
+      setExtruderAutoFanState(EXTRUDER_3_AUTO_FAN_PIN, (fanState & 8) != 0);
+  #endif
+}
 
-    #if HAS_AUTO_FAN_1
-      if (current_temperature[1] > EXTRUDER_AUTO_FAN_TEMPERATURE) 
-      {
-        if (EXTRUDER_1_AUTO_FAN_PIN == EXTRUDER_0_AUTO_FAN_PIN)
-          fanState |= 1;
-        else
-          fanState |= 2;
-      }
-    #endif
-    #if HAS_AUTO_FAN_2
-      if (current_temperature[2] > EXTRUDER_AUTO_FAN_TEMPERATURE) {
-        if (EXTRUDER_2_AUTO_FAN_PIN == EXTRUDER_0_AUTO_FAN_PIN)
-          fanState |= 1;
-        else if (EXTRUDER_2_AUTO_FAN_PIN == EXTRUDER_1_AUTO_FAN_PIN)
-          fanState |= 2;
-        else
-          fanState |= 4;
-      }
-    #endif
-    #if HAS_AUTO_FAN_3
-      if (current_temperature[3] > EXTRUDER_AUTO_FAN_TEMPERATURE) {
-        if (EXTRUDER_3_AUTO_FAN_PIN == EXTRUDER_0_AUTO_FAN_PIN)
-          fanState |= 1;
-        else if (EXTRUDER_3_AUTO_FAN_PIN == EXTRUDER_1_AUTO_FAN_PIN)
-          fanState |= 2;
-        else if (EXTRUDER_3_AUTO_FAN_PIN == EXTRUDER_2_AUTO_FAN_PIN)
-          fanState |= 4;
-        else
-          fanState |= 8;
-      }
-    #endif
-
-    // update extruder auto fan states
-    #if HAS_AUTO_FAN_0
-      setExtruderAutoFanState(EXTRUDER_0_AUTO_FAN_PIN, (fanState & 1) != 0);
-    #endif
-
-    #if HAS_AUTO_FAN_1
-      if (EXTRUDER_1_AUTO_FAN_PIN != EXTRUDER_0_AUTO_FAN_PIN)
-        setExtruderAutoFanState(EXTRUDER_1_AUTO_FAN_PIN, (fanState & 2) != 0);
-    #endif
-    #if HAS_AUTO_FAN_2
-      if (EXTRUDER_2_AUTO_FAN_PIN != EXTRUDER_0_AUTO_FAN_PIN
-          && EXTRUDER_2_AUTO_FAN_PIN != EXTRUDER_1_AUTO_FAN_PIN)
-        setExtruderAutoFanState(EXTRUDER_2_AUTO_FAN_PIN, (fanState & 4) != 0);
-    #endif
-    #if HAS_AUTO_FAN_3
-      if (EXTRUDER_3_AUTO_FAN_PIN != EXTRUDER_0_AUTO_FAN_PIN
-          && EXTRUDER_3_AUTO_FAN_PIN != EXTRUDER_1_AUTO_FAN_PIN
-          && EXTRUDER_3_AUTO_FAN_PIN != EXTRUDER_2_AUTO_FAN_PIN)
-        setExtruderAutoFanState(EXTRUDER_3_AUTO_FAN_PIN, (fanState & 8) != 0);
-    #endif
-  }
 #endif // any extruder auto fan pins set
 
 //
 // Temperature Error Handlers
 //
-
 inline void _temp_error(int e, const char *msg1, const char *msg2) {
   if (!IsStopped()) {
     SERIAL_ERROR_START;
@@ -578,17 +578,11 @@ void manage_heater() {
 
   updateTemperaturesFromRawValues();
 
-  #ifdef HEATER_0_USES_MAX6675
-    float ct = current_temperature[0];
-    if (ct > min(HEATER_0_MAXTEMP, 1023)) max_temp_error(0);
-    if (ct < max(HEATER_0_MINTEMP, 0.01)) min_temp_error(0);
-  #endif //HEATER_0_USES_MAX6675
-
   unsigned long ms = millis();
 
   // Loop through all hotends
-  for (int e = 0; e < HOTENDS; e++) 
-  {
+  for (int e = 0; e < HOTENDS; e++) {
+
     #if defined (THERMAL_RUNAWAY_PROTECTION_PERIOD) && THERMAL_RUNAWAY_PROTECTION_PERIOD > 0
       thermal_runaway_protection(&thermal_runaway_state_machine[e], &thermal_runaway_timer[e], current_temperature[e], target_temperature[e], e, THERMAL_RUNAWAY_PROTECTION_PERIOD, THERMAL_RUNAWAY_PROTECTION_HYSTERESIS);
     #endif
@@ -688,9 +682,9 @@ void manage_heater() {
 // For hot end temperature measurement.
 static float analog2temp(int raw, uint8_t e) {
   #ifdef TEMP_SENSOR_1_AS_REDUNDANT
-    if (e > EXTRUDERS)
+    if (e > HOTENDS)  // was EXTRUDERS
   #else
-    if (e >= EXTRUDERS)
+    if (e >= HOTENDS)  // was EXTRUDERS
   #endif
   {
     SERIAL_ERROR_START;

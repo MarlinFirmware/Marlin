@@ -335,13 +335,13 @@
    * ARRAY_BY_EXTRUDERS based on EXTRUDERS
    */
   #if EXTRUDERS > 3
-    #define ARRAY_BY_EXTRUDERS(v1, v2, v3, v4) { v1, v2, v3, v4 }
+    #define ARRAY_BY_HOTENDS(v1, v2, v3, v4) { v1, v2, v3, v4 }
   #elif EXTRUDERS > 2
-    #define ARRAY_BY_EXTRUDERS(v1, v2, v3, v4) { v1, v2, v3 }
+    #define ARRAY_BY_HOTENDS(v1, v2, v3, v4) { v1, v2, v3 }
   #elif EXTRUDERS > 1
-    #define ARRAY_BY_EXTRUDERS(v1, v2, v3, v4) { v1, v2 }
+    #define ARRAY_BY_HOTENDS(v1, v2, v3, v4) { v1, v2 }
   #else
-    #define ARRAY_BY_EXTRUDERS(v1, v2, v3, v4) { v1 }
+    #define ARRAY_BY_HOTENDS(v1, v2, v3, v4) { v1 }
   #endif
 
   /**
