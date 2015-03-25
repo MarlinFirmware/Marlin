@@ -1137,7 +1137,28 @@ menu_edit_type(unsigned long, long5, ftostr5, 0.01)
 static void lcd_quick_feedback() {
   lcdDrawUpdate = 2;
   blocking_enc = millis() + 500;
-  lcd_implementation_quick_feedback();
+  
+#ifdef LCD_USE_I2C_BUZZER
+#if defined(LCD_FEEDBACK_FREQUENCY_DURATION_MS) && defined(LCD_FEEDBACK_FREQUENCY_HZ)
+	lcd_buzz(LCD_FEEDBACK_FREQUENCY_DURATION_MS, LCD_FEEDBACK_FREQUENCY_HZ);
+#else
+	lcd_buzz(1000/6, 100);
+#endif
+#elif defined(BEEPER) && BEEPER > -1
+	SET_OUTPUT(BEEPER);
+#if !defined(LCD_FEEDBACK_FREQUENCY_HZ) || !defined(LCD_FEEDBACK_FREQUENCY_DURATION_MS)
+#define LCD_FEEDBACK_FREQUENCY_HZ 500	
+#define LCD_FEEDBACK_FREQUENCY_DURATION_MS 50
+#endif
+	const unsigned int delay = 1000000 / LCD_FEEDBACK_FREQUENCY_HZ / 2;
+	int8_t i = LCD_FEEDBACK_FREQUENCY_DURATION_MS * LCD_FEEDBACK_FREQUENCY_HZ / 1000;
+	while (i--) {
+	WRITE(BEEPER,HIGH);
+	delayMicroseconds(delay);
+	WRITE(BEEPER,LOW);
+	delayMicroseconds(delay);
+}
+#endif
 }
 
 /** Menu action functions **/

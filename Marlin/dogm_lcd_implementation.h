@@ -408,16 +408,4 @@ static void _drawmenu_sd(bool isSelected, uint8_t row, const char* pstr, const c
 #define lcd_implementation_drawmenu_gcode(sel, row, pstr, gcode) lcd_implementation_drawmenu_generic(sel, row, pstr, '>', ' ')
 #define lcd_implementation_drawmenu_function(sel, row, pstr, data) lcd_implementation_drawmenu_generic(sel, row, pstr, '>', ' ')
 
-static void lcd_implementation_quick_feedback() {
-  #if BEEPER > -1
-    SET_OUTPUT(BEEPER);
-    for(int8_t i=0; i<10; i++) {
-      WRITE(BEEPER,HIGH);
-      delay(3);
-      WRITE(BEEPER,LOW);
-      delay(3);
-    }
-  #endif
-}
-
 #endif //__DOGM_LCD_IMPLEMENTATION_H
