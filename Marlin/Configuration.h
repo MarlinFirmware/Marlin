@@ -75,11 +75,6 @@ Here are some standard links for getting your machine calibrated:
 // This is used for single nozzle and multiple extrusion configuration
 // Uncomment below to enable (One Hotend)
 //#define SINGLENOZZLE
-#ifdef SINGLENOZZLE
-  #define HOTENDS 1
-#else
-  #define HOTENDS EXTRUDERS
-#endif
 
 //// The following define selects which power supply you have. Please choose the one that matches your setup
 // 1 = ATX

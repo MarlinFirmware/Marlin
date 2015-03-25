@@ -399,7 +399,13 @@
     #undef PID_dT
   #endif
   #define PID_dT ((OVERSAMPLENR * 12.0)/(F_CPU / 64.0 / 256.0))
-
+  
+  // This is used for single nozzle and multiple extrusion configuration
+  #ifdef SINGLENOZZLE
+    #define HOTENDS 1
+  #else
+    #define HOTENDS EXTRUDERS
+  #endif
 
 #endif //CONFIGURATION_LCD
 #endif //CONDITIONALS_H
