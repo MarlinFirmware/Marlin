@@ -42,7 +42,7 @@
  
  DestinationSpeed[s_, a_, d_] := Sqrt[2 a d + s^2]
  
- When to start braking (di) to reach a specified destionation speed (s2) after accelerating
+ When to start braking (di) to reach a specified destination speed (s2) after accelerating
  from initial speed s1 without ever stopping at a plateau:
  
  Solve[{DestinationSpeed[s1, a, di] == DestinationSpeed[s2, a, d - di]}, di]

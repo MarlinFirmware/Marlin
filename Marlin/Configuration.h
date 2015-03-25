@@ -72,6 +72,15 @@ Here are some standard links for getting your machine calibrated:
 // This defines the number of extruders
 #define EXTRUDERS 1
 
+// This is used for single nozzle and multiple extrusion configuration
+// Uncomment below to enable (One Hotend)
+//#define SINGLENOZZLE
+#ifdef SINGLENOZZLE
+  #define HOTENDS 1
+#else
+  #define HOTENDS EXTRUDERS
+#endif
+
 //// The following define selects which power supply you have. Please choose the one that matches your setup
 // 1 = ATX
 // 2 = X-Box 360 203Watts (the blue wire connected to PS_ON and the red wire to VCC)
@@ -178,7 +187,7 @@ Here are some standard links for getting your machine calibrated:
   //#define PID_DEBUG // Sends debug data to the serial port.
   //#define PID_OPENLOOP 1 // Puts PID in open loop. M104/M140 sets the output power from 0 to PID_MAX
   //#define SLOW_PWM_HEATERS // PWM with very low frequency (roughly 0.125Hz=8s) and minimum state time of approximately 1s useful for heaters driven by a relay
-  //#define PID_PARAMS_PER_EXTRUDER // Uses separate PID parameters for each extruder (useful for mismatched extruders)
+  //#define PID_PARAMS_PER_HOTENDS  // Uses separate PID parameters for each hotend (useful for mismatched hotends)
                                     // Set/get with gcode: M301 E[extruder number, 0-2]
   #define PID_FUNCTIONAL_RANGE 10 // If the temperature difference between the target temperature and the actual temperature
                                   // is more then PID_FUNCTIONAL_RANGE then the PID will be shut off and the heater will be set to min/max.
@@ -514,11 +523,11 @@ const bool Z_MAX_ENDSTOP_INVERTING = false; // set to true to invert the logic o
 #define DEFAULT_RETRACT_ACCELERATION  3000   // E acceleration in mm/s^2 for retracts
 #define DEFAULT_TRAVEL_ACCELERATION   3000    // X, Y, Z acceleration in mm/s^2 for travel (non printing) moves
 
-// Offset of the extruders (uncomment if using more than one and relying on firmware to position when changing).
-// The offset has to be X=0, Y=0 for the extruder 0 hotend (default extruder).
-// For the other hotends it is their distance from the extruder 0 hotend.
-// #define EXTRUDER_OFFSET_X {0.0, 20.00} // (in mm) for each extruder, offset of the hotend on the X axis
-// #define EXTRUDER_OFFSET_Y {0.0, 5.00}  // (in mm) for each extruder, offset of the hotend on the Y axis
+// Offset of the hotends (uncomment if using more than one and relying on firmware to position when changing).
+// The offset has to be X=0, Y=0 for the 0 hotend (default hotend).
+// For the other hotends it is their distance from the 0 hotend.
+// #define HOTEND_OFFSET_X {0.0, 20.00} // (in mm) for each hotend, offset of the hotend on the X axis
+// #define HOTEND_OFFSET_Y {0.0, 5.00}  // (in mm) for each hotend, offset of the hotend on the Y axis
 
 // The speed change that does not require acceleration (i.e. the software might assume it can be done instantaneously)
 #define DEFAULT_XYJERK                20.0    // (mm/sec)

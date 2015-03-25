@@ -257,27 +257,28 @@ float max_pos[3] = { X_MAX_POS, Y_MAX_POS, Z_MAX_POS };
 bool axis_known_position[3] = { false, false, false };
 float zprobe_zoffset;
 
-// Extruder offset
-#if EXTRUDERS > 1
-#ifndef DUAL_X_CARRIAGE
-  #define NUM_EXTRUDER_OFFSETS 2 // only in XY plane
-#else
-  #define NUM_EXTRUDER_OFFSETS 3 // supports offsets in XYZ plane
-#endif
-float extruder_offset[NUM_EXTRUDER_OFFSETS][EXTRUDERS] = {
-  #if defined(EXTRUDER_OFFSET_X)
-    EXTRUDER_OFFSET_X
+// Hotend offset
+#if HOTENDS > 1  
+  #ifndef DUAL_X_CARRIAGE
+    #define NUM_HOTENDS_OFFSETS 2 // only in XY plane
   #else
-    0
+    #define NUM_HOTENDS_OFFSETS 3 // supports offsets in XYZ plane
   #endif
-  ,
-  #if defined(EXTRUDER_OFFSET_Y)
-    EXTRUDER_OFFSET_Y
-  #else
-    0
-  #endif
-};
-#endif
+  float hotend_offset[NUM_HOTENDS_OFFSETS][HOTENDS] = {
+    #if defined(HOTEND_OFFSET_X)
+      HOTEND_OFFSET_X
+    #else
+      0
+    #endif
+    ,
+    #if defined(HOTEND_OFFSET_Y)
+      HOTEND_OFFSET_Y
+    #else
+      0
+    #endif
+  };
+#endif //HOTENDS > 1
+
 
 uint8_t active_extruder = 0;
 int fanSpeed = 0;
@@ -501,7 +502,7 @@ static bool drain_queued_commands_P()
 //Note: drain_queued_commands_P() must be called repeatedly to drain the commands afterwards
 void enquecommands_P(const char* pgcode)
 {
-    queued_commands_P= pgcode;
+    queued_commands_P = pgcode;
     drain_queued_commands_P(); // first command exectuted asap (when possible)
 }
 
@@ -703,7 +704,7 @@ void loop()
   if(buflen < (BUFSIZE-1))
     get_command();
   #ifdef SDSUPPORT
-  card.checkautostart(false);
+    card.checkautostart(false);
   #endif
   if(buflen)
   {
@@ -981,7 +982,7 @@ XYZ_CONSTS_FROM_CONFIG(signed char, home_dir,  HOME_DIR);
       // second X-carriage offset when homed - otherwise X2_HOME_POS is used.
       // This allow soft recalibration of the second extruder offset position without firmware reflash
       // (through the M218 command).
-      return (extruder_offset[X_AXIS][1] > 0) ? extruder_offset[X_AXIS][1] : X2_HOME_POS;
+    return (hotend_offset[X_AXIS][1] > 0) ? hotend_offset[X_AXIS][1] : X2_HOME_POS;
   }
 
   static int x_home_dir(int extruder) {
@@ -1004,14 +1005,14 @@ static void axis_is_at_home(int axis) {
     if (active_extruder != 0) {
       current_position[X_AXIS] = x_home_pos(active_extruder);
       min_pos[X_AXIS] =          X2_MIN_POS;
-      max_pos[X_AXIS] =          max(extruder_offset[X_AXIS][1], X2_MAX_POS);
+      max_pos[X_AXIS] =          max(hotend_offset[X_AXIS][1], X2_MAX_POS);
       return;
     }
     else if (dual_x_carriage_mode == DXC_DUPLICATION_MODE && active_extruder == 0) {
       current_position[X_AXIS] = base_home_pos(X_AXIS) + home_offset[X_AXIS];
       min_pos[X_AXIS] =          base_min_pos(X_AXIS) + home_offset[X_AXIS];
       max_pos[X_AXIS] =          min(base_max_pos(X_AXIS) + home_offset[X_AXIS],
-                                  max(extruder_offset[X_AXIS][1], X2_MAX_POS) - duplicate_extruder_x_offset);
+                                  max(hotend_offset[X_AXIS][1], X2_MAX_POS) - duplicate_extruder_x_offset);
       return;
     }
   }
@@ -3012,6 +3013,10 @@ inline void gcode_M42() {
 inline void gcode_M104() {
   if (setTargetedHotend(104)) return;
 
+  #if HOTENDS == 1
+    if (tmp_extruder != active_extruder) return;
+  #endif
+
   if (code_seen('S')) setTargetHotend(code_value(), tmp_extruder);
   #ifdef DUAL_X_CARRIAGE
     if (dual_x_carriage_mode == DXC_DUPLICATION_MODE && tmp_extruder == 0)
@@ -3105,6 +3110,10 @@ inline void gcode_M105() {
  */
 inline void gcode_M109() {
   if (setTargetedHotend(109)) return;
+
+  #if HOTENDS == 1
+    if (tmp_extruder != active_extruder) return;
+  #endif
 
   LCD_MESSAGEPGM(MSG_HEATING);
 
@@ -3732,7 +3741,7 @@ inline void gcode_M206() {
 
 #endif // FWRETRACT
 
-#if EXTRUDERS > 1
+#if HOTENDS > 1
 
   /**
    * M218 - set hotend offset (in mm), T<extruder_number> X<offset_on_X> Y<offset_on_Y>
@@ -3740,29 +3749,29 @@ inline void gcode_M206() {
   inline void gcode_M218() {
     if (setTargetedHotend(218)) return;
 
-    if (code_seen('X')) extruder_offset[X_AXIS][tmp_extruder] = code_value();
-    if (code_seen('Y')) extruder_offset[Y_AXIS][tmp_extruder] = code_value();
+    if (code_seen('X')) hotend_offset[X_AXIS][tmp_extruder] = code_value();
+    if (code_seen('Y')) hotend_offset[Y_AXIS][tmp_extruder] = code_value();
 
     #ifdef DUAL_X_CARRIAGE
-      if (code_seen('Z')) extruder_offset[Z_AXIS][tmp_extruder] = code_value();
+      if (code_seen('Z')) hotend_offset[Z_AXIS][tmp_extruder] = code_value();
     #endif
 
     SERIAL_ECHO_START;
     SERIAL_ECHOPGM(MSG_HOTEND_OFFSET);
-    for (tmp_extruder = 0; tmp_extruder < EXTRUDERS; tmp_extruder++) {
+    for (tmp_extruder = 0; tmp_extruder < HOTENDS; tmp_extruder++) {
       SERIAL_ECHO(" ");
-      SERIAL_ECHO(extruder_offset[X_AXIS][tmp_extruder]);
+      SERIAL_ECHO(hotend_offset[X_AXIS][tmp_extruder]);
       SERIAL_ECHO(",");
-      SERIAL_ECHO(extruder_offset[Y_AXIS][tmp_extruder]);
+      SERIAL_ECHO(hotend_offset[Y_AXIS][tmp_extruder]);
       #ifdef DUAL_X_CARRIAGE
         SERIAL_ECHO(",");
-        SERIAL_ECHO(extruder_offset[Z_AXIS][tmp_extruder]);
+        SERIAL_ECHO(hotend_offset[Z_AXIS][tmp_extruder]);
       #endif
     }
     SERIAL_EOL;
   }
 
-#endif // EXTRUDERS > 1
+#endif // HOTENDS > 1
 
 /**
  * M220: Set speed percentage factor, aka "Feed Rate" (M220 S95)
@@ -4447,13 +4456,13 @@ inline void gcode_M503() {
         SERIAL_ECHO_START;
         SERIAL_ECHOPGM(MSG_HOTEND_OFFSET);
         SERIAL_ECHO(" ");
-        SERIAL_ECHO(extruder_offset[X_AXIS][0]);
+        SERIAL_ECHO(hotend_offset[X_AXIS][0]);
         SERIAL_ECHO(",");
-        SERIAL_ECHO(extruder_offset[Y_AXIS][0]);
+        SERIAL_ECHO(hotend_offset[Y_AXIS][0]);
         SERIAL_ECHO(" ");
         SERIAL_ECHO(duplicate_extruder_x_offset);
         SERIAL_ECHO(",");
-        SERIAL_ECHOLN(extruder_offset[Y_AXIS][1]);
+        SERIAL_ECHOLN(hotend_offset[Y_AXIS][1]);
         break;
       case DXC_FULL_CONTROL_MODE:
       case DXC_AUTO_PARK_MODE:
@@ -4567,7 +4576,7 @@ inline void gcode_T() {
     }
     #if EXTRUDERS > 1
       if (tmp_extruder != active_extruder) {
-        // Save current position to return to after applying extruder offset
+        // Save current position to return to after applying hotend offset
         memcpy(destination, current_position, sizeof(destination));
         #ifdef DUAL_X_CARRIAGE
           if (dual_x_carriage_mode == DXC_AUTO_PARK_MODE && Stopped == false &&
@@ -4584,11 +4593,11 @@ inline void gcode_T() {
 
           // apply Y & Z extruder offset (x offset is already used in determining home pos)
           current_position[Y_AXIS] = current_position[Y_AXIS] -
-                       extruder_offset[Y_AXIS][active_extruder] +
-                       extruder_offset[Y_AXIS][tmp_extruder];
+                       hotend_offset[Y_AXIS][active_extruder] +
+                       hotend_offset[Y_AXIS][tmp_extruder];
           current_position[Z_AXIS] = current_position[Z_AXIS] -
-                       extruder_offset[Z_AXIS][active_extruder] +
-                       extruder_offset[Z_AXIS][tmp_extruder];
+                       hotend_offset[Z_AXIS][active_extruder] +
+                       hotend_offset[Z_AXIS][tmp_extruder];
 
           active_extruder = tmp_extruder;
 
@@ -4616,9 +4625,11 @@ inline void gcode_T() {
             delayed_move_time = 0;
           }
         #else // !DUAL_X_CARRIAGE
-          // Offset extruder (only by XY)
-          for (int i=X_AXIS; i<=Y_AXIS; i++)
-            current_position[i] += extruder_offset[i][tmp_extruder] - extruder_offset[i][active_extruder];
+          #if HOTENDS > 1
+            // Offset extruder (only by XY)
+            for (int i=X_AXIS; i<=Y_AXIS; i++)
+              current_position[i] += hotend_offset[i][tmp_extruder] - hotend_offset[i][active_extruder];
+          #endif // HOTENDS > 1
           // Set the new active extruder and position
           active_extruder = tmp_extruder;
         #endif // !DUAL_X_CARRIAGE
@@ -4951,7 +4962,7 @@ void process_commands() {
           break;
       #endif // FWRETRACT
 
-      #if EXTRUDERS > 1
+      #if HOTENDS > 1
         case 218: // M218 - set hotend offset (in mm), T<extruder_number> X<offset_on_X> Y<offset_on_Y>
           gcode_M218();
           break;
