@@ -45,7 +45,7 @@
   #define K2 (1.0-K1)
 #endif
 
-#ifdef PIDTEMPBED
+#if defined(PIDTEMPBED) || defined(PIDTEMP)
   #define PID_dT ((OVERSAMPLENR * 12.0)/(F_CPU / 64.0 / 256.0))
 #endif
 
