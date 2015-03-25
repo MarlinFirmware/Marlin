@@ -12,11 +12,11 @@ Currently there is no automatic way to probe the bed like the Auto Bed Leveling 
 Theory
 ------
 
-The bed is manually probed in a grid maner. During a print the Z axis compensation will be interpolated within each square using a bi-linear method. Because the grid squares can be tilting in different directions a printing move can be split on grid square borders. During fast travel moves one can sometimes notice a de-acceleration on these borders. 
+The bed is manually probed in a grid maner. During a print the Z axis compensation will be interpolated within each square using a bi-linear method. Because the grid squares can be tilting in different directions a printing move can be split on the borders of the grid squares. During fast travel moves one can sometimes notice a de-acceleration on these borders. 
 
 Mesh point probing can either be carried out from the display, or by issuing `G29` commands.
 
-The Z-endstop should be set slightly above the bed. An opto endstop is preferable but a switch with a metal arm that allow some press though should also work.
+The Z-endstop should be set slightly above the bed. An opto endstop is preferable but a switch with a metal arm that allow some travel though should also work.
 
 Configuration
 -------------
@@ -26,7 +26,7 @@ In `Configuration.h` there are two options that can be enabled.
 `MESH_BED_LEVELING` will enable mesh bed leveling.<br/>
 `MANUAL_BED_LEVELING` will add the menu option for bed leveling.
 
-There is also some values that can be set.
+There are also some values that can be set.
 
 Following four define the area to cover. Default 10mm from max bed size
 
@@ -40,7 +40,7 @@ Following two define the number of points to probe, total number will be these t
 `MESH_NUM_X_POINTS`<br/> 
 `MESH_NUM_Y_POINTS`<br/>
 
-The following will set the Z-endstop height during probing. When initiating a bed leveling probing a homing will take place and the Z-endstop will be set to this height so lowering through the endstop can take place and the bed should be within this distance. Default is 4mm
+The following will set the Z-endstop height during probing. When initiating a bed leveling probing, a homing will take place and the Z-endstop will be set to this height so lowering through the endstop can take place and the bed should be within this distance. Default is 4mm
 
 `MESH_HOME_SEARCH_Z`
 
@@ -51,7 +51,7 @@ Probing the bed with the display
 
 If `MANUAL_BED_LEVELING` has been enabled then will a `Level bed` menu option be available in the `Prepare` menu.
 
-When selecting this option the printer will first do a homing, and then travel to the first probe point. There is will wait. By turning the encoder on the display the hotend can now be lowered until it touches the bed. Using a paper to feel the distance when it gets close. Pressing the encoder/button will store this point and then travel to the next point. Repeating this until all points have been probed.
+When selecting this option the printer will first do a homing, and then travel to the first probe point. There it will wait. By turning the encoder on the display the hotend can now be lowered until it touches the bed. Using a paper to feel the distance when it gets close. Pressing the encoder/button will store this point and then travel to the next point. Repeating this until all points have been probed.
 
 If the EEPROM has been enable it can be good to issue a `M500` to get these points saved.
 
