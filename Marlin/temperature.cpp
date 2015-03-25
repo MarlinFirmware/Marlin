@@ -1174,10 +1174,10 @@ enum TempState {
   #define TEMP_SENSOR_COUNT EXTRUDERS
 #endif
 
-unsigned long raw_temp_value[TEMP_SENSOR_COUNT] = { 0 };
-unsigned long raw_temp_bed_value = 0;
+static unsigned long raw_temp_value[TEMP_SENSOR_COUNT] = { 0 };
+static unsigned long raw_temp_bed_value = 0;
 
-void set_current_temp_raw() {
+static void set_current_temp_raw() {
   #ifndef HEATER_0_USES_MAX6675
     current_temperature_raw[0] = raw_temp_value[0];
   #endif
