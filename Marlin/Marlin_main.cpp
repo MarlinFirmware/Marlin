@@ -395,7 +395,9 @@ static long gcode_N, gcode_LastN, Stopped_gcode_LastN = 0;
 static bool relative_mode = false;  //Determines Absolute or Relative Coordinates
 
 static char cmdbuffer[BUFSIZE][MAX_CMD_SIZE];
+#ifdef SDSUPPORT
 static bool fromsd[BUFSIZE];
+#endif //!SDSUPPORT
 static int bufindr = 0;
 static int bufindw = 0;
 static int buflen = 0;
@@ -655,10 +657,12 @@ void setup()
   SERIAL_ECHO(freeMemory());
   SERIAL_ECHOPGM(MSG_PLANNER_BUFFER_BYTES);
   SERIAL_ECHOLN((int)sizeof(block_t)*BLOCK_BUFFER_SIZE);
+  #ifdef SDSUPPORT
   for(int8_t i = 0; i < BUFSIZE; i++)
   {
     fromsd[i] = false;
   }
+  #endif //!SDSUPPORT
 
   // loads data from EEPROM if available else uses defaults (and resets step acceleration rate)
   Config_RetrieveSettings();
@@ -764,8 +768,9 @@ void get_command()
         return;
       }
       cmdbuffer[bufindw][serial_count] = 0; //terminate string
-
+      #ifdef SDSUPPORT
       fromsd[bufindw] = false;
+      #endif //!SDSUPPORT
       if(strchr(cmdbuffer[bufindw], 'N') != NULL)
       {
         strchr_pointer = strchr(cmdbuffer[bufindw], 'N');
