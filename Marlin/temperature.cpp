@@ -441,10 +441,9 @@ inline void _temp_error(int e, const char *msg1, const char *msg2) {
   if (!IsStopped()) {
     SERIAL_ERROR_START;
     if (e >= 0) SERIAL_ERRORLN((int)e);
-    serialprintPGM(msg1);
-    MYSERIAL.write('\n');
+    SERIAL_PROTOCOLLNPGM(msg1);
     #ifdef ULTRA_LCD
-      lcd_setalertstatuspgm(msg2);
+      LCD_ALERTMESSAGEPGM(msg2);
     #endif
   }
   #ifndef BOGUS_TEMPERATURE_FAILSAFE_OVERRIDE
@@ -454,17 +453,17 @@ inline void _temp_error(int e, const char *msg1, const char *msg2) {
 
 void max_temp_error(uint8_t e) {
   disable_heater();
-  _temp_error(e, PSTR(MSG_MAXTEMP_EXTRUDER_OFF), PSTR(MSG_ERR_MAXTEMP));
+  _temp_error(e, MSG_MAXTEMP_EXTRUDER_OFF, MSG_ERR_MAXTEMP);
 }
 void min_temp_error(uint8_t e) {
   disable_heater();
-  _temp_error(e, PSTR(MSG_MINTEMP_EXTRUDER_OFF), PSTR(MSG_ERR_MINTEMP));
+  _temp_error(e, MSG_MINTEMP_EXTRUDER_OFF, MSG_ERR_MINTEMP);
 }
 void bed_max_temp_error(void) {
   #if HAS_HEATER_BED
     WRITE_HEATER_BED(0);
   #endif
-  _temp_error(-1, PSTR(MSG_MAXTEMP_BED_OFF), PSTR(MSG_ERR_MAXTEMP_BED));
+  _temp_error(-1, MSG_MAXTEMP_BED_OFF, MSG_ERR_MAXTEMP_BED);
 }
 
 float get_pid_output(int e) {
@@ -617,7 +616,7 @@ void manage_heater() {
     #ifdef TEMP_SENSOR_1_AS_REDUNDANT
       if (fabs(current_temperature[0] - redundant_temperature) > MAX_REDUNDANT_TEMP_SENSOR_DIFF) {
         disable_heater();
-        _temp_error(0, PSTR(MSG_EXTRUDER_SWITCHED_OFF), PSTR(MSG_ERR_REDUNDANT_TEMP));
+        _temp_error(0, MSG_EXTRUDER_SWITCHED_OFF, MSG_ERR_REDUNDANT_TEMP);
       }
     #endif //TEMP_SENSOR_1_AS_REDUNDANT
 
