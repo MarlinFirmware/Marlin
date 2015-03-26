@@ -203,7 +203,8 @@
 
 float homing_feedrate[] = HOMING_FEEDRATE;
 #ifdef ENABLE_AUTO_BED_LEVELING
-int xy_travel_speed = XY_TRAVEL_SPEED;
+  int xy_travel_speed = XY_TRAVEL_SPEED;
+  float zprobe_zoffset = -Z_PROBE_OFFSET_FROM_EXTRUDER;
 #endif
 int homing_bump_divisor[] = HOMING_BUMP_DIVISOR;
 bool axis_relative_modes[] = AXIS_RELATIVE_MODES;
@@ -255,7 +256,6 @@ float home_offset[3] = { 0, 0, 0 };
 float min_pos[3] = { X_MIN_POS, Y_MIN_POS, Z_MIN_POS };
 float max_pos[3] = { X_MAX_POS, Y_MAX_POS, Z_MAX_POS };
 bool axis_known_position[3] = { false, false, false };
-float zprobe_zoffset = -Z_PROBE_OFFSET_FROM_EXTRUDER;
 
 // Extruder offset
 #if EXTRUDERS > 1
@@ -1162,6 +1162,7 @@ static void run_z_probe() {
     zPosition += home_retract_mm(Z_AXIS);
     plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], zPosition, current_position[E_AXIS], feedrate/60, active_extruder);
     st_synchronize();
+    endstops_hit_on_purpose();
 
     // move back down slowly to find bed
     
@@ -1179,6 +1180,7 @@ static void run_z_probe() {
     zPosition -= home_retract_mm(Z_AXIS) * 2;
     plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], zPosition, current_position[E_AXIS], feedrate/60, active_extruder);
     st_synchronize();
+    endstops_hit_on_purpose();
 
     current_position[Z_AXIS] = st_get_position_mm(Z_AXIS);
     // make sure the planner knows where we are as it may be a bit different than we last said to move to
@@ -1383,11 +1385,11 @@ static float probe_pt(float x, float y, float z_before, ProbeAction retract_acti
   if (verbose_level > 2) {
     SERIAL_PROTOCOLPGM(MSG_BED);
     SERIAL_PROTOCOLPGM(" X: ");
-    SERIAL_PROTOCOL(x + 0.0001);
+    SERIAL_PROTOCOL_F(x, 3);
     SERIAL_PROTOCOLPGM(" Y: ");
-    SERIAL_PROTOCOL(y + 0.0001);
+    SERIAL_PROTOCOL_F(y, 3);
     SERIAL_PROTOCOLPGM(" Z: ");
-    SERIAL_PROTOCOL(measured_z + 0.0001);
+    SERIAL_PROTOCOL_F(measured_z, 3);
     SERIAL_EOL;
   }
   return measured_z;
@@ -2108,6 +2110,10 @@ inline void gcode_G28() {
    *
    *  S  Set the XY travel speed between probe points (in mm/min)
    *
+   *  D  Dry-Run mode. Just evaluate the bed Topology - Don't apply
+   *     or clean the rotation Matrix. Useful to check the topology
+   *     after a first run of G29.
+   *
    *  V  Set the verbose level (0-4). Example: "G29 V3"
    *
    *  T  Generate a Bed Topology Report. Example: "G29 P5 T" for a detailed report.
@@ -2149,6 +2155,7 @@ inline void gcode_G28() {
       }
     }
 
+    bool dryrun = code_seen('D') || code_seen('d');
     bool enhanced_g29 = code_seen('E') || code_seen('e');
 
     #ifdef AUTO_BED_LEVELING_GRID
@@ -2158,7 +2165,10 @@ inline void gcode_G28() {
       #endif
 
       if (verbose_level > 0)
+      {
         SERIAL_PROTOCOLPGM("G29 Auto Bed Leveling\n");
+        if (dryrun) SERIAL_ECHOLN("Running in DRY-RUN mode");
+      }
 
       int auto_bed_leveling_grid_points = AUTO_BED_LEVELING_GRID_POINTS;
       #ifndef DELTA
@@ -2215,21 +2225,26 @@ inline void gcode_G28() {
 
     st_synchronize();
 
-    #ifdef DELTA
-      reset_bed_level();
-    #else //!DELTA
-      // make sure the bed_level_rotation_matrix is identity or the planner will get it wrong
-      //vector_3 corrected_position = plan_get_position_mm();
-      //corrected_position.debug("position before G29");
-      plan_bed_level_matrix.set_to_identity();
-      vector_3 uncorrected_position = plan_get_position();
-      //uncorrected_position.debug("position during G29");
-      current_position[X_AXIS] = uncorrected_position.x;
-      current_position[Y_AXIS] = uncorrected_position.y;
-      current_position[Z_AXIS] = uncorrected_position.z;
-      plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
-    #endif //!DELTA
+    if (!dryrun)
+    {
+      #ifdef DELTA
+        reset_bed_level();
+      #else //!DELTA
 
+        // make sure the bed_level_rotation_matrix is identity or the planner will get it incorectly
+        //vector_3 corrected_position = plan_get_position_mm();
+        //corrected_position.debug("position before G29");
+        plan_bed_level_matrix.set_to_identity();
+        vector_3 uncorrected_position = plan_get_position();
+        //uncorrected_position.debug("position during G29");
+        current_position[X_AXIS] = uncorrected_position.x;
+        current_position[Y_AXIS] = uncorrected_position.y;
+        current_position[Z_AXIS] = uncorrected_position.z;
+        plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+
+      #endif
+    }
+    
     setup_for_endstop_move();
 
     feedrate = homing_feedrate[Z_AXIS];
@@ -2330,9 +2345,12 @@ inline void gcode_G28() {
       clean_up_after_endstop_move();
 
       #ifdef DELTA
-        extrapolate_unprobed_bed_level();
+
+        if (!dryrun) extrapolate_unprobed_bed_level();
         print_bed_level();
+
       #else // !DELTA
+
         // solve lsq problem
         double *plane_equation_coefficients = qr_solve(abl2, 3, eqnAMatrix, eqnBVector);
 
@@ -2380,10 +2398,10 @@ inline void gcode_G28() {
         } //do_topography_map
 
 
-        set_bed_level_equation_lsq(plane_equation_coefficients);
+        if (!dryrun) set_bed_level_equation_lsq(plane_equation_coefficients);
         free(plane_equation_coefficients);
 
-      #endif // !DELTA
+      #endif //!DELTA
 
     #else // !AUTO_BED_LEVELING_GRID
 
@@ -2402,7 +2420,7 @@ inline void gcode_G28() {
         z_at_pt_3 = probe_pt(ABL_PROBE_PT_3_X, ABL_PROBE_PT_3_Y, current_position[Z_AXIS] + Z_RAISE_BETWEEN_PROBINGS, ProbeEngageAndRetract, verbose_level);
       }
       clean_up_after_endstop_move();
-      set_bed_level_equation_3pts(z_at_pt_1, z_at_pt_2, z_at_pt_3);
+      if (!dryrun) set_bed_level_equation_3pts(z_at_pt_1, z_at_pt_2, z_at_pt_3);
 
     #endif // !AUTO_BED_LEVELING_GRID
 
@@ -2413,15 +2431,18 @@ inline void gcode_G28() {
       // Correct the Z height difference from z-probe position and hotend tip position.
       // The Z height on homing is measured by Z-Probe, but the probe is quite far from the hotend.
       // When the bed is uneven, this height must be corrected.
-      real_z = float(st_get_position(Z_AXIS)) / axis_steps_per_unit[Z_AXIS];  //get the real Z (since the auto bed leveling is already correcting the plane)
-      x_tmp = current_position[X_AXIS] + X_PROBE_OFFSET_FROM_EXTRUDER;
-      y_tmp = current_position[Y_AXIS] + Y_PROBE_OFFSET_FROM_EXTRUDER;
-      z_tmp = current_position[Z_AXIS];
+      if (!dryrun)
+      {
+        real_z = float(st_get_position(Z_AXIS)) / axis_steps_per_unit[Z_AXIS];  //get the real Z (since the auto bed leveling is already correcting the plane)
+        x_tmp = current_position[X_AXIS] + X_PROBE_OFFSET_FROM_EXTRUDER;
+        y_tmp = current_position[Y_AXIS] + Y_PROBE_OFFSET_FROM_EXTRUDER;
+        z_tmp = current_position[Z_AXIS];
 
-      apply_rotation_xyz(plan_bed_level_matrix, x_tmp, y_tmp, z_tmp);         //Apply the correction sending the probe offset
-      current_position[Z_AXIS] = z_tmp - real_z + current_position[Z_AXIS];   //The difference is added to current position and sent to planner.
-      plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
-    #endif
+        apply_rotation_xyz(plan_bed_level_matrix, x_tmp, y_tmp, z_tmp);         //Apply the correction sending the probe offset
+        current_position[Z_AXIS] = z_tmp - real_z + current_position[Z_AXIS];   //The difference is added to current position and sent to planner.
+        plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+      }
+    #endif // !DELTA
 
     #ifdef Z_PROBE_SLED
       dock_sled(true, -SLED_DOCKING_OFFSET); // dock the probe, correcting for over-travel
