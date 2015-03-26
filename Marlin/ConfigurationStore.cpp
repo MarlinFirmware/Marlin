@@ -11,7 +11,7 @@
  *  max_acceleration_units_per_sq_second (x4)
  *  acceleration
  *  retract_acceleration
- *  travel_aceeleration
+ *  travel_acceleration
  *  minimumfeedrate
  *  mintravelfeedrate
  *  minsegmenttime
