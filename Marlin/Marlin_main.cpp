@@ -1787,7 +1787,7 @@ inline void gcode_G28() {
 
   enable_endstops(true);
 
-  for (int i = X_AXIS; i <= NUM_AXIS; i++) destination[i] = current_position[i];
+  for (int i = X_AXIS; i < NUM_AXIS; i++) destination[i] = current_position[i];
 
   feedrate = 0.0;
 
