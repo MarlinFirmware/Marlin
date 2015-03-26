@@ -248,6 +248,8 @@ float current_position[NUM_AXIS] = { 0.0, 0.0, 0.0, 0.0 };
 float home_offset[3] = { 0, 0, 0 };
 #ifdef DELTA
   float endstop_adj[3] = { 0, 0, 0 };
+#elif defined(Z_DUAL_ENDSTOPS)
+  float z_endstop_adj = 0;
 #endif
 
 float min_pos[3] = { X_MIN_POS, Y_MIN_POS, Z_MIN_POS };
@@ -393,7 +395,9 @@ static long gcode_N, gcode_LastN, Stopped_gcode_LastN = 0;
 static bool relative_mode = false;  //Determines Absolute or Relative Coordinates
 
 static char cmdbuffer[BUFSIZE][MAX_CMD_SIZE];
+#ifdef SDSUPPORT
 static bool fromsd[BUFSIZE];
+#endif //!SDSUPPORT
 static int bufindr = 0;
 static int bufindw = 0;
 static int buflen = 0;
@@ -653,10 +657,12 @@ void setup()
   SERIAL_ECHO(freeMemory());
   SERIAL_ECHOPGM(MSG_PLANNER_BUFFER_BYTES);
   SERIAL_ECHOLN((int)sizeof(block_t)*BLOCK_BUFFER_SIZE);
+  #ifdef SDSUPPORT
   for(int8_t i = 0; i < BUFSIZE; i++)
   {
     fromsd[i] = false;
   }
+  #endif //!SDSUPPORT
 
   // loads data from EEPROM if available else uses defaults (and resets step acceleration rate)
   Config_RetrieveSettings();
@@ -762,8 +768,9 @@ void get_command()
         return;
       }
       cmdbuffer[bufindw][serial_count] = 0; //terminate string
-
+      #ifdef SDSUPPORT
       fromsd[bufindw] = false;
+      #endif //!SDSUPPORT
       if(strchr(cmdbuffer[bufindw], 'N') != NULL)
       {
         strchr_pointer = strchr(cmdbuffer[bufindw], 'N');
@@ -973,7 +980,7 @@ XYZ_CONSTS_FROM_CONFIG(signed char, home_dir,  HOME_DIR);
 
   static float x_home_pos(int extruder) {
     if (extruder == 0)
-      return base_home_pos(X_AXIS) + add_homing[X_AXIS];
+    return base_home_pos(X_AXIS) + home_offset[X_AXIS];
     else
       // In dual carriage mode the extruder offset provides an override of the
       // second X-carriage offset when homed - otherwise X2_HOME_POS is used.
@@ -1166,6 +1173,7 @@ static void run_z_probe() {
     zPosition += home_retract_mm(Z_AXIS);
     plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], zPosition, current_position[E_AXIS], feedrate/60, active_extruder);
     st_synchronize();
+    endstops_hit_on_purpose();
 
     // move back down slowly to find bed
     
@@ -1183,6 +1191,7 @@ static void run_z_probe() {
     zPosition -= home_retract_mm(Z_AXIS) * 2;
     plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], zPosition, current_position[E_AXIS], feedrate/60, active_extruder);
     st_synchronize();
+    endstops_hit_on_purpose();
 
     current_position[Z_AXIS] = st_get_position_mm(Z_AXIS);
     // make sure the planner knows where we are as it may be a bit different than we last said to move to
@@ -1387,11 +1396,11 @@ static float probe_pt(float x, float y, float z_before, ProbeAction retract_acti
   if (verbose_level > 2) {
     SERIAL_PROTOCOLPGM(MSG_BED);
     SERIAL_PROTOCOLPGM(" X: ");
-    SERIAL_PROTOCOL(x + 0.0001);
+    SERIAL_PROTOCOL_F(x, 3);
     SERIAL_PROTOCOLPGM(" Y: ");
-    SERIAL_PROTOCOL(y + 0.0001);
+    SERIAL_PROTOCOL_F(y, 3);
     SERIAL_PROTOCOLPGM(" Z: ");
-    SERIAL_PROTOCOL(measured_z + 0.0001);
+    SERIAL_PROTOCOL_F(measured_z, 3);
     SERIAL_EOL;
   }
   return measured_z;
@@ -1487,6 +1496,9 @@ static void homeaxis(int axis) {
       }
     #endif
 #endif // Z_PROBE_SLED
+    #ifdef Z_DUAL_ENDSTOPS
+      if (axis==Z_AXIS) In_Homing_Process(true);
+    #endif
     destination[axis] = 1.5 * max_length(axis) * axis_home_dir;
     feedrate = homing_feedrate[axis];
     plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate/60, active_extruder);
@@ -1512,6 +1524,27 @@ static void homeaxis(int axis) {
 
     plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate/60, active_extruder);
     st_synchronize();
+    #ifdef Z_DUAL_ENDSTOPS
+      if (axis==Z_AXIS)
+      {
+        feedrate = homing_feedrate[axis];
+        plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+        if (axis_home_dir > 0)
+        {
+          destination[axis] = (-1) * fabs(z_endstop_adj);
+          if (z_endstop_adj > 0) Lock_z_motor(true); else Lock_z2_motor(true);
+        } else {
+          destination[axis] = fabs(z_endstop_adj);
+          if (z_endstop_adj < 0) Lock_z_motor(true); else Lock_z2_motor(true);        
+        }
+        plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate/60, active_extruder);
+        st_synchronize();
+        Lock_z_motor(false);
+        Lock_z2_motor(false);
+        In_Homing_Process(false);
+      }
+    #endif
+
 #ifdef DELTA
     // retrace by the amount specified in endstop_adj
     if (endstop_adj[axis] * axis_home_dir < 0) {
@@ -1754,7 +1787,7 @@ inline void gcode_G28() {
 
   enable_endstops(true);
 
-  for (int i = X_AXIS; i <= Z_AXIS; i++) destination[i] = current_position[i];
+  for (int i = X_AXIS; i <= NUM_AXIS; i++) destination[i] = current_position[i];
 
   feedrate = 0.0;
 
@@ -1944,7 +1977,7 @@ inline void gcode_G28() {
     if (code_seen(axis_codes[Z_AXIS]) && code_value_long() != 0)
       current_position[Z_AXIS] = code_value() + home_offset[Z_AXIS];
 
-    #ifdef ENABLE_AUTO_BED_LEVELING
+    #if defined(ENABLE_AUTO_BED_LEVELING) && (Z_HOME_DIR < 0)
       if (home_all_axis || code_seen(axis_codes[Z_AXIS]))
         current_position[Z_AXIS] += zprobe_zoffset;  //Add Z_Probe offset (the distance is negative)
     #endif
@@ -2083,6 +2116,9 @@ inline void gcode_G28() {
    *
    *  S  Set the XY travel speed between probe points (in mm/min)
    *
+   *  D  Dry-Run mode. Just evaluate the bed Topology - It does not apply or clean the rotation Matrix
+   *     Useful to check the topology after a first run of G29.
+   *
    *  V  Set the verbose level (0-4). Example: "G29 V3"
    *
    *  T  Generate a Bed Topology Report. Example: "G29 P5 T" for a detailed report.
@@ -2124,6 +2160,7 @@ inline void gcode_G28() {
       }
     }
 
+    bool dryrun = code_seen('D') || code_seen('d');
     bool enhanced_g29 = code_seen('E') || code_seen('e');
 
     #ifdef AUTO_BED_LEVELING_GRID
@@ -2133,7 +2170,10 @@ inline void gcode_G28() {
     #endif
 
       if (verbose_level > 0)
+      {
         SERIAL_PROTOCOLPGM("G29 Auto Bed Leveling\n");
+        if (dryrun) SERIAL_ECHOLN("Running in DRY-RUN mode");
+      }
 
       int auto_bed_leveling_grid_points = AUTO_BED_LEVELING_GRID_POINTS;
       #ifndef DELTA
@@ -2190,22 +2230,27 @@ inline void gcode_G28() {
 
     st_synchronize();
 
-    #ifdef DELTA
-      reset_bed_level();
-    #else
+    if (!dryrun)
+    {
+      #ifdef DELTA
+        reset_bed_level();
+      #else
 
-    // make sure the bed_level_rotation_matrix is identity or the planner will get it incorectly
-    //vector_3 corrected_position = plan_get_position_mm();
-    //corrected_position.debug("position before G29");
-    plan_bed_level_matrix.set_to_identity();
-    vector_3 uncorrected_position = plan_get_position();
-    //uncorrected_position.debug("position during G29");
-    current_position[X_AXIS] = uncorrected_position.x;
-    current_position[Y_AXIS] = uncorrected_position.y;
-    current_position[Z_AXIS] = uncorrected_position.z;
-    plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
-  #endif
+      // make sure the bed_level_rotation_matrix is identity or the planner will get it incorectly
+      //vector_3 corrected_position = plan_get_position_mm();
+      //corrected_position.debug("position before G29");
+      plan_bed_level_matrix.set_to_identity();
+      vector_3 uncorrected_position = plan_get_position();
+//    uncorrected_position.debug("position during G29");
 
+      current_position[X_AXIS] = uncorrected_position.x;
+      current_position[Y_AXIS] = uncorrected_position.y;
+      current_position[Z_AXIS] = uncorrected_position.z;
+      plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+
+      #endif
+    }
+    
     setup_for_endstop_move();
 
     feedrate = homing_feedrate[Z_AXIS];
@@ -2248,13 +2293,11 @@ inline void gcode_G28() {
           xStart = 0;
           xStop = auto_bed_leveling_grid_points;
           xInc = 1;
-          zig = false;
         }
         else {
           xStart = auto_bed_leveling_grid_points - 1;
           xStop = -1;
           xInc = -1;
-          zig = true;
         }
 
         #ifndef DELTA
@@ -2341,7 +2384,7 @@ inline void gcode_G28() {
         SERIAL_PROTOCOLPGM("+-----------+\n");
 
         for (int yy = auto_bed_leveling_grid_points - 1; yy >= 0; yy--) {
-          for (int xx = auto_bed_leveling_grid_points - 1; xx >= 0; xx--) {
+          for (int xx = 0; xx < auto_bed_leveling_grid_points; xx++) {
             int ind = yy * auto_bed_leveling_grid_points + xx;
             float diff = eqnBVector[ind] - mean;
             if (diff >= 0.0)
@@ -2357,12 +2400,12 @@ inline void gcode_G28() {
       } //do_topography_map
 
 
-      set_bed_level_equation_lsq(plane_equation_coefficients);
+      if (!dryrun) set_bed_level_equation_lsq(plane_equation_coefficients);
       free(plane_equation_coefficients);
-    #else
-      extrapolate_unprobed_bed_level();
+    #else //Delta
+      if (!dryrun) extrapolate_unprobed_bed_level();
       print_bed_level();
-    #endif
+    #endif //Delta
 
     #else // !AUTO_BED_LEVELING_GRID
 
@@ -2381,25 +2424,27 @@ inline void gcode_G28() {
         z_at_pt_3 = probe_pt(ABL_PROBE_PT_3_X, ABL_PROBE_PT_3_Y, current_position[Z_AXIS] + Z_RAISE_BETWEEN_PROBINGS, ProbeEngageAndRetract, verbose_level);
       }
       clean_up_after_endstop_move();
-      set_bed_level_equation_3pts(z_at_pt_1, z_at_pt_2, z_at_pt_3);
+      if (!dryrun) set_bed_level_equation_3pts(z_at_pt_1, z_at_pt_2, z_at_pt_3);
 
     #endif // !AUTO_BED_LEVELING_GRID
 
   #ifndef DELTA
-    if (verbose_level > 0)
-      plan_bed_level_matrix.debug(" \n\nBed Level Correction Matrix:");
+    if (verbose_level > 0) plan_bed_level_matrix.debug(" \n\nBed Level Correction Matrix:");
 
     // Correct the Z height difference from z-probe position and hotend tip position.
     // The Z height on homing is measured by Z-Probe, but the probe is quite far from the hotend.
     // When the bed is uneven, this height must be corrected.
-    real_z = float(st_get_position(Z_AXIS)) / axis_steps_per_unit[Z_AXIS];  //get the real Z (since the auto bed leveling is already correcting the plane)
-    x_tmp = current_position[X_AXIS] + X_PROBE_OFFSET_FROM_EXTRUDER;
-    y_tmp = current_position[Y_AXIS] + Y_PROBE_OFFSET_FROM_EXTRUDER;
-    z_tmp = current_position[Z_AXIS];
+    if (!dryrun)
+    {
+      real_z = float(st_get_position(Z_AXIS)) / axis_steps_per_unit[Z_AXIS];  //get the real Z (since the auto bed leveling is already correcting the plane)
+      x_tmp = current_position[X_AXIS] + X_PROBE_OFFSET_FROM_EXTRUDER;
+      y_tmp = current_position[Y_AXIS] + Y_PROBE_OFFSET_FROM_EXTRUDER;
+      z_tmp = current_position[Z_AXIS];
 
-    apply_rotation_xyz(plan_bed_level_matrix, x_tmp, y_tmp, z_tmp);         //Apply the correction sending the probe offset
-    current_position[Z_AXIS] = z_tmp - real_z + current_position[Z_AXIS];   //The difference is added to current position and sent to planner.
-    plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+      apply_rotation_xyz(plan_bed_level_matrix, x_tmp, y_tmp, z_tmp);         //Apply the correction sending the probe offset
+      current_position[Z_AXIS] = z_tmp - real_z + current_position[Z_AXIS];   //The difference is added to current position and sent to planner.
+      plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+    }
   #endif
 
   #ifdef Z_PROBE_SLED
@@ -3452,6 +3497,11 @@ inline void gcode_M119() {
     SERIAL_PROTOCOLPGM(MSG_Z_MAX);
     SERIAL_PROTOCOLLN(((READ(Z_MAX_PIN)^Z_MAX_ENDSTOP_INVERTING)?MSG_ENDSTOP_HIT:MSG_ENDSTOP_OPEN));
   #endif
+  #if defined(Z2_MAX_PIN) && Z2_MAX_PIN > -1
+    SERIAL_PROTOCOLPGM(MSG_Z2_MAX);
+    SERIAL_PROTOCOLLN(((READ(Z2_MAX_PIN)^Z2_MAX_ENDSTOP_INVERTING)?MSG_ENDSTOP_HIT:MSG_ENDSTOP_OPEN));
+  #endif
+  
 }
 
 /**
@@ -3645,6 +3695,16 @@ inline void gcode_M206() {
       }
     }
   }
+#elif defined(Z_DUAL_ENDSTOPS)
+  /**
+   * M666: For Z Dual Endstop setup, set z axis offset to the z2 axis.
+   */
+  inline void gcode_M666() {
+   if (code_seen('Z')) z_endstop_adj = code_value();
+   SERIAL_ECHOPAIR("Z Endstop Adjustment set to (mm):", z_endstop_adj );
+   SERIAL_EOL;
+  }
+  
 #endif // DELTA
 
 #ifdef FWRETRACT
@@ -4891,6 +4951,10 @@ void process_commands() {
         case 665: // M665 set delta configurations L<diagonal_rod> R<delta_radius> S<segments_per_sec>
           gcode_M665();
           break;
+        case 666: // M666 set delta endstop adjustment
+          gcode_M666();
+          break;
+      #elif defined(Z_DUAL_ENDSTOPS)
         case 666: // M666 set delta endstop adjustment
           gcode_M666();
           break;

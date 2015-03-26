@@ -45,6 +45,10 @@
   #define K2 (1.0-K1)
 #endif
 
+#if defined(PIDTEMPBED) || defined(PIDTEMP)
+  #define PID_dT ((OVERSAMPLENR * 12.0)/(F_CPU / 64.0 / 256.0))
+#endif
+
 //===========================================================================
 //============================= public variables ============================
 //===========================================================================
@@ -576,6 +580,12 @@ void manage_heater() {
 
   updateTemperaturesFromRawValues();
 
+  #ifdef HEATER_0_USES_MAX6675
+    float ct = current_temperature[0];
+    if (ct > min(HEATER_0_MAXTEMP, 1023)) max_temp_error(0);
+    if (ct < max(HEATER_0_MINTEMP, 0.01)) min_temp_error(0);
+  #endif //HEATER_0_USES_MAX6675
+
   unsigned long ms = millis();
 
   // Loop through all extruders
@@ -607,7 +617,7 @@ void manage_heater() {
     #ifdef TEMP_SENSOR_1_AS_REDUNDANT
       if (fabs(current_temperature[0] - redundant_temperature) > MAX_REDUNDANT_TEMP_SENSOR_DIFF) {
         disable_heater();
-        _temp_error(-1, MSG_EXTRUDER_SWITCHED_OFF, MSG_ERR_REDUNDANT_TEMP);
+        _temp_error(0, PSTR(MSG_EXTRUDER_SWITCHED_OFF), PSTR(MSG_ERR_REDUNDANT_TEMP));
       }
     #endif //TEMP_SENSOR_1_AS_REDUNDANT
 
@@ -1162,20 +1172,40 @@ enum TempState {
   StartupDelay // Startup, delay initial temp reading a tiny bit so the hardware can settle
 };
 
+#ifdef TEMP_SENSOR_1_AS_REDUNDANT
+  #define TEMP_SENSOR_COUNT 2
+#else
+  #define TEMP_SENSOR_COUNT EXTRUDERS
+#endif
+
+static unsigned long raw_temp_value[TEMP_SENSOR_COUNT] = { 0 };
+static unsigned long raw_temp_bed_value = 0;
+
+static void set_current_temp_raw() {
+  #ifndef HEATER_0_USES_MAX6675
+    current_temperature_raw[0] = raw_temp_value[0];
+  #endif
+  #if EXTRUDERS > 1
+    current_temperature_raw[1] = raw_temp_value[1];
+    #if EXTRUDERS > 2
+      current_temperature_raw[2] = raw_temp_value[2];
+      #if EXTRUDERS > 3
+        current_temperature_raw[3] = raw_temp_value[3];
+      #endif
+    #endif
+  #endif
+  #ifdef TEMP_SENSOR_1_AS_REDUNDANT
+    redundant_temperature_raw = raw_temp_value[1];
+  #endif
+  current_temperature_bed_raw = raw_temp_bed_value;
+}
+
 //
 // Timer 0 is shared with millies
 //
 ISR(TIMER0_COMPB_vect) {
-  #ifdef TEMP_SENSOR_1_AS_REDUNDANT
-    #define TEMP_SENSOR_COUNT 2
-  #else 
-    #define TEMP_SENSOR_COUNT EXTRUDERS
-  #endif
-
   //these variables are only accesible from the ISR, but static, so they don't lose their value
   static unsigned char temp_count = 0;
-  static unsigned long raw_temp_value[TEMP_SENSOR_COUNT] = { 0 };
-  static unsigned long raw_temp_bed_value = 0;
   static TempState temp_state = StartupDelay;
   static unsigned char pwm_count = BIT(SOFT_PWM_SCALE);
 
@@ -1478,22 +1508,7 @@ ISR(TIMER0_COMPB_vect) {
 
   if (temp_count >= OVERSAMPLENR) { // 10 * 16 * 1/(16000000/64/256)  = 164ms.
     if (!temp_meas_ready) { //Only update the raw values if they have been read. Else we could be updating them during reading.
-      #ifndef HEATER_0_USES_MAX6675
-        current_temperature_raw[0] = raw_temp_value[0];
-      #endif
-      #if EXTRUDERS > 1
-        current_temperature_raw[1] = raw_temp_value[1];
-        #if EXTRUDERS > 2
-          current_temperature_raw[2] = raw_temp_value[2];
-          #if EXTRUDERS > 3
-            current_temperature_raw[3] = raw_temp_value[3];
-          #endif
-        #endif
-      #endif
-      #ifdef TEMP_SENSOR_1_AS_REDUNDANT
-        redundant_temperature_raw = raw_temp_value[1];
-      #endif
-      current_temperature_bed_raw = raw_temp_bed_value;
+      set_current_temp_raw();
     } //!temp_meas_ready
 
     // Filament Sensor - can be read any time since IIR filtering is used
@@ -1506,11 +1521,7 @@ ISR(TIMER0_COMPB_vect) {
     for (int i = 0; i < TEMP_SENSOR_COUNT; i++) raw_temp_value[i] = 0;
     raw_temp_bed_value = 0;
 
-    #ifdef HEATER_0_USES_MAX6675
-      float ct = current_temperature[0];
-      if (ct > min(HEATER_0_MAXTEMP, 1023)) max_temp_error(0);
-      if (ct < max(HEATER_0_MINTEMP, 0.01)) min_temp_error(0);
-    #else
+    #ifndef HEATER_0_USES_MAX6675
       #if HEATER_0_RAW_LO_TEMP > HEATER_0_RAW_HI_TEMP
         #define GE0 <=
       #else

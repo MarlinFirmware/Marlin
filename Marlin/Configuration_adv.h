@@ -100,6 +100,31 @@
 // On a RAMPS (or other 5 driver) motherboard, using this feature will limit you to using 1 extruder.
 //#define Z_DUAL_STEPPER_DRIVERS
 
+#ifdef Z_DUAL_STEPPER_DRIVERS
+
+// Z_DUAL_ENDSTOPS is a feature to enable the use of 2 endstops for both Z steppers - Let's call them Z stepper and Z2 stepper.
+// That way the machine is capable to align the bed during home, since both Z steppers are homed. 
+// There is also an implementation of M666 (software endstops adjustment) to this feature.
+// After Z homing, this adjustment is applied to just one of the steppers in order to align the bed.
+// One just need to home the Z axis and measure the distance difference between both Z axis and apply the math: Z adjust = Z - Z2.
+// If the Z stepper axis is closer to the bed, the measure Z > Z2 (yes, it is.. think about it) and the Z adjust would be positive.
+// Play a little bit with small adjustments (0.5mm) and check the behaviour.
+// The M119 (endstops report) will start reporting the Z2 Endstop as well.
+
+#define Z_DUAL_ENDSTOPS
+
+#ifdef Z_DUAL_ENDSTOPS
+  #define Z2_STEP_PIN E2_STEP_PIN           // Stepper to be used to Z2 axis.
+  #define Z2_DIR_PIN E2_DIR_PIN
+  #define Z2_ENABLE_PIN E2_ENABLE_PIN
+  #define Z2_MAX_PIN 36                     //Endstop used for Z2 axis. In this case I'm using XMAX in a Rumba Board (pin 36)
+  const bool Z2_MAX_ENDSTOP_INVERTING = false;
+  #define DISABLE_XMAX_ENDSTOP              //Better to disable the XMAX to avoid conflict. Just rename "XMAX_ENDSTOP" by the endstop you are using for Z2 axis.
+#endif
+
+
+#endif
+
 // Same again but for Y Axis.
 //#define Y_DUAL_STEPPER_DRIVERS
 
