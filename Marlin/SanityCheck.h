@@ -104,13 +104,13 @@
 
       // Make sure probing points are reachable
       #if LEFT_PROBE_BED_POSITION < MIN_PROBE_X
-        #error The given LEFT_PROBE_BED_POSITION can't be reached by the probe.
+        #error The given LEFT_PROBE_BED_POSITION can not be reached by the probe.
       #elif RIGHT_PROBE_BED_POSITION > MAX_PROBE_X
-        #error The given RIGHT_PROBE_BED_POSITION can't be reached by the probe.
+        #error The given RIGHT_PROBE_BED_POSITION can not be reached by the probe.
       #elif FRONT_PROBE_BED_POSITION < MIN_PROBE_Y
-        #error The given FRONT_PROBE_BED_POSITION can't be reached by the probe.
+        #error The given FRONT_PROBE_BED_POSITION can not be reached by the probe.
       #elif BACK_PROBE_BED_POSITION > MAX_PROBE_Y
-        #error The given BACK_PROBE_BED_POSITION can't be reached by the probe.
+        #error The given BACK_PROBE_BED_POSITION can not be reached by the probe.
       #endif
 
       #define PROBE_SIZE_X (X_PROBE_OFFSET_FROM_EXTRUDER * (AUTO_BED_LEVELING_GRID_POINTS-1))
