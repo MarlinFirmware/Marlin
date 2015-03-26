@@ -1090,7 +1090,7 @@ static void set_bed_level_equation_lsq(double *plane_equation_coefficients)
 //    corrected_position.debug("position after");
     current_position[X_AXIS] = corrected_position.x;
     current_position[Y_AXIS] = corrected_position.y;
-    current_position[Z_AXIS] = corrected_position.z;
+    current_position[Z_AXIS] = corrected_position.z + zprobe_zoffset;
 
     plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
 }
@@ -1116,10 +1116,9 @@ static void set_bed_level_equation_3pts(float z_at_pt_1, float z_at_pt_2, float 
     vector_3 corrected_position = plan_get_position();
     current_position[X_AXIS] = corrected_position.x;
     current_position[Y_AXIS] = corrected_position.y;
-    current_position[Z_AXIS] = corrected_position.z;
+    current_position[Z_AXIS] = corrected_position.z + zprobe_zoffset;
 
     plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
-
 }
 
 #endif // AUTO_BED_LEVELING_GRID
