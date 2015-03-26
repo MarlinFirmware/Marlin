@@ -40,7 +40,7 @@
 HARDWARE_MOTHERBOARD ?= 33
 
 # Arduino source install directory, and version number
-ARDUINO_INSTALL_DIR  ?= /var/lib/jenkins/workspace/witbox-fw/arduino-1.0.5
+ARDUINO_INSTALL_DIR  ?= ${ARDUINO}
 ARDUINO_VERSION      ?= 105
 
 # You can optionally set a path to the avr-gcc tools. Requires a trailing slash. (ex: /usr/local/avr-gcc/bin)
