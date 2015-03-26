@@ -441,7 +441,7 @@ inline void _temp_error(int e, const char *msg1, const char *msg2) {
   if (!IsStopped()) {
     SERIAL_ERROR_START;
     if (e >= 0) SERIAL_ERRORLN((int)e);
-    SERIAL_PROTOCOLLNPGM(msg1);
+    SERIAL_ERRORLNPGM(msg1);
     #ifdef ULTRA_LCD
       LCD_ALERTMESSAGEPGM(msg2);
     #endif
