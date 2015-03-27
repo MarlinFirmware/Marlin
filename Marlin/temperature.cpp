@@ -1181,9 +1181,10 @@ static void set_current_temp_raw() {
   #endif
   #if HAS_TEMP_1
     #ifdef TEMP_SENSOR_1_AS_REDUNDANT
-      redundant_temperature_raw =
+      redundant_temperature_raw = raw_temp_value[1];
+    #else
+      current_temperature_raw[1] = raw_temp_value[1];
     #endif
-    current_temperature_raw[1] = raw_temp_value[1];
     #if HAS_TEMP_2
       current_temperature_raw[2] = raw_temp_value[2];
       #if HAS_TEMP_3
