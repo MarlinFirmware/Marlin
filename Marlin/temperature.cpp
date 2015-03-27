@@ -226,7 +226,7 @@ void PID_autotune(float temp, int extruder, int ncycles)
 
     unsigned long ms = millis();
 
-    if (temp_meas_ready == true) { // temp sample ready
+    if (temp_meas_ready) { // temp sample ready
       updateTemperaturesFromRawValues();
 
       input = (extruder<0)?current_temperature_bed:current_temperature[extruder];
@@ -1172,32 +1172,27 @@ enum TempState {
   StartupDelay // Startup, delay initial temp reading a tiny bit so the hardware can settle
 };
 
-#ifdef TEMP_SENSOR_1_AS_REDUNDANT
-  #define TEMP_SENSOR_COUNT 2
-#else
-  #define TEMP_SENSOR_COUNT EXTRUDERS
-#endif
-
-static unsigned long raw_temp_value[TEMP_SENSOR_COUNT] = { 0 };
+static unsigned long raw_temp_value[4] = { 0 };
 static unsigned long raw_temp_bed_value = 0;
 
 static void set_current_temp_raw() {
-  #ifndef HEATER_0_USES_MAX6675
+  #if HAS_TEMP_0 && !defined(HEATER_0_USES_MAX6675)
     current_temperature_raw[0] = raw_temp_value[0];
   #endif
-  #if EXTRUDERS > 1
+  #if HAS_TEMP_1
+    #ifdef TEMP_SENSOR_1_AS_REDUNDANT
+      redundant_temperature_raw =
+    #endif
     current_temperature_raw[1] = raw_temp_value[1];
-    #if EXTRUDERS > 2
+    #if HAS_TEMP_2
       current_temperature_raw[2] = raw_temp_value[2];
-      #if EXTRUDERS > 3
+      #if HAS_TEMP_3
         current_temperature_raw[3] = raw_temp_value[3];
       #endif
     #endif
   #endif
-  #ifdef TEMP_SENSOR_1_AS_REDUNDANT
-    redundant_temperature_raw = raw_temp_value[1];
-  #endif
   current_temperature_bed_raw = raw_temp_bed_value;
+  temp_meas_ready = true;
 }
 
 //
@@ -1507,18 +1502,16 @@ ISR(TIMER0_COMPB_vect) {
   } // switch(temp_state)
 
   if (temp_count >= OVERSAMPLENR) { // 10 * 16 * 1/(16000000/64/256)  = 164ms.
-    if (!temp_meas_ready) { //Only update the raw values if they have been read. Else we could be updating them during reading.
-      set_current_temp_raw();
-    } //!temp_meas_ready
+    // Update the raw values if they've been read. Else we could be updating them during reading.
+    if (!temp_meas_ready) set_current_temp_raw();
 
     // Filament Sensor - can be read any time since IIR filtering is used
     #if HAS_FILAMENT_SENSOR
       current_raw_filwidth = raw_filwidth_value >> 10;  // Divide to get to 0-16384 range since we used 1/128 IIR filter approach
     #endif
 
-    temp_meas_ready = true;
     temp_count = 0;
-    for (int i = 0; i < TEMP_SENSOR_COUNT; i++) raw_temp_value[i] = 0;
+    for (int i = 0; i < 4; i++) raw_temp_value[i] = 0;
     raw_temp_bed_value = 0;
 
     #ifndef HEATER_0_USES_MAX6675
