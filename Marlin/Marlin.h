@@ -251,7 +251,9 @@ extern float z_endstop_adj;
 extern float min_pos[3];
 extern float max_pos[3];
 extern bool axis_known_position[3];
-extern float zprobe_zoffset;
+#ifdef ENABLE_AUTO_BED_LEVELING
+  extern float zprobe_zoffset;
+#endif
 extern int fanSpeed;
 #ifdef BARICUDA
   extern int ValvePressure;
