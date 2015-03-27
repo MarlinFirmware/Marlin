@@ -55,7 +55,7 @@
 
 int target_temperature[EXTRUDERS] = { 0 };
 int target_temperature_bed = 0;
-int current_temperature_raw[EXTRUDERS] = { 0 };
+int current_temperature_raw[4] = { 0 };
 float current_temperature[EXTRUDERS] = { 0.0 };
 int current_temperature_bed_raw = 0;
 float current_temperature_bed = 0.0;

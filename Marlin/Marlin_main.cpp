@@ -3548,7 +3548,6 @@ inline void gcode_M200() {
     }
   }
 
-  float area = .0;
   if (code_seen('D')) {
     float diameter = code_value();
     // setting any extruder filament size disables volumetric on the assumption that
@@ -4286,7 +4285,7 @@ inline void gcode_M502() {
  * M503: print settings currently in memory
  */
 inline void gcode_M503() {
-  Config_PrintSettings(code_seen('S') && code_value == 0);
+  Config_PrintSettings(code_seen('S') && code_value() == 0);
 }
 
 #ifdef ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED
@@ -4583,9 +4582,14 @@ inline void gcode_T() {
     SERIAL_ECHOLN(MSG_INVALID_EXTRUDER);
   }
   else {
-    boolean make_move = false;
+    #if EXTRUDERS > 1
+      bool make_move = false;
+    #endif
+
     if (code_seen('F')) {
-      make_move = true;
+      #if EXTRUDERS > 1
+        make_move = true;
+      #endif
       next_feedrate = code_value();
       if (next_feedrate > 0.0) feedrate = next_feedrate;
     }
@@ -5182,20 +5186,22 @@ void ClearToSend()
   SERIAL_PROTOCOLLNPGM(MSG_OK);
 }
 
-void get_coordinates()
-{
-  bool seen[4]={false,false,false,false};
-  for(int8_t i=0; i < NUM_AXIS; i++) {
-    if(code_seen(axis_codes[i]))
-    {
-      destination[i] = (float)code_value() + (axis_relative_modes[i] || relative_mode)*current_position[i];
-      seen[i]=true;
+void get_coordinates() {
+  for (int i = 0; i < NUM_AXIS; i++) {
+    float dest;
+    if (code_seen(axis_codes[i])) {
+      dest = code_value();
+      if (axis_relative_modes[i] || relative_mode)
+        dest += current_position[i];
     }
-    else destination[i] = current_position[i]; //Are these else lines really needed?
+    else
+      dest = current_position[i];
+
+    destination[i] = dest;
   }
-  if(code_seen('F')) {
+  if (code_seen('F')) {
     next_feedrate = code_value();
-    if(next_feedrate > 0.0) feedrate = next_feedrate;
+    if (next_feedrate > 0.0) feedrate = next_feedrate;
   }
 }
 
