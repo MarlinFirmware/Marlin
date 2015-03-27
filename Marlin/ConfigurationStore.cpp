@@ -754,8 +754,7 @@ void Config_PrintSettings(bool forReplay) {
         SERIAL_ECHOLNPGM("Z-Probe Offset (mm):");
         SERIAL_ECHO_START;
       }
-      SERIAL_ECHO("   M");
-      SERIAL_ECHO(CUSTOM_M_CODE_SET_Z_PROBE_OFFSET);
+      SERIAL_ECHOPAIR("   M", CUSTOM_M_CODE_SET_Z_PROBE_OFFSET);
       SERIAL_ECHOPAIR(" Z", -zprobe_zoffset);
     #else
       if (!forReplay) {
