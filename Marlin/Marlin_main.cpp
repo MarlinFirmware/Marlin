@@ -4283,7 +4283,7 @@ inline void gcode_M502() {
  * M503: print settings currently in memory
  */
 inline void gcode_M503() {
-  Config_PrintSettings(code_seen('S') && code_value == 0);
+  Config_PrintSettings(code_seen('S') && code_value() == 0);
 }
 
 #ifdef ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED
