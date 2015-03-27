@@ -2922,7 +2922,7 @@ inline void gcode_M42() {
       do_blocking_move_to( X_probe_location, Y_probe_location, Z_start_location); // Make sure we are at the probe location
 
       if (n_legs) {
-        double radius=0.0, theta=0.0, x_sweep, y_sweep;
+        double radius=0.0, theta=0.0;
         int l;
         int rotational_direction = (unsigned long) millis() & 0x0001;     // clockwise or counter clockwise
         radius = (unsigned long)millis() % (long)(X_MAX_LENGTH / 4);      // limit how far out to go

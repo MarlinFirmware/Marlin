@@ -59,7 +59,7 @@ void vector_3::apply_rotation(matrix_3x3 matrix) {
 	z = resultZ;
 }
 
-void vector_3::debug(char* title) {
+void vector_3::debug(const char title[]) {
 	SERIAL_PROTOCOL(title);
 	SERIAL_PROTOCOLPGM(" x: ");
 	SERIAL_PROTOCOL_F(x, 6);
@@ -120,7 +120,7 @@ matrix_3x3 matrix_3x3::transpose(matrix_3x3 original) {
   return new_matrix;
 }
 
-void matrix_3x3::debug(char* title) {
+void matrix_3x3::debug(const char title[]) {
   SERIAL_PROTOCOLLN(title);
   int count = 0;
   for(int i=0; i<3; i++) {
