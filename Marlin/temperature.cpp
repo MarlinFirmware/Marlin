@@ -1172,30 +1172,24 @@ enum TempState {
   StartupDelay // Startup, delay initial temp reading a tiny bit so the hardware can settle
 };
 
-#ifdef TEMP_SENSOR_1_AS_REDUNDANT
-  #define TEMP_SENSOR_COUNT 2
-#else
-  #define TEMP_SENSOR_COUNT EXTRUDERS
-#endif
-
-static unsigned long raw_temp_value[TEMP_SENSOR_COUNT] = { 0 };
+static unsigned long raw_temp_value[4] = { 0 };
 static unsigned long raw_temp_bed_value = 0;
 
 static void set_current_temp_raw() {
-  #ifndef HEATER_0_USES_MAX6675
+  #if HAS_TEMP_0 && !defined(HEATER_0_USES_MAX6675)
     current_temperature_raw[0] = raw_temp_value[0];
   #endif
-  #if EXTRUDERS > 1
+  #if HAS_TEMP_1
+    #ifdef TEMP_SENSOR_1_AS_REDUNDANT
+      redundant_temperature_raw =
+    #endif
     current_temperature_raw[1] = raw_temp_value[1];
-    #if EXTRUDERS > 2
+    #if HAS_TEMP_2
       current_temperature_raw[2] = raw_temp_value[2];
-      #if EXTRUDERS > 3
+      #if HAS_TEMP_3
         current_temperature_raw[3] = raw_temp_value[3];
       #endif
     #endif
-  #endif
-  #ifdef TEMP_SENSOR_1_AS_REDUNDANT
-    redundant_temperature_raw = raw_temp_value[1];
   #endif
   current_temperature_bed_raw = raw_temp_bed_value;
   temp_meas_ready = true;
@@ -1517,7 +1511,7 @@ ISR(TIMER0_COMPB_vect) {
     #endif
 
     temp_count = 0;
-    for (int i = 0; i < TEMP_SENSOR_COUNT; i++) raw_temp_value[i] = 0;
+    for (int i = 0; i < 4; i++) raw_temp_value[i] = 0;
     raw_temp_bed_value = 0;
 
     #ifndef HEATER_0_USES_MAX6675
