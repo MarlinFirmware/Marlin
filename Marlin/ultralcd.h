@@ -17,9 +17,8 @@
   #ifdef DOGLCD
     extern int lcd_contrast;
     void lcd_setcontrast(uint8_t value);
+    static unsigned char blink = 0; // Variable for visualization of fan rotation in GLCD
   #endif
-
-  static unsigned char blink = 0;	// Variable for visualization of fan rotation in GLCD
 
   #define LCD_MESSAGEPGM(x) lcd_setstatuspgm(PSTR(x))
   #define LCD_ALERTMESSAGEPGM(x) lcd_setalertstatuspgm(PSTR(x))

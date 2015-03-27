@@ -62,6 +62,7 @@
 #endif
 
 #ifdef CUSTOM_MENDEL_NAME
+  #undef MACHINE_NAME
   #define MACHINE_NAME CUSTOM_MENDEL_NAME
 #endif
 

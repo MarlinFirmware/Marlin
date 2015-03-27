@@ -167,12 +167,18 @@
 #endif
 
 #ifdef DISABLE_MAX_ENDSTOPS
+  #undef X_MAX_PIN
+  #undef Y_MAX_PIN
+  #undef Z_MAX_PIN
   #define X_MAX_PIN          -1
   #define Y_MAX_PIN          -1
   #define Z_MAX_PIN          -1
 #endif
 
 #ifdef DISABLE_MIN_ENDSTOPS
+  #undef X_MIN_PIN
+  #undef Y_MIN_PIN
+  #undef Z_MIN_PIN
   #define X_MIN_PIN          -1
   #define Y_MIN_PIN          -1
   #define Z_MIN_PIN          -1
