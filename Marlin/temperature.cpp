@@ -45,6 +45,10 @@
   #define K2 (1.0-K1)
 #endif
 
+#if defined(PIDTEMPBED) || defined(PIDTEMP)
+  #define PID_dT ((OVERSAMPLENR * 12.0)/(F_CPU / 64.0 / 256.0))
+#endif
+
 //===========================================================================
 //============================= public variables ============================
 //===========================================================================
@@ -224,7 +228,7 @@ void PID_autotune(float temp, int hotend, int ncycles)
 
     unsigned long ms = millis();
 
-    if (temp_meas_ready == true) { // temp sample ready
+    if (temp_meas_ready) { // temp sample ready
       updateTemperaturesFromRawValues();
 
       input = (hotend<0)?current_temperature_bed:current_temperature[hotend];
@@ -578,6 +582,12 @@ void manage_heater() {
 
   updateTemperaturesFromRawValues();
 
+  #ifdef HEATER_0_USES_MAX6675
+    float ct = current_temperature[0];
+    if (ct > min(HEATER_0_MAXTEMP, 1023)) max_temp_error(0);
+    if (ct < max(HEATER_0_MINTEMP, 0.01)) min_temp_error(0);
+  #endif //HEATER_0_USES_MAX6675
+
   unsigned long ms = millis();
 
   // Loop through all hotends
@@ -609,7 +619,7 @@ void manage_heater() {
     #ifdef TEMP_SENSOR_1_AS_REDUNDANT
       if (fabs(current_temperature[0] - redundant_temperature) > MAX_REDUNDANT_TEMP_SENSOR_DIFF) {
         disable_heater();
-        _temp_error(-1, MSG_EXTRUDER_SWITCHED_OFF, MSG_ERR_REDUNDANT_TEMP);
+        _temp_error(0, PSTR(MSG_EXTRUDER_SWITCHED_OFF), PSTR(MSG_ERR_REDUNDANT_TEMP));
       }
     #endif //TEMP_SENSOR_1_AS_REDUNDANT
   } // Hotends Loop
@@ -1164,20 +1174,35 @@ enum TempState {
   StartupDelay // Startup, delay initial temp reading a tiny bit so the hardware can settle
 };
 
+static unsigned long raw_temp_value[4] = { 0 };
+static unsigned long raw_temp_bed_value = 0;
+
+static void set_current_temp_raw() {
+  #if HAS_TEMP_0 && !defined(HEATER_0_USES_MAX6675)
+    current_temperature_raw[0] = raw_temp_value[0];
+  #endif
+  #if HAS_TEMP_1
+    #ifdef TEMP_SENSOR_1_AS_REDUNDANT
+      redundant_temperature_raw =
+    #endif
+    current_temperature_raw[1] = raw_temp_value[1];
+    #if HAS_TEMP_2
+      current_temperature_raw[2] = raw_temp_value[2];
+      #if HAS_TEMP_3
+        current_temperature_raw[3] = raw_temp_value[3];
+      #endif
+    #endif
+  #endif
+  current_temperature_bed_raw = raw_temp_bed_value;
+  temp_meas_ready = true;
+}
+
 //
 // Timer 0 is shared with millies
 //
 ISR(TIMER0_COMPB_vect) {
-  #ifdef TEMP_SENSOR_1_AS_REDUNDANT
-    #define TEMP_SENSOR_COUNT 2
-  #else 
-    #define TEMP_SENSOR_COUNT HOTENDS
-  #endif
-
   //these variables are only accesible from the ISR, but static, so they don't lose their value
   static unsigned char temp_count = 0;
-  static unsigned long raw_temp_value[TEMP_SENSOR_COUNT] = { 0 };
-  static unsigned long raw_temp_bed_value = 0;
   static TempState temp_state = StartupDelay;
   static unsigned char pwm_count = BIT(SOFT_PWM_SCALE);
 
@@ -1484,41 +1509,20 @@ ISR(TIMER0_COMPB_vect) {
   } // switch(temp_state)
 
   if (temp_count >= OVERSAMPLENR) { // 12 * 16 * 1/(16000000/64/256)  = 164ms.
-    if (!temp_meas_ready) { //Only update the raw values if they have been read. Else we could be updating them during reading.
-      #ifndef HEATER_0_USES_MAX6675
-        current_temperature_raw[0] = raw_temp_value[0];
-      #endif
-      #if HOTENDS > 1
-        current_temperature_raw[1] = raw_temp_value[1];
-        #if HOTENDS > 2
-          current_temperature_raw[2] = raw_temp_value[2];
-          #if HOTENDS > 3
-            current_temperature_raw[3] = raw_temp_value[3];
-          #endif
-        #endif
-      #endif
+    // Update the raw values if they've been read. Else we could be updating them during reading.
+    if (!temp_meas_ready) set_current_temp_raw();
 
-      #ifdef TEMP_SENSOR_1_AS_REDUNDANT
-        redundant_temperature_raw = raw_temp_value[1];
-      #endif
-      current_temperature_bed_raw = raw_temp_bed_value;
-    } //!temp_meas_ready
 
     // Filament Sensor - can be read any time since IIR filtering is used
     #if HAS_FILAMENT_SENSOR
       current_raw_filwidth = raw_filwidth_value >> 10;  // Divide to get to 0-16384 range since we used 1/128 IIR filter approach
     #endif
 
-    temp_meas_ready = true;
     temp_count = 0;
-    for (int i = 0; i < TEMP_SENSOR_COUNT; i++) raw_temp_value[i] = 0;
+    for (int i = 0; i < 4; i++) raw_temp_value[i] = 0;
     raw_temp_bed_value = 0;
 
-    #ifdef HEATER_0_USES_MAX6675
-      float ct = current_temperature[0];
-      if (ct > min(HEATER_0_MAXTEMP, 1023)) max_temp_error(0);
-      if (ct < max(HEATER_0_MINTEMP, 0.01)) min_temp_error(0);
-    #else
+    #ifndef HEATER_0_USES_MAX6675
       #if HEATER_0_RAW_LO_TEMP > HEATER_0_RAW_HI_TEMP
         #define GE0 <=
       #else
