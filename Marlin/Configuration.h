@@ -484,6 +484,8 @@ const bool Z_MAX_ENDSTOP_INVERTING = false; // set to true to invert the logic o
 
   #endif
 
+// Z Probe and Z endstop support
+// Added by Chris Roadfeldt 3-28-2015
 // If you have a Z Probe in addition to endstop(s) for Z Homing, uncomment the #define Z_PROBE_AND_ENDSTOP line below and configure Z Probe settings.
 // Only use this if you have both a Z PROBE and Z HOMING ENDSTOP(S). If you are using Z_SAFE_HOMING above, then you probably don't need this unless you want to make use of
 // a non-default pin for your Z Probe.
