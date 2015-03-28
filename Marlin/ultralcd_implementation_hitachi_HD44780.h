@@ -709,32 +709,6 @@ static void lcd_implementation_drawmenu_sddirectory(bool sel, uint8_t row, const
 #define lcd_implementation_drawmenu_gcode(sel, row, pstr, gcode) lcd_implementation_drawmenu_generic(sel, row, pstr, '>', ' ')
 #define lcd_implementation_drawmenu_function(sel, row, pstr, data) lcd_implementation_drawmenu_generic(sel, row, pstr, '>', ' ')
 
-static void lcd_implementation_quick_feedback()
-{
-  #ifdef LCD_USE_I2C_BUZZER
-    #if defined(LCD_FEEDBACK_FREQUENCY_DURATION_MS) && defined(LCD_FEEDBACK_FREQUENCY_HZ)
-      lcd_buzz(LCD_FEEDBACK_FREQUENCY_DURATION_MS, LCD_FEEDBACK_FREQUENCY_HZ);
-    #else
-      lcd_buzz(1000/6, 100);
-    #endif
-  #elif defined(BEEPER) && BEEPER > -1
-    SET_OUTPUT(BEEPER);
-    #if !defined(LCD_FEEDBACK_FREQUENCY_HZ) || !defined(LCD_FEEDBACK_FREQUENCY_DURATION_MS)
-      const unsigned int delay = 100;
-      uint8_t i = 10;
-    #else
-      const unsigned int delay = 1000000 / LCD_FEEDBACK_FREQUENCY_HZ / 2;
-      int8_t i = LCD_FEEDBACK_FREQUENCY_DURATION_MS * LCD_FEEDBACK_FREQUENCY_HZ / 1000;
-    #endif
-    while (i--) {
-      WRITE(BEEPER,HIGH);
-      delayMicroseconds(delay);
-      WRITE(BEEPER,LOW);
-      delayMicroseconds(delay);
-    }
-  #endif
-}
-
 #ifdef LCD_HAS_STATUS_INDICATORS
 static void lcd_implementation_update_indicators()
 {
