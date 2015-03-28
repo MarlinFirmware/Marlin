@@ -178,6 +178,10 @@
   #define Z_MIN_PIN          -1
 #endif
 
+#ifdef DISABLE_Z_PROBE_ENDSTOP
+  #define Z_PROBE_PIN        -1
+#endif
+
 #ifdef DISABLE_XMAX_ENDSTOP
   #undef X_MAX_PIN
   #define X_MAX_PIN          -1
