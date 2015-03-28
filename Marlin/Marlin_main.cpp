@@ -1290,8 +1290,13 @@ static void engage_z_probe() {
     
     st_synchronize();
     
+    #if defined(Z_PROBE_AND_ENDSTOP)
+    bool z_probe_endstop = (READ(Z_PROBE_PIN) != Z_PROBE_ENDSTOP_INVERTING);
+    if (z_probe_endstop)
+    #else
     bool z_min_endstop = (READ(Z_MIN_PIN) != Z_MIN_ENDSTOP_INVERTING);
     if (z_min_endstop)
+    #endif
     {
         if (!Stopped)
         {
