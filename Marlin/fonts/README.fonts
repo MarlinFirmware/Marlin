@@ -1,0 +1,6 @@
+The fonts are created with Fony.exe (http://hukka.ncn.fi/?fony) because Fontforge didn't do what I want (probably lack off experience). 
+In Fony export the fonts to bdf-format. Maybe another one can edit them with Fontforge.
+Then run make_fonts.bat what calls bdf2u8g.exe with the needed parameters to produce the .h files.
+The .h files must be edited to replace '#include "u8g.h"' with '#include <utility/u8g.h>', replace 'U8G_FONT_SECTION' with 'U8G_SECTION', insert '.progmem.' right behind the first '"' and moved to the main directory.
+
+Especially the Kana and Cyrillic fonts should be revised by someone who knows what he/she does. I am only a west-European with very little knowledge about this scripts.
