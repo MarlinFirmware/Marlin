@@ -97,11 +97,19 @@ static volatile bool endstop_z_hit = false;
 #if defined(Y_MAX_PIN) && Y_MAX_PIN >= 0
   static bool old_y_max_endstop = false;
 #endif
-
-static bool old_z_min_endstop = false, old_z_max_endstop = false;
-
+#if defined(Z_MIN_PIN) && Z_MIN_PIN >= 0
+  static bool old_z_min_endstop = false;
+#endif
+#if defined(Z_MAX_PIN) && Z_MAX_PIN >= 0
+  static bool old_z_max_endstop = false;
+#endif
 #ifdef Z_DUAL_ENDSTOPS
-  static bool old_z2_min_endstop = false, old_z2_max_endstop = false;
+  #if defined(Z2_MIN_PIN) && Z2_MIN_PIN >= 0
+    static bool old_z2_min_endstop = false;
+  #endif
+  #if defined(Z2_MAX_PIN) && Z2_MAX_PIN >= 0
+    static bool old_z2_max_endstop = false;
+  #endif
 #endif
 
 static bool check_endstops = true;

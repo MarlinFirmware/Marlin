@@ -4,7 +4,9 @@
 
 #include "pins_RAMPS_13.h"
 
+#undef FAN_PIN
 #define FAN_PIN             9 // (Sprinter config)
+
 #define BEEPER             33
 
 #define E2_STEP_PIN        23
@@ -19,6 +21,9 @@
 #define E4_DIR_PIN         37
 #define E4_ENABLE_PIN      42
 
+#undef HEATER_1_PIN
+#undef HEATER_2_PIN
+#undef HEATER_3_PIN
 #define HEATER_1_PIN       -1
 #define HEATER_2_PIN       16
 #define HEATER_3_PIN       17
@@ -27,6 +32,8 @@
 #define HEATER_6_PIN        6
 #define HEATER_7_PIN       11
 
+#undef TEMP_2_PIN
+#undef TEMP_3_PIN
 #define TEMP_2_PIN         12   // ANALOG NUMBERING
 #define TEMP_3_PIN         11   // ANALOG NUMBERING
 #define TEMP_4_PIN         10   // ANALOG NUMBERING

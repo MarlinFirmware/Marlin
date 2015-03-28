@@ -937,19 +937,22 @@ void get_command()
 
 }
 
-
-float code_value()
-{
-  return (strtod(strchr_pointer + 1, NULL));
+float code_value() {
+  float ret;
+  char *e = strchr(strchr_pointer, 'E');
+  if (e) {
+    *e = 0;
+    ret = strtod(strchr_pointer+1, NULL);
+    *e = 'E';
+  }
+  else
+    ret = strtod(strchr_pointer+1, NULL);
+  return ret;
 }
 
-long code_value_long()
-{
-  return (strtol(strchr_pointer + 1, NULL, 10));
-}
+long code_value_long() { return (strtol(strchr_pointer + 1, NULL, 10)); }
 
-bool code_seen(char code)
-{
+bool code_seen(char code) {
   strchr_pointer = strchr(cmdbuffer[bufindr], code);
   return (strchr_pointer != NULL);  //Return True if a character was found
 }
@@ -1008,76 +1011,70 @@ XYZ_CONSTS_FROM_CONFIG(signed char, home_dir,  HOME_DIR);
 #endif //DUAL_X_CARRIAGE
 
 static void axis_is_at_home(int axis) {
-#ifdef DUAL_X_CARRIAGE
-  if (axis == X_AXIS) {
-    if (active_extruder != 0) {
-      current_position[X_AXIS] = x_home_pos(active_extruder);
-      min_pos[X_AXIS] =          X2_MIN_POS;
-      max_pos[X_AXIS] =          max(extruder_offset[X_AXIS][1], X2_MAX_POS);
-      return;
+
+  #ifdef DUAL_X_CARRIAGE
+    if (axis == X_AXIS) {
+      if (active_extruder != 0) {
+        current_position[X_AXIS] = x_home_pos(active_extruder);
+        min_pos[X_AXIS] = X2_MIN_POS;
+        max_pos[X_AXIS] = max(extruder_offset[X_AXIS][1], X2_MAX_POS);
+        return;
+      }
+      else if (dual_x_carriage_mode == DXC_DUPLICATION_MODE) {
+        current_position[X_AXIS] = base_home_pos(X_AXIS) + home_offset[X_AXIS];
+        min_pos[X_AXIS] = base_min_pos(X_AXIS) + home_offset[X_AXIS];
+        max_pos[X_AXIS] = min(base_max_pos(X_AXIS) + home_offset[X_AXIS],
+                                max(extruder_offset[X_AXIS][1], X2_MAX_POS) - duplicate_extruder_x_offset);
+        return;
+      }
     }
-    else if (dual_x_carriage_mode == DXC_DUPLICATION_MODE && active_extruder == 0) {
-      current_position[X_AXIS] = base_home_pos(X_AXIS) + home_offset[X_AXIS];
-      min_pos[X_AXIS] =          base_min_pos(X_AXIS) + home_offset[X_AXIS];
-      max_pos[X_AXIS] =          min(base_max_pos(X_AXIS) + home_offset[X_AXIS],
-                                  max(extruder_offset[X_AXIS][1], X2_MAX_POS) - duplicate_extruder_x_offset);
-      return;
-    }
-  }
-#endif
-#ifdef SCARA
-   float homeposition[3];
-   char i;
+  #endif
+
+  #ifdef SCARA
+    float homeposition[3];
    
-   if (axis < 2)
-   {
-   
-     for (i=0; i<3; i++)
-     {
-        homeposition[i] = base_home_pos(i); 
-     }  
-  // SERIAL_ECHOPGM("homeposition[x]= "); SERIAL_ECHO(homeposition[0]);
-   //  SERIAL_ECHOPGM("homeposition[y]= "); SERIAL_ECHOLN(homeposition[1]);
-   // Works out real Homeposition angles using inverse kinematics, 
-   // and calculates homing offset using forward kinematics
-     calculate_delta(homeposition);
+    if (axis < 2) {
+
+      for (int i = 0; i < 3; i++) homeposition[i] = base_home_pos(i);
+
+      // SERIAL_ECHOPGM("homeposition[x]= "); SERIAL_ECHO(homeposition[0]);
+      // SERIAL_ECHOPGM("homeposition[y]= "); SERIAL_ECHOLN(homeposition[1]);
+      // Works out real Homeposition angles using inverse kinematics, 
+      // and calculates homing offset using forward kinematics
+      calculate_delta(homeposition);
      
-    // SERIAL_ECHOPGM("base Theta= "); SERIAL_ECHO(delta[X_AXIS]);
-    // SERIAL_ECHOPGM(" base Psi+Theta="); SERIAL_ECHOLN(delta[Y_AXIS]);
+      // SERIAL_ECHOPGM("base Theta= "); SERIAL_ECHO(delta[X_AXIS]);
+      // SERIAL_ECHOPGM(" base Psi+Theta="); SERIAL_ECHOLN(delta[Y_AXIS]);
      
-     for (i=0; i<2; i++)
-     {
-        delta[i] -= home_offset[i];
-     } 
+      for (int i = 0; i < 2; i++) delta[i] -= home_offset[i];
      
-    // SERIAL_ECHOPGM("addhome X="); SERIAL_ECHO(home_offset[X_AXIS]);
-  // SERIAL_ECHOPGM(" addhome Y="); SERIAL_ECHO(home_offset[Y_AXIS]);
-    // SERIAL_ECHOPGM(" addhome Theta="); SERIAL_ECHO(delta[X_AXIS]);
-    // SERIAL_ECHOPGM(" addhome Psi+Theta="); SERIAL_ECHOLN(delta[Y_AXIS]);
+      // SERIAL_ECHOPGM("addhome X="); SERIAL_ECHO(home_offset[X_AXIS]);
+      // SERIAL_ECHOPGM(" addhome Y="); SERIAL_ECHO(home_offset[Y_AXIS]);
+      // SERIAL_ECHOPGM(" addhome Theta="); SERIAL_ECHO(delta[X_AXIS]);
+      // SERIAL_ECHOPGM(" addhome Psi+Theta="); SERIAL_ECHOLN(delta[Y_AXIS]);
       
-     calculate_SCARA_forward_Transform(delta);
+      calculate_SCARA_forward_Transform(delta);
      
-    // SERIAL_ECHOPGM("Delta X="); SERIAL_ECHO(delta[X_AXIS]);
-    // SERIAL_ECHOPGM(" Delta Y="); SERIAL_ECHOLN(delta[Y_AXIS]);
+      // SERIAL_ECHOPGM("Delta X="); SERIAL_ECHO(delta[X_AXIS]);
+      // SERIAL_ECHOPGM(" Delta Y="); SERIAL_ECHOLN(delta[Y_AXIS]);
      
-    current_position[axis] = delta[axis];
+      current_position[axis] = delta[axis];
     
-    // SCARA home positions are based on configuration since the actual limits are determined by the 
-    // inverse kinematic transform.
-    min_pos[axis] =          base_min_pos(axis); // + (delta[axis] - base_home_pos(axis));
-    max_pos[axis] =          base_max_pos(axis); // + (delta[axis] - base_home_pos(axis));
-   } 
-   else
-   {
+      // SCARA home positions are based on configuration since the actual limits are determined by the 
+      // inverse kinematic transform.
+      min_pos[axis] = base_min_pos(axis); // + (delta[axis] - base_home_pos(axis));
+      max_pos[axis] = base_max_pos(axis); // + (delta[axis] - base_home_pos(axis));
+    } 
+    else {
       current_position[axis] = base_home_pos(axis) + home_offset[axis];
-      min_pos[axis] =          base_min_pos(axis) + home_offset[axis];
-      max_pos[axis] =          base_max_pos(axis) + home_offset[axis];
-   }
-#else
-  current_position[axis] = base_home_pos(axis) + home_offset[axis];
-  min_pos[axis] =          base_min_pos(axis) + home_offset[axis];
-  max_pos[axis] =          base_max_pos(axis) + home_offset[axis];
-#endif
+      min_pos[axis] = base_min_pos(axis) + home_offset[axis];
+      max_pos[axis] = base_max_pos(axis) + home_offset[axis];
+    }
+  #else
+    current_position[axis] = base_home_pos(axis) + home_offset[axis];
+    min_pos[axis] = base_min_pos(axis) + home_offset[axis];
+    max_pos[axis] = base_max_pos(axis) + home_offset[axis];
+  #endif
 }
 
 #ifdef ENABLE_AUTO_BED_LEVELING

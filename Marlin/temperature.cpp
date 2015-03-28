@@ -586,7 +586,9 @@ void manage_heater() {
     if (ct < max(HEATER_0_MINTEMP, 0.01)) min_temp_error(0);
   #endif //HEATER_0_USES_MAX6675
 
-  unsigned long ms = millis();
+  #if defined(WATCH_TEMP_PERIOD) || !defined(PIDTEMPBED) || HAS_AUTO_FAN
+    unsigned long ms = millis();
+  #endif
 
   // Loop through all extruders
   for (int e = 0; e < EXTRUDERS; e++) {
