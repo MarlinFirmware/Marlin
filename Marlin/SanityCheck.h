@@ -90,13 +90,14 @@
      * Require a Z Min pin
      */
     #if Z_MIN_PIN == -1
-      #ifdef Z_PROBE_REPEATABILITY_TEST
-        #error You must have a Z_MIN endstop to enable Z_PROBE_REPEATABILITY_TEST.
-      #else
-        #error ENABLE_AUTO_BED_LEVELING requires a Z_MIN endstop. Z_MIN_PIN must point to a valid hardware pin.
+      #if Z_PROBE_PIN == -1
+        #ifdef Z_PROBE_REPEATABILITY_TEST
+          #error You must have a Z_MIN endstop to enable Z_PROBE_REPEATABILITY_TEST.
+        #else
+          #error ENABLE_AUTO_BED_LEVELING requires a Z_MIN or Z_PROBE endstop. Z_MIN_PIN or Z_PROBE_PIN must point to a valid hardware pin.
+        #endif
       #endif
     #endif
-
     /**
      * Check if Probe_Offset * Grid Points is greater than Probing Range
      */
