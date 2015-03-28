@@ -317,6 +317,7 @@ const bool Z_MIN_ENDSTOP_INVERTING = false; // set to true to invert the logic o
 const bool X_MAX_ENDSTOP_INVERTING = false; // set to true to invert the logic of the endstop.
 const bool Y_MAX_ENDSTOP_INVERTING = false; // set to true to invert the logic of the endstop.
 const bool Z_MAX_ENDSTOP_INVERTING = false; // set to true to invert the logic of the endstop.
+
 //#define DISABLE_MAX_ENDSTOPS
 //#define DISABLE_MIN_ENDSTOPS
 
@@ -481,6 +482,33 @@ const bool Z_MAX_ENDSTOP_INVERTING = false; // set to true to invert the logic o
     #define Z_SAFE_HOMING_X_POINT (X_MAX_LENGTH/2)    // X point for Z homing when homing all axis (G28)
     #define Z_SAFE_HOMING_Y_POINT (Y_MAX_LENGTH/2)    // Y point for Z homing when homing all axis (G28)
 
+  #endif
+
+// If you have are a Z Probe in addition to endstop(s) for Z Homing, uncomment the #define Z_PROBE_AND_ENDSTOP line below and configure Z Probe settings.
+// Only use this if you have both a Z PROBE and Z HOMING ENDSTOP(S). If you are using Z_SAFE_HOMING above, then you probably don't need this unless you want to make use of
+// a non-default pin for your Z Probe.
+// Note: It's expected that your Z Probe triggers in the direction towards your bed. If your Z Probe does not trigger when traveling towards you bed, it will trigger when it's moving
+// away from the bed.
+
+//  #define Z_PROBE_AND_ENDSTOP
+
+  #ifdef Z_PROBE_AND_ENDSTOP
+
+// As of 3-28-2015, there are NO Z Probe pins defined in any board config files.
+// Z_PROBE_PIN is for the signal pin only. RAMPS 1.3/1.4 boards may be able to use the 5V, Ground and the D1 pin in the Aux 1 section of the RAMPS board for the signal.
+// The D1 pin in Aux 1 on RAMPS maps to the Arduino D1 pin. The Z_PROBE_PIN is setting the pin to use on the Arduino. Since the D1 pin on the RAMPS maps to D1 on Arduino, this works.
+// If you have RAMPS 1.3/1.4 and want to use the RAMPS D1 pin, set Z_PROBE_PIN to 1 and use ground and 5v next to it as needed. Check the RAMPS 1.3/1.4 pinout diagram for details.
+// WARNING: Setting the wrong pin may have unexpected and disastrous outcomes. Use with caution and do your homework.
+  #define Z_PROBE_PIN -1
+
+// Mechanical endstop with COM to ground and NC to Signal uses "false" here (most common setup).
+    const bool Z_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the logic of the endstop.
+
+// The pullups are needed if you directly connect a mechanical endstop between the signal and ground pins.
+    #define ENDSTOPPULLUP_ZPROBE
+
+// If you want to enable the Z Probe pin, but disable its use, uncomment the line below.
+//    #define DISABLE_Z_PROBE_ENDSTOP
   #endif
 
 #endif // ENABLE_AUTO_BED_LEVELING
