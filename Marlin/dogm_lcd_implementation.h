@@ -124,8 +124,6 @@
 // Maximum here is 0x1f because 0x20 is ' ' (space) and the normal charsets begin.
 // Better stay below 0x10 because DISPLAY_CHARSET_HD44780_WESTERN begins here.
 
-int lcd_contrast;
-
 // LCD selection
 #ifdef U8GLIB_ST7920
 //U8GLIB_ST7920_128X64_RRD u8g(0,0,0);
@@ -143,7 +141,9 @@ U8GLIB_DOGM128 u8g(DOGLCD_CS, DOGLCD_A0);  // HW-SPI Com: CS, A0
 
 #include "utf_mapper.h"
 
-char currentfont = 0;
+int lcd_contrast;
+static unsigned char blink = 0; // Variable for visualization of fan rotation in GLCD
+static char currentfont = 0;
 
 static void lcd_setFont(char font_nr) {
   switch(font_nr) {
