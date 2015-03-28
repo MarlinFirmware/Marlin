@@ -161,7 +161,7 @@ volatile signed char count_direction[NUM_AXIS] = { 1, 1, 1, 1 };
       Z2_STEP_WRITE(v); \
     }
   #else
-    #define Z_APPLY_STEP(v,Q) Z_STEP_WRITE(v), Z2_STEP_WRITE(v)
+    #define Z_APPLY_STEP(v,Q) { Z_STEP_WRITE(v); Z2_STEP_WRITE(v); }
   #endif
 #else
   #define Z_APPLY_DIR(v,Q) Z_DIR_WRITE(v)

@@ -911,7 +911,7 @@ static void lcd_control_motion_menu() {
   START_MENU();
   MENU_ITEM(back, MSG_CONTROL, lcd_control_menu);
   #ifdef ENABLE_AUTO_BED_LEVELING
-    MENU_ITEM_EDIT(float32, MSG_ZPROBE_ZOFFSET, &zprobe_zoffset, 0.0, 50);
+    MENU_ITEM_EDIT(float32, MSG_ZPROBE_ZOFFSET, &zprobe_zoffset, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX);
   #endif
   MENU_ITEM_EDIT(float5, MSG_ACC, &acceleration, 10, 99000);
   MENU_ITEM_EDIT(float3, MSG_VXY_JERK, &max_xy_jerk, 1, 990);
@@ -1137,7 +1137,32 @@ menu_edit_type(unsigned long, long5, ftostr5, 0.01)
 static void lcd_quick_feedback() {
   lcdDrawUpdate = 2;
   blocking_enc = millis() + 500;
-  lcd_implementation_quick_feedback();
+    
+  #ifdef LCD_USE_I2C_BUZZER
+    #ifndef LCD_FEEDBACK_FREQUENCY_HZ
+      #define LCD_FEEDBACK_FREQUENCY_HZ 100
+    #endif
+    #ifndef LCD_FEEDBACK_FREQUENCY_DURATION_MS
+      #define LCD_FEEDBACK_FREQUENCY_DURATION_MS (1000/6)
+    #endif    
+    lcd_buzz(LCD_FEEDBACK_FREQUENCY_DURATION_MS, LCD_FEEDBACK_FREQUENCY_HZ);
+  #elif defined(BEEPER) && BEEPER > -1
+    SET_OUTPUT(BEEPER);
+    #ifndef LCD_FEEDBACK_FREQUENCY_HZ
+      #define LCD_FEEDBACK_FREQUENCY_HZ 500
+    #endif
+    #ifndef LCD_FEEDBACK_FREQUENCY_DURATION_MS
+      #define LCD_FEEDBACK_FREQUENCY_DURATION_MS 50
+    #endif
+    const unsigned int delay = 1000000 / LCD_FEEDBACK_FREQUENCY_HZ / 2;
+    int i = LCD_FEEDBACK_FREQUENCY_DURATION_MS * LCD_FEEDBACK_FREQUENCY_HZ / 1000;
+    while (i--) {
+      WRITE(BEEPER,HIGH);
+      delayMicroseconds(delay);
+      WRITE(BEEPER,LOW);
+      delayMicroseconds(delay);
+     }
+  #endif
 }
 
 /** Menu action functions **/
@@ -1330,7 +1355,7 @@ void lcd_update() {
       blink++;     // Variable for fan animation and alive dot
       u8g.firstPage();
       do {
-        u8g.setFont(FONT_MENU);
+        lcd_setFont(FONT_MENU);
         u8g.setPrintPos(125, 0);
         if (blink % 2) u8g.setColorIndex(1); else u8g.setColorIndex(0); // Set color for the alive dot
         u8g.drawPixel(127, 63); // draw alive dot
