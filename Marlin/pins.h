@@ -127,10 +127,13 @@
 #define _E3_PINS
 
 #if EXTRUDERS > 1
+  #undef _E1_PINS
   #define _E1_PINS E1_STEP_PIN, E1_DIR_PIN, E1_ENABLE_PIN, HEATER_1_PIN, analogInputToDigitalPin(TEMP_1_PIN),
   #if EXTRUDERS > 2
+    #undef _E2_PINS
     #define _E2_PINS E2_STEP_PIN, E2_DIR_PIN, E2_ENABLE_PIN, HEATER_2_PIN, analogInputToDigitalPin(TEMP_2_PIN),
     #if EXTRUDERS > 3
+      #undef _E3_PINS
       #define _E3_PINS E3_STEP_PIN, E3_DIR_PIN, E3_ENABLE_PIN, HEATER_3_PIN, analogInputToDigitalPin(TEMP_3_PIN),
     #endif
   #endif
@@ -167,12 +170,18 @@
 #endif
 
 #ifdef DISABLE_MAX_ENDSTOPS
+  #undef X_MAX_PIN
+  #undef Y_MAX_PIN
+  #undef Z_MAX_PIN
   #define X_MAX_PIN          -1
   #define Y_MAX_PIN          -1
   #define Z_MAX_PIN          -1
 #endif
 
 #ifdef DISABLE_MIN_ENDSTOPS
+  #undef X_MIN_PIN
+  #undef Y_MIN_PIN
+  #undef Z_MIN_PIN
   #define X_MIN_PIN          -1
   #define Y_MIN_PIN          -1
   #define Z_MIN_PIN          -1
