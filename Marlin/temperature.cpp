@@ -53,10 +53,10 @@
 //============================= public variables ============================
 //===========================================================================
 
-int target_temperature[HOTENDS] = { 0 };
+int target_temperature[4] = { 0 };
 int target_temperature_bed = 0;
-int current_temperature_raw[HOTENDS] = { 0 };
-float current_temperature[HOTENDS] = { 0.0 };
+int current_temperature_raw[4] = { 0 };
+float current_temperature[4] = { 0.0 };
 int current_temperature_bed_raw = 0;
 float current_temperature_bed = 0.0;
 #ifdef TEMP_SENSOR_1_AS_REDUNDANT
@@ -588,7 +588,9 @@ void manage_heater() {
     if (ct < max(HEATER_0_MINTEMP, 0.01)) min_temp_error(0);
   #endif //HEATER_0_USES_MAX6675
 
-  unsigned long ms = millis();
+  #if defined(WATCH_TEMP_PERIOD) || !defined(PIDTEMPBED) || HAS_AUTO_FAN
+    unsigned long ms = millis();
+  #endif
 
   // Loop through all hotends
   for (int e = 0; e < HOTENDS; e++) {
@@ -1183,9 +1185,10 @@ static void set_current_temp_raw() {
   #endif
   #if HAS_TEMP_1
     #ifdef TEMP_SENSOR_1_AS_REDUNDANT
-      redundant_temperature_raw =
+      redundant_temperature_raw = raw_temp_value[1];
+    #else
+      current_temperature_raw[1] = raw_temp_value[1];
     #endif
-    current_temperature_raw[1] = raw_temp_value[1];
     #if HAS_TEMP_2
       current_temperature_raw[2] = raw_temp_value[2];
       #if HAS_TEMP_3

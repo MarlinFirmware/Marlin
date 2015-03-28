@@ -275,13 +275,9 @@
 
 #ifdef ADVANCE
   #define EXTRUDER_ADVANCE_K .0
-
   #define D_FILAMENT 1.75
   #define STEPS_MM_E 1000
-  #define EXTRUSION_AREA (0.25 * D_FILAMENT * D_FILAMENT * 3.14159)
-  #define STEPS_PER_CUBIC_MM_E (axis_steps_per_unit[E_AXIS]/ EXTRUSION_AREA)
-
-#endif // ADVANCE
+#endif
 
 // Arc interpretation settings:
 #define MM_PER_ARC_SEGMENT 1

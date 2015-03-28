@@ -85,18 +85,32 @@ static volatile bool endstop_z_hit = false;
   int motor_current_setting[3] = DEFAULT_PWM_MOTOR_CURRENT;
 #endif
 
-static bool old_x_min_endstop = false,
-            old_x_max_endstop = false,
-            old_y_min_endstop = false,
-            old_y_max_endstop = false,
-            old_z_min_endstop = false,
-            #ifndef Z_DUAL_ENDSTOPS
-            old_z_max_endstop = false;
-            #else
-              old_z_max_endstop = false,
-              old_z2_min_endstop = false,
-              old_z2_max_endstop = false;
-            #endif
+#if defined(X_MIN_PIN) && X_MIN_PIN >= 0
+  static bool old_x_min_endstop = false;
+#endif
+#if defined(X_MAX_PIN) && X_MAX_PIN >= 0
+  static bool old_x_max_endstop = false;
+#endif
+#if defined(Y_MIN_PIN) && Y_MIN_PIN >= 0
+  static bool old_y_min_endstop = false;
+#endif
+#if defined(Y_MAX_PIN) && Y_MAX_PIN >= 0
+  static bool old_y_max_endstop = false;
+#endif
+#if defined(Z_MIN_PIN) && Z_MIN_PIN >= 0
+  static bool old_z_min_endstop = false;
+#endif
+#if defined(Z_MAX_PIN) && Z_MAX_PIN >= 0
+  static bool old_z_max_endstop = false;
+#endif
+#ifdef Z_DUAL_ENDSTOPS
+  #if defined(Z2_MIN_PIN) && Z2_MIN_PIN >= 0
+    static bool old_z2_min_endstop = false;
+  #endif
+  #if defined(Z2_MAX_PIN) && Z2_MAX_PIN >= 0
+    static bool old_z2_max_endstop = false;
+  #endif
+#endif
 
 static bool check_endstops = true;
 
@@ -155,7 +169,7 @@ volatile signed char count_direction[NUM_AXIS] = { 1, 1, 1, 1 };
       Z2_STEP_WRITE(v); \
     }
   #else
-    #define Z_APPLY_STEP(v,Q) Z_STEP_WRITE(v), Z2_STEP_WRITE(v)
+    #define Z_APPLY_STEP(v,Q) { Z_STEP_WRITE(v); Z2_STEP_WRITE(v); }
   #endif
 #else
   #define Z_APPLY_DIR(v,Q) Z_DIR_WRITE(v)
@@ -1176,8 +1190,6 @@ void digipot_current(uint8_t driver, int current) {
 }
 
 void microstep_init() {
-  const uint8_t microstep_modes[] = MICROSTEP_MODES;
-
   #if defined(E1_MS1_PIN) && E1_MS1_PIN >= 0
     pinMode(E1_MS1_PIN,OUTPUT);
     pinMode(E1_MS2_PIN,OUTPUT); 
@@ -1192,7 +1204,9 @@ void microstep_init() {
     pinMode(Z_MS2_PIN,OUTPUT);
     pinMode(E0_MS1_PIN,OUTPUT);
     pinMode(E0_MS2_PIN,OUTPUT);
-    for (int i = 0; i <= 4; i++) microstep_mode(i, microstep_modes[i]);
+    const uint8_t microstep_modes[] = MICROSTEP_MODES;
+    for (int i = 0; i < sizeof(microstep_modes) / sizeof(microstep_modes[0]); i++)
+      microstep_mode(i, microstep_modes[i]);
   #endif
 }
 
