@@ -3,6 +3,5 @@
 .\bdf2u8g.exe -b 32 -e 255 HD44780_C.bdf HD44780_C_5x7 dogm_font_data_HD44780_C.h
 .\bdf2u8g.exe -b 32 -e 255 HD44780_J.bdf HD44780_J_5x7 dogm_font_data_HD44780_J.h
 .\bdf2u8g.exe -b 32 -e 255 ISO10646-1.bdf ISO10646_1_5x7 dogm_font_data_ISO10646_1.h
-.\bdf2u8g.exe -b 32 -e 255 ISO10646-1-Marlin.bdf ISO10646_1_Marlin_5x7 dogm_font_data_ISO10646_1_Marlin.h
 .\bdf2u8g.exe -b 32 -e 255 ISO10646_5_Cyrillic.bdf ISO10646_5_Cyrillic_5x7 dogm_font_data_ISO10646_5_Cyrillic.h
 .\bdf2u8g.exe -b 32 -e 255 ISO10646_Kana.bdf ISO10646_Kana_5x7 dogm_font_data_ISO10646_Kana.h
