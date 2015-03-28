@@ -97,9 +97,10 @@ static bool old_x_min_endstop = false,
               old_z2_min_endstop = false,
               old_z2_max_endstop = false;
             #endif
-            #if defined Z_PROBE_AND_ENDSTOP
-              old_z_probe_endstop = false;
-            #endif
+
+#ifdef Z_PROBE_AND_ENDSTOP
+static bool old_z_probe_endstop = false;
+#endif
 
 static bool check_endstops = true;
 
