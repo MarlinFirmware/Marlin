@@ -497,9 +497,9 @@ const bool Z_MAX_ENDSTOP_INVERTING = false; // set to true to invert the logic o
   #ifdef Z_PROBE_AND_ENDSTOP
 
 // As of 3-28-2015, there are NO Z Probe pins defined in any board config files.
-// Z_PROBE_PIN is for the signal pin only. RAMPS 1.3/1.4 boards may be able to use the 5V, Ground and the D1 pin in the Aux 1 section of the RAMPS board for the signal.
-// The D1 pin in Aux 1 on RAMPS maps to the Arduino D1 pin. The Z_PROBE_PIN is setting the pin to use on the Arduino. Since the D1 pin on the RAMPS maps to D1 on Arduino, this works.
-// If you have RAMPS 1.3/1.4 and want to use the RAMPS D1 pin, set Z_PROBE_PIN to 1 and use ground and 5v next to it as needed. Check the RAMPS 1.3/1.4 pinout diagram for details.
+// Z_PROBE_PIN is for the signal pin only. RAMPS 1.3/1.4 boards may be able to use the 5V, Ground and the D32 pin in the Aux 4 section of the RAMPS board for the signal.
+// The D32 pin in Aux 4 on RAMPS maps to the Arduino D32 pin. The Z_PROBE_PIN is setting the pin to use on the Arduino. Since the D32 pin on the RAMPS maps to D32 on Arduino, this works.
+// If you have RAMPS 1.3/1.4 and want to use the RAMPS D32 pin, set Z_PROBE_PIN to 32 and use ground and 5v next to it as needed. Check the RAMPS 1.3/1.4 pinout diagram for details.
 // WARNING: Setting the wrong pin may have unexpected and disastrous outcomes. Use with caution and do your homework.
   #define Z_PROBE_PIN -1
 
