@@ -388,7 +388,11 @@ const char axis_codes[NUM_AXIS] = {'X', 'Y', 'Z', 'E'};
 static float destination[NUM_AXIS] = { 0, 0, 0, 0 };
 
 static float offset[3] = { 0, 0, 0 };
-static bool home_all_axis = true;
+
+#ifndef DELTA
+  static bool home_all_axis = true;
+#endif
+
 static float feedrate = 1500.0, next_feedrate, saved_feedrate;
 static long gcode_N, gcode_LastN, Stopped_gcode_LastN = 0;
 
@@ -396,8 +400,8 @@ static bool relative_mode = false;  //Determines Absolute or Relative Coordinate
 
 static char cmdbuffer[BUFSIZE][MAX_CMD_SIZE];
 #ifdef SDSUPPORT
-static bool fromsd[BUFSIZE];
-#endif //!SDSUPPORT
+  static bool fromsd[BUFSIZE];
+#endif
 static int bufindr = 0;
 static int bufindw = 0;
 static int buflen = 0;
@@ -933,24 +937,22 @@ void get_command()
 
 }
 
-
-float code_value()
-{
+float code_value() {
   float ret;
   char *e = strchr(strchr_pointer, 'E');
-  if (e != NULL) *e = 0;
-  ret = strtod(strchr_pointer+1, NULL);
-  if (e != NULL) *e = 'E';
+  if (e) {
+    *e = 0;
+    ret = strtod(strchr_pointer+1, NULL);
+    *e = 'E';
+  }
+  else
+    ret = strtod(strchr_pointer+1, NULL);
   return ret;
 }
 
-long code_value_long()
-{
-  return (strtol(strchr_pointer + 1, NULL, 10));
-}
+long code_value_long() { return (strtol(strchr_pointer + 1, NULL, 10)); }
 
-bool code_seen(char code)
-{
+bool code_seen(char code) {
   strchr_pointer = strchr(cmdbuffer[bufindr], code);
   return (strchr_pointer != NULL);  //Return True if a character was found
 }
@@ -1009,76 +1011,70 @@ XYZ_CONSTS_FROM_CONFIG(signed char, home_dir,  HOME_DIR);
 #endif //DUAL_X_CARRIAGE
 
 static void axis_is_at_home(int axis) {
-#ifdef DUAL_X_CARRIAGE
-  if (axis == X_AXIS) {
-    if (active_extruder != 0) {
-      current_position[X_AXIS] = x_home_pos(active_extruder);
-      min_pos[X_AXIS] =          X2_MIN_POS;
-      max_pos[X_AXIS] =          max(extruder_offset[X_AXIS][1], X2_MAX_POS);
-      return;
+
+  #ifdef DUAL_X_CARRIAGE
+    if (axis == X_AXIS) {
+      if (active_extruder != 0) {
+        current_position[X_AXIS] = x_home_pos(active_extruder);
+        min_pos[X_AXIS] = X2_MIN_POS;
+        max_pos[X_AXIS] = max(extruder_offset[X_AXIS][1], X2_MAX_POS);
+        return;
+      }
+      else if (dual_x_carriage_mode == DXC_DUPLICATION_MODE) {
+        current_position[X_AXIS] = base_home_pos(X_AXIS) + home_offset[X_AXIS];
+        min_pos[X_AXIS] = base_min_pos(X_AXIS) + home_offset[X_AXIS];
+        max_pos[X_AXIS] = min(base_max_pos(X_AXIS) + home_offset[X_AXIS],
+                                max(extruder_offset[X_AXIS][1], X2_MAX_POS) - duplicate_extruder_x_offset);
+        return;
+      }
     }
-    else if (dual_x_carriage_mode == DXC_DUPLICATION_MODE && active_extruder == 0) {
-      current_position[X_AXIS] = base_home_pos(X_AXIS) + home_offset[X_AXIS];
-      min_pos[X_AXIS] =          base_min_pos(X_AXIS) + home_offset[X_AXIS];
-      max_pos[X_AXIS] =          min(base_max_pos(X_AXIS) + home_offset[X_AXIS],
-                                  max(extruder_offset[X_AXIS][1], X2_MAX_POS) - duplicate_extruder_x_offset);
-      return;
-    }
-  }
-#endif
-#ifdef SCARA
-   float homeposition[3];
-   char i;
+  #endif
+
+  #ifdef SCARA
+    float homeposition[3];
    
-   if (axis < 2)
-   {
-   
-     for (i=0; i<3; i++)
-     {
-        homeposition[i] = base_home_pos(i); 
-     }  
-  // SERIAL_ECHOPGM("homeposition[x]= "); SERIAL_ECHO(homeposition[0]);
-   //  SERIAL_ECHOPGM("homeposition[y]= "); SERIAL_ECHOLN(homeposition[1]);
-   // Works out real Homeposition angles using inverse kinematics, 
-   // and calculates homing offset using forward kinematics
-     calculate_delta(homeposition);
+    if (axis < 2) {
+
+      for (int i = 0; i < 3; i++) homeposition[i] = base_home_pos(i);
+
+      // SERIAL_ECHOPGM("homeposition[x]= "); SERIAL_ECHO(homeposition[0]);
+      // SERIAL_ECHOPGM("homeposition[y]= "); SERIAL_ECHOLN(homeposition[1]);
+      // Works out real Homeposition angles using inverse kinematics, 
+      // and calculates homing offset using forward kinematics
+      calculate_delta(homeposition);
      
-    // SERIAL_ECHOPGM("base Theta= "); SERIAL_ECHO(delta[X_AXIS]);
-    // SERIAL_ECHOPGM(" base Psi+Theta="); SERIAL_ECHOLN(delta[Y_AXIS]);
+      // SERIAL_ECHOPGM("base Theta= "); SERIAL_ECHO(delta[X_AXIS]);
+      // SERIAL_ECHOPGM(" base Psi+Theta="); SERIAL_ECHOLN(delta[Y_AXIS]);
      
-     for (i=0; i<2; i++)
-     {
-        delta[i] -= home_offset[i];
-     } 
+      for (int i = 0; i < 2; i++) delta[i] -= home_offset[i];
      
-    // SERIAL_ECHOPGM("addhome X="); SERIAL_ECHO(home_offset[X_AXIS]);
-  // SERIAL_ECHOPGM(" addhome Y="); SERIAL_ECHO(home_offset[Y_AXIS]);
-    // SERIAL_ECHOPGM(" addhome Theta="); SERIAL_ECHO(delta[X_AXIS]);
-    // SERIAL_ECHOPGM(" addhome Psi+Theta="); SERIAL_ECHOLN(delta[Y_AXIS]);
+      // SERIAL_ECHOPGM("addhome X="); SERIAL_ECHO(home_offset[X_AXIS]);
+      // SERIAL_ECHOPGM(" addhome Y="); SERIAL_ECHO(home_offset[Y_AXIS]);
+      // SERIAL_ECHOPGM(" addhome Theta="); SERIAL_ECHO(delta[X_AXIS]);
+      // SERIAL_ECHOPGM(" addhome Psi+Theta="); SERIAL_ECHOLN(delta[Y_AXIS]);
       
-     calculate_SCARA_forward_Transform(delta);
+      calculate_SCARA_forward_Transform(delta);
      
-    // SERIAL_ECHOPGM("Delta X="); SERIAL_ECHO(delta[X_AXIS]);
-    // SERIAL_ECHOPGM(" Delta Y="); SERIAL_ECHOLN(delta[Y_AXIS]);
+      // SERIAL_ECHOPGM("Delta X="); SERIAL_ECHO(delta[X_AXIS]);
+      // SERIAL_ECHOPGM(" Delta Y="); SERIAL_ECHOLN(delta[Y_AXIS]);
      
-    current_position[axis] = delta[axis];
+      current_position[axis] = delta[axis];
     
-    // SCARA home positions are based on configuration since the actual limits are determined by the 
-    // inverse kinematic transform.
-    min_pos[axis] =          base_min_pos(axis); // + (delta[axis] - base_home_pos(axis));
-    max_pos[axis] =          base_max_pos(axis); // + (delta[axis] - base_home_pos(axis));
-   } 
-   else
-   {
+      // SCARA home positions are based on configuration since the actual limits are determined by the 
+      // inverse kinematic transform.
+      min_pos[axis] = base_min_pos(axis); // + (delta[axis] - base_home_pos(axis));
+      max_pos[axis] = base_max_pos(axis); // + (delta[axis] - base_home_pos(axis));
+    } 
+    else {
       current_position[axis] = base_home_pos(axis) + home_offset[axis];
-      min_pos[axis] =          base_min_pos(axis) + home_offset[axis];
-      max_pos[axis] =          base_max_pos(axis) + home_offset[axis];
-   }
-#else
-  current_position[axis] = base_home_pos(axis) + home_offset[axis];
-  min_pos[axis] =          base_min_pos(axis) + home_offset[axis];
-  max_pos[axis] =          base_max_pos(axis) + home_offset[axis];
-#endif
+      min_pos[axis] = base_min_pos(axis) + home_offset[axis];
+      max_pos[axis] = base_max_pos(axis) + home_offset[axis];
+    }
+  #else
+    current_position[axis] = base_home_pos(axis) + home_offset[axis];
+    min_pos[axis] = base_min_pos(axis) + home_offset[axis];
+    max_pos[axis] = base_max_pos(axis) + home_offset[axis];
+  #endif
 }
 
 #ifdef ENABLE_AUTO_BED_LEVELING
@@ -1231,10 +1227,6 @@ static void do_blocking_move_to(float x, float y, float z) {
 #endif
 
     feedrate = oldFeedRate;
-}
-
-static void do_blocking_move_relative(float offset_x, float offset_y, float offset_z) {
-    do_blocking_move_to(current_position[X_AXIS] + offset_x, current_position[Y_AXIS] + offset_y, current_position[Z_AXIS] + offset_z);
 }
 
 static void setup_for_endstop_move() {
@@ -2156,7 +2148,6 @@ inline void gcode_G28() {
     }
 
     int verbose_level = 1;
-    float x_tmp, y_tmp, z_tmp, real_z;
 
     if (code_seen('V') || code_seen('v')) {
       verbose_level = code_value_long();
@@ -2444,6 +2435,7 @@ inline void gcode_G28() {
       // When the bed is uneven, this height must be corrected.
       if (!dryrun)
       {
+        float x_tmp, y_tmp, z_tmp, real_z;
         real_z = float(st_get_position(Z_AXIS)) / axis_steps_per_unit[Z_AXIS];  //get the real Z (since the auto bed leveling is already correcting the plane)
         x_tmp = current_position[X_AXIS] + X_PROBE_OFFSET_FROM_EXTRUDER;
         y_tmp = current_position[Y_AXIS] + Y_PROBE_OFFSET_FROM_EXTRUDER;
@@ -4590,7 +4582,6 @@ inline void gcode_T() {
     #if EXTRUDERS > 1
       bool make_move = false;
     #endif
-
     if (code_seen('F')) {
       #if EXTRUDERS > 1
         make_move = true;
@@ -5193,16 +5184,10 @@ void ClearToSend()
 
 void get_coordinates() {
   for (int i = 0; i < NUM_AXIS; i++) {
-    float dest;
-    if (code_seen(axis_codes[i])) {
-      dest = code_value();
-      if (axis_relative_modes[i] || relative_mode)
-        dest += current_position[i];
-    }
+    if (code_seen(axis_codes[i]))
+      destination[i] = code_value() + (axis_relative_modes[i] || relative_mode ? current_position[i] : 0);
     else
-      dest = current_position[i];
-
-    destination[i] = dest;
+      destination[i] = current_position[i];
   }
   if (code_seen('F')) {
     next_feedrate = code_value();
