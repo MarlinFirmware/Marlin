@@ -20,19 +20,19 @@
 //Note: I had to solder on the additional MAX Endstop pins to attach a Z-Probe 
 //endstop switch.
 //
-#undef X_MIN_PIN
-#undef X_MAX_PIN
-#undef Y_MIN_PIN
-#undef Y_MAX_PIN
-#undef Z_MIN_PIN
-#undef Z_MAX_PIN
+//#undef X_MIN_PIN
+//#undef X_MAX_PIN
+//#undef Y_MIN_PIN
+//#undef Y_MAX_PIN
+//#undef Z_MIN_PIN
+//#undef Z_MAX_PIN
 
-#define X_MIN_PIN           2
-#define X_MAX_PIN           3
-#define Y_MIN_PIN          15
-#define Y_MAX_PIN          14
-#define Z_MIN_PIN          19
-#define Z_MAX_PIN          18
+//#define X_MIN_PIN           2
+//#define X_MAX_PIN           3
+//#define Y_MIN_PIN          15
+//#define Y_MAX_PIN          14
+//#define Z_MIN_PIN          19
+//#define Z_MAX_PIN          18
 //
 
 #define E2_STEP_PIN        23
