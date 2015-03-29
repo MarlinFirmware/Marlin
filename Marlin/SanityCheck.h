@@ -106,7 +106,7 @@
       #if Z_PROBE_PIN == -1
         #error You must have a Z_PROBE_PIN defined if you enable Z_PROBE_AND_ENDSTOP
       #endif
-      #ifndef (NUM_SERVOS)
+      #ifndef NUM_SERVOS
         #error You must have NUM_SERVOS defined and there must be at least 1 configured to use Z_PROBE_AND_ENDSTOP
       #endif
       #if defined(NUM_SERVOS) && NUM_SERVOS < 1
