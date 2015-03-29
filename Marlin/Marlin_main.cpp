@@ -1766,7 +1766,7 @@ inline void gcode_G28() {
     #endif
 
     #ifdef QUICK_HOME
-      if (home_all_axis || code_seen(axis_codes[X_AXIS] && code_seen(axis_codes[Y_AXIS]))) {  //first diagonal move
+      if (home_all_axis || (code_seen(axis_codes[X_AXIS]) && code_seen(axis_codes[Y_AXIS]))) {  //first diagonal move
         current_position[X_AXIS] = current_position[Y_AXIS] = 0;
 
         #ifndef DUAL_X_CARRIAGE
