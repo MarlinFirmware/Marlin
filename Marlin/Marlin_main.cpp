@@ -1359,8 +1359,13 @@ static void retract_z_probe() {
     
     st_synchronize();
     
+    #if defined(Z_PROBE_AND_ENDSTOP)
+    bool z_probe_endstop = (READ(Z_PROBE_PIN) != Z_PROBE_ENDSTOP_INVERTING);
+    if (z_probe_endstop)
+    #else
     bool z_min_endstop = (READ(Z_MIN_PIN) != Z_MIN_ENDSTOP_INVERTING);
-    if (!z_min_endstop)
+    if (z_min_endstop)
+    #endif
     {
         if (!Stopped)
         {
@@ -3516,7 +3521,7 @@ inline void gcode_M119() {
   #endif
   #if defined(Z_PROBE_PIN) && Z_PROBE_PIN >-1
     SERIAL_PROTOCOLPGM(MSG_Z_PROBE);
-    SERIALPROTOCOLLN(((READ(Z_PROBE_PIN)^72Z_PROBE_ENDSTOP_INVERTING)?MSG_ENDSTOP_HIT:MSG_ENDSTOP_OPEN));
+    SERIAL_PROTOCOLLN(((READ(Z_PROBE_PIN)^Z_PROBE_ENDSTOP_INVERTING)?MSG_ENDSTOP_HIT:MSG_ENDSTOP_OPEN));
   #endif
 }
 

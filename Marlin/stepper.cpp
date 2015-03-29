@@ -527,22 +527,15 @@ ISR(TIMER1_COMPA_vect) {
 
         #if defined(Z_PROBE_PIN) && Z_PROBE_PIN > -1
           UPDATE_ENDSTOP(z, Z, probe, PROBE);
-          bool z_probe_endstop(READ(Z_PROBE_PIN) != Z_MIN_ENDSTOP_INVERTING);
+          z_probe_endstop=(READ(Z_PROBE_PIN) != Z_MIN_ENDSTOP_INVERTING);
           if(z_probe_endstop && old_z_probe_endstop)
           {
         	  endstops_trigsteps[Z_AXIS] = count_position[Z_AXIS];
         	  endstop_z_hit=true;
 
 //        	  if (z_probe_endstop && old_z_probe_endstop) SERIAL_ECHOLN("z_probe_endstop = true");
-
-
-        	  if (!(performing_homing)) //if not performing home
-        	  {
-        		  step_events_completed = current_block->step_event_count;
-        	  }
           }
           old_z_probe_endstop = z_probe_endstop;
-          old_z2_probe_endstop = z2_probe_endstop;
         #endif
       }
     }
@@ -581,22 +574,14 @@ ISR(TIMER1_COMPA_vect) {
 
         #if defined(Z_PROBE_PIN) && Z_PROBE_PIN > -1
           UPDATE_ENDSTOP(z, Z, probe, PROBE);
-          bool z_probe_endstop(READ(Z_PROBE_PIN) != Z_MAX_ENDSTOP_INVERTING);
+          z_probe_endstop=(READ(Z_PROBE_PIN) != Z_MAX_ENDSTOP_INVERTING);
           if(z_probe_endstop && old_z_probe_endstop)
           {
         	  endstops_trigsteps[Z_AXIS] = count_position[Z_AXIS];
         	  endstop_z_hit=true;
-
 //        	  if (z_probe_endstop && old_z_probe_endstop) SERIAL_ECHOLN("z_probe_endstop = true");
-
-
-        	  if (!(performing_homing)) //if not performing home
-        	  {
-        		  step_events_completed = current_block->step_event_count;
-        	  }
           }
           old_z_probe_endstop = z_probe_endstop;
-          old_z2_probe_endstop = z2_probe_endstop;
         #endif
       }
     }
