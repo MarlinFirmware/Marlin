@@ -309,6 +309,7 @@ your extruder heater takes 2 minutes to hit the target on heating.
 #define ENDSTOPPULLUP_XMIN
 #define ENDSTOPPULLUP_YMIN
 #define ENDSTOPPULLUP_ZMIN
+#define ENDSTOPPULLUP_ZPROBE
 
 // Mechanical endstop with COM to ground and NC to Signal uses "false" here (most common setup).
 const bool X_MIN_ENDSTOP_INVERTING = false; // set to true to invert the logic of the endstop.
@@ -317,9 +318,15 @@ const bool Z_MIN_ENDSTOP_INVERTING = false; // set to true to invert the logic o
 const bool X_MAX_ENDSTOP_INVERTING = false; // set to true to invert the logic of the endstop.
 const bool Y_MAX_ENDSTOP_INVERTING = false; // set to true to invert the logic of the endstop.
 const bool Z_MAX_ENDSTOP_INVERTING = false; // set to true to invert the logic of the endstop.
+const bool Z_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the logic of the endstop.
 
 //#define DISABLE_MAX_ENDSTOPS
 //#define DISABLE_MIN_ENDSTOPS
+// If you want to enable the Z Probe pin, but disable its use, uncomment the line below.
+// This only affects a Z Probe Endstop if you have separate Z min endstop as well and have
+// activated Z_PROBE_AND_ENDSTOP below. If you are using the Z Min endstop on your Z Probe,
+// this has no effect.
+//#define DISABLE_Z_PROBE_ENDSTOP
 
 // For Inverting Stepper Enable Pins (Active Low) use 0, Non Inverting (Active High) use 1
 #define X_ENABLE_ON 0
@@ -484,33 +491,17 @@ const bool Z_MAX_ENDSTOP_INVERTING = false; // set to true to invert the logic o
 
   #endif
 
-// Z Probe and Z endstop support
+// Seaparte concurrent Z Probe and Z min endstop support
 // Added by Chris Roadfeldt 3-28-2015
-// If you have a Z Probe in addition to endstop(s) for Z Homing, uncomment the #define Z_PROBE_AND_ENDSTOP line below and configure Z Probe settings.
-// Only use this if you have both a Z PROBE and Z HOMING ENDSTOP(S). If you are using Z_SAFE_HOMING above, then you probably don't need this unless you want to make use of
-// a non-default pin for your Z Probe.
-// Note: It's expected that your Z Probe triggers in the direction towards your bed. If your Z Probe does not trigger when traveling towards you bed, it will trigger when it's moving
-// away from the bed.
-
-//  #define Z_PROBE_AND_ENDSTOP
-
-  #ifdef Z_PROBE_AND_ENDSTOP
-
-// As of 3-28-2015, there are NO Z Probe pins defined in any board config files.
-// Z_PROBE_PIN is for the signal pin only. RAMPS 1.3/1.4 boards may be able to use the 5V, Ground and the D32 pin in the Aux 4 section of the RAMPS board for the signal.
+// If you have a Z Probe in addition to a Z min endstop, uncomment the #define Z_PROBE_AND_ENDSTOP line below and configure Z Probe settings.
+// Only use this if you have both a Z PROBE and Z Min ENDSTOP.
+// Note: It's expected that your Z Probe triggers in the direction towards your bed.
+// In order to use this, you must have a Z_PROBE_PIN defined in the pins.h file for your control board.
+// RAMPS 1.3/1.4 boards may be able to use the 5V, Ground and the D32 pin in the Aux 4 section of the RAMPS board for the signal.
 // The D32 pin in Aux 4 on RAMPS maps to the Arduino D32 pin. The Z_PROBE_PIN is setting the pin to use on the Arduino. Since the D32 pin on the RAMPS maps to D32 on Arduino, this works.
 // D32 is currently selected in the RAMPS 1.3/1.4 pin file. Update the pins.h file for your control board to make use of this. Not doing so nullifies Z_PROBE_AND_ENDSTOP
 // WARNING: Setting the wrong pin may have unexpected and disastrous outcomes. Use with caution and do your homework.
-
-// Mechanical endstop with COM to ground and NC to Signal uses "false" here (most common setup).
-    const bool Z_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the logic of the endstop.
-
-// The pullups are needed if you directly connect a mechanical endstop between the signal and ground pins.
-    #define ENDSTOPPULLUP_ZPROBE
-
-// If you want to enable the Z Probe pin, but disable its use, uncomment the line below.
-//    #define DISABLE_Z_PROBE_ENDSTOP
-  #endif
+//  #define Z_PROBE_AND_ENDSTOP
 
 #endif // ENABLE_AUTO_BED_LEVELING
 
