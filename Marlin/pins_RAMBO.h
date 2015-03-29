@@ -22,6 +22,17 @@
   #endif
 #endif
 
+#undef X_MS1_PIN
+#undef X_MS2_PIN
+#undef Y_MS1_PIN
+#undef Y_MS2_PIN
+#undef Z_MS1_PIN
+#undef Z_MS2_PIN
+#undef E0_MS1_PIN
+#undef E0_MS2_PIN
+#undef E1_MS1_PIN
+#undef E1_MS2_PIN
+ 
 #define X_STEP_PIN 37
 #define X_DIR_PIN 48
 #define X_MIN_PIN 12
@@ -75,6 +86,7 @@
 #define E1_MS1_PIN 63
 #define E1_MS2_PIN 64
 
+#undef DIGIPOTSS_PIN
 #define DIGIPOTSS_PIN 38
 #define DIGIPOT_CHANNELS {4,5,3,0,1} // X Y Z E0 E1 digipot channels to stepper driver mapping
 
