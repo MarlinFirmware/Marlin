@@ -80,21 +80,37 @@ extern volatile unsigned char block_buffer_tail;
 FORCE_INLINE uint8_t movesplanned() { return BLOCK_MOD(block_buffer_head - block_buffer_tail + BLOCK_BUFFER_SIZE); }
 
 #if defined(ENABLE_AUTO_BED_LEVELING) || defined(MESH_BED_LEVELING)
+
   #if defined(ENABLE_AUTO_BED_LEVELING)
     #include "vector_3.h"
-    // this holds the required transform to compensate for bed level
+
+    // Transform required to compensate for bed level
     extern matrix_3x3 plan_bed_level_matrix;
-    // Get the position applying the bed level matrix if enabled
+
+    /**
+     * Get the position applying the bed level matrix
+     */
     vector_3 plan_get_position();
   #endif  // ENABLE_AUTO_BED_LEVELING
-  // Add a new linear movement to the buffer. x, y and z is the signed, absolute target position in 
-  // millimeters. Feed rate specifies the speed of the motion.
+
+  /**
+   * Add a new linear movement to the buffer. x, y, z are the signed, absolute target position in
+   * millimeters. Feed rate specifies the (target) speed of the motion.
+   */
   void plan_buffer_line(float x, float y, float z, const float &e, float feed_rate, const uint8_t &extruder);
-  // Set position. Used for G92 instructions.
+
+  /**
+   * Set the planner positions. Used for G92 instructions.
+   * Multiplies by axis_steps_per_unit[] to set stepper positions.
+   * Clears previous speed values.
+   */
   void plan_set_position(float x, float y, float z, const float &e);
+
 #else
+
   void plan_buffer_line(const float &x, const float &y, const float &z, const float &e, float feed_rate, const uint8_t &extruder);
   void plan_set_position(const float &x, const float &y, const float &z, const float &e);
+
 #endif // ENABLE_AUTO_BED_LEVELING || MESH_BED_LEVELING
 
 void plan_set_e_position(const float &e);
