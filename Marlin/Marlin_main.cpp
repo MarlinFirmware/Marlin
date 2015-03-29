@@ -2494,15 +2494,17 @@ inline void gcode_G92() {
   if (!code_seen(axis_codes[E_AXIS]))
     st_synchronize();
 
+  bool didXYZ = false;
   for (int i = 0; i < NUM_AXIS; i++) {
     if (code_seen(axis_codes[i])) {
-      current_position[i] = code_value();
+      float v = current_position[i] = code_value();
       if (i == E_AXIS)
-        plan_set_e_position(current_position[E_AXIS]);
+        plan_set_e_position(v);
       else
-        plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+        didXYZ = true;
     }
   }
+  if (didXYZ) plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
 }
 
 #ifdef ULTIPANEL
