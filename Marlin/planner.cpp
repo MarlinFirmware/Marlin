@@ -342,7 +342,7 @@ void planner_recalculate_trapezoids() {
 //     b. No speed reduction within one block requires faster deceleration than the one, true constant 
 //        acceleration.
 //   2. Go over every block in chronological order and dial down junction speed reduction values if 
-//     a. The speed increase within one block would require faster accelleration than the one, true 
+//     a. The speed increase within one block would require faster acceleration than the one, true 
 //        constant acceleration.
 //
 // When these stages are complete all blocks have an entry_factor that will allow all speed changes to 
