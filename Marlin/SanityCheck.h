@@ -67,11 +67,12 @@
       #error EXTRUDERS must be 1 with HEATERS_PARALLEL.
     #endif
 
-    #ifdef Y_DUAL_STEPPER_DRIVERS
+    // Dual axis only when less then two extruders defined and an second extruder is available
+    #if ((EXTRUDERS>2) || (defined(Y_DUAL_STEPPER_DRIVERS) && (!defined(E2_STEP_PIN))))
       #error EXTRUDERS must be 1 with Y_DUAL_STEPPER_DRIVERS.
     #endif
 
-    #ifdef Z_DUAL_STEPPER_DRIVERS
+    #if ((EXTRUDERS>2) || (defined(Z_DUAL_STEPPER_DRIVERS) && (!defined(E2_STEP_PIN))))
       #error EXTRUDERS must be 1 with Z_DUAL_STEPPER_DRIVERS.
     #endif
 
