@@ -106,8 +106,16 @@
       #if Z_PROBE_PIN == -1
         #error You must have a Z_PROBE_PIN defined if you enable Z_PROBE_AND_ENDSTOP
       #endif
+      #ifndef (NUM_SERVOS)
+        #error You must have NUM_SERVOS defined and there must be at least 1 configured to use Z_PROBE_AND_ENDSTOP
+      #endif
+      #if defined(NUM_SERVOS) && NUM_SERVOS < 1
+        #error You must have at least 1 servo defined for NUM_SERVOS to use Z_PROBE_AND_ENDSTOP
+      #endif
+      #ifndef SERVO_ENDSTOPS
+        #error You must have SERVO_ENDSTOPS defined and have the Z index set to at least 1 to use Z_PROBE_AND_ENDSTOP
+      #endif
     #endif
-
     /**
      * Check if Probe_Offset * Grid Points is greater than Probing Range
      */
