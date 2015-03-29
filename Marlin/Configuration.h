@@ -500,6 +500,7 @@ const bool Z_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the logic
 // The D32 pin in Aux 4 on RAMPS maps to the Arduino D32 pin. Z_PROBE_PIN is setting the pin to use on the Arduino. Since the D32 pin on the RAMPS maps to D32 on Arduino, this works.
 // D32 is currently selected in the RAMPS 1.3/1.4 pin file. Update the pins.h file for your control board to make use of this. Not doing so nullifies Z_PROBE_AND_ENDSTOP
 // WARNING: Setting the wrong pin may have unexpected and disastrous outcomes. Use with caution and do your homework.
+
 //  #define Z_PROBE_AND_ENDSTOP
 
 #endif // ENABLE_AUTO_BED_LEVELING
