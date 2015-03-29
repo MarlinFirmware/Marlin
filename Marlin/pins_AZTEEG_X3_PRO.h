@@ -88,3 +88,26 @@
     #endif
   #endif
 #endif
+
+//LCD Pins//
+
+#if defined(VIKI2) || defined(miniVIKI)
+ #define BEEPER 33
+ // Pins for DOGM SPI LCD Support
+ #define DOGLCD_A0  44
+ #define DOGLCD_CS  45
+ #define LCD_SCREEN_ROT_180
+ 
+ //The encoder and click button
+ #define BTN_EN1 22
+ #define BTN_EN2 7
+ #define BTN_ENC 39  //the click switch
+
+ #define SDSS 53
+ #define SDCARDDETECT 49
+ 
+ #define KILL_PIN 31
+ 
+ #define STAT_LED_RED       32
+ #define STAT_LED_BLUE      35
+#endif
