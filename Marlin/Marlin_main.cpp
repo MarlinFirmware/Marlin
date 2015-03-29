@@ -1493,20 +1493,18 @@ static void homeaxis(int axis) {
 
 
 #ifndef Z_PROBE_SLED
-    // Engage Servo endstop if enabled and we are not using Z_PROBE_AND_ENDSTOP
-    #ifndef Z_PROBE_AND_ENDSTOP
-      #ifdef SERVO_ENDSTOPS
-        #if SERVO_LEVELING
+    // Engage Servo endstop if enabled and we are not using Z_PROBE_AND_ENDSTOP unless we are using Z_SAFE_HOMING
+    #ifdef SERVO_ENDSTOPS && (defined (Z_SAFE_HOMING) || ! defined (Z_PROBE_AND_ENDSTOP))
+      #if SERVO_LEVELING
         if (axis==Z_AXIS) {
           engage_z_probe();
         }
       else
-        #endif
+      #endif
       if (servo_endstops[axis] > -1) {
         servos[servo_endstops[axis]].write(servo_endstop_angles[axis * 2]);
       }
-      #endif
-    #endif // Z_PROBE_AND_ENDSTOP
+    #endif
 #endif // Z_PROBE_SLED
     #ifdef Z_DUAL_ENDSTOPS
       if (axis==Z_AXIS) In_Homing_Process(true);
