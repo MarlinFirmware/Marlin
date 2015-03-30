@@ -1138,7 +1138,7 @@ inline void sync_plan_position() {
         feedrate = homing_feedrate[Z_AXIS] / homing_bump_divisor[Z_AXIS];
       else {
         feedrate = homing_feedrate[Z_AXIS] / 10;
-        SERIAL_ECHOLN("Warning: The Homing Bump Feedrate Divisor cannot be less then 1");
+        SERIAL_ECHOLN("Warning: The Homing Bump Feedrate Divisor cannot be less than 1");
       }
 
       zPosition -= home_retract_mm(Z_AXIS) * 2;
@@ -1255,17 +1255,17 @@ inline void sync_plan_position() {
 
   }
 
-  static void retract_z_probe() {
+  static void retract_z_probe(const float z_after=Z_RAISE_AFTER_PROBING) {
 
     #ifdef SERVO_ENDSTOPS
 
       // Retract Z Servo endstop if enabled
       if (servo_endstops[Z_AXIS] >= 0) {
 
-        #if Z_RAISE_AFTER_PROBING > 0
-          do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], Z_RAISE_AFTER_PROBING);
+        if (z_after > 0) {
+          do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], z_after);
           st_synchronize();
-        #endif
+        }
       
         #if SERVO_LEVELING
           servos[servo_endstops[Z_AXIS]].attach(0);
@@ -1345,7 +1345,7 @@ inline void sync_plan_position() {
     float measured_z = current_position[Z_AXIS];
 
     #if !defined(Z_PROBE_SLED) && !defined(Z_PROBE_ALLEN_KEY)
-      if (retract_action & ProbeRetract) retract_z_probe();
+      if (retract_action & ProbeRetract) retract_z_probe(z_before);
     #endif
 
     if (verbose_level > 2) {
@@ -1481,7 +1481,7 @@ static void homeaxis(int axis) {
       feedrate = homing_feedrate[axis] / homing_bump_divisor[axis];
     else {
       feedrate = homing_feedrate[axis] / 10;
-      SERIAL_ECHOLN("Warning: The Homing Bump Feedrate Divisor cannot be less then 1");
+      SERIAL_ECHOLN("Warning: The Homing Bump Feedrate Divisor cannot be less than 1");
     }
 
     line_to_destination();
@@ -2315,7 +2315,7 @@ inline void gcode_G28() {
 
           // raise extruder
           float measured_z,
-                z_before = probePointCounter == 0 ? Z_RAISE_BEFORE_PROBING : current_position[Z_AXIS] + Z_RAISE_BETWEEN_PROBINGS;
+                z_before = Z_RAISE_BETWEEN_PROBINGS + (probePointCounter ? current_position[Z_AXIS] : 0);
 
           #ifdef DELTA
             // Avoid probing the corners (outside the round or hexagon print surface) on a delta printer.
