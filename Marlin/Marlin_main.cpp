@@ -2382,16 +2382,17 @@ inline void gcode_G28() {
 
     #else // !AUTO_BED_LEVELING_GRID
 
-      // Probe at 3 arbitrary points
-      float z_at_pt_1, z_at_pt_2, z_at_pt_3;
+      // Actions for each probe
       ProbeAction p1, p2, p3;
       if (engage_probe_for_each_reading)
         p1 = p2 = p3 = ProbeEngageAndRetract;
       else
         p1 = ProbeEngage, p2 = ProbeStay, p3 = ProbeRetract;
-      z_at_pt_1 = probe_pt(ABL_PROBE_PT_1_X, ABL_PROBE_PT_1_Y, Z_RAISE_BEFORE_PROBING, p1, verbose_level);
-      z_at_pt_2 = probe_pt(ABL_PROBE_PT_2_X, ABL_PROBE_PT_2_Y, current_position[Z_AXIS] + Z_RAISE_BETWEEN_PROBINGS, p2, verbose_level);
-      z_at_pt_3 = probe_pt(ABL_PROBE_PT_3_X, ABL_PROBE_PT_3_Y, current_position[Z_AXIS] + Z_RAISE_BETWEEN_PROBINGS, p3, verbose_level);
+
+      // Probe at 3 arbitrary points
+      float z_at_pt_1 = probe_pt(ABL_PROBE_PT_1_X, ABL_PROBE_PT_1_Y, Z_RAISE_BEFORE_PROBING, p1, verbose_level),
+            z_at_pt_2 = probe_pt(ABL_PROBE_PT_2_X, ABL_PROBE_PT_2_Y, current_position[Z_AXIS] + Z_RAISE_BETWEEN_PROBINGS, p2, verbose_level),
+            z_at_pt_3 = probe_pt(ABL_PROBE_PT_3_X, ABL_PROBE_PT_3_Y, current_position[Z_AXIS] + Z_RAISE_BETWEEN_PROBINGS, p3, verbose_level);
       clean_up_after_endstop_move();
       if (!dryrun) set_bed_level_equation_3pts(z_at_pt_1, z_at_pt_2, z_at_pt_3);
 
