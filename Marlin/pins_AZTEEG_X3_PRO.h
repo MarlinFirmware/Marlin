@@ -16,23 +16,23 @@
 //
 //This section is to swap the MIN and MAX pins because the X3 Pro comes with only
 //MIN endstops soldered onto the board. Delta code wants the homing endstops to be 
-//the MAX so I swapped them here. Comment them out with // if you want them original.
-//Note: I had to solder on the additional MAX Endstop pins to attach a Z-Probe 
-//endstop switch.
+//the MAX so I swapped them here.
 //
-#undef X_MIN_PIN
-#undef X_MAX_PIN
-#undef Y_MIN_PIN
-#undef Y_MAX_PIN
-#undef Z_MIN_PIN
-#undef Z_MAX_PIN
+ #ifdef DELTA
+  #undef X_MIN_PIN
+  #undef X_MAX_PIN
+  #undef Y_MIN_PIN
+  #undef Y_MAX_PIN
+  #undef Z_MIN_PIN
+  #undef Z_MAX_PIN
 
-#define X_MIN_PIN           2
-#define X_MAX_PIN           3
-#define Y_MIN_PIN          15
-#define Y_MAX_PIN          14
-#define Z_MIN_PIN          19
-#define Z_MAX_PIN          18
+  #define X_MIN_PIN           2
+  #define X_MAX_PIN           3
+  #define Y_MIN_PIN          15
+  #define Y_MAX_PIN          14
+  #define Z_MIN_PIN          19
+  #define Z_MAX_PIN          18
+ #endif
 //
 
 #define E2_STEP_PIN        23
@@ -87,4 +87,27 @@
       #endif
     #endif
   #endif
+#endif
+
+//LCD Pins//
+
+#if defined(VIKI2) || defined(miniVIKI)
+ #define BEEPER 33
+ // Pins for DOGM SPI LCD Support
+ #define DOGLCD_A0  44
+ #define DOGLCD_CS  45
+ #define LCD_SCREEN_ROT_180
+ 
+ //The encoder and click button
+ #define BTN_EN1 22
+ #define BTN_EN2 7
+ #define BTN_ENC 39  //the click switch
+
+ #define SDSS 53
+ #define SDCARDDETECT 49
+ 
+ #define KILL_PIN 31
+ 
+ #define STAT_LED_RED       32
+ #define STAT_LED_BLUE      35
 #endif
