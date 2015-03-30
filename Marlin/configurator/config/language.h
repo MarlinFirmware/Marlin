@@ -34,7 +34,6 @@
 #endif
 
 #define PROTOCOL_VERSION "1.0"
-#define FIRMWARE_URL "https://github.com/MarlinFirmware/Marlin"
 
 #if MB(ULTIMAKER)|| MB(ULTIMAKER_OLD)|| MB(ULTIMAIN_2)
   #define MACHINE_NAME "Ultimaker"
@@ -59,14 +58,16 @@
   #define FIRMWARE_URL "http://www.bq.com/gb/downloads-prusa-i3-hephestos.html"
 #else // Default firmware set to Mendel
   #define MACHINE_NAME "Mendel"
+  #define FIRMWARE_URL "https://github.com/MarlinFirmware/Marlin"
 #endif
 
 #ifdef CUSTOM_MENDEL_NAME
+  #undef MACHINE_NAME
   #define MACHINE_NAME CUSTOM_MENDEL_NAME
 #endif
 
 #ifndef MACHINE_UUID
-   #define MACHINE_UUID "00000000-0000-0000-0000-000000000000"
+  #define MACHINE_UUID "00000000-0000-0000-0000-000000000000"
 #endif
 
 
