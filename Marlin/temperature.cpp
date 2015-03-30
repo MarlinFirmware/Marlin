@@ -83,6 +83,17 @@ unsigned char soft_pwm_bed;
 #ifdef FILAMENT_SENSOR
   int current_raw_filwidth = 0;  //Holds measured filament diameter - one extruder only
 #endif  
+#if defined (THERMAL_RUNAWAY_PROTECTION_PERIOD) && THERMAL_RUNAWAY_PROTECTION_PERIOD > 0
+void thermal_runaway_protection(int *state, unsigned long *timer, float temperature, float target_temperature, int heater_id, int period_seconds, int hysteresis_degc);
+static int thermal_runaway_state_machine[4]; // = {0,0,0,0};
+static unsigned long thermal_runaway_timer[4]; // = {0,0,0,0};
+static bool thermal_runaway = false;
+#if TEMP_SENSOR_BED != 0
+  static int thermal_runaway_bed_state_machine;
+  static unsigned long thermal_runaway_bed_timer;
+#endif
+#endif
+
 //===========================================================================
 //=============================private variables============================
 //===========================================================================
@@ -1100,8 +1111,8 @@ void disable_heater() {
 }
 
 #ifdef HEATER_0_USES_MAX6675
-  #define MAX6675_HEAT_INTERVAL 250
-  long max6675_previous_millis = MAX6675_HEAT_INTERVAL;
+  #define MAX6675_HEAT_INTERVAL 250u
+  unsigned long max6675_previous_millis = MAX6675_HEAT_INTERVAL;
   int max6675_temp = 2000;
 
   static int read_max6675() {
