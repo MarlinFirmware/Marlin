@@ -254,7 +254,8 @@
 		#define MSG_EXTRUDING "Extruding..." 
 		#define MSG_LENGTH "Length:"         
 		#define MSG_RETRACTING "Retracting"
-		#define MSG_WELLCOME "bq Witbox"
+
+		#define MSG_WELLCOME "bq Hephestos"
 
 		#define MSG_LP_COOL_1 "Cooling..."
 		#define MSG_LP_COOL_2 "Temp:"
@@ -320,6 +321,7 @@
 	#define MSG_SD_INSERTED "Karta wlozona"
 	#define MSG_SD_REMOVED "Karta usunieta"
 	#define MSG_MAIN "Menu glowne"
+	#define MSG_BACK "Back"
 	#define MSG_AUTOSTART "Autostart"
 	#define MSG_DISABLE_STEPPERS "Wylacz silniki"
 	#define MSG_AUTO_HOME "Auto. poz. zerowa"
@@ -389,6 +391,12 @@
 	#define MSG_CONTROL "Ustawienia"
 	#define MSG_TUNE "Strojenie"
 	#define MSG_PAUSE_PRINT "Pauza"
+	#define MSG_PAUSED "Press to resume"
+	#define MSG_PAUSING "Pausing..."
+	#define MSG_PRINTING "Printing..."
+	#define MSG_READY_UNLOAD "Press & unload fil."
+	#define MSG_UNLOAD_CLICK "Press to continue"
+	#define MSG_LOAD_CLICK "Load new filament"
 	#define MSG_RESUME_PRINT "Wznowienie"
 	#define MSG_STOP_PRINT "Stop"
 	#define MSG_CARD_MENU "Menu karty SD"
@@ -417,6 +425,8 @@
 	#define MSG_BABYSTEP_Z "Babystep Z"
 	#define MSG_ENDSTOP_ABORT "Blad wyl. kranc."
 	#define MSG_CONTRAST "Kontrast"
+	#define MSG_END_HOUR "hours"
+	#define MSG_END_MINUTE "minutes"
 
 	#ifdef WITBOX
 
@@ -485,7 +495,6 @@
 
 		#define MSG_SD_BAD_FILENAME "Bad filename!"
 	#endif // WITBOX
-
 #endif
 
 
@@ -978,7 +987,7 @@
 		#define MSG_EXTRUDING "Extruyendo..."
 		#define MSG_LENGTH "Longitud:"
 		#define MSG_RETRACTING "Retrayendo"
-		#define MSG_WELLCOME "bq Witbox"
+		#define MSG_WELLCOME "bq Hephestos"
 		#define MSG_LP_INTRO "Nivelando la base... Pulsa para empezar"
 		#define MSG_LP_1 " Nivela el punto 1     Pulsa la rueda"
 		#define MSG_LP_2 " Nivela el punto 2     Pulsa la rueda"
@@ -1049,6 +1058,7 @@
 	#define MSG_SD_INSERTED						"Карта вставлена"
 	#define MSG_SD_REMOVED						"Карта извлечена"
 	#define MSG_MAIN							"Меню            \003"
+	#define MSG_BACK "Back"
 	#define MSG_AUTOSTART						"Автостарт"
 	#define MSG_DISABLE_STEPPERS 				"Выкл. двигатели"
 	#define MSG_AUTO_HOME						"Парковка"
@@ -1116,6 +1126,12 @@
 	#define MSG_WATCH							"Обзор           \003"
 	#define MSG_PREPARE							"Действия        \x7E"
 	#define MSG_TUNE							"Настройки       \x7E"
+	#define MSG_PAUSED "Press to resume"
+	#define MSG_PAUSING "Pausing..."
+	#define MSG_PRINTING "Printing..."
+	#define MSG_READY_UNLOAD "Press & unload fil."
+	#define MSG_UNLOAD_CLICK "Press to continue"
+	#define MSG_LOAD_CLICK "Load new filament"
 	#define MSG_RESUME_PRINT  					"Продолжить печать"
 	#define MSG_RESUME_PRINT					"Продолжить печать"
 	#define MSG_STOP_PRINT 						"Остановить печать"
@@ -1144,6 +1160,8 @@
 	#define MSG_BABYSTEP_Z 						"Babystep Z"
 	#define MSG_ENDSTOP_ABORT 					"Endstop abort"
 	#define MSG_CONTRAST 						"Contrast"
+	#define MSG_END_HOUR "hours"
+	#define MSG_END_MINUTE "minutes"
 
 	#ifdef WITBOX
 
@@ -1212,7 +1230,6 @@
 
 		#define MSG_SD_BAD_FILENAME "Bad filename!"
 	#endif // WITBOX
-
 #endif
 
 
@@ -1559,6 +1576,7 @@
 	#define MSG_SD_INSERTED "Kortti asetettu"
 	#define MSG_SD_REMOVED "Kortti poistettu"
 	#define MSG_MAIN "Palaa"
+	#define MSG_BACK "Back"
 	#define MSG_AUTOSTART "Automaatti"
 	#define MSG_DISABLE_STEPPERS "Vapauta moottorit"
 	#define MSG_AUTO_HOME "Aja referenssiin"
@@ -1627,6 +1645,12 @@
 	#define MSG_PREPARE "Valmistele"
 	#define MSG_TUNE "Saada"
 	#define MSG_PAUSE_PRINT "Keskeyta tulostus"
+	#define MSG_PAUSED "Press to resume"
+	#define MSG_PAUSING "Pausing..."
+	#define MSG_PRINTING "Printing..."
+	#define MSG_READY_UNLOAD "Press & unload fil."
+	#define MSG_UNLOAD_CLICK "Press to continue"
+	#define MSG_LOAD_CLICK "Load new filament"
 	#define MSG_RESUME_PRINT "Jatka tulostusta"
 	#define MSG_STOP_PRINT "Pysayta tulostus"
 	#define MSG_CARD_MENU "Korttivalikko"
@@ -1654,6 +1678,8 @@
 	#define MSG_BABYSTEP_Z "Babystep Z"
 	#define MSG_ENDSTOP_ABORT "Endstop abort"
 	#define MSG_CONTRAST "Contrast"
+	#define MSG_END_HOUR "hours"
+	#define MSG_END_MINUTE "minutes"
 
 	#ifdef WITBOX
 
@@ -1733,6 +1759,7 @@
 	#define MSG_SD_INSERTED "Tarcheta colocada"
 	#define MSG_SD_REMOVED "Tarcheta retirada"
 	#define MSG_MAIN "Menu prencipal"
+	#define MSG_BACK "Back"
 	#define MSG_AUTOSTART " Autostart"
 	#define MSG_DISABLE_STEPPERS "Amortar motors"
 	#define MSG_AUTO_HOME "Levar a l'orichen"
@@ -1799,6 +1826,12 @@
 	#define MSG_WATCH "Monitorizar"
 	#define MSG_PREPARE "Preparar"
 	#define MSG_TUNE "Achustar"
+	#define MSG_PAUSED "Press to resume"
+	#define MSG_PAUSING "Pausing..."
+	#define MSG_PRINTING "Printing..."
+	#define MSG_READY_UNLOAD "Press & unload fil."
+	#define MSG_UNLOAD_CLICK "Press to continue"
+	#define MSG_LOAD_CLICK "Load new filament"
 	#define MSG_PAUSE_PRINT "Pausar impresion"
 	#define MSG_RESUME_PRINT "Contin. impresion"
 	#define MSG_STOP_PRINT "Detener Impresion"
@@ -1836,6 +1869,8 @@
 	#define MSG_BABYSTEP_Z "Babystep Z"
 	#define MSG_ENDSTOP_ABORT "Endstop abort"
 	#define MSG_CONTRAST "Contrast"
+	#define MSG_END_HOUR "hours"
+	#define MSG_END_MINUTE "minutes"
 
 	#ifdef WITBOX
 
@@ -1904,7 +1939,6 @@
 
 		#define MSG_SD_BAD_FILENAME "Bad filename!"
 	#endif // WITBOX
-
 #endif
 
 #if LANGUAGE_CHOICE == 11 //Dutch
@@ -1916,6 +1950,7 @@
 	#define MSG_SD_INSERTED "Kaart ingestoken"
 	#define MSG_SD_REMOVED "Kaart verwijderd"
 	#define MSG_MAIN "Main"
+	#define MSG_BACK "Back"
 	#define MSG_AUTOSTART "Autostart"
 	#define MSG_DISABLE_STEPPERS "Motoren uit"
 	#define MSG_AUTO_HOME "Auto home"
@@ -1983,6 +2018,12 @@
 	#define MSG_WATCH "Info scherm"
 	#define MSG_PREPARE "Voorbereiden"
 	#define MSG_TUNE "Afstellen"
+	#define MSG_PAUSED "Press to resume"
+	#define MSG_PAUSING "Pausing..."
+	#define MSG_PRINTING "Printing..."
+	#define MSG_READY_UNLOAD "Press & unload fil."
+	#define MSG_UNLOAD_CLICK "Press to continue"
+	#define MSG_LOAD_CLICK "Load new filament"
 	#define MSG_PAUSE_PRINT "Print pauzeren"
 	#define MSG_RESUME_PRINT "Print hervatten"
 	#define MSG_STOP_PRINT "Print stoppen"
@@ -2010,6 +2051,8 @@
 	#define MSG_BABYSTEP_Y "Babystap Y"
 	#define MSG_BABYSTEP_Z "Babystap Z"
 	#define MSG_ENDSTOP_ABORT "Endstop afbr."
+	#define MSG_END_HOUR "hours"
+	#define MSG_END_MINUTE "minutes"
 
 	#ifdef WITBOX
 
@@ -2078,7 +2121,6 @@
 
 		#define MSG_SD_BAD_FILENAME "Bad filename!"
 	#endif // WITBOX
-
 #endif
 
 #endif // ifndef LANGUAGE_H
