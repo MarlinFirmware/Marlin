@@ -272,7 +272,7 @@ int fanSpeed = 0;
 
 #endif // FWRETRACT
 
-#ifdef ULTIPANEL
+#if defined(ULTIPANEL) && HAS_POWER_SWITCH
   bool powersupply = 
     #ifdef PS_DEFAULT_OFF
       false
@@ -517,7 +517,7 @@ void setup_powerhold()
     OUT_WRITE(SUICIDE_PIN, HIGH);
   #endif
   #if HAS_POWER_SWITCH
-    #if defined(PS_DEFAULT_OFF)
+    #ifdef PS_DEFAULT_OFF
       OUT_WRITE(PS_ON_PIN, PS_ON_ASLEEP);
     #else
       OUT_WRITE(PS_ON_PIN, PS_ON_AWAKE);
@@ -3313,33 +3313,38 @@ inline void gcode_M140() {
     #endif
   }
 
-  /**
-   * M81: Turn off Power Supply
-   */
-  inline void gcode_M81() {
-    disable_heater();
-    st_synchronize();
-    disable_e0();
-    disable_e1();
-    disable_e2();
-    disable_e3();
-    finishAndDisableSteppers();
-    fanSpeed = 0;
-    delay(1000); // Wait 1 second before switching off
-    #if defined(SUICIDE_PIN) && SUICIDE_PIN > -1
-      st_synchronize();
-      suicide();
-    #elif HAS_POWER_SWITCH
-      OUT_WRITE(PS_ON_PIN, PS_ON_ASLEEP);
-    #endif
-    #ifdef ULTIPANEL
-      powersupply = false;
-      LCD_MESSAGEPGM(MACHINE_NAME " " MSG_OFF ".");
-      lcd_update();
-    #endif
-  }
+#endif // HAS_POWER_SWITCH
 
-#endif // PS_ON_PIN
+/**
+ * M81: Turn off Power, including Power Supply, if there is one.
+ *
+ *      This code should ALWAYS be available for EMERGENCY SHUTDOWN!
+ */
+inline void gcode_M81() {
+  disable_heater();
+  st_synchronize();
+  disable_e0();
+  disable_e1();
+  disable_e2();
+  disable_e3();
+  finishAndDisableSteppers();
+  fanSpeed = 0;
+  delay(1000); // Wait 1 second before switching off
+  #if defined(SUICIDE_PIN) && SUICIDE_PIN > -1
+    st_synchronize();
+    suicide();
+  #elif HAS_POWER_SWITCH
+    OUT_WRITE(PS_ON_PIN, PS_ON_ASLEEP);
+  #endif
+  #ifdef ULTIPANEL
+    #if HAS_POWER_SWITCH
+      powersupply = false;
+    #endif
+    LCD_MESSAGEPGM(MACHINE_NAME " " MSG_OFF ".");
+    lcd_update();
+  #endif
+}
+
 
 /**
  * M82: Set E codes absolute (default)
@@ -4874,15 +4879,15 @@ void process_commands() {
         #endif //HEATER_2_PIN
       #endif //BARICUDA
 
-      #if defined(PS_ON_PIN) && PS_ON_PIN > -1
+      #if HAS_POWER_SWITCH
 
         case 80: // M80 - Turn on Power Supply
           gcode_M80();
           break;
 
-      #endif // PS_ON_PIN
+      #endif // HAS_POWER_SWITCH
 
-      case 81: // M81 - Turn off Power Supply
+      case 81: // M81 - Turn off Power, including Power Supply, if possible
         gcode_M81();
         break;
 
@@ -5859,19 +5864,17 @@ void kill()
   disable_e2();
   disable_e3();
 
-#if defined(PS_ON_PIN) && PS_ON_PIN > -1
-  pinMode(PS_ON_PIN,INPUT);
-#endif
+  #if HAS_POWER_SWITCH
+    pinMode(PS_ON_PIN, INPUT);
+  #endif
+
   SERIAL_ERROR_START;
   SERIAL_ERRORLNPGM(MSG_ERR_KILLED);
   LCD_ALERTMESSAGEPGM(MSG_KILLED);
   
   // FMC small patch to update the LCD before ending
   sei();   // enable interrupts
-  for ( int i=5; i--; lcd_update())
-  {
-     delay(200);  
-  }
+  for (int i = 5; i--; lcd_update()) delay(200); // Wait a short time
   cli();   // disable interrupts
   suicide();
   while(1) { /* Intentionally left empty */ } // Wait for reset

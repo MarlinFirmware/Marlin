@@ -44,7 +44,9 @@ static void lcd_status_screen();
 
 #ifdef ULTIPANEL
 
-  extern bool powersupply;
+  #if HAS_POWER_SWITCH
+    extern bool powersupply;
+  #endif
   static float manual_feedrate[] = MANUAL_FEEDRATE;
   static void lcd_main_menu();
   static void lcd_tune_menu();
