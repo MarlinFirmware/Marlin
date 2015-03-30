@@ -2011,7 +2011,7 @@ inline void gcode_G28() {
 #if defined(MESH_BED_LEVELING) || defined(ENABLE_AUTO_BED_LEVELING)
 
   // Check for known positions in X and Y
-  bool can_run_bed_leveling() {
+  inline bool can_run_bed_leveling() {
   	if (axis_known_position[X_AXIS] && axis_known_position[Y_AXIS]) return true;
     LCD_MESSAGEPGM(MSG_POSITION_UNKNOWN);
     SERIAL_ECHO_START;
