@@ -4927,14 +4927,13 @@ void process_commands() {
         case 665: // M665 set delta configurations L<diagonal_rod> R<delta_radius> S<segments_per_sec>
           gcode_M665();
           break;
-        case 666: // M666 set delta endstop adjustment
+      #endif
+
+      #if defined(DELTA) || defined(Z_DUAL_ENDSTOPS)
+        case 666: // M666 set delta / dual endstop adjustment
           gcode_M666();
           break;
-      #elif defined(Z_DUAL_ENDSTOPS)
-        case 666: // M666 set delta endstop adjustment
-          gcode_M666();
-          break;
-      #endif // DELTA
+      #endif
 
       #ifdef FWRETRACT
         case 207: //M207 - set retract length S[positive mm] F[feedrate mm/min] Z[additional zlift/hop]
