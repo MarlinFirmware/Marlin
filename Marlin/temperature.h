@@ -146,16 +146,10 @@ void disable_heater();
 void setWatch();
 void updatePID();
 
-#if defined (THERMAL_RUNAWAY_PROTECTION_PERIOD) && THERMAL_RUNAWAY_PROTECTION_PERIOD > 0
-void thermal_runaway_protection(int *state, unsigned long *timer, float temperature, float target_temperature, int heater_id, int period_seconds, int hysteresis_degc);
-static int thermal_runaway_state_machine[4]; // = {0,0,0,0};
-static unsigned long thermal_runaway_timer[4]; // = {0,0,0,0};
-static bool thermal_runaway = false;
-#if TEMP_SENSOR_BED != 0
-  static int thermal_runaway_bed_state_machine;
-  static unsigned long thermal_runaway_bed_timer;
-#endif
-#endif
+void PID_autotune(float temp, int extruder, int ncycles);
+
+void setExtruderAutoFanState(int pin, bool state);
+void checkExtruderAutoFans();
 
 FORCE_INLINE void autotempShutdown() {
   #ifdef AUTOTEMP
@@ -167,9 +161,5 @@ FORCE_INLINE void autotempShutdown() {
   #endif
 }
 
-void PID_autotune(float temp, int extruder, int ncycles);
-
-void setExtruderAutoFanState(int pin, bool state);
-void checkExtruderAutoFans();
 
 #endif
