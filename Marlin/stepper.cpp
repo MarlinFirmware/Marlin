@@ -511,83 +511,107 @@ ISR(TIMER1_COMPA_vect) {
     }
 
     if (TEST(out_bits, Z_AXIS)) {   // -direction
+
       Z_APPLY_DIR(INVERT_Z_DIR,0);
       count_direction[Z_AXIS] = -1;
-      if (check_endstops) 
-      {
-        #if defined(Z_MIN_PIN) && Z_MIN_PIN > -1
-          #ifndef Z_DUAL_ENDSTOPS
-            UPDATE_ENDSTOP(z, Z, min, MIN);
-          #else
-            bool z_min_endstop=(READ(Z_MIN_PIN) != Z_MIN_ENDSTOP_INVERTING);
-            #if defined(Z2_MIN_PIN) && Z2_MIN_PIN > -1
-              bool z2_min_endstop=(READ(Z2_MIN_PIN) != Z2_MIN_ENDSTOP_INVERTING);
-            #else
-              bool z2_min_endstop=z_min_endstop;
-            #endif
-            if(((z_min_endstop && old_z_min_endstop) || (z2_min_endstop && old_z2_min_endstop)) && (current_block->steps[Z_AXIS] > 0))
-            {
+
+      if (check_endstops) {
+
+        #if defined(Z_MIN_PIN) && Z_MIN_PIN >= 0
+
+          #ifdef Z_DUAL_ENDSTOPS
+
+            bool z_min_endstop = READ(Z_MIN_PIN) != Z_MIN_ENDSTOP_INVERTING,
+                z2_min_endstop =
+                  #if defined(Z2_MIN_PIN) && Z2_MIN_PIN >= 0
+                    READ(Z2_MIN_PIN) != Z2_MIN_ENDSTOP_INVERTING
+                  #else
+                    z_min_endstop
+                  #endif
+                ;
+
+            bool z_min_both = z_min_endstop && old_z_min_endstop,
+                z2_min_both = z2_min_endstop && old_z2_min_endstop;
+            if ((z_min_both || z2_min_both) && current_block->steps[Z_AXIS] > 0) {
               endstops_trigsteps[Z_AXIS] = count_position[Z_AXIS];
-              endstop_z_hit=true;
-              if (!(performing_homing) || ((performing_homing)&&(z_min_endstop && old_z_min_endstop)&&(z2_min_endstop && old_z2_min_endstop))) //if not performing home or if both endstops were trigged during homing...
-              {
+              endstop_z_hit = true;
+              if (!performing_homing || (performing_homing && z_min_both && z2_min_both)) //if not performing home or if both endstops were trigged during homing...
                 step_events_completed = current_block->step_event_count;
-              } 
             }
             old_z_min_endstop = z_min_endstop;
             old_z2_min_endstop = z2_min_endstop;
-          #endif
-        #endif
-      }
+
+          #else // !Z_DUAL_ENDSTOPS
+
+            UPDATE_ENDSTOP(z, Z, min, MIN);
+
+          #endif // !Z_DUAL_ENDSTOPS
+
+        #endif // Z_MIN_PIN
+
+      } // check_endstops
+
     }
     else { // +direction
+
       Z_APPLY_DIR(!INVERT_Z_DIR,0);
       count_direction[Z_AXIS] = 1;
+
       if (check_endstops) {
+
         #if defined(Z_MAX_PIN) && Z_MAX_PIN >= 0
-          #ifndef Z_DUAL_ENDSTOPS
-            UPDATE_ENDSTOP(z, Z, max, MAX);
-          #else
-            bool z_max_endstop=(READ(Z_MAX_PIN) != Z_MAX_ENDSTOP_INVERTING);
-            #if defined(Z2_MAX_PIN) && Z2_MAX_PIN > -1
-              bool z2_max_endstop=(READ(Z2_MAX_PIN) != Z2_MAX_ENDSTOP_INVERTING);
-            #else
-              bool z2_max_endstop=z_max_endstop;
-            #endif
-            if(((z_max_endstop && old_z_max_endstop) || (z2_max_endstop && old_z2_max_endstop)) && (current_block->steps[Z_AXIS] > 0))
-            {
+
+          #ifdef Z_DUAL_ENDSTOPS
+
+            bool z_max_endstop = READ(Z_MAX_PIN) != Z_MAX_ENDSTOP_INVERTING,
+                z2_max_endstop =
+                  #if defined(Z2_MAX_PIN) && Z2_MAX_PIN >= 0
+                    READ(Z2_MAX_PIN) != Z2_MAX_ENDSTOP_INVERTING
+                  #else
+                    z_max_endstop
+                  #endif
+                ;
+
+            bool z_max_both = z_max_endstop && old_z_max_endstop,
+                z2_max_both = z2_max_endstop && old_z2_max_endstop;
+            if ((z_max_both || z2_max_both) && current_block->steps[Z_AXIS] > 0) {
               endstops_trigsteps[Z_AXIS] = count_position[Z_AXIS];
-              endstop_z_hit=true;
+              endstop_z_hit = true;
 
-//              if (z_max_endstop && old_z_max_endstop) SERIAL_ECHOLN("z_max_endstop = true");
-//              if (z2_max_endstop && old_z2_max_endstop) SERIAL_ECHOLN("z2_max_endstop = true");
+             // if (z_max_both) SERIAL_ECHOLN("z_max_endstop = true");
+             // if (z2_max_both) SERIAL_ECHOLN("z2_max_endstop = true");
 
-            
-              if (!(performing_homing) || ((performing_homing)&&(z_max_endstop && old_z_max_endstop)&&(z2_max_endstop && old_z2_max_endstop))) //if not performing home or if both endstops were trigged during homing...
-              {
+              if (!performing_homing || (performing_homing && z_max_both && z2_max_both)) //if not performing home or if both endstops were trigged during homing...
                 step_events_completed = current_block->step_event_count;
-              } 
             }
             old_z_max_endstop = z_max_endstop;
             old_z2_max_endstop = z2_max_endstop;
-          #endif
-        #endif
-      }
-    }
+
+          #else // !Z_DUAL_ENDSTOPS
+
+            UPDATE_ENDSTOP(z, Z, max, MAX);
+
+          #endif // !Z_DUAL_ENDSTOPS
+
+        #endif // Z_MAX_PIN
+
+      } // check_endstops
+
+    } // +direction
 
     #ifndef ADVANCE
       if (TEST(out_bits, E_AXIS)) {  // -direction
         REV_E_DIR();
-        count_direction[E_AXIS]=-1;
+        count_direction[E_AXIS] = -1;
       }
       else { // +direction
         NORM_E_DIR();
-        count_direction[E_AXIS]=1;
+        count_direction[E_AXIS] = 1;
       }
     #endif //!ADVANCE
 
     // Take multiple steps per interrupt (For high speed moves)
-    for (int8_t i=0; i < step_loops; i++) {
+    for (int8_t i = 0; i < step_loops; i++) {
       #ifndef AT90USB
         MSerial.checkRx(); // Check for serial chars.
       #endif
