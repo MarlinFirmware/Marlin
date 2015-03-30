@@ -1703,7 +1703,25 @@ inline void gcode_G4() {
 #endif //FWRETRACT
 
 /**
- * G28: Home all axes, one at a time
+ * G28: Home all axes according to settings
+ *
+ * Parameters
+ *
+ *  None  Home to all axes with no parameters.
+ *        With QUICK_HOME enabled XY will home together, then Z.
+ *
+ * Cartesian parameters
+ *
+ *  X   Home to the X endstop
+ *  Y   Home to the Y endstop
+ *  Z   Home to the Z endstop
+ *
+ * If numbers are included with XYZ set the position as with G92
+ * Currently adds the home_offset, which may be wrong and removed soon.
+ *
+ *  Xn  Home X, setting X to n + home_offset[X_AXIS]
+ *  Yn  Home Y, setting Y to n + home_offset[Y_AXIS]
+ *  Zn  Home Z, setting Z to n + home_offset[Z_AXIS]
  */
 inline void gcode_G28() {
   #ifdef ENABLE_AUTO_BED_LEVELING
@@ -1726,7 +1744,7 @@ inline void gcode_G28() {
 
   enable_endstops(true);
 
-  for (int i = X_AXIS; i < NUM_AXIS; i++) destination[i] = current_position[i];
+  for (int i = 0; i < NUM_AXIS; i++) destination[i] = current_position[i]; // includes E_AXIS
 
   feedrate = 0.0;
 
@@ -1757,23 +1775,25 @@ inline void gcode_G28() {
 
   #else // NOT DELTA
 
-    home_all_axis = !(code_seen(axis_codes[X_AXIS]) || code_seen(axis_codes[Y_AXIS]) || code_seen(axis_codes[Z_AXIS]));
+    bool  homeX = code_seen(axis_codes[X_AXIS]),
+          homeY = code_seen(axis_codes[Y_AXIS]),
+          homeZ = code_seen(axis_codes[Z_AXIS]);
+
+    home_all_axis = !homeX && !homeY && !homeZ; // No parameters means home all axes
 
     #if Z_HOME_DIR > 0                      // If homing away from BED do Z first
-      if (home_all_axis || code_seen(axis_codes[Z_AXIS])) {
-        HOMEAXIS(Z);
-      }
+      if (home_all_axis || homeZ) HOMEAXIS(Z);
     #endif
 
     #ifdef QUICK_HOME
-      if (home_all_axis || code_seen(axis_codes[X_AXIS] && code_seen(axis_codes[Y_AXIS]))) {  //first diagonal move
+      if (home_all_axis || (homeX && homeY)) {  //first diagonal move
         current_position[X_AXIS] = current_position[Y_AXIS] = 0;
 
-        #ifndef DUAL_X_CARRIAGE
-          int x_axis_home_dir = home_dir(X_AXIS);
-        #else
+        #ifdef DUAL_X_CARRIAGE
           int x_axis_home_dir = x_home_dir(active_extruder);
           extruder_duplication_enabled = false;
+        #else
+          int x_axis_home_dir = home_dir(X_AXIS);
         #endif
 
         sync_plan_position();
@@ -1807,7 +1827,8 @@ inline void gcode_G28() {
       }
     #endif //QUICK_HOME
 
-    if ((home_all_axis) || (code_seen(axis_codes[X_AXIS]))) {
+    // Home X
+    if (home_all_axis || homeX) {
       #ifdef DUAL_X_CARRIAGE
         int tmp_extruder = active_extruder;
         extruder_duplication_enabled = false;
@@ -1825,31 +1846,38 @@ inline void gcode_G28() {
       #endif
     }
 
-    if (home_all_axis || code_seen(axis_codes[Y_AXIS])) HOMEAXIS(Y);
+    // Home Y
+    if (home_all_axis || homeY) HOMEAXIS(Y);
 
+    // Set the X position, if included
+    // Adds the home_offset as well, which may be wrong
     if (code_seen(axis_codes[X_AXIS])) {
-      if (code_value_long() != 0) {
-          current_position[X_AXIS] = code_value()
-            #ifndef SCARA
-              + home_offset[X_AXIS]
-            #endif
-          ;
-      }
+      float v = code_value();
+      if (v) current_position[X_AXIS] = v
+        #ifndef SCARA
+          + home_offset[X_AXIS]
+        #endif
+      ;
     }
 
-    if (code_seen(axis_codes[Y_AXIS]) && code_value_long() != 0) {
-      current_position[Y_AXIS] = code_value()
+    // Set the Y position, if included
+    // Adds the home_offset as well, which may be wrong
+    if (code_seen(axis_codes[Y_AXIS])) {
+      float v = code_value();
+      if (v) current_position[Y_AXIS] = v
         #ifndef SCARA
           + home_offset[Y_AXIS]
         #endif
       ;
     }
 
-    #if Z_HOME_DIR < 0                      // If homing towards BED do Z last
+    // Home Z last if homing towards the bed
+    #if Z_HOME_DIR < 0
 
       #ifndef Z_SAFE_HOMING
 
-        if (home_all_axis || code_seen(axis_codes[Z_AXIS])) {
+        if (home_all_axis || homeZ) {
+          // Raise Z before homing Z? Shouldn't this happen before homing X or Y?
           #if defined(Z_RAISE_BEFORE_HOMING) && Z_RAISE_BEFORE_HOMING > 0
             destination[Z_AXIS] = -Z_RAISE_BEFORE_HOMING * home_dir(Z_AXIS);    // Set destination away from bed
             feedrate = max_feedrate[Z_AXIS];
@@ -1878,7 +1906,7 @@ inline void gcode_G28() {
         }
 
         // Let's see if X and Y are homed and probe is inside bed area.
-        if (code_seen(axis_codes[Z_AXIS])) {
+        if (homeZ) {
 
           if (axis_known_position[X_AXIS] && axis_known_position[Y_AXIS]) {
 
@@ -1912,13 +1940,15 @@ inline void gcode_G28() {
 
     #endif // Z_HOME_DIR < 0
 
-
-    if (code_seen(axis_codes[Z_AXIS]) && code_value_long() != 0)
-      current_position[Z_AXIS] = code_value() + home_offset[Z_AXIS];
+    // Set the Z position, if included
+    // Adds the home_offset as well, which may be wrong
+    if (code_seen(axis_codes[Z_AXIS])) {
+      float v = code_value();
+      if (v) current_position[Z_AXIS] = v + home_offset[Z_AXIS];
+    }
 
     #if defined(ENABLE_AUTO_BED_LEVELING) && (Z_HOME_DIR < 0)
-      if (home_all_axis || code_seen(axis_codes[Z_AXIS]))
-        current_position[Z_AXIS] += zprobe_zoffset;  //Add Z_Probe offset (the distance is negative)
+      if (home_all_axis || homeZ) current_position[Z_AXIS] += zprobe_zoffset;  // Add Z_Probe offset (the distance is negative)
     #endif
     sync_plan_position();
 
@@ -2741,7 +2771,7 @@ inline void gcode_M42() {
    *     E = Engage probe for each reading
    *     L = Number of legs of movement before probe
    *  
-   * This function assumes the bed has been homed.  Specificaly, that a G28 command
+   * This function assumes the bed has been homed.  Specifically, that a G28 command
    * as been issued prior to invoking the M48 Z-Probe repeatability measurement function.
    * Any information generated by a prior G29 Bed leveling command will be lost and need to be
    * regenerated.
