@@ -417,6 +417,12 @@
 #ifndef MSG_ERR_MAXTEMP_BED
 #define MSG_ERR_MAXTEMP_BED                 "Err: MAXTEMP BED"
 #endif
+#ifndef MSG_END_HOUR
+#define MSG_END_HOUR                        "hours"
+#endif
+#ifndef MSG_END_MINUTE
+#define MSG_END_MINUTE                      "minutes"
+#endif
 
 #ifdef DELTA_CALIBRATION_MENU
   #ifndef MSG_DELTA_CALIBRATE
