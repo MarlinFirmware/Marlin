@@ -624,7 +624,7 @@ static void lcd_implementation_status_screen()
 
 static void lcd_implementation_drawmenu_generic(bool sel, uint8_t row, const char* pstr, char pre_char, char post_char) {
   char c;
-  uint8_t n = LCD_WIDTH - 1 - (LCD_WIDTH < 20 ? 1 : 2);
+  uint8_t n = LCD_WIDTH - 2;
   lcd.setCursor(0, row);
   lcd.print(sel ? pre_char : ' ');
   while ((c = pgm_read_byte(pstr)) && n > 0) {
@@ -633,12 +633,11 @@ static void lcd_implementation_drawmenu_generic(bool sel, uint8_t row, const cha
   }
   while(n--) lcd.print(' ');
   lcd.print(post_char);
-  lcd.print(' ');
 }
 
 static void lcd_implementation_drawmenu_setting_edit_generic(bool sel, uint8_t row, const char* pstr, char pre_char, char* data) {
   char c;
-  uint8_t n = LCD_WIDTH - 1 - (LCD_WIDTH < 20 ? 1 : 2) - lcd_strlen(data);
+  uint8_t n = LCD_WIDTH - 2 - lcd_strlen(data);
   lcd.setCursor(0, row);
   lcd.print(sel ? pre_char : ' ');
   while ((c = pgm_read_byte(pstr)) && n > 0) {
@@ -651,7 +650,7 @@ static void lcd_implementation_drawmenu_setting_edit_generic(bool sel, uint8_t r
 }
 static void lcd_implementation_drawmenu_setting_edit_generic_P(bool sel, uint8_t row, const char* pstr, char pre_char, const char* data) {
   char c;
-  uint8_t n = LCD_WIDTH - 1 - (LCD_WIDTH < 20 ? 1 : 2) - lcd_strlen_P(data);
+  uint8_t n = LCD_WIDTH - 2 - lcd_strlen_P(data);
   lcd.setCursor(0, row);
   lcd.print(sel ? pre_char : ' ');
   while ((c = pgm_read_byte(pstr)) && n > 0) {
@@ -688,11 +687,11 @@ void lcd_implementation_drawedit(const char* pstr, char* value) {
   lcd.setCursor(1, 1);
   lcd_printPGM(pstr);
   lcd.print(':');
-  lcd.setCursor(LCD_WIDTH - (LCD_WIDTH < 20 ? 0 : 1) - lcd_strlen(value), 1);
+  lcd.setCursor(LCD_WIDTH - lcd_strlen(value), 1);
   lcd_print(value);
 }
 
-static void lcd_implementation_drawmenu_sd(bool sel, uint8_t row, const char* pstr, const char* filename, char* longFilename, uint8_t concat) {
+static void lcd_implementation_drawmenu_sd(bool sel, uint8_t row, const char* pstr, const char* filename, char* longFilename, uint8_t concat, char post_char) {
   char c;
   uint8_t n = LCD_WIDTH - concat;
   lcd.setCursor(0, row);
@@ -706,14 +705,15 @@ static void lcd_implementation_drawmenu_sd(bool sel, uint8_t row, const char* ps
     filename++;
   }
   while (n--) lcd.print(' ');
+  lcd.print(post_char);
 }
 
 static void lcd_implementation_drawmenu_sdfile(bool sel, uint8_t row, const char* pstr, const char* filename, char* longFilename) {
-  lcd_implementation_drawmenu_sd(sel, row, pstr, filename, longFilename, 1);
+  lcd_implementation_drawmenu_sd(sel, row, pstr, filename, longFilename, 2, ' ');
 }
 
 static void lcd_implementation_drawmenu_sddirectory(bool sel, uint8_t row, const char* pstr, const char* filename, char* longFilename) {
-  lcd_implementation_drawmenu_sd(sel, row, pstr, filename, longFilename, 2);
+  lcd_implementation_drawmenu_sd(sel, row, pstr, filename, longFilename, 2, LCD_STR_FOLDER[0]);
 }
 
 #define lcd_implementation_drawmenu_back(sel, row, pstr, data) lcd_implementation_drawmenu_generic(sel, row, pstr, LCD_STR_UPLEVEL[0], LCD_STR_UPLEVEL[0])
