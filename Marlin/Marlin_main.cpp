@@ -229,18 +229,17 @@ bool axis_known_position[3] = { false };
 // Extruder offset
 #if EXTRUDERS > 1
   #ifndef EXTRUDER_OFFSET_X
-    #define EXTRUDER_OFFSET_X 0
+    #define EXTRUDER_OFFSET_X { 0 }
   #endif
   #ifndef EXTRUDER_OFFSET_Y
-    #define EXTRUDER_OFFSET_Y 0
+    #define EXTRUDER_OFFSET_Y { 0 }
   #endif
   #ifndef DUAL_X_CARRIAGE
     #define NUM_EXTRUDER_OFFSETS 2 // only in XY plane
   #else
     #define NUM_EXTRUDER_OFFSETS 3 // supports offsets in XYZ plane
   #endif
-  #define _EXY { EXTRUDER_OFFSET_X, EXTRUDER_OFFSET_Y }
-  float extruder_offset[EXTRUDERS][NUM_EXTRUDER_OFFSETS] = ARRAY_BY_EXTRUDERS(_EXY, _EXY, _EXY, _EXY);
+  float extruder_offset[EXTRUDERS][NUM_EXTRUDER_OFFSETS];
 #endif
 
 uint8_t active_extruder = 0;
@@ -569,6 +568,13 @@ void servo_init()
 
 void setup()
 {
+  #if EXTRUDERS > 1
+    float offset[3][EXTRUDERS] = { EXTRUDER_OFFSET_X, EXTRUDER_OFFSET_Y, ARRAY_BY_EXTRUDERS(0,0,0,0) };
+    for (int e=0; e<EXTRUDERS; e++)
+      for (int i=0; i<NUM_EXTRUDER_OFFSETS; i++)
+        extruder_offset[e][i] = offset[i,e];
+  #endif
+
   setup_killpin();
   setup_filrunoutpin();
   setup_powerhold();
