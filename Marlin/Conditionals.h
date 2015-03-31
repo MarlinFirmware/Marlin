@@ -257,7 +257,7 @@
   #endif
 
   #ifdef ULTIPANEL
-   #undef SDCARDDETECTINVERTED
+    #undef SDCARDDETECTINVERTED
   #endif
 
   // Power Signal Control Definitions
@@ -265,16 +265,14 @@
   #ifndef POWER_SUPPLY
     #define POWER_SUPPLY 1
   #endif
-  // 1 = ATX
-  #if (POWER_SUPPLY == 1)
+  #if (POWER_SUPPLY == 1)     // 1 = ATX
     #define PS_ON_AWAKE  LOW
     #define PS_ON_ASLEEP HIGH
-  #endif
-  // 2 = X-Box 360 203W
-  #if (POWER_SUPPLY == 2)
+  #elif (POWER_SUPPLY == 2)   // 2 = X-Box 360 203W
     #define PS_ON_AWAKE  HIGH
     #define PS_ON_ASLEEP LOW
   #endif
+  #define HAS_POWER_SWITCH (POWER_SUPPLY > 0 && defined(PS_ON_PIN) && PS_ON_PIN >= 0)
 
   /**
    * Temp Sensor defines

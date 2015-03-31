@@ -168,12 +168,12 @@
 // M401 - Lower z-probe if present
 // M402 - Raise z-probe if present
 // M404 - N<dia in mm> Enter the nominal filament width (3mm, 1.75mm ) or will display nominal filament width without parameters
-// M405 - Turn on Filament Sensor extrusion control.  Optional D<delay in cm> to set delay in centimeters between sensor and extruder 
-// M406 - Turn off Filament Sensor extrusion control 
-// M407 - Displays measured filament diameter 
+// M405 - Turn on Filament Sensor extrusion control.  Optional D<delay in cm> to set delay in centimeters between sensor and extruder
+// M406 - Turn off Filament Sensor extrusion control
+// M407 - Display measured filament diameter
 // M500 - Store parameters in EEPROM
 // M501 - Read parameters from EEPROM (if you need reset them after you changed them temporarily).
-// M502 - Revert to the default "factory settings".  You still need to store them in EEPROM afterwards if you want to.
+// M502 - Revert to the default "factory settings". You still need to store them in EEPROM afterwards if you want to.
 // M503 - Print the current settings (from memory not from EEPROM). Use S0 to leave off headings.
 // M540 - Use S[0|1] to enable or disable the stop SD card print on endstop hit (requires ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED)
 // M600 - Pause for filament change X[pos] Y[pos] Z[relative lift] E[initial retract] L[later retract distance for removal]
@@ -226,21 +226,21 @@ float min_pos[3] = { X_MIN_POS, Y_MIN_POS, Z_MIN_POS };
 float max_pos[3] = { X_MAX_POS, Y_MAX_POS, Z_MAX_POS };
 bool axis_known_position[3] = { false };
 
-// Extruder offset
+// Extruder offsets
 #if EXTRUDERS > 1
   #ifndef EXTRUDER_OFFSET_X
-    #define EXTRUDER_OFFSET_X 0
+    #define EXTRUDER_OFFSET_X { 0 }
   #endif
   #ifndef EXTRUDER_OFFSET_Y
-    #define EXTRUDER_OFFSET_Y 0
+    #define EXTRUDER_OFFSET_Y { 0 }
   #endif
-  #ifndef DUAL_X_CARRIAGE
-    #define NUM_EXTRUDER_OFFSETS 2 // only in XY plane
-  #else
-    #define NUM_EXTRUDER_OFFSETS 3 // supports offsets in XYZ plane
-  #endif
-  #define _EXY { EXTRUDER_OFFSET_X, EXTRUDER_OFFSET_Y }
-  float extruder_offset[EXTRUDERS][NUM_EXTRUDER_OFFSETS] = ARRAY_BY_EXTRUDERS(_EXY, _EXY, _EXY, _EXY);
+  float extruder_offset[][EXTRUDERS] = {
+    EXTRUDER_OFFSET_X,
+    EXTRUDER_OFFSET_Y
+    #ifdef DUAL_X_CARRIAGE
+      , { 0 } // supports offsets in XYZ plane
+    #endif
+  };
 #endif
 
 uint8_t active_extruder = 0;
@@ -272,7 +272,7 @@ int fanSpeed = 0;
 
 #endif // FWRETRACT
 
-#ifdef ULTIPANEL
+#if defined(ULTIPANEL) && HAS_POWER_SWITCH
   bool powersupply = 
     #ifdef PS_DEFAULT_OFF
       false
@@ -310,14 +310,14 @@ int fanSpeed = 0;
 bool cancel_heatup = false;
 
 #ifdef FILAMENT_SENSOR
-  //Variables for Filament Sensor input 
-  float filament_width_nominal=DEFAULT_NOMINAL_FILAMENT_DIA;  //Set nominal filament width, can be changed with M404 
-  bool filament_sensor=false;  //M405 turns on filament_sensor control, M406 turns it off 
-  float filament_width_meas=DEFAULT_MEASURED_FILAMENT_DIA; //Stores the measured filament diameter 
-  signed char measurement_delay[MAX_MEASUREMENT_DELAY+1];  //ring buffer to delay measurement  store extruder factor after subtracting 100 
-  int delay_index1=0;  //index into ring buffer
-  int delay_index2=-1;  //index into ring buffer - set to -1 on startup to indicate ring buffer needs to be initialized
-  float delay_dist=0; //delay distance counter  
+  //Variables for Filament Sensor input
+  float filament_width_nominal = DEFAULT_NOMINAL_FILAMENT_DIA;  //Set nominal filament width, can be changed with M404
+  bool filament_sensor = false;  //M405 turns on filament_sensor control, M406 turns it off
+  float filament_width_meas = DEFAULT_MEASURED_FILAMENT_DIA; //Stores the measured filament diameter
+  signed char measurement_delay[MAX_MEASUREMENT_DELAY+1];  //ring buffer to delay measurement  store extruder factor after subtracting 100
+  int delay_index1 = 0;  //index into ring buffer
+  int delay_index2 = -1;  //index into ring buffer - set to -1 on startup to indicate ring buffer needs to be initialized
+  float delay_dist = 0; //delay distance counter
   int meas_delay_cm = MEASUREMENT_DELAY_CM;  //distance delay setting
 #endif
 
@@ -516,8 +516,8 @@ void setup_powerhold()
   #if defined(SUICIDE_PIN) && SUICIDE_PIN > -1
     OUT_WRITE(SUICIDE_PIN, HIGH);
   #endif
-  #if defined(PS_ON_PIN) && PS_ON_PIN > -1
-    #if defined(PS_DEFAULT_OFF)
+  #if HAS_POWER_SWITCH
+    #ifdef PS_DEFAULT_OFF
       OUT_WRITE(PS_ON_PIN, PS_ON_ASLEEP);
     #else
       OUT_WRITE(PS_ON_PIN, PS_ON_AWAKE);
@@ -846,7 +846,7 @@ void get_command()
         sprintf_P(time, PSTR("%i hours %i minutes"),hours, minutes);
         SERIAL_ECHO_START;
         SERIAL_ECHOLN(time);
-        lcd_setstatus(time);
+        lcd_setstatus(time, true);
         card.printingHasFinished();
         card.checkautostart(true);
 
@@ -898,7 +898,7 @@ bool code_seen(char code) {
   strchr_pointer = strchr(cmdbuffer[bufindr], code);
   return (strchr_pointer != NULL);  //Return True if a character was found
 }
-  
+
 #define DEFINE_PGM_READ_ANY(type, reader)       \
     static inline type pgm_read_any(const type *p)  \
     { return pgm_read_##reader##_near(p); }
@@ -935,7 +935,7 @@ XYZ_CONSTS_FROM_CONFIG(signed char, home_dir,  HOME_DIR);
       // second X-carriage offset when homed - otherwise X2_HOME_POS is used.
       // This allow soft recalibration of the second extruder offset position without firmware reflash
       // (through the M218 command).
-      return (extruder_offset[1][X_AXIS] > 0) ? extruder_offset[1][X_AXIS] : X2_HOME_POS;
+      return (extruder_offset[X_AXIS][1] > 0) ? extruder_offset[X_AXIS][1] : X2_HOME_POS;
   }
 
   static int x_home_dir(int extruder) {
@@ -959,14 +959,14 @@ static void axis_is_at_home(int axis) {
       if (active_extruder != 0) {
         current_position[X_AXIS] = x_home_pos(active_extruder);
                  min_pos[X_AXIS] = X2_MIN_POS;
-                 max_pos[X_AXIS] = max(extruder_offset[1][X_AXIS], X2_MAX_POS);
+                 max_pos[X_AXIS] = max(extruder_offset[X_AXIS][1], X2_MAX_POS);
         return;
       }
       else if (dual_x_carriage_mode == DXC_DUPLICATION_MODE) {
         float xoff = home_offset[X_AXIS];
         current_position[X_AXIS] = base_home_pos(X_AXIS) + xoff;
                  min_pos[X_AXIS] = base_min_pos(X_AXIS) + xoff;
-                 max_pos[X_AXIS] = min(base_max_pos(X_AXIS) + xoff, max(extruder_offset[1][X_AXIS], X2_MAX_POS) - duplicate_extruder_x_offset);
+                 max_pos[X_AXIS] = min(base_max_pos(X_AXIS) + xoff, max(extruder_offset[X_AXIS][1], X2_MAX_POS) - duplicate_extruder_x_offset);
         return;
       }
     }
@@ -1055,7 +1055,7 @@ inline void sync_plan_position() {
         //corrected_position.debug("position after");
         current_position[X_AXIS] = corrected_position.x;
         current_position[Y_AXIS] = corrected_position.y;
-        current_position[Z_AXIS] = zprobe_zoffset; // was: corrected_position.z
+        current_position[Z_AXIS] = corrected_position.z;
 
         sync_plan_position();
       }
@@ -1084,7 +1084,7 @@ inline void sync_plan_position() {
       vector_3 corrected_position = plan_get_position();
       current_position[X_AXIS] = corrected_position.x;
       current_position[Y_AXIS] = corrected_position.y;
-      current_position[Z_AXIS] = zprobe_zoffset; // was: corrected_position.z
+      current_position[Z_AXIS] = corrected_position.z;
 
       sync_plan_position();
     }
@@ -1254,18 +1254,18 @@ inline void sync_plan_position() {
 
   }
 
-  static void retract_z_probe(const float z_after=Z_RAISE_AFTER_PROBING) {
+  static void retract_z_probe() {
 
     #ifdef SERVO_ENDSTOPS
 
       // Retract Z Servo endstop if enabled
       if (servo_endstops[Z_AXIS] >= 0) {
 
-        if (z_after > 0) {
-          do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], z_after);
+        #if Z_RAISE_AFTER_PROBING > 0
+          do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], Z_RAISE_AFTER_PROBING);
           st_synchronize();
-        }
-      
+        #endif
+
         #if SERVO_LEVELING
           servos[servo_endstops[Z_AXIS]].attach(0);
         #endif
@@ -1343,8 +1343,15 @@ inline void sync_plan_position() {
     run_z_probe();
     float measured_z = current_position[Z_AXIS];
 
+    #if Z_RAISE_BETWEEN_PROBINGS > 0
+      if (retract_action == ProbeStay) {
+        do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], Z_RAISE_BETWEEN_PROBINGS);
+        st_synchronize();
+      }
+    #endif
+
     #if !defined(Z_PROBE_SLED) && !defined(Z_PROBE_ALLEN_KEY)
-      if (retract_action & ProbeRetract) retract_z_probe(z_before);
+      if (retract_action & ProbeRetract) retract_z_probe();
     #endif
 
     if (verbose_level > 2) {
@@ -1803,7 +1810,19 @@ inline void gcode_G28() {
     home_all_axis = !homeX && !homeY && !homeZ; // No parameters means home all axes
 
     #if Z_HOME_DIR > 0                      // If homing away from BED do Z first
+
       if (home_all_axis || homeZ) HOMEAXIS(Z);
+
+    #elif !defined(Z_SAFE_HOMING) && defined(Z_RAISE_BEFORE_HOMING) && Z_RAISE_BEFORE_HOMING > 0
+
+      // Raise Z before homing any other axes
+      if (home_all_axis || homeZ) {
+        destination[Z_AXIS] = -Z_RAISE_BEFORE_HOMING * home_dir(Z_AXIS);    // Set destination away from bed
+        feedrate = max_feedrate[Z_AXIS];
+        line_to_destination();
+        st_synchronize();
+      }
+
     #endif
 
     #ifdef QUICK_HOME
@@ -1897,16 +1916,7 @@ inline void gcode_G28() {
 
       #ifndef Z_SAFE_HOMING
 
-        if (home_all_axis || homeZ) {
-          // Raise Z before homing Z? Shouldn't this happen before homing X or Y?
-          #if defined(Z_RAISE_BEFORE_HOMING) && Z_RAISE_BEFORE_HOMING > 0
-            destination[Z_AXIS] = -Z_RAISE_BEFORE_HOMING * home_dir(Z_AXIS);    // Set destination away from bed
-            feedrate = max_feedrate[Z_AXIS];
-            line_to_destination();
-            st_synchronize();
-          #endif
-          HOMEAXIS(Z);
-        }
+        if (home_all_axis || homeZ) HOMEAXIS(Z);
 
       #else // Z_SAFE_HOMING
 
@@ -2536,9 +2546,13 @@ inline void gcode_G92() {
     if (starpos != NULL) *(starpos) = '\0';
     while (*src == ' ') ++src;
     if (!hasP && !hasS && *src != '\0')
-      lcd_setstatus(src);
-    else
+      lcd_setstatus(src, true);
+    else {
       LCD_MESSAGEPGM(MSG_USERWAIT);
+      #if defined(LCD_PROGRESS_BAR) && PROGRESS_MSG_EXPIRE > 0
+        dontExpireStatus();
+      #endif
+    }
 
     lcd_ignore_click();
     st_synchronize();
@@ -3291,7 +3305,7 @@ inline void gcode_M140() {
   if (code_seen('S')) setTargetBed(code_value());
 }
 
-#if defined(PS_ON_PIN) && PS_ON_PIN > -1
+#if HAS_POWER_SWITCH
 
   /**
    * M80: Turn on Power Supply
@@ -3313,10 +3327,12 @@ inline void gcode_M140() {
     #endif
   }
 
-#endif // PS_ON_PIN
+#endif // HAS_POWER_SWITCH
 
 /**
- * M81: Turn off Power Supply
+ * M81: Turn off Power, including Power Supply, if there is one.
+ *
+ *      This code should ALWAYS be available for EMERGENCY SHUTDOWN!
  */
 inline void gcode_M81() {
   disable_heater();
@@ -3331,15 +3347,18 @@ inline void gcode_M81() {
   #if defined(SUICIDE_PIN) && SUICIDE_PIN > -1
     st_synchronize();
     suicide();
-  #elif defined(PS_ON_PIN) && PS_ON_PIN > -1
+  #elif HAS_POWER_SWITCH
     OUT_WRITE(PS_ON_PIN, PS_ON_ASLEEP);
   #endif
   #ifdef ULTIPANEL
-    powersupply = false;
+    #if HAS_POWER_SWITCH
+      powersupply = false;
+    #endif
     LCD_MESSAGEPGM(MACHINE_NAME " " MSG_OFF ".");
     lcd_update();
   #endif
 }
+
 
 /**
  * M82: Set E codes absolute (default)
@@ -3768,23 +3787,23 @@ inline void gcode_M206() {
   inline void gcode_M218() {
     if (setTargetedHotend(218)) return;
 
-    if (code_seen('X')) extruder_offset[tmp_extruder][X_AXIS] = code_value();
-    if (code_seen('Y')) extruder_offset[tmp_extruder][Y_AXIS] = code_value();
+    if (code_seen('X')) extruder_offset[X_AXIS][tmp_extruder] = code_value();
+    if (code_seen('Y')) extruder_offset[Y_AXIS][tmp_extruder] = code_value();
 
     #ifdef DUAL_X_CARRIAGE
-      if (code_seen('Z')) extruder_offset[tmp_extruder][Z_AXIS] = code_value();
+      if (code_seen('Z')) extruder_offset[Z_AXIS][tmp_extruder] = code_value();
     #endif
 
     SERIAL_ECHO_START;
     SERIAL_ECHOPGM(MSG_HOTEND_OFFSET);
     for (tmp_extruder = 0; tmp_extruder < EXTRUDERS; tmp_extruder++) {
       SERIAL_ECHO(" ");
-      SERIAL_ECHO(extruder_offset[tmp_extruder][X_AXIS]);
+      SERIAL_ECHO(extruder_offset[X_AXIS][tmp_extruder]);
       SERIAL_ECHO(",");
-      SERIAL_ECHO(extruder_offset[tmp_extruder][Y_AXIS]);
+      SERIAL_ECHO(extruder_offset[Y_AXIS][tmp_extruder]);
       #ifdef DUAL_X_CARRIAGE
         SERIAL_ECHO(",");
-        SERIAL_ECHO(extruder_offset[tmp_extruder][Z_AXIS]);
+        SERIAL_ECHO(extruder_offset[Z_AXIS][tmp_extruder]);
       #endif
     }
     SERIAL_EOL;
@@ -4475,13 +4494,13 @@ inline void gcode_M503() {
         SERIAL_ECHO_START;
         SERIAL_ECHOPGM(MSG_HOTEND_OFFSET);
         SERIAL_ECHO(" ");
-        SERIAL_ECHO(extruder_offset[0][X_AXIS]);
+        SERIAL_ECHO(extruder_offset[X_AXIS][0]);
         SERIAL_ECHO(",");
-        SERIAL_ECHO(extruder_offset[0][Y_AXIS]);
+        SERIAL_ECHO(extruder_offset[Y_AXIS][0]);
         SERIAL_ECHO(" ");
         SERIAL_ECHO(duplicate_extruder_x_offset);
         SERIAL_ECHO(",");
-        SERIAL_ECHOLN(extruder_offset[1][Y_AXIS]);
+        SERIAL_ECHOLN(extruder_offset[Y_AXIS][1]);
         break;
       case DXC_FULL_CONTROL_MODE:
       case DXC_AUTO_PARK_MODE:
@@ -4616,11 +4635,11 @@ inline void gcode_T() {
 
           // apply Y & Z extruder offset (x offset is already used in determining home pos)
           current_position[Y_AXIS] = current_position[Y_AXIS] -
-                       extruder_offset[active_extruder][Y_AXIS] +
-                       extruder_offset[tmp_extruder][Y_AXIS];
+                       extruder_offset[Y_AXIS][active_extruder] +
+                       extruder_offset[Y_AXIS][tmp_extruder];
           current_position[Z_AXIS] = current_position[Z_AXIS] -
-                       extruder_offset[active_extruder][Z_AXIS] +
-                       extruder_offset[tmp_extruder][Z_AXIS];
+                       extruder_offset[Z_AXIS][active_extruder] +
+                       extruder_offset[Z_AXIS][tmp_extruder];
 
           active_extruder = tmp_extruder;
 
@@ -4650,7 +4669,7 @@ inline void gcode_T() {
         #else // !DUAL_X_CARRIAGE
           // Offset extruder (only by XY)
           for (int i=X_AXIS; i<=Y_AXIS; i++)
-            current_position[i] += extruder_offset[tmp_extruder][i] - extruder_offset[active_extruder][i];
+            current_position[i] += extruder_offset[i][tmp_extruder] - extruder_offset[i][active_extruder];
           // Set the new active extruder and position
           active_extruder = tmp_extruder;
         #endif // !DUAL_X_CARRIAGE
@@ -4874,15 +4893,15 @@ void process_commands() {
         #endif //HEATER_2_PIN
       #endif //BARICUDA
 
-      #if defined(PS_ON_PIN) && PS_ON_PIN > -1
+      #if HAS_POWER_SWITCH
 
         case 80: // M80 - Turn on Power Supply
           gcode_M80();
           break;
 
-      #endif // PS_ON_PIN
+      #endif // HAS_POWER_SWITCH
 
-      case 81: // M81 - Turn off Power Supply
+      case 81: // M81 - Turn off Power, including Power Supply, if possible
         gcode_M81();
         break;
 
@@ -5859,19 +5878,17 @@ void kill()
   disable_e2();
   disable_e3();
 
-#if defined(PS_ON_PIN) && PS_ON_PIN > -1
-  pinMode(PS_ON_PIN,INPUT);
-#endif
+  #if HAS_POWER_SWITCH
+    pinMode(PS_ON_PIN, INPUT);
+  #endif
+
   SERIAL_ERROR_START;
   SERIAL_ERRORLNPGM(MSG_ERR_KILLED);
   LCD_ALERTMESSAGEPGM(MSG_KILLED);
   
   // FMC small patch to update the LCD before ending
   sei();   // enable interrupts
-  for ( int i=5; i--; lcd_update())
-  {
-     delay(200);  
-  }
+  for (int i = 5; i--; lcd_update()) delay(200); // Wait a short time
   cli();   // disable interrupts
   suicide();
   while(1) { /* Intentionally left empty */ } // Wait for reset
