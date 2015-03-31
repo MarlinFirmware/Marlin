@@ -272,7 +272,7 @@
     #define PS_ON_AWAKE  HIGH
     #define PS_ON_ASLEEP LOW
   #endif
-  HAS_POWER_SWITCH = (POWER_SUPPLY > 0 && defined(PS_ON_PIN) && PS_ON_PIN >= 0)
+  #define HAS_POWER_SWITCH (POWER_SUPPLY > 0 && defined(PS_ON_PIN) && PS_ON_PIN >= 0)
 
   /**
    * Temp Sensor defines
