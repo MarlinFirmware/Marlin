@@ -116,7 +116,7 @@
         #error You must have at least 1 servo defined for NUM_SERVOS to use Z_PROBE_AND_ENDSTOP
       #endif
       #ifndef SERVO_ENDSTOPS
-        #error You must have SERVO_ENDSTOPS defined and have the Z index set to at least 1 to use Z_PROBE_AND_ENDSTOP
+        #error You must have SERVO_ENDSTOPS defined and have the Z index set to at least 0 or above to use Z_PROBE_AND_ENDSTOP
       #endif
       #ifndef SERVO_ENDSTOP_ANGLES
         #error You must have SERVO_ENDSTOP_ANGLES defined for Z Extend and Retract to use Z_PROBE_AND_ENSTOP

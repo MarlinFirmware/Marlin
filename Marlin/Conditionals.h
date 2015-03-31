@@ -186,7 +186,7 @@
       #define ENDSTOPPULLUP_ZMIN
     #endif
     #ifndef DISABLE_Z_PROBE_ENDSTOP
-      #define ENDSTOPPULL_ZPROBE
+      #define ENDSTOPPULLUP_ZPROBE
     #endif
   #endif
 
