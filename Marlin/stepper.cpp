@@ -545,7 +545,7 @@ ISR(TIMER1_COMPA_vect) {
 
         #if defined(Z_PROBE_PIN) && Z_PROBE_PIN > -1
           UPDATE_ENDSTOP(z, Z, probe, PROBE);
-          z_probe_endstop=(READ(Z_PROBE_PIN) != Z_MIN_ENDSTOP_INVERTING);
+          z_probe_endstop=(READ(Z_PROBE_PIN) != Z_PROBE_ENDSTOP_INVERTING);
           if(z_probe_endstop && old_z_probe_endstop)
           {
         	  endstops_trigsteps[Z_AXIS] = count_position[Z_AXIS];
@@ -592,7 +592,7 @@ ISR(TIMER1_COMPA_vect) {
 
         #if defined(Z_PROBE_PIN) && Z_PROBE_PIN > -1
           UPDATE_ENDSTOP(z, Z, probe, PROBE);
-          z_probe_endstop=(READ(Z_PROBE_PIN) != Z_MAX_ENDSTOP_INVERTING);
+          z_probe_endstop=(READ(Z_PROBE_PIN) != Z_PROBE_ENDSTOP_INVERTING);
           if(z_probe_endstop && old_z_probe_endstop)
           {
         	  endstops_trigsteps[Z_AXIS] = count_position[Z_AXIS];
