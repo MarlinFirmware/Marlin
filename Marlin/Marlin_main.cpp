@@ -168,12 +168,12 @@
 // M401 - Lower z-probe if present
 // M402 - Raise z-probe if present
 // M404 - N<dia in mm> Enter the nominal filament width (3mm, 1.75mm ) or will display nominal filament width without parameters
-// M405 - Turn on Filament Sensor extrusion control.  Optional D<delay in cm> to set delay in centimeters between sensor and extruder 
-// M406 - Turn off Filament Sensor extrusion control 
-// M407 - Displays measured filament diameter 
+// M405 - Turn on Filament Sensor extrusion control.  Optional D<delay in cm> to set delay in centimeters between sensor and extruder
+// M406 - Turn off Filament Sensor extrusion control
+// M407 - Display measured filament diameter
 // M500 - Store parameters in EEPROM
 // M501 - Read parameters from EEPROM (if you need reset them after you changed them temporarily).
-// M502 - Revert to the default "factory settings".  You still need to store them in EEPROM afterwards if you want to.
+// M502 - Revert to the default "factory settings". You still need to store them in EEPROM afterwards if you want to.
 // M503 - Print the current settings (from memory not from EEPROM). Use S0 to leave off headings.
 // M540 - Use S[0|1] to enable or disable the stop SD card print on endstop hit (requires ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED)
 // M600 - Pause for filament change X[pos] Y[pos] Z[relative lift] E[initial retract] L[later retract distance for removal]
@@ -272,7 +272,7 @@ int fanSpeed = 0;
 
 #endif // FWRETRACT
 
-#ifdef ULTIPANEL
+#if defined(ULTIPANEL) && HAS_POWER_SWITCH
   bool powersupply = 
     #ifdef PS_DEFAULT_OFF
       false
@@ -310,14 +310,14 @@ int fanSpeed = 0;
 bool cancel_heatup = false;
 
 #ifdef FILAMENT_SENSOR
-  //Variables for Filament Sensor input 
-  float filament_width_nominal=DEFAULT_NOMINAL_FILAMENT_DIA;  //Set nominal filament width, can be changed with M404 
-  bool filament_sensor=false;  //M405 turns on filament_sensor control, M406 turns it off 
-  float filament_width_meas=DEFAULT_MEASURED_FILAMENT_DIA; //Stores the measured filament diameter 
-  signed char measurement_delay[MAX_MEASUREMENT_DELAY+1];  //ring buffer to delay measurement  store extruder factor after subtracting 100 
-  int delay_index1=0;  //index into ring buffer
-  int delay_index2=-1;  //index into ring buffer - set to -1 on startup to indicate ring buffer needs to be initialized
-  float delay_dist=0; //delay distance counter  
+  //Variables for Filament Sensor input
+  float filament_width_nominal = DEFAULT_NOMINAL_FILAMENT_DIA;  //Set nominal filament width, can be changed with M404
+  bool filament_sensor = false;  //M405 turns on filament_sensor control, M406 turns it off
+  float filament_width_meas = DEFAULT_MEASURED_FILAMENT_DIA; //Stores the measured filament diameter
+  signed char measurement_delay[MAX_MEASUREMENT_DELAY+1];  //ring buffer to delay measurement  store extruder factor after subtracting 100
+  int delay_index1 = 0;  //index into ring buffer
+  int delay_index2 = -1;  //index into ring buffer - set to -1 on startup to indicate ring buffer needs to be initialized
+  float delay_dist = 0; //delay distance counter
   int meas_delay_cm = MEASUREMENT_DELAY_CM;  //distance delay setting
 #endif
 
@@ -516,8 +516,8 @@ void setup_powerhold()
   #if defined(SUICIDE_PIN) && SUICIDE_PIN > -1
     OUT_WRITE(SUICIDE_PIN, HIGH);
   #endif
-  #if defined(PS_ON_PIN) && PS_ON_PIN > -1
-    #if defined(PS_DEFAULT_OFF)
+  #if HAS_POWER_SWITCH
+    #ifdef PS_DEFAULT_OFF
       OUT_WRITE(PS_ON_PIN, PS_ON_ASLEEP);
     #else
       OUT_WRITE(PS_ON_PIN, PS_ON_AWAKE);
@@ -898,7 +898,7 @@ bool code_seen(char code) {
   strchr_pointer = strchr(cmdbuffer[bufindr], code);
   return (strchr_pointer != NULL);  //Return True if a character was found
 }
-  
+
 #define DEFINE_PGM_READ_ANY(type, reader)       \
     static inline type pgm_read_any(const type *p)  \
     { return pgm_read_##reader##_near(p); }
@@ -3291,7 +3291,7 @@ inline void gcode_M140() {
   if (code_seen('S')) setTargetBed(code_value());
 }
 
-#if defined(PS_ON_PIN) && PS_ON_PIN > -1
+#if HAS_POWER_SWITCH
 
   /**
    * M80: Turn on Power Supply
@@ -3313,10 +3313,12 @@ inline void gcode_M140() {
     #endif
   }
 
-#endif // PS_ON_PIN
+#endif // HAS_POWER_SWITCH
 
 /**
- * M81: Turn off Power Supply
+ * M81: Turn off Power, including Power Supply, if there is one.
+ *
+ *      This code should ALWAYS be available for EMERGENCY SHUTDOWN!
  */
 inline void gcode_M81() {
   disable_heater();
@@ -3331,15 +3333,18 @@ inline void gcode_M81() {
   #if defined(SUICIDE_PIN) && SUICIDE_PIN > -1
     st_synchronize();
     suicide();
-  #elif defined(PS_ON_PIN) && PS_ON_PIN > -1
+  #elif HAS_POWER_SWITCH
     OUT_WRITE(PS_ON_PIN, PS_ON_ASLEEP);
   #endif
   #ifdef ULTIPANEL
-    powersupply = false;
+    #if HAS_POWER_SWITCH
+      powersupply = false;
+    #endif
     LCD_MESSAGEPGM(MACHINE_NAME " " MSG_OFF ".");
     lcd_update();
   #endif
 }
+
 
 /**
  * M82: Set E codes absolute (default)
@@ -4874,15 +4879,15 @@ void process_commands() {
         #endif //HEATER_2_PIN
       #endif //BARICUDA
 
-      #if defined(PS_ON_PIN) && PS_ON_PIN > -1
+      #if HAS_POWER_SWITCH
 
         case 80: // M80 - Turn on Power Supply
           gcode_M80();
           break;
 
-      #endif // PS_ON_PIN
+      #endif // HAS_POWER_SWITCH
 
-      case 81: // M81 - Turn off Power Supply
+      case 81: // M81 - Turn off Power, including Power Supply, if possible
         gcode_M81();
         break;
 
@@ -5859,19 +5864,17 @@ void kill()
   disable_e2();
   disable_e3();
 
-#if defined(PS_ON_PIN) && PS_ON_PIN > -1
-  pinMode(PS_ON_PIN,INPUT);
-#endif
+  #if HAS_POWER_SWITCH
+    pinMode(PS_ON_PIN, INPUT);
+  #endif
+
   SERIAL_ERROR_START;
   SERIAL_ERRORLNPGM(MSG_ERR_KILLED);
   LCD_ALERTMESSAGEPGM(MSG_KILLED);
   
   // FMC small patch to update the LCD before ending
   sei();   // enable interrupts
-  for ( int i=5; i--; lcd_update())
-  {
-     delay(200);  
-  }
+  for (int i = 5; i--; lcd_update()) delay(200); // Wait a short time
   cli();   // disable interrupts
   suicide();
   while(1) { /* Intentionally left empty */ } // Wait for reset
