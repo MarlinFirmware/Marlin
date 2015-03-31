@@ -1055,7 +1055,7 @@ inline void sync_plan_position() {
         //corrected_position.debug("position after");
         current_position[X_AXIS] = corrected_position.x;
         current_position[Y_AXIS] = corrected_position.y;
-        current_position[Z_AXIS] = zprobe_zoffset; // was: corrected_position.z
+        current_position[Z_AXIS] = corrected_position.z;
 
         sync_plan_position();
       }
@@ -1084,7 +1084,7 @@ inline void sync_plan_position() {
       vector_3 corrected_position = plan_get_position();
       current_position[X_AXIS] = corrected_position.x;
       current_position[Y_AXIS] = corrected_position.y;
-      current_position[Z_AXIS] = zprobe_zoffset; // was: corrected_position.z
+      current_position[Z_AXIS] = corrected_position.z;
 
       sync_plan_position();
     }
