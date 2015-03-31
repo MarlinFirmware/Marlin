@@ -572,7 +572,7 @@ void setup()
     float offset[3][EXTRUDERS] = { EXTRUDER_OFFSET_X, EXTRUDER_OFFSET_Y, ARRAY_BY_EXTRUDERS(0,0,0,0) };
     for (int e=0; e<EXTRUDERS; e++)
       for (int i=0; i<NUM_EXTRUDER_OFFSETS; i++)
-        extruder_offset[e][i] = offset[i,e];
+        extruder_offset[e][i] = offset[i][e];
   #endif
 
   setup_killpin();
