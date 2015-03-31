@@ -1343,9 +1343,11 @@ inline void sync_plan_position() {
     run_z_probe();
     float measured_z = current_position[Z_AXIS];
 
-    #if Z_RAISE_AFTER_PROBING > 0
-      do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], Z_RAISE_AFTER_PROBING);
-      st_synchronize();
+    #if Z_RAISE_BETWEEN_PROBINGS > 0
+      if (retract_action == ProbeStay) {
+        do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], Z_RAISE_BETWEEN_PROBINGS);
+        st_synchronize();
+      }
     #endif
 
     #if !defined(Z_PROBE_SLED) && !defined(Z_PROBE_ALLEN_KEY)
