@@ -2032,12 +2032,10 @@ inline void gcode_G28() {
         if (home_all_axis || homeZ) {
           // Raise Z before homing Z? Shouldn't this happen before homing X or Y?
           #if defined(Z_RAISE_BEFORE_HOMING) && Z_RAISE_BEFORE_HOMING > 0
-            #ifndef Z_PROBE_AND_ENDSTOP
             destination[Z_AXIS] = -Z_RAISE_BEFORE_HOMING * home_dir(Z_AXIS);    // Set destination away from bed
             feedrate = max_feedrate[Z_AXIS];
             line_to_destination();
             st_synchronize();
-            #endif
           #endif
           HOMEAXIS(Z);
         }
