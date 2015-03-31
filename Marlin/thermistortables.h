@@ -564,6 +564,132 @@ const short temptable_10[][2] PROGMEM = {
 };
 #endif
 
+#if (THERMISTORHEATER_0 == 11) || (THERMISTORHEATER_1 == 11) || (THERMISTORHEATER_2 == 11) || (THERMISTORBED == 11) 
+// QU-BD silicone bed QWG-104F-3950 thermistor
+
+const short temptable_11[][2] PROGMEM = {
+         {1*OVERSAMPLENR,        938},
+         {31*OVERSAMPLENR,       314},
+         {41*OVERSAMPLENR,       290},
+         {51*OVERSAMPLENR,       272},
+         {61*OVERSAMPLENR,       258},
+         {71*OVERSAMPLENR,       247},
+         {81*OVERSAMPLENR,       237},
+         {91*OVERSAMPLENR,       229},
+         {101*OVERSAMPLENR,      221},
+         {111*OVERSAMPLENR,      215},
+         {121*OVERSAMPLENR,      209},
+         {131*OVERSAMPLENR,      204},
+         {141*OVERSAMPLENR,      199},
+         {151*OVERSAMPLENR,      195},
+         {161*OVERSAMPLENR,      190},
+         {171*OVERSAMPLENR,      187},
+         {181*OVERSAMPLENR,      183},
+         {191*OVERSAMPLENR,      179},
+         {201*OVERSAMPLENR,      176},
+         {221*OVERSAMPLENR,      170},
+         {241*OVERSAMPLENR,      165},
+         {261*OVERSAMPLENR,      160},
+         {281*OVERSAMPLENR,      155},
+         {301*OVERSAMPLENR,      150},
+         {331*OVERSAMPLENR,      144},
+         {361*OVERSAMPLENR,      139},
+         {391*OVERSAMPLENR,      133},
+         {421*OVERSAMPLENR,      128},
+         {451*OVERSAMPLENR,      123},
+         {491*OVERSAMPLENR,      117},
+         {531*OVERSAMPLENR,      111},
+         {571*OVERSAMPLENR,      105},
+         {611*OVERSAMPLENR,      100},
+         {641*OVERSAMPLENR,      95},
+         {681*OVERSAMPLENR,      90},
+         {711*OVERSAMPLENR,      85},
+         {751*OVERSAMPLENR,      79},
+         {791*OVERSAMPLENR,      72},
+         {811*OVERSAMPLENR,      69},
+         {831*OVERSAMPLENR,      65},
+         {871*OVERSAMPLENR,      57},
+         {881*OVERSAMPLENR,      55},
+         {901*OVERSAMPLENR,      51},
+         {921*OVERSAMPLENR,      45},
+         {941*OVERSAMPLENR,      39},
+         {971*OVERSAMPLENR,      28},
+         {981*OVERSAMPLENR,      23},
+         {991*OVERSAMPLENR,      17},
+         {1001*OVERSAMPLENR,     9},
+         {1021*OVERSAMPLENR,     -27}
+};
+#endif
+
+#if (THERMISTORHEATER_0 == 13) || (THERMISTORHEATER_1 == 13) || (THERMISTORHEATER_2 == 13) || (THERMISTORBED == 13)
+// Hisens thermistor B25/50 =3950 +/-1%
+
+const short temptable_13[][2] PROGMEM = {
+ {	22.5*OVERSAMPLENR,	300	},
+{	24.125*OVERSAMPLENR,	295	},
+{	25.875*OVERSAMPLENR,	290	},
+{	27.8125*OVERSAMPLENR,	285	},
+{	29.9375*OVERSAMPLENR,	280	},
+{	32.25*OVERSAMPLENR,	275	},
+{	34.8125*OVERSAMPLENR,	270	},
+{	37.625*OVERSAMPLENR,	265	},
+{	40.6875*OVERSAMPLENR,	260	},
+{	44.0625*OVERSAMPLENR,	255	},
+{	47.75*OVERSAMPLENR,	250	},
+{	51.8125*OVERSAMPLENR,	245	},
+{	56.3125*OVERSAMPLENR,	240	},
+{	61.25*OVERSAMPLENR,	235	},
+{	66.75*OVERSAMPLENR,	230	},
+{	72.8125*OVERSAMPLENR,	225	},
+{	79.5*OVERSAMPLENR,	220	},
+{	87*OVERSAMPLENR,	215	},
+{	95.3125*OVERSAMPLENR,	210	},
+{	104.1875*OVERSAMPLENR,	205	},
+{	112.75*OVERSAMPLENR,	200	},
+{	123.125*OVERSAMPLENR,	195	},
+{	135.75*OVERSAMPLENR,	190	},
+{	148.3125*OVERSAMPLENR,	185	},
+{	163.8125*OVERSAMPLENR,	180	},
+{	179*OVERSAMPLENR,	175	},
+{	211.125*OVERSAMPLENR,	170	},
+{	216.125*OVERSAMPLENR,	165	},
+{	236.5625*OVERSAMPLENR,	160	},
+{	258.5*OVERSAMPLENR,	155	},
+{	279.875*OVERSAMPLENR,	150	},
+{	305.375*OVERSAMPLENR,	145	},
+{	333.25*OVERSAMPLENR,	140	},
+{	362.5625*OVERSAMPLENR,	135	},
+{	393.6875*OVERSAMPLENR,	130	},
+{	425*OVERSAMPLENR,	125	},
+{	460.625*OVERSAMPLENR,	120	},
+{	495.1875*OVERSAMPLENR,	115	},
+{	530.875*OVERSAMPLENR,	110	},
+{	567.25*OVERSAMPLENR,	105	},
+{	601.625*OVERSAMPLENR,	100	},
+{	637.875*OVERSAMPLENR,	95	},
+{	674.5625*OVERSAMPLENR,	90	},
+{	710*OVERSAMPLENR,	85	},
+{	744.125*OVERSAMPLENR,	80	},
+{	775.9375*OVERSAMPLENR,	75	},
+{	806.875*OVERSAMPLENR,	70	},
+{	835.1875*OVERSAMPLENR,	65	},
+{	861.125*OVERSAMPLENR,	60	},
+{	884.375*OVERSAMPLENR,	55	},
+{	904.5625*OVERSAMPLENR,	50	},
+{	923.8125*OVERSAMPLENR,	45	},
+{	940.375*OVERSAMPLENR,	40	},
+{	954.625*OVERSAMPLENR,	35	},
+{	966.875*OVERSAMPLENR,	30	},
+{	977.0625*OVERSAMPLENR,	25	},
+{	986*OVERSAMPLENR,	20	},
+{	993.375*OVERSAMPLENR,	15	},
+{	999.5*OVERSAMPLENR,	10	},
+{	1004.5*OVERSAMPLENR,	5	},
+{	1008.5*OVERSAMPLENR,	0	}
+
+ };
+#endif
+
 #if (THERMISTORHEATER_0 == 20) || (THERMISTORHEATER_1 == 20) || (THERMISTORHEATER_2 == 20) || (THERMISTORBED == 20) // PT100 with INA826 amp on Ultimaker v2.0 electronics
 /* The PT100 in the Ultimaker v2.0 electronics has a high sample value for a high temperature.
 This does not match the normal thermistor behaviour so we need to set the following defines */
@@ -781,6 +907,14 @@ const short temptable_55[][2] PROGMEM = {
 #endif
 
 #if (THERMISTORHEATER_0 == 60) || (THERMISTORHEATER_1 == 60) || (THERMISTORHEATER_2 == 60) || (THERMISTORBED == 60) // Maker's Tool Works Kapton Bed Thermister
+// ./createTemperatureLookup.py --r0=100000 --t0=25 --r1=0 --r2=4700 --beta=3950 
+// r0: 100000
+// t0: 25
+// r1: 0 (parallel with rTherm)
+// r2: 4700 (series with rTherm)
+// beta: 3950
+// min adc: 1 at 0.0048828125 V
+// max adc: 1023 at 4.9951171875 V
 const short temptable_60[][2] PROGMEM = {
    {51*OVERSAMPLENR, 272},
    {61*OVERSAMPLENR, 258},
@@ -854,6 +988,41 @@ const short temptable_60[][2] PROGMEM = {
    {991*OVERSAMPLENR, 17},
    {1001*OVERSAMPLENR, 9},
    {1008*OVERSAMPLENR, 0},
+};
+#endif
+#if (THERMISTORBED == 12) 
+//100k 0603 SMD Vishay NTCS0603E3104FXT (4.7k pullup) (calibrated for Makibox hot bed)
+const short temptable_12[][2] PROGMEM = {
+   {35*OVERSAMPLENR, 180}, //top rating 180C
+   {211*OVERSAMPLENR, 140},
+   {233*OVERSAMPLENR, 135},
+   {261*OVERSAMPLENR, 130},
+   {290*OVERSAMPLENR, 125},
+   {328*OVERSAMPLENR, 120},
+   {362*OVERSAMPLENR, 115},
+   {406*OVERSAMPLENR, 110},
+   {446*OVERSAMPLENR, 105},
+   {496*OVERSAMPLENR, 100},
+   {539*OVERSAMPLENR, 95},
+   {585*OVERSAMPLENR, 90},
+   {629*OVERSAMPLENR, 85},
+   {675*OVERSAMPLENR, 80},
+   {718*OVERSAMPLENR, 75},
+   {758*OVERSAMPLENR, 70},
+   {793*OVERSAMPLENR, 65},
+   {822*OVERSAMPLENR, 60},
+   {841*OVERSAMPLENR, 55},
+   {875*OVERSAMPLENR, 50},
+   {899*OVERSAMPLENR, 45},
+   {926*OVERSAMPLENR, 40},
+   {946*OVERSAMPLENR, 35},
+   {962*OVERSAMPLENR, 30},
+   {977*OVERSAMPLENR, 25},
+   {987*OVERSAMPLENR, 20},
+   {995*OVERSAMPLENR, 15},
+   {1001*OVERSAMPLENR, 10},
+   {1010*OVERSAMPLENR, 0},
+   {1023*OVERSAMPLENR, -40},
 };
 #endif
 

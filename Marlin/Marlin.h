@@ -66,8 +66,9 @@
 #define SERIAL_PROTOCOLLNPGM(x) (serialprintPGM(PSTR(x)),MYSERIAL.write('\n'))
 
 
-const char errormagic[] PROGMEM ="Error:";
-const char echomagic[] PROGMEM ="echo:";
+extern const char errormagic[] PROGMEM;
+extern const char echomagic[] PROGMEM;
+
 #define SERIAL_ERROR_START (serialprintPGM(errormagic))
 #define SERIAL_ERROR(x) SERIAL_PROTOCOL(x)
 #define SERIAL_ERRORPGM(x) SERIAL_PROTOCOLPGM(x)
@@ -175,6 +176,14 @@ void FlushSerialRequestResend();
 void ClearToSend();
 
 void get_coordinates();
+#ifdef DELTA
+void calculate_delta(float cartesian[3]);
+extern float delta[3];
+#endif
+#ifdef SCARA
+void calculate_delta(float cartesian[3]);
+void calculate_SCARA_forward_Transform(float f_scara[3]);
+#endif
 void prepare_move();
 void kill();
 void Stop();
@@ -188,6 +197,10 @@ void clamp_to_software_endstops(float target[3]);
 
 void refresh_cmd_timeout(void);
 
+#ifdef FAST_PWM_FAN
+void setPwmFrequency(uint8_t pin, int val);
+#endif
+
 #ifndef CRITICAL_SECTION_START
   #define CRITICAL_SECTION_START  unsigned char _sreg = SREG; cli();
   #define CRITICAL_SECTION_END    SREG = _sreg;
@@ -196,18 +209,50 @@ void refresh_cmd_timeout(void);
 extern float homing_feedrate[];
 extern bool axis_relative_modes[];
 extern int feedmultiply;
-extern int extrudemultiply; // Sets extrude multiply factor (in percent)
+extern int extrudemultiply; // Sets extrude multiply factor (in percent) for all extruders
+extern int extruder_multiply[EXTRUDERS]; // sets extrude multiply factor (in percent) for each extruder individually
 extern float volumetric_multiplier[EXTRUDERS]; // reciprocal of cross-sectional area of filament (in square millimeters), stored this way to reduce computational burden in planner
 extern float current_position[NUM_AXIS] ;
-extern float add_homeing[3];
+extern float add_homing[3];
+#ifdef DELTA
+extern float endstop_adj[3];
+extern float delta_radius;
+extern float delta_diagonal_rod;
+extern float delta_segments_per_second;
+void recalc_delta_settings(float radius, float diagonal_rod);
+#endif
+#ifdef SCARA
+extern float axis_scaling[3];  // Build size scaling
+#endif
 extern float min_pos[3];
 extern float max_pos[3];
 extern bool axis_known_position[3];
 extern float zprobe_zoffset;
 extern int fanSpeed;
+#ifdef BARICUDA
+extern int ValvePressure;
+extern int EtoPPressure;
+#endif
 
 #ifdef FAN_SOFT_PWM
 extern unsigned char fanSpeedSoftPwm;
+#endif
+
+#ifdef FILAMENT_SENSOR
+  extern float filament_width_nominal;  //holds the theoretical filament diameter ie., 3.00 or 1.75 
+  extern bool filament_sensor;  //indicates that filament sensor readings should control extrusion  
+  extern float filament_width_meas; //holds the filament diameter as accurately measured 
+  extern signed char measurement_delay[];  //ring buffer to delay measurement
+  extern int delay_index1, delay_index2;  //index into ring buffer
+  extern float delay_dist; //delay distance counter
+  extern int meas_delay_cm; //delay distance
+#endif
+
+#ifdef FWRETRACT
+extern bool autoretract_enabled;
+extern bool retracted[EXTRUDERS];
+extern float retract_length, retract_length_swap, retract_feedrate, retract_zlift;
+extern float retract_recover_length, retract_recover_length_swap, retract_recover_feedrate;
 #endif
 
 extern unsigned long starttime;

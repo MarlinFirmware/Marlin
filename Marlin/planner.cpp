@@ -63,9 +63,9 @@
 //===========================================================================
 
 unsigned long minsegmenttime;
-float max_feedrate[4]; // set the max speeds
-float axis_steps_per_unit[4];
-unsigned long max_acceleration_units_per_sq_second[4]; // Use M201 to override by software
+float max_feedrate[NUM_AXIS]; // set the max speeds
+float axis_steps_per_unit[NUM_AXIS];
+unsigned long max_acceleration_units_per_sq_second[NUM_AXIS]; // Use M201 to override by software
 float minimumfeedrate;
 float acceleration;         // Normal acceleration mm/s^2  THIS IS THE DEFAULT ACCELERATION for all moves. M204 SXXXX
 float retract_acceleration; //  mm/s^2   filament pull-pack and push-forward  while standing still in the other axis M204 TXXXX
@@ -74,8 +74,6 @@ float max_z_jerk;
 float max_e_jerk;
 float mintravelfeedrate;
 unsigned long axis_steps_per_sqr_second[NUM_AXIS];
-
-extern uint8_t buffer_recursivity;
 
 #ifdef ENABLE_AUTO_BED_LEVELING
 // this holds the required transform to compensate for bed level
@@ -87,8 +85,8 @@ matrix_3x3 plan_bed_level_matrix = {
 #endif // #ifdef ENABLE_AUTO_BED_LEVELING
 
 // The current position of the tool in absolute steps
-long position[4];   //rescaled from extern when axis_steps_per_unit are changed by gcode
-static float previous_speed[4]; // Speed of previous path line segment
+long position[NUM_AXIS];   //rescaled from extern when axis_steps_per_unit are changed by gcode
+static float previous_speed[NUM_AXIS]; // Speed of previous path line segment
 static float previous_nominal_speed; // Nominal speed of previous path line segment
 
 #ifdef AUTOTEMP
@@ -98,13 +96,14 @@ float autotemp_factor=0.1;
 bool autotemp_enabled=false;
 #endif
 
+unsigned char g_uc_extruder_last_move[3] = {0,0,0};
+
 //===========================================================================
 //=================semi-private variables, used in inline  functions    =====
 //===========================================================================
 block_t block_buffer[BLOCK_BUFFER_SIZE];            // A ring buffer for motion instfructions
 volatile unsigned char block_buffer_head;           // Index of the next block to be pushed
 volatile unsigned char block_buffer_tail;           // Index of the block to process now
-volatile unsigned char next_buffer_head;
 
 //===========================================================================
 //=============================private variables ============================
@@ -118,6 +117,10 @@ float extrude_min_temp=EXTRUDE_MINTEMP;
 static unsigned char old_direction_bits = 0;               // Old direction bits. Used for speed calculations
 static long x_segment_time[3]={MAX_FREQ_TIME + 1,0,0};     // Segment times (in us). Used for speed calculations
 static long y_segment_time[3]={MAX_FREQ_TIME + 1,0,0};
+#endif
+
+#ifdef FILAMENT_SENSOR
+ static char meas_sample; //temporary variable to hold filament measurement sample
 #endif
 
 // Returns the index of the next block in the ring buffer
@@ -451,12 +454,20 @@ void check_axes_activity()
   unsigned char z_active = 0;
   unsigned char e_active = 0;
   unsigned char tail_fan_speed = fanSpeed;
+  #ifdef BARICUDA
+  unsigned char tail_valve_pressure = ValvePressure;
+  unsigned char tail_e_to_p_pressure = EtoPPressure;
+  #endif
   block_t *block;
 
   if(block_buffer_tail != block_buffer_head)
   {
     uint8_t block_index = block_buffer_tail;
     tail_fan_speed = block_buffer[block_index].fan_speed;
+    #ifdef BARICUDA
+    tail_valve_pressure = block_buffer[block_index].valve_pressure;
+    tail_e_to_p_pressure = block_buffer[block_index].e_to_p_pressure;
+    #endif
     while(block_index != block_buffer_head)
     {
       block = &block_buffer[block_index];
@@ -500,6 +511,16 @@ void check_axes_activity()
 #ifdef AUTOTEMP
   getHighESpeed();
 #endif
+
+#ifdef BARICUDA
+  #if defined(HEATER_1_PIN) && HEATER_1_PIN > -1
+      analogWrite(HEATER_1_PIN,tail_valve_pressure);
+  #endif
+
+  #if defined(HEATER_2_PIN) && HEATER_2_PIN > -1
+      analogWrite(HEATER_2_PIN,tail_e_to_p_pressure);
+  #endif
+#endif
 }
 
 
@@ -514,20 +535,16 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
 #endif  //ENABLE_AUTO_BED_LEVELING
 {
   // Calculate the buffer head after we push this byte
-  next_buffer_head = next_block_index(block_buffer_head);
+  int next_buffer_head = next_block_index(block_buffer_head);
 
   // If the buffer is full: good! That means we are well ahead of the robot. 
   // Rest here until there is room in the buffer.
-  buffer_recursivity++;
   while(block_buffer_tail == next_buffer_head)
   {
-    next_buffer_head = next_block_index(block_buffer_head);
-
     manage_heater(); 
-    manage_inactivity();
+    manage_inactivity(); 
     lcd_update();
   }
-  buffer_recursivity--;
 
 #ifdef ENABLE_AUTO_BED_LEVELING
   apply_rotation_xyz(plan_bed_level_matrix, x, y, z);
@@ -594,6 +611,10 @@ block->steps_y = labs((target[X_AXIS]-position[X_AXIS]) - (target[Y_AXIS]-positi
   }
 
   block->fan_speed = fanSpeed;
+  #ifdef BARICUDA
+  block->valve_pressure = ValvePressure;
+  block->e_to_p_pressure = EtoPPressure;
+  #endif
 
   // Compute direction bits for this block 
   block->direction_bits = 0;
@@ -642,12 +663,47 @@ block->steps_y = labs((target[X_AXIS]-position[X_AXIS]) - (target[Y_AXIS]-positi
   if(block->steps_z != 0) enable_z();
 #endif
 
-  // Enable all
+  // Enable extruder(s)
   if(block->steps_e != 0)
   {
-    enable_e0();
-    enable_e1();
-    enable_e2(); 
+    if (DISABLE_INACTIVE_EXTRUDER) //enable only selected extruder
+    {
+
+      if(g_uc_extruder_last_move[0] > 0) g_uc_extruder_last_move[0]--;
+      if(g_uc_extruder_last_move[1] > 0) g_uc_extruder_last_move[1]--;
+      if(g_uc_extruder_last_move[2] > 0) g_uc_extruder_last_move[2]--;
+      
+      switch(extruder)
+      {
+        case 0: 
+          enable_e0(); 
+          g_uc_extruder_last_move[0] = BLOCK_BUFFER_SIZE*2;
+          
+          if(g_uc_extruder_last_move[1] == 0) disable_e1(); 
+          if(g_uc_extruder_last_move[2] == 0) disable_e2(); 
+        break;
+        case 1:
+          enable_e1(); 
+          g_uc_extruder_last_move[1] = BLOCK_BUFFER_SIZE*2;
+          
+          if(g_uc_extruder_last_move[0] == 0) disable_e0(); 
+          if(g_uc_extruder_last_move[2] == 0) disable_e2(); 
+        break;
+        case 2:
+          enable_e2(); 
+          g_uc_extruder_last_move[2] = BLOCK_BUFFER_SIZE*2;
+          
+          if(g_uc_extruder_last_move[0] == 0) disable_e0(); 
+          if(g_uc_extruder_last_move[1] == 0) disable_e1(); 
+        break;        
+      }
+    }
+    else //enable all
+    {
+      enable_e0();
+      enable_e1();
+      enable_e2(); 
+    }
   }
 
   if (block->steps_e == 0)
@@ -709,6 +765,49 @@ block->steps_y = labs((target[X_AXIS]-position[X_AXIS]) - (target[Y_AXIS]-positi
 
   block->nominal_speed = block->millimeters * inverse_second; // (mm/sec) Always > 0
   block->nominal_rate = ceil(block->step_event_count * inverse_second); // (step/sec) Always > 0
+
+#ifdef FILAMENT_SENSOR
+  //FMM update ring buffer used for delay with filament measurements
+  
+  
+    if((extruder==FILAMENT_SENSOR_EXTRUDER_NUM) && (delay_index2 > -1))  //only for extruder with filament sensor and if ring buffer is initialized
+  	  {
+    delay_dist = delay_dist + delta_mm[E_AXIS];  //increment counter with next move in e axis
+  
+    while (delay_dist >= (10*(MAX_MEASUREMENT_DELAY+1)))  //check if counter is over max buffer size in mm
+      	  delay_dist = delay_dist - 10*(MAX_MEASUREMENT_DELAY+1);  //loop around the buffer
+    while (delay_dist<0)
+    	  delay_dist = delay_dist + 10*(MAX_MEASUREMENT_DELAY+1); //loop around the buffer
+      
+    delay_index1=delay_dist/10.0;  //calculate index
+    
+    //ensure the number is within range of the array after converting from floating point
+    if(delay_index1<0)
+    	delay_index1=0;
+    else if (delay_index1>MAX_MEASUREMENT_DELAY)
+    	delay_index1=MAX_MEASUREMENT_DELAY;
+    	
+    if(delay_index1 != delay_index2)  //moved index
+  	  {
+    	meas_sample=widthFil_to_size_ratio()-100;  //subtract off 100 to reduce magnitude - to store in a signed char
+  	  }
+    while( delay_index1 != delay_index2)
+  	  {
+  	  delay_index2 = delay_index2 + 1;
+  	if(delay_index2>MAX_MEASUREMENT_DELAY)
+  			  delay_index2=delay_index2-(MAX_MEASUREMENT_DELAY+1);  //loop around buffer when incrementing
+  	  if(delay_index2<0)
+  		delay_index2=0;
+  	  else if (delay_index2>MAX_MEASUREMENT_DELAY)
+  		delay_index2=MAX_MEASUREMENT_DELAY;  
+  	  
+  	  measurement_delay[delay_index2]=meas_sample;
+  	  }
+    	
+    
+  	  }
+#endif
+
 
   // Calculate and limit speed in mm/sec for each axis
   float current_speed[4];
@@ -890,7 +989,7 @@ block->steps_y = labs((target[X_AXIS]-position[X_AXIS]) - (target[Y_AXIS]-positi
   else {
     long acc_dist = estimate_acceleration_distance(0, block->nominal_rate, block->acceleration_st);
     float advance = (STEPS_PER_CUBIC_MM_E * EXTRUDER_ADVANCE_K) * 
-      (current_speed[E_AXIS] * current_speed[E_AXIS] * EXTRUTION_AREA * EXTRUTION_AREA)*256;
+      (current_speed[E_AXIS] * current_speed[E_AXIS] * EXTRUSION_AREA * EXTRUSION_AREA)*256;
     block->advance = advance;
     if(acc_dist == 0) {
       block->advance_rate = 0;
@@ -969,11 +1068,12 @@ void plan_set_e_position(const float &e)
   st_set_e_position(position[E_AXIS]);
 }
 
-void plan_reset_position() {
+void plan_reset_position()
+{
   position[X_AXIS] = st_get_position(X_AXIS);
   position[Y_AXIS] = st_get_position(Y_AXIS);
-  position[Z_AXIS] = st_get_position(Z_AXIS);     
-  position[E_AXIS] = st_get_position(E_AXIS);  
+  position[Z_AXIS] = st_get_position(Z_AXIS);
+  position[E_AXIS] = st_get_position(E_AXIS);
 }
 
 uint8_t movesplanned()

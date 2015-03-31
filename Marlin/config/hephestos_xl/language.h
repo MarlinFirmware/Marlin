@@ -77,6 +77,7 @@
 #define MSG_M105_INVALID_EXTRUDER "M105 Invalid extruder "
 #define MSG_M200_INVALID_EXTRUDER "M200 Invalid extruder "
 #define MSG_M218_INVALID_EXTRUDER "M218 Invalid extruder "
+#define MSG_M221_INVALID_EXTRUDER "M221 Invalid extruder "
 #define MSG_ERR_NO_THERMISTORS "No thermistors - no temperature"
 #define MSG_M109_INVALID_EXTRUDER "M109 Invalid extruder "
 #define MSG_HEATING "Heating..."
