@@ -1,53 +1,4 @@
 /* -*- c++ -*- */
-/*
-    Reprap firmware based on Sprinter and grbl.
- Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
-
- This program is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
-
- This program is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
-
-/*
- This firmware is a mashup between Sprinter and grbl.
-  (https://github.com/kliment/Sprinter)
-  (https://github.com/simen/grbl/tree)
-
- It has preliminary support for Matthew Roberts advance algorithm
-    http://reprap.org/pipermail/reprap-dev/2011-May/003323.html
- */
-
-#include "Marlin.h"
-
-#ifdef ENABLE_AUTO_BED_LEVELING
-#include "vector_3.h"
-  #ifdef AUTO_BED_LEVELING_GRID
-    #include "qr_solve.h"
-  #endif
-#endif // ENABLE_AUTO_BED_LEVELING
-
-#include "ultralcd.h"
-#include "planner.h"
-#include "stepper.h"
-#include "temperature.h"
-#include "motion_control.h"
-#include "cardreader.h"
-#include "watchdog.h"
-#include "ConfigurationStore.h"
-#include "language.h"
-#include "pins_arduino.h"
-#include "math.h"
-
-/* -*- c++ -*- */
 
 /*
     Reprap firmware based on Sprinter and grbl.
@@ -267,6 +218,15 @@ int extruder_multiply[EXTRUDERS] = {100
     #endif
   #endif
 };
+bool volumetric_enabled = false;
+float filament_size[EXTRUDERS] = { DEFAULT_NOMINAL_FILAMENT_DIA
+  #if EXTRUDERS > 1
+      , DEFAULT_NOMINAL_FILAMENT_DIA
+    #if EXTRUDERS > 2
+       , DEFAULT_NOMINAL_FILAMENT_DIA
+    #endif
+  #endif
+};
 float volumetric_multiplier[EXTRUDERS] = {1.0
   #if EXTRUDERS > 1
     , 1.0
@@ -337,10 +297,6 @@ int EtoPPressure=0;
   float retract_recover_length_swap = RETRACT_RECOVER_LENGTH_SWAP;
   float retract_recover_feedrate = RETRACT_RECOVER_FEEDRATE;
 #endif
-
-bool stop_buffer = false;
-int stop_buffer_code = 0;
-uint8_t buffer_recursivity = 0;
 
 #ifdef ULTIPANEL
   #ifdef PS_DEFAULT_OFF
@@ -526,10 +482,20 @@ void flush_commands()
 void setup_killpin()
 {
   #if defined(KILL_PIN) && KILL_PIN > -1
-    pinMode(KILL_PIN,INPUT);
+    SET_INPUT(KILL_PIN);
     WRITE(KILL_PIN,HIGH);
   #endif
 }
+
+// Set home pin
+void setup_homepin(void)
+{
+#if defined(HOME_PIN) && HOME_PIN > -1
+   SET_INPUT(HOME_PIN);
+   WRITE(HOME_PIN,HIGH);
+#endif
+}
+
 
 void setup_photpin()
 {
@@ -644,13 +610,12 @@ void setup()
   tp_init();    // Initialize temperature loop
   plan_init();  // Initialize planner;
   watchdog_init();
-  
-	lcd_init();
-
   st_init();    // Initialize stepper, this enables interrupts!
   setup_photpin();
   servo_init();
-  
+ 
+
+  lcd_init();
   _delay_ms(1000);	// wait 1sec to display the splash screen
 
   #if defined(CONTROLLERFAN_PIN) && CONTROLLERFAN_PIN > -1
@@ -664,49 +629,63 @@ void setup()
   pinMode(SERVO0_PIN, OUTPUT);
   digitalWrite(SERVO0_PIN, LOW); // turn it off
 #endif // Z_PROBE_SLED
+  setup_homepin();
 }
 
-char *test;
+bool stop_buffer = false;
+int stop_buffer_code = 0;
+uint8_t buffer_recursivity = 0;
 
 void loop()
 {
-	if (stop_buffer == false) {
-    	if (buflen < (BUFSIZE-1)) {
+	if (stop_buffer == false)
+	{
+    	if (buflen < (BUFSIZE-1))
+		{
 			get_command();
 		}
-	} else {
-      switch (stop_buffer_code) {
-      case 1:
-        enquecommand_P(PSTR("M25"));
-		stop_buffer_code = 0;
-        break;
-      case 2:
-        enquecommand_P(PSTR("M600"));
-		stop_buffer_code = 0;
-        break;
-      case 999:
-    get_command();
-        bufindr = (bufindw - 1);
-        if (bufindr < 0) { bufindr = BUFSIZE - 1; };
-		test = cmdbuffer[bufindr];
-        if (strstr(test, "M999") == NULL) {
-          bufindr = bufindw;
-          buflen = 0;
-        } else {
-          stop_buffer = false;
-          stop_buffer_code = 0;
-          bufindr = 0;
-          bufindw = 0;
-          buflen = 0;
-          FlushSerialRequestResend();
-          lcd_reset_alert_level();
-          LCD_MESSAGEPGM(WELCOME_MSG);
-        }
-        break;
-      default:
-        break;
-      }
-    }
+	}
+	else
+	{
+      switch (stop_buffer_code)
+		{
+			case 1:
+				enquecommand_P(PSTR("M25"));
+				stop_buffer_code = 0;
+				break;
+			case 2:
+				enquecommand_P(PSTR("M600"));
+				stop_buffer_code = 0;
+				break;
+			case 999:
+				get_command();
+				bufindr = (bufindw - 1);
+				if (bufindr < 0)
+				{
+					bufindr = BUFSIZE - 1;
+				}
+				char *test = cmdbuffer[bufindr];
+				if (strstr(test, "M999") == NULL)
+				{
+					bufindr = bufindw;
+					buflen = 0;
+				}
+				else
+				{
+					stop_buffer = false;
+					stop_buffer_code = 0;
+					bufindr = 0;
+					bufindw = 0;
+					buflen = 0;
+					FlushSerialRequestResend();
+					lcd_reset_alert_level();
+					LCD_MESSAGEPGM(WELCOME_MSG);
+				}
+				break;
+			default:
+				break;
+		}
+	}
 	
   #ifdef SDSUPPORT
   card.checkautostart(false);
@@ -833,7 +812,7 @@ void get_command()
             if (Stopped == true) {
               SERIAL_ERRORLNPGM(MSG_ERR_STOPPED);
               LCD_MESSAGEPGM(MSG_STOPPED);
-                				lcd_update();
+              lcd_update();
             }
             break;
           default:
@@ -886,7 +865,7 @@ void get_command()
         int hours, minutes;
         minutes=(t/60)%60;
         hours=t/60/60;
-				sprintf_P(time, PSTR("%i "MSG_END_HOUR" %i "MSG_END_MINUTE),hours, minutes);
+        sprintf_P(time, PSTR("%i "MSG_END_HOUR" %i "MSG_END_MINUTE),hours, minutes);
         SERIAL_ECHO_START;
         SERIAL_ECHOLN(time);
         lcd_setstatus(time);
