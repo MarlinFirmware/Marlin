@@ -264,23 +264,26 @@ your extruder heater takes 2 minutes to hit the target on heating.
 // uncomment the 2 defines below:
 
 // Parameters for all extruder heaters
-//#define THERMAL_RUNAWAY_PROTECTION_PERIOD 60 //in seconds
-//#define THERMAL_RUNAWAY_PROTECTION_HYSTERESIS 5 // in degree Celsius
+//#define THERMAL_RUNAWAY_PROTECTION_PERIOD 40 //in seconds
+//#define THERMAL_RUNAWAY_PROTECTION_HYSTERESIS 4 // in degree Celsius
 
 // If you want to enable this feature for your bed heater,
 // uncomment the 2 defines below:
 
 // Parameters for the bed heater
-//#define THERMAL_RUNAWAY_PROTECTION_BED_PERIOD 30 //in seconds
-//#define THERMAL_RUNAWAY_PROTECTION_BED_HYSTERESIS 5// in degree Celsius
+//#define THERMAL_RUNAWAY_PROTECTION_BED_PERIOD 20 //in seconds
+//#define THERMAL_RUNAWAY_PROTECTION_BED_HYSTERESIS 2 // in degree Celsius
 
 
 //===========================================================================
 //============================= Mechanical Settings =========================
 //===========================================================================
 
-// Uncomment the following line to enable CoreXY kinematics
+// Uncomment this option to enable CoreXY kinematics
 // #define COREXY
+
+// Enable this option for Toshiba steppers
+// #define CONFIG_STEPPERS_TOSHIBA
 
 // coarse Endstop Settings
 #define ENDSTOPPULLUPS // Comment this out (using // at the start of the line) to disable the endstop pullup resistors
@@ -295,7 +298,7 @@ your extruder heater takes 2 minutes to hit the target on heating.
   // #define ENDSTOPPULLUP_ZMIN
 #endif
 
-// The pullups are needed if you directly connect a mechanical endswitch between the signal and ground pins.
+// Mechanical endstop with COM to ground and NC to Signal uses "false" here (most common setup).
 const bool X_MIN_ENDSTOP_INVERTING = false; // set to true to invert the logic of the endstop.
 const bool Y_MIN_ENDSTOP_INVERTING = false; // set to true to invert the logic of the endstop.
 const bool Z_MIN_ENDSTOP_INVERTING = false; // set to true to invert the logic of the endstop.
@@ -318,13 +321,14 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define DISABLE_E false // For all extruders
 #define DISABLE_INACTIVE_EXTRUDER true //disable only inactive extruders and keep active extruder enabled
 
-#define INVERT_X_DIR true     // for Mendel set to false, for Orca set to true
-#define INVERT_Y_DIR true    // for Mendel set to true, for Orca set to false
-#define INVERT_Z_DIR true     // for Mendel set to false, for Orca set to true
-#define INVERT_E0_DIR false   // for direct drive extruder v9 set to true, for geared extruder set to false
-#define INVERT_E1_DIR false   // for direct drive extruder v9 set to true, for geared extruder set to false
-#define INVERT_E2_DIR false   // for direct drive extruder v9 set to true, for geared extruder set to false
-#define INVERT_E3_DIR false   // for direct drive extruder v9 set to true, for geared extruder set to false
+// Invert the stepper direction. Change (or reverse the motor connector) if an axis goes the wrong way.
+#define INVERT_X_DIR true
+#define INVERT_Y_DIR true
+#define INVERT_Z_DIR true
+#define INVERT_E0_DIR false
+#define INVERT_E1_DIR false
+#define INVERT_E2_DIR false
+#define INVERT_E3_DIR false
 
 // ENDSTOP SETTINGS:
 // Sets direction of endstops when homing; 1=MAX, -1=MIN
@@ -336,12 +340,12 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define max_software_endstops true  // If true, axis won't move to coordinates greater than the defined lengths below.
 
 // Travel limits after homing (units are in mm)
-#define X_MAX_POS 255
 #define X_MIN_POS 0
-#define Y_MAX_POS 205
 #define Y_MIN_POS 0
-#define Z_MAX_POS 235
 #define Z_MIN_POS 0
+#define X_MAX_POS 255
+#define Y_MAX_POS 205
+#define Z_MAX_POS 235
 
 //===========================================================================
 //============================= Filament Runout Sensor ======================
@@ -379,39 +383,38 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 #ifdef ENABLE_AUTO_BED_LEVELING
 
-// There are 2 different ways to pick the X and Y locations to probe:
+  // There are 2 different ways to specify probing locations
+  //
+  // - "grid" mode
+  //   Probe several points in a rectangular grid.
+  //   You specify the rectangle and the density of sample points.
+  //   This mode is preferred because there are more measurements.
+  //
+  // - "3-point" mode
+  //   Probe 3 arbitrary points on the bed (that aren't colinear)
+  //   You specify the XY coordinates of all 3 points.
 
-//  - "grid" mode
-//    Probe every point in a rectangular grid
-//    You must specify the rectangle, and the density of sample points
-//    This mode is preferred because there are more measurements.
-//    It used to be called ACCURATE_BED_LEVELING but "grid" is more descriptive
-
-//  - "3-point" mode
-//    Probe 3 arbitrary points on the bed (that aren't colinear)
-//    You must specify the X & Y coordinates of all 3 points
-
+  // Enable this to sample the bed in a grid (least squares solution)
+  // Note: this feature generates 10KB extra code size
   #define AUTO_BED_LEVELING_GRID
-  // with AUTO_BED_LEVELING_GRID, the bed is sampled in a
-  // AUTO_BED_LEVELING_GRID_POINTSxAUTO_BED_LEVELING_GRID_POINTS grid
-  // and least squares solution is calculated
-  // Note: this feature occupies 10'206 byte
+
   #ifdef AUTO_BED_LEVELING_GRID
 
     #define LEFT_PROBE_BED_POSITION 15
     #define RIGHT_PROBE_BED_POSITION 170
-    #define BACK_PROBE_BED_POSITION 180
     #define FRONT_PROBE_BED_POSITION 20
+    #define BACK_PROBE_BED_POSITION 180
 
-     // set the number of grid points per dimension
-     // I wouldn't see a reason to go above 3 (=9 probing points on the bed)
+    #define MIN_PROBE_EDGE 10 // The probe square sides can be no smaller than this
+
+    // Set the number of grid points per dimension
+    // You probably don't need more than 3 (squared=9)
     #define AUTO_BED_LEVELING_GRID_POINTS 2
 
+  #else  // !AUTO_BED_LEVELING_GRID
 
-  #else  // not AUTO_BED_LEVELING_GRID
-    // with no grid, just probe 3 arbitrary points.  A simple cross-product
-    // is used to esimate the plane of the print bed
-
+      // Arbitrary points to probe. A simple cross-product
+      // is used to estimate the plane of the bed.
       #define ABL_PROBE_PT_1_X 15
       #define ABL_PROBE_PT_1_Y 180
       #define ABL_PROBE_PT_2_X 15
@@ -421,21 +424,24 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
   #endif // AUTO_BED_LEVELING_GRID
 
-
-  // these are the offsets to the probe relative to the extruder tip (Hotend - Probe)
+  // Offsets to the probe relative to the extruder tip (Hotend - Probe)
   // X and Y offsets must be integers
-  #define X_PROBE_OFFSET_FROM_EXTRUDER -25
-  #define Y_PROBE_OFFSET_FROM_EXTRUDER -29
-  #define Z_PROBE_OFFSET_FROM_EXTRUDER -12.35
+  #define X_PROBE_OFFSET_FROM_EXTRUDER -25     // Probe on: -left  +right
+  #define Y_PROBE_OFFSET_FROM_EXTRUDER -29     // Probe on: -front +behind
+  #define Z_PROBE_OFFSET_FROM_EXTRUDER -12.35  // -below (always!)
 
   #define Z_RAISE_BEFORE_HOMING 4       // (in mm) Raise Z before homing (G28) for Probe Clearance.
                                         // Be sure you have this distance over your Z_MAX_POS in case
 
   #define XY_TRAVEL_SPEED 8000         // X and Y axis travel speed between probes, in mm/min
 
-  #define Z_RAISE_BEFORE_PROBING 15    //How much the extruder will be raised before traveling to the first probing point.
+  #define Z_RAISE_BEFORE_PROBING 15   //How much the extruder will be raised before traveling to the first probing point.
   #define Z_RAISE_BETWEEN_PROBINGS 5  //How much the extruder will be raised when traveling from between next probing points
+  #define Z_RAISE_AFTER_PROBING 15    //How much the extruder will be raised after the last probing point.
 
+//   #define Z_PROBE_END_SCRIPT "G1 Z10 F12000\nG1 X15 Y330\nG1 Z0.5\nG1 Z10" //These commands will be executed in the end of G29 routine.
+                                                                            //Useful to retract a deployable probe.
+                                                                           
   //#define Z_PROBE_SLED // turn on if you have a z-probe mounted on a sled like those designed by Charles Bell
   //#define SLED_DOCKING_OFFSET 5 // the extra distance the X axis must travel to pickup the sled. 0 should be fine but you can push it further if you'd like.
 
@@ -470,12 +476,14 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 //#define MANUAL_HOME_POSITIONS  // If defined, MANUAL_*_HOME_POS below will be used
 //#define BED_CENTER_AT_0_0  // If defined, the center of the bed is at (X=0, Y=0)
 
-//Manual homing switch locations:
+// Manual homing switch locations:
 // For deltabots this means top and center of the Cartesian print volume.
-#define MANUAL_X_HOME_POS 0
-#define MANUAL_Y_HOME_POS 0
-#define MANUAL_Z_HOME_POS 0
-//#define MANUAL_Z_HOME_POS 402 // For delta: Distance between nozzle and print surface after homing.
+#ifdef MANUAL_HOME_POSITIONS
+  #define MANUAL_X_HOME_POS 0
+  #define MANUAL_Y_HOME_POS 0
+  #define MANUAL_Z_HOME_POS 0
+  //#define MANUAL_Z_HOME_POS 402 // For delta: Distance between nozzle and print surface after homing.
+#endif
 
 //// MOVEMENT SETTINGS
 #define NUM_AXIS 4 // The axis order in all axis related arrays is X, Y, Z, E
@@ -513,8 +521,8 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #ifdef CUSTOM_M_CODES
   #ifdef ENABLE_AUTO_BED_LEVELING
     #define CUSTOM_M_CODE_SET_Z_PROBE_OFFSET 851
-    #define Z_PROBE_OFFSET_RANGE_MIN -15
-    #define Z_PROBE_OFFSET_RANGE_MAX -5
+    #define Z_PROBE_OFFSET_RANGE_MIN -20
+    #define Z_PROBE_OFFSET_RANGE_MAX 20
   #endif
 #endif
 
@@ -542,13 +550,16 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 //==============================LCD and SD support=============================
 
 // Define your display language below. Replace (en) with your language code and uncomment.
-// en, pl, fr, de, es, ru, it, pt, pt-br, fi, an, nl, ca, eu
+// en, pl, fr, de, es, ru, it, pt, pt-br, fi, an, nl, ca, eu, kana, kana_utf8, test
 // See also language.h
 //#define LANGUAGE_INCLUDE GENERATE_LANGUAGE_INCLUDE(en)
 
-// Character based displays can have different extended charsets.
-//#define DISPLAY_CHARSET_HD44780_JAPAN     // "ääööüüß23°"
-//#define DISPLAY_CHARSET_HD44780_WESTERN // "ÄäÖöÜüß²³°" if you see a '~' instead of a 'arrow_right' at the right of submenuitems - this is the right one.
+// Choose ONE of these 3 charsets. This has to match your hardware. Ignored for full graphic display.
+// To find out what type you have - compile with (test) - upload - click to get the menu. You'll see two typical lines from the upper half of the charset.
+// See also documentation/LCDLanguageFont.md
+  #define DISPLAY_CHARSET_HD44780_JAPAN        // this is the most common hardware
+  //#define DISPLAY_CHARSET_HD44780_WESTERN
+  //#define DISPLAY_CHARSET_HD44780_CYRILLIC
 
 //#define ULTRA_LCD  //general LCD support, also 16x2
 //#define DOGLCD  // Support for SPI LCD 128x64 (Controller ST7565R graphic Display Family)
@@ -561,6 +572,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 //#define ULTIPANEL  //the UltiPanel as on Thingiverse
 //#define LCD_FEEDBACK_FREQUENCY_HZ 1000	// this is the tone frequency the buzzer plays when on UI feedback. ie Screen Click
 //#define LCD_FEEDBACK_FREQUENCY_DURATION_MS 100 // the duration the buzzer plays the UI feedback sound. ie Screen Click
+                                               // 0 to disable buzzer feedback  
 
 // PanelOne from T3P3 (via RAMPS 1.4 AUX2/AUX3)
 // http://reprap.org/wiki/PanelOne
@@ -622,11 +634,6 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 // Increase the FAN pwm frequency. Removes the PWM noise but increases heating in the FET/Arduino
 #define FAST_PWM_FAN
 
-// Temperature status LEDs that display the hotend and bet temperature.
-// If all hotends and bed temperature and temperature setpoint are < 54C then the BLUE led is on.
-// Otherwise the RED led is on. There is 1C hysteresis.
-//#define TEMP_STAT_LEDS
-
 // Use software PWM to drive the fan, as for the heaters. This uses a very low frequency
 // which is not as annoying as with the hardware PWM. On the other hand, if this frequency
 // is too low, you should also increment SOFT_PWM_SCALE.
@@ -637,6 +644,11 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 // However, control resolution will be halved for each increment;
 // at zero value, there are 128 effective control positions.
 #define SOFT_PWM_SCALE 0
+
+// Temperature status LEDs that display the hotend and bet temperature.
+// If all hotends and bed temperature and temperature setpoint are < 54C then the BLUE led is on.
+// Otherwise the RED led is on. There is 1C hysteresis.
+//#define TEMP_STAT_LEDS
 
 // M240  Triggers a camera by emulating a Canon RC-1 Remote
 // Data from: http://www.doc-diy.net/photo/rc-1_hacked/
