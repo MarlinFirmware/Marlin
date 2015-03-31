@@ -388,7 +388,9 @@ ISR(TIMER1_COMPA_vect) {
   {
     current_block = NULL;
     plan_discard_current_block();
-    if ((cleaning_buffer_counter == 1) && (SD_FINISHED_STEPPERRELEASE)) enquecommands_P(PSTR(SD_FINISHED_RELEASECOMMAND));
+    #ifdef SD_FINISHED_RELEASECOMMAND
+      if ((cleaning_buffer_counter == 1) && (SD_FINISHED_STEPPERRELEASE)) enquecommands_P(PSTR(SD_FINISHED_RELEASECOMMAND));
+    #endif
     cleaning_buffer_counter--;
     OCR1A = 200;
     return;
