@@ -76,6 +76,7 @@ volatile long endstops_stepsTotal, endstops_stepsDone;
 static volatile bool endstop_x_hit = false;
 static volatile bool endstop_y_hit = false;
 static volatile bool endstop_z_hit = false;
+static volatile bool endstop_z_probe_hit = false;
 
 #ifdef ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED
   bool abort_on_endstop_hit = false;
@@ -258,11 +259,11 @@ volatile signed char count_direction[NUM_AXIS] = { 1, 1, 1, 1 };
 #define DISABLE_STEPPER_DRIVER_INTERRUPT() TIMSK1 &= ~BIT(OCIE1A)
 
 void endstops_hit_on_purpose() {
-  endstop_x_hit = endstop_y_hit = endstop_z_hit = false;
+  endstop_x_hit = endstop_y_hit = endstop_z_hit = endstop_z_probe_hit = false;
 }
 
 void checkHitEndstops() {
-  if (endstop_x_hit || endstop_y_hit || endstop_z_hit) {
+  if (endstop_x_hit || endstop_y_hit || endstop_z_hit || endstop_z_probe_hit) {
     SERIAL_ECHO_START;
     SERIAL_ECHOPGM(MSG_ENDSTOPS_HIT);
     if (endstop_x_hit) {
@@ -276,6 +277,10 @@ void checkHitEndstops() {
     if (endstop_z_hit) {
       SERIAL_ECHOPAIR(" Z:", (float)endstops_trigsteps[Z_AXIS] / axis_steps_per_unit[Z_AXIS]);
       LCD_MESSAGEPGM(MSG_ENDSTOPS_HIT "Z");
+    }
+    if (endstop_z_probe_hit) {
+    	SERIAL_ECHOPAIR(" Z_PROBE:", (float)endstops_trigsteps[Z_AXIS] / axis_steps_per_unit[Z_AXIS]);
+    	LCD_MESSAGEPGM(MSG_ENDSTOPS_HIT "ZP");
     }
     SERIAL_EOL;
 
@@ -549,7 +554,7 @@ ISR(TIMER1_COMPA_vect) {
           if(z_probe_endstop && old_z_probe_endstop)
           {
         	  endstops_trigsteps[Z_AXIS] = count_position[Z_AXIS];
-        	  endstop_z_hit=true;
+        	  endstop_z_probe_hit=true;
 
 //        	  if (z_probe_endstop && old_z_probe_endstop) SERIAL_ECHOLN("z_probe_endstop = true");
           }
@@ -596,7 +601,7 @@ ISR(TIMER1_COMPA_vect) {
           if(z_probe_endstop && old_z_probe_endstop)
           {
         	  endstops_trigsteps[Z_AXIS] = count_position[Z_AXIS];
-        	  endstop_z_hit=true;
+        	  endstop_z_probe_hit=true;
 //        	  if (z_probe_endstop && old_z_probe_endstop) SERIAL_ECHOLN("z_probe_endstop = true");
           }
           old_z_probe_endstop = z_probe_endstop;
