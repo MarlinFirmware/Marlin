@@ -136,7 +136,6 @@ static void lcd_status_screen();
     if (encoderLine < currentMenuViewOffset) currentMenuViewOffset = encoderLine; \
     uint8_t _lineNr = currentMenuViewOffset, _menuItemNr; \
     bool wasClicked = LCD_CLICKED, itemSelected; \
-    if (wasClicked) lcd_quick_feedback(); \
     for (uint8_t _drawLineNr = 0; _drawLineNr < LCD_HEIGHT; _drawLineNr++, _lineNr++) { \
       _menuItemNr = 0;
 
@@ -167,6 +166,7 @@ static void lcd_status_screen();
       if (lcdDrawUpdate) \
         lcd_implementation_drawmenu_ ## type(itemSelected, _drawLineNr, PSTR(label), ## args); \
       if (wasClicked && itemSelected) { \
+        lcd_quick_feedback(); \
         menu_action_ ## type(args); \
         return; \
       } \
@@ -1155,10 +1155,10 @@ static void lcd_quick_feedback() {
   #elif defined(BEEPER) && BEEPER > -1
     SET_OUTPUT(BEEPER);
     #ifndef LCD_FEEDBACK_FREQUENCY_HZ
-      #define LCD_FEEDBACK_FREQUENCY_HZ 500
+      #define LCD_FEEDBACK_FREQUENCY_HZ 5000
     #endif
     #ifndef LCD_FEEDBACK_FREQUENCY_DURATION_MS
-      #define LCD_FEEDBACK_FREQUENCY_DURATION_MS 50
+      #define LCD_FEEDBACK_FREQUENCY_DURATION_MS 2
     #endif
     const unsigned int delay = 1000000 / LCD_FEEDBACK_FREQUENCY_HZ / 2;
     int i = LCD_FEEDBACK_FREQUENCY_DURATION_MS * LCD_FEEDBACK_FREQUENCY_HZ / 1000;
