@@ -226,21 +226,21 @@ float min_pos[3] = { X_MIN_POS, Y_MIN_POS, Z_MIN_POS };
 float max_pos[3] = { X_MAX_POS, Y_MAX_POS, Z_MAX_POS };
 bool axis_known_position[3] = { false };
 
-// Extruder offset
+// Extruder offsets
 #if EXTRUDERS > 1
   #ifndef EXTRUDER_OFFSET_X
-    #define EXTRUDER_OFFSET_X 0
+    #define EXTRUDER_OFFSET_X { 0 }
   #endif
   #ifndef EXTRUDER_OFFSET_Y
-    #define EXTRUDER_OFFSET_Y 0
+    #define EXTRUDER_OFFSET_Y { 0 }
   #endif
-  #ifndef DUAL_X_CARRIAGE
-    #define NUM_EXTRUDER_OFFSETS 2 // only in XY plane
-  #else
-    #define NUM_EXTRUDER_OFFSETS 3 // supports offsets in XYZ plane
-  #endif
-  #define _EXY { EXTRUDER_OFFSET_X, EXTRUDER_OFFSET_Y }
-  float extruder_offset[EXTRUDERS][NUM_EXTRUDER_OFFSETS] = ARRAY_BY_EXTRUDERS(_EXY, _EXY, _EXY, _EXY);
+  float extruder_offset[][EXTRUDERS] = {
+    EXTRUDER_OFFSET_X,
+    EXTRUDER_OFFSET_Y
+    #ifdef DUAL_X_CARRIAGE
+      , { 0 } // supports offsets in XYZ plane
+    #endif
+  };
 #endif
 
 uint8_t active_extruder = 0;
@@ -935,7 +935,7 @@ XYZ_CONSTS_FROM_CONFIG(signed char, home_dir,  HOME_DIR);
       // second X-carriage offset when homed - otherwise X2_HOME_POS is used.
       // This allow soft recalibration of the second extruder offset position without firmware reflash
       // (through the M218 command).
-      return (extruder_offset[1][X_AXIS] > 0) ? extruder_offset[1][X_AXIS] : X2_HOME_POS;
+      return (extruder_offset[X_AXIS][1] > 0) ? extruder_offset[X_AXIS][1] : X2_HOME_POS;
   }
 
   static int x_home_dir(int extruder) {
@@ -959,14 +959,14 @@ static void axis_is_at_home(int axis) {
       if (active_extruder != 0) {
         current_position[X_AXIS] = x_home_pos(active_extruder);
                  min_pos[X_AXIS] = X2_MIN_POS;
-                 max_pos[X_AXIS] = max(extruder_offset[1][X_AXIS], X2_MAX_POS);
+                 max_pos[X_AXIS] = max(extruder_offset[X_AXIS][1], X2_MAX_POS);
         return;
       }
       else if (dual_x_carriage_mode == DXC_DUPLICATION_MODE) {
         float xoff = home_offset[X_AXIS];
         current_position[X_AXIS] = base_home_pos(X_AXIS) + xoff;
                  min_pos[X_AXIS] = base_min_pos(X_AXIS) + xoff;
-                 max_pos[X_AXIS] = min(base_max_pos(X_AXIS) + xoff, max(extruder_offset[1][X_AXIS], X2_MAX_POS) - duplicate_extruder_x_offset);
+                 max_pos[X_AXIS] = min(base_max_pos(X_AXIS) + xoff, max(extruder_offset[X_AXIS][1], X2_MAX_POS) - duplicate_extruder_x_offset);
         return;
       }
     }
@@ -3780,23 +3780,23 @@ inline void gcode_M206() {
   inline void gcode_M218() {
     if (setTargetedHotend(218)) return;
 
-    if (code_seen('X')) extruder_offset[tmp_extruder][X_AXIS] = code_value();
-    if (code_seen('Y')) extruder_offset[tmp_extruder][Y_AXIS] = code_value();
+    if (code_seen('X')) extruder_offset[X_AXIS][tmp_extruder] = code_value();
+    if (code_seen('Y')) extruder_offset[Y_AXIS][tmp_extruder] = code_value();
 
     #ifdef DUAL_X_CARRIAGE
-      if (code_seen('Z')) extruder_offset[tmp_extruder][Z_AXIS] = code_value();
+      if (code_seen('Z')) extruder_offset[Z_AXIS][tmp_extruder] = code_value();
     #endif
 
     SERIAL_ECHO_START;
     SERIAL_ECHOPGM(MSG_HOTEND_OFFSET);
     for (tmp_extruder = 0; tmp_extruder < EXTRUDERS; tmp_extruder++) {
       SERIAL_ECHO(" ");
-      SERIAL_ECHO(extruder_offset[tmp_extruder][X_AXIS]);
+      SERIAL_ECHO(extruder_offset[X_AXIS][tmp_extruder]);
       SERIAL_ECHO(",");
-      SERIAL_ECHO(extruder_offset[tmp_extruder][Y_AXIS]);
+      SERIAL_ECHO(extruder_offset[Y_AXIS][tmp_extruder]);
       #ifdef DUAL_X_CARRIAGE
         SERIAL_ECHO(",");
-        SERIAL_ECHO(extruder_offset[tmp_extruder][Z_AXIS]);
+        SERIAL_ECHO(extruder_offset[Z_AXIS][tmp_extruder]);
       #endif
     }
     SERIAL_EOL;
@@ -4487,13 +4487,13 @@ inline void gcode_M503() {
         SERIAL_ECHO_START;
         SERIAL_ECHOPGM(MSG_HOTEND_OFFSET);
         SERIAL_ECHO(" ");
-        SERIAL_ECHO(extruder_offset[0][X_AXIS]);
+        SERIAL_ECHO(extruder_offset[X_AXIS][0]);
         SERIAL_ECHO(",");
-        SERIAL_ECHO(extruder_offset[0][Y_AXIS]);
+        SERIAL_ECHO(extruder_offset[Y_AXIS][0]);
         SERIAL_ECHO(" ");
         SERIAL_ECHO(duplicate_extruder_x_offset);
         SERIAL_ECHO(",");
-        SERIAL_ECHOLN(extruder_offset[1][Y_AXIS]);
+        SERIAL_ECHOLN(extruder_offset[Y_AXIS][1]);
         break;
       case DXC_FULL_CONTROL_MODE:
       case DXC_AUTO_PARK_MODE:
@@ -4628,11 +4628,11 @@ inline void gcode_T() {
 
           // apply Y & Z extruder offset (x offset is already used in determining home pos)
           current_position[Y_AXIS] = current_position[Y_AXIS] -
-                       extruder_offset[active_extruder][Y_AXIS] +
-                       extruder_offset[tmp_extruder][Y_AXIS];
+                       extruder_offset[Y_AXIS][active_extruder] +
+                       extruder_offset[Y_AXIS][tmp_extruder];
           current_position[Z_AXIS] = current_position[Z_AXIS] -
-                       extruder_offset[active_extruder][Z_AXIS] +
-                       extruder_offset[tmp_extruder][Z_AXIS];
+                       extruder_offset[Z_AXIS][active_extruder] +
+                       extruder_offset[Z_AXIS][tmp_extruder];
 
           active_extruder = tmp_extruder;
 
@@ -4662,7 +4662,7 @@ inline void gcode_T() {
         #else // !DUAL_X_CARRIAGE
           // Offset extruder (only by XY)
           for (int i=X_AXIS; i<=Y_AXIS; i++)
-            current_position[i] += extruder_offset[tmp_extruder][i] - extruder_offset[active_extruder][i];
+            current_position[i] += extruder_offset[i][tmp_extruder] - extruder_offset[i][active_extruder];
           // Set the new active extruder and position
           active_extruder = tmp_extruder;
         #endif // !DUAL_X_CARRIAGE
