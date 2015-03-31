@@ -254,7 +254,7 @@ static void lcd_goto_menu(menuFunc_t menu, const uint32_t encoder=0, const bool 
     if (feedback) lcd_quick_feedback();
 
     // For LCD_PROGRESS_BAR re-initialize the custom characters
-    #if defined(LCD_PROGRESS_BAR) && defined(SDSUPPORT) && !defined(DOGLCD)
+    #ifdef LCD_PROGRESS_BAR
       lcd_set_custom_characters(menu == lcd_status_screen);
     #endif
   }
@@ -264,29 +264,32 @@ static void lcd_goto_menu(menuFunc_t menu, const uint32_t encoder=0, const bool 
 static void lcd_status_screen()
 {
 	encoderRateMultiplierEnabled = false;
-  #if defined(LCD_PROGRESS_BAR) && defined(SDSUPPORT) && !defined(DOGLCD)
-    uint16_t mil = millis();
+
+  #ifdef LCD_PROGRESS_BAR
+    unsigned long ms = millis();
     #ifndef PROGRESS_MSG_ONCE
-      if (mil > progressBarTick + PROGRESS_BAR_MSG_TIME + PROGRESS_BAR_BAR_TIME) {
-        progressBarTick = mil;
+      if (ms > progressBarTick + PROGRESS_BAR_MSG_TIME + PROGRESS_BAR_BAR_TIME) {
+        progressBarTick = ms;
       }
     #endif
     #if PROGRESS_MSG_EXPIRE > 0
-      // keep the message alive if paused, count down otherwise
-      if (messageTick > 0) {
+      // Handle message expire
+      if (expireStatusMillis > 0) {
         if (card.isFileOpen()) {
+          // Expire the message when printing is active
           if (IS_SD_PRINTING) {
-            if ((mil-messageTick) >= PROGRESS_MSG_EXPIRE) {
+            // Expire the message when printing is active
+            if (ms >= expireStatusMillis) {
               lcd_status_message[0] = '\0';
-              messageTick = 0;
+              expireStatusMillis = 0;
             }
           }
           else {
-            messageTick += LCD_UPDATE_INTERVAL;
+            expireStatusMillis += LCD_UPDATE_INTERVAL;
           }
         }
         else {
-          messageTick = 0;
+          expireStatusMillis = 0;
         }
       }
     #endif
@@ -326,7 +329,7 @@ static void lcd_status_screen()
     {
         lcd_goto_menu(lcd_main_menu);
         lcd_implementation_init( // to maybe revive the LCD if static electricity killed it.
-          #if defined(LCD_PROGRESS_BAR) && defined(SDSUPPORT) && !defined(DOGLCD)
+          #ifdef LCD_PROGRESS_BAR
             currentMenu == lcd_status_screen
           #endif
         );
@@ -382,7 +385,7 @@ static void lcd_sdcard_stop() {
   card.closefile();
   autotempShutdown();
   cancel_heatup = true;
-  lcd_setstatus(MSG_PRINT_ABORTED);
+  lcd_setstatus(MSG_PRINT_ABORTED, true);
 }
 
 /* Menu implementation */
@@ -1279,7 +1282,7 @@ void lcd_update() {
       lcdDrawUpdate = 2;
       lcd_oldcardstatus = IS_SD_INSERTED;
       lcd_implementation_init( // to maybe revive the LCD if static electricity killed it.
-        #if defined(LCD_PROGRESS_BAR) && defined(SDSUPPORT) && !defined(DOGLCD)
+        #ifdef LCD_PROGRESS_BAR
           currentMenu == lcd_status_screen
         #endif
       );
@@ -1397,7 +1400,7 @@ void lcd_ignore_click(bool b) {
   wait_for_unclick = false;
 }
 
-void lcd_finishstatus() {
+void lcd_finishstatus(bool persist=false) {
   int len = lcd_strlen(lcd_status_message);
   if (len > 0) {
     while (len < LCD_WIDTH) {
@@ -1405,11 +1408,11 @@ void lcd_finishstatus() {
     }
   }
   lcd_status_message[LCD_WIDTH] = '\0';
-  #if defined(LCD_PROGRESS_BAR) && defined(SDSUPPORT) && !defined(DOGLCD)
-    #if PROGRESS_MSG_EXPIRE > 0
-      messageTick =
-    #endif
+  #ifdef LCD_PROGRESS_BAR
     progressBarTick = millis();
+    #if PROGRESS_MSG_EXPIRE > 0
+      expireStatusMillis = persist ? 0 : progressBarTick + PROGRESS_MSG_EXPIRE;
+    #endif
   #endif
   lcdDrawUpdate = 2;
 
@@ -1418,21 +1421,26 @@ void lcd_finishstatus() {
   #endif
 }
 
-void lcd_setstatus(const char* message) {
+#if defined(LCD_PROGRESS_BAR) && PROGRESS_MSG_EXPIRE > 0
+  void dontExpireStatus() { expireStatusMillis = 0; }
+#endif
+
+void lcd_setstatus(const char* message, bool persist) {
   if (lcd_status_message_level > 0) return;
   strncpy(lcd_status_message, message, LCD_WIDTH);
-  lcd_finishstatus();
+  lcd_finishstatus(persist);
 }
 
-void lcd_setstatuspgm(const char* message) {
-  if (lcd_status_message_level > 0) return;
-  strncpy_P(lcd_status_message, message, LCD_WIDTH);
-  lcd_finishstatus();
+void lcd_setstatuspgm(const char* message, uint8_t level) {
+  if (level >= lcd_status_message_level) {
+    strncpy_P(lcd_status_message, message, LCD_WIDTH);
+    lcd_status_message_level = level;
+    lcd_finishstatus(level > 0);
+  }
 }
 
 void lcd_setalertstatuspgm(const char* message) {
-  lcd_setstatuspgm(message);
-  lcd_status_message_level = 1;
+  lcd_setstatuspgm(message, 1);
   #ifdef ULTIPANEL
     lcd_return_to_status();
   #endif
