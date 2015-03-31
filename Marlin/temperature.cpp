@@ -1539,8 +1539,8 @@ ISR(TIMER0_COMPB_vect) {
       #else
         #define GE0 >=
       #endif
-      if (current_temperature_raw[0] GE0 maxttemp_raw[0]) max_temp_error(0);
-      if (minttemp_raw[0] GE0 current_temperature_raw[0]) min_temp_error(0);
+      if ((current_temperature_raw[0]) GE0 (maxttemp_raw[0])) max_temp_error(0);
+      if ((minttemp_raw[0]) GE0 (current_temperature_raw[0])) min_temp_error(0);
     #endif
 
     #if EXTRUDERS > 1
@@ -1549,8 +1549,8 @@ ISR(TIMER0_COMPB_vect) {
       #else
         #define GE1 >=
       #endif
-      if (current_temperature_raw[1] GE1 maxttemp_raw[1]) max_temp_error(1);
-      if (minttemp_raw[1] GE0 current_temperature_raw[1]) min_temp_error(1);
+      if ((current_temperature_raw[1]) GE1 (maxttemp_raw[1])) max_temp_error(1);
+      if ((minttemp_raw[1]) GE1 (current_temperature_raw[1])) min_temp_error(1);
 
       #if EXTRUDERS > 2
         #if HEATER_2_RAW_LO_TEMP > HEATER_2_RAW_HI_TEMP
@@ -1558,8 +1558,8 @@ ISR(TIMER0_COMPB_vect) {
         #else
           #define GE2 >=
         #endif
-        if (current_temperature_raw[2] GE2 maxttemp_raw[2]) max_temp_error(2);
-        if (minttemp_raw[2] GE0 current_temperature_raw[2]) min_temp_error(2);
+        if ((current_temperature_raw[2]) GE2 (maxttemp_raw[2])) max_temp_error(2);
+        if ((minttemp_raw[2]) GE2 (current_temperature_raw[2])) min_temp_error(2);
 
         #if EXTRUDERS > 3
           #if HEATER_3_RAW_LO_TEMP > HEATER_3_RAW_HI_TEMP
@@ -1567,8 +1567,8 @@ ISR(TIMER0_COMPB_vect) {
           #else
             #define GE3 >=
           #endif
-          if (current_temperature_raw[3] GE3 maxttemp_raw[3]) max_temp_error(3);
-          if (minttemp_raw[3] GE0 current_temperature_raw[3]) min_temp_error(3);
+          if ((current_temperature_raw[3]) GE3 (maxttemp_raw[3])) max_temp_error(3);
+          if ((minttemp_raw[3]) GE3 (current_temperature_raw[3])) min_temp_error(3);
 
         #endif // EXTRUDERS > 3
       #endif // EXTRUDERS > 2
