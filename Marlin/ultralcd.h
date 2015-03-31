@@ -8,11 +8,15 @@
   int lcd_strlen_P(const char *s);
   void lcd_update();
   void lcd_init();
-  void lcd_setstatus(const char* message);
-  void lcd_setstatuspgm(const char* message);
+  void lcd_setstatus(const char* message, const bool persist=false);
+  void lcd_setstatuspgm(const char* message, const uint8_t level=0);
   void lcd_setalertstatuspgm(const char* message);
   void lcd_reset_alert_level();
   bool lcd_detected(void);
+
+  #if defined(LCD_PROGRESS_BAR) && PROGRESS_MSG_EXPIRE > 0
+    void dontExpireStatus();
+  #endif
 
   #ifdef DOGLCD
     extern int lcd_contrast;

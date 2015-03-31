@@ -102,28 +102,27 @@
 
 #ifdef Z_DUAL_STEPPER_DRIVERS
 
-// Z_DUAL_ENDSTOPS is a feature to enable the use of 2 endstops for both Z steppers - Let's call them Z stepper and Z2 stepper.
-// That way the machine is capable to align the bed during home, since both Z steppers are homed. 
-// There is also an implementation of M666 (software endstops adjustment) to this feature.
-// After Z homing, this adjustment is applied to just one of the steppers in order to align the bed.
-// One just need to home the Z axis and measure the distance difference between both Z axis and apply the math: Z adjust = Z - Z2.
-// If the Z stepper axis is closer to the bed, the measure Z > Z2 (yes, it is.. think about it) and the Z adjust would be positive.
-// Play a little bit with small adjustments (0.5mm) and check the behaviour.
-// The M119 (endstops report) will start reporting the Z2 Endstop as well.
+  // Z_DUAL_ENDSTOPS is a feature to enable the use of 2 endstops for both Z steppers - Let's call them Z stepper and Z2 stepper.
+  // That way the machine is capable to align the bed during home, since both Z steppers are homed. 
+  // There is also an implementation of M666 (software endstops adjustment) to this feature.
+  // After Z homing, this adjustment is applied to just one of the steppers in order to align the bed.
+  // One just need to home the Z axis and measure the distance difference between both Z axis and apply the math: Z adjust = Z - Z2.
+  // If the Z stepper axis is closer to the bed, the measure Z > Z2 (yes, it is.. think about it) and the Z adjust would be positive.
+  // Play a little bit with small adjustments (0.5mm) and check the behaviour.
+  // The M119 (endstops report) will start reporting the Z2 Endstop as well.
 
-#define Z_DUAL_ENDSTOPS
+  #define Z_DUAL_ENDSTOPS
 
-#ifdef Z_DUAL_ENDSTOPS
-  #define Z2_STEP_PIN E2_STEP_PIN           // Stepper to be used to Z2 axis.
-  #define Z2_DIR_PIN E2_DIR_PIN
-  #define Z2_ENABLE_PIN E2_ENABLE_PIN
-  #define Z2_MAX_PIN 36                     //Endstop used for Z2 axis. In this case I'm using XMAX in a Rumba Board (pin 36)
-  const bool Z2_MAX_ENDSTOP_INVERTING = false;
-  #define DISABLE_XMAX_ENDSTOP              //Better to disable the XMAX to avoid conflict. Just rename "XMAX_ENDSTOP" by the endstop you are using for Z2 axis.
-#endif
+  #ifdef Z_DUAL_ENDSTOPS
+    #define Z2_STEP_PIN E2_STEP_PIN           // Stepper to be used to Z2 axis.
+    #define Z2_DIR_PIN E2_DIR_PIN
+    #define Z2_ENABLE_PIN E2_ENABLE_PIN
+    #define Z2_MAX_PIN 36                     //Endstop used for Z2 axis. In this case I'm using XMAX in a Rumba Board (pin 36)
+    const bool Z2_MAX_ENDSTOP_INVERTING = false;
+    #define DISABLE_XMAX_ENDSTOP              //Better to disable the XMAX to avoid conflict. Just rename "XMAX_ENDSTOP" by the endstop you are using for Z2 axis.
+  #endif
 
-
-#endif
+#endif // Z_DUAL_STEPPER_DRIVERS
 
 // Same again but for Y Axis.
 //#define Y_DUAL_STEPPER_DRIVERS
@@ -242,27 +241,37 @@
 //#define CHDK 4        //Pin for triggering CHDK to take a picture see how to use it here http://captain-slow.dk/2014/03/09/3d-printing-timelapses/
 #define CHDK_DELAY 50 //How long in ms the pin should stay HIGH before going LOW again
 
-#define SD_FINISHED_STEPPERRELEASE true  //if sd support and the file is finished: disable steppers?
-#define SD_FINISHED_RELEASECOMMAND "M84 X Y Z E" // You might want to keep the z enabled so your bed stays in place.
+#ifdef SDSUPPORT
 
-#define SDCARD_RATHERRECENTFIRST  //reverse file order of sd card menu display. Its sorted practically after the file system block order.
-// if a file is deleted, it frees a block. hence, the order is not purely chronological. To still have auto0.g accessible, there is again the option to do that.
-// using:
-//#define MENU_ADDAUTOSTART
+  // If you are using a RAMPS board or cheap E-bay purchased boards that do not detect when an SD card is inserted
+  // You can get round this by connecting a push button or single throw switch to the pin defined as SDCARDCARDDETECT
+  // in the pins.h file.  When using a push button pulling the pin to ground this will need inverted.  This setting should
+  // be commented out otherwise
+  #define SDCARDDETECTINVERTED
 
-// Show a progress bar on HD44780 LCDs for SD printing
-//#define LCD_PROGRESS_BAR
+  #define SD_FINISHED_STEPPERRELEASE true  //if sd support and the file is finished: disable steppers?
+  #define SD_FINISHED_RELEASECOMMAND "M84 X Y Z E" // You might want to keep the z enabled so your bed stays in place.
 
-#ifdef LCD_PROGRESS_BAR
-  // Amount of time (ms) to show the bar
-  #define PROGRESS_BAR_BAR_TIME 2000
-  // Amount of time (ms) to show the status message
-  #define PROGRESS_BAR_MSG_TIME 3000
-  // Amount of time (ms) to retain the status message (0=forever)
-  #define PROGRESS_MSG_EXPIRE   0
-  // Enable this to show messages for MSG_TIME then hide them
-  //#define PROGRESS_MSG_ONCE
-#endif
+  #define SDCARD_RATHERRECENTFIRST  //reverse file order of sd card menu display. Its sorted practically after the file system block order.
+  // if a file is deleted, it frees a block. hence, the order is not purely chronological. To still have auto0.g accessible, there is again the option to do that.
+  // using:
+  //#define MENU_ADDAUTOSTART
+
+  // Show a progress bar on HD44780 LCDs for SD printing
+  //#define LCD_PROGRESS_BAR
+
+  #ifdef LCD_PROGRESS_BAR
+    // Amount of time (ms) to show the bar
+    #define PROGRESS_BAR_BAR_TIME 2000
+    // Amount of time (ms) to show the status message
+    #define PROGRESS_BAR_MSG_TIME 3000
+    // Amount of time (ms) to retain the status message (0=forever)
+    #define PROGRESS_MSG_EXPIRE   0
+    // Enable this to show messages for MSG_TIME then hide them
+    //#define PROGRESS_MSG_ONCE
+  #endif
+
+#endif // SDSUPPORT
 
 // The hardware watchdog should reset the microcontroller disabling all outputs, in case the firmware gets stuck and doesn't do temperature regulation.
 //#define USE_WATCHDOG
@@ -300,19 +309,13 @@
   #define EXTRUDER_ADVANCE_K .0
   #define D_FILAMENT 2.85
   #define STEPS_MM_E 836
-#endif // ADVANCE
+#endif
 
 // Arc interpretation settings:
 #define MM_PER_ARC_SEGMENT 1
 #define N_ARC_CORRECTION 25
 
 const unsigned int dropsegments=5; //everything with less than this number of steps will be ignored as move and joined with the next movement
-
-// If you are using a RAMPS board or cheap E-bay purchased boards that do not detect when an SD card is inserted
-// You can get round this by connecting a push button or single throw switch to the pin defined as SDCARDCARDDETECT
-// in the pins.h file.  When using a push button pulling the pin to ground this will need inverted.  This setting should
-// be commented out otherwise
-#define SDCARDDETECTINVERTED
 
 // Control heater 0 and heater 1 in parallel.
 //#define HEATERS_PARALLEL
