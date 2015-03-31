@@ -846,7 +846,7 @@ void get_command()
         sprintf_P(time, PSTR("%i hours %i minutes"),hours, minutes);
         SERIAL_ECHO_START;
         SERIAL_ECHOLN(time);
-        lcd_setstatus(time);
+        lcd_setstatus(time, true);
         card.printingHasFinished();
         card.checkautostart(true);
 
@@ -2536,9 +2536,13 @@ inline void gcode_G92() {
     if (starpos != NULL) *(starpos) = '\0';
     while (*src == ' ') ++src;
     if (!hasP && !hasS && *src != '\0')
-      lcd_setstatus(src);
-    else
+      lcd_setstatus(src, true);
+    else {
       LCD_MESSAGEPGM(MSG_USERWAIT);
+      #if defined(LCD_PROGRESS_BAR) && PROGRESS_MSG_EXPIRE > 0
+        dontExpireStatus();
+      #endif
+    }
 
     lcd_ignore_click();
     st_synchronize();

@@ -17,8 +17,11 @@
    * Progress Bar
    */
   #ifdef LCD_PROGRESS_BAR
+    #ifndef SDSUPPORT
+      #error LCD_PROGRESS_BAR requires SDSUPPORT.
+    #endif
     #ifdef DOGLCD
-      #warning LCD_PROGRESS_BAR does not apply to graphical displays.
+      #error LCD_PROGRESS_BAR does not apply to graphical displays.
     #endif
     #ifdef FILAMENT_LCD_DISPLAY
       #error LCD_PROGRESS_BAR and FILAMENT_LCD_DISPLAY are not fully compatible. Comment out this line to use both.
