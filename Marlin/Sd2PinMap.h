@@ -312,6 +312,75 @@ static const pin_map_t digitalPinMap[] = {
   {&DDRC, &PINC, &PORTC, 4},  // C4 18
   {&DDRC, &PINC, &PORTC, 5}   // C5 19
 };
+#elif defined(__AVR_ATmega1281__)
+// Waspmote
+ 
+// Two Wire (aka I2C) ports
+uint8_t const SDA_PIN = 41;
+uint8_t const SCL_PIN = 40;
+ 
+ 
+#undef MOSI_PIN
+#undef MISO_PIN
+// SPI port
+uint8_t const SS_PIN = 16;    // B0
+uint8_t const MOSI_PIN = 11;  // B2
+uint8_t const MISO_PIN = 12;  // B3
+uint8_t const SCK_PIN = 10;   // B1
+ 
+static const pin_map_t digitalPinMap[] = {
+    {&DDRE, &PINE, &PORTE, 0}, // E0 0
+    {&DDRE, &PINE, &PORTE, 1}, // E1 1
+    {&DDRE, &PINE, &PORTE, 3}, // E3 2
+    {&DDRE, &PINE, &PORTE, 4}, // E4 3
+    {&DDRC, &PINC, &PORTC, 4}, // C4 4
+    {&DDRC, &PINC, &PORTC, 5}, // C5 5
+    {&DDRC, &PINC, &PORTC, 6}, // C6 6
+    {&DDRC, &PINC, &PORTC, 7}, // C7 7
+    {&DDRA, &PINA, &PORTA, 2}, // A2 8
+    {&DDRA, &PINA, &PORTA, 3}, // A3 9
+    {&DDRA, &PINA, &PORTA, 4}, // A4 10
+    {&DDRD, &PIND, &PORTD, 5}, // D5 11
+    {&DDRD, &PIND, &PORTD, 6}, // D6 12
+    {&DDRC, &PINC, &PORTC, 1}, // C1 13
+    {&DDRF, &PINF, &PORTF, 1}, // F1 14
+    {&DDRF, &PINF, &PORTF, 2}, // F2 15
+    {&DDRF, &PINF, &PORTF, 3}, // F3 16
+    {&DDRF, &PINF, &PORTF, 4}, // F4 17
+    {&DDRF, &PINF, &PORTF, 5}, // F5 18
+    {&DDRF, &PINF, &PORTF, 6}, // F6 19
+    {&DDRF, &PINF, &PORTF, 7}, // F7 20
+    {&DDRF, &PINF, &PORTF, 0}, // F0 21
+    {&DDRA, &PINA, &PORTA, 1}, // A1 22
+    {&DDRD, &PIND, &PORTD, 7}, // D7 23
+    {&DDRE, &PINE, &PORTE, 5}, // E5 24
+    {&DDRA, &PINA, &PORTA, 6}, // A6 25
+    {&DDRE, &PINE, &PORTE, 2}, // E2 26
+    {&DDRA, &PINA, &PORTA, 5}, // A5 27
+    {&DDRC, &PINC, &PORTC, 0}, // C0 28
+    {&DDRB, &PINB, &PORTB, 0}, // B0 29
+    {&DDRB, &PINB, &PORTB, 1}, // B1 30
+    {&DDRB, &PINB, &PORTB, 2}, // B2 31
+    {&DDRB, &PINB, &PORTB, 3}, // B3 32
+    {&DDRB, &PINB, &PORTB, 4}, // B4 33
+    {&DDRB, &PINB, &PORTB, 5}, // B5 34
+    {&DDRA, &PINA, &PORTA, 0}, // A0 35
+    {&DDRB, &PINB, &PORTB, 6}, // B6 36
+    {&DDRB, &PINB, &PORTB, 7}, // B7 37
+    {&DDRE, &PINE, &PORTE, 6}, // E6 38
+    {&DDRE, &PINE, &PORTE, 7}, // E7 39
+    {&DDRD, &PIND, &PORTD, 0}, // D0 40
+    {&DDRD, &PIND, &PORTD, 1}, // D1 41
+    {&DDRC, &PINC, &PORTC, 3}, // C3 42
+    {&DDRD, &PIND, &PORTD, 2}, // D2 43
+    {&DDRD, &PIND, &PORTD, 3}, // D3 44
+    {&DDRA, &PINA, &PORTA, 7}, // A7 45
+    {&DDRC, &PINC, &PORTC, 2}, // C2 46
+    {&DDRD, &PIND, &PORTD, 4}, // D4 47
+    {&DDRG, &PING, &PORTG, 2}, // G2 48
+    {&DDRG, &PING, &PORTG, 1}, // G1 49
+    {&DDRG, &PING, &PORTG, 0}, // G0 50
+};
 #else  // defined(__AVR_ATmega1280__)
 #error unknown chip
 #endif  // defined(__AVR_ATmega1280__)
