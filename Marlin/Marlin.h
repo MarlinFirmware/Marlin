@@ -30,7 +30,10 @@
 # include "Arduino.h"
 #else
 # include "WProgram.h"
-  //Arduino < 1.0.0 does not define this, so we need to do it ourselves
+#endif
+
+//Arduino < 1.0.0 does not define this, so we need to do it ourselves
+#ifndef analogInputToDigitalPin
 # define analogInputToDigitalPin(p) ((p) + A0)
 #endif
 
@@ -104,7 +107,7 @@ void get_command();
 void process_commands();
 void flush_commands();
 
-void manage_inactivity();
+void manage_inactivity(bool ignore_stepper_queue=false);
 
 #if defined(DUAL_X_CARRIAGE) && defined(X_ENABLE_PIN) && X_ENABLE_PIN > -1 \
     && defined(X2_ENABLE_PIN) && X2_ENABLE_PIN > -1
@@ -210,7 +213,9 @@ extern float homing_feedrate[];
 extern bool axis_relative_modes[];
 extern int feedmultiply;
 extern int extrudemultiply; // Sets extrude multiply factor (in percent) for all extruders
+extern bool volumetric_enabled;
 extern int extruder_multiply[EXTRUDERS]; // sets extrude multiply factor (in percent) for each extruder individually
+extern float filament_size[EXTRUDERS]; // cross-sectional area of filament (in millimeters), typically around 1.75 or 2.85, 0 disables the volumetric calculations for the extruder.
 extern float volumetric_multiplier[EXTRUDERS]; // reciprocal of cross-sectional area of filament (in square millimeters), stored this way to reduce computational burden in planner
 extern float current_position[NUM_AXIS] ;
 extern float add_homing[3];
@@ -266,4 +271,5 @@ extern void digipot_i2c_set_current( int channel, float current );
 extern void digipot_i2c_init();
 #endif
 
+extern void calculate_volumetric_multipliers();
 #endif
