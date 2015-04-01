@@ -124,7 +124,7 @@
 //      #endif
 //      #ifndef SERVO_ENDSTOP_ANGLES
 //        #error You must have SERVO_ENDSTOP_ANGLES defined for Z Extend and Retract to use Z_PROBE_AND_ENSTOP
-      #endif
+//      #endif
     #endif
     /**
      * Check if Probe_Offset * Grid Points is greater than Probing Range
