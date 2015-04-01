@@ -647,6 +647,7 @@ void loop()
 	}
 	else
 	{
+		char *test;
       switch (stop_buffer_code)
 		{
 			case 1:
@@ -664,7 +665,7 @@ void loop()
 				{
 					bufindr = BUFSIZE - 1;
 				}
-				char *test = cmdbuffer[bufindr];
+				test = cmdbuffer[bufindr];
 				if (strstr(test, "M999") == NULL)
 				{
 					bufindr = bufindw;
