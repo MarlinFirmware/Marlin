@@ -62,7 +62,7 @@
   #define FILWIDTH_PIN        5
 #endif
 
-#if defined(Z_PROBE_AND_ENDSTOP)
+#if defined(Z_PROBE_ENDSTOP)
   // Define a pin to use as the signal pin on Arduino for the Z_PROBE endstop.
  #define Z_PROBE_PIN 32
 #endif
