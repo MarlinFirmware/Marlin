@@ -2824,7 +2824,7 @@ inline void gcode_M42() {
   inline void gcode_M48() {
 
     double sum = 0.0, mean = 0.0, sigma = 0.0, sample_set[50];
-    int verbose_level = 1, j, n_samples = 10, n_legs = 0, engage_probe_for_each_reading = 0;
+    int verbose_level = 1, n_samples = 10, n_legs = 0;
     
     if (code_seen('V') || code_seen('v')) {
       verbose_level = code_value();
@@ -2852,8 +2852,7 @@ inline void gcode_M42() {
            Z_start_location = Z_current + Z_RAISE_BEFORE_PROBING,
            ext_position = st_get_position_mm(E_AXIS);
 
-    if (code_seen('E') || code_seen('e'))
-      engage_probe_for_each_reading++;
+    bool engage_probe_for_each_reading = code_seen('E') || code_seen('e');
 
     if (code_seen('X') || code_seen('x')) {
       X_probe_location = code_value() - X_PROBE_OFFSET_FROM_EXTRUDER;
