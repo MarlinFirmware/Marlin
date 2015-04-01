@@ -29,6 +29,8 @@
 
 #define BIT(b) (1<<(b))
 #define TEST(n,b) (((n)&BIT(b))!=0)
+#define RADIANS(d) ((d)*M_PI/180.0)
+#define DEGREES(r) ((d)*180.0/M_PI)
 
 // Arduino < 1.0.0 does not define this, so we need to do it ourselves
 #ifndef analogInputToDigitalPin
