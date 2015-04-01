@@ -170,10 +170,10 @@
 // M404 - N<dia in mm> Enter the nominal filament width (3mm, 1.75mm ) or will display nominal filament width without parameters
 // M405 - Turn on Filament Sensor extrusion control.  Optional D<delay in cm> to set delay in centimeters between sensor and extruder
 // M406 - Turn off Filament Sensor extrusion control
-// M407 - Display measured filament diameter
+// M407 - Displays measured filament diameter
 // M500 - Store parameters in EEPROM
 // M501 - Read parameters from EEPROM (if you need reset them after you changed them temporarily).
-// M502 - Revert to the default "factory settings". You still need to store them in EEPROM afterwards if you want to.
+// M502 - Revert to the default "factory settings".  You still need to store them in EEPROM afterwards if you want to.
 // M503 - Print the current settings (from memory not from EEPROM). Use S0 to leave off headings.
 // M540 - Use S[0|1] to enable or disable the stop SD card print on endstop hit (requires ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED)
 // M600 - Pause for filament change X[pos] Y[pos] Z[relative lift] E[initial retract] L[later retract distance for removal]
@@ -272,7 +272,7 @@ int fanSpeed = 0;
 
 #endif // FWRETRACT
 
-#if defined(ULTIPANEL) && HAS_POWER_SWITCH
+#ifdef ULTIPANEL
   bool powersupply = 
     #ifdef PS_DEFAULT_OFF
       false
@@ -311,13 +311,13 @@ bool cancel_heatup = false;
 
 #ifdef FILAMENT_SENSOR
   //Variables for Filament Sensor input
-  float filament_width_nominal = DEFAULT_NOMINAL_FILAMENT_DIA;  //Set nominal filament width, can be changed with M404
-  bool filament_sensor = false;  //M405 turns on filament_sensor control, M406 turns it off
-  float filament_width_meas = DEFAULT_MEASURED_FILAMENT_DIA; //Stores the measured filament diameter
+  float filament_width_nominal=DEFAULT_NOMINAL_FILAMENT_DIA;  //Set nominal filament width, can be changed with M404
+  bool filament_sensor=false;  //M405 turns on filament_sensor control, M406 turns it off
+  float filament_width_meas=DEFAULT_MEASURED_FILAMENT_DIA; //Stores the measured filament diameter
   signed char measurement_delay[MAX_MEASUREMENT_DELAY+1];  //ring buffer to delay measurement  store extruder factor after subtracting 100
-  int delay_index1 = 0;  //index into ring buffer
-  int delay_index2 = -1;  //index into ring buffer - set to -1 on startup to indicate ring buffer needs to be initialized
-  float delay_dist = 0; //delay distance counter
+  int delay_index1=0;  //index into ring buffer
+  int delay_index2=-1;  //index into ring buffer - set to -1 on startup to indicate ring buffer needs to be initialized
+  float delay_dist=0; //delay distance counter
   int meas_delay_cm = MEASUREMENT_DELAY_CM;  //distance delay setting
 #endif
 
@@ -516,8 +516,8 @@ void setup_powerhold()
   #if defined(SUICIDE_PIN) && SUICIDE_PIN > -1
     OUT_WRITE(SUICIDE_PIN, HIGH);
   #endif
-  #if HAS_POWER_SWITCH
-    #ifdef PS_DEFAULT_OFF
+  #if defined(PS_ON_PIN) && PS_ON_PIN > -1
+    #if defined(PS_DEFAULT_OFF)
       OUT_WRITE(PS_ON_PIN, PS_ON_ASLEEP);
     #else
       OUT_WRITE(PS_ON_PIN, PS_ON_AWAKE);
@@ -1094,7 +1094,7 @@ inline void sync_plan_position() {
   static void run_z_probe() {
 
     #ifdef DELTA
-    
+
       float start_z = current_position[Z_AXIS];
       long start_steps = st_get_position(Z_AXIS);
     
@@ -1104,14 +1104,14 @@ inline void sync_plan_position() {
       prepare_move_raw();
       st_synchronize();
       endstops_hit_on_purpose();
-      
+
       // we have to let the planner know where we are right now as it is not where we said to go.
       long stop_steps = st_get_position(Z_AXIS);
       float mm = start_z - float(start_steps - stop_steps) / axis_steps_per_unit[Z_AXIS];
       current_position[Z_AXIS] = mm;
       calculate_delta(current_position);
       plan_set_position(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], current_position[E_AXIS]);
-      
+
     #else // !DELTA
 
       plan_bed_level_matrix.set_to_identity();
@@ -1148,7 +1148,7 @@ inline void sync_plan_position() {
       current_position[Z_AXIS] = st_get_position_mm(Z_AXIS);
       // make sure the planner knows where we are as it may be a bit different than we last said to move to
       sync_plan_position();
-      
+
     #endif // !DELTA
   }
 
@@ -1158,7 +1158,7 @@ inline void sync_plan_position() {
     #ifdef DELTA
 
       feedrate = XY_TRAVEL_SPEED;
-      
+
       destination[X_AXIS] = x;
       destination[Y_AXIS] = y;
       destination[Z_AXIS] = z;
@@ -1232,16 +1232,21 @@ inline void sync_plan_position() {
       feedrate = homing_feedrate[X_AXIS]/10;
       destination[X_AXIS] = 0;
       prepare_move_raw();
-      
+
       // Home Y for safety
       feedrate = homing_feedrate[X_AXIS]/2;
       destination[Y_AXIS] = 0;
       prepare_move_raw();
-      
+
       st_synchronize();
-      
+
+    #if defined(Z_PROBE_ENDSTOP)
+      bool z_probe_endstop = (READ(Z_PROBE_PIN) != Z_PROBE_ENDSTOP_INVERTING);
+      if (z_probe_endstop) {
+    #else
       bool z_min_endstop = (READ(Z_MIN_PIN) != Z_MIN_ENDSTOP_INVERTING);
-      if (z_min_endstop) {
+      if (!z_min_endstop) {
+    #endif
         if (!Stopped) {
           SERIAL_ERROR_START;
           SERIAL_ERRORLNPGM("Z-Probe failed to engage!");
@@ -1251,7 +1256,7 @@ inline void sync_plan_position() {
       }
 
     #endif // Z_PROBE_ALLEN_KEY
-
+      
   }
 
   static void retract_z_probe() {
@@ -1269,9 +1274,9 @@ inline void sync_plan_position() {
         #if SERVO_LEVELING
           servos[servo_endstops[Z_AXIS]].attach(0);
         #endif
-
-        servos[servo_endstops[Z_AXIS]].write(servo_endstop_angles[Z_AXIS * 2 + 1]);
-
+          
+          servos[servo_endstops[Z_AXIS]].write(servo_endstop_angles[Z_AXIS * 2 + 1]);
+          
         #if SERVO_LEVELING
           delay(PROBE_SERVO_DEACTIVATION_DELAY);
           servos[servo_endstops[Z_AXIS]].detach();
@@ -1295,22 +1300,27 @@ inline void sync_plan_position() {
       feedrate = homing_feedrate[Z_AXIS]/10;
       destination[Z_AXIS] = current_position[Z_AXIS] - Z_PROBE_ALLEN_KEY_RETRACT_DEPTH;
       prepare_move_raw();
-      
+
       // Move up for safety
       feedrate = homing_feedrate[Z_AXIS]/2;
       destination[Z_AXIS] = current_position[Z_AXIS] + Z_PROBE_ALLEN_KEY_RETRACT_DEPTH * 2;
       prepare_move_raw();
-      
+
       // Home XY for safety
       feedrate = homing_feedrate[X_AXIS]/2;
       destination[X_AXIS] = 0;
       destination[Y_AXIS] = 0;
       prepare_move_raw();
-      
+
       st_synchronize();
-      
+
+    #if defined(Z_PROBE_ENDSTOP)
+      bool z_probe_endstop = (READ(Z_PROBE_PIN) != Z_PROBE_ENDSTOP_INVERTING);
+      if (z_probe_endstop) {
+    #else
       bool z_min_endstop = (READ(Z_MIN_PIN) != Z_MIN_ENDSTOP_INVERTING);
       if (!z_min_endstop) {
+    #endif
         if (!Stopped) {
           SERIAL_ERROR_START;
           SERIAL_ERRORLNPGM("Z-Probe failed to retract!");
@@ -2795,11 +2805,17 @@ inline void gcode_M42() {
   } // code_seen('S')
 }
 
-
 #if defined(ENABLE_AUTO_BED_LEVELING) && defined(Z_PROBE_REPEATABILITY_TEST)
 
-  #if Z_MIN_PIN == -1
-    #error "You must have a Z_MIN endstop in order to enable calculation of Z-Probe repeatability."
+  // This is redudant since the SanityCheck.h already checks for a valid Z_PROBE_PIN, but here for clarity.
+  #if defined (Z_PROBE_ENDSTOP)
+    #if (! defined (Z_PROBE_PIN) || Z_PROBE_PIN == -1)
+      #error "You must have a Z_PROBE_PIN defined in order to enable calculation of Z-Probe repeatability."
+    #endif
+  #else
+    #if (Z_MIN_PIN == -1) &&
+      #error "You must have a Z_MIN_PIN defined in order to enable calculation of Z-Probe repeatability."
+    #endif
   #endif
 
   /**
@@ -3305,7 +3321,7 @@ inline void gcode_M140() {
   if (code_seen('S')) setTargetBed(code_value());
 }
 
-#if HAS_POWER_SWITCH
+#if defined(PS_ON_PIN) && PS_ON_PIN > -1
 
   /**
    * M80: Turn on Power Supply
@@ -3327,12 +3343,10 @@ inline void gcode_M140() {
     #endif
   }
 
-#endif // HAS_POWER_SWITCH
+#endif // PS_ON_PIN
 
 /**
- * M81: Turn off Power, including Power Supply, if there is one.
- *
- *      This code should ALWAYS be available for EMERGENCY SHUTDOWN!
+ * M81: Turn off Power Supply
  */
 inline void gcode_M81() {
   disable_heater();
@@ -3347,18 +3361,15 @@ inline void gcode_M81() {
   #if defined(SUICIDE_PIN) && SUICIDE_PIN > -1
     st_synchronize();
     suicide();
-  #elif HAS_POWER_SWITCH
+  #elif defined(PS_ON_PIN) && PS_ON_PIN > -1
     OUT_WRITE(PS_ON_PIN, PS_ON_ASLEEP);
   #endif
   #ifdef ULTIPANEL
-    #if HAS_POWER_SWITCH
-      powersupply = false;
-    #endif
+    powersupply = false;
     LCD_MESSAGEPGM(MACHINE_NAME " " MSG_OFF ".");
     lcd_update();
   #endif
 }
-
 
 /**
  * M82: Set E codes absolute (default)
@@ -3528,7 +3539,10 @@ inline void gcode_M119() {
     SERIAL_PROTOCOLPGM(MSG_Z2_MAX);
     SERIAL_PROTOCOLLN(((READ(Z2_MAX_PIN)^Z2_MAX_ENDSTOP_INVERTING)?MSG_ENDSTOP_HIT:MSG_ENDSTOP_OPEN));
   #endif
-  
+  #if defined(Z_PROBE_PIN) && Z_PROBE_PIN > -1
+    SERIAL_PROTOCOLPGM(MSG_Z_PROBE);
+    SERIAL_PROTOCOLLN(((READ(Z_PROBE_PIN)^Z_PROBE_ENDSTOP_INVERTING)?MSG_ENDSTOP_HIT:MSG_ENDSTOP_OPEN));
+  #endif
 }
 
 /**
@@ -4893,15 +4907,15 @@ void process_commands() {
         #endif //HEATER_2_PIN
       #endif //BARICUDA
 
-      #if HAS_POWER_SWITCH
+      #if defined(PS_ON_PIN) && PS_ON_PIN > -1
 
         case 80: // M80 - Turn on Power Supply
           gcode_M80();
           break;
 
-      #endif // HAS_POWER_SWITCH
+      #endif // PS_ON_PIN
 
-      case 81: // M81 - Turn off Power, including Power Supply, if possible
+      case 81: // M81 - Turn off Power Supply
         gcode_M81();
         break;
 
@@ -5878,17 +5892,19 @@ void kill()
   disable_e2();
   disable_e3();
 
-  #if HAS_POWER_SWITCH
-    pinMode(PS_ON_PIN, INPUT);
-  #endif
-
+#if defined(PS_ON_PIN) && PS_ON_PIN > -1
+  pinMode(PS_ON_PIN,INPUT);
+#endif
   SERIAL_ERROR_START;
   SERIAL_ERRORLNPGM(MSG_ERR_KILLED);
   LCD_ALERTMESSAGEPGM(MSG_KILLED);
   
   // FMC small patch to update the LCD before ending
   sei();   // enable interrupts
-  for (int i = 5; i--; lcd_update()) delay(200); // Wait a short time
+  for ( int i=5; i--; lcd_update())
+  {
+     delay(200);
+  }
   cli();   // disable interrupts
   suicide();
   while(1) { /* Intentionally left empty */ } // Wait for reset

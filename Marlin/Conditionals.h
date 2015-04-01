@@ -185,6 +185,9 @@
       #define ENDSTOPPULLUP_YMIN
       #define ENDSTOPPULLUP_ZMIN
     #endif
+    #ifndef DISABLE_Z_PROBE_ENDSTOP
+      #define ENDSTOPPULLUP_ZPROBE
+    #endif
   #endif
 
   /**
