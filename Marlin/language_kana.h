@@ -126,6 +126,8 @@
 #define MSG_BABYSTEP_Y                      "\xcb\xde\xc4\xde\xb3 Y"                                       // "Babystep Y"
 #define MSG_BABYSTEP_Z                      "\xcb\xde\xc4\xde\xb3 Z"                                       // "Babystep Z"
 #define MSG_ENDSTOP_ABORT                   "Endstop abort"
+#define MSG_END_HOUR                        "hours"
+#define MSG_END_MINUTE                      "minutes"
 
 /* These are from language.h. PLEASE DON'T TRANSLATE! All translatable messages can be found in language_en.h
 #define MSG_HEATING                         "\xb6\xc8\xc2\xc1\xad\xb3..."                                  // "Heating..."
