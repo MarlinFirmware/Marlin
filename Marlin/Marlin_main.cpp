@@ -1109,7 +1109,7 @@ inline void sync_plan_position() {
       destination[Z_AXIS] = -10;
       prepare_move_raw();
       st_synchronize();
-      endstops_hit_on_purpose();
+      endstops_hit_on_purpose(); // clear endstop hit flags
       
       // we have to let the planner know where we are right now as it is not where we said to go.
       long stop_steps = st_get_position(Z_AXIS);
@@ -1135,7 +1135,7 @@ inline void sync_plan_position() {
       zPosition += home_retract_mm(Z_AXIS);
       line_to_z(zPosition);
       st_synchronize();
-      endstops_hit_on_purpose();
+      endstops_hit_on_purpose(); // clear endstop hit flags
 
       // move back down slowly to find bed
       if (homing_bump_divisor[Z_AXIS] >= 1)
@@ -1148,7 +1148,7 @@ inline void sync_plan_position() {
       zPosition -= home_retract_mm(Z_AXIS) * 2;
       line_to_z(zPosition);
       st_synchronize();
-      endstops_hit_on_purpose();
+      endstops_hit_on_purpose(); // clear endstop hit flags
 
       current_position[Z_AXIS] = st_get_position_mm(Z_AXIS);
       // make sure the planner knows where we are as it may be a bit different than we last said to move to
@@ -1435,13 +1435,17 @@ inline void sync_plan_position() {
 
 #endif // ENABLE_AUTO_BED_LEVELING
 
+/**
+ * Home an individual axis
+ */
+
+#define HOMEAXIS(LETTER) homeaxis(LETTER##_AXIS)
+
 static void homeaxis(int axis) {
   #define HOMEAXIS_DO(LETTER) \
     ((LETTER##_MIN_PIN > -1 && LETTER##_HOME_DIR==-1) || (LETTER##_MAX_PIN > -1 && LETTER##_HOME_DIR==1))
 
-  if (axis == X_AXIS ? HOMEAXIS_DO(X) :
-      axis == Y_AXIS ? HOMEAXIS_DO(Y) :
-      axis == Z_AXIS ? HOMEAXIS_DO(Z) : 0) {
+  if (axis == X_AXIS ? HOMEAXIS_DO(X) : axis == Y_AXIS ? HOMEAXIS_DO(Y) : axis == Z_AXIS ? HOMEAXIS_DO(Z) : 0) {
 
     int axis_home_dir;
 
@@ -1451,108 +1455,112 @@ static void homeaxis(int axis) {
       axis_home_dir = home_dir(axis);
     #endif
 
+    // Set the axis position as setup for the move
     current_position[axis] = 0;
     sync_plan_position();
 
-    #ifndef Z_PROBE_SLED
-      // Engage Servo endstop if enabled
-      #ifdef SERVO_ENDSTOPS
-        #if SERVO_LEVELING
-          if (axis == Z_AXIS) {
-            engage_z_probe();
-          }
-          else
-        #endif // SERVO_LEVELING
+    // Engage Servo endstop if enabled
+    #ifdef SERVO_ENDSTOPS && !defined(Z_PROBE_SLED)
 
-        if (servo_endstops[axis] > -1)
-          servos[servo_endstops[axis]].write(servo_endstop_angles[axis * 2]);
+      #if SERVO_LEVELING
+        if (axis == Z_AXIS) engage_z_probe(); else
+      #endif
+        {
+          if (servo_endstops[axis] > -1)
+            servos[servo_endstops[axis]].write(servo_endstop_angles[axis * 2]);
+        }
 
-      #endif // SERVO_ENDSTOPS
-
-    #endif // Z_PROBE_SLED
+    #endif // SERVO_ENDSTOPS && !Z_PROBE_SLED
 
     #ifdef Z_DUAL_ENDSTOPS
       if (axis == Z_AXIS) In_Homing_Process(true);
     #endif
 
+    // Move towards the endstop until an endstop is triggered
     destination[axis] = 1.5 * max_length(axis) * axis_home_dir;
     feedrate = homing_feedrate[axis];
     line_to_destination();
     st_synchronize();
 
+    // Set the axis position as setup for the move
     current_position[axis] = 0;
     sync_plan_position();
+
+    // Move away from the endstop by the axis HOME_RETRACT_MM
     destination[axis] = -home_retract_mm(axis) * axis_home_dir;
     line_to_destination();
     st_synchronize();
 
-    destination[axis] = 2 * home_retract_mm(axis) * axis_home_dir;
-
+    // Slow down the feedrate for the next move
     if (homing_bump_divisor[axis] >= 1)
       feedrate = homing_feedrate[axis] / homing_bump_divisor[axis];
     else {
       feedrate = homing_feedrate[axis] / 10;
-      SERIAL_ECHOLN("Warning: The Homing Bump Feedrate Divisor cannot be less than 1");
+      SERIAL_ECHOLNPGM("Warning: The Homing Bump Feedrate Divisor cannot be less than 1");
     }
 
+    // Move slowly towards the endstop until triggered
+    destination[axis] = 2 * home_retract_mm(axis) * axis_home_dir;
     line_to_destination();
     st_synchronize();
+
     #ifdef Z_DUAL_ENDSTOPS
-      if (axis==Z_AXIS)
-      {
-        feedrate = homing_feedrate[axis];
-        sync_plan_position();
-        if (axis_home_dir > 0)
-        {
-          destination[axis] = (-1) * fabs(z_endstop_adj);
-          if (z_endstop_adj > 0) Lock_z_motor(true); else Lock_z2_motor(true);
-        } else {
-          destination[axis] = fabs(z_endstop_adj);
-          if (z_endstop_adj < 0) Lock_z_motor(true); else Lock_z2_motor(true);        
+      if (axis == Z_AXIS) {
+        float adj = fabs(z_endstop_adj);
+        bool lockZ1;
+        if (axis_home_dir > 0) {
+          adj = -adj;
+          lockZ1 = (z_endstop_adj > 0);
         }
+        else
+          lockZ1 = (z_endstop_adj < 0);
+
+        if (lockZ1) Lock_z_motor(true); else Lock_z2_motor(true);
+        sync_plan_position();
+
+        // Move to the adjusted endstop height
+        feedrate = homing_feedrate[axis];
+        destination[Z_AXIS] = adj;
         line_to_destination();
         st_synchronize();
-        Lock_z_motor(false);
-        Lock_z2_motor(false);
+
+        if (lockZ1) Lock_z_motor(false); else Lock_z2_motor(false);
         In_Homing_Process(false);
+      } // Z_AXIS
+    #endif
+
+    #ifdef DELTA
+      // retrace by the amount specified in endstop_adj
+      if (endstop_adj[axis] * axis_home_dir < 0) {
+        sync_plan_position();
+        destination[axis] = endstop_adj[axis];
+        line_to_destination();
+        st_synchronize();
       }
     #endif
 
-#ifdef DELTA
-    // retrace by the amount specified in endstop_adj
-    if (endstop_adj[axis] * axis_home_dir < 0) {
-      sync_plan_position();
-      destination[axis] = endstop_adj[axis];
-      line_to_destination();
-      st_synchronize();
-    }
-#endif
+    // Set the axis position to its home position (plus home offsets)
     axis_is_at_home(axis);
+
     destination[axis] = current_position[axis];
     feedrate = 0.0;
-    endstops_hit_on_purpose();
+    endstops_hit_on_purpose(); // clear endstop hit flags
     axis_known_position[axis] = true;
 
     // Retract Servo endstop if enabled
     #ifdef SERVO_ENDSTOPS
-      if (servo_endstops[axis] > -1) {
+      if (servo_endstops[axis] > -1)
         servos[servo_endstops[axis]].write(servo_endstop_angles[axis * 2 + 1]);
-      }
     #endif
-#if SERVO_LEVELING
-  #ifndef Z_PROBE_SLED
-    if (axis==Z_AXIS) retract_z_probe();
-  #endif
-#endif
+
+    #if SERVO_LEVELING && !defined(Z_PROBE_SLED)
+      if (axis == Z_AXIS) retract_z_probe();
+    #endif
 
   }
 }
-#define HOMEAXIS(LETTER) homeaxis(LETTER##_AXIS)
 
-void refresh_cmd_timeout(void)
-{
-  previous_millis_cmd = millis();
-}
+void refresh_cmd_timeout(void) { previous_millis_cmd = millis(); }
 
 #ifdef FWRETRACT
 
@@ -1780,7 +1788,7 @@ inline void gcode_G28() {
     feedrate = 1.732 * homing_feedrate[X_AXIS];
     line_to_destination();
     st_synchronize();
-    endstops_hit_on_purpose();
+    endstops_hit_on_purpose(); // clear endstop hit flags
 
     // Destination reached
     for (int i = X_AXIS; i <= Z_AXIS; i++) current_position[i] = destination[i];
@@ -1798,7 +1806,7 @@ inline void gcode_G28() {
           homeY = code_seen(axis_codes[Y_AXIS]),
           homeZ = code_seen(axis_codes[Z_AXIS]);
 
-    home_all_axis = !homeX && !homeY && !homeZ; // No parameters means home all axes
+    home_all_axis = !(homeX || homeY || homeZ) || (homeX && homeY && homeZ);
 
     #if Z_HOME_DIR > 0                      // If homing away from BED do Z first
 
@@ -1849,7 +1857,7 @@ inline void gcode_G28() {
         line_to_destination();
         feedrate = 0.0;
         st_synchronize();
-        endstops_hit_on_purpose();
+        endstops_hit_on_purpose(); // clear endstop hit flags
 
         current_position[X_AXIS] = destination[X_AXIS];
         current_position[Y_AXIS] = destination[Y_AXIS];
@@ -1857,6 +1865,7 @@ inline void gcode_G28() {
           current_position[Z_AXIS] = destination[Z_AXIS];
         #endif
       }
+
     #endif // QUICK_HOME
 
     // Home X
@@ -2005,7 +2014,7 @@ inline void gcode_G28() {
   feedrate = saved_feedrate;
   feedmultiply = saved_feedmultiply;
   previous_millis_cmd = millis();
-  endstops_hit_on_purpose();
+  endstops_hit_on_purpose(); // clear endstop hit flags
 }
 
 #if defined(MESH_BED_LEVELING) || defined(ENABLE_AUTO_BED_LEVELING)
