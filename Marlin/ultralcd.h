@@ -46,8 +46,7 @@ typedef void (*view_t)();
 //
 void lcd_init();
 
-void lcd_update();
-void lcd_force_update();
+void lcd_update(bool force = false);
 void lcd_buttons_update();
 
 void lcd_set_status_screen();

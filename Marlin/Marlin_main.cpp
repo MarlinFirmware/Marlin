@@ -1972,7 +1972,7 @@ void process_commands()
 				lcd_disable_button();
 				LCD_MESSAGEPGM(MSG_USERWAIT);
 				draw_status_screen();
-				lcd_force_update();
+				lcd_update(true);
 
       codenum = 0;
 				if(code_seen('P')) codenum = code_value(); // milliseconds to wait
@@ -3728,7 +3728,7 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
 
       			lcd_enable_button();
       			draw_wizard_change_filament();
-      			lcd_force_update();
+      			lcd_update(true);
       			SERIAL_ECHOLN("Wizard set to 0");
 
       			lcd_clear_triggered_flags();
@@ -3737,7 +3737,7 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
         }
 
       			lcd_wizard_set_page(1);
-      			lcd_force_update();
+      			lcd_update(true);
       			SERIAL_ECHOLN("Wizard set to 1");
 
       			target[E_AXIS] += 10.0;
@@ -3762,7 +3762,7 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
 				enable_y();
 
       			lcd_wizard_set_page(2);
-      			lcd_force_update();
+      			lcd_update(true);
       			SERIAL_ECHOLN("Wizard set to 2");
 
         //finish moves
@@ -3778,7 +3778,7 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
       			}
 
       			lcd_wizard_set_page(3);
-      			lcd_force_update();
+      			lcd_update(true);
       			SERIAL_ECHOLN("Wizard set to 3");
 
       			lcd_clear_triggered_flags();
@@ -3801,7 +3801,7 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
         plan_buffer_line(lastpos[X_AXIS], lastpos[Y_AXIS], lastpos[Z_AXIS], lastpos[E_AXIS], feedrate/60, active_extruder); //final untretract
 
       			lcd_wizard_set_page(4);
-      			lcd_force_update();
+      			lcd_update(true);
       			lcd_enable_display_timeout();
       			SERIAL_ECHOLN("Wizard set to 4");
 
