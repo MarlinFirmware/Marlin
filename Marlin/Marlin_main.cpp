@@ -1034,6 +1034,12 @@ inline void line_to_destination() {
 inline void sync_plan_position() {
   plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
 }
+#ifdef DELTA
+  inline void sync_plan_position_delta() {
+    calculate_delta(current_position);
+    plan_set_position(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], current_position[E_AXIS]);
+  }
+#endif
 
 #ifdef ENABLE_AUTO_BED_LEVELING
 
@@ -1109,8 +1115,7 @@ inline void sync_plan_position() {
       long stop_steps = st_get_position(Z_AXIS);
       float mm = start_z - float(start_steps - stop_steps) / axis_steps_per_unit[Z_AXIS];
       current_position[Z_AXIS] = mm;
-      calculate_delta(current_position);
-      plan_set_position(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], current_position[E_AXIS]);
+      sync_plan_position_delta();
       
     #else // !DELTA
 
@@ -1262,7 +1267,7 @@ inline void sync_plan_position() {
       if (servo_endstops[Z_AXIS] >= 0) {
 
         #if Z_RAISE_AFTER_PROBING > 0
-          do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], Z_RAISE_AFTER_PROBING);
+          do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS] + Z_RAISE_AFTER_PROBING);
           st_synchronize();
         #endif
 
@@ -1345,7 +1350,7 @@ inline void sync_plan_position() {
 
     #if Z_RAISE_BETWEEN_PROBINGS > 0
       if (retract_action == ProbeStay) {
-        do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], Z_RAISE_BETWEEN_PROBINGS);
+        do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS] + Z_RAISE_BETWEEN_PROBINGS);
         st_synchronize();
       }
     #endif
@@ -1550,62 +1555,57 @@ void refresh_cmd_timeout(void)
 }
 
 #ifdef FWRETRACT
+
   void retract(bool retracting, bool swapretract = false) {
-    if(retracting && !retracted[active_extruder]) {
-      destination[X_AXIS]=current_position[X_AXIS];
-      destination[Y_AXIS]=current_position[Y_AXIS];
-      destination[Z_AXIS]=current_position[Z_AXIS];
-      destination[E_AXIS]=current_position[E_AXIS];
-      if (swapretract) {
-        current_position[E_AXIS]+=retract_length_swap/volumetric_multiplier[active_extruder];
-      } else {
-        current_position[E_AXIS]+=retract_length/volumetric_multiplier[active_extruder];
-      }
-      plan_set_e_position(current_position[E_AXIS]);
-      float oldFeedrate = feedrate;
+
+    if (retracting == retracted[active_extruder]) return;
+
+    float oldFeedrate = feedrate;
+
+    for (int i = 0; i < NUM_AXIS; i++) destination[i] = current_position[i];
+
+    if (retracting) {
+
       feedrate = retract_feedrate * 60;
-      retracted[active_extruder]=true;
-      prepare_move();
-      if(retract_zlift > 0.01) {
-         current_position[Z_AXIS]-=retract_zlift;
-#ifdef DELTA
-         calculate_delta(current_position); // change cartesian kinematic to  delta kinematic;
-         plan_set_position(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], current_position[E_AXIS]);
-#else
-         sync_plan_position();
-#endif
-         prepare_move();
-      }
-      feedrate = oldFeedrate;
-    } else if(!retracting && retracted[active_extruder]) {
-      destination[X_AXIS]=current_position[X_AXIS];
-      destination[Y_AXIS]=current_position[Y_AXIS];
-      destination[Z_AXIS]=current_position[Z_AXIS];
-      destination[E_AXIS]=current_position[E_AXIS];
-      if(retract_zlift > 0.01) {
-         current_position[Z_AXIS]+=retract_zlift;
-#ifdef DELTA
-         calculate_delta(current_position); // change cartesian kinematic  to  delta kinematic;
-         plan_set_position(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], current_position[E_AXIS]);
-#else
-         sync_plan_position();
-#endif
-         //prepare_move();
-      }
-      if (swapretract) {
-        current_position[E_AXIS]-=(retract_length_swap+retract_recover_length_swap)/volumetric_multiplier[active_extruder]; 
-      } else {
-        current_position[E_AXIS]-=(retract_length+retract_recover_length)/volumetric_multiplier[active_extruder]; 
-      }
+      current_position[E_AXIS] += (swapretract ? retract_length_swap : retract_length) / volumetric_multiplier[active_extruder];
       plan_set_e_position(current_position[E_AXIS]);
-      float oldFeedrate = feedrate;
-      feedrate = retract_recover_feedrate * 60;
-      retracted[active_extruder] = false;
       prepare_move();
-      feedrate = oldFeedrate;
+
+      if (retract_zlift > 0.01) {
+        current_position[Z_AXIS] -= retract_zlift;
+        #ifdef DELTA
+          sync_plan_position_delta();
+        #else
+          sync_plan_position();
+        #endif
+        prepare_move();
+      }
     }
-  } //retract
-#endif //FWRETRACT
+    else {
+
+      if (retract_zlift > 0.01) {
+        current_position[Z_AXIS] + =retract_zlift;
+        #ifdef DELTA
+          sync_plan_position_delta();
+        #else
+          sync_plan_position();
+        #endif
+        //prepare_move();
+      }
+
+      feedrate = retract_recover_feedrate * 60;
+      float move_e = swapretract ? retract_length_swap + retract_recover_length_swap : retract_length + retract_recover_length;
+      current_position[E_AXIS] -= move_e / volumetric_multiplier[active_extruder];
+      plan_set_e_position(current_position[E_AXIS]);
+      prepare_move();
+    }
+
+    feedrate = oldFeedrate;
+    retracted[active_extruder] = retract;
+
+  } // retract()
+
+#endif // FWRETRACT
 
 #ifdef Z_PROBE_SLED
 
@@ -1613,40 +1613,32 @@ void refresh_cmd_timeout(void)
     #define SLED_DOCKING_OFFSET 0
   #endif
 
-//
-// Method to dock/undock a sled designed by Charles Bell.
-//
-// dock[in]     If true, move to MAX_X and engage the electromagnet
-// offset[in]   The additional distance to move to adjust docking location
-//
-static void dock_sled(bool dock, int offset=0) {
- int z_loc;
- 
- if (!((axis_known_position[X_AXIS]) && (axis_known_position[Y_AXIS]))) {
-   LCD_MESSAGEPGM(MSG_POSITION_UNKNOWN);
-   SERIAL_ECHO_START;
-   SERIAL_ECHOLNPGM(MSG_POSITION_UNKNOWN);
-   return;
- }
+  //
+  // Method to dock/undock a sled designed by Charles Bell.
+  //
+  // dock[in]     If true, move to MAX_X and engage the electromagnet
+  // offset[in]   The additional distance to move to adjust docking location
+  //
+  static void dock_sled(bool dock, int offset=0) {
+    if (!axis_known_position[X_AXIS] || !axis_known_position[Y_AXIS]) {
+      LCD_MESSAGEPGM(MSG_POSITION_UNKNOWN);
+      SERIAL_ECHO_START;
+      SERIAL_ECHOLNPGM(MSG_POSITION_UNKNOWN);
+      return;
+    }
 
- if (dock) {
-   do_blocking_move_to(X_MAX_POS + SLED_DOCKING_OFFSET + offset,
-                       current_position[Y_AXIS],
-                       current_position[Z_AXIS]);
-   // turn off magnet
-   digitalWrite(SERVO0_PIN, LOW);
- } else {
-   if (current_position[Z_AXIS] < (Z_RAISE_BEFORE_PROBING + 5))
-     z_loc = Z_RAISE_BEFORE_PROBING;
-   else
-     z_loc = current_position[Z_AXIS];
-   do_blocking_move_to(X_MAX_POS + SLED_DOCKING_OFFSET + offset,
-                       Y_PROBE_OFFSET_FROM_EXTRUDER, z_loc);
-   // turn on magnet
-   digitalWrite(SERVO0_PIN, HIGH);
- }
-}
-#endif
+    if (dock) {
+      do_blocking_move_to(X_MAX_POS + SLED_DOCKING_OFFSET + offset, current_position[Y_AXIS], current_position[Z_AXIS]);
+      digitalWrite(SERVO0_PIN, LOW); // turn off magnet
+    } else {
+      float z_loc = current_position[Z_AXIS];
+      if (z_loc < Z_RAISE_BEFORE_PROBING + 5) z_loc = Z_RAISE_BEFORE_PROBING;
+      do_blocking_move_to(X_MAX_POS + SLED_DOCKING_OFFSET + offset, Y_PROBE_OFFSET_FROM_EXTRUDER, z_loc);
+      digitalWrite(SERVO0_PIN, HIGH); // turn on magnet
+    }
+  }
+
+#endif // Z_PROBE_SLED
 
 /**
  *
@@ -1798,8 +1790,7 @@ inline void gcode_G28() {
     HOMEAXIS(Y);
     HOMEAXIS(Z);
 
-    calculate_delta(current_position);
-    plan_set_position(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], current_position[E_AXIS]);
+    sync_plan_position_delta();
 
   #else // NOT DELTA
 
@@ -1826,7 +1817,9 @@ inline void gcode_G28() {
     #endif
 
     #ifdef QUICK_HOME
-      if (home_all_axis || (homeX && homeY)) {  //first diagonal move
+
+      if (home_all_axis || (homeX && homeY)) {  // First diagonal move
+
         current_position[X_AXIS] = current_position[Y_AXIS] = 0;
 
         #ifdef DUAL_X_CARRIAGE
@@ -1837,21 +1830,20 @@ inline void gcode_G28() {
         #endif
 
         sync_plan_position();
-        destination[X_AXIS] = 1.5 * max_length(X_AXIS) * x_axis_home_dir;
-        destination[Y_AXIS] = 1.5 * max_length(Y_AXIS) * home_dir(Y_AXIS);
-        feedrate = homing_feedrate[X_AXIS];
-        if (homing_feedrate[Y_AXIS] < feedrate) feedrate = homing_feedrate[Y_AXIS];
-        if (max_length(X_AXIS) > max_length(Y_AXIS)) {
-          feedrate *= sqrt(pow(max_length(Y_AXIS) / max_length(X_AXIS), 2) + 1);
-        } else {
-          feedrate *= sqrt(pow(max_length(X_AXIS) / max_length(Y_AXIS), 2) + 1);
-        }
+
+        float mlx = max_length(X_AXIS), mly = max_length(Y_AXIS),
+              mlratio = mlx>mly ? mly/mlx : mlx/mly;
+
+        destination[X_AXIS] = 1.5 * mlx * x_axis_home_dir;
+        destination[Y_AXIS] = 1.5 * mly * home_dir(Y_AXIS);
+        feedrate = min(homing_feedrate[X_AXIS], homing_feedrate[Y_AXIS]) * sqrt(mlratio * mlratio + 1);
         line_to_destination();
         st_synchronize();
 
         axis_is_at_home(X_AXIS);
         axis_is_at_home(Y_AXIS);
         sync_plan_position();
+
         destination[X_AXIS] = current_position[X_AXIS];
         destination[Y_AXIS] = current_position[Y_AXIS];
         line_to_destination();
@@ -1865,7 +1857,7 @@ inline void gcode_G28() {
           current_position[Z_AXIS] = destination[Z_AXIS];
         #endif
       }
-    #endif //QUICK_HOME
+    #endif // QUICK_HOME
 
     // Home X
     if (home_all_axis || homeX) {
@@ -1947,7 +1939,7 @@ inline void gcode_G28() {
                 && cpy >= Y_MIN_POS - Y_PROBE_OFFSET_FROM_EXTRUDER
                 && cpy <= Y_MAX_POS - Y_PROBE_OFFSET_FROM_EXTRUDER) {
               current_position[Z_AXIS] = 0;
-              plan_set_position(cpx, cpy, current_position[Z_AXIS], current_position[E_AXIS]);
+              plan_set_position(cpx, cpy, 0, current_position[E_AXIS]);
               destination[Z_AXIS] = -Z_RAISE_BEFORE_HOMING * home_dir(Z_AXIS);    // Set destination away from bed
               feedrate = max_feedrate[Z_AXIS];
               line_to_destination();
@@ -1986,8 +1978,7 @@ inline void gcode_G28() {
   #endif // else DELTA
 
   #ifdef SCARA
-    calculate_delta(current_position);
-    plan_set_position(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], current_position[E_AXIS]);
+    sync_plan_position_delta();
   #endif
 
   #ifdef ENDSTOPS_ONLY_FOR_HOMING
@@ -2826,9 +2817,7 @@ inline void gcode_M42() {
   inline void gcode_M48() {
 
     double sum = 0.0, mean = 0.0, sigma = 0.0, sample_set[50];
-    int verbose_level = 1, n = 0, j, n_samples = 10, n_legs = 0, engage_probe_for_each_reading = 0;
-    double X_current, Y_current, Z_current;
-    double X_probe_location, Y_probe_location, Z_start_location, ext_position;
+    int verbose_level = 1, j, n_samples = 10, n_legs = 0, engage_probe_for_each_reading = 0;
     
     if (code_seen('V') || code_seen('v')) {
       verbose_level = code_value();
@@ -2849,11 +2838,12 @@ inline void gcode_M42() {
       }
     }
 
-    X_current = X_probe_location = st_get_position_mm(X_AXIS);
-    Y_current = Y_probe_location = st_get_position_mm(Y_AXIS);
-    Z_current = st_get_position_mm(Z_AXIS);
-    Z_start_location = st_get_position_mm(Z_AXIS) + Z_RAISE_BEFORE_PROBING;
-    ext_position = st_get_position_mm(E_AXIS);
+    double X_probe_location, Y_probe_location,
+           X_current = X_probe_location = st_get_position_mm(X_AXIS),
+           Y_current = Y_probe_location = st_get_position_mm(Y_AXIS),
+           Z_current = st_get_position_mm(Z_AXIS),
+           Z_start_location = Z_current + Z_RAISE_BEFORE_PROBING,
+           ext_position = st_get_position_mm(E_AXIS);
 
     if (code_seen('E') || code_seen('e'))
       engage_probe_for_each_reading++;
@@ -2936,33 +2926,29 @@ inline void gcode_M42() {
 
     if (engage_probe_for_each_reading) retract_z_probe();
 
-    for (n=0; n < n_samples; n++) {
+    for (uint16_t n=0; n < n_samples; n++) {
 
-      do_blocking_move_to( X_probe_location, Y_probe_location, Z_start_location); // Make sure we are at the probe location
+      do_blocking_move_to(X_probe_location, Y_probe_location, Z_start_location); // Make sure we are at the probe location
 
       if (n_legs) {
-        double radius=0.0, theta=0.0;
-        int l;
-        int rotational_direction = (unsigned long) millis() & 0x0001;     // clockwise or counter clockwise
-        radius = (unsigned long)millis() % (long)(X_MAX_LENGTH / 4);      // limit how far out to go
-        theta = (float)((unsigned long)millis() % 360L) / (360. / (2 * 3.1415926)); // turn into radians
+        unsigned long ms = millis();
+        double radius = ms % (X_MAX_LENGTH / 4),       // limit how far out to go
+               theta = RADIANS(ms % 360L);
+        float dir = (ms & 0x0001) ? 1 : -1;            // clockwise or counter clockwise
 
         //SERIAL_ECHOPAIR("starting radius: ",radius);
         //SERIAL_ECHOPAIR("   theta: ",theta);
-        //SERIAL_ECHOPAIR("   direction: ",rotational_direction);
+        //SERIAL_ECHOPAIR("   direction: ",dir);
         //SERIAL_EOL;
 
-        float dir = rotational_direction ? 1 : -1;
-        for (l = 0; l < n_legs - 1; l++) {
-          theta += dir * (float)((unsigned long)millis() % 20L) / (360.0/(2*3.1415926)); // turn into radians
-
-          radius += (float)(((long)((unsigned long) millis() % 10L)) - 5L);
+        for (int l = 0; l < n_legs - 1; l++) {
+          ms = millis();
+          theta += RADIANS(dir * (ms % 20L));
+          radius += (ms % 10L) - 5L;
           if (radius < 0.0) radius = -radius;
 
           X_current = X_probe_location + cos(theta) * radius;
           Y_current = Y_probe_location + sin(theta) * radius;
-
-          // Make sure our X & Y are sane
           X_current = constrain(X_current, X_MIN_POS, X_MAX_POS);
           Y_current = constrain(Y_current, Y_MIN_POS, Y_MAX_POS);
 
@@ -2972,10 +2958,13 @@ inline void gcode_M42() {
             SERIAL_EOL;
           }
 
-          do_blocking_move_to( X_current, Y_current, Z_current );
-        }
-        do_blocking_move_to( X_probe_location, Y_probe_location, Z_start_location); // Go back to the probe location
-      }
+          do_blocking_move_to(X_current, Y_current, Z_current);
+
+        } // n_legs loop
+
+        do_blocking_move_to(X_probe_location, Y_probe_location, Z_start_location); // Go back to the probe location
+
+      } // n_legs
 
       if (engage_probe_for_each_reading)  {
         engage_z_probe(); 
@@ -2991,46 +2980,49 @@ inline void gcode_M42() {
       // Get the current mean for the data points we have so far
       //
       sum = 0.0;
-      for (j=0; j<=n; j++) sum += sample_set[j];
-      mean = sum / (double (n+1));
+      for (int j = 0; j <= n; j++) sum += sample_set[j];
+      mean = sum / (n + 1);
 
       //
       // Now, use that mean to calculate the standard deviation for the
       // data points we have so far
       //
       sum = 0.0;
-      for (j=0; j<=n; j++) sum += (sample_set[j]-mean) * (sample_set[j]-mean);
-      sigma = sqrt( sum / (double (n+1)) );
+      for (int j = 0; j <= n; j++) {
+        float ss = sample_set[j] - mean;
+        sum += ss * ss;
+      }
+      sigma = sqrt(sum / (n + 1));
 
       if (verbose_level > 1) {
         SERIAL_PROTOCOL(n+1);
-        SERIAL_PROTOCOL(" of ");
+        SERIAL_PROTOCOLPGM(" of ");
         SERIAL_PROTOCOL(n_samples);
         SERIAL_PROTOCOLPGM("   z: ");
         SERIAL_PROTOCOL_F(current_position[Z_AXIS], 6);
-      }
-
-      if (verbose_level > 2) {
-        SERIAL_PROTOCOL(" mean: ");
-        SERIAL_PROTOCOL_F(mean,6);
-        SERIAL_PROTOCOL("   sigma: ");
-        SERIAL_PROTOCOL_F(sigma,6);
+        if (verbose_level > 2) {
+          SERIAL_PROTOCOLPGM(" mean: ");
+          SERIAL_PROTOCOL_F(mean,6);
+          SERIAL_PROTOCOLPGM("   sigma: ");
+          SERIAL_PROTOCOL_F(sigma,6);
+        }
       }
 
       if (verbose_level > 0) SERIAL_EOL;
 
-      plan_buffer_line(X_probe_location, Y_probe_location, Z_start_location,
-          current_position[E_AXIS], homing_feedrate[Z_AXIS]/60, active_extruder);
+      plan_buffer_line(X_probe_location, Y_probe_location, Z_start_location, current_position[E_AXIS], homing_feedrate[Z_AXIS]/60, active_extruder);
       st_synchronize();
 
       if (engage_probe_for_each_reading) {
-        retract_z_probe();  
+        retract_z_probe();
         delay(1000);
       }
     }
 
-    retract_z_probe();
-    delay(1000);
+    if (!engage_probe_for_each_reading) {
+      retract_z_probe();
+      delay(1000);
+    }
 
     clean_up_after_endstop_move();
 
@@ -4674,9 +4666,7 @@ inline void gcode_T() {
           active_extruder = tmp_extruder;
         #endif // !DUAL_X_CARRIAGE
         #ifdef DELTA
-          calculate_delta(current_position); // change cartesian kinematic  to  delta kinematic;
-          //sent position to plan_set_position();
-          plan_set_position(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS],current_position[E_AXIS]);
+          sync_plan_position_delta();
         #else
           sync_plan_position();
         #endif

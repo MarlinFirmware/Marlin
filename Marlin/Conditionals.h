@@ -4,6 +4,10 @@
  */
 #ifndef CONDITIONALS_H
 
+#ifndef M_PI
+  #define M_PI 3.1415926536
+#endif
+
 #ifndef CONFIGURATION_LCD // Get the LCD defines which are needed first
 
   #define CONFIGURATION_LCD
@@ -252,7 +256,7 @@
    * Advance calculated values
    */
   #ifdef ADVANCE
-    #define EXTRUSION_AREA (0.25 * D_FILAMENT * D_FILAMENT * 3.14159)
+    #define EXTRUSION_AREA (0.25 * D_FILAMENT * D_FILAMENT * M_PI)
     #define STEPS_PER_CUBIC_MM_E (axis_steps_per_unit[E_AXIS] / EXTRUSION_AREA)
   #endif
 
