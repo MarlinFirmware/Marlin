@@ -29,6 +29,7 @@
 	#define MACHINE_NAME "bq Witbox"
 	#define FIRMWARE_URL "http://www.bqreaders.com/descargas-witbox.html"
 	#define FIRMWARE_VER "v1.4.2"
+   #define BUILD_VER ""
 #elif defined(CUSTOM_MENDEL_NAME)
 	#define MACHINE_NAME CUSTOM_MENDEL_NAME
 #else

@@ -2510,10 +2510,12 @@ static void view_picture_splash()
         u8g.firstPage();
         do {
 #endif
-            lcd_implementation_set_cursor(1, 6);
+            lcd_implementation_set_cursor(1, 4);
             lcd_implementation_print_P(PSTR(MSG_WELLCOME));
-            lcd_implementation_set_cursor(3, 8);
+            lcd_implementation_set_cursor(3, 4);
             lcd_implementation_print_P(PSTR(FIRMWARE_VER));
+            lcd_implementation_print(" ");
+            lcd_implementation_print_P(PSTR(BUILD_VER));
 #ifdef DOGLCD
         } while ( u8g.nextPage() );
 #endif
