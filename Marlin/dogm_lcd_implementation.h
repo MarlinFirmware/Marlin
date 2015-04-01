@@ -369,7 +369,7 @@ static void lcd_implementation_status_screen() {
       lcd_printPGM(PSTR("dia:"));
       lcd_print(ftostr12ns(filament_width_meas));
       lcd_printPGM(PSTR(" factor:"));
-      lcd_print(itostr3(extrudemultiply));
+      lcd_print(itostr3(volumetric_multiplier[FILAMENT_SENSOR_EXTRUDER_NUM]));
       lcd_print('%');
     }
   #endif
