@@ -1034,7 +1034,7 @@ inline void line_to_destination() {
 inline void sync_plan_position() {
   plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
 }
-#ifdef DELTA
+#if defined(DELTA) || defined(SCARA)
   inline void sync_plan_position_delta() {
     calculate_delta(current_position);
     plan_set_position(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], current_position[E_AXIS]);
@@ -2177,8 +2177,7 @@ inline void gcode_G28() {
         bool do_topography_map = verbose_level > 2 || code_seen('T') || code_seen('t');
       #endif
 
-      if (verbose_level > 0)
-      {
+      if (verbose_level > 0) {
         SERIAL_PROTOCOLPGM("G29 Auto Bed Leveling\n");
         if (dryrun) SERIAL_ECHOLN("Running in DRY-RUN mode");
       }
@@ -2253,10 +2252,9 @@ inline void gcode_G28() {
         current_position[Y_AXIS] = uncorrected_position.y;
         current_position[Z_AXIS] = uncorrected_position.z;
         sync_plan_position();
-
       #endif // !DELTA
     }
-    
+
     setup_for_endstop_move();
 
     feedrate = homing_feedrate[Z_AXIS];
@@ -2264,8 +2262,8 @@ inline void gcode_G28() {
     #ifdef AUTO_BED_LEVELING_GRID
 
       // probe at the points of a lattice grid
-      const int xGridSpacing = (right_probe_bed_position - left_probe_bed_position) / (auto_bed_leveling_grid_points-1);
-      const int yGridSpacing = (back_probe_bed_position - front_probe_bed_position) / (auto_bed_leveling_grid_points-1);
+      const int xGridSpacing = (right_probe_bed_position - left_probe_bed_position) / (auto_bed_leveling_grid_points - 1),
+                yGridSpacing = (back_probe_bed_position - front_probe_bed_position) / (auto_bed_leveling_grid_points - 1);
 
       #ifdef DELTA
         delta_grid_spacing[0] = xGridSpacing;
@@ -5255,104 +5253,99 @@ void clamp_to_software_endstops(float target[3])
 }
 
 #ifdef DELTA
-void recalc_delta_settings(float radius, float diagonal_rod)
-{
-   delta_tower1_x= -SIN_60*radius; // front left tower
-   delta_tower1_y= -COS_60*radius;     
-   delta_tower2_x=  SIN_60*radius; // front right tower
-   delta_tower2_y= -COS_60*radius;     
-   delta_tower3_x= 0.0;                  // back middle tower
-   delta_tower3_y= radius;
-   delta_diagonal_rod_2= sq(diagonal_rod);
-}
 
-void calculate_delta(float cartesian[3])
-{
-  delta[X_AXIS] = sqrt(delta_diagonal_rod_2
-                       - sq(delta_tower1_x-cartesian[X_AXIS])
-                       - sq(delta_tower1_y-cartesian[Y_AXIS])
-                       ) + cartesian[Z_AXIS];
-  delta[Y_AXIS] = sqrt(delta_diagonal_rod_2
-                       - sq(delta_tower2_x-cartesian[X_AXIS])
-                       - sq(delta_tower2_y-cartesian[Y_AXIS])
-                       ) + cartesian[Z_AXIS];
-  delta[Z_AXIS] = sqrt(delta_diagonal_rod_2
-                       - sq(delta_tower3_x-cartesian[X_AXIS])
-                       - sq(delta_tower3_y-cartesian[Y_AXIS])
-                       ) + cartesian[Z_AXIS];
-  /*
-  SERIAL_ECHOPGM("cartesian x="); SERIAL_ECHO(cartesian[X_AXIS]);
-  SERIAL_ECHOPGM(" y="); SERIAL_ECHO(cartesian[Y_AXIS]);
-  SERIAL_ECHOPGM(" z="); SERIAL_ECHOLN(cartesian[Z_AXIS]);
-
-  SERIAL_ECHOPGM("delta x="); SERIAL_ECHO(delta[X_AXIS]);
-  SERIAL_ECHOPGM(" y="); SERIAL_ECHO(delta[Y_AXIS]);
-  SERIAL_ECHOPGM(" z="); SERIAL_ECHOLN(delta[Z_AXIS]);
-  */
-}
-
-#ifdef ENABLE_AUTO_BED_LEVELING
-// Adjust print surface height by linear interpolation over the bed_level array.
-int delta_grid_spacing[2] = { 0, 0 };
-void adjust_delta(float cartesian[3])
-{
-  if (delta_grid_spacing[0] == 0 || delta_grid_spacing[1] == 0)
-    return; // G29 not done
-
-  int half = (AUTO_BED_LEVELING_GRID_POINTS - 1) / 2;
-  float grid_x = max(0.001-half, min(half-0.001, cartesian[X_AXIS] / delta_grid_spacing[0]));
-  float grid_y = max(0.001-half, min(half-0.001, cartesian[Y_AXIS] / delta_grid_spacing[1]));
-  int floor_x = floor(grid_x);
-  int floor_y = floor(grid_y);
-  float ratio_x = grid_x - floor_x;
-  float ratio_y = grid_y - floor_y;
-  float z1 = bed_level[floor_x+half][floor_y+half];
-  float z2 = bed_level[floor_x+half][floor_y+half+1];
-  float z3 = bed_level[floor_x+half+1][floor_y+half];
-  float z4 = bed_level[floor_x+half+1][floor_y+half+1];
-  float left = (1-ratio_y)*z1 + ratio_y*z2;
-  float right = (1-ratio_y)*z3 + ratio_y*z4;
-  float offset = (1-ratio_x)*left + ratio_x*right;
-
-  delta[X_AXIS] += offset;
-  delta[Y_AXIS] += offset;
-  delta[Z_AXIS] += offset;
-
-  /*
-  SERIAL_ECHOPGM("grid_x="); SERIAL_ECHO(grid_x);
-  SERIAL_ECHOPGM(" grid_y="); SERIAL_ECHO(grid_y);
-  SERIAL_ECHOPGM(" floor_x="); SERIAL_ECHO(floor_x);
-  SERIAL_ECHOPGM(" floor_y="); SERIAL_ECHO(floor_y);
-  SERIAL_ECHOPGM(" ratio_x="); SERIAL_ECHO(ratio_x);
-  SERIAL_ECHOPGM(" ratio_y="); SERIAL_ECHO(ratio_y);
-  SERIAL_ECHOPGM(" z1="); SERIAL_ECHO(z1);
-  SERIAL_ECHOPGM(" z2="); SERIAL_ECHO(z2);
-  SERIAL_ECHOPGM(" z3="); SERIAL_ECHO(z3);
-  SERIAL_ECHOPGM(" z4="); SERIAL_ECHO(z4);
-  SERIAL_ECHOPGM(" left="); SERIAL_ECHO(left);
-  SERIAL_ECHOPGM(" right="); SERIAL_ECHO(right);
-  SERIAL_ECHOPGM(" offset="); SERIAL_ECHOLN(offset);
-  */
-}
-#endif //ENABLE_AUTO_BED_LEVELING
-
-void prepare_move_raw()
-{
-  previous_millis_cmd = millis();
-  calculate_delta(destination);
-  plan_buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS],
-                   destination[E_AXIS], feedrate*feedmultiply/60/100.0,
-                   active_extruder);
-  for(int8_t i=0; i < NUM_AXIS; i++) {
-    current_position[i] = destination[i];
+  void recalc_delta_settings(float radius, float diagonal_rod) {
+    delta_tower1_x = -SIN_60 * radius;  // front left tower
+    delta_tower1_y = -COS_60 * radius;
+    delta_tower2_x =  SIN_60 * radius;  // front right tower
+    delta_tower2_y = -COS_60 * radius;
+    delta_tower3_x = 0.0;               // back middle tower
+    delta_tower3_y = radius;
+    delta_diagonal_rod_2 = sq(diagonal_rod);
   }
-}
-#endif //DELTA
+
+  void calculate_delta(float cartesian[3]) {
+    delta[X_AXIS] = sqrt(delta_diagonal_rod_2
+                         - sq(delta_tower1_x-cartesian[X_AXIS])
+                         - sq(delta_tower1_y-cartesian[Y_AXIS])
+                         ) + cartesian[Z_AXIS];
+    delta[Y_AXIS] = sqrt(delta_diagonal_rod_2
+                         - sq(delta_tower2_x-cartesian[X_AXIS])
+                         - sq(delta_tower2_y-cartesian[Y_AXIS])
+                         ) + cartesian[Z_AXIS];
+    delta[Z_AXIS] = sqrt(delta_diagonal_rod_2
+                         - sq(delta_tower3_x-cartesian[X_AXIS])
+                         - sq(delta_tower3_y-cartesian[Y_AXIS])
+                         ) + cartesian[Z_AXIS];
+    /*
+    SERIAL_ECHOPGM("cartesian x="); SERIAL_ECHO(cartesian[X_AXIS]);
+    SERIAL_ECHOPGM(" y="); SERIAL_ECHO(cartesian[Y_AXIS]);
+    SERIAL_ECHOPGM(" z="); SERIAL_ECHOLN(cartesian[Z_AXIS]);
+
+    SERIAL_ECHOPGM("delta x="); SERIAL_ECHO(delta[X_AXIS]);
+    SERIAL_ECHOPGM(" y="); SERIAL_ECHO(delta[Y_AXIS]);
+    SERIAL_ECHOPGM(" z="); SERIAL_ECHOLN(delta[Z_AXIS]);
+    */
+  }
+
+  #ifdef ENABLE_AUTO_BED_LEVELING
+
+    // Adjust print surface height by linear interpolation over the bed_level array.
+    int delta_grid_spacing[2] = { 0, 0 };
+    void adjust_delta(float cartesian[3]) {
+      if (delta_grid_spacing[0] == 0 || delta_grid_spacing[1] == 0) return; // G29 not done!
+
+      int half = (AUTO_BED_LEVELING_GRID_POINTS - 1) / 2;
+      float h1 = 0.001 - half, h2 = half - 0.001,
+            grid_x = max(h1, min(h2, cartesian[X_AXIS] / delta_grid_spacing[0])),
+            grid_y = max(h1, min(h2, cartesian[Y_AXIS] / delta_grid_spacing[1]));
+      int floor_x = floor(grid_x), floor_y = floor(grid_y);
+      float ratio_x = grid_x - floor_x, ratio_y = grid_y - floor_y,
+            z1 = bed_level[floor_x + half][floor_y + half],
+            z2 = bed_level[floor_x + half][floor_y + half + 1],
+            z3 = bed_level[floor_x + half + 1][floor_y + half],
+            z4 = bed_level[floor_x + half + 1][floor_y + half + 1],
+            left = (1 - ratio_y) * z1 + ratio_y * z2,
+            right = (1 - ratio_y) * z3 + ratio_y * z4,
+            offset = (1 - ratio_x) * left + ratio_x * right;
+
+      delta[X_AXIS] += offset;
+      delta[Y_AXIS] += offset;
+      delta[Z_AXIS] += offset;
+
+      /*
+      SERIAL_ECHOPGM("grid_x="); SERIAL_ECHO(grid_x);
+      SERIAL_ECHOPGM(" grid_y="); SERIAL_ECHO(grid_y);
+      SERIAL_ECHOPGM(" floor_x="); SERIAL_ECHO(floor_x);
+      SERIAL_ECHOPGM(" floor_y="); SERIAL_ECHO(floor_y);
+      SERIAL_ECHOPGM(" ratio_x="); SERIAL_ECHO(ratio_x);
+      SERIAL_ECHOPGM(" ratio_y="); SERIAL_ECHO(ratio_y);
+      SERIAL_ECHOPGM(" z1="); SERIAL_ECHO(z1);
+      SERIAL_ECHOPGM(" z2="); SERIAL_ECHO(z2);
+      SERIAL_ECHOPGM(" z3="); SERIAL_ECHO(z3);
+      SERIAL_ECHOPGM(" z4="); SERIAL_ECHO(z4);
+      SERIAL_ECHOPGM(" left="); SERIAL_ECHO(left);
+      SERIAL_ECHOPGM(" right="); SERIAL_ECHO(right);
+      SERIAL_ECHOPGM(" offset="); SERIAL_ECHOLN(offset);
+      */
+    }
+  #endif // ENABLE_AUTO_BED_LEVELING
+
+  void prepare_move_raw() {
+    previous_millis_cmd = millis();
+    calculate_delta(destination);
+    plan_buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], destination[E_AXIS], (feedrate/60)*(feedmultiply/100.0), active_extruder);
+    for (int i = 0; i < NUM_AXIS; i++) current_position[i] = destination[i];
+  }
+
+#endif // DELTA
 
 #if defined(MESH_BED_LEVELING)
-#if !defined(MIN)
-#define MIN(_v1, _v2) (((_v1) < (_v2)) ? (_v1) : (_v2))
-#endif  // ! MIN
+
+  #if !defined(MIN)
+    #define MIN(_v1, _v2) (((_v1) < (_v2)) ? (_v1) : (_v2))
+  #endif  // ! MIN
+
 // This function is used to split lines on mesh borders so each segment is only part of one mesh area
 void mesh_plan_buffer_line(float x, float y, float z, const float e, float feed_rate, const uint8_t &extruder, uint8_t x_splits=0xff, uint8_t y_splits=0xff)
 {
@@ -5424,8 +5417,7 @@ void mesh_plan_buffer_line(float x, float y, float z, const float e, float feed_
 }
 #endif  // MESH_BED_LEVELING
 
-void prepare_move()
-{
+void prepare_move() {
   clamp_to_software_endstops(destination);
   previous_millis_cmd = millis();
   
@@ -5539,7 +5531,7 @@ void prepare_move()
   }
 #endif //DUAL_X_CARRIAGE
 
-#if ! (defined DELTA || defined SCARA)
+#if !defined(DELTA) && !defined(SCARA)
   // Do not use feedmultiply for E or Z only moves
   if( (current_position[X_AXIS] == destination [X_AXIS]) && (current_position[Y_AXIS] == destination [Y_AXIS])) {
     line_to_destination();
