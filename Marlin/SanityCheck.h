@@ -103,26 +103,27 @@
     #endif
 
     /**
-     * Require a Z Probe Pin if Z_PROBE_AND_ENDSTOP is enabled.
+     * Require a Z Probe Pin if Z_PROBE_ENDSTOP is enabled.
      */
-    #if defined(Z_PROBE_AND_ENDSTOP)
+    #if defined(Z_PROBE_ENDSTOP)
       #ifndef Z_PROBE_PIN
-        #error You must have a Z_PROBE_PIN defined in your pins_XXXX.h file if you enable Z_PROBE_AND_ENDSTOP
+        #error You must have a Z_PROBE_PIN defined in your pins_XXXX.h file if you enable Z_PROBE_ENDSTOP
       #endif
       #if Z_PROBE_PIN == -1
-        #error You must set Z_PROBE_PIN to a valid pin if you enable Z_PROBE_AND_ENDSTOP
+        #error You must set Z_PROBE_PIN to a valid pin if you enable Z_PROBE_ENDSTOP
       #endif
-      #ifndef NUM_SERVOS
-        #error You must have NUM_SERVOS defined and there must be at least 1 configured to use Z_PROBE_AND_ENDSTOP
-      #endif
-      #if defined(NUM_SERVOS) && NUM_SERVOS < 1
-        #error You must have at least 1 servo defined for NUM_SERVOS to use Z_PROBE_AND_ENDSTOP
-      #endif
-      #ifndef SERVO_ENDSTOPS
-        #error You must have SERVO_ENDSTOPS defined and have the Z index set to at least 0 or above to use Z_PROBE_AND_ENDSTOP
-      #endif
-      #ifndef SERVO_ENDSTOP_ANGLES
-        #error You must have SERVO_ENDSTOP_ANGLES defined for Z Extend and Retract to use Z_PROBE_AND_ENSTOP
+// Forcing Servo definitions can break some hall effect sensor setups. Leaving these here for further comment.
+//      #ifndef NUM_SERVOS
+//        #error You must have NUM_SERVOS defined and there must be at least 1 configured to use Z_PROBE_ENDSTOP
+//      #endif
+//      #if defined(NUM_SERVOS) && NUM_SERVOS < 1
+//        #error You must have at least 1 servo defined for NUM_SERVOS to use Z_PROBE_ENDSTOP
+//      #endif
+//      #ifndef SERVO_ENDSTOPS
+//        #error You must have SERVO_ENDSTOPS defined and have the Z index set to at least 0 or above to use Z_PROBE_ENDSTOP
+//      #endif
+//      #ifndef SERVO_ENDSTOP_ANGLES
+//        #error You must have SERVO_ENDSTOP_ANGLES defined for Z Extend and Retract to use Z_PROBE_AND_ENSTOP
       #endif
     #endif
     /**

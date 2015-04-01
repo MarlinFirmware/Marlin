@@ -1240,7 +1240,7 @@ inline void sync_plan_position() {
 
       st_synchronize();
 
-    #if defined(Z_PROBE_AND_ENDSTOP)
+    #if defined(Z_PROBE_ENDSTOP)
       bool z_probe_endstop = (READ(Z_PROBE_PIN) != Z_PROBE_ENDSTOP_INVERTING);
       if (z_probe_endstop) {
     #else
@@ -1314,7 +1314,7 @@ inline void sync_plan_position() {
 
       st_synchronize();
 
-    #if defined(Z_PROBE_AND_ENDSTOP)
+    #if defined(Z_PROBE_ENDSTOP)
       bool z_probe_endstop = (READ(Z_PROBE_PIN) != Z_PROBE_ENDSTOP_INVERTING);
       if (z_probe_endstop) {
     #else
@@ -2805,13 +2805,17 @@ inline void gcode_M42() {
   } // code_seen('S')
 }
 
-// If Z_PROBE_AND_ENDSTOP is changed to completely break it's bonds from Z_MIN_ENDSTOP and become
-// it's own unique entity, then the following logic will need to be modified
-// so it only uses the Z_PROBE
 #if defined(ENABLE_AUTO_BED_LEVELING) && defined(Z_PROBE_REPEATABILITY_TEST)
 
-  #if (Z_MIN_PIN == -1) && (! defined (Z_PROBE_PIN) || Z_PROBE_PIN == -1)
-    #error "You must have a Z_MIN or Z_PROBE endstop in order to enable calculation of Z-Probe repeatability."
+  // This is redudant since the SanityCheck.h already checks for a valid Z_PROBE_PIN, but here for clarity.
+  #if defined (Z_PROBE_ENDSTOP)
+    #if (! defined (Z_PROBE_PIN) || Z_PROBE_PIN == -1)
+      #error "You must have a Z_PROBE_PIN defined in order to enable calculation of Z-Probe repeatability."
+    #endif
+  #else
+    #if (Z_MIN_PIN == -1) &&
+      #error "You must have a Z_MIN_PIN defined in order to enable calculation of Z-Probe repeatability."
+    #endif
   #endif
 
   /**
