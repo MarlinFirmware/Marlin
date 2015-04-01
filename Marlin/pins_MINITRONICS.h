@@ -1,5 +1,5 @@
 /**
- * Minitronics v1.0 pin assignments
+ * Minitronics v1.0/1.1 pin assignments
  */
 
 #ifndef __AVR_ATmega1281__
