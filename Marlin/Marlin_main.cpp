@@ -2038,10 +2038,18 @@ inline void gcode_G28() {
    *
    * Parameters With MESH_BED_LEVELING:
    *
-   *  S0 Produce a mesh report
-   *  S1 Start probing mesh points
-   *  S2 Probe the next mesh point
+   *  S0              Produce a mesh report
+   *  S1              Start probing mesh points
+   *  S2              Probe the next mesh point
+   *  S3 Xn Yn Zn.nn  Manually modify a single point
    *
+   * The S0 report the points as below
+   *
+   *  +----> X-axis
+   *  |
+   *  |
+   *  v Y-axis
+   *  
    */
   inline void gcode_G29() {
 
@@ -2052,13 +2060,13 @@ inline void gcode_G28() {
     int state = 0;
     if (code_seen('S') || code_seen('s')) {
       state = code_value_long();
-      if (state < 0 || state > 2) {
-        SERIAL_PROTOCOLPGM("S out of range (0-2).\n");
+      if (state < 0 || state > 3) {
+        SERIAL_PROTOCOLPGM("S out of range (0-3).\n");
         return;
       }
     }
 
-    if (state == 0) { // Dump mesh_bed_leveling
+    if (state == 0) { // Produce a mesh report
       if (mbl.active) {
         SERIAL_PROTOCOLPGM("Num X,Y: ");
         SERIAL_PROTOCOL(MESH_NUM_X_POINTS);
@@ -2078,14 +2086,14 @@ inline void gcode_G28() {
         SERIAL_PROTOCOLPGM("Mesh bed leveling not active.\n");
       }
 
-    } else if (state == 1) { // Begin probing mesh points
+    } else if (state == 1) { // Start probing mesh points
 
       mbl.reset();
       probe_point = 0;
       enquecommands_P(PSTR("G28"));
       enquecommands_P(PSTR("G29 S2"));
 
-    } else if (state == 2) { // Goto next point
+    } else if (state == 2) { // Probe the next mesh point
 
       if (probe_point < 0) {
         SERIAL_PROTOCOLPGM("Start mesh probing with \"G29 S1\" first.\n");
@@ -2119,6 +2127,36 @@ inline void gcode_G28() {
       plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], homing_feedrate[X_AXIS]/60, active_extruder);
       st_synchronize();
       probe_point++;
+    } else if (state == 3) { // Manually modify a single point
+      int ix, iy;
+      float z;
+      if (code_seen('X') || code_seen('x')) {
+        ix = code_value_long()-1;
+        if (ix < 0 || ix >= MESH_NUM_X_POINTS) {
+          SERIAL_PROTOCOLPGM("X out of range (1-" STRINGIFY(MESH_NUM_X_POINTS) ").\n");
+          return;
+        }
+      } else {
+          SERIAL_PROTOCOLPGM("X not entered.\n");
+          return;
+      }
+      if (code_seen('Y') || code_seen('y')) {
+        iy = code_value_long()-1;
+        if (iy < 0 || iy >= MESH_NUM_Y_POINTS) {
+          SERIAL_PROTOCOLPGM("Y out of range (1-" STRINGIFY(MESH_NUM_Y_POINTS) ").\n");
+          return;
+        }
+      } else {
+          SERIAL_PROTOCOLPGM("Y not entered.\n");
+          return;
+      }
+      if (code_seen('Z') || code_seen('z')) {
+        z = code_value();
+      } else {
+          SERIAL_PROTOCOLPGM("Z not entered.\n");
+          return;
+      }
+      mbl.z_values[iy][ix] = z;
     }
   }
 
