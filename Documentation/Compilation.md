@@ -3,7 +3,7 @@
   1. Install the latest non-beta arduino software IDE/toolset: http://www.arduino.cc/en/Main/Software
   2. Download the Marlin firmware
     - [Latest developement version](https://github.com/MarlinFirmware/Marlin/tree/Development)
-    - [Stable version](https://github.com/MarlinFirmware/Marlin/tree/Development)
+    - [Stable version](https://github.com/MarlinFirmware/Marlin/releases/latest)
   3. In both cases use the "Download Zip" button on the right.
   4. Some boards require special files and/or libraries from the ArduinoAddons directory. Take a look at the dedicated [README](/ArduinoAddons/README.md) for details.
   5. Start the arduino IDE.
