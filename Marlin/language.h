@@ -68,6 +68,11 @@
   #define MACHINE_NAME "HEPHESTOS"
   #undef FIRMWARE_URL
   #define FIRMWARE_URL "http://www.bq.com/gb/downloads-prusa-i3-hephestos.html"
+#elif MB(BRAINWAVE_PRO)
+  #define MACHINE_NAME "Kossel Pro"
+  #ifndef FIRMWARE_URL
+    #define FIRMWARE_URL "https://github.com/OpenBeamUSA/Marlin/"
+  #endif
 #else
   #ifndef MACHINE_NAME
     #define MACHINE_NAME "Mendel"
