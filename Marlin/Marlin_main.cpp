@@ -2811,7 +2811,7 @@ inline void gcode_M42() {
       #error "You must have a Z_PROBE_PIN defined in order to enable calculation of Z-Probe repeatability."
     #endif
   #else
-    #if (Z_MIN_PIN == -1) &&
+    #if (Z_MIN_PIN == -1)
       #error "You must have a Z_MIN_PIN defined in order to enable calculation of Z-Probe repeatability."
     #endif
   #endif
