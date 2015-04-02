@@ -33,8 +33,6 @@ We are actively looking for testers. So please try the current development versi
 
 __IRC:__ #marlin-firmware @freenode ([WebChat Client](https://webchat.freenode.net/?channels=marlin-firmware)
 
-__Mailing List:__ marlin@lists.0l.de ([Subscribe](http://lists.0l.de/mailman/listinfo/marlin), [Archive](http://lists.0l.de/pipermail/marlin/))
-
 ## Credits
 
 The current Marlin dev team consists of:
