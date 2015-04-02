@@ -122,6 +122,8 @@
 #define MSG_BABYSTEP_Y                      "Babystep Y"
 #define MSG_BABYSTEP_Z                      "Babystep Z"
 #define MSG_ENDSTOP_ABORT                   "Endstop Abbr. Ein"
+#define MSG_END_HOUR                        "Stunden"
+#define MSG_END_MINUTE                      "Minuten"
 
 #ifdef DELTA_CALIBRATION_MENU
     #define MSG_DELTA_CALIBRATE             "Delta Kalibrieren"
