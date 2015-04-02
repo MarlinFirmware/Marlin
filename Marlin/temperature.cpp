@@ -83,15 +83,20 @@ unsigned char soft_pwm_bed;
 #ifdef FILAMENT_SENSOR
   int current_raw_filwidth = 0;  //Holds measured filament diameter - one extruder only
 #endif  
-#if defined (THERMAL_RUNAWAY_PROTECTION_PERIOD) && THERMAL_RUNAWAY_PROTECTION_PERIOD > 0
-void thermal_runaway_protection(int *state, unsigned long *timer, float temperature, float target_temperature, int heater_id, int period_seconds, int hysteresis_degc);
-static int thermal_runaway_state_machine[4]; // = {0,0,0,0};
-static unsigned long thermal_runaway_timer[4]; // = {0,0,0,0};
-static bool thermal_runaway = false;
-#if TEMP_SENSOR_BED != 0
-  static int thermal_runaway_bed_state_machine;
-  static unsigned long thermal_runaway_bed_timer;
-#endif
+
+#define HAS_HEATER_THERMAL_PROTECTION (defined(THERMAL_RUNAWAY_PROTECTION_PERIOD) && THERMAL_RUNAWAY_PROTECTION_PERIOD > 0)
+#define HAS_BED_THERMAL_PROTECTION (defined(THERMAL_RUNAWAY_PROTECTION_BED_PERIOD) && THERMAL_RUNAWAY_PROTECTION_BED_PERIOD > 0 && TEMP_SENSOR_BED != 0)
+#if HAS_HEATER_THERMAL_PROTECTION || HAS_BED_THERMAL_PROTECTION
+  static bool thermal_runaway = false;
+  void thermal_runaway_protection(int *state, unsigned long *timer, float temperature, float target_temperature, int heater_id, int period_seconds, int hysteresis_degc);
+  #if HAS_HEATER_THERMAL_PROTECTION
+    static int thermal_runaway_state_machine[4]; // = {0,0,0,0};
+    static unsigned long thermal_runaway_timer[4]; // = {0,0,0,0};
+  #endif
+  #if HAS_BED_THERMAL_PROTECTION
+    static int thermal_runaway_bed_state_machine;
+    static unsigned long thermal_runaway_bed_timer;
+  #endif
 #endif
 
 //===========================================================================
@@ -650,7 +655,7 @@ void manage_heater() {
 
   #if TEMP_SENSOR_BED != 0
   
-    #if defined(THERMAL_RUNAWAY_PROTECTION_BED_PERIOD) && THERMAL_RUNAWAY_PROTECTION_BED_PERIOD > 0
+    #if HAS_BED_THERMAL_PROTECTION
       thermal_runaway_protection(&thermal_runaway_bed_state_machine, &thermal_runaway_bed_timer, current_temperature_bed, target_temperature_bed, 9, THERMAL_RUNAWAY_PROTECTION_BED_PERIOD, THERMAL_RUNAWAY_PROTECTION_BED_HYSTERESIS);
     #endif
 
@@ -1008,7 +1013,7 @@ void setWatch() {
   #endif 
 }
 
-#if defined(THERMAL_RUNAWAY_PROTECTION_PERIOD) && THERMAL_RUNAWAY_PROTECTION_PERIOD > 0
+#if HAS_HEATER_THERMAL_PROTECTION || HAS_BED_THERMAL_PROTECTION
 void thermal_runaway_protection(int *state, unsigned long *timer, float temperature, float target_temperature, int heater_id, int period_seconds, int hysteresis_degc)
 {
 /*
@@ -1538,38 +1543,37 @@ ISR(TIMER0_COMPB_vect) {
       if (minttemp_raw[0] GE0 current_temperature_raw[0]) min_temp_error(0);
     #endif
 
-    #if EXTRUDERS > 1
+    #if HAS_TEMP_1
       #if HEATER_1_RAW_LO_TEMP > HEATER_1_RAW_HI_TEMP
         #define GE1 <=
       #else
         #define GE1 >=
       #endif
       if (current_temperature_raw[1] GE1 maxttemp_raw[1]) max_temp_error(1);
-      if (minttemp_raw[1] GE0 current_temperature_raw[1]) min_temp_error(1);
+      if (minttemp_raw[1] GE1 current_temperature_raw[1]) min_temp_error(1);
+    #endif // TEMP_SENSOR_1
 
-      #if EXTRUDERS > 2
-        #if HEATER_2_RAW_LO_TEMP > HEATER_2_RAW_HI_TEMP
-          #define GE2 <=
-        #else
-          #define GE2 >=
-        #endif
-        if (current_temperature_raw[2] GE2 maxttemp_raw[2]) max_temp_error(2);
-        if (minttemp_raw[2] GE0 current_temperature_raw[2]) min_temp_error(2);
+    #if HAS_TEMP_2
+      #if HEATER_2_RAW_LO_TEMP > HEATER_2_RAW_HI_TEMP
+        #define GE2 <=
+      #else
+        #define GE2 >=
+      #endif
+      if (current_temperature_raw[2] GE2 (maxttemp_raw[2]) max_temp_error(2);
+      if (minttemp_raw[2] GE2 current_temperature_raw[2]) min_temp_error(2);
+    #endif // TEMP_SENSOR_2
 
-        #if EXTRUDERS > 3
-          #if HEATER_3_RAW_LO_TEMP > HEATER_3_RAW_HI_TEMP
-            #define GE3 <=
-          #else
-            #define GE3 >=
-          #endif
-          if (current_temperature_raw[3] GE3 maxttemp_raw[3]) max_temp_error(3);
-          if (minttemp_raw[3] GE0 current_temperature_raw[3]) min_temp_error(3);
+    #if HAS_TEMP_3
+      #if HEATER_3_RAW_LO_TEMP > HEATER_3_RAW_HI_TEMP
+        #define GE3 <=
+      #else
+        #define GE3 >=
+      #endif
+      if (current_temperature_raw[3] GE3 maxttemp_raw[3]) max_temp_error(3);
+      if (minttemp_raw[3] GE3 current_temperature_raw[3]) min_temp_error(3);
+    #endif // TEMP_SENSOR_3
 
-        #endif // EXTRUDERS > 3
-      #endif // EXTRUDERS > 2
-    #endif // EXTRUDERS > 1
-
-    #if defined(BED_MAXTEMP) && (TEMP_SENSOR_BED != 0)
+    #if HAS_TEMP_BED
       #if HEATER_BED_RAW_LO_TEMP > HEATER_BED_RAW_HI_TEMP
         #define GEBED <=
       #else

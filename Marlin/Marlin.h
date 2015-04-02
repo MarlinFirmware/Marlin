@@ -29,6 +29,8 @@
 
 #define BIT(b) (1<<(b))
 #define TEST(n,b) (((n)&BIT(b))!=0)
+#define RADIANS(d) ((d)*M_PI/180.0)
+#define DEGREES(r) ((d)*180.0/M_PI)
 
 // Arduino < 1.0.0 does not define this, so we need to do it ourselves
 #ifndef analogInputToDigitalPin
@@ -229,7 +231,6 @@ void refresh_cmd_timeout(void);
 extern float homing_feedrate[];
 extern bool axis_relative_modes[];
 extern int feedmultiply;
-extern int extrudemultiply; // Sets extrude multiply factor (in percent) for all extruders
 extern bool volumetric_enabled;
 extern int extruder_multiply[EXTRUDERS]; // sets extrude multiply factor (in percent) for each extruder individually
 extern float filament_size[EXTRUDERS]; // cross-sectional area of filament (in millimeters), typically around 1.75 or 2.85, 0 disables the volumetric calculations for the extruder.

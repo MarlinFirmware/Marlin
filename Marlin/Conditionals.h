@@ -4,6 +4,10 @@
  */
 #ifndef CONDITIONALS_H
 
+#ifndef M_PI
+  #define M_PI 3.1415926536
+#endif
+
 #ifndef CONFIGURATION_LCD // Get the LCD defines which are needed first
 
   #define CONFIGURATION_LCD
@@ -252,12 +256,12 @@
    * Advance calculated values
    */
   #ifdef ADVANCE
-    #define EXTRUSION_AREA (0.25 * D_FILAMENT * D_FILAMENT * 3.14159)
+    #define EXTRUSION_AREA (0.25 * D_FILAMENT * D_FILAMENT * M_PI)
     #define STEPS_PER_CUBIC_MM_E (axis_steps_per_unit[E_AXIS] / EXTRUSION_AREA)
   #endif
 
   #ifdef ULTIPANEL
-   #undef SDCARDDETECTINVERTED
+    #undef SDCARDDETECTINVERTED
   #endif
 
   // Power Signal Control Definitions
@@ -265,16 +269,14 @@
   #ifndef POWER_SUPPLY
     #define POWER_SUPPLY 1
   #endif
-  // 1 = ATX
-  #if (POWER_SUPPLY == 1)
+  #if (POWER_SUPPLY == 1)     // 1 = ATX
     #define PS_ON_AWAKE  LOW
     #define PS_ON_ASLEEP HIGH
-  #endif
-  // 2 = X-Box 360 203W
-  #if (POWER_SUPPLY == 2)
+  #elif (POWER_SUPPLY == 2)   // 2 = X-Box 360 203W
     #define PS_ON_AWAKE  HIGH
     #define PS_ON_ASLEEP LOW
   #endif
+  #define HAS_POWER_SWITCH (POWER_SUPPLY > 0 && defined(PS_ON_PIN) && PS_ON_PIN >= 0)
 
   /**
    * Temp Sensor defines
@@ -347,11 +349,11 @@
   /**
    * Shorthand for pin tests, for temperature.cpp
    */
-  #define HAS_TEMP_0 (defined(TEMP_0_PIN) && TEMP_0_PIN >= 0)
-  #define HAS_TEMP_1 (defined(TEMP_1_PIN) && TEMP_1_PIN >= 0)
-  #define HAS_TEMP_2 (defined(TEMP_2_PIN) && TEMP_2_PIN >= 0)
-  #define HAS_TEMP_3 (defined(TEMP_3_PIN) && TEMP_3_PIN >= 0)
-  #define HAS_TEMP_BED (defined(TEMP_BED_PIN) && TEMP_BED_PIN >= 0)
+  #define HAS_TEMP_0 (defined(TEMP_0_PIN) && TEMP_0_PIN >= 0 && TEMP_SENSOR_0 != 0 && TEMP_SENSOR_0 != -2)
+  #define HAS_TEMP_1 (defined(TEMP_1_PIN) && TEMP_1_PIN >= 0 && TEMP_SENSOR_1 != 0)
+  #define HAS_TEMP_2 (defined(TEMP_2_PIN) && TEMP_2_PIN >= 0 && TEMP_SENSOR_2 != 0)
+  #define HAS_TEMP_3 (defined(TEMP_3_PIN) && TEMP_3_PIN >= 0 && TEMP_SENSOR_3 != 0)
+  #define HAS_TEMP_BED (defined(TEMP_BED_PIN) && TEMP_BED_PIN >= 0 && TEMP_SENSOR_BED != 0)
   #define HAS_FILAMENT_SENSOR (defined(FILAMENT_SENSOR) && defined(FILWIDTH_PIN) && FILWIDTH_PIN >= 0)
   #define HAS_HEATER_0 (defined(HEATER_0_PIN) && HEATER_0_PIN >= 0)
   #define HAS_HEATER_1 (defined(HEATER_1_PIN) && HEATER_1_PIN >= 0)
