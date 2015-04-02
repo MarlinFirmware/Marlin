@@ -427,7 +427,7 @@ void check_axes_activity() {
     disable_e3();
   }
 
-  #if defined(FAN_PIN) && FAN_PIN > -1 // HAS_FAN
+  #if HAS_FAN
     #ifdef FAN_KICKSTART_TIME
       static unsigned long fan_kick_end;
       if (tail_fan_speed) {
@@ -447,7 +447,7 @@ void check_axes_activity() {
     #else
       analogWrite(FAN_PIN, tail_fan_speed);
     #endif //!FAN_SOFT_PWM
-  #endif //FAN_PIN > -1
+  #endif // HAS_FAN
 
   #ifdef AUTOTEMP
     getHighESpeed();
