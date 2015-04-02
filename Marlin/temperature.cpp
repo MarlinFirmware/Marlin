@@ -1027,7 +1027,7 @@ void setWatch() {
     }
 
     switch (*state) {
-      // Inactive state waits for a target temperature, then 
+      // Inactive state waits for a target temperature to be set
       case TRInactive:
         if (target_temperature > 0) *state = TRFirstHeating;
         break;
