@@ -1592,7 +1592,7 @@ void refresh_cmd_timeout(void) { previous_millis_cmd = millis(); }
     else {
 
       if (retract_zlift > 0.01) {
-        current_position[Z_AXIS] + =retract_zlift;
+        current_position[Z_AXIS] += retract_zlift;
         #ifdef DELTA
           sync_plan_position_delta();
         #else
