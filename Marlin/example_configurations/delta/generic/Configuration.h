@@ -414,7 +414,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 // #define MANUAL_BED_LEVELING  // Add display menu option for bed leveling
 // #define MESH_BED_LEVELING    // Enable mesh bed leveling
 
-#if defined(MESH_BED_LEVELING)
+#ifdef MESH_BED_LEVELING
   #define MESH_MIN_X 10
   #define MESH_MAX_X (X_MAX_POS - MESH_MIN_X)
   #define MESH_MIN_Y 10
@@ -507,10 +507,10 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
     #define Z_PROBE_ALLEN_KEY_DEPLOY_Y DELTA_PRINTABLE_RADIUS
     #define Z_PROBE_ALLEN_KEY_DEPLOY_Z 100
     
-    #define Z_PROBE_ALLEN_KEY_RETRACT_X     -64
-    #define Z_PROBE_ALLEN_KEY_RETRACT_Y     56
-    #define Z_PROBE_ALLEN_KEY_RETRACT_Z     23
-    #define Z_PROBE_ALLEN_KEY_RETRACT_DEPTH 20
+    #define Z_PROBE_ALLEN_KEY_STOW_X     -64
+    #define Z_PROBE_ALLEN_KEY_STOW_Y     56
+    #define Z_PROBE_ALLEN_KEY_STOW_Z     23
+    #define Z_PROBE_ALLEN_KEY_STOW_DEPTH 20
   #endif
   
   //If defined, the Probe servo will be turned on only during movement and then turned off to avoid jerk
