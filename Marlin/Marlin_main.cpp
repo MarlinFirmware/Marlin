@@ -309,35 +309,33 @@ bool target_direction;
   ;
 #endif
 
-#if defined(DELTA) || defined(SCARA)
-  static float delta[3] = { 0, 0, 0 };    
-  #ifdef DELTA
-    #define SIN_60 0.8660254037844386
-    #define COS_60 0.5
-    float endstop_adj[3] = { 0 };
-    // these are the default values, can be overriden with M665
-    float delta_radius = DELTA_RADIUS;
-    float delta_tower1_x = -SIN_60 * delta_radius; // front left tower
-    float delta_tower1_y = -COS_60 * delta_radius;     
-    float delta_tower2_x =  SIN_60 * delta_radius; // front right tower
-    float delta_tower2_y = -COS_60 * delta_radius;     
-    float delta_tower3_x = 0;                      // back middle tower
-    float delta_tower3_y = delta_radius;
-    float delta_diagonal_rod = DELTA_DIAGONAL_ROD;
-    float delta_diagonal_rod_2 = sq(delta_diagonal_rod);
-    float delta_segments_per_second = DELTA_SEGMENTS_PER_SECOND;
-    #ifdef ENABLE_AUTO_BED_LEVELING
-      int delta_grid_spacing[2] = { 0, 0 };
-      float bed_level[AUTO_BED_LEVELING_GRID_POINTS][AUTO_BED_LEVELING_GRID_POINTS];
-    #endif
+#ifdef DELTA
+  float delta[3] = { 0 };
+  #define SIN_60 0.8660254037844386
+  #define COS_60 0.5
+  float endstop_adj[3] = { 0 };
+  // these are the default values, can be overriden with M665
+  float delta_radius = DELTA_RADIUS;
+  float delta_tower1_x = -SIN_60 * delta_radius; // front left tower
+  float delta_tower1_y = -COS_60 * delta_radius;     
+  float delta_tower2_x =  SIN_60 * delta_radius; // front right tower
+  float delta_tower2_y = -COS_60 * delta_radius;     
+  float delta_tower3_x = 0;                      // back middle tower
+  float delta_tower3_y = delta_radius;
+  float delta_diagonal_rod = DELTA_DIAGONAL_ROD;
+  float delta_diagonal_rod_2 = sq(delta_diagonal_rod);
+  float delta_segments_per_second = DELTA_SEGMENTS_PER_SECOND;
+  #ifdef ENABLE_AUTO_BED_LEVELING
+    int delta_grid_spacing[2] = { 0, 0 };
+    float bed_level[AUTO_BED_LEVELING_GRID_POINTS][AUTO_BED_LEVELING_GRID_POINTS];
   #endif
-
-  #ifdef SCARA
-    float axis_scaling[3] = { 1, 1, 1 };    // Build size scaling, default to 1
-  #endif
-
-#elif !defined(DELTA)
+#else
   static bool home_all_axis = true;
+#endif
+
+#ifdef SCARA
+  static float delta[3] = { 0 };
+  float axis_scaling[3] = { 1, 1, 1 };    // Build size scaling, default to 1
 #endif
 
 #ifdef FILAMENT_SENSOR
