@@ -202,10 +202,6 @@
 #endif
 
 float homing_feedrate[] = HOMING_FEEDRATE;
-#ifdef ENABLE_AUTO_BED_LEVELING
-  int xy_travel_speed = XY_TRAVEL_SPEED;
-  float zprobe_zoffset = -Z_PROBE_OFFSET_FROM_EXTRUDER;
-#endif
 int homing_bump_divisor[] = HOMING_BUMP_DIVISOR;
 bool axis_relative_modes[] = AXIS_RELATIVE_MODES;
 int feedmultiply = 100; //100->1 200->2
@@ -216,15 +212,49 @@ float filament_size[EXTRUDERS] = ARRAY_BY_EXTRUDERS(DEFAULT_NOMINAL_FILAMENT_DIA
 float volumetric_multiplier[EXTRUDERS] = ARRAY_BY_EXTRUDERS(1.0, 1.0, 1.0, 1.0);
 float current_position[NUM_AXIS] = { 0.0 };
 float home_offset[3] = { 0 };
-#ifdef DELTA
-  float endstop_adj[3] = { 0 };
-#elif defined(Z_DUAL_ENDSTOPS)
-  float z_endstop_adj = 0;
-#endif
-
 float min_pos[3] = { X_MIN_POS, Y_MIN_POS, Z_MIN_POS };
 float max_pos[3] = { X_MAX_POS, Y_MAX_POS, Z_MAX_POS };
 bool axis_known_position[3] = { false };
+uint8_t active_extruder = 0;
+int fanSpeed = 0;
+bool cancel_heatup = false;
+const char errormagic[] PROGMEM = "Error:";
+const char echomagic[] PROGMEM = "echo:";
+const char axis_codes[NUM_AXIS] = {'X', 'Y', 'Z', 'E'};
+static float destination[NUM_AXIS] = { 0 };
+static float offset[3] = { 0 };
+static float feedrate = 1500.0, next_feedrate, saved_feedrate;
+static long gcode_N, gcode_LastN, Stopped_gcode_LastN = 0;
+static bool relative_mode = false;  //Determines Absolute or Relative Coordinates
+static char cmdbuffer[BUFSIZE][MAX_CMD_SIZE];
+static int bufindr = 0;
+static int bufindw = 0;
+static int buflen = 0;
+static char serial_char;
+static int serial_count = 0;
+static boolean comment_mode = false;
+static char *strchr_pointer; ///< A pointer to find chars in the command string (X, Y, Z, E, etc.)
+const char* queued_commands_P= NULL; /* pointer to the current line in the active sequence of commands, or NULL when none */
+const int sensitive_pins[] = SENSITIVE_PINS; ///< Sensitive pin list for M42
+// Inactivity shutdown
+static unsigned long previous_millis_cmd = 0;
+static unsigned long max_inactive_time = 0;
+static unsigned long stepper_inactive_time = DEFAULT_STEPPER_DEACTIVE_TIME*1000l;
+unsigned long starttime = 0; ///< Print job start time
+unsigned long stoptime = 0;  ///< Print job stop time
+static uint8_t tmp_extruder;
+bool Stopped = false;
+bool CooldownNoWait = true;
+bool target_direction;
+
+#ifdef ENABLE_AUTO_BED_LEVELING
+  int xy_travel_speed = XY_TRAVEL_SPEED;
+  float zprobe_zoffset = -Z_PROBE_OFFSET_FROM_EXTRUDER;
+#endif
+
+#if defined(Z_DUAL_ENDSTOPS) && !defined(DELTA)
+  float z_endstop_adj = 0;
+#endif
 
 // Extruder offsets
 #if EXTRUDERS > 1
@@ -242,9 +272,6 @@ bool axis_known_position[3] = { false };
     #endif
   };
 #endif
-
-uint8_t active_extruder = 0;
-int fanSpeed = 0;
 
 #ifdef SERVO_ENDSTOPS
   int servo_endstops[] = SERVO_ENDSTOPS;
@@ -282,33 +309,36 @@ int fanSpeed = 0;
   ;
 #endif
 
-#ifdef DELTA
-  float delta[3] = { 0, 0, 0 };
-  #define SIN_60 0.8660254037844386
-  #define COS_60 0.5
-  // these are the default values, can be overriden with M665
-  float delta_radius = DELTA_RADIUS;
-  float delta_tower1_x = -SIN_60 * delta_radius; // front left tower
-  float delta_tower1_y = -COS_60 * delta_radius;     
-  float delta_tower2_x =  SIN_60 * delta_radius; // front right tower
-  float delta_tower2_y = -COS_60 * delta_radius;     
-  float delta_tower3_x = 0;                      // back middle tower
-  float delta_tower3_y = delta_radius;
-  float delta_diagonal_rod = DELTA_DIAGONAL_ROD;
-  float delta_diagonal_rod_2 = sq(delta_diagonal_rod);
-  float delta_segments_per_second = DELTA_SEGMENTS_PER_SECOND;
-  #ifdef ENABLE_AUTO_BED_LEVELING
-    int delta_grid_spacing[2] = { 0, 0 };
-    float bed_level[AUTO_BED_LEVELING_GRID_POINTS][AUTO_BED_LEVELING_GRID_POINTS];
+#if defined(DELTA) || defined(SCARA)
+  static float delta[3] = { 0, 0, 0 };    
+  #ifdef DELTA
+    #define SIN_60 0.8660254037844386
+    #define COS_60 0.5
+    float endstop_adj[3] = { 0 };
+    // these are the default values, can be overriden with M665
+    float delta_radius = DELTA_RADIUS;
+    float delta_tower1_x = -SIN_60 * delta_radius; // front left tower
+    float delta_tower1_y = -COS_60 * delta_radius;     
+    float delta_tower2_x =  SIN_60 * delta_radius; // front right tower
+    float delta_tower2_y = -COS_60 * delta_radius;     
+    float delta_tower3_x = 0;                      // back middle tower
+    float delta_tower3_y = delta_radius;
+    float delta_diagonal_rod = DELTA_DIAGONAL_ROD;
+    float delta_diagonal_rod_2 = sq(delta_diagonal_rod);
+    float delta_segments_per_second = DELTA_SEGMENTS_PER_SECOND;
+    #ifdef ENABLE_AUTO_BED_LEVELING
+      int delta_grid_spacing[2] = { 0, 0 };
+      float bed_level[AUTO_BED_LEVELING_GRID_POINTS][AUTO_BED_LEVELING_GRID_POINTS];
+    #endif
   #endif
-#endif
 
-#ifdef SCARA
-  float axis_scaling[3] = { 1, 1, 1 };    // Build size scaling, default to 1
-  static float delta[3] = { 0, 0, 0 };		
-#endif
+  #ifdef SCARA
+    float axis_scaling[3] = { 1, 1, 1 };    // Build size scaling, default to 1
+  #endif
 
-bool cancel_heatup = false;
+#elif !defined(DELTA)
+  static bool home_all_axis = true;
+#endif
 
 #ifdef FILAMENT_SENSOR
   //Variables for Filament Sensor input
@@ -326,59 +356,13 @@ bool cancel_heatup = false;
    static bool filrunoutEnqued = false;
 #endif
 
-const char errormagic[] PROGMEM = "Error:";
-const char echomagic[] PROGMEM = "echo:";
-
-const char axis_codes[NUM_AXIS] = {'X', 'Y', 'Z', 'E'};
-static float destination[NUM_AXIS] = { 0 };
-
-static float offset[3] = { 0 };
-
-#ifndef DELTA
-  static bool home_all_axis = true;
-#endif
-
-static float feedrate = 1500.0, next_feedrate, saved_feedrate;
-static long gcode_N, gcode_LastN, Stopped_gcode_LastN = 0;
-
-static bool relative_mode = false;  //Determines Absolute or Relative Coordinates
-
-static char cmdbuffer[BUFSIZE][MAX_CMD_SIZE];
 #ifdef SDSUPPORT
   static bool fromsd[BUFSIZE];
 #endif
-static int bufindr = 0;
-static int bufindw = 0;
-static int buflen = 0;
-
-static char serial_char;
-static int serial_count = 0;
-static boolean comment_mode = false;
-static char *strchr_pointer; ///< A pointer to find chars in the command string (X, Y, Z, E, etc.)
-
-const char* queued_commands_P= NULL; /* pointer to the current line in the active sequence of commands, or NULL when none */
-
-const int sensitive_pins[] = SENSITIVE_PINS; ///< Sensitive pin list for M42
-
-// Inactivity shutdown
-static unsigned long previous_millis_cmd = 0;
-static unsigned long max_inactive_time = 0;
-static unsigned long stepper_inactive_time = DEFAULT_STEPPER_DEACTIVE_TIME*1000l;
-
-unsigned long starttime = 0; ///< Print job start time
-unsigned long stoptime = 0;  ///< Print job stop time
-
-static uint8_t tmp_extruder;
-
-
-bool Stopped = false;
 
 #if NUM_SERVOS > 0
   Servo servos[NUM_SERVOS];
 #endif
-
-bool CooldownNoWait = true;
-bool target_direction;
 
 #ifdef CHDK
   unsigned long chdkHigh = 0;
@@ -386,7 +370,7 @@ bool target_direction;
 #endif
 
 //===========================================================================
-//=============================Routines======================================
+//================================ Functions ================================
 //===========================================================================
 
 void get_arc_coordinates();
@@ -5707,19 +5691,9 @@ void disable_all_axes() {
  */
 void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
   
-  #if HAS_KILL
-    static int killCount = 0;   // make the inactivity button a bit less responsive
-    const int KILL_DELAY = 750;
-  #endif
-
   #if HAS_FILRUNOUT
     if (card.sdprinting && !(READ(FILRUNOUT_PIN) ^ FIL_RUNOUT_INVERTING))
       filrunout();
-  #endif
-
-  #if HAS_HOME
-    static int homeDebounceCount = 0;   // poor man's debouncing count
-    const int HOME_DEBOUNCE_DELAY = 750;
   #endif
 
   if (buflen < BUFSIZE - 1) get_command();
@@ -5744,6 +5718,8 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
     // Check if the kill button was pressed and wait just in case it was an accidental
     // key kill key press
     // -------------------------------------------------------------------------------
+    static int killCount = 0;   // make the inactivity button a bit less responsive
+    const int KILL_DELAY = 750;
     if (!READ(KILL_PIN))
        killCount++;
     else if (killCount > 0)
@@ -5758,6 +5734,8 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
   #if HAS_HOME
     // Check to see if we have to home, use poor man's debouncer
     // ---------------------------------------------------------
+    static int homeDebounceCount = 0;   // poor man's debouncing count
+    const int HOME_DEBOUNCE_DELAY = 750;
     if (!READ(HOME_PIN)) {
       if (!homeDebounceCount) {
         enquecommands_P(PSTR("G28"));
@@ -5797,7 +5775,7 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
     if (delayed_move_time && ms > delayed_move_time + 1000 && !Stopped) {
       // travel moves have been received so enact them
       delayed_move_time = 0xFFFFFFFFUL; // force moves to be done
-      memcpy(destination,current_position, sizeof(destination));
+      memcpy(destination, current_position, sizeof(destination));
       prepare_move();
     }
   #endif
@@ -5814,13 +5792,7 @@ void kill()
   cli(); // Stop interrupts
   disable_heater();
 
-  disable_x();
-  disable_y();
-  disable_z();
-  disable_e0();
-  disable_e1();
-  disable_e2();
-  disable_e3();
+  disable_all_axes();
 
   #if HAS_POWER_SWITCH
     pinMode(PS_ON_PIN, INPUT);
