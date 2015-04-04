@@ -93,17 +93,14 @@ void serial_echopair_P(const char *s_P, double v);
 void serial_echopair_P(const char *s_P, unsigned long v);
 
 
-//Things to write to serial from Program memory. Saves 400 to 2k of RAM.
-FORCE_INLINE void serialprintPGM(const char *str)
-{
-  char ch=pgm_read_byte(str);
-  while(ch)
-  {
+// Things to write to serial from Program memory. Saves 400 to 2k of RAM.
+FORCE_INLINE void serialprintPGM(const char *str) {
+  char ch = pgm_read_byte(str);
+  while(ch) {
     MYSERIAL.write(ch);
-    ch=pgm_read_byte(++str);
+    ch = pgm_read_byte(++str);
   }
 }
-
 
 void get_command();
 void process_commands();
@@ -148,7 +145,7 @@ void manage_inactivity(bool ignore_stepper_queue=false);
 #endif
 
 #if HAS_E0_ENABLE
-  #define enable_e0() E0_ENABLE_WRITE(E_ENABLE_ON)
+  #define enable_e0()  E0_ENABLE_WRITE( E_ENABLE_ON)
   #define disable_e0() E0_ENABLE_WRITE(!E_ENABLE_ON)
 #else
   #define enable_e0()  /* nothing */
@@ -156,7 +153,7 @@ void manage_inactivity(bool ignore_stepper_queue=false);
 #endif
 
 #if (EXTRUDERS > 1) && HAS_E1_ENABLE
-  #define enable_e1() E1_ENABLE_WRITE(E_ENABLE_ON)
+  #define enable_e1()  E1_ENABLE_WRITE( E_ENABLE_ON)
   #define disable_e1() E1_ENABLE_WRITE(!E_ENABLE_ON)
 #else
   #define enable_e1()  /* nothing */
@@ -164,7 +161,7 @@ void manage_inactivity(bool ignore_stepper_queue=false);
 #endif
 
 #if (EXTRUDERS > 2) && HAS_E2_ENABLE
-  #define enable_e2() E2_ENABLE_WRITE(E_ENABLE_ON)
+  #define enable_e2()  E2_ENABLE_WRITE( E_ENABLE_ON)
   #define disable_e2() E2_ENABLE_WRITE(!E_ENABLE_ON)
 #else
   #define enable_e2()  /* nothing */
@@ -172,15 +169,25 @@ void manage_inactivity(bool ignore_stepper_queue=false);
 #endif
 
 #if (EXTRUDERS > 3) && HAS_E3_ENABLE
-  #define enable_e3() E3_ENABLE_WRITE(E_ENABLE_ON)
+  #define enable_e3()  E3_ENABLE_WRITE( E_ENABLE_ON)
   #define disable_e3() E3_ENABLE_WRITE(!E_ENABLE_ON)
 #else
   #define enable_e3()  /* nothing */
   #define disable_e3() /* nothing */
 #endif
 
+/**
+ * The axis order in all axis related arrays is X, Y, Z, E
+ */
+#define NUM_AXIS 4
+
+/**
+ * Axis indices as enumerated constants
+ *
+ * A_AXIS and B_AXIS are used by COREXY printers
+ * X_HEAD and Y_HEAD is used for systems that don't have a 1:1 relationship between X_AXIS and X Head movement, like CoreXY bots.
+ */
 enum AxisEnum {X_AXIS=0, Y_AXIS=1, A_AXIS=0, B_AXIS=1, Z_AXIS=2, E_AXIS=3, X_HEAD=4, Y_HEAD=5};
-//X_HEAD and Y_HEAD is used for systems that don't have a 1:1 relationship between X_AXIS and X Head movement, like CoreXY bots.
 
 void FlushSerialRequestResend();
 void ClearToSend();
@@ -224,7 +231,7 @@ void refresh_cmd_timeout(void);
 #ifndef CRITICAL_SECTION_START
   #define CRITICAL_SECTION_START  unsigned char _sreg = SREG; cli();
   #define CRITICAL_SECTION_END    SREG = _sreg;
-#endif //CRITICAL_SECTION_START
+#endif
 
 extern float homing_feedrate[];
 extern bool axis_relative_modes[];
@@ -233,8 +240,9 @@ extern bool volumetric_enabled;
 extern int extruder_multiply[EXTRUDERS]; // sets extrude multiply factor (in percent) for each extruder individually
 extern float filament_size[EXTRUDERS]; // cross-sectional area of filament (in millimeters), typically around 1.75 or 2.85, 0 disables the volumetric calculations for the extruder.
 extern float volumetric_multiplier[EXTRUDERS]; // reciprocal of cross-sectional area of filament (in square millimeters), stored this way to reduce computational burden in planner
-extern float current_position[NUM_AXIS] ;
+extern float current_position[NUM_AXIS];
 extern float home_offset[3];
+
 #ifdef DELTA
   extern float endstop_adj[3];
   extern float delta_radius;
@@ -242,18 +250,23 @@ extern float home_offset[3];
   extern float delta_segments_per_second;
   void recalc_delta_settings(float radius, float diagonal_rod);
 #elif defined(Z_DUAL_ENDSTOPS)
-extern float z_endstop_adj;
+  extern float z_endstop_adj;
 #endif
+
 #ifdef SCARA
   extern float axis_scaling[3];  // Build size scaling
 #endif
+
 extern float min_pos[3];
 extern float max_pos[3];
 extern bool axis_known_position[3];
+
 #ifdef ENABLE_AUTO_BED_LEVELING
   extern float zprobe_zoffset;
 #endif
+
 extern int fanSpeed;
+
 #ifdef BARICUDA
   extern int ValvePressure;
   extern int EtoPPressure;
