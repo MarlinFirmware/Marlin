@@ -97,10 +97,10 @@ void serial_echopair_P(const char *s_P, unsigned long v);
 
 // Things to write to serial from Program memory. Saves 400 to 2k of RAM.
 FORCE_INLINE void serialprintPGM(const char *str) {
-  char ch = pgm_read_byte(str);
-  while(ch) {
+  char ch;
+  while ((ch = pgm_read_byte(str))) {
     MYSERIAL.write(ch);
-    ch = pgm_read_byte(++str);
+    str++;
   }
 }
 
@@ -190,6 +190,9 @@ void manage_inactivity(bool ignore_stepper_queue=false);
  * X_HEAD and Y_HEAD is used for systems that don't have a 1:1 relationship between X_AXIS and X Head movement, like CoreXY bots.
  */
 enum AxisEnum {X_AXIS=0, Y_AXIS=1, A_AXIS=0, B_AXIS=1, Z_AXIS=2, E_AXIS=3, X_HEAD=4, Y_HEAD=5};
+
+void enable_all_steppers();
+void disable_all_steppers();
 
 void FlushSerialRequestResend();
 void ClearToSend();
