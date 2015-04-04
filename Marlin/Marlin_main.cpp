@@ -110,6 +110,7 @@
 //        Call gcode file : "M32 P !filename#" and return to caller file after finishing (similar to #include).
 //        The '#' is necessary when calling from within sd files, as it stops buffer prereading
 // M42  - Change pin status via gcode Use M42 Px Sy to set pin x to value y, when omitting Px the onboard led will be used.
+// M48  - Measure Z_Probe repeatability. M48 [n # of points] [X position] [Y position] [V_erboseness #] [E_ngage Probe] [L # of legs of travel]
 // M80  - Turn on Power Supply
 // M81  - Turn off Power Supply
 // M82  - Set E codes absolute (default)
