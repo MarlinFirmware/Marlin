@@ -84,7 +84,7 @@ unsigned char soft_pwm_bed;
     static unsigned long thermal_runaway_timer[4]; // = {0,0,0,0};
   #endif
   #if HAS_BED_THERMAL_PROTECTION
-    static TRState thermal_runaway_bed_state_machine = { TRInactive, TRInactive, TRInactive, TRInactive };
+    static TRState thermal_runaway_bed_state_machine = TRInactive;
     static unsigned long thermal_runaway_bed_timer;
   #endif
 #endif
