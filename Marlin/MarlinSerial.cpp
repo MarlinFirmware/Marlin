@@ -268,8 +268,7 @@ void MarlinSerial::printFloat(double number, uint8_t digits) {
   print(int_part);
 
   // Print the decimal point, but only if there are digits beyond
-  if (digits > 0)
-    print("."); 
+  if (digits > 0) print('.');
 
   // Extract digits from the remainder one at a time
   while (digits-- > 0) {
