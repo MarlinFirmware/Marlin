@@ -31,7 +31,7 @@ Here are some standard links for getting your machine calibrated:
 //===========================================================================
 //============================= SCARA Printer ===============================
 //===========================================================================
-// For a Delta printer replace the configuration files with the files in the
+// For a Scara printer replace the configuration files with the files in the
 // example_configurations/SCARA directory.
 //
 
@@ -65,7 +65,7 @@ Here are some standard links for getting your machine calibrated:
 // The following define selects which electronics board you have.
 // Please choose the name from boards.h that matches your setup
 #ifndef MOTHERBOARD
-  #define MOTHERBOARD BOARD_ULTIMAKER
+  #define MOTHERBOARD BOARD_RAMPS_13_EFB
 #endif
 
 // Define this to set a custom name for your generic Mendel,
@@ -79,10 +79,17 @@ Here are some standard links for getting your machine calibrated:
 // :[1,2,3,4]
 #define EXTRUDERS 1
 
+// Offset of the extruders (uncomment if using more than one and relying on firmware to position when changing).
+// The offset has to be X=0, Y=0 for the extruder 0 hotend (default extruder).
+// For the other hotends it is their distance from the extruder 0 hotend.
+//#define EXTRUDER_OFFSET_X {0.0, 20.00} // (in mm) for each extruder, offset of the hotend on the X axis
+//#define EXTRUDER_OFFSET_Y {0.0, 5.00}  // (in mm) for each extruder, offset of the hotend on the Y axis
+
 //// The following define selects which power supply you have. Please choose the one that matches your setup
 // 1 = ATX
 // 2 = X-Box 360 203Watts (the blue wire connected to PS_ON and the red wire to VCC)
 // :{1:'ATX',2:'X-Box 360'}
+
 #define POWER_SUPPLY 1
 
 // Define this to have the electronics keep the power supply off on startup. If you don't know what this is leave it.
@@ -131,9 +138,9 @@ Here are some standard links for getting your machine calibrated:
 //     Use it for Testing or Development purposes. NEVER for production machine.
 //     #define DUMMY_THERMISTOR_998_VALUE 25
 //     #define DUMMY_THERMISTOR_999_VALUE 100
-// :{ 0: "Not used", 4: "10k !! do not use for a hotend. Bad resolution at high temp. !!", 1: "100k / 4.7k - EPCOS", 51: "100k / 1k - EPCOS", 6: "100k / 4.7k EPCOS - Not as accurate as Table 1", 5: "100K / 4.7k - ATC Semitec 104GT-2 (Used in ParCan & J-Head)", 7: "100k / 4.7k Honeywell 135-104LAG-J01", 71: "100k / 4.7k Honeywell 135-104LAF-J01", 8: "100k / 4.7k 0603 SMD Vishay NTCS0603E3104FXT", 9: "100k / 4.7k GE Sensing AL03006-58.2K-97-G1", 10: "100k / 4.7k RS 198-961", 11: "100k / 4.7k beta 3950 1%", 12: "100k / 4.7k 0603 SMD Vishay NTCS0603E3104FXT (calibrated for Makibox hot bed)", 13: "100k Hisens 3950  1% up to 300°C for hotend 'Simple ONE ' & hotend 'All In ONE'", 60: "100k Maker's Tool Works Kapton Bed Thermistor beta=3950", 55: "100k / 1k - ATC Semitec 104GT-2 (Used in ParCan & J-Head)", 2: "200k / 4.7k - ATC Semitec 204GT-2", 52: "200k / 1k - ATC Semitec 204GT-2", '-2': "Thermocouple + MAX6675 (only for sensor 0)", '-1': "Thermocouple + AD595", 3: "Mendel-parts / 4.7k", 1047: "Pt1000 / 4.7k", 1010: "Pt1000 / 1k (non standard)", 20: "PT100 (Ultimainboard V2.x)", 147: "Pt100 / 4.7k", 110: "Pt100 / 1k (non-standard)", 998: "Dummy 1", 999: "Dummy 2" }
-#define TEMP_SENSOR_0 -1
-#define TEMP_SENSOR_1 -1
+
+#define TEMP_SENSOR_0 1
+#define TEMP_SENSOR_1 0
 #define TEMP_SENSOR_2 0
 #define TEMP_SENSOR_3 0
 #define TEMP_SENSOR_BED 0
@@ -327,6 +334,7 @@ your extruder heater takes 2 minutes to hit the target on heating.
   // #define ENDSTOPPULLUP_XMIN
   // #define ENDSTOPPULLUP_YMIN
   // #define ENDSTOPPULLUP_ZMIN
+  // #define ENDSTOPPULLUP_ZPROBE
 #endif
 
 // Mechanical endstop with COM to ground and NC to Signal uses "false" here (most common setup).
@@ -336,10 +344,16 @@ const bool Z_MIN_ENDSTOP_INVERTING = false; // set to true to invert the logic o
 const bool X_MAX_ENDSTOP_INVERTING = false; // set to true to invert the logic of the endstop.
 const bool Y_MAX_ENDSTOP_INVERTING = false; // set to true to invert the logic of the endstop.
 const bool Z_MAX_ENDSTOP_INVERTING = false; // set to true to invert the logic of the endstop.
+const bool Z_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the logic of the endstop.
 //#define DISABLE_MAX_ENDSTOPS
 //#define DISABLE_MIN_ENDSTOPS
 
 // @section machine
+// If you want to enable the Z Probe pin, but disable its use, uncomment the line below.
+// This only affects a Z Probe Endstop if you have separate Z min endstop as well and have
+// activated Z_PROBE_ENDSTOP below. If you are using the Z Min endstop on your Z Probe,
+// this has no effect.
+//#define DISABLE_Z_PROBE_ENDSTOP
 
 // For Inverting Stepper Enable Pins (Active Low) use 0, Non Inverting (Active High) use 1
 // :{0:'Low',1:'High'}
@@ -361,9 +375,9 @@ const bool Z_MAX_ENDSTOP_INVERTING = false; // set to true to invert the logic o
 // @section machine
 
 // Invert the stepper direction. Change (or reverse the motor connector) if an axis goes the wrong way.
-#define INVERT_X_DIR true
+#define INVERT_X_DIR false
 #define INVERT_Y_DIR false
-#define INVERT_Z_DIR true
+#define INVERT_Z_DIR false
 
 // @section extruder
 
@@ -391,8 +405,8 @@ const bool Z_MAX_ENDSTOP_INVERTING = false; // set to true to invert the logic o
 #define X_MIN_POS 0
 #define Y_MIN_POS 0
 #define Z_MIN_POS 0
-#define X_MAX_POS 205
-#define Y_MAX_POS 205
+#define X_MAX_POS 200
+#define Y_MAX_POS 200
 #define Z_MAX_POS 200
 
 //===========================================================================
@@ -561,18 +575,13 @@ const bool Z_MAX_ENDSTOP_INVERTING = false; // set to true to invert the logic o
 
 // default settings
 
-#define DEFAULT_AXIS_STEPS_PER_UNIT   {78.7402,78.7402,200.0*8/3,760*1.1}  // default steps per unit for Ultimaker
-#define DEFAULT_MAX_FEEDRATE          {500, 500, 5, 25}    // (mm/sec)
-#define DEFAULT_MAX_ACCELERATION      {9000,9000,100,10000}    // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for Skeinforge 40+, for older versions raise them a lot.
+#define DEFAULT_AXIS_STEPS_PER_UNIT   {80,80,4000,500}  // default steps per unit for Ultimaker
+#define DEFAULT_MAX_FEEDRATE          {300, 300, 5, 25}    // (mm/sec)
+#define DEFAULT_MAX_ACCELERATION      {3000,3000,100,10000}    // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for Skeinforge 40+, for older versions raise them a lot.
 
-#define DEFAULT_ACCELERATION          3000    // X, Y, Z and E max acceleration in mm/s^2 for printing moves
-#define DEFAULT_RETRACT_ACCELERATION  3000   // X, Y, Z and E max acceleration in mm/s^2 for retracts
-
-// Offset of the extruders (uncomment if using more than one and relying on firmware to position when changing).
-// The offset has to be X=0, Y=0 for the extruder 0 hotend (default extruder).
-// For the other hotends it is their distance from the extruder 0 hotend.
-// #define EXTRUDER_OFFSET_X {0.0, 20.00} // (in mm) for each extruder, offset of the hotend on the X axis
-// #define EXTRUDER_OFFSET_Y {0.0, 5.00}  // (in mm) for each extruder, offset of the hotend on the Y axis
+#define DEFAULT_ACCELERATION          3000    // X, Y, Z and E acceleration in mm/s^2 for printing moves
+#define DEFAULT_RETRACT_ACCELERATION  3000   // E acceleration in mm/s^2 for retracts
+#define DEFAULT_TRAVEL_ACCELERATION   3000    // X, Y, Z acceleration in mm/s^2 for travel (non printing) moves
 
 // The speed change that does not require acceleration (i.e. the software might assume it can be done instantaneously)
 #define DEFAULT_XYJERK                20.0    // (mm/sec)
@@ -614,11 +623,11 @@ const bool Z_MAX_ENDSTOP_INVERTING = false; // set to true to invert the logic o
 // Preheat Constants
 #define PLA_PREHEAT_HOTEND_TEMP 180
 #define PLA_PREHEAT_HPB_TEMP 70
-#define PLA_PREHEAT_FAN_SPEED 255   // Insert Value between 0 and 255
+#define PLA_PREHEAT_FAN_SPEED 0   // Insert Value between 0 and 255
 
 #define ABS_PREHEAT_HOTEND_TEMP 240
-#define ABS_PREHEAT_HPB_TEMP 100
-#define ABS_PREHEAT_FAN_SPEED 255   // Insert Value between 0 and 255
+#define ABS_PREHEAT_HPB_TEMP 110
+#define ABS_PREHEAT_FAN_SPEED 0   // Insert Value between 0 and 255
 
 //==============================LCD and SD support=============================
 // @section lcd
@@ -626,7 +635,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = false; // set to true to invert the logic o
 // Define your display language below. Replace (en) with your language code and uncomment.
 // en, pl, fr, de, es, ru, it, pt, pt-br, fi, an, nl, ca, eu, kana, kana_utf8, test
 // See also language.h
-//#define LANGUAGE_INCLUDE GENERATE_LANGUAGE_INCLUDE(en)
+#define LANGUAGE_INCLUDE GENERATE_LANGUAGE_INCLUDE(en)
 
 // Choose ONE of these 3 charsets. This has to match your hardware. Ignored for full graphic display.
 // To find out what type you have - compile with (test) - upload - click to get the menu. You'll see two typical lines from the upper half of the charset.
@@ -730,7 +739,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = false; // set to true to invert the logic o
 // Data from: http://www.doc-diy.net/photo/rc-1_hacked/
 // #define PHOTOGRAPH_PIN     23
 
-// SF send wrong arc g-codes when using Arc Point as fillet procedure
+// SkeinForge sends the wrong arc g-codes when using Arc Point as fillet procedure
 //#define SF_ARC_FIX
 
 // Support for the BariCUDA Paste Extruder.
@@ -784,7 +793,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = false; // set to true to invert the logic o
 #define MAX_MEASUREMENT_DELAY			20  //delay buffer size in bytes (1 byte = 1cm)- limits maximum measurement delay allowable (must be larger than MEASUREMENT_DELAY_CM  and lower number saves RAM)
 
 //defines used in the code
-#define DEFAULT_MEASURED_FILAMENT_DIA  DEFAULT_NOMINAL_FILAMENT_DIA  //set measured to nominal initially 
+#define DEFAULT_MEASURED_FILAMENT_DIA  DEFAULT_NOMINAL_FILAMENT_DIA  //set measured to nominal initially
 
 //When using an LCD, uncomment the line below to display the Filament sensor data on the last line instead of status.  Status will appear for 5 sec.
 //#define FILAMENT_LCD_DISPLAY
