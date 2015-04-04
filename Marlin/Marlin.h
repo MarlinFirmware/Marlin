@@ -227,7 +227,7 @@ void enquecommands_P(const char *cmd); //put one or many ASCII commands at the e
 void prepare_arc_move(char isclockwise);
 void clamp_to_software_endstops(float target[3]);
 
-void refresh_cmd_timeout(void);
+void refresh_cmd_timeout();
 
 #ifdef FAST_PWM_FAN
   void setPwmFrequency(uint8_t pin, int val);
