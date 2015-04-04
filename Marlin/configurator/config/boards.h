@@ -10,10 +10,11 @@
 #define BOARD_CHEAPTRONIC       2    // Cheaptronic v1.0
 #define BOARD_SETHI             20   // Sethi 3D_1
 #define BOARD_RAMPS_OLD         3    // MEGA/RAMPS up to 1.2
-#define BOARD_RAMPS_13_EFB      33   // RAMPS 1.3 / 1.4 (Extruder, Fan, Bed)
-#define BOARD_RAMPS_13_EEB      34   // RAMPS 1.3 / 1.4 (Extruder0, Extruder1, Bed)
-#define BOARD_RAMPS_13_EFF      35   // RAMPS 1.3 / 1.4 (Extruder, Fan, Fan)
-#define BOARD_RAMPS_13_EEF      36   // RAMPS 1.3 / 1.4 (Extruder0, Extruder1, Fan)
+#define BOARD_RAMPS_13_EFB      33   // RAMPS 1.3 / 1.4 (Power outputs: Extruder, Fan, Bed)
+#define BOARD_RAMPS_13_EEB      34   // RAMPS 1.3 / 1.4 (Power outputs: Extruder0, Extruder1, Bed)
+#define BOARD_RAMPS_13_EFF      35   // RAMPS 1.3 / 1.4 (Power outputs: Extruder, Fan, Fan)
+#define BOARD_RAMPS_13_EEF      36   // RAMPS 1.3 / 1.4 (Power outputs: Extruder0, Extruder1, Fan)
+#define BOARD_FELIX2            37   // Felix 2.0+ Electronics Board (RAMPS like)
 #define BOARD_DUEMILANOVE_328P  4    // Duemilanove w/ ATMega328P pin assignments
 #define BOARD_GEN6              5    // Gen6
 #define BOARD_GEN6_DELUXE       51   // Gen6 deluxe
@@ -28,14 +29,15 @@
 #define BOARD_ULTIMAKER         7    // Ultimaker
 #define BOARD_ULTIMAKER_OLD     71   // Ultimaker (Older electronics. Pre 1.5.4. This is rare)
 #define BOARD_ULTIMAIN_2        72   // Ultimainboard 2.x (Uses TEMP_SENSOR 20)
-#define BOARD_3DRAG             77   // 3Drag
-#define BOARD_K8200             78   // Vellemann K8200 (derived from 3Drag)
+#define BOARD_3DRAG             77   // 3Drag Controller
+#define BOARD_K8200             78   // Vellemann K8200 Controller (derived from 3Drag Controller)
 #define BOARD_TEENSYLU          8    // Teensylu
 #define BOARD_RUMBA             80   // Rumba
 #define BOARD_PRINTRBOARD       81   // Printrboard (AT90USB1286)
 #define BOARD_BRAINWAVE         82   // Brainwave (AT90USB646)
 #define BOARD_SAV_MKI           83   // SAV Mk-I (AT90USB1286)
 #define BOARD_TEENSY2           84   // Teensy++2.0 (AT90USB1286) - CLI compile: DEFINES=AT90USBxx_TEENSYPP_ASSIGNMENTS HARDWARE_MOTHERBOARD=84  make
+#define BOARD_BRAINWAVE_PRO     85   // Brainwave Pro (AT90USB1286)
 #define BOARD_GEN3_PLUS         9    // Gen3+
 #define BOARD_GEN3_MONOLITHIC   22   // Gen3 Monolithic Electronics
 #define BOARD_MEGATRONICS       70   // Megatronics
@@ -50,10 +52,11 @@
 #define BOARD_LEAPFROG          999  // Leapfrog
 #define BOARD_WITBOX            41   // bq WITBOX
 #define BOARD_HEPHESTOS         42   // bq Prusa i3 Hephestos
+#define BOARD_BAM_DICE          401  // 2PrintBeta BAM&DICE with STK drivers
+#define BOARD_BAM_DICE_DUE      402  // 2PrintBeta BAM&DICE Due with STK drivers
 
 #define BOARD_99                99   // This is in pins.h but...?
 
 #define MB(board) (MOTHERBOARD==BOARD_##board)
-#define IS_RAMPS (MB(RAMPS_OLD) || MB(RAMPS_13_EFB) || MB(RAMPS_13_EEB) || MB(RAMPS_13_EFF) || MB(RAMPS_13_EEF))
 
 #endif //__BOARDS_H
