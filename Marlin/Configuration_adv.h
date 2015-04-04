@@ -3,6 +3,8 @@
 
 #include "Conditionals.h"
 
+// @section temperature
+
 //===========================================================================
 //=============================Thermal Settings  ============================
 //===========================================================================
@@ -46,6 +48,8 @@
 //The M105 command return, besides traditional information, the ADC value read from temperature sensors.
 //#define SHOW_TEMP_ADC_VALUES
 
+// @section extruder
+
 //  extruder run-out prevention.
 //if the machine is idle, and the temperature over MINTEMP, every couple of SECONDS some filament is extruded
 //#define EXTRUDER_RUNOUT_PREVENT
@@ -54,6 +58,8 @@
 #define EXTRUDER_RUNOUT_ESTEPS 14. //mm filament
 #define EXTRUDER_RUNOUT_SPEED 1500.  //extrusion speed
 #define EXTRUDER_RUNOUT_EXTRUDE 100
+
+// @section temperature
 
 //These defines help to calibrate the AD595 sensor in case you get wrong temperature measurements.
 //The measured temperature is defined as "actualTemp = (measuredTemp * TEMP_SENSOR_AD595_GAIN) + TEMP_SENSOR_AD595_OFFSET"
@@ -72,6 +78,8 @@
 // before setting a PWM value. (Does not work with software PWM for fan on Sanguinololu)
 //#define FAN_KICKSTART_TIME 100
 
+// @section extruder
+
 // Extruder cooling fans
 // Configure fan pin outputs to automatically turn on/off when the associated
 // extruder temperature is above/below EXTRUDER_AUTO_FAN_TEMPERATURE.
@@ -89,7 +97,11 @@
 //=============================Mechanical Settings===========================
 //===========================================================================
 
+// @section homing
+
 #define ENDSTOPS_ONLY_FOR_HOMING // If defined the endstops will only be used for homing
+
+// @section extras
 
 //#define Z_LATE_ENABLE // Enable Z the last moment. Needed if your Z driver overheats.
 
@@ -174,6 +186,8 @@
 
 #endif //DUAL_X_CARRIAGE
 
+// @section homing
+
 //homing hits the endstop, then retracts by this distance, before it tries to slowly bump again:
 #define X_HOME_BUMP_MM 5
 #define Y_HOME_BUMP_MM 5
@@ -181,7 +195,11 @@
 #define HOMING_BUMP_DIVISOR {2, 2, 4}  // Re-Bump Speed Divisor (Divides the Homing Feedrate)
 //#define QUICK_HOME  //if this is defined, if both x and y are to be homed, a diagonal move will be performed initially.
 
+// @section machine
+
 #define AXIS_RELATIVE_MODES {false, false, false, false}
+
+// @section machine
 
 //By default pololu step drivers require an active high signal. However, some high power drivers require an active low signal as step.
 #define INVERT_X_STEP_PIN false
@@ -195,10 +213,14 @@
 #define DEFAULT_MINIMUMFEEDRATE       0.0     // minimum feedrate
 #define DEFAULT_MINTRAVELFEEDRATE     0.0
 
+// @section lcd
+
 #ifdef ULTIPANEL
   #define MANUAL_FEEDRATE {50*60, 50*60, 4*60, 60} // Feedrates for manual moves along X, Y, Z, E from panel
   #define ULTIPANEL_FEEDMULTIPLY  // Comment to disable setting feedrate multiplier via encoder
 #endif
+
+// @section extras
 
 // minimum time in microseconds that a movement needs to take if the buffer is emptied.
 #define DEFAULT_MINSEGMENTTIME        20000
@@ -241,6 +263,8 @@
 //#define CHDK 4        //Pin for triggering CHDK to take a picture see how to use it here http://captain-slow.dk/2014/03/09/3d-printing-timelapses/
 #define CHDK_DELAY 50 //How long in ms the pin should stay HIGH before going LOW again
 
+// @section lcd
+
 #ifdef SDSUPPORT
 
   // If you are using a RAMPS board or cheap E-bay purchased boards that do not detect when an SD card is inserted
@@ -272,6 +296,8 @@
   #endif
 
 #endif // SDSUPPORT
+
+// @section more
 
 // The hardware watchdog should reset the microcontroller disabling all outputs, in case the firmware gets stuck and doesn't do temperature regulation.
 //#define USE_WATCHDOG
@@ -317,12 +343,16 @@
 
 const unsigned int dropsegments=5; //everything with less than this number of steps will be ignored as move and joined with the next movement
 
+// @section temperature
+
 // Control heater 0 and heater 1 in parallel.
 //#define HEATERS_PARALLEL
 
 //===========================================================================
 //=============================Buffers           ============================
 //===========================================================================
+
+// @section hidden
 
 // The number of linear motions that can be in the plan at any give time.
 // THE BLOCK_BUFFER_SIZE NEEDS TO BE A POWER OF 2, i.g. 8,16,32 because shifts and ors are used to do the ring-buffering.
@@ -332,11 +362,13 @@ const unsigned int dropsegments=5; //everything with less than this number of st
   #define BLOCK_BUFFER_SIZE 16 // maximize block buffer
 #endif
 
+// @section more
 
 //The ASCII buffer for receiving from the serial:
 #define MAX_CMD_SIZE 96
 #define BUFSIZE 4
 
+// @section extras
 
 // Firmware based and LCD controlled retract
 // M207 and M208 can be used to define parameters for the retraction.
