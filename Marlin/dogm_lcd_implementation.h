@@ -318,9 +318,9 @@ static void lcd_implementation_status_screen() {
   lcd_setFont(FONT_STATUSMENU);
 
   #ifdef USE_SMALL_INFOFONT
-    u8g.drawBox(0,30,127,10);
+    u8g.drawBox(0,30,128,10);
   #else
-    u8g.drawBox(0,30,127,9);
+    u8g.drawBox(0,30,128,9);
   #endif
   u8g.setColorIndex(0); // white on black
   u8g.setPrintPos(2,XYZ_BASELINE);
