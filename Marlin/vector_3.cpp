@@ -125,9 +125,9 @@ void matrix_3x3::debug(const char title[]) {
   int count = 0;
   for(int i=0; i<3; i++) {
     for(int j=0; j<3; j++) {
-      if (matrix[count] >= 0.0) SERIAL_PROTOCOLPGM("+");
+      if (matrix[count] >= 0.0) SERIAL_PROTOCOLCHAR('+');
       SERIAL_PROTOCOL_F(matrix[count], 6);
-      SERIAL_PROTOCOLPGM(" ");
+      SERIAL_PROTOCOLCHAR(' ');
       count++;
     }
     SERIAL_EOL;
