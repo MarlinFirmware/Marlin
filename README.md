@@ -37,7 +37,7 @@ __Google Hangout:__ <a href="https://plus.google.com/hangouts/_/g2wp5duzb2y6ahik
 
 The current Marlin dev team consists of:
 
- - Scott Lahteine ([@thinkyhead])
+ - Scott Lahteine [@thinkyhead]
  - 
 
 Sprinters lead developers are Kliment and caru.
