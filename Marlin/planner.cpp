@@ -58,7 +58,7 @@
 #include "ultralcd.h"
 #include "language.h"
 
-#if defined(MESH_BED_LEVELING)
+#ifdef MESH_BED_LEVELING
   #include "mesh_bed_leveling.h"
 #endif  // MESH_BED_LEVELING
 
@@ -454,10 +454,10 @@ void check_axes_activity() {
   #endif
 
   #ifdef BARICUDA
-    #if defined(HEATER_1_PIN) && HEATER_1_PIN > -1 // HAS_HEATER_1
+    #if HAS_HEATER_1
       analogWrite(HEATER_1_PIN,tail_valve_pressure);
     #endif
-    #if defined(HEATER_2_PIN) && HEATER_2_PIN > -1 // HAS_HEATER_2
+    #if HAS_HEATER_2
       analogWrite(HEATER_2_PIN,tail_e_to_p_pressure);
     #endif
   #endif
