@@ -1009,6 +1009,8 @@ inline void sync_plan_position() {
     plan_set_position(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], current_position[E_AXIS]);
   }
 #endif
+inline void set_current_to_destination() { memcpy(current_position, destination, sizeof(current_position)); }
+inline void set_destination_to_current() { memcpy(destination, current_position, sizeof(destination)); }
 
 #ifdef ENABLE_AUTO_BED_LEVELING
 
@@ -1020,7 +1022,7 @@ inline void sync_plan_position() {
       refresh_cmd_timeout();
       calculate_delta(destination);
       plan_buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], destination[E_AXIS], (feedrate/60)*(feedmultiply/100.0), active_extruder);
-      for (int i = 0; i < NUM_AXIS; i++) current_position[i] = destination[i];
+      set_current_to_destination();
     }
   #endif
 
@@ -1564,7 +1566,7 @@ static void homeaxis(int axis) {
 
     float oldFeedrate = feedrate;
 
-    for (int i = 0; i < NUM_AXIS; i++) destination[i] = current_position[i];
+    set_destination_to_current();
 
     if (retracting) {
 
@@ -1769,7 +1771,7 @@ inline void gcode_G28() {
 
   enable_endstops(true);
 
-  for (int i = 0; i < NUM_AXIS; i++) destination[i] = current_position[i]; // includes E_AXIS
+  set_destination_to_current();
 
   feedrate = 0.0;
 
@@ -1997,7 +1999,7 @@ inline void gcode_G28() {
     if (mbl_was_active) {
       current_position[X_AXIS] = mbl.get_x(0);
       current_position[Y_AXIS] = mbl.get_y(0);
-      for (int i = 0; i < NUM_AXIS; i++) destination[i] = current_position[i];
+      set_destination_to_current();
       feedrate = homing_feedrate[X_AXIS];
       line_to_destination();
       st_synchronize();
@@ -4613,7 +4615,7 @@ inline void gcode_T() {
     #if EXTRUDERS > 1
       if (tmp_extruder != active_extruder) {
         // Save current position to return to after applying extruder offset
-        memcpy(destination, current_position, sizeof(destination));
+        set_destination_to_current();
         #ifdef DUAL_X_CARRIAGE
           if (dual_x_carriage_mode == DXC_AUTO_PARK_MODE && Stopped == false &&
                 (delayed_move_time != 0 || current_position[X_AXIS] != x_home_pos(active_extruder))) {
@@ -5338,9 +5340,7 @@ void mesh_plan_buffer_line(float x, float y, float z, const float e, float feed_
 {
   if (!mbl.active) {
     plan_buffer_line(x, y, z, e, feed_rate, extruder);
-    for(int8_t i=0; i < NUM_AXIS; i++) {
-      current_position[i] = destination[i];
-    }
+    set_current_to_destination();
     return;
   }
   int pix = mbl.select_x_index(current_position[X_AXIS]);
@@ -5354,9 +5354,7 @@ void mesh_plan_buffer_line(float x, float y, float z, const float e, float feed_
   if (pix == ix && piy == iy) {
     // Start and end on same mesh square
     plan_buffer_line(x, y, z, e, feed_rate, extruder);
-    for(int8_t i=0; i < NUM_AXIS; i++) {
-      current_position[i] = destination[i];
-    }
+    set_current_to_destination();
     return;
   }
   float nx, ny, ne, normalized_dist;
@@ -5387,9 +5385,7 @@ void mesh_plan_buffer_line(float x, float y, float z, const float e, float feed_
   } else {
     // Already split on a border
     plan_buffer_line(x, y, z, e, feed_rate, extruder);
-    for(int8_t i=0; i < NUM_AXIS; i++) {
-      current_position[i] = destination[i];
-    }
+    set_current_to_destination();
     return;
   }
   // Do the split and look for more borders
@@ -5477,64 +5473,58 @@ void prepare_move() {
 
   #endif // DELTA
 
-#ifdef DUAL_X_CARRIAGE
-  if (active_extruder_parked)
-  {
-    if (dual_x_carriage_mode == DXC_DUPLICATION_MODE && active_extruder == 0)
-    {
-      // move duplicate extruder into correct duplication position.
-      plan_set_position(inactive_extruder_x_pos, current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
-      plan_buffer_line(current_position[X_AXIS] + duplicate_extruder_x_offset, current_position[Y_AXIS], current_position[Z_AXIS],
-          current_position[E_AXIS], max_feedrate[X_AXIS], 1);
-      sync_plan_position();
-      st_synchronize();
-      extruder_duplication_enabled = true;
-      active_extruder_parked = false;
-    }
-    else if (dual_x_carriage_mode == DXC_AUTO_PARK_MODE) // handle unparking of head
-    {
-      if (current_position[E_AXIS] == destination[E_AXIS])
-      {
-        // this is a travel move - skit it but keep track of current position (so that it can later
-        // be used as start of first non-travel move)
-        if (delayed_move_time != 0xFFFFFFFFUL)
-        {
-          memcpy(current_position, destination, sizeof(current_position));
-          if (destination[Z_AXIS] > raised_parked_position[Z_AXIS])
-            raised_parked_position[Z_AXIS] = destination[Z_AXIS];
-          delayed_move_time = millis();
-          return;
-        }
+  #ifdef DUAL_X_CARRIAGE
+    if (active_extruder_parked) {
+      if (dual_x_carriage_mode == DXC_DUPLICATION_MODE && active_extruder == 0) {
+        // move duplicate extruder into correct duplication position.
+        plan_set_position(inactive_extruder_x_pos, current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+        plan_buffer_line(current_position[X_AXIS] + duplicate_extruder_x_offset, current_position[Y_AXIS], current_position[Z_AXIS],
+            current_position[E_AXIS], max_feedrate[X_AXIS], 1);
+        sync_plan_position();
+        st_synchronize();
+        extruder_duplication_enabled = true;
+        active_extruder_parked = false;
       }
-      delayed_move_time = 0;
-      // unpark extruder: 1) raise, 2) move into starting XY position, 3) lower
-      plan_buffer_line(raised_parked_position[X_AXIS], raised_parked_position[Y_AXIS], raised_parked_position[Z_AXIS],    current_position[E_AXIS], max_feedrate[Z_AXIS], active_extruder);
-      plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], raised_parked_position[Z_AXIS],
-          current_position[E_AXIS], min(max_feedrate[X_AXIS],max_feedrate[Y_AXIS]), active_extruder);
-      plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],
-          current_position[E_AXIS], max_feedrate[Z_AXIS], active_extruder);
-      active_extruder_parked = false;
+      else if (dual_x_carriage_mode == DXC_AUTO_PARK_MODE) { // handle unparking of head
+        if (current_position[E_AXIS] == destination[E_AXIS]) {
+          // this is a travel move - skit it but keep track of current position (so that it can later
+          // be used as start of first non-travel move)
+          if (delayed_move_time != 0xFFFFFFFFUL) {
+            set_current_to_destination();
+            if (destination[Z_AXIS] > raised_parked_position[Z_AXIS])
+              raised_parked_position[Z_AXIS] = destination[Z_AXIS];
+            delayed_move_time = millis();
+            return;
+          }
+        }
+        delayed_move_time = 0;
+        // unpark extruder: 1) raise, 2) move into starting XY position, 3) lower
+        plan_buffer_line(raised_parked_position[X_AXIS], raised_parked_position[Y_AXIS], raised_parked_position[Z_AXIS],    current_position[E_AXIS], max_feedrate[Z_AXIS], active_extruder);
+        plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], raised_parked_position[Z_AXIS],
+            current_position[E_AXIS], min(max_feedrate[X_AXIS],max_feedrate[Y_AXIS]), active_extruder);
+        plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],
+            current_position[E_AXIS], max_feedrate[Z_AXIS], active_extruder);
+        active_extruder_parked = false;
+      }
     }
-  }
-#endif //DUAL_X_CARRIAGE
+  #endif // DUAL_X_CARRIAGE
 
-#if !defined(DELTA) && !defined(SCARA)
-  // Do not use feedmultiply for E or Z only moves
-  if( (current_position[X_AXIS] == destination [X_AXIS]) && (current_position[Y_AXIS] == destination [Y_AXIS])) {
-    line_to_destination();
-  } else {
-#ifdef MESH_BED_LEVELING
-    mesh_plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], (feedrate/60)*(feedmultiply/100.0), active_extruder);
-    return;
-#else
-    plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], (feedrate/60)*(feedmultiply/100.0), active_extruder);
-#endif  // MESH_BED_LEVELING
-  }
-#endif // !(DELTA || SCARA)
+  #if !defined(DELTA) && !defined(SCARA)
+    // Do not use feedmultiply for E or Z only moves
+    if ( (current_position[X_AXIS] == destination [X_AXIS]) && (current_position[Y_AXIS] == destination [Y_AXIS])) {
+      line_to_destination();
+    }
+    else {
+      #ifdef MESH_BED_LEVELING
+        mesh_plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], (feedrate/60)*(feedmultiply/100.0), active_extruder);
+        return;
+      #else
+        plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], (feedrate/60)*(feedmultiply/100.0), active_extruder);
+      #endif  // MESH_BED_LEVELING
+    }
+  #endif // !(DELTA || SCARA)
 
-  for(int8_t i=0; i < NUM_AXIS; i++) {
-    current_position[i] = destination[i];
-  }
+  set_current_to_destination();
 }
 
 void prepare_arc_move(char isclockwise) {
@@ -5546,9 +5536,7 @@ void prepare_arc_move(char isclockwise) {
   // As far as the parser is concerned, the position is now == target. In reality the
   // motion control system might still be processing the action and the real tool position
   // in any intermediate location.
-  for(int8_t i=0; i < NUM_AXIS; i++) {
-    current_position[i] = destination[i];
-  }
+  set_current_to_destination();
   refresh_cmd_timeout();
 }
 
@@ -5718,7 +5706,16 @@ void disable_all_steppers() {
 }
 
 /**
- * 
+ * Manage several activities:
+ *  - Check for Filament Runout
+ *  - Keep the command buffer full
+ *  - Check for maximum inactive time between commands
+ *  - Check for maximum inactive time between stepper commands
+ *  - Check if pin CHDK needs to go LOW
+ *  - Check for KILL button held down
+ *  - Check for HOME button held down
+ *  - Check if cooling fan needs to be switched on
+ *  - Check if an idle but hot extruder needs filament extruded (EXTRUDER_RUNOUT_PREVENT)
  */
 void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
   
@@ -5737,7 +5734,7 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
       && !ignore_stepper_queue && !blocks_queued())
     disable_all_steppers();
 
-  #ifdef CHDK //Check if pin should be set to LOW after M240 set it to HIGH
+  #ifdef CHDK // Check if pin should be set to LOW after M240 set it to HIGH
     if (chdkActive && ms > chdkHigh + CHDK_DELAY) {
       chdkActive = false;
       WRITE(CHDK, LOW);
@@ -5780,14 +5777,37 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
   #endif
     
   #if HAS_CONTROLLERFAN
-    controllerFan(); //Check if fan should be turned on to cool stepper drivers down
+    controllerFan(); // Check if fan should be turned on to cool stepper drivers down
   #endif
 
   #ifdef EXTRUDER_RUNOUT_PREVENT
     if (ms > previous_millis_cmd + EXTRUDER_RUNOUT_SECONDS * 1000)
     if (degHotend(active_extruder) > EXTRUDER_RUNOUT_MINTEMP) {
-      bool oldstatus = E0_ENABLE_READ;
-      enable_e0();
+      bool oldstatus;
+      switch(active_extruder) {
+        case 0:
+          oldstatus = E0_ENABLE_READ;
+          enable_e0();
+          break;
+        #if EXTRUDERS > 1
+          case 1:
+            oldstatus = E1_ENABLE_READ;
+            enable_e1();
+            break;
+          #if EXTRUDERS > 2
+            case 2:
+              oldstatus = E2_ENABLE_READ;
+              enable_e2();
+              break;
+            #if EXTRUDERS > 3
+              case 3:
+                oldstatus = E3_ENABLE_READ;
+                enable_e3();
+                break;
+            #endif
+          #endif
+        #endif
+      }
       float oldepos = current_position[E_AXIS], oldedes = destination[E_AXIS];
       plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS],
                       destination[E_AXIS] + EXTRUDER_RUNOUT_EXTRUDE * EXTRUDER_RUNOUT_ESTEPS / axis_steps_per_unit[E_AXIS],
@@ -5797,7 +5817,26 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
       plan_set_e_position(oldepos);
       previous_millis_cmd = ms; // refresh_cmd_timeout()
       st_synchronize();
-      E0_ENABLE_WRITE(oldstatus);
+      switch(active_extruder) {
+        case 0:
+          E0_ENABLE_WRITE(oldstatus);
+          break;
+        #if EXTRUDERS > 1
+          case 1:
+            E1_ENABLE_WRITE(oldstatus);
+            break;
+          #if EXTRUDERS > 2
+            case 2:
+              E2_ENABLE_WRITE(oldstatus);
+              break;
+            #if EXTRUDERS > 3
+              case 3:
+                E3_ENABLE_WRITE(oldstatus);
+                break;
+            #endif
+          #endif
+        #endif
+      }
     }
   #endif
 
@@ -5806,7 +5845,7 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
     if (delayed_move_time && ms > delayed_move_time + 1000 && !Stopped) {
       // travel moves have been received so enact them
       delayed_move_time = 0xFFFFFFFFUL; // force moves to be done
-      memcpy(destination, current_position, sizeof(destination));
+      set_destination_to_current();
       prepare_move();
     }
   #endif
