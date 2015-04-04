@@ -36,8 +36,11 @@
   #define LANGUAGE_INCLUDE GENERATE_LANGUAGE_INCLUDE(en)
 #endif
 
+#ifdef HAS_AUTOMATIC_VERSIONING
+  #include "_Version.h"
+#endif
+
 #define PROTOCOL_VERSION "1.0"
-#define FIRMWARE_URL "https://github.com/MarlinFirmware/Marlin"
 
 #if MB(ULTIMAKER)|| MB(ULTIMAKER_OLD)|| MB(ULTIMAIN_2)
   #undef FIRMWARE_URL
@@ -65,13 +68,33 @@
   #define MACHINE_NAME "HEPHESTOS"
   #undef FIRMWARE_URL
   #define FIRMWARE_URL "http://www.bq.com/gb/downloads-prusa-i3-hephestos.html"
-#else // Default firmware set to Mendel
-  #define MACHINE_NAME "Mendel"
+#elif MB(BRAINWAVE_PRO)
+  #define MACHINE_NAME "Kossel Pro"
+  #ifndef FIRMWARE_URL
+    #define FIRMWARE_URL "https://github.com/OpenBeamUSA/Marlin/"
+  #endif
+#else
+  #ifndef MACHINE_NAME
+    #define MACHINE_NAME "Mendel"
+  #endif
 #endif
 
 #ifdef CUSTOM_MENDEL_NAME
+  #warning CUSTOM_MENDEL_NAME deprecated - use CUSTOM_MACHINE_NAME
+  #define CUSTOM_MACHINE_NAME CUSTOM_MENDEL_NAME
+#endif
+
+#ifdef CUSTOM_MACHINE_NAME
   #undef MACHINE_NAME
-  #define MACHINE_NAME CUSTOM_MENDEL_NAME
+  #define MACHINE_NAME CUSTOM_MACHINE_NAME
+#endif
+
+#ifndef FIRMWARE_URL
+  #define FIRMWARE_URL "https://github.com/MarlinFirmware/Marlin"
+#endif
+
+#ifndef BUILD_VERSION
+  #define BUILD_VERSION "V1; Sprinter/grbl mashup for gen6"
 #endif
 
 #ifndef MACHINE_UUID
@@ -122,7 +145,7 @@
 #define MSG_HEATING_COMPLETE                "Heating done."
 #define MSG_BED_HEATING                     "Bed Heating."
 #define MSG_BED_DONE                        "Bed done."
-#define MSG_M115_REPORT                     "FIRMWARE_NAME:Marlin V1; Sprinter/grbl mashup for gen6 FIRMWARE_URL:" FIRMWARE_URL " PROTOCOL_VERSION:" PROTOCOL_VERSION " MACHINE_TYPE:" MACHINE_NAME " EXTRUDER_COUNT:" STRINGIFY(EXTRUDERS) " UUID:" MACHINE_UUID "\n"
+#define MSG_M115_REPORT                     "FIRMWARE_NAME:Marlin " BUILD_VERSION " FIRMWARE_URL:" FIRMWARE_URL " PROTOCOL_VERSION:" PROTOCOL_VERSION " MACHINE_TYPE:" MACHINE_NAME " EXTRUDER_COUNT:" STRINGIFY(EXTRUDERS) " UUID:" MACHINE_UUID "\n"
 #define MSG_COUNT_X                         " Count X: "
 #define MSG_ERR_KILLED                      "Printer halted. kill() called!"
 #define MSG_ERR_STOPPED                     "Printer stopped due to errors. Fix the error and use M999 to restart. (Temperature is reset. Set it after restarting)"
@@ -138,6 +161,7 @@
 #define MSG_Z_MIN                           "z_min: "
 #define MSG_Z_MAX                           "z_max: "
 #define MSG_Z2_MAX                          "z2_max: "
+#define MSG_Z_PROBE                         "z_probe: "
 #define MSG_M119_REPORT                     "Reporting endstop status"
 #define MSG_ENDSTOP_HIT                     "TRIGGERED"
 #define MSG_ENDSTOP_OPEN                    "open"
