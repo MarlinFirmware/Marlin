@@ -570,8 +570,10 @@ const bool Z_MAX_ENDSTOP_INVERTING = false; // set to true to invert the logic o
   #define MANUAL_Z_HOME_POS 250 // For delta: Distance between nozzle and print surface after homing.
 #endif
 
-//// MOVEMENT SETTINGS
-#define NUM_AXIS 4 // The axis order in all axis related arrays is X, Y, Z, E
+/**
+ * MOVEMENT SETTINGS
+ */
+
 
 // delta homing speeds must be the same on xyz
 #define HOMING_FEEDRATE {200*60, 200*60, 200*60, 0}  // set the homing speeds (mm/min)
