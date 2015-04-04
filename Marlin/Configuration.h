@@ -387,7 +387,9 @@ const bool Z_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the logic
 #define min_software_endstops true // If true, axis won't move to coordinates less than HOME_POS.
 #define max_software_endstops true  // If true, axis won't move to coordinates greater than the defined lengths below.
 
-// @section machine
+// Allow M211 command to disable software endstops temporarly. This enabled ENDSTOPS_ONLY_FOR_HOMING
+// In combination with G92 command marlin can be used to manually do an X,Y,Z axis homing and mill down an part
+#define ENABLE_M211
 
 // Travel limits after homing (units are in mm)
 #define X_MIN_POS 0

@@ -166,6 +166,7 @@
  * M207 - Set retract length S[positive mm] F[feedrate mm/min] Z[additional zlift/hop], stays in mm regardless of M200 setting
  * M208 - Set recover=unretract length S[positive mm surplus to the M207 S*] F[feedrate mm/min]
  * M209 - S<1=true/0=false> enable automatic retract detect if the slicer did not support G10/11: every normal extrude-only move will be classified as retract depending on the direction.
+ * M211 - Disable software endstops per axis. This allows moving outside defined min/max coordinates.
  * M218 - Set hotend offset (in mm): T<extruder_number> X<offset_on_X> Y<offset_on_Y>
  * M220 - Set speed factor override percentage: S<factor in percent>
  * M221 - Set extrude factor override percentage: S<factor in percent>
@@ -259,6 +260,10 @@ float volumetric_multiplier[EXTRUDERS] = ARRAY_BY_EXTRUDERS(1.0, 1.0, 1.0, 1.0);
 float home_offset[3] = { 0 };
 float min_pos[3] = { X_MIN_POS, Y_MIN_POS, Z_MIN_POS };
 float max_pos[3] = { X_MAX_POS, Y_MAX_POS, Z_MAX_POS };
+
+#ifdef ENABLE_M211
+  uint8_t enabled_software_endstops = 0xff;
+#endif
 
 uint8_t active_extruder = 0;
 int fanSpeed = 0;
@@ -951,6 +956,10 @@ int16_t code_value_short() { return (int16_t)strtol(seen_pointer + 1, NULL, 10);
 
 bool code_seen(char code) {
   seen_pointer = strchr(current_command_args, code); // +3 since "G0 " is the shortest prefix
+  return (seen_pointer != NULL);  //Return True if a character was found
+}
+bool code_seen_str(char *code) {
+  seen_pointer = strstr(current_command_args, code);
   return (seen_pointer != NULL);  //Return True if a character was found
 }
 
@@ -4220,6 +4229,54 @@ inline void gcode_M206() {
 
 #endif // FWRETRACT
 
+#ifdef ENABLE_M211
+/**
+ * M211: Enable or disable software endstops
+ */
+inline void gcode_M211() {
+  // manage bit mask in enable_software_endstops
+  uint8_t smask = 0x00;
+
+  if (code_seen_str("X0")) smask |= 1;
+  if (code_seen_str("Y0")) smask |= 2;
+  if (code_seen_str("Z0")) smask |= 4;
+  if (code_seen_str("X1")) smask |= 16;
+  if (code_seen_str("Y1")) smask |= 32;
+  if (code_seen_str("Z1")) smask |= 64;
+
+
+  // Set mask
+  if (code_seen('S'))
+  {
+     if (code_value_long()==0) {
+        // clear mask
+        enabled_software_endstops &= ~smask;
+     }
+     else {
+        // set mask
+        enabled_software_endstops |=  smask;
+     }
+
+  }
+  else {
+    // Print state
+  SERIAL_PROTOCOLLN(MSG_M211_REPORT);
+  SERIAL_PROTOCOLPGM(MSG_X_MIN);
+  SERIAL_PROTOCOLLN(((enabled_software_endstops & 1) > 0?MSG_ENABLED:MSG_DISABLED));
+  SERIAL_PROTOCOLPGM(MSG_X_MAX);
+  SERIAL_PROTOCOLLN(((enabled_software_endstops & 16) > 0?MSG_ENABLED:MSG_DISABLED));
+  SERIAL_PROTOCOLPGM(MSG_Y_MIN);
+  SERIAL_PROTOCOLLN(((enabled_software_endstops & 2) > 0?MSG_ENABLED:MSG_DISABLED));
+  SERIAL_PROTOCOLPGM(MSG_Y_MAX);
+  SERIAL_PROTOCOLLN(((enabled_software_endstops & 32) > 0?MSG_ENABLED:MSG_DISABLED));
+  SERIAL_PROTOCOLPGM(MSG_Z_MIN);
+  SERIAL_PROTOCOLLN(((enabled_software_endstops & 4) > 0?MSG_ENABLED:MSG_DISABLED));
+  SERIAL_PROTOCOLPGM(MSG_Z_MAX);
+  SERIAL_PROTOCOLLN(((enabled_software_endstops & 64) > 0?MSG_ENABLED:MSG_DISABLED));
+  }
+}
+#endif
+
 #if EXTRUDERS > 1
 
   /**
@@ -5629,6 +5686,12 @@ void process_next_command() {
           break;
       #endif
 
+      #ifdef ENABLE_M211
+      case 211: // M211 S1/0 enable/disable software end stop X0/1 Y0/1 Z0/1 0=min 1=max
+        gcode_M211();
+        break;
+      #endif
+
       case 220: // M220 S<factor in percent>- set speed factor override percentage
         gcode_M220();
         break;
@@ -5857,21 +5920,36 @@ void ok_to_send() {
 
 void clamp_to_software_endstops(float target[3]) {
   if (min_software_endstops) {
-    NOLESS(target[X_AXIS], min_pos[X_AXIS]);
-    NOLESS(target[Y_AXIS], min_pos[Y_AXIS]);
+    #ifndef ENABLE_M211
+      NOLESS(target[X_AXIS], min_pos[X_AXIS]);
+      NOLESS(target[Y_AXIS], min_pos[Y_AXIS]);
+    #else
+      if (enabled_software_endstops & 1) NOLESS(target[X_AXIS], min_pos[X_AXIS]);
+      if (enabled_software_endstops & 2) NOLESS(target[Y_AXIS], min_pos[Y_AXIS]);
+    #endif    
     
     float negative_z_offset = 0;
     #ifdef ENABLE_AUTO_BED_LEVELING
       if (Z_PROBE_OFFSET_FROM_EXTRUDER < 0) negative_z_offset += Z_PROBE_OFFSET_FROM_EXTRUDER;
       if (home_offset[Z_AXIS] < 0) negative_z_offset += home_offset[Z_AXIS];
     #endif
-    NOLESS(target[Z_AXIS], min_pos[Z_AXIS] + negative_z_offset);
+    #ifndef ENABLE_M211
+      NOLESS(target[Z_AXIS], min_pos[Z_AXIS] + negative_z_offset);
+    #else
+      if (enabled_software_endstops & 4) NOLESS(target[Z_AXIS], min_pos[Z_AXIS] + negative_z_offset);
+    #endif
   }
 
   if (max_software_endstops) {
-    NOMORE(target[X_AXIS], max_pos[X_AXIS]);
-    NOMORE(target[Y_AXIS], max_pos[Y_AXIS]);
-    NOMORE(target[Z_AXIS], max_pos[Z_AXIS]);
+    #ifndef ENABLE_M211
+      NOMORE(target[X_AXIS], max_pos[X_AXIS]);
+      NOMORE(target[Y_AXIS], max_pos[Y_AXIS]);
+      NOMORE(target[Z_AXIS], max_pos[Z_AXIS]);
+    #else
+      if (enabled_software_endstops & 16) NOMORE(target[X_AXIS], max_pos[X_AXIS]);
+      if (enabled_software_endstops & 32) NOMORE(target[Y_AXIS], max_pos[Y_AXIS]);
+      if (enabled_software_endstops & 64) NOMORE(target[Z_AXIS], max_pos[Z_AXIS]);
+    #endif
   }
 }
 

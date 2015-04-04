@@ -506,4 +506,10 @@
   #define HAS_BUZZER ((defined(BEEPER) && BEEPER >= 0) || defined(LCD_USE_I2C_BUZZER))
 
 #endif //CONFIGURATION_LCD
+
+// Force this when M211 command is enabled
+#ifdef ENABLE_M211
+  #define ENDSTOPS_ONLY_FOR_HOMING
+#endif
+
 #endif //CONDITIONALS_H

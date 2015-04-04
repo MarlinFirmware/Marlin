@@ -288,6 +288,9 @@ extern float home_offset[3];
 extern float min_pos[3];
 extern float max_pos[3];
 extern bool axis_known_position[3];
+#ifdef ENABLE_M211
+  extern uint8_t enabled_software_endstops;
+#endif
 
 #ifdef ENABLE_AUTO_BED_LEVELING
   extern float zprobe_zoffset;

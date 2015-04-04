@@ -313,7 +313,15 @@
   #endif
 
   /**
+   * Check if ENDSTOPS_ONLY_FOR_HOMING is disabled when M211 command is enabled
+   */
+  #if (defined(ENABLE_M211)) && (!defined(ENDSTOPS_ONLY_FOR_HOMING))
+    #error ENDSTOPS_ONLY_FOR_HOMING must be enabled when M211 command is active.
+  #endif
+
+  /**
    * Warnings for old configurations
+   * Check if ENDSTOPS_ONLY_FOR_HOMING is disabled when M211 command is enabled
    */
   #ifdef X_HOME_RETRACT_MM
     #error [XYZ]_HOME_RETRACT_MM settings have been renamed [XYZ]_HOME_BUMP_MM.
