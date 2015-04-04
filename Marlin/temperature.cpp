@@ -646,7 +646,7 @@ void manage_heater() {
   #if TEMP_SENSOR_BED != 0
   
     #if HAS_BED_THERMAL_PROTECTION
-      thermal_runaway_protection(&thermal_runaway_bed_state_machine, &thermal_runaway_bed_timer, current_temperature_bed, target_temperature_bed, 9, THERMAL_RUNAWAY_PROTECTION_BED_PERIOD, THERMAL_RUNAWAY_PROTECTION_BED_HYSTERESIS);
+      thermal_runaway_protection(&thermal_runaway_bed_state_machine, &thermal_runaway_bed_timer, current_temperature_bed, target_temperature_bed, -1, THERMAL_RUNAWAY_PROTECTION_BED_PERIOD, THERMAL_RUNAWAY_PROTECTION_BED_HYSTERESIS);
     #endif
 
     #ifdef PIDTEMPBED
@@ -1007,21 +1007,21 @@ void setWatch() {
 
   void thermal_runaway_protection(TRState *state, unsigned long *timer, float temperature, float target_temperature, int heater_id, int period_seconds, int hysteresis_degc) {
 
-    static int tr_target_temperature = 0;
+    static int tr_target_temperature[EXTRUDERS+1];
 
     /*
         SERIAL_ECHO_START;
-        SERIAL_ECHO("Thermal Thermal Runaway Running. Heater ID:");
-        SERIAL_ECHO(heater_id);
-        SERIAL_ECHO(" ;  State:");
-        SERIAL_ECHO(*state);
-        SERIAL_ECHO(" ;  Timer:");
-        SERIAL_ECHO(*timer);
-        SERIAL_ECHO(" ;  Temperature:");
-        SERIAL_ECHO(temperature);
-        SERIAL_ECHO(" ;  Target Temp:");
-        SERIAL_ECHO(target_temperature);
-        SERIAL_ECHOLN("");    
+        SERIAL_ECHOPGM("Thermal Thermal Runaway Running. Heater ID: ");
+        if (heater_id < 0) SERIAL_ECHOPGM("bed"); else SERIAL_ECHOPGM(heater_id);
+        SERIAL_ECHOPGM(" ;  State:");
+        SERIAL_ECHOPGM(*state);
+        SERIAL_ECHOPGM(" ;  Timer:");
+        SERIAL_ECHOPGM(*timer);
+        SERIAL_ECHOPGM(" ;  Temperature:");
+        SERIAL_ECHOPGM(temperature);
+        SERIAL_ECHOPGM(" ;  Target Temp:");
+        SERIAL_ECHOPGM(target_temperature);
+        SERIAL_EOL;
     */
     if (target_temperature == 0 || thermal_runaway) {
       *state = TRInactive;
@@ -1029,35 +1029,37 @@ void setWatch() {
       return;
     }
 
+    int heater_index = heater_id >= 0 ? heater_id : EXTRUDERS;
+
     switch (*state) {
       // Inactive state waits for a target temperature to be set
       case TRInactive:
         if (target_temperature > 0) {
           *state = TRFirstHeating;
-          tr_target_temperature = target_temperature;
+          tr_target_temperature[heater_index] = target_temperature;
         }
         break;
       // When first heating, wait for the temperature to be reached then go to Stable state
       case TRFirstHeating:
-        if (temperature >= tr_target_temperature) *state = TRStable;
+        if (temperature >= tr_target_temperature[heater_index]) *state = TRStable;
         break;
       // While the temperature is stable watch for a bad temperature
       case TRStable:
       {
         // If the target temperature changes, restart
-        if (tr_target_temperature != target_temperature) {
+        if (tr_target_temperature[heater_index] != target_temperature) {
           *state = TRInactive;
           break;
         }
 
         // If the temperature is over the target (-hysteresis) restart the timer
-        if (temperature >= tr_target_temperature - hysteresis_degc) *timer = millis();
+        if (temperature >= tr_target_temperature[heater_index] - hysteresis_degc) *timer = millis();
 
         // If the timer goes too long without a reset, trigger shutdown
         else if (millis() > *timer + period_seconds * 1000UL) {
           SERIAL_ERROR_START;
           SERIAL_ERRORLNPGM(MSG_THERMAL_RUNAWAY_STOP);
-          SERIAL_ERRORLN((int)heater_id);
+          if (heater_id < 0) SERIAL_ERRORLNPGM("bed"); else SERIAL_ERRORLN(heater_id);
           LCD_ALERTMESSAGEPGM(MSG_THERMAL_RUNAWAY);
           thermal_runaway = true;
           for (;;) {
