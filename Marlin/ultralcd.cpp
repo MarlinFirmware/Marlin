@@ -1789,7 +1789,7 @@ char *ftostr52(const float &x) {
   return conv;
 }
 
-#if defined(MANUAL_BED_LEVELING)
+#ifdef MANUAL_BED_LEVELING
 static int _lcd_level_bed_position;
 static void _lcd_level_bed()
 {
@@ -1849,8 +1849,7 @@ static void _lcd_level_bed_homing()
     lcd_goto_menu(_lcd_level_bed);
   }
 }
-static void lcd_level_bed()
-{
+static void lcd_level_bed() {
   axis_known_position[X_AXIS] = false;
   axis_known_position[Y_AXIS] = false;
   axis_known_position[Z_AXIS] = false;
