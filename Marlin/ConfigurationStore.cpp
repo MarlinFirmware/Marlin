@@ -78,7 +78,7 @@
 #include "ultralcd.h"
 #include "ConfigurationStore.h"
 
-#if defined(MESH_BED_LEVELING)
+#ifdef MESH_BED_LEVELING
    #include "mesh_bed_leveling.h"
 #endif  // MESH_BED_LEVELING
 
@@ -308,7 +308,7 @@ void Config_RetrieveSettings() {
 
     uint8_t mesh_num_x = 0;
     uint8_t mesh_num_y = 0;
-    #if defined(MESH_BED_LEVELING)
+    #ifdef MESH_BED_LEVELING
       EEPROM_READ_VAR(i, mbl.active);
       EEPROM_READ_VAR(i, mesh_num_x);
       EEPROM_READ_VAR(i, mesh_num_y);

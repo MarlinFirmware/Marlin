@@ -110,11 +110,10 @@ void process_commands();
 
 void manage_inactivity(bool ignore_stepper_queue=false);
 
-#if defined(DUAL_X_CARRIAGE) && defined(X_ENABLE_PIN) && X_ENABLE_PIN > -1 \
-    && defined(X2_ENABLE_PIN) && X2_ENABLE_PIN > -1
+#if defined(DUAL_X_CARRIAGE) && HAS_X_ENABLE && HAS_X2_ENABLE
   #define  enable_x() do { X_ENABLE_WRITE( X_ENABLE_ON); X2_ENABLE_WRITE( X_ENABLE_ON); } while (0)
   #define disable_x() do { X_ENABLE_WRITE(!X_ENABLE_ON); X2_ENABLE_WRITE(!X_ENABLE_ON); axis_known_position[X_AXIS] = false; } while (0)
-#elif defined(X_ENABLE_PIN) && X_ENABLE_PIN > -1
+#elif HAS_X_ENABLE
   #define  enable_x() X_ENABLE_WRITE( X_ENABLE_ON)
   #define disable_x() { X_ENABLE_WRITE(!X_ENABLE_ON); axis_known_position[X_AXIS] = false; }
 #else
@@ -122,7 +121,7 @@ void manage_inactivity(bool ignore_stepper_queue=false);
   #define disable_x() ;
 #endif
 
-#if defined(Y_ENABLE_PIN) && Y_ENABLE_PIN > -1
+#if HAS_Y_ENABLE
   #ifdef Y_DUAL_STEPPER_DRIVERS
     #define  enable_y() { Y_ENABLE_WRITE( Y_ENABLE_ON); Y2_ENABLE_WRITE(Y_ENABLE_ON); }
     #define disable_y() { Y_ENABLE_WRITE(!Y_ENABLE_ON); Y2_ENABLE_WRITE(!Y_ENABLE_ON); axis_known_position[Y_AXIS] = false; }
@@ -135,7 +134,7 @@ void manage_inactivity(bool ignore_stepper_queue=false);
   #define disable_y() ;
 #endif
 
-#if defined(Z_ENABLE_PIN) && Z_ENABLE_PIN > -1
+#if HAS_Z_ENABLE
   #ifdef Z_DUAL_STEPPER_DRIVERS
     #define  enable_z() { Z_ENABLE_WRITE( Z_ENABLE_ON); Z2_ENABLE_WRITE(Z_ENABLE_ON); }
     #define disable_z() { Z_ENABLE_WRITE(!Z_ENABLE_ON); Z2_ENABLE_WRITE(!Z_ENABLE_ON); axis_known_position[Z_AXIS] = false; }
@@ -148,7 +147,7 @@ void manage_inactivity(bool ignore_stepper_queue=false);
   #define disable_z() ;
 #endif
 
-#if defined(E0_ENABLE_PIN) && (E0_ENABLE_PIN > -1)
+#if HAS_E0_ENABLE
   #define enable_e0() E0_ENABLE_WRITE(E_ENABLE_ON)
   #define disable_e0() E0_ENABLE_WRITE(!E_ENABLE_ON)
 #else
@@ -156,7 +155,7 @@ void manage_inactivity(bool ignore_stepper_queue=false);
   #define disable_e0() /* nothing */
 #endif
 
-#if (EXTRUDERS > 1) && defined(E1_ENABLE_PIN) && (E1_ENABLE_PIN > -1)
+#if (EXTRUDERS > 1) && HAS_E1_ENABLE
   #define enable_e1() E1_ENABLE_WRITE(E_ENABLE_ON)
   #define disable_e1() E1_ENABLE_WRITE(!E_ENABLE_ON)
 #else
@@ -164,7 +163,7 @@ void manage_inactivity(bool ignore_stepper_queue=false);
   #define disable_e1() /* nothing */
 #endif
 
-#if (EXTRUDERS > 2) && defined(E2_ENABLE_PIN) && (E2_ENABLE_PIN > -1)
+#if (EXTRUDERS > 2) && HAS_E2_ENABLE
   #define enable_e2() E2_ENABLE_WRITE(E_ENABLE_ON)
   #define disable_e2() E2_ENABLE_WRITE(!E_ENABLE_ON)
 #else
@@ -172,7 +171,7 @@ void manage_inactivity(bool ignore_stepper_queue=false);
   #define disable_e2() /* nothing */
 #endif
 
-#if (EXTRUDERS > 3) && defined(E3_ENABLE_PIN) && (E3_ENABLE_PIN > -1)
+#if (EXTRUDERS > 3) && HAS_E3_ENABLE
   #define enable_e3() E3_ENABLE_WRITE(E_ENABLE_ON)
   #define disable_e3() E3_ENABLE_WRITE(!E_ENABLE_ON)
 #else
@@ -194,7 +193,6 @@ void get_coordinates();
     void adjust_delta(float cartesian[3]);
   #endif
   extern float delta[3];
-  void prepare_move_raw();
 #endif
 #ifdef SCARA
   void calculate_delta(float cartesian[3]);
