@@ -1023,11 +1023,11 @@ void setWatch() {
         SERIAL_EOL;
     */
 
+    int heater_index = heater_id >= 0 ? heater_id : EXTRUDERS;
+
     // If the target temperature changes, restart
     if (tr_target_temperature[heater_index] != target_temperature)
       *state = TRReset;
-
-    int heater_index = heater_id >= 0 ? heater_id : EXTRUDERS;
 
     switch (*state) {
       case TRReset:
