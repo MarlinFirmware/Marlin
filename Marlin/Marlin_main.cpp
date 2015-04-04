@@ -3059,9 +3059,9 @@ inline void gcode_M105() {
     SERIAL_PROTOCOLPGM("ok");
     #if HAS_TEMP_0
       SERIAL_PROTOCOLPGM(" T:");
-      SERIAL_PROTOCOL_F(degHotend(tmp_extruder), 1);
+      SERIAL_PROTOCOL_F(degHotend(target_extruder), 1);
       SERIAL_PROTOCOLPGM(" /");
-      SERIAL_PROTOCOL_F(degTargetHotend(tmp_extruder), 1);
+      SERIAL_PROTOCOL_F(degTargetHotend(target_extruder), 1);
     #endif
     #if HAS_TEMP_BED
       SERIAL_PROTOCOLPGM(" B:");
