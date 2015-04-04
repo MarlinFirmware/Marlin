@@ -243,7 +243,7 @@ static unsigned long max_inactive_time = 0;
 static unsigned long stepper_inactive_time = DEFAULT_STEPPER_DEACTIVE_TIME*1000l;
 unsigned long starttime = 0; ///< Print job start time
 unsigned long stoptime = 0;  ///< Print job stop time
-static uint8_t tmp_extruder;
+static uint8_t target_extruder;
 bool Stopped = false;
 bool CooldownNoWait = true;
 bool target_direction;
@@ -857,7 +857,9 @@ float code_value() {
   return ret;
 }
 
-long code_value_long() { return (strtol(strchr_pointer + 1, NULL, 10)); }
+long code_value_long() { return strtol(strchr_pointer + 1, NULL, 10); }
+
+int16_t code_value_short() { return (int16_t)strtol(strchr_pointer + 1, NULL, 10); }
 
 bool code_seen(char code) {
   strchr_pointer = strchr(cmdbuffer[bufindr], code);
@@ -1410,9 +1412,9 @@ inline void sync_plan_position() {
       for (int y = 0; y < AUTO_BED_LEVELING_GRID_POINTS; y++) {
         for (int x = 0; x < AUTO_BED_LEVELING_GRID_POINTS; x++) {
           SERIAL_PROTOCOL_F(bed_level[x][y], 2);
-          SERIAL_PROTOCOLPGM(" ");
+          SERIAL_PROTOCOLCHAR(' ');
         }
-        SERIAL_ECHOLN("");
+        SERIAL_EOL;
       }
     }
 
@@ -1685,7 +1687,7 @@ inline void gcode_G2_G3(bool clockwise) {
  * G4: Dwell S<seconds> or P<milliseconds>
  */
 inline void gcode_G4() {
-  unsigned long codenum=0;
+  unsigned long codenum = 0;
 
   LCD_MESSAGEPGM(MSG_DWELL);
 
@@ -1711,7 +1713,7 @@ inline void gcode_G4() {
   inline void gcode_G10_G11(bool doRetract=false) {
     #if EXTRUDERS > 1
       if (doRetract) {
-        retracted_swap[active_extruder] = (code_seen('S') && code_value_long() == 1); // checks for swap retract argument
+        retracted_swap[active_extruder] = (code_seen('S') && code_value_short() == 1); // checks for swap retract argument
       }
     #endif
     retract(doRetract
@@ -2029,7 +2031,7 @@ inline void gcode_G28() {
   inline void gcode_G29() {
 
     static int probe_point = -1;
-    MeshLevelingState state = code_seen('S') || code_seen('s') ? (MeshLevelingState)code_value_long() : MeshReport;
+    MeshLevelingState state = code_seen('S') || code_seen('s') ? (MeshLevelingState)code_value_short() : MeshReport;
     if (state < 0 || state > 2) {
       SERIAL_PROTOCOLLNPGM("S out of range (0-2).");
       return;
@@ -2040,7 +2042,7 @@ inline void gcode_G28() {
         if (mbl.active) {
           SERIAL_PROTOCOLPGM("Num X,Y: ");
           SERIAL_PROTOCOL(MESH_NUM_X_POINTS);
-          SERIAL_PROTOCOLPGM(",");
+          SERIAL_PROTOCOLCHAR(',');
           SERIAL_PROTOCOL(MESH_NUM_Y_POINTS);
           SERIAL_PROTOCOLPGM("\nZ search height: ");
           SERIAL_PROTOCOL(MESH_HOME_SEARCH_Z);
@@ -2156,7 +2158,7 @@ inline void gcode_G28() {
       return;
     }
 
-    int verbose_level = code_seen('V') || code_seen('v') ? code_value_long() : 1;
+    int verbose_level = code_seen('V') || code_seen('v') ? code_value_short() : 1;
     if (verbose_level < 0 || verbose_level > 4) {
       SERIAL_ECHOLNPGM("?(V)erbose Level is implausible (0-4).");
       return;
@@ -2178,19 +2180,19 @@ inline void gcode_G28() {
 
       int auto_bed_leveling_grid_points = AUTO_BED_LEVELING_GRID_POINTS;
       #ifndef DELTA
-        if (code_seen('P')) auto_bed_leveling_grid_points = code_value_long();
+        if (code_seen('P')) auto_bed_leveling_grid_points = code_value_short();
         if (auto_bed_leveling_grid_points < 2) {
           SERIAL_PROTOCOLPGM("?Number of probed (P)oints is implausible (2 minimum).\n");
           return;
         }
       #endif
 
-      xy_travel_speed = code_seen('S') ? code_value_long() : XY_TRAVEL_SPEED;
+      xy_travel_speed = code_seen('S') ? code_value_short() : XY_TRAVEL_SPEED;
 
-      int left_probe_bed_position = code_seen('L') ? code_value_long() : LEFT_PROBE_BED_POSITION,
-          right_probe_bed_position = code_seen('R') ? code_value_long() : RIGHT_PROBE_BED_POSITION,
-          front_probe_bed_position = code_seen('F') ? code_value_long() : FRONT_PROBE_BED_POSITION,
-          back_probe_bed_position = code_seen('B') ? code_value_long() : BACK_PROBE_BED_POSITION;
+      int left_probe_bed_position = code_seen('L') ? code_value_short() : LEFT_PROBE_BED_POSITION,
+          right_probe_bed_position = code_seen('R') ? code_value_short() : RIGHT_PROBE_BED_POSITION,
+          front_probe_bed_position = code_seen('F') ? code_value_short() : FRONT_PROBE_BED_POSITION,
+          back_probe_bed_position = code_seen('B') ? code_value_short() : BACK_PROBE_BED_POSITION;
 
       bool left_out_l = left_probe_bed_position < MIN_PROBE_X,
            left_out = left_out_l || left_probe_bed_position > right_probe_bed_position - MIN_PROBE_EDGE,
@@ -2394,7 +2396,7 @@ inline void gcode_G28() {
               if (diff >= 0.0)
                 SERIAL_PROTOCOLPGM(" +");   // Include + for column alignment
               else
-                SERIAL_PROTOCOLPGM(" ");
+                SERIAL_PROTOCOLCHAR(' ');
               SERIAL_PROTOCOL_F(diff, 5);
             } // xx
             SERIAL_EOL;
@@ -2518,11 +2520,11 @@ inline void gcode_G92() {
     unsigned long codenum = 0;
     bool hasP = false, hasS = false;
     if (code_seen('P')) {
-      codenum = code_value(); // milliseconds to wait
+      codenum = code_value_short(); // milliseconds to wait
       hasP = codenum > 0;
     }
     if (code_seen('S')) {
-      codenum = code_value() * 1000; // seconds to wait
+      codenum = code_value_short() * 1000UL; // seconds to wait
       hasS = codenum > 0;
     }
     char* starpos = strchr(src, '*');
@@ -2628,7 +2630,7 @@ inline void gcode_M17() {
    */
   inline void gcode_M26() {
     if (card.cardOK && code_seen('S'))
-      card.setIndex(code_value_long());
+      card.setIndex(code_value_short());
   }
 
   /**
@@ -2719,7 +2721,7 @@ inline void gcode_M31() {
       card.openFile(namestartpos, true, !call_procedure);
 
       if (code_seen('S') && strchr_pointer < namestartpos) // "S" (must occur _before_ the filename!)
-        card.setIndex(code_value_long());
+        card.setIndex(code_value_short());
 
       card.startFileprint();
       if (!call_procedure)
@@ -2747,11 +2749,11 @@ inline void gcode_M31() {
  */
 inline void gcode_M42() {
   if (code_seen('S')) {
-    int pin_status = code_value(),
+    int pin_status = code_value_short(),
         pin_number = LED_PIN;
 
     if (code_seen('P') && pin_status >= 0 && pin_status <= 255)
-      pin_number = code_value();
+      pin_number = code_value_short();
 
     for (int8_t i = 0; i < (int8_t)(sizeof(sensitive_pins) / sizeof(*sensitive_pins)); i++) {
       if (sensitive_pins[i] == pin_number) {
@@ -2810,7 +2812,7 @@ inline void gcode_M42() {
     int verbose_level = 1, n_samples = 10, n_legs = 0;
     
     if (code_seen('V') || code_seen('v')) {
-      verbose_level = code_value();
+      verbose_level = code_value_short();
       if (verbose_level < 0 || verbose_level > 4 ) {
         SERIAL_PROTOCOLPGM("?Verbose Level not plausible (0-4).\n");
         return;
@@ -2821,7 +2823,7 @@ inline void gcode_M42() {
       SERIAL_PROTOCOLPGM("M48 Z-Probe Repeatability test\n");
 
     if (code_seen('P') || code_seen('p') || code_seen('n')) { // `n` for legacy support only - please use `P`!
-      n_samples = code_value();
+      n_samples = code_value_short();
       if (n_samples < 4 || n_samples > 50) {
         SERIAL_PROTOCOLPGM("?Sample size not plausible (4-50).\n");
         return;
@@ -2854,7 +2856,7 @@ inline void gcode_M42() {
     }
 
     if (code_seen('L') || code_seen('l')) {
-      n_legs = code_value();
+      n_legs = code_value_short();
       if (n_legs == 1) n_legs = 2;
       if (n_legs < 0 || n_legs > 15) {
         SERIAL_PROTOCOLPGM("?Number of legs in movement not plausible (0-15).\n");
@@ -3036,12 +3038,15 @@ inline void gcode_M42() {
 inline void gcode_M104() {
   if (setTargetedHotend(104)) return;
 
-  if (code_seen('S')) setTargetHotend(code_value(), tmp_extruder);
-  #ifdef DUAL_X_CARRIAGE
-    if (dual_x_carriage_mode == DXC_DUPLICATION_MODE && tmp_extruder == 0)
-      setTargetHotend1(code_value() == 0.0 ? 0.0 : code_value() + duplicate_extruder_temp_offset);
-  #endif
-  setWatch();
+  if (code_seen('S')) {
+    float temp = code_value();
+    setTargetHotend(temp, target_extruder);
+    #ifdef DUAL_X_CARRIAGE
+      if (dual_x_carriage_mode == DXC_DUPLICATION_MODE && target_extruder == 0)
+        setTargetHotend1(temp == 0.0 ? 0.0 : temp + duplicate_extruder_temp_offset);
+    #endif
+    setWatch();
+  }
 }
 
 /**
@@ -3054,9 +3059,9 @@ inline void gcode_M105() {
     SERIAL_PROTOCOLPGM("ok");
     #if HAS_TEMP_0
       SERIAL_PROTOCOLPGM(" T:");
-      SERIAL_PROTOCOL_F(degHotend(tmp_extruder), 1);
+      SERIAL_PROTOCOL_F(degHotend(target_extruder), 1);
       SERIAL_PROTOCOLPGM(" /");
-      SERIAL_PROTOCOL_F(degTargetHotend(tmp_extruder), 1);
+      SERIAL_PROTOCOL_F(degTargetHotend(target_extruder), 1);
     #endif
     #if HAS_TEMP_BED
       SERIAL_PROTOCOLPGM(" B:");
@@ -3067,7 +3072,7 @@ inline void gcode_M105() {
     for (int8_t e = 0; e < EXTRUDERS; ++e) {
       SERIAL_PROTOCOLPGM(" T");
       SERIAL_PROTOCOL(e);
-      SERIAL_PROTOCOLPGM(":");
+      SERIAL_PROTOCOLCHAR(':');
       SERIAL_PROTOCOL_F(degHotend(e), 1);
       SERIAL_PROTOCOLPGM(" /");
       SERIAL_PROTOCOL_F(degTargetHotend(e), 1);
@@ -3079,16 +3084,16 @@ inline void gcode_M105() {
 
   SERIAL_PROTOCOLPGM(" @:");
   #ifdef EXTRUDER_WATTS
-    SERIAL_PROTOCOL((EXTRUDER_WATTS * getHeaterPower(tmp_extruder))/127);
-    SERIAL_PROTOCOLPGM("W");
+    SERIAL_PROTOCOL((EXTRUDER_WATTS * getHeaterPower(target_extruder))/127);
+    SERIAL_PROTOCOLCHAR('W');
   #else
-    SERIAL_PROTOCOL(getHeaterPower(tmp_extruder));
+    SERIAL_PROTOCOL(getHeaterPower(target_extruder));
   #endif
 
   SERIAL_PROTOCOLPGM(" B@:");
   #ifdef BED_WATTS
     SERIAL_PROTOCOL((BED_WATTS * getHeaterPower(-1))/127);
-    SERIAL_PROTOCOLPGM("W");
+    SERIAL_PROTOCOLCHAR('W');
   #else
     SERIAL_PROTOCOL(getHeaterPower(-1));
   #endif
@@ -3103,7 +3108,7 @@ inline void gcode_M105() {
     for (int8_t cur_extruder = 0; cur_extruder < EXTRUDERS; ++cur_extruder) {
       SERIAL_PROTOCOLPGM("  T");
       SERIAL_PROTOCOL(cur_extruder);
-      SERIAL_PROTOCOLPGM(":");
+      SERIAL_PROTOCOLCHAR(':');
       SERIAL_PROTOCOL_F(degHotend(cur_extruder),1);
       SERIAL_PROTOCOLPGM("C->");
       SERIAL_PROTOCOL_F(rawHotendTemp(cur_extruder)/OVERSAMPLENR,0);
@@ -3118,7 +3123,7 @@ inline void gcode_M105() {
   /**
    * M106: Set Fan Speed
    */
-  inline void gcode_M106() { fanSpeed = code_seen('S') ? constrain(code_value(), 0, 255) : 255; }
+  inline void gcode_M106() { fanSpeed = code_seen('S') ? constrain(code_value_short(), 0, 255) : 255; }
 
   /**
    * M107: Fan Off
@@ -3137,10 +3142,11 @@ inline void gcode_M109() {
 
   CooldownNoWait = code_seen('S');
   if (CooldownNoWait || code_seen('R')) {
-    setTargetHotend(code_value(), tmp_extruder);
+    float temp = code_value();
+    setTargetHotend(temp, target_extruder);
     #ifdef DUAL_X_CARRIAGE
-      if (dual_x_carriage_mode == DXC_DUPLICATION_MODE && tmp_extruder == 0)
-        setTargetHotend1(code_value() == 0.0 ? 0.0 : code_value() + duplicate_extruder_temp_offset);
+      if (dual_x_carriage_mode == DXC_DUPLICATION_MODE && target_extruder == 0)
+        setTargetHotend1(temp == 0.0 ? 0.0 : temp + duplicate_extruder_temp_offset);
     #endif
   }
 
@@ -3156,7 +3162,7 @@ inline void gcode_M109() {
   unsigned long timetemp = millis();
 
   /* See if we are heating up or cooling down */
-  target_direction = isHeatingHotend(tmp_extruder); // true if heating, false if cooling
+  target_direction = isHeatingHotend(target_extruder); // true if heating, false if cooling
 
   cancel_heatup = false;
 
@@ -3167,15 +3173,15 @@ inline void gcode_M109() {
     while((!cancel_heatup)&&((residencyStart == -1) ||
           (residencyStart >= 0 && (((unsigned int) (millis() - residencyStart)) < (TEMP_RESIDENCY_TIME * 1000UL)))) )
   #else
-    while ( target_direction ? (isHeatingHotend(tmp_extruder)) : (isCoolingHotend(tmp_extruder)&&(CooldownNoWait==false)) )
+    while ( target_direction ? (isHeatingHotend(target_extruder)) : (isCoolingHotend(target_extruder)&&(CooldownNoWait==false)) )
   #endif //TEMP_RESIDENCY_TIME
 
     { // while loop
       if (millis() > timetemp + 1000UL) { //Print temp & remaining time every 1s while waiting
         SERIAL_PROTOCOLPGM("T:");
-        SERIAL_PROTOCOL_F(degHotend(tmp_extruder),1);
+        SERIAL_PROTOCOL_F(degHotend(target_extruder),1);
         SERIAL_PROTOCOLPGM(" E:");
-        SERIAL_PROTOCOL((int)tmp_extruder);
+        SERIAL_PROTOCOL((int)target_extruder);
         #ifdef TEMP_RESIDENCY_TIME
           SERIAL_PROTOCOLPGM(" W:");
           if (residencyStart > -1) {
@@ -3196,9 +3202,9 @@ inline void gcode_M109() {
       #ifdef TEMP_RESIDENCY_TIME
         // start/restart the TEMP_RESIDENCY_TIME timer whenever we reach target temp for the first time
         // or when current temp falls outside the hysteresis after target temp was reached
-        if ((residencyStart == -1 &&  target_direction && (degHotend(tmp_extruder) >= (degTargetHotend(tmp_extruder)-TEMP_WINDOW))) ||
-            (residencyStart == -1 && !target_direction && (degHotend(tmp_extruder) <= (degTargetHotend(tmp_extruder)+TEMP_WINDOW))) ||
-            (residencyStart > -1 && labs(degHotend(tmp_extruder) - degTargetHotend(tmp_extruder)) > TEMP_HYSTERESIS) )
+        if ((residencyStart == -1 &&  target_direction && (degHotend(target_extruder) >= (degTargetHotend(target_extruder)-TEMP_WINDOW))) ||
+            (residencyStart == -1 && !target_direction && (degHotend(target_extruder) <= (degTargetHotend(target_extruder)+TEMP_WINDOW))) ||
+            (residencyStart > -1 && labs(degHotend(target_extruder) - degTargetHotend(target_extruder)) > TEMP_HYSTERESIS) )
         {
           residencyStart = millis();
         }
@@ -3535,9 +3541,9 @@ inline void gcode_M121() { enable_endstops(true); }
    */
   inline void gcode_M150() {
     SendColors(
-      code_seen('R') ? (byte)code_value() : 0,
-      code_seen('U') ? (byte)code_value() : 0,
-      code_seen('B') ? (byte)code_value() : 0
+      code_seen('R') ? (byte)code_value_short() : 0,
+      code_seen('U') ? (byte)code_value_short() : 0,
+      code_seen('B') ? (byte)code_value_short() : 0
     );
   }
 
@@ -3549,9 +3555,9 @@ inline void gcode_M121() { enable_endstops(true); }
  *       D<millimeters>
  */
 inline void gcode_M200() {
-  tmp_extruder = active_extruder;
+  int tmp_extruder = active_extruder;
   if (code_seen('T')) {
-    tmp_extruder = code_value();
+    tmp_extruder = code_value_short();
     if (tmp_extruder >= EXTRUDERS) {
       SERIAL_ECHO_START;
       SERIAL_ECHO(MSG_M200_INVALID_EXTRUDER);
@@ -3622,27 +3628,23 @@ inline void gcode_M203() {
  *  Also sets minimum segment time in ms (B20000) to prevent buffer under-runs and M20 minimum feedrate
  */
 inline void gcode_M204() {
-  if (code_seen('S'))   // Kept for legacy compatibility. Should NOT BE USED for new developments.
-  {
+  if (code_seen('S')) {  // Kept for legacy compatibility. Should NOT BE USED for new developments.
     acceleration = code_value();
     travel_acceleration = acceleration;
-    SERIAL_ECHOPAIR("Setting Printing and Travelling Acceleration: ", acceleration );
+    SERIAL_ECHOPAIR("Setting Print and Travel Acceleration: ", acceleration );
     SERIAL_EOL;
   }
-  if (code_seen('P'))
-  {
+  if (code_seen('P')) {
     acceleration = code_value();
-    SERIAL_ECHOPAIR("Setting Printing Acceleration: ", acceleration );
+    SERIAL_ECHOPAIR("Setting Print Acceleration: ", acceleration );
     SERIAL_EOL;
   }
-  if (code_seen('R'))
-  {
+  if (code_seen('R')) {
     retract_acceleration = code_value();
     SERIAL_ECHOPAIR("Setting Retract Acceleration: ", retract_acceleration );
     SERIAL_EOL;
   }
-  if (code_seen('T'))
-  {
+  if (code_seen('T')) {
     travel_acceleration = code_value();
     SERIAL_ECHOPAIR("Setting Travel Acceleration: ", travel_acceleration );
     SERIAL_EOL;
@@ -3745,7 +3747,7 @@ inline void gcode_M206() {
    */
   inline void gcode_M209() {
     if (code_seen('S')) {
-      int t = code_value();
+      int t = code_value_short();
       switch(t) {
         case 0:
           autoretract_enabled = false;
@@ -3774,23 +3776,23 @@ inline void gcode_M206() {
   inline void gcode_M218() {
     if (setTargetedHotend(218)) return;
 
-    if (code_seen('X')) extruder_offset[X_AXIS][tmp_extruder] = code_value();
-    if (code_seen('Y')) extruder_offset[Y_AXIS][tmp_extruder] = code_value();
+    if (code_seen('X')) extruder_offset[X_AXIS][target_extruder] = code_value();
+    if (code_seen('Y')) extruder_offset[Y_AXIS][target_extruder] = code_value();
 
     #ifdef DUAL_X_CARRIAGE
-      if (code_seen('Z')) extruder_offset[Z_AXIS][tmp_extruder] = code_value();
+      if (code_seen('Z')) extruder_offset[Z_AXIS][target_extruder] = code_value();
     #endif
 
     SERIAL_ECHO_START;
     SERIAL_ECHOPGM(MSG_HOTEND_OFFSET);
-    for (tmp_extruder = 0; tmp_extruder < EXTRUDERS; tmp_extruder++) {
-      SERIAL_ECHO(" ");
-      SERIAL_ECHO(extruder_offset[X_AXIS][tmp_extruder]);
-      SERIAL_ECHO(",");
-      SERIAL_ECHO(extruder_offset[Y_AXIS][tmp_extruder]);
+    for (int e = 0; e < EXTRUDERS; e++) {
+      SERIAL_CHAR(' ');
+      SERIAL_ECHO(extruder_offset[X_AXIS][e]);
+      SERIAL_CHAR(',');
+      SERIAL_ECHO(extruder_offset[Y_AXIS][e]);
       #ifdef DUAL_X_CARRIAGE
-        SERIAL_ECHO(",");
-        SERIAL_ECHO(extruder_offset[Z_AXIS][tmp_extruder]);
+        SERIAL_CHAR(',');
+        SERIAL_ECHO(extruder_offset[Z_AXIS][e]);
       #endif
     }
     SERIAL_EOL;
@@ -3813,7 +3815,7 @@ inline void gcode_M221() {
     int sval = code_value();
     if (code_seen('T')) {
       if (setTargetedHotend(221)) return;
-      extruder_multiply[tmp_extruder] = sval;
+      extruder_multiply[target_extruder] = sval;
     }
     else {
       extruder_multiply[active_extruder] = sval;
@@ -4044,7 +4046,7 @@ inline void gcode_M226() {
    * M250: Read and optionally set the LCD contrast
    */
   inline void gcode_M250() {
-    if (code_seen('C')) lcd_setcontrast(code_value_long() & 0x3F);
+    if (code_seen('C')) lcd_setcontrast(code_value_short() & 0x3F);
     SERIAL_PROTOCOLPGM("lcd contrast value: ");
     SERIAL_PROTOCOL(lcd_contrast);
     SERIAL_EOL;
@@ -4070,8 +4072,8 @@ inline void gcode_M226() {
  *       C<cycles>
  */
 inline void gcode_M303() {
-  int e = code_seen('E') ? code_value_long() : 0;
-  int c = code_seen('C') ? code_value_long() : 5;
+  int e = code_seen('E') ? code_value_short() : 0;
+  int c = code_seen('C') ? code_value_short() : 5;
   float temp = code_seen('S') ? code_value() : (e < 0 ? 70.0 : 150.0);
   PID_autotune(temp, e, c);
 }
@@ -4480,13 +4482,13 @@ inline void gcode_M503() {
         if (code_seen('R')) duplicate_extruder_temp_offset = code_value();
         SERIAL_ECHO_START;
         SERIAL_ECHOPGM(MSG_HOTEND_OFFSET);
-        SERIAL_ECHO(" ");
+        SERIAL_CHAR(' ');
         SERIAL_ECHO(extruder_offset[X_AXIS][0]);
-        SERIAL_ECHO(",");
+        SERIAL_CHAR(',');
         SERIAL_ECHO(extruder_offset[Y_AXIS][0]);
-        SERIAL_ECHO(" ");
+        SERIAL_CHAR(' ');
         SERIAL_ECHO(duplicate_extruder_x_offset);
-        SERIAL_ECHO(",");
+        SERIAL_CHAR(',');
         SERIAL_ECHOLN(extruder_offset[Y_AXIS][1]);
         break;
       case DXC_FULL_CONTROL_MODE:
@@ -4559,7 +4561,7 @@ inline void gcode_M907() {
    *       S# determines MS1 or MS2, X# sets the pin high/low.
    */
   inline void gcode_M351() {
-    if (code_seen('S')) switch(code_value_long()) {
+    if (code_seen('S')) switch(code_value_short()) {
       case 1:
         for(int i=0;i<NUM_AXIS;i++) if (code_seen(axis_codes[i])) microstep_ms(i, code_value(), -1);
         if (code_seen('B')) microstep_ms(4, code_value(), -1);
@@ -4585,21 +4587,26 @@ inline void gcode_M999() {
 }
 
 inline void gcode_T() {
-  tmp_extruder = code_value();
+  int tmp_extruder = code_value();
   if (tmp_extruder >= EXTRUDERS) {
     SERIAL_ECHO_START;
-    SERIAL_ECHO("T");
+    SERIAL_CHAR('T');
     SERIAL_ECHO(tmp_extruder);
     SERIAL_ECHOLN(MSG_INVALID_EXTRUDER);
   }
   else {
+    target_extruder = tmp_extruder;
+
     #if EXTRUDERS > 1
       bool make_move = false;
     #endif
+
     if (code_seen('F')) {
+
       #if EXTRUDERS > 1
         make_move = true;
       #endif
+
       next_feedrate = code_value();
       if (next_feedrate > 0.0) feedrate = next_feedrate;
     }
@@ -4689,7 +4696,7 @@ inline void gcode_T() {
 void process_commands() {
   if (code_seen('G')) {
 
-    int gCode = code_value_long();
+    int gCode = code_value_short();
 
     switch(gCode) {
 
@@ -4764,7 +4771,7 @@ void process_commands() {
   }
 
   else if (code_seen('M')) {
-    switch( code_value_long() ) {
+    switch(code_value_short()) {
       #ifdef ULTIPANEL
         case 0: // M0 - Unconditional stop - Wait for user button press on LCD
         case 1: // M1 - Conditional stop - Wait for user button press on LCD
@@ -5929,10 +5936,10 @@ void setPwmFrequency(uint8_t pin, int val)
 #endif //FAST_PWM_FAN
 
 bool setTargetedHotend(int code){
-  tmp_extruder = active_extruder;
-  if(code_seen('T')) {
-    tmp_extruder = code_value();
-    if(tmp_extruder >= EXTRUDERS) {
+  target_extruder = active_extruder;
+  if (code_seen('T')) {
+    target_extruder = code_value_short();
+    if (target_extruder >= EXTRUDERS) {
       SERIAL_ECHO_START;
       switch(code){
         case 104:
@@ -5951,7 +5958,7 @@ bool setTargetedHotend(int code){
           SERIAL_ECHO(MSG_M221_INVALID_EXTRUDER);
           break;
       }
-      SERIAL_ECHOLN(tmp_extruder);
+      SERIAL_ECHOLN(target_extruder);
       return true;
     }
   }
