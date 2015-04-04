@@ -18,8 +18,8 @@
 ## Quick Information
 
 This is a firmware for reprap single-processor electronics setups.
-It also works on the Ultimaker PCB. It supports printing from SD card+Folders, and look-ahead trajectory planning.
-This firmware is a mashup between [Sprinter](https://github.com/kliment/Sprinter), [grbl](https://github.com/simen/grbl) and many original parts.
+It also works on the Ultimaker PCB. It supports printing from SD card+Folders and look-ahead trajectory planning.
+This firmware is a mashup between [Sprinter](https://github.com/kliment/Sprinter), [grbl](https://github.com/simen/grbl), and many original parts.
 
 ## Current Status: Bug Fixing
 
@@ -31,7 +31,7 @@ We are actively looking for testers. So please try the current development versi
 
 ## Contact
 
-__IRC:__ #marlin-firmware @freenode ([WebChat Client](https://webchat.freenode.net/?channels=marlin-firmware)
+__IRC:__ #marlin-firmware @freenode ([WebChat Client](https://webchat.freenode.net/?channels=marlin-firmware))
 
 ## Credits
 
@@ -41,8 +41,8 @@ The current Marlin dev team consists of:
  - [@daid](https://github.com/daid)
 
 Sprinters lead developers are Kliment and caru.
-Grbls lead developer is Simen Svale Skogsrud.
-Sonney Jeon (Chamnit) improved some parts of grbl
+Grbl's lead developer is Simen Svale Skogsrud.
+Sonney Jeon (Chamnit) improved some parts of grbl.
 A fork by bkubicek for the Ultimaker was merged.
 
 More features have been added by:
