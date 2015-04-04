@@ -37,8 +37,8 @@ __Google Hangout:__ <a href="https://plus.google.com/hangouts/_/g2wp5duzb2y6ahik
 
 The current Marlin dev team consists of:
 
- - Erik van der Zalm ([@ErikZalm](https://github.com/ErikZalm))
- - [@daid](https://github.com/daid)
+ - Scott Lahteine ([@thinkyhead])
+ - 
 
 Sprinters lead developers are Kliment and caru.
 Grbl's lead developer is Simen Svale Skogsrud.
