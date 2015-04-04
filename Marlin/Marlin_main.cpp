@@ -2776,13 +2776,13 @@ inline void gcode_M42() {
 
 #if defined(ENABLE_AUTO_BED_LEVELING) && defined(Z_PROBE_REPEATABILITY_TEST)
 
-  // This is redudant since the SanityCheck.h already checks for a valid Z_PROBE_PIN, but here for clarity.
+  // This is redundant since the SanityCheck.h already checks for a valid Z_PROBE_PIN, but here for clarity.
   #ifdef Z_PROBE_ENDSTOP
     #if !HAS_Z_PROBE
-      #error "You must have a Z_PROBE_PIN defined in order to enable calculation of Z-Probe repeatability."
+      #error You must define Z_PROBE_PIN to enable Z-Probe repeatability calculation.
     #endif
   #elif !HAS_Z_MIN
-    #error "You must have a Z_MIN_PIN defined in order to enable calculation of Z-Probe repeatability."
+    #error You must define Z_MIN_PIN to enable Z-Probe repeatability calculation.
   #endif
 
   /**
