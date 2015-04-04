@@ -1225,9 +1225,14 @@ inline void sync_plan_position() {
       prepare_move_raw();
       
       st_synchronize();
-      
+
+    #if defined(Z_PROBE_ENDSTOP)
+      bool z_probe_endstop = (READ(Z_PROBE_PIN) != Z_PROBE_ENDSTOP_INVERTING);
+      if (z_probe_endstop) {
+    #else
       bool z_min_endstop = (READ(Z_MIN_PIN) != Z_MIN_ENDSTOP_INVERTING);
       if (z_min_endstop) {
+    #endif
         if (!Stopped) {
           SERIAL_ERROR_START;
           SERIAL_ERRORLNPGM("Z-Probe failed to engage!");
@@ -1294,9 +1299,14 @@ inline void sync_plan_position() {
       prepare_move_raw();
       
       st_synchronize();
-      
+
+    #if defined(Z_PROBE_ENDSTOP)
+      bool z_probe_endstop = (READ(Z_PROBE_PIN) != Z_PROBE_ENDSTOP_INVERTING);
+      if (!z_probe_endstop) {
+    #else
       bool z_min_endstop = (READ(Z_MIN_PIN) != Z_MIN_ENDSTOP_INVERTING);
       if (!z_min_endstop) {
+    #endif
         if (!Stopped) {
           SERIAL_ERROR_START;
           SERIAL_ERRORLNPGM("Z-Probe failed to retract!");
@@ -2765,11 +2775,17 @@ inline void gcode_M42() {
   } // code_seen('S')
 }
 
-
 #if defined(ENABLE_AUTO_BED_LEVELING) && defined(Z_PROBE_REPEATABILITY_TEST)
 
-  #if Z_MIN_PIN == -1
-    #error "You must have a Z_MIN endstop in order to enable calculation of Z-Probe repeatability."
+  // This is redudant since the SanityCheck.h already checks for a valid Z_PROBE_PIN, but here for clarity.
+  #if defined (Z_PROBE_ENDSTOP)
+    #if (! defined (Z_PROBE_PIN) || Z_PROBE_PIN == -1)
+      #error "You must have a Z_PROBE_PIN defined in order to enable calculation of Z-Probe repeatability."
+    #endif
+  #else
+    #if (Z_MIN_PIN == -1)
+      #error "You must have a Z_MIN_PIN defined in order to enable calculation of Z-Probe repeatability."
+    #endif
   #endif
 
   /**
@@ -3499,7 +3515,10 @@ inline void gcode_M119() {
     SERIAL_PROTOCOLPGM(MSG_Z2_MAX);
     SERIAL_PROTOCOLLN(((READ(Z2_MAX_PIN)^Z2_MAX_ENDSTOP_INVERTING)?MSG_ENDSTOP_HIT:MSG_ENDSTOP_OPEN));
   #endif
-  
+  #if defined(Z_PROBE_PIN) && Z_PROBE_PIN > -1
+    SERIAL_PROTOCOLPGM(MSG_Z_PROBE);
+    SERIAL_PROTOCOLLN(((READ(Z_PROBE_PIN)^Z_PROBE_ENDSTOP_INVERTING)?MSG_ENDSTOP_HIT:MSG_ENDSTOP_OPEN));
+  #endif
 }
 
 /**

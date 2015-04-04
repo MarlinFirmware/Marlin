@@ -37,6 +37,7 @@
 #define BOARD_BRAINWAVE         82   // Brainwave (AT90USB646)
 #define BOARD_SAV_MKI           83   // SAV Mk-I (AT90USB1286)
 #define BOARD_TEENSY2           84   // Teensy++2.0 (AT90USB1286) - CLI compile: DEFINES=AT90USBxx_TEENSYPP_ASSIGNMENTS HARDWARE_MOTHERBOARD=84  make
+#define BOARD_BRAINWAVE_PRO     85   // Brainwave Pro (AT90USB1286)
 #define BOARD_GEN3_PLUS         9    // Gen3+
 #define BOARD_GEN3_MONOLITHIC   22   // Gen3 Monolithic Electronics
 #define BOARD_MEGATRONICS       70   // Megatronics
