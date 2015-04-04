@@ -2569,13 +2569,7 @@ inline void gcode_G92() {
  */
 inline void gcode_M17() {
   LCD_MESSAGEPGM(MSG_NO_MOVE);
-  enable_x();
-  enable_y();
-  enable_z();
-  enable_e0();
-  enable_e1();
-  enable_e2();
-  enable_e3();
+  enable_all_steppers();
 }
 
 #ifdef SDSUPPORT
@@ -5695,7 +5689,17 @@ void handle_status_leds(void) {
 }
 #endif
 
-void disable_all_axes() {
+void enable_all_steppers() {
+  enable_x();
+  enable_y();
+  enable_z();
+  enable_e0();
+  enable_e1();
+  enable_e2();
+  enable_e3();
+}
+
+void disable_all_steppers() {
   disable_x();
   disable_y();
   disable_z();
@@ -5723,7 +5727,7 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
 
   if (stepper_inactive_time && ms > previous_millis_cmd + stepper_inactive_time
       && !ignore_stepper_queue && !blocks_queued())
-    disable_all_axes();
+    disable_all_steppers();
 
   #ifdef CHDK //Check if pin should be set to LOW after M240 set it to HIGH
     if (chdkActive && ms > chdkHigh + CHDK_DELAY) {
@@ -5811,7 +5815,7 @@ void kill()
   cli(); // Stop interrupts
   disable_heater();
 
-  disable_all_axes();
+  disable_all_steppers();
 
   #if HAS_POWER_SWITCH
     pinMode(PS_ON_PIN, INPUT);

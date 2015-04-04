@@ -1127,13 +1127,7 @@ long st_get_position(uint8_t axis) {
 
 void finishAndDisableSteppers() {
   st_synchronize();
-  disable_x();
-  disable_y();
-  disable_z();
-  disable_e0();
-  disable_e1();
-  disable_e2();
-  disable_e3();
+  disable_all_steppers();
 }
 
 void quickStop() {
