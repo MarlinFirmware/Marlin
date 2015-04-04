@@ -1827,7 +1827,7 @@ inline void gcode_G28() {
       // Raise Z before homing any other axes
       if (home_all_axis || homeZ) {
         destination[Z_AXIS] = -Z_RAISE_BEFORE_HOMING * home_dir(Z_AXIS);    // Set destination away from bed
-        feedrate = max_feedrate[Z_AXIS];
+        feedrate = max_feedrate[Z_AXIS] * 60;
         line_to_destination();
         st_synchronize();
       }
@@ -1960,7 +1960,7 @@ inline void gcode_G28() {
               current_position[Z_AXIS] = 0;
               plan_set_position(cpx, cpy, 0, current_position[E_AXIS]);
               destination[Z_AXIS] = -Z_RAISE_BEFORE_HOMING * home_dir(Z_AXIS);    // Set destination away from bed
-              feedrate = max_feedrate[Z_AXIS];
+              feedrate = max_feedrate[Z_AXIS] * 60;  // max_feedrate is in mm/s. line_to_destination is feedrate/60.
               line_to_destination();
               st_synchronize();
               HOMEAXIS(Z);
