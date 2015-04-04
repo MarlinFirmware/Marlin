@@ -76,15 +76,14 @@ unsigned char soft_pwm_bed;
 #define HAS_HEATER_THERMAL_PROTECTION (defined(THERMAL_RUNAWAY_PROTECTION_PERIOD) && THERMAL_RUNAWAY_PROTECTION_PERIOD > 0)
 #define HAS_BED_THERMAL_PROTECTION (defined(THERMAL_RUNAWAY_PROTECTION_BED_PERIOD) && THERMAL_RUNAWAY_PROTECTION_BED_PERIOD > 0 && TEMP_SENSOR_BED != 0)
 #if HAS_HEATER_THERMAL_PROTECTION || HAS_BED_THERMAL_PROTECTION
-  enum TRState { TRInactive, TRFirstHeating, TRStable };
-  static bool thermal_runaway = false;
+  enum TRState { TRReset, TRInactive, TRFirstHeating, TRStable, TRRunaway };
   void thermal_runaway_protection(TRState *state, unsigned long *timer, float temperature, float target_temperature, int heater_id, int period_seconds, int hysteresis_degc);
   #if HAS_HEATER_THERMAL_PROTECTION
-    static TRState thermal_runaway_state_machine[4] = { TRInactive, TRInactive, TRInactive, TRInactive };
+    static TRState thermal_runaway_state_machine[4] = { TRReset, TRReset, TRReset, TRReset };
     static unsigned long thermal_runaway_timer[4]; // = {0,0,0,0};
   #endif
   #if HAS_BED_THERMAL_PROTECTION
-    static TRState thermal_runaway_bed_state_machine = TRInactive;
+    static TRState thermal_runaway_bed_state_machine = TRReset;
     static unsigned long thermal_runaway_bed_timer;
   #endif
 #endif
@@ -1007,7 +1006,7 @@ void setWatch() {
 
   void thermal_runaway_protection(TRState *state, unsigned long *timer, float temperature, float target_temperature, int heater_id, int period_seconds, int hysteresis_degc) {
 
-    static int tr_target_temperature[EXTRUDERS+1];
+    static float tr_target_temperature[EXTRUDERS+1] = { 0.0 };
 
     /*
         SERIAL_ECHO_START;
@@ -1023,20 +1022,23 @@ void setWatch() {
         SERIAL_ECHOPGM(target_temperature);
         SERIAL_EOL;
     */
-    if (target_temperature == 0 || thermal_runaway) {
-      *state = TRInactive;
-      *timer = 0;
-      return;
-    }
 
     int heater_index = heater_id >= 0 ? heater_id : EXTRUDERS;
 
+    // If the target temperature changes, restart
+    if (tr_target_temperature[heater_index] != target_temperature)
+      *state = TRReset;
+
     switch (*state) {
+      case TRReset:
+        *timer = 0;
+        *state = TRInactive;
+        break;
       // Inactive state waits for a target temperature to be set
       case TRInactive:
         if (target_temperature > 0) {
-          *state = TRFirstHeating;
           tr_target_temperature[heater_index] = target_temperature;
+          *state = TRFirstHeating;
         }
         break;
       // When first heating, wait for the temperature to be reached then go to Stable state
@@ -1045,31 +1047,24 @@ void setWatch() {
         break;
       // While the temperature is stable watch for a bad temperature
       case TRStable:
-      {
-        // If the target temperature changes, restart
-        if (tr_target_temperature[heater_index] != target_temperature) {
-          *state = TRInactive;
-          break;
-        }
-
         // If the temperature is over the target (-hysteresis) restart the timer
-        if (temperature >= tr_target_temperature[heater_index] - hysteresis_degc) *timer = millis();
-
-        // If the timer goes too long without a reset, trigger shutdown
-        else if (millis() > *timer + period_seconds * 1000UL) {
-          SERIAL_ERROR_START;
-          SERIAL_ERRORLNPGM(MSG_THERMAL_RUNAWAY_STOP);
-          if (heater_id < 0) SERIAL_ERRORLNPGM("bed"); else SERIAL_ERRORLN(heater_id);
-          LCD_ALERTMESSAGEPGM(MSG_THERMAL_RUNAWAY);
-          thermal_runaway = true;
-          for (;;) {
-            disable_heater();
-            disable_all_steppers();
-            manage_heater();
-            lcd_update();
-          }
+        if (temperature >= tr_target_temperature[heater_index] - hysteresis_degc)
+          *timer = millis();
+          // If the timer goes too long without a reset, trigger shutdown
+        else if (millis() > *timer + period_seconds * 1000UL)
+          *state = TRRunaway;
+        break;
+      case TRRunaway:
+        SERIAL_ERROR_START;
+        SERIAL_ERRORLNPGM(MSG_THERMAL_RUNAWAY_STOP);
+        if (heater_id < 0) SERIAL_ERRORLNPGM("bed"); else SERIAL_ERRORLN(heater_id);
+        LCD_ALERTMESSAGEPGM(MSG_THERMAL_RUNAWAY);
+        disable_heater();
+        disable_all_steppers();
+        for (;;) {
+          manage_heater();
+          lcd_update();
         }
-      } break;
     }
   }
 
