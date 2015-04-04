@@ -110,6 +110,7 @@
 //        Call gcode file : "M32 P !filename#" and return to caller file after finishing (similar to #include).
 //        The '#' is necessary when calling from within sd files, as it stops buffer prereading
 // M42  - Change pin status via gcode Use M42 Px Sy to set pin x to value y, when omitting Px the onboard led will be used.
+// M48  - Measure Z_Probe repeatability. M48 [n # of points] [X position] [Y position] [V_erboseness #] [E_ngage Probe] [L # of legs of travel]
 // M80  - Turn on Power Supply
 // M81  - Turn off Power Supply
 // M82  - Set E codes absolute (default)
@@ -2569,13 +2570,7 @@ inline void gcode_G92() {
  */
 inline void gcode_M17() {
   LCD_MESSAGEPGM(MSG_NO_MOVE);
-  enable_x();
-  enable_y();
-  enable_z();
-  enable_e0();
-  enable_e1();
-  enable_e2();
-  enable_e3();
+  enable_all_steppers();
 }
 
 #ifdef SDSUPPORT
@@ -3055,26 +3050,29 @@ inline void gcode_M104() {
 inline void gcode_M105() {
   if (setTargetedHotend(105)) return;
 
-  #if HAS_TEMP_0
-    SERIAL_PROTOCOLPGM("ok T:");
-    SERIAL_PROTOCOL_F(degHotend(tmp_extruder),1);
-    SERIAL_PROTOCOLPGM(" /");
-    SERIAL_PROTOCOL_F(degTargetHotend(tmp_extruder),1);
+  #if HAS_TEMP_0 || HAS_TEMP_BED
+    SERIAL_PROTOCOLPGM("ok");
+    #if HAS_TEMP_0
+      SERIAL_PROTOCOLPGM(" T:");
+      SERIAL_PROTOCOL_F(degHotend(tmp_extruder), 1);
+      SERIAL_PROTOCOLPGM(" /");
+      SERIAL_PROTOCOL_F(degTargetHotend(tmp_extruder), 1);
+    #endif
     #if HAS_TEMP_BED
       SERIAL_PROTOCOLPGM(" B:");
-      SERIAL_PROTOCOL_F(degBed(),1);
+      SERIAL_PROTOCOL_F(degBed(), 1);
       SERIAL_PROTOCOLPGM(" /");
-      SERIAL_PROTOCOL_F(degTargetBed(),1);
-    #endif // HAS_TEMP_BED
-    for (int8_t cur_extruder = 0; cur_extruder < EXTRUDERS; ++cur_extruder) {
+      SERIAL_PROTOCOL_F(degTargetBed(), 1);
+    #endif
+    for (int8_t e = 0; e < EXTRUDERS; ++e) {
       SERIAL_PROTOCOLPGM(" T");
-      SERIAL_PROTOCOL(cur_extruder);
+      SERIAL_PROTOCOL(e);
       SERIAL_PROTOCOLPGM(":");
-      SERIAL_PROTOCOL_F(degHotend(cur_extruder),1);
+      SERIAL_PROTOCOL_F(degHotend(e), 1);
       SERIAL_PROTOCOLPGM(" /");
-      SERIAL_PROTOCOL_F(degTargetHotend(cur_extruder),1);
+      SERIAL_PROTOCOL_F(degTargetHotend(e), 1);
     }
-  #else // !HAS_TEMP_0
+  #else // !HAS_TEMP_0 && !HAS_TEMP_BED
     SERIAL_ERROR_START;
     SERIAL_ERRORLNPGM(MSG_ERR_NO_THERMISTORS);
   #endif
@@ -3112,7 +3110,7 @@ inline void gcode_M105() {
     }
   #endif
 
-  SERIAL_PROTOCOLLN("");
+  SERIAL_EOL;
 }
 
 #if HAS_FAN
@@ -3127,7 +3125,7 @@ inline void gcode_M105() {
    */
   inline void gcode_M107() { fanSpeed = 0; }
 
-#endif //FAN_PIN
+#endif // HAS_FAN
 
 /**
  * M109: Wait for extruder(s) to reach temperature
@@ -3185,10 +3183,10 @@ inline void gcode_M109() {
             SERIAL_PROTOCOLLN( timetemp );
           }
           else {
-            SERIAL_PROTOCOLLN( "?" );
+            SERIAL_PROTOCOLLNPGM("?");
           }
         #else
-          SERIAL_PROTOCOLLN("");
+          SERIAL_EOL;
         #endif
         timetemp = millis();
       }
@@ -3240,7 +3238,7 @@ inline void gcode_M109() {
         SERIAL_PROTOCOL((int)active_extruder);
         SERIAL_PROTOCOLPGM(" B:");
         SERIAL_PROTOCOL_F(degBed(), 1);
-        SERIAL_PROTOCOLLN("");
+        SERIAL_EOL;
       }
       manage_heater();
       manage_inactivity();
@@ -3441,27 +3439,26 @@ inline void gcode_M114() {
   SERIAL_PROTOCOLPGM(" Z:");
   SERIAL_PROTOCOL(float(st_get_position(Z_AXIS))/axis_steps_per_unit[Z_AXIS]);
 
-  SERIAL_PROTOCOLLN("");
+  SERIAL_EOL;
 
   #ifdef SCARA
     SERIAL_PROTOCOLPGM("SCARA Theta:");
     SERIAL_PROTOCOL(delta[X_AXIS]);
     SERIAL_PROTOCOLPGM("   Psi+Theta:");
     SERIAL_PROTOCOL(delta[Y_AXIS]);
-    SERIAL_PROTOCOLLN("");
+    SERIAL_EOL;
     
     SERIAL_PROTOCOLPGM("SCARA Cal - Theta:");
     SERIAL_PROTOCOL(delta[X_AXIS]+home_offset[X_AXIS]);
     SERIAL_PROTOCOLPGM("   Psi+Theta (90):");
     SERIAL_PROTOCOL(delta[Y_AXIS]-delta[X_AXIS]-90+home_offset[Y_AXIS]);
-    SERIAL_PROTOCOLLN("");
+    SERIAL_EOL;
     
     SERIAL_PROTOCOLPGM("SCARA step Cal - Theta:");
     SERIAL_PROTOCOL(delta[X_AXIS]/90*axis_steps_per_unit[X_AXIS]);
     SERIAL_PROTOCOLPGM("   Psi+Theta:");
     SERIAL_PROTOCOL((delta[Y_AXIS]-delta[X_AXIS])/90*axis_steps_per_unit[Y_AXIS]);
-    SERIAL_PROTOCOLLN("");
-    SERIAL_PROTOCOLLN("");
+    SERIAL_EOL; SERIAL_EOL;
   #endif
 }
 
@@ -3907,7 +3904,7 @@ inline void gcode_M226() {
       SERIAL_PROTOCOL(servo_index);
       SERIAL_PROTOCOL(": ");
       SERIAL_PROTOCOL(servos[servo_index].read());
-      SERIAL_PROTOCOLLN("");
+      SERIAL_EOL;
     }
   }
 
@@ -3975,7 +3972,7 @@ inline void gcode_M226() {
         //Kc does not have scaling applied above, or in resetting defaults
         SERIAL_PROTOCOL(PID_PARAM(Kc, e));
       #endif
-      SERIAL_PROTOCOLLN("");    
+      SERIAL_EOL;    
     }
     else {
       SERIAL_ECHO_START;
@@ -4000,7 +3997,7 @@ inline void gcode_M226() {
     SERIAL_PROTOCOL(unscalePID_i(bedKi));
     SERIAL_PROTOCOL(" d:");
     SERIAL_PROTOCOL(unscalePID_d(bedKd));
-    SERIAL_PROTOCOLLN("");
+    SERIAL_EOL;
   }
 
 #endif // PIDTEMPBED
@@ -4050,7 +4047,7 @@ inline void gcode_M226() {
     if (code_seen('C')) lcd_setcontrast(code_value_long() & 0x3F);
     SERIAL_PROTOCOLPGM("lcd contrast value: ");
     SERIAL_PROTOCOL(lcd_contrast);
-    SERIAL_PROTOCOLLN("");
+    SERIAL_EOL;
   }
 
 #endif // DOGLCD
@@ -4323,7 +4320,7 @@ inline void gcode_M503() {
         zprobe_zoffset = -value; // compare w/ line 278 of ConfigurationStore.cpp
         SERIAL_ECHO_START;
         SERIAL_ECHOLNPGM(MSG_ZPROBE_ZOFFSET " " MSG_OK);
-        SERIAL_PROTOCOLLN("");
+        SERIAL_EOL;
       }
       else {
         SERIAL_ECHO_START;
@@ -4332,14 +4329,14 @@ inline void gcode_M503() {
         SERIAL_ECHO(Z_PROBE_OFFSET_RANGE_MIN);
         SERIAL_ECHOPGM(MSG_Z_MAX);
         SERIAL_ECHO(Z_PROBE_OFFSET_RANGE_MAX);
-        SERIAL_PROTOCOLLN("");
+        SERIAL_EOL;
       }
     }
     else {
       SERIAL_ECHO_START;
       SERIAL_ECHOLNPGM(MSG_ZPROBE_ZOFFSET " : ");
       SERIAL_ECHO(-zprobe_zoffset);
-      SERIAL_PROTOCOLLN("");
+      SERIAL_EOL;
     }
   }
 
@@ -5693,7 +5690,17 @@ void handle_status_leds(void) {
 }
 #endif
 
-void disable_all_axes() {
+void enable_all_steppers() {
+  enable_x();
+  enable_y();
+  enable_z();
+  enable_e0();
+  enable_e1();
+  enable_e2();
+  enable_e3();
+}
+
+void disable_all_steppers() {
   disable_x();
   disable_y();
   disable_z();
@@ -5721,7 +5728,7 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
 
   if (stepper_inactive_time && ms > previous_millis_cmd + stepper_inactive_time
       && !ignore_stepper_queue && !blocks_queued())
-    disable_all_axes();
+    disable_all_steppers();
 
   #ifdef CHDK //Check if pin should be set to LOW after M240 set it to HIGH
     if (chdkActive && ms > chdkHigh + CHDK_DELAY) {
@@ -5809,7 +5816,7 @@ void kill()
   cli(); // Stop interrupts
   disable_heater();
 
-  disable_all_axes();
+  disable_all_steppers();
 
   #if HAS_POWER_SWITCH
     pinMode(PS_ON_PIN, INPUT);
