@@ -1006,6 +1006,9 @@ void setWatch() {
 #if HAS_HEATER_THERMAL_PROTECTION || HAS_BED_THERMAL_PROTECTION
 
   void thermal_runaway_protection(TRState *state, unsigned long *timer, float temperature, float target_temperature, int heater_id, int period_seconds, int hysteresis_degc) {
+
+    static int tr_target_temperature = 0;
+
     /*
         SERIAL_ECHO_START;
         SERIAL_ECHO("Thermal Thermal Runaway Running. Heater ID:");
@@ -1029,19 +1032,27 @@ void setWatch() {
     switch (*state) {
       // Inactive state waits for a target temperature to be set
       case TRInactive:
-        if (target_temperature > 0) *state = TRFirstHeating;
+        if (target_temperature > 0) {
+          *state = TRFirstHeating;
+          tr_target_temperature = target_temperature;
+        }
         break;
       // When first heating, wait for the temperature to be reached then go to Stable state
       case TRFirstHeating:
-        if (temperature >= target_temperature) *state = TRStable;
+        if (temperature >= tr_target_temperature) *state = TRStable;
         break;
       // While the temperature is stable watch for a bad temperature
       case TRStable:
       {
-        // Whenever the current temperature is over the target (-hysteresis) restart the timer
-        if (temperature >= target_temperature - hysteresis_degc) {
-          *timer = millis();
+        // If the target temperature changes, restart
+        if (tr_target_temperature != target_temperature) {
+          *state = TRInactive;
+          break;
         }
+
+        // If the temperature is over the target (-hysteresis) restart the timer
+        if (temperature >= tr_target_temperature - hysteresis_degc) *timer = millis();
+
         // If the timer goes too long without a reset, trigger shutdown
         else if (millis() > *timer + period_seconds * 1000UL) {
           SERIAL_ERROR_START;
@@ -1060,7 +1071,7 @@ void setWatch() {
     }
   }
 
-#endif // HAS_HEATER_THERMAL_PROTECTION
+#endif // HAS_HEATER_THERMAL_PROTECTION || HAS_BED_THERMAL_PROTECTION
 
 void disable_heater() {
   for (int i=0; i<EXTRUDERS; i++) setTargetHotend(0, i);
