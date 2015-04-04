@@ -58,7 +58,7 @@
 #include "ultralcd.h"
 #include "language.h"
 
-#if defined(MESH_BED_LEVELING)
+#ifdef MESH_BED_LEVELING
   #include "mesh_bed_leveling.h"
 #endif  // MESH_BED_LEVELING
 
@@ -427,7 +427,7 @@ void check_axes_activity() {
     disable_e3();
   }
 
-  #if defined(FAN_PIN) && FAN_PIN > -1 // HAS_FAN
+  #if HAS_FAN
     #ifdef FAN_KICKSTART_TIME
       static unsigned long fan_kick_end;
       if (tail_fan_speed) {
@@ -447,17 +447,17 @@ void check_axes_activity() {
     #else
       analogWrite(FAN_PIN, tail_fan_speed);
     #endif //!FAN_SOFT_PWM
-  #endif //FAN_PIN > -1
+  #endif // HAS_FAN
 
   #ifdef AUTOTEMP
     getHighESpeed();
   #endif
 
   #ifdef BARICUDA
-    #if defined(HEATER_1_PIN) && HEATER_1_PIN > -1 // HAS_HEATER_1
+    #if HAS_HEATER_1
       analogWrite(HEATER_1_PIN,tail_valve_pressure);
     #endif
-    #if defined(HEATER_2_PIN) && HEATER_2_PIN > -1 // HAS_HEATER_2
+    #if HAS_HEATER_2
       analogWrite(HEATER_2_PIN,tail_e_to_p_pressure);
     #endif
   #endif
