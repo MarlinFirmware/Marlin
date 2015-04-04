@@ -34,7 +34,12 @@
   #define Z_MAX_PIN          18
  #endif
 //
-
+ #ifdef Z_PROBE_ENDSTOP
+//#undef Z_MIN_PIN
+//#define Z_MIN_PIN        15
+  #define Z_PROBE_PIN      19
+ #endif
+//
 #define E2_STEP_PIN        23
 #define E2_DIR_PIN         25
 #define E2_ENABLE_PIN      40
