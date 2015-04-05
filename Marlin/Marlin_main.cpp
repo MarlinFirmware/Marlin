@@ -2045,6 +2045,9 @@ inline void gcode_G28() {
       return;
     }
 
+    int ix, iy;
+    float z;
+
     switch(state) {
       case MeshReport:
         if (mbl.active) {
@@ -2078,7 +2081,6 @@ inline void gcode_G28() {
           SERIAL_PROTOCOLLNPGM("Start mesh probing with \"G29 S1\" first.");
           return;
         }
-        int ix, iy;
         if (probe_point == 0) {
           // Set Z to a positive value before recording the first Z.
           current_position[Z_AXIS] = MESH_HOME_SEARCH_Z;
@@ -2115,8 +2117,6 @@ inline void gcode_G28() {
         break;
 
       case MeshSet:
-        int ix, iy;
-        float z;
         if (code_seen('X') || code_seen('x')) {
           ix = code_value_long()-1;
           if (ix < 0 || ix >= MESH_NUM_X_POINTS) {
