@@ -1809,6 +1809,9 @@ static void _lcd_level_bed()
       debounce_click = true;
       int ix = _lcd_level_bed_position % MESH_NUM_X_POINTS;
       int iy = _lcd_level_bed_position / MESH_NUM_X_POINTS;
+      if (iy&1) { // Zig zag
+        ix = (MESH_NUM_X_POINTS - 1) - ix;
+      }
       mbl.set_z(ix, iy, current_position[Z_AXIS]);
       _lcd_level_bed_position++;
       if (_lcd_level_bed_position == MESH_NUM_X_POINTS*MESH_NUM_Y_POINTS) {
