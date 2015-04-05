@@ -40,6 +40,10 @@
 #define Y2_DIR_PIN         34
 #define Y2_ENABLE_PIN      30
 
+#undef Z2_STEP_PIN
+#undef Z2_DIR_PIN
+#undef Z2_ENABLE_PIN
+
 #define Z2_STEP_PIN        36
 #define Z2_DIR_PIN         34
 #define Z2_ENABLE_PIN      30
