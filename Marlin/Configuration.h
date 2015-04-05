@@ -395,7 +395,7 @@ const bool Z_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the logic
 // #define MESH_BED_LEVELING    // Enable mesh bed leveling
 
 #ifdef MANUAL_BED_LEVELING
-  #define MBL_Z_STEP 0.025
+  #define MBL_Z_STEP 0.025  // Step size while manually probing Z axis
 #endif  // MANUAL_BED_LEVELING
 
 #ifdef MESH_BED_LEVELING
