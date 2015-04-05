@@ -62,59 +62,57 @@
   #define MYSERIAL MSerial
 #endif
 
-#define SERIAL_PROTOCOL(x) (MYSERIAL.print(x))
-#define SERIAL_PROTOCOL_F(x,y) (MYSERIAL.print(x,y))
-#define SERIAL_PROTOCOLPGM(x) (serialprintPGM(PSTR(x)))
-#define SERIAL_PROTOCOLLN(x) (MYSERIAL.print(x),MYSERIAL.write('\n'))
-#define SERIAL_PROTOCOLLNPGM(x) (serialprintPGM(PSTR(x)),MYSERIAL.write('\n'))
+#define SERIAL_CHAR(x) MYSERIAL.write(x)
+#define SERIAL_EOL SERIAL_CHAR('\n')
+
+#define SERIAL_PROTOCOLCHAR(x) SERIAL_CHAR(x)
+#define SERIAL_PROTOCOL(x) MYSERIAL.print(x)
+#define SERIAL_PROTOCOL_F(x,y) MYSERIAL.print(x,y)
+#define SERIAL_PROTOCOLPGM(x) serialprintPGM(PSTR(x))
+#define SERIAL_PROTOCOLLN(x) do{ MYSERIAL.print(x),MYSERIAL.write('\n'); }while(0)
+#define SERIAL_PROTOCOLLNPGM(x) do{ serialprintPGM(PSTR(x)),MYSERIAL.write('\n'); }while(0)
 
 
 extern const char errormagic[] PROGMEM;
 extern const char echomagic[] PROGMEM;
 
-#define SERIAL_ERROR_START (serialprintPGM(errormagic))
+#define SERIAL_ERROR_START serialprintPGM(errormagic)
 #define SERIAL_ERROR(x) SERIAL_PROTOCOL(x)
 #define SERIAL_ERRORPGM(x) SERIAL_PROTOCOLPGM(x)
 #define SERIAL_ERRORLN(x) SERIAL_PROTOCOLLN(x)
 #define SERIAL_ERRORLNPGM(x) SERIAL_PROTOCOLLNPGM(x)
 
-#define SERIAL_ECHO_START (serialprintPGM(echomagic))
+#define SERIAL_ECHO_START serialprintPGM(echomagic)
 #define SERIAL_ECHO(x) SERIAL_PROTOCOL(x)
 #define SERIAL_ECHOPGM(x) SERIAL_PROTOCOLPGM(x)
 #define SERIAL_ECHOLN(x) SERIAL_PROTOCOLLN(x)
 #define SERIAL_ECHOLNPGM(x) SERIAL_PROTOCOLLNPGM(x)
 
-#define SERIAL_ECHOPAIR(name,value) (serial_echopair_P(PSTR(name),(value)))
-
-#define SERIAL_EOL MYSERIAL.write('\n')
+#define SERIAL_ECHOPAIR(name,value) do{ serial_echopair_P(PSTR(name),(value)); }while(0)
 
 void serial_echopair_P(const char *s_P, float v);
 void serial_echopair_P(const char *s_P, double v);
 void serial_echopair_P(const char *s_P, unsigned long v);
 
 
-//Things to write to serial from Program memory. Saves 400 to 2k of RAM.
-FORCE_INLINE void serialprintPGM(const char *str)
-{
-  char ch=pgm_read_byte(str);
-  while(ch)
-  {
+// Things to write to serial from Program memory. Saves 400 to 2k of RAM.
+FORCE_INLINE void serialprintPGM(const char *str) {
+  char ch;
+  while ((ch = pgm_read_byte(str))) {
     MYSERIAL.write(ch);
-    ch=pgm_read_byte(++str);
+    str++;
   }
 }
-
 
 void get_command();
 void process_commands();
 
 void manage_inactivity(bool ignore_stepper_queue=false);
 
-#if defined(DUAL_X_CARRIAGE) && defined(X_ENABLE_PIN) && X_ENABLE_PIN > -1 \
-    && defined(X2_ENABLE_PIN) && X2_ENABLE_PIN > -1
+#if defined(DUAL_X_CARRIAGE) && HAS_X_ENABLE && HAS_X2_ENABLE
   #define  enable_x() do { X_ENABLE_WRITE( X_ENABLE_ON); X2_ENABLE_WRITE( X_ENABLE_ON); } while (0)
   #define disable_x() do { X_ENABLE_WRITE(!X_ENABLE_ON); X2_ENABLE_WRITE(!X_ENABLE_ON); axis_known_position[X_AXIS] = false; } while (0)
-#elif defined(X_ENABLE_PIN) && X_ENABLE_PIN > -1
+#elif HAS_X_ENABLE
   #define  enable_x() X_ENABLE_WRITE( X_ENABLE_ON)
   #define disable_x() { X_ENABLE_WRITE(!X_ENABLE_ON); axis_known_position[X_AXIS] = false; }
 #else
@@ -122,7 +120,7 @@ void manage_inactivity(bool ignore_stepper_queue=false);
   #define disable_x() ;
 #endif
 
-#if defined(Y_ENABLE_PIN) && Y_ENABLE_PIN > -1
+#if HAS_Y_ENABLE
   #ifdef Y_DUAL_STEPPER_DRIVERS
     #define  enable_y() { Y_ENABLE_WRITE( Y_ENABLE_ON); Y2_ENABLE_WRITE(Y_ENABLE_ON); }
     #define disable_y() { Y_ENABLE_WRITE(!Y_ENABLE_ON); Y2_ENABLE_WRITE(!Y_ENABLE_ON); axis_known_position[Y_AXIS] = false; }
@@ -135,7 +133,7 @@ void manage_inactivity(bool ignore_stepper_queue=false);
   #define disable_y() ;
 #endif
 
-#if defined(Z_ENABLE_PIN) && Z_ENABLE_PIN > -1
+#if HAS_Z_ENABLE
   #ifdef Z_DUAL_STEPPER_DRIVERS
     #define  enable_z() { Z_ENABLE_WRITE( Z_ENABLE_ON); Z2_ENABLE_WRITE(Z_ENABLE_ON); }
     #define disable_z() { Z_ENABLE_WRITE(!Z_ENABLE_ON); Z2_ENABLE_WRITE(!Z_ENABLE_ON); axis_known_position[Z_AXIS] = false; }
@@ -148,40 +146,53 @@ void manage_inactivity(bool ignore_stepper_queue=false);
   #define disable_z() ;
 #endif
 
-#if defined(E0_ENABLE_PIN) && (E0_ENABLE_PIN > -1)
-  #define enable_e0() E0_ENABLE_WRITE(E_ENABLE_ON)
+#if HAS_E0_ENABLE
+  #define enable_e0()  E0_ENABLE_WRITE( E_ENABLE_ON)
   #define disable_e0() E0_ENABLE_WRITE(!E_ENABLE_ON)
 #else
   #define enable_e0()  /* nothing */
   #define disable_e0() /* nothing */
 #endif
 
-#if (EXTRUDERS > 1) && defined(E1_ENABLE_PIN) && (E1_ENABLE_PIN > -1)
-  #define enable_e1() E1_ENABLE_WRITE(E_ENABLE_ON)
+#if (EXTRUDERS > 1) && HAS_E1_ENABLE
+  #define enable_e1()  E1_ENABLE_WRITE( E_ENABLE_ON)
   #define disable_e1() E1_ENABLE_WRITE(!E_ENABLE_ON)
 #else
   #define enable_e1()  /* nothing */
   #define disable_e1() /* nothing */
 #endif
 
-#if (EXTRUDERS > 2) && defined(E2_ENABLE_PIN) && (E2_ENABLE_PIN > -1)
-  #define enable_e2() E2_ENABLE_WRITE(E_ENABLE_ON)
+#if (EXTRUDERS > 2) && HAS_E2_ENABLE
+  #define enable_e2()  E2_ENABLE_WRITE( E_ENABLE_ON)
   #define disable_e2() E2_ENABLE_WRITE(!E_ENABLE_ON)
 #else
   #define enable_e2()  /* nothing */
   #define disable_e2() /* nothing */
 #endif
 
-#if (EXTRUDERS > 3) && defined(E3_ENABLE_PIN) && (E3_ENABLE_PIN > -1)
-  #define enable_e3() E3_ENABLE_WRITE(E_ENABLE_ON)
+#if (EXTRUDERS > 3) && HAS_E3_ENABLE
+  #define enable_e3()  E3_ENABLE_WRITE( E_ENABLE_ON)
   #define disable_e3() E3_ENABLE_WRITE(!E_ENABLE_ON)
 #else
   #define enable_e3()  /* nothing */
   #define disable_e3() /* nothing */
 #endif
 
+/**
+ * The axis order in all axis related arrays is X, Y, Z, E
+ */
+#define NUM_AXIS 4
+
+/**
+ * Axis indices as enumerated constants
+ *
+ * A_AXIS and B_AXIS are used by COREXY printers
+ * X_HEAD and Y_HEAD is used for systems that don't have a 1:1 relationship between X_AXIS and X Head movement, like CoreXY bots.
+ */
 enum AxisEnum {X_AXIS=0, Y_AXIS=1, A_AXIS=0, B_AXIS=1, Z_AXIS=2, E_AXIS=3, X_HEAD=4, Y_HEAD=5};
-//X_HEAD and Y_HEAD is used for systems that don't have a 1:1 relationship between X_AXIS and X Head movement, like CoreXY bots.
+
+void enable_all_steppers();
+void disable_all_steppers();
 
 void FlushSerialRequestResend();
 void ClearToSend();
@@ -194,7 +205,6 @@ void get_coordinates();
     void adjust_delta(float cartesian[3]);
   #endif
   extern float delta[3];
-  void prepare_move_raw();
 #endif
 #ifdef SCARA
   void calculate_delta(float cartesian[3]);
@@ -217,7 +227,8 @@ void enquecommands_P(const char *cmd); //put one or many ASCII commands at the e
 void prepare_arc_move(char isclockwise);
 void clamp_to_software_endstops(float target[3]);
 
-void refresh_cmd_timeout(void);
+extern unsigned long previous_millis_cmd;
+inline void refresh_cmd_timeout() { previous_millis_cmd = millis(); }
 
 #ifdef FAST_PWM_FAN
   void setPwmFrequency(uint8_t pin, int val);
@@ -226,7 +237,7 @@ void refresh_cmd_timeout(void);
 #ifndef CRITICAL_SECTION_START
   #define CRITICAL_SECTION_START  unsigned char _sreg = SREG; cli();
   #define CRITICAL_SECTION_END    SREG = _sreg;
-#endif //CRITICAL_SECTION_START
+#endif
 
 extern float homing_feedrate[];
 extern bool axis_relative_modes[];
@@ -235,8 +246,9 @@ extern bool volumetric_enabled;
 extern int extruder_multiply[EXTRUDERS]; // sets extrude multiply factor (in percent) for each extruder individually
 extern float filament_size[EXTRUDERS]; // cross-sectional area of filament (in millimeters), typically around 1.75 or 2.85, 0 disables the volumetric calculations for the extruder.
 extern float volumetric_multiplier[EXTRUDERS]; // reciprocal of cross-sectional area of filament (in square millimeters), stored this way to reduce computational burden in planner
-extern float current_position[NUM_AXIS] ;
+extern float current_position[NUM_AXIS];
 extern float home_offset[3];
+
 #ifdef DELTA
   extern float endstop_adj[3];
   extern float delta_radius;
@@ -244,18 +256,23 @@ extern float home_offset[3];
   extern float delta_segments_per_second;
   void recalc_delta_settings(float radius, float diagonal_rod);
 #elif defined(Z_DUAL_ENDSTOPS)
-extern float z_endstop_adj;
+  extern float z_endstop_adj;
 #endif
+
 #ifdef SCARA
   extern float axis_scaling[3];  // Build size scaling
 #endif
+
 extern float min_pos[3];
 extern float max_pos[3];
 extern bool axis_known_position[3];
+
 #ifdef ENABLE_AUTO_BED_LEVELING
   extern float zprobe_zoffset;
 #endif
+
 extern int fanSpeed;
+
 #ifdef BARICUDA
   extern int ValvePressure;
   extern int EtoPPressure;

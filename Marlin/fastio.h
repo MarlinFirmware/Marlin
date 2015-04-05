@@ -91,7 +91,7 @@
 	added as necessary or if I feel like it- not a comprehensive list!
 */
 
-#if defined (__AVR_ATmega168__) || defined (__AVR_ATmega328__) || defined (__AVR_ATmega328P__)
+#if defined(__AVR_ATmega168__) || defined(__AVR_ATmega328__) || defined(__AVR_ATmega328P__)
 // UART
 #define	RXD					DIO0
 #define	TXD					DIO1
@@ -426,7 +426,7 @@ pins
 #define PD7_PWM			NULL
 #endif	/*	_AVR_ATmega{168,328,328P}__ */
 
-#if defined (__AVR_ATmega644__) || defined (__AVR_ATmega644P__) || defined (__AVR_ATmega644PA__) || defined (__AVR_ATmega1284P__)
+#if defined(__AVR_ATmega644__) || defined(__AVR_ATmega644P__) || defined(__AVR_ATmega644PA__) || defined(__AVR_ATmega1284P__)
 // UART
 #define	RXD					DIO8
 #define	TXD					DIO9
@@ -929,7 +929,7 @@ pins
 #define PD7_PWM			OCR2A
 #endif	/*	_AVR_ATmega{644,644P,644PA}__ */
 
-#if defined (__AVR_ATmega1280__) || defined (__AVR_ATmega2560__)
+#if defined(__AVR_ATmega1280__) || defined(__AVR_ATmega2560__)
 // UART
 #define	RXD					DIO0
 #define	TXD					DIO1
@@ -2024,7 +2024,7 @@ pins
 
 #endif
 
-#if defined (__AVR_AT90USB1287__) || defined (__AVR_AT90USB1286__) || defined (__AVR_AT90USB646__) || defined(__AVR_AT90USB647__)
+#if defined(__AVR_AT90USB1287__) || defined(__AVR_AT90USB1286__) || defined(__AVR_AT90USB646__) || defined(__AVR_AT90USB647__)
 // SPI
 #define	SCK					DIO9
 #define	MISO				DIO11
@@ -3322,7 +3322,7 @@ Teensy   28 29 30 31 32 33 34 35 20 21 22 23 24 25 26 27 10 11 12 13 14 15 16 17
 #endif // __AVR_AT90usbxxx__
 
 
-#if defined (__AVR_ATmega1281__) || defined (__AVR_ATmega2561__)
+#if defined(__AVR_ATmega1281__) || defined(__AVR_ATmega2561__)
 // UART
 #define	RXD					DIO0
 #define	TXD					DIO1

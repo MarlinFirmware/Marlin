@@ -18,8 +18,8 @@
   along with Grbl.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef temperature_h
-#define temperature_h 
+#ifndef TEMPERATURE_H
+#define TEMPERATURE_H 
 
 #include "Marlin.h"
 #include "planner.h"
@@ -53,7 +53,7 @@ extern float current_temperature_bed;
   extern float redundant_temperature;
 #endif
 
-#if defined(CONTROLLERFAN_PIN) && CONTROLLERFAN_PIN > -1
+#if HAS_CONTROLLERFAN
   extern unsigned char soft_pwm_bed;
 #endif
 
@@ -72,10 +72,10 @@ extern float current_temperature_bed;
   float unscalePID_d(float d);
 
 #endif
+
 #ifdef PIDTEMPBED
   extern float bedKp,bedKi,bedKd;
 #endif
-  
   
 #ifdef BABYSTEPPING
   extern volatile int babystepsTodo[3];
@@ -105,40 +105,27 @@ FORCE_INLINE bool isHeatingBed() { return target_temperature_bed > current_tempe
 FORCE_INLINE bool isCoolingHotend(uint8_t extruder) { return target_temperature[extruder] < current_temperature[extruder]; }
 FORCE_INLINE bool isCoolingBed() { return target_temperature_bed < current_temperature_bed; }
 
-#define degHotend0() degHotend(0)
-#define degTargetHotend0() degTargetHotend(0)
-#define setTargetHotend0(_celsius) setTargetHotend((_celsius), 0)
-#define isHeatingHotend0() isHeatingHotend(0)
-#define isCoolingHotend0() isCoolingHotend(0)
+#define HOTEND_ROUTINES(NR) \
+  FORCE_INLINE float degHotend##NR() { return degHotend(NR); } \
+  FORCE_INLINE float degTargetHotend##NR() { return degTargetHotend(NR); } \
+  FORCE_INLINE void setTargetHotend##NR(const float c) { setTargetHotend(c, NR); } \
+  FORCE_INLINE bool isHeatingHotend##NR() { return isHeatingHotend(NR); } \
+  FORCE_INLINE bool isCoolingHotend##NR() { return isCoolingHotend(NR); }
+HOTEND_ROUTINES(0);
 #if EXTRUDERS > 1
-  #define degHotend1() degHotend(1)
-  #define degTargetHotend1() degTargetHotend(1)
-  #define setTargetHotend1(_celsius) setTargetHotend((_celsius), 1)
-  #define isHeatingHotend1() isHeatingHotend(1)
-  #define isCoolingHotend1() isCoolingHotend(1)
+  HOTEND_ROUTINES(1);
 #else
-  #define setTargetHotend1(_celsius) do{}while(0)
+  #define setTargetHotend1(c) do{}while(0)
 #endif
 #if EXTRUDERS > 2
-  #define degHotend2() degHotend(2)
-  #define degTargetHotend2() degTargetHotend(2)
-  #define setTargetHotend2(_celsius) setTargetHotend((_celsius), 2)
-  #define isHeatingHotend2() isHeatingHotend(2)
-  #define isCoolingHotend2() isCoolingHotend(2)
+  HOTEND_ROUTINES(2);
 #else
-  #define setTargetHotend2(_celsius) do{}while(0)
+  #define setTargetHotend2(c) do{}while(0)
 #endif
 #if EXTRUDERS > 3
-  #define degHotend3() degHotend(3)
-  #define degTargetHotend3() degTargetHotend(3)
-  #define setTargetHotend3(_celsius) setTargetHotend((_celsius), 3)
-  #define isHeatingHotend3() isHeatingHotend(3)
-  #define isCoolingHotend3() isCoolingHotend(3)
+  HOTEND_ROUTINES(3);
 #else
-  #define setTargetHotend3(_celsius) do{}while(0)
-#endif
-#if EXTRUDERS > 4
-  #error Invalid number of extruders
+  #define setTargetHotend3(c) do{}while(0)
 #endif
 
 int getHeaterPower(int heater);
@@ -161,5 +148,4 @@ FORCE_INLINE void autotempShutdown() {
   #endif
 }
 
-
-#endif
+#endif // TEMPERATURE_H

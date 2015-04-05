@@ -262,8 +262,7 @@ static void lcd_goto_menu(menuFunc_t menu, const uint32_t encoder=0, const bool 
 }
 
 /* Main status screen. It's up to the implementation specific part to show what is needed. As this is very display dependent */
-static void lcd_status_screen()
-{
+static void lcd_status_screen() {
 	encoderRateMultiplierEnabled = false;
 
   #ifdef LCD_PROGRESS_BAR
@@ -296,15 +295,7 @@ static void lcd_status_screen()
     #endif
   #endif //LCD_PROGRESS_BAR
 
-  if (lcd_status_update_delay)
-    lcd_status_update_delay--;
-  else
-    lcdDrawUpdate = 1;
-
-  if (lcdDrawUpdate) {
     lcd_implementation_status_screen();
-    lcd_status_update_delay = 10;   /* redraw the main screen every second. This is easier then trying keep track of all things that change on the screen */
-  }
 
 #ifdef ULTIPANEL
 
@@ -1298,7 +1289,7 @@ void lcd_update() {
       }
     }
   #endif//CARDINSERTED
-
+  
   uint32_t ms = millis();
   if (ms > lcd_next_update_millis) {
 
@@ -1349,27 +1340,36 @@ void lcd_update() {
             } // encoderRateMultiplierEnabled
           #endif //ENCODER_RATE_MULTIPLIER
 
-          lcdDrawUpdate = 1;
           encoderPosition += (encoderDiff * encoderMultiplier) / ENCODER_PULSES_PER_STEP;
           encoderDiff = 0;
         }
         timeoutToStatus = ms + LCD_TIMEOUT_TO_STATUS;
+        lcdDrawUpdate = 1;
       }
-
     #endif //ULTIPANEL
 
+    if (currentMenu == lcd_status_screen) {
+      if (!lcd_status_update_delay) {
+        lcdDrawUpdate = 1;
+        lcd_status_update_delay = 10;   /* redraw the main screen every second. This is easier then trying keep track of all things that change on the screen */
+      }
+      else {
+        lcd_status_update_delay--;
+      }
+    }
     #ifdef DOGLCD  // Changes due to different driver architecture of the DOGM display
-      blink++;     // Variable for fan animation and alive dot
-      u8g.firstPage();
-      do {
-        lcd_setFont(FONT_MENU);
-        u8g.setPrintPos(125, 0);
-        if (blink % 2) u8g.setColorIndex(1); else u8g.setColorIndex(0); // Set color for the alive dot
-        u8g.drawPixel(127, 63); // draw alive dot
-        u8g.setColorIndex(1); // black on white
-        (*currentMenu)();
-        if (!lcdDrawUpdate) break; // Terminate display update, when nothing new to draw. This must be done before the last dogm.next()
-      } while( u8g.nextPage() );
+      if (lcdDrawUpdate) {
+        blink++;     // Variable for fan animation and alive dot
+        u8g.firstPage();
+        do {
+          lcd_setFont(FONT_MENU);
+          u8g.setPrintPos(125, 0);
+          if (blink % 2) u8g.setColorIndex(1); else u8g.setColorIndex(0); // Set color for the alive dot
+          u8g.drawPixel(127, 63); // draw alive dot
+          u8g.setColorIndex(1); // black on white
+          (*currentMenu)();
+        } while( u8g.nextPage() );
+      }
     #else
       (*currentMenu)();
     #endif
@@ -1789,7 +1789,7 @@ char *ftostr52(const float &x) {
   return conv;
 }
 
-#if defined(MANUAL_BED_LEVELING)
+#ifdef MANUAL_BED_LEVELING
 static int _lcd_level_bed_position;
 static void _lcd_level_bed()
 {
@@ -1849,8 +1849,7 @@ static void _lcd_level_bed_homing()
     lcd_goto_menu(_lcd_level_bed);
   }
 }
-static void lcd_level_bed()
-{
+static void lcd_level_bed() {
   axis_known_position[X_AXIS] = false;
   axis_known_position[Y_AXIS] = false;
   axis_known_position[Z_AXIS] = false;
