@@ -186,7 +186,7 @@ char lcd_printPGM(const char* str) {
   return n;
 }
 
-static int8_t show_splashscreed = 2;
+int8_t show_splashscreen = 2;
 
 static void lcd_implementation_init()
 {
@@ -221,18 +221,25 @@ static void lcd_implementation_init()
 
 	u8g.firstPage();
 	do {
-    if (show_splashscreed) {
-      u8g.drawBitmapP(offx, offy, START_BMPBYTEWIDTH, START_BMPHEIGHT, start_bmp);
-      lcd_setFont(FONT_MENU);
-      #ifndef STRING_SPLASH_LINE2
-        u8g.drawStr(txt1X, u8g.getHeight() - DOG_CHAR_HEIGHT, STRING_SPLASH_LINE1);
-      #else
-        int txt2X = (u8g.getWidth() - (sizeof(STRING_SPLASH_LINE2) - 1)*DOG_CHAR_WIDTH) / 2;
-        u8g.drawStr(txt1X, u8g.getHeight() - DOG_CHAR_HEIGHT*3/2, STRING_SPLASH_LINE1);
-        u8g.drawStr(txt2X, u8g.getHeight() - DOG_CHAR_HEIGHT*1/2, STRING_SPLASH_LINE2);
-      #endif
-      show_splashscreed--;
-    }
+    switch (show_splashscreen) {
+      case 2 : {
+        u8g.drawBitmapP(offx, offy, START_BMPBYTEWIDTH, START_BMPHEIGHT, start_bmp);
+        break;
+      }
+      case 1 : {
+        lcd_setFont(FONT_MENU);
+        #ifndef STRING_SPLASH_LINE2
+          u8g.drawStr(txt1X, u8g.getHeight() - DOG_CHAR_HEIGHT, STRING_SPLASH_LINE1);
+        #else
+          int txt2X = (u8g.getWidth() - (sizeof(STRING_SPLASH_LINE2) - 1)*DOG_CHAR_WIDTH) / 2;
+          u8g.drawStr(txt1X, u8g.getHeight() - DOG_CHAR_HEIGHT*3/2, STRING_SPLASH_LINE1);
+          u8g.drawStr(txt2X, u8g.getHeight() - DOG_CHAR_HEIGHT*1/2, STRING_SPLASH_LINE2);
+        #endif
+        break;
+      }
+      break;  
+    }  
+    if (show_splashscreen) show_splashscreen--;
 	} while (u8g.nextPage());
 }
 
