@@ -58,7 +58,7 @@
 #include "ultralcd.h"
 #include "language.h"
 
-#if defined(MESH_BED_LEVELING)
+#ifdef MESH_BED_LEVELING
   #include "mesh_bed_leveling.h"
 #endif  // MESH_BED_LEVELING
 
@@ -67,7 +67,7 @@
 //===========================================================================
 
 unsigned long minsegmenttime;
-float max_feedrate[NUM_AXIS]; // set the max speeds
+float max_feedrate[NUM_AXIS]; // Max speeds in mm per minute
 float axis_steps_per_unit[NUM_AXIS];
 unsigned long max_acceleration_units_per_sq_second[NUM_AXIS]; // Use M201 to override by software
 float minimumfeedrate;
@@ -427,7 +427,7 @@ void check_axes_activity() {
     disable_e3();
   }
 
-  #if defined(FAN_PIN) && FAN_PIN > -1 // HAS_FAN
+  #if HAS_FAN
     #ifdef FAN_KICKSTART_TIME
       static unsigned long fan_kick_end;
       if (tail_fan_speed) {
@@ -447,17 +447,17 @@ void check_axes_activity() {
     #else
       analogWrite(FAN_PIN, tail_fan_speed);
     #endif //!FAN_SOFT_PWM
-  #endif //FAN_PIN > -1
+  #endif // HAS_FAN
 
   #ifdef AUTOTEMP
     getHighESpeed();
   #endif
 
   #ifdef BARICUDA
-    #if defined(HEATER_1_PIN) && HEATER_1_PIN > -1 // HAS_HEATER_1
+    #if HAS_HEATER_1
       analogWrite(HEATER_1_PIN,tail_valve_pressure);
     #endif
-    #if defined(HEATER_2_PIN) && HEATER_2_PIN > -1 // HAS_HEATER_2
+    #if HAS_HEATER_2
       analogWrite(HEATER_2_PIN,tail_e_to_p_pressure);
     #endif
   #endif
@@ -614,7 +614,7 @@ float junction_deviation = 0.1;
         #if EXTRUDERS > 1
           case 1:
             enable_e1();
-            g_uc_extruder_last_move[1] = BLOCK_BUFFER_SIZE*2;
+            g_uc_extruder_last_move[1] = BLOCK_BUFFER_SIZE * 2;
             if (g_uc_extruder_last_move[0] == 0) disable_e0();
             #if EXTRUDERS > 2
               if (g_uc_extruder_last_move[2] == 0) disable_e2();
@@ -626,7 +626,7 @@ float junction_deviation = 0.1;
           #if EXTRUDERS > 2
             case 2:
               enable_e2();
-              g_uc_extruder_last_move[2] = BLOCK_BUFFER_SIZE*2;
+              g_uc_extruder_last_move[2] = BLOCK_BUFFER_SIZE * 2;
               if (g_uc_extruder_last_move[0] == 0) disable_e0();
               if (g_uc_extruder_last_move[1] == 0) disable_e1();
               #if EXTRUDERS > 3
@@ -636,7 +636,7 @@ float junction_deviation = 0.1;
             #if EXTRUDERS > 3
               case 3:
                 enable_e3();
-                g_uc_extruder_last_move[3] = BLOCK_BUFFER_SIZE*2;
+                g_uc_extruder_last_move[3] = BLOCK_BUFFER_SIZE * 2;
                 if (g_uc_extruder_last_move[0] == 0) disable_e0();
                 if (g_uc_extruder_last_move[1] == 0) disable_e1();
                 if (g_uc_extruder_last_move[2] == 0) disable_e2();
