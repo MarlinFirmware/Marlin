@@ -415,6 +415,10 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 #ifdef ENABLE_AUTO_BED_LEVELING
 
+  #ifdef MESH_BED_LEVELING
+    #error Select 'ENABLE_AUTO_BED_LEVELING' or 'MESH_BED_LEVELING', not both
+  #endif // MESH_BED_LEVELING
+
   // There are 2 different ways to specify probing locations
   //
   // - "grid" mode

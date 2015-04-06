@@ -7,7 +7,7 @@ Background
 
 This mesh based method of leveling/compensating can compensate for an non-flat bed. There are various opinions about doing this. It was primarily written to compensate a RigidBot BIG bed (40x30cm) that was somewhat bent.
 
-Currently there is no automatic way to probe the bed like the Auto Bed Leveling feature. This might soon be implemented though, stay tuned.
+Currently there is no automatic way to probe the bed like the Auto Bed Leveling feature. So, you can not enable `ENABLE_AUTO_BED_LEVELING` at the same time. This might soon be implemented though, stay tuned.
 
 Theory
 ------
