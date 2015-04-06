@@ -186,7 +186,7 @@ char lcd_printPGM(const char* str) {
   return n;
 }
 
-static int8_t show_splashscreed = 2;
+static bool show_splashscreen = true;
 
 static void lcd_implementation_init()
 {
@@ -221,7 +221,7 @@ static void lcd_implementation_init()
 
 	u8g.firstPage();
 	do {
-    if (show_splashscreed) {
+    if (show_splashscreen) {
       u8g.drawBitmapP(offx, offy, START_BMPBYTEWIDTH, START_BMPHEIGHT, start_bmp);
       lcd_setFont(FONT_MENU);
       #ifndef STRING_SPLASH_LINE2
@@ -231,9 +231,9 @@ static void lcd_implementation_init()
         u8g.drawStr(txt1X, u8g.getHeight() - DOG_CHAR_HEIGHT*3/2, STRING_SPLASH_LINE1);
         u8g.drawStr(txt2X, u8g.getHeight() - DOG_CHAR_HEIGHT*1/2, STRING_SPLASH_LINE2);
       #endif
-      show_splashscreed--;
     }
 	} while (u8g.nextPage());
+  show_splashscreen = false;
 }
 
 static void lcd_implementation_clear() { } // Automatically cleared by Picture Loop
