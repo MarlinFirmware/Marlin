@@ -29,6 +29,7 @@
 	#define MACHINE_NAME "bq Witbox"
 	#define FIRMWARE_URL "http://www.bqreaders.com/descargas-witbox.html"
 	#define FIRMWARE_VER "v2.0"
+   #define BUILD_VER ""
 #elif defined(CUSTOM_MENDEL_NAME)
 	#define MACHINE_NAME CUSTOM_MENDEL_NAME
 #else
@@ -77,6 +78,7 @@
 #define MSG_M105_INVALID_EXTRUDER "M105 Invalid extruder "
 #define MSG_M200_INVALID_EXTRUDER "M200 Invalid extruder "
 #define MSG_M218_INVALID_EXTRUDER "M218 Invalid extruder "
+#define MSG_M221_INVALID_EXTRUDER "M221 Invalid extruder "
 #define MSG_ERR_NO_THERMISTORS "No thermistors - no temperature"
 #define MSG_M109_INVALID_EXTRUDER "M109 Invalid extruder "
 #define MSG_HEATING "Heating..."
