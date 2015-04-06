@@ -1053,17 +1053,6 @@ static void axis_is_at_home(int axis) {
 }
 
 #if defined(ENABLE_AUTO_BED_LEVELING) || defined(WITBOX)
-static void do_blocking_move_to(float x, float y, float z) {
-	float oldFeedRate = feedrate;
-	feedrate = XY_TRAVEL_SPEED;
-	current_position[X_AXIS] = x;
-	current_position[Y_AXIS] = y;
-	current_position[Z_AXIS] = z;
-	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
-	st_synchronize();
-	feedrate = oldFeedRate;
-}
-
 static void do_blocking_extrude_to(float e) {
 	float oldFeedRate = feedrate;
 	feedrate = EXTRUSION_SPEED;
