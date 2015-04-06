@@ -399,6 +399,11 @@ const bool Z_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the logic
 #endif  // MANUAL_BED_LEVELING
 
 #ifdef MESH_BED_LEVELING
+
+  #ifdef DELTA
+    #error 'MESH_BED_LEVELING' does not yet support 'DELTA' printers
+  #endif
+
   #define MESH_MIN_X 10
   #define MESH_MAX_X (X_MAX_POS - MESH_MIN_X)
   #define MESH_MIN_Y 10
