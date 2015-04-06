@@ -655,7 +655,7 @@
     #define LED_PIN            13
   #endif
 
-  #if MB(RAMPS_13_EFB) || MB(RAMPS_13_EFF) || MB(AZTEEG_X3) || MB(AZTEEG_X3_PRO)
+  #if MB(RAMPS_13_EFB) || MB(RAMPS_13_EFF) || MB(AZTEEG_X3) || MB(AZTEEG_X3_PRO) || MB(BQCNC)
     #define FAN_PIN            9 // (Sprinter config)
   #else
     #define FAN_PIN            4 // IO pin. Buffer needed
@@ -683,7 +683,7 @@
     #define HEATER_0_PIN       10   // EXTRUDER 1
   #endif
 
-  #if MB(RAMPS_13_EFB) || MB(AZTEEG_X3)
+  #if MB(RAMPS_13_EFB) || MB(AZTEEG_X3) || MB(BQCNC)
     #define HEATER_1_PIN       -1
   #else
     #define HEATER_1_PIN       9    // EXTRUDER 2 (FAN On Sprinter)
@@ -895,7 +895,7 @@
 #define TEMP_2_PIN          -1
 #define TEMP_BED_PIN        1    // MUST USE ANALOG INPUT NUMBERING NOT DIGITAL OUTPUT NUMBERING!!!!!!!!!
 
-#endif // RAMPS_13_EFB || RAMPS_13_EEB || RAMPS_13_EFF || 3DRAG
+#endif // RAMPS_13_EFB || RAMPS_13_EEB || RAMPS_13_EFF || 3DRAG || MB(BQCNC)
 
 // SPI for Max6675 Thermocouple
 
@@ -909,7 +909,7 @@
   #define MAX6675_SS       49
 #endif
 
-#endif // RAMPS_OLD || RAMPS_13_EFB || RAMPS_13_EEB || RAMPS_13_EFF || 3DRAG
+#endif // RAMPS_OLD || RAMPS_13_EFB || RAMPS_13_EEB || RAMPS_13_EFF || 3DRAG || MB(BQCNC)
 
 /****************************************************************************************
 * Duemilanove w/ ATMega328P pin assignment

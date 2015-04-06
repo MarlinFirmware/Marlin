@@ -25,11 +25,7 @@
 
 #define PROTOCOL_VERSION "1.0"
 
-#if defined(WITBOX_DUAL)
-	#define MACHINE_NAME "bq WitboxDual"
-	#define FIRMWARE_URL "http://www.bqreaders.com/descargas-witbox.html"
-	#define FIRMWARE_VER "v2.0-Dual"
-#elif defined(WITBOX)
+#if defined(WITBOX)
 	#define MACHINE_NAME "bq Witbox"
 	#define FIRMWARE_URL "http://www.bqreaders.com/descargas-witbox.html"
 	#define FIRMWARE_VER "v2.0"
@@ -308,11 +304,6 @@
 		#define MSG_WIZARD_CHANGEFILAMENT_3_1	"extrudes, press the "
 		#define MSG_WIZARD_CHANGEFILAMENT_3_2	"  button to resume  "
 		#define MSG_WIZARD_CHANGEFILAMENT_3_3	"      printing      "
-
-		#ifdef WITBOX_DUAL
-			#define MSG_EXTRUDER_1 "Left extruder"
-			#define MSG_EXTRUDER_2 "Rigth extruder"
-		#endif // WITBOX_DUAL
 
 		#define MSG_SD_BAD_FILENAME "Bad filename!"
 	#endif // WITBOX

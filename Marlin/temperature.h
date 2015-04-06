@@ -106,6 +106,13 @@ FORCE_INLINE float degTargetBed() {
 
 FORCE_INLINE void setTargetHotend(const float &celsius, uint8_t extruder) {  
   target_temperature[extruder] = celsius;
+
+#ifdef WITBOX2
+  if (celsius > 0)
+    OCR3BL = 204;   // Fan speed set to the 80% (100% = 255)
+  else
+    OCR3BL = 0;     // Stop the fan
+#endif // WITBOX2
 };
 
 FORCE_INLINE void setTargetBed(const float &celsius) {  
