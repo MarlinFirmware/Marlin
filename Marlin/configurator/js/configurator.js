@@ -397,7 +397,7 @@ window.configuratorApp = (function(){
      *   .count   number of items in the group
      */
     refreshDefineGroups: function(cindex) {
-      var findDef = /^(|.*_)(([XYZE](MAX|MIN))|(E[0-3]|[XYZE01234])|MAX|MIN|(bed)?K[pid]|HOTEND|HPB|JAPAN|WESTERN|LEFT|RIGHT|BACK|FRONT|[XYZ]_POINT)(_.*|)$/i;
+      var findDef = /^(|.*_)(([XYZE](MAX|MIN))|(E[0-3]|[XYZE01234])|MAX|MIN|(bed)?K[pid]|HOTEND|HPB|JAPAN|WESTERN|CYRILLIC|LEFT|RIGHT|BACK|FRONT|[XYZ]_POINT)(_.*|)$/i;
       var match_prev, patt, title, nameList, groups = {}, match_section;
       $.each(define_list[cindex], function(i, name) {
         if (match_prev) {
@@ -458,7 +458,8 @@ window.configuratorApp = (function(){
                 break;
               case 'JAPAN':
               case 'WESTERN':
-                patt = '(JAPAN|WESTERN)';
+              case 'CYRILLIC':
+                patt = '(JAPAN|WESTERN|CYRILLIC)';
                 break;
               case 'XMIN':
               case 'XMAX':
