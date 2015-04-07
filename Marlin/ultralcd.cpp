@@ -761,7 +761,7 @@ static void view_menu_main()
         if (card.isFileOpen()) {
             if (card.sdprinting)
 		MENU_ITEM(function, MSG_PAUSE_PRINT, function_sdcard_pause);
-            MENU_ITEM(function, MSG_STOP_PRINT, draw_menu_stop_confirm);
+            MENU_ITEM(submenu, MSG_STOP_PRINT, draw_menu_stop_confirm);
         } else {
             MENU_ITEM(submenu, MSG_CARD_MENU, draw_menu_sdcard);
 
