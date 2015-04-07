@@ -30,9 +30,7 @@
 
 #include <U8glib.h>
 #include "DOGMbitmaps.h"
-
 #include "ultralcd.h"
-#include "ultralcd_st7920_u8glib_rrd.h"
 #include "Configuration.h"
 
 // save 3120 bytes of PROGMEM by commenting out #define USE_BIG_EDIT_FONT
@@ -126,9 +124,10 @@
 
 // LCD selection
 #ifdef U8GLIB_ST7920
+//#include "ultralcd_st7920_u8glib_rrd.h"
 //U8GLIB_ST7920_128X64_RRD u8g(0,0,0);
-U8GLIB_ST7920_128X64_RRD u8g(0);  // while( u8g.nextPage() ) loops 2 times. Display buffer is 512 byte.
-
+//U8GLIB_ST7920_128X64_RRD u8g(0);  // while( u8g.nextPage() ) loops 2 times. Display buffer is 512 byte.
+U8GLIB_ST7920_128X64_4X u8g(LCD_PINS_D4, LCD_PINS_ENABLE, LCD_PINS_RS); // min u8glib v1.11
 #elif defined(MAKRPANEL)
 // The MaKrPanel display, ST7565 controller as well
 //U8GLIB_NHD_C12864 u8g(DOGLCD_CS, DOGLCD_A0);  // while( u8g.nextPage() ) loops 8 times. Display buffer is 128 byte.
@@ -225,6 +224,13 @@ static void lcd_implementation_init()
 
 	u8g.firstPage();
 	do {
+/*    u8g_pb_t *PageBox;
+    u8g_box_t *Box;
+    u8g_pb_GetPageBox(PageBox, Box);
+//    u8g_pb_IsIntersection(PageBox, Box);
+    u8g_pb_IsIntersection(PageBox, offx, offy, START_BMPBYTEWIDTH, START_BMPHEIGHT);
+//uint8_t u8g_is_box_bbx_intersection(u8g_box_t *box, u8g_dev_arg_bbx_t *bbx);
+*/
     u8g.drawBitmapP(offx, offy, START_BMPBYTEWIDTH, START_BMPHEIGHT, start_bmp);
     lcd_setFont(FONT_MENU);
     #ifndef STRING_SPLASH_LINE2
