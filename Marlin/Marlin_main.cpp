@@ -1603,7 +1603,7 @@ static void homeaxis(int axis) {
     }
 
     feedrate = oldFeedrate;
-    retracted[active_extruder] = retract;
+    retracted[active_extruder] = retracting;
 
   } // retract()
 
