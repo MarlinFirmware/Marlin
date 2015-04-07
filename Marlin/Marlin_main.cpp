@@ -2140,7 +2140,7 @@ inline void gcode_G28() {
    *
    * Global Parameters:
    *
-   * E/e By default G29 will engages the probe, test the bed, then disengage.
+   * E/e By default G29 will engage the probe, test the bed, then disengage.
    *     Include "E" to engage/disengage the probe for each sample.
    *     There's no extra effect if you have a fixed probe.
    *     Usage: "G29 E" or "G29 e"
@@ -2318,7 +2318,7 @@ inline void gcode_G28() {
           ProbeAction act;
           if (deploy_probe_for_each_reading) // G29 E - Stow between probes
             act = ProbeDeployAndStow;
-          else if (yCount == 0 && xCount == 0)
+          else if (yCount == 0 && xCount == xStart)
             act = ProbeDeploy;
           else if (yCount == auto_bed_leveling_grid_points - 1 && xCount == xStop - xInc)
             act = ProbeStow;
