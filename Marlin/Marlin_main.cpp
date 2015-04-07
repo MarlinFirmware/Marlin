@@ -2322,7 +2322,7 @@ inline void gcode_G28() {
             act = ProbeDeployAndStow;
           else if (yCount == 0 && xCount == 0)
             act = ProbeDeploy;
-          else if (yCount == auto_bed_leveling_grid_points - 1 && xCount == auto_bed_leveling_grid_points - 1)
+          else if (yCount == auto_bed_leveling_grid_points - 1 && xCount == xStop - xInc)
             act = ProbeStow;
           else
             act = ProbeStay;
