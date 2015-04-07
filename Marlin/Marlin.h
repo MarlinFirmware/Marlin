@@ -32,7 +32,7 @@
 # include "WProgram.h"
 #endif
 
-//Arduino < 1.0.0 does not define this, so we need to do it ourselves
+// Arduino < 1.0.0 does not define this, so we need to do it ourselves
 #ifndef analogInputToDigitalPin
 # define analogInputToDigitalPin(p) ((p) + A0)
 #endif
@@ -172,7 +172,7 @@ void manage_inactivity(bool ignore_stepper_queue=false);
 #endif
 
 
-enum AxisEnum {X_AXIS=0, Y_AXIS=1, Z_AXIS=2, E_AXIS=3};
+enum AxisEnum {X_AXIS=0, Y_AXIS=1, Z_AXIS=2, E_AXIS=3, X_HEAD=4, Y_HEAD=5};
 
 
 void FlushSerialRequestResend();
@@ -244,9 +244,9 @@ extern unsigned char fanSpeedSoftPwm;
 #endif
 
 #ifdef FILAMENT_SENSOR
-  extern float filament_width_nominal;  //holds the theoretical filament diameter ie., 3.00 or 1.75 
-  extern bool filament_sensor;  //indicates that filament sensor readings should control extrusion  
-  extern float filament_width_meas; //holds the filament diameter as accurately measured 
+  extern float filament_width_nominal;  //holds the theoretical filament diameter ie., 3.00 or 1.75
+  extern bool filament_sensor;  //indicates that filament sensor readings should control extrusion
+  extern float filament_width_meas; //holds the filament diameter as accurately measured
   extern signed char measurement_delay[];  //ring buffer to delay measurement
   extern int delay_index1, delay_index2;  //index into ring buffer
   extern float delay_dist; //delay distance counter
@@ -273,3 +273,6 @@ extern void digipot_i2c_init();
 
 extern void calculate_volumetric_multipliers();
 #endif
+
+extern void calculate_volumetric_multipliers();
+

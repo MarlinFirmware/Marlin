@@ -2949,21 +2949,7 @@ Sigma_Exit:
     #endif //BLINKM
     case 200: // M200 D<millimeters> set filament diameter and set E axis units to cubic millimeters (use S0 to set back to millimeters).
       {
-        float area = .0;
-        float radius = .0;
-        if(code_seen('D')) {
-          radius = (float)code_value() * .5;
-          if(radius == 0) {
-            area = 1;
-          } else {
-            area = M_PI * pow(radius, 2);
-          }
-        } else {
-          //reserved for setting filament diameter via UFID or filament measuring device
-          break;
-        
-          
-        }
+
         tmp_extruder = active_extruder;
         if(code_seen('T')) {
           tmp_extruder = code_value();
@@ -2974,7 +2960,32 @@ Sigma_Exit:
 					SERIAL_ECHOLN(tmp_extruder);
             break;
           }
-        volumetric_multiplier[tmp_extruder] = 1 / area;
+
+        float area = .0;
+        if(code_seen('D')) {
+		  float diameter = (float)code_value();
+		  if (diameter == 0.0) {
+			// setting any extruder filament size disables volumetric on the assumption that
+			// slicers either generate in extruder values as cubic mm or as as filament feeds
+			// for all extruders
+		    volumetric_enabled = false;
+		  } else {
+            filament_size[tmp_extruder] = (float)code_value();
+			// make sure all extruders have some sane value for the filament size
+			filament_size[0] = (filament_size[0] == 0.0 ? DEFAULT_NOMINAL_FILAMENT_DIA : filament_size[0]);
+            #if EXTRUDERS > 1
+			filament_size[1] = (filament_size[1] == 0.0 ? DEFAULT_NOMINAL_FILAMENT_DIA : filament_size[1]);
+            #if EXTRUDERS > 2
+			filament_size[2] = (filament_size[2] == 0.0 ? DEFAULT_NOMINAL_FILAMENT_DIA : filament_size[2]);
+            #endif
+            #endif
+			volumetric_enabled = true;
+		  }
+        } else {
+          //reserved for setting filament diameter via UFID or filament measuring device
+          break;
+        }
+		calculate_volumetric_multipliers();
       }
       break;
     case 201: // M201
@@ -4679,9 +4690,9 @@ void handle_status_leds(void) {
 
 void manage_inactivity(bool ignore_stepper_queue/*=false*/) //default argument set in Marlin.h
 {
-
+	
 #if defined(KILL_PIN) && KILL_PIN > -1
-   static int killCount = 0;   // make the inactivity button a bit less responsive
+	static int killCount = 0;   // make the inactivity button a bit less responsive
    const int KILL_DELAY = 10000;
 #endif
 
@@ -4689,7 +4700,8 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) //default argument s
    static int homeDebounceCount = 0;   // poor man's debouncing count
    const int HOME_DEBOUNCE_DELAY = 10000;
 #endif
-
+   
+	
   if(buflen < (BUFSIZE-1))
     get_command();
 
@@ -4699,7 +4711,7 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) //default argument s
   if(stepper_inactive_time)  {
     if( (millis() - previous_millis_cmd) >  stepper_inactive_time )
     {
-      if(blocks_queued() == false) {
+      if(blocks_queued() == false && ignore_stepper_queue == false) {
         disable_x();
         disable_y();
         disable_z();
@@ -4719,7 +4731,7 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) //default argument s
   #endif
   
   #if defined(KILL_PIN) && KILL_PIN > -1
-
+    
     // Check if the kill button was pressed and wait just in case it was an accidental
     // key kill key press
     // -------------------------------------------------------------------------------
@@ -4761,7 +4773,7 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) //default argument s
        }
     }
 #endif
-
+    
   #if defined(CONTROLLERFAN_PIN) && CONTROLLERFAN_PIN > -1
     controllerFan(); //Check if fan should be turned on to cool stepper drivers down
   #endif
@@ -4818,6 +4830,14 @@ void kill()
   SERIAL_ERROR_START;
   SERIAL_ERRORLNPGM(MSG_ERR_KILLED);
   LCD_ALERTMESSAGEPGM(MSG_KILLED);
+  
+  // FMC small patch to update the LCD before ending
+  sei();   // enable interrupts
+  for ( int i=5; i--; lcd_update())
+  {
+     delay(200);	
+  }
+  cli();   // disable interrupts
   suicide();
   while(1) { /* Intentionally left empty */ } // Wait for reset
 }
@@ -4936,27 +4956,28 @@ bool setTargetedHotend(int code){
   return false;
 }
 
+
 float calculate_volumetric_multiplier(float diameter) {
-   float area = .0;
-   float radius = .0;
+	float area = .0;
+	float radius = .0;
 
-   radius = diameter * .5;
-   if (! volumetric_enabled || radius == 0) {
-      area = 1;
-   }
-   else {
-      area = M_PI * pow(radius, 2);
-   }
+	radius = diameter * .5;
+	if (! volumetric_enabled || radius == 0) {
+		area = 1;
+	}
+	else {
+		area = M_PI * pow(radius, 2);
+	}
 
-   return 1.0 / area;
+	return 1.0 / area;
 }
 
 void calculate_volumetric_multipliers() {
-   volumetric_multiplier[0] = calculate_volumetric_multiplier(filament_size[0]);
+	volumetric_multiplier[0] = calculate_volumetric_multiplier(filament_size[0]);
 #if EXTRUDERS > 1
-   volumetric_multiplier[1] = calculate_volumetric_multiplier(filament_size[1]);
+	volumetric_multiplier[1] = calculate_volumetric_multiplier(filament_size[1]);
 #if EXTRUDERS > 2
-   volumetric_multiplier[2] = calculate_volumetric_multiplier(filament_size[2]);
+	volumetric_multiplier[2] = calculate_volumetric_multiplier(filament_size[2]);
 #endif
 #endif
 }
