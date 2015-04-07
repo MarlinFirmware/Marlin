@@ -442,4 +442,40 @@
   #endif
 #endif // DELTA_CALIBRATION_MENU
 
+  #ifdef EASY_UI
+
+  #define MSG_FILAMENT "Filament"
+  #define MSG_LEVEL_PLATE "Level plate"
+  #define MSG_PREHEAT "Preheat"
+  #define MSG_JOG "Jog"
+  #define MSG_LOAD "Load"
+  #define MSG_UNLOAD "Unload"
+  #define MSG_ABORT "Abort" 
+  #define MSG_PRE_EXTRUD "Insert & Press"      
+  #define MSG_EXTRUDING "Extruding..." 
+  #define MSG_LENGTH "Length:"         
+  #define MSG_RETRACTING "Retracting"
+
+  #ifndef MSG_WELLCOME
+  #define MSG_WELLCOME                      "bq Witbox"
+  #endif
+
+  #define FIRMWARE_VER "v1.3"
+  #define MSG_LP_INTRO "  Leveling plate...    Press to start   "
+  #define MSG_LP_1 " Adjust first point  & Press the button"
+  #define MSG_LP_2 "Adjust second point  & Press the button"
+  #define MSG_LP_3 "Adjust third point   & Press the button"
+  #define MSG_LP_4 "     Is it ok?         Press to end"       
+  #define MSG_LP_5 " Plate leveled!"
+  #define MSG_LP_COOL_1 "Cooling..."
+  #define MSG_LP_COOL_2 "Temp:"
+  #define MSG_LP_COOL_3 "   Press to abort"
+
+  #if EXTRUDERS==2
+    #define MSG_EXTRUDER_1 "Left extruder"
+    #define MSG_EXTRUDER_2 "Rigth extruder"
+  #endif
+
+  #endif //#ifdef EASY_UI
+
 #endif // LANGUAGE_EN_H

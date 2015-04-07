@@ -18,6 +18,16 @@
     void dontExpireStatus();
   #endif
 
+//EASY_UI->
+#ifdef EASY_UI
+void set_pageShowInfo(int value);
+void set_ChangeScreen(boolean state);
+void config_lcd_level_bed(void);
+void lcd_level_bed_cooling(void);
+void lcd_level_bed(void);
+#endif
+//<-EASY_UI
+
   #ifdef DOGLCD
     extern int lcd_contrast;
     void lcd_setcontrast(uint8_t value);

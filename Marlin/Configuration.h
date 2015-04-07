@@ -550,7 +550,6 @@ const bool Z_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the logic
 #define DEFAULT_ZJERK                 0.4     // (mm/sec)
 #define DEFAULT_EJERK                 5.0    // (mm/sec)
 
-
 //=============================================================================
 //============================= Additional Features ===========================
 //=============================================================================
@@ -564,6 +563,7 @@ const bool Z_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the logic
     #define Z_PROBE_OFFSET_RANGE_MAX 20
   #endif
 #endif
+
 
 
 // EEPROM
@@ -669,6 +669,33 @@ const bool Z_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the logic
 // https://bitbucket.org/fmalpartida/new-liquidcrystal/wiki/schematics#!shiftregister-connection
 
 //#define SAV_3DLCD
+
+//===========================================================================
+//=============================LCD Interface Features===============================
+//===========================================================================
+
+//#define EASY_UI		//Uncoment for use user friendly interface, for people unfamiliar with the technicalities
+
+#ifdef EASY_UI
+
+	#define EXTRUSION_SPEED 300
+	#define LEVEL_PLATE_TEMP_PROTECTION 60
+	#define Change_Filament_Target_Temp 220
+
+	#define FILAMENT_EXTRUSION_LENGTH 30
+	#define FILAMENT_UNLOAD_EXTRUSION_LENGTH 5
+	#define FILAMENT_UNLOAD_RETRACTION_LENGTH 40
+
+    #define PREHEAT_HOTEND_TEMP 200
+    #define PREHEAT_BED_TEMP 80
+    #define PREHEAT_FAN_SPEED 0
+    #define COOLDOWN_FAN_SPEED 255
+#endif
+
+#if defined(ENABLE_AUTO_BED_LEVELING) || defined(EASY_UI)
+  #define XY_TRAVEL_SPEED 8000 		// X and Y axis travel speed between probes and Witbox movements, in mm/min
+#endif
+
 
 // Increase the FAN pwm frequency. Removes the PWM noise but increases heating in the FET/Arduino
 //#define FAST_PWM_FAN
