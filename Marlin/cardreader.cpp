@@ -249,7 +249,7 @@ void CardReader::openFile(char* name, bool read, bool replace_current/*=true*/) 
         if (!myDir.open(curDir, subdirname, O_READ)) {
           SERIAL_PROTOCOLPGM(MSG_SD_OPEN_FILE_FAIL);
           SERIAL_PROTOCOL(subdirname);
-          SERIAL_PROTOCOLLNPGM(".");
+          SERIAL_PROTOCOLCHAR('.');
           return;
         }
         else {
@@ -287,14 +287,14 @@ void CardReader::openFile(char* name, bool read, bool replace_current/*=true*/) 
     else {
       SERIAL_PROTOCOLPGM(MSG_SD_OPEN_FILE_FAIL);
       SERIAL_PROTOCOL(fname);
-      SERIAL_PROTOCOLLNPGM(".");
+      SERIAL_PROTOCOLCHAR('.');
     }
   }
   else { //write
     if (!file.open(curDir, fname, O_CREAT | O_APPEND | O_WRITE | O_TRUNC)) {
       SERIAL_PROTOCOLPGM(MSG_SD_OPEN_FILE_FAIL);
       SERIAL_PROTOCOL(fname);
-      SERIAL_PROTOCOLLNPGM(".");
+      SERIAL_PROTOCOLCHAR('.');
     }
     else {
       saving = true;
@@ -330,7 +330,7 @@ void CardReader::removeFile(char* name) {
         if (!myDir.open(curDir, subdirname, O_READ)) {
           SERIAL_PROTOCOLPGM("open failed, File: ");
           SERIAL_PROTOCOL(subdirname);
-          SERIAL_PROTOCOLLNPGM(".");
+          SERIAL_PROTOCOLCHAR('.');
           return;
         }
         else {
@@ -360,7 +360,7 @@ void CardReader::removeFile(char* name) {
   else {
     SERIAL_PROTOCOLPGM("Deletion failed, File: ");
     SERIAL_PROTOCOL(fname);
-    SERIAL_PROTOCOLLNPGM(".");
+    SERIAL_PROTOCOLCHAR('.');
   }
 }
 
@@ -368,7 +368,7 @@ void CardReader::getStatus() {
   if (cardOK) {
     SERIAL_PROTOCOLPGM(MSG_SD_PRINTING_BYTE);
     SERIAL_PROTOCOL(sdpos);
-    SERIAL_PROTOCOLPGM("/");
+    SERIAL_PROTOCOLCHAR('/');
     SERIAL_PROTOCOLLN(filesize);
   }
   else {

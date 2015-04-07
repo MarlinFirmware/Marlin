@@ -3,7 +3,21 @@
  *
  * Configuration and EEPROM storage
  *
- * V16 EEPROM Layout:
+ * IMPORTANT:  Whenever there are changes made to the variables stored in EEPROM
+ * in the functions below, also increment the version number. This makes sure that
+ * the default values are used whenever there is a change to the data, to prevent
+ * wrong data being written to the variables.
+ *
+ * ALSO: Variables in the Store and Retrieve sections must be in the same order.
+ *       If a feature is disabled, some data must still be written that, when read,
+ *       either sets a Sane Default, or results in No Change to the existing value.
+ *
+ */
+
+#define EEPROM_VERSION "V19"
+
+/**
+ * V19 EEPROM Layout:
  *
  *  ver
  *  axis_steps_per_unit (x4)
@@ -47,6 +61,9 @@
  *  Kp[2], Ki[2], Kd[2], Kc[2]
  *  Kp[3], Ki[3], Kd[3], Kc[3]
  *
+ * PIDTEMPBED:
+ *  bedKp, bedKi, bedKd
+ *
  * DOGLCD:
  *  lcd_contrast
  *
@@ -78,7 +95,7 @@
 #include "ultralcd.h"
 #include "ConfigurationStore.h"
 
-#if defined(MESH_BED_LEVELING)
+#ifdef MESH_BED_LEVELING
    #include "mesh_bed_leveling.h"
 #endif  // MESH_BED_LEVELING
 
@@ -110,15 +127,6 @@ void _EEPROM_readData(int &pos, uint8_t* value, uint8_t size) {
 #define DUMMY_PID_VALUE 3000.0f
 
 #define EEPROM_OFFSET 100
-
-
-// IMPORTANT:  Whenever there are changes made to the variables stored in EEPROM
-// in the functions below, also increment the version number. This makes sure that
-// the default values are used whenever there is a change to the data, to prevent
-// wrong data being written to the variables.
-// ALSO:  always make sure the variables in the Store and retrieve sections are in the same order.
-
-#define EEPROM_VERSION "V18"
 
 #ifdef EEPROM_SETTINGS
 
@@ -194,7 +202,6 @@ void Config_StoreSettings()  {
   EEPROM_WRITE_VAR(i, absPreheatHPBTemp);
   EEPROM_WRITE_VAR(i, absPreheatFanSpeed);
 
-
   for (int e = 0; e < 4; e++) {
 
     #ifdef PIDTEMP
@@ -209,18 +216,24 @@ void Config_StoreSettings()  {
           EEPROM_WRITE_VAR(i, dummy);
         #endif
       }
-      else {
-    #else // !PIDTEMP
-      {
+      else
     #endif // !PIDTEMP
-
-        dummy = DUMMY_PID_VALUE;
+      {
+        dummy = DUMMY_PID_VALUE; // When read, will not change the existing value
         EEPROM_WRITE_VAR(i, dummy);
         dummy = 0.0f;
         for (int q = 3; q--;) EEPROM_WRITE_VAR(i, dummy);
       }
 
   } // Extruders Loop
+
+  #ifndef PIDTEMPBED
+    float bedKp = DUMMY_PID_VALUE, bedKi = DUMMY_PID_VALUE, bedKd = DUMMY_PID_VALUE;
+  #endif
+
+  EEPROM_WRITE_VAR(i, bedKp);
+  EEPROM_WRITE_VAR(i, bedKi);
+  EEPROM_WRITE_VAR(i, bedKd);
 
   #ifndef DOGLCD
     int lcd_contrast = 32;
@@ -308,7 +321,7 @@ void Config_RetrieveSettings() {
 
     uint8_t mesh_num_x = 0;
     uint8_t mesh_num_y = 0;
-    #if defined(MESH_BED_LEVELING)
+    #ifdef MESH_BED_LEVELING
       EEPROM_READ_VAR(i, mbl.active);
       EEPROM_READ_VAR(i, mesh_num_x);
       EEPROM_READ_VAR(i, mesh_num_y);
@@ -364,7 +377,7 @@ void Config_RetrieveSettings() {
 
     #ifdef PIDTEMP
       for (int e = 0; e < 4; e++) { // 4 = max extruders currently supported by Marlin
-        EEPROM_READ_VAR(i, dummy);
+        EEPROM_READ_VAR(i, dummy); // Kp
         if (e < EXTRUDERS && dummy != DUMMY_PID_VALUE) {
           // do not need to scale PID values as the values in EEPROM are already scaled
           PID_PARAM(Kp, e) = dummy;
@@ -384,6 +397,20 @@ void Config_RetrieveSettings() {
       // 4 x 4 = 16 slots for PID parameters
       for (int q=16; q--;) EEPROM_READ_VAR(i, dummy);  // 4x Kp, Ki, Kd, Kc
     #endif // !PIDTEMP
+
+    #ifndef PIDTEMPBED
+      float bedKp, bedKi, bedKd;
+    #endif
+
+    EEPROM_READ_VAR(i, dummy); // bedKp
+    if (dummy != DUMMY_PID_VALUE) {
+      bedKp = dummy;
+      EEPROM_READ_VAR(i, bedKi);
+      EEPROM_READ_VAR(i, bedKd);
+    }
+    else {
+      for (int q=2; q--;) EEPROM_READ_VAR(i, dummy); // bedKi, bedKd
+    }
 
     #ifndef DOGLCD
       int lcd_contrast;
@@ -516,6 +543,12 @@ void Config_ResetDefault() {
     // call updatePID (similar to when we have processed M301)
     updatePID();
   #endif // PIDTEMP
+
+  #ifdef PIDTEMPBED
+    bedKp = DEFAULT_bedKp;
+    bedKi = scalePID_i(DEFAULT_bedKi);
+    bedKd = scalePID_d(DEFAULT_bedKd);
+  #endif
 
   #ifdef FWRETRACT
     autoretract_enabled = false;
@@ -660,17 +693,28 @@ void Config_PrintSettings(bool forReplay) {
     SERIAL_EOL;  
   #endif // DELTA
 
-  #ifdef PIDTEMP
+  #if defined(PIDTEMP) || defined(PIDTEMPBED)
     SERIAL_ECHO_START;
     if (!forReplay) {
       SERIAL_ECHOLNPGM("PID settings:");
       SERIAL_ECHO_START;
     }
-    SERIAL_ECHOPAIR("   M301 P", PID_PARAM(Kp, 0)); // for compatibility with hosts, only echos values for E0
-    SERIAL_ECHOPAIR(" I", unscalePID_i(PID_PARAM(Ki, 0)));
-    SERIAL_ECHOPAIR(" D", unscalePID_d(PID_PARAM(Kd, 0)));
-    SERIAL_EOL;
-  #endif // PIDTEMP
+    #if defined(PIDTEMP) && defined(PIDTEMPBED)
+      SERIAL_EOL;
+    #endif
+    #ifdef PIDTEMP
+      SERIAL_ECHOPAIR("  M301 P", PID_PARAM(Kp, 0)); // for compatibility with hosts, only echos values for E0
+      SERIAL_ECHOPAIR(" I", unscalePID_i(PID_PARAM(Ki, 0)));
+      SERIAL_ECHOPAIR(" D", unscalePID_d(PID_PARAM(Kd, 0)));
+      SERIAL_EOL;
+    #endif
+    #ifdef PIDTEMPBED
+      SERIAL_ECHOPAIR("  M304 P", bedKp); // for compatibility with hosts, only echos values for E0
+      SERIAL_ECHOPAIR(" I", unscalePID_i(bedKi));
+      SERIAL_ECHOPAIR(" D", unscalePID_d(bedKd));
+      SERIAL_EOL;
+    #endif
+  #endif
 
   #ifdef FWRETRACT
 
@@ -679,7 +723,7 @@ void Config_PrintSettings(bool forReplay) {
       SERIAL_ECHOLNPGM("Retract: S=Length (mm) F:Speed (mm/m) Z: ZLift (mm)");
       SERIAL_ECHO_START;
     }
-    SERIAL_ECHOPAIR("   M207 S", retract_length);
+    SERIAL_ECHOPAIR("  M207 S", retract_length);
     SERIAL_ECHOPAIR(" F", retract_feedrate*60);
     SERIAL_ECHOPAIR(" Z", retract_zlift);
     SERIAL_EOL;
@@ -688,7 +732,7 @@ void Config_PrintSettings(bool forReplay) {
       SERIAL_ECHOLNPGM("Recover: S=Extra length (mm) F:Speed (mm/m)");
       SERIAL_ECHO_START;
     }
-    SERIAL_ECHOPAIR("   M208 S", retract_recover_length);
+    SERIAL_ECHOPAIR("  M208 S", retract_recover_length);
     SERIAL_ECHOPAIR(" F", retract_recover_feedrate*60);
     SERIAL_EOL;
     SERIAL_ECHO_START;
@@ -696,7 +740,7 @@ void Config_PrintSettings(bool forReplay) {
       SERIAL_ECHOLNPGM("Auto-Retract: S=0 to disable, 1 to interpret extrude-only moves as retracts or recoveries");
       SERIAL_ECHO_START;
     }
-    SERIAL_ECHOPAIR("   M209 S", (unsigned long)(autoretract_enabled ? 1 : 0));
+    SERIAL_ECHOPAIR("  M209 S", (unsigned long)(autoretract_enabled ? 1 : 0));
     SERIAL_EOL;
 
     #if EXTRUDERS > 1
@@ -720,20 +764,20 @@ void Config_PrintSettings(bool forReplay) {
       SERIAL_ECHOLNPGM("Filament settings:");
       SERIAL_ECHO_START;
     }
-    SERIAL_ECHOPAIR("   M200 D", filament_size[0]);
+    SERIAL_ECHOPAIR("  M200 D", filament_size[0]);
     SERIAL_EOL;
 
     #if EXTRUDERS > 1
       SERIAL_ECHO_START;
-      SERIAL_ECHOPAIR("   M200 T1 D", filament_size[1]);
+      SERIAL_ECHOPAIR("  M200 T1 D", filament_size[1]);
       SERIAL_EOL;
       #if EXTRUDERS > 2
         SERIAL_ECHO_START;
-        SERIAL_ECHOPAIR("   M200 T2 D", filament_size[2]);
+        SERIAL_ECHOPAIR("  M200 T2 D", filament_size[2]);
         SERIAL_EOL;
         #if EXTRUDERS > 3
           SERIAL_ECHO_START;
-          SERIAL_ECHOPAIR("   M200 T3 D", filament_size[3]);
+          SERIAL_ECHOPAIR("  M200 T3 D", filament_size[3]);
           SERIAL_EOL;
         #endif
       #endif
@@ -752,7 +796,7 @@ void Config_PrintSettings(bool forReplay) {
         SERIAL_ECHOLNPGM("Z-Probe Offset (mm):");
         SERIAL_ECHO_START;
       }
-      SERIAL_ECHOPAIR("   M", (unsigned long)CUSTOM_M_CODE_SET_Z_PROBE_OFFSET);
+      SERIAL_ECHOPAIR("  M", (unsigned long)CUSTOM_M_CODE_SET_Z_PROBE_OFFSET);
       SERIAL_ECHOPAIR(" Z", -zprobe_zoffset);
     #else
       if (!forReplay) {

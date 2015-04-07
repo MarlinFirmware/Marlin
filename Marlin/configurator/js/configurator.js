@@ -29,9 +29,9 @@ $(function(){
 var config = {
   type:  'github',
   host:  'https://api.github.com',
-  owner: 'thinkyhead',
+  owner: 'MarlinFirmware',
   repo:  'Marlin',
-  ref:   'marlin_configurator',
+  ref:   'Development',
   path:  'Marlin/configurator/config'
 };
 /**/
