@@ -31,7 +31,7 @@ int absPreheatFanSpeed;
 typedef void (*menuFunc_t)();
 
 uint8_t lcd_status_message_level;
-char lcd_status_message[LCD_WIDTH+1] = WELCOME_MSG;
+char lcd_status_message[3*LCD_WIDTH+1] = WELCOME_MSG; // worst case is kana with up to 3*LCD_WIDTH+1
 
 #ifdef DOGLCD
   #include "dogm_lcd_implementation.h"
@@ -1402,13 +1402,6 @@ void lcd_ignore_click(bool b) {
 }
 
 void lcd_finishstatus(bool persist=false) {
-  int len = lcd_strlen(lcd_status_message);
-  if (len > 0) {
-    while (len < LCD_WIDTH) {
-      lcd_status_message[len++] = ' ';
-    }
-  }
-  lcd_status_message[LCD_WIDTH] = '\0';
   #ifdef LCD_PROGRESS_BAR
     progressBarTick = millis();
     #if PROGRESS_MSG_EXPIRE > 0
@@ -1426,15 +1419,27 @@ void lcd_finishstatus(bool persist=false) {
   void dontExpireStatus() { expireStatusMillis = 0; }
 #endif
 
+void set_utf_strlen(char *s, uint8_t n) {
+  uint8_t i = 0, j = 0;
+  while (s[i] && (j < n)) {
+    if ((s[i] & 0xc0u) != 0x80u) j++;
+    i++;
+  }
+  while (j++ < n) s[i++] = ' ';
+  s[i] = 0;
+}
+
 void lcd_setstatus(const char* message, bool persist) {
   if (lcd_status_message_level > 0) return;
-  strncpy(lcd_status_message, message, LCD_WIDTH);
+  strncpy(lcd_status_message, message, 3*LCD_WIDTH);
+  set_utf_strlen(lcd_status_message, LCD_WIDTH);
   lcd_finishstatus(persist);
 }
 
 void lcd_setstatuspgm(const char* message, uint8_t level) {
   if (level >= lcd_status_message_level) {
-    strncpy_P(lcd_status_message, message, LCD_WIDTH);
+    strncpy_P(lcd_status_message, message, 3*LCD_WIDTH);
+    set_utf_strlen(lcd_status_message, LCD_WIDTH);
     lcd_status_message_level = level;
     lcd_finishstatus(level > 0);
   }
