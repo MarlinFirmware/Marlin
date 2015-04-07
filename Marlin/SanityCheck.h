@@ -92,6 +92,18 @@
   #endif
 
   /**
+   * Mesh Bed Leveling
+   */
+  #ifdef MESH_BED_LEVELING
+    #ifdef DELTA
+      #error MESH_BED_LEVELING does not yet support DELTA printers
+    #endif
+    #ifdef ENABLE_AUTO_BED_LEVELING
+      #error Select ENABLE_AUTO_BED_LEVELING or MESH_BED_LEVELING, not both
+    #endif
+  #endif
+
+  /**
    * Auto Bed Leveling
    */
   #ifdef ENABLE_AUTO_BED_LEVELING
