@@ -191,6 +191,8 @@ char lcd_printPGM(const char* str) {
   return n;
 }
 
+static bool show_splashscreen = true;
+
 static void lcd_implementation_init()
 {
   #ifdef LCD_PIN_BL // Enable LCD backlight
@@ -223,24 +225,20 @@ static void lcd_implementation_init()
   int txt1X = (u8g.getWidth() - (sizeof(STRING_SPLASH_LINE1) - 1)*DOG_CHAR_WIDTH) / 2;
 
 	u8g.firstPage();
-	do {
-/*    u8g_pb_t *PageBox;
-    u8g_box_t *Box;
-    u8g_pb_GetPageBox(PageBox, Box);
-//    u8g_pb_IsIntersection(PageBox, Box);
-    u8g_pb_IsIntersection(PageBox, offx, offy, START_BMPBYTEWIDTH, START_BMPHEIGHT);
-//uint8_t u8g_is_box_bbx_intersection(u8g_box_t *box, u8g_dev_arg_bbx_t *bbx);
-*/
-    u8g.drawBitmapP(offx, offy, START_BMPBYTEWIDTH, START_BMPHEIGHT, start_bmp);
-    lcd_setFont(FONT_MENU);
-    #ifndef STRING_SPLASH_LINE2
-      u8g.drawStr(txt1X, u8g.getHeight() - DOG_CHAR_HEIGHT, STRING_SPLASH_LINE1);
-    #else
-      int txt2X = (u8g.getWidth() - (sizeof(STRING_SPLASH_LINE2) - 1)*DOG_CHAR_WIDTH) / 2;
-      u8g.drawStr(txt1X, u8g.getHeight() - DOG_CHAR_HEIGHT*3/2, STRING_SPLASH_LINE1);
-      u8g.drawStr(txt2X, u8g.getHeight() - DOG_CHAR_HEIGHT*1/2, STRING_SPLASH_LINE2);
-    #endif
+  do {
+    if (show_splashscreen) {
+      u8g.drawBitmapP(offx, offy, START_BMPBYTEWIDTH, START_BMPHEIGHT, start_bmp);
+      lcd_setFont(FONT_MENU);
+      #ifndef STRING_SPLASH_LINE2
+        u8g.drawStr(txt1X, u8g.getHeight() - DOG_CHAR_HEIGHT, STRING_SPLASH_LINE1);
+      #else
+        int txt2X = (u8g.getWidth() - (sizeof(STRING_SPLASH_LINE2) - 1)*DOG_CHAR_WIDTH) / 2;
+        u8g.drawStr(txt1X, u8g.getHeight() - DOG_CHAR_HEIGHT*3/2, STRING_SPLASH_LINE1);
+        u8g.drawStr(txt2X, u8g.getHeight() - DOG_CHAR_HEIGHT*1/2, STRING_SPLASH_LINE2);
+      #endif
+    }
   } while (u8g.nextPage());
+  show_splashscreen = false;
 }
 
 static void lcd_implementation_clear() { } // Automatically cleared by Picture Loop
