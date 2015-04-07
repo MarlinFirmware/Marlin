@@ -26,12 +26,12 @@
   #undef Z_MIN_PIN
   #undef Z_MAX_PIN
 
-  #define X_MIN_PIN           2
-  #define X_MAX_PIN           3
-  #define Y_MIN_PIN          15
-  #define Y_MAX_PIN          14
-  #define Z_MIN_PIN          19
-  #define Z_MAX_PIN          18
+  #define X_MIN_PIN         2
+  #define X_MAX_PIN         3
+  #define Y_MIN_PIN        15
+  #define Y_MAX_PIN        14
+  #define Z_MIN_PIN        19
+  #define Z_MAX_PIN        18
  #endif
 //
  #ifdef Z_PROBE_ENDSTOP
@@ -76,43 +76,45 @@
 //on a Delta with 1 servo. Running through the Z servo endstop in code. 
 //Physical wire attachment was done on EXT1 on the GND, 5V, and D47 pins.
 //
-#undef SERVO0_PIN
-#undef SERVO1_PIN
-#undef SERVO2_PIN
-#undef SERVO3_PIN
+ #undef SERVO0_PIN
+ #undef SERVO1_PIN
+ #undef SERVO2_PIN
+ #undef SERVO3_PIN
 
-#ifdef NUM_SERVOS
-  #define SERVO0_PIN         -1
-  #if NUM_SERVOS > 1
-    #define SERVO1_PIN       -1
-    #if NUM_SERVOS > 2
-      #define SERVO2_PIN     47
-      #if NUM_SERVOS > 3
-        #define SERVO3_PIN   -1
-      #endif
-    #endif
-  #endif
-#endif
+ #ifdef NUM_SERVOS
+   #define SERVO0_PIN       47
+   #if NUM_SERVOS > 1
+     #define SERVO1_PIN     -1
+     #if NUM_SERVOS > 2
+       #define SERVO2_PIN   -1
+       #if NUM_SERVOS > 3
+         #define SERVO3_PIN -1
+       #endif
+     #endif
+   #endif
+ #endif
 
 //LCD Pins//
 
-#if defined(VIKI2) || defined(miniVIKI)
- #define BEEPER 33
+ #if defined(VIKI2) || defined(miniVIKI)
+  #define BEEPER           33
  // Pins for DOGM SPI LCD Support
- #define DOGLCD_A0  44
- #define DOGLCD_CS  45
- #define LCD_SCREEN_ROT_180
- 
+  #define DOGLCD_A0        44
+  #define DOGLCD_CS        45
+  #define LCD_SCREEN_ROT_180
+  
  //The encoder and click button
- #define BTN_EN1 22
- #define BTN_EN2 7
- #define BTN_ENC 39  //the click switch
+  #define BTN_EN1          22
+  #define BTN_EN2           7
+  #define BTN_ENC          39  //the click switch
+ 
+  #define SDSS             53
+  #define SDCARDDETECT     49
+  
+  #define KILL_PIN         31
+ #endif
 
- #define SDSS 53
- #define SDCARDDETECT 49
- 
- #define KILL_PIN 31
- 
- #define STAT_LED_RED       32
- #define STAT_LED_BLUE      35
-#endif
+ #ifdef TEMP_STAT_LEDS
+  #define STAT_LED_RED     32
+  #define STAT_LED_BLUE    35
+ #endif
