@@ -256,7 +256,7 @@
 		#define MSG_LENGTH "Length:"         
 		#define MSG_RETRACTING "Retracting"
 
-		#define MSG_WELLCOME "bq Hephestos"
+		#define MSG_WELLCOME "bq Witbox"
 
 		#define MSG_LP_COOL_1 "Cooling..."
 		#define MSG_LP_COOL_2 "Temp:"
@@ -988,7 +988,7 @@
 		#define MSG_EXTRUDING "Extruyendo..."
 		#define MSG_LENGTH "Longitud:"
 		#define MSG_RETRACTING "Retrayendo"
-		#define MSG_WELLCOME "bq Hephestos"
+		#define MSG_WELLCOME "bq Witbox"
 		#define MSG_LP_INTRO "Nivelando la base... Pulsa para empezar"
 		#define MSG_LP_1 " Nivela el punto 1     Pulsa la rueda"
 		#define MSG_LP_2 " Nivela el punto 2     Pulsa la rueda"
