@@ -1525,17 +1525,15 @@ ISR(TIMER0_COMPB_vect) {
     for (int i = 0; i < 4; i++) raw_temp_value[i] = 0;
     raw_temp_bed_value = 0;
 
-	#if HAS_TEMP_0
-		#ifndef HEATER_0_USES_MAX6675
-		  #if HEATER_0_RAW_LO_TEMP > HEATER_0_RAW_HI_TEMP
-			#define GE0 <=
-		  #else
-			#define GE0 >=
-		  #endif
-		  if (current_temperature_raw[0] GE0 maxttemp_raw[0]) max_temp_error(0);
-		  if (minttemp_raw[0] GE0 current_temperature_raw[0]) min_temp_error(0);
-		#endif
-	#endif
+    #if HAS_TEMP_0 && !defined(HEATER_0_USES_MAX6675)
+      #if HEATER_0_RAW_LO_TEMP > HEATER_0_RAW_HI_TEMP
+        #define GE0 <=
+      #else
+        #define GE0 >=
+      #endif
+      if (current_temperature_raw[0] GE0 maxttemp_raw[0]) max_temp_error(0);
+      if (minttemp_raw[0] GE0 current_temperature_raw[0]) min_temp_error(0);
+    #endif
 
     #if HAS_TEMP_1
       #if HEATER_1_RAW_LO_TEMP > HEATER_1_RAW_HI_TEMP
