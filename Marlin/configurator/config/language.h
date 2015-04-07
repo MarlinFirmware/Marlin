@@ -11,26 +11,33 @@
 //
 //   ==> ALWAYS TRY TO COMPILE MARLIN WITH/WITHOUT "ULTIPANEL" / "ULTRALCD" / "SDSUPPORT" #define IN "Configuration.h"
 //   ==> ALSO TRY ALL AVAILABLE LANGUAGE OPTIONS
+// See also documentation/LCDLanguageFont.md
 
 // Languages
-// en    English
-// pl    Polish
-// fr    French
-// de    German
-// es    Spanish
-// ru    Russian
-// it    Italian
-// pt    Portuguese
-// pt-br Portuguese (Brazil)
-// fi    Finnish
-// an    Aragonese
-// nl    Dutch
-// ca    Catalan
-// eu    Basque-Euskera
+// en       English
+// pl       Polish
+// fr       French
+// de       German
+// es       Spanish
+// ru       Russian
+// it       Italian
+// pt       Portuguese
+// pt-br    Portuguese (Brazil)
+// fi       Finnish
+// an       Aragonese
+// nl       Dutch
+// ca       Catalan
+// eu       Basque-Euskera
+// kana     Japanese
+// kana_utf Japanese
 
 #ifndef LANGUAGE_INCLUDE
   // pick your language from the list above
   #define LANGUAGE_INCLUDE GENERATE_LANGUAGE_INCLUDE(en)
+#endif
+
+#ifdef HAS_AUTOMATIC_VERSIONING
+  #include "_Version.h"
 #endif
 
 #define PROTOCOL_VERSION "1.0"
@@ -56,18 +63,37 @@
 #elif MB(HEPHESTOS)
   #define MACHINE_NAME "HEPHESTOS"
   #define FIRMWARE_URL "http://www.bq.com/gb/downloads-prusa-i3-hephestos.html"
-#else // Default firmware set to Mendel
-  #define MACHINE_NAME "Mendel"
-  #define FIRMWARE_URL "https://github.com/MarlinFirmware/Marlin"
+#elif MB(BRAINWAVE_PRO)
+  #define MACHINE_NAME "Kossel Pro"
+  #ifndef FIRMWARE_URL
+    #define FIRMWARE_URL "https://github.com/OpenBeamUSA/Marlin/"
+  #endif
+#else
+  #ifndef MACHINE_NAME
+    #define MACHINE_NAME "Mendel"
+  #endif
 #endif
 
 #ifdef CUSTOM_MENDEL_NAME
+  #warning CUSTOM_MENDEL_NAME deprecated - use CUSTOM_MACHINE_NAME
+  #define CUSTOM_MACHINE_NAME CUSTOM_MENDEL_NAME
+#endif
+
+#ifdef CUSTOM_MACHINE_NAME
   #undef MACHINE_NAME
-  #define MACHINE_NAME CUSTOM_MENDEL_NAME
+  #define MACHINE_NAME CUSTOM_MACHINE_NAME
+#endif
+
+#ifndef FIRMWARE_URL
+  #define FIRMWARE_URL "https://github.com/MarlinFirmware/Marlin"
+#endif
+
+#ifndef BUILD_VERSION
+  #define BUILD_VERSION "V1; Sprinter/grbl mashup for gen6"
 #endif
 
 #ifndef MACHINE_UUID
-  #define MACHINE_UUID "00000000-0000-0000-0000-000000000000"
+   #define MACHINE_UUID "00000000-0000-0000-0000-000000000000"
 #endif
 
 
@@ -114,7 +140,7 @@
 #define MSG_HEATING_COMPLETE                "Heating done."
 #define MSG_BED_HEATING                     "Bed Heating."
 #define MSG_BED_DONE                        "Bed done."
-#define MSG_M115_REPORT                     "FIRMWARE_NAME:Marlin V1; Sprinter/grbl mashup for gen6 FIRMWARE_URL:" FIRMWARE_URL " PROTOCOL_VERSION:" PROTOCOL_VERSION " MACHINE_TYPE:" MACHINE_NAME " EXTRUDER_COUNT:" STRINGIFY(EXTRUDERS) " UUID:" MACHINE_UUID "\n"
+#define MSG_M115_REPORT                     "FIRMWARE_NAME:Marlin " BUILD_VERSION " FIRMWARE_URL:" FIRMWARE_URL " PROTOCOL_VERSION:" PROTOCOL_VERSION " MACHINE_TYPE:" MACHINE_NAME " EXTRUDER_COUNT:" STRINGIFY(EXTRUDERS) " UUID:" MACHINE_UUID "\n"
 #define MSG_COUNT_X                         " Count X: "
 #define MSG_ERR_KILLED                      "Printer halted. kill() called!"
 #define MSG_ERR_STOPPED                     "Printer stopped due to errors. Fix the error and use M999 to restart. (Temperature is reset. Set it after restarting)"
@@ -122,12 +148,15 @@
 #define MSG_UNKNOWN_COMMAND                 "Unknown command: \""
 #define MSG_ACTIVE_EXTRUDER                 "Active Extruder: "
 #define MSG_INVALID_EXTRUDER                "Invalid extruder"
+#define MSG_INVALID_SOLENOID                "Invalid solenoid"
 #define MSG_X_MIN                           "x_min: "
 #define MSG_X_MAX                           "x_max: "
 #define MSG_Y_MIN                           "y_min: "
 #define MSG_Y_MAX                           "y_max: "
 #define MSG_Z_MIN                           "z_min: "
 #define MSG_Z_MAX                           "z_max: "
+#define MSG_Z2_MAX                          "z2_max: "
+#define MSG_Z_PROBE                         "z_probe: "
 #define MSG_M119_REPORT                     "Reporting endstop status"
 #define MSG_ENDSTOP_HIT                     "TRIGGERED"
 #define MSG_ENDSTOP_OPEN                    "open"
@@ -160,68 +189,48 @@
 
 #define MSG_ERR_EEPROM_WRITE                "Error writing to EEPROM!"
 
+// temperature.cpp strings
+#define MSG_PID_AUTOTUNE                    "PID Autotune"
+#define MSG_PID_AUTOTUNE_START              MSG_PID_AUTOTUNE " start"
+#define MSG_PID_AUTOTUNE_FAILED             MSG_PID_AUTOTUNE " failed!"
+#define MSG_PID_BAD_EXTRUDER_NUM            MSG_PID_AUTOTUNE_FAILED " Bad extruder number"
+#define MSG_PID_TEMP_TOO_HIGH               MSG_PID_AUTOTUNE_FAILED " Temperature too high"
+#define MSG_PID_TIMEOUT                     MSG_PID_AUTOTUNE_FAILED " timeout"
+#define MSG_BIAS                            " bias: "
+#define MSG_D                               " d: "
+#define MSG_T_MIN                           " min: "
+#define MSG_T_MAX                           " max: "
+#define MSG_KU                              " Ku: "
+#define MSG_TU                              " Tu: "
+#define MSG_CLASSIC_PID                     " Classic PID "
+#define MSG_KP                              " Kp: "
+#define MSG_KI                              " Ki: "
+#define MSG_KD                              " Kd: "
+#define MSG_OK_B                            "ok B:"
+#define MSG_OK_T                            "ok T:"
+#define MSG_AT                              " @:"
+#define MSG_PID_AUTOTUNE_FINISHED           MSG_PID_AUTOTUNE " finished! Put the last Kp, Ki and Kd constants from above into Configuration.h"
+#define MSG_PID_DEBUG                       " PID_DEBUG "
+#define MSG_PID_DEBUG_INPUT                 ": Input "
+#define MSG_PID_DEBUG_OUTPUT                " Output "
+#define MSG_PID_DEBUG_PTERM                 " pTerm "
+#define MSG_PID_DEBUG_ITERM                 " iTerm "
+#define MSG_PID_DEBUG_DTERM                 " dTerm "
+#define MSG_HEATING_FAILED                  "Heating failed"
+#define MSG_EXTRUDER_SWITCHED_OFF           "Extruder switched off. Temperature difference between temp sensors is too high !"
+
+#define MSG_INVALID_EXTRUDER_NUM            " - Invalid extruder number !"
+#define MSG_THERMAL_RUNAWAY_STOP            "Thermal Runaway, system stopped! Heater_ID: "
+#define MSG_SWITCHED_OFF_MAX                " switched off. MAXTEMP triggered !!"
+#define MSG_MINTEMP_EXTRUDER_OFF            ": Extruder switched off. MINTEMP triggered !"
+#define MSG_MAXTEMP_EXTRUDER_OFF            ": Extruder" MSG_SWITCHED_OFF_MAX
+#define MSG_MAXTEMP_BED_OFF                 "Heated bed" MSG_SWITCHED_OFF_MAX
+
 // LCD Menu Messages
 
-// Add your own character. Reference: https://github.com/MarlinFirmware/Marlin/pull/1434 photos
-//                                and https://www.sparkfun.com/datasheets/LCD/HD44780.pdf page 17-18
-#ifdef DOGLCD
-  #define STR_Ae "\304"               // 'Ä' U8glib
-  #define STR_ae "\344"               // 'ä'
-  #define STR_Oe "\326"               // 'Ö'
-  #define STR_oe STR_Oe               // 'ö'
-  #define STR_Ue "\334"               // 'Ü'
-  #define STR_ue STR_Ue               // 'ü'
-  #define STR_sz "\337"               // 'ß'
-  #define STR_h2 "\262"               // '²'
-  #define STR_h3 "\263"               // '³'
-  #define STR_Deg "\260"              // '°'
-  #define STR_THERMOMETER "\377"
-#else
-  #ifdef DISPLAY_CHARSET_HD44780_JAPAN // HD44780 ROM Code: A00 (Japan)
-    #define STR_ae "\xe1"
-    #define STR_Ae STR_ae
-    #define STR_oe "\357"
-    #define STR_Oe STR_oe
-    #define STR_ue "\365"
-    #define STR_Ue STR_ue
-    #define STR_sz "\342"
-    #define STR_h2 "2"
-    #define STR_h3 "3"
-    #define STR_Deg "\271"
-    #define STR_THERMOMETER "\002"
-  #endif
-  #ifdef DISPLAY_CHARSET_HD44780_WESTERN // HD44780 ROM Code: A02 (Western)
-    #define STR_Ae "\216"
-    #define STR_ae "\204"
-    #define STR_Oe "\211"
-    #define STR_oe "\204"
-    #define STR_Ue "\212"
-    #define STR_ue "\201"
-    #define STR_sz "\160"
-    #define STR_h2 "\262"
-    #define STR_h3 "\263"
-    #define STR_Deg "\337"
-    #define STR_THERMOMETER "\002"
-  #endif
+#if !(defined( DISPLAY_CHARSET_HD44780_JAPAN ) || defined( DISPLAY_CHARSET_HD44780_WESTERN ) || defined( DISPLAY_CHARSET_HD44780_CYRILLIC ))
+  #define DISPLAY_CHARSET_HD44780_JAPAN
 #endif
-/*
-#define TESTSTRING000 "\000\001\002\003\004\005\006\007\010\011\012\013\014\015\016\017"
-#define TESTSTRING020 "\020\021\022\023\024\025\026\027\030\031\032\033\034\035\036\037"
-#define TESTSTRING040 "\040\041\042\043\044\045\046\047\050\051\052\053\054\055\056\057"
-#define TESTSTRING060 "\060\061\062\063\064\065\066\067\070\071\072\073\074\075\076\077"
-#define TESTSTRING100 "\100\101\102\103\104\105\106\107\110\111\112\113\114\115\116\117"
-#define TESTSTRING120 "\120\121\122\123\124\125\126\127\130\131\132\133\134\135\136\137"
-#define TESTSTRING140 "\140\141\142\143\144\145\146\147\150\151\152\153\154\155\156\157"
-#define TESTSTRING160 "\160\161\162\163\164\165\166\167\170\171\172\173\174\175\176\177"
-#define TESTSTRING200 "\200\201\202\203\204\205\206\207\210\211\212\213\214\215\216\217"
-#define TESTSTRING220 "\220\221\222\223\224\225\226\227\230\231\232\233\234\235\236\237"
-#define TESTSTRING240 "\240\241\242\243\244\245\246\247\250\251\252\253\254\255\256\257"
-#define TESTSTRING260 "\260\261\262\263\264\265\266\267\270\271\272\273\274\275\276\277"
-#define TESTSTRING300 "\300\301\302\303\304\305\306\307\310\311\312\313\314\315\316\317"
-#define TESTSTRING320 "\320\321\322\323\324\325\326\327\330\331\332\333\334\335\336\337"
-#define TESTSTRING340 "\340\341\342\343\344\345\346\347\350\351\352\353\354\355\356\357"
-#define TESTSTRING360 "\360\361\362\363\364\365\366\367\370\371\372\373\374\375\376\377"
-*/
 
 #include LANGUAGE_INCLUDE
 #include "language_en.h"

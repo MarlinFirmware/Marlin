@@ -203,7 +203,6 @@
 #endif
 
 float homing_feedrate[] = HOMING_FEEDRATE;
-int homing_bump_divisor[] = HOMING_BUMP_DIVISOR;
 bool axis_relative_modes[] = AXIS_RELATIVE_MODES;
 int feedmultiply = 100; //100->1 200->2
 int saved_feedmultiply;
@@ -989,6 +988,15 @@ static void axis_is_at_home(int axis) {
 /**
  * Some planner shorthand inline functions
  */
+inline void set_homing_bump_feedrate(AxisEnum axis) {
+  const int homing_bump_divisor[] = HOMING_BUMP_DIVISOR;
+  if (homing_bump_divisor[axis] >= 1)
+    feedrate = homing_feedrate[axis] / homing_bump_divisor[axis];
+  else {
+    feedrate = homing_feedrate[axis] / 10;
+    SERIAL_ECHOLN("Warning: The Homing Bump Feedrate Divisor cannot be less than 1");
+  }
+}
 inline void line_to_current_position() {
   plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
 }
@@ -1119,12 +1127,7 @@ inline void set_destination_to_current() { memcpy(destination, current_position,
       endstops_hit_on_purpose(); // clear endstop hit flags
 
       // move back down slowly to find bed
-      if (homing_bump_divisor[Z_AXIS] >= 1)
-        feedrate = homing_feedrate[Z_AXIS] / homing_bump_divisor[Z_AXIS];
-      else {
-        feedrate = homing_feedrate[Z_AXIS] / 10;
-        SERIAL_ECHOLN("Warning: The Homing Bump Feedrate Divisor cannot be less than 1");
-      }
+      set_homing_bump_feedrate(Z_AXIS);
 
       zPosition -= home_bump_mm(Z_AXIS) * 2;
       line_to_z(zPosition);
@@ -1437,7 +1440,7 @@ inline void set_destination_to_current() { memcpy(destination, current_position,
 
 #define HOMEAXIS(LETTER) homeaxis(LETTER##_AXIS)
 
-static void homeaxis(int axis) {
+static void homeaxis(AxisEnum axis) {
   #define HOMEAXIS_DO(LETTER) \
     ((LETTER##_MIN_PIN > -1 && LETTER##_HOME_DIR==-1) || (LETTER##_MAX_PIN > -1 && LETTER##_HOME_DIR==1))
 
@@ -1488,12 +1491,7 @@ static void homeaxis(int axis) {
     st_synchronize();
 
     // Slow down the feedrate for the next move
-    if (homing_bump_divisor[axis] >= 1)
-      feedrate = homing_feedrate[axis] / homing_bump_divisor[axis];
-    else {
-      feedrate = homing_feedrate[axis] / 10;
-      SERIAL_ECHOLNPGM("Warning: The Homing Bump Feedrate Divisor cannot be less than 1");
-    }
+    set_homing_bump_feedrate(axis);
 
     // Move slowly towards the endstop until triggered
     destination[axis] = 2 * home_bump_mm(axis) * axis_home_dir;
@@ -1603,7 +1601,7 @@ static void homeaxis(int axis) {
     }
 
     feedrate = oldFeedrate;
-    retracted[active_extruder] = retract;
+    retracted[active_extruder] = retracting;
 
   } // retract()
 
@@ -2362,7 +2360,7 @@ inline void gcode_G28() {
             act = ProbeDeployAndStow;
           else if (yCount == 0 && xCount == 0)
             act = ProbeDeploy;
-          else if (yCount == auto_bed_leveling_grid_points - 1 && xCount == auto_bed_leveling_grid_points - 1)
+          else if (yCount == auto_bed_leveling_grid_points - 1 && xCount == xStop - xInc)
             act = ProbeStow;
           else
             act = ProbeStay;
