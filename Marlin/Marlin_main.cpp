@@ -1052,7 +1052,7 @@ static void axis_is_at_home(int axis) {
 #endif
 }
 
-#if defined(ENABLE_AUTO_BED_LEVELING) || defined(WITBOX)
+#ifdef ENABLE_AUTO_BED_LEVELING
 static void do_blocking_extrude_to(float e) {
 	float oldFeedRate = feedrate;
 	feedrate = EXTRUSION_SPEED;
@@ -1062,7 +1062,6 @@ static void do_blocking_extrude_to(float e) {
 	feedrate = oldFeedRate;
 }
 
-#ifdef ENABLE_AUTO_BED_LEVELING
 #ifdef AUTO_BED_LEVELING_GRID
 static void set_bed_level_equation_lsq(double *plane_equation_coefficients)
 {
@@ -1248,7 +1247,6 @@ static float probe_pt(float x, float y, float z_before) {
 }
 
 #endif // #ifdef ENABLE_AUTO_BED_LEVELING
-#endif  // #if defined(ENABLE_AUTO_BED_LEVELING) || defined(WITBOX)
 
 static void homeaxis(int axis) {
 #define HOMEAXIS_DO(LETTER) \
