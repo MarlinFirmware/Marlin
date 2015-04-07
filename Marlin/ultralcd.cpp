@@ -593,12 +593,16 @@ void _lcd_preheat(int endnum, const float temph, const float tempb, const int fa
   lcd_return_to_status();
   setWatch(); // heater sanity check timer
 }
+
+#ifdef EASY_UI
 void lcd_preheat(){_lcd_preheat(0, PREHEAT_HOTEND_TEMP, PREHEAT_BED_TEMP, PREHEAT_FAN_SPEED);}
 void lcd_preheat_all(){
     for(int i=0; i<=EXTRUDERS; i++){
       _lcd_preheat(i, PREHEAT_HOTEND_TEMP, PREHEAT_BED_TEMP, PREHEAT_FAN_SPEED);
     }
   }
+#endif
+
 void lcd_preheat_pla0() { _lcd_preheat(0, plaPreheatHotendTemp, plaPreheatHPBTemp, plaPreheatFanSpeed); }
 void lcd_preheat_abs0() { _lcd_preheat(0, absPreheatHotendTemp, absPreheatHPBTemp, absPreheatFanSpeed); }
 

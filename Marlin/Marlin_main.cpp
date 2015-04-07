@@ -4410,6 +4410,7 @@ inline void gcode_M503() {
     LCD_ALERTMESSAGEPGM(MSG_FILAMENTCHANGE);
     uint8_t cnt = 0;
     while (!lcd_clicked()) {
+        #ifndef AUTO_FILAMENT_CHANGE
       cnt++;
       manage_heater();
       manage_inactivity(true);
@@ -4428,8 +4429,19 @@ inline void gcode_M503() {
           #endif
         #endif
       }
+    #else
+    current_position[E_AXIS]+=0.04;
+    plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS],current_position[E_AXIS], 300/60, active_extruder);
+    st_synchronize();
+    #endif
+
     } // while(!lcd_clicked)
 
+    #ifdef AUTO_FILAMENT_CHANGE
+          current_position[E_AXIS]=0;
+          st_synchronize();
+    #endif
+          
     //return to normal
     if (code_seen('L')) target[E_AXIS] -= code_value();
     #ifdef FILAMENTCHANGE_FINALRETRACT
