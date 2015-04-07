@@ -1525,7 +1525,7 @@ ISR(TIMER0_COMPB_vect) {
     for (int i = 0; i < 4; i++) raw_temp_value[i] = 0;
     raw_temp_bed_value = 0;
 
-    #ifndef HEATER_0_USES_MAX6675
+    #if HAS_TEMP_0 && !defined(HEATER_0_USES_MAX6675)
       #if HEATER_0_RAW_LO_TEMP > HEATER_0_RAW_HI_TEMP
         #define GE0 <=
       #else
