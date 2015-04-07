@@ -124,10 +124,10 @@
 
 // LCD selection
 #ifdef U8GLIB_ST7920
-//#include "ultralcd_st7920_u8glib_rrd.h"
+#include "ultralcd_st7920_u8glib_rrd.h"
 //U8GLIB_ST7920_128X64_RRD u8g(0,0,0);
-//U8GLIB_ST7920_128X64_RRD u8g(0);  // while( u8g.nextPage() ) loops 2 times. Display buffer is 512 byte.
-U8GLIB_ST7920_128X64_4X u8g(LCD_PINS_D4, LCD_PINS_ENABLE, LCD_PINS_RS); // min u8glib v1.11
+U8GLIB_ST7920_128X64_RRD u8g(0);  // while( u8g.nextPage() ) loops 2 times. Display buffer is 512 byte.
+//U8GLIB_ST7920_128X64_4X u8g(LCD_PINS_D4, LCD_PINS_ENABLE, LCD_PINS_RS); // min u8glib v1.11
 #elif defined(MAKRPANEL)
 // The MaKrPanel display, ST7565 controller as well
 //U8GLIB_NHD_C12864 u8g(DOGLCD_CS, DOGLCD_A0);  // while( u8g.nextPage() ) loops 8 times. Display buffer is 128 byte.
