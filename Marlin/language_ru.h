@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Russian
  *
  * LCD Menu Messages
