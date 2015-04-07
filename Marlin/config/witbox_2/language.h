@@ -26,7 +26,7 @@
 #define PROTOCOL_VERSION "1.0"
 
 #if defined(WITBOX)
-	#define MACHINE_NAME "bq Witbox"
+	#define MACHINE_NAME "bq Witbox 2"
 	#define FIRMWARE_URL "http://www.bqreaders.com/descargas-witbox.html"
 	#define FIRMWARE_VER "v2.0"
    #define BUILD_VER ""
@@ -801,7 +801,7 @@
 	#define MSG_EXTRUDING "Extruyendo..."
 	#define MSG_LENGTH "Longitud:"
 	#define MSG_RETRACTING "Retrayendo"
-	#define MSG_WELLCOME "bq Witbox"
+	#define MSG_WELLCOME "bq Witbox 2"
 	#define MSG_LP_INTRO "Nivelando la base... Pulsa para empezar"
 	#define MSG_LP_1 " Nivela el punto 1     Pulsa la rueda"
 	#define MSG_LP_2 " Nivela el punto 2     Pulsa la rueda"
