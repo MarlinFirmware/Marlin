@@ -1154,12 +1154,14 @@ static void lcd_quick_feedback() {
     #endif
     const unsigned int delay = 1000000 / LCD_FEEDBACK_FREQUENCY_HZ / 2;
     int i = LCD_FEEDBACK_FREQUENCY_DURATION_MS * LCD_FEEDBACK_FREQUENCY_HZ / 1000;
+    int j = i;
     while (i--) {
       WRITE(BEEPER,HIGH);
       delayMicroseconds(delay);
       WRITE(BEEPER,LOW);
       delayMicroseconds(delay);
-     }
+    }
+    delayMicroseconds( ((10000 - j*2*delay) > 0) ? (10000 - j*2*delay) : 0 );
   #endif
 }
 
