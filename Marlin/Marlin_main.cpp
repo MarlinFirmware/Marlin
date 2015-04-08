@@ -202,6 +202,16 @@
   CardReader card;
 #endif
 
+bool Running = true;
+
+static float feedrate = 1500.0, next_feedrate, saved_feedrate;
+static float current_position[NUM_AXIS] = { 0.0 };
+static float destination[NUM_AXIS] = { 0.0 };
+bool axis_known_position[3] = { false };
+
+static long gcode_N, gcode_LastN, Stopped_gcode_LastN = 0;
+static char cmdbuffer[BUFSIZE][MAX_CMD_SIZE];
+
 float homing_feedrate[] = HOMING_FEEDRATE;
 bool axis_relative_modes[] = AXIS_RELATIVE_MODES;
 int feedmultiply = 100; //100->1 200->2
@@ -210,23 +220,20 @@ int extruder_multiply[EXTRUDERS] = ARRAY_BY_EXTRUDERS(100, 100, 100, 100);
 bool volumetric_enabled = false;
 float filament_size[EXTRUDERS] = ARRAY_BY_EXTRUDERS(DEFAULT_NOMINAL_FILAMENT_DIA, DEFAULT_NOMINAL_FILAMENT_DIA, DEFAULT_NOMINAL_FILAMENT_DIA, DEFAULT_NOMINAL_FILAMENT_DIA);
 float volumetric_multiplier[EXTRUDERS] = ARRAY_BY_EXTRUDERS(1.0, 1.0, 1.0, 1.0);
-float current_position[NUM_AXIS] = { 0.0 };
 float home_offset[3] = { 0 };
 float min_pos[3] = { X_MIN_POS, Y_MIN_POS, Z_MIN_POS };
 float max_pos[3] = { X_MAX_POS, Y_MAX_POS, Z_MAX_POS };
-bool axis_known_position[3] = { false };
+
 uint8_t active_extruder = 0;
 int fanSpeed = 0;
 bool cancel_heatup = false;
+
 const char errormagic[] PROGMEM = "Error:";
 const char echomagic[] PROGMEM = "echo:";
 const char axis_codes[NUM_AXIS] = {'X', 'Y', 'Z', 'E'};
-static float destination[NUM_AXIS] = { 0 };
+
 static float offset[3] = { 0 };
-static float feedrate = 1500.0, next_feedrate, saved_feedrate;
-static long gcode_N, gcode_LastN, Stopped_gcode_LastN = 0;
 static bool relative_mode = false;  //Determines Absolute or Relative Coordinates
-static char cmdbuffer[BUFSIZE][MAX_CMD_SIZE];
 static int bufindr = 0;
 static int bufindw = 0;
 static int buflen = 0;
@@ -243,7 +250,6 @@ static unsigned long stepper_inactive_time = DEFAULT_STEPPER_DEACTIVE_TIME*1000l
 unsigned long starttime = 0; ///< Print job start time
 unsigned long stoptime = 0;  ///< Print job stop time
 static uint8_t target_extruder;
-bool Stopped = false;
 bool CooldownNoWait = true;
 bool target_direction;
 
@@ -743,7 +749,7 @@ void get_command()
         case 1:
         case 2:
         case 3:
-          if (Stopped == true) {
+          if (IsStopped()) {
             SERIAL_ERRORLNPGM(MSG_ERR_STOPPED);
             LCD_MESSAGEPGM(MSG_STOPPED);
           }
@@ -1240,7 +1246,7 @@ inline void set_destination_to_current() { memcpy(destination, current_position,
       if (z_min_endstop)
     #endif
       {
-        if (!Stopped) {
+        if (IsRunning()) {
           SERIAL_ERROR_START;
           SERIAL_ERRORLNPGM("Z-Probe failed to engage!");
           LCD_ALERTMESSAGEPGM("Err: ZPROBE");
@@ -1315,7 +1321,7 @@ inline void set_destination_to_current() { memcpy(destination, current_position,
       if (!z_min_endstop)
     #endif
       {
-        if (!Stopped) {
+        if (IsRunning()) {
           SERIAL_ERROR_START;
           SERIAL_ERRORLNPGM("Z-Probe failed to retract!");
           LCD_ALERTMESSAGEPGM("Err: ZPROBE");
@@ -1650,7 +1656,7 @@ static void homeaxis(AxisEnum axis) {
  * G0, G1: Coordinated movement of X Y Z E axes
  */
 inline void gcode_G0_G1() {
-  if (!Stopped) {
+  if (IsRunning()) {
     get_coordinates(); // For X Y Z E F
     #ifdef FWRETRACT
       if (autoretract_enabled)
@@ -1675,7 +1681,7 @@ inline void gcode_G0_G1() {
  * G3: Counterclockwise Arc
  */
 inline void gcode_G2_G3(bool clockwise) {
-  if (!Stopped) {
+  if (IsRunning()) {
     get_arc_coordinates();
     prepare_arc_move(clockwise);
   }
@@ -4119,7 +4125,7 @@ inline void gcode_M303() {
   bool SCARA_move_to_cal(uint8_t delta_x, uint8_t delta_y) {
     //SoftEndsEnabled = false;              // Ignore soft endstops during calibration
     //SERIAL_ECHOLN(" Soft endstops disabled ");
-    if (! Stopped) {
+    if (IsRunning()) {
       //get_coordinates(); // For X Y Z E F
       delta[X_AXIS] = delta_x;
       delta[Y_AXIS] = delta_y;
@@ -4617,7 +4623,7 @@ inline void gcode_M907() {
  * M999: Restart after being stopped
  */
 inline void gcode_M999() {
-  Stopped = false;
+  Running = true;
   lcd_reset_alert_level();
   gcode_LastN = Stopped_gcode_LastN;
   FlushSerialRequestResend();
@@ -4652,7 +4658,7 @@ inline void gcode_T() {
         // Save current position to return to after applying extruder offset
         set_destination_to_current();
         #ifdef DUAL_X_CARRIAGE
-          if (dual_x_carriage_mode == DXC_AUTO_PARK_MODE && Stopped == false &&
+          if (dual_x_carriage_mode == DXC_AUTO_PARK_MODE && IsRunning() &&
                 (delayed_move_time != 0 || current_position[X_AXIS] != x_home_pos(active_extruder))) {
             // Park old head: 1) raise 2) move to park position 3) lower
             plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS] + TOOLCHANGE_PARK_ZLIFT,
@@ -4710,7 +4716,7 @@ inline void gcode_T() {
           sync_plan_position();
         #endif
         // Move to the old position if 'F' was in the parameters
-        if (make_move && !Stopped) prepare_move();
+        if (make_move && IsRunning()) prepare_move();
       }
 
       #ifdef EXT_SOLENOID
@@ -5877,7 +5883,7 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
 
   #ifdef DUAL_X_CARRIAGE
     // handle delayed move timeout
-    if (delayed_move_time && ms > delayed_move_time + 1000 && !Stopped) {
+    if (delayed_move_time && ms > delayed_move_time + 1000 && IsRunning()) {
       // travel moves have been received so enact them
       delayed_move_time = 0xFFFFFFFFUL; // force moves to be done
       set_destination_to_current();
@@ -5928,16 +5934,14 @@ void kill()
 void Stop()
 {
   disable_heater();
-  if(Stopped == false) {
-    Stopped = true;
+  if (IsRunning()) {
+    Running = false;
     Stopped_gcode_LastN = gcode_LastN; // Save last g_code for restart
     SERIAL_ERROR_START;
     SERIAL_ERRORLNPGM(MSG_ERR_STOPPED);
     LCD_MESSAGEPGM(MSG_STOPPED);
   }
 }
-
-bool IsStopped() { return Stopped; };
 
 #ifdef FAST_PWM_FAN
 void setPwmFrequency(uint8_t pin, int val)
