@@ -4500,10 +4500,10 @@ inline void gcode_M503() {
         SERIAL_ECHO(extruder_offset[X_AXIS][0]);
         SERIAL_CHAR(',');
         SERIAL_ECHO(extruder_offset[Y_AXIS][0]);
-        SERIAL_CHAR(' ');
+        SERIAL_CHAR(' ');auto
         SERIAL_ECHO(duplicate_extruder_x_offset);
         SERIAL_CHAR(',');
-        SERIAL_ECHOLN(extruder_offset[Y_AXIS][1]);
+        SERautoIAL_ECHOLN(extruder_offset[Y_AXIS][1]);
         break;
       case DXC_FULL_CONTROL_MODE:
       case DXC_AUTO_PARK_MODE:
@@ -4538,8 +4538,8 @@ inline void gcode_M700() {
 
         // prob 1
         
-        do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS],Z_MIN_POS+10);
-        do_blocking_move_to((X_MAX_POS-X_MIN_POS)/2,Y_MAX_POS-10, current_position[Z_AXIS]);
+        do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS],LEVEL_PLATE_Z_RAISE);
+        do_blocking_move_to((X_MAX_POS-X_MIN_POS)/2,LEVEL_PLATE_BACK_POSITION, current_position[Z_AXIS]);
         do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], Z_MIN_POS);
         
        while(!lcd_clicked()){          
@@ -4550,8 +4550,8 @@ inline void gcode_M700() {
         set_ChangeScreen(true);
         set_pageShowInfo(2); 
         
-        do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS],Z_MIN_POS+10);
-        do_blocking_move_to(90, 5, current_position[Z_AXIS]);
+        do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS],LEVEL_PLATE_Z_RAISE);
+        do_blocking_move_to(LEVEL_PLATE_LEFT_POSITION, LEVEL_PLATE_FRONT_POSITION, current_position[Z_AXIS]);
         do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS],Z_MIN_POS);
           
         while(!lcd_clicked()){
@@ -4562,8 +4562,8 @@ inline void gcode_M700() {
         set_ChangeScreen(true);
         set_pageShowInfo(3);
                   
-        do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS],Z_MIN_POS+10);
-        do_blocking_move_to(205, 5, current_position[Z_AXIS]);
+        do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS],LEVEL_PLATE_Z_RAISE);
+        do_blocking_move_to(LEVEL_PLATE_RIGHT_POSITION, LEVEL_PLATE_FRONT_POSITION, current_position[Z_AXIS]);
         do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS],Z_MIN_POS);
               
          while(!lcd_clicked()){
@@ -4574,8 +4574,8 @@ inline void gcode_M700() {
         set_ChangeScreen(true);
         set_pageShowInfo(4);
                  
-        do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS],Z_MIN_POS+10);
-        do_blocking_move_to(150, 105, current_position[Z_AXIS]);
+        do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS],LEVEL_PLATE_Z_RAISE);
+        do_blocking_move_to((X_MAX_POS-X_MIN_POS)/2, (Y_MAX_POS-Y_MIN_POS)/2, current_position[Z_AXIS]);
         do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS],Z_MIN_POS);
               
         while(!lcd_clicked()){                  
@@ -4586,8 +4586,8 @@ inline void gcode_M700() {
         set_ChangeScreen(true);
         set_pageShowInfo(5);
                 
-        do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS],Z_MIN_POS+50);
-        do_blocking_move_to(10, 10, current_position[Z_AXIS]);
+        do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS],LEVEL_PLATE_Z_FINAL_RAISE);
+        do_blocking_move_to(LEVEL_PLATE_X_FINAL_POSITION, LEVEL_PLATE_Y_FINAL_POSITION, current_position[Z_AXIS]);
         //do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS],Z_MIN_POS);       
    
 }
@@ -4599,7 +4599,7 @@ inline void gcode_M701() {
     
       //-- Extrude!
       current_position[E_AXIS] += FILAMENT_EXTRUSION_LENGTH;
-      plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS], 300/60, active_extruder);
+      plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS], EXTRUSION_SPEED/60, active_extruder);
       st_synchronize(); 
 
       }
@@ -4612,12 +4612,12 @@ inline void gcode_M702() {
     
       //-- Extrude a litle!
       current_position[E_AXIS] += FILAMENT_UNLOAD_EXTRUSION_LENGTH;
-      plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS], 300/60, active_extruder);
+      plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS], EXTRUSION_SPEED/60, active_extruder);
       st_synchronize(); 
       
       //-- Retract now!
       current_position[E_AXIS] -= FILAMENT_UNLOAD_RETRACTION_LENGTH;
-      plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS], 300/60, active_extruder);
+      plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS], EXTRUSION_SPEED/60, active_extruder);
       st_synchronize();
     }
 

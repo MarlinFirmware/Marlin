@@ -678,8 +678,20 @@ const bool Z_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the logic
 
 #ifdef EASY_UI
 
-	#define EXTRUSION_SPEED 300
+	//Level plate Script:
 	#define LEVEL_PLATE_TEMP_PROTECTION 60
+  #define LEVEL_PLATE_LEFT_POSITION 90
+  #define LEVEL_PLATE_RIGHT_POSITION 205
+  #define LEVEL_PLATE_FRONT_POSITION 5
+  #define LEVEL_PLATE_BACK_POSITION Y_MAX_POS-10
+  #define LEVEL_PLATE_Z_RAISE Z_MIN_POS+10
+
+  #define LEVEL_PLATE_X_FINAL_POSITION 10
+  #define LEVEL_PLATE_Y_FINAL_POSITION 10
+  #define LEVEL_PLATE_Z_FINAL_RAISE Z_MIN_POS+50
+
+  // Automatic load & unload filament script:
+  #define EXTRUSION_SPEED 300   //In mm/min for Load and unload filament script
 	#define Change_Filament_Target_Temp 220
 
 	#define FILAMENT_EXTRUSION_LENGTH 30
