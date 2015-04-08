@@ -1159,7 +1159,9 @@ static void lcd_quick_feedback() {
       delayMicroseconds(delay);
       WRITE(BEEPER,LOW);
       delayMicroseconds(delay);
-     }
+    }
+    const int j = max(10000 - LCD_FEEDBACK_FREQUENCY_DURATION_MS * 1000, 0);
+    if (j) delayMicroseconds(j);
   #endif
 }
 
