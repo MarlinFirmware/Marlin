@@ -2013,7 +2013,7 @@ inline void gcode_G28() {
 
 #ifdef MESH_BED_LEVELING
 
-  enum MeshLevelingState { MeshReport, MeshStart, MeshNext };
+  enum MeshLevelingState { MeshReport, MeshStart, MeshNext, MeshSet };
 
   /**
    * G29: Mesh-based Z-Probe, probes a grid and produces a
@@ -2021,19 +2021,30 @@ inline void gcode_G28() {
    *
    * Parameters With MESH_BED_LEVELING:
    *
-   *  S0 Produce a mesh report
-   *  S1 Start probing mesh points
-   *  S2 Probe the next mesh point
+   *  S0              Produce a mesh report
+   *  S1              Start probing mesh points
+   *  S2              Probe the next mesh point
+   *  S3 Xn Yn Zn.nn  Manually modify a single point
    *
+   * The S0 report the points as below
+   *
+   *  +----> X-axis
+   *  |
+   *  |
+   *  v Y-axis
+   *  
    */
   inline void gcode_G29() {
 
     static int probe_point = -1;
     MeshLevelingState state = code_seen('S') || code_seen('s') ? (MeshLevelingState)code_value_short() : MeshReport;
-    if (state < 0 || state > 2) {
-      SERIAL_PROTOCOLLNPGM("S out of range (0-2).");
+    if (state < 0 || state > 3) {
+      SERIAL_PROTOCOLLNPGM("S out of range (0-3).");
       return;
     }
+
+    int ix, iy;
+    float z;
 
     switch(state) {
       case MeshReport:
@@ -2068,7 +2079,6 @@ inline void gcode_G28() {
           SERIAL_PROTOCOLLNPGM("Start mesh probing with \"G29 S1\" first.");
           return;
         }
-        int ix, iy;
         if (probe_point == 0) {
           // Set Z to a positive value before recording the first Z.
           current_position[Z_AXIS] = MESH_HOME_SEARCH_Z;
@@ -2102,6 +2112,36 @@ inline void gcode_G28() {
           mbl.active = 1;
           enquecommands_P(PSTR("G28"));
         }
+        break;
+
+      case MeshSet:
+        if (code_seen('X') || code_seen('x')) {
+          ix = code_value_long()-1;
+          if (ix < 0 || ix >= MESH_NUM_X_POINTS) {
+            SERIAL_PROTOCOLPGM("X out of range (1-" STRINGIFY(MESH_NUM_X_POINTS) ").\n");
+            return;
+          }
+        } else {
+            SERIAL_PROTOCOLPGM("X not entered.\n");
+            return;
+        }
+        if (code_seen('Y') || code_seen('y')) {
+          iy = code_value_long()-1;
+          if (iy < 0 || iy >= MESH_NUM_Y_POINTS) {
+            SERIAL_PROTOCOLPGM("Y out of range (1-" STRINGIFY(MESH_NUM_Y_POINTS) ").\n");
+            return;
+          }
+        } else {
+            SERIAL_PROTOCOLPGM("Y not entered.\n");
+            return;
+        }
+        if (code_seen('Z') || code_seen('z')) {
+          z = code_value();
+        } else {
+          SERIAL_PROTOCOLPGM("Z not entered.\n");
+          return;
+        }
+        mbl.z_values[iy][ix] = z;
 
     } // switch(state)
   }
