@@ -1365,7 +1365,7 @@ inline void set_destination_to_current() { memcpy(destination, current_position,
     #endif
 
     if (verbose_level > 2) {
-      SERIAL_PROTOCOLPGM(MSG_BED);
+      SERIAL_PROTOCOLPGM("Bed");
       SERIAL_PROTOCOLPGM(" X: ");
       SERIAL_PROTOCOL_F(x, 3);
       SERIAL_PROTOCOLPGM(" Y: ");
