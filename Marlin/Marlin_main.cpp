@@ -205,7 +205,7 @@
 bool Running = true;
 
 static float feedrate = 1500.0, next_feedrate, saved_feedrate;
-static float current_position[NUM_AXIS] = { 0.0 };
+float current_position[NUM_AXIS] = { 0.0 };
 static float destination[NUM_AXIS] = { 0.0 };
 bool axis_known_position[3] = { false };
 
