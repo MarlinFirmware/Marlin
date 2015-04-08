@@ -1279,7 +1279,7 @@ window.configuratorApp = (function(){
           find = new RegExp('^[ \\t]*//+[ \\t]*(.*)[ \\t]*$', 'gm');
           while((s = find.exec(r[1])) !== null) temp.unshift(s[1]);
 
-          console.log(name+":\n"+temp.join('\n'));
+          this.log(name+":\n"+temp.join('\n'), 2);
 
           // Go through the reversed lines and add comment lines on
           $.each(temp, function(i,v) {
