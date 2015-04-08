@@ -1800,20 +1800,23 @@ static void _lcd_level_bed()
 {
   if (encoderPosition != 0) {
     refresh_cmd_timeout();
-    current_position[Z_AXIS] += float((int)encoderPosition) * 0.05;
+    current_position[Z_AXIS] += float((int)encoderPosition) * MBL_Z_STEP;
     if (min_software_endstops && current_position[Z_AXIS] < Z_MIN_POS) current_position[Z_AXIS] = Z_MIN_POS;
     if (max_software_endstops && current_position[Z_AXIS] > Z_MAX_POS) current_position[Z_AXIS] = Z_MAX_POS;
     encoderPosition = 0;
     plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], manual_feedrate[Z_AXIS]/60, active_extruder);
     lcdDrawUpdate = 1;
   }
-  if (lcdDrawUpdate) lcd_implementation_drawedit(PSTR("Z"), ftostr32(current_position[Z_AXIS]));
+  if (lcdDrawUpdate) lcd_implementation_drawedit(PSTR("Z"), ftostr43(current_position[Z_AXIS]));
   static bool debounce_click = false;
   if (LCD_CLICKED) {
     if (!debounce_click) {
       debounce_click = true;
       int ix = _lcd_level_bed_position % MESH_NUM_X_POINTS;
       int iy = _lcd_level_bed_position / MESH_NUM_X_POINTS;
+      if (iy&1) { // Zig zag
+        ix = (MESH_NUM_X_POINTS - 1) - ix;
+      }
       mbl.set_z(ix, iy, current_position[Z_AXIS]);
       _lcd_level_bed_position++;
       if (_lcd_level_bed_position == MESH_NUM_X_POINTS*MESH_NUM_Y_POINTS) {
