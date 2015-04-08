@@ -20,6 +20,7 @@
 // de       German
 // es       Spanish
 // ru       Russian
+// bgr      Bulgarian
 // it       Italian
 // pt       Portuguese
 // pt-br    Portuguese (Brazil)

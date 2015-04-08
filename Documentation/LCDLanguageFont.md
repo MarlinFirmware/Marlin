@@ -38,6 +38,7 @@ We have two different technologies for the displays:
   * de    German
   * es    Spanish
   * ru    Russian
+  * bgr   Bulgarian
   * it    Italian
   * pt    Portuguese
   * pt-br Portuguese (Brazil)
