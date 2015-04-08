@@ -4500,10 +4500,10 @@ inline void gcode_M503() {
         SERIAL_ECHO(extruder_offset[X_AXIS][0]);
         SERIAL_CHAR(',');
         SERIAL_ECHO(extruder_offset[Y_AXIS][0]);
-        SERIAL_CHAR(' ');auto
+        SERIAL_CHAR(' ');
         SERIAL_ECHO(duplicate_extruder_x_offset);
         SERIAL_CHAR(',');
-        SERautoIAL_ECHOLN(extruder_offset[Y_AXIS][1]);
+        SERIAL_ECHOLN(extruder_offset[Y_AXIS][1]);
         break;
       case DXC_FULL_CONTROL_MODE:
       case DXC_AUTO_PARK_MODE:
