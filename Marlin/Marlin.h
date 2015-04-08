@@ -219,7 +219,9 @@ void Stop();
   void filrunout();
 #endif
 
-bool IsStopped();
+extern bool Running;
+inline bool IsRunning() { return  Running; }
+inline bool IsStopped() { return !Running; }
 
 bool enquecommand(const char *cmd); //put a single ASCII command at the end of the current buffer or return false when it is full
 void enquecommands_P(const char *cmd); //put one or many ASCII commands at the end of the current buffer, read from flash
