@@ -38,7 +38,7 @@ Here are some standard links for getting your machine calibrated:
 // User-specified version info of this build to display in [Pronterface, etc] terminal window during
 // startup. Implementation of an idea by Prof Braino to inform user that any changes made to this
 // build by the user have been successfully uploaded into firmware.
-#define STRING_VERSION "1.0.2"
+#define STRING_VERSION "1.0.3 dev"
 #define STRING_URL "reprap.org"
 #define STRING_VERSION_CONFIG_H __DATE__ " " __TIME__ // build date and time
 #define STRING_CONFIG_H_AUTHOR "(bq Hephestos)" // Who made the changes.
@@ -387,6 +387,10 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 // #define MANUAL_BED_LEVELING  // Add display menu option for bed leveling
 // #define MESH_BED_LEVELING    // Enable mesh bed leveling
 
+#ifdef MANUAL_BED_LEVELING
+  #define MBL_Z_STEP 0.025
+#endif  // MANUAL_BED_LEVELING
+
 #ifdef MESH_BED_LEVELING
   #define MESH_MIN_X 10
   #define MESH_MAX_X (X_MAX_POS - MESH_MIN_X)
@@ -572,9 +576,11 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 // M502 - reverts to the default "factory settings".  You still need to store them in EEPROM afterwards if you want to.
 //define this to enable EEPROM support
 //#define EEPROM_SETTINGS
-//to disable EEPROM Serial responses and decrease program space by ~1700 byte: comment this out:
-// please keep turned on if you can.
-//#define EEPROM_CHITCHAT
+
+#ifdef EEPROM_SETTINGS
+  // To disable EEPROM Serial responses and decrease program space by ~1700 byte: comment this out:
+  #define EEPROM_CHITCHAT // please keep turned on if you can.
+#endif
 
 // Preheat Constants
 #define PLA_PREHEAT_HOTEND_TEMP 200

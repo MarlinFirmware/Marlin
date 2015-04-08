@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Russian
  *
  * LCD Menu Messages
@@ -45,6 +45,7 @@
 #define MSG_MOVE_01MM                       "Move 0.1mm"
 #define MSG_MOVE_1MM                        "Move 1mm"
 #define MSG_MOVE_10MM                       "Move 10mm"
+#define MSG_LEVEL_BED                       "Настр. уровня кровати"
 #define MSG_SPEED                           "Скорость"
 #define MSG_NOZZLE                          LCD_STR_THERMOMETER " Фильера"
 #define MSG_BED                             LCD_STR_THERMOMETER " Кровать"

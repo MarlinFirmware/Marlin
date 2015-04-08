@@ -87,7 +87,7 @@ unsigned long axis_steps_per_sqr_second[NUM_AXIS];
     0.0, 1.0, 0.0,
     0.0, 0.0, 1.0
   };
-#endif // #ifdef ENABLE_AUTO_BED_LEVELING
+#endif // ENABLE_AUTO_BED_LEVELING
 
 // The current position of the tool in absolute steps
 long position[NUM_AXIS];   //rescaled from extern when axis_steps_per_unit are changed by gcode
@@ -472,7 +472,7 @@ float junction_deviation = 0.1;
   void plan_buffer_line(float x, float y, float z, const float &e, float feed_rate, const uint8_t &extruder)
 #else
   void plan_buffer_line(const float &x, const float &y, const float &z, const float &e, float feed_rate, const uint8_t &extruder)
-#endif  //ENABLE_AUTO_BED_LEVELING
+#endif  // ENABLE_AUTO_BED_LEVELING
 {
   // Calculate the buffer head after we push this byte
   int next_buffer_head = next_block_index(block_buffer_head);
@@ -487,9 +487,7 @@ float junction_deviation = 0.1;
 
   #ifdef MESH_BED_LEVELING
     if (mbl.active) z += mbl.get_z(x, y);
-  #endif
-
-  #ifdef ENABLE_AUTO_BED_LEVELING
+  #elif defined(ENABLE_AUTO_BED_LEVELING)
     apply_rotation_xyz(plan_bed_level_matrix, x, y, z);
   #endif
 
@@ -511,12 +509,14 @@ float junction_deviation = 0.1;
     if (de) {
       if (degHotend(active_extruder) < extrude_min_temp) {
         position[E_AXIS] = target[E_AXIS]; //behave as if the move really took place, but ignore E part
+        de = 0; // no difference
         SERIAL_ECHO_START;
         SERIAL_ECHOLNPGM(MSG_ERR_COLD_EXTRUDE_STOP);
       }
       #ifdef PREVENT_LENGTHY_EXTRUDE
         if (labs(de) > axis_steps_per_unit[E_AXIS] * EXTRUDE_MAXLENGTH) {
           position[E_AXIS] = target[E_AXIS]; // Behave as if the move really took place, but ignore E part
+          de = 0; // no difference
           SERIAL_ECHO_START;
           SERIAL_ECHOLNPGM(MSG_ERR_LONG_EXTRUDE_STOP);
         }
@@ -977,10 +977,10 @@ float junction_deviation = 0.1;
   void plan_set_position(const float &x, const float &y, const float &z, const float &e)
 #endif // ENABLE_AUTO_BED_LEVELING || MESH_BED_LEVELING
   {
-    #ifdef ENABLE_AUTO_BED_LEVELING
-      apply_rotation_xyz(plan_bed_level_matrix, x, y, z);
-    #elif defined(MESH_BED_LEVELING)
+    #ifdef MESH_BED_LEVELING
       if (mbl.active) z += mbl.get_z(x, y);
+    #elif defined(ENABLE_AUTO_BED_LEVELING)
+      apply_rotation_xyz(plan_bed_level_matrix, x, y, z);
     #endif
 
     float nx = position[X_AXIS] = lround(x * axis_steps_per_unit[X_AXIS]);

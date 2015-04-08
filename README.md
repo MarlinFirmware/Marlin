@@ -31,7 +31,7 @@ We are actively looking for testers. So please try the current development versi
 
 ## Contact
 
-__Google Hangout:__ <a href="https://plus.google.com/hangouts/_/g2wp5duzb2y6ahikg6tmwao3kua" target="_blank">Hagnout</a>
+__Google Hangout:__ <a href="https://plus.google.com/hangouts/_/g2wp5duzb2y6ahikg6tmwao3kua" target="_blank">Hangout</a>
 
 ## Credits
 

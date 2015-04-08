@@ -443,7 +443,7 @@ Possible status screens:
 
 20x4   |01234567890123456789|
        |T000/000D B000/000D |
-       |X+000.0 Y+000.0 Z+000.0|
+       |X000  Y000   Z000.00|
        |F100%  SD100% T--:--|
        |Status line.........|
 
@@ -453,141 +453,154 @@ Possible status screens:
        |F100%  SD100% T--:--|
        |Status line.........|
 */
-static void lcd_implementation_status_screen()
-{
-    int tHotend=int(degHotend(0) + 0.5);
-    int tTarget=int(degTargetHotend(0) + 0.5);
+static void lcd_implementation_status_screen() {
+  int tHotend = int(degHotend(0) + 0.5);
+  int tTarget = int(degTargetHotend(0) + 0.5);
 
-#if LCD_WIDTH < 20
+  #if LCD_WIDTH < 20
+
     lcd.setCursor(0, 0);
     lcd.print(itostr3(tHotend));
     lcd.print('/');
     lcd.print(itostr3left(tTarget));
 
-# if EXTRUDERS > 1 || TEMP_SENSOR_BED != 0
-    //If we have an 2nd extruder or heated bed, show that in the top right corner
-    lcd.setCursor(8, 0);
-#  if EXTRUDERS > 1
-    tHotend = int(degHotend(1) + 0.5);
-    tTarget = int(degTargetHotend(1) + 0.5);
-    lcd.print(LCD_STR_THERMOMETER[0]);
-#  else//Heated bed
-    tHotend=int(degBed() + 0.5);
-    tTarget=int(degTargetBed() + 0.5);
-    lcd.print(LCD_STR_BEDTEMP[0]);
-#  endif
-    lcd.print(itostr3(tHotend));
-    lcd.print('/');
-    lcd.print(itostr3left(tTarget));
-# endif//EXTRUDERS > 1 || TEMP_SENSOR_BED != 0
+    #if EXTRUDERS > 1 || TEMP_SENSOR_BED != 0
 
-#else//LCD_WIDTH > 19
+      // If we have an 2nd extruder or heated bed, show that in the top right corner
+      lcd.setCursor(8, 0);
+      #if EXTRUDERS > 1
+        tHotend = int(degHotend(1) + 0.5);
+        tTarget = int(degTargetHotend(1) + 0.5);
+        lcd.print(LCD_STR_THERMOMETER[0]);
+      #else // Heated bed
+        tHotend = int(degBed() + 0.5);
+        tTarget = int(degTargetBed() + 0.5);
+        lcd.print(LCD_STR_BEDTEMP[0]);
+      #endif
+      lcd.print(itostr3(tHotend));
+      lcd.print('/');
+      lcd.print(itostr3left(tTarget));
+
+    #endif // EXTRUDERS > 1 || TEMP_SENSOR_BED != 0
+
+  #else // LCD_WIDTH > 19
+
     lcd.setCursor(0, 0);
     lcd.print(LCD_STR_THERMOMETER[0]);
     lcd.print(itostr3(tHotend));
     lcd.print('/');
     lcd.print(itostr3left(tTarget));
     lcd_printPGM(PSTR(LCD_STR_DEGREE " "));
-    if (tTarget < 10)
-        lcd.print(' ');
+    if (tTarget < 10) lcd.print(' ');
 
-# if EXTRUDERS > 1 || TEMP_SENSOR_BED != 0
-    //If we have an 2nd extruder or heated bed, show that in the top right corner
-    lcd.setCursor(10, 0);
-#  if EXTRUDERS > 1
-    tHotend = int(degHotend(1) + 0.5);
-    tTarget = int(degTargetHotend(1) + 0.5);
-    lcd.print(LCD_STR_THERMOMETER[0]);
-#  else//Heated bed
-    tHotend=int(degBed() + 0.5);
-    tTarget=int(degTargetBed() + 0.5);
-    lcd.print(LCD_STR_BEDTEMP[0]);
-#  endif
-    lcd.print(itostr3(tHotend));
-    lcd.print('/');
-    lcd.print(itostr3left(tTarget));
-    lcd_printPGM(PSTR(LCD_STR_DEGREE " "));
-    if (tTarget < 10)
-        lcd.print(' ');
-# endif//EXTRUDERS > 1 || TEMP_SENSOR_BED != 0
-#endif//LCD_WIDTH > 19
+    #if EXTRUDERS > 1 || TEMP_SENSOR_BED != 0
+      // If we have an 2nd extruder or heated bed, show that in the top right corner
+      lcd.setCursor(10, 0);
+      #if EXTRUDERS > 1
+        tHotend = int(degHotend(1) + 0.5);
+        tTarget = int(degTargetHotend(1) + 0.5);
+        lcd.print(LCD_STR_THERMOMETER[0]);
+      #else // Heated bed
+        tHotend = int(degBed() + 0.5);
+        tTarget = int(degTargetBed() + 0.5);
+        lcd.print(LCD_STR_BEDTEMP[0]);
+      #endif
+      lcd.print(itostr3(tHotend));
+      lcd.print('/');
+      lcd.print(itostr3left(tTarget));
+      lcd_printPGM(PSTR(LCD_STR_DEGREE " "));
+      if (tTarget < 10) lcd.print(' ');
 
-#if LCD_HEIGHT > 2
-//Lines 2 for 4 line LCD
-# if LCD_WIDTH < 20
-#  ifdef SDSUPPORT
-    lcd.setCursor(0, 2);
-    lcd_printPGM(PSTR("SD"));
-    if (IS_SD_PRINTING)
-        lcd.print(itostr3(card.percentDone()));
-    else
-        lcd_printPGM(PSTR("---"));
-    lcd.print('%');
-#  endif//SDSUPPORT
-# else//LCD_WIDTH > 19
-#  if EXTRUDERS > 1 && TEMP_SENSOR_BED != 0
-    //If we both have a 2nd extruder and a heated bed, show the heated bed temp on the 2nd line on the left, as the first line is filled with extruder temps
-    tHotend=int(degBed() + 0.5);
-    tTarget=int(degTargetBed() + 0.5);
+    #endif  // EXTRUDERS > 1 || TEMP_SENSOR_BED != 0
 
-    lcd.setCursor(0, 1);
-    lcd.print(LCD_STR_BEDTEMP[0]);
-    lcd.print(itostr3(tHotend));
-    lcd.print('/');
-    lcd.print(itostr3left(tTarget));
-    lcd_printPGM(PSTR(LCD_STR_DEGREE " "));
-    if (tTarget < 10)
-        lcd.print(' ');
-#  else
-    lcd.setCursor(0,1);
-    lcd.print('X');
-    lcd.print(ftostr3(current_position[X_AXIS]));
-    lcd_printPGM(PSTR(" Y"));
-    lcd.print(ftostr3(current_position[Y_AXIS]));
-#  endif//EXTRUDERS > 1 || TEMP_SENSOR_BED != 0
-# endif//LCD_WIDTH > 19
+  #endif // LCD_WIDTH > 19
+
+  #if LCD_HEIGHT > 2
+    // Lines 2 for 4 line LCD
+    #if LCD_WIDTH < 20
+      #ifdef SDSUPPORT
+        lcd.setCursor(0, 2);
+        lcd_printPGM(PSTR("SD"));
+        if (IS_SD_PRINTING)
+          lcd.print(itostr3(card.percentDone()));
+        else
+          lcd_printPGM(PSTR("---"));
+          lcd.print('%');
+      #endif // SDSUPPORT
+
+    #else // LCD_WIDTH > 19
+
+      #if EXTRUDERS > 1 && TEMP_SENSOR_BED != 0
+        // If we both have a 2nd extruder and a heated bed, show the heated bed temp on the 2nd line on the left, as the first line is filled with extruder temps
+        tHotend = int(degBed() + 0.5);
+        tTarget = int(degTargetBed() + 0.5);
+
+        lcd.setCursor(0, 1);
+        lcd.print(LCD_STR_BEDTEMP[0]);
+        lcd.print(itostr3(tHotend));
+        lcd.print('/');
+        lcd.print(itostr3left(tTarget));
+        lcd_printPGM(PSTR(LCD_STR_DEGREE " "));
+        if (tTarget < 10) lcd.print(' ');
+      #else
+        lcd.setCursor(0,1);
+        lcd.print('X');
+        lcd.print(ftostr3(current_position[X_AXIS]));
+        lcd_printPGM(PSTR("  Y"));
+        lcd.print(ftostr3(current_position[Y_AXIS]));
+      #endif // EXTRUDERS > 1 || TEMP_SENSOR_BED != 0
+
+    #endif // LCD_WIDTH > 19
+
     lcd.setCursor(LCD_WIDTH - 8, 1);
     lcd.print('Z');
     lcd.print(ftostr32sp(current_position[Z_AXIS] + 0.00001));
-#endif//LCD_HEIGHT > 2
 
-#if LCD_HEIGHT > 3
+  #endif // LCD_HEIGHT > 2
+
+  #if LCD_HEIGHT > 3
+
     lcd.setCursor(0, 2);
     lcd.print(LCD_STR_FEEDRATE[0]);
     lcd.print(itostr3(feedmultiply));
     lcd.print('%');
-# if LCD_WIDTH > 19
-#  ifdef SDSUPPORT
-    lcd.setCursor(7, 2);
-    lcd_printPGM(PSTR("SD"));
-    if (IS_SD_PRINTING)
+
+    #if LCD_WIDTH > 19 && defined(SDSUPPORT)
+
+      lcd.setCursor(7, 2);
+      lcd_printPGM(PSTR("SD"));
+      if (IS_SD_PRINTING)
         lcd.print(itostr3(card.percentDone()));
-    else
+      else
         lcd_printPGM(PSTR("---"));
-    lcd.print('%');
-#  endif//SDSUPPORT
-# endif//LCD_WIDTH > 19
+      lcd.print('%');
+
+    #endif // LCD_WIDTH > 19 && SDSUPPORT
+
     lcd.setCursor(LCD_WIDTH - 6, 2);
     lcd.print(LCD_STR_CLOCK[0]);
-    if(starttime != 0)
-    {
-        uint16_t time = millis()/60000 - starttime/60000;
-        lcd.print(itostr2(time/60));
-        lcd.print(':');
-        lcd.print(itostr2(time%60));
-    }else{
-        lcd_printPGM(PSTR("--:--"));
+    if (starttime != 0) {
+      uint16_t time = millis()/60000 - starttime/60000;
+      lcd.print(itostr2(time/60));
+      lcd.print(':');
+      lcd.print(itostr2(time%60));
     }
-#endif
+    else {
+      lcd_printPGM(PSTR("--:--"));
+    }
 
-  // Status message line at the bottom
+  #endif // LCD_HEIGHT > 3
+
+  /**
+   * Display Progress Bar, Filament display, and/or Status Message on the last line
+   */
+
   lcd.setCursor(0, LCD_HEIGHT - 1);
 
   #ifdef LCD_PROGRESS_BAR
 
     if (card.isFileOpen()) {
-      uint16_t mil = millis(), diff = mil - progressBarTick;
-      if (diff >= PROGRESS_BAR_MSG_TIME || !lcd_status_message[0]) {
+      if (millis() >= progressBarTick + PROGRESS_BAR_MSG_TIME || !lcd_status_message[0]) {
         // draw the progress bar
         int tix = (int)(card.percentDone() * LCD_WIDTH * 3) / 100,
           cel = tix / 3, rem = tix % 3, i = LCD_WIDTH;
@@ -605,11 +618,11 @@ static void lcd_implementation_status_screen()
       }
     } //card.isFileOpen
 
-  #endif //LCD_PROGRESS_BAR
+  #elif defined(FILAMENT_LCD_DISPLAY)
 
-  //Display both Status message line and Filament display on the last line
-  #ifdef FILAMENT_LCD_DISPLAY
-    if (message_millis + 5000 <= millis()) {  //display any status for the first 5 sec after screen is initiated
+    // Show Filament Diameter and Volumetric Multiplier %
+    // After allowing lcd_status_message to show for 5 seconds
+    if (millis() >= message_millis + 5000) {
       lcd_printPGM(PSTR("Dia "));
       lcd.print(ftostr12ns(filament_width_meas));
       lcd_printPGM(PSTR(" V"));
@@ -617,7 +630,8 @@ static void lcd_implementation_status_screen()
   	  lcd.print('%');
   	  return;
     }
-  #endif //FILAMENT_LCD_DISPLAY
+
+  #endif // FILAMENT_LCD_DISPLAY
 
   lcd_print(lcd_status_message);
 }
