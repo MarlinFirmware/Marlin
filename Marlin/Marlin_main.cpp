@@ -373,9 +373,6 @@ bool target_direction;
 //================================ Functions ================================
 //===========================================================================
 
-inline bool IsStopped() { return  Stopped; }
-inline bool IsRunning() { return !Stopped; }
-
 void get_arc_coordinates();
 bool setTargetedHotend(int code);
 
