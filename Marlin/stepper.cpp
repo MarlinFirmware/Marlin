@@ -400,7 +400,7 @@ ISR(TIMER1_COMPA_vect) {
     current_block = NULL;
     plan_discard_current_block();
     #ifdef SD_FINISHED_RELEASECOMMAND
-      if ((cleaning_buffer_counter == 1) && (SD_FINISHED_STEPPERRELEASE)) enquecommands_P(PSTR(SD_FINISHED_RELEASECOMMAND));
+      if ((cleaning_buffer_counter == 1) && (SD_FINISHED_STEPPERRELEASE)) enqueuecommands_P(PSTR(SD_FINISHED_RELEASECOMMAND));
     #endif
     cleaning_buffer_counter--;
     OCR1A = 200;
@@ -1119,8 +1119,7 @@ long st_get_position(uint8_t axis) {
 #ifdef ENABLE_AUTO_BED_LEVELING
 
   float st_get_position_mm(uint8_t axis) {
-    float steper_position_in_steps = st_get_position(axis);
-    return steper_position_in_steps / axis_steps_per_unit[axis];
+    return st_get_position(axis) / axis_steps_per_unit[axis];
   }
 
 #endif  // ENABLE_AUTO_BED_LEVELING

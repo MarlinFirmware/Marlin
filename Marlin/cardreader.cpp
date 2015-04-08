@@ -421,8 +421,8 @@ void CardReader::checkautostart(bool force) {
     if (p.name[9] != '~' && strncmp((char*)p.name, autoname, 5) == 0) {
       char cmd[30];
       sprintf_P(cmd, PSTR("M23 %s"), autoname);
-      enquecommand(cmd);
-      enquecommands_P(PSTR("M24"));
+      enqueuecommand(cmd);
+      enqueuecommands_P(PSTR("M24"));
       found = true;
     }
   }
@@ -508,7 +508,7 @@ void CardReader::printingHasFinished() {
     sdprinting = false;
     if (SD_FINISHED_STEPPERRELEASE) {
       //finishAndDisableSteppers();
-      enquecommands_P(PSTR(SD_FINISHED_RELEASECOMMAND));
+      enqueuecommands_P(PSTR(SD_FINISHED_RELEASECOMMAND));
     }
     autotempShutdown();
   }

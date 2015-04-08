@@ -983,10 +983,10 @@ float junction_deviation = 0.1;
       if (mbl.active) z += mbl.get_z(x, y);
     #endif
 
-    float nx = position[X_AXIS] = lround(x * axis_steps_per_unit[X_AXIS]);
-    float ny = position[Y_AXIS] = lround(y * axis_steps_per_unit[Y_AXIS]);
-    float nz = position[Z_AXIS] = lround(z * axis_steps_per_unit[Z_AXIS]);
-    float ne = position[E_AXIS] = lround(e * axis_steps_per_unit[E_AXIS]);
+    float nx = position[X_AXIS] = lround(x * axis_steps_per_unit[X_AXIS]),
+          ny = position[Y_AXIS] = lround(y * axis_steps_per_unit[Y_AXIS]),
+          nz = position[Z_AXIS] = lround(z * axis_steps_per_unit[Z_AXIS]),
+          ne = position[E_AXIS] = lround(e * axis_steps_per_unit[E_AXIS]);
     st_set_position(nx, ny, nz, ne);
     previous_nominal_speed = 0.0; // Resets planner junction speeds. Assumes start from rest.
 
