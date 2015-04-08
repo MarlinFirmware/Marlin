@@ -163,7 +163,7 @@
   #ifdef DOGLCD
     #define HAS_LCD_CONTRAST
     #ifdef U8GLIB_ST7920
-      #undefine HAS_LCD_CONTRAST
+      #undef HAS_LCD_CONTRAST
     #endif
   #endif
 
