@@ -422,7 +422,7 @@ static void lcd_main_menu() {
   END_MENU();
 }
 
-#if defined( SDSUPPORT ) && defined( MENU_ADDAUTOSTART )
+#if defined(SDSUPPORT) && defined(MENU_ADDAUTOSTART)
   static void lcd_autostart_sd() {
     card.autostart_index = 0;
     card.setroot();
@@ -431,7 +431,7 @@ static void lcd_main_menu() {
 #endif
 
 void lcd_set_home_offsets() {
-  for(int8_t i=0; i < NUM_AXIS; i++) {
+  for (int8_t i=0; i < NUM_AXIS; i++) {
     if (i != E_AXIS) {
       home_offset[i] -= current_position[i];
       current_position[i] = 0.0;
@@ -965,48 +965,49 @@ static void lcd_control_volumetric_menu() {
 
 #ifdef DOGLCD
 
-static void lcd_set_contrast() {
-  if (encoderPosition != 0) {
-    lcd_contrast -= encoderPosition;
-    if (lcd_contrast < 0) lcd_contrast = 0;
-    else if (lcd_contrast > 63) lcd_contrast = 63;
-    encoderPosition = 0;
-    lcdDrawUpdate = 1;
-    u8g.setContrast(lcd_contrast);
+  static void lcd_set_contrast() {
+    if (encoderPosition != 0) {
+      lcd_contrast -= encoderPosition;
+      lcd_contrast &= 0x3F;
+      encoderPosition = 0;
+      lcdDrawUpdate = 1;
+      u8g.setContrast(lcd_contrast);
+    }
+    if (lcdDrawUpdate) lcd_implementation_drawedit(PSTR(MSG_CONTRAST), itostr2(lcd_contrast));
+    if (LCD_CLICKED) lcd_goto_menu(lcd_control_menu);
   }
-  if (lcdDrawUpdate) lcd_implementation_drawedit(PSTR(MSG_CONTRAST), itostr2(lcd_contrast));
-  if (LCD_CLICKED) lcd_goto_menu(lcd_control_menu);
-}
 
-#endif //DOGLCD
+#endif // DOGLCD
 
 #ifdef FWRETRACT
 
-static void lcd_control_retract_menu() {
-  START_MENU();
-  MENU_ITEM(back, MSG_CONTROL, lcd_control_menu);
-  MENU_ITEM_EDIT(bool, MSG_AUTORETRACT, &autoretract_enabled);
-  MENU_ITEM_EDIT(float52, MSG_CONTROL_RETRACT, &retract_length, 0, 100);
-  #if EXTRUDERS > 1
-    MENU_ITEM_EDIT(float52, MSG_CONTROL_RETRACT_SWAP, &retract_length_swap, 0, 100);
-  #endif
-  MENU_ITEM_EDIT(float3, MSG_CONTROL_RETRACTF, &retract_feedrate, 1, 999);
-  MENU_ITEM_EDIT(float52, MSG_CONTROL_RETRACT_ZLIFT, &retract_zlift, 0, 999);
-  MENU_ITEM_EDIT(float52, MSG_CONTROL_RETRACT_RECOVER, &retract_recover_length, 0, 100);
-  #if EXTRUDERS > 1
-    MENU_ITEM_EDIT(float52, MSG_CONTROL_RETRACT_RECOVER_SWAP, &retract_recover_length_swap, 0, 100);
-  #endif
-  MENU_ITEM_EDIT(float3, MSG_CONTROL_RETRACT_RECOVERF, &retract_recover_feedrate, 1, 999);
-  END_MENU();
-}
+  static void lcd_control_retract_menu() {
+    START_MENU();
+    MENU_ITEM(back, MSG_CONTROL, lcd_control_menu);
+    MENU_ITEM_EDIT(bool, MSG_AUTORETRACT, &autoretract_enabled);
+    MENU_ITEM_EDIT(float52, MSG_CONTROL_RETRACT, &retract_length, 0, 100);
+    #if EXTRUDERS > 1
+      MENU_ITEM_EDIT(float52, MSG_CONTROL_RETRACT_SWAP, &retract_length_swap, 0, 100);
+    #endif
+    MENU_ITEM_EDIT(float3, MSG_CONTROL_RETRACTF, &retract_feedrate, 1, 999);
+    MENU_ITEM_EDIT(float52, MSG_CONTROL_RETRACT_ZLIFT, &retract_zlift, 0, 999);
+    MENU_ITEM_EDIT(float52, MSG_CONTROL_RETRACT_RECOVER, &retract_recover_length, 0, 100);
+    #if EXTRUDERS > 1
+      MENU_ITEM_EDIT(float52, MSG_CONTROL_RETRACT_RECOVER_SWAP, &retract_recover_length_swap, 0, 100);
+    #endif
+    MENU_ITEM_EDIT(float3, MSG_CONTROL_RETRACT_RECOVERF, &retract_recover_feedrate, 1, 999);
+    END_MENU();
+  }
 
-#endif //FWRETRACT
+#endif // FWRETRACT
 
 #if SDCARDDETECT == -1
+
   static void lcd_sd_refresh() {
     card.initsd();
     currentMenuViewOffset = 0;
   }
+
 #endif
 
 static void lcd_sd_updir() {
@@ -1029,13 +1030,14 @@ void lcd_sdcard_menu() {
     MENU_ITEM(function, LCD_STR_FOLDER "..", lcd_sd_updir);
   }
 
-  for(uint16_t i = 0; i < fileCnt; i++) {
+  for (uint16_t i = 0; i < fileCnt; i++) {
     if (_menuItemNr == _lineNr) {
-      #ifndef SDCARD_RATHERRECENTFIRST
-        card.getfilename(i);
-      #else
-        card.getfilename(fileCnt-1-i);
-      #endif
+      card.getfilename(
+        #ifdef SDCARD_RATHERRECENTFIRST
+          fileCnt-1 -
+        #endif
+        i
+      );
       if (card.filenameIsDir)
         MENU_ITEM(sddirectory, MSG_CARD_MENU, card.filename, card.longFilename);
       else
@@ -1456,7 +1458,7 @@ void lcd_reset_alert_level() { lcd_status_message_level = 0; }
 
 #ifdef DOGLCD
   void lcd_setcontrast(uint8_t value) {
-    lcd_contrast = value & 63;
+    lcd_contrast = value & 0x3F;
     u8g.setContrast(lcd_contrast);
   }
 #endif
