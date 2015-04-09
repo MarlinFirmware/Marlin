@@ -273,6 +273,10 @@ extern bool axis_known_position[3];
   extern float zprobe_zoffset;
 #endif
 
+#ifdef PREVENT_DANGEROUS_EXTRUDE
+  extern float extrude_min_temp;
+#endif
+
 extern int fanSpeed;
 
 #ifdef BARICUDA
