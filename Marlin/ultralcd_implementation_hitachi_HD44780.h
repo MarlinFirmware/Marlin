@@ -201,18 +201,6 @@
   #define LCD_STR_PROGRESS  "\x03\x04\x05"
 #endif
 
-/* Custom characters defined in the first 8 characters of the LCD */
-#define LCD_STR_BEDTEMP     "\x00"  // this will have 'unexpected' results when used in a string!
-#define LCD_STR_DEGREE      "\x01"
-#define LCD_STR_THERMOMETER "\x02"
-#define LCD_STR_UPLEVEL     "\x03"
-#define LCD_STR_REFRESH     "\x04"
-#define LCD_STR_FOLDER      "\x05"
-#define LCD_STR_FEEDRATE    "\x06"
-#define LCD_STR_CLOCK       "\x07"
-//#define LCD_STR_ARROW_RIGHT "\x7E"  /* from the default character set. Only available on DISPLAY_CHARSET_HD44780_JAPAN - at this place!*/
-#define LCD_STR_ARROW_RIGHT ">"  /* from the default character set */
-
 static void lcd_set_custom_characters(
   #ifdef LCD_PROGRESS_BAR
     bool progress_bar_set=true
