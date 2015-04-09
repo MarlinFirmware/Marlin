@@ -186,7 +186,7 @@
         #define Y_PROBE_ERROR
       #endif
       #ifdef Y_PROBE_ERROR
-        #error The Y axis probing range is to small to fit all the points defined in AUTO_BED_LEVELING_GRID_POINTS
+        #error The Y axis probing range is too small to fit all the points defined in AUTO_BED_LEVELING_GRID_POINTS
       #endif
 
       #undef PROBE_SIZE_X
