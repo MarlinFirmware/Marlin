@@ -130,7 +130,6 @@
      #define NEWPANEL
   #endif
 
-
   #ifdef ULTIPANEL
     #define NEWPANEL  //enable this if you have a click-encoder panel
     #define SDSUPPORT
@@ -159,6 +158,13 @@
    */
   #if defined(DOGLCD) && !defined(DEFAULT_LCD_CONTRAST)
     #define DEFAULT_LCD_CONTRAST 32
+  #endif
+
+  #ifdef DOGLCD
+    #define HAS_LCD_CONTRAST
+    #ifdef U8GLIB_ST7920
+      #undef HAS_LCD_CONTRAST
+    #endif
   #endif
 
 #else // CONFIGURATION_LCD
