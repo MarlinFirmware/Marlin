@@ -4083,7 +4083,7 @@ inline void gcode_M226() {
 
 #endif // CHDK || PHOTOGRAPH_PIN
 
-#ifdef DOGLCD
+#ifdef HAS_LCD_CONTRAST
 
   /**
    * M250: Read and optionally set the LCD contrast
@@ -4095,7 +4095,7 @@ inline void gcode_M226() {
     SERIAL_EOL;
   }
 
-#endif // DOGLCD
+#endif // HAS_LCD_CONTRAST
 
 #ifdef PREVENT_DANGEROUS_EXTRUDE
 
@@ -5081,11 +5081,11 @@ void process_commands() {
           break;
       #endif // CHDK || PHOTOGRAPH_PIN
 
-      #ifdef DOGLCD
+      #ifdef HAS_LCD_CONTRAST
         case 250: // M250  Set LCD contrast value: C<value> (value 0..63)
           gcode_M250();
           break;
-      #endif // DOGLCD
+      #endif // HAS_LCD_CONTRAST
 
       #ifdef PREVENT_DANGEROUS_EXTRUDE
         case 302: // allow cold extrudes, or set the minimum extrude temperature
