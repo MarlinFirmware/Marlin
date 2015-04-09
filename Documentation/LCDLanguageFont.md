@@ -38,7 +38,7 @@ We have two different technologies for the displays:
   * de    German
   * es    Spanish
   * ru    Russian
-  * bgr   Bulgarian
+  * bg    Bulgarian
   * it    Italian
   * pt    Portuguese
   * pt-br Portuguese (Brazil)
@@ -117,7 +117,7 @@ We have two different technologies for the displays:
       * MAPPER_NON is the fastest and least memory consuming variant.
       * Mappers together with a ISO10646_font are the second best choice regarding speed and memory consumption. Only a few more decisions are mad per character.
       * Mappers together with the HD44780_fonts use about additional 128 bytes for the mapping_table.
-  * e.) Creating a new language file is not a big thing. Just make a new file with the format 'language_xx.h' or maybe 'language.xx.utf8.h', define a mapper and a font in there and translate some of the strings defined in language_en.h. You can drop the surrounding  #ifndef #endif. You don't have to translate all the stings - the missing one will be added by language_en.h - in English - of cause.
+  * e.) Creating a new language file is not a big thing. Just make a new file with the format 'language_xx.h' or maybe 'language.xx.utf8.h', define a mapper and a font in there and translate some of the strings defined in language_en.h. You can drop the surrounding  #ifndef #endif. You don't have to translate all the stings - the missing one will be added by language_en.h - in English - of cause. If possible 'xx' should be the 2 letter code from ISO 639-1 for your language.
   * f.) If you cant find a matching mapper things will be a bit more complex. With the Hitachi based displays you will not have big chance to make something useful unless you have one with a matching charset. For a full graphic display - lets explain with - let's say Greece.
       Find a matching charset. (http://en.wikipedia.org/wiki/Greek_and_Coptic)
       Provide a font containing the symbols in the right size. Normal ASCII in the lower 127 places, the upper with your selection.
