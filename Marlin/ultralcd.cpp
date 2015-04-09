@@ -251,9 +251,10 @@ float raw_Ki, raw_Kd;
 static void lcd_goto_menu(menuFunc_t menu, const uint32_t encoder=0, const bool feedback=true) {
   if (currentMenu != menu) {
     currentMenu = menu;
-    encoderPosition = encoder;
-    if (feedback) lcd_quick_feedback();
-
+    #if defined(NEWPANEL)
+      encoderPosition = encoder;
+      if (feedback) lcd_quick_feedback();
+    #endif
     // For LCD_PROGRESS_BAR re-initialize the custom characters
     #ifdef LCD_PROGRESS_BAR
       lcd_set_custom_characters(menu == lcd_status_screen);
@@ -1259,7 +1260,9 @@ int lcd_strlen_P(const char *s) {
 }
 
 void lcd_update() {
-  static unsigned long timeoutToStatus = 0;
+  #ifdef ULTIPANEL
+    static unsigned long timeoutToStatus = 0;
+  #endif
 
   #ifdef LCD_HAS_SLOW_BUTTONS
     slow_buttons = lcd_implementation_read_slow_buttons(); // buttons which take too long to read in interrupt context
