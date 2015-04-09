@@ -669,7 +669,7 @@ void Config_PrintSettings(bool forReplay) {
   #ifdef DELTA
     SERIAL_ECHO_START;
     if (!forReplay) {
-      SERIAL_ECHOLNPGM("Endstop adjustement (mm):");
+      SERIAL_ECHOLNPGM("Endstop adjustment (mm):");
       SERIAL_ECHO_START;
     }
     SERIAL_ECHOPAIR("  M666 X", endstop_adj[X_AXIS] );
@@ -686,7 +686,7 @@ void Config_PrintSettings(bool forReplay) {
   #elif defined(Z_DUAL_ENDSTOPS)
     SERIAL_ECHO_START;
     if (!forReplay) {
-      SERIAL_ECHOLNPGM("Z2 Endstop adjustement (mm):");
+      SERIAL_ECHOLNPGM("Z2 Endstop adjustment (mm):");
       SERIAL_ECHO_START;
     }
     SERIAL_ECHOPAIR("  M666 Z", z_endstop_adj );

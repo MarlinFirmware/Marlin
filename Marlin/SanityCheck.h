@@ -101,6 +101,9 @@
     #ifdef ENABLE_AUTO_BED_LEVELING
       #error Select ENABLE_AUTO_BED_LEVELING or MESH_BED_LEVELING, not both
     #endif
+    #if MESH_NUM_X_POINTS > 7 || MESH_NUM_Y_POINTS > 7
+      #error MESH_NUM_X_POINTS and MESH_NUM_Y_POINTS need to be less than 8
+    #endif
   #endif
 
   /**
