@@ -7,7 +7,7 @@
  *  RAMPS_13_EEB (Extruder, Extruder, Bed)
  *  RAMPS_13_EFF (Extruder, Fan, Fan)
  *  RAMPS_13_EEF (Extruder, Extruder, Fan)
- *	RAMPS_13_SFA (Spindle, Controller Fan, Available)
+ *  RAMPS_13_SFA (Spindle, Controller Fan, Available)
  *
  *  Other pins_MYBOARD.h files may override these defaults
  */
