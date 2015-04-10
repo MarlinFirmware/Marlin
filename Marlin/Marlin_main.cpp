@@ -1669,7 +1669,7 @@ void process_commands()
       			if(setTargetedHotend(109)){
         			break;
 				}
-				LCD_MESSAGEPGM(MSG_HEATING);
+				LCD_MESSAGEPGM(MSG_HEATING_PROCESS);
 				lcd_update();
       
 				#ifdef AUTOTEMP
@@ -1754,7 +1754,7 @@ void process_commands()
 							}
 						#endif //TEMP_RESIDENCY_TIME
 					}
-        			LCD_MESSAGEPGM(MSG_HEATING_COMPLETE);
+        			LCD_MESSAGEPGM(MSG_HEATING_DONE);
         			lcd_update();
 
         			starttime=millis();
@@ -1769,7 +1769,7 @@ void process_commands()
 
 			case 190: // M190 - Wait for bed heater to reach target.
 				#if defined(TEMP_BED_PIN) && TEMP_BED_PIN > -1
-					LCD_MESSAGEPGM(MSG_BED_HEATING);
+					LCD_MESSAGEPGM(MSG_BED_HEATING_PROCESS);
 					if (code_seen('S')) {
 						setTargetBed(code_value());
 						CooldownNoWait = true;
@@ -1800,7 +1800,7 @@ void process_commands()
 						manage_inactivity();
 						lcd_update();
 					}
-					LCD_MESSAGEPGM(MSG_BED_DONE);
+					LCD_MESSAGEPGM(MSG_BED_HEATING_DONE);
 					previous_millis_cmd = millis();
     			#endif
 				break;
