@@ -201,15 +201,15 @@ LDFLAGS = -lm
 
 # Programming support using avrdude. Settings and variables.
 AVRDUDE_PORT = $(UPLOAD_PORT)
-AVRDUDE_WRITE_FLASH = -Uflash:w:$(BUILD_DIR)/$(TARGET).hex:i
+AVRDUDE_WRITE_FLASH = -D -U flash:w:$(BUILD_DIR)/$(TARGET).hex:i
 ifeq ($(shell uname -s), Linux)
 AVRDUDE_CONF = $(ARDUINO_INSTALL_DIR)/hardware/tools/avrdude.conf
 else
 AVRDUDE_CONF = $(ARDUINO_INSTALL_DIR)/hardware/tools/avr/etc/avrdude.conf
 endif
-AVRDUDE_FLAGS = -q -q -D -C$(AVRDUDE_CONF) \
-	-p$(MCU) -P$(AVRDUDE_PORT) -c $(AVRDUDE_PROGRAMMER) -cwiring\
-	-b$(UPLOAD_RATE)
+AVRDUDE_FLAGS = -v -C $(AVRDUDE_CONF) \
+	-p $(MCU) -P $(AVRDUDE_PORT) -c $(AVRDUDE_PROGRAMMER) \
+	-b $(UPLOAD_RATE)
 
 # Define all object files.
 OBJ = ${patsubst %.c, $(BUILD_DIR)/%.o, ${SRC}}
