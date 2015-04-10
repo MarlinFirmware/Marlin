@@ -666,6 +666,9 @@ inline void line_to_current() {
   #endif
 }
 
+float move_menu_scale;
+static void lcd_move_menu_axis();
+
 static void _lcd_move(const char *name, int axis, int min, int max) {
   if (encoderPosition != 0) {
     refresh_cmd_timeout();
@@ -683,7 +686,6 @@ static void lcd_move_x() { _lcd_move(PSTR("X"), X_AXIS, X_MIN_POS, X_MAX_POS); }
 static void lcd_move_y() { _lcd_move(PSTR("Y"), Y_AXIS, Y_MIN_POS, Y_MAX_POS); }
 static void lcd_move_z() { _lcd_move(PSTR("Z"), Z_AXIS, Z_MIN_POS, Z_MAX_POS); }
 
-float move_menu_scale;
 static void lcd_move_menu_axis() {
   START_MENU();
   MENU_ITEM(back, MSG_MOVE_AXIS, lcd_move_menu);
