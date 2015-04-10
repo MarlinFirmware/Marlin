@@ -4713,17 +4713,16 @@ inline void gcode_M503() {
         manage_heater();
         manage_inactivity(true);
         lcd_update();
-      }
       #else
-        current_position[E_AXIS]+=AUTO_FILAMENT_CHANGE_LENGTH;
-        plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS],current_position[E_AXIS], AUTO_FILAMENT_CHANGE_FEEDRATE/60, active_extruder);
+        current_position[E_AXIS] += AUTO_FILAMENT_CHANGE_LENGTH;
+        plan_buffer_line(target[X_AXIS],target[Y_AXIS],target[Z_MAX_ENDSTOP_INVERTING],current_position[E_AXIS],AUTO_FILAMENT_CHANGE_FEEDRATE/60,active_extruder);
         st_synchronize();
       #endif
     } // while(!lcd_clicked)
 
     #ifdef AUTO_FILAMENT_CHANGE
-          current_position[E_AXIS]=0;
-          st_synchronize();
+      current_position[E_AXIS]= 0;
+      st_synchronize();
     #endif
           
     //return to normal
