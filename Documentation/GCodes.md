@@ -7,8 +7,8 @@ G1   - Coordinated Movement X Y Z E
 G2   - CW ARC
 G3   - CCW ARC
 G4   - Dwell S[seconds] or P[milliseconds]
-G92  - Set current position to cordinates given
-M0   - Wait for user, with optional prompt message (to press the LCD button, requires ULTRA_LCD)
+G92  - Set the "current position" to coordinates: X<xpos> Y<ypos> Z<zpos> E<epos>
+M0   - Wait for user, with optional prompt message (requires LCD controller)
        M0 Click When Ready ; show "Click When Ready" until the button is pressed.
 M1   - Same as M0
 M400 - Finish all moves
