@@ -73,7 +73,7 @@ M140 - Set bed target temp
 M150 - Set BlinkM Color Output R: Red<0-255> U(!): Green<0-255> B: Blue<0-255> over i2c, G for green does not work.
 M190 - Sxxx Wait for bed current temp to reach target temp. Waits only when heating
        Rxxx Wait for bed current temp to reach target temp. Waits when heating and cooling
-M200 D<millimeters>- set filament diameter and set E axis units to cubic millimeters (use S0 to set back to millimeters).
+M200 - set filament diameter and set E axis units to cubic millimeters (use S0 to set back to millimeters).: D<millimeters>- 
 M201 - Set max acceleration in units/s^2 for print moves (M201 X1000 Y1000)
 M202 - Set max acceleration in units/s^2 for travel moves (M202 X1000 Y1000) Unused in Marlin!!
 M203 - Set maximum feedrate that your machine can sustain (M203 X200 Y200 Z300 E10000) in mm/sec
@@ -84,9 +84,9 @@ M207 - Set retract length S[positive mm] F[feedrate mm/min] Z[additional zlift/h
 M208 - Set recover=unretract length S[positive mm surplus to the M207 S*] F[feedrate mm/sec]
 M209 - S<1=true/0=false> enable automatic retract detect if the slicer did not support G10/11: every normal extrude-only move will be classified as retract depending on the direction.
 M218 - Set hotend offset (in mm): T<extruder_number> X<offset_on_X> Y<offset_on_Y>
-M220 S<factor in percent>- set speed factor override percentage
-M221 S<factor in percent>- set extrude factor override percentage
-M226 P<pin number> S<pin state>- Wait until the specified pin reaches the state required
+M220 - Set speed factor override percentage: S<factor in percent>
+M221 - Set extrude factor override percentage: S<factor in percent>
+M226 - Wait until the specified pin reaches the state required: P<pin number> S<pin state>
 M240 - Trigger a camera to take a photograph
 M250 - Set LCD contrast C<contrast value> (value 0..63)
 M280 - Set servo position absolute. P: servo index, S: angle or microseconds
@@ -117,9 +117,6 @@ M907 - Set digital trimpot motor current using axis codes.
 M908 - Control digital trimpot directly.
 M350 - Set microstepping mode.
 M351 - Toggle MS1 MS2 pins directly.
-
-M928 - Start SD logging (M928 filename.g) - ended by M29
-M999 - Restart after being stopped by error
 ```
 ## SCARA-specific M-Codes - May change to suit future G-code standards
 ```
