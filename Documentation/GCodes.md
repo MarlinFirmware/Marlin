@@ -44,7 +44,7 @@ M80  - Turn on Power Supply
 M81  - Turn off Power Supply
 M84  - Disable steppers until next move,
        or use S<seconds> to specify an inactivity timeout, after which the steppers will be disabled.  S0 to disable the timeout.
-M85  - Set inactivity shutdown timer with parameter S<seconds>. To disable set zero (default)
+M85  - Set inactivity shutdown timer with parameter S<seconds>. Disable with "M85" or "M85 S0".
 M112 - Emergency stop. Requires hardware reset!!
 M226 - Wait for a pin to be in some state: P<pin number> S<pin state>
 ```
