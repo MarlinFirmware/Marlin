@@ -1,19 +1,20 @@
 /**
- *dogm_lcd_implementation.h
+ * dogm_lcd_implementation.h
  *
- *Graphics LCD implementation for 128x64 pixel LCDs by STB for ErikZalm/Marlin
- *Demonstrator: http://www.reprap.org/wiki/STB_Electronics
- *License: http://opensource.org/licenses/BSD-3-Clause
+ * Graphics LCD implementation for 128x64 pixel LCDs by STB for ErikZalm/Marlin
+ * Demonstrator: http://www.reprap.org/wiki/STB_Electronics
+ * License: http://opensource.org/licenses/BSD-3-Clause
  *
- *With the use of:
- *u8glib by Oliver Kraus
- *http://code.google.com/p/u8glib/
- *License: http://opensource.org/licenses/BSD-3-Clause
+ * With the use of:
+ * u8glib by Oliver Kraus
+ * http://code.google.com/p/u8glib/
+ * License: http://opensource.org/licenses/BSD-3-Clause
  */
 
+#ifndef DOGM_LCD_IMPLEMENTATION_H
+#define DOGM_LCD_IMPLEMENTATION_H
 
-#ifndef ULTRA_LCD_IMPLEMENTATION_DOGM_H
-#define ULTRA_LCD_IMPLEMENTATION_DOGM_H
+#define MARLIN_VERSION "1.0.2"
 
 /**
 * Implementation of the LCD display routines for a DOGM128 graphic display. These are common LCD 128x64 pixel graphic displays.
@@ -55,14 +56,12 @@
 */
 
 // DOGM parameters (size in pixels)
-#define DOG_CHAR_WIDTH			6
-#define DOG_CHAR_HEIGHT			12
-#define DOG_CHAR_WIDTH_LARGE	9
-#define DOG_CHAR_HEIGHT_LARGE	18
+#define DOG_CHAR_WIDTH         6
+#define DOG_CHAR_HEIGHT        12
+#define DOG_CHAR_WIDTH_LARGE   9
+#define DOG_CHAR_HEIGHT_LARGE  18
 
-
-#define START_ROW				0
-
+#define START_ROW              0
 
 /* Custom characters defined in font font_6x10_marlin.c */
 #define LCD_STR_BEDTEMP     "\xFE"
@@ -75,7 +74,7 @@
 #define LCD_STR_CLOCK       "\xFC"
 #define LCD_STR_ARROW_RIGHT "\xFA"
 
-#define FONT_STATUSMENU	u8g_font_6x9
+#define FONT_STATUSMENU u8g_font_6x9
 
 int lcd_contrast;
 
@@ -85,7 +84,7 @@ int lcd_contrast;
 U8GLIB_ST7920_128X64_RRD u8g(0);
 #else
 // for regular DOGM128 display with HW-SPI
-U8GLIB_DOGM128 u8g(DOGLCD_CS, DOGLCD_A0);	// HW-SPI Com: CS, A0
+U8GLIB_DOGM128 u8g(DOGLCD_CS, DOGLCD_A0);  // HW-SPI Com: CS, A0
 #endif
 
 static void lcd_implementation_init()
@@ -100,7 +99,7 @@ static void lcd_implementation_init()
     #ifdef LCD_PIN_BL
 	pinMode(LCD_PIN_BL, OUTPUT);	// Enable LCD backlight
 	digitalWrite(LCD_PIN_BL, HIGH);
-    #endif
+  #endif
 	u8g.setContrast(lcd_contrast);	
 	//  Uncomment this if you have the first generation (V1.10) of STBs board
 	//  pinMode(17, OUTPUT);	// Enable LCD backlight
@@ -108,9 +107,9 @@ static void lcd_implementation_init()
 #endif
 	
     u8g.firstPage();
-    do {
+  do {
 	u8g.drawXBMP(0,0,START_BMPWIDTH,START_BMPHEIGHT,start_bmp);
-    } while( u8g.nextPage() );
+	} while(u8g.nextPage());
 
 #ifdef LCD_SCREEN_ROT_90
 	u8g.setRot90();	// Rotate screen by 90°
@@ -233,7 +232,7 @@ static void lcd_implementation_status_screen()
 	}else{
 			lcd_implementation_print_P(PSTR("--:--"));
 		 }
-	#endif
+  #endif
 
 	// Extruder 1
 	u8g.setFont(FONT_STATUSMENU);
@@ -303,54 +302,53 @@ static void lcd_implementation_status_screen()
 		 u8g.setColorIndex(1);	// black on white
 		}
 
-	// Fan
-	u8g.setFont(FONT_STATUSMENU);
-	u8g.setPrintPos(104,27);
-	#if defined(FAN_PIN) && FAN_PIN > -1
-	u8g.print(itostr3(int((fanSpeed*100)/256 + 1)));
-	u8g.print("%");
-	#else
-	u8g.print("---");
-	#endif
+  // Fan
+  u8g.setFont(FONT_STATUSMENU);
+  u8g.setPrintPos(104,27);
+  #if defined(FAN_PIN) && FAN_PIN > -1
+    u8g.print(itostr3(int((fanSpeed*100)/256 + 1)));
+    u8g.print("%");
+  #else
+    u8g.print("---");
+  #endif
 
+  // X, Y, Z-Coordinates
+  u8g.setFont(FONT_STATUSMENU);
+  u8g.drawBox(0,29,128,10);
+  u8g.setColorIndex(0); // white on black
+  u8g.setPrintPos(2,37);
+  u8g.print("X");
+  u8g.drawPixel(8,33);
+  u8g.drawPixel(8,35);
+  u8g.setPrintPos(10,37);
+  u8g.print(ftostr31ns(current_position[X_AXIS]));
+  u8g.setPrintPos(43,37);
+  lcd_implementation_print_P(PSTR("Y"));
+  u8g.drawPixel(49,33);
+  u8g.drawPixel(49,35);
+  u8g.setPrintPos(51,37);
+  u8g.print(ftostr31ns(current_position[Y_AXIS]));
+  u8g.setPrintPos(83,37);
+  u8g.print("Z");
+  u8g.drawPixel(89,33);
+  u8g.drawPixel(89,35);
+  u8g.setPrintPos(91,37);
+  u8g.print(ftostr31(current_position[Z_AXIS]));
+  u8g.setColorIndex(1); // black on white
 
-	// X, Y, Z-Coordinates
-	u8g.setFont(FONT_STATUSMENU);
-	u8g.drawBox(0,29,128,10);
-	u8g.setColorIndex(0);	// white on black
-	u8g.setPrintPos(2,37);
-	u8g.print("X");
-	u8g.drawPixel(8,33);
-	u8g.drawPixel(8,35);
-	u8g.setPrintPos(10,37);
-	u8g.print(ftostr31ns(current_position[X_AXIS]));
-	u8g.setPrintPos(43,37);
-	lcd_implementation_print_P(PSTR("Y"));
-	u8g.drawPixel(49,33);
-	u8g.drawPixel(49,35);
-	u8g.setPrintPos(51,37);
-	u8g.print(ftostr31ns(current_position[Y_AXIS]));
-	u8g.setPrintPos(83,37);
-	u8g.print("Z");
-	u8g.drawPixel(89,33);
-	u8g.drawPixel(89,35);
-	u8g.setPrintPos(91,37);
-	u8g.print(ftostr31(current_position[Z_AXIS]));
-	u8g.setColorIndex(1);	// black on white
+  // Feedrate
+  u8g.setFont(u8g_font_6x10_marlin);
+  u8g.setPrintPos(3,49);
+  u8g.print(LCD_STR_FEEDRATE[0]);
+  u8g.setFont(FONT_STATUSMENU);
+  u8g.setPrintPos(12,48);
+  u8g.print(itostr3(feedmultiply));
+  u8g.print('%');
 
-	// Feedrate
-	u8g.setFont(u8g_font_6x10_marlin);
-	u8g.setPrintPos(3,49);
-	u8g.print(LCD_STR_FEEDRATE[0]);
-	u8g.setFont(FONT_STATUSMENU);
-	u8g.setPrintPos(12,48);
-	u8g.print(itostr3(feedmultiply));
-	u8g.print('%');
-
-	// Status line
-	u8g.setFont(FONT_STATUSMENU);
-	u8g.setPrintPos(0,61);
-	u8g.print(lcd_status_message);
+  // Status line
+  u8g.setFont(FONT_STATUSMENU);
+  u8g.setPrintPos(0,61);
+  u8g.print(lcd_status_message);
 
 	} while( u8g.nextPage() ); 
 }
@@ -380,8 +378,7 @@ static void lcd_implementation_drawmenu_generic(uint8_t row, const char* pstr, c
     }
     while(n--){
 					u8g.print(' ');
-		}
-	   
+    }
 		u8g.print(post_char);
 		u8g.print(' ');
 		u8g.setColorIndex(1);		// restore settings to black on white
@@ -654,6 +651,5 @@ static void lcd_implementation_drawmenu_sddirectory(uint8_t row, const char* pst
 #define lcd_implementation_drawmenu_function_R(row, pstr, data) lcd_implementation_drawmenu_generic_R(row, pstr, ' ', ' ')
 
 
-#endif//ULTRA_LCD_IMPLEMENTATION_DOGM_H
 
-
+#endif //__DOGM_LCD_IMPLEMENTATION_H

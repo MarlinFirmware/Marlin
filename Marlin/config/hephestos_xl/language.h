@@ -26,7 +26,7 @@
 #define PROTOCOL_VERSION "1.0"
 
 #if defined(WITBOX)
-	#define MACHINE_NAME "bq Hephestos XL"
+	#define MACHINE_NAME "bq Hephestos"
 	#define FIRMWARE_URL "http://www.bqreaders.com/descargas-witbox.html"
 	#define FIRMWARE_VER "v1.4.2"
 	#define BUILD_VER ""
@@ -257,7 +257,7 @@
 		#define MSG_LENGTH "Length:"         
 		#define MSG_RETRACTING "Retracting"
 
-		#define MSG_WELLCOME "bq Hephestos XL"
+		#define MSG_WELLCOME "bq Hephestos"
 
 		#define MSG_LP_COOL_1 "Cooling..."
 		#define MSG_LP_COOL_2 "Temp:"

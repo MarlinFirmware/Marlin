@@ -38,7 +38,7 @@ void _EEPROM_readData(int &pos, uint8_t* value, uint8_t size)
 // wrong data being written to the variables.
 // ALSO:  always make sure the variables in the Store and retrieve sections are in the same order.
 
-#define EEPROM_VERSION "V13"
+#define EEPROM_VERSION "V14"
 
 #ifdef EEPROM_SETTINGS
 void Config_StoreSettings() 
@@ -63,11 +63,11 @@ void Config_StoreSettings()
   EEPROM_WRITE_VAR(i,delta_radius);
   EEPROM_WRITE_VAR(i,delta_diagonal_rod);
   EEPROM_WRITE_VAR(i,delta_segments_per_second);
-  #endif
+  #endif//DELTA
   #ifndef ULTIPANEL
   int plaPreheatHotendTemp = PLA_PREHEAT_HOTEND_TEMP, plaPreheatHPBTemp = PLA_PREHEAT_HPB_TEMP, plaPreheatFanSpeed = PLA_PREHEAT_FAN_SPEED;
   int absPreheatHotendTemp = ABS_PREHEAT_HOTEND_TEMP, absPreheatHPBTemp = ABS_PREHEAT_HPB_TEMP, absPreheatFanSpeed = ABS_PREHEAT_FAN_SPEED;
-  #endif
+  #endif//ULTIPANEL
   EEPROM_WRITE_VAR(i,plaPreheatHotendTemp);
   EEPROM_WRITE_VAR(i,plaPreheatHPBTemp);
   EEPROM_WRITE_VAR(i,plaPreheatFanSpeed);
@@ -76,37 +76,58 @@ void Config_StoreSettings()
   EEPROM_WRITE_VAR(i,absPreheatFanSpeed);
   EEPROM_WRITE_VAR(i,zprobe_zoffset);
   #ifdef PIDTEMP
-    EEPROM_WRITE_VAR(i,Kp);
-    EEPROM_WRITE_VAR(i,Ki);
-    EEPROM_WRITE_VAR(i,Kd);
-  #else
+    float dummy = 0.0f;
+    for (int e = 0; e < 3; e++)
+	{
+	  if (e < EXTRUDERS)
+	  {
+        EEPROM_WRITE_VAR(i,PID_PARAM(Kp,e));
+        EEPROM_WRITE_VAR(i,PID_PARAM(Ki,e));
+        EEPROM_WRITE_VAR(i,PID_PARAM(Kd,e));
+        #ifdef PID_ADD_EXTRUSION_RATE
+        EEPROM_WRITE_VAR(i,PID_PARAM(Kc,e));
+        #else//PID_ADD_EXTRUSION_RATE
+		dummy = 1.0f; // 1.0 = default kc
+	    EEPROM_WRITE_VAR(dummmy);
+        #endif//PID_ADD_EXTRUSION_RATE
+	  }
+	  else
+	  {
+		dummy = 3000.0f;
+	    EEPROM_WRITE_VAR(i, dummy);
+		dummy = 0.0f;
+        EEPROM_WRITE_VAR(i,dummy);
+        EEPROM_WRITE_VAR(i,dummy);
+	  }
+	}
+  #else//PIDTEMP
 		float dummy = 3000.0f;
     EEPROM_WRITE_VAR(i,dummy);
 		dummy = 0.0f;
     EEPROM_WRITE_VAR(i,dummy);
     EEPROM_WRITE_VAR(i,dummy);
-  #endif
+  #endif//PIDTEMP
   #ifndef DOGLCD
     int lcd_contrast = 32;
-  #endif
+  #endif//DOGLCD
   EEPROM_WRITE_VAR(i,lcd_contrast);
   #ifdef SCARA
   EEPROM_WRITE_VAR(i,axis_scaling);        // Add scaling for SCARA
-  #endif
+  #endif//SCARA
   #ifdef FWRETRACT
   EEPROM_WRITE_VAR(i,autoretract_enabled);
   EEPROM_WRITE_VAR(i,retract_length);
   #if EXTRUDERS > 1
   EEPROM_WRITE_VAR(i,retract_length_swap);
-  #endif
+  #endif//EXTRUDERS > 1
   EEPROM_WRITE_VAR(i,retract_feedrate);
   EEPROM_WRITE_VAR(i,retract_zlift);
   EEPROM_WRITE_VAR(i,retract_recover_length);
   #if EXTRUDERS > 1
   EEPROM_WRITE_VAR(i,retract_recover_length_swap);
-  #endif
+  #endif//EXTRUDERS > 1
   EEPROM_WRITE_VAR(i,retract_recover_feedrate);
-  #endif
+  #endif//FWRETRACT
 
   // Save filament sizes
   EEPROM_WRITE_VAR(i, volumetric_enabled);
@@ -115,8 +136,8 @@ void Config_StoreSettings()
   EEPROM_WRITE_VAR(i, filament_size[1]);
   #if EXTRUDERS > 2
   EEPROM_WRITE_VAR(i, filament_size[2]);
-  #endif
-  #endif
+  #endif//EXTRUDERS > 2
+  #endif//EXTRUDERS > 1
   
   char ver2[4]=EEPROM_VERSION;
   i=EEPROM_OFFSET;
@@ -149,7 +170,7 @@ SERIAL_ECHOLNPGM("Scaling factors:");
     SERIAL_ECHOLN("");
       
     SERIAL_ECHO_START;
-#endif
+#endif//SCARA
     SERIAL_ECHOLNPGM("Maximum feedrates (mm/s):");
     SERIAL_ECHO_START;
     SERIAL_ECHOPAIR("  M203 X", max_feedrate[X_AXIS]);
@@ -206,16 +227,16 @@ SERIAL_ECHOLNPGM("Scaling factors:");
 	SERIAL_ECHOPAIR(" R" ,delta_radius );
 	SERIAL_ECHOPAIR(" S" ,delta_segments_per_second );
 	SERIAL_ECHOLN("");
-#endif
+#endif//DELTA
 #ifdef PIDTEMP
     SERIAL_ECHO_START;
     SERIAL_ECHOLNPGM("PID settings:");
-    SERIAL_ECHO_START;
-    SERIAL_ECHOPAIR("   M301 P",Kp); 
-    SERIAL_ECHOPAIR(" I" ,unscalePID_i(Ki)); 
-    SERIAL_ECHOPAIR(" D" ,unscalePID_d(Kd));
+	SERIAL_ECHO_START;
+    SERIAL_ECHOPAIR("   M301 P", PID_PARAM(Kp,0)); // for compatibility with hosts, only echos values for E0
+	SERIAL_ECHOPAIR(" I", unscalePID_i(PID_PARAM(Ki, 0)));
+	SERIAL_ECHOPAIR(" D", unscalePID_d(PID_PARAM(Kd, 0)));
     SERIAL_ECHOLN(""); 
-#endif
+#endif//PIDTEMP
 #ifdef FWRETRACT
     SERIAL_ECHO_START;
     SERIAL_ECHOLNPGM("Retract: S=Length (mm) F:Speed (mm/m) Z: ZLift (mm)");
@@ -244,7 +265,7 @@ SERIAL_ECHOLNPGM("Scaling factors:");
     SERIAL_ECHO_START;
     SERIAL_ECHOPAIR("   Swap rec. addl. length (mm): ", retract_recover_length_swap);
     SERIAL_ECHOLN("");
-#endif
+#endif//EXTRUDERS > 1
     SERIAL_ECHO_START;
     if (volumetric_enabled) {
         SERIAL_ECHOLNPGM("Filament settings:");
@@ -259,14 +280,14 @@ SERIAL_ECHOLNPGM("Scaling factors:");
 		SERIAL_ECHO_START;
         SERIAL_ECHOPAIR("   M200 T2 D", filament_size[2]);
 		SERIAL_ECHOLN("");
-#endif
-#endif
+#endif//EXTRUDERS > 2
+#endif//EXTRUDERS > 1
     } else {
         SERIAL_ECHOLNPGM("Filament settings: Disabled");
     }
-#endif
+#endif//FWRETRACT
 }
-#endif
+#endif//DISABLE_M503
 
 
 #ifdef EEPROM_SETTINGS
@@ -301,11 +322,11 @@ void Config_RetrieveSettings()
 		EEPROM_READ_VAR(i,delta_radius);
 		EEPROM_READ_VAR(i,delta_diagonal_rod);
 		EEPROM_READ_VAR(i,delta_segments_per_second);
-        #endif
+        #endif//DELTA
         #ifndef ULTIPANEL
         int plaPreheatHotendTemp, plaPreheatHPBTemp, plaPreheatFanSpeed;
         int absPreheatHotendTemp, absPreheatHPBTemp, absPreheatFanSpeed;
-        #endif
+        #endif//ULTIPANEL
         EEPROM_READ_VAR(i,plaPreheatHotendTemp);
         EEPROM_READ_VAR(i,plaPreheatHPBTemp);
         EEPROM_READ_VAR(i,plaPreheatFanSpeed);
@@ -313,35 +334,68 @@ void Config_RetrieveSettings()
         EEPROM_READ_VAR(i,absPreheatHPBTemp);
         EEPROM_READ_VAR(i,absPreheatFanSpeed);
         EEPROM_READ_VAR(i,zprobe_zoffset);
-        #ifndef PIDTEMP
-        float Kp,Ki,Kd;
-        #endif
-        // do not need to scale PID values as the values in EEPROM are already scaled		
-        EEPROM_READ_VAR(i,Kp);
-        EEPROM_READ_VAR(i,Ki);
-        EEPROM_READ_VAR(i,Kd);
+        #ifdef PIDTEMP
+		float dummy = 0.0f;
+		for (int e = 0; e < 3; e++) // 3 = max extruders supported by marlin
+		{
+		  if (e < EXTRUDERS)
+		  {
+		    // do not need to scale PID values as the values in EEPROM are already scaled			  
+            EEPROM_READ_VAR(i,PID_PARAM(Kp,e));
+            EEPROM_READ_VAR(i,PID_PARAM(Ki,e));
+		    EEPROM_READ_VAR(i,PID_PARAM(Kd,e));
+#ifdef PID_ADD_EXTRUSION_RATE
+            EEPROM_READ_VAR(i,PID_PARAM(Kc,e));
+#else//PID_ADD_EXTRUSION_RATE
+	        EEPROM_READ_VAR(i,dummy);
+#endif//PID_ADD_EXTRUSION_RATE
+		  }
+		  else
+		  {
+			EEPROM_READ_VAR(i,dummy);
+			EEPROM_READ_VAR(i,dummy);
+			EEPROM_READ_VAR(i,dummy);
+			EEPROM_READ_VAR(i,dummy);
+		  }
+		}
+		#else//PIDTEMP
+		// 4 x 3 = 12 slots for PID parameters
+		float dummy = 0.0f;
+		EEPROM_READ_VAR(i,dummy);
+		EEPROM_READ_VAR(i,dummy);
+		EEPROM_READ_VAR(i,dummy);
+		EEPROM_READ_VAR(i,dummy);
+		EEPROM_READ_VAR(i,dummy);
+		EEPROM_READ_VAR(i,dummy);
+		EEPROM_READ_VAR(i,dummy);
+		EEPROM_READ_VAR(i,dummy);
+		EEPROM_READ_VAR(i,dummy);
+		EEPROM_READ_VAR(i,dummy);
+		EEPROM_READ_VAR(i,dummy);
+		EEPROM_READ_VAR(i,dummy);			
+		#endif//PIDTEMP
         #ifndef DOGLCD
         int lcd_contrast;
-        #endif
+        #endif//DOGLCD
         EEPROM_READ_VAR(i,lcd_contrast);
 		#ifdef SCARA
 		EEPROM_READ_VAR(i,axis_scaling);
-		#endif
+		#endif//SCARA
 
 		#ifdef FWRETRACT
 		EEPROM_READ_VAR(i,autoretract_enabled);
 		EEPROM_READ_VAR(i,retract_length);
 		#if EXTRUDERS > 1
 		EEPROM_READ_VAR(i,retract_length_swap);
-		#endif
+		#endif//EXTRUDERS > 1
 		EEPROM_READ_VAR(i,retract_feedrate);
 		EEPROM_READ_VAR(i,retract_zlift);
 		EEPROM_READ_VAR(i,retract_recover_length);
 		#if EXTRUDERS > 1
 		EEPROM_READ_VAR(i,retract_recover_length_swap);
-		#endif
+		#endif//EXTRUDERS > 1
 		EEPROM_READ_VAR(i,retract_recover_feedrate);
-		#endif
+		#endif//FWRETRACT
 
 		EEPROM_READ_VAR(i, volumetric_enabled);
 		EEPROM_READ_VAR(i, filament_size[0]);
@@ -349,8 +403,8 @@ void Config_RetrieveSettings()
 		EEPROM_READ_VAR(i, filament_size[1]);
 #if EXTRUDERS > 2
 		EEPROM_READ_VAR(i, filament_size[2]);
-#endif
-#endif
+#endif//EXTRUDERS > 2
+#endif//EXTRUDERS > 1
 		calculate_volumetric_multipliers();
 		// Call updatePID (similar to when we have processed M301)
 		updatePID();
@@ -363,23 +417,23 @@ void Config_RetrieveSettings()
     }
     #ifdef EEPROM_CHITCHAT
       Config_PrintSettings();
-    #endif
+    #endif//EEPROM_CHITCHAT
 }
-#endif
+#endif//EEPROM_SETTINGS
 
 void Config_ResetDefault()
 {
-    float tmp1[]=DEFAULT_AXIS_STEPS_PER_UNIT;
-    float tmp2[]=DEFAULT_MAX_FEEDRATE;
-    long tmp3[]=DEFAULT_MAX_ACCELERATION;
+    const static float tmp1[] MARLIN_PROGMEM =DEFAULT_AXIS_STEPS_PER_UNIT;
+    const static float tmp2[] MARLIN_PROGMEM =DEFAULT_MAX_FEEDRATE;
+    const static long tmp3[] MARLIN_PROGMEM =DEFAULT_MAX_ACCELERATION;
     for (short i=0;i<4;i++) 
     {
-        axis_steps_per_unit[i]=tmp1[i];  
-        max_feedrate[i]=tmp2[i];  
-        max_acceleration_units_per_sq_second[i]=tmp3[i];
+        axis_steps_per_unit[i]=pgm_read_float(&tmp1[i]);  
+        max_feedrate[i]=pgm_read_float(&tmp2[i]);  
+        max_acceleration_units_per_sq_second[i]=pgm_read_float(&tmp3[i]);
 		#ifdef SCARA
 		axis_scaling[i]=1;
-		#endif
+		#endif//SCARA
     }
     
     // steps per sq second need to be updated to agree with the units per sq second
@@ -400,7 +454,7 @@ void Config_ResetDefault()
 	delta_diagonal_rod= DELTA_DIAGONAL_ROD;
 	delta_segments_per_second= DELTA_SEGMENTS_PER_SECOND;
 	recalc_delta_settings(delta_radius, delta_diagonal_rod);
-#endif
+#endif//DELTA
 #ifdef ULTIPANEL
     plaPreheatHotendTemp = PLA_PREHEAT_HOTEND_TEMP;
     plaPreheatHPBTemp = PLA_PREHEAT_HPB_TEMP;
@@ -408,24 +462,29 @@ void Config_ResetDefault()
     absPreheatHotendTemp = ABS_PREHEAT_HOTEND_TEMP;
     absPreheatHPBTemp = ABS_PREHEAT_HPB_TEMP;
     absPreheatFanSpeed = ABS_PREHEAT_FAN_SPEED;
-#endif
+#endif//ULTIPANEL
 #ifdef ENABLE_AUTO_BED_LEVELING
     zprobe_zoffset = -Z_PROBE_OFFSET_FROM_EXTRUDER;
-#endif
+#endif//ENABLE_AUTO_BED_LEVELING
 #ifdef DOGLCD
     lcd_contrast = DEFAULT_LCD_CONTRAST;
-#endif
+#endif//DOGLCD
 #ifdef PIDTEMP
-    Kp = DEFAULT_Kp;
-    Ki = scalePID_i(DEFAULT_Ki);
-    Kd = scalePID_d(DEFAULT_Kd);
-    
+#ifdef PID_PARAMS_PER_EXTRUDER
+	for (int e = 0; e < EXTRUDERS; e++)
+#else // PID_PARAMS_PER_EXTRUDER
+	int e = 0; // only need to write once
+#endif // PID_PARAMS_PER_EXTRUDER
+	{
+      PID_PARAM(Kp,e) = DEFAULT_Kp;
+      PID_PARAM(Ki,e) = scalePID_i(DEFAULT_Ki);
+      PID_PARAM(Kd,e) = scalePID_d(DEFAULT_Kd);
+      #ifdef PID_ADD_EXTRUSION_RATE
+        PID_PARAM(Kc,e) = DEFAULT_Kc;
+      #endif//PID_ADD_EXTRUSION_RATE
+    }
     // call updatePID (similar to when we have processed M301)
     updatePID();
-    
-#ifdef PID_ADD_EXTRUSION_RATE
-    Kc = DEFAULT_Kc;
-#endif//PID_ADD_EXTRUSION_RATE
 #endif//PIDTEMP
 
 #ifdef FWRETRACT
@@ -433,15 +492,15 @@ void Config_ResetDefault()
 	retract_length = RETRACT_LENGTH;
 #if EXTRUDERS > 1
 	retract_length_swap = RETRACT_LENGTH_SWAP;
-#endif
+#endif//EXTRUDERS > 1
 	retract_feedrate = RETRACT_FEEDRATE;
 	retract_zlift = RETRACT_ZLIFT;
 	retract_recover_length = RETRACT_RECOVER_LENGTH;
 #if EXTRUDERS > 1
 	retract_recover_length_swap = RETRACT_RECOVER_LENGTH_SWAP;
-#endif
+#endif//EXTRUDERS > 1
 	retract_recover_feedrate = RETRACT_RECOVER_FEEDRATE;
-#endif
+#endif//FWRETRACT
 
 	volumetric_enabled = false;
 	filament_size[0] = DEFAULT_NOMINAL_FILAMENT_DIA;
@@ -449,8 +508,8 @@ void Config_ResetDefault()
 	filament_size[1] = DEFAULT_NOMINAL_FILAMENT_DIA;
 #if EXTRUDERS > 2
 	filament_size[2] = DEFAULT_NOMINAL_FILAMENT_DIA;
-#endif
-#endif
+#endif//EXTRUDERS > 2
+#endif//EXTRUDERS > 1
 	calculate_volumetric_multipliers();
 
 SERIAL_ECHO_START;

@@ -341,8 +341,8 @@ bool cancel_heatup = false ;
   int meas_delay_cm = MEASUREMENT_DELAY_CM;  //distance delay setting
 #endif
 
-const char errormagic[] PROGMEM = "Error:";
-const char echomagic[] PROGMEM = "echo:";
+const prog_char errormagic[] MARLIN_PROGMEM = "Error:";
+const prog_char echomagic[] MARLIN_PROGMEM = "echo:";
 
 //===========================================================================
 //=============================Private Variables=============================
@@ -927,7 +927,7 @@ DEFINE_PGM_READ_ANY(float,       float);
 DEFINE_PGM_READ_ANY(signed char, byte);
 
 #define XYZ_CONSTS_FROM_CONFIG(type, array, CONFIG) \
-static const PROGMEM type array##_P[3] =        \
+static const type array##_P[3] MARLIN_PROGMEM =        \
     { X_##CONFIG, Y_##CONFIG, Z_##CONFIG };     \
 static inline type array(int axis)          \
     { return pgm_read_any(&array##_P[axis]); }
@@ -1352,28 +1352,32 @@ void refresh_cmd_timeout(void)
       feedrate=retract_feedrate*60;
       retracted[active_extruder]=true;
       prepare_move();
-      current_position[Z_AXIS]-=retract_zlift;
+      if(retract_zlift > 0.01) {
+         current_position[Z_AXIS]-=retract_zlift;
 #ifdef DELTA
-      calculate_delta(current_position); // change cartesian kinematic to  delta kinematic;
-      plan_set_position(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], current_position[E_AXIS]);
+         calculate_delta(current_position); // change cartesian kinematic to  delta kinematic;
+         plan_set_position(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], current_position[E_AXIS]);
 #else
-      plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+         plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
 #endif
-      prepare_move();
+         prepare_move();
+      }
       feedrate = oldFeedrate;
     } else if(!retracting && retracted[active_extruder]) {
       destination[X_AXIS]=current_position[X_AXIS];
       destination[Y_AXIS]=current_position[Y_AXIS];
       destination[Z_AXIS]=current_position[Z_AXIS];
       destination[E_AXIS]=current_position[E_AXIS];
-      current_position[Z_AXIS]+=retract_zlift;
+      if(retract_zlift > 0.01) {
+         current_position[Z_AXIS]+=retract_zlift;
 #ifdef DELTA
-      calculate_delta(current_position); // change cartesian kinematic  to  delta kinematic;
-      plan_set_position(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], current_position[E_AXIS]);
+         calculate_delta(current_position); // change cartesian kinematic  to  delta kinematic;
+         plan_set_position(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], current_position[E_AXIS]);
 #else
-      plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+         plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
 #endif
-      //prepare_move();
+         //prepare_move();
+      }
       if (swapretract) {
         current_position[E_AXIS]-=(retract_length_swap+retract_recover_length_swap)/volumetric_multiplier[active_extruder]; 
       } else {
@@ -3302,30 +3306,52 @@ Sigma_Exit:
     #endif // M300
 
     #ifdef PIDTEMP
-    case 301: // M301
-      {
-        if(code_seen('P')) Kp = code_value();
-        if(code_seen('I')) Ki = scalePID_i(code_value());
-        if(code_seen('D')) Kd = scalePID_d(code_value());
+	case 301: // M301
+	{
 
-        #ifdef PID_ADD_EXTRUSION_RATE
-        if(code_seen('C')) Kc = code_value();
-        #endif
+		// multi-extruder PID patch: M301 updates or prints a single extruder's PID values
+		// default behaviour (omitting E parameter) is to update for extruder 0 only
+		int e = 0; // extruder being updated
+		if (code_seen('E'))
+		{
+			e = (int)code_value();
+		}
+		if (e < EXTRUDERS) // catch bad input value
+		{
 
-        updatePID();
-        SERIAL_PROTOCOL(MSG_OK);
-        SERIAL_PROTOCOL(" p:");
-        SERIAL_PROTOCOL(Kp);
-        SERIAL_PROTOCOL(" i:");
-        SERIAL_PROTOCOL(unscalePID_i(Ki));
-        SERIAL_PROTOCOL(" d:");
-        SERIAL_PROTOCOL(unscalePID_d(Kd));
-        #ifdef PID_ADD_EXTRUSION_RATE
-        SERIAL_PROTOCOL(" c:");
-        //Kc does not have scaling applied above, or in resetting defaults
-        SERIAL_PROTOCOL(Kc);
-        #endif
-        SERIAL_PROTOCOLLN("");
+			if (code_seen('P')) PID_PARAM(Kp,e) = code_value();
+			if (code_seen('I')) PID_PARAM(Ki,e) = scalePID_i(code_value());
+			if (code_seen('D')) PID_PARAM(Kd,e) = scalePID_d(code_value());
+			#ifdef PID_ADD_EXTRUSION_RATE
+			if (code_seen('C')) PID_PARAM(Kc,e) = code_value();
+			#endif			
+
+			updatePID();
+			SERIAL_PROTOCOL(MSG_OK);
+            #ifdef PID_PARAMS_PER_EXTRUDER
+			  SERIAL_PROTOCOL(" e:"); // specify extruder in serial output
+			  SERIAL_PROTOCOL(e);
+            #endif // PID_PARAMS_PER_EXTRUDER
+			SERIAL_PROTOCOL(" p:");
+			SERIAL_PROTOCOL(PID_PARAM(Kp,e));
+			SERIAL_PROTOCOL(" i:");
+			SERIAL_PROTOCOL(unscalePID_i(PID_PARAM(Ki,e)));
+			SERIAL_PROTOCOL(" d:");
+			SERIAL_PROTOCOL(unscalePID_d(PID_PARAM(Kd,e)));
+			#ifdef PID_ADD_EXTRUSION_RATE
+			SERIAL_PROTOCOL(" c:");
+			//Kc does not have scaling applied above, or in resetting defaults
+			SERIAL_PROTOCOL(PID_PARAM(Kc,e));
+			#endif
+			SERIAL_PROTOCOLLN("");
+		
+		}
+		else
+		{
+			SERIAL_ECHO_START;
+			SERIAL_ECHOLN(MSG_INVALID_EXTRUDER);
+		}
+
       }
       break;
     #endif //PIDTEMP
