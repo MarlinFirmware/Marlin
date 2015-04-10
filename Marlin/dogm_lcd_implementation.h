@@ -31,9 +31,21 @@
 #include <U8glib.h>
 #include "DOGMbitmaps.h"
 
+// thinkyhead's original kana font code
+// #ifdef KANA
+//   #include "dogm_font_data_6x10_marlin_jp.h"
+// #else
+//   #include "dogm_font_data_ISO10646_1_Marlin.h"
+// #endif
+
 #include "ultralcd.h"
 #include "ultralcd_st7920_u8glib_rrd.h"
 #include "Configuration.h"
+
+// thinkyhead's original kana font code
+// #ifndef KANA
+//   #define USE_BIG_EDIT_FONT              // save 3120 bytes of PROGMEM by commenting out this line
+// #endif
 
 // save 3120 bytes of PROGMEM by commenting out #define USE_BIG_EDIT_FONT
 // we don't have a big font for Cyrillic, Kana
@@ -341,12 +353,24 @@ static void lcd_implementation_status_screen() {
   lcd_print('%');
 
   // Status line
+
+  // thinkyhead's original kana font code
+  // #ifdef KANA
+  //   u8g.setFont(u8g_font_6x10_marlin);
+  // #else
+  //   u8g.setFont(FONT_STATUSMENU);
+  // #endif 
+
   lcd_setFont(FONT_STATUSMENU);
   #ifdef USE_SMALL_INFOFONT
     u8g.setPrintPos(0,62);
   #else
     u8g.setPrintPos(0,63);
   #endif
+  // thinkyhead's original kana font code
+  // #ifdef KANA
+  //   u8g.print( "\xe0\xe1\xe2" );
+  // #endif
   #ifndef FILAMENT_LCD_DISPLAY
     lcd_print(lcd_status_message);
   #else
