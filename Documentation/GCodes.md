@@ -1,26 +1,13 @@
 # Implemented G Codes
 
-## G Codes
-
+## Movement G and M Codes
 ```
 G0  -> G1
 G1  - Coordinated Movement X Y Z E
 G2  - CW ARC
 G3  - CCW ARC
 G4  - Dwell S[seconds] or P[milliseconds]
-G10 - Retract filament according to settings of M207
-G11 - Retract recover filament according to settings of M208
-G28 - Home all Axis
-G29 - Detailed Z-Probe, probes the bed at 3 or more points. The printer must be homed with G28 before G29.
-G30 - Single Z Probe, probes bed at current XY location.
-G31 - Dock Z Probe sled (if enabled)
-G32 - Undock Z Probe sled (if enabled)
-G90 - Use Absolute Coordinates
-G91 - Use Relative Coordinates
 G92 - Set current position to cordinates given
-```
-## Movement M Codes
-```
 M0   - Wait for user, with optional prompt message (to press the LCD button, requires ULTRA_LCD)
        M0 Click When Ready ; show "Click When Ready" until the button is pressed.
 M1   - Same as M0
@@ -105,8 +92,10 @@ M380 - Activate solenoid on active extruder
 M381 - Disable all solenoids
 M600 - Pause for filament change X<xpos> Y<ypos> Z<lift> E<initial retract> L<later retract for removal>
 ```
-### Units and Measures M Codes
+### Units and Measures G and M Codes
 ```
+G90 - Use Absolute Coordinates
+G91 - Use Relative Coordinates
 M82  - Set E codes absolute (default)
 M83  - Set E codes relative while in Absolute Coordinates (G90) mode
 M92  - Set axis_steps_per_unit - same syntax as G92
@@ -121,14 +110,21 @@ M218 - Set hotend offset (in mm): T<extruder_number> X<offset_on_X> Y<offset_on_
 M220 - Set speed factor override percentage: S<factor in percent>
 M221 - Set extrude factor override percentage: S<factor in percent>
 ```
-### Firmware Retraction M Codes
+### Firmware Retraction G and M Codes
 ```
+G10 - Retract filament according to settings of M207
+G11 - Retract recover filament according to settings of M208
 M207 - Set retract length S[positive mm] F[feedrate mm/min] Z[additional zlift/hop], stays in mm regardless of M200 setting
 M208 - Set recover=unretract length S[positive mm surplus to the M207 S*] F[feedrate mm/s]
 M209 - S<1=true/0=false> enable automatic retract detect if the slicer did not support G10/11: every normal extrude-only move will be classified as retract depending on the direction
 ```
-### Z Probe M Codes
+### Z Probe G and M Codes
 ```
+G28 - Home all Axis
+G29 - Detailed Z-Probe, probes the bed at 3 or more points. The printer must be homed with G28 before G29.
+G30 - Single Z Probe, probes bed at current XY location.
+G31 - Dock Z Probe sled (if enabled)
+G32 - Undock Z Probe sled (if enabled)
 M48  - Measure Z_Probe repeatability: P<points> X<xpos> Y<ypos> V<verbosity> E=engage L<legs of travel>
        As with G29, the E flag causes the probe to stow after each probe.
 M401 - Lower Z-probe (if present)
