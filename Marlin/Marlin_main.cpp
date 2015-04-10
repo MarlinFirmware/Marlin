@@ -547,9 +547,7 @@ void servo_init()
   #endif
 }
 
-
-void setup()
-{
+void setup() {
   setup_killpin();
   setup_filrunoutpin();
   setup_powerhold();
@@ -559,15 +557,16 @@ void setup()
 
   // Check startup - does nothing if bootloader sets MCUSR to 0
   byte mcu = MCUSR;
-  if(mcu & 1) SERIAL_ECHOLNPGM(MSG_POWERUP);
-  if(mcu & 2) SERIAL_ECHOLNPGM(MSG_EXTERNAL_RESET);
-  if(mcu & 4) SERIAL_ECHOLNPGM(MSG_BROWNOUT_RESET);
-  if(mcu & 8) SERIAL_ECHOLNPGM(MSG_WATCHDOG_RESET);
-  if(mcu & 32) SERIAL_ECHOLNPGM(MSG_SOFTWARE_RESET);
-  MCUSR=0;
+  if (mcu & 1) SERIAL_ECHOLNPGM(MSG_POWERUP);
+  if (mcu & 2) SERIAL_ECHOLNPGM(MSG_EXTERNAL_RESET);
+  if (mcu & 4) SERIAL_ECHOLNPGM(MSG_BROWNOUT_RESET);
+  if (mcu & 8) SERIAL_ECHOLNPGM(MSG_WATCHDOG_RESET);
+  if (mcu & 32) SERIAL_ECHOLNPGM(MSG_SOFTWARE_RESET);
+  MCUSR = 0;
 
   SERIAL_ECHOPGM(MSG_MARLIN);
-  SERIAL_ECHOLNPGM(STRING_VERSION);
+  SERIAL_ECHOLNPGM(" " STRING_VERSION);
+
   #ifdef STRING_VERSION_CONFIG_H
     #ifdef STRING_CONFIG_H_AUTHOR
       SERIAL_ECHO_START;
@@ -579,17 +578,16 @@ void setup()
       SERIAL_ECHOLNPGM(__DATE__);
     #endif // STRING_CONFIG_H_AUTHOR
   #endif // STRING_VERSION_CONFIG_H
+
   SERIAL_ECHO_START;
   SERIAL_ECHOPGM(MSG_FREE_MEMORY);
   SERIAL_ECHO(freeMemory());
   SERIAL_ECHOPGM(MSG_PLANNER_BUFFER_BYTES);
   SERIAL_ECHOLN((int)sizeof(block_t)*BLOCK_BUFFER_SIZE);
+
   #ifdef SDSUPPORT
-  for(int8_t i = 0; i < BUFSIZE; i++)
-  {
-    fromsd[i] = false;
-  }
-  #endif //!SDSUPPORT
+    for (int8_t i = 0; i < BUFSIZE; i++) fromsd[i] = false;
+  #endif // !SDSUPPORT
 
   // loads data from EEPROM if available else uses defaults (and resets step acceleration rate)
   Config_RetrieveSettings();
@@ -600,7 +598,6 @@ void setup()
   st_init();    // Initialize stepper, this enables interrupts!
   setup_photpin();
   servo_init();
-  
 
   lcd_init();
   _delay_ms(1000);  // wait 1sec to display the splash screen
@@ -612,20 +609,23 @@ void setup()
   #ifdef DIGIPOT_I2C
     digipot_i2c_init();
   #endif
-#ifdef Z_PROBE_SLED
-  pinMode(SERVO0_PIN, OUTPUT);
-  digitalWrite(SERVO0_PIN, LOW); // turn it off
-#endif // Z_PROBE_SLED
+
+  #ifdef Z_PROBE_SLED
+    pinMode(SERVO0_PIN, OUTPUT);
+    digitalWrite(SERVO0_PIN, LOW); // turn it off
+  #endif // Z_PROBE_SLED
+
   setup_homepin();
   
-#ifdef STAT_LED_RED
-  pinMode(STAT_LED_RED, OUTPUT);
-  digitalWrite(STAT_LED_RED, LOW); // turn it off
-#endif
-#ifdef STAT_LED_BLUE
-  pinMode(STAT_LED_BLUE, OUTPUT);
-  digitalWrite(STAT_LED_BLUE, LOW); // turn it off
-#endif  
+  #ifdef STAT_LED_RED
+    pinMode(STAT_LED_RED, OUTPUT);
+    digitalWrite(STAT_LED_RED, LOW); // turn it off
+  #endif
+
+  #ifdef STAT_LED_BLUE
+    pinMode(STAT_LED_BLUE, OUTPUT);
+    digitalWrite(STAT_LED_BLUE, LOW); // turn it off
+  #endif  
 }
 
 
@@ -5447,26 +5447,37 @@ void mesh_plan_buffer_line(float x, float y, float z, const float e, float feed_
 }
 #endif  // MESH_BED_LEVELING
 
+#ifdef PREVENT_DANGEROUS_EXTRUDE
+
+  inline float prevent_dangerous_extrude(float &curr_e, float &dest_e) {
+    float de = dest_e - curr_e;
+    if (de) {
+      if (degHotend(active_extruder) < extrude_min_temp) {
+        curr_e = dest_e; // Behave as if the move really took place, but ignore E part
+        SERIAL_ECHO_START;
+        SERIAL_ECHOLNPGM(MSG_ERR_COLD_EXTRUDE_STOP);
+        return 0;
+      }
+      #ifdef PREVENT_LENGTHY_EXTRUDE
+        if (labs(de) > EXTRUDE_MAXLENGTH) {
+          curr_e = dest_e; // Behave as if the move really took place, but ignore E part
+          SERIAL_ECHO_START;
+          SERIAL_ECHOLNPGM(MSG_ERR_LONG_EXTRUDE_STOP);
+          return 0;
+        }
+      #endif
+    }
+    return de;
+  }
+
+#endif // PREVENT_DANGEROUS_EXTRUDE
+
 void prepare_move() {
   clamp_to_software_endstops(destination);
   refresh_cmd_timeout();
 
   #ifdef PREVENT_DANGEROUS_EXTRUDE
-    float de = destination[E_AXIS] - current_position[E_AXIS];
-    if (de) {
-      if (degHotend(active_extruder) < extrude_min_temp) {
-        current_position[E_AXIS] = destination[E_AXIS]; // Behave as if the move really took place, but ignore E part
-        SERIAL_ECHO_START;
-        SERIAL_ECHOLNPGM(MSG_ERR_COLD_EXTRUDE_STOP);
-      }
-      #ifdef PREVENT_LENGTHY_EXTRUDE
-        if (labs(de) > EXTRUDE_MAXLENGTH) {
-          current_position[E_AXIS] = destination[E_AXIS]; // Behave as if the move really took place, but ignore E part
-          SERIAL_ECHO_START;
-          SERIAL_ECHOLNPGM(MSG_ERR_LONG_EXTRUDE_STOP);
-        }
-      #endif
-    }
+    (void)prevent_dangerous_extrude(current_position[E_AXIS], destination[E_AXIS]);
   #endif
 
   #ifdef SCARA //for now same as delta-code
