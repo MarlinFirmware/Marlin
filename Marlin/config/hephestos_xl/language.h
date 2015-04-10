@@ -26,7 +26,7 @@
 #define PROTOCOL_VERSION "1.0"
 
 #if defined(WITBOX)
-	#define MACHINE_NAME "bq Hephestos XL"
+	#define MACHINE_NAME "bq Hephestos"
 	#define FIRMWARE_URL "http://www.bqreaders.com/descargas-witbox.html"
 	#define FIRMWARE_VER "v1.4.2"
 	#define BUILD_VER ""
@@ -256,7 +256,7 @@
 		#define MSG_LENGTH "Length:"         
 		#define MSG_RETRACTING "Retracting"
 
-		#define MSG_WELLCOME "bq Hephestos XL"
+		#define MSG_WELLCOME "bq Hephestos"
 
 		#define MSG_LP_COOL_1 "Cooling..."
 		#define MSG_LP_COOL_2 "Temp:"
@@ -443,7 +443,7 @@
 		#define MSG_EXTRUDING "Extruding..." 
 		#define MSG_LENGTH "Length:"         
 		#define MSG_RETRACTING "Retracting"
-		#define MSG_WELLCOME "bq Hephestos XL"
+		#define MSG_WELLCOME "bq Hephestos"
 
 		#define MSG_LP_COOL_1 "Cooling..."
 		#define MSG_LP_COOL_2 "Temp:"
@@ -626,7 +626,7 @@
 		#define MSG_EXTRUDING "Extrusion en cours" 
 		#define MSG_LENGTH "Longueur :"         
 		#define MSG_RETRACTING "Retractation..."
-		#define MSG_WELLCOME "bq Hephestos XL"
+		#define MSG_WELLCOME "bq Hephestos"
 		#define MSG_LP_COOL_1 "Refroidissement..."
 		#define MSG_LP_COOL_2 "Temp."
 		#define MSG_LP_COOL_3 "Appuyer pour annuler"
@@ -792,7 +792,7 @@
 		#define MSG_EXTRUDING "Extrudiert..." 
 		#define MSG_LENGTH "Länge:"         
 		#define MSG_RETRACTING "Retracting"
-		#define MSG_WELLCOME "bq Hephestos XL"
+		#define MSG_WELLCOME "bq Hephestos"
 		#define MSG_LP_COOL_1 "Kuehlt..."
 		#define MSG_LP_COOL_2 "Temp:"
 		#define MSG_LP_COOL_3 "   Druecke zum Abbruch"
@@ -988,7 +988,7 @@
 		#define MSG_EXTRUDING "Extruyendo..."
 		#define MSG_LENGTH "Longitud:"
 		#define MSG_RETRACTING "Retrayendo"
-		#define MSG_WELLCOME "bq Hephestos XL"
+		#define MSG_WELLCOME "bq Hephestos"
 		#define MSG_LP_INTRO "Nivelando la base... Pulsa para empezar"
 		#define MSG_LP_1 " Nivela el punto 1     Pulsa la rueda"
 		#define MSG_LP_2 " Nivela el punto 2     Pulsa la rueda"
@@ -1178,7 +1178,7 @@
 		#define MSG_EXTRUDING "Extruding..." 
 		#define MSG_LENGTH "Length:"         
 		#define MSG_RETRACTING "Retracting"
-		#define MSG_WELLCOME "bq Hephestos XL"
+		#define MSG_WELLCOME "bq Hephestos"
 
 		#define MSG_LP_COOL_1 "Cooling..."
 		#define MSG_LP_COOL_2 "Temp:"
@@ -1362,7 +1362,7 @@
 		#define MSG_EXTRUDING "Estrusione in corso..." 
 		#define MSG_LENGTH "Lungh.:"         
 		#define MSG_RETRACTING "Ritrazione..." 
-		#define MSG_WELLCOME "bq Hephestos XL" 
+		#define MSG_WELLCOME "bq Hephestos" 
 		#define MSG_LP_COOL_1 "Raffreddamento..." 
 		#define MSG_LP_COOL_2 "Temp.:" 
 		#define MSG_LP_COOL_3 "Premi per fermare" 
@@ -1528,7 +1528,7 @@
 		#define MSG_EXTRUDING "A extrudir..." 
 		#define MSG_LENGTH "Comprimento:"         
 		#define MSG_RETRACTING "A retrair"
-		#define MSG_WELLCOME "bq Hephestos XL"
+		#define MSG_WELLCOME "bq Hephestos"
 		#define MSG_LP_COOL_1 "A arrefec..."
 		#define MSG_LP_COOL_2 "Temp.:"
 		#define MSG_LP_COOL_3 "Prima para abort."
@@ -1696,7 +1696,7 @@
 		#define MSG_EXTRUDING "Extruding..." 
 		#define MSG_LENGTH "Length:"         
 		#define MSG_RETRACTING "Retracting"
-		#define MSG_WELLCOME "bq Hephestos XL"
+		#define MSG_WELLCOME "bq Hephestos"
 
 		#define MSG_LP_COOL_1 "Cooling..."
 		#define MSG_LP_COOL_2 "Temp:"
@@ -1887,7 +1887,7 @@
 		#define MSG_EXTRUDING "Extruding..." 
 		#define MSG_LENGTH "Length:"         
 		#define MSG_RETRACTING "Retracting"
-		#define MSG_WELLCOME "bq Hephestos XL"
+		#define MSG_WELLCOME "bq Hephestosv"
 
 		#define MSG_LP_COOL_1 "Cooling..."
 		#define MSG_LP_COOL_2 "Temp:"
@@ -2069,7 +2069,7 @@
 		#define MSG_EXTRUDING "Extruding..." 
 		#define MSG_LENGTH "Length:"         
 		#define MSG_RETRACTING "Retracting"
-		#define MSG_WELLCOME "bq Hephestos XL"
+		#define MSG_WELLCOME "bq Hephestos"
 
 		#define MSG_LP_COOL_1 "Cooling..."
 		#define MSG_LP_COOL_2 "Temp:"
