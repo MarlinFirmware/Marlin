@@ -1,6 +1,6 @@
-# Implemented G Codes
+## Implemented G Codes
 
-## Movement G and M Codes
+### Movement G and M Codes
 ```
 G0  -> G1
 G1  - Coordinated Movement X Y Z E
