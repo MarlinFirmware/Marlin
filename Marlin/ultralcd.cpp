@@ -304,12 +304,10 @@ static void lcd_status_screen() {
 
     if (ignore_click) {
       if (wait_for_unclick) {
-        if (!current_click) {
+        if (!current_click)
           ignore_click = wait_for_unclick = false;
-        }
-        else {
+        else
           current_click = false;
-        }
       }
       else if (current_click) {
         lcd_quick_feedback();
@@ -337,15 +335,17 @@ static void lcd_status_screen() {
         encoderPosition = 0;
         feedmultiply = 100;
       }
-      if (feedmultiply == 100 && int(encoderPosition) > ENCODER_FEEDRATE_DEADZONE) {
-        feedmultiply += int(encoderPosition) - ENCODER_FEEDRATE_DEADZONE;
-        encoderPosition = 0;
+      if (feedmultiply == 100) {
+        if (int(encoderPosition) > ENCODER_FEEDRATE_DEADZONE) {
+          feedmultiply += int(encoderPosition) - ENCODER_FEEDRATE_DEADZONE;
+          encoderPosition = 0;
+        }
+        else if (int(encoderPosition) < -ENCODER_FEEDRATE_DEADZONE) {
+          feedmultiply += int(encoderPosition) + ENCODER_FEEDRATE_DEADZONE;
+          encoderPosition = 0;
+        }
       }
-      else if (feedmultiply == 100 && int(encoderPosition) < -ENCODER_FEEDRATE_DEADZONE) {
-        feedmultiply += int(encoderPosition) + ENCODER_FEEDRATE_DEADZONE;
-        encoderPosition = 0;
-      }
-      else if (feedmultiply != 100) {
+      else {
         feedmultiply += int(encoderPosition);
         encoderPosition = 0;
       }
