@@ -218,10 +218,19 @@ Here are some standard links for getting your machine calibrated:
 //    #define  DEFAULT_Ki 2.25
 //    #define  DEFAULT_Kd 440
 
-// to be tuned for jhead mk5
-#define DEFAULT_Kp 20.18
-#define DEFAULT_Ki 0.69
-#define DEFAULT_Kd 197.48
+//  tuned for jhead mk5 using m303 with fan on full blast
+//#define DEFAULT_Kp 23.14
+//#define DEFAULT_Ki 3.18
+//#define DEFAULT_Kd 42.09
+
+//  tuned for jhead mk5 using m303 with fan off
+//#define DEFAULT_Kp 21.75
+//#define DEFAULT_Ki 2.91
+//#define DEFAULT_Kd 40.62
+
+#define DEFAULT_Kp 20.00
+#define DEFAULT_Ki 2.91
+#define DEFAULT_Kd 40.62
 
 
 
@@ -401,7 +410,7 @@ const bool Z_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the logic
 // ENDSTOP SETTINGS:
 // Sets direction of endstops when homing; 1=MAX, -1=MIN
 // :[-1,1]
-#define X_HOME_DIR -1
+#define X_HOME_DIR 1
 #define Y_HOME_DIR -1
 #define Z_HOME_DIR 1
 
@@ -589,7 +598,11 @@ const bool Z_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the logic
 // default settings
 
 //#define DEFAULT_AXIS_STEPS_PER_UNIT   {80,80,4000,500}  // default steps per unit for Ultimaker
-#define DEFAULT_AXIS_STEPS_PER_UNIT   {80,80,2000,500}  // for Mendel90
+#define DEFAULT_AXIS_STEPS_PER_UNIT   {80,80,2560,500}  // for Mendel90
+
+// Z steps per mm
+// anyway, 290-213=77 100/77*2000=2597s
+// peek in older firmware: 2560. Lets use that
 
 #define DEFAULT_MAX_FEEDRATE          {300, 300, 5, 25}    // (mm/sec)
 #define DEFAULT_MAX_ACCELERATION      {3000,3000,100,10000}    // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for Skeinforge 40+, for older versions raise them a lot.
@@ -735,7 +748,7 @@ const bool Z_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the logic
 // @section extras
 
 // Increase the FAN pwm frequency. Removes the PWM noise but increases heating in the FET/Arduino
-//#define FAST_PWM_FAN
+#define FAST_PWM_FAN
 
 // Use software PWM to drive the fan, as for the heaters. This uses a very low frequency
 // which is not as annoying as with the hardware PWM. On the other hand, if this frequency
