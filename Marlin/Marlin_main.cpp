@@ -284,6 +284,10 @@ bool target_direction;
   int servo_endstop_angles[] = SERVO_ENDSTOP_ANGLES;
 #endif
 
+#ifdef SINGLE_STEP_MOTOR_DUAL_EXTRUDERS
+	float servo_extruder_angles[] = SERVO_EXTRUDER_ANGLES;
+#endif
+
 #ifdef BARICUDA
   int ValvePressure = 0;
   int EtoPPressure = 0;
@@ -540,6 +544,12 @@ void servo_init()
     if (servo_endstops[i] >= 0)
       servos[servo_endstops[i]].write(servo_endstop_angles[i * 2 + 1]);
   #endif
+
+
+  #ifdef SINGLE_STEP_MOTOR_DUAL_EXTRUDERS
+    servos[SERVO_SWITCH_EXTRUDER].write(servo_extruder_angles[0]);
+  #endif
+
 
   #if SERVO_LEVELING
     delay(PROBE_SERVO_DEACTIVATION_DELAY);
@@ -4713,7 +4723,12 @@ inline void gcode_T() {
           // Offset extruder (only by XY)
           for (int i=X_AXIS; i<=Y_AXIS; i++)
             current_position[i] += extruder_offset[i][tmp_extruder] - extruder_offset[i][active_extruder];
-          // Set the new active extruder and position
+          
+		#ifdef SINGLE_STEP_MOTOR_DUAL_EXTRUDERS
+		servos[SERVO_SWITCH_EXTRUDER].write(servo_extruder_angles[tmp_extruder]);
+		#endif
+
+		// Set the new active extruder and position
           active_extruder = tmp_extruder;
         #endif // !DUAL_X_CARRIAGE
         #ifdef DELTA
