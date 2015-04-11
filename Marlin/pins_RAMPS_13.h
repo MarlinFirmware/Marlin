@@ -52,9 +52,15 @@
 #define E0_DIR_PIN         28
 #define E0_ENABLE_PIN      24
 
+#ifdef SINGLE_STEP_MOTOR_DUAL_EXTRUDERS
+#define E1_STEP_PIN        E0_STEP_PIN
+#define E1_DIR_PIN         E0_DIR_PIN
+#define E1_ENABLE_PIN      E0_ENABLE_PIN
+#else
 #define E1_STEP_PIN        36
 #define E1_DIR_PIN         34
 #define E1_ENABLE_PIN      30
+#endif // SINGLE_STEP_MOTOR_DUAL_EXTRUDERS
 
 #define SDPOWER            -1
 #define SDSS               53

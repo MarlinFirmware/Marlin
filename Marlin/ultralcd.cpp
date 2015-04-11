@@ -627,6 +627,14 @@ static void lcd_prepare_menu() {
 
   MENU_ITEM(function, MSG_COOLDOWN, lcd_cooldown);
 
+#ifdef SINGLE_STEP_MOTOR_DUAL_EXTRUDERS
+	if (active_extruder == 1)
+	MENU_ITEM(gcode, MSG_SWITCH_T0,PSTR("T0"));
+	else
+	if (active_extruder == 0)
+	MENU_ITEM(gcode, MSG_SWITCH_T1,PSTR("T1"));
+#endif
+
   #if HAS_POWER_SWITCH
     if (powersupply)
       MENU_ITEM(gcode, MSG_SWITCH_PS_OFF, PSTR("M81"));

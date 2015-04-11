@@ -442,4 +442,9 @@
   #endif
 #endif // DELTA_CALIBRATION_MENU
 
+#ifdef SINGLE_STEP_MOTOR_DUAL_EXTRUDERS
+	#define MSG_SWITCH_T0 "Switch Extruder 1"
+	#define MSG_SWITCH_T1 "Switch Extruder 2"
+#endif
+
 #endif // LANGUAGE_EN_H
