@@ -248,10 +248,10 @@ menuFunc_t callbackFunc;
 // place-holders for Ki and Kd edits
 float raw_Ki, raw_Kd;
 
-static void lcd_goto_menu(menuFunc_t menu, const uint32_t encoder=0, const bool feedback=true) {
+static void lcd_goto_menu(menuFunc_t menu, const bool feedback=false, const uint32_t encoder=0) {
   if (currentMenu != menu) {
     currentMenu = menu;
-    #if defined(NEWPANEL)
+    #ifdef NEWPANEL
       encoderPosition = encoder;
       if (feedback) lcd_quick_feedback();
     #endif
@@ -296,77 +296,69 @@ static void lcd_status_screen() {
     #endif
   #endif //LCD_PROGRESS_BAR
 
-    lcd_implementation_status_screen();
+  lcd_implementation_status_screen();
 
-#ifdef ULTIPANEL
+  #ifdef ULTIPANEL
 
     bool current_click = LCD_CLICKED;
 
     if (ignore_click) {
-        if (wait_for_unclick) {
-          if (!current_click) {
-              ignore_click = wait_for_unclick = false;
-          }
-          else {
-              current_click = false;
-          }
-        }
-        else if (current_click) {
-            lcd_quick_feedback();
-            wait_for_unclick = true;
-            current_click = false;
-        }
+      if (wait_for_unclick) {
+        if (!current_click)
+          ignore_click = wait_for_unclick = false;
+        else
+          current_click = false;
+      }
+      else if (current_click) {
+        lcd_quick_feedback();
+        wait_for_unclick = true;
+        current_click = false;
+      }
     }
 
-    if (current_click)
-    {
-        lcd_goto_menu(lcd_main_menu);
-        lcd_implementation_init( // to maybe revive the LCD if static electricity killed it.
-          #ifdef LCD_PROGRESS_BAR
-            currentMenu == lcd_status_screen
-          #endif
-        );
-        #ifdef FILAMENT_LCD_DISPLAY
-          message_millis = millis();  // get status message to show up for a while
+    if (current_click) {
+      lcd_goto_menu(lcd_main_menu, true);
+      lcd_implementation_init( // to maybe revive the LCD if static electricity killed it.
+        #ifdef LCD_PROGRESS_BAR
+          currentMenu == lcd_status_screen
         #endif
+      );
+      #ifdef FILAMENT_LCD_DISPLAY
+        message_millis = millis();  // get status message to show up for a while
+      #endif
     }
 
-#ifdef ULTIPANEL_FEEDMULTIPLY
-    // Dead zone at 100% feedrate
-    if ((feedmultiply < 100 && (feedmultiply + int(encoderPosition)) > 100) ||
-            (feedmultiply > 100 && (feedmultiply + int(encoderPosition)) < 100))
-    {
+    #ifdef ULTIPANEL_FEEDMULTIPLY
+      // Dead zone at 100% feedrate
+      if ((feedmultiply < 100 && (feedmultiply + int(encoderPosition)) > 100) ||
+              (feedmultiply > 100 && (feedmultiply + int(encoderPosition)) < 100)) {
         encoderPosition = 0;
         feedmultiply = 100;
-    }
-
-    if (feedmultiply == 100 && int(encoderPosition) > ENCODER_FEEDRATE_DEADZONE)
-    {
-        feedmultiply += int(encoderPosition) - ENCODER_FEEDRATE_DEADZONE;
-        encoderPosition = 0;
-    }
-    else if (feedmultiply == 100 && int(encoderPosition) < -ENCODER_FEEDRATE_DEADZONE)
-    {
-        feedmultiply += int(encoderPosition) + ENCODER_FEEDRATE_DEADZONE;
-        encoderPosition = 0;
-    }
-    else if (feedmultiply != 100)
-    {
+      }
+      if (feedmultiply == 100) {
+        if (int(encoderPosition) > ENCODER_FEEDRATE_DEADZONE) {
+          feedmultiply += int(encoderPosition) - ENCODER_FEEDRATE_DEADZONE;
+          encoderPosition = 0;
+        }
+        else if (int(encoderPosition) < -ENCODER_FEEDRATE_DEADZONE) {
+          feedmultiply += int(encoderPosition) + ENCODER_FEEDRATE_DEADZONE;
+          encoderPosition = 0;
+        }
+      }
+      else {
         feedmultiply += int(encoderPosition);
         encoderPosition = 0;
-    }
-#endif //ULTIPANEL_FEEDMULTIPLY
+      }
+    #endif // ULTIPANEL_FEEDMULTIPLY
 
-    if (feedmultiply < 10)
-        feedmultiply = 10;
-    else if (feedmultiply > 999)
-        feedmultiply = 999;
-#endif //ULTIPANEL
+    feedmultiply = constrain(feedmultiply, 10, 999);
+
+  #endif //ULTIPANEL
 }
 
 #ifdef ULTIPANEL
 
-static void lcd_return_to_status() { lcd_goto_menu(lcd_status_screen, 0, false); }
+static void lcd_return_to_status() { lcd_goto_menu(lcd_status_screen); }
 
 static void lcd_sdcard_pause() { card.pauseSDPrint(); }
 
