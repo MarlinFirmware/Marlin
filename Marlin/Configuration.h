@@ -400,7 +400,7 @@ const bool Z_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the logic
 // @section extruder
 
 // For direct drive extruder v9 set to true, for geared extruder set to false.
-#define INVERT_E0_DIR false
+#define INVERT_E0_DIR true // for mendel90 (posible motor backwards)
 #define INVERT_E1_DIR false
 #define INVERT_E2_DIR false
 #define INVERT_E3_DIR false
@@ -425,7 +425,7 @@ const bool Z_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the logic
 #define Z_MIN_POS 0
 #define X_MAX_POS 200
 #define Y_MAX_POS 200
-#define Z_MAX_POS 200 // TODO: edit to suit machine otherwise head crash!!
+#define Z_MAX_POS 190 // TODO: edit to suit machine otherwise head crash!!
 
 //===========================================================================
 //============================= Filament Runout Sensor ======================
@@ -598,7 +598,8 @@ const bool Z_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the logic
 // default settings
 
 //#define DEFAULT_AXIS_STEPS_PER_UNIT   {80,80,4000,500}  // default steps per unit for Ultimaker
-#define DEFAULT_AXIS_STEPS_PER_UNIT   {80,80,2560,500}  // for Mendel90
+#define E_stepspermmLuke ((3200*39.0)/11.0*6.75*3.142))
+#define DEFAULT_AXIS_STEPS_PER_UNIT   {80,80,2560,535}  // for Mendel90
 
 // Z steps per mm
 // anyway, 290-213=77 100/77*2000=2597s
