@@ -1797,7 +1797,7 @@ char *ftostr52(const float &x) {
       if (max_software_endstops && current_position[Z_AXIS] > Z_MAX_POS) current_position[Z_AXIS] = Z_MAX_POS;
       encoderPosition = 0;
       line_to_current();
-      lcdDrawUpdate = 1;
+      lcdDrawUpdate = 2;
     }
     if (lcdDrawUpdate) lcd_implementation_drawedit(PSTR("Z"), ftostr43(current_position[Z_AXIS]));
     static bool debounce_click = false;
@@ -1828,7 +1828,7 @@ char *ftostr52(const float &x) {
           current_position[X_AXIS] = mbl.get_x(ix);
           current_position[Y_AXIS] = mbl.get_y(iy);
           line_to_current();
-          lcdDrawUpdate = 1;
+          lcdDrawUpdate = 2;
         }
       }
     } else {
@@ -1837,6 +1837,7 @@ char *ftostr52(const float &x) {
   }
 
   static void _lcd_level_bed_homing() {
+    if (lcdDrawUpdate) lcd_implementation_drawedit(PSTR("XYZ"), "Homing");
     if (axis_known_position[X_AXIS] &&
         axis_known_position[Y_AXIS] &&
         axis_known_position[Z_AXIS]) {
@@ -1848,6 +1849,7 @@ char *ftostr52(const float &x) {
       _lcd_level_bed_position = 0;
       lcd_goto_menu(_lcd_level_bed);
     }
+    lcdDrawUpdate = 2;
   }
 
   static void lcd_level_bed() {
@@ -1856,6 +1858,7 @@ char *ftostr52(const float &x) {
     axis_known_position[Z_AXIS] = false;
     mbl.reset();
     enquecommands_P(PSTR("G28"));
+    lcdDrawUpdate = 2;
     lcd_goto_menu(_lcd_level_bed_homing);
   }
 
