@@ -100,7 +100,7 @@
 //#define SDSS               24
 
 #ifdef ULTRA_LCD
- #ifdef NEWPANEL
+ //#ifdef NEWPANEL // useless define, also no longer in configuration.h. Still in ultipanel_somethinghd44780.cpp
    //we have no buzzer installed
    #define BEEPER -1
    //LCD Pins
@@ -146,7 +146,7 @@
    //not connected to a pin
    #define SDCARDDETECT -1
 
- #endif //NEWPANEL
+// #endif //NEWPANEL
 #endif //ULTRA_LCD
 
 #ifdef MAKRPANEL
