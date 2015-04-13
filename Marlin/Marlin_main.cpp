@@ -5712,8 +5712,7 @@ void calculate_delta(float cartesian[3]){
       #if HAS_TEMP_BED
         max_temp = max(max(max_temp, degTargetBed()), degBed());
       #endif
-      bool new_led = red_led;
-      if (max_temp > 55.0) new_led = true; else if (max_temp < 54.0) new_led = false;
+      bool new_led = (max_temp > 55.0) ? true : (max_temp < 54.0) ? false : red_led;
       if (new_led != red_led) {
         red_led = new_led;
         digitalWrite(STAT_LED_RED, new_led ? HIGH : LOW);
