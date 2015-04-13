@@ -70,7 +70,7 @@ Here are some standard links for getting your machine calibrated:
 
 // Optional custom name for your RepStrap or other custom machine
 // Displayed in the LCD "Ready" message
-// #define CUSTOM_MACHINE_NAME "3D Printer"
+// #define CUSTOM_MACHINE_NAME "Prusa I3 Printer"
 
 // Define this to set a unique identifier for this printer, (Used by some programs to differentiate between machines)
 // You can use an online service to generate a random UUID. (eg http://www.uuidgenerator.net/version4)
@@ -361,8 +361,8 @@ your extruder heater takes 2 minutes to hit the target on heating.
   // #define ENDSTOPPULLUP_ZMAX
    #define ENDSTOPPULLUP_XMIN
    #define ENDSTOPPULLUP_YMIN
-  // #define ENDSTOPPULLUP_ZMIN
-   #define ENDSTOPPULLUP_ZPROBE
+   #define ENDSTOPPULLUP_ZMIN
+  #define ENDSTOPPULLUP_ZPROBE
 #endif
 
 
@@ -431,6 +431,8 @@ const bool Z_PROBE_ENDSTOP_INVERTING = true; // set to true to invert the logic 
 // @section machine
 
 // Travel limits after homing (units are in mm)
+#define X_MIN_POS 0
+#define Y_MIN_POS 0
 #define Z_MIN_POS 0
 #define X_MAX_POS 150
 #define Y_MAX_POS 170
