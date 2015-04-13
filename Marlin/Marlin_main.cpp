@@ -425,7 +425,7 @@ static bool drain_queued_commands_P() {
   char c;
   while((c = cmd[i]) && c != '\n') i++; // find the end of this gcode command
   cmd[i] = '\0';
-  if (enquecommand(cmd)) {        // buffer was not full (else we will retry later)
+  if (enqueuecommand(cmd)) {        // buffer was not full (else we will retry later)
     if (c)
       queued_commands_P += i + 1; // move to next command
     else
@@ -437,7 +437,7 @@ static bool drain_queued_commands_P() {
 //Record one or many commands to run from program memory.
 //Aborts the current queue, if any.
 //Note: drain_queued_commands_P() must be called repeatedly to drain the commands afterwards
-void enquecommands_P(const char* pgcode) {
+void enqueuecommands_P(const char* pgcode) {
     queued_commands_P = pgcode;
     drain_queued_commands_P(); // first command executed asap (when possible)
 }
@@ -446,7 +446,7 @@ void enquecommands_P(const char* pgcode) {
 //that is really done in a non-safe way.
 //needs overworking someday
 //Returns false if it failed to do so
-bool enquecommand(const char *cmd)
+bool enqueuecommand(const char *cmd)
 {
   if(*cmd==';')
     return false;
@@ -2096,7 +2096,7 @@ inline void gcode_G28() {
       case MeshStart:
         mbl.reset();
         probe_point = 0;
-        enquecommands_P(PSTR("G28\nG29 S2"));
+        enqueuecommands_P(PSTR("G28\nG29 S2"));
         break;
 
       case MeshNext:
@@ -2135,7 +2135,7 @@ inline void gcode_G28() {
           SERIAL_PROTOCOLLNPGM("Mesh probing done.");
           probe_point = -1;
           mbl.active = 1;
-          enquecommands_P(PSTR("G28"));
+          enqueuecommands_P(PSTR("G28"));
         }
         break;
 
@@ -2517,7 +2517,7 @@ inline void gcode_G28() {
     #endif
 
     #ifdef Z_PROBE_END_SCRIPT
-      enquecommands_P(PSTR(Z_PROBE_END_SCRIPT));
+      enqueuecommands_P(PSTR(Z_PROBE_END_SCRIPT));
       st_synchronize();
     #endif
   }
@@ -5845,7 +5845,7 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
     const int HOME_DEBOUNCE_DELAY = 750;
     if (!READ(HOME_PIN)) {
       if (!homeDebounceCount) {
-        enquecommands_P(PSTR("G28"));
+        enqueuecommands_P(PSTR("G28"));
         LCD_ALERTMESSAGEPGM(MSG_AUTO_HOME);
       }
       if (homeDebounceCount < HOME_DEBOUNCE_DELAY)
@@ -5964,7 +5964,7 @@ void kill()
    {
       if filrunoutEnqued == false {
          filrunoutEnqued = true;
-         enquecommand("M600");
+         enqueuecommand("M600");
       }
    }
 #endif
