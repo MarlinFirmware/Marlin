@@ -60,13 +60,13 @@
 
 #ifdef MESH_BED_LEVELING
   #include "mesh_bed_leveling.h"
-#endif  // MESH_BED_LEVELING
+#endif
 
 //===========================================================================
 //============================= public variables ============================
 //===========================================================================
 
-unsigned long minsegmenttime;
+millis_t minsegmenttime;
 float max_feedrate[NUM_AXIS]; // Max speeds in mm per minute
 float axis_steps_per_unit[NUM_AXIS];
 unsigned long max_acceleration_units_per_sq_second[NUM_AXIS]; // Use M201 to override by software
@@ -159,8 +159,8 @@ void calculate_trapezoid_for_block(block_t *block, float entry_factor, float exi
   unsigned long final_rate = ceil(block->nominal_rate * exit_factor); // (step/min)
 
   // Limit minimal step rate (Otherwise the timer will overflow.)
-  if (initial_rate < 120) initial_rate = 120;
-  if (final_rate < 120) final_rate = 120;
+  NOLESS(initial_rate, 120);
+  NOLESS(final_rate, 120);
 
   long acceleration = block->acceleration_st;
   int32_t accelerate_steps = ceil(estimate_acceleration_distance(initial_rate, block->nominal_rate, acceleration));
@@ -382,9 +382,11 @@ void plan_init() {
     }
 
     float t = autotemp_min + high * autotemp_factor;
-    if (t < autotemp_min) t = autotemp_min;
-    if (t > autotemp_max) t = autotemp_max;
-    if (oldt > t) t = AUTOTEMP_OLDWEIGHT * oldt + (1 - AUTOTEMP_OLDWEIGHT) * t;
+    t = constrain(t, autotemp_min, autotemp_max);
+    if (oldt > t) {
+      t *= (1 - AUTOTEMP_OLDWEIGHT);
+      t += AUTOTEMP_OLDWEIGHT * oldt;
+    }
     oldt = t;
     setTargetHotend0(t);
   }
@@ -426,7 +428,7 @@ void check_axes_activity() {
 
   #if HAS_FAN
     #ifdef FAN_KICKSTART_TIME
-      static unsigned long fan_kick_end;
+      static millis_t fan_kick_end;
       if (tail_fan_speed) {
         if (fan_kick_end == 0) {
           // Just starting up fan - run at full power.
@@ -651,10 +653,10 @@ float junction_deviation = 0.1;
     }
   }
 
-  if (block->steps[E_AXIS]) {
-    if (feed_rate < minimumfeedrate) feed_rate = minimumfeedrate;
-  }
-  else if (feed_rate < mintravelfeedrate) feed_rate = mintravelfeedrate;
+  if (block->steps[E_AXIS])
+    NOLESS(feed_rate, minimumfeedrate);
+  else
+    NOLESS(feed_rate, mintravelfeedrate);
 
   /**
    * This part of the code calculates the total length of the movement. 

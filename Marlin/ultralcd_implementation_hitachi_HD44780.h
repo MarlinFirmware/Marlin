@@ -610,7 +610,7 @@ static void lcd_implementation_status_screen() {
 
     // Show Filament Diameter and Volumetric Multiplier %
     // After allowing lcd_status_message to show for 5 seconds
-    if (millis() >= message_millis + 5000) {
+    if (millis() >= previous_lcd_status_ms + 5000) {
       lcd_printPGM(PSTR("Dia "));
       lcd.print(ftostr12ns(filament_width_meas));
       lcd_printPGM(PSTR(" V"));
@@ -724,46 +724,45 @@ static void lcd_implementation_drawmenu_sddirectory(bool sel, uint8_t row, const
 #define lcd_implementation_drawmenu_function(sel, row, pstr, data) lcd_implementation_drawmenu_generic(sel, row, pstr, '>', ' ')
 
 #ifdef LCD_HAS_STATUS_INDICATORS
-static void lcd_implementation_update_indicators()
-{
-  #if defined(LCD_I2C_PANELOLU2) || defined(LCD_I2C_VIKI)
-    //set the LEDS - referred to as backlights by the LiquidTWI2 library 
-    static uint8_t ledsprev = 0;
-    uint8_t leds = 0;
-    if (target_temperature_bed > 0) leds |= LED_A;
-    if (target_temperature[0] > 0) leds |= LED_B;
-    if (fanSpeed) leds |= LED_C;
-    #if EXTRUDERS > 1  
-      if (target_temperature[1] > 0) leds |= LED_C;
+
+  static void lcd_implementation_update_indicators() {
+    #if defined(LCD_I2C_PANELOLU2) || defined(LCD_I2C_VIKI)
+      //set the LEDS - referred to as backlights by the LiquidTWI2 library 
+      static uint8_t ledsprev = 0;
+      uint8_t leds = 0;
+      if (target_temperature_bed > 0) leds |= LED_A;
+      if (target_temperature[0] > 0) leds |= LED_B;
+      if (fanSpeed) leds |= LED_C;
+      #if EXTRUDERS > 1  
+        if (target_temperature[1] > 0) leds |= LED_C;
+      #endif
+      if (leds != ledsprev) {
+        lcd.setBacklight(leds);
+        ledsprev = leds;
+      }
     #endif
-    if (leds != ledsprev) {
-      lcd.setBacklight(leds);
-      ledsprev = leds;
-    }
-  #endif
-}
-#endif
+  }
+
+#endif // LCD_HAS_STATUS_INDICATORS
 
 #ifdef LCD_HAS_SLOW_BUTTONS
-extern uint32_t blocking_enc;
 
-static uint8_t lcd_implementation_read_slow_buttons()
-{
-  #ifdef LCD_I2C_TYPE_MCP23017
-  uint8_t slow_buttons;
-    // Reading these buttons this is likely to be too slow to call inside interrupt context
-    // so they are called during normal lcd_update
-    slow_buttons = lcd.readButtons() << B_I2C_BTN_OFFSET; 
-    #if defined(LCD_I2C_VIKI)
-    if(slow_buttons & (B_MI|B_RI)) { //LCD clicked
-       if(blocking_enc > millis()) {
-         slow_buttons &= ~(B_MI|B_RI); // Disable LCD clicked buttons if screen is updated
-       }
-    }
+  extern millis_t next_button_update_ms;
+
+  static uint8_t lcd_implementation_read_slow_buttons() {
+    #ifdef LCD_I2C_TYPE_MCP23017
+      uint8_t slow_buttons;
+      // Reading these buttons this is likely to be too slow to call inside interrupt context
+      // so they are called during normal lcd_update
+      slow_buttons = lcd.readButtons() << B_I2C_BTN_OFFSET; 
+      #ifdef LCD_I2C_VIKI
+        if ((slow_buttons & (B_MI|B_RI)) && millis() < next_button_update_ms) // LCD clicked
+          slow_buttons &= ~(B_MI|B_RI); // Disable LCD clicked buttons if screen is updated
+      #endif
+      return slow_buttons;
     #endif
-    return slow_buttons; 
-  #endif
-}
-#endif
+  }
+
+#endif // LCD_HAS_SLOW_BUTTONS
 
 #endif //__ULTRALCD_IMPLEMENTATION_HITACHI_HD44780_H
