@@ -350,7 +350,7 @@ static void lcd_implementation_status_screen() {
   #ifndef FILAMENT_LCD_DISPLAY
     lcd_print(lcd_status_message);
   #else
-    if (millis() < message_millis + 5000) {  //Display both Status message line and Filament display on the last line
+    if (millis() < previous_lcd_status_ms + 5000) {  //Display both Status message line and Filament display on the last line
       lcd_print(lcd_status_message);
     }
     else {
