@@ -3963,7 +3963,7 @@ inline void gcode_M226() {
    * M300: Play beep sound S<frequency Hz> P<duration ms>
    */
   inline void gcode_M300() {
-    uint beepS = code_seen('S') ? code_value_short() : 110;
+    uint16_t beepS = code_seen('S') ? code_value_short() : 110;
     uint32_t beepP = code_seen('P') ? code_value_long() : 1000;
     if (beepS > 0) {
       #if BEEPER > 0
