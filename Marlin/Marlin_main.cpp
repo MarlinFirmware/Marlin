@@ -2611,7 +2611,7 @@ Sigma_Exit:
       if(setTargetedHotend(109)){
         break;
       }
-      LCD_MESSAGEPGM(MSG_HEATING);
+				LCD_MESSAGEPGM(MSG_HEATING_PROCESS);
 				lcd_update();
       
       #ifdef AUTOTEMP
@@ -2696,8 +2696,8 @@ Sigma_Exit:
           }
         #endif //TEMP_RESIDENCY_TIME
         }
-        LCD_MESSAGEPGM(MSG_HEATING_COMPLETE);
-        			lcd_update();
+        LCD_MESSAGEPGM(MSG_HEATING_DONE);
+        lcd_update();
 
         starttime=millis();
         previous_millis_cmd = millis();
@@ -2710,7 +2710,7 @@ Sigma_Exit:
       break;
     case 190: // M190 - Wait for bed heater to reach target.
     #if defined(TEMP_BED_PIN) && TEMP_BED_PIN > -1
-        LCD_MESSAGEPGM(MSG_BED_HEATING);
+        LCD_MESSAGEPGM(MSG_BED_HEATING_PROCESS);
         if (code_seen('S')) {
           setTargetBed(code_value());
           CooldownNoWait = true;
@@ -2741,7 +2741,7 @@ Sigma_Exit:
           manage_inactivity();
           lcd_update();
         }
-        LCD_MESSAGEPGM(MSG_BED_DONE);
+        LCD_MESSAGEPGM(MSG_BED_HEATING_DONE);
         previous_millis_cmd = millis();
     #endif
         break;

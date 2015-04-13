@@ -243,6 +243,11 @@
 	#define MSG_ENDSTOP_ABORT "Endstop abort"
 	#define MSG_END_HOUR "hours"
 	#define MSG_END_MINUTE "minutes"
+	#define MSG_HEATING_PROCESS "Heating..."
+	#define MSG_HEATING_DONE "Heating done."
+	#define MSG_BED_HEATING_PROCESS "Bed Heating."
+	#define MSG_BED_HEATING_DONE "Bed done."
+	#define MSG_ENDSTOPS_TOUCH "endstops hit: "
 
 	#ifdef WITBOX
 
@@ -614,6 +619,11 @@
 	#define MSG_ENDSTOP_ABORT "Butoir annuler"
 	#define MSG_END_HOUR "heures"
 	#define MSG_END_MINUTE "minutes"
+	#define MSG_HEATING_PROCESS "En chauffe..."
+	#define MSG_HEATING_DONE "Chauffe terminee."
+	#define MSG_BED_HEATING_PROCESS "Plateau en chauffe."
+	#define MSG_BED_HEATING_DONE "Plateau OK."
+	#define MSG_ENDSTOPS_TOUCH "Butoir touche: "
 
 	#ifdef WITBOX
 
@@ -780,6 +790,11 @@
 	#define MSG_ENDSTOP_ABORT "Endstop abort"
 	#define MSG_END_HOUR "Stunden"
 	#define MSG_END_MINUTE "Minuten"
+	#define MSG_HEATING_PROCESS "Heizen..."
+	#define MSG_HEATING_DONE "Heizen abgeschl."
+	#define MSG_BED_HEATING_PROCESS "Bett heizen."
+	#define MSG_BED_HEATING_DONE "Druckbett fertig."
+	#define MSG_ENDSTOPS_TOUCH "Endstops erreicht: "
 
 	#ifdef WITBOX
 
@@ -970,12 +985,13 @@
 	#define MSG_BABYSTEP_Z "Minipaso Z"
 	#define MSG_ENDSTOP_ABORT "Anular endstop"
 	#define MSG_CONTRAST "Contrast"
-	#define MSG_HEATING "Calentando..."
-	#define MSG_HEATING_COMPLETE "Fin calentamiento"
-	#define MSG_BED_HEATING "Calentando cama"
-	#define MSG_BED_DONE "Fin cal. cama"
 	#define MSG_END_HOUR "horas"
 	#define MSG_END_MINUTE "minutos"
+	#define MSG_HEATING_PROCESS "Calentando..."
+	#define MSG_HEATING_DONE "Fin calentamiento"
+	#define MSG_BED_HEATING_PROCESS "Calentando cama"
+	#define MSG_BED_HEATING_DONE "Fin cal. cama"
+	#define MSG_ENDSTOPS_TOUCH "Fin de carrera: "
 
 	#ifdef WITBOX
 
@@ -1350,6 +1366,11 @@
 	#define MSG_ENDSTOP_ABORT "Ferma endstop" 
 	#define MSG_END_HOUR "ore" 
 	#define MSG_END_MINUTE "minuti" 
+	#define MSG_HEATING_PROCESS "Riscaldamento..."
+	#define MSG_HEATING_DONE "Riscal. completato."
+	#define MSG_BED_HEATING_PROCESS "Riscal. piano."
+	#define MSG_BED_HEATING_DONE "Riscal.piano complet"
+	#define MSG_ENDSTOPS_TOUCH "endstop raggiunto: "
 
 	#ifdef WITBOX
 
@@ -1516,6 +1537,11 @@
 	#define MSG_ENDSTOP_ABORT "Abortar fim de curso"
 	#define MSG_END_HOUR "horas"
 	#define MSG_END_MINUTE "minutos"
+	#define MSG_HEATING_PROCESS "A aquecer..."
+	#define MSG_HEATING_DONE "Aquecimento concl."
+	#define MSG_BED_HEATING_PROCESS "Base a aquecer."
+	#define MSG_BED_HEATING_DONE "Base concluida."
+	#define MSG_ENDSTOPS_TOUCH "fim de curso: "
 
 	#ifdef WITBOX
 
