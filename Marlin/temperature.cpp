@@ -118,7 +118,7 @@ static volatile bool temp_meas_ready = false;
   static float temp_iState_min_bed;
   static float temp_iState_max_bed;
 #else //PIDTEMPBED
-  static millis_t  previous_bed_check_ms;
+  static millis_t  next_bed_check_ms;
 #endif //PIDTEMPBED
   static unsigned char soft_pwm[EXTRUDERS];
 
@@ -126,7 +126,7 @@ static volatile bool temp_meas_ready = false;
   static unsigned char soft_pwm_fan;
 #endif
 #if HAS_AUTO_FAN
-  static millis_t previous_auto_fan_check_ms;
+  static millis_t next_auto_fan_check_ms;
 #endif  
 
 #ifdef PIDTEMP
@@ -205,7 +205,7 @@ void PID_autotune(float temp, int extruder, int ncycles)
   float max = 0, min = 10000;
 
   #if HAS_AUTO_FAN
-    millis_t previous_auto_fan_check_ms = temp_ms;
+    millis_t next_auto_fan_check_ms = temp_ms + 2500;
   #endif
 
   if (extruder >= EXTRUDERS
@@ -240,9 +240,9 @@ void PID_autotune(float temp, int extruder, int ncycles)
       min = min(min, input);
 
       #if HAS_AUTO_FAN
-        if (ms > previous_auto_fan_check_ms + 2500) {
+        if (ms > next_auto_fan_check_ms) {
           checkExtruderAutoFans();
-          previous_auto_fan_check_ms = ms;
+          next_auto_fan_check_ms = ms + 2500;
         }
       #endif
 
@@ -631,16 +631,16 @@ void manage_heater() {
   } // Extruders Loop
 
   #if HAS_AUTO_FAN
-    if (ms > previous_auto_fan_check_ms + 2500) { // only need to check fan state very infrequently
+    if (ms > next_auto_fan_check_ms) { // only need to check fan state very infrequently
       checkExtruderAutoFans();
-      previous_auto_fan_check_ms = ms;
+      next_auto_fan_check_ms = ms + 2500;
     }
   #endif       
   
   #ifndef PIDTEMPBED
-    if (ms < previous_bed_check_ms + BED_CHECK_INTERVAL) return;
-    previous_bed_check_ms = ms;
-  #endif //PIDTEMPBED
+    if (ms < previous_bed_check_ms) return;
+    next_bed_check_ms = ms + BED_CHECK_INTERVAL;
+  #endif
 
   #if TEMP_SENSOR_BED != 0
   
@@ -1109,16 +1109,18 @@ void disable_heater() {
 
 #ifdef HEATER_0_USES_MAX6675
   #define MAX6675_HEAT_INTERVAL 250u
-  millis_t previous_max6675_ms = MAX6675_HEAT_INTERVAL;
+  static millis_t next_max6675_ms = 0;
   int max6675_temp = 2000;
 
   static int read_max6675() {
 
     millis_t ms = millis();
-    if (ms < previous_max6675_ms + MAX6675_HEAT_INTERVAL)
+
+    if (ms < next_max6675_ms)
       return max6675_temp;
     
-    previous_max6675_ms = ms;
+    next_max6675_ms = ms + MAX6675_HEAT_INTERVAL;
+
     max6675_temp = 0;
 
     #ifdef PRR
