@@ -1348,7 +1348,7 @@ void process_commands()
 				lcd_disable_button();
 				LCD_MESSAGEPGM(MSG_USERWAIT);
 				draw_status_screen();
-				lcd_force_update();
+				lcd_update(true);
 
 				codenum = 0;
 				if(code_seen('P')) codenum = code_value(); // milliseconds to wait
@@ -1669,7 +1669,7 @@ void process_commands()
       			if(setTargetedHotend(109)){
         			break;
 				}
-				LCD_MESSAGEPGM(MSG_HEATING);
+				LCD_MESSAGEPGM(MSG_HEATING_PROCESS);
 				lcd_update();
       
 				#ifdef AUTOTEMP
@@ -1754,7 +1754,7 @@ void process_commands()
 							}
 						#endif //TEMP_RESIDENCY_TIME
 					}
-        			LCD_MESSAGEPGM(MSG_HEATING_COMPLETE);
+        			LCD_MESSAGEPGM(MSG_HEATING_DONE);
         			lcd_update();
 
         			starttime=millis();
@@ -1769,7 +1769,7 @@ void process_commands()
 
 			case 190: // M190 - Wait for bed heater to reach target.
 				#if defined(TEMP_BED_PIN) && TEMP_BED_PIN > -1
-					LCD_MESSAGEPGM(MSG_BED_HEATING);
+					LCD_MESSAGEPGM(MSG_BED_HEATING_PROCESS);
 					if (code_seen('S')) {
 						setTargetBed(code_value());
 						CooldownNoWait = true;
@@ -1800,7 +1800,7 @@ void process_commands()
 						manage_inactivity();
 						lcd_update();
 					}
-					LCD_MESSAGEPGM(MSG_BED_DONE);
+					LCD_MESSAGEPGM(MSG_BED_HEATING_DONE);
 					previous_millis_cmd = millis();
     			#endif
 				break;
@@ -2338,7 +2338,7 @@ void process_commands()
 
       			lcd_enable_button();
       			draw_wizard_change_filament();
-      			lcd_force_update();
+      			lcd_update(true);
       			SERIAL_ECHOLN("Wizard set to 0");
 
       			lcd_clear_triggered_flags();
@@ -2347,7 +2347,7 @@ void process_commands()
       			}
 
       			lcd_wizard_set_page(1);
-      			lcd_force_update();
+      			lcd_update(true);
       			SERIAL_ECHOLN("Wizard set to 1");
 
       			target[E_AXIS] += 10.0;
@@ -2369,7 +2369,7 @@ void process_commands()
 				enable_y();
 
       			lcd_wizard_set_page(2);
-      			lcd_force_update();
+      			lcd_update(true);
       			SERIAL_ECHOLN("Wizard set to 2");
 
       			disable_e0();
@@ -2382,7 +2382,7 @@ void process_commands()
       			}
 
       			lcd_wizard_set_page(3);
-      			lcd_force_update();
+      			lcd_update(true);
       			SERIAL_ECHOLN("Wizard set to 3");
 
       			lcd_clear_triggered_flags();
@@ -2406,7 +2406,7 @@ void process_commands()
       			plan_buffer_line(lastpos[X_AXIS], lastpos[Y_AXIS], lastpos[Z_AXIS], lastpos[E_AXIS], feedrate/60, active_extruder); //final untretract
 
       			lcd_wizard_set_page(4);
-      			lcd_force_update();
+      			lcd_update(true);
       			lcd_enable_display_timeout();
       			SERIAL_ECHOLN("Wizard set to 4");
 

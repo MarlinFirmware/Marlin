@@ -10,7 +10,7 @@
 #define ENCODER_STEPS_PER_MENU_ITEM 4
 #  endif // ENCODER_STEPS_PER_MENU_ITEM
 
-#define LCD_TIMEOUT_STATUS      15000
+#define LCD_TIMEOUT_STATUS      30000
 #define LCD_REFRESH              10
 #define LCD_REFRESH_LIMIT          60
 #define LCD_MOVE_RESIDENCY_TIME   500
@@ -48,8 +48,7 @@ extern bool cancel_heatup;
 //
 void lcd_init();
 
-void lcd_update();
-void lcd_force_update();
+void lcd_update(bool force = false);
 
 void lcd_set_status_screen();
 void lcd_set_menu(view_t menu);
