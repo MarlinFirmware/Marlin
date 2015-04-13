@@ -22,7 +22,7 @@ int absPreheatHPBTemp;
 int absPreheatFanSpeed;
 
 #ifdef FILAMENT_LCD_DISPLAY
-  unsigned long message_millis = 0;
+  millis_t previous_lcd_status_ms = 0;
 #endif
 
 /* !Configuration settings */
@@ -220,7 +220,7 @@ static void lcd_status_screen();
     volatile uint8_t slow_buttons; // Bits of the pressed buttons.
   #endif
   uint8_t currentMenuViewOffset;              /* scroll offset in the current menu */
-  uint32_t blocking_enc;
+  millis_t next_button_update_ms;
   uint8_t lastEncoderBits;
   uint32_t encoderPosition;
   #if (SDCARDDETECT > 0)
@@ -230,7 +230,7 @@ static void lcd_status_screen();
 #endif // ULTIPANEL
 
 menuFunc_t currentMenu = lcd_status_screen; /* function pointer to the currently active menu */
-uint32_t lcd_next_update_millis;
+millis_t next_lcd_update_ms;
 uint8_t lcd_status_update_delay;
 bool ignore_click = false;
 bool wait_for_unclick;
@@ -267,7 +267,7 @@ static void lcd_status_screen() {
 	encoderRateMultiplierEnabled = false;
 
   #ifdef LCD_PROGRESS_BAR
-    unsigned long ms = millis();
+    millis_t ms = millis();
     #ifndef PROGRESS_MSG_ONCE
       if (ms > progressBarTick + PROGRESS_BAR_MSG_TIME + PROGRESS_BAR_BAR_TIME) {
         progressBarTick = ms;
@@ -324,7 +324,7 @@ static void lcd_status_screen() {
         #endif
       );
       #ifdef FILAMENT_LCD_DISPLAY
-        message_millis = millis();  // get status message to show up for a while
+        previous_lcd_status_ms = millis();  // get status message to show up for a while
       #endif
     }
 
@@ -1122,7 +1122,7 @@ menu_edit_type(unsigned long, long5, ftostr5, 0.01)
 
 static void lcd_quick_feedback() {
   lcdDrawUpdate = 2;
-  blocking_enc = millis() + 500;
+  next_button_update_ms = millis() + 500;
     
   #ifdef LCD_USE_I2C_BUZZER
     #ifndef LCD_FEEDBACK_FREQUENCY_HZ
@@ -1252,7 +1252,7 @@ int lcd_strlen_P(const char *s) {
 
 void lcd_update() {
   #ifdef ULTIPANEL
-    static unsigned long timeoutToStatus = 0;
+    static millis_t return_to_status_ms = 0;
   #endif
 
   #ifdef LCD_HAS_SLOW_BUTTONS
@@ -1282,8 +1282,8 @@ void lcd_update() {
     }
   #endif//CARDINSERTED
   
-  uint32_t ms = millis();
-  if (ms > lcd_next_update_millis) {
+  millis_t ms = millis();
+  if (ms > next_lcd_update_ms) {
 
     #ifdef ULTIPANEL
 
@@ -1335,7 +1335,7 @@ void lcd_update() {
           encoderPosition += (encoderDiff * encoderMultiplier) / ENCODER_PULSES_PER_STEP;
           encoderDiff = 0;
         }
-        timeoutToStatus = ms + LCD_TIMEOUT_TO_STATUS;
+        return_to_status_ms = ms + LCD_TIMEOUT_TO_STATUS;
         lcdDrawUpdate = 1;
       }
     #endif //ULTIPANEL
@@ -1371,20 +1371,24 @@ void lcd_update() {
     #endif
 
     #ifdef ULTIPANEL
+
+      // Return to Status Screen after a timeout
       if (currentMenu != lcd_status_screen &&
-        #if defined(MANUAL_BED_LEVELING)
-          currentMenu != _lcd_level_bed && 
-          currentMenu != _lcd_level_bed_homing && 
-        #endif  // MANUAL_BED_LEVELING
-          millis() > timeoutToStatus) {
+        #ifdef MANUAL_BED_LEVELING
+          currentMenu != _lcd_level_bed &&
+          currentMenu != _lcd_level_bed_homing &&
+        #endif
+        millis() > return_to_status_ms
+      ) {
         lcd_return_to_status();
         lcdDrawUpdate = 2;
       }
-    #endif //ULTIPANEL
+
+    #endif // ULTIPANEL
 
     if (lcdDrawUpdate == 2) lcd_implementation_clear();
     if (lcdDrawUpdate) lcdDrawUpdate--;
-    lcd_next_update_millis = millis() + LCD_UPDATE_INTERVAL;
+    next_lcd_update_ms = millis() + LCD_UPDATE_INTERVAL;
   }
 }
 
@@ -1403,7 +1407,7 @@ void lcd_finishstatus(bool persist=false) {
   lcdDrawUpdate = 2;
 
   #ifdef FILAMENT_LCD_DISPLAY
-    message_millis = millis();  //get status message to show up for a while
+    previous_lcd_status_ms = millis();  //get status message to show up for a while
   #endif
 }
 
@@ -1473,7 +1477,7 @@ void lcd_buttons_update() {
     if (READ(BTN_EN1) == 0) newbutton |= EN_A;
     if (READ(BTN_EN2) == 0) newbutton |= EN_B;
     #if BTN_ENC > 0
-      if (millis() > blocking_enc && READ(BTN_ENC) == 0) newbutton |= EN_C;
+      if (millis() > next_button_update_ms && READ(BTN_ENC) == 0) newbutton |= EN_C;
     #endif
     buttons = newbutton;
     #ifdef LCD_HAS_SLOW_BUTTONS

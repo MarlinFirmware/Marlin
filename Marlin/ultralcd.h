@@ -49,7 +49,7 @@
   extern bool cancel_heatup;
   
   #ifdef FILAMENT_LCD_DISPLAY
-    extern unsigned long message_millis;
+    extern millis_t previous_lcd_status_ms;
   #endif
 
   void lcd_buzz(long duration,uint16_t freq);

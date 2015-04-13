@@ -77,14 +77,14 @@ unsigned char soft_pwm_bed;
 #define HAS_BED_THERMAL_PROTECTION (defined(THERMAL_RUNAWAY_PROTECTION_BED_PERIOD) && THERMAL_RUNAWAY_PROTECTION_BED_PERIOD > 0 && TEMP_SENSOR_BED != 0)
 #if HAS_HEATER_THERMAL_PROTECTION || HAS_BED_THERMAL_PROTECTION
   enum TRState { TRReset, TRInactive, TRFirstHeating, TRStable, TRRunaway };
-  void thermal_runaway_protection(TRState *state, unsigned long *timer, float temperature, float target_temperature, int heater_id, int period_seconds, int hysteresis_degc);
+  void thermal_runaway_protection(TRState *state, millis_t *timer, float temperature, float target_temperature, int heater_id, int period_seconds, int hysteresis_degc);
   #if HAS_HEATER_THERMAL_PROTECTION
     static TRState thermal_runaway_state_machine[4] = { TRReset, TRReset, TRReset, TRReset };
-    static unsigned long thermal_runaway_timer[4]; // = {0,0,0,0};
+    static millis_t thermal_runaway_timer[4]; // = {0,0,0,0};
   #endif
   #if HAS_BED_THERMAL_PROTECTION
     static TRState thermal_runaway_bed_state_machine = TRReset;
-    static unsigned long thermal_runaway_bed_timer;
+    static millis_t thermal_runaway_bed_timer;
   #endif
 #endif
 
@@ -118,7 +118,7 @@ static volatile bool temp_meas_ready = false;
   static float temp_iState_min_bed;
   static float temp_iState_max_bed;
 #else //PIDTEMPBED
-  static unsigned long  previous_millis_bed_heater;
+  static millis_t  previous_bed_check_ms;
 #endif //PIDTEMPBED
   static unsigned char soft_pwm[EXTRUDERS];
 
@@ -126,7 +126,7 @@ static volatile bool temp_meas_ready = false;
   static unsigned char soft_pwm_fan;
 #endif
 #if HAS_AUTO_FAN
-  static unsigned long extruder_autofan_last_check;
+  static millis_t previous_auto_fan_check_ms;
 #endif  
 
 #ifdef PIDTEMP
@@ -171,7 +171,7 @@ static void updateTemperaturesFromRawValues();
 
 #ifdef WATCH_TEMP_PERIOD
   int watch_start_temp[EXTRUDERS] = { 0 };
-  unsigned long watchmillis[EXTRUDERS] = { 0 };
+  millis_t watchmillis[EXTRUDERS] = { 0 };
 #endif //WATCH_TEMP_PERIOD
 
 #ifndef SOFT_PWM_SCALE
@@ -196,7 +196,7 @@ void PID_autotune(float temp, int extruder, int ncycles)
   int cycles = 0;
   bool heating = true;
 
-  unsigned long temp_millis = millis(), t1 = temp_millis, t2 = temp_millis;
+  millis_t temp_ms = millis(), t1 = temp_ms, t2 = temp_ms;
   long t_high = 0, t_low = 0;
 
   long bias, d;
@@ -205,7 +205,7 @@ void PID_autotune(float temp, int extruder, int ncycles)
   float max = 0, min = 10000;
 
   #if HAS_AUTO_FAN
-        unsigned long extruder_autofan_last_check = temp_millis;
+    millis_t previous_auto_fan_check_ms = temp_ms;
   #endif
 
   if (extruder >= EXTRUDERS
@@ -229,7 +229,7 @@ void PID_autotune(float temp, int extruder, int ncycles)
   // PID Tuning loop
   for (;;) {
 
-    unsigned long ms = millis();
+    millis_t ms = millis();
 
     if (temp_meas_ready) { // temp sample ready
       updateTemperaturesFromRawValues();
@@ -240,9 +240,9 @@ void PID_autotune(float temp, int extruder, int ncycles)
       min = min(min, input);
 
       #if HAS_AUTO_FAN
-        if (ms > extruder_autofan_last_check + 2500) {
+        if (ms > previous_auto_fan_check_ms + 2500) {
           checkExtruderAutoFans();
-          extruder_autofan_last_check = ms;
+          previous_auto_fan_check_ms = ms;
         }
       #endif
 
@@ -317,7 +317,7 @@ void PID_autotune(float temp, int extruder, int ncycles)
       return;
     }
     // Every 2 seconds...
-    if (ms > temp_millis + 2000) {
+    if (ms > temp_ms + 2000) {
       int p;
       if (extruder < 0) {
         p = soft_pwm_bed;
@@ -332,7 +332,7 @@ void PID_autotune(float temp, int extruder, int ncycles)
       SERIAL_PROTOCOLPGM(MSG_AT);
       SERIAL_PROTOCOLLN(p);
 
-      temp_millis = ms;
+      temp_ms = ms;
     } // every 2 seconds
     // Over 2 minutes?
     if (((ms - t1) + (ms - t2)) > (10L*60L*1000L*2L)) {
@@ -592,7 +592,7 @@ void manage_heater() {
   #endif //HEATER_0_USES_MAX6675
 
   #if defined(WATCH_TEMP_PERIOD) || !defined(PIDTEMPBED) || HAS_AUTO_FAN
-    unsigned long ms = millis();
+    millis_t ms = millis();
   #endif
 
   // Loop through all extruders
@@ -631,15 +631,15 @@ void manage_heater() {
   } // Extruders Loop
 
   #if HAS_AUTO_FAN
-    if (ms > extruder_autofan_last_check + 2500) { // only need to check fan state very infrequently
+    if (ms > previous_auto_fan_check_ms + 2500) { // only need to check fan state very infrequently
       checkExtruderAutoFans();
-      extruder_autofan_last_check = ms;
+      previous_auto_fan_check_ms = ms;
     }
   #endif       
   
   #ifndef PIDTEMPBED
-    if (ms < previous_millis_bed_heater + BED_CHECK_INTERVAL) return;
-    previous_millis_bed_heater = ms;
+    if (ms < previous_bed_check_ms + BED_CHECK_INTERVAL) return;
+    previous_bed_check_ms = ms;
   #endif //PIDTEMPBED
 
   #if TEMP_SENSOR_BED != 0
@@ -992,7 +992,7 @@ void tp_init()
 
 void setWatch() {
   #ifdef WATCH_TEMP_PERIOD
-    unsigned long ms = millis();
+    millis_t ms = millis();
     for (int e = 0; e < EXTRUDERS; e++) {
       if (degHotend(e) < degTargetHotend(e) - (WATCH_TEMP_INCREASE * 2)) {
         watch_start_temp[e] = degHotend(e);
@@ -1004,7 +1004,7 @@ void setWatch() {
 
 #if HAS_HEATER_THERMAL_PROTECTION || HAS_BED_THERMAL_PROTECTION
 
-  void thermal_runaway_protection(TRState *state, unsigned long *timer, float temperature, float target_temperature, int heater_id, int period_seconds, int hysteresis_degc) {
+  void thermal_runaway_protection(TRState *state, millis_t *timer, float temperature, float target_temperature, int heater_id, int period_seconds, int hysteresis_degc) {
 
     static float tr_target_temperature[EXTRUDERS+1] = { 0.0 };
 
@@ -1109,16 +1109,16 @@ void disable_heater() {
 
 #ifdef HEATER_0_USES_MAX6675
   #define MAX6675_HEAT_INTERVAL 250u
-  unsigned long max6675_previous_millis = MAX6675_HEAT_INTERVAL;
+  millis_t previous_max6675_ms = MAX6675_HEAT_INTERVAL;
   int max6675_temp = 2000;
 
   static int read_max6675() {
 
-    unsigned long ms = millis();
-    if (ms < max6675_previous_millis + MAX6675_HEAT_INTERVAL)
+    millis_t ms = millis();
+    if (ms < previous_max6675_ms + MAX6675_HEAT_INTERVAL)
       return max6675_temp;
     
-    max6675_previous_millis = ms;
+    previous_max6675_ms = ms;
     max6675_temp = 0;
 
     #ifdef PRR

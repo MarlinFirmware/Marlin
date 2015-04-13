@@ -25,7 +25,7 @@ CardReader::CardReader() {
     OUT_WRITE(SDPOWER, HIGH);
   #endif //SDPOWER
 
-  autostart_atmillis = millis() + 5000;
+  next_autostart_ms = millis() + 5000;
 }
 
 char *createFilename(char *buffer, const dir_t &p) { //buffer > 12characters
@@ -397,7 +397,7 @@ void CardReader::write_command(char *buf) {
 }
 
 void CardReader::checkautostart(bool force) {
-  if (!force && (!autostart_stilltocheck || autostart_atmillis < millis()))
+  if (!force && (!autostart_stilltocheck || next_autostart_ms < millis()))
     return;
 
   autostart_stilltocheck = false;

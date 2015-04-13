@@ -610,7 +610,7 @@ static void lcd_implementation_status_screen() {
 
     // Show Filament Diameter and Volumetric Multiplier %
     // After allowing lcd_status_message to show for 5 seconds
-    if (millis() >= message_millis + 5000) {
+    if (millis() >= previous_lcd_status_ms + 5000) {
       lcd_printPGM(PSTR("Dia "));
       lcd.print(ftostr12ns(filament_width_meas));
       lcd_printPGM(PSTR(" V"));
@@ -745,7 +745,7 @@ static void lcd_implementation_update_indicators()
 #endif
 
 #ifdef LCD_HAS_SLOW_BUTTONS
-extern uint32_t blocking_enc;
+extern millis_t blocking_enc;
 
 static uint8_t lcd_implementation_read_slow_buttons()
 {
