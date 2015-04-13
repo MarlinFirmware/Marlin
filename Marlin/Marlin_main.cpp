@@ -61,8 +61,6 @@
 #include <SPI.h>
 #endif
 
-#define VERSION_STRING  "1.0.0"
-
 // look here for descriptions of G-codes: http://linuxcnc.org/handbook/gcode/g-code.html
 // http://objects.reprap.org/wiki/Mendel_User_Manual:_RepRapGCodes
 
@@ -166,7 +164,7 @@
 // M500 - stores parameters in EEPROM
 // M501 - reads parameters from EEPROM (if you need reset them after you changed them temporarily).
 // M502 - reverts to the default "factory settings".  You still need to store them in EEPROM afterwards if you want to.
-// M503 - print the current settings (from memory not from EEPROM)
+// M503 - print the current settings (from memory not from EEPROM). Use S0 to leave off headings.
 // M540 - Use S[0|1] to enable or disable the stop SD card print on endstop hit (requires ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED)
 // M600 - Pause for filament change X[pos] Y[pos] Z[relative lift] E[initial retract] L[later retract distance for removal]
 // M665 - set delta configurations
@@ -215,6 +213,9 @@ int extruder_multiply[EXTRUDERS] = {100
     , 100
     #if EXTRUDERS > 2
       , 100
+	    #if EXTRUDERS > 3
+      	, 100
+	    #endif
     #endif
   #endif
 };
@@ -224,6 +225,9 @@ float filament_size[EXTRUDERS] = { DEFAULT_NOMINAL_FILAMENT_DIA
       , DEFAULT_NOMINAL_FILAMENT_DIA
     #if EXTRUDERS > 2
        , DEFAULT_NOMINAL_FILAMENT_DIA
+      #if EXTRUDERS > 3
+        , DEFAULT_NOMINAL_FILAMENT_DIA
+      #endif
     #endif
   #endif
 };
@@ -232,6 +236,9 @@ float volumetric_multiplier[EXTRUDERS] = {1.0
     , 1.0
     #if EXTRUDERS > 2
       , 1.0
+      #if EXTRUDERS > 3
+        , 1.0
+      #endif
     #endif
   #endif
 };
@@ -274,19 +281,25 @@ int EtoPPressure=0;
   bool autoretract_enabled=false;
   bool retracted[EXTRUDERS]={false
     #if EXTRUDERS > 1
-    , false
-     #if EXTRUDERS > 2
       , false
-     #endif
-  #endif
+      #if EXTRUDERS > 2
+        , false
+        #if EXTRUDERS > 3
+       	  , false
+      	#endif
+      #endif
+    #endif
   };
   bool retracted_swap[EXTRUDERS]={false
     #if EXTRUDERS > 1
-    , false
-     #if EXTRUDERS > 2
       , false
-     #endif
-  #endif
+      #if EXTRUDERS > 2
+        , false
+        #if EXTRUDERS > 3
+       	  , false
+      	#endif
+      #endif
+    #endif
   };
 
   float retract_length = RETRACT_LENGTH;
@@ -296,7 +309,7 @@ int EtoPPressure=0;
   float retract_recover_length = RETRACT_RECOVER_LENGTH;
   float retract_recover_length_swap = RETRACT_RECOVER_LENGTH_SWAP;
   float retract_recover_feedrate = RETRACT_RECOVER_FEEDRATE;
-#endif
+#endif // FWRETRACT
 
 #ifdef ULTIPANEL
   #ifdef PS_DEFAULT_OFF
@@ -341,8 +354,8 @@ bool cancel_heatup = false ;
   int meas_delay_cm = MEASUREMENT_DELAY_CM;  //distance delay setting
 #endif
 
-const prog_char errormagic[] MARLIN_PROGMEM = "Error:";
-const prog_char echomagic[] MARLIN_PROGMEM = "echo:";
+const char errormagic[] PROGMEM = "Error:";
+const char echomagic[] PROGMEM = "echo:";
 
 //===========================================================================
 //=============================Private Variables=============================
@@ -582,7 +595,7 @@ void setup()
   MCUSR=0;
 
   SERIAL_ECHOPGM(MSG_MARLIN);
-  SERIAL_ECHOLNPGM(VERSION_STRING);
+  SERIAL_ECHOLNPGM(STRING_VERSION);
   #ifdef STRING_VERSION_CONFIG_H
     #ifdef STRING_CONFIG_H_AUTHOR
       SERIAL_ECHO_START;
@@ -592,8 +605,8 @@ void setup()
       SERIAL_ECHOLNPGM(STRING_CONFIG_H_AUTHOR);
       SERIAL_ECHOPGM("Compiled: ");
       SERIAL_ECHOLNPGM(__DATE__);
-    #endif
-  #endif
+    #endif // STRING_CONFIG_H_AUTHOR
+  #endif // STRING_VERSION_CONFIG_H
   SERIAL_ECHO_START;
   SERIAL_ECHOPGM(MSG_FREE_MEMORY);
   SERIAL_ECHO(freeMemory());
@@ -927,7 +940,7 @@ DEFINE_PGM_READ_ANY(float,       float);
 DEFINE_PGM_READ_ANY(signed char, byte);
 
 #define XYZ_CONSTS_FROM_CONFIG(type, array, CONFIG) \
-static const type array##_P[3] MARLIN_PROGMEM =        \
+static const PROGMEM type array##_P[3] =        \
     { X_##CONFIG, Y_##CONFIG, Z_##CONFIG };     \
 static inline type array(int axis)          \
     { return pgm_read_any(&array##_P[axis]); }
@@ -1221,18 +1234,20 @@ static void retract_z_probe() {
 }
 
 /// Probe bed height at position (x,y), returns the measured z value
-static float probe_pt(float x, float y, float z_before) {
+static float probe_pt(float x, float y, float z_before, int retract_action=0) {
   // move to right place
   do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], z_before);
   do_blocking_move_to(x - X_PROBE_OFFSET_FROM_EXTRUDER, y - Y_PROBE_OFFSET_FROM_EXTRUDER, current_position[Z_AXIS]);
 
 #ifndef Z_PROBE_SLED
-  engage_z_probe();   // Engage Z Servo endstop if available
+   if ((retract_action==0) || (retract_action==1)) 
+     engage_z_probe();   // Engage Z Servo endstop if available
 #endif // Z_PROBE_SLED
   run_z_probe();
   float measured_z = current_position[Z_AXIS];
 #ifndef Z_PROBE_SLED
-  retract_z_probe();
+  if ((retract_action==0) || (retract_action==3)) 
+     retract_z_probe();
 #endif // Z_PROBE_SLED
 
   SERIAL_PROTOCOLPGM(MSG_BED);
@@ -1822,7 +1837,22 @@ void process_commands()
                   z_before = current_position[Z_AXIS] + Z_RAISE_BETWEEN_PROBINGS;
                 }
 
-                float measured_z = probe_pt(xProbe, yProbe, z_before);
+                float measured_z;
+                //Enhanced G29 - Do not retract servo between probes
+                if (code_seen('E') || code_seen('e') )
+                   {
+                   if ((yProbe==FRONT_PROBE_BED_POSITION) && (xCount==0))
+                       {
+                        measured_z = probe_pt(xProbe, yProbe, z_before,1);
+                       } else if ((yProbe==FRONT_PROBE_BED_POSITION + (yGridSpacing * (AUTO_BED_LEVELING_GRID_POINTS-1))) && (xCount == AUTO_BED_LEVELING_GRID_POINTS-1))
+                         {
+                         measured_z = probe_pt(xProbe, yProbe, z_before,3);
+                         } else {
+                           measured_z = probe_pt(xProbe, yProbe, z_before,2);
+                         }
+                    } else {
+                    measured_z = probe_pt(xProbe, yProbe, z_before);
+                    }
 
                 eqnBVector[probePointCounter] = measured_z;
 
@@ -1853,15 +1883,30 @@ void process_commands()
 #else // AUTO_BED_LEVELING_GRID not defined
 
             // Probe at 3 arbitrary points
-            // probe 1
-            float z_at_pt_1 = probe_pt(ABL_PROBE_PT_1_X, ABL_PROBE_PT_1_Y, Z_RAISE_BEFORE_PROBING);
+            // Enhanced G29
+            
+            float z_at_pt_1,z_at_pt_2,z_at_pt_3;
+            
+            if (code_seen('E') || code_seen('e') )
+               {
+               // probe 1               
+                z_at_pt_1 = probe_pt(ABL_PROBE_PT_1_X, ABL_PROBE_PT_1_Y, Z_RAISE_BEFORE_PROBING,1);
+               // probe 2
+                z_at_pt_2 = probe_pt(ABL_PROBE_PT_2_X, ABL_PROBE_PT_2_Y, current_position[Z_AXIS] + Z_RAISE_BETWEEN_PROBINGS,2);
+               // probe 3
+                z_at_pt_3 = probe_pt(ABL_PROBE_PT_3_X, ABL_PROBE_PT_3_Y, current_position[Z_AXIS] + Z_RAISE_BETWEEN_PROBINGS,3); 
+               }
+               else 
+               {
+	        // probe 1
+	        float z_at_pt_1 = probe_pt(ABL_PROBE_PT_1_X, ABL_PROBE_PT_1_Y, Z_RAISE_BEFORE_PROBING);
 
-            // probe 2
-            float z_at_pt_2 = probe_pt(ABL_PROBE_PT_2_X, ABL_PROBE_PT_2_Y, current_position[Z_AXIS] + Z_RAISE_BETWEEN_PROBINGS);
+                // probe 2
+                float z_at_pt_2 = probe_pt(ABL_PROBE_PT_2_X, ABL_PROBE_PT_2_Y, current_position[Z_AXIS] + Z_RAISE_BETWEEN_PROBINGS);
 
-            // probe 3
-            float z_at_pt_3 = probe_pt(ABL_PROBE_PT_3_X, ABL_PROBE_PT_3_Y, current_position[Z_AXIS] + Z_RAISE_BETWEEN_PROBINGS);
-
+                // probe 3
+                float z_at_pt_3 = probe_pt(ABL_PROBE_PT_3_X, ABL_PROBE_PT_3_Y, current_position[Z_AXIS] + Z_RAISE_BETWEEN_PROBINGS);
+               }
             clean_up_after_endstop_move();
 
             set_bed_level_equation_3pts(z_at_pt_1, z_at_pt_2, z_at_pt_3);
@@ -2967,29 +3012,32 @@ Sigma_Exit:
 
         float area = .0;
         if(code_seen('D')) {
-		  float diameter = (float)code_value();
-		  if (diameter == 0.0) {
-			// setting any extruder filament size disables volumetric on the assumption that
-			// slicers either generate in extruder values as cubic mm or as as filament feeds
-			// for all extruders
-		    volumetric_enabled = false;
-		  } else {
+          float diameter = (float)code_value();
+          if (diameter == 0.0) {
+            // setting any extruder filament size disables volumetric on the assumption that
+            // slicers either generate in extruder values as cubic mm or as as filament feeds
+            // for all extruders
+            volumetric_enabled = false;
+          } else {
             filament_size[tmp_extruder] = (float)code_value();
-			// make sure all extruders have some sane value for the filament size
-			filament_size[0] = (filament_size[0] == 0.0 ? DEFAULT_NOMINAL_FILAMENT_DIA : filament_size[0]);
-            #if EXTRUDERS > 1
-			filament_size[1] = (filament_size[1] == 0.0 ? DEFAULT_NOMINAL_FILAMENT_DIA : filament_size[1]);
-            #if EXTRUDERS > 2
-			filament_size[2] = (filament_size[2] == 0.0 ? DEFAULT_NOMINAL_FILAMENT_DIA : filament_size[2]);
-            #endif
-            #endif
-			volumetric_enabled = true;
-		  }
+            // make sure all extruders have some sane value for the filament size
+            filament_size[0] = (filament_size[0] == 0.0 ? DEFAULT_NOMINAL_FILAMENT_DIA : filament_size[0]);
+#if EXTRUDERS > 1
+            filament_size[1] = (filament_size[1] == 0.0 ? DEFAULT_NOMINAL_FILAMENT_DIA : filament_size[1]);
+#if EXTRUDERS > 2
+            filament_size[2] = (filament_size[2] == 0.0 ? DEFAULT_NOMINAL_FILAMENT_DIA : filament_size[2]);
+#if EXTRUDERS > 3
+            filament_size[3] = (filament_size[3] == 0.0 ? DEFAULT_NOMINAL_FILAMENT_DIA : filament_size[3]);
+#endif //EXTRUDERS > 3
+#endif //EXTRUDERS > 2
+#endif //EXTRUDERS > 1
+            volumetric_enabled = true;
+          }
         } else {
           //reserved for setting filament diameter via UFID or filament measuring device
           break;
         }
-		calculate_volumetric_multipliers();
+        calculate_volumetric_multipliers();
       }
       break;
     case 201: // M201
@@ -3106,23 +3154,29 @@ Sigma_Exit:
           {
             autoretract_enabled=false;
             retracted[0]=false;
-            #if EXTRUDERS > 1
-              retracted[1]=false;
-            #endif
-            #if EXTRUDERS > 2
-              retracted[2]=false;
-            #endif
+#if EXTRUDERS > 1
+            retracted[1]=false;
+#endif
+#if EXTRUDERS > 2
+            retracted[2]=false;
+#endif
+#if EXTRUDERS > 3
+            retracted[3]=false;
+#endif
           }break;
           case 1: 
           {
             autoretract_enabled=true;
             retracted[0]=false;
-            #if EXTRUDERS > 1
-              retracted[1]=false;
-            #endif
-            #if EXTRUDERS > 2
-              retracted[2]=false;
-            #endif
+#if EXTRUDERS > 1
+            retracted[1]=false;
+#endif
+#if EXTRUDERS > 2
+            retracted[2]=false;
+#endif
+#if EXTRUDERS > 3
+            retracted[3]=false;
+#endif
           }break;
           default:
             SERIAL_ECHO_START;
@@ -3637,7 +3691,7 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
     break;
     case 503: // M503 print settings currently in memory
     {
-        Config_PrintSettings();
+        Config_PrintSettings(code_seen('S') && code_value == 0);
     }
     break;
     #ifdef ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED
@@ -5004,6 +5058,9 @@ void calculate_volumetric_multipliers() {
 	volumetric_multiplier[1] = calculate_volumetric_multiplier(filament_size[1]);
 #if EXTRUDERS > 2
 	volumetric_multiplier[2] = calculate_volumetric_multiplier(filament_size[2]);
-#endif
-#endif
+#if EXTRUDERS > 3
+	volumetric_multiplier[3] = calculate_volumetric_multiplier(filament_size[3]);
+#endif //EXTRUDERS > 3
+#endif //EXTRUDERS > 2
+#endif //EXTRUDERS > 1
 }

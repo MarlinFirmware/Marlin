@@ -200,9 +200,6 @@
 // This is the default power-up mode which can be later using M605.
 #define DEFAULT_DUAL_X_CARRIAGE_MODE 0
 
-// As the x-carriages are independent we can now account for any relative Z offset
-#define EXTRUDER1_Z_OFFSET 0.0           // z offset relative to extruder 0
-
 // Default settings in "Auto-park Mode"
 #define TOOLCHANGE_PARK_ZLIFT   0.2      // the distance to raise Z axis when parking an extruder
 #define TOOLCHANGE_UNPARK_ZLIFT 1        // the distance to raise Z axis when unparking an extruder
