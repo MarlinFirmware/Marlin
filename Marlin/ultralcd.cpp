@@ -22,7 +22,7 @@ int absPreheatHPBTemp;
 int absPreheatFanSpeed;
 
 #ifdef FILAMENT_LCD_DISPLAY
-  unsigned long message_millis = 0;
+  millis_t previous_lcd_status_ms = 0;
 #endif
 
 /* !Configuration settings */
@@ -76,8 +76,6 @@ static void lcd_status_screen();
     static void _lcd_level_bed_homing();
     static void lcd_level_bed();
   #endif
-
-  static void lcd_quick_feedback();//Cause an LCD refresh, and give the user visual or audible feedback that something has happened
 
   /* Different types of actions that can be used in menu items. */
   static void menu_action_back(menuFunc_t data);
@@ -220,7 +218,7 @@ static void lcd_status_screen();
     volatile uint8_t slow_buttons; // Bits of the pressed buttons.
   #endif
   uint8_t currentMenuViewOffset;              /* scroll offset in the current menu */
-  uint32_t blocking_enc;
+  millis_t next_button_update_ms;
   uint8_t lastEncoderBits;
   uint32_t encoderPosition;
   #if (SDCARDDETECT > 0)
@@ -230,7 +228,7 @@ static void lcd_status_screen();
 #endif // ULTIPANEL
 
 menuFunc_t currentMenu = lcd_status_screen; /* function pointer to the currently active menu */
-uint32_t lcd_next_update_millis;
+millis_t next_lcd_update_ms;
 uint8_t lcd_status_update_delay;
 bool ignore_click = false;
 bool wait_for_unclick;
@@ -267,7 +265,7 @@ static void lcd_status_screen() {
 	encoderRateMultiplierEnabled = false;
 
   #ifdef LCD_PROGRESS_BAR
-    unsigned long ms = millis();
+    millis_t ms = millis();
     #ifndef PROGRESS_MSG_ONCE
       if (ms > progressBarTick + PROGRESS_BAR_MSG_TIME + PROGRESS_BAR_BAR_TIME) {
         progressBarTick = ms;
@@ -324,7 +322,7 @@ static void lcd_status_screen() {
         #endif
       );
       #ifdef FILAMENT_LCD_DISPLAY
-        message_millis = millis();  // get status message to show up for a while
+        previous_lcd_status_ms = millis();  // get status message to show up for a while
       #endif
     }
 
@@ -433,7 +431,7 @@ void lcd_set_home_offsets() {
   plan_set_position(0.0, 0.0, 0.0, current_position[E_AXIS]);
 
   // Audio feedback
-  enquecommands_P(PSTR("M300 S659 P200\nM300 S698 P200"));
+  enqueuecommands_P(PSTR("M300 S659 P200\nM300 S698 P200"));
   lcd_return_to_status();
 }
 
@@ -1114,15 +1112,15 @@ menu_edit_type(unsigned long, long5, ftostr5, 0.01)
     lcd_move_y();
   }
   static void reprapworld_keypad_move_home() {
-    enquecommands_P((PSTR("G28"))); // move all axis home
+    enqueuecommands_P((PSTR("G28"))); // move all axis home
   }
 #endif //REPRAPWORLD_KEYPAD
 
 /** End of menus **/
 
-static void lcd_quick_feedback() {
+void lcd_quick_feedback() {
   lcdDrawUpdate = 2;
-  blocking_enc = millis() + 500;
+  next_button_update_ms = millis() + 500;
     
   #ifdef LCD_USE_I2C_BUZZER
     #ifndef LCD_FEEDBACK_FREQUENCY_HZ
@@ -1140,15 +1138,15 @@ static void lcd_quick_feedback() {
     #ifndef LCD_FEEDBACK_FREQUENCY_DURATION_MS
       #define LCD_FEEDBACK_FREQUENCY_DURATION_MS 2
     #endif
-    const unsigned int delay = 1000000 / LCD_FEEDBACK_FREQUENCY_HZ / 2;
-    int i = LCD_FEEDBACK_FREQUENCY_DURATION_MS * LCD_FEEDBACK_FREQUENCY_HZ / 1000;
+    const uint16_t delay = 1000000 / LCD_FEEDBACK_FREQUENCY_HZ / 2;
+    uint16_t i = LCD_FEEDBACK_FREQUENCY_DURATION_MS * LCD_FEEDBACK_FREQUENCY_HZ / 1000;
     while (i--) {
       WRITE(BEEPER,HIGH);
       delayMicroseconds(delay);
       WRITE(BEEPER,LOW);
       delayMicroseconds(delay);
     }
-    const int j = max(10000 - LCD_FEEDBACK_FREQUENCY_DURATION_MS * 1000, 0);
+    const uint16_t j = max(10000 - LCD_FEEDBACK_FREQUENCY_DURATION_MS * 1000, 0);
     if (j) delayMicroseconds(j);
   #endif
 }
@@ -1156,15 +1154,15 @@ static void lcd_quick_feedback() {
 /** Menu action functions **/
 static void menu_action_back(menuFunc_t data) { lcd_goto_menu(data); }
 static void menu_action_submenu(menuFunc_t data) { lcd_goto_menu(data); }
-static void menu_action_gcode(const char* pgcode) { enquecommands_P(pgcode); }
+static void menu_action_gcode(const char* pgcode) { enqueuecommands_P(pgcode); }
 static void menu_action_function(menuFunc_t data) { (*data)(); }
 static void menu_action_sdfile(const char* filename, char* longFilename) {
   char cmd[30];
   char* c;
   sprintf_P(cmd, PSTR("M23 %s"), filename);
   for(c = &cmd[4]; *c; c++) *c = tolower(*c);
-  enquecommand(cmd);
-  enquecommands_P(PSTR("M24"));
+  enqueuecommand(cmd);
+  enqueuecommands_P(PSTR("M24"));
   lcd_return_to_status();
 }
 static void menu_action_sddirectory(const char* filename, char* longFilename) {
@@ -1252,7 +1250,7 @@ int lcd_strlen_P(const char *s) {
 
 void lcd_update() {
   #ifdef ULTIPANEL
-    static unsigned long timeoutToStatus = 0;
+    static millis_t return_to_status_ms = 0;
   #endif
 
   #ifdef LCD_HAS_SLOW_BUTTONS
@@ -1282,8 +1280,8 @@ void lcd_update() {
     }
   #endif//CARDINSERTED
   
-  uint32_t ms = millis();
-  if (ms > lcd_next_update_millis) {
+  millis_t ms = millis();
+  if (ms > next_lcd_update_ms) {
 
     #ifdef ULTIPANEL
 
@@ -1335,7 +1333,7 @@ void lcd_update() {
           encoderPosition += (encoderDiff * encoderMultiplier) / ENCODER_PULSES_PER_STEP;
           encoderDiff = 0;
         }
-        timeoutToStatus = ms + LCD_TIMEOUT_TO_STATUS;
+        return_to_status_ms = ms + LCD_TIMEOUT_TO_STATUS;
         lcdDrawUpdate = 1;
       }
     #endif //ULTIPANEL
@@ -1371,20 +1369,24 @@ void lcd_update() {
     #endif
 
     #ifdef ULTIPANEL
+
+      // Return to Status Screen after a timeout
       if (currentMenu != lcd_status_screen &&
-        #if defined(MANUAL_BED_LEVELING)
-          currentMenu != _lcd_level_bed && 
-          currentMenu != _lcd_level_bed_homing && 
-        #endif  // MANUAL_BED_LEVELING
-          millis() > timeoutToStatus) {
+        #ifdef MANUAL_BED_LEVELING
+          currentMenu != _lcd_level_bed &&
+          currentMenu != _lcd_level_bed_homing &&
+        #endif
+        millis() > return_to_status_ms
+      ) {
         lcd_return_to_status();
         lcdDrawUpdate = 2;
       }
-    #endif //ULTIPANEL
+
+    #endif // ULTIPANEL
 
     if (lcdDrawUpdate == 2) lcd_implementation_clear();
     if (lcdDrawUpdate) lcdDrawUpdate--;
-    lcd_next_update_millis = millis() + LCD_UPDATE_INTERVAL;
+    next_lcd_update_ms = millis() + LCD_UPDATE_INTERVAL;
   }
 }
 
@@ -1403,7 +1405,7 @@ void lcd_finishstatus(bool persist=false) {
   lcdDrawUpdate = 2;
 
   #ifdef FILAMENT_LCD_DISPLAY
-    message_millis = millis();  //get status message to show up for a while
+    previous_lcd_status_ms = millis();  //get status message to show up for a while
   #endif
 }
 
@@ -1473,7 +1475,7 @@ void lcd_buttons_update() {
     if (READ(BTN_EN1) == 0) newbutton |= EN_A;
     if (READ(BTN_EN2) == 0) newbutton |= EN_B;
     #if BTN_ENC > 0
-      if (millis() > blocking_enc && READ(BTN_ENC) == 0) newbutton |= EN_C;
+      if (millis() > next_button_update_ms && READ(BTN_ENC) == 0) newbutton |= EN_C;
     #endif
     buttons = newbutton;
     #ifdef LCD_HAS_SLOW_BUTTONS
@@ -1797,7 +1799,7 @@ char *ftostr52(const float &x) {
       if (max_software_endstops && current_position[Z_AXIS] > Z_MAX_POS) current_position[Z_AXIS] = Z_MAX_POS;
       encoderPosition = 0;
       line_to_current();
-      lcdDrawUpdate = 1;
+      lcdDrawUpdate = 2;
     }
     if (lcdDrawUpdate) lcd_implementation_drawedit(PSTR("Z"), ftostr43(current_position[Z_AXIS]));
     static bool debounce_click = false;
@@ -1815,7 +1817,7 @@ char *ftostr52(const float &x) {
           current_position[Z_AXIS] = MESH_HOME_SEARCH_Z;
           line_to_current();
           mbl.active = 1;
-          enquecommands_P(PSTR("G28"));
+          enqueuecommands_P(PSTR("G28"));
           lcd_return_to_status();
         } else {
           current_position[Z_AXIS] = MESH_HOME_SEARCH_Z;
@@ -1828,7 +1830,7 @@ char *ftostr52(const float &x) {
           current_position[X_AXIS] = mbl.get_x(ix);
           current_position[Y_AXIS] = mbl.get_y(iy);
           line_to_current();
-          lcdDrawUpdate = 1;
+          lcdDrawUpdate = 2;
         }
       }
     } else {
@@ -1837,6 +1839,7 @@ char *ftostr52(const float &x) {
   }
 
   static void _lcd_level_bed_homing() {
+    if (lcdDrawUpdate) lcd_implementation_drawedit(PSTR("XYZ"), "Homing");
     if (axis_known_position[X_AXIS] &&
         axis_known_position[Y_AXIS] &&
         axis_known_position[Z_AXIS]) {
@@ -1848,6 +1851,7 @@ char *ftostr52(const float &x) {
       _lcd_level_bed_position = 0;
       lcd_goto_menu(_lcd_level_bed);
     }
+    lcdDrawUpdate = 2;
   }
 
   static void lcd_level_bed() {
@@ -1855,7 +1859,8 @@ char *ftostr52(const float &x) {
     axis_known_position[Y_AXIS] = false;
     axis_known_position[Z_AXIS] = false;
     mbl.reset();
-    enquecommands_P(PSTR("G28"));
+    enqueuecommands_P(PSTR("G28"));
+    lcdDrawUpdate = 2;
     lcd_goto_menu(_lcd_level_bed_homing);
   }
 
