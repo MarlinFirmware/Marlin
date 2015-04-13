@@ -287,7 +287,7 @@
 #define MSG_HEATING_DONE                 "Heating done."
 #define MSG_BED_HEATING_PROCESS          "Bed Heating."
 #define MSG_BED_HEATING_DONE             "Bed done."
-#define MSG_ENDSTOPS_                    "endstops hit: "
+#define MSG_ENDSTOPS_TOUCH               "endstops hit: "
 #endif
 
 
@@ -450,7 +450,7 @@
 #define MSG_HEATING_DONE                 "Chauffe terminee."
 #define MSG_BED_HEATING_PROCESS          "Plateau en chauffe."
 #define MSG_BED_HEATING_DONE             "Plateau OK."
-#define MSG_ENDSTOPS_                    "Butoir touche: "
+#define MSG_ENDSTOPS_TOUCH               "Butoir touche: "
 #endif
 
 
@@ -612,7 +612,7 @@
 #define MSG_HEATING_DONE                 "Heizen abgeschl."
 #define MSG_BED_HEATING_PROCESS          "Bett heizen."
 #define MSG_BED_HEATING_DONE             "Druckbett fertig."
-#define MSG_ENDSTOPS_                    "Endstops erreicht: "
+#define MSG_ENDSTOPS_TOUCH               "Endstops erreicht: "
 #endif
 
 
@@ -774,7 +774,7 @@
 #define MSG_HEATING_DONE                 "Fin calentamiento"
 #define MSG_BED_HEATING_PROCESS          "Calentando cama"
 #define MSG_BED_HEATING_DONE             "Fin cal. cama"
-#define MSG_ENDSTOPS_                    "fin de carrera: "
+#define MSG_ENDSTOPS_TOUCH               "fin de carrera: "
 #endif
 
 
@@ -936,7 +936,7 @@
 #define MSG_HEATING_DONE                 "Riscal. completato."
 #define MSG_BED_HEATING_PROCESS          "Riscal. piano."
 #define MSG_BED_HEATING_DONE             "Riscal.piano complet"
-#define MSG_ENDSTOPS_                    "endstop raggiunto: "
+#define MSG_ENDSTOPS_TOUCH               "endstop raggiunto: "
 #endif
 
 
@@ -1098,7 +1098,7 @@
 #define MSG_HEATING_DONE                 "Aquecimento concl."
 #define MSG_BED_HEATING_PROCESS          "Base a aquecer."
 #define MSG_BED_HEATING_DONE             "Base concluida."
-#define MSG_ENDSTOPS_                    "fim de curso: "
+#define MSG_ENDSTOPS_TOUCH               "fim de curso: "
 #endif
 
 #endif // ifndef LANGUAGE_H
