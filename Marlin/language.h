@@ -70,7 +70,7 @@
   #endif
 #else
   #ifndef MACHINE_NAME
-    #define MACHINE_NAME "Mendel"
+    #define MACHINE_NAME "3D Printer"
   #endif
 #endif
 
