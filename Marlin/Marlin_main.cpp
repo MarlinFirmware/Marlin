@@ -1092,7 +1092,7 @@ inline void set_destination_to_current() { memcpy(destination, current_position,
       // move down slowly until you find the bed
       feedrate = homing_feedrate[Z_AXIS] / 4;
       destination[Z_AXIS] = -10;
-      prepare_move_raw();
+      prepare_move_raw(); // this will also set_current_to_destination
       st_synchronize();
       endstops_hit_on_purpose(); // clear endstop hit flags
       
@@ -1138,7 +1138,8 @@ inline void set_destination_to_current() { memcpy(destination, current_position,
   }
 
   /**
-   * 
+   *  Plan a move to (X, Y, Z) and set the current_position
+   *  The final current_position may not be the one that was requested
    */
   static void do_blocking_move_to(float x, float y, float z) {
     float oldFeedRate = feedrate;
@@ -1150,7 +1151,7 @@ inline void set_destination_to_current() { memcpy(destination, current_position,
       destination[X_AXIS] = x;
       destination[Y_AXIS] = y;
       destination[Z_AXIS] = z;
-      prepare_move_raw();
+      prepare_move_raw(); // this will also set_current_to_destination
       st_synchronize();
 
     #else
@@ -1214,17 +1215,17 @@ inline void set_destination_to_current() { memcpy(destination, current_position,
       destination[X_AXIS] = Z_PROBE_ALLEN_KEY_DEPLOY_X;
       destination[Y_AXIS] = Z_PROBE_ALLEN_KEY_DEPLOY_Y;
       destination[Z_AXIS] = Z_PROBE_ALLEN_KEY_DEPLOY_Z;
-      prepare_move_raw();
+      prepare_move_raw(); // this will also set_current_to_destination
 
       // Home X to touch the belt
       feedrate = homing_feedrate[X_AXIS]/10;
       destination[X_AXIS] = 0;
-      prepare_move_raw();
+      prepare_move_raw(); // this will also set_current_to_destination
       
       // Home Y for safety
       feedrate = homing_feedrate[X_AXIS]/2;
       destination[Y_AXIS] = 0;
-      prepare_move_raw();
+      prepare_move_raw(); // this will also set_current_to_destination
       
       st_synchronize();
 
@@ -1256,7 +1257,7 @@ inline void set_destination_to_current() { memcpy(destination, current_position,
       if (servo_endstops[Z_AXIS] >= 0) {
 
         #if Z_RAISE_AFTER_PROBING > 0
-          do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS] + Z_RAISE_AFTER_PROBING);
+          do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS] + Z_RAISE_AFTER_PROBING); // this also updates current_position
           st_synchronize();
         #endif
 
@@ -1277,29 +1278,29 @@ inline void set_destination_to_current() { memcpy(destination, current_position,
       // Move up for safety
       feedrate = homing_feedrate[X_AXIS];
       destination[Z_AXIS] = current_position[Z_AXIS] + Z_RAISE_AFTER_PROBING;
-      prepare_move_raw();
+      prepare_move_raw(); // this will also set_current_to_destination
 
       // Move to the start position to initiate retraction
       destination[X_AXIS] = Z_PROBE_ALLEN_KEY_STOW_X;
       destination[Y_AXIS] = Z_PROBE_ALLEN_KEY_STOW_Y;
       destination[Z_AXIS] = Z_PROBE_ALLEN_KEY_STOW_Z;
-      prepare_move_raw();
+      prepare_move_raw(); // this will also set_current_to_destination
 
       // Move the nozzle down to push the probe into retracted position
       feedrate = homing_feedrate[Z_AXIS]/10;
       destination[Z_AXIS] = current_position[Z_AXIS] - Z_PROBE_ALLEN_KEY_STOW_DEPTH;
-      prepare_move_raw();
+      prepare_move_raw(); // this will also set_current_to_destination
       
       // Move up for safety
       feedrate = homing_feedrate[Z_AXIS]/2;
       destination[Z_AXIS] = current_position[Z_AXIS] + Z_PROBE_ALLEN_KEY_STOW_DEPTH * 2;
-      prepare_move_raw();
+      prepare_move_raw(); // this will also set_current_to_destination
       
       // Home XY for safety
       feedrate = homing_feedrate[X_AXIS]/2;
       destination[X_AXIS] = 0;
       destination[Y_AXIS] = 0;
-      prepare_move_raw();
+      prepare_move_raw(); // this will also set_current_to_destination
       
       st_synchronize();
 
@@ -1333,8 +1334,8 @@ inline void set_destination_to_current() { memcpy(destination, current_position,
   // Probe bed height at position (x,y), returns the measured z value
   static float probe_pt(float x, float y, float z_before, ProbeAction retract_action=ProbeDeployAndStow, int verbose_level=1) {
     // move to right place
-    do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], z_before);
-    do_blocking_move_to(x - X_PROBE_OFFSET_FROM_EXTRUDER, y - Y_PROBE_OFFSET_FROM_EXTRUDER, current_position[Z_AXIS]);
+    do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], z_before); // this also updates current_position
+    do_blocking_move_to(x - X_PROBE_OFFSET_FROM_EXTRUDER, y - Y_PROBE_OFFSET_FROM_EXTRUDER, current_position[Z_AXIS]); // this also updates current_position
 
     #if !defined(Z_PROBE_SLED) && !defined(Z_PROBE_ALLEN_KEY)
       if (retract_action & ProbeDeploy) deploy_z_probe();
@@ -1345,7 +1346,7 @@ inline void set_destination_to_current() { memcpy(destination, current_position,
 
     #if Z_RAISE_BETWEEN_PROBINGS > 0
       if (retract_action == ProbeStay) {
-        do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS] + Z_RAISE_BETWEEN_PROBINGS);
+        do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS] + Z_RAISE_BETWEEN_PROBINGS); // this also updates current_position
         st_synchronize();
       }
     #endif
@@ -1624,12 +1625,12 @@ static void homeaxis(AxisEnum axis) {
     }
 
     if (dock) {
-      do_blocking_move_to(X_MAX_POS + SLED_DOCKING_OFFSET + offset, current_position[Y_AXIS], current_position[Z_AXIS]);
+      do_blocking_move_to(X_MAX_POS + SLED_DOCKING_OFFSET + offset, current_position[Y_AXIS], current_position[Z_AXIS]); // this also updates current_position
       digitalWrite(SERVO0_PIN, LOW); // turn off magnet
     } else {
       float z_loc = current_position[Z_AXIS];
       if (z_loc < Z_RAISE_BEFORE_PROBING + 5) z_loc = Z_RAISE_BEFORE_PROBING;
-      do_blocking_move_to(X_MAX_POS + SLED_DOCKING_OFFSET + offset, Y_PROBE_OFFSET_FROM_EXTRUDER, z_loc);
+      do_blocking_move_to(X_MAX_POS + SLED_DOCKING_OFFSET + offset, Y_PROBE_OFFSET_FROM_EXTRUDER, z_loc); // this also updates current_position
       digitalWrite(SERVO0_PIN, HIGH); // turn on magnet
     }
   }
@@ -2961,8 +2962,8 @@ inline void gcode_M42() {
     if (deploy_probe_for_each_reading) stow_z_probe();
 
     for (uint8_t n=0; n < n_samples; n++) {
-
-      do_blocking_move_to(X_probe_location, Y_probe_location, Z_start_location); // Make sure we are at the probe location
+      // Make sure we are at the probe location
+      do_blocking_move_to(X_probe_location, Y_probe_location, Z_start_location); // this also updates current_position
 
       if (n_legs) {
         millis_t ms = millis();
@@ -2992,11 +2993,12 @@ inline void gcode_M42() {
             SERIAL_EOL;
           }
 
-          do_blocking_move_to(X_current, Y_current, Z_current);
+          do_blocking_move_to(X_current, Y_current, Z_current); // this also updates current_position
 
         } // n_legs loop
 
-        do_blocking_move_to(X_probe_location, Y_probe_location, Z_start_location); // Go back to the probe location
+        // Go back to the probe location
+        do_blocking_move_to(X_probe_location, Y_probe_location, Z_start_location); // this also updates current_position
 
       } // n_legs
 
@@ -5501,7 +5503,7 @@ void prepare_move() {
       //SERIAL_ECHOPGM("delta[Y_AXIS]="); SERIAL_ECHOLN(delta[Y_AXIS]);
       //SERIAL_ECHOPGM("delta[Z_AXIS]="); SERIAL_ECHOLN(delta[Z_AXIS]);
 
-      plan_buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], destination[E_AXIS], feedrate*feedmultiply/60/100.0, active_extruder);
+      plan_buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], destination[E_AXIS], feedrate/60*feedmultiply/100.0, active_extruder);
     }
 
   #endif // SCARA
@@ -5528,7 +5530,7 @@ void prepare_move() {
       #ifdef ENABLE_AUTO_BED_LEVELING
         adjust_delta(destination);
       #endif
-      plan_buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], destination[E_AXIS], feedrate*feedmultiply/60/100.0, active_extruder);
+      plan_buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], destination[E_AXIS], feedrate/60*feedmultiply/100.0, active_extruder);
     }
 
   #endif // DELTA
