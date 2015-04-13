@@ -2,11 +2,21 @@
  * English
  *
  * LCD Menu Messages
- * Please note these are limited to 17 characters!
+ * Se also documentation/LCDLanguageFont.md
  *
  */
 #ifndef LANGUAGE_EN_H
 #define LANGUAGE_EN_H
+
+#if !( defined(MAPPER_NON)|| defined(MAPPER_C2C3)|| defined(MAPPER_D0D1)|| defined(MAPPER_D0D1_MOD)|| defined(MAPPER_E382E383) )
+  #define MAPPER_NON         // For direct asci codes
+#endif
+
+//#define SIMULATE_ROMFONT //Comment in to see what is seen on the character based displays
+#if !( defined(SIMULATE_ROMFONT)|| defined(DISPLAY_CHARSET_ISO10646_1)|| defined(DISPLAY_CHARSET_ISO10646_5)|| defined(DISPLAY_CHARSET_ISO10646_KANA) )
+  #define DISPLAY_CHARSET_ISO10646_1 // use the better font on full graphic displays.
+#endif
+
 
 #ifndef WELCOME_MSG
 #define WELCOME_MSG                         MACHINE_NAME " ready."
@@ -95,6 +105,9 @@
 #ifndef MSG_MOVE_AXIS
 #define MSG_MOVE_AXIS                       "Move axis"
 #endif
+#ifndef MSG_LEVEL_BED
+#define MSG_LEVEL_BED                       "Level bed"
+#endif
 #ifndef MSG_MOVE_X
 #define MSG_MOVE_X                          "Move X"
 #endif
@@ -156,13 +169,13 @@
 #define MSG_CONTROL                         "Control"
 #endif
 #ifndef MSG_MIN
-#define MSG_MIN                             " " STR_THERMOMETER " Min"
+#define MSG_MIN                             " "LCD_STR_THERMOMETER " Min"
 #endif
 #ifndef MSG_MAX
-#define MSG_MAX                             " " STR_THERMOMETER " Max"
+#define MSG_MAX                             " "LCD_STR_THERMOMETER " Max"
 #endif
 #ifndef MSG_FACTOR
-#define MSG_FACTOR                          " " STR_THERMOMETER " Fact"
+#define MSG_FACTOR                          " "LCD_STR_THERMOMETER " Fact"
 #endif
 #ifndef MSG_AUTOTEMP
 #define MSG_AUTOTEMP                        "Autotemp"
@@ -258,7 +271,7 @@
 #define MSG_VOLUMETRIC                      "Filament"
 #endif
 #ifndef MSG_VOLUMETRIC_ENABLED
-#define MSG_VOLUMETRIC_ENABLED              "E in mm" STR_h3
+#define MSG_VOLUMETRIC_ENABLED              "E in mm3"
 #endif
 #ifndef MSG_FILAMENT_SIZE_EXTRUDER_0
 #define MSG_FILAMENT_SIZE_EXTRUDER_0        "Fil. Dia. 1"
@@ -403,6 +416,12 @@
 #endif
 #ifndef MSG_ERR_MAXTEMP_BED
 #define MSG_ERR_MAXTEMP_BED                 "Err: MAXTEMP BED"
+#endif
+#ifndef MSG_END_HOUR
+#define MSG_END_HOUR                        "hours"
+#endif
+#ifndef MSG_END_MINUTE
+#define MSG_END_MINUTE                      "minutes"
 #endif
 
 #ifdef DELTA_CALIBRATION_MENU
