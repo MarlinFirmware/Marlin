@@ -3957,7 +3957,7 @@ inline void gcode_M226() {
 
 #endif // NUM_SERVOS > 0
 
-#if defined(LARGE_FLASH) && (BEEPER > 0 || defined(ULTRALCD) || defined(LCD_USE_I2C_BUZZER))
+#if BEEPER > 0 || defined(ULTRALCD) || defined(LCD_USE_I2C_BUZZER)
 
   /**
    * M300: Play beep sound S<frequency Hz> P<duration ms>
@@ -3981,7 +3981,7 @@ inline void gcode_M226() {
     }
   }
 
-#endif // LARGE_FLASH && (BEEPER>0 || ULTRALCD || LCD_USE_I2C_BUZZER)
+#endif // BEEPER>0 || ULTRALCD || LCD_USE_I2C_BUZZER
 
 #ifdef PIDTEMP
 
@@ -4455,24 +4455,10 @@ inline void gcode_M503() {
     LCD_ALERTMESSAGEPGM(MSG_FILAMENTCHANGE);
     uint8_t cnt = 0;
     while (!lcd_clicked()) {
-      cnt++;
+      if (++cnt == 0) lcd_quick_feedback(); // every 256th frame till the lcd is clicked
       manage_heater();
       manage_inactivity(true);
       lcd_update();
-      if (cnt == 0) {
-        #if BEEPER > 0
-          OUT_WRITE(BEEPER,HIGH);
-          delay(3);
-          WRITE(BEEPER,LOW);
-          delay(3);
-        #else
-          #if !defined(LCD_FEEDBACK_FREQUENCY_HZ) || !defined(LCD_FEEDBACK_FREQUENCY_DURATION_MS)
-            lcd_buzz(1000/6, 100);
-          #else
-            lcd_buzz(LCD_FEEDBACK_FREQUENCY_DURATION_MS, LCD_FEEDBACK_FREQUENCY_HZ);
-          #endif
-        #endif
-      }
     } // while(!lcd_clicked)
 
     //return to normal
@@ -5061,11 +5047,11 @@ void process_commands() {
           break;
       #endif // NUM_SERVOS > 0
 
-      #if defined(LARGE_FLASH) && (BEEPER > 0 || defined(ULTRALCD) || defined(LCD_USE_I2C_BUZZER))
+      #if BEEPER > 0 || defined(ULTRALCD) || defined(LCD_USE_I2C_BUZZER)
         case 300: // M300 - Play beep tone
           gcode_M300();
           break;
-      #endif // LARGE_FLASH && (BEEPER>0 || ULTRALCD || LCD_USE_I2C_BUZZER)
+      #endif // BEEPER > 0 || ULTRALCD || LCD_USE_I2C_BUZZER
 
       #ifdef PIDTEMP
         case 301: // M301

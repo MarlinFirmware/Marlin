@@ -77,8 +77,6 @@ static void lcd_status_screen();
     static void lcd_level_bed();
   #endif
 
-  static void lcd_quick_feedback();//Cause an LCD refresh, and give the user visual or audible feedback that something has happened
-
   /* Different types of actions that can be used in menu items. */
   static void menu_action_back(menuFunc_t data);
   static void menu_action_submenu(menuFunc_t data);
@@ -1120,7 +1118,7 @@ menu_edit_type(unsigned long, long5, ftostr5, 0.01)
 
 /** End of menus **/
 
-static void lcd_quick_feedback() {
+void lcd_quick_feedback() {
   lcdDrawUpdate = 2;
   next_button_update_ms = millis() + 500;
     
