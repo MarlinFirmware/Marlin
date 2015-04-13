@@ -10,14 +10,16 @@
     * [Auto Bed Leveling](/Documentation/BedLeveling.md)
     * [Filament Sensor](/Documentation/FilamentSensor.md)
     * [Ramps Servo Power](/Documentation/RampsServoPower.md)
+    * [LCD Language - Font - System](Documentation/LCDLanguageFont.md)
+    * [Mesh Bed Leveling](/Documentation/MeshBedLeveling.md)
 
 ##### [RepRap.org Wiki Page](http://reprap.org/wiki/Marlin)
 
 ## Quick Information
 
 This is a firmware for reprap single-processor electronics setups.
-It also works on the Ultimaker PCB. It supports printing from SD card+Folders, and look-ahead trajectory planning.
-This firmware is a mashup between [Sprinter](https://github.com/kliment/Sprinter), [grbl](https://github.com/simen/grbl) and many original parts.
+It also works on the Ultimaker PCB. It supports printing from SD card+Folders and look-ahead trajectory planning.
+This firmware is a mashup between [Sprinter](https://github.com/kliment/Sprinter), [grbl](https://github.com/simen/grbl), and many original parts.
 
 ## Current Status: Bug Fixing
 
@@ -27,24 +29,20 @@ We are actively looking for testers. So please try the current development versi
 [![Coverity Scan Build Status](https://scan.coverity.com/projects/2224/badge.svg)](https://scan.coverity.com/projects/2224)
 [![Travis Build Status](https://travis-ci.org/MarlinFirmware/Marlin.svg)](https://travis-ci.org/MarlinFirmware/Marlin)
 
-What bugs are we working on: [Bug Fixing Round 3](https://github.com/MarlinFirmware/Marlin/milestones/Bug%20Fixing%20Round%203)
-
 ## Contact
 
-__IRC:__ #marlin-firmware @freenode ([WebChat Client](https://webchat.freenode.net/?channels=marlin-firmware)
-
-__Mailing List:__ marlin@lists.0l.de ([Subscribe](http://lists.0l.de/mailman/listinfo/marlin), [Archive](http://lists.0l.de/pipermail/marlin/))
+__Google Hangout:__ <a href="https://plus.google.com/hangouts/_/g2wp5duzb2y6ahikg6tmwao3kua" target="_blank">Hangout</a>
 
 ## Credits
 
 The current Marlin dev team consists of:
 
- - Erik van der Zalm ([@ErikZalm](https://github.com/ErikZalm))
- - [@daid](https://github.com/daid)
+ - Scott Lahteine [@thinkyhead]
+ - 
 
 Sprinters lead developers are Kliment and caru.
-Grbls lead developer is Simen Svale Skogsrud.
-Sonney Jeon (Chamnit) improved some parts of grbl
+Grbl's lead developer is Simen Svale Skogsrud.
+Sonney Jeon (Chamnit) improved some parts of grbl.
 A fork by bkubicek for the Ultimaker was merged.
 
 More features have been added by:

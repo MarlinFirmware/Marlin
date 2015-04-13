@@ -2,16 +2,21 @@
  * Portuguese
  *
  * LCD Menu Messages
- * Please note these are limited to 17 characters!
+ * See also documentation/LCDLanguageFont.md
  *
  */
 #ifndef LANGUAGE_PT_H
 #define LANGUAGE_PT_H
 
+#define MAPPER_NON
+// Define SIMULATE_ROMFONT to see what is seen on the character based display defined in Configuration.h
+//#define SIMULATE_ROMFONT
+#define DISPLAY_CHARSET_ISO10646_1
+
 #define WELCOME_MSG                         MACHINE_NAME " pronto."
 #define MSG_SD_INSERTED                     "Cartao inserido"
 #define MSG_SD_REMOVED                      "Cartao removido"
-#define MSG_MAIN                            " Menu principal \003"
+#define MSG_MAIN                            " Menu principal"
 #define MSG_AUTOSTART                       "Autostart"
 #define MSG_DISABLE_STEPPERS                " Desligar motores"
 #define MSG_AUTO_HOME                       "Ir para home"
@@ -20,19 +25,19 @@
 #define MSG_PREHEAT_PLA                     "Pre-aquecer PLA"
 #define MSG_PREHEAT_PLA_N                   "Pre-aquecer PLA "
 #define MSG_PREHEAT_PLA_ALL                 "Pre-aq. PLA Tudo"
-#define MSG_PREHEAT_PLA_BEDONLY             "Pre-aq. PLA \002Base"
+#define MSG_PREHEAT_PLA_BEDONLY             "Pre-aq. PLA " LCD_STR_THERMOMETER "Base"
 #define MSG_PREHEAT_PLA_SETTINGS            "PLA definicoes"
 #define MSG_PREHEAT_ABS                     "Pre-aquecer ABS"
 #define MSG_PREHEAT_ABS_N                   "Pre-aquecer ABS "
 #define MSG_PREHEAT_ABS_ALL                 "Pre-aq. ABS Tudo"
-#define MSG_PREHEAT_ABS_BEDONLY             "Pre-aq. ABS \002Base"
+#define MSG_PREHEAT_ABS_BEDONLY             "Pre-aq. ABS " LCD_STR_THERMOMETER "Base"
 #define MSG_PREHEAT_ABS_SETTINGS            "ABS definicoes"
 #define MSG_COOLDOWN                        "Arrefecer"
 #define MSG_SWITCH_PS_ON                    "Ligar"
 #define MSG_SWITCH_PS_OFF                   "Desligar"
 #define MSG_EXTRUDE                         "Extrudir"
 #define MSG_RETRACT                         "Retrair"
-#define MSG_MOVE_AXIS                       "Mover eixo      \x7E"
+#define MSG_MOVE_AXIS                       "Mover eixo"
 #define MSG_MOVE_X                          "Mover X"
 #define MSG_MOVE_Y                          "Mover Y"
 #define MSG_MOVE_Z                          "Mover Z"
@@ -41,14 +46,14 @@
 #define MSG_MOVE_1MM                        "Mover 1mm"
 #define MSG_MOVE_10MM                       "Mover 10mm"
 #define MSG_SPEED                           "Velocidade"
-#define MSG_NOZZLE                          "\002Bico"
-#define MSG_BED                             "\002Base"
+#define MSG_NOZZLE                          LCD_STR_THERMOMETER "Bico"
+#define MSG_BED                             LCD_STR_THERMOMETER "Base"
 #define MSG_FAN_SPEED                       "Velocidade do ar."
 #define MSG_FLOW                            "Fluxo"
-#define MSG_CONTROL                         "Controlo \003"
-#define MSG_MIN                             "\002 Min"
-#define MSG_MAX                             "\002 Max"
-#define MSG_FACTOR                          "\002 Fact"
+#define MSG_CONTROL                         "Controlo"
+#define MSG_MIN                             LCD_STR_THERMOMETER " Min"
+#define MSG_MAX                             LCD_STR_THERMOMETER " Max"
+#define MSG_FACTOR                          LCD_STR_THERMOMETER " Fact"
 #define MSG_AUTOTEMP                        "Autotemp"
 #define MSG_ON                              "On "
 #define MSG_OFF                             "Off"
@@ -76,7 +81,7 @@
 #define MSG_TEMPERATURE                     "Temperatura"
 #define MSG_MOTION                          "Movimento"
 #define MSG_VOLUMETRIC                      "Filamento"
-#define MSG_VOLUMETRIC_ENABLED		        "E in mm3"
+#define MSG_VOLUMETRIC_ENABLED              "E in mm3"
 #define MSG_FILAMENT_SIZE_EXTRUDER_0        "Fil. Diam. 1"
 #define MSG_FILAMENT_SIZE_EXTRUDER_1        "Fil. Diam. 2"
 #define MSG_FILAMENT_SIZE_EXTRUDER_2        "Fil. Diam. 3"
@@ -84,10 +89,10 @@
 #define MSG_STORE_EPROM                     "Guardar na memoria"
 #define MSG_LOAD_EPROM                      "Carregar da memoria"
 #define MSG_RESTORE_FAILSAFE                "Rest. de emergen."
-#define MSG_REFRESH                         "\004Recarregar"
-#define MSG_WATCH                           "Monitorar   \003"
-#define MSG_PREPARE                         "Preparar \x7E"
-#define MSG_TUNE                            "Afinar    \x7E"
+#define MSG_REFRESH                         LCD_STR_REFRESH " Recarregar"
+#define MSG_WATCH                           "Monitorar"
+#define MSG_PREPARE                         "Preparar"
+#define MSG_TUNE                            "Afinar"
 #define MSG_PAUSE_PRINT                     "Pausar impressao"
 #define MSG_RESUME_PRINT                    "Resumir impressao"
 #define MSG_STOP_PRINT                      "Parar impressao"
@@ -118,6 +123,8 @@
 #define MSG_BABYSTEP_Y                      "Babystep Y"
 #define MSG_BABYSTEP_Z                      "Babystep Z"
 #define MSG_ENDSTOP_ABORT                   "Endstop abort."
+#define MSG_END_HOUR                        "horas"
+#define MSG_END_MINUTE                      "minutos"
 
 #ifdef DELTA_CALIBRATION_MENU
     #define MSG_DELTA_CALIBRATE             "Delta Calibracao"

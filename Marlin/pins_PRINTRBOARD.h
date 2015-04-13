@@ -59,6 +59,8 @@
 #define TEMP_1_PIN         -1
 #define TEMP_2_PIN         -1
 
+////LCD Pin Setup////
+
 #define SDPOWER            -1
 #define SDSS                8
 #define LED_PIN            -1
@@ -86,3 +88,24 @@
   //not connected to a pin
   #define SDCARDDETECT -1    
 #endif // ULTRA_LCD && NEWPANEL
+
+#if defined(VIKI2) || defined(miniVIKI)
+ #define BEEPER 32 //FastIO
+ // Pins for DOGM SPI LCD Support
+ #define DOGLCD_A0  42 //Non-FastIO
+ #define DOGLCD_CS  43 //Non-FastIO
+ #define LCD_SCREEN_ROT_180
+ 
+ //The encoder and click button (FastIO Pins)
+ #define BTN_EN1 26 
+ #define BTN_EN2 27
+ #define BTN_ENC 47  //the click switch
+
+ #define SDSS 45
+ #define SDCARDDETECT -1 // FastIO (Manual says 72 I'm not certain cause I can't test) 
+
+ #ifdef TEMP_STAT_LEDS
+  #define STAT_LED_RED      12 //Non-FastIO
+  #define STAT_LED_BLUE     10 //Non-FastIO
+ #endif  
+#endif

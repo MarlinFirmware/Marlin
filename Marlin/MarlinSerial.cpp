@@ -76,7 +76,7 @@ void MarlinSerial::begin(long baud) {
   #endif
   
   if (useU2X) {
-    M_UCSRxA = 1 << M_U2Xx;
+    M_UCSRxA = BIT(M_U2Xx);
     baud_setting = (F_CPU / 4 / baud - 1) / 2;
   } else {
     M_UCSRxA = 0;
@@ -268,8 +268,7 @@ void MarlinSerial::printFloat(double number, uint8_t digits) {
   print(int_part);
 
   // Print the decimal point, but only if there are digits beyond
-  if (digits > 0)
-    print("."); 
+  if (digits > 0) print('.');
 
   // Extract digits from the remainder one at a time
   while (digits-- > 0) {
@@ -288,7 +287,6 @@ MarlinSerial MSerial;
 #endif // !AT90USB
 
 // For AT90USB targets use the UART for BT interfacing
-#if defined(AT90USB) && defined (BTENABLED)
-   HardwareSerial bt;
+#if defined(AT90USB) && defined(BTENABLED)
+  HardwareSerial bt;
 #endif
-

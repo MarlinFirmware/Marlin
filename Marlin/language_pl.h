@@ -2,11 +2,16 @@
  * Polish
  *
  * LCD Menu Messages
- * Please note these are limited to 17 characters!
+ * See also documentation/LCDLanguageFont.md
  *
  */
 #ifndef LANGUAGE_PL_H
 #define LANGUAGE_PL_H
+
+#define MAPPER_NON
+// Define SIMULATE_ROMFONT to see what is seen on the character based display defined in Configuration.h
+//#define SIMULATE_ROMFONT
+#define DISPLAY_CHARSET_ISO10646_1
 
 #define WELCOME_MSG                         MACHINE_NAME " gotowy."
 #define MSG_SD_INSERTED                     "Karta wlozona"
@@ -46,9 +51,9 @@
 #define MSG_FAN_SPEED                       "Obroty wiatraka"
 #define MSG_FLOW                            "Przeplyw"
 #define MSG_CONTROL                         "Ustawienia"
-#define MSG_MIN                             " \002 Min"
-#define MSG_MAX                             " \002 Max"
-#define MSG_FACTOR                          " \002 Mnoznik"
+#define MSG_MIN                             LCD_STR_THERMOMETER " Min"
+#define MSG_MAX                             LCD_STR_THERMOMETER " Max"
+#define MSG_FACTOR                          LCD_STR_THERMOMETER " Mnoznik"
 #define MSG_AUTOTEMP                        "Auto. temperatura"
 #define MSG_ON                              "Wl. "
 #define MSG_OFF                             "Wyl."
@@ -84,7 +89,7 @@
 #define MSG_STORE_EPROM                     "Zapisz w pamieci"
 #define MSG_LOAD_EPROM                      "Wczytaj z pamieci"
 #define MSG_RESTORE_FAILSAFE                "Ustaw. fabryczne"
-#define MSG_REFRESH                         "\004Odswiez"
+#define MSG_REFRESH                         LCD_STR_REFRESH " Odswiez"
 #define MSG_WATCH                           "Ekran glowny"
 #define MSG_PREPARE                         "Przygotuj"
 #define MSG_TUNE                            "Strojenie"
@@ -118,6 +123,9 @@
 #define MSG_BABYSTEP_Y                      "Babystep Y"
 #define MSG_BABYSTEP_Z                      "Babystep Z"
 #define MSG_ENDSTOP_ABORT                   "Blad wyl. kranc."
+#define MSG_END_HOUR                        "hours"
+#define MSG_END_MINUTE                      "minutes"
+
 
 #ifdef DELTA_CALIBRATION_MENU
     #define MSG_DELTA_CALIBRATE             "Delta Calibration"
