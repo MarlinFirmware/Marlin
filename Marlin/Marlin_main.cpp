@@ -888,7 +888,7 @@ void get_command() {
   #endif // SDSUPPORT
 }
 
-float code_has_value() {
+bool code_has_value() {
   char c = *(strchr_pointer + 1);
   return (c >= '0' && c <= '9') || c == '-' || c == '+' || c == '.';
 }
