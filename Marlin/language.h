@@ -110,7 +110,7 @@
 
 // Serial Console Messages (do not translate those!)
 
-#define MSG_Enqueing                        "enqueing \""
+#define MSG_Enqueueing                      "enqueueing \""
 #define MSG_POWERUP                         "PowerUp"
 #define MSG_EXTERNAL_RESET                  " External Reset"
 #define MSG_BROWNOUT_RESET                  " Brown out Reset"

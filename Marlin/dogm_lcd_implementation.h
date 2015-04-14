@@ -269,8 +269,8 @@ static void lcd_implementation_status_screen() {
     }
 
     u8g.setPrintPos(80,48);
-    if (starttime != 0) {
-      uint16_t time = (millis() - starttime) / 60000;
+    if (print_job_start_ms != 0) {
+      uint16_t time = (millis() - print_job_start_ms) / 60000;
       lcd_print(itostr2(time/60));
       lcd_print(':');
       lcd_print(itostr2(time%60));
@@ -337,7 +337,7 @@ static void lcd_implementation_status_screen() {
   lcd_print(LCD_STR_FEEDRATE[0]);
   lcd_setFont(FONT_STATUSMENU);
   u8g.setPrintPos(12,49);
-  lcd_print(itostr3(feedmultiply));
+  lcd_print(itostr3(feedrate_multiplier));
   lcd_print('%');
 
   // Status line
