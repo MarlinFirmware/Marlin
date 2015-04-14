@@ -1159,25 +1159,6 @@ static void run_z_probe() {
     plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
 }
 
-static void do_blocking_move_to(float x, float y, float z) {
-    float oldFeedRate = feedrate;
-
-    feedrate = homing_feedrate[Z_AXIS];
-
-    current_position[Z_AXIS] = z;
-    plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
-    st_synchronize();
-
-    feedrate = XY_TRAVEL_SPEED;
-
-    current_position[X_AXIS] = x;
-    current_position[Y_AXIS] = y;
-    plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
-    st_synchronize();
-
-    feedrate = oldFeedRate;
-}
-
 static void do_blocking_move_relative(float offset_x, float offset_y, float offset_z) {
     do_blocking_move_to(current_position[X_AXIS] + offset_x, current_position[Y_AXIS] + offset_y, current_position[Z_AXIS] + offset_z);
 }
@@ -1262,6 +1243,28 @@ static float probe_pt(float x, float y, float z_before, int retract_action=0) {
 }
 
 #endif // #ifdef ENABLE_AUTO_BED_LEVELING
+
+#if defined (ENABLE_AUTO_BED_LEVELING) || defined (WITBOX)
+static void do_blocking_move_to(float x, float y, float z) {
+    float oldFeedRate = feedrate;
+
+    feedrate = homing_feedrate[Z_AXIS];
+
+    current_position[Z_AXIS] = z;
+    plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
+    st_synchronize();
+
+    feedrate = XY_TRAVEL_SPEED;
+
+    current_position[X_AXIS] = x;
+    current_position[Y_AXIS] = y;
+    plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
+    st_synchronize();
+
+    feedrate = oldFeedRate;
+}
+#endif // #if defined (ENABLE_AUTO_BED_LEVELING) || defined (WITBOX)
+
 
 static void homeaxis(int axis) {
 #define HOMEAXIS_DO(LETTER) \

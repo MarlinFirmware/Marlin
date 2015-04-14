@@ -650,15 +650,20 @@ void Config_PrintSettings(bool forReplay) {
     }
   }
 
-  #ifdef CUSTOM_M_CODES
+  #ifdef ENABLE_AUTO_BED_LEVELING
     SERIAL_ECHO_START;
-    if (!forReplay) {
-      SERIAL_ECHOLNPGM("Z-Probe Offset (mm):");
-      SERIAL_ECHO_START;
-    }
-    SERIAL_ECHO("   M");
-    SERIAL_ECHO(CUSTOM_M_CODE_SET_Z_PROBE_OFFSET);
-    SERIAL_ECHOPAIR(" Z", -zprobe_zoffset);
+    #ifdef CUSTOM_M_CODES
+      if (!forReplay) {
+        SERIAL_ECHOLNPGM("Z-Probe Offset (mm):");
+        SERIAL_ECHO_START;
+      }
+      SERIAL_ECHOPAIR("  M", (unsigned long)CUSTOM_M_CODE_SET_Z_PROBE_OFFSET);
+      SERIAL_ECHOPAIR(" Z", -zprobe_zoffset);
+    #else
+      if (!forReplay) {
+        SERIAL_ECHOPAIR("Z-Probe Offset (mm):", -zprobe_zoffset);
+      }
+    #endif
     SERIAL_EOL;
   #endif
 }
