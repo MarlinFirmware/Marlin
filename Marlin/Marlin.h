@@ -247,7 +247,7 @@ inline void refresh_cmd_timeout() { previous_cmd_ms = millis(); }
 
 extern float homing_feedrate[];
 extern bool axis_relative_modes[];
-extern int feedmultiply;
+extern int feedrate_multiplier;
 extern bool volumetric_enabled;
 extern int extruder_multiply[EXTRUDERS]; // sets extrude multiply factor (in percent) for each extruder individually
 extern float filament_size[EXTRUDERS]; // cross-sectional area of filament (in millimeters), typically around 1.75 or 2.85, 0 disables the volumetric calculations for the extruder.
@@ -309,8 +309,8 @@ extern int fanSpeed;
   extern float retract_recover_length, retract_recover_length_swap, retract_recover_feedrate;
 #endif
 
-extern millis_t starttime;
-extern millis_t stoptime;
+extern millis_t print_job_start_ms;
+extern millis_t print_job_stop_ms;
 
 // Handling multiple extruders pins
 extern uint8_t active_extruder;

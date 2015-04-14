@@ -98,19 +98,13 @@ static volatile bool endstop_z_probe_hit = false; // Leaving this in even if Z_P
 #if HAS_Y_MAX
   static bool old_y_max_endstop = false;
 #endif
-#if HAS_Z_MIN
-  static bool old_z_min_endstop = false;
-#endif
-#if HAS_Z_MAX
-  static bool old_z_max_endstop = false;
-#endif
+
+static bool old_z_min_endstop = false;
+static bool old_z_max_endstop = false;
+
 #ifdef Z_DUAL_ENDSTOPS
-  // #if HAS_Z2_MIN
-    static bool old_z2_min_endstop = false;
-  // #endif
-  // #if HAS_Z2_MAX
-    static bool old_z2_max_endstop = false;
-  // #endif
+  static bool old_z2_min_endstop = false;
+  static bool old_z2_max_endstop = false;
 #endif
 
 #ifdef Z_PROBE_ENDSTOP // No need to check for valid pin, SanityCheck.h already does this.
