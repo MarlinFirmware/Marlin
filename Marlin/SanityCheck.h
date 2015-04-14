@@ -17,8 +17,11 @@
    * Progress Bar
    */
   #ifdef LCD_PROGRESS_BAR
+    #ifndef SDSUPPORT
+      #error LCD_PROGRESS_BAR requires SDSUPPORT.
+    #endif
     #ifdef DOGLCD
-      #warning LCD_PROGRESS_BAR does not apply to graphical displays.
+      #error LCD_PROGRESS_BAR does not apply to graphical displays.
     #endif
     #ifdef FILAMENT_LCD_DISPLAY
       #error LCD_PROGRESS_BAR and FILAMENT_LCD_DISPLAY are not fully compatible. Comment out this line to use both.
@@ -53,7 +56,7 @@
   #if EXTRUDERS > 1
 
     #if EXTRUDERS > 4
-      #error The maximum number of EXTRUDERS is 4.
+      #error The maximum number of EXTRUDERS in Marlin is 4.
     #endif
 
     #ifdef TEMP_SENSOR_1_AS_REDUNDANT
@@ -75,10 +78,32 @@
   #endif // EXTRUDERS > 1
 
   /**
+   * Limited number of servos
+   */
+  #if NUM_SERVOS > 4
+    #error The maximum number of SERVOS in Marlin is 4.
+  #endif
+
+  /**
    * Required LCD language
    */
   #if !defined(DOGLCD) && defined(ULTRA_LCD) && !defined(DISPLAY_CHARSET_HD44780_JAPAN) && !defined(DISPLAY_CHARSET_HD44780_WESTERN)
     #error You must enable either DISPLAY_CHARSET_HD44780_JAPAN or DISPLAY_CHARSET_HD44780_WESTERN for your LCD controller.
+  #endif
+
+  /**
+   * Mesh Bed Leveling
+   */
+  #ifdef MESH_BED_LEVELING
+    #ifdef DELTA
+      #error MESH_BED_LEVELING does not yet support DELTA printers
+    #endif
+    #ifdef ENABLE_AUTO_BED_LEVELING
+      #error Select ENABLE_AUTO_BED_LEVELING or MESH_BED_LEVELING, not both
+    #endif
+    #if MESH_NUM_X_POINTS > 7 || MESH_NUM_Y_POINTS > 7
+      #error MESH_NUM_X_POINTS and MESH_NUM_Y_POINTS need to be less than 8
+    #endif
   #endif
 
   /**
@@ -90,13 +115,39 @@
      * Require a Z Min pin
      */
     #if Z_MIN_PIN == -1
-      #ifdef Z_PROBE_REPEATABILITY_TEST
-        #error You must have a Z_MIN endstop to enable Z_PROBE_REPEATABILITY_TEST.
-      #else
-        #error ENABLE_AUTO_BED_LEVELING requires a Z_MIN endstop. Z_MIN_PIN must point to a valid hardware pin.
+      #if Z_PROBE_PIN == -1 || (!defined(Z_PROBE_ENDSTOP) || defined(DISABLE_Z_PROBE_ENDSTOP)) // It's possible for someone to set a pin for the Z Probe, but not enable it.
+        #ifdef Z_PROBE_REPEATABILITY_TEST
+          #error You must have a Z_MIN or Z_PROBE endstop to enable Z_PROBE_REPEATABILITY_TEST.
+        #else
+          #error ENABLE_AUTO_BED_LEVELING requires a Z_MIN or Z_PROBE endstop. Z_MIN_PIN or Z_PROBE_PIN must point to a valid hardware pin.
+        #endif
       #endif
     #endif
 
+    /**
+     * Require a Z Probe Pin if Z_PROBE_ENDSTOP is enabled.
+     */
+    #if defined(Z_PROBE_ENDSTOP)
+      #ifndef Z_PROBE_PIN
+        #error You must have a Z_PROBE_PIN defined in your pins_XXXX.h file if you enable Z_PROBE_ENDSTOP
+      #endif
+      #if Z_PROBE_PIN == -1
+        #error You must set Z_PROBE_PIN to a valid pin if you enable Z_PROBE_ENDSTOP
+      #endif
+// Forcing Servo definitions can break some hall effect sensor setups. Leaving these here for further comment.
+//      #ifndef NUM_SERVOS
+//        #error You must have NUM_SERVOS defined and there must be at least 1 configured to use Z_PROBE_ENDSTOP
+//      #endif
+//      #if defined(NUM_SERVOS) && NUM_SERVOS < 1
+//        #error You must have at least 1 servo defined for NUM_SERVOS to use Z_PROBE_ENDSTOP
+//      #endif
+//      #ifndef SERVO_ENDSTOPS
+//        #error You must have SERVO_ENDSTOPS defined and have the Z index set to at least 0 or above to use Z_PROBE_ENDSTOP
+//      #endif
+//      #ifndef SERVO_ENDSTOP_ANGLES
+//        #error You must have SERVO_ENDSTOP_ANGLES defined for Z Extend and Retract to use Z_PROBE_AND_ENSTOP
+//      #endif
+    #endif
     /**
      * Check if Probe_Offset * Grid Points is greater than Probing Range
      */
@@ -104,13 +155,13 @@
 
       // Make sure probing points are reachable
       #if LEFT_PROBE_BED_POSITION < MIN_PROBE_X
-        #error The given LEFT_PROBE_BED_POSITION can't be reached by the probe.
+        #error "The given LEFT_PROBE_BED_POSITION can't be reached by the probe."
       #elif RIGHT_PROBE_BED_POSITION > MAX_PROBE_X
-        #error The given RIGHT_PROBE_BED_POSITION can't be reached by the probe.
+        #error "The given RIGHT_PROBE_BED_POSITION can't be reached by the probe."
       #elif FRONT_PROBE_BED_POSITION < MIN_PROBE_Y
-        #error The given FRONT_PROBE_BED_POSITION can't be reached by the probe.
+        #error "The given FRONT_PROBE_BED_POSITION can't be reached by the probe."
       #elif BACK_PROBE_BED_POSITION > MAX_PROBE_Y
-        #error The given BACK_PROBE_BED_POSITION can't be reached by the probe.
+        #error "The given BACK_PROBE_BED_POSITION can't be reached by the probe."
       #endif
 
       #define PROBE_SIZE_X (X_PROBE_OFFSET_FROM_EXTRUDER * (AUTO_BED_LEVELING_GRID_POINTS-1))
@@ -135,7 +186,7 @@
         #define Y_PROBE_ERROR
       #endif
       #ifdef Y_PROBE_ERROR
-        #error The Y axis probing range is to small to fit all the points defined in AUTO_BED_LEVELING_GRID_POINTS
+        #error The Y axis probing range is too small to fit all the points defined in AUTO_BED_LEVELING_GRID_POINTS
       #endif
 
       #undef PROBE_SIZE_X
@@ -206,9 +257,9 @@
    */
   #ifdef DUAL_X_CARRIAGE
     #if EXTRUDERS == 1 || defined(COREXY) \
-        || !defined(X2_ENABLE_PIN) || !defined(X2_STEP_PIN) || !defined(X2_DIR_PIN) \
+        || !HAS_X2_ENABLE || !HAS_X2_STEP || !HAS_X2_DIR \
         || !defined(X2_HOME_POS) || !defined(X2_MIN_POS) || !defined(X2_MAX_POS) \
-        || !defined(X_MAX_PIN) || X_MAX_PIN < 0
+        || !HAS_X_MAX
       #error Missing or invalid definitions for DUAL_X_CARRIAGE mode.
     #endif
     #if X_HOME_DIR != -1 || X2_HOME_DIR != 1
@@ -231,6 +282,10 @@
     #endif
   #endif
 
+  #if HAS_FAN && CONTROLLERFAN_PIN == FAN_PIN
+    #error You cannot set CONTROLLERFAN_PIN equal to FAN_PIN
+  #endif
+
   /**
    * Test required HEATER defines
    */
@@ -249,6 +304,13 @@
   #endif
   #if !HAS_HEATER_0
     #error HEATER_0_PIN not defined for this board
+  #endif
+
+  /**
+   * Warnings for old configurations
+   */
+  #ifdef X_HOME_RETRACT_MM
+    #error [XYZ]_HOME_RETRACT_MM settings have been renamed [XYZ]_HOME_BUMP_MM
   #endif
 
 #endif //SANITYCHECK_H

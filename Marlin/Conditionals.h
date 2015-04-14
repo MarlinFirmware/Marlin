@@ -4,7 +4,13 @@
  */
 #ifndef CONDITIONALS_H
 
+#ifndef M_PI
+  #define M_PI 3.1415926536
+#endif
+
 #ifndef CONFIGURATION_LCD // Get the LCD defines which are needed first
+
+  #define PIN_EXISTS(PN) (defined(PN##_PIN) && PN##_PIN >= 0)
 
   #define CONFIGURATION_LCD
 
@@ -124,7 +130,6 @@
      #define NEWPANEL
   #endif
 
-
   #ifdef ULTIPANEL
     #define NEWPANEL  //enable this if you have a click-encoder panel
     #define SDSUPPORT
@@ -138,14 +143,43 @@
     #endif
   #else //no panel but just LCD
     #ifdef ULTRA_LCD
-    #ifdef DOGLCD // Change number of lines to match the 128x64 graphics display
-      #define LCD_WIDTH 22
-      #define LCD_HEIGHT 5
-    #else
-      #define LCD_WIDTH 16
-      #define LCD_HEIGHT 2
+      #ifdef DOGLCD // Change number of lines to match the 128x64 graphics display
+        #define LCD_WIDTH 22
+        #define LCD_HEIGHT 5
+      #else
+        #define LCD_WIDTH 16
+        #define LCD_HEIGHT 2
+      #endif
     #endif
-    #endif
+  #endif
+
+  #ifdef DOGLCD
+    /* Custom characters defined in font font_6x10_marlin_symbols */
+    // \x00 intentionally skipped to avoid problems in strings
+    #define LCD_STR_REFRESH     "\x01"
+    #define LCD_STR_FOLDER      "\x02"
+    #define LCD_STR_ARROW_RIGHT "\x03"
+    #define LCD_STR_UPLEVEL     "\x04"
+    #define LCD_STR_CLOCK       "\x05"
+    #define LCD_STR_FEEDRATE    "\x06"
+    #define LCD_STR_BEDTEMP     "\x07"
+    #define LCD_STR_THERMOMETER "\x08"
+    #define LCD_STR_DEGREE      "\x09"
+
+    #define LCD_STR_SPECIAL_MAX '\x09'
+    // Maximum here is 0x1f because 0x20 is ' ' (space) and the normal charsets begin.
+    // Better stay below 0x10 because DISPLAY_CHARSET_HD44780_WESTERN begins here.
+  #else
+    /* Custom characters defined in the first 8 characters of the LCD */
+    #define LCD_STR_BEDTEMP     "\x00"  // this will have 'unexpected' results when used in a string!
+    #define LCD_STR_DEGREE      "\x01"
+    #define LCD_STR_THERMOMETER "\x02"
+    #define LCD_STR_UPLEVEL     "\x03"
+    #define LCD_STR_REFRESH     "\x04"
+    #define LCD_STR_FOLDER      "\x05"
+    #define LCD_STR_FEEDRATE    "\x06"
+    #define LCD_STR_CLOCK       "\x07"
+    #define LCD_STR_ARROW_RIGHT ">"  /* from the default character set */
   #endif
 
   /**
@@ -153,6 +187,13 @@
    */
   #if defined(DOGLCD) && !defined(DEFAULT_LCD_CONTRAST)
     #define DEFAULT_LCD_CONTRAST 32
+  #endif
+
+  #ifdef DOGLCD
+    #define HAS_LCD_CONTRAST
+    #ifdef U8GLIB_ST7920
+      #undef HAS_LCD_CONTRAST
+    #endif
   #endif
 
 #else // CONFIGURATION_LCD
@@ -184,6 +225,9 @@
       #define ENDSTOPPULLUP_XMIN
       #define ENDSTOPPULLUP_YMIN
       #define ENDSTOPPULLUP_ZMIN
+    #endif
+    #ifndef DISABLE_Z_PROBE_ENDSTOP
+      #define ENDSTOPPULLUP_ZPROBE
     #endif
   #endif
 
@@ -252,12 +296,12 @@
    * Advance calculated values
    */
   #ifdef ADVANCE
-    #define EXTRUSION_AREA (0.25 * D_FILAMENT * D_FILAMENT * 3.14159)
+    #define EXTRUSION_AREA (0.25 * D_FILAMENT * D_FILAMENT * M_PI)
     #define STEPS_PER_CUBIC_MM_E (axis_steps_per_unit[E_AXIS] / EXTRUSION_AREA)
   #endif
 
   #ifdef ULTIPANEL
-   #undef SDCARDDETECTINVERTED
+    #undef SDCARDDETECTINVERTED
   #endif
 
   // Power Signal Control Definitions
@@ -265,16 +309,14 @@
   #ifndef POWER_SUPPLY
     #define POWER_SUPPLY 1
   #endif
-  // 1 = ATX
-  #if (POWER_SUPPLY == 1)
+  #if (POWER_SUPPLY == 1)     // 1 = ATX
     #define PS_ON_AWAKE  LOW
     #define PS_ON_ASLEEP HIGH
-  #endif
-  // 2 = X-Box 360 203W
-  #if (POWER_SUPPLY == 2)
+  #elif (POWER_SUPPLY == 2)   // 2 = X-Box 360 203W
     #define PS_ON_AWAKE  HIGH
     #define PS_ON_ASLEEP LOW
   #endif
+  #define HAS_POWER_SWITCH (POWER_SUPPLY > 0 && PIN_EXISTS(PS_ON))
 
   /**
    * Temp Sensor defines
@@ -345,25 +387,81 @@
   #endif
 
   /**
-   * Shorthand for pin tests, for temperature.cpp
+   * Shorthand for pin tests, used wherever needed
    */
-  #define HAS_TEMP_0 (defined(TEMP_0_PIN) && TEMP_0_PIN >= 0)
-  #define HAS_TEMP_1 (defined(TEMP_1_PIN) && TEMP_1_PIN >= 0)
-  #define HAS_TEMP_2 (defined(TEMP_2_PIN) && TEMP_2_PIN >= 0)
-  #define HAS_TEMP_3 (defined(TEMP_3_PIN) && TEMP_3_PIN >= 0)
-  #define HAS_TEMP_BED (defined(TEMP_BED_PIN) && TEMP_BED_PIN >= 0)
-  #define HAS_FILAMENT_SENSOR (defined(FILAMENT_SENSOR) && defined(FILWIDTH_PIN) && FILWIDTH_PIN >= 0)
-  #define HAS_HEATER_0 (defined(HEATER_0_PIN) && HEATER_0_PIN >= 0)
-  #define HAS_HEATER_1 (defined(HEATER_1_PIN) && HEATER_1_PIN >= 0)
-  #define HAS_HEATER_2 (defined(HEATER_2_PIN) && HEATER_2_PIN >= 0)
-  #define HAS_HEATER_3 (defined(HEATER_3_PIN) && HEATER_3_PIN >= 0)
-  #define HAS_HEATER_BED (defined(HEATER_BED_PIN) && HEATER_BED_PIN >= 0)
-  #define HAS_AUTO_FAN_0 (defined(EXTRUDER_0_AUTO_FAN_PIN) && EXTRUDER_0_AUTO_FAN_PIN >= 0)
-  #define HAS_AUTO_FAN_1 (defined(EXTRUDER_1_AUTO_FAN_PIN) && EXTRUDER_1_AUTO_FAN_PIN >= 0)
-  #define HAS_AUTO_FAN_2 (defined(EXTRUDER_2_AUTO_FAN_PIN) && EXTRUDER_2_AUTO_FAN_PIN >= 0)
-  #define HAS_AUTO_FAN_3 (defined(EXTRUDER_3_AUTO_FAN_PIN) && EXTRUDER_3_AUTO_FAN_PIN >= 0)
-  #define HAS_AUTO_FAN HAS_AUTO_FAN_0 || HAS_AUTO_FAN_1 || HAS_AUTO_FAN_2 || HAS_AUTO_FAN_3
-  #define HAS_FAN (defined(FAN_PIN) && FAN_PIN >= 0)
+  #define HAS_TEMP_0 (PIN_EXISTS(TEMP_0) && TEMP_SENSOR_0 != 0 && TEMP_SENSOR_0 != -2)
+  #define HAS_TEMP_1 (PIN_EXISTS(TEMP_1) && TEMP_SENSOR_1 != 0)
+  #define HAS_TEMP_2 (PIN_EXISTS(TEMP_2) && TEMP_SENSOR_2 != 0)
+  #define HAS_TEMP_3 (PIN_EXISTS(TEMP_3) && TEMP_SENSOR_3 != 0)
+  #define HAS_TEMP_BED (PIN_EXISTS(TEMP_BED) && TEMP_SENSOR_BED != 0)
+  #define HAS_HEATER_0 (PIN_EXISTS(HEATER_0))
+  #define HAS_HEATER_1 (PIN_EXISTS(HEATER_1))
+  #define HAS_HEATER_2 (PIN_EXISTS(HEATER_2))
+  #define HAS_HEATER_3 (PIN_EXISTS(HEATER_3))
+  #define HAS_HEATER_BED (PIN_EXISTS(HEATER_BED))
+  #define HAS_AUTO_FAN_0 (PIN_EXISTS(EXTRUDER_0_AUTO_FAN))
+  #define HAS_AUTO_FAN_1 (PIN_EXISTS(EXTRUDER_1_AUTO_FAN))
+  #define HAS_AUTO_FAN_2 (PIN_EXISTS(EXTRUDER_2_AUTO_FAN))
+  #define HAS_AUTO_FAN_3 (PIN_EXISTS(EXTRUDER_3_AUTO_FAN))
+  #define HAS_AUTO_FAN (HAS_AUTO_FAN_0 || HAS_AUTO_FAN_1 || HAS_AUTO_FAN_2 || HAS_AUTO_FAN_3)
+  #define HAS_FAN (PIN_EXISTS(FAN))
+  #define HAS_CONTROLLERFAN (PIN_EXISTS(CONTROLLERFAN))
+  #define HAS_SERVO_0 (PIN_EXISTS(SERVO0))
+  #define HAS_SERVO_1 (PIN_EXISTS(SERVO1))
+  #define HAS_SERVO_2 (PIN_EXISTS(SERVO2))
+  #define HAS_SERVO_3 (PIN_EXISTS(SERVO3))
+  #define HAS_FILAMENT_SENSOR (defined(FILAMENT_SENSOR) && PIN_EXISTS(FILWIDTH))
+  #define HAS_FILRUNOUT (PIN_EXISTS(FILRUNOUT))
+  #define HAS_HOME (PIN_EXISTS(HOME))
+  #define HAS_KILL (PIN_EXISTS(KILL))
+  #define HAS_SUICIDE (PIN_EXISTS(SUICIDE))
+  #define HAS_PHOTOGRAPH (PIN_EXISTS(PHOTOGRAPH))
+  #define HAS_X_MIN (PIN_EXISTS(X_MIN))
+  #define HAS_X_MAX (PIN_EXISTS(X_MAX))
+  #define HAS_Y_MIN (PIN_EXISTS(Y_MIN))
+  #define HAS_Y_MAX (PIN_EXISTS(Y_MAX))
+  #define HAS_Z_MIN (PIN_EXISTS(Z_MIN))
+  #define HAS_Z_MAX (PIN_EXISTS(Z_MAX))
+  #define HAS_Z2_MIN (PIN_EXISTS(Z2_MIN))
+  #define HAS_Z2_MAX (PIN_EXISTS(Z2_MAX))
+  #define HAS_Z_PROBE (PIN_EXISTS(Z_PROBE))
+  #define HAS_SOLENOID_1 (PIN_EXISTS(SOL1))
+  #define HAS_SOLENOID_2 (PIN_EXISTS(SOL2))
+  #define HAS_SOLENOID_3 (PIN_EXISTS(SOL3))
+  #define HAS_MICROSTEPS (PIN_EXISTS(X_MS1))
+  #define HAS_MICROSTEPS_E0 (PIN_EXISTS(E0_MS1))
+  #define HAS_MICROSTEPS_E1 (PIN_EXISTS(E1_MS1))
+  #define HAS_MICROSTEPS_E2 (PIN_EXISTS(E2_MS1))
+  #define HAS_X_ENABLE (PIN_EXISTS(X_ENABLE))
+  #define HAS_X2_ENABLE (PIN_EXISTS(X2_ENABLE))
+  #define HAS_Y_ENABLE (PIN_EXISTS(Y_ENABLE))
+  #define HAS_Y2_ENABLE (PIN_EXISTS(Y2_ENABLE))
+  #define HAS_Z_ENABLE (PIN_EXISTS(Z_ENABLE))
+  #define HAS_Z2_ENABLE (PIN_EXISTS(Z2_ENABLE))
+  #define HAS_E0_ENABLE (PIN_EXISTS(E0_ENABLE))
+  #define HAS_E1_ENABLE (PIN_EXISTS(E1_ENABLE))
+  #define HAS_E2_ENABLE (PIN_EXISTS(E2_ENABLE))
+  #define HAS_E3_ENABLE (PIN_EXISTS(E3_ENABLE))
+  #define HAS_X_DIR (PIN_EXISTS(X_DIR))
+  #define HAS_X2_DIR (PIN_EXISTS(X2_DIR))
+  #define HAS_Y_DIR (PIN_EXISTS(Y_DIR))
+  #define HAS_Y2_DIR (PIN_EXISTS(Y2_DIR))
+  #define HAS_Z_DIR (PIN_EXISTS(Z_DIR))
+  #define HAS_Z2_DIR (PIN_EXISTS(Z2_DIR))
+  #define HAS_E0_DIR (PIN_EXISTS(E0_DIR))
+  #define HAS_E1_DIR (PIN_EXISTS(E1_DIR))
+  #define HAS_E2_DIR (PIN_EXISTS(E2_DIR))
+  #define HAS_E3_DIR (PIN_EXISTS(E3_DIR))
+  #define HAS_X_STEP (PIN_EXISTS(X_STEP))
+  #define HAS_X2_STEP (PIN_EXISTS(X2_STEP))
+  #define HAS_Y_STEP (PIN_EXISTS(Y_STEP))
+  #define HAS_Y2_STEP (PIN_EXISTS(Y2_STEP))
+  #define HAS_Z_STEP (PIN_EXISTS(Z_STEP))
+  #define HAS_Z2_STEP (PIN_EXISTS(Z2_STEP))
+  #define HAS_E0_STEP (PIN_EXISTS(E0_STEP))
+  #define HAS_E1_STEP (PIN_EXISTS(E1_STEP))
+  #define HAS_E2_STEP (PIN_EXISTS(E2_STEP))
+  #define HAS_E3_STEP (PIN_EXISTS(E3_STEP))
 
   /**
    * Helper Macros for heaters and extruder fan
@@ -389,17 +487,6 @@
   #if HAS_FAN
     #define WRITE_FAN(v) WRITE(FAN_PIN, v)
   #endif
-
-  /**
-   * Sampling period of the temperature routine
-   * This override comes originally from temperature.cpp
-   * The Configuration.h option is basically ignored.
-   */
-  #ifdef PID_dT
-    #undef PID_dT
-  #endif
-  #define PID_dT ((OVERSAMPLENR * 12.0)/(F_CPU / 64.0 / 256.0))
-
 
 #endif //CONFIGURATION_LCD
 #endif //CONDITIONALS_H

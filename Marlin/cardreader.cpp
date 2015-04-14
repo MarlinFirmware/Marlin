@@ -25,7 +25,7 @@ CardReader::CardReader() {
     OUT_WRITE(SDPOWER, HIGH);
   #endif //SDPOWER
 
-  autostart_atmillis = millis() + 5000;
+  next_autostart_ms = millis() + 5000;
 }
 
 char *createFilename(char *buffer, const dir_t &p) { //buffer > 12characters
@@ -249,7 +249,7 @@ void CardReader::openFile(char* name, bool read, bool replace_current/*=true*/) 
         if (!myDir.open(curDir, subdirname, O_READ)) {
           SERIAL_PROTOCOLPGM(MSG_SD_OPEN_FILE_FAIL);
           SERIAL_PROTOCOL(subdirname);
-          SERIAL_PROTOCOLLNPGM(".");
+          SERIAL_PROTOCOLCHAR('.');
           return;
         }
         else {
@@ -287,14 +287,14 @@ void CardReader::openFile(char* name, bool read, bool replace_current/*=true*/) 
     else {
       SERIAL_PROTOCOLPGM(MSG_SD_OPEN_FILE_FAIL);
       SERIAL_PROTOCOL(fname);
-      SERIAL_PROTOCOLLNPGM(".");
+      SERIAL_PROTOCOLCHAR('.');
     }
   }
   else { //write
     if (!file.open(curDir, fname, O_CREAT | O_APPEND | O_WRITE | O_TRUNC)) {
       SERIAL_PROTOCOLPGM(MSG_SD_OPEN_FILE_FAIL);
       SERIAL_PROTOCOL(fname);
-      SERIAL_PROTOCOLLNPGM(".");
+      SERIAL_PROTOCOLCHAR('.');
     }
     else {
       saving = true;
@@ -330,7 +330,7 @@ void CardReader::removeFile(char* name) {
         if (!myDir.open(curDir, subdirname, O_READ)) {
           SERIAL_PROTOCOLPGM("open failed, File: ");
           SERIAL_PROTOCOL(subdirname);
-          SERIAL_PROTOCOLLNPGM(".");
+          SERIAL_PROTOCOLCHAR('.');
           return;
         }
         else {
@@ -360,7 +360,7 @@ void CardReader::removeFile(char* name) {
   else {
     SERIAL_PROTOCOLPGM("Deletion failed, File: ");
     SERIAL_PROTOCOL(fname);
-    SERIAL_PROTOCOLLNPGM(".");
+    SERIAL_PROTOCOLCHAR('.');
   }
 }
 
@@ -368,7 +368,7 @@ void CardReader::getStatus() {
   if (cardOK) {
     SERIAL_PROTOCOLPGM(MSG_SD_PRINTING_BYTE);
     SERIAL_PROTOCOL(sdpos);
-    SERIAL_PROTOCOLPGM("/");
+    SERIAL_PROTOCOLCHAR('/');
     SERIAL_PROTOCOLLN(filesize);
   }
   else {
@@ -397,7 +397,7 @@ void CardReader::write_command(char *buf) {
 }
 
 void CardReader::checkautostart(bool force) {
-  if (!force && (!autostart_stilltocheck || autostart_atmillis < millis()))
+  if (!force && (!autostart_stilltocheck || next_autostart_ms < millis()))
     return;
 
   autostart_stilltocheck = false;
@@ -421,8 +421,8 @@ void CardReader::checkautostart(bool force) {
     if (p.name[9] != '~' && strncmp((char*)p.name, autoname, 5) == 0) {
       char cmd[30];
       sprintf_P(cmd, PSTR("M23 %s"), autoname);
-      enquecommand(cmd);
-      enquecommands_P(PSTR("M24"));
+      enqueuecommand(cmd);
+      enqueuecommands_P(PSTR("M24"));
       found = true;
     }
   }
@@ -489,7 +489,7 @@ void CardReader::updir() {
   if (workDirDepth > 0) {
     --workDirDepth;
     workDir = workDirParents[0];
-    for (int d = 0; d < workDirDepth; d++)
+    for (uint16_t d = 0; d < workDirDepth; d++)
       workDirParents[d] = workDirParents[d+1];
   }
 }
@@ -508,7 +508,7 @@ void CardReader::printingHasFinished() {
     sdprinting = false;
     if (SD_FINISHED_STEPPERRELEASE) {
       //finishAndDisableSteppers();
-      enquecommands_P(PSTR(SD_FINISHED_RELEASECOMMAND));
+      enqueuecommands_P(PSTR(SD_FINISHED_RELEASECOMMAND));
     }
     autotempShutdown();
   }
