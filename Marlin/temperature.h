@@ -129,7 +129,7 @@ HOTEND_ROUTINES(0);
 #endif
 
 int getHeaterPower(int heater);
-void disable_heater();
+void disable_all_heaters();
 void setWatch();
 void updatePID();
 

@@ -152,10 +152,10 @@ static void lcd_status_screen();
    *     lcd_implementation_drawmenu_function(sel, row, PSTR(MSG_PAUSE_PRINT), lcd_sdcard_pause)
    *     menu_action_function(lcd_sdcard_pause)
    *
-   *   MENU_ITEM_EDIT(int3, MSG_SPEED, &feedmultiply, 10, 999)
-   *   MENU_ITEM(setting_edit_int3, MSG_SPEED, PSTR(MSG_SPEED), &feedmultiply, 10, 999)
-   *     lcd_implementation_drawmenu_setting_edit_int3(sel, row, PSTR(MSG_SPEED), PSTR(MSG_SPEED), &feedmultiply, 10, 999)
-   *     menu_action_setting_edit_int3(PSTR(MSG_SPEED), &feedmultiply, 10, 999)
+   *   MENU_ITEM_EDIT(int3, MSG_SPEED, &feedrate_multiplier, 10, 999)
+   *   MENU_ITEM(setting_edit_int3, MSG_SPEED, PSTR(MSG_SPEED), &feedrate_multiplier, 10, 999)
+   *     lcd_implementation_drawmenu_setting_edit_int3(sel, row, PSTR(MSG_SPEED), PSTR(MSG_SPEED), &feedrate_multiplier, 10, 999)
+   *     menu_action_setting_edit_int3(PSTR(MSG_SPEED), &feedrate_multiplier, 10, 999)
    *
    */
   #define MENU_ITEM(type, label, args...) do { \
@@ -328,28 +328,28 @@ static void lcd_status_screen() {
 
     #ifdef ULTIPANEL_FEEDMULTIPLY
       // Dead zone at 100% feedrate
-      if ((feedmultiply < 100 && (feedmultiply + int(encoderPosition)) > 100) ||
-              (feedmultiply > 100 && (feedmultiply + int(encoderPosition)) < 100)) {
+      if ((feedrate_multiplier < 100 && (feedrate_multiplier + int(encoderPosition)) > 100) ||
+              (feedrate_multiplier > 100 && (feedrate_multiplier + int(encoderPosition)) < 100)) {
         encoderPosition = 0;
-        feedmultiply = 100;
+        feedrate_multiplier = 100;
       }
-      if (feedmultiply == 100) {
+      if (feedrate_multiplier == 100) {
         if (int(encoderPosition) > ENCODER_FEEDRATE_DEADZONE) {
-          feedmultiply += int(encoderPosition) - ENCODER_FEEDRATE_DEADZONE;
+          feedrate_multiplier += int(encoderPosition) - ENCODER_FEEDRATE_DEADZONE;
           encoderPosition = 0;
         }
         else if (int(encoderPosition) < -ENCODER_FEEDRATE_DEADZONE) {
-          feedmultiply += int(encoderPosition) + ENCODER_FEEDRATE_DEADZONE;
+          feedrate_multiplier += int(encoderPosition) + ENCODER_FEEDRATE_DEADZONE;
           encoderPosition = 0;
         }
       }
       else {
-        feedmultiply += int(encoderPosition);
+        feedrate_multiplier += int(encoderPosition);
         encoderPosition = 0;
       }
     #endif // ULTIPANEL_FEEDMULTIPLY
 
-    feedmultiply = constrain(feedmultiply, 10, 999);
+    feedrate_multiplier = constrain(feedrate_multiplier, 10, 999);
 
   #endif //ULTIPANEL
 }
@@ -456,7 +456,7 @@ void lcd_set_home_offsets() {
 static void lcd_tune_menu() {
   START_MENU();
   MENU_ITEM(back, MSG_MAIN, lcd_main_menu);
-  MENU_ITEM_EDIT(int3, MSG_SPEED, &feedmultiply, 10, 999);
+  MENU_ITEM_EDIT(int3, MSG_SPEED, &feedrate_multiplier, 10, 999);
   #if TEMP_SENSOR_0 != 0
     MENU_MULTIPLIER_ITEM_EDIT(int3, MSG_NOZZLE, &target_temperature[0], 0, HEATER_0_MAXTEMP - 15);
   #endif
