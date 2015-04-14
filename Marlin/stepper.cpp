@@ -99,9 +99,10 @@ static volatile bool endstop_z_probe_hit = false; // Leaving this in even if Z_P
   static bool old_y_max_endstop = false;
 #endif
 
+static bool old_z_min_endstop = false;
+static bool old_z_max_endstop = false;
+
 #ifdef Z_DUAL_ENDSTOPS
-  static bool old_z_min_endstop = false;
-  static bool old_z_max_endstop = false;
   static bool old_z2_min_endstop = false;
   static bool old_z2_max_endstop = false;
 #endif
