@@ -8,18 +8,20 @@
   int lcd_strlen_P(const char *s);
   void lcd_update();
   void lcd_init();
-  void lcd_setstatus(const char* message);
-  void lcd_setstatuspgm(const char* message);
+  void lcd_setstatus(const char* message, const bool persist=false);
+  void lcd_setstatuspgm(const char* message, const uint8_t level=0);
   void lcd_setalertstatuspgm(const char* message);
   void lcd_reset_alert_level();
   bool lcd_detected(void);
+
+  #if defined(LCD_PROGRESS_BAR) && PROGRESS_MSG_EXPIRE > 0
+    void dontExpireStatus();
+  #endif
 
   #ifdef DOGLCD
     extern int lcd_contrast;
     void lcd_setcontrast(uint8_t value);
   #endif
-
-  static unsigned char blink = 0;	// Variable for visualization of fan rotation in GLCD
 
   #define LCD_MESSAGEPGM(x) lcd_setstatuspgm(PSTR(x))
   #define LCD_ALERTMESSAGEPGM(x) lcd_setalertstatuspgm(PSTR(x))
@@ -47,10 +49,11 @@
   extern bool cancel_heatup;
   
   #ifdef FILAMENT_LCD_DISPLAY
-    extern unsigned long message_millis;
+    extern millis_t previous_lcd_status_ms;
   #endif
 
   void lcd_buzz(long duration,uint16_t freq);
+  void lcd_quick_feedback(); // Audible feedback for a button click - could also be visual
   bool lcd_clicked();
 
   void lcd_ignore_click(bool b=true);
@@ -62,14 +65,14 @@
 
     #define LCD_CLICKED (buttons&EN_C)
     #ifdef REPRAPWORLD_KEYPAD
-  	  #define EN_REPRAPWORLD_KEYPAD_F3 BIT(BLEN_REPRAPWORLD_KEYPAD_F3)
-  	  #define EN_REPRAPWORLD_KEYPAD_F2 BIT(BLEN_REPRAPWORLD_KEYPAD_F2)
-  	  #define EN_REPRAPWORLD_KEYPAD_F1 BIT(BLEN_REPRAPWORLD_KEYPAD_F1)
-  	  #define EN_REPRAPWORLD_KEYPAD_UP BIT(BLEN_REPRAPWORLD_KEYPAD_UP)
-  	  #define EN_REPRAPWORLD_KEYPAD_RIGHT BIT(BLEN_REPRAPWORLD_KEYPAD_RIGHT)
-  	  #define EN_REPRAPWORLD_KEYPAD_MIDDLE BIT(BLEN_REPRAPWORLD_KEYPAD_MIDDLE)
-  	  #define EN_REPRAPWORLD_KEYPAD_DOWN BIT(BLEN_REPRAPWORLD_KEYPAD_DOWN)
-  	  #define EN_REPRAPWORLD_KEYPAD_LEFT BIT(BLEN_REPRAPWORLD_KEYPAD_LEFT)
+  	  #define EN_REPRAPWORLD_KEYPAD_F3 (BIT(BLEN_REPRAPWORLD_KEYPAD_F3))
+  	  #define EN_REPRAPWORLD_KEYPAD_F2 (BIT(BLEN_REPRAPWORLD_KEYPAD_F2))
+  	  #define EN_REPRAPWORLD_KEYPAD_F1 (BIT(BLEN_REPRAPWORLD_KEYPAD_F1))
+  	  #define EN_REPRAPWORLD_KEYPAD_UP (BIT(BLEN_REPRAPWORLD_KEYPAD_UP))
+  	  #define EN_REPRAPWORLD_KEYPAD_RIGHT (BIT(BLEN_REPRAPWORLD_KEYPAD_RIGHT))
+  	  #define EN_REPRAPWORLD_KEYPAD_MIDDLE (BIT(BLEN_REPRAPWORLD_KEYPAD_MIDDLE))
+  	  #define EN_REPRAPWORLD_KEYPAD_DOWN (BIT(BLEN_REPRAPWORLD_KEYPAD_DOWN))
+  	  #define EN_REPRAPWORLD_KEYPAD_LEFT (BIT(BLEN_REPRAPWORLD_KEYPAD_LEFT))
 
   	  #define LCD_CLICKED ((buttons&EN_C) || (buttons_reprapworld_keypad&EN_REPRAPWORLD_KEYPAD_F1))
   	  #define REPRAPWORLD_KEYPAD_MOVE_Z_UP (buttons_reprapworld_keypad&EN_REPRAPWORLD_KEYPAD_F2)
@@ -97,7 +100,8 @@
 #else //no LCD
   FORCE_INLINE void lcd_update() {}
   FORCE_INLINE void lcd_init() {}
-  FORCE_INLINE void lcd_setstatus(const char* message) {}
+  FORCE_INLINE void lcd_setstatus(const char* message, const bool persist=false) {}
+  FORCE_INLINE void lcd_setstatuspgm(const char* message, const uint8_t level=0) {}
   FORCE_INLINE void lcd_buttons_update() {}
   FORCE_INLINE void lcd_reset_alert_level() {}
   FORCE_INLINE void lcd_buzz(long duration,uint16_t freq) {}

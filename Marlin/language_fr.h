@@ -2,11 +2,17 @@
  * French
  *
  * LCD Menu Messages
- * Please note these are limited to 17 characters!
+ * See also documentation/LCDLanguageFont.md
  *
  */
 #ifndef LANGUAGE_FR_H
 #define LANGUAGE_FR_H
+
+#define MAPPER_NON
+// Define SIMULATE_ROMFONT to see what is seen on the character based display defined in Configuration.h
+//#define SIMULATE_ROMFONT
+#define DISPLAY_CHARSET_ISO10646_1
+
 
 #define WELCOME_MSG                         MACHINE_NAME " prete."
 #define MSG_SD_INSERTED                     "Carte inseree"
@@ -46,9 +52,9 @@
 #define MSG_FAN_SPEED                       "Vite. ventilateur"
 #define MSG_FLOW                            "Flux"
 #define MSG_CONTROL                         "Controler"
-#define MSG_MIN                             " \002 Min"
-#define MSG_MAX                             " \002 Max"
-#define MSG_FACTOR                          " \002 Facteur"
+#define MSG_MIN                             LCD_STR_THERMOMETER " Min"
+#define MSG_MAX                             LCD_STR_THERMOMETER " Max"
+#define MSG_FACTOR                          LCD_STR_THERMOMETER " Facteur"
 #define MSG_AUTOTEMP                        "Temp. Auto."
 #define MSG_ON                              "Marche "
 #define MSG_OFF                             "Arret"
@@ -76,7 +82,7 @@
 #define MSG_TEMPERATURE                     "Temperature"
 #define MSG_MOTION                          "Mouvement"
 #define MSG_VOLUMETRIC                      "Filament"
-#define MSG_VOLUMETRIC_ENABLED		        "E in mm3"
+#define MSG_VOLUMETRIC_ENABLED              "E in mm3"
 #define MSG_FILAMENT_SIZE_EXTRUDER_0        "Fil. Dia. 1"
 #define MSG_FILAMENT_SIZE_EXTRUDER_1        "Fil. Dia. 2"
 #define MSG_FILAMENT_SIZE_EXTRUDER_2        "Fil. Dia. 3"
@@ -118,6 +124,8 @@
 #define MSG_BABYSTEP_Y                      "Babystep Y"
 #define MSG_BABYSTEP_Z                      "Babystep Z"
 #define MSG_ENDSTOP_ABORT                   "Butee abandon"
+#define MSG_END_HOUR                        "heures"
+#define MSG_END_MINUTE                      "minutes"
 
 #ifdef DELTA_CALIBRATION_MENU
     #define MSG_DELTA_CALIBRATE             "Delta Calibration"
