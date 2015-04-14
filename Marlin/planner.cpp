@@ -393,7 +393,7 @@ void plan_init() {
 #endif
 
 void check_axes_activity() {
-  unsigned char axis_active[NUM_AXIS],
+  unsigned char axis_active[NUM_AXIS] = { 0 },
                 tail_fan_speed = fanSpeed;
   #ifdef BARICUDA
     unsigned char tail_valve_pressure = ValvePressure,
