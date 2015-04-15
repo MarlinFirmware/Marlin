@@ -2922,7 +2922,7 @@ inline void gcode_M42() {
     if (verbose_level > 0)
       SERIAL_PROTOCOLPGM("M48 Z-Probe Repeatability test\n");
 
-    if (code_seen('P') || code_seen('p')) { // `n` for legacy support only - please use `P`!
+    if (code_seen('P') || code_seen('p')) {
       n_samples = code_value_short();
       if (n_samples < 4 || n_samples > 50) {
         SERIAL_PROTOCOLPGM("?Sample size not plausible (4-50).\n");
