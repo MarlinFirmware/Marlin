@@ -1,4 +1,9 @@
-﻿#ifndef CONFIGURATION_H
+﻿// Sample configuration file for Vellemann K8200
+// tested on K8200 with VM8201 (Display)
+// and Arduino 1.6.1 (Win) by @CONSULitAS, 2015-04-14
+// https://github.com/CONSULitAS/Marlin-K8200/archive/K8200_stable_2015-04-14.zip
+
+#ifndef CONFIGURATION_H
 #define CONFIGURATION_H
 
 #include "boards.h"
