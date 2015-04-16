@@ -1033,6 +1033,10 @@ static void axis_is_at_home(int axis) {
     min_pos[axis] = base_min_pos(axis) + home_offset[axis];
     max_pos[axis] = base_max_pos(axis) + home_offset[axis];
   #endif
+
+  #if defined(ENABLE_AUTO_BED_LEVELING) && Z_HOME_DIR < 0
+    if (axis == Z_AXIS) current_position[Z_AXIS] += zprobe_zoffset;
+  #endif
 }
 
 /**
@@ -2040,10 +2044,6 @@ inline void gcode_G28() {
     // Set the Z position, if included
     if (code_seen(axis_codes[Z_AXIS]) && code_has_value())
       current_position[Z_AXIS] = code_value();
-
-    #if defined(ENABLE_AUTO_BED_LEVELING) && (Z_HOME_DIR < 0)
-      if (home_all_axis || homeZ) current_position[Z_AXIS] += zprobe_zoffset;  // Add Z_Probe offset (the distance is negative)
-    #endif
 
     sync_plan_position();
 
