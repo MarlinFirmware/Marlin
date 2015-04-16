@@ -263,7 +263,6 @@ static millis_t max_inactive_time = 0;
 static millis_t stepper_inactive_time = DEFAULT_STEPPER_DEACTIVE_TIME * 1000L;
 millis_t print_job_start_ms = 0; ///< Print job start time
 millis_t print_job_stop_ms = 0;  ///< Print job stop time
-static millis_t last_command_time = 0;
 static uint8_t target_extruder;
 bool no_wait_for_cooling = true;
 bool target_direction;
@@ -725,6 +724,7 @@ void get_command() {
 
   if (drain_queued_commands_P()) return; // priority is given to non-serial commands
   
+  static millis_t last_command_time = 0;
   millis_t ms = millis();
   
   if (!MYSERIAL.available() && commands_in_queue == 0 && ms - last_command_time > 1000) {
