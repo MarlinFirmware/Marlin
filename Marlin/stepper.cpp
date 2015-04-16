@@ -1140,7 +1140,7 @@ void quickStop() {
         uint8_t old_pin = AXIS ##_DIR_READ; \
         AXIS ##_APPLY_DIR(INVERT_## AXIS ##_DIR^direction^INVERT, true); \
         AXIS ##_APPLY_STEP(!INVERT_## AXIS ##_STEP_PIN, true); \
-        _delay_us(1U); \
+        delayMicroseconds(2); \
         AXIS ##_APPLY_STEP(INVERT_## AXIS ##_STEP_PIN, true); \
         AXIS ##_APPLY_DIR(old_pin, true); \
       }
@@ -1179,7 +1179,7 @@ void quickStop() {
           X_STEP_WRITE(!INVERT_X_STEP_PIN);
           Y_STEP_WRITE(!INVERT_Y_STEP_PIN);
           Z_STEP_WRITE(!INVERT_Z_STEP_PIN);
-          _delay_us(1U);
+          delayMicroseconds(2);
           X_STEP_WRITE(INVERT_X_STEP_PIN); 
           Y_STEP_WRITE(INVERT_Y_STEP_PIN); 
           Z_STEP_WRITE(INVERT_Z_STEP_PIN);
