@@ -724,16 +724,20 @@ void get_command() {
 
   if (drain_queued_commands_P()) return; // priority is given to non-serial commands
   
-  static millis_t last_command_time = 0;
-  millis_t ms = millis();
+  #ifdef NO_TIMEOUTS
+    static millis_t last_command_time = 0;
+    millis_t ms = millis();
   
-  if (!MYSERIAL.available() && commands_in_queue == 0 && ms - last_command_time > 1000) {
-    SERIAL_ECHOLNPGM(MSG_WAIT);
-    last_command_time = ms;
-  }
+    if (!MYSERIAL.available() && commands_in_queue == 0 && ms - last_command_time > 1000) {
+      SERIAL_ECHOLNPGM(MSG_WAIT);
+      last_command_time = ms;
+    }
+  #endif
   
   while (MYSERIAL.available() > 0 && commands_in_queue < BUFSIZE) {
-    last_command_time = ms;
+    #ifdef NO_TIMEOUTS
+      last_command_time = ms;
+    #endif
     serial_char = MYSERIAL.read();
 
     if (serial_char == '\n' || serial_char == '\r' ||
