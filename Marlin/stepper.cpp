@@ -206,7 +206,17 @@ volatile signed char count_direction[NUM_AXIS] = { 1, 1, 1, 1 };
 // uses:
 // r26 to store 0
 // r27 to store the byte 1 of the 48bit result
-#define MultiU24X24toH16(intRes, longIn1, longIn2) \
+// intRes = longIn1 * longIn2 >> 24
+// uses:
+// r26 to store 0
+// r27 to store bits 16-23 of the 48bit result. The top bit is used to round the two byte result.
+// note that the lower two bytes and the upper byte of the 48bit result are not calculated.
+// this can cause the result to be out by one as the lower bytes may cause carries into the upper ones.
+// B0 A0 are bits 24-39 and are the returned value
+// C1 B1 A1 is longIn1
+// D2 C2 B2 A2 is longIn2
+//
+#define MultiU24X32toH16(intRes, longIn1, longIn2) \
   asm volatile ( \
     "clr r26 \n\t" \
     "mul %A1, %B2 \n\t" \
@@ -237,6 +247,11 @@ volatile signed char count_direction[NUM_AXIS] = { 1, 1, 1, 1 };
     "lsr r27 \n\t" \
     "adc %A0, r26 \n\t" \
     "adc %B0, r26 \n\t" \
+    "mul %D2, %A1 \n\t" \
+    "add %A0, r0 \n\t" \
+    "adc %B0, r1 \n\t" \
+    "mul %D2, %B1 \n\t" \
+    "add %B0, r0 \n\t" \
     "clr r1 \n\t" \
     : \
     "=&r" (intRes) \
@@ -313,7 +328,7 @@ void enable_endstops(bool check) { check_endstops = check; }
 //  The trapezoid is the shape the speed curve over time. It starts at block->initial_rate, accelerates
 //  first block->accelerate_until step_events_completed, then keeps going at constant speed until
 //  step_events_completed reaches block->decelerate_after after which it decelerates until the trapezoid generator is reset.
-//  The slope of acceleration is calculated with the leib ramp alghorithm.
+//  The slope of acceleration is calculated using v = u + at where t is the accumulated timer values of the steps so far.
 
 void st_wake_up() {
   //  TCNT1 = 0;
@@ -714,7 +729,7 @@ ISR(TIMER1_COMPA_vect) {
     unsigned short step_rate;
     if (step_events_completed <= (unsigned long)current_block->accelerate_until) {
 
-      MultiU24X24toH16(acc_step_rate, acceleration_time, current_block->acceleration_rate);
+      MultiU24X32toH16(acc_step_rate, acceleration_time, current_block->acceleration_rate);
       acc_step_rate += current_block->initial_rate;
 
       // upper limit
@@ -737,7 +752,7 @@ ISR(TIMER1_COMPA_vect) {
       #endif
     }
     else if (step_events_completed > (unsigned long)current_block->decelerate_after) {
-      MultiU24X24toH16(step_rate, deceleration_time, current_block->acceleration_rate);
+      MultiU24X32toH16(step_rate, deceleration_time, current_block->acceleration_rate);
 
       if (step_rate > acc_step_rate) { // Check step_rate stays positive
         step_rate = current_block->final_rate;
