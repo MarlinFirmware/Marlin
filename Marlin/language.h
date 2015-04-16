@@ -122,6 +122,7 @@
 #define MSG_FREE_MEMORY                     " Free Memory: "
 #define MSG_PLANNER_BUFFER_BYTES            "  PlannerBufferBytes: "
 #define MSG_OK                              "ok"
+#define MSG_WAIT                            "wait"
 #define MSG_FILE_SAVED                      "Done saving file."
 #define MSG_ERR_LINE_NO1                    "Line Number out of sequence. Expected: "
 #define MSG_ERR_LINE_NO2                    " Got: "
