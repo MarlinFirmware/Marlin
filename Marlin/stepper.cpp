@@ -205,10 +205,6 @@ volatile signed char count_direction[NUM_AXIS] = { 1, 1, 1, 1 };
 // intRes = longIn1 * longIn2 >> 24
 // uses:
 // r26 to store 0
-// r27 to store the byte 1 of the 48bit result
-// intRes = longIn1 * longIn2 >> 24
-// uses:
-// r26 to store 0
 // r27 to store bits 16-23 of the 48bit result. The top bit is used to round the two byte result.
 // note that the lower two bytes and the upper byte of the 48bit result are not calculated.
 // this can cause the result to be out by one as the lower bytes may cause carries into the upper ones.
