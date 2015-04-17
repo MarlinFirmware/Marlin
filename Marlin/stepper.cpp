@@ -54,7 +54,7 @@ static unsigned int cleaning_buffer_counter;
               locked_z2_motor = false;
 #endif
 
-// Counter variables for the bresenham line tracer
+// Counter variables for the Bresenham line tracer
 static long counter_x, counter_y, counter_z, counter_e;
 volatile static unsigned long step_events_completed; // The number of step events executed in the current block
 
@@ -66,7 +66,7 @@ volatile static unsigned long step_events_completed; // The number of step event
 
 static long acceleration_time, deceleration_time;
 //static unsigned long accelerate_until, decelerate_after, acceleration_rate, initial_rate, final_rate, nominal_rate;
-static unsigned short acc_step_rate; // needed for deccelaration start point
+static unsigned short acc_step_rate; // needed for deceleration start point
 static char step_loops;
 static unsigned short OCR1A_nominal;
 static unsigned short step_loops_nominal;
@@ -365,14 +365,14 @@ FORCE_INLINE void trapezoid_generator_reset() {
     e_steps[current_block->active_extruder] += ((advance >>8) - old_advance);
     old_advance = advance >>8;
   #endif
-  deceleration_time = 0;
   // step_rate to timer interval
   OCR1A_nominal = calc_timer(current_block->nominal_rate);
   // make a note of the number of step loops required at nominal speed
   step_loops_nominal = step_loops;
   acc_step_rate = current_block->initial_rate;
-  acceleration_time = calc_timer(acc_step_rate);
-  OCR1A = acceleration_time;
+  OCR1A = calc_timer(acc_step_rate);
+  acceleration_time = 0;   // how long been accelerating
+  deceleration_time = 0;   // how long been decelerating
 
   // SERIAL_ECHO_START;
   // SERIAL_ECHOPGM("advance :");
