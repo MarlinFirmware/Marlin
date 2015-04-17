@@ -30,7 +30,7 @@ The Marlin development is currently revived. There's a long list of reported iss
 
 ## Contact
 
-__Google Hangout:__ <a href="https://plus.google.com/hangouts/_/g2wp5duzb2y6ahikg6tmwao3kua" target="_blank">Hangout</a>
+__Google Hangout:__ <a href="https://plus.google.com/hangouts/_/gxn3wrea5gdhoo223yimsiforia" target="_blank">Hangout</a>
 
 ## Credits
 
