@@ -14,7 +14,7 @@
  *
  */
 
-#define EEPROM_VERSION "V19"
+#define EEPROM_VERSION "V20"
 
 /**
  * V19 EEPROM Layout:
@@ -34,11 +34,14 @@
  *  max_e_jerk
  *  home_offset (x3)
  *
- * Mesh bed leveling:
+ * MESH BED LEVELING:
  *  active
+ *  z_offset
  *  mesh_num_x
  *  mesh_num_y
  *  z_values[][]
+ *
+ * AUTO BED LEVELING:
  *  zprobe_zoffset
  *
  * DELTA:
@@ -157,12 +160,14 @@ void Config_StoreSettings()  {
     mesh_num_x = MESH_NUM_X_POINTS;
     mesh_num_y = MESH_NUM_Y_POINTS;
     EEPROM_WRITE_VAR(i, mbl.active);
+    EEPROM_WRITE_VAR(i, mbl.z_offset);
     EEPROM_WRITE_VAR(i, mesh_num_x);
     EEPROM_WRITE_VAR(i, mesh_num_y);
     EEPROM_WRITE_VAR(i, mbl.z_values);
   #else
     uint8_t dummy_uint8 = 0;
-    EEPROM_WRITE_VAR(i, dummy_uint8);
+    EEPROM_WRITE_VAR(i, dummy_uint8); // active dummy
+    EEPROM_WRITE_VAR(i, dummy);       // z_offset dummy
     EEPROM_WRITE_VAR(i, mesh_num_x);
     EEPROM_WRITE_VAR(i, mesh_num_y);
     dummy = 0.0f;
@@ -323,6 +328,7 @@ void Config_RetrieveSettings() {
     uint8_t mesh_num_y = 0;
     #ifdef MESH_BED_LEVELING
       EEPROM_READ_VAR(i, mbl.active);
+      EEPROM_READ_VAR(i, mbl.z_offset);
       EEPROM_READ_VAR(i, mesh_num_x);
       EEPROM_READ_VAR(i, mesh_num_y);
       if (mesh_num_x != MESH_NUM_X_POINTS ||
@@ -336,7 +342,8 @@ void Config_RetrieveSettings() {
       }
     #else
       uint8_t dummy_uint8 = 0;
-      EEPROM_READ_VAR(i, dummy_uint8);
+      EEPROM_READ_VAR(i, dummy_uint8); // active dummy
+      EEPROM_READ_VAR(i, dummy);       // z_offset dummy
       EEPROM_READ_VAR(i, mesh_num_x);
       EEPROM_READ_VAR(i, mesh_num_y);
       for (int q=0; q<mesh_num_x*mesh_num_y; q++) {

@@ -57,6 +57,8 @@ If `MANUAL_BED_LEVELING` has been enabled then will a `Level bed` menu option be
 
 When selecting this option the printer will first do a homing, and then travel to the first probe point. There it will wait. By turning the encoder on the display the hotend can now be lowered until it touches the bed. Using a paper to feel the distance when it gets close. Pressing the encoder/button will store this point and then travel to the next point. Repeating this until all points have been probed.
 
+If there is an overall gap or tightness while printing that should be compensated for use the `Bed Z:` options available under `Movement` 
+
 If the EEPROM has been enable it can be good to issue a `M500` to get these points saved.
 
 Issuing a `G29` will return the state of the mesh leveling and report the probed points.
@@ -76,7 +78,4 @@ Then use your preferred Printer controller program, i.e. Printrun, to lower the 
 
 `G29 S3 Xn Yn Zn.nn` will modify a single probed point. This can be used to tweak a badly probed point. Specify probe point where `Xn` and `Yn`, where `n` in `Xn` is between 1 and `MESH_NUM_X_POINTS`. Likewise for `Yn`. `Zn.nn` is the new Z value in that probed point. 
 
-Note
-----
-
-Depending how firm feel you aim for on the paper you can use the `Z offset` option in Slic3r to compensate a slight height diff. (I like the paper loose so I needed to put `-0.05` in Slic3r)
+`G29 S4 Zn.nn` will add an offset to the mesh. This should be used if the leveling gives an overall gap or tightness that should be compensated. Values for n.nn > 0 will move away from the bed and n.nn < 0.0 will move closer to the bed.
