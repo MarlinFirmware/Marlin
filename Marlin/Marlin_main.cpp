@@ -3971,7 +3971,7 @@ inline void gcode_M226() {
         delay(beepP);
         noTone(BEEPER);
       #elif defined(ULTRALCD)
-        lcd_buzz(beepS, beepP);
+        lcd_buzz(beepP, beepS);
       #elif defined(LCD_USE_I2C_BUZZER)
         lcd_buzz(beepP, beepS);
       #endif
