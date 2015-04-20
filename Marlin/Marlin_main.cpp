@@ -3965,20 +3965,8 @@ inline void gcode_M226() {
   inline void gcode_M300() {
     uint16_t beepS = code_seen('S') ? code_value_short() : 110;
     uint32_t beepP = code_seen('P') ? code_value_long() : 1000;
-    if (beepS > 0) {
-      #if BEEPER > 0
-        tone(BEEPER, beepS);
-        delay(beepP);
-        noTone(BEEPER);
-      #elif defined(ULTRALCD)
-        lcd_buzz(beepP, beepS);
-      #elif defined(LCD_USE_I2C_BUZZER)
-        lcd_buzz(beepP, beepS);
-      #endif
-    }
-    else {
-      delay(beepP);
-    }
+    if (beepP > 5000) beepP = 5000; // limit to 5 seconds
+    lcd_buzz(beepP, beepS);
   }
 
 #endif // BEEPER>0 || ULTRALCD || LCD_USE_I2C_BUZZER
