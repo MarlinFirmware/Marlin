@@ -1131,23 +1131,18 @@ void lcd_quick_feedback() {
     #endif    
     lcd_buzz(LCD_FEEDBACK_FREQUENCY_DURATION_MS, LCD_FEEDBACK_FREQUENCY_HZ);
   #elif defined(BEEPER) && BEEPER > -1
-    SET_OUTPUT(BEEPER);
     #ifndef LCD_FEEDBACK_FREQUENCY_HZ
       #define LCD_FEEDBACK_FREQUENCY_HZ 5000
     #endif
     #ifndef LCD_FEEDBACK_FREQUENCY_DURATION_MS
       #define LCD_FEEDBACK_FREQUENCY_DURATION_MS 2
     #endif
-    const uint16_t delay = 1000000 / LCD_FEEDBACK_FREQUENCY_HZ / 2;
-    uint16_t i = LCD_FEEDBACK_FREQUENCY_DURATION_MS * LCD_FEEDBACK_FREQUENCY_HZ / 1000;
-    while (i--) {
-      WRITE(BEEPER,HIGH);
-      delayMicroseconds(delay);
-      WRITE(BEEPER,LOW);
-      delayMicroseconds(delay);
-    }
-    const uint16_t j = max(10000 - LCD_FEEDBACK_FREQUENCY_DURATION_MS * 1000, 0);
-    if (j) delayMicroseconds(j);
+    lcd_buzz(LCD_FEEDBACK_FREQUENCY_DURATION_MS, LCD_FEEDBACK_FREQUENCY_HZ);
+  #else
+    #ifndef LCD_FEEDBACK_FREQUENCY_DURATION_MS
+      #define LCD_FEEDBACK_FREQUENCY_DURATION_MS 2
+    #endif
+    delay(LCD_FEEDBACK_FREQUENCY_DURATION_MS);
   #endif
 }
 
@@ -1544,9 +1539,21 @@ bool lcd_detected(void) {
 }
 
 void lcd_buzz(long duration, uint16_t freq) {
-  #ifdef LCD_USE_I2C_BUZZER
-    lcd.buzz(duration,freq);
-  #endif
+  if (freq > 0) {
+    #if BEEPER > 0
+      SET_OUTPUT(BEEPER);
+      tone(BEEPER, freq);
+      delay(duration);
+      noTone(BEEPER);
+    #elif defined(LCD_USE_I2C_BUZZER)
+      lcd.buzz(duration,freq);
+    #else
+      delay(duration);
+    #endif
+  }
+  else {
+    delay(duration);
+  }
 }
 
 bool lcd_clicked() { return LCD_CLICKED; }
