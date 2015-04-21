@@ -341,6 +341,9 @@ void PID_autotune(float temp, int extruder, int ncycles)
     }
     if (cycles > ncycles) {
       SERIAL_PROTOCOLLNPGM(MSG_PID_AUTOTUNE_FINISHED);
+      SERIAL_PROTOCOLPGM("#define  DEFAULT_Kp "); SERIAL_PROTOCOLLN(Kp);
+      SERIAL_PROTOCOLPGM("#define  DEFAULT_Ki "); SERIAL_PROTOCOLLN(Ki);
+      SERIAL_PROTOCOLPGM("#define  DEFAULT_Kd "); SERIAL_PROTOCOLLN(Kd);
       return;
     }
     lcd_update();
