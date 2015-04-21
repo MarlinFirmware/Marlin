@@ -675,7 +675,7 @@ ISR(TIMER1_COMPA_vect) {
       #endif //ADVANCE
 
       #define COUNTER_AXIS(axis) counter_## axis
-      #define AXIS_STEP_WRITE(AXIS, HIGHLOW) AXIS ##_STEP_WRITE(## HIGHLOW ##)
+      #define AXIS_STEP_WRITE(AXIS, HIGHLOW) AXIS ##_STEP_WRITE(HIGHLOW)
       #define AXIS_APPLY_STEP(AXIS) AXIS ##_APPLY_STEP
       #define INVERT_AXIS_STEP_PIN(AXIS) INVERT_## AXIS ##_STEP_PIN
 
@@ -1027,7 +1027,7 @@ void st_init() {
 
   #define AXIS_INIT(axis, AXIS, PIN) \
     AXIS_STEP_INIT(AXIS); \
-    AXIS_STEP_WRITE(INVERT_AXIS_STEP_PIN(PIN)); \
+    AXIS_STEP_WRITE(AXIS, INVERT_AXIS_STEP_PIN(PIN)); \
     DISABLE_AXIS(axis)
 
   #define E_AXIS_INIT(NUM) AXIS_INIT(e## NUM, E## NUM, E)
