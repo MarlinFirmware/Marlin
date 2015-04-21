@@ -465,8 +465,8 @@ ISR(TIMER1_COMPA_vect) {
 
     #define UPDATE_ENDSTOP(axis,AXIS,minmax,MINMAX) \
       bool AXIS_MINMAX_ENDSTOP(axis, minmax) = (READ(AXIS_MINMAX_PIN(AXIS, MINMAX)) != AXIS_MINMAX_ENDSTOP_INVERTING(AXIS, MINMAX)); \
-      if (AXIS_MINMAX_ENDSTOP(axis, minmax) && OLD_AXIS_MINMAX_ENDSTOP(axis, minmax) && (current_block->steps[AXIS(AXIS)] > 0)) { \
-        endstops_trigsteps[AXIS(AXIS)] = count_position[AXIS(AXIS)]; \
+      if (AXIS_MINMAX_ENDSTOP(axis, minmax) && OLD_AXIS_MINMAX_ENDSTOP(axis, minmax) && (current_block->steps[GET_AXIS(AXIS)] > 0)) { \
+        endstops_trigsteps[GET_AXIS(AXIS)] = count_position[GET_AXIS(AXIS)]; \
         ENDSTOP_AXIS_HIT(axis) = true; \
         step_events_completed = current_block->step_event_count; \
       } \
@@ -476,7 +476,7 @@ ISR(TIMER1_COMPA_vect) {
 	#define AXIS_MINMAX_PIN(AXIS, MINMAX) AXIS ##_## MINMAX ##_PIN
 	#define AXIS_MINMAX_ENDSTOP_INVERTING(AXIS, MINMAX) AXIS ##_## MINMAX ##_ENDSTOP_INVERTING
 	#define OLD_AXIS_MINMAX_ENDSTOP(axis, minmax) old_## axis ##_## minmax ##_endstop
-	#define AXIS(AXIS) AXIS ##_AXIS
+	#define GET_AXIS(AXIS) AXIS ##_AXIS
 	#define ENDSTOP_AXIS_HIT(axis) endstop_## axis ##_hit
 
     // Check X and Y endstops
@@ -687,7 +687,7 @@ ISR(TIMER1_COMPA_vect) {
          * lag to allow it work with without needing NOPs
          */
         #define STEP_ADD(axis, AXIS) \
-         COUNTER_AXIS(axis) += current_block->steps[AXIS(AXIS)]; \
+         COUNTER_AXIS(axis) += current_block->steps[GET_AXIS(AXIS)]; \
          if (COUNTER_AXIS(axis) > 0) { AXIS_STEP_WRITE(AXIS, HIGH); }
         STEP_ADD(x,X);
         STEP_ADD(y,Y);
@@ -699,7 +699,7 @@ ISR(TIMER1_COMPA_vect) {
         #define STEP_IF_COUNTER(axis, AXIS) \
           if (COUNTER_AXIS(axis) > 0) { \
             COUNTER_AXIS(axis) -= current_block->step_event_count; \
-            count_position[AXIS(AXIS)] += count_direction[AXIS(AXIS)]; \
+            count_position[GET_AXIS(AXIS)] += count_direction[GET_AXIS(AXIS)]; \
             AXIS_STEP_WRITE(AXIS, LOW); \
           }
 
@@ -713,11 +713,11 @@ ISR(TIMER1_COMPA_vect) {
       #else // !CONFIG_STEPPERS_TOSHIBA
 
         #define APPLY_MOVEMENT(axis, AXIS) \
-          COUNTER_AXIS(axis) += current_block->steps[AXIS(AXIS)]; \
+          COUNTER_AXIS(axis) += current_block->steps[GET_AXIS(AXIS)]; \
           if (COUNTER_AXIS(axis) > 0) { \
             AXIS_APPLY_STEP(AXIS)(!INVERT_AXIS_STEP_PIN(AXIS),0); \
             COUNTER_AXIS(axis) -= current_block->step_event_count; \
-            count_position[AXIS(AXIS)] += count_direction[AXIS(AXIS)]; \
+            count_position[GET_AXIS(AXIS)] += count_direction[GET_AXIS(AXIS)]; \
             AXIS_APPLY_STEP(AXIS)(INVERT_AXIS_STEP_PIN(AXIS),0); \
           }
 
