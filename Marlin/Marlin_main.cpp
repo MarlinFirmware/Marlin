@@ -1948,16 +1948,14 @@ inline void gcode_G28() {
 
     // Set the X position, if included
     if (code_seen(axis_codes[X_AXIS]) && code_has_value()) {
-      float v = code_value();
-      if (X_HOME_DIR == -1 || v != 0) // filter 0 with max-endstopps
-        current_position[X_AXIS] = v;
+      if (code_value_long() != 0) // filter 0
+        current_position[X_AXIS] = code_value();
     }
 
     // Set the Y position, if included
     if (code_seen(axis_codes[Y_AXIS]) && code_has_value()) {
-      float v = code_value();
-      if (Y_HOME_DIR == -1 || v != 0) // filter 0 with max-endstopps
-        current_position[Y_AXIS] = v;
+      if (code_value_long() != 0) // filter 0
+        current_position[X_AXIS] = code_value();
     }
 
     // Home Z last if homing towards the bed
@@ -2045,9 +2043,8 @@ inline void gcode_G28() {
 
     // Set the Z position, if included
     if (code_seen(axis_codes[Z_AXIS]) && code_has_value()) {
-      float v = code_value();
-      if (Z_HOME_DIR == -1 || v != 0) // filter 0 with max-endstopps
-      current_position[Z_AXIS] = v;
+      if (code_value_long() != 0) // filter 0
+        current_position[X_AXIS] = code_value();
     }
 
     #if defined(ENABLE_AUTO_BED_LEVELING) && (Z_HOME_DIR < 0)
