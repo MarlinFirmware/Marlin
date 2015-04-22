@@ -2525,7 +2525,7 @@ static void view_picture_splash()
         do {
 #endif
             lcd_implementation_set_cursor(1, 4);
-            lcd_implementation_print_P(PSTR(MSG_WELLCOME));
+            lcd_implementation_print_P(PSTR(MACHINE_NAME));
             lcd_implementation_set_cursor(3, 4);
             lcd_implementation_print_P(PSTR(FIRMWARE_VER));
             lcd_implementation_print(" ");
