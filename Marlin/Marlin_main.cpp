@@ -1924,6 +1924,11 @@ inline void gcode_G28() {
 
     #endif // QUICK_HOME
 
+    #ifdef HOME_Y_BEFORE_X
+      // Home Y
+      if (home_all_axis || homeY) HOMEAXIS(Y);
+    #endif
+
     // Home X
     if (home_all_axis || homeX) {
       #ifdef DUAL_X_CARRIAGE
@@ -1943,8 +1948,10 @@ inline void gcode_G28() {
       #endif
     }
 
-    // Home Y
-    if (home_all_axis || homeY) HOMEAXIS(Y);
+    #ifndef HOME_Y_BEFORE_X
+      // Home Y
+      if (home_all_axis || homeY) HOMEAXIS(Y);
+    #endif
 
     // Set the X position, if included
     if (code_seen(axis_codes[X_AXIS]) && code_has_value())
