@@ -27,7 +27,7 @@ namespace screen
 
 			virtual void left() {};
 			virtual void right() {};
-			virtual Screen & press(void (*action)(void)) {};
+			virtual Screen & press() {};
 			virtual void draw() {};
 			virtual void add(Screen & component) {};
 

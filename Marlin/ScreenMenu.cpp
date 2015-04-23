@@ -41,7 +41,7 @@ namespace screen
 	{
 	}
 
-	Screen & ScreenMenu::press(void (*action)(void))
+	Screen & ScreenMenu::press()
 	{
 		return * m_items[m_index];
 	}

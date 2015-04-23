@@ -23,7 +23,7 @@ namespace screen
 	{
 	}
 
-	Screen & ScreenSelector::press(void (*action)(void))
+	Screen & ScreenSelector::press()
 	{
 		return * m_next_screen;
 	}
