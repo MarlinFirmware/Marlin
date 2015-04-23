@@ -1031,8 +1031,8 @@ void st_init() {
     _WRITE_STEP(AXIS, _INVERT_STEP_PIN(PIN)); \
     _DISABLE(axis)
 
-  #define _EXTRUDER(NUM) e## NUM
-  #define E_AXIS_INIT(NUM) AXIS_INIT(_EXTRUDER(NUM), _EXTRUDER(NUM), E)
+  #define _EXTRUDER(NUM) e## NUM, E## NUM
+  #define E_AXIS_INIT(NUM) AXIS_INIT(_EXTRUDER(NUM), E)
 
   // Initialize Step Pins
   #if HAS_X_STEP
