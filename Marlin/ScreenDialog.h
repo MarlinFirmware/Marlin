@@ -18,7 +18,7 @@ namespace screen
 			void add(Screen & component);
 
 		private:
-			Screen * m_back_screen;
+			Screen * m_next_screen;
 	};
 }
 

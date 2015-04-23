@@ -25,11 +25,11 @@ namespace screen
 
 	Screen & ScreenDialog::press(void (*action)(void))
 	{
-		return * m_back_screen;
+		return * m_next_screen;
 	}
 
 	void ScreenDialog::add(Screen & component)
 	{
-		m_back_screen = &component;
+		m_next_screen = &component;
 	}
 }
