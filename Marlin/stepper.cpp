@@ -463,22 +463,23 @@ ISR(TIMER1_COMPA_vect) {
       count_direction[Y_AXIS] = 1;
     }
 
+    #define _ENDSTOP(axis, minmax) axis ##_## minmax ##_endstop
+    #define _ENDSTOP_PIN(AXIS, MINMAX) AXIS ##_## MINMAX ##_PIN
+    #define _ENDSTOP_INVERTING(AXIS, MINMAX) AXIS ##_## MINMAX ##_ENDSTOP_INVERTING
+    #define _OLD_ENDSTOP(axis, minmax) old_## axis ##_## minmax ##_endstop
+    #define _AXIS(AXIS) AXIS ##_AXIS
+    #define _ENDSTOP_HIT(axis) endstop_## axis ##_hit
+    
     #define UPDATE_ENDSTOP(axis,AXIS,minmax,MINMAX) \
-      bool AXIS_MINMAX_ENDSTOP(axis, minmax) = (READ(AXIS_MINMAX_PIN(AXIS, MINMAX)) != AXIS_MINMAX_ENDSTOP_INVERTING(AXIS, MINMAX)); \
-      if (AXIS_MINMAX_ENDSTOP(axis, minmax) && OLD_AXIS_MINMAX_ENDSTOP(axis, minmax) && (current_block->steps[GET_AXIS(AXIS)] > 0)) { \
-        endstops_trigsteps[GET_AXIS(AXIS)] = count_position[GET_AXIS(AXIS)]; \
-        ENDSTOP_AXIS_HIT(axis) = true; \
+      bool _ENDSTOP(axis, minmax) = (READ(_ENDSTOP_PIN(AXIS, MINMAX)) != _ENDSTOP_INVERTING(AXIS, MINMAX)); \
+      if (_ENDSTOP(axis, minmax) && _OLD_ENDSTOP(axis, minmax) && (current_block->steps[_AXIS(AXIS)] > 0)) { \
+        endstops_trigsteps[_AXIS(AXIS)] = count_position[_AXIS(AXIS)]; \
+        _ENDSTOP_HIT(axis) = true; \
         step_events_completed = current_block->step_event_count; \
       } \
-      OLD_AXIS_MINMAX_ENDSTOP(axis, minmax) = AXIS_MINMAX_ENDSTOP(axis, minmax);
+      _OLD_ENDSTOP(axis, minmax) = _ENDSTOP(axis, minmax);
 	  
-	#define AXIS_MINMAX_ENDSTOP(axis, minmax) axis ##_## minmax ##_endstop
-	#define AXIS_MINMAX_PIN(AXIS, MINMAX) AXIS ##_## MINMAX ##_PIN
-	#define AXIS_MINMAX_ENDSTOP_INVERTING(AXIS, MINMAX) AXIS ##_## MINMAX ##_ENDSTOP_INVERTING
-	#define OLD_AXIS_MINMAX_ENDSTOP(axis, minmax) old_## axis ##_## minmax ##_endstop
-	#define GET_AXIS(AXIS) AXIS ##_AXIS
-	#define ENDSTOP_AXIS_HIT(axis) endstop_## axis ##_hit
-
+	
     // Check X and Y endstops
     if (check_endstops) {
       #ifdef COREXY
@@ -674,10 +675,10 @@ ISR(TIMER1_COMPA_vect) {
         }
       #endif //ADVANCE
 
-      #define COUNTER_AXIS(axis) counter_## axis
-      #define AXIS_STEP_WRITE(AXIS, HIGHLOW) AXIS ##_STEP_WRITE(HIGHLOW)
-      #define AXIS_APPLY_STEP(AXIS) AXIS ##_APPLY_STEP
-      #define INVERT_AXIS_STEP_PIN(AXIS) INVERT_## AXIS ##_STEP_PIN
+      #define _COUNTER(axis) counter_## axis
+      #define _WRITE_STEP(AXIS, HIGHLOW) AXIS ##_STEP_WRITE(HIGHLOW)
+      #define _APPLY_STEP(AXIS) AXIS ##_APPLY_STEP
+      #define _INVERT_STEP_PIN(AXIS) INVERT_## AXIS ##_STEP_PIN
 
       #ifdef CONFIG_STEPPERS_TOSHIBA
         /**
@@ -687,8 +688,8 @@ ISR(TIMER1_COMPA_vect) {
          * lag to allow it work with without needing NOPs
          */
         #define STEP_ADD(axis, AXIS) \
-         COUNTER_AXIS(axis) += current_block->steps[GET_AXIS(AXIS)]; \
-         if (COUNTER_AXIS(axis) > 0) { AXIS_STEP_WRITE(AXIS, HIGH); }
+         _COUNTER(axis) += current_block->steps[_AXIS(AXIS)]; \
+         if (_COUNTER(axis) > 0) { _WRITE_STEP(AXIS, HIGH); }
         STEP_ADD(x,X);
         STEP_ADD(y,Y);
         STEP_ADD(z,Z);
@@ -697,10 +698,10 @@ ISR(TIMER1_COMPA_vect) {
         #endif
 
         #define STEP_IF_COUNTER(axis, AXIS) \
-          if (COUNTER_AXIS(axis) > 0) { \
-            COUNTER_AXIS(axis) -= current_block->step_event_count; \
-            count_position[GET_AXIS(AXIS)] += count_direction[GET_AXIS(AXIS)]; \
-            AXIS_STEP_WRITE(AXIS, LOW); \
+          if (_COUNTER(axis) > 0) { \
+            _COUNTER(axis) -= current_block->step_event_count; \
+            count_position[_AXIS(AXIS)] += count_direction[_AXIS(AXIS)]; \
+            _WRITE_STEP(AXIS, LOW); \
           }
 
         STEP_IF_COUNTER(x, X);
@@ -713,12 +714,12 @@ ISR(TIMER1_COMPA_vect) {
       #else // !CONFIG_STEPPERS_TOSHIBA
 
         #define APPLY_MOVEMENT(axis, AXIS) \
-          COUNTER_AXIS(axis) += current_block->steps[GET_AXIS(AXIS)]; \
-          if (COUNTER_AXIS(axis) > 0) { \
-            AXIS_APPLY_STEP(AXIS)(!INVERT_AXIS_STEP_PIN(AXIS),0); \
-            COUNTER_AXIS(axis) -= current_block->step_event_count; \
-            count_position[GET_AXIS(AXIS)] += count_direction[GET_AXIS(AXIS)]; \
-            AXIS_APPLY_STEP(AXIS)(INVERT_AXIS_STEP_PIN(AXIS),0); \
+          _COUNTER(axis) += current_block->steps[_AXIS(AXIS)]; \
+          if (_COUNTER(axis) > 0) { \
+            _APPLY_STEP(AXIS)(!_INVERT_STEP_PIN(AXIS),0); \
+            _COUNTER(axis) -= current_block->step_event_count; \
+            count_position[_AXIS(AXIS)] += count_direction[_AXIS(AXIS)]; \
+            _APPLY_STEP(AXIS)(_INVERT_STEP_PIN(AXIS),0); \
           }
 
         APPLY_MOVEMENT(x, X);
@@ -1022,15 +1023,16 @@ void st_init() {
   #endif
 #endif
 
-  #define AXIS_STEP_INIT(AXIS) AXIS ##_STEP_INIT
-  #define DISABLE_AXIS(axis) disable_## axis()
+  #define _STEP_INIT(AXIS) AXIS ##_STEP_INIT
+  #define _DISABLE(axis) disable_## axis()
 
   #define AXIS_INIT(axis, AXIS, PIN) \
-    AXIS_STEP_INIT(AXIS); \
-    AXIS_STEP_WRITE(AXIS, INVERT_AXIS_STEP_PIN(PIN)); \
-    DISABLE_AXIS(axis)
+    _STEP_INIT(AXIS); \
+    _WRITE_STEP(AXIS, _INVERT_STEP_PIN(PIN)); \
+    _DISABLE(axis)
 
-  #define E_AXIS_INIT(NUM) AXIS_INIT(e## NUM, E## NUM, E)
+  #define _EXTRUDER(NUM) e## NUM
+  #define E_AXIS_INIT(NUM) AXIS_INIT(_EXTRUDER(NUM), _EXTRUDER(NUM), E)
 
   // Initialize Step Pins
   #if HAS_X_STEP
@@ -1161,19 +1163,19 @@ void quickStop() {
   // No other ISR should ever interrupt this!
   void babystep(const uint8_t axis, const bool direction) {
     
-    #define ENABLE_AXIS(axis) enable_## axis()
-    #define AXIS_DIR_READ(AXIS) AXIS ##_DIR_READ
-    #define INVERT_AXIS_DIR(AXIS) INVERT_## AXIS ##_DIR
-    #define AXIS_APPLY_DIR(AXIS, INVERT) AXIS ##_APPLY_DIR(INVERT, true)
+    #define _ENABLE(axis) enable_## axis()
+    #define _READ_DIR(AXIS) AXIS ##_DIR_READ
+    #define _INVERT_DIR(AXIS) INVERT_## AXIS ##_DIR
+    #define _APPLY_DIR(AXIS, INVERT) AXIS ##_APPLY_DIR(INVERT, true)
     
     #define BABYSTEP_AXIS(axis, AXIS, INVERT) { \
-        ENABLE_AXIS(axis); \
-        uint8_t old_pin = AXIS_DIR_READ(AXIS); \
-        AXIS_APPLY_DIR(AXIS, INVERT_AXIS_DIR(AXIS)^direction^INVERT); \
-        AXIS_APPLY_STEP(AXIS)(!INVERT_AXIS_STEP_PIN(AXIS), true); \
+        _ENABLE(axis); \
+        uint8_t old_pin = _READ_DIR(AXIS); \
+        _APPLY_DIR(AXIS, _INVERT_DIR(AXIS)^direction^INVERT); \
+        _APPLY_STEP(AXIS)(!_INVERT_STEP_PIN(AXIS), true); \
         delayMicroseconds(2); \
-        AXIS_APPLY_STEP(AXIS)(INVERT_AXIS_STEP_PIN(AXIS), true); \
-        AXIS_APPLY_DIR(AXIS, old_pin); \
+        _APPLY_STEP(AXIS)(_INVERT_STEP_PIN(AXIS), true); \
+        _APPLY_DIR(AXIS, old_pin); \
       }
 
     switch(axis) {
