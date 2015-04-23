@@ -27,7 +27,7 @@ namespace screen
 
 	void ScreenMenu::right()
 	{
-		if (m_index == 15)
+		if ( m_index == (m_num_items -1) )
 		{
 			m_index = 0;
       }
