@@ -5,7 +5,7 @@
 
 namespace screen
 {
-	const static uint8_t max_items = 16;
+	const static uint8_t max_items = 10;
 
 	typedef enum
 	{
