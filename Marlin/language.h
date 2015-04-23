@@ -32,7 +32,7 @@
 // kana_utf Japanese
 
 #ifndef LANGUAGE_INCLUDE
-  // pick your language from the list above
+  // pick your default from the list above, individual language ist set in LCD section of Configuration.h
   #define LANGUAGE_INCLUDE GENERATE_LANGUAGE_INCLUDE(en)
 #endif
 
@@ -52,6 +52,7 @@
   #define FIRMWARE_URL "http://3dprint.elettronicain.it/"
 #elif MB(K8200)
   #define MACHINE_NAME "K8200"
+  #define FIRMWARE_URL "https://github.com/CONSULitAS/Marlin-K8200"
 #elif MB(5DPRINT)
   #define MACHINE_NAME "Makibox"
 #elif MB(SAV_MKI)
