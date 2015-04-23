@@ -440,12 +440,20 @@ void check_axes_activity() {
         } else {
           fan_kick_end = 0;
         }
-    #endif//FAN_KICKSTART_TIME
+    #endif //FAN_KICKSTART_TIME
     #ifdef FAN_SOFT_PWM
-      fanSpeedSoftPwm = tail_fan_speed;
+	  #ifdef FAN_MIN_PWM
+	    fanSpeedSoftPwm = (tail_fan_speed == 0) ? 0 : ( (tail_fan_speed < FAN_MIN_PWM) ? FAN_MIN_PWM : tail_fan_speed );
+	  #else
+        fanSpeedSoftPwm = tail_fan_speed;
+	  #endif // FAN_MIN_PWM
     #else
-      analogWrite(FAN_PIN, tail_fan_speed);
-    #endif //!FAN_SOFT_PWM
+      #ifdef FAN_MIN_PWM
+        analogWrite(FAN_PIN, (tail_fan_speed == 0) ? 0 : ( (tail_fan_speed < FAN_MIN_PWM) ? FAN_MIN_PWM : tail_fan_speed ) );
+      #else
+        analogWrite(FAN_PIN, tail_fan_speed);
+      #endif // FAN_MIN_PWM
+    #endif // FAN_SOFT_PWM
   #endif // HAS_FAN
 
   #ifdef AUTOTEMP
