@@ -441,18 +441,15 @@ void check_axes_activity() {
           fan_kick_end = 0;
         }
     #endif //FAN_KICKSTART_TIME
-    #ifdef FAN_SOFT_PWM
-	  #ifdef FAN_MIN_PWM
-	    fanSpeedSoftPwm = (tail_fan_speed == 0) ? 0 : ( (tail_fan_speed < FAN_MIN_PWM) ? FAN_MIN_PWM : tail_fan_speed );
-	  #else
-        fanSpeedSoftPwm = tail_fan_speed;
-	  #endif // FAN_MIN_PWM
+    #ifdef FAN_MIN_PWM
+      #define CALC_FAN_SPEED ((tail_fan_speed == 0) ? 0 : ( (tail_fan_speed < FAN_MIN_PWM) ? FAN_MIN_PWM : tail_fan_speed ) )
     #else
-      #ifdef FAN_MIN_PWM
-        analogWrite(FAN_PIN, (tail_fan_speed == 0) ? 0 : ( (tail_fan_speed < FAN_MIN_PWM) ? FAN_MIN_PWM : tail_fan_speed ) );
-      #else
-        analogWrite(FAN_PIN, tail_fan_speed);
-      #endif // FAN_MIN_PWM
+      #define CALC_FAN_SPEED tail_fan_speed
+    #endif // FAN_MIN_PWM
+    #ifdef FAN_SOFT_PWM
+      fanSpeedSoftPwm = CALC_FAN_SPEED;
+    #else
+      analogWrite(FAN_PIN, CALC_FAN_SPEED);
     #endif // FAN_SOFT_PWM
   #endif // HAS_FAN
 
