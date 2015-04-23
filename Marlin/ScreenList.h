@@ -15,8 +15,10 @@ namespace screen
 			void right();
 			void draw();
 			Screen & press(void (*action)(void));
+         void add(Screen & component);
 
 		private:
+         Screen * m_next_screen;
 	};
 }
 

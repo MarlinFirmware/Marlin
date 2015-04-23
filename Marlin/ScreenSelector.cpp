@@ -25,6 +25,11 @@ namespace screen
 
 	Screen & ScreenSelector::press(void (*action)(void))
 	{
-		return * this;
+		return * m_next_screen;
 	}
+
+   void ScreenSelector::add(Screen & component)
+   {
+      m_next_screen = &component;
+   }
 }
