@@ -990,10 +990,10 @@ static void axis_is_at_home(int axis) {
   #endif
 
   #ifdef SCARA
-    float homeposition[3];
    
-    if (axis < 2) {
+    if (axis == X_AXIS || axis == Y_AXIS) {
 
+      float homeposition[3];
       for (int i = 0; i < 3; i++) homeposition[i] = base_home_pos(i);
 
       // SERIAL_ECHOPGM("homeposition[x]= "); SERIAL_ECHO(homeposition[0]);
@@ -1023,17 +1023,14 @@ static void axis_is_at_home(int axis) {
       // inverse kinematic transform.
       min_pos[axis] = base_min_pos(axis); // + (delta[axis] - base_home_pos(axis));
       max_pos[axis] = base_max_pos(axis); // + (delta[axis] - base_home_pos(axis));
-    } 
-    else {
-      current_position[axis] = base_home_pos(axis) + home_offset[axis];
-      min_pos[axis] = base_min_pos(axis) + home_offset[axis];
-      max_pos[axis] = base_max_pos(axis) + home_offset[axis];
     }
-  #else
+    else
+  #endif
+  {
     current_position[axis] = base_home_pos(axis) + home_offset[axis];
     min_pos[axis] = base_min_pos(axis) + home_offset[axis];
     max_pos[axis] = base_max_pos(axis) + home_offset[axis];
-  #endif
+  }
 }
 
 /**
