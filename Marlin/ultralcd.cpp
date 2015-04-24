@@ -648,26 +648,26 @@ static void lcd_prepare_menu() {
 
 #endif // DELTA_CALIBRATION_MENU
 
-inline void line_to_current() {
+inline void line_to_current(AxisEnum axis) {
   #ifdef DELTA
     calculate_delta(current_position);
-    plan_buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], current_position[E_AXIS], manual_feedrate[X_AXIS]/60, active_extruder);
+    plan_buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], current_position[E_AXIS], manual_feedrate[axis]/60, active_extruder);
   #else
-    plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], manual_feedrate[X_AXIS]/60, active_extruder);
+    plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], manual_feedrate[axis]/60, active_extruder);
   #endif
 }
 
 float move_menu_scale;
 static void lcd_move_menu_axis();
 
-static void _lcd_move(const char *name, int axis, int min, int max) {
+static void _lcd_move(const char *name, AxisEnum axis, int min, int max) {
   if (encoderPosition != 0) {
     refresh_cmd_timeout();
     current_position[axis] += float((int)encoderPosition) * move_menu_scale;
     if (min_software_endstops && current_position[axis] < min) current_position[axis] = min;
     if (max_software_endstops && current_position[axis] > max) current_position[axis] = max;
     encoderPosition = 0;
-    line_to_current();
+    line_to_current(axis);
     lcdDrawUpdate = 1;
   }
   if (lcdDrawUpdate) lcd_implementation_drawedit(name, ftostr31(current_position[axis]));
@@ -680,7 +680,7 @@ static void lcd_move_e() {
   if (encoderPosition != 0) {
     current_position[E_AXIS] += float((int)encoderPosition) * move_menu_scale;
     encoderPosition = 0;
-    line_to_current();
+    line_to_current(E_AXIS);
     lcdDrawUpdate = 1;
   }
   if (lcdDrawUpdate) lcd_implementation_drawedit(PSTR("Extruder"), ftostr31(current_position[E_AXIS]));
@@ -1803,7 +1803,7 @@ char *ftostr52(const float &x) {
       if (min_software_endstops && current_position[Z_AXIS] < Z_MIN_POS) current_position[Z_AXIS] = Z_MIN_POS;
       if (max_software_endstops && current_position[Z_AXIS] > Z_MAX_POS) current_position[Z_AXIS] = Z_MAX_POS;
       encoderPosition = 0;
-      line_to_current();
+      line_to_current(Z_AXIS);
       lcdDrawUpdate = 2;
     }
     if (lcdDrawUpdate) lcd_implementation_drawedit(PSTR("Z"), ftostr43(current_position[Z_AXIS]));
@@ -1811,48 +1811,44 @@ char *ftostr52(const float &x) {
     if (LCD_CLICKED) {
       if (!debounce_click) {
         debounce_click = true;
-        int ix = _lcd_level_bed_position % MESH_NUM_X_POINTS;
-        int iy = _lcd_level_bed_position / MESH_NUM_X_POINTS;
-        if (iy&1) { // Zig zag
-          ix = (MESH_NUM_X_POINTS - 1) - ix;
-        }
+        int ix = _lcd_level_bed_position % MESH_NUM_X_POINTS,
+            iy = _lcd_level_bed_position / MESH_NUM_X_POINTS;
+        if (iy & 1) ix = (MESH_NUM_X_POINTS - 1) - ix; // Zig zag
         mbl.set_z(ix, iy, current_position[Z_AXIS]);
         _lcd_level_bed_position++;
         if (_lcd_level_bed_position == MESH_NUM_X_POINTS*MESH_NUM_Y_POINTS) {
           current_position[Z_AXIS] = MESH_HOME_SEARCH_Z;
-          line_to_current();
+          line_to_current(Z_AXIS);
           mbl.active = 1;
           enqueuecommands_P(PSTR("G28"));
           lcd_return_to_status();
-        } else {
+        }
+        else {
           current_position[Z_AXIS] = MESH_HOME_SEARCH_Z;
-          line_to_current();
+          line_to_current(Z_AXIS);
           ix = _lcd_level_bed_position % MESH_NUM_X_POINTS;
           iy = _lcd_level_bed_position / MESH_NUM_X_POINTS;
-          if (iy&1) { // Zig zag
-            ix = (MESH_NUM_X_POINTS - 1) - ix;
-          }
+          if (iy & 1) ix = (MESH_NUM_X_POINTS - 1) - ix; // Zig zag
           current_position[X_AXIS] = mbl.get_x(ix);
           current_position[Y_AXIS] = mbl.get_y(iy);
-          line_to_current();
+          line_to_current(manual_feedrate[X_AXIS] <= manual_feedrate[Y_AXIS] ? X_AXIS : Y_AXIS);
           lcdDrawUpdate = 2;
         }
       }
-    } else {
+    }
+    else {
       debounce_click = false;
     }
   }
 
   static void _lcd_level_bed_homing() {
     if (lcdDrawUpdate) lcd_implementation_drawedit(PSTR("XYZ"), "Homing");
-    if (axis_known_position[X_AXIS] &&
-        axis_known_position[Y_AXIS] &&
-        axis_known_position[Z_AXIS]) {
+    if (axis_known_position[X_AXIS] && axis_known_position[Y_AXIS] && axis_known_position[Z_AXIS]) {
       current_position[Z_AXIS] = MESH_HOME_SEARCH_Z;
       plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
       current_position[X_AXIS] = MESH_MIN_X;
       current_position[Y_AXIS] = MESH_MIN_Y;
-      line_to_current();
+      line_to_current(manual_feedrate[X_AXIS] <= manual_feedrate[Y_AXIS] ? X_AXIS : Y_AXIS);
       _lcd_level_bed_position = 0;
       lcd_goto_menu(_lcd_level_bed);
     }
@@ -1860,9 +1856,7 @@ char *ftostr52(const float &x) {
   }
 
   static void lcd_level_bed() {
-    axis_known_position[X_AXIS] = false;
-    axis_known_position[Y_AXIS] = false;
-    axis_known_position[Z_AXIS] = false;
+    axis_known_position[X_AXIS] = axis_known_position[Y_AXIS] = axis_known_position[Z_AXIS] = false;
     mbl.reset();
     enqueuecommands_P(PSTR("G28"));
     lcdDrawUpdate = 2;
