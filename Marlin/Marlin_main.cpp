@@ -990,10 +990,10 @@ static void axis_is_at_home(int axis) {
   #endif
 
   #ifdef SCARA
-    float homeposition[3];
    
-    if (axis < 2) {
+    if (axis == X_AXIS || axis == Y_AXIS) {
 
+      float homeposition[3];
       for (int i = 0; i < 3; i++) homeposition[i] = base_home_pos(i);
 
       // SERIAL_ECHOPGM("homeposition[x]= "); SERIAL_ECHO(homeposition[0]);
@@ -1023,21 +1023,18 @@ static void axis_is_at_home(int axis) {
       // inverse kinematic transform.
       min_pos[axis] = base_min_pos(axis); // + (delta[axis] - base_home_pos(axis));
       max_pos[axis] = base_max_pos(axis); // + (delta[axis] - base_home_pos(axis));
-    } 
-    else {
-      current_position[axis] = base_home_pos(axis) + home_offset[axis];
-      min_pos[axis] = base_min_pos(axis) + home_offset[axis];
-      max_pos[axis] = base_max_pos(axis) + home_offset[axis];
     }
-  #else
+    else
+  #endif
+  {
     current_position[axis] = base_home_pos(axis) + home_offset[axis];
     min_pos[axis] = base_min_pos(axis) + home_offset[axis];
     max_pos[axis] = base_max_pos(axis) + home_offset[axis];
-  #endif
 
-  #if defined(ENABLE_AUTO_BED_LEVELING) && Z_HOME_DIR < 0
-    if (axis == Z_AXIS) current_position[Z_AXIS] += zprobe_zoffset;
-  #endif
+    #if defined(ENABLE_AUTO_BED_LEVELING) && Z_HOME_DIR < 0
+      if (axis == Z_AXIS) current_position[Z_AXIS] += zprobe_zoffset;
+    #endif
+  }
 }
 
 /**
@@ -1505,13 +1502,11 @@ static void homeaxis(AxisEnum axis) {
 
   if (axis == X_AXIS ? HOMEAXIS_DO(X) : axis == Y_AXIS ? HOMEAXIS_DO(Y) : axis == Z_AXIS ? HOMEAXIS_DO(Z) : 0) {
 
-    int axis_home_dir;
-
-    #ifdef DUAL_X_CARRIAGE
-      if (axis == X_AXIS) axis_home_dir = x_home_dir(active_extruder);
-    #else
-      axis_home_dir = home_dir(axis);
-    #endif
+    int axis_home_dir =
+      #ifdef DUAL_X_CARRIAGE
+        (axis == X_AXIS) ? x_home_dir(active_extruder) :
+      #endif
+      home_dir(axis);
 
     // Set the axis position as setup for the move
     current_position[axis] = 0;
@@ -3806,23 +3801,23 @@ inline void gcode_M206() {
    * M666: Set delta endstop adjustment
    */
   inline void gcode_M666() {
-    for (int8_t i = 0; i < 3; i++) {
+    for (int8_t i = X_AXIS; i <= Z_AXIS; i++) {
       if (code_seen(axis_codes[i])) {
         endstop_adj[i] = code_value();
       }
     }
   }
-#elif defined(Z_DUAL_ENDSTOPS)
+#elif defined(Z_DUAL_ENDSTOPS) // !DELTA && defined(Z_DUAL_ENDSTOPS)
   /**
    * M666: For Z Dual Endstop setup, set z axis offset to the z2 axis.
    */
   inline void gcode_M666() {
-   if (code_seen('Z')) z_endstop_adj = code_value();
-   SERIAL_ECHOPAIR("Z Endstop Adjustment set to (mm):", z_endstop_adj );
-   SERIAL_EOL;
+    if (code_seen('Z')) z_endstop_adj = code_value();
+    SERIAL_ECHOPAIR("Z Endstop Adjustment set to (mm):", z_endstop_adj);
+    SERIAL_EOL;
   }
   
-#endif // DELTA
+#endif // !DELTA && defined(Z_DUAL_ENDSTOPS)
 
 #ifdef FWRETRACT
 
