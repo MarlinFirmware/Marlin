@@ -3576,10 +3576,28 @@ inline void gcode_M115() {
  * M117: Set LCD Status Message
  */
 inline void gcode_M117() {
-  char* codepos = strchr_pointer + 5;
+  millis_t codenum = 0;
+  char* codepos;
+  if (code_seen('S')) {
+    codenum = code_value_long() * 1000; // display string at least Sxx seconds
+    codepos = strchr_pointer + ((codenum < 10000) ? 3: 4);
+    codenum = (codenum < 60000) ? codenum : 60000; // Limit to one minute
+  }
+  else
+    codepos = strchr_pointer + 5;
+
   char* starpos = strchr(codepos, '*');
   if (starpos) *starpos = '\0';
   lcd_setstatus(codepos);
+
+  st_synchronize();
+  refresh_cmd_timeout();
+  codenum += previous_cmd_ms;  // keep track of when we started waiting
+  while (millis() < codenum) {
+    manage_heater();
+    manage_inactivity();
+    lcd_update();
+  }
 }
 
 /**
