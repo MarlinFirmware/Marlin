@@ -463,15 +463,23 @@ ISR(TIMER1_COMPA_vect) {
       count_direction[Y_AXIS] = 1;
     }
 
+    #define _ENDSTOP(axis, minmax) axis ##_## minmax ##_endstop
+    #define _ENDSTOP_PIN(AXIS, MINMAX) AXIS ##_## MINMAX ##_PIN
+    #define _ENDSTOP_INVERTING(AXIS, MINMAX) AXIS ##_## MINMAX ##_ENDSTOP_INVERTING
+    #define _OLD_ENDSTOP(axis, minmax) old_## axis ##_## minmax ##_endstop
+    #define _AXIS(AXIS) AXIS ##_AXIS
+    #define _ENDSTOP_HIT(axis) endstop_## axis ##_hit
+    
     #define UPDATE_ENDSTOP(axis,AXIS,minmax,MINMAX) \
-      bool axis ##_## minmax ##_endstop = (READ(AXIS ##_## MINMAX ##_PIN) != AXIS ##_## MINMAX ##_ENDSTOP_INVERTING); \
-      if (axis ##_## minmax ##_endstop && old_## axis ##_## minmax ##_endstop && (current_block->steps[AXIS ##_AXIS] > 0)) { \
-        endstops_trigsteps[AXIS ##_AXIS] = count_position[AXIS ##_AXIS]; \
-        endstop_## axis ##_hit = true; \
+      bool _ENDSTOP(axis, minmax) = (READ(_ENDSTOP_PIN(AXIS, MINMAX)) != _ENDSTOP_INVERTING(AXIS, MINMAX)); \
+      if (_ENDSTOP(axis, minmax) && _OLD_ENDSTOP(axis, minmax) && (current_block->steps[_AXIS(AXIS)] > 0)) { \
+        endstops_trigsteps[_AXIS(AXIS)] = count_position[_AXIS(AXIS)]; \
+        _ENDSTOP_HIT(axis) = true; \
         step_events_completed = current_block->step_event_count; \
       } \
-      old_## axis ##_## minmax ##_endstop = axis ##_## minmax ##_endstop;
-
+      _OLD_ENDSTOP(axis, minmax) = _ENDSTOP(axis, minmax);
+	  
+	
     // Check X and Y endstops
     if (check_endstops) {
       #ifdef COREXY
@@ -667,6 +675,11 @@ ISR(TIMER1_COMPA_vect) {
         }
       #endif //ADVANCE
 
+      #define _COUNTER(axis) counter_## axis
+      #define _WRITE_STEP(AXIS, HIGHLOW) AXIS ##_STEP_WRITE(HIGHLOW)
+      #define _APPLY_STEP(AXIS) AXIS ##_APPLY_STEP
+      #define _INVERT_STEP_PIN(AXIS) INVERT_## AXIS ##_STEP_PIN
+
       #ifdef CONFIG_STEPPERS_TOSHIBA
         /**
          * The Toshiba stepper controller require much longer pulses.
@@ -675,8 +688,8 @@ ISR(TIMER1_COMPA_vect) {
          * lag to allow it work with without needing NOPs
          */
         #define STEP_ADD(axis, AXIS) \
-         counter_## axis += current_block->steps[AXIS ##_AXIS]; \
-         if (counter_## axis > 0) { AXIS ##_STEP_WRITE(HIGH); }
+         _COUNTER(axis) += current_block->steps[_AXIS(AXIS)]; \
+         if (_COUNTER(axis) > 0) { _WRITE_STEP(AXIS, HIGH); }
         STEP_ADD(x,X);
         STEP_ADD(y,Y);
         STEP_ADD(z,Z);
@@ -685,10 +698,10 @@ ISR(TIMER1_COMPA_vect) {
         #endif
 
         #define STEP_IF_COUNTER(axis, AXIS) \
-          if (counter_## axis > 0) { \
-            counter_## axis -= current_block->step_event_count; \
-            count_position[AXIS ##_AXIS] += count_direction[AXIS ##_AXIS]; \
-            AXIS ##_STEP_WRITE(LOW); \
+          if (_COUNTER(axis) > 0) { \
+            _COUNTER(axis) -= current_block->step_event_count; \
+            count_position[_AXIS(AXIS)] += count_direction[_AXIS(AXIS)]; \
+            _WRITE_STEP(AXIS, LOW); \
           }
 
         STEP_IF_COUNTER(x, X);
@@ -701,12 +714,12 @@ ISR(TIMER1_COMPA_vect) {
       #else // !CONFIG_STEPPERS_TOSHIBA
 
         #define APPLY_MOVEMENT(axis, AXIS) \
-          counter_## axis += current_block->steps[AXIS ##_AXIS]; \
-          if (counter_## axis > 0) { \
-            AXIS ##_APPLY_STEP(!INVERT_## AXIS ##_STEP_PIN,0); \
-            counter_## axis -= current_block->step_event_count; \
-            count_position[AXIS ##_AXIS] += count_direction[AXIS ##_AXIS]; \
-            AXIS ##_APPLY_STEP(INVERT_## AXIS ##_STEP_PIN,0); \
+          _COUNTER(axis) += current_block->steps[_AXIS(AXIS)]; \
+          if (_COUNTER(axis) > 0) { \
+            _APPLY_STEP(AXIS)(!_INVERT_STEP_PIN(AXIS),0); \
+            _COUNTER(axis) -= current_block->step_event_count; \
+            count_position[_AXIS(AXIS)] += count_direction[_AXIS(AXIS)]; \
+            _APPLY_STEP(AXIS)(_INVERT_STEP_PIN(AXIS),0); \
           }
 
         APPLY_MOVEMENT(x, X);
@@ -1010,10 +1023,13 @@ void st_init() {
   #endif
 #endif
 
+  #define _STEP_INIT(AXIS) AXIS ##_STEP_INIT
+  #define _DISABLE(axis) disable_## axis()
+
   #define AXIS_INIT(axis, AXIS, PIN) \
-    AXIS ##_STEP_INIT; \
-    AXIS ##_STEP_WRITE(INVERT_## PIN ##_STEP_PIN); \
-    disable_## axis()
+    _STEP_INIT(AXIS); \
+    _WRITE_STEP(AXIS, _INVERT_STEP_PIN(PIN)); \
+    _DISABLE(axis)
 
   #define E_AXIS_INIT(NUM) AXIS_INIT(e## NUM, E## NUM, E)
 
@@ -1145,15 +1161,20 @@ void quickStop() {
   // MUST ONLY BE CALLED BY AN ISR,
   // No other ISR should ever interrupt this!
   void babystep(const uint8_t axis, const bool direction) {
-
+    
+    #define _ENABLE(axis) enable_## axis()
+    #define _READ_DIR(AXIS) AXIS ##_DIR_READ
+    #define _INVERT_DIR(AXIS) INVERT_## AXIS ##_DIR
+    #define _APPLY_DIR(AXIS, INVERT) AXIS ##_APPLY_DIR(INVERT, true)
+    
     #define BABYSTEP_AXIS(axis, AXIS, INVERT) { \
-        enable_## axis(); \
-        uint8_t old_pin = AXIS ##_DIR_READ; \
-        AXIS ##_APPLY_DIR(INVERT_## AXIS ##_DIR^direction^INVERT, true); \
-        AXIS ##_APPLY_STEP(!INVERT_## AXIS ##_STEP_PIN, true); \
+        _ENABLE(axis); \
+        uint8_t old_pin = _READ_DIR(AXIS); \
+        _APPLY_DIR(AXIS, _INVERT_DIR(AXIS)^direction^INVERT); \
+        _APPLY_STEP(AXIS)(!_INVERT_STEP_PIN(AXIS), true); \
         delayMicroseconds(2); \
-        AXIS ##_APPLY_STEP(INVERT_## AXIS ##_STEP_PIN, true); \
-        AXIS ##_APPLY_DIR(old_pin, true); \
+        _APPLY_STEP(AXIS)(_INVERT_STEP_PIN(AXIS), true); \
+        _APPLY_DIR(AXIS, old_pin); \
       }
 
     switch(axis) {
