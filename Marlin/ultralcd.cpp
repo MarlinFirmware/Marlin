@@ -1831,7 +1831,7 @@ char *ftostr52(const float &x) {
           if (iy & 1) ix = (MESH_NUM_X_POINTS - 1) - ix; // Zig zag
           current_position[X_AXIS] = mbl.get_x(ix);
           current_position[Y_AXIS] = mbl.get_y(iy);
-          line_to_current(X_AXIS);
+          line_to_current(manual_feedrate[X_AXIS] <= manual_feedrate[Y_AXIS] ? X_AXIS : Y_AXIS);
           lcdDrawUpdate = 2;
         }
       }
@@ -1848,7 +1848,7 @@ char *ftostr52(const float &x) {
       plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
       current_position[X_AXIS] = MESH_MIN_X;
       current_position[Y_AXIS] = MESH_MIN_Y;
-      line_to_current(X_AXIS);
+      line_to_current(manual_feedrate[X_AXIS] <= manual_feedrate[Y_AXIS] ? X_AXIS : Y_AXIS);
       _lcd_level_bed_position = 0;
       lcd_goto_menu(_lcd_level_bed);
     }
