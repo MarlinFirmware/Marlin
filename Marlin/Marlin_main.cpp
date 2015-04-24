@@ -3801,23 +3801,23 @@ inline void gcode_M206() {
    * M666: Set delta endstop adjustment
    */
   inline void gcode_M666() {
-    for (int8_t i = 0; i < 3; i++) {
+    for (int8_t i = X_AXIS; i <= Z_AXIS; i++) {
       if (code_seen(axis_codes[i])) {
         endstop_adj[i] = code_value();
       }
     }
   }
-#elif defined(Z_DUAL_ENDSTOPS)
+#elif defined(Z_DUAL_ENDSTOPS) // !DELTA && defined(Z_DUAL_ENDSTOPS)
   /**
    * M666: For Z Dual Endstop setup, set z axis offset to the z2 axis.
    */
   inline void gcode_M666() {
-   if (code_seen('Z')) z_endstop_adj = code_value();
-   SERIAL_ECHOPAIR("Z Endstop Adjustment set to (mm):", z_endstop_adj );
-   SERIAL_EOL;
+    if (code_seen('Z')) z_endstop_adj = code_value();
+    SERIAL_ECHOPAIR("Z Endstop Adjustment set to (mm):", z_endstop_adj);
+    SERIAL_EOL;
   }
   
-#endif // DELTA
+#endif // !DELTA && defined(Z_DUAL_ENDSTOPS)
 
 #ifdef FWRETRACT
 
