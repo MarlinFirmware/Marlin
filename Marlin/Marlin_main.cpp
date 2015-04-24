@@ -1504,7 +1504,7 @@ static void homeaxis(AxisEnum axis) {
     int axis_home_dir;
 
     #ifdef DUAL_X_CARRIAGE
-      if (axis == X_AXIS) axis_home_dir = x_home_dir(active_extruder);
+      axis_home_dir = (axis == X_AXIS) ? x_home_dir(active_extruder) : home_dir(axis);
     #else
       axis_home_dir = home_dir(axis);
     #endif
