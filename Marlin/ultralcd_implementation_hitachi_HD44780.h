@@ -196,7 +196,7 @@
 #ifdef LCD_PROGRESS_BAR
   static uint16_t progressBarTick = 0;
   #if PROGRESS_MSG_EXPIRE > 0
-    static uint16_t expireStatusMillis = 0;
+    static uint16_t expire_status_ms = 0;
   #endif
   #define LCD_STR_PROGRESS  "\x03\x04\x05"
 #endif
