@@ -267,8 +267,8 @@ static void lcd_status_screen() {
   #ifdef LCD_PROGRESS_BAR
     millis_t ms = millis();
     #ifndef PROGRESS_MSG_ONCE
-      if (ms > progressBarTick + PROGRESS_BAR_MSG_TIME + PROGRESS_BAR_BAR_TIME) {
-        progressBarTick = ms;
+      if (ms > progress_bar_ms + PROGRESS_BAR_MSG_TIME + PROGRESS_BAR_BAR_TIME) {
+        progress_bar_ms = ms;
       }
     #endif
     #if PROGRESS_MSG_EXPIRE > 0
@@ -1392,9 +1392,9 @@ void lcd_ignore_click(bool b) {
 
 void lcd_finishstatus(bool persist=false) {
   #ifdef LCD_PROGRESS_BAR
-    progressBarTick = millis();
+    progress_bar_ms = millis();
     #if PROGRESS_MSG_EXPIRE > 0
-      expire_status_ms = persist ? 0 : progressBarTick + PROGRESS_MSG_EXPIRE;
+      expire_status_ms = persist ? 0 : progress_bar_ms + PROGRESS_MSG_EXPIRE;
     #endif
   #endif
   lcdDrawUpdate = 2;
