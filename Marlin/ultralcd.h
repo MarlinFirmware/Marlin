@@ -101,7 +101,7 @@
 #else //no LCD
   FORCE_INLINE void lcd_update() {}
   FORCE_INLINE void lcd_init() {}
-  FORCE_INLINE bool lcd_hasstatus() { return false; };
+  FORCE_INLINE bool lcd_hasstatus() { return false; }
   FORCE_INLINE void lcd_setstatus(const char* message, const bool persist=false) {}
   FORCE_INLINE void lcd_setstatuspgm(const char* message, const uint8_t level=0) {}
   FORCE_INLINE void lcd_buttons_update() {}
