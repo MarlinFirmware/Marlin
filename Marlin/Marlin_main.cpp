@@ -1740,14 +1740,15 @@ inline void gcode_G2_G3(bool clockwise) {
 inline void gcode_G4() {
   millis_t codenum = 0;
 
-  LCD_MESSAGEPGM(MSG_DWELL);
-
   if (code_seen('P')) codenum = code_value_long(); // milliseconds to wait
   if (code_seen('S')) codenum = code_value_long() * 1000; // seconds to wait
 
   st_synchronize();
   refresh_cmd_timeout();
   codenum += previous_cmd_ms;  // keep track of when we started waiting
+
+  if (!lcd_hasstatus()) LCD_MESSAGEPGM(MSG_DWELL);
+
   while (millis() < codenum) {
     manage_heater();
     manage_inactivity();
