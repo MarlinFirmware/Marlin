@@ -273,22 +273,22 @@ static void lcd_status_screen() {
     #endif
     #if PROGRESS_MSG_EXPIRE > 0
       // Handle message expire
-      if (expireStatusMillis > 0) {
+      if (expire_status_ms > 0) {
         if (card.isFileOpen()) {
           // Expire the message when printing is active
           if (IS_SD_PRINTING) {
             // Expire the message when printing is active
-            if (ms >= expireStatusMillis) {
+            if (ms >= expire_status_ms) {
               lcd_status_message[0] = '\0';
-              expireStatusMillis = 0;
+              expire_status_ms = 0;
             }
           }
           else {
-            expireStatusMillis += LCD_UPDATE_INTERVAL;
+            expire_status_ms += LCD_UPDATE_INTERVAL;
           }
         }
         else {
-          expireStatusMillis = 0;
+          expire_status_ms = 0;
         }
       }
     #endif
@@ -1394,7 +1394,7 @@ void lcd_finishstatus(bool persist=false) {
   #ifdef LCD_PROGRESS_BAR
     progressBarTick = millis();
     #if PROGRESS_MSG_EXPIRE > 0
-      expireStatusMillis = persist ? 0 : progressBarTick + PROGRESS_MSG_EXPIRE;
+      expire_status_ms = persist ? 0 : progressBarTick + PROGRESS_MSG_EXPIRE;
     #endif
   #endif
   lcdDrawUpdate = 2;
@@ -1405,7 +1405,7 @@ void lcd_finishstatus(bool persist=false) {
 }
 
 #if defined(LCD_PROGRESS_BAR) && PROGRESS_MSG_EXPIRE > 0
-  void dontExpireStatus() { expireStatusMillis = 0; }
+  void dontExpireStatus() { expire_status_ms = 0; }
 #endif
 
 void set_utf_strlen(char *s, uint8_t n) {
@@ -1417,6 +1417,8 @@ void set_utf_strlen(char *s, uint8_t n) {
   while (j++ < n) s[i++] = ' ';
   s[i] = 0;
 }
+
+bool lcd_hasstatus() { return (lcd_status_message[0] != '\0'); }
 
 void lcd_setstatus(const char* message, bool persist) {
   if (lcd_status_message_level > 0) return;
