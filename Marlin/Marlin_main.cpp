@@ -4276,14 +4276,34 @@ inline void gcode_M400() { st_synchronize(); }
 
 #if defined(ENABLE_AUTO_BED_LEVELING) && (defined(SERVO_ENDSTOPS) || defined(Z_PROBE_ALLEN_KEY)) && not defined(Z_PROBE_SLED)
 
+  #ifdef SERVO_ENDSTOPS
+    void raise_z_for_servo() {
+      float zpos = current_position[Z_AXIS], z_dest = Z_RAISE_BEFORE_HOMING;
+      if (!axis_known_position[Z_AXIS]) z_dest += zpos;
+      if (zpos < z_dest)
+        do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], z_dest); // also updates current_position
+    }
+  #endif
+
   /**
    * M401: Engage Z Servo endstop if available
    */
-  inline void gcode_M401() { deploy_z_probe(); }
+  inline void gcode_M401() {
+    #ifdef SERVO_ENDSTOPS
+      raise_z_for_servo();
+    #endif
+    deploy_z_probe();
+  }
+
   /**
    * M402: Retract Z Servo endstop if enabled
    */
-  inline void gcode_M402() { stow_z_probe(); }
+  inline void gcode_M402() {
+    #ifdef SERVO_ENDSTOPS
+      raise_z_for_servo();
+    #endif
+    stow_z_probe();
+  }
 
 #endif
 
