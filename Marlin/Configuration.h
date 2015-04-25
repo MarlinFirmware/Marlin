@@ -425,7 +425,8 @@ const bool Z_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the logic
 #define Z_MIN_POS 0
 #define X_MAX_POS 200
 #define Y_MAX_POS 200
-#define Z_MAX_POS 190 // TODO: edit to suit machine otherwise head crash!!
+#define Z_MAX_POS 189.4 // TODO: edit to suit machine otherwise head crash!!
+// 190 is about right, just a little less.
 
 //===========================================================================
 //============================= Filament Runout Sensor ======================
@@ -541,7 +542,7 @@ const bool Z_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the logic
 //If you have enabled the Bed Auto Leveling and are using the same Z Probe for Z Homing,
 //it is highly recommended you let this Z_SAFE_HOMING enabled!!!
 
-  #define Z_SAFE_HOMING   // This feature is meant to avoid Z homing with probe outside the bed area.
+//  #define Z_SAFE_HOMING   // This feature is meant to avoid Z homing with probe outside the bed area.
                           // When defined, it will:
                           // - Allow Z homing only after X and Y homing AND stepper drivers still enabled
                           // - If stepper drivers timeout, it will need X and Y homing again before Z homing
