@@ -8,6 +8,7 @@
   int lcd_strlen_P(const char *s);
   void lcd_update();
   void lcd_init();
+  bool lcd_hasstatus();
   void lcd_setstatus(const char* message, const bool persist=false);
   void lcd_setstatuspgm(const char* message, const uint8_t level=0);
   void lcd_setalertstatuspgm(const char* message);

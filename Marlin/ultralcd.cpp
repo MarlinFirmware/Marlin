@@ -1418,6 +1418,8 @@ void set_utf_strlen(char *s, uint8_t n) {
   s[i] = 0;
 }
 
+bool lcd_hasstatus() { return (lcd_status_message[0] != '\0'); }
+
 void lcd_setstatus(const char* message, bool persist) {
   if (lcd_status_message_level > 0) return;
   strncpy(lcd_status_message, message, 3*LCD_WIDTH);
