@@ -890,8 +890,11 @@ void get_command() {
 }
 
 bool code_has_value() {
-  char c = strchr_pointer[1];
-  return (c >= '0' && c <= '9') || c == '-' || c == '+' || c == '.';
+  int i = 1;
+  char c = strchr_pointer[i];
+  if (c == '-' || c == '+') c = strchr_pointer[++i];
+  if (c == '.') c = strchr_pointer[++i];
+  return (c >= '0' && c <= '9');
 }
 
 float code_value() {
