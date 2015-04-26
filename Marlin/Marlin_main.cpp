@@ -49,18 +49,18 @@
 #include "motion_control.h"
 #include "cardreader.h"
 #include "watchdog.h"
-#include "ConfigurationStore.h"
+#include "configuration_store.h"
 #include "language.h"
 #include "pins_arduino.h"
 #include "math.h"
 
 #ifdef BLINKM
-  #include "BlinkM.h"
+  #include "blinkm.h"
   #include "Wire.h"
 #endif
 
 #if NUM_SERVOS > 0
-  #include "Servo.h"
+  #include "servo.h"
 #endif
 
 #if HAS_DIGIPOTSS
@@ -4417,7 +4417,7 @@ inline void gcode_M503() {
     if (code_seen('Z')) {
       value = code_value();
       if (Z_PROBE_OFFSET_RANGE_MIN <= value && value <= Z_PROBE_OFFSET_RANGE_MAX) {
-        zprobe_zoffset = -value; // compare w/ line 278 of ConfigurationStore.cpp
+        zprobe_zoffset = -value; // compare w/ line 278 of configuration_store.cpp
         SERIAL_ECHO_START;
         SERIAL_ECHOLNPGM(MSG_ZPROBE_ZOFFSET " " MSG_OK);
         SERIAL_EOL;

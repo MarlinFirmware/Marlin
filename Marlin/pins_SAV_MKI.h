@@ -82,7 +82,7 @@
   #define HOME_PIN          -1 // A4 = marlin 44 - teensy = 42
 
   #ifdef NUM_SERVOS
-    #define SERVO0_PIN       41 // In teensy's pin definition for pinMode (in Servo.cpp)
+    #define SERVO0_PIN       41 // In teensy's pin definition for pinMode (in servo.cpp)
   #endif
 
 #endif // SAV_3DLCD
