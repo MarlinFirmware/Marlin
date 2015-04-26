@@ -5,7 +5,7 @@
 #include "cardreader.h"
 #include "temperature.h"
 #include "stepper.h"
-#include "ConfigurationStore.h"
+#include "configuration_store.h"
 
 int8_t encoderDiff; /* encoderDiff is updated from interrupt context and added to encoderPosition every LCD update */
 
