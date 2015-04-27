@@ -413,6 +413,12 @@ bool setTargetedHotend(int code){
 }
 
 /**
+ *
+ * GCode Handler Functions
+ *
+ */
+
+/**
  * G0, G1: Coordinated movement of X Y Z E axes
  */
 inline void gcode_G0_G1() {
