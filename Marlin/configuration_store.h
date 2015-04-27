@@ -1,5 +1,5 @@
-#ifndef CONFIGURATIONSTORE_H
-#define CONFIGURATIONSTORE_H
+#ifndef CONFIGURATION_STORE_H
+#define CONFIGURATION_STORE_H
 
 #include "Configuration.h"
 
@@ -19,4 +19,4 @@ void Config_ResetDefault();
   FORCE_INLINE void Config_RetrieveSettings() { Config_ResetDefault(); Config_PrintSettings(); }
 #endif
 
-#endif //CONFIGURATIONSTORE_H
+#endif //CONFIGURATION_STORE_H
