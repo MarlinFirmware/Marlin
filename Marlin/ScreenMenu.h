@@ -11,7 +11,7 @@ namespace screen
 	{
 		public:
 			ScreenMenu(const char * label = 0);
-			~ScreenMenu();
+			virtual ~ScreenMenu();
 
 			void left();
 			void right();

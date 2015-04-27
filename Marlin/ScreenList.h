@@ -9,7 +9,7 @@ namespace screen
 	{
 		public:
 			ScreenList(const char * label);
-			~ScreenList();
+			virtual ~ScreenList();
 
 			void left();
 			void right();

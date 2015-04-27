@@ -20,7 +20,7 @@ namespace screen
 	{
 		public:
 			Screen(const char * label, ScreenType_t const & type);
-			~Screen();
+			virtual ~Screen();
 
 			const char * label() const;
 			ScreenType_t const & type() const;
