@@ -325,30 +325,21 @@ void Config_RetrieveSettings() {
     EEPROM_READ_VAR(i, max_e_jerk);
     EEPROM_READ_VAR(i, home_offset);
 
-    uint8_t mesh_num_x = 0;
-    uint8_t mesh_num_y = 0;
+    uint8_t dummy_uint8 = 0, mesh_num_x = 0, mesh_num_y = 0;
+    EEPROM_READ_VAR(i, dummy_uint8);
+    EEPROM_READ_VAR(i, mesh_num_x);
+    EEPROM_READ_VAR(i, mesh_num_y);
     #ifdef MESH_BED_LEVELING
-      EEPROM_READ_VAR(i, mbl.active);
-      EEPROM_READ_VAR(i, mesh_num_x);
-      EEPROM_READ_VAR(i, mesh_num_y);
-      if (mesh_num_x != MESH_NUM_X_POINTS ||
-          mesh_num_y != MESH_NUM_Y_POINTS) {
-        mbl.reset();
-        for (int q=0; q<mesh_num_x*mesh_num_y; q++) {
-          EEPROM_READ_VAR(i, dummy);
-        }
-      } else {
+      mbl.active = dummy_uint8;
+      if (mesh_num_x == MESH_NUM_X_POINTS && mesh_num_y == MESH_NUM_Y_POINTS) {
         EEPROM_READ_VAR(i, mbl.z_values);
+      } else {
+        mbl.reset();
+        for (int q = 0; q < mesh_num_x * mesh_num_y; q++) EEPROM_READ_VAR(i, dummy);
       }
     #else
-      uint8_t dummy_uint8 = 0;
-      EEPROM_READ_VAR(i, dummy_uint8);
-      EEPROM_READ_VAR(i, mesh_num_x);
-      EEPROM_READ_VAR(i, mesh_num_y);
-      for (int q=0; q<mesh_num_x*mesh_num_y; q++) {
-        EEPROM_READ_VAR(i, dummy);
-      }
-    #endif  // MESH_BED_LEVELING
+      for (int q = 0; q < mesh_num_x * mesh_num_y; q++) EEPROM_READ_VAR(i, dummy);
+    #endif // MESH_BED_LEVELING
 
     #ifndef ENABLE_AUTO_BED_LEVELING
       float zprobe_zoffset = 0;
