@@ -3395,16 +3395,23 @@ inline void gcode_M140() {
       SERIAL_ERRORLNPGM(MSG_ERR_MATERIAL_INDEX);
     }
     else {
+      int v;
       switch (material) {
         case 0:
-          if (code_seen('H')) plaPreheatHotendTemp = code_value_short();
-          if (code_seen('B')) plaPreheatHPBTemp = code_value_short();
-          if (code_seen('F')) plaPreheatFanSpeed = code_value_short();
+          if (code_seen('H')) { v = code_value_short();
+                                plaPreheatHotendTemp = constrain(v, EXTRUDE_MINTEMP, HEATER_0_MAXTEMP - 15); }
+          if (code_seen('B')) { v = code_value_short();
+                                plaPreheatHPBTemp = constrain(v, BED_MINTEMP, BED_MAXTEMP - 15); }
+          if (code_seen('F')) { v = code_value_short();
+                                plaPreheatFanSpeed = constrain(v, 0, 255); }
           break;
         case 1:
-          if (code_seen('H')) absPreheatHotendTemp = code_value_short();
-          if (code_seen('B')) absPreheatHPBTemp = code_value_short();
-          if (code_seen('F')) absPreheatFanSpeed = code_value_short();
+          if (code_seen('H')) { t = code_value_short();
+                                absPreheatHotendTemp = constrain(v, EXTRUDE_MINTEMP, HEATER_0_MAXTEMP - 15); }
+          if (code_seen('B')) { v = code_value_short();
+                                absPreheatHPBTemp = constrain(v, BED_MINTEMP, BED_MAXTEMP - 15); }
+          if (code_seen('F')) { v = code_value_short();
+                                absPreheatFanSpeed = constrain(v, 0, 255); }
           break;
       }
     }
