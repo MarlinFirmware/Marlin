@@ -223,6 +223,18 @@ void Stop();
   void filrunout();
 #endif
 
+/**
+ * Debug flags - not yet widely applied
+ */
+enum DebugFlags {
+  DEBUG_ECHO          = BIT(0),
+  DEBUG_INFO          = BIT(1),
+  DEBUG_ERRORS        = BIT(2),
+  DEBUG_DRYRUN        = BIT(3),
+  DEBUG_COMMUNICATION = BIT(4)
+};
+extern uint8_t marlin_debug_flags;
+
 extern bool Running;
 inline bool IsRunning() { return  Running; }
 inline bool IsStopped() { return !Running; }

@@ -1,5 +1,5 @@
 /*
-  BlinkM.h
+  blinkm.h
   Library header file for BlinkM library
  */
 #if ARDUINO >= 100

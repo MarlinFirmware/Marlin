@@ -1,5 +1,5 @@
 /*
- Servo.cpp - Interrupt driven Servo library for Arduino using 16 bit timers- Version 2
+ servo.cpp - Interrupt driven Servo library for Arduino using 16 bit timers- Version 2
  Copyright (c) 2009 Michael Margolis.  All right reserved.
 
  This library is free software; you can redistribute it and/or
@@ -48,7 +48,7 @@
 #include <avr/interrupt.h>
 #include <Arduino.h>
 
-#include "Servo.h"
+#include "servo.h"
 
 #define usToTicks(_us)    (( clockCyclesPerMicrosecond()* _us) / 8)     // converts microseconds to tick (assumes prescale of 8)  // 12 Aug 2009
 #define ticksToUs(_ticks) (( (unsigned)_ticks * 8)/ clockCyclesPerMicrosecond() ) // converts from ticks back to microseconds
