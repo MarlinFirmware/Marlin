@@ -2,6 +2,7 @@
 #define SCREEN_H
 
 #include <stdint.h>
+#include <new.h>
 
 namespace screen
 {
