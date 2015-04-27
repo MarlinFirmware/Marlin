@@ -9,7 +9,7 @@ namespace screen
 	{
 		public:
 			ScreenDialog(const char * label);
-			virtual ~ScreenDialog();
+			~ScreenDialog();
 
 			void left();
 			void right();
