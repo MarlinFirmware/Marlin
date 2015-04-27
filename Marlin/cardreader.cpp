@@ -61,8 +61,11 @@ void CardReader::lsDive(const char *prepend, SdFile parent, const char * const m
       if (!dir.open(parent, lfilename, O_READ)) {
         if (lsAction == LS_SerialPrint) {
           SERIAL_ECHO_START;
-          SERIAL_ECHOLN(MSG_SD_CANT_OPEN_SUBDIR);
-          SERIAL_ECHOLN(lfilename);
+          SERIAL_ECHO(MSG_SD_CANT_OPEN_SUBDIR);
+          SERIAL_CHAR('"');
+          SERIAL_ECHO(lfilename);
+          SERIAL_CHAR('"');
+          SERIAL_EOL;
         }
       }
       lsDive(path, dir);
@@ -195,7 +198,7 @@ void CardReader::openFile(char* name, bool read, bool replace_current/*=true*/) 
     if (!replace_current) {
      if (file_subcall_ctr > SD_PROCEDURE_DEPTH - 1) {
        SERIAL_ERROR_START;
-       SERIAL_ERRORPGM("trying to call sub-gcode files with too many levels. MAX level is:");
+       SERIAL_ERRORPGM("Trying to call gcode sub-files with too many levels. MAX level is:");
        SERIAL_ERRORLN(SD_PROCEDURE_DEPTH);
        kill();
        return;
@@ -245,7 +248,7 @@ void CardReader::openFile(char* name, bool read, bool replace_current/*=true*/) 
         char subdirname[FILENAME_LENGTH];
         strncpy(subdirname, dirname_start, dirname_end - dirname_start);
         subdirname[dirname_end - dirname_start] = 0;
-        SERIAL_ECHOLN(subdirname);
+        // SERIAL_ECHOLN(subdirname);
         if (!myDir.open(curDir, subdirname, O_READ)) {
           SERIAL_PROTOCOLPGM(MSG_SD_OPEN_FILE_FAIL);
           SERIAL_PROTOCOL(subdirname);

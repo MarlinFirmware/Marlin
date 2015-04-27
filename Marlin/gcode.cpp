@@ -1409,7 +1409,7 @@ inline void gcode_M17() {
     char* codepos = strchr_pointer + 4;
     char* starpos = strchr(codepos, '*');
     if (starpos) *starpos = '\0';
-    card.openFile(codepos, true);
+    card.openFile(codepos, true, !card.sdprinting);
   }
 
   /**
