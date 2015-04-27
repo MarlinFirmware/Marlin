@@ -194,9 +194,9 @@
 #include "utf_mapper.h"
 
 #ifdef LCD_PROGRESS_BAR
-  static uint16_t progressBarTick = 0;
+  static millis_t progress_bar_ms = 0;
   #if PROGRESS_MSG_EXPIRE > 0
-    static uint16_t expireStatusMillis = 0;
+    static millis_t expire_status_ms = 0;
   #endif
   #define LCD_STR_PROGRESS  "\x03\x04\x05"
 #endif
@@ -588,8 +588,9 @@ static void lcd_implementation_status_screen() {
   #ifdef LCD_PROGRESS_BAR
 
     if (card.isFileOpen()) {
-      if (millis() >= progressBarTick + PROGRESS_BAR_MSG_TIME || !lcd_status_message[0]) {
-        // draw the progress bar
+      // Draw the progress bar if the message has shown long enough
+      // or if there is no message set.
+      if (millis() >= progress_bar_ms + PROGRESS_BAR_MSG_TIME || !lcd_status_message[0]) {
         int tix = (int)(card.percentDone() * LCD_WIDTH * 3) / 100,
           cel = tix / 3, rem = tix % 3, i = LCD_WIDTH;
         char msg[LCD_WIDTH+1], b = ' ';
