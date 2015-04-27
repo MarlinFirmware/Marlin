@@ -1,5 +1,5 @@
 /**
- * ConfigurationStore.cpp
+ * configuration_store.cpp
  *
  * Configuration and EEPROM storage
  *
@@ -93,7 +93,7 @@
 #include "planner.h"
 #include "temperature.h"
 #include "ultralcd.h"
-#include "ConfigurationStore.h"
+#include "configuration_store.h"
 
 #ifdef MESH_BED_LEVELING
    #include "mesh_bed_leveling.h"

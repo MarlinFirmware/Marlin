@@ -28,9 +28,7 @@
    #define STAT_LED_RED 64
    #define STAT_LED_BLUE 63
   #endif
-#endif
-
-#elif define TEMP_STAT_LEDS
+#elif defined(TEMP_STAT_LEDS)
   #define STAT_LED_RED       6
   #define STAT_LED_BLUE     11
 #endif

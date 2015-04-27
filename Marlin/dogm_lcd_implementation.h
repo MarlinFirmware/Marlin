@@ -29,7 +29,7 @@
 #endif
 
 #include <U8glib.h>
-#include "DOGMbitmaps.h"
+#include "dogm_bitmaps.h"
 
 #include "ultralcd.h"
 #include "ultralcd_st7920_u8glib_rrd.h"
