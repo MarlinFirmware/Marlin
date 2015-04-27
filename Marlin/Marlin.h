@@ -20,6 +20,7 @@
 
 #include "fastio.h"
 #include "Configuration.h"
+#include "stepper_indirection.h"
 
 #if (ARDUINO >= 100)
   #include "Arduino.h"
@@ -215,6 +216,7 @@ void get_coordinates();
   void calculate_SCARA_forward_Transform(float f_scara[3]);
 #endif
 void reset_bed_level();
+void homeaxis(AxisEnum axis);
 void prepare_move();
 void kill();
 void Stop();
@@ -257,6 +259,7 @@ inline void refresh_cmd_timeout() { previous_cmd_ms = millis(); }
   #define CRITICAL_SECTION_END    SREG = _sreg;
 #endif
 
+extern float feedrate;
 extern float homing_feedrate[];
 extern bool axis_relative_modes[];
 extern int feedrate_multiplier;
@@ -265,7 +268,11 @@ extern int extruder_multiply[EXTRUDERS]; // sets extrude multiply factor (in per
 extern float filament_size[EXTRUDERS]; // cross-sectional area of filament (in millimeters), typically around 1.75 or 2.85, 0 disables the volumetric calculations for the extruder.
 extern float volumetric_multiplier[EXTRUDERS]; // reciprocal of cross-sectional area of filament (in square millimeters), stored this way to reduce computational burden in planner
 extern float current_position[NUM_AXIS];
+extern float destination[NUM_AXIS];
+extern float offset[3];
 extern float home_offset[3];
+
+extern millis_t stepper_inactive_time, max_inactive_time;
 
 #ifdef DELTA
   extern float endstop_adj[3];
@@ -298,6 +305,10 @@ extern int fanSpeed;
 #ifdef BARICUDA
   extern int ValvePressure;
   extern int EtoPPressure;
+#endif
+
+#if HAS_POWER_SWITCH
+  extern bool powersupply;
 #endif
 
 #ifdef FAN_SOFT_PWM
