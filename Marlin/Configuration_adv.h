@@ -76,7 +76,7 @@
 // When first starting the main fan, run it at full speed for the
 // given number of milliseconds.  This gets the fan spinning reliably
 // before setting a PWM value. (Does not work with software PWM for fan on Sanguinololu)
-//#define FAN_KICKSTART_TIME 100
+#define FAN_KICKSTART_TIME 100  // K8200: Fan needs kickstart below approx 40-45%, stopps even with kickstart at settings lower than approx 15% 
 
 // @section extruder
 
@@ -193,7 +193,7 @@
 #define Y_HOME_BUMP_MM 5
 #define Z_HOME_BUMP_MM 3
 #define HOMING_BUMP_DIVISOR {2, 2, 4}  // Re-Bump Speed Divisor (Divides the Homing Feedrate)
-//#define QUICK_HOME  //if this is defined, if both x and y are to be homed, a diagonal move will be performed initially.
+#define QUICK_HOME  //if this is defined, if both x and y are to be homed, a diagonal move will be performed initially.
 
 // @section machine
 
@@ -396,7 +396,7 @@ const unsigned int dropsegments=5; //everything with less than this number of st
 
 // Add support for experimental filament exchange support M600; requires display
 #ifdef ULTIPANEL
-  //#define FILAMENTCHANGEENABLE
+  #define FILAMENTCHANGEENABLE
   #ifdef FILAMENTCHANGEENABLE
     #define FILAMENTCHANGE_XPOS 3
     #define FILAMENTCHANGE_YPOS 3
