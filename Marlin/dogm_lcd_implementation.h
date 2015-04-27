@@ -110,6 +110,10 @@
   #define LCD_WIDTH_EDIT       22
 #endif
 
+#ifndef TALL_FONT_CORRECTION
+  #define TALL_FONT_CORRECTION 0
+#endif
+
 #define START_ROW              0
 
 // LCD selection
