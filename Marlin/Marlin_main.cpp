@@ -138,6 +138,7 @@
  * M109 - Sxxx Wait for extruder current temp to reach target temp. Waits only when heating
  *        Rxxx Wait for extruder current temp to reach target temp. Waits when heating and cooling
  *        IF AUTOTEMP is enabled, S<mintemp> B<maxtemp> F<factor>. Exit autotemp by any M109 without F
+ * M111 - Set debug flags with S<mask>. See flag bits defined in Marlin.h.
  * M112 - Emergency stop
  * M114 - Output current position to serial port
  * M115 - Capabilities string
@@ -217,6 +218,8 @@
 #endif
 
 bool Running = true;
+
+uint8_t marlin_debug_flags = DEBUG_INFO|DEBUG_ERRORS;
 
 static float feedrate = 1500.0, next_feedrate, saved_feedrate;
 float current_position[NUM_AXIS] = { 0.0 };
@@ -749,9 +752,10 @@ void get_command() {
         gcode_N = (strtol(strchr_pointer + 1, NULL, 10));
         if (gcode_N != gcode_LastN + 1 && strstr_P(command, PSTR("M110")) == NULL) {
           SERIAL_ERROR_START;
-          SERIAL_ERRORPGM(MSG_ERR_LINE_NO);
-          SERIAL_ERRORLN(gcode_LastN);
-          //Serial.println(gcode_N);
+          SERIAL_ERRORPGM(MSG_ERR_LINE_NO1);
+          SERIAL_ERROR(gcode_LastN + 1);
+          SERIAL_ERRORPGM(MSG_ERR_LINE_NO2);
+          SERIAL_ERRORLN(gcode_N);
           FlushSerialRequestResend();
           serial_count = 0;
           return;
@@ -3337,11 +3341,16 @@ inline void gcode_M109() {
 #endif // HAS_TEMP_BED
 
 /**
+ * M111: Set the debug level
+ */
+inline void gcode_M111() {
+  marlin_debug_flags = code_seen('S') ? code_value_short() : DEBUG_INFO|DEBUG_ERRORS;
+}
+
+/**
  * M112: Emergency Stop
  */
-inline void gcode_M112() {
-  kill();
-}
+inline void gcode_M112() { kill(); }
 
 #ifdef BARICUDA
 
@@ -4781,6 +4790,12 @@ inline void gcode_T() {
  * This is called from the main loop()
  */
 void process_commands() {
+
+  if ((marlin_debug_flags & DEBUG_ECHO)) {
+    SERIAL_ECHO_START;
+    SERIAL_ECHOLN(command_queue[cmd_queue_index_r]);
+  }
+
   if (code_seen('G')) {
 
     int gCode = code_value_short();
@@ -4919,34 +4934,38 @@ void process_commands() {
         gcode_M104();
         break;
 
-      case 112: //  M112 Emergency Stop
+      case 111: //  M111: Set debug level
+        gcode_M111();
+        break;
+
+      case 112: //  M112: Emergency Stop
         gcode_M112();
         break;
 
-      case 140: // M140 Set bed temp
+      case 140: // M140: Set bed temp
         gcode_M140();
         break;
 
-      case 105: // M105 Read current temperature
+      case 105: // M105: Read current temperature
         gcode_M105();
         return;
         break;
 
-      case 109: // M109 Wait for temperature
+      case 109: // M109: Wait for temperature
         gcode_M109();
         break;
 
       #if HAS_TEMP_BED
-        case 190: // M190 - Wait for bed heater to reach target.
+        case 190: // M190: Wait for bed heater to reach target
           gcode_M190();
           break;
       #endif // HAS_TEMP_BED
 
       #if HAS_FAN
-        case 106: //M106 Fan On
+        case 106: // M106: Fan On
           gcode_M106();
           break;
-        case 107: //M107 Fan Off
+        case 107: // M107: Fan Off
           gcode_M107();
           break;
       #endif // HAS_FAN
@@ -4954,20 +4973,20 @@ void process_commands() {
       #ifdef BARICUDA
         // PWM for HEATER_1_PIN
         #if HAS_HEATER_1
-          case 126: // M126 valve open
+          case 126: // M126: valve open
             gcode_M126();
             break;
-          case 127: // M127 valve closed
+          case 127: // M127: valve closed
             gcode_M127();
             break;
         #endif // HAS_HEATER_1
 
         // PWM for HEATER_2_PIN
         #if HAS_HEATER_2
-          case 128: // M128 valve open
+          case 128: // M128: valve open
             gcode_M128();
             break;
-          case 129: // M129 valve closed
+          case 129: // M129: valve closed
             gcode_M129();
             break;
         #endif // HAS_HEATER_2
@@ -4975,13 +4994,13 @@ void process_commands() {
 
       #if HAS_POWER_SWITCH
 
-        case 80: // M80 - Turn on Power Supply
+        case 80: // M80: Turn on Power Supply
           gcode_M80();
           break;
 
       #endif // HAS_POWER_SWITCH
 
-      case 81: // M81 - Turn off Power, including Power Supply, if possible
+      case 81: // M81: Turn off Power, including Power Supply, if possible
         gcode_M81();
         break;
 
@@ -4991,7 +5010,7 @@ void process_commands() {
       case 83:
         gcode_M83();
         break;
-      case 18: //compatibility
+      case 18: // (for compatibility)
       case 84: // M84
         gcode_M18_M84();
         break;
