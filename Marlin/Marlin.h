@@ -31,6 +31,10 @@
 #define TEST(n,b) (((n)&BIT(b))!=0)
 #define RADIANS(d) ((d)*M_PI/180.0)
 #define DEGREES(r) ((d)*180.0/M_PI)
+#define NOLESS(v,n) do{ if (v < n) v = n; }while(0)
+#define NOMORE(v,n) do{ if (v > n) v = n; }while(0)
+
+typedef unsigned long millis_t;
 
 // Arduino < 1.0.0 does not define this, so we need to do it ourselves
 #ifndef analogInputToDigitalPin
@@ -219,18 +223,30 @@ void Stop();
   void filrunout();
 #endif
 
+/**
+ * Debug flags - not yet widely applied
+ */
+enum DebugFlags {
+  DEBUG_ECHO          = BIT(0),
+  DEBUG_INFO          = BIT(1),
+  DEBUG_ERRORS        = BIT(2),
+  DEBUG_DRYRUN        = BIT(3),
+  DEBUG_COMMUNICATION = BIT(4)
+};
+extern uint8_t marlin_debug_flags;
+
 extern bool Running;
 inline bool IsRunning() { return  Running; }
 inline bool IsStopped() { return !Running; }
 
-bool enquecommand(const char *cmd); //put a single ASCII command at the end of the current buffer or return false when it is full
-void enquecommands_P(const char *cmd); //put one or many ASCII commands at the end of the current buffer, read from flash
+bool enqueuecommand(const char *cmd); //put a single ASCII command at the end of the current buffer or return false when it is full
+void enqueuecommands_P(const char *cmd); //put one or many ASCII commands at the end of the current buffer, read from flash
 
 void prepare_arc_move(char isclockwise);
 void clamp_to_software_endstops(float target[3]);
 
-extern unsigned long previous_millis_cmd;
-inline void refresh_cmd_timeout() { previous_millis_cmd = millis(); }
+extern millis_t previous_cmd_ms;
+inline void refresh_cmd_timeout() { previous_cmd_ms = millis(); }
 
 #ifdef FAST_PWM_FAN
   void setPwmFrequency(uint8_t pin, int val);
@@ -243,7 +259,7 @@ inline void refresh_cmd_timeout() { previous_millis_cmd = millis(); }
 
 extern float homing_feedrate[];
 extern bool axis_relative_modes[];
-extern int feedmultiply;
+extern int feedrate_multiplier;
 extern bool volumetric_enabled;
 extern int extruder_multiply[EXTRUDERS]; // sets extrude multiply factor (in percent) for each extruder individually
 extern float filament_size[EXTRUDERS]; // cross-sectional area of filament (in millimeters), typically around 1.75 or 2.85, 0 disables the volumetric calculations for the extruder.
@@ -271,6 +287,10 @@ extern bool axis_known_position[3];
 
 #ifdef ENABLE_AUTO_BED_LEVELING
   extern float zprobe_zoffset;
+#endif
+
+#ifdef PREVENT_DANGEROUS_EXTRUDE
+  extern float extrude_min_temp;
 #endif
 
 extern int fanSpeed;
@@ -301,8 +321,8 @@ extern int fanSpeed;
   extern float retract_recover_length, retract_recover_length_swap, retract_recover_feedrate;
 #endif
 
-extern unsigned long starttime;
-extern unsigned long stoptime;
+extern millis_t print_job_start_ms;
+extern millis_t print_job_stop_ms;
 
 // Handling multiple extruders pins
 extern uint8_t active_extruder;

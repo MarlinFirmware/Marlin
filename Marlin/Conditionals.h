@@ -130,7 +130,6 @@
      #define NEWPANEL
   #endif
 
-
   #ifdef ULTIPANEL
     #define NEWPANEL  //enable this if you have a click-encoder panel
     #define SDSUPPORT
@@ -144,14 +143,43 @@
     #endif
   #else //no panel but just LCD
     #ifdef ULTRA_LCD
-    #ifdef DOGLCD // Change number of lines to match the 128x64 graphics display
-      #define LCD_WIDTH 22
-      #define LCD_HEIGHT 5
-    #else
-      #define LCD_WIDTH 16
-      #define LCD_HEIGHT 2
+      #ifdef DOGLCD // Change number of lines to match the 128x64 graphics display
+        #define LCD_WIDTH 22
+        #define LCD_HEIGHT 5
+      #else
+        #define LCD_WIDTH 16
+        #define LCD_HEIGHT 2
+      #endif
     #endif
-    #endif
+  #endif
+
+  #ifdef DOGLCD
+    /* Custom characters defined in font font_6x10_marlin_symbols */
+    // \x00 intentionally skipped to avoid problems in strings
+    #define LCD_STR_REFRESH     "\x01"
+    #define LCD_STR_FOLDER      "\x02"
+    #define LCD_STR_ARROW_RIGHT "\x03"
+    #define LCD_STR_UPLEVEL     "\x04"
+    #define LCD_STR_CLOCK       "\x05"
+    #define LCD_STR_FEEDRATE    "\x06"
+    #define LCD_STR_BEDTEMP     "\x07"
+    #define LCD_STR_THERMOMETER "\x08"
+    #define LCD_STR_DEGREE      "\x09"
+
+    #define LCD_STR_SPECIAL_MAX '\x09'
+    // Maximum here is 0x1f because 0x20 is ' ' (space) and the normal charsets begin.
+    // Better stay below 0x10 because DISPLAY_CHARSET_HD44780_WESTERN begins here.
+  #else
+    /* Custom characters defined in the first 8 characters of the LCD */
+    #define LCD_STR_BEDTEMP     "\x00"  // this will have 'unexpected' results when used in a string!
+    #define LCD_STR_DEGREE      "\x01"
+    #define LCD_STR_THERMOMETER "\x02"
+    #define LCD_STR_UPLEVEL     "\x03"
+    #define LCD_STR_REFRESH     "\x04"
+    #define LCD_STR_FOLDER      "\x05"
+    #define LCD_STR_FEEDRATE    "\x06"
+    #define LCD_STR_CLOCK       "\x07"
+    #define LCD_STR_ARROW_RIGHT ">"  /* from the default character set */
   #endif
 
   /**
@@ -159,6 +187,13 @@
    */
   #if defined(DOGLCD) && !defined(DEFAULT_LCD_CONTRAST)
     #define DEFAULT_LCD_CONTRAST 32
+  #endif
+
+  #ifdef DOGLCD
+    #define HAS_LCD_CONTRAST
+    #ifdef U8GLIB_ST7920
+      #undef HAS_LCD_CONTRAST
+    #endif
   #endif
 
 #else // CONFIGURATION_LCD

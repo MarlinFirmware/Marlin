@@ -25,7 +25,7 @@ CardReader::CardReader() {
     OUT_WRITE(SDPOWER, HIGH);
   #endif //SDPOWER
 
-  autostart_atmillis = millis() + 5000;
+  next_autostart_ms = millis() + 5000;
 }
 
 char *createFilename(char *buffer, const dir_t &p) { //buffer > 12characters
@@ -397,7 +397,7 @@ void CardReader::write_command(char *buf) {
 }
 
 void CardReader::checkautostart(bool force) {
-  if (!force && (!autostart_stilltocheck || autostart_atmillis < millis()))
+  if (!force && (!autostart_stilltocheck || next_autostart_ms < millis()))
     return;
 
   autostart_stilltocheck = false;
@@ -421,8 +421,8 @@ void CardReader::checkautostart(bool force) {
     if (p.name[9] != '~' && strncmp((char*)p.name, autoname, 5) == 0) {
       char cmd[30];
       sprintf_P(cmd, PSTR("M23 %s"), autoname);
-      enquecommand(cmd);
-      enquecommands_P(PSTR("M24"));
+      enqueuecommand(cmd);
+      enqueuecommands_P(PSTR("M24"));
       found = true;
     }
   }
@@ -508,7 +508,7 @@ void CardReader::printingHasFinished() {
     sdprinting = false;
     if (SD_FINISHED_STEPPERRELEASE) {
       //finishAndDisableSteppers();
-      enquecommands_P(PSTR(SD_FINISHED_RELEASECOMMAND));
+      enqueuecommands_P(PSTR(SD_FINISHED_RELEASECOMMAND));
     }
     autotempShutdown();
   }
