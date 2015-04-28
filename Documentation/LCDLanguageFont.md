@@ -46,11 +46,9 @@ We have two different technologies for the displays:
   * nl    Dutch
   * ca    Catalan
   * eu    Basque-Euskera
+  * cn    Chinese
+  * jp    Japanese (Katakana)
 
-  and recently on [Thingiverse](http://www.thingiverse.com/) a new port to
-  * jp    [Japanese](http://www.thingiverse.com/thing:664397)
-
- appeared.
 
 ## The Problem
   All of this languages, except the English, normally use extended symbol sets, not contained in US-ASCII.
@@ -131,6 +129,9 @@ We have two different technologies for the displays:
   On the 16x2 displays the strings are cut at the end to fit on the display. So it's a good idea to make them differ early. ('Somverylongoptionname x' -> 'x Somverylongoptionname')
 
   You'll find all translatable strings in 'language_en.h'. Please don't translate any strings from 'language.h', this may break the serial protocol.
+
+  For information about fonts see: Marlin\fonts\README.fonts
+
 
 ## User Instructions
    Define your hardware and the wanted language in 'Configuration.h'.
