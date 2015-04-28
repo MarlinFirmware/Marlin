@@ -10,6 +10,7 @@
 #include "ScreenDialog.h"
 #include "ScreenSelector.h"
 #include "ScreenList.h"
+#include "DOGMbitmaps.h"
 
 /////////////////////////////////////////////////////////////////////////
 //                          Marlin interface                           //
@@ -22,6 +23,9 @@ void draw_wizard_change_filament(){};
 /////////////////////////////////////////////////////////////////////////
 //                     Build screens and menu structure                //
 /////////////////////////////////////////////////////////////////////////
+screen::Icon icon_sd_normal = screen::Icon(24, 22, sd_normal_bits);
+screen::Icon icon_sd_hover = screen::Icon(24, 22, sd_hover_bits);
+
 //Logo Splasg screen
 screen::ScreenDialog screen_logo = screen::ScreenDialog("BQ Logo");
 //Main Menu screen
@@ -31,8 +35,33 @@ screen::ScreenList screen_listSD = screen::ScreenList("SD Card");
 screen::ScreenMenu screen_print_confirm = screen::ScreenMenu("Comfirm Print");
 //screen::ScreenMenu screen_main_printing = screen::ScreenMenu("Printing Menu"); 
 //Unload Filament screens
-screen::ScreenSelector screen_unload_temp = screen::ScreenSelector("Select Temperature");
-
+screen::ScreenSelector screen_unload_select = screen::ScreenSelector("Mount filament");
+screen::ScreenDialog screen_unload_heating = screen::ScreenDialog("Select Temperature");
+screen::ScreenDialog screen_unload_pull = screen::ScreenDialog("Press to abort");
+screen::ScreenMenu screen_unload_retry = screen::ScreenMenu("Push to continue");
+//Load Filament screens
+screen::ScreenSelector screen_load_select = screen::ScreenSelector("Dismount filament");
+screen::ScreenDialog screen_load_heating = screen::ScreenDialog("Select Temperature");
+screen::ScreenDialog screen_load_pull = screen::ScreenDialog("Press to abort");
+screen::ScreenMenu screen_load_retry = screen::ScreenMenu("Push to continue");
+//Level Plate screens
+screen::ScreenMenu screen_level_confirm = screen::ScreenMenu("Level Plate");
+screen::ScreenDialog screen_level1 = screen::ScreenDialog("Screen1");
+screen::ScreenDialog screen_level2 = screen::ScreenDialog("Screen2");
+screen::ScreenDialog screen_level3 = screen::ScreenDialog("Screen3");
+screen::ScreenDialog screen_level4 = screen::ScreenDialog("Screen4");
+screen::ScreenMenu screen_level_retry = screen::ScreenMenu("Push to Cotinue");
+//Move Axis screens
+screen::ScreenMenu screen_move = screen::ScreenMenu("Move axis");
+screen::ScreenMenu screen_move_back2main = screen::ScreenMenu("Back");
+screen::ScreenMenu screen_move_x = screen::ScreenMenu("Move X");
+screen::ScreenMenu screen_move_y = screen::ScreenMenu("Move Y");
+screen::ScreenMenu screen_move_z = screen::ScreenMenu("Move Z");
+screen::ScreenMenu screen_move_e = screen::ScreenMenu("Move Extruder");
+screen::ScreenMenu screen_move_back2move = screen::ScreenMenu("Back");
+screen::ScreenMenu screen_move_10 = screen::ScreenMenu("Move 10mm");
+screen::ScreenMenu screen_move_1 = screen::ScreenMenu("Move 1mm");
+screen::ScreenMenu screen_move_01 = screen::ScreenMenu("Move 01mm");
 
 
 screen::Screen * active_view;
@@ -226,12 +255,15 @@ void lcd_init()
     //Create screens
     screen_main.add(screen_logo);
     screen_logo.add(screen_main);
+    screen_listSD.add(screen_main);
+    screen_listSD.icon(icon_sd_normal);
+    screen_listSD.icon(icon_sd_hover);
 
     active_view = new screen::ScreenMenu(screen_main);
     active_view->draw();
     delay(4000);
-    active_view = &active_view->press();
-    active_view->draw();
+    //active_view = &active_view->press();
+    //active_view->draw();
     SERIAL_ECHOLN("LCD initialized!");
 }
 
