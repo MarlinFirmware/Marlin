@@ -172,6 +172,7 @@ char lcd_printPGM(const char* str) {
 
 static bool show_splashscreen = true;
 
+/* Warning: This function is called from interrupt context */
 static void lcd_implementation_init() {
 
   #ifdef LCD_PIN_BL // Enable LCD backlight
