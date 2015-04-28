@@ -11,6 +11,14 @@
 #include "ScreenSelector.h"
 #include "ScreenList.h"
 
+/////////////////////////////////////////////////////////////////////////
+//                          Marlin interface                           //
+/////////////////////////////////////////////////////////////////////////
+void draw_status_screen(){};
+void draw_wizard_change_filament(){};
+
+
+
 //Logo Splasg screen
 screen::ScreenDialog screen_logo = screen::ScreenDialog("BQ Logo");
 
