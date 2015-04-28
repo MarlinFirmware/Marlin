@@ -1546,10 +1546,14 @@ static void homeaxis(AxisEnum axis) {
     current_position[axis] = 0;
     sync_plan_position();
 
+    enable_endstops(false); // Disable endstops while moving away
+
     // Move away from the endstop by the axis HOME_BUMP_MM
     destination[axis] = -home_bump_mm(axis) * axis_home_dir;
     line_to_destination();
     st_synchronize();
+
+    enable_endstops(true); // Enable endstops for next homing move
 
     // Slow down the feedrate for the next move
     set_homing_bump_feedrate(axis);
@@ -1587,10 +1591,12 @@ static void homeaxis(AxisEnum axis) {
     #ifdef DELTA
       // retrace by the amount specified in endstop_adj
       if (endstop_adj[axis] * axis_home_dir < 0) {
+        enable_endstops(false); // Disable endstops while moving away
         sync_plan_position();
         destination[axis] = endstop_adj[axis];
         line_to_destination();
         st_synchronize();
+        enable_endstops(true); // Enable endstops for next homing move
       }
     #endif
 
