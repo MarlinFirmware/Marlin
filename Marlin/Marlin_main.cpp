@@ -187,7 +187,7 @@
  * M406 - Turn off Filament Sensor extrusion control
  * M407 - Display measured filament diameter
  * M410 - Quickstop. Abort all the planned moves
- * M420 - Mesh Leveling parameters. S1=enable/S0=disable leveling (with current values), Tnn.nnn set Z offset.
+ * M420 - Mesh Bed Leveling parameters. S1=enable/S0=disable leveling (with current values), Znn.nnn set Z offset.
  * M421 - Set a single Z coordinate in the Mesh Leveling grid. X<mm> Y<mm> Z<mm>
  * M500 - Store parameters in EEPROM
  * M501 - Read parameters from EEPROM (if you need reset them after you changed them temporarily).
@@ -4491,17 +4491,18 @@ inline void gcode_M410() { quickStop(); }
    */
   inline void gcode_M420() {
     if (code_seen('S') && code_has_value()) mbl.active = !!code_value_short();
-    if (code_seen('T') && code_has_value()) mbl.z_offset = code_value();
+    if (code_seen('Z') && code_has_value()) mbl.z_offset = code_value();
   }
 
   /**
    * M421: Set a single Mesh Bed Leveling Z coordinate
    */
   inline void gcode_M421() {
-    float x, y, z;
+    int ix, iy;
+    float z;
     bool err = false, hasX, hasY, hasZ;
-    if ((hasX = code_seen('X'))) x = code_value();
-    if ((hasY = code_seen('Y'))) y = code_value();
+    if ((hasX = code_seen('X'))) ix = code_value_short();
+    if ((hasY = code_seen('Y'))) iy = code_value_short();
     if ((hasZ = code_seen('Z'))) z = code_value();
 
     if (!hasX || !hasY || !hasZ) {
@@ -4509,14 +4510,13 @@ inline void gcode_M410() { quickStop(); }
       SERIAL_ERRORLNPGM(MSG_ERR_M421_REQUIRES_XYZ);
       err = true;
     }
-
-    if (x >= MESH_NUM_X_POINTS || y >= MESH_NUM_Y_POINTS) {
+    else if (ix < 1 || iy < 1 || ix > MESH_NUM_X_POINTS || iy > MESH_NUM_Y_POINTS) {
       SERIAL_ERROR_START;
       SERIAL_ERRORLNPGM(MSG_ERR_MESH_INDEX_OOB);
       err = true;
     }
 
-    if (!err) mbl.set_z(select_x_index(x), select_y_index(y), z);
+    if (!err) mbl.set_z(ix-1, iy-1, z);
   }
 
 #endif

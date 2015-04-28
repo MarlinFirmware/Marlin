@@ -36,7 +36,7 @@
  *
  * MESH BED LEVELING:
  *  M420 S    active
- *  M420 T    z_offset
+ *  M420 Z    z_offset
  *            mesh_num_x (set in firmware)
  *            mesh_num_y (set in firmware)
  *  M421 XYZ  z_values[][]
@@ -683,15 +683,16 @@ void Config_PrintSettings(bool forReplay) {
       SERIAL_ECHOLNPGM("Mesh bed leveling:");
       CONFIG_ECHO_START;
     }
-    SERIAL_ECHOPAIR("  M420 S", (int32_t)mbl.active);
-    SERIAL_ECHOPAIR(" X", MESH_NUM_X_POINTS);
-    SERIAL_ECHOPAIR(" Y", MESH_NUM_Y_POINTS);
+    SERIAL_ECHOPAIR("  M420 S", (unsigned long)mbl.active);
+    SERIAL_ECHOPAIR(" Z", mbl.z_offset);
+    SERIAL_ECHOPAIR(" X", (unsigned long)MESH_NUM_X_POINTS);
+    SERIAL_ECHOPAIR(" Y", (unsigned long)MESH_NUM_Y_POINTS);
     SERIAL_EOL;
     for (int y=0; y<MESH_NUM_Y_POINTS; y++) {
       for (int x=0; x<MESH_NUM_X_POINTS; x++) {
         CONFIG_ECHO_START;
-        SERIAL_ECHOPAIR("  M421 X", mbl.get_x(x));
-        SERIAL_ECHOPAIR(" Y", mbl.get_y(y));
+        SERIAL_ECHOPAIR("  M421 X", (unsigned long)(x+1));
+        SERIAL_ECHOPAIR(" Y", (unsigned long)(y+1));
         SERIAL_ECHOPAIR(" Z", mbl.z_values[y][x]);
         SERIAL_EOL;
       }
