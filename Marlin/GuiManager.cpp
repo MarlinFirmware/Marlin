@@ -6,6 +6,11 @@
 #include "temperature.h"
 #include "language.h"
 
+#include "ScreenMenu.h"
+#include "ScreenDialog.h"
+#include "ScreenSelector.h"
+#include "ScreenList.h"
+
 //Logo Splasg screen
 screen::ScreenDialog screen_logo = screen::ScreenDialog("BQ Logo");
 
@@ -13,7 +18,7 @@ screen::ScreenDialog screen_logo = screen::ScreenDialog("BQ Logo");
 screen::ScreenMenu screen_main = screen::ScreenMenu("Main Menu");
 
 //SD Card screens
-screen::ScreenList screen_listSD = scren::ScreenList("SD Card"); 
+screen::ScreenList screen_listSD = screen::ScreenList("SD Card"); 
 screen::ScreenMenu screen_print_confirm = screen::ScreenMenu("Comfirm Print");
 //screen::ScreenMenu screen_main_printing = screen::ScreenMenu("Printing Menu"); 
 
@@ -213,11 +218,7 @@ void lcd_init()
 
     //Create screens
     screen_main.add(screen_logo);
-    screen_main.add(screen_firmwware);
-    screen_main.add(screen_temperature);
     screen_logo.add(screen_main);
-    screen_firmwware.add(screen_main);
-    screen_temperature.add(screen_temperature);
 
     active_view = new screen::ScreenMenu(screen_main);
     active_view->draw();
