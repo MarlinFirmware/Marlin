@@ -1,3 +1,6 @@
+#define ULTRALCD_H
+#include "GuiManager.h"
+
 #ifndef ULTRALCD_H
 #define ULTRALCD_H
 
