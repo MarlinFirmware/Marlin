@@ -96,8 +96,8 @@
 #include "configuration_store.h"
 
 #ifdef MESH_BED_LEVELING
-   #include "mesh_bed_leveling.h"
-#endif  // MESH_BED_LEVELING
+  #include "mesh_bed_leveling.h"
+#endif
 
 void _EEPROM_writeData(int &pos, uint8_t* value, uint8_t size) {
   uint8_t c;
@@ -168,9 +168,7 @@ void Config_StoreSettings()  {
     EEPROM_WRITE_VAR(i, mesh_num_x);
     EEPROM_WRITE_VAR(i, mesh_num_y);
     dummy = 0.0f;
-    for (int q=0; q<mesh_num_x*mesh_num_y; q++) {
-      EEPROM_WRITE_VAR(i, dummy);
-    }
+    for (int q=0; q<mesh_num_x*mesh_num_y; q++) EEPROM_WRITE_VAR(i, dummy);
   #endif // MESH_BED_LEVELING
 
   #ifndef ENABLE_AUTO_BED_LEVELING
@@ -685,8 +683,8 @@ void Config_PrintSettings(bool forReplay) {
     for (int y=0; y<MESH_NUM_Y_POINTS; y++) {
       for (int x=0; x<MESH_NUM_X_POINTS; x++) {
         CONFIG_ECHO_START;
-        SERIAL_ECHOPAIR("  M421 X", x);
-        SERIAL_ECHOPAIR(" Y", y);
+        SERIAL_ECHOPAIR("  M421 X", mbl.get_x(x));
+        SERIAL_ECHOPAIR(" Y", mbl.get_y(y));
         SERIAL_ECHOPAIR(" Z", mbl.z_values[y][x]);
         SERIAL_EOL;
       }

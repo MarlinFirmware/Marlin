@@ -188,7 +188,7 @@
  * M407 - Display measured filament diameter
  * M410 - Quickstop. Abort all the planned moves
  * M420 - Enable/Disable Mesh Leveling (with current values) S1=enable S0=disable
- * M421 - Set a single Z coordinate in the Mesh Leveling grid. X<index> Y<index> Z<offset in mm>
+ * M421 - Set a single Z coordinate in the Mesh Leveling grid. X<mm> Y<mm> Z<mm>
  * M500 - Store parameters in EEPROM
  * M501 - Read parameters from EEPROM (if you need reset them after you changed them temporarily).
  * M502 - Revert to the default "factory settings". You still need to store them in EEPROM afterwards if you want to.
@@ -4467,16 +4467,15 @@ inline void gcode_M410() { quickStop(); }
    * M421: Set a single Mesh Bed Leveling Z coordinate
    */
   inline void gcode_M421() {
-    int x, y;
-    float z;
+    float x, y, z;
     bool err = false, hasX, hasY, hasZ;
-    if ((hasX = code_seen('X'))) x = code_value_short();
-    if ((hasY = code_seen('Y'))) y = code_value_short();
+    if ((hasX = code_seen('X'))) x = code_value();
+    if ((hasY = code_seen('Y'))) y = code_value();
     if ((hasZ = code_seen('Z'))) z = code_value();
 
     if (!hasX || !hasY || !hasZ) {
       SERIAL_ERROR_START;
-      SERIAL_ERRORLNPGM(MSG_ERR_XYZ_REQUIRED_FOR_M421);
+      SERIAL_ERRORLNPGM(MSG_ERR_M421_REQUIRES_XYZ);
       err = true;
     }
 
@@ -4486,7 +4485,7 @@ inline void gcode_M410() { quickStop(); }
       err = true;
     }
 
-    if (!err) mbl.z_values[y][x] = z;
+    if (!err) mbl.set_z(select_x_index(x), select_y_index(y), z);
   }
 
 #endif
