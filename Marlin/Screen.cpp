@@ -26,7 +26,7 @@ namespace screen
 	{
 		if (m_num_icons < max_icons)
 		{
-			max_icons[m_num_icons] = &component;
+			m_icons[m_num_icons] = &component;
 			++m_num_icons;
 		}
 	}

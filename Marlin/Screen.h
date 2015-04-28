@@ -40,7 +40,7 @@ namespace screen
 		protected:
 			const char * m_label;
 			uint16_t m_num_icons;
-			Icon * icons[4];
+			Icon * m_icons[max_icons];
 			ScreenType_t m_type;
 	};
 }

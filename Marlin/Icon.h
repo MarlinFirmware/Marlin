@@ -1,6 +1,7 @@
 #ifndef ICON_H
 #define ICON_H
 
+#include <stdint.h>
 
 namespace screen
 {
