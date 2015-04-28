@@ -30,6 +30,7 @@
 // eu       Basque-Euskera
 // kana     Japanese
 // kana_utf Japanese
+// cn       Chinese
 
 #ifndef LANGUAGE_INCLUDE
   // pick your language from the list above
