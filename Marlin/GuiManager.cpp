@@ -19,25 +19,24 @@ void draw_wizard_change_filament(){};
 
 
 
+/////////////////////////////////////////////////////////////////////////
+//                     Build screens and menu structure                //
+/////////////////////////////////////////////////////////////////////////
 //Logo Splasg screen
 screen::ScreenDialog screen_logo = screen::ScreenDialog("BQ Logo");
-
 //Main Menu screen
 screen::ScreenMenu screen_main = screen::ScreenMenu("Main Menu");
-
 //SD Card screens
 screen::ScreenList screen_listSD = screen::ScreenList("SD Card"); 
 screen::ScreenMenu screen_print_confirm = screen::ScreenMenu("Comfirm Print");
 //screen::ScreenMenu screen_main_printing = screen::ScreenMenu("Printing Menu"); 
-
 //Unload Filament screens
 screen::ScreenSelector screen_unload_temp = screen::ScreenSelector("Select Temperature");
 
 
 
-
-
 screen::Screen * active_view;
+screen::Screen * parent_view;
 
 // Only for new LCD
 typedef struct {
