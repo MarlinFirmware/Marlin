@@ -1933,6 +1933,11 @@ inline void gcode_G28() {
 
     #endif // QUICK_HOME
 
+    #ifdef HOME_Y_BEFORE_X
+      // Home Y
+      if (home_all_axis || homeY) HOMEAXIS(Y);
+    #endif
+
     // Home X
     if (home_all_axis || homeX) {
       #ifdef DUAL_X_CARRIAGE
@@ -1952,8 +1957,10 @@ inline void gcode_G28() {
       #endif
     }
 
-    // Home Y
-    if (home_all_axis || homeY) HOMEAXIS(Y);
+    #ifndef HOME_Y_BEFORE_X
+      // Home Y
+      if (home_all_axis || homeY) HOMEAXIS(Y);
+    #endif
 
     // Home Z last if homing towards the bed
     #if Z_HOME_DIR < 0
