@@ -70,7 +70,7 @@
   #endif
 #else
   #ifndef MACHINE_NAME
-    #define MACHINE_NAME "Mendel"
+    #define MACHINE_NAME "3D Printer"
   #endif
 #endif
 
@@ -158,6 +158,9 @@
 #define MSG_Z_MAX                           "z_max: "
 #define MSG_Z2_MAX                          "z2_max: "
 #define MSG_Z_PROBE                         "z_probe: "
+#define MSG_ERR_MATERIAL_INDEX              "M145 S<index> out of range (0-1)"
+#define MSG_ERR_M421_REQUIRES_XYZ           "M421 requires XYZ parameters"
+#define MSG_ERR_MESH_INDEX_OOB              "Mesh XY index is out of bounds"
 #define MSG_M119_REPORT                     "Reporting endstop status"
 #define MSG_ENDSTOP_HIT                     "TRIGGERED"
 #define MSG_ENDSTOP_OPEN                    "open"
