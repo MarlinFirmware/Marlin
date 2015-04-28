@@ -60,7 +60,7 @@
 #endif
 
 #if NUM_SERVOS > 0
-  #include "servo.h"
+  #include "Servo.h"
 #endif
 
 #if HAS_DIGIPOTSS
