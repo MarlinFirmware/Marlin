@@ -21,4 +21,13 @@ namespace screen
 	{
 		return m_type;
 	}
+
+	void Screen::icon(Icon & component)
+	{
+		if (m_num_icons < max_icons)
+		{
+			max_icons[m_num_icons] = &component;
+			++m_num_icons;
+		}
+	}
 }

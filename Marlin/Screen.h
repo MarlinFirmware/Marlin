@@ -3,10 +3,14 @@
 
 #include <stdint.h>
 #include <new.h>
+#include "Marlin.h"
+#include "Icon.h"
 
 namespace screen
 {
 	const static uint8_t max_items = 10;
+	const static uint8_t max_icons = 4;
+
 
 	typedef enum
 	{
@@ -25,15 +29,18 @@ namespace screen
 
 			const char * label() const;
 			ScreenType_t const & type() const;
+			void icon(Icon & component);
 
 			virtual void left() {};
 			virtual void right() {};
 			virtual Screen & press() {};
 			virtual void draw() {};
 			virtual void add(Screen & component) {};
-
+			
 		protected:
 			const char * m_label;
+			uint16_t m_num_icons;
+			Icon * icons[4];
 			ScreenType_t m_type;
 	};
 }
