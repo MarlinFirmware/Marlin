@@ -1,3 +1,8 @@
+// Example configuration file for Vellemann K8200
+// tested on K8200 with VM8201 (Display)
+// and Arduino 1.6.1 (Win) by @CONSULitAS, 2015-04-14
+// https://github.com/CONSULitAS/Marlin-K8200/archive/K8200_stable_2015-04-14.zip
+
 #ifndef CONFIGURATION_H
 #define CONFIGURATION_H
 
@@ -41,7 +46,6 @@ Here are some standard links for getting your machine calibrated:
 // startup. Implementation of an idea by Prof Braino to inform user that any changes made to this
 // build by the user have been successfully uploaded into firmware.
 #define STRING_VERSION "1.0.3 dev"
-#define STRING_URL "reprap.org"
 #define STRING_VERSION_CONFIG_H __DATE__ " " __TIME__ // build date and time
 #define STRING_CONFIG_H_AUTHOR "(K8200, CONSULitAS)" // Who made the changes.
 #define STRING_SPLASH_LINE1 "v" STRING_VERSION // will be shown during bootup in line 1
