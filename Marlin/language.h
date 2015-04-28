@@ -31,6 +31,7 @@
 // eu       Basque-Euskera
 // kana     Japanese
 // kana_utf Japanese
+// cn       Chinese
 
 #ifndef LANGUAGE_INCLUDE
   // pick your language from the list above
@@ -71,12 +72,12 @@
   #endif
 #else
   #ifndef MACHINE_NAME
-    #define MACHINE_NAME "Mendel"
+    #define MACHINE_NAME "3D Printer"
   #endif
 #endif
 
 #ifdef CUSTOM_MENDEL_NAME
-  #warning CUSTOM_MENDEL_NAME deprecated - use CUSTOM_MACHINE_NAME
+  #error CUSTOM_MENDEL_NAME deprecated - use CUSTOM_MACHINE_NAME
   #define CUSTOM_MACHINE_NAME CUSTOM_MENDEL_NAME
 #endif
 
@@ -111,7 +112,7 @@
 
 // Serial Console Messages (do not translate those!)
 
-#define MSG_Enqueing                        "enqueing \""
+#define MSG_Enqueueing                      "enqueueing \""
 #define MSG_POWERUP                         "PowerUp"
 #define MSG_EXTERNAL_RESET                  " External Reset"
 #define MSG_BROWNOUT_RESET                  " Brown out Reset"
@@ -123,7 +124,8 @@
 #define MSG_PLANNER_BUFFER_BYTES            "  PlannerBufferBytes: "
 #define MSG_OK                              "ok"
 #define MSG_FILE_SAVED                      "Done saving file."
-#define MSG_ERR_LINE_NO                     "Line Number is not Last Line Number+1, Last Line: "
+#define MSG_ERR_LINE_NO1                    "Line Number out of sequence. Expected: "
+#define MSG_ERR_LINE_NO2                    " Got: "
 #define MSG_ERR_CHECKSUM_MISMATCH           "checksum mismatch, Last Line: "
 #define MSG_ERR_NO_CHECKSUM                 "No Checksum with line number, Last Line: "
 #define MSG_ERR_NO_LINENUMBER_WITH_CHECKSUM "No Line Number with checksum, Last Line: "
@@ -158,6 +160,9 @@
 #define MSG_Z_MAX                           "z_max: "
 #define MSG_Z2_MAX                          "z2_max: "
 #define MSG_Z_PROBE                         "z_probe: "
+#define MSG_ERR_MATERIAL_INDEX              "M145 S<index> out of range (0-1)"
+#define MSG_ERR_M421_REQUIRES_XYZ           "M421 requires XYZ parameters"
+#define MSG_ERR_MESH_INDEX_OOB              "Mesh XY index is out of bounds"
 #define MSG_M119_REPORT                     "Reporting endstop status"
 #define MSG_ENDSTOP_HIT                     "TRIGGERED"
 #define MSG_ENDSTOP_OPEN                    "open"
@@ -210,7 +215,7 @@
 #define MSG_OK_B                            "ok B:"
 #define MSG_OK_T                            "ok T:"
 #define MSG_AT                              " @:"
-#define MSG_PID_AUTOTUNE_FINISHED           MSG_PID_AUTOTUNE " finished! Put the last Kp, Ki and Kd constants from above into Configuration.h"
+#define MSG_PID_AUTOTUNE_FINISHED           MSG_PID_AUTOTUNE " finished! Put the last Kp, Ki and Kd constants from below into Configuration.h"
 #define MSG_PID_DEBUG                       " PID_DEBUG "
 #define MSG_PID_DEBUG_INPUT                 ": Input "
 #define MSG_PID_DEBUG_OUTPUT                " Output "

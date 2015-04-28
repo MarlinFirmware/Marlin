@@ -1,5 +1,5 @@
 /*
- Servo.cpp - Interrupt driven Servo library for Arduino using 16 bit timers- Version 2
+ servo.cpp - Interrupt driven Servo library for Arduino using 16 bit timers- Version 2
  Copyright (c) 2009 Michael Margolis.  All right reserved.
 
  This library is free software; you can redistribute it and/or
