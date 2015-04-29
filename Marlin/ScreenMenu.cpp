@@ -2,8 +2,8 @@
 
 namespace screen
 {
-	ScreenMenu::ScreenMenu(const char * label)
-		: Screen(label, MENU)
+	ScreenMenu::ScreenMenu(const char * title)
+		: Screen(title, MENU)
 		, m_index(0)
 		, m_num_items(0)
 	{
@@ -29,7 +29,7 @@ namespace screen
 	{
 		if ( m_index == (m_num_items -1) )
 		{
-			m_index = 0;
+			m_index = m_num_items -1;
         }
       else
 		{
@@ -39,10 +39,10 @@ namespace screen
 
 	void ScreenMenu::draw()
 	{
-		SERIAL_ECHO("DRAW:");
-		SERIAL_ECHO(m_label);
+		SERIAL_ECHO(m_title);
+		SERIAL_ECHO(">>>");
 		SERIAL_ECHO(" [");
-		SERIAL_ECHO(m_items[m_index]->label());
+		SERIAL_ECHO(m_items[m_index]->title());
 		SERIAL_ECHOLN("] ");
 	}
 

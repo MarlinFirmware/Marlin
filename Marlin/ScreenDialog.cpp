@@ -2,8 +2,8 @@
 
 namespace screen
 {
-	ScreenDialog::ScreenDialog(const char * label)
-		: Screen(label, DIALOG)
+	ScreenDialog::ScreenDialog(const char * title)
+		: Screen(title, DIALOG)
 	{
 	}
 
@@ -22,7 +22,7 @@ namespace screen
 	void ScreenDialog::draw()
 	{
 		SERIAL_ECHO("DRAW: ");
-		SERIAL_ECHOLN(m_label);
+		SERIAL_ECHOLN(m_title);
 	}
 
 	Screen & ScreenDialog::press()

@@ -2,8 +2,8 @@
 
 namespace screen
 {
-	ScreenList::ScreenList(const char * label)
-		: Screen(label, LIST)
+	ScreenList::ScreenList(const char * title)
+		: Screen(title, LIST)
 		, m_index(0)
 		, m_num_list(0)
 	{
@@ -29,7 +29,7 @@ namespace screen
 	{
 		if ( m_index == (m_num_list -1) )
 		{
-			m_index = 0;
+			m_index = m_num_list -1;
         }
       else
 		{
@@ -39,8 +39,7 @@ namespace screen
 
 	void ScreenList::draw()
 	{
-		SERIAL_ECHO("DRAW:");
-		SERIAL_ECHO(m_label);
+		SERIAL_ECHO(m_title);
 		SERIAL_ECHO("  (item ");
 		SERIAL_ECHO(m_index);
 		SERIAL_ECHOLN(") ");

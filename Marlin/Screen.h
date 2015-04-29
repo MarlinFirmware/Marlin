@@ -25,10 +25,10 @@ namespace screen
 	class Screen
 	{
 		public:
-			Screen(const char * label, ScreenType_t const & type);
+			Screen(const char * title, ScreenType_t const & type);
 			virtual ~Screen();
 
-			const char * label() const;
+			const char * title() const;
 			ScreenType_t const & type() const;
 			void icon(Icon & component);
 
@@ -39,7 +39,7 @@ namespace screen
 			virtual void add(Screen & component) {};
 			
 		protected:
-			const char * m_label;
+			const char * m_title;
 			uint16_t m_num_icons;
 			Icon * m_icons[max_icons];
 			ScreenType_t m_type;

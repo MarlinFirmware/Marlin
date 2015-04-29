@@ -8,7 +8,7 @@ namespace screen
 	class ScreenSelector : public Screen
 	{
 		public:
-			ScreenSelector(const char * label);
+			ScreenSelector(const char * title);
 			virtual ~ScreenSelector();
 
 			void left();

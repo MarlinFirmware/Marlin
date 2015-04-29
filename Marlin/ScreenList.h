@@ -8,7 +8,7 @@ namespace screen
 	class ScreenList : public Screen
 	{
 		public:
-			ScreenList(const char * label);
+			ScreenList(const char * title);
 			virtual ~ScreenList();
 
 			void left();

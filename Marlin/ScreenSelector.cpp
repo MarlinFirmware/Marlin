@@ -2,8 +2,8 @@
 
 namespace screen
 {
-	ScreenSelector::ScreenSelector(const char * label)
-		: Screen(label, SELECTOR)
+	ScreenSelector::ScreenSelector(const char * title)
+		: Screen(title, SELECTOR)
 	{
 	}
 
@@ -30,8 +30,7 @@ namespace screen
 
 	void ScreenSelector::draw()
 	{
-		SERIAL_ECHO("DRAW: ");
-		SERIAL_ECHO(m_label);
+		SERIAL_ECHO(m_title);
 		SERIAL_ECHO("  < ");
 		SERIAL_ECHO(m_select);
 		SERIAL_ECHOLN(" >  ");

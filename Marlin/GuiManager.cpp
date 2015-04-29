@@ -33,19 +33,16 @@ screen::ScreenMenu screen_main = screen::ScreenMenu("Main Menu");
 //SD Card screens
 screen::ScreenList screen_SD_list = screen::ScreenList("SD Card"); 
 screen::ScreenMenu screen_SD_confirm = screen::ScreenMenu("Comfirm Print");
-screen::ScreenList screen_SD_back = screen::ScreenList("Back");
-screen::ScreenMenu screen_SD_continue = screen::ScreenMenu("OK");
-//screen::ScreenMenu screen_main_printing = screen::ScreenMenu("Printing Menu"); 
 //Unload Filament screens
-screen::ScreenSelector screen_unload_select = screen::ScreenSelector("Mount filament");
-screen::ScreenDialog screen_unload_heating = screen::ScreenDialog("Select Temperature");
-screen::ScreenDialog screen_unload_pull = screen::ScreenDialog("Press to abort");
-screen::ScreenMenu screen_unload_retry = screen::ScreenMenu("Push to continue");
+screen::ScreenSelector screen_unload_select = screen::ScreenSelector("Unload filament");
+screen::ScreenDialog screen_unload_heating = screen::ScreenDialog("Heating");
+screen::ScreenDialog screen_unload_pull = screen::ScreenDialog("Extrude and pull");
+screen::ScreenMenu screen_unload_confirm = screen::ScreenMenu("Finished?");
 //Load Filament screens
-screen::ScreenSelector screen_load_select = screen::ScreenSelector("Dismount filament");
-screen::ScreenDialog screen_load_heating = screen::ScreenDialog("Select Temperature");
-screen::ScreenDialog screen_load_pull = screen::ScreenDialog("Press to abort");
-screen::ScreenMenu screen_load_retry = screen::ScreenMenu("Push to continue");
+screen::ScreenSelector screen_load_select = screen::ScreenSelector("Load filament");
+screen::ScreenDialog screen_load_heating = screen::ScreenDialog("Heating");
+screen::ScreenDialog screen_load_pull = screen::ScreenDialog("Insert and press");
+screen::ScreenMenu screen_load_confirm = screen::ScreenMenu("Finished?");
 //Level Plate screens
 screen::ScreenMenu screen_level_confirm = screen::ScreenMenu("Level Plate");
 screen::ScreenDialog screen_level1 = screen::ScreenDialog("Screen1");
@@ -268,15 +265,23 @@ void lcd_init()
     //SD card screens
     screen_main.add(screen_SD_list);
     screen_SD_list.add(screen_SD_confirm);
-    screen_SD_confirm.add(screen_SD_back);
-    screen_SD_confirm.add(screen_SD_continue);
-    screen_SD_back.add(screen_SD_list);
-    screen_SD_continue.add(screen_main); 
+    screen_SD_confirm.add(screen_SD_list);
+    screen_SD_confirm.add(screen_main); 
     //Unload filament screens
     screen_main.add(screen_unload_select);
-    screen_unload_select.add(screen_main);
+    screen_unload_select.add(screen_unload_heating);
+    screen_unload_heating.add(screen_unload_pull);
+    screen_unload_pull.add(screen_unload_confirm);
+    screen_unload_confirm.add(screen_unload_pull);
+    screen_unload_confirm.add(screen_main);
+    //Load filament screens
     screen_main.add(screen_load_select);
-    screen_load_select.add(screen_main);
+    screen_load_select.add(screen_load_heating);
+    screen_load_heating.add(screen_load_pull);
+    screen_load_pull.add(screen_load_confirm);
+    screen_load_confirm.add(screen_load_pull);
+    screen_load_confirm.add(screen_main);    
+    //Level screen
     screen_main.add(screen_level_confirm);
     screen_level_confirm.add(screen_main);
     screen_main.add(screen_autohome);
@@ -353,30 +358,86 @@ static void lcd_update_encoder()
         switch (encoder_input & (EN_A | EN_B)) {
         case encrot0:
             if ( (encoder_input_last & (EN_A | EN_B)) == encrot3 )
-                active_view->right();//encoder_position++;
+            {
+                encoder_position++;
+                if (encoder_position/ENCODER_STEPS_PER_MENU_ITEM>=1)
+                {
+                    active_view->right();
+                    encoder_position = 0;
+                }
+            }
             else if ( (encoder_input_last & (EN_A | EN_B)) == encrot1 )
-                active_view->left();//encoder_position--;
+            {
+                encoder_position--;
+                if (encoder_position/ENCODER_STEPS_PER_MENU_ITEM<=-1)
+                {
+                    active_view->left();
+                    encoder_position = 0;
+                }
+            }
             break;
         
         case encrot1:
             if ( (encoder_input_last & (EN_A | EN_B)) == encrot0 )
-                active_view->right();//encoder_position++;
+            {
+                encoder_position++;
+                if (encoder_position/ENCODER_STEPS_PER_MENU_ITEM>=1)
+                {
+                    active_view->right();
+                    encoder_position = 0;
+                }
+            }
             else if ( (encoder_input_last & (EN_A | EN_B)) == encrot2 )
-                active_view->left();//encoder_position--;
+            {
+                encoder_position--;
+                if (encoder_position/ENCODER_STEPS_PER_MENU_ITEM<=-1)
+                {
+                    active_view->left();
+                    encoder_position = 0;
+                }
+            }
             break;
         
         case encrot2:
             if ( (encoder_input_last & (EN_A | EN_B)) == encrot1 )
-                active_view->right();//encoder_position++;
+            {
+                encoder_position++;
+                if (encoder_position/ENCODER_STEPS_PER_MENU_ITEM>=1)
+                {
+                    active_view->right();
+                    encoder_position = 0;
+                }
+            }
             else if ( (encoder_input_last & (EN_A | EN_B)) == encrot3 )
-                active_view->left();//encoder_position--;
+            {
+                encoder_position--;
+                if (encoder_position/ENCODER_STEPS_PER_MENU_ITEM<=-1)
+                {
+                    active_view->left();
+                    encoder_position = 0;
+                }
+            }
             break;
         
         case encrot3:
             if ( (encoder_input_last & (EN_A | EN_B)) == encrot2 )
-                active_view->right();//encoder_position++;
+            {
+                encoder_position++;
+                if (encoder_position/ENCODER_STEPS_PER_MENU_ITEM>=1)
+                {
+                    active_view->right();
+                    encoder_position = 0;
+                }
+            }
             else if ( (encoder_input_last & (EN_A | EN_B)) == encrot0 )
-                active_view->left();//encoder_position--;
+            {
+                encoder_position--;
+                if (encoder_position/ENCODER_STEPS_PER_MENU_ITEM<=-1)
+                {
+                    active_view->left();
+                    encoder_position = 0;
+                }
+            }
             break;
         }
 
