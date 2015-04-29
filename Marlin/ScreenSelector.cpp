@@ -13,14 +13,28 @@ namespace screen
 
 	void ScreenSelector::left()
 	{
+		if (m_select == 0)
+		{
+			m_select = 0;
+		}
+		else
+		{
+			--m_select;
+		}
 	}
 
 	void ScreenSelector::right()
 	{
+		++m_select;
 	}
 
 	void ScreenSelector::draw()
 	{
+		SERIAL_ECHO("DRAW: ");
+		SERIAL_ECHO(m_label);
+		SERIAL_ECHO("  < ");
+		SERIAL_ECHO(m_select);
+		SERIAL_ECHOLN(" >  ");
 	}
 
 	Screen & ScreenSelector::press()

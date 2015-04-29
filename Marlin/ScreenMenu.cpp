@@ -30,7 +30,7 @@ namespace screen
 		if ( m_index == (m_num_items -1) )
 		{
 			m_index = 0;
-      }
+        }
       else
 		{
 			++m_index;
@@ -39,6 +39,11 @@ namespace screen
 
 	void ScreenMenu::draw()
 	{
+		SERIAL_ECHO("DRAW:");
+		SERIAL_ECHO(m_label);
+		SERIAL_ECHO(" [");
+		SERIAL_ECHO(m_items[m_index]->label());
+		SERIAL_ECHOLN("] ");
 	}
 
 	Screen & ScreenMenu::press()

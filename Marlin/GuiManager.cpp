@@ -51,6 +51,10 @@ screen::ScreenDialog screen_level2 = screen::ScreenDialog("Screen2");
 screen::ScreenDialog screen_level3 = screen::ScreenDialog("Screen3");
 screen::ScreenDialog screen_level4 = screen::ScreenDialog("Screen4");
 screen::ScreenMenu screen_level_retry = screen::ScreenMenu("Push to Cotinue");
+//AutoHome screen
+screen::ScreenMenu screen_autohome = screen::ScreenMenu("Auto-home");
+//Stepper screen
+screen::ScreenMenu screen_stepper = screen::ScreenMenu("Steper on");
 //Move Axis screens
 screen::ScreenMenu screen_move = screen::ScreenMenu("Move axis");
 screen::ScreenMenu screen_move_back2main = screen::ScreenMenu("Back");
@@ -59,9 +63,15 @@ screen::ScreenMenu screen_move_y = screen::ScreenMenu("Move Y");
 screen::ScreenMenu screen_move_z = screen::ScreenMenu("Move Z");
 screen::ScreenMenu screen_move_e = screen::ScreenMenu("Move Extruder");
 screen::ScreenMenu screen_move_back2move = screen::ScreenMenu("Back");
-screen::ScreenMenu screen_move_10 = screen::ScreenMenu("Move 10mm");
-screen::ScreenMenu screen_move_1 = screen::ScreenMenu("Move 1mm");
-screen::ScreenMenu screen_move_01 = screen::ScreenMenu("Move 01mm");
+screen::ScreenSelector screen_move_10 = screen::ScreenSelector("Move 10mm");
+screen::ScreenSelector screen_move_1 = screen::ScreenSelector("Move 1mm");
+screen::ScreenSelector screen_move_01 = screen::ScreenSelector("Move 01mm");
+//Temperature screen
+screen::ScreenSelector screen_temperature = screen::ScreenSelector("Temp 0/200ºC");
+//Light screen
+screen::ScreenMenu screen_light = screen::ScreenMenu("Led light on");
+//Info screen
+screen::ScreenDialog screen_info = screen::ScreenDialog("FW info");
 
 
 screen::Screen * active_view;
@@ -253,17 +263,30 @@ void lcd_init()
     lcd_get_button_clicked();
 
     //Create screens
-    screen_main.add(screen_logo);
-    screen_logo.add(screen_main);
+    screen_main.add(screen_listSD);
     screen_listSD.add(screen_main);
-    screen_listSD.icon(icon_sd_normal);
-    screen_listSD.icon(icon_sd_hover);
+    screen_main.add(screen_unload_select);
+    screen_unload_select.add(screen_main);
+    screen_main.add(screen_load_select);
+    screen_load_select.add(screen_main);
+    screen_main.add(screen_level_confirm);
+    screen_level_confirm.add(screen_main);
+    screen_main.add(screen_autohome);
+    screen_autohome.add(screen_main);
+    screen_main.add(screen_stepper);
+    screen_stepper.add(screen_main);
+    screen_main.add(screen_move);
+    screen_move.add(screen_main);
+    screen_main.add(screen_temperature);
+    screen_temperature.add(screen_main);
+    screen_main.add(screen_light);
+    screen_light.add(screen_main);
+    screen_main.add(screen_info);
+    screen_info.add(screen_main);
 
     active_view = new screen::ScreenMenu(screen_main);
     active_view->draw();
-    delay(4000);
-    //active_view = &active_view->press();
-    //active_view->draw();
+    
     SERIAL_ECHOLN("LCD initialized!");
 }
 
@@ -279,6 +302,11 @@ static void lcd_update_button()
     // Process button click/keep-press events
     bool button_clicked = ((button_input & EN_C) && (~(button_input_last) & EN_C));
     bool button_pressed = ((button_input & EN_C) && (button_input_last & EN_C));
+
+    if (button_clicked == true)
+    {
+        active_view = &active_view->press();
+    }
 
     if (button_pressed == true) {
         button_pressed_count++;        
@@ -317,30 +345,30 @@ static void lcd_update_encoder()
         switch (encoder_input & (EN_A | EN_B)) {
         case encrot0:
             if ( (encoder_input_last & (EN_A | EN_B)) == encrot3 )
-                encoder_position++;
+                active_view->right();//encoder_position++;
             else if ( (encoder_input_last & (EN_A | EN_B)) == encrot1 )
-                encoder_position--;
+                active_view->left();//encoder_position--;
             break;
         
         case encrot1:
             if ( (encoder_input_last & (EN_A | EN_B)) == encrot0 )
-                encoder_position++;
+                active_view->right();//encoder_position++;
             else if ( (encoder_input_last & (EN_A | EN_B)) == encrot2 )
-                encoder_position--;
+                active_view->left();//encoder_position--;
             break;
         
         case encrot2:
             if ( (encoder_input_last & (EN_A | EN_B)) == encrot1 )
-                encoder_position++;
+                active_view->right();//encoder_position++;
             else if ( (encoder_input_last & (EN_A | EN_B)) == encrot3 )
-                encoder_position--;
+                active_view->left();//encoder_position--;
             break;
         
         case encrot3:
             if ( (encoder_input_last & (EN_A | EN_B)) == encrot2 )
-                encoder_position++;
+                active_view->right();//encoder_position++;
             else if ( (encoder_input_last & (EN_A | EN_B)) == encrot0 )
-                encoder_position--;
+                active_view->left();//encoder_position--;
             break;
         }
 

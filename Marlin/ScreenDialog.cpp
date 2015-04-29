@@ -21,6 +21,8 @@ namespace screen
 
 	void ScreenDialog::draw()
 	{
+		SERIAL_ECHO("DRAW: ");
+		SERIAL_ECHOLN(m_label);
 	}
 
 	Screen & ScreenDialog::press()

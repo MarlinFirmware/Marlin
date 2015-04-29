@@ -19,6 +19,9 @@ namespace screen
 
 		private:
          Screen * m_next_screen;
+         Screen * m_items[max_list];
+		 uint16_t m_index;
+		 uint16_t m_num_list;
 	};
 }
 

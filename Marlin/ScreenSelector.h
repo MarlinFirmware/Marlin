@@ -19,6 +19,7 @@ namespace screen
 
 		private:
          Screen * m_next_screen;
+         uint16_t m_select;
 	};
 }
 

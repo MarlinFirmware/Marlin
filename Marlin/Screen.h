@@ -9,6 +9,7 @@
 namespace screen
 {
 	const static uint8_t max_items = 10;
+	const static uint8_t max_list = 100;
 	const static uint8_t max_icons = 4;
 
 
