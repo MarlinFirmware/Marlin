@@ -258,12 +258,13 @@ volatile signed char count_direction[NUM_AXIS] = { 1, 1, 1, 1 };
     "r26" , "r27" \
   )
   
-#define SET_OCR1A(timer)  if ((OCR1A + 1) > timer) { \
+#define SET_OCR1A(timer)  do { if ((OCR1A + 1) > timer) { \
                             OCR1A += 1; \
                           } \
                           else { \
                             OCR1A = timer; \
-                          }
+                          } \
+                          } while(0)
 
 // Some useful constants
 
