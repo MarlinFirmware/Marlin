@@ -400,6 +400,8 @@ FORCE_INLINE void trapezoid_generator_reset() {
 // It pops blocks from the block_buffer and executes them by pulsing the stepper pins appropriately.
 ISR(TIMER1_COMPA_vect) {
 
+  OCR1A = 65355; // don't let the interrupt overflow before calculations are done
+
   if(cleaning_buffer_counter)
   {
     current_block = NULL;
