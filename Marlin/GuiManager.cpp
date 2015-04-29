@@ -31,8 +31,10 @@ screen::ScreenDialog screen_logo = screen::ScreenDialog("BQ Logo");
 //Main Menu screen
 screen::ScreenMenu screen_main = screen::ScreenMenu("Main Menu");
 //SD Card screens
-screen::ScreenList screen_listSD = screen::ScreenList("SD Card"); 
-screen::ScreenMenu screen_print_confirm = screen::ScreenMenu("Comfirm Print");
+screen::ScreenList screen_SD_list = screen::ScreenList("SD Card"); 
+screen::ScreenMenu screen_SD_confirm = screen::ScreenMenu("Comfirm Print");
+screen::ScreenList screen_SD_back = screen::ScreenList("Back");
+screen::ScreenMenu screen_SD_continue = screen::ScreenMenu("OK");
 //screen::ScreenMenu screen_main_printing = screen::ScreenMenu("Printing Menu"); 
 //Unload Filament screens
 screen::ScreenSelector screen_unload_select = screen::ScreenSelector("Mount filament");
@@ -263,8 +265,14 @@ void lcd_init()
     lcd_get_button_clicked();
 
     //Create screens
-    screen_main.add(screen_listSD);
-    screen_listSD.add(screen_main);
+    //SD card screens
+    screen_main.add(screen_SD_list);
+    screen_SD_list.add(screen_SD_confirm);
+    screen_SD_confirm.add(screen_SD_back);
+    screen_SD_confirm.add(screen_SD_continue);
+    screen_SD_back.add(screen_SD_list);
+    screen_SD_continue.add(screen_main); 
+    //Unload filament screens
     screen_main.add(screen_unload_select);
     screen_unload_select.add(screen_main);
     screen_main.add(screen_load_select);
