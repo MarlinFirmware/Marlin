@@ -500,7 +500,7 @@ void setup_filrunoutpin() {
   #if HAS_FILRUNOUT
     pinMode(FILRUNOUT_PIN, INPUT);
     #ifdef ENDSTOPPULLUP_FIL_RUNOUT
-      WRITE(FILLRUNOUT_PIN, HIGH);
+      WRITE(FILRUNOUT_PIN, HIGH);
     #endif
   #endif
 }
@@ -5975,7 +5975,7 @@ void disable_all_steppers() {
 void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
   
   #if HAS_FILRUNOUT
-    if (card.sdprinting && !(READ(FILRUNOUT_PIN) ^ FIL_RUNOUT_INVERTING))
+    if (IS_SD_PRINTING && !(READ(FILRUNOUT_PIN) ^ FIL_RUNOUT_INVERTING))
       filrunout();
   #endif
 
