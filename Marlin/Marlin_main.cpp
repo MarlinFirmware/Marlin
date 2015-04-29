@@ -6140,10 +6140,10 @@ void kill()
   void filrunout() {
     if (!filrunoutEnqueued) {
       filrunoutEnqueued = true;
-      enqueuecommand("M600");
+      enqueuecommands_P(PSTR(FILAMENT_RUNOUT_SCRIPT));
+      st_synchronize();
     }
   }
-
 #endif
 
 void Stop() {
