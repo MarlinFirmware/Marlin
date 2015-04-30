@@ -189,6 +189,7 @@
  * M410 - Quickstop. Abort all the planned moves
  * M420 - Enable/Disable Mesh Leveling (with current values) S1=enable S0=disable
  * M421 - Set a single Z coordinate in the Mesh Leveling grid. X<mm> Y<mm> Z<mm>
+ * M428 - Set the home_offset logically based on the current_position
  * M500 - Store parameters in EEPROM
  * M501 - Read parameters from EEPROM (if you need reset them after you changed them temporarily).
  * M502 - Revert to the default "factory settings". You still need to store them in EEPROM afterwards if you want to.
@@ -4505,6 +4506,31 @@ inline void gcode_M410() { quickStop(); }
 #endif
 
 /**
+ * M428: Set home_offset based on the distance between the
+ *       current_position and the nearest "reference position."
+ *       If an axis is past center the endstop position
+ *       is the reference-point. Otherwise it uses 0. This allows
+ *       the Z offset to be set near the bed when using a max endstop.
+ *
+ *       Use M206 to set these values directly.
+ */
+inline void gcode_M428() {
+  for (int8_t i = X_AXIS; i <= Z_AXIS; i++) {
+    float base = (current_position[i] > (min_pos[i] + max_pos[i]) / 2) ? base_home_pos(i) : 0,
+          diff = current_position[i] - base;
+    if (diff > -20 && diff < 20) {
+      home_offset[i] -= diff;
+      current_position[i] = base;
+    }
+    else {
+      SERIAL_ERROR_START;
+      SERIAL_ERRORLNPGM(MSG_ERR_M428_TOO_FAR);
+    }
+  }
+  sync_plan_position();
+}
+
+/**
  * M500: Store settings in EEPROM
  */
 inline void gcode_M500() {
@@ -5352,6 +5378,10 @@ void process_commands() {
           gcode_M421();
           break;
       #endif
+
+      case 428: // M428 Apply current_position to home_offset
+        gcode_M428();
+        break;
 
       case 500: // M500 Store settings in EEPROM
         gcode_M500();

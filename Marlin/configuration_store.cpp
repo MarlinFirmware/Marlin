@@ -676,7 +676,7 @@ void Config_PrintSettings(bool forReplay) {
       SERIAL_ECHOLNPGM("Mesh bed leveling:");
       CONFIG_ECHO_START;
     }
-    SERIAL_ECHOPAIR("  M420 S", (int32_t)mbl.active);
+    SERIAL_ECHOPAIR("  M420 S", (unsigned long)mbl.active);
     SERIAL_ECHOPAIR(" X", MESH_NUM_X_POINTS);
     SERIAL_ECHOPAIR(" Y", MESH_NUM_Y_POINTS);
     SERIAL_EOL;
