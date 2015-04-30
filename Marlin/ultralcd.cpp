@@ -442,8 +442,8 @@ static void lcd_main_menu() {
  * Set the home offset based on the current_position
  */
 void lcd_set_home_offsets() {
-  // Command with Audio feedback
-  enqueuecommands_P(PSTR("M428\nM300 S659 P200\nM300 S698 P200"));
+  // M428 Command
+  enqueuecommands_P(PSTR("M428"));
   lcd_return_to_status();
 }
 
@@ -1285,7 +1285,7 @@ void lcd_quick_feedback() {
       #define LCD_FEEDBACK_FREQUENCY_DURATION_MS (1000/6)
     #endif    
     lcd_buzz(LCD_FEEDBACK_FREQUENCY_DURATION_MS, LCD_FEEDBACK_FREQUENCY_HZ);
-  #elif defined(BEEPER) && BEEPER > -1
+  #elif defined(BEEPER) && BEEPER >= 0
     #ifndef LCD_FEEDBACK_FREQUENCY_HZ
       #define LCD_FEEDBACK_FREQUENCY_HZ 5000
     #endif
@@ -1718,12 +1718,12 @@ void lcd_reset_alert_level() { lcd_status_message_level = 0; }
 
   void lcd_buzz(long duration, uint16_t freq) {
     if (freq > 0) {
-      #if BEEPER > 0
+      #ifdef LCD_USE_I2C_BUZZER
+        lcd.buzz(duration, freq);
+      #elif defined(BEEPER) && BEEPER >= 0
         SET_OUTPUT(BEEPER);
         tone(BEEPER, freq, duration);
         delay(duration);
-      #elif defined(LCD_USE_I2C_BUZZER)
-        lcd.buzz(duration, freq);
       #else
         delay(duration);
       #endif
