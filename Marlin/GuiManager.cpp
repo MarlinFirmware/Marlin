@@ -76,20 +76,6 @@ screen::ScreenDialog screen_info = screen::ScreenDialog("FW info");
 screen::Screen * active_view;
 screen::Screen * parent_view;
 
-// Only for new LCD
-typedef struct {
-    uint8_t type;
-    char text[18];
-    func_p action;
-    void * data;
-} cache_entry;
-
-// Only for new LCD
-typedef struct {
-    char filename[13];
-    char longFilename[LONG_FILENAME_LENGTH];
-} cache_entry_data;
-
 /*******************************************************************************
 **   Variables
 *******************************************************************************/
@@ -169,13 +155,6 @@ uint8_t display_view_menu_offset = 0;
 uint8_t display_view_wizard_page = 0;
 
 
-// SD cacheable menu variables
-cache_entry cache[MAX_CACHE_SIZE];
-cache_entry_data cache_data[MAX_CACHE_SIZE];
-const cache_entry* cache_index = &cache[0];
-
-bool cache_update = false;
-bool cache_menu_first_time = false;
 bool folder_is_root = false;
 
 int8_t list_length;
