@@ -162,6 +162,7 @@
 #define MSG_ERR_MATERIAL_INDEX              "M145 S<index> out of range (0-1)"
 #define MSG_ERR_M421_REQUIRES_XYZ           "M421 requires XYZ parameters"
 #define MSG_ERR_MESH_INDEX_OOB              "Mesh XY index is out of bounds"
+#define MSG_ERR_M428_TOO_FAR                "Too far from reference point"
 #define MSG_M119_REPORT                     "Reporting endstop status"
 #define MSG_ENDSTOP_HIT                     "TRIGGERED"
 #define MSG_ENDSTOP_OPEN                    "open"

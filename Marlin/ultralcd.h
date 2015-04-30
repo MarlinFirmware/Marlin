@@ -106,7 +106,7 @@
   FORCE_INLINE void lcd_setstatuspgm(const char* message, const uint8_t level=0) {}
   FORCE_INLINE void lcd_buttons_update() {}
   FORCE_INLINE void lcd_reset_alert_level() {}
-  FORCE_INLINE void lcd_buzz(long duration,uint16_t freq) {}
+  FORCE_INLINE void lcd_buzz(long duration, uint16_t freq) {}
   FORCE_INLINE bool lcd_detected(void) { return true; }
 
   #define LCD_MESSAGEPGM(x) do{}while(0)
