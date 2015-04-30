@@ -4,8 +4,8 @@ namespace screen
 {
 	ScreenMenu::ScreenMenu(const char * title)
 		: Screen(title, MENU)
-		, m_index(0)
-		, m_num_items(0)
+		  , m_index(0)
+		  , m_num_items(0)
 	{
 	}
 
@@ -30,8 +30,8 @@ namespace screen
 		if ( m_index == (m_num_items -1) )
 		{
 			m_index = m_num_items -1;
-        }
-      else
+		}
+		else
 		{
 			++m_index;
 		}
