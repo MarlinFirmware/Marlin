@@ -115,15 +115,19 @@ FORCE_INLINE uint8_t movesplanned() { return BLOCK_MOD(block_buffer_head - block
 
 void plan_set_e_position(const float &e);
 
+//===========================================================================
+//============================= public variables ============================
+//===========================================================================
+
 extern millis_t minsegmenttime;
-extern float max_feedrate[NUM_AXIS]; // set the max speeds
+extern float max_feedrate[NUM_AXIS]; // Max speeds in mm per minute
 extern float axis_steps_per_unit[NUM_AXIS];
 extern unsigned long max_acceleration_units_per_sq_second[NUM_AXIS]; // Use M201 to override by software
 extern float minimumfeedrate;
-extern float acceleration;         // Normal acceleration mm/s^2  THIS IS THE DEFAULT ACCELERATION for all moves. M204 SXXXX
-extern float retract_acceleration; //  mm/s^2   filament pull-pack and push-forward  while standing still in the other axis M204 TXXXX
-extern float travel_acceleration;  // Travel acceleration mm/s^2  THIS IS THE DEFAULT ACCELERATION for all NON printing moves. M204 MXXXX
-extern float max_xy_jerk; //speed than can be stopped at once, if i understand correctly.
+extern float acceleration;         // Normal acceleration mm/s^2  DEFAULT ACCELERATION for all printing moves. M204 SXXXX
+extern float retract_acceleration; // Retract acceleration mm/s^2 filament pull-back and push-forward while standing still in the other axes M204 TXXXX
+extern float travel_acceleration;  // Travel acceleration mm/s^2  DEFAULT ACCELERATION for all NON printing moves. M204 MXXXX
+extern float max_xy_jerk;          // The largest speed change requiring no acceleration
 extern float max_z_jerk;
 extern float max_e_jerk;
 extern float mintravelfeedrate;

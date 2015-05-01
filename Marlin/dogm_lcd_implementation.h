@@ -29,7 +29,7 @@
 #endif
 
 #include <U8glib.h>
-#include "DOGMbitmaps.h"
+#include "dogm_bitmaps.h"
 
 #include "ultralcd.h"
 #include "ultralcd_st7920_u8glib_rrd.h"
@@ -64,6 +64,10 @@
   #elif defined( DISPLAY_CHARSET_ISO10646_KANA )
     #include "dogm_font_data_ISO10646_Kana.h"
     #define FONT_MENU_NAME ISO10646_Kana_5x7
+  #elif defined( DISPLAY_CHARSET_ISO10646_CN )
+    #include "dogm_font_data_ISO10646_CN.h"
+    #define FONT_MENU_NAME ISO10646_CN
+    #define TALL_FONT_CORRECTION 1
   #else // fall-back
     #include "dogm_font_data_ISO10646_1.h"
     #define FONT_MENU_NAME ISO10646_1_5x7
@@ -106,6 +110,10 @@
   #define LCD_WIDTH_EDIT       22
 #endif
 
+#ifndef TALL_FONT_CORRECTION
+  #define TALL_FONT_CORRECTION 0
+#endif
+
 #define START_ROW              0
 
 // LCD selection
@@ -121,6 +129,13 @@
 #else
   // for regular DOGM128 display with HW-SPI
   U8GLIB_DOGM128 u8g(DOGLCD_CS, DOGLCD_A0);  // HW-SPI Com: CS, A0
+#endif
+
+#ifndef LCD_PIXEL_WIDTH
+  #define LCD_PIXEL_WIDTH 128
+#endif
+#ifndef LCD_PIXEL_HEIGHT
+  #define LCD_PIXEL_HEIGHT 64
 #endif
 
 #include "utf_mapper.h"
@@ -172,6 +187,7 @@ char lcd_printPGM(const char* str) {
 
 static bool show_splashscreen = true;
 
+/* Warning: This function is called from interrupt context */
 static void lcd_implementation_init() {
 
   #ifdef LCD_PIN_BL // Enable LCD backlight
@@ -252,20 +268,21 @@ static void lcd_implementation_status_screen() {
  
   #ifdef SDSUPPORT
     // SD Card Symbol
-    u8g.drawBox(42,42,8,7);
-    u8g.drawBox(50,44,2,5);
-    u8g.drawFrame(42,49,10,4);
-    u8g.drawPixel(50,43);
+    u8g.drawBox(42, 42 - TALL_FONT_CORRECTION, 8, 7);
+    u8g.drawBox(50, 44 - TALL_FONT_CORRECTION, 2, 5);
+    u8g.drawFrame(42, 49 - TALL_FONT_CORRECTION, 10, 4);
+    u8g.drawPixel(50, 43 - TALL_FONT_CORRECTION);
+
 
     // Progress bar frame
-    u8g.drawFrame(54,49,73,4);
+    u8g.drawFrame(54, 49, 73, 4 - TALL_FONT_CORRECTION);
 
     // SD Card Progress bar and clock
     lcd_setFont(FONT_STATUSMENU);
  
     if (IS_SD_PRINTING) {
       // Progress bar solid part
-      u8g.drawBox(55, 50, (unsigned int)(71.f * card.percentDone() / 100.f), 2);
+      u8g.drawBox(55, 50, (unsigned int)(71.f * card.percentDone() / 100.f), 2 - TALL_FONT_CORRECTION);
     }
 
     u8g.setPrintPos(80,48);
@@ -306,9 +323,9 @@ static void lcd_implementation_status_screen() {
   lcd_setFont(FONT_STATUSMENU);
 
   #ifdef USE_SMALL_INFOFONT
-    u8g.drawBox(0,30,128,10);
+    u8g.drawBox(0,30,LCD_PIXEL_WIDTH,10);
   #else
-    u8g.drawBox(0,30,128,9);
+    u8g.drawBox(0,30,LCD_PIXEL_WIDTH,9);
   #endif
   u8g.setColorIndex(0); // white on black
   u8g.setPrintPos(2,XYZ_BASELINE);
@@ -366,7 +383,7 @@ static void lcd_implementation_status_screen() {
 static void lcd_implementation_mark_as_selected(uint8_t row, bool isSelected) {
   if (isSelected) {
     u8g.setColorIndex(1);  // black on white
-    u8g.drawBox(0, row * DOG_CHAR_HEIGHT + 3, 128, DOG_CHAR_HEIGHT);
+    u8g.drawBox(0, row * DOG_CHAR_HEIGHT + 3 - TALL_FONT_CORRECTION, LCD_PIXEL_WIDTH, DOG_CHAR_HEIGHT);
     u8g.setColorIndex(0);  // following text must be white on black
   }
   else {
@@ -386,13 +403,15 @@ static void lcd_implementation_drawmenu_generic(bool isSelected, uint8_t row, co
     pstr++;
   }
   while (n--) lcd_print(' ');
+    u8g.setPrintPos(LCD_PIXEL_WIDTH - DOG_CHAR_WIDTH, (row + 1) * DOG_CHAR_HEIGHT);
   lcd_print(post_char);
   lcd_print(' ');
 }
 
 static void _drawmenu_setting_edit_generic(bool isSelected, uint8_t row, const char* pstr, const char* data, bool pgm) {
   char c;
-  uint8_t n = LCD_WIDTH - 2 - (pgm ? lcd_strlen_P(data) : (lcd_strlen((char*)data)));
+  uint8_t vallen = (pgm ? lcd_strlen_P(data) : (lcd_strlen((char*)data)));
+  uint8_t n = LCD_WIDTH - 2 - vallen;
 
   lcd_implementation_mark_as_selected(row, isSelected);
 
@@ -402,6 +421,7 @@ static void _drawmenu_setting_edit_generic(bool isSelected, uint8_t row, const c
   }
   lcd_print(':');
   while (n--) lcd_print(' ');
+  u8g.setPrintPos(LCD_PIXEL_WIDTH - DOG_CHAR_WIDTH * vallen, (row + 1) * DOG_CHAR_HEIGHT);
   if (pgm) { lcd_printPGM(data); } else { lcd_print((char *)data); }
 }
 

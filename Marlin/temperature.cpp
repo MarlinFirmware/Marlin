@@ -89,8 +89,9 @@ unsigned char soft_pwm_bed;
 #endif
 
 //===========================================================================
-//=============================private variables============================
+//============================ private variables ============================
 //===========================================================================
+
 static volatile bool temp_meas_ready = false;
 
 #ifdef PIDTEMP
@@ -187,7 +188,7 @@ static void updateTemperaturesFromRawValues();
 #endif
 
 //===========================================================================
-//=============================   functions      ============================
+//================================ Functions ================================
 //===========================================================================
 
 void PID_autotune(float temp, int extruder, int ncycles)
@@ -341,9 +342,10 @@ void PID_autotune(float temp, int extruder, int ncycles)
     }
     if (cycles > ncycles) {
       SERIAL_PROTOCOLLNPGM(MSG_PID_AUTOTUNE_FINISHED);
-      SERIAL_PROTOCOLPGM("#define  DEFAULT_Kp "); SERIAL_PROTOCOLLN(Kp);
-      SERIAL_PROTOCOLPGM("#define  DEFAULT_Ki "); SERIAL_PROTOCOLLN(Ki);
-      SERIAL_PROTOCOLPGM("#define  DEFAULT_Kd "); SERIAL_PROTOCOLLN(Kd);
+      const char *estring = extruder < 0 ? "bed" : "";
+      SERIAL_PROTOCOLPGM("#define  DEFAULT_"); SERIAL_PROTOCOL(estring); SERIAL_PROTOCOLPGM("Kp "); SERIAL_PROTOCOLLN(Kp);
+      SERIAL_PROTOCOLPGM("#define  DEFAULT_"); SERIAL_PROTOCOL(estring); SERIAL_PROTOCOLPGM("Ki "); SERIAL_PROTOCOLLN(Ki);
+      SERIAL_PROTOCOLPGM("#define  DEFAULT_"); SERIAL_PROTOCOL(estring); SERIAL_PROTOCOLPGM("Kd "); SERIAL_PROTOCOLLN(Kd);
       return;
     }
     lcd_update();
