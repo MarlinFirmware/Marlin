@@ -2,32 +2,37 @@
  * German
  *
  * LCD Menu Messages
- * Please note these are limited to 17 characters!
+ * See also documentation/LCDLanguageFont.md
  *
  */
 #ifndef LANGUAGE_DE_H
 #define LANGUAGE_DE_H
 
-#define WELCOME_MSG                         MACHINE_NAME " Bereit."
+#define MAPPER_C2C3
+// Define SIMULATE_ROMFONT to see what is seen on the character based display defined in Configuration.h
+//#define SIMULATE_ROMFONT
+#define DISPLAY_CHARSET_ISO10646_1
+
+#define WELCOME_MSG                         MACHINE_NAME " bereit."
 #define MSG_SD_INSERTED                     "SDKarte erkannt."
 #define MSG_SD_REMOVED                      "SDKarte entfernt."
-#define MSG_MAIN                            "Hauptmen" STR_ue
+#define MSG_MAIN                            "Hauptmenü"
 #define MSG_AUTOSTART                       "Autostart"
 #define MSG_DISABLE_STEPPERS                "Motoren Aus" // M84
 #define MSG_AUTO_HOME                       "Home" // G28
 #define MSG_SET_HOME_OFFSETS                "Setze Home hier"
 #define MSG_SET_ORIGIN                      "Setze Null hier" //"G92 X0 Y0 Z0" commented out in ultralcd.cpp
-#define MSG_PREHEAT_PLA                     "Vorw" STR_ae "rmen PLA"
-#define MSG_PREHEAT_PLA_N                   "Vorw" STR_ae "rmen PLA "
+#define MSG_PREHEAT_PLA                     "Vorwärmen PLA"
+#define MSG_PREHEAT_PLA_N                   "Vorwärmen PLA "
 #define MSG_PREHEAT_PLA_ALL                 "Vorw. PLA Alle"
 #define MSG_PREHEAT_PLA_BEDONLY             "Vorw. PLA Bett"
-#define MSG_PREHEAT_PLA_SETTINGS            "Vorw" STR_ae "rm. PLA Ein."
-#define MSG_PREHEAT_ABS                     "Vorw" STR_ae "rmen ABS"
-#define MSG_PREHEAT_ABS_N                   "Vorw" STR_ae "rmen ABS "
+#define MSG_PREHEAT_PLA_SETTINGS            "Vorwärm. PLA Ein."
+#define MSG_PREHEAT_ABS                     "Vorwärmen ABS"
+#define MSG_PREHEAT_ABS_N                   "Vorwärmen ABS "
 #define MSG_PREHEAT_ABS_ALL                 "Vorw. ABS Alle"
 #define MSG_PREHEAT_ABS_BEDONLY             "Vorw. ABS Bett"
-#define MSG_PREHEAT_ABS_SETTINGS            "Vorw" STR_ae "rm. ABS Ein."
-#define MSG_COOLDOWN                        "Abk" STR_ue "hlen"
+#define MSG_PREHEAT_ABS_SETTINGS            "Vorwärm. ABS Ein."
+#define MSG_COOLDOWN                        "Abkühlen"
 #define MSG_SWITCH_PS_ON                    "Netzteil Ein"
 #define MSG_SWITCH_PS_OFF                   "Netzteil Aus"
 #define MSG_RETRACT                         "Retract"
@@ -40,14 +45,14 @@
 #define MSG_MOVE_1MM                        " 1.0 mm"
 #define MSG_MOVE_10MM                       "10.0 mm"
 #define MSG_SPEED                           "Geschw."
-#define MSG_NOZZLE                          "D" STR_ue "se"
+#define MSG_NOZZLE                          "Düse"
 #define MSG_BED                             "Bett"
-#define MSG_FAN_SPEED                       "L" STR_ue "ftergeschw."
+#define MSG_FAN_SPEED                       "Lüftergeschw."
 #define MSG_FLOW                            "Fluss"
 #define MSG_CONTROL                         "Einstellungen"
-#define MSG_MIN                             STR_THERMOMETER " Min"
-#define MSG_MAX                             STR_THERMOMETER " Max"
-#define MSG_FACTOR                          STR_THERMOMETER " Faktor"
+#define MSG_MIN                             LCD_STR_THERMOMETER " Min"
+#define MSG_MAX                             LCD_STR_THERMOMETER " Max"
+#define MSG_FACTOR                          LCD_STR_THERMOMETER " Faktor"
 #define MSG_AUTOTEMP                        "AutoTemp"
 #define MSG_ON                              "Ein"
 #define MSG_OFF                             "Aus"
@@ -56,9 +61,9 @@
 #define MSG_PID_D                           "PID D"
 #define MSG_PID_C                           "PID C"
 #define MSG_ACC                             "A"
-#define MSG_VXY_JERK                        "V xy jerk"
-#define MSG_VZ_JERK                         "V z  jerk"
-#define MSG_VE_JERK                         "V e  jerk"
+#define MSG_VXY_JERK                        "V xy Ruck"
+#define MSG_VZ_JERK                         "V z  Ruck"
+#define MSG_VE_JERK                         "V e  Ruck"
 #define MSG_VMAX                            "V max " // space by purpose
 #define MSG_X                               "x"
 #define MSG_Y                               "y"
@@ -75,11 +80,11 @@
 #define MSG_TEMPERATURE                     "Temperatur"
 #define MSG_MOTION                          "Bewegung"
 #define MSG_VOLUMETRIC                      "Filament"
-#define MSG_VOLUMETRIC_ENABLED		          "E in mm" STR_h3
+#define MSG_VOLUMETRIC_ENABLED              "E in mm³"
 #define MSG_FILAMENT_SIZE_EXTRUDER_0        "Filament D 1"
 #define MSG_FILAMENT_SIZE_EXTRUDER_1        "Filament D 2"
 #define MSG_FILAMENT_SIZE_EXTRUDER_2        "Filament D 3"
-#define MSG_CONTRAST                        "LCD contrast"
+#define MSG_CONTRAST                        "LCD Kontrast"
 #define MSG_STORE_EPROM                     "EPROM speichern"
 #define MSG_LOAD_EPROM                      "EPROM laden"
 #define MSG_RESTORE_FAILSAFE                "Standardkonfig."
@@ -111,15 +116,17 @@
 #define MSG_INIT_SDCARD                     "SDKarte erkennen"// Manually initialize the SD-card via user interface
 #define MSG_CNG_SDCARD                      "SDKarte erkennen"// SD-card changed by user. For machines with no autocarddetect. Both send "M21"
 #define MSG_ZPROBE_OUT                      "Sensor ausserhalb"
-#define MSG_POSITION_UNKNOWN                "X/Y vor Z Homen."
+#define MSG_POSITION_UNKNOWN                "X/Y vor Z homen."
 #define MSG_ZPROBE_ZOFFSET                  "Z Offset"
 #define MSG_BABYSTEP_X                      "Babystep X"
 #define MSG_BABYSTEP_Y                      "Babystep Y"
 #define MSG_BABYSTEP_Z                      "Babystep Z"
 #define MSG_ENDSTOP_ABORT                   "Endstop Abbr. Ein"
+#define MSG_END_HOUR                        "Stunden"
+#define MSG_END_MINUTE                      "Minuten"
 
 #ifdef DELTA_CALIBRATION_MENU
-    #define MSG_DELTA_CALIBRATE             "Delta Kalibrieren"
+    #define MSG_DELTA_CALIBRATE             "Delta kalibrieren"
     #define MSG_DELTA_CALIBRATE_X           "Kalibriere X"
     #define MSG_DELTA_CALIBRATE_Y           "Kalibriere Y"
     #define MSG_DELTA_CALIBRATE_Z           "Kalibriere Z"

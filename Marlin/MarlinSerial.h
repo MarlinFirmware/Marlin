@@ -97,14 +97,14 @@ class MarlinSerial { //: public Stream
     }
 
     FORCE_INLINE void write(uint8_t c) {
-      while (!((M_UCSRxA) & (1 << M_UDREx)))
+      while (!TEST(M_UCSRxA, M_UDREx))
         ;
 
       M_UDRx = c;
     }
 
     FORCE_INLINE void checkRx(void) {
-      if ((M_UCSRxA & (1<<M_RXCx)) != 0) {
+      if (TEST(M_UCSRxA, M_RXCx)) {
         unsigned char c  =  M_UDRx;
         int i = (unsigned int)(rx_buffer.head + 1) % RX_BUFFER_SIZE;
 
@@ -153,8 +153,8 @@ extern MarlinSerial MSerial;
 #endif // !AT90USB
 
 // Use the UART for BT in AT90USB configurations
-#if defined(AT90USB) && defined (BTENABLED)
-   extern HardwareSerial bt;
+#if defined(AT90USB) && defined(BTENABLED)
+  extern HardwareSerial bt;
 #endif
 
 #endif

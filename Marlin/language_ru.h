@@ -1,19 +1,22 @@
-/**
+﻿/**
  * Russian
  *
  * LCD Menu Messages
- * Please note these are limited to 17 characters!
+ * See also documentation/LCDLanguageFont.md
  *
  */
 #ifndef LANGUAGE_RU_H
 #define LANGUAGE_RU_H
 
-#define LANGUAGE_RU
+#define MAPPER_D0D1                // For Cyrillic
+// Define SIMULATE_ROMFONT to see what is seen on the character based display defined in Configuration.h
+//#define SIMULATE_ROMFONT
+#define DISPLAY_CHARSET_ISO10646_5
 
 #define WELCOME_MSG                         MACHINE_NAME " Готов."
 #define MSG_SD_INSERTED                     "Карта вставлена"
 #define MSG_SD_REMOVED                      "Карта извлечена"
-#define MSG_MAIN                            "Меню \003"
+#define MSG_MAIN                            "Меню"
 #define MSG_AUTOSTART                       "Автостарт"
 #define MSG_DISABLE_STEPPERS                "Выкл. двигатели"
 #define MSG_AUTO_HOME                       "Парковка"
@@ -42,15 +45,16 @@
 #define MSG_MOVE_01MM                       "Move 0.1mm"
 #define MSG_MOVE_1MM                        "Move 1mm"
 #define MSG_MOVE_10MM                       "Move 10mm"
+#define MSG_LEVEL_BED                       "Настр. уровня кровати"
 #define MSG_SPEED                           "Скорость"
-#define MSG_NOZZLE                          "\002 Фильера"
-#define MSG_BED                             "\002 Кровать"
+#define MSG_NOZZLE                          LCD_STR_THERMOMETER " Фильера"
+#define MSG_BED                             LCD_STR_THERMOMETER " Кровать"
 #define MSG_FAN_SPEED                       "Куллер"
 #define MSG_FLOW                            "Поток"
-#define MSG_CONTROL                         "Настройки \003"
-#define MSG_MIN                             "\002 Минимум"
-#define MSG_MAX                             "\002 Максимум"
-#define MSG_FACTOR                          "\002 Фактор"
+#define MSG_CONTROL                         "Настройки"
+#define MSG_MIN                             LCD_STR_THERMOMETER " Минимум"
+#define MSG_MAX                             LCD_STR_THERMOMETER " Максимум"
+#define MSG_FACTOR                          LCD_STR_THERMOMETER " Фактор"
 #define MSG_AUTOTEMP                        "Autotemp"
 #define MSG_ON                              "Вкл. "
 #define MSG_OFF                             "Выкл. "
@@ -75,10 +79,10 @@
 #define MSG_YSTEPS                          "Y шаг/mm"
 #define MSG_ZSTEPS                          "Z шаг/mm"
 #define MSG_ESTEPS                          "E шаг/mm"
-#define MSG_TEMPERATURE                     "Температура     \x7E"
-#define MSG_MOTION                          "Скорости        \x7E"
+#define MSG_TEMPERATURE                     "Температура"
+#define MSG_MOTION                          "Скорости"
 #define MSG_VOLUMETRIC                      "Filament"
-#define MSG_VOLUMETRIC_ENABLED		        "E in mm3"
+#define MSG_VOLUMETRIC_ENABLED		          "E in mm3"
 #define MSG_FILAMENT_SIZE_EXTRUDER_0        "Fil. Dia. 1"
 #define MSG_FILAMENT_SIZE_EXTRUDER_1        "Fil. Dia. 2"
 #define MSG_FILAMENT_SIZE_EXTRUDER_2        "Fil. Dia. 3"
@@ -86,14 +90,14 @@
 #define MSG_STORE_EPROM                     "Сохранить в EPROM"
 #define MSG_LOAD_EPROM                      "Загруз. из EPROM"
 #define MSG_RESTORE_FAILSAFE                "Сброс настроек"
-#define MSG_REFRESH                         "\004Обновить"
-#define MSG_WATCH                           "Обзор           \003"
-#define MSG_PREPARE                         "Действия        \x7E"
-#define MSG_TUNE                            "Настройки       \x7E"
+#define MSG_REFRESH                         LCD_STR_REFRESH "Обновить"
+#define MSG_WATCH                           "Обзор"
+#define MSG_PREPARE                         "Действия"
+#define MSG_TUNE                            "Настройки"
 #define MSG_PAUSE_PRINT                     "Продолжить печать"
 #define MSG_RESUME_PRINT                    "возобн. печать"
 #define MSG_STOP_PRINT                      "Остановить печать"
-#define MSG_CARD_MENU                       "Меню карты      \x7E"
+#define MSG_CARD_MENU                       "Меню карты"
 #define MSG_NO_CARD                         "Нет карты"
 #define MSG_DWELL                           "Сон..."
 #define MSG_USERWAIT                        "Ожиданиие"
@@ -120,6 +124,8 @@
 #define MSG_BABYSTEP_Y                      "Babystep Y"
 #define MSG_BABYSTEP_Z                      "Babystep Z"
 #define MSG_ENDSTOP_ABORT                   "Endstop abort"
+#define MSG_END_HOUR                        "hours"
+#define MSG_END_MINUTE                      "minutes"
 
 #ifdef DELTA_CALIBRATION_MENU
     #define MSG_DELTA_CALIBRATE             "Delta Calibration"

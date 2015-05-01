@@ -2,11 +2,21 @@
  * English
  *
  * LCD Menu Messages
- * Please note these are limited to 17 characters!
+ * Se also documentation/LCDLanguageFont.md
  *
  */
 #ifndef LANGUAGE_EN_H
 #define LANGUAGE_EN_H
+
+#if !( defined(MAPPER_NON)|| defined(MAPPER_C2C3)|| defined(MAPPER_D0D1)|| defined(MAPPER_D0D1_MOD)|| defined(MAPPER_E382E383) )
+  #define MAPPER_NON         // For direct asci codes
+#endif
+
+//#define SIMULATE_ROMFONT //Comment in to see what is seen on the character based displays
+#if !( defined(SIMULATE_ROMFONT)|| defined(DISPLAY_CHARSET_ISO10646_1)|| defined(DISPLAY_CHARSET_ISO10646_5)|| defined(DISPLAY_CHARSET_ISO10646_KANA)|| defined(DISPLAY_CHARSET_ISO10646_CN) )
+  #define DISPLAY_CHARSET_ISO10646_1 // use the better font on full graphic displays.
+#endif
+
 
 #ifndef WELCOME_MSG
 #define WELCOME_MSG                         MACHINE_NAME " ready."
@@ -65,6 +75,18 @@
 #ifndef MSG_PREHEAT_ABS_SETTINGS
 #define MSG_PREHEAT_ABS_SETTINGS            MSG_PREHEAT_ABS " conf"
 #endif
+#ifndef MSG_H1
+#define MSG_H1                              "1"
+#endif
+#ifndef MSG_H2
+#define MSG_H2                              "2"
+#endif
+#ifndef MSG_H3
+#define MSG_H3                              "3"
+#endif
+#ifndef MSG_H4
+#define MSG_H4                              "4"
+#endif
 #ifndef MSG_COOLDOWN
 #define MSG_COOLDOWN                        "Cooldown"
 #endif
@@ -82,6 +104,9 @@
 #endif
 #ifndef MSG_MOVE_AXIS
 #define MSG_MOVE_AXIS                       "Move axis"
+#endif
+#ifndef MSG_LEVEL_BED
+#define MSG_LEVEL_BED                       "Level bed"
 #endif
 #ifndef MSG_MOVE_X
 #define MSG_MOVE_X                          "Move X"
@@ -110,6 +135,15 @@
 #ifndef MSG_NOZZLE
 #define MSG_NOZZLE                          "Nozzle"
 #endif
+#ifndef MSG_N2
+#define MSG_N2                              " 2"
+#endif
+#ifndef MSG_N3
+#define MSG_N3                              " 3"
+#endif
+#ifndef MSG_N4
+#define MSG_N4                              " 4"
+#endif
 #ifndef MSG_BED
 #define MSG_BED                             "Bed"
 #endif
@@ -119,17 +153,29 @@
 #ifndef MSG_FLOW
 #define MSG_FLOW                            "Flow"
 #endif
+#ifndef MSG_F0
+#define MSG_F0                              " 0"
+#endif
+#ifndef MSG_F1
+#define MSG_F1                              " 1"
+#endif
+#ifndef MSG_F2
+#define MSG_F2                              " 2"
+#endif
+#ifndef MSG_F3
+#define MSG_F3                              " 3"
+#endif
 #ifndef MSG_CONTROL
 #define MSG_CONTROL                         "Control"
 #endif
 #ifndef MSG_MIN
-#define MSG_MIN                             " " STR_THERMOMETER " Min"
+#define MSG_MIN                             " "LCD_STR_THERMOMETER " Min"
 #endif
 #ifndef MSG_MAX
-#define MSG_MAX                             " " STR_THERMOMETER " Max"
+#define MSG_MAX                             " "LCD_STR_THERMOMETER " Max"
 #endif
 #ifndef MSG_FACTOR
-#define MSG_FACTOR                          " " STR_THERMOMETER " Fact"
+#define MSG_FACTOR                          " "LCD_STR_THERMOMETER " Fact"
 #endif
 #ifndef MSG_AUTOTEMP
 #define MSG_AUTOTEMP                        "Autotemp"
@@ -151,6 +197,15 @@
 #endif
 #ifndef MSG_PID_C
 #define MSG_PID_C                           "PID-C"
+#endif
+#ifndef MSG_E2
+#define MSG_E2                              " E2"
+#endif
+#ifndef MSG_E3
+#define MSG_E3                              " E3"
+#endif
+#ifndef MSG_E4
+#define MSG_E4                              " E4"
 #endif
 #ifndef MSG_ACC
 #define MSG_ACC                             "Accel"
@@ -191,6 +246,9 @@
 #ifndef MSG_A_RETRACT
 #define MSG_A_RETRACT                       "A-retract"
 #endif
+#ifndef MSG_A_TRAVEL
+#define MSG_A_TRAVEL                        "A-travel"
+#endif
 #ifndef MSG_XSTEPS
 #define MSG_XSTEPS                          "Xsteps/mm"
 #endif
@@ -213,7 +271,7 @@
 #define MSG_VOLUMETRIC                      "Filament"
 #endif
 #ifndef MSG_VOLUMETRIC_ENABLED
-#define MSG_VOLUMETRIC_ENABLED		          "E in mm" STR_h3
+#define MSG_VOLUMETRIC_ENABLED              "E in mm3"
 #endif
 #ifndef MSG_FILAMENT_SIZE_EXTRUDER_0
 #define MSG_FILAMENT_SIZE_EXTRUDER_0        "Fil. Dia. 1"
@@ -341,23 +399,47 @@
 #ifndef MSG_ENDSTOP_ABORT
 #define MSG_ENDSTOP_ABORT                   "Endstop abort"
 #endif
+#ifndef MSG_HEATING_FAILED_LCD
+#define MSG_HEATING_FAILED_LCD              "Heating failed"
+#endif
+#ifndef MSG_ERR_REDUNDANT_TEMP
+#define MSG_ERR_REDUNDANT_TEMP              "Err: REDUNDANT TEMP ERROR"
+#endif
+#ifndef MSG_THERMAL_RUNAWAY
+#define MSG_THERMAL_RUNAWAY                 "THERMAL RUNAWAY"
+#endif
+#ifndef MSG_ERR_MAXTEMP
+#define MSG_ERR_MAXTEMP                     "Err: MAXTEMP"
+#endif
+#ifndef MSG_ERR_MINTEMP
+#define MSG_ERR_MINTEMP                     "Err: MINTEMP"
+#endif
+#ifndef MSG_ERR_MAXTEMP_BED
+#define MSG_ERR_MAXTEMP_BED                 "Err: MAXTEMP BED"
+#endif
+#ifndef MSG_END_HOUR
+#define MSG_END_HOUR                        "hours"
+#endif
+#ifndef MSG_END_MINUTE
+#define MSG_END_MINUTE                      "minutes"
+#endif
 
 #ifdef DELTA_CALIBRATION_MENU
-    #ifndef MSG_DELTA_CALIBRATE
-    #define MSG_DELTA_CALIBRATE             "Delta Calibration"
-    #endif
-    #ifndef MSG_DELTA_CALIBRATE_X
-    #define MSG_DELTA_CALIBRATE_X           "Calibrate X"
-    #endif
-    #ifndef MSG_DELTA_CALIBRATE_Y
-    #define MSG_DELTA_CALIBRATE_Y           "Calibrate Y"
-    #endif
-    #ifndef MSG_DELTA_CALIBRATE_Z
-    #define MSG_DELTA_CALIBRATE_Z           "Calibrate Z"
-    #endif
-    #ifndef MSG_DELTA_CALIBRATE_CENTER
-    #define MSG_DELTA_CALIBRATE_CENTER      "Calibrate Center"
-    #endif
+  #ifndef MSG_DELTA_CALIBRATE
+  #define MSG_DELTA_CALIBRATE             "Delta Calibration"
+  #endif
+  #ifndef MSG_DELTA_CALIBRATE_X
+  #define MSG_DELTA_CALIBRATE_X           "Calibrate X"
+  #endif
+  #ifndef MSG_DELTA_CALIBRATE_Y
+  #define MSG_DELTA_CALIBRATE_Y           "Calibrate Y"
+  #endif
+  #ifndef MSG_DELTA_CALIBRATE_Z
+  #define MSG_DELTA_CALIBRATE_Z           "Calibrate Z"
+  #endif
+  #ifndef MSG_DELTA_CALIBRATE_CENTER
+  #define MSG_DELTA_CALIBRATE_CENTER      "Calibrate Center"
+  #endif
 #endif // DELTA_CALIBRATION_MENU
 
 #endif // LANGUAGE_EN_H
