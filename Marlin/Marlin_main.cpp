@@ -36,6 +36,7 @@
   #endif
 #endif // ENABLE_AUTO_BED_LEVELING
 
+#define HAS_LCD_BUZZ (defined(ULTRALCD) || (defined(BEEPER) && BEEPER >= 0) || defined(LCD_USE_I2C_BUZZER))
 #define SERVO_LEVELING (defined(ENABLE_AUTO_BED_LEVELING) && PROBE_SERVO_DEACTIVATION_DELAY > 0)
 
 #ifdef MESH_BED_LEVELING
@@ -189,6 +190,7 @@
  * M410 - Quickstop. Abort all the planned moves
  * M420 - Mesh Bed Leveling parameters. S1=enable/S0=disable leveling (with current values), Znn.nnn set Z offset.
  * M421 - Set a single Z coordinate in the Mesh Leveling grid. X<mm> Y<mm> Z<mm>
+ * M428 - Set the home_offset logically based on the current_position
  * M500 - Store parameters in EEPROM
  * M501 - Read parameters from EEPROM (if you need reset them after you changed them temporarily).
  * M502 - Revert to the default "factory settings". You still need to store them in EEPROM afterwards if you want to.
@@ -500,7 +502,7 @@ void setup_filrunoutpin() {
   #if HAS_FILRUNOUT
     pinMode(FILRUNOUT_PIN, INPUT);
     #ifdef ENDSTOPPULLUP_FIL_RUNOUT
-      WRITE(FILLRUNOUT_PIN, HIGH);
+      WRITE(FILRUNOUT_PIN, HIGH);
     #endif
   #endif
 }
@@ -4104,7 +4106,7 @@ inline void gcode_M226() {
 
 #endif // NUM_SERVOS > 0
 
-#if BEEPER > 0 || defined(ULTRALCD) || defined(LCD_USE_I2C_BUZZER)
+#if HAS_LCD_BUZZ
 
   /**
    * M300: Play beep sound S<frequency Hz> P<duration ms>
@@ -4116,7 +4118,7 @@ inline void gcode_M226() {
     lcd_buzz(beepP, beepS);
   }
 
-#endif // BEEPER>0 || ULTRALCD || LCD_USE_I2C_BUZZER
+#endif // HAS_LCD_BUZZ
 
 #ifdef PIDTEMP
 
@@ -4520,6 +4522,54 @@ inline void gcode_M410() { quickStop(); }
   }
 
 #endif
+
+/**
+ * M428: Set home_offset based on the distance between the
+ *       current_position and the nearest "reference point."
+ *       If an axis is past center its endstop position
+ *       is the reference-point. Otherwise it uses 0. This allows
+ *       the Z offset to be set near the bed when using a max endstop.
+ *
+ *       M428 can't be used more than 2cm away from 0 or an endstop.
+ *
+ *       Use M206 to set these values directly.
+ */
+inline void gcode_M428() {
+  bool err = false;
+  float new_offs[3], new_pos[3];
+  memcpy(new_pos, current_position, sizeof(new_pos));
+  memcpy(new_offs, home_offset, sizeof(new_offs));
+  for (int8_t i = X_AXIS; i <= Z_AXIS; i++) {
+    if (axis_known_position[i]) {
+      float base = (new_pos[i] > (min_pos[i] + max_pos[i]) / 2) ? base_home_pos(i) : 0,
+            diff = new_pos[i] - base;
+      if (diff > -20 && diff < 20) {
+        new_offs[i] -= diff;
+        new_pos[i] = base;
+      }
+      else {
+        SERIAL_ERROR_START;
+        SERIAL_ERRORLNPGM(MSG_ERR_M428_TOO_FAR);
+        LCD_ALERTMESSAGEPGM("Err: Too far!");
+        #if HAS_LCD_BUZZ
+          enqueuecommands_P(PSTR("M300 S40 P200"));
+        #endif
+        err = true;
+        break;
+      }
+    }
+  }
+
+  if (!err) {
+    memcpy(current_position, new_pos, sizeof(new_pos));
+    memcpy(home_offset, new_offs, sizeof(new_offs));
+    sync_plan_position();
+    LCD_ALERTMESSAGEPGM("Offset applied.");
+    #if HAS_LCD_BUZZ
+      enqueuecommands_P(PSTR("M300 S659 P200\nM300 S698 P200"));
+    #endif
+  }
+}
 
 /**
  * M500: Store settings in EEPROM
@@ -5268,11 +5318,11 @@ void process_commands() {
           break;
       #endif // NUM_SERVOS > 0
 
-      #if BEEPER > 0 || defined(ULTRALCD) || defined(LCD_USE_I2C_BUZZER)
+      #if HAS_LCD_BUZZ
         case 300: // M300 - Play beep tone
           gcode_M300();
           break;
-      #endif // BEEPER > 0 || ULTRALCD || LCD_USE_I2C_BUZZER
+      #endif // HAS_LCD_BUZZ
 
       #ifdef PIDTEMP
         case 301: // M301
@@ -5369,6 +5419,10 @@ void process_commands() {
           gcode_M421();
           break;
       #endif
+
+      case 428: // M428 Apply current_position to home_offset
+        gcode_M428();
+        break;
 
       case 500: // M500 Store settings in EEPROM
         gcode_M500();
@@ -5992,7 +6046,7 @@ void disable_all_steppers() {
 void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
   
   #if HAS_FILRUNOUT
-    if (card.sdprinting && !(READ(FILRUNOUT_PIN) ^ FIL_RUNOUT_INVERTING))
+    if (IS_SD_PRINTING && !(READ(FILRUNOUT_PIN) ^ FIL_RUNOUT_INVERTING))
       filrunout();
   #endif
 
