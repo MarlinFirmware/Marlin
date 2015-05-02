@@ -257,6 +257,14 @@ volatile signed char count_direction[NUM_AXIS] = { 1, 1, 1, 1 };
     : \
     "r26" , "r27" \
   )
+  
+#define SET_OCR1A(timer)  do { if ((OCR1A + 1) > timer) { \
+                            OCR1A += 1; \
+                          } \
+                          else { \
+                            OCR1A = timer; \
+                          } \
+                          } while(0)
 
 // Some useful constants
 
@@ -399,6 +407,8 @@ FORCE_INLINE void trapezoid_generator_reset() {
 // "The Stepper Driver Interrupt" - This timer interrupt is the workhorse.
 // It pops blocks from the block_buffer and executes them by pulsing the stepper pins appropriately.
 ISR(TIMER1_COMPA_vect) {
+
+  OCR1A = 65355; // don't let the interrupt overflow before calculations are done
 
   if(cleaning_buffer_counter)
   {
@@ -747,7 +757,7 @@ ISR(TIMER1_COMPA_vect) {
 
       // step_rate to timer interval
       timer = calc_timer(acc_step_rate);
-      OCR1A = timer;
+      SET_OCR1A(timer);
       acceleration_time += timer;
       #ifdef ADVANCE
         for(int8_t i=0; i < step_loops; i++) {
@@ -776,7 +786,7 @@ ISR(TIMER1_COMPA_vect) {
 
       // step_rate to timer interval
       timer = calc_timer(step_rate);
-      OCR1A = timer;
+      SET_OCR1A(timer);
       deceleration_time += timer;
       #ifdef ADVANCE
         for(int8_t i=0; i < step_loops; i++) {
@@ -789,7 +799,7 @@ ISR(TIMER1_COMPA_vect) {
       #endif //ADVANCE
     }
     else {
-      OCR1A = OCR1A_nominal;
+      SET_OCR1A(OCR1A_nominal);
       // ensure we're running at the correct step rate, even if we just came off an acceleration
       step_loops = step_loops_nominal;
     }
