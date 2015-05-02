@@ -677,8 +677,8 @@ void Config_PrintSettings(bool forReplay) {
       CONFIG_ECHO_START;
     }
     SERIAL_ECHOPAIR("  M420 S", (unsigned long)mbl.active);
-    SERIAL_ECHOPAIR(" X", MESH_NUM_X_POINTS);
-    SERIAL_ECHOPAIR(" Y", MESH_NUM_Y_POINTS);
+    SERIAL_ECHOPAIR(" X", (unsigned long)MESH_NUM_X_POINTS);
+    SERIAL_ECHOPAIR(" Y", (unsigned long)MESH_NUM_Y_POINTS);
     SERIAL_EOL;
     for (int y=0; y<MESH_NUM_Y_POINTS; y++) {
       for (int x=0; x<MESH_NUM_X_POINTS; x++) {
