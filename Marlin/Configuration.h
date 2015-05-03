@@ -1,4 +1,4 @@
-#ifndef CONFIGURATION_H
+f#ifndef CONFIGURATION_H
 #define CONFIGURATION_H
 
 #include "boards.h"
