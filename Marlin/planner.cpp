@@ -959,7 +959,7 @@ float junction_deviation = 0.1;
     vector_3 position = vector_3(st_get_position_mm(X_AXIS), st_get_position_mm(Y_AXIS), st_get_position_mm(Z_AXIS));
 
     //position.debug("in plan_get position");
-    //plan_bed_level_matrix.debug("in plan_get bed_level");
+    //plan_bed_level_matrix.debug("in plan_get_position");
     matrix_3x3 inverse = matrix_3x3::transpose(plan_bed_level_matrix);
     //inverse.debug("in plan_get inverse");
     position.apply_rotation(inverse);
@@ -981,10 +981,10 @@ float junction_deviation = 0.1;
       apply_rotation_xyz(plan_bed_level_matrix, x, y, z);
     #endif
 
-    float nx = position[X_AXIS] = lround(x * axis_steps_per_unit[X_AXIS]);
-    float ny = position[Y_AXIS] = lround(y * axis_steps_per_unit[Y_AXIS]);
-    float nz = position[Z_AXIS] = lround(z * axis_steps_per_unit[Z_AXIS]);
-    float ne = position[E_AXIS] = lround(e * axis_steps_per_unit[E_AXIS]);
+    float nx = position[X_AXIS] = lround(x * axis_steps_per_unit[X_AXIS]),
+          ny = position[Y_AXIS] = lround(y * axis_steps_per_unit[Y_AXIS]),
+          nz = position[Z_AXIS] = lround(z * axis_steps_per_unit[Z_AXIS]),
+          ne = position[E_AXIS] = lround(e * axis_steps_per_unit[E_AXIS]);
     st_set_position(nx, ny, nz, ne);
     previous_nominal_speed = 0.0; // Resets planner junction speeds. Assumes start from rest.
 
