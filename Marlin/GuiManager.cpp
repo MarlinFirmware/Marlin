@@ -99,8 +99,6 @@ int absPreheatFanSpeed;
 
 uint8_t prev_encoder_position;
 
-float move_menu_scale;
-
 //Filament loading/unloading
 const uint8_t NORMAL = 0;
 const uint8_t LOADING = 1;
@@ -153,23 +151,6 @@ char lcd_status_message[LCD_WIDTH+1] = WELCOME_MSG;
 // View drawers variables
 uint8_t display_view_menu_offset = 0;
 uint8_t display_view_wizard_page = 0;
-
-
-bool folder_is_root = false;
-
-int8_t list_length;
-uint8_t window_size, cache_size;
-int8_t item_selected, new_item_selected;
-int8_t window_min, window_max, cache_min, cache_max;
-
-uint8_t window_offset, cursor_offset;
-
-
-// TODO : Review & delete if possible
-// Variables used when editing values.
-const char* editLabel;
-void* editValue;
-int32_t minEditValue, maxEditValue;
 
 #    if (SDCARDDETECT > 0)
 bool lcd_oldcardstatus;
