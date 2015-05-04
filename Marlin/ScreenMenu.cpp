@@ -3,9 +3,9 @@
 namespace screen
 {
 	ScreenMenu::ScreenMenu(const char * title)
-		: Screen(title, MENU)
-		  , m_index(0)
-		  , m_num_items(0)
+		: Screen(MENU, title)
+		, m_index(0)
+		, m_num_items(0)
 	{
 	}
 

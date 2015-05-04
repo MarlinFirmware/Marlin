@@ -3,7 +3,7 @@
 namespace screen
 {
 	ScreenDialog::ScreenDialog(const char * title)
-		: Screen(title, DIALOG)
+		: Screen(DIALOG, title)
 	{
 	}
 

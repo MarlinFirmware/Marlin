@@ -3,7 +3,7 @@
 namespace screen
 {
 	ScreenSelector::ScreenSelector(const char * title)
-		: Screen(title, SELECTOR)
+		: Screen(SELECTOR, title)
 	{
 	}
 

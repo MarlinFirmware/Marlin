@@ -15,13 +15,13 @@ namespace screen
 			void right();
 			void draw();
 			Screen & press();
-         void add(Screen & component);
+			void add(Screen & component);
 
 		private:
-         Screen * m_next_screen;
-         Screen * m_items[max_list];
-		 uint16_t m_index;
-		 uint16_t m_num_list;
+			uint16_t m_index;
+			uint16_t m_num_list;
+			Screen * m_next_screen;
+			Screen * m_items[max_list];
 	};
 }
 

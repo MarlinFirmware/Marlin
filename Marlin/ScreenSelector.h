@@ -18,8 +18,8 @@ namespace screen
          void add(Screen & component);
 
 		private:
-         Screen * m_next_screen;
          uint16_t m_select;
+         Screen * m_next_screen;
 	};
 }
 

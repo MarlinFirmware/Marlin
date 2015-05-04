@@ -3,7 +3,7 @@
 namespace screen
 {
 	ScreenList::ScreenList(const char * title)
-		: Screen(title, LIST)
+		: Screen(LIST, title)
 		, m_index(0)
 		, m_num_list(0)
 	{

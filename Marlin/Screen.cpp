@@ -2,9 +2,9 @@
 
 namespace screen
 {
-	Screen::Screen(const char * title, ScreenType_t const & type)
-		: m_title(title)
-		, m_type(type)
+	Screen::Screen(ScreenType_t const & type, const char * title)
+		: m_type(type)
+		, m_title(title)
 	{
 	}
 
