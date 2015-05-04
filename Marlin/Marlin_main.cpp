@@ -757,10 +757,9 @@ void get_command() {
         gcode_N = (strtol(strchr_pointer + 1, NULL, 10));
         if (gcode_N != gcode_LastN + 1 && strstr_P(command, PSTR("M110")) == NULL) {
           SERIAL_ERROR_START;
-          SERIAL_ERRORPGM(MSG_ERR_LINE_NO1);
-          SERIAL_ERROR(gcode_LastN + 1);
-          SERIAL_ERRORPGM(MSG_ERR_LINE_NO2);
-          SERIAL_ERRORLN(gcode_N);
+          SERIAL_ERRORPGM(MSG_ERR_LINE_NO);
+          SERIAL_ERRORLN(gcode_LastN);
+          //Serial.println(gcode_N);
           FlushSerialRequestResend();
           serial_count = 0;
           return;
