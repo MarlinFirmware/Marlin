@@ -6095,7 +6095,7 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
     if (!READ(HOME_PIN)) {
       if (!homeDebounceCount) {
         enqueuecommands_P(PSTR("G28"));
-        LCD_ALERTMESSAGEPGM(MSG_AUTO_HOME);
+        LCD_MESSAGEPGM(MSG_AUTO_HOME);
       }
       if (homeDebounceCount < HOME_DEBOUNCE_DELAY)
         homeDebounceCount++;
