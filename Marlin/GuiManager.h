@@ -1,5 +1,5 @@
-#ifndef GUIMANAGER_H
-#define GUIMANAGER_H
+#ifndef GUI_MANAGER_H
+#define GUI_MANAGER_H
 
 
 #include <inttypes.h>
@@ -119,4 +119,4 @@ char *ftostr5(const float &x);
 char *ftostr51(const float &x);
 char *ftostr52(const float &x);
 
-#endif // GUIMANAGER_H
+#endif // GUI_MANAGER_H
