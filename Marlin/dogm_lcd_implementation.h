@@ -184,6 +184,7 @@ static void lcd_implementation_status_screen(int8_t item)
     do {
 		u8g.setColorIndex(1);	// black on white
 
+/*
 		u8g.drawXBMP(0, 2, ITEM_WIDTH, ITEM_HEIGHT, sd_normal_bits);
 		u8g.drawXBMP(26, 2, ITEM_WIDTH, ITEM_HEIGHT, filament_1_normal_bits);
 		u8g.drawXBMP(52, 2, ITEM_WIDTH, ITEM_HEIGHT, filament_2_normal_bits);
@@ -194,67 +195,68 @@ static void lcd_implementation_status_screen(int8_t item)
 		u8g.drawXBMP(52, 27, ITEM_WIDTH, ITEM_HEIGHT, heat_normal_bits);
 		u8g.drawXBMP(78, 27, ITEM_WIDTH, ITEM_HEIGHT, lightled_normal_bits);
 		u8g.drawXBMP(104, 27, ITEM_WIDTH, ITEM_HEIGHT, info_normal_bits);
+*/
 
 		switch(item) {
 		case 0:
 			u8g.setColorIndex(0);
 			u8g.drawBox(0, 2, 24, 22);	// white on black
 			u8g.setColorIndex(1);
-			u8g.drawXBMP(0, 2, ITEM_WIDTH, ITEM_HEIGHT, sd_hover_bits);
+//			u8g.drawXBMP(0, 2, ITEM_WIDTH, ITEM_HEIGHT, sd_hover_bits);
 			break;
 		case 1:
 			u8g.setColorIndex(0);
 			u8g.drawBox(26, 2, 24, 22);	// white on black
 			u8g.setColorIndex(1);
-			u8g.drawXBMP(26, 2, ITEM_WIDTH, ITEM_HEIGHT, filament_1_hover_bits);
+//			u8g.drawXBMP(26, 2, ITEM_WIDTH, ITEM_HEIGHT, filament_1_hover_bits);
 			break;
 		case 2:
 			u8g.setColorIndex(0);
 			u8g.drawBox(52, 2, 24, 22);	// white on black
 			u8g.setColorIndex(1);
-			u8g.drawXBMP(52, 2, ITEM_WIDTH, ITEM_HEIGHT, filament_2_hover_bits);
+//			u8g.drawXBMP(52, 2, ITEM_WIDTH, ITEM_HEIGHT, filament_2_hover_bits);
 			break;
 		case 3:
 			u8g.setColorIndex(0);
 			u8g.drawBox(78, 2, 24, 22);	// white on black
 			u8g.setColorIndex(1);
-			u8g.drawXBMP(78, 2, ITEM_WIDTH, ITEM_HEIGHT, leveling_hover_bits);
+//			u8g.drawXBMP(78, 2, ITEM_WIDTH, ITEM_HEIGHT, leveling_hover_bits);
 			break;
 		case 4:
 			u8g.setColorIndex(0);
 			u8g.drawBox(104, 2, 24, 22);	// white on black
 			u8g.setColorIndex(1);
-			u8g.drawXBMP(104, 2, ITEM_WIDTH, ITEM_HEIGHT, homing_hover_bits);
+//			u8g.drawXBMP(104, 2, ITEM_WIDTH, ITEM_HEIGHT, homing_hover_bits);
 			break;
 		case 5:
 			u8g.setColorIndex(0);
 			u8g.drawBox(0, 27, 24, 22);	// white on black
 			u8g.setColorIndex(1);
-			u8g.drawXBMP(0, 27, ITEM_WIDTH, ITEM_HEIGHT, steppers_hover_bits);
+//			u8g.drawXBMP(0, 27, ITEM_WIDTH, ITEM_HEIGHT, steppers_hover_bits);
 			break;
 		case 6:
 			u8g.setColorIndex(0);
 			u8g.drawBox(26, 27, 24, 22);	// white on black
 			u8g.setColorIndex(1);
-			u8g.drawXBMP(26, 27, ITEM_WIDTH, ITEM_HEIGHT, moveaxis_hover_bits);
+//			u8g.drawXBMP(26, 27, ITEM_WIDTH, ITEM_HEIGHT, moveaxis_hover_bits);
 			break;
 		case 7:
 			u8g.setColorIndex(0);
 			u8g.drawBox(52, 27, 24, 22);	// white on black
 			u8g.setColorIndex(1);
-			u8g.drawXBMP(52, 27, ITEM_WIDTH, ITEM_HEIGHT, heat_hover_bits);
+//			u8g.drawXBMP(52, 27, ITEM_WIDTH, ITEM_HEIGHT, heat_hover_bits);
 			break;
 		case 8:
 			u8g.setColorIndex(0);
 			u8g.drawBox(78, 27, 24, 22);	// white on black
 			u8g.setColorIndex(1);
-			u8g.drawXBMP(78, 27, ITEM_WIDTH, ITEM_HEIGHT, lightled_hover_bits);
+//			u8g.drawXBMP(78, 27, ITEM_WIDTH, ITEM_HEIGHT, lightled_hover_bits);
 			break;
 		case 9:
 		u8g.setColorIndex(0);
 			u8g.drawBox(104, 27, 24, 22);	// white on black
 			u8g.setColorIndex(1);
-			u8g.drawXBMP(104, 27, ITEM_WIDTH, ITEM_HEIGHT, info_hover_bits);
+//			u8g.drawXBMP(104, 27, ITEM_WIDTH, ITEM_HEIGHT, info_hover_bits);
 			break;
 		default:
 			break;

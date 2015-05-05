@@ -1,17 +1,16 @@
 #include "GuiImpl_witbox_2.h"
+#include "GuiBitmaps_witbox_2.h"
 
 #include "ScreenMenu.h"
 #include "ScreenDialog.h"
 #include "ScreenSelector.h"
 #include "ScreenList.h"
 
-#include "DOGMbitmaps.h"
-
 ///////////////////////
 // Instantiate Icons //
 ///////////////////////
-screen::Icon icon_sd_normal = screen::Icon(24, 22, sd_normal_bits);
-screen::Icon icon_sd_hover = screen::Icon(24, 22, sd_hover_bits);
+screen::Icon icon_sd_normal = screen::Icon(icon_width, icon_heigth, sd_normal_bits);
+screen::Icon icon_sd_hover = screen::Icon(icon_width, icon_heigth, sd_hover_bits);
 
 /////////////////////////
 // Instantiate Screens //
