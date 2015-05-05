@@ -425,7 +425,7 @@ const bool Z_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the logic
 #define Z_MIN_POS 0
 #define X_MAX_POS 200
 #define Y_MAX_POS 200
-#define Z_MAX_POS 189.8 // TODO: edit to suit machine otherwise head crash!!
+#define Z_MAX_POS 190 // TODO: edit to suit machine otherwise head crash!!
 // 190 is about right, just a little less.
 
 //===========================================================================
