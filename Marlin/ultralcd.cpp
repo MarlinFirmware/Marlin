@@ -212,11 +212,11 @@ static void lcd_status_screen();
       } } while(0)
 
   /** Used variables to keep track of the menu */
-  #ifndef REPRAPWORLD_KEYPAD
-    volatile uint8_t buttons; // Bits of the pressed buttons.
-  #else
-    volatile uint8_t buttons_reprapworld_keypad; // The reprapworld_keypad shift register values
+  volatile uint8_t buttons;  //the last checked buttons in a bit array.
+  #ifdef REPRAPWORLD_KEYPAD
+    volatile uint8_t buttons_reprapworld_keypad; // to store the keypad shift register values
   #endif
+    
   #ifdef LCD_HAS_SLOW_BUTTONS
     volatile uint8_t slow_buttons; // Bits of the pressed buttons.
   #endif
