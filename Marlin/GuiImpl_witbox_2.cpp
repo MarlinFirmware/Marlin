@@ -9,8 +9,34 @@
 ///////////////////////
 // Instantiate Icons //
 ///////////////////////
-screen::Icon icon_sd_normal = screen::Icon(icon_width, icon_heigth, sd_normal_bits);
-screen::Icon icon_sd_hover = screen::Icon(icon_width, icon_heigth, sd_hover_bits);
+screen::Icon icon_cold_hover = screen::Icon(icon_width, icon_heigth, bits_cold_hover);
+screen::Icon icon_cold_normal = screen::Icon(icon_width, icon_heigth, bits_cold_normal);
+screen::Icon icon_filament_1_hover = screen::Icon(icon_width, icon_heigth, bits_filament_1_hover);
+screen::Icon icon_filament_1_normal = screen::Icon(icon_width, icon_heigth, bits_filament_1_normal);
+screen::Icon icon_filament_2_hover = screen::Icon(icon_width, icon_heigth, bits_filament_2_hover);
+screen::Icon icon_filament_2_normal = screen::Icon(icon_width, icon_heigth, bits_filament_2_normal);
+screen::Icon icon_heat_hover = screen::Icon(icon_width, icon_heigth, bits_heat_hover);
+screen::Icon icon_heat_normal = screen::Icon(icon_width, icon_heigth, bits_heat_normal);
+screen::Icon icon_homing_hover = screen::Icon(icon_width, icon_heigth, bits_homing_hover);
+screen::Icon icon_homing_normal = screen::Icon(icon_width, icon_heigth, bits_homing_normal);
+screen::Icon icon_info_normal = screen::Icon(icon_width, icon_heigth, bits_info_normal);
+screen::Icon icon_info_hover = screen::Icon(icon_width, icon_heigth, bits_info_hover);
+screen::Icon icon_leveling_hover = screen::Icon(icon_width, icon_heigth, bits_leveling_hover);
+screen::Icon icon_leveling_normal = screen::Icon(icon_width, icon_heigth, bits_leveling_normal);
+screen::Icon icon_lightled_disable_hover = screen::Icon(icon_width, icon_heigth, bits_lightled_disable_hover);
+screen::Icon icon_lightled_disable_normal = screen::Icon(icon_width, icon_heigth, bits_lightled_disable_normal);
+screen::Icon icon_lightled_hover = screen::Icon(icon_width, icon_heigth, bits_lightled_hover);
+screen::Icon icon_lightled_normal = screen::Icon(icon_width, icon_heigth, bits_lightled_normal);
+screen::Icon icon_moveaxis_hover = screen::Icon(icon_width, icon_heigth, bits_moveaxis_hover);
+screen::Icon icon_moveaxis_normal = screen::Icon(icon_width, icon_heigth, bits_moveaxis_normal);
+screen::Icon icon_nosd_hover = screen::Icon(icon_width, icon_heigth, bits_nosd_hover);
+screen::Icon icon_nosd_normal = screen::Icon(icon_width, icon_heigth, bits_nosd_normal);
+screen::Icon icon_sd_hover = screen::Icon(icon_width, icon_heigth, bits_sd_hover);
+screen::Icon icon_sd_normal = screen::Icon(icon_width, icon_heigth, bits_sd_normal);
+screen::Icon icon_steppers_hover = screen::Icon(icon_width, icon_heigth, bits_steppers_hover);
+screen::Icon icon_steppers_normal = screen::Icon(icon_width, icon_heigth, bits_steppers_normal);
+screen::Icon icon_steppers_off_hover = screen::Icon(icon_width, icon_heigth, bits_steppers_off_hover);
+screen::Icon icon_steppers_off_normal = screen::Icon(icon_width, icon_heigth, bits_steppers_off_normal);
 
 /////////////////////////
 // Instantiate Screens //
