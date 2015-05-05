@@ -6,89 +6,89 @@
 #include "ScreenSelector.h"
 #include "ScreenList.h"
 
-///////////////////////
-// Instantiate Icons //
-///////////////////////
-screen::Icon icon_cold_hover = screen::Icon(icon_width, icon_heigth, bits_cold_hover);
-screen::Icon icon_cold_normal = screen::Icon(icon_width, icon_heigth, bits_cold_normal);
-screen::Icon icon_filament_1_hover = screen::Icon(icon_width, icon_heigth, bits_filament_1_hover);
-screen::Icon icon_filament_1_normal = screen::Icon(icon_width, icon_heigth, bits_filament_1_normal);
-screen::Icon icon_filament_2_hover = screen::Icon(icon_width, icon_heigth, bits_filament_2_hover);
-screen::Icon icon_filament_2_normal = screen::Icon(icon_width, icon_heigth, bits_filament_2_normal);
-screen::Icon icon_heat_hover = screen::Icon(icon_width, icon_heigth, bits_heat_hover);
-screen::Icon icon_heat_normal = screen::Icon(icon_width, icon_heigth, bits_heat_normal);
-screen::Icon icon_homing_hover = screen::Icon(icon_width, icon_heigth, bits_homing_hover);
-screen::Icon icon_homing_normal = screen::Icon(icon_width, icon_heigth, bits_homing_normal);
-screen::Icon icon_info_normal = screen::Icon(icon_width, icon_heigth, bits_info_normal);
-screen::Icon icon_info_hover = screen::Icon(icon_width, icon_heigth, bits_info_hover);
-screen::Icon icon_leveling_hover = screen::Icon(icon_width, icon_heigth, bits_leveling_hover);
-screen::Icon icon_leveling_normal = screen::Icon(icon_width, icon_heigth, bits_leveling_normal);
-screen::Icon icon_lightled_disable_hover = screen::Icon(icon_width, icon_heigth, bits_lightled_disable_hover);
-screen::Icon icon_lightled_disable_normal = screen::Icon(icon_width, icon_heigth, bits_lightled_disable_normal);
-screen::Icon icon_lightled_hover = screen::Icon(icon_width, icon_heigth, bits_lightled_hover);
-screen::Icon icon_lightled_normal = screen::Icon(icon_width, icon_heigth, bits_lightled_normal);
-screen::Icon icon_moveaxis_hover = screen::Icon(icon_width, icon_heigth, bits_moveaxis_hover);
-screen::Icon icon_moveaxis_normal = screen::Icon(icon_width, icon_heigth, bits_moveaxis_normal);
-screen::Icon icon_nosd_hover = screen::Icon(icon_width, icon_heigth, bits_nosd_hover);
-screen::Icon icon_nosd_normal = screen::Icon(icon_width, icon_heigth, bits_nosd_normal);
-screen::Icon icon_sd_hover = screen::Icon(icon_width, icon_heigth, bits_sd_hover);
-screen::Icon icon_sd_normal = screen::Icon(icon_width, icon_heigth, bits_sd_normal);
-screen::Icon icon_steppers_hover = screen::Icon(icon_width, icon_heigth, bits_steppers_hover);
-screen::Icon icon_steppers_normal = screen::Icon(icon_width, icon_heigth, bits_steppers_normal);
-screen::Icon icon_steppers_off_hover = screen::Icon(icon_width, icon_heigth, bits_steppers_off_hover);
-screen::Icon icon_steppers_off_normal = screen::Icon(icon_width, icon_heigth, bits_steppers_off_normal);
-
-/////////////////////////
-// Instantiate Screens //
-/////////////////////////
-//Logo Splasg screen
-screen::ScreenDialog screen_logo = screen::ScreenDialog("BQ Logo");
-//Main Menu screen
-screen::ScreenMenu screen_main = screen::ScreenMenu("Main Menu");
-//SD Card screens
-screen::ScreenList screen_SD_list = screen::ScreenList("SD Card");
-screen::ScreenMenu screen_SD_confirm = screen::ScreenMenu("Comfirm Print");
-//Unload Filament screens
-screen::ScreenSelector screen_unload_select = screen::ScreenSelector("Unload filament");
-screen::ScreenDialog screen_unload_heating = screen::ScreenDialog("Heating");
-screen::ScreenDialog screen_unload_pull = screen::ScreenDialog("Extrude and pull");
-screen::ScreenMenu screen_unload_confirm = screen::ScreenMenu("Finished?");
-//Load Filament screens
-screen::ScreenSelector screen_load_select = screen::ScreenSelector("Load filament");
-screen::ScreenDialog screen_load_heating = screen::ScreenDialog("Heating");
-screen::ScreenDialog screen_load_pull = screen::ScreenDialog("Insert and press");
-screen::ScreenMenu screen_load_confirm = screen::ScreenMenu("Finished?");
-//Level Plate screens
-screen::ScreenMenu screen_level_confirm = screen::ScreenMenu("Level Plate");
-screen::ScreenDialog screen_level1 = screen::ScreenDialog("Screen1");
-screen::ScreenDialog screen_level2 = screen::ScreenDialog("Screen2");
-screen::ScreenDialog screen_level3 = screen::ScreenDialog("Screen3");
-screen::ScreenDialog screen_level4 = screen::ScreenDialog("Screen4");
-screen::ScreenMenu screen_level_retry = screen::ScreenMenu("Push to Cotinue");
-//AutoHome screen
-screen::ScreenMenu screen_autohome = screen::ScreenMenu("Auto-home");
-//Stepper screen
-screen::ScreenMenu screen_stepper = screen::ScreenMenu("Steper on");
-//Move Axis screens
-screen::ScreenMenu screen_move = screen::ScreenMenu("Move axis");
-screen::ScreenMenu screen_move_back2main = screen::ScreenMenu("Back");
-screen::ScreenMenu screen_move_x = screen::ScreenMenu("Move X");
-screen::ScreenMenu screen_move_y = screen::ScreenMenu("Move Y");
-screen::ScreenMenu screen_move_z = screen::ScreenMenu("Move Z");
-screen::ScreenMenu screen_move_e = screen::ScreenMenu("Move Extruder");
-screen::ScreenMenu screen_move_back2move = screen::ScreenMenu("Back");
-screen::ScreenSelector screen_move_10 = screen::ScreenSelector("Move 10mm");
-screen::ScreenSelector screen_move_1 = screen::ScreenSelector("Move 1mm");
-screen::ScreenSelector screen_move_01 = screen::ScreenSelector("Move 01mm");
-//Temperature screen
-screen::ScreenSelector screen_temperature = screen::ScreenSelector("Temp 0/200ºC");
-//Light screen
-screen::ScreenMenu screen_light = screen::ScreenMenu("Led light on");
-//Info screen
-screen::ScreenDialog screen_info = screen::ScreenDialog("FW info");
-
 namespace screen
 {
+	///////////////////////
+	// Instantiate Icons //
+	///////////////////////
+	Icon icon_cold_hover = Icon(icon_width, icon_heigth, bits_cold_hover);
+	Icon icon_cold_normal = Icon(icon_width, icon_heigth, bits_cold_normal);
+	Icon icon_filament_1_hover = Icon(icon_width, icon_heigth, bits_filament_1_hover);
+	Icon icon_filament_1_normal = Icon(icon_width, icon_heigth, bits_filament_1_normal);
+	Icon icon_filament_2_hover = Icon(icon_width, icon_heigth, bits_filament_2_hover);
+	Icon icon_filament_2_normal = Icon(icon_width, icon_heigth, bits_filament_2_normal);
+	Icon icon_heat_hover = Icon(icon_width, icon_heigth, bits_heat_hover);
+	Icon icon_heat_normal = Icon(icon_width, icon_heigth, bits_heat_normal);
+	Icon icon_homing_hover = Icon(icon_width, icon_heigth, bits_homing_hover);
+	Icon icon_homing_normal = Icon(icon_width, icon_heigth, bits_homing_normal);
+	Icon icon_info_normal = Icon(icon_width, icon_heigth, bits_info_normal);
+	Icon icon_info_hover = Icon(icon_width, icon_heigth, bits_info_hover);
+	Icon icon_leveling_hover = Icon(icon_width, icon_heigth, bits_leveling_hover);
+	Icon icon_leveling_normal = Icon(icon_width, icon_heigth, bits_leveling_normal);
+	Icon icon_lightled_disable_hover = Icon(icon_width, icon_heigth, bits_lightled_disable_hover);
+	Icon icon_lightled_disable_normal = Icon(icon_width, icon_heigth, bits_lightled_disable_normal);
+	Icon icon_lightled_hover = Icon(icon_width, icon_heigth, bits_lightled_hover);
+	Icon icon_lightled_normal = Icon(icon_width, icon_heigth, bits_lightled_normal);
+	Icon icon_moveaxis_hover = Icon(icon_width, icon_heigth, bits_moveaxis_hover);
+	Icon icon_moveaxis_normal = Icon(icon_width, icon_heigth, bits_moveaxis_normal);
+	Icon icon_nosd_hover = Icon(icon_width, icon_heigth, bits_nosd_hover);
+	Icon icon_nosd_normal = Icon(icon_width, icon_heigth, bits_nosd_normal);
+	Icon icon_sd_hover = Icon(icon_width, icon_heigth, bits_sd_hover);
+	Icon icon_sd_normal = Icon(icon_width, icon_heigth, bits_sd_normal);
+	Icon icon_steppers_hover = Icon(icon_width, icon_heigth, bits_steppers_hover);
+	Icon icon_steppers_normal = Icon(icon_width, icon_heigth, bits_steppers_normal);
+	Icon icon_steppers_off_hover = Icon(icon_width, icon_heigth, bits_steppers_off_hover);
+	Icon icon_steppers_off_normal = Icon(icon_width, icon_heigth, bits_steppers_off_normal);
+
+	/////////////////////////
+	// Instantiate Screens //
+	/////////////////////////
+	//Logo Splasg screen
+	ScreenDialog screen_logo = ScreenDialog("BQ Logo");
+	//Main Menu screen
+	ScreenMenu screen_main = ScreenMenu("Main Menu");
+	//SD Card screens
+	ScreenList screen_SD_list = ScreenList("SD Card");
+	ScreenMenu screen_SD_confirm = ScreenMenu("Comfirm Print");
+	//Unload Filament screens
+	ScreenSelector screen_unload_select = ScreenSelector("Unload filament");
+	ScreenDialog screen_unload_heating = ScreenDialog("Heating");
+	ScreenDialog screen_unload_pull = ScreenDialog("Extrude and pull");
+	ScreenMenu screen_unload_confirm = ScreenMenu("Finished?");
+	//Load Filament screens
+	ScreenSelector screen_load_select = ScreenSelector("Load filament");
+	ScreenDialog screen_load_heating = ScreenDialog("Heating");
+	ScreenDialog screen_load_pull = ScreenDialog("Insert and press");
+	ScreenMenu screen_load_confirm = ScreenMenu("Finished?");
+	//Level Plate screens
+	ScreenMenu screen_level_confirm = ScreenMenu("Level Plate");
+	ScreenDialog screen_level1 = ScreenDialog("Screen1");
+	ScreenDialog screen_level2 = ScreenDialog("Screen2");
+	ScreenDialog screen_level3 = ScreenDialog("Screen3");
+	ScreenDialog screen_level4 = ScreenDialog("Screen4");
+	ScreenMenu screen_level_retry = ScreenMenu("Push to Cotinue");
+	//AutoHome screen
+	ScreenMenu screen_autohome = ScreenMenu("Auto-home");
+	//Stepper screen
+	ScreenMenu screen_stepper = ScreenMenu("Steper on");
+	//Move Axis screens
+	ScreenMenu screen_move = ScreenMenu("Move axis");
+	ScreenMenu screen_move_back2main = ScreenMenu("Back");
+	ScreenMenu screen_move_x = ScreenMenu("Move X");
+	ScreenMenu screen_move_y = ScreenMenu("Move Y");
+	ScreenMenu screen_move_z = ScreenMenu("Move Z");
+	ScreenMenu screen_move_e = ScreenMenu("Move Extruder");
+	ScreenMenu screen_move_back2move = ScreenMenu("Back");
+	ScreenSelector screen_move_10 = ScreenSelector("Move 10mm");
+	ScreenSelector screen_move_1 = ScreenSelector("Move 1mm");
+	ScreenSelector screen_move_01 = ScreenSelector("Move 01mm");
+	//Temperature screen
+	ScreenSelector screen_temperature = ScreenSelector("Temp 0/200ºC");
+	//Light screen
+	ScreenMenu screen_light = ScreenMenu("Led light on");
+	//Info screen
+	ScreenDialog screen_info = ScreenDialog("FW info");
+
 	Screen * GuiBuild()
 	{
 		//Create screens 
