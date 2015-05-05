@@ -126,7 +126,8 @@ CXXSRC = WMath.cpp WString.cpp Print.cpp Marlin_main.cpp	\
 	watchdog.cpp SPI.cpp Tone.cpp digipot_mcp4451.cpp \
 	vector_3.cpp qr_solve.cpp 
 CXXSRC += new.cpp GuiManager.cpp GuiImpl_witbox_2.cpp Icon.cpp \
-	Screen.cpp ScreenList.cpp ScreenMenu.cpp ScreenSelector.cpp ScreenDialog.cpp
+	Screen.cpp ScreenList.cpp ScreenMenu.cpp ScreenSelector.cpp ScreenDialog.cpp \
+	ultralcd_st7920_u8glib_rrd.cpp
 
 ifeq ($(DOGLCD), 1)
 SRC += u8g_com_arduino_common.c u8g_com_arduino_st7920_spi.c u8g_dev_st7920_128x64.c \
