@@ -8,4 +8,13 @@ namespace screen
 		, m_bitmap(bitmap)
 		{ }
 
+	uint8_t Icon::width()
+	{
+		return m_width;
+	}
+
+	uint8_t Icon::height()
+	{
+		return m_height;
+	}
 }
