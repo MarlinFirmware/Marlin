@@ -54,6 +54,7 @@
 #include "language.h"
 #include "pins_arduino.h"
 #include "math.h"
+#include "HX711.h"
 
 #ifdef BLINKM
   #include "blinkm.h"
@@ -638,6 +639,11 @@ void setup() {
   setup_photpin();
   servo_init();
 
+#ifdef ENABLE_WEIGHT_SENSOR_FOR_BED_LAVEL
+  scale.set_gain((byte)WEIGHT_SENSOR_GAIN);
+  scale.set_scale(WEIGHT_SCALE);
+#endif
+
   lcd_init();
   _delay_ms(1000);  // wait 1sec to display the splash screen
 
@@ -1180,8 +1186,11 @@ inline void set_destination_to_current() { memcpy(destination, current_position,
       // move down until you find the bed
       float zPosition = -10;
       line_to_z(zPosition);
-      st_synchronize();
-
+#ifdef ENABLE_WEIGHT_SENSOR_FOR_BED_LAVEL
+	  st_synchronize(WEIGHT_SENSIVITY_HARD, Z_AXIS);
+#else
+	  st_synchronize();
+#endif
       // we have to let the planner know where we are right now as it is not where we said to go.
       zPosition = st_get_position_mm(Z_AXIS);
       plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], zPosition, current_position[E_AXIS]);
@@ -1197,7 +1206,11 @@ inline void set_destination_to_current() { memcpy(destination, current_position,
 
       zPosition -= home_bump_mm(Z_AXIS) * 2;
       line_to_z(zPosition);
-      st_synchronize();
+#ifdef ENABLE_WEIGHT_SENSOR_FOR_BED_LAVEL
+	  st_synchronize(WEIGHT_SENSIVITY_ACCURATE, Z_AXIS);
+#else
+	  st_synchronize();
+#endif
       endstops_hit_on_purpose(); // clear endstop hit flags
 
       // Get the current stepper position after bumping an endstop
@@ -1553,7 +1566,12 @@ static void homeaxis(AxisEnum axis) {
     destination[axis] = 1.5 * max_length(axis) * axis_home_dir;
     feedrate = homing_feedrate[axis];
     line_to_destination();
-    st_synchronize();
+	
+#ifdef ENABLE_WEIGHT_SENSOR_FOR_BED_LAVEL
+	st_synchronize(WEIGHT_SENSIVITY_HARD, axis);
+#else
+	st_synchronize();
+#endif
 
     // Set the axis position as setup for the move
     current_position[axis] = 0;
@@ -1574,8 +1592,13 @@ static void homeaxis(AxisEnum axis) {
     // Move slowly towards the endstop until triggered
     destination[axis] = 2 * home_bump_mm(axis) * axis_home_dir;
     line_to_destination();
-    st_synchronize();
 
+#ifdef ENABLE_WEIGHT_SENSOR_FOR_BED_LAVEL
+	st_synchronize(WEIGHT_SENSIVITY_ACCURATE, axis);
+#else
+	st_synchronize();
+#endif
+	
     #ifdef Z_DUAL_ENDSTOPS
       if (axis == Z_AXIS) {
         float adj = fabs(z_endstop_adj);
