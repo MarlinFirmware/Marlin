@@ -15,10 +15,10 @@ namespace screen
 	Icon icon_nosd_hover              = Icon(icon_width, icon_heigth, bits_nosd_hover);
 	Icon icon_sd_normal               = Icon(icon_width, icon_heigth, bits_sd_normal);
 	Icon icon_sd_hover                = Icon(icon_width, icon_heigth, bits_sd_hover);
-	Icon icon_filament_1_normal       = Icon(icon_width, icon_heigth, bits_filament_1_normal);
-	Icon icon_filament_1_hover        = Icon(icon_width, icon_heigth, bits_filament_1_hover);
-	Icon icon_filament_2_normal       = Icon(icon_width, icon_heigth, bits_filament_2_normal);
-	Icon icon_filament_2_hover        = Icon(icon_width, icon_heigth, bits_filament_2_hover);
+	Icon icon_filament_unload_normal  = Icon(icon_width, icon_heigth, bits_filament_unload_normal);
+	Icon icon_filament_unload_hover   = Icon(icon_width, icon_heigth, bits_filament_unload_hover);
+	Icon icon_filament_load_normal    = Icon(icon_width, icon_heigth, bits_filament_load_normal);
+	Icon icon_filament_load_hover     = Icon(icon_width, icon_heigth, bits_filament_load_hover);
 	Icon icon_leveling_normal         = Icon(icon_width, icon_heigth, bits_leveling_normal);
 	Icon icon_leveling_hover          = Icon(icon_width, icon_heigth, bits_leveling_hover);
 	Icon icon_homing_normal           = Icon(icon_width, icon_heigth, bits_homing_normal);
@@ -114,8 +114,8 @@ namespace screen
 		screen_SD_confirm.add(screen_main);
 		//Unload Filament Select
 		screen_unload_select.add(screen_unload_heating);
-		screen_unload_select.icon(icon_filament_1_normal);
-		screen_unload_select.icon(icon_filament_1_hover);
+		screen_unload_select.icon(icon_filament_unload_normal);
+		screen_unload_select.icon(icon_filament_unload_hover);
 		//Unload Filament Heating
 		screen_unload_heating.add(screen_unload_pull);
 		//Unload Filament Pull
@@ -125,8 +125,8 @@ namespace screen
 		screen_unload_confirm.add(screen_main);
 		//Load Filament Select
 		screen_load_select.add(screen_load_heating);
-		screen_load_select.icon(icon_filament_2_normal);
-		screen_load_select.icon(icon_filament_2_hover);
+		screen_load_select.icon(icon_filament_load_normal);
+		screen_load_select.icon(icon_filament_load_hover);
 		//Load Filament Heating
 		screen_load_heating.add(screen_load_pull);
 		//Load Filament Pull
@@ -146,6 +146,8 @@ namespace screen
 		screen_stepper.add(screen_main);
 		screen_stepper.icon(icon_steppers_normal);
 		screen_stepper.icon(icon_steppers_hover);
+		screen_stepper.icon(icon_steppers_off_normal);
+		screen_stepper.icon(icon_steppers_off_hover);
 		//Move Axis
 		screen_move.add(screen_main);
 		screen_move.icon(icon_moveaxis_normal);
