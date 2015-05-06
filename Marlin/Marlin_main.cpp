@@ -4520,7 +4520,7 @@ inline void gcode_M410() { quickStop(); }
       err = true;
     }
 
-    if (!err) mbl.set_z(select_x_index(x), select_y_index(y), z);
+    if (!err) mbl.set_z(mbl.select_x_index(x), mbl.select_y_index(y), z);
   }
 
 #endif
