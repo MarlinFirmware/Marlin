@@ -59,6 +59,8 @@ void st_init();
 // Block until all buffered steps are executed
 void st_synchronize();
 
+void weight_sync(long sensivity);
+
 // Set current position in steps
 void st_set_position(const long &x, const long &y, const long &z, const long &e);
 void st_set_e_position(const long &e);

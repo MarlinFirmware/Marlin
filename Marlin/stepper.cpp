@@ -29,8 +29,14 @@
 #include "language.h"
 #include "cardreader.h"
 #include "speed_lookuptable.h"
+#include "HX711.h"
+
 #if HAS_DIGIPOTSS
   #include <SPI.h>
+#endif
+
+#ifdef ENABLE_WEIGHT_SENSOR_FOR_BED_LAVEL
+	HX711 scale(HX711_PD_DOUT_PIN, HX711_PD_SCK_PIN);
 #endif
 
 //===========================================================================
@@ -568,9 +574,22 @@ ISR(TIMER1_COMPA_vect) {
             old_z2_min_endstop = z2_min_endstop;
 
           #else // !Z_DUAL_ENDSTOPS
-
-            UPDATE_ENDSTOP(z, Z, min, MIN);
-
+			#ifdef ENABLE_WEIGHT_SENSOR_FOR_BED_LAVEL
+					  scale.try_read();
+					  if (scale.stuff_is_detected())
+					  {
+						  bool z_min_endstop = true;
+						  if (z_min_endstop && old_z_min_endstop && (current_block->steps[Z_AXIS] > 0)) 
+						  {
+							  endstops_trigsteps[Z_AXIS] = count_position[Z_AXIS];
+							  endstop_z_hit = true;
+							  step_events_completed = current_block->step_event_count;
+						  }
+						  old_z_min_endstop = z_min_endstop;
+					  }
+			#else
+					  UPDATE_ENDSTOP(z, Z, min, MIN);
+			#endif
           #endif // !Z_DUAL_ENDSTOPS
 
         #endif // Z_MIN_PIN
@@ -1109,6 +1128,24 @@ void st_synchronize() {
     manage_inactivity();
     lcd_update();
   }
+}
+
+void weight_sync(long sensivity){
+	SERIAL_PROTOCOLLN("----------------");
+	SERIAL_PROTOCOL("tare value: ");
+	SERIAL_PROTOCOL(scale.current_weight);
+	SERIAL_PROTOCOL(" sensivity: ");
+	SERIAL_PROTOCOLLN(sensivity);
+
+	delay(1000);
+	scale.tare();
+	scale.STUFF_SENSIVITY = sensivity;
+	scale.enable();
+	st_synchronize();
+	scale.disable();
+
+	SERIAL_PROTOCOL("bed detected: ");
+	SERIAL_PROTOCOLLN(scale.current_weight);
 }
 
 void st_set_position(const long &x, const long &y, const long &z, const long &e) {
