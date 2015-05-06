@@ -61,7 +61,7 @@
 #endif
 
 #if NUM_SERVOS > 0
-  #include "Servo.h"
+  #include "servo.h"
 #endif
 
 #if HAS_DIGIPOTSS
@@ -757,10 +757,9 @@ void get_command() {
         gcode_N = (strtol(strchr_pointer + 1, NULL, 10));
         if (gcode_N != gcode_LastN + 1 && strstr_P(command, PSTR("M110")) == NULL) {
           SERIAL_ERROR_START;
-          SERIAL_ERRORPGM(MSG_ERR_LINE_NO1);
-          SERIAL_ERROR(gcode_LastN + 1);
-          SERIAL_ERRORPGM(MSG_ERR_LINE_NO2);
-          SERIAL_ERRORLN(gcode_N);
+          SERIAL_ERRORPGM(MSG_ERR_LINE_NO);
+          SERIAL_ERRORLN(gcode_LastN);
+          //Serial.println(gcode_N);
           FlushSerialRequestResend();
           serial_count = 0;
           return;
@@ -1268,13 +1267,14 @@ inline void set_destination_to_current() { memcpy(destination, current_position,
 
       // Engage Z Servo endstop if enabled
       if (servo_endstops[Z_AXIS] >= 0) {
+        Servo *srv = &servo[servo_endstops[Z_AXIS]];
         #if SERVO_LEVELING
-          servo[servo_endstops[Z_AXIS]].attach(0);
+          srv->attach(0);
         #endif
-        servo[servo_endstops[Z_AXIS]].write(servo_endstop_angles[Z_AXIS * 2]);
+        srv->write(servo_endstop_angles[Z_AXIS * 2]);
         #if SERVO_LEVELING
           delay(PROBE_SERVO_DEACTIVATION_DELAY);
-          servo[servo_endstops[Z_AXIS]].detach();
+          srv->detach();
         #endif
       }
 
@@ -1320,7 +1320,7 @@ inline void set_destination_to_current() { memcpy(destination, current_position,
 
   }
 
-  static void stow_z_probe() {
+  static void stow_z_probe(bool doRaise=true) {
 
     #ifdef SERVO_ENDSTOPS
 
@@ -1328,19 +1328,21 @@ inline void set_destination_to_current() { memcpy(destination, current_position,
       if (servo_endstops[Z_AXIS] >= 0) {
 
         #if Z_RAISE_AFTER_PROBING > 0
-          do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS] + Z_RAISE_AFTER_PROBING); // this also updates current_position
-          st_synchronize();
+          if (doRaise) {
+            do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS] + Z_RAISE_AFTER_PROBING); // this also updates current_position
+            st_synchronize();
+          }
         #endif
 
+        // Change the Z servo angle
+        Servo *srv = &servo[servo_endstops[Z_AXIS]];
         #if SERVO_LEVELING
-          servo[servo_endstops[Z_AXIS]].attach(0);
+          srv->attach(0);
         #endif
-
-        servo[servo_endstops[Z_AXIS]].write(servo_endstop_angles[Z_AXIS * 2 + 1]);
-
+        srv->write(servo_endstop_angles[Z_AXIS * 2 + 1]);
         #if SERVO_LEVELING
           delay(PROBE_SERVO_DEACTIVATION_DELAY);
-          servo[servo_endstops[Z_AXIS]].detach();
+          srv->detach();
         #endif
       }
 
@@ -1524,19 +1526,25 @@ static void homeaxis(AxisEnum axis) {
     current_position[axis] = 0;
     sync_plan_position();
 
-    // Engage Servo endstop if enabled
-    #if defined(SERVO_ENDSTOPS) && !defined(Z_PROBE_SLED)
+    #if SERVO_LEVELING && !defined(Z_PROBE_SLED)
 
-      #if SERVO_LEVELING
-        if (axis == Z_AXIS) deploy_z_probe(); else
-      #endif
-        {
-          if (servo_endstops[axis] > -1)
-            servo[servo_endstops[axis]].write(servo_endstop_angles[axis * 2]);
-        }
+      // Deploy a probe if there is one, and homing towards the bed
+      if (axis == Z_AXIS) {
+        if (axis_home_dir < 0) deploy_z_probe();
+      }
+      else
 
-    #endif // SERVO_ENDSTOPS && !Z_PROBE_SLED
+    #endif
 
+    #ifdef SERVO_ENDSTOPS
+      {
+        // Engage Servo endstop if enabled
+        if (servo_endstops[axis] > -1)
+          servo[servo_endstops[axis]].write(servo_endstop_angles[axis * 2]);
+      }
+    #endif
+
+    // Set a flag for Z motor locking
     #ifdef Z_DUAL_ENDSTOPS
       if (axis == Z_AXIS) In_Homing_Process(true);
     #endif
@@ -1614,14 +1622,22 @@ static void homeaxis(AxisEnum axis) {
     endstops_hit_on_purpose(); // clear endstop hit flags
     axis_known_position[axis] = true;
 
-    // Retract Servo endstop if enabled
-    #ifdef SERVO_ENDSTOPS
-      if (servo_endstops[axis] > -1)
-        servo[servo_endstops[axis]].write(servo_endstop_angles[axis * 2 + 1]);
+    #if SERVO_LEVELING && !defined(Z_PROBE_SLED)
+
+      // Deploy a probe if there is one, and homing towards the bed
+      if (axis == Z_AXIS) {
+        if (axis_home_dir < 0) stow_z_probe();
+      }
+      else
+
     #endif
 
-    #if SERVO_LEVELING && !defined(Z_PROBE_SLED)
-      if (axis == Z_AXIS) stow_z_probe();
+    #ifdef SERVO_ENDSTOPS
+      {
+        // Retract Servo endstop if enabled
+        if (servo_endstops[axis] > -1)
+          servo[servo_endstops[axis]].write(servo_endstop_angles[axis * 2 + 1]);
+      }
     #endif
 
   }
@@ -3012,7 +3028,7 @@ inline void gcode_M42() {
     current_position[E_AXIS] = E_current = st_get_position_mm(E_AXIS);
 
     // 
-    // OK, do the inital probe to get us close to the bed.
+    // OK, do the initial probe to get us close to the bed.
     // Then retrace the right amount and use that in subsequent probes
     //
 
@@ -3121,12 +3137,14 @@ inline void gcode_M42() {
       plan_buffer_line(X_probe_location, Y_probe_location, Z_start_location, current_position[E_AXIS], homing_feedrate[Z_AXIS]/60, active_extruder);
       st_synchronize();
 
+      // Stow between
       if (deploy_probe_for_each_reading) {
         stow_z_probe();
         delay(1000);
       }
     }
 
+    // Stow after
     if (!deploy_probe_for_each_reading) {
       stow_z_probe();
       delay(1000);
@@ -4078,13 +4096,14 @@ inline void gcode_M226() {
     if (code_seen('S')) {
       servo_position = code_value();
       if ((servo_index >= 0) && (servo_index < NUM_SERVOS)) {
+        Servo *srv = &servo[servo_index];
         #if SERVO_LEVELING
-          servo[servo_index].attach(0);
+          srv->attach(0);
         #endif
-        servo[servo_index].write(servo_position);
+        srv->write(servo_position);
         #if SERVO_LEVELING
           delay(PROBE_SERVO_DEACTIVATION_DELAY);
-          servo[servo_index].detach();
+          srv->detach();
         #endif
       }
       else {
@@ -4388,12 +4407,12 @@ inline void gcode_M303() {
  */
 inline void gcode_M400() { st_synchronize(); }
 
-#if defined(ENABLE_AUTO_BED_LEVELING) && (defined(SERVO_ENDSTOPS) || defined(Z_PROBE_ALLEN_KEY)) && not defined(Z_PROBE_SLED)
+#if defined(ENABLE_AUTO_BED_LEVELING) && !defined(Z_PROBE_SLED) && (defined(SERVO_ENDSTOPS) || defined(Z_PROBE_ALLEN_KEY))
 
   #ifdef SERVO_ENDSTOPS
     void raise_z_for_servo() {
       float zpos = current_position[Z_AXIS], z_dest = Z_RAISE_BEFORE_HOMING;
-      if (!axis_known_position[Z_AXIS]) z_dest += zpos;
+      z_dest += axis_known_position[Z_AXIS] ? -zprobe_zoffset : zpos;
       if (zpos < z_dest)
         do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], z_dest); // also updates current_position
     }
@@ -4416,7 +4435,7 @@ inline void gcode_M400() { st_synchronize(); }
     #ifdef SERVO_ENDSTOPS
       raise_z_for_servo();
     #endif
-    stow_z_probe();
+    stow_z_probe(false);
   }
 
 #endif
@@ -6093,7 +6112,7 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
     if (!READ(HOME_PIN)) {
       if (!homeDebounceCount) {
         enqueuecommands_P(PSTR("G28"));
-        LCD_ALERTMESSAGEPGM(MSG_AUTO_HOME);
+        LCD_MESSAGEPGM(MSG_AUTO_HOME);
       }
       if (homeDebounceCount < HOME_DEBOUNCE_DELAY)
         homeDebounceCount++;
