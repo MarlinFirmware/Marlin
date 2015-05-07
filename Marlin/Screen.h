@@ -31,13 +31,14 @@ namespace screen
 			const char * title() const;
 			ScreenType_t const & type() const;
 			void icon(Icon & component);
+			Icon & icon(Icon::IconType_t const & type);
 
 			virtual void left() {};
 			virtual void right() {};
 			virtual Screen & press() {};
 			virtual void draw() {};
 			virtual void add(Screen & component) {};
-			
+
 		protected:
 			ScreenType_t m_type;
 			uint16_t m_num_icons;

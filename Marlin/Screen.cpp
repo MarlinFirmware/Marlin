@@ -30,4 +30,13 @@ namespace screen
 			++m_num_icons;
 		}
 	}
+
+	Icon & Screen::icon(Icon::IconType_t const & type)
+	{
+		if (type == Icon::SELECTED)
+		{
+			return * m_icons[1];
+		}
+		return * m_icons[0];
+	}
 }
