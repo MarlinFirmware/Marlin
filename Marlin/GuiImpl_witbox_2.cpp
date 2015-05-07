@@ -47,7 +47,7 @@ namespace screen
 	ScreenDialog screen_logo            = ScreenDialog("BQ Logo");
 	//Main Menu
 	ScreenMenu screen_main              = ScreenMenu("");
-	SD Card screens
+	//SD Card screens
 	ScreenList screen_SD_list           = ScreenList("SD Card");
 	ScreenMenu screen_SD_confirm        = ScreenMenu("Comfirm Print");
 	//Unload Filament screens
