@@ -39,6 +39,8 @@ namespace screen
 
 	void ScreenMenu::draw()
 	{
+		drawTitle();
+
 		SERIAL_ECHO(m_title);
 		SERIAL_ECHO(">>>");
 		SERIAL_ECHO(" [");
