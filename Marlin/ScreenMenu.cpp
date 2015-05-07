@@ -5,15 +5,13 @@ namespace screen
 {
 	ScreenMenu::ScreenMenu(const char * title)
 		: Screen(MENU, title)
-		, m_icon_line(0)
-		, m_index(0)
-		, m_num_items(0)
-	{
-	}
+		  , m_icon_line(0)
+		  , m_index(0)
+		  , m_num_items(0)
+	{ }
 
 	ScreenMenu::~ScreenMenu()
-	{
-	}
+	{ }
 
 	void ScreenMenu::left()
 	{
@@ -59,7 +57,8 @@ namespace screen
 		uint16_t pix_y = 24*(m_icon_line+1);
 		uint16_t pix_av_y = 64-13;    	
 		painter.firstPage();
-		do {
+		do 
+		{
 			painter.setColorIndex(1);	// black on white
 			for (unsigned int i = 0;i <= m_num_items -1; ++i)
 			{
@@ -83,7 +82,7 @@ namespace screen
 			painter.print(">");
 			painter.setPrintPos((128-strlen(m_items[m_index]->title())*6)/2,60);
 			painter.print(m_items[m_index]->title());
-	   	} while( painter.nextPage() ); 
+		} while( painter.nextPage() ); 
 	}
 
 	Screen & ScreenMenu::press()
