@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 
+
 namespace screen
 {
 	class Icon 
@@ -21,6 +22,7 @@ namespace screen
 			IconType_t const & type() const;
 			uint8_t const & width() const;
 			uint8_t const & height() const;
+			void draw(uint8_t x, uint8_t y);
 
 		protected:
 			IconType_t m_type;

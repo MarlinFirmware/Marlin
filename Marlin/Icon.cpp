@@ -1,4 +1,5 @@
 #include "Icon.h"
+#include "GuiImpl_witbox_2.h"
 
 namespace screen
 {
@@ -25,5 +26,10 @@ namespace screen
 	uint8_t const & Icon::height() const
 	{
 		return m_height;
+	}
+
+	void Icon::draw(uint8_t x, uint8_t y)
+	{
+		painter.drawXBMP(x, y, m_width, m_height, m_bitmap);
 	}
 }

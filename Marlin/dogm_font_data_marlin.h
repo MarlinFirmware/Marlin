@@ -1,3 +1,6 @@
+#ifndef DOGM_FONT_DATA_MARLIN_H
+#define DOGM_FONT_DATA_MARLIN_H
+
 /*
   Fontname: -Misc-Fixed-Medium-R-Normal--9-90-75-75-C-60-ISO10646-1
   Copyright: Public domain font.  Share and enjoy.
@@ -335,3 +338,4 @@ const u8g_fntpgm_uint8_t u8g_font_6x10_marlin[2617] U8G_SECTION(".progmem.u8g_fo
   248,168,136,136,136,136,136,168,248,5,10,10,6,0,254,32,
   80,80,80,80,136,168,168,136,112};
   
+#endif DOGM_FONT_DATA_MARLIN_H
