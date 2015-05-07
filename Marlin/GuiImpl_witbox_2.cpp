@@ -11,34 +11,34 @@ namespace screen
 	///////////////////////
 	// Instantiate Icons //
 	///////////////////////
-	Icon icon_nosd_normal             = Icon(icon_width, icon_heigth, bits_nosd_normal);
-	Icon icon_nosd_hover              = Icon(icon_width, icon_heigth, bits_nosd_hover);
-	Icon icon_sd_normal               = Icon(icon_width, icon_heigth, bits_sd_normal);
-	Icon icon_sd_hover                = Icon(icon_width, icon_heigth, bits_sd_hover);
-	Icon icon_filament_unload_normal  = Icon(icon_width, icon_heigth, bits_filament_unload_normal);
-	Icon icon_filament_unload_hover   = Icon(icon_width, icon_heigth, bits_filament_unload_hover);
-	Icon icon_filament_load_normal    = Icon(icon_width, icon_heigth, bits_filament_load_normal);
-	Icon icon_filament_load_hover     = Icon(icon_width, icon_heigth, bits_filament_load_hover);
-	Icon icon_leveling_normal         = Icon(icon_width, icon_heigth, bits_leveling_normal);
-	Icon icon_leveling_hover          = Icon(icon_width, icon_heigth, bits_leveling_hover);
-	Icon icon_homing_normal           = Icon(icon_width, icon_heigth, bits_homing_normal);
-	Icon icon_homing_hover            = Icon(icon_width, icon_heigth, bits_homing_hover);
-	Icon icon_steppers_normal         = Icon(icon_width, icon_heigth, bits_steppers_normal);
-	Icon icon_steppers_hover          = Icon(icon_width, icon_heigth, bits_steppers_hover);
-	Icon icon_steppers_off_normal     = Icon(icon_width, icon_heigth, bits_steppers_off_normal);
-	Icon icon_steppers_off_hover      = Icon(icon_width, icon_heigth, bits_steppers_off_hover);
-	Icon icon_moveaxis_normal         = Icon(icon_width, icon_heigth, bits_moveaxis_normal);
-	Icon icon_moveaxis_hover          = Icon(icon_width, icon_heigth, bits_moveaxis_hover);
-	Icon icon_heat_normal             = Icon(icon_width, icon_heigth, bits_heat_normal);
-	Icon icon_heat_hover              = Icon(icon_width, icon_heigth, bits_heat_hover);
-	Icon icon_cold_normal             = Icon(icon_width, icon_heigth, bits_cold_normal);
-	Icon icon_cold_hover              = Icon(icon_width, icon_heigth, bits_cold_hover);
-	Icon icon_lightled_disable_normal = Icon(icon_width, icon_heigth, bits_lightled_disable_normal);
-	Icon icon_lightled_disable_hover  = Icon(icon_width, icon_heigth, bits_lightled_disable_hover);
-	Icon icon_lightled_normal         = Icon(icon_width, icon_heigth, bits_lightled_normal);
-	Icon icon_lightled_hover          = Icon(icon_width, icon_heigth, bits_lightled_hover);
-	Icon icon_info_normal             = Icon(icon_width, icon_heigth, bits_info_normal);
-	Icon icon_info_hover              = Icon(icon_width, icon_heigth, bits_info_hover);
+	Icon icon_nosd_normal             = Icon(Icon::NORMAL, icon_width, icon_heigth, bits_nosd_normal);
+	Icon icon_nosd_selected              = Icon(Icon::SELECTED, icon_width, icon_heigth, bits_nosd_selected);
+	Icon icon_sd_normal               = Icon(Icon::NORMAL, icon_width, icon_heigth, bits_sd_normal);
+	Icon icon_sd_selected                = Icon(Icon::SELECTED, icon_width, icon_heigth, bits_sd_selected);
+	Icon icon_filament_unload_normal  = Icon(Icon::NORMAL, icon_width, icon_heigth, bits_filament_unload_normal);
+	Icon icon_filament_unload_selected   = Icon(Icon::SELECTED, icon_width, icon_heigth, bits_filament_unload_selected);
+	Icon icon_filament_load_normal    = Icon(Icon::NORMAL, icon_width, icon_heigth, bits_filament_load_normal);
+	Icon icon_filament_load_selected     = Icon(Icon::SELECTED, icon_width, icon_heigth, bits_filament_load_selected);
+	Icon icon_leveling_normal         = Icon(Icon::NORMAL, icon_width, icon_heigth, bits_leveling_normal);
+	Icon icon_leveling_selected          = Icon(Icon::SELECTED, icon_width, icon_heigth, bits_leveling_selected);
+	Icon icon_homing_normal           = Icon(Icon::NORMAL, icon_width, icon_heigth, bits_homing_normal);
+	Icon icon_homing_selected            = Icon(Icon::SELECTED, icon_width, icon_heigth, bits_homing_selected);
+	Icon icon_steppers_normal         = Icon(Icon::NORMAL, icon_width, icon_heigth, bits_steppers_normal);
+	Icon icon_steppers_selected          = Icon(Icon::SELECTED, icon_width, icon_heigth, bits_steppers_selected);
+	Icon icon_steppers_off_normal     = Icon(Icon::NORMAL, icon_width, icon_heigth, bits_steppers_off_normal);
+	Icon icon_steppers_off_selected      = Icon(Icon::SELECTED, icon_width, icon_heigth, bits_steppers_off_selected);
+	Icon icon_moveaxis_normal         = Icon(Icon::NORMAL, icon_width, icon_heigth, bits_moveaxis_normal);
+	Icon icon_moveaxis_selected          = Icon(Icon::SELECTED, icon_width, icon_heigth, bits_moveaxis_selected);
+	Icon icon_heat_normal             = Icon(Icon::NORMAL, icon_width, icon_heigth, bits_heat_normal);
+	Icon icon_heat_selected              = Icon(Icon::SELECTED, icon_width, icon_heigth, bits_heat_selected);
+	Icon icon_cold_normal             = Icon(Icon::NORMAL, icon_width, icon_heigth, bits_cold_normal);
+	Icon icon_cold_selected              = Icon(Icon::SELECTED, icon_width, icon_heigth, bits_cold_selected);
+	Icon icon_lightled_disable_normal = Icon(Icon::NORMAL, icon_width, icon_heigth, bits_lightled_disable_normal);
+	Icon icon_lightled_disable_selected  = Icon(Icon::SELECTED, icon_width, icon_heigth, bits_lightled_disable_selected);
+	Icon icon_lightled_normal         = Icon(Icon::NORMAL, icon_width, icon_heigth, bits_lightled_normal);
+	Icon icon_lightled_selected          = Icon(Icon::SELECTED, icon_width, icon_heigth, bits_lightled_selected);
+	Icon icon_info_normal             = Icon(Icon::NORMAL, icon_width, icon_heigth, bits_info_normal);
+	Icon icon_info_selected              = Icon(Icon::SELECTED, icon_width, icon_heigth, bits_info_selected);
 
 	/////////////////////////
 	// Instantiate Screens //
@@ -106,16 +106,16 @@ namespace screen
 		//SD Card List
 		screen_SD_list.add(screen_SD_confirm);
 		screen_SD_list.icon(icon_nosd_normal);
-		screen_SD_list.icon(icon_nosd_hover);
+		screen_SD_list.icon(icon_nosd_selected);
 		screen_SD_list.icon(icon_sd_normal);
-		screen_SD_list.icon(icon_sd_hover);
+		screen_SD_list.icon(icon_sd_selected);
 		//SD Card Confirm
 		screen_SD_confirm.add(screen_SD_list);
 		screen_SD_confirm.add(screen_main);
 		//Unload Filament Select
 		screen_unload_select.add(screen_unload_heating);
 		screen_unload_select.icon(icon_filament_unload_normal);
-		screen_unload_select.icon(icon_filament_unload_hover);
+		screen_unload_select.icon(icon_filament_unload_selected);
 		//Unload Filament Heating
 		screen_unload_heating.add(screen_unload_pull);
 		//Unload Filament Pull
@@ -126,7 +126,7 @@ namespace screen
 		//Load Filament Select
 		screen_load_select.add(screen_load_heating);
 		screen_load_select.icon(icon_filament_load_normal);
-		screen_load_select.icon(icon_filament_load_hover);
+		screen_load_select.icon(icon_filament_load_selected);
 		//Load Filament Heating
 		screen_load_heating.add(screen_load_pull);
 		//Load Filament Pull
@@ -137,35 +137,35 @@ namespace screen
 		//Level Plate
 		screen_level_confirm.add(screen_main);
 		screen_level_confirm.icon(icon_leveling_normal);
-		screen_level_confirm.icon(icon_leveling_hover);
+		screen_level_confirm.icon(icon_leveling_selected);
 		//AutoHome
 		screen_autohome.add(screen_main);
 		screen_autohome.icon(icon_homing_normal);
-		screen_autohome.icon(icon_homing_hover);
+		screen_autohome.icon(icon_homing_selected);
 		//Stepper
 		screen_stepper.add(screen_main);
 		screen_stepper.icon(icon_steppers_normal);
-		screen_stepper.icon(icon_steppers_hover);
+		screen_stepper.icon(icon_steppers_selected);
 		screen_stepper.icon(icon_steppers_off_normal);
-		screen_stepper.icon(icon_steppers_off_hover);
+		screen_stepper.icon(icon_steppers_off_selected);
 		//Move Axis
 		screen_move.add(screen_main);
 		screen_move.icon(icon_moveaxis_normal);
-		screen_move.icon(icon_moveaxis_hover);
+		screen_move.icon(icon_moveaxis_selected);
 		//Temperature
 		screen_temperature.add(screen_main);
 		screen_temperature.icon(icon_heat_normal);
-		screen_temperature.icon(icon_heat_hover);
+		screen_temperature.icon(icon_heat_selected);
 		//Light
 		screen_light.add(screen_main);
 		screen_light.icon(icon_lightled_disable_normal);
-		screen_light.icon(icon_lightled_disable_hover);
+		screen_light.icon(icon_lightled_disable_selected);
 		screen_light.icon(icon_lightled_normal);
-		screen_light.icon(icon_lightled_hover);
+		screen_light.icon(icon_lightled_selected);
 		//Info
 		screen_info.add(screen_main);
 		screen_info.icon(icon_info_normal);
-		screen_info.icon(icon_info_hover);
+		screen_info.icon(icon_info_selected);
 
 		return new ScreenMenu(screen_main);
 	}
