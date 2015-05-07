@@ -40,7 +40,7 @@ namespace screen
 			virtual void add(Screen & component) {};
 
 		protected:
-			virtual void drawTitle():
+			virtual void drawTitle();
 
 		protected:
 			ScreenType_t m_type;
