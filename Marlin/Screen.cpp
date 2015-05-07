@@ -42,5 +42,9 @@ namespace screen
 
 	void Screen::drawTitle()
 	{
+		if ( (m_title != NULL) && (strlen(m_title) > 0) )
+		{
+			//Do here
+		}
 	}
 }

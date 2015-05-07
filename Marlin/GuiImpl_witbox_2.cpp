@@ -11,33 +11,33 @@ namespace screen
 	///////////////////////
 	// Instantiate Icons //
 	///////////////////////
-	Icon icon_nosd_normal             = Icon(Icon::NORMAL, icon_width, icon_heigth, bits_nosd_normal);
+	Icon icon_nosd_normal                = Icon(Icon::NORMAL, icon_width, icon_heigth, bits_nosd_normal);
 	Icon icon_nosd_selected              = Icon(Icon::SELECTED, icon_width, icon_heigth, bits_nosd_selected);
-	Icon icon_sd_normal               = Icon(Icon::NORMAL, icon_width, icon_heigth, bits_sd_normal);
+	Icon icon_sd_normal                  = Icon(Icon::NORMAL, icon_width, icon_heigth, bits_sd_normal);
 	Icon icon_sd_selected                = Icon(Icon::SELECTED, icon_width, icon_heigth, bits_sd_selected);
-	Icon icon_filament_unload_normal  = Icon(Icon::NORMAL, icon_width, icon_heigth, bits_filament_unload_normal);
+	Icon icon_filament_unload_normal     = Icon(Icon::NORMAL, icon_width, icon_heigth, bits_filament_unload_normal);
 	Icon icon_filament_unload_selected   = Icon(Icon::SELECTED, icon_width, icon_heigth, bits_filament_unload_selected);
-	Icon icon_filament_load_normal    = Icon(Icon::NORMAL, icon_width, icon_heigth, bits_filament_load_normal);
+	Icon icon_filament_load_normal       = Icon(Icon::NORMAL, icon_width, icon_heigth, bits_filament_load_normal);
 	Icon icon_filament_load_selected     = Icon(Icon::SELECTED, icon_width, icon_heigth, bits_filament_load_selected);
-	Icon icon_leveling_normal         = Icon(Icon::NORMAL, icon_width, icon_heigth, bits_leveling_normal);
+	Icon icon_leveling_normal            = Icon(Icon::NORMAL, icon_width, icon_heigth, bits_leveling_normal);
 	Icon icon_leveling_selected          = Icon(Icon::SELECTED, icon_width, icon_heigth, bits_leveling_selected);
-	Icon icon_homing_normal           = Icon(Icon::NORMAL, icon_width, icon_heigth, bits_homing_normal);
+	Icon icon_homing_normal              = Icon(Icon::NORMAL, icon_width, icon_heigth, bits_homing_normal);
 	Icon icon_homing_selected            = Icon(Icon::SELECTED, icon_width, icon_heigth, bits_homing_selected);
-	Icon icon_steppers_normal         = Icon(Icon::NORMAL, icon_width, icon_heigth, bits_steppers_normal);
+	Icon icon_steppers_normal            = Icon(Icon::NORMAL, icon_width, icon_heigth, bits_steppers_normal);
 	Icon icon_steppers_selected          = Icon(Icon::SELECTED, icon_width, icon_heigth, bits_steppers_selected);
-	Icon icon_steppers_off_normal     = Icon(Icon::NORMAL, icon_width, icon_heigth, bits_steppers_off_normal);
+	Icon icon_steppers_off_normal        = Icon(Icon::NORMAL, icon_width, icon_heigth, bits_steppers_off_normal);
 	Icon icon_steppers_off_selected      = Icon(Icon::SELECTED, icon_width, icon_heigth, bits_steppers_off_selected);
-	Icon icon_moveaxis_normal         = Icon(Icon::NORMAL, icon_width, icon_heigth, bits_moveaxis_normal);
+	Icon icon_moveaxis_normal            = Icon(Icon::NORMAL, icon_width, icon_heigth, bits_moveaxis_normal);
 	Icon icon_moveaxis_selected          = Icon(Icon::SELECTED, icon_width, icon_heigth, bits_moveaxis_selected);
-	Icon icon_heat_normal             = Icon(Icon::NORMAL, icon_width, icon_heigth, bits_heat_normal);
+	Icon icon_heat_normal                = Icon(Icon::NORMAL, icon_width, icon_heigth, bits_heat_normal);
 	Icon icon_heat_selected              = Icon(Icon::SELECTED, icon_width, icon_heigth, bits_heat_selected);
-	Icon icon_cold_normal             = Icon(Icon::NORMAL, icon_width, icon_heigth, bits_cold_normal);
+	Icon icon_cold_normal                = Icon(Icon::NORMAL, icon_width, icon_heigth, bits_cold_normal);
 	Icon icon_cold_selected              = Icon(Icon::SELECTED, icon_width, icon_heigth, bits_cold_selected);
-	Icon icon_lightled_disable_normal = Icon(Icon::NORMAL, icon_width, icon_heigth, bits_lightled_disable_normal);
+	Icon icon_lightled_disable_normal    = Icon(Icon::NORMAL, icon_width, icon_heigth, bits_lightled_disable_normal);
 	Icon icon_lightled_disable_selected  = Icon(Icon::SELECTED, icon_width, icon_heigth, bits_lightled_disable_selected);
-	Icon icon_lightled_normal         = Icon(Icon::NORMAL, icon_width, icon_heigth, bits_lightled_normal);
+	Icon icon_lightled_normal            = Icon(Icon::NORMAL, icon_width, icon_heigth, bits_lightled_normal);
 	Icon icon_lightled_selected          = Icon(Icon::SELECTED, icon_width, icon_heigth, bits_lightled_selected);
-	Icon icon_info_normal             = Icon(Icon::NORMAL, icon_width, icon_heigth, bits_info_normal);
+	Icon icon_info_normal                = Icon(Icon::NORMAL, icon_width, icon_heigth, bits_info_normal);
 	Icon icon_info_selected              = Icon(Icon::SELECTED, icon_width, icon_heigth, bits_info_selected);
 
 	/////////////////////////
@@ -46,8 +46,8 @@ namespace screen
 	//Logo Splash
 	ScreenDialog screen_logo            = ScreenDialog("BQ Logo");
 	//Main Menu
-	ScreenMenu screen_main              = ScreenMenu("Main Menu");
-	//SD Card screens
+	ScreenMenu screen_main              = ScreenMenu("");
+	SD Card screens
 	ScreenList screen_SD_list           = ScreenList("SD Card");
 	ScreenMenu screen_SD_confirm        = ScreenMenu("Comfirm Print");
 	//Unload Filament screens
