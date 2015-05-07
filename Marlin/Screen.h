@@ -40,6 +40,9 @@ namespace screen
 			virtual void add(Screen & component) {};
 
 		protected:
+			virtual void drawTitle():
+
+		protected:
 			ScreenType_t m_type;
 			uint16_t m_num_icons;
 			const char * m_title;

@@ -39,4 +39,8 @@ namespace screen
 		}
 		return * m_icons[0];
 	}
+
+	void Screen::drawTitle()
+	{
+	}
 }
