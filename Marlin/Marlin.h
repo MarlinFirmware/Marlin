@@ -34,31 +34,12 @@
 
 // Arduino < 1.0.0 does not define this, so we need to do it ourselves
 #ifndef analogInputToDigitalPin
-# define analogInputToDigitalPin(p) ((p) + A0)
+# define analogInputToDigitalPin(p) ((p) + 0xA0)
 #endif
 
 #ifdef AT90USB
 #include "HardwareSerial.h"
 #endif
-
-
-#ifdef __GNUC__
-#ifndef GCC_VERSION2
-#define GCC_VERSION2 (__GNUC__ * 10000 + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__)
-#endif
-
-#if GCC_VERSION2 < 40602 // Test for GCC < 4.6.2
-#ifdef PROGMEM
-#define MARLIN_PROGMEM __attribute__((section(".progmem.data")))
-#ifdef PSTR
-#undef PSTR
-#define PSTR(s) (__extension__({static const prog_char __c[] MARLIN_PROGMEM = (s); &__c[0];})) // Copied from pgmspace.h in avr-libc source
-#endif
-#endif
-#endif
-#endif
-
-
 
 #include "MarlinSerial.h"
 
@@ -192,6 +173,13 @@ void manage_inactivity(bool ignore_stepper_queue=false);
   #define disable_e2() /* nothing */
 #endif
 
+#if (EXTRUDERS > 3) && defined(E3_ENABLE_PIN) && (E3_ENABLE_PIN > -1)
+  #define enable_e3() WRITE(E3_ENABLE_PIN, E_ENABLE_ON)
+  #define disable_e3() WRITE(E3_ENABLE_PIN,!E_ENABLE_ON)
+#else
+  #define enable_e3()  /* nothing */
+  #define disable_e3() /* nothing */
+#endif
 
 enum AxisEnum {X_AXIS=0, Y_AXIS=1, Z_AXIS=2, E_AXIS=3, X_HEAD=4, Y_HEAD=5};
 
