@@ -8,8 +8,11 @@
 // User-specified version info of this build to display in [Pronterface, etc] terminal window during
 // startup. Implementation of an idea by Prof Braino to inform user that any changes made to this
 // build by the user have been successfully uploaded into firmware.
+#define STRING_VERSION "1.4.2"
+#define STRING_URL "bq.com"
 #define STRING_VERSION_CONFIG_H __DATE__ " " __TIME__ // build date and time
-#define STRING_CONFIG_H_AUTHOR "(bq Witbox FW v1.4.2)" // Who made the changes.
+#define STRING_CONFIG_H_AUTHOR "(bq Witbox)" // Who made the changes.
+#define STRING_SPLASH "v" STRING_VERSION " - " STRING_URL // will be shown during bootup
 
 // SERIAL_PORT selects which serial port should be used for communication with the host.
 // This allows the connection of wireless adapters (for instance) to non-default port pins.
@@ -22,17 +25,14 @@
 // This enables the serial port associated to the Bluetooth interface
 //#define BTENABLED              // Enable BT interface on AT90USB devices
 
-
 //// The following define selects which electronics board you have. Please choose the one that matches your setup
 // 33 = RAMPS 1.3 / 1.4 (Power outputs: Extruder, Fan, Bed)
 // 40 = bqCNC
-
-#ifndef MOTHERBOARD
 #define MOTHERBOARD 33
-#endif
 
-// Define this to set a custom name for your generic Mendel,
-// #define CUSTOM_MENDEL_NAME "This Mendel"
+// Optional custom name for your RepStrap or other custom machine
+// Displayed in the LCD "Ready" message
+// #define CUSTOM_MACHINE_NAME "3D Printer"
 
 // Define this to set a unique identifier for this printer, (Used by some programs to differentiate between machines)
 // You can use an online service to generate a random UUID. (eg http://www.uuidgenerator.net/version4)
@@ -74,8 +74,11 @@
 // 8 is 100k 0603 SMD Vishay NTCS0603E3104FXT (4.7k pullup)
 // 9 is 100k GE Sensing AL03006-58.2K-97-G1 (4.7k pullup)
 // 10 is 100k RS thermistor 198-961 (4.7k pullup)
+// 11 is 100k beta 3950 1% thermistor (4.7k pullup)
+// 12 is 100k 0603 SMD Vishay NTCS0603E3104FXT (4.7k pullup) (calibrated for Makibox hot bed)
+// 13 is 100k Hisens 3950  1% up to 300°C for hotend "Simple ONE " & "Hotend "All In ONE"
 // 20 is the PT100 circuit found in the Ultimainboard V2.x
-// 60 is 100k Maker's Tool Works Kapton Bed Thermistor
+// 60 is 100k Maker's Tool Works Kapton Bed Thermistor beta=3950
 //
 //    1k ohm pullup tables - This is not normal, you would have to have changed out your 4.7k for 1k
 //                          (but gives greater accuracy and more stable PID)
@@ -87,7 +90,11 @@
 // 1010 is Pt1000 with 1k pullup (non standard)
 // 147 is Pt100 with 4k7 pullup
 // 110 is Pt100 with 1k pullup (non standard)
-
+// 998 and 999 are Dummy Tables. They will ALWAYS read 25°C or the temperature defined below.
+//     Use it for Testing or Development purposes. NEVER for production machine.
+//     #define DUMMY_THERMISTOR_998_VALUE 25
+//     #define DUMMY_THERMISTOR_999_VALUE 100
+// :{ '0': "Not used", '4': "10k !! do not use for a hotend. Bad resolution at high temp. !!", '1': "100k / 4.7k - EPCOS", '51': "100k / 1k - EPCOS", '6': "100k / 4.7k EPCOS - Not as accurate as Table 1", '5': "100K / 4.7k - ATC Semitec 104GT-2 (Used in ParCan & J-Head)", '7': "100k / 4.7k Honeywell 135-104LAG-J01", '71': "100k / 4.7k Honeywell 135-104LAF-J01", '8': "100k / 4.7k 0603 SMD Vishay NTCS0603E3104FXT", '9': "100k / 4.7k GE Sensing AL03006-58.2K-97-G1", '10': "100k / 4.7k RS 198-961", '11': "100k / 4.7k beta 3950 1%", '12': "100k / 4.7k 0603 SMD Vishay NTCS0603E3104FXT (calibrated for Makibox hot bed)", '13': "100k Hisens 3950  1% up to 300°C for hotend 'Simple ONE ' & hotend 'All In ONE'", '60': "100k Maker's Tool Works Kapton Bed Thermistor beta=3950", '55': "100k / 1k - ATC Semitec 104GT-2 (Used in ParCan & J-Head)", '2': "200k / 4.7k - ATC Semitec 204GT-2", '52': "200k / 1k - ATC Semitec 204GT-2", '-2': "Thermocouple + MAX6675 (only for sensor 0)", '-1': "Thermocouple + AD595", '3': "Mendel-parts / 4.7k", '1047': "Pt1000 / 4.7k", '1010': "Pt1000 / 1k (non standard)", '20': "PT100 (Ultimainboard V2.x)", '147': "Pt100 / 4.7k", '110': "Pt100 / 1k (non-standard)", '998': "Dummy 1", '999': "Dummy 2" }
 #define TEMP_SENSOR_0 1
 #define TEMP_SENSOR_1 0
 #define TEMP_SENSOR_2 0
@@ -108,6 +115,7 @@
 #define HEATER_0_MINTEMP 5
 #define HEATER_1_MINTEMP 5
 #define HEATER_2_MINTEMP 5
+#define HEATER_3_MINTEMP 5
 #define BED_MINTEMP 5
 
 // When temperature exceeds max temp, your heater will be switched off.
@@ -127,7 +135,11 @@
 //#define EXTRUDER_WATTS (12.0*12.0/6.7) //  P=I^2/R
 //#define BED_WATTS (12.0*12.0/1.1)      // P=I^2/R
 
-// PID settings:
+//===========================================================================
+//============================= PID Settings ================================
+//===========================================================================
+// PID Tuning Guide here: http://reprap.org/wiki/PID_Tuning
+
 // Comment the following line to disable PID and enable bang-bang.
 #define PIDTEMP
 #define BANG_MAX 255 // limits current to nozzle while in bang-bang mode; 255=full current
@@ -135,9 +147,12 @@
 #ifdef PIDTEMP
   //#define PID_DEBUG // Sends debug data to the serial port.
   //#define PID_OPENLOOP 1 // Puts PID in open loop. M104/M140 sets the output power from 0 to PID_MAX
+  //#define SLOW_PWM_HEATERS // PWM with very low frequency (roughly 0.125Hz=8s) and minimum state time of approximately 1s useful for heaters driven by a relay
+  //#define PID_PARAMS_PER_EXTRUDER // Uses separate PID parameters for each extruder (useful for mismatched extruders)
+                                    // Set/get with gcode: M301 E[extruder number, 0-2]
   #define PID_FUNCTIONAL_RANGE 10 // If the temperature difference between the target temperature and the actual temperature
                                   // is more then PID_FUNCTIONAL_RANGE then the PID will be shut off and the heater will be set to min/max.
-  #define PID_INTEGRAL_DRIVE_MAX 255  //limit for the integral term
+  #define PID_INTEGRAL_DRIVE_MAX PID_MAX  //limit for the integral term
   #define K1 0.95 //smoothing factor within the PID
   #define PID_dT ((OVERSAMPLENR * 8.0)/(F_CPU / 64.0 / 256.0)) //sampling period of the temperature routine
 
@@ -149,11 +164,13 @@
 
 #endif // PIDTEMP
 
-// Bed Temperature Control
+//===========================================================================
+//============================= PID > Bed Temperature Control ===============
+//===========================================================================
 // Select PID or bang-bang with PIDTEMPBED. If bang-bang, BED_LIMIT_SWITCHING will enable hysteresis
 //
 // Uncomment this to enable PID on the bed. It uses the same frequency PWM as the extruder.
-// If your PID_dT above is the default, and correct for your hardware/configuration, that means 7.689Hz,
+// If your PID_dT is the default, and correct for your hardware/configuration, that means 7.689Hz,
 // which is fine for driving a square wave into a resistive load and does not significantly impact you FET heating.
 // This also works fine on a Fotek SSR-10DA Solid State Relay into a 250W heater.
 // If your configuration is significantly different than this and you don't understand the issues involved, you probably
@@ -197,11 +214,54 @@
 #define EXTRUDE_MAXLENGTH (X_MAX_LENGTH+Y_MAX_LENGTH) //prevent extrusion of very large distances.
 
 //===========================================================================
+//============================= Thermal Runaway Protection ==================
+//===========================================================================
+/*
+This is a feature to protect your printer from burn up in flames if it has
+a thermistor coming off place (this happened to a friend of mine recently and
+motivated me writing this feature).
+
+The issue: If a thermistor come off, it will read a lower temperature than actual.
+The system will turn the heater on forever, burning up the filament and anything
+else around.
+
+After the temperature reaches the target for the first time, this feature will
+start measuring for how long the current temperature stays below the target
+minus _HYSTERESIS (set_temperature - THERMAL_RUNAWAY_PROTECTION_HYSTERESIS).
+
+If it stays longer than _PERIOD, it means the thermistor temperature
+cannot catch up with the target, so something *may be* wrong. Then, to be on the
+safe side, the system will he halt.
+
+Bear in mind the count down will just start AFTER the first time the
+thermistor temperature is over the target, so you will have no problem if
+your extruder heater takes 2 minutes to hit the target on heating.
+
+*/
+// If you want to enable this feature for all your extruder heaters,
+// uncomment the 2 defines below:
+
+// Parameters for all extruder heaters
+//#define THERMAL_RUNAWAY_PROTECTION_PERIOD 40 //in seconds
+//#define THERMAL_RUNAWAY_PROTECTION_HYSTERESIS 4 // in degree Celsius
+
+// If you want to enable this feature for your bed heater,
+// uncomment the 2 defines below:
+
+// Parameters for the bed heater
+//#define THERMAL_RUNAWAY_PROTECTION_BED_PERIOD 20 //in seconds
+//#define THERMAL_RUNAWAY_PROTECTION_BED_HYSTERESIS 2 // in degree Celsius
+
+
+//===========================================================================
 //=============================Mechanical Settings===========================
 //===========================================================================
 
 // Uncomment the following line to enable CoreXY kinematics
 // #define COREXY
+
+// Enable this option for Toshiba steppers
+// #define CONFIG_STEPPERS_TOSHIBA
 
 // coarse Endstop Settings
 #define ENDSTOPPULLUPS // Comment this out (using // at the start of the line) to disable the endstop pullup resistors
@@ -253,12 +313,14 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define DISABLE_E false // For all extruders
 #define DISABLE_INACTIVE_EXTRUDER true //disable only inactive extruders and keep active extruder enabled
 
-#define INVERT_X_DIR true    // for Mendel set to false, for Orca set to true
-#define INVERT_Y_DIR false    // for Mendel set to true, for Orca set to false
-#define INVERT_Z_DIR true     // for Mendel set to false, for Orca set to true
-#define INVERT_E0_DIR false   // for direct drive extruder v9 set to true, for geared extruder set to false
-#define INVERT_E1_DIR false    // for direct drive extruder v9 set to true, for geared extruder set to false
-#define INVERT_E2_DIR false   // for direct drive extruder v9 set to true, for geared extruder set to false
+// Invert the stepper direction. Change (or reverse the motor connector) if an axis goes the wrong way.
+#define INVERT_X_DIR true
+#define INVERT_Y_DIR false
+#define INVERT_Z_DIR true
+#define INVERT_E0_DIR false
+#define INVERT_E1_DIR false
+#define INVERT_E2_DIR false
+#define INVERT_E3_DIR false
 
 // ENDSTOP SETTINGS:
 // Sets direction of endstops when homing; 1=MAX, -1=MIN
@@ -269,57 +331,53 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define min_software_endstops true // If true, axis won't move to coordinates less than HOME_POS.
 #define max_software_endstops true  // If true, axis won't move to coordinates greater than the defined lengths below.
 
-// Travel limits after homing
-#define X_MAX_POS 297 
+// Travel limits after homing (units are in mm)
 #define X_MIN_POS 0
-#define Y_MAX_POS 210
 #define Y_MIN_POS 0
-#define Z_MAX_POS 200
 #define Z_MIN_POS 0
+#define X_MAX_POS 297 
+#define Y_MAX_POS 210
+#define Z_MAX_POS 200
 
 #define X_MAX_LENGTH (X_MAX_POS - X_MIN_POS)
 #define Y_MAX_LENGTH (Y_MAX_POS - Y_MIN_POS)
 #define Z_MAX_LENGTH (Z_MAX_POS - Z_MIN_POS)
 //============================= Bed Auto Leveling ===========================
+//===========================================================================
 
-#define ENABLE_AUTO_BED_LEVELING // Delete the comment to enable (remove // at the start of the line)
+//#define ENABLE_AUTO_BED_LEVELING // Delete the comment to enable (remove // at the start of the line)
 
 #ifdef ENABLE_AUTO_BED_LEVELING
 
-// There are 2 different ways to pick the X and Y locations to probe:
+  // There are 2 different ways to specify probing locations
+  //
+  // - "grid" mode
+  //   Probe several points in a rectangular grid.
+  //   You specify the rectangle and the density of sample points.
+  //   This mode is preferred because there are more measurements.
+  //
+  // - "3-point" mode
+  //   Probe 3 arbitrary points on the bed (that aren't colinear)
+  //   You specify the XY coordinates of all 3 points.
 
-//  - "grid" mode
-//    Probe every point in a rectangular grid
-//    You must specify the rectangle, and the density of sample points
-//    This mode is preferred because there are more measurements.
-//    It used to be called ACCURATE_BED_LEVELING but "grid" is more descriptive
-
-//  - "3-point" mode
-//    Probe 3 arbitrary points on the bed (that aren't colinear)
-//    You must specify the X & Y coordinates of all 3 points
-
+  // Enable this to sample the bed in a grid (least squares solution)
+  // Note: this feature generates 10KB extra code size
   #define AUTO_BED_LEVELING_GRID
-  // with AUTO_BED_LEVELING_GRID, the bed is sampled in a
-  // AUTO_BED_LEVELING_GRID_POINTSxAUTO_BED_LEVELING_GRID_POINTS grid
-  // and least squares solution is calculated
-  // Note: this feature occupies 10'206 byte
+
   #ifdef AUTO_BED_LEVELING_GRID
 
-    // set the rectangle in which to probe
     #define LEFT_PROBE_BED_POSITION 15
     #define RIGHT_PROBE_BED_POSITION 170
-    #define BACK_PROBE_BED_POSITION 180
     #define FRONT_PROBE_BED_POSITION 20
-
+    #define BACK_PROBE_BED_POSITION 170
      // set the number of grid points per dimension
      // I wouldn't see a reason to go above 3 (=9 probing points on the bed)
     #define AUTO_BED_LEVELING_GRID_POINTS 2
 
+  #else  // !AUTO_BED_LEVELING_GRID
 
-  #else  // not AUTO_BED_LEVELING_GRID
-    // with no grid, just probe 3 arbitrary points.  A simple cross-product
-    // is used to esimate the plane of the print bed
-
+      // Arbitrary points to probe. A simple cross-product
+      // is used to estimate the plane of the bed.
       #define ABL_PROBE_PT_1_X 15
       #define ABL_PROBE_PT_1_Y 180
       #define ABL_PROBE_PT_2_X 15
@@ -330,13 +388,16 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
   #endif // AUTO_BED_LEVELING_GRID
 
 
-  // these are the offsets to the probe relative to the extruder tip (Hotend - Probe)
-  #define X_PROBE_OFFSET_FROM_EXTRUDER -25
-  #define Y_PROBE_OFFSET_FROM_EXTRUDER -29
-  #define Z_PROBE_OFFSET_FROM_EXTRUDER -12.35
+  // Offsets to the probe relative to the extruder tip (Hotend - Probe)
+  // X and Y offsets must be integers
+  #define X_PROBE_OFFSET_FROM_EXTRUDER -25     // Probe on: -left  +right
+  #define Y_PROBE_OFFSET_FROM_EXTRUDER -29     // Probe on: -front +behind
+  #define Z_PROBE_OFFSET_FROM_EXTRUDER -12.35  // -below (always!)
 
   #define Z_RAISE_BEFORE_HOMING 4       // (in mm) Raise Z before homing (G28) for Probe Clearance.
                                         // Be sure you have this distance over your Z_MAX_POS in case
+
+  #define XY_TRAVEL_SPEED 8000         // X and Y axis travel speed between probes, in mm/min
 
   #define Z_RAISE_BEFORE_PROBING 15    //How much the extruder will be raised before traveling to the first probing point.
   #define Z_RAISE_BETWEEN_PROBINGS 5  //How much the extruder will be raised when traveling from between next probing points
@@ -380,9 +441,12 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define MANUAL_Z_HOME_POS 0
 //#define MANUAL_Z_HOME_POS 402 // For delta: Distance between nozzle and print surface after homing.
 
-//// MOVEMENT SETTINGS
+/**
+ * MOVEMENT SETTINGS
+ */
+
+#define HOMING_FEEDRATE {120*60, 120*60, 7.2*60, 0} // set the homing speeds (mm/min)
 #define NUM_AXIS 4 // The axis order in all axis related arrays is X, Y, Z, E
-#define HOMING_FEEDRATE {120*60, 120*60, 7.2*60, 0}  //{50*60, 50*60, 4*60, 0} set the homing speeds (mm/min)
 
 // default settings
 
@@ -405,13 +469,12 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define DEFAULT_EJERK                 5.0    // (mm/sec)
 
 //===========================================================================
-//=============================WITBOX Features===============================
+//============================= WITBOX Custom ===============================
 //===========================================================================
 
 #define WITBOX
 
 #ifdef WITBOX
-
 	#define EXTRUSION_SPEED 300
 	#define LEVEL_PLATE_TEMP_PROTECTION 60
 	#define FILAMENT_CHANGE_TEMP 210
@@ -433,6 +496,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
   #define TEMP_SENSOR_BED 1
   #define HBP_PREHEAT_TEMP 50 
 #endif
+
 //===========================================================================
 //=============================Additional Features===========================
 //===========================================================================
@@ -462,16 +526,39 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 //#define DOGLCD  // Support for SPI LCD 128x64 (Controller ST7565R graphic Display Family)
 #define SDSUPPORT // Enable SD Card Support in Hardware Console
 //#define SDSLOW // Use slower SD transfer mode (not normally needed - uncomment if you're getting volume init error)
+//#define SD_CHECK_AND_RETRY // Use CRC checks and retries on the SD communication
 //#define ENCODER_PULSES_PER_STEP 1 // Increase if you have a high resolution encoder
 //#define ENCODER_STEPS_PER_MENU_ITEM 5 // Set according to ENCODER_PULSES_PER_STEP or your liking
 //#define ULTIMAKERCONTROLLER //as available from the Ultimaker online store.
 #define ULTIPANEL  //the UltiPanel as on Thingiverse
+//#define LCD_FEEDBACK_FREQUENCY_HZ 1000  // this is the tone frequency the buzzer plays when on UI feedback. ie Screen Click
+//#define LCD_FEEDBACK_FREQUENCY_DURATION_MS 100 // the duration the buzzer plays the UI feedback sound. ie Screen Click
+                                               // 0 to disable buzzer feedback  
+
+// PanelOne from T3P3 (via RAMPS 1.4 AUX2/AUX3)
+// http://reprap.org/wiki/PanelOne
+//#define PANEL_ONE
+
+// The MaKr3d Makr-Panel with graphic controller and SD support
+// http://reprap.org/wiki/MaKr3d_MaKrPanel
+//#define MAKRPANEL
+
+// The Panucatt Devices Viki 2.0 and mini Viki with Graphic LCD
+// http://panucatt.com
+// ==> REMEMBER TO INSTALL U8glib to your ARDUINO library folder: http://code.google.com/p/u8glib/wiki/u8glib
+//#define VIKI2
+//#define miniVIKI
 //#define LCD_FEEDBACK_FREQUENCY_HZ 1000	// this is the tone frequency the buzzer plays when on UI feedback. ie Screen Click
 //#define LCD_FEEDBACK_FREQUENCY_DURATION_MS 100 // the duration the buzzer plays the UI feedback sound. ie Screen Click
 
 // The RepRapDiscount Smart Controller (white PCB)
 // http://reprap.org/wiki/RepRapDiscount_Smart_Controller
 #define REPRAP_DISCOUNT_SMART_CONTROLLER
+
+
+// The GADGETS3D G3D LCD/SD Controller (blue PCB)
+// http://reprap.org/wiki/RAMPS_1.3/1.4_GADGETS3D_Shield_with_Panel
+//#define G3D_PANEL
 
 // The RepRapDiscount FULL GRAPHIC Smart Controller (quadratic white PCB)
 // http://reprap.org/wiki/RepRapDiscount_Full_Graphic_Smart_Controller
@@ -622,11 +709,6 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 // Increase the FAN pwm frequency. Removes the PWM noise but increases heating in the FET/Arduino
 //#define FAST_PWM_FAN
 
-// Temperature status LEDs that display the hotend and bet temperature.
-// If all hotends and bed temperature and temperature setpoint are < 54C then the BLUE led is on.
-// Otherwise the RED led is on. There is 1C hysteresis.
-//#define TEMP_STAT_LEDS
-
 // Use software PWM to drive the fan, as for the heaters. This uses a very low frequency
 // which is not ass annoying as with the hardware PWM. On the other hand, if this frequency
 // is too low, you should also increment SOFT_PWM_SCALE.
@@ -637,6 +719,11 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 // However, control resolution will be halved for each increment;
 // at zero value, there are 128 effective control positions.
 #define SOFT_PWM_SCALE 0
+
+// Temperature status LEDs that display the hotend and bet temperature.
+// If all hotends and bed temperature and temperature setpoint are < 54C then the BLUE led is on.
+// Otherwise the RED led is on. There is 1C hysteresis.
+//#define TEMP_STAT_LEDS
 
 // M240  Triggers a camera by emulating a Canon RC-1 Remote
 // Data from: http://www.doc-diy.net/photo/rc-1_hacked/
