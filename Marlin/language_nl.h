@@ -114,7 +114,6 @@
 #define MSG_CONTROL_RETRACT_RECOVERF        "UnRet  F"
 #define MSG_AUTORETRACT                     "AutoRetr."
 #define MSG_FILAMENTCHANGE                  "Verv. Filament"
-#define MSG_INIT_SDCARD                     "Init. SD kaart"
 #define MSG_CNG_SDCARD                      "Verv. SD card"
 #define MSG_ZPROBE_OUT                      "Z probe uit. bed"
 #define MSG_POSITION_UNKNOWN                "Home X/Y voor Z"

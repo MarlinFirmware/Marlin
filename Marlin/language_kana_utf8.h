@@ -121,7 +121,6 @@
 #define MSG_CONTROL_RETRACT_RECOVERF        "UnRet  V"
 #define MSG_AUTORETRACT                     "AutoRetr."
 #define MSG_FILAMENTCHANGE                  "フィラナントコウセン"               // "Change filament"
-#define MSG_INIT_SDCARD                     "SDセードアイヨミコミ"              // "Init. SD card"
 #define MSG_CNG_SDCARD                      "SDセードコウセン"                // "Change SD card"
 #define MSG_ZPROBE_OUT                      "Zプローブ ベツトnゼイ"         // "Z probe out. bed"
 #define MSG_POSITION_UNKNOWN                "ゲンテンハXYイドウゴZ"           // "Home X/Y before Z"

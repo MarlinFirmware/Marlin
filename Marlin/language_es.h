@@ -114,7 +114,6 @@
 #define MSG_CONTROL_RETRACT_RECOVERF        "DesRet V"
 #define MSG_AUTORETRACT                     "AutoRetr."
 #define MSG_FILAMENTCHANGE                  "Cambiar filamento"
-#define MSG_INIT_SDCARD                     "Iniciando tarjeta"
 #define MSG_CNG_SDCARD                      "Cambiar tarjeta"
 #define MSG_ZPROBE_OUT                      "Sonda Z fuera"
 #define MSG_POSITION_UNKNOWN                "Reiniciar X/Y y Z"

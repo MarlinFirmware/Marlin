@@ -224,7 +224,7 @@ static void lcd_status_screen();
   millis_t next_button_update_ms;
   uint8_t lastEncoderBits;
   uint32_t encoderPosition;
-  #if (SDCARDDETECT > 0)
+  #if SDCARDDETECT >= 0
     bool lcd_oldcardstatus;
   #endif
 
@@ -414,15 +414,16 @@ static void lcd_main_menu() {
       }
       else {
         MENU_ITEM(submenu, MSG_CARD_MENU, lcd_sdcard_menu);
-        #if SDCARDDETECT < 1
+        #if SDCARDDETECT == -1
           MENU_ITEM(gcode, MSG_CNG_SDCARD, PSTR("M21"));  // SD-card changed by user
         #endif
       }
     }
     else {
-      MENU_ITEM(submenu, MSG_NO_CARD, lcd_sdcard_menu);
-      #if SDCARDDETECT < 1
-        MENU_ITEM(gcode, MSG_INIT_SDCARD, PSTR("M21")); // Manually initialize the SD-card via user interface
+      #if SDCARDDETECT == -1
+        MENU_ITEM(submenu, MSG_CARD_MENU, lcd_sdcard_menu);
+      #else
+        MENU_ITEM(submenu, MSG_NO_CARD, lcd_sdcard_menu);
       #endif
     }
   #endif //SDSUPPORT
@@ -1136,25 +1137,49 @@ static void lcd_sd_updir() {
 
 /**
  *
- * "Print from SD" submenu
+ * "Print from SD" ("No SD card") submenu
  *
  */
 
 void lcd_sdcard_menu() {
-  if (lcdDrawUpdate == 0 && LCD_CLICKED == 0) return;	// nothing to do (so don't thrash the SD card)
-  uint16_t fileCnt = card.getnrfilenames();
+  if (lcdDrawUpdate == 0 && LCD_CLICKED == 0) return; // nothing to do (so don't thrash the SD card)
+
+  #if SDCARDDETECT == -1
+    // If no detect pin then try reading the card
+    if (!card.cardOK) {
+      lcd_sd_refresh();
+      // Still no card? Go back to the main menu
+      if (!card.cardOK) lcd_goto_menu(lcd_main_menu);
+    }
+  #endif
+
   START_MENU();
+
+  //
+  // ^ Main
+  //
   MENU_ITEM(back, MSG_MAIN, lcd_main_menu);
+
+  uint16_t fileCnt = card.getnrfilenames();
   card.getWorkDirName();
   if (card.filename[0] == '/') {
     #if SDCARDDETECT == -1
+      //
+      // Refresh
+      //
       MENU_ITEM(function, LCD_STR_REFRESH MSG_REFRESH, lcd_sd_refresh);
     #endif
   }
   else {
+    //
+    // .. (up level)
+    //
     MENU_ITEM(function, LCD_STR_FOLDER "..", lcd_sd_updir);
   }
 
+  //
+  // Files and Folders
+  //
   for (uint16_t i = 0; i < fileCnt; i++) {
     if (_menuItemNr == _lineNr) {
       card.getfilename(
@@ -1367,11 +1392,11 @@ void lcd_init() {
   #endif // SR_LCD_2W_NL
 #endif//!NEWPANEL
 
-  #if defined(SDSUPPORT) && defined(SDCARDDETECT) && (SDCARDDETECT > 0)
+  #if defined(SDSUPPORT) && defined(SDCARDDETECT) && SDCARDDETECT >= 0
     pinMode(SDCARDDETECT, INPUT);
     WRITE(SDCARDDETECT, HIGH);
     lcd_oldcardstatus = IS_SD_INSERTED;
-  #endif //(SDCARDDETECT > 0)
+  #endif // SDSUPPORT && SDCARDDETECT >= 0
 
   #ifdef LCD_HAS_SLOW_BUTTONS
     slow_buttons = 0;
@@ -1426,7 +1451,7 @@ void lcd_update() {
 
   lcd_buttons_update();
 
-  #if (SDCARDDETECT > 0)
+  #if SDCARDDETECT >= 0
     if (IS_SD_INSERTED != lcd_oldcardstatus && lcd_detected()) {
       lcdDrawUpdate = 2;
       lcd_oldcardstatus = IS_SD_INSERTED;

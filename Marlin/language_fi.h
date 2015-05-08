@@ -114,7 +114,6 @@
 #define MSG_CONTROL_RETRACT_RECOVERF        "UnRet  V"
 #define MSG_AUTORETRACT                     "AutoVeto."
 #define MSG_FILAMENTCHANGE                  "Change filament"
-#define MSG_INIT_SDCARD                     "Init. SD-Card"
 #define MSG_CNG_SDCARD                      "Change SD-Card"
 #define MSG_ZPROBE_OUT                      "Z probe out. bed"
 #define MSG_POSITION_UNKNOWN                "Home X/Y before Z"

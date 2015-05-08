@@ -626,6 +626,12 @@ void setup() {
 
   #ifdef SDSUPPORT
     for (int8_t i = 0; i < BUFSIZE; i++) fromsd[i] = false;
+
+    #if SDCARDDETECT < 0
+      // Initialize SD if there's no detect pin
+      card.initsd();
+    #endif
+
   #endif
 
   // loads data from EEPROM if available else uses defaults (and resets step acceleration rate)

@@ -373,7 +373,6 @@
 #define MSG_FILAMENTCHANGE                  "Change filament"
 #endif
 #ifndef MSG_INIT_SDCARD
-#define MSG_INIT_SDCARD                     "Init. SD card"
 #endif
 #ifndef MSG_CNG_SDCARD
 #define MSG_CNG_SDCARD                      "Change SD card"

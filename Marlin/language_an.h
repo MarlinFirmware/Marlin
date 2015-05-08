@@ -114,7 +114,6 @@
 #define MSG_CONTROL_RETRACT_RECOVERF        "DesRet F"
 #define MSG_AUTORETRACT                     "AutoRetr."
 #define MSG_FILAMENTCHANGE                  "Cambear"
-#define MSG_INIT_SDCARD                     "Encetan. tarcheta"
 #define MSG_CNG_SDCARD                      "Cambiar tarcheta"
 #define MSG_ZPROBE_OUT                      "Z probe out. bed"
 #define MSG_POSITION_UNKNOWN                "Home X/Y before Z"

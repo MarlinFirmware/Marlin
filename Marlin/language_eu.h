@@ -114,7 +114,6 @@
 #define MSG_CONTROL_RETRACT_RECOVERF        "Atzera egin V"
 #define MSG_AUTORETRACT                     "Atzera egin"
 #define MSG_FILAMENTCHANGE                  "Aldatu filament."
-#define MSG_INIT_SDCARD                     "Hasieratu txartela"
 #define MSG_CNG_SDCARD                      "Aldatu txartela"
 #define MSG_ZPROBE_OUT                      "Z ohe hasiera"
 #define MSG_POSITION_UNKNOWN                "Posizio ezezaguna"
