@@ -30,6 +30,7 @@
 // eu       Basque-Euskera
 // kana     Japanese
 // kana_utf Japanese
+// cn       Chinese
 
 #ifndef LANGUAGE_INCLUDE
   // pick your language from the list above
@@ -130,13 +131,15 @@
 #define MSG_FILE_PRINTED                    "Done printing file"
 #define MSG_BEGIN_FILE_LIST                 "Begin file list"
 #define MSG_END_FILE_LIST                   "End file list"
-#define MSG_M104_INVALID_EXTRUDER           "M104 Invalid extruder "
-#define MSG_M105_INVALID_EXTRUDER           "M105 Invalid extruder "
-#define MSG_M200_INVALID_EXTRUDER           "M200 Invalid extruder "
-#define MSG_M218_INVALID_EXTRUDER           "M218 Invalid extruder "
-#define MSG_M221_INVALID_EXTRUDER           "M221 Invalid extruder "
+#define MSG_INVALID_EXTRUDER                "Invalid extruder"
+#define MSG_INVALID_SOLENOID                "Invalid solenoid"
+#define MSG_M104_INVALID_EXTRUDER           "M104 " MSG_INVALID_EXTRUDER " "
+#define MSG_M105_INVALID_EXTRUDER           "M105 " MSG_INVALID_EXTRUDER " "
+#define MSG_M109_INVALID_EXTRUDER           "M109 " MSG_INVALID_EXTRUDER " "
+#define MSG_M200_INVALID_EXTRUDER           "M200 " MSG_INVALID_EXTRUDER " "
+#define MSG_M218_INVALID_EXTRUDER           "M218 " MSG_INVALID_EXTRUDER " "
+#define MSG_M221_INVALID_EXTRUDER           "M221 " MSG_INVALID_EXTRUDER " "
 #define MSG_ERR_NO_THERMISTORS              "No thermistors - no temperature"
-#define MSG_M109_INVALID_EXTRUDER           "M109 Invalid extruder "
 #define MSG_HEATING                         "Heating..."
 #define MSG_HEATING_COMPLETE                "Heating done."
 #define MSG_BED_HEATING                     "Bed Heating."
@@ -148,8 +151,6 @@
 #define MSG_RESEND                          "Resend: "
 #define MSG_UNKNOWN_COMMAND                 "Unknown command: \""
 #define MSG_ACTIVE_EXTRUDER                 "Active Extruder: "
-#define MSG_INVALID_EXTRUDER                "Invalid extruder"
-#define MSG_INVALID_SOLENOID                "Invalid solenoid"
 #define MSG_X_MIN                           "x_min: "
 #define MSG_X_MAX                           "x_max: "
 #define MSG_Y_MIN                           "y_min: "
@@ -158,6 +159,10 @@
 #define MSG_Z_MAX                           "z_max: "
 #define MSG_Z2_MAX                          "z2_max: "
 #define MSG_Z_PROBE                         "z_probe: "
+#define MSG_ERR_MATERIAL_INDEX              "M145 S<index> out of range (0-1)"
+#define MSG_ERR_M421_REQUIRES_XYZ           "M421 requires XYZ parameters"
+#define MSG_ERR_MESH_INDEX_OOB              "Mesh XY index is out of bounds"
+#define MSG_ERR_M428_TOO_FAR                "Too far from reference point"
 #define MSG_M119_REPORT                     "Reporting endstop status"
 #define MSG_ENDSTOP_HIT                     "TRIGGERED"
 #define MSG_ENDSTOP_OPEN                    "open"
@@ -210,7 +215,7 @@
 #define MSG_OK_B                            "ok B:"
 #define MSG_OK_T                            "ok T:"
 #define MSG_AT                              " @:"
-#define MSG_PID_AUTOTUNE_FINISHED           MSG_PID_AUTOTUNE " finished! Put the last Kp, Ki and Kd constants from above into Configuration.h"
+#define MSG_PID_AUTOTUNE_FINISHED           MSG_PID_AUTOTUNE " finished! Put the last Kp, Ki and Kd constants from below into Configuration.h"
 #define MSG_PID_DEBUG                       " PID_DEBUG "
 #define MSG_PID_DEBUG_INPUT                 ": Input "
 #define MSG_PID_DEBUG_OUTPUT                " Output "
