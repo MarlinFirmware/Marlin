@@ -5,14 +5,10 @@
 #include <new.h>
 #include "Marlin.h"
 #include "Icon.h"
-#include "GuiPainter.h"
+#include "GuiImpl.h"
 
 namespace screen
 {
-	const static uint8_t max_items = 10;
-	const static uint8_t max_list = 100;
-	const static uint8_t max_icons = 4;
-
 	typedef enum
 	{
 		SIMPLE = 0, 

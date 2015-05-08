@@ -1,6 +1,9 @@
 #ifndef GUI_BITMAPS_WITBOX_2_H
 #define GUI_BITMAPS_WITBOX_2_H
 
+#include <stdint.h>
+#include "Marlin.h" //Required for PROGMEM macro
+
 const static uint8_t icon_width = 24;
 const static uint8_t icon_heigth = 22;
 
