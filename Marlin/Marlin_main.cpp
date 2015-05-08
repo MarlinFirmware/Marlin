@@ -215,6 +215,9 @@ int extruder_multiply[EXTRUDERS] = {100
     , 100
     #if EXTRUDERS > 2
       , 100
+	    #if EXTRUDERS > 3
+      	, 100
+	    #endif
     #endif
   #endif
 };
@@ -224,6 +227,9 @@ float filament_size[EXTRUDERS] = { DEFAULT_NOMINAL_FILAMENT_DIA
       , DEFAULT_NOMINAL_FILAMENT_DIA
     #if EXTRUDERS > 2
        , DEFAULT_NOMINAL_FILAMENT_DIA
+      #if EXTRUDERS > 3
+        , DEFAULT_NOMINAL_FILAMENT_DIA
+      #endif
     #endif
   #endif
 };
@@ -232,6 +238,9 @@ float volumetric_multiplier[EXTRUDERS] = {1.0
     , 1.0
     #if EXTRUDERS > 2
       , 1.0
+      #if EXTRUDERS > 3
+        , 1.0
+      #endif
     #endif
   #endif
 };
@@ -277,6 +286,9 @@ int EtoPPressure=0;
       , false
       #if EXTRUDERS > 2
         , false
+        #if EXTRUDERS > 3
+       	  , false
+      	#endif
       #endif
     #endif
   };
@@ -285,6 +297,9 @@ int EtoPPressure=0;
       , false
       #if EXTRUDERS > 2
         , false
+        #if EXTRUDERS > 3
+       	  , false
+      	#endif
       #endif
     #endif
   };
@@ -2981,8 +2996,11 @@ Sigma_Exit:
             filament_size[1] = (filament_size[1] == 0.0 ? DEFAULT_NOMINAL_FILAMENT_DIA : filament_size[1]);
 #if EXTRUDERS > 2
             filament_size[2] = (filament_size[2] == 0.0 ? DEFAULT_NOMINAL_FILAMENT_DIA : filament_size[2]);
-            #endif
-            #endif
+#if EXTRUDERS > 3
+            filament_size[3] = (filament_size[3] == 0.0 ? DEFAULT_NOMINAL_FILAMENT_DIA : filament_size[3]);
+#endif //EXTRUDERS > 3
+#endif //EXTRUDERS > 2
+#endif //EXTRUDERS > 1
             volumetric_enabled = true;
           }
         } else {
@@ -3112,6 +3130,9 @@ Sigma_Exit:
 #if EXTRUDERS > 2
             retracted[2]=false;
 #endif
+#if EXTRUDERS > 3
+            retracted[3]=false;
+#endif
           }break;
           case 1: 
           {
@@ -3122,6 +3143,9 @@ Sigma_Exit:
 #endif
 #if EXTRUDERS > 2
             retracted[2]=false;
+#endif
+#if EXTRUDERS > 3
+            retracted[3]=false;
 #endif
           }break;
           default:
@@ -5004,6 +5028,9 @@ void calculate_volumetric_multipliers() {
 	volumetric_multiplier[1] = calculate_volumetric_multiplier(filament_size[1]);
 #if EXTRUDERS > 2
 	volumetric_multiplier[2] = calculate_volumetric_multiplier(filament_size[2]);
-#endif
-#endif
+#if EXTRUDERS > 3
+	volumetric_multiplier[3] = calculate_volumetric_multiplier(filament_size[3]);
+#endif //EXTRUDERS > 3
+#endif //EXTRUDERS > 2
+#endif //EXTRUDERS > 1
 }
