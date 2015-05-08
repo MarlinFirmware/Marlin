@@ -5533,8 +5533,9 @@ void ClearToSend() {
   SERIAL_PROTOCOLPGM(MSG_OK);
   #ifdef ADVANCED_OK
     SERIAL_PROTOCOLPGM(" N"); SERIAL_PROTOCOL(gcode_LastN);
-    SERIAL_PROTOCOLPGM(" S"); SERIAL_PROTOCOLLN(commands_in_queue);
+    SERIAL_PROTOCOLPGM(" P"); SERIAL_PROTOCOL(BUFSIZE - commands_in_queue);
   #endif
+  SERIAL_PROTOCOLLNPGM("");  
 }
 
 void get_coordinates() {
