@@ -2,9 +2,9 @@
 
 namespace screen
 {
-	Screen::Screen(ScreenType_t const & type, const char * title)
-		: m_type(type)
-		, m_title(title)
+	Screen::Screen(const char * title, ScreenType_t const & type)
+		: m_title(title)
+		, m_type(type)
 	{
 	}
 
@@ -38,6 +38,11 @@ namespace screen
 			return * m_icons[1];
 		}
 		return * m_icons[0];
+	}
+
+	Screen & Screen::press(Screen & parent_view)
+	{
+		return parent_view;
 	}
 
 	void Screen::drawTitle()

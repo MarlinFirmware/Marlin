@@ -15,7 +15,8 @@ namespace screen
 
 	typedef enum
 	{
-		MENU = 0,
+		SIMPLE = 0, 
+		MENU,
 		DIALOG,
 		LIST,
 		SELECTOR,
@@ -25,7 +26,7 @@ namespace screen
 	class Screen
 	{
 		public:
-			Screen(ScreenType_t const & type, const char * title);
+			Screen(const char * title, ScreenType_t const & type = SIMPLE);
 			virtual ~Screen();
 
 			const char * title() const;
@@ -35,7 +36,7 @@ namespace screen
 
 			virtual void left() {};
 			virtual void right() {};
-			virtual Screen & press() {};
+			virtual Screen & press(Screen & parent_view);
 			virtual void draw() {};
 			virtual void add(Screen & component) {};
 
