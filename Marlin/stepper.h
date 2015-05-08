@@ -59,7 +59,9 @@ void st_init();
 // Block until all buffered steps are executed
 void st_synchronize();
 
-void weight_sync(long sensivity);
+#ifdef ENABLE_WEIGHT_SENSOR_FOR_BED_LAVEL
+void st_synchronize(long sensivity, uint8_t axis);
+#endif
 
 // Set current position in steps
 void st_set_position(const long &x, const long &y, const long &z, const long &e);

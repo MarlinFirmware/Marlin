@@ -29,8 +29,9 @@
 #include "language.h"
 #include "cardreader.h"
 #include "speed_lookuptable.h"
-#include "HX711.h"
-
+#ifdef ENABLE_WEIGHT_SENSOR_FOR_BED_LAVEL
+	#include "HX711.h"
+#endif
 #if HAS_DIGIPOTSS
   #include <SPI.h>
 #endif
@@ -1130,23 +1131,30 @@ void st_synchronize() {
   }
 }
 
-void weight_sync(long sensivity){
-	SERIAL_PROTOCOLLN("----------------");
-	SERIAL_PROTOCOL("tare value: ");
-	SERIAL_PROTOCOL(scale.current_weight);
-	SERIAL_PROTOCOL(" sensivity: ");
-	SERIAL_PROTOCOLLN(sensivity);
+#ifdef ENABLE_WEIGHT_SENSOR_FOR_BED_LAVEL
+void st_synchronize(long sensivity, uint8_t axis){
+	if (axis == Z_AXIS)
+	{
+		SERIAL_PROTOCOLLN("----------------");
+		SERIAL_PROTOCOL("tare value: ");
+		SERIAL_PROTOCOL(scale.current_weight);
+		SERIAL_PROTOCOL(" sensivity: ");
+		SERIAL_PROTOCOLLN(sensivity);
 
-	delay(1000);
-	scale.tare();
-	scale.STUFF_SENSIVITY = sensivity;
-	scale.enable();
+		delay(500);
+		scale.tare();
+		scale.STUFF_SENSIVITY = sensivity;
+		scale.enable();
+	}
 	st_synchronize();
-	scale.disable();
-
-	SERIAL_PROTOCOL("bed detected: ");
-	SERIAL_PROTOCOLLN(scale.current_weight);
+	if (axis == Z_AXIS)
+	{
+		scale.disable();
+		SERIAL_PROTOCOL("bed detected: ");
+		SERIAL_PROTOCOLLN(scale.current_weight);
+	}
 }
+#endif
 
 void st_set_position(const long &x, const long &y, const long &z, const long &e) {
   CRITICAL_SECTION_START;
