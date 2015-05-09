@@ -3,7 +3,7 @@
 
   
   * Supported
-    * [Features](/Documentation/Features.md)
+    
     * [Hardware](/Documentation/Hardware.md)
     * [GCodes](/Documentation/GCodes.md)
   * Notes
