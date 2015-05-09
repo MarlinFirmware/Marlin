@@ -627,6 +627,7 @@ void manage_heater() {
         // Has it failed to increase enough?
         if (degHotend(e) < watch_target_temp[e]) {
           // Stop!
+          disable_all_heaters();
           _temp_error(e, MSG_HEATING_FAILED, MSG_HEATING_FAILED_LCD);
         }
         else {
