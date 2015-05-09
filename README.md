@@ -1,9 +1,7 @@
 # Marlin 3D Printer Firmware
 <img align="right" src="Documentation/Logo/Marlin%20Logo%20GitHub.png" />
 
- Documentation is moving to http://www.marlinfirmware.org
- 
- If you cant find it here then look there, if you cant find it either place then raise a issue. If you know the documentation please contribute. 
+ Documentation has moved to http://www.marlinfirmware.org
 
 ## Current Status: Bug Fixing
 
