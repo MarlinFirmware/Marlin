@@ -4,7 +4,7 @@
   
   * Supported
     
-    * [Hardware](/Documentation/Hardware.md)
+    
     * [GCodes](/Documentation/GCodes.md)
   * Notes
     * [Auto Bed Leveling](/Documentation/BedLeveling.md)
