@@ -1,11 +1,10 @@
 # Marlin 3D Printer Firmware
 <img align="right" src="Documentation/Logo/Marlin%20Logo%20GitHub.png" />
 
-  
-  * Supported
-    
-    
-    * [GCodes](/Documentation/GCodes.md)
+ Documentation is moving to http://www.marlinfirmware.org
+ 
+ If you cant find it here then look there, if you cant find it either place then raise a issue. If you know the documentation please contribute. 
+ 
   * Notes
     * [Auto Bed Leveling](/Documentation/BedLeveling.md)
     * [Filament Sensor](/Documentation/FilamentSensor.md)
