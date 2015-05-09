@@ -25,10 +25,6 @@ The current Marlin dev team consists of:
  - Scott Lahteine [@thinkyhead]
  - 
 
-## Donation
-
-If you find our work usefull please consider donating. Donations will be used to pay for our website http://www.marlinfirmware.org/ and to pay some food or rent money for the very active Collaborators
-
 More features have been added by:
   - Lampmaker,
   - Bradley Feldman,
