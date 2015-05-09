@@ -521,7 +521,9 @@ void _lcd_preheat(int endnum, const float temph, const float tempb, const int fa
   setTargetBed(tempb);
   fanSpeed = fan;
   lcd_return_to_status();
-  setWatch(); // heater sanity check timer
+  #ifdef WATCH_TEMP_PERIOD
+    start_watching_heaters();
+  #endif
 }
 void lcd_preheat_pla0() { _lcd_preheat(0, plaPreheatHotendTemp, plaPreheatHPBTemp, plaPreheatFanSpeed); }
 void lcd_preheat_abs0() { _lcd_preheat(0, absPreheatHotendTemp, absPreheatHPBTemp, absPreheatFanSpeed); }
