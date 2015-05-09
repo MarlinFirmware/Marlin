@@ -12,16 +12,7 @@ The Marlin development is currently revived. There's a long list of reported iss
 [![Coverity Scan Build Status](https://scan.coverity.com/projects/2224/badge.svg)](https://scan.coverity.com/projects/2224)
 [![Travis Build Status](https://travis-ci.org/MarlinFirmware/Marlin.svg)](https://travis-ci.org/MarlinFirmware/Marlin)
 
- 
-  * Notes
-    * [Ramps Servo Power](/Documentation/RampsServoPower.md)
-    * [LCD Language - Font - System](Documentation/LCDLanguageFont.md)
-    * [Mesh Bed Leveling](/Documentation/MeshBedLeveling.md)
-
 ##### [RepRap.org Wiki Page](http://reprap.org/wiki/Marlin)
-
-
-
 
 ## Contact
 
