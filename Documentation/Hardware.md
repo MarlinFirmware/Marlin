@@ -47,6 +47,7 @@
 - [Elefu Ra](#21-board_elefu_3)
 - [5DPrint D8](#88-board_5dprint)
 - [Leapfrog](#999-board_leapfrog)
+- [MKS BASE 1.0](#40-board_mks_base)
 - [bq Witbox](#41-board_witbox)
 - [bq Prusa i3 Hephestos](#42-board_hephestos)
 - [2PrintBeta BAM&DICE](#401-board_bam_dice)
@@ -193,14 +194,17 @@ Elefu Ra Board (v3)
 #### 999 BOARD_LEAPFROG
 Leapfrog
 
+#### 40 BOARD_MKS_BASE
+The [MKS BASE 1.0](http://reprap.org/wiki/MKS_BASE_1.0) is a custom board with pin assignments nearly identical to RAMPS 1.4.
+
 #### 41 BOARD_WITBOX
-bq WITBOX
+The [bq WITBOX](https://github.com/bq/witbox) is not a controller board, but an open source box cartesian RAMPS-based printer. The controller is a standard Mega2560 with RAMPS 1.4 configured for a single extruder.
 
 #### 42 BOARD_HEPHESTOS
-bq Prusa i3 Hephestos
+The [bq Prusa i3 Hephestos](https://github.com/bq/prusa-i3-hephestos) is not a controller board, but an open source variant of the popular Prusa i3 Mendel RepRap. The controller is a standard Mega2560 with RAMPS 1.4 configured for a single extruder.
 
 #### 401 BOARD_BAM_DICE
-2PrintBeta BAM&DICE with STK drivers
+[2PrintBeta BAM&DICE](http://www.2printbeta.de/) with STK drivers. The Beta Arduino Mega (BAM) shield is a crowd-funded open source RAMPS shield with 5 slots for plugin modules instead of the standard stepper driver sockets. The DICE-STK module a stepper driver module utilizing the STK682-010-E with up to 128X micro-stepping. (A4988 also available.)
 
 #### 402 BOARD_BAM_DICE_DUE
-2PrintBeta BAM&DICE Due with STK drivers
+[2PrintBeta BAM&DICE Due](http://www.2printbeta.de/) with STK drivers. This variant of the BAM&DICE is made for the Due instead of the Mega.
