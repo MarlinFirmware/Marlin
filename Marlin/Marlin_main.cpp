@@ -3166,7 +3166,10 @@ inline void gcode_M104() {
       if (dual_x_carriage_mode == DXC_DUPLICATION_MODE && target_extruder == 0)
         setTargetHotend1(temp == 0.0 ? 0.0 : temp + duplicate_extruder_temp_offset);
     #endif
-    setWatch();
+
+    #ifdef WATCH_TEMP_PERIOD
+      start_watching_heaters();
+    #endif
   }
 }
 
@@ -3278,7 +3281,9 @@ inline void gcode_M109() {
     if (code_seen('B')) autotemp_max = code_value();
   #endif
 
-  setWatch();
+  #ifdef WATCH_TEMP_PERIOD
+    start_watching_heaters();
+  #endif
 
   millis_t temp_ms = millis();
 
