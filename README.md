@@ -14,8 +14,6 @@ The Marlin development is currently revived. There's a long list of reported iss
 
  
   * Notes
-    * [Auto Bed Leveling](/Documentation/BedLeveling.md)
-    * [Filament Sensor](/Documentation/FilamentSensor.md)
     * [Ramps Servo Power](/Documentation/RampsServoPower.md)
     * [LCD Language - Font - System](Documentation/LCDLanguageFont.md)
     * [Mesh Bed Leveling](/Documentation/MeshBedLeveling.md)
