@@ -14,11 +14,14 @@
 #endif
 #define BED_CHECK_INTERVAL 5000 //ms between checks in bang-bang control
 
-//// Heating sanity check:
-// This waits for the watch period in milliseconds whenever an M104 or M109 increases the target temperature
-// If the temperature has not increased at the end of that period, the target temperature is set to zero.
-// It can be reset with another M104/M109. This check is also only triggered if the target temperature and
-// the current temperature differ by at least 2x WATCH_TEMP_INCREASE
+/**
+ * Heating Sanity Check
+ *
+ * Whenever an M104 or M109 increases the target temperature this will wait for WATCH_TEMP_PERIOD milliseconds,
+ * and if the temperature hasn't increased by WATCH_TEMP_INCREASE degrees, the machine is halted, requiring a
+ * hard reset. This test restarts with any M104/M109, but only if the current temperature is below the target
+ * by at least 2 * WATCH_TEMP_INCREASE degrees celsius.
+ */
 #define WATCH_TEMP_PERIOD 16000 // 16 seconds
 #define WATCH_TEMP_INCREASE 4  // Heat up at least 4 degrees in 16 seconds
 
