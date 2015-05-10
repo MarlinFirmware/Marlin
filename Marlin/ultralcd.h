@@ -4,21 +4,25 @@
 #include "Marlin.h"
 
 #ifdef ULTRA_LCD
-
+  int lcd_strlen(char *s);
+  int lcd_strlen_P(const char *s);
   void lcd_update();
   void lcd_init();
-  void lcd_setstatus(const char* message);
-  void lcd_setstatuspgm(const char* message);
+  bool lcd_hasstatus();
+  void lcd_setstatus(const char* message, const bool persist=false);
+  void lcd_setstatuspgm(const char* message, const uint8_t level=0);
   void lcd_setalertstatuspgm(const char* message);
   void lcd_reset_alert_level();
   bool lcd_detected(void);
 
-#ifdef DOGLCD
-  extern int lcd_contrast;
-  void lcd_setcontrast(uint8_t value);
-#endif
+  #if defined(LCD_PROGRESS_BAR) && PROGRESS_MSG_EXPIRE > 0
+    void dontExpireStatus();
+  #endif
 
-  static unsigned char blink = 0;	// Variable for visualization of fan rotation in GLCD
+  #ifdef DOGLCD
+    extern int lcd_contrast;
+    void lcd_setcontrast(uint8_t value);
+  #endif
 
   #define LCD_MESSAGEPGM(x) lcd_setstatuspgm(PSTR(x))
   #define LCD_ALERTMESSAGEPGM(x) lcd_setalertstatuspgm(PSTR(x))
@@ -27,49 +31,49 @@
   #define LCD_TIMEOUT_TO_STATUS 15000
 
   #ifdef ULTIPANEL
-  void lcd_buttons_update();
-  extern volatile uint8_t buttons;  //the last checked buttons in a bit array.
-  #ifdef REPRAPWORLD_KEYPAD
-    extern volatile uint8_t buttons_reprapworld_keypad; // to store the keypad shift register values
-  #endif
+    void lcd_buttons_update();
+    extern volatile uint8_t buttons;  //the last checked buttons in a bit array.
+    #ifdef REPRAPWORLD_KEYPAD
+      extern volatile uint8_t buttons_reprapworld_keypad; // to store the keypad shift register values
+    #endif
   #else
-  FORCE_INLINE void lcd_buttons_update() {}
+    FORCE_INLINE void lcd_buttons_update() {}
   #endif
 
   extern int plaPreheatHotendTemp;
   extern int plaPreheatHPBTemp;
   extern int plaPreheatFanSpeed;
-
   extern int absPreheatHotendTemp;
   extern int absPreheatHPBTemp;
   extern int absPreheatFanSpeed;
-  
+
   extern bool cancel_heatup;
   
   #ifdef FILAMENT_LCD_DISPLAY
-        extern unsigned long message_millis;
+    extern millis_t previous_lcd_status_ms;
   #endif
-    
+
   void lcd_buzz(long duration,uint16_t freq);
+  void lcd_quick_feedback(); // Audible feedback for a button click - could also be visual
   bool lcd_clicked();
 
   void lcd_ignore_click(bool b=true);
 
   #ifdef NEWPANEL
-    #define EN_C (1<<BLEN_C)
-    #define EN_B (1<<BLEN_B)
-    #define EN_A (1<<BLEN_A)
+    #define EN_C BIT(BLEN_C)
+    #define EN_B BIT(BLEN_B)
+    #define EN_A BIT(BLEN_A)
 
     #define LCD_CLICKED (buttons&EN_C)
     #ifdef REPRAPWORLD_KEYPAD
-  	  #define EN_REPRAPWORLD_KEYPAD_F3 (1<<BLEN_REPRAPWORLD_KEYPAD_F3)
-  	  #define EN_REPRAPWORLD_KEYPAD_F2 (1<<BLEN_REPRAPWORLD_KEYPAD_F2)
-  	  #define EN_REPRAPWORLD_KEYPAD_F1 (1<<BLEN_REPRAPWORLD_KEYPAD_F1)
-  	  #define EN_REPRAPWORLD_KEYPAD_UP (1<<BLEN_REPRAPWORLD_KEYPAD_UP)
-  	  #define EN_REPRAPWORLD_KEYPAD_RIGHT (1<<BLEN_REPRAPWORLD_KEYPAD_RIGHT)
-  	  #define EN_REPRAPWORLD_KEYPAD_MIDDLE (1<<BLEN_REPRAPWORLD_KEYPAD_MIDDLE)
-  	  #define EN_REPRAPWORLD_KEYPAD_DOWN (1<<BLEN_REPRAPWORLD_KEYPAD_DOWN)
-  	  #define EN_REPRAPWORLD_KEYPAD_LEFT (1<<BLEN_REPRAPWORLD_KEYPAD_LEFT)
+  	  #define EN_REPRAPWORLD_KEYPAD_F3 (BIT(BLEN_REPRAPWORLD_KEYPAD_F3))
+  	  #define EN_REPRAPWORLD_KEYPAD_F2 (BIT(BLEN_REPRAPWORLD_KEYPAD_F2))
+  	  #define EN_REPRAPWORLD_KEYPAD_F1 (BIT(BLEN_REPRAPWORLD_KEYPAD_F1))
+  	  #define EN_REPRAPWORLD_KEYPAD_UP (BIT(BLEN_REPRAPWORLD_KEYPAD_UP))
+  	  #define EN_REPRAPWORLD_KEYPAD_RIGHT (BIT(BLEN_REPRAPWORLD_KEYPAD_RIGHT))
+  	  #define EN_REPRAPWORLD_KEYPAD_MIDDLE (BIT(BLEN_REPRAPWORLD_KEYPAD_MIDDLE))
+  	  #define EN_REPRAPWORLD_KEYPAD_DOWN (BIT(BLEN_REPRAPWORLD_KEYPAD_DOWN))
+  	  #define EN_REPRAPWORLD_KEYPAD_LEFT (BIT(BLEN_REPRAPWORLD_KEYPAD_LEFT))
 
   	  #define LCD_CLICKED ((buttons&EN_C) || (buttons_reprapworld_keypad&EN_REPRAPWORLD_KEYPAD_F1))
   	  #define REPRAPWORLD_KEYPAD_MOVE_Z_UP (buttons_reprapworld_keypad&EN_REPRAPWORLD_KEYPAD_F2)
@@ -82,14 +86,14 @@
     #endif //REPRAPWORLD_KEYPAD
   #else
     //atomic, do not change
-    #define B_LE (1<<BL_LE)
-    #define B_UP (1<<BL_UP)
-    #define B_MI (1<<BL_MI)
-    #define B_DW (1<<BL_DW)
-    #define B_RI (1<<BL_RI)
-    #define B_ST (1<<BL_ST)
-    #define EN_B (1<<BLEN_B)
-    #define EN_A (1<<BLEN_A)
+    #define B_LE BIT(BL_LE)
+    #define B_UP BIT(BL_UP)
+    #define B_MI BIT(BL_MI)
+    #define B_DW BIT(BL_DW)
+    #define B_RI BIT(BL_RI)
+    #define B_ST BIT(BL_ST)
+    #define EN_B BIT(BLEN_B)
+    #define EN_A BIT(BLEN_A)
     
     #define LCD_CLICKED ((buttons&B_MI)||(buttons&B_ST))
   #endif//NEWPANEL
@@ -97,14 +101,16 @@
 #else //no LCD
   FORCE_INLINE void lcd_update() {}
   FORCE_INLINE void lcd_init() {}
-  FORCE_INLINE void lcd_setstatus(const char* message) {}
+  FORCE_INLINE bool lcd_hasstatus() { return false; }
+  FORCE_INLINE void lcd_setstatus(const char* message, const bool persist=false) {}
+  FORCE_INLINE void lcd_setstatuspgm(const char* message, const uint8_t level=0) {}
   FORCE_INLINE void lcd_buttons_update() {}
   FORCE_INLINE void lcd_reset_alert_level() {}
-  FORCE_INLINE void lcd_buzz(long duration,uint16_t freq) {}
+  FORCE_INLINE void lcd_buzz(long duration, uint16_t freq) {}
   FORCE_INLINE bool lcd_detected(void) { return true; }
 
-  #define LCD_MESSAGEPGM(x) 
-  #define LCD_ALERTMESSAGEPGM(x) 
+  #define LCD_MESSAGEPGM(x) do{}while(0)
+  #define LCD_ALERTMESSAGEPGM(x) do{}while(0)
 
 #endif //ULTRA_LCD
 

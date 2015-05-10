@@ -2,11 +2,16 @@
  * Italian
  *
  * LCD Menu Messages
- * Please note these are limited to 17 characters!
+ * See also documentation/LCDLanguageFont.md
  *
  */
 #ifndef LANGUAGE_IT_H
 #define LANGUAGE_IT_H
+
+#define MAPPER_NON
+// Define SIMULATE_ROMFONT to see what is seen on the character based display defined in Configuration.h
+//#define SIMULATE_ROMFONT
+#define DISPLAY_CHARSET_ISO10646_1
 
 #define WELCOME_MSG                         MACHINE_NAME " pronto."
 #define MSG_SD_INSERTED                     "SD Card inserita"
@@ -18,17 +23,13 @@
 #define MSG_SET_HOME_OFFSETS                "Setta offset home"
 #define MSG_SET_ORIGIN                      "Imposta Origine"
 #define MSG_PREHEAT_PLA                     "Preriscalda PLA"
-#define MSG_PREHEAT_PLA0                    "Preriscalda PLA 1"
-#define MSG_PREHEAT_PLA1                    "Preriscalda PLA 2"
-#define MSG_PREHEAT_PLA2                    "Preriscalda PLA 3"
-#define MSG_PREHEAT_PLA012                  "Prer. PLA Tutto"
+#define MSG_PREHEAT_PLA_N                   "Preriscalda PLA "
+#define MSG_PREHEAT_PLA_ALL                 "Prer. PLA Tutto"
 #define MSG_PREHEAT_PLA_BEDONLY             "Prer. PLA Piatto"
 #define MSG_PREHEAT_PLA_SETTINGS            "Config. prer. PLA"
 #define MSG_PREHEAT_ABS                     "Preriscalda ABS"
-#define MSG_PREHEAT_ABS0                    "Preriscalda ABS 1"
-#define MSG_PREHEAT_ABS1                    "Preriscalda ABS 2"
-#define MSG_PREHEAT_ABS2                    "Preriscalda ABS 3"
-#define MSG_PREHEAT_ABS012                  "Prer. ABS Tutto"
+#define MSG_PREHEAT_ABS_N                   "Preriscalda ABS "
+#define MSG_PREHEAT_ABS_ALL                 "Prer. ABS Tutto"
 #define MSG_PREHEAT_ABS_BEDONLY             "Prer. ABS Piatto"
 #define MSG_PREHEAT_ABS_SETTINGS            "Config. prer. ABS"
 #define MSG_COOLDOWN                        "Raffredda"
@@ -41,25 +42,18 @@
 #define MSG_MOVE_Y                          "Muovi Y"
 #define MSG_MOVE_Z                          "Muovi Z"
 #define MSG_MOVE_E                          "Estrusore"
-#define MSG_MOVE_E1                         "Estrusore 2"
-#define MSG_MOVE_E2                         "Estrusore 3"
 #define MSG_MOVE_01MM                       "Muovi di 0.1mm"
 #define MSG_MOVE_1MM                        "Muovi di   1mm"
 #define MSG_MOVE_10MM                       "Muovi di  10mm"
 #define MSG_SPEED                           "Velcità"
 #define MSG_NOZZLE                          "Ugello"
-#define MSG_NOZZLE1                         "Ugello2"
-#define MSG_NOZZLE2                         "Ugello3"
 #define MSG_BED                             "Piatto"
 #define MSG_FAN_SPEED                       "Ventola"
 #define MSG_FLOW                            "Flusso"
-#define MSG_FLOW0                           "Flusso 0"
-#define MSG_FLOW1                           "Flusso 1"
-#define MSG_FLOW2                           "Flusso 2"
 #define MSG_CONTROL                         "Controllo"
-#define MSG_MIN                             " \002 Min:"
-#define MSG_MAX                             " \002 Max:"
-#define MSG_FACTOR                          " \002 Fact:"
+#define MSG_MIN                             LCD_STR_THERMOMETER " Min"
+#define MSG_MAX                             LCD_STR_THERMOMETER " Max"
+#define MSG_FACTOR                          LCD_STR_THERMOMETER " Fact"
 #define MSG_AUTOTEMP                        "Autotemp"
 #define MSG_ON                              "ON "
 #define MSG_OFF                             "OFF"
@@ -87,10 +81,11 @@
 #define MSG_TEMPERATURE                     "Temperatura"
 #define MSG_MOTION                          "Movimento"
 #define MSG_VOLUMETRIC                      "Filament"
-#define MSG_VOLUMETRIC_ENABLED		        "E in mm³"
+#define MSG_VOLUMETRIC_ENABLED		          "E in mm³"
 #define MSG_FILAMENT_SIZE_EXTRUDER_0        "Diam. filo 1"
 #define MSG_FILAMENT_SIZE_EXTRUDER_1        "Diam. filo 2"
 #define MSG_FILAMENT_SIZE_EXTRUDER_2        "Diam. filo 3"
+#define MSG_FILAMENT_SIZE_EXTRUDER_3        "Diam. filo 4"
 #define MSG_CONTRAST                        "Contrasto LCD"
 #define MSG_STORE_EPROM                     "Salva in EEPROM"
 #define MSG_LOAD_EPROM                      "Carica da EEPROM"
@@ -129,8 +124,8 @@
 #define MSG_BABYSTEP_Y                      "Babystep Y"
 #define MSG_BABYSTEP_Z                      "Babystep Z"
 #define MSG_ENDSTOP_ABORT                   "Finecorsa abort"
-
-#define MSG_RECTRACT                        "Ritrai"
+#define MSG_END_HOUR                        "ore"
+#define MSG_END_MINUTE                      "minuti"
 
 #ifdef DELTA_CALIBRATION_MENU
     #define MSG_DELTA_CALIBRATE             "Calibraz. Delta"
