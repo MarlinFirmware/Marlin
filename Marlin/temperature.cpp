@@ -1,22 +1,22 @@
-/*
-  temperature.cpp - temperature control
-  Part of Marlin
-  
- Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
- 
- This program is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
- 
- This program is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
- 
- You should have received a copy of the GNU General Public License
- along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
+/**
+ * temperature.cpp - temperature control
+ * Part of Marlin Firmware
+ *
+ * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
 #include "Marlin.h"
 #include "ultralcd.h"
@@ -191,8 +191,7 @@ static void updateTemperaturesFromRawValues();
 //================================ Functions ================================
 //===========================================================================
 
-void PID_autotune(float temp, int extruder, int ncycles)
-{
+void PID_autotune(float temp, int extruder, int ncycles) {
   float input = 0.0;
   int cycles = 0;
   bool heating = true;
@@ -369,8 +368,7 @@ int getHeaterPower(int heater) {
 
 #if HAS_AUTO_FAN
 
-void setExtruderAutoFanState(int pin, bool state)
-{
+void setExtruderAutoFanState(int pin, bool state) {
   unsigned char newFanSpeed = (state != 0) ? EXTRUDER_AUTO_FAN_SPEED : 0;
   // this idiom allows both digital and PWM fan outputs (see M42 handling).
   pinMode(pin, OUTPUT);
@@ -378,8 +376,7 @@ void setExtruderAutoFanState(int pin, bool state)
   analogWrite(pin, newFanSpeed);
 }
 
-void checkExtruderAutoFans()
-{
+void checkExtruderAutoFans() {
   uint8_t fanState = 0;
 
   // which fan pins need to be turned on?      
@@ -444,9 +441,9 @@ void checkExtruderAutoFans()
 
 #endif // any extruder auto fan pins set
 
-//
-// Temperature Error Handlers
-//
+/**
+ * Temperature Error Handlers
+ */
 inline void _temp_error(int e, const char *msg1, const char *msg2) {
   if (IsRunning()) {
     SERIAL_ERROR_START;
@@ -514,7 +511,7 @@ float get_pid_output(int e) {
       temp_dState[e] = current_temperature[e];
     #else
       pid_output = constrain(target_temperature[e], 0, PID_MAX);
-    #endif //PID_OPENLOOP
+    #endif // PID_OPENLOOP
 
     #ifdef PID_DEBUG
       SERIAL_ECHO_START;
@@ -530,9 +527,9 @@ float get_pid_output(int e) {
       SERIAL_ECHO(iTerm[e]);
       SERIAL_ECHO(MSG_PID_DEBUG_DTERM);
       SERIAL_ECHOLN(dTerm[e]);
-    #endif //PID_DEBUG
+    #endif // PID_DEBUG
 
-  #else /* PID off */
+  #else // !PIDTEMP
     pid_output = (current_temperature[e] < target_temperature[e]) ? PID_MAX : 0;
   #endif
 
@@ -578,11 +575,12 @@ float get_pid_output(int e) {
       SERIAL_ECHO(iTerm_bed);
       SERIAL_ECHO(" dTerm ");
       SERIAL_ECHOLN(dTerm_bed);
-    #endif //PID_BED_DEBUG
+    #endif // PID_BED_DEBUG
 
     return pid_output;
   }
-#endif
+
+#endif // PIDTEMPBED
 
 /**
  * Manage heating activities for extruder hot-ends and a heated bed
@@ -615,10 +613,8 @@ void manage_heater() {
       thermal_runaway_protection(&thermal_runaway_state_machine[e], &thermal_runaway_timer[e], current_temperature[e], target_temperature[e], e, THERMAL_RUNAWAY_PROTECTION_PERIOD, THERMAL_RUNAWAY_PROTECTION_HYSTERESIS);
     #endif
 
-    float pid_output = get_pid_output(e);
-
     // Check if temperature is within the correct range
-    soft_pwm[e] = current_temperature[e] > minttemp[e] && current_temperature[e] < maxttemp[e] ? (int)pid_output >> 1 : 0;
+    soft_pwm[e] = current_temperature[e] > minttemp[e] && current_temperature[e] < maxttemp[e] ? int(get_pid_output(e)) >> 1 : 0;
 
     #ifdef WATCH_TEMP_PERIOD
       if (watchmillis[e] && ms > watchmillis[e] + WATCH_TEMP_PERIOD) {
@@ -632,14 +628,14 @@ void manage_heater() {
           watchmillis[e] = 0;
         }
       }
-    #endif //WATCH_TEMP_PERIOD
+    #endif // WATCH_TEMP_PERIOD
 
     #ifdef TEMP_SENSOR_1_AS_REDUNDANT
       if (fabs(current_temperature[0] - redundant_temperature) > MAX_REDUNDANT_TEMP_SENSOR_DIFF) {
         disable_all_heaters();
         _temp_error(0, PSTR(MSG_EXTRUDER_SWITCHED_OFF), PSTR(MSG_ERR_REDUNDANT_TEMP));
       }
-    #endif // TEMP_SENSOR_1_AS_REDUNDANT
+    #endif
 
   } // Extruders Loop
 
@@ -663,7 +659,7 @@ void manage_heater() {
       if (vm < 0.01) vm = 0.01;
       volumetric_multiplier[FILAMENT_SENSOR_EXTRUDER_NUM] = vm;
     }
-  #endif //FILAMENT_SENSOR
+  #endif // FILAMENT_SENSOR
 
   #ifndef PIDTEMPBED
     if (ms < next_bed_check_ms) return;
@@ -677,9 +673,7 @@ void manage_heater() {
     #endif
 
     #ifdef PIDTEMPBED
-      float pid_output = get_pid_output_bed();
-
-      soft_pwm_bed = current_temperature_bed > BED_MINTEMP && current_temperature_bed < BED_MAXTEMP ? (int)pid_output >> 1 : 0;
+      soft_pwm_bed = current_temperature_bed > BED_MINTEMP && current_temperature_bed < BED_MAXTEMP ? int(get_pid_output_bed()) >> 1 : 0;
 
     #elif defined(BED_LIMIT_SWITCHING)
       // Check if temperature is within the correct band
@@ -703,7 +697,7 @@ void manage_heater() {
         WRITE_HEATER_BED(LOW);
       }
     #endif
-  #endif //TEMP_SENSOR_BED != 0
+  #endif // TEMP_SENSOR_BED != 0
 }
 
 #define PGM_RD_W(x)   (short)pgm_read_word(&x)

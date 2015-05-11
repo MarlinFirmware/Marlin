@@ -1,30 +1,26 @@
-/* -*- c++ -*- */
-
-/*
-    Reprap firmware based on Sprinter and grbl.
- Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
-
- This program is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
-
- This program is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
-
-/*
- This firmware is a mashup between Sprinter and grbl.
-  (https://github.com/kliment/Sprinter)
-  (https://github.com/simen/grbl/tree)
-
- It has preliminary support for Matthew Roberts advance algorithm
-    http://reprap.org/pipermail/reprap-dev/2011-May/003323.html
+/**
+ * Marlin Firmware for RepRap printers based on Sprinter and grbl.
+ * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * This firmware is a mashup between Sprinter and grbl.
+ *  (https://github.com/kliment/Sprinter)
+ *  (https://github.com/simen/grbl/tree)
+ *
+ * It has preliminary support for Matthew Roberts advance algorithm
+ *    http://reprap.org/pipermail/reprap-dev/2011-May/003323.html
  */
 
 #include "Marlin.h"
@@ -34,7 +30,7 @@
   #ifdef AUTO_BED_LEVELING_GRID
     #include "qr_solve.h"
   #endif
-#endif // ENABLE_AUTO_BED_LEVELING
+#endif
 
 #define HAS_LCD_BUZZ (defined(ULTRALCD) || (defined(BEEPER) && BEEPER >= 0) || defined(LCD_USE_I2C_BUZZER))
 #define SERVO_LEVELING (defined(ENABLE_AUTO_BED_LEVELING) && PROBE_SERVO_DEACTIVATION_DELAY > 0)
@@ -368,19 +364,18 @@ bool target_direction;
 #endif
 
 #ifdef FILAMENT_SENSOR
-  //Variables for Filament Sensor input
   float filament_width_nominal = DEFAULT_NOMINAL_FILAMENT_DIA;  //Set nominal filament width, can be changed with M404
-  bool filament_sensor = false;  //M405 turns on filament_sensor control, M406 turns it off
-  float filament_width_meas = DEFAULT_MEASURED_FILAMENT_DIA; //Stores the measured filament diameter
-  signed char measurement_delay[MAX_MEASUREMENT_DELAY+1];  //ring buffer to delay measurement  store extruder factor after subtracting 100
-  int delay_index1 = 0;  //index into ring buffer
-  int delay_index2 = -1;  //index into ring buffer - set to -1 on startup to indicate ring buffer needs to be initialized
-  float delay_dist = 0; //delay distance counter
-  int meas_delay_cm = MEASUREMENT_DELAY_CM;  //distance delay setting
+  bool filament_sensor = false;  // Enabled flag. Use M405 / M406 to turn on / off
+  float filament_width_meas = DEFAULT_MEASURED_FILAMENT_DIA; // Measured filament diameter
+  signed char measurement_delay[MAX_MEASUREMENT_DELAY+1];  // Ring buffer delaying measurement, stores the ratio minus 100
+  int delay_index1 = 0;  // Ring buffer index 1
+  int delay_index2 = -1;  // Ring buffer index 2 (-1 until first initialized)
+  float delay_dist = 0; // Delay distance counter
+  int meas_delay_cm = MEASUREMENT_DELAY_CM;  // Distance delay in cm
 #endif
 
 #ifdef FILAMENT_RUNOUT_SENSOR
-   static bool filrunoutEnqueued = false;
+  static bool filrunoutEnqueued = false;
 #endif
 
 #ifdef SDSUPPORT
@@ -2587,6 +2582,10 @@ inline void gcode_G28() {
 
   #ifndef Z_PROBE_SLED
 
+    /**
+     * G30: Single Z Probe, probes the bed at the current
+     *      position and prints it to the serial output.
+     */
     inline void gcode_G30() {
       deploy_z_probe(); // Engage Z Servo endstop if available
       st_synchronize();
@@ -2609,9 +2608,9 @@ inline void gcode_G28() {
       stow_z_probe(); // Retract Z Servo endstop if available
     }
 
-  #endif //!Z_PROBE_SLED
+  #endif // !Z_PROBE_SLED
 
-#endif //ENABLE_AUTO_BED_LEVELING
+#endif // ENABLE_AUTO_BED_LEVELING
 
 /**
  * G92: Set current position to given X Y Z E
@@ -3589,7 +3588,7 @@ inline void gcode_M85() {
  *      (Follows the same syntax as G92)
  */
 inline void gcode_M92() {
-  for(int8_t i=0; i < NUM_AXIS; i++) {
+  for(int8_t i = 0; i < NUM_AXIS; i++) {
     if (code_seen(axis_codes[i])) {
       if (i == E_AXIS) {
         float value = code_value();
@@ -3772,7 +3771,7 @@ inline void gcode_M200() {
  * M201: Set max acceleration in units/s^2 for print moves (M201 X1000 Y1000)
  */
 inline void gcode_M201() {
-  for (int8_t i=0; i < NUM_AXIS; i++) {
+  for (int8_t i = 0; i < NUM_AXIS; i++) {
     if (code_seen(axis_codes[i])) {
       max_acceleration_units_per_sq_second[i] = code_value();
     }
@@ -3781,20 +3780,11 @@ inline void gcode_M201() {
   reset_acceleration_rates();
 }
 
-#if 0 // Not used for Sprinter/grbl gen6
-  inline void gcode_M202() {
-    for(int8_t i=0; i < NUM_AXIS; i++) {
-      if(code_seen(axis_codes[i])) axis_travel_steps_per_sqr_second[i] = code_value() * axis_steps_per_unit[i];
-    }
-  }
-#endif
-
-
 /**
  * M203: Set maximum feedrate that your machine can sustain (M203 X200 Y200 Z300 E10000) in mm/sec
  */
 inline void gcode_M203() {
-  for (int8_t i=0; i < NUM_AXIS; i++) {
+  for (int8_t i = 0; i < NUM_AXIS; i++) {
     if (code_seen(axis_codes[i])) {
       max_feedrate[i] = code_value();
     }
@@ -4450,11 +4440,11 @@ inline void gcode_M400() { st_synchronize(); }
     if (code_seen('D')) meas_delay_cm = code_value();
     if (meas_delay_cm > MAX_MEASUREMENT_DELAY) meas_delay_cm = MAX_MEASUREMENT_DELAY;
 
-    if (delay_index2 == -1) { //initialize the ring buffer if it has not been done since startup
+    if (delay_index2 == -1) { // Init the ring buffer if it hasn't been done since startup
       int temp_ratio = widthFil_to_size_ratio();
 
       for (delay_index1 = 0; delay_index1 < MAX_MEASUREMENT_DELAY + 1; ++delay_index1)
-        measurement_delay[delay_index1] = temp_ratio - 100;  //subtract 100 to scale within a signed byte
+        measurement_delay[delay_index1] = temp_ratio - 100;  // -100 to scale within a signed byte
 
       delay_index1 = delay_index2 = 0;
     }
@@ -5787,7 +5777,7 @@ void prepare_move() {
   #ifdef DELTA
 
     float difference[NUM_AXIS];
-    for (int8_t i=0; i < NUM_AXIS; i++) difference[i] = destination[i] - current_position[i];
+    for (int8_t i = 0; i < NUM_AXIS; i++) difference[i] = destination[i] - current_position[i];
 
     float cartesian_mm = sqrt(sq(difference[X_AXIS]) + sq(difference[Y_AXIS]) + sq(difference[Z_AXIS]));
     if (cartesian_mm < 0.000001) cartesian_mm = abs(difference[E_AXIS]);
@@ -5878,115 +5868,116 @@ void prepare_arc_move(char isclockwise) {
 
 #if HAS_CONTROLLERFAN
 
-millis_t lastMotor = 0; // Last time a motor was turned on
-millis_t lastMotorCheck = 0; // Last time the state was checked
+  void controllerFan() {
+    static millis_t lastMotor = 0; // Last time a motor was turned on
+    static millis_t lastMotorCheck = 0; // Last time the state was checked
 
-void controllerFan() {
-  millis_t ms = millis();
-  if (ms >= lastMotorCheck + 2500) { // Not a time critical function, so we only check every 2500ms
-    lastMotorCheck = ms;
-    if (X_ENABLE_READ == X_ENABLE_ON || Y_ENABLE_READ == Y_ENABLE_ON || Z_ENABLE_READ == Z_ENABLE_ON || soft_pwm_bed > 0
-      || E0_ENABLE_READ == E_ENABLE_ON // If any of the drivers are enabled...
-      #if EXTRUDERS > 1
-        || E1_ENABLE_READ == E_ENABLE_ON
-        #if HAS_X2_ENABLE
-          || X2_ENABLE_READ == X_ENABLE_ON
-        #endif
-        #if EXTRUDERS > 2
-          || E2_ENABLE_READ == E_ENABLE_ON
-          #if EXTRUDERS > 3
-            || E3_ENABLE_READ == E_ENABLE_ON
+    millis_t ms = millis();
+    if (ms >= lastMotorCheck + 2500) { // Not a time critical function, so we only check every 2500ms
+      lastMotorCheck = ms;
+      if (X_ENABLE_READ == X_ENABLE_ON || Y_ENABLE_READ == Y_ENABLE_ON || Z_ENABLE_READ == Z_ENABLE_ON || soft_pwm_bed > 0
+        || E0_ENABLE_READ == E_ENABLE_ON // If any of the drivers are enabled...
+        #if EXTRUDERS > 1
+          || E1_ENABLE_READ == E_ENABLE_ON
+          #if HAS_X2_ENABLE
+            || X2_ENABLE_READ == X_ENABLE_ON
+          #endif
+          #if EXTRUDERS > 2
+            || E2_ENABLE_READ == E_ENABLE_ON
+            #if EXTRUDERS > 3
+              || E3_ENABLE_READ == E_ENABLE_ON
+            #endif
           #endif
         #endif
-      #endif
-    ) {
-      lastMotor = ms; //... set time to NOW so the fan will turn on
+      ) {
+        lastMotor = ms; //... set time to NOW so the fan will turn on
+      }
+      uint8_t speed = (lastMotor == 0 || ms >= lastMotor + (CONTROLLERFAN_SECS * 1000UL)) ? 0 : CONTROLLERFAN_SPEED;
+      // allows digital or PWM fan output to be used (see M42 handling)
+      digitalWrite(CONTROLLERFAN_PIN, speed);
+      analogWrite(CONTROLLERFAN_PIN, speed);
     }
-    uint8_t speed = (lastMotor == 0 || ms >= lastMotor + (CONTROLLERFAN_SECS * 1000UL)) ? 0 : CONTROLLERFAN_SPEED;
-    // allows digital or PWM fan output to be used (see M42 handling)
-    digitalWrite(CONTROLLERFAN_PIN, speed);
-    analogWrite(CONTROLLERFAN_PIN, speed);
   }
-}
-#endif
+
+#endif // HAS_CONTROLLERFAN
 
 #ifdef SCARA
-void calculate_SCARA_forward_Transform(float f_scara[3])
-{
-  // Perform forward kinematics, and place results in delta[3]
-  // The maths and first version has been done by QHARLEY . Integrated into masterbranch 06/2014 and slightly restructured by Joachim Cerny in June 2014
-  
-  float x_sin, x_cos, y_sin, y_cos;
-  
+
+  void calculate_SCARA_forward_Transform(float f_scara[3]) {
+    // Perform forward kinematics, and place results in delta[3]
+    // The maths and first version has been done by QHARLEY . Integrated into masterbranch 06/2014 and slightly restructured by Joachim Cerny in June 2014
+    
+    float x_sin, x_cos, y_sin, y_cos;
+    
     //SERIAL_ECHOPGM("f_delta x="); SERIAL_ECHO(f_scara[X_AXIS]);
     //SERIAL_ECHOPGM(" y="); SERIAL_ECHO(f_scara[Y_AXIS]);
-  
+    
     x_sin = sin(f_scara[X_AXIS]/SCARA_RAD2DEG) * Linkage_1;
     x_cos = cos(f_scara[X_AXIS]/SCARA_RAD2DEG) * Linkage_1;
     y_sin = sin(f_scara[Y_AXIS]/SCARA_RAD2DEG) * Linkage_2;
     y_cos = cos(f_scara[Y_AXIS]/SCARA_RAD2DEG) * Linkage_2;
-   
-  //  SERIAL_ECHOPGM(" x_sin="); SERIAL_ECHO(x_sin);
-  //  SERIAL_ECHOPGM(" x_cos="); SERIAL_ECHO(x_cos);
-  //  SERIAL_ECHOPGM(" y_sin="); SERIAL_ECHO(y_sin);
-  //  SERIAL_ECHOPGM(" y_cos="); SERIAL_ECHOLN(y_cos);
-  
+     
+    //  SERIAL_ECHOPGM(" x_sin="); SERIAL_ECHO(x_sin);
+    //  SERIAL_ECHOPGM(" x_cos="); SERIAL_ECHO(x_cos);
+    //  SERIAL_ECHOPGM(" y_sin="); SERIAL_ECHO(y_sin);
+    //  SERIAL_ECHOPGM(" y_cos="); SERIAL_ECHOLN(y_cos);
+    
     delta[X_AXIS] = x_cos + y_cos + SCARA_offset_x;  //theta
     delta[Y_AXIS] = x_sin + y_sin + SCARA_offset_y;  //theta+phi
-  
+
     //SERIAL_ECHOPGM(" delta[X_AXIS]="); SERIAL_ECHO(delta[X_AXIS]);
     //SERIAL_ECHOPGM(" delta[Y_AXIS]="); SERIAL_ECHOLN(delta[Y_AXIS]);
-}  
+  }  
 
-void calculate_delta(float cartesian[3]){
-  //reverse kinematics.
-  // Perform reversed kinematics, and place results in delta[3]
-  // The maths and first version has been done by QHARLEY . Integrated into masterbranch 06/2014 and slightly restructured by Joachim Cerny in June 2014
-  
-  float SCARA_pos[2];
-  static float SCARA_C2, SCARA_S2, SCARA_K1, SCARA_K2, SCARA_theta, SCARA_psi; 
-  
-  SCARA_pos[X_AXIS] = cartesian[X_AXIS] * axis_scaling[X_AXIS] - SCARA_offset_x;  //Translate SCARA to standard X Y
-  SCARA_pos[Y_AXIS] = cartesian[Y_AXIS] * axis_scaling[Y_AXIS] - SCARA_offset_y;  // With scaling factor.
-  
-  #if (Linkage_1 == Linkage_2)
-    SCARA_C2 = ( ( sq(SCARA_pos[X_AXIS]) + sq(SCARA_pos[Y_AXIS]) ) / (2 * (float)L1_2) ) - 1;
-  #else
-    SCARA_C2 =   ( sq(SCARA_pos[X_AXIS]) + sq(SCARA_pos[Y_AXIS]) - (float)L1_2 - (float)L2_2 ) / 45000; 
-  #endif
-  
-  SCARA_S2 = sqrt( 1 - sq(SCARA_C2) );
-  
-  SCARA_K1 = Linkage_1 + Linkage_2 * SCARA_C2;
-  SCARA_K2 = Linkage_2 * SCARA_S2;
-  
-  SCARA_theta = ( atan2(SCARA_pos[X_AXIS],SCARA_pos[Y_AXIS])-atan2(SCARA_K1, SCARA_K2) ) * -1;
-  SCARA_psi   =   atan2(SCARA_S2,SCARA_C2);
-  
-  delta[X_AXIS] = SCARA_theta * SCARA_RAD2DEG;  // Multiply by 180/Pi  -  theta is support arm angle
-  delta[Y_AXIS] = (SCARA_theta + SCARA_psi) * SCARA_RAD2DEG;  //       -  equal to sub arm angle (inverted motor)
-  delta[Z_AXIS] = cartesian[Z_AXIS];
-  
-  /*
-  SERIAL_ECHOPGM("cartesian x="); SERIAL_ECHO(cartesian[X_AXIS]);
-  SERIAL_ECHOPGM(" y="); SERIAL_ECHO(cartesian[Y_AXIS]);
-  SERIAL_ECHOPGM(" z="); SERIAL_ECHOLN(cartesian[Z_AXIS]);
-  
-  SERIAL_ECHOPGM("scara x="); SERIAL_ECHO(SCARA_pos[X_AXIS]);
-  SERIAL_ECHOPGM(" y="); SERIAL_ECHOLN(SCARA_pos[Y_AXIS]);
-  
-  SERIAL_ECHOPGM("delta x="); SERIAL_ECHO(delta[X_AXIS]);
-  SERIAL_ECHOPGM(" y="); SERIAL_ECHO(delta[Y_AXIS]);
-  SERIAL_ECHOPGM(" z="); SERIAL_ECHOLN(delta[Z_AXIS]);
-  
-  SERIAL_ECHOPGM("C2="); SERIAL_ECHO(SCARA_C2);
-  SERIAL_ECHOPGM(" S2="); SERIAL_ECHO(SCARA_S2);
-  SERIAL_ECHOPGM(" Theta="); SERIAL_ECHO(SCARA_theta);
-  SERIAL_ECHOPGM(" Psi="); SERIAL_ECHOLN(SCARA_psi);
-  SERIAL_ECHOLN(" ");*/
-}
+  void calculate_delta(float cartesian[3]){
+    //reverse kinematics.
+    // Perform reversed kinematics, and place results in delta[3]
+    // The maths and first version has been done by QHARLEY . Integrated into masterbranch 06/2014 and slightly restructured by Joachim Cerny in June 2014
+    
+    float SCARA_pos[2];
+    static float SCARA_C2, SCARA_S2, SCARA_K1, SCARA_K2, SCARA_theta, SCARA_psi; 
+    
+    SCARA_pos[X_AXIS] = cartesian[X_AXIS] * axis_scaling[X_AXIS] - SCARA_offset_x;  //Translate SCARA to standard X Y
+    SCARA_pos[Y_AXIS] = cartesian[Y_AXIS] * axis_scaling[Y_AXIS] - SCARA_offset_y;  // With scaling factor.
+    
+    #if (Linkage_1 == Linkage_2)
+      SCARA_C2 = ( ( sq(SCARA_pos[X_AXIS]) + sq(SCARA_pos[Y_AXIS]) ) / (2 * (float)L1_2) ) - 1;
+    #else
+      SCARA_C2 =   ( sq(SCARA_pos[X_AXIS]) + sq(SCARA_pos[Y_AXIS]) - (float)L1_2 - (float)L2_2 ) / 45000; 
+    #endif
+    
+    SCARA_S2 = sqrt( 1 - sq(SCARA_C2) );
+    
+    SCARA_K1 = Linkage_1 + Linkage_2 * SCARA_C2;
+    SCARA_K2 = Linkage_2 * SCARA_S2;
+    
+    SCARA_theta = ( atan2(SCARA_pos[X_AXIS],SCARA_pos[Y_AXIS])-atan2(SCARA_K1, SCARA_K2) ) * -1;
+    SCARA_psi   =   atan2(SCARA_S2,SCARA_C2);
+    
+    delta[X_AXIS] = SCARA_theta * SCARA_RAD2DEG;  // Multiply by 180/Pi  -  theta is support arm angle
+    delta[Y_AXIS] = (SCARA_theta + SCARA_psi) * SCARA_RAD2DEG;  //       -  equal to sub arm angle (inverted motor)
+    delta[Z_AXIS] = cartesian[Z_AXIS];
+    
+    /*
+    SERIAL_ECHOPGM("cartesian x="); SERIAL_ECHO(cartesian[X_AXIS]);
+    SERIAL_ECHOPGM(" y="); SERIAL_ECHO(cartesian[Y_AXIS]);
+    SERIAL_ECHOPGM(" z="); SERIAL_ECHOLN(cartesian[Z_AXIS]);
+    
+    SERIAL_ECHOPGM("scara x="); SERIAL_ECHO(SCARA_pos[X_AXIS]);
+    SERIAL_ECHOPGM(" y="); SERIAL_ECHOLN(SCARA_pos[Y_AXIS]);
+    
+    SERIAL_ECHOPGM("delta x="); SERIAL_ECHO(delta[X_AXIS]);
+    SERIAL_ECHOPGM(" y="); SERIAL_ECHO(delta[Y_AXIS]);
+    SERIAL_ECHOPGM(" z="); SERIAL_ECHOLN(delta[Z_AXIS]);
+    
+    SERIAL_ECHOPGM("C2="); SERIAL_ECHO(SCARA_C2);
+    SERIAL_ECHOPGM(" S2="); SERIAL_ECHO(SCARA_S2);
+    SERIAL_ECHOPGM(" Theta="); SERIAL_ECHO(SCARA_theta);
+    SERIAL_ECHOPGM(" Psi="); SERIAL_ECHOLN(SCARA_psi);
+    SERIAL_ECHOLN(" ");*/
+  }
 
-#endif
+#endif // SCARA
 
 #ifdef TEMP_STAT_LEDS
 
