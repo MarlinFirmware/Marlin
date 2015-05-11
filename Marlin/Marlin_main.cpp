@@ -4074,14 +4074,14 @@ inline void gcode_M226() {
 #if NUM_SERVOS > 0
 
   /**
-   * M280: Set servo position absolute. P: servo index, S: angle or microseconds
+   * M280: Get or set servo position. P<index> S<angle>
    */
   inline void gcode_M280() {
-    int servo_index = code_seen('P') ? code_value() : -1;
+    int servo_index = code_seen('P') ? code_value_short() : -1;
     int servo_position = 0;
     if (code_seen('S')) {
-      servo_position = code_value();
-      if ((servo_index >= 0) && (servo_index < NUM_SERVOS)) {
+      servo_position = code_value_short();
+      if (servo_index >= 0 && servo_index < NUM_SERVOS) {
         Servo *srv = &servo[servo_index];
         #if SERVO_LEVELING
           srv->attach(0);
@@ -5650,10 +5650,6 @@ void clamp_to_software_endstops(float target[3]) {
 
 #ifdef MESH_BED_LEVELING
 
-  #if !defined(MIN)
-    #define MIN(_v1, _v2) (((_v1) < (_v2)) ? (_v1) : (_v2))
-  #endif  // ! MIN
-
 // This function is used to split lines on mesh borders so each segment is only part of one mesh area
 void mesh_plan_buffer_line(float x, float y, float z, const float e, float feed_rate, const uint8_t &extruder, uint8_t x_splits=0xff, uint8_t y_splits=0xff)
 {
@@ -5666,10 +5662,10 @@ void mesh_plan_buffer_line(float x, float y, float z, const float e, float feed_
   int piy = mbl.select_y_index(current_position[Y_AXIS]);
   int ix = mbl.select_x_index(x);
   int iy = mbl.select_y_index(y);
-  pix = MIN(pix, MESH_NUM_X_POINTS-2);
-  piy = MIN(piy, MESH_NUM_Y_POINTS-2);
-  ix = MIN(ix, MESH_NUM_X_POINTS-2);
-  iy = MIN(iy, MESH_NUM_Y_POINTS-2);
+  pix = min(pix, MESH_NUM_X_POINTS - 2);
+  piy = min(piy, MESH_NUM_Y_POINTS - 2);
+  ix = min(ix, MESH_NUM_X_POINTS - 2);
+  iy = min(iy, MESH_NUM_Y_POINTS - 2);
   if (pix == ix && piy == iy) {
     // Start and end on same mesh square
     plan_buffer_line(x, y, z, e, feed_rate, extruder);
