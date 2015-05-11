@@ -15,15 +15,26 @@
 #define BED_CHECK_INTERVAL 5000 //ms between checks in bang-bang control
 
 /**
- * Heating Sanity Check
- *
- * Whenever an M104 or M109 increases the target temperature this will wait for WATCH_TEMP_PERIOD milliseconds,
- * and if the temperature hasn't increased by WATCH_TEMP_INCREASE degrees, the machine is halted, requiring a
- * hard reset. This test restarts with any M104/M109, but only if the current temperature is below the target
- * by at least 2 * WATCH_TEMP_INCREASE degrees celsius.
+ * Thermal Protection parameters
  */
-#define WATCH_TEMP_PERIOD 16000 // 16 seconds
-#define WATCH_TEMP_INCREASE 4  // Heat up at least 4 degrees in 16 seconds
+#ifdef THERMAL_PROTECTION_HOTENDS
+  #define THERMAL_PROTECTION_PERIOD 40        // Seconds
+  #define THERMAL_PROTECTION_HYSTERESIS 4     // Degrees Celsius
+
+  /**
+   * Whenever an M104 or M109 increases the target temperature the firmware will wait for the
+   * WATCH_TEMP_PERIOD to transpire, and if the temperature hasn't increased by WATCH_TEMP_INCREASE
+   * degrees, the machine is halted, requiring a hard reset. This test restarts with any M104/M109,
+   * but only if the current temperature is below the target by at least 2 * WATCH_TEMP_INCREASE degrees.
+   */
+  #define WATCH_TEMP_PERIOD 16                        // Seconds
+  #define WATCH_TEMP_INCREASE 4                       // Degrees Celsius
+#endif
+
+#ifdef THERMAL_PROTECTION_BED
+  #define THERMAL_PROTECTION_BED_PERIOD 20    // Seconds
+  #define THERMAL_PROTECTION_BED_HYSTERESIS 2 // Degrees Celsius
+#endif
 
 #ifdef PIDTEMP
   // this adds an experimental additional term to the heating power, proportional to the extrusion speed.
@@ -34,14 +45,16 @@
   #endif
 #endif
 
-
-//automatic temperature: The hot end target temperature is calculated by all the buffered lines of gcode.
-//The maximum buffered steps/sec of the extruder motor are called "se".
-//You enter the autotemp mode by a M109 S<mintemp> B<maxtemp> F<factor>
-// the target temperature is set to mintemp+factor*se[steps/sec] and limited by mintemp and maxtemp
-// you exit the value by any M109 without F*
-// Also, if the temperature is set to a value <mintemp, it is not changed by autotemp.
-// on an Ultimaker, some initial testing worked with M109 S215 B260 F1 in the start.gcode
+/**
+ * Automatic Temperature:
+ * The hotend target temperature is calculated by all the buffered lines of gcode.
+ * The maximum buffered steps/sec of the extruder motor is called "se".
+ * Start autotemp mode with M109 S<mintemp> B<maxtemp> F<factor>
+ * The target temperature is set to mintemp+factor*se[steps/sec] and is limited by
+ * mintemp and maxtemp. Turn this off by excuting M109 without F*
+ * Also, if the temperature is set to a value below mintemp, it will not be changed by autotemp.
+ * On an Ultimaker, some initial testing worked with M109 S215 B260 F1 in the start.gcode
+ */
 #define AUTOTEMP
 #ifdef AUTOTEMP
   #define AUTOTEMP_OLDWEIGHT 0.98
