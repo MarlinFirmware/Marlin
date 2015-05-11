@@ -2,11 +2,16 @@
  * Aragonese
  *
  * LCD Menu Messages
- * Please note these are limited to 17 characters!
+ * See also documentation/LCDLanguageFont.md
  *
  */
 #ifndef LANGUAGE_AN_H
 #define LANGUAGE_AN_H
+
+#define MAPPER_NON
+// Define SIMULATE_ROMFONT to see what is seen on the character based display defined in Configuration.h
+//#define SIMULATE_ROMFONT
+#define DISPLAY_CHARSET_ISO10646_1
 
 #define WELCOME_MSG                         MACHINE_NAME " parada."
 #define MSG_SD_INSERTED                     "Tarcheta colocada"
@@ -18,17 +23,13 @@
 #define MSG_SET_HOME_OFFSETS                "Set home offsets"
 #define MSG_SET_ORIGIN                      "Establir zero"
 #define MSG_PREHEAT_PLA                     "Precalentar PLA"
-#define MSG_PREHEAT_PLA0                    "Precalentar PLA0"
-#define MSG_PREHEAT_PLA1                    "Precalentar PLA1"
-#define MSG_PREHEAT_PLA2                    "Precalentar PLA2"
-#define MSG_PREHEAT_PLA012                  "Precalentar PLA a"
+#define MSG_PREHEAT_PLA_N                   "Precalentar PLA "
+#define MSG_PREHEAT_PLA_ALL                 "Precalentar PLA a"
 #define MSG_PREHEAT_PLA_BEDONLY             "Prec. PLA Base"
 #define MSG_PREHEAT_PLA_SETTINGS            "Achustar tem. PLA"
 #define MSG_PREHEAT_ABS                     "Precalentar ABS"
-#define MSG_PREHEAT_ABS0                    "Precalentar ABS0"
-#define MSG_PREHEAT_ABS1                    "Precalentar ABS1"
-#define MSG_PREHEAT_ABS2                    "Precalentar ABS2"
-#define MSG_PREHEAT_ABS012                  "Precalentar ABS a"
+#define MSG_PREHEAT_ABS_N                   "Precalentar ABS "
+#define MSG_PREHEAT_ABS_ALL                 "Precalentar ABS a"
 #define MSG_PREHEAT_ABS_BEDONLY             "Prec. ABS Base"
 #define MSG_PREHEAT_ABS_SETTINGS            "Achustar tem. ABS"
 #define MSG_COOLDOWN                        "Enfriar"
@@ -41,25 +42,18 @@
 #define MSG_MOVE_Y                          "Move Y"
 #define MSG_MOVE_Z                          "Move Z"
 #define MSG_MOVE_E                          "Extruder"
-#define MSG_MOVE_E1                         "Extruder2"
-#define MSG_MOVE_E2                         "Extruder3"
 #define MSG_MOVE_01MM                       "Move 0.1mm"
 #define MSG_MOVE_1MM                        "Move 1mm"
 #define MSG_MOVE_10MM                       "Move 10mm"
 #define MSG_SPEED                           "Velocidat"
 #define MSG_NOZZLE                          "Nozzle"
-#define MSG_NOZZLE1                         "Nozzle2"
-#define MSG_NOZZLE2                         "Nozzle3"
 #define MSG_BED                             "Base"
 #define MSG_FAN_SPEED                       "Ixoriador"
 #define MSG_FLOW                            "Fluxo"
-#define MSG_FLOW0                           "Fluxo 0"
-#define MSG_FLOW1                           "Fluxo 1"
-#define MSG_FLOW2                           "Fluxo 2"
 #define MSG_CONTROL                         "Control"
-#define MSG_MIN                             "\002 Min"
-#define MSG_MAX                             "\002 Max"
-#define MSG_FACTOR                          "\002 Fact"
+#define MSG_MIN                             LCD_STR_THERMOMETER " Min"
+#define MSG_MAX                             LCD_STR_THERMOMETER " Max"
+#define MSG_FACTOR                          LCD_STR_THERMOMETER " Fact"
 #define MSG_AUTOTEMP                        "Autotemp"
 #define MSG_ON                              "On"
 #define MSG_OFF                             "Off"
@@ -129,17 +123,8 @@
 #define MSG_BABYSTEP_Y                      "Babystep Y"
 #define MSG_BABYSTEP_Z                      "Babystep Z"
 #define MSG_ENDSTOP_ABORT                   "Endstop abort"
-
-#define MSG_RECTRACT                        "Retraer"
-#define MSG_RECTRACT_WIDE                   "Retraer"
-#define MSG_TEMPERATURE_WIDE                "Temperatura"
-#define MSG_TEMPERATURE_RTN                 "Temperatura"
-#define MSG_MAIN_WIDE                       "Menu Prencipal"
-#define MSG_MOTION_WIDE                     "Movimiento"
-#define MSG_PREPARE_ALT                     "Preparar"
-#define MSG_CONTROL_ARROW                   "Control \x7E"
-#define MSG_RETRACT_ARROW                   "Retraer \x7E"
-#define MSG_STEPPER_RELEASED                "Desacoplada."
+#define MSG_END_HOUR                        "hours"
+#define MSG_END_MINUTE                      "minutes"
 
 #ifdef DELTA_CALIBRATION_MENU
     #define MSG_DELTA_CALIBRATE             "Delta Calibration"

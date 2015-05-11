@@ -47,10 +47,20 @@
   #endif
 #endif
 
-#if defined(DIGIPOTSS_PIN) && DIGIPOTSS_PIN > -1
-#include <SPI.h>
+#if HAS_DIGIPOTSS
+  #include <SPI.h>
 #endif
 
 #if defined(DIGIPOT_I2C)
   #include <Wire.h>
+#endif
+
+#ifdef HAVE_TMCDRIVER
+  #include <SPI.h>
+  #include <TMC26XStepper.h>
+#endif
+
+#ifdef HAVE_L6470DRIVER
+  #include <SPI.h>
+  #include <L6470.h>
 #endif

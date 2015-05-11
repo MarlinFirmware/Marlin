@@ -360,7 +360,7 @@ bool SdVolume::init(Sd2Card* dev, uint8_t part) {
   blocksPerCluster_ = fbs->sectorsPerCluster;
   // determine shift that is same as multiply by blocksPerCluster_
   clusterSizeShift_ = 0;
-  while (blocksPerCluster_ != (1 << clusterSizeShift_)) {
+  while (blocksPerCluster_ != BIT(clusterSizeShift_)) {
     // error if not power of 2
     if (clusterSizeShift_++ > 7) goto fail;
   }

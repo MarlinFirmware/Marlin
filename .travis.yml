@@ -13,6 +13,8 @@ install:
   - sudo apt-get update -q 
   - sudo apt-get install arduino
 before_script:
+  # copy TMC and L6470 libraries to arduino dir, as conditional includes do not work in .ino files
+  - sudo cp -r ArduinoAddons/Arduino_1.x.x/libraries/ /usr/share/arduino
  # add U8glib, LiquidCrystal_I2C & LiquidTWI2 libraries 
   - sudo unzip u8glib_arduino_v1.17.zip -d /usr/share/arduino/libraries/
   - cd /usr/share/arduino/libraries/
@@ -138,8 +140,12 @@ script:
   - rm -rf .build/
   - ino build -m mega2560
   ######## Example Configurations ##############
-  # Delta Config
-  - cp Marlin/example_configurations/delta/Configuration* Marlin/
+  # Delta Config (generic)
+  - cp Marlin/example_configurations/delta/generic/Configuration* Marlin/
+  - rm -rf .build/
+  - ino build -m mega2560
+  # Delta Config (Mini Kossel)
+  - cp Marlin/example_configurations/delta/kossel_mini/Configuration* Marlin/
   - rm -rf .build/
   - ino build -m mega2560
   # Makibox Config  need to check board type for Teensy++ 2.0
