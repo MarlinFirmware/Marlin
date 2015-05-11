@@ -252,6 +252,9 @@ void lcd_init()
     pinMode(BTN_ENC,INPUT);
     WRITE(BTN_ENC,HIGH);
 
+    pinMode(FAN_EXTRUDER,OUTPUT);
+    WRITE(FAN_EXTRUDER,HIGH);
+
     // Init for SD card library
 #  if (defined (SDSUPPORT) && defined(SDCARDDETECT) && (SDCARDDETECT > 0))
     pinMode(SDCARDDETECT,INPUT);
