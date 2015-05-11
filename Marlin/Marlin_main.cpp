@@ -3167,7 +3167,7 @@ inline void gcode_M104() {
         setTargetHotend1(temp == 0.0 ? 0.0 : temp + duplicate_extruder_temp_offset);
     #endif
 
-    #ifdef WATCH_TEMP_PERIOD
+    #ifdef THERMAL_PROTECTION_HOTENDS
       start_watching_heater(target_extruder);
     #endif
   }
@@ -3281,7 +3281,7 @@ inline void gcode_M109() {
     if (code_seen('B')) autotemp_max = code_value();
   #endif
 
-  #ifdef WATCH_TEMP_PERIOD
+  #ifdef THERMAL_PROTECTION_HOTENDS
     start_watching_heater(target_extruder);
   #endif
 
