@@ -323,6 +323,6 @@
 
   #if !defined(THERMAL_PROTECTION_BED) && defined(THERMAL_PROTECTION_BED_PERIOD)
     #error Thermal Runaway Protection for the bed must now be enabled with THERMAL_PROTECTION_BED
-  #error
+  #endif
 
 #endif //SANITYCHECK_H
