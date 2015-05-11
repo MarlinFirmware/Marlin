@@ -379,6 +379,14 @@ const unsigned int dropsegments=5; //everything with less than this number of st
 #define MAX_CMD_SIZE 96
 #define BUFSIZE 4
 
+// Bad Serial-connections can miss a received command by sending an 'ok'
+// Therefore some clients go after 30 seconds in a timeout. Some other clients start sending commands while receiving a 'wait'.
+// This wait is only send when the buffer is empty. The timeout-length is in milliseconds. 1000 is a good value.
+#define NO_TIMEOUTS 1000
+
+// Some clients will have this feature soon. This could make the NO_TIMEOUTS unnecessary.
+#define ADVANCED_OK
+
 // @section fwretract
 
 // Firmware based and LCD controlled retract

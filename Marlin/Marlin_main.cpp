@@ -733,8 +733,20 @@ void get_command() {
 
   if (drain_queued_commands_P()) return; // priority is given to non-serial commands
   
+  #ifdef NO_TIMEOUTS
+    static millis_t last_command_time = 0;
+    millis_t ms = millis();
+  
+    if (!MYSERIAL.available() && commands_in_queue == 0 && ms - last_command_time > NO_TIMEOUTS) {
+      SERIAL_ECHOLNPGM(MSG_WAIT);
+      last_command_time = ms;
+    }
+  #endif
+  
   while (MYSERIAL.available() > 0 && commands_in_queue < BUFSIZE) {
-
+    #ifdef NO_TIMEOUTS
+      last_command_time = ms;
+    #endif
     serial_char = MYSERIAL.read();
 
     if (serial_char == '\n' || serial_char == '\r' ||
@@ -5523,7 +5535,12 @@ void ClearToSend() {
   #ifdef SDSUPPORT
     if (fromsd[cmd_queue_index_r]) return;
   #endif
-  SERIAL_PROTOCOLLNPGM(MSG_OK);
+  SERIAL_PROTOCOLPGM(MSG_OK);
+  #ifdef ADVANCED_OK
+    SERIAL_PROTOCOLPGM(" N"); SERIAL_PROTOCOL(gcode_LastN);
+    SERIAL_PROTOCOLPGM(" P"); SERIAL_PROTOCOL(BUFSIZE - commands_in_queue);
+  #endif
+  SERIAL_EOL;  
 }
 
 void get_coordinates() {
