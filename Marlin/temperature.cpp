@@ -474,10 +474,16 @@ void bed_max_temp_error(void) {
   _temp_error(-1, PSTR(MSG_MAXTEMP_BED_OFF), PSTR(MSG_ERR_MAXTEMP_BED));
 }
 
-float get_pid_output(int e) {
-  float pid_output;
+/**
+ * Return the appropriate PID output for an extruder heater
+ * based on the target and current temperature
+ */
+int get_pid_output(int e) {
+  int pid_output;
   #ifdef PIDTEMP
-    #ifndef PID_OPENLOOP
+    #ifdef PID_OPENLOOP
+      pid_output = constrain(target_temperature[e], 0, PID_MAX);
+    #else
       pid_error[e] = target_temperature[e] - current_temperature[e];
       if (pid_error[e] > PID_FUNCTIONAL_RANGE) {
         pid_output = BANG_MAX;
@@ -509,8 +515,6 @@ float get_pid_output(int e) {
         }
       }
       temp_dState[e] = current_temperature[e];
-    #else
-      pid_output = constrain(target_temperature[e], 0, PID_MAX);
     #endif // PID_OPENLOOP
 
     #ifdef PID_DEBUG
@@ -537,8 +541,13 @@ float get_pid_output(int e) {
 }
 
 #ifdef PIDTEMPBED
-  float get_pid_output_bed() {
-    float pid_output;
+
+  /**
+   * Return the appropriate PID output for the heated bed
+   * based on the target and current temperature
+   */
+  int get_pid_output_bed() {
+    int pid_output;
     #ifndef PID_OPENLOOP
       pid_error_bed = target_temperature_bed - current_temperature_bed;
       pTerm_bed = bedKp * pid_error_bed;
