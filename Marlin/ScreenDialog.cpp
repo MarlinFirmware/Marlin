@@ -3,7 +3,7 @@
 namespace screen
 {
 	ScreenDialog::ScreenDialog(const char * title)
-		: Screen(DIALOG, title)
+		: Screen(title, DIALOG)
 	{
 	}
 
@@ -25,7 +25,7 @@ namespace screen
 		SERIAL_ECHOLN(m_title);
 	}
 
-	Screen & ScreenDialog::press()
+	Screen & ScreenDialog::press(Screen & parent_view)
 	{
 		return * m_next_screen;
 	}

@@ -3,7 +3,7 @@
 namespace screen
 {
 	ScreenSelector::ScreenSelector(const char * title)
-		: Screen(SELECTOR, title)
+		: Screen(title, SELECTOR)
 	{
 	}
 
@@ -36,7 +36,7 @@ namespace screen
 		SERIAL_ECHOLN(" >  ");
 	}
 
-	Screen & ScreenSelector::press()
+	Screen & ScreenSelector::press(Screen & parent_view)
 	{
 		return * m_next_screen;
 	}

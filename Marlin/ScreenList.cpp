@@ -3,7 +3,7 @@
 namespace screen
 {
 	ScreenList::ScreenList(const char * title)
-		: Screen(LIST, title)
+		: Screen(title, LIST)
 		, m_index(0)
 		, m_num_list(0)
 	{
@@ -45,7 +45,7 @@ namespace screen
 		SERIAL_ECHOLN(") ");
 	}
 
-	Screen & ScreenList::press()
+	Screen & ScreenList::press(Screen & parent_view)
 	{
 		return * m_next_screen;
 	}

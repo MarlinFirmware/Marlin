@@ -1,5 +1,5 @@
 #include "Icon.h"
-#include "GuiImpl_witbox_2.h"
+#include "GuiImpl.h"
 
 namespace screen
 {

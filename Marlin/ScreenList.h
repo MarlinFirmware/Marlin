@@ -14,7 +14,7 @@ namespace screen
 			void left();
 			void right();
 			void draw();
-			Screen & press();
+			Screen & press(Screen & parent_view);
 			void add(Screen & component);
 
 		private:

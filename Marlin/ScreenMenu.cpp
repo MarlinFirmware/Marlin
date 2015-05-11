@@ -4,7 +4,7 @@
 namespace screen
 {
 	ScreenMenu::ScreenMenu(const char * title)
-		: Screen(MENU, title)
+		: Screen(title, MENU)
 		  , m_icon_line(0)
 		  , m_index(0)
 		  , m_num_items(0)
@@ -87,7 +87,7 @@ namespace screen
 		} while( painter.nextPage() ); 
 	}
 
-	Screen & ScreenMenu::press()
+	Screen & ScreenMenu::press(Screen & parent_view)
 	{
 		return * m_items[m_index];
 	}

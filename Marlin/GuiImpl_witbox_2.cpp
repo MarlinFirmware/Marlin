@@ -68,9 +68,9 @@ namespace screen
 	ScreenDialog screen_level4          = ScreenDialog("Screen4");
 	ScreenMenu screen_level_retry       = ScreenMenu("Push to Cotinue");
 	//AutoHome
-	ScreenMenu screen_autohome          = ScreenMenu("Auto-home");
+	Screen screen_autohome              = Screen("Auto-home");
 	//Stepper
-	ScreenMenu screen_stepper           = ScreenMenu("Steper on");
+	Screen screen_stepper               = Screen("Steper on");
 	//Move Axis screens
 	ScreenMenu screen_move              = ScreenMenu("Move axis");
 	ScreenMenu screen_move_back2main    = ScreenMenu("Back");
@@ -85,7 +85,7 @@ namespace screen
 	//Temperature
 	ScreenSelector screen_temperature   = ScreenSelector("Temp 0/200ºC");
 	//Light
-	ScreenMenu screen_light             = ScreenMenu("Led light on");
+	Screen screen_light                 = Screen("Led light on");
 	//Info
 	ScreenDialog screen_info            = ScreenDialog("FW info");
 

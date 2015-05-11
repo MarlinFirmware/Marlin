@@ -179,7 +179,7 @@ static void lcd_update_button()
 
     if (button_clicked == true)
     {
-        active_view = &active_view->press();
+        active_view = &active_view->press(*active_view);
     }
 
     if (button_pressed == true) {
