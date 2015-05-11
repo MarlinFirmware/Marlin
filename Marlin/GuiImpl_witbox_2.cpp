@@ -70,7 +70,7 @@ namespace screen
 	//AutoHome
 	Screen screen_autohome              = Screen("Auto-home");
 	//Stepper
-	ScreenMenu screen_stepper           = ScreenMenu("Steper on");
+	Screen screen_stepper               = Screen("Steper on");
 	//Move Axis screens
 	ScreenMenu screen_move              = ScreenMenu("Move axis");
 	ScreenMenu screen_move_back2main    = ScreenMenu("Back");
