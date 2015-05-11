@@ -27,8 +27,8 @@
    * degrees, the machine is halted, requiring a hard reset. This test restarts with any M104/M109,
    * but only if the current temperature is below the target by at least 2 * WATCH_TEMP_INCREASE degrees.
    */
-  #define WATCH_TEMP_PERIOD 16                        // Seconds
-  #define WATCH_TEMP_INCREASE 4                       // Degrees Celsius
+  #define WATCH_TEMP_PERIOD 16                // Seconds
+  #define WATCH_TEMP_INCREASE 4               // Degrees Celsius
 #endif
 
 #ifdef THERMAL_PROTECTION_BED
