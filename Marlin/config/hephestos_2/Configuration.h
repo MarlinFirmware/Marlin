@@ -251,9 +251,9 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define DISABLE_INACTIVE_EXTRUDER true //disable only inactive extruders and keep active extruder enabled
 
 #define INVERT_X_DIR true    // for Mendel set to false, for Orca set to true
-#define INVERT_Y_DIR false    // for Mendel set to true, for Orca set to false
+#define INVERT_Y_DIR true  // for Mendel set to true, for Orca set to false
 #define INVERT_Z_DIR true     // for Mendel set to false, for Orca set to true
-#define INVERT_E0_DIR false   // for direct drive extruder v9 set to true, for geared extruder set to false
+#define INVERT_E0_DIR true   // for direct drive extruder v9 set to true, for geared extruder set to false
 #define INVERT_E1_DIR false    // for direct drive extruder v9 set to true, for geared extruder set to false
 #define INVERT_E2_DIR false   // for direct drive extruder v9 set to true, for geared extruder set to false
 
@@ -267,8 +267,8 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define max_software_endstops true  // If true, axis won't move to coordinates greater than the defined lengths below.
 
 // Travel limits after homing
-#define X_MAX_POS 210 
-#define X_MIN_POS 0
+#define X_MAX_POS 220 //Temp
+#define X_MIN_POS 10
 #define Y_MAX_POS 297
 #define Y_MIN_POS 0
 #define Z_MAX_POS 250
@@ -359,28 +359,13 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
   #ifdef Z_SAFE_HOMING
 
-    #define Z_SAFE_HOMING_X_POINT ((X_MAX_LENGTH)/2)// + 2*X_PROBE_OFFSET_FROM_EXTRUDER)/2)    // X point for Z homing when homing all axis (G28)
-    #define Z_SAFE_HOMING_Y_POINT ((Y_MAX_LENGTH)/2)//+ 2*Y_PROBE_OFFSET_FROM_EXTRUDER)/2)    // Y point for Z homing when homing all axis (G28)
+    #define Z_SAFE_HOMING_X_POINT 110    // X point for Z homing when homing all axis (G28)
+    #define Z_SAFE_HOMING_Y_POINT 150  // Y point for Z homing when homing all axis (G28)
 
   #endif
 
 #endif // ENABLE_AUTO_BED_LEVELING
 
-
-//SOLO PARA PRUEBAS EN LA IMPRESORA DE HARDWARE
-  #define Z_SAFE_HOMING   // This feature is meant to avoid Z homing with probe outside the bed area.
-                          // When defined, it will:
-                          // - Allow Z homing only after X and Y homing AND stepper drivers still enabled
-                          // - If stepper drivers timeout, it will need X and Y homing again before Z homing
-                          // - Position the probe in a defined XY point before Z Homing when homing all axis (G28)
-                          // - Block Z homing only when the probe is outside bed area.
-
-  #ifdef Z_SAFE_HOMING
-
-    #define Z_SAFE_HOMING_X_POINT ((X_MAX_LENGTH)/2)// + 2*X_PROBE_OFFSET_FROM_EXTRUDER)/2)    // X point for Z homing when homing all axis (G28)
-    #define Z_SAFE_HOMING_Y_POINT ((Y_MAX_LENGTH)/2)//+ 2*Y_PROBE_OFFSET_FROM_EXTRUDER)/2)    // Y point for Z homing when homing all axis (G28)
-
-  #endif
 // The position of the homing switches
 //#define MANUAL_HOME_POSITIONS  // If defined, MANUAL_*_HOME_POS below will be used
 //#define BED_CENTER_AT_0_0  // If defined, the center of the bed is at (X=0, Y=0)
@@ -440,7 +425,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #endif
 
 #if defined(ENABLE_AUTO_BED_LEVELING) || defined(WITBOX)
-  #define XY_TRAVEL_SPEED 2000//8000		// X and Y axis travel speed between probes and Witbox movements, in mm/min
+  #define XY_TRAVEL_SPEED 200//8000		// X and Y axis travel speed between probes and Witbox movements, in mm/min
 #endif
 //===========================================================================
 //=============================Additional Features===========================
