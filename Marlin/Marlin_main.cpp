@@ -5533,7 +5533,8 @@ void ClearToSend() {
   SERIAL_PROTOCOLPGM(MSG_OK);
   #ifdef ADVANCED_OK
     SERIAL_PROTOCOLPGM(" N"); SERIAL_PROTOCOL(gcode_LastN);
-    SERIAL_PROTOCOLPGM(" P"); SERIAL_PROTOCOL(BUFSIZE - commands_in_queue);
+    SERIAL_PROTOCOLPGM(" P"); SERIAL_PROTOCOL(int(BLOCK_BUFFER_SIZE - movesplanned() - 1));
+    SERIAL_PROTOCOLPGM(" B"); SERIAL_PROTOCOL(BUFSIZE - commands_in_queue);
   #endif
   SERIAL_EOL;  
 }
