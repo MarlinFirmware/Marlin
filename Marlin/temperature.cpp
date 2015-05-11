@@ -1005,16 +1005,14 @@ void tp_init() {
    * their target temperature by a configurable margin.
    * This is called when the temperature is set. (M104, M109)
    */
-  void start_watching_heaters() {
-      millis_t ms = millis() + WATCH_TEMP_PERIOD;
-      for (int e = 0; e < EXTRUDERS; e++) {
-        if (degHotend(e) < degTargetHotend(e) - (WATCH_TEMP_INCREASE * 2)) {
-          watch_target_temp[e] = degHotend(e) + WATCH_TEMP_INCREASE;
-          watch_heater_next_ms[e] = ms;
-        }
-        else
-          watch_heater_next_ms[e] = 0;
-      }
+  void start_watching_heater(int e) {
+    millis_t ms = millis() + WATCH_TEMP_PERIOD;
+    if (degHotend(e) < degTargetHotend(e) - (WATCH_TEMP_INCREASE * 2)) {
+      watch_target_temp[e] = degHotend(e) + WATCH_TEMP_INCREASE;
+      watch_heater_next_ms[e] = ms;
+    }
+    else
+      watch_heater_next_ms[e] = 0;
   }
 #endif
 

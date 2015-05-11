@@ -522,7 +522,7 @@ void _lcd_preheat(int endnum, const float temph, const float tempb, const int fa
   fanSpeed = fan;
   lcd_return_to_status();
   #ifdef WATCH_TEMP_PERIOD
-    start_watching_heaters();
+    if (endnum >= 0) start_watching_heater(endnum);
   #endif
 }
 void lcd_preheat_pla0() { _lcd_preheat(0, plaPreheatHotendTemp, plaPreheatHPBTemp, plaPreheatFanSpeed); }

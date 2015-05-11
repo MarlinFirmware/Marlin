@@ -3180,7 +3180,7 @@ inline void gcode_M104() {
     #endif
 
     #ifdef WATCH_TEMP_PERIOD
-      start_watching_heaters();
+      start_watching_heater(target_extruder);
     #endif
   }
 }
@@ -3294,7 +3294,7 @@ inline void gcode_M109() {
   #endif
 
   #ifdef WATCH_TEMP_PERIOD
-    start_watching_heaters();
+    start_watching_heater(target_extruder);
   #endif
 
   millis_t temp_ms = millis();
