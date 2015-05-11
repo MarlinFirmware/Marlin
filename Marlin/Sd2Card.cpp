@@ -35,14 +35,14 @@
  */
 static void spiInit(uint8_t spiRate) {
   // See avr processor documentation
-  SPCR = (1 << SPE) | (1 << MSTR) | (spiRate >> 1);
-  SPSR = spiRate & 1 || spiRate == 6 ? 0 : 1 << SPI2X;
+  SPCR = BIT(SPE) | BIT(MSTR) | (spiRate >> 1);
+  SPSR = spiRate & 1 || spiRate == 6 ? 0 : BIT(SPI2X);
 }
 //------------------------------------------------------------------------------
 /** SPI receive a byte */
 static uint8_t spiRec() {
   SPDR = 0XFF;
-  while (!(SPSR & (1 << SPIF))) { /* Intentionally left empty */ }
+  while (!TEST(SPSR, SPIF)) { /* Intentionally left empty */ }
   return SPDR;
 }
 //------------------------------------------------------------------------------
@@ -52,18 +52,18 @@ void spiRead(uint8_t* buf, uint16_t nbyte) {
   if (nbyte-- == 0) return;
   SPDR = 0XFF;
   for (uint16_t i = 0; i < nbyte; i++) {
-    while (!(SPSR & (1 << SPIF))) { /* Intentionally left empty */ }
+    while (!TEST(SPSR, SPIF)) { /* Intentionally left empty */ }
     buf[i] = SPDR;
     SPDR = 0XFF;
   }
-  while (!(SPSR & (1 << SPIF))) { /* Intentionally left empty */ }
+  while (!TEST(SPSR, SPIF)) { /* Intentionally left empty */ }
   buf[nbyte] = SPDR;
 }
 //------------------------------------------------------------------------------
 /** SPI send a byte */
 static void spiSend(uint8_t b) {
   SPDR = b;
-  while (!(SPSR & (1 << SPIF))) { /* Intentionally left empty */ }
+  while (!TEST(SPSR, SPIF)) { /* Intentionally left empty */ }
 }
 //------------------------------------------------------------------------------
 /** SPI send block - only one call so force inline */
@@ -71,12 +71,12 @@ static inline __attribute__((always_inline))
   void spiSendBlock(uint8_t token, const uint8_t* buf) {
   SPDR = token;
   for (uint16_t i = 0; i < 512; i += 2) {
-    while (!(SPSR & (1 << SPIF))) { /* Intentionally left empty */ }
+    while (!TEST(SPSR, SPIF)) { /* Intentionally left empty */ }
     SPDR = buf[i];
-    while (!(SPSR & (1 << SPIF))) { /* Intentionally left empty */ }
+    while (!TEST(SPSR, SPIF)) { /* Intentionally left empty */ }
     SPDR = buf[i + 1];
   }
-  while (!(SPSR & (1 << SPIF))) { /* Intentionally left empty */ }
+  while (!TEST(SPSR, SPIF)) { /* Intentionally left empty */ }
 }
 //------------------------------------------------------------------------------
 #else  // SOFTWARE_SPI

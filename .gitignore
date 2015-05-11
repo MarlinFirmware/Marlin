@@ -1,3 +1,12 @@
+// Our automatic versioning scheme generates the following file
+// NEVER put it in the repository
+_Version.h
+
+// All of the following OS, IDE and compiler generated file
+// references should be moved from this file
+// They are needed, but they belong in your global .gitignore
+// rather than in a per-project file such as this
+
 *.o
 applet/
 *~
