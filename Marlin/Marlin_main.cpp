@@ -5535,7 +5535,7 @@ void ClearToSend() {
     SERIAL_PROTOCOLPGM(" N"); SERIAL_PROTOCOL(gcode_LastN);
     SERIAL_PROTOCOLPGM(" P"); SERIAL_PROTOCOL(BUFSIZE - commands_in_queue);
   #endif
-  SERIAL_PROTOCOLLNPGM("");  
+  SERIAL_EOL;  
 }
 
 void get_coordinates() {
