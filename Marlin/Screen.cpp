@@ -49,7 +49,11 @@ namespace screen
 	{
 		if ( (m_title != NULL) && (strlen(m_title) > 0) )
 		{
-			//Do here
+			painter.setColorIndex(1);
+			painter.setFont(u8g_font_6x9);
+			painter.setPrintPos(0,10);
+			painter.print(title());
+			painter.drawBox(0,13,screen_width,1);
 		}
 	}
 }

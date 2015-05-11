@@ -39,8 +39,6 @@ namespace screen
 
 	void ScreenMenu::draw()
 	{
-		drawTitle();
-
 		SERIAL_ECHO(m_title);
 		SERIAL_ECHO(">>>");
 		SERIAL_ECHO(" [");
@@ -61,6 +59,7 @@ namespace screen
 		painter.firstPage();
 		do 
 		{
+			drawTitle();
 			painter.setColorIndex(1);	// black on white
 			for (unsigned int i = 0;i <= m_num_items -1; ++i)
 			{
