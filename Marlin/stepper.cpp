@@ -73,10 +73,7 @@ static unsigned short step_loops_nominal;
 
 volatile long endstops_trigsteps[3] = { 0 };
 volatile long endstops_stepsTotal, endstops_stepsDone;
-static volatile bool endstop_x_hit = false;
-static volatile bool endstop_y_hit = false;
-static volatile bool endstop_z_hit = false;
-static volatile bool endstop_z_probe_hit = false; // Leaving this in even if Z_PROBE_ENDSTOP isn't defined, keeps code below cleaner. #ifdef it and usage below to save space.
+static volatile char endstop_hit_bits = 0; // use X_MIN, Y_MIN, Z_MIN and Z_PROBE as BIT value
 
 #ifdef ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED
   bool abort_on_endstop_hit = false;
@@ -264,27 +261,27 @@ volatile signed char count_direction[NUM_AXIS] = { 1, 1, 1, 1 };
 #define DISABLE_STEPPER_DRIVER_INTERRUPT() TIMSK1 &= ~BIT(OCIE1A)
 
 void endstops_hit_on_purpose() {
-  endstop_x_hit = endstop_y_hit = endstop_z_hit = endstop_z_probe_hit = false; // #ifdef endstop_z_probe_hit = to save space if needed.
+  endstop_hit_bits = 0;
 }
 
 void checkHitEndstops() {
-  if (endstop_x_hit || endstop_y_hit || endstop_z_hit || endstop_z_probe_hit) { // #ifdef || endstop_z_probe_hit to save space if needed.
+  if (endstop_hit_bits) { // #ifdef || endstop_z_probe_hit to save space if needed.
     SERIAL_ECHO_START;
     SERIAL_ECHOPGM(MSG_ENDSTOPS_HIT);
-    if (endstop_x_hit) {
+    if (endstop_hit_bits & BIT(X_MIN)) {
       SERIAL_ECHOPAIR(" X:", (float)endstops_trigsteps[X_AXIS] / axis_steps_per_unit[X_AXIS]);
       LCD_MESSAGEPGM(MSG_ENDSTOPS_HIT "X");
     }
-    if (endstop_y_hit) {
+    if (endstop_hit_bits & BIT(Y_MIN)) {
       SERIAL_ECHOPAIR(" Y:", (float)endstops_trigsteps[Y_AXIS] / axis_steps_per_unit[Y_AXIS]);
       LCD_MESSAGEPGM(MSG_ENDSTOPS_HIT "Y");
     }
-    if (endstop_z_hit) {
+    if (endstop_hit_bits & BIT(Z_MIN)) {
       SERIAL_ECHOPAIR(" Z:", (float)endstops_trigsteps[Z_AXIS] / axis_steps_per_unit[Z_AXIS]);
       LCD_MESSAGEPGM(MSG_ENDSTOPS_HIT "Z");
     }
     #ifdef Z_PROBE_ENDSTOP
-    if (endstop_z_probe_hit) {
+    if (endstop_hit_bits & BIT(Z_PROBE)) {
       SERIAL_ECHOPAIR(" Z_PROBE:", (float)endstops_trigsteps[Z_AXIS] / axis_steps_per_unit[Z_AXIS]);
       LCD_MESSAGEPGM(MSG_ENDSTOPS_HIT "ZP");
     }
@@ -468,13 +465,14 @@ ISR(TIMER1_COMPA_vect) {
     #define _ENDSTOP_INVERTING(AXIS, MINMAX) AXIS ##_## MINMAX ##_ENDSTOP_INVERTING
     #define _OLD_ENDSTOP(axis, minmax) old_## axis ##_## minmax ##_endstop
     #define _AXIS(AXIS) AXIS ##_AXIS
-    #define _ENDSTOP_HIT(axis) endstop_## axis ##_hit
+    #define _HIT_BIT(AXIS) AXIS ##_MIN
+    #define _ENDSTOP_HIT(AXIS) endstop_hit_bits |= BIT(_HIT_BIT(AXIS))
 
     #define UPDATE_ENDSTOP(axis,AXIS,minmax,MINMAX) \
       bool _ENDSTOP(axis, minmax) = (READ(_ENDSTOP_PIN(AXIS, MINMAX)) != _ENDSTOP_INVERTING(AXIS, MINMAX)); \
       if (_ENDSTOP(axis, minmax) && _OLD_ENDSTOP(axis, minmax) && (current_block->steps[_AXIS(AXIS)] > 0)) { \
         endstops_trigsteps[_AXIS(AXIS)] = count_position[_AXIS(AXIS)]; \
-        _ENDSTOP_HIT(axis) = true; \
+          _ENDSTOP_HIT(AXIS); \
         step_events_completed = current_block->step_event_count; \
       } \
       _OLD_ENDSTOP(axis, minmax) = _ENDSTOP(axis, minmax);
