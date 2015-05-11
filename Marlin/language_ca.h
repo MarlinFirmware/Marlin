@@ -2,11 +2,17 @@
  * Catalan
  *
  * LCD Menu Messages
- * Please note these are limited to 17 characters!
+ * See also documentation/LCDLanguageFont.md
  *
  */
 #ifndef LANGUAGE_CA_H
 #define LANGUAGE_CA_H
+
+//#define MAPPER_NON 
+#define MAPPER_C2C3  // because of "ó"
+// Define SIMULATE_ROMFONT to see what is seen on the character based display defined in Configuration.h
+//#define SIMULATE_ROMFONT
+#define DISPLAY_CHARSET_ISO10646_1
 
 #define WELCOME_MSG                         MACHINE_NAME " preparada."
 #define MSG_SD_INSERTED                     "SD detectada."
@@ -18,17 +24,13 @@
 #define MSG_SET_HOME_OFFSETS                "Set home offsets"
 #define MSG_SET_ORIGIN                      "Establir origen"
 #define MSG_PREHEAT_PLA                     "Preescalfar PLA"
-#define MSG_PREHEAT_PLA0                    "Preescalfar PLA 1"
-#define MSG_PREHEAT_PLA1                    "Preescalfar PLA 2"
-#define MSG_PREHEAT_PLA2                    "Preescalfar PLA 3"
-#define MSG_PREHEAT_PLA012                  "Preesc. tot PLA"
+#define MSG_PREHEAT_PLA_N                   "Preescalfar PLA "
+#define MSG_PREHEAT_PLA_ALL                 "Preesc. tot PLA"
 #define MSG_PREHEAT_PLA_BEDONLY             "Preesc. llit PLA"
 #define MSG_PREHEAT_PLA_SETTINGS            "Configuració PLA"
 #define MSG_PREHEAT_ABS                     "Preescalfar ABS"
-#define MSG_PREHEAT_ABS0                    "Preescalfar ABS 1"
-#define MSG_PREHEAT_ABS1                    "Preescalfar ABS 2"
-#define MSG_PREHEAT_ABS2                    "Preescalfar ABS 3"
-#define MSG_PREHEAT_ABS012                  "Preesc. tot ABS"
+#define MSG_PREHEAT_ABS_N                   "Preescalfar ABS "
+#define MSG_PREHEAT_ABS_ALL                 "Preesc. tot ABS"
 #define MSG_PREHEAT_ABS_BEDONLY             "Preesc. llit ABS"
 #define MSG_PREHEAT_ABS_SETTINGS            "Configuració ABS"
 #define MSG_COOLDOWN                        "Refredar"
@@ -41,25 +43,18 @@
 #define MSG_MOVE_Y                          "Moure Y"
 #define MSG_MOVE_Z                          "Moure Z"
 #define MSG_MOVE_E                          "Extrusor"
-#define MSG_MOVE_E1                         "Extruder2"
-#define MSG_MOVE_E2                         "Extruder3"
 #define MSG_MOVE_01MM                       "Moure 0.1mm"
 #define MSG_MOVE_1MM                        "Moure 1mm"
 #define MSG_MOVE_10MM                       "Moure 10mm"
 #define MSG_SPEED                           "Velocitat"
 #define MSG_NOZZLE                          "Nozzle"
-#define MSG_NOZZLE1                         "Nozzle2"
-#define MSG_NOZZLE2                         "Nozzle3"
 #define MSG_BED                             "Llit"
 #define MSG_FAN_SPEED                       "Vel. Ventilador"
 #define MSG_FLOW                            "Fluxe"
-#define MSG_FLOW0                           "Fluxe 0"
-#define MSG_FLOW1                           "Fluxe 1"
-#define MSG_FLOW2                           "Fluxe 2"
 #define MSG_CONTROL                         "Control"
-#define MSG_MIN                             " \002 Min"
-#define MSG_MAX                             " \002 Max"
-#define MSG_FACTOR                          " \002 Fact"
+#define MSG_MIN                             LCD_STR_THERMOMETER " Min"
+#define MSG_MAX                             LCD_STR_THERMOMETER " Max"
+#define MSG_FACTOR                          LCD_STR_THERMOMETER " Fact"
 #define MSG_AUTOTEMP                        "Autotemp"
 #define MSG_ON                              "On "
 #define MSG_OFF                             "Off"
@@ -87,7 +82,7 @@
 #define MSG_TEMPERATURE                     "Temperatura"
 #define MSG_MOTION                          "Moviment"
 #define MSG_VOLUMETRIC                      "Filament"
-#define MSG_VOLUMETRIC_ENABLED		        "E in mm3"
+#define MSG_VOLUMETRIC_ENABLED              "E in mm3"
 #define MSG_FILAMENT_SIZE_EXTRUDER_0        "Fil. Dia. 1"
 #define MSG_FILAMENT_SIZE_EXTRUDER_1        "Fil. Dia. 2"
 #define MSG_FILAMENT_SIZE_EXTRUDER_2        "Fil. Dia. 3"
@@ -129,8 +124,8 @@
 #define MSG_BABYSTEP_Y                      "Babystep Y"
 #define MSG_BABYSTEP_Z                      "Babystep Z"
 #define MSG_ENDSTOP_ABORT                   "Endstop abort"
-
-#define MSG_RECTRACT                        "Retreure"
+#define MSG_END_HOUR                        "hours"
+#define MSG_END_MINUTE                      "minutes"
 
 #ifdef DELTA_CALIBRATION_MENU
     #define MSG_DELTA_CALIBRATE             "Delta Calibration"
