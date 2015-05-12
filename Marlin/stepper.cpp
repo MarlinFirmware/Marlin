@@ -45,7 +45,8 @@ block_t *current_block;  // A pointer to the block currently being traced
 //static makes it impossible to be called from outside of this file by extern.!
 
 // Variables used by The Stepper Driver Interrupt
-static unsigned char out_bits;        // The next stepping-bits to be output
+static unsigned char out_bits = 0;        // The next stepping-bits to be output
+static unsigned char old_out_bits = 0;    // saves the old out_bits for a compare
 static unsigned int cleaning_buffer_counter;
 
 #ifdef Z_DUAL_ENDSTOPS
@@ -409,8 +410,11 @@ void set_stepper_direction() {
 FORCE_INLINE void trapezoid_generator_reset() {
 
   out_bits = current_block->direction_bits; // Get the current direction for each axis
-  set_stepper_direction();  // We set first the directions to get some time before setting the steps
-                            // Some stepper do need this and this way we get some µs for free.
+  if (old_out_bits == out_bits) {
+    set_stepper_direction();  // We set first the directions to get some time before setting the steps
+    old_out_bits = out_bits;  // Some stepper do need this and this way we get some µs for free.
+  }
+    
   #ifdef ADVANCE
     advance = current_block->initial_advance;
     final_advance = current_block->final_advance;
@@ -575,7 +579,7 @@ ISR(TIMER1_COMPA_vect) {
               z2_min_both = z2_min_endstop && old_z2_min_endstop;
           if ((z_min_both || z2_min_both) && current_block->steps[Z_AXIS] > 0) {
             endstops_trigsteps[Z_AXIS] = count_position[Z_AXIS];
-              endstop_hit_bits |= BIT(Z_MIN);
+            endstop_hit_bits |= BIT(Z_MIN);
             if (!performing_homing || (performing_homing && z_min_both && z2_min_both)) //if not performing home or if both endstops were trigged during homing...
               step_events_completed = current_block->step_event_count;
           }
@@ -607,7 +611,7 @@ ISR(TIMER1_COMPA_vect) {
               z2_max_both = z2_max_endstop && old_z2_max_endstop;
           if ((z_max_both || z2_max_both) && current_block->steps[Z_AXIS] > 0) {
             endstops_trigsteps[Z_AXIS] = count_position[Z_AXIS];
-              endstop_hit_bits |= BIT(Z_MIN);
+            endstop_hit_bits |= BIT(Z_MIN);
 
            // if (z_max_both) SERIAL_ECHOLN("z_max_endstop = true");
            // if (z2_max_both) SERIAL_ECHOLN("z2_max_endstop = true");
@@ -632,7 +636,7 @@ ISR(TIMER1_COMPA_vect) {
         if(z_probe_endstop && old_z_probe_endstop)
         {
           endstops_trigsteps[Z_AXIS] = count_position[Z_AXIS];
-            endstop_hit_bits |= BIT(Z_PROBE);
+          endstop_hit_bits |= BIT(Z_PROBE);
 
 //            if (z_probe_endstop && old_z_probe_endstop) SERIAL_ECHOLN("z_probe_endstop = true");
         }
@@ -972,12 +976,12 @@ void st_init() {
     #endif
   #endif
 
-#if (defined(Z_PROBE_PIN) && Z_PROBE_PIN >= 0) && defined(Z_PROBE_ENDSTOP) // Check for Z_PROBE_ENDSTOP so we don't pull a pin high unless it's to be used.
-  SET_INPUT(Z_PROBE_PIN);
-  #ifdef ENDSTOPPULLUP_ZPROBE
-    WRITE(Z_PROBE_PIN,HIGH);
+  #if (defined(Z_PROBE_PIN) && Z_PROBE_PIN >= 0) && defined(Z_PROBE_ENDSTOP) // Check for Z_PROBE_ENDSTOP so we don't pull a pin high unless it's to be used.
+    SET_INPUT(Z_PROBE_PIN);
+    #ifdef ENDSTOPPULLUP_ZPROBE
+      WRITE(Z_PROBE_PIN,HIGH);
+    #endif
   #endif
-#endif
 
   #define _STEP_INIT(AXIS) AXIS ##_STEP_INIT
   #define _WRITE_STEP(AXIS, HIGHLOW) AXIS ##_STEP_WRITE(HIGHLOW)
@@ -1056,6 +1060,8 @@ void st_init() {
 
   enable_endstops(true); // Start with endstops active. After homing they can be disabled
   sei();
+  
+  set_stepper_direction();
 }
 
 
