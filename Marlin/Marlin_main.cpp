@@ -1845,6 +1845,9 @@ inline void gcode_G4() {
  */
 inline void gcode_G28() {
 
+  // Wait for planner moves to finish!
+  st_synchronize();
+
   // For auto bed leveling, clear the level matrix
   #ifdef ENABLE_AUTO_BED_LEVELING
     plan_bed_level_matrix.set_to_identity();
@@ -1859,12 +1862,7 @@ inline void gcode_G28() {
     mbl.active = 0;
   #endif
 
-  saved_feedrate = feedrate;
-  saved_feedrate_multiplier = feedrate_multiplier;
-  feedrate_multiplier = 100;
-  refresh_cmd_timeout();
-
-  enable_endstops(true);
+  setup_for_endstop_move();
 
   set_destination_to_current();
 
@@ -3149,8 +3147,6 @@ inline void gcode_M42() {
     }
 
     clean_up_after_endstop_move();
-
-    // enable_endstops(true);
 
     if (verbose_level > 0) {
       SERIAL_PROTOCOLPGM("Mean: ");
