@@ -579,7 +579,7 @@ ISR(TIMER1_COMPA_vect) {
           if(z_probe_endstop && old_z_probe_endstop)
           {
             endstops_trigsteps[Z_AXIS] = count_position[Z_AXIS];
-            endstop_z_probe_hit=true;
+            endstop_hit_bits |= BIT(Z_PROBE);
 
 //            if (z_probe_endstop && old_z_probe_endstop) SERIAL_ECHOLN("z_probe_endstop = true");
           }
@@ -638,7 +638,7 @@ ISR(TIMER1_COMPA_vect) {
           if(z_probe_endstop && old_z_probe_endstop)
           {
             endstops_trigsteps[Z_AXIS] = count_position[Z_AXIS];
-            endstop_z_probe_hit=true;
+            endstop_hit_bits |= BIT(Z_PROBE);
 //            if (z_probe_endstop && old_z_probe_endstop) SERIAL_ECHOLN("z_probe_endstop = true");
           }
           old_z_probe_endstop = z_probe_endstop;
