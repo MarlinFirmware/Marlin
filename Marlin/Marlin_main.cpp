@@ -1657,7 +1657,7 @@ static void homeaxis(AxisEnum axis) {
 
 #ifdef FWRETRACT
 
-  void retract(bool retracting, bool swapretract = false) {
+  void retract(bool retracting, bool swapping=false) {
 
     if (retracting == retracted[active_extruder]) return;
 
@@ -1668,7 +1668,7 @@ static void homeaxis(AxisEnum axis) {
     if (retracting) {
 
       feedrate = retract_feedrate * 60;
-      current_position[E_AXIS] += (swapretract ? retract_length_swap : retract_length) / volumetric_multiplier[active_extruder];
+      current_position[E_AXIS] += (swapping ? retract_length_swap : retract_length) / volumetric_multiplier[active_extruder];
       plan_set_e_position(current_position[E_AXIS]);
       prepare_move();
 
@@ -1695,7 +1695,7 @@ static void homeaxis(AxisEnum axis) {
       }
 
       feedrate = retract_recover_feedrate * 60;
-      float move_e = swapretract ? retract_length_swap + retract_recover_length_swap : retract_length + retract_recover_length;
+      float move_e = swapping ? retract_length_swap + retract_recover_length_swap : retract_length + retract_recover_length;
       current_position[E_AXIS] -= move_e / volumetric_multiplier[active_extruder];
       plan_set_e_position(current_position[E_AXIS]);
       prepare_move();
@@ -1770,7 +1770,7 @@ inline void gcode_G0_G1() {
     #endif //FWRETRACT
 
     prepare_move();
-    //ClearToSend();
+    //ok_to_send();
   }
 }
 
@@ -4292,7 +4292,7 @@ inline void gcode_M303() {
       destination[X_AXIS] = delta[X_AXIS]/axis_scaling[X_AXIS];
       destination[Y_AXIS] = delta[Y_AXIS]/axis_scaling[Y_AXIS];
       prepare_move();
-      //ClearToSend();
+      //ok_to_send();
       return true;
     }
     return false;
@@ -5515,7 +5515,7 @@ void process_commands() {
     SERIAL_ECHOLNPGM("\"");
   }
 
-  ClearToSend();
+  ok_to_send();
 }
 
 void FlushSerialRequestResend() {
@@ -5523,10 +5523,10 @@ void FlushSerialRequestResend() {
   MYSERIAL.flush();
   SERIAL_PROTOCOLPGM(MSG_RESEND);
   SERIAL_PROTOCOLLN(gcode_LastN + 1);
-  ClearToSend();
+  ok_to_send();
 }
 
-void ClearToSend() {
+void ok_to_send() {
   refresh_cmd_timeout();
   #ifdef SDSUPPORT
     if (fromsd[cmd_queue_index_r]) return;
@@ -5755,34 +5755,35 @@ void mesh_plan_buffer_line(float x, float y, float z, const float e, float feed_
 
 #endif // PREVENT_DANGEROUS_EXTRUDE
 
-void prepare_move() {
-  clamp_to_software_endstops(destination);
-  refresh_cmd_timeout();
+#if defined(DELTA) || defined(SCARA)
 
-  #ifdef PREVENT_DANGEROUS_EXTRUDE
-    (void)prevent_dangerous_extrude(current_position[E_AXIS], destination[E_AXIS]);
-  #endif
-
-  #ifdef SCARA //for now same as delta-code
-
+  inline bool prepare_move_delta() {
     float difference[NUM_AXIS];
-    for (int8_t i = 0; i < NUM_AXIS; i++) difference[i] = destination[i] - current_position[i];
+    for (int8_t i=0; i < NUM_AXIS; i++) difference[i] = destination[i] - current_position[i];
 
     float cartesian_mm = sqrt(sq(difference[X_AXIS]) + sq(difference[Y_AXIS]) + sq(difference[Z_AXIS]));
-    if (cartesian_mm < 0.000001) { cartesian_mm = abs(difference[E_AXIS]); }
-    if (cartesian_mm < 0.000001) { return; }
+    if (cartesian_mm < 0.000001) cartesian_mm = abs(difference[E_AXIS]);
+    if (cartesian_mm < 0.000001) return false;
     float seconds = 6000 * cartesian_mm / feedrate / feedrate_multiplier;
-    int steps = max(1, int(scara_segments_per_second * seconds));
+    int steps = max(1, int(delta_segments_per_second * seconds));
 
-    //SERIAL_ECHOPGM("mm="); SERIAL_ECHO(cartesian_mm);
-    //SERIAL_ECHOPGM(" seconds="); SERIAL_ECHO(seconds);
-    //SERIAL_ECHOPGM(" steps="); SERIAL_ECHOLN(steps);
+    // SERIAL_ECHOPGM("mm="); SERIAL_ECHO(cartesian_mm);
+    // SERIAL_ECHOPGM(" seconds="); SERIAL_ECHO(seconds);
+    // SERIAL_ECHOPGM(" steps="); SERIAL_ECHOLN(steps);
 
     for (int s = 1; s <= steps; s++) {
+
       float fraction = float(s) / float(steps);
-      for (int8_t i = 0; i < NUM_AXIS; i++) destination[i] = current_position[i] + difference[i] * fraction;
-  
+
+      for (int8_t i = 0; i < NUM_AXIS; i++)
+        destination[i] = current_position[i] + difference[i] * fraction;
+
       calculate_delta(destination);
+
+      #ifdef ENABLE_AUTO_BED_LEVELING
+        adjust_delta(destination);
+      #endif
+
       //SERIAL_ECHOPGM("destination[X_AXIS]="); SERIAL_ECHOLN(destination[X_AXIS]);
       //SERIAL_ECHOPGM("destination[Y_AXIS]="); SERIAL_ECHOLN(destination[Y_AXIS]);
       //SERIAL_ECHOPGM("destination[Z_AXIS]="); SERIAL_ECHOLN(destination[Z_AXIS]);
@@ -5792,37 +5793,18 @@ void prepare_move() {
 
       plan_buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], destination[E_AXIS], feedrate/60*feedrate_multiplier/100.0, active_extruder);
     }
+    return true;
+  }
 
-  #endif // SCARA
-  
-  #ifdef DELTA
+#endif // DELTA || SCARA
 
-    float difference[NUM_AXIS];
-    for (int8_t i=0; i < NUM_AXIS; i++) difference[i] = destination[i] - current_position[i];
+#ifdef SCARA
+  inline bool prepare_move_scara() { return prepare_move_delta(); }
+#endif
 
-    float cartesian_mm = sqrt(sq(difference[X_AXIS]) + sq(difference[Y_AXIS]) + sq(difference[Z_AXIS]));
-    if (cartesian_mm < 0.000001) cartesian_mm = abs(difference[E_AXIS]);
-    if (cartesian_mm < 0.000001) return;
-    float seconds = 6000 * cartesian_mm / feedrate / feedrate_multiplier;
-    int steps = max(1, int(delta_segments_per_second * seconds));
+#ifdef DUAL_X_CARRIAGE
 
-    // SERIAL_ECHOPGM("mm="); SERIAL_ECHO(cartesian_mm);
-    // SERIAL_ECHOPGM(" seconds="); SERIAL_ECHO(seconds);
-    // SERIAL_ECHOPGM(" steps="); SERIAL_ECHOLN(steps);
-
-    for (int s = 1; s <= steps; s++) {
-      float fraction = float(s) / float(steps);
-      for (int8_t i = 0; i < NUM_AXIS; i++) destination[i] = current_position[i] + difference[i] * fraction;
-      calculate_delta(destination);
-      #ifdef ENABLE_AUTO_BED_LEVELING
-        adjust_delta(destination);
-      #endif
-      plan_buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], destination[E_AXIS], feedrate/60*feedrate_multiplier/100.0, active_extruder);
-    }
-
-  #endif // DELTA
-
-  #ifdef DUAL_X_CARRIAGE
+  inline bool prepare_move_dual_x_carriage() {
     if (active_extruder_parked) {
       if (dual_x_carriage_mode == DXC_DUPLICATION_MODE && active_extruder == 0) {
         // move duplicate extruder into correct duplication position.
@@ -5843,7 +5825,7 @@ void prepare_move() {
             set_current_to_destination();
             NOLESS(raised_parked_position[Z_AXIS], destination[Z_AXIS]);
             delayed_move_time = millis();
-            return;
+            return false;
           }
         }
         delayed_move_time = 0;
@@ -5854,9 +5836,14 @@ void prepare_move() {
         active_extruder_parked = false;
       }
     }
-  #endif // DUAL_X_CARRIAGE
+    return true;
+  }
 
-  #if !defined(DELTA) && !defined(SCARA)
+#endif // DUAL_X_CARRIAGE
+
+#if !defined(DELTA) && !defined(SCARA)
+
+  inline bool prepare_move_cartesian() {
     // Do not use feedrate_multiplier for E or Z only moves
     if (current_position[X_AXIS] == destination[X_AXIS] && current_position[Y_AXIS] == destination[Y_AXIS]) {
       line_to_destination();
@@ -5864,12 +5851,40 @@ void prepare_move() {
     else {
       #ifdef MESH_BED_LEVELING
         mesh_plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], (feedrate/60)*(feedrate_multiplier/100.0), active_extruder);
-        return;
+        return false;
       #else
         line_to_destination(feedrate * feedrate_multiplier / 100.0);
-      #endif  // MESH_BED_LEVELING
+      #endif
     }
-  #endif // !(DELTA || SCARA)
+    return true;
+  }
+
+#endif // !DELTA && !SCARA
+
+/**
+ * Prepare a single move and get ready for the next one
+ */
+void prepare_move() {
+  clamp_to_software_endstops(destination);
+  refresh_cmd_timeout();
+
+  #ifdef PREVENT_DANGEROUS_EXTRUDE
+    prevent_dangerous_extrude(current_position[E_AXIS], destination[E_AXIS]);
+  #endif
+
+  #ifdef SCARA
+    if (!prepare_move_scara()) return;
+  #elif defined(DELTA)
+    if (!prepare_move_delta()) return;
+  #endif
+
+  #ifdef DUAL_X_CARRIAGE
+    if (!prepare_move_dual_x_carriage()) return;
+  #endif
+
+  #if !defined(DELTA) && !defined(SCARA)
+    if (!prepare_move_cartesian()) return;
+  #endif
 
   set_current_to_destination();
 }
@@ -5889,37 +5904,37 @@ void prepare_arc_move(char isclockwise) {
 
 #if HAS_CONTROLLERFAN
 
-millis_t lastMotor = 0; // Last time a motor was turned on
-millis_t lastMotorCheck = 0; // Last time the state was checked
-
-void controllerFan() {
-  millis_t ms = millis();
-  if (ms >= lastMotorCheck + 2500) { // Not a time critical function, so we only check every 2500ms
-    lastMotorCheck = ms;
-    if (X_ENABLE_READ == X_ENABLE_ON || Y_ENABLE_READ == Y_ENABLE_ON || Z_ENABLE_READ == Z_ENABLE_ON || soft_pwm_bed > 0
-      || E0_ENABLE_READ == E_ENABLE_ON // If any of the drivers are enabled...
-      #if EXTRUDERS > 1
-        || E1_ENABLE_READ == E_ENABLE_ON
-        #if HAS_X2_ENABLE
-          || X2_ENABLE_READ == X_ENABLE_ON
-        #endif
-        #if EXTRUDERS > 2
-          || E2_ENABLE_READ == E_ENABLE_ON
-          #if EXTRUDERS > 3
-            || E3_ENABLE_READ == E_ENABLE_ON
+  void controllerFan() {
+    static millis_t lastMotor = 0;      // Last time a motor was turned on
+    static millis_t lastMotorCheck = 0; // Last time the state was checked
+    millis_t ms = millis();
+    if (ms >= lastMotorCheck + 2500) { // Not a time critical function, so we only check every 2500ms
+      lastMotorCheck = ms;
+      if (X_ENABLE_READ == X_ENABLE_ON || Y_ENABLE_READ == Y_ENABLE_ON || Z_ENABLE_READ == Z_ENABLE_ON || soft_pwm_bed > 0
+        || E0_ENABLE_READ == E_ENABLE_ON // If any of the drivers are enabled...
+        #if EXTRUDERS > 1
+          || E1_ENABLE_READ == E_ENABLE_ON
+          #if HAS_X2_ENABLE
+            || X2_ENABLE_READ == X_ENABLE_ON
+          #endif
+          #if EXTRUDERS > 2
+            || E2_ENABLE_READ == E_ENABLE_ON
+            #if EXTRUDERS > 3
+              || E3_ENABLE_READ == E_ENABLE_ON
+            #endif
           #endif
         #endif
-      #endif
-    ) {
-      lastMotor = ms; //... set time to NOW so the fan will turn on
+      ) {
+        lastMotor = ms; //... set time to NOW so the fan will turn on
+      }
+      uint8_t speed = (lastMotor == 0 || ms >= lastMotor + (CONTROLLERFAN_SECS * 1000UL)) ? 0 : CONTROLLERFAN_SPEED;
+      // allows digital or PWM fan output to be used (see M42 handling)
+      digitalWrite(CONTROLLERFAN_PIN, speed);
+      analogWrite(CONTROLLERFAN_PIN, speed);
     }
-    uint8_t speed = (lastMotor == 0 || ms >= lastMotor + (CONTROLLERFAN_SECS * 1000UL)) ? 0 : CONTROLLERFAN_SPEED;
-    // allows digital or PWM fan output to be used (see M42 handling)
-    digitalWrite(CONTROLLERFAN_PIN, speed);
-    analogWrite(CONTROLLERFAN_PIN, speed);
   }
-}
-#endif
+
+#endif // HAS_CONTROLLERFAN
 
 #ifdef SCARA
 void calculate_SCARA_forward_Transform(float f_scara[3])
