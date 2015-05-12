@@ -135,6 +135,10 @@
   #endif
 #endif
 
+#ifdef Z_PROBE_SLED
+  #define SLED_PIN         -1
+#endif
+
 #ifdef ULTRA_LCD
 
   #ifdef NEWPANEL
