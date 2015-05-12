@@ -171,9 +171,9 @@ static float analog2tempBed(int raw);
 static void updateTemperaturesFromRawValues();
 
 #ifdef WATCH_TEMP_PERIOD
-  int watch_start_temp[EXTRUDERS] = { 0 };
-  millis_t watchmillis[EXTRUDERS] = { 0 };
-#endif //WATCH_TEMP_PERIOD
+  int watch_target_temp[EXTRUDERS] = { 0 };
+  millis_t watch_heater_next_ms[EXTRUDERS] = { 0 };
+#endif
 
 #ifndef SOFT_PWM_SCALE
   #define SOFT_PWM_SCALE 0
@@ -447,14 +447,14 @@ void checkExtruderAutoFans()
 //
 // Temperature Error Handlers
 //
-inline void _temp_error(int e, const char *msg1, const char *msg2) {
+inline void _temp_error(int e, const char *serial_msg, const char *lcd_msg) {
   if (IsRunning()) {
     SERIAL_ERROR_START;
     if (e >= 0) SERIAL_ERRORLN((int)e);
-    serialprintPGM(msg1);
+    serialprintPGM(serial_msg);
     MYSERIAL.write('\n');
     #ifdef ULTRA_LCD
-      lcd_setalertstatuspgm(msg2);
+      lcd_setalertstatuspgm(lcd_msg);
     #endif
   }
   #ifndef BOGUS_TEMPERATURE_FAILSAFE_OVERRIDE
@@ -602,7 +602,7 @@ void manage_heater() {
     float ct = current_temperature[0];
     if (ct > min(HEATER_0_MAXTEMP, 1023)) max_temp_error(0);
     if (ct < max(HEATER_0_MINTEMP, 0.01)) min_temp_error(0);
-  #endif //HEATER_0_USES_MAX6675
+  #endif
 
   #if defined(WATCH_TEMP_PERIOD) || !defined(PIDTEMPBED) || HAS_AUTO_FAN
     millis_t ms = millis();
@@ -620,26 +620,29 @@ void manage_heater() {
     // Check if temperature is within the correct range
     soft_pwm[e] = current_temperature[e] > minttemp[e] && current_temperature[e] < maxttemp[e] ? (int)pid_output >> 1 : 0;
 
+    // Check if the temperature is failing to increase
     #ifdef WATCH_TEMP_PERIOD
-      if (watchmillis[e] && ms > watchmillis[e] + WATCH_TEMP_PERIOD) {
-        if (degHotend(e) < watch_start_temp[e] + WATCH_TEMP_INCREASE) {
-          setTargetHotend(0, e);
-          LCD_MESSAGEPGM(MSG_HEATING_FAILED_LCD); // translatable
-          SERIAL_ECHO_START;
-          SERIAL_ECHOLNPGM(MSG_HEATING_FAILED);
+      // Is it time to check this extruder's heater?
+      if (watch_heater_next_ms[e] && ms > watch_heater_next_ms[e]) {
+        // Has it failed to increase enough?
+        if (degHotend(e) < watch_target_temp[e]) {
+          // Stop!
+          disable_all_heaters();
+          _temp_error(e, MSG_HEATING_FAILED, MSG_HEATING_FAILED_LCD);
         }
         else {
-          watchmillis[e] = 0;
+          // Only check once per M104/M109
+          watch_heater_next_ms[e] = 0;
         }
       }
-    #endif //WATCH_TEMP_PERIOD
+    #endif // WATCH_TEMP_PERIOD
 
     #ifdef TEMP_SENSOR_1_AS_REDUNDANT
       if (fabs(current_temperature[0] - redundant_temperature) > MAX_REDUNDANT_TEMP_SENSOR_DIFF) {
         disable_all_heaters();
         _temp_error(0, PSTR(MSG_EXTRUDER_SWITCHED_OFF), PSTR(MSG_ERR_REDUNDANT_TEMP));
       }
-    #endif // TEMP_SENSOR_1_AS_REDUNDANT
+    #endif
 
   } // Extruders Loop
 
@@ -996,17 +999,22 @@ void tp_init() {
   #endif //BED_MAXTEMP
 }
 
-void setWatch() {
-  #ifdef WATCH_TEMP_PERIOD
-    millis_t ms = millis();
-    for (int e = 0; e < EXTRUDERS; e++) {
-      if (degHotend(e) < degTargetHotend(e) - (WATCH_TEMP_INCREASE * 2)) {
-        watch_start_temp[e] = degHotend(e);
-        watchmillis[e] = ms;
-      } 
+#ifdef WATCH_TEMP_PERIOD
+  /**
+   * Start Heating Sanity Check for hotends that are below
+   * their target temperature by a configurable margin.
+   * This is called when the temperature is set. (M104, M109)
+   */
+  void start_watching_heater(int e) {
+    millis_t ms = millis() + WATCH_TEMP_PERIOD;
+    if (degHotend(e) < degTargetHotend(e) - (WATCH_TEMP_INCREASE * 2)) {
+      watch_target_temp[e] = degHotend(e) + WATCH_TEMP_INCREASE;
+      watch_heater_next_ms[e] = ms;
     }
-  #endif 
-}
+    else
+      watch_heater_next_ms[e] = 0;
+  }
+#endif
 
 #if HAS_HEATER_THERMAL_PROTECTION || HAS_BED_THERMAL_PROTECTION
 

@@ -73,10 +73,7 @@ static unsigned short step_loops_nominal;
 
 volatile long endstops_trigsteps[3] = { 0 };
 volatile long endstops_stepsTotal, endstops_stepsDone;
-static volatile bool endstop_x_hit = false;
-static volatile bool endstop_y_hit = false;
-static volatile bool endstop_z_hit = false;
-static volatile bool endstop_z_probe_hit = false; // Leaving this in even if Z_PROBE_ENDSTOP isn't defined, keeps code below cleaner. #ifdef it and usage below to save space.
+static volatile char endstop_hit_bits = 0; // use X_MIN, Y_MIN, Z_MIN and Z_PROBE as BIT value
 
 #ifdef ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED
   bool abort_on_endstop_hit = false;
@@ -264,27 +261,27 @@ volatile signed char count_direction[NUM_AXIS] = { 1, 1, 1, 1 };
 #define DISABLE_STEPPER_DRIVER_INTERRUPT() TIMSK1 &= ~BIT(OCIE1A)
 
 void endstops_hit_on_purpose() {
-  endstop_x_hit = endstop_y_hit = endstop_z_hit = endstop_z_probe_hit = false; // #ifdef endstop_z_probe_hit = to save space if needed.
+  endstop_hit_bits = 0;
 }
 
 void checkHitEndstops() {
-  if (endstop_x_hit || endstop_y_hit || endstop_z_hit || endstop_z_probe_hit) { // #ifdef || endstop_z_probe_hit to save space if needed.
+  if (endstop_hit_bits) { // #ifdef || endstop_z_probe_hit to save space if needed.
     SERIAL_ECHO_START;
     SERIAL_ECHOPGM(MSG_ENDSTOPS_HIT);
-    if (endstop_x_hit) {
+    if (endstop_hit_bits & BIT(X_MIN)) {
       SERIAL_ECHOPAIR(" X:", (float)endstops_trigsteps[X_AXIS] / axis_steps_per_unit[X_AXIS]);
       LCD_MESSAGEPGM(MSG_ENDSTOPS_HIT "X");
     }
-    if (endstop_y_hit) {
+    if (endstop_hit_bits & BIT(Y_MIN)) {
       SERIAL_ECHOPAIR(" Y:", (float)endstops_trigsteps[Y_AXIS] / axis_steps_per_unit[Y_AXIS]);
       LCD_MESSAGEPGM(MSG_ENDSTOPS_HIT "Y");
     }
-    if (endstop_z_hit) {
+    if (endstop_hit_bits & BIT(Z_MIN)) {
       SERIAL_ECHOPAIR(" Z:", (float)endstops_trigsteps[Z_AXIS] / axis_steps_per_unit[Z_AXIS]);
       LCD_MESSAGEPGM(MSG_ENDSTOPS_HIT "Z");
     }
     #ifdef Z_PROBE_ENDSTOP
-    if (endstop_z_probe_hit) {
+    if (endstop_hit_bits & BIT(Z_PROBE)) {
       SERIAL_ECHOPAIR(" Z_PROBE:", (float)endstops_trigsteps[Z_AXIS] / axis_steps_per_unit[Z_AXIS]);
       LCD_MESSAGEPGM(MSG_ENDSTOPS_HIT "ZP");
     }
@@ -496,13 +493,14 @@ ISR(TIMER1_COMPA_vect) {
       #define _ENDSTOP_INVERTING(AXIS, MINMAX) AXIS ##_## MINMAX ##_ENDSTOP_INVERTING
       #define _OLD_ENDSTOP(axis, minmax) old_## axis ##_## minmax ##_endstop
       #define _AXIS(AXIS) AXIS ##_AXIS
-      #define _ENDSTOP_HIT(axis) endstop_## axis ##_hit
+    #define _HIT_BIT(AXIS) AXIS ##_MIN
+    #define _ENDSTOP_HIT(AXIS) endstop_hit_bits |= BIT(_HIT_BIT(AXIS))
 
       #define UPDATE_ENDSTOP(axis,AXIS,minmax,MINMAX) \
         bool _ENDSTOP(axis, minmax) = (READ(_ENDSTOP_PIN(AXIS, MINMAX)) != _ENDSTOP_INVERTING(AXIS, MINMAX)); \
         if (_ENDSTOP(axis, minmax) && _OLD_ENDSTOP(axis, minmax) && (current_block->steps[_AXIS(AXIS)] > 0)) { \
           endstops_trigsteps[_AXIS(AXIS)] = count_position[_AXIS(AXIS)]; \
-          _ENDSTOP_HIT(axis) = true; \
+          _ENDSTOP_HIT(AXIS); \
           step_events_completed = current_block->step_event_count; \
         } \
         _OLD_ENDSTOP(axis, minmax) = _ENDSTOP(axis, minmax);
@@ -577,7 +575,7 @@ ISR(TIMER1_COMPA_vect) {
               z2_min_both = z2_min_endstop && old_z2_min_endstop;
           if ((z_min_both || z2_min_both) && current_block->steps[Z_AXIS] > 0) {
             endstops_trigsteps[Z_AXIS] = count_position[Z_AXIS];
-            endstop_z_hit = true;
+              endstop_hit_bits |= BIT(Z_MIN);
             if (!performing_homing || (performing_homing && z_min_both && z2_min_both)) //if not performing home or if both endstops were trigged during homing...
               step_events_completed = current_block->step_event_count;
           }
@@ -609,7 +607,7 @@ ISR(TIMER1_COMPA_vect) {
               z2_max_both = z2_max_endstop && old_z2_max_endstop;
           if ((z_max_both || z2_max_both) && current_block->steps[Z_AXIS] > 0) {
             endstops_trigsteps[Z_AXIS] = count_position[Z_AXIS];
-            endstop_z_hit = true;
+              endstop_hit_bits |= BIT(Z_MIN);
 
            // if (z_max_both) SERIAL_ECHOLN("z_max_endstop = true");
            // if (z2_max_both) SERIAL_ECHOLN("z2_max_endstop = true");
@@ -634,7 +632,7 @@ ISR(TIMER1_COMPA_vect) {
         if(z_probe_endstop && old_z_probe_endstop)
         {
           endstops_trigsteps[Z_AXIS] = count_position[Z_AXIS];
-          endstop_z_probe_hit=true;
+            endstop_hit_bits |= BIT(Z_PROBE);
 
 //            if (z_probe_endstop && old_z_probe_endstop) SERIAL_ECHOLN("z_probe_endstop = true");
         }
@@ -660,60 +658,34 @@ ISR(TIMER1_COMPA_vect) {
       #endif //ADVANCE
 
       #define _COUNTER(axis) counter_## axis
-      #define _WRITE_STEP(AXIS, HIGHLOW) AXIS ##_STEP_WRITE(HIGHLOW)
       #define _APPLY_STEP(AXIS) AXIS ##_APPLY_STEP
       #define _INVERT_STEP_PIN(AXIS) INVERT_## AXIS ##_STEP_PIN
 
-      #ifdef CONFIG_STEPPERS_TOSHIBA
-        /**
-         * The Toshiba stepper controller require much longer pulses.
-         * So we 'stage' decompose the pulses between high and low
-         * instead of doing each in turn. The extra tests add enough
-         * lag to allow it work with without needing NOPs
-         */
-        #define STEP_ADD(axis, AXIS) \
-         _COUNTER(axis) += current_block->steps[_AXIS(AXIS)]; \
-         if (_COUNTER(axis) > 0) { _WRITE_STEP(AXIS, HIGH); }
-        STEP_ADD(x,X);
-        STEP_ADD(y,Y);
-        STEP_ADD(z,Z);
-        #ifndef ADVANCE
-          STEP_ADD(e,E);
-        #endif
+      #define STEP_ADD(axis, AXIS) \
+        _COUNTER(axis) += current_block->steps[_AXIS(AXIS)]; \
+        if (_COUNTER(axis) > 0) { _APPLY_STEP(AXIS)(!_INVERT_STEP_PIN(AXIS),0); }
 
-        #define STEP_IF_COUNTER(axis, AXIS) \
-          if (_COUNTER(axis) > 0) { \
-            _COUNTER(axis) -= current_block->step_event_count; \
-            count_position[_AXIS(AXIS)] += count_direction[_AXIS(AXIS)]; \
-            _WRITE_STEP(AXIS, LOW); \
-          }
+      STEP_ADD(x,X);
+      STEP_ADD(y,Y);
+      STEP_ADD(z,Z);
+      #ifndef ADVANCE
+        STEP_ADD(e,E);
+      #endif
 
-        STEP_IF_COUNTER(x, X);
-        STEP_IF_COUNTER(y, Y);
-        STEP_IF_COUNTER(z, Z);
-        #ifndef ADVANCE
-          STEP_IF_COUNTER(e, E);
-        #endif
+      #define STEP_IF_COUNTER(axis, AXIS) \
+        if (_COUNTER(axis) > 0) { \
+          _COUNTER(axis) -= current_block->step_event_count; \
+          count_position[_AXIS(AXIS)] += count_direction[_AXIS(AXIS)]; \
+          _APPLY_STEP(AXIS)(_INVERT_STEP_PIN(AXIS),0); \
+        }
 
-      #else // !CONFIG_STEPPERS_TOSHIBA
+      STEP_IF_COUNTER(x, X);
+      STEP_IF_COUNTER(y, Y);
+      STEP_IF_COUNTER(z, Z);
+      #ifndef ADVANCE
+        STEP_IF_COUNTER(e, E);
+      #endif
 
-        #define APPLY_MOVEMENT(axis, AXIS) \
-          _COUNTER(axis) += current_block->steps[_AXIS(AXIS)]; \
-          if (_COUNTER(axis) > 0) { \
-            _APPLY_STEP(AXIS)(!_INVERT_STEP_PIN(AXIS),0); \
-            _COUNTER(axis) -= current_block->step_event_count; \
-            count_position[_AXIS(AXIS)] += count_direction[_AXIS(AXIS)]; \
-            _APPLY_STEP(AXIS)(_INVERT_STEP_PIN(AXIS),0); \
-          }
-
-        APPLY_MOVEMENT(x, X);
-        APPLY_MOVEMENT(y, Y);
-        APPLY_MOVEMENT(z, Z);
-        #ifndef ADVANCE
-          APPLY_MOVEMENT(e, E);
-        #endif
-
-      #endif // CONFIG_STEPPERS_TOSHIBA
       step_events_completed++;
       if (step_events_completed >= current_block->step_event_count) break;
     }
@@ -1008,6 +980,7 @@ void st_init() {
 #endif
 
   #define _STEP_INIT(AXIS) AXIS ##_STEP_INIT
+  #define _WRITE_STEP(AXIS, HIGHLOW) AXIS ##_STEP_WRITE(HIGHLOW)
   #define _DISABLE(axis) disable_## axis()
 
   #define AXIS_INIT(axis, AXIS, PIN) \

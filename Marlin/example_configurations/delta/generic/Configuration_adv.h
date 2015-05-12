@@ -14,13 +14,16 @@
 #endif
 #define BED_CHECK_INTERVAL 5000 //ms between checks in bang-bang control
 
-//// Heating sanity check:
-// This waits for the watch period in milliseconds whenever an M104 or M109 increases the target temperature
-// If the temperature has not increased at the end of that period, the target temperature is set to zero.
-// It can be reset with another M104/M109. This check is also only triggered if the target temperature and the current temperature
-//  differ by at least 2x WATCH_TEMP_INCREASE
-//#define WATCH_TEMP_PERIOD 40000 //40 seconds
-//#define WATCH_TEMP_INCREASE 10  //Heat up at least 10 degree in 20 seconds
+/**
+ * Heating Sanity Check
+ *
+ * Whenever an M104 or M109 increases the target temperature this will wait for WATCH_TEMP_PERIOD milliseconds,
+ * and if the temperature hasn't increased by WATCH_TEMP_INCREASE degrees, the machine is halted, requiring a
+ * hard reset. This test restarts with any M104/M109, but only if the current temperature is below the target
+ * by at least 2 * WATCH_TEMP_INCREASE degrees celsius.
+ */
+#define WATCH_TEMP_PERIOD 16000 // 16 seconds
+#define WATCH_TEMP_INCREASE 4  // Heat up at least 4 degrees in 16 seconds
 
 #ifdef PIDTEMP
   // this adds an experimental additional term to the heating power, proportional to the extrusion speed.
@@ -376,6 +379,14 @@ const unsigned int dropsegments=5; //everything with less than this number of st
 //The ASCII buffer for receiving from the serial:
 #define MAX_CMD_SIZE 96
 #define BUFSIZE 4
+
+// Bad Serial-connections can miss a received command by sending an 'ok'
+// Therefore some clients go after 30 seconds in a timeout. Some other clients start sending commands while receiving a 'wait'.
+// This wait is only send when the buffer is empty. The timeout-length is in milliseconds. 1000 is a good value.
+#define NO_TIMEOUTS 1000
+
+// Some clients will have this feature soon. This could make the NO_TIMEOUTS unnecessary.
+#define ADVANCED_OK
 
 // @section fwretract
 

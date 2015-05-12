@@ -733,8 +733,20 @@ void get_command() {
 
   if (drain_queued_commands_P()) return; // priority is given to non-serial commands
   
+  #ifdef NO_TIMEOUTS
+    static millis_t last_command_time = 0;
+    millis_t ms = millis();
+  
+    if (!MYSERIAL.available() && commands_in_queue == 0 && ms - last_command_time > NO_TIMEOUTS) {
+      SERIAL_ECHOLNPGM(MSG_WAIT);
+      last_command_time = ms;
+    }
+  #endif
+  
   while (MYSERIAL.available() > 0 && commands_in_queue < BUFSIZE) {
-
+    #ifdef NO_TIMEOUTS
+      last_command_time = ms;
+    #endif
     serial_char = MYSERIAL.read();
 
     if (serial_char == '\n' || serial_char == '\r' ||
@@ -3166,7 +3178,10 @@ inline void gcode_M104() {
       if (dual_x_carriage_mode == DXC_DUPLICATION_MODE && target_extruder == 0)
         setTargetHotend1(temp == 0.0 ? 0.0 : temp + duplicate_extruder_temp_offset);
     #endif
-    setWatch();
+
+    #ifdef WATCH_TEMP_PERIOD
+      start_watching_heater(target_extruder);
+    #endif
   }
 }
 
@@ -3278,7 +3293,9 @@ inline void gcode_M109() {
     if (code_seen('B')) autotemp_max = code_value();
   #endif
 
-  setWatch();
+  #ifdef WATCH_TEMP_PERIOD
+    start_watching_heater(target_extruder);
+  #endif
 
   millis_t temp_ms = millis();
 
@@ -4074,14 +4091,14 @@ inline void gcode_M226() {
 #if NUM_SERVOS > 0
 
   /**
-   * M280: Set servo position absolute. P: servo index, S: angle or microseconds
+   * M280: Get or set servo position. P<index> S<angle>
    */
   inline void gcode_M280() {
-    int servo_index = code_seen('P') ? code_value() : -1;
+    int servo_index = code_seen('P') ? code_value_short() : -1;
     int servo_position = 0;
     if (code_seen('S')) {
-      servo_position = code_value();
-      if ((servo_index >= 0) && (servo_index < NUM_SERVOS)) {
+      servo_position = code_value_short();
+      if (servo_index >= 0 && servo_index < NUM_SERVOS) {
         Servo *srv = &servo[servo_index];
         #if SERVO_LEVELING
           srv->attach(0);
@@ -5518,7 +5535,12 @@ void ClearToSend() {
   #ifdef SDSUPPORT
     if (fromsd[cmd_queue_index_r]) return;
   #endif
-  SERIAL_PROTOCOLLNPGM(MSG_OK);
+  SERIAL_PROTOCOLPGM(MSG_OK);
+  #ifdef ADVANCED_OK
+    SERIAL_PROTOCOLPGM(" N"); SERIAL_PROTOCOL(gcode_LastN);
+    SERIAL_PROTOCOLPGM(" P"); SERIAL_PROTOCOL(BUFSIZE - commands_in_queue);
+  #endif
+  SERIAL_EOL;  
 }
 
 void get_coordinates() {
@@ -5650,10 +5672,6 @@ void clamp_to_software_endstops(float target[3]) {
 
 #ifdef MESH_BED_LEVELING
 
-  #if !defined(MIN)
-    #define MIN(_v1, _v2) (((_v1) < (_v2)) ? (_v1) : (_v2))
-  #endif  // ! MIN
-
 // This function is used to split lines on mesh borders so each segment is only part of one mesh area
 void mesh_plan_buffer_line(float x, float y, float z, const float e, float feed_rate, const uint8_t &extruder, uint8_t x_splits=0xff, uint8_t y_splits=0xff)
 {
@@ -5666,10 +5684,10 @@ void mesh_plan_buffer_line(float x, float y, float z, const float e, float feed_
   int piy = mbl.select_y_index(current_position[Y_AXIS]);
   int ix = mbl.select_x_index(x);
   int iy = mbl.select_y_index(y);
-  pix = MIN(pix, MESH_NUM_X_POINTS-2);
-  piy = MIN(piy, MESH_NUM_Y_POINTS-2);
-  ix = MIN(ix, MESH_NUM_X_POINTS-2);
-  iy = MIN(iy, MESH_NUM_Y_POINTS-2);
+  pix = min(pix, MESH_NUM_X_POINTS - 2);
+  piy = min(piy, MESH_NUM_Y_POINTS - 2);
+  ix = min(ix, MESH_NUM_X_POINTS - 2);
+  iy = min(iy, MESH_NUM_Y_POINTS - 2);
   if (pix == ix && piy == iy) {
     // Start and end on same mesh square
     plan_buffer_line(x, y, z, e, feed_rate, extruder);
@@ -6213,10 +6231,10 @@ void kill()
   void filrunout() {
     if (!filrunoutEnqueued) {
       filrunoutEnqueued = true;
-      enqueuecommand("M600");
+      enqueuecommands_P(PSTR(FILAMENT_RUNOUT_SCRIPT));
+      st_synchronize();
     }
   }
-
 #endif
 
 void Stop() {
