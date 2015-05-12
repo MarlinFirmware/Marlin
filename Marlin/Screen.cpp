@@ -17,7 +17,7 @@ namespace screen
 		return m_title;
 	}
 
-	ScreenType_t const & Screen::type() const
+	Screen::ScreenType_t const & Screen::type() const
 	{
 		return m_type;
 	}

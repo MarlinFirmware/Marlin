@@ -9,18 +9,20 @@
 
 namespace screen
 {
-	typedef enum
-	{
-		SIMPLE = 0, 
-		MENU,
-		DIALOG,
-		LIST,
-		SELECTOR,
-		NUM_SCREEN_TYPES,
-	} ScreenType_t;
-
 	class Screen
 	{
+
+		public:
+			typedef enum
+			{
+				SIMPLE = 0, 
+				MENU,
+				DIALOG,
+				LIST,
+				SELECTOR,
+				NUM_SCREEN_TYPES,
+			} ScreenType_t;
+
 		public:
 			Screen(const char * title, ScreenType_t const & type = SIMPLE);
 			virtual ~Screen();
