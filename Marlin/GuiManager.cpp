@@ -16,7 +16,6 @@ void draw_status_screen(){};
 void draw_wizard_change_filament(){};
 
 screen::Screen * active_view;
-screen::Screen * parent_view;
 
 /*******************************************************************************
 **   Variables
