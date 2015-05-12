@@ -1,4 +1,5 @@
 # See: https://github.com/arduino/Arduino/wiki/Arduino-IDE-1.5---3rd-party-Hardware-specification
+# See: http://code.google.com/p/arduino/wiki/Platforms
 
 ##############################################################
 
@@ -70,3 +71,89 @@ sanguino.menu.cpu.atmega1284.bootloader.file=ATmegaBOOT_168_atmega1284p.hex
 sanguino.menu.cpu.atmega1284m=ATmega1284p 20MHz
 sanguino.menu.cpu.atmega1284m.bootloader.file=ATmegaBOOT_168_atmega1284p.hex
 sanguino.menu.cpu.atmega1284m.build.f_cpu=20000000L
+
+########################################
+## Brainwave
+########################################
+Brainwave.name=Brainwave
+
+Brainwave.bootloader.tool=avrdude
+Brainwave.bootloader.low_fuses=0xFF
+Brainwave.bootloader.high_fuses=0x99
+Brainwave.bootloader.extended_fuses=0xF0
+Brainwave.bootloader.unlock_bits=0x3F
+Brainwave.bootloader.lock_bits=0x02F
+Brainwave.bootloader.path=brainwave
+Brainwave.bootloader.file=Brainwave-646-LUFA.hex
+
+Brainwave.upload.tool=avrdude
+Brainwave.upload.protocol=avr109
+Brainwave.upload.maximum_size=61440
+Brainwave.upload.speed=115200
+Brainwave.upload.disable_flushing=true
+
+Brainwave.build.mcu=at90usb646
+Brainwave.build.f_cpu=16000000L
+Brainwave.build.core=brainwave
+Brainwave.build.dependency=true
+Brainwave.build.variant=brainwave
+Brainwave.build.vid=0x16D0
+Brainwave.build.pid=0x076B
+
+########################################
+## BrainwavePro
+########################################
+BrainwavePro.name=Brainwave Pro
+
+BrainwavePro.bootloader.tool=avrdude
+BrainwavePro.bootloader.low_fuses=0xFF
+BrainwavePro.bootloader.high_fuses=0x9B
+BrainwavePro.bootloader.extended_fuses=0xF0
+BrainwavePro.bootloader.unlock_bits=0x3F
+BrainwavePro.bootloader.lock_bits=0x02F
+BrainwavePro.bootloader.path=brainwave
+BrainwavePro.bootloader.file=BrainwavePro-1286-LUFA.hex
+
+BrainwavePro.upload.tool=avrdude
+BrainwavePro.upload.protocol=avr109
+BrainwavePro.upload.maximum_size=126976
+BrainwavePro.upload.speed=115200
+BrainwavePro.upload.disable_flushing=true
+
+BrainwavePro.build.mcu=at90usb1286
+BrainwavePro.build.f_cpu=16000000L
+BrainwavePro.build.core=brainwave
+BrainwavePro.build.dependency=true
+BrainwavePro.build.variant=brainwavepro
+BrainwavePro.build.vid=0x16D0
+BrainwavePro.build.pid=0x076B
+BrainwavePro.build.extra_flags=-DAT90USBxx_TEENSYPP_ASSIGNMENTS -DUSB_VID={build.vid} -DUSB_PID={build.pid}
+
+########################################
+## KosselPro -- BrainwavePro with HID boot
+########################################
+KosselPro.name=Kossel Pro (HID Bootloader)
+
+KosselPro.bootloader.tool=avrdude
+KosselPro.bootloader.low_fuses=0xFF
+KosselPro.bootloader.high_fuses=0x9B
+KosselPro.bootloader.extended_fuses=0xF0
+KosselPro.bootloader.unlock_bits=0x3F
+KosselPro.bootloader.lock_bits=0x02F
+KosselPro.bootloader.path=brainwave
+KosselPro.bootloader.file=BootloaderHID.hex
+
+KosselPro.upload.tool=hidloader
+KosselPro.upload.protocol=halfkay
+KosselPro.upload.maximum_size=126976
+KosselPro.upload.speed=115200
+KosselPro.upload.disable_flushing=true
+
+KosselPro.build.mcu=at90usb1286
+KosselPro.build.f_cpu=16000000L
+KosselPro.build.core=brainwave
+KosselPro.build.dependency=true
+KosselPro.build.variant=brainwavepro
+KosselPro.build.vid=0x16D0
+KosselPro.build.pid=0x076B
+KosselPro.build.extra_flags=-DAT90USBxx_TEENSYPP_ASSIGNMENTS -DUSB_VID={build.vid} -DUSB_PID={build.pid}
