@@ -1543,7 +1543,6 @@ inline void set_destination_to_current() { memcpy(destination, current_position,
       do_blocking_move_to(X_MAX_POS + SLED_DOCKING_OFFSET + offset - 1, current_position[Y_AXIS], current_position[Z_AXIS]);  // Dock sled a bit closer to ensure proper capturing                                                                                                                           
       digitalWrite(SLED_PIN, LOW); // turn off magnet
       do_blocking_move_to(oldXpos, current_position[Y_AXIS], current_position[Z_AXIS]); // return to position before docking
-      do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS] - Z_RAISE_AFTER_PROBING);
     } else {
       float oldXpos = current_position[X_AXIS]; // save x position
       float z_loc = current_position[Z_AXIS];
