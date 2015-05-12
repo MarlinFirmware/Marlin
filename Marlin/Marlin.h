@@ -205,7 +205,7 @@ void enable_all_steppers();
 void disable_all_steppers();
 
 void FlushSerialRequestResend();
-void ClearToSend();
+void ok_to_send();
 
 void get_coordinates();
 #ifdef DELTA
