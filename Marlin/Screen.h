@@ -5,7 +5,7 @@
 #include <new.h>
 #include "Marlin.h"
 #include "Icon.h"
-#include "GuiImpl.h"
+#include "GuiPainter.h"
 
 namespace screen
 {

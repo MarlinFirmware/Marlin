@@ -12,7 +12,7 @@ namespace screen
 
 	// Screen constants
 	const static uint8_t screen_width = 128;
-	const static uint8_t screen_heigth = 64;
+	const static uint8_t screen_height = 64;
 	const static uint8_t max_items = 10;
 	const static uint8_t max_list = 100;
 	const static uint8_t max_icons = 4;

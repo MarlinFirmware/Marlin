@@ -5,7 +5,7 @@
 #include "Marlin.h" //Required for PROGMEM macro
 
 const static uint8_t icon_width = 24;
-const static uint8_t icon_heigth = 22;
+const static uint8_t icon_height = 22;
 
 const unsigned char bits_nosd_normal[] PROGMEM = {
    0xfc, 0xff, 0x3f, 0x02, 0x00, 0x40, 0x01, 0x00, 0x80, 0x01, 0xfe, 0x83,
