@@ -1096,6 +1096,14 @@ inline void sync_plan_position() {
 inline void set_current_to_destination() { memcpy(current_position, destination, sizeof(current_position)); }
 inline void set_destination_to_current() { memcpy(destination, current_position, sizeof(destination)); }
 
+static void setup_for_endstop_move() {
+  saved_feedrate = feedrate;
+  saved_feedrate_multiplier = feedrate_multiplier;
+  feedrate_multiplier = 100;
+  refresh_cmd_timeout();
+  enable_endstops(true);
+}
+
 #ifdef ENABLE_AUTO_BED_LEVELING
 
   #ifdef DELTA
