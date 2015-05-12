@@ -106,6 +106,7 @@ unsigned char g_uc_extruder_last_move[4] = {0,0,0,0};
 block_t block_buffer[BLOCK_BUFFER_SIZE];            // A ring buffer for motion instfructions
 volatile unsigned char block_buffer_head;           // Index of the next block to be pushed
 volatile unsigned char block_buffer_tail;           // Index of the block to process now
+volatile unsigned char next_buffer_head;
 
 //===========================================================================
 //=============================private variables ============================
@@ -538,16 +539,20 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
 #endif  //ENABLE_AUTO_BED_LEVELING
 {
   // Calculate the buffer head after we push this byte
-  int next_buffer_head = next_block_index(block_buffer_head);
+  next_buffer_head = next_block_index(block_buffer_head);
 
   // If the buffer is full: good! That means we are well ahead of the robot. 
   // Rest here until there is room in the buffer.
+  buffer_recursivity++;
   while(block_buffer_tail == next_buffer_head)
   {
+    next_buffer_head = next_block_index(block_buffer_head);
+
     manage_heater(); 
     manage_inactivity(); 
     lcd_update();
   }
+  buffer_recursivity--;
 
 #ifdef ENABLE_AUTO_BED_LEVELING
   apply_rotation_xyz(plan_bed_level_matrix, x, y, z);

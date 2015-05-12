@@ -177,15 +177,15 @@ void checkHitEndstops()
    SERIAL_ECHOPGM(MSG_ENDSTOPS_HIT);
    if(endstop_x_hit) {
      SERIAL_ECHOPAIR(" X:",(float)endstops_trigsteps[X_AXIS]/axis_steps_per_unit[X_AXIS]);
-     LCD_MESSAGEPGM(MSG_ENDSTOPS_HIT "X");
+     LCD_MESSAGEPGM(MSG_ENDSTOPS_TOUCH "X");
    }
    if(endstop_y_hit) {
      SERIAL_ECHOPAIR(" Y:",(float)endstops_trigsteps[Y_AXIS]/axis_steps_per_unit[Y_AXIS]);
-     LCD_MESSAGEPGM(MSG_ENDSTOPS_HIT "Y");
+     LCD_MESSAGEPGM(MSG_ENDSTOPS_TOUCH "Y");
    }
    if(endstop_z_hit) {
      SERIAL_ECHOPAIR(" Z:",(float)endstops_trigsteps[Z_AXIS]/axis_steps_per_unit[Z_AXIS]);
-     LCD_MESSAGEPGM(MSG_ENDSTOPS_HIT "Z");
+     LCD_MESSAGEPGM(MSG_ENDSTOPS_TOUCH "Z");
    }
    SERIAL_ECHOLN("");
    endstop_x_hit=false;
@@ -239,12 +239,6 @@ void st_wake_up() {
   //  TCNT1 = 0;
   ENABLE_STEPPER_DRIVER_INTERRUPT();
 }
-
-void step_wait(){
-    for(int8_t i=0; i < 6; i++){
-    }
-}
-
 
 FORCE_INLINE unsigned short calc_timer(unsigned short step_rate) {
   unsigned short timer;
@@ -306,7 +300,7 @@ FORCE_INLINE void trapezoid_generator_reset() {
 //    SERIAL_ECHOPGM("advance rate :");
 //    SERIAL_ECHO(current_block->advance_rate/256.0);
 //    SERIAL_ECHOPGM("initial advance :");
-//  SERIAL_ECHO(current_block->initial_advance/256.0);
+//    SERIAL_ECHO(current_block->initial_advance/256.0);
 //    SERIAL_ECHOPGM("final advance :");
 //    SERIAL_ECHOLN(current_block->final_advance/256.0);
 
@@ -560,8 +554,8 @@ ISR(TIMER1_COMPA_vect)
       }
       #endif //ADVANCE
 
-        counter_x += current_block->steps_x;
-        #ifdef CONFIG_STEPPERS_TOSHIBA
+      counter_x += current_block->steps_x;
+#ifdef CONFIG_STEPPERS_TOSHIBA
 	/* The toshiba stepper controller require much longer pulses
 	 * tjerfore we 'stage' decompose the pulses between high, and
 	 * low instead of doing each in turn. The extra tests add enough
@@ -689,7 +683,7 @@ ISR(TIMER1_COMPA_vect)
           WRITE_E_STEP(INVERT_E_STEP_PIN);
         }
       #endif //!ADVANCE
-      #endif
+#endif // CONFIG_STEPPERS_TOSHIBA
       step_events_completed += 1;
       if(step_events_completed >= current_block->step_event_count) break;
     }
@@ -1142,9 +1136,9 @@ void babystep(const uint8_t axis,const bool direction)
     #ifdef DUAL_X_CARRIAGE
       WRITE(X2_STEP_PIN, !INVERT_X_STEP_PIN);
     #endif
-    {
-    float x=1./float(axis+1)/float(axis+2); //wait a tiny bit
-    }
+
+    _delay_us(1U); // wait 1 microsecond
+
     WRITE(X_STEP_PIN, INVERT_X_STEP_PIN);
     #ifdef DUAL_X_CARRIAGE
       WRITE(X2_STEP_PIN, INVERT_X_STEP_PIN);
@@ -1174,9 +1168,9 @@ void babystep(const uint8_t axis,const bool direction)
     #ifdef DUAL_Y_CARRIAGE
       WRITE(Y2_STEP_PIN, !INVERT_Y_STEP_PIN);
     #endif
-    {
-    float x=1./float(axis+1)/float(axis+2); //wait a tiny bit
-    }
+
+    _delay_us(1U); // wait 1 microsecond
+
     WRITE(Y_STEP_PIN, INVERT_Y_STEP_PIN);
     #ifdef DUAL_Y_CARRIAGE
       WRITE(Y2_STEP_PIN, INVERT_Y_STEP_PIN);
@@ -1206,10 +1200,9 @@ void babystep(const uint8_t axis,const bool direction)
     #ifdef Z_DUAL_STEPPER_DRIVERS
       WRITE(Z2_STEP_PIN, !INVERT_Z_STEP_PIN);
     #endif
-    //wait a tiny bit
-    {
-    float x=1./float(axis+1); //absolutely useless
-    }
+
+    _delay_us(1U); // wait 1 microsecond
+
     WRITE(Z_STEP_PIN, INVERT_Z_STEP_PIN);
     #ifdef Z_DUAL_STEPPER_DRIVERS
       WRITE(Z2_STEP_PIN, INVERT_Z_STEP_PIN);
@@ -1242,10 +1235,8 @@ void babystep(const uint8_t axis,const bool direction)
     WRITE(Y_STEP_PIN, !INVERT_Y_STEP_PIN); 
     WRITE(Z_STEP_PIN, !INVERT_Z_STEP_PIN); 
     
-    //wait a tiny bit
-    {
-    float x=1./float(axis+1); //absolutely useless
-    }
+    _delay_us(1U); // wait 1 microsecond
+
     WRITE(X_STEP_PIN, INVERT_X_STEP_PIN); 
     WRITE(Y_STEP_PIN, INVERT_Y_STEP_PIN); 
     WRITE(Z_STEP_PIN, INVERT_Z_STEP_PIN);
