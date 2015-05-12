@@ -8,6 +8,11 @@
 
 #define LARGE_FLASH        true
 
+
+#ifdef Z_PROBE_SLED
+  #define SLED_PIN         -1
+#endif
+
 // Servo support
 #ifdef NUM_SERVOS
   #define SERVO0_PIN       46 //AUX3-6
