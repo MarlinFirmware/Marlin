@@ -410,7 +410,7 @@ void set_stepper_direction() {
 FORCE_INLINE void trapezoid_generator_reset() {
 
   out_bits = current_block->direction_bits; // Get the current direction for each axis
-  if (old_out_bits == out_bits) {
+  if (out_bits != old_out_bits) {
     set_stepper_direction();  // We set first the directions to get some time before setting the steps
     old_out_bits = out_bits;  // Some stepper do need this and this way we get some µs for free.
   }
