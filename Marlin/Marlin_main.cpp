@@ -5743,25 +5743,22 @@ void mesh_plan_buffer_line(float x, float y, float z, const float e, float feed_
 
 #ifdef PREVENT_DANGEROUS_EXTRUDE
 
-  inline float prevent_dangerous_extrude(float &curr_e, float &dest_e) {
+  inline void prevent_dangerous_extrude(float &curr_e, float &dest_e) {
     float de = dest_e - curr_e;
     if (de) {
       if (degHotend(active_extruder) < extrude_min_temp) {
         curr_e = dest_e; // Behave as if the move really took place, but ignore E part
         SERIAL_ECHO_START;
         SERIAL_ECHOLNPGM(MSG_ERR_COLD_EXTRUDE_STOP);
-        return 0;
       }
       #ifdef PREVENT_LENGTHY_EXTRUDE
         if (labs(de) > EXTRUDE_MAXLENGTH) {
           curr_e = dest_e; // Behave as if the move really took place, but ignore E part
           SERIAL_ECHO_START;
           SERIAL_ECHOLNPGM(MSG_ERR_LONG_EXTRUDE_STOP);
-          return 0;
         }
       #endif
     }
-    return de;
   }
 
 #endif // PREVENT_DANGEROUS_EXTRUDE
