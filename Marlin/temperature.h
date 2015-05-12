@@ -137,7 +137,7 @@ void PID_autotune(float temp, int extruder, int ncycles);
 void setExtruderAutoFanState(int pin, bool state);
 void checkExtruderAutoFans();
 
-#ifdef WATCH_TEMP_PERIOD
+#ifdef THERMAL_PROTECTION_HOTENDS
   void start_watching_heater(int e=0);
 #endif
 
