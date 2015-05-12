@@ -5,9 +5,9 @@ namespace screen
 {
 	ScreenMenu::ScreenMenu(const char * title)
 		: Screen(title, MENU)
-		  , m_icon_line(0)
-		  , m_index(0)
-		  , m_num_items(0)
+		, m_icon_line(0)
+		, m_index(0)
+		, m_num_items(0)
 	{ }
 
 	ScreenMenu::~ScreenMenu()
