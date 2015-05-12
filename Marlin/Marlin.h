@@ -21,6 +21,10 @@
 #include "fastio.h"
 #include "Configuration.h"
 
+#ifndef SANITYCHECK_H
+  #error Your Configuration.h and Configuration_adv.h files are outdated!
+#endif
+
 #if (ARDUINO >= 100)
   #include "Arduino.h"
 #else
