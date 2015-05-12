@@ -1793,7 +1793,7 @@ inline void gcode_G4() {
   millis_t codenum = 0;
 
   if (code_seen('P')) codenum = code_value_long(); // milliseconds to wait
-  if (code_seen('S')) codenum = code_value_long() * 1000; // seconds to wait
+  if (code_seen('S')) codenum = code_value() * 1000; // seconds to wait
 
   st_synchronize();
   refresh_cmd_timeout();
@@ -2660,7 +2660,7 @@ inline void gcode_G92() {
       hasP = codenum > 0;
     }
     if (code_seen('S')) {
-      codenum = code_value_short() * 1000UL; // seconds to wait
+      codenum = code_value() * 1000; // seconds to wait
       hasS = codenum > 0;
     }
     char* starpos = strchr(src, '*');
