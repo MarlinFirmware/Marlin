@@ -88,6 +88,10 @@ namespace screen
 
 	Screen & ScreenMenu::press(Screen * parent_view)
 	{
+		if (m_items[m_index]->type() == Screen::SIMPLE)
+		{
+			return * parent_view;
+		}
 		return * m_items[m_index];
 	}
 
