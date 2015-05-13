@@ -30,6 +30,6 @@ namespace screen
 
 	void Icon::draw(uint8_t x, uint8_t y)
 	{
-		painter.drawXBMP(x, y, m_width, m_height, m_bitmap);
+		painter.icon(x, y, m_width, m_height, m_bitmap);
 	}
 }

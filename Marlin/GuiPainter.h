@@ -18,11 +18,23 @@ namespace screen
 		public:
 			typedef common::Singleton<screen::GuiPainter> singleton;
 
+			typedef enum
+			{
+				XINIT = 0,
+				YINIT,
+				XEND,
+				YEND,
+			} CoordinateType_t;
+
 		public:
 			GuiPainter();
 			~GuiPainter();
 
-			void drawXBMP(uint8_t x, uint8_t y, uint8_t width, uint8_t height, const unsigned char* bitmap);
+			void title(const char * title);
+
+			void box(const char* nextScreen);
+
+			void icon(uint8_t x, uint8_t y, uint8_t width, uint8_t height, const unsigned char* bitmap);
 
 			void setColorIndex(uint8_t color);
 
@@ -30,15 +42,30 @@ namespace screen
 
 			void setPrintPos(uint8_t x, uint8_t y);
 
-			void print(const char * title);
+			void print(const char * text);
 
 			void drawLine(uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2);
-
-			void drawBox(uint8_t x, uint8_t y, uint8_t width, uint8_t height);
 
 			void firstPage();
 
 			bool nextPage();
+
+			void coordinateXInit(uint8_t coordinate);
+
+			uint8_t coordinateXInit ();
+
+			void coordinateYInit(uint8_t coordinate);
+
+			uint8_t coordinateYInit ();
+
+			void coordinateXEnd(uint8_t coordinate);
+
+			uint8_t coordinateXEnd ();
+
+			void coordinateYEnd(uint8_t coordinate);
+
+			uint8_t coordinateYEnd ();
+
 
 		private:
 			U8GLIB_ST7920_128X64_RRD m_impl;
