@@ -2,6 +2,7 @@
 #include "GuiBitmaps_witbox_2.h"
 
 #include "ScreenMenu.h"
+#include "ScreenPrint.h"
 #include "ScreenDialog.h"
 #include "ScreenSelector.h"
 #include "ScreenList.h"
@@ -66,7 +67,7 @@ namespace screen
 	ScreenDialog screen_level2          = ScreenDialog("Screen2");
 	ScreenDialog screen_level3          = ScreenDialog("Screen3");
 	ScreenDialog screen_level4          = ScreenDialog("Screen4");
-	ScreenMenu screen_level_retry       = ScreenMenu("Push to Cotinue");
+	ScreenMenu screen_level_retry       = ScreenMenu("Finished?");
 	//AutoHome
 	Screen screen_autohome              = Screen("Auto-home");
 	//Stepper
@@ -88,6 +89,22 @@ namespace screen
 	Screen screen_light                 = Screen("Led light on");
 	//Info
 	ScreenDialog screen_info            = ScreenDialog("FW info");
+
+	//Print screen
+	ScreenPrint screen_print            = ScreenPrint("");
+	//Play/Pause
+	Screen screen_play_pause				= Screen("Pause");
+	//Stop
+	ScreenMenu screen_stop				= ScreenMenu("Stop");
+	//Change Filament Screens
+	ScreenMenu screen_change_confirm	= ScreenMenu("Change filament");
+	ScreenDialog screen_change_start    = ScreenDialog("Start");
+	ScreenDialog screen_change_pullout  = ScreenDialog("Pull out");
+	ScreenDialog screen_change_insert   = ScreenDialog("Insert & press");
+	ScreenMenu screen_change_retry      = ScreenMenu("Finished?");
+	//Change Speed screen
+	ScreenSelector screen_speed			= ScreenSelector("Change speed");			
+
 
 	Screen * GuiBuild()
 	{
@@ -111,7 +128,7 @@ namespace screen
 		screen_SD_list.icon(icon_sd_selected);
 		//SD Card Confirm
 		screen_SD_confirm.add(screen_SD_list);
-		screen_SD_confirm.add(screen_main);
+		screen_SD_confirm.add(screen_print);
 		//Unload Filament Select
 		screen_unload_select.add(screen_unload_heating);
 		screen_unload_select.icon(icon_filament_unload_normal);
@@ -166,6 +183,41 @@ namespace screen
 		screen_info.add(screen_main);
 		screen_info.icon(icon_info_normal);
 		screen_info.icon(icon_info_selected);
+
+		//Print Menu
+		screen_print.add(screen_play_pause);
+		screen_print.add(screen_stop);
+		screen_print.add(screen_change_confirm);
+		screen_print.add(screen_speed);
+		screen_print.add(screen_temperature);
+		//Play/Pause
+		screen_play_pause.add(screen_print);
+		screen_play_pause.icon(icon_moveaxis_normal); //Temporal
+		screen_play_pause.icon(icon_moveaxis_selected);//Temporal
+		screen_play_pause.icon(icon_info_normal);//Temporal
+		screen_play_pause.icon(icon_info_selected);//Temporal
+		//Stop
+		screen_stop.add(screen_print);
+		screen_stop.add(screen_main);
+		//Change filament
+		screen_change_confirm.add(screen_print);
+		screen_change_confirm.add(screen_change_start);
+		screen_change_confirm.icon(icon_leveling_normal);//Temporal
+		screen_change_confirm.icon(icon_leveling_selected);//Temporal
+		//Change filament start
+		screen_change_start.add(screen_change_pullout);
+		//Change filament pullout
+		screen_change_pullout.add(screen_change_insert);
+		//Change filament insert
+		screen_change_insert.add(screen_change_retry);
+		//Change filament retry
+		screen_change_retry.add(screen_change_start);
+		screen_change_retry.add(screen_print);
+		//Change speed screens
+		screen_speed.add(screen_print);
+		screen_speed.icon(icon_homing_normal);
+		screen_speed.icon(icon_homing_selected);
+		//
 
 		return new ScreenMenu(screen_main);
 	}
