@@ -5,9 +5,9 @@ namespace screen
 {
 	Icon::Icon (IconType_t const & type, uint8_t width, uint8_t height, const unsigned char* bitmap)
 		: m_type(type)
-		  , m_width(width)
-		  , m_height(height)
-		  , m_bitmap(bitmap)
+		, m_width(width)
+		, m_height(height)
+		, m_bitmap(bitmap)
 	{ }
 
 	Icon::~Icon()

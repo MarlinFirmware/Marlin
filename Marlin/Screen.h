@@ -1,8 +1,9 @@
 #ifndef SCREEN_H
 #define SCREEN_H
 
-#include <stdint.h>
 #include <new.h>
+
+#include <stdint.h>
 #include "Marlin.h"
 #include "Icon.h"
 #include "GuiPainter.h"
@@ -11,7 +12,6 @@ namespace screen
 {
 	class Screen
 	{
-
 		public:
 			typedef enum
 			{
@@ -34,7 +34,7 @@ namespace screen
 
 			virtual void left() {};
 			virtual void right() {};
-			virtual Screen & press(Screen & parent_view);
+			virtual Screen & press(Screen * parent_view) {return * parent_view;};
 			virtual void draw() {};
 			virtual void add(Screen & component) {};
 

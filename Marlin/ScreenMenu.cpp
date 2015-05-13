@@ -85,8 +85,12 @@ namespace screen
 		} while( painter.nextPage() ); 
 	}
 
-	Screen & ScreenMenu::press(Screen & parent_view)
+	Screen & ScreenMenu::press(Screen * parent_view)
 	{
+		if (m_items[m_index]->type() == Screen::SIMPLE)
+		{
+			return * parent_view;
+		}
 		return * m_items[m_index];
 	}
 

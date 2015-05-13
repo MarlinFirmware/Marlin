@@ -16,7 +16,6 @@ void draw_status_screen(){};
 void draw_wizard_change_filament(){};
 
 screen::Screen * active_view;
-screen::Screen * parent_view;
 
 /*******************************************************************************
 **   Variables
@@ -179,7 +178,7 @@ static void lcd_update_button()
 
     if (button_clicked == true)
     {
-        active_view = &active_view->press(*active_view);
+        active_view = &active_view->press(active_view);
     }
 
     if (button_pressed == true) {

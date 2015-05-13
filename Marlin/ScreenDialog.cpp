@@ -25,7 +25,7 @@ namespace screen
 		SERIAL_ECHOLN(m_title);
 	}
 
-	Screen & ScreenDialog::press(Screen & parent_view)
+	Screen & ScreenDialog::press(Screen * parent_view)
 	{
 		return * m_next_screen;
 	}

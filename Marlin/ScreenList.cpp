@@ -45,7 +45,7 @@ namespace screen
 		SERIAL_ECHOLN(") ");
 	}
 
-	Screen & ScreenList::press(Screen & parent_view)
+	Screen & ScreenList::press(Screen * parent_view)
 	{
 		return * m_next_screen;
 	}
