@@ -34,7 +34,7 @@ namespace screen
 
 			virtual void left() {};
 			virtual void right() {};
-			virtual Screen & press(Screen & parent_view);
+			virtual Screen & press(Screen * parent_view) {return * parent_view;};
 			virtual void draw() {};
 			virtual void add(Screen & component) {};
 

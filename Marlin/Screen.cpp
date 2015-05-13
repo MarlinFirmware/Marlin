@@ -40,11 +40,6 @@ namespace screen
 		return * m_icons[0];
 	}
 
-	Screen & Screen::press(Screen & parent_view)
-	{
-		return parent_view;
-	}
-
 	void Screen::drawTitle()
 	{
 		if ( (m_title != NULL) && (strlen(m_title) > 0) )
