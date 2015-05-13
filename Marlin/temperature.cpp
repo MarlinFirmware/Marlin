@@ -1007,7 +1007,7 @@ void tp_init() {
    */
   void start_watching_heater(int e) {
     millis_t ms = millis() + WATCH_TEMP_PERIOD * 1000;
-    if (degHotend(e) < degTargetHotend(e) - (WATCH_TEMP_INCREASE * 2)) {
+    if (degHotend(e) < degTargetHotend(e) - (WATCH_TEMP_INCREASE + TEMP_HYSTERESIS + 1)) {
       watch_target_temp[e] = degHotend(e) + WATCH_TEMP_INCREASE;
       watch_heater_next_ms[e] = ms;
     }
