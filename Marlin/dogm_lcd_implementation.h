@@ -273,7 +273,6 @@ static void lcd_implementation_status_screen() {
     u8g.drawFrame(42, 49 - TALL_FONT_CORRECTION, 10, 4);
     u8g.drawPixel(50, 43 - TALL_FONT_CORRECTION);
 
-
     // Progress bar frame
     u8g.drawFrame(54, 49, 73, 4 - TALL_FONT_CORRECTION);
 
