@@ -53,33 +53,22 @@ namespace screen
 			uint8_t y_init = painter.coordinateYInit();
 			uint8_t x_end = painter.coordinateXEnd();
 			uint8_t y_end = painter.coordinateYEnd();
-			SERIAL_ECHO((int)x_init);
-			SERIAL_ECHO(" ");
-			SERIAL_ECHO((int)x_end);
-			SERIAL_ECHO(" ");
-			SERIAL_ECHO((int)y_init);
-			SERIAL_ECHO(" ");
-			SERIAL_ECHOLN((int)y_end);
 			for (unsigned int i = 0;i <= m_num_items -1; ++i)
 			{
 				int col = i % 5;
 				int row = i / 5;
 				int row_t = (m_num_items-1) / 5;
 
-				SERIAL_ECHO(" ");
-				SERIAL_ECHO((int)((x_end + x_init)/2 - (m_num_items*26/(1+row_t)-2)/2 +col*26));
-				SERIAL_ECHO(" ");
-				SERIAL_ECHOLN((int)((y_end+y_init)/(2*(1+row_t)) - (24/2) + (24*row)));
+				int x = (x_end + x_init)/2 - (m_num_items*(icon_width+2)/(1+row_t)-2)/2 +col*(icon_width+2);
+				int y = (y_end+y_init)/(2*(1+row_t)) + row_t - (icon_height/2) + ((icon_height+3)*row);
 
 				if (i == m_index)
 				{
-					(m_items[i]->icon(Icon::SELECTED)).draw((x_end + x_init)/2 - (m_num_items*26/(1+row_t)-2)/2 +col*26,(y_end+y_init)/(2*(1+row_t)) - (24/2) + (24*row));
-					//(m_items[i]->icon(Icon::SELECTED)).draw((pix_av_x/2 - pix_x/2)+col*26, 2*(pix_av_y/2 - pix_y/2)+row*(24+1));
+					(m_items[i]->icon(Icon::SELECTED)).draw(x,y);
 				}
 				else
 				{
-					(m_items[i]->icon(Icon::NORMAL)).draw((x_end + x_init)/2 - (m_num_items*26/(1+row_t)-2)/2 +col*26,(y_end+y_init)/(2*(1+row_t)) - (24/2) + (24*row));
-					//(m_items[i]->icon(Icon::NORMAL)).draw((pix_av_x/2 - pix_x/2)+col*26, 2*(pix_av_y/2 - pix_y/2)+row*(24+1));
+					(m_items[i]->icon(Icon::NORMAL)).draw(x,y);
 				}
 			}		
 		} while( painter.nextPage() ); 
