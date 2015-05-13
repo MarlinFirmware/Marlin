@@ -620,19 +620,21 @@ void manage_heater() {
 
     // Check if the temperature is failing to increase
     #ifdef THERMAL_PROTECTION_HOTENDS
+
       // Is it time to check this extruder's heater?
       if (watch_heater_next_ms[e] && ms > watch_heater_next_ms[e]) {
         // Has it failed to increase enough?
         if (degHotend(e) < watch_target_temp[e]) {
           // Stop!
           disable_all_heaters();
-          _temp_error(e, MSG_HEATING_FAILED, MSG_HEATING_FAILED_LCD);
+          _temp_error(e, PSTR(MSG_HEATING_FAILED), PSTR(MSG_HEATING_FAILED_LCD));
         }
         else {
-          // Only check once per M104/M109
-          watch_heater_next_ms[e] = 0;
+          // Start again if the target is still far off
+          start_watching_heater(e);
         }
       }
+
     #endif // THERMAL_PROTECTION_HOTENDS
 
     #ifdef TEMP_SENSOR_1_AS_REDUNDANT
@@ -1005,7 +1007,7 @@ void tp_init() {
    */
   void start_watching_heater(int e) {
     millis_t ms = millis() + WATCH_TEMP_PERIOD * 1000;
-    if (degHotend(e) < degTargetHotend(e) - (WATCH_TEMP_INCREASE * 2)) {
+    if (degHotend(e) < degTargetHotend(e) - (WATCH_TEMP_INCREASE + TEMP_HYSTERESIS + 1)) {
       watch_target_temp[e] = degHotend(e) + WATCH_TEMP_INCREASE;
       watch_heater_next_ms[e] = ms;
     }
