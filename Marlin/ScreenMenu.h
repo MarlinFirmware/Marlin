@@ -20,7 +20,6 @@ namespace screen
 			void add(Screen & component);
 
 		private:
-			uint8_t m_icon_line;
 			uint16_t m_index;
 			uint16_t m_num_items;
 			Screen * m_items[max_items];
