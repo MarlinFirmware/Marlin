@@ -352,7 +352,7 @@ static void lcd_implementation_status_screen() {
   u8g.drawPixel(89,XYZ_BASELINE - 3);
   u8g.setPrintPos(91,XYZ_BASELINE);
   if (axis_known_position[Z_AXIS])
-    lcd_print(ftostr32ns(current_position[Z_AXIS]));
+    lcd_print(ftostr32sp(current_position[Z_AXIS]));
   else
     lcd_printPGM(PSTR("---.--"));
   u8g.setColorIndex(1); // black on white
