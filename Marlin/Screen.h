@@ -17,6 +17,7 @@ namespace screen
 			{
 				SIMPLE = 0, 
 				MENU,
+				PRINT,
 				DIALOG,
 				LIST,
 				SELECTOR,
