@@ -17,7 +17,7 @@ State_t run_state(State_t current_state, Event_t event)
 
 State_t do_state_prepare(Event_t event)
 {
-	printf ("[do_state_prepare]\n");
+	SERIAL_ECHOLN ("[do_state_prepare]");
 	if (event == EVENT_PREPARED)
 		return STATE_PAINT;
 
@@ -26,7 +26,7 @@ State_t do_state_prepare(Event_t event)
 
 State_t do_state_paint(Event_t event)
 {
-	printf ("[do_state_paint]\n");
+	SERIAL_ECHOLN ("[do_state_paint]");
 	if (event == EVENT_KEYPRESS)
 		return STATE_PREPARE;
 
@@ -41,6 +41,7 @@ namespace screen
 		, m_index(0)
 		, m_num_list(0)
 	{
+		memset (m_directory, 0, sizeof(m_directory)); 
 		state = STATE_PREPARE;
 	}
 
@@ -65,8 +66,8 @@ namespace screen
 		if ( m_index == (m_num_list -1) )
 		{
 			m_index = m_num_list -1;
-        }
-      else
+		}
+		else
 		{
 			++m_index;
 		}
@@ -85,45 +86,56 @@ namespace screen
 
 			state = run_state(state, EVENT_PREPARED);
 		}
-
 		card.getfilename(m_index);
 
-		SERIAL_ECHO(m_title);
-		SERIAL_ECHO(" ");
-		SERIAL_ECHO(m_directory);
-		SERIAL_ECHO("  (item ");
-		SERIAL_ECHO(m_index + 1);
-		SERIAL_ECHO(" / ");
-		SERIAL_ECHO(m_num_list);
-		SERIAL_ECHO(") : ");
-		SERIAL_ECHO(card.longFilename);
-		if (card.filenameIsDir == true)
+		painter.firstPage();
+		do
 		{
-			SERIAL_ECHOLN(" [D]");
-		} 
-		else
-		{
-			SERIAL_ECHOLN("");
-		}
+			drawTitle();
+			painter.setPrintPos(painter.coordinateXInit(), painter.coordinateYInit());
+			SERIAL_ECHO(m_title);
+			SERIAL_ECHO(" ");
+			SERIAL_ECHO(m_directory);
+			SERIAL_ECHO("  (item ");
+			SERIAL_ECHO(m_index + 1);
+			SERIAL_ECHO(" / ");
+			SERIAL_ECHO(m_num_list);
+			SERIAL_ECHO(") : ");
+			SERIAL_ECHO(card.longFilename);
+			painter.print(card.longFilename);
+			if (card.filenameIsDir == true)
+			{
+				SERIAL_ECHOLN(" [D]");
+			} 
+			else
+			{
+				SERIAL_ECHOLN("");
+			}
+		} while( painter.nextPage() );
 	}
 
 	Screen & ScreenList::press(Screen * parent_view)
 	{
+		SERIAL_ECHOLN("ScreenList::press");
 		state = run_state(state, EVENT_KEYPRESS);
-
-		card.getfilename(m_index);
+		SERIAL_ECHOLN("ScreenList::press - State machine run");
+		/*
+			card.getfilename(m_index);
+			SERIAL_ECHOLN("ScreenList::press - card.getfilename");
+			*/
 
 		if (card.filenameIsDir == true)
 		{
+			SERIAL_ECHOLN("ScreenList::press - isDir");
 			card.chdir(card.filename);
 			return * this;
 		}
-
+		SERIAL_ECHOLN("ScreenList::press - return next screen");
 		return * m_next_screen;
 	}
 
-   void ScreenList::add(Screen & component)
-   {
-      m_next_screen = &component;
-   }
+	void ScreenList::add(Screen & component)
+	{
+		m_next_screen = &component;
+	}
 }
