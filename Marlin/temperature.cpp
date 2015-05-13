@@ -626,7 +626,7 @@ void manage_heater() {
         if (degHotend(e) < watch_target_temp[e]) {
           // Stop!
           disable_all_heaters();
-          _temp_error(e, MSG_HEATING_FAILED, MSG_HEATING_FAILED_LCD);
+          _temp_error(e, PSTR(MSG_HEATING_FAILED), PSTR(MSG_HEATING_FAILED_LCD));
         }
         else {
           // Only check once per M104/M109
