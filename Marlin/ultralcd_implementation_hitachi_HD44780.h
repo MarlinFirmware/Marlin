@@ -15,8 +15,8 @@
 ////////////////////////////////////
 // Setup button and encode mappings for each panel (into 'buttons' variable
 //
-// This is just to map common functions (across different panels) onto the same 
-// macro name. The mapping is independent of whether the button is directly connected or 
+// This is just to map common functions (across different panels) onto the same
+// macro name. The mapping is independent of whether the button is directly connected or
 // via a shift/i2c register.
 
 #ifdef ULTIPANEL
@@ -38,7 +38,7 @@
 //
 #if defined(LCD_I2C_VIKI)
   #define B_I2C_BTN_OFFSET 3 // (the first three bit positions reserved for EN_A, EN_B, EN_C)
-  
+
   // button and encoder bit positions within 'buttons'
   #define B_LE (BUTTON_LEFT<<B_I2C_BTN_OFFSET)    // The remaining normalized buttons are all read via I2C
   #define B_UP (BUTTON_UP<<B_I2C_BTN_OFFSET)
@@ -46,22 +46,22 @@
   #define B_DW (BUTTON_DOWN<<B_I2C_BTN_OFFSET)
   #define B_RI (BUTTON_RIGHT<<B_I2C_BTN_OFFSET)
 
-  #if defined(BTN_ENC) && BTN_ENC > -1 
+  #if defined(BTN_ENC) && BTN_ENC > -1
     // the pause/stop/restart button is connected to BTN_ENC when used
-    #define B_ST (EN_C)                            // Map the pause/stop/resume button into its normalized functional name 
+    #define B_ST (EN_C)                            // Map the pause/stop/resume button into its normalized functional name
     #define LCD_CLICKED (buttons&(B_MI|B_RI|B_ST)) // pause/stop button also acts as click until we implement proper pause/stop.
   #else
     #define LCD_CLICKED (buttons&(B_MI|B_RI))
-  #endif  
+  #endif
 
   // I2C buttons take too long to read inside an interrupt context and so we read them during lcd_update
   #define LCD_HAS_SLOW_BUTTONS
 
 #elif defined(LCD_I2C_PANELOLU2)
   // encoder click can be read through I2C if not directly connected
-  #if BTN_ENC <= 0 
+  #if BTN_ENC <= 0
     #define B_I2C_BTN_OFFSET 3 // (the first three bit positions reserved for EN_A, EN_B, EN_C)
-  
+
     #define B_MI (PANELOLU2_ENCODER_C<<B_I2C_BTN_OFFSET) // requires LiquidTWI2 library v1.2.3 or later
 
     #define LCD_CLICKED (buttons&B_MI)
@@ -69,7 +69,7 @@
     // I2C buttons take too long to read inside an interrupt context and so we read them during lcd_update
     #define LCD_HAS_SLOW_BUTTONS
   #else
-    #define LCD_CLICKED (buttons&EN_C)  
+    #define LCD_CLICKED (buttons&EN_C)
   #endif
 
 #elif defined(REPRAPWORLD_KEYPAD)
@@ -101,7 +101,7 @@
 
 #elif defined(NEWPANEL)
   #define LCD_CLICKED (buttons&EN_C)
-  
+
 #else // old style ULTIPANEL
   //bits in the shift register that carry the buttons for:
   // left up center down right red(stop)
@@ -143,7 +143,7 @@
   #include <LiquidCrystal_I2C.h>
   #define LCD_CLASS LiquidCrystal_I2C
   LCD_CLASS lcd(LCD_I2C_ADDRESS,LCD_I2C_PIN_EN,LCD_I2C_PIN_RW,LCD_I2C_PIN_RS,LCD_I2C_PIN_D4,LCD_I2C_PIN_D5,LCD_I2C_PIN_D6,LCD_I2C_PIN_D7);
-  
+
 #elif defined(LCD_I2C_TYPE_MCP23017)
   //for the LED indicators (which maybe mapped to different things in lcd_implementation_update_indicators())
   #define LED_A 0x04 //100
@@ -156,28 +156,28 @@
   #include <LiquidTWI2.h>
   #define LCD_CLASS LiquidTWI2
   #if defined(DETECT_DEVICE)
-     LCD_CLASS lcd(LCD_I2C_ADDRESS, 1);
+    LCD_CLASS lcd(LCD_I2C_ADDRESS, 1);
   #else
-     LCD_CLASS lcd(LCD_I2C_ADDRESS);
+    LCD_CLASS lcd(LCD_I2C_ADDRESS);
   #endif
-  
+
 #elif defined(LCD_I2C_TYPE_MCP23008)
   #include <Wire.h>
   #include <LiquidTWI2.h>
   #define LCD_CLASS LiquidTWI2
   #if defined(DETECT_DEVICE)
-     LCD_CLASS lcd(LCD_I2C_ADDRESS, 1);
+    LCD_CLASS lcd(LCD_I2C_ADDRESS, 1);
   #else
-     LCD_CLASS lcd(LCD_I2C_ADDRESS);
+    LCD_CLASS lcd(LCD_I2C_ADDRESS);
   #endif
 
 #elif defined(LCD_I2C_TYPE_PCA8574)
     #include <LiquidCrystal_I2C.h>
     #define LCD_CLASS LiquidCrystal_I2C
     LCD_CLASS lcd(LCD_I2C_ADDRESS, LCD_WIDTH, LCD_HEIGHT);
-    
+
 // 2 wire Non-latching LCD SR from:
-// https://bitbucket.org/fmalpartida/new-liquidcrystal/wiki/schematics#!shiftregister-connection 
+// https://bitbucket.org/fmalpartida/new-liquidcrystal/wiki/schematics#!shiftregister-connection
 #elif defined(SR_LCD_2W_NL)
   extern "C" void __cxa_pure_virtual() { while (1); }
   #include <LCD.h>
@@ -353,65 +353,56 @@ static void lcd_implementation_init(
   #endif
 ) {
 
-#if defined(LCD_I2C_TYPE_PCF8575)
+  #if defined(LCD_I2C_TYPE_PCF8575)
     lcd.begin(LCD_WIDTH, LCD_HEIGHT);
-  #ifdef LCD_I2C_PIN_BL
-    lcd.setBacklightPin(LCD_I2C_PIN_BL,POSITIVE);
-    lcd.setBacklight(HIGH);
-  #endif
-  
-#elif defined(LCD_I2C_TYPE_MCP23017)
+    #ifdef LCD_I2C_PIN_BL
+      lcd.setBacklightPin(LCD_I2C_PIN_BL, POSITIVE);
+      lcd.setBacklight(HIGH);
+    #endif
+
+  #elif defined(LCD_I2C_TYPE_MCP23017)
     lcd.setMCPType(LTI_TYPE_MCP23017);
     lcd.begin(LCD_WIDTH, LCD_HEIGHT);
     lcd.setBacklight(0); //set all the LEDs off to begin with
-    
-#elif defined(LCD_I2C_TYPE_MCP23008)
+
+  #elif defined(LCD_I2C_TYPE_MCP23008)
     lcd.setMCPType(LTI_TYPE_MCP23008);
     lcd.begin(LCD_WIDTH, LCD_HEIGHT);
 
-#elif defined(LCD_I2C_TYPE_PCA8574)
-      lcd.init();
-      lcd.backlight();
-    
-#else
+  #elif defined(LCD_I2C_TYPE_PCA8574)
+    lcd.init();
+    lcd.backlight();
+
+  #else
     lcd.begin(LCD_WIDTH, LCD_HEIGHT);
-#endif
+  #endif
 
-    lcd_set_custom_characters(
-        #ifdef LCD_PROGRESS_BAR
-            progress_bar_set
-        #endif
-    );
+  lcd_set_custom_characters(
+    #ifdef LCD_PROGRESS_BAR
+      progress_bar_set
+    #endif
+  );
 
-    lcd.clear();
+  lcd.clear();
 }
-static void lcd_implementation_clear()
-{
-    lcd.clear();
-}
+
+static void lcd_implementation_clear() { lcd.clear(); }
 
 /* Arduino < 1.0.0 is missing a function to print PROGMEM strings, so we need to implement our own */
 char lcd_printPGM(const char* str) {
-  char c;
-  char n = 0;
-  while((c = pgm_read_byte(str++))) {
-      n += charset_mapper(c);
-  }
+  char c, n = 0;
+  while ((c = pgm_read_byte(str++))) n += charset_mapper(c);
   return n;
 }
 
 char lcd_print(char* str) {
   char c, n = 0;;
   unsigned char i = 0;
-  while((c = str[i++])) {
-      n += charset_mapper(c);
-  }
+  while ((c = str[i++])) n += charset_mapper(c);
   return n;
 }
 
-unsigned lcd_print(char c) {
-    return charset_mapper(c);
-}
+unsigned lcd_print(char c) { return charset_mapper(c); }
 
 /*
 Possible status screens:
@@ -437,7 +428,7 @@ Possible status screens:
 
 20x4   |01234567890123456789|
        |T000/000D B000/000D |
-       |T000/000D     Z000.0|
+       |T000/000D   Z000.00 |
        |F100%  SD100% T--:--|
        |Status line.........|
 */
@@ -728,13 +719,13 @@ static void lcd_implementation_drawmenu_sddirectory(bool sel, uint8_t row, const
 
   static void lcd_implementation_update_indicators() {
     #if defined(LCD_I2C_PANELOLU2) || defined(LCD_I2C_VIKI)
-      //set the LEDS - referred to as backlights by the LiquidTWI2 library 
+      // Set the LEDS - referred to as backlights by the LiquidTWI2 library
       static uint8_t ledsprev = 0;
       uint8_t leds = 0;
       if (target_temperature_bed > 0) leds |= LED_A;
       if (target_temperature[0] > 0) leds |= LED_B;
       if (fanSpeed) leds |= LED_C;
-      #if EXTRUDERS > 1  
+      #if EXTRUDERS > 1
         if (target_temperature[1] > 0) leds |= LED_C;
       #endif
       if (leds != ledsprev) {
@@ -766,4 +757,4 @@ static void lcd_implementation_drawmenu_sddirectory(bool sel, uint8_t row, const
 
 #endif // LCD_HAS_SLOW_BUTTONS
 
-#endif //__ULTRALCD_IMPLEMENTATION_HITACHI_HD44780_H
+#endif // ULTRALCD_IMPLEMENTATION_HITACHI_HD44780_H

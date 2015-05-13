@@ -245,8 +245,8 @@ void PID_autotune(float temp, int extruder, int ncycles)
         }
       #endif
 
-      if (heating == true && input > temp) {
-        if (ms - t2 > 5000) {
+      if (heating && input > temp) {
+        if (ms > t2 + 5000) {
           heating = false;
           if (extruder < 0)
             soft_pwm_bed = (bias - d) >> 1;
@@ -257,8 +257,9 @@ void PID_autotune(float temp, int extruder, int ncycles)
           max = temp;
         }
       }
-      if (heating == false && input < temp) {
-        if (ms - t1 > 5000) {
+
+      if (!heating && input < temp) {
+        if (ms > t1 + 5000) {
           heating = true;
           t2 = ms;
           t_low = t2 - t1;
@@ -787,7 +788,7 @@ static void updateTemperaturesFromRawValues() {
   #ifdef HEATER_0_USES_MAX6675
     current_temperature_raw[0] = read_max6675();
   #endif
-  for(uint8_t e = 0; e < EXTRUDERS; e++) {
+  for (uint8_t e = 0; e < EXTRUDERS; e++) {
     current_temperature[e] = analog2temp(current_temperature_raw[e], e);
   }
   current_temperature_bed = analog2tempBed(current_temperature_bed_raw);
