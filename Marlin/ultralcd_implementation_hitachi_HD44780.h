@@ -533,16 +533,25 @@ static void lcd_implementation_status_screen() {
       #else
         lcd.setCursor(0,1);
         lcd.print('X');
-        lcd.print(ftostr3(current_position[X_AXIS]));
+        if (axis_known_position[X_AXIS])
+          lcd.print(ftostr3(current_position[X_AXIS]));
+        else
+          lcd_printPGM(PSTR("---"));
         lcd_printPGM(PSTR("  Y"));
-        lcd.print(ftostr3(current_position[Y_AXIS]));
+        if (axis_known_position[Y_AXIS])
+          lcd.print(ftostr3(current_position[Y_AXIS]));
+        else
+          lcd_printPGM(PSTR("---"));
       #endif // EXTRUDERS > 1 || TEMP_SENSOR_BED != 0
 
     #endif // LCD_WIDTH > 19
 
     lcd.setCursor(LCD_WIDTH - 8, 1);
     lcd.print('Z');
-    lcd.print(ftostr32sp(current_position[Z_AXIS] + 0.00001));
+    if (axis_known_position[Z_AXIS])
+      lcd.print(ftostr32sp(current_position[Z_AXIS] + 0.00001));
+    else
+      lcd_printPGM(PSTR("---.--"));
 
   #endif // LCD_HEIGHT > 2
 
