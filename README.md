@@ -21,7 +21,14 @@ __Google Hangout:__ <a href="https://plus.google.com/hangouts/_/gxn3wrea5gdhoo22
 The current Marlin dev team consists of:
 
  - Scott Lahteine [@thinkyhead]
- - 
+ - Andreas Hardt [@AnHardt]
+ - [@Wurstnase]
+ - [@fmalpartida]
+ - [@CONSULitAS]
+ - [@maverikou]
+ - Chris Palmer [@nophead]
+ - [@paclema]
+ - [@epatel]
 
 More features have been added by:
   - Lampmaker,
