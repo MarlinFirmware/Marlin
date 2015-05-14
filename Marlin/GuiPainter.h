@@ -32,6 +32,9 @@ namespace screen
 
 			void title(const char * title);
 
+			void short_text(const char * text);
+			void printing_status(const uint8_t percentage, const uint16_t time);
+
 			void box(const char* nextScreen);
 
 			void icon(uint8_t x, uint8_t y, uint8_t width, uint8_t height, const unsigned char* bitmap);
@@ -65,6 +68,10 @@ namespace screen
 			void coordinateYEnd(uint8_t coordinate);
 
 			uint8_t coordinateYEnd ();
+
+			char * itostr2(const int &xx);
+
+			char * itostr3left(const int &xx);
 
 
 		private:

@@ -21,6 +21,7 @@ namespace screen
 
 		private:
 			uint16_t m_index;
+			//uint16_t m_i; //Temporal
 			uint16_t m_num_items;
 			Screen * m_items[max_items];
 	};

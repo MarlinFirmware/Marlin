@@ -5,6 +5,7 @@ namespace screen
 {
 	ScreenPrint::ScreenPrint(const char * title)
 		: Screen(title, PRINT)
+		//, m_i(0) //Temporal
 		, m_index(0)
 		, m_num_items(0)
 	{ }
@@ -14,6 +15,15 @@ namespace screen
 
 	void ScreenPrint::left()
 	{
+		//if (m_i == 0) //Temporal
+		//{
+		//	m_i = 0;
+		//}
+		//else
+		//{
+		//	--m_i;
+		//}
+
 		if (m_index == 0)
 		{
 			m_index = 0;
@@ -26,6 +36,15 @@ namespace screen
 
 	void ScreenPrint::right()
 	{
+		//if ( m_i == 100 )
+		//{
+		//	m_i = 100;
+		//}
+		//else
+		//{
+		//	++m_i;
+		//}
+
 		if ( m_index == (m_num_items -1) )
 		{
 			m_index = m_num_items -1;
@@ -46,7 +65,8 @@ namespace screen
 		painter.firstPage();
 		do 
 		{
-			/*drawTitle();
+			painter.title("Printing screen");
+			painter.printing_status(73, 650);
 			painter.box(m_items[m_index]->title());
 			uint8_t x_init = painter.coordinateXInit();
 			uint8_t y_init = painter.coordinateYInit();
@@ -69,7 +89,7 @@ namespace screen
 				{
 					(m_items[i]->icon(Icon::NORMAL)).draw(x,y);
 				}
-			}	*/	
+			}	
 		} while( painter.nextPage() ); 
 	}
 
