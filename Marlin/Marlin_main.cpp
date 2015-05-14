@@ -1793,7 +1793,6 @@ inline void gcode_G0_G1() {
     #endif //FWRETRACT
 
     prepare_move();
-    //ok_to_send();
   }
 }
 
