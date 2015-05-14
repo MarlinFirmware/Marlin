@@ -2,15 +2,14 @@
 
 namespace screen
 {
-	Screen::Screen(const char * title, ScreenType_t const & type)
+	Screen::Screen(const char * title, ScreenType_t const & type, FuncPtr_t function)
 		: m_title(title)
 		, m_type(type)
-	{
-	}
+		, m_function(function)
+	{ }
 
 	Screen::~Screen()
-	{
-	}
+	{ }
 
 	const char * Screen::title() const
 	{
