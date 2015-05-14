@@ -1819,8 +1819,9 @@ inline void gcode_G0_G1() {
  *
  * The arc is approximated by generating many small linear segments.
  * The length of each segment is configured in MM_PER_ARC_SEGMENT (Default 1mm)
- * Arcs should only be made relatively large (over 5mm). Your slicer should have
- * options for G2/G3 arc generation.
+ * Arcs should only be made relatively large (over 5mm), as larger arcs with
+ * larger segments will tend to be more efficient. Your slicer should have
+ * options for G2/G3 arc generation. In future these options may be GCode tunable.
  */
 void plan_arc(
   float *target,    // Destination position
