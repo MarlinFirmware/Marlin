@@ -227,6 +227,7 @@
 
 #define MSG_INVALID_EXTRUDER_NUM            " - Invalid extruder number !"
 #define MSG_THERMAL_RUNAWAY_STOP            "Thermal Runaway, system stopped! Heater_ID: "
+#define MSG_THERMAL_JUMP_STOP               "Thermal Jump, system stopped! Heater_ID: "
 #define MSG_SWITCHED_OFF_MAX                " switched off. MAXTEMP triggered !!"
 #define MSG_MINTEMP_EXTRUDER_OFF            ": Extruder switched off. MINTEMP triggered !"
 #define MSG_MAXTEMP_EXTRUDER_OFF            ": Extruder" MSG_SWITCHED_OFF_MAX

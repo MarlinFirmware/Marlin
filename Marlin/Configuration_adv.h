@@ -36,6 +36,18 @@
   #define THERMAL_PROTECTION_BED_HYSTERESIS 2 // Degrees Celsius
 #endif
 
+  /**
+   * Temperatures are inert. If the value of any thermometer jumps, there is something wrong with it.
+   * Reasons can be: shorted wires, broken wires, leaking water-cooling, ...
+   * but also: electronic noise, ...
+   * MAX THERMO_JUMP is the maximum allowed temperature difference between two measurements of the raw temperature.
+   * The fastest expected change is about (full range of the ADC) / minute / (temp mesurments / second). 
+   * This is well below the noise. So we have to adjust for the noise.
+   * If you get 'unreasoned' "error: Thermometer Jumped" messages increase the next value.
+   */
+//#define MAX_THERMO_JUMP
+#define MAX_THERMO_JUMP_AMOUNT 10
+
 #ifdef PIDTEMP
   // this adds an experimental additional term to the heating power, proportional to the extrusion speed.
   // if Kc is chosen well, the additional required power due to increased melting should be compensated.
