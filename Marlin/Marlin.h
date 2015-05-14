@@ -207,7 +207,6 @@ void disable_all_steppers();
 void FlushSerialRequestResend();
 void ok_to_send();
 
-void get_coordinates();
 #ifdef DELTA
   void calculate_delta(float cartesian[3]);
   #ifdef ENABLE_AUTO_BED_LEVELING
