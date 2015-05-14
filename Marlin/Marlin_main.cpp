@@ -3211,7 +3211,7 @@ inline void gcode_M105() {
   if (setTargetedHotend(105)) return;
 
   #if HAS_TEMP_0 || HAS_TEMP_BED || defined(HEATER_0_USES_MAX6675)
-    SERIAL_PROTOCOLPGM("ok");
+    SERIAL_PROTOCOLPGM(MSG_OK);
     #if HAS_TEMP_0
       SERIAL_PROTOCOLPGM(" T:");
       SERIAL_PROTOCOL_F(degHotend(target_extruder), 1);
