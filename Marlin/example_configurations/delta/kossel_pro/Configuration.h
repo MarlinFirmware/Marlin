@@ -38,13 +38,14 @@ Here are some standard links for getting your machine calibrated:
 // For a Scara printer replace the configuration files with the files in the
 // example_configurations/SCARA directory.
 //
+
+// @section info
+
 #ifdef HAS_AUTOMATIC_VERSIONING
   #include "_Version.h"
 #else
   #include "Default_Version.h"
 #endif
-
-// @section info
 
 // User-specified version info of this build to display in [Pronterface, etc] terminal window during
 // startup. Implementation of an idea by Prof Braino to inform user that any changes made to this
