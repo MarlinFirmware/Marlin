@@ -18,17 +18,21 @@ namespace screen
 
 	void GuiPainter::title(const char * title)
 	{
-		uint8_t x_init = coordinateXInit();
-		uint8_t y_init = coordinateYInit();
-		uint8_t x_end = coordinateXEnd();
+		if ( (title != NULL) && (strlen(title) > 0) )
+		{
+		
+			uint8_t x_init = coordinateXInit();
+			uint8_t y_init = coordinateYInit();
+			uint8_t x_end = coordinateXEnd();
 
-		setColorIndex(1);
-		setFont(u8g_font_6x9);
-		setPrintPos(x_init, y_init + 3);
-		print(title);
-		drawLine(x_init, y_init + 13, x_end, y_init + 13);
+			setColorIndex(1);
+			setFont(u8g_font_6x9);
+			setPrintPos(x_init, y_init + 3);
+			print(title);
+			drawLine(x_init, y_init + 13, x_end, y_init + 13);
 
-		coordinateYInit(14);
+			coordinateYInit(14);
+		}
 		
 	}
 

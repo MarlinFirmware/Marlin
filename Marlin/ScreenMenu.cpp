@@ -46,7 +46,7 @@ namespace screen
 		painter.firstPage();
 		do 
 		{
-			drawTitle();
+			painter.title(m_title);
 			painter.box(m_items[m_index]->title());
 			uint8_t x_init = painter.coordinateXInit();
 			uint8_t y_init = painter.coordinateYInit();

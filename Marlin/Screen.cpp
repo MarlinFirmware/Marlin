@@ -39,12 +39,4 @@ namespace screen
 		}
 		return * m_icons[0];
 	}
-
-	void Screen::drawTitle()
-	{
-		if ( (m_title != NULL) && (strlen(m_title) > 0) )
-		{
-			painter.title(title());
-		}
-	}
 }
