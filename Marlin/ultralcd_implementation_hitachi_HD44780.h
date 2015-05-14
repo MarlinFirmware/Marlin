@@ -451,7 +451,7 @@ static void lcd_implementation_status_screen() {
     //
     // Hotend 0 Temperature
     //
-    LCD_TEMP_ONLY(degHotend(0), degTargetHeater(0));
+    LCD_TEMP_ONLY(degHotend(0), degTargetHotend(0));
 
     //
     // Hotend 1 or Bed Temperature
@@ -461,7 +461,7 @@ static void lcd_implementation_status_screen() {
       lcd.setCursor(8, 0);
       #if EXTRUDERS > 1
         lcd.print(LCD_STR_THERMOMETER[0]);
-        LCD_TEMP_ONLY(degHotend(1), degTargetHeater(1));
+        LCD_TEMP_ONLY(degHotend(1), degTargetHotend(1));
       #else
         lcd.print(LCD_STR_BEDTEMP[0]);
         LCD_TEMP_ONLY(degBed(), degTargetBed());
@@ -474,7 +474,7 @@ static void lcd_implementation_status_screen() {
     //
     // Hotend 0 Temperature
     //
-    LCD_TEMP(degHotend(0), degTargetHeater(0), LCD_STR_THERMOMETER[0]);
+    LCD_TEMP(degHotend(0), degTargetHotend(0), LCD_STR_THERMOMETER[0]);
 
     //
     // Hotend 1 or Bed Temperature
@@ -482,7 +482,7 @@ static void lcd_implementation_status_screen() {
     #if EXTRUDERS > 1 || TEMP_SENSOR_BED != 0
       lcd.setCursor(10, 0);
       #if EXTRUDERS > 1
-        LCD_TEMP(degHotend(1), degTargetHeater(1), LCD_STR_THERMOMETER[0]);
+        LCD_TEMP(degHotend(1), degTargetHotend(1), LCD_STR_THERMOMETER[0]);
       #else
         LCD_TEMP(degBed(), degTargetBed(), LCD_STR_BEDTEMP[0]);
       #endif
