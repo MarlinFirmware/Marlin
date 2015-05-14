@@ -438,7 +438,7 @@ static void lcd_implementation_status_screen() {
     lcd.print(PREFIX); \
     LCD_TEMP_ONLY(T1,T2); \
     lcd_printPGM(PSTR(LCD_STR_DEGREE " ")); \
-    if (tTarget < 10) lcd.print(' ')
+    if (T2 < 10) lcd.print(' ')
 
   //
   // Line 1
