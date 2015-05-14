@@ -47,7 +47,6 @@
 #include "planner.h"
 #include "stepper.h"
 #include "temperature.h"
-#include "motion_control.h"
 #include "cardreader.h"
 #include "watchdog.h"
 #include "configuration_store.h"
@@ -226,7 +225,7 @@ bool Running = true;
 
 uint8_t marlin_debug_flags = DEBUG_INFO|DEBUG_ERRORS;
 
-static float feedrate = 1500.0, next_feedrate, saved_feedrate;
+static float feedrate = 1500.0, saved_feedrate;
 float current_position[NUM_AXIS] = { 0.0 };
 static float destination[NUM_AXIS] = { 0.0 };
 bool axis_known_position[3] = { false };
@@ -258,7 +257,6 @@ const char errormagic[] PROGMEM = "Error:";
 const char echomagic[] PROGMEM = "echo:";
 const char axis_codes[NUM_AXIS] = {'X', 'Y', 'Z', 'E'};
 
-static float offset[3] = { 0 };
 static bool relative_mode = false;  //Determines Absolute or Relative Coordinates
 static char serial_char;
 static int serial_count = 0;
@@ -401,7 +399,6 @@ bool target_direction;
 //================================ Functions ================================
 //===========================================================================
 
-void get_arc_coordinates();
 bool setTargetedHotend(int code);
 
 void serial_echopair_P(const char *s_P, float v)         { serialprintPGM(s_P); SERIAL_ECHO(v); }
@@ -1771,11 +1768,31 @@ static void homeaxis(AxisEnum axis) {
  */
 
 /**
+ * Set XYZE destination and feedrate from the current GCode command
+ *
+ *  - Set destination from included axis codes
+ *  - Set to current for missing axis codes
+ *  - Set the feedrate, if included
+ */
+void gcode_get_destination() {
+  for (int i = 0; i < NUM_AXIS; i++) {
+    if (code_seen(axis_codes[i]))
+      destination[i] = code_value() + (axis_relative_modes[i] || relative_mode ? current_position[i] : 0);
+    else
+      destination[i] = current_position[i];
+  }
+  if (code_seen('F')) {
+    float next_feedrate = code_value();
+    if (next_feedrate > 0.0) feedrate = next_feedrate;
+  }
+}
+
+/**
  * G0, G1: Coordinated movement of X Y Z E axes
  */
 inline void gcode_G0_G1() {
   if (IsRunning()) {
-    get_coordinates(); // For X Y Z E F
+    gcode_get_destination(); // For X Y Z E F
 
     #ifdef FWRETRACT
 
@@ -1798,13 +1815,157 @@ inline void gcode_G0_G1() {
 }
 
 /**
+ * Plan an arc in 2 dimensions
+ *
+ * The arc is approximated by generating many small linear segments.
+ * The length of each segment is configured in MM_PER_ARC_SEGMENT (Default 1mm)
+ * Arcs should only be made relatively large (over 5mm), as larger arcs with
+ * larger segments will tend to be more efficient. Your slicer should have
+ * options for G2/G3 arc generation. In future these options may be GCode tunable.
+ */
+void plan_arc(
+  float *target,    // Destination position
+  float *offset,    // Center of rotation relative to current_position
+  uint8_t clockwise // Clockwise?
+) {
+
+  float radius = hypot(offset[X_AXIS], offset[Y_AXIS]),
+        center_axis0 = current_position[X_AXIS] + offset[X_AXIS],
+        center_axis1 = current_position[Y_AXIS] + offset[Y_AXIS],
+        linear_travel = target[Z_AXIS] - current_position[Z_AXIS],
+        extruder_travel = target[E_AXIS] - current_position[E_AXIS],
+        r_axis0 = -offset[X_AXIS],  // Radius vector from center to current location
+        r_axis1 = -offset[Y_AXIS],
+        rt_axis0 = target[X_AXIS] - center_axis0,
+        rt_axis1 = target[Y_AXIS] - center_axis1;
+  
+  // CCW angle of rotation between position and target from the circle center. Only one atan2() trig computation required.
+  float angular_travel = atan2(r_axis0*rt_axis1-r_axis1*rt_axis0, r_axis0*rt_axis0+r_axis1*rt_axis1);
+  if (angular_travel < 0) { angular_travel += RADIANS(360); }
+  if (clockwise) { angular_travel -= RADIANS(360); }
+  
+  // Make a circle if the angular rotation is 0
+  if (current_position[X_AXIS] == target[X_AXIS] && current_position[Y_AXIS] == target[Y_AXIS] && angular_travel == 0)
+    angular_travel += RADIANS(360);
+  
+  float mm_of_travel = hypot(angular_travel*radius, fabs(linear_travel));
+  if (mm_of_travel < 0.001) { return; }
+  uint16_t segments = floor(mm_of_travel / MM_PER_ARC_SEGMENT);
+  if (segments == 0) segments = 1;
+  
+  float theta_per_segment = angular_travel/segments;
+  float linear_per_segment = linear_travel/segments;
+  float extruder_per_segment = extruder_travel/segments;
+  
+  /* Vector rotation by transformation matrix: r is the original vector, r_T is the rotated vector,
+     and phi is the angle of rotation. Based on the solution approach by Jens Geisler.
+         r_T = [cos(phi) -sin(phi);
+                sin(phi)  cos(phi] * r ;
+     
+     For arc generation, the center of the circle is the axis of rotation and the radius vector is 
+     defined from the circle center to the initial position. Each line segment is formed by successive
+     vector rotations. This requires only two cos() and sin() computations to form the rotation
+     matrix for the duration of the entire arc. Error may accumulate from numerical round-off, since
+     all double numbers are single precision on the Arduino. (True double precision will not have
+     round off issues for CNC applications.) Single precision error can accumulate to be greater than
+     tool precision in some cases. Therefore, arc path correction is implemented. 
+
+     Small angle approximation may be used to reduce computation overhead further. This approximation
+     holds for everything, but very small circles and large MM_PER_ARC_SEGMENT values. In other words,
+     theta_per_segment would need to be greater than 0.1 rad and N_ARC_CORRECTION would need to be large
+     to cause an appreciable drift error. N_ARC_CORRECTION~=25 is more than small enough to correct for 
+     numerical drift error. N_ARC_CORRECTION may be on the order a hundred(s) before error becomes an
+     issue for CNC machines with the single precision Arduino calculations.
+     
+     This approximation also allows plan_arc to immediately insert a line segment into the planner 
+     without the initial overhead of computing cos() or sin(). By the time the arc needs to be applied
+     a correction, the planner should have caught up to the lag caused by the initial plan_arc overhead. 
+     This is important when there are successive arc motions. 
+  */
+  // Vector rotation matrix values
+  float cos_T = 1-0.5*theta_per_segment*theta_per_segment; // Small angle approximation
+  float sin_T = theta_per_segment;
+  
+  float arc_target[4];
+  float sin_Ti;
+  float cos_Ti;
+  float r_axisi;
+  uint16_t i;
+  int8_t count = 0;
+
+  // Initialize the linear axis
+  arc_target[Z_AXIS] = current_position[Z_AXIS];
+  
+  // Initialize the extruder axis
+  arc_target[E_AXIS] = current_position[E_AXIS];
+
+  float feed_rate = feedrate*feedrate_multiplier/60/100.0;
+
+  for (i = 1; i < segments; i++) { // Increment (segments-1)
+
+    if (count < N_ARC_CORRECTION) {
+      // Apply vector rotation matrix to previous r_axis0 / 1
+      r_axisi = r_axis0*sin_T + r_axis1*cos_T;
+      r_axis0 = r_axis0*cos_T - r_axis1*sin_T;
+      r_axis1 = r_axisi;
+      count++;
+    }
+    else {
+      // Arc correction to radius vector. Computed only every N_ARC_CORRECTION increments.
+      // Compute exact location by applying transformation matrix from initial radius vector(=-offset).
+      cos_Ti = cos(i*theta_per_segment);
+      sin_Ti = sin(i*theta_per_segment);
+      r_axis0 = -offset[X_AXIS]*cos_Ti + offset[Y_AXIS]*sin_Ti;
+      r_axis1 = -offset[X_AXIS]*sin_Ti - offset[Y_AXIS]*cos_Ti;
+      count = 0;
+    }
+
+    // Update arc_target location
+    arc_target[X_AXIS] = center_axis0 + r_axis0;
+    arc_target[Y_AXIS] = center_axis1 + r_axis1;
+    arc_target[Z_AXIS] += linear_per_segment;
+    arc_target[E_AXIS] += extruder_per_segment;
+
+    clamp_to_software_endstops(arc_target);
+    plan_buffer_line(arc_target[X_AXIS], arc_target[Y_AXIS], arc_target[Z_AXIS], arc_target[E_AXIS], feed_rate, active_extruder);
+  }
+  // Ensure last segment arrives at target location.
+  plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], feed_rate, active_extruder);
+
+  // As far as the parser is concerned, the position is now == target. In reality the
+  // motion control system might still be processing the action and the real tool position
+  // in any intermediate location.
+  set_current_to_destination();
+}
+
+/**
  * G2: Clockwise Arc
  * G3: Counterclockwise Arc
  */
 inline void gcode_G2_G3(bool clockwise) {
   if (IsRunning()) {
-    get_arc_coordinates();
-    prepare_arc_move(clockwise);
+
+    #ifdef SF_ARC_FIX
+      bool relative_mode_backup = relative_mode;
+      relative_mode = true;
+    #endif
+
+    gcode_get_destination();
+
+    #ifdef SF_ARC_FIX
+      relative_mode = relative_mode_backup;
+    #endif
+
+    // Center of arc as offset from current_position
+    float arc_offset[2] = {
+      code_seen('I') ? code_value() : 0,
+      code_seen('J') ? code_value() : 0
+    };
+
+    // Send an arc to the planner
+    plan_arc(destination, arc_offset, clockwise);
+
+    refresh_cmd_timeout();
   }
 }
 
@@ -4308,7 +4469,7 @@ inline void gcode_M303() {
     //SoftEndsEnabled = false;              // Ignore soft endstops during calibration
     //SERIAL_ECHOLN(" Soft endstops disabled ");
     if (IsRunning()) {
-      //get_coordinates(); // For X Y Z E F
+      //gcode_get_destination(); // For X Y Z E F
       delta[X_AXIS] = delta_x;
       delta[Y_AXIS] = delta_y;
       calculate_SCARA_forward_Transform(delta);
@@ -4932,7 +5093,7 @@ inline void gcode_T() {
         make_move = true;
       #endif
 
-      next_feedrate = code_value();
+      float next_feedrate = code_value();
       if (next_feedrate > 0.0) feedrate = next_feedrate;
     }
     #if EXTRUDERS > 1
@@ -5562,33 +5723,6 @@ void ok_to_send() {
   SERIAL_EOL;  
 }
 
-void get_coordinates() {
-  for (int i = 0; i < NUM_AXIS; i++) {
-    if (code_seen(axis_codes[i]))
-      destination[i] = code_value() + (axis_relative_modes[i] || relative_mode ? current_position[i] : 0);
-    else
-      destination[i] = current_position[i];
-  }
-  if (code_seen('F')) {
-    next_feedrate = code_value();
-    if (next_feedrate > 0.0) feedrate = next_feedrate;
-  }
-}
-
-void get_arc_coordinates() {
-  #ifdef SF_ARC_FIX
-    bool relative_mode_backup = relative_mode;
-    relative_mode = true;
-  #endif
-    get_coordinates();
-  #ifdef SF_ARC_FIX
-    relative_mode = relative_mode_backup;
-  #endif
-
-  offset[0] = code_seen('I') ? code_value() : 0;
-  offset[1] = code_seen('J') ? code_value() : 0;
-}
-
 void clamp_to_software_endstops(float target[3]) {
   if (min_software_endstops) {
     NOLESS(target[X_AXIS], min_pos[X_AXIS]);
@@ -5910,19 +6044,6 @@ void prepare_move() {
   #endif
 
   set_current_to_destination();
-}
-
-void prepare_arc_move(char isclockwise) {
-  float r = hypot(offset[X_AXIS], offset[Y_AXIS]); // Compute arc radius for mc_arc
-
-  // Trace the arc
-  mc_arc(current_position, destination, offset, X_AXIS, Y_AXIS, Z_AXIS, feedrate*feedrate_multiplier/60/100.0, r, isclockwise, active_extruder);
-
-  // As far as the parser is concerned, the position is now == target. In reality the
-  // motion control system might still be processing the action and the real tool position
-  // in any intermediate location.
-  set_current_to_destination();
-  refresh_cmd_timeout();
 }
 
 #if HAS_CONTROLLERFAN
