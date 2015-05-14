@@ -30,16 +30,31 @@ namespace screen
 	Icon icon_steppers_off_selected      = Icon(Icon::SELECTED, icon_width, icon_height, bits_steppers_off_selected);
 	Icon icon_moveaxis_normal            = Icon(Icon::NORMAL, icon_width, icon_height, bits_moveaxis_normal);
 	Icon icon_moveaxis_selected          = Icon(Icon::SELECTED, icon_width, icon_height, bits_moveaxis_selected);
-	Icon icon_heat_normal                = Icon(Icon::NORMAL, icon_width, icon_height, bits_heat_normal);
-	Icon icon_heat_selected              = Icon(Icon::SELECTED, icon_width, icon_height, bits_heat_selected);
-	Icon icon_cold_normal                = Icon(Icon::NORMAL, icon_width, icon_height, bits_cold_normal);
-	Icon icon_cold_selected              = Icon(Icon::SELECTED, icon_width, icon_height, bits_cold_selected);
+	Icon icon_temperature_normal         = Icon(Icon::NORMAL, icon_width, icon_height, bits_temperature_normal);
+	Icon icon_temperature_selected       = Icon(Icon::SELECTED, icon_width, icon_height, bits_temperature_selected);
 	Icon icon_lightled_disable_normal    = Icon(Icon::NORMAL, icon_width, icon_height, bits_lightled_disable_normal);
 	Icon icon_lightled_disable_selected  = Icon(Icon::SELECTED, icon_width, icon_height, bits_lightled_disable_selected);
 	Icon icon_lightled_normal            = Icon(Icon::NORMAL, icon_width, icon_height, bits_lightled_normal);
 	Icon icon_lightled_selected          = Icon(Icon::SELECTED, icon_width, icon_height, bits_lightled_selected);
 	Icon icon_info_normal                = Icon(Icon::NORMAL, icon_width, icon_height, bits_info_normal);
 	Icon icon_info_selected              = Icon(Icon::SELECTED, icon_width, icon_height, bits_info_selected);
+	Icon icon_play_normal                = Icon(Icon::NORMAL, icon_width, icon_height, bits_play_normal);
+	Icon icon_play_selected              = Icon(Icon::SELECTED, icon_width, icon_height, bits_play_selected);
+	Icon icon_pause_normal               = Icon(Icon::NORMAL, icon_width, icon_height, bits_pause_normal);
+	Icon icon_pause_selected             = Icon(Icon::SELECTED, icon_width, icon_height, bits_pause_selected);
+	Icon icon_stop_normal                = Icon(Icon::NORMAL, icon_width, icon_height, bits_stop_normal);
+	Icon icon_stop_selected              = Icon(Icon::SELECTED, icon_width, icon_height, bits_stop_selected);
+	Icon icon_change_filament_normal     = Icon(Icon::NORMAL, icon_width, icon_height, bits_change_filament_normal);
+	Icon icon_change_filament_selected   = Icon(Icon::SELECTED, icon_width, icon_height, bits_change_filament_selected);
+	Icon icon_change_speed_normal        = Icon(Icon::NORMAL, icon_width, icon_height, bits_change_speed_normal);
+	Icon icon_change_speed_selected      = Icon(Icon::SELECTED, icon_width, icon_height, bits_change_speed_selected);
+	Icon icon_back_normal                = Icon(Icon::NORMAL, icon_width, icon_height, bits_back_normal);
+	Icon icon_back_selected              = Icon(Icon::SELECTED, icon_width, icon_height, bits_back_selected);
+	Icon icon_retry_normal               = Icon(Icon::NORMAL, icon_width, icon_height, bits_retry_normal);
+	Icon icon_retry_selected             = Icon(Icon::SELECTED, icon_width, icon_height, bits_retry_selected);
+	Icon icon_ok_normal                  = Icon(Icon::NORMAL, icon_width, icon_height, bits_ok_normal);
+	Icon icon_ok_selected                = Icon(Icon::SELECTED, icon_width, icon_height, bits_ok_selected);
+
 
 	/////////////////////////
 	// Instantiate Screens //
@@ -84,7 +99,7 @@ namespace screen
 	ScreenSelector screen_move_1        = ScreenSelector("Move 1mm");
 	ScreenSelector screen_move_01       = ScreenSelector("Move 01mm");
 	//Temperature
-	ScreenSelector screen_temperature   = ScreenSelector("Temp 0/200ºC");
+	ScreenSelector screen_temperature   = ScreenSelector("Temp 0/200C");
 	//Light
 	Screen screen_light                 = Screen("Led light on");
 	//Info
@@ -93,7 +108,7 @@ namespace screen
 	//Print screen
 	ScreenPrint screen_print            = ScreenPrint("");
 	//Play/Pause
-	Screen screen_play_pause				= Screen("Pause");
+	Screen screen_play_pause			= Screen("Print");
 	//Stop
 	ScreenMenu screen_stop				= ScreenMenu("Stop");
 	//Change Filament Screens
@@ -171,8 +186,8 @@ namespace screen
 		screen_move.icon(icon_moveaxis_selected);
 		//Temperature
 		screen_temperature.add(screen_main);
-		screen_temperature.icon(icon_heat_normal);
-		screen_temperature.icon(icon_heat_selected);
+		screen_temperature.icon(icon_temperature_normal);
+		screen_temperature.icon(icon_temperature_selected);
 		//Light
 		screen_light.add(screen_main);
 		screen_light.icon(icon_lightled_disable_normal);
@@ -192,18 +207,20 @@ namespace screen
 		screen_print.add(screen_temperature);
 		//Play/Pause
 		screen_play_pause.add(screen_print);
-		screen_play_pause.icon(icon_moveaxis_normal); //Temporal
-		screen_play_pause.icon(icon_moveaxis_selected);//Temporal
-		screen_play_pause.icon(icon_info_normal);//Temporal
-		screen_play_pause.icon(icon_info_selected);//Temporal
+		screen_play_pause.icon(icon_play_normal); 
+		screen_play_pause.icon(icon_play_selected);
+		screen_play_pause.icon(icon_pause_normal);
+		screen_play_pause.icon(icon_pause_selected);
 		//Stop
 		screen_stop.add(screen_print);
 		screen_stop.add(screen_main);
+		screen_stop.icon(icon_stop_normal);
+		screen_stop.icon(icon_stop_selected);
 		//Change filament
 		screen_change_confirm.add(screen_print);
 		screen_change_confirm.add(screen_change_start);
-		screen_change_confirm.icon(icon_leveling_normal);//Temporal
-		screen_change_confirm.icon(icon_leveling_selected);//Temporal
+		screen_change_confirm.icon(icon_change_filament_normal);
+		screen_change_confirm.icon(icon_change_filament_selected);
 		//Change filament start
 		screen_change_start.add(screen_change_pullout);
 		//Change filament pullout
@@ -215,8 +232,8 @@ namespace screen
 		screen_change_retry.add(screen_print);
 		//Change speed screens
 		screen_speed.add(screen_print);
-		screen_speed.icon(icon_homing_normal);
-		screen_speed.icon(icon_homing_selected);
+		screen_speed.icon(icon_change_speed_normal);
+		screen_speed.icon(icon_change_speed_selected);
 		//
 
 		return new ScreenMenu(screen_main);
