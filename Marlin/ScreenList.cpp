@@ -91,7 +91,7 @@ namespace screen
 		painter.firstPage();
 		do
 		{
-			drawTitle();
+			painter.title(m_title);
 			painter.setPrintPos(painter.coordinateXInit(), painter.coordinateYInit());
 			SERIAL_ECHO(m_title);
 			SERIAL_ECHO(" ");
