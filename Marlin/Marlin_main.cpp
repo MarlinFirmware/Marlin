@@ -257,7 +257,6 @@ const char errormagic[] PROGMEM = "Error:";
 const char echomagic[] PROGMEM = "echo:";
 const char axis_codes[NUM_AXIS] = {'X', 'Y', 'Z', 'E'};
 
-static float arc_offset[3] = { 0 };
 static bool relative_mode = false;  //Determines Absolute or Relative Coordinates
 static char serial_char;
 static int serial_count = 0;
@@ -1957,8 +1956,10 @@ inline void gcode_G2_G3(bool clockwise) {
     #endif
 
     // Center of arc as offset from current_position
-    arc_offset[0] = code_seen('I') ? code_value() : 0;
-    arc_offset[1] = code_seen('J') ? code_value() : 0;
+    float arc_offset[2] = {
+      code_seen('I') ? code_value() : 0,
+      code_seen('J') ? code_value() : 0
+    };
 
     // Send an arc to the planner
     plan_arc(destination, arc_offset, clockwise);
