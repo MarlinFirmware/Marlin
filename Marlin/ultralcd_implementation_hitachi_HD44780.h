@@ -449,11 +449,11 @@ static void lcd_implementation_status_screen() {
     lcd_printPGM(PSTR(LCD_STR_DEGREE " ")); \
     if (tTarget < 10) lcd.print(' ')
 
-  lcd.setCursor(0, 0);
-
   //
   // Line 1
   //
+
+  lcd.setCursor(0, 0);
 
   #if LCD_WIDTH < 20
 
@@ -483,7 +483,7 @@ static void lcd_implementation_status_screen() {
     //
     // Hotend 0 Temperature
     //
-    LCD_TEMP(LCD_STR_THERMOMETER[0]);
+    LCD_TEMP(degHotend(0), degTargetHeater(0), LCD_STR_THERMOMETER[0]);
 
     //
     // Hotend 1 or Bed Temperature
