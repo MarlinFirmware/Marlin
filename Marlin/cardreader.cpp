@@ -147,7 +147,7 @@ void CardReader::getLongPath(char *path) {
     }
 
     // If the filename was printed then that's it
-    if (!filenameIsDir) { SERIAL_EOL; break; }
+    if (!filenameIsDir) break;
 
     // SERIAL_ECHOPGM("Opening dir: "); SERIAL_ECHOLN(segment);
 
@@ -157,7 +157,7 @@ void CardReader::getLongPath(char *path) {
       SERIAL_EOL;
       SERIAL_ECHO_START;
       SERIAL_ECHOPGM(MSG_SD_CANT_OPEN_SUBDIR);
-      SERIAL_ECHOLN(segment);
+      SERIAL_ECHO(segment);
       break;
     }
 
@@ -165,6 +165,8 @@ void CardReader::getLongPath(char *path) {
     diveDir = dir;
 
   } // while i<pathLen
+
+  SERIAL_EOL;
 }
 
 void CardReader::initsd() {
