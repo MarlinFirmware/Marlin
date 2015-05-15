@@ -353,7 +353,7 @@ static void lcd_implementation_init(
   #endif
 ) {
 
-  #if defined(LCD_I2C_TYPE_PCF8575)
+  #ifdef LCD_I2C_TYPE_PCF8575
     lcd.begin(LCD_WIDTH, LCD_HEIGHT);
     #ifdef LCD_I2C_PIN_BL
       lcd.setBacklightPin(LCD_I2C_PIN_BL, POSITIVE);
