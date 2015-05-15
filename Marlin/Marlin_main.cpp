@@ -3065,6 +3065,7 @@ inline void gcode_M31() {
     card.getLongPath(args);
   }
 
+  /**
    * M928: Start SD Write
    */
   inline void gcode_M928() {
