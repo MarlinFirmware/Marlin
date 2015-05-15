@@ -815,7 +815,7 @@ void get_command() {
         }
 
         gcode_LastN = gcode_N;
-        //if no errors, continue parsing
+        // if no errors, continue parsing
       }
       else {  // if we don't receive 'N' but still see '*'
         if (starpos) {
@@ -825,7 +825,7 @@ void get_command() {
       }
 
       char *gpos = strchr(command, 'G');
-      if (gpos && gpos[1] >= '0' && gpos[1] <= '9') {
+      if (gpos && gpos[1] >= '0' && gpos[1] <= '3') {
         switch (strtol(&gpos[1], NULL, 10)) {
           case 0:
           case 1:
@@ -850,7 +850,7 @@ void get_command() {
       serial_count = 0; //clear buffer
     }
     else if (serial_char == '\\') {  // Handle escapes
-      if (MYSERIAL.available() > 0  && commands_in_queue < BUFSIZE) {
+      if (MYSERIAL.available() > 0 && commands_in_queue < BUFSIZE) {
         // if we have one more character, copy it over
         serial_char = MYSERIAL.read();
         command_queue[cmd_queue_index_w][serial_count++] = serial_char;
@@ -5275,7 +5275,7 @@ void process_commands() {
     }
   }
 
-  else if (code_seen('M')) {
+  else if (code_seen('M') && code_has_value()) {
     switch(code_value_short()) {
       #ifdef ULTIPANEL
         case 0: // M0 - Unconditional stop - Wait for user button press on LCD
@@ -5704,7 +5704,7 @@ void process_commands() {
     }
   }
 
-  else if (code_seen('T')) {
+  else if (code_seen('T') && code_has_value()) {
     gcode_T();
   }
 
