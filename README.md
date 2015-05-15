@@ -29,6 +29,9 @@ The current Marlin dev team consists of:
  - Chris Palmer [@nophead]
  - [@paclema]
  - [@epatel]
+ - Erik van der Zalm [@ErikZalm]
+ - David Braam [@daid]
+ - Bernhard Kubicek [@bkubicek]
 
 More features have been added by:
   - Lampmaker,
