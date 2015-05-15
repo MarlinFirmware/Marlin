@@ -1097,8 +1097,9 @@ int16_t SdBaseFile::read(void* buf, uint16_t nbyte) {
  fail:
   return -1;
 }
-//------------------------------------------------------------------------------
-/** Read the next directory entry from a directory file.
+
+/**
+ * Read the next entry in a directory.
  *
  * \param[out] dir The dir_t struct that will receive the data.
  *
@@ -1130,16 +1131,16 @@ int8_t SdBaseFile::readDir(dir_t* dir, char* longFilename) {
     // Fill the long filename if we have a long filename entry.
     // Long filename entries are stored before the short filename.
     if (longFilename != NULL && DIR_IS_LONG_NAME(dir)) {
-    	vfat_t *VFAT = (vfat_t*)dir;
-  		// Sanity-check the VFAT entry. The first cluster is always set to zero. And the sequence number should be higher than 0
-    	if (VFAT->firstClusterLow == 0 && (VFAT->sequenceNumber & 0x1F) > 0 && (VFAT->sequenceNumber & 0x1F) <= MAX_VFAT_ENTRIES) {
-  			// TODO: Store the filename checksum to verify if a none-long filename aware system modified the file table.
-    		n = ((VFAT->sequenceNumber & 0x1F) - 1) * FILENAME_LENGTH;
+      vfat_t *VFAT = (vfat_t*)dir;
+      // Sanity-check the VFAT entry. The first cluster is always set to zero. And the sequence number should be higher than 0
+      if (VFAT->firstClusterLow == 0 && (VFAT->sequenceNumber & 0x1F) > 0 && (VFAT->sequenceNumber & 0x1F) <= MAX_VFAT_ENTRIES) {
+        // TODO: Store the filename checksum to verify if a none-long filename aware system modified the file table.
+        n = ((VFAT->sequenceNumber & 0x1F) - 1) * FILENAME_LENGTH;
         for (uint8_t i=0; i<FILENAME_LENGTH; i++)
           longFilename[n+i] = (i < 5) ? VFAT->name1[i] : (i < 11) ? VFAT->name2[i-5] : VFAT->name3[i-11];
         // If this VFAT entry is the last one, add a NUL terminator at the end of the string
         if (VFAT->sequenceNumber & 0x40) longFilename[n+FILENAME_LENGTH] = '\0';
-  		}
+      }
     }
     // Return if normal file or subdirectory
     if (DIR_IS_FILE_OR_SUBDIR(dir)) return n;
