@@ -29,7 +29,11 @@ public:
   void printingHasFinished();
 
   void getfilename(uint16_t nr, const char* const match=NULL);
-  void getLongPath(char *path);
+
+  #ifdef LONG_FILENAME_HOST_SUPPORT
+    void getLongPath(char *path);
+  #endif
+
   uint16_t getnrfilenames();
 
   void getAbsFilename(char *t);

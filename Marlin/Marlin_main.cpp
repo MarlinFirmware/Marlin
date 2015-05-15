@@ -3058,16 +3058,20 @@ inline void gcode_M31() {
     }
   }
 
-  /**
-   * M33: Get the long pathname of a file
-   *      Example: M33 MISCEL~1/ARMCHAIR/ARMCHA~1.GCO
-   */
-  inline void gcode_M33() {
-    char *args = strchr_pointer + 4;
-    while (*args == ' ') ++args;
-    clear_asterisk(args);
-    card.getLongPath(args);
-  }
+  #ifdef LONG_FILENAME_HOST_SUPPORT
+
+    /**
+     * M33: Get the long pathname of a file
+     *      Example: M33 MISCEL~1/ARMCHAIR/ARMCHA~1.GCO
+     */
+    inline void gcode_M33() {
+      char *args = strchr_pointer + 4;
+      while (*args == ' ') ++args;
+      clear_asterisk(args);
+      card.getLongPath(args);
+    }
+
+  #endif
 
   /**
    * M928: Start SD Write
@@ -5322,8 +5326,11 @@ void process_commands() {
           gcode_M30(); break;
         case 32: //M32 - Select file and start SD print
           gcode_M32(); break;
-        case 33: //M33 - Get the full long path to a file
-          gcode_M33(); break;
+
+        #ifdef LONG_FILENAME_HOST_SUPPORT
+          case 33: //M33 - Get the full long path to a file or folder
+            gcode_M33(); break;
+        #endif
 
         case 928: //M928 - Start SD write
           gcode_M928(); break;
