@@ -141,10 +141,8 @@ void CardReader::getLongPath(char *path) {
     lsDive("", diveDir, segment);
 
     // Print /LongNamePart to serial output
-    if (longFilename[0]) {
-      SERIAL_PROTOCOLCHAR('/');
-      SERIAL_PROTOCOL(longFilename);
-    }
+    SERIAL_PROTOCOLCHAR('/');
+    SERIAL_PROTOCOL(longFilename[0] ? longFilename : "???");
 
     // If the filename was printed then that's it
     if (!filenameIsDir) break;
