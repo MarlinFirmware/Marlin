@@ -2839,6 +2839,10 @@ inline void gcode_G92() {
 
 #ifdef ULTIPANEL
 
+  /**
+   * Remove the asterisk from a command
+   * This will soon be replaced by sanitized commands!
+   */
   inline bool clear_asterisk(char *src) {
     char* starpos = strchr(src, '*');
     if (starpos) { *(starpos) = '\0'; return true; }
@@ -3869,14 +3873,18 @@ inline void gcode_M115() {
   SERIAL_PROTOCOLPGM(MSG_M115_REPORT);
 }
 
-/**
- * M117: Set LCD Status Message
- */
-inline void gcode_M117() {
-  char* args = strchr_pointer + 5;
-  clear_asterisk(args);
-  lcd_setstatus(args);
-}
+#ifdef ULTIPANEL
+
+  /**
+   * M117: Set LCD Status Message
+   */
+  inline void gcode_M117() {
+    char* args = strchr_pointer + 5;
+    clear_asterisk(args);
+    lcd_setstatus(args);
+  }
+
+#endif
 
 /**
  * M119: Output endstop states to serial output
@@ -5429,9 +5437,13 @@ void process_commands() {
       case 115: // M115: Report capabilities
         gcode_M115();
         break;
-      case 117: // M117: Set LCD message text
-        gcode_M117();
-        break;
+
+      #ifdef ULTIPANEL
+        case 117: // M117: Set LCD message text
+          gcode_M117();
+          break;
+      #endif
+
       case 114: // M114: Report current position
         gcode_M114();
         break;
