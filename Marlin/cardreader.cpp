@@ -259,7 +259,7 @@ void CardReader::openFile(char* name, bool read, bool replace_current/*=true*/) 
   char *dirname_start, *dirname_end;
   if (name[0] == '/') {
     dirname_start = &name[1];
-    while(dirname_start > 0) {
+    while (dirname_start > 0) {
       dirname_end = strchr(dirname_start, '/');
       //SERIAL_ECHO("start:");SERIAL_ECHOLN((int)(dirname_start - name));
       //SERIAL_ECHO("end  :");SERIAL_ECHOLN((int)(dirname_end - name));
@@ -309,14 +309,14 @@ void CardReader::openFile(char* name, bool read, bool replace_current/*=true*/) 
     else {
       SERIAL_PROTOCOLPGM(MSG_SD_OPEN_FILE_FAIL);
       SERIAL_PROTOCOL(fname);
-      SERIAL_PROTOCOLCHAR('.');
+      SERIAL_PROTOCOLPGM(".\n");
     }
   }
   else { //write
     if (!file.open(curDir, fname, O_CREAT | O_APPEND | O_WRITE | O_TRUNC)) {
       SERIAL_PROTOCOLPGM(MSG_SD_OPEN_FILE_FAIL);
       SERIAL_PROTOCOL(fname);
-      SERIAL_PROTOCOLCHAR('.');
+      SERIAL_PROTOCOLPGM(".\n");
     }
     else {
       saving = true;
