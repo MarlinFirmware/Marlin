@@ -736,7 +736,7 @@ void get_command() {
     millis_t ms = millis();
   
     if (!MYSERIAL.available() && commands_in_queue == 0 && ms - last_command_time > NO_TIMEOUTS) {
-      SERIAL_ECHOLNPGM(MSG_WAITING);
+      SERIAL_ECHOLNPGM(MSG_WAIT);
       last_command_time = ms;
     }
   #endif
