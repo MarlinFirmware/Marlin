@@ -5166,7 +5166,6 @@ void process_next_command() {
     while (*current_command == ' ') ++current_command;
   }
   char *starpos = strchr(current_command, '*');  // * should always be the last parameter
-
   if (starpos) *starpos = '\0';
 
   // Get the command code as a character
