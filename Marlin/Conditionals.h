@@ -31,8 +31,8 @@
       #define DEFAULT_LCD_CONTRAST 95
     #elif defined(VIKI2)
       #define DEFAULT_LCD_CONTRAST 40
-	#elif defined(ADAFRUIT_ST7565)
-	  #define DEFAULT_LCD_CONTRAST 110
+    #elif defined(ADAFRUIT_ST7565)
+      #define DEFAULT_LCD_CONTRAST 110
     #endif
 
     #define ENCODER_PULSES_PER_STEP 4
