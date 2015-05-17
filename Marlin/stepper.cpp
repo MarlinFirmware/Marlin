@@ -1110,9 +1110,8 @@ long st_get_position(uint8_t axis) {
 
 #ifdef ENABLE_AUTO_BED_LEVELING
 
-  float st_get_position_mm(uint8_t axis) {
-    float steper_position_in_steps = st_get_position(axis);
-    return steper_position_in_steps / axis_steps_per_unit[axis];
+  float st_get_position_mm(AxisEnum axis) {
+    return st_get_position(axis) / axis_steps_per_unit[axis];
   }
 
 #endif  // ENABLE_AUTO_BED_LEVELING
