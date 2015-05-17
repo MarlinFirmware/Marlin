@@ -1202,12 +1202,12 @@ static void setup_for_endstop_move() {
       plan_bed_level_matrix.set_to_identity();
       feedrate = homing_feedrate[Z_AXIS];
 
-      // move down until you find the bed
+      // Move down until the probe (or endstop?) is triggered
       float zPosition = -10;
       line_to_z(zPosition);
       st_synchronize();
 
-      // we have to let the planner know where we are right now as it is not where we said to go.
+      // Tell the planner where we ended up - Get this from the stepper handler
       zPosition = st_get_position_mm(Z_AXIS);
       plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], zPosition, current_position[E_AXIS]);
 
@@ -1410,7 +1410,7 @@ static void setup_for_endstop_move() {
           Stop();
         }
 
-    #endif
+    #endif // Z_PROBE_ALLEN_KEY
 
   }
 
@@ -4628,7 +4628,7 @@ inline void gcode_M400() { st_synchronize(); }
     stow_z_probe(false);
   }
 
-#endif
+#endif // ENABLE_AUTO_BED_LEVELING && (SERVO_ENDSTOPS || Z_PROBE_ALLEN_KEY) && !Z_PROBE_SLED
 
 #ifdef FILAMENT_SENSOR
 
@@ -4823,7 +4823,7 @@ inline void gcode_M503() {
     if (code_seen('Z')) {
       value = code_value();
       if (Z_PROBE_OFFSET_RANGE_MIN <= value && value <= Z_PROBE_OFFSET_RANGE_MAX) {
-        zprobe_zoffset = -value; // compare w/ line 278 of configuration_store.cpp
+        zprobe_zoffset = -value;
         SERIAL_ECHO_START;
         SERIAL_ECHOLNPGM(MSG_ZPROBE_ZOFFSET " " MSG_OK);
         SERIAL_EOL;
@@ -5078,6 +5078,8 @@ inline void gcode_M999() {
 
 /**
  * T0-T3: Switch tool, usually switching extruders
+ *
+ *   F[mm/min] Set the movement feedrate
  */
 inline void gcode_T() {
   int tmp_extruder = code_value();
@@ -5600,7 +5602,7 @@ void process_next_command() {
         case 402:
           gcode_M402();
           break;
-      #endif
+      #endif // ENABLE_AUTO_BED_LEVELING && (SERVO_ENDSTOPS || Z_PROBE_ALLEN_KEY) && !Z_PROBE_SLED
 
       #ifdef FILAMENT_SENSOR
         case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or display nominal filament width
