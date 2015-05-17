@@ -399,6 +399,8 @@ bool target_direction;
 //================================ Functions ================================
 //===========================================================================
 
+void process_next_command();
+
 bool setTargetedHotend(int code);
 
 void serial_echopair_P(const char *s_P, float v)         { serialprintPGM(s_P); SERIAL_ECHO(v); }
@@ -697,17 +699,17 @@ void loop() {
           // Write the string from the read buffer to SD
           card.write_command(command);
           if (card.logging)
-            process_commands(); // The card is saving because it's logging
+            process_next_command(); // The card is saving because it's logging
           else
             SERIAL_PROTOCOLLNPGM(MSG_OK);
         }
       }
       else
-        process_commands();
+        process_next_command();
 
     #else
 
-      process_commands();
+      process_next_command();
 
     #endif // SDSUPPORT
 
@@ -5178,7 +5180,7 @@ inline void gcode_T() {
  * Process Commands and dispatch them to handlers
  * This is called from the main loop()
  */
-void process_commands() {
+void process_next_command() {
 
   if ((marlin_debug_flags & DEBUG_ECHO)) {
     SERIAL_ECHO_START;
