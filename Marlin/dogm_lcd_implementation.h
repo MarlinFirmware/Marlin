@@ -126,7 +126,8 @@
 #elif defined(VIKI2) || defined(miniVIKI)
   // Mini Viki and Viki 2.0 LCD, ST7565 controller as well
   U8GLIB_NHD_C12864 u8g(DOGLCD_CS, DOGLCD_A0);
-#elif defined(ADAFRUIT_ST7565)
+#elif defined(ELB_FULL_GRAPHIC_CONTROLLER)
+  // Based on the Adafruit ST7565 (http://www.adafruit.com/products/250)
   U8GLIB_LM6059 u8g(DOGLCD_CS, DOGLCD_A0);
 #else
   // for regular DOGM128 display with HW-SPI

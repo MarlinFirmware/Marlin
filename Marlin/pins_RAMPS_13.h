@@ -180,7 +180,7 @@
       #define BTN_ENC -1
       #define LCD_SDSS 53
       #define SDCARDDETECT 49
-    #elif defined(ADAFRUIT_ST7565)
+    #elif defined(ELB_FULL_GRAPHIC_CONTROLLER)
       #define BTN_EN1 35
       #define BTN_EN2 37
       #define BTN_ENC 31
