@@ -22,15 +22,17 @@
     #define NEWPANEL
   #endif
 
-  #if defined(miniVIKI) || defined(VIKI2)
+  #if defined(miniVIKI) || defined(VIKI2) || defined(ADAFRUIT_ST7565)
     #define ULTRA_LCD  //general LCD support, also 16x2
     #define DOGLCD  // Support for SPI LCD 128x64 (Controller ST7565R graphic Display Family)
     #define ULTIMAKERCONTROLLER //as available from the Ultimaker online store.
 
     #ifdef miniVIKI
       #define DEFAULT_LCD_CONTRAST 95
-    #else
+    #elif defined(VIKI2)
       #define DEFAULT_LCD_CONTRAST 40
+	#elif defined(ADAFRUIT_ST7565)
+	  #define DEFAULT_LCD_CONTRAST 110
     #endif
 
     #define ENCODER_PULSES_PER_STEP 4

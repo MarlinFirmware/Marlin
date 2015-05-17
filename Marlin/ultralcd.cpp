@@ -1110,13 +1110,23 @@ static void lcd_control_volumetric_menu() {
 #ifdef HAS_LCD_CONTRAST
   static void lcd_set_contrast() {
     if (encoderPosition != 0) {
+#ifdef ADAFRUIT_ST7565
+      lcd_contrast += encoderPosition;
+      lcd_contrast &= 0xFF;
+#else
       lcd_contrast -= encoderPosition;
       lcd_contrast &= 0x3F;
+#endif
       encoderPosition = 0;
       lcdDrawUpdate = 1;
       u8g.setContrast(lcd_contrast);
     }
-    if (lcdDrawUpdate) lcd_implementation_drawedit(PSTR(MSG_CONTRAST), itostr2(lcd_contrast));
+    if (lcdDrawUpdate) 
+#ifdef ADAFRUIT_ST7565
+      lcd_implementation_drawedit(PSTR(MSG_CONTRAST), itostr3(lcd_contrast));
+#else
+      lcd_implementation_drawedit(PSTR(MSG_CONTRAST), itostr2(lcd_contrast));
+#endif
     if (LCD_CLICKED) lcd_goto_menu(lcd_control_menu);
   }
 #endif // HAS_LCD_CONTRAST
