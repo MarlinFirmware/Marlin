@@ -5690,7 +5690,7 @@ void process_next_command() {
     break;
 
     case 'T':
-      gcode_T(code_value_short());
+      gcode_T(codenum);
     break;
   }
 
