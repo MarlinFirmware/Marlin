@@ -740,24 +740,32 @@ void get_command() {
       last_command_time = ms;
     }
   #endif
-  
-  while (MYSERIAL.available() > 0 && commands_in_queue < BUFSIZE) {
+
+  //
+  // Loop while serial characters are incoming and the queue is not full
+  //
+  while (commands_in_queue < BUFSIZE && MYSERIAL.available() > 0) {
+
     #ifdef NO_TIMEOUTS
       last_command_time = ms;
     #endif
+
     serial_char = MYSERIAL.read();
 
-    if (serial_char == '\n' || serial_char == '\r' ||
-       serial_count >= (MAX_CMD_SIZE - 1)
-    ) {
+    //
+    // If the character ends the line, or the line is full...
+    //
+    if (serial_char == '\n' || serial_char == '\r' || serial_count >= MAX_CMD_SIZE-1) {
+
       // end of line == end of comment
       comment_mode = false;
 
-      if (!serial_count) return; // shortcut for empty lines
+      if (!serial_count) return; // empty lines just exit
 
       char *command = command_queue[cmd_queue_index_w];
       command[serial_count] = 0; // terminate string
 
+      // this item in the queue is not from sd
       #ifdef SDSUPPORT
         fromsd[cmd_queue_index_w] = false;
       #endif
@@ -839,7 +847,7 @@ void get_command() {
       serial_count = 0; //clear buffer
     }
     else if (serial_char == '\\') {  // Handle escapes
-      if (MYSERIAL.available() > 0  && commands_in_queue < BUFSIZE) {
+      if (MYSERIAL.available() > 0 && commands_in_queue < BUFSIZE) {
         // if we have one more character, copy it over
         serial_char = MYSERIAL.read();
         command_queue[cmd_queue_index_w][serial_count++] = serial_char;
@@ -3022,11 +3030,11 @@ inline void gcode_M31() {
     if (card.sdprinting)
       st_synchronize();
 
-    char* codepos = strchr_pointer + 4;
+    char* args = strchr_pointer + 4;
 
-    char* namestartpos = strchr(codepos, '!');   //find ! to indicate filename string start.
-    if (! namestartpos)
-      namestartpos = codepos; //default name position, 4 letters after the M
+    char* namestartpos = strchr(args, '!');  // Find ! to indicate filename string start.
+    if (!namestartpos)
+      namestartpos = args; // Default name position, 4 letters after the M
     else
       namestartpos++; //to skip the '!'
 
@@ -5071,8 +5079,7 @@ inline void gcode_M999() {
 /**
  * T0-T3: Switch tool, usually switching extruders
  */
-inline void gcode_T() {
-  int tmp_extruder = code_value();
+inline void gcode_T(uint8_t tmp_extruder) {
   if (tmp_extruder >= EXTRUDERS) {
     SERIAL_ECHO_START;
     SERIAL_CHAR('T');
@@ -5175,7 +5182,7 @@ inline void gcode_T() {
 }
 
 /**
- * Process Commands and dispatch them to handlers
+ * Process a single command and dispatch it to its handler
  * This is called from the main loop()
  */
 void process_commands() {
@@ -5187,9 +5194,10 @@ void process_commands() {
 
   if (code_seen('G')) {
 
-    int gCode = code_value_short();
 
-    switch(gCode) {
+    int codenum = code_value_short();
+
+    switch (codenum) {
 
     // G0, G1
     case 0:
@@ -5201,7 +5209,7 @@ void process_commands() {
     #ifndef SCARA
       case 2: // G2  - CW ARC
       case 3: // G3  - CCW ARC
-        gcode_G2_G3(gCode == 2);
+        gcode_G2_G3(codenum == 2);
         break;
     #endif
 
@@ -5214,7 +5222,7 @@ void process_commands() {
 
       case 10: // G10: retract
       case 11: // G11: retract_recover
-        gcode_G10_G11(gCode == 10);
+        gcode_G10_G11(codenum == 10);
         break;
 
     #endif //FWRETRACT
@@ -5241,7 +5249,7 @@ void process_commands() {
 
           case 31: // G31: dock the sled
           case 32: // G32: undock the sled
-            dock_sled(gCode == 31);
+            dock_sled(codenum == 31);
             break;
 
       #endif // Z_PROBE_SLED
@@ -5688,7 +5696,7 @@ void process_commands() {
   }
 
   else if (code_seen('T')) {
-    gcode_T();
+    gcode_T(code_value_short());
   }
 
   else {
