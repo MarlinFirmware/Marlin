@@ -46,7 +46,6 @@ block_t *current_block;  // A pointer to the block currently being traced
 
 // Variables used by The Stepper Driver Interrupt
 static unsigned char out_bits = 0;        // The next stepping-bits to be output
-static unsigned char old_out_bits = 0;    // saves the old out_bits for a compare
 static unsigned int cleaning_buffer_counter;
 
 #ifdef Z_DUAL_ENDSTOPS
@@ -364,7 +363,9 @@ FORCE_INLINE unsigned short calc_timer(unsigned short step_rate) {
   return timer;
 }
 
+// set the stepper direction of each axis
 void set_stepper_direction() {
+  
   // Set the direction bits (X_AXIS=A_AXIS and Y_AXIS=B_AXIS for COREXY)
   if (TEST(out_bits, X_AXIS)) {
     X_APPLY_DIR(INVERT_X_DIR,0);
@@ -409,12 +410,11 @@ void set_stepper_direction() {
 // block begins.
 FORCE_INLINE void trapezoid_generator_reset() {
 
-  out_bits = current_block->direction_bits; // Get the current direction for each axis
-  if (out_bits != old_out_bits) {
-    set_stepper_direction();  // We set first the directions to get some time before setting the steps
-    old_out_bits = out_bits;  // Some stepper do need this and this way we get some µs for free.
+  if (current_block->direction_bits != out_bits) {
+    out_bits = current_block->direction_bits;
+    set_stepper_direction();
   }
-    
+  
   #ifdef ADVANCE
     advance = current_block->initial_advance;
     final_advance = current_block->final_advance;
@@ -440,7 +440,6 @@ FORCE_INLINE void trapezoid_generator_reset() {
   // SERIAL_ECHO(current_block->initial_advance/256.0);
   // SERIAL_ECHOPGM("final advance :");
   // SERIAL_ECHOLN(current_block->final_advance/256.0);
-  
 }
 
 // "The Stepper Driver Interrupt" - This timer interrupt is the workhorse.
@@ -497,8 +496,8 @@ ISR(TIMER1_COMPA_vect) {
       #define _ENDSTOP_INVERTING(AXIS, MINMAX) AXIS ##_## MINMAX ##_ENDSTOP_INVERTING
       #define _OLD_ENDSTOP(axis, minmax) old_## axis ##_## minmax ##_endstop
       #define _AXIS(AXIS) AXIS ##_AXIS
-    #define _HIT_BIT(AXIS) AXIS ##_MIN
-    #define _ENDSTOP_HIT(AXIS) endstop_hit_bits |= BIT(_HIT_BIT(AXIS))
+      #define _HIT_BIT(AXIS) AXIS ##_MIN
+      #define _ENDSTOP_HIT(AXIS) endstop_hit_bits |= BIT(_HIT_BIT(AXIS))
 
       #define UPDATE_ENDSTOP(axis,AXIS,minmax,MINMAX) \
         bool _ENDSTOP(axis, minmax) = (READ(_ENDSTOP_PIN(AXIS, MINMAX)) != _ENDSTOP_INVERTING(AXIS, MINMAX)); \
@@ -561,87 +560,100 @@ ISR(TIMER1_COMPA_vect) {
       #ifdef COREXY
         }
       #endif
-    
-      #if HAS_Z_MIN
+      if (TEST(out_bits, Z_AXIS)) { // z -direction
+        #if HAS_Z_MIN
 
-        #ifdef Z_DUAL_ENDSTOPS
+          #ifdef Z_DUAL_ENDSTOPS
 
-          bool z_min_endstop = READ(Z_MIN_PIN) != Z_MIN_ENDSTOP_INVERTING,
-              z2_min_endstop =
-                #if HAS_Z2_MIN
-                  READ(Z2_MIN_PIN) != Z2_MIN_ENDSTOP_INVERTING
-                #else
-                  z_min_endstop
-                #endif
-              ;
+            bool z_min_endstop = READ(Z_MIN_PIN) != Z_MIN_ENDSTOP_INVERTING,
+                z2_min_endstop =
+                  #if HAS_Z2_MIN
+                    READ(Z2_MIN_PIN) != Z2_MIN_ENDSTOP_INVERTING
+                  #else
+                    z_min_endstop
+                  #endif
+                ;
 
-          bool z_min_both = z_min_endstop && old_z_min_endstop,
-              z2_min_both = z2_min_endstop && old_z2_min_endstop;
-          if ((z_min_both || z2_min_both) && current_block->steps[Z_AXIS] > 0) {
+            bool z_min_both = z_min_endstop && old_z_min_endstop,
+                z2_min_both = z2_min_endstop && old_z2_min_endstop;
+            if ((z_min_both || z2_min_both) && current_block->steps[Z_AXIS] > 0) {
+              endstops_trigsteps[Z_AXIS] = count_position[Z_AXIS];
+              endstop_hit_bits |= BIT(Z_MIN);
+              if (!performing_homing || (performing_homing && z_min_both && z2_min_both)) //if not performing home or if both endstops were trigged during homing...
+                step_events_completed = current_block->step_event_count;
+            }
+            old_z_min_endstop = z_min_endstop;
+            old_z2_min_endstop = z2_min_endstop;
+
+          #else // !Z_DUAL_ENDSTOPS
+
+            UPDATE_ENDSTOP(z, Z, min, MIN);
+
+          #endif // !Z_DUAL_ENDSTOPS
+
+        #endif // Z_MIN_PIN
+
+        #ifdef Z_PROBE_ENDSTOP
+          UPDATE_ENDSTOP(z, Z, probe, PROBE);
+          z_probe_endstop=(READ(Z_PROBE_PIN) != Z_PROBE_ENDSTOP_INVERTING);
+          if(z_probe_endstop && old_z_probe_endstop)
+          {
             endstops_trigsteps[Z_AXIS] = count_position[Z_AXIS];
-            endstop_hit_bits |= BIT(Z_MIN);
-            if (!performing_homing || (performing_homing && z_min_both && z2_min_both)) //if not performing home or if both endstops were trigged during homing...
-              step_events_completed = current_block->step_event_count;
+            endstop_hit_bits |= BIT(Z_PROBE);
+  //        if (z_probe_endstop && old_z_probe_endstop) SERIAL_ECHOLN("z_probe_endstop = true");
           }
-          old_z_min_endstop = z_min_endstop;
-          old_z2_min_endstop = z2_min_endstop;
+          old_z_probe_endstop = z_probe_endstop;
+        #endif
+      }
+      else { // z +direction
+        #if HAS_Z_MAX
 
-        #else // !Z_DUAL_ENDSTOPS
+          #ifdef Z_DUAL_ENDSTOPS
 
-          UPDATE_ENDSTOP(z, Z, min, MIN);
+            bool z_max_endstop = READ(Z_MAX_PIN) != Z_MAX_ENDSTOP_INVERTING,
+                z2_max_endstop =
+                  #if HAS_Z2_MAX
+                    READ(Z2_MAX_PIN) != Z2_MAX_ENDSTOP_INVERTING
+                  #else
+                    z_max_endstop
+                  #endif
+                ;
 
-        #endif // !Z_DUAL_ENDSTOPS
+            bool z_max_both = z_max_endstop && old_z_max_endstop,
+                z2_max_both = z2_max_endstop && old_z2_max_endstop;
+            if ((z_max_both || z2_max_both) && current_block->steps[Z_AXIS] > 0) {
+              endstops_trigsteps[Z_AXIS] = count_position[Z_AXIS];
+              endstop_hit_bits |= BIT(Z_MIN);
 
-      #endif // Z_MIN_PIN
-      
-      #if HAS_Z_MAX
+             // if (z_max_both) SERIAL_ECHOLN("z_max_endstop = true");
+             // if (z2_max_both) SERIAL_ECHOLN("z2_max_endstop = true");
 
-        #ifdef Z_DUAL_ENDSTOPS
+              if (!performing_homing || (performing_homing && z_max_both && z2_max_both)) //if not performing home or if both endstops were trigged during homing...
+                step_events_completed = current_block->step_event_count;
+            }
+            old_z_max_endstop = z_max_endstop;
+            old_z2_max_endstop = z2_max_endstop;
 
-          bool z_max_endstop = READ(Z_MAX_PIN) != Z_MAX_ENDSTOP_INVERTING,
-              z2_max_endstop =
-                #if HAS_Z2_MAX
-                  READ(Z2_MAX_PIN) != Z2_MAX_ENDSTOP_INVERTING
-                #else
-                  z_max_endstop
-                #endif
-              ;
+          #else // !Z_DUAL_ENDSTOPS
 
-          bool z_max_both = z_max_endstop && old_z_max_endstop,
-              z2_max_both = z2_max_endstop && old_z2_max_endstop;
-          if ((z_max_both || z2_max_both) && current_block->steps[Z_AXIS] > 0) {
+            UPDATE_ENDSTOP(z, Z, max, MAX);
+
+          #endif // !Z_DUAL_ENDSTOPS
+
+        #endif // Z_MAX_PIN
+        
+        #ifdef Z_PROBE_ENDSTOP
+          UPDATE_ENDSTOP(z, Z, probe, PROBE);
+          z_probe_endstop=(READ(Z_PROBE_PIN) != Z_PROBE_ENDSTOP_INVERTING);
+          if(z_probe_endstop && old_z_probe_endstop)
+          {
             endstops_trigsteps[Z_AXIS] = count_position[Z_AXIS];
-            endstop_hit_bits |= BIT(Z_MIN);
-
-           // if (z_max_both) SERIAL_ECHOLN("z_max_endstop = true");
-           // if (z2_max_both) SERIAL_ECHOLN("z2_max_endstop = true");
-
-            if (!performing_homing || (performing_homing && z_max_both && z2_max_both)) //if not performing home or if both endstops were trigged during homing...
-              step_events_completed = current_block->step_event_count;
+            endstop_hit_bits |= BIT(Z_PROBE);
+//          if (z_probe_endstop && old_z_probe_endstop) SERIAL_ECHOLN("z_probe_endstop = true");
           }
-          old_z_max_endstop = z_max_endstop;
-          old_z2_max_endstop = z2_max_endstop;
-
-        #else // !Z_DUAL_ENDSTOPS
-
-          UPDATE_ENDSTOP(z, Z, max, MAX);
-
-        #endif // !Z_DUAL_ENDSTOPS
-
-      #endif // Z_MAX_PIN
-      
-      #ifdef Z_PROBE_ENDSTOP
-        UPDATE_ENDSTOP(z, Z, probe, PROBE);
-        z_probe_endstop=(READ(Z_PROBE_PIN) != Z_PROBE_ENDSTOP_INVERTING);
-        if(z_probe_endstop && old_z_probe_endstop)
-        {
-          endstops_trigsteps[Z_AXIS] = count_position[Z_AXIS];
-          endstop_hit_bits |= BIT(Z_PROBE);
-
-//            if (z_probe_endstop && old_z_probe_endstop) SERIAL_ECHOLN("z_probe_endstop = true");
-        }
-        old_z_probe_endstop = z_probe_endstop;
-      #endif
+          old_z_probe_endstop = z_probe_endstop;
+        #endif
+      }
 
     }
 
@@ -1061,7 +1073,7 @@ void st_init() {
   enable_endstops(true); // Start with endstops active. After homing they can be disabled
   sei();
   
-  set_stepper_direction();
+  set_stepper_direction(); // Init directions to out_bits = 0
 }
 
 
