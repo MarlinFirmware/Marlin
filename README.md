@@ -28,7 +28,7 @@ The current Marlin dev team consists of:
  - [@maverikou]
  - Chris Palmer [@nophead]
  - [@paclema]
- - [@epatel]
+ - Edward Patel [@epatel]
  - Erik van der Zalm [@ErikZalm]
  - David Braam [@daid]
  - Bernhard Kubicek [@bkubicek]
