@@ -938,7 +938,7 @@ long code_value_long() { return strtol(seen_pointer + 1, NULL, 10); }
 int16_t code_value_short() { return (int16_t)strtol(seen_pointer + 1, NULL, 10); }
 
 bool code_seen(char code) {
-  seen_pointer = strchr(current_command, code);
+  seen_pointer = strchr(current_command + 3, code); // +3 since "G0 " is the shortest prefix
   return (seen_pointer != NULL);  //Return True if a character was found
 }
 
@@ -5184,16 +5184,18 @@ void process_next_command() {
   // Get the command code, which must be G, M, or T
   char command_code = *current_command;
 
-  bool code_is_good = code_has_value();
+  // The code must have a numeric value
+  bool code_is_good = (current_command[1] >= '0' && current_command[1] <= '9');
 
-  if (!code_is_good) {
-    unknown_command_error();
-    ok_to_send();
-    return;
-  }
+  int codenum; // define ahead of goto
 
-  int codenum = code_value_short();
+  // Bail early if there's no code
+  if (!code_is_good) goto ExitUnknownCommand;
 
+  // Interpret the code int
+  codenum = code_value_short();
+
+  // Handle a known G, M, or T
   switch(command_code) {
     case 'G': switch (codenum) {
 
@@ -5700,6 +5702,9 @@ void process_next_command() {
     break;
   }
 
+ExitUnknownCommand:
+
+  // Still unknown command? Throw an error
   if (!code_is_good) unknown_command_error();
 
   ok_to_send();
