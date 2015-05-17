@@ -561,9 +561,9 @@ void servo_init() {
 
   // Set position of Servo Endstops that are defined
   #ifdef SERVO_ENDSTOPS
-  for (int i = 0; i < 3; i++)
-    if (servo_endstops[i] >= 0)
-      servo[servo_endstops[i]].write(servo_endstop_angles[i * 2 + 1]);
+    for (int i = 0; i < 3; i++)
+      if (servo_endstops[i] >= 0)
+        servo[servo_endstops[i]].write(servo_endstop_angles[i * 2 + 1]);
   #endif
 
   #if SERVO_LEVELING
@@ -1317,21 +1317,21 @@ static void setup_for_endstop_move() {
       
       st_synchronize();
 
-    #ifdef Z_PROBE_ENDSTOP
-      bool z_probe_endstop = (READ(Z_PROBE_PIN) != Z_PROBE_ENDSTOP_INVERTING);
-      if (z_probe_endstop)
-    #else
-      bool z_min_endstop = (READ(Z_MIN_PIN) != Z_MIN_ENDSTOP_INVERTING);
-      if (z_min_endstop)
-    #endif
-      {
-        if (IsRunning()) {
-          SERIAL_ERROR_START;
-          SERIAL_ERRORLNPGM("Z-Probe failed to engage!");
-          LCD_ALERTMESSAGEPGM("Err: ZPROBE");
+      #ifdef Z_PROBE_ENDSTOP
+        bool z_probe_endstop = (READ(Z_PROBE_PIN) != Z_PROBE_ENDSTOP_INVERTING);
+        if (z_probe_endstop)
+      #else
+        bool z_min_endstop = (READ(Z_MIN_PIN) != Z_MIN_ENDSTOP_INVERTING);
+        if (z_min_endstop)
+      #endif
+        {
+          if (IsRunning()) {
+            SERIAL_ERROR_START;
+            SERIAL_ERRORLNPGM("Z-Probe failed to engage!");
+            LCD_ALERTMESSAGEPGM("Err: ZPROBE");
+          }
+          Stop();
         }
-        Stop();
-      }
 
     #endif // Z_PROBE_ALLEN_KEY
 
@@ -1394,21 +1394,21 @@ static void setup_for_endstop_move() {
       
       st_synchronize();
 
-    #ifdef Z_PROBE_ENDSTOP
-      bool z_probe_endstop = (READ(Z_PROBE_PIN) != Z_PROBE_ENDSTOP_INVERTING);
-      if (!z_probe_endstop)
-    #else
-      bool z_min_endstop = (READ(Z_MIN_PIN) != Z_MIN_ENDSTOP_INVERTING);
-      if (!z_min_endstop)
-    #endif
-      {
-        if (IsRunning()) {
-          SERIAL_ERROR_START;
-          SERIAL_ERRORLNPGM("Z-Probe failed to retract!");
-          LCD_ALERTMESSAGEPGM("Err: ZPROBE");
+      #ifdef Z_PROBE_ENDSTOP
+        bool z_probe_endstop = (READ(Z_PROBE_PIN) != Z_PROBE_ENDSTOP_INVERTING);
+        if (!z_probe_endstop)
+      #else
+        bool z_min_endstop = (READ(Z_MIN_PIN) != Z_MIN_ENDSTOP_INVERTING);
+        if (!z_min_endstop)
+      #endif
+        {
+          if (IsRunning()) {
+            SERIAL_ERROR_START;
+            SERIAL_ERRORLNPGM("Z-Probe failed to retract!");
+            LCD_ALERTMESSAGEPGM("Err: ZPROBE");
+          }
+          Stop();
         }
-        Stop();
-      }
 
     #endif
 
@@ -6093,82 +6093,83 @@ void prepare_move() {
 #endif // HAS_CONTROLLERFAN
 
 #ifdef SCARA
-void calculate_SCARA_forward_Transform(float f_scara[3])
-{
-  // Perform forward kinematics, and place results in delta[3]
-  // The maths and first version has been done by QHARLEY . Integrated into masterbranch 06/2014 and slightly restructured by Joachim Cerny in June 2014
-  
-  float x_sin, x_cos, y_sin, y_cos;
-  
+
+  void calculate_SCARA_forward_Transform(float f_scara[3]) {
+    // Perform forward kinematics, and place results in delta[3]
+    // The maths and first version has been done by QHARLEY . Integrated into masterbranch 06/2014 and slightly restructured by Joachim Cerny in June 2014
+
+    float x_sin, x_cos, y_sin, y_cos;
+
     //SERIAL_ECHOPGM("f_delta x="); SERIAL_ECHO(f_scara[X_AXIS]);
     //SERIAL_ECHOPGM(" y="); SERIAL_ECHO(f_scara[Y_AXIS]);
-  
+
     x_sin = sin(f_scara[X_AXIS]/SCARA_RAD2DEG) * Linkage_1;
     x_cos = cos(f_scara[X_AXIS]/SCARA_RAD2DEG) * Linkage_1;
     y_sin = sin(f_scara[Y_AXIS]/SCARA_RAD2DEG) * Linkage_2;
     y_cos = cos(f_scara[Y_AXIS]/SCARA_RAD2DEG) * Linkage_2;
-   
-  //  SERIAL_ECHOPGM(" x_sin="); SERIAL_ECHO(x_sin);
-  //  SERIAL_ECHOPGM(" x_cos="); SERIAL_ECHO(x_cos);
-  //  SERIAL_ECHOPGM(" y_sin="); SERIAL_ECHO(y_sin);
-  //  SERIAL_ECHOPGM(" y_cos="); SERIAL_ECHOLN(y_cos);
-  
+
+    //SERIAL_ECHOPGM(" x_sin="); SERIAL_ECHO(x_sin);
+    //SERIAL_ECHOPGM(" x_cos="); SERIAL_ECHO(x_cos);
+    //SERIAL_ECHOPGM(" y_sin="); SERIAL_ECHO(y_sin);
+    //SERIAL_ECHOPGM(" y_cos="); SERIAL_ECHOLN(y_cos);
+
     delta[X_AXIS] = x_cos + y_cos + SCARA_offset_x;  //theta
     delta[Y_AXIS] = x_sin + y_sin + SCARA_offset_y;  //theta+phi
 
     //SERIAL_ECHOPGM(" delta[X_AXIS]="); SERIAL_ECHO(delta[X_AXIS]);
     //SERIAL_ECHOPGM(" delta[Y_AXIS]="); SERIAL_ECHOLN(delta[Y_AXIS]);
-}  
+  }  
 
-void calculate_delta(float cartesian[3]){
-  //reverse kinematics.
-  // Perform reversed kinematics, and place results in delta[3]
-  // The maths and first version has been done by QHARLEY . Integrated into masterbranch 06/2014 and slightly restructured by Joachim Cerny in June 2014
-  
-  float SCARA_pos[2];
-  static float SCARA_C2, SCARA_S2, SCARA_K1, SCARA_K2, SCARA_theta, SCARA_psi; 
-  
-  SCARA_pos[X_AXIS] = cartesian[X_AXIS] * axis_scaling[X_AXIS] - SCARA_offset_x;  //Translate SCARA to standard X Y
-  SCARA_pos[Y_AXIS] = cartesian[Y_AXIS] * axis_scaling[Y_AXIS] - SCARA_offset_y;  // With scaling factor.
-  
-  #if (Linkage_1 == Linkage_2)
-    SCARA_C2 = ( ( sq(SCARA_pos[X_AXIS]) + sq(SCARA_pos[Y_AXIS]) ) / (2 * (float)L1_2) ) - 1;
-  #else
-    SCARA_C2 =   ( sq(SCARA_pos[X_AXIS]) + sq(SCARA_pos[Y_AXIS]) - (float)L1_2 - (float)L2_2 ) / 45000; 
-  #endif
-  
-  SCARA_S2 = sqrt( 1 - sq(SCARA_C2) );
-  
-  SCARA_K1 = Linkage_1 + Linkage_2 * SCARA_C2;
-  SCARA_K2 = Linkage_2 * SCARA_S2;
-  
-  SCARA_theta = ( atan2(SCARA_pos[X_AXIS],SCARA_pos[Y_AXIS])-atan2(SCARA_K1, SCARA_K2) ) * -1;
-  SCARA_psi   =   atan2(SCARA_S2,SCARA_C2);
-  
-  delta[X_AXIS] = SCARA_theta * SCARA_RAD2DEG;  // Multiply by 180/Pi  -  theta is support arm angle
-  delta[Y_AXIS] = (SCARA_theta + SCARA_psi) * SCARA_RAD2DEG;  //       -  equal to sub arm angle (inverted motor)
-  delta[Z_AXIS] = cartesian[Z_AXIS];
-  
-  /*
-  SERIAL_ECHOPGM("cartesian x="); SERIAL_ECHO(cartesian[X_AXIS]);
-  SERIAL_ECHOPGM(" y="); SERIAL_ECHO(cartesian[Y_AXIS]);
-  SERIAL_ECHOPGM(" z="); SERIAL_ECHOLN(cartesian[Z_AXIS]);
-  
-  SERIAL_ECHOPGM("scara x="); SERIAL_ECHO(SCARA_pos[X_AXIS]);
-  SERIAL_ECHOPGM(" y="); SERIAL_ECHOLN(SCARA_pos[Y_AXIS]);
-  
-  SERIAL_ECHOPGM("delta x="); SERIAL_ECHO(delta[X_AXIS]);
-  SERIAL_ECHOPGM(" y="); SERIAL_ECHO(delta[Y_AXIS]);
-  SERIAL_ECHOPGM(" z="); SERIAL_ECHOLN(delta[Z_AXIS]);
-  
-  SERIAL_ECHOPGM("C2="); SERIAL_ECHO(SCARA_C2);
-  SERIAL_ECHOPGM(" S2="); SERIAL_ECHO(SCARA_S2);
-  SERIAL_ECHOPGM(" Theta="); SERIAL_ECHO(SCARA_theta);
-  SERIAL_ECHOPGM(" Psi="); SERIAL_ECHOLN(SCARA_psi);
-  SERIAL_ECHOLN(" ");*/
-}
+  void calculate_delta(float cartesian[3]){
+    //reverse kinematics.
+    // Perform reversed kinematics, and place results in delta[3]
+    // The maths and first version has been done by QHARLEY . Integrated into masterbranch 06/2014 and slightly restructured by Joachim Cerny in June 2014
+    
+    float SCARA_pos[2];
+    static float SCARA_C2, SCARA_S2, SCARA_K1, SCARA_K2, SCARA_theta, SCARA_psi; 
+    
+    SCARA_pos[X_AXIS] = cartesian[X_AXIS] * axis_scaling[X_AXIS] - SCARA_offset_x;  //Translate SCARA to standard X Y
+    SCARA_pos[Y_AXIS] = cartesian[Y_AXIS] * axis_scaling[Y_AXIS] - SCARA_offset_y;  // With scaling factor.
+    
+    #if (Linkage_1 == Linkage_2)
+      SCARA_C2 = ( ( sq(SCARA_pos[X_AXIS]) + sq(SCARA_pos[Y_AXIS]) ) / (2 * (float)L1_2) ) - 1;
+    #else
+      SCARA_C2 =   ( sq(SCARA_pos[X_AXIS]) + sq(SCARA_pos[Y_AXIS]) - (float)L1_2 - (float)L2_2 ) / 45000; 
+    #endif
+    
+    SCARA_S2 = sqrt( 1 - sq(SCARA_C2) );
+    
+    SCARA_K1 = Linkage_1 + Linkage_2 * SCARA_C2;
+    SCARA_K2 = Linkage_2 * SCARA_S2;
+    
+    SCARA_theta = ( atan2(SCARA_pos[X_AXIS],SCARA_pos[Y_AXIS])-atan2(SCARA_K1, SCARA_K2) ) * -1;
+    SCARA_psi   =   atan2(SCARA_S2,SCARA_C2);
+    
+    delta[X_AXIS] = SCARA_theta * SCARA_RAD2DEG;  // Multiply by 180/Pi  -  theta is support arm angle
+    delta[Y_AXIS] = (SCARA_theta + SCARA_psi) * SCARA_RAD2DEG;  //       -  equal to sub arm angle (inverted motor)
+    delta[Z_AXIS] = cartesian[Z_AXIS];
+    
+    /*
+    SERIAL_ECHOPGM("cartesian x="); SERIAL_ECHO(cartesian[X_AXIS]);
+    SERIAL_ECHOPGM(" y="); SERIAL_ECHO(cartesian[Y_AXIS]);
+    SERIAL_ECHOPGM(" z="); SERIAL_ECHOLN(cartesian[Z_AXIS]);
+    
+    SERIAL_ECHOPGM("scara x="); SERIAL_ECHO(SCARA_pos[X_AXIS]);
+    SERIAL_ECHOPGM(" y="); SERIAL_ECHOLN(SCARA_pos[Y_AXIS]);
+    
+    SERIAL_ECHOPGM("delta x="); SERIAL_ECHO(delta[X_AXIS]);
+    SERIAL_ECHOPGM(" y="); SERIAL_ECHO(delta[Y_AXIS]);
+    SERIAL_ECHOPGM(" z="); SERIAL_ECHOLN(delta[Z_AXIS]);
+    
+    SERIAL_ECHOPGM("C2="); SERIAL_ECHO(SCARA_C2);
+    SERIAL_ECHOPGM(" S2="); SERIAL_ECHO(SCARA_S2);
+    SERIAL_ECHOPGM(" Theta="); SERIAL_ECHO(SCARA_theta);
+    SERIAL_ECHOPGM(" Psi="); SERIAL_ECHOLN(SCARA_psi);
+    SERIAL_EOL;
+    */
+  }
 
-#endif
+#endif // SCARA
 
 #ifdef TEMP_STAT_LEDS
 
@@ -6399,7 +6400,78 @@ void kill()
       st_synchronize();
     }
   }
-#endif
+
+#endif // FILAMENT_RUNOUT_SENSOR
+
+#ifdef FAST_PWM_FAN
+
+  void setPwmFrequency(uint8_t pin, int val) {
+    val &= 0x07;
+    switch (digitalPinToTimer(pin)) {
+
+      #if defined(TCCR0A)
+        case TIMER0A:
+        case TIMER0B:
+             // TCCR0B &= ~(_BV(CS00) | _BV(CS01) | _BV(CS02));
+             // TCCR0B |= val;
+             break;
+      #endif
+
+      #if defined(TCCR1A)
+        case TIMER1A:
+        case TIMER1B:
+             // TCCR1B &= ~(_BV(CS10) | _BV(CS11) | _BV(CS12));
+             // TCCR1B |= val;
+             break;
+      #endif
+
+      #if defined(TCCR2)
+        case TIMER2:
+        case TIMER2:
+             TCCR2 &= ~(_BV(CS10) | _BV(CS11) | _BV(CS12));
+             TCCR2 |= val;
+             break;
+      #endif
+
+      #if defined(TCCR2A)
+        case TIMER2A:
+        case TIMER2B:
+             TCCR2B &= ~(_BV(CS20) | _BV(CS21) | _BV(CS22));
+             TCCR2B |= val;
+             break;
+      #endif
+
+      #if defined(TCCR3A)
+        case TIMER3A:
+        case TIMER3B:
+        case TIMER3C:
+             TCCR3B &= ~(_BV(CS30) | _BV(CS31) | _BV(CS32));
+             TCCR3B |= val;
+             break;
+      #endif
+
+      #if defined(TCCR4A)
+        case TIMER4A:
+        case TIMER4B:
+        case TIMER4C:
+             TCCR4B &= ~(_BV(CS40) | _BV(CS41) | _BV(CS42));
+             TCCR4B |= val;
+             break;
+      #endif
+
+      #if defined(TCCR5A)
+        case TIMER5A:
+        case TIMER5B:
+        case TIMER5C:
+             TCCR5B &= ~(_BV(CS50) | _BV(CS51) | _BV(CS52));
+             TCCR5B |= val;
+             break;
+      #endif
+
+    }
+  }
+
+#endif // FAST_PWM_FAN
 
 void Stop() {
   disable_all_heaters();
@@ -6411,76 +6483,6 @@ void Stop() {
     LCD_MESSAGEPGM(MSG_STOPPED);
   }
 }
-
-#ifdef FAST_PWM_FAN
-void setPwmFrequency(uint8_t pin, int val)
-{
-  val &= 0x07;
-  switch(digitalPinToTimer(pin))
-  {
-
-    #if defined(TCCR0A)
-    case TIMER0A:
-    case TIMER0B:
-//         TCCR0B &= ~(_BV(CS00) | _BV(CS01) | _BV(CS02));
-//         TCCR0B |= val;
-         break;
-    #endif
-
-    #if defined(TCCR1A)
-    case TIMER1A:
-    case TIMER1B:
-//         TCCR1B &= ~(_BV(CS10) | _BV(CS11) | _BV(CS12));
-//         TCCR1B |= val;
-         break;
-    #endif
-
-    #if defined(TCCR2)
-    case TIMER2:
-    case TIMER2:
-         TCCR2 &= ~(_BV(CS10) | _BV(CS11) | _BV(CS12));
-         TCCR2 |= val;
-         break;
-    #endif
-
-    #if defined(TCCR2A)
-    case TIMER2A:
-    case TIMER2B:
-         TCCR2B &= ~(_BV(CS20) | _BV(CS21) | _BV(CS22));
-         TCCR2B |= val;
-         break;
-    #endif
-
-    #if defined(TCCR3A)
-    case TIMER3A:
-    case TIMER3B:
-    case TIMER3C:
-         TCCR3B &= ~(_BV(CS30) | _BV(CS31) | _BV(CS32));
-         TCCR3B |= val;
-         break;
-    #endif
-
-    #if defined(TCCR4A)
-    case TIMER4A:
-    case TIMER4B:
-    case TIMER4C:
-         TCCR4B &= ~(_BV(CS40) | _BV(CS41) | _BV(CS42));
-         TCCR4B |= val;
-         break;
-   #endif
-
-    #if defined(TCCR5A)
-    case TIMER5A:
-    case TIMER5B:
-    case TIMER5C:
-         TCCR5B &= ~(_BV(CS50) | _BV(CS51) | _BV(CS52));
-         TCCR5B |= val;
-         break;
-   #endif
-
-  }
-}
-#endif //FAST_PWM_FAN
 
 bool setTargetedHotend(int code){
   target_extruder = active_extruder;
