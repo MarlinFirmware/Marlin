@@ -1446,8 +1446,7 @@ static void setup_for_endstop_move() {
     #endif
 
     if (verbose_level > 2) {
-      SERIAL_PROTOCOLPGM("Bed");
-      SERIAL_PROTOCOLPGM(" X: ");
+      SERIAL_PROTOCOLPGM("Bed X: ");
       SERIAL_PROTOCOL_F(x, 3);
       SERIAL_PROTOCOLPGM(" Y: ");
       SERIAL_PROTOCOL_F(y, 3);
@@ -2796,8 +2795,7 @@ inline void gcode_G28() {
       feedrate = homing_feedrate[Z_AXIS];
 
       run_z_probe();
-      SERIAL_PROTOCOLPGM("Bed");
-      SERIAL_PROTOCOLPGM(" X: ");
+      SERIAL_PROTOCOLPGM("Bed X: ");
       SERIAL_PROTOCOL(current_position[X_AXIS] + 0.0001);
       SERIAL_PROTOCOLPGM(" Y: ");
       SERIAL_PROTOCOL(current_position[Y_AXIS] + 0.0001);
