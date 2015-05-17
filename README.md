@@ -1,25 +1,7 @@
 # Marlin 3D Printer Firmware
 <img align="right" src="Documentation/Logo/Marlin%20Logo%20GitHub.png" />
 
-  * [Configuration & Compilation](/Documentation/Compilation.md)
-  * Supported
-    * [Features](/Documentation/Features.md)
-    * [Hardware](/Documentation/Hardware.md)
-    * [GCodes](/Documentation/GCodes.md)
-  * Notes
-    * [Auto Bed Leveling](/Documentation/BedLeveling.md)
-    * [Filament Sensor](/Documentation/FilamentSensor.md)
-    * [Ramps Servo Power](/Documentation/RampsServoPower.md)
-    * [LCD Language - Font - System](Documentation/LCDLanguageFont.md)
-    * [Mesh Bed Leveling](/Documentation/MeshBedLeveling.md)
-
-##### [RepRap.org Wiki Page](http://reprap.org/wiki/Marlin)
-
-## Quick Information
-
-This is a firmware for reprap single-processor electronics setups.
-It also works on the Ultimaker PCB. It supports printing from SD card+Folders and look-ahead trajectory planning.
-This firmware is a mashup between [Sprinter](https://github.com/kliment/Sprinter), [grbl](https://github.com/simen/grbl), and many original parts.
+ Documentation has moved to http://www.marlinfirmware.org
 
 ## Current Status: Bug Fixing
 
@@ -28,20 +10,28 @@ The Marlin development is currently revived. There's a long list of reported iss
 [![Coverity Scan Build Status](https://scan.coverity.com/projects/2224/badge.svg)](https://scan.coverity.com/projects/2224)
 [![Travis Build Status](https://travis-ci.org/MarlinFirmware/Marlin.svg)](https://travis-ci.org/MarlinFirmware/Marlin)
 
+##### [RepRap.org Wiki Page](http://reprap.org/wiki/Marlin)
+
 ## Contact
 
-__Google Hangout:__ <a href="https://plus.google.com/hangouts/_/gxn3wrea5gdhoo223yimsiforia" target="_blank">Hangout</a>
+__Google Hangout:__ <a href="https://plus.google.com/hangouts/_/gxn3wrea5gdhoo223yimsiforia" target="_blank">. Hangout</a> We have a hangout every 2 weeks. Search the issue list for "Hangout" and you will see what time and date the next event is going on.
 
 ## Credits
 
 The current Marlin dev team consists of:
 
  - Scott Lahteine [@thinkyhead]
- - 
-
-## Donation
-
-If you find our work usefull please consider donating. Donations will be used to pay for our website http://www.marlinfirmware.org/ and to pay some food or rent money for the very active Collaborators
+ - Andreas Hardtung [@AnHardt]
+ - [@Wurstnase]
+ - [@fmalpartida]
+ - [@CONSULitAS]
+ - [@maverikou]
+ - Chris Palmer [@nophead]
+ - [@paclema]
+ - [@epatel]
+ - Erik van der Zalm [@ErikZalm]
+ - David Braam [@daid]
+ - Bernhard Kubicek [@bkubicek]
 
 More features have been added by:
   - Lampmaker,

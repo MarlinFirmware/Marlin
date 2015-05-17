@@ -7,12 +7,11 @@
 #include "stepper.h"
 #include "configuration_store.h"
 
-int8_t encoderDiff; /* encoderDiff is updated from interrupt context and added to encoderPosition every LCD update */
+int8_t encoderDiff; // updated from interrupt context and added to encoderPosition every LCD update
 
 bool encoderRateMultiplierEnabled;
 int32_t lastEncoderMovementMillis;
 
-/* Configuration settings */
 int plaPreheatHotendTemp;
 int plaPreheatHPBTemp;
 int plaPreheatFanSpeed;
@@ -25,9 +24,7 @@ int absPreheatFanSpeed;
   millis_t previous_lcd_status_ms = 0;
 #endif
 
-/* !Configuration settings */
-
-//Function pointer to menu functions.
+// Function pointer to menu functions.
 typedef void (*menuFunc_t)();
 
 uint8_t lcd_status_message_level;
@@ -212,11 +209,11 @@ static void lcd_status_screen();
       } } while(0)
 
   /** Used variables to keep track of the menu */
-  #ifndef REPRAPWORLD_KEYPAD
-    volatile uint8_t buttons; // Bits of the pressed buttons.
-  #else
-    volatile uint8_t buttons_reprapworld_keypad; // The reprapworld_keypad shift register values
+  volatile uint8_t buttons;  //the last checked buttons in a bit array.
+  #ifdef REPRAPWORLD_KEYPAD
+    volatile uint8_t buttons_reprapworld_keypad; // to store the keypad shift register values
   #endif
+    
   #ifdef LCD_HAS_SLOW_BUTTONS
     volatile uint8_t slow_buttons; // Bits of the pressed buttons.
   #endif
@@ -524,7 +521,9 @@ void _lcd_preheat(int endnum, const float temph, const float tempb, const int fa
   setTargetBed(tempb);
   fanSpeed = fan;
   lcd_return_to_status();
-  setWatch(); // heater sanity check timer
+  #ifdef WATCH_TEMP_PERIOD
+    if (endnum >= 0) start_watching_heater(endnum);
+  #endif
 }
 void lcd_preheat_pla0() { _lcd_preheat(0, plaPreheatHotendTemp, plaPreheatHPBTemp, plaPreheatFanSpeed); }
 void lcd_preheat_abs0() { _lcd_preheat(0, absPreheatHotendTemp, absPreheatHPBTemp, absPreheatFanSpeed); }
@@ -876,10 +875,17 @@ static void lcd_control_menu() {
  * "Control" > "Temperature" submenu
  *
  */
-
 static void lcd_control_temperature_menu() {
   START_MENU();
+
+  //
+  // ^ Control
+  //
   MENU_ITEM(back, MSG_CONTROL, lcd_control_menu);
+
+  //
+  // Nozzle, Nozzle 2, Nozzle 3, Nozzle 4
+  //
   #if TEMP_SENSOR_0 != 0
     MENU_MULTIPLIER_ITEM_EDIT(int3, MSG_NOZZLE, &target_temperature[0], 0, HEATER_0_MAXTEMP - 15);
   #endif
@@ -898,16 +904,32 @@ static void lcd_control_temperature_menu() {
       #endif // EXTRUDERS > 3
     #endif // EXTRUDERS > 2
   #endif // EXTRUDERS > 1
+
+  //
+  // Bed
+  //
   #if TEMP_SENSOR_BED != 0
     MENU_MULTIPLIER_ITEM_EDIT(int3, MSG_BED, &target_temperature_bed, 0, BED_MAXTEMP - 15);
   #endif
+
+  //
+  // Fan Speed
+  //
   MENU_MULTIPLIER_ITEM_EDIT(int3, MSG_FAN_SPEED, &fanSpeed, 0, 255);
+
+  //
+  // Autotemp, Min, Max, Fact
+  //
   #if defined(AUTOTEMP) && (TEMP_SENSOR_0 != 0)
     MENU_ITEM_EDIT(bool, MSG_AUTOTEMP, &autotemp_enabled);
     MENU_ITEM_EDIT(float3, MSG_MIN, &autotemp_min, 0, HEATER_0_MAXTEMP - 15);
     MENU_ITEM_EDIT(float3, MSG_MAX, &autotemp_max, 0, HEATER_0_MAXTEMP - 15);
     MENU_ITEM_EDIT(float32, MSG_FACTOR, &autotemp_factor, 0.0, 1.0);
   #endif
+
+  //
+  // PID-P, PID-I, PID-D, PID-C
+  //
   #ifdef PIDTEMP
     // set up temp variables - undo the default scaling
     raw_Ki = unscalePID_i(PID_PARAM(Ki,0));
@@ -960,7 +982,15 @@ static void lcd_control_temperature_menu() {
       #endif//EXTRUDERS > 1
     #endif //PID_PARAMS_PER_EXTRUDER
   #endif//PIDTEMP
+
+  //
+  // Preheat PLA conf
+  //
   MENU_ITEM(submenu, MSG_PREHEAT_PLA_SETTINGS, lcd_control_temperature_preheat_pla_settings_menu);
+
+  //
+  // Preheat ABS conf
+  //
   MENU_ITEM(submenu, MSG_PREHEAT_ABS_SETTINGS, lcd_control_temperature_preheat_abs_settings_menu);
   END_MENU();
 }
@@ -970,7 +1000,6 @@ static void lcd_control_temperature_menu() {
  * "Temperature" > "Preheat PLA conf" submenu
  *
  */
-
 static void lcd_control_temperature_preheat_pla_settings_menu() {
   START_MENU();
   MENU_ITEM(back, MSG_TEMPERATURE, lcd_control_temperature_menu);
@@ -992,7 +1021,6 @@ static void lcd_control_temperature_preheat_pla_settings_menu() {
  * "Temperature" > "Preheat ABS conf" submenu
  *
  */
-
 static void lcd_control_temperature_preheat_abs_settings_menu() {
   START_MENU();
   MENU_ITEM(back, MSG_TEMPERATURE, lcd_control_temperature_menu);
@@ -1014,7 +1042,6 @@ static void lcd_control_temperature_preheat_abs_settings_menu() {
  * "Control" > "Motion" submenu
  *
  */
-
 static void lcd_control_motion_menu() {
   START_MENU();
   MENU_ITEM(back, MSG_CONTROL, lcd_control_menu);
@@ -1059,7 +1086,6 @@ static void lcd_control_motion_menu() {
  * "Control" > "Filament" submenu
  *
  */
-
 static void lcd_control_volumetric_menu() {
   START_MENU();
   MENU_ITEM(back, MSG_CONTROL, lcd_control_menu);
@@ -1087,7 +1113,6 @@ static void lcd_control_volumetric_menu() {
  * "Control" > "Contrast" submenu
  *
  */
-
 #ifdef HAS_LCD_CONTRAST
   static void lcd_set_contrast() {
     if (encoderPosition != 0) {
@@ -1107,7 +1132,6 @@ static void lcd_control_volumetric_menu() {
  * "Control" > "Retract" submenu
  *
  */
-
 #ifdef FWRETRACT
   static void lcd_control_retract_menu() {
     START_MENU();
@@ -1145,7 +1169,6 @@ static void lcd_sd_updir() {
  * "Print from SD" submenu
  *
  */
-
 void lcd_sdcard_menu() {
   if (lcdDrawUpdate == 0 && LCD_CLICKED == 0) return;	// nothing to do (so don't thrash the SD card)
   uint16_t fileCnt = card.getnrfilenames();

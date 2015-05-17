@@ -44,6 +44,10 @@
   #define FAN_PIN            4
 #endif
 
+#ifdef Z_PROBE_SLED
+  #define SLED_PIN         -1
+#endif
+
 #ifdef NUM_SERVOS
   #define SERVO0_PIN          -1
 
