@@ -1,30 +1,30 @@
-/* -*- c++ -*- */
-
-/*
-    Reprap firmware based on Sprinter and grbl.
- Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
-
- This program is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
-
- This program is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License
- along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
-
-/*
- This firmware is a mashup between Sprinter and grbl.
-  (https://github.com/kliment/Sprinter)
-  (https://github.com/simen/grbl/tree)
-
- It has preliminary support for Matthew Roberts advance algorithm
-    http://reprap.org/pipermail/reprap-dev/2011-May/003323.html
+/**
+ * Marlin Firmware
+ *
+ * Based on Sprinter and grbl.
+ * Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * About Marlin
+ *
+ * This firmware is a mashup between Sprinter and grbl.
+ *  - https://github.com/kliment/Sprinter
+ *  - https://github.com/simen/grbl/tree
+ *
+ * It has preliminary support for Matthew Roberts advance algorithm
+ *  - http://reprap.org/pipermail/reprap-dev/2011-May/003323.html
  */
 
 #include "Marlin.h"
@@ -73,13 +73,12 @@
  *  - http://objects.reprap.org/wiki/Mendel_User_Manual:_RepRapGCodes
  *
  * Help us document these G-codes online:
+ *  - http://www.marlinfirmware.org/index.php/G-Code
  *  - http://reprap.org/wiki/G-code
- *  - https://github.com/MarlinFirmware/Marlin/wiki/Marlin-G-Code
- */
-
-/**
+ *
+ * -----------------
  * Implemented Codes
- * -------------------
+ * -----------------
  *
  * "G" Codes
  *
@@ -163,7 +162,7 @@
  * M205 -  advanced settings:  minimum travel speed S=while printing T=travel only,  B=minimum segment time X= maximum xy jerk, Z=maximum Z jerk, E=maximum E jerk
  * M206 - Set additional homing offset
  * M207 - Set retract length S[positive mm] F[feedrate mm/min] Z[additional zlift/hop], stays in mm regardless of M200 setting
- * M208 - Set recover=unretract length S[positive mm surplus to the M207 S*] F[feedrate mm/sec]
+ * M208 - Set recover=unretract length S[positive mm surplus to the M207 S*] F[feedrate mm/min]
  * M209 - S<1=true/0=false> enable automatic retract detect if the slicer did not support G10/11: every normal extrude-only move will be classified as retract depending on the direction.
  * M218 - Set hotend offset (in mm): T<extruder_number> X<offset_on_X> Y<offset_on_Y>
  * M220 - Set speed factor override percentage: S<factor in percent>
@@ -215,6 +214,11 @@
  *
  * M928 - Start SD logging (M928 filename.g) - ended by M29
  * M999 - Restart after being stopped by error
+ *
+ * "T" Codes
+ *
+ * T0-T3 - Select a tool by index (usually an extruder) [ F<mm/min> ]
+ *
  */
 
 #ifdef SDSUPPORT
