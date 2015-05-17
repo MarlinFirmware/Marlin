@@ -180,13 +180,13 @@
       #define BTN_ENC -1
       #define LCD_SDSS 53
       #define SDCARDDETECT 49
-	#elif defined(ADAFRUIT_ST7565)
+    #elif defined(ADAFRUIT_ST7565)
       #define BTN_EN1 35
       #define BTN_EN2 37
       #define BTN_ENC 31
       #define SDCARDDETECT 49
-	  #define SDCARDDETECTINVERTED
-	  #define SDSLOW
+      #define SDCARDDETECTINVERTED
+      #define SDSLOW
       #define LCD_SDSS 53
       #define KILL_PIN 41
       #define BEEPER 23
@@ -222,7 +222,7 @@
       #endif
 
     #endif
-	#else // Old-style panel with shift register
+  #else // Old-style panel with shift register
     // Arduino pin witch triggers an piezzo beeper
     #define BEEPER 33   // No Beeper added
 
