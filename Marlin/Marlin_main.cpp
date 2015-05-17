@@ -232,6 +232,7 @@ bool axis_known_position[3] = { false };
 
 static long gcode_N, gcode_LastN, Stopped_gcode_LastN = 0;
 
+static char *current_command;
 static int cmd_queue_index_r = 0;
 static int cmd_queue_index_w = 0;
 static int commands_in_queue = 0;
@@ -697,17 +698,17 @@ void loop() {
           // Write the string from the read buffer to SD
           card.write_command(command);
           if (card.logging)
-            process_commands(); // The card is saving because it's logging
+            process_next_command(); // The card is saving because it's logging
           else
             SERIAL_PROTOCOLLNPGM(MSG_OK);
         }
       }
       else
-        process_commands();
+        process_next_command();
 
     #else
 
-      process_commands();
+      process_next_command();
 
     #endif // SDSUPPORT
 
@@ -719,6 +720,15 @@ void loop() {
   manage_inactivity();
   checkHitEndstops();
   lcd_update();
+}
+
+void gcode_line_error(const char *err, bool doFlush=true) {
+  SERIAL_ERROR_START;
+  serialprintPGM(err);
+  SERIAL_ERRORLN(gcode_LastN);
+  //Serial.println(gcode_N);
+  if (doFlush) FlushSerialRequestResend();
+  serial_count = 0;
 }
 
 /**
@@ -740,24 +750,32 @@ void get_command() {
       last_command_time = ms;
     }
   #endif
-  
-  while (MYSERIAL.available() > 0 && commands_in_queue < BUFSIZE) {
+
+  //
+  // Loop while serial characters are incoming and the queue is not full
+  //
+  while (commands_in_queue < BUFSIZE && MYSERIAL.available() > 0) {
+
     #ifdef NO_TIMEOUTS
       last_command_time = ms;
     #endif
+
     serial_char = MYSERIAL.read();
 
-    if (serial_char == '\n' || serial_char == '\r' ||
-       serial_count >= (MAX_CMD_SIZE - 1)
-    ) {
+    //
+    // If the character ends the line, or the line is full...
+    //
+    if (serial_char == '\n' || serial_char == '\r' || serial_count >= MAX_CMD_SIZE-1) {
+
       // end of line == end of comment
       comment_mode = false;
 
-      if (!serial_count) return; // shortcut for empty lines
+      if (!serial_count) return; // empty lines just exit
 
       char *command = command_queue[cmd_queue_index_w];
       command[serial_count] = 0; // terminate string
 
+      // this item in the queue is not from sd
       #ifdef SDSUPPORT
         fromsd[cmd_queue_index_w] = false;
       #endif
@@ -766,12 +784,7 @@ void get_command() {
         strchr_pointer = strchr(command, 'N');
         gcode_N = (strtol(strchr_pointer + 1, NULL, 10));
         if (gcode_N != gcode_LastN + 1 && strstr_P(command, PSTR("M110")) == NULL) {
-          SERIAL_ERROR_START;
-          SERIAL_ERRORPGM(MSG_ERR_LINE_NO);
-          SERIAL_ERRORLN(gcode_LastN);
-          //Serial.println(gcode_N);
-          FlushSerialRequestResend();
-          serial_count = 0;
+          gcode_line_error(PSTR(MSG_ERR_LINE_NO));
           return;
         }
 
@@ -782,33 +795,22 @@ void get_command() {
           strchr_pointer = strchr(command, '*');
 
           if (strtol(strchr_pointer + 1, NULL, 10) != checksum) {
-            SERIAL_ERROR_START;
-            SERIAL_ERRORPGM(MSG_ERR_CHECKSUM_MISMATCH);
-            SERIAL_ERRORLN(gcode_LastN);
-            FlushSerialRequestResend();
-            serial_count = 0;
+            gcode_line_error(PSTR(MSG_ERR_CHECKSUM_MISMATCH));
             return;
           }
-          //if no errors, continue parsing
+          // if no errors, continue parsing
         }
         else {
-          SERIAL_ERROR_START;
-          SERIAL_ERRORPGM(MSG_ERR_NO_CHECKSUM);
-          SERIAL_ERRORLN(gcode_LastN);
-          FlushSerialRequestResend();
-          serial_count = 0;
+          gcode_line_error(PSTR(MSG_ERR_NO_CHECKSUM));
           return;
         }
 
         gcode_LastN = gcode_N;
-        //if no errors, continue parsing
+        // if no errors, continue parsing
       }
       else {  // if we don't receive 'N' but still see '*'
         if ((strchr(command, '*') != NULL)) {
-          SERIAL_ERROR_START;
-          SERIAL_ERRORPGM(MSG_ERR_NO_LINENUMBER_WITH_CHECKSUM);
-          SERIAL_ERRORLN(gcode_LastN);
-          serial_count = 0;
+          gcode_line_error(PSTR(MSG_ERR_NO_LINENUMBER_WITH_CHECKSUM), false);
           return;
         }
       }
@@ -839,7 +841,7 @@ void get_command() {
       serial_count = 0; //clear buffer
     }
     else if (serial_char == '\\') {  // Handle escapes
-      if (MYSERIAL.available() > 0  && commands_in_queue < BUFSIZE) {
+      if (MYSERIAL.available() > 0 && commands_in_queue < BUFSIZE) {
         // if we have one more character, copy it over
         serial_char = MYSERIAL.read();
         command_queue[cmd_queue_index_w][serial_count++] = serial_char;
@@ -933,7 +935,7 @@ long code_value_long() { return strtol(strchr_pointer + 1, NULL, 10); }
 int16_t code_value_short() { return (int16_t)strtol(strchr_pointer + 1, NULL, 10); }
 
 bool code_seen(char code) {
-  strchr_pointer = strchr(command_queue[cmd_queue_index_r], code);
+  strchr_pointer = strchr(current_command, code);
   return (strchr_pointer != NULL);  //Return True if a character was found
 }
 
@@ -2833,7 +2835,7 @@ inline void gcode_G92() {
    * M1: // M1 - Conditional stop - Wait for user button press on LCD
    */
   inline void gcode_M0_M1() {
-    char *src = strchr_pointer + 2;
+    char *args = strchr_pointer + 3;
 
     millis_t codenum = 0;
     bool hasP = false, hasS = false;
@@ -2845,11 +2847,9 @@ inline void gcode_G92() {
       codenum = code_value() * 1000; // seconds to wait
       hasS = codenum > 0;
     }
-    char* starpos = strchr(src, '*');
-    if (starpos != NULL) *(starpos) = '\0';
-    while (*src == ' ') ++src;
-    if (!hasP && !hasS && *src != '\0')
-      lcd_setstatus(src, true);
+
+    if (!hasP && !hasS && *args != '\0')
+      lcd_setstatus(args, true);
     else {
       LCD_MESSAGEPGM(MSG_USERWAIT);
       #if defined(LCD_PROGRESS_BAR) && PROGRESS_MSG_EXPIRE > 0
@@ -2922,10 +2922,7 @@ inline void gcode_M17() {
    * M23: Select a file
    */
   inline void gcode_M23() {
-    char* codepos = strchr_pointer + 4;
-    char* starpos = strchr(codepos, '*');
-    if (starpos) *starpos = '\0';
-    card.openFile(codepos, true);
+    card.openFile(strchr_pointer + 4, true);
   }
 
   /**
@@ -2962,14 +2959,7 @@ inline void gcode_M17() {
    * M28: Start SD Write
    */
   inline void gcode_M28() {
-    char* codepos = strchr_pointer + 4;
-    char* starpos = strchr(codepos, '*');
-    if (starpos) {
-      char* npos = strchr(command_queue[cmd_queue_index_r], 'N');
-      strchr_pointer = strchr(npos, ' ') + 1;
-      *(starpos) = '\0';
-    }
-    card.openFile(codepos, false);
+    card.openFile(strchr_pointer + 4, false);
   }
 
   /**
@@ -2986,12 +2976,6 @@ inline void gcode_M17() {
   inline void gcode_M30() {
     if (card.cardOK) {
       card.closefile();
-      char* starpos = strchr(strchr_pointer + 4, '*');
-      if (starpos) {
-        char* npos = strchr(command_queue[cmd_queue_index_r], 'N');
-        strchr_pointer = strchr(npos, ' ') + 1;
-        *(starpos) = '\0';
-      }
       card.removeFile(strchr_pointer + 4);
     }
   }
@@ -3022,16 +3006,13 @@ inline void gcode_M31() {
     if (card.sdprinting)
       st_synchronize();
 
-    char* codepos = strchr_pointer + 4;
+    char* args = strchr_pointer + 4;
 
-    char* namestartpos = strchr(codepos, '!');   //find ! to indicate filename string start.
-    if (! namestartpos)
-      namestartpos = codepos; //default name position, 4 letters after the M
+    char* namestartpos = strchr(args, '!');  // Find ! to indicate filename string start.
+    if (!namestartpos)
+      namestartpos = args; // Default name position, 4 letters after the M
     else
       namestartpos++; //to skip the '!'
-
-    char* starpos = strchr(codepos, '*');
-    if (starpos) *(starpos) = '\0';
 
     bool call_procedure = code_seen('P') && (strchr_pointer < namestartpos);
 
@@ -3051,12 +3032,6 @@ inline void gcode_M31() {
    * M928: Start SD Write
    */
   inline void gcode_M928() {
-    char* starpos = strchr(strchr_pointer + 5, '*');
-    if (starpos) {
-      char* npos = strchr(command_queue[cmd_queue_index_r], 'N');
-      strchr_pointer = strchr(npos, ' ') + 1;
-      *(starpos) = '\0';
-    }
     card.openLogFile(strchr_pointer + 5);
   }
 
@@ -3854,15 +3829,16 @@ inline void gcode_M115() {
   SERIAL_PROTOCOLPGM(MSG_M115_REPORT);
 }
 
-/**
- * M117: Set LCD Status Message
- */
-inline void gcode_M117() {
-  char* codepos = strchr_pointer + 5;
-  char* starpos = strchr(codepos, '*');
-  if (starpos) *starpos = '\0';
-  lcd_setstatus(codepos);
-}
+#ifdef ULTIPANEL
+
+  /**
+   * M117: Set LCD Status Message
+   */
+  inline void gcode_M117() {
+    lcd_setstatus(strchr_pointer + 5);
+  }
+
+#endif
 
 /**
  * M119: Output endstop states to serial output
@@ -4152,7 +4128,7 @@ inline void gcode_M206() {
         default:
           SERIAL_ECHO_START;
           SERIAL_ECHOPGM(MSG_UNKNOWN_COMMAND);
-          SERIAL_ECHO(command_queue[cmd_queue_index_r]);
+          SERIAL_ECHO(current_command);
           SERIAL_ECHOLNPGM("\"");
           return;
       }
@@ -5071,8 +5047,7 @@ inline void gcode_M999() {
 /**
  * T0-T3: Switch tool, usually switching extruders
  */
-inline void gcode_T() {
-  int tmp_extruder = code_value();
+inline void gcode_T(uint8_t tmp_extruder) {
   if (tmp_extruder >= EXTRUDERS) {
     SERIAL_ECHO_START;
     SERIAL_CHAR('T');
@@ -5175,21 +5150,40 @@ inline void gcode_T() {
 }
 
 /**
- * Process Commands and dispatch them to handlers
+ * Process a single command and dispatch it to its handler
  * This is called from the main loop()
  */
-void process_commands() {
+void process_next_command() {
+  current_command = command_queue[cmd_queue_index_r];
 
   if ((marlin_debug_flags & DEBUG_ECHO)) {
     SERIAL_ECHO_START;
-    SERIAL_ECHOLN(command_queue[cmd_queue_index_r]);
+    SERIAL_ECHOLN(current_command);
   }
 
-  if (code_seen('G')) {
+  // Sanitize the current command:
+  //  - Skip leading spaces
+  //  - Bypass N...
+  //  - Overwrite * with nul to mark the end
+  while (*current_command == ' ') ++current_command;
+  if (*current_command == 'N' && current_command[1] >= '0' && current_command[1] <= '9') {
+    while (*current_command != ' ') ++current_command;
+    while (*current_command == ' ') ++current_command;
+  }
+  char *starpos = strchr(current_command, '*');  // * should always be the last parameter
+  if (starpos) *starpos = '\0';
 
-    int gCode = code_value_short();
+  // Get the command code as a character
+  char command_code = *current_command;
 
-    switch(gCode) {
+  // code_value routines look at strchr_pointer + 1
+  strchr_pointer = current_command;
+
+  if (command_code == 'G' && code_has_value()) {
+
+    int codenum = code_value_short();
+
+    switch (codenum) {
 
     // G0, G1
     case 0:
@@ -5201,7 +5195,7 @@ void process_commands() {
     #ifndef SCARA
       case 2: // G2  - CW ARC
       case 3: // G3  - CCW ARC
-        gcode_G2_G3(gCode == 2);
+        gcode_G2_G3(codenum == 2);
         break;
     #endif
 
@@ -5214,7 +5208,7 @@ void process_commands() {
 
       case 10: // G10: retract
       case 11: // G11: retract_recover
-        gcode_G10_G11(gCode == 10);
+        gcode_G10_G11(codenum == 10);
         break;
 
     #endif //FWRETRACT
@@ -5241,7 +5235,7 @@ void process_commands() {
 
           case 31: // G31: dock the sled
           case 32: // G32: undock the sled
-            dock_sled(gCode == 31);
+            dock_sled(codenum == 31);
             break;
 
       #endif // Z_PROBE_SLED
@@ -5261,8 +5255,8 @@ void process_commands() {
     }
   }
 
-  else if (code_seen('M')) {
-    switch(code_value_short()) {
+  else if (command_code == 'M' && code_has_value()) {
+    switch (code_value_short()) {
       #ifdef ULTIPANEL
         case 0: // M0 - Unconditional stop - Wait for user button press on LCD
         case 1: // M1 - Conditional stop - Wait for user button press on LCD
@@ -5412,9 +5406,13 @@ void process_commands() {
       case 115: // M115: Report capabilities
         gcode_M115();
         break;
-      case 117: // M117: Set LCD message text
-        gcode_M117();
-        break;
+
+      #ifdef ULTIPANEL
+        case 117: // M117: Set LCD message text
+          gcode_M117();
+          break;
+      #endif
+
       case 114: // M114: Report current position
         gcode_M114();
         break;
@@ -5687,14 +5685,14 @@ void process_commands() {
     }
   }
 
-  else if (code_seen('T')) {
-    gcode_T();
+  else if (command_code == 'T' && code_has_value()) {
+    gcode_T(code_value_short());
   }
 
   else {
     SERIAL_ECHO_START;
     SERIAL_ECHOPGM(MSG_UNKNOWN_COMMAND);
-    SERIAL_ECHO(command_queue[cmd_queue_index_r]);
+    SERIAL_ECHO(current_command);
     SERIAL_ECHOLNPGM("\"");
   }
 
