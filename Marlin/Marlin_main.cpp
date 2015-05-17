@@ -1596,12 +1596,11 @@ static void homeaxis(AxisEnum axis) {
       if (axis == Z_AXIS) {
         if (axis_home_dir < 0) deploy_z_probe();
       }
-      else
 
     #endif
 
     #ifdef SERVO_ENDSTOPS
-      {
+      if (axis != Z_AXIS) {
         // Engage Servo endstop if enabled
         if (servo_endstops[axis] > -1)
           servo[servo_endstops[axis]].write(servo_endstop_angles[axis * 2]);
