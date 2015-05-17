@@ -740,24 +740,32 @@ void get_command() {
       last_command_time = ms;
     }
   #endif
-  
-  while (MYSERIAL.available() > 0 && commands_in_queue < BUFSIZE) {
+
+  //
+  // Loop while serial characters are incoming and the queue is not full
+  //
+  while (commands_in_queue < BUFSIZE && MYSERIAL.available() > 0) {
+
     #ifdef NO_TIMEOUTS
       last_command_time = ms;
     #endif
+
     serial_char = MYSERIAL.read();
 
-    if (serial_char == '\n' || serial_char == '\r' ||
-       serial_count >= (MAX_CMD_SIZE - 1)
-    ) {
+    //
+    // If the character ends the line, or the line is full...
+    //
+    if (serial_char == '\n' || serial_char == '\r' || serial_count >= MAX_CMD_SIZE-1) {
+
       // end of line == end of comment
       comment_mode = false;
 
-      if (!serial_count) return; // shortcut for empty lines
+      if (!serial_count) return; // empty lines just exit
 
       char *command = command_queue[cmd_queue_index_w];
       command[serial_count] = 0; // terminate string
 
+      // this item in the queue is not from sd
       #ifdef SDSUPPORT
         fromsd[cmd_queue_index_w] = false;
       #endif
@@ -839,7 +847,7 @@ void get_command() {
       serial_count = 0; //clear buffer
     }
     else if (serial_char == '\\') {  // Handle escapes
-      if (MYSERIAL.available() > 0  && commands_in_queue < BUFSIZE) {
+      if (MYSERIAL.available() > 0 && commands_in_queue < BUFSIZE) {
         // if we have one more character, copy it over
         serial_char = MYSERIAL.read();
         command_queue[cmd_queue_index_w][serial_count++] = serial_char;
@@ -3854,15 +3862,16 @@ inline void gcode_M115() {
   SERIAL_PROTOCOLPGM(MSG_M115_REPORT);
 }
 
-/**
- * M117: Set LCD Status Message
- */
-inline void gcode_M117() {
-  char* codepos = strchr_pointer + 5;
-  char* starpos = strchr(codepos, '*');
-  if (starpos) *starpos = '\0';
-  lcd_setstatus(codepos);
-}
+#ifdef ULTIPANEL
+
+  /**
+   * M117: Set LCD Status Message
+   */
+  inline void gcode_M117() {
+    lcd_setstatus(strchr_pointer + 5);
+  }
+
+#endif
 
 /**
  * M119: Output endstop states to serial output
@@ -5412,9 +5421,13 @@ void process_commands() {
       case 115: // M115: Report capabilities
         gcode_M115();
         break;
-      case 117: // M117: Set LCD message text
-        gcode_M117();
-        break;
+
+      #ifdef ULTIPANEL
+        case 117: // M117: Set LCD message text
+          gcode_M117();
+          break;
+      #endif
+
       case 114: // M114: Report current position
         gcode_M114();
         break;
