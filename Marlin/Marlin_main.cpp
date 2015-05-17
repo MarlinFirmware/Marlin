@@ -5191,9 +5191,9 @@ void process_next_command() {
 
   if (code_seen('G')) {
 
-    int gCode = code_value_short();
+    int codenum = code_value_short();
 
-    switch(gCode) {
+    switch (codenum) {
 
     // G0, G1
     case 0:
@@ -5205,7 +5205,7 @@ void process_next_command() {
     #ifndef SCARA
       case 2: // G2  - CW ARC
       case 3: // G3  - CCW ARC
-        gcode_G2_G3(gCode == 2);
+        gcode_G2_G3(codenum == 2);
         break;
     #endif
 
@@ -5218,7 +5218,7 @@ void process_next_command() {
 
       case 10: // G10: retract
       case 11: // G11: retract_recover
-        gcode_G10_G11(gCode == 10);
+        gcode_G10_G11(codenum == 10);
         break;
 
     #endif //FWRETRACT
@@ -5245,7 +5245,7 @@ void process_next_command() {
 
           case 31: // G31: dock the sled
           case 32: // G32: undock the sled
-            dock_sled(gCode == 31);
+            dock_sled(codenum == 31);
             break;
 
       #endif // Z_PROBE_SLED
