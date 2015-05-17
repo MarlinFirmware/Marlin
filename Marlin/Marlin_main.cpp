@@ -236,7 +236,7 @@ bool axis_known_position[3] = { false };
 
 static long gcode_N, gcode_LastN, Stopped_gcode_LastN = 0;
 
-static char *current_command;
+static char *current_command, *current_command_args;
 static int cmd_queue_index_r = 0;
 static int cmd_queue_index_w = 0;
 static int commands_in_queue = 0;
@@ -938,7 +938,7 @@ long code_value_long() { return strtol(seen_pointer + 1, NULL, 10); }
 int16_t code_value_short() { return (int16_t)strtol(seen_pointer + 1, NULL, 10); }
 
 bool code_seen(char code) {
-  seen_pointer = strchr(current_command + 3, code); // +3 since "G0 " is the shortest prefix
+  seen_pointer = strchr(current_command_args, code); // +3 since "G0 " is the shortest prefix
   return (seen_pointer != NULL);  //Return True if a character was found
 }
 
@@ -2848,7 +2848,7 @@ inline void gcode_G92() {
    * M1: // M1 - Conditional stop - Wait for user button press on LCD
    */
   inline void gcode_M0_M1() {
-    char *args = current_command + 3;
+    char *args = current_command_args;
 
     millis_t codenum = 0;
     bool hasP = false, hasS = false;
@@ -2935,7 +2935,7 @@ inline void gcode_M17() {
    * M23: Select a file
    */
   inline void gcode_M23() {
-    card.openFile(current_command + 4, true);
+    card.openFile(current_command_args, true);
   }
 
   /**
@@ -2972,7 +2972,7 @@ inline void gcode_M17() {
    * M28: Start SD Write
    */
   inline void gcode_M28() {
-    card.openFile(current_command + 4, false);
+    card.openFile(current_command_args, false);
   }
 
   /**
@@ -2989,7 +2989,7 @@ inline void gcode_M17() {
   inline void gcode_M30() {
     if (card.cardOK) {
       card.closefile();
-      card.removeFile(current_command + 4);
+      card.removeFile(current_command_args);
     }
   }
 
@@ -3019,11 +3019,9 @@ inline void gcode_M31() {
     if (card.sdprinting)
       st_synchronize();
 
-    char* args = current_command + 4;
-
-    char* namestartpos = strchr(args, '!');  // Find ! to indicate filename string start.
+    char* namestartpos = strchr(current_command_args, '!');  // Find ! to indicate filename string start.
     if (!namestartpos)
-      namestartpos = args; // Default name position, 4 letters after the M
+      namestartpos = current_command_args; // Default name position, 4 letters after the M
     else
       namestartpos++; //to skip the '!'
 
@@ -3045,7 +3043,7 @@ inline void gcode_M31() {
    * M928: Start SD Write
    */
   inline void gcode_M928() {
-    card.openLogFile(current_command + 5);
+    card.openLogFile(current_command_args);
   }
 
 #endif // SDSUPPORT
@@ -3846,7 +3844,7 @@ inline void gcode_M115() {
  * M117: Set LCD Status Message
  */
 inline void gcode_M117() {
-  lcd_setstatus(current_command + 5);
+  lcd_setstatus(current_command_args);
 }
 
 /**
@@ -5191,6 +5189,12 @@ void process_next_command() {
 
   // Bail early if there's no code
   if (!code_is_good) goto ExitUnknownCommand;
+
+  // Args pointer optimizes code_seen, especially those taking XYZEF
+  // This wastes a little cpu on commands that expect no arguments.
+  current_command_args = current_command;
+  while (*current_command_args != ' ') ++current_command_args;
+  while (*current_command_args == ' ') ++current_command_args;
 
   // Interpret the code int
   codenum = code_value_short();
