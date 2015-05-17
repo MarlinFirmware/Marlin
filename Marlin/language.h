@@ -168,7 +168,8 @@
 #define MSG_ENDSTOP_OPEN                    "open"
 #define MSG_HOTEND_OFFSET                   "Hotend offsets:"
 
-#define MSG_SD_CANT_OPEN_SUBDIR             "Cannot open subdir"
+#define MSG_SD_CANT_OPEN_SUBDIR             "Cannot open subdir: "
+#define MSG_SD_CANT_ENTER_SUBDIR            "Cannot enter subdir: "
 #define MSG_SD_INIT_FAIL                    "SD init fail"
 #define MSG_SD_VOL_INIT_FAIL                "volume.init failed"
 #define MSG_SD_OPENROOT_FAIL                "openRoot failed"
@@ -182,7 +183,6 @@
 #define MSG_SD_PRINTING_BYTE                "SD printing byte "
 #define MSG_SD_NOT_PRINTING                 "Not SD printing"
 #define MSG_SD_ERR_WRITE_TO_FILE            "error writing to file"
-#define MSG_SD_CANT_ENTER_SUBDIR            "Cannot enter subdir: "
 
 #define MSG_STEPPER_TOO_HIGH                "Steprate too high: "
 #define MSG_ENDSTOPS_HIT                    "endstops hit: "
