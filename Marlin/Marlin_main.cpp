@@ -3025,11 +3025,11 @@ inline void gcode_M31() {
     if (card.sdprinting)
       st_synchronize();
 
-    char* codepos = strchr_pointer + 4;
+    char* args = strchr_pointer + 4;
 
-    char* namestartpos = strchr(codepos, '!');   //find ! to indicate filename string start.
-    if (! namestartpos)
-      namestartpos = codepos; //default name position, 4 letters after the M
+    char* namestartpos = strchr(args, '!');  // Find ! to indicate filename string start.
+    if (!namestartpos)
+      namestartpos = args; // Default name position, 4 letters after the M
     else
       namestartpos++; //to skip the '!'
 
@@ -5075,8 +5075,7 @@ inline void gcode_M999() {
 /**
  * T0-T3: Switch tool, usually switching extruders
  */
-inline void gcode_T() {
-  int tmp_extruder = code_value();
+inline void gcode_T(uint8_t tmp_extruder) {
   if (tmp_extruder >= EXTRUDERS) {
     SERIAL_ECHO_START;
     SERIAL_CHAR('T');
@@ -5179,7 +5178,7 @@ inline void gcode_T() {
 }
 
 /**
- * Process Commands and dispatch them to handlers
+ * Process a single command and dispatch it to its handler
  * This is called from the main loop()
  */
 void process_next_command() {
@@ -5191,9 +5190,10 @@ void process_next_command() {
 
   if (code_seen('G')) {
 
-    int gCode = code_value_short();
 
-    switch(gCode) {
+    int codenum = code_value_short();
+
+    switch (codenum) {
 
     // G0, G1
     case 0:
@@ -5205,7 +5205,7 @@ void process_next_command() {
     #ifndef SCARA
       case 2: // G2  - CW ARC
       case 3: // G3  - CCW ARC
-        gcode_G2_G3(gCode == 2);
+        gcode_G2_G3(codenum == 2);
         break;
     #endif
 
@@ -5218,7 +5218,7 @@ void process_next_command() {
 
       case 10: // G10: retract
       case 11: // G11: retract_recover
-        gcode_G10_G11(gCode == 10);
+        gcode_G10_G11(codenum == 10);
         break;
 
     #endif //FWRETRACT
@@ -5245,7 +5245,7 @@ void process_next_command() {
 
           case 31: // G31: dock the sled
           case 32: // G32: undock the sled
-            dock_sled(gCode == 31);
+            dock_sled(codenum == 31);
             break;
 
       #endif // Z_PROBE_SLED
@@ -5696,7 +5696,7 @@ void process_next_command() {
   }
 
   else if (code_seen('T')) {
-    gcode_T();
+    gcode_T(code_value_short());
   }
 
   else {
