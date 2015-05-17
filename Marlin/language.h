@@ -231,6 +231,7 @@
 #define MSG_MINTEMP_EXTRUDER_OFF            ": Extruder switched off. MINTEMP triggered !"
 #define MSG_MAXTEMP_EXTRUDER_OFF            ": Extruder" MSG_SWITCHED_OFF_MAX
 #define MSG_MAXTEMP_BED_OFF                 "Heated bed" MSG_SWITCHED_OFF_MAX
+#define MSG_BED                             "bed "
 
 // LCD Menu Messages
 

@@ -446,11 +446,12 @@ void checkExtruderAutoFans()
 //
 // Temperature Error Handlers
 //
-inline void _temp_error(int e, const char *serial_msg, const char *lcd_msg) {
+inline void _temp_error(int8_t e, const char *serial_msg, const char *lcd_msg) {
   if (IsRunning()) {
     SERIAL_ERROR_START;
-    if (e >= 0) SERIAL_ERRORLN((int)e);
     serialprintPGM(serial_msg);
+    if (e >= 0) SERIAL_ERRORLN((int)e);
+    else serialprintPGM(PSTR(MSG_BED));
     MYSERIAL.write('\n');
     #ifdef ULTRA_LCD
       lcd_setalertstatuspgm(lcd_msg);
@@ -583,6 +584,59 @@ float get_pid_output(int e) {
   }
 #endif
 
+#if MAX_TEMP_OVERSTOOT_TIME > 0
+  void check_heater_works(int8_t hh) {
+    enum state_t { FULL_ON_S, ON_S, OFF_S };
+    static state_t state[5] = { ON_S, ON_S, ON_S, ON_S, ON_S, };
+    static millis_t timerc[5] = {0, 0, 0, 0, 0};
+    static float initial_temp[5] = {0.0, 0.0, 0.0, 0.0, 0.0};
+
+    uint8_t h = hh + 1;
+//    SERIAL_PROTOCOLPGM("Nr:"); SERIAL_PROTOCOL((int)h); SERIAL_PROTOCOLPGM("Timer:"); SERIAL_PROTOCOL((timerc[h]-millis())); SERIAL_PROTOCOLPGM(" State:"); SERIAL_PROTOCOL(state[h]); SERIAL_PROTOCOLPGM(" PWM:"); SERIAL_PROTOCOL((int)((h) ? soft_pwm[hh] : soft_pwm_bed)); SERIAL_PROTOCOLPGM(" I temp:"); SERIAL_PROTOCOL(initial_temp[h]); SERIAL_PROTOCOLPGM(" temp:"); SERIAL_PROTOCOLLN(((h) ? current_temperature[hh] : current_temperature_bed));
+    if (((h) ? soft_pwm[hh] : soft_pwm_bed) == ((h) ? PID_MAX >> 1: MAX_BED_POWER >> 1))
+      if (state[h] != FULL_ON_S) {
+        state[h]  = FULL_ON_S;
+        timerc[h] = millis() + MAX_TEMP_OVERSTOOT_TIME * 1000UL;
+        initial_temp[h] = ((h) ? current_temperature[hh] : current_temperature_bed) - MAX_SENSOR_NOISE_C;
+        return;
+      }
+      else {
+        if (millis() > timerc[h])
+          if(((h) ? current_temperature[hh] : current_temperature_bed) <= initial_temp[h]) {
+              _temp_error(hh, PSTR(MSG_HEATING_FAILED), PSTR(MSG_HEATING_FAILED_LCD));
+              disable_all_steppers();
+              for (;;) {
+                lcd_update();
+              }
+            }
+          else
+            state[h] = ON_S; // retest
+      }
+    else
+      if (((h) ? soft_pwm[hh] : soft_pwm_bed) == 0)
+        if (state[h] != OFF_S) {
+          state[h] = OFF_S;
+          timerc[h] = millis() + MAX_TEMP_OVERSTOOT_TIME * 1000UL;
+          initial_temp[h] = max(((h) ? current_temperature[hh] : current_temperature_bed), MAX_AMBIENT_TEMP) + MAX_SENSOR_NOISE_C;
+          return;
+        }
+        else {
+          if (millis() > timerc[h])
+            if (((h) ? current_temperature[hh] : current_temperature_bed) >= initial_temp[h]) {
+              _temp_error(hh, PSTR(MSG_THERMAL_RUNAWAY_STOP), PSTR(MSG_THERMAL_RUNAWAY));
+              disable_all_steppers();
+              for (;;) {
+                lcd_update();
+              }
+            }
+            else
+              state[h] = ON_S; // retest
+        }
+      else
+        state[h] = ON_S;   // on but not full power so can't infer anything about the temperature change
+  }
+#endif
+
 /**
  * Manage heating activities for extruder hot-ends and a heated bed
  *  - Acquire updated temperature readings
@@ -612,6 +666,12 @@ void manage_heater() {
 
     #ifdef THERMAL_PROTECTION_HOTENDS
       thermal_runaway_protection(&thermal_runaway_state_machine[e], &thermal_runaway_timer[e], current_temperature[e], target_temperature[e], e, THERMAL_PROTECTION_PERIOD, THERMAL_PROTECTION_HYSTERESIS);
+    #endif
+
+    #if MAX_TEMP_OVERSTOOT_TIME > 0
+      for (int8_t e = -1; e < EXTRUDERS; e++) {
+        check_heater_works(e);
+      }
     #endif
 
     float pid_output = get_pid_output(e);
