@@ -5,5 +5,7 @@
 
 extern void action_homing();
 
+extern void action_print();
+
 
 #endif // GUI_ACTION_H

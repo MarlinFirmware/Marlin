@@ -110,7 +110,7 @@ namespace screen
 	ScreenDialog screen_info            = ScreenDialog("FW info");
 
 	//Print screen
-	ScreenPrint screen_print            = ScreenPrint("");
+	ScreenPrint screen_print            = ScreenPrint("", ScreenPrint::PRINT, action_print);
 	//Play/Pause
 	Screen screen_play_pause			= Screen("Print");
 	//Stop

@@ -14,7 +14,7 @@ namespace screen
 {
 	class Screen
 	{
-		private:
+		protected:
 			typedef void (* FuncPtr_t)();
 
 		public:
