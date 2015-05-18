@@ -8,11 +8,13 @@
 #include "Icon.h"
 #include "GuiPainter.h"
 
+static void do_nothing(){};
+
 namespace screen
 {
 	class Screen
 	{
-		private:
+		protected:
 			typedef void (* FuncPtr_t)();
 
 		public:
@@ -28,7 +30,7 @@ namespace screen
 			} ScreenType_t;
 
 		public:
-			Screen(const char * title, ScreenType_t const & type = SIMPLE, FuncPtr_t function = NULL);
+			Screen(const char * title, ScreenType_t const & type = SIMPLE, FuncPtr_t function = do_nothing);
 			virtual ~Screen();
 
 			const char * title() const;
