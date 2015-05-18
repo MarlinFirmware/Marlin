@@ -53,10 +53,6 @@ float current_temperature_bed = 0.0;
   float redundant_temperature = 0.0;
 #endif
 
-#ifdef MAX_THERMO_JUMP
-  int last_temperature_raw[5] = { 0 };
-#endif
-
 #ifdef PIDTEMPBED
   float bedKp=DEFAULT_bedKp;
   float bedKi=(DEFAULT_bedKi*PID_dT);
@@ -786,10 +782,10 @@ static float analog2tempBed(int raw) {
   #endif
 }
 
-#ifdef MAX_THERMO_JUMP
+#if MAX_THERMO_JUMP_AMOUNT > 0
   static void check_max_thermo_jump(int8_t e) {
     static bool init_jump[5] = {true, true, true, true, true};
-
+    static int last_temperature_raw[5] = { 0 };
 #ifdef HEATER_0_USES_MAX6675
     if ((abs(((e < 0) ? current_temperature_bed_raw : current_temperature_raw[e]) - last_temperature_raw[e+1]) < (MAX_THERMO_JUMP_AMOUNT * ((e) ? OVERSAMPLENR : 1))) || init_jump[e+1]) {
 #else
@@ -802,18 +798,7 @@ static float analog2tempBed(int raw) {
     }
     else {
 //      SERIAL_PROTOCOLPGM("jumptest: "); SERIAL_PROTOCOL(last_temperature_raw[e+1]); SERIAL_PROTOCOLPGM(":"); SERIAL_PROTOCOLLN(((e < 0) ? current_temperature_bed_raw : current_temperature_raw[e]));
-
-// next is analogue to ( TRRunaway: ). kill() with adjustable message would be better
-      SERIAL_ERROR_START;
-      SERIAL_ERRORLNPGM(MSG_THERMAL_JUMP_STOP);
-      if (e < 0) SERIAL_ERRORLNPGM("bed"); else SERIAL_ERRORLN(e);
-      LCD_ALERTMESSAGEPGM(MSG_ERR_THERMAL_JUMP);
-      disable_all_heaters();
-      disable_all_steppers();
-      for (;;) {
-//        manage_heater();  // reboot due to stack overfolw
-        lcd_update();
-      }
+      _temp_error(e, PSTR(MSG_THERMAL_JUMP_STOP), PSTR(MSG_ERR_THERMAL_JUMP));
     }
   }
 #endif
@@ -828,7 +813,7 @@ static void updateTemperaturesFromRawValues() {
     current_temperature[e] = analog2temp(current_temperature_raw[e], e);
   }
   current_temperature_bed = analog2tempBed(current_temperature_bed_raw);
-  #ifdef MAX_THERMO_JUMP
+  #if MAX_THERMO_JUMP_AMOUNT > 0
     for (int8_t e = -1; e < EXTRUDERS; e++) {
       check_max_thermo_jump(e);
     }

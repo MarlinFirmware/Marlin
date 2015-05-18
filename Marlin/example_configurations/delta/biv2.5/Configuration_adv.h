@@ -36,6 +36,17 @@
   #define THERMAL_PROTECTION_BED_HYSTERESIS 4 // Degrees Celsius
 #endif
 
+  /**
+   * Temperatures are inert. If the value of any thermometer jumps, there is something wrong with it.
+   * Reasons can be: shorted wires, broken wires, leaking water-cooling, ...
+   * but also: electronic noise, ...
+   * MAX THERMO_JUMP_AMOUNT is the maximum allowed temperature difference between two measurements of the raw temperatures, (an abstract number).
+   * The fastest expected change is about (full range of the ADC) / minute / (temp measurements / second). 
+   * This is well below the noise. So we have to adjust for the noise.
+   * If you get 'unreasoned' "error: Thermometer Jumped" messages increase the next value.
+   */
+#define MAX_THERMO_JUMP_AMOUNT 10
+
 /**
  * Automatic Temperature:
  * The hotend target temperature is calculated by all the buffered lines of gcode.
