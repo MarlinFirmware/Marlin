@@ -28,6 +28,10 @@ public:
   void getStatus();
   void printingHasFinished();
 
+  #ifdef LONG_FILENAME_HOST_SUPPORT
+    void printLongPath(char *path);
+  #endif
+
   void getfilename(uint16_t nr, const char* const match=NULL);
   uint16_t getnrfilenames();
 
