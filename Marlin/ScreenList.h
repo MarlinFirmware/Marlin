@@ -22,7 +22,9 @@ namespace screen
 			uint16_t m_num_list;
 			Screen * m_next_screen;
 			Screen * m_items[max_list];
+
 			char m_directory[10];
+			bool m_directory_is_root;
 	};
 }
 
