@@ -312,7 +312,8 @@ void PID_autotune(float temp, int extruder, int ncycles)
         }
       } 
     }
-    if (input > temp + 20) {
+    #define MAX_OVERSHOOT_PID_AUTOTUNE 20
+    if (input > temp + MAX_OVERSHOOT_PID_AUTOTUNE) {
       SERIAL_PROTOCOLLNPGM(MSG_PID_TEMP_TOO_HIGH);
       return;
     }
