@@ -86,31 +86,42 @@ namespace screen
 
 			state = run_state(state, EVENT_PREPARED);
 		}
-		card.getfilename(m_index);
 
 		painter.firstPage();
 		do
 		{
 			painter.title(m_title);
-			painter.setPrintPos(painter.coordinateXInit(), painter.coordinateYInit());
-			SERIAL_ECHO(m_title);
-			SERIAL_ECHO(" ");
-			SERIAL_ECHO(m_directory);
-			SERIAL_ECHO("  (item ");
-			SERIAL_ECHO(m_index + 1);
-			SERIAL_ECHO(" / ");
-			SERIAL_ECHO(m_num_list);
-			SERIAL_ECHO(") : ");
-			SERIAL_ECHO(card.longFilename);
-			painter.print(card.longFilename);
-			if (card.filenameIsDir == true)
+
+			uint8_t window_size = 50 / (max_font_height + 1);
+			for (uint8_t i = 0; i < window_size; i++)
 			{
-				SERIAL_ECHOLN(" [D]");
-			} 
-			else
-			{
-				SERIAL_ECHOLN("");
+				card.getfilename(m_index + i);
+
+				SERIAL_ECHO(m_title);
+				SERIAL_ECHO(" ");
+				SERIAL_ECHO(m_directory);
+				SERIAL_ECHO("  (item ");
+				SERIAL_ECHO(m_index + 1);
+				SERIAL_ECHO(" / ");
+				SERIAL_ECHO(m_num_list);
+				SERIAL_ECHO(") : ");
+				SERIAL_ECHO(card.longFilename);
+
+				if (card.filenameIsDir == true)
+				{
+					painter.setPrintPos(painter.coordinateXInit(), painter.coordinateYInit() + i * (max_font_height + 1) + 1);
+					painter.print("*");
+					SERIAL_ECHOLN(" [D]");
+				}
+				else
+				{
+					SERIAL_ECHOLN("");
+				}
+
+				painter.setPrintPos(painter.coordinateXInit() + 9, painter.coordinateYInit() + i * (max_font_height + 1) + 1);
+				painter.print(card.longFilename);
 			}
+
 		} while( painter.nextPage() );
 	}
 
@@ -123,7 +134,7 @@ namespace screen
 			card.getfilename(m_index);
 			SERIAL_ECHOLN("ScreenList::press - card.getfilename");
 			*/
-
+		card.getfilename(m_index);
 		if (card.filenameIsDir == true)
 		{
 			SERIAL_ECHOLN("ScreenList::press - isDir");
