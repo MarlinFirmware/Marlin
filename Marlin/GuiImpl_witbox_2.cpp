@@ -1,11 +1,15 @@
 #include "GuiImpl_witbox_2.h"
 #include "GuiBitmaps_witbox_2.h"
+#include "GuiAction.h"
 
+#include "Screen.h"
 #include "ScreenMenu.h"
 #include "ScreenPrint.h"
 #include "ScreenDialog.h"
 #include "ScreenSelector.h"
 #include "ScreenList.h"
+
+
 
 namespace screen
 {
@@ -84,7 +88,7 @@ namespace screen
 	ScreenDialog screen_level4          = ScreenDialog("Screen4");
 	ScreenMenu screen_level_retry       = ScreenMenu("Finished?");
 	//AutoHome
-	Screen screen_autohome              = Screen("Auto-home");
+	Screen screen_autohome              = Screen("Auto-home", Screen::SIMPLE, action_homing);
 	//Stepper
 	Screen screen_stepper               = Screen("Steper on");
 	//Move Axis screens
