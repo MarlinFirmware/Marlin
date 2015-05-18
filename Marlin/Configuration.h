@@ -662,7 +662,9 @@ const bool Z_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the logic
 
 // This is a new controller currently under development.  A link to more information will be provided as it
 // becomes available.
-//#define ELB_FULL_GRAPHIC_CONTROLLER
+//
+// ==> REMEMBER TO INSTALL U8glib to your ARDUINO library folder: http://code.google.com/p/u8glib/wiki/u8glib
+#define ELB_FULL_GRAPHIC_CONTROLLER
 
 // The RepRapDiscount Smart Controller (white PCB)
 // http://reprap.org/wiki/RepRapDiscount_Smart_Controller
