@@ -130,13 +130,16 @@ HOTEND_ROUTINES(0);
 
 int getHeaterPower(int heater);
 void disable_all_heaters();
-void setWatch();
 void updatePID();
 
 void PID_autotune(float temp, int extruder, int ncycles);
 
 void setExtruderAutoFanState(int pin, bool state);
 void checkExtruderAutoFans();
+
+#ifdef THERMAL_PROTECTION_HOTENDS
+  void start_watching_heater(int e=0);
+#endif
 
 FORCE_INLINE void autotempShutdown() {
   #ifdef AUTOTEMP
