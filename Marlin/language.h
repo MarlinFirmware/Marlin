@@ -222,15 +222,16 @@
 #define MSG_PID_DEBUG_PTERM                 " pTerm "
 #define MSG_PID_DEBUG_ITERM                 " iTerm "
 #define MSG_PID_DEBUG_DTERM                 " dTerm "
-#define MSG_HEATING_FAILED                  "Heating failed"
-#define MSG_EXTRUDER_SWITCHED_OFF           "Extruder switched off. Temperature difference between temp sensors is too high !"
-
 #define MSG_INVALID_EXTRUDER_NUM            " - Invalid extruder number !"
-#define MSG_THERMAL_RUNAWAY_STOP            "Thermal Runaway, system stopped! Heater_ID: "
-#define MSG_SWITCHED_OFF_MAX                " switched off. MAXTEMP triggered !!"
-#define MSG_MINTEMP_EXTRUDER_OFF            ": Extruder switched off. MINTEMP triggered !"
-#define MSG_MAXTEMP_EXTRUDER_OFF            ": Extruder" MSG_SWITCHED_OFF_MAX
-#define MSG_MAXTEMP_BED_OFF                 "Heated bed" MSG_SWITCHED_OFF_MAX
+
+#define MSG_HEATER_BED                      "bed"
+#define MSG_STOPPED_HEATER                  ", system stopped! Heater_ID: "
+#define MSG_REDUNDANCY                      "Heater switched off. Temperature difference between temp sensors is too high !"
+#define MSG_T_HEATING_FAILED                "Heating failed"
+#define MSG_T_THERMAL_RUNAWAY               "Thermal Runaway"
+#define MSG_T_MAXTEMP                       "MAXTEMP triggered"
+#define MSG_T_MINTEMP                       "MINTEMP triggered"
+
 
 // LCD Menu Messages
 
