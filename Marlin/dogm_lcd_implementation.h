@@ -35,15 +35,11 @@
 #include "ultralcd_st7920_u8glib_rrd.h"
 #include "Configuration.h"
 
-// save 3120 bytes of PROGMEM by commenting out #define USE_BIG_EDIT_FONT
-// we don't have a big font for Cyrillic, Kana
-#if defined(MAPPER_C2C3) || defined(MAPPER_NON)
-  //#define USE_BIG_EDIT_FONT
+#if !defined(MAPPER_C2C3) && !defined(MAPPER_NON) && defined(USE_BIG_EDIT_FONT)
+   #undef USE_BIG_EDIT_FONT
 #endif
 
-// If you have spare 2300Byte of progmem and want to use a 
-// smaller font on the Info-screen uncomment the next line.
-//#define USE_SMALL_INFOFONT
+
 #ifdef USE_SMALL_INFOFONT
   #include "dogm_font_data_6x9_marlin.h"
   #define FONT_STATUSMENU_NAME u8g_font_6x9
