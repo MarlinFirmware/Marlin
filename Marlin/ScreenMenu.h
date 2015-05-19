@@ -10,7 +10,7 @@ namespace screen
 	class ScreenMenu : public Screen
 	{
 		public:
-			ScreenMenu(const char * title = 0);
+			ScreenMenu(const char * title = 0, ScreenType_t const & type = MENU, FuncPtr_t function = do_nothing);
 			virtual ~ScreenMenu();
 
 			void left();

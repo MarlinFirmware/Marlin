@@ -24,9 +24,6 @@ screen::Screen * active_view;
 // Extern variables
 extern bool stop_buffer;
 extern int stop_buffer_code;
-extern uint8_t buffer_recursivity;
-
-static float manual_feedrate[] = MANUAL_FEEDRATE;
 
 // Configuration settings
 // TODO : Review & delete if possible
