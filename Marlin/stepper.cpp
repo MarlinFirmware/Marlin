@@ -562,11 +562,13 @@ ISR(TIMER1_COMPA_vect) {
                 GET_ENDSTOP_STATUS(current_endstop_bits, Z2, MIN);
               #endif
 
-            byte z_test = TEST_ENDSTOP(Z_MIN) << 0 // bit 0 for Z, bit 1 for Z2
+            byte z_test = TEST_ENDSTOP(Z_MIN) << 0 + // bit 0 for Z, bit 1 for Z2
             #if HAS_Z2_MIN
-              + TEST_ENDSTOP(Z2_MIN) << 1
+              TEST_ENDSTOP(Z2_MIN)
+            #else
+              TEST_ENDSTOP(Z_MIN)
             #endif
-            ;
+            << 1;
 
             if (!((~z_test) & 0x3) && current_block->steps[Z_AXIS] > 0) { // !(~ab & 0x3) is equal to a && b
               endstops_trigsteps[Z_AXIS] = count_position[Z_AXIS];
@@ -601,11 +603,13 @@ ISR(TIMER1_COMPA_vect) {
                 GET_ENDSTOP_STATUS(current_endstop_bits, Z2, MAX);
               #endif
 
-            byte z_test = TEST_ENDSTOP(Z_MAX) << 0 // bit 0 for Z, bit 1 for Z2
+            byte z_test = TEST_ENDSTOP(Z_MAX) << 0 + // bit 0 for Z, bit 1 for Z2
             #if HAS_Z2_MAX
-              + TEST_ENDSTOP(Z2_MAX) << 1
+              TEST_ENDSTOP(Z2_MAX)
+            #else
+              TEST_ENDSTOP(Z_MAX)
             #endif
-            ;
+            << 1;
 
             if (!((~z_test) & 0x3)  && current_block->steps[Z_AXIS] > 0) {
               endstops_trigsteps[Z_AXIS] = count_position[Z_AXIS];
