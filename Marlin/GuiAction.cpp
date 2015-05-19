@@ -37,5 +37,4 @@
 		*c = tolower(*c);
 		enquecommand(cmd);
 		enquecommand_P(PSTR("M24"));
-
-        }
+	}

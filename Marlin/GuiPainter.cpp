@@ -1,5 +1,6 @@
 #include "GuiPainter.h"
 #include "GuiBitmaps_witbox_2.h"
+#include "cardreader.h"
 
 extern "C" void	atexit( void ) { }
 
@@ -70,10 +71,9 @@ namespace screen
 		coordinateXInit(x_init + (strlen(itostr3left(percentage))+strlen("%"))*6 + 7+1);
 		x_init = coordinateXInit();
 
-		if ( (time != NULL) && (time >= 0) )
+		if ( (card.sdprinting) )
 		{
 			setColorIndex(1);
-			//m_impl.drawXBMP(x_end - 33, y_init+2, 5, 5, bits_clock_small);
 			setFont(u8g_font_6x9);
 			uint8_t x = x_end - (strlen(itostr2(time/60)) + strlen(":") + strlen(itostr2(time%60))) * 6;
 			setPrintPos(x, y_init + 2);

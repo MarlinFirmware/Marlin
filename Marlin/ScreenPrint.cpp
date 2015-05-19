@@ -1,5 +1,6 @@
 #include "ScreenPrint.h"
 #include "dogm_font_data_marlin.h"
+#include "cardreader.h"
 
 namespace screen
 {
@@ -57,16 +58,21 @@ namespace screen
 
 	void ScreenPrint::draw()
 	{
-		SERIAL_ECHO(m_title);
+		/*SERIAL_ECHO(m_title);
 		SERIAL_ECHO(">>>");
 		SERIAL_ECHO(" [");
 		SERIAL_ECHO(m_items[m_index]->title());
-		SERIAL_ECHOLN("] "); 	
+		SERIAL_ECHOLN("] "); */	
 		painter.firstPage();
 		do 
 		{
 			painter.title("Printing screen");
-			painter.printing_status(73, 650);
+			uint16_t actual_time = 0;
+			if (starttime != 0)
+			{
+				actual_time = millis()/60000 - starttime/60000;
+			}
+			painter.printing_status(card.percentDone(), actual_time);
 			painter.box(m_items[m_index]->title());
 			uint8_t x_init = painter.coordinateXInit();
 			uint8_t y_init = painter.coordinateYInit();
