@@ -33,7 +33,10 @@ namespace screen
 			void title(const char * title);
 
 			void short_text(const char * text);
+
 			void printing_status(const uint8_t percentage, const uint16_t time);
+
+			void selector(uint16_t number, uint16_t total);
 
 			void box(const char* nextScreen);
 

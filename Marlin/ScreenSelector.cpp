@@ -30,10 +30,18 @@ namespace screen
 
 	void ScreenSelector::draw()
 	{
-		SERIAL_ECHO(m_title);
+		/*SERIAL_ECHO(m_title);
 		SERIAL_ECHO("  < ");
 		SERIAL_ECHO(m_select);
-		SERIAL_ECHOLN(" >  ");
+		SERIAL_ECHOLN(" >  ");*/
+		painter.firstPage();
+		do 
+		{
+			painter.title(m_title);
+			painter.box(m_next_screen->title()); //TEMPORAL
+			painter.selector(m_select,200); //Temporal
+					
+		} while( painter.nextPage() );
 	}
 
 	Screen & ScreenSelector::press(Screen * parent_view)

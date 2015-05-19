@@ -96,6 +96,23 @@ namespace screen
 		coordinateYInit(y_init + 9);
 	}
 
+	void GuiPainter::selector(uint16_t number, uint16_t total)
+	{
+		uint8_t x_init = coordinateXInit();
+		uint8_t x_end = coordinateXEnd();
+		uint8_t y_init = coordinateYInit();
+		uint8_t y_end = coordinateYEnd();
+
+		setColorIndex(1);
+		setFont(u8g_font_6x9);
+		setPrintPos((x_end + x_init)/2 - (strlen("< / >")*6)/2 - (strlen(itostr2(number))*6)/2 - (strlen(itostr2(total))*6)/2, (y_end + y_init)/2 - 9/2);
+		print ("< ");
+		print(itostr2(number));
+		print("/");
+		print(itostr2(total));
+		print (" >");
+	}
+
 	void GuiPainter::box(const char* nextScreen)
 	{
 		uint8_t x_init = coordinateXInit();
