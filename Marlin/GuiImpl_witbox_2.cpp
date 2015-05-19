@@ -78,7 +78,7 @@ namespace screen
 	//Load Filament screens
 	ScreenSelector screen_load_select   = ScreenSelector("Load filament");
 	ScreenDialog screen_load_heating    = ScreenDialog("Heating");
-	ScreenDialog screen_load_pull       = ScreenDialog("Insert and press");
+	ScreenDialog screen_load_press      = ScreenDialog("Insert and press");
 	ScreenMenu screen_load_confirm      = ScreenMenu("Finished?");
 	//Level Plate screens
 	ScreenMenu screen_level_confirm     = ScreenMenu("Level Plate");
@@ -112,9 +112,9 @@ namespace screen
 	//Print screen
 	ScreenPrint screen_print            = ScreenPrint("", ScreenPrint::PRINT, action_print);
 	//Play/Pause
-	Screen screen_play_pause			= Screen("Print");
+	Screen screen_play_pause			= Screen("Pause");
 	//Stop
-	ScreenMenu screen_stop				= ScreenMenu("Stop");
+	ScreenMenu screen_stop				= ScreenMenu("Stop", ScreenPrint::MENU, action_stop_print);
 	//Change Filament Screens
 	ScreenMenu screen_change_confirm	= ScreenMenu("Change filament");
 	ScreenDialog screen_change_start    = ScreenDialog("Start");
@@ -164,11 +164,11 @@ namespace screen
 		screen_load_select.icon(icon_filament_load_normal);
 		screen_load_select.icon(icon_filament_load_selected);
 		//Load Filament Heating
-		screen_load_heating.add(screen_load_pull);
+		screen_load_heating.add(screen_load_press);
 		//Load Filament Pull
-		screen_load_pull.add(screen_load_confirm);
+		screen_load_press.add(screen_load_confirm);
 		//Load Filament Confirm
-		screen_load_confirm.add(screen_load_pull);
+		screen_load_confirm.add(screen_load_press);
 		screen_load_confirm.add(screen_main);
 		//Level Plate
 		screen_level_confirm.add(screen_main);
@@ -211,10 +211,10 @@ namespace screen
 		screen_print.add(screen_temperature);
 		//Play/Pause
 		screen_play_pause.add(screen_print);
-		screen_play_pause.icon(icon_play_normal); 
-		screen_play_pause.icon(icon_play_selected);
 		screen_play_pause.icon(icon_pause_normal);
 		screen_play_pause.icon(icon_pause_selected);
+		screen_play_pause.icon(icon_play_normal); 
+		screen_play_pause.icon(icon_play_selected);
 		//Stop
 		screen_stop.add(screen_print);
 		screen_stop.add(screen_main);
