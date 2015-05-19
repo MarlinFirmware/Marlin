@@ -441,7 +441,7 @@ void check_axes_activity() {
           fan_kick_end = 0;
         }
     #endif //FAN_KICKSTART_TIME
-	#ifdef FAN_MIN_PWM
+    #ifdef FAN_MIN_PWM
       #define CALC_FAN_SPEED (tail_fan_speed ? ( FAN_MIN_PWM + (tail_fan_speed * (255 - FAN_MIN_PWM)) / 255 ) : 0)
     #else
       #define CALC_FAN_SPEED tail_fan_speed
