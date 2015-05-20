@@ -452,12 +452,9 @@ inline void _temp_error(int e, const char *serial_msg, const char *lcd_msg) {
     serialprintPGM(serial_msg);
     SERIAL_ERRORPGM(MSG_STOPPED_HEATER);
     if (e >= 0) SERIAL_ERRORLN((int)e); else SERIAL_ERRORLNPGM(MSG_HEATER_BED);
-    #ifdef ULTRA_LCD
-      lcd_setalertstatuspgm(lcd_msg);
-    #endif
   }
   #ifndef BOGUS_TEMPERATURE_FAILSAFE_OVERRIDE
-    kill_();
+    kill(lcd_msg);
   #endif
 }
 
