@@ -1059,7 +1059,11 @@ static void axis_is_at_home(AxisEnum axis) {
     else
   #endif
   {
-    current_position[axis] = base_home_pos(axis) + home_offset[axis];
+    current_position[axis] = base_home_pos(axis)
+    #ifndef BABYSTEPPING
+    + add_homing[axis]
+    #endif
+    ;
     min_pos[axis] = base_min_pos(axis) + home_offset[axis];
     max_pos[axis] = base_max_pos(axis) + home_offset[axis];
 
@@ -2367,6 +2371,16 @@ inline void gcode_G28() {
     #endif // Z_HOME_DIR < 0
 
     sync_plan_position();
+
+    if(code_seen(axis_codes[Z_AXIS])) {
+      if(code_value_long() != 0) {
+        current_position[Z_AXIS]=code_value()
+        #ifndef BABYSTEPPING // will move to the given (EEPROM saved) babystepped Z height offset when homing but not recognize it
+        + add_homing[Z_AXIS]
+        #endif
+        ;
+      }
+    }
 
   #endif // else DELTA
 
