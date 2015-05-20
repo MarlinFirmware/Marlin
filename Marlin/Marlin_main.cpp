@@ -87,6 +87,7 @@
  * G2  - CW ARC
  * G3  - CCW ARC
  * G4  - Dwell S<seconds> or P<milliseconds>
+ * G5  - Babystep Movement X Y Z
  * G10 - retract filament according to settings of M207
  * G11 - retract recover filament according to settings of M208
  * G28 - Home one or more axes
@@ -1994,6 +1995,82 @@ inline void gcode_G4() {
     lcd_update();
   }
 }
+
+#ifdef BABYSTEPPING
+inline void gcode_G5() {
+  boolean endstop = false;
+  SERIAL_PROTOCOLPGM("Babystepped ");
+  unsigned short axis;
+  if(code_seen(axis_codes[Z_AXIS]))
+  {
+    SERIAL_PROTOCOLPGM("Z ");
+    axis = Z_AXIS;
+  }
+ #ifdef BABYSTEP_XY
+  else if(code_seen(axis_codes[X_AXIS]))
+  {
+    SERIAL_PROTOCOLPGM("X ");
+    axis = X_AXIS;
+  }
+  else if(code_seen(axis_codes[Y_AXIS]))
+  {
+    SERIAL_PROTOCOLPGM("Y ");
+    axis = Y_AXIS;
+  }
+ #endif //BABYSTEP_XY
+  else
+  {
+    SERIAL_PROTOCOLPGM("no distance (no axis given)\n");
+    break;
+  }
+  long babysteps = code_value();
+  if(babysteps < 0 && (current_position[axis] > baby_min_endstop[axis]))  // negative babysteps on Z can ignore min endstop, be careful!
+  {
+    SERIAL_PROTOCOLPGM("-= ");
+    if(current_position[axis] + babysteps/axis_steps_per_unit[axis] < baby_min_endstop[axis])
+    {
+      endstop = true;
+      babysteps = -1 * (current_position[axis] - baby_min_endstop[axis]) * axis_steps_per_unit[axis];
+    }
+    baby_max_endstop[axis] -= babysteps/axis_steps_per_unit[axis];
+    baby_min_endstop[axis] -= babysteps/axis_steps_per_unit[axis];
+    SERIAL_PROTOCOL_F(-1 * babysteps/axis_steps_per_unit[axis], 6);
+    babystepsTodo[axis] += babysteps;
+  }
+  else if(babysteps > 0 && current_position[axis] < baby_max_endstop[axis])
+  {
+    SERIAL_PROTOCOLPGM("+= ");
+    if(current_position[axis] + babysteps/axis_steps_per_unit[axis] > baby_max_endstop[axis])
+    {
+      endstop = true;
+      babysteps = (baby_max_endstop[axis] - current_position[axis]) * axis_steps_per_unit[axis];
+    }
+    baby_max_endstop[axis] -= babysteps/axis_steps_per_unit[axis];
+    baby_min_endstop[axis] -= babysteps/axis_steps_per_unit[axis];
+    SERIAL_PROTOCOL_F(babysteps/axis_steps_per_unit[axis], 6);
+    babystepsTodo[axis] += babysteps;
+  }
+  else
+  {
+    if((current_position[axis] == baby_min_endstop[axis] || current_position[axis] == baby_max_endstop[axis]) && babysteps != 0)
+      endstop = true;
+    SERIAL_PROTOCOL("= 0");
+  }
+  SERIAL_PROTOCOLPGM("mm\n");
+  if(endstop)
+  {
+    SERIAL_PROTOCOLPGM("BABY_ENDSTOP PREVENTED A COLLISION!!\n");
+    endstop = false;
+  }
+  if(current_position[axis] < baby_min_endstop[axis])
+  {
+    baby_min_endstop[axis] = current_position[axis];
+    baby_max_endstop[axis] += baby_min_endstop[axis];
+  }
+  if(axis == Z_AXIS) // will move to the given (EEPROM saved) babystepped Z height offset when homing but not recognize it
+    add_homing[axis] = Z_BABY_DEFAULT_MIN_POS - baby_min_endstop[axis];
+}
+#endif //BABYSTEPPING
 
 #ifdef FWRETRACT
 
@@ -5222,6 +5299,12 @@ void process_next_command() {
     case 4:
       gcode_G4();
       break;
+
+    #ifdef BABYSTEPPING
+    case 5:
+      gcode_G5();
+      break;
+    #endif //BABYSTEPPING
 
     #ifdef FWRETRACT
 
