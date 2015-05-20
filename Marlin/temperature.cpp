@@ -779,6 +779,27 @@ static float analog2tempBed(int raw) {
   #endif
 }
 
+#if MAX_THERMO_JUMP_AMOUNT > 0
+  static void check_max_thermo_jump(int8_t e) {
+    static bool init_jump[5] = {true, true, true, true, true};
+    static int last_temperature_raw[5] = { 0 };
+#ifdef HEATER_0_USES_MAX6675
+    if ((abs(((e < 0) ? current_temperature_bed_raw : current_temperature_raw[e]) - last_temperature_raw[e+1]) < (MAX_THERMO_JUMP_AMOUNT * ((e) ? OVERSAMPLENR : 1))) || init_jump[e+1]) {
+#else
+    if ((abs(((e < 0) ? current_temperature_bed_raw : current_temperature_raw[e]) - last_temperature_raw[e+1]) < MAX_THERMO_JUMP_AMOUNT * OVERSAMPLENR) || init_jump[e+1]) {
+#endif
+//      SERIAL_PROTOCOLPGM("jumptest: "); SERIAL_PROTOCOL(last_temperature_raw[e+1]); SERIAL_PROTOCOLPGM(":"); SERIAL_PROTOCOLLN(((e < 0) ? current_temperature_bed_raw : current_temperature_raw[e]));
+      last_temperature_raw[e+1] = ((e < 0) ? current_temperature_bed_raw : current_temperature_raw[e]);
+      init_jump[e+1] = false;
+      return;
+    }
+    else {
+//      SERIAL_PROTOCOLPGM("jumptest: "); SERIAL_PROTOCOL(last_temperature_raw[e+1]); SERIAL_PROTOCOLPGM(":"); SERIAL_PROTOCOLLN(((e < 0) ? current_temperature_bed_raw : current_temperature_raw[e]));
+      _temp_error(e, PSTR(MSG_T_JUMP), PSTR(MSG_ERR_THERMAL_JUMP));
+    }
+  }
+#endif
+
 /* Called to get the raw values into the the actual temperatures. The raw values are created in interrupt context,
     and this function is called from normal context as it is too slow to run in interrupts and will block the stepper routine otherwise */
 static void updateTemperaturesFromRawValues() {
@@ -789,6 +810,11 @@ static void updateTemperaturesFromRawValues() {
     current_temperature[e] = analog2temp(current_temperature_raw[e], e);
   }
   current_temperature_bed = analog2tempBed(current_temperature_bed_raw);
+  #if MAX_THERMO_JUMP_AMOUNT > 0
+    for (int8_t e = -1; e < EXTRUDERS; e++) {
+      check_max_thermo_jump(e);
+    }
+  #endif
   #ifdef TEMP_SENSOR_1_AS_REDUNDANT
     redundant_temperature = analog2temp(redundant_temperature_raw, 1);
   #endif

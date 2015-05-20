@@ -408,6 +408,9 @@
 #ifndef MSG_THERMAL_RUNAWAY
 #define MSG_THERMAL_RUNAWAY                 "THERMAL RUNAWAY"
 #endif
+#ifndef MSG_ERR_THERMAL_JUMP
+#define MSG_ERR_THERMAL_JUMP                "Err: THER. JUMP"
+#endif
 #ifndef MSG_ERR_MAXTEMP
 #define MSG_ERR_MAXTEMP                     "Err: MAXTEMP"
 #endif
