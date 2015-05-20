@@ -6373,11 +6373,15 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) {
   check_axes_activity();
 }
 
-void kill()
+void kill() {
+  LCD_ALERTMESSAGEPGM(MSG_KILLED);
+  kill_();
+}
+
+void kill_()
 {
   cli(); // Stop interrupts
   disable_all_heaters();
-
   disable_all_steppers();
 
   #if HAS_POWER_SWITCH
@@ -6386,7 +6390,6 @@ void kill()
 
   SERIAL_ERROR_START;
   SERIAL_ERRORLNPGM(MSG_ERR_KILLED);
-  LCD_ALERTMESSAGEPGM(MSG_KILLED);
   
   // FMC small patch to update the LCD before ending
   sei();   // enable interrupts
