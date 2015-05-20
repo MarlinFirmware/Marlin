@@ -457,9 +457,7 @@ inline void _temp_error(int e, const char *serial_msg, const char *lcd_msg) {
     #endif
   }
   #ifndef BOGUS_TEMPERATURE_FAILSAFE_OVERRIDE
-    disable_all_steppers();
-    Stop();
-    while (true) lcd_update();
+    kill_();
   #endif
 }
 
