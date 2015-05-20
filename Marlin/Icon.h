@@ -2,21 +2,10 @@
 #define ICON_H
 
 #include <stdint.h>
-
+#include "Element.h"
 
 namespace screen
 {
-	struct Size
-	{
-		Size(uint8_t width, uint8_t height)
-			: width(width)
-			, height(height)
-		{ };
-
-		uint8_t width;
-		uint8_t height;
-	};
-
 	class Icon 
 	{	
 		public:
