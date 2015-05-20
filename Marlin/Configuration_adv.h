@@ -36,6 +36,23 @@
   #define THERMAL_PROTECTION_BED_HYSTERESIS 2 // Degrees Celsius
 #endif
 
+/**
+ * When a heater is switched off the temperature still rises for a little time, than cools down.
+ * When a heater is switched on the temperature may fall for a little while until the heat reaches the thermometer - than rises.
+ * MAX_TEMP_OVESTOOT_TIME is the longest time a system will need to reach the temperature again, it had when switched On/Off ( in seconds )
+ * This is used to check if a heater is really switched On/Off and the temperature reacts accordingly.
+ * OVERSTOOT is usually much longer than UNDERSHOOT - hence the name here.
+ * Set to 0 to deactivate this test
+ * Because when the heater is Off the temperature can not fall below the ambient temperature, what can differ, we need a limit.
+ * Hence we don't check for falling temperatures below MAX_AMBIENT_TEMP (in degree Celsius).
+ * Default is 50°C. If you have a heat-chamber you probably have to rise this.
+ * To not produce false positives we need some margin for noise at the ADCs
+ * MAX_SENSOR_NOISE_C is the maximum difference of temperature readings when real temperature does not change (in degree Celsius).
+ */
+#define MAX_TEMP_OVERSTOOT_TIME 180
+#define MAX_AMBIENT_TEMP 50
+#define MAX_SENSOR_NOISE_C 2.0
+
 #ifdef PIDTEMP
   // this adds an experimental additional term to the heating power, proportional to the extrusion speed.
   // if Kc is chosen well, the additional required power due to increased melting should be compensated.
