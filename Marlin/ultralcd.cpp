@@ -63,6 +63,15 @@ static void lcd_status_screen();
   #endif
   static void lcd_sdcard_menu();
 
+static void lcd_sdcard_resume_menu();
+static void lcd_sdcard_print_menu();
+extern float planner_disabled_below_z;
+extern float last_z;
+extern bool z_reached;
+extern bool layer_reached;
+extern bool hops;
+extern bool gone_up;
+
   #ifdef DELTA_CALIBRATION_MENU
     static void lcd_delta_calibrate_menu();
   #endif
@@ -378,6 +387,7 @@ static void lcd_sdcard_stop() {
   autotempShutdown();
   cancel_heatup = true;
   lcd_setstatus(MSG_PRINT_ABORTED, true);
+  planner_disabled_below_z = 0;
 }
 
 /**
@@ -410,6 +420,9 @@ static void lcd_main_menu() {
         MENU_ITEM(function, MSG_STOP_PRINT, lcd_sdcard_stop);
       }
       else {
+        MENU_ITEM(submenu, MSG_CARD_MENU, lcd_sdcard_print_menu);
+        MENU_ITEM(submenu, MSG_CARD_RESUME_MENU, lcd_sdcard_resume_menu);
+
         MENU_ITEM(submenu, MSG_CARD_MENU, lcd_sdcard_menu);
         #if SDCARDDETECT < 1
           MENU_ITEM(gcode, MSG_CNG_SDCARD, PSTR("M21"));  // SD-card changed by user
@@ -1156,6 +1169,25 @@ static void lcd_control_volumetric_menu() {
 static void lcd_sd_updir() {
   card.updir();
   currentMenuViewOffset = 0;
+}
+
+// Print from SD
+void lcd_sdcard_print_menu()
+{
+    planner_disabled_below_z = 0;
+    lcd_sdcard_menu();
+}
+
+// Print from SD but set flag to ignore movements below a certain Z
+void lcd_sdcard_resume_menu()
+{
+    planner_disabled_below_z = current_position[Z_AXIS];
+    last_z = 0;
+    z_reached = false;
+    layer_reached = false;
+    hops = false;
+    gone_up = false;
+    lcd_sdcard_menu();
 }
 
 /**

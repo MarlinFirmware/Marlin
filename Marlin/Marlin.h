@@ -269,7 +269,10 @@ extern int extruder_multiply[EXTRUDERS]; // sets extrude multiply factor (in per
 extern float filament_size[EXTRUDERS]; // cross-sectional area of filament (in millimeters), typically around 1.75 or 2.85, 0 disables the volumetric calculations for the extruder.
 extern float volumetric_multiplier[EXTRUDERS]; // reciprocal of cross-sectional area of filament (in square millimeters), stored this way to reduce computational burden in planner
 extern float current_position[NUM_AXIS];
+extern unsigned long current_layer; // estimated current layer number
+extern float last_layer_z;
 extern float home_offset[3];
+extern float planner_disabled_below_z;
 
 #ifdef DELTA
   extern float endstop_adj[3];

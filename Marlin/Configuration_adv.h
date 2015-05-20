@@ -335,11 +335,17 @@
 // Babystepping enables the user to control the axis in tiny amounts, independently from the normal printing process
 // it can e.g. be used to change z-positions in the print startup phase in real-time
 // does not respect endstops!
-//#define BABYSTEPPING
+#define BABYSTEPPING
 #ifdef BABYSTEPPING
   #define BABYSTEP_XY  //not only z, but also XY in the menu. more clutter, more functions
   #define BABYSTEP_INVERT_Z false  //true for inverse movements in Z
   #define BABYSTEP_Z_MULTIPLICATOR 2 //faster z movements
+  #define X_BABY_DEFAULT_MAX_POS X_MAX_POS
+  #define Y_BABY_DEFAULT_MAX_POS Y_MAX_POS
+  #define Z_BABY_DEFAULT_MAX_POS Z_MAX_POS
+  #define X_BABY_DEFAULT_MIN_POS X_MIN_POS
+  #define Y_BABY_DEFAULT_MIN_POS Y_MIN_POS
+  #define Z_BABY_DEFAULT_MIN_POS Z_MIN_POS-10 //be careful, min hardware & software endstops are ignored/extended
 #endif
 
 // @section extruder
