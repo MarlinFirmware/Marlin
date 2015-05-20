@@ -221,6 +221,7 @@ void ok_to_send();
 void reset_bed_level();
 void prepare_move();
 void kill();
+void kill_();
 void Stop();
 
 #ifdef FILAMENT_RUNOUT_SENSOR
