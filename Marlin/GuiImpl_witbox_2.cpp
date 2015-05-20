@@ -13,51 +13,52 @@
 
 namespace screen
 {
+	Size icon_size = Size(icon_width, icon_height);
 	///////////////////////
 	// Instantiate Icons //
 	///////////////////////
-	Icon icon_nosd_normal                = Icon(Icon::NORMAL, icon_width, icon_height, bits_nosd_normal);
-	Icon icon_nosd_selected              = Icon(Icon::SELECTED, icon_width, icon_height, bits_nosd_selected);
-	Icon icon_sd_normal                  = Icon(Icon::NORMAL, icon_width, icon_height, bits_sd_normal);
-	Icon icon_sd_selected                = Icon(Icon::SELECTED, icon_width, icon_height, bits_sd_selected);
-	Icon icon_filament_unload_normal     = Icon(Icon::NORMAL, icon_width, icon_height, bits_filament_unload_normal);
-	Icon icon_filament_unload_selected   = Icon(Icon::SELECTED, icon_width, icon_height, bits_filament_unload_selected);
-	Icon icon_filament_load_normal       = Icon(Icon::NORMAL, icon_width, icon_height, bits_filament_load_normal);
-	Icon icon_filament_load_selected     = Icon(Icon::SELECTED, icon_width, icon_height, bits_filament_load_selected);
-	Icon icon_leveling_normal            = Icon(Icon::NORMAL, icon_width, icon_height, bits_leveling_normal);
-	Icon icon_leveling_selected          = Icon(Icon::SELECTED, icon_width, icon_height, bits_leveling_selected);
-	Icon icon_homing_normal              = Icon(Icon::NORMAL, icon_width, icon_height, bits_homing_normal);
-	Icon icon_homing_selected            = Icon(Icon::SELECTED, icon_width, icon_height, bits_homing_selected);
-	Icon icon_steppers_normal            = Icon(Icon::NORMAL, icon_width, icon_height, bits_steppers_normal);
-	Icon icon_steppers_selected          = Icon(Icon::SELECTED, icon_width, icon_height, bits_steppers_selected);
-	Icon icon_steppers_off_normal        = Icon(Icon::NORMAL, icon_width, icon_height, bits_steppers_off_normal);
-	Icon icon_steppers_off_selected      = Icon(Icon::SELECTED, icon_width, icon_height, bits_steppers_off_selected);
-	Icon icon_moveaxis_normal            = Icon(Icon::NORMAL, icon_width, icon_height, bits_moveaxis_normal);
-	Icon icon_moveaxis_selected          = Icon(Icon::SELECTED, icon_width, icon_height, bits_moveaxis_selected);
-	Icon icon_temperature_normal         = Icon(Icon::NORMAL, icon_width, icon_height, bits_temperature_normal);
-	Icon icon_temperature_selected       = Icon(Icon::SELECTED, icon_width, icon_height, bits_temperature_selected);
-	Icon icon_lightled_disable_normal    = Icon(Icon::NORMAL, icon_width, icon_height, bits_lightled_disable_normal);
-	Icon icon_lightled_disable_selected  = Icon(Icon::SELECTED, icon_width, icon_height, bits_lightled_disable_selected);
-	Icon icon_lightled_normal            = Icon(Icon::NORMAL, icon_width, icon_height, bits_lightled_normal);
-	Icon icon_lightled_selected          = Icon(Icon::SELECTED, icon_width, icon_height, bits_lightled_selected);
-	Icon icon_info_normal                = Icon(Icon::NORMAL, icon_width, icon_height, bits_info_normal);
-	Icon icon_info_selected              = Icon(Icon::SELECTED, icon_width, icon_height, bits_info_selected);
-	Icon icon_play_normal                = Icon(Icon::NORMAL, icon_width, icon_height, bits_play_normal);
-	Icon icon_play_selected              = Icon(Icon::SELECTED, icon_width, icon_height, bits_play_selected);
-	Icon icon_pause_normal               = Icon(Icon::NORMAL, icon_width, icon_height, bits_pause_normal);
-	Icon icon_pause_selected             = Icon(Icon::SELECTED, icon_width, icon_height, bits_pause_selected);
-	Icon icon_stop_normal                = Icon(Icon::NORMAL, icon_width, icon_height, bits_stop_normal);
-	Icon icon_stop_selected              = Icon(Icon::SELECTED, icon_width, icon_height, bits_stop_selected);
-	Icon icon_change_filament_normal     = Icon(Icon::NORMAL, icon_width, icon_height, bits_change_filament_normal);
-	Icon icon_change_filament_selected   = Icon(Icon::SELECTED, icon_width, icon_height, bits_change_filament_selected);
-	Icon icon_change_speed_normal        = Icon(Icon::NORMAL, icon_width, icon_height, bits_change_speed_normal);
-	Icon icon_change_speed_selected      = Icon(Icon::SELECTED, icon_width, icon_height, bits_change_speed_selected);
-	Icon icon_back_normal                = Icon(Icon::NORMAL, icon_width, icon_height, bits_back_normal);
-	Icon icon_back_selected              = Icon(Icon::SELECTED, icon_width, icon_height, bits_back_selected);
-	Icon icon_retry_normal               = Icon(Icon::NORMAL, icon_width, icon_height, bits_retry_normal);
-	Icon icon_retry_selected             = Icon(Icon::SELECTED, icon_width, icon_height, bits_retry_selected);
-	Icon icon_ok_normal                  = Icon(Icon::NORMAL, icon_width, icon_height, bits_ok_normal);
-	Icon icon_ok_selected                = Icon(Icon::SELECTED, icon_width, icon_height, bits_ok_selected);
+	Icon icon_nosd_normal                = Icon(Icon::NORMAL, icon_size, bits_nosd_normal);
+	Icon icon_nosd_selected              = Icon(Icon::SELECTED, icon_size, bits_nosd_selected);
+	Icon icon_sd_normal                  = Icon(Icon::NORMAL, icon_size, bits_sd_normal);
+	Icon icon_sd_selected                = Icon(Icon::SELECTED, icon_size, bits_sd_selected);
+	Icon icon_filament_unload_normal     = Icon(Icon::NORMAL, icon_size, bits_filament_unload_normal);
+	Icon icon_filament_unload_selected   = Icon(Icon::SELECTED, icon_size, bits_filament_unload_selected);
+	Icon icon_filament_load_normal       = Icon(Icon::NORMAL, icon_size, bits_filament_load_normal);
+	Icon icon_filament_load_selected     = Icon(Icon::SELECTED, icon_size, bits_filament_load_selected);
+	Icon icon_leveling_normal            = Icon(Icon::NORMAL, icon_size, bits_leveling_normal);
+	Icon icon_leveling_selected          = Icon(Icon::SELECTED, icon_size, bits_leveling_selected);
+	Icon icon_homing_normal              = Icon(Icon::NORMAL, icon_size, bits_homing_normal);
+	Icon icon_homing_selected            = Icon(Icon::SELECTED, icon_size, bits_homing_selected);
+	Icon icon_steppers_normal            = Icon(Icon::NORMAL, icon_size, bits_steppers_normal);
+	Icon icon_steppers_selected          = Icon(Icon::SELECTED, icon_size, bits_steppers_selected);
+	Icon icon_steppers_off_normal        = Icon(Icon::NORMAL, icon_size, bits_steppers_off_normal);
+	Icon icon_steppers_off_selected      = Icon(Icon::SELECTED, icon_size, bits_steppers_off_selected);
+	Icon icon_moveaxis_normal            = Icon(Icon::NORMAL, icon_size, bits_moveaxis_normal);
+	Icon icon_moveaxis_selected          = Icon(Icon::SELECTED, icon_size, bits_moveaxis_selected);
+	Icon icon_temperature_normal         = Icon(Icon::NORMAL, icon_size, bits_temperature_normal);
+	Icon icon_temperature_selected       = Icon(Icon::SELECTED, icon_size, bits_temperature_selected);
+	Icon icon_lightled_disable_normal    = Icon(Icon::NORMAL, icon_size, bits_lightled_disable_normal);
+	Icon icon_lightled_disable_selected  = Icon(Icon::SELECTED, icon_size, bits_lightled_disable_selected);
+	Icon icon_lightled_normal            = Icon(Icon::NORMAL, icon_size, bits_lightled_normal);
+	Icon icon_lightled_selected          = Icon(Icon::SELECTED, icon_size, bits_lightled_selected);
+	Icon icon_info_normal                = Icon(Icon::NORMAL, icon_size, bits_info_normal);
+	Icon icon_info_selected              = Icon(Icon::SELECTED, icon_size, bits_info_selected);
+	Icon icon_play_normal                = Icon(Icon::NORMAL, icon_size, bits_play_normal);
+	Icon icon_play_selected              = Icon(Icon::SELECTED, icon_size, bits_play_selected);
+	Icon icon_pause_normal               = Icon(Icon::NORMAL, icon_size, bits_pause_normal);
+	Icon icon_pause_selected             = Icon(Icon::SELECTED, icon_size, bits_pause_selected);
+	Icon icon_stop_normal                = Icon(Icon::NORMAL, icon_size, bits_stop_normal);
+	Icon icon_stop_selected              = Icon(Icon::SELECTED, icon_size, bits_stop_selected);
+	Icon icon_change_filament_normal     = Icon(Icon::NORMAL, icon_size, bits_change_filament_normal);
+	Icon icon_change_filament_selected   = Icon(Icon::SELECTED, icon_size, bits_change_filament_selected);
+	Icon icon_change_speed_normal        = Icon(Icon::NORMAL, icon_size, bits_change_speed_normal);
+	Icon icon_change_speed_selected      = Icon(Icon::SELECTED, icon_size, bits_change_speed_selected);
+	Icon icon_back_normal                = Icon(Icon::NORMAL, icon_size, bits_back_normal);
+	Icon icon_back_selected              = Icon(Icon::SELECTED, icon_size, bits_back_selected);
+	Icon icon_retry_normal               = Icon(Icon::NORMAL, icon_size, bits_retry_normal);
+	Icon icon_retry_selected             = Icon(Icon::SELECTED, icon_size, bits_retry_selected);
+	Icon icon_ok_normal                  = Icon(Icon::NORMAL, icon_size, bits_ok_normal);
+	Icon icon_ok_selected                = Icon(Icon::SELECTED, icon_size, bits_ok_selected);
 
 
 	/////////////////////////

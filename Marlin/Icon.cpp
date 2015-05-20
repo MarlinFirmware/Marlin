@@ -3,10 +3,9 @@
 
 namespace screen
 {
-	Icon::Icon (IconType_t const & type, uint8_t width, uint8_t height, const unsigned char* bitmap)
+	Icon::Icon (IconType_t const & type, Size const & size, const unsigned char* bitmap)
 		: m_type(type)
-		, m_width(width)
-		, m_height(height)
+		, m_size(size)
 		, m_bitmap(bitmap)
 	{ }
 
@@ -20,16 +19,16 @@ namespace screen
 
 	uint8_t const & Icon::width() const
 	{
-		return m_width;
+		return m_size.width;
 	}
 
 	uint8_t const & Icon::height() const
 	{
-		return m_height;
+		return m_size.height;
 	}
 
 	void Icon::draw(uint8_t x, uint8_t y)
 	{
-		painter.icon(x, y, m_width, m_height, m_bitmap);
+		painter.icon(x, y, m_size.width, m_size.height, m_bitmap);
 	}
 }

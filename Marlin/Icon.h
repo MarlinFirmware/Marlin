@@ -6,6 +6,17 @@
 
 namespace screen
 {
+	struct Size
+	{
+		Size(uint8_t width, uint8_t height)
+			: width(width)
+			, height(height)
+		{ };
+
+		uint8_t width;
+		uint8_t height;
+	};
+
 	class Icon 
 	{	
 		public:
@@ -16,7 +27,7 @@ namespace screen
 			} IconType_t;
 
 		public:
-			Icon(IconType_t const & type, uint8_t width, uint8_t height, const unsigned char* bitmap);
+			Icon(IconType_t const & type, Size const & size, const unsigned char* bitmap);
 			~Icon();
 
 			IconType_t const & type() const;
@@ -26,8 +37,7 @@ namespace screen
 
 		protected:
 			IconType_t m_type;
-			uint8_t m_width;
-			uint8_t m_height;
+			Size m_size;
 			const unsigned char* m_bitmap;
 	};
 }
