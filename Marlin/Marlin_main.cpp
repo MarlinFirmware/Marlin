@@ -1061,7 +1061,7 @@ static void axis_is_at_home(AxisEnum axis) {
   {
     current_position[axis] = base_home_pos(axis)
     #ifndef BABYSTEPPING
-    + add_homing[axis]
+    + home_offset[axis]
     #endif
     ;
     min_pos[axis] = base_min_pos(axis) + home_offset[axis];
@@ -2376,7 +2376,7 @@ inline void gcode_G28() {
       if(code_value_long() != 0) {
         current_position[Z_AXIS]=code_value()
         #ifndef BABYSTEPPING // will move to the given (EEPROM saved) babystepped Z height offset when homing but not recognize it
-        + add_homing[Z_AXIS]
+        + home_offset[Z_AXIS]
         #endif
         ;
       }
