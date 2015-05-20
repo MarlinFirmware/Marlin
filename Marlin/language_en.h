@@ -315,6 +315,9 @@
 #ifndef MSG_PAUSE_PRINT
 #define MSG_PAUSE_PRINT                     "Pause print"
 #endif
+#ifndef
+#define MSG_CARD_RESUME_MENU                "Resume SD from Z"
+#endif
 #ifndef MSG_RESUME_PRINT
 #define MSG_RESUME_PRINT                    "Resume print"
 #endif
