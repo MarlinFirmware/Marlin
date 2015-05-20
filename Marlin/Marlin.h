@@ -113,7 +113,6 @@ FORCE_INLINE void serialprintPGM(const char *str) {
 }
 
 void get_command();
-void process_commands();
 
 void manage_inactivity(bool ignore_stepper_queue=false);
 
@@ -207,7 +206,6 @@ void disable_all_steppers();
 void FlushSerialRequestResend();
 void ok_to_send();
 
-void get_coordinates();
 #ifdef DELTA
   void calculate_delta(float cartesian[3]);
   #ifdef ENABLE_AUTO_BED_LEVELING
@@ -222,7 +220,7 @@ void get_coordinates();
 #endif
 void reset_bed_level();
 void prepare_move();
-void kill();
+void kill(const char *);
 void Stop();
 
 #ifdef FILAMENT_RUNOUT_SENSOR
