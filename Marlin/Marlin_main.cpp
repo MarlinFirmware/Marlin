@@ -1060,7 +1060,7 @@ static void axis_is_at_home(AxisEnum axis) {
   #endif
   {
     current_position[axis] = base_home_pos(axis)
-    #ifndef BABYSTEPPING
+    #ifndef BABYSTEP_OFFSET
     + home_offset[axis]
     #endif
     ;
@@ -1718,7 +1718,7 @@ static void homeaxis(AxisEnum axis) {
       }
     #endif
 
-    #ifdef BABYSTEPPING
+    #ifdef BABYSTEP_OFFSET
     if(axis == X_AXIS)
     {
       baby_max_endstop[axis] = X_BABY_DEFAULT_MAX_POS;
@@ -1736,7 +1736,7 @@ static void homeaxis(AxisEnum axis) {
       baby_min_endstop[axis] = Z_BABY_DEFAULT_MIN_POS;
     }
     #endif //BABYSTEP_XY
-    #endif //BABYSTEPPING
+    #endif //BABYSTEP_OFFSET
 
   }
 }
@@ -2094,8 +2094,10 @@ inline void gcode_G5() {
     baby_min_endstop[axis] = current_position[axis];
     baby_max_endstop[axis] += baby_min_endstop[axis];
   }
+  #ifdef BABYSTEP_OFFSET
   if(axis == Z_AXIS) // will move to the given (EEPROM saved) babystepped Z height offset when homing but not recognize it
     home_offset[axis] = Z_BABY_DEFAULT_MIN_POS - baby_min_endstop[axis];
+  #endif //BABYSTEP_OFFSET
 }
 #endif //BABYSTEPPING
 
