@@ -14,11 +14,6 @@ namespace screen
 			void left();
 			void right();
 			void draw();
-			Screen & press(Screen * parent_view);
-			void add(Screen & component);
-
-		private:
-			Screen * m_next_screen;
 	};
 }
 

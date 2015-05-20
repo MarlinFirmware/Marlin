@@ -24,14 +24,4 @@ namespace screen
 		SERIAL_ECHO("DRAW: ");
 		SERIAL_ECHOLN(m_title);
 	}
-
-	Screen & ScreenDialog::press(Screen * parent_view)
-	{
-		return * m_next_screen;
-	}
-
-	void ScreenDialog::add(Screen & component)
-	{
-		m_next_screen = &component;
-	}
 }

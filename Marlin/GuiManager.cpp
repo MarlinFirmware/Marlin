@@ -15,6 +15,15 @@
 void draw_status_screen(){};
 void draw_wizard_change_filament(){};
 
+// Configuration settings
+int plaPreheatHotendTemp;
+int plaPreheatHPBTemp;
+int plaPreheatFanSpeed;
+int absPreheatHotendTemp;
+int absPreheatHPBTemp;
+int absPreheatFanSpeed;
+
+
 screen::Screen * active_view;
 
 /*******************************************************************************
@@ -24,24 +33,7 @@ screen::Screen * active_view;
 // Extern variables
 extern bool stop_buffer;
 extern int stop_buffer_code;
-
-// Configuration settings
-// TODO : Review & delete if possible
-int plaPreheatHotendTemp;
-int plaPreheatHPBTemp;
-int plaPreheatFanSpeed;
-
-int absPreheatHotendTemp;
-int absPreheatHPBTemp;
-int absPreheatFanSpeed;
-
 uint8_t prev_encoder_position;
-
-//Filament loading/unloading
-const uint8_t NORMAL = 0;
-const uint8_t LOADING = 1;
-const uint8_t UNLOADING = 2;
-uint8_t filamentStatus = NORMAL;
 
 
 // Display related variables

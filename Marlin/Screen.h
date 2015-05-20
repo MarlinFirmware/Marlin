@@ -21,6 +21,7 @@ namespace screen
 			typedef enum
 			{
 				SIMPLE = 0, 
+				ACTION,
 				MENU,
 				PRINT,
 				DIALOG,
@@ -40,15 +41,16 @@ namespace screen
 
 			virtual void left() {};
 			virtual void right() {};
-			virtual Screen & press(Screen * parent_view) {return * parent_view;};
+			virtual Screen & press(Screen * parent_view) {return * m_next_screen;};
 			virtual void draw() {};
-			virtual void add(Screen & component) {};
+			virtual void add(Screen & component) {m_next_screen = &component;};
 			virtual void action() {m_function();};
 
 		protected:
 			ScreenType_t m_type;
 			uint16_t m_num_icons;
 			const char * m_title;
+         Screen * m_next_screen;
 			Icon * m_icons[max_icons];
 			FuncPtr_t m_function;
 	};
