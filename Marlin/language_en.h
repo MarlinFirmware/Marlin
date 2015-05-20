@@ -165,7 +165,7 @@
 #ifndef MSG_F3
 #define MSG_F3                              " 3"
 #endif
-#ifndef
+#ifndef MSG_LAYER
 #define MSG_LAYER                           "Layer"
 #endif
 #ifndef MSG_CONTROL
@@ -315,7 +315,7 @@
 #ifndef MSG_PAUSE_PRINT
 #define MSG_PAUSE_PRINT                     "Pause print"
 #endif
-#ifndef
+#ifndef MSG_CARD_RESUME_MENU
 #define MSG_CARD_RESUME_MENU                "Resume SD from Z"
 #endif
 #ifndef MSG_RESUME_PRINT
