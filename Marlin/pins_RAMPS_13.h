@@ -180,6 +180,17 @@
       #define BTN_ENC -1
       #define LCD_SDSS 53
       #define SDCARDDETECT 49
+    #elif defined(ELB_FULL_GRAPHIC_CONTROLLER)
+      #define BTN_EN1 35  // reverse if the encoder turns the wrong way.
+      #define BTN_EN2 37
+      #define BTN_ENC 31
+      #define SDCARDDETECT 49
+      #define LCD_SDSS 53
+      #define KILL_PIN 41
+      #define BEEPER 23
+      #define DOGLCD_CS 29
+      #define DOGLCD_A0 27
+      #define LCD_PIN_BL 33
     #else
       // arduino pin which triggers an piezzo beeper
       #define BEEPER 33  // Beeper on AUX-4
@@ -209,7 +220,6 @@
       #endif
 
     #endif
-
   #else // Old-style panel with shift register
     // Arduino pin witch triggers an piezzo beeper
     #define BEEPER 33   // No Beeper added
