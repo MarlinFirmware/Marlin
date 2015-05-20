@@ -513,6 +513,9 @@ static void lcd_tune_menu() {
     MENU_ITEM_EDIT(int3, MSG_FLOW MSG_F3, &extruder_multiply[3], 10, 999);
   #endif
 
+    unsigned long layer = current_layer;
+    MENU_ITEM_EDIT(long5, MSG_LAYER, &layer, layer, layer);
+
   #ifdef BABYSTEPPING
     #ifdef BABYSTEP_XY
       MENU_ITEM(submenu, MSG_BABYSTEP_X, lcd_babystep_x);
