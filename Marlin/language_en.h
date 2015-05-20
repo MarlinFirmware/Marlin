@@ -165,6 +165,9 @@
 #ifndef MSG_F3
 #define MSG_F3                              " 3"
 #endif
+#ifndef
+#define MSG_LAYER                           "Layer"
+#endif
 #ifndef MSG_CONTROL
 #define MSG_CONTROL                         "Control"
 #endif
