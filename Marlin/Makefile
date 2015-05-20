@@ -99,12 +99,6 @@ else ifeq  ($(HARDWARE_MOTHERBOARD),34)
 HARDWARE_VARIANT ?= arduino
 MCU              ?= atmega2560
 
-#Duemilanove w/ ATMega328P pin assignment
-else ifeq  ($(HARDWARE_MOTHERBOARD),4)
-HARDWARE_VARIANT ?= arduino
-HARDWARE_SUB_VARIANT ?= standard
-MCU              ?= atmega328p
-
 #Gen6
 else ifeq  ($(HARDWARE_MOTHERBOARD),5)
 HARDWARE_VARIANT ?= Gen6
