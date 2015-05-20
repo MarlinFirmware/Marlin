@@ -2372,6 +2372,11 @@ inline void gcode_G28() {
   feedrate_multiplier = saved_feedrate_multiplier;
   refresh_cmd_timeout();
   endstops_hit_on_purpose(); // clear endstop hit flags
+  #ifdef BABYSTEPPING
+  baby_max_endstop[Z_AXIS] -= add_homing[Z_AXIS];
+  baby_min_endstop[Z_AXIS] -= add_homing[Z_AXIS];
+  babystepsTodo[Z_AXIS] += add_homing[Z_AXIS]*axis_steps_per_unit[Z_AXIS];
+  #endif
 }
 
 #ifdef MESH_BED_LEVELING
