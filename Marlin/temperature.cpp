@@ -1004,10 +1004,9 @@ void tp_init() {
    * This is called when the temperature is set. (M104, M109)
    */
   void start_watching_heater(int e) {
-    millis_t ms = millis() + WATCH_TEMP_PERIOD * 1000;
     if (degHotend(e) < degTargetHotend(e) - (WATCH_TEMP_INCREASE + TEMP_HYSTERESIS + 1)) {
       watch_target_temp[e] = degHotend(e) + WATCH_TEMP_INCREASE;
-      watch_heater_next_ms[e] = ms;
+      watch_heater_next_ms[e] = millis() + WATCH_TEMP_PERIOD * 1000;;
     }
     else
       watch_heater_next_ms[e] = 0;
