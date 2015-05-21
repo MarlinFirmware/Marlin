@@ -96,9 +96,13 @@ FORCE_INLINE float degBed() { return current_temperature_bed; }
 FORCE_INLINE float degTargetHotend(uint8_t extruder) { return target_temperature[extruder]; }
 FORCE_INLINE float degTargetBed() { return target_temperature_bed; }
 
+#ifdef THERMAL_PROTECTION_HOTENDS
+  void start_watching_heater(int e=0);
+#endif
+
 FORCE_INLINE void setTargetHotend(const float &celsius, uint8_t extruder) {
   target_temperature[extruder] = celsius;
-  #ifdef WATCH_TEMP_PERIOD
+  #ifdef THERMAL_PROTECTION_HOTENDS
     start_watching_heater(extruder);
   #endif
 }
@@ -141,10 +145,6 @@ void PID_autotune(float temp, int extruder, int ncycles);
 
 void setExtruderAutoFanState(int pin, bool state);
 void checkExtruderAutoFans();
-
-#ifdef THERMAL_PROTECTION_HOTENDS
-  void start_watching_heater(int e=0);
-#endif
 
 FORCE_INLINE void autotempShutdown() {
   #ifdef AUTOTEMP
