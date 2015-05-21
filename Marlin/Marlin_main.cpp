@@ -2415,7 +2415,7 @@ inline void gcode_G28() {
   feedrate_multiplier = saved_feedrate_multiplier;
   refresh_cmd_timeout();
   endstops_hit_on_purpose(); // clear endstop hit flags
-  #ifdef BABYSTEPPING
+  #ifdef BABYSTEP_OFFSET
   baby_max_endstop[Z_AXIS] -= home_offset[Z_AXIS];
   baby_min_endstop[Z_AXIS] -= home_offset[Z_AXIS];
   babystepsTodo[Z_AXIS] += home_offset[Z_AXIS]*axis_steps_per_unit[Z_AXIS];
