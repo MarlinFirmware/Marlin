@@ -272,7 +272,7 @@ extern float current_position[NUM_AXIS];
 extern unsigned long current_layer; // estimated current layer number
 extern float last_layer_z;
 #if EXTRUDERS > 1
-extern float extruder_offset[2][EXTRUDERS];
+extern float extruder_offset[EXTRUDERS][EXTRUDERS];
 #endif
 extern float home_offset[3];
 extern float planner_disabled_below_z;
