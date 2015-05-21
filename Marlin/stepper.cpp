@@ -571,7 +571,7 @@ ISR(TIMER1_COMPA_vect) {
               endstops_trigsteps[Z_AXIS] = count_position[Z_AXIS];
               endstop_hit_bits |= BIT(Z_MIN);
               if (!performing_homing || (performing_homing && !((~z_test) & 0x3)))  //if not performing home or if both endstops were trigged during homing...
-                step_events_completed = current_block->step_event_count;            //!((~z_test) & 0x3) = !Z_MIN && !Z2_MIN
+                step_events_completed = current_block->step_event_count;            //!((~z_test) & 0x3) = Z_MIN && Z2_MIN
             }
           #else // !Z_DUAL_ENDSTOPS
 
@@ -608,7 +608,7 @@ ISR(TIMER1_COMPA_vect) {
               endstops_trigsteps[Z_AXIS] = count_position[Z_AXIS];
               endstop_hit_bits |= BIT(Z_MIN);
               if (!performing_homing || (performing_homing && !((~z_test) & 0x3)))  //if not performing home or if both endstops were trigged during homing...
-                step_events_completed = current_block->step_event_count;            //!((~z_test) & 0x3) = !Z_MAX && !Z2_MAX
+                step_events_completed = current_block->step_event_count;            //!((~z_test) & 0x3) = Z_MAX && Z2_MAX
             }
 
           #else // !Z_DUAL_ENDSTOPS
