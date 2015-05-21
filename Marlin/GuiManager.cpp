@@ -55,6 +55,8 @@ bool    encoder_input_blocked;
 bool    encoder_input_updated;
 
 int16_t encoder_position;
+bool    encoder_left_triggered;
+bool    encoder_right_triggered;
 
 
 // Button related variables
@@ -165,11 +167,6 @@ static void lcd_update_button()
     bool button_clicked = ((button_input & EN_C) && (~(button_input_last) & EN_C));
     bool button_pressed = ((button_input & EN_C) && (button_input_last & EN_C));
 
-    if (button_clicked == true)
-    {
-        active_view = &active_view->press(active_view);
-    }
-
     if (button_pressed == true) {
         button_pressed_count++;        
     } else { 
@@ -209,20 +206,10 @@ static void lcd_update_encoder()
             if ( (encoder_input_last & (EN_A | EN_B)) == encrot3 )
             {
                 encoder_position++;
-                if (encoder_position/ENCODER_STEPS_PER_MENU_ITEM>=1)
-                {
-                    active_view->right();
-                    encoder_position = 0;
-                }
             }
             else if ( (encoder_input_last & (EN_A | EN_B)) == encrot1 )
             {
                 encoder_position--;
-                if (encoder_position/ENCODER_STEPS_PER_MENU_ITEM<=-1)
-                {
-                    active_view->left();
-                    encoder_position = 0;
-                }
             }
             break;
         
@@ -230,20 +217,10 @@ static void lcd_update_encoder()
             if ( (encoder_input_last & (EN_A | EN_B)) == encrot0 )
             {
                 encoder_position++;
-                if (encoder_position/ENCODER_STEPS_PER_MENU_ITEM>=1)
-                {
-                    active_view->right();
-                    encoder_position = 0;
-                }
             }
             else if ( (encoder_input_last & (EN_A | EN_B)) == encrot2 )
             {
                 encoder_position--;
-                if (encoder_position/ENCODER_STEPS_PER_MENU_ITEM<=-1)
-                {
-                    active_view->left();
-                    encoder_position = 0;
-                }
             }
             break;
         
@@ -251,20 +228,10 @@ static void lcd_update_encoder()
             if ( (encoder_input_last & (EN_A | EN_B)) == encrot1 )
             {
                 encoder_position++;
-                if (encoder_position/ENCODER_STEPS_PER_MENU_ITEM>=1)
-                {
-                    active_view->right();
-                    encoder_position = 0;
-                }
             }
             else if ( (encoder_input_last & (EN_A | EN_B)) == encrot3 )
             {
                 encoder_position--;
-                if (encoder_position/ENCODER_STEPS_PER_MENU_ITEM<=-1)
-                {
-                    active_view->left();
-                    encoder_position = 0;
-                }
             }
             break;
         
@@ -272,22 +239,24 @@ static void lcd_update_encoder()
             if ( (encoder_input_last & (EN_A | EN_B)) == encrot2 )
             {
                 encoder_position++;
-                if (encoder_position/ENCODER_STEPS_PER_MENU_ITEM>=1)
-                {
-                    active_view->right();
-                    encoder_position = 0;
-                }
             }
             else if ( (encoder_input_last & (EN_A | EN_B)) == encrot0 )
             {
                 encoder_position--;
-                if (encoder_position/ENCODER_STEPS_PER_MENU_ITEM<=-1)
-                {
-                    active_view->left();
-                    encoder_position = 0;
-                }
             }
             break;
+        }
+
+        // Check if the menu item must be change
+        if (encoder_position/ENCODER_STEPS_PER_MENU_ITEM >= 1)
+        {
+            encoder_right_triggered = true;
+            encoder_position = 0;
+        }
+        else if (encoder_position/ENCODER_STEPS_PER_MENU_ITEM<=-1)
+        {
+            encoder_left_triggered = true;
+            encoder_position = 0;
         }
 
         encoder_input_updated = true;
@@ -324,20 +293,37 @@ void lcd_update(bool force)
 
     //if (display_timeout < millis())
     //    lcd_set_status_screen();
-    if (display_view != display_view_next) {
-        display_refresh_mode = CLEAR_AND_UPDATE_SCREEN;
-        lcd_clear_triggered_flags();
+
+    // Check the events triggered in ISR (Timer 5 Overflow)
+    if (lcd_get_encoder_right())
+    {
+        active_view->right();
     }
 
-    display_view = display_view_next;
-    if ( (IS_SD_PRINTING == true) && (!force) ) {
-        if (refresh_interval < millis()) {
-            active_view->draw();
-            refresh_interval = millis() + LCD_REFRESH_LIMIT;
-        }
-    } else {
-        active_view->draw();
+    if (lcd_get_encoder_left())
+    {
+        active_view->left();
     }
+
+    if (lcd_get_button_clicked())
+    {
+        active_view = &active_view->press(active_view);
+    }
+
+    // if (display_view != display_view_next) {
+    //    display_refresh_mode = CLEAR_AND_UPDATE_SCREEN;
+    //    lcd_clear_triggered_flags();
+    // }
+
+    // display_view = display_view_next;
+    // if ( (IS_SD_PRINTING == true) && (!force) ) {
+    //    if (refresh_interval < millis()) {
+    //        active_view->draw();
+    //        refresh_interval = millis() + LCD_REFRESH_LIMIT;
+    //    }
+    //} else {
+        active_view->draw();
+    //}
 }
 
 void lcd_set_menu(view_t menu)
@@ -364,7 +350,8 @@ void lcd_set_wizard(view_t wizard)
 }
 
 // Get and clear trigger functions
-bool lcd_get_button_updated() {
+bool lcd_get_button_updated()
+{
     bool status = button_input_updated;
     button_input_updated = false;
     return status;
@@ -376,15 +363,30 @@ bool lcd_get_encoder_updated()
     encoder_input_updated = false;
     return status;
 }
-bool lcd_get_button_clicked(){
+bool lcd_get_button_clicked()
+{
     bool status = button_clicked_triggered;
     button_clicked_triggered = false;
+    return status;
+}
+bool lcd_get_encoder_right()
+{
+    bool status = encoder_right_triggered;
+    encoder_right_triggered = false;
+    return status;
+}
+bool lcd_get_encoder_left()
+{
+    bool status = encoder_left_triggered;
+    encoder_left_triggered = false;
     return status;
 }
 void lcd_clear_triggered_flags() {
     button_input_updated = false;
     encoder_input_updated = false;
     button_clicked_triggered = false;
+    encoder_right_triggered = false;
+    encoder_left_triggered = false;
 }
 
 
