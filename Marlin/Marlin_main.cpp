@@ -120,6 +120,7 @@
  *        syntax "M32 /path/filename#", or "M32 S<startpos bytes> !filename#"
  *        Call gcode file : "M32 P !filename#" and return to caller file after finishing (similar to #include).
  *        The '#' is necessary when calling from within sd files, as it stops buffer prereading
+ * M33  - Get the longname version of a path
  * M42  - Change pin status via gcode Use M42 Px Sy to set pin x to value y, when omitting Px the onboard led will be used.
  * M48  - Measure Z_Probe repeatability. M48 [P # of points] [X position] [Y position] [V_erboseness #] [E_ngage Probe] [L # of legs of travel]
  * M80  - Turn on Power Supply
@@ -3039,6 +3040,29 @@ inline void gcode_M31() {
     }
   }
 
+  #ifdef LONG_FILENAME_HOST_SUPPORT
+
+    /**
+     * M33: Get the long full path of a file or folder
+     *
+     * Parameters:
+     *   <dospath> Case-insensitive DOS-style path to a file or folder
+     *
+     * Example:
+     *   M33 miscel~1/armchair/armcha~1.gco
+     *
+     * Output:
+     *   /Miscellaneous/Armchair/Armchair.gcode
+     */
+    inline void gcode_M33() {
+      char *args = strchr_pointer + 4;
+      while (*args == ' ') ++args;
+      clear_asterisk(args);
+      card.printLongPath(args);
+    }
+
+  #endif
+
   /**
    * M928: Start SD Write
    */
@@ -5313,6 +5337,12 @@ void process_next_command() {
           gcode_M30(); break;
         case 32: //M32 - Select file and start SD print
           gcode_M32(); break;
+
+        #ifdef LONG_FILENAME_HOST_SUPPORT
+          case 33: //M33 - Get the long full path to a file or folder
+            gcode_M33(); break;
+        #endif // LONG_FILENAME_HOST_SUPPORT
+
         case 928: //M928 - Start SD write
           gcode_M928(); break;
 
