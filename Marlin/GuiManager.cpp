@@ -139,13 +139,12 @@ void lcd_init()
     refresh_interval = millis();
     lcd_enable_display_timeout();
 
-    lcd_enable_button();
-    lcd_get_button_updated();
-
     lcd_enable_encoder();
     lcd_get_encoder_updated();
     encoder_position = 0;
 
+    lcd_enable_button();
+    lcd_get_button_updated();
     lcd_get_button_clicked();
 
     active_view = screen::GuiBuild();
@@ -268,33 +267,16 @@ static void lcd_update_encoder()
 
 void lcd_update(bool force)
 {
-#  if (SDCARDDETECT > 0)
+    // Check if the SD card has been inserted/removed.
     if ((lcd_oldcardstatus != IS_SD_INSERTED)) {
-        display_refresh_mode = CLEAR_AND_UPDATE_SCREEN;
-        lcd_oldcardstatus = IS_SD_INSERTED;
-
-#ifndef DOGLCD
-        lcd_implementation_init(); // to maybe revive the LCD if static electricity killed it.
-#endif //DOGLCD
-
         if(lcd_oldcardstatus) {
             card.initsd();
-            LCD_MESSAGEPGM(MSG_SD_INSERTED);
         } else {
             card.release();
-            LCD_MESSAGEPGM(MSG_SD_REMOVED);
         }
     }
-#  endif // (SDCARDDETECT > 0)
 
-    //if ( display_view == view_status_screen || display_timeout_blocked || button_input_updated || encoder_input_updated ) {
-    //    display_timeout = millis() + LCD_TIMEOUT_STATUS;
-    //}
-
-    //if (display_timeout < millis())
-    //    lcd_set_status_screen();
-
-    // Check the events triggered in ISR (Timer 5 Overflow)
+    // Manage the events triggered in ISR (Timer 5 Overflow)
     if (lcd_get_encoder_right())
     {
         active_view->right();
@@ -310,20 +292,8 @@ void lcd_update(bool force)
         active_view = &active_view->press(active_view);
     }
 
-    // if (display_view != display_view_next) {
-    //    display_refresh_mode = CLEAR_AND_UPDATE_SCREEN;
-    //    lcd_clear_triggered_flags();
-    // }
-
-    // display_view = display_view_next;
-    // if ( (IS_SD_PRINTING == true) && (!force) ) {
-    //    if (refresh_interval < millis()) {
-    //        active_view->draw();
-    //        refresh_interval = millis() + LCD_REFRESH_LIMIT;
-    //    }
-    //} else {
-        active_view->draw();
-    //}
+    // Refresh the content of the display
+    active_view->draw();
 }
 
 void lcd_set_menu(view_t menu)
