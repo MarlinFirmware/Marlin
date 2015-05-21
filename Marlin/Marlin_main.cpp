@@ -3367,10 +3367,6 @@ inline void gcode_M104() {
       if (dual_x_carriage_mode == DXC_DUPLICATION_MODE && target_extruder == 0)
         setTargetHotend1(temp == 0.0 ? 0.0 : temp + duplicate_extruder_temp_offset);
     #endif
-
-    #ifdef THERMAL_PROTECTION_HOTENDS
-      start_watching_heater(target_extruder);
-    #endif
   }
 }
 
@@ -3480,10 +3476,6 @@ inline void gcode_M109() {
     if (autotemp_enabled) autotemp_factor = code_value();
     if (code_seen('S')) autotemp_min = code_value();
     if (code_seen('B')) autotemp_max = code_value();
-  #endif
-
-  #ifdef THERMAL_PROTECTION_HOTENDS
-    start_watching_heater(target_extruder);
   #endif
 
   millis_t temp_ms = millis();
