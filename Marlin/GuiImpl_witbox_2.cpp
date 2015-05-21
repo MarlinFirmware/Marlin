@@ -71,6 +71,8 @@ namespace screen
 	//SD Card screens
 	ScreenList screen_SD_list           = ScreenList("SD Card");
 	ScreenMenu screen_SD_confirm        = ScreenMenu("Comfirm Print");
+	Screen screen_SD_OK                 = Screen("Confirm", Screen::ACTION,  action_print);
+	ScreenList screen_SD_back           = ScreenList("Back");
 	//Unload Filament screens
 	ScreenSelector screen_unload_select = ScreenSelector("Unload filament");
 	ScreenDialog screen_unload_heating  = ScreenDialog("Heating");
@@ -111,11 +113,11 @@ namespace screen
 	ScreenDialog screen_info            = ScreenDialog("FW info");
 
 	//Print screen
-	ScreenPrint screen_print            = ScreenPrint("", ScreenPrint::PRINT, action_print);
+	ScreenPrint screen_print            = ScreenPrint("");
 	//Play/Pause
-	Screen screen_play_pause			= Screen("Pause");
+	Screen screen_play_pause            = Screen("Pause");
 	//Stop
-	ScreenMenu screen_stop				= ScreenMenu("Stop", ScreenPrint::MENU, action_stop_print);
+	ScreenMenu screen_stop              = ScreenMenu("Stop", action_stop_print);
 	//Change Filament Screens
 	ScreenMenu screen_change_confirm	= ScreenMenu("Change filament");
 	ScreenDialog screen_change_start    = ScreenDialog("Start");
@@ -147,8 +149,16 @@ namespace screen
 		screen_SD_list.icon(icon_sd_normal);
 		screen_SD_list.icon(icon_sd_selected);
 		//SD Card Confirm
-		screen_SD_confirm.add(screen_SD_list);
-		screen_SD_confirm.add(screen_print);
+		screen_SD_confirm.add(screen_SD_back);
+		screen_SD_confirm.add(screen_SD_OK);
+		//SD Confirm back
+		screen_SD_back.add(screen_SD_list);
+		screen_SD_back.icon(icon_back_normal);
+		screen_SD_back.icon(icon_back_selected);
+		//SD Confirm OK
+		screen_SD_OK.add(screen_print);
+		screen_SD_OK.icon(icon_ok_normal);
+		screen_SD_OK.icon(icon_ok_selected);
 		//Unload Filament Select
 		screen_unload_select.add(screen_unload_heating);
 		screen_unload_select.icon(icon_filament_unload_normal);
