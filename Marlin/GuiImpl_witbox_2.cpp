@@ -141,6 +141,7 @@ namespace screen
 		screen_main.add(screen_light);
 		screen_main.add(screen_info);
 		//SD Card List
+		screen_SD_list.add(screen_main);
 		screen_SD_list.add(screen_SD_confirm);
 		screen_SD_list.icon(icon_nosd_normal);
 		screen_SD_list.icon(icon_nosd_selected);

@@ -20,11 +20,14 @@ namespace screen
 		private:
 			uint16_t m_index;
 			uint16_t m_num_list;
+
+			Screen * m_back_screen;
 			Screen * m_next_screen;
-			Screen * m_items[max_list];
+			uint8_t m_num_item_added;
 
 			char m_directory[10];
 			bool m_directory_is_root;
+			uint8_t m_offset;
 	};
 }
 
