@@ -205,6 +205,8 @@
 
   #define CONDITIONALS_H
 
+  #include "pins.h"
+
   #ifndef AT90USB
     #define HardwareSerial_h // trick to disable the standard HWserial
   #endif
@@ -214,8 +216,6 @@
   #else
     #include "WProgram.h"
   #endif
-
-  #include "pins.h"
 
   /**
    * ENDSTOPPULLUPS
