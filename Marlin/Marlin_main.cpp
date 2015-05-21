@@ -2130,7 +2130,6 @@ void process_commands()
 
 				lcd_enable_button();
 				stop_buffer = false;
-      card.pauseSDPrint();
       break;
     case 26: //M26 - Set SD index
       if(card.cardOK && code_seen('S')) {

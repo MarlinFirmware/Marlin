@@ -1125,7 +1125,6 @@ static void function_sdcard_pause()
 
     stop_buffer = true;
     stop_buffer_code = 1;
-//   card.pauseSDPrint();
 
     draw_status_screen();
 }
