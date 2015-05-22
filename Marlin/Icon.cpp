@@ -3,19 +3,14 @@
 
 namespace screen
 {
-	Icon::Icon (IconType_t const & type, Size const & size, const unsigned char* bitmap)
-		: m_type(type)
-		, m_size(size)
+	Icon::Icon (Size const & size, const unsigned char* bitmap, const unsigned char * focused_bitmap)
+		: m_size(size)
 		, m_bitmap(bitmap)
+		, m_focused_bitmap(focused_bitmap)
 	{ }
 
 	Icon::~Icon()
 	{ }
-
-	Icon::IconType_t const & Icon::type() const
-	{
-		return m_type;
-	}
 
 	uint8_t const & Icon::width() const
 	{
@@ -27,8 +22,8 @@ namespace screen
 		return m_size.height;
 	}
 
-	void Icon::draw(uint8_t x, uint8_t y)
+	void Icon::draw(uint8_t x, uint8_t y, bool focused)
 	{
-		painter.icon(x, y, m_size.width, m_size.height, m_bitmap);
+		painter.icon(x, y, m_size.width, m_size.height, (focused) ? m_focused_bitmap : m_bitmap);
 	}
 }

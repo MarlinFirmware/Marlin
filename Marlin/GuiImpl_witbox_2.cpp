@@ -17,48 +17,27 @@ namespace screen
 	///////////////////////
 	// Instantiate Icons //
 	///////////////////////
-	Icon icon_nosd_normal                = Icon(Icon::NORMAL, icon_size, bits_nosd_normal);
-	Icon icon_nosd_selected              = Icon(Icon::SELECTED, icon_size, bits_nosd_selected);
-	Icon icon_sd_normal                  = Icon(Icon::NORMAL, icon_size, bits_sd_normal);
-	Icon icon_sd_selected                = Icon(Icon::SELECTED, icon_size, bits_sd_selected);
-	Icon icon_filament_unload_normal     = Icon(Icon::NORMAL, icon_size, bits_filament_unload_normal);
-	Icon icon_filament_unload_selected   = Icon(Icon::SELECTED, icon_size, bits_filament_unload_selected);
-	Icon icon_filament_load_normal       = Icon(Icon::NORMAL, icon_size, bits_filament_load_normal);
-	Icon icon_filament_load_selected     = Icon(Icon::SELECTED, icon_size, bits_filament_load_selected);
-	Icon icon_leveling_normal            = Icon(Icon::NORMAL, icon_size, bits_leveling_normal);
-	Icon icon_leveling_selected          = Icon(Icon::SELECTED, icon_size, bits_leveling_selected);
-	Icon icon_homing_normal              = Icon(Icon::NORMAL, icon_size, bits_homing_normal);
-	Icon icon_homing_selected            = Icon(Icon::SELECTED, icon_size, bits_homing_selected);
-	Icon icon_steppers_normal            = Icon(Icon::NORMAL, icon_size, bits_steppers_normal);
-	Icon icon_steppers_selected          = Icon(Icon::SELECTED, icon_size, bits_steppers_selected);
-	Icon icon_steppers_off_normal        = Icon(Icon::NORMAL, icon_size, bits_steppers_off_normal);
-	Icon icon_steppers_off_selected      = Icon(Icon::SELECTED, icon_size, bits_steppers_off_selected);
-	Icon icon_moveaxis_normal            = Icon(Icon::NORMAL, icon_size, bits_moveaxis_normal);
-	Icon icon_moveaxis_selected          = Icon(Icon::SELECTED, icon_size, bits_moveaxis_selected);
-	Icon icon_temperature_normal         = Icon(Icon::NORMAL, icon_size, bits_temperature_normal);
-	Icon icon_temperature_selected       = Icon(Icon::SELECTED, icon_size, bits_temperature_selected);
-	Icon icon_lightled_disable_normal    = Icon(Icon::NORMAL, icon_size, bits_lightled_disable_normal);
-	Icon icon_lightled_disable_selected  = Icon(Icon::SELECTED, icon_size, bits_lightled_disable_selected);
-	Icon icon_lightled_normal            = Icon(Icon::NORMAL, icon_size, bits_lightled_normal);
-	Icon icon_lightled_selected          = Icon(Icon::SELECTED, icon_size, bits_lightled_selected);
-	Icon icon_info_normal                = Icon(Icon::NORMAL, icon_size, bits_info_normal);
-	Icon icon_info_selected              = Icon(Icon::SELECTED, icon_size, bits_info_selected);
-	Icon icon_play_normal                = Icon(Icon::NORMAL, icon_size, bits_play_normal);
-	Icon icon_play_selected              = Icon(Icon::SELECTED, icon_size, bits_play_selected);
-	Icon icon_pause_normal               = Icon(Icon::NORMAL, icon_size, bits_pause_normal);
-	Icon icon_pause_selected             = Icon(Icon::SELECTED, icon_size, bits_pause_selected);
-	Icon icon_stop_normal                = Icon(Icon::NORMAL, icon_size, bits_stop_normal);
-	Icon icon_stop_selected              = Icon(Icon::SELECTED, icon_size, bits_stop_selected);
-	Icon icon_change_filament_normal     = Icon(Icon::NORMAL, icon_size, bits_change_filament_normal);
-	Icon icon_change_filament_selected   = Icon(Icon::SELECTED, icon_size, bits_change_filament_selected);
-	Icon icon_change_speed_normal        = Icon(Icon::NORMAL, icon_size, bits_change_speed_normal);
-	Icon icon_change_speed_selected      = Icon(Icon::SELECTED, icon_size, bits_change_speed_selected);
-	Icon icon_back_normal                = Icon(Icon::NORMAL, icon_size, bits_back_normal);
-	Icon icon_back_selected              = Icon(Icon::SELECTED, icon_size, bits_back_selected);
-	Icon icon_retry_normal               = Icon(Icon::NORMAL, icon_size, bits_retry_normal);
-	Icon icon_retry_selected             = Icon(Icon::SELECTED, icon_size, bits_retry_selected);
-	Icon icon_ok_normal                  = Icon(Icon::NORMAL, icon_size, bits_ok_normal);
-	Icon icon_ok_selected                = Icon(Icon::SELECTED, icon_size, bits_ok_selected);
+	Icon icon_nosd                = Icon(icon_size, bits_nosd_normal, bits_nosd_focused);
+	Icon icon_sd                  = Icon(icon_size, bits_sd_normal, bits_sd_focused);
+	Icon icon_filament_unload     = Icon(icon_size, bits_filament_unload_normal, bits_filament_unload_focused);
+	Icon icon_filament_load       = Icon(icon_size, bits_filament_load_normal, bits_filament_load_focused);
+	Icon icon_leveling            = Icon(icon_size, bits_leveling_normal, bits_leveling_focused);
+	Icon icon_homing              = Icon(icon_size, bits_homing_normal, bits_homing_focused);
+	Icon icon_steppers            = Icon(icon_size, bits_steppers_normal, bits_steppers_focused);
+	Icon icon_steppers_off        = Icon(icon_size, bits_steppers_off_normal, bits_steppers_off_focused);
+	Icon icon_moveaxis            = Icon(icon_size, bits_moveaxis_normal, bits_moveaxis_focused);
+	Icon icon_temperature         = Icon(icon_size, bits_temperature_normal, bits_temperature_focused);
+	Icon icon_lightled_disable    = Icon(icon_size, bits_lightled_disable_normal, bits_lightled_disable_focused);
+	Icon icon_lightled            = Icon(icon_size, bits_lightled_normal, bits_lightled_focused);
+	Icon icon_info                = Icon(icon_size, bits_info_normal, bits_info_focused);
+	Icon icon_play                = Icon(icon_size, bits_play_normal, bits_play_focused);
+	Icon icon_pause               = Icon(icon_size, bits_pause_normal, bits_pause_focused);
+	Icon icon_stop                = Icon(icon_size, bits_stop_normal, bits_stop_focused);
+	Icon icon_change_filament     = Icon(icon_size, bits_change_filament_normal, bits_change_filament_focused);
+	Icon icon_change_speed        = Icon(icon_size, bits_change_speed_normal, bits_change_speed_focused);
+	Icon icon_back                = Icon(icon_size, bits_back_normal, bits_back_focused);
+	Icon icon_retry               = Icon(icon_size, bits_retry_normal, bits_retry_focused);
+	Icon icon_ok                  = Icon(icon_size, bits_ok_normal, bits_ok_focused);
 
 
 	/////////////////////////
@@ -145,25 +124,20 @@ namespace screen
 		//SD Card List
 		screen_SD_list.add(screen_main);
 		screen_SD_list.add(screen_SD_confirm);
-		screen_SD_list.icon(icon_nosd_normal);
-		screen_SD_list.icon(icon_nosd_selected);
-		screen_SD_list.icon(icon_sd_normal);
-		screen_SD_list.icon(icon_sd_selected);
+		screen_SD_list.icon(icon_nosd);
+		screen_SD_list.icon(icon_sd);
 		//SD Card Confirm
 		screen_SD_confirm.add(screen_SD_back);
 		screen_SD_confirm.add(screen_SD_OK);
 		//SD Confirm back
 		screen_SD_back.add(screen_SD_list);
-		screen_SD_back.icon(icon_back_normal);
-		screen_SD_back.icon(icon_back_selected);
+		screen_SD_back.icon(icon_back);
 		//SD Confirm OK
 		screen_SD_OK.add(screen_print);
-		screen_SD_OK.icon(icon_ok_normal);
-		screen_SD_OK.icon(icon_ok_selected);
+		screen_SD_OK.icon(icon_ok);
 		//Unload Filament Select
 		screen_unload_select.add(screen_unload_heating);
-		screen_unload_select.icon(icon_filament_unload_normal);
-		screen_unload_select.icon(icon_filament_unload_selected);
+		screen_unload_select.icon(icon_filament_unload);
 		//Unload Filament Heating
 		screen_unload_heating.add(screen_unload_pull);
 		//Unload Filament Pull
@@ -173,8 +147,7 @@ namespace screen
 		screen_unload_confirm.add(screen_main);
 		//Load Filament Select
 		screen_load_select.add(screen_load_heating);
-		screen_load_select.icon(icon_filament_load_normal);
-		screen_load_select.icon(icon_filament_load_selected);
+		screen_load_select.icon(icon_filament_load);
 		//Load Filament Heating
 		screen_load_heating.add(screen_load_press);
 		//Load Filament Pull
@@ -184,36 +157,27 @@ namespace screen
 		screen_load_confirm.add(screen_main);
 		//Level Plate
 		screen_level_confirm.add(screen_main);
-		screen_level_confirm.icon(icon_leveling_normal);
-		screen_level_confirm.icon(icon_leveling_selected);
+		screen_level_confirm.icon(icon_leveling);
 		//AutoHome
 		screen_autohome.add(screen_main);
-		screen_autohome.icon(icon_homing_normal);
-		screen_autohome.icon(icon_homing_selected);
+		screen_autohome.icon(icon_homing);
 		//Stepper
 		screen_stepper.add(screen_main);
-		screen_stepper.icon(icon_steppers_normal);
-		screen_stepper.icon(icon_steppers_selected);
-		screen_stepper.icon(icon_steppers_off_normal);
-		screen_stepper.icon(icon_steppers_off_selected);
+		screen_stepper.icon(icon_steppers);
+		screen_stepper.icon(icon_steppers_off);
 		//Move Axis
 		screen_move.add(screen_main);
-		screen_move.icon(icon_moveaxis_normal);
-		screen_move.icon(icon_moveaxis_selected);
+		screen_move.icon(icon_moveaxis);
 		//Temperature
 		screen_temperature.add(screen_main);
-		screen_temperature.icon(icon_temperature_normal);
-		screen_temperature.icon(icon_temperature_selected);
+		screen_temperature.icon(icon_temperature);
 		//Light
 		screen_light.add(screen_main);
-		screen_light.icon(icon_lightled_disable_normal);
-		screen_light.icon(icon_lightled_disable_selected);
-		screen_light.icon(icon_lightled_normal);
-		screen_light.icon(icon_lightled_selected);
+		screen_light.icon(icon_lightled_disable);
+		screen_light.icon(icon_lightled);
 		//Info
 		screen_info.add(screen_main);
-		screen_info.icon(icon_info_normal);
-		screen_info.icon(icon_info_selected);
+		screen_info.icon(icon_info);
 
 		//Print Menu
 		screen_print.add(screen_play_pause);
@@ -223,20 +187,16 @@ namespace screen
 		screen_print.add(screen_temperature);
 		//Play/Pause
 		screen_play_pause.add(screen_print);
-		screen_play_pause.icon(icon_pause_normal);
-		screen_play_pause.icon(icon_pause_selected);
-		screen_play_pause.icon(icon_play_normal); 
-		screen_play_pause.icon(icon_play_selected);
+		screen_play_pause.icon(icon_pause);
+		screen_play_pause.icon(icon_play); 
 		//Stop
 		screen_stop.add(screen_print);
 		screen_stop.add(screen_main);
-		screen_stop.icon(icon_stop_normal);
-		screen_stop.icon(icon_stop_selected);
+		screen_stop.icon(icon_stop);
 		//Change filament
 		screen_change_confirm.add(screen_print);
 		screen_change_confirm.add(screen_change_start);
-		screen_change_confirm.icon(icon_change_filament_normal);
-		screen_change_confirm.icon(icon_change_filament_selected);
+		screen_change_confirm.icon(icon_change_filament);
 		//Change filament start
 		screen_change_start.add(screen_change_pullout);
 		//Change filament pullout
@@ -248,8 +208,7 @@ namespace screen
 		screen_change_retry.add(screen_print);
 		//Change speed screens
 		screen_speed.add(screen_print);
-		screen_speed.icon(icon_change_speed_normal);
-		screen_speed.icon(icon_change_speed_selected);
+		screen_speed.icon(icon_change_speed);
 		//
 
 		return new ScreenMenu(screen_main);

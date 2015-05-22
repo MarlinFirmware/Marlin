@@ -20,25 +20,17 @@ namespace screen
 	class Icon 
 	{	
 		public:
-			typedef enum
-			{
-				NORMAL = 0,
-				SELECTED,
-			} IconType_t;
-
-		public:
-			Icon(IconType_t const & type, Size const & size, const unsigned char* bitmap);
+			Icon(Size const & size, const unsigned char * bitmap, const unsigned char * focused_bitmap = 0);
 			~Icon();
 
-			IconType_t const & type() const;
 			uint8_t const & width() const;
 			uint8_t const & height() const;
-			void draw(uint8_t x, uint8_t y);
+			void draw(uint8_t x, uint8_t y, bool focused = false);
 
 		protected:
-			IconType_t m_type;
 			Size m_size;
-			const unsigned char* m_bitmap;
+			const unsigned char * m_bitmap;
+			const unsigned char * m_focused_bitmap;
 	};
 }
 #endif

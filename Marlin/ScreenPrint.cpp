@@ -89,11 +89,11 @@ namespace screen
 
 				if (i == m_index)
 				{
-					(m_items[i]->icon(Icon::SELECTED)).draw(x,y);
+					(m_items[i]->icon()).draw(x,y, false);
 				}
 				else
 				{
-					(m_items[i]->icon(Icon::NORMAL)).draw(x,y);
+					(m_items[i]->icon()).draw(x,y);
 				}
 			}	
 		} while( painter.nextPage() ); 

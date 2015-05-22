@@ -30,12 +30,8 @@ namespace screen
 		}
 	}
 
-	Icon & Screen::icon(Icon::IconType_t const & type)
+	Icon & Screen::icon()
 	{
-		if (type == Icon::SELECTED)
-		{
-			return * m_icons[1];
-		}
 		return * m_icons[0];
 	}
 }
