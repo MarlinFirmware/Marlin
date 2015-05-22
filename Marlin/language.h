@@ -59,21 +59,8 @@
 #elif MB(SAV_MKI)
   #define MACHINE_NAME "SAV MkI"
   #define FIRMWARE_URL "https://github.com/fmalpartida/Marlin/tree/SAV-MkI-config"
-#elif MB(WITBOX)
-  #define MACHINE_NAME "WITBOX"
-  #define FIRMWARE_URL "http://www.bq.com/gb/downloads-witbox.html"
-#elif MB(HEPHESTOS)
-  #define MACHINE_NAME "HEPHESTOS"
-  #define FIRMWARE_URL "http://www.bq.com/gb/downloads-prusa-i3-hephestos.html"
-#elif MB(BRAINWAVE_PRO)
-  #define MACHINE_NAME "Kossel Pro"
-  #ifndef FIRMWARE_URL
-    #define FIRMWARE_URL "https://github.com/OpenBeamUSA/Marlin/"
-  #endif
-#else
-  #ifndef MACHINE_NAME
-    #define MACHINE_NAME "3D Printer"
-  #endif
+#elif !defined(MACHINE_NAME)
+  #define MACHINE_NAME "3D Printer"
 #endif
 
 #ifdef CUSTOM_MENDEL_NAME
