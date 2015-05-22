@@ -108,6 +108,8 @@
   #include "pins_LEAPFROG.h"
 #elif MB(BQCNC)
   #include "pins_BQCNC.h"
+#elif MB(HEPHESTOS)
+  #include "pins_HEPHESTOS.h"
 #elif MB(99)
   #include "pins_99.h"
 #else

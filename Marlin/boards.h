@@ -49,6 +49,8 @@
 #define BOARD_5DPRINT           88   // 5DPrint D8 Driver Board
 #define BOARD_LEAPFROG          999  // Leapfrog
 #define BOARD_BQCNC             40   // bq CNC
+#define BOARD_WITBOX            41   // bq WITBOX
+#define BOARD_HEPHESTOS         42   // bq Prusa i3 Hephestos
 
 #define BOARD_99                99   // This is in pins.h but...?
 
