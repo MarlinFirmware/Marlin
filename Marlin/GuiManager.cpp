@@ -55,8 +55,8 @@ bool    encoder_input_blocked;
 bool    encoder_input_updated;
 
 int16_t encoder_position;
-bool    encoder_left_triggered;
-bool    encoder_right_triggered;
+uint8_t encoder_left_triggered;
+uint8_t encoder_right_triggered;
 
 
 // Button related variables
@@ -249,12 +249,12 @@ static void lcd_update_encoder()
         // Check if the menu item must be change
         if (encoder_position/ENCODER_STEPS_PER_MENU_ITEM >= 1)
         {
-            encoder_right_triggered = true;
+            encoder_right_triggered++;
             encoder_position = 0;
         }
         else if (encoder_position/ENCODER_STEPS_PER_MENU_ITEM<=-1)
         {
-            encoder_left_triggered = true;
+            encoder_left_triggered++;
             encoder_position = 0;
         }
 
@@ -277,12 +277,12 @@ void lcd_update(bool force)
     }
 
     // Manage the events triggered in ISR (Timer 5 Overflow)
-    if (lcd_get_encoder_right())
+    for (int8_t times = lcd_get_encoder_right(); times > 0; times--)
     {
         active_view->right();
     }
 
-    if (lcd_get_encoder_left())
+    for (int8_t times = lcd_get_encoder_left(); times > 0; times--)
     {
         active_view->left();
     }
@@ -339,24 +339,24 @@ bool lcd_get_button_clicked()
     button_clicked_triggered = false;
     return status;
 }
-bool lcd_get_encoder_right()
+uint8_t lcd_get_encoder_right()
 {
-    bool status = encoder_right_triggered;
-    encoder_right_triggered = false;
-    return status;
+    uint8_t times = encoder_right_triggered;
+    encoder_right_triggered = 0;
+    return times;
 }
-bool lcd_get_encoder_left()
+uint8_t lcd_get_encoder_left()
 {
-    bool status = encoder_left_triggered;
-    encoder_left_triggered = false;
-    return status;
+    uint8_t times = encoder_left_triggered;
+    encoder_left_triggered = 0;
+    return times;
 }
 void lcd_clear_triggered_flags() {
     button_input_updated = false;
     encoder_input_updated = false;
     button_clicked_triggered = false;
-    encoder_right_triggered = false;
-    encoder_left_triggered = false;
+    encoder_right_triggered = 0;
+    encoder_left_triggered = 0;
 }
 
 

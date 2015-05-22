@@ -60,8 +60,8 @@ void lcd_set_wizard(view_t wizard);
 bool lcd_get_button_updated();
 bool lcd_get_encoder_updated();
 bool lcd_get_button_clicked();
-bool lcd_get_encoder_right();
-bool lcd_get_encoder_left();
+uint8_t lcd_get_encoder_right();
+uint8_t lcd_get_encoder_left();
 void lcd_clear_triggered_flags();
 
 // Enable/disable functions
