@@ -99,6 +99,8 @@ namespace screen
 
 			m_num_list += m_offset;
 
+			m_scroll_size = (float) 47 / m_num_list;
+
 			state = run_state(state, EVENT_PREPARED);
 		}
 
@@ -193,6 +195,27 @@ namespace screen
 
 					painter.print(card.longFilename);
 				}
+			}
+
+			// Draw scroll bar
+			painter.setColorIndex(1);
+			painter.drawBox(122, 13, 6, 51);
+			painter.setColorIndex(0);
+			painter.drawBox(123, 14, 4, 49);
+
+			int8_t scroll_bottom_bar = (m_index + 1) * m_scroll_size;
+			if (scroll_bottom_bar < 1)
+			{
+				scroll_bottom_bar = 1;
+			}
+			painter.setColorIndex(1);
+			painter.drawBox(124, 15, 2, scroll_bottom_bar);
+
+			int8_t scroll_upper_bar = scroll_bottom_bar - m_scroll_size;
+			if (scroll_upper_bar > 0)
+			{
+				painter.setColorIndex(0);
+				painter.drawBox(124, 15, 2, scroll_upper_bar);
 			}
 
 		} while( painter.nextPage() );
