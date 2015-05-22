@@ -30,6 +30,7 @@ namespace screen
 
 	void Icon::draw(uint8_t x, uint8_t y, bool focused)
 	{
-		painter.icon(x, y, m_size.width, m_size.height, (focused) ? m_focused_bitmap : m_bitmap);
+		painter.setColorIndex(1);
+		painter.drawBitmap(x, y, m_size.width, m_size.height, (focused) ? m_focused_bitmap : m_bitmap);
 	}
 }
