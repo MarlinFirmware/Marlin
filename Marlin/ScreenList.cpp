@@ -157,14 +157,14 @@ namespace screen
 
 				if ((m_index + i - window_selector) == 0)
 				{
-					painter.print("<");
+					painter.drawBitmap(painter.coordinateXInit(), painter.coordinateYInit() + i * (max_font_height + 1), little_icon_width, little_icon_height, bits_back_small);
 					painter.setPrintPos(painter.coordinateXInit() + 9, painter.coordinateYInit() + i * (max_font_height + 1));
 					painter.print("Back to main menu");
 				}
 
 				if (m_directory_is_root == false && (m_index + i - window_selector) == 1)
 				{
-					painter.print(".");
+					painter.drawBitmap(painter.coordinateXInit(), painter.coordinateYInit() + i * (max_font_height + 1), little_icon_width, little_icon_height, bits_updir_small);
 					painter.setPrintPos(painter.coordinateXInit() + 9, painter.coordinateYInit() + i * (max_font_height + 1));
 					painter.print("Previous folder");
 				}
@@ -184,7 +184,7 @@ namespace screen
 
 					if (card.filenameIsDir == true)
 					{
-						painter.print("*");
+						painter.drawBitmap(painter.coordinateXInit(), painter.coordinateYInit() + i * (max_font_height + 1), little_icon_width, little_icon_height, bits_folder_small);
 						painter.setPrintPos(painter.coordinateXInit() + 9, painter.coordinateYInit() + i * (max_font_height + 1));
 						SERIAL_ECHOLN(" [D]");
 					}
