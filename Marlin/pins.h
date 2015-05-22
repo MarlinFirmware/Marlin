@@ -104,10 +104,6 @@
   #include "pins_5DPRINT.h"
 #elif MB(LEAPFROG)
   #include "pins_LEAPFROG.h"
-#elif MB(WITBOX)
-  #include "pins_WITBOX.h"
-#elif MB(HEPHESTOS)
-  #include "pins_HEPHESTOS.h"
 #elif MB(BAM_DICE)
   #include "pins_RAMPS_13.h"
 #elif MB(BAM_DICE_DUE)
