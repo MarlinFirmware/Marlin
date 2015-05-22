@@ -127,18 +127,40 @@ namespace screen
 
 			// Draw list
 			uint8_t window_size = 50 / (max_font_height + 1);
+			uint8_t window_selector = window_size / 2;
+			if (window_size % 2 == 0)
+			{
+				window_selector--;
+			}
+
 			for (uint8_t i = 0; i < window_size; i++)
 			{
 				painter.setPrintPos(painter.coordinateXInit(), painter.coordinateYInit() + i * (max_font_height + 1));
 
-				if ((m_index + i) == 0)
+				if (i == window_selector) {
+					painter.setColorIndex(1);
+					painter.drawBox(painter.coordinateXInit(), painter.coordinateYInit() + i * (max_font_height + 1), 128, max_font_height);
+					painter.setColorIndex(0);
+				}
+				else
+				{
+					painter.setColorIndex(1);
+				}
+
+
+				if ((int)(m_index + i - window_selector) < 0)
+				{
+					continue;
+				}
+
+				if ((m_index + i - window_selector) == 0)
 				{
 					painter.print("<");
 					painter.setPrintPos(painter.coordinateXInit() + 9, painter.coordinateYInit() + i * (max_font_height + 1));
 					painter.print("Back to main menu");
 				}
 
-				if (m_directory_is_root == false && (m_index + i) == 1)
+				if (m_directory_is_root == false && (m_index + i - window_selector) == 1)
 				{
 					painter.print(".");
 					painter.setPrintPos(painter.coordinateXInit() + 9, painter.coordinateYInit() + i * (max_font_height + 1));
@@ -146,7 +168,7 @@ namespace screen
 				}
 				else
 				{
-					card.getfilename(m_index + i - m_offset);
+					card.getfilename(m_index + i - window_selector - m_offset);
 
 					SERIAL_ECHO(m_title);
 					SERIAL_ECHO(" ");

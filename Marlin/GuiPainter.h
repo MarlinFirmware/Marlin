@@ -51,6 +51,7 @@ namespace screen
 			void print(const char * text);
 
 			void drawLine(uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2);
+			void drawBox(uint8_t x, uint8_t y, uint8_t w, uint8_t h);
 
 			void firstPage();
 

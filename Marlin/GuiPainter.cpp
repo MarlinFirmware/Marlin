@@ -166,6 +166,11 @@ namespace screen
 		m_impl.drawLine(x1, y1, x2, y2);
 	}
 
+	void GuiPainter::drawBox(uint8_t x, uint8_t y, uint8_t w, uint8_t h)
+	{
+		m_impl.drawBox(x, y, w, h);
+	}
+
 	void GuiPainter::firstPage()
 	{
 		m_impl.firstPage();
