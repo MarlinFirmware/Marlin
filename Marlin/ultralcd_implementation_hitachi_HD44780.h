@@ -1,16 +1,10 @@
-#ifndef ULTRALCD_IMPLEMENTATION_HITACHI_HD44780_H
-#define ULTRALCD_IMPLEMENTATION_HITACHI_HD44780_H
+#ifndef ULTRA_LCD_IMPLEMENTATION_HITACHI_HD44780_H
+#define ULTRA_LCD_IMPLEMENTATION_HITACHI_HD44780_H
 
 /**
 * Implementation of the LCD display routines for a Hitachi HD44780 display. These are common LCD character displays.
 * When selecting the Russian language, a slightly different LCD implementation is used to handle UTF8 characters.
 **/
-
-#ifndef REPRAPWORLD_KEYPAD
-  extern volatile uint8_t buttons;  //the last checked buttons in a bit array.
-#else
-  extern volatile uint16_t buttons;  //an extended version of the last checked buttons in a bit array.
-#endif
 
 ////////////////////////////////////
 // Setup button and encode mappings for each panel (into 'buttons' variable
@@ -19,111 +13,17 @@
 // macro name. The mapping is independent of whether the button is directly connected or 
 // via a shift/i2c register.
 
-#ifdef WITBOX
+#  ifdef WITBOX
+
+#define BLEN_C 2 
+#define BLEN_B 1
+#define BLEN_A 0
 
 #define EN_C (1<<BLEN_C)
 #define EN_B (1<<BLEN_B)
 #define EN_A (1<<BLEN_A)
 
 #  endif // WITBOX
-#define EN_B (1<<BLEN_B) // The two encoder pins are connected through BTN_EN1 and BTN_EN2
-#define EN_A (1<<BLEN_A)
-
-#if defined(BTN_ENC) && BTN_ENC > -1
-  // encoder click is directly connected
-  #define BLEN_C 2 
-  #define EN_C (1<<BLEN_C) 
-#endif 
-  
-//
-// Setup other button mappings of each panel
-//
-#if defined(LCD_I2C_VIKI)
-  #define B_I2C_BTN_OFFSET 3 // (the first three bit positions reserved for EN_A, EN_B, EN_C)
-  
-  // button and encoder bit positions within 'buttons'
-  #define B_LE (BUTTON_LEFT<<B_I2C_BTN_OFFSET)    // The remaining normalized buttons are all read via I2C
-  #define B_UP (BUTTON_UP<<B_I2C_BTN_OFFSET)
-  #define B_MI (BUTTON_SELECT<<B_I2C_BTN_OFFSET)
-  #define B_DW (BUTTON_DOWN<<B_I2C_BTN_OFFSET)
-  #define B_RI (BUTTON_RIGHT<<B_I2C_BTN_OFFSET)
-
-  #if defined(BTN_ENC) && BTN_ENC > -1 
-    // the pause/stop/restart button is connected to BTN_ENC when used
-    #define B_ST (EN_C)                            // Map the pause/stop/resume button into its normalized functional name 
-    #define LCD_CLICKED (buttons&(B_MI|B_RI|B_ST)) // pause/stop button also acts as click until we implement proper pause/stop.
-  #else
-    #define LCD_CLICKED (buttons&(B_MI|B_RI))
-  #endif  
-
-  // I2C buttons take too long to read inside an interrupt context and so we read them during lcd_update
-  #define LCD_HAS_SLOW_BUTTONS
-
-#elif defined(LCD_I2C_PANELOLU2)
-  // encoder click can be read through I2C if not directly connected
-  #if BTN_ENC <= 0 
-    #define B_I2C_BTN_OFFSET 3 // (the first three bit positions reserved for EN_A, EN_B, EN_C)
-  
-    #define B_MI (PANELOLU2_ENCODER_C<<B_I2C_BTN_OFFSET) // requires LiquidTWI2 library v1.2.3 or later
-
-    #define LCD_CLICKED (buttons&B_MI)
-
-    // I2C buttons take too long to read inside an interrupt context and so we read them during lcd_update
-    #define LCD_HAS_SLOW_BUTTONS
-  #else
-    #define LCD_CLICKED (buttons&EN_C)  
-  #endif
-
-#elif defined(REPRAPWORLD_KEYPAD)
-    // define register bit values, don't change it
-    #define BLEN_REPRAPWORLD_KEYPAD_F3 0
-    #define BLEN_REPRAPWORLD_KEYPAD_F2 1
-    #define BLEN_REPRAPWORLD_KEYPAD_F1 2
-    #define BLEN_REPRAPWORLD_KEYPAD_UP 3
-    #define BLEN_REPRAPWORLD_KEYPAD_RIGHT 4
-    #define BLEN_REPRAPWORLD_KEYPAD_MIDDLE 5
-    #define BLEN_REPRAPWORLD_KEYPAD_DOWN 6
-    #define BLEN_REPRAPWORLD_KEYPAD_LEFT 7
-    
-    #define REPRAPWORLD_BTN_OFFSET 3 // bit offset into buttons for shift register values
-
-    #define EN_REPRAPWORLD_KEYPAD_F3 (1<<(BLEN_REPRAPWORLD_KEYPAD_F3+REPRAPWORLD_BTN_OFFSET))
-    #define EN_REPRAPWORLD_KEYPAD_F2 (1<<(BLEN_REPRAPWORLD_KEYPAD_F2+REPRAPWORLD_BTN_OFFSET))
-    #define EN_REPRAPWORLD_KEYPAD_F1 (1<<(BLEN_REPRAPWORLD_KEYPAD_F1+REPRAPWORLD_BTN_OFFSET))
-    #define EN_REPRAPWORLD_KEYPAD_UP (1<<(BLEN_REPRAPWORLD_KEYPAD_UP+REPRAPWORLD_BTN_OFFSET))
-    #define EN_REPRAPWORLD_KEYPAD_RIGHT (1<<(BLEN_REPRAPWORLD_KEYPAD_RIGHT+REPRAPWORLD_BTN_OFFSET))
-    #define EN_REPRAPWORLD_KEYPAD_MIDDLE (1<<(BLEN_REPRAPWORLD_KEYPAD_MIDDLE+REPRAPWORLD_BTN_OFFSET))
-    #define EN_REPRAPWORLD_KEYPAD_DOWN (1<<(BLEN_REPRAPWORLD_KEYPAD_DOWN+REPRAPWORLD_BTN_OFFSET))
-    #define EN_REPRAPWORLD_KEYPAD_LEFT (1<<(BLEN_REPRAPWORLD_KEYPAD_LEFT+REPRAPWORLD_BTN_OFFSET))
-
-    #define LCD_CLICKED ((buttons&EN_C) || (buttons&EN_REPRAPWORLD_KEYPAD_F1))
-    #define REPRAPWORLD_KEYPAD_MOVE_Y_DOWN (buttons&EN_REPRAPWORLD_KEYPAD_DOWN)
-    #define REPRAPWORLD_KEYPAD_MOVE_Y_UP (buttons&EN_REPRAPWORLD_KEYPAD_UP)
-    #define REPRAPWORLD_KEYPAD_MOVE_HOME (buttons&EN_REPRAPWORLD_KEYPAD_MIDDLE)
-
-#elif defined(NEWPANEL)
-  #define LCD_CLICKED (buttons&EN_C)
-  
-#else // old style ULTIPANEL
-  //bits in the shift register that carry the buttons for:
-  // left up center down right red(stop)
-  #define BL_LE 7
-  #define BL_UP 6
-  #define BL_MI 5
-  #define BL_DW 4
-  #define BL_RI 3
-  #define BL_ST 2
-
-  //automatic, do not change
-  #define B_LE (1<<BL_LE)
-  #define B_UP (1<<BL_UP)
-  #define B_MI (1<<BL_MI)
-  #define B_DW (1<<BL_DW)
-  #define B_RI (1<<BL_RI)
-  #define B_ST (1<<BL_ST)
-  
-  #define LCD_CLICKED (buttons&(B_MI|B_ST))
-#endif
 
 ////////////////////////
 // Setup Rotary Encoder Bit Values (for two pin encoders to indicate movement)
@@ -136,76 +36,11 @@
 #define encrot3 1
 #  endif // ( defined(EN_A) && defined(EN_B) )
 
-#endif //ULTIPANEL
-
-////////////////////////////////////
-// Create LCD class instance and chipset-specific information
-#if defined(LCD_I2C_TYPE_PCF8575)
-  // note: these are register mapped pins on the PCF8575 controller not Arduino pins
-  #define LCD_I2C_PIN_BL  3
-  #define LCD_I2C_PIN_EN  2
-  #define LCD_I2C_PIN_RW  1
-  #define LCD_I2C_PIN_RS  0
-  #define LCD_I2C_PIN_D4  4
-  #define LCD_I2C_PIN_D5  5
-  #define LCD_I2C_PIN_D6  6
-  #define LCD_I2C_PIN_D7  7
-
-  #include <Wire.h>
-  #include <LCD.h>
-  #include <LiquidCrystal_I2C.h>
-  #define LCD_CLASS LiquidCrystal_I2C
-  LCD_CLASS lcd(LCD_I2C_ADDRESS,LCD_I2C_PIN_EN,LCD_I2C_PIN_RW,LCD_I2C_PIN_RS,LCD_I2C_PIN_D4,LCD_I2C_PIN_D5,LCD_I2C_PIN_D6,LCD_I2C_PIN_D7);
-  
-#elif defined(LCD_I2C_TYPE_MCP23017)
-  //for the LED indicators (which maybe mapped to different things in lcd_implementation_update_indicators())
-  #define LED_A 0x04 //100
-  #define LED_B 0x02 //010
-  #define LED_C 0x01 //001
-
-  #define LCD_HAS_STATUS_INDICATORS
-
-  #include <Wire.h>
-  #include <LiquidTWI2.h>
-  #define LCD_CLASS LiquidTWI2
-  #if defined(DETECT_DEVICE)
-     LCD_CLASS lcd(LCD_I2C_ADDRESS, 1);
-  #else
-     LCD_CLASS lcd(LCD_I2C_ADDRESS);
-  #endif
-  
-#elif defined(LCD_I2C_TYPE_MCP23008)
-  #include <Wire.h>
-  #include <LiquidTWI2.h>
-  #define LCD_CLASS LiquidTWI2
-  #if defined(DETECT_DEVICE)
-     LCD_CLASS lcd(LCD_I2C_ADDRESS, 1);
-  #else
-     LCD_CLASS lcd(LCD_I2C_ADDRESS);
-  #endif
-
-#elif defined(LCD_I2C_TYPE_PCA8574)
-    #include <LiquidCrystal_I2C.h>
-    #define LCD_CLASS LiquidCrystal_I2C
-    LCD_CLASS lcd(LCD_I2C_ADDRESS, LCD_WIDTH, LCD_HEIGHT);
-    
-// 2 wire Non-latching LCD SR from:
-// https://bitbucket.org/fmalpartida/new-liquidcrystal/wiki/schematics#!shiftregister-connection 
-#elif defined(SR_LCD_2W_NL)
-
-  extern "C" void __cxa_pure_virtual() { while (1); }
 #include <LiquidCrystal.h>
 #define LCD_CLASS LiquidCrystal
 
 LCD_CLASS lcd(LCD_PINS_RS, LCD_PINS_ENABLE, LCD_PINS_D4, LCD_PINS_D5, LCD_PINS_D6, LCD_PINS_D7);  //RS,Enable,D4,D5,D6,D7
 
-#if defined(LCD_PROGRESS_BAR) && defined(SDSUPPORT)
-  static uint16_t progressBarTick = 0;
-  #if PROGRESS_MSG_EXPIRE > 0
-    static uint16_t messageTick = 0;
-  #endif
-  #define LCD_STR_PROGRESS  "\x03\x04\x05"
-#endif
 
 /* Custom characters defined in the first 8 characters of the LCD */
 #define LCD_STR_BEDTEMP     "\x00"
@@ -327,35 +162,6 @@ static void lcd_implementation_init()
   lcd.createChar(LCD_STR_CLOCK[0], clock);
 
   lcd.noAutoscroll();
-#if defined(LCD_I2C_TYPE_PCF8575)
-    lcd.begin(LCD_WIDTH, LCD_HEIGHT);
-  #ifdef LCD_I2C_PIN_BL
-    lcd.setBacklightPin(LCD_I2C_PIN_BL,POSITIVE);
-    lcd.setBacklight(HIGH);
-  #endif
-  
-#elif defined(LCD_I2C_TYPE_MCP23017)
-    lcd.setMCPType(LTI_TYPE_MCP23017);
-    lcd.begin(LCD_WIDTH, LCD_HEIGHT);
-    lcd.setBacklight(0); //set all the LEDs off to begin with
-    
-#elif defined(LCD_I2C_TYPE_MCP23008)
-    lcd.setMCPType(LTI_TYPE_MCP23008);
-    lcd.begin(LCD_WIDTH, LCD_HEIGHT);
-
-#elif defined(LCD_I2C_TYPE_PCA8574)
-      lcd.init();
-      lcd.backlight();
-    
-#else
-    lcd.begin(LCD_WIDTH, LCD_HEIGHT);
-#endif
-
-    lcd_set_custom_characters(
-        #if defined(LCD_PROGRESS_BAR) && defined(SDSUPPORT)
-            progress_bar_set
-        #endif
-    );
 
   lcd.clear();
 }
@@ -575,30 +381,6 @@ static void lcd_implementation_status_screen()
   lcd.print(lcd_status_message);
 }
 
-  #if defined(LCD_PROGRESS_BAR) && defined(SDSUPPORT)
-
-    if (card.isFileOpen()) {
-      uint16_t mil = millis(), diff = mil - progressBarTick;
-      if (diff >= PROGRESS_BAR_MSG_TIME || !lcd_status_message[0]) {
-        // draw the progress bar
-        int tix = (int)(card.percentDone() * LCD_WIDTH * 3) / 100,
-          cel = tix / 3, rem = tix % 3, i = LCD_WIDTH;
-        char msg[LCD_WIDTH+1], b = ' ';
-        msg[i] = '\0';
-        while (i--) {
-          if (i == cel - 1)
-            b = LCD_STR_PROGRESS[2];
-          else if (i == cel && rem != 0)
-            b = LCD_STR_PROGRESS[rem-1];
-          msg[i] = b;
-        }
-        lcd.print(msg);
-        return;
-      }
-    } //card.isFileOpen
-
-  #endif //LCD_PROGRESS_BAR
-
 static void lcd_implementation_drawmenu_generic(uint8_t row, const char* pstr, char pre_char, char post_char)
 {
   char c;
@@ -696,8 +478,6 @@ static void lcd_implementation_drawmenu_setting_edit_generic_P(uint8_t row, cons
 #define lcd_implementation_drawmenu_setting_edit_float3(row, pstr, pstr2, data, minValue, maxValue) lcd_implementation_drawmenu_setting_edit_generic(row, pstr, ' ', ftostr3(*(data)))
 #define lcd_implementation_drawmenu_setting_edit_float32_selected(row, pstr, pstr2, data, minValue, maxValue) lcd_implementation_drawmenu_setting_edit_generic(row, pstr, '>', ftostr32(*(data)))
 #define lcd_implementation_drawmenu_setting_edit_float32(row, pstr, pstr2, data, minValue, maxValue) lcd_implementation_drawmenu_setting_edit_generic(row, pstr, ' ', ftostr32(*(data)))
-#define lcd_implementation_drawmenu_setting_edit_float43_selected(row, pstr, pstr2, data, minValue, maxValue) lcd_implementation_drawmenu_setting_edit_generic(row, pstr, '>', ftostr43(*(data)))
-#define lcd_implementation_drawmenu_setting_edit_float43(row, pstr, pstr2, data, minValue, maxValue) lcd_implementation_drawmenu_setting_edit_generic(row, pstr, ' ', ftostr43(*(data)))
 #define lcd_implementation_drawmenu_setting_edit_float5_selected(row, pstr, pstr2, data, minValue, maxValue) lcd_implementation_drawmenu_setting_edit_generic(row, pstr, '>', ftostr5(*(data)))
 #define lcd_implementation_drawmenu_setting_edit_float5(row, pstr, pstr2, data, minValue, maxValue) lcd_implementation_drawmenu_setting_edit_generic(row, pstr, ' ', ftostr5(*(data)))
 #define lcd_implementation_drawmenu_setting_edit_float52_selected(row, pstr, pstr2, data, minValue, maxValue) lcd_implementation_drawmenu_setting_edit_generic(row, pstr, '>', ftostr52(*(data)))
@@ -709,8 +489,6 @@ static void lcd_implementation_drawmenu_setting_edit_generic_P(uint8_t row, cons
 #define lcd_implementation_drawmenu_setting_edit_bool_selected(row, pstr, pstr2, data) lcd_implementation_drawmenu_setting_edit_generic_P(row, pstr, '>', (*(data))?PSTR(MSG_ON):PSTR(MSG_OFF))
 #define lcd_implementation_drawmenu_setting_edit_bool(row, pstr, pstr2, data) lcd_implementation_drawmenu_setting_edit_generic_P(row, pstr, ' ', (*(data))?PSTR(MSG_ON):PSTR(MSG_OFF))
 
-#define lcd_implementation_drawmenu_setting_edit_callback_float43_selected(row, pstr, pstr2, data, minValue, maxValue, callback) lcd_implementation_drawmenu_setting_edit_generic(row, pstr, '>', ftostr43(*(data)))
-#define lcd_implementation_drawmenu_setting_edit_callback_float43(row, pstr, pstr2, data, minValue, maxValue, callback) lcd_implementation_drawmenu_setting_edit_generic(row, pstr, ' ', ftostr43(*(data)))
 
 void lcd_implementation_drawedit(const char* pstr, char* value)
 {
@@ -838,6 +616,5 @@ void lcd_implementation_drawline(uint8_t row, const char* pstr)
   while (n-- != 0)
     lcd.print(' ');
 }
-#endif
 
 #endif // ULTRA_LCD_IMPLEMENTATION_HITACHI_HD44780_H
