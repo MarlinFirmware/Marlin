@@ -4,7 +4,7 @@
 
 namespace screen
 {
-	ScreenPrint::ScreenPrint(const char * title, ScreenType_t const & type,  FuncPtr_t function)
+	ScreenPrint::ScreenPrint(const char * title, FuncPtr_t function)
 		: Screen(title, PRINT, function)
 		//, m_i(0) //Temporal
 		, m_index(0)

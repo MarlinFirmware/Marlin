@@ -76,7 +76,7 @@ namespace screen
 	Screen & ScreenMenu::press(Screen * parent_view)
 	{
 		m_items[m_index]->action();
-		if (m_items[m_index]->type() == Screen::SIMPLE)
+		if (m_items[m_index]->type() == Screen::STATUS)
 		{
 			return * parent_view;
 		}

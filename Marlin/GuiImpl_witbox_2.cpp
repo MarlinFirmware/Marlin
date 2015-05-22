@@ -8,6 +8,7 @@
 #include "ScreenDialog.h"
 #include "ScreenSelector.h"
 #include "ScreenList.h"
+#include "ScreenStatus.h"
 
 
 
@@ -50,7 +51,6 @@ namespace screen
 	//SD Card screens
 	ScreenList screen_SD_list           = ScreenList("SD Card");
 	ScreenMenu screen_SD_confirm        = ScreenMenu("Comfirm Print");
-	//Screen screen_SD_OK                 = Screen("Confirm", Screen::ACTION,  action_print);
 	ScreenList screen_SD_back           = ScreenList("Back");
 	//Unload Filament screens
 	ScreenSelector screen_unload_select = ScreenSelector("Unload filament");
@@ -70,9 +70,9 @@ namespace screen
 	ScreenDialog screen_level4          = ScreenDialog("Screen4");
 	ScreenMenu screen_level_retry       = ScreenMenu("Finished?");
 	//AutoHome
-	Screen screen_autohome              = Screen("Auto-home", Screen::SIMPLE, action_homing);
+	ScreenStatus screen_autohome        = ScreenStatus("Auto-home", action_homing);
 	//Stepper
-	Screen screen_stepper               = Screen("Steper on");
+	ScreenStatus screen_stepper         = ScreenStatus("Steper on");
 	//Move Axis screens
 	ScreenMenu screen_move              = ScreenMenu("Move axis");
 	ScreenMenu screen_move_back2main    = ScreenMenu("Back");
@@ -87,18 +87,18 @@ namespace screen
 	//Temperature
 	ScreenSelector screen_temperature   = ScreenSelector("Temp 0/200C");
 	//Light
-	Screen screen_light                 = Screen("Led light on");
+	ScreenStatus screen_light           = ScreenStatus("Led light on");
 	//Info
 	ScreenDialog screen_info            = ScreenDialog("FW info");
 
 	//Print screen
-	ScreenPrint screen_print            = ScreenPrint("Confirm", Screen::ACTION, action_print);
+	ScreenPrint screen_print            = ScreenPrint("Confirm", action_print);
 	//Play/Pause
-	Screen screen_play_pause            = Screen("Pause");
+	ScreenStatus screen_play_pause      = ScreenStatus("Pause");
 	//Stop
 	ScreenMenu screen_stop              = ScreenMenu("Stop", action_stop_print);
 	//Change Filament Screens
-	ScreenMenu screen_change_confirm	= ScreenMenu("Change filament");
+	ScreenMenu screen_change_confirm	   = ScreenMenu("Change filament");
 	ScreenDialog screen_change_start    = ScreenDialog("Start");
 	ScreenDialog screen_change_pullout  = ScreenDialog("Pull out");
 	ScreenDialog screen_change_insert   = ScreenDialog("Insert & press");

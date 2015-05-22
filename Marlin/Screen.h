@@ -22,6 +22,7 @@ namespace screen
 			{
 				SIMPLE = 0, 
 				ACTION,
+				STATUS,
 				MENU,
 				PRINT,
 				DIALOG,

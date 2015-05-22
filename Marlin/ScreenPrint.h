@@ -10,7 +10,7 @@ namespace screen
 	class ScreenPrint : public Screen
 	{
 		public:
-			ScreenPrint(const char * title = 0, ScreenType_t const & type = PRINT, FuncPtr_t function = do_nothing);
+			ScreenPrint(const char * title = 0, FuncPtr_t function = do_nothing);
 			virtual ~ScreenPrint();
 
 			void left();
