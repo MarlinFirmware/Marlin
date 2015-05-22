@@ -55,11 +55,24 @@
 #endif
 */
 
+#define USE_BIG_EDIT_FONT                // save 3120 bytes of PROGMEM by commenting out this line
+#define FONT_STATUSMENU u8g_font_6x9
+#define FONT_MENU u8g_font_6x10_marlin
+
 // DOGM parameters (size in pixels)
 #define DOG_CHAR_WIDTH         6
 #define DOG_CHAR_HEIGHT        12
-#define DOG_CHAR_WIDTH_LARGE   9
-#define DOG_CHAR_HEIGHT_LARGE  18
+#ifdef USE_BIG_EDIT_FONT
+  #define FONT_MENU_EDIT u8g_font_9x18
+  #define DOG_CHAR_WIDTH_EDIT  9
+  #define DOG_CHAR_HEIGHT_EDIT 18
+  #define LCD_WIDTH_EDIT       14
+#else
+  #define FONT_MENU_EDIT u8g_font_6x10_marlin
+  #define DOG_CHAR_WIDTH_EDIT  6
+  #define DOG_CHAR_HEIGHT_EDIT 12
+  #define LCD_WIDTH_EDIT       22
+#endif
 
 #define START_ROW              0
 
@@ -73,8 +86,6 @@
 #define LCD_STR_FEEDRATE    "\xFD"
 #define LCD_STR_CLOCK       "\xFC"
 #define LCD_STR_ARROW_RIGHT "\xFA"
-
-#define FONT_STATUSMENU u8g_font_6x9
 
 int lcd_contrast;
 
@@ -123,7 +134,6 @@ static void lcd_implementation_init()
 	u8g.setRot270();	// Rotate screen by 270°
 #endif
 }
-
 static void lcd_implementation_clear()
 {
 // NO NEED TO IMPLEMENT LIKE SO. Picture loop automatically clears the display.
@@ -141,6 +151,10 @@ static void lcd_implementation_clear()
 static void lcd_implementation_print(const char* str)
 {
   u8g.print(str);
+      int txt2X = (u8g.getWidth() - (sizeof(STRING_SPLASH_LINE2) - 1)*DOG_CHAR_WIDTH) / 2;
+      u8g.drawStr(txt1X, u8g.getHeight() - DOG_CHAR_HEIGHT*3/2, STRING_SPLASH_LINE1);
+      u8g.drawStr(txt2X, u8g.getHeight() - DOG_CHAR_HEIGHT*1/2, STRING_SPLASH_LINE2);
+    #endif
 }
 
 static void lcd_implementation_print(const char str)
@@ -337,7 +351,7 @@ static void lcd_implementation_status_screen()
   u8g.setColorIndex(1); // black on white
 
   // Feedrate
-  u8g.setFont(u8g_font_6x10_marlin);
+  u8g.setFont(FONT_MENU);
   u8g.setPrintPos(3,49);
   u8g.print(LCD_STR_FEEDRATE[0]);
   u8g.setFont(FONT_STATUSMENU);
@@ -515,6 +529,22 @@ void lcd_implementation_drawedit(const char* pstr, char* value)
 		u8g.setPrintPos(0 * DOG_CHAR_WIDTH_LARGE, (u8g.getHeight() - 1 - DOG_CHAR_HEIGHT_LARGE) - (1 * DOG_CHAR_HEIGHT_LARGE) - START_ROW );
 		u8g.setFont(u8g_font_9x18);
 		lcd_implementation_print_P(pstr);
+      u8g.setFont(FONT_MENU_EDIT);
+      lcd_width = LCD_WIDTH_EDIT + 1;
+      char_width = DOG_CHAR_WIDTH_EDIT;
+      if (strlen_P(pstr) >= LCD_WIDTH_EDIT - strlen(value)) rows = 2;
+    }
+    else {
+      u8g.setFont(FONT_MENU);
+    }
+  #endif
+
+  if (strlen_P(pstr) > LCD_WIDTH - 2 - strlen(value)) rows = 2;
+
+  const float kHalfChar = DOG_CHAR_HEIGHT_EDIT / 2;
+  float rowHeight = u8g.getHeight() / (rows + 1); // 1/(rows+1) = 1/2 or 1/3
+
+  u8g.setPrintPos(0, rowHeight + kHalfChar);
 		u8g.print(':');
 		u8g.setPrintPos((14 - strlen(value)) * DOG_CHAR_WIDTH_LARGE, (u8g.getHeight() - 1 - DOG_CHAR_HEIGHT_LARGE) - (1 * DOG_CHAR_HEIGHT_LARGE) - START_ROW );
 		u8g.print(value);

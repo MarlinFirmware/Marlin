@@ -2344,27 +2344,24 @@ void process_commands()
 // Do all the preliminary setup work.   First raise the probe.
 //
 
-        st_synchronize();
-        plan_bed_level_matrix.set_to_identity();
+  st_synchronize();
+  plan_bed_level_matrix.set_to_identity();
 	plan_buffer_line( X_current, Y_current, Z_start_location,
-			ext_position,
-    			homing_feedrate[Z_AXIS]/60,
-			active_extruder);
-        st_synchronize();
+			ext_position, homing_feedrate[Z_AXIS]/60, active_extruder);
+  st_synchronize();
 
 //
 // Now get everything to the specified probe point So we can safely do a probe to
 // get us close to the bed.  If the Z-Axis is far from the bed, we don't want to 
 // use that as a starting point for each probe.
 //
-	if (verbose_level > 2) 
-		SERIAL_PROTOCOL("Positioning probe for the test.\n");
+	if (verbose_level > 2){
+    SERIAL_PROTOCOL("Positioning probe for the test.\n");
+  } 
 
 	plan_buffer_line( X_probe_location, Y_probe_location, Z_start_location,
-			ext_position,
-    			homing_feedrate[X_AXIS]/60,
-			active_extruder);
-        st_synchronize();
+			ext_position, homing_feedrate[X_AXIS]/60, active_extruder);
+  st_synchronize();
 
 	current_position[X_AXIS] = X_current = st_get_position_mm(X_AXIS);
 	current_position[Y_AXIS] = Y_current = st_get_position_mm(Y_AXIS);
@@ -2376,7 +2373,7 @@ void process_commands()
 // Then retrace the right amount and use that in subsequent probes
 //
 
-        engage_z_probe();	
+  engage_z_probe();	
 
 	setup_for_endstop_move();
 	run_z_probe();
@@ -2385,31 +2382,24 @@ void process_commands()
 	Z_start_location = st_get_position_mm(Z_AXIS) + Z_RAISE_BEFORE_PROBING;
 
 	plan_buffer_line( X_probe_location, Y_probe_location, Z_start_location,
-			ext_position,
-    			homing_feedrate[X_AXIS]/60,
-			active_extruder);
-        st_synchronize();
+			ext_position, homing_feedrate[X_AXIS]/60, active_extruder);
+  st_synchronize();
 	current_position[Z_AXIS] = Z_current = st_get_position_mm(Z_AXIS);
 
-	if (engage_probe_for_each_reading)
-        	retract_z_probe();
-
-        for( n=0; n<n_samples; n++) {
+	if (engage_probe_for_each_reading){
+    retract_z_probe();
+  }
+    for( n=0; n<n_samples; n++) {
 
 		do_blocking_move_to( X_probe_location, Y_probe_location, Z_start_location); // Make sure we are at the probe location
 
 		if ( n_legs)  {
-		double radius=0.0, theta=0.0, x_sweep, y_sweep;
-		int rotational_direction, l;
+  		double radius=0.0, theta=0.0, x_sweep, y_sweep;
+  		int rotational_direction, l;
 
 			rotational_direction = (unsigned long) millis() & 0x0001;			// clockwise or counter clockwise
 			radius = (unsigned long) millis() % (long) (X_MAX_LENGTH/4); 			// limit how far out to go 
 			theta = (float) ((unsigned long) millis() % (long) 360) / (360./(2*3.1415926));	// turn into radians
-
-//SERIAL_ECHOPAIR("starting radius: ",radius);
-//SERIAL_ECHOPAIR("   theta: ",theta);
-//SERIAL_ECHOPAIR("   direction: ",rotational_direction);
-//SERIAL_PROTOCOLLNPGM("");
 
 			for( l=0; l<n_legs-1; l++) {
 				if (rotational_direction==1)
@@ -3013,26 +3003,16 @@ Sigma_Exit:
 
         float area = .0;
         if(code_seen('D')) {
-          float diameter = (float)code_value();
-          if (diameter == 0.0) {
-            // setting any extruder filament size disables volumetric on the assumption that
-            // slicers either generate in extruder values as cubic mm or as as filament feeds
-            // for all extruders
-            volumetric_enabled = false;
-          } else {
-            filament_size[tmp_extruder] = (float)code_value();
+          float diameter = code_value();
+          // setting any extruder filament size disables volumetric on the assumption that
+          // slicers either generate in extruder values as cubic mm or as as filament feeds
+          // for all extruders
+          volumetric_enabled = (diameter != 0.0);
+          if (volumetric_enabled) {
+            filament_size[tmp_extruder] = diameter;
             // make sure all extruders have some sane value for the filament size
-            filament_size[0] = (filament_size[0] == 0.0 ? DEFAULT_NOMINAL_FILAMENT_DIA : filament_size[0]);
-#if EXTRUDERS > 1
-            filament_size[1] = (filament_size[1] == 0.0 ? DEFAULT_NOMINAL_FILAMENT_DIA : filament_size[1]);
-#if EXTRUDERS > 2
-            filament_size[2] = (filament_size[2] == 0.0 ? DEFAULT_NOMINAL_FILAMENT_DIA : filament_size[2]);
-#if EXTRUDERS > 3
-            filament_size[3] = (filament_size[3] == 0.0 ? DEFAULT_NOMINAL_FILAMENT_DIA : filament_size[3]);
-#endif //EXTRUDERS > 3
-#endif //EXTRUDERS > 2
-#endif //EXTRUDERS > 1
-            volumetric_enabled = true;
+            for (int i=0; i<EXTRUDERS; i++)
+              if (! filament_size[i]) filament_size[i] = DEFAULT_NOMINAL_FILAMENT_DIA;
           }
         } else {
           //reserved for setting filament diameter via UFID or filament measuring device
@@ -3151,33 +3131,11 @@ Sigma_Exit:
         int t= code_value() ;
         switch(t)
         {
-          case 0: 
+          case 0:
+          case 1:
           {
-            autoretract_enabled=false;
-            retracted[0]=false;
-#if EXTRUDERS > 1
-            retracted[1]=false;
-#endif
-#if EXTRUDERS > 2
-            retracted[2]=false;
-#endif
-#if EXTRUDERS > 3
-            retracted[3]=false;
-#endif
-          }break;
-          case 1: 
-          {
-            autoretract_enabled=true;
-            retracted[0]=false;
-#if EXTRUDERS > 1
-            retracted[1]=false;
-#endif
-#if EXTRUDERS > 2
-            retracted[2]=false;
-#endif
-#if EXTRUDERS > 3
-            retracted[3]=false;
-#endif
+            autoretract_enabled = (t == 1);
+            for (int i=0; i<EXTRUDERS; i++) retracted[i] = false;
           }break;
           default:
             SERIAL_ECHO_START;
@@ -3662,18 +3620,12 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
   
     case 407:   //M407 Display measured filament diameter 
     { 
-     
-    
-    
+
     SERIAL_PROTOCOLPGM("Filament dia (measured mm):"); 
     SERIAL_PROTOCOLLN(filament_width_meas);   
     } 
     break; 
     #endif
-    
-
-
-
 
     case 500: // M500 Store settings in EEPROM
     {
@@ -3742,18 +3694,28 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
     #ifdef FILAMENTCHANGEENABLE
     case 600: //Pause for filament change X[pos] Y[pos] Z[relative lift] E[initial retract] L[later retract distance for removal]
     {
-      			lcd_disable_display_timeout();
+  			lcd_disable_display_timeout();
       
         float target[4];
         float lastpos[4];
+
         target[X_AXIS]=current_position[X_AXIS];
         target[Y_AXIS]=current_position[Y_AXIS];
         target[Z_AXIS]=current_position[Z_AXIS];
         target[E_AXIS]=current_position[E_AXIS];
+
         lastpos[X_AXIS]=current_position[X_AXIS];
         lastpos[Y_AXIS]=current_position[Y_AXIS];
         lastpos[Z_AXIS]=current_position[Z_AXIS];
         lastpos[E_AXIS]=current_position[E_AXIS];
+
+        #define BASICPLAN plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], feedrate/60, active_extruder);
+        #ifdef DELTA
+          #define RUNPLAN calculate_delta(target); BASICPLAN
+        #else
+          #define RUNPLAN BASICPLAN
+        #endif
+
         //retract by E
         if(code_seen('E'))
         {
@@ -3765,7 +3727,7 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
             target[E_AXIS]+= FILAMENTCHANGE_FIRSTRETRACT ;
           #endif
         }
-        plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], feedrate/60, active_extruder);
+        RUNPLAN;
 
         //lift Z
         if(code_seen('Z'))
@@ -3778,12 +3740,12 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
             target[Z_AXIS]+= FILAMENTCHANGE_ZADD ;
           #endif
         }
-        plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], feedrate/60, active_extruder);
+        RUNPLAN;
 
         //move xy
         if(code_seen('X'))
         {
-          target[X_AXIS]+= code_value();
+          target[X_AXIS]= code_value();
         }
         else
         {
@@ -3799,30 +3761,30 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
         {
           #ifdef FILAMENTCHANGE_YPOS
             target[Y_AXIS]= FILAMENTCHANGE_YPOS ;
-        			#endif // FILAMENTCHANGE_YPOS    
-      			}
-      			plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], feedrate/60, active_extruder);
-      			st_synchronize();
+          #endif // FILAMENTCHANGE_YPOS    
+  			}
+  			plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], feedrate/60, active_extruder);
+  			st_synchronize();
 				enable_x();
 				enable_y();
 
-      			lcd_enable_button();
-      			draw_wizard_change_filament();
-      			lcd_update(true);
-      			SERIAL_ECHOLN("Wizard set to 0");
+  			lcd_enable_button();
+  			draw_wizard_change_filament();
+  			lcd_update(true);
+  			SERIAL_ECHOLN("Wizard set to 0");
 
-      			lcd_clear_triggered_flags();
-      			while (!LCD_CLICKED){
-        			manage_heater();
+  			lcd_clear_triggered_flags();
+  			while (!LCD_CLICKED){
+  			 manage_heater();
         }
 
-      			lcd_wizard_set_page(1);
-      			lcd_update(true);
-      			SERIAL_ECHOLN("Wizard set to 1");
+  			lcd_wizard_set_page(1);
+  			lcd_update(true);
+  			SERIAL_ECHOLN("Wizard set to 1");
 
-      			target[E_AXIS] += 10.0;
-      			plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], 300/60, active_extruder);
-      			st_synchronize();
+  			target[E_AXIS] += 10.0;
+  			plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], 300/60, active_extruder);
+  			st_synchronize();
 				enable_x();
 				enable_y();
 
@@ -3836,14 +3798,14 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
             target[E_AXIS]+= FILAMENTCHANGE_FINALRETRACT ;
           #endif
         }
-      			plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], 300/60, active_extruder);
-      			st_synchronize();
+  			plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], 300/60, active_extruder);
+  			st_synchronize();
 				enable_x();
 				enable_y();
 
-      			lcd_wizard_set_page(2);
-      			lcd_update(true);
-      			SERIAL_ECHOLN("Wizard set to 2");
+  			lcd_wizard_set_page(2);
+  			lcd_update(true);
+  			SERIAL_ECHOLN("Wizard set to 2");
 
         //finish moves
         st_synchronize();
@@ -3852,45 +3814,47 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
         disable_e1();
         disable_e2();
 
-      			lcd_clear_triggered_flags();
-      			while (!LCD_CLICKED){
+  			lcd_clear_triggered_flags();
+  			while (!LCD_CLICKED){
           manage_heater();
-      			}
+  			}
 
-      			lcd_wizard_set_page(3);
-      			lcd_update(true);
-      			SERIAL_ECHOLN("Wizard set to 3");
+  			lcd_wizard_set_page(3);
+  			lcd_update(true);
+  			SERIAL_ECHOLN("Wizard set to 3");
 
-      			lcd_clear_triggered_flags();
-      			while (!LCD_CLICKED) {
-        			manage_heater();
-        			current_position[E_AXIS]+=0.04;
-        			plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS],current_position[E_AXIS], feedrate/60, active_extruder);
-        			st_synchronize();
+  			lcd_clear_triggered_flags();
+  			while (!LCD_CLICKED) {
+    			manage_heater();
+    			current_position[E_AXIS]+=0.04;
+    			plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS],current_position[E_AXIS], feedrate/60, active_extruder);
+    			st_synchronize();
 					enable_x();
 					enable_y();
         }
 
-      			lcd_disable_button();
+  			lcd_disable_button();
 
-      			current_position[E_AXIS]=lastpos[E_AXIS];
+  			current_position[E_AXIS]=lastpos[E_AXIS];
         plan_set_e_position(current_position[E_AXIS]);
         plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], feedrate/60, active_extruder); //should do nothing
         plan_buffer_line(lastpos[X_AXIS], lastpos[Y_AXIS], target[Z_AXIS], target[E_AXIS], feedrate/60, active_extruder); //move xy back
         plan_buffer_line(lastpos[X_AXIS], lastpos[Y_AXIS], lastpos[Z_AXIS], target[E_AXIS], feedrate/60, active_extruder); //move z back
         plan_buffer_line(lastpos[X_AXIS], lastpos[Y_AXIS], lastpos[Z_AXIS], lastpos[E_AXIS], feedrate/60, active_extruder); //final untretract
 
-      			lcd_wizard_set_page(4);
-      			lcd_update(true);
-      			lcd_enable_display_timeout();
-      			SERIAL_ECHOLN("Wizard set to 4");
+  			lcd_wizard_set_page(4);
+  			lcd_update(true);
+  			lcd_enable_display_timeout();
+  			SERIAL_ECHOLN("Wizard set to 4");
 
-      			st_synchronize();
-      			lcd_enable_button();
-      			stop_buffer = false;
+  			st_synchronize();
+  			lcd_enable_button();
+
+  			stop_buffer = false;
     }
     break;
     #endif //FILAMENTCHANGEENABLE
+
     #ifdef DUAL_X_CARRIAGE
     case 605: // Set dual x-carriage movement mode:
               //    M605 S0: Full control mode. The slicer has full control over x-carriage movement
@@ -4571,7 +4535,8 @@ for (int s = 1; s <= steps; s++) {
       }
       delayed_move_time = 0;
       // unpark extruder: 1) raise, 2) move into starting XY position, 3) lower
-      plan_buffer_line(raised_parked_position[X_AXIS], raised_parked_position[Y_AXIS], raised_parked_position[Z_AXIS],    current_position[E_AXIS], max_feedrate[Z_AXIS], active_extruder);
+      plan_buffer_line(raised_parked_position[X_AXIS], raised_parked_position[Y_AXIS], raised_parked_position[Z_AXIS],    
+          current_position[E_AXIS], max_feedrate[Z_AXIS], active_extruder);
       plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], raised_parked_position[Z_AXIS],
           current_position[E_AXIS], min(max_feedrate[X_AXIS],max_feedrate[Y_AXIS]), active_extruder);
       plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],
@@ -5026,9 +4991,6 @@ bool setTargetedHotend(int code){
         case 218:
           SERIAL_ECHO(MSG_M218_INVALID_EXTRUDER);
           break;
-        case 221:
-          SERIAL_ECHO(MSG_M221_INVALID_EXTRUDER);
-          break;
       }
       SERIAL_ECHOLN(tmp_extruder);
       return true;
@@ -5054,6 +5016,8 @@ float calculate_volumetric_multiplier(float diameter) {
 }
 
 void calculate_volumetric_multipliers() {
+  for (int i=0; i<EXTRUDERS; i++)
+  	volumetric_multiplier[i] = calculate_volumetric_multiplier(filament_size[i]);
 	volumetric_multiplier[0] = calculate_volumetric_multiplier(filament_size[0]);
 #if EXTRUDERS > 1
 	volumetric_multiplier[1] = calculate_volumetric_multiplier(filament_size[1]);
