@@ -20,6 +20,7 @@
 
 #include "fastio.h"
 #include "Configuration.h"
+#include "pins.h"
 
 #ifndef SANITYCHECK_H
   #error Your Configuration.h and Configuration_adv.h files are outdated!
