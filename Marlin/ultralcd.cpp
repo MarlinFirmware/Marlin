@@ -515,12 +515,11 @@ static void lcd_tune_menu() {
 
 void _lcd_preheat(int endnum, const float temph, const float tempb, const int fan) {
   if (temph > 0) setTargetHotend(temph, endnum);
-  setTargetBed(tempb);
+  #if TEMP_SENSOR_BED != 0
+    setTargetBed(tempb);
+  #endif
   fanSpeed = fan;
   lcd_return_to_status();
-  #ifdef WATCH_TEMP_PERIOD
-    if (endnum >= 0) start_watching_heater(endnum);
-  #endif
 }
 void lcd_preheat_pla0() { _lcd_preheat(0, plaPreheatHotendTemp, plaPreheatHPBTemp, plaPreheatFanSpeed); }
 void lcd_preheat_abs0() { _lcd_preheat(0, absPreheatHotendTemp, absPreheatHPBTemp, absPreheatFanSpeed); }
@@ -602,11 +601,7 @@ void lcd_preheat_abs0() { _lcd_preheat(0, absPreheatHotendTemp, absPreheatHPBTem
 #endif // more than one temperature sensor present
 
 void lcd_cooldown() {
-  setTargetHotend0(0);
-  setTargetHotend1(0);
-  setTargetHotend2(0);
-  setTargetHotend3(0);
-  setTargetBed(0);
+  disable_all_heaters();
   fanSpeed = 0;
   lcd_return_to_status();
 }

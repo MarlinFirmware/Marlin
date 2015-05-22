@@ -278,11 +278,7 @@ void checkHitEndstops() {
         card.sdprinting = false;
         card.closefile();
         quickStop();
-        setTargetHotend0(0);
-        setTargetHotend1(0);
-        setTargetHotend2(0);
-        setTargetHotend3(0);
-        setTargetBed(0);
+        disable_all_heaters(); // switch off all heaters.
       }
     #endif
   }
