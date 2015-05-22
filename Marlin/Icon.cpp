@@ -3,10 +3,11 @@
 
 namespace screen
 {
-	Icon::Icon (Size const & size, const unsigned char* bitmap, const unsigned char * focused_bitmap)
+	Icon::Icon (Size const & size, const unsigned char* bitmap, const unsigned char * focused_bitmap, const char * text)
 		: m_size(size)
 		, m_bitmap(bitmap)
 		, m_focused_bitmap(focused_bitmap)
+		, m_text(text)
 	{ }
 
 	Icon::~Icon()
@@ -20,6 +21,11 @@ namespace screen
 	uint8_t const & Icon::height() const
 	{
 		return m_size.height;
+	}
+
+	const char * Icon::text() const
+	{
+		return m_text;
 	}
 
 	void Icon::draw(uint8_t x, uint8_t y, bool focused)

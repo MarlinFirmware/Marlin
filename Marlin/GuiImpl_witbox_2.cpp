@@ -18,27 +18,27 @@ namespace screen
 	///////////////////////
 	// Instantiate Icons //
 	///////////////////////
-	Icon icon_nosd                = Icon(icon_size, bits_nosd_normal, bits_nosd_focused);
-	Icon icon_sd                  = Icon(icon_size, bits_sd_normal, bits_sd_focused);
-	Icon icon_filament_unload     = Icon(icon_size, bits_filament_unload_normal, bits_filament_unload_focused);
-	Icon icon_filament_load       = Icon(icon_size, bits_filament_load_normal, bits_filament_load_focused);
-	Icon icon_leveling            = Icon(icon_size, bits_leveling_normal, bits_leveling_focused);
-	Icon icon_homing              = Icon(icon_size, bits_homing_normal, bits_homing_focused);
-	Icon icon_steppers            = Icon(icon_size, bits_steppers_normal, bits_steppers_focused);
-	Icon icon_steppers_off        = Icon(icon_size, bits_steppers_off_normal, bits_steppers_off_focused);
-	Icon icon_moveaxis            = Icon(icon_size, bits_moveaxis_normal, bits_moveaxis_focused);
-	Icon icon_temperature         = Icon(icon_size, bits_temperature_normal, bits_temperature_focused);
-	Icon icon_lightled_disable    = Icon(icon_size, bits_lightled_disable_normal, bits_lightled_disable_focused);
-	Icon icon_lightled            = Icon(icon_size, bits_lightled_normal, bits_lightled_focused);
-	Icon icon_info                = Icon(icon_size, bits_info_normal, bits_info_focused);
-	Icon icon_play                = Icon(icon_size, bits_play_normal, bits_play_focused);
-	Icon icon_pause               = Icon(icon_size, bits_pause_normal, bits_pause_focused);
-	Icon icon_stop                = Icon(icon_size, bits_stop_normal, bits_stop_focused);
-	Icon icon_change_filament     = Icon(icon_size, bits_change_filament_normal, bits_change_filament_focused);
-	Icon icon_change_speed        = Icon(icon_size, bits_change_speed_normal, bits_change_speed_focused);
-	Icon icon_back                = Icon(icon_size, bits_back_normal, bits_back_focused);
-	Icon icon_retry               = Icon(icon_size, bits_retry_normal, bits_retry_focused);
-	Icon icon_ok                  = Icon(icon_size, bits_ok_normal, bits_ok_focused);
+	Icon icon_nosd                = Icon(icon_size, bits_nosd_normal, bits_nosd_focused, "Insert SD Card");
+	Icon icon_sd                  = Icon(icon_size, bits_sd_normal, bits_sd_focused, "SD Card");
+	Icon icon_filament_unload     = Icon(icon_size, bits_filament_unload_normal, bits_filament_unload_focused, "Unload Filament");
+	Icon icon_filament_load       = Icon(icon_size, bits_filament_load_normal, bits_filament_load_focused, "Load Filament");
+	Icon icon_leveling            = Icon(icon_size, bits_leveling_normal, bits_leveling_focused, "Level Plate");
+	Icon icon_homing              = Icon(icon_size, bits_homing_normal, bits_homing_focused, "Auto-home");
+	Icon icon_steppers            = Icon(icon_size, bits_steppers_normal, bits_steppers_focused, "Disable steppers");
+	Icon icon_steppers_off        = Icon(icon_size, bits_steppers_off_normal, bits_steppers_off_focused, "Steppers off");
+	Icon icon_moveaxis            = Icon(icon_size, bits_moveaxis_normal, bits_moveaxis_focused, "Move axis");
+	Icon icon_temperature         = Icon(icon_size, bits_temperature_normal, bits_temperature_focused, "Temp 0/200C");
+	Icon icon_lightled_disable    = Icon(icon_size, bits_lightled_disable_normal, bits_lightled_disable_focused, "Led light off");
+	Icon icon_lightled            = Icon(icon_size, bits_lightled_normal, bits_lightled_focused, "Led light on");
+	Icon icon_info                = Icon(icon_size, bits_info_normal, bits_info_focused, "FW info");
+	Icon icon_play                = Icon(icon_size, bits_play_normal, bits_play_focused, "Play");
+	Icon icon_pause               = Icon(icon_size, bits_pause_normal, bits_pause_focused, "Pause");
+	Icon icon_stop                = Icon(icon_size, bits_stop_normal, bits_stop_focused, "Stop");
+	Icon icon_change_filament     = Icon(icon_size, bits_change_filament_normal, bits_change_filament_focused, "Change filament");
+	Icon icon_change_speed        = Icon(icon_size, bits_change_speed_normal, bits_change_speed_focused, "Change speed");
+	Icon icon_back                = Icon(icon_size, bits_back_normal, bits_back_focused, "Back");
+	Icon icon_retry               = Icon(icon_size, bits_retry_normal, bits_retry_focused, "Retry");
+	Icon icon_ok                  = Icon(icon_size, bits_ok_normal, bits_ok_focused, "OK");
 
 
 	/////////////////////////

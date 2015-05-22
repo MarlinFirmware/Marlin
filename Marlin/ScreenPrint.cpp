@@ -73,7 +73,7 @@ namespace screen
 				actual_time = millis()/60000 - starttime/60000;
 			}
 			painter.printing_status(card.percentDone(), actual_time);
-			painter.box(m_items[m_index]->title());
+         painter.box((m_items[m_index]->icon()).text());
 			uint8_t x_init = painter.coordinateXInit();
 			uint8_t y_init = painter.coordinateYInit();
 			uint8_t x_end = painter.coordinateXEnd();
