@@ -120,6 +120,15 @@
 #ifndef MSG_MOVE_E
 #define MSG_MOVE_E                          "Extruder"
 #endif
+#ifndef MSG_MOVE_E1
+#define MSG_MOVE_E1                          "Extruder1"
+#endif
+#ifndef MSG_MOVE_E2
+#define MSG_MOVE_E2                          "Extruder2"
+#endif
+#ifndef MSG_MOVE_E3
+#define MSG_MOVE_E3                          "Extruder3"
+#endif
 #ifndef MSG_MOVE_01MM
 #define MSG_MOVE_01MM                       "Move 0.1mm"
 #endif
@@ -164,6 +173,9 @@
 #endif
 #ifndef MSG_F3
 #define MSG_F3                              " 3"
+#endif
+#ifndef MSG_LAYER
+#define MSG_LAYER                           "Layer"
 #endif
 #ifndef MSG_CONTROL
 #define MSG_CONTROL                         "Control"
@@ -261,6 +273,24 @@
 #ifndef MSG_ESTEPS
 #define MSG_ESTEPS                          "Esteps/mm"
 #endif
+#ifndef MSG_X1OFFSET
+#define MSG_X1OFFSET                         "T1X Offset"
+#endif
+#ifndef MSG_Y1OFFSET
+#define MSG_Y1OFFSET                         "T1Y Offset"
+#endif
+#ifndef MSG_X2OFFSET
+#define MSG_X2OFFSET                         "T2X Offset"
+#endif
+#ifndef MSG_Y2OFFSET
+#define MSG_Y2OFFSET                         "T2Y Offset"
+#endif
+#ifndef MSG_X3OFFSET
+#define MSG_X3OFFSET                         "T3X Offset"
+#endif
+#ifndef MSG_Y3OFFSET
+#define MSG_Y3OFFSET                         "T3Y Offset"
+#endif
 #ifndef MSG_TEMPERATURE
 #define MSG_TEMPERATURE                     "Temperature"
 #endif
@@ -311,6 +341,9 @@
 #endif
 #ifndef MSG_PAUSE_PRINT
 #define MSG_PAUSE_PRINT                     "Pause print"
+#endif
+#ifndef MSG_CARD_RESUME_MENU
+#define MSG_CARD_RESUME_MENU                "Resume SD from Z"
 #endif
 #ifndef MSG_RESUME_PRINT
 #define MSG_RESUME_PRINT                    "Resume print"

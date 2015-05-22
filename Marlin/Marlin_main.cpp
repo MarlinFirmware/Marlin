@@ -87,6 +87,7 @@
  * G2  - CW ARC
  * G3  - CCW ARC
  * G4  - Dwell S<seconds> or P<milliseconds>
+ * G5  - Babystep Movement X Y Z
  * G10 - retract filament according to settings of M207
  * G11 - retract recover filament according to settings of M208
  * G28 - Home one or more axes
@@ -104,6 +105,7 @@
  * M1   - Same as M0
  * M17  - Enable/Power all stepper motors
  * M18  - Disable all stepper motors; same as M84
+ * M19  - Resume print from current (or given) Z height (disables all movements below the current Z position, a file must be selected to print after executing this M code)
  * M20  - List SD card
  * M21  - Init SD card
  * M22  - Release SD card
@@ -892,6 +894,8 @@ void get_command() {
           lcd_setstatus(time, true);
           card.printingHasFinished();
           card.checkautostart(true);
+
+          planner_disabled_below_z = 0;
         }
         if (serial_char == '#') stop_buffering = true;
 
@@ -1058,7 +1062,11 @@ static void axis_is_at_home(AxisEnum axis) {
     else
   #endif
   {
-    current_position[axis] = base_home_pos(axis) + home_offset[axis];
+    current_position[axis] = base_home_pos(axis)
+    #ifndef BABYSTEP_OFFSET
+    + home_offset[axis]
+    #endif
+    ;
     min_pos[axis] = base_min_pos(axis) + home_offset[axis];
     max_pos[axis] = base_max_pos(axis) + home_offset[axis];
 
@@ -1713,6 +1721,26 @@ static void homeaxis(AxisEnum axis) {
       }
     #endif
 
+    #ifdef BABYSTEP_OFFSET
+    if(axis == X_AXIS)
+    {
+      baby_max_endstop[axis] = X_BABY_DEFAULT_MAX_POS;
+      baby_min_endstop[axis] = X_BABY_DEFAULT_MIN_POS;
+    }
+    #ifdef BABYSTEP_XY
+    else if(axis == Y_AXIS)
+    {
+      baby_max_endstop[axis] = Y_BABY_DEFAULT_MAX_POS;
+      baby_min_endstop[axis] = Y_BABY_DEFAULT_MIN_POS;
+    }
+    else if(axis == Z_AXIS)
+    {
+      baby_max_endstop[axis] = Z_BABY_DEFAULT_MAX_POS;
+      baby_min_endstop[axis] = Z_BABY_DEFAULT_MIN_POS;
+    }
+    #endif //BABYSTEP_XY
+    #endif //BABYSTEP_OFFSET
+
   }
 }
 
@@ -2005,6 +2033,84 @@ inline void gcode_G4() {
   }
 }
 
+#ifdef BABYSTEPPING
+inline void gcode_G5() {
+  boolean endstop = false;
+  SERIAL_PROTOCOLPGM("Babystepped ");
+  unsigned short axis;
+  if(code_seen(axis_codes[Z_AXIS]))
+  {
+    SERIAL_PROTOCOLPGM("Z ");
+    axis = Z_AXIS;
+  }
+ #ifdef BABYSTEP_XY
+  else if(code_seen(axis_codes[X_AXIS]))
+  {
+    SERIAL_PROTOCOLPGM("X ");
+    axis = X_AXIS;
+  }
+  else if(code_seen(axis_codes[Y_AXIS]))
+  {
+    SERIAL_PROTOCOLPGM("Y ");
+    axis = Y_AXIS;
+  }
+ #endif //BABYSTEP_XY
+  else
+  {
+    SERIAL_PROTOCOLPGM("no distance (no axis given)\n");
+    return;
+  }
+  long babysteps = code_value();
+  if(babysteps < 0 && (current_position[axis] > baby_min_endstop[axis]))  // negative babysteps on Z can ignore min endstop, be careful!
+  {
+    SERIAL_PROTOCOLPGM("-= ");
+    if(current_position[axis] + babysteps/axis_steps_per_unit[axis] < baby_min_endstop[axis])
+    {
+      endstop = true;
+      babysteps = -1 * (current_position[axis] - baby_min_endstop[axis]) * axis_steps_per_unit[axis];
+    }
+    baby_max_endstop[axis] -= babysteps/axis_steps_per_unit[axis];
+    baby_min_endstop[axis] -= babysteps/axis_steps_per_unit[axis];
+    SERIAL_PROTOCOL_F(-1 * babysteps/axis_steps_per_unit[axis], 6);
+    babystepsTodo[axis] += babysteps;
+  }
+  else if(babysteps > 0 && current_position[axis] < baby_max_endstop[axis])
+  {
+    SERIAL_PROTOCOLPGM("+= ");
+    if(current_position[axis] + babysteps/axis_steps_per_unit[axis] > baby_max_endstop[axis])
+    {
+      endstop = true;
+      babysteps = (baby_max_endstop[axis] - current_position[axis]) * axis_steps_per_unit[axis];
+    }
+    baby_max_endstop[axis] -= babysteps/axis_steps_per_unit[axis];
+    baby_min_endstop[axis] -= babysteps/axis_steps_per_unit[axis];
+    SERIAL_PROTOCOL_F(babysteps/axis_steps_per_unit[axis], 6);
+    babystepsTodo[axis] += babysteps;
+  }
+  else
+  {
+    if((current_position[axis] == baby_min_endstop[axis] || current_position[axis] == baby_max_endstop[axis]) && babysteps != 0)
+      endstop = true;
+    SERIAL_PROTOCOL("= 0");
+  }
+  SERIAL_PROTOCOLPGM("mm\n");
+  if(endstop)
+  {
+    SERIAL_PROTOCOLPGM("BABY_ENDSTOP PREVENTED A COLLISION!!\n");
+    endstop = false;
+  }
+  if(current_position[axis] < baby_min_endstop[axis])
+  {
+    baby_min_endstop[axis] = current_position[axis];
+    baby_max_endstop[axis] += baby_min_endstop[axis];
+  }
+  #ifdef BABYSTEP_OFFSET
+  if(axis == Z_AXIS) // will move to the given (EEPROM saved) babystepped Z height offset when homing but not recognize it
+    home_offset[axis] = Z_BABY_DEFAULT_MIN_POS - baby_min_endstop[axis];
+  #endif //BABYSTEP_OFFSET
+}
+#endif //BABYSTEPPING
+
 #ifdef FWRETRACT
 
   /**
@@ -2042,6 +2148,8 @@ inline void gcode_G4() {
  *
  */
 inline void gcode_G28() {
+
+  if (planner_disabled_below_z) return; // Disable homing if resuming print
 
   // Wait for planner moves to finish!
   st_synchronize();
@@ -2276,6 +2384,16 @@ inline void gcode_G28() {
 
     sync_plan_position();
 
+    if(code_seen(axis_codes[Z_AXIS])) {
+      if(code_value_long() != 0) {
+        current_position[Z_AXIS]=code_value()
+        #ifndef BABYSTEPPING // will move to the given (EEPROM saved) babystepped Z height offset when homing but not recognize it
+        + home_offset[Z_AXIS]
+        #endif
+        ;
+      }
+    }
+
   #endif // else DELTA
 
   #ifdef SCARA
@@ -2301,10 +2419,17 @@ inline void gcode_G28() {
     }
   #endif
 
+  current_layer = 0;
+  last_layer_z = 0;
   feedrate = saved_feedrate;
   feedrate_multiplier = saved_feedrate_multiplier;
   refresh_cmd_timeout();
   endstops_hit_on_purpose(); // clear endstop hit flags
+  #ifdef BABYSTEP_OFFSET
+  baby_max_endstop[Z_AXIS] -= home_offset[Z_AXIS];
+  baby_min_endstop[Z_AXIS] -= home_offset[Z_AXIS];
+  babystepsTodo[Z_AXIS] += home_offset[Z_AXIS]*axis_steps_per_unit[Z_AXIS];
+  #endif
 }
 
 #ifdef MESH_BED_LEVELING
@@ -2331,6 +2456,8 @@ inline void gcode_G28() {
    *  
    */
   inline void gcode_G29() {
+
+    if (planner_disabled_below_z) break; // Disable probing if resuming print
 
     static int probe_point = -1;
     MeshLevelingState state = code_seen('S') || code_seen('s') ? (MeshLevelingState)code_value_short() : MeshReport;
@@ -2911,6 +3038,21 @@ inline void gcode_M17() {
   enable_all_steppers();
 }
 
+inline void gcode_M19() {
+  if(code_seen('Z'))
+  {
+    gcode_get_destination(); // For Z
+    prepare_move();
+    enqueuecommands_P(PSTR("M114")); // tell the host where it is
+  }
+
+  planner_disabled_below_z = current_position[Z_AXIS];
+
+  SERIAL_PROTOCOLPGM("Resume from Z = ");
+  SERIAL_PROTOCOL(planner_disabled_below_z);
+  SERIAL_PROTOCOLPGM(" mm\n");
+}
+
 #ifdef SDSUPPORT
 
   /**
@@ -2948,6 +3090,8 @@ inline void gcode_M17() {
    */
   inline void gcode_M24() {
     card.startFileprint();
+    current_layer = 0;
+    last_layer_z = 0;
     print_job_start_ms = millis();
   }
 
@@ -3829,6 +3973,10 @@ inline void gcode_M114() {
   SERIAL_PROTOCOL(float(st_get_position(Y_AXIS))/axis_steps_per_unit[Y_AXIS]);
   SERIAL_PROTOCOLPGM(" Z:");
   SERIAL_PROTOCOL(float(st_get_position(Z_AXIS))/axis_steps_per_unit[Z_AXIS]);
+
+  SERIAL_PROTOCOLPGM("  Layer:");
+  SERIAL_PROTOCOL(current_layer);
+  SERIAL_PROTOCOLLN("");
 
   SERIAL_EOL;
 
@@ -5246,6 +5394,12 @@ void process_next_command() {
       gcode_G4();
       break;
 
+    #ifdef BABYSTEPPING
+    case 5:
+      gcode_G5();
+      break;
+    #endif //BABYSTEPPING
+
     #ifdef FWRETRACT
 
       case 10: // G10: retract
@@ -5313,6 +5467,8 @@ void process_next_command() {
 
       #ifdef SDSUPPORT
 
+        case 19: // M19 - resume Z
+          gcode_M19(); break;
         case 20: // M20 - list SD card
           gcode_M20(); break;
         case 21: // M21 - init SD card

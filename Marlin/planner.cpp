@@ -63,6 +63,15 @@
 //============================= public variables ============================
 //===========================================================================
 
+float planner_disabled_below_z = 0;
+float last_z = 0;
+bool z_reached = false;
+bool layer_reached = false;
+bool hops = false;
+bool gone_up = false;
+unsigned long current_layer = 0;
+float last_layer_z = 0;
+
 millis_t minsegmenttime;
 float max_feedrate[NUM_AXIS]; // Max speeds in mm per minute
 float axis_steps_per_unit[NUM_AXIS];
@@ -473,6 +482,70 @@ float junction_deviation = 0.1;
   void plan_buffer_line(const float &x, const float &y, const float &z, const float &e, float feed_rate, const uint8_t &extruder)
 #endif  // ENABLE_AUTO_BED_LEVELING
 {
+  // filter out moves below a given floor height and attempt to ignore any hops/travels
+  if(planner_disabled_below_z && !layer_reached)
+  {
+    if(z < planner_disabled_below_z)
+    {
+      if(z > last_z && !gone_up) // up once
+        gone_up = true;
+      else if(z < last_z) // back down
+      {
+        if(z > last_layer_z)
+          current_layer++;
+        else if(z < last_layer_z && z != 0)
+          current_layer = 1; // if it goes lower than what we would think was the previous layer then we might as well assume it's printing another object
+        else if(z == 0)
+          current_layer = 0;
+        last_layer_z = z;
+        hops = true;
+        gone_up = false;
+      }
+      else if(z > last_z && gone_up) // up twice
+      {
+        current_layer++; // be careful with prints like the spiral vase
+        hops = false;
+      }
+      z_reached = false;
+      last_z = z;
+      return;
+    }
+    else if(hops && !z_reached)
+    {
+      z_reached = true;
+      last_z = z;
+      return;
+    }
+    else if(hops && z == last_z)
+      return;
+    else
+      layer_reached = true;
+  }
+  else if(planner_disabled_below_z && z < planner_disabled_below_z)
+  {
+    z_reached = false;
+    layer_reached = false;
+    return;
+  }
+
+  if(z > last_z && !gone_up) // up once
+    gone_up = true;
+  else if(z < last_z) // back down
+  {
+    if(z > last_layer_z)
+      current_layer++;
+    else if(z < last_layer_z && z != 0)
+      current_layer = 1; // if it goes lower than what we would think was the previous layer then we might as well assume it's printing another object
+    else if(z == 0)
+      current_layer = 0;
+    last_layer_z = z;
+    gone_up = false;
+  }
+  else if(z > last_z && gone_up) // up twice
+    current_layer++; // be careful with prints like the spiral vase
+
+  last_z = z;
+
   // Calculate the buffer head after we push this byte
   int next_buffer_head = next_block_index(block_buffer_head);
 

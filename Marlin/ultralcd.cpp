@@ -63,6 +63,15 @@ static void lcd_status_screen();
   #endif
   static void lcd_sdcard_menu();
 
+static void lcd_sdcard_resume_menu();
+static void lcd_sdcard_print_menu();
+extern float planner_disabled_below_z;
+extern float last_z;
+extern bool z_reached;
+extern bool layer_reached;
+extern bool hops;
+extern bool gone_up;
+
   #ifdef DELTA_CALIBRATION_MENU
     static void lcd_delta_calibrate_menu();
   #endif
@@ -378,6 +387,7 @@ static void lcd_sdcard_stop() {
   autotempShutdown();
   cancel_heatup = true;
   lcd_setstatus(MSG_PRINT_ABORTED, true);
+  planner_disabled_below_z = 0;
 }
 
 /**
@@ -410,6 +420,9 @@ static void lcd_main_menu() {
         MENU_ITEM(function, MSG_STOP_PRINT, lcd_sdcard_stop);
       }
       else {
+        MENU_ITEM(submenu, MSG_CARD_MENU, lcd_sdcard_print_menu);
+        MENU_ITEM(submenu, MSG_CARD_RESUME_MENU, lcd_sdcard_resume_menu);
+
         MENU_ITEM(submenu, MSG_CARD_MENU, lcd_sdcard_menu);
         #if SDCARDDETECT < 1
           MENU_ITEM(gcode, MSG_CNG_SDCARD, PSTR("M21"));  // SD-card changed by user
@@ -499,6 +512,9 @@ static void lcd_tune_menu() {
   #if TEMP_SENSOR_3 != 0
     MENU_ITEM_EDIT(int3, MSG_FLOW MSG_F3, &extruder_multiply[3], 10, 999);
   #endif
+
+    unsigned long layer = current_layer;
+    MENU_ITEM_EDIT(long5, MSG_LAYER, &layer, layer, layer);
 
   #ifdef BABYSTEPPING
     #ifdef BABYSTEP_XY
@@ -749,6 +765,51 @@ static void lcd_move_e() {
   if (lcdDrawUpdate) lcd_implementation_drawedit(PSTR("Extruder"), ftostr31(current_position[E_AXIS]));
   if (LCD_CLICKED) lcd_goto_menu(lcd_move_menu_axis);
 }
+#if EXTRUDERS > 1
+static void lcd_move_e1() {
+  unsigned short original_active_extruder = active_extruder;
+  active_extruder = 1;
+  if (encoderPosition != 0) {
+    current_position[E_AXIS] += float((int)encoderPosition) * move_menu_scale;
+    encoderPosition = 0;
+    line_to_current(E_AXIS);
+    lcdDrawUpdate = 1;
+  }
+  if (lcdDrawUpdate) lcd_implementation_drawedit(PSTR("Extruder"), ftostr31(current_position[E_AXIS]));
+  if (LCD_CLICKED) lcd_goto_menu(lcd_move_menu_axis);
+  active_extruder = original_active_extruder;
+}
+#endif //EXTRUDERS > 1
+#if EXTRUDERS > 2
+static void lcd_move_e2() {
+  unsigned short original_active_extruder = active_extruder;
+  active_extruder = 2;
+  if (encoderPosition != 0) {
+    current_position[E_AXIS] += float((int)encoderPosition) * move_menu_scale;
+    encoderPosition = 0;
+    line_to_current(E_AXIS);
+    lcdDrawUpdate = 1;
+  }
+  if (lcdDrawUpdate) lcd_implementation_drawedit(PSTR("Extruder"), ftostr31(current_position[E_AXIS]));
+  if (LCD_CLICKED) lcd_goto_menu(lcd_move_menu_axis);
+  active_extruder = original_active_extruder;
+}
+#endif // EXTRUDERS > 2
+#if EXTRUDERS > 3
+static void lcd_move_e3() {
+  unsigned short original_active_extruder = active_extruder;
+  active_extruder = 3;
+  if (encoderPosition != 0) {
+    current_position[E_AXIS] += float((int)encoderPosition) * move_menu_scale;
+    encoderPosition = 0;
+    line_to_current(E_AXIS);
+    lcdDrawUpdate = 1;
+  }
+  if (lcdDrawUpdate) lcd_implementation_drawedit(PSTR("Extruder"), ftostr31(current_position[E_AXIS]));
+  if (LCD_CLICKED) lcd_goto_menu(lcd_move_menu_axis);
+  active_extruder = original_active_extruder;
+}
+#endif // EXTRUDERS > 3
 
 /**
  *
@@ -761,10 +822,19 @@ static void lcd_move_menu_axis() {
   MENU_ITEM(back, MSG_MOVE_AXIS, lcd_move_menu);
   MENU_ITEM(submenu, MSG_MOVE_X, lcd_move_x);
   MENU_ITEM(submenu, MSG_MOVE_Y, lcd_move_y);
-  if (move_menu_scale < 10.0) {
+//if (move_menu_scale < 10.0) { //Why exclude Z and E from the 100mm menu ???
     MENU_ITEM(submenu, MSG_MOVE_Z, lcd_move_z);
     MENU_ITEM(submenu, MSG_MOVE_E, lcd_move_e);
-  }
+    #if EXTRUDERS > 1
+    MENU_ITEM(submenu, MSG_MOVE_E1, lcd_move_e1);
+    #endif //EXTRUDERS > 1
+    #if EXTRUDERS > 2
+    MENU_ITEM(submenu, MSG_MOVE_E2, lcd_move_e2);
+    #endif //EXTRUDERS > 2
+    #if EXTRUDERS > 3
+    MENU_ITEM(submenu, MSG_MOVE_E3, lcd_move_e3);
+    #endif //EXTRUDERS > 3
+//}
   END_MENU();
 }
 
@@ -1060,6 +1130,18 @@ static void lcd_control_motion_menu() {
   MENU_ITEM_EDIT(float52, MSG_YSTEPS, &axis_steps_per_unit[Y_AXIS], 5, 9999);
   MENU_ITEM_EDIT(float51, MSG_ZSTEPS, &axis_steps_per_unit[Z_AXIS], 5, 9999);
   MENU_ITEM_EDIT(float51, MSG_ESTEPS, &axis_steps_per_unit[E_AXIS], 5, 9999);
+  #if EXTRUDERS > 1
+    MENU_ITEM_EDIT(float52, MSG_X1OFFSET, &extruder_offset[X_AXIS][1], -200, 200);
+    MENU_ITEM_EDIT(float52, MSG_Y1OFFSET, &extruder_offset[Y_AXIS][1], -200, 200);
+  #endif // EXTRUDERS > 1
+  #if EXTRUDERS > 2
+    MENU_ITEM_EDIT(float52, MSG_X2OFFSET, &extruder_offset[X_AXIS][2], -200, 200);
+    MENU_ITEM_EDIT(float52, MSG_Y2OFFSET, &extruder_offset[Y_AXIS][2], -200, 200);
+  #endif // EXTRUDERS > 2
+  #if EXTRUDERS > 3
+    MENU_ITEM_EDIT(float52, MSG_X3OFFSET, &extruder_offset[X_AXIS][3], -200, 200);
+    MENU_ITEM_EDIT(float52, MSG_Y3OFFSET, &extruder_offset[Y_AXIS][3], -200, 200);
+  #endif // EXTRUDERS > 3
   #ifdef ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED
     MENU_ITEM_EDIT(bool, MSG_ENDSTOP_ABORT, &abort_on_endstop_hit);
   #endif
@@ -1162,6 +1244,25 @@ static void lcd_control_volumetric_menu() {
 static void lcd_sd_updir() {
   card.updir();
   currentMenuViewOffset = 0;
+}
+
+// Print from SD
+void lcd_sdcard_print_menu()
+{
+    planner_disabled_below_z = 0;
+    lcd_sdcard_menu();
+}
+
+// Print from SD but set flag to ignore movements below a certain Z
+void lcd_sdcard_resume_menu()
+{
+    planner_disabled_below_z = current_position[Z_AXIS];
+    last_z = 0;
+    z_reached = false;
+    layer_reached = false;
+    hops = false;
+    gone_up = false;
+    lcd_sdcard_menu();
 }
 
 /**
