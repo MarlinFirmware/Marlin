@@ -5220,7 +5220,7 @@ void process_next_command() {
   while (*current_command_args == ' ') ++current_command_args;
 
   // Interpret the code int
-  seen_pointer = current_command + 1;
+  seen_pointer = current_command;
   codenum = code_value_short();
 
   // Handle a known G, M, or T
