@@ -213,6 +213,10 @@
  * M365 - SCARA calibration: Scaling factor, X, Y, Z axis
  * ************* SCARA End ***************
  *
+ * ************ Custom codes - This can change to suit future G-code regulations
+ * M851 - Set probe's Z offset (mm above extruder -- The value will always be negative)
+
+
  * M928 - Start SD logging (M928 filename.g) - ended by M29
  * M999 - Restart after being stopped by error
  *
