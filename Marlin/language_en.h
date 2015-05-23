@@ -8,12 +8,12 @@
 #ifndef LANGUAGE_EN_H
 #define LANGUAGE_EN_H
 
-#if !( defined(MAPPER_NON)|| defined(MAPPER_C2C3)|| defined(MAPPER_D0D1)|| defined(MAPPER_D0D1_MOD)|| defined(MAPPER_E382E383) )
+#if !( ENABLED(MAPPER_NON)|| ENABLED(MAPPER_C2C3)|| ENABLED(MAPPER_D0D1)|| ENABLED(MAPPER_D0D1_MOD)|| ENABLED(MAPPER_E382E383) )
   #define MAPPER_NON         // For direct asci codes
 #endif
 
 //#define SIMULATE_ROMFONT //Comment in to see what is seen on the character based displays
-#if !( defined(SIMULATE_ROMFONT)|| defined(DISPLAY_CHARSET_ISO10646_1)|| defined(DISPLAY_CHARSET_ISO10646_5)|| defined(DISPLAY_CHARSET_ISO10646_KANA)|| defined(DISPLAY_CHARSET_ISO10646_CN) )
+#if !( ENABLED(SIMULATE_ROMFONT)|| ENABLED(DISPLAY_CHARSET_ISO10646_1)|| ENABLED(DISPLAY_CHARSET_ISO10646_5)|| ENABLED(DISPLAY_CHARSET_ISO10646_KANA)|| ENABLED(DISPLAY_CHARSET_ISO10646_CN) )
   #define DISPLAY_CHARSET_ISO10646_1 // use the better font on full graphic displays.
 #endif
 
@@ -424,7 +424,7 @@
 #define MSG_END_MINUTE                      "minutes"
 #endif
 
-#ifdef DELTA_CALIBRATION_MENU
+#if ENABLED(DELTA_CALIBRATION_MENU)
   #ifndef MSG_DELTA_CALIBRATE
   #define MSG_DELTA_CALIBRATE             "Delta Calibration"
   #endif

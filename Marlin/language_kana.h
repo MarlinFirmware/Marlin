@@ -138,7 +138,7 @@
                    ^ typho
 */
 
-#ifdef DELTA_CALIBRATION_MENU
+#if ENABLED(DELTA_CALIBRATION_MENU)
     #define MSG_DELTA_CALIBRATE             "Delta Calibration"
     #define MSG_DELTA_CALIBRATE_X           "Calibrate X"
     #define MSG_DELTA_CALIBRATE_Y           "Calibrate Y"

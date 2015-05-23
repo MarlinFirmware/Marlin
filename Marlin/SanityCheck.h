@@ -9,21 +9,21 @@
   /**
    * Dual Stepper Drivers
    */
-  #if defined(Z_DUAL_STEPPER_DRIVERS) && defined(Y_DUAL_STEPPER_DRIVERS)
+  #if ENABLED(Z_DUAL_STEPPER_DRIVERS) && ENABLED(Y_DUAL_STEPPER_DRIVERS)
     #error You cannot have dual stepper drivers for both Y and Z.
   #endif
 
   /**
    * Progress Bar
    */
-  #ifdef LCD_PROGRESS_BAR
-    #ifndef SDSUPPORT
+  #if ENABLED(LCD_PROGRESS_BAR)
+    #if DISABLED(SDSUPPORT)
       #error LCD_PROGRESS_BAR requires SDSUPPORT.
     #endif
-    #ifdef DOGLCD
+    #if ENABLED(DOGLCD)
       #error LCD_PROGRESS_BAR does not apply to graphical displays.
     #endif
-    #ifdef FILAMENT_LCD_DISPLAY
+    #if ENABLED(FILAMENT_LCD_DISPLAY)
       #error LCD_PROGRESS_BAR and FILAMENT_LCD_DISPLAY are not fully compatible. Comment out this line to use both.
     #endif
   #endif
@@ -31,14 +31,14 @@
   /**
    * Babystepping
    */
-  #ifdef BABYSTEPPING
-    #ifdef COREXY
+  #if ENABLED(BABYSTEPPING)
+    #if ENABLED(COREXY)
       #error BABYSTEPPING not implemented for COREXY yet.
     #endif
-    #ifdef SCARA
+    #if ENABLED(SCARA)
       #error BABYSTEPPING is not implemented for SCARA yet.
     #endif
-    #if defined(DELTA) && defined(BABYSTEP_XY)
+    #if ENABLED(DELTA) && ENABLED(BABYSTEP_XY)
       #error BABYSTEPPING only implemented for Z axis on deltabots.
     #endif
   #endif
@@ -46,7 +46,7 @@
   /**
    * Filament Change with Extruder Runout Prevention
    */
-  #if defined(FILAMENTCHANGEENABLE) && defined(EXTRUDER_RUNOUT_PREVENT)
+  #if ENABLED(FILAMENTCHANGEENABLE) && ENABLED(EXTRUDER_RUNOUT_PREVENT)
     #error EXTRUDER_RUNOUT_PREVENT currently incompatible with FILAMENTCHANGE.
   #endif
 
@@ -59,19 +59,19 @@
       #error The maximum number of EXTRUDERS in Marlin is 4.
     #endif
 
-    #ifdef TEMP_SENSOR_1_AS_REDUNDANT
+    #if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
       #error EXTRUDERS must be 1 with TEMP_SENSOR_1_AS_REDUNDANT.
     #endif
 
-    #ifdef HEATERS_PARALLEL
+    #if ENABLED(HEATERS_PARALLEL)
       #error EXTRUDERS must be 1 with HEATERS_PARALLEL.
     #endif
 
-    #ifdef Y_DUAL_STEPPER_DRIVERS
+    #if ENABLED(Y_DUAL_STEPPER_DRIVERS)
       #error EXTRUDERS must be 1 with Y_DUAL_STEPPER_DRIVERS.
     #endif
 
-    #ifdef Z_DUAL_STEPPER_DRIVERS
+    #if ENABLED(Z_DUAL_STEPPER_DRIVERS)
       #error EXTRUDERS must be 1 with Z_DUAL_STEPPER_DRIVERS.
     #endif
 
@@ -87,18 +87,18 @@
   /**
    * Required LCD language
    */
-  #if !defined(DOGLCD) && defined(ULTRA_LCD) && !defined(DISPLAY_CHARSET_HD44780_JAPAN) && !defined(DISPLAY_CHARSET_HD44780_WESTERN)&& !defined(DISPLAY_CHARSET_HD44780_CYRILLIC)
+  #if DISABLED(DOGLCD) && ENABLED(ULTRA_LCD) && DISABLED(DISPLAY_CHARSET_HD44780_JAPAN) && DISABLED(DISPLAY_CHARSET_HD44780_WESTERN) && DISABLED(DISPLAY_CHARSET_HD44780_CYRILLIC)
     #error You must enable either DISPLAY_CHARSET_HD44780_JAPAN or DISPLAY_CHARSET_HD44780_WESTERN  or DISPLAY_CHARSET_HD44780_CYRILLIC for your LCD controller.
   #endif
 
   /**
    * Mesh Bed Leveling
    */
-  #ifdef MESH_BED_LEVELING
-    #ifdef DELTA
+  #if ENABLED(MESH_BED_LEVELING)
+    #if ENABLED(DELTA)
       #error MESH_BED_LEVELING does not yet support DELTA printers
     #endif
-    #ifdef ENABLE_AUTO_BED_LEVELING
+    #if ENABLED(ENABLE_AUTO_BED_LEVELING)
       #error Select ENABLE_AUTO_BED_LEVELING or MESH_BED_LEVELING, not both
     #endif
     #if MESH_NUM_X_POINTS > 7 || MESH_NUM_Y_POINTS > 7
@@ -109,14 +109,14 @@
   /**
    * Auto Bed Leveling
    */
-  #ifdef ENABLE_AUTO_BED_LEVELING
+  #if ENABLED(ENABLE_AUTO_BED_LEVELING)
 
     /**
      * Require a Z Min pin
      */
     #if Z_MIN_PIN == -1
-      #if Z_PROBE_PIN == -1 || (!defined(Z_PROBE_ENDSTOP) || defined(DISABLE_Z_PROBE_ENDSTOP)) // It's possible for someone to set a pin for the Z Probe, but not enable it.
-        #ifdef Z_PROBE_REPEATABILITY_TEST
+      #if Z_PROBE_PIN == -1 || (DISABLED(Z_PROBE_ENDSTOP) || ENABLED(DISABLE_Z_PROBE_ENDSTOP)) // It's possible for someone to set a pin for the Z Probe, but not enable it.
+        #if ENABLED(Z_PROBE_REPEATABILITY_TEST)
           #error You must have a Z_MIN or Z_PROBE endstop to enable Z_PROBE_REPEATABILITY_TEST.
         #else
           #error ENABLE_AUTO_BED_LEVELING requires a Z_MIN or Z_PROBE endstop. Z_MIN_PIN or Z_PROBE_PIN must point to a valid hardware pin.
@@ -127,7 +127,7 @@
     /**
      * Require a Z Probe Pin if Z_PROBE_ENDSTOP is enabled.
      */
-    #if defined(Z_PROBE_ENDSTOP)
+    #if ENABLED(Z_PROBE_ENDSTOP)
       #ifndef Z_PROBE_PIN
         #error You must have a Z_PROBE_PIN defined in your pins_XXXX.h file if you enable Z_PROBE_ENDSTOP
       #endif
@@ -151,7 +151,7 @@
     /**
      * Check if Probe_Offset * Grid Points is greater than Probing Range
      */
-    #ifdef AUTO_BED_LEVELING_GRID
+    #if ENABLED(AUTO_BED_LEVELING_GRID)
       #ifndef DELTA_PROBABLE_RADIUS
         // Make sure probing points are reachable
         #if LEFT_PROBE_BED_POSITION < MIN_PROBE_X
@@ -218,26 +218,26 @@
   /**
    * ULTIPANEL encoder
    */
-  #if defined(ULTIPANEL) && !defined(NEWPANEL) && !defined(SR_LCD_2W_NL) && !defined(SHIFT_CLK)
+  #if ENABLED(ULTIPANEL) && DISABLED(NEWPANEL) && DISABLED(SR_LCD_2W_NL) && !defined(SHIFT_CLK)
     #error ULTIPANEL requires some kind of encoder.
   #endif
 
   /**
    * Delta has limited bed leveling options
    */
-  #ifdef DELTA
+  #if ENABLED(DELTA)
 
-    #ifdef ENABLE_AUTO_BED_LEVELING
+    #if ENABLED(ENABLE_AUTO_BED_LEVELING)
 
-      #ifndef AUTO_BED_LEVELING_GRID
+      #if DISABLED(AUTO_BED_LEVELING_GRID)
         #error Only AUTO_BED_LEVELING_GRID is supported with DELTA.
       #endif
 
-      #ifdef Z_PROBE_SLED
+      #if ENABLED(Z_PROBE_SLED)
         #error You cannot use Z_PROBE_SLED with DELTA.
       #endif
 
-      #ifdef Z_PROBE_REPEATABILITY_TEST
+      #if ENABLED(Z_PROBE_REPEATABILITY_TEST)
         #error Z_PROBE_REPEATABILITY_TEST is not supported with DELTA yet.
       #endif
 
@@ -248,15 +248,15 @@
   /**
    * Allen Key Z Probe requires Auto Bed Leveling grid and Delta
    */
-  #if defined(Z_PROBE_ALLEN_KEY) && !(defined(AUTO_BED_LEVELING_GRID) && defined(DELTA))
+  #if ENABLED(Z_PROBE_ALLEN_KEY) && !(ENABLED(AUTO_BED_LEVELING_GRID) && ENABLED(DELTA))
     #error Invalid use of Z_PROBE_ALLEN_KEY.
   #endif
 
   /**
    * Dual X Carriage requirements
    */
-  #ifdef DUAL_X_CARRIAGE
-    #if EXTRUDERS == 1 || defined(COREXY) \
+  #if ENABLED(DUAL_X_CARRIAGE)
+    #if EXTRUDERS == 1 || ENABLED(COREXY) \
         || !HAS_X2_ENABLE || !HAS_X2_STEP || !HAS_X2_DIR \
         || !defined(X2_HOME_POS) || !defined(X2_MIN_POS) || !defined(X2_MAX_POS) \
         || !HAS_X_MAX
@@ -297,7 +297,7 @@
     #if !HAS_HEATER_2
       #error HEATER_2_PIN not defined for this board
     #endif
-  #elif EXTRUDERS > 1 || defined(HEATERS_PARALLEL)
+  #elif EXTRUDERS > 1 || ENABLED(HEATERS_PARALLEL)
     #if !HAS_HEATER_1
       #error HEATER_1_PIN not defined for this board
     #endif
@@ -317,11 +317,11 @@
     #error WATCH_TEMP_PERIOD now uses seconds instead of milliseconds
   #endif
 
-  #if !defined(THERMAL_PROTECTION_HOTENDS) && (defined(WATCH_TEMP_PERIOD) || defined(THERMAL_PROTECTION_PERIOD))
+  #if DISABLED(THERMAL_PROTECTION_HOTENDS) && (defined(WATCH_TEMP_PERIOD) || defined(THERMAL_PROTECTION_PERIOD))
     #error Thermal Runaway Protection for hotends must now be enabled with THERMAL_PROTECTION_HOTENDS
   #endif
 
-  #if !defined(THERMAL_PROTECTION_BED) && defined(THERMAL_PROTECTION_BED_PERIOD)
+  #if DISABLED(THERMAL_PROTECTION_BED) && defined(THERMAL_PROTECTION_BED_PERIOD)
     #error Thermal Runaway Protection for the bed must now be enabled with THERMAL_PROTECTION_BED
   #endif
 
