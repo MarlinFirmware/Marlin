@@ -23,7 +23,9 @@
   // if Kc is chosen well, the additional required power due to increased melting should be compensated.
   #define PID_ADD_EXTRUSION_RATE
   #ifdef PID_ADD_EXTRUSION_RATE
-    #define  DEFAULT_Kc (1) //heating power=Kc*(e_speed)
+    //#define  DEFAULT_Kc (1) //heating power=Kc*(e_speed)
+    //MG
+    #define  DEFAULT_Kc (1.3) //heating power=Kc*(e_speed)
   #endif
 #endif
 
@@ -58,6 +60,19 @@
 #define TEMP_SENSOR_AD595_OFFSET 0.0
 #define TEMP_SENSOR_AD595_GAIN   1.0
 
+#if MOTHERBOARD == 555 // MG
+#define CONTROLLERFAN_PIN 45 //Pin used for the fan to cool controller (-1 to disable)
+#define CONTROLLERFAN_SECS 10 //How many seconds, after all motors were disabled, the fan should run
+#define CONTROLLERFAN_SPEED 255  // == full speed
+
+#define FAN_KICKSTART_TIME 100
+
+#define EXTRUDER_0_AUTO_FAN_PIN   43
+#define EXTRUDER_1_AUTO_FAN_PIN   43
+#define EXTRUDER_2_AUTO_FAN_PIN   -1
+#define EXTRUDER_AUTO_FAN_TEMPERATURE 60
+#define EXTRUDER_AUTO_FAN_SPEED   255  // == full speed
+#else
 //This is for controlling a fan to cool down the stepper drivers
 //it will turn on when any driver is enabled
 //and turn off after the set amount of seconds from last driver being disabled again
@@ -80,7 +95,7 @@
 #define EXTRUDER_2_AUTO_FAN_PIN   -1
 #define EXTRUDER_AUTO_FAN_TEMPERATURE 50
 #define EXTRUDER_AUTO_FAN_SPEED   255  // == full speed
-
+#endif // MOTHERBOARD 555 MG
 
 //===========================================================================
 //=============================Mechanical Settings===========================
@@ -299,6 +314,7 @@
 
 // Show a progress bar on the LCD when printing from SD?
 //#define LCD_PROGRESS_BAR
+#define LCD_PROGRESS_BAR
 
 #ifdef LCD_PROGRESS_BAR
   // Amount of time (ms) to show the bar
@@ -438,11 +454,19 @@ const unsigned int dropsegments=5; //everything with less than this number of st
 #ifdef ULTIPANEL
   #define FILAMENTCHANGEENABLE
   #ifdef FILAMENTCHANGEENABLE
+   #if MOTHERBOARD == 555 // MG
+    #define FILAMENTCHANGE_XPOS 80
+    #define FILAMENTCHANGE_YPOS 10
+    #define FILAMENTCHANGE_ZADD 20
+    #define FILAMENTCHANGE_FIRSTRETRACT -2
+    #define FILAMENTCHANGE_FINALRETRACT -50
+   #else
     #define FILAMENTCHANGE_XPOS 3
     #define FILAMENTCHANGE_YPOS 3
     #define FILAMENTCHANGE_ZADD 10
     #define FILAMENTCHANGE_FIRSTRETRACT -2
     #define FILAMENTCHANGE_FINALRETRACT -100
+   #endif // MOTHERBOARD 555 MG
   #endif
 #endif
 

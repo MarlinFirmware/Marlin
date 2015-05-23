@@ -33,7 +33,13 @@ int absPreheatFanSpeed;
 typedef void (*menuFunc_t)();
 
 uint8_t lcd_status_message_level;
+
+// MG
+#ifdef LANGUAGE_RU
+char lcd_status_message[2*LCD_WIDTH+1] = WELCOME_MSG;
+#else
 char lcd_status_message[LCD_WIDTH+1] = WELCOME_MSG;
+#endif // MG
 
 #ifdef DOGLCD
 #include "dogm_lcd_implementation.h"
@@ -433,7 +439,9 @@ static void lcd_tune_menu()
     MENU_ITEM_EDIT(int3, MSG_BED, &target_temperature_bed, 0, BED_MAXTEMP - 15);
 #endif
     MENU_ITEM_EDIT(int3, MSG_FAN_SPEED, &fanSpeed, 0, 255);
+    /* MG Это поток сразу для всех экструдеров, для одного отключаем
     MENU_ITEM_EDIT(int3, MSG_FLOW, &extrudemultiply, 10, 999);
+	*/
     MENU_ITEM_EDIT(int3, MSG_FLOW0, &extruder_multiply[0], 10, 999);
 #if TEMP_SENSOR_1 != 0
     MENU_ITEM_EDIT(int3, MSG_FLOW1, &extruder_multiply[1], 10, 999);
@@ -745,7 +753,11 @@ static void lcd_control_menu()
     MENU_ITEM(back, MSG_MAIN, lcd_main_menu);
     MENU_ITEM(submenu, MSG_TEMPERATURE, lcd_control_temperature_menu);
     MENU_ITEM(submenu, MSG_MOTION, lcd_control_motion_menu);
+	#if MOTHERBOARD == 555 // MG
+	// это меню не нужно
+	#else
 	MENU_ITEM(submenu, MSG_VOLUMETRIC, lcd_control_volumetric_menu);
+	#endif
 
 #ifdef DOGLCD
 //    MENU_ITEM_EDIT(int3, MSG_CONTRAST, &lcd_contrast, 0, 63);
@@ -785,6 +797,9 @@ static void lcd_control_temperature_menu()
     MENU_ITEM_EDIT(int3, MSG_BED, &target_temperature_bed, 0, BED_MAXTEMP - 15);
 #endif
     MENU_ITEM_EDIT(int3, MSG_FAN_SPEED, &fanSpeed, 0, 255);
+#if MOTHERBOARD == 555 // MG
+// это меню не нужно
+#else
 #if defined AUTOTEMP && (TEMP_SENSOR_0 != 0)
     MENU_ITEM_EDIT(bool, MSG_AUTOTEMP, &autotemp_enabled);
     MENU_ITEM_EDIT(float3, MSG_MIN, &autotemp_min, 0, HEATER_0_MAXTEMP - 15);
@@ -800,6 +815,7 @@ static void lcd_control_temperature_menu()
     MENU_ITEM_EDIT(float3, MSG_PID_C, &Kc, 1, 9990);
 # endif//PID_ADD_EXTRUSION_RATE
 #endif//PIDTEMP
+#endif // MOTHERBOARD 555 MG
     MENU_ITEM(submenu, MSG_PREHEAT_PLA_SETTINGS, lcd_control_temperature_preheat_pla_settings_menu);
     MENU_ITEM(submenu, MSG_PREHEAT_ABS_SETTINGS, lcd_control_temperature_preheat_abs_settings_menu);
     END_MENU();
@@ -854,6 +870,9 @@ static void lcd_control_motion_menu()
     MENU_ITEM_EDIT(float3, MSG_VMAX MSG_Y, &max_feedrate[Y_AXIS], 1, 999);
     MENU_ITEM_EDIT(float3, MSG_VMAX MSG_Z, &max_feedrate[Z_AXIS], 1, 999);
     MENU_ITEM_EDIT(float3, MSG_VMAX MSG_E, &max_feedrate[E_AXIS], 1, 999);
+#if MOTHERBOARD == 555 // MG
+// эти настройки лишние, они не нужны на LCD
+#else
     MENU_ITEM_EDIT(float3, MSG_VMIN, &minimumfeedrate, 0, 999);
     MENU_ITEM_EDIT(float3, MSG_VTRAV_MIN, &mintravelfeedrate, 0, 999);
     MENU_ITEM_EDIT_CALLBACK(long5, MSG_AMAX MSG_X, &max_acceleration_units_per_sq_second[X_AXIS], 100, 99000, reset_acceleration_rates);
@@ -865,6 +884,7 @@ static void lcd_control_motion_menu()
     MENU_ITEM_EDIT(float52, MSG_YSTEPS, &axis_steps_per_unit[Y_AXIS], 5, 9999);
     MENU_ITEM_EDIT(float51, MSG_ZSTEPS, &axis_steps_per_unit[Z_AXIS], 5, 9999);
     MENU_ITEM_EDIT(float51, MSG_ESTEPS, &axis_steps_per_unit[E_AXIS], 5, 9999);
+#endif // MOTHERBOARD 555 MG
 #ifdef ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED
     MENU_ITEM_EDIT(bool, MSG_ENDSTOP_ABORT, &abort_on_endstop_hit);
 #endif
@@ -1310,14 +1330,24 @@ void lcd_setstatus(const char* message)
 {
     if (lcd_status_message_level > 0)
         return;
-    strncpy(lcd_status_message, message, LCD_WIDTH);
+    // MG
+    #if LANGUAGE_CHOICE == 6
+     strncpy(lcd_status_message, message, LCD_WIDTH*2);
+    #else
+     strncpy(lcd_status_message, message, LCD_WIDTH);
+	#endif // MG
     lcd_finishstatus();
 }
 void lcd_setstatuspgm(const char* message)
 {
     if (lcd_status_message_level > 0)
         return;
-    strncpy_P(lcd_status_message, message, LCD_WIDTH);
+     // MG
+    #if LANGUAGE_CHOICE == 6
+     strncpy_P(lcd_status_message, message, LCD_WIDTH*2);
+    #else
+     strncpy_P(lcd_status_message, message, LCD_WIDTH);
+	#endif // MG
     lcd_finishstatus();
 }
 void lcd_setalertstatuspgm(const char* message)

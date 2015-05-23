@@ -44,7 +44,8 @@
 // The following define selects which electronics board you have.
 // Please choose the name from boards.h that matches your setup
 #ifndef MOTHERBOARD
-  #define MOTHERBOARD BOARD_ULTIMAKER
+  //#define MOTHERBOARD BOARD_ULTIMAKER
+  #define MOTHERBOARD BOARD_MAGNUM
 #endif
 
 // Define this to set a custom name for your generic Mendel,
@@ -104,10 +105,59 @@
 // 147 is Pt100 with 4k7 pullup
 // 110 is Pt100 with 1k pullup (non standard)
 
+#if MOTHERBOARD == 555
+  //#define MAGNUM_PLA
+  //#define MACHINE_MODEL "PLA"
+  #define MAGNUM_UNI
+  #define MACHINE_MODEL "UNI"
+  //#define MAGNUM_PRO
+  //#define MACHINE_MODEL "PRO"
+  //#define MAGNUM_EDU
+  //#define MACHINE_MODEL "EDU"
+  //#define MODUS
+  //#define MACHINE_MODEL "MODUS-A"
+  //#define MAGNUM_TT
+  //#define MACHINE_MODEL "TT"
+  
+ //#define EXTERNAL_EXTRUDER
+ 
+ #undef  STRING_CONFIG_H_AUTHOR
+ #define STRING_CONFIG_H_AUTHOR "(Irwin co., Magnum 3D)"
+ #define CUSTOM_MENDEL_NAME "Magnum 3D gen.2"
+ #define MACHINE_UUID "ee4e69c4-d111-4c45-b992-7a67e108c6d8"  //MG gen. 2
+ //#define FIRMWARE_VERSION "Magnum-" MACHINE_MODEL "-B03-F4tmp"
+ #define FIRMWARE_VERSION "Magnum-" MACHINE_MODEL "-tmpnew"
+
+ #define TEMP_SENSOR_0 1
+
+  #if defined(MAGNUM_PRO) || defined(EXTERNAL_EXTRUDER)
+   #undef  EXTRUDERS
+   #if defined(MAGNUM_PRO) && defined(EXTERNAL_EXTRUDER)
+	#define EXTRUDERS 3
+	#define TEMP_SENSOR_1 1
+	#define TEMP_SENSOR_2 1
+   #else
+   	#define EXTRUDERS 2
+	#define TEMP_SENSOR_1 1
+	#define TEMP_SENSOR_2 0
+   #endif
+  #else
+   #define TEMP_SENSOR_1 0 
+   #define TEMP_SENSOR_2 0
+  #endif
+
+  #if defined(MAGNUM_PLA) || defined(MAGNUM_TT)
+   #define TEMP_SENSOR_BED 0
+  #else
+   #define TEMP_SENSOR_BED 1
+  #endif
+
+#else
 #define TEMP_SENSOR_0 -1
 #define TEMP_SENSOR_1 -1
 #define TEMP_SENSOR_2 0
 #define TEMP_SENSOR_BED 0
+#endif // MOTHERBOARD 555 MG
 
 // This makes temp sensor 1 a redundant sensor for sensor 0. If the temperatures difference between these sensors is to high the print will be aborted.
 //#define TEMP_SENSOR_1_AS_REDUNDANT
@@ -129,10 +179,21 @@
 // When temperature exceeds max temp, your heater will be switched off.
 // This feature exists to protect your hotend from overheating accidentally, but *NOT* from thermistor short/failure!
 // You should use MINTEMP for thermistor short/failure protection.
+#if MOTHERBOARD == 555
+#define HEATER_0_MAXTEMP 320
+#define HEATER_1_MAXTEMP 320
+#define HEATER_2_MAXTEMP 320
+#define BED_MAXTEMP 130
+
+#undef TEMP_RESIDENCY_TIME
+#define TEMP_RESIDENCY_TIME 5
+
+#else
 #define HEATER_0_MAXTEMP 275
 #define HEATER_1_MAXTEMP 275
 #define HEATER_2_MAXTEMP 275
 #define BED_MAXTEMP 150
+#endif // MOTHERBOARD 555 MG
 
 // If your bed has low resistance e.g. .6 ohm and throws the fuse you can duty cycle it to reduce the
 // average current. The value should be an integer and the heat bed will be turned on for 1 interval of
@@ -159,11 +220,23 @@
   #define PID_dT ((OVERSAMPLENR * 10.0)/(F_CPU / 64.0 / 256.0)) //sampling period of the temperature routine
 
 // If you are using a pre-configured hotend then you can use one of the value sets by uncommenting it
+#if MOTHERBOARD == 555 // MG
+// Magnum V6 HotEnd
+    #undef PID_MAX
+    #define PID_MAX 255
+	#undef PID_FUNCTIONAL_RANGE
+	#define PID_FUNCTIONAL_RANGE 20 // не уменьшать, или не будет работать PID
+	
+	#define  DEFAULT_Kp 12
+    #define  DEFAULT_Ki 0.8
+    #define  DEFAULT_Kd 44.5
+
+#else
 // Ultimaker
     #define  DEFAULT_Kp 22.2
     #define  DEFAULT_Ki 1.08
     #define  DEFAULT_Kd 114
-
+#endif // MOTHERBOARD 555 MG
 // MakerGear
 //    #define  DEFAULT_Kp 7.0
 //    #define  DEFAULT_Ki 0.1
@@ -257,6 +330,12 @@ your extruder heater takes 2 minutes to hit the target on heating.
 // Parameters for the bed heater
 //#define THERMAL_RUNAWAY_PROTECTION_BED_PERIOD 20 //in seconds
 //#define THERMAL_RUNAWAY_PROTECTION_BED_HYSTERESIS 2 // in degree Celsius
+#if MOTHERBOARD == 555
+  #define THERMAL_RUNAWAY_PROTECTION_PERIOD 60 //in seconds
+  #define THERMAL_RUNAWAY_PROTECTION_HYSTERESIS 25 // in degree Celsius
+  #define THERMAL_RUNAWAY_PROTECTION_BED_PERIOD 60 //in seconds
+  #define THERMAL_RUNAWAY_PROTECTION_BED_HYSTERESIS 15 // in degree Celsius
+#endif // MOTHERBOARD 555 MG
 //===========================================================================
 
 
@@ -317,6 +396,75 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define DISABLE_E false // For all extruders
 #define DISABLE_INACTIVE_EXTRUDER true //disable only inactive extruders and keep active extruder enabled
 
+#if MOTHERBOARD == 555 // MG
+#define INVERT_X_DIR false
+#define INVERT_Y_DIR false
+#define INVERT_Z_DIR false
+#define INVERT_E0_DIR true
+#define INVERT_E1_DIR true
+#define INVERT_E2_DIR true
+
+// ENDSTOP SETTINGS:
+// Sets direction of endstops when homing; 1=MAX, -1=MIN
+#if defined(MODUS)
+ #define X_HOME_DIR -1
+ #define Y_HOME_DIR -1
+ #define Z_HOME_DIR -1
+#else
+ #define X_HOME_DIR 1
+ #define Y_HOME_DIR 1
+ #define Z_HOME_DIR -1
+#endif
+
+#define min_software_endstops true // If true, axis won't move to coordinates less than HOME_POS.
+#define max_software_endstops true  // If true, axis won't move to coordinates greater than the defined lengths below.
+
+// Travel limits after homing
+#if defined(MAGNUM_EDU)
+ #define X_MAX_POS_DEFAULT 230
+ #define X_MIN_POS_DEFAULT 0
+ #define Y_MAX_POS_DEFAULT 210
+ #define Y_MIN_POS_DEFAULT 0
+ #define Z_MAX_POS_DEFAULT 235
+ #define Z_MIN_POS_DEFAULT 0
+#elif defined(MAGNUM_TT)
+ #define X_MAX_POS_DEFAULT 230
+ #define X_MIN_POS_DEFAULT 0
+ #define Y_MAX_POS_DEFAULT 210
+ #define Y_MIN_POS_DEFAULT 0
+ #define Z_MAX_POS_DEFAULT 605
+ #define Z_MIN_POS_DEFAULT 0
+#elif defined(MODUS)
+ #define X_MAX_POS_DEFAULT 210
+ #define X_MIN_POS_DEFAULT 0
+ #define Y_MAX_POS_DEFAULT 210
+ #define Y_MIN_POS_DEFAULT 0
+ #define Z_MAX_POS_DEFAULT 210
+ #define Z_MIN_POS_DEFAULT 0
+#elif defined(MAGNUM_PRO) 
+ #define X_MAX_POS_DEFAULT 220//temp
+ #define X_MIN_POS_DEFAULT 0
+ #define Y_MAX_POS_DEFAULT 200//temp
+ #define Y_MIN_POS_DEFAULT 0
+ #define Z_MAX_POS_DEFAULT 180
+ #define Z_MIN_POS_DEFAULT 0 
+#else
+ #define X_MAX_POS_DEFAULT 260
+ #define X_MIN_POS_DEFAULT 0
+ #define Y_MAX_POS_DEFAULT 180
+ #define Y_MIN_POS_DEFAULT 0
+ #define Z_MAX_POS_DEFAULT 180
+ #define Z_MIN_POS_DEFAULT 0
+#endif
+// Travel limits after homing
+
+#define X_MAX_POS X_MAX_POS_DEFAULT
+#define X_MIN_POS X_MIN_POS_DEFAULT
+#define Y_MAX_POS Y_MAX_POS_DEFAULT
+#define Y_MIN_POS Y_MIN_POS_DEFAULT
+#define Z_MAX_POS Z_MAX_POS_DEFAULT
+#define Z_MIN_POS Z_MIN_POS_DEFAULT
+#else // default
 #define INVERT_X_DIR true    // for Mendel set to false, for Orca set to true
 #define INVERT_Y_DIR false    // for Mendel set to true, for Orca set to false
 #define INVERT_Z_DIR true     // for Mendel set to false, for Orca set to true
@@ -340,6 +488,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define Y_MIN_POS 0
 #define Z_MAX_POS 200
 #define Z_MIN_POS 0
+#endif // MOTHERBOARD 555 MG
 
 #define X_MAX_LENGTH (X_MAX_POS - X_MIN_POS)
 #define Y_MAX_LENGTH (Y_MAX_POS - Y_MIN_POS)
@@ -467,6 +616,38 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 //#define BED_CENTER_AT_0_0  // If defined, the center of the bed is at (X=0, Y=0)
 
 //Manual homing switch locations:
+#if MOTHERBOARD == 555 // MG
+#define MANUAL_X_HOME_POS 260
+#define MANUAL_Y_HOME_POS 170
+#define MANUAL_Z_HOME_POS 0
+
+#define NUM_AXIS 4 // The axis order in all axis related arrays is X, Y, Z, E
+#define HOMING_FEEDRATE {5000, 5000, 600, 0}  // set the homing speeds (mm/min)
+
+//#if defined(MODUS)
+// #define DEFAULT_AXIS_STEPS_PER_UNIT   {100, 100, 200.0*16/0.8, 145.59*1.09} //Шпилька М5 шаг 0.8
+// #define DEFAULT_MAX_FEEDRATE          {150, 150, 3, 15}    // (mm/sec)
+//#else
+ #define DEFAULT_AXIS_STEPS_PER_UNIT   {100, 100, 200.0*16/3, 145.59*1.09}
+ #define DEFAULT_MAX_FEEDRATE          {150, 150, 15, 15}    // (mm/sec)
+//#endif
+#define DEFAULT_MAX_ACCELERATION      {3000,3000,100,3000}    // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for skeinforge 40+, for older versions raise them a lot.
+
+#if defined(MAGNUM_PRO)
+ #define DEFAULT_ACCELERATION          1200    // X, Y, Z and E max acceleration in mm/s^2 for printing moves
+ #define DEFAULT_XYJERK                7.0    // (mm/sec)
+#else
+ #define DEFAULT_ACCELERATION          1500    // X, Y, Z and E max acceleration in mm/s^2 for printing moves
+ #define DEFAULT_XYJERK                10.0    // (mm/sec)
+#endif
+#define DEFAULT_RETRACT_ACCELERATION  3000   // X, Y, Z and E max acceleration in mm/s^2 for retracts
+
+#define DEFAULT_RETRACT_ACCELERATION  3000   // X, Y, Z and E max acceleration in mm/s^2 for retracts
+
+#define DEFAULT_ZJERK                 0.4     // (mm/sec)
+#define DEFAULT_EJERK                 5.0    // (mm/sec)
+
+#else
 // For deltabots this means top and center of the Cartesian print volume.
 #define MANUAL_X_HOME_POS 0
 #define MANUAL_Y_HOME_POS 0
@@ -496,7 +677,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define DEFAULT_XYJERK                20.0    // (mm/sec)
 #define DEFAULT_ZJERK                 0.4     // (mm/sec)
 #define DEFAULT_EJERK                 5.0    // (mm/sec)
-
+#endif // MOTHERBOARD 555 MG
 //===========================================================================
 //=============================Additional Features===========================
 //===========================================================================
@@ -522,6 +703,15 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 //#define EEPROM_CHITCHAT
 
 // Preheat Constants
+#if MOTHERBOARD == 555 // MG
+#define PLA_PREHEAT_HOTEND_TEMP 220
+#define PLA_PREHEAT_HPB_TEMP 70
+#define PLA_PREHEAT_FAN_SPEED 0   // Insert Value between 0 and 255
+
+#define ABS_PREHEAT_HOTEND_TEMP 255
+#define ABS_PREHEAT_HPB_TEMP 105
+#define ABS_PREHEAT_FAN_SPEED 0   // Insert Value between 0 and 255
+#else
 #define PLA_PREHEAT_HOTEND_TEMP 180
 #define PLA_PREHEAT_HPB_TEMP 70
 #define PLA_PREHEAT_FAN_SPEED 255   // Insert Value between 0 and 255
@@ -529,6 +719,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define ABS_PREHEAT_HOTEND_TEMP 240
 #define ABS_PREHEAT_HPB_TEMP 100
 #define ABS_PREHEAT_FAN_SPEED 255   // Insert Value between 0 and 255
+#endif // MOTHERBOARD 555 MG
 
 //LCD and SD support
 //#define ULTRA_LCD  //general LCD support, also 16x2
@@ -542,6 +733,18 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 //#define ULTIPANEL  //the UltiPanel as on Thingiverse
 //#define LCD_FEEDBACK_FREQUENCY_HZ 1000	// this is the tone frequency the buzzer plays when on UI feedback. ie Screen Click
 //#define LCD_FEEDBACK_FREQUENCY_DURATION_MS 100 // the duration the buzzer plays the UI feedback sound. ie Screen Click
+
+#if MOTHERBOARD == 555
+#define EEPROM_SETTINGS
+#define EEPROM_CHITCHAT
+#define SDSUPPORT // Enable SD Card Support in Hardware Console
+#define TEMP_STAT_LEDS
+ #if defined(MAGNUM_UNI) || defined(MAGNUM_PRO) || defined(MAGNUM_TT)
+  #define ULTRA_LCD 
+  #define ULTIPANEL
+  #define NEWPANEL
+ #endif
+#endif
 
 // The MaKr3d Makr-Panel with graphic controller and SD support
 // http://reprap.org/wiki/MaKr3d_MaKrPanel

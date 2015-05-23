@@ -172,8 +172,10 @@
 // M665 - set delta configurations
 // M666 - set delta endstop adjustment
 // M605 - Set dual x-carriage movement mode: S<mode> [ X<duplication x-offset> R<duplication temp offset> ]
-// M907 - Set digital trimpot motor current using axis codes.
-// M908 - Control digital trimpot directly.
+// M907 - Set digital trimpot/DAC motor current using axis codes.
+// M908 - Control digital trimpot/DAC directly.
+// M909 - Print digipot/DAC current value
+// M910 - Commit digipot/DAC value to external EEPROM
 // M350 - Set microstepping mode.
 // M351 - Toggle MS1 MS2 pins directly.
 
@@ -3631,7 +3633,10 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
         disable_e1();
         disable_e2();
         delay(100);
-        LCD_ALERTMESSAGEPGM(MSG_FILAMENTCHANGE);
+		// MG ++
+        //LCD_ALERTMESSAGEPGM(MSG_FILAMENTCHANGE);
+		LCD_ALERTMESSAGEPGM(MSG_FILAMENTCHANGENOW);
+		// MG --
         uint8_t cnt=0;
         while(!lcd_clicked()){
           cnt++;
@@ -3674,6 +3679,16 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
         plan_buffer_line(lastpos[X_AXIS], lastpos[Y_AXIS], target[Z_AXIS], target[E_AXIS], feedrate/60, active_extruder); //move xy back
         plan_buffer_line(lastpos[X_AXIS], lastpos[Y_AXIS], lastpos[Z_AXIS], target[E_AXIS], feedrate/60, active_extruder); //move z back
         plan_buffer_line(lastpos[X_AXIS], lastpos[Y_AXIS], lastpos[Z_AXIS], lastpos[E_AXIS], feedrate/60, active_extruder); //final untretract
+		
+		//MG ++
+		lcd_reset_alert_level();
+		if (IS_SD_PRINTING) {
+			LCD_ALERTMESSAGEPGM(MSG_SDPRINTING);
+		} else {
+			LCD_ALERTMESSAGEPGM(WELCOME_MSG);     
+        }
+		lcd_reset_alert_level();
+		//MG --
     }
     break;
     #endif //FILAMENTCHANGEENABLE
@@ -3740,6 +3755,10 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
       #ifdef MOTOR_CURRENT_PWM_E_PIN
         if(code_seen('E')) digipot_current(2, code_value());
       #endif
+      #ifdef DAC_STEPPER_CURRENT // MG+
+         if(code_seen('S')) {for(int i=0;i<=4;i++) dac_current_percent(i,code_value()); break;}
+         for(int i=0;i<NUM_AXIS;i++) if(code_seen(axis_codes[i])) dac_current_percent(i,code_value());
+      #endif // MG-
       #ifdef DIGIPOT_I2C
         // this one uses actual amps in floating point
         for(int i=0;i<NUM_AXIS;i++) if(code_seen(axis_codes[i])) digipot_i2c_set_current(i, code_value());
@@ -3756,6 +3775,27 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
         if(code_seen('S')) current=code_value();
         digitalPotWrite(channel, current);
       #endif
+      #ifdef DAC_STEPPER_CURRENT // MG+
+        uint8_t channel=-1;
+        uint16_t dac_val=0;
+        if(code_seen('P')) channel=code_value();
+        if(code_seen('S')) dac_val=code_value();
+        dac_current_raw(channel, dac_val);
+      #endif
+    }
+    break;
+    case 909: // M909 Print digipot/DAC current value
+    {
+      #ifdef DAC_STEPPER_CURRENT
+        dac_print_values();
+      #endif
+    }
+    break;
+    case 910: // M910 Commit digipot/DAC value to external EEPROM
+    {
+      #ifdef DAC_STEPPER_CURRENT
+        dac_commit_eeprom();
+      #endif // MG-
     }
     break;
     case 350: // M350 Set microstepping mode. Warning: Steps per unit remains unchanged. S code sets stepping mode for all drivers.
@@ -4191,7 +4231,9 @@ void controllerFan()
   {
     lastMotorCheck = millis();
 
-    if(!READ(X_ENABLE_PIN) || !READ(Y_ENABLE_PIN) || !READ(Z_ENABLE_PIN) || (soft_pwm_bed > 0)
+	//MG disable controller fan for Bed and Z
+    //if(!READ(X_ENABLE_PIN) || !READ(Y_ENABLE_PIN) || !READ(Z_ENABLE_PIN) || (soft_pwm_bed > 0)
+	if(!READ(X_ENABLE_PIN) || !READ(Y_ENABLE_PIN)
     #if EXTRUDERS > 2
        || !READ(E2_ENABLE_PIN)
     #endif

@@ -623,64 +623,106 @@ static void lcd_implementation_status_screen()
 }
 static void lcd_implementation_drawmenu_generic(uint8_t row, const char* pstr, char pre_char, char post_char)
 {
-    char c;
+    uint8_t c;
     //Use all characters in narrow LCDs
   #if LCD_WIDTH < 20
       uint8_t n = LCD_WIDTH - 1 - 1;
     #else
       uint8_t n = LCD_WIDTH - 1 - 2;
   #endif
+  	uint8_t u = 0;
     lcd.setCursor(0, row);
-    lcd.print(pre_char);
-    while( ((c = pgm_read_byte(pstr)) != '\0') && (n>0) )
+    lcd.write(pre_char);
+	while(n > 0)
     {
-        lcd.print(c);
-        pstr++;
-        n--;
+		c = pgm_read_byte(pstr);
+		if (c == 0x0) {
+			break;
+		}
+		if (c == 0xd0 || c == 0xd1) { // utf8 high part
+			lcd.write(c);
+			pstr++;			
+			c = pgm_read_byte(pstr);
+			lcd.write(c);
+			pstr++;
+			n--;
+		} else {
+			lcd.write(c);
+			pstr++;
+			n--;
+		}
     }
-    while(n--)
-        lcd.print(' ');
-    lcd.print(post_char);
-    lcd.print(' ');
+    while(n--) lcd.print(' ');
+    lcd.write(post_char);
+    lcd.write(' ');
 }
 static void lcd_implementation_drawmenu_setting_edit_generic(uint8_t row, const char* pstr, char pre_char, char* data)
 {
-    char c;
+    uint8_t c;
     //Use all characters in narrow LCDs
   #if LCD_WIDTH < 20
       uint8_t n = LCD_WIDTH - 1 - 1 - strlen(data);
     #else
       uint8_t n = LCD_WIDTH - 1 - 2 - strlen(data);
   #endif
+	uint8_t u = 0;
     lcd.setCursor(0, row);
-    lcd.print(pre_char);
-    while( ((c = pgm_read_byte(pstr)) != '\0') && (n>0) )
-    {
-        lcd.print(c);
-        pstr++;
-        n--;
+    lcd.write(pre_char);
+	while(n > 0) 
+	{
+		c = pgm_read_byte(pstr);
+		if (c == 0x0) {
+			break;
+		}
+		if (c == 0xd0 || c == 0xd1) { // utf8 high part
+			lcd.write(c);
+			pstr++;			
+			c = pgm_read_byte(pstr);
+			lcd.write(c);
+			pstr++;
+			n--;
+		} else {
+			lcd.write(c);
+			pstr++;
+			n--;
+		}
     }
-    lcd.print(':');
-    while(n--)
+	lcd.print(':');
+    while(n--) 
         lcd.print(' ');
     lcd.print(data);
 }
 static void lcd_implementation_drawmenu_setting_edit_generic_P(uint8_t row, const char* pstr, char pre_char, const char* data)
 {
-    char c;
+    uint8_t c;
     //Use all characters in narrow LCDs
   #if LCD_WIDTH < 20
       uint8_t n = LCD_WIDTH - 1 - 1 - strlen_P(data);
     #else
       uint8_t n = LCD_WIDTH - 1 - 2 - strlen_P(data);
   #endif
+   	uint8_t u = 0;
     lcd.setCursor(0, row);
-    lcd.print(pre_char);
-    while( ((c = pgm_read_byte(pstr)) != '\0') && (n>0) )
+    lcd.write(pre_char);
+   	while(n > 0)
     {
-        lcd.print(c);
-        pstr++;
-        n--;
+		c = pgm_read_byte(pstr);
+		if (c == 0x0) {
+			break;
+		}
+	
+		if (c == 0xd0 || c == 0xd1) { // utf8 high part
+			lcd.write(c);
+			pstr++;			
+			c = pgm_read_byte(pstr);
+			lcd.write(c);
+			pstr++;
+			n--;
+		} else {
+			lcd.write(c);
+			pstr++;
+			n--;
+		}
     }
     lcd.print(':');
     while(n--)
