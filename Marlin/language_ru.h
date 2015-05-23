@@ -12,6 +12,10 @@
 
     #define MSG_SDPRINTING 				        "Печать с SD карты" 	//MG Only
 	#define MSG_FILAMENTCHANGENOW 				" -=  нажмите OK =- " 	//MG Only
+	#define MSG_MG_EXTEND 						"Дополнения Magnum"			//MG Only
+	#define MSG_MG_PASTA_ENABLE 				"Паста " 		//MG Only
+	#define MSG_MG_PASTA_DIA 					"Изм. Df " 		//MG Only
+	#define MSG_MG_PASTA_AUTOZ 					"Авто Zm " 		//MG Only	
 
 	#define WELCOME_MSG 				        "-= готов к печати =-"
 	#define MSG_SD_INSERTED						"Карта вставлена"
@@ -112,11 +116,11 @@
 	#define MSG_NO_CARD							"Нет SD карты"
 	#define MSG_DWELL							"Сон..."
 	#define MSG_USERWAIT  						"Ожидание ..."
-	#define MSG_RESUMING 						"Продолжение"
-	#define MSG_PRINT_ABORTED                   "Print aborted"
+	#define MSG_RESUMING 						"Возобновление"
+	#define MSG_PRINT_ABORTED                   "Печать отменена"
 	#define MSG_NO_MOVE							"Нет движения."
-	#define MSG_KILLED							"УБИТО."
-	#define MSG_STOPPED							"ОСТАНОВЛЕНО."
+	#define MSG_KILLED							"Остановлен. #M112" //"Printer halted. kill() called!"
+	#define MSG_STOPPED							"Остановлен. #M999" //"Printer stopped due to errors. Fix the error and use M999 to restart. (Temperature is reset. Set it after restarting)"
 	#define MSG_CONTROL_RETRACT					"Ретракт mm:"
 	#define MSG_CONTROL_RETRACT_SWAP			"Ретракт свап mm:" //свап - смена экструдера
 	#define MSG_CONTROL_RETRACTF				"Ретракт V:"

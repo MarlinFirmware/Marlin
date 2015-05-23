@@ -530,11 +530,23 @@ ISR(TIMER1_COMPA_vect)
 
     #ifndef ADVANCE
       if ((out_bits & (1<<E_AXIS)) != 0) {  // -direction
+        //REV_E_DIR();
+		//MG
+		if (pasta_enabled) {
+			WRITE(E3_DIR_PIN, INVERT_E3_DIR);
+		} else {
         REV_E_DIR();
+		}
         count_direction[E_AXIS]=-1;
       }
       else { // +direction
+        //NORM_E_DIR();
+		//MG
+		if (pasta_enabled) {
+			WRITE(E3_DIR_PIN, !INVERT_E3_DIR);
+		} else {
         NORM_E_DIR();
+		}
         count_direction[E_AXIS]=1;
       }
     #endif //!ADVANCE
@@ -582,7 +594,13 @@ ISR(TIMER1_COMPA_vect)
       #ifndef ADVANCE
         counter_e += current_block->steps_e;
         if (counter_e > 0) {
+          //WRITE_E_STEP(HIGH);
+		  //MG
+		  if (pasta_enabled) {
+			WRITE(E3_STEP_PIN, HIGH)
+		  } else {
           WRITE_E_STEP(HIGH);
+        }
         }
       #endif //!ADVANCE
 
@@ -608,7 +626,13 @@ ISR(TIMER1_COMPA_vect)
         if (counter_e > 0) {
           counter_e -= current_block->step_event_count;
           count_position[E_AXIS]+=count_direction[E_AXIS];
+          //WRITE_E_STEP(LOW);
+		  //MG
+		  if (pasta_enabled) {
+			WRITE(E3_STEP_PIN, LOW)
+		  } else {
           WRITE_E_STEP(LOW);
+        }
         }
       #endif //!ADVANCE
 #else
@@ -681,12 +705,30 @@ ISR(TIMER1_COMPA_vect)
 
       #ifndef ADVANCE
         counter_e += current_block->steps_e;
+        /*if (counter_e > 0) {
+          WRITE_E_STEP(!INVERT_E_STEP_PIN);
+          counter_e -= current_block->step_event_count;
+          count_position[E_AXIS]+=count_direction[E_AXIS];
+          WRITE_E_STEP(INVERT_E_STEP_PIN);
+        }*/
+		//MG+
+		if (pasta_enabled) {
+			if (counter_e > 0) {
+				WRITE(E3_STEP_PIN, !INVERT_E_STEP_PIN);
+				counter_e -= current_block->step_event_count;
+				count_position[E_AXIS]+=count_direction[E_AXIS];
+				WRITE(E3_STEP_PIN, INVERT_E_STEP_PIN);
+			}
+		} else {
         if (counter_e > 0) {
           WRITE_E_STEP(!INVERT_E_STEP_PIN);
           counter_e -= current_block->step_event_count;
           count_position[E_AXIS]+=count_direction[E_AXIS];
           WRITE_E_STEP(INVERT_E_STEP_PIN);
         }
+		}
+		//MG-
+		
       #endif //!ADVANCE
       #endif
       step_events_completed += 1;
@@ -772,6 +814,22 @@ ISR(TIMER1_COMPA_vect)
     // Set E direction (Depends on E direction + advance)
     for(unsigned char i=0; i<4;i++) {
       if (e_steps[0] != 0) {
+		if (pasta_enabled) {
+		/*
+			WRITE(E3_STEP_PIN, INVERT_E_STEP_PIN);
+			if (e_steps[0] < 0) {
+			  WRITE(E3_DIR_PIN, INVERT_E0_DIR);
+			  e_steps[0]++;
+			  WRITE(E3_STEP_PIN, !INVERT_E_STEP_PIN);
+			}
+			else if (e_steps[0] > 0) {
+			  WRITE(E3_DIR_PIN, !INVERT_E0_DIR);
+			  e_steps[0]--;
+			  WRITE(E3_STEP_PIN, !INVERT_E_STEP_PIN);
+			}
+			*/
+		} else {
+		/*
         WRITE(E0_STEP_PIN, INVERT_E_STEP_PIN);
         if (e_steps[0] < 0) {
           WRITE(E0_DIR_PIN, INVERT_E0_DIR);
@@ -783,6 +841,8 @@ ISR(TIMER1_COMPA_vect)
           e_steps[0]--;
           WRITE(E0_STEP_PIN, !INVERT_E_STEP_PIN);
         }
+			*/
+		}       
       }
  #if EXTRUDERS > 1
       if (e_steps[1] != 0) {

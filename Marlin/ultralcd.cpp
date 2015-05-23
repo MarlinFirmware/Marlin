@@ -66,6 +66,8 @@ static void lcd_control_temperature_preheat_pla_settings_menu();
 static void lcd_control_temperature_preheat_abs_settings_menu();
 static void lcd_control_motion_menu();
 static void lcd_control_volumetric_menu();
+//MG
+static void lcd_control_mg_addons_menu();
 #ifdef DOGLCD
 static void lcd_set_contrast();
 #endif
@@ -766,6 +768,9 @@ static void lcd_control_menu()
 #ifdef FWRETRACT
     MENU_ITEM(submenu, MSG_RETRACT, lcd_control_retract_menu);
 #endif
+	#if MOTHERBOARD == 555 // MG
+    MENU_ITEM(submenu, MSG_MG_EXTEND, lcd_control_mg_addons_menu);
+	#endif
 #ifdef EEPROM_SETTINGS
     MENU_ITEM(function, MSG_STORE_EPROM, Config_StoreSettings);
     MENU_ITEM(function, MSG_LOAD_EPROM, Config_RetrieveSettings);
@@ -773,6 +778,114 @@ static void lcd_control_menu()
     MENU_ITEM(function, MSG_RESTORE_FAILSAFE, Config_ResetDefault);
     END_MENU();
 }
+
+//MG Addons menu +
+bool pasta_enabled = false;
+
+void init_pasta() {
+	if (pasta_enabled) {
+		// DISABLE all E0
+		disable_e0();
+		
+		// ENABLE ALL E3
+		SET_OUTPUT(E3_DIR_PIN);
+		SET_OUTPUT(E3_ENABLE_PIN);
+		WRITE(E3_ENABLE_PIN,E_ENABLE_ON);
+		SET_OUTPUT(E3_STEP_PIN);
+		WRITE(E3_STEP_PIN,INVERT_E_STEP_PIN);
+		WRITE(E3_ENABLE_PIN,!E_ENABLE_ON);
+		
+		float temp = .0;
+	    set_extrude_min_temp(temp);
+		
+		// #define DEFAULT_AXIS_STEPS_PER_UNIT   {100, 100, 200.0*16/3, 200.0*16/3}
+		// #define DEFAULT_MAX_ACCELERATION      {3000,3000,100,3000}
+		//float tmp1[]=DEFAULT_AXIS_STEPS_PER_UNIT;
+		//float tmp2[]=DEFAULT_MAX_FEEDRATE;
+		//long tmp3[]=DEFAULT_MAX_ACCELERATION;
+	
+		float tmp1[]={100, 100, 200.0*16/3, 200.0*16/3};
+		long tmp3[]={200,200,100,300};
+		for (short i=0;i<4;i++) 
+		{
+			axis_steps_per_unit[i]=tmp1[i];  
+			// max_feedrate[i]=tmp2[i];  
+			max_acceleration_units_per_sq_second[i]=tmp3[i];
+		}
+	
+		// steps per sq second need to be updated to agree with the units per sq second
+		reset_acceleration_rates();
+    
+		acceleration=200;
+		/*
+		retract_acceleration=DEFAULT_RETRACT_ACCELERATION;
+		minimumfeedrate=DEFAULT_MINIMUMFEEDRATE;
+		minsegmenttime=DEFAULT_MINSEGMENTTIME;       
+		mintravelfeedrate=DEFAULT_MINTRAVELFEEDRATE;
+		max_xy_jerk=DEFAULT_XYJERK;
+		max_z_jerk=DEFAULT_ZJERK;
+		max_e_jerk=DEFAULT_EJERK;
+		*/
+	} else {
+		// DISABLE ALL E3
+		WRITE(E3_ENABLE_PIN, !E_ENABLE_ON);
+		
+		set_extrude_min_temp(EXTRUDE_MINTEMP);
+		
+		// #define DEFAULT_AXIS_STEPS_PER_UNIT   {100, 100, 200.0*16/3, 200.0*16/3}
+		// #define DEFAULT_MAX_ACCELERATION      {3000,3000,100,3000}
+		//float tmp1[]=DEFAULT_AXIS_STEPS_PER_UNIT;
+		//float tmp2[]=DEFAULT_MAX_FEEDRATE;
+		//long tmp3[]=DEFAULT_MAX_ACCELERATION;
+	
+		float tmp1[]=DEFAULT_AXIS_STEPS_PER_UNIT;
+		long tmp3[]=DEFAULT_MAX_ACCELERATION;
+		for (short i=0;i<4;i++) 
+		{
+			axis_steps_per_unit[i]=tmp1[i];  
+			// max_feedrate[i]=tmp2[i];  
+			max_acceleration_units_per_sq_second[i]=tmp3[i];
+		}
+	
+		// steps per sq second need to be updated to agree with the units per sq second
+		reset_acceleration_rates();
+    
+		acceleration=DEFAULT_ACCELERATION;
+		/*
+		retract_acceleration=DEFAULT_RETRACT_ACCELERATION;
+		minimumfeedrate=DEFAULT_MINIMUMFEEDRATE;
+		minsegmenttime=DEFAULT_MINSEGMENTTIME;       
+		mintravelfeedrate=DEFAULT_MINTRAVELFEEDRATE;
+		max_xy_jerk=DEFAULT_XYJERK;
+		max_z_jerk=DEFAULT_ZJERK;
+		max_e_jerk=DEFAULT_EJERK;
+		*/
+	}
+	
+}
+static void lcd_control_mg_addons_menu()
+{
+	START_MENU();
+	MENU_ITEM(back, MSG_CONTROL, lcd_control_menu);
+
+	MENU_ITEM_EDIT_CALLBACK(bool, MSG_MG_PASTA_ENABLE, &pasta_enabled, init_pasta);
+	MENU_ITEM_EDIT_CALLBACK(bool, MSG_MG_PASTA_AUTOZ, &pasta_enabled, init_pasta);
+	MENU_ITEM_EDIT_CALLBACK(bool, MSG_MG_PASTA_DIA, &pasta_enabled, init_pasta);
+/*
+	if (pasta_enabled) {
+		MENU_ITEM_EDIT_CALLBACK(float43, MSG_FILAMENT_SIZE_EXTRUDER_0, &filament_size[0], DEFAULT_NOMINAL_FILAMENT_DIA - .5, DEFAULT_NOMINAL_FILAMENT_DIA + .5, calculate_volumetric_multipliers);
+#if EXTRUDERS > 1
+		MENU_ITEM_EDIT_CALLBACK(float43, MSG_FILAMENT_SIZE_EXTRUDER_1, &filament_size[1], DEFAULT_NOMINAL_FILAMENT_DIA - .5, DEFAULT_NOMINAL_FILAMENT_DIA + .5, calculate_volumetric_multipliers);
+#if EXTRUDERS > 2
+		MENU_ITEM_EDIT_CALLBACK(float43, MSG_FILAMENT_SIZE_EXTRUDER_2, &filament_size[2], DEFAULT_NOMINAL_FILAMENT_DIA - .5, DEFAULT_NOMINAL_FILAMENT_DIA + .5, calculate_volumetric_multipliers);
+#endif
+#endif
+
+	}
+*/
+	END_MENU();
+}
+//MG -
 
 static void lcd_control_temperature_menu()
 {

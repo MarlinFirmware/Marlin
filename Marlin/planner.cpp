@@ -486,6 +486,9 @@ void check_axes_activity()
     disable_e0();
     disable_e1();
     disable_e2(); 
+	if (pasta_enabled) {
+		WRITE(E3_ENABLE_PIN, !E_ENABLE_ON);
+	}
   }
 #if defined(FAN_PIN) && FAN_PIN > -1
   #ifdef FAN_KICKSTART_TIME
@@ -676,7 +679,13 @@ block->steps_y = labs((target[X_AXIS]-position[X_AXIS]) - (target[Y_AXIS]-positi
       switch(extruder)
       {
         case 0: 
+		  //MG
+		  //enable_e0(); 
+		 if (pasta_enabled) {
+		  WRITE(E3_ENABLE_PIN, E_ENABLE_ON);
+		 } else {
           enable_e0(); 
+		 }
           g_uc_extruder_last_move[0] = BLOCK_BUFFER_SIZE*2;
           
           if(g_uc_extruder_last_move[1] == 0) disable_e1(); 
@@ -700,7 +709,13 @@ block->steps_y = labs((target[X_AXIS]-position[X_AXIS]) - (target[Y_AXIS]-positi
     }
     else //enable all
     {
+	  //MG
+      //enable_e0();
+		if (pasta_enabled) {
+		  WRITE(E3_ENABLE_PIN, E_ENABLE_ON);
+		} else {
       enable_e0();
+		}
       enable_e1();
       enable_e2(); 
     }

@@ -580,6 +580,15 @@ static void lcd_implementation_status_screen()
     }
 #endif
 
+  //MG
+  if (pasta_enabled) {
+	lcd.setCursor(LCD_WIDTH - 1, 0);
+	lcd.print('P');
+  } else {
+  	lcd.setCursor(LCD_WIDTH - 1, 0);
+	lcd.print(" ");  
+  }
+  
   // Status message line at the bottom
   lcd.setCursor(0, LCD_HEIGHT - 1);
 

@@ -52,6 +52,14 @@
 #define E0_DIR_PIN          7
 #define E0_ENABLE_PIN      19
 
+//Pasta
+extern bool pasta_enabled;
+#define E3_STEP_PIN         46
+#define E3_DIR_PIN          37
+#define E3_ENABLE_PIN       34
+#define INVERT_E3_DIR 		true
+//-
+
 #define HEATER_0_PIN       21  // Extruder 0
 #define TEMP_0_PIN          1  // Extruder / Analog pin numbering
 

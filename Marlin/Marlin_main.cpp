@@ -188,6 +188,9 @@
 // M365 - SCARA calibration: Scaling factor, X, Y, Z axis
 //************* SCARA End ***************
 
+// M555 - Magnum addons M-codes
+//		 P1 / P0 - Pasta extruder on/off
+
 // M928 - Start SD logging (M928 filename.g) - ended by M29
 // M999 - Restart after being stopped by error
 
@@ -1945,7 +1948,13 @@ void process_commands()
         enable_x();
         enable_y();
         enable_z();
+        //enable_e0();
+		//MG
+       if (pasta_enabled) {
+		WRITE(E3_ENABLE_PIN, E_ENABLE_ON);
+	   } else {
         enable_e0();
+	   }
         enable_e1();
         enable_e2();
       break;
@@ -2695,6 +2704,9 @@ Sigma_Exit:
           disable_e0();
           disable_e1();
           disable_e2();
+		  if (pasta_enabled) {
+			WRITE(E3_ENABLE_PIN, !E_ENABLE_ON);
+			}
           finishAndDisableSteppers();
         }
         else
@@ -2708,6 +2720,9 @@ Sigma_Exit:
               disable_e0();
               disable_e1();
               disable_e2();
+				  if (pasta_enabled) {
+					WRITE(E3_ENABLE_PIN, !E_ENABLE_ON);
+				  }
             }
           #endif
         }
@@ -2741,6 +2756,10 @@ Sigma_Exit:
       break;
     case 115: // M115
       SERIAL_PROTOCOLPGM(MSG_M115_REPORT);
+	  if (pasta_enabled) {
+		SERIAL_PROTOCOLPGM("Magnum Pasta Extruder ENABLED");
+		SERIAL_PROTOCOLPGM(" ");
+	  }
       break;
     case 117: // M117 display message
       starpos = (strchr(strchr_pointer + 5,'*'));
@@ -3636,6 +3655,9 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
         disable_e0();
         disable_e1();
         disable_e2();
+		if (pasta_enabled) {
+			WRITE(E3_ENABLE_PIN, !E_ENABLE_ON);
+		}
         delay(100);
 		// MG ++
         //LCD_ALERTMESSAGEPGM(MSG_FILAMENTCHANGE);
@@ -3800,6 +3822,25 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
       #ifdef DAC_STEPPER_CURRENT
         dac_commit_eeprom();
       #endif // MG-
+    }
+    break;
+	case 555: // M555 MG Magnum addons
+    {
+	  SERIAL_ECHO_START;
+	  if(code_seen('P')) switch((int)code_value()) //Magnum Pasta Extruder
+      {
+        case 0:
+		  pasta_enabled = false;
+		  //init_pasta();
+		  SERIAL_PROTOCOLPGM("Magnum Pasta Extruder DISABLED");
+          break;
+        case 1:
+		  pasta_enabled = true;
+		  //init_pasta();
+		  SERIAL_PROTOCOLPGM("Magnum Pasta Extruder ENABLED");
+          break;
+      }
+	  SERIAL_ECHO(" ");
     }
     break;
     case 350: // M350 Set microstepping mode. Warning: Steps per unit remains unchanged. S code sets stepping mode for all drivers.
@@ -4408,6 +4449,9 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) //default argument s
         disable_e0();
         disable_e1();
         disable_e2();
+		if (pasta_enabled) {
+			WRITE(E3_ENABLE_PIN, !E_ENABLE_ON);
+		}
       }
     }
   }
@@ -4471,8 +4515,16 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) //default argument s
     if( (millis() - previous_millis_cmd) >  EXTRUDER_RUNOUT_SECONDS*1000 )
     if(degHotend(active_extruder)>EXTRUDER_RUNOUT_MINTEMP)
     {
+	 //MG
+	 //bool oldstatus=READ(E0_ENABLE_PIN);
+     //enable_e0();
+     if (pasta_enabled) {
+		bool oldstatus=READ(E3_ENABLE_PIN);
+		WRITE(E3_ENABLE_PIN, E_ENABLE_ON);
+	 } else {
      bool oldstatus=READ(E0_ENABLE_PIN);
      enable_e0();
+	 }
      float oldepos=current_position[E_AXIS];
      float oldedes=destination[E_AXIS];
      plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS],
@@ -4483,7 +4535,13 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) //default argument s
      plan_set_e_position(oldepos);
      previous_millis_cmd=millis();
      st_synchronize();
+	 //MG
+	 //WRITE(E0_ENABLE_PIN,oldstatus);
+     if (pasta_enabled) {
+		WRITE(E3_ENABLE_PIN,oldstatus);
+	 } else {
      WRITE(E0_ENABLE_PIN,oldstatus);
+    }
     }
   #endif
   #if defined(DUAL_X_CARRIAGE)
@@ -4513,6 +4571,9 @@ void kill()
   disable_e0();
   disable_e1();
   disable_e2();
+  if (pasta_enabled) {
+	WRITE(E3_ENABLE_PIN, !E_ENABLE_ON);
+  }
 
 #if defined(PS_ON_PIN) && PS_ON_PIN > -1
   pinMode(PS_ON_PIN,INPUT);
