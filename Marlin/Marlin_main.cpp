@@ -5227,11 +5227,11 @@ void process_next_command() {
   switch(command_code) {
     case 'G': switch (codenum) {
 
-    // G0, G1
-    case 0:
-    case 1:
-      gcode_G0_G1();
-      break;
+      // G0, G1
+      case 0:
+      case 1:
+        gcode_G0_G1();
+        break;
 
     // G2, G3
     #ifndef SCARA
