@@ -5227,75 +5227,75 @@ void process_next_command() {
   switch(command_code) {
     case 'G': switch (codenum) {
 
-    // G0, G1
-    case 0:
-    case 1:
-      gcode_G0_G1();
-      break;
-
-    // G2, G3
-    #ifndef SCARA
-      case 2: // G2  - CW ARC
-      case 3: // G3  - CCW ARC
-        gcode_G2_G3(codenum == 2);
-        break;
-    #endif
-
-    // G4 Dwell
-    case 4:
-      gcode_G4();
-      break;
-
-    #ifdef FWRETRACT
-
-      case 10: // G10: retract
-      case 11: // G11: retract_recover
-        gcode_G10_G11(codenum == 10);
+      // G0, G1
+      case 0:
+      case 1:
+        gcode_G0_G1();
         break;
 
-    #endif //FWRETRACT
+      // G2, G3
+      #ifndef SCARA
+        case 2: // G2  - CW ARC
+        case 3: // G3  - CCW ARC
+          gcode_G2_G3(codenum == 2);
+          break;
+      #endif
 
-    case 28: // G28: Home all axes, one at a time
-      gcode_G28();
-      break;
-
-    #if defined(ENABLE_AUTO_BED_LEVELING) || defined(MESH_BED_LEVELING)
-      case 29: // G29 Detailed Z-Probe, probes the bed at 3 or more points.
-        gcode_G29();
+      // G4 Dwell
+      case 4:
+        gcode_G4();
         break;
-    #endif
 
-    #ifdef ENABLE_AUTO_BED_LEVELING
+      #ifdef FWRETRACT
 
-      #ifndef Z_PROBE_SLED
-
-        case 30: // G30 Single Z Probe
-          gcode_G30();
+        case 10: // G10: retract
+        case 11: // G11: retract_recover
+          gcode_G10_G11(codenum == 10);
           break;
 
-      #else // Z_PROBE_SLED
+      #endif //FWRETRACT
 
-          case 31: // G31: dock the sled
-          case 32: // G32: undock the sled
-            dock_sled(codenum == 31);
+      case 28: // G28: Home all axes, one at a time
+        gcode_G28();
+        break;
+
+      #if defined(ENABLE_AUTO_BED_LEVELING) || defined(MESH_BED_LEVELING)
+        case 29: // G29 Detailed Z-Probe, probes the bed at 3 or more points.
+          gcode_G29();
+          break;
+      #endif
+
+      #ifdef ENABLE_AUTO_BED_LEVELING
+
+        #ifndef Z_PROBE_SLED
+
+          case 30: // G30 Single Z Probe
+            gcode_G30();
             break;
 
-      #endif // Z_PROBE_SLED
+        #else // Z_PROBE_SLED
 
-    #endif // ENABLE_AUTO_BED_LEVELING
+            case 31: // G31: dock the sled
+            case 32: // G32: undock the sled
+              dock_sled(codenum == 31);
+              break;
 
-    case 90: // G90
-      relative_mode = false;
-      break;
-    case 91: // G91
-      relative_mode = true;
-      break;
+        #endif // Z_PROBE_SLED
 
-    case 92: // G92
-      gcode_G92();
-      break;
+      #endif // ENABLE_AUTO_BED_LEVELING
 
-    default: code_is_good = false;
+      case 90: // G90
+        relative_mode = false;
+        break;
+      case 91: // G91
+        relative_mode = true;
+        break;
+
+      case 92: // G92
+        gcode_G92();
+        break;
+
+      default: code_is_good = false;
     }
     break;
 
