@@ -869,8 +869,8 @@ static void lcd_control_mg_addons_menu()
 	MENU_ITEM(back, MSG_CONTROL, lcd_control_menu);
 
 	MENU_ITEM_EDIT_CALLBACK(bool, MSG_MG_PASTA_ENABLE, &pasta_enabled, init_pasta);
-	MENU_ITEM_EDIT_CALLBACK(bool, MSG_MG_PASTA_AUTOZ, &pasta_enabled, init_pasta);
-	MENU_ITEM_EDIT_CALLBACK(bool, MSG_MG_PASTA_DIA, &pasta_enabled, init_pasta);
+	//MENU_ITEM_EDIT_CALLBACK(bool, MSG_MG_PASTA_AUTOZ, &pasta_enabled, init_pasta);
+	//MENU_ITEM_EDIT_CALLBACK(bool, MSG_MG_PASTA_DIA, &pasta_enabled, init_pasta);
 /*
 	if (pasta_enabled) {
 		MENU_ITEM_EDIT_CALLBACK(float43, MSG_FILAMENT_SIZE_EXTRUDER_0, &filament_size[0], DEFAULT_NOMINAL_FILAMENT_DIA - .5, DEFAULT_NOMINAL_FILAMENT_DIA + .5, calculate_volumetric_multipliers);

@@ -228,91 +228,202 @@ extern volatile uint16_t buttons;  //an extended version of the last checked but
 #define LCD_STR_CLOCK       "\x07"
 #define LCD_STR_ARROW_RIGHT "\x7E"  /* from the default character set */
 
+static void lcd_restore_symbols_magnum() {
+    byte bedTemp[8] =
+    {
+        B01001,
+        B10010,
+        B01001,
+        B10010,
+        B00000,
+        B11111,
+        B01010,
+        B00000
+    }; //thanks Sonny Mounicou
+    byte degree[8] =
+    {
+        B01100,
+        B10010,
+        B10010,
+        B01100,
+        B00000,
+        B00000,
+        B00000,
+        B00000
+    };
+    byte thermometer[8] =
+    {
+        B11111,
+        B11011,
+        B11011,
+        B11111,
+        B01010,
+        B01010,
+        B00100,
+        B00000
+    };
+    byte uplevel[8]={
+        B00100,
+        B01110,
+        B11111,
+        B00100,
+        B11100,
+        B00000,
+        B00000,
+        B00000
+    }; //thanks joris
+    byte refresh[8]={
+        B00000,
+        B00110,
+        B11001,
+        B11000,
+        B00011,
+        B10011,
+        B01100,
+        B00000,
+    }; //thanks joris
+    byte folder [8]={
+        B00000,
+        B11100,
+        B11111,
+        B10001,
+        B10001,
+        B11111,
+        B00000,
+        B00000
+    }; //thanks joris
+   /* byte feedrate [8]={
+        B00000,
+        B11101,
+        B01110,
+        B00111,
+        B01011,
+        B10001,
+        B00000,
+        B00000
+    }; //MG */
+	byte feedrate [8]={
+        B00010,
+        B00100,
+        B01100,
+        B11111,
+        B00110,
+        B00100,
+        B01000,
+        B10000
+    }; //MG
+    byte clock [8]={
+        B00000,
+        B01110,
+        B10011,
+        B10101,
+        B10001,
+        B01110,
+        B00000,
+        B00000
+    }; //thanks Sonny Mounicou
+	
+	// ORIGINAL
+	lcd.createChar(LCD_STR_BEDTEMP[0], bedTemp);
+    lcd.createChar(LCD_STR_DEGREE[0], degree);
+    lcd.createChar(LCD_STR_THERMOMETER[0], thermometer);
+    lcd.createChar(LCD_STR_UPLEVEL[0], uplevel);
+    lcd.createChar(LCD_STR_REFRESH[0], refresh);
+    lcd.createChar(LCD_STR_FOLDER[0], folder);
+    lcd.createChar(LCD_STR_FEEDRATE[0], feedrate);
+    lcd.createChar(LCD_STR_CLOCK[0], clock);
+    lcd.clear();
+}
+
 static void lcd_set_custom_characters(
   #if defined(LCD_PROGRESS_BAR) && defined(SDSUPPORT)
     bool progress_bar_set=true
   #endif
 ) {
-  byte bedTemp[8] = {
-    B00000,
-    B11111,
-    B10101,
-    B10001,
-    B10101,
-    B11111,
-    B00000,
-    B00000
-  }; //thanks Sonny Mounicou
-  byte degree[8] = {
-    B01100,
-    B10010,
-    B10010,
-    B01100,
-    B00000,
-    B00000,
-    B00000,
-    B00000
-  };
-  byte thermometer[8] = {
-    B00100,
-    B01010,
-    B01010,
-    B01010,
-    B01010,
-    B10001,
-    B10001,
-    B01110
-  };
-  byte uplevel[8] = {
-    B00100,
-    B01110,
-    B11111,
-    B00100,
-    B11100,
-    B00000,
-    B00000,
-    B00000
-  }; //thanks joris
-  byte refresh[8] = {
-    B00000,
-    B00110,
-    B11001,
-    B11000,
-    B00011,
-    B10011,
-    B01100,
-    B00000,
-  }; //thanks joris
-  byte folder[8] = {
-    B00000,
-    B11100,
-    B11111,
-    B10001,
-    B10001,
-    B11111,
-    B00000,
-    B00000
-  }; //thanks joris
-  byte feedrate[8] = {
-    B11100,
-    B10000,
-    B11000,
-    B10111,
-    B00101,
-    B00110,
-    B00101,
-    B00000
-  }; //thanks Sonny Mounicou
-  byte clock[8] = {
-    B00000,
-    B01110,
-    B10011,
-    B10101,
-    B10001,
-    B01110,
-    B00000,
-    B00000
-  }; //thanks Sonny Mounicou
+   //MG icons
+   byte bedTemp[8] =
+    {
+        B01001,
+        B10010,
+        B01001,
+        B10010,
+        B00000,
+        B11111,
+        B01010,
+        B00000
+    };
+    byte degree[8] =
+    {
+        B01100,
+        B10010,
+        B10010,
+        B01100,
+        B00000,
+        B00000,
+        B00000,
+        B00000
+    };
+    byte thermometer[8] =
+    {
+        B11111,
+        B11011,
+        B11011,
+        B11111,
+        B01010,
+        B01010,
+        B00100,
+        B00000
+    };
+    byte uplevel[8]={
+        B00100,
+        B01110,
+        B11111,
+        B00100,
+        B11100,
+        B00000,
+        B00000,
+        B00000
+    };
+    byte refresh[8]={
+        B00000,
+        B00110,
+        B11001,
+        B11000,
+        B00011,
+        B10011,
+        B01100,
+        B00000,
+    };
+    byte folder [8]={
+        B00000,
+        B11100,
+        B11111,
+        B10001,
+        B10001,
+        B11111,
+        B00000,
+        B00000
+    };
+	byte feedrate [8]={
+        B00010,
+        B00100,
+        B01100,
+        B11111,
+        B00110,
+        B00100,
+        B01000,
+        B10000
+    };
+    byte clock [8]={
+        B00000,
+        B01110,
+        B10011,
+        B10101,
+        B10001,
+        B01110,
+        B00000,
+        B00000
+    };
 
   #if defined(LCD_PROGRESS_BAR) && defined(SDSUPPORT)
     static bool char_mode = false;
@@ -374,6 +485,7 @@ static void lcd_set_custom_characters(
   #endif
 }
 
+int initnum = 0; // MG INIT LOGO SHOW TIME -1 for disable
 static void lcd_implementation_init(
   #if defined(LCD_PROGRESS_BAR) && defined(SDSUPPORT)
     bool progress_bar_set=true
@@ -404,13 +516,129 @@ static void lcd_implementation_init(
     lcd.begin(LCD_WIDTH, LCD_HEIGHT);
 #endif
 
-    lcd_set_custom_characters(
+//MG custom logo +
+    /*
+	lcd_set_custom_characters(
         #if defined(LCD_PROGRESS_BAR) && defined(SDSUPPORT)
             progress_bar_set
         #endif
     );
+	*/
+	if (initnum >= 0) {
+		byte magnum[8][8] = {
+			{
+				B00100,
+				B01111,
+				B11111,
+				B11111,
+				B11111,
+				B11111,
+				B11111,
+				B11111
+			},
+			{
+				B00000,
+				B00000,
+				B10001,
+				B11111,
+				B11111,
+				B11111,
+				B11111,
+				B11111
+			},
+			{
+				B00110,
+				B11111,
+				B11111,
+				B11111,
+				B11111,
+				B11111,
+				B11111,
+				B11111
+			},
+			{
+				B00000,
+				B00000,
+				B00000,
+				B00000,
+				B00000,
+				B00000,
+				B00000,
+				B00000
+			},
+			{
+				B11111,
+				B11111,
+				B11111,
+				B11111,
+				B11111,
+				B11111,
+				B11111,
+				B01110
+			},
+			{
+				B01110,
+				B00100,
+				B00000,
+				B00000,
+				B00000,
+				B00000,
+				B00000,
+				B00000
+			},
+			{
+				B11111,
+				B11111,
+				B11111,
+				B11111,
+				B11111,
+				B11111,
+				B11111,
+				B01111
+			},
+			{
+				B01110,
+				B11011,
+				B11011,
+				B11000,
+				B10111,
+				B10111,
+				B11011,
+				B01111
+			}
+		};
+		
+		lcd.createChar(LCD_STR_BEDTEMP[0], magnum[0]);
+		lcd.createChar(LCD_STR_DEGREE[0], magnum[1]);
+		lcd.createChar(LCD_STR_THERMOMETER[0], magnum[2]);
+		lcd.createChar(LCD_STR_UPLEVEL[0], magnum[3]);
+		lcd.createChar(LCD_STR_REFRESH[0], magnum[4]);
+		lcd.createChar(LCD_STR_FOLDER[0], magnum[5]);
+		lcd.createChar(LCD_STR_FEEDRATE[0], magnum[6]);
+		lcd.createChar(LCD_STR_CLOCK[0], magnum[7]);
+		lcd.clear();	
+		
+		lcd.setCursor(8, 1);
+		lcd.print(LCD_STR_BEDTEMP[0]);
+		lcd.print(LCD_STR_DEGREE[0]);
+		lcd.print(LCD_STR_THERMOMETER[0]);
+		lcd.print(LCD_STR_UPLEVEL[0]);	
+		
+		lcd.setCursor(8, 2);
+		lcd.print(LCD_STR_REFRESH[0]);
+		lcd.print(LCD_STR_FOLDER[0]);
+		lcd.print(LCD_STR_FEEDRATE[0]);
+		lcd.print(LCD_STR_CLOCK[0]);
+	} else {
+		lcd_set_custom_characters(
+        #if defined(LCD_PROGRESS_BAR) && defined(SDSUPPORT)
+            progress_bar_set
+        #endif
+		);
+	}
+//MG custom logo -
 
-    lcd.clear();
+    //lcd.clear();
 }
 static void lcd_implementation_clear()
 {
@@ -455,6 +683,17 @@ Possible status screens:
 */
 static void lcd_implementation_status_screen()
 {
+	// MG ++ additional time to display init screen
+	if (initnum > 0) {
+		initnum --;
+		return;
+	} else
+	if (initnum == 0) {
+		lcd_restore_symbols_magnum();
+		initnum --;
+	}
+	// MG --
+	
     int tHotend=int(degHotend(0) + 0.5);
     int tTarget=int(degTargetHotend(0) + 0.5);
 
