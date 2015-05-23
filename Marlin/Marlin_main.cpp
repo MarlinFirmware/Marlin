@@ -602,6 +602,10 @@ void setup()
   tp_init();    // Initialize temperature loop
   plan_init();  // Initialize planner;
   watchdog_init();
+//MG
+#ifdef DAC_STEPPER_CURRENT
+  dac_init(); //Initialize DAC to set stepper current
+#endif
   st_init();    // Initialize stepper, this enables interrupts!
   setup_photpin();
   servo_init();

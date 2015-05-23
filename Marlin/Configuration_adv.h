@@ -324,7 +324,7 @@
   // Amount of time (ms) to retain the status message (0=forever)
   #define PROGRESS_MSG_EXPIRE   0
   // Enable this to show messages for MSG_TIME then hide them
-  //#define PROGRESS_MSG_ONCE
+  #define PROGRESS_MSG_ONCE
 #endif
 
 // The hardware watchdog should reset the microcontroller disabling all outputs, in case the firmware gets stuck and doesn't do temperature regulation.

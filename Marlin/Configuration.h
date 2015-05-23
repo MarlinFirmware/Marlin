@@ -108,10 +108,10 @@
 #if MOTHERBOARD == 555
   //#define MAGNUM_PLA
   //#define MACHINE_MODEL "PLA"
-  #define MAGNUM_UNI
-  #define MACHINE_MODEL "UNI"
-  //#define MAGNUM_PRO
-  //#define MACHINE_MODEL "PRO"
+  //#define MAGNUM_UNI
+  //#define MACHINE_MODEL "UNI"
+  #define MAGNUM_PRO
+  #define MACHINE_MODEL "PRO"
   //#define MAGNUM_EDU
   //#define MACHINE_MODEL "EDU"
   //#define MODUS
@@ -444,7 +444,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #elif defined(MAGNUM_PRO) 
  #define X_MAX_POS_DEFAULT 220//temp
  #define X_MIN_POS_DEFAULT 0
- #define Y_MAX_POS_DEFAULT 200//temp
+ #define Y_MAX_POS_DEFAULT 180//temp
  #define Y_MIN_POS_DEFAULT 0
  #define Z_MAX_POS_DEFAULT 180
  #define Z_MIN_POS_DEFAULT 0 

@@ -1331,7 +1331,7 @@ void lcd_setstatus(const char* message)
     if (lcd_status_message_level > 0)
         return;
     // MG
-    #if LANGUAGE_CHOICE == 6
+    #ifdef LANGUAGE_RU
      strncpy(lcd_status_message, message, LCD_WIDTH*2);
     #else
      strncpy(lcd_status_message, message, LCD_WIDTH);
@@ -1343,7 +1343,7 @@ void lcd_setstatuspgm(const char* message)
     if (lcd_status_message_level > 0)
         return;
      // MG
-    #if LANGUAGE_CHOICE == 6
+    #ifdef LANGUAGE_RU
      strncpy_P(lcd_status_message, message, LCD_WIDTH*2);
     #else
      strncpy_P(lcd_status_message, message, LCD_WIDTH);
