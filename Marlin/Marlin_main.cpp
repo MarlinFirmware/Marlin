@@ -5259,11 +5259,11 @@ void process_next_command() {
         gcode_G28();
         break;
 
-    #if defined(ENABLE_AUTO_BED_LEVELING) || defined(MESH_BED_LEVELING)
-      case 29: // G29 Detailed Z-Probe, probes the bed at 3 or more points.
-        gcode_G29();
-        break;
-    #endif
+      #if defined(ENABLE_AUTO_BED_LEVELING) || defined(MESH_BED_LEVELING)
+        case 29: // G29 Detailed Z-Probe, probes the bed at 3 or more points.
+          gcode_G29();
+          break;
+      #endif
 
     #ifdef ENABLE_AUTO_BED_LEVELING
 
