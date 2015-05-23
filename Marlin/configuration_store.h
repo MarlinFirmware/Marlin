@@ -5,13 +5,13 @@
 
 void Config_ResetDefault();
 
-#ifndef DISABLE_M503
+#if DISABLED(DISABLE_M503)
   void Config_PrintSettings(bool forReplay=false);
 #else
   FORCE_INLINE void Config_PrintSettings(bool forReplay=false) {}
 #endif
 
-#ifdef EEPROM_SETTINGS
+#if ENABLED(EEPROM_SETTINGS)
   void Config_StoreSettings();
   void Config_RetrieveSettings();
 #else

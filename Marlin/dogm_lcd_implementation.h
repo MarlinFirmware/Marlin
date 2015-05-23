@@ -18,7 +18,7 @@
  * Implementation of the LCD display routines for a DOGM128 graphic display. These are common LCD 128x64 pixel graphic displays.
  */
 
-#ifdef ULTIPANEL
+#if ENABLED(ULTIPANEL)
   #define BLEN_A 0
   #define BLEN_B 1
   #define BLEN_C 2
@@ -35,12 +35,12 @@
 #include "ultralcd_st7920_u8glib_rrd.h"
 #include "Configuration.h"
 
-#if !defined(MAPPER_C2C3) && !defined(MAPPER_NON) && defined(USE_BIG_EDIT_FONT)
+#if DISABLED(MAPPER_C2C3) && DISABLED(MAPPER_NON) && ENABLED(USE_BIG_EDIT_FONT)
    #undef USE_BIG_EDIT_FONT
 #endif
 
 
-#ifdef USE_SMALL_INFOFONT
+#if ENABLED(USE_SMALL_INFOFONT)
   #include "dogm_font_data_6x9_marlin.h"
   #define FONT_STATUSMENU_NAME u8g_font_6x9
 #else
@@ -50,17 +50,17 @@
 #include "dogm_font_data_Marlin_symbols.h"   // The Marlin special symbols
 #define FONT_SPECIAL_NAME Marlin_symbols
 
-#ifndef SIMULATE_ROMFONT
-  #if defined( DISPLAY_CHARSET_ISO10646_1 )
+#if DISABLED(SIMULATE_ROMFONT)
+  #if ENABLED(DISPLAY_CHARSET_ISO10646_1)
     #include "dogm_font_data_ISO10646_1.h"
     #define FONT_MENU_NAME ISO10646_1_5x7
-  #elif defined( DISPLAY_CHARSET_ISO10646_5 )
+  #elif ENABLED(DISPLAY_CHARSET_ISO10646_5)
     #include "dogm_font_data_ISO10646_5_Cyrillic.h"
     #define FONT_MENU_NAME ISO10646_5_Cyrillic_5x7
-  #elif defined( DISPLAY_CHARSET_ISO10646_KANA )
+  #elif ENABLED(DISPLAY_CHARSET_ISO10646_KANA)
     #include "dogm_font_data_ISO10646_Kana.h"
     #define FONT_MENU_NAME ISO10646_Kana_5x7
-  #elif defined( DISPLAY_CHARSET_ISO10646_CN )
+  #elif ENABLED(DISPLAY_CHARSET_ISO10646_CN)
     #include "dogm_font_data_ISO10646_CN.h"
     #define FONT_MENU_NAME ISO10646_CN
     #define TALL_FONT_CORRECTION 1
@@ -69,13 +69,13 @@
     #define FONT_MENU_NAME ISO10646_1_5x7
   #endif
 #else // SIMULATE_ROMFONT
-  #if defined( DISPLAY_CHARSET_HD44780_JAPAN )
+  #if ENABLED(DISPLAY_CHARSET_HD44780_JAPAN)
     #include "dogm_font_data_HD44780_J.h"
     #define FONT_MENU_NAME HD44780_J_5x7
-  #elif defined( DISPLAY_CHARSET_HD44780_WESTERN )
+  #elif ENABLED(DISPLAY_CHARSET_HD44780_WESTERN)
     #include "dogm_font_data_HD44780_W.h"
     #define FONT_MENU_NAME HD44780_W_5x7
-  #elif defined( DISPLAY_CHARSET_HD44780_CYRILLIC )
+  #elif ENABLED(DISPLAY_CHARSET_HD44780_CYRILLIC)
     #include "dogm_font_data_HD44780_C.h"
     #define FONT_MENU_NAME HD44780_C_5x7
   #else // fall-back
@@ -94,7 +94,7 @@
 // DOGM parameters (size in pixels)
 #define DOG_CHAR_WIDTH         6
 #define DOG_CHAR_HEIGHT        12
-#ifdef USE_BIG_EDIT_FONT
+#if ENABLED(USE_BIG_EDIT_FONT)
   #define FONT_MENU_EDIT_NAME u8g_font_9x18
   #define DOG_CHAR_WIDTH_EDIT  9
   #define DOG_CHAR_HEIGHT_EDIT 18
@@ -113,16 +113,16 @@
 #define START_ROW              0
 
 // LCD selection
-#ifdef U8GLIB_ST7920
+#if ENABLED(U8GLIB_ST7920)
   //U8GLIB_ST7920_128X64_RRD u8g(0,0,0);
   U8GLIB_ST7920_128X64_RRD u8g(0);
-#elif defined(MAKRPANEL)
+#elif ENABLED(MAKRPANEL)
   // The MaKrPanel display, ST7565 controller as well
   U8GLIB_NHD_C12864 u8g(DOGLCD_CS, DOGLCD_A0);
-#elif defined(VIKI2) || defined(miniVIKI)
+#elif ENABLED(VIKI2) || ENABLED(miniVIKI)
   // Mini Viki and Viki 2.0 LCD, ST7565 controller as well
   U8GLIB_NHD_C12864 u8g(DOGLCD_CS, DOGLCD_A0);
-#elif defined(U8GLIB_LM6059_AF)
+#elif ENABLED(U8GLIB_LM6059_AF)
   // Based on the Adafruit ST7565 (http://www.adafruit.com/products/250)
   U8GLIB_LM6059 u8g(DOGLCD_CS, DOGLCD_A0);
 #else
@@ -189,7 +189,7 @@ static bool show_splashscreen = true;
 /* Warning: This function is called from interrupt context */
 static void lcd_implementation_init() {
 
-  #ifdef LCD_PIN_BL // Enable LCD backlight
+  #if ENABLED(LCD_PIN_BL) // Enable LCD backlight
     pinMode(LCD_PIN_BL, OUTPUT);
 	  digitalWrite(LCD_PIN_BL, HIGH);
   #endif
@@ -200,17 +200,17 @@ static void lcd_implementation_init() {
   // pinMode(17, OUTPUT);	// Enable LCD backlight
   // digitalWrite(17, HIGH);
 
-  #ifdef LCD_SCREEN_ROT_90
+  #if ENABLED(LCD_SCREEN_ROT_90)
     u8g.setRot90();   // Rotate screen by 90°
-  #elif defined(LCD_SCREEN_ROT_180)
+  #elif ENABLED(LCD_SCREEN_ROT_180)
     u8g.setRot180();	// Rotate screen by 180°
-  #elif defined(LCD_SCREEN_ROT_270)
+  #elif ENABLED(LCD_SCREEN_ROT_270)
     u8g.setRot270();	// Rotate screen by 270°
   #endif
 	
   // Show splashscreen
   int offx = (u8g.getWidth() - START_BMPWIDTH) / 2;
-  #ifdef START_BMPHIGH
+  #if ENABLED(START_BMPHIGH)
     int offy = 0;
   #else
     int offy = DOG_CHAR_HEIGHT;
@@ -265,7 +265,7 @@ static void lcd_implementation_status_screen() {
   // Symbols menu graphics, animated fan
   u8g.drawBitmapP(9,1,STATUS_SCREENBYTEWIDTH,STATUS_SCREENHEIGHT, (blink % 2) && fanSpeed ? status_screen0_bmp : status_screen1_bmp);
  
-  #ifdef SDSUPPORT
+  #if ENABLED(SDSUPPORT)
     // SD Card Symbol
     u8g.drawBox(42, 42 - TALL_FONT_CORRECTION, 8, 7);
     u8g.drawBox(50, 44 - TALL_FONT_CORRECTION, 2, 5);
@@ -320,7 +320,7 @@ static void lcd_implementation_status_screen() {
   #define XYZ_BASELINE 38
   lcd_setFont(FONT_STATUSMENU);
 
-  #ifdef USE_SMALL_INFOFONT
+  #if ENABLED(USE_SMALL_INFOFONT)
     u8g.drawBox(0,30,LCD_PIXEL_WIDTH,10);
   #else
     u8g.drawBox(0,30,LCD_PIXEL_WIDTH,9);
@@ -366,12 +366,12 @@ static void lcd_implementation_status_screen() {
 
   // Status line
   lcd_setFont(FONT_STATUSMENU);
-  #ifdef USE_SMALL_INFOFONT
+  #if ENABLED(USE_SMALL_INFOFONT)
     u8g.setPrintPos(0,62);
   #else
     u8g.setPrintPos(0,63);
   #endif
-  #ifndef FILAMENT_LCD_DISPLAY
+  #if DISABLED(FILAMENT_LCD_DISPLAY)
     lcd_print(lcd_status_message);
   #else
     if (millis() < previous_lcd_status_ms + 5000) {  //Display both Status message line and Filament display on the last line
@@ -461,7 +461,7 @@ void lcd_implementation_drawedit(const char* pstr, char* value) {
   uint8_t lcd_width = LCD_WIDTH, char_width = DOG_CHAR_WIDTH;
   uint8_t vallen = lcd_strlen(value);
 
-  #ifdef USE_BIG_EDIT_FONT
+  #if ENABLED(USE_BIG_EDIT_FONT)
     if (lcd_strlen_P(pstr) <= LCD_WIDTH_EDIT - 1) {
       lcd_setFont(FONT_MENU_EDIT);
       lcd_width = LCD_WIDTH_EDIT + 1;

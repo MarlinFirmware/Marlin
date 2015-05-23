@@ -18,7 +18,7 @@
  * <http://www.gnu.org/licenses/>.
  */
 #include "Marlin.h"
-#ifdef SDSUPPORT
+#if ENABLED(SDSUPPORT)
 
 #ifndef SdFatUtil_h
 #define SdFatUtil_h

@@ -127,7 +127,7 @@
 #define MSG_END_HOUR                        "часа"
 #define MSG_END_MINUTE                      "минути"
  
-#ifdef DELTA_CALIBRATION_MENU
+#if ENABLED(DELTA_CALIBRATION_MENU)
     #define MSG_DELTA_CALIBRATE             "Делта Калибровка"
     #define MSG_DELTA_CALIBRATE_X           "Калибровка X"
     #define MSG_DELTA_CALIBRATE_Y           "Калибровка Y"

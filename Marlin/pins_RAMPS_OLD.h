@@ -37,7 +37,7 @@
 #define PS_ON_PIN          -1
 #define KILL_PIN           -1
 
-#ifdef RAMPS_V_1_0 // RAMPS_V_1_0
+#if ENABLED(RAMPS_V_1_0) // RAMPS_V_1_0
   #define HEATER_0_PIN     12    // RAMPS 1.0
   #define HEATER_BED_PIN   -1    // RAMPS 1.0
   #define FAN_PIN          11    // RAMPS 1.0
@@ -55,13 +55,13 @@
 #define TEMP_BED_PIN        1    // MUST USE ANALOG INPUT NUMBERING NOT DIGITAL OUTPUT NUMBERING!!!!!!!!!
 
 // SPI for Max6675 Thermocouple
-#ifndef SDSUPPORT
+#if DISABLED(SDSUPPORT)
   #define MAX6675_SS       66// Do not use pin 53 if there is even the remote possibility of using Display/SD card
 #else
   #define MAX6675_SS       66// Do not use pin 49 as this is tied to the switch inside the SD card socket to detect if there is an SD card present
 #endif
 
-#ifndef SDSUPPORT
+#if DISABLED(SDSUPPORT)
   // these pins are defined in the SD library if building with SD support
   #define SCK_PIN          52
   #define MISO_PIN         50

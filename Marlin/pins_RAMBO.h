@@ -22,7 +22,7 @@
   #endif
 #endif
 
-#ifdef Z_PROBE_SLED
+#if ENABLED(Z_PROBE_SLED)
   #define SLED_PIN         -1
 #endif
 
@@ -70,7 +70,7 @@
 #define HEATER_1_PIN 7
 #define TEMP_1_PIN 1
 
-#ifdef BARICUDA
+#if ENABLED(BARICUDA)
   #define HEATER_2_PIN 6
 #else
   #define HEATER_2_PIN -1
@@ -109,9 +109,9 @@
 #define KILL_PIN           -1 //80 with Smart Controller LCD
 #define SUICIDE_PIN        -1  //PIN that has to be turned on right after start, to keep power flowing.
 
-#ifdef ULTRA_LCD
+#if ENABLED(ULTRA_LCD)
   #define KILL_PIN 80
-  #ifdef NEWPANEL
+  #if ENABLED(NEWPANEL)
    //arduino pin which triggers an piezzo beeper
     #define BEEPER 79      // Beeper on AUX-4
     #define LCD_PINS_RS 70
@@ -164,7 +164,7 @@
 
 #endif // ULTRA_LCD
 
-#if defined(VIKI2) || defined(miniVIKI)
+#if ENABLED(VIKI2) || ENABLED(miniVIKI)
  #define BEEPER 44
  // Pins for DOGM SPI LCD Support
  #define DOGLCD_A0  70 
@@ -178,13 +178,13 @@
 
  #define SDCARDDETECT -1 // Pin 72 if using easy adapter board   
 
-  #ifdef TEMP_STAT_LEDS
+  #if ENABLED(TEMP_STAT_LEDS)
    #define STAT_LED_RED      22
    #define STAT_LED_BLUE     32 
   #endif
 #endif // VIKI2/miniVIKI
 
-#ifdef FILAMENT_SENSOR
+#if ENABLED(FILAMENT_SENSOR)
   //Filip added pin for Filament sensor analog input 
   #define FILWIDTH_PIN        3
 #endif

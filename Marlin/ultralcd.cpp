@@ -63,7 +63,7 @@ static void lcd_status_screen();
   #endif
   static void lcd_sdcard_menu();
 
-  #ifdef DELTA_CALIBRATION_MENU
+  #if ENABLED(DELTA_CALIBRATION_MENU)
     static void lcd_delta_calibrate_menu();
   #endif
 
@@ -394,13 +394,13 @@ static void lcd_main_menu() {
   }
   else {
     MENU_ITEM(submenu, MSG_PREPARE, lcd_prepare_menu);
-    #ifdef DELTA_CALIBRATION_MENU
+    #if ENABLED(DELTA_CALIBRATION_MENU)
       MENU_ITEM(submenu, MSG_DELTA_CALIBRATE, lcd_delta_calibrate_menu);
     #endif
   }
   MENU_ITEM(submenu, MSG_CONTROL, lcd_control_menu);
 
-  #ifdef SDSUPPORT
+  #if ENABLED(SDSUPPORT)
     if (card.cardOK) {
       if (card.isFileOpen()) {
         if (card.sdprinting)
@@ -690,7 +690,7 @@ static void lcd_prepare_menu() {
   END_MENU();
 }
 
-#ifdef DELTA_CALIBRATION_MENU
+#if ENABLED(DELTA_CALIBRATION_MENU)
 
   static void lcd_delta_calibrate_menu() {
     START_MENU();
