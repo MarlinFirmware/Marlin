@@ -5265,24 +5265,24 @@ void process_next_command() {
           break;
       #endif
 
-    #ifdef ENABLE_AUTO_BED_LEVELING
+      #ifdef ENABLE_AUTO_BED_LEVELING
 
-      #ifndef Z_PROBE_SLED
+        #ifndef Z_PROBE_SLED
 
-        case 30: // G30 Single Z Probe
-          gcode_G30();
-          break;
-
-      #else // Z_PROBE_SLED
-
-          case 31: // G31: dock the sled
-          case 32: // G32: undock the sled
-            dock_sled(codenum == 31);
+          case 30: // G30 Single Z Probe
+            gcode_G30();
             break;
 
-      #endif // Z_PROBE_SLED
+        #else // Z_PROBE_SLED
 
-    #endif // ENABLE_AUTO_BED_LEVELING
+            case 31: // G31: dock the sled
+            case 32: // G32: undock the sled
+              dock_sled(codenum == 31);
+              break;
+
+        #endif // Z_PROBE_SLED
+
+      #endif // ENABLE_AUTO_BED_LEVELING
 
     case 90: // G90
       relative_mode = false;
