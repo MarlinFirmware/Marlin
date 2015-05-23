@@ -98,6 +98,8 @@
   #include "pins_OMCA.h"
 #elif MB(RAMBO)
   #include "pins_RAMBO.h"
+#elif MB(MINIRAMBO)
+  #include "pins_MINIRAMBO.h"
 #elif MB(ELEFU_3)
   #include "pins_ELEFU_3.h"
 #elif MB(5DPRINT)
