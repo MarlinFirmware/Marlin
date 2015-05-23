@@ -73,7 +73,7 @@ Here are some standard links for getting your machine calibrated:
 #define CUSTOM_MACHINE_NAME "WITBOX"
 
 // Added for BQ
-#define FIRMWARE_URL "http://www.bq.com/gb/downloads-witbox.html"
+#define SOURCE_CODE_URL "http://www.bq.com/gb/downloads-witbox.html"
 
 // Define this to set a unique identifier for this printer, (Used by some programs to differentiate between machines)
 // You can use an online service to generate a random UUID. (eg http://www.uuidgenerator.net/version4)
