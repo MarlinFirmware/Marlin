@@ -561,6 +561,8 @@ void servo_init()
 
 void setup()
 {
+  // MG lcd_init вверху
+  lcd_init();
   setup_killpin();
   setup_powerhold();
   MYSERIAL.begin(BAUDRATE);
@@ -613,9 +615,9 @@ void setup()
   setup_photpin();
   servo_init();
   
-
-  lcd_init();
-  _delay_ms(1000);	// wait 1sec to display the splash screen
+ // MG перенесено выше
+ // lcd_init();
+ // _delay_ms(1000);	// wait 1sec to display the splash screen
 
   #if defined(CONTROLLERFAN_PIN) && CONTROLLERFAN_PIN > -1
     SET_OUTPUT(CONTROLLERFAN_PIN); //Set pin used for driver cooling fan

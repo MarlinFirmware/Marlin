@@ -798,14 +798,12 @@ void init_pasta() {
 		float temp = .0;
 	    set_extrude_min_temp(temp);
 		
-		// #define DEFAULT_AXIS_STEPS_PER_UNIT   {100, 100, 200.0*16/3, 200.0*16/3}
+		// #define DEFAULT_AXIS_STEPS_PER_UNIT   {100, 100, 200.0*16/3, 145.59*1.09}
 		// #define DEFAULT_MAX_ACCELERATION      {3000,3000,100,3000}
-		//float tmp1[]=DEFAULT_AXIS_STEPS_PER_UNIT;
-		//float tmp2[]=DEFAULT_MAX_FEEDRATE;
 		//long tmp3[]=DEFAULT_MAX_ACCELERATION;
 	
-		float tmp1[]={100, 100, 200.0*16/3, 200.0*16/3};
-		long tmp3[]={200,200,100,300};
+		float tmp1[]={100, 100, 200.0*16/3, 200.0*16/3}; //DEFAULT_AXIS_STEPS_PER_UNIT
+		long tmp3[]={200,200,100,300}; //DEFAULT_MAX_ACCELERATION
 		for (short i=0;i<4;i++) 
 		{
 			axis_steps_per_unit[i]=tmp1[i];  
@@ -815,29 +813,24 @@ void init_pasta() {
 	
 		// steps per sq second need to be updated to agree with the units per sq second
 		reset_acceleration_rates();
-    
-		acceleration=200;
+    	acceleration=200;
+		max_xy_jerk=3;
+		max_e_jerk=3;
 		/*
 		retract_acceleration=DEFAULT_RETRACT_ACCELERATION;
 		minimumfeedrate=DEFAULT_MINIMUMFEEDRATE;
 		minsegmenttime=DEFAULT_MINSEGMENTTIME;       
 		mintravelfeedrate=DEFAULT_MINTRAVELFEEDRATE;
-		max_xy_jerk=DEFAULT_XYJERK;
 		max_z_jerk=DEFAULT_ZJERK;
-		max_e_jerk=DEFAULT_EJERK;
 		*/
 	} else {
 		// DISABLE ALL E3
 		WRITE(E3_ENABLE_PIN, !E_ENABLE_ON);
 		
 		set_extrude_min_temp(EXTRUDE_MINTEMP);
-		
-		// #define DEFAULT_AXIS_STEPS_PER_UNIT   {100, 100, 200.0*16/3, 200.0*16/3}
-		// #define DEFAULT_MAX_ACCELERATION      {3000,3000,100,3000}
-		//float tmp1[]=DEFAULT_AXIS_STEPS_PER_UNIT;
-		//float tmp2[]=DEFAULT_MAX_FEEDRATE;
+
 		//long tmp3[]=DEFAULT_MAX_ACCELERATION;
-	
+
 		float tmp1[]=DEFAULT_AXIS_STEPS_PER_UNIT;
 		long tmp3[]=DEFAULT_MAX_ACCELERATION;
 		for (short i=0;i<4;i++) 
@@ -851,14 +844,14 @@ void init_pasta() {
 		reset_acceleration_rates();
     
 		acceleration=DEFAULT_ACCELERATION;
+		max_xy_jerk=DEFAULT_XYJERK;
+		max_e_jerk=DEFAULT_EJERK;
 		/*
 		retract_acceleration=DEFAULT_RETRACT_ACCELERATION;
 		minimumfeedrate=DEFAULT_MINIMUMFEEDRATE;
 		minsegmenttime=DEFAULT_MINSEGMENTTIME;       
 		mintravelfeedrate=DEFAULT_MINTRAVELFEEDRATE;
-		max_xy_jerk=DEFAULT_XYJERK;
 		max_z_jerk=DEFAULT_ZJERK;
-		max_e_jerk=DEFAULT_EJERK;
 		*/
 	}
 	
