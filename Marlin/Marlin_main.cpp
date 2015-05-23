@@ -5233,13 +5233,13 @@ void process_next_command() {
         gcode_G0_G1();
         break;
 
-    // G2, G3
-    #ifndef SCARA
-      case 2: // G2  - CW ARC
-      case 3: // G3  - CCW ARC
-        gcode_G2_G3(codenum == 2);
-        break;
-    #endif
+      // G2, G3
+      #ifndef SCARA
+        case 2: // G2  - CW ARC
+        case 3: // G3  - CCW ARC
+          gcode_G2_G3(codenum == 2);
+          break;
+      #endif
 
     // G4 Dwell
     case 4:
