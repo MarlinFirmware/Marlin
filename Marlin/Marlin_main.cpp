@@ -5284,18 +5284,18 @@ void process_next_command() {
 
       #endif // ENABLE_AUTO_BED_LEVELING
 
-    case 90: // G90
-      relative_mode = false;
-      break;
-    case 91: // G91
-      relative_mode = true;
-      break;
+      case 90: // G90
+        relative_mode = false;
+        break;
+      case 91: // G91
+        relative_mode = true;
+        break;
 
-    case 92: // G92
-      gcode_G92();
-      break;
+      case 92: // G92
+        gcode_G92();
+        break;
 
-    default: code_is_good = false;
+      default: code_is_good = false;
     }
     break;
 
