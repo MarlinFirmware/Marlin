@@ -5241,23 +5241,23 @@ void process_next_command() {
           break;
       #endif
 
-    // G4 Dwell
-    case 4:
-      gcode_G4();
-      break;
-
-    #ifdef FWRETRACT
-
-      case 10: // G10: retract
-      case 11: // G11: retract_recover
-        gcode_G10_G11(codenum == 10);
+      // G4 Dwell
+      case 4:
+        gcode_G4();
         break;
 
-    #endif //FWRETRACT
+      #ifdef FWRETRACT
 
-    case 28: // G28: Home all axes, one at a time
-      gcode_G28();
-      break;
+        case 10: // G10: retract
+        case 11: // G11: retract_recover
+          gcode_G10_G11(codenum == 10);
+          break;
+
+      #endif //FWRETRACT
+
+      case 28: // G28: Home all axes, one at a time
+        gcode_G28();
+        break;
 
     #if defined(ENABLE_AUTO_BED_LEVELING) || defined(MESH_BED_LEVELING)
       case 29: // G29 Detailed Z-Probe, probes the bed at 3 or more points.
