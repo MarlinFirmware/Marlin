@@ -9,8 +9,6 @@
   #error Oops!  Make sure you have 'Brainwave' selected from the 'Tools -> Boards' menu.
 #endif
 
-#define AT90USB 646  // Disable MarlinSerial etc.
-
 #define X_STEP_PIN         27
 #define X_DIR_PIN          29
 #define X_ENABLE_PIN       28
