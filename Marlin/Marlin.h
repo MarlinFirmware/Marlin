@@ -43,7 +43,7 @@ typedef unsigned long millis_t;
   #define analogInputToDigitalPin(p) ((p) + 0xA0)
 #endif
 
-#ifdef AT90USB
+#ifdef USBCON
   #include "HardwareSerial.h"
 #endif
 
@@ -58,7 +58,7 @@ typedef unsigned long millis_t;
 
 #include "WString.h"
 
-#ifdef AT90USB
+#ifdef USBCON
   #ifdef BTENABLED
     #define MYSERIAL bt
   #else

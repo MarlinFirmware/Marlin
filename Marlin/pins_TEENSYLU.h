@@ -13,8 +13,6 @@
   #error These Teensylu assignments depend on traditional Marlin assignments, not AT90USBxx_TEENSYPP_ASSIGNMENTS in fastio.h
 #endif
 
-#define AT90USB 1286  // Disable MarlinSerial etc.
-
 #define LARGE_FLASH        true
 
 #define X_STEP_PIN          0

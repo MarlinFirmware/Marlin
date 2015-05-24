@@ -210,7 +210,7 @@
 
   #include "pins.h"
 
-  #ifndef AT90USB
+  #ifndef USBCON
     #define HardwareSerial_h // trick to disable the standard HWserial
   #endif
 
