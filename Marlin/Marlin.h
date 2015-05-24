@@ -51,7 +51,11 @@ typedef unsigned long millis_t;
 #include "WString.h"
 
 #ifdef USBCON
+<<<<<<< HEAD
   #if ENABLED(BTENABLED)
+=======
+  #ifdef BTENABLED
+>>>>>>> Compiler defines USBCON for USB devices
     #define MYSERIAL bt
   #else
     #define MYSERIAL Serial
