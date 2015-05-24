@@ -239,7 +239,7 @@ static void lcd_restore_symbols_magnum() {
         B11111,
         B01010,
         B00000
-    }; //thanks Sonny Mounicou
+    };
     byte degree[8] =
     {
         B01100,
@@ -262,6 +262,17 @@ static void lcd_restore_symbols_magnum() {
         B00100,
         B00000
     };
+	/* для второго byte thermometer[8] =
+    {
+        B11111,
+        B10101,
+        B10101,
+        B11111,
+        B01110,
+        B01010,
+        B00100,
+        B00000
+    };*/
     byte uplevel[8]={
         B00100,
         B01110,
@@ -722,6 +733,9 @@ static void lcd_implementation_status_screen()
 
 #else//LCD_WIDTH > 19
     lcd.setCursor(0, 0);
+	#if defined(MAGNUM_PRO)
+	lcd.print('1');
+	#endif
     lcd.print(LCD_STR_THERMOMETER[0]);
     lcd.print(itostr3(tHotend));
     lcd.print('/');
@@ -732,8 +746,10 @@ static void lcd_implementation_status_screen()
 
 # if EXTRUDERS > 1 || TEMP_SENSOR_BED != 0
     //If we have an 2nd extruder or heated bed, show that in the top right corner
-    lcd.setCursor(10, 0);
-#  if EXTRUDERS > 1
+    //MG
+	//lcd.setCursor(10, 0);
+	lcd.setCursor(11, 0);
+#  if EXTRUDERS > 1 && !defined(MAGNUM_PRO) //MG - ext1 to second line
     tHotend = int(degHotend(1) + 0.5);
     tTarget = int(degTargetHotend(1) + 0.5);
     lcd.print(LCD_STR_THERMOMETER[0]);
@@ -766,9 +782,21 @@ static void lcd_implementation_status_screen()
 # else//LCD_WIDTH > 19
 #  if EXTRUDERS > 1 && TEMP_SENSOR_BED != 0
     //If we both have a 2nd extruder and a heated bed, show the heated bed temp on the 2nd line on the left, as the first line is filled with extruder temps
-    tHotend=int(degBed() + 0.5);
+    #if defined(MAGNUM_PRO)
+	//MG - ext1 to second line
+	lcd.setCursor(0, 1);
+	lcd.print('2');
+	tHotend = int(degHotend(1) + 0.5);
+    tTarget = int(degTargetHotend(1) + 0.5);
+    lcd.print(LCD_STR_THERMOMETER[0]);
+	lcd.print(itostr3(tHotend));
+    lcd.print('/');
+    lcd.print(itostr3left(tTarget));
+	lcd_printPGM(PSTR(LCD_STR_DEGREE " "));
+	if (tTarget < 10) lcd.print(' ');
+	#else
+	tHotend=int(degBed() + 0.5);
     tTarget=int(degTargetBed() + 0.5);
-
     lcd.setCursor(0, 1);
     lcd.print(LCD_STR_BEDTEMP[0]);
     lcd.print(itostr3(tHotend));
@@ -777,6 +805,7 @@ static void lcd_implementation_status_screen()
     lcd_printPGM(PSTR(LCD_STR_DEGREE " "));
     if (tTarget < 10)
         lcd.print(' ');
+	#endif //MG
 #  else
     lcd.setCursor(0,1);
     lcd.print('X');

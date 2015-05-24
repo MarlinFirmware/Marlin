@@ -125,8 +125,8 @@
  #define STRING_CONFIG_H_AUTHOR "(Irwin co., Magnum 3D)"
  #define CUSTOM_MENDEL_NAME "Magnum 3D gen.2"
  #define MACHINE_UUID "ee4e69c4-d111-4c45-b992-7a67e108c6d8"  //MG gen. 2
- //#define FIRMWARE_VERSION "Magnum-" MACHINE_MODEL "-B03-F4tmp"
- #define FIRMWARE_VERSION "Magnum-" MACHINE_MODEL "-tmpnew"
+ //#define FIRMWARE_VERSION "Magnum-" MACHINE_MODEL "-B03-F4g" //до переезда на новый марлин
+ #define FIRMWARE_VERSION "Magnum-" MACHINE_MODEL "-B03-F5a"
 
  #define TEMP_SENSOR_0 1
 
@@ -442,9 +442,9 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
  #define Z_MAX_POS_DEFAULT 210
  #define Z_MIN_POS_DEFAULT 0
 #elif defined(MAGNUM_PRO) 
- #define X_MAX_POS_DEFAULT 220//temp
+ #define X_MAX_POS_DEFAULT 220
  #define X_MIN_POS_DEFAULT 0
- #define Y_MAX_POS_DEFAULT 180//temp
+ #define Y_MAX_POS_DEFAULT 180
  #define Y_MIN_POS_DEFAULT 0
  #define Z_MAX_POS_DEFAULT 180
  #define Z_MIN_POS_DEFAULT 0 

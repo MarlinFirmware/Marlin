@@ -335,8 +335,9 @@ static void lcd_sdcard_stop()
     autotempShutdown();
 
 	cancel_heatup = true;
-
-	lcd_setstatus(MSG_PRINT_ABORTED);
+	//MG
+	//lcd_setstatus(MSG_PRINT_ABORTED);
+	lcd_setstatus(WELCOME_MSG);
 }
 
 /* Menu implementation */
@@ -769,7 +770,10 @@ static void lcd_control_menu()
     MENU_ITEM(submenu, MSG_RETRACT, lcd_control_retract_menu);
 #endif
 	#if MOTHERBOARD == 555 // MG
-    MENU_ITEM(submenu, MSG_MG_EXTEND, lcd_control_mg_addons_menu);
+	if (!movesplanned() && !IS_SD_PRINTING) 
+    {
+     MENU_ITEM(submenu, MSG_MG_EXTEND, lcd_control_mg_addons_menu);
+    }
 	#endif
 #ifdef EEPROM_SETTINGS
     MENU_ITEM(function, MSG_STORE_EPROM, Config_StoreSettings);
@@ -1413,16 +1417,16 @@ void lcd_ignore_click(bool b)
 }
 
 void lcd_finishstatus() {
-  int len = strlen(lcd_status_message);
+  int len = strlen(lcd_status_message)*2; //MG *2
   if (len > 0) {
-    while (len < LCD_WIDTH) {
+    while (len < LCD_WIDTH*2) { //MG *2
       lcd_status_message[len++] = ' ';
     }
   }
-  lcd_status_message[LCD_WIDTH] = '\0';
+  lcd_status_message[LCD_WIDTH*2] = '\0';//MG *2
   #if defined(LCD_PROGRESS_BAR) && defined(SDSUPPORT)
     #if PROGRESS_MSG_EXPIRE > 0
-      messageTick =
+      messageTick = 
     #endif
     progressBarTick = millis();
   #endif
