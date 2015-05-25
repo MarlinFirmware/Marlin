@@ -30,6 +30,9 @@ State_t do_state_paint(Event_t event)
 	if (event == EVENT_KEYPRESS)
 		return STATE_PREPARE;
 
+	if (event == EVENT_SDCHANGED)
+		return STATE_PREPARE;
+
 	return STATE_PAINT;
 }
 
@@ -78,41 +81,42 @@ namespace screen
 
 	void ScreenList::draw()
 	{
-		if (sdcardChanged())
-		{
-			if (m_sdcard_inserted)
-			{
-				card.initsd();
-			}
-			else
-			{
-				card.release();
-			}
-			state = run_state(state, EVENT_KEYPRESS);
-		}
+		// Check if the SD card has been inserted/removed.
+		updateSdcardStatus();
 
 		if (state == STATE_PREPARE)
 		{
-			m_num_list = card.getnrfilenames();
-			m_index = 0;
+			if (m_sdcard_inserted == true)
+			{
+				m_num_list = card.getnrfilenames();
+				m_index = 0;
 
-			card.getWorkDirName();
-			strncpy(m_directory, card.filename, 9);
-			m_directory[9] = '\0';
+				card.getWorkDirName();
+				strncpy(m_directory, card.filename, 9);
+				m_directory[9] = '\0';
 
-			if (card.filename[0] != '/') {
-				m_directory_is_root = false;
-				m_offset = 2;
+				if (card.filename[0] != '/') {
+					m_directory_is_root = false;
+					m_offset = 2;
+				}
+				else
+				{
+					m_directory_is_root = true;
+					m_offset = 1;
+				}
+
+				m_num_list += m_offset;
+
+				m_scroll_size = (float) 47 / m_num_list;
 			}
 			else
 			{
+				m_num_list = 1;
+				m_index = 0;
 				m_directory_is_root = true;
 				m_offset = 1;
+				m_scroll_size = 47;
 			}
-
-			m_num_list += m_offset;
-
-			m_scroll_size = (float) 47 / m_num_list;
 
 			state = run_state(state, EVENT_PREPARED);
 		}
@@ -163,7 +167,7 @@ namespace screen
 				}
 
 
-				if ((int)(m_index + i - window_selector) < 0)
+				if ((int)(m_index + i - window_selector) < 0 || (m_index + i - window_selector) >= m_num_list)
 				{
 					continue;
 				}
@@ -185,25 +189,10 @@ namespace screen
 				{
 					card.getfilename(m_index + i - window_selector - m_offset);
 
-					SERIAL_ECHO(m_title);
-					SERIAL_ECHO(" ");
-					SERIAL_ECHO(m_directory);
-					SERIAL_ECHO("  (item ");
-					SERIAL_ECHO(m_index + 1);
-					SERIAL_ECHO(" / ");
-					SERIAL_ECHO(m_num_list);
-					SERIAL_ECHO(") : ");
-					SERIAL_ECHO(card.longFilename);
-
 					if (card.filenameIsDir == true)
 					{
 						painter.drawBitmap(painter.coordinateXInit(), painter.coordinateYInit() + i * (max_font_height + 1), little_icon_width, little_icon_height, bits_folder_small);
 						painter.setPrintPos(painter.coordinateXInit() + 9, painter.coordinateYInit() + i * (max_font_height + 1));
-						SERIAL_ECHOLN(" [D]");
-					}
-					else
-					{
-						SERIAL_ECHOLN("");
 					}
 
 					painter.print(card.longFilename);
@@ -292,17 +281,7 @@ namespace screen
 
 	Icon & ScreenList::icon()
 	{
-		if (sdcardChanged())
-		{
-			if (m_sdcard_inserted)
-			{
-				card.initsd();
-			}
-			else
-			{
-				card.release();
-			}
-		}
+		updateSdcardStatus();
 
 		if (m_sdcard_inserted == true)
 		{
@@ -311,15 +290,22 @@ namespace screen
 		return * m_icons[0];
 	}
 
-	bool ScreenList::sdcardChanged()
+	void ScreenList::updateSdcardStatus()
 	{
-		// Check if the SD card has been inserted/removed.
 		if (m_sdcard_inserted != IS_SD_INSERTED)
 		{
 			m_sdcard_inserted = IS_SD_INSERTED;
-			return true;
-		}
 
-		return false;
+			if (m_sdcard_inserted)
+			{
+				card.initsd();
+			}
+			else
+			{
+				card.release();
+			}
+
+			state = run_state(state, EVENT_SDCHANGED);
+		}
 	}
 }
