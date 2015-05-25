@@ -7,6 +7,8 @@ extern void action_homing();
 
 extern void action_print();
 
+extern void action_pause_print();
+
 extern void action_stop_print();
 
 

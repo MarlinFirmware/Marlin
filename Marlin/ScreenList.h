@@ -52,6 +52,8 @@ namespace screen
 		private:
 			uint16_t m_index;
 			uint16_t m_num_list;
+			uint8_t m_icon_index;
+			Icon * m_icon_alternate;
 
 			Screen * m_back_screen;
 			Screen * m_next_screen;

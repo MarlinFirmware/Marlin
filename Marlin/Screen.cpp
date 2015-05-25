@@ -23,15 +23,26 @@ namespace screen
 
 	void Screen::icon(Icon & component)
 	{
-		if (m_num_icons < max_icons)
-		{
-			m_icons[m_num_icons] = &component;
-			++m_num_icons;
-		}
+		m_icon = &component;
 	}
 
 	Icon & Screen::icon()
 	{
-		return * m_icons[0];
+		return * m_icon;
+	}
+
+	Screen & Screen::press(Screen * parent_view)
+	{
+		return * m_next_screen;
+	}
+
+	void Screen::add(Screen & component)
+	{
+		m_next_screen = &component;
+	}
+
+	void Screen::action()
+	{
+		m_function();
 	}
 }

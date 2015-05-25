@@ -38,7 +38,7 @@ namespace screen
 	Icon icon_change_speed        = Icon(icon_size, bits_change_speed_normal, bits_change_speed_focused, "Change speed");
 	Icon icon_back                = Icon(icon_size, bits_back_normal, bits_back_focused, "Back");
 	Icon icon_retry               = Icon(icon_size, bits_retry_normal, bits_retry_focused, "Retry");
-	Icon icon_ok                  = Icon(icon_size, bits_ok_normal, bits_ok_focused, "OK");
+	Icon icon_ok                  = Icon(icon_size, bits_ok_normal, bits_ok_focused, "Confirm");
 
 
 	/////////////////////////
@@ -94,11 +94,13 @@ namespace screen
 	//Print screen
 	ScreenPrint screen_print            = ScreenPrint("Confirm", action_print);
 	//Play/Pause
-	ScreenStatus screen_play_pause      = ScreenStatus("Pause");
+	ScreenStatus screen_play_pause      = ScreenStatus("Pause", action_pause_print);
 	//Stop
-	ScreenMenu screen_stop              = ScreenMenu("Stop", action_stop_print);
+	ScreenMenu screen_stop_confirm      = ScreenMenu("Stop");
+	Screen screen_stop_back             = Screen("Back", Screen::SIMPLE);
+	Screen screen_stop_OK               = Screen("Confirm", Screen::SIMPLE, action_stop_print);
 	//Change Filament Screens
-	ScreenMenu screen_change_confirm	   = ScreenMenu("Change filament");
+	ScreenMenu screen_change_confirm	= ScreenMenu("Change filament");
 	ScreenDialog screen_change_start    = ScreenDialog("Start");
 	ScreenDialog screen_change_pullout  = ScreenDialog("Pull out");
 	ScreenDialog screen_change_insert   = ScreenDialog("Insert & press");
@@ -158,7 +160,7 @@ namespace screen
 		screen_level_confirm.add(screen_main);
 		screen_level_confirm.icon(icon_leveling);
 		//AutoHome
-		screen_autohome.add(screen_main);
+		//screen_autohome.add(screen_main);
 		screen_autohome.icon(icon_homing);
 		//Stepper
 		screen_stepper.add(screen_main);
@@ -180,18 +182,24 @@ namespace screen
 
 		//Print Menu
 		screen_print.add(screen_play_pause);
-		screen_print.add(screen_stop);
+		screen_print.add(screen_stop_confirm);
 		screen_print.add(screen_change_confirm);
 		screen_print.add(screen_speed);
 		screen_print.add(screen_temperature);
 		//Play/Pause
-		screen_play_pause.add(screen_print);
+		screen_play_pause.add(screen_main);
 		screen_play_pause.icon(icon_pause);
 		screen_play_pause.icon(icon_play); 
-		//Stop
-		screen_stop.add(screen_print);
-		screen_stop.add(screen_main);
-		screen_stop.icon(icon_stop);
+		//Stop Confirm
+		screen_stop_confirm.add(screen_stop_back);
+		screen_stop_confirm.add(screen_stop_OK);
+		screen_stop_confirm.icon(icon_stop);
+		//Stop Confirm back
+		screen_stop_back.add(screen_print);
+		screen_stop_back.icon(icon_back);
+		//Stop Confirm OK
+		screen_stop_OK.add(screen_main);
+		screen_stop_OK.icon(icon_ok);
 		//Change filament
 		screen_change_confirm.add(screen_print);
 		screen_change_confirm.add(screen_change_start);

@@ -37,22 +37,21 @@ namespace screen
 
 			const char * title() const;
 			ScreenType_t const & type() const;
-			virtual void icon(Icon & component);
-			virtual Icon & icon();
 
 			virtual void left() {};
 			virtual void right() {};
-			virtual Screen & press(Screen * parent_view) {return * m_next_screen;};
 			virtual void draw() {};
-			virtual void add(Screen & component) {m_next_screen = &component;};
-			virtual void action() {m_function();};
+			virtual void icon(Icon & component);
+			virtual Icon & icon();
+			virtual Screen & press(Screen * parent_view);
+			virtual void add(Screen & component);
+			virtual void action();
 
 		protected:
 			ScreenType_t m_type;
-			uint16_t m_num_icons;
 			const char * m_title;
          Screen * m_next_screen;
-			Icon * m_icons[max_icons];
+			Icon * m_icon;
 			FuncPtr_t m_function;
 	};
 }
