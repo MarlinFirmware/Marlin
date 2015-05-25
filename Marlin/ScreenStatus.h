@@ -13,8 +13,12 @@ namespace screen
 			ScreenStatus(const char * title = 0, FuncPtr_t function = do_nothing);
 			virtual ~ScreenStatus();
 
+			void icon(Icon & component);
+			Icon & icon();
 
 		private:
+			Icon * m_icon_alternate;
+			uint8_t m_icon_index;
 	};
 }
 #endif //SCREEN_STATUS_H

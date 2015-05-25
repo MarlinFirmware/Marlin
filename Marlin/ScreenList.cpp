@@ -39,6 +39,7 @@ namespace screen
 	ScreenList::ScreenList(const char * title)
 		: Screen(title, LIST)
 		, m_index(0)
+		, m_icon_index(0)
 		, m_num_list(0)
 		, m_offset(0)
 		, m_num_item_added(0)
@@ -283,11 +284,15 @@ namespace screen
 
 	void ScreenList::icon(Icon & component)
 	{
-		if (m_num_icons < max_icons)
+		if (m_icon_index < 1)
 		{
-			m_icons[m_num_icons] = &component;
-			++m_num_icons;
+			m_icon = &component;
 		}
+      else
+      {
+         m_icon_alternate = &component;
+      }
+      ++m_icon_index;
 	}
 
 	Icon & ScreenList::icon()
@@ -306,9 +311,9 @@ namespace screen
 
 		if (m_sdcard_inserted == true)
 		{
-			return * m_icons[1];
+			return * m_icon_alternate;
 		}
-		return * m_icons[0];
+		return * m_icon;
 	}
 
 	bool ScreenList::sdcardChanged()
