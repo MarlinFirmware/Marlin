@@ -134,12 +134,6 @@ namespace screen
 
 	}
 
-	void GuiPainter::icon(uint8_t x, uint8_t y, uint8_t width, uint8_t height, const unsigned char* bitmap)
-	{
-		setColorIndex(1);
-		m_impl.drawXBMP(x, y, width, height, bitmap);
-	}
-
 	void GuiPainter::setColorIndex(uint8_t color)
 	{
 		m_impl.setColorIndex(color);
@@ -169,6 +163,11 @@ namespace screen
 	void GuiPainter::drawBox(uint8_t x, uint8_t y, uint8_t w, uint8_t h)
 	{
 		m_impl.drawBox(x, y, w, h);
+	}
+
+	void GuiPainter::drawBitmap(uint8_t x, uint8_t y, uint8_t width, uint8_t height, const unsigned char* bitmap)
+	{
+		m_impl.drawXBMP(x, y, width, height, bitmap);
 	}
 
 	void GuiPainter::firstPage()
