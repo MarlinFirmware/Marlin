@@ -31,6 +31,11 @@ extern uint8_t buffer_recursivity;
 
 static float manual_feedrate[] = MANUAL_FEEDRATE;
 
+
+extern void enquecommand(const char *cmd); //put an ASCII command at the end of the current buffer.
+extern void enquecommand_P(const char *cmd);
+
+
 // Configuration settings
 // TODO : Review & delete if possible
 int plaPreheatHotendTemp;

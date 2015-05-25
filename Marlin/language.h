@@ -127,6 +127,7 @@
 #define MSG_BABYSTEPPING_Y "Babystepping Y"
 #define MSG_BABYSTEPPING_Z "Babystepping Z"
 #define MSG_SERIAL_ERROR_MENU_STRUCTURE "Error in menu structure"
+#define MSG_ERR_EEPROM_WRITE "Error writing to EEPROM!"
 
 // LCD Menu Messages
 #if LANGUAGE_CHOICE == 1
@@ -777,6 +778,7 @@
 #define MSG_ENDSTOPS_TOUCH               "fin de carrera: "
 #endif
 
+#include "language_en.h"
 
 #if LANGUAGE_CHOICE == 7
 #define WELCOME_MSG MACHINE_NAME         " pronta"
