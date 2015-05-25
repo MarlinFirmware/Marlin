@@ -417,6 +417,9 @@
 #ifndef MSG_ERR_MAXTEMP_BED
 #define MSG_ERR_MAXTEMP_BED                 "Err: MAXTEMP BED"
 #endif
+#ifndef MSG_ERR_MINTEMP_BED
+#define MSG_ERR_MINTEMP_BED                 "Err: MINTEMP BED"
+#endif
 #ifndef MSG_END_HOUR
 #define MSG_END_HOUR                        "hours"
 #endif
