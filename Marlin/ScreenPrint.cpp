@@ -89,7 +89,7 @@ namespace screen
 
 				if (i == m_index)
 				{
-					(m_items[i]->icon()).draw(x,y, false);
+					(m_items[i]->icon()).draw(x,y, true);
 				}
 				else
 				{
