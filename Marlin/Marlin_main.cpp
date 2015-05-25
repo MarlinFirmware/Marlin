@@ -2068,7 +2068,7 @@ void process_commands()
     case 24: //M24 - Start SD print
       card.startFileprint();
       starttime=millis();
-				feedmultiply = 100;
+			feedmultiply = 100;
       break;
     case 25: //M25 - Pause SD print
 				float target[4];
@@ -2105,7 +2105,7 @@ void process_commands()
 				lcd_update();
 				lcd_enable_button();
 
-      			while(!LCD_CLICKED){
+  			while(!LCD_CLICKED){
 					lcd_update();
 					manage_heater();
 					plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS],current_position[E_AXIS], 300/60, active_extruder);
