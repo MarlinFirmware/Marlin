@@ -84,10 +84,6 @@ char lcd_status_message[LCD_WIDTH+1] = WELCOME_MSG;
 uint8_t display_view_menu_offset = 0;
 uint8_t display_view_wizard_page = 0;
 
-#    if (SDCARDDETECT > 0)
-bool lcd_oldcardstatus;
-#    endif // (SDCARDDETECT > 0)
-
 // TODO : Review structure of this file to include it above.
 #ifdef DOGLCD
 #include "dogm_lcd_implementation.h"
@@ -119,11 +115,8 @@ void lcd_init()
     WRITE(BTN_ENC,HIGH);
 
     // Init for SD card library
-#  if (defined (SDSUPPORT) && defined(SDCARDDETECT) && (SDCARDDETECT > 0))
     pinMode(SDCARDDETECT,INPUT);
     WRITE(SDCARDDETECT, HIGH);
-    lcd_oldcardstatus = IS_SD_INSERTED;
-#  endif // (defined (SDSUPPORT) && defined(SDCARDDETECT) && (SDCARDDETECT > 0))
 
     // Init Timer 5 and set the OVF interrupt (triggered every 125 us)
     TCCR5A = 0x03;
@@ -267,15 +260,6 @@ static void lcd_update_encoder()
 
 void lcd_update(bool force)
 {
-    // Check if the SD card has been inserted/removed.
-    if ((lcd_oldcardstatus != IS_SD_INSERTED)) {
-        if(lcd_oldcardstatus) {
-            card.initsd();
-        } else {
-            card.release();
-        }
-    }
-
     // Manage the events triggered in ISR (Timer 5 Overflow)
     for (int8_t times = lcd_get_encoder_right(); times > 0; times--)
     {

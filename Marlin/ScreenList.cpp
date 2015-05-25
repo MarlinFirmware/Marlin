@@ -78,6 +78,19 @@ namespace screen
 
 	void ScreenList::draw()
 	{
+		if (sdcardChanged())
+		{
+			if (m_sdcard_inserted)
+			{
+				card.initsd();
+			}
+			else
+			{
+				card.release();
+			}
+			state = run_state(state, EVENT_KEYPRESS);
+		}
+
 		if (state == STATE_PREPARE)
 		{
 			m_num_list = card.getnrfilenames();
@@ -266,5 +279,47 @@ namespace screen
 			m_back_screen = &component;
 		}
 		m_num_item_added++;
+	}
+
+	void ScreenList::icon(Icon & component)
+	{
+		if (m_num_icons < max_icons)
+		{
+			m_icons[m_num_icons] = &component;
+			++m_num_icons;
+		}
+	}
+
+	Icon & ScreenList::icon()
+	{
+		if (sdcardChanged())
+		{
+			if (m_sdcard_inserted)
+			{
+				card.initsd();
+			}
+			else
+			{
+				card.release();
+			}
+		}
+
+		if (m_sdcard_inserted == true)
+		{
+			return * m_icons[1];
+		}
+		return * m_icons[0];
+	}
+
+	bool ScreenList::sdcardChanged()
+	{
+		// Check if the SD card has been inserted/removed.
+		if (m_sdcard_inserted != IS_SD_INSERTED)
+		{
+			m_sdcard_inserted = IS_SD_INSERTED;
+			return true;
+		}
+
+		return false;
 	}
 }

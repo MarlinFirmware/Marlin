@@ -16,6 +16,11 @@ namespace screen
 			void draw();
 			Screen & press(Screen * parent_view);
 			void add(Screen & component);
+			void icon(Icon & component);
+			Icon & icon();
+
+		private:
+			bool sdcardChanged();
 
 		private:
 			uint16_t m_index;
@@ -24,6 +29,8 @@ namespace screen
 			Screen * m_back_screen;
 			Screen * m_next_screen;
 			uint8_t m_num_item_added;
+
+			bool m_sdcard_inserted;
 
 			char m_directory[10];
 			bool m_directory_is_root;

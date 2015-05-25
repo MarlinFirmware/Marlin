@@ -37,8 +37,8 @@ namespace screen
 
 			const char * title() const;
 			ScreenType_t const & type() const;
-			void icon(Icon & component);
-			Icon & icon();
+			virtual void icon(Icon & component);
+			virtual Icon & icon();
 
 			virtual void left() {};
 			virtual void right() {};
