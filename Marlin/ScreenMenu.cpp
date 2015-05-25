@@ -80,6 +80,10 @@ namespace screen
 		{
 			return * parent_view;
 		}
+		else if (m_items[m_index]->type() == Screen::SIMPLE)
+		{
+			return m_items[m_index]->press(parent_view);
+		}
 		return * m_items[m_index];
 	}
 

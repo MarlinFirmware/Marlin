@@ -51,7 +51,7 @@ namespace screen
 	//SD Card screens
 	ScreenList screen_SD_list           = ScreenList("SD Card");
 	ScreenMenu screen_SD_confirm        = ScreenMenu("Comfirm Print");
-	ScreenList screen_SD_back           = ScreenList("Back");
+	Screen screen_SD_back               = Screen("Back", Screen::SIMPLE);
 	//Unload Filament screens
 	ScreenSelector screen_unload_select = ScreenSelector("Unload filament");
 	ScreenDialog screen_unload_heating  = ScreenDialog("Heating");
