@@ -540,14 +540,14 @@ void lcd_implementation_drawedit(const char* pstr, char* value)
       u8g.setFont(FONT_MENU_EDIT);
       lcd_width = LCD_WIDTH_EDIT + 1;
       char_width = DOG_CHAR_WIDTH_EDIT;
-      if (strlen_P(pstr) >= LCD_WIDTH_EDIT - strlen(value)) rows = 2;
+      if (lcd_strlen_P(pstr) >= LCD_WIDTH_EDIT - lcd_strlen(value)) rows = 2;
     }
     else {
       u8g.setFont(FONT_MENU);
     }
   #endif
 
-  if (strlen_P(pstr) > LCD_WIDTH - 2 - strlen(value)) rows = 2;
+  if (lcd_strlen_P(pstr) > LCD_WIDTH - 2 - lcd_strlen(value)) rows = 2;
 
   const float kHalfChar = DOG_CHAR_HEIGHT_EDIT / 2;
   float rowHeight = u8g.getHeight() / (rows + 1); // 1/(rows+1) = 1/2 or 1/3
