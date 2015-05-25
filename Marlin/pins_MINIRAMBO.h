@@ -105,16 +105,7 @@
     #define BTN_EN2 72
     #define BTN_ENC 9  //the click
 
-    #define BLEN_C 2
-    #define BLEN_B 1
-    #define BLEN_A 0
-
     #define SDCARDDETECT 15
 
-    //encoder rotation values
-    #define encrot0 0
-    #define encrot1 2
-    #define encrot2 3
-    #define encrot3 1
   #endif
 #endif //ULTRA_LCD
