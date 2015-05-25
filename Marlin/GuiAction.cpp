@@ -5,10 +5,13 @@
 #include "ConfigurationStore.h"
 #include "temperature.h"
 #include "language.h"
+#include "GuiManager.h"
 
 
 extern uint8_t buffer_recursivity;
 extern bool cancel_heatup;
+extern bool stop_buffer;
+extern int stop_buffer_code;
 
 static float manual_feedrate[] = MANUAL_FEEDRATE;
 
@@ -20,6 +23,7 @@ static float manual_feedrate[] = MANUAL_FEEDRATE;
 
 	void action_print()
 	{
+		SERIAL_ECHOLN("START PRINT");
 		char cmd[30];
 		char* c;
 		strcpy(cmd, card.longFilename);
@@ -44,16 +48,25 @@ static float manual_feedrate[] = MANUAL_FEEDRATE;
 		enquecommand_P(PSTR("M24"));
 	}
 
+	void action_pause_print()
+	{
+		SERIAL_ECHOLN("PAUSA");
+		lcd_disable_button();
+		stop_buffer = true;
+		stop_buffer_code = 1;
+	}
+
 	void action_stop_print()
 	{
 		SERIAL_ECHOLN("STOP PRINT");
 		if (buffer_recursivity > 0) 
 		{
-        	action_stop_print();
+			SERIAL_ECHOLN("Buffer recursivity");
+
     	} 
     	else 
     	{
-
+    		SERIAL_ECHOLN("else");
 	        card.sdprinting = false;
 	        card.closefile();
 
