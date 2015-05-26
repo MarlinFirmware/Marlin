@@ -78,6 +78,7 @@
 #define MSG_M105_INVALID_EXTRUDER "M105 Invalid extruder "
 #define MSG_M200_INVALID_EXTRUDER "M200 Invalid extruder "
 #define MSG_M218_INVALID_EXTRUDER "M218 Invalid extruder "
+#define MSG_M221_INVALID_EXTRUDER "M221 Invalid extruder "
 #define MSG_ERR_NO_THERMISTORS "No thermistors - no temperature"
 #define MSG_M109_INVALID_EXTRUDER "M109 Invalid extruder "
 #define MSG_HEATING "Heating..."
@@ -127,6 +128,8 @@
 #define MSG_BABYSTEPPING_Y "Babystepping Y"
 #define MSG_BABYSTEPPING_Z "Babystepping Z"
 #define MSG_SERIAL_ERROR_MENU_STRUCTURE "Error in menu structure"
+
+#define MSG_ERR_EEPROM_WRITE                "Error writing to EEPROM!"
 
 // LCD Menu Messages
 #if LANGUAGE_CHOICE == 1

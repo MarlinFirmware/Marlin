@@ -31,6 +31,14 @@
 void tp_init();  //initialize the heating
 void manage_heater(); //it is critical that this is called periodically.
 
+#ifdef FILAMENT_SENSOR
+// For converting raw Filament Width to milimeters 
+ float analog2widthFil(); 
+ 
+// For converting raw Filament Width to an extrusion ratio 
+ int widthFil_to_size_ratio();
+#endif
+
 // low level conversion routines
 // do not use these routines and variables outside of temperature.cpp
 extern int target_temperature[EXTRUDERS];  
@@ -50,7 +58,14 @@ extern float current_temperature_bed;
 #endif
 
 #ifdef PIDTEMP
-  extern float Kp,Ki,Kd,Kc;
+
+  #ifdef PID_PARAMS_PER_EXTRUDER
+    extern float Kp[EXTRUDERS], Ki[EXTRUDERS], Kd[EXTRUDERS], Kc[EXTRUDERS]; // one param per extruder
+    #define PID_PARAM(param,e) param[e] // use macro to point to array value
+  #else
+    extern float Kp, Ki, Kd, Kc; // one param per extruder - saves 20 or 36 bytes of ram (inc array pointer)
+    #define PID_PARAM(param, e) param // use macro to point directly to value
+  #endif // PID_PARAMS_PER_EXTRUDER	
   float scalePID_i(float i);
   float scalePID_d(float d);
   float unscalePID_i(float i);
@@ -99,12 +114,12 @@ FORCE_INLINE float degTargetBed() {
 FORCE_INLINE void setTargetHotend(const float &celsius, uint8_t extruder) {  
   target_temperature[extruder] = celsius;
 
-#ifdef WITBOX_CE
+#ifdef WITBOX2
   if (celsius > 0)
     OCR3BL = 204;   // Fan speed set to the 80% (100% = 255)
   else
     OCR3BL = 0;     // Stop the fan
-#endif // WITBOX_CE
+#endif // WITBOX2
 };
 
 FORCE_INLINE void setTargetBed(const float &celsius) {  
@@ -151,6 +166,15 @@ FORCE_INLINE bool isCoolingBed() {
 #define setTargetHotend2(_celsius) do{}while(0)
 #endif
 #if EXTRUDERS > 3
+#define degHotend3() degHotend(3)
+#define degTargetHotend3() degTargetHotend(3)
+#define setTargetHotend3(_celsius) setTargetHotend((_celsius), 3)
+#define isHeatingHotend3() isHeatingHotend(3)
+#define isCoolingHotend3() isCoolingHotend(3)
+#else
+#define setTargetHotend3(_celsius) do{}while(0)
+#endif
+#if EXTRUDERS > 4
 #error Invalid number of extruders
 #endif
 
@@ -161,18 +185,31 @@ void disable_heater();
 void setWatch();
 void updatePID();
 
+#if defined (THERMAL_RUNAWAY_PROTECTION_PERIOD) && THERMAL_RUNAWAY_PROTECTION_PERIOD > 0
+void thermal_runaway_protection(int *state, unsigned long *timer, float temperature, float target_temperature, int heater_id, int period_seconds, int hysteresis_degc);
+static int thermal_runaway_state_machine[4]; // = {0,0,0,0};
+static unsigned long thermal_runaway_timer[4]; // = {0,0,0,0};
+static bool thermal_runaway = false;
+#if TEMP_SENSOR_BED != 0
+  static int thermal_runaway_bed_state_machine;
+  static unsigned long thermal_runaway_bed_timer;
+#endif
+#endif
+
 FORCE_INLINE void autotempShutdown(){
- #ifdef AUTOTEMP
- if(autotemp_enabled)
- {
-  autotemp_enabled=false;
-  if(degTargetHotend(active_extruder)>autotemp_min)
-    setTargetHotend(0,active_extruder);
- }
- #endif
+#ifdef AUTOTEMP
+  if(autotemp_enabled)
+  {
+    autotemp_enabled=false;
+    if(degTargetHotend(active_extruder)>autotemp_min)
+      setTargetHotend(0,active_extruder);
+  }
+#endif
 }
 
 void PID_autotune(float temp, int extruder, int ncycles);
 
-#endif
+void setExtruderAutoFanState(int pin, bool state);
+void checkExtruderAutoFans();
 
+#endif

@@ -32,8 +32,7 @@
   ring_buffer rx_buffer  =  { { 0 }, 0, 0 };
 #endif
 
-FORCE_INLINE void store_char(unsigned char c)
-{
+FORCE_INLINE void store_char(unsigned char c) {
   int i = (unsigned int)(rx_buffer.head + 1) % RX_BUFFER_SIZE;
 
   // if we should be storing the received character into the location
@@ -51,8 +50,7 @@ FORCE_INLINE void store_char(unsigned char c)
 #if defined(M_USARTx_RX_vect)
   // fixed by Mark Sproul this is on the 644/644p
   //SIGNAL(SIG_USART_RECV)
-  SIGNAL(M_USARTx_RX_vect)
-  {
+  SIGNAL(M_USARTx_RX_vect) {
     unsigned char c  =  M_UDRx;
     store_char(c);
   }
@@ -60,26 +58,22 @@ FORCE_INLINE void store_char(unsigned char c)
 
 // Constructors ////////////////////////////////////////////////////////////////
 
-MarlinSerial::MarlinSerial()
-{
-
-}
+MarlinSerial::MarlinSerial() { }
 
 // Public Methods //////////////////////////////////////////////////////////////
 
-void MarlinSerial::begin(long baud)
-{
+void MarlinSerial::begin(long baud) {
   uint16_t baud_setting;
   bool useU2X = true;
 
-#if F_CPU == 16000000UL && SERIAL_PORT == 0
-  // hard coded exception for compatibility with the bootloader shipped
-  // with the Duemilanove and previous boards and the firmware on the 8U2
-  // on the Uno and Mega 2560.
-  if (baud == 57600) {
-    useU2X = false;
-  }
-#endif
+  #if F_CPU == 16000000UL && SERIAL_PORT == 0
+    // hard-coded exception for compatibility with the bootloader shipped
+    // with the Duemilanove and previous boards and the firmware on the 8U2
+    // on the Uno and Mega 2560.
+    if (baud == 57600) {
+      useU2X = false;
+    }
+  #endif
   
   if (useU2X) {
     M_UCSRxA = 1 << M_U2Xx;
@@ -98,17 +92,14 @@ void MarlinSerial::begin(long baud)
   sbi(M_UCSRxB, M_RXCIEx);
 }
 
-void MarlinSerial::end()
-{
+void MarlinSerial::end() {
   cbi(M_UCSRxB, M_RXENx);
   cbi(M_UCSRxB, M_TXENx);
   cbi(M_UCSRxB, M_RXCIEx);  
 }
 
 
-
-int MarlinSerial::peek(void)
-{
+int MarlinSerial::peek(void) {
   if (rx_buffer.head == rx_buffer.tail) {
     return -1;
   } else {
@@ -116,20 +107,19 @@ int MarlinSerial::peek(void)
   }
 }
 
-int MarlinSerial::read(void)
-{
+int MarlinSerial::read(void) {
   // if the head isn't ahead of the tail, we don't have any characters
   if (rx_buffer.head == rx_buffer.tail) {
     return -1;
-  } else {
+  }
+  else {
     unsigned char c = rx_buffer.buffer[rx_buffer.tail];
     rx_buffer.tail = (unsigned int)(rx_buffer.tail + 1) % RX_BUFFER_SIZE;
     return c;
   }
 }
 
-void MarlinSerial::flush()
-{
+void MarlinSerial::flush() {
   // don't reverse this or there may be problems if the RX interrupt
   // occurs after reading the value of rx_buffer_head but before writing
   // the value to rx_buffer_tail; the previous value of rx_buffer_head
@@ -143,38 +133,30 @@ void MarlinSerial::flush()
 }
 
 
-
-
 /// imports from print.h
 
 
-
-
-void MarlinSerial::print(char c, int base)
-{
+void MarlinSerial::print(char c, int base) {
   print((long) c, base);
 }
 
-void MarlinSerial::print(unsigned char b, int base)
-{
+void MarlinSerial::print(unsigned char b, int base) {
   print((unsigned long) b, base);
 }
 
-void MarlinSerial::print(int n, int base)
-{
+void MarlinSerial::print(int n, int base) {
   print((long) n, base);
 }
 
-void MarlinSerial::print(unsigned int n, int base)
-{
+void MarlinSerial::print(unsigned int n, int base) {
   print((unsigned long) n, base);
 }
 
-void MarlinSerial::print(long n, int base)
-{
+void MarlinSerial::print(long n, int base) {
   if (base == 0) {
     write(n);
-  } else if (base == 10) {
+  }
+  else if (base == 10) {
     if (n < 0) {
       print('-');
       n = -n;
@@ -185,81 +167,68 @@ void MarlinSerial::print(long n, int base)
   }
 }
 
-void MarlinSerial::print(unsigned long n, int base)
-{
+void MarlinSerial::print(unsigned long n, int base) {
   if (base == 0) write(n);
   else printNumber(n, base);
 }
 
-void MarlinSerial::print(double n, int digits)
-{
+void MarlinSerial::print(double n, int digits) {
   printFloat(n, digits);
 }
 
-void MarlinSerial::println(void)
-{
+void MarlinSerial::println(void) {
   print('\r');
   print('\n');  
 }
 
-void MarlinSerial::println(const String &s)
-{
+void MarlinSerial::println(const String &s) {
   print(s);
   println();
 }
 
-void MarlinSerial::println(const char c[])
-{
+void MarlinSerial::println(const char c[]) {
   print(c);
   println();
 }
 
-void MarlinSerial::println(char c, int base)
-{
+void MarlinSerial::println(char c, int base) {
   print(c, base);
   println();
 }
 
-void MarlinSerial::println(unsigned char b, int base)
-{
+void MarlinSerial::println(unsigned char b, int base) {
   print(b, base);
   println();
 }
 
-void MarlinSerial::println(int n, int base)
-{
+void MarlinSerial::println(int n, int base) {
   print(n, base);
   println();
 }
 
-void MarlinSerial::println(unsigned int n, int base)
-{
+void MarlinSerial::println(unsigned int n, int base) {
   print(n, base);
   println();
 }
 
-void MarlinSerial::println(long n, int base)
-{
+void MarlinSerial::println(long n, int base) {
   print(n, base);
   println();
 }
 
-void MarlinSerial::println(unsigned long n, int base)
-{
+void MarlinSerial::println(unsigned long n, int base) {
   print(n, base);
   println();
 }
 
-void MarlinSerial::println(double n, int digits)
-{
+void MarlinSerial::println(double n, int digits) {
   print(n, digits);
   println();
 }
 
 // Private Methods /////////////////////////////////////////////////////////////
 
-void MarlinSerial::printNumber(unsigned long n, uint8_t base)
-{
+void MarlinSerial::printNumber(unsigned long n, uint8_t base) {
   unsigned char buf[8 * sizeof(long)]; // Assumes 8-bit chars. 
   unsigned long i = 0;
 
@@ -279,18 +248,16 @@ void MarlinSerial::printNumber(unsigned long n, uint8_t base)
       'A' + buf[i - 1] - 10));
 }
 
-void MarlinSerial::printFloat(double number, uint8_t digits) 
-{ 
+void MarlinSerial::printFloat(double number, uint8_t digits) {
   // Handle negative numbers
-  if (number < 0.0)
-  {
+  if (number < 0.0) {
      print('-');
      number = -number;
   }
 
   // Round correctly so that print(1.999, 2) prints as "2.00"
   double rounding = 0.5;
-  for (uint8_t i=0; i<digits; ++i)
+  for (uint8_t i = 0; i < digits; ++i)
     rounding /= 10.0;
   
   number += rounding;
@@ -305,8 +272,7 @@ void MarlinSerial::printFloat(double number, uint8_t digits)
     print("."); 
 
   // Extract digits from the remainder one at a time
-  while (digits-- > 0)
-  {
+  while (digits-- > 0) {
     remainder *= 10.0;
     int toPrint = int(remainder);
     print(toPrint);

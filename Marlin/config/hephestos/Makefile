@@ -36,7 +36,7 @@
 # Note that all settings are set with ?=, this means you can override them
 # from the commandline with "make HARDWARE_MOTHERBOARD=71" for example
 
-# This defined the board you are compiling for (see Configuration.h for the options)
+# This defined the board you are compiling for (see boards.h for the options)
 HARDWARE_MOTHERBOARD ?= 33
 
 # Arduino source install directory, and version number
@@ -49,9 +49,11 @@ AVR_TOOLS_PATH ?= $(ARDUINO_INSTALL_DIR)/hardware/tools/avr/bin/
 #Programmer configuration
 UPLOAD_RATE        ?= 115200
 AVRDUDE_PROGRAMMER ?= wiring
+# on most linuxes this will be /dev/ttyACM0 or /dev/ttyACM1 
 UPLOAD_PORT        ?= /dev/ttyUSB0
 
-#Directory used to build files in, contains all the build files, from object files to the final hex file.
+#Directory used to build files in, contains all the build files, from object files to the final hex file
+#on linux it is best to put an absolute path like /home/username/tmp .
 BUILD_DIR          ?= applet
 
 # This define if graphical display is used

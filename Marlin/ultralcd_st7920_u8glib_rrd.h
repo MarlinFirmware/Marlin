@@ -55,11 +55,11 @@ uint8_t u8g_dev_rrd_st7920_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t msg, vo
         WRITE(ST7920_CLK_PIN,1);
 
         ST7920_CS();
-        u8g_Delay(90);                 //initial delay for boot up
+        u8g_Delay(120);                 //initial delay for boot up
         ST7920_SET_CMD();
         ST7920_WRITE_BYTE(0x08);       //display off, cursor+blink off
         ST7920_WRITE_BYTE(0x01);       //clear CGRAM ram
-        u8g_Delay(10);                 //delay for CGRAM clear
+        u8g_Delay(15);                 //delay for CGRAM clear
         ST7920_WRITE_BYTE(0x3E);       //extended mode + GDRAM active
         for(y=0;y<HEIGHT/2;y++)        //clear GDRAM
         {

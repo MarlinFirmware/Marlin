@@ -64,6 +64,10 @@ typedef struct {
   unsigned long final_rate;                          // The minimal rate at exit
   unsigned long acceleration_st;                     // acceleration steps/sec^2
   unsigned long fan_speed;
+  #ifdef BARICUDA
+  unsigned long valve_pressure;
+  unsigned long e_to_p_pressure;
+  #endif
   volatile char busy;
 } block_t;
 
@@ -106,9 +110,9 @@ void check_axes_activity();
 uint8_t movesplanned(); //return the nr of buffered moves
 
 extern unsigned long minsegmenttime;
-extern float max_feedrate[4]; // set the max speeds
-extern float axis_steps_per_unit[4];
-extern unsigned long max_acceleration_units_per_sq_second[4]; // Use M201 to override by software
+extern float max_feedrate[NUM_AXIS]; // set the max speeds
+extern float axis_steps_per_unit[NUM_AXIS];
+extern unsigned long max_acceleration_units_per_sq_second[NUM_AXIS]; // Use M201 to override by software
 extern float minimumfeedrate;
 extern float acceleration;         // Normal acceleration mm/s^2  THIS IS THE DEFAULT ACCELERATION for all moves. M204 SXXXX
 extern float retract_acceleration; //  mm/s^2   filament pull-pack and push-forward  while standing still in the other axis M204 TXXXX
@@ -124,9 +128,6 @@ extern unsigned long axis_steps_per_sqr_second[NUM_AXIS];
     extern float autotemp_min;
     extern float autotemp_factor;
 #endif
-
-    
-
 
 extern block_t block_buffer[BLOCK_BUFFER_SIZE];            // A ring buffer for motion instfructions
 extern volatile unsigned char block_buffer_head;           // Index of the next block to be pushed
@@ -151,15 +152,8 @@ FORCE_INLINE block_t *plan_get_current_block()
   return(block);
 }
 
-// Gets the current block. Returns NULL if buffer empty
-FORCE_INLINE bool blocks_queued() 
-{
-  if (block_buffer_head == block_buffer_tail) { 
-    return false; 
-  }
-  else
-    return true;
-}
+// Returns true if the buffer has a queued block, false otherwise
+FORCE_INLINE bool blocks_queued() { return (block_buffer_head != block_buffer_tail); }
 
 #ifdef PREVENT_DANGEROUS_EXTRUDE
 void set_extrude_min_temp(float temp);

@@ -103,6 +103,8 @@ uint8_t const SD_CARD_ERROR_WRITE_TIMEOUT = 0X17;
 uint8_t const SD_CARD_ERROR_SCK_RATE = 0X18;
 /** init() not called */
 uint8_t const SD_CARD_ERROR_INIT_NOT_CALLED = 0X19;
+/** crc check error */
+uint8_t const SD_CARD_ERROR_CRC = 0X20;
 //------------------------------------------------------------------------------
 // card types
 /** Standard capacity V1 SD card */
