@@ -2797,6 +2797,8 @@ inline void gcode_G28() {
       enqueuecommands_P(PSTR(Z_PROBE_END_SCRIPT));
       st_synchronize();
     #endif
+
+    FlushSerialRequestResend();
   }
 
   #ifndef Z_PROBE_SLED
@@ -3360,6 +3362,8 @@ inline void gcode_M42() {
     SERIAL_PROTOCOLPGM("Standard Deviation: ");
     SERIAL_PROTOCOL_F(sigma, 6);
     SERIAL_EOL; SERIAL_EOL;
+
+    FlushSerialRequestResend();
   }
 
 #endif // ENABLE_AUTO_BED_LEVELING && Z_PROBE_REPEATABILITY_TEST
