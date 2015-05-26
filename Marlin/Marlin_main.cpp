@@ -1020,6 +1020,12 @@ void process_commands()
 
       			enable_endstops(true);
 
+      			//Extruder is raised before do the homing routine
+      			destination[Z_AXIS] = 10 * home_dir(Z_AXIS) * (-1);
+	      		feedrate = max_feedrate[Z_AXIS];
+	      		plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate, active_extruder);
+	      		st_synchronize();
+
       			for(int8_t i=0; i < NUM_AXIS; i++) {
 					destination[i] = current_position[i];
       			}

@@ -279,11 +279,13 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define Z_MAX_LENGTH (Z_MAX_POS - Z_MIN_POS)
 //============================= Bed Auto Leveling ===========================
 
-#define ENABLE_AUTO_BED_LEVELING // Delete the comment to enable (remove // at the start of the line)
+//#define ENABLE_AUTO_BED_LEVELING // Delete the comment to enable (remove // at the start of the line)
 //#define Z_PROBE_REPEATABILITY_TEST  // If not commented out, Z-Probe Repeatability test will be included if Auto Bed Leveling is Enabled.
 
 #ifdef ENABLE_AUTO_BED_LEVELING
-
+  #ifndef Z_SAFE_HOMING
+  #define Z_SAFE_HOMING
+  #endif
 // There are 2 different ways to pick the X and Y locations to probe:
 
 //  - "grid" mode
@@ -327,18 +329,29 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
   #endif // AUTO_BED_LEVELING_GRID
 
-
-  // these are the offsets to the probe relative to the extruder tip (Hotend - Probe)
-  #define X_PROBE_OFFSET_FROM_EXTRUDER 35//26.3
-  #define Y_PROBE_OFFSET_FROM_EXTRUDER -5//5
-  #define Z_PROBE_OFFSET_FROM_EXTRUDER -1//-0.9 //-2.4
-
   #define Z_RAISE_BEFORE_HOMING 0       // (in mm) Raise Z before homing (G28) for Probe Clearance.
                                         // Be sure you have this distance over your Z_MAX_POS in case
+#endif // ENABLE_AUTO_BED_LEVELING
 
   #define Z_RAISE_BEFORE_PROBING 15    //How much the extruder will be raised before traveling to the first probing point.
   #define Z_RAISE_BETWEEN_PROBINGS 15  //How much the extruder will be raised when traveling from between next probing points
 
+
+//If you have enabled the Bed Auto Leveling and are using the same Z Probe for Z Homing,
+//it is highly recommended you let this Z_SAFE_HOMING enabled!!!
+
+#define Z_SAFE_HOMING   // This feature is meant to avoid Z homing with probe outside the bed area.
+                        // When defined, it will:
+                        // - Allow Z homing only after X and Y homing AND stepper drivers still enabled
+                        // - If stepper drivers timeout, it will need X and Y homing again before Z homing
+                        // - Position the probe in a defined XY point before Z Homing when homing all axis (G28)
+                        // - Block Z homing only when the probe is outside bed area.
+
+#ifdef Z_SAFE_HOMING
+  // these are the offsets to the probe relative to the extruder tip (Hotend - Probe)
+  #define X_PROBE_OFFSET_FROM_EXTRUDER -35//26.3
+  #define Y_PROBE_OFFSET_FROM_EXTRUDER -5//5
+  #define Z_PROBE_OFFSET_FROM_EXTRUDER -4//-0.9 //-2.4
 
   //If defined, the Probe servo will be turned on only during movement and then turned off to avoid jerk
   //The value is the delay to turn the servo off after powered on - depends on the servo speed; 300ms is good value, but you can try lower it.
@@ -346,25 +359,10 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 //  #define PROBE_SERVO_DEACTIVATION_DELAY 300
 
-
-//If you have enabled the Bed Auto Leveling and are using the same Z Probe for Z Homing,
-//it is highly recommended you let this Z_SAFE_HOMING enabled!!!
-
-  #define Z_SAFE_HOMING   // This feature is meant to avoid Z homing with probe outside the bed area.
-                          // When defined, it will:
-                          // - Allow Z homing only after X and Y homing AND stepper drivers still enabled
-                          // - If stepper drivers timeout, it will need X and Y homing again before Z homing
-                          // - Position the probe in a defined XY point before Z Homing when homing all axis (G28)
-                          // - Block Z homing only when the probe is outside bed area.
-
-  #ifdef Z_SAFE_HOMING
-
     #define Z_SAFE_HOMING_X_POINT 110    // X point for Z homing when homing all axis (G28)
     #define Z_SAFE_HOMING_Y_POINT 150  // Y point for Z homing when homing all axis (G28)
 
-  #endif
-
-#endif // ENABLE_AUTO_BED_LEVELING
+#endif //Z_SAFE_HOMING
 
 // The position of the homing switches
 //#define MANUAL_HOME_POSITIONS  // If defined, MANUAL_*_HOME_POS below will be used
@@ -424,7 +422,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
     #define COOLDOWN_FAN_SPEED 255
 #endif
 
-#if defined(ENABLE_AUTO_BED_LEVELING) || defined(WITBOX)
+#if defined(Z_SAFE_HOMING) || defined(ENABLE_AUTO_BED_LEVELING)
   #define XY_TRAVEL_SPEED 200//8000		// X and Y axis travel speed between probes and Witbox movements, in mm/min
 #endif
 //===========================================================================
