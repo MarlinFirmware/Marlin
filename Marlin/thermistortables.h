@@ -4,6 +4,7 @@
 #include "Marlin.h"
 
 #define OVERSAMPLENR 16
+#define OVESRAMPLESHIFT 4 // x >> OVESRAMPLESHIFT == x / OVERSAMPLENR
 
 #if (THERMISTORHEATER_0 == 1) || (THERMISTORHEATER_1 == 1)  || (THERMISTORHEATER_2 == 1) || (THERMISTORHEATER_3 == 1) || (THERMISTORBED == 1) //100k bed thermistor
 

@@ -3434,7 +3434,7 @@ inline void gcode_M105() {
       SERIAL_PROTOCOLPGM("    ADC B:");
       SERIAL_PROTOCOL_F(degBed(),1);
       SERIAL_PROTOCOLPGM("C->");
-      SERIAL_PROTOCOL_F(rawBedTemp()/OVERSAMPLENR,0);
+      SERIAL_PROTOCOL_F(rawBedTemp() >> OVESRAMPLESHIFT,0);
     #endif
     for (int8_t cur_extruder = 0; cur_extruder < EXTRUDERS; ++cur_extruder) {
       SERIAL_PROTOCOLPGM("  T");
@@ -3442,7 +3442,7 @@ inline void gcode_M105() {
       SERIAL_PROTOCOLCHAR(':');
       SERIAL_PROTOCOL_F(degHotend(cur_extruder),1);
       SERIAL_PROTOCOLPGM("C->");
-      SERIAL_PROTOCOL_F(rawHotendTemp(cur_extruder)/OVERSAMPLENR,0);
+      SERIAL_PROTOCOL_F(rawHotendTemp(cur_extruder) >> OVESRAMPLESHIFT,0);
     }
   #endif
 

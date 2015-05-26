@@ -500,5 +500,11 @@
     #define WRITE_FAN(v) WRITE(FAN_PIN, v)
   #endif
 
+  #if HAS_TEMP_BED
+    #define FIRST_HEATER -1
+  #else
+    #define FIRST_HEATER 0
+  #endif
+
 #endif //CONFIGURATION_LCD
 #endif //CONDITIONALS_H
