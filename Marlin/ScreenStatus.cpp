@@ -2,8 +2,9 @@
 
 namespace screen
 {
-	ScreenStatus::ScreenStatus(const char * title, FuncPtr_t function)
+	ScreenStatus::ScreenStatus(const char * title, FuncPtr_t function, Subject * model)
 		: Screen(title, STATUS, function)
+		, Observer(model)
 		, m_icon_index(0)
 	{ }
 
@@ -27,4 +28,8 @@ namespace screen
    {
       return * m_icon;
    }
+
+	void ScreenStatus::update(bool state)
+	{
+	}
 }

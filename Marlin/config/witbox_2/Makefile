@@ -60,8 +60,6 @@ DOGLCD             ?= 1
 ############################################################################
 # Below here nothing should be changed...
 
-# Here the Arduino variant is selected by the board type
-# HARDWARE_VARIANT = "arduino", "Sanguino", "Gen7", ...
 # MCU = "atmega1280", "Mega2560", "atmega2560", "atmega644p", ...
 
 #RAMPS
@@ -127,6 +125,7 @@ CXXSRC = WMath.cpp WString.cpp Print.cpp Marlin_main.cpp	\
 	vector_3.cpp qr_solve.cpp 
 CXXSRC += new.cpp GuiManager.cpp GuiPainter.cpp GuiAction.cpp GuiImpl_witbox_2.cpp Icon.cpp \
 	Screen.cpp ScreenList.cpp ScreenMenu.cpp ScreenSelector.cpp ScreenDialog.cpp ScreenPrint.cpp ScreenStatus.cpp \
+	Light.cpp Subject.cpp Observer.cpp \
 	ultralcd_st7920_u8glib_rrd.cpp
 
 ifeq ($(DOGLCD), 1)

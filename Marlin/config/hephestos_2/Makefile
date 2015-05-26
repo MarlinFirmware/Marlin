@@ -60,8 +60,6 @@ DOGLCD             ?= 1
 ############################################################################
 # Below here nothing should be changed...
 
-# Here the Arduino variant is selected by the board type
-# HARDWARE_VARIANT = "arduino", "Sanguino", "Gen7", ...
 # MCU = "atmega1280", "Mega2560", "atmega2560", "atmega644p", ...
 
 #RAMPS
@@ -123,13 +121,17 @@ CXXSRC = WMath.cpp WString.cpp Print.cpp Marlin_main.cpp	\
 	MarlinSerial.cpp Sd2Card.cpp SdBaseFile.cpp SdFatUtil.cpp	\
 	SdFile.cpp SdVolume.cpp motion_control.cpp planner.cpp		\
 	stepper.cpp temperature.cpp cardreader.cpp ConfigurationStore.cpp \
-	watchdog.cpp SPI.cpp Tone.cpp ultralcd.cpp digipot_mcp4451.cpp \
-	vector_3.cpp qr_solve.cpp
+	watchdog.cpp SPI.cpp Tone.cpp digipot_mcp4451.cpp \
+	vector_3.cpp qr_solve.cpp 
+CXXSRC += new.cpp GuiManager.cpp GuiPainter.cpp GuiAction.cpp GuiImpl_witbox_2.cpp Icon.cpp \
+	Screen.cpp ScreenList.cpp ScreenMenu.cpp ScreenSelector.cpp ScreenDialog.cpp ScreenPrint.cpp ScreenStatus.cpp \
+	Light.cpp Subject.cpp Observer.cpp \
+	ultralcd_st7920_u8glib_rrd.cpp
 
 ifeq ($(DOGLCD), 1)
 SRC += u8g_com_arduino_common.c u8g_com_arduino_st7920_spi.c u8g_dev_st7920_128x64.c \
 	u8g_com_api.c u8g_com_null.c u8g_ll_api.c u8g_pb.c u8g_pb32h1.c u8g_pb8h1.c u8g_page.c u8g_bitmap.c \
-	u8g_clip.c u8g_delay.c u8g_font.c u8g_font_data.c u8g_state.c u8g_rect.c
+	u8g_clip.c u8g_delay.c u8g_font.c u8g_font_data.c u8g_state.c u8g_rect.c u8g_line.c
 CXXSRC += U8glib.cpp
 else
 CXXSRC += LiquidCrystal.cpp

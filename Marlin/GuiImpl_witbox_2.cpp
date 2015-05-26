@@ -10,6 +10,8 @@
 #include "ScreenList.h"
 #include "ScreenStatus.h"
 
+#include "Light.h"
+
 
 
 namespace screen
@@ -40,6 +42,7 @@ namespace screen
 	Icon icon_retry               = Icon(icon_size, bits_retry_normal, bits_retry_focused, "Retry");
 	Icon icon_ok                  = Icon(icon_size, bits_ok_normal, bits_ok_focused, "Confirm");
 
+	Light light_manager = Light();
 
 	/////////////////////////
 	// Instantiate Screens //
@@ -87,7 +90,7 @@ namespace screen
 	//Temperature
 	ScreenSelector screen_temperature   = ScreenSelector("Temp 0/200C");
 	//Light
-	ScreenStatus screen_light           = ScreenStatus("Led light on");
+	ScreenStatus screen_light           = ScreenStatus("Led light on", do_nothing, &light_manager);
 	//Info
 	ScreenDialog screen_info            = ScreenDialog("FW info");
 
