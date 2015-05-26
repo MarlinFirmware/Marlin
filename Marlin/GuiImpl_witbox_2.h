@@ -18,6 +18,9 @@ namespace screen
 
 	// Font constants
 	const static uint8_t max_font_height = 9;
+
+	// Temperature parameters
+	const static uint8_t default_temp_change_filament = 210;
 }
 
 #endif //GUI_IMPL_WITBOX_2_H
