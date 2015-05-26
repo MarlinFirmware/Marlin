@@ -448,6 +448,7 @@ void checkExtruderAutoFans()
 // Temperature Error Handlers
 //
 inline void _temp_error(int e, const char *serial_msg, const char *lcd_msg) {
+  static bool killed = false;
   if (IsRunning()) {
     SERIAL_ERROR_START;
     serialprintPGM(serial_msg);
@@ -455,22 +456,23 @@ inline void _temp_error(int e, const char *serial_msg, const char *lcd_msg) {
     if (e >= 0) SERIAL_ERRORLN((int)e); else SERIAL_ERRORLNPGM(MSG_HEATER_BED);
   }
   #ifndef BOGUS_TEMPERATURE_FAILSAFE_OVERRIDE
-    kill(lcd_msg);
+    if (!killed) {
+      Running = false;
+      killed = true;
+      kill(lcd_msg);
+    }
+    else
+      disable_all_heaters(); // paranoia
   #endif
 }
 
 void max_temp_error(uint8_t e) {
-  disable_all_heaters();
   _temp_error(e, PSTR(MSG_T_MAXTEMP), PSTR(MSG_ERR_MAXTEMP));
 }
 void min_temp_error(uint8_t e) {
-  disable_all_heaters();
   _temp_error(e, PSTR(MSG_T_MINTEMP), PSTR(MSG_ERR_MINTEMP));
 }
 void bed_max_temp_error(void) {
-  #if HAS_HEATER_BED
-    WRITE_HEATER_BED(0);
-  #endif
   _temp_error(-1, PSTR(MSG_T_MAXTEMP), PSTR(MSG_ERR_MAXTEMP_BED));
 }
 
@@ -637,7 +639,6 @@ void manage_heater() {
 
     #ifdef TEMP_SENSOR_1_AS_REDUNDANT
       if (fabs(current_temperature[0] - redundant_temperature) > MAX_REDUNDANT_TEMP_SENSOR_DIFF) {
-        disable_all_heaters();
         _temp_error(0, PSTR(MSG_EXTRUDER_SWITCHED_OFF), PSTR(MSG_ERR_REDUNDANT_TEMP));
       }
     #endif
@@ -1580,10 +1581,7 @@ ISR(TIMER0_COMPB_vect) {
       #else
         #define GEBED >=
       #endif
-      if (current_temperature_bed_raw GEBED bed_maxttemp_raw) {
-        target_temperature_bed = 0;
-        bed_max_temp_error();
-      }
+      if (current_temperature_bed_raw GEBED bed_maxttemp_raw) bed_max_temp_error();
     #endif
 
   } // temp_count >= OVERSAMPLENR
