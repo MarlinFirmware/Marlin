@@ -155,8 +155,6 @@ namespace screen
 
 			for (uint8_t i = 0; i < window_size; i++)
 			{
-				painter.setPrintPos(painter.coordinateXInit(), painter.coordinateYInit() + i * (max_font_height + 1));
-
 				if (i == window_selector) {
 					painter.setColorIndex(1);
 					painter.drawBox(painter.coordinateXInit(), painter.coordinateYInit() + i * (max_font_height + 1), 128, max_font_height);
@@ -175,13 +173,13 @@ namespace screen
 
 				if ((m_index + i - window_selector) == 0)
 				{
-					painter.drawBitmap(painter.coordinateXInit(), painter.coordinateYInit() + i * (max_font_height + 1), little_icon_width, little_icon_height, bits_back_small);
+					painter.drawBitmap(painter.coordinateXInit() + 1, painter.coordinateYInit() + i * (max_font_height + 1), little_icon_width, little_icon_height, bits_back_small);
 					painter.setPrintPos(painter.coordinateXInit() + 9, painter.coordinateYInit() + i * (max_font_height + 1));
 					painter.print("Back to main menu");
 				}
 				else if (m_directory_is_root == false && (m_index + i - window_selector) == 1)
 				{
-					painter.drawBitmap(painter.coordinateXInit(), painter.coordinateYInit() + i * (max_font_height + 1), little_icon_width, little_icon_height, bits_updir_small);
+					painter.drawBitmap(painter.coordinateXInit() + 1, painter.coordinateYInit() + i * (max_font_height + 1), little_icon_width, little_icon_height, bits_updir_small);
 					painter.setPrintPos(painter.coordinateXInit() + 9, painter.coordinateYInit() + i * (max_font_height + 1));
 					painter.print("Previous folder");
 				}
@@ -191,10 +189,9 @@ namespace screen
 
 					if (card.filenameIsDir == true)
 					{
-						painter.drawBitmap(painter.coordinateXInit(), painter.coordinateYInit() + i * (max_font_height + 1), little_icon_width, little_icon_height, bits_folder_small);
-						painter.setPrintPos(painter.coordinateXInit() + 9, painter.coordinateYInit() + i * (max_font_height + 1));
+						painter.drawBitmap(painter.coordinateXInit() + 1, painter.coordinateYInit() + i * (max_font_height + 1), little_icon_width, little_icon_height, bits_folder_small);
 					}
-
+					painter.setPrintPos(painter.coordinateXInit() + 9, painter.coordinateYInit() + i * (max_font_height + 1));
 					painter.print(card.longFilename);
 				}
 			}
