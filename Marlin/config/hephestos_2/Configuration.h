@@ -268,10 +268,10 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 // Travel limits after homing
 #define X_MAX_POS 220 //Temp
-#define X_MIN_POS 10
+#define X_MIN_POS 0
 #define Y_MAX_POS 297
 #define Y_MIN_POS 0
-#define Z_MAX_POS 250
+#define Z_MAX_POS 210
 #define Z_MIN_POS 0
 
 #define X_MAX_LENGTH (X_MAX_POS - X_MIN_POS)
@@ -352,7 +352,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
   // these are the offsets to the probe relative to the extruder tip (Hotend - Probe)
   #define X_PROBE_OFFSET_FROM_EXTRUDER -35//26.3
   #define Y_PROBE_OFFSET_FROM_EXTRUDER -5//5
-  #define Z_PROBE_OFFSET_FROM_EXTRUDER -4//-0.9 //-2.4
+  #define Z_PROBE_OFFSET_FROM_EXTRUDER -0.9//-0.9 //-2.4
 
   //If defined, the Probe servo will be turned on only during movement and then turned off to avoid jerk
   //The value is the delay to turn the servo off after powered on - depends on the servo speed; 300ms is good value, but you can try lower it.

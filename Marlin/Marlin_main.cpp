@@ -1009,7 +1009,7 @@ void process_commands()
       			break;
     		case 28: //G28 Home all Axis one at a time
     			lcd_disable_interrupt();
-				#ifdef ENABLE_AUTO_BED_LEVELING
+				#if defined(ENABLE_AUTO_BED_LEVELING)
       				plan_bed_level_matrix.set_to_identity();  //Reset the plane ("erase" all leveling data)
 				#endif //ENABLE_AUTO_BED_LEVELING
 
@@ -1137,7 +1137,7 @@ void process_commands()
 	  					current_position[Z_AXIS]=code_value()+add_homeing[2];
 					}
       			}
-      			#ifdef ENABLE_AUTO_BED_LEVELING
+      			#ifdef Z_SAFE_HOMING
 					if((home_all_axis) || (code_seen(axis_codes[Z_AXIS]))) {
 	  					current_position[Z_AXIS] += zprobe_zoffset;  //Add Z_Probe offset (the distance is negative)
 					}
