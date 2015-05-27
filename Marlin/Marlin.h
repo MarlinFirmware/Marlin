@@ -28,14 +28,6 @@
 
 #include "Arduino.h"
 
-#define BIT(b) (1<<(b))
-#define TEST(n,b) (((n)&BIT(b))!=0)
-#define SET_BIT(n,b,value) (n) ^= ((-value)^(n)) & (BIT(b))
-#define RADIANS(d) ((d)*M_PI/180.0)
-#define DEGREES(r) ((r)*180.0/M_PI)
-#define NOLESS(v,n) do{ if (v < n) v = n; }while(0)
-#define NOMORE(v,n) do{ if (v > n) v = n; }while(0)
-
 typedef unsigned long millis_t;
 
 // Arduino < 1.0.0 does not define this, so we need to do it ourselves
