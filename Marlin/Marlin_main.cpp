@@ -1964,33 +1964,27 @@ inline void gcode_G4() {
 #ifdef BABYSTEPPING
 inline void gcode_G5() {
   short axis[3] = {-1, -1, -1};
-  SERIAL_PROTOCOLPGM("Babystepping\n");
   for(unsigned short i=0; i<3; i++){ // in the order: Z, X, then Y
     boolean endstop = false;
     if(i == 0 && code_seen(axis_codes[Z_AXIS]) && axis[0] == -1)
     {
-      SERIAL_PROTOCOLPGM("Z ");
+      SERIAL_PROTOCOLPGM("Babystepping Z ");
       axis[i] = Z_AXIS;
     }
    #ifdef BABYSTEP_XY
     else if(i == 1 && code_seen(axis_codes[X_AXIS]) && axis[1] == -1)
     {
-      SERIAL_PROTOCOLPGM("X ");
+      SERIAL_PROTOCOLPGM("Babystepping X ");
       axis[i] = X_AXIS;
     }
     else if(i == 2 && code_seen(axis_codes[Y_AXIS]) && axis[2] == -1)
     {
-      SERIAL_PROTOCOLPGM("Y ");
+      SERIAL_PROTOCOLPGM("Babystepping Y ");
       axis[i] = Y_AXIS;
     }
    #endif //BABYSTEP_XY
-    else if(i == 0)
-    {
-      SERIAL_PROTOCOLPGM("no distance (no valid axis given)\n");
-      return;
-    }
     else
-      return;
+      continue;
     long babysteps = code_value();
     if(babysteps < 0 && (current_position[axis[i]] > baby_min_endstop[axis[i]]))  // negative babysteps on Z can ignore min endstop, be careful!
     {
