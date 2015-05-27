@@ -11,6 +11,7 @@
 #include "ScreenStatus.h"
 
 #include "Light.h"
+#include "Steppers.h"
 
 
 
@@ -42,7 +43,8 @@ namespace screen
 	Icon icon_retry               = Icon(icon_size, bits_retry_normal, bits_retry_focused, "Retry");
 	Icon icon_ok                  = Icon(icon_size, bits_ok_normal, bits_ok_focused, "Confirm");
 
-	Light light_manager = Light();
+	Light light_manager           = Light();
+	Steppers steppers_manager     = Steppers();
 
 	/////////////////////////
 	// Instantiate Screens //
@@ -75,7 +77,7 @@ namespace screen
 	//AutoHome
 	Screen screen_autohome              = Screen("Auto-home", Screen::SIMPLE, action_homing);
 	//Stepper
-//	ScreenStatus screen_stepper         = ScreenStatus("Steper on");
+	ScreenStatus<bool> screen_stepper   = ScreenStatus<bool>("Steppers on", do_nothing, &steppers_manager);
 	//Move Axis screens
 	ScreenMenu screen_move              = ScreenMenu("Move axis");
 	ScreenMenu screen_move_back2main    = ScreenMenu("Back");
@@ -121,7 +123,7 @@ namespace screen
 		screen_main.add(screen_load_select);
 		screen_main.add(screen_level_confirm);
 		screen_main.add(screen_autohome);
-//		screen_main.add(screen_stepper);
+		screen_main.add(screen_stepper);
 		screen_main.add(screen_move);
 		screen_main.add(screen_temperature);
 		screen_main.add(screen_light);
@@ -166,9 +168,9 @@ namespace screen
 		//screen_autohome.add(screen_main);
 		screen_autohome.icon(icon_homing);
 		//Stepper
-//		screen_stepper.add(screen_main);
-//		screen_stepper.icon(icon_steppers);
-//		screen_stepper.icon(icon_steppers_off);
+		screen_stepper.add(screen_main);
+		screen_stepper.icon(icon_steppers);
+		screen_stepper.icon(icon_steppers_off);
 		//Move Axis
 		screen_move.add(screen_main);
 		screen_move.icon(icon_moveaxis);
