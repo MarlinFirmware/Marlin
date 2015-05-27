@@ -79,6 +79,8 @@ extern float current_temperature_bed;
   
 #if ENABLED(BABYSTEPPING)
   extern volatile int babystepsTodo[3];
+  extern volatile float baby_max_endstop[3];
+  extern volatile float baby_min_endstop[3];
 #endif
   
 //high level conversion routines, for use outside of temperature.cpp
