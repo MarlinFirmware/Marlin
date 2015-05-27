@@ -454,7 +454,7 @@ void lcd_set_home_offsets() {
       baby_min_endstop[axis] -= ((int)encoderPosition)/axis_steps_per_unit[axis];
      #ifdef BABYSTEP_OFFSET
       if(axis == Z_AXIS)
-        add_homing[axis] += ((int)encoderPosition)/axis_steps_per_unit[axis];
+        home_offset[axis] += ((int)encoderPosition)/axis_steps_per_unit[axis];
      #endif //BABYSTEP_OFFSET
       encoderPosition = 0;
       lcdDrawUpdate = 1;
