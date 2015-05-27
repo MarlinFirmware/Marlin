@@ -42,7 +42,7 @@ namespace screen
 	Icon icon_retry               = Icon(icon_size, bits_retry_normal, bits_retry_focused, "Retry");
 	Icon icon_ok                  = Icon(icon_size, bits_ok_normal, bits_ok_focused, "Confirm");
 
-	Light light_manager = Light();
+	Light<bool> light_manager = Light<bool>();
 
 	/////////////////////////
 	// Instantiate Screens //
@@ -73,9 +73,9 @@ namespace screen
 	ScreenDialog screen_level4          = ScreenDialog("Screen4");
 	ScreenMenu screen_level_retry       = ScreenMenu("Finished?");
 	//AutoHome
-	ScreenStatus screen_autohome        = ScreenStatus("Auto-home", action_homing);
+	Screen screen_autohome              = Screen("Auto-home", Screen::SIMPLE, action_homing);
 	//Stepper
-	ScreenStatus screen_stepper         = ScreenStatus("Steper on");
+//	ScreenStatus screen_stepper         = ScreenStatus("Steper on");
 	//Move Axis screens
 	ScreenMenu screen_move              = ScreenMenu("Move axis");
 	ScreenMenu screen_move_back2main    = ScreenMenu("Back");
@@ -90,14 +90,14 @@ namespace screen
 	//Temperature
 	ScreenSelector screen_temperature   = ScreenSelector("Temp 0/200C");
 	//Light
-	ScreenStatus screen_light           = ScreenStatus("Led light on", do_nothing, &light_manager);
+	ScreenStatus<bool> screen_light     = ScreenStatus<bool>("Led light on", do_nothing, &light_manager);
 	//Info
 	ScreenDialog screen_info            = ScreenDialog("FW info");
 
 	//Print screen
 	ScreenPrint screen_print            = ScreenPrint("Confirm", action_print);
 	//Play/Pause
-	ScreenStatus screen_play_pause      = ScreenStatus("Pause", action_pause_print);
+	//ScreenStatus screen_play_pause      = ScreenStatus("Pause", action_pause_print);
 	//Stop
 	ScreenMenu screen_stop_confirm      = ScreenMenu("Stop");
 	Screen screen_stop_back             = Screen("Back", Screen::SIMPLE);
@@ -121,7 +121,7 @@ namespace screen
 		screen_main.add(screen_load_select);
 		screen_main.add(screen_level_confirm);
 		screen_main.add(screen_autohome);
-		screen_main.add(screen_stepper);
+//		screen_main.add(screen_stepper);
 		screen_main.add(screen_move);
 		screen_main.add(screen_temperature);
 		screen_main.add(screen_light);
@@ -166,9 +166,9 @@ namespace screen
 		//screen_autohome.add(screen_main);
 		screen_autohome.icon(icon_homing);
 		//Stepper
-		screen_stepper.add(screen_main);
-		screen_stepper.icon(icon_steppers);
-		screen_stepper.icon(icon_steppers_off);
+//		screen_stepper.add(screen_main);
+//		screen_stepper.icon(icon_steppers);
+//		screen_stepper.icon(icon_steppers_off);
 		//Move Axis
 		screen_move.add(screen_main);
 		screen_move.icon(icon_moveaxis);
@@ -184,15 +184,15 @@ namespace screen
 		screen_info.icon(icon_info);
 
 		//Print Menu
-		screen_print.add(screen_play_pause);
+//		screen_print.add(screen_play_pause);
 		screen_print.add(screen_stop_confirm);
 		screen_print.add(screen_change_confirm);
 		screen_print.add(screen_speed);
 		screen_print.add(screen_temperature);
 		//Play/Pause
-		screen_play_pause.add(screen_main);
-		screen_play_pause.icon(icon_pause);
-		screen_play_pause.icon(icon_play); 
+//		screen_play_pause.add(screen_main);
+//		screen_play_pause.icon(icon_pause);
+//		screen_play_pause.icon(icon_play); 
 		//Stop Confirm
 		screen_stop_confirm.add(screen_stop_back);
 		screen_stop_confirm.add(screen_stop_OK);

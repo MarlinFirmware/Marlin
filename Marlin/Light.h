@@ -3,12 +3,14 @@
 
 #include "Subject.h"
 
-class Light : public Subject
+template <typename T>
+	class Light : public Subject<T>
 {
 	public:
 		Light();
 
 		void setState(bool state);
+
 		bool getState();
 
 	private:
@@ -17,4 +19,35 @@ class Light : public Subject
 	private:
 		bool m_state;
 };
+
+template <typename T>
+	Light<T>::Light()
+   		: Subject<T>()
+   		, m_state(false)
+		{ }
+
+template <typename T>
+		void Light<T>::setState(bool state)
+		{
+			m_state = state;
+			notify();
+		}
+
+template <typename T>
+		bool Light<T>::getState()
+		{
+			return m_state;
+		}
+
+template <typename T>
+		void Light<T>::notify()
+		{
+//			if (m_observer != 0)
+			{
+//				m_observer->update(m_state);
+			}
+		}
+
+
+
 #endif //LIGHT_H

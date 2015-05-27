@@ -1,14 +1,18 @@
 #ifndef SUBJECT_H
 #define SUBJECT_H
 
-class Observer;
+#include "Observer.h"
 
-class Subject
+template <typename T>
+	class Subject
 {
 	public:
-      void attach (Observer * observer);
+      void attach (Observer<T> * observer)
+		{
+  			m_observer = observer;
+		};
 
    protected:
-      Observer * m_observer;
+      Observer<T> * m_observer;
 };
 #endif //SUBJECT_H
