@@ -52,13 +52,23 @@
  * When a heater is off, but the surrounding temperature is higher or equal to the heaters temperature, the temperature
  * can not fall. Therefore we do not test for this below MAX_AMBIENT_TEMPERATURE.
  * HEATER_STATE_DEBUG produces some output on the serial line to see how sharp or blunt these tests are.
- * Set MAX_TEMP_OVERSTOOT_TIME to 0 to deactivate.
+ *
+ * Temperatures are inert. If the value of any thermometer jumps, there is something wrong with it.
+ * Reasons can be: shorted wires, broken wires, leaking water-cooling, ...
+ * but also: electronic noise, ...
+ * MAX THERMO_JUMP_AMOUNT is the maximum allowed temperature difference between two measurements of the raw temperatures, (an abstract number).
+ * The fastest expected change is about (full range of the ADC) / minute / (temp measurements / second). 
+ * This is well below the noise. So we have to adjust for the noise.
+ * If you get 'unreasoned' "error: Thermometer Jumped" messages increase the next value. 50 is a good value to start. 0 disables.
+ *
+ * Set MAX_TEMP_OVERSTOOT_TIME to 0 to deactivate all this tests. 30 is a good value to start.
  */
+#define MAX_TEMP_OVERSTOOT_TIME 0
 #define TEMP_RAW_NOISE 6
 #define TEMP_CONSEC_COUNT 6
-#define MAX_TEMP_OVERSTOOT_TIME 30
 #define MAX_AMBIENT_TEMPERATURE 50
-//#define HEATER_STATE_DEBUG
+#define MAX_THERMO_JUMP_AMOUNT 0
+#define HEATER_STATE_DEBUG
 
 #ifdef PIDTEMP
   // this adds an experimental additional term to the heating power, proportional to the extrusion speed.

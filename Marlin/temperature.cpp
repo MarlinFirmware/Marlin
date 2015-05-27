@@ -1650,6 +1650,10 @@ ISR(TIMER0_COMPB_vect) {
       return 0;
     }
 
+    #if MAX_THERMO_JUMP_AMOUNT > 0
+      if (abs(dt) > MAX_THERMO_JUMP_AMOUNT) _temp_error(hh, PSTR(MSG_T_JUMP), PSTR(MSG_ERR_THERMAL_JUMP));
+    #endif
+
     if (abs(dt) < TEMP_RAW_NOISE) { counter[h] = 0; return 0;} // constant
     switch (h) {
       case 0: {
