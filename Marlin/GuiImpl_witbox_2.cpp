@@ -10,8 +10,8 @@
 #include "ScreenList.h"
 #include "ScreenStatus.h"
 
-#include "Light.h"
-#include "Steppers.h"
+#include "LightManager.h"
+#include "SteppersManager.h"
 
 
 
@@ -43,8 +43,8 @@ namespace screen
 	Icon icon_retry               = Icon(icon_size, bits_retry_normal, bits_retry_focused, "Retry");
 	Icon icon_ok                  = Icon(icon_size, bits_ok_normal, bits_ok_focused, "Confirm");
 
-	Light light_manager           = Light();
-	Steppers steppers_manager     = Steppers();
+	LightManager light_manager           = LightManager();
+	SteppersManager steppers_manager     = SteppersManager();
 
 	/////////////////////////
 	// Instantiate Screens //
@@ -76,7 +76,7 @@ namespace screen
 	ScreenMenu screen_level_retry       = ScreenMenu("Finished?");
 	//AutoHome
 	Screen screen_autohome              = Screen("Auto-home", Screen::SIMPLE, action_homing);
-	//Stepper
+	//Steppers
 	ScreenStatus<bool> screen_stepper   = ScreenStatus<bool>("Steppers on", do_nothing, &steppers_manager);
 	//Move Axis screens
 	ScreenMenu screen_move              = ScreenMenu("Move axis");
