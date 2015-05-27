@@ -1974,89 +1974,89 @@ inline void gcode_G4() {
   while (millis() < codenum) idle();
 }
 
-<<<<<<< HEAD
-#if ENABLED(FWRETRACT)
-=======
 #ifdef BABYSTEPPING
 inline void gcode_G5() {
-  boolean endstop = false;
-  SERIAL_PROTOCOLPGM("Babystepped ");
-  unsigned short axis;
-  if(code_seen(axis_codes[Z_AXIS]))
-  {
-    SERIAL_PROTOCOLPGM("Z ");
-    axis = Z_AXIS;
-  }
- #ifdef BABYSTEP_XY
-  else if(code_seen(axis_codes[X_AXIS]))
-  {
-    SERIAL_PROTOCOLPGM("X ");
-    axis = X_AXIS;
-  }
-  else if(code_seen(axis_codes[Y_AXIS]))
-  {
-    SERIAL_PROTOCOLPGM("Y ");
-    axis = Y_AXIS;
-  }
- #endif //BABYSTEP_XY
-  else
-  {
-    SERIAL_PROTOCOLPGM("no distance (no axis given)\n");
-    return;
-  }
-  long babysteps = code_value();
-  if(babysteps < 0 && (current_position[axis] > baby_min_endstop[axis]))  // negative babysteps on Z can ignore min endstop, be careful!
-  {
-    SERIAL_PROTOCOLPGM("-= ");
-    if(current_position[axis] + babysteps/axis_steps_per_unit[axis] < baby_min_endstop[axis])
+  short axis[3] = {-1, -1, -1};
+  SERIAL_PROTOCOLPGM("Babystepping\n");
+  for(unsigned short i=0; i<3; i++){ // in the order: Z, X, then Y
+    boolean endstop = false;
+    if(i == 0 && code_seen(axis_codes[Z_AXIS]) && axis[0] == -1)
     {
-      endstop = true;
-      babysteps = -1 * (current_position[axis] - baby_min_endstop[axis]) * axis_steps_per_unit[axis];
+      SERIAL_PROTOCOLPGM("Z ");
+      axis[i] = Z_AXIS;
     }
-    baby_max_endstop[axis] -= babysteps/axis_steps_per_unit[axis];
-    baby_min_endstop[axis] -= babysteps/axis_steps_per_unit[axis];
-    SERIAL_PROTOCOL_F(-1 * babysteps/axis_steps_per_unit[axis], 6);
-    babystepsTodo[axis] += babysteps;
-  }
-  else if(babysteps > 0 && current_position[axis] < baby_max_endstop[axis])
-  {
-    SERIAL_PROTOCOLPGM("+= ");
-    if(current_position[axis] + babysteps/axis_steps_per_unit[axis] > baby_max_endstop[axis])
+   #ifdef BABYSTEP_XY
+    else if(i == 1 && code_seen(axis_codes[X_AXIS]) && axis[1] == -1)
     {
-      endstop = true;
-      babysteps = (baby_max_endstop[axis] - current_position[axis]) * axis_steps_per_unit[axis];
+      SERIAL_PROTOCOLPGM("X ");
+      axis[i] = X_AXIS;
     }
-    baby_max_endstop[axis] -= babysteps/axis_steps_per_unit[axis];
-    baby_min_endstop[axis] -= babysteps/axis_steps_per_unit[axis];
-    SERIAL_PROTOCOL_F(babysteps/axis_steps_per_unit[axis], 6);
-    babystepsTodo[axis] += babysteps;
+    else if(i == 2 && code_seen(axis_codes[Y_AXIS]) && axis[2] == -1)
+    {
+      SERIAL_PROTOCOLPGM("Y ");
+      axis[i] = Y_AXIS;
+    }
+   #endif //BABYSTEP_XY
+    else if(i == 0)
+    {
+      SERIAL_PROTOCOLPGM("no distance (no valid axis given)\n");
+      return;
+    }
+    else
+      return;
+    long babysteps = code_value();
+    if(babysteps < 0 && (current_position[axis[i]] > baby_min_endstop[axis[i]]))  // negative babysteps on Z can ignore min endstop, be careful!
+    {
+      SERIAL_PROTOCOLPGM("-= ");
+      if(current_position[axis[i]] + babysteps/axis_steps_per_unit[axis[i]] < baby_min_endstop[axis[i]])
+      {
+        endstop = true;
+        babysteps = -1 * (current_position[axis[i]] - baby_min_endstop[axis[i]]) * axis_steps_per_unit[axis[i]];
+      }
+      baby_max_endstop[axis[i]] -= babysteps/axis_steps_per_unit[axis[i]];
+      baby_min_endstop[axis[i]] -= babysteps/axis_steps_per_unit[axis[i]];
+      SERIAL_PROTOCOL_F(-1 * babysteps/axis_steps_per_unit[axis[i]], 6);
+      babystepsTodo[axis[i]] += babysteps;
+    }
+    else if(babysteps > 0 && current_position[axis[i]] < baby_max_endstop[axis[i]])
+    {
+      SERIAL_PROTOCOLPGM("+= ");
+      if(current_position[axis[i]] + babysteps/axis_steps_per_unit[axis[i]] > baby_max_endstop[axis[i]])
+      {
+        endstop = true;
+        babysteps = (baby_max_endstop[axis[i]] - current_position[axis[i]]) * axis_steps_per_unit[axis[i]];
+      }
+      baby_max_endstop[axis[i]] -= babysteps/axis_steps_per_unit[axis[i]];
+      baby_min_endstop[axis[i]] -= babysteps/axis_steps_per_unit[axis[i]];
+      SERIAL_PROTOCOL_F(babysteps/axis_steps_per_unit[axis[i]], 6);
+      babystepsTodo[axis[i]] += babysteps;
+    }
+    else
+    {
+      if((current_position[axis[i]] == baby_min_endstop[axis[i]] || current_position[axis[i]] == baby_max_endstop[axis[i]]) && babysteps != 0)
+        endstop = true;
+      SERIAL_PROTOCOL("= 0");
+    }
+    SERIAL_PROTOCOLPGM("mm\n");
+    if(endstop)
+    {
+      SERIAL_PROTOCOLPGM("BABY_ENDSTOP PREVENTED A COLLISION!!\n");
+      endstop = false;
+    }
+    if(current_position[axis[i]] < baby_min_endstop[axis[i]])
+    {
+      baby_min_endstop[axis[i]] = current_position[axis[i]];
+      baby_max_endstop[axis[i]] += baby_min_endstop[axis[i]];
+    }
+   #ifdef BABYSTEP_OFFSET
+    if(axis[i] == Z_AXIS) // will move to the given (EEPROM saved) babystepped Z height offset when homing but not recognize it
+      home_offset[axis[i]] = Z_BABY_DEFAULT_MIN_POS - baby_min_endstop[axis[i]];
+   #endif //BABYSTEP_OFFSET
   }
-  else
-  {
-    if((current_position[axis] == baby_min_endstop[axis] || current_position[axis] == baby_max_endstop[axis]) && babysteps != 0)
-      endstop = true;
-    SERIAL_PROTOCOL("= 0");
-  }
-  SERIAL_PROTOCOLPGM("mm\n");
-  if(endstop)
-  {
-    SERIAL_PROTOCOLPGM("BABY_ENDSTOP PREVENTED A COLLISION!!\n");
-    endstop = false;
-  }
-  if(current_position[axis] < baby_min_endstop[axis])
-  {
-    baby_min_endstop[axis] = current_position[axis];
-    baby_max_endstop[axis] += baby_min_endstop[axis];
-  }
-  #ifdef BABYSTEP_OFFSET
-  if(axis == Z_AXIS) // will move to the given (EEPROM saved) babystepped Z height offset when homing but not recognize it
-    home_offset[axis] = Z_BABY_DEFAULT_MIN_POS - baby_min_endstop[axis];
-  #endif //BABYSTEP_OFFSET
 }
 #endif //BABYSTEPPING
 
-#ifdef FWRETRACT
->>>>>>> Initial G5 X Y Z Babystepping
+#if ENABLED(FWRETRACT)
 
   /**
    * G10 - Retract filament according to settings of M207
@@ -5386,17 +5386,13 @@ void process_next_command() {
         gcode_G4();
         break;
 
-<<<<<<< HEAD
-      #if ENABLED(FWRETRACT)
-=======
       #ifdef BABYSTEPPING
       case 5:
         gcode_G5();
         break;
       #endif //BABYSTEPPING
 
-      #ifdef FWRETRACT
->>>>>>> Initial G5 X Y Z Babystepping
+      #if ENABLED(FWRETRACT)
 
         case 10: // G10: retract
         case 11: // G11: retract_recover
