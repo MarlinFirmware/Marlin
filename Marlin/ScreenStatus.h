@@ -25,20 +25,20 @@ namespace screen
 			uint8_t m_icon_index;
 	};
 
-template <typename T>
+	template <typename T>
 	ScreenStatus<T>::ScreenStatus(const char * title, FuncPtr_t function, Subject<T> * model)
-            : Screen(title, STATUS, function)
-            , Observer<T>(model)
-            , m_icon_index(0)
-         {};
+		: Screen(title, STATUS, function)
+		, Observer<T>(model)
+		, m_icon_index(0)
+	{ };
 
-template <typename T>
+	template <typename T>
 	ScreenStatus<T>::~ScreenStatus()
 	{ }
 
-template <typename T>
-   void ScreenStatus<T>::icon(Icon & component)
-   {
+	template <typename T>
+	void ScreenStatus<T>::icon(Icon & component)
+	{
 		if (m_icon_index < 1)
 		{
 			m_icon = &component;
@@ -48,17 +48,17 @@ template <typename T>
 			m_icon_alternate = &component;
 		}
 		++m_icon_index;
-   }
+	}
 
-template <typename T>
-   Icon & ScreenStatus<T>::icon()
-   {
-      return * m_icon;
-   }
+	template <typename T>
+	Icon & ScreenStatus<T>::icon()
+	{
+		return * m_icon;
+	}
 
-template <typename T>
-        void ScreenStatus<T>::update(T value) 
-{ }
+	template <typename T>
+	void ScreenStatus<T>::update(T value) 
+	{ }
 }
 
 #endif //SCREEN_STATUS_H

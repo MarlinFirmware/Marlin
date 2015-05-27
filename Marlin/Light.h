@@ -21,32 +21,32 @@ template <typename T>
 };
 
 template <typename T>
-	Light<T>::Light()
-   		: Subject<T>()
-   		, m_state(false)
-		{ }
+Light<T>::Light()
+	: Subject<T>()
+  , m_state(false)
+{ }
 
 template <typename T>
-		void Light<T>::setState(bool state)
-		{
-			m_state = state;
-			notify();
-		}
+void Light<T>::setState(bool state)
+{
+	m_state = state;
+	notify();
+}
 
 template <typename T>
-		bool Light<T>::getState()
-		{
-			return m_state;
-		}
+bool Light<T>::getState()
+{
+	return m_state;
+}
 
 template <typename T>
-		void Light<T>::notify()
-		{
-//			if (m_observer != 0)
-			{
-//				m_observer->update(m_state);
-			}
-		}
+void Light<T>::notify()
+{
+//	if (m_observer != 0)
+	{
+//		m_observer->update(m_state);
+	}
+}
 
 
 
