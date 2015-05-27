@@ -63,7 +63,20 @@ static void lcd_status_screen();
   #endif
   static void lcd_sdcard_menu();
 
+<<<<<<< HEAD
   #if ENABLED(DELTA_CALIBRATION_MENU)
+=======
+  static void lcd_sdcard_resume_menu();
+  static void lcd_sdcard_print_menu();
+  extern float planner_disabled_below_z;
+  extern float last_z;
+  extern bool z_reached;
+  extern bool layer_reached;
+  extern bool hops;
+  extern bool gone_up;
+
+  #ifdef DELTA_CALIBRATION_MENU
+>>>>>>> Initial M19 Z Resume From Z and Layer Counting
     static void lcd_delta_calibrate_menu();
   #endif
 
@@ -378,6 +391,7 @@ static void lcd_sdcard_stop() {
   autotempShutdown();
   cancel_heatup = true;
   lcd_setstatus(MSG_PRINT_ABORTED, true);
+  planner_disabled_below_z = 0;
 }
 
 /**
@@ -410,8 +424,14 @@ static void lcd_main_menu() {
         MENU_ITEM(function, MSG_STOP_PRINT, lcd_sdcard_stop);
       }
       else {
+<<<<<<< HEAD
         MENU_ITEM(submenu, MSG_CARD_MENU, lcd_sdcard_menu);
         #if !PIN_EXISTS(SD_DETECT)
+=======
+        MENU_ITEM(submenu, MSG_CARD_MENU, lcd_sdcard_print_menu);
+        MENU_ITEM(submenu, MSG_CARD_RESUME_MENU, lcd_sdcard_resume_menu);
+        #if SDCARDDETECT < 1
+>>>>>>> Initial M19 Z Resume From Z and Layer Counting
           MENU_ITEM(gcode, MSG_CNG_SDCARD, PSTR("M21"));  // SD-card changed by user
         #endif
       }
@@ -500,8 +520,16 @@ static void lcd_tune_menu() {
     MENU_ITEM_EDIT(int3, MSG_FLOW MSG_N3, &extruder_multiplier[3], 10, 999);
   #endif
 
+<<<<<<< HEAD
   #if ENABLED(BABYSTEPPING)
     #if ENABLED(BABYSTEP_XY)
+=======
+    unsigned long layer = current_layer;
+    MENU_ITEM_EDIT(long5, MSG_LAYER, &layer, layer, layer);
+
+  #ifdef BABYSTEPPING
+    #ifdef BABYSTEP_XY
+>>>>>>> Initial M19 Z Resume From Z and Layer Counting
       MENU_ITEM(submenu, MSG_BABYSTEP_X, lcd_babystep_x);
       MENU_ITEM(submenu, MSG_BABYSTEP_Y, lcd_babystep_y);
     #endif //BABYSTEP_XY
@@ -1166,6 +1194,25 @@ static void lcd_control_volumetric_menu() {
 static void lcd_sd_updir() {
   card.updir();
   currentMenuViewOffset = 0;
+}
+
+// Print from SD
+void lcd_sdcard_print_menu()
+{
+    planner_disabled_below_z = 0;
+    lcd_sdcard_menu();
+}
+
+// Print from SD but set flag to ignore movements below a certain Z
+void lcd_sdcard_resume_menu()
+{
+    planner_disabled_below_z = current_position[Z_AXIS];
+    last_z = 0;
+    z_reached = false;
+    layer_reached = false;
+    hops = false;
+    gone_up = false;
+    lcd_sdcard_menu();
 }
 
 /**
