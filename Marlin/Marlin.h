@@ -116,6 +116,8 @@ FORCE_INLINE void serialprintPGM(const char *str) {
 
 void get_command();
 
+void idle(); // the standard idle routine calls manage_inactivity(false)
+
 void manage_inactivity(bool ignore_stepper_queue=false);
 
 #if defined(DUAL_X_CARRIAGE) && HAS_X_ENABLE && HAS_X2_ENABLE
