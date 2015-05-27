@@ -3,23 +3,23 @@
 
 #include  "language.h"
 
-#ifdef DOGLCD
+#if ENABLED(DOGLCD)
   #define HARDWARE_CHAR_OUT u8g.print
 #else
   #define HARDWARE_CHAR_OUT lcd.write
 #endif
 
-#if !(defined( SIMULATE_ROMFONT )) && defined( DOGLCD )
-  #if defined( DISPLAY_CHARSET_ISO10646_1 )
+#if DISABLED(SIMULATE_ROMFONT) && ENABLED(DOGLCD)
+  #if ENABLED(DISPLAY_CHARSET_ISO10646_1)
     #define MAPPER_ONE_TO_ONE
-  #elif defined( DISPLAY_CHARSET_ISO10646_5 )
+  #elif ENABLED(DISPLAY_CHARSET_ISO10646_5)
     #define MAPPER_ONE_TO_ONE
-  #elif defined( DISPLAY_CHARSET_ISO10646_KANA )
+  #elif ENABLED(DISPLAY_CHARSET_ISO10646_KANA)
     #define MAPPER_ONE_TO_ONE
   #endif
 #else // SIMULATE_ROMFONT
-  #if defined( DISPLAY_CHARSET_HD44780_JAPAN )
-    #if defined( MAPPER_C2C3 )
+  #if ENABLED(DISPLAY_CHARSET_HD44780_JAPAN)
+    #if ENABLED(MAPPER_C2C3)
       const PROGMEM uint8_t utf_recode[] =
            { // 0    1    2    3    4    5    6    7    8    9    a    b    c    d    e    f          This is fair for symbols
              0x20,0x3f,0xec,0xed,0x3f,0x5c,0x7c,0x3f,0x22,0x63,0x61,0x7f,0x3f,0x3f,0x52,0xb0,  // c2a
@@ -35,7 +35,7 @@
              0x3f,0xee,0x3f,0x3f,0x3f,0x3f,0xef,0xfd,0x3f,0x3f,0x3f,0x3f,0xf5,0x3f,0x3f,0x3f   // c3b
   //               n                        ö    ÷                        ü
            };
-    #elif defined( MAPPER_E382E383 )
+    #elif ENABLED(MAPPER_E382E383)
       const PROGMEM uint8_t utf_recode[] =
            { // 0    1    2    3    4    5    6    7    8    9    a    b    c    d    e    f
              0x3d,0xb1,0xb1,0xa8,0xb2,0xa9,0xb3,0xaa,0xb4,0xab,0xb5,0xb6,0xb6,0xb7,0xb7,0xb8,  // e382a Please test and correct
@@ -51,12 +51,12 @@
              0xec,0xa7,0xa6,0xdd,0xcc,0x3f,0x3f,0x3f,0x3f,0x3f,0xa6,0xa5,0xb0,0xa4,0xa4,0x3f   // e383b
   //          ヰ    ヱ    ヲ    ン    フ    ?    ?   ?    ?    ?    ヲ    ・    ー    ヽ    ヽ   ?
            };
-    #elif defined( MAPPER_D0D1 )
+    #elif ENABLED(MAPPER_D0D1)
       #error( "Cyrillic on a japanese dsplay makes no sense. There are no matching symbols.");
     #endif
 
-  #elif defined( DISPLAY_CHARSET_HD44780_WESTERN )
-    #if defined( MAPPER_C2C3 )
+  #elif ENABLED(DISPLAY_CHARSET_HD44780_WESTERN)
+    #if ENABLED(MAPPER_C2C3)
     :
       const PROGMEM uint8_t utf_recode[] =
            { // 0    1    2    3    4    5    6    7    8    9    a    b    c    d    e    f   This is relative complete.
@@ -73,7 +73,7 @@
              0xf0,0xf1,0xf2,0xf3,0xf4,0xf5,0xf6,0xf7,0xf8,0xf9,0xfa,0xfb,0xfc,0xfd,0xfe,0xff   // c3b ðñóôõö÷øùúûüýþÿ
   //          ð    ñ    ò    ó    ô    õ    ö    ÷    ø    ù    ú    û    ü    ý    þ    ÿ
            };
-    #elif defined( MAPPER_D0D1 )
+    #elif ENABLED(MAPPER_D0D1)
       #define MAPPER_D0D1_MOD
       const PROGMEM uint8_t utf_recode[] =
            {//0    1    2    3    4    5    6    7    8    9    a    b    c    d    e    f
@@ -86,12 +86,12 @@
              0x70,0x63,0x54,0x79,0xd8,0x78,0x89,0x8a,0x8b,0x8c,0x8d,0x8e,0x62,0x8f,0xac,0xad   // d19
   //          p    c    T    y    Ф    x    Ч    ч    Ш    Щ    Ъ    Ы    b    Э    Ю    Я
             };
-    #elif defined( MAPPER_E382E383 )
+    #elif ENABLED(MAPPER_E382E383)
       #error( "Katakana on a western display makes no sense. There are no matching symbols." );
     #endif
 
-  #elif defined( DISPLAY_CHARSET_HD44780_CYRILLIC )
-    #if defined( MAPPER_D0D1 )
+  #elif ENABLED(DISPLAY_CHARSET_HD44780_CYRILLIC)
+    #if ENABLED(MAPPER_D0D1)
       #define MAPPER_D0D1_MOD
       // it is a Russian alphabet translation
       // except 0401 --> 0xa2 = Ё, 0451 --> 0xb5 = ё
@@ -113,9 +113,9 @@
                0xc1,0xe6,0xc2,0xc3,0xc4,0xc5,0xc6,0xc7    //    Ѫ ѩ Ѫ ѫ Ѭ ѭ Ѯ ѯ
   //            ш    щ    ъ    ы    ь    э    ю    я      // 7  Ѱ ѱ Ѳ ѳ Ѵ ѵ Ѷ ѷ
              };                                           //    ѻ ѹ Ѻ ѻ Ѽ ѽ Ѿ ѿ
-    #elif defined( MAPPER_C2C3 )
+    #elif ENABLED(MAPPER_C2C3)
       #error( "Western languages on a cyrillic display makes no sense. There are no matching symbols." );
-    #elif defined( MAPPER_E382E383 )
+    #elif ENABLED(MAPPER_E382E383)
       #error( "Katakana on a cyrillic display makes no sense. There are no matching symbols." );
     #endif
   #else
@@ -123,12 +123,12 @@
   #endif // DISPLAY_CHARSET_HD44780_CYRILLIC
 #endif // SIMULATE_ROMFONT
 
-#if defined( MAPPER_NON )
+#if ENABLED(MAPPER_NON)
   char charset_mapper(char c){
     HARDWARE_CHAR_OUT( c );
     return 1;
   }
-#elif defined( MAPPER_C2C3 )
+#elif ENABLED(MAPPER_C2C3)
   uint8_t utf_hi_char; // UTF-8 high part
   bool seen_c2 = false;
   char charset_mapper(char c){
@@ -157,7 +157,7 @@
     seen_c2 = false;
     return 1;
   }
-#elif defined( MAPPER_D0D1_MOD )
+#elif ENABLED(MAPPER_D0D1_MOD)
   uint8_t utf_hi_char; // UTF-8 high part
   bool seen_d5 = false;
   char charset_mapper(char c){
@@ -188,7 +188,7 @@
     seen_d5 = false;
     return 1;
   }
-#elif defined( MAPPER_D0D1 )
+#elif ENABLED(MAPPER_D0D1)
   uint8_t utf_hi_char; // UTF-8 high part
   bool seen_d5 = false;
   char charset_mapper(char c){
@@ -214,7 +214,7 @@
     seen_d5 = false;
     return 1;
   }
-#elif defined( MAPPER_E382E383 )
+#elif ENABLED(MAPPER_E382E383)
   uint8_t utf_hi_char; // UTF-8 high part
   bool seen_e3 = false;
   bool seen_82_83 = false;

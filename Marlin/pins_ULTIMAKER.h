@@ -55,9 +55,9 @@
 #define SUICIDE_PIN        54  //PIN that has to be turned on right after start, to keep power flowing.
 #define SERVO0_PIN         13  // untested
 
-#ifdef ULTRA_LCD
+#if ENABLED(ULTRA_LCD)
 
-  #ifdef NEWPANEL
+  #if ENABLED(NEWPANEL)
   //arduino pin witch triggers an piezzo beeper
     #define BEEPER 18
 

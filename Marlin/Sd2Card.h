@@ -19,7 +19,7 @@
  */
 
 #include "Marlin.h"
-#ifdef SDSUPPORT
+#if ENABLED(SDSUPPORT)
 
 #ifndef Sd2Card_h
 #define Sd2Card_h
@@ -125,7 +125,7 @@ uint8_t const SD_CARD_TYPE_SDHC = 3;
 //------------------------------------------------------------------------------
 // SPI pin definitions - do not edit here - change in SdFatConfig.h
 //
-#ifndef SOFTWARE_SPI
+#if DISABLED(SOFTWARE_SPI)
 // hardware pin defs
 /** The default chip select pin for the SD card is SS. */
 uint8_t const  SD_CHIP_SELECT_PIN = SS_PIN;

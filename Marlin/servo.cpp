@@ -101,29 +101,29 @@ static inline void handle_interrupts(timer16_Sequence_t timer, volatile uint16_t
 #ifndef WIRING // Wiring pre-defines signal handlers so don't define any if compiling for the Wiring platform
 
   // Interrupt handlers for Arduino
-  #if defined(_useTimer1)
+  #ifdef _useTimer1
     SIGNAL (TIMER1_COMPA_vect) { handle_interrupts(_timer1, &TCNT1, &OCR1A); }
   #endif
 
-  #if defined(_useTimer3)
+  #ifdef _useTimer3
     SIGNAL (TIMER3_COMPA_vect) { handle_interrupts(_timer3, &TCNT3, &OCR3A); }
   #endif
 
-  #if defined(_useTimer4)
+  #ifdef _useTimer4
     SIGNAL (TIMER4_COMPA_vect) { handle_interrupts(_timer4, &TCNT4, &OCR4A); }
   #endif
 
-  #if defined(_useTimer5)
+  #ifdef _useTimer5
     SIGNAL (TIMER5_COMPA_vect) { handle_interrupts(_timer5, &TCNT5, &OCR5A); }
   #endif
 
 #else //!WIRING
 
   // Interrupt handlers for Wiring
-  #if defined(_useTimer1)
+  #ifdef _useTimer1
     void Timer1Service() { handle_interrupts(_timer1, &TCNT1, &OCR1A); }
   #endif
-  #if defined(_useTimer3)
+  #ifdef _useTimer3
     void Timer3Service() { handle_interrupts(_timer3, &TCNT3, &OCR3A); }
   #endif
 
@@ -131,7 +131,7 @@ static inline void handle_interrupts(timer16_Sequence_t timer, volatile uint16_t
 
 
 static void initISR(timer16_Sequence_t timer) {
-  #if defined(_useTimer1)
+  #ifdef _useTimer1
     if (timer == _timer1) {
       TCCR1A = 0;             // normal counting mode
       TCCR1B = _BV(CS11);     // set prescaler of 8
@@ -144,31 +144,31 @@ static void initISR(timer16_Sequence_t timer) {
         TIFR1 |= _BV(OCF1A);     // clear any pending interrupts;
         TIMSK1 |= _BV(OCIE1A);   // enable the output compare interrupt
       #endif
-      #if defined(WIRING)
+      #ifdef WIRING
         timerAttach(TIMER1OUTCOMPAREA_INT, Timer1Service);
       #endif
     }
   #endif
 
-  #if defined(_useTimer3)
+  #ifdef _useTimer3
     if (timer == _timer3) {
       TCCR3A = 0;             // normal counting mode
       TCCR3B = _BV(CS31);     // set prescaler of 8
       TCNT3 = 0;              // clear the timer count
-      #if defined(__AVR_ATmega128__)
+      #ifdef __AVR_ATmega128__
         TIFR |= _BV(OCF3A);     // clear any pending interrupts;
       	ETIMSK |= _BV(OCIE3A);  // enable the output compare interrupt
       #else
         TIFR3 = _BV(OCF3A);     // clear any pending interrupts;
         TIMSK3 =  _BV(OCIE3A) ; // enable the output compare interrupt
       #endif
-      #if defined(WIRING)
+      #ifdef WIRING
         timerAttach(TIMER3OUTCOMPAREA_INT, Timer3Service);  // for Wiring platform only
       #endif
     }
   #endif
 
-  #if defined(_useTimer4)
+  #ifdef _useTimer4
     if (timer == _timer4) {
       TCCR4A = 0;             // normal counting mode
       TCCR4B = _BV(CS41);     // set prescaler of 8
@@ -178,7 +178,7 @@ static void initISR(timer16_Sequence_t timer) {
     }
   #endif
 
-  #if defined(_useTimer5)
+  #ifdef _useTimer5
     if (timer == _timer5) {
       TCCR5A = 0;             // normal counting mode
       TCCR5B = _BV(CS51);     // set prescaler of 8
@@ -191,7 +191,7 @@ static void initISR(timer16_Sequence_t timer) {
 
 static void finISR(timer16_Sequence_t timer) {
   // Disable use of the given timer
-  #if defined(WIRING)
+  #ifdef WIRING
     if (timer == _timer1) {
       #if defined(__AVR_ATmega1281__) || defined(__AVR_ATmega2561__)
         TIMSK1
@@ -242,7 +242,7 @@ uint8_t Servo::attach(int pin) {
 
 uint8_t Servo::attach(int pin, int min, int max) {
   if (this->servoIndex < MAX_SERVOS ) {
-  #if defined(ENABLE_AUTO_BED_LEVELING) && (PROBE_SERVO_DEACTIVATION_DELAY > 0)
+  #if ENABLED(ENABLE_AUTO_BED_LEVELING) && (PROBE_SERVO_DEACTIVATION_DELAY > 0)
     if (pin > 0) this->pin = pin; else pin = this->pin;
   #endif
     pinMode(pin, OUTPUT);                                   // set servo pin to output
