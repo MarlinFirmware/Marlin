@@ -42,7 +42,7 @@ namespace screen
 	Icon icon_retry               = Icon(icon_size, bits_retry_normal, bits_retry_focused, "Retry");
 	Icon icon_ok                  = Icon(icon_size, bits_ok_normal, bits_ok_focused, "Confirm");
 
-	Light<bool> light_manager = Light<bool>();
+	Light light_manager = Light();
 
 	/////////////////////////
 	// Instantiate Screens //
