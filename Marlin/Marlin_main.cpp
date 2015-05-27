@@ -5392,6 +5392,8 @@ void process_next_command() {
         gcode_M109();
         break;
 
+      case 110: break; // M110: Set line number - don't show "unknown command"
+
       #if HAS_TEMP_BED
         case 190: // M190: Wait for bed heater to reach target
           gcode_M190();
