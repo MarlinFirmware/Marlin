@@ -347,6 +347,11 @@ bool target_direction;
 #endif
 
 #ifdef DELTA
+
+  #define TOWER_1 X_AXIS
+  #define TOWER_2 Y_AXIS
+  #define TOWER_3 Z_AXIS
+
   float delta[3] = { 0 };
   #define SIN_60 0.8660254037844386
   #define COS_60 0.5
@@ -360,12 +365,12 @@ bool target_direction;
   float delta_tower3_x = 0;                      // back middle tower
   float delta_tower3_y = delta_radius;
   float delta_diagonal_rod = DELTA_DIAGONAL_ROD;
-  float delta_diagonal_rod_trim_x = 0.0;
-  float delta_diagonal_rod_trim_y = 0.0;
-  float delta_diagonal_rod_trim_z = 0.0;
-  float delta_diagonal_rod_2_x = sq(delta_diagonal_rod + delta_diagonal_rod_trim_x);
-  float delta_diagonal_rod_2_y = sq(delta_diagonal_rod + delta_diagonal_rod_trim_y);
-  float delta_diagonal_rod_2_z = sq(delta_diagonal_rod + delta_diagonal_rod_trim_z);
+  float delta_diagonal_rod_trim_tower_1 = 0.0;
+  float delta_diagonal_rod_trim_tower_2 = 0.0;
+  float delta_diagonal_rod_trim_tower_3 = 0.0;
+  float delta_diagonal_rod_2_tower_1 = sq(delta_diagonal_rod + delta_diagonal_rod_trim_tower_1);
+  float delta_diagonal_rod_2_tower_2 = sq(delta_diagonal_rod + delta_diagonal_rod_trim_tower_2);
+  float delta_diagonal_rod_2_tower_3 = sq(delta_diagonal_rod + delta_diagonal_rod_trim_tower_3);
   //float delta_diagonal_rod_2 = sq(delta_diagonal_rod);
   float delta_segments_per_second = DELTA_SEGMENTS_PER_SECOND;
   #ifdef ENABLE_AUTO_BED_LEVELING
@@ -4135,9 +4140,9 @@ inline void gcode_M206() {
     if (code_seen('L')) delta_diagonal_rod = code_value();
     if (code_seen('R')) delta_radius = code_value();
     if (code_seen('S')) delta_segments_per_second = code_value();
-    if (code_seen('X')) delta_diagonal_rod_trim_x = code_value();
-    if (code_seen('Y')) delta_diagonal_rod_trim_y = code_value();
-    if (code_seen('Z')) delta_diagonal_rod_trim_z = code_value();
+    if (code_seen('X')) delta_diagonal_rod_trim_tower_1 = code_value();
+    if (code_seen('Y')) delta_diagonal_rod_trim_tower_2 = code_value();
+    if (code_seen('Z')) delta_diagonal_rod_trim_tower_3 = code_value();
     recalc_delta_settings(delta_radius, delta_diagonal_rod);
   }
   /**
@@ -5856,22 +5861,22 @@ void clamp_to_software_endstops(float target[3]) {
     delta_tower2_y = -COS_60 * radius;
     delta_tower3_x = 0.0;               // back middle tower
     delta_tower3_y = radius;
-    delta_diagonal_rod_2_x = sq(delta_diagonal_rod + delta_diagonal_rod_trim_x);
-    delta_diagonal_rod_2_y = sq(delta_diagonal_rod + delta_diagonal_rod_trim_y);
-    delta_diagonal_rod_2_z = sq(delta_diagonal_rod + delta_diagonal_rod_trim_z);
+    delta_diagonal_rod_2_tower_1 = sq(delta_diagonal_rod + delta_diagonal_rod_trim_tower_1);
+    delta_diagonal_rod_2_tower_2 = sq(delta_diagonal_rod + delta_diagonal_rod_trim_tower_2);
+    delta_diagonal_rod_2_tower_3 = sq(delta_diagonal_rod + delta_diagonal_rod_trim_tower_3);
   }
 
   void calculate_delta(float cartesian[3]) {
         
-    delta[X_AXIS] = sqrt(delta_diagonal_rod_2_x
+    delta[TOWER_1] = sqrt(delta_diagonal_rod_2_tower_1
                          - sq(delta_tower1_x-cartesian[X_AXIS])
                          - sq(delta_tower1_y-cartesian[Y_AXIS])
                          ) + cartesian[Z_AXIS];
-    delta[Y_AXIS] = sqrt(delta_diagonal_rod_2_y
+    delta[TOWER_2] = sqrt(delta_diagonal_rod_2_tower_2
                          - sq(delta_tower2_x-cartesian[X_AXIS])
                          - sq(delta_tower2_y-cartesian[Y_AXIS])
                          ) + cartesian[Z_AXIS];
-    delta[Z_AXIS] = sqrt(delta_diagonal_rod_2_z
+    delta[TOWER_3] = sqrt(delta_diagonal_rod_2_tower_3
                          - sq(delta_tower3_x-cartesian[X_AXIS])
                          - sq(delta_tower3_y-cartesian[Y_AXIS])
                          ) + cartesian[Z_AXIS];
