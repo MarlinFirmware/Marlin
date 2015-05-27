@@ -42,9 +42,9 @@ bool Light<T>::getState()
 template <typename T>
 void Light<T>::notify()
 {
-//	if (m_observer != 0)
+	if (this->m_observer != 0)
 	{
-//		m_observer->update(m_state);
+		this->m_observer->update(m_state);
 	}
 }
 
