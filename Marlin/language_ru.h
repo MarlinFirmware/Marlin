@@ -38,6 +38,7 @@
 #define MSG_EXTRUDE                         "Экструзия"
 #define MSG_RETRACT                         "Втягивание"
 #define MSG_MOVE_AXIS                       "Движение по осям"
+<<<<<<< HEAD
 #define MSG_MOVE_X                          "Движение по X"
 #define MSG_MOVE_Y                          "Движение по Y"
 #define MSG_MOVE_Z                          "Движение по Z"
@@ -46,6 +47,19 @@
 #define MSG_MOVE_1MM                        "Движение XYZ 1mm"
 #define MSG_MOVE_10MM                       "Движение XY 10mm"
 #define MSG_LEVEL_BED                       "Калибровать стол"
+=======
+#define MSG_MOVE_X                          "Move X"
+#define MSG_MOVE_Y                          "Move Y"
+#define MSG_MOVE_Z                          "Move Z"
+#define MSG_MOVE_E                          "Extruder"
+#define MSG_MOVE_E1                         "Extruder1"
+#define MSG_MOVE_E2                         "Extruder2"
+#define MSG_MOVE_E3                         "Extruder3"
+#define MSG_MOVE_01MM                       "Move 0.1mm"
+#define MSG_MOVE_1MM                        "Move 1mm"
+#define MSG_MOVE_10MM                       "Move 10mm"
+#define MSG_LEVEL_BED                       "Настр. уровня кровати"
+>>>>>>> Added menu items to extrude from multiple extruders.
 #define MSG_SPEED                           "Скорость"
 #define MSG_NOZZLE                          LCD_STR_THERMOMETER " Сопло"
 #define MSG_BED                             LCD_STR_THERMOMETER " Стол"
