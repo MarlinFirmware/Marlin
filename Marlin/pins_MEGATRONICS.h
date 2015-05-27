@@ -62,7 +62,7 @@
 #define BEEPER 33     // Beeper on AUX-4
 
 
-#if defined(ULTRA_LCD) && defined(NEWPANEL)
+#if ENABLED(ULTRA_LCD) && ENABLED(NEWPANEL)
   //arduino pin which triggers an piezzo beeper
 
   #define LCD_PINS_RS 16

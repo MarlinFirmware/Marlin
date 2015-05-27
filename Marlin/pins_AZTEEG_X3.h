@@ -8,7 +8,8 @@
 
 //LCD Pins//
 
-#if defined(VIKI2) || defined(miniVIKI)
+#if ENABLED(VIKI2) || ENABLED(miniVIKI)
+
  #define BEEPER 33
  // Pins for DOGM SPI LCD Support
  #define DOGLCD_A0  31 
@@ -23,11 +24,14 @@
  #define SDSS 53
  #define SDCARDDETECT -1 // Pin 49 if using display sd interface   
  
-  #ifdef TEMP_STAT_LEDS
+  #if ENABLED(TEMP_STAT_LEDS)
    #define STAT_LED_RED 64
    #define STAT_LED_BLUE 63
   #endif
-#elif defined(TEMP_STAT_LEDS)
+
+#elif ENABLED(TEMP_STAT_LEDS)
+
   #define STAT_LED_RED       6
   #define STAT_LED_BLUE     11
+
 #endif

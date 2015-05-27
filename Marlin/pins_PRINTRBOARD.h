@@ -40,7 +40,7 @@
 
 // If soft or fast PWM is off then use Teensyduino pin numbering, Marlin
 // fastio pin numbering otherwise
-#ifdef FAN_SOFT_PWM || FAST_PWM_FAN
+#if ENABLED(FAN_SOFT_PWM) || ENABLED(FAST_PWM_FAN)
   #define FAN_PIN          22
 #else
   #define FAN_PIN          16
@@ -52,7 +52,7 @@
 #define TEMP_0_PIN          1  // Extruder / Analog pin numbering
 #define TEMP_BED_PIN        0  // Bed / Analog pin numbering
 
-#ifdef FILAMENT_SENSOR
+#if ENABLED(FILAMENT_SENSOR)
   #define FILWIDTH_PIN      2
 #endif
 
@@ -68,18 +68,18 @@
 #define KILL_PIN           -1
 #define ALARM_PIN          -1
 
-#ifndef SDSUPPORT
+#if DISABLED(SDSUPPORT)
 // these pins are defined in the SD library if building with SD support
   #define SCK_PIN           9
   #define MISO_PIN         11
   #define MOSI_PIN         10
 #endif
 
-#if defined(ULTRA_LCD) && defined(NEWPANEL)
+#if ENABLED(ULTRA_LCD) && ENABLED(NEWPANEL)
   //we have no buzzer installed
   #define BEEPER -1
   //LCD Pins
-  #ifdef LCD_I2C_PANELOLU2
+  #if ENABLED(LCD_I2C_PANELOLU2)
     #define BTN_EN1 27  //RX1 - fastio.h pin mapping 27
     #define BTN_EN2 26  //TX1 - fastio.h pin mapping 26
     #define BTN_ENC 43 //A3 - fastio.h pin mapping 43
@@ -89,7 +89,7 @@
   #define SDCARDDETECT -1    
 #endif // ULTRA_LCD && NEWPANEL
 
-#if defined(VIKI2) || defined(miniVIKI)
+#if ENABLED(VIKI2) || ENABLED(miniVIKI)
  #define BEEPER 32 //FastIO
  // Pins for DOGM SPI LCD Support
  #define DOGLCD_A0  42 //Non-FastIO
@@ -104,7 +104,7 @@
  #define SDSS 45
  #define SDCARDDETECT -1 // FastIO (Manual says 72 I'm not certain cause I can't test) 
 
- #ifdef TEMP_STAT_LEDS
+ #if ENABLED(TEMP_STAT_LEDS)
   #define STAT_LED_RED      12 //Non-FastIO
   #define STAT_LED_BLUE     10 //Non-FastIO
  #endif  
