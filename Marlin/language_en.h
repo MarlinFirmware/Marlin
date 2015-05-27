@@ -120,6 +120,15 @@
 #ifndef MSG_MOVE_E
 #define MSG_MOVE_E                          "Extruder"
 #endif
+#ifndef MSG_MOVE_E1
+#define MSG_MOVE_E1                         "Extruder1"
+#endif
+#ifndef MSG_MOVE_E2
+#define MSG_MOVE_E2                         "Extruder2"
+#endif
+#ifndef MSG_MOVE_E3
+#define MSG_MOVE_E3                         "Extruder3"
+#endif
 #ifndef MSG_MOVE_01MM
 #define MSG_MOVE_01MM                       "Move 0.1mm"
 #endif
