@@ -421,7 +421,7 @@
 #define MSG_END_MINUTE                      "minutes"
 #endif
 
-#ifdef DELTA_CALIBRATION_MENU
+#if ENABLED(DELTA_CALIBRATION_MENU)
   #ifndef MSG_DELTA_CALIBRATE
   #define MSG_DELTA_CALIBRATE             "Delta Calibration"
   #endif
