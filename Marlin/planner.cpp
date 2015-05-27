@@ -76,6 +76,7 @@ float max_z_jerk;
 float max_e_jerk;
 float mintravelfeedrate;
 unsigned long axis_steps_per_sqr_second[NUM_AXIS];
+<<<<<<< HEAD
 #ifdef RESUME_FEATURE
   float planner_disabled_below_z = 0;
   float last_z = 0;
@@ -94,6 +95,18 @@ unsigned long axis_steps_per_sqr_second[NUM_AXIS];
 #endif //TRACK_LAYER
 
 #if ENABLED(ENABLE_AUTO_BED_LEVELING)
+=======
+float planner_disabled_below_z = 0;
+float last_z = 0;
+bool z_reached = false;
+bool layer_reached = false;
+bool hops = false;
+bool gone_up = false;
+unsigned short current_layer = 0;
+float last_layer_z = 0;
+
+#ifdef ENABLE_AUTO_BED_LEVELING
+>>>>>>> Initial M19 Z Resume From Z and Layer Counting
   // Transform required to compensate for bed level
   matrix_3x3 plan_bed_level_matrix = {
     1.0, 0.0, 0.0,
@@ -1131,8 +1144,11 @@ float junction_deviation = 0.1;
   {
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     #if ENABLED(MESH_BED_LEVELING)
 =======
+=======
+>>>>>>> Initial M19 Z Resume From Z and Layer Counting
   // filter out moves below a given floor height and attempt to ignore any hops/travels
   if(planner_disabled_below_z && !layer_reached)
   {
@@ -1197,8 +1213,11 @@ float junction_deviation = 0.1;
 
   last_z = z;
 
+<<<<<<< HEAD
 =======
 >>>>>>> Needed to be inside of plan_set_position(...) not plan_set_position(...).
+=======
+>>>>>>> Initial M19 Z Resume From Z and Layer Counting
     #ifdef MESH_BED_LEVELING
 >>>>>>> Initial M19 Z Resume From Z and Layer Counting
       if (mbl.active) z += mbl.get_z(x, y);

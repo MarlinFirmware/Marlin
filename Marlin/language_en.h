@@ -159,9 +159,30 @@
 #ifndef MSG_FLOW
 #define MSG_FLOW                            "Flow"
 #endif
+<<<<<<< HEAD
 #ifndef MSG_LAYER
 #define MSG_LAYER                           "Layer"
 #endif
+=======
+<<<<<<< HEAD
+=======
+#ifndef MSG_F0
+#define MSG_F0                              " 0"
+#endif
+#ifndef MSG_F1
+#define MSG_F1                              " 1"
+#endif
+#ifndef MSG_F2
+#define MSG_F2                              " 2"
+#endif
+#ifndef MSG_F3
+#define MSG_F3                              " 3"
+#endif
+#ifndef MSG_LAYER
+#define MSG_LAYER                           "Layer"
+#endif
+>>>>>>> Initial M19 Z Resume From Z and Layer Counting
+>>>>>>> Initial M19 Z Resume From Z and Layer Counting
 #ifndef MSG_CONTROL
 #define MSG_CONTROL                         "Control"
 #endif
