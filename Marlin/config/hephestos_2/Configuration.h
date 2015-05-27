@@ -360,8 +360,8 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 //  #define PROBE_SERVO_DEACTIVATION_DELAY 300
 
-    #define Z_SAFE_HOMING_X_POINT 110    // X point for Z homing when homing all axis (G28)
-    #define Z_SAFE_HOMING_Y_POINT 150  // Y point for Z homing when homing all axis (G28)
+    #define Z_SAFE_HOMING_X_POINT (X_MAX_POS - X_MIN_POS)/2    // X point for Z homing when homing all axis (G28)
+    #define Z_SAFE_HOMING_Y_POINT (Y_MAX_POS - Y_MIN_POS)/2  // Y point for Z homing when homing all axis (G28)
 
 #endif //Z_SAFE_HOMING
 
@@ -424,7 +424,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #endif
 
 #if defined(Z_SAFE_HOMING) || defined(ENABLE_AUTO_BED_LEVELING)
-  #define XY_TRAVEL_SPEED 200//8000		// X and Y axis travel speed between probes and Witbox movements, in mm/min
+  #define XY_TRAVEL_SPEED 150//8000		// X and Y axis travel speed between probes and Witbox movements, in mm/min
 #endif
 //===========================================================================
 //=============================Additional Features===========================
