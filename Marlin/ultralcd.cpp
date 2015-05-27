@@ -67,7 +67,7 @@ static void lcd_status_screen();
     static void lcd_delta_calibrate_menu();
   #endif
 
-  #if defined(MANUAL_BED_LEVELING)
+  #if ENABLED(MANUAL_BED_LEVELING)
     #include "mesh_bed_leveling.h"
     static void _lcd_level_bed();
     static void _lcd_level_bed_homing();
@@ -102,7 +102,7 @@ static void lcd_status_screen();
 
   #define ENCODER_FEEDRATE_DEADZONE 10
 
-  #if !defined(LCD_I2C_VIKI)
+  #if !ENABLED(LCD_I2C_VIKI)
     #ifndef ENCODER_STEPS_PER_MENU_ITEM
       #define ENCODER_STEPS_PER_MENU_ITEM 5
     #endif
@@ -427,7 +427,7 @@ static void lcd_main_menu() {
   END_MENU();
 }
 
-#if defined(SDSUPPORT) && defined(MENU_ADDAUTOSTART)
+#if ENABLED(SDSUPPORT) && ENABLED(MENU_ADDAUTOSTART)
   static void lcd_autostart_sd() {
     card.autostart_index = 0;
     card.setroot();
@@ -634,10 +634,10 @@ static void lcd_prepare_menu() {
   //
   // Level Bed
   //
-  #ifdef ENABLE_AUTO_BED_LEVELING
+  #if ENABLED(ENABLE_AUTO_BED_LEVELING)
     if (axis_known_position[X_AXIS] && axis_known_position[Y_AXIS])
       MENU_ITEM(gcode, MSG_LEVEL_BED, PSTR("G29"));
-  #elif defined(MANUAL_BED_LEVELING)
+  #elif ENABLED(MANUAL_BED_LEVELING)
     MENU_ITEM(submenu, MSG_LEVEL_BED, lcd_level_bed);
   #endif
 
@@ -683,7 +683,7 @@ static void lcd_prepare_menu() {
   //
   // Autostart
   //
-  #if defined(SDSUPPORT) && defined(MENU_ADDAUTOSTART)
+  #if ENABLED(SDSUPPORT) && ENABLED(MENU_ADDAUTOSTART)
     MENU_ITEM(function, MSG_AUTOSTART, lcd_autostart_sd);
   #endif
 
@@ -912,7 +912,7 @@ static void lcd_control_temperature_menu() {
   //
   // Autotemp, Min, Max, Fact
   //
-  #if defined(AUTOTEMP) && (TEMP_SENSOR_0 != 0)
+  #if ENABLED(AUTOTEMP) && (TEMP_SENSOR_0 != 0)
     MENU_ITEM_EDIT(bool, MSG_AUTOTEMP, &autotemp_enabled);
     MENU_ITEM_EDIT(float3, MSG_MIN, &autotemp_min, 0, HEATER_0_MAXTEMP - 15);
     MENU_ITEM_EDIT(float3, MSG_MAX, &autotemp_max, 0, HEATER_0_MAXTEMP - 15);
@@ -1396,7 +1396,7 @@ void lcd_init() {
   #endif // SR_LCD_2W_NL
 #endif//!NEWPANEL
 
-  #if defined(SDSUPPORT) && defined(SDCARDDETECT) && (SDCARDDETECT > 0)
+  #if ENABLED(SDSUPPORT) && defined(SDCARDDETECT) && (SDCARDDETECT > 0)
     pinMode(SDCARDDETECT, INPUT);
     WRITE(SDCARDDETECT, HIGH);
     lcd_oldcardstatus = IS_SD_INSERTED;
@@ -1605,7 +1605,7 @@ void lcd_finishstatus(bool persist=false) {
   #endif
 }
 
-#if defined(LCD_PROGRESS_BAR) && PROGRESS_MSG_EXPIRE > 0
+#if ENABLED(LCD_PROGRESS_BAR) && PROGRESS_MSG_EXPIRE > 0
   void dontExpireStatus() { expire_status_ms = 0; }
 #endif
 
@@ -1738,7 +1738,7 @@ void lcd_reset_alert_level() { lcd_status_message_level = 0; }
   }
 
   bool lcd_detected(void) {
-    #if (defined(LCD_I2C_TYPE_MCP23017) || defined(LCD_I2C_TYPE_MCP23008)) && defined(DETECT_DEVICE)
+    #if (ENABLED(LCD_I2C_TYPE_MCP23017) || ENABLED(LCD_I2C_TYPE_MCP23008)) && ENABLED(DETECT_DEVICE)
       return lcd.LcdDetected() == 1;
     #else
       return true;

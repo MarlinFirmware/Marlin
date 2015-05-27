@@ -23,7 +23,7 @@
 
 #include "Marlin.h"
 #include "planner.h"
-#ifdef PID_ADD_EXTRUSION_RATE
+#if ENABLED(PID_ADD_EXTRUSION_RATE)
   #include "stepper.h"
 #endif
 
@@ -31,7 +31,7 @@
 void tp_init();  //initialize the heating
 void manage_heater(); //it is critical that this is called periodically.
 
-#ifdef FILAMENT_SENSOR
+#if ENABLED(FILAMENT_SENSOR)
 // For converting raw Filament Width to milimeters 
  float analog2widthFil(); 
  
@@ -43,13 +43,13 @@ void manage_heater(); //it is critical that this is called periodically.
 // do not use these routines and variables outside of temperature.cpp
 extern int target_temperature[4];  
 extern float current_temperature[4];
-#ifdef SHOW_TEMP_ADC_VALUES
+#if ENABLED(SHOW_TEMP_ADC_VALUES)
   extern int current_temperature_raw[4];
   extern int current_temperature_bed_raw;
 #endif
 extern int target_temperature_bed;
 extern float current_temperature_bed;
-#ifdef TEMP_SENSOR_1_AS_REDUNDANT
+#if ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
   extern float redundant_temperature;
 #endif
 
@@ -57,9 +57,9 @@ extern float current_temperature_bed;
   extern unsigned char soft_pwm_bed;
 #endif
 
-#ifdef PIDTEMP
+#if ENABLED(PIDTEMP)
 
-  #ifdef PID_PARAMS_PER_EXTRUDER
+  #if ENABLED(PID_PARAMS_PER_EXTRUDER)
     extern float Kp[EXTRUDERS], Ki[EXTRUDERS], Kd[EXTRUDERS], Kc[EXTRUDERS]; // one param per extruder
     #define PID_PARAM(param,e) param[e] // use macro to point to array value
   #else
@@ -73,11 +73,11 @@ extern float current_temperature_bed;
 
 #endif
 
-#ifdef PIDTEMPBED
+#if ENABLED(PIDTEMPBED)
   extern float bedKp,bedKi,bedKd;
 #endif
   
-#ifdef BABYSTEPPING
+#if ENABLED(BABYSTEPPING)
   extern volatile int babystepsTodo[3];
 #endif
   
@@ -88,7 +88,7 @@ extern float current_temperature_bed;
 FORCE_INLINE float degHotend(uint8_t extruder) { return current_temperature[extruder]; }
 FORCE_INLINE float degBed() { return current_temperature_bed; }
 
-#ifdef SHOW_TEMP_ADC_VALUES
+#if ENABLED(SHOW_TEMP_ADC_VALUES)
   FORCE_INLINE float rawHotendTemp(uint8_t extruder) { return current_temperature_raw[extruder]; }
   FORCE_INLINE float rawBedTemp() { return current_temperature_bed_raw; }
 #endif
@@ -96,13 +96,13 @@ FORCE_INLINE float degBed() { return current_temperature_bed; }
 FORCE_INLINE float degTargetHotend(uint8_t extruder) { return target_temperature[extruder]; }
 FORCE_INLINE float degTargetBed() { return target_temperature_bed; }
 
-#ifdef THERMAL_PROTECTION_HOTENDS
+#if ENABLED(THERMAL_PROTECTION_HOTENDS)
   void start_watching_heater(int e=0);
 #endif
 
 FORCE_INLINE void setTargetHotend(const float &celsius, uint8_t extruder) {
   target_temperature[extruder] = celsius;
-  #ifdef THERMAL_PROTECTION_HOTENDS
+  #if ENABLED(THERMAL_PROTECTION_HOTENDS)
     start_watching_heater(extruder);
   #endif
 }
@@ -147,7 +147,7 @@ void setExtruderAutoFanState(int pin, bool state);
 void checkExtruderAutoFans();
 
 FORCE_INLINE void autotempShutdown() {
-  #ifdef AUTOTEMP
+  #if ENABLED(AUTOTEMP)
     if (autotemp_enabled) {
       autotemp_enabled = false;
       if (degTargetHotend(active_extruder) > autotemp_min)
