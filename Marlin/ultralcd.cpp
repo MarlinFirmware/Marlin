@@ -753,6 +753,51 @@ static void lcd_move_e() {
   if (lcdDrawUpdate) lcd_implementation_drawedit(PSTR(MSG_MOVE_E), ftostr31(current_position[E_AXIS]));
   if (LCD_CLICKED) lcd_goto_menu(lcd_move_menu_axis);
 }
+#if EXTRUDERS > 1
+static void lcd_move_e1() {
+  unsigned short original_active_extruder = active_extruder;
+  active_extruder = 1;
+  if (encoderPosition != 0) {
+    current_position[E_AXIS] += float((int)encoderPosition) * move_menu_scale;
+    encoderPosition = 0;
+    line_to_current(E_AXIS);
+    lcdDrawUpdate = 1;
+  }
+  if (lcdDrawUpdate) lcd_implementation_drawedit(PSTR("Extruder"), ftostr31(current_position[E_AXIS]));
+  if (LCD_CLICKED) lcd_goto_menu(lcd_move_menu_axis);
+  active_extruder = original_active_extruder;
+}
+#endif //EXTRUDERS > 1
+#if EXTRUDERS > 2
+static void lcd_move_e2() {
+  unsigned short original_active_extruder = active_extruder;
+  active_extruder = 2;
+  if (encoderPosition != 0) {
+    current_position[E_AXIS] += float((int)encoderPosition) * move_menu_scale;
+    encoderPosition = 0;
+    line_to_current(E_AXIS);
+    lcdDrawUpdate = 1;
+  }
+  if (lcdDrawUpdate) lcd_implementation_drawedit(PSTR("Extruder"), ftostr31(current_position[E_AXIS]));
+  if (LCD_CLICKED) lcd_goto_menu(lcd_move_menu_axis);
+  active_extruder = original_active_extruder;
+}
+#endif // EXTRUDERS > 2
+#if EXTRUDERS > 3
+static void lcd_move_e3() {
+  unsigned short original_active_extruder = active_extruder;
+  active_extruder = 3;
+  if (encoderPosition != 0) {
+    current_position[E_AXIS] += float((int)encoderPosition) * move_menu_scale;
+    encoderPosition = 0;
+    line_to_current(E_AXIS);
+    lcdDrawUpdate = 1;
+  }
+  if (lcdDrawUpdate) lcd_implementation_drawedit(PSTR("Extruder"), ftostr31(current_position[E_AXIS]));
+  if (LCD_CLICKED) lcd_goto_menu(lcd_move_menu_axis);
+  active_extruder = original_active_extruder;
+}
+#endif // EXTRUDERS > 3
 
 /**
  *
@@ -765,10 +810,19 @@ static void lcd_move_menu_axis() {
   MENU_ITEM(back, MSG_MOVE_AXIS, lcd_move_menu);
   MENU_ITEM(submenu, MSG_MOVE_X, lcd_move_x);
   MENU_ITEM(submenu, MSG_MOVE_Y, lcd_move_y);
-  if (move_menu_scale < 10.0) {
+//if (move_menu_scale < 10.0) { //Why exclude Z and E from the 10mm and 100mm menus ???
     MENU_ITEM(submenu, MSG_MOVE_Z, lcd_move_z);
     MENU_ITEM(submenu, MSG_MOVE_E, lcd_move_e);
-  }
+    #if EXTRUDERS > 1
+    MENU_ITEM(submenu, MSG_MOVE_E1, lcd_move_e1);
+    #endif //EXTRUDERS > 1
+    #if EXTRUDERS > 2
+    MENU_ITEM(submenu, MSG_MOVE_E2, lcd_move_e2);
+    #endif //EXTRUDERS > 2
+    #if EXTRUDERS > 3
+    MENU_ITEM(submenu, MSG_MOVE_E3, lcd_move_e3);
+    #endif //EXTRUDERS > 3
+//}
   END_MENU();
 }
 
