@@ -361,7 +361,12 @@
 // does not respect endstops!
 //#define BABYSTEPPING
 #if ENABLED(BABYSTEPPING)
-  #define BABYSTEP_OFFSET //Babystep the stored Z - home offset
+     // !!! THIS NULLIFIES (OR ENHANCES) THE ORIGINAL FUNCTIONALITY OF Z-HOME OFFSET !!!
+  //#define BABYSTEP_OFFSET //Babystep the stored Z-Home Offset
+     //If you babystep the Z-axis it will be saved and reapplied immediately after homing.
+     //If you perform an M500 or Main Menu > Control > Store Memory from an LCD controller
+     //it will save the actuated babystep offset in the EEPROM.
+     // !!! THIS NULLIFIES (OR ENHANCES) THE ORIGINAL FUNCTIONALITY OF Z-HOME OFFSET !!!
   #define BABYSTEP_XY  //not only z, but also XY in the menu. more clutter, more functions
   #define BABYSTEP_INVERT_Z false  //true for inverse movements in Z
   #define BABYSTEP_Z_MULTIPLICATOR 2 //faster z movements
