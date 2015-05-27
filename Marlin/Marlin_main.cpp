@@ -4132,17 +4132,17 @@ inline void gcode_M206() {
    *    L = diagonal rod
    *    R = delta radius
    *    S = segments per second
-   *    X = x diagonal rod trim
-   *    Y = y diagonal rod trim
-   *    Z = z diagonal rod trim
+   *    A = Alpha (Tower 1) diagonal rod trim
+   *    B = Beta (Tower 2) diagonal rod trim
+   *    G = Gamma (Tower 3) diagonal rod trim
    */
   inline void gcode_M665() {
     if (code_seen('L')) delta_diagonal_rod = code_value();
     if (code_seen('R')) delta_radius = code_value();
     if (code_seen('S')) delta_segments_per_second = code_value();
-    if (code_seen('X')) delta_diagonal_rod_trim_tower_1 = code_value();
-    if (code_seen('Y')) delta_diagonal_rod_trim_tower_2 = code_value();
-    if (code_seen('Z')) delta_diagonal_rod_trim_tower_3 = code_value();
+    if (code_seen('A')) delta_diagonal_rod_trim_tower_1 = code_value();
+    if (code_seen('B')) delta_diagonal_rod_trim_tower_2 = code_value();
+    if (code_seen('G')) delta_diagonal_rod_trim_tower_3 = code_value();
     recalc_delta_settings(delta_radius, delta_diagonal_rod);
   }
   /**
