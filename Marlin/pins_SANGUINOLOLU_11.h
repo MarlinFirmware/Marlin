@@ -44,23 +44,20 @@
   #define FAN_PIN            4
 #endif
 
-#ifdef Z_PROBE_SLED
+#if ENABLED(Z_PROBE_SLED)
   #define SLED_PIN         -1
 #endif
 
 #ifdef NUM_SERVOS
   #define SERVO0_PIN          -1
-
   #if NUM_SERVOS > 1
     #define SERVO1_PIN        -1
-  #endif
-
-  #if NUM_SERVOS > 2
-    #define SERVO2_PIN        -1
-  #endif
-
-  #if NUM_SERVOS > 3
-    #define SERVO3_PIN        -1
+    #if NUM_SERVOS > 2
+      #define SERVO2_PIN      -1
+      #if NUM_SERVOS > 3
+        #define SERVO3_PIN    -1
+      #endif
+    #endif
   #endif
 #endif
 
@@ -71,7 +68,7 @@
 #define HEATER_1_PIN       -1
 #define HEATER_2_PIN       -1
 
-#ifdef SANGUINOLOLU_V_1_2
+#if ENABLED(SANGUINOLOLU_V_1_2)
 
   #define HEATER_BED_PIN     12 // (bed)
   #define X_ENABLE_PIN       14
@@ -79,7 +76,7 @@
   #define Z_ENABLE_PIN       26
   #define E0_ENABLE_PIN      14
 
-  #ifdef LCD_I2C_PANELOLU2
+  #if ENABLED(LCD_I2C_PANELOLU2)
     #define FAN_PIN          4 // Uses Transistor1 (PWM) on Panelolu2's Sanguino Adapter Board to drive the fan
   #endif
 
@@ -103,13 +100,13 @@
 /* On some broken versions of the Sanguino libraries the pin definitions are wrong, which then needs SDSS as pin 24. But you better upgrade your Sanguino libraries! See #368. */
 //#define SDSS               24
 
-#ifdef ULTRA_LCD
- #ifdef NEWPANEL
+#if ENABLED(ULTRA_LCD)
+ #if ENABLED(NEWPANEL)
    //we have no buzzer installed
    #define BEEPER -1
    //LCD Pins
-   #ifdef DOGLCD
-   #ifdef U8GLIB_ST7920 //SPI GLCD 12864 ST7920 ( like [www.digole.com] ) For Melzi V2.0
+   #if ENABLED(DOGLCD)
+   #if ENABLED(U8GLIB_ST7920) //SPI GLCD 12864 ST7920 ( like [www.digole.com] ) For Melzi V2.0
      #define LCD_PINS_RS 30 //CS chip select /SS chip slave select
      #define LCD_PINS_ENABLE 29 //SID (MOSI)
      #define LCD_PINS_D4 17 //SCK (CLK) clock
@@ -136,7 +133,7 @@
    //The encoder and click button
    #define BTN_EN1 11
    #define BTN_EN2 10
-   #ifdef LCD_I2C_PANELOLU2
+   #if ENABLED(LCD_I2C_PANELOLU2)
      #if MB(MELZI)
        #define BTN_ENC 29 //the click switch
        #define LCD_SDSS 30 //to use the SD card reader on the Panelolu2 rather than the melzi board
@@ -153,7 +150,7 @@
  #endif //NEWPANEL
 #endif //ULTRA_LCD
 
-#ifdef MAKRPANEL
+#if ENABLED(MAKRPANEL)
   #define BEEPER 29
   // Pins for DOGM SPI LCD Support
   #define DOGLCD_A0  30

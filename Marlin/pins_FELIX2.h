@@ -14,7 +14,7 @@
 
 #define PS_ON_PIN          12
 
-#if defined(ULTRA_LCD) && defined(NEWPANEL)
+#if ENABLED(ULTRA_LCD) && ENABLED(NEWPANEL)
 
   #define BLEN_C 2
   #define BLEN_B 1

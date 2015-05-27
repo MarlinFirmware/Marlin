@@ -47,7 +47,14 @@
 #define TEMP_1_PIN         -1
 #define TEMP_2_PIN         -1
 
-#ifndef SDSUPPORT
+#if DISABLED(SDSUPPORT)
+#define SDPOWER            -1
+#define SDSS               20  // PB0 - 8 in marlin env.
+#define LED_PIN            -1
+#define PS_ON_PIN          -1
+#define ALARM_PIN          -1
+#define SDCARDDETECT       -1
+
    // these pins are defined in the SD library if building with SD support
   #define SCK_PIN          9
   #define MISO_PIN         11
@@ -95,7 +102,7 @@
 #define LCD_PINS_D6        -1
 #define LCD_PINS_D7        -1
 
-#ifdef SAV_3DLCD
+#if ENABLED(SAV_3DLCD)
   // For LCD SHIFT register LCD
   #define SR_DATA_PIN         EXT_AUX_SDA_D1
   #define SR_CLK_PIN          EXT_AUX_SCL_D0
