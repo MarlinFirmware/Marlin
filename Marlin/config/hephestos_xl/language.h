@@ -129,13 +129,8 @@
 #define MSG_BABYSTEPPING_Z "Babystepping Z"
 #define MSG_SERIAL_ERROR_MENU_STRUCTURE "Error in menu structure"
 
-<<<<<<< HEAD
-=======
 #define MSG_ERR_EEPROM_WRITE                "Error writing to EEPROM!"
 
-#if LANGUAGE_CHOICE == 1
-
->>>>>>> sync-from-marlin
 // LCD Menu Messages
 #if LANGUAGE_CHOICE == 1
 #define WELCOME_MSG MACHINE_NAME         " ready"
