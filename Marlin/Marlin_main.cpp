@@ -2654,8 +2654,11 @@ void process_commands()
   				#else //Hephestos
     				do_blocking_move_to(20, 190, current_position[Z_AXIS]);
   				#endif
-    			do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], Z_PROBE_OFFSET_FROM_EXTRUDER);
-  	
+    			#ifdef Z_SAFE_HOMING
+    				do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], Z_PROBE_OFFSET_FROM_EXTRUDER);
+  				#else
+  					do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], Z_MIN_POS);
+  				#endif
 
     			lcd_clear_triggered_flags();
     			while(!LCD_CLICKED) {          
@@ -2675,7 +2678,12 @@ void process_commands()
   				#else //Hephestos
   					do_blocking_move_to(195, 190, current_position[Z_AXIS]);
   				#endif
-  				do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS],Z_PROBE_OFFSET_FROM_EXTRUDER);
+  				#ifdef Z_SAFE_HOMING
+    				do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], Z_PROBE_OFFSET_FROM_EXTRUDER);
+  				#else
+  					do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], Z_MIN_POS);
+  				#endif
+
   	  
     			lcd_clear_triggered_flags();
   				while(!LCD_CLICKED) {
@@ -2697,7 +2705,11 @@ void process_commands()
   				#else //Hephestos
     				do_blocking_move_to(20, 20, current_position[Z_AXIS]);
   				#endif
-  					do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS],Z_PROBE_OFFSET_FROM_EXTRUDER);
+  				#ifdef Z_SAFE_HOMING
+    				do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], Z_PROBE_OFFSET_FROM_EXTRUDER);
+  				#else
+  					do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], Z_MIN_POS);
+  				#endif
 
     			lcd_clear_triggered_flags();
   	 			while(!LCD_CLICKED) {
@@ -2716,7 +2728,11 @@ void process_commands()
     				#else //Hephestos
     					do_blocking_move_to(195, 20, current_position[Z_AXIS]);
     				#endif
-    				do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS],Z_PROBE_OFFSET_FROM_EXTRUDER);
+    				#ifdef Z_SAFE_HOMING
+	    				do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], Z_PROBE_OFFSET_FROM_EXTRUDER);
+	  				#else
+	  					do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], Z_MIN_POS);
+	  				#endif
   	
     				lcd_clear_triggered_flags();
     				while(!LCD_CLICKED){
@@ -2735,7 +2751,11 @@ void process_commands()
   				#else
     				do_blocking_move_to((X_MAX_POS-X_MIN_POS)/2, (Y_MAX_POS-Y_MIN_POS)/2, current_position[Z_AXIS]);
   				#endif
-  					do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS],Z_PROBE_OFFSET_FROM_EXTRUDER);
+  				#ifdef Z_SAFE_HOMING
+    				do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], Z_PROBE_OFFSET_FROM_EXTRUDER);
+  				#else
+  					do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], Z_MIN_POS);
+  				#endif
   	      
     			lcd_clear_triggered_flags();
   				while(!LCD_CLICKED){                  
