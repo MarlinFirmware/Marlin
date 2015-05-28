@@ -600,6 +600,7 @@ float junction_deviation = 0.1;
   void plan_buffer_line(const float &x, const float &y, const float &z, const float &e, float feed_rate, const uint8_t &extruder)
 #endif  // ENABLE_AUTO_BED_LEVELING
 {
+<<<<<<< HEAD
   #ifdef RESUME_FEATURE
     floor_z(z);
   #endif
@@ -607,6 +608,71 @@ float junction_deviation = 0.1;
   #ifdef TRACK_LAYER
     layer_count(z);
   #endif //TRACK_LAYER
+=======
+  // filter out moves below a given floor height and attempt to ignore any hops/travels
+  if(planner_disabled_below_z && !layer_reached)
+  {
+    if(z < planner_disabled_below_z)
+    {
+      if(z > last_z && !gone_up) // up once
+        gone_up = true;
+      else if(z < last_z) // back down
+      {
+        if(z > last_layer_z)
+          current_layer++;
+        else if(z < last_layer_z && z != 0)
+          current_layer = 1; // if it goes lower than what we would think was the previous layer then we might as well assume it's printing another object
+        else if(z == 0)
+          current_layer = 0;
+        last_layer_z = z;
+        hops = true;
+        gone_up = false;
+      }
+      else if(z > last_z && gone_up) // up twice
+      {
+        current_layer++; // be careful with prints like the spiral vase
+        hops = false;
+      }
+      z_reached = false;
+      last_z = z;
+      return;
+    }
+    else if(hops && !z_reached)
+    {
+      z_reached = true;
+      last_z = z;
+      return;
+    }
+    else if(hops && z == last_z)
+      return;
+    else
+      layer_reached = true;
+  }
+  else if(planner_disabled_below_z && z < planner_disabled_below_z)
+  {
+    z_reached = false;
+    layer_reached = false;
+    return;
+  }
+
+  if(z > last_z && !gone_up) // up once
+    gone_up = true;
+  else if(z < last_z) // back down
+  {
+    if(z > last_layer_z)
+      current_layer++;
+    else if(z < last_layer_z && z != 0)
+      current_layer = 1; // if it goes lower than what we would think was the previous layer then we might as well assume it's printing another object
+    else if(z == 0)
+      current_layer = 0;
+    last_layer_z = z;
+    gone_up = false;
+  }
+  else if(z > last_z && gone_up) // up twice
+    current_layer++; // be careful with prints like the spiral vase
+
+  last_z = z;
+>>>>>>> Needed to be inside of plan_set_position(...) not plan_set_position(...).
 
   // Calculate the buffer head after we push this byte
   int next_buffer_head = next_block_index(block_buffer_head);
@@ -1145,6 +1211,7 @@ float junction_deviation = 0.1;
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
     #if ENABLED(MESH_BED_LEVELING)
 =======
 =======
@@ -1218,6 +1285,8 @@ float junction_deviation = 0.1;
 >>>>>>> Needed to be inside of plan_set_position(...) not plan_set_position(...).
 =======
 >>>>>>> Initial M19 Z Resume From Z and Layer Counting
+=======
+>>>>>>> Needed to be inside of plan_set_position(...) not plan_set_position(...).
     #ifdef MESH_BED_LEVELING
 >>>>>>> Initial M19 Z Resume From Z and Layer Counting
       if (mbl.active) z += mbl.get_z(x, y);
