@@ -66,6 +66,7 @@ static void lcd_status_screen();
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   #if ENABLED(DELTA_CALIBRATION_MENU)
 =======
 =======
@@ -80,6 +81,8 @@ static void lcd_status_screen();
   extern bool gone_up;
 <<<<<<< HEAD
 =======
+=======
+>>>>>>> Created the macros RESUME_FEATURE and TRACK_LAYER and wrapped everything with them.
   #ifdef RESUME_FEATURE
     static void lcd_sdcard_resume_menu();
     static void lcd_sdcard_print_menu();
@@ -90,9 +93,12 @@ static void lcd_status_screen();
     extern bool hops;
     extern bool gone_up;
   #endif //RESUME_FEATURE
+<<<<<<< HEAD
 >>>>>>> Created the macros RESUME_FEATURE and TRACK_LAYER and wrapped everything with them.
 =======
 >>>>>>> Initial M19 Z Resume From Z and Layer Counting
+=======
+>>>>>>> Created the macros RESUME_FEATURE and TRACK_LAYER and wrapped everything with them.
 
   #ifdef DELTA_CALIBRATION_MENU
 >>>>>>> Initial M19 Z Resume From Z and Layer Counting
@@ -411,12 +417,18 @@ static void lcd_sdcard_stop() {
   cancel_heatup = true;
   lcd_setstatus(MSG_PRINT_ABORTED, true);
 <<<<<<< HEAD
+<<<<<<< HEAD
   #ifdef RESUME_FEATURE
     planner_disabled_below_z = 0;
   #endif //RESUME_FEATURE
 =======
   planner_disabled_below_z = 0;
 >>>>>>> Initial M19 Z Resume From Z and Layer Counting
+=======
+  #ifdef RESUME_FEATURE
+    planner_disabled_below_z = 0;
+  #endif //RESUME_FEATURE
+>>>>>>> Created the macros RESUME_FEATURE and TRACK_LAYER and wrapped everything with them.
 }
 
 /**
@@ -452,21 +464,27 @@ static void lcd_main_menu() {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
         MENU_ITEM(submenu, MSG_CARD_MENU, lcd_sdcard_menu);
         #if !PIN_EXISTS(SD_DETECT)
 =======
         MENU_ITEM(submenu, MSG_CARD_MENU, lcd_sdcard_print_menu);
         MENU_ITEM(submenu, MSG_CARD_RESUME_MENU, lcd_sdcard_resume_menu);
 =======
+=======
+>>>>>>> Created the macros RESUME_FEATURE and TRACK_LAYER and wrapped everything with them.
         #ifdef RESUME_FEATURE
           MENU_ITEM(submenu, MSG_CARD_MENU, lcd_sdcard_print_menu);
           MENU_ITEM(submenu, MSG_CARD_RESUME_MENU, lcd_sdcard_resume_menu);
         #endif //RESUME_FEATURE
+<<<<<<< HEAD
 >>>>>>> Created the macros RESUME_FEATURE and TRACK_LAYER and wrapped everything with them.
 =======
         MENU_ITEM(submenu, MSG_CARD_MENU, lcd_sdcard_print_menu);
         MENU_ITEM(submenu, MSG_CARD_RESUME_MENU, lcd_sdcard_resume_menu);
 >>>>>>> Initial M19 Z Resume From Z and Layer Counting
+=======
+>>>>>>> Created the macros RESUME_FEATURE and TRACK_LAYER and wrapped everything with them.
         #if SDCARDDETECT < 1
 >>>>>>> Initial M19 Z Resume From Z and Layer Counting
           MENU_ITEM(gcode, MSG_CNG_SDCARD, PSTR("M21"));  // SD-card changed by user
@@ -560,6 +578,7 @@ static void lcd_tune_menu() {
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   #if ENABLED(BABYSTEPPING)
     #if ENABLED(BABYSTEP_XY)
 =======
@@ -579,6 +598,12 @@ static void lcd_tune_menu() {
     unsigned long layer = current_layer;
     MENU_ITEM_EDIT(long5, MSG_LAYER, &layer, layer, layer);
 >>>>>>> Initial M19 Z Resume From Z and Layer Counting
+=======
+  #ifdef TRACK_LAYER
+    unsigned short layer = current_layer;
+    MENU_ITEM_EDIT(long5, MSG_LAYER, &layer, layer, layer);
+  #endif //TRACK_LAYER
+>>>>>>> Created the macros RESUME_FEATURE and TRACK_LAYER and wrapped everything with them.
 
   #ifdef BABYSTEPPING
     #ifdef BABYSTEP_XY
@@ -1250,10 +1275,14 @@ static void lcd_sd_updir() {
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> Created the macros RESUME_FEATURE and TRACK_LAYER and wrapped everything with them.
 #ifdef RESUME_FEATURE
   // Print from SD
   void lcd_sdcard_print_menu()
   {
+<<<<<<< HEAD
     planner_disabled_below_z = 0;
     lcd_sdcard_menu();
   }
@@ -1265,14 +1294,22 @@ static void lcd_sd_updir() {
 // Print from SD
 void lcd_sdcard_print_menu()
 {
+=======
+>>>>>>> Created the macros RESUME_FEATURE and TRACK_LAYER and wrapped everything with them.
     planner_disabled_below_z = 0;
     lcd_sdcard_menu();
-}
+  }
 
+<<<<<<< HEAD
 // Print from SD but set flag to ignore movements below a certain Z
 void lcd_sdcard_resume_menu()
 {
 >>>>>>> Initial M19 Z Resume From Z and Layer Counting
+=======
+  // Print from SD but set flag to ignore movements below a certain Z
+  void lcd_sdcard_resume_menu()
+  {
+>>>>>>> Created the macros RESUME_FEATURE and TRACK_LAYER and wrapped everything with them.
     planner_disabled_below_z = current_position[Z_AXIS];
     last_z = 0;
     z_reached = false;
@@ -1281,11 +1318,16 @@ void lcd_sdcard_resume_menu()
     gone_up = false;
     lcd_sdcard_menu();
 <<<<<<< HEAD
+<<<<<<< HEAD
   }
 #endif //RESUME_FEATURE
 =======
 }
 >>>>>>> Initial M19 Z Resume From Z and Layer Counting
+=======
+  }
+#endif //RESUME_FEATURE
+>>>>>>> Created the macros RESUME_FEATURE and TRACK_LAYER and wrapped everything with them.
 
 /**
  *
