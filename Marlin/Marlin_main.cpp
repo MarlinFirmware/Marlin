@@ -3065,10 +3065,7 @@ inline void gcode_M31() {
      *   /Miscellaneous/Armchair/Armchair.gcode
      */
     inline void gcode_M33() {
-      char *args = strchr_pointer + 4;
-      while (*args == ' ') ++args;
-      clear_asterisk(args);
-      card.printLongPath(args);
+      card.printLongPath(current_command_args);
     }
 
   #endif
