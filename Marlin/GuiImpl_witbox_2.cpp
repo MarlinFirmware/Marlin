@@ -9,6 +9,7 @@
 #include "ScreenSelector.h"
 #include "ScreenList.h"
 #include "ScreenStatus.h"
+#include "ScreenTransition.h"
 
 #include "LightManager.h"
 #include "SteppersManager.h"
@@ -59,16 +60,17 @@ namespace screen
 	Screen screen_SD_back               = Screen("Back", Screen::SIMPLE);
 	//Unload Filament screens
 	ScreenSelector screen_unload_select = ScreenSelector("Unload filament", 170, 230, default_temp_change_filament);
-	ScreenDialog screen_unload_heating  = ScreenDialog("Heating");
+	ScreenTransition screen_unload_heating	= ScreenTransition("Heating", "Push to abort");
 	ScreenDialog screen_unload_pull     = ScreenDialog("Extrude and pull");
 	ScreenMenu screen_unload_confirm    = ScreenMenu("Finished?");
 	//Load Filament screens
 	ScreenSelector screen_load_select   = ScreenSelector("Load filament", 170, 230, default_temp_change_filament);
-	ScreenDialog screen_load_heating    = ScreenDialog("Heating");
+	ScreenTransition screen_load_heating	= ScreenTransition("Heating", "Push to abort");
 	ScreenDialog screen_load_press      = ScreenDialog("Insert and press");
 	ScreenMenu screen_load_confirm      = ScreenMenu("Finished?");
 	//Level Plate screens
 	ScreenMenu screen_level_confirm     = ScreenMenu("Level Plate");
+	ScreenTransition screen_level_cooling	= ScreenTransition("Cooling", "Be patient");
 	ScreenDialog screen_level1          = ScreenDialog("Screen1");
 	ScreenDialog screen_level2          = ScreenDialog("Screen2");
 	ScreenDialog screen_level3          = ScreenDialog("Screen3");
@@ -145,6 +147,7 @@ namespace screen
 		screen_unload_select.add(screen_unload_heating);
 		screen_unload_select.icon(icon_filament_unload);
 		//Unload Filament Heating
+		screen_unload_heating.add(screen_main);
 		screen_unload_heating.add(screen_unload_pull);
 		//Unload Filament Pull
 		screen_unload_pull.add(screen_unload_confirm);
@@ -155,6 +158,7 @@ namespace screen
 		screen_load_select.add(screen_load_heating);
 		screen_load_select.icon(icon_filament_load);
 		//Load Filament Heating
+		screen_load_heating.add(screen_main);
 		screen_load_heating.add(screen_load_press);
 		//Load Filament Pull
 		screen_load_press.add(screen_load_confirm);
@@ -162,8 +166,11 @@ namespace screen
 		screen_load_confirm.add(screen_load_press);
 		screen_load_confirm.add(screen_main);
 		//Level Plate
-		screen_level_confirm.add(screen_main);
+		screen_level_confirm.add(screen_level_cooling);
 		screen_level_confirm.icon(icon_leveling);
+		//Level Plate Cooling
+		screen_level_cooling.add(screen_level_cooling);
+		screen_level_cooling.add(screen_level1);
 		//AutoHome
 		//screen_autohome.add(screen_main);
 		screen_autohome.icon(icon_homing);
