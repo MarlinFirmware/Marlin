@@ -12,6 +12,8 @@
 #include <string.h>
 #include <inttypes.h>
 
+#define __DELAY_BACKWARD_COMPATIBLE__
+
 #include <util/delay.h>
 #include <avr/pgmspace.h>
 #include <avr/eeprom.h>

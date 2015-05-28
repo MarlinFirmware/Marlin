@@ -43,7 +43,7 @@ Here are some standard links for getting your machine calibrated:
 #define STRING_VERSION "1.4.2"
 #define STRING_URL "bq.com"
 #define STRING_VERSION_CONFIG_H __DATE__ " " __TIME__ // build date and time
-#define STRING_CONFIG_H_AUTHOR "(bq Hephestos)" // Who made the changes.
+#define STRING_CONFIG_H_AUTHOR "(bq Hephestos XL)" // Who made the changes.
 #define STRING_SPLASH_LINE1 "v" STRING_VERSION // will be shown during bootup in line 1
 //#define STRING_SPLASH_LINE2 STRING_VERSION_CONFIG_H // will be shown during bootup in line2
 

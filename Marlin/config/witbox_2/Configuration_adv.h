@@ -78,7 +78,6 @@
 #define EXTRUDER_0_AUTO_FAN_PIN   -1
 #define EXTRUDER_1_AUTO_FAN_PIN   -1
 #define EXTRUDER_2_AUTO_FAN_PIN   -1
-#define EXTRUDER_3_AUTO_FAN_PIN   -1
 #define EXTRUDER_AUTO_FAN_TEMPERATURE 50
 #define EXTRUDER_AUTO_FAN_SPEED   255  // == full speed
 
@@ -201,6 +200,9 @@
 // This is the default power-up mode which can be later using M605.
 #define DEFAULT_DUAL_X_CARRIAGE_MODE 0
 
+// As the x-carriages are independent we can now account for any relative Z offset
+#define EXTRUDER1_Z_OFFSET 0.0           // z offset relative to extruder 0
+
 // Default settings in "Auto-park Mode"
 #define TOOLCHANGE_PARK_ZLIFT   0.2      // the distance to raise Z axis when parking an extruder
 #define TOOLCHANGE_UNPARK_ZLIFT 1        // the distance to raise Z axis when unparking an extruder
@@ -226,7 +228,7 @@
 #define INVERT_Z_STEP_PIN false
 #define INVERT_E_STEP_PIN false
 
-//default stepper release if idle. Set to 0 to deactivate.
+//default stepper release if idle
 #define DEFAULT_STEPPER_DEACTIVE_TIME 60
 
 #define DEFAULT_MINIMUMFEEDRATE       0.0     // minimum feedrate
@@ -276,11 +278,6 @@
 //===========================================================================
 //=============================Additional Features===========================
 //===========================================================================
-
-#define ENCODER_RATE_MULTIPLIER         // If defined, certain menu edit operations automatically multiply the steps when the encoder is moved quickly
-#define ENCODER_10X_STEPS_PER_SEC 75    // If the encoder steps per sec exceed this value, multiple the steps moved by ten to quickly advance the value
-#define ENCODER_100X_STEPS_PER_SEC 160  // If the encoder steps per sec exceed this value, multiple the steps moved by 100 to really quickly advance the value
-//#define ENCODER_RATE_MULTIPLIER_DEBUG  // If defined, output the encoder steps per second value
 
 #define SD_FINISHED_STEPPERRELEASE true  //if sd support and the file is finished: disable steppers?
 #define SD_FINISHED_RELEASECOMMAND "M84 X Y Z E" // You might want to keep the z enabled so your bed stays in place.
@@ -446,10 +443,6 @@ const unsigned int dropsegments=5; //everything with less than this number of st
   #define THERMISTORHEATER_2 TEMP_SENSOR_2
   #define HEATER_2_USES_THERMISTOR
 #endif
-#if TEMP_SENSOR_3 > 0
-  #define THERMISTORHEATER_3 TEMP_SENSOR_3
-  #define HEATER_3_USES_THERMISTOR
-#endif
 #if TEMP_SENSOR_BED > 0
   #define THERMISTORBED TEMP_SENSOR_BED
   #define BED_USES_THERMISTOR
@@ -462,9 +455,6 @@ const unsigned int dropsegments=5; //everything with less than this number of st
 #endif
 #if TEMP_SENSOR_2 == -1
   #define HEATER_2_USES_AD595
-#endif
-#if TEMP_SENSOR_3 == -1
-  #define HEATER_3_USES_AD595
 #endif
 #if TEMP_SENSOR_BED == -1
   #define BED_USES_AD595
@@ -483,10 +473,6 @@ const unsigned int dropsegments=5; //everything with less than this number of st
 #if TEMP_SENSOR_2 == 0
   #undef HEATER_2_MINTEMP
   #undef HEATER_2_MAXTEMP
-#endif
-#if TEMP_SENSOR_3 == 0
-  #undef HEATER_3_MINTEMP
-  #undef HEATER_3_MAXTEMP
 #endif
 #if TEMP_SENSOR_BED == 0
   #undef BED_MINTEMP
