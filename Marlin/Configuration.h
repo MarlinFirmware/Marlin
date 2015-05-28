@@ -479,23 +479,33 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 // default settings
 
-#define X_motor_steps_per_rev 3.75
-#define Y_motor_steps_per_rev 1.8
-#define Z_motor_steps_per_rev 3.75
+#define	X_motor_steps_per_rev	360/3.75
+#define	Y_motor_steps_per_rev	360/1.8
+#define	Z_motor_steps_per_rev	360/3.75
+#define	E0_motor_steps_per_rev	360/1.8
 
-#define X_microstep 16
-#define Y_microstep 16
-#define Z_microstep 16
+#define	X_microstep	16
+#define	Y_microstep	16
+#define	Z_microstep	16
+#define	E0_microstep	16
 
-#define X_belt_pitch 2
-#define Y_belt_pitch 2
+#define	X_belt_pitch	2
+#define	Y_belt_pitch	2
 
-#define X_pulley_number_of_teeth 20
-#define Y_pulley_number_of_teeth 20
+#define	X_pulley_number_of_teeth	20
+#define	Y_pulley_number_of_teeth	20
+#define	E0_big_gear_teeth		50
+#define	E0_small_gear_teeth		1
+#define	E0_hob_effective_diameter	10.56
 
-#define Z_thread_pitch 0.8 // M5 standard pitch
+#define	Z_thread_pitch	0.8 // M5 standard pitch
 
-#define DEFAULT_AXIS_STEPS_PER_UNIT   {(X_motor_steps_per_rev*X_microstep)/(X_belt_pitch*X_pulley_number_of_teeth),(Y_motor_steps_per_rev*Y_microstep)/(Y_belt_pitch*Y_pulley_number_of_teeth),(Z_motor_steps_per_rev*Z_microstep)/Z_thread_pitch,80}  // Calculé avec : http://reprap.org/wiki/Triffid_Hunter%27s_Calibration_Guide - default steps per unit for Ultimaker {78.7402,78.7402,200.0*8/3,760*1.1}
+#define	X_steps_per_mm (X_motor_steps_per_rev*X_microstep)/(X_belt_pitch*X_pulley_number_of_teeth)
+#define	Y_steps_per_mm (Y_motor_steps_per_rev*Y_microstep)/(Y_belt_pitch*Y_pulley_number_of_teeth)
+#define	Z_steps_per_mm (Z_motor_steps_per_rev*Z_microstep)/Z_thread_pitch
+#define	E0_steps_per_mm (E0_motor_steps_per_rev*E0_microstep)*(E0_big_gear_teeth/E0_small_gear_teeth)/(E0_hob_effective_diameter*3.14159)
+
+#define DEFAULT_AXIS_STEPS_PER_UNIT   {X_steps_per_mm,Y_steps_per_mm,Z_steps_per_mm,E0_steps_per_mm}  // Calculé avec : http://reprap.org/wiki/Triffid_Hunter%27s_Calibration_Guide - default steps per unit for Ultimaker {78.7402,78.7402,200.0*8/3,760*1.1}
 #define DEFAULT_MAX_FEEDRATE          {500, 500, 5, 25}    // (mm/sec)
 #define DEFAULT_MAX_ACCELERATION      {9000,9000,100,10000}    // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for Skeinforge 40+, for older versions raise them a lot.
 
