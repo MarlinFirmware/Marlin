@@ -34,6 +34,8 @@
 #include "temperature.h"
 #include "watchdog.h"
 
+#include "TemperatureManager.h"
+
 //===========================================================================
 //=============================public variables============================
 //===========================================================================
@@ -681,6 +683,9 @@ static void updateTemperaturesFromRawValues()
     {
         current_temperature[e] = analog2temp(current_temperature_raw[e], e);
     }
+
+    TemperatureManager::getInstance().updateTemperature(current_temperature[0]);
+
     current_temperature_bed = analog2tempBed(current_temperature_bed_raw);
     #ifdef TEMP_SENSOR_1_AS_REDUNDANT
       redundant_temperature = analog2temp(redundant_temperature_raw, 1);
