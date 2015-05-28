@@ -550,9 +550,14 @@ static void lcd_tune_menu() {
     unsigned long layer = current_layer;
 =======
   #ifdef TRACK_LAYER
+<<<<<<< HEAD
     unsigned short layer = current_layer;
 >>>>>>> Created the macros RESUME_FEATURE and TRACK_LAYER and wrapped everything with them.
     MENU_ITEM_EDIT(long5, MSG_LAYER, &layer, layer, layer);
+=======
+    int layer = current_layer;
+    MENU_ITEM_EDIT(int3, MSG_LAYER, &layer, layer, layer);
+>>>>>>> Should be int and int3.
   #endif //TRACK_LAYER
 
   #ifdef BABYSTEPPING
