@@ -4877,9 +4877,10 @@ inline void gcode_M503() {
       lastpos[i] = destination[i] = current_position[i];
 
     #ifdef DELTA
-      #define RUNPLAN calculate_delta(destination); line_to_destination()
+      #define RUNPLAN calculate_delta(destination); \
+                      plan_buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], destination[E_AXIS], fr60, active_extruder);
     #else
-      #define RUNPLAN line_to_destination()
+      #define RUNPLAN line_to_destination();
     #endif
 
     //retract by E
