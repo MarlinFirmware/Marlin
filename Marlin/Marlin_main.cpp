@@ -5249,6 +5249,10 @@ void process_next_command() {
         gcode_G4();
         break;
 
+      // G21: Set units to millimeters
+      case 21:
+        break;
+
       #ifdef FWRETRACT
 
         case 10: // G10: retract
