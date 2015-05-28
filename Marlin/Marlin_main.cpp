@@ -365,9 +365,9 @@ bool target_direction;
   float delta_tower3_x = 0;                      // back middle tower
   float delta_tower3_y = delta_radius;
   float delta_diagonal_rod = DELTA_DIAGONAL_ROD;
-  float delta_diagonal_rod_trim_tower_1 = 0.0;
-  float delta_diagonal_rod_trim_tower_2 = 0.0;
-  float delta_diagonal_rod_trim_tower_3 = 0.0;
+  float delta_diagonal_rod_trim_tower_1 = DELTA_DIAGONAL_ROD_TRIM_TOWER_1;
+  float delta_diagonal_rod_trim_tower_2 = DELTA_DIAGONAL_ROD_TRIM_TOWER_2;
+  float delta_diagonal_rod_trim_tower_3 = DELTA_DIAGONAL_ROD_TRIM_TOWER_3;
   float delta_diagonal_rod_2_tower_1 = sq(delta_diagonal_rod + delta_diagonal_rod_trim_tower_1);
   float delta_diagonal_rod_2_tower_2 = sq(delta_diagonal_rod + delta_diagonal_rod_trim_tower_2);
   float delta_diagonal_rod_2_tower_3 = sq(delta_diagonal_rod + delta_diagonal_rod_trim_tower_3);
