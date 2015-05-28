@@ -4852,7 +4852,16 @@ inline void gcode_M503() {
 #ifdef FILAMENTCHANGEENABLE
 
   /**
-   * M600: Pause for filament change X[pos] Y[pos] Z[relative lift] E[initial retract] L[later retract distance for removal]
+   * M600: Pause for filament change
+   *
+   *  E[mm] - Retract the filament this far (negative value)
+   *  Z[mm] - Move the Z axis by this distance
+   *  X[mm] - Move to this X position, with Y
+   *  Y[mm] - Move to this Y position, with X
+   *  L[mm] - Retract distance for removal (manual reload)
+   *
+   *  Default values are used for omitted arguments.
+   *
    */
   inline void gcode_M600() {
 
