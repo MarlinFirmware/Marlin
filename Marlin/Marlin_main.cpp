@@ -416,6 +416,10 @@ bool target_direction;
   boolean chdkActive = false;
 #endif
 
+#ifdef RESUME_FEATURE
+  extern float planner_disabled_below_z;
+#endif //RESUME_FEATURE
+
 //===========================================================================
 //================================ Functions ================================
 //===========================================================================
