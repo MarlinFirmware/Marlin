@@ -3937,6 +3937,14 @@ inline void gcode_M121() { enable_endstops(false); }
 
 #endif // BLINKM
 
+void error_invalid_extruder(int code, int e) {
+  SERIAL_ECHO_START;
+  SERIAL_CHAR('M');
+  SERIAL_ECHO(code);
+  SERIAL_ECHOPGM(" " MSG_INVALID_EXTRUDER " ");
+  SERIAL_ECHOLN(target_extruder);
+}
+
 /**
  * M200: Set filament diameter and set E axis units to cubic millimeters (use S0 to set back to millimeters).
  *       T<extruder>
@@ -3947,8 +3955,7 @@ inline void gcode_M200() {
   if (code_seen('T')) {
     tmp_extruder = code_value_short();
     if (tmp_extruder >= EXTRUDERS) {
-      SERIAL_ECHO_START;
-      SERIAL_ECHO(MSG_M200_INVALID_EXTRUDER);
+      error_invalid_extruder(200, tmp_extruder);
       return;
     }
   }
@@ -6529,25 +6536,15 @@ bool setTargetedHotend(int code){
   if (code_seen('T')) {
     target_extruder = code_value_short();
     if (target_extruder >= EXTRUDERS) {
-      SERIAL_ECHO_START;
-      switch(code){
+      switch(code) {
         case 104:
-          SERIAL_ECHO(MSG_M104_INVALID_EXTRUDER);
-          break;
         case 105:
-          SERIAL_ECHO(MSG_M105_INVALID_EXTRUDER);
-          break;
         case 109:
-          SERIAL_ECHO(MSG_M109_INVALID_EXTRUDER);
-          break;
         case 218:
-          SERIAL_ECHO(MSG_M218_INVALID_EXTRUDER);
-          break;
         case 221:
-          SERIAL_ECHO(MSG_M221_INVALID_EXTRUDER);
+          error_invalid_extruder(code, target_extruder);
           break;
       }
-      SERIAL_ECHOLN(target_extruder);
       return true;
     }
   }
