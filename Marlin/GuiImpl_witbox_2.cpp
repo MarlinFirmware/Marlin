@@ -77,7 +77,7 @@ namespace screen
 	//AutoHome
 	Screen screen_autohome              = Screen("Auto-home", Screen::SIMPLE, action_homing);
 	//Steppers
-	ScreenStatus<bool> screen_stepper   = ScreenStatus<bool>("Steppers on", do_nothing, &steppers_manager);
+	ScreenStatus<bool, void> screen_stepper   = ScreenStatus<bool, void>("Steppers on", do_nothing, &steppers_manager);
 	//Move Axis screens
 	ScreenMenu screen_move              = ScreenMenu("Move axis");
 	ScreenMenu screen_move_back2main    = ScreenMenu("Back");
@@ -92,7 +92,7 @@ namespace screen
 	//Temperature
 	ScreenSelector screen_temperature   = ScreenSelector("Temp 0/200C");
 	//Light
-	ScreenStatus<bool> screen_light     = ScreenStatus<bool>("Led light on", do_nothing, &light_manager);
+	ScreenStatus<bool, void, bool, LightManager &> screen_light     = ScreenStatus<bool, void, bool, LightManager &>("Led light on", LightManager::setState, &light_manager);
 	//Info
 	ScreenDialog screen_info            = ScreenDialog("FW info");
 

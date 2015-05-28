@@ -8,9 +8,10 @@ class LightManager : public Subject<bool>
 	public:
 		LightManager();
 
-		void setState(bool state);
+		static void setState(bool state, LightManager & instance);
 
-		bool getState();
+		void state(bool state);
+		bool state();
 
 	private:
 		void notify();

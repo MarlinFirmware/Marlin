@@ -2,16 +2,20 @@
 
 LightManager::LightManager()
 	: Subject<bool>()
-	, m_state(false)
 { }
 
-void LightManager::setState(bool state)
+void LightManager::setState(bool state, LightManager & instance)
 {
-	m_state = state;
-	notify();
+	instance.state(state);
+	instance.notify();
 }
 
-bool LightManager::getState()
+void LightManager::state(bool state)
+{
+	m_state = state;
+}
+
+bool LightManager::state()
 {
 	return m_state;
 }

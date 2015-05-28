@@ -194,7 +194,7 @@ endif
 CEXTRA = -fno-use-cxa-atexit
 
 CFLAGS := $(CDEBUG) $(CDEFS) $(CINCS) -O$(OPT) $(CWARN) $(CEXTRA) $(CTUNING)
-CXXFLAGS :=         $(CDEFS) $(CINCS) -O$(OPT) -Wall    $(CEXTRA) $(CTUNING)
+CXXFLAGS :=         $(CDEFS) $(CINCS) -O$(OPT) -Wall -std=c++0x   $(CEXTRA) $(CTUNING)
 #ASFLAGS = -Wa,-adhlns=$(<:.S=.lst),-gstabs
 LDFLAGS = -lm
 
