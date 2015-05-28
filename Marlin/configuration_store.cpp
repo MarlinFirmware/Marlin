@@ -33,6 +33,7 @@
  *  M205 Z    max_z_jerk
  *  M205 E    max_e_jerk
  *  M206 XYZ  home_offset (x3)
+ *  M218 TXY  extruder_offset
  *
  * Mesh bed leveling:
  *  M420 S    active
@@ -150,6 +151,9 @@ void Config_StoreSettings()  {
   EEPROM_WRITE_VAR(i, max_z_jerk);
   EEPROM_WRITE_VAR(i, max_e_jerk);
   EEPROM_WRITE_VAR(i, home_offset);
+  #if EXTRUDERS > 1
+    EEPROM_WRITE_VAR(i,extruder_offset); // save extruder offset to the EEPROM memory (from github dob71 MarlinX2)
+  #endif // EXTRUDERS > 
 
   uint8_t mesh_num_x = 3;
   uint8_t mesh_num_y = 3;
@@ -322,6 +326,9 @@ void Config_RetrieveSettings() {
     EEPROM_READ_VAR(i, max_z_jerk);
     EEPROM_READ_VAR(i, max_e_jerk);
     EEPROM_READ_VAR(i, home_offset);
+    #if EXTRUDERS > 1
+      EEPROM_READ_VAR(i,extruder_offset); // retrieve saved extruder offset (from github dob71 MarlinX2)
+    #endif // EXTRUDERS > 1
 
     uint8_t dummy_uint8 = 0, mesh_num_x = 0, mesh_num_y = 0;
     EEPROM_READ_VAR(i, dummy_uint8);
@@ -470,6 +477,10 @@ void Config_ResetDefault() {
   float tmp1[] = DEFAULT_AXIS_STEPS_PER_UNIT;
   float tmp2[] = DEFAULT_MAX_FEEDRATE;
   long tmp3[] = DEFAULT_MAX_ACCELERATION;
+  #if EXTRUDERS > 1
+    float tmp4[]=EXTRUDER_OFFSET_X;
+    float tmp5[]=EXTRUDER_OFFSET_Y;
+  #endif // EXTRUDERS > 1
   for (uint16_t i = 0; i < NUM_AXIS; i++) {
     axis_steps_per_unit[i] = tmp1[i];
     max_feedrate[i] = tmp2[i];
@@ -478,6 +489,13 @@ void Config_ResetDefault() {
       if (i < COUNT(axis_scaling))
         axis_scaling[i] = 1;
     #endif
+    #if EXTRUDERS > 1
+      if(i < EXTRUDERS)
+      {
+        extruder_offset[X_AXIS][i]=tmp4[i];
+        extruder_offset[Y_AXIS][i]=tmp5[i];
+      }
+    #endif // EXTRUDERS > 1
   }
 
   // steps per sq second need to be updated to agree with the units per sq second
@@ -603,6 +621,19 @@ void Config_PrintSettings(bool forReplay) {
   SERIAL_ECHOPAIR(" Z", axis_steps_per_unit[Z_AXIS]);
   SERIAL_ECHOPAIR(" E", axis_steps_per_unit[E_AXIS]);
   SERIAL_EOL;
+
+  #if EXTRUDERS > 1 // print the extruder offsets (from github dob71 MarlinX2)
+    SERIAL_ECHO_START;
+    SERIAL_ECHOLNPGM("Extruder offset:");
+    for(int i = 0; i < EXTRUDERS; i++)
+    {
+      SERIAL_ECHO_START;
+      SERIAL_ECHOPAIR("   M218 T", float(i));
+      SERIAL_ECHOPAIR(" X", extruder_offset[X_AXIS][i]); 
+      SERIAL_ECHOPAIR(" Y", extruder_offset[Y_AXIS][i]);
+      SERIAL_ECHOLN("");
+    }
+  #endif // EXTRUDERS > 1
 
   CONFIG_ECHO_START;
 

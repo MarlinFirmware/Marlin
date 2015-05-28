@@ -248,10 +248,27 @@ extern int extruder_multiplier[EXTRUDERS]; // sets extrude multiply factor (in p
 extern float filament_size[EXTRUDERS]; // cross-sectional area of filament (in millimeters), typically around 1.75 or 2.85, 0 disables the volumetric calculations for the extruder.
 extern float volumetric_multiplier[EXTRUDERS]; // reciprocal of cross-sectional area of filament (in square millimeters), stored this way to reduce computational burden in planner
 extern float current_position[NUM_AXIS];
+<<<<<<< HEAD
 extern float home_offset[3]; // axis[n].home_offset
 extern float min_pos[3]; // axis[n].min_pos
 extern float max_pos[3]; // axis[n].max_pos
 extern bool axis_known_position[3]; // axis[n].is_known
+=======
+extern float home_offset[3];
+#if EXTRUDERS > 1
+  extern float extruder_offset[2][EXTRUDERS];
+#endif
+
+#ifdef DELTA
+  extern float endstop_adj[3];
+  extern float delta_radius;
+  extern float delta_diagonal_rod;
+  extern float delta_segments_per_second;
+  void recalc_delta_settings(float radius, float diagonal_rod);
+#elif defined(Z_DUAL_ENDSTOPS)
+  extern float z_endstop_adj;
+#endif
+>>>>>>> Initial Extruder Offsets LCD and EEPROM
 
 #if defined(DELTA) || defined(SCARA)
   void calculate_delta(float cartesian[3]);
