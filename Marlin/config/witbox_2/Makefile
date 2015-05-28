@@ -124,8 +124,8 @@ CXXSRC = WMath.cpp WString.cpp Print.cpp Marlin_main.cpp	\
 	watchdog.cpp SPI.cpp Tone.cpp digipot_mcp4451.cpp \
 	vector_3.cpp qr_solve.cpp 
 CXXSRC += new.cpp GuiManager.cpp GuiPainter.cpp GuiAction.cpp GuiImpl_witbox_2.cpp Icon.cpp \
-	Screen.cpp ScreenList.cpp ScreenMenu.cpp ScreenSelector.cpp ScreenDialog.cpp ScreenPrint.cpp ScreenStatus.cpp \
-	Light.cpp Subject.cpp Observer.cpp \
+	Screen.cpp ScreenList.cpp ScreenMenu.cpp ScreenSelector.cpp ScreenDialog.cpp ScreenPrint.cpp \
+	LightManager.cpp SteppersManager.cpp TemperatureManager.cpp \
 	ultralcd_st7920_u8glib_rrd.cpp
 
 ifeq ($(DOGLCD), 1)
@@ -194,7 +194,7 @@ endif
 CEXTRA = -fno-use-cxa-atexit
 
 CFLAGS := $(CDEBUG) $(CDEFS) $(CINCS) -O$(OPT) $(CWARN) $(CEXTRA) $(CTUNING)
-CXXFLAGS :=         $(CDEFS) $(CINCS) -O$(OPT) -Wall    $(CEXTRA) $(CTUNING)
+CXXFLAGS :=         $(CDEFS) $(CINCS) -O$(OPT) -Wall -std=c++0x   $(CEXTRA) $(CTUNING)
 #ASFLAGS = -Wa,-adhlns=$(<:.S=.lst),-gstabs
 LDFLAGS = -lm
 

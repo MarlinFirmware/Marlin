@@ -1,16 +1,28 @@
 #ifndef OBSERVER_H
 #define OBSERVER_H
 
-class Subject;
+template <typename T> class Subject;
 
-class Observer
+template <typename T>
+	class Observer
 {
 	public:
-		Observer(Subject * model);
-		virtual void update(bool state) = 0;
+		Observer(Subject<T> * model);
+		virtual void update(T value) = 0;
 
 	public:
-		Subject * m_model;
+		Subject<T> * m_model;
 };
 
+#include "Subject.h"
+
+template <typename T>
+Observer<T>::Observer(Subject<T> * model)
+	: m_model(model)
+{
+	if (m_model != 0)
+	{
+		m_model->attach(this);
+	}
+}
 #endif //OBSERVER_H
