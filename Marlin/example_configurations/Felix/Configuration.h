@@ -217,6 +217,8 @@ Here are some standard links for getting your machine calibrated:
 //#define PID_BED_DEBUG // Sends debug data to the serial port.
 
 #ifdef PIDTEMPBED
+    #define PID_BED_INTEGRAL_DRIVE_MAX MAX_BED_POWER //limit for the integral term
+
 // Felix Foil Heater
    #define DEFAULT_bedKp 103.37
    #define DEFAULT_bedKi 2.79
