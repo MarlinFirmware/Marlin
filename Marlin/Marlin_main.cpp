@@ -195,6 +195,7 @@
  * M503 - Print the current settings (from memory not from EEPROM). Use S0 to leave off headings.
  * M540 - Use S[0|1] to enable or disable the stop SD card print on endstop hit (requires ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED)
  * M600 - Pause for filament change X[pos] Y[pos] Z[relative lift] E[initial retract] L[later retract distance for removal]
+ * M601 - Resume the print from filament change
  * M665 - Set delta configurations: L<diagonal rod> R<delta radius> S<segments/s>
  * M666 - Set delta endstop adjustment
  * M605 - Set dual x-carriage movement mode: S<mode> [ X<duplication x-offset> R<duplication temp offset> ]
@@ -403,6 +404,10 @@ bool target_direction;
   unsigned long chdkHigh = 0;
   boolean chdkActive = false;
 #endif
+
+#ifdef FILAMENTCHANGEENABLE
+  boolean change_filament = false;
+#endif //FILAMENTCHANGEENABLE
 
 //===========================================================================
 //================================ Functions ================================
@@ -865,6 +870,10 @@ void get_command() {
 
       // If command was e-stop process now
       if (strcmp(command, "M112") == 0) kill(PSTR(MSG_KILLED));
+
+      #ifdef FILAMENTCHANGEENABLE
+        if (strcmp(command, "M601") == 0) change_filament = false;
+      #endif //FILAMENTCHANGEENABLE
 
       cmd_queue_index_w = (cmd_queue_index_w + 1) % BUFSIZE;
       commands_in_queue += 1;
@@ -4803,6 +4812,7 @@ inline void gcode_M503() {
    *
    */
   inline void gcode_M600() {
+<<<<<<< HEAD
 
     if (degHotend(active_extruder) < extrude_min_temp) {
       SERIAL_ERROR_START;
@@ -4812,6 +4822,10 @@ inline void gcode_M503() {
 
     float lastpos[NUM_AXIS], fr60 = feedrate / 60;
 
+=======
+    change_filament = true;
+    float target[NUM_AXIS], lastpos[NUM_AXIS], fr60 = feedrate / 60;
+>>>>>>> M601: Resume the print from filament change
     for (int i=0; i<NUM_AXIS; i++)
       lastpos[i] = destination[i] = current_position[i];
 
@@ -4867,6 +4881,7 @@ inline void gcode_M503() {
     disable_e3();
     delay(100);
     LCD_ALERTMESSAGEPGM(MSG_FILAMENTCHANGE);
+<<<<<<< HEAD
     millis_t next_tick = 0;
     while (!lcd_clicked()) {
       #ifndef AUTO_FILAMENT_CHANGE
@@ -4886,6 +4901,15 @@ inline void gcode_M503() {
       #endif
     } // while(!lcd_clicked)
     lcd_quick_feedback(); // click sound feedback
+=======
+    uint8_t cnt = 0;
+    while (!lcd_clicked() && change_filament) {
+      if (++cnt == 0) lcd_quick_feedback(); // every 256th frame till the lcd is clicked
+      manage_heater();
+      manage_inactivity(true);
+      lcd_update();
+    } // while(!lcd_clicked && change_filament)
+>>>>>>> M601: Resume the print from filament change
 
     #ifdef AUTO_FILAMENT_CHANGE
       current_position[E_AXIS] = 0;
@@ -4926,6 +4950,11 @@ inline void gcode_M503() {
     #endif
     
   }
+
+/**
+ * M601: Resume the print from filament change
+ */
+inline void gcode_M601() { change_filament = false; }
 
 #endif // FILAMENTCHANGEENABLE
 
@@ -5676,6 +5705,10 @@ void process_next_command() {
       #ifdef FILAMENTCHANGEENABLE
         case 600: //Pause for filament change X[pos] Y[pos] Z[relative lift] E[initial retract] L[later retract distance for removal]
           gcode_M600();
+          break;
+
+        case 601: // M601 Resume the print from filament change
+          gcode_M601();
           break;
       #endif // FILAMENTCHANGEENABLE
 
