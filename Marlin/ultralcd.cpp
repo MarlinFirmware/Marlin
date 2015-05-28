@@ -600,8 +600,8 @@ static void lcd_tune_menu() {
 >>>>>>> Initial M19 Z Resume From Z and Layer Counting
 =======
   #ifdef TRACK_LAYER
-    unsigned short layer = current_layer;
-    MENU_ITEM_EDIT(long5, MSG_LAYER, &layer, layer, layer);
+    int layer = current_layer;
+    MENU_ITEM_EDIT(int3, MSG_LAYER, &layer, layer, layer);
   #endif //TRACK_LAYER
 >>>>>>> Created the macros RESUME_FEATURE and TRACK_LAYER and wrapped everything with them.
 
