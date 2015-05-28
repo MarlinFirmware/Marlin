@@ -174,101 +174,173 @@ void lcd_implementation_set_cursor(uint8_t row, uint8_t column)
 }
 
 
-#define ITEM_WIDTH 24
-#define ITEM_HEIGHT 22
+
 // Graphical API
 
-static void lcd_implementation_status_screen(int8_t item)
+static void lcd_implementation_status_screen()
 {
+	static unsigned char fan_rot = 0;
+
 	u8g.firstPage();
     do {
-		u8g.setColorIndex(1);	// black on white
+	u8g.setColorIndex(1);	// black on white
 
-/*
-		u8g.drawXBMP(0, 2, ITEM_WIDTH, ITEM_HEIGHT, sd_normal_bits);
-		u8g.drawXBMP(26, 2, ITEM_WIDTH, ITEM_HEIGHT, filament_1_normal_bits);
-		u8g.drawXBMP(52, 2, ITEM_WIDTH, ITEM_HEIGHT, filament_2_normal_bits);
-		u8g.drawXBMP(78, 2, ITEM_WIDTH, ITEM_HEIGHT, leveling_normal_bits);
-		u8g.drawXBMP(104, 2, ITEM_WIDTH, ITEM_HEIGHT, homing_normal_bits);
-		u8g.drawXBMP(0, 27, ITEM_WIDTH, ITEM_HEIGHT, steppers_normal_bits);
-		u8g.drawXBMP(26, 27, ITEM_WIDTH, ITEM_HEIGHT, moveaxis_normal_bits);
-		u8g.drawXBMP(52, 27, ITEM_WIDTH, ITEM_HEIGHT, heat_normal_bits);
-		u8g.drawXBMP(78, 27, ITEM_WIDTH, ITEM_HEIGHT, lightled_normal_bits);
-		u8g.drawXBMP(104, 27, ITEM_WIDTH, ITEM_HEIGHT, info_normal_bits);
-*/
+	// Symbols menu graphics, animated fan
+	// if ((blink % 2) &&  fanSpeed )	
+	u8g.drawBitmapP(9,1,STATUS_SCREENBYTEWIDTH,STATUS_SCREENHEIGHT,status_screen0_bmp);
+	//else u8g.drawBitmapP(9,1,STATUS_SCREENBYTEWIDTH,STATUS_SCREENHEIGHT,status_screen1_bmp);
 
-		switch(item) {
-		case 0:
-			u8g.setColorIndex(0);
-			u8g.drawBox(0, 2, 24, 22);	// white on black
-			u8g.setColorIndex(1);
-//			u8g.drawXBMP(0, 2, ITEM_WIDTH, ITEM_HEIGHT, sd_hover_bits);
-			break;
-		case 1:
-			u8g.setColorIndex(0);
-			u8g.drawBox(26, 2, 24, 22);	// white on black
-			u8g.setColorIndex(1);
-//			u8g.drawXBMP(26, 2, ITEM_WIDTH, ITEM_HEIGHT, filament_1_hover_bits);
-			break;
-		case 2:
-			u8g.setColorIndex(0);
-			u8g.drawBox(52, 2, 24, 22);	// white on black
-			u8g.setColorIndex(1);
-//			u8g.drawXBMP(52, 2, ITEM_WIDTH, ITEM_HEIGHT, filament_2_hover_bits);
-			break;
-		case 3:
-			u8g.setColorIndex(0);
-			u8g.drawBox(78, 2, 24, 22);	// white on black
-			u8g.setColorIndex(1);
-//			u8g.drawXBMP(78, 2, ITEM_WIDTH, ITEM_HEIGHT, leveling_hover_bits);
-			break;
-		case 4:
-			u8g.setColorIndex(0);
-			u8g.drawBox(104, 2, 24, 22);	// white on black
-			u8g.setColorIndex(1);
-//			u8g.drawXBMP(104, 2, ITEM_WIDTH, ITEM_HEIGHT, homing_hover_bits);
-			break;
-		case 5:
-			u8g.setColorIndex(0);
-			u8g.drawBox(0, 27, 24, 22);	// white on black
-			u8g.setColorIndex(1);
-//			u8g.drawXBMP(0, 27, ITEM_WIDTH, ITEM_HEIGHT, steppers_hover_bits);
-			break;
-		case 6:
-			u8g.setColorIndex(0);
-			u8g.drawBox(26, 27, 24, 22);	// white on black
-			u8g.setColorIndex(1);
-//			u8g.drawXBMP(26, 27, ITEM_WIDTH, ITEM_HEIGHT, moveaxis_hover_bits);
-			break;
-		case 7:
-			u8g.setColorIndex(0);
-			u8g.drawBox(52, 27, 24, 22);	// white on black
-			u8g.setColorIndex(1);
-//			u8g.drawXBMP(52, 27, ITEM_WIDTH, ITEM_HEIGHT, heat_hover_bits);
-			break;
-		case 8:
-			u8g.setColorIndex(0);
-			u8g.drawBox(78, 27, 24, 22);	// white on black
-			u8g.setColorIndex(1);
-//			u8g.drawXBMP(78, 27, ITEM_WIDTH, ITEM_HEIGHT, lightled_hover_bits);
-			break;
-		case 9:
-		u8g.setColorIndex(0);
-			u8g.drawBox(104, 27, 24, 22);	// white on black
-			u8g.setColorIndex(1);
-//			u8g.drawXBMP(104, 27, ITEM_WIDTH, ITEM_HEIGHT, info_hover_bits);
-			break;
-		default:
-			break;
+	#ifdef SDSUPPORT
+	//SD Card Symbol
+	u8g.drawBox(42,42,8,7);
+	u8g.drawBox(50,44,2,5);
+	u8g.drawFrame(42,49,10,4);
+	u8g.drawPixel(50,43);
+	// Progress bar
+	u8g.drawFrame(54,49,73,4);
+
+	// SD Card Progress bar and clock
+	u8g.setFont(FONT_STATUSMENU);
+
+	if (IS_SD_PRINTING)
+	{
+	// Progress bar
+	u8g.drawBox(55,50, (unsigned int)( (71 * card.percentDone())/100) ,2);
+	}
+	else {
+			// do nothing
+		 }
+
+	u8g.setPrintPos(80,47);
+	if(starttime != 0)
+	{
+	    uint16_t time = millis()/60000 - starttime/60000;
+
+		u8g.print(itostr2(time/60));
+		u8g.print(':');
+		u8g.print(itostr2(time%60));
+	}else{
+			lcd_implementation_print_P(PSTR("--:--"));
+		 }
+	#endif
+
+	// Extruder 1
+	u8g.setFont(FONT_STATUSMENU);
+	u8g.setPrintPos(6,6);
+	u8g.print(itostr3(int(degTargetHotend(0) + 0.5)));
+	lcd_implementation_print_P(PSTR(LCD_STR_DEGREE " "));
+	u8g.setPrintPos(6,27);
+	u8g.print(itostr3(int(degHotend(0) + 0.5)));
+	lcd_implementation_print_P(PSTR(LCD_STR_DEGREE " "));
+	if (!isHeatingHotend(0)) u8g.drawBox(13,17,2,2);
+	else
+		{
+		 u8g.setColorIndex(0);	// white on black
+		 u8g.drawBox(13,17,2,2);
+		 u8g.setColorIndex(1);	// black on white
 		}
 
-		// Status line
-		u8g.drawBox(0, 51, 128, 64);
+	// Extruder 2
+	u8g.setFont(FONT_STATUSMENU);
+	#if EXTRUDERS > 1
+	u8g.setPrintPos(31,6);
+	u8g.print(itostr3(int(degTargetHotend(1) + 0.5)));
+	lcd_implementation_print_P(PSTR(LCD_STR_DEGREE " "));
+	u8g.setPrintPos(31,27);
+	u8g.print(itostr3(int(degHotend(1) + 0.5)));
+	lcd_implementation_print_P(PSTR(LCD_STR_DEGREE " "));
+	if (!isHeatingHotend(1)) u8g.drawBox(38,17,2,2);
+	else
+		{
+		 u8g.setColorIndex(0);	// white on black
+		 u8g.drawBox(38,17,2,2);
+		 u8g.setColorIndex(1);	// black on white
+		}
+	#endif
 
-		u8g.setColorIndex(0);	// white on black
-		u8g.setFont(FONT_STATUSMENU);
-		u8g.setPrintPos(0,60);
-		u8g.print(lcd_status_message);
+	// Extruder 3
+	u8g.setFont(FONT_STATUSMENU);
+	# if EXTRUDERS > 2
+	u8g.setPrintPos(55,6);
+	u8g.print(itostr3(int(degTargetHotend(2) + 0.5)));
+	lcd_implementation_print_P(PSTR(LCD_STR_DEGREE " "));
+	u8g.setPrintPos(55,27);
+	u8g.print(itostr3(int(degHotend(2) + 0.5)));
+	lcd_implementation_print_P(PSTR(LCD_STR_DEGREE " "));
+	if (!isHeatingHotend(2)) u8g.drawBox(62,17,2,2);
+	   else
+		{
+		 u8g.setColorIndex(0);	// white on black
+		 u8g.drawBox(62,17,2,2);
+		 u8g.setColorIndex(1);	// black on white
+		}
+	#endif
+
+	// Heatbed
+	u8g.setFont(FONT_STATUSMENU);
+	u8g.setPrintPos(81,6);
+	u8g.print(itostr3(int(degTargetBed() + 0.5)));
+	lcd_implementation_print_P(PSTR(LCD_STR_DEGREE " "));
+	u8g.setPrintPos(81,27);
+	u8g.print(itostr3(int(degBed() + 0.5)));
+	lcd_implementation_print_P(PSTR(LCD_STR_DEGREE " "));
+	if (!isHeatingBed()) u8g.drawBox(88,18,2,2);
+	   else
+		{
+		 u8g.setColorIndex(0);	// white on black
+		 u8g.drawBox(88,18,2,2);
+		 u8g.setColorIndex(1);	// black on white
+		}
+
+	// Fan
+	u8g.setFont(FONT_STATUSMENU);
+	u8g.setPrintPos(104,27);
+	#if defined(FAN_PIN) && FAN_PIN > -1
+	u8g.print(itostr3(int((fanSpeed*100)/256 + 1)));
+	u8g.print("%");
+	#else
+	u8g.print("---");
+	#endif
+
+
+	// X, Y, Z-Coordinates
+	u8g.setFont(FONT_STATUSMENU);
+	u8g.drawBox(0,29,128,10);
+	u8g.setColorIndex(0);	// white on black
+	u8g.setPrintPos(2,37);
+	u8g.print("X");
+	u8g.drawPixel(8,33);
+	u8g.drawPixel(8,35);
+	u8g.setPrintPos(10,37);
+	u8g.print(ftostr31ns(current_position[X_AXIS]));
+	u8g.setPrintPos(43,37);
+	lcd_implementation_print_P(PSTR("Y"));
+	u8g.drawPixel(49,33);
+	u8g.drawPixel(49,35);
+	u8g.setPrintPos(51,37);
+	u8g.print(ftostr31ns(current_position[Y_AXIS]));
+	u8g.setPrintPos(83,37);
+	u8g.print("Z");
+	u8g.drawPixel(89,33);
+	u8g.drawPixel(89,35);
+	u8g.setPrintPos(91,37);
+	u8g.print(ftostr31(current_position[Z_AXIS]));
+	u8g.setColorIndex(1);	// black on white
+
+	// Feedrate
+	u8g.setFont(u8g_font_6x10_marlin);
+	u8g.setPrintPos(3,49);
+	u8g.print(LCD_STR_FEEDRATE[0]);
+	u8g.setFont(FONT_STATUSMENU);
+	u8g.setPrintPos(12,48);
+	u8g.print(itostr3(feedmultiply));
+	u8g.print('%');
+
+	// Status line
+	u8g.setFont(FONT_STATUSMENU);
+	u8g.setPrintPos(0,61);
+	u8g.print(lcd_status_message);
+
 	} while( u8g.nextPage() ); 
 }
 

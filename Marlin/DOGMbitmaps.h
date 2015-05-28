@@ -1,8 +1,3 @@
-#ifndef DOGM_BITMAPS_H
-#define DOGM_BITMAPS_H
-
-#include <U8glib.h>
-
 #define START_BMPWIDTH 	128	//Width in pixels
 #define START_BMPHEIGHT 	64	//Height in pixels
 #define START_BMPBYTEWIDTH 	16	//Width in bytes
@@ -253,4 +248,3 @@ const unsigned char start_bmp[] U8G_PROGMEM = { //AVR-GCC, WinAVR
 #endif // Extruders 
 
 
-#endif
