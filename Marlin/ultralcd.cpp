@@ -6,6 +6,7 @@
 #include "temperature.h"
 #include "language.h"
 
+// Only for new LCD
 typedef struct {
     uint8_t type;
     char text[18];
@@ -13,6 +14,7 @@ typedef struct {
     void * data;
 } cache_entry;
 
+// Only for new LCD
 typedef struct {
     char filename[13];
     char longFilename[LONG_FILENAME_LENGTH];
@@ -82,12 +84,10 @@ bool    button_clicked_triggered;
 // Beeper related variables
 bool beeper_level = false;
 uint32_t beeper_duration = 0;
-
 uint8_t beep_count, frequency_ratio;
 
 // ISR related variables
 uint16_t lcd_timer = 0;
-
 
 // Status screen drawer variables
 uint8_t lcd_status_message_level;
@@ -266,7 +266,6 @@ void lcd_init()
     OCR5AH = 0x07;
     OCR5AL = 0xD0;
 
-
     lcd_enable_interrupt();
 
     display_view_next = view_status_screen;
@@ -314,7 +313,6 @@ static void lcd_update_button()
 	if (button_pressed_count == 200)
 	    lcd_emergency_stop();
     }
-
 
     // Update button trigger
     if ((button_clicked == true) && (button_input_blocked == false)) {
@@ -373,18 +371,18 @@ static void lcd_update_encoder()
     encoder_input_last = encoder_input;
 }
 
-void lcd_update()
+void lcd_update(bool force)
 {
 #  if (SDCARDDETECT > 0)
-    if (lcd_oldcardstatus != IS_SD_INSERTED) {
+    if ((lcd_oldcardstatus != IS_SD_INSERTED)) {
+        display_refresh_mode = CLEAR_AND_UPDATE_SCREEN;
         lcd_oldcardstatus = IS_SD_INSERTED;
 
 #ifndef DOGLCD
         lcd_implementation_init(); // to maybe revive the LCD if static electricity killed it.
-#endif // !DOGLCD
-        lcd_set_status_screen();
+#endif //DOGLCD
 
-        if (lcd_oldcardstatus) {
+        if(lcd_oldcardstatus) {
             card.initsd();
             LCD_MESSAGEPGM(MSG_SD_INSERTED);
         } else {
@@ -408,7 +406,7 @@ void lcd_update()
 
     display_view = display_view_next;
     
-    if (IS_SD_PRINTING == true) {
+    if ( (IS_SD_PRINTING == true) && (!force) ) {
         if (refresh_interval < millis()) {
             (*display_view)();
             refresh_interval = millis() + LCD_REFRESH_LIMIT;
@@ -418,14 +416,13 @@ void lcd_update()
     }
 }
 
-
-//
 void lcd_set_status_screen()
 {
     display_view_next = view_status_screen;
 
     lcd_clear_triggered_flags();
 }
+
 void lcd_set_menu(view_t menu)
 {
     display_view_next = menu;
@@ -474,7 +471,15 @@ void lcd_clear_triggered_flags() {
 }
 
 
-// Enable/disable functions
+void lcd_disable_buzzer()
+{
+    beep_count = 0;
+    beeper_duration = 0;
+    beeper_level = false;
+    WRITE(BEEPER, beeper_level);
+}
+
+// Enable/disable function
 void lcd_enable_button() {
     button_input = lcd_implementation_update_buttons();
     button_input_last = button_input;
@@ -515,6 +520,7 @@ void lcd_disable_interrupt()
 {
     lcd_disable_button();
     lcd_disable_encoder();
+    lcd_disable_buzzer();
     TIMSK5 &= ~(0x01);
 }
 
@@ -535,6 +541,7 @@ void lcd_beep()
 
 void lcd_beep_ms(uint16_t ms)
 {
+    frequency_ratio = 0;
     beeper_duration = 8 * ms;
     while (beeper_duration) {
         lcd_update();
@@ -543,8 +550,8 @@ void lcd_beep_ms(uint16_t ms)
 
 void lcd_beep_hz_ms(uint16_t frequency, uint16_t ms)
 {
-    beeper_duration = 8 * ms;
     frequency_ratio = (4000 / frequency) - 1;
+    beeper_duration = 8 * ms;
     while (beeper_duration) {
         lcd_update();
     }
@@ -708,7 +715,7 @@ static void menu_action_setting_edit_long5(const char* pstr, unsigned long* ptr,
 
 void draw_status_screen() {
     lcd_set_status_screen();
-    lcd_update();
+    lcd_update(true);
 }
 
 static void view_status_screen()
@@ -754,7 +761,7 @@ static void view_menu_main()
         if (card.isFileOpen()) {
             if (card.sdprinting)
 		MENU_ITEM(function, MSG_PAUSE_PRINT, function_sdcard_pause);
-            MENU_ITEM(function, MSG_STOP_PRINT, draw_menu_stop_confirm);
+            MENU_ITEM(submenu, MSG_STOP_PRINT, draw_menu_stop_confirm);
         } else {
             MENU_ITEM(submenu, MSG_CARD_MENU, draw_menu_sdcard);
 
@@ -1132,9 +1139,6 @@ static void function_sdcard_stop()
         card.closefile();
 
         setTargetHotend(0,0);
-#    ifdef WITBOX_DUAL
-        setTargetHotend(0,1);
-#    endif // WITBOX_DUAL
 
 #ifdef HEATED_BED_SUPPORT
         setTargetBed(0);
@@ -1165,6 +1169,9 @@ static void function_sdcard_stop()
         current_position[Y_AXIS] = Y_MAX_POS - 15;
         current_position[Z_AXIS] = Z_MAX_POS - 15;
 #    endif // X_MAX_POS < 250
+        if (current_position[Z_AXIS] > Z_MAX_POS) {
+            current_position[Z_AXIS] = Z_MAX_POS;
+        }
 
         plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], manual_feedrate[X_AXIS] / 60, active_extruder);
         st_synchronize();
@@ -2104,7 +2111,7 @@ static void function_prepare_change_filament()
 void draw_wizard_change_filament()
 {
     lcd_set_wizard(view_wizard_change_filament);
-    lcd_update();
+    lcd_update(true);
 }
 static void view_wizard_change_filament()
 {
@@ -2317,6 +2324,7 @@ static void view_wizard_change_filament()
 void draw_picture_set_temperature() 
 {
     encoder_position = 0;
+    target_temperature[0] = FILAMENT_CHANGE_TEMP;
     lcd_set_picture(view_picture_set_temperature);
 }
 
@@ -2332,7 +2340,7 @@ static void view_picture_set_temperature()
         encoder_position = 0;
         
         if (target_temperature[0] < EXTRUDE_MINTEMP) {
-            target_temperature[0] = Change_Filament_Target_Temp;
+            target_temperature[0] = EXTRUDE_MINTEMP;
         }
         if (target_temperature[0] > (HEATER_0_MAXTEMP - 10)) {
             target_temperature[0] = (HEATER_0_MAXTEMP - 10);
@@ -2502,15 +2510,12 @@ static void view_picture_splash()
         u8g.firstPage();
         do {
 #endif
-            lcd_implementation_set_cursor(1, 6);
-            lcd_implementation_print_P(PSTR(MSG_WELLCOME));
-#  ifndef WITBOX_DUAL
-            lcd_implementation_set_cursor(3, 8);
+            lcd_implementation_set_cursor(1, 4);
+            lcd_implementation_print_P(PSTR(MACHINE_NAME));
+            lcd_implementation_set_cursor(3, 4);
             lcd_implementation_print_P(PSTR(FIRMWARE_VER));
-#  else // WITBOX_DUAL
-            lcd_implementation_set_cursor(3, 6);
-            lcd_implementation_print_P(PSTR(FIRMWARE_VER));
-#  endif // WITBOX_DUAL
+            lcd_implementation_print(" ");
+            lcd_implementation_print_P(PSTR(BUILD_VER));
 #ifdef DOGLCD
         } while ( u8g.nextPage() );
 #endif
@@ -2578,6 +2583,7 @@ static void menu_action_sdfile(const char* filename, char* longFilename)
     }
 
     setTargetHotend0(200);
+    fanSpeed = PREHEAT_FAN_SPEED;
     sprintf_P(cmd, PSTR("M23 %s"), filename);
 
     enquecommand_P(PSTR("G28"));
