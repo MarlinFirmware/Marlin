@@ -2334,7 +2334,7 @@ inline void gcode_G28() {
    */
   inline void gcode_G29() {
 
-    if (planner_disabled_below_z) break; // Disable probing if resuming print
+    if (planner_disabled_below_z) return; // Disable probing if resuming print
 
     static int probe_point = -1;
     MeshLevelingState state = code_seen('S') ? (MeshLevelingState)code_value_short() : MeshReport;
@@ -2494,7 +2494,7 @@ inline void gcode_G28() {
    */
   inline void gcode_G29() {
 
-    if (planner_disabled_below_z) break; // Disable probing if resuming print
+    if (planner_disabled_below_z) return; // Disable probing if resuming print
 
     // Don't allow auto-leveling without homing first
     if (!axis_known_position[X_AXIS] || !axis_known_position[Y_AXIS]) {
