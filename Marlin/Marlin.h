@@ -261,9 +261,13 @@ extern float max_pos[3]; // axis[n].max_pos
 extern bool axis_known_position[3]; // axis[n].is_known
 =======
 extern float home_offset[3];
-extern float planner_disabled_below_z;
-extern unsigned short current_layer; // estimated current layer number
-extern float last_layer_z;
+#ifdef RESUME_FEATURE
+  extern float planner_disabled_below_z;
+#endif
+#ifdef TRACK_LAYER
+  extern float last_layer_z;
+  extern unsigned short current_layer; // estimated current layer number
+#endif //TRACK_LAYER
 
 #ifdef DELTA
   extern float endstop_adj[3];

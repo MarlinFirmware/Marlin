@@ -115,6 +115,14 @@ FORCE_INLINE uint8_t movesplanned() { return BLOCK_MOD(block_buffer_head - block
 
 void plan_set_e_position(const float &e);
 
+#ifdef RESUME_FEATURE
+  void floor_z(const float &z);
+#endif //RESUME_FEATURE
+
+#ifdef TRACK_LAYER
+  void layer_count(const float &z);
+#endif //TRACK_LAYER
+
 //===========================================================================
 //============================= public variables ============================
 //===========================================================================

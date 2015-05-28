@@ -580,6 +580,25 @@ const bool Z_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the logic
 #define DEFAULT_ZJERK                 0.4     // (mm/sec)
 #define DEFAULT_EJERK                 5.0    // (mm/sec)
 
+//===========================================================================
+//============================== Resume From Z ==============================
+//===========================================================================
+
+//This feature allows you to resume a failed print from given Z height.
+//It parses through the gcode until it passes the given Z threshold height
+//(either from the current location when selecting Menu > Resume SD from Z > file.gcode or just M19; or with M19 Z(some number here)),
+//it also compensates for z-lifts around the given threshold.
+
+//#define RESUME_FEATURE
+
+//===========================================================================
+//============================== Layer Tracking =============================
+//===========================================================================
+
+//This feature keeps track of the current layer, accounting for Z lifts and multiple objects
+//The current layer number can be found in Menu > Tune > Layer whilst printing from an LCD controller (via SD) or by sending M114 (SD or not).
+
+//#define TRACK_LAYER
 
 //=============================================================================
 //============================= Additional Features ===========================

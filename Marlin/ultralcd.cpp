@@ -64,6 +64,7 @@ static void lcd_status_screen();
   static void lcd_sdcard_menu();
 
 <<<<<<< HEAD
+<<<<<<< HEAD
   #if ENABLED(DELTA_CALIBRATION_MENU)
 =======
   static void lcd_sdcard_resume_menu();
@@ -74,6 +75,18 @@ static void lcd_status_screen();
   extern bool layer_reached;
   extern bool hops;
   extern bool gone_up;
+=======
+  #ifdef RESUME_FEATURE
+    static void lcd_sdcard_resume_menu();
+    static void lcd_sdcard_print_menu();
+    extern float planner_disabled_below_z;
+    extern float last_z;
+    extern bool z_reached;
+    extern bool layer_reached;
+    extern bool hops;
+    extern bool gone_up;
+  #endif //RESUME_FEATURE
+>>>>>>> Created the macros RESUME_FEATURE and TRACK_LAYER and wrapped everything with them.
 
   #ifdef DELTA_CALIBRATION_MENU
 >>>>>>> Initial M19 Z Resume From Z and Layer Counting
@@ -391,7 +404,9 @@ static void lcd_sdcard_stop() {
   autotempShutdown();
   cancel_heatup = true;
   lcd_setstatus(MSG_PRINT_ABORTED, true);
-  planner_disabled_below_z = 0;
+  #ifdef RESUME_FEATURE
+    planner_disabled_below_z = 0;
+  #endif //RESUME_FEATURE
 }
 
 /**
@@ -425,11 +440,18 @@ static void lcd_main_menu() {
       }
       else {
 <<<<<<< HEAD
+<<<<<<< HEAD
         MENU_ITEM(submenu, MSG_CARD_MENU, lcd_sdcard_menu);
         #if !PIN_EXISTS(SD_DETECT)
 =======
         MENU_ITEM(submenu, MSG_CARD_MENU, lcd_sdcard_print_menu);
         MENU_ITEM(submenu, MSG_CARD_RESUME_MENU, lcd_sdcard_resume_menu);
+=======
+        #ifdef RESUME_FEATURE
+          MENU_ITEM(submenu, MSG_CARD_MENU, lcd_sdcard_print_menu);
+          MENU_ITEM(submenu, MSG_CARD_RESUME_MENU, lcd_sdcard_resume_menu);
+        #endif //RESUME_FEATURE
+>>>>>>> Created the macros RESUME_FEATURE and TRACK_LAYER and wrapped everything with them.
         #if SDCARDDETECT < 1
 >>>>>>> Initial M19 Z Resume From Z and Layer Counting
           MENU_ITEM(gcode, MSG_CNG_SDCARD, PSTR("M21"));  // SD-card changed by user
@@ -521,11 +543,17 @@ static void lcd_tune_menu() {
   #endif
 
 <<<<<<< HEAD
+<<<<<<< HEAD
   #if ENABLED(BABYSTEPPING)
     #if ENABLED(BABYSTEP_XY)
 =======
     unsigned long layer = current_layer;
+=======
+  #ifdef TRACK_LAYER
+    unsigned short layer = current_layer;
+>>>>>>> Created the macros RESUME_FEATURE and TRACK_LAYER and wrapped everything with them.
     MENU_ITEM_EDIT(long5, MSG_LAYER, &layer, layer, layer);
+  #endif //TRACK_LAYER
 
   #ifdef BABYSTEPPING
     #ifdef BABYSTEP_XY
@@ -1196,16 +1224,17 @@ static void lcd_sd_updir() {
   currentMenuViewOffset = 0;
 }
 
-// Print from SD
-void lcd_sdcard_print_menu()
-{
+#ifdef RESUME_FEATURE
+  // Print from SD
+  void lcd_sdcard_print_menu()
+  {
     planner_disabled_below_z = 0;
     lcd_sdcard_menu();
-}
+  }
 
-// Print from SD but set flag to ignore movements below a certain Z
-void lcd_sdcard_resume_menu()
-{
+  // Print from SD but set flag to ignore movements below a certain Z
+  void lcd_sdcard_resume_menu()
+  {
     planner_disabled_below_z = current_position[Z_AXIS];
     last_z = 0;
     z_reached = false;
@@ -1213,7 +1242,8 @@ void lcd_sdcard_resume_menu()
     hops = false;
     gone_up = false;
     lcd_sdcard_menu();
-}
+  }
+#endif //RESUME_FEATURE
 
 /**
  *

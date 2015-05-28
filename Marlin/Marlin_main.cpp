@@ -942,7 +942,9 @@ void get_command() {
           lcd_setstatus(time, true);
           card.printingHasFinished();
           card.checkautostart(true);
-          planner_disabled_below_z = 0;
+          #ifdef RESUME_FEATURE
+            planner_disabled_below_z = 0;
+          #endif //RESUME_FEATURE
         }
         if (serial_char == '#') stop_buffering = true;
 
@@ -2041,8 +2043,9 @@ inline void gcode_G4() {
  */
 inline void gcode_G28() {
 
-  if (planner_disabled_below_z) return; // Disable homing if resuming print
-
+  #ifdef RESUME_FEATURE
+    if (planner_disabled_below_z) return; // Disable homing if resuming print
+  #endif //RESUME_FEATURE
   // Wait for planner moves to finish!
   st_synchronize();
 
@@ -2301,8 +2304,10 @@ inline void gcode_G28() {
     }
   #endif
 
-  current_layer = 0;
-  last_layer_z = 0;
+  #ifdef TRACK_LAYER
+    current_layer = 0;
+    last_layer_z = 0;
+  #endif //TRACK_LAYER
   feedrate = saved_feedrate;
   feedrate_multiplier = saved_feedrate_multiplier;
   refresh_cmd_timeout();
@@ -2334,8 +2339,9 @@ inline void gcode_G28() {
    */
   inline void gcode_G29() {
 
-    if (planner_disabled_below_z) return; // Disable probing if resuming print
-
+    #ifdef RESUME_FEATURE
+      if (planner_disabled_below_z) return; // Disable probing if resuming print
+    #endif
     static int probe_point = -1;
     MeshLevelingState state = code_seen('S') ? (MeshLevelingState)code_value_short() : MeshReport;
     if (state < 0 || state > 3) {
@@ -2444,6 +2450,10 @@ inline void gcode_G28() {
         mbl.z_values[iy][ix] = z;
 
     } // switch(state)
+    #ifdef TRACK_LAYER
+      current_layer = 0;
+      last_layer_z = 0;
+    #endif //TRACK_LAYER
   }
 
 #elif ENABLED(ENABLE_AUTO_BED_LEVELING)
@@ -2493,9 +2503,9 @@ inline void gcode_G28() {
    *
    */
   inline void gcode_G29() {
-
-    if (planner_disabled_below_z) return; // Disable probing if resuming print
-
+    #ifdef RESUME_FEATURE
+      if (planner_disabled_below_z) return; // Disable probing if resuming print
+    #endif
     // Don't allow auto-leveling without homing first
     if (!axis_known_position[X_AXIS] || !axis_known_position[Y_AXIS]) {
       LCD_MESSAGEPGM(MSG_POSITION_UNKNOWN);
@@ -2939,6 +2949,10 @@ inline void gcode_G28() {
       enqueuecommands_P(PSTR(Z_PROBE_END_SCRIPT));
       st_synchronize();
     #endif
+    #ifdef TRACK_LAYER
+      current_layer = 0;
+      last_layer_z = 0;
+    #endif //TRACK_LAYER
   }
 
   #if DISABLED(Z_PROBE_SLED)
@@ -3052,6 +3066,7 @@ inline void gcode_M17() {
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 #if ENABLED(SDSUPPORT)
 =======
 inline void gcode_M19() {
@@ -3061,13 +3076,24 @@ inline void gcode_M19() {
     prepare_move();
     enqueuecommands_P(PSTR("M114")); // tell the host where it is
   }
+=======
+#ifdef RESUME_FEATURE
+  inline void gcode_M19() {
+    if(code_seen('Z'))
+    {
+      gcode_get_destination(); // For Z
+      prepare_move();
+      enqueuecommands_P(PSTR("M114")); // tell the host where it is
+    }
+>>>>>>> Created the macros RESUME_FEATURE and TRACK_LAYER and wrapped everything with them.
 
-  planner_disabled_below_z = current_position[Z_AXIS];
+    planner_disabled_below_z = current_position[Z_AXIS];
 
-  SERIAL_PROTOCOLPGM("Resume from Z = ");
-  SERIAL_PROTOCOL(planner_disabled_below_z);
-  SERIAL_PROTOCOLPGM(" mm\n");
-}
+    SERIAL_PROTOCOLPGM("Resume from Z = ");
+    SERIAL_PROTOCOL(planner_disabled_below_z);
+    SERIAL_PROTOCOLPGM(" mm\n");
+  }
+#endif //RESUME_FEATURE
 
 #ifdef SDSUPPORT
 >>>>>>> Initial M19 Z Resume From Z and Layer Counting
@@ -3107,8 +3133,10 @@ inline void gcode_M19() {
    */
   inline void gcode_M24() {
     card.startFileprint();
-    current_layer = 0;
-    last_layer_z = 0;
+    #ifdef TRACK_LAYER
+      current_layer = 0;
+      last_layer_z = 0;
+    #endif //TRACK_LAYER
     print_job_start_ms = millis();
   }
 
@@ -3994,9 +4022,11 @@ inline void gcode_M114() {
   SERIAL_PROTOCOLPGM(" Z:");
   SERIAL_PROTOCOL(st_get_position_mm(Z_AXIS));
 
-  SERIAL_PROTOCOLPGM("  Layer:");
-  SERIAL_PROTOCOL(current_layer);
-  SERIAL_PROTOCOLLN("");
+  #ifdef TRACK_LAYER
+    SERIAL_PROTOCOLPGM("  Layer:");
+    SERIAL_PROTOCOL(current_layer);
+    SERIAL_PROTOCOLLN("");
+  #endif //TRACK_LAYER
 
   SERIAL_EOL;
 
@@ -5502,10 +5532,17 @@ void process_next_command() {
         break;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
       #if ENABLED(SDSUPPORT)
 =======
       case 19: // M19 - resume Z
         gcode_M19(); break;
+=======
+      #ifdef RESUME_FEATURE
+        case 19: // M19 - resume Z
+          gcode_M19(); break;
+      #endif //RESUME_FEATURE
+>>>>>>> Created the macros RESUME_FEATURE and TRACK_LAYER and wrapped everything with them.
 
       #ifdef SDSUPPORT
 >>>>>>> Initial M19 Z Resume From Z and Layer Counting
