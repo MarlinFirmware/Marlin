@@ -298,7 +298,7 @@
 //#define MENU_ADDAUTOSTART
 
 // Show a progress bar on the LCD when printing from SD?
-//#define LCD_PROGRESS_BAR
+#define LCD_PROGRESS_BAR
 
 #ifdef LCD_PROGRESS_BAR
   // Amount of time (ms) to show the bar
