@@ -2358,11 +2358,15 @@ inline void gcode_G28() {
   inline void gcode_G29() {
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     #ifdef RESUME_FEATURE
       if (planner_disabled_below_z) return; // Disable probing if resuming print
     #endif
 =======
     if (planner_disabled_below_z) break; // Disable probing if resuming print
+=======
+    if (planner_disabled_below_z) return; // Disable probing if resuming print
+>>>>>>> Should be return not break.
 
 >>>>>>> Initial M19 Z Resume From Z and Layer Counting
     static int probe_point = -1;
@@ -2532,7 +2536,7 @@ inline void gcode_G28() {
     #endif
 =======
 
-    if (planner_disabled_below_z) break; // Disable probing if resuming print
+    if (planner_disabled_below_z) return; // Disable probing if resuming print
 
 >>>>>>> Initial M19 Z Resume From Z and Layer Counting
     // Don't allow auto-leveling without homing first
