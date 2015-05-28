@@ -135,6 +135,12 @@
 #ifndef MSG_NOZZLE
 #define MSG_NOZZLE                          "Nozzle"
 #endif
+#ifndef MSG_N0
+#define MSG_N0                              " 0"
+#endif
+#ifndef MSG_N1
+#define MSG_N1                              " 1"
+#endif
 #ifndef MSG_N2
 #define MSG_N2                              " 2"
 #endif
@@ -152,18 +158,6 @@
 #endif
 #ifndef MSG_FLOW
 #define MSG_FLOW                            "Flow"
-#endif
-#ifndef MSG_F0
-#define MSG_F0                              " 0"
-#endif
-#ifndef MSG_F1
-#define MSG_F1                              " 1"
-#endif
-#ifndef MSG_F2
-#define MSG_F2                              " 2"
-#endif
-#ifndef MSG_F3
-#define MSG_F3                              " 3"
 #endif
 #ifndef MSG_CONTROL
 #define MSG_CONTROL                         "Control"
