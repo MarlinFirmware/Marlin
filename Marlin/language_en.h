@@ -255,6 +255,24 @@
 #ifndef MSG_ESTEPS
 #define MSG_ESTEPS                          "Esteps/mm"
 #endif
+#ifndef MSG_X1OFFSET
+#define MSG_X1OFFSET                         "T1X Offset"
+#endif
+#ifndef MSG_Y1OFFSET
+#define MSG_Y1OFFSET                         "T1Y Offset"
+#endif
+#ifndef MSG_X2OFFSET
+#define MSG_X2OFFSET                         "T2X Offset"
+#endif
+#ifndef MSG_Y2OFFSET
+#define MSG_Y2OFFSET                         "T2Y Offset"
+#endif
+#ifndef MSG_X3OFFSET
+#define MSG_X3OFFSET                         "T3X Offset"
+#endif
+#ifndef MSG_Y3OFFSET
+#define MSG_Y3OFFSET                         "T3Y Offset"
+#endif
 #ifndef MSG_TEMPERATURE
 #define MSG_TEMPERATURE                     "Temperature"
 #endif
