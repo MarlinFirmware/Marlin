@@ -256,6 +256,8 @@ Here are some standard links for getting your machine calibrated:
 //#define PID_BED_DEBUG // Sends debug data to the serial port.
 
 #ifdef PIDTEMPBED
+    #define PID_BED_INTEGRAL_DRIVE_MAX MAX_BED_POWER //limit for the integral term
+
 //Kossel Pro heated bed plate with borosilicate glass
 //from pidautotune (M303 E-1 S60 C8)
     #define  DEFAULT_bedKp 370.25
