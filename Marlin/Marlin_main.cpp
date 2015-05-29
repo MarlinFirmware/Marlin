@@ -3951,14 +3951,8 @@ void error_invalid_extruder(int code, int e) {
  *       D<millimeters>
  */
 inline void gcode_M200() {
-  int tmp_extruder = active_extruder;
-  if (code_seen('T')) {
-    tmp_extruder = code_value_short();
-    if (tmp_extruder >= EXTRUDERS) {
-      error_invalid_extruder(200, tmp_extruder);
-      return;
-    }
-  }
+
+  if (setTargetedHotend(200)) return;
 
   if (code_seen('D')) {
     float diameter = code_value();
@@ -3967,7 +3961,7 @@ inline void gcode_M200() {
     // for all extruders
     volumetric_enabled = (diameter != 0.0);
     if (volumetric_enabled) {
-      filament_size[tmp_extruder] = diameter;
+      filament_size[target_extruder] = diameter;
       // make sure all extruders have some sane value for the filament size
       for (int i=0; i<EXTRUDERS; i++)
         if (! filament_size[i]) filament_size[i] = DEFAULT_NOMINAL_FILAMENT_DIA;
@@ -6531,7 +6525,7 @@ void Stop() {
   }
 }
 
-bool setTargetedHotend(int code){
+bool setTargetedHotend(int code) {
   target_extruder = active_extruder;
   if (code_seen('T')) {
     target_extruder = code_value_short();
@@ -6542,6 +6536,7 @@ bool setTargetedHotend(int code){
         case 109:
         case 218:
         case 221:
+        case 200:
           error_invalid_extruder(code, target_extruder);
           break;
       }
