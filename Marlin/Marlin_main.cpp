@@ -5297,8 +5297,6 @@ void process_next_command() {
       case 92: // G92
         gcode_G92();
         break;
-
-      default: code_is_good = false;
     }
     break;
 
@@ -5388,8 +5386,6 @@ void process_next_command() {
       case 109: // M109: Wait for temperature
         gcode_M109();
         break;
-
-      case 110: break; // M110: Set line number - don't show "unknown command"
 
       #if HAS_TEMP_BED
         case 190: // M190: Wait for bed heater to reach target
@@ -5731,14 +5727,14 @@ void process_next_command() {
       case 999: // M999: Restart after being Stopped
         gcode_M999();
         break;
-
-      default: code_is_good = false;
     }
     break;
 
     case 'T':
       gcode_T(codenum);
     break;
+
+    default: code_is_good = false;
   }
 
 ExitUnknownCommand:
