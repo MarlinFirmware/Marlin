@@ -154,10 +154,10 @@ static void lcd_implementation_clear()
 static void lcd_implementation_print(const char* str)
 {
   u8g.print(str);
-      int txt2X = (u8g.getWidth() - (sizeof(STRING_SPLASH_LINE2) - 1)*DOG_CHAR_WIDTH) / 2;
-      u8g.drawStr(txt1X, u8g.getHeight() - DOG_CHAR_HEIGHT*3/2, STRING_SPLASH_LINE1);
-      u8g.drawStr(txt2X, u8g.getHeight() - DOG_CHAR_HEIGHT*1/2, STRING_SPLASH_LINE2);
-    #endif
+  	int txt1X = (u8g.getWidth() - (sizeof(STRING_SPLASH_LINE1) - 1)*DOG_CHAR_WIDTH) / 2;
+  	int txt2X = (u8g.getWidth() - (sizeof(STRING_SPLASH_LINE2) - 1)*DOG_CHAR_WIDTH) / 2;
+  	u8g.drawStr(txt1X, u8g.getHeight() - DOG_CHAR_HEIGHT*3/2, STRING_SPLASH_LINE1);
+  	u8g.drawStr(txt2X, u8g.getHeight() - DOG_CHAR_HEIGHT*1/2, STRING_SPLASH_LINE2);
 }
 
 static void lcd_implementation_print(const char str)
@@ -329,10 +329,11 @@ static void lcd_implementation_status_screen()
       u8g.print("%");
     }
     else
-  #endif
     {
       u8g.print("---");
     }
+  #endif
+
 
   // X, Y, Z-Coordinates
   u8g.setFont(FONT_STATUSMENU);
@@ -404,7 +405,7 @@ static void lcd_implementation_drawmenu_generic(uint8_t row, const char* pstr, c
 		u8g.print(post_char);
 		u8g.print(' ');
 		u8g.setColorIndex(1);		// restore settings to black on white
-}
+
   u8g.setPrintPos(START_ROW * DOG_CHAR_WIDTH, (row + 1) * DOG_CHAR_HEIGHT);
 }
 
@@ -531,30 +532,36 @@ static void lcd_implementation_drawmenu_setting_edit_generic_P(uint8_t row, cons
 #define lcd_implementation_drawmenu_setting_edit_callback_bool(row, pstr, pstr2, data, callback) lcd_implementation_drawmenu_setting_edit_generic_P(row, pstr, ' ', (*(data))?PSTR(MSG_ON):PSTR(MSG_OFF))
 
 void lcd_implementation_drawedit(const char* pstr, char* value)
-{
+{ 
+	uint8_t rows = 1;
 	u8g.firstPage();
 	do {
-		u8g.setPrintPos(0 * DOG_CHAR_WIDTH_LARGE, (u8g.getHeight() - 1 - DOG_CHAR_HEIGHT_LARGE) - (1 * DOG_CHAR_HEIGHT_LARGE) - START_ROW );
+		u8g.setPrintPos(0 * DOG_CHAR_WIDTH_EDIT, (u8g.getHeight() - 1 - DOG_CHAR_HEIGHT_EDIT) - (1 * DOG_CHAR_HEIGHT_EDIT) - START_ROW );
 		u8g.setFont(u8g_font_9x18);
 		lcd_implementation_print_P(pstr);
       u8g.setFont(FONT_MENU_EDIT);
-      lcd_width = LCD_WIDTH_EDIT + 1;
-      char_width = DOG_CHAR_WIDTH_EDIT;
-      if (lcd_strlen_P(pstr) >= LCD_WIDTH_EDIT - lcd_strlen(value)) rows = 2;
+      //uint8_t lcd_width = LCD_WIDTH_EDIT + 1;
+      //uint8_t char_width = DOG_CHAR_WIDTH_EDIT;
+      if (lcd_strlen_P(pstr) >= LCD_WIDTH_EDIT - lcd_strlen(value))
+  	{ 
+  		rows = 2;
     }
-    else {
+    else 
+    {
       u8g.setFont(FONT_MENU);
     }
-  #endif
 
-  if (lcd_strlen_P(pstr) > LCD_WIDTH - 2 - lcd_strlen(value)) rows = 2;
+  		if (lcd_strlen_P(pstr) > LCD_WIDTH - 2 - lcd_strlen(value))
+  		{
+			rows = 2;
+  		} 
 
-  const float kHalfChar = DOG_CHAR_HEIGHT_EDIT / 2;
-  float rowHeight = u8g.getHeight() / (rows + 1); // 1/(rows+1) = 1/2 or 1/3
+  		const float kHalfChar = DOG_CHAR_HEIGHT_EDIT / 2;
+  		float rowHeight = u8g.getHeight() / (rows + 1); // 1/(rows+1) = 1/2 or 1/3
 
-  u8g.setPrintPos(0, rowHeight + kHalfChar);
+  		u8g.setPrintPos(0, rowHeight + kHalfChar);
 		u8g.print(':');
-		u8g.setPrintPos((14 - strlen(value)) * DOG_CHAR_WIDTH_LARGE, (u8g.getHeight() - 1 - DOG_CHAR_HEIGHT_LARGE) - (1 * DOG_CHAR_HEIGHT_LARGE) - START_ROW );
+		u8g.setPrintPos((14 - strlen(value)) * DOG_CHAR_WIDTH_EDIT, (u8g.getHeight() - 1 - DOG_CHAR_HEIGHT_EDIT) - (1 * DOG_CHAR_HEIGHT_EDIT) - START_ROW );
 		u8g.print(value);
 	} while ( u8g.nextPage() );
 }

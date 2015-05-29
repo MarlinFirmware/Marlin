@@ -65,7 +65,8 @@
  // Cooling Fans
  #define FAN_0_PIN          12
  #define FAN_1_PIN          7
- #define FAN_PIN            FAN_0_PIN    
+ #define FAN_PIN            FAN_0_PIN 
+ #define FAN_EXTRUDER		11   
 
  // Auxiliar Power Channel Driver
  #define AUX_DRIVER_PIN     2

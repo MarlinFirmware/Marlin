@@ -2659,6 +2659,24 @@ menu_edit_type(float, float51, ftostr51, 10)
 menu_edit_type(float, float52, ftostr52, 100)
 menu_edit_type(unsigned long, long5, ftostr5, 0.01)
 
+int lcd_strlen(char *s) {
+  int i = 0, j = 0;
+  while (s[i]) {
+    if ((s[i] & 0xc0) != 0x80) j++;
+    i++;
+  }
+  return j;
+}
+
+int lcd_strlen_P(const char *s) {
+  int j = 0;
+  while (pgm_read_byte(s)) {
+    if ((pgm_read_byte(s) & 0xc0) != 0x80) j++;
+    s++;
+  }
+  return j;
+}
+
 /********************************/
 /** Float conversion utilities **/
 /********************************/

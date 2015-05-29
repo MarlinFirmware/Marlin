@@ -25,10 +25,12 @@ CardReader::CardReader()
    autostart_stilltocheck=true; //the SD start is delayed, because otherwise the serial cannot answer fast enough to make contact with the host software.
    autostart_index=0;
   //power to SD reader
-  #if SDPOWER > -1
-    SET_OUTPUT(SDPOWER); 
-    WRITE(SDPOWER,HIGH);
-  #endif //SDPOWER
+  #ifdef SDPOWER
+    #if SDPOWER > -1
+      SET_OUTPUT(SDPOWER); 
+      WRITE(SDPOWER,HIGH);
+    #endif //SDPOWER
+  #endif
   
   autostart_atmillis=millis()+5000;
 }
