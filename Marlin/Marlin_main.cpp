@@ -3938,20 +3938,14 @@ inline void gcode_M121() { enable_endstops(false); }
 #endif // BLINKM
 
 /**
- * M200: Set filament diameter and set E axis units to cubic millimeters (use S0 to set back to millimeters).
- *       T<extruder>
- *       D<millimeters>
+ * M200: Set filament diameter and set E axis units to cubic millimeters
+ *
+ *    T<extruder> - Optional extruder number. Current extruder if omitted.
+ *    D<mm> - Diameter of the filament. Use "D0" to set units back to millimeters.
  */
 inline void gcode_M200() {
-  int tmp_extruder = active_extruder;
-  if (code_seen('T')) {
-    tmp_extruder = code_value_short();
-    if (tmp_extruder >= EXTRUDERS) {
-      SERIAL_ECHO_START;
-      SERIAL_ECHO(MSG_M200_INVALID_EXTRUDER);
-      return;
-    }
-  }
+
+  if (setTargetedHotend(200)) return;
 
   if (code_seen('D')) {
     float diameter = code_value();
@@ -3960,7 +3954,7 @@ inline void gcode_M200() {
     // for all extruders
     volumetric_enabled = (diameter != 0.0);
     if (volumetric_enabled) {
-      filament_size[tmp_extruder] = diameter;
+      filament_size[target_extruder] = diameter;
       // make sure all extruders have some sane value for the filament size
       for (int i=0; i<EXTRUDERS; i++)
         if (! filament_size[i]) filament_size[i] = DEFAULT_NOMINAL_FILAMENT_DIA;
@@ -6524,30 +6518,25 @@ void Stop() {
   }
 }
 
-bool setTargetedHotend(int code){
+bool setTargetedHotend(int code) {
   target_extruder = active_extruder;
   if (code_seen('T')) {
     target_extruder = code_value_short();
     if (target_extruder >= EXTRUDERS) {
-      SERIAL_ECHO_START;
-      switch(code){
+      switch(code) {
         case 104:
-          SERIAL_ECHO(MSG_M104_INVALID_EXTRUDER);
-          break;
         case 105:
-          SERIAL_ECHO(MSG_M105_INVALID_EXTRUDER);
-          break;
         case 109:
-          SERIAL_ECHO(MSG_M109_INVALID_EXTRUDER);
-          break;
         case 218:
-          SERIAL_ECHO(MSG_M218_INVALID_EXTRUDER);
-          break;
         case 221:
-          SERIAL_ECHO(MSG_M221_INVALID_EXTRUDER);
+        case 200:
+          SERIAL_ECHO_START;
+          SERIAL_CHAR('M');
+          SERIAL_ECHO(code);
+          SERIAL_ECHOPGM(" " MSG_INVALID_EXTRUDER " ");
+          SERIAL_ECHOLN(target_extruder);
           break;
       }
-      SERIAL_ECHOLN(target_extruder);
       return true;
     }
   }
