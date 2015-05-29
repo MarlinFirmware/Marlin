@@ -2644,16 +2644,23 @@ void process_commands()
   				// prob 1
   				do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS],Z_MIN_POS+10);
     			lcd_enable_interrupt();
-    
-  				#if X_MAX_POS > 250 //Witbox
-    				do_blocking_move_to((X_MAX_POS-X_MIN_POS)/2,Y_MAX_POS-10, current_position[Z_AXIS]);
-    			#elif Z_MAX_POS > 200 //Hephestos 2
-    				do_blocking_move_to(5, 10, current_position[Z_AXIS]);
-  				#elif Y_MAX_POS > 250 //Hephestos XL
-    				do_blocking_move_to(20, 260, current_position[Z_AXIS]);
-  				#else //Hephestos
-    				do_blocking_move_to(20, 190, current_position[Z_AXIS]);
-  				#endif
+
+    			#ifndef Z_SAFE_HOMING
+    				#if X_MAX_POS > 250 //Witbox
+    					do_blocking_move_to((X_MAX_POS-X_MIN_POS)/2,Y_MAX_POS-10, current_position[Z_AXIS]);
+    				#elif Y_MAX_POS > 250 //Hephestos XL
+    					do_blocking_move_to(20, 260, current_position[Z_AXIS]);
+  					#else //Hephestos
+    					do_blocking_move_to(20, 190, current_position[Z_AXIS]);
+    				#endif
+    			#else
+    				#if X_MAX_POS > 250 //Witbox 2
+    					do_blocking_move_to((X_MAX_POS-X_MIN_POS)/2,Y_MAX_POS-10, current_position[Z_AXIS]);
+    				#elif Z_MAX_POS > 200 //Hephestos 2
+    					do_blocking_move_to(5, 10, current_position[Z_AXIS]);
+    				#endif
+    			#endif
+
     			#ifdef Z_SAFE_HOMING
     				do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], Z_PROBE_OFFSET_FROM_EXTRUDER);
   				#else
@@ -2669,21 +2676,27 @@ void process_commands()
     			lcd_update();
   	
   				do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS],Z_MIN_POS+10);
-  				#if X_MAX_POS > 250 //Witbox
-  					do_blocking_move_to(90, 5, current_position[Z_AXIS]);
-  				#elif Z_MAX_POS > 200 //Hephestos 2
-    				do_blocking_move_to(215, 10, current_position[Z_AXIS]);
-				#elif Y_MAX_POS > 250 //Hephestos XL
-					do_blocking_move_to(190, 260, current_position[Z_AXIS]);
-  				#else //Hephestos
-  					do_blocking_move_to(195, 190, current_position[Z_AXIS]);
-  				#endif
-  				#ifdef Z_SAFE_HOMING
+  				#ifndef Z_SAFE_HOMING
+    				#if X_MAX_POS > 250 //Witbox
+    					do_blocking_move_to(90, 5, current_position[Z_AXIS]);
+    				#elif Y_MAX_POS > 250 //Hephestos XL
+    					do_blocking_move_to(190, 260, current_position[Z_AXIS]);
+  					#else //Hephestos
+    					do_blocking_move_to(195, 190, current_position[Z_AXIS]);
+    				#endif
+    			#else
+    				#if X_MAX_POS > 250 //Witbox 2
+    					do_blocking_move_to(90, 5, current_position[Z_AXIS]);
+    				#elif Z_MAX_POS > 200 //Hephestos 2
+    					do_blocking_move_to(215, 10, current_position[Z_AXIS]);
+    				#endif
+    			#endif
+
+    			#ifdef Z_SAFE_HOMING
     				do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], Z_PROBE_OFFSET_FROM_EXTRUDER);
   				#else
   					do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], Z_MIN_POS);
   				#endif
-
   	  
     			lcd_clear_triggered_flags();
   				while(!LCD_CLICKED) {
@@ -2696,15 +2709,22 @@ void process_commands()
     			lcd_update();
   		  
   				do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS],Z_MIN_POS+10);
-  				#if X_MAX_POS > 250 //Witbox
-    				do_blocking_move_to(205, 5, current_position[Z_AXIS]);
-    			#elif Z_MAX_POS > 200 //Hephestos 2
-    				do_blocking_move_to(110, 280, current_position[Z_AXIS]);
-				#elif Y_MAX_POS > 250 //Hephestos XL
-					do_blocking_move_to(20, 40, current_position[Z_AXIS]);
-  				#else //Hephestos
-    				do_blocking_move_to(20, 20, current_position[Z_AXIS]);
-  				#endif
+  				#ifndef Z_SAFE_HOMING
+    				#if X_MAX_POS > 250 //Witbox
+    					do_blocking_move_to(205, 5, current_position[Z_AXIS]);
+    				#elif Y_MAX_POS > 250 //Hephestos XL
+    					do_blocking_move_to(20, 40, current_position[Z_AXIS]);
+  					#else //Hephestos
+    					do_blocking_move_to(20, 20, current_position[Z_AXIS]);
+    				#endif
+    			#else
+    				#if X_MAX_POS > 250 //Witbox 2
+    					do_blocking_move_to(205, 5, current_position[Z_AXIS]);
+    				#elif Z_MAX_POS > 200 //Hephestos 2
+    					do_blocking_move_to(110, 280, current_position[Z_AXIS]);
+    				#endif
+    			#endif
+  				
   				#ifdef Z_SAFE_HOMING
     				do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], Z_PROBE_OFFSET_FROM_EXTRUDER);
   				#else
@@ -2718,7 +2738,7 @@ void process_commands()
   				}
 
   				// prob 4
-    			#if X_MAX_POS < 250 && Z_MAX_POS < 200
+  				#if X_MAX_POS < 250 && Z_MAX_POS < 200
     				lcd_wizard_set_page(4);
     				lcd_update();
   		  
@@ -2728,18 +2748,19 @@ void process_commands()
     				#else //Hephestos
     					do_blocking_move_to(195, 20, current_position[Z_AXIS]);
     				#endif
-    				#ifdef Z_SAFE_HOMING
-	    				do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], Z_PROBE_OFFSET_FROM_EXTRUDER);
-	  				#else
-	  					do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], Z_MIN_POS);
-	  				#endif
-  	
-    				lcd_clear_triggered_flags();
-    				while(!LCD_CLICKED){
-      					manage_heater();
-      					manage_inactivity();
-    				}
     			#endif
+
+    			#ifdef Z_SAFE_HOMING
+	    			do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], Z_PROBE_OFFSET_FROM_EXTRUDER);
+	  			#else
+	  				do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], Z_MIN_POS);
+	  			#endif
+  	
+    			lcd_clear_triggered_flags();
+    			while(!LCD_CLICKED){
+      				manage_heater();
+      				manage_inactivity();
+    			}
 
     			// final prob
     			lcd_wizard_set_page(5);
@@ -2751,6 +2772,7 @@ void process_commands()
   				#else
     				do_blocking_move_to((X_MAX_POS-X_MIN_POS)/2, (Y_MAX_POS-Y_MIN_POS)/2, current_position[Z_AXIS]);
   				#endif
+
   				#ifdef Z_SAFE_HOMING
     				do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], Z_PROBE_OFFSET_FROM_EXTRUDER);
   				#else
