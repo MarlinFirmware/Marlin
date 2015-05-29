@@ -1535,6 +1535,12 @@ void process_commands()
 
       enable_endstops(true);
 
+      			//Extruder is raised before do the homing routine
+      			destination[Z_AXIS] = 10 * home_dir(Z_AXIS) * (-1);
+	      		feedrate = max_feedrate[Z_AXIS];
+	      		plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate, active_extruder);
+	      		st_synchronize();
+
       for(int8_t i=0; i < NUM_AXIS; i++) {
         destination[i] = current_position[i];
       }
@@ -1680,8 +1686,8 @@ void process_commands()
           }
         #else                      // Z Safe mode activated.
           if(home_all_axis) {
-            destination[X_AXIS] = round(Z_SAFE_HOMING_X_POINT - X_PROBE_OFFSET_FROM_EXTRUDER);
-            destination[Y_AXIS] = round(Z_SAFE_HOMING_Y_POINT - Y_PROBE_OFFSET_FROM_EXTRUDER);
+		destination[X_AXIS] = round(Z_SAFE_HOMING_X_POINT);
+	   	destination[Y_AXIS] = round(Z_SAFE_HOMING_Y_POINT);
             destination[Z_AXIS] = Z_RAISE_BEFORE_HOMING * home_dir(Z_AXIS) * (-1);    // Set destination away from bed
             feedrate = XY_TRAVEL_SPEED/60;
             current_position[Z_AXIS] = 0;
@@ -1730,7 +1736,7 @@ void process_commands()
           current_position[Z_AXIS]=code_value()+add_homing[Z_AXIS];
         }
       }
-      #ifdef ENABLE_AUTO_BED_LEVELING
+      			#ifdef Z_SAFE_HOMING
         if((home_all_axis) || (code_seen(axis_codes[Z_AXIS]))) {
           current_position[Z_AXIS] += zprobe_zoffset;  //Add Z_Probe offset (the distance is negative)
         }
@@ -3925,46 +3931,136 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
     			lcd_disable_interrupt();
     			enable_endstops(true);
 
-    			for(int8_t i=0; i < NUM_AXIS; i++) {
-    				destination[i] = current_position[i];
-    			}
-    			feedrate = 0.0;
-    			home_all_axis = !((code_seen(axis_codes[0])) || (code_seen(axis_codes[1])) || (code_seen(axis_codes[2])));
+      			//Extruder is raised before do the homing routine
+      			destination[Z_AXIS] = 10 * home_dir(Z_AXIS) * (-1);
+	      		feedrate = max_feedrate[Z_AXIS];
+	      		plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate, active_extruder);
+	      		st_synchronize();
 
-  				#if Z_HOME_DIR > 0                      // If homing away from BED do Z first
-    				if((home_all_axis) || (code_seen(axis_codes[Z_AXIS]))) {
-    					HOMEAXIS(Z);
-    				}
-  				#endif
-    			if((home_all_axis) || (code_seen(axis_codes[X_AXIS]))) {
-      				HOMEAXIS(X);
-    			}
-    			if((home_all_axis) || (code_seen(axis_codes[Y_AXIS]))) {
-      				HOMEAXIS(Y);
-    			}
-  				#if Z_HOME_DIR < 0                      // If homing towards BED do Z last
-    				if((home_all_axis) || (code_seen(axis_codes[Z_AXIS]))) {
-    					HOMEAXIS(Z);
-    				}
-  				#endif
+      			for(int8_t i=0; i < NUM_AXIS; i++) {
+					destination[i] = current_position[i];
+      			}
+      			feedrate = 0.0;
 
-    			if(code_seen(axis_codes[X_AXIS])) {
-      				if(code_value_long() != 0) {
-        				current_position[X_AXIS]=code_value()+add_homing[0];
-      				}
-   				}
+      			home_all_axis = !((code_seen(axis_codes[X_AXIS])) || (code_seen(axis_codes[Y_AXIS])) || (code_seen(axis_codes[Z_AXIS])));
 
-    			if(code_seen(axis_codes[Y_AXIS])) {
-      				if(code_value_long() != 0) {
-        				current_position[Y_AXIS]=code_value()+add_homing[1];
-      				}
-    			}
+      			#if Z_HOME_DIR > 0                      // If homing away from BED do Z first
+      				if((home_all_axis) || (code_seen(axis_codes[Z_AXIS]))) {
+						HOMEAXIS(Z);
+     				}
+				#endif
 
-    			if(code_seen(axis_codes[Z_AXIS])) {
-      				if(code_value_long() != 0) {
-        				current_position[Z_AXIS]=code_value()+add_homing[2];
-      				}
-    			}
+      			if((home_all_axis) || (code_seen(axis_codes[X_AXIS])))
+      			{
+      				#ifdef DUAL_X_CARRIAGE
+						int tmp_extruder = active_extruder;
+						extruder_duplication_enabled = false;
+						active_extruder = !active_extruder;
+						HOMEAXIS(X);
+						inactive_extruder_x_pos = current_position[X_AXIS];
+						active_extruder = tmp_extruder;
+						HOMEAXIS(X);
+						// reset state used by the different modes
+						memcpy(raised_parked_position, current_position, sizeof(raised_parked_position));
+						delayed_move_time = 0;
+						active_extruder_parked = true;
+      				#else
+						HOMEAXIS(X);
+      				#endif
+      			}
+
+      			if((home_all_axis) || (code_seen(axis_codes[Y_AXIS]))) {
+					HOMEAXIS(Y);
+     			}
+
+      			if(code_seen(axis_codes[X_AXIS]))
+      			{
+					if(code_value_long() != 0) {
+	  					current_position[X_AXIS]=code_value()+add_homeing[0];
+					}
+      			}
+
+      			if(code_seen(axis_codes[Y_AXIS])) {
+					if(code_value_long() != 0) {
+	  					current_position[Y_AXIS]=code_value()+add_homeing[1];
+					}
+      			}
+
+      			#if Z_HOME_DIR < 0                      // If homing towards BED do Z last
+				#ifndef Z_SAFE_HOMING
+	  				if((home_all_axis) || (code_seen(axis_codes[Z_AXIS]))) {
+	    				#if defined (Z_RAISE_BEFORE_HOMING) && (Z_RAISE_BEFORE_HOMING > 0)
+	      					destination[Z_AXIS] = Z_RAISE_BEFORE_HOMING * home_dir(Z_AXIS) * (-1);    // Set destination away from bed
+	      					feedrate = max_feedrate[Z_AXIS];
+	      					plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate, active_extruder);
+	      					st_synchronize();
+	    				#endif
+	    				HOMEAXIS(Z);
+	  				}
+				#else                      // Z Safe mode activated.
+					if(home_all_axis) {
+						destination[X_AXIS] = round(Z_SAFE_HOMING_X_POINT);
+	   					destination[Y_AXIS] = round(Z_SAFE_HOMING_Y_POINT);
+	    				destination[Z_AXIS] = Z_RAISE_BEFORE_HOMING * home_dir(Z_AXIS) * (-1);    // Set destination away from bed
+	    				feedrate = XY_TRAVEL_SPEED;
+	    				current_position[Z_AXIS] = 0;
+
+	   					plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+	    				plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate, active_extruder);
+	    				st_synchronize();
+	    				current_position[X_AXIS] = destination[X_AXIS];
+	    				current_position[Y_AXIS] = destination[Y_AXIS];
+
+	    				HOMEAXIS(Z);
+	  				}
+					// Let's see if X and Y are homed and probe is inside bed area.
+	  				if(code_seen(axis_codes[Z_AXIS])) {
+	    				if ( (axis_known_position[X_AXIS]) && (axis_known_position[Y_AXIS]) \
+	      				&& (current_position[X_AXIS]+X_PROBE_OFFSET_FROM_EXTRUDER >= X_MIN_POS) \
+	      				&& (current_position[X_AXIS]+X_PROBE_OFFSET_FROM_EXTRUDER <= X_MAX_POS) \
+	      				&& (current_position[Y_AXIS]+Y_PROBE_OFFSET_FROM_EXTRUDER >= Y_MIN_POS) \
+	      				&& (current_position[Y_AXIS]+Y_PROBE_OFFSET_FROM_EXTRUDER <= Y_MAX_POS)) {
+	      					current_position[Z_AXIS] = 0;
+	      					plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+	      					destination[Z_AXIS] = Z_RAISE_BEFORE_HOMING * home_dir(Z_AXIS) * (-1);    // Set destination away from bed
+	      					feedrate = max_feedrate[Z_AXIS];
+	      					plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate, active_extruder);
+	      					st_synchronize();
+
+							HOMEAXIS(Z);
+	    				} else if (!((axis_known_position[X_AXIS]) && (axis_known_position[Y_AXIS]))) {
+							LCD_MESSAGEPGM(MSG_POSITION_UNKNOWN);
+							SERIAL_ECHO_START;
+							SERIAL_ECHOLNPGM(MSG_POSITION_UNKNOWN);
+	    				} else {
+							LCD_MESSAGEPGM(MSG_ZPROBE_OUT);
+							SERIAL_ECHO_START;
+							SERIAL_ECHOLNPGM(MSG_ZPROBE_OUT);
+	    				}
+	  				}
+				#endif
+      			#endif
+
+
+
+      			if(code_seen(axis_codes[Z_AXIS])) {
+					if(code_value_long() != 0) {
+	  					current_position[Z_AXIS]=code_value()+add_homeing[2];
+					}
+      			}
+      			#ifdef ENABLE_AUTO_BED_LEVELING
+					if((home_all_axis) || (code_seen(axis_codes[Z_AXIS]))) {
+	  					current_position[Z_AXIS] += zprobe_zoffset;  //Add Z_Probe offset (the distance is negative)
+					}
+      			#endif
+      			plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+
+      			#ifdef ENDSTOPS_ONLY_FOR_HOMING
+					enable_endstops(false);
+      			#endif
+
+      			endstops_hit_on_purpose();
+      			lcd_enable_interrupt();
 
     			plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
 
@@ -3985,50 +4081,57 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
     
   				#if X_MAX_POS > 250 //Witbox
     				do_blocking_move_to((X_MAX_POS-X_MIN_POS)/2,Y_MAX_POS-10, current_position[Z_AXIS]);
+    			#elif Z_MAX_POS > 200 //Hephestos 2
+    				do_blocking_move_to(5, 10, current_position[Z_AXIS]);
   				#elif Y_MAX_POS > 250 //Hephestos XL
     				do_blocking_move_to(20, 260, current_position[Z_AXIS]);
   				#else //Hephestos
     				do_blocking_move_to(20, 190, current_position[Z_AXIS]);
   				#endif
-    			do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], Z_MIN_POS);
+    			do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], Z_PROBE_OFFSET_FROM_EXTRUDER);
   	
 
     			lcd_clear_triggered_flags();
     			while(!LCD_CLICKED) {          
       				manage_heater();
     			}
-  	
+  				// prob 2
   				lcd_wizard_set_page(2);
     			lcd_update();
   	
   				do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS],Z_MIN_POS+10);
   				#if X_MAX_POS > 250 //Witbox
   					do_blocking_move_to(90, 5, current_position[Z_AXIS]);
+  				#elif Z_MAX_POS > 200 //Hephestos 2
+    				do_blocking_move_to(215, 10, current_position[Z_AXIS]);
 				#elif Y_MAX_POS > 250 //Hephestos XL
 					do_blocking_move_to(190, 260, current_position[Z_AXIS]);
   				#else //Hephestos
   					do_blocking_move_to(195, 190, current_position[Z_AXIS]);
   				#endif
-  				do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS],Z_MIN_POS);
+  				do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS],Z_PROBE_OFFSET_FROM_EXTRUDER);
   	  
     			lcd_clear_triggered_flags();
   				while(!LCD_CLICKED) {
   	  				manage_heater();
   	  				manage_inactivity();
   				}
-  	
+  				
+  				// prob 3
   				lcd_wizard_set_page(3);
     			lcd_update();
   		  
   				do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS],Z_MIN_POS+10);
   				#if X_MAX_POS > 250 //Witbox
     				do_blocking_move_to(205, 5, current_position[Z_AXIS]);
+    			#elif Z_MAX_POS > 200 //Hephestos 2
+    				do_blocking_move_to(110, 280, current_position[Z_AXIS]);
 				#elif Y_MAX_POS > 250 //Hephestos XL
 					do_blocking_move_to(20, 40, current_position[Z_AXIS]);
   				#else //Hephestos
     				do_blocking_move_to(20, 20, current_position[Z_AXIS]);
   				#endif
-  					do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS],Z_MIN_POS);
+  					do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS],Z_PROBE_OFFSET_FROM_EXTRUDER);
 
     			lcd_clear_triggered_flags();
   	 			while(!LCD_CLICKED) {
@@ -4036,7 +4139,8 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
   	  				manage_inactivity();
   				}
 
-    			#if X_MAX_POS < 250
+  				// prob 4
+    			#if X_MAX_POS < 250 && Z_MAX_POS < 200
     				lcd_wizard_set_page(4);
     				lcd_update();
   		  
@@ -4046,7 +4150,7 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
     				#else //Hephestos
     					do_blocking_move_to(195, 20, current_position[Z_AXIS]);
     				#endif
-    				do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS],Z_MIN_POS);
+    				do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS],Z_PROBE_OFFSET_FROM_EXTRUDER);
   	
     				lcd_clear_triggered_flags();
     				while(!LCD_CLICKED){
@@ -4055,6 +4159,7 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
     				}
     			#endif
 
+    			// final prob
     			lcd_wizard_set_page(5);
     			lcd_update();
   		 
@@ -4064,7 +4169,7 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
   				#else
     				do_blocking_move_to((X_MAX_POS-X_MIN_POS)/2, (Y_MAX_POS-Y_MIN_POS)/2, current_position[Z_AXIS]);
   				#endif
-  					do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS],Z_MIN_POS);
+  					do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS],Z_PROBE_OFFSET_FROM_EXTRUDER);
   	      
     			lcd_clear_triggered_flags();
   				while(!LCD_CLICKED){                  
