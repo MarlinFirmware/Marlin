@@ -3937,14 +3937,6 @@ inline void gcode_M121() { enable_endstops(false); }
 
 #endif // BLINKM
 
-void error_invalid_extruder(int code, int e) {
-  SERIAL_ECHO_START;
-  SERIAL_CHAR('M');
-  SERIAL_ECHO(code);
-  SERIAL_ECHOPGM(" " MSG_INVALID_EXTRUDER " ");
-  SERIAL_ECHOLN(e);
-}
-
 /**
  * M200: Set filament diameter and set E axis units to cubic millimeters
  *
@@ -6538,7 +6530,11 @@ bool setTargetedHotend(int code) {
         case 218:
         case 221:
         case 200:
-          error_invalid_extruder(code, target_extruder);
+          SERIAL_ECHO_START;
+          SERIAL_CHAR('M');
+          SERIAL_ECHO(code);
+          SERIAL_ECHOPGM(" " MSG_INVALID_EXTRUDER " ");
+          SERIAL_ECHOLN(target_extruder);
           break;
       }
       return true;
