@@ -75,6 +75,7 @@ unsigned char soft_pwm_bed;
 
 #if defined(THERMAL_PROTECTION_HOTENDS) || defined(THERMAL_PROTECTION_BED)
   enum TRState { TRReset, TRInactive, TRFirstHeating, TRStable, TRRunaway };
+  static float tr_target_temperature[EXTRUDERS+1] = { 0.0 };
   void thermal_runaway_protection(TRState *state, millis_t *timer, float temperature, float target_temperature, int heater_id, int period_seconds, int hysteresis_degc);
   #ifdef THERMAL_PROTECTION_HOTENDS
     static TRState thermal_runaway_state_machine[4] = { TRReset, TRReset, TRReset, TRReset };
@@ -1015,7 +1016,6 @@ void tp_init() {
 
   void thermal_runaway_protection(TRState *state, millis_t *timer, float temperature, float target_temperature, int heater_id, int period_seconds, int hysteresis_degc) {
 
-    static float tr_target_temperature[EXTRUDERS+1] = { 0.0 };
 
     /*
         SERIAL_ECHO_START;
@@ -1042,7 +1042,6 @@ void tp_init() {
       case TRReset:
         *timer = 0;
         *state = TRInactive;
-        break;
       // Inactive state waits for a target temperature to be set
       case TRInactive:
         if (target_temperature > 0) {
