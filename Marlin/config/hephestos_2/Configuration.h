@@ -23,7 +23,7 @@ Here are some standard links for getting your machine calibrated:
 // User-specified version info of this build to display in [Pronterface, etc] terminal window during
 // startup. Implementation of an idea by Prof Braino to inform user that any changes made to this
 // build by the user have been successfully uploaded into firmware.
-#define STRING_VERSION "1.4.2"
+#define STRING_VERSION "FW 1.4.2"
 #define STRING_URL "bq.com"
 #define STRING_VERSION_CONFIG_H __DATE__ " " __TIME__ // build date and time
 #define STRING_CONFIG_H_AUTHOR "(bq Hephestos 2)" // Who made the changes.
@@ -379,8 +379,8 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 //  #define PROBE_SERVO_DEACTIVATION_DELAY 300
 
-    #define Z_SAFE_HOMING_X_POINT (X_MAX_POS - X_MIN_POS)/2    // X point for Z homing when homing all axis (G28)
-    #define Z_SAFE_HOMING_Y_POINT (Y_MAX_POS - Y_MIN_POS)/2  // Y point for Z homing when homing all axis (G28)
+    #define Z_SAFE_HOMING_X_POINT (X_MAX_POS + X_MIN_POS)/2    // X point for Z homing when homing all axis (G28)
+    #define Z_SAFE_HOMING_Y_POINT (Y_MAX_POS + Y_MIN_POS)/2  // Y point for Z homing when homing all axis (G28)
 
 #endif //Z_SAFE_HOMING
 
