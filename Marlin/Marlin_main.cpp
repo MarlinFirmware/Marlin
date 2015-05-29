@@ -3942,7 +3942,7 @@ void error_invalid_extruder(int code, int e) {
   SERIAL_CHAR('M');
   SERIAL_ECHO(code);
   SERIAL_ECHOPGM(" " MSG_INVALID_EXTRUDER " ");
-  SERIAL_ECHOLN(target_extruder);
+  SERIAL_ECHOLN(e);
 }
 
 /**
