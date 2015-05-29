@@ -251,10 +251,10 @@ void lcd_init()
 
     pinMode(BTN_ENC,INPUT);
     WRITE(BTN_ENC,HIGH);
-
+#if (MOTHERBOARD == 40)
     pinMode(FAN_EXTRUDER,OUTPUT);
     WRITE(FAN_EXTRUDER,HIGH);
-
+#endif
     // Init for SD card library
 #  if (defined (SDSUPPORT) && defined(SDCARDDETECT) && (SDCARDDETECT > 0))
     pinMode(SDCARDDETECT,INPUT);
