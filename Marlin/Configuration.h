@@ -496,7 +496,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define	Y_pulley_number_of_teeth	20
 #define	E0_big_gear_teeth		1
 #define	E0_small_gear_teeth		1
-#define	E0_hob_effective_diameter	10.56
+#define	E0_hob_effective_diameter	10.92
 
 #define	Z_thread_pitch	0.8 // M5 standard pitch
 
