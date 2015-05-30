@@ -6518,25 +6518,21 @@ void Stop() {
   }
 }
 
+/**
+ * Set target_extruder from the T parameter or the active_extruder
+ *
+ * Returns TRUE if the target is invalid
+ */
 bool setTargetedHotend(int code) {
   target_extruder = active_extruder;
   if (code_seen('T')) {
     target_extruder = code_value_short();
     if (target_extruder >= EXTRUDERS) {
-      switch(code) {
-        case 104:
-        case 105:
-        case 109:
-        case 218:
-        case 221:
-        case 200:
-          SERIAL_ECHO_START;
-          SERIAL_CHAR('M');
-          SERIAL_ECHO(code);
-          SERIAL_ECHOPGM(" " MSG_INVALID_EXTRUDER " ");
-          SERIAL_ECHOLN(target_extruder);
-          break;
-      }
+      SERIAL_ECHO_START;
+      SERIAL_CHAR('M');
+      SERIAL_ECHO(code);
+      SERIAL_ECHOPGM(" " MSG_INVALID_EXTRUDER " ");
+      SERIAL_ECHOLN(target_extruder);
       return true;
     }
   }
