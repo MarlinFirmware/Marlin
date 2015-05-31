@@ -711,7 +711,7 @@ const bool Z_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the logic
 // ---------------------
 // 2 wire Non-latching LCD SR from:
 // https://bitbucket.org/fmalpartida/new-liquidcrystal/wiki/schematics#!shiftregister-connection
-
+// LCD configuration: http://reprap.org/wiki/SAV_3D_LCD
 //#define SAV_3DLCD
 
 // @section extras
