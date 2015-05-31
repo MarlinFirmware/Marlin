@@ -42,6 +42,13 @@
   u8g_Init8Bit(u8g, dev, d0, d1, d2, d3, d4, d5, d6, d7, en, cs1, cs2, di, rw, reset)
   u8g_Init8Bit(u8g, dev,  8,    9, 10, 11,   4,   5,   6,   7, 18, 14, 15, 17, 16, U8G_PIN_NONE)
 
+
+  Update for ATOMIC operation done (01 Jun 2013)
+    U8G_ATOMIC_OR(ptr, val)
+    U8G_ATOMIC_AND(ptr, val)
+    U8G_ATOMIC_START();
+    U8G_ATOMIC_END();
+
 */
 
 #include "u8g.h"
@@ -80,8 +87,10 @@ uint8_t u8g_com_arduino_port_d_wr_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, v
 #ifdef UCSR0B
       UCSR0B = 0;  // disable USART 0
 #endif
+      U8G_ATOMIC_START();
       DDRD = 0x0ff;
       PORTD = 0x0ff;
+      U8G_ATOMIC_END();
 
       /* setup the RW pin as output and force it to low */
       if ( u8g->pin_list[U8G_PI_RW] != U8G_PIN_NONE )

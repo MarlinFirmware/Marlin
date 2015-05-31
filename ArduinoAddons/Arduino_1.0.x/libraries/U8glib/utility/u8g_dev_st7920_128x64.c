@@ -1,6 +1,6 @@
 /*
 
-  u8g_dev_st7565_128x64.c
+  u8g_dev_st7920_128x64.c
 
   Universal 8bit Graphics Library
   
@@ -66,7 +66,7 @@ uint8_t u8g_dev_st7920_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t msg, void *
   switch(msg)
   {
     case U8G_DEV_MSG_INIT:
-      u8g_InitCom(u8g, dev);
+      u8g_InitCom(u8g, dev, U8G_SPI_CLK_CYCLE_400NS);
       u8g_WriteEscSeqP(u8g, dev, u8g_dev_st7920_128x64_init_seq);
       break;
     case U8G_DEV_MSG_STOP:
@@ -114,7 +114,7 @@ uint8_t u8g_dev_st7920_128x64_4x_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t msg, voi
   switch(msg)
   {
     case U8G_DEV_MSG_INIT:
-      u8g_InitCom(u8g, dev);
+      u8g_InitCom(u8g, dev, U8G_SPI_CLK_CYCLE_400NS);
       u8g_WriteEscSeqP(u8g, dev, u8g_dev_st7920_128x64_init_seq);
       break;
     case U8G_DEV_MSG_STOP:
@@ -160,6 +160,9 @@ uint8_t u8g_dev_st7920_128x64_4x_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t msg, voi
 U8G_PB_DEV(u8g_dev_st7920_128x64_sw_spi, WIDTH, HEIGHT, PAGE_HEIGHT, u8g_dev_st7920_128x64_fn, U8G_COM_ST7920_SW_SPI);
 U8G_PB_DEV(u8g_dev_st7920_128x64_hw_spi, WIDTH, HEIGHT, PAGE_HEIGHT, u8g_dev_st7920_128x64_fn, U8G_COM_ST7920_HW_SPI);
 U8G_PB_DEV(u8g_dev_st7920_128x64_8bit, WIDTH, HEIGHT, PAGE_HEIGHT, u8g_dev_st7920_128x64_fn, U8G_COM_FAST_PARALLEL);
+U8G_PB_DEV(u8g_dev_st7920_128x64_custom, WIDTH, HEIGHT, PAGE_HEIGHT, u8g_dev_st7920_128x64_fn, u8g_com_arduino_st7920_custom_fn);
+
+
 
 #define QWIDTH (WIDTH*4)
 uint8_t u8g_dev_st7920_128x64_4x_buf[QWIDTH] U8G_NOCOMMON ; 
@@ -167,5 +170,6 @@ u8g_pb_t u8g_dev_st7920_128x64_4x_pb = { {32, HEIGHT, 0, 0, 0},  WIDTH, u8g_dev_
 u8g_dev_t u8g_dev_st7920_128x64_4x_sw_spi = { u8g_dev_st7920_128x64_4x_fn, &u8g_dev_st7920_128x64_4x_pb, U8G_COM_ST7920_SW_SPI };
 u8g_dev_t u8g_dev_st7920_128x64_4x_hw_spi = { u8g_dev_st7920_128x64_4x_fn, &u8g_dev_st7920_128x64_4x_pb, U8G_COM_ST7920_HW_SPI };
 u8g_dev_t u8g_dev_st7920_128x64_4x_8bit = { u8g_dev_st7920_128x64_4x_fn, &u8g_dev_st7920_128x64_4x_pb, U8G_COM_FAST_PARALLEL };
+u8g_dev_t u8g_dev_st7920_128x64_4x_custom = { u8g_dev_st7920_128x64_4x_fn, &u8g_dev_st7920_128x64_4x_pb, u8g_com_arduino_st7920_custom_fn };
 
 

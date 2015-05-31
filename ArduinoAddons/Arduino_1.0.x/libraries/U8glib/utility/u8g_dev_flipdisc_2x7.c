@@ -78,7 +78,7 @@ uint8_t u8g_dev_flipdisc_2x7_bw_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t msg, void
 	/* current page: pb->p.page */
 	/* ptr to the buffer: pb->buf */
 	
-	(*u8g_write_flip_disc_matrix)(0, pb->p.page, WIDTH, pb->buf, pb->buf+WIDTH);
+	(*u8g_write_flip_disc_matrix)(0, pb->p.page, WIDTH, pb->buf, (uint8_t *)(pb->buf)+WIDTH);
       }
       break;
     case U8G_DEV_MSG_CONTRAST:
