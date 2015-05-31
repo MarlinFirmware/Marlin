@@ -1,6 +1,6 @@
 /*
   
-  u8g_arduino_parallel.c
+  u8g_com_arduino_parallel.c
 
   Universal 8bit Graphics Library
   
@@ -87,13 +87,10 @@ void u8g_com_arduino_parallel_write(u8g_t *u8g, uint8_t val)
   u8g_com_arduino_digital_write(u8g, U8G_PI_D7, val&1);
   
   /* EN cycle time must be 1 micro second, digitalWrite is slow enough to do this */
-  //u8g_Delay(1);
   u8g_com_arduino_digital_write(u8g, U8G_PI_EN, HIGH);
-  //u8g_Delay(1);
   u8g_MicroDelay(); /* delay by 1000ns, reference: ST7920: 140ns, SBN1661: 100ns */
   u8g_com_arduino_digital_write(u8g, U8G_PI_EN, LOW);
   u8g_10MicroDelay(); /* ST7920 commands: 72us */
-  //u8g_Delay(2);
 }
 
 
