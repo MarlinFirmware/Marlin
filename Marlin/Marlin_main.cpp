@@ -5738,6 +5738,7 @@ void ok_to_send() {
   SERIAL_EOL;  
 }
 
+FORCE_INLINE
 void clamp_to_software_endstops(float target[3]) {
   if (min_software_endstops) {
     NOLESS(target[X_AXIS], min_pos[X_AXIS]);
@@ -5797,7 +5798,7 @@ void clamp_to_software_endstops(float target[3]) {
   #ifdef ENABLE_AUTO_BED_LEVELING
 
     // Adjust print surface height by linear interpolation over the bed_level array.
-    void adjust_delta(float cartesian[3]) {
+    FORCE_INLINE void adjust_delta(float cartesian[3]) {
       if (delta_grid_spacing[0] == 0 || delta_grid_spacing[1] == 0) return; // G29 not done!
 
       int half = (AUTO_BED_LEVELING_GRID_POINTS - 1) / 2;
@@ -5907,7 +5908,7 @@ void mesh_plan_buffer_line(float x, float y, float z, const float e, float feed_
 
 #ifdef PREVENT_DANGEROUS_EXTRUDE
 
-  inline void prevent_dangerous_extrude(float &curr_e, float &dest_e) {
+  FORCE_INLINE void prevent_dangerous_extrude(float &curr_e, float &dest_e) {
     float de = dest_e - curr_e;
     if (de) {
       if (degHotend(active_extruder) < extrude_min_temp) {
@@ -5929,28 +5930,76 @@ void mesh_plan_buffer_line(float x, float y, float z, const float e, float feed_
 
 #if defined(DELTA) || defined(SCARA)
 
-  inline bool prepare_move_delta() {
+  FORCE_INLINE bool prepare_move_delta() {
+    
     float difference[NUM_AXIS];
+    float addDistance[NUM_AXIS];
+    float fractions[NUM_AXIS];
+
     for (int8_t i=0; i < NUM_AXIS; i++) difference[i] = destination[i] - current_position[i];
 
     float cartesian_mm = sqrt(sq(difference[X_AXIS]) + sq(difference[Y_AXIS]) + sq(difference[Z_AXIS]));
-    if (cartesian_mm < 0.000001) cartesian_mm = abs(difference[E_AXIS]);
-    if (cartesian_mm < 0.000001) return false;
+    if (cartesian_mm < 0.000001) { 
+      cartesian_mm = abs(difference[E_AXIS]);
+      if (cartesian_mm < 0.000001) return false;
+    }
+
+    /*
+    from TESKAn: http://forums.reprap.org/read.php?147,515581
+    
     float seconds = 6000 * cartesian_mm / feedrate / feedrate_multiplier;
     int steps = max(1, int(delta_segments_per_second * seconds));
+
+    I had a particular problem with this piece of code. So we are using
+    feedrate to calculate number of delta segments? This means that for
+    different feed rates, we get different accuracy. For example, 1 mm
+    at 20 mm/sec has 10 segments, at twice the speed 5 segments and 
+    so on. So instead let's use segments per mm so we get some consistency.
+    */
+
+    float fTemp = cartesian_mm * 5;
+    int steps = (int)fTemp;
 
     // SERIAL_ECHOPGM("mm="); SERIAL_ECHO(cartesian_mm);
     // SERIAL_ECHOPGM(" seconds="); SERIAL_ECHO(seconds);
     // SERIAL_ECHOPGM(" steps="); SERIAL_ECHOLN(steps);
 
+    if (steps == 0) {
+      steps = 1;
+      for (int8_t i=0; i < NUM_AXIS; i++) fractions[i] = difference[i];
+    }
+    else {
+      fTemp = 1 / float(steps);
+      for (int8_t i=0; i < NUM_AXIS; i++) fractions[i] = difference[i] * fTemp;
+    }
+
+    // For number of steps, for each step add one fraction
+    // First, set initial destination to current position
+    for (int8_t i=0; i < NUM_AXIS; i++) addDistance[i] = 0.0;
+
     for (int s = 1; s <= steps; s++) {
 
-      float fraction = float(s) / float(steps);
+      for (int8_t i=0; i < NUM_AXIS; i++) {
+        addDistance[i] += fractions[i];
+        descriptions[i] = current_position[i] + addDistance[i];
+      } 
 
       for (int8_t i = 0; i < NUM_AXIS; i++)
         destination[i] = current_position[i] + difference[i] * fraction;
 
-      calculate_delta(destination);
+      // calculate_delta(destination);
+      delta[X_AXIS] = sqrt(delta_diagonal_rod_2
+                         - sq(delta_tower1_x-destination[X_AXIS])
+                         - sq(delta_tower1_y-destination[Y_AXIS])
+                         ) + destination[Z_AXIS];
+      delta[Y_AXIS] = sqrt(delta_diagonal_rod_2
+                         - sq(delta_tower2_x-destination[X_AXIS])
+                         - sq(delta_tower2_y-destination[Y_AXIS])
+                         ) + destination[Z_AXIS];
+      delta[Z_AXIS] = sqrt(delta_diagonal_rod_2
+                         - sq(delta_tower3_x-destination[X_AXIS])
+                         - sq(delta_tower3_y-destination[Y_AXIS])
+                         ) + destination[Z_AXIS];
 
       #ifdef ENABLE_AUTO_BED_LEVELING
         adjust_delta(destination);
