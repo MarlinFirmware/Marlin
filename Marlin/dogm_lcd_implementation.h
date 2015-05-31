@@ -125,6 +125,9 @@
 #elif defined(U8GLIB_LM6059_AF)
   // Based on the Adafruit ST7565 (http://www.adafruit.com/products/250)
   U8GLIB_LM6059 u8g(DOGLCD_CS, DOGLCD_A0);
+#elif defined U8GLIB_SSD1306
+  // Generic support for SSD1306 OLED I2C LCDs
+  U8GLIB_SSD1306_128X64 u8g(U8G_I2C_OPT_NONE);
 #else
   // for regular DOGM128 display with HW-SPI
   U8GLIB_DOGM128 u8g(DOGLCD_CS, DOGLCD_A0);  // HW-SPI Com: CS, A0
