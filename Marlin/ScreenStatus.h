@@ -1,8 +1,8 @@
 #ifndef SCREEN_STATUS_H
 #define SCREEN_STATUS_H
 
-
 #include <stdint.h>
+
 #include "Screen.h"
 #include "Observer.h"
 #include "Functor.h"
@@ -73,13 +73,6 @@ namespace screen
 	template <typename T, typename R, typename... Args>
 	void ScreenStatus<T, R, Args...>::update(T value) 
 	{ 
-SERIAL_ECHOLN("ScreenStatus::update()");
-
-if (value)
-   SERIAL_ECHOLN("--> (true)");
-else
-   SERIAL_ECHOLN("--> (false)");
-
 		m_status = value;
 	}
 }

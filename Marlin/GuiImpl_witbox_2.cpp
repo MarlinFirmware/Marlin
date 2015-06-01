@@ -93,7 +93,7 @@ namespace screen
 	//Temperature
 	ScreenSelector<void> screen_temperature   = ScreenSelector<void>("Temp 0/200C", 0, 250, default_temp_change_filament);
 	//Light
-	ScreenStatus<bool, void> screen_light = ScreenStatus<bool, void>("Led light on", LightManager::setState);
+	ScreenStatus<bool, void> screen_light = ScreenStatus<bool, void>("Led light on", LightManager::setState, &LightManager::getInstance());
 	//Info
 	ScreenDialog screen_info            = ScreenDialog("FW info");
 
