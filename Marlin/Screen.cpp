@@ -2,10 +2,9 @@
 
 namespace screen
 {
-	Screen::Screen(const char * title, ScreenType_t const & type, FuncPtr_t function)
+	Screen::Screen(const char * title, ScreenType_t const & type)
 		: m_title(title)
 		, m_type(type)
-		, m_function(function)
 	{ }
 
 	Screen::~Screen()
@@ -39,10 +38,5 @@ namespace screen
 	void Screen::add(Screen & component)
 	{
 		m_next_screen = &component;
-	}
-
-	void Screen::action()
-	{
-		m_function();
 	}
 }

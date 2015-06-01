@@ -44,7 +44,6 @@ namespace screen
 	Icon icon_retry               = Icon(icon_size, bits_retry_normal, bits_retry_focused, "Retry");
 	Icon icon_ok                  = Icon(icon_size, bits_ok_normal, bits_ok_focused, "Confirm");
 
-	LightManager light_manager           = LightManager();
 	SteppersManager steppers_manager     = SteppersManager();
 
 	/////////////////////////
@@ -94,7 +93,7 @@ namespace screen
 	//Temperature
 	ScreenSelector<void> screen_temperature   = ScreenSelector<void>("Temp 0/200C", 0, 250, default_temp_change_filament);
 	//Light
-	ScreenStatus<bool, void, bool, LightManager &> screen_light     = ScreenStatus<bool, void, bool, LightManager &>("Led light on", LightManager::setState, &light_manager);
+	ScreenStatus<bool, void> screen_light = ScreenStatus<bool, void>("Led light on", LightManager::setState);
 	//Info
 	ScreenDialog screen_info            = ScreenDialog("FW info");
 
@@ -105,7 +104,7 @@ namespace screen
 	//Stop
 	ScreenMenu screen_stop_confirm      = ScreenMenu("Stop");
 	Screen screen_stop_back             = Screen("Back", Screen::SIMPLE);
-	Screen screen_stop_OK               = Screen("Confirm", Screen::SIMPLE, action_stop_print);
+	ScreenAction<void> screen_stop_OK = ScreenAction<void>("Confirm", action_stop_print);
 	//Change Filament Screens
 	ScreenMenu screen_change_confirm	= ScreenMenu("Change filament");
 	ScreenDialog screen_change_start    = ScreenDialog("Start");

@@ -133,7 +133,6 @@ namespace screen
 	template <typename R, typename... Args>
 	Screen & ScreenPrint<R, Args...>::press(Screen * parent_view)
 	{
-		m_items[m_index]->action();
 		if (m_items[m_index]->type() == Screen::STATUS)
 		{
 			m_items[m_index]->init();

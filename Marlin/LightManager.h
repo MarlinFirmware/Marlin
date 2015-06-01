@@ -6,15 +6,20 @@
 class LightManager : public Subject<bool>
 {
 	public:
-		LightManager();
-
-		static void setState(bool state, LightManager & instance);
+		static LightManager & getInstance();
+		static void setState();
 
 		void state(bool state);
 		bool state();
 
+	protected:
+		LightManager();
+		~LightManager();
+
 	private:
 		void notify();
+		LightManager(LightManager const & orig);
+		LightManager & operator=(LightManager & orig);
 
 	private:
 		bool m_state;

@@ -3,8 +3,8 @@
 
 namespace screen
 {
-	ScreenMenu::ScreenMenu(const char * title,  FuncPtr_t function)
-		: Screen(title, MENU, function)
+	ScreenMenu::ScreenMenu(const char * title)
+		: Screen(title, MENU)
 		, m_index(0)
 		, m_num_items(0)
 	{ }

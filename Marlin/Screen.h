@@ -14,9 +14,6 @@ namespace screen
 {
 	class Screen
 	{
-		protected:
-			typedef void (* FuncPtr_t)();
-
 		public:
 			typedef enum
 			{
@@ -32,7 +29,7 @@ namespace screen
 			} ScreenType_t;
 
 		public:
-			Screen(const char * title, ScreenType_t const & type = SIMPLE, FuncPtr_t function = do_nothing);
+			Screen(const char * title, ScreenType_t const & type = SIMPLE);
 			virtual ~Screen();
 
 			const char * title() const;
@@ -41,20 +38,18 @@ namespace screen
 			virtual void left() {};
 			virtual void right() {};
 			virtual void draw() {};
+			virtual void init() {};
+
 			virtual void icon(Icon & component);
 			virtual Icon & icon();
-
-			virtual void init() {};
 			virtual Screen & press(Screen * parent_view);
 			virtual void add(Screen & component);
-			virtual void action();
 
 		protected:
 			ScreenType_t m_type;
 			const char * m_title;
          Screen * m_next_screen;
 			Icon * m_icon;
-			FuncPtr_t m_function;
 	};
 }
 #endif //SCREEN_H
