@@ -127,6 +127,12 @@
 #define MSG_END_HOUR                        "ore"
 #define MSG_END_MINUTE                      "minuti"
 
+// Debug
+#define MSG_DEBUG_ECHO                      "DEBUG RIPETI"
+#define MSG_DEBUG_INFO                      "DEBUG INFO"
+#define MSG_DEBUG_ERRORS                    "DEBUG ERRORI"
+#define MSG_DEBUG_DRYRUN                    "DEBUG STAMPA A VUOTO"
+
 #ifdef DELTA_CALIBRATION_MENU
     #define MSG_DELTA_CALIBRATE             "Calibraz. Delta"
     #define MSG_DELTA_CALIBRATE_X           "Calibra X"

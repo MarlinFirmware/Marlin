@@ -421,6 +421,20 @@
 #define MSG_END_MINUTE                      "minutes"
 #endif
 
+// Debug
+#ifndef MSG_DEBUG_ECHO
+#define MSG_DEBUG_ECHO                      "DEBUG ECHO ENABLED"
+#endif
+#ifndef MSG_DEBUG_INFO
+#define MSG_DEBUG_INFO                      "DEBUG INFO ENABLED"
+#endif
+#ifndef MSG_DEBUG_ERRORS
+#define MSG_DEBUG_ERRORS                    "DEBUG ERRORS ENABLED"
+#endif
+#ifndef MSG_DEBUG_DRYRUN
+#define MSG_DEBUG_DRYRUN                    "DEBUG DRYRUN ENABLED"
+#endif
+
 #ifdef DELTA_CALIBRATION_MENU
   #ifndef MSG_DELTA_CALIBRATE
   #define MSG_DELTA_CALIBRATE             "Delta Calibration"
