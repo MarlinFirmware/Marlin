@@ -165,7 +165,7 @@ OBJDUMP = $(AVR_TOOLS_PATH)avr-objdump
 AR  = $(AVR_TOOLS_PATH)avr-ar
 SIZE = $(AVR_TOOLS_PATH)avr-size
 NM = $(AVR_TOOLS_PATH)avr-nm
-AVRDUDE = $(ARDUINO_INSTALL_DIR)/hardware/tools/avrdude
+AVRDUDE = $(ARDUINO_INSTALL_DIR)/hardware/tools/avr/bin/avrdude
 REMOVE = rm -f
 MV = mv -f
 
@@ -204,7 +204,7 @@ LDFLAGS = -lm
 AVRDUDE_PORT = $(UPLOAD_PORT)
 AVRDUDE_WRITE_FLASH = -D -U flash:w:$(BUILD_DIR)/$(TARGET).hex:i
 ifeq ($(shell uname -s), Linux)
-AVRDUDE_CONF = $(ARDUINO_INSTALL_DIR)/hardware/tools/avrdude.conf
+AVRDUDE_CONF = $(ARDUINO_INSTALL_DIR)/hardware/tools/avr/etc/avrdude.conf
 else
 AVRDUDE_CONF = $(ARDUINO_INSTALL_DIR)/hardware/tools/avr/etc/avrdude.conf
 endif
@@ -339,5 +339,3 @@ clean:
 
 # Automaticaly include the dependency files created by gcc
 -include ${wildcard $(BUILD_DIR)/*.d}
-
-print-%  : ; @echo $* = $($*)
