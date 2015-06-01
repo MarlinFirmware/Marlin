@@ -17,7 +17,8 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
-
+#define __STDC_LIMIT_MACROS
+#include <stdint.h>
 #include "Marlin.h"
 #include "ultralcd.h"
 #include "temperature.h"
@@ -790,7 +791,7 @@ static void updateTemperaturesFromRawValues() {
   }
   current_temperature_bed = analog2tempBed(current_temperature_bed_raw);
 
-  #if MAX_TEMP_OVERSTOOT_TIME > 0
+  #if MAX_TEMP_OVERSHOOT_TIME > 0
     for (int8_t h = FIRST_HEATER; h < EXTRUDERS; h++) {
       //SERIAL_PROTOCOLPGM("Heater: "); SERIAL_PROTOCOL(h+1); SERIAL_PROTOCOLPGM(" H_State: "); SERIAL_PROTOCOLLN(heater_state(h));
       if (heater_state(h) && (MAX_AMBIENT_TEMPERATURE < ((h<0) ? current_temperature_bed : current_temperature[h]))) 
@@ -1621,10 +1622,11 @@ ISR(TIMER0_COMPB_vect) {
   float unscalePID_d(float d) { return d * PID_dT; }
 #endif //PIDTEMP
 
-#if MAX_TEMP_OVERSTOOT_TIME > 0
+#if MAX_TEMP_OVERSHOOT_TIME > 0
   int8_t temperature_state(int8_t hh) {
-    static int last_temp_raw[5] = { 0 };
-    static int8_t counter[5] = { 127, 127, 127, 127, 127 }; //init 127
+    static int average_temp_raw[EXTRUDERS + 1] = { 0 };
+    static int last_temp_raw[EXTRUDERS + 1] = { 0 };
+    static int16_t counter[5] = {  INT16_MAX,  INT16_MAX,  INT16_MAX,  INT16_MAX,  INT16_MAX }; //init  INT16_MAX
 
     int8_t h = hh + 1; // index correctur
     // get current_temperature_raw[hh] and divide by OVERSAMPLENR
@@ -1635,23 +1637,25 @@ ISR(TIMER0_COMPB_vect) {
     #endif
 
     // floating average over 16 values (MAX6675 is not oversampled until now. Thermistors are still a bit nervous)
-    int average = (last_temp_raw[h] >> OVESRAMPLESHIFT); // /16
+    int average = (average_temp_raw[h] >> OVESRAMPLESHIFT); // /16
     int dt = t - average;
-    last_temp_raw[h] += dt;
+    average_temp_raw[h] += dt;
 
     #ifdef HEATER_STATE_DEBUG
       SERIAL_PROTOCOLPGM("Temperature: "); SERIAL_PROTOCOL(h); SERIAL_PROTOCOLPGM(" count: "); SERIAL_PROTOCOL((int)counter[h]); SERIAL_PROTOCOLPGM(" Temp.: "); SERIAL_PROTOCOL((int)t); SERIAL_PROTOCOLPGM(" Temp.A.:"); SERIAL_PROTOCOL(average);
     #endif
 
     // init
-    if (counter[h] == 127) {
-      last_temp_raw[h] = (t << OVESRAMPLESHIFT); // *16
+    if (counter[h] ==  INT16_MAX) {
+      average_temp_raw[h] = (t << OVESRAMPLESHIFT); // *16
+      last_temp_raw[h] = t;
       counter[h] = 0;
       return 0;
     }
 
     #if MAX_THERMO_JUMP_AMOUNT > 0
-      if (abs(dt) > MAX_THERMO_JUMP_AMOUNT) _temp_error(hh, PSTR(MSG_T_JUMP), PSTR(MSG_ERR_THERMAL_JUMP));
+      if (abs(last_temp_raw[h] - t) > MAX_THERMO_JUMP_AMOUNT) _temp_error(hh, PSTR(MSG_T_JUMP), PSTR(MSG_ERR_THERMAL_JUMP));
+      else last_temp_raw[h] = t;
     #endif
 
     if (abs(dt) < TEMP_RAW_NOISE) { counter[h] = 0; return 0;} // constant
@@ -1698,11 +1702,11 @@ ISR(TIMER0_COMPB_vect) {
   }
 
   int8_t heater_state(int8_t hh) {
-    enum hstate_t { FULL_ON_S, ON_S, OFF_S };
-    static hstate_t hstate[5] = { ON_S, ON_S, ON_S, ON_S, ON_S, };
-    static int8_t tstate[5] = {0, 0, 0, 0, 0};
-    static millis_t timerc[5] = {0, 0, 0, 0, 0};
-    static float initial_temp[5] = {0.0, 0.0, 0.0, 0.0, 0.0};
+    enum hstate_t { ON_S, FULL_ON_S, OFF_S };
+    static hstate_t hstate[5] = { ON_S };
+    static int8_t tstate[EXTRUDERS + 1] = { 0 };
+    static millis_t timerc[EXTRUDERS + 1] = { 0 };
+    static float initial_temp[EXTRUDERS + 1] = { 0.0 };
 
     uint8_t h = hh + 1;
     int8_t current_tstate = temperature_state(hh);
@@ -1715,7 +1719,7 @@ ISR(TIMER0_COMPB_vect) {
       if (hstate[h] != FULL_ON_S) {
         hstate[h]  = FULL_ON_S;
         tstate[h] = current_tstate;
-        timerc[h] = millis() + MAX_TEMP_OVERSTOOT_TIME * 1000UL;
+        timerc[h] = millis() + MAX_TEMP_OVERSHOOT_TIME * 1000UL;
         return 0;
       }
       else {
@@ -1736,12 +1740,12 @@ ISR(TIMER0_COMPB_vect) {
       if (hstate[h] != OFF_S) {
         hstate[h] = OFF_S;
         tstate[h] = current_tstate;
-        timerc[h] = millis() + MAX_TEMP_OVERSTOOT_TIME * 1000UL;
+        timerc[h] = millis() + MAX_TEMP_OVERSHOOT_TIME * 1000UL;
         return 0;
       }
       else {
         if (current_tstate != tstate[h]) {
-          if (current_tstate == 1) _temp_error(hh, PSTR(MSG_T_THERMAL_RUNAWAY), PSTR(MSG_THERMAL_RUNAWAY));
+          if (current_tstate == 1) 1; // test for MAX_AMBIENT_TEMPERATURE // got false positives when touching the sensor.
           else return 0;
         }
         if (millis() > timerc[h]) {// timeout
@@ -1758,4 +1762,4 @@ ISR(TIMER0_COMPB_vect) {
     }
   return 0;
   }
-#endif // MAX_TEMP_OVERSTOOT_TIME > 0
+#endif // MAX_TEMP_OVERSHOOT_TIME > 0

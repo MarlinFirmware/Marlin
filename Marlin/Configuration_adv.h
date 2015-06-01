@@ -48,26 +48,26 @@
  * In a second step we test if a heater is full on, full of, or somewhere in the PWM area and test if the
  * temperature changes as expected. This is accomplished by temperature overshoots. A temperature can rise 
  * fuhrer when a heater is turned off. The longest time between switching a heater off and the change to failing
- * temperatures we call MAX_TEMP_OVERSTOOT_TIME.
+ * temperatures we call MAX_TEMP_OVERSHOOT_TIME.
  * When a heater is off, but the surrounding temperature is higher or equal to the heaters temperature, the temperature
  * can not fall. Therefore we do not test for this below MAX_AMBIENT_TEMPERATURE.
- * HEATER_STATE_DEBUG produces some output on the serial line to see how sharp or blunt these tests are.
+ * HEATER_STATE_DEBUG produces some output on the serial line to find the right parameters.
  *
  * Temperatures are inert. If the value of any thermometer jumps, there is something wrong with it.
  * Reasons can be: shorted wires, broken wires, leaking water-cooling, ...
  * but also: electronic noise, ...
  * MAX THERMO_JUMP_AMOUNT is the maximum allowed temperature difference between two measurements of the raw temperatures, (an abstract number).
  * The fastest expected change is about (full range of the ADC) / minute / (temp measurements / second). 
- * This is well below the noise. So we have to adjust for the noise.
- * If you get 'unreasoned' "error: Thermometer Jumped" messages increase the next value. 50 is a good value to start. 0 disables.
+ * This is normally well below the noise. So we have to adjust for the noise.
+ * If you get 'unreasoned' "error: Thermal jump" messages increase the MAX_THERMO_JUMP_AMOUNT value. 30 is a good value to start. 0 disables.
  *
- * Set MAX_TEMP_OVERSTOOT_TIME to 0 to deactivate all this tests. 30 is a good value to start.
+ * Set MAX_TEMP_OVERSHOOT_TIME to 0 to deactivate all this tests. 30 is a good value to start.
  */
-#define MAX_TEMP_OVERSTOOT_TIME 0
+#define MAX_TEMP_OVERSHOOT_TIME 0
 #define TEMP_RAW_NOISE 6
 #define TEMP_CONSEC_COUNT 6
 #define MAX_AMBIENT_TEMPERATURE 50
-#define MAX_THERMO_JUMP_AMOUNT 0
+#define MAX_THERMO_JUMP_AMOUNT 30
 #define HEATER_STATE_DEBUG
 
 #ifdef PIDTEMP
@@ -261,7 +261,7 @@
 #define INVERT_E_STEP_PIN false
 
 // Default stepper release if idle. Set to 0 to deactivate.
-#define DEFAULT_STEPPER_DEACTIVE_TIME 60
+#define DEFAULT_STEPPER_DEACTIVE_TIME 0
 
 #define DEFAULT_MINIMUMFEEDRATE       0.0     // minimum feedrate
 #define DEFAULT_MINTRAVELFEEDRATE     0.0

@@ -146,7 +146,7 @@ void PID_autotune(float temp, int extruder, int ncycles);
 void setExtruderAutoFanState(int pin, bool state);
 void checkExtruderAutoFans();
 
-#if MAX_TEMP_OVERSTOOT_TIME > 0
+#if MAX_TEMP_OVERSHOOT_TIME > 0
   int8_t heater_state(int8_t);
 #endif
 
