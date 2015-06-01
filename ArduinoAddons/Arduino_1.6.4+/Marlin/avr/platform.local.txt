@@ -1,1 +1,0 @@
-compiler.cpp.extra_flags=-DHAS_AUTOMATIC_VERSIONING

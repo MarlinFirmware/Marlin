@@ -1,1 +1,0 @@
-Drop folder inside hardware folder
