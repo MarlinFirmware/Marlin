@@ -214,6 +214,7 @@
 #define MSG_T_THERMAL_RUNAWAY               "Thermal Runaway"
 #define MSG_T_MAXTEMP                       "MAXTEMP triggered"
 #define MSG_T_MINTEMP                       "MINTEMP triggered"
+#define MSG_T_JUMP                          "Thermal jump"
 
 
 // LCD Menu Messages
