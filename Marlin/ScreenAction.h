@@ -14,6 +14,8 @@ namespace screen
 		public:
 			ScreenAction(const char * title = 0, typename Functor<R, Args...>::FuncPtr fptr = do_nothing);
 			virtual ~ScreenAction();
+
+			void init();
 	};
 
 	template <typename R, typename... Args>
@@ -25,6 +27,12 @@ namespace screen
 	template <typename R, typename... Args>
 	ScreenAction<R, Args...>::~ScreenAction()
 	{ }
+
+	template <typename R, typename... Args>
+	void ScreenAction<R, Args...>::init()
+	{
+		this->action();
+	}
 }
 
 #endif //SCREEN_ACTION_H
