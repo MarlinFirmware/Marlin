@@ -42,6 +42,13 @@
     #define ENCODER_STEPS_PER_MENU_ITEM 1
   #endif
 
+  // Generic support for SSD1306 OLED based LCDs.
+  #if defined(U8GLIB_SSD1306)
+    #define ULTRA_LCD  //general LCD support, also 16x2
+    #define DOGLCD  // Support for I2C LCD 128x64 (Controller SSD1306 graphic Display Family)
+  #endif
+
+
   #ifdef PANEL_ONE
     #define SDSUPPORT
     #define ULTIMAKERCONTROLLER
@@ -199,6 +206,9 @@
     #ifdef U8GLIB_ST7920
       #undef HAS_LCD_CONTRAST
     #endif
+    #ifdef U8GLIB_SSD1306
+      #undef HAS_LCD_CONTRAST
+    #endif  
   #endif
 
 #else // CONFIGURATION_LCD
