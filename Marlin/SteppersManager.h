@@ -6,14 +6,20 @@
 class SteppersManager : public Subject<bool>
 {
 	public:
+      static SteppersManager & getInstance();
+      static void setState();
+
+		void state(bool state);
+		bool state();
+
+	protected:
 		SteppersManager();
-
-		void setState(bool state);
-
-		bool getState();
+		~SteppersManager();
 
 	private:
 		void notify();
+      SteppersManager(SteppersManager const & orig);
+      SteppersManager & operator=(SteppersManager & orig);
 
 	private:
 		bool m_state;

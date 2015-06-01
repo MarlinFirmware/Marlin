@@ -44,8 +44,6 @@ namespace screen
 	Icon icon_retry               = Icon(icon_size, bits_retry_normal, bits_retry_focused, "Retry");
 	Icon icon_ok                  = Icon(icon_size, bits_ok_normal, bits_ok_focused, "Confirm");
 
-	SteppersManager steppers_manager     = SteppersManager();
-
 	/////////////////////////
 	// Instantiate Screens //
 	/////////////////////////
@@ -78,7 +76,7 @@ namespace screen
 	//AutoHome
 	ScreenAction<void> screen_autohome = ScreenAction<void>("Auto-home", action_homing);
 	//Steppers
-	ScreenStatus<bool, void> screen_stepper   = ScreenStatus<bool, void>("Steppers on", do_nothing, &steppers_manager);
+	ScreenStatus<bool, void> screen_stepper   = ScreenStatus<bool, void>("Steppers on", do_nothing, &SteppersManager::getInstance());
 	//Move Axis screens
 	ScreenMenu screen_move              = ScreenMenu("Move axis");
 	ScreenMenu screen_move_back2main    = ScreenMenu("Back");

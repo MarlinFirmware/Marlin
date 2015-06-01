@@ -1,17 +1,32 @@
 #include "SteppersManager.h"
 
+SteppersManager & SteppersManager::getInstance()
+{
+	static SteppersManager instance;
+	return instance;
+}
+
 SteppersManager::SteppersManager()
 	: Subject<bool>()
 	, m_state(false)
 { }
 
-void SteppersManager::setState(bool state)
+SteppersManager::~SteppersManager()
+{ }
+
+void SteppersManager::setState()
 {
-	m_state = state;
-	notify();
+	//Always disable steppers
+	SteppersManager::getInstance().state(true);
+	SteppersManager::getInstance().notify();
 }
 
-bool SteppersManager::getState()
+void SteppersManager::state(bool state)
+{
+	m_state = state;
+}
+
+bool SteppersManager::state()
 {
 	return m_state;
 }
