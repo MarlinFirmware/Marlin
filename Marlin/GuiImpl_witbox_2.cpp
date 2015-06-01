@@ -99,7 +99,7 @@ namespace screen
 	ScreenDialog screen_info            = ScreenDialog("FW info");
 
 	//Print screen
-	ScreenPrint screen_print            = ScreenPrint("Confirm", action_print);
+	ScreenPrint<void> screen_print            = ScreenPrint<void>("Confirm", action_print);
 	//Play/Pause
 	//ScreenStatus screen_play_pause      = ScreenStatus("Pause", action_pause_print);
 	//Stop
