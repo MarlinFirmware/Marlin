@@ -558,7 +558,7 @@ ISR(TIMER1_COMPA_vect) {
               #if HAS_Z2_MIN
                 SET_ENDSTOP_BIT(Z2, MIN);
               #else
-                COPY_BIT(current_endstop_bits, Z_MIN, Z2_MIN)
+                COPY_BIT(current_endstop_bits, Z_MIN, Z2_MIN);
               #endif
 
             byte z_test = TEST_ENDSTOP(Z_MIN) << 0 + TEST_ENDSTOP(Z2_MIN) << 1; // bit 0 for Z, bit 1 for Z2
