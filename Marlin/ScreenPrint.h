@@ -32,17 +32,17 @@ namespace screen
 	template <typename R, typename... Args>
 	ScreenPrint<R, Args...>::ScreenPrint(const char * title, typename Functor<R, Args...>::FuncPtr fptr)
 		: Screen(title, PRINT)
-      , Functor<R, Args...>(fptr)
+		, Functor<R, Args...>(fptr)
 		//, m_i(0) //Temporal
 		, m_index(0)
 		, m_num_items(0)
 	{ }
 
-   template <typename R, typename... Args>
+	template <typename R, typename... Args>
 	ScreenPrint<R, Args...>::~ScreenPrint()
 	{ }
 
-   template <typename R, typename... Args>
+	template <typename R, typename... Args>
 	void ScreenPrint<R, Args...>::left()
 	{
 		//if (m_i == 0) //Temporal
@@ -64,7 +64,7 @@ namespace screen
 		}
 	}
 
-   template <typename R, typename... Args>
+	template <typename R, typename... Args>
 	void ScreenPrint<R, Args...>::right()
 	{
 		//if ( m_i == 100 )
@@ -86,14 +86,14 @@ namespace screen
 		}
 	}
 
-   template <typename R, typename... Args>
+	template <typename R, typename... Args>
 	void ScreenPrint<R, Args...>::draw()
 	{
 		/*SERIAL_ECHO(m_title);
-		SERIAL_ECHO(">>>");
-		SERIAL_ECHO(" [");
-		SERIAL_ECHO(m_items[m_index]->title());
-		SERIAL_ECHOLN("] "); */	
+		  SERIAL_ECHO(">>>");
+		  SERIAL_ECHO(" [");
+		  SERIAL_ECHO(m_items[m_index]->title());
+		  SERIAL_ECHOLN("] "); */	
 		painter.firstPage();
 		do 
 		{
@@ -104,7 +104,7 @@ namespace screen
 				actual_time = millis()/60000 - starttime/60000;
 			}
 			painter.printing_status(card.percentDone(), actual_time);
-         painter.box((m_items[m_index]->icon()).text());
+			painter.box((m_items[m_index]->icon()).text());
 			uint8_t x_init = painter.coordinateXInit();
 			uint8_t y_init = painter.coordinateYInit();
 			uint8_t x_end = painter.coordinateXEnd();
@@ -130,7 +130,7 @@ namespace screen
 		} while( painter.nextPage() ); 
 	}
 
-   template <typename R, typename... Args>
+	template <typename R, typename... Args>
 	Screen & ScreenPrint<R, Args...>::press(Screen * parent_view)
 	{
 		m_items[m_index]->action();
@@ -145,7 +145,7 @@ namespace screen
 		return * m_items[m_index];
 	}
 
-   template <typename R, typename... Args>
+	template <typename R, typename... Args>
 	void ScreenPrint<R, Args...>::add(Screen & component)
 	{
 		if (m_num_items < max_items)
@@ -154,7 +154,6 @@ namespace screen
 			++m_num_items;
 		}
 	}
-
 }
 
 #endif //SCREEN_PRINT_H
