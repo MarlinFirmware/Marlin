@@ -10,6 +10,7 @@
 #include "ScreenList.h"
 #include "ScreenStatus.h"
 #include "ScreenTransition.h"
+#include "ScreenAction.h"
 
 #include "LightManager.h"
 #include "SteppersManager.h"
@@ -77,7 +78,7 @@ namespace screen
 	ScreenDialog screen_level4          = ScreenDialog("Screen4");
 	ScreenMenu screen_level_retry       = ScreenMenu("Finished?");
 	//AutoHome
-	Screen screen_autohome              = Screen("Auto-home", Screen::SIMPLE, action_homing);
+	ScreenAction<void> screen_autohome = ScreenAction<void>("Auto-home", action_homing);
 	//Steppers
 	ScreenStatus<bool, void> screen_stepper   = ScreenStatus<bool, void>("Steppers on", do_nothing, &steppers_manager);
 	//Move Axis screens
@@ -172,7 +173,7 @@ namespace screen
 		screen_level_cooling.add(screen_level_cooling);
 		screen_level_cooling.add(screen_level1);
 		//AutoHome
-		//screen_autohome.add(screen_main);
+		screen_autohome.add(screen_main);
 		screen_autohome.icon(icon_homing);
 		//Stepper
 		screen_stepper.add(screen_main);
