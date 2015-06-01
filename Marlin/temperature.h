@@ -27,8 +27,6 @@
   #include "stepper.h"
 #endif
 
-#include "TemperatureManager.h"
-
 // public functions
 void tp_init();  //initialize the heating
 void manage_heater(); //it is critical that this is called periodically.
