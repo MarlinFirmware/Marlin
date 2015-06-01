@@ -43,6 +43,8 @@ namespace screen
 			virtual void draw() {};
 			virtual void icon(Icon & component);
 			virtual Icon & icon();
+
+			virtual void init() {};
 			virtual Screen & press(Screen * parent_view);
 			virtual void add(Screen & component);
 			virtual void action();
