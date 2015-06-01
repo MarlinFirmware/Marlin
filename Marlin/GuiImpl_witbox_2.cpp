@@ -13,8 +13,7 @@
 
 #include "LightManager.h"
 #include "SteppersManager.h"
-
-
+#include "TemperatureManager.h"
 
 namespace screen
 {
@@ -60,17 +59,17 @@ namespace screen
 	Screen screen_SD_back               = Screen("Back", Screen::SIMPLE);
 	//Unload Filament screens
 	ScreenSelector<void> screen_unload_select = ScreenSelector<void>("Unload filament", 170, 230, default_temp_change_filament, do_nothing);
-	ScreenTransition screen_unload_heating	= ScreenTransition("Heating", "Push to abort");
+	ScreenTransition<float> screen_unload_heating	= ScreenTransition<float>("Heating", "Push to abort", &TemperatureManager::getInstance());
 	ScreenDialog screen_unload_pull     = ScreenDialog("Extrude and pull");
 	ScreenMenu screen_unload_confirm    = ScreenMenu("Finished?");
 	//Load Filament screens
 	ScreenSelector<void> screen_load_select   = ScreenSelector<void>("Load filament", 170, 230, default_temp_change_filament, do_nothing);
-	ScreenTransition screen_load_heating	= ScreenTransition("Heating", "Push to abort");
+	ScreenTransition<float> screen_load_heating	= ScreenTransition<float>("Heating", "Push to abort", &TemperatureManager::getInstance());
 	ScreenDialog screen_load_press      = ScreenDialog("Insert and press");
 	ScreenMenu screen_load_confirm      = ScreenMenu("Finished?");
 	//Level Plate screens
 	ScreenMenu screen_level_confirm     = ScreenMenu("Level Plate");
-	ScreenTransition screen_level_cooling	= ScreenTransition("Cooling", "Be patient");
+	ScreenTransition<float> screen_level_cooling	= ScreenTransition<float>("Cooling", "Be patient", &TemperatureManager::getInstance());
 	ScreenDialog screen_level1          = ScreenDialog("Screen1");
 	ScreenDialog screen_level2          = ScreenDialog("Screen2");
 	ScreenDialog screen_level3          = ScreenDialog("Screen3");
