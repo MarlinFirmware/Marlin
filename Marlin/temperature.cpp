@@ -684,7 +684,7 @@ static void updateTemperaturesFromRawValues()
         current_temperature[e] = analog2temp(current_temperature_raw[e], e);
     }
 
-    TemperatureManager::getInstance().updateTemperature(current_temperature[0]);
+    TemperatureManager::getInstance().updateCurrentTemperature(current_temperature[0]);
 
     current_temperature_bed = analog2tempBed(current_temperature_bed_raw);
     #ifdef TEMP_SENSOR_1_AS_REDUNDANT
@@ -697,6 +697,25 @@ static void updateTemperaturesFromRawValues()
     temp_meas_ready = false;
     CRITICAL_SECTION_END;
 }
+
+void setTargetHotend(const float &celsius, uint8_t extruder)
+{
+  if (extruder == 0)
+  {
+    TemperatureManager::getInstance().setTargetTemperature((uint16_t) celsius);
+  }
+  else
+  {
+    target_temperature[extruder] = celsius;
+  }
+
+#ifdef WITBOX_CE
+  if (celsius > 0)
+    OCR3BL = 204;   // Fan speed set to the 80% (100% = 255)
+  else
+    OCR3BL = 0;     // Stop the fan
+#endif // WITBOX_CE
+};
 
 void tp_init()
 {
@@ -911,6 +930,8 @@ void setWatch()
 
 void disable_heater()
 {
+  TemperatureManager::getInstance().setTargetTemperature(0);
+
   for(int i=0;i<EXTRUDERS;i++)
     setTargetHotend(0,i);
   setTargetBed(0);

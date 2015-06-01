@@ -10,7 +10,10 @@ class TemperatureManager : public Subject<float>
 	public:
 		static TemperatureManager & getInstance();
 
-		void updateTemperature(float temp);
+		void updateCurrentTemperature(float temp);
+
+		void setTargetTemperature(uint16_t target);
+		uint16_t getTargetTemperature();
 
 	protected:
 		TemperatureManager();
@@ -24,7 +27,8 @@ class TemperatureManager : public Subject<float>
 		void notify();
 
 	private:
-		float m_temperature;
+		float m_current_temperature;
+		uint16_t m_target_temperature;
 };
 
 #endif //TEMPERATURE_MANAGER_H
