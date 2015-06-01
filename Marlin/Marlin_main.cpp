@@ -5170,7 +5170,7 @@ void process_next_command() {
   //  - Overwrite * with nul to mark the end
   while (*current_command == ' ') ++current_command;
   if (*current_command == 'N' && current_command[1] >= '0' && current_command[1] <= '9') {
-    while (*current_command != ' ') ++current_command;
+    while (*current_command != ' ' && *current_command != 'G' && *current_command != 'M' && *current_command != 'T') ++current_command;
     while (*current_command == ' ') ++current_command;
   }
   char *starpos = strchr(current_command, '*');  // * should always be the last parameter
