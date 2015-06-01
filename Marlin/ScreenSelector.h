@@ -14,6 +14,8 @@ namespace screen
 			ScreenSelector(const char * title, uint16_t min, uint16_t max, uint16_t dflt, typename Functor<R, Args...>::FuncPtr fptr = do_nothing);
 			virtual ~ScreenSelector();
 
+			void init();
+
 			void left();
 			void right();
 			void draw();
@@ -24,6 +26,7 @@ namespace screen
          uint16_t m_select;
          uint16_t m_minimum_value;
          uint16_t m_maximum_value;
+         uint16_t m_default;
          Screen * m_next_screen;
 	};
 
@@ -33,6 +36,7 @@ namespace screen
 		, Functor<R, Args...>(fptr)
 		, m_minimum_value(min)
 		, m_maximum_value(max)
+		, m_default(dflt)
 		, m_select(dflt)
 	{
 	}
@@ -40,6 +44,12 @@ namespace screen
 	template <typename R, typename... Args>
 	ScreenSelector<R, Args...>::~ScreenSelector()
 	{
+	}
+
+	template <typename R, typename... Args>
+	void ScreenSelector<R, Args...>::init()
+	{
+		m_select = m_default;
 	}
 
 	template <typename R, typename... Args>

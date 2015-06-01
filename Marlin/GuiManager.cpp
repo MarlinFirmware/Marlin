@@ -274,6 +274,7 @@ void lcd_update(bool force)
     if (lcd_get_button_clicked())
     {
         active_view = &active_view->press(active_view);
+        active_view->init();
     }
 
     // Refresh the content of the display
