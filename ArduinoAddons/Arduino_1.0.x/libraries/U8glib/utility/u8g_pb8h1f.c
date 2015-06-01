@@ -181,7 +181,7 @@ uint8_t u8g_dev_pb8h1f_base_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t msg, void *ar
     case U8G_DEV_MSG_GET_HEIGHT:
       *((u8g_uint_t *)arg) = pb->p.total_height;
       break;
-    case U8G_DEV_MSG_SET_COLOR_INDEX:
+    case U8G_DEV_MSG_SET_COLOR_ENTRY:
       break;
     case U8G_DEV_MSG_SET_XY_CB:
       break;

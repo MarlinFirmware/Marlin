@@ -1,6 +1,6 @@
 /*
   
-  u8g_atmega_parallel.c
+  u8g_com_atmega_parallel.c
 
   Universal 8bit Graphics Library
   
