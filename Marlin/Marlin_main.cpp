@@ -1093,11 +1093,14 @@ static void set_axis_is_at_home(AxisEnum axis) {
     else
   #endif
   {
-    current_position[axis] = base_home_pos(axis)
-    #ifndef BABYSTEP_OFFSET
-      + home_offset[axis]
-    #endif
-    ;
+    if(axis != Z_AXIS)
+      current_position[axis] = base_home_pos(axis) + add_homing[axis];
+    else
+      current_position[axis] = base_home_pos(axis)
+      #ifndef BABYSTEP_OFFSET
+        + home_offset[axis]
+      #endif
+      ;
     min_pos[axis] = base_min_pos(axis) + home_offset[axis];
     max_pos[axis] = base_max_pos(axis) + home_offset[axis];
 
