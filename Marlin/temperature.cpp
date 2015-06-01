@@ -67,8 +67,8 @@ unsigned char soft_pwm_bed;
   
 #if ENABLED(BABYSTEPPING)
   volatile int babystepsTodo[3] = { 0 };
-  volatile float baby_max_endstop[3] = {X_BABY_DEFAULT_MAX_POS, Y_BABY_DEFAULT_MAX_POS, Z_BABY_DEFAULT_MAX_POS};
-  volatile float baby_min_endstop[3] = {X_BABY_DEFAULT_MIN_POS, Y_BABY_DEFAULT_MIN_POS, Z_BABY_DEFAULT_MIN_POS};
+  float baby_max_endstop[3] = {X_BABY_DEFAULT_MAX_POS, Y_BABY_DEFAULT_MAX_POS, Z_BABY_DEFAULT_MAX_POS};
+  float baby_min_endstop[3] = {X_BABY_DEFAULT_MIN_POS, Y_BABY_DEFAULT_MIN_POS, Z_BABY_DEFAULT_MIN_POS};
 #endif
 
 #if ENABLED(FILAMENT_SENSOR)
