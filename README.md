@@ -1,23 +1,25 @@
 # Marlin 3D Printer Firmware
 <img align="right" src="Documentation/Logo/Marlin%20Logo%20GitHub.png" />
 
-
  Documentation has moved to [marlinfirmware.org](http://www.marlinfirmware.org).
 
-## Release Branch
+## Development Branch
 
-The Release branch contains the latest tagged version of Marlin (currently 1.0.2 – January 2015). It also includes a version 1.0.1 (December 2014). Any version of Marlin before 1.0.1 (when we started tagging versions) can be collectively referred to as Marlin 1.0.0.
+__Not for production use – use with caution!__
 
-For the most up-to-date Marlin code, please go to the [Development branch](https://github.com/MarlinFirmware/Marlin/tree/Development) – __Not for production use – use with caution!__ When reporting any issues, please check to see if they are resolved in the Development branch first. But let us know if issues exist in tagged releases so we may document and patch them.
+The Development branch contains the most up-to-date Marlin code. When reporting any issues, please check to see if they are resolved in this branch first. But let us know if issues exist in tagged releases so that we can document and patch them.
+
+There is now also an ["Integration" branch](https://github.com/MarlinFirmware/Marlin/tree/Integration) which will be used in development to migrate changes for wider testing from the Development branch on their way to Release. It's a nascent branch, so for now please rely on Development and Release for issues and features under most active discussion.
+
+For the latest tagged version of Marlin (currently 1.0.2 – January 2015) you should switch to the [Release branch](https://github.com/MarlinFirmware/Marlin/tree/Release).
+
 
 ## Current Status: In Development
 
 Marlin development is being accelerated to catch up with a long list of issues. Check the Issues and Pull Requests links on the right to to see what we are currently working on.
->>>>>>> MarlinFirmware/Release
 
 [![Coverity Scan Build Status](https://scan.coverity.com/projects/2224/badge.svg)](https://scan.coverity.com/projects/2224)
 [![Travis Build Status](https://travis-ci.org/MarlinFirmware/Marlin.svg)](https://travis-ci.org/MarlinFirmware/Marlin)
-
 
 ##### [RepRap.org Wiki Page](http://reprap.org/wiki/Marlin)
 
@@ -30,10 +32,11 @@ __Google Hangout:__ <a href="https://plus.google.com/hangouts/_/gxn3wrea5gdhoo22
 The current Marlin dev team consists of:
 
  - Scott Lahteine [@thinkyhead] - English
- - Andreas Hardtung [@AnHardt] - Deutsch, English
- - [@Wurstnase] - Deutsch, English
+
+ - Andreas Hardtung [@AnHardt]
+ - [@Wurstnase]
  - [@fmalpartida] - English, Spanish
- - [@CONSULitAS] - Deutsch, English
+ - [@CONSULitAS]
  - [@maverikou]
  - Chris Palmer [@nophead]
  - [@paclema]

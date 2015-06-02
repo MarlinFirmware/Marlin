@@ -258,9 +258,9 @@ Here are some standard links for getting your machine calibrated:
 
 //  heater into 4mm borosilicate (Prusa I3)
 //from pidautotune 85°C (ABS)
-    #define  DEFAULT_bedKp 278.18
-    #define  DEFAULT_bedKi 15.72
-    #define  DEFAULT_bedKd 1230.59
+//    #define  DEFAULT_bedKp 278.18
+ //   #define  DEFAULT_bedKi 15.72
+ //   #define  DEFAULT_bedKd 1230.59
     
 //  heater into 4mm borosilicate (Prusa I3)
 //from pidautotune 65°C (PLA)
@@ -268,6 +268,8 @@ Here are some standard links for getting your machine calibrated:
 //  #define  DEFAULT_bedKi 29.39
 //  #define  DEFAULT_bedKd 1878.87
 
+
+    #define PID_BED_INTEGRAL_DRIVE_MAX MAX_BED_POWER //limit for the integral term
 
 
 //120v 250W silicone heater into 4mm borosilicate (MendelMax 1.5+)
@@ -297,44 +299,24 @@ Here are some standard links for getting your machine calibrated:
 #define EXTRUDE_MAXLENGTH (X_MAX_LENGTH+Y_MAX_LENGTH) //prevent extrusion of very large distances.
 
 //===========================================================================
-//============================= Thermal Runaway Protection ==================
+//======================== Thermal Runaway Protection =======================
 //===========================================================================
-/*
-This is a feature to protect your printer from burn up in flames if it has
-a thermistor coming off place (this happened to a friend of mine recently and
-motivated me writing this feature).
 
-The issue: If a thermistor come off, it will read a lower temperature than actual.
-The system will turn the heater on forever, burning up the filament and anything
-else around.
+/**
+ * Thermal Runaway Protection protects your printer from damage and fire if a
+ * thermistor falls out or temperature sensors fail in any way.
+ *
+ * The issue: If a thermistor falls out or a temperature sensor fails,
+ * Marlin can no longer sense the actual temperature. Since a disconnected
+ * thermistor reads as a low temperature, the firmware will keep the heater on.
+ *
+ * The solution: Once the temperature reaches the target, start observing.
+ * If the temperature stays too far below the target (hysteresis) for too long,
+ * the firmware will halt as a safety precaution.
+ */
 
-After the temperature reaches the target for the first time, this feature will
-start measuring for how long the current temperature stays below the target
-minus _HYSTERESIS (set_temperature - THERMAL_RUNAWAY_PROTECTION_HYSTERESIS).
-
-If it stays longer than _PERIOD, it means the thermistor temperature
-cannot catch up with the target, so something *may be* wrong. Then, to be on the
-safe side, the system will he halt.
-
-Bear in mind the count down will just start AFTER the first time the
-thermistor temperature is over the target, so you will have no problem if
-your extruder heater takes 2 minutes to hit the target on heating.
-
-*/
-// If you want to enable this feature for all your extruder heaters,
-// uncomment the 2 defines below:
-
-// Parameters for all extruder heaters
-#define THERMAL_RUNAWAY_PROTECTION_PERIOD 40 //in seconds
-#define THERMAL_RUNAWAY_PROTECTION_HYSTERESIS 4 // in degree Celsius
-
-// If you want to enable this feature for your bed heater,
-// uncomment the 2 defines below:
-
-// Parameters for the bed heater
-#define THERMAL_RUNAWAY_PROTECTION_BED_PERIOD 20 //in seconds
-#define THERMAL_RUNAWAY_PROTECTION_BED_HYSTERESIS 2 // in degree Celsius
-
+#define THERMAL_PROTECTION_HOTENDS // Enable thermal protection for all extruders
+#define THERMAL_PROTECTION_BED     // Enable thermal protection for the heated bed
 
 //===========================================================================
 //============================= Mechanical Settings =========================
@@ -440,17 +422,20 @@ const bool Z_PROBE_ENDSTOP_INVERTING = true; // set to true to invert the logic 
 #define Z_MAX_POS 150
 
 //===========================================================================
-//============================= Filament Runout Sensor ======================
+//========================= Filament Runout Sensor ==========================
 //===========================================================================
 //#define FILAMENT_RUNOUT_SENSOR // Uncomment for defining a filament runout sensor such as a mechanical or opto endstop to check the existence of filament
                                  // In RAMPS uses servo pin 2. Can be changed in pins file. For other boards pin definition should be made.
                                  // It is assumed that when logic high = filament available
                                  //                    when logic  low = filament ran out
-//const bool FIL_RUNOUT_INVERTING = true;  // Should be uncommented and true or false should assigned
-//#define ENDSTOPPULLUP_FIL_RUNOUT // Uncomment to use internal pullup for filament runout pins if the sensor is defined.
+#ifdef FILAMENT_RUNOUT_SENSOR
+  const bool FIL_RUNOUT_INVERTING = true;  // Should be uncommented and true or false should assigned
+  #define ENDSTOPPULLUP_FIL_RUNOUT // Uncomment to use internal pullup for filament runout pins if the sensor is defined.
+  #define FILAMENT_RUNOUT_SCRIPT "M600"
+#endif 
 
 //===========================================================================
-//============================ Mesh Bed Leveling ============================
+//=========================== Manual Bed Leveling ===========================
 //===========================================================================
 
 // #define MANUAL_BED_LEVELING  // Add display menu option for bed leveling
@@ -471,7 +456,7 @@ const bool Z_PROBE_ENDSTOP_INVERTING = true; // set to true to invert the logic 
 #endif  // MESH_BED_LEVELING
 
 //===========================================================================
-//============================= Bed Auto Leveling ===========================
+//============================ Bed Auto Leveling ============================
 //===========================================================================
 
 // @section bedlevel
@@ -652,9 +637,8 @@ const bool Z_PROBE_ENDSTOP_INVERTING = true; // set to true to invert the logic 
 
 #ifdef EEPROM_SETTINGS
   // To disable EEPROM Serial responses and decrease program space by ~1700 byte: comment this out:
-  #define EEPROM_CHITCHAT // please keep turned on if you can.
+  #define EEPROM_CHITCHAT // Please keep turned on if you can.
 #endif
-
 
 // @section temperature
 
@@ -671,7 +655,7 @@ const bool Z_PROBE_ENDSTOP_INVERTING = true; // set to true to invert the logic 
 // @section lcd
 
 // Define your display language below. Replace (en) with your language code and uncomment.
-// en, pl, fr, de, es, ru, it, pt, pt-br, fi, an, nl, ca, eu, kana, kana_utf8, cn, test
+// en, pl, fr, de, es, ru, bg, it, pt, pt-br, fi, an, nl, ca, eu, kana, kana_utf8, cn, test
 // See also language.h
 #define LANGUAGE_INCLUDE GENERATE_LANGUAGE_INCLUDE(en)
 
@@ -708,6 +692,11 @@ const bool Z_PROBE_ENDSTOP_INVERTING = true; // set to true to invert the logic 
 //#define VIKI2
 //#define miniVIKI
 
+// This is a new controller currently under development.  https://github.com/eboston/Adafruit-ST7565-Full-Graphic-Controller/
+//
+// ==> REMEMBER TO INSTALL U8glib to your ARDUINO library folder: http://code.google.com/p/u8glib/wiki/u8glib
+//#define ELB_FULL_GRAPHIC_CONTROLLER
+
 // The RepRapDiscount Smart Controller (white PCB)
 // http://reprap.org/wiki/RepRapDiscount_Smart_Controller
 #define REPRAP_DISCOUNT_SMART_CONTROLLER
@@ -743,12 +732,16 @@ const bool Z_PROBE_ENDSTOP_INVERTING = true; // set to true to invert the logic 
 
 // Panucatt VIKI LCD with status LEDs, integrated click & L/R/U/P buttons, separate encoder inputs
 //#define LCD_I2C_VIKI
+  
+// SSD1306 OLED generic display support
+// ==> REMEMBER TO INSTALL U8glib to your ARDUINO library folder: http://code.google.com/p/u8glib/wiki/u8glib
+//#define U8GLIB_SSD1306
 
 // Shift register panels
 // ---------------------
 // 2 wire Non-latching LCD SR from:
 // https://bitbucket.org/fmalpartida/new-liquidcrystal/wiki/schematics#!shiftregister-connection
-
+// LCD configuration: http://reprap.org/wiki/SAV_3D_LCD
 //#define SAV_3DLCD
 
 // @section extras
