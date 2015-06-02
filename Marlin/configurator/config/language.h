@@ -45,20 +45,20 @@
 
 #if MB(ULTIMAKER)|| MB(ULTIMAKER_OLD)|| MB(ULTIMAIN_2)
   #define MACHINE_NAME "Ultimaker"
-  #define FIRMWARE_URL "http://firmware.ultimaker.com"
+  #define SOURCE_CODE_URL "http://firmware.ultimaker.com"
 #elif MB(RUMBA)
   #define MACHINE_NAME "Rumba"
 #elif MB(3DRAG)
   #define MACHINE_NAME "3Drag"
-  #define FIRMWARE_URL "http://3dprint.elettronicain.it/"
+  #define SOURCE_CODE_URL "http://3dprint.elettronicain.it/"
 #elif MB(K8200)
   #define MACHINE_NAME "K8200"
-  #define FIRMWARE_URL "https://github.com/CONSULitAS/Marlin-K8200"
+  #define SOURCE_CODE_URL "https://github.com/CONSULitAS/Marlin-K8200"
 #elif MB(5DPRINT)
   #define MACHINE_NAME "Makibox"
 #elif MB(SAV_MKI)
   #define MACHINE_NAME "SAV MkI"
-  #define FIRMWARE_URL "https://github.com/fmalpartida/Marlin/tree/SAV-MkI-config"
+  #define SOURCE_CODE_URL "https://github.com/fmalpartida/Marlin/tree/SAV-MkI-config"
 #elif !defined(MACHINE_NAME)
   #define MACHINE_NAME "3D Printer"
 #endif
@@ -73,8 +73,8 @@
   #define MACHINE_NAME CUSTOM_MACHINE_NAME
 #endif
 
-#ifndef FIRMWARE_URL
-  #define FIRMWARE_URL "https://github.com/MarlinFirmware/Marlin"
+#ifndef SOURCE_CODE_URL
+  #define SOURCE_CODE_URL "https://github.com/MarlinFirmware/Marlin"
 #endif
 
 #ifndef BUILD_VERSION
@@ -126,7 +126,7 @@
 #define MSG_HEATING_COMPLETE                "Heating done."
 #define MSG_BED_HEATING                     "Bed Heating."
 #define MSG_BED_DONE                        "Bed done."
-#define MSG_M115_REPORT                     "FIRMWARE_NAME:Marlin " BUILD_VERSION " FIRMWARE_URL:" FIRMWARE_URL " PROTOCOL_VERSION:" PROTOCOL_VERSION " MACHINE_TYPE:" MACHINE_NAME " EXTRUDER_COUNT:" STRINGIFY(EXTRUDERS) " UUID:" MACHINE_UUID "\n"
+#define MSG_M115_REPORT                     "FIRMWARE_NAME:Marlin " BUILD_VERSION " SOURCE_CODE_URL:" SOURCE_CODE_URL " PROTOCOL_VERSION:" PROTOCOL_VERSION " MACHINE_TYPE:" MACHINE_NAME " EXTRUDER_COUNT:" STRINGIFY(EXTRUDERS) " UUID:" MACHINE_UUID "\n"
 #define MSG_COUNT_X                         " Count X: "
 #define MSG_ERR_KILLED                      "Printer halted. kill() called!"
 #define MSG_ERR_STOPPED                     "Printer stopped due to errors. Fix the error and use M999 to restart. (Temperature is reset. Set it after restarting)"
