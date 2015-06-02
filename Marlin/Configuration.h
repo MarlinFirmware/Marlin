@@ -70,7 +70,7 @@ Here are some standard links for getting your machine calibrated:
 
 // Optional custom name for your RepStrap or other custom machine
 // Displayed in the LCD "Ready" message
-#define CUSTOM_MACHINE_NAME "Prusa I3 Printer"
+// #define CUSTOM_MACHINE_NAME "Prusa I3 Printer"
 
 // Define this to set a unique identifier for this printer, (Used by some programs to differentiate between machines)
 // You can use an online service to generate a random UUID. (eg http://www.uuidgenerator.net/version4)
@@ -527,7 +527,7 @@ const bool Z_PROBE_ENDSTOP_INVERTING = true; // set to true to invert the logic 
   // X and Y offsets must be integers
   #define X_PROBE_OFFSET_FROM_EXTRUDER -62  // Probe on: -left  +right
   #define Y_PROBE_OFFSET_FROM_EXTRUDER -20     // Probe on: -front +behind
-  #define Z_PROBE_OFFSET_FROM_EXTRUDER -9.63 // -below (always!)
+  #define Z_PROBE_OFFSET_FROM_EXTRUDER -13.78 // -below (always!)
 
   #define Z_RAISE_BEFORE_HOMING 15       // (in mm) Raise Z before homing (G28) for Probe Clearance.
                                         // Be sure you have this distance over your Z_MAX_POS in case
@@ -580,7 +580,7 @@ const bool Z_PROBE_ENDSTOP_INVERTING = true; // set to true to invert the logic 
   // D32 is currently selected in the RAMPS 1.3/1.4 pin file. All other boards will need changes to the respective pins_XXXXX.h file.
   // WARNING: Setting the wrong pin may have unexpected and potentially disastrous outcomes. Use with caution and do your homework.
 
-  #define Z_PROBE_ENDSTOP
+  //#define Z_PROBE_ENDSTOP
 
 #endif // ENABLE_AUTO_BED_LEVELING
 
