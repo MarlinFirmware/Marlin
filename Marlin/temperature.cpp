@@ -18,6 +18,8 @@
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#define __STDC_LIMIT_MACROS
+#include <stdint.h>
 #include "Marlin.h"
 #include "ultralcd.h"
 #include "temperature.h"
@@ -602,6 +604,15 @@ void manage_heater() {
     if (ct < max(HEATER_0_MINTEMP, 0.01)) min_temp_error(0);
   #endif
 
+
+  #if MAX_TEMP_OVERSHOOT_TIME > 0
+    for (int8_t h = FIRST_HEATER; h < EXTRUDERS; h++) {
+      //SERIAL_PROTOCOLPGM("Heater: "); SERIAL_PROTOCOL(h+1); SERIAL_PROTOCOLPGM(" H_State: "); SERIAL_PROTOCOLLN(heater_state(h));
+      if (heater_state(h) && (MAX_AMBIENT_TEMPERATURE < ((h<0) ? current_temperature_bed : current_temperature[h]))) 
+        _temp_error(h, PSTR(MSG_T_THERMAL_RUNAWAY), PSTR(MSG_THERMAL_RUNAWAY));
+    }
+  #endif
+
   #if defined(THERMAL_PROTECTION_HOTENDS) || !defined(PIDTEMPBED) || HAS_AUTO_FAN
     millis_t ms = millis();
   #endif
@@ -748,7 +759,7 @@ static float analog2temp(int raw, uint8_t e) {
 
     return celsius;
   }
-  return ((raw * ((5.0 * 100.0) / 1024.0) / OVERSAMPLENR) * TEMP_SENSOR_AD595_GAIN) + TEMP_SENSOR_AD595_OFFSET;
+  return (((raw >> OVESRAMPLESHIFT)  * 5.0 * 100.0 / 1024.0) * TEMP_SENSOR_AD595_GAIN) + TEMP_SENSOR_AD595_OFFSET;
 }
 
 // Derived from RepRap FiveD extruder::getTemperature()
@@ -773,7 +784,7 @@ static float analog2tempBed(int raw) {
 
     return celsius;
   #elif defined BED_USES_AD595
-    return ((raw * ((5.0 * 100.0) / 1024.0) / OVERSAMPLENR) * TEMP_SENSOR_AD595_GAIN) + TEMP_SENSOR_AD595_OFFSET;
+    return (((raw >> OVESRAMPLESHIFT) * 5.0 * 100.0 / 1024.0) * TEMP_SENSOR_AD595_GAIN) + TEMP_SENSOR_AD595_OFFSET;
   #else
     return 0;
   #endif
@@ -1607,3 +1618,145 @@ ISR(TIMER0_COMPB_vect) {
   float scalePID_d(float d)   { return d / PID_dT; }
   float unscalePID_d(float d) { return d * PID_dT; }
 #endif //PIDTEMP
+
+#if MAX_TEMP_OVERSHOOT_TIME > 0
+  int8_t temperature_state(int8_t hh) {
+    static int average_temp_raw[EXTRUDERS + 1] = { 0 };
+    static int last_temp_raw[EXTRUDERS + 1] = { 0 };
+    static int16_t counter[5] = {  INT16_MAX,  INT16_MAX,  INT16_MAX,  INT16_MAX,  INT16_MAX }; //init  INT16_MAX
+
+    int8_t h = hh + 1; // index correctur
+    // get current_temperature_raw[hh] and divide by OVERSAMPLENR
+    #ifdef HEATER_0_USES_MAX6675
+      int t = ((h) ? ((hh) ? current_temperature_raw[hh] >> OVESRAMPLESHIFT: current_temperature_raw[hh]) : current_temperature_bed_raw >> OVESRAMPLESHIFT);
+    #else
+      int t = ((h) ? current_temperature_raw[hh]: current_temperature_bed_raw) >> OVESRAMPLESHIFT;
+    #endif
+
+    // floating average over 16 values (MAX6675 is not oversampled until now. Thermistors are still a bit nervous)
+    int average = (average_temp_raw[h] >> OVESRAMPLESHIFT); // /16
+    int dt = t - average;
+    average_temp_raw[h] += dt;
+
+    #ifdef HEATER_STATE_DEBUG
+      SERIAL_PROTOCOLPGM("Temperature: "); SERIAL_PROTOCOL(h); SERIAL_PROTOCOLPGM(" count: "); SERIAL_PROTOCOL((int)counter[h]); SERIAL_PROTOCOLPGM(" Temp.: "); SERIAL_PROTOCOL((int)t); SERIAL_PROTOCOLPGM(" Temp.A.:"); SERIAL_PROTOCOL(average);
+    #endif
+
+    // init
+    if (counter[h] ==  INT16_MAX) {
+      average_temp_raw[h] = (t << OVESRAMPLESHIFT); // *16
+      last_temp_raw[h] = t;
+      counter[h] = 0;
+      return 0;
+    }
+
+    #if MAX_THERMO_JUMP_AMOUNT > 0
+      if (abs(last_temp_raw[h] - t) > MAX_THERMO_JUMP_AMOUNT) _temp_error(hh, PSTR(MSG_T_JUMP), PSTR(MSG_ERR_THERMAL_JUMP));
+      else last_temp_raw[h] = t;
+    #endif
+
+    if (abs(dt) < TEMP_RAW_NOISE) { counter[h] = 0; return 0;} // constant
+    switch (h) {
+      case 0: {
+        #if HAS_TEMP_BED
+          counter[h] += (dt GEBED 0) ? 1 : -1;
+        #endif
+        break;
+      }
+      case 1: {
+        #if HAS_TEMP_0 && !defined(HEATER_0_USES_MAX6675)
+          counter[h] += (dt GE0 0) ? 1 : -1;
+        #endif
+        #ifdef HEATER_0_USES_MAX6675
+          counter[h] += (dt >= 0) ? 1 : -1;
+        #endif
+        break;
+      }
+      case 2: {
+        #if HAS_TEMP_1
+          counter[h] += (dt GE1 0) ? 1 : -1;
+        #endif
+        break;
+      }
+      case 3: {
+        #if HAS_TEMP_2
+          counter[h] += (dt GE2 0) ? 1 : -1;
+        #endif
+        break;
+      }
+      case 4: {
+        #if HAS_TEMP_3
+          counter[h] += (dt GE3 0) ? 1 : -1;
+        #endif
+        break;
+      }
+      break;
+    }
+    // when we have n consecutive rising or falling values we are sure enough to return that
+    if (abs(counter[h]) >= TEMP_CONSEC_COUNT) return (counter[h] < 0) ? -1 : 1;
+    // else return constant
+    return 0;
+  }
+
+  int8_t heater_state(int8_t hh) {
+    enum hstate_t { ON_S, FULL_ON_S, OFF_S };
+    static hstate_t hstate[5] = { ON_S };
+    static int8_t tstate[EXTRUDERS + 1] = { 0 };
+    static millis_t timerc[EXTRUDERS + 1] = { 0 };
+    static float initial_temp[EXTRUDERS + 1] = { 0.0 };
+
+    uint8_t h = hh + 1;
+    int8_t current_tstate = temperature_state(hh);
+
+    #ifdef HEATER_STATE_DEBUG
+      SERIAL_PROTOCOLPGM(" Heater: "); SERIAL_PROTOCOL((int)h); SERIAL_PROTOCOLPGM(" T_State: "); SERIAL_PROTOCOL((int)current_tstate); SERIAL_PROTOCOLPGM(" Time:"); SERIAL_PROTOCOL(timerc[h]-millis()); SERIAL_PROTOCOLPGM(" H_State:"); SERIAL_PROTOCOLLN((int)hstate[h]);
+    #endif
+
+    if (((h) ? soft_pwm[hh] : soft_pwm_bed) == ((h) ? PID_MAX >> 1: MAX_BED_POWER >> 1)) {// FULL_ON
+      if (hstate[h] != FULL_ON_S) {
+        hstate[h]  = FULL_ON_S;
+        tstate[h] = current_tstate;
+        timerc[h] = millis() + MAX_TEMP_OVERSHOOT_TIME * 1000UL;
+        return 0;
+      }
+      else {
+        if (current_tstate != tstate[h]) {
+          if (current_tstate == 1) return 0;
+          if (current_tstate == -1)  _temp_error(hh, PSTR(MSG_T_HEATING_FAILED), PSTR(MSG_HEATING_FAILED_LCD));
+        }
+        if (millis() > timerc[h]) {// timeout
+          hstate[h] = ON_S; // retest
+          if (current_tstate != -1) return 0;
+          else _temp_error(hh, PSTR(MSG_T_HEATING_FAILED), PSTR(MSG_HEATING_FAILED_LCD));
+        }
+        else
+          return 0;
+      }
+    }
+    else if (((h) ? soft_pwm[hh] : soft_pwm_bed) == 0) // FULL_OFF
+      if (hstate[h] != OFF_S) {
+        hstate[h] = OFF_S;
+        tstate[h] = current_tstate;
+        timerc[h] = millis() + MAX_TEMP_OVERSHOOT_TIME * 1000UL;
+        return 0;
+      }
+      else {
+        if (current_tstate != tstate[h]) {
+          if (current_tstate == 1) 1; // test for MAX_AMBIENT_TEMPERATURE // got false positives when touching the sensor.
+          else return 0;
+        }
+        if (millis() > timerc[h]) {// timeout
+          hstate[h] = ON_S; // retest
+          if (current_tstate != 1) return 0;
+          else return 1; // test for MAX_AMBIENT_TEMPERATURE
+        }
+        else
+          return 0;
+      }
+    else {
+      hstate[h] = ON_S; // on, but not full power so can't say anything about the temperature change
+      return 0;
+    }
+  return 0;
+  }
+#endif // MAX_TEMP_OVERSHOOT_TIME > 0
