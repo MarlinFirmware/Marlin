@@ -102,6 +102,17 @@ void u8g_Draw8PixelLL(u8g_t *u8g, u8g_dev_t *dev, u8g_uint_t x, u8g_uint_t y, ui
   u8g_call_dev_fn(u8g, dev, U8G_DEV_MSG_SET_8PIXEL, arg);
 }
 
+void u8g_Draw4TPixelLL(u8g_t *u8g, u8g_dev_t *dev, u8g_uint_t x, u8g_uint_t y, uint8_t dir, uint8_t pixel)
+{
+  u8g_dev_arg_pixel_t *arg = &(u8g->arg_pixel);
+  arg->x = x;
+  arg->y = y;
+  arg->dir = dir;
+  arg->pixel = pixel;
+  u8g_call_dev_fn(u8g, dev, U8G_DEV_MSG_SET_4TPIXEL, arg);
+}
+
+
 #ifdef U8G_DEV_MSG_IS_BBX_INTERSECTION
 uint8_t u8g_IsBBXIntersectionLL(u8g_t *u8g, u8g_dev_t *dev, u8g_uint_t x, u8g_uint_t y, u8g_uint_t w, u8g_uint_t h)
 {  
@@ -145,17 +156,21 @@ void u8g_UpdateDimension(u8g_t *u8g)
 
 static void u8g_init_data(u8g_t *u8g)
 {
-  uint8_t i;
   u8g->font = NULL;
   u8g->cursor_font = NULL;
   u8g->cursor_bg_color = 0;
   u8g->cursor_fg_color = 1;
   u8g->cursor_encoding = 34;
   u8g->cursor_fn = (u8g_draw_cursor_fn)0;
-  
-  for( i = 0; i < U8G_PIN_LIST_LEN; i++ )
-    u8g->pin_list[i] = U8G_PIN_NONE;
 
+#if defined(U8G_WITH_PINLIST)  
+  {
+    uint8_t i;
+    for( i = 0; i < U8G_PIN_LIST_LEN; i++ )
+      u8g->pin_list[i] = U8G_PIN_NONE;
+  }
+#endif
+  
   u8g_SetColorIndex(u8g, 1);
 
   u8g_SetFontPosBaseline(u8g);
@@ -192,6 +207,33 @@ uint8_t u8g_Init(u8g_t *u8g, u8g_dev_t *dev)
   return u8g_Begin(u8g);
 }
 
+/* special init for pure ARM systems */
+uint8_t u8g_InitComFn(u8g_t *u8g, u8g_dev_t *dev, u8g_com_fnptr com_fn)
+{
+  u8g_init_data(u8g);
+  
+#if defined(U8G_WITH_PINLIST)  
+  {
+    uint8_t i;
+    for( i = 0; i < U8G_PIN_LIST_LEN; i++ )
+      u8g->pin_list[i] = U8G_PIN_DUMMY;
+  }
+#endif
+  
+  u8g->dev = dev;
+  
+  /* replace the device procedure with a custom communication procedure */
+  u8g->dev->com_fn = com_fn;
+  
+  /* On the Arduino Environment this will lead to two calls to u8g_Begin(), the following line will be called first (by U8glib constructors) */
+  /* if - in future releases - this is removed, then still call u8g_UpdateDimension() */
+  /* if Arduino call u8g_UpdateDimension else u8g_Begin */
+  /* issue 146 */
+  return u8g_Begin(u8g);
+}
+
+
+#if defined(U8G_WITH_PINLIST)  
 uint8_t u8g_InitSPI(u8g_t *u8g, u8g_dev_t *dev, uint8_t sck, uint8_t mosi, uint8_t cs, uint8_t a0, uint8_t reset)
 {
   
@@ -336,6 +378,7 @@ uint8_t u8g_InitRW8Bit(u8g_t *u8g, u8g_dev_t *dev, uint8_t d0, uint8_t d1, uint8
   
   return u8g_Begin(u8g);
 }
+#endif /* defined(U8G_WITH_PINLIST)  */
 
 void u8g_FirstPage(u8g_t *u8g)
 {
@@ -377,6 +420,12 @@ void u8g_Draw8Pixel(u8g_t *u8g, u8g_uint_t x, u8g_uint_t y, uint8_t dir, uint8_t
   u8g_Draw8PixelLL(u8g, u8g->dev, x, y, dir, pixel);
 }
 
+void u8g_Draw4TPixel(u8g_t *u8g, u8g_uint_t x, u8g_uint_t y, uint8_t dir, uint8_t pixel)
+{
+  u8g_Draw4TPixelLL(u8g, u8g->dev, x, y, dir, pixel);
+}
+
+
 /* u8g_IsBBXIntersection() has been moved to u8g_clip.c */
 #ifdef OBSOLETE_CODE
 uint8_t u8g_IsBBXIntersection(u8g_t *u8g, u8g_uint_t x, u8g_uint_t y, u8g_uint_t w, u8g_uint_t h)
@@ -394,11 +443,71 @@ uint8_t u8g_IsBBXIntersection(u8g_t *u8g, u8g_uint_t x, u8g_uint_t y, u8g_uint_t
 }
 #endif
 
+/*
+  idx: index for the palette entry (0..255)
+  r: value for red (0..255)
+  g: value for green (0..255)
+  b: value for blue (0..255)
+*/
+void u8g_SetColorEntry(u8g_t *u8g, uint8_t idx, uint8_t r, uint8_t g, uint8_t b)
+{
+  u8g_dev_arg_irgb_t irgb;
+  irgb.idx = idx;
+  irgb.r = r;
+  irgb.g = g;
+  irgb.b = b;  
+  u8g_call_dev_fn(u8g, u8g->dev, U8G_DEV_MSG_SET_COLOR_ENTRY, &irgb);
+}
+
 void u8g_SetColorIndex(u8g_t *u8g, uint8_t idx)
 {
   u8g->arg_pixel.color = idx;
   /*u8g->color_index = idx; */ /* must be removed */
 }
+
+void u8g_SetHiColor(u8g_t *u8g, uint16_t rgb)
+{
+  u8g->arg_pixel.color = rgb&255;
+  u8g->arg_pixel.hi_color = rgb>>8;
+  /*u8g->color_index = idx; */ /* must be removed */
+}
+
+void u8g_SetHiColorByRGB(u8g_t *u8g, uint8_t r, uint8_t g, uint8_t b)
+{
+  
+  r &= ~7;
+  g >>= 2;
+  b >>= 3;
+  u8g->arg_pixel.color = b;
+  u8g->arg_pixel.color |= (g & 7) << 5;
+  u8g->arg_pixel.hi_color = r;
+  u8g->arg_pixel.hi_color |= (g>>3) & 7;
+  
+  //u8g_SetHiColor(u8g, U8G_GET_HICOLOR_BY_RGB(r,g,b));
+}
+
+void u8g_SetRGB(u8g_t *u8g, uint8_t r, uint8_t g, uint8_t b)
+{
+  if ( u8g->mode == U8G_MODE_R3G3B2 ) 
+  {
+    r &= 0x0e0;
+    g &= 0x0e0;
+    g >>= 3;
+    b >>= 6;
+    u8g->arg_pixel.color = r | g | b;
+  }
+  else if ( u8g->mode == U8G_MODE_HICOLOR )
+  {
+    u8g_SetHiColorByRGB(u8g, r,g,b);
+  }
+  else
+  {
+    u8g->arg_pixel.color = r;
+    u8g->arg_pixel.hi_color = g;
+    u8g->arg_pixel.blue = b;
+  }
+}
+
 
 uint8_t u8g_GetColorIndex(u8g_t *u8g)
 {
@@ -420,7 +529,15 @@ uint8_t u8g_GetDefaultForegroundColor(u8g_t *u8g)
 
 void u8g_SetDefaultForegroundColor(u8g_t *u8g)
 {
-  u8g_SetColorIndex(u8g, u8g_GetDefaultForegroundColor(u8g));
+  if ( u8g->mode == U8G_MODE_HICOLOR )
+  {
+    u8g->arg_pixel.color = 0x0ff;
+    u8g->arg_pixel.hi_color = 0x0ff;
+  }
+  else
+  {
+    u8g_SetColorIndex(u8g, u8g_GetDefaultForegroundColor(u8g));
+  }
 }
 
 uint8_t u8g_GetDefaultBackgroundColor(u8g_t *u8g)

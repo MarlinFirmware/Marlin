@@ -429,11 +429,12 @@ void check_axes_activity() {
     #ifdef FAN_KICKSTART_TIME
       static millis_t fan_kick_end;
       if (tail_fan_speed) {
+        millis_t ms = millis();
         if (fan_kick_end == 0) {
           // Just starting up fan - run at full power.
-          fan_kick_end = millis() + FAN_KICKSTART_TIME;
+          fan_kick_end = ms + FAN_KICKSTART_TIME;
           tail_fan_speed = 255;
-        } else if (fan_kick_end > millis())
+        } else if (fan_kick_end > ms)
           // Fan still spinning up.
           tail_fan_speed = 255;
         } else {
@@ -477,11 +478,7 @@ float junction_deviation = 0.1;
 
   // If the buffer is full: good! That means we are well ahead of the robot. 
   // Rest here until there is room in the buffer.
-  while(block_buffer_tail == next_buffer_head) {
-    manage_heater(); 
-    manage_inactivity(); 
-    lcd_update();
-  }
+  while (block_buffer_tail == next_buffer_head) idle();
 
   #ifdef MESH_BED_LEVELING
     if (mbl.active) z += mbl.get_z(x, y);
@@ -543,7 +540,7 @@ float junction_deviation = 0.1;
   block->steps[Z_AXIS] = labs(dz);
   block->steps[E_AXIS] = labs(de);
   block->steps[E_AXIS] *= volumetric_multiplier[extruder];
-  block->steps[E_AXIS] *= extruder_multiply[extruder];
+  block->steps[E_AXIS] *= extruder_multiplier[extruder];
   block->steps[E_AXIS] /= 100;
   block->step_event_count = max(block->steps[X_AXIS], max(block->steps[Y_AXIS], max(block->steps[Z_AXIS], block->steps[E_AXIS])));
 
@@ -677,7 +674,7 @@ float junction_deviation = 0.1;
     delta_mm[Y_AXIS] = dy / axis_steps_per_unit[Y_AXIS];
   #endif
   delta_mm[Z_AXIS] = dz / axis_steps_per_unit[Z_AXIS];
-  delta_mm[E_AXIS] = (de / axis_steps_per_unit[E_AXIS]) * volumetric_multiplier[extruder] * extruder_multiply[extruder] / 100.0;
+  delta_mm[E_AXIS] = (de / axis_steps_per_unit[E_AXIS]) * volumetric_multiplier[extruder] * extruder_multiplier[extruder] / 100.0;
 
   if (block->steps[X_AXIS] <= dropsegments && block->steps[Y_AXIS] <= dropsegments && block->steps[Z_AXIS] <= dropsegments) {
     block->millimeters = fabs(delta_mm[E_AXIS]);

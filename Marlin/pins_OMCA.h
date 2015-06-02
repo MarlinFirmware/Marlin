@@ -48,9 +48,9 @@
 #define Z_ENABLE_PIN       10
 #define Z_STOP_PIN         2
 
-#define E0_STEP_PIN         24
-#define E0_DIR_PIN          21
-#define E0_ENABLE_PIN       10
+#define E0_STEP_PIN        24
+#define E0_DIR_PIN         21
+#define E0_ENABLE_PIN      10
 
 // future proofing
 #define __FS  20
@@ -58,15 +58,15 @@
 #define __GS  18
 #define __GD  13
 
-#define UNUSED_PWM           14 // PWM on LEFT connector
+#define UNUSED_PWM         14 // PWM on LEFT connector
 
-#define E1_STEP_PIN         -1 // 21
-#define E1_DIR_PIN          -1 // 20
-#define E1_ENABLE_PIN       -1 // 19
+#define E1_STEP_PIN        -1 // 21
+#define E1_DIR_PIN         -1 // 20
+#define E1_ENABLE_PIN      -1 // 19
 
-#define E2_STEP_PIN         -1 // 21
-#define E2_DIR_PIN          -1 // 20
-#define E2_ENABLE_PIN       -1 // 18
+#define E2_STEP_PIN        -1 // 21
+#define E2_DIR_PIN         -1 // 20
+#define E2_ENABLE_PIN      -1 // 18
 
 #define SDPOWER            -1
 #define SDSS               11
@@ -87,5 +87,6 @@
 #define HEATER_BED_PIN      4
 #define TEMP_BED_PIN        2 // 1,2 or I2C
 
-#define I2C_SCL       16
-#define I2C_SDA       17
+#define I2C_SCL            16
+#define I2C_SDA            17
+

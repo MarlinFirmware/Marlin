@@ -107,7 +107,55 @@ u8glib ChangeLog
   * Sleep Mode
   * 4x mode for ST7920
   * New C++ interface for ST7920 
-
+2013-03-24	v1.12	  Oliver Kraus <olikraus@gmail.com>
+  * Added touch panel examples
+2013-06-30	v1.13	  Oliver Kraus <olikraus@gmail.com>
+  * Fixed missing "Arduino.h" in u8g_delay.c
+  * Disable interrupt for port/pin access (AVR), issue 19
+  * Support for HT1632: U8GLIB_HT1632_24X16 u8g(wr, data, cs), issue 165
+  * Support for SSD1351 OLED, issue 168
+  * Cleaned up several compiler warnings
+  * Fixed conflict with scheduler (Arduino Due), issue 155
+  * HW SPI for Arduino Due, issue 180
+  * Performance improvement for ST7920, issue 177
+  * Added ":" to the "n"umeric variant of the fonts, issue 166
+  * Added additional argument u8g_InitCom(). Use U8G_SPI_CLK_CYCLE_NONE by default.
+  * Added double buffer option for many ST7565 devices
+  * Tested with Arduino 1.0.5
+2013-10-03	v1.14	  Oliver Kraus <olikraus@gmail.com>
+  * Support for ARM controller
+  * Support for the A2 micro printer  (issue 191)
+  * Ellipse drawing primitive (issue 187)
+  * Added software reset for UC1701
+  * Fixed compiler warning (issue 196)
+  * Support for Freetronics SSD1351 OLED  (issue 195)
+  * Several other fixes and improvements
+2014-01-25	v1.15	  Oliver Kraus <olikraus@gmail.com>
+  * Fixed a bug with the rotation procs:  Occupied too much flash ROM (issue 219)
+  * Fixed issue with more than one SPI controller (SW SPI, issue 227)
+  * Added "drawTriangle" (issue 226)
+  * Added support for UC1608 (issue 214)
+  * Added ProFont family of fonts (issue  234)
+  * SW SPI support for Teensy 3 (issue 230)
+  * Removed Arduino/AVR specific files from ARM port (issue 209)
+2014-07-05	v1.16	  Oliver Kraus <olikraus@gmail.com>
+  * Added support for LD7032 60x32 OLED
+  * Added support for SSD1306 OLED, which does not send I2C ACK (issue 239)
+  * Added support for SH1106 128x64 OLED
+  * Added support for T6963 128x128 displays
+  * Added U8GLIB_SSD1306_ADAFRUIT_128X64 constructor
+2014-12-21	v1.17	  Oliver Kraus <olikraus@gmail.com>
+  * Added U8GLIB_UC1611_DOGM240 constructor (Issue 284)
+  * Added U8GLIB_UC1611_DOGXL240 constructor
+  * Added support for UC1608 controller (Issue 300)
+  * Added U8GLIB_SSD1306_ADAFRUIT_128X64 for Adafruit OLEDs (Issue 289)
+  * Bufix in the sleep on/off sequence (CS has not been releases, issue 298)
+  * helvB and helvR number only fonts (Issue 271)
+  * 400KHz option for I2C with U8G_I2C_OPT_FAST available for Due and Uno (Issue 303)
+  * I2C support for Arduino Due. 100KHz/400KHz, TWI & TWI1, ACK will be ignored (issue 285)
+  * Unifont update (Issue 297)
+  
+  
   
   
   

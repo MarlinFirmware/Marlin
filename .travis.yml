@@ -161,6 +161,3 @@ script:
   #- rm -rf .build/
   #- ino build -m mega2560
   ######## Board Types #############
-  - sed -i 's/#define MOTHERBOARD BOARD_RAMPS_13_EFB/#define MOTHERBOARD BOARD_DUEMILANOVE_328P/g' Marlin/Configuration.h
-  - rm -rf .build/
-  - ino build -m atmega328

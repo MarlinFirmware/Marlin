@@ -50,7 +50,7 @@
 #define WIDTH 248
 #endif
 #define HEIGHT 64
-#define PAGE_HEIGHT 8
+//#define PAGE_HEIGHT 8
 
 /* 
   http://www.newhavendisplay.com/app_notes/OLED_25664.txt 
@@ -199,7 +199,7 @@ static const uint8_t u8g_dev_ssd13xx_sleep_on[] PROGMEM = {
   U8G_ESC_ADR(0),           /* instruction mode */
   U8G_ESC_CS(1),             /* enable chip */
   0x0ae,		/* display off */      
-  U8G_ESC_CS(1),             /* disable chip */
+  U8G_ESC_CS(0),             /* disable chip, bugfix 12 nov 2014 */
   U8G_ESC_END                /* end of sequence */
 };
 
@@ -208,7 +208,7 @@ static const uint8_t u8g_dev_ssd13xx_sleep_off[] PROGMEM = {
   U8G_ESC_CS(1),             /* enable chip */
   0x0af,		/* display on */      
   U8G_ESC_DLY(50),       /* delay 50 ms */
-  U8G_ESC_CS(1),             /* disable chip */
+  U8G_ESC_CS(0),             /* disable chip, bugfix 12 nov 2014 */
   U8G_ESC_END                /* end of sequence */
 };
 
@@ -217,7 +217,7 @@ uint8_t u8g_dev_ssd1322_nhd31oled_gr_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t msg,
   switch(msg)
   {
     case U8G_DEV_MSG_INIT:
-      u8g_InitCom(u8g, dev);
+      u8g_InitCom(u8g, dev, U8G_SPI_CLK_CYCLE_300NS);
       u8g_WriteEscSeqP(u8g, dev, u8g_dev_ssd1322_2bit_nhd_312_init_seq);
       break;
     case U8G_DEV_MSG_STOP:
@@ -243,6 +243,7 @@ uint8_t u8g_dev_ssd1322_nhd31oled_gr_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t msg,
 	  u8g_WriteByte(u8g, dev, 0x00);
 	  u8g_WriteByte(u8g, dev, 0x00);
 #endif
+	  u8g_MicroDelay();	// for DUE?
 	  u8g_SetChipSelect(u8g, dev, 0);        
 	  p+=cnt;
 	}
@@ -254,6 +255,7 @@ uint8_t u8g_dev_ssd1322_nhd31oled_gr_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t msg,
       u8g_WriteByte(u8g, dev, 0x081);
       u8g_SetAddress(u8g, dev, 1);          /* data mode */
       u8g_WriteByte(u8g, dev, (*(uint8_t *)arg) >> 1);
+      u8g_MicroDelay();	// for DUE?
       u8g_SetChipSelect(u8g, dev, 0);      
       break;
     case U8G_DEV_MSG_SLEEP_ON:
@@ -272,7 +274,7 @@ uint8_t u8g_dev_ssd1322_nhd31oled_2x_gr_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t m
   switch(msg)
   {
     case U8G_DEV_MSG_INIT:
-      u8g_InitCom(u8g, dev);
+      u8g_InitCom(u8g, dev, U8G_SPI_CLK_CYCLE_300NS);
       u8g_WriteEscSeqP(u8g, dev, u8g_dev_ssd1322_2bit_nhd_312_init_seq);
       break;
     case U8G_DEV_MSG_STOP:
@@ -284,7 +286,7 @@ uint8_t u8g_dev_ssd1322_nhd31oled_2x_gr_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t m
 	uint8_t *p = pb->buf;
 	u8g_uint_t cnt;
 	cnt = pb->width;
-	cnt >>= 3;
+	cnt >>= 2;    /* 23 Oct 2013, changed to 2 */
 
 	for( i = 0; i < pb->p.page_height; i++ )
 	{
@@ -298,6 +300,7 @@ uint8_t u8g_dev_ssd1322_nhd31oled_2x_gr_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t m
 	  u8g_WriteByte(u8g, dev, 0x00);
 	  u8g_WriteByte(u8g, dev, 0x00);
 #endif
+	  u8g_MicroDelay();	// for DUE?
 	  u8g_SetChipSelect(u8g, dev, 0);        
 	  p+=cnt;
 	}
@@ -322,12 +325,14 @@ uint8_t u8g_dev_ssd1322_nhd31oled_2x_gr_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t m
 }
 
 
-U8G_PB_DEV(u8g_dev_ssd1322_nhd31oled_gr_sw_spi , WIDTH, HEIGHT, PAGE_HEIGHT, u8g_dev_ssd1322_nhd31oled_gr_fn, U8G_COM_SW_SPI);
-U8G_PB_DEV(u8g_dev_ssd1322_nhd31oled_gr_hw_spi , WIDTH, HEIGHT, PAGE_HEIGHT, u8g_dev_ssd1322_nhd31oled_gr_fn, U8G_COM_HW_SPI);
+U8G_PB_DEV(u8g_dev_ssd1322_nhd31oled_gr_sw_spi , WIDTH, HEIGHT, 4, u8g_dev_ssd1322_nhd31oled_gr_fn, U8G_COM_SW_SPI);
+U8G_PB_DEV(u8g_dev_ssd1322_nhd31oled_gr_hw_spi , WIDTH, HEIGHT, 4, u8g_dev_ssd1322_nhd31oled_gr_fn, U8G_COM_HW_SPI);
+U8G_PB_DEV(u8g_dev_ssd1322_nhd31oled_gr_parallel , WIDTH, HEIGHT, 4, u8g_dev_ssd1322_nhd31oled_gr_fn, U8G_COM_FAST_PARALLEL);
+
 
 #define DWIDTH (WIDTH*2)
 uint8_t u8g_dev_ssd1322_nhd31oled_2x_gr_buf[DWIDTH] U8G_NOCOMMON ; 
-u8g_pb_t u8g_dev_ssd1322_nhd31oled_2x_gr_pb = { {16, HEIGHT, 0, 0, 0},  WIDTH, u8g_dev_ssd1322_nhd31oled_2x_gr_buf}; 
+u8g_pb_t u8g_dev_ssd1322_nhd31oled_2x_gr_pb = { {8, HEIGHT, 0, 0, 0},  WIDTH, u8g_dev_ssd1322_nhd31oled_2x_gr_buf}; 
 u8g_dev_t u8g_dev_ssd1322_nhd31oled_2x_gr_sw_spi = { u8g_dev_ssd1322_nhd31oled_2x_gr_fn, &u8g_dev_ssd1322_nhd31oled_2x_gr_pb, U8G_COM_SW_SPI };
 u8g_dev_t u8g_dev_ssd1322_nhd31oled_2x_gr_hw_spi = { u8g_dev_ssd1322_nhd31oled_2x_gr_fn, &u8g_dev_ssd1322_nhd31oled_2x_gr_pb, U8G_COM_HW_SPI };
 

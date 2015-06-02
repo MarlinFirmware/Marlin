@@ -22,20 +22,32 @@
     #define NEWPANEL
   #endif
 
-  #if defined(miniVIKI) || defined(VIKI2)
+  #if defined(miniVIKI) || defined(VIKI2) || defined(ELB_FULL_GRAPHIC_CONTROLLER)
     #define ULTRA_LCD  //general LCD support, also 16x2
     #define DOGLCD  // Support for SPI LCD 128x64 (Controller ST7565R graphic Display Family)
     #define ULTIMAKERCONTROLLER //as available from the Ultimaker online store.
 
     #ifdef miniVIKI
       #define DEFAULT_LCD_CONTRAST 95
-    #else
+    #elif defined(VIKI2)
       #define DEFAULT_LCD_CONTRAST 40
+    #elif defined(ELB_FULL_GRAPHIC_CONTROLLER)
+      #define DEFAULT_LCD_CONTRAST 110
+      #define SDCARDDETECTINVERTED
+      #define SDSLOW
+      #define U8GLIB_LM6059_AF
     #endif
 
     #define ENCODER_PULSES_PER_STEP 4
     #define ENCODER_STEPS_PER_MENU_ITEM 1
   #endif
+
+  // Generic support for SSD1306 OLED based LCDs.
+  #if defined(U8GLIB_SSD1306)
+    #define ULTRA_LCD  //general LCD support, also 16x2
+    #define DOGLCD  // Support for I2C LCD 128x64 (Controller SSD1306 graphic Display Family)
+  #endif
+
 
   #ifdef PANEL_ONE
     #define SDSUPPORT
@@ -194,11 +206,16 @@
     #ifdef U8GLIB_ST7920
       #undef HAS_LCD_CONTRAST
     #endif
+    #ifdef U8GLIB_SSD1306
+      #undef HAS_LCD_CONTRAST
+    #endif  
   #endif
 
 #else // CONFIGURATION_LCD
 
   #define CONDITIONALS_H
+
+  #include "pins.h"
 
   #ifndef AT90USB
     #define HardwareSerial_h // trick to disable the standard HWserial
@@ -209,8 +226,6 @@
   #else
     #include "WProgram.h"
   #endif
-
-  #include "pins.h"
 
   /**
    * ENDSTOPPULLUPS
@@ -276,6 +291,13 @@
     #define MAX_PROBE_Y (min(Y_MAX_POS, Y_MAX_POS + Y_PROBE_OFFSET_FROM_EXTRUDER))
   #endif
 
+   /**
+    * Sled Options
+    */ 
+  #ifdef Z_PROBE_SLED
+    #define Z_SAFE_HOMING
+  #endif
+  
   /**
    * MAX_STEP_FREQUENCY differs for TOSHIBA
    */

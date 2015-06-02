@@ -34,10 +34,8 @@
   #include "pins_SETHI.h"
 #elif MB(RAMPS_OLD)
   #include "pins_RAMPS_OLD.h"
-#elif MB(RAMPS_13_EFB) || MB(RAMPS_13_EEB) || MB(RAMPS_13_EFF) || MB(RAMPS_13_EEF)
+#elif MB(RAMPS_13_EFB) || MB(RAMPS_13_EEB) || MB(RAMPS_13_EFF) || MB(RAMPS_13_EEF) || MB(RAMPS_13_SF)
   #include "pins_RAMPS_13.h"
-#elif MB(DUEMILANOVE_328P)
-  #include "pins_DUEMILANOVE_328P.h"
 #elif MB(GEN6)
   #include "pins_GEN6.h"
 #elif MB(GEN6_DELUXE)
@@ -106,10 +104,6 @@
   #include "pins_5DPRINT.h"
 #elif MB(LEAPFROG)
   #include "pins_LEAPFROG.h"
-#elif MB(WITBOX)
-  #include "pins_WITBOX.h"
-#elif MB(HEPHESTOS)
-  #include "pins_HEPHESTOS.h"
 #elif MB(BAM_DICE)
   #include "pins_RAMPS_13.h"
 #elif MB(BAM_DICE_DUE)
@@ -190,6 +184,7 @@
 #endif
 
 #if defined(DISABLE_Z_PROBE_ENDSTOP) || !defined(Z_PROBE_ENDSTOP) // Allow code to compile regardless of Z_PROBE_ENDSTOP setting.
+  #undef Z_PROBE_PIN
   #define Z_PROBE_PIN        -1
 #endif
 
