@@ -154,15 +154,7 @@ static void lcd_setFont(char font_nr) {
   }
 }
 
-char lcd_print(char c) {
-  if ((c > 0) && (c <= LCD_STR_SPECIAL_MAX)) {
-    u8g.setFont(FONT_SPECIAL_NAME);
-    u8g.print(c);
-    lcd_setFont(currentfont);
-    return 1;
-  } else {
-    return charset_mapper(c);
-  }
+
 }
 
 char lcd_print(char* str) {

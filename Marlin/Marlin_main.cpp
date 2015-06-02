@@ -68,6 +68,7 @@
   #include <SPI.h>
 #endif
 
+
 /**
  * Look here for descriptions of G-codes:
  *  - http://linuxcnc.org/handbook/gcode/g-code.html
@@ -77,6 +78,7 @@
  *  - http://reprap.org/wiki/G-code
  *  - https://github.com/MarlinFirmware/Marlin/wiki/Marlin-G-Code
  */
+
 
 /**
  * Implemented Codes
