@@ -78,10 +78,6 @@
  *  - http://reprap.org/wiki/G-code
  *
  * -----------------
-<<<<<<< HEAD
-
-=======
->>>>>>> MarlinFirmware/Development
  * Implemented Codes
  * -----------------
  *

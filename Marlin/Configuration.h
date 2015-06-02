@@ -255,7 +255,6 @@ Here are some standard links for getting your machine calibrated:
 //#define PID_BED_DEBUG // Sends debug data to the serial port.
 
 #ifdef PIDTEMPBED
-<<<<<<< HEAD
 
 //  heater into 4mm borosilicate (Prusa I3)
 //from pidautotune 85°C (ABS)
@@ -269,14 +268,8 @@ Here are some standard links for getting your machine calibrated:
 //  #define  DEFAULT_bedKi 29.39
 //  #define  DEFAULT_bedKd 1878.87
 
-
     #define PID_BED_INTEGRAL_DRIVE_MAX MAX_BED_POWER //limit for the integral term
 
-
-=======
-    #define PID_BED_INTEGRAL_DRIVE_MAX MAX_BED_POWER //limit for the integral term
-
->>>>>>> MarlinFirmware/Development
 //120v 250W silicone heater into 4mm borosilicate (MendelMax 1.5+)
 //from FOPDT model - kp=.39 Tp=405 Tdead=66, Tc set to 79.2, aggressive factor of .15 (vs .1, 1, 10)
 //    #define  DEFAULT_bedKp 10.00
