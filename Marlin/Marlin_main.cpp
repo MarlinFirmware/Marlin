@@ -2437,10 +2437,12 @@ inline void gcode_G28() {
 
 #elif defined(ENABLE_AUTO_BED_LEVELING)
 
-  void out_of_range_error(const char *edge) {
-    char msg[40];
-    sprintf_P(msg, PSTR("?Probe %s position out of range.\n"), edge);
-    SERIAL_PROTOCOL(msg);
+  void out_of_range_error(const char *p_edge) {
+    char edge[10];
+    strncpy_P(edge, p_edge, 10);
+    SERIAL_PROTOCOLPGM("?Probe ");
+    SERIAL_PROTOCOL(edge);
+    SERIAL_PROTOCOLLNPGM(" position out of range.");
   }
 
   /**
