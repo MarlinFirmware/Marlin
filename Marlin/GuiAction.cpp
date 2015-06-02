@@ -5,7 +5,9 @@
 #include "ConfigurationStore.h"
 #include "temperature.h"
 #include "language.h"
+
 #include "GuiManager.h"
+#include "TemperatureManager.h"
 
 
 extern uint8_t buffer_recursivity;
@@ -14,6 +16,11 @@ extern bool stop_buffer;
 extern int stop_buffer_code;
 
 static float manual_feedrate[] = MANUAL_FEEDRATE;
+
+void action_set_temperature(uint16_t degrees)
+{
+	TemperatureManager::getInstance().setTargetTemperature(degrees);
+}
 
 void action_homing()
 {

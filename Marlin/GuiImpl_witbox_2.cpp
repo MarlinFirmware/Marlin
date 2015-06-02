@@ -56,12 +56,12 @@ namespace screen
 	ScreenMenu screen_SD_confirm        = ScreenMenu("Comfirm Print");
 	Screen screen_SD_back               = Screen("Back", Screen::SIMPLE);
 	//Unload Filament screens
-	ScreenSelector<void> screen_unload_select = ScreenSelector<void>("Unload filament", 170, 230, default_temp_change_filament, do_nothing);
+	ScreenSelector<void, uint16_t> screen_unload_select = ScreenSelector<void, uint16_t>("Unload filament", 170, 230, default_temp_change_filament, action_set_temperature);
 	ScreenTransition<float> screen_unload_heating	= ScreenTransition<float>("Heating", "Push to abort", &TemperatureManager::getInstance());
 	ScreenDialog screen_unload_pull     = ScreenDialog("Extrude and pull");
 	ScreenMenu screen_unload_confirm    = ScreenMenu("Finished?");
 	//Load Filament screens
-	ScreenSelector<void> screen_load_select   = ScreenSelector<void>("Load filament", 170, 230, default_temp_change_filament, do_nothing);
+	ScreenSelector<void, uint16_t> screen_load_select   = ScreenSelector<void, uint16_t>("Load filament", 170, 230, default_temp_change_filament, action_set_temperature);
 	ScreenTransition<float> screen_load_heating	= ScreenTransition<float>("Heating", "Push to abort", &TemperatureManager::getInstance());
 	ScreenDialog screen_load_press      = ScreenDialog("Insert and press");
 	ScreenMenu screen_load_confirm      = ScreenMenu("Finished?");
@@ -89,7 +89,7 @@ namespace screen
 //	ScreenSelector screen_move_1        = ScreenSelector("Move 1mm", 0, 100, 50);
 //	ScreenSelector screen_move_01       = ScreenSelector("Move 01mm", 0, 100, 50);
 	//Temperature
-	ScreenSelector<void> screen_temperature   = ScreenSelector<void>("Temp 0/200C", 0, 250, default_temp_change_filament);
+	ScreenSelector<void, uint16_t> screen_temperature   = ScreenSelector<void, uint16_t>("Temp 0/200C", 0, 250, default_temp_change_filament, action_set_temperature);
 	//Light
 	ScreenStatus<bool, void> screen_light = ScreenStatus<bool, void>("Led light on", LightManager::setState, &LightManager::getInstance());
 	//Info
@@ -110,7 +110,7 @@ namespace screen
 	ScreenDialog screen_change_insert   = ScreenDialog("Insert & press");
 	ScreenMenu screen_change_retry      = ScreenMenu("Finished?");
 	//Change Speed screen
-	ScreenSelector<void> screen_speed			= ScreenSelector<void>("Change speed", 10, 400, 100);
+	ScreenSelector<void, uint16_t> screen_speed			= ScreenSelector<void, uint16_t>("Change speed", 10, 400, 100, action_set_temperature);
 
 
 	Screen * GuiBuild()

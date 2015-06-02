@@ -126,6 +126,7 @@ namespace screen
 	template <typename R, typename... Args>
 	Screen & ScreenSelector<R, Args...>::press(Screen * parent_view)
 	{
+		this->action(m_select);
 		return * m_next_screen;
 	}
 
