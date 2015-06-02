@@ -1042,7 +1042,6 @@ void tp_init() {
       case TRReset:
         *timer = 0;
         *state = TRInactive;
-        break;
       // Inactive state waits for a target temperature to be set
       case TRInactive:
         if (target_temperature > 0) {
