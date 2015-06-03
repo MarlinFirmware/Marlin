@@ -2,6 +2,8 @@
 #include "GuiBitmaps_witbox_2.h"
 #include "cardreader.h"
 
+#include <avr/pgmspace.h>
+
 extern "C" void	atexit( void ) { }
 
 namespace screen
@@ -20,7 +22,7 @@ namespace screen
 
 	void GuiPainter::title(const char * title)
 	{
-		if ( (title != NULL) && (strlen(title) > 0) )
+		if ( (title != NULL) && (strlen_P(title) > 0) )
 		{
 		
 			uint8_t x_init = coordinateXInit();
@@ -30,7 +32,7 @@ namespace screen
 			setColorIndex(1);
 			setFont(u8g_font_6x9);
 			setPrintPos(x_init, y_init + 3);
-			print(title);
+			print_P(title);
 			drawLine(x_init, y_init + 13, x_end, y_init + 13);
 
 			coordinateYInit(14);
@@ -127,8 +129,8 @@ namespace screen
 		print("<");
 		setPrintPos(x_end-7, y_end - 13/2 - 10/2);
 		print(">");
-		setPrintPos(x_end/2 - (strlen(nextScreen)*6)/2, y_end - 13/2 - 10/2);
-		print(nextScreen);
+		setPrintPos(x_end/2 - (strlen_P(nextScreen)*6)/2, y_end - 13/2 - 10/2);
+		print_P(nextScreen);
 
 		coordinateYEnd(51);
 
@@ -153,6 +155,16 @@ namespace screen
 	void GuiPainter::print(const char * text)
 	{
 		m_impl.print(text);
+	}
+
+	void GuiPainter::print_P(const char * text)
+	{
+		char c;
+		while ((c = pgm_read_byte(text)) != '\0')
+		{
+			m_impl.print(c);
+			text++;
+		}
 	}
 
 	void GuiPainter::drawLine(uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2)
@@ -223,7 +235,6 @@ namespace screen
 	{
 		return m_y_end;
 	}
-
 
 char conv[8];
 

@@ -47,6 +47,7 @@ namespace screen
 			void setPrintPos(uint8_t x, uint8_t y);
 
 			void print(const char * text);
+			void print_P(const char * text);
 
 			void drawLine(uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2);
 			void drawBox(uint8_t x, uint8_t y, uint8_t w, uint8_t h);
@@ -76,7 +77,6 @@ namespace screen
 			char * itostr2(const int &xx);
 
 			char * itostr3left(const int &xx);
-
 
 		private:
 			U8GLIB_ST7920_128X64_RRD m_impl;
