@@ -1,1 +1,2 @@
 compiler.cpp.extra_flags=-DHAS_AUTOMATIC_VERSIONING
+recipe.hooks.prebuild.pattern=/usr/local/bin/generate_version_header_for_marlin {build.source.path} {build.path}/_Version.h

@@ -87,8 +87,23 @@
   /**
    * Required LCD language
    */
-  #if !defined(DOGLCD) && defined(ULTRA_LCD) && !defined(DISPLAY_CHARSET_HD44780_JAPAN) && !defined(DISPLAY_CHARSET_HD44780_WESTERN)
-    #error You must enable either DISPLAY_CHARSET_HD44780_JAPAN or DISPLAY_CHARSET_HD44780_WESTERN for your LCD controller.
+  #if !defined(DOGLCD) && defined(ULTRA_LCD) && !defined(DISPLAY_CHARSET_HD44780_JAPAN) && !defined(DISPLAY_CHARSET_HD44780_WESTERN)&& !defined(DISPLAY_CHARSET_HD44780_CYRILLIC)
+    #error You must enable either DISPLAY_CHARSET_HD44780_JAPAN or DISPLAY_CHARSET_HD44780_WESTERN  or DISPLAY_CHARSET_HD44780_CYRILLIC for your LCD controller.
+  #endif
+
+  /**
+   * Mesh Bed Leveling
+   */
+  #ifdef MESH_BED_LEVELING
+    #ifdef DELTA
+      #error MESH_BED_LEVELING does not yet support DELTA printers
+    #endif
+    #ifdef ENABLE_AUTO_BED_LEVELING
+      #error Select ENABLE_AUTO_BED_LEVELING or MESH_BED_LEVELING, not both
+    #endif
+    #if MESH_NUM_X_POINTS > 7 || MESH_NUM_Y_POINTS > 7
+      #error MESH_NUM_X_POINTS and MESH_NUM_Y_POINTS need to be less than 8
+    #endif
   #endif
 
   /**
@@ -100,7 +115,7 @@
      * Require a Z Min pin
      */
     #if Z_MIN_PIN == -1
-      #if Z_PROBE_PIN == -1 || (! defined (Z_PROBE_ENDSTOP) || defined (DISABLE_Z_PROBE_ENDSTOP)) // It's possible for someone to set a pin for the Z Probe, but not enable it.
+      #if Z_PROBE_PIN == -1 || (!defined(Z_PROBE_ENDSTOP) || defined(DISABLE_Z_PROBE_ENDSTOP)) // It's possible for someone to set a pin for the Z Probe, but not enable it.
         #ifdef Z_PROBE_REPEATABILITY_TEST
           #error You must have a Z_MIN or Z_PROBE endstop to enable Z_PROBE_REPEATABILITY_TEST.
         #else
@@ -137,18 +152,18 @@
      * Check if Probe_Offset * Grid Points is greater than Probing Range
      */
     #ifdef AUTO_BED_LEVELING_GRID
-
-      // Make sure probing points are reachable
-      #if LEFT_PROBE_BED_POSITION < MIN_PROBE_X
-        #error "The given LEFT_PROBE_BED_POSITION can't be reached by the probe."
-      #elif RIGHT_PROBE_BED_POSITION > MAX_PROBE_X
-        #error "The given RIGHT_PROBE_BED_POSITION can't be reached by the probe."
-      #elif FRONT_PROBE_BED_POSITION < MIN_PROBE_Y
-        #error "The given FRONT_PROBE_BED_POSITION can't be reached by the probe."
-      #elif BACK_PROBE_BED_POSITION > MAX_PROBE_Y
-        #error "The given BACK_PROBE_BED_POSITION can't be reached by the probe."
+      #ifndef DELTA_PROBABLE_RADIUS
+        // Make sure probing points are reachable
+        #if LEFT_PROBE_BED_POSITION < MIN_PROBE_X
+          #error "The given LEFT_PROBE_BED_POSITION can't be reached by the probe."
+        #elif RIGHT_PROBE_BED_POSITION > MAX_PROBE_X
+          #error "The given RIGHT_PROBE_BED_POSITION can't be reached by the probe."
+        #elif FRONT_PROBE_BED_POSITION < MIN_PROBE_Y
+          #error "The given FRONT_PROBE_BED_POSITION can't be reached by the probe."
+        #elif BACK_PROBE_BED_POSITION > MAX_PROBE_Y
+          #error "The given BACK_PROBE_BED_POSITION can't be reached by the probe."
+        #endif
       #endif
-
       #define PROBE_SIZE_X (X_PROBE_OFFSET_FROM_EXTRUDER * (AUTO_BED_LEVELING_GRID_POINTS-1))
       #define PROBE_SIZE_Y (Y_PROBE_OFFSET_FROM_EXTRUDER * (AUTO_BED_LEVELING_GRID_POINTS-1))
       #define PROBE_AREA_WIDTH (RIGHT_PROBE_BED_POSITION - LEFT_PROBE_BED_POSITION)
@@ -171,7 +186,7 @@
         #define Y_PROBE_ERROR
       #endif
       #ifdef Y_PROBE_ERROR
-        #error The Y axis probing range is to small to fit all the points defined in AUTO_BED_LEVELING_GRID_POINTS
+        #error The Y axis probing range is too small to fit all the points defined in AUTO_BED_LEVELING_GRID_POINTS
       #endif
 
       #undef PROBE_SIZE_X
@@ -296,6 +311,18 @@
    */
   #ifdef X_HOME_RETRACT_MM
     #error [XYZ]_HOME_RETRACT_MM settings have been renamed [XYZ]_HOME_BUMP_MM
+  #endif
+
+  #if WATCH_TEMP_PERIOD > 500
+    #error WATCH_TEMP_PERIOD now uses seconds instead of milliseconds
+  #endif
+
+  #if !defined(THERMAL_PROTECTION_HOTENDS) && (defined(WATCH_TEMP_PERIOD) || defined(THERMAL_PROTECTION_PERIOD))
+    #error Thermal Runaway Protection for hotends must now be enabled with THERMAL_PROTECTION_HOTENDS
+  #endif
+
+  #if !defined(THERMAL_PROTECTION_BED) && defined(THERMAL_PROTECTION_BED_PERIOD)
+    #error Thermal Runaway Protection for the bed must now be enabled with THERMAL_PROTECTION_BED
   #endif
 
 #endif //SANITYCHECK_H

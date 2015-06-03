@@ -3,4 +3,24 @@ In Fony export the fonts to bdf-format. Maybe another one can edit them with Fon
 Then run make_fonts.bat what calls bdf2u8g.exe with the needed parameters to produce the .h files.
 The .h files must be edited to replace '#include "u8g.h"' with '#include <utility/u8g.h>', replace 'U8G_FONT_SECTION' with 'U8G_SECTION', insert '.progmem.' right behind the first '"' and moved to the main directory.
 
-Especially the Kana and Cyrillic fonts should be revised by someone who knows what he/she does. I am only a west-European with very little knowledge about this scripts.
+How to integrate a new font:
+Currently we are limited to 256 symbols per font. We use a menu system with 5 lines, on a display with 64 pixel height. That means we have 12 pixel for a line. To have some space in between the lines we can't use more then 10 pixel height for the symbols. For up to 11 pixel set TALL_FONT_CORRECTION 1 when loading the font.
+To fit 22 Symbols on the 128 pixel wide screen, the symbols can't be wider than 5 pixel, for the first 128 symbols.
+For the second half of the font we now support up to 11x11 pixel. 
+
+ * Get 'Fony.exe'
+ * Copy one of the existing *.fon files and work with this.
+ * Change the pixels. Don't change width or height.
+ * Export as *.bdf
+ * Use 'bdf2u8g.exe' to produce the *.h file. Examples for the existing fonts are in 'make_fonts.bat'
+ * Edit the produced .h file to match our needs. See hints in 'README.fonts' or the other 'dogm_font_data_.h' files.
+ * Make a new entry in the font list in 'dogm_lcd_implementation.h' before the '#else // fall back'
+    #elif defined( DISPLAY_CHARSET_NEWNAME )
+      #include "dogm_font_data_yourfont.h"
+      #define FONT_MENU_NAME YOURFONTNAME
+    #else // fall-back
+ * Add your font to the list of permitted fonts in 'language_en.h'
+    ... || defined(DISPLAY_CHARSET_YOUR_NEW_FONT) ... )
+
+
+Especially the Kana font should be revised by someone who knows what he/she does. I am only a west-European with very little knowledge about this script.

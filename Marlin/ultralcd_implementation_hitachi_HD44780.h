@@ -6,17 +6,17 @@
 * When selecting the Russian language, a slightly different LCD implementation is used to handle UTF8 characters.
 **/
 
-#ifndef REPRAPWORLD_KEYPAD
-  extern volatile uint8_t buttons;  //the last checked buttons in a bit array.
-#else
-  extern volatile uint16_t buttons;  //an extended version of the last checked buttons in a bit array.
-#endif
+//#ifndef REPRAPWORLD_KEYPAD
+//  extern volatile uint8_t buttons;  //the last checked buttons in a bit array.
+//#else
+  extern volatile uint8_t buttons;  //an extended version of the last checked buttons in a bit array.
+//#endif
 
 ////////////////////////////////////
 // Setup button and encode mappings for each panel (into 'buttons' variable
 //
-// This is just to map common functions (across different panels) onto the same 
-// macro name. The mapping is independent of whether the button is directly connected or 
+// This is just to map common functions (across different panels) onto the same
+// macro name. The mapping is independent of whether the button is directly connected or
 // via a shift/i2c register.
 
 #ifdef ULTIPANEL
@@ -38,7 +38,7 @@
 //
 #if defined(LCD_I2C_VIKI)
   #define B_I2C_BTN_OFFSET 3 // (the first three bit positions reserved for EN_A, EN_B, EN_C)
-  
+
   // button and encoder bit positions within 'buttons'
   #define B_LE (BUTTON_LEFT<<B_I2C_BTN_OFFSET)    // The remaining normalized buttons are all read via I2C
   #define B_UP (BUTTON_UP<<B_I2C_BTN_OFFSET)
@@ -46,22 +46,22 @@
   #define B_DW (BUTTON_DOWN<<B_I2C_BTN_OFFSET)
   #define B_RI (BUTTON_RIGHT<<B_I2C_BTN_OFFSET)
 
-  #if defined(BTN_ENC) && BTN_ENC > -1 
+  #if defined(BTN_ENC) && BTN_ENC > -1
     // the pause/stop/restart button is connected to BTN_ENC when used
-    #define B_ST (EN_C)                            // Map the pause/stop/resume button into its normalized functional name 
+    #define B_ST (EN_C)                            // Map the pause/stop/resume button into its normalized functional name
     #define LCD_CLICKED (buttons&(B_MI|B_RI|B_ST)) // pause/stop button also acts as click until we implement proper pause/stop.
   #else
     #define LCD_CLICKED (buttons&(B_MI|B_RI))
-  #endif  
+  #endif
 
   // I2C buttons take too long to read inside an interrupt context and so we read them during lcd_update
   #define LCD_HAS_SLOW_BUTTONS
 
 #elif defined(LCD_I2C_PANELOLU2)
   // encoder click can be read through I2C if not directly connected
-  #if BTN_ENC <= 0 
+  #if BTN_ENC <= 0
     #define B_I2C_BTN_OFFSET 3 // (the first three bit positions reserved for EN_A, EN_B, EN_C)
-  
+
     #define B_MI (PANELOLU2_ENCODER_C<<B_I2C_BTN_OFFSET) // requires LiquidTWI2 library v1.2.3 or later
 
     #define LCD_CLICKED (buttons&B_MI)
@@ -69,7 +69,7 @@
     // I2C buttons take too long to read inside an interrupt context and so we read them during lcd_update
     #define LCD_HAS_SLOW_BUTTONS
   #else
-    #define LCD_CLICKED (buttons&EN_C)  
+    #define LCD_CLICKED (buttons&EN_C)
   #endif
 
 #elif defined(REPRAPWORLD_KEYPAD)
@@ -77,13 +77,13 @@
     #define BLEN_REPRAPWORLD_KEYPAD_F3 0
     #define BLEN_REPRAPWORLD_KEYPAD_F2 1
     #define BLEN_REPRAPWORLD_KEYPAD_F1 2
-    #define BLEN_REPRAPWORLD_KEYPAD_UP 3
+    #define BLEN_REPRAPWORLD_KEYPAD_UP 6
     #define BLEN_REPRAPWORLD_KEYPAD_RIGHT 4
     #define BLEN_REPRAPWORLD_KEYPAD_MIDDLE 5
-    #define BLEN_REPRAPWORLD_KEYPAD_DOWN 6
+    #define BLEN_REPRAPWORLD_KEYPAD_DOWN 3
     #define BLEN_REPRAPWORLD_KEYPAD_LEFT 7
     
-    #define REPRAPWORLD_BTN_OFFSET 3 // bit offset into buttons for shift register values
+    #define REPRAPWORLD_BTN_OFFSET 0 // bit offset into buttons for shift register values
 
     #define EN_REPRAPWORLD_KEYPAD_F3 BIT((BLEN_REPRAPWORLD_KEYPAD_F3+REPRAPWORLD_BTN_OFFSET))
     #define EN_REPRAPWORLD_KEYPAD_F2 BIT((BLEN_REPRAPWORLD_KEYPAD_F2+REPRAPWORLD_BTN_OFFSET))
@@ -94,14 +94,14 @@
     #define EN_REPRAPWORLD_KEYPAD_DOWN BIT((BLEN_REPRAPWORLD_KEYPAD_DOWN+REPRAPWORLD_BTN_OFFSET))
     #define EN_REPRAPWORLD_KEYPAD_LEFT BIT((BLEN_REPRAPWORLD_KEYPAD_LEFT+REPRAPWORLD_BTN_OFFSET))
 
-    #define LCD_CLICKED ((buttons&EN_C) || (buttons&EN_REPRAPWORLD_KEYPAD_F1))
-    #define REPRAPWORLD_KEYPAD_MOVE_Y_DOWN (buttons&EN_REPRAPWORLD_KEYPAD_DOWN)
-    #define REPRAPWORLD_KEYPAD_MOVE_Y_UP (buttons&EN_REPRAPWORLD_KEYPAD_UP)
-    #define REPRAPWORLD_KEYPAD_MOVE_HOME (buttons&EN_REPRAPWORLD_KEYPAD_MIDDLE)
+    //#define LCD_CLICKED ((buttons&EN_C) || (buttons&EN_REPRAPWORLD_KEYPAD_F1))
+    //#define REPRAPWORLD_KEYPAD_MOVE_Y_DOWN (buttons&EN_REPRAPWORLD_KEYPAD_DOWN)
+    //#define REPRAPWORLD_KEYPAD_MOVE_Y_UP (buttons&EN_REPRAPWORLD_KEYPAD_UP)
+    //#define REPRAPWORLD_KEYPAD_MOVE_HOME (buttons&EN_REPRAPWORLD_KEYPAD_MIDDLE)
 
 #elif defined(NEWPANEL)
   #define LCD_CLICKED (buttons&EN_C)
-  
+
 #else // old style ULTIPANEL
   //bits in the shift register that carry the buttons for:
   // left up center down right red(stop)
@@ -143,7 +143,7 @@
   #include <LiquidCrystal_I2C.h>
   #define LCD_CLASS LiquidCrystal_I2C
   LCD_CLASS lcd(LCD_I2C_ADDRESS,LCD_I2C_PIN_EN,LCD_I2C_PIN_RW,LCD_I2C_PIN_RS,LCD_I2C_PIN_D4,LCD_I2C_PIN_D5,LCD_I2C_PIN_D6,LCD_I2C_PIN_D7);
-  
+
 #elif defined(LCD_I2C_TYPE_MCP23017)
   //for the LED indicators (which maybe mapped to different things in lcd_implementation_update_indicators())
   #define LED_A 0x04 //100
@@ -156,28 +156,28 @@
   #include <LiquidTWI2.h>
   #define LCD_CLASS LiquidTWI2
   #if defined(DETECT_DEVICE)
-     LCD_CLASS lcd(LCD_I2C_ADDRESS, 1);
+    LCD_CLASS lcd(LCD_I2C_ADDRESS, 1);
   #else
-     LCD_CLASS lcd(LCD_I2C_ADDRESS);
+    LCD_CLASS lcd(LCD_I2C_ADDRESS);
   #endif
-  
+
 #elif defined(LCD_I2C_TYPE_MCP23008)
   #include <Wire.h>
   #include <LiquidTWI2.h>
   #define LCD_CLASS LiquidTWI2
   #if defined(DETECT_DEVICE)
-     LCD_CLASS lcd(LCD_I2C_ADDRESS, 1);
+    LCD_CLASS lcd(LCD_I2C_ADDRESS, 1);
   #else
-     LCD_CLASS lcd(LCD_I2C_ADDRESS);
+    LCD_CLASS lcd(LCD_I2C_ADDRESS);
   #endif
 
 #elif defined(LCD_I2C_TYPE_PCA8574)
     #include <LiquidCrystal_I2C.h>
     #define LCD_CLASS LiquidCrystal_I2C
     LCD_CLASS lcd(LCD_I2C_ADDRESS, LCD_WIDTH, LCD_HEIGHT);
-    
+
 // 2 wire Non-latching LCD SR from:
-// https://bitbucket.org/fmalpartida/new-liquidcrystal/wiki/schematics#!shiftregister-connection 
+// https://bitbucket.org/fmalpartida/new-liquidcrystal/wiki/schematics#!shiftregister-connection
 #elif defined(SR_LCD_2W_NL)
   extern "C" void __cxa_pure_virtual() { while (1); }
   #include <LCD.h>
@@ -194,24 +194,12 @@
 #include "utf_mapper.h"
 
 #ifdef LCD_PROGRESS_BAR
-  static uint16_t progressBarTick = 0;
+  static millis_t progress_bar_ms = 0;
   #if PROGRESS_MSG_EXPIRE > 0
-    static uint16_t expireStatusMillis = 0;
+    static millis_t expire_status_ms = 0;
   #endif
   #define LCD_STR_PROGRESS  "\x03\x04\x05"
 #endif
-
-/* Custom characters defined in the first 8 characters of the LCD */
-#define LCD_STR_BEDTEMP     "\x00"  // this will have 'unexpected' results when used in a string!
-#define LCD_STR_DEGREE      "\x01"
-#define LCD_STR_THERMOMETER "\x02"
-#define LCD_STR_UPLEVEL     "\x03"
-#define LCD_STR_REFRESH     "\x04"
-#define LCD_STR_FOLDER      "\x05"
-#define LCD_STR_FEEDRATE    "\x06"
-#define LCD_STR_CLOCK       "\x07"
-//#define LCD_STR_ARROW_RIGHT "\x7E"  /* from the default character set. Only available on DISPLAY_CHARSET_HD44780_JAPAN - at this place!*/
-#define LCD_STR_ARROW_RIGHT ">"  /* from the default character set */
 
 static void lcd_set_custom_characters(
   #ifdef LCD_PROGRESS_BAR
@@ -365,230 +353,250 @@ static void lcd_implementation_init(
   #endif
 ) {
 
-#if defined(LCD_I2C_TYPE_PCF8575)
+  #if defined(LCD_I2C_TYPE_PCF8575)
     lcd.begin(LCD_WIDTH, LCD_HEIGHT);
-  #ifdef LCD_I2C_PIN_BL
-    lcd.setBacklightPin(LCD_I2C_PIN_BL,POSITIVE);
-    lcd.setBacklight(HIGH);
-  #endif
-  
-#elif defined(LCD_I2C_TYPE_MCP23017)
+    #ifdef LCD_I2C_PIN_BL
+      lcd.setBacklightPin(LCD_I2C_PIN_BL, POSITIVE);
+      lcd.setBacklight(HIGH);
+    #endif
+
+  #elif defined(LCD_I2C_TYPE_MCP23017)
     lcd.setMCPType(LTI_TYPE_MCP23017);
     lcd.begin(LCD_WIDTH, LCD_HEIGHT);
     lcd.setBacklight(0); //set all the LEDs off to begin with
-    
-#elif defined(LCD_I2C_TYPE_MCP23008)
+
+  #elif defined(LCD_I2C_TYPE_MCP23008)
     lcd.setMCPType(LTI_TYPE_MCP23008);
     lcd.begin(LCD_WIDTH, LCD_HEIGHT);
 
-#elif defined(LCD_I2C_TYPE_PCA8574)
-      lcd.init();
-      lcd.backlight();
-    
-#else
+  #elif defined(LCD_I2C_TYPE_PCA8574)
+    lcd.init();
+    lcd.backlight();
+
+  #else
     lcd.begin(LCD_WIDTH, LCD_HEIGHT);
-#endif
+  #endif
 
-    lcd_set_custom_characters(
-        #ifdef LCD_PROGRESS_BAR
-            progress_bar_set
-        #endif
-    );
+  lcd_set_custom_characters(
+    #ifdef LCD_PROGRESS_BAR
+      progress_bar_set
+    #endif
+  );
 
-    lcd.clear();
+  lcd.clear();
 }
-static void lcd_implementation_clear()
-{
-    lcd.clear();
-}
+
+static void lcd_implementation_clear() { lcd.clear(); }
 
 /* Arduino < 1.0.0 is missing a function to print PROGMEM strings, so we need to implement our own */
 char lcd_printPGM(const char* str) {
-  char c;
-  char n = 0;
-  while((c = pgm_read_byte(str++))) {
-      n += charset_mapper(c);
-  }
+  char c, n = 0;
+  while ((c = pgm_read_byte(str++))) n += charset_mapper(c);
   return n;
 }
 
 char lcd_print(char* str) {
-  char c, n = 0;;
+  char c, n = 0;
   unsigned char i = 0;
-  while((c = str[i++])) {
-      n += charset_mapper(c);
-  }
+  while ((c = str[i++])) n += charset_mapper(c);
   return n;
 }
 
-unsigned lcd_print(char c) {
-    return charset_mapper(c);
-}
+unsigned lcd_print(char c) { return charset_mapper(c); }
 
 /*
 Possible status screens:
-16x2   |0123456789012345|
-       |000/000 B000/000|
-       |Status line.....|
+16x2   |000/000 B000/000|
+       |0123456789012345|
 
-16x4   |0123456789012345|
-       |000/000 B000/000|
-       |SD100%    Z000.0|
+16x4   |000/000 B000/000|
+       |SD100%  Z000.00 |
        |F100%     T--:--|
-       |Status line.....|
+       |0123456789012345|
 
-20x2   |01234567890123456789|
-       |T000/000D B000/000D |
-       |Status line.........|
+20x2   |T000/000D B000/000D |
+       |01234567890123456789|
 
-20x4   |01234567890123456789|
-       |T000/000D B000/000D |
-       |X+000.0 Y+000.0 Z+000.0|
+20x4   |T000/000D B000/000D |
+       |X000  Y000  Z000.00 |
        |F100%  SD100% T--:--|
-       |Status line.........|
+       |01234567890123456789|
 
-20x4   |01234567890123456789|
-       |T000/000D B000/000D |
-       |T000/000D     Z000.0|
+20x4   |T000/000D B000/000D |
+       |T000/000D   Z000.00 |
        |F100%  SD100% T--:--|
-       |Status line.........|
+       |01234567890123456789|
 */
-static void lcd_implementation_status_screen()
-{
-    int tHotend=int(degHotend(0) + 0.5);
-    int tTarget=int(degTargetHotend(0) + 0.5);
+static void lcd_implementation_status_screen() {
 
-#if LCD_WIDTH < 20
-    lcd.setCursor(0, 0);
-    lcd.print(itostr3(tHotend));
-    lcd.print('/');
-    lcd.print(itostr3left(tTarget));
+  #define LCD_TEMP_ONLY(T1,T2) \
+    lcd.print(itostr3(T1 + 0.5)); \
+    lcd.print('/'); \
+    lcd.print(itostr3left(T2 + 0.5))
 
-# if EXTRUDERS > 1 || TEMP_SENSOR_BED != 0
-    //If we have an 2nd extruder or heated bed, show that in the top right corner
-    lcd.setCursor(8, 0);
-#  if EXTRUDERS > 1
-    tHotend = int(degHotend(1) + 0.5);
-    tTarget = int(degTargetHotend(1) + 0.5);
-    lcd.print(LCD_STR_THERMOMETER[0]);
-#  else//Heated bed
-    tHotend=int(degBed() + 0.5);
-    tTarget=int(degTargetBed() + 0.5);
-    lcd.print(LCD_STR_BEDTEMP[0]);
-#  endif
-    lcd.print(itostr3(tHotend));
-    lcd.print('/');
-    lcd.print(itostr3left(tTarget));
-# endif//EXTRUDERS > 1 || TEMP_SENSOR_BED != 0
+  #define LCD_TEMP(T1,T2,PREFIX) \
+    lcd.print(PREFIX); \
+    LCD_TEMP_ONLY(T1,T2); \
+    lcd_printPGM(PSTR(LCD_STR_DEGREE " ")); \
+    if (T2 < 10) lcd.print(' ')
 
-#else//LCD_WIDTH > 19
-    lcd.setCursor(0, 0);
-    lcd.print(LCD_STR_THERMOMETER[0]);
-    lcd.print(itostr3(tHotend));
-    lcd.print('/');
-    lcd.print(itostr3left(tTarget));
-    lcd_printPGM(PSTR(LCD_STR_DEGREE " "));
-    if (tTarget < 10)
-        lcd.print(' ');
+  //
+  // Line 1
+  //
 
-# if EXTRUDERS > 1 || TEMP_SENSOR_BED != 0
-    //If we have an 2nd extruder or heated bed, show that in the top right corner
-    lcd.setCursor(10, 0);
-#  if EXTRUDERS > 1
-    tHotend = int(degHotend(1) + 0.5);
-    tTarget = int(degTargetHotend(1) + 0.5);
-    lcd.print(LCD_STR_THERMOMETER[0]);
-#  else//Heated bed
-    tHotend=int(degBed() + 0.5);
-    tTarget=int(degTargetBed() + 0.5);
-    lcd.print(LCD_STR_BEDTEMP[0]);
-#  endif
-    lcd.print(itostr3(tHotend));
-    lcd.print('/');
-    lcd.print(itostr3left(tTarget));
-    lcd_printPGM(PSTR(LCD_STR_DEGREE " "));
-    if (tTarget < 10)
-        lcd.print(' ');
-# endif//EXTRUDERS > 1 || TEMP_SENSOR_BED != 0
-#endif//LCD_WIDTH > 19
+  lcd.setCursor(0, 0);
 
-#if LCD_HEIGHT > 2
-//Lines 2 for 4 line LCD
-# if LCD_WIDTH < 20
-#  ifdef SDSUPPORT
-    lcd.setCursor(0, 2);
-    lcd_printPGM(PSTR("SD"));
-    if (IS_SD_PRINTING)
-        lcd.print(itostr3(card.percentDone()));
-    else
-        lcd_printPGM(PSTR("---"));
-    lcd.print('%');
-#  endif//SDSUPPORT
-# else//LCD_WIDTH > 19
-#  if EXTRUDERS > 1 && TEMP_SENSOR_BED != 0
-    //If we both have a 2nd extruder and a heated bed, show the heated bed temp on the 2nd line on the left, as the first line is filled with extruder temps
-    tHotend=int(degBed() + 0.5);
-    tTarget=int(degTargetBed() + 0.5);
+  #if LCD_WIDTH < 20
 
-    lcd.setCursor(0, 1);
-    lcd.print(LCD_STR_BEDTEMP[0]);
-    lcd.print(itostr3(tHotend));
-    lcd.print('/');
-    lcd.print(itostr3left(tTarget));
-    lcd_printPGM(PSTR(LCD_STR_DEGREE " "));
-    if (tTarget < 10)
-        lcd.print(' ');
-#  else
-    lcd.setCursor(0,1);
-    lcd.print('X');
-    lcd.print(ftostr3(current_position[X_AXIS]));
-    lcd_printPGM(PSTR(" Y"));
-    lcd.print(ftostr3(current_position[Y_AXIS]));
-#  endif//EXTRUDERS > 1 || TEMP_SENSOR_BED != 0
-# endif//LCD_WIDTH > 19
+    //
+    // Hotend 0 Temperature
+    //
+    LCD_TEMP_ONLY(degHotend(0), degTargetHotend(0));
+
+    //
+    // Hotend 1 or Bed Temperature
+    //
+    #if EXTRUDERS > 1 || TEMP_SENSOR_BED != 0
+
+      lcd.setCursor(8, 0);
+      #if EXTRUDERS > 1
+        lcd.print(LCD_STR_THERMOMETER[0]);
+        LCD_TEMP_ONLY(degHotend(1), degTargetHotend(1));
+      #else
+        lcd.print(LCD_STR_BEDTEMP[0]);
+        LCD_TEMP_ONLY(degBed(), degTargetBed());
+      #endif
+
+    #endif // EXTRUDERS > 1 || TEMP_SENSOR_BED != 0
+
+  #else // LCD_WIDTH >= 20
+
+    //
+    // Hotend 0 Temperature
+    //
+    LCD_TEMP(degHotend(0), degTargetHotend(0), LCD_STR_THERMOMETER[0]);
+
+    //
+    // Hotend 1 or Bed Temperature
+    //
+    #if EXTRUDERS > 1 || TEMP_SENSOR_BED != 0
+      lcd.setCursor(10, 0);
+      #if EXTRUDERS > 1
+        LCD_TEMP(degHotend(1), degTargetHotend(1), LCD_STR_THERMOMETER[0]);
+      #else
+        LCD_TEMP(degBed(), degTargetBed(), LCD_STR_BEDTEMP[0]);
+      #endif
+
+    #endif  // EXTRUDERS > 1 || TEMP_SENSOR_BED != 0
+
+  #endif // LCD_WIDTH >= 20
+
+  //
+  // Line 2
+  //
+
+  #if LCD_HEIGHT > 2
+
+    #if LCD_WIDTH < 20
+
+      #ifdef SDSUPPORT
+        lcd.setCursor(0, 2);
+        lcd_printPGM(PSTR("SD"));
+        if (IS_SD_PRINTING)
+          lcd.print(itostr3(card.percentDone()));
+        else
+          lcd_printPGM(PSTR("---"));
+          lcd.print('%');
+      #endif // SDSUPPORT
+
+    #else // LCD_WIDTH >= 20
+
+      lcd.setCursor(0, 1);
+
+      #if EXTRUDERS > 1 && TEMP_SENSOR_BED != 0
+
+        // If we both have a 2nd extruder and a heated bed,
+        // show the heated bed temp on the left,
+        // since the first line is filled with extruder temps
+        LCD_TEMP(degBed(), degTargetBed(), LCD_STR_BEDTEMP[0]);
+
+      #else
+
+        lcd.print('X');
+        if (axis_known_position[X_AXIS])
+          lcd.print(ftostr3(current_position[X_AXIS]));
+        else
+          lcd_printPGM(PSTR("---"));
+
+        lcd_printPGM(PSTR("  Y"));
+        if (axis_known_position[Y_AXIS])
+          lcd.print(ftostr3(current_position[Y_AXIS]));
+        else
+          lcd_printPGM(PSTR("---"));
+
+      #endif // EXTRUDERS > 1 || TEMP_SENSOR_BED != 0
+
+    #endif // LCD_WIDTH >= 20
+
     lcd.setCursor(LCD_WIDTH - 8, 1);
     lcd.print('Z');
-    lcd.print(ftostr32sp(current_position[Z_AXIS] + 0.00001));
-#endif//LCD_HEIGHT > 2
+    if (axis_known_position[Z_AXIS])
+      lcd.print(ftostr32sp(current_position[Z_AXIS] + 0.00001));
+    else
+      lcd_printPGM(PSTR("---.--"));
 
-#if LCD_HEIGHT > 3
+  #endif // LCD_HEIGHT > 2
+
+  //
+  // Line 3
+  //
+
+  #if LCD_HEIGHT > 3
+
     lcd.setCursor(0, 2);
     lcd.print(LCD_STR_FEEDRATE[0]);
-    lcd.print(itostr3(feedmultiply));
+    lcd.print(itostr3(feedrate_multiplier));
     lcd.print('%');
-# if LCD_WIDTH > 19
-#  ifdef SDSUPPORT
-    lcd.setCursor(7, 2);
-    lcd_printPGM(PSTR("SD"));
-    if (IS_SD_PRINTING)
+
+    #if LCD_WIDTH > 19 && defined(SDSUPPORT)
+
+      lcd.setCursor(7, 2);
+      lcd_printPGM(PSTR("SD"));
+      if (IS_SD_PRINTING)
         lcd.print(itostr3(card.percentDone()));
-    else
+      else
         lcd_printPGM(PSTR("---"));
-    lcd.print('%');
-#  endif//SDSUPPORT
-# endif//LCD_WIDTH > 19
+      lcd.print('%');
+
+    #endif // LCD_WIDTH > 19 && SDSUPPORT
+
     lcd.setCursor(LCD_WIDTH - 6, 2);
     lcd.print(LCD_STR_CLOCK[0]);
-    if(starttime != 0)
-    {
-        uint16_t time = millis()/60000 - starttime/60000;
-        lcd.print(itostr2(time/60));
-        lcd.print(':');
-        lcd.print(itostr2(time%60));
-    }else{
-        lcd_printPGM(PSTR("--:--"));
+    if (print_job_start_ms != 0) {
+      uint16_t time = millis()/60000 - print_job_start_ms/60000;
+      lcd.print(itostr2(time/60));
+      lcd.print(':');
+      lcd.print(itostr2(time%60));
     }
-#endif
+    else {
+      lcd_printPGM(PSTR("--:--"));
+    }
 
-  // Status message line at the bottom
+  #endif // LCD_HEIGHT > 3
+
+  //
+  // Last Line
+  // Status Message (which may be a Progress Bar or Filament display)
+  //
+
   lcd.setCursor(0, LCD_HEIGHT - 1);
 
   #ifdef LCD_PROGRESS_BAR
 
     if (card.isFileOpen()) {
-      uint16_t mil = millis(), diff = mil - progressBarTick;
-      if (diff >= PROGRESS_BAR_MSG_TIME || !lcd_status_message[0]) {
-        // draw the progress bar
+      // Draw the progress bar if the message has shown long enough
+      // or if there is no message set.
+      if (millis() >= progress_bar_ms + PROGRESS_BAR_MSG_TIME || !lcd_status_message[0]) {
         int tix = (int)(card.percentDone() * LCD_WIDTH * 3) / 100,
           cel = tix / 3, rem = tix % 3, i = LCD_WIDTH;
         char msg[LCD_WIDTH+1], b = ' ';
@@ -605,11 +613,11 @@ static void lcd_implementation_status_screen()
       }
     } //card.isFileOpen
 
-  #endif //LCD_PROGRESS_BAR
+  #elif defined(FILAMENT_LCD_DISPLAY)
 
-  //Display both Status message line and Filament display on the last line
-  #ifdef FILAMENT_LCD_DISPLAY
-    if (message_millis + 5000 <= millis()) {  //display any status for the first 5 sec after screen is initiated
+    // Show Filament Diameter and Volumetric Multiplier %
+    // After allowing lcd_status_message to show for 5 seconds
+    if (millis() >= previous_lcd_status_ms + 5000) {
       lcd_printPGM(PSTR("Dia "));
       lcd.print(ftostr12ns(filament_width_meas));
       lcd_printPGM(PSTR(" V"));
@@ -617,7 +625,8 @@ static void lcd_implementation_status_screen()
   	  lcd.print('%');
   	  return;
     }
-  #endif //FILAMENT_LCD_DISPLAY
+
+  #endif // FILAMENT_LCD_DISPLAY
 
   lcd_print(lcd_status_message);
 }
@@ -722,46 +731,45 @@ static void lcd_implementation_drawmenu_sddirectory(bool sel, uint8_t row, const
 #define lcd_implementation_drawmenu_function(sel, row, pstr, data) lcd_implementation_drawmenu_generic(sel, row, pstr, '>', ' ')
 
 #ifdef LCD_HAS_STATUS_INDICATORS
-static void lcd_implementation_update_indicators()
-{
-  #if defined(LCD_I2C_PANELOLU2) || defined(LCD_I2C_VIKI)
-    //set the LEDS - referred to as backlights by the LiquidTWI2 library 
-    static uint8_t ledsprev = 0;
-    uint8_t leds = 0;
-    if (target_temperature_bed > 0) leds |= LED_A;
-    if (target_temperature[0] > 0) leds |= LED_B;
-    if (fanSpeed) leds |= LED_C;
-    #if EXTRUDERS > 1  
-      if (target_temperature[1] > 0) leds |= LED_C;
+
+  static void lcd_implementation_update_indicators() {
+    #if defined(LCD_I2C_PANELOLU2) || defined(LCD_I2C_VIKI)
+      // Set the LEDS - referred to as backlights by the LiquidTWI2 library
+      static uint8_t ledsprev = 0;
+      uint8_t leds = 0;
+      if (target_temperature_bed > 0) leds |= LED_A;
+      if (target_temperature[0] > 0) leds |= LED_B;
+      if (fanSpeed) leds |= LED_C;
+      #if EXTRUDERS > 1
+        if (target_temperature[1] > 0) leds |= LED_C;
+      #endif
+      if (leds != ledsprev) {
+        lcd.setBacklight(leds);
+        ledsprev = leds;
+      }
     #endif
-    if (leds != ledsprev) {
-      lcd.setBacklight(leds);
-      ledsprev = leds;
-    }
-  #endif
-}
-#endif
+  }
+
+#endif // LCD_HAS_STATUS_INDICATORS
 
 #ifdef LCD_HAS_SLOW_BUTTONS
-extern uint32_t blocking_enc;
 
-static uint8_t lcd_implementation_read_slow_buttons()
-{
-  #ifdef LCD_I2C_TYPE_MCP23017
-  uint8_t slow_buttons;
-    // Reading these buttons this is likely to be too slow to call inside interrupt context
-    // so they are called during normal lcd_update
-    slow_buttons = lcd.readButtons() << B_I2C_BTN_OFFSET; 
-    #if defined(LCD_I2C_VIKI)
-    if(slow_buttons & (B_MI|B_RI)) { //LCD clicked
-       if(blocking_enc > millis()) {
-         slow_buttons &= ~(B_MI|B_RI); // Disable LCD clicked buttons if screen is updated
-       }
-    }
+  extern millis_t next_button_update_ms;
+
+  static uint8_t lcd_implementation_read_slow_buttons() {
+    #ifdef LCD_I2C_TYPE_MCP23017
+      uint8_t slow_buttons;
+      // Reading these buttons this is likely to be too slow to call inside interrupt context
+      // so they are called during normal lcd_update
+      slow_buttons = lcd.readButtons() << B_I2C_BTN_OFFSET; 
+      #ifdef LCD_I2C_VIKI
+        if ((slow_buttons & (B_MI|B_RI)) && millis() < next_button_update_ms) // LCD clicked
+          slow_buttons &= ~(B_MI|B_RI); // Disable LCD clicked buttons if screen is updated
+      #endif
+      return slow_buttons;
     #endif
-    return slow_buttons; 
-  #endif
-}
-#endif
+  }
 
-#endif //__ULTRALCD_IMPLEMENTATION_HITACHI_HD44780_H
+#endif // LCD_HAS_SLOW_BUTTONS
+
+#endif // ULTRALCD_IMPLEMENTATION_HITACHI_HD44780_H

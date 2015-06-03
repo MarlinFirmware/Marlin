@@ -8,6 +8,7 @@
   int lcd_strlen_P(const char *s);
   void lcd_update();
   void lcd_init();
+  bool lcd_hasstatus();
   void lcd_setstatus(const char* message, const bool persist=false);
   void lcd_setstatuspgm(const char* message, const uint8_t level=0);
   void lcd_setalertstatuspgm(const char* message);
@@ -49,10 +50,11 @@
   extern bool cancel_heatup;
   
   #ifdef FILAMENT_LCD_DISPLAY
-    extern unsigned long message_millis;
+    extern millis_t previous_lcd_status_ms;
   #endif
 
   void lcd_buzz(long duration,uint16_t freq);
+  void lcd_quick_feedback(); // Audible feedback for a button click - could also be visual
   bool lcd_clicked();
 
   void lcd_ignore_click(bool b=true);
@@ -99,15 +101,16 @@
 #else //no LCD
   FORCE_INLINE void lcd_update() {}
   FORCE_INLINE void lcd_init() {}
+  FORCE_INLINE bool lcd_hasstatus() { return false; }
   FORCE_INLINE void lcd_setstatus(const char* message, const bool persist=false) {}
   FORCE_INLINE void lcd_setstatuspgm(const char* message, const uint8_t level=0) {}
   FORCE_INLINE void lcd_buttons_update() {}
   FORCE_INLINE void lcd_reset_alert_level() {}
-  FORCE_INLINE void lcd_buzz(long duration,uint16_t freq) {}
+  FORCE_INLINE void lcd_buzz(long duration, uint16_t freq) {}
   FORCE_INLINE bool lcd_detected(void) { return true; }
 
-  #define LCD_MESSAGEPGM(x) 
-  #define LCD_ALERTMESSAGEPGM(x) 
+  #define LCD_MESSAGEPGM(x) do{}while(0)
+  #define LCD_ALERTMESSAGEPGM(x) do{}while(0)
 
 #endif //ULTRA_LCD
 

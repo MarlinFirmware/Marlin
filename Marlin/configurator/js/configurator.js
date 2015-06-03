@@ -29,9 +29,9 @@ $(function(){
 var config = {
   type:  'github',
   host:  'https://api.github.com',
-  owner: 'thinkyhead',
+  owner: 'MarlinFirmware',
   repo:  'Marlin',
-  ref:   'marlin_configurator',
+  ref:   'Development',
   path:  'Marlin/configurator/config'
 };
 /**/
@@ -397,7 +397,7 @@ window.configuratorApp = (function(){
      *   .count   number of items in the group
      */
     refreshDefineGroups: function(cindex) {
-      var findDef = /^(|.*_)(([XYZE](MAX|MIN))|(E[0-3]|[XYZE01234])|MAX|MIN|(bed)?K[pid]|HOTEND|HPB|JAPAN|WESTERN|LEFT|RIGHT|BACK|FRONT|[XYZ]_POINT)(_.*|)$/i;
+      var findDef = /^(|.*_)(([XYZE](MAX|MIN))|(E[0-3]|[XYZE01234])|MAX|MIN|(bed)?K[pid]|HOTEND|HPB|JAPAN|WESTERN|CYRILLIC|LEFT|RIGHT|BACK|FRONT|[XYZ]_POINT)(_.*|)$/i;
       var match_prev, patt, title, nameList, groups = {}, match_section;
       $.each(define_list[cindex], function(i, name) {
         if (match_prev) {
@@ -458,7 +458,8 @@ window.configuratorApp = (function(){
                 break;
               case 'JAPAN':
               case 'WESTERN':
-                patt = '(JAPAN|WESTERN)';
+              case 'CYRILLIC':
+                patt = '(JAPAN|WESTERN|CYRILLIC)';
                 break;
               case 'XMIN':
               case 'XMAX':
@@ -1267,56 +1268,73 @@ window.configuratorApp = (function(){
         if (info.line.search(find) >= 0)
           eoltip = tooltip = info.line.replace(find, '$1');
 
-        // Get all the comments immediately before the item
+        // Get all the comments immediately before the item, also include #define lines preceding it
         var s;
-        find = new RegExp('(([ \\t]*(//|#)[^\n]+\n){1,4})' + info.line.regEsc(), 'g');
+        // find = new RegExp('(([ \\t]*(//|#)[^\n]+\n){1,4})' + info.line.regEsc(), 'g');
+        find = new RegExp('(([ \\t]*//+[^\n]+\n)+([ \\t]*(//)?#define[^\n]+\n)*)' + info.line.regEsc(), 'g');
         if (r = find.exec(txt)) {
-          // Get the text of the found comments
+          var temp = [], tips = [];
+
+          // Find each line in forward order, store in reverse
           find = new RegExp('^[ \\t]*//+[ \\t]*(.*)[ \\t]*$', 'gm');
-          while((s = find.exec(r[1])) !== null) {
-            var tip = s[1].replace(/[ \\t]*(={5,}|(#define[ \\t]+.*|@section[ \\t]+\w+))[ \\t]*/g, '');
-            if (tip.length) {
-              if (tip.match(/^#define[ \\t]/) != null) tooltip = eoltip;
-              // JSON data? Save as select options
-              if (!info.options && tip.match(/:[\[{]/) != null) {
-                // TODO
-                // :[1-6] = value limits
-                var o; eval('o=' + tip.substr(1));
-                info.options = o;
-                if (Object.prototype.toString.call(o) == "[object Array]" && o.length == 2 && !eval(''+o[0]))
-                  info.type = 'toggle';
-              }
-              else {
-                // Other lines added to the tooltip
-                tooltip += ' ' + tip + '\n';
-              }
+          while((s = find.exec(r[1])) !== null) temp.unshift(s[1]);
+
+          this.log(name+":\n"+temp.join('\n'), 2);
+
+          // Go through the reversed lines and add comment lines on
+          $.each(temp, function(i,v) {
+            // @ annotation breaks the comment chain
+            if (v.match(/^[ \\t]*\/\/+[ \\t]*@/)) return false;
+            // A #define breaks the chain, after a good tip
+            if (v.match(/^[ \\t]*(\/\/+)?[ \\t]*#define/)) return (tips.length < 1);
+            // Skip unwanted lines
+            if (v.match(/^[ \\t]*(={5,}|#define[ \\t]+.*)/g)) return true;
+            tips.unshift(v);
+          });
+
+          // Build the final tooltip, extract embedded options
+          $.each(tips, function(i,tip) {
+            // if (tip.match(/^#define[ \\t]/) != null) tooltip = eoltip;
+            // JSON data? Save as select options
+            if (!info.options && tip.match(/:[\[{]/) != null) {
+              // TODO
+              // :[1-6] = value limits
+              var o; eval('o=' + tip.substr(1));
+              info.options = o;
+              if (Object.prototype.toString.call(o) == "[object Array]" && o.length == 2 && !eval(''+o[0]))
+                info.type = 'toggle';
             }
-          }
-        }
-
-        // Add .tooltip and .lineNum properties to the info
-        find = new RegExp('^'+name); // Strip the name from the tooltip
-        var lineNum = this.getLineNumberOfText(info.line, txt);
-
-        // See if this define is enabled conditionally
-        var enable_cond = '';
-        $.each(dependent_groups, function(cond,dat){
-          $.each(dat, function(i,o){
-            if (o.cindex == cindex && lineNum > o.start && lineNum < o.end) {
-              if (enable_cond != '') enable_cond += ' && ';
-              enable_cond += '(' + cond + ')';
+            else {
+              // Other lines added to the tooltip
+              tooltip += ' ' + tip + '\n';
             }
           });
-        });
 
-        $.extend(info, {
-          tooltip: '<strong>'+name+'</strong> '+tooltip.trim().replace(find,'').toHTML(),
-          lineNum: lineNum,
-          switchable: (info.type != 'switch' && info.line.match(/^[ \t]*\/\//)) || false, // Disabled? Mark as "switchable"
-          enabled: enable_cond ? enable_cond : 'true'
-        });
+          // Add .tooltip and .lineNum properties to the info
+          find = new RegExp('^'+name); // Strip the name from the tooltip
+          var lineNum = this.getLineNumberOfText(info.line, txt);
 
-      }
+          // See if this define is enabled conditionally
+          var enable_cond = '';
+          $.each(dependent_groups, function(cond,dat){
+            $.each(dat, function(i,o){
+              if (o.cindex == cindex && lineNum > o.start && lineNum < o.end) {
+                if (enable_cond != '') enable_cond += ' && ';
+                enable_cond += '(' + cond + ')';
+              }
+            });
+          });
+
+          $.extend(info, {
+            tooltip: '<strong>'+name+'</strong> '+tooltip.trim().replace(find,'').toHTML(),
+            lineNum: lineNum,
+            switchable: (info.type != 'switch' && info.line.match(/^[ \t]*\/\//)) || false, // Disabled? Mark as "switchable"
+            enabled: enable_cond ? enable_cond : 'true'
+          });
+
+        } // found comments
+
+      } // if info.type
       else
         info = null;
 

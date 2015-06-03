@@ -8,6 +8,11 @@
 
 #define LARGE_FLASH        true
 
+
+#ifdef Z_PROBE_SLED
+  #define SLED_PIN         -1
+#endif
+
 // Servo support
 #ifdef NUM_SERVOS
   #define SERVO0_PIN       46 //AUX3-6
@@ -26,19 +31,19 @@
 #define X_DIR_PIN          57
 #define X_ENABLE_PIN       59
 #define X_MIN_PIN          37
-#define X_MAX_PIN          40   // 2 // Max endstops default to disabled "-1", set to commented value to enable.
+#define X_MAX_PIN          40 // put to -1 to disable  
 
-#define Y_STEP_PIN         5 // A6
-#define Y_DIR_PIN          17 // A0
+#define Y_STEP_PIN         5 
+#define Y_DIR_PIN          17 
 #define Y_ENABLE_PIN       4
 #define Y_MIN_PIN          41
-#define Y_MAX_PIN          38   // 15
+#define Y_MAX_PIN          38 // put to -1 to disable
 
-#define Z_STEP_PIN         16 // A2
-#define Z_DIR_PIN          11 // A6
-#define Z_ENABLE_PIN       3 // A1
+#define Z_STEP_PIN         16 
+#define Z_DIR_PIN          11
+#define Z_ENABLE_PIN       3 
 #define Z_MIN_PIN          18
-#define Z_MAX_PIN          19
+#define Z_MAX_PIN          19 // put to -1 to disable
 
 #define E0_STEP_PIN        28
 #define E0_DIR_PIN         27

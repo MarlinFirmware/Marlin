@@ -123,7 +123,7 @@ static const uint8_t u8g_dev_ssd1306_128x32_adafruit3_init_seq[] PROGMEM = {
 
   0x0ae,				/* display off, sleep mode */
   0x0d5, 0x080,			/* clock divide ratio (0x00=1) and oscillator frequency (0x8) */
-  0x0a8, 0x01f,			/* Feb 23, 2013: 128x32 OLED: 0x01f,  128x64 OLED 0x03f */
+  0x0a8, 0x01f,			/* Feb 23, 2013: 128x32 OLED: 0x01f,  128x32 OLED 0x03f */
 
   0x0d3, 0x000,			/*  */
 
@@ -131,7 +131,7 @@ static const uint8_t u8g_dev_ssd1306_128x32_adafruit3_init_seq[] PROGMEM = {
   
   0x08d, 0x014,			/* [2] charge pump setting (p62): 0x014 enable, 0x010 disable */ 
 
-  0x020, 0x002,			/* com pin HW config, sequential com pin config (bit 4), disable left/right remap (bit 5), Feb 23, 2013: 128x32 OLED: 0x002,  128x64 OLED 0x012 */
+  0x020, 0x002,			/* com pin HW config, sequential com pin config (bit 4), disable left/right remap (bit 5), Feb 23, 2013: 128x32 OLED: 0x002,  128x32 OLED 0x012 */
   0x0a1,				/* segment remap a0/a1*/
   0x0c8,				/* c0: scan dir normal, c8: reverse */
   0x0da, 0x002,			/* com pin HW config, sequential com pin config (bit 4), disable left/right remap (bit 5) */
@@ -196,7 +196,7 @@ static const uint8_t u8g_dev_ssd13xx_sleep_on[] PROGMEM = {
   U8G_ESC_ADR(0),           /* instruction mode */
   U8G_ESC_CS(1),             /* enable chip */
   0x0ae,		/* display off */      
-  U8G_ESC_CS(1),             /* disable chip */
+  U8G_ESC_CS(0),             /* disable chip, bugfix 12 nov 2014 */
   U8G_ESC_END                /* end of sequence */
 };
 
@@ -205,7 +205,7 @@ static const uint8_t u8g_dev_ssd13xx_sleep_off[] PROGMEM = {
   U8G_ESC_CS(1),             /* enable chip */
   0x0af,		/* display on */      
   U8G_ESC_DLY(50),       /* delay 50 ms */
-  U8G_ESC_CS(1),             /* disable chip */
+  U8G_ESC_CS(0),             /* disable chip, bugfix 12 nov 2014 */
   U8G_ESC_END                /* end of sequence */
 };
 
@@ -214,7 +214,7 @@ uint8_t u8g_dev_ssd1306_128x32_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t msg, void 
   switch(msg)
   {
     case U8G_DEV_MSG_INIT:
-      u8g_InitCom(u8g, dev);
+      u8g_InitCom(u8g, dev, U8G_SPI_CLK_CYCLE_300NS);
       u8g_WriteEscSeqP(u8g, dev, u8g_dev_ssd1306_128x32_init_seq);
       break;
     case U8G_DEV_MSG_STOP:
@@ -241,7 +241,49 @@ uint8_t u8g_dev_ssd1306_128x32_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t msg, void 
   return u8g_dev_pb8v1_base_fn(u8g, dev, msg, arg);
 }
 
+uint8_t u8g_dev_ssd1306_128x32_2x_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t msg, void *arg)
+{
+  switch(msg)
+  {
+    case U8G_DEV_MSG_INIT:
+      u8g_InitCom(u8g, dev, U8G_SPI_CLK_CYCLE_300NS);
+      u8g_WriteEscSeqP(u8g, dev, u8g_dev_ssd1306_128x32_init_seq);
+      break;
+    case U8G_DEV_MSG_STOP:
+      break;
+    case U8G_DEV_MSG_PAGE_NEXT:
+      {
+        u8g_pb_t *pb = (u8g_pb_t *)(dev->dev_mem);
+	
+        u8g_WriteEscSeqP(u8g, dev, u8g_dev_ssd1306_128x32_data_start);    
+        u8g_WriteByte(u8g, dev, 0x0b0 | (pb->p.page*2));	/* select current page (SSD1306) */
+        u8g_SetAddress(u8g, dev, 1);					/* data mode */
+	u8g_WriteSequence(u8g, dev, pb->width, pb->buf); 
+        u8g_SetChipSelect(u8g, dev, 0);
+	
+        u8g_WriteEscSeqP(u8g, dev, u8g_dev_ssd1306_128x32_data_start);    
+        u8g_WriteByte(u8g, dev, 0x0b0 | (pb->p.page*2+1));	/* select current page (SSD1306) */
+        u8g_SetAddress(u8g, dev, 1);					/* data mode */
+	u8g_WriteSequence(u8g, dev, pb->width, (uint8_t *)(pb->buf)+pb->width); 
+        u8g_SetChipSelect(u8g, dev, 0);
+      }
+      break;
+    case U8G_DEV_MSG_SLEEP_ON:
+      u8g_WriteEscSeqP(u8g, dev, u8g_dev_ssd13xx_sleep_on);    
+      return 1;
+    case U8G_DEV_MSG_SLEEP_OFF:
+      u8g_WriteEscSeqP(u8g, dev, u8g_dev_ssd13xx_sleep_off);    
+      return 1;
+  }
+  return u8g_dev_pb16v1_base_fn(u8g, dev, msg, arg);
+}
+
 U8G_PB_DEV(u8g_dev_ssd1306_128x32_sw_spi, WIDTH, HEIGHT, PAGE_HEIGHT, u8g_dev_ssd1306_128x32_fn, U8G_COM_SW_SPI);
 U8G_PB_DEV(u8g_dev_ssd1306_128x32_hw_spi, WIDTH, HEIGHT, PAGE_HEIGHT, u8g_dev_ssd1306_128x32_fn, U8G_COM_HW_SPI);
 U8G_PB_DEV(u8g_dev_ssd1306_128x32_i2c, WIDTH, HEIGHT, PAGE_HEIGHT, u8g_dev_ssd1306_128x32_fn, U8G_COM_SSD_I2C);
 
+uint8_t u8g_dev_ssd1306_128x32_2x_buf[WIDTH*2] U8G_NOCOMMON ; 
+u8g_pb_t u8g_dev_ssd1306_128x32_2x_pb = { {16, HEIGHT, 0, 0, 0},  WIDTH, u8g_dev_ssd1306_128x32_2x_buf}; 
+u8g_dev_t u8g_dev_ssd1306_128x32_2x_sw_spi = { u8g_dev_ssd1306_128x32_2x_fn, &u8g_dev_ssd1306_128x32_2x_pb, U8G_COM_SW_SPI };
+u8g_dev_t u8g_dev_ssd1306_128x32_2x_hw_spi = { u8g_dev_ssd1306_128x32_2x_fn, &u8g_dev_ssd1306_128x32_2x_pb, U8G_COM_HW_SPI };
+u8g_dev_t u8g_dev_ssd1306_128x32_2x_i2c = { u8g_dev_ssd1306_128x32_2x_fn, &u8g_dev_ssd1306_128x32_2x_pb, U8G_COM_SSD_I2C };

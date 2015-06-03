@@ -2,10 +2,9 @@
  * AZTEEG_X3 Arduino Mega with RAMPS v1.3 pin assignments
  */
 
-#include "pins_RAMPS_13.h"
+#define IS_RAMPS_EFB
 
-#define FAN_PIN            9 // (Sprinter config)
-#define HEATER_1_PIN       -1
+#include "pins_RAMPS_13.h"
 
 //LCD Pins//
 
@@ -28,9 +27,7 @@
    #define STAT_LED_RED 64
    #define STAT_LED_BLUE 63
   #endif
-#endif
-
-#elif define TEMP_STAT_LEDS
+#elif defined(TEMP_STAT_LEDS)
   #define STAT_LED_RED       6
   #define STAT_LED_BLUE     11
 #endif
