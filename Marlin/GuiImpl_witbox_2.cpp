@@ -80,7 +80,7 @@ namespace screen
 	//AutoHome
 	ScreenAction<void> screen_autohome = ScreenAction<void>(MSG_SCREEN_AUTOHOME, action_homing);
 	//Steppers
-	ScreenStatus<bool, void> screen_stepper   = ScreenStatus<bool, void>(MSG_SCREEN_STEPPER, do_nothing, &SteppersManager::getInstance());
+	ScreenStatus<bool, void> screen_stepper   = ScreenStatus<bool, void>(MSG_SCREEN_STEPPER, SteppersManager::setState, &SteppersManager::getInstance());
 	//Move Axis screens
 	ScreenMenu screen_move              = ScreenMenu(MSG_SCREEN_MOVE);
 	ScreenMenu screen_move_back2main    = ScreenMenu(MSG_SCREEN_MOVE_2MAIN);
