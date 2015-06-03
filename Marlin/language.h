@@ -215,6 +215,11 @@
 #define MSG_T_MAXTEMP                       "MAXTEMP triggered"
 #define MSG_T_MINTEMP                       "MINTEMP triggered"
 
+// Debug
+#define MSG_DEBUG_ECHO                      "DEBUG ECHO ENABLED"
+#define MSG_DEBUG_INFO                      "DEBUG INFO ENABLED"
+#define MSG_DEBUG_ERRORS                    "DEBUG ERRORS ENABLED"
+#define MSG_DEBUG_DRYRUN                    "DEBUG DRYRUN ENABLED"
 
 // LCD Menu Messages
 
