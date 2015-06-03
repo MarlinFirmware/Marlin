@@ -43,9 +43,6 @@ uint32_t   display_time_refresh = 0;
 uint32_t   display_timeout;
 bool       display_timeout_blocked;
 
-view_t display_view_next;
-view_t display_view;
-
 uint32_t refresh_interval;
 
 // Encoder related variables
@@ -279,29 +276,6 @@ void lcd_update(bool force)
 
     // Refresh the content of the display
     active_view->draw();
-}
-
-void lcd_set_menu(view_t menu)
-{
-    display_view_next = menu;
-    display_view_menu_offset = 0;
-    
-    encoder_position = 0;
-
-    lcd_clear_triggered_flags();
-}
-void lcd_set_picture(view_t picture)
-{
-    display_view_next = picture;
-
-    lcd_clear_triggered_flags();
-}
-void lcd_set_wizard(view_t wizard)
-{
-    display_view_next = wizard;
-    lcd_wizard_set_page(0);
-
-    lcd_clear_triggered_flags();
 }
 
 // Get and clear trigger functions
