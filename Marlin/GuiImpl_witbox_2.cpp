@@ -13,6 +13,7 @@
 #include "ScreenAction.h"
 
 #include "LightManager.h"
+#include "PrintManager.h"
 #include "SteppersManager.h"
 #include "TemperatureManager.h"
 
@@ -54,6 +55,7 @@ namespace screen
 	//SD Card screens
 	ScreenList screen_SD_list           = ScreenList("SD Card");
 	ScreenMenu screen_SD_confirm        = ScreenMenu("Comfirm Print");
+	ScreenAction<void> screen_SD_OK		= ScreenAction<void>("OK", PrintManager::startPrint);
 	Screen screen_SD_back               = Screen("Back", Screen::SIMPLE);
 	//Unload Filament screens
 	ScreenSelector<void, uint16_t> screen_unload_select = ScreenSelector<void, uint16_t>("Unload filament", 170, 230, default_temp_change_filament, action_set_temperature);
@@ -96,7 +98,7 @@ namespace screen
 	ScreenDialog screen_info            = ScreenDialog("FW info");
 
 	//Print screen
-	ScreenPrint<void> screen_print            = ScreenPrint<void>("Confirm", action_print);
+	ScreenPrint<void> screen_print            = ScreenPrint<void>("Confirm", action_start_print);
 	//Play/Pause
 	//ScreenStatus screen_play_pause      = ScreenStatus("Pause", action_pause_print);
 	//Stop
@@ -134,12 +136,14 @@ namespace screen
 		screen_SD_list.icon(icon_sd);
 		//SD Card Confirm
 		screen_SD_confirm.add(screen_SD_back);
-		screen_SD_confirm.add(screen_print);
+		screen_SD_confirm.add(screen_SD_OK);
 		//SD Confirm back
 		screen_SD_back.add(screen_SD_list);
 		screen_SD_back.icon(icon_back);
 		//SD Confirm OK
-		screen_print.icon(icon_ok);
+		screen_SD_OK.add(screen_print);
+		screen_SD_OK.icon(icon_ok);
+		//screen_print.icon(icon_ok);
 		//Unload Filament Select
 		screen_unload_select.add(screen_unload_heating);
 		screen_unload_select.icon(icon_filament_unload);
