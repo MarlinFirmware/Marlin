@@ -3,9 +3,13 @@
 #include "Marlin.h"
 #include "cardreader.h"
 #include "ConfigurationStore.h"
-#include "temperature.h"
+//#include "temperature.h"
+#include "planner.h"
+#include "stepper.h"
 #include "language.h"
+
 #include "GuiManager.h"
+#include "TemperatureManager.h"
 
 
 extern uint8_t buffer_recursivity;
@@ -14,6 +18,11 @@ extern bool stop_buffer;
 extern int stop_buffer_code;
 
 static float manual_feedrate[] = MANUAL_FEEDRATE;
+
+void action_set_temperature(uint16_t degrees)
+{
+	TemperatureManager::getInstance().setTargetTemperature(degrees);
+}
 
 void action_homing()
 {
@@ -37,7 +46,7 @@ void action_print()
 			return;
 		}
 	}
-	setTargetHotend0(200);
+	TemperatureManager::getInstance().setTargetTemperature(200);
 	fanSpeed = PREHEAT_FAN_SPEED;
 	sprintf_P(cmd, PSTR("M23 %s"), card.filename);
 	enquecommand_P(PSTR("G28"));
@@ -69,11 +78,7 @@ void action_stop_print()
 		card.sdprinting = false;
 		card.closefile();
 
-		setTargetHotend(0,0);
-
-#ifdef HEATED_BED_SUPPORT
-		setTargetBed(0);
-#endif // HEATED_BED_SUPPORT
+		TemperatureManager::getInstance().setTargetTemperature(0);
 
 		flush_commands();
 		quickStop();
@@ -109,7 +114,7 @@ void action_stop_print()
 		{
 			enquecommand_P(PSTR(SD_FINISHED_RELEASECOMMAND));
 		}
-		autotempShutdown();
+		// autotempShutdown();
 
 		cancel_heatup = true;
 	}

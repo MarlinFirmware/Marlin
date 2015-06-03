@@ -58,12 +58,12 @@ namespace screen
 	ScreenMenu screen_SD_confirm        = ScreenMenu(MSG_SCREEN_SD_CONFIRM);
 	Screen screen_SD_back               = Screen(MSG_SCREEN_SD_BACK, Screen::SIMPLE);
 	//Unload Filament screens
-	ScreenSelector<void> screen_unload_select = ScreenSelector<void>(MSG_SCREEN_UNLOAD_TITLE, 170, 230, default_temp_change_filament, do_nothing);
+	ScreenSelector<void, uint16_t> screen_unload_select = ScreenSelector<void, uint16_t>(MSG_SCREEN_UNLOAD_TITLE, 170, 230, default_temp_change_filament, action_set_temperature);
 	ScreenTransition<float> screen_unload_heating	= ScreenTransition<float>(MSG_SCREEN_UNLOAD_TITLE, MSG_SCREEN_UNLOAD_ABORT, &TemperatureManager::getInstance());
 	ScreenDialog screen_unload_pull     = ScreenDialog(MSG_SCREEN_UNLOAD_TITLE,MSG_SCREEN_UNLOAD_CONTINUE);
 	ScreenMenu screen_unload_confirm    = ScreenMenu(MSG_SCREEN_UNLOAD_CONFIRM);
 	//Load Filament screens
-	ScreenSelector<void> screen_load_select   = ScreenSelector<void>(MSG_SCREEN_LOAD_TITLE, 170, 230, default_temp_change_filament, do_nothing);
+	ScreenSelector<void, uint16_t> screen_load_select   = ScreenSelector<void, uint16_t>(MSG_SCREEN_LOAD_TITLE, 170, 230, default_temp_change_filament, action_set_temperature);
 	ScreenTransition<float> screen_load_heating	= ScreenTransition<float>(MSG_SCREEN_LOAD_TITLE, MSG_SCREEN_LOAD_ABORT, &TemperatureManager::getInstance());
 	ScreenDialog screen_load_press      = ScreenDialog(MSG_SCREEN_LOAD_TITLE, MSG_SCREEN_LOAD_CONTINUE);
 	ScreenMenu screen_load_confirm      = ScreenMenu(MSG_SCREEN_LOAD_CONFIRM);
@@ -91,7 +91,7 @@ namespace screen
 //	ScreenSelector screen_move_1        = ScreenSelector("Move 1mm", 0, 100, 50);
 //	ScreenSelector screen_move_01       = ScreenSelector("Move 01mm", 0, 100, 50);
 	//Temperature
-	ScreenSelector<void> screen_temperature   = ScreenSelector<void>(MSG_SCREEN_TEMP_TITLE, 0, 250, default_temp_change_filament);
+	ScreenSelector<void, uint16_t> screen_temperature   = ScreenSelector<void, uint16_t>(MSG_SCREEN_TEMP_TITLE, 0, 250, default_temp_change_filament, action_set_temperature);
 	//Light
 	ScreenStatus<bool, void> screen_light = ScreenStatus<bool, void>(MSG_SCREEN_LIGHT, LightManager::setState, &LightManager::getInstance());
 	//Info
@@ -112,7 +112,7 @@ namespace screen
 	ScreenDialog screen_change_insert   = ScreenDialog("",MSG_SCREEN_CHANGE_INSERT);
 	ScreenMenu screen_change_retry      = ScreenMenu(MSG_SCREEN_CHANGE_RETRY);
 	//Change Speed screen
-	ScreenSelector<void> screen_speed			= ScreenSelector<void>(MSG_SCREEN_SPEED, 10, 400, 100);
+	ScreenSelector<void, uint16_t> screen_speed			= ScreenSelector<void, uint16_t>(MSG_SCREEN_SPEED, 10, 400, 100, action_set_temperature);
 
 
 	Screen * GuiBuild()

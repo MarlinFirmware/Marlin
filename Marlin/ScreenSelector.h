@@ -87,7 +87,7 @@ namespace screen
 		do
 		{
 			painter.title(m_title);
-			painter.box(MSG_SELECTOR_BOX); //TEMPORAL
+			painter.box(MSG_SELECTOR_BOX); 
 
 			uint8_t x_init = painter.coordinateXInit();
 			uint8_t x_end = painter.coordinateXEnd();
@@ -128,6 +128,7 @@ namespace screen
 	template <typename R, typename... Args>
 	Screen & ScreenSelector<R, Args...>::press(Screen * parent_view)
 	{
+		this->action(m_select);
 		return * m_next_screen;
 	}
 
