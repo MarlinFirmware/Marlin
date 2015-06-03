@@ -8,12 +8,15 @@ namespace screen
 	class ScreenDialog : public Screen
 	{
 		public:
-			ScreenDialog(const char * title);
+			ScreenDialog(const char * title, const char * box);
 			virtual ~ScreenDialog();
 
 			void left();
 			void right();
 			void draw();
+
+		private:
+			const char * m_box;
 	};
 }
 

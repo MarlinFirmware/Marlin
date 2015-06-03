@@ -16,101 +16,103 @@
 #include "SteppersManager.h"
 #include "TemperatureManager.h"
 
+#include "language.h"
+
 namespace screen
 {
 	Size icon_size = Size(icon_width, icon_height);
 	///////////////////////
 	// Instantiate Icons //
 	///////////////////////
-	Icon icon_nosd                = Icon(icon_size, bits_nosd_normal, bits_nosd_focused, "Insert SD Card");
-	Icon icon_sd                  = Icon(icon_size, bits_sd_normal, bits_sd_focused, "SD Card");
-	Icon icon_filament_unload     = Icon(icon_size, bits_filament_unload_normal, bits_filament_unload_focused, "Unload Filament");
-	Icon icon_filament_load       = Icon(icon_size, bits_filament_load_normal, bits_filament_load_focused, "Load Filament");
-	Icon icon_leveling            = Icon(icon_size, bits_leveling_normal, bits_leveling_focused, "Level Plate");
-	Icon icon_homing              = Icon(icon_size, bits_homing_normal, bits_homing_focused, "Auto-home");
-	Icon icon_steppers            = Icon(icon_size, bits_steppers_normal, bits_steppers_focused, "Disable steppers");
-	Icon icon_steppers_off        = Icon(icon_size, bits_steppers_off_normal, bits_steppers_off_focused, "Steppers off");
-	Icon icon_moveaxis            = Icon(icon_size, bits_moveaxis_normal, bits_moveaxis_focused, "Move axis");
-	Icon icon_temperature         = Icon(icon_size, bits_temperature_normal, bits_temperature_focused, "Temp 0/200C");
-	Icon icon_lightled_disable    = Icon(icon_size, bits_lightled_disable_normal, bits_lightled_disable_focused, "Led light off");
-	Icon icon_lightled            = Icon(icon_size, bits_lightled_normal, bits_lightled_focused, "Led light on");
-	Icon icon_info                = Icon(icon_size, bits_info_normal, bits_info_focused, "FW info");
-	Icon icon_play                = Icon(icon_size, bits_play_normal, bits_play_focused, "Play");
-	Icon icon_pause               = Icon(icon_size, bits_pause_normal, bits_pause_focused, "Pause");
-	Icon icon_stop                = Icon(icon_size, bits_stop_normal, bits_stop_focused, "Stop");
-	Icon icon_change_filament     = Icon(icon_size, bits_change_filament_normal, bits_change_filament_focused, "Change filament");
-	Icon icon_change_speed        = Icon(icon_size, bits_change_speed_normal, bits_change_speed_focused, "Change speed");
-	Icon icon_back                = Icon(icon_size, bits_back_normal, bits_back_focused, "Back");
-	Icon icon_retry               = Icon(icon_size, bits_retry_normal, bits_retry_focused, "Retry");
-	Icon icon_ok                  = Icon(icon_size, bits_ok_normal, bits_ok_focused, "Confirm");
+	Icon icon_nosd                = Icon(icon_size, bits_nosd_normal, bits_nosd_focused, MSG_NOSD);
+	Icon icon_sd                  = Icon(icon_size, bits_sd_normal, bits_sd_focused, MSG_SD);
+	Icon icon_filament_unload     = Icon(icon_size, bits_filament_unload_normal, bits_filament_unload_focused, MSG_FILAMENT_UNLOAD);
+	Icon icon_filament_load       = Icon(icon_size, bits_filament_load_normal, bits_filament_load_focused, MSG_FILAMENT_LOAD);
+	Icon icon_leveling            = Icon(icon_size, bits_leveling_normal, bits_leveling_focused, MSG_LEVELING);
+	Icon icon_homing              = Icon(icon_size, bits_homing_normal, bits_homing_focused, MSG_HOMING);
+	Icon icon_steppers            = Icon(icon_size, bits_steppers_normal, bits_steppers_focused, MSG_STEPPERS);
+	Icon icon_steppers_off        = Icon(icon_size, bits_steppers_off_normal, bits_steppers_off_focused, MSG_STEPPERS_OFF);
+	Icon icon_moveaxis            = Icon(icon_size, bits_moveaxis_normal, bits_moveaxis_focused, MSG_MOVEAXIS);
+	Icon icon_temperature         = Icon(icon_size, bits_temperature_normal, bits_temperature_focused, MSG_TEMPERATURE);
+	Icon icon_lightled_disable    = Icon(icon_size, bits_lightled_disable_normal, bits_lightled_disable_focused, MSG_LIGHTLED_DISABLE);
+	Icon icon_lightled            = Icon(icon_size, bits_lightled_normal, bits_lightled_focused, MSG_LIGHTLED);
+	Icon icon_info                = Icon(icon_size, bits_info_normal, bits_info_focused, MSG_INFO);
+	Icon icon_play                = Icon(icon_size, bits_play_normal, bits_play_focused, MSG_PLAY);
+	Icon icon_pause               = Icon(icon_size, bits_pause_normal, bits_pause_focused, MSG_PAUSE);
+	Icon icon_stop                = Icon(icon_size, bits_stop_normal, bits_stop_focused, MSG_STOP);
+	Icon icon_change_filament     = Icon(icon_size, bits_change_filament_normal, bits_change_filament_focused, MSG_CHANGE_FILAMENT);
+	Icon icon_change_speed        = Icon(icon_size, bits_change_speed_normal, bits_change_speed_focused, MSG_CHANGE_SPEED);
+	Icon icon_back                = Icon(icon_size, bits_back_normal, bits_back_focused, MSG_BACK);
+	Icon icon_retry               = Icon(icon_size, bits_retry_normal, bits_retry_focused, MSG_RETRY);
+	Icon icon_ok                  = Icon(icon_size, bits_ok_normal, bits_ok_focused, MSG_OK2);
 
 	/////////////////////////
 	// Instantiate Screens //
 	/////////////////////////
 	//Logo Splash
-	ScreenDialog screen_logo            = ScreenDialog("BQ Logo");
+	ScreenDialog screen_logo            = ScreenDialog(MSG_SCREEN_LOGO,"");
 	//Main Menu
-	ScreenMenu screen_main              = ScreenMenu("");
+	ScreenMenu screen_main              = ScreenMenu(MSG_SCREEN_MAIN);
 	//SD Card screens
-	ScreenList screen_SD_list           = ScreenList("SD Card");
-	ScreenMenu screen_SD_confirm        = ScreenMenu("Comfirm Print");
-	Screen screen_SD_back               = Screen("Back", Screen::SIMPLE);
+	ScreenList screen_SD_list           = ScreenList(MSG_SCREEN_SD_LIST);
+	ScreenMenu screen_SD_confirm        = ScreenMenu(MSG_SCREEN_SD_CONFIRM);
+	Screen screen_SD_back               = Screen(MSG_SCREEN_SD_BACK, Screen::SIMPLE);
 	//Unload Filament screens
-	ScreenSelector<void> screen_unload_select = ScreenSelector<void>("Unload filament", 170, 230, default_temp_change_filament, do_nothing);
-	ScreenTransition<float> screen_unload_heating	= ScreenTransition<float>("Heating", "Push to abort", &TemperatureManager::getInstance());
-	ScreenDialog screen_unload_pull     = ScreenDialog("Extrude and pull");
-	ScreenMenu screen_unload_confirm    = ScreenMenu("Finished?");
+	ScreenSelector<void> screen_unload_select = ScreenSelector<void>(MSG_SCREEN_UNLOAD_TITLE, 170, 230, default_temp_change_filament, do_nothing);
+	ScreenTransition<float> screen_unload_heating	= ScreenTransition<float>(MSG_SCREEN_UNLOAD_TITLE, MSG_SCREEN_UNLOAD_ABORT, &TemperatureManager::getInstance());
+	ScreenDialog screen_unload_pull     = ScreenDialog(MSG_SCREEN_UNLOAD_TITLE,MSG_SCREEN_UNLOAD_CONTINUE);
+	ScreenMenu screen_unload_confirm    = ScreenMenu(MSG_SCREEN_UNLOAD_CONFIRM);
 	//Load Filament screens
-	ScreenSelector<void> screen_load_select   = ScreenSelector<void>("Load filament", 170, 230, default_temp_change_filament, do_nothing);
-	ScreenTransition<float> screen_load_heating	= ScreenTransition<float>("Heating", "Push to abort", &TemperatureManager::getInstance());
-	ScreenDialog screen_load_press      = ScreenDialog("Insert and press");
-	ScreenMenu screen_load_confirm      = ScreenMenu("Finished?");
+	ScreenSelector<void> screen_load_select   = ScreenSelector<void>(MSG_SCREEN_LOAD_TITLE, 170, 230, default_temp_change_filament, do_nothing);
+	ScreenTransition<float> screen_load_heating	= ScreenTransition<float>(MSG_SCREEN_LOAD_TITLE, MSG_SCREEN_LOAD_ABORT, &TemperatureManager::getInstance());
+	ScreenDialog screen_load_press      = ScreenDialog(MSG_SCREEN_LOAD_TITLE, MSG_SCREEN_LOAD_CONTINUE);
+	ScreenMenu screen_load_confirm      = ScreenMenu(MSG_SCREEN_LOAD_CONFIRM);
 	//Level Plate screens
-	ScreenMenu screen_level_confirm     = ScreenMenu("Level Plate");
-	ScreenTransition<float> screen_level_cooling	= ScreenTransition<float>("Cooling", "Be patient", &TemperatureManager::getInstance());
-	ScreenDialog screen_level1          = ScreenDialog("Screen1");
-	ScreenDialog screen_level2          = ScreenDialog("Screen2");
-	ScreenDialog screen_level3          = ScreenDialog("Screen3");
-	ScreenDialog screen_level4          = ScreenDialog("Screen4");
-	ScreenMenu screen_level_retry       = ScreenMenu("Finished?");
+	ScreenMenu screen_level_confirm     = ScreenMenu(MSG_SCREEN_LEVEL_TITLE);
+	ScreenTransition<float> screen_level_cooling	= ScreenTransition<float>(MSG_SCREEN_LEVEL_TITLE, MSG_SCREEN_LEVEL_ABORT, &TemperatureManager::getInstance());
+	ScreenDialog screen_level1          = ScreenDialog("",MSG_SCREEN_LEVEL1);
+	ScreenDialog screen_level2          = ScreenDialog("",MSG_SCREEN_LEVEL2);
+	ScreenDialog screen_level3          = ScreenDialog("",MSG_SCREEN_LEVEL3);
+	ScreenDialog screen_level4          = ScreenDialog("",MSG_SCREEN_LEVEL4);
+	ScreenMenu screen_level_retry       = ScreenMenu(MSG_SCREEN_LEVEL_RETRY);
 	//AutoHome
-	ScreenAction<void> screen_autohome = ScreenAction<void>("Auto-home", action_homing);
+	ScreenAction<void> screen_autohome = ScreenAction<void>(MSG_SCREEN_AUTOHOME, action_homing);
 	//Steppers
-	ScreenStatus<bool, void> screen_stepper   = ScreenStatus<bool, void>("Steppers on", do_nothing, &SteppersManager::getInstance());
+	ScreenStatus<bool, void> screen_stepper   = ScreenStatus<bool, void>(MSG_SCREEN_STEPPER, do_nothing, &SteppersManager::getInstance());
 	//Move Axis screens
-	ScreenMenu screen_move              = ScreenMenu("Move axis");
-	ScreenMenu screen_move_back2main    = ScreenMenu("Back");
-	ScreenMenu screen_move_x            = ScreenMenu("Move X");
-	ScreenMenu screen_move_y            = ScreenMenu("Move Y");
-	ScreenMenu screen_move_z            = ScreenMenu("Move Z");
-	ScreenMenu screen_move_e            = ScreenMenu("Move Extruder");
-	ScreenMenu screen_move_back2move    = ScreenMenu("Back");
+	ScreenMenu screen_move              = ScreenMenu(MSG_SCREEN_MOVE);
+	ScreenMenu screen_move_back2main    = ScreenMenu(MSG_SCREEN_MOVE_2MAIN);
+	ScreenMenu screen_move_x            = ScreenMenu(MSG_SCREEN_MOVE_X);
+	ScreenMenu screen_move_y            = ScreenMenu(MSG_SCREEN_MOVE_Y);
+	ScreenMenu screen_move_z            = ScreenMenu(MSG_SCREEN_MOVE_Z);
+	ScreenMenu screen_move_e            = ScreenMenu(MSG_SCREEN_MOVE_E);
+	ScreenMenu screen_move_back2move    = ScreenMenu(MSG_SCREEN_MOVE_2MOVE);
 //	ScreenSelector screen_move_10       = ScreenSelector("Move 10mm", 0, 100, 50);
 //	ScreenSelector screen_move_1        = ScreenSelector("Move 1mm", 0, 100, 50);
 //	ScreenSelector screen_move_01       = ScreenSelector("Move 01mm", 0, 100, 50);
 	//Temperature
-	ScreenSelector<void> screen_temperature   = ScreenSelector<void>("Temp 0/200C", 0, 250, default_temp_change_filament);
+	ScreenSelector<void> screen_temperature   = ScreenSelector<void>(MSG_SCREEN_TEMP_TITLE, 0, 250, default_temp_change_filament);
 	//Light
-	ScreenStatus<bool, void> screen_light = ScreenStatus<bool, void>("Led light on", LightManager::setState, &LightManager::getInstance());
+	ScreenStatus<bool, void> screen_light = ScreenStatus<bool, void>(MSG_SCREEN_LIGHT, LightManager::setState, &LightManager::getInstance());
 	//Info
-	ScreenDialog screen_info            = ScreenDialog("FW info");
+	ScreenDialog screen_info            = ScreenDialog("",MSG_SCREEN_INFO);
 
 	//Print screen
-	ScreenPrint<void> screen_print            = ScreenPrint<void>("Confirm", action_print);
+	ScreenPrint<void> screen_print            = ScreenPrint<void>(MSG_SCREEN_PRINT, action_print);
 	//Play/Pause
 	//ScreenStatus screen_play_pause      = ScreenStatus("Pause", action_pause_print);
 	//Stop
-	ScreenMenu screen_stop_confirm      = ScreenMenu("Stop");
-	Screen screen_stop_back             = Screen("Back", Screen::SIMPLE);
-	ScreenAction<void> screen_stop_OK = ScreenAction<void>("Confirm", action_stop_print);
+	ScreenMenu screen_stop_confirm      = ScreenMenu(MSG_SCREEN_STOP_CONFIRM);
+	Screen screen_stop_back             = Screen(MSG_SCREEN_STOP_BACK, Screen::SIMPLE);
+	ScreenAction<void> screen_stop_OK = ScreenAction<void>(MSG_SCREEN_STOP_OK, action_stop_print);
 	//Change Filament Screens
-	ScreenMenu screen_change_confirm	= ScreenMenu("Change filament");
-	ScreenDialog screen_change_start    = ScreenDialog("Start");
-	ScreenDialog screen_change_pullout  = ScreenDialog("Pull out");
-	ScreenDialog screen_change_insert   = ScreenDialog("Insert & press");
-	ScreenMenu screen_change_retry      = ScreenMenu("Finished?");
+	ScreenMenu screen_change_confirm	= ScreenMenu(MSG_SCREEN_CHANGE_CONFIRM);
+	ScreenDialog screen_change_start    = ScreenDialog("",MSG_SCREEN_CHANGE_START);
+	ScreenDialog screen_change_pullout  = ScreenDialog("",MSG_SCREEN_CHANGE_PULLOUT);
+	ScreenDialog screen_change_insert   = ScreenDialog("",MSG_SCREEN_CHANGE_INSERT);
+	ScreenMenu screen_change_retry      = ScreenMenu(MSG_SCREEN_CHANGE_RETRY);
 	//Change Speed screen
-	ScreenSelector<void> screen_speed			= ScreenSelector<void>("Change speed", 10, 400, 100);
+	ScreenSelector<void> screen_speed			= ScreenSelector<void>(MSG_SCREEN_SPEED, 10, 400, 100);
 
 
 	Screen * GuiBuild()

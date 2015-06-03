@@ -155,16 +155,16 @@
 // LCD Menu Messages
 #if LANGUAGE_CHOICE == 1
 
-const char MSG_NOSD[] PROGMEM                        = "Insert SD Card";
-const char MSG_SD[] PROGMEM                          = "SD Card";
+const char MSG_NOSD[] PROGMEM                        = "Insert SD card";
+const char MSG_SD[] PROGMEM                          = "SD card";
 const char MSG_FILAMENT_UNLOAD[] PROGMEM             = "Unload filament";
 const char MSG_FILAMENT_LOAD[] PROGMEM               = "Load filament";
 const char MSG_LEVELING[] PROGMEM                    = "Level plate";
 const char MSG_HOMING[] PROGMEM                      = "Auto-home";
 const char MSG_STEPPERS[] PROGMEM                    = "Disable steppers";
-const char MSG_STEPPERS_OFF[] PROGMEM                = "Steppers off";
+const char MSG_STEPPERS_OFF[] PROGMEM                = "Steppers disabled";
 const char MSG_MOVEAXIS[] PROGMEM                    = "Move axis";
-const char MSG_TEMPERATURE[] PROGMEM                 = "Temp 0/200C";
+const char MSG_TEMPERATURE[] PROGMEM                 = "Change temperature";
 const char MSG_LIGHTLED_DISABLE[] PROGMEM            = "Led light off";
 const char MSG_LIGHTLED[] PROGMEM                    = "Led light on";
 const char MSG_INFO[] PROGMEM                        = "FW info";
@@ -190,10 +190,10 @@ const char MSG_SCREEN_UNLOAD_HEATING2[] PROGMEM      = "Press to abort";
 const char MSG_SCREEN_UNLOAD_PULL[] PROGMEM          = "Extrude and pull";
 const char MSG_SCREEN_UNLOAD_CONFIRM[] PROGMEM       = "Finished?";
 
-const char MSG_SCREEN_LOAD_SELECT[] PROGMEM          = "Load filament";
-const char MSG_SCREEN_LOAD_HEATING1[] PROGMEM        = "Heating";
-const char MSG_SCREEN_LOAD_HEATING2[] PROGMEM        = "Press to abort";
-const char MSG_SCREEN_LOAD_PRESS[] PROGMEM           = "Insert and press";
+const char MSG_SCREEN_LOAD_TITLE[] PROGMEM           = "Load filament";
+const char MSG_SCREEN_LOAD_ABORT[] PROGMEM           = "Press to abort";
+const char MSG_SCREEN_LOAD_CONTINUE[] PROGMEM        = "Press to continue";
+const char MSG_SCREEN_LOAD_PRESS[] PROGMEM           = "Push to continue";
 const char MSG_SCREEN_LOAD_CONFIRM[] PROGMEM         = "Finished?";
 
 const char MSG_SCREEN_LEVEL_CONFIRM[] PROGMEM        = "Level Plate";
@@ -233,7 +233,7 @@ const char MSG_SCREEN_CHANGE_INSERT[] PROGMEM        = "Insert & press";
 const char MSG_SCREEN_CHANGE_RETRY[] PROGMEM         = "Finished?";
 
 const char MSG_SCREEN_SPEED[] PROGMEM                = "Change speed";
-
+const char MSG_SELECTOR_BOX[] PROGMEM                = "Select a value";
 #endif
 
 
@@ -317,6 +317,7 @@ const char MSG_SCREEN_CHANGE_INSERT[] PROGMEM        = "Insertar & pulsar";
 const char MSG_SCREEN_CHANGE_RETRY[] PROGMEM         = "OK?";
 
 const char MSG_SCREEN_SPEED[] PROGMEM                = "Cambiar velocidad";
+const char MSG_SELECTOR_BOX[] PROGMEM                = "Seleccione un valor";
 
 #endif
 

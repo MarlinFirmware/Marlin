@@ -5,6 +5,8 @@
 #include "Screen.h"
 #include "Functor.h"
 
+#include "language.h"
+
 namespace screen
 {
 	template <typename R, typename... Args>
@@ -85,7 +87,7 @@ namespace screen
 		do
 		{
 			painter.title(m_title);
-			painter.box(m_next_screen->title()); //TEMPORAL
+			painter.box(MSG_SELECTOR_BOX); //TEMPORAL
 
 			uint8_t x_init = painter.coordinateXInit();
 			uint8_t x_end = painter.coordinateXEnd();
