@@ -67,11 +67,26 @@ namespace screen
 			painter.title(m_title);
 			painter.box(m_text);
 
+			uint8_t y_init = painter.coordinateYInit();
+			uint8_t y_end = painter.coordinateYEnd();
+
 			painter.setColorIndex(1);
-			painter.setPrintPos(50, 30);
+			if(m_observed > 99.0)
+			{
+				painter.setPrintPos(31,(y_end + y_init)/2 - 9/2);
+			}
+			else if(m_observed > 9.0)
+			{
+				painter.setPrintPos(37,(y_end + y_init)/2 - 9/2);
+			}
+			else
+			{
+				painter.setPrintPos(43,(y_end + y_init)/2 - 9/2);
+			}
 			painter.print(c_current);
 			painter.print(" / ");
 			painter.print(c_target);
+			
 		} while ( painter.nextPage() );
 	}
 
