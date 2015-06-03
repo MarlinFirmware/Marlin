@@ -219,6 +219,9 @@ const char MSG_SCREEN_MOVE_Y[] PROGMEM               = "Move Y";
 const char MSG_SCREEN_MOVE_Z[] PROGMEM               = "Move Z";
 const char MSG_SCREEN_MOVE_E[] PROGMEM               = "Move Extruder";
 const char MSG_SCREEN_MOVE_2MOVE[] PROGMEM           = "Back";
+const char MSG_SCREEN_MOVE_01MM[] PROGMEM            = "0.1mm";
+const char MSG_SCREEN_MOVE_1MM[] PROGMEM             = "1mm";
+const char MSG_SCREEN_MOVE_10MM[] PROGMEM            = "10mm";
 
 const char MSG_SCREEN_PRINT_PRINTING[] PROGMEM       = "Printing";
 const char MSG_SCREEN_PRINT_PAUSED[] PROGMEM         = "Paused";

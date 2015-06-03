@@ -48,6 +48,18 @@ namespace screen
 	Icon icon_retry               = Icon(icon_size, bits_retry_normal, bits_retry_focused, MSG_RETRY);
 	Icon icon_ok                  = Icon(icon_size, bits_ok_normal, bits_ok_focused, MSG_OK2);
 
+	Icon icon_move_x              = Icon(icon_size, bits_x_axis_normal, bits_x_axis_focused, MSG_SCREEN_MOVE_X);
+	Icon icon_move_y              = Icon(icon_size, bits_y_axis_normal, bits_y_axis_focused, MSG_SCREEN_MOVE_Y);
+	Icon icon_move_z              = Icon(icon_size, bits_z_axis_normal, bits_z_axis_focused, MSG_SCREEN_MOVE_Z);
+	Icon icon_move_e              = Icon(icon_size, bits_e_axis_normal, bits_e_axis_focused, MSG_SCREEN_MOVE_E);
+
+	Icon icon_move_01mm           = Icon(icon_size, bits_01mm_normal, bits_01mm_focused, MSG_SCREEN_MOVE_01MM);
+	Icon icon_move_1mm            = Icon(icon_size, bits_1mm_normal, bits_1mm_focused, MSG_SCREEN_MOVE_1MM);
+	Icon icon_move_10mm           = Icon(icon_size, bits_10mm_normal, bits_10mm_focused, MSG_SCREEN_MOVE_10MM);
+
+
+
+
 	/////////////////////////
 	// Instantiate Screens //
 	/////////////////////////
@@ -84,15 +96,15 @@ namespace screen
 	ScreenStatus<bool, void> screen_stepper   = ScreenStatus<bool, void>(MSG_SCREEN_STEPPER, SteppersManager::setState, &SteppersManager::getInstance());
 	//Move Axis screens
 	ScreenMenu screen_move              = ScreenMenu(MSG_SCREEN_MOVE);
-	ScreenMenu screen_move_back2main    = ScreenMenu(MSG_SCREEN_MOVE_2MAIN);
+	Screen screen_move_back2main        = Screen(MSG_SCREEN_MOVE_2MAIN, Screen::SIMPLE);
 	ScreenMenu screen_move_x            = ScreenMenu(MSG_SCREEN_MOVE_X);
 	ScreenMenu screen_move_y            = ScreenMenu(MSG_SCREEN_MOVE_Y);
 	ScreenMenu screen_move_z            = ScreenMenu(MSG_SCREEN_MOVE_Z);
 	ScreenMenu screen_move_e            = ScreenMenu(MSG_SCREEN_MOVE_E);
-	ScreenMenu screen_move_back2move    = ScreenMenu(MSG_SCREEN_MOVE_2MOVE);
-//	ScreenSelector screen_move_10       = ScreenSelector("Move 10mm", 0, 100, 50);
-//	ScreenSelector screen_move_1        = ScreenSelector("Move 1mm", 0, 100, 50);
-//	ScreenSelector screen_move_01       = ScreenSelector("Move 01mm", 0, 100, 50);
+	Screen screen_move_back2move        = Screen(MSG_SCREEN_MOVE_2MOVE, Screen::SIMPLE);
+	ScreenSelector<void, uint16_t> screen_move_10       = ScreenSelector<void, uint16_t>(MSG_SCREEN_MOVE_10MM, 0, 100, 50, action_set_temperature);
+	ScreenSelector<void, uint16_t> screen_move_1        = ScreenSelector<void, uint16_t>(MSG_SCREEN_MOVE_1MM, 0, 100, 50, action_set_temperature);
+	ScreenSelector<void, uint16_t> screen_move_01       = ScreenSelector<void, uint16_t>(MSG_SCREEN_MOVE_01MM, 0, 100, 50, action_set_temperature);
 	//Temperature
 	ScreenSelector<void, uint16_t> screen_temperature   = ScreenSelector<void, uint16_t>(MSG_SCREEN_TEMP_TITLE, 0, 250, default_temp_change_filament, action_set_temperature);
 	//Light
@@ -183,8 +195,34 @@ namespace screen
 		screen_stepper.icon(icon_steppers);
 		screen_stepper.icon(icon_steppers_off);
 		//Move Axis
-		screen_move.add(screen_main);
+
+		screen_move.add(screen_move_back2main);
+		screen_move.add(screen_move_x);
+		screen_move.add(screen_move_y);
+		screen_move.add(screen_move_z);
+		screen_move.add(screen_move_e);
 		screen_move.icon(icon_moveaxis);
+
+		screen_move_back2main.add(screen_main);
+		screen_move_back2main.icon(icon_back);
+
+		screen_move_back2move.add(screen_move);
+		screen_move_back2move.icon(icon_back);
+
+		screen_move_x.add(screen_move_back2move);
+		screen_move_x.add(screen_move_10);
+		screen_move_x.add(screen_move_1);
+		screen_move_x.add(screen_move_01);
+		screen_move_x.icon(icon_move_x);
+
+		screen_move_y.icon(icon_move_y);
+		screen_move_z.icon(icon_move_z);
+		screen_move_e.icon(icon_move_e);
+
+		screen_move_01.icon(icon_move_01mm);
+		screen_move_1.icon(icon_move_1mm);
+		screen_move_10.icon(icon_move_10mm);
+		//screen_move_e.icon(icon_move_e);
 		//Temperature
 		screen_temperature.add(screen_main);
 		screen_temperature.icon(icon_temperature);
