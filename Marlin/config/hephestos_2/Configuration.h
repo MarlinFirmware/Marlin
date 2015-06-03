@@ -442,8 +442,8 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
     #define COOLDOWN_FAN_SPEED 255
 #endif
 
-#if defined(Z_SAFE_HOMING) || defined(ENABLE_AUTO_BED_LEVELING)
-  #define XY_TRAVEL_SPEED 150//8000		// X and Y axis travel speed between probes and Witbox movements, in mm/min
+#if defined(ENABLE_AUTO_BED_LEVELING) || defined(WITBOX)
+  #define XY_TRAVEL_SPEED 150//8000		// X and Y axis travel speed between probes and Witbox movements, in mm/s
 #endif
 //===========================================================================
 //=============================Additional Features===========================

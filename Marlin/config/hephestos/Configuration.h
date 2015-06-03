@@ -612,7 +612,7 @@ const bool Z_PROBE_ENDSTOP_INVERTING = true; // set to true to invert the logic 
 #endif
 
 #if defined(ENABLE_AUTO_BED_LEVELING) || defined(WITBOX)
-  #define XY_TRAVEL_SPEED 8000 		// X and Y axis travel speed between probes and Witbox movements, in mm/min
+  #define XY_TRAVEL_SPEED 150 		// X and Y axis travel speed between probes and Witbox movements, in mm/s
 #endif
 
 #ifdef HEATED_BED_SUPPORT
