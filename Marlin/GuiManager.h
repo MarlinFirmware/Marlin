@@ -26,9 +26,6 @@
 //
 // Typedefs
 //
-typedef void (*func_t)();
-typedef void (*func_p)(void *);
-typedef void (*view_t)();
 
 //
 // TODO: Review these variables
@@ -51,10 +48,6 @@ void lcd_init();
 
 void lcd_update(bool force = false);
 
-void lcd_set_status_screen();
-void lcd_set_menu(view_t menu);
-void lcd_set_picture(view_t picture);
-void lcd_set_wizard(view_t wizard);
 
 // Get and clear trigger functions
 bool lcd_get_button_updated();
