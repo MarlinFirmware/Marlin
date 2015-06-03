@@ -55,14 +55,6 @@ script:
   - sed -i 's/\/\/#define PIDTEMPBED/#define PIDTEMPBED/g' Marlin/Configuration.h
   - rm -rf .build/
   - ino build -m mega2560 --cppflags="-DHAS_AUTOMATIC_VERSIONING -ffunction-sections -fdata-sections -g -Os -w"
-  # enable THERMAL RUNAWAY PROTECTION for extruders & bed
-  - cp Marlin/Configuration.h.backup Marlin/Configuration.h
-  - sed -i 's/\/\/#define THERMAL_RUNAWAY_PROTECTION_PERIOD/#define THERMAL_RUNAWAY_PROTECTION_PERIOD/g' Marlin/Configuration.h
-  - sed -i 's/\/\/#define THERMAL_RUNAWAY_PROTECTION_HYSTERESIS/#define THERMAL_RUNAWAY_PROTECTION_HYSTERESIS/g' Marlin/Configuration.h
-  - sed -i 's/\/\/#define THERMAL_RUNAWAY_PROTECTION_BED_PERIOD/#define THERMAL_RUNAWAY_PROTECTION_BED_PERIOD/g' Marlin/Configuration.h
-  - sed -i 's/\/\/#define THERMAL_RUNAWAY_PROTECTION_BED_HYSTERESIS/#define THERMAL_RUNAWAY_PROTECTION_BED_HYSTERESIS/g' Marlin/Configuration.h
-  - rm -rf .build/
-  - ino build -m mega2560 --cppflags="-DHAS_AUTOMATIC_VERSIONING -ffunction-sections -fdata-sections -g -Os -w"
   # enable AUTO_BED_LEVELING
   - cp Marlin/Configuration.h.backup Marlin/Configuration.h
   - sed -i 's/\/\/#define ENABLE_AUTO_BED_LEVELING/#define ENABLE_AUTO_BED_LEVELING/g' Marlin/Configuration.h
