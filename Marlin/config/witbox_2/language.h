@@ -220,6 +220,9 @@ const char MSG_SCREEN_MOVE_Z[] PROGMEM               = "Move Z";
 const char MSG_SCREEN_MOVE_E[] PROGMEM               = "Move Extruder";
 const char MSG_SCREEN_MOVE_2MOVE[] PROGMEM           = "Back";
 
+const char MSG_SCREEN_PRINT_PRINTING[] PROGMEM       = "Printing";
+const char MSG_SCREEN_PRINT_PAUSED[] PROGMEM         = "Paused";
+
 const char MSG_SCREEN_TEMP_TITLE[] PROGMEM           = "Change temperature";
 const char MSG_SCREEN_LIGHT[] PROGMEM                = "Led light on";
 const char MSG_SCREEN_INFO[] PROGMEM                 = "FW info";
@@ -305,6 +308,9 @@ const char MSG_SCREEN_MOVE_Y[] PROGMEM               = "Mover Y";
 const char MSG_SCREEN_MOVE_Z[] PROGMEM               = "Mover Z";
 const char MSG_SCREEN_MOVE_E[] PROGMEM               = "Mover extrusor";
 const char MSG_SCREEN_MOVE_2MOVE[] PROGMEM           = "Volver";
+
+const char MSG_SCREEN_PRINT_PRINTING[] PROGMEM       = "Imprimiendo";
+const char MSG_SCREEN_PRINT_PAUSED[] PROGMEM         = "En pausa";
 
 const char MSG_SCREEN_TEMP_TITLE[] PROGMEM           = "Cambiar temperatura";
 const char MSG_SCREEN_LIGHT[] PROGMEM                = "Luces encendidas";

@@ -11,6 +11,7 @@
 #include "ScreenStatus.h"
 #include "ScreenTransition.h"
 #include "ScreenAction.h"
+#include "ScreenPrint.h"
 
 #include "LightManager.h"
 #include "PrintManager.h"
@@ -100,7 +101,7 @@ namespace screen
 	ScreenDialog screen_info            = ScreenDialog(MSG_SCREEN_INFO,MSG_SCREEN_INFO);
 
 	//Print screen
-	ScreenPrint<void> screen_print            = ScreenPrint<void>(MSG_SCREEN_PRINT, action_start_print);
+	ScreenPrint screen_print            = ScreenPrint(MSG_SCREEN_PRINT_PRINTING);
 	//Play/Pause
 	//ScreenStatus screen_play_pause      = ScreenStatus("Pause", action_pause_print);
 	//Stop

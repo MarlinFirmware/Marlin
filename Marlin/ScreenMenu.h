@@ -15,11 +15,11 @@ namespace screen
 
 			void left();
 			void right();
-			void draw();
+			virtual void draw();
 			Screen & press(Screen * parent_view);
 			void add(Screen & component);
 
-		private:
+		protected:
 			uint16_t m_index;
 			uint16_t m_num_items;
 			Screen * m_items[max_items];

@@ -38,11 +38,6 @@ namespace screen
 
 	void ScreenMenu::draw()
 	{
-		/*SERIAL_ECHO(m_title);
-		SERIAL_ECHO(">>>");
-		SERIAL_ECHO(" [");
-		SERIAL_ECHO(m_items[m_index]->title());
-		SERIAL_ECHOLN("] "); 	*/
 		painter.firstPage();
 		do 
 		{
