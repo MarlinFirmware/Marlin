@@ -4,7 +4,7 @@
 namespace screen
 {
 	ScreenMenu::ScreenMenu(const char * title)
-		: Screen((const char *)pgm_read_byte(title), MENU)
+		: Screen(title, MENU)
 		, m_index(0)
 		, m_num_items(0)
 	{ }
