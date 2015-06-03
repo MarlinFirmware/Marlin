@@ -251,7 +251,7 @@ float homing_feedrate[] = HOMING_FEEDRATE;
 bool axis_relative_modes[] = AXIS_RELATIVE_MODES;
 int feedrate_multiplier = 100; //100->1 200->2
 int saved_feedrate_multiplier;
-int extruder_multiply[EXTRUDERS] = ARRAY_BY_EXTRUDERS(100, 100, 100, 100);
+int extruder_multiplier[EXTRUDERS] = ARRAY_BY_EXTRUDERS(100, 100, 100, 100);
 bool volumetric_enabled = false;
 float filament_size[EXTRUDERS] = ARRAY_BY_EXTRUDERS(DEFAULT_NOMINAL_FILAMENT_DIA, DEFAULT_NOMINAL_FILAMENT_DIA, DEFAULT_NOMINAL_FILAMENT_DIA, DEFAULT_NOMINAL_FILAMENT_DIA);
 float volumetric_multiplier[EXTRUDERS] = ARRAY_BY_EXTRUDERS(1.0, 1.0, 1.0, 1.0);
@@ -614,19 +614,19 @@ void setup() {
   MCUSR = 0;
 
   SERIAL_ECHOPGM(MSG_MARLIN);
-  SERIAL_ECHOLNPGM(" " STRING_VERSION);
+  SERIAL_ECHOLNPGM(" " BUILD_VERSION);
 
-  #ifdef STRING_VERSION_CONFIG_H
+  #ifdef STRING_DISTRIBUTION_DATE
     #ifdef STRING_CONFIG_H_AUTHOR
       SERIAL_ECHO_START;
       SERIAL_ECHOPGM(MSG_CONFIGURATION_VER);
-      SERIAL_ECHOPGM(STRING_VERSION_CONFIG_H);
+      SERIAL_ECHOPGM(STRING_DISTRIBUTION_DATE);
       SERIAL_ECHOPGM(MSG_AUTHOR);
       SERIAL_ECHOLNPGM(STRING_CONFIG_H_AUTHOR);
       SERIAL_ECHOPGM("Compiled: ");
       SERIAL_ECHOLNPGM(__DATE__);
     #endif // STRING_CONFIG_H_AUTHOR
-  #endif // STRING_VERSION_CONFIG_H
+  #endif // STRING_DISTRIBUTION_DATE
 
   SERIAL_ECHO_START;
   SERIAL_ECHOPGM(MSG_FREE_MEMORY);
@@ -2437,10 +2437,12 @@ inline void gcode_G28() {
 
 #elif defined(ENABLE_AUTO_BED_LEVELING)
 
-  void out_of_range_error(const char *edge) {
-    char msg[40];
-    sprintf_P(msg, PSTR("?Probe %s position out of range.\n"), edge);
-    SERIAL_PROTOCOL(msg);
+  void out_of_range_error(const char *p_edge) {
+    char edge[10];
+    strncpy_P(edge, p_edge, 10);
+    SERIAL_PROTOCOLPGM("?Probe ");
+    SERIAL_PROTOCOL(edge);
+    SERIAL_PROTOCOLLNPGM(" position out of range.");
   }
 
   /**
@@ -3349,6 +3351,7 @@ inline void gcode_M42() {
  */
 inline void gcode_M104() {
   if (setTargetedHotend(104)) return;
+  if (marlin_debug_flags & DEBUG_DRYRUN) return;
 
   if (code_seen('S')) {
     float temp = code_value();
@@ -3448,6 +3451,7 @@ inline void gcode_M105() {
  */
 inline void gcode_M109() {
   if (setTargetedHotend(109)) return;
+  if (marlin_debug_flags & DEBUG_DRYRUN) return;
 
   LCD_MESSAGEPGM(MSG_HEATING);
 
@@ -3532,6 +3536,8 @@ inline void gcode_M109() {
    *       Rxxx Wait for bed current temp to reach target temp. Waits when heating and cooling
    */
   inline void gcode_M190() {
+    if (marlin_debug_flags & DEBUG_DRYRUN) return;
+
     LCD_MESSAGEPGM(MSG_BED_HEATING);
     no_wait_for_cooling = code_seen('S');
     if (no_wait_for_cooling || code_seen('R'))
@@ -3567,7 +3573,20 @@ inline void gcode_M109() {
  * M111: Set the debug level
  */
 inline void gcode_M111() {
-  marlin_debug_flags = code_seen('S') ? code_value_short() : DEBUG_INFO|DEBUG_ERRORS;
+  marlin_debug_flags = code_seen('S') ? code_value_short() : DEBUG_INFO|DEBUG_COMMUNICATION;
+  
+  SERIAL_ECHO_START;
+  if (marlin_debug_flags & DEBUG_ECHO) SERIAL_ECHOLNPGM(MSG_DEBUG_ECHO);
+  // FOR MOMENT NOT ACTIVE
+  //if (marlin_debug_flags & DEBUG_INFO) SERIAL_ECHOLNPGM(MSG_DEBUG_INFO);
+  //if (marlin_debug_flags & DEBUG_ERRORS) SERIAL_ECHOLNPGM(MSG_DEBUG_ERRORS);
+  if (marlin_debug_flags & DEBUG_DRYRUN) {
+    SERIAL_ECHOLNPGM(MSG_DEBUG_DRYRUN);
+    setTargetBed(0);
+    for (int8_t cur_hotend = 0; cur_hotend < EXTRUDERS; ++cur_hotend) {
+      setTargetHotend(0, cur_hotend);
+    }
+  }
 }
 
 /**
@@ -3605,6 +3624,7 @@ inline void gcode_M112() { kill(PSTR(MSG_KILLED)); }
  * M140: Set bed temperature
  */
 inline void gcode_M140() {
+  if (marlin_debug_flags & DEBUG_DRYRUN) return;
   if (code_seen('S')) setTargetBed(code_value());
 }
 
@@ -4187,10 +4207,10 @@ inline void gcode_M221() {
     int sval = code_value();
     if (code_seen('T')) {
       if (setTargetedHotend(221)) return;
-      extruder_multiply[target_extruder] = sval;
+      extruder_multiplier[target_extruder] = sval;
     }
     else {
-      extruder_multiply[active_extruder] = sval;
+      extruder_multiplier[active_extruder] = sval;
     }
   }
 }
@@ -4637,7 +4657,7 @@ inline void gcode_M400() { st_synchronize(); }
     //SERIAL_PROTOCOLPGM("Filament dia (measured mm):");
     //SERIAL_PROTOCOL(filament_width_meas);
     //SERIAL_PROTOCOLPGM("Extrusion ratio(%):");
-    //SERIAL_PROTOCOL(extruder_multiply[active_extruder]);
+    //SERIAL_PROTOCOL(extruder_multiplier[active_extruder]);
   }
 
   /**
@@ -5170,7 +5190,7 @@ void process_next_command() {
   //  - Overwrite * with nul to mark the end
   while (*current_command == ' ') ++current_command;
   if (*current_command == 'N' && current_command[1] >= '0' && current_command[1] <= '9') {
-    while (*current_command != ' ') ++current_command;
+    while (*current_command != ' ' && *current_command != 'G' && *current_command != 'M' && *current_command != 'T') ++current_command;
     while (*current_command == ' ') ++current_command;
   }
   char *starpos = strchr(current_command, '*');  // * should always be the last parameter
@@ -5908,6 +5928,7 @@ void mesh_plan_buffer_line(float x, float y, float z, const float e, float feed_
 #ifdef PREVENT_DANGEROUS_EXTRUDE
 
   inline void prevent_dangerous_extrude(float &curr_e, float &dest_e) {
+    if (marlin_debug_flags & DEBUG_DRYRUN) return;
     float de = dest_e - curr_e;
     if (de) {
       if (degHotend(active_extruder) < extrude_min_temp) {
