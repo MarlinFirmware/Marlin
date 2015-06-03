@@ -1,5 +1,6 @@
 #include "ScreenList.h"
 #include "cardreader.h"
+#include "language.h"
 
 State_t state;
 Event_t event;
@@ -175,13 +176,13 @@ namespace screen
 				{
 					painter.drawBitmap(painter.coordinateXInit() + 1, painter.coordinateYInit() + i * (max_font_height + 1), little_icon_width, little_icon_height, bits_back_small);
 					painter.setPrintPos(painter.coordinateXInit() + 9, painter.coordinateYInit() + i * (max_font_height + 1));
-					painter.print("Back to main menu");
+					painter.print_P(MSG_SCREEN_SD_LIST_BACK);
 				}
 				else if (m_directory_is_root == false && (m_index + i - window_selector) == 1)
 				{
 					painter.drawBitmap(painter.coordinateXInit() + 1, painter.coordinateYInit() + i * (max_font_height + 1), little_icon_width, little_icon_height, bits_updir_small);
 					painter.setPrintPos(painter.coordinateXInit() + 9, painter.coordinateYInit() + i * (max_font_height + 1));
-					painter.print("Previous folder");
+					painter.print_P(MSG_SCREEN_SD_LIST_PREV);
 				}
 				else
 				{
