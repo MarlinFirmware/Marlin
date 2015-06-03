@@ -30,7 +30,7 @@ void action_homing()
 	SERIAL_ECHOLN("G28");
 }
 
-void action_print()
+void action_start_print()
 {
 	SERIAL_ECHOLN("START PRINT");
 	char cmd[30];
@@ -55,14 +55,6 @@ void action_print()
 	*c = tolower(*c);
 	enquecommand(cmd);
 	enquecommand_P(PSTR("M24"));
-}
-
-void action_pause_print()
-{
-	SERIAL_ECHOLN("PAUSA");
-	lcd_disable_button();
-	stop_buffer = true;
-	stop_buffer_code = 1;
 }
 
 void action_stop_print()
@@ -119,3 +111,14 @@ void action_stop_print()
 		cancel_heatup = true;
 	}
 }
+
+void action_pause_print()
+{
+	SERIAL_ECHOLN("PAUSA");
+	lcd_disable_button();
+	stop_buffer = true;
+	stop_buffer_code = 1;
+}
+
+void action_resume_print()
+{ }
