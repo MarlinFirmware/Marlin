@@ -183,10 +183,12 @@ const char MSG_SCREEN_MAIN[] PROGMEM                 = "";
 const char MSG_SCREEN_SD_LIST[] PROGMEM              = "SD Card";
 const char MSG_SCREEN_SD_CONFIRM[] PROGMEM           = "Confirm Print";
 const char MSG_SCREEN_SD_BACK[] PROGMEM              = "Back";
+const char MSG_SCREEN_SD_LIST_BACK[] PROGMEM         = "Back to main menu";
+const char MSG_SCREEN_SD_LIST_PREV[] PROGMEM         = "Previous folder";
 
-const char MSG_SCREEN_UNLOAD_SELECT[] PROGMEM        = "Unload filament";
-const char MSG_SCREEN_UNLOAD_HEATING1[] PROGMEM      = "Heating";
-const char MSG_SCREEN_UNLOAD_HEATING2[] PROGMEM      = "Press to abort";
+const char MSG_SCREEN_UNLOAD_TITLE[] PROGMEM         = "Unload filament";
+const char MSG_SCREEN_UNLOAD_ABORT[] PROGMEM         = "Press to abort";
+const char MSG_SCREEN_UNLOAD_CONTINUE[] PROGMEM      = "Press to continue";
 const char MSG_SCREEN_UNLOAD_PULL[] PROGMEM          = "Extrude and pull";
 const char MSG_SCREEN_UNLOAD_CONFIRM[] PROGMEM       = "Finished?";
 
@@ -196,9 +198,10 @@ const char MSG_SCREEN_LOAD_CONTINUE[] PROGMEM        = "Press to continue";
 const char MSG_SCREEN_LOAD_PRESS[] PROGMEM           = "Push to continue";
 const char MSG_SCREEN_LOAD_CONFIRM[] PROGMEM         = "Finished?";
 
-const char MSG_SCREEN_LEVEL_CONFIRM[] PROGMEM        = "Level Plate";
-const char MSG_SCREEN_LEVEL_COOLING1[] PROGMEM       = "Cooling";
-const char MSG_SCREEN_LEVEL_COOLING2[] PROGMEM       = "Be patient";
+const char MSG_SCREEN_LEVEL_TITLE[] PROGMEM          = "Level Plate";
+const char MSG_SCREEN_LEVEL_ABORT[] PROGMEM          = "Push to abort";
+const char MSG_SCREEN_LEVEL_CONTINUE[] PROGMEM       = "Push to continue";
+
 const char MSG_SCREEN_LEVEL1[] PROGMEM               = "Screen1";
 const char MSG_SCREEN_LEVEL2[] PROGMEM               = "Screen2";
 const char MSG_SCREEN_LEVEL3[] PROGMEM               = "Screen3";
@@ -217,7 +220,7 @@ const char MSG_SCREEN_MOVE_Z[] PROGMEM               = "Move Z";
 const char MSG_SCREEN_MOVE_E[] PROGMEM               = "Move Extruder";
 const char MSG_SCREEN_MOVE_2MOVE[] PROGMEM           = "Back";
 
-const char MSG_SCREEN_TEMP[] PROGMEM                 = "Temp 0/200C";
+const char MSG_SCREEN_TEMP_TITLE[] PROGMEM           = "Change temperature";
 const char MSG_SCREEN_LIGHT[] PROGMEM                = "Led light on";
 const char MSG_SCREEN_INFO[] PROGMEM                 = "FW info";
 const char MSG_SCREEN_PRINT[] PROGMEM                = "Confirm";
@@ -234,6 +237,7 @@ const char MSG_SCREEN_CHANGE_RETRY[] PROGMEM         = "Finished?";
 
 const char MSG_SCREEN_SPEED[] PROGMEM                = "Change speed";
 const char MSG_SELECTOR_BOX[] PROGMEM                = "Select a value";
+const char MSG_OK1[] PROGMEM                         = "OK";
 #endif
 
 
@@ -268,21 +272,22 @@ const char MSG_SCREEN_SD_LIST[] PROGMEM              = "Tarjeta SD";
 const char MSG_SCREEN_SD_CONFIRM[] PROGMEM           = "Confirmar Impresión";
 const char MSG_SCREEN_SD_BACK[] PROGMEM              = "Volver";
 
-const char MSG_SCREEN_UNLOAD_SELECT[] PROGMEM        = "Descargar filamento";
-const char MSG_SCREEN_UNLOAD_HEATING1[] PROGMEM      = "Calentando";
-const char MSG_SCREEN_UNLOAD_HEATING2[] PROGMEM      = "Pulse para cancelar";
-const char MSG_SCREEN_UNLOAD_PULL[] PROGMEM          = "Extruir & expulsar";
-const char MSG_SCREEN_UNLOAD_CONFIRM[] PROGMEM       = "OK?";
+const char MSG_SCREEN_UNLOAD_TITLE[] PROGMEM         = "Descargar filamento";
+const char MSG_SCREEN_UNLOAD_ABORT[] PROGMEM         = "Pulse para cancelar";
+const char MSG_SCREEN_UNLOAD_CONTINUE[] PROGMEM      = "Pulse para continuar";
+const char MSG_SCREEN_UNLOAD_PULL[] PROGMEM          = "Extruir y sacar";
+const char MSG_SCREEN_UNLOAD_CONFIRM[] PROGMEM       = "Finished?";
 
-const char MSG_SCREEN_LOAD_SELECT[] PROGMEM          = "Cargar filamento";
-const char MSG_SCREEN_LOAD_HEATING1[] PROGMEM        = "Calentando";
-const char MSG_SCREEN_LOAD_HEATING2[] PROGMEM        = "Pulse para cancelar";
-const char MSG_SCREEN_LOAD_PRESS[] PROGMEM           = "Insertar & pulsar";
-const char MSG_SCREEN_LOAD_CONFIRM[] PROGMEM         = "OK?";
+const char MSG_SCREEN_LOAD_TITLE[] PROGMEM           = "Cargar filamento";
+const char MSG_SCREEN_LOAD_ABORT[] PROGMEM           = "Pulse para cancelar";
+const char MSG_SCREEN_LOAD_CONTINUE[] PROGMEM        = "Pulse para continuar";
+const char MSG_SCREEN_LOAD_PRESS[] PROGMEM           = "Push to continue";
+const char MSG_SCREEN_LOAD_CONFIRM[] PROGMEM         = "Finished?";
 
-const char MSG_SCREEN_LEVEL_CONFIRM[] PROGMEM        = "Nivelar base";
-const char MSG_SCREEN_LEVEL_COOLING1[] PROGMEM       = "Enfriando";
-const char MSG_SCREEN_LEVEL_COOLING2[] PROGMEM       = "Sea paciente";
+const char MSG_SCREEN_LEVEL_TITLE[] PROGMEM          = "Level Plate";
+const char MSG_SCREEN_LEVEL_ABORT[] PROGMEM          = "Push to abort";
+const char MSG_SCREEN_LEVEL_CONTINUE[] PROGMEM       = "Push to continue";
+
 const char MSG_SCREEN_LEVEL1[] PROGMEM               = "Pantalla1";
 const char MSG_SCREEN_LEVEL2[] PROGMEM               = "Pantalla2";
 const char MSG_SCREEN_LEVEL3[] PROGMEM               = "Pantalla3";
@@ -301,7 +306,7 @@ const char MSG_SCREEN_MOVE_Z[] PROGMEM               = "Mover Z";
 const char MSG_SCREEN_MOVE_E[] PROGMEM               = "Mover extrusor";
 const char MSG_SCREEN_MOVE_2MOVE[] PROGMEM           = "Volver";
 
-const char MSG_SCREEN_TEMP[] PROGMEM                 = "Temp 0/200C";
+const char MSG_SCREEN_TEMP_TITLE[] PROGMEM           = "Cambiar temperatura";
 const char MSG_SCREEN_LIGHT[] PROGMEM                = "Luces encendidas";
 const char MSG_SCREEN_INFO[] PROGMEM                 = "FW info";
 const char MSG_SCREEN_PRINT[] PROGMEM                = "Confirmar";
@@ -318,6 +323,7 @@ const char MSG_SCREEN_CHANGE_RETRY[] PROGMEM         = "OK?";
 
 const char MSG_SCREEN_SPEED[] PROGMEM                = "Cambiar velocidad";
 const char MSG_SELECTOR_BOX[] PROGMEM                = "Seleccione un valor";
+const char MSG_OK1[] PROGMEM                         = "OK";
 
 #endif
 

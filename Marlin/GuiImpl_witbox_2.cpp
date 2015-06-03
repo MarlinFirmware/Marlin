@@ -97,7 +97,7 @@ namespace screen
 	//Light
 	ScreenStatus<bool, void> screen_light = ScreenStatus<bool, void>(MSG_SCREEN_LIGHT, LightManager::setState, &LightManager::getInstance());
 	//Info
-	ScreenDialog screen_info            = ScreenDialog("",MSG_SCREEN_INFO);
+	ScreenDialog screen_info            = ScreenDialog(MSG_SCREEN_INFO,MSG_SCREEN_INFO);
 
 	//Print screen
 	ScreenPrint<void> screen_print            = ScreenPrint<void>(MSG_SCREEN_PRINT, action_start_print);
