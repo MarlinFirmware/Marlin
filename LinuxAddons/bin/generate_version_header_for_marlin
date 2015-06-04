@@ -13,8 +13,8 @@ echo "#define BUILD_UNIX_DATETIME" `date +%s` >>"$OUTFILE"
 echo "#define STRING_DISTRIBUTION_DATE" `date '+"%Y-%m-%d %H:%M"'` >>"$OUTFILE"
 ( set +e
   cd "$DIR"
-  BRANCH=`git symbolic-ref --short HEAD`
-  if [ "x$BRANCH" == "xHEAD" ] ; then
+  BRANCH=`git symbolic-ref -q --short HEAD`
+  if [ "x$BRANCH" == "x" ] ; then
     BRANCH=""
   elif [ "x$BRANCH" == "xDevelopment" ] ; then
     BRANCH=" dev"
@@ -31,5 +31,4 @@ echo "#define STRING_DISTRIBUTION_DATE" `date '+"%Y-%m-%d %H:%M"'` >>"$OUTFILE"
     echo "// Deprecated URL definition" >>"$OUTFILE"
     echo "#define FIRMWARE_URL  \""$URL"\"" >>"$OUTFILE"
   fi
-  
 )
