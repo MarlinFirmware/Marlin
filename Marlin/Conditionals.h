@@ -36,7 +36,6 @@
       #ifdef ELB_FULL_GRAPHIC_CONTROLLER_SDCARDDETECTINVERTED
         #define SDCARDDETECTINVERTED
       #endif
-      #define SDSLOW
       #define U8GLIB_LM6059_AF
     #endif
 
