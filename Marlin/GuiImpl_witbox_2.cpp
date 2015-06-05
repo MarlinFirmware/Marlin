@@ -22,16 +22,18 @@
 
 namespace screen
 {
-	Size icon_size = Size(icon_width, icon_height);
 	///////////////////////
 	// Instantiate Icons //
 	///////////////////////
+	Size icon_size = Size(icon_width, icon_height);
+
 	Icon icon_nosd                = Icon(icon_size, bits_nosd_normal, bits_nosd_focused, MSG_NOSD);
 	Icon icon_sd                  = Icon(icon_size, bits_sd_normal, bits_sd_focused, MSG_SD);
 	Icon icon_filament_unload     = Icon(icon_size, bits_filament_unload_normal, bits_filament_unload_focused, MSG_FILAMENT_UNLOAD);
 	Icon icon_filament_load       = Icon(icon_size, bits_filament_load_normal, bits_filament_load_focused, MSG_FILAMENT_LOAD);
 	Icon icon_leveling            = Icon(icon_size, bits_leveling_normal, bits_leveling_focused, MSG_LEVELING);
 	Icon icon_homing              = Icon(icon_size, bits_homing_normal, bits_homing_focused, MSG_HOMING);
+	Icon icon_settings            = Icon(icon_size, bits_settings_normal, bits_settings_focused, MSG_SETTINGS);
 	Icon icon_steppers            = Icon(icon_size, bits_steppers_normal, bits_steppers_focused, MSG_STEPPERS);
 	Icon icon_steppers_off        = Icon(icon_size, bits_steppers_off_normal, bits_steppers_off_focused, MSG_STEPPERS_OFF);
 	Icon icon_moveaxis            = Icon(icon_size, bits_moveaxis_normal, bits_moveaxis_focused, MSG_MOVEAXIS);
@@ -47,17 +49,13 @@ namespace screen
 	Icon icon_back                = Icon(icon_size, bits_back_normal, bits_back_focused, MSG_BACK);
 	Icon icon_retry               = Icon(icon_size, bits_retry_normal, bits_retry_focused, MSG_RETRY);
 	Icon icon_ok                  = Icon(icon_size, bits_ok_normal, bits_ok_focused, MSG_OK2);
-
 	Icon icon_move_x              = Icon(icon_size, bits_x_axis_normal, bits_x_axis_focused, MSG_SCREEN_MOVE_X);
 	Icon icon_move_y              = Icon(icon_size, bits_y_axis_normal, bits_y_axis_focused, MSG_SCREEN_MOVE_Y);
 	Icon icon_move_z              = Icon(icon_size, bits_z_axis_normal, bits_z_axis_focused, MSG_SCREEN_MOVE_Z);
 	Icon icon_move_e              = Icon(icon_size, bits_e_axis_normal, bits_e_axis_focused, MSG_SCREEN_MOVE_E);
-
 	Icon icon_move_01mm           = Icon(icon_size, bits_01mm_normal, bits_01mm_focused, MSG_SCREEN_MOVE_01MM);
 	Icon icon_move_1mm            = Icon(icon_size, bits_1mm_normal, bits_1mm_focused, MSG_SCREEN_MOVE_1MM);
 	Icon icon_move_10mm           = Icon(icon_size, bits_10mm_normal, bits_10mm_focused, MSG_SCREEN_MOVE_10MM);
-
-
 
 
 	/////////////////////////
@@ -92,11 +90,12 @@ namespace screen
 	ScreenMenu screen_level_retry       = ScreenMenu(MSG_SCREEN_LEVEL_RETRY);
 	//AutoHome
 	ScreenAction<void> screen_autohome = ScreenAction<void>(MSG_SCREEN_AUTOHOME, action_homing);
+	//Settings
+	ScreenMenu screen_settings          = ScreenMenu(MSG_SCREEN_SETTINGS);
 	//Steppers
 	ScreenStatus<bool, void> screen_stepper   = ScreenStatus<bool, void>(MSG_SCREEN_STEPPER, SteppersManager::setState, &SteppersManager::getInstance());
 	//Move Axis screens
 	ScreenMenu screen_move              = ScreenMenu(MSG_SCREEN_MOVE);
-	Screen screen_move_back2main        = Screen(MSG_SCREEN_MOVE_2MAIN, Screen::SIMPLE);
 	ScreenMenu screen_move_x            = ScreenMenu(MSG_SCREEN_MOVE_X);
 	ScreenMenu screen_move_y            = ScreenMenu(MSG_SCREEN_MOVE_Y);
 	ScreenMenu screen_move_z            = ScreenMenu(MSG_SCREEN_MOVE_Z);
@@ -107,6 +106,8 @@ namespace screen
 	ScreenSelector<void, uint16_t> screen_move_01       = ScreenSelector<void, uint16_t>(MSG_SCREEN_MOVE_01MM, 0, 100, 50, action_set_temperature);
 	//Temperature
 	ScreenSelector<void, uint16_t> screen_temperature   = ScreenSelector<void, uint16_t>(MSG_SCREEN_TEMP_TITLE, 0, 250, default_temp_change_filament, action_set_temperature);
+	//Back to main
+	Screen screen_back2main             = Screen(MSG_SCREEN_BACK2MAIN, Screen::SIMPLE);
 	//Light
 	ScreenStatus<bool, void> screen_light = ScreenStatus<bool, void>(MSG_SCREEN_LIGHT, LightManager::setState, &LightManager::getInstance());
 	//Info
@@ -139,10 +140,10 @@ namespace screen
 		screen_main.add(screen_load_select);
 		screen_main.add(screen_level_confirm);
 		screen_main.add(screen_autohome);
-		screen_main.add(screen_stepper);
+		screen_main.add(screen_settings);
 		screen_main.add(screen_move);
+		screen_main.add(screen_stepper);
 		screen_main.add(screen_temperature);
-		screen_main.add(screen_light);
 		screen_main.add(screen_info);
 		//SD Card List
 		screen_SD_list.add(screen_main);
@@ -190,21 +191,22 @@ namespace screen
 		//AutoHome
 		screen_autohome.add(screen_main);
 		screen_autohome.icon(icon_homing);
+		//Settings
+		screen_settings.add(screen_back2main);
+		screen_settings.add(screen_light);
+		screen_settings.add(screen_info);
+		screen_settings.icon(icon_settings);
 		//Stepper
 		screen_stepper.add(screen_main);
 		screen_stepper.icon(icon_steppers);
 		screen_stepper.icon(icon_steppers_off);
 		//Move Axis
-
-		screen_move.add(screen_move_back2main);
+		screen_move.add(screen_back2main);
 		screen_move.add(screen_move_x);
 		screen_move.add(screen_move_y);
 		screen_move.add(screen_move_z);
 		screen_move.add(screen_move_e);
 		screen_move.icon(icon_moveaxis);
-
-		screen_move_back2main.add(screen_main);
-		screen_move_back2main.icon(icon_back);
 
 		screen_move_back2move.add(screen_move);
 		screen_move_back2move.icon(icon_back);
@@ -239,6 +241,9 @@ namespace screen
 		//Temperature
 		screen_temperature.add(screen_main);
 		screen_temperature.icon(icon_temperature);
+		//Back to main
+		screen_back2main.add(screen_main);
+		screen_back2main.icon(icon_back);
 		//Light
 		screen_light.add(screen_main);
 		screen_light.icon(icon_lightled_disable);

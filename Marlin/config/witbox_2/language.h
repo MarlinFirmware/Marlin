@@ -161,6 +161,7 @@ const char MSG_FILAMENT_UNLOAD[] PROGMEM             = "Unload filament";
 const char MSG_FILAMENT_LOAD[] PROGMEM               = "Load filament";
 const char MSG_LEVELING[] PROGMEM                    = "Level plate";
 const char MSG_HOMING[] PROGMEM                      = "Auto-home";
+const char MSG_SETTINGS[] PROGMEM                    = "Settings";
 const char MSG_STEPPERS[] PROGMEM                    = "Disable steppers";
 const char MSG_STEPPERS_OFF[] PROGMEM                = "Steppers disabled";
 const char MSG_MOVEAXIS[] PROGMEM                    = "Move axis";
@@ -209,11 +210,11 @@ const char MSG_SCREEN_LEVEL4[] PROGMEM               = "Screen4";
 const char MSG_SCREEN_LEVEL_RETRY[] PROGMEM          = "Finished?";
 
 const char MSG_SCREEN_AUTOHOME[] PROGMEM             = "Auto-home";
-
+const char MSG_SCREEN_SETTINGS[] PROGMEM             = "Settings";
 const char MSG_SCREEN_STEPPER[] PROGMEM              = "Steppers on";
 
 const char MSG_SCREEN_MOVE[] PROGMEM                 = "Move axis";
-const char MSG_SCREEN_MOVE_2MAIN[] PROGMEM           = "Back";
+const char MSG_SCREEN_BACK2MAIN[] PROGMEM            = "Back";
 const char MSG_SCREEN_MOVE_X[] PROGMEM               = "Move X";
 const char MSG_SCREEN_MOVE_Y[] PROGMEM               = "Move Y";
 const char MSG_SCREEN_MOVE_Z[] PROGMEM               = "Move Z";
@@ -255,6 +256,7 @@ const char MSG_FILAMENT_UNLOAD[] PROGMEM             = "Expulsar filamento";
 const char MSG_FILAMENT_LOAD[] PROGMEM               = "Insertar filamento";
 const char MSG_LEVELING[] PROGMEM                    = "Nivelar base";
 const char MSG_HOMING[] PROGMEM                      = "Auto-home";
+const char MSG_SETTINGS[] PROGMEM                    = "Configuracion";
 const char MSG_STEPPERS[] PROGMEM                    = "Desactivar motores";
 const char MSG_STEPPERS_OFF[] PROGMEM                = "Motores desactivados";
 const char MSG_MOVEAXIS[] PROGMEM                    = "Mover ejes";
@@ -301,11 +303,11 @@ const char MSG_SCREEN_LEVEL4[] PROGMEM               = "Pantalla4";
 const char MSG_SCREEN_LEVEL_RETRY[] PROGMEM          = "OK?";
 
 const char MSG_SCREEN_AUTOHOME[] PROGMEM             = "Auto-home";
-
+const char MSG_SCREEN_SETTINGS[] PROGMEM             = "Settings";
 const char MSG_SCREEN_STEPPER[] PROGMEM              = "Motores activos";
 
 const char MSG_SCREEN_MOVE[] PROGMEM                 = "Mover ejes";
-const char MSG_SCREEN_MOVE_2MAIN[] PROGMEM           = "Volver";
+const char MSG_SCREEN_BACK2MAIN[] PROGMEM            = "Volver";
 const char MSG_SCREEN_MOVE_X[] PROGMEM               = "Mover X";
 const char MSG_SCREEN_MOVE_Y[] PROGMEM               = "Mover Y";
 const char MSG_SCREEN_MOVE_Z[] PROGMEM               = "Mover Z";
