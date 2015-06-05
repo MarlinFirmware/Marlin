@@ -2,13 +2,10 @@
 #define SCREEN_H
 
 #include <new.h>
-
 #include <stdint.h>
-#include "Marlin.h"
+
 #include "Icon.h"
 #include "GuiPainter.h"
-
-static void do_nothing(){};
 
 namespace screen
 {

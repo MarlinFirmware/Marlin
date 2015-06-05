@@ -1,6 +1,8 @@
 #ifndef FUNCTOR_H
 #define FUNCTOR_H
 
+static void do_nothing() {};
+
 template <typename R, typename... Args>
 class Functor
 {
