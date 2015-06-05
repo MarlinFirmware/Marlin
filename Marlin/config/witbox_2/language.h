@@ -305,7 +305,7 @@ const char MSG_SCREEN_LEVEL4[] PROGMEM               = "Pantalla4";
 const char MSG_SCREEN_LEVEL_RETRY[] PROGMEM          = "OK?";
 
 const char MSG_SCREEN_AUTOHOME[] PROGMEM             = "Auto-home";
-const char MSG_SCREEN_SETTINGS[] PROGMEM             = "Settings";
+const char MSG_SCREEN_SETTINGS[] PROGMEM             = "Configuracion";
 const char MSG_SCREEN_STEPPER[] PROGMEM              = "Motores activos";
 
 const char MSG_SCREEN_MOVE[] PROGMEM                 = "Mover ejes";
