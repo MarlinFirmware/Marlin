@@ -215,8 +215,21 @@ namespace screen
 		screen_move_x.add(screen_move_01);
 		screen_move_x.icon(icon_move_x);
 
+		screen_move_y.add(screen_move_back2move);
+		screen_move_y.add(screen_move_10);
+		screen_move_y.add(screen_move_1);
+		screen_move_y.add(screen_move_01);
 		screen_move_y.icon(icon_move_y);
+
+		screen_move_z.add(screen_move_back2move);
+		screen_move_z.add(screen_move_10);
+		screen_move_z.add(screen_move_1);
+		screen_move_z.add(screen_move_01);
 		screen_move_z.icon(icon_move_z);
+
+		screen_move_e.add(screen_move_back2move);
+		screen_move_e.add(screen_move_1);
+		screen_move_e.add(screen_move_01);
 		screen_move_e.icon(icon_move_e);
 
 		screen_move_01.icon(icon_move_01mm);
