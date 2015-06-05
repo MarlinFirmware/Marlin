@@ -1535,13 +1535,16 @@ void process_commands()
 
       enable_endstops(true);
 
-      			#ifdef Z_SAFE_HOMING
-      			//Extruder is raised before do the homing routine
-      			destination[Z_AXIS] = 10 * home_dir(Z_AXIS) * (-1);
-	      		feedrate = max_feedrate[Z_AXIS];
-	      		plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate, active_extruder);
-	      		st_synchronize();
-	      		#endif
+				#ifdef Z_SAFE_HOMING
+					//Extruder is raised before do the homing routine
+					for(int8_t i=0; i < NUM_AXIS; i++) {
+						destination[i] = current_position[i];
+					}
+					destination[Z_AXIS] = current_position[Z_AXIS] + 5; 
+					feedrate = max_feedrate[Z_AXIS];
+					plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate, active_extruder);
+					st_synchronize();
+				#endif
 
       for(int8_t i=0; i < NUM_AXIS; i++) {
         destination[i] = current_position[i];
@@ -3933,13 +3936,16 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
     			lcd_disable_interrupt();
     			enable_endstops(true);
 
-    			#ifdef Z_SAFE_HOMING
-      			//Extruder is raised before do the homing routine
-      			destination[Z_AXIS] = 10 * home_dir(Z_AXIS) * (-1);
-	      		feedrate = max_feedrate[Z_AXIS];
-	      		plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate, active_extruder);
-	      		st_synchronize();
-	      		#endif
+				#ifdef Z_SAFE_HOMING
+					//Extruder is raised before do the homing routine
+					for(int8_t i=0; i < NUM_AXIS; i++) {
+						destination[i] = current_position[i];
+					}
+					destination[Z_AXIS] = current_position[Z_AXIS] + 5; 
+					feedrate = max_feedrate[Z_AXIS];
+					plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate, active_extruder);
+					st_synchronize();
+				#endif
 
       			for(int8_t i=0; i < NUM_AXIS; i++) {
 					destination[i] = current_position[i];
