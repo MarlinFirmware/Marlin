@@ -4058,7 +4058,7 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
 	  					current_position[Z_AXIS]=code_value()+add_homing[2];
 					}
       			}
-      			#ifdef ENABLE_AUTO_BED_LEVELING
+      			#ifdef Z_SAFE_HOMING
 					if((home_all_axis) || (code_seen(axis_codes[Z_AXIS]))) {
 	  					current_position[Z_AXIS] += zprobe_zoffset;  //Add Z_Probe offset (the distance is negative)
 					}
@@ -4105,11 +4105,7 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
     				#endif
     			#endif
 
-    			#ifdef Z_SAFE_HOMING
-    				do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], Z_PROBE_OFFSET_FROM_EXTRUDER);
-  				#else
-  					do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], Z_MIN_POS);
-  				#endif
+    			do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], Z_MIN_POS);
 
     			lcd_clear_triggered_flags();
     			while(!LCD_CLICKED) {          
@@ -4136,11 +4132,7 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
     				#endif
     			#endif
 
-    			#ifdef Z_SAFE_HOMING
-    				do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], Z_PROBE_OFFSET_FROM_EXTRUDER);
-  				#else
-  					do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], Z_MIN_POS);
-  				#endif
+    			do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], Z_MIN_POS);
   	  
     			lcd_clear_triggered_flags();
   				while(!LCD_CLICKED) {
@@ -4169,11 +4161,7 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
     				#endif
     			#endif
   				
-  				#ifdef Z_SAFE_HOMING
-    				do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], Z_PROBE_OFFSET_FROM_EXTRUDER);
-  				#else
-  					do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], Z_MIN_POS);
-  				#endif
+    			do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], Z_MIN_POS);
 
     			lcd_clear_triggered_flags();
   	 			while(!LCD_CLICKED) {
@@ -4194,11 +4182,7 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
     				#endif
     			#endif
 
-    			#ifdef Z_SAFE_HOMING
-	    			do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], Z_PROBE_OFFSET_FROM_EXTRUDER);
-	  			#else
-	  				do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], Z_MIN_POS);
-	  			#endif
+	    		do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], Z_MIN_POS);
   	
     			lcd_clear_triggered_flags();
     			while(!LCD_CLICKED){
@@ -4217,11 +4201,7 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
     				do_blocking_move_to((X_MAX_POS-X_MIN_POS)/2, (Y_MAX_POS-Y_MIN_POS)/2, current_position[Z_AXIS]);
   				#endif
 
-  				#ifdef Z_SAFE_HOMING
-    				do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], Z_PROBE_OFFSET_FROM_EXTRUDER);
-  				#else
   					do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], Z_MIN_POS);
-  				#endif
   	      
     			lcd_clear_triggered_flags();
   				while(!LCD_CLICKED){                  
@@ -4233,8 +4213,6 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
     			lcd_update();
   		
   				do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS],Z_MIN_POS+50);
-  				do_blocking_move_to(10, 10, current_position[Z_AXIS]);
-  				//do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS],Z_MIN_POS);
     			lcd_wizard_set_page(7);
     			lcd_update();      
     			lcd_enable_display_timeout();
