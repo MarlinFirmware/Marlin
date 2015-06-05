@@ -279,6 +279,8 @@ const char MSG_SCREEN_MAIN[] PROGMEM                 = "";
 const char MSG_SCREEN_SD_LIST[] PROGMEM              = "Tarjeta SD";
 const char MSG_SCREEN_SD_CONFIRM[] PROGMEM           = "Confirmar Impresion";
 const char MSG_SCREEN_SD_BACK[] PROGMEM              = "Volver";
+const char MSG_SCREEN_SD_LIST_BACK[] PROGMEM         = "Volver al menu";
+const char MSG_SCREEN_SD_LIST_PREV[] PROGMEM         = "Carpeta anterior";
 
 const char MSG_SCREEN_UNLOAD_TITLE[] PROGMEM         = "Descargar filamento";
 const char MSG_SCREEN_UNLOAD_ABORT[] PROGMEM         = "Pulse para cancelar";
