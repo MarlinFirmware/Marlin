@@ -8,6 +8,7 @@
 
 #include "Screen.h"
 #include "GuiImpl_witbox_2.h"
+#include "ViewManager.h"
 
 /////////////////////////////////////////////////////////////////////////
 //                          Marlin interface                           //
@@ -24,7 +25,7 @@ int absPreheatHPBTemp;
 int absPreheatFanSpeed;
 
 
-screen::Screen * active_view;
+//screen::Screen * active_view;
 
 /*******************************************************************************
 **   Variables
@@ -137,8 +138,8 @@ void lcd_init()
     lcd_get_button_updated();
     lcd_get_button_clicked();
 
-    active_view = screen::GuiBuild();
-    active_view->draw();
+    screen::ViewManager::getInstance().activeView(screen::GuiBuild());
+    screen::ViewManager::getInstance().activeView()->draw();
     
     SERIAL_ECHOLN("LCD initialized!");
 }
@@ -260,22 +261,23 @@ void lcd_update(bool force)
     // Manage the events triggered in ISR (Timer 5 Overflow)
     for (int8_t times = lcd_get_encoder_right(); times > 0; times--)
     {
-        active_view->right();
+        screen::ViewManager::getInstance().activeView()->right();
     }
 
     for (int8_t times = lcd_get_encoder_left(); times > 0; times--)
     {
-        active_view->left();
+        screen::ViewManager::getInstance().activeView()->left();
     }
 
     if (lcd_get_button_clicked())
     {
-        active_view = &active_view->press(active_view);
-        active_view->init();
+        //active_view = &active_view->press(active_view);
+        screen::ViewManager::getInstance().activeView(
+            &screen::ViewManager::getInstance().activeView()->press(screen::ViewManager::getInstance().activeView()));
     }
 
     // Refresh the content of the display
-    active_view->draw();
+    screen::ViewManager::getInstance().activeView()->draw();
 }
 
 // Get and clear trigger functions
