@@ -1,8 +1,9 @@
 #include "GuiPainter.h"
 #include "GuiBitmaps_witbox_2.h"
-#include "cardreader.h"
 
 #include <avr/pgmspace.h>
+
+#include "PrintManager.h"
 
 extern "C" void	atexit( void ) { }
 
@@ -73,7 +74,7 @@ namespace screen
 		coordinateXInit(x_init + (strlen(itostr3left(percentage))+strlen("%"))*6 + 7+1);
 		x_init = coordinateXInit();
 
-		if ( (card.sdprinting) )
+		if (PrintManager::getInstance().state() == PRINTING)
 		{
 			setColorIndex(1);
 			setFont(u8g_font_6x9);

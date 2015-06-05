@@ -231,7 +231,7 @@ const char axis_codes[NUM_AXIS] = {'X', 'Y', 'Z', 'E'};
 static float destination[NUM_AXIS] = {  0.0, 0.0, 0.0, 0.0};
 static float offset[3] = {0.0, 0.0, 0.0};
 static bool home_all_axis = true;
-static float feedrate = 1500.0, next_feedrate, saved_feedrate;
+float feedrate = 1500.0, next_feedrate, saved_feedrate;
 static long gcode_N, gcode_LastN, Stopped_gcode_LastN = 0;
 
 static bool relative_mode = false;  //Determines Absolute or Relative Coordinates
@@ -262,6 +262,9 @@ bool Stopped=false;
 
 bool CooldownNoWait = true;
 bool target_direction;
+
+float target[4];
+float lastpos[4];
 
 
 //===========================================================================
@@ -1417,9 +1420,6 @@ void process_commands()
 				break;
 
     		case 25: //M25 - Pause SD print
-				float target[4];
-				float lastpos[4];
-
 				target[X_AXIS]=current_position[X_AXIS];
 				target[Y_AXIS]=current_position[Y_AXIS];
 				target[Z_AXIS]=current_position[Z_AXIS];
@@ -1451,6 +1451,7 @@ void process_commands()
 				lcd_update();
 				lcd_enable_button();
 
+#ifndef DOGLCD
       			while(!LCD_CLICKED){
 					lcd_update();
 					manage_heater();
@@ -1470,6 +1471,7 @@ void process_commands()
 
 				lcd_enable_button();
 				stop_buffer = false;
+#endif //DOGLCD
 				break;
 
 			case 26: //M26 - Set SD index

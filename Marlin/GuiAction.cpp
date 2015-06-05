@@ -3,7 +3,6 @@
 #include "Marlin.h"
 #include "cardreader.h"
 #include "ConfigurationStore.h"
-//#include "temperature.h"
 #include "planner.h"
 #include "stepper.h"
 #include "language.h"
@@ -112,13 +111,29 @@ void action_stop_print()
 	}
 }
 
+extern float target[4];
+extern float lastpos[4];
+
 void action_pause_print()
 {
-	SERIAL_ECHOLN("PAUSA");
 	lcd_disable_button();
+	card.sdprinting = false;
 	stop_buffer = true;
 	stop_buffer_code = 1;
 }
 
 void action_resume_print()
-{ }
+{
+	lcd_disable_button();
+
+	plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], feedrate/60, active_extruder); //should do nothing
+	plan_buffer_line(lastpos[X_AXIS], lastpos[Y_AXIS], target[Z_AXIS], target[E_AXIS], feedrate/60, active_extruder); //move xy back
+	plan_buffer_line(lastpos[X_AXIS], lastpos[Y_AXIS], lastpos[Z_AXIS], target[E_AXIS], feedrate/60, active_extruder); //move z back
+	plan_buffer_line(lastpos[X_AXIS], lastpos[Y_AXIS], lastpos[Z_AXIS], lastpos[E_AXIS], feedrate/60, active_extruder); //final untretract
+	st_synchronize();
+
+	card.sdprinting = true;
+
+	lcd_enable_button();
+	stop_buffer = false;
+}
