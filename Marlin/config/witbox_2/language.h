@@ -275,7 +275,7 @@ const char MSG_SCREEN_LOGO[] PROGMEM                 = "BQ logo";
 const char MSG_SCREEN_MAIN[] PROGMEM                 = "";
 
 const char MSG_SCREEN_SD_LIST[] PROGMEM              = "Tarjeta SD";
-const char MSG_SCREEN_SD_CONFIRM[] PROGMEM           = "Confirmar Impresión";
+const char MSG_SCREEN_SD_CONFIRM[] PROGMEM           = "Confirmar Impresion";
 const char MSG_SCREEN_SD_BACK[] PROGMEM              = "Volver";
 
 const char MSG_SCREEN_UNLOAD_TITLE[] PROGMEM         = "Descargar filamento";
