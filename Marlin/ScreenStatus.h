@@ -64,10 +64,10 @@ namespace screen
 	Icon & ScreenStatus<T, R, Args...>::icon()
 	{
 		if (m_status)
-      {
-         return * m_icon_alternate;
-      }
-      return * m_icon;
+		{
+			return * m_icon_alternate;
+		}
+		return * m_icon;
 	}
 
 	template <typename T, typename R, typename... Args>

@@ -5,9 +5,9 @@
 
 typedef enum
 {
-	STOPPED = 0,
 	PRINTING,
 	PAUSED,
+	STOPPED,
 	NUM_PRINTER_STATES
 } PrinterState_t;
 
@@ -20,6 +20,8 @@ class PrintManager : public Subject<PrinterState_t>
 		static void stopPrint();
 		static void pausePrint();
 		static void resumePrint();
+
+		static void togglePause();
 
 		void state(PrinterState_t state);
 		PrinterState_t state();

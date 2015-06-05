@@ -115,7 +115,7 @@ namespace screen
 	//Print screen
 	ScreenPrint screen_print            = ScreenPrint(MSG_SCREEN_PRINT_PRINTING);
 	//Play/Pause
-	//ScreenStatus screen_play_pause      = ScreenStatus("Pause", action_pause_print);
+	ScreenStatus<PrinterState_t, void> screen_play_pause = ScreenStatus<PrinterState_t, void>("Pause", PrintManager::togglePause, &PrintManager::getInstance());
 	//Stop
 	ScreenMenu screen_stop_confirm      = ScreenMenu(MSG_SCREEN_STOP_CONFIRM);
 	Screen screen_stop_back             = Screen(MSG_SCREEN_STOP_BACK, Screen::SIMPLE);
@@ -248,15 +248,15 @@ namespace screen
 		screen_info.icon(icon_info);
 
 		//Print Menu
-//		screen_print.add(screen_play_pause);
+		screen_print.add(screen_play_pause);
 		screen_print.add(screen_stop_confirm);
 		screen_print.add(screen_change_confirm);
 		screen_print.add(screen_speed);
 		screen_print.add(screen_temperature);
 		//Play/Pause
-//		screen_play_pause.add(screen_main);
-//		screen_play_pause.icon(icon_pause);
-//		screen_play_pause.icon(icon_play); 
+		screen_play_pause.add(screen_print);
+		screen_play_pause.icon(icon_pause);
+		screen_play_pause.icon(icon_play);
 		//Stop Confirm
 		screen_stop_confirm.add(screen_stop_back);
 		screen_stop_confirm.add(screen_stop_OK);

@@ -52,9 +52,25 @@ void PrintManager::pausePrint()
 	action_pause_print();
 }
 
+void PrintManager::togglePause()
+{
+	if (PrintManager::getInstance().state() == PRINTING)
+	{
+		PrintManager::getInstance().state(PAUSED);
+		action_pause_print();
+	}
+	else if (PrintManager::getInstance().state() == PAUSED)
+	{
+		PrintManager::getInstance().state(PRINTING);
+		action_resume_print();
+	}
+	return;
+}
+
 void PrintManager::state(PrinterState_t state)
 {
 	m_state = state;
+	notify();
 }
 
 PrinterState_t PrintManager::state()
@@ -63,6 +79,7 @@ PrinterState_t PrintManager::state()
 }
 
 PrintManager::PrintManager()
+	: m_state(STOPPED)
 { }
 
 PrintManager::~PrintManager()

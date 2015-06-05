@@ -13,9 +13,7 @@ namespace screen
 			ScreenPrint(const char * title = 0);
 			virtual ~ScreenPrint();
 
-			void draw();
-
-		private:
+			virtual void draw();
 	};
 }
 
