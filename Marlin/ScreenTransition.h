@@ -4,6 +4,7 @@
 #include "Screen.h"
 
 #include "TemperatureManager.h"
+#include "ViewManager.h"
 
 namespace screen
 {
@@ -88,6 +89,11 @@ namespace screen
 			painter.print(c_target);
 			
 		} while ( painter.nextPage() );
+
+		if (target == (uint16_t) m_observed)
+		{
+			screen::ViewManager::getInstance().activeView(m_next_screen);
+		}
 	}
 
 	template <typename T>
