@@ -81,13 +81,13 @@ namespace screen
 	ScreenDialog screen_load_press      = ScreenDialog(MSG_SCREEN_LOAD_TITLE, MSG_SCREEN_LOAD_CONTINUE);
 	ScreenMenu screen_load_confirm      = ScreenMenu(MSG_SCREEN_LOAD_CONFIRM);
 	//Level Plate screens
-	ScreenMenu screen_level_confirm     = ScreenMenu(MSG_SCREEN_LEVEL_TITLE);
+	ScreenMenu screen_level_init     = ScreenMenu(MSG_SCREEN_LEVEL_TITLE);
 	ScreenTransition<float> screen_level_cooling	= ScreenTransition<float>(MSG_SCREEN_LEVEL_TITLE, MSG_SCREEN_LEVEL_ABORT, &TemperatureManager::getInstance());
 	ScreenDialog screen_level1          = ScreenDialog("",MSG_SCREEN_LEVEL1);
 	ScreenDialog screen_level2          = ScreenDialog("",MSG_SCREEN_LEVEL2);
 	ScreenDialog screen_level3          = ScreenDialog("",MSG_SCREEN_LEVEL3);
 	ScreenDialog screen_level4          = ScreenDialog("",MSG_SCREEN_LEVEL4);
-	ScreenMenu screen_level_retry       = ScreenMenu(MSG_SCREEN_LEVEL_RETRY);
+	ScreenMenu screen_level_confirm     = ScreenMenu(MSG_SCREEN_LEVEL_RETRY);
 	//AutoHome
 	ScreenAction<void> screen_autohome = ScreenAction<void>(MSG_SCREEN_AUTOHOME, action_homing);
 	//Settings
@@ -106,12 +106,15 @@ namespace screen
 	ScreenSelector<void, uint16_t> screen_move_01       = ScreenSelector<void, uint16_t>(MSG_SCREEN_MOVE_01MM, 0, 100, 50, action_set_temperature);
 	//Temperature
 	ScreenSelector<void, uint16_t> screen_temperature   = ScreenSelector<void, uint16_t>(MSG_SCREEN_TEMP_TITLE, 0, 250, default_temp_change_filament, action_set_temperature);
-	//Back to main
-	Screen screen_back2main             = Screen(MSG_SCREEN_BACK2MAIN, Screen::SIMPLE);
 	//Light
 	ScreenStatus<bool, void> screen_light = ScreenStatus<bool, void>(MSG_SCREEN_LIGHT, LightManager::setState, &LightManager::getInstance());
 	//Info
 	ScreenDialog screen_info            = ScreenDialog(MSG_SCREEN_INFO,MSG_SCREEN_INFO);
+
+	//Back to main
+	Screen screen_back2main             = Screen(MSG_SCREEN_BACK2MAIN, Screen::SIMPLE);
+	//Ok to main
+	Screen screen_ok2main				= Screen(MSG_OK2, Screen::SIMPLE);
 
 	//Print screen
 	ScreenPrint screen_print            = ScreenPrint(MSG_SCREEN_PRINT_PRINTING);
@@ -138,7 +141,7 @@ namespace screen
 		screen_main.add(screen_SD_list);
 		screen_main.add(screen_unload_select);
 		screen_main.add(screen_load_select);
-		screen_main.add(screen_level_confirm);
+		screen_main.add(screen_level_init);
 		screen_main.add(screen_autohome);
 		screen_main.add(screen_settings);
 		screen_main.add(screen_move);
@@ -168,9 +171,10 @@ namespace screen
 		screen_unload_heating.add(screen_unload_pull);
 		//Unload Filament Pull
 		screen_unload_pull.add(screen_unload_confirm);
+		screen_unload_pull.icon(icon_retry);
 		//Unload Filament Confirm
 		screen_unload_confirm.add(screen_unload_pull);
-		screen_unload_confirm.add(screen_main);
+		screen_unload_confirm.add(screen_ok2main);
 		//Load Filament Select
 		screen_load_select.add(screen_load_heating);
 		screen_load_select.icon(icon_filament_load);
@@ -179,15 +183,30 @@ namespace screen
 		screen_load_heating.add(screen_load_press);
 		//Load Filament Pull
 		screen_load_press.add(screen_load_confirm);
+		screen_load_press.icon(icon_retry);
 		//Load Filament Confirm
 		screen_load_confirm.add(screen_load_press);
-		screen_load_confirm.add(screen_main);
+		screen_load_confirm.add(screen_ok2main);
 		//Level Plate
-		screen_level_confirm.add(screen_level_cooling);
-		screen_level_confirm.icon(icon_leveling);
+		screen_level_init.add(screen_back2main);
+		screen_level_init.add(screen_level_cooling);
+		screen_level_init.icon(icon_leveling);
 		//Level Plate Cooling
 		screen_level_cooling.add(screen_level_cooling);
 		screen_level_cooling.add(screen_level1);
+		screen_level_cooling.icon(icon_ok);
+		//Level screen 1
+		screen_level1.add(screen_level2);
+		screen_level1.icon(icon_retry);
+		//Level screen 2
+		screen_level2.add(screen_level3);
+		//Level screen 3
+		screen_level3.add(screen_level4);
+		//Level screen 4
+		screen_level4.add(screen_level_confirm);
+		//Level Plate Confirm
+		screen_level_confirm.add(screen_level1);
+		screen_level_confirm.add(screen_ok2main);
 		//AutoHome
 		screen_autohome.add(screen_main);
 		screen_autohome.icon(icon_homing);
@@ -244,6 +263,9 @@ namespace screen
 		//Back to main
 		screen_back2main.add(screen_main);
 		screen_back2main.icon(icon_back);
+		//Ok to main
+		screen_ok2main.add(screen_main);
+		screen_ok2main.icon(icon_ok);
 		//Light
 		screen_light.add(screen_main);
 		screen_light.icon(icon_lightled_disable);
