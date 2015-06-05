@@ -4,6 +4,8 @@
 #include <stdint.h>
 
 extern void action_set_temperature(uint16_t degrees);
+extern void action_filament_unload();
+extern void action_filament_load();
 
 extern void action_homing();
 

@@ -23,6 +23,16 @@ void action_set_temperature(uint16_t degrees)
 	TemperatureManager::getInstance().setTargetTemperature(degrees);
 }
 
+void action_filament_unload()
+{
+	enquecommand_P(PSTR("M702"));
+}
+
+void action_filament_load()
+{
+	enquecommand_P(PSTR("M701"));
+}
+
 void action_homing()
 {
 	enquecommand_P(PSTR("G28"));
