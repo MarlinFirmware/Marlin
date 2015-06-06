@@ -61,7 +61,7 @@
 #endif
 
 #define PS_ON_PIN          -1
-#define KILL_PIN           -1
+#define KILL_PIN           7  // added emergency stop, misusing SCK (pin 7) for it
 
 #define HEATER_0_PIN       13 // (extruder)
 #define HEATER_1_PIN       -1
