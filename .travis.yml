@@ -37,103 +37,85 @@ before_script:
   - cat Marlin/_Version.h
 script:
   # build default config
+  - cp Marlin/example_configurations/default/* Marlin/
   - ino build -m mega2560 --cppflags="-DHAS_AUTOMATIC_VERSIONING -ffunction-sections -fdata-sections -g -Os -w"
-  # backup configuration.h
-  - cp Marlin/Configuration.h Marlin/Configuration.h.backup
-  - cp Marlin/Configuration_adv.h Marlin/Configuration_adv.h.backup
-  # change extruder numbers from 1 to 2
+  # and the ramps version, without options, of the default
+  - cp Marlin/example_configurations/ramps/Configuration.h Marlin/
+  - cp Marlin/example_configurations/ramps/Options.h Marlin/Options.h
+  - ino build -m mega2560 --cppflags="-DHAS_AUTOMATIC_VERSIONING -ffunction-sections -fdata-sections -g -Os -w"
+  # Test 1 -- Two Extruders
   # commented out for the moment fails build but compiles fine in Arduino
-  #- sed -i 's/#define EXTRUDERS 1/#define EXTRUDERS 2/g' Marlin/Configuration.h
   #- rm -rf .build/
+  - cp Marlin/example_configurations/ramps/TestOptions1.h Marlin/Options.h
   #- ino build -m mega2560 --cppflags="-DHAS_AUTOMATIC_VERSIONING -ffunction-sections -fdata-sections -g -Os -w"
-  # change extruder numbers from 2 to 3, needs to be a board with 3 extruders defined in pins.h 
-  #- sed -i 's/#define MOTHERBOARD BOARD_ULTIMAKER/#define MOTHERBOARD BOARD_AZTEEG_X3_PRO/g' Marlin/Configuration.h
-  #- sed -i 's/#define EXTRUDERS 2/#define EXTRUDERS 3/g' Marlin/Configuration.h
+  # Test 2 -- AZTEEG_X3_PRO with three extruders
   #- rm -rf .build/
-  #- ino build -m mega2560 --cppflags="-DHAS_AUTOMATIC_VERSIONING -ffunction-sections -fdata-sections -g -Os -w"
-  # enable PIDTEMPBED 
-  - cp Marlin/Configuration.h.backup Marlin/Configuration.h
-  - sed -i 's/\/\/#define PIDTEMPBED/#define PIDTEMPBED/g' Marlin/Configuration.h
+  - cp Marlin/example_configurations/ramps/TestOptions2.h Marlin/Options.h
+  #- ino build -m mega2560 --cppflags="-DHAS_AUTOMATIC_VERSIONING -DMOTHERBOARD=BOARD_AZTEEG_X3_PRO -ffunction-sections -fdata-sections -g -Os -w"
+  # Test 3 -- PID Control of Bed Temperature
+  - cp Marlin/example_configurations/ramps/TestOptions3.h Marlin/Options.h
   - rm -rf .build/
   - ino build -m mega2560 --cppflags="-DHAS_AUTOMATIC_VERSIONING -ffunction-sections -fdata-sections -g -Os -w"
-  # enable AUTO_BED_LEVELING
-  - cp Marlin/Configuration.h.backup Marlin/Configuration.h
-  - sed -i 's/\/\/#define ENABLE_AUTO_BED_LEVELING/#define ENABLE_AUTO_BED_LEVELING/g' Marlin/Configuration.h
+  # Test 4 -- Automatic Bed Leveling
+  - cp Marlin/example_configurations/ramps/TestOptions4.h Marlin/Options.h
   - rm -rf .build/
   - ino build -m mega2560 --cppflags="-DHAS_AUTOMATIC_VERSIONING -ffunction-sections -fdata-sections -g -Os -w"
-  # enable EEPROM_SETTINGS & EEPROM_CHITCHAT
-  - cp Marlin/Configuration.h.backup Marlin/Configuration.h
-  - sed -i 's/\/\/#define EEPROM_SETTINGS/#define EEPROM_SETTINGS/g' Marlin/Configuration.h
-  - sed -i 's/\/\/#define EEPROM_CHITCHAT/#define EEPROM_CHITCHAT/g' Marlin/Configuration.h
+  # Test 5 -- EEPROM (Chatty)
+  - cp Marlin/example_configurations/ramps/TestOptions5.h Marlin/Options.h
   - rm -rf .build/
   - ino build -m mega2560 --cppflags="-DHAS_AUTOMATIC_VERSIONING -ffunction-sections -fdata-sections -g -Os -w"
   ### LCDS ###
-  # ULTIMAKERCONTROLLER
-  - cp Marlin/Configuration.h.backup Marlin/Configuration.h
-  - sed -i 's/\/\/#define ULTIMAKERCONTROLLER/#define ULTIMAKERCONTROLLER/g' Marlin/Configuration.h
+  # Test 6 -- UltiMaker Controller
+  - cp Marlin/example_configurations/ramps/TestOptions6.h Marlin/Options.h
   - rm -rf .build/
   - ino build -m mega2560 --cppflags="-DHAS_AUTOMATIC_VERSIONING -ffunction-sections -fdata-sections -g -Os -w"
-  # MAKRPANEL
+  # Test 7 -- Makr Panel
   # Needs to use melzi and sanguino hardware
-  #- cp Marlin/Configuration.h.backup Marlin/Configuration.h
-  #- sed -i 's/\/\/#define MAKRPANEL/#define MAKRPANEL/g' Marlin/Configuration.h
+  - cp Marlin/example_configurations/ramps/TestOptions7.h Marlin/Options.h
   #- rm -rf .build/
   #- ino build -m mega2560 --cppflags="-DHAS_AUTOMATIC_VERSIONING -ffunction-sections -fdata-sections -g -Os -w"
-  # REPRAP_DISCOUNT_SMART_CONTROLLER
-  - cp Marlin/Configuration.h.backup Marlin/Configuration.h
-  - sed -i 's/\/\/#define REPRAP_DISCOUNT_SMART_CONTROLLER/#define REPRAP_DISCOUNT_SMART_CONTROLLER/g' Marlin/Configuration.h
+  # Test 8 -- RepRap Discount Smart Controller
+  - cp Marlin/example_configurations/ramps/TestOptions8.h Marlin/Options.h
   - rm -rf .build/
   - ino build -m mega2560 --cppflags="-DHAS_AUTOMATIC_VERSIONING -ffunction-sections -fdata-sections -g -Os -w"
-  # G3D_PANE
-  - cp Marlin/Configuration.h.backup Marlin/Configuration.h
-  - sed -i 's/\/\/#define G3D_PANEL/#define G3D_PANEL/g' Marlin/Configuration.h
+  # Test 9 -- G-3D Pane
+  - cp Marlin/example_configurations/ramps/TestOptions9.h Marlin/Options.h
   - rm -rf .build/
   - ino build -m mega2560 --cppflags="-DHAS_AUTOMATIC_VERSIONING -ffunction-sections -fdata-sections -g -Os -w"
-  # REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
-  - cp Marlin/Configuration.h.backup Marlin/Configuration.h
-  - sed -i 's/\/\/#define REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER/#define REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER/g' Marlin/Configuration.h
+  # Test 10 -- RepRap Discount Full Graphic Smart Controller
+  - cp Marlin/example_configurations/ramps/TestOptions10.h Marlin/Options.h
   - rm -rf .build/
   - ino build -m mega2560 --cppflags="-DHAS_AUTOMATIC_VERSIONING -ffunction-sections -fdata-sections -g -Os -w"
-  # REPRAPWORLD_KEYPAD 
+  # Test 11 -- RepRapWorld Keypad
   # Cant find configuration details to get it to compile
-  #- cp Marlin/Configuration.h.backup Marlin/Configuration.h
-  #- sed -i 's/\/\/#define ULTRA_LCD/#define ULTRA_LCD/g' Marlin/Configuration.h
-  #- sed -i 's/\/\/#define REPRAPWORLD_KEYPAD/#define REPRAPWORLD_KEYPAD/g' Marlin/Configuration.h
-  #- sed -i 's/\/\/#define REPRAPWORLD_KEYPAD_MOVE_STEP 10.0/#define REPRAPWORLD_KEYPAD_MOVE_STEP 10.0/g' Marlin/Configuration.h
+  - cp Marlin/example_configurations/ramps/TestOptions11.h Marlin/Options.h
   #- rm -rf .build/
   #- ino build -m mega2560 --cppflags="-DHAS_AUTOMATIC_VERSIONING -ffunction-sections -fdata-sections -g -Os -w"
-  # RA_CONTROL_PANEL
-  - cp Marlin/Configuration.h.backup Marlin/Configuration.h
-  - sed -i 's/\/\/#define RA_CONTROL_PANEL/#define RA_CONTROL_PANEL/g' Marlin/Configuration.h
+  # Test 12 -- RA Control Panel
+  - cp Marlin/example_configurations/ramps/TestOptions12.h Marlin/Options.h
   - rm -rf .build/
   - ino build -m mega2560 --cppflags="-DHAS_AUTOMATIC_VERSIONING -ffunction-sections -fdata-sections -g -Os -w"
   ### I2C PANELS ###
-  # LCD_I2C_SAINSMART_YWROBOT
+  # Test 13 -- Sainsmart YWRobot I2C LCD Controller
   # Failing at the moment needs different library 
-  #- cp Marlin/Configuration.h.backup Marlin/Configuration.h
-  #- sed -i 's/\/\/#define LCD_I2C_SAINSMART_YWROBOT/#define LCD_I2C_SAINSMART_YWROBOT/g' Marlin/Configuration.h
+  - cp Marlin/example_configurations/ramps/TestOptions13.h Marlin/Options.h
   #- rm -rf .build/
   #- ino build -m mega2560 --cppflags="-DHAS_AUTOMATIC_VERSIONING -ffunction-sections -fdata-sections -g -Os -w"
-  # LCD_I2C_PANELOLU2
-  - cp Marlin/Configuration.h.backup Marlin/Configuration.h
+  # Test 14 -- PanelOLU2 I2C LCD Controller
   - sed -i 's/\/\/#define LCD_I2C_PANELOLU2/#define LCD_I2C_PANELOLU2/g' Marlin/Configuration.h
+  - cp Marlin/example_configurations/ramps/TestOptions14.h Marlin/Options.h
   - rm -rf .build/
   - ino build -m mega2560 --cppflags="-DHAS_AUTOMATIC_VERSIONING -ffunction-sections -fdata-sections -g -Os -w"
-  # LCD_I2C_VIKI
-  - cp Marlin/Configuration.h.backup Marlin/Configuration.h
-  - sed -i 's/\/\/#define LCD_I2C_VIKI/#define LCD_I2C_VIKI/g' Marlin/Configuration.h
+  # Test 15 -- Viki I2C LCD Controller
+  - cp Marlin/example_configurations/ramps/TestOptions15.h Marlin/Options.h
   - rm -rf .build/
   - ino build -m mega2560 --cppflags="-DHAS_AUTOMATIC_VERSIONING -ffunction-sections -fdata-sections -g -Os -w"
-  # Enable filament sensor
-  - cp Marlin/Configuration.h.backup Marlin/Configuration.h
-  - sed -i 's/\/\/#define FILAMENT_SENSOR/#define FILAMENT_SENSOR/g' Marlin/Configuration.h
+  # Test 16 -- Filament Sensor without Display
+  - cp Marlin/example_configurations/ramps/TestOptions16.h Marlin/Options.h
   - rm -rf .build/
   - ino build -m mega2560 --cppflags="-DHAS_AUTOMATIC_VERSIONING -ffunction-sections -fdata-sections -g -Os -w"
-   # Enable filament sensor with LCD display
-  - cp Marlin/Configuration.h.backup Marlin/Configuration.h
-  - sed -i 's/\/\/#define ULTIMAKERCONTROLLER/#define ULTIMAKERCONTROLLER/g' Marlin/Configuration.h
-  - sed -i 's/\/\/#define FILAMENT_SENSOR/#define FILAMENT_SENSOR/g' Marlin/Configuration.h
-  - sed -i 's/\/\/#define FILAMENT_LCD_DISPLAY/#define FILAMENT_LCD_DISPLAY/g' Marlin/Configuration.h
+  # Test 17 -- Filament Sensor and Display
+  - cp Marlin/example_configurations/ramps/TestOptions17.h Marlin/Options.h
   - rm -rf .build/
   - ino build -m mega2560 --cppflags="-DHAS_AUTOMATIC_VERSIONING -ffunction-sections -fdata-sections -g -Os -w"
   ######## Example Configurations ##############
@@ -145,6 +127,10 @@ script:
   - cp Marlin/example_configurations/delta/kossel_mini/Configuration* Marlin/
   - rm -rf .build/
   - ino build -m mega2560 --cppflags="-DHAS_AUTOMATIC_VERSIONING -ffunction-sections -fdata-sections -g -Os -w"
+  # Delta Config (Kossel Pro)
+  - cp Marlin/example_configurations/delta/kossel_pro/Configuration* Marlin/
+  - rm -rf .build/
+  - ino build -m BrainwavePro --cppflags="-DAT90USBxx_TEENSYPP_ASSIGNMENTS -DHAS_AUTOMATIC_VERSIONING -ffunction-sections -fdata-sections -g -Os -w"
   # Makibox Config  need to check board type for Teensy++ 2.0
   #- cp Marlin/example_configurations/makibox/Configuration* Marlin/
   #- rm -rf .build/
