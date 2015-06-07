@@ -446,6 +446,9 @@ const unsigned int dropsegments=5; //everything with less than this number of st
     #define FILAMENTCHANGE_ZADD 10
     #define FILAMENTCHANGE_FIRSTRETRACT -2
     #define FILAMENTCHANGE_FINALRETRACT -100
+    #define AUTO_FILAMENT_CHANGE                //This extrude filament until you press the button on LCD
+    #define AUTO_FILAMENT_CHANGE_LENGTH 0.04    //Extrusion length on automatic extrusion loop
+    #define AUTO_FILAMENT_CHANGE_FEEDRATE 300   //Extrusion feedrate (mm/min) on automatic extrusion loop
   #endif
 #endif
 
