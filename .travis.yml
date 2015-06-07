@@ -128,9 +128,9 @@ script:
   - rm -rf .build/
   - ino build -m mega2560 --cppflags="-DHAS_AUTOMATIC_VERSIONING -ffunction-sections -fdata-sections -g -Os -w"
   # Delta Config (Kossel Pro)
-  - cp Marlin/example_configurations/delta/kossel_pro/Configuration* Marlin/
-  - rm -rf .build/
-  - ino build -m BrainwavePro --cppflags="-DAT90USBxx_TEENSYPP_ASSIGNMENTS -DHAS_AUTOMATIC_VERSIONING -ffunction-sections -fdata-sections -g -Os -w"
+  #- cp Marlin/example_configurations/delta/kossel_pro/Configuration* Marlin/
+  #- rm -rf .build/
+  #- ino build -m BrainwavePro --cppflags="-DAT90USBxx_TEENSYPP_ASSIGNMENTS -DHAS_AUTOMATIC_VERSIONING -ffunction-sections -fdata-sections -g -Os -w"
   # Makibox Config  need to check board type for Teensy++ 2.0
   #- cp Marlin/example_configurations/makibox/Configuration* Marlin/
   #- rm -rf .build/
