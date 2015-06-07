@@ -1,3 +1,5 @@
+// Default configuration file
+
 #ifndef CONFIGURATION_H
 #define CONFIGURATION_H
 
