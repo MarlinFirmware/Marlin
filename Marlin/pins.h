@@ -86,8 +86,8 @@
   #include "pins_GEN3_MONOLITHIC.h"
 #elif MB(MEGATRONICS)
   #include "pins_MEGATRONICS.h"
-#elif MB(MEGATRONICS_1)
-  #include "pins_MEGATRONICS_1.h"
+#elif MB(MINITRONICS)
+  #include "pins_MINITRONICS.h"
 #elif MB(MEGATRONICS_2)
   #include "pins_MEGATRONICS_2.h"
 #elif MB(MEGATRONICS_3)
@@ -98,6 +98,8 @@
   #include "pins_OMCA.h"
 #elif MB(RAMBO)
   #include "pins_RAMBO.h"
+#elif MB(MINIRAMBO)
+  #include "pins_MINIRAMBO.h"
 #elif MB(ELEFU_3)
   #include "pins_ELEFU_3.h"
 #elif MB(5DPRINT)

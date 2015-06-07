@@ -33,8 +33,6 @@
       #define DEFAULT_LCD_CONTRAST 40
     #elif defined(ELB_FULL_GRAPHIC_CONTROLLER)
       #define DEFAULT_LCD_CONTRAST 110
-      #define SDCARDDETECTINVERTED
-      #define SDSLOW
       #define U8GLIB_LM6059_AF
     #endif
 
@@ -322,7 +320,7 @@
     #define STEPS_PER_CUBIC_MM_E (axis_steps_per_unit[E_AXIS] / EXTRUSION_AREA)
   #endif
 
-  #ifdef ULTIPANEL
+  #if defined(ULTIPANEL) && !defined(ELB_FULL_GRAPHIC_CONTROLLER)
     #undef SDCARDDETECTINVERTED
   #endif
 
