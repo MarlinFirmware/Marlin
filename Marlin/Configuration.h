@@ -48,7 +48,7 @@
 #endif
 
 // Define this to set a custom name for your generic Mendel,
-// #define CUSTOM_MENDEL_NAME "This Mendel"
+ #define CUSTOM_MENDEL_NAME "Skuizy"
 
 // Define this to set a unique identifier for this printer, (Used by some programs to differentiate between machines)
 // You can use an online service to generate a random UUID. (eg http://www.uuidgenerator.net/version4)
@@ -346,9 +346,9 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 // Travel limits after homing
 #define X_MAX_POS 181
 #define X_MIN_POS 0
-#define Y_MAX_POS 174
+#define Y_MAX_POS 153
 #define Y_MIN_POS 0
-#define Z_MAX_POS 170
+#define Z_MAX_POS 100
 #define Z_MIN_POS 0
 
 #define X_MAX_LENGTH (X_MAX_POS - X_MIN_POS)
@@ -559,7 +559,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 // Preheat Constants
 #define PLA_PREHEAT_HOTEND_TEMP 180
-#define PLA_PREHEAT_HPB_TEMP 70
+#define PLA_PREHEAT_HPB_TEMP 60
 #define PLA_PREHEAT_FAN_SPEED 255   // Insert Value between 0 and 255
 
 #define ABS_PREHEAT_HOTEND_TEMP 240
@@ -808,9 +808,9 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define FILAMENT_SENSOR_EXTRUDER_NUM	0  //The number of the extruder that has the filament sensor (0,1,2)
 #define MEASUREMENT_DELAY_CM			14  //measurement delay in cm.  This is the distance from filament sensor to middle of barrel
 
-#define DEFAULT_NOMINAL_FILAMENT_DIA  3.0  //Enter the diameter (in mm) of the filament generally used (3.0 mm or 1.75 mm) - this is then used in the slicer software.  Used for sensor reading validation
-#define MEASURED_UPPER_LIMIT          3.30  //upper limit factor used for sensor reading validation in mm
-#define MEASURED_LOWER_LIMIT          1.90  //lower limit factor for sensor reading validation in mm
+#define DEFAULT_NOMINAL_FILAMENT_DIA  1.75  //Enter the diameter (in mm) of the filament generally used (3.0 mm or 1.75 mm) - this is then used in the slicer software.  Used for sensor reading validation
+#define MEASURED_UPPER_LIMIT          1.73  //upper limit factor used for sensor reading validation in mm
+#define MEASURED_LOWER_LIMIT          1.77  //lower limit factor for sensor reading validation in mm
 #define MAX_MEASUREMENT_DELAY			20  //delay buffer size in bytes (1 byte = 1cm)- limits maximum measurement delay allowable (must be larger than MEASUREMENT_DELAY_CM  and lower number saves RAM)
 
 //defines used in the code
