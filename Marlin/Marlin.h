@@ -26,11 +26,7 @@
   #error Your Configuration.h and Configuration_adv.h files are outdated!
 #endif
 
-#if (ARDUINO >= 100)
-  #include "Arduino.h"
-#else
-  #include "WProgram.h"
-#endif
+#include "Arduino.h"
 
 #define BIT(b) (1<<(b))
 #define TEST(n,b) (((n)&BIT(b))!=0)
