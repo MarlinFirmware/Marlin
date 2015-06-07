@@ -25,9 +25,9 @@
 #define Z_DIR_PIN          5
 #define Z_ENABLE_PIN       23
 
-#define E0_STEP_PIN         6
-#define E0_DIR_PIN          7
-#define E0_ENABLE_PIN       19
+#define E0_STEP_PIN        6
+#define E0_DIR_PIN         7
+#define E0_ENABLE_PIN      19
 
 #define HEATER_0_PIN       21  // Extruder
 #define HEATER_1_PIN       -1
@@ -38,8 +38,8 @@
 
 #define X_STOP_PIN         13
 #define Y_STOP_PIN         14
-#define Z_STOP_PIN         15
-//#define Z_STOP_PIN         36  // For inductive sensor.
+//#define Z_STOP_PIN         15
+#define Z_STOP_PIN         36  // For inductive sensor.
 
 #define TEMP_0_PIN          7  // Extruder / Analog pin numbering
 #define TEMP_BED_PIN        6  // Bed / Analog pin numbering
@@ -47,19 +47,45 @@
 #define TEMP_1_PIN         -1
 #define TEMP_2_PIN         -1
 
-#define SDPOWER            -1
-#define SDSS               20  // PB0 - 8 in marlin env.
-#define LED_PIN            -1
-#define PS_ON_PIN          -1
-#define ALARM_PIN          -1
-#define SDCARDDETECT       -1
-
 #ifndef SDSUPPORT
    // these pins are defined in the SD library if building with SD support
   #define SCK_PIN          9
   #define MISO_PIN         11
   #define MOSI_PIN         10
 #endif
+#define SDSS               20         // PB0 - 8 in marlin env.
+
+// Extension header pin mapping
+// ----------------------------
+//  SCL (I2C)-D0    A0 (An), IO
+//  SDA (I2C)-D1    A1 (An), IO
+//  RX1-D2          A2 (An), IO
+//  TX1-D3          A3 (An), IO
+//  PWM-D24         A4 (An), IO
+//  5V              GND
+//  12V             GND
+#define EXT_AUX_SCL_D0            0  // 0 (teensy), 24 (marlin)
+#define EXT_AUX_SDA_D1            1  // 1 (teensy), 25 (marlin)
+#define EXT_AUX_RX1_D2            26 // 2 (teensy), 26 (marlin)
+#define EXT_AUX_TX1_D3            27 // 3 (teensy), 27 (marlin)
+#define EXT_AUX_PWM_D24           12 // 24 (teensy), 12 (marlin)
+#define EXT_AUX_A0                 0 // Analog
+#define EXT_AUX_A0_IO             40 // Digital IO, 38 (teensy), 40 (marlin)
+#define EXT_AUX_A1                 1 // Analog
+#define EXT_AUX_A1_IO             41 // Digital IO, 39 (teensy), 41 (marlin)
+#define EXT_AUX_A2                 2 // Analog
+#define EXT_AUX_A2_IO             42 // Digital IO, 40 (teensy), 42 (marlin)
+#define EXT_AUX_A3                 3 // Analog
+#define EXT_AUX_A3_IO             43 // Digital IO, 41 (teensy), 43 (marlin)
+#define EXT_AUX_A4                 4 // Analog
+#define EXT_AUX_A4_IO             44 // Digital IO, 42 (teensy), 44 (marlin)
+
+
+#define SDPOWER            -1
+#define LED_PIN            -1
+#define PS_ON_PIN          -1
+#define ALARM_PIN          -1
+#define SDCARDDETECT       -1
 
 #define BEEPER             -1
 #define LCD_PINS_RS        -1
@@ -71,18 +97,19 @@
 
 #ifdef SAV_3DLCD
   // For LCD SHIFT register LCD
-  #define SR_DATA_PIN         1
-  #define SR_CLK_PIN          0
+  #define SR_DATA_PIN         EXT_AUX_SDA_D1
+  #define SR_CLK_PIN          EXT_AUX_SCL_D0
+#endif  // SAV_3DLCD
 
-  #define BTN_EN1            41
-  #define BTN_EN2            40
-  #define BTN_ENC            12
+#if defined(SAV_3DLCD)||defined(SAV_3DGLCD)
+  #define BTN_EN1            EXT_AUX_A1_IO
+  #define BTN_EN2            EXT_AUX_A0_IO
+  #define BTN_ENC            EXT_AUX_PWM_D24
 
-  #define KILL_PIN           42 // A2 = 42 - teensy = 40
-  #define HOME_PIN           44 // A4 = marlin 44 - teensy = 42
+  #define KILL_PIN           EXT_AUX_A2_IO
+  #define HOME_PIN           EXT_AUX_A4_IO
+#endif // SAV_3DLCD || SAV_3DGLCD
 
-  #ifdef NUM_SERVOS
-    #define SERVO0_PIN       41 // In teensy's pin definition for pinMode (in servo.cpp)
-  #endif
-
-#endif // SAV_3DLCD
+#ifdef NUM_SERVOS
+  #define SERVO0_PIN       41 // In teensy's pin definition for pinMode (in servo.cpp)
+#endif
