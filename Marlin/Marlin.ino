@@ -1,5 +1,12 @@
 /* -*- c++ -*- */
 
+/*********************************************************************
+ *                       WARNING                                     *
+ *    Before compiling this code, you MUST install an appropriate    *
+ *            Configuration File for your target printer             *
+ *               See Configuration.h for more details                *
+ *********************************************************************/
+
 /*
     Reprap firmware based on Sprinter and grbl.
  Copyright (C) 2011 Camiel Gubbels / Erik van der Zalm
