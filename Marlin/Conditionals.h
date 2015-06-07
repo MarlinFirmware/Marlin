@@ -33,9 +33,6 @@
       #define DEFAULT_LCD_CONTRAST 40
     #elif defined(ELB_FULL_GRAPHIC_CONTROLLER)
       #define DEFAULT_LCD_CONTRAST 110
-      #ifdef ELB_FULL_GRAPHIC_CONTROLLER_SDCARDDETECTINVERTED
-        #define SDCARDDETECTINVERTED
-      #endif
       #define U8GLIB_LM6059_AF
     #endif
 
