@@ -32,6 +32,7 @@ namespace screen
 	void ScreenAction<R, Args...>::init()
 	{
 		this->action();
+		ViewManager::getInstance().activeView(m_next_screen);
 	}
 }
 

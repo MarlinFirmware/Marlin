@@ -30,9 +30,9 @@ namespace screen
 		return * m_icon;
 	}
 
-	Screen & Screen::press(Screen * parent_view)
+	void Screen::press()
 	{
-		return * m_next_screen;
+		ViewManager::getInstance().activeView(m_next_screen);
 	}
 
 	void Screen::add(Screen & component)

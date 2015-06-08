@@ -16,7 +16,7 @@ namespace screen
 			void left();
 			void right();
 			virtual void draw();
-			Screen & press(Screen * parent_view);
+			void press();
 			void add(Screen & component);
 
 		protected:

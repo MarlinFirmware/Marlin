@@ -6,6 +6,7 @@
 
 #include "Icon.h"
 #include "GuiPainter.h"
+#include "ViewManager.h"
 
 namespace screen
 {
@@ -39,7 +40,7 @@ namespace screen
 
 			virtual void icon(Icon & component);
 			virtual Icon & icon();
-			virtual Screen & press(Screen * parent_view);
+			virtual void press();
 			virtual void add(Screen & component);
 
 		protected:

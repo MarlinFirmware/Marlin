@@ -271,9 +271,7 @@ void lcd_update(bool force)
 
     if (lcd_get_button_clicked())
     {
-        //active_view = &active_view->press(active_view);
-        screen::ViewManager::getInstance().activeView(
-            &screen::ViewManager::getInstance().activeView()->press(screen::ViewManager::getInstance().activeView()));
+        screen::ViewManager::getInstance().activeView()->press();
     }
 
     // Refresh the content of the display

@@ -69,7 +69,7 @@ namespace screen
 	ScreenList screen_SD_list           = ScreenList(MSG_SCREEN_SD_LIST);
 	ScreenMenu screen_SD_confirm        = ScreenMenu(MSG_SCREEN_SD_CONFIRM);
 	ScreenAction<void> screen_SD_OK		= ScreenAction<void>(MSG_SCREEN_SD_BACK, PrintManager::startPrint);
-	Screen screen_SD_back               = Screen(MSG_SCREEN_SD_BACK, Screen::SIMPLE);
+	ScreenAction<void> screen_SD_back   = ScreenAction<void>(MSG_SCREEN_SD_BACK, do_nothing);
 	//Unload Filament screens
 	ScreenSelector<void, uint16_t> screen_unload_select = ScreenSelector<void, uint16_t>(MSG_SCREEN_UNLOAD_TITLE, 170, 230, default_temp_change_filament, action_set_temperature);
 	ScreenTransition<float> screen_unload_heating	= ScreenTransition<float>(MSG_SCREEN_UNLOAD_TITLE, MSG_SCREEN_UNLOAD_ABORT, &TemperatureManager::getInstance());
@@ -100,7 +100,7 @@ namespace screen
 	ScreenMenu screen_move_y            = ScreenMenu(MSG_SCREEN_MOVE_Y);
 	ScreenMenu screen_move_z            = ScreenMenu(MSG_SCREEN_MOVE_Z);
 	ScreenMenu screen_move_e            = ScreenMenu(MSG_SCREEN_MOVE_E);
-	Screen screen_move_back2move        = Screen(MSG_SCREEN_MOVE_2MOVE, Screen::SIMPLE);
+	ScreenAction<void> screen_move_back2move        	= ScreenAction<void>(MSG_SCREEN_MOVE_2MOVE, do_nothing);
 	ScreenSelector<void, uint16_t> screen_move_10       = ScreenSelector<void, uint16_t>(MSG_SCREEN_MOVE_10MM, 0, 100, 50, action_set_temperature);
 	ScreenSelector<void, uint16_t> screen_move_1        = ScreenSelector<void, uint16_t>(MSG_SCREEN_MOVE_1MM, 0, 100, 50, action_set_temperature);
 	ScreenSelector<void, uint16_t> screen_move_01       = ScreenSelector<void, uint16_t>(MSG_SCREEN_MOVE_01MM, 0, 100, 50, action_set_temperature);
@@ -112,9 +112,9 @@ namespace screen
 	ScreenDialog<void> screen_info            = ScreenDialog<void>(MSG_SCREEN_INFO, "", MSG_SCREEN_INFO, do_nothing);
 
 	//Back to main
-	Screen screen_back2main             = Screen(MSG_SCREEN_BACK2MAIN, Screen::SIMPLE);
+	ScreenAction<void> screen_back2main             = ScreenAction<void>(MSG_SCREEN_BACK2MAIN, do_nothing);
 	//Ok to main
-	Screen screen_ok2main				= Screen(MSG_OK2, Screen::SIMPLE);
+	ScreenAction<void> screen_ok2main				= ScreenAction<void>(MSG_OK2, do_nothing);
 
 	//Print screen
 	ScreenPrint screen_print            = ScreenPrint(MSG_SCREEN_PRINT_PRINTING);
@@ -122,7 +122,7 @@ namespace screen
 	ScreenStatus<PrinterState_t, void> screen_play_pause = ScreenStatus<PrinterState_t, void>("Pause", PrintManager::togglePause, &PrintManager::getInstance());
 	//Stop
 	ScreenMenu screen_stop_confirm      = ScreenMenu(MSG_SCREEN_STOP_CONFIRM);
-	Screen screen_stop_back             = Screen(MSG_SCREEN_STOP_BACK, Screen::SIMPLE);
+	ScreenAction<void> screen_stop_back             = ScreenAction<void>(MSG_SCREEN_STOP_BACK, do_nothing);
 	ScreenAction<void> screen_stop_OK = ScreenAction<void>(MSG_SCREEN_STOP_OK, action_stop_print);
 	//Change Filament Screens
 	ScreenMenu screen_change_confirm	= ScreenMenu(MSG_SCREEN_CHANGE_CONFIRM);
@@ -312,6 +312,6 @@ namespace screen
 		screen_speed.icon(icon_change_speed);
 		//
 
-		return new ScreenMenu(screen_main);
+		return (Screen *) &screen_main;
 	}
 }

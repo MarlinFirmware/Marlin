@@ -44,6 +44,7 @@ namespace screen
 	void ScreenStatus<T, R, Args...>::init()
 	{
 		this->action();
+		ViewManager::getInstance().activeView(m_next_screen);
 	}
 
 	template <typename T, typename R, typename... Args>

@@ -18,7 +18,7 @@ namespace screen
 			void init();
 
 			void draw();
-			Screen & press(Screen * parent_view);
+			void press();
 
 			void add(Screen & component);
 			void update(T value);
@@ -92,14 +92,14 @@ namespace screen
 
 		if (target == (uint16_t) m_observed)
 		{
-			screen::ViewManager::getInstance().activeView(m_next_screen);
+			ViewManager::getInstance().activeView(m_next_screen);
 		}
 	}
 
 	template <typename T>
-	Screen & ScreenTransition<T>::press(Screen * parent_view)
+	void ScreenTransition<T>::press()
 	{
-		return * m_back_screen;
+		ViewManager::getInstance().activeView(m_back_screen);
 	}
 
 	template <typename T>

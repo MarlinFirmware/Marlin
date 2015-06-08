@@ -71,19 +71,9 @@ namespace screen
 		} while( painter.nextPage() ); 
 	}
 
-	Screen & ScreenMenu::press(Screen * parent_view)
+	void ScreenMenu::press()
 	{
-		if (m_items[m_index]->type() == Screen::STATUS)
-		{
-			m_items[m_index]->init();
-			return * parent_view;
-		}
-		else if ( (m_items[m_index]->type() == Screen::SIMPLE) || (m_items[m_index]->type() == Screen::ACTION) )
-		{
-			m_items[m_index]->init();
-			return m_items[m_index]->press(parent_view);
-		}
-		return * m_items[m_index];
+		ViewManager::getInstance().activeView(m_items[m_index]);
 	}
 
 	void ScreenMenu::add(Screen & component)

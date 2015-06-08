@@ -41,7 +41,7 @@ namespace screen
 			void left();
 			void right();
 			void draw();
-			Screen & press(Screen * parent_view);
+			void press();
 			void add(Screen & component);
 			void icon(Icon & component);
 			Icon & icon();

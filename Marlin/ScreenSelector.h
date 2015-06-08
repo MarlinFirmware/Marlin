@@ -21,7 +21,7 @@ namespace screen
 			void left();
 			void right();
 			void draw();
-			Screen & press(Screen * parent_view);
+			void press();
          void add(Screen & component);
 
 		private:
@@ -126,10 +126,10 @@ namespace screen
 	}
 
 	template <typename R, typename... Args>
-	Screen & ScreenSelector<R, Args...>::press(Screen * parent_view)
+	void ScreenSelector<R, Args...>::press()
 	{
 		this->action(m_select);
-		return * m_next_screen;
+		ViewManager::getInstance().activeView(m_next_screen);
 	}
 
 	template <typename R, typename... Args>

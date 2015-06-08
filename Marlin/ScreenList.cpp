@@ -221,7 +221,7 @@ namespace screen
 		} while( painter.nextPage() );
 	}
 
-	Screen & ScreenList::press(Screen * parent_view)
+	void ScreenList::press()
 	{
 		SERIAL_ECHOLN("ScreenList::press");
 		state = run_state(state, EVENT_KEYPRESS);
@@ -229,13 +229,15 @@ namespace screen
 
 		if (m_index == 0)
 		{
-			return * m_back_screen;
+			ViewManager::getInstance().activeView(m_back_screen);
+			return;
 		}
 
 		if (m_directory_is_root == false && (m_index == 1))
 		{
 			card.updir();
-			return * this;
+			ViewManager::getInstance().activeView(this);
+			return;
 		}
 		else
 		{
@@ -248,10 +250,11 @@ namespace screen
 			{
 				SERIAL_ECHOLN("ScreenList::press - isDir");
 				card.chdir(card.filename);
-				return * this;
+				ViewManager::getInstance().activeView(this);
+				return;
 			}
 			SERIAL_ECHOLN("ScreenList::press - return next screen");
-			return * m_next_screen;
+			ViewManager::getInstance().activeView(m_next_screen);
 		}
 	}
 
