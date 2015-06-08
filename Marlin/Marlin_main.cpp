@@ -4878,9 +4878,7 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) //default argument s
    const int HOME_DEBOUNCE_DELAY = 10000;
 #endif
    
-	
-  if(buflen < (BUFSIZE-1))
-    get_command();
+   
 
   if( (millis() - previous_millis_cmd) >  max_inactive_time )
     if(max_inactive_time)
