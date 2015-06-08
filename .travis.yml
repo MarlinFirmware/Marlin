@@ -30,8 +30,6 @@ before_script:
   - cd $TRAVIS_BUILD_DIR
   # ino needs files in src directory
   - ln -s Marlin src
-  # remove Marlin.pde as it confuses ino after it finds Marlin.ino
-  - rm Marlin/Marlin.pde
   - generate_version_header_for_marlin . Marlin/_Version.h
   - cat Marlin/_Version.h
 script:
