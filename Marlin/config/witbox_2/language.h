@@ -179,7 +179,6 @@ const char MSG_RETRY[] PROGMEM                       = "Retry";
 const char MSG_OK2[] PROGMEM                         = "Confirm";
 
 const char MSG_SCREEN_LOGO[] PROGMEM                 = "BQ logo";
-const char MSG_SCREEN_MAIN[] PROGMEM                 = "";
 
 const char MSG_SCREEN_SD_LIST[] PROGMEM              = "SD Card";
 const char MSG_SCREEN_SD_CONFIRM[] PROGMEM           = "Confirm Print";
@@ -274,7 +273,6 @@ const char MSG_RETRY[] PROGMEM                       = "Reintentar";
 const char MSG_OK2[] PROGMEM                         = "Confirmar";
 
 const char MSG_SCREEN_LOGO[] PROGMEM                 = "BQ logo";
-const char MSG_SCREEN_MAIN[] PROGMEM                 = "";
 
 const char MSG_SCREEN_SD_LIST[] PROGMEM              = "Tarjeta SD";
 const char MSG_SCREEN_SD_CONFIRM[] PROGMEM           = "Confirmar Impresion";

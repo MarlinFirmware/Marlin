@@ -64,7 +64,7 @@ namespace screen
 	//Logo Splash
 	ScreenDialog<void> screen_logo      = ScreenDialog<void>(MSG_SCREEN_LOGO,"", do_nothing);
 	//Main Menu
-	ScreenMenu screen_main              = ScreenMenu(MSG_SCREEN_MAIN);
+	ScreenMenu screen_main              = ScreenMenu();
 	//SD Card screens
 	ScreenList screen_SD_list           = ScreenList(MSG_SCREEN_SD_LIST);
 	ScreenMenu screen_SD_confirm        = ScreenMenu(MSG_SCREEN_SD_CONFIRM);
