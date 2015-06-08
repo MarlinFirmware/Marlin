@@ -14,7 +14,7 @@
  *
  */
 
-#define EEPROM_VERSION "V19"
+#define EEPROM_VERSION "V20"
 
 /**
  * V19 EEPROM Layout:
@@ -499,7 +499,7 @@ void Config_ResetDefault() {
   #endif
 
   #ifdef ENABLE_AUTO_BED_LEVELING
-    zprobe_zoffset = -Z_PROBE_OFFSET_FROM_EXTRUDER;
+    zprobe_zoffset = Z_PROBE_OFFSET_FROM_EXTRUDER;
   #endif
 
   #ifdef DELTA
@@ -866,12 +866,11 @@ void Config_PrintSettings(bool forReplay) {
         SERIAL_ECHOLNPGM("Z-Probe Offset (mm):");
       }
       CONFIG_ECHO_START;
-      SERIAL_ECHOPAIR("  M", (unsigned long)CUSTOM_M_CODE_SET_Z_PROBE_OFFSET);
-      SERIAL_ECHOPAIR(" Z", -zprobe_zoffset);
+      SERIAL_ECHOPAIR("  M" STRINGIFY(CUSTOM_M_CODE_SET_Z_PROBE_OFFSET) " Z", zprobe_zoffset);
     #else
       if (!forReplay) {
         CONFIG_ECHO_START;
-        SERIAL_ECHOPAIR("Z-Probe Offset (mm):", -zprobe_zoffset);
+        SERIAL_ECHOPAIR("Z-Probe Offset (mm):", zprobe_zoffset);
       }
     #endif
     SERIAL_EOL;
