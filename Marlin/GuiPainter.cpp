@@ -15,11 +15,10 @@ namespace screen
 		, m_y_init(0)
 		, m_x_end(screen_width)
 		, m_y_end(screen_height)
-	{
-	}
+	{ }
 
 	GuiPainter::~GuiPainter()
-	{}
+	{ }
 
 	void GuiPainter::title(const char * title)
 	{
@@ -38,7 +37,6 @@ namespace screen
 
 			coordinateYInit(14);
 		}
-		
 	}
 
 	void GuiPainter::short_text(const char * text)
@@ -57,18 +55,17 @@ namespace screen
 
 			coordinateYInit(y_init + 10);
 		}
-		
 	}
 
 	void GuiPainter::printing_status(const uint8_t percentage, const uint16_t time)
 	{
 		uint8_t x_init = coordinateXInit();
-		uint8_t y_init = coordinateYInit();
+		uint8_t y_init = coordinateYInit() + 5;
 		uint8_t x_end = coordinateXEnd();
-		m_impl.drawXBMP(x_init, y_init+2, little_icon_width, little_icon_height, bits_sd_small);
+		m_impl.drawXBMP(x_init, y_init, little_icon_width, little_icon_height, bits_sd_small);
 		setColorIndex(1);
 		setFont(u8g_font_6x9);
-		setPrintPos(x_init + 7, y_init + 2);
+		setPrintPos(x_init + 7, y_init);
 		print(itostr3left(percentage));
 		print("%");
 		coordinateXInit(x_init + (strlen(itostr3left(percentage))+strlen("%"))*6 + 7+1);
@@ -79,7 +76,7 @@ namespace screen
 			setColorIndex(1);
 			setFont(u8g_font_6x9);
 			uint8_t x = x_end - (strlen(itostr2(time/60)) + strlen(":") + strlen(itostr2(time%60))) * 6;
-			setPrintPos(x, y_init + 2);
+			setPrintPos(x, y_init);
 			print(itostr2(time/60));
 			print(":");
 			print(itostr2(time%60));
@@ -88,11 +85,11 @@ namespace screen
 			x_end = coordinateXEnd();
 		}
 		setColorIndex(1);
-		m_impl.drawBox(x_init, y_init + 3,x_end-x_init,  6);
+		m_impl.drawBox(x_init, y_init + 1,x_end-x_init,  6);
 		setColorIndex(0);
-		m_impl.drawBox(x_init + 1, y_init + 4,x_end-x_init -2, 4);
+		m_impl.drawBox(x_init + 1, y_init + 2,x_end-x_init -2, 4);
 		setColorIndex(1);
-		m_impl.drawBox(x_init + 2, y_init + 5,(x_end-x_init - 4) * percentage/100, 2);
+		m_impl.drawBox(x_init + 2, y_init + 3,(x_end-x_init - 4) * percentage/100, 2);
 
 		coordinateXInit(0);
 		coordinateXEnd(screen_width);
@@ -122,19 +119,21 @@ namespace screen
 		uint8_t x_end = coordinateXEnd();
 		uint8_t y_end = coordinateYEnd();
 
+		//Print box
 		setColorIndex(1);
-		m_impl.drawBox(x_init, y_end - 13, x_end, y_end - 13);
+		m_impl.drawBox(x_init, y_end - 9, x_end, y_end - 9);
+		//Set font and color
 		setFont(u8g_font_6x9);
 		setColorIndex(0);
-		setPrintPos(2, y_end - 13/2 - 10/2);
+		//Print arrows
+		setPrintPos(2, y_end - 9);
 		print("<");
-		setPrintPos(x_end-7, y_end - 13/2 - 10/2);
+		setPrintPos(x_end-7, y_end - 9);
 		print(">");
-		setPrintPos(x_end/2 - (strlen_P(nextScreen)*6)/2, y_end - 13/2 - 10/2);
+		//Print text label
+		setPrintPos(x_end/2 - (strlen_P(nextScreen)*6)/2, y_end - 9);
 		print_P(nextScreen);
-
 		coordinateYEnd(51);
-
 	}
 
 	void GuiPainter::setColorIndex(uint8_t color)

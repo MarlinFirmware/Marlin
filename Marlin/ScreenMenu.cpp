@@ -37,13 +37,17 @@ namespace screen
 
 	void ScreenMenu::draw()
 	{
+		//Start painting sequence
 		painter.firstPage();
 		do 
 		{
+			//Paint title on top of screen
 			painter.title(m_title);
+			//Paint selection box on bottom of screen
 			painter.box((m_items[m_index]->icon()).text());
+			//Icon grid
 			uint8_t x_init = painter.coordinateXInit();
-			uint8_t y_init = painter.coordinateYInit();
+			uint8_t y_init = painter.coordinateYInit() + 5;
 			uint8_t x_end = painter.coordinateXEnd();
 			uint8_t y_end = painter.coordinateYEnd();
 			for (unsigned int i = 0;i <= m_num_items -1; ++i)
@@ -53,7 +57,7 @@ namespace screen
 				int row_t = (m_num_items-1) / 5;
 
 				int x = (x_end + x_init)/2 - (m_num_items*(icon_width+2)/(1+row_t)-2)/2 +col*(icon_width+2);
-				int y = (y_end+y_init)/(2*(1+row_t)) + row_t - (icon_height/2) + ((icon_height+3)*row);
+				int y = (y_end + y_init)/(2*(1+row_t)) + row_t - (icon_height/2) + ((icon_height+5)*row);
 
 				if (i == m_index)
 				{
