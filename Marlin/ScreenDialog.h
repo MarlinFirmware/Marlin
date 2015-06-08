@@ -10,20 +10,22 @@ namespace screen
 		class ScreenDialog : public Screen , public Functor<R, Args ...>
 	{
 		public:
-			ScreenDialog(const char * title, const char * box, typename Functor<R, Args...>::FuncPtr fptr = do_nothing);
+			ScreenDialog(const char * title, const char * message, const char * box, typename Functor<R, Args...>::FuncPtr fptr = do_nothing);
 			virtual ~ScreenDialog();
 
 			Screen & press(Screen * parent_view);
 			void draw();
 
 		private:
+			const char * m_message;
 			const char * m_box;
 	};
 
 	template <typename R, typename... Args>
-	ScreenDialog<R, Args...>::ScreenDialog(const char * title, const char * box, typename Functor<R, Args...>::FuncPtr fptr)
+	ScreenDialog<R, Args...>::ScreenDialog(const char * title, const char * message, const char * box, typename Functor<R, Args...>::FuncPtr fptr)
 		: Screen(title, DIALOG)
 		, Functor<R, Args...>(fptr)
+		, m_message(message)
 		, m_box(box)
 	{ }
 
