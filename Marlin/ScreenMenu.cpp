@@ -2,10 +2,11 @@
 
 namespace screen
 {
-	ScreenMenu::ScreenMenu(const char * title)
+	ScreenMenu::ScreenMenu(const char * title, const char * text)
 		: Screen(title, MENU)
 		, m_index(0)
 		, m_num_items(0)
+		, m_text(text)
 	{ }
 
 	ScreenMenu::~ScreenMenu()
@@ -43,6 +44,8 @@ namespace screen
 		{
 			//Paint title on top of screen
 			painter.title(m_title);
+			//Paint text on the screen
+			painter.text(m_text);
 			//Paint selection box on bottom of screen
 			painter.box((m_items[m_index]->icon()).text());
 			//Icon grid
