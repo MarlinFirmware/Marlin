@@ -49,10 +49,10 @@ namespace screen
 	Icon icon_back             = Icon(icon_size, bits_back_normal,             bits_back_focused,             MSG_BACK);
 	Icon icon_retry            = Icon(icon_size, bits_retry_normal,            bits_retry_focused,            MSG_RETRY);
 	Icon icon_ok               = Icon(icon_size, bits_ok_normal,               bits_ok_focused,               MSG_OK2);
-	Icon icon_move_x           = Icon(icon_size, bits_x_axis_normal,           bits_x_axis_focused,           MSG_SCREEN_MOVE_X);
-	Icon icon_move_y           = Icon(icon_size, bits_y_axis_normal,           bits_y_axis_focused,           MSG_SCREEN_MOVE_Y);
-	Icon icon_move_z           = Icon(icon_size, bits_z_axis_normal,           bits_z_axis_focused,           MSG_SCREEN_MOVE_Z);
-	Icon icon_move_e           = Icon(icon_size, bits_e_axis_normal,           bits_e_axis_focused,           MSG_SCREEN_MOVE_E);
+	Icon icon_move_x           = Icon(icon_size, bits_x_axis_normal,           bits_x_axis_focused,           MSG_MOVE_X);
+	Icon icon_move_y           = Icon(icon_size, bits_y_axis_normal,           bits_y_axis_focused,           MSG_MOVE_Y);
+	Icon icon_move_z           = Icon(icon_size, bits_z_axis_normal,           bits_z_axis_focused,           MSG_MOVE_Z);
+	Icon icon_move_e           = Icon(icon_size, bits_e_axis_normal,           bits_e_axis_focused,           MSG_MOVE_E);
 	Icon icon_move_01mm        = Icon(icon_size, bits_01mm_normal,             bits_01mm_focused,             MSG_SCREEN_MOVE_01MM);
 	Icon icon_move_1mm         = Icon(icon_size, bits_1mm_normal,              bits_1mm_focused,              MSG_SCREEN_MOVE_1MM);
 	Icon icon_move_10mm        = Icon(icon_size, bits_10mm_normal,             bits_10mm_focused,             MSG_SCREEN_MOVE_10MM);
@@ -83,11 +83,11 @@ namespace screen
 	//Level Plate screens
 	ScreenMenu screen_level_init     = ScreenMenu(MSG_SCREEN_LEVEL_TITLE, MSG_SCREEN_LEVEL_TEXT);
 	ScreenTransition<float> screen_level_cooling	= ScreenTransition<float>(MSG_SCREEN_LEVEL_TITLE, MSG_SCREEN_LEVEL_ABORT, &TemperatureManager::getInstance());
-	ScreenDialog<void> screen_level1          = ScreenDialog<void>(MSG_SCREEN_LEVEL_TITLE, MSG_SCREEN_LEVEL_TEXT1, MSG_SCREEN_LEVEL1_BOX, do_nothing);
-	ScreenDialog<void> screen_level2          = ScreenDialog<void>(MSG_SCREEN_LEVEL_TITLE, MSG_SCREEN_LEVEL_TEXT2, MSG_SCREEN_LEVEL2_BOX, do_nothing);
-	ScreenDialog<void> screen_level3          = ScreenDialog<void>(MSG_SCREEN_LEVEL_TITLE, MSG_SCREEN_LEVEL_TEXT3, MSG_SCREEN_LEVEL3_BOX, do_nothing);
-	ScreenDialog<void> screen_level4          = ScreenDialog<void>(MSG_SCREEN_LEVEL_TITLE, MSG_SCREEN_LEVEL_TEXT4, MSG_SCREEN_LEVEL4_BOX, do_nothing);
-	ScreenMenu screen_level_confirm     = ScreenMenu(MSG_SCREEN_LEVEL_CONFIRM_TITLE, MSG_SCREEN_LEVEL_CONFIRM_TEXT);
+	ScreenDialog<void> screen_level1          = ScreenDialog<void>(MSG_SCREEN_LEVEL_TITLE, MSG_SCREEN_LEVEL_TEXT1, MSG_SCREEN_LEVEL_BOX1, do_nothing);
+	ScreenDialog<void> screen_level2          = ScreenDialog<void>(MSG_SCREEN_LEVEL_TITLE, MSG_SCREEN_LEVEL_TEXT2, MSG_SCREEN_LEVEL_BOX2, do_nothing);
+	ScreenDialog<void> screen_level3          = ScreenDialog<void>(MSG_SCREEN_LEVEL_TITLE, MSG_SCREEN_LEVEL_TEXT3, MSG_SCREEN_LEVEL_BOX3, do_nothing);
+	ScreenDialog<void> screen_level4          = ScreenDialog<void>(MSG_SCREEN_LEVEL_TITLE, MSG_SCREEN_LEVEL_TEXT4, MSG_SCREEN_LEVEL_BOX4, do_nothing);
+	ScreenMenu screen_level_confirm     = ScreenMenu(MSG_SCREEN_LEVEL_TITLE, MSG_SCREEN_LEVEL_CONFIRM);
 	//AutoHome
 	ScreenAction<void> screen_autohome = ScreenAction<void>(MSG_SCREEN_AUTOHOME, action_homing);
 	//Settings
@@ -95,11 +95,11 @@ namespace screen
 	//Steppers
 	ScreenStatus<bool, void> screen_stepper   = ScreenStatus<bool, void>(MSG_SCREEN_STEPPER, SteppersManager::setState, &SteppersManager::getInstance());
 	//Move Axis screens
-	ScreenMenu screen_move              = ScreenMenu(MSG_SCREEN_MOVE);
-	ScreenMenu screen_move_x            = ScreenMenu(MSG_SCREEN_MOVE_X);
-	ScreenMenu screen_move_y            = ScreenMenu(MSG_SCREEN_MOVE_Y);
-	ScreenMenu screen_move_z            = ScreenMenu(MSG_SCREEN_MOVE_Z);
-	ScreenMenu screen_move_e            = ScreenMenu(MSG_SCREEN_MOVE_E);
+	ScreenMenu screen_move              = ScreenMenu(MSG_SCREEN_MOVE_TITLE, MSG_SCREEN_MOVE_TEXT);
+	ScreenMenu screen_move_x            = ScreenMenu(MSG_SCREEN_MOVE_TITLE, MSG_SCREEN_MOVE_X);
+	ScreenMenu screen_move_y            = ScreenMenu(MSG_SCREEN_MOVE_TITLE, MSG_SCREEN_MOVE_Y);
+	ScreenMenu screen_move_z            = ScreenMenu(MSG_SCREEN_MOVE_TITLE, MSG_SCREEN_MOVE_Z);
+	ScreenMenu screen_move_e            = ScreenMenu(MSG_SCREEN_MOVE_TITLE, MSG_SCREEN_MOVE_E);
 	ScreenAction<void> screen_move_back2move        	= ScreenAction<void>(MSG_SCREEN_MOVE_2MOVE, do_nothing);
 	ScreenSelector<void, uint16_t> screen_move_10       = ScreenSelector<void, uint16_t>(MSG_SCREEN_MOVE_10MM, 0, 100, 50, action_set_temperature);
 	ScreenSelector<void, uint16_t> screen_move_1        = ScreenSelector<void, uint16_t>(MSG_SCREEN_MOVE_1MM, 0, 100, 50, action_set_temperature);
