@@ -125,11 +125,17 @@ namespace screen
 	ScreenAction<void> screen_stop_back             = ScreenAction<void>(MSG_SCREEN_STOP_BACK, do_nothing);
 	ScreenAction<void> screen_stop_OK = ScreenAction<void>(MSG_SCREEN_STOP_OK, action_stop_print);
 	//Change Filament Screens
-	ScreenMenu screen_change_confirm	= ScreenMenu(MSG_SCREEN_CHANGE_CONFIRM);
-	ScreenDialog<void> screen_change_start    = ScreenDialog<void>(MSG_SCREEN_CHANGE_TITLE, MSG_SCREEN_CHANGE_START, MSG_SCREEN_CHANGE_BOX, do_nothing);
-	ScreenDialog<void> screen_change_pullout  = ScreenDialog<void>(MSG_SCREEN_CHANGE_TITLE, MSG_SCREEN_CHANGE_PULLOUT, MSG_SCREEN_CHANGE_BOX, do_nothing);
-	ScreenDialog<void> screen_change_insert   = ScreenDialog<void>(MSG_SCREEN_CHANGE_TITLE, MSG_SCREEN_CHANGE_INSERT, MSG_SCREEN_CHANGE_BOX, do_nothing);
-	ScreenMenu screen_change_retry      = ScreenMenu(MSG_SCREEN_CHANGE_RETRY);
+	ScreenAction<void> screen_change_pause					= ScreenAction<void>(MSG_SCREEN_CHANGE_CONFIRM, action_pause_print);
+	ScreenMenu screen_change_confirm_first					= ScreenMenu(MSG_SCREEN_CHANGE_CONFIRM);
+	ScreenAction<void> screen_change_back2print				= ScreenAction<void>(MSG_BACK, action_resume_print);
+	ScreenSelector<void, uint16_t> screen_change_selector	= ScreenSelector<void, uint16_t>(MSG_SCREEN_TEMP_TITLE, 0, 250, default_temp_change_filament, action_set_temperature);
+	ScreenTransition<float> screen_change_transition		= ScreenTransition<float>(MSG_SCREEN_LOAD_TITLE, MSG_SCREEN_LOAD_ABORT, &TemperatureManager::getInstance());
+	ScreenDialog<void> screen_change_start					= ScreenDialog<void>(MSG_SCREEN_CHANGE_TITLE, MSG_SCREEN_CHANGE_START, MSG_SCREEN_CHANGE_BOX, action_filament_unload);
+	ScreenDialog<void> screen_change_pullout				= ScreenDialog<void>(MSG_SCREEN_CHANGE_TITLE, MSG_SCREEN_CHANGE_PULLOUT, MSG_SCREEN_CHANGE_BOX, do_nothing);
+	ScreenDialog<void> screen_change_insert					= ScreenDialog<void>(MSG_SCREEN_CHANGE_TITLE, MSG_SCREEN_CHANGE_INSERT, MSG_SCREEN_CHANGE_BOX, action_filament_load);
+	ScreenMenu screen_change_confirm_second					= ScreenMenu(MSG_SCREEN_CHANGE_CONFIRM);
+	ScreenAction<void> screen_change_ok2print				= ScreenAction<void>(MSG_OK2, action_resume_print);
+	ScreenAction<void> screen_change_retry					= ScreenAction<void>(MSG_SCREEN_CHANGE_RETRY, do_nothing);
 	//Change Speed screen
 	ScreenSelector<void, uint16_t> screen_speed			= ScreenSelector<void, uint16_t>(MSG_SCREEN_SPEED, 10, 400, 100, action_set_temperature);
 
@@ -277,7 +283,7 @@ namespace screen
 		//Print Menu
 		screen_print.add(screen_play_pause);
 		screen_print.add(screen_stop_confirm);
-		screen_print.add(screen_change_confirm);
+		screen_print.add(screen_change_pause);
 		screen_print.add(screen_speed);
 		screen_print.add(screen_temperature);
 		//Play/Pause
@@ -294,19 +300,38 @@ namespace screen
 		//Stop Confirm OK
 		screen_stop_OK.add(screen_main);
 		screen_stop_OK.icon(icon_ok);
-		//Change filament
-		screen_change_confirm.add(screen_print);
-		screen_change_confirm.add(screen_change_start);
-		screen_change_confirm.icon(icon_change_filament);
+		//Change filament pause
+		screen_change_pause.add(screen_change_confirm_first);
+		screen_change_pause.icon(icon_change_filament);
+		//Change filament first confirm
+		screen_change_confirm_first.add(screen_change_back2print);
+		screen_change_confirm_first.add(screen_change_selector);
+		//Change filament back to print
+		screen_change_back2print.add(screen_print);
+		screen_change_back2print.icon(icon_back);
+		//Change filament selector
+		screen_change_selector.add(screen_change_transition);
+		screen_change_selector.icon(icon_ok);
+		//Change filament transition
+		screen_change_transition.add(screen_change_back2print);
+		screen_change_transition.add(screen_change_start);
 		//Change filament start
 		screen_change_start.add(screen_change_pullout);
+		screen_change_start.icon(icon_ok);
 		//Change filament pullout
 		screen_change_pullout.add(screen_change_insert);
 		//Change filament insert
-		screen_change_insert.add(screen_change_retry);
+		screen_change_insert.add(screen_change_confirm_second);
+		//Change filament second confirm
+		screen_change_confirm_second.add(screen_change_retry);
+		screen_change_confirm_second.add(screen_change_ok2print);
 		//Change filament retry
 		screen_change_retry.add(screen_change_start);
-		screen_change_retry.add(screen_print);
+		screen_change_retry.icon(icon_retry);
+		//Change filament OK to print
+		screen_change_ok2print.add(screen_print);
+		screen_change_ok2print.icon(icon_ok);
+
 		//Change speed screens
 		screen_speed.add(screen_print);
 		screen_speed.icon(icon_change_speed);
