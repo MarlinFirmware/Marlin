@@ -43,7 +43,7 @@ namespace screen
 		if ( (text != NULL) && (strlen_P(text) > 0) )
 		{
 			uint8_t x_init = coordinateXInit();
-			uint8_t y_init = coordinateYInit();
+			uint8_t y_init = coordinateYInit() + 3;
 			uint8_t x_end = coordinateXEnd();
 
 			setColorIndex(1);
@@ -51,7 +51,7 @@ namespace screen
 			setPrintPos(x_end/2 - (strlen_P(text)*6)/2, y_init + 2);
 			print_P(text);
 
-			coordinateYInit(y_init + 10);
+			coordinateYInit(y_init + 12);
 		}
 	}
 
