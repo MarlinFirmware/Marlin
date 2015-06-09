@@ -205,13 +205,14 @@ const char MSG_SCREEN_LOAD_PRESS[] PROGMEM           = "Push to continue";
 const char MSG_SCREEN_LOAD_CONFIRM[] PROGMEM         = "Finished?";
 
 const char MSG_SCREEN_LEVEL_TITLE[] PROGMEM          = "Level Plate";
+const char MSG_SCREEN_LEVEL_TEXT[] PROGMEM           = "Start leveling?";
 const char MSG_SCREEN_LEVEL_ABORT[] PROGMEM          = "Push to abort";
 const char MSG_SCREEN_LEVEL_CONTINUE[] PROGMEM       = "Push to continue";
 
-const char MSG_SCREEN_LEVEL1_TITLE[] PROGMEM         = "Screen1";
-const char MSG_SCREEN_LEVEL2_TITLE[] PROGMEM         = "Screen2";
-const char MSG_SCREEN_LEVEL3_TITLE[] PROGMEM         = "Screen3";
-const char MSG_SCREEN_LEVEL4_TITLE[] PROGMEM         = "Screen4";
+const char MSG_SCREEN_LEVEL1_TITLE[] PROGMEM         = "Level plate";
+const char MSG_SCREEN_LEVEL2_TITLE[] PROGMEM         = "Level plate";
+const char MSG_SCREEN_LEVEL3_TITLE[] PROGMEM         = "Level plate";
+const char MSG_SCREEN_LEVEL4_TITLE[] PROGMEM         = "Level plate";
 const char MSG_SCREEN_LEVEL1_TEXT[] PROGMEM          = "Text1";
 const char MSG_SCREEN_LEVEL2_TEXT[] PROGMEM          = "Text2";
 const char MSG_SCREEN_LEVEL3_TEXT[] PROGMEM          = "Text3";
@@ -220,7 +221,8 @@ const char MSG_SCREEN_LEVEL1_BOX[] PROGMEM           = "Box1";
 const char MSG_SCREEN_LEVEL2_BOX[] PROGMEM           = "Box2";
 const char MSG_SCREEN_LEVEL3_BOX[] PROGMEM           = "Box3";
 const char MSG_SCREEN_LEVEL4_BOX[] PROGMEM           = "Box4";
-const char MSG_SCREEN_LEVEL_RETRY[] PROGMEM          = "Finished?";
+const char MSG_SCREEN_LEVEL_CONFIRM_TITLE[] PROGMEM  = "Level plate";
+const char MSG_SCREEN_LEVEL_CONFIRM_TEXT[] PROGMEM   = "Finished?";
 
 const char MSG_SCREEN_AUTOHOME[] PROGMEM             = "Auto-home";
 const char MSG_SCREEN_SETTINGS[] PROGMEM             = "Settings";
@@ -319,13 +321,14 @@ const char MSG_SCREEN_LOAD_PRESS[] PROGMEM           = "Push to continue";
 const char MSG_SCREEN_LOAD_CONFIRM[] PROGMEM         = "Finished?";
 
 const char MSG_SCREEN_LEVEL_TITLE[] PROGMEM          = "Level Plate";
+const char MSG_SCREEN_LEVEL_TEXT[] PROGMEM           = "Comenzar nivelacion?";
 const char MSG_SCREEN_LEVEL_ABORT[] PROGMEM          = "Push to abort";
 const char MSG_SCREEN_LEVEL_CONTINUE[] PROGMEM       = "Push to continue";
 
-const char MSG_SCREEN_LEVEL1_TITLE[] PROGMEM         = "Screen1";
-const char MSG_SCREEN_LEVEL2_TITLE[] PROGMEM         = "Screen2";
-const char MSG_SCREEN_LEVEL3_TITLE[] PROGMEM         = "Screen3";
-const char MSG_SCREEN_LEVEL4_TITLE[] PROGMEM         = "Screen4";
+const char MSG_SCREEN_LEVEL1_TITLE[] PROGMEM         = "Nivelar base";
+const char MSG_SCREEN_LEVEL2_TITLE[] PROGMEM         = "Nivelar base";
+const char MSG_SCREEN_LEVEL3_TITLE[] PROGMEM         = "Nivelar base";
+const char MSG_SCREEN_LEVEL4_TITLE[] PROGMEM         = "Nivelar base";
 const char MSG_SCREEN_LEVEL1_TEXT[] PROGMEM          = "Text1";
 const char MSG_SCREEN_LEVEL2_TEXT[] PROGMEM          = "Text2";
 const char MSG_SCREEN_LEVEL3_TEXT[] PROGMEM          = "Text3";
@@ -334,7 +337,9 @@ const char MSG_SCREEN_LEVEL1_BOX[] PROGMEM           = "Box1";
 const char MSG_SCREEN_LEVEL2_BOX[] PROGMEM           = "Box2";
 const char MSG_SCREEN_LEVEL3_BOX[] PROGMEM           = "Box3";
 const char MSG_SCREEN_LEVEL4_BOX[] PROGMEM           = "Box4";
-const char MSG_SCREEN_LEVEL_RETRY[] PROGMEM          = "OK?";
+const char MSG_SCREEN_LEVEL_CONFIRM_TITLE[] PROGMEM  = "Nivelar base";
+const char MSG_SCREEN_LEVEL_CONFIRM_TEXT[] PROGMEM   = "Finalizado?";
+
 
 const char MSG_SCREEN_AUTOHOME[] PROGMEM             = "Auto-home";
 const char MSG_SCREEN_SETTINGS[] PROGMEM             = "Configuracion";
