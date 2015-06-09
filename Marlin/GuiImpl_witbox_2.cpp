@@ -81,13 +81,16 @@ namespace screen
 	ScreenDialog<void> screen_load_press      = ScreenDialog<void>(MSG_SCREEN_LOAD_TITLE, MSG_SCREEN_LOAD_TEXT1, MSG_SCREEN_LOAD_CONTINUE, action_filament_load);
 	ScreenMenu screen_load_confirm      = ScreenMenu(MSG_SCREEN_LOAD_TITLE, MSG_SCREEN_LOAD_CONFIRM);
 	//Level Plate screens
-	ScreenMenu screen_level_init     = ScreenMenu(MSG_SCREEN_LEVEL_TITLE, MSG_SCREEN_LEVEL_TEXT);
-	ScreenTransition<float> screen_level_cooling	= ScreenTransition<float>(MSG_SCREEN_LEVEL_TITLE, MSG_SCREEN_LEVEL_ABORT, &TemperatureManager::getInstance());
-	ScreenDialog<void> screen_level1          = ScreenDialog<void>(MSG_SCREEN_LEVEL_TITLE, MSG_SCREEN_LEVEL_TEXT1, MSG_SCREEN_LEVEL_BOX1, do_nothing);
-	ScreenDialog<void> screen_level2          = ScreenDialog<void>(MSG_SCREEN_LEVEL_TITLE, MSG_SCREEN_LEVEL_TEXT2, MSG_SCREEN_LEVEL_BOX2, do_nothing);
-	ScreenDialog<void> screen_level3          = ScreenDialog<void>(MSG_SCREEN_LEVEL_TITLE, MSG_SCREEN_LEVEL_TEXT3, MSG_SCREEN_LEVEL_BOX3, do_nothing);
-	ScreenDialog<void> screen_level4          = ScreenDialog<void>(MSG_SCREEN_LEVEL_TITLE, MSG_SCREEN_LEVEL_TEXT4, MSG_SCREEN_LEVEL_BOX4, do_nothing);
-	ScreenMenu screen_level_confirm     = ScreenMenu(MSG_SCREEN_LEVEL_TITLE, MSG_SCREEN_LEVEL_CONFIRM);
+	ScreenMenu screen_level_init					= ScreenMenu(MSG_SCREEN_LEVEL_TITLE);
+	ScreenAction<void> screen_level_cooling			= ScreenAction<void>("", action_cooldown);
+	ScreenTransition<float> screen_level_transition	= ScreenTransition<float>(MSG_SCREEN_LEVEL_TITLE, MSG_SCREEN_LEVEL_ABORT, &TemperatureManager::getInstance());
+	ScreenAction<void> screen_level_homing			= ScreenAction<void>("", action_homing);
+	ScreenDialog<void> screen_level0				= ScreenDialog<void>(MSG_SCREEN_LEVEL_TITLE, MSG_SCREEN_LEVEL_TEXT0, MSG_SCREEN_LEVEL_BOX0, action_level_plate);
+	ScreenDialog<void> screen_level1				= ScreenDialog<void>(MSG_SCREEN_LEVEL_TITLE, MSG_SCREEN_LEVEL_TEXT1, MSG_SCREEN_LEVEL_BOX1, action_level_plate);
+	ScreenDialog<void> screen_level2				= ScreenDialog<void>(MSG_SCREEN_LEVEL_TITLE, MSG_SCREEN_LEVEL_TEXT2, MSG_SCREEN_LEVEL_BOX2, action_level_plate);
+	ScreenDialog<void> screen_level3				= ScreenDialog<void>(MSG_SCREEN_LEVEL_TITLE, MSG_SCREEN_LEVEL_TEXT3, MSG_SCREEN_LEVEL_BOX3, action_level_plate);
+	ScreenDialog<void> screen_level4				= ScreenDialog<void>(MSG_SCREEN_LEVEL_TITLE, MSG_SCREEN_LEVEL_TEXT4, MSG_SCREEN_LEVEL_BOX4, action_level_plate);
+	ScreenMenu screen_level_confirm					= ScreenMenu(MSG_SCREEN_LEVEL_CONFIRM);
 	//AutoHome
 	ScreenAction<void> screen_autohome = ScreenAction<void>(MSG_SCREEN_AUTOHOME, action_homing);
 	//Settings
@@ -198,12 +201,18 @@ namespace screen
 		screen_level_init.add(screen_level_cooling);
 		screen_level_init.icon(icon_leveling);
 		//Level Plate Cooling
-		screen_level_cooling.add(screen_level_cooling);
-		screen_level_cooling.add(screen_level1);
+		screen_level_cooling.add(screen_level_transition);
 		screen_level_cooling.icon(icon_ok);
+		//Level Plate Transition
+		screen_level_transition.add(screen_main);
+		screen_level_transition.add(screen_level_homing);
+		//Level Plate Homing
+		screen_level_homing.add(screen_level0);
+		//Level screen 0
+		screen_level0.add(screen_level1);
+		screen_level0.icon(icon_retry);
 		//Level screen 1
 		screen_level1.add(screen_level2);
-		screen_level1.icon(icon_retry);
 		//Level screen 2
 		screen_level2.add(screen_level3);
 		//Level screen 3
@@ -211,7 +220,7 @@ namespace screen
 		//Level screen 4
 		screen_level4.add(screen_level_confirm);
 		//Level Plate Confirm
-		screen_level_confirm.add(screen_level1);
+		screen_level_confirm.add(screen_level0);
 		screen_level_confirm.add(screen_ok2main);
 		//AutoHome
 		screen_autohome.add(screen_main);
