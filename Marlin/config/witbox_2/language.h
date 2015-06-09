@@ -187,12 +187,14 @@ const char MSG_SCREEN_SD_LIST_BACK[] PROGMEM         = "Back to main menu";
 const char MSG_SCREEN_SD_LIST_PREV[] PROGMEM         = "Previous folder";
 
 const char MSG_SCREEN_UNLOAD_TITLE[] PROGMEM         = "Unload filament";
+const char MSG_SCREEN_UNLOAD_TEXT[] PROGMEM          = "Start process?";
 const char MSG_SCREEN_UNLOAD_ABORT[] PROGMEM         = "Press to abort";
 const char MSG_SCREEN_UNLOAD_CONTINUE[] PROGMEM      = "Press to continue";
 const char MSG_SCREEN_UNLOAD_PULL[] PROGMEM          = "Extrude and pull";
 const char MSG_SCREEN_UNLOAD_CONFIRM[] PROGMEM       = "Finished?";
 
 const char MSG_SCREEN_LOAD_TITLE[] PROGMEM           = "Load filament";
+const char MSG_SCREEN_LOAD_TEXT[] PROGMEM            = "Start process?";
 const char MSG_SCREEN_LOAD_ABORT[] PROGMEM           = "Press to abort";
 const char MSG_SCREEN_LOAD_CONTINUE[] PROGMEM        = "Press to continue";
 const char MSG_SCREEN_LOAD_PRESS[] PROGMEM           = "Push to continue";
@@ -210,6 +212,7 @@ const char MSG_SCREEN_LEVEL_RETRY[] PROGMEM          = "Finished?";
 
 const char MSG_SCREEN_AUTOHOME[] PROGMEM             = "Auto-home";
 const char MSG_SCREEN_SETTINGS[] PROGMEM             = "Settings";
+const char MSG_SCREEN_SETTINGS_TEXT[] PROGMEM        = "Choose an option";
 const char MSG_SCREEN_STEPPER[] PROGMEM              = "Steppers on";
 
 const char MSG_SCREEN_MOVE[] PROGMEM                 = "Move axis";
@@ -281,12 +284,14 @@ const char MSG_SCREEN_SD_LIST_BACK[] PROGMEM         = "Volver al menu";
 const char MSG_SCREEN_SD_LIST_PREV[] PROGMEM         = "Carpeta anterior";
 
 const char MSG_SCREEN_UNLOAD_TITLE[] PROGMEM         = "Descargar filamento";
+const char MSG_SCREEN_UNLOAD_TEXT[] PROGMEM          = "Iniciar proceso?";
 const char MSG_SCREEN_UNLOAD_ABORT[] PROGMEM         = "Pulse para cancelar";
 const char MSG_SCREEN_UNLOAD_CONTINUE[] PROGMEM      = "Pulse para continuar";
 const char MSG_SCREEN_UNLOAD_PULL[] PROGMEM          = "Extruir y sacar";
 const char MSG_SCREEN_UNLOAD_CONFIRM[] PROGMEM       = "Finished?";
 
 const char MSG_SCREEN_LOAD_TITLE[] PROGMEM           = "Cargar filamento";
+const char MSG_SCREEN_LOAD_TEXT[] PROGMEM            = "Iniciar proceso?";
 const char MSG_SCREEN_LOAD_ABORT[] PROGMEM           = "Pulse para cancelar";
 const char MSG_SCREEN_LOAD_CONTINUE[] PROGMEM        = "Pulse para continuar";
 const char MSG_SCREEN_LOAD_PRESS[] PROGMEM           = "Push to continue";
@@ -304,6 +309,7 @@ const char MSG_SCREEN_LEVEL_RETRY[] PROGMEM          = "OK?";
 
 const char MSG_SCREEN_AUTOHOME[] PROGMEM             = "Auto-home";
 const char MSG_SCREEN_SETTINGS[] PROGMEM             = "Configuracion";
+const char MSG_SCREEN_SETTINGS_TEXT[] PROGMEM        = "Seleccione opcion";
 const char MSG_SCREEN_STEPPER[] PROGMEM              = "Motores activos";
 
 const char MSG_SCREEN_MOVE[] PROGMEM                 = "Mover ejes";

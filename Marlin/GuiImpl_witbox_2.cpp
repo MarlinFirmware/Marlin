@@ -74,12 +74,12 @@ namespace screen
 	ScreenSelector<void, uint16_t> screen_unload_select = ScreenSelector<void, uint16_t>(MSG_SCREEN_UNLOAD_TITLE, 170, 230, default_temp_change_filament, action_set_temperature);
 	ScreenTransition<float> screen_unload_heating	= ScreenTransition<float>(MSG_SCREEN_UNLOAD_TITLE, MSG_SCREEN_UNLOAD_ABORT, &TemperatureManager::getInstance());
 	ScreenDialog<void> screen_unload_pull     = ScreenDialog<void>(MSG_SCREEN_UNLOAD_TITLE, "", MSG_SCREEN_UNLOAD_CONTINUE, action_filament_unload);
-	ScreenMenu screen_unload_confirm    = ScreenMenu(MSG_SCREEN_UNLOAD_CONFIRM);
+	ScreenMenu screen_unload_confirm    = ScreenMenu(MSG_SCREEN_UNLOAD_CONFIRM, MSG_SCREEN_UNLOAD_TEXT);
 	//Load Filament screens
 	ScreenSelector<void, uint16_t> screen_load_select   = ScreenSelector<void, uint16_t>(MSG_SCREEN_LOAD_TITLE, 170, 230, default_temp_change_filament, action_set_temperature);
 	ScreenTransition<float> screen_load_heating	= ScreenTransition<float>(MSG_SCREEN_LOAD_TITLE, MSG_SCREEN_LOAD_ABORT, &TemperatureManager::getInstance());
 	ScreenDialog<void> screen_load_press      = ScreenDialog<void>(MSG_SCREEN_LOAD_TITLE, "", MSG_SCREEN_LOAD_CONTINUE, action_filament_load);
-	ScreenMenu screen_load_confirm      = ScreenMenu(MSG_SCREEN_LOAD_CONFIRM);
+	ScreenMenu screen_load_confirm      = ScreenMenu(MSG_SCREEN_LOAD_CONFIRM, MSG_SCREEN_LOAD_TEXT);
 	//Level Plate screens
 	ScreenMenu screen_level_init     = ScreenMenu(MSG_SCREEN_LEVEL_TITLE);
 	ScreenTransition<float> screen_level_cooling	= ScreenTransition<float>(MSG_SCREEN_LEVEL_TITLE, MSG_SCREEN_LEVEL_ABORT, &TemperatureManager::getInstance());
@@ -91,7 +91,7 @@ namespace screen
 	//AutoHome
 	ScreenAction<void> screen_autohome = ScreenAction<void>(MSG_SCREEN_AUTOHOME, action_homing);
 	//Settings
-	ScreenMenu screen_settings          = ScreenMenu(MSG_SCREEN_SETTINGS);
+	ScreenMenu screen_settings          = ScreenMenu(MSG_SCREEN_SETTINGS, MSG_SCREEN_SETTINGS_TEXT);
 	//Steppers
 	ScreenStatus<bool, void> screen_stepper   = ScreenStatus<bool, void>(MSG_SCREEN_STEPPER, SteppersManager::setState, &SteppersManager::getInstance());
 	//Move Axis screens
