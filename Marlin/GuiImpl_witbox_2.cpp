@@ -62,7 +62,7 @@ namespace screen
 	// Instantiate Screens //
 	/////////////////////////
 	//Logo Splash
-	ScreenDialog<void> screen_logo      = ScreenDialog<void>(MSG_SCREEN_LOGO, "", "", do_nothing);
+	ScreenDialog<void> screen_logo      = ScreenDialog<void>(MSG_SCREEN_LOGO, MSG_SCREEN_LOGO_TEXT, MSG_SCREEN_LOGO_BOX, do_nothing);
 	//Main Menu
 	ScreenMenu screen_main              = ScreenMenu();
 	//SD Card screens
@@ -73,20 +73,20 @@ namespace screen
 	//Unload Filament screens
 	ScreenSelector<void, uint16_t> screen_unload_select = ScreenSelector<void, uint16_t>(MSG_SCREEN_UNLOAD_TITLE, 170, 230, default_temp_change_filament, action_set_temperature);
 	ScreenTransition<float> screen_unload_heating	= ScreenTransition<float>(MSG_SCREEN_UNLOAD_TITLE, MSG_SCREEN_UNLOAD_ABORT, &TemperatureManager::getInstance());
-	ScreenDialog<void> screen_unload_pull     = ScreenDialog<void>(MSG_SCREEN_UNLOAD_TITLE, "", MSG_SCREEN_UNLOAD_CONTINUE, action_filament_unload);
-	ScreenMenu screen_unload_confirm    = ScreenMenu(MSG_SCREEN_UNLOAD_CONFIRM, MSG_SCREEN_UNLOAD_TEXT);
+	ScreenDialog<void> screen_unload_pull     = ScreenDialog<void>(MSG_SCREEN_UNLOAD_TITLE, MSG_SCREEN_UNLOAD_TEXT1, MSG_SCREEN_UNLOAD_CONTINUE, action_filament_unload);
+	ScreenMenu screen_unload_confirm    = ScreenMenu(MSG_SCREEN_UNLOAD_CONFIRM, MSG_SCREEN_UNLOAD_TEXT2);
 	//Load Filament screens
 	ScreenSelector<void, uint16_t> screen_load_select   = ScreenSelector<void, uint16_t>(MSG_SCREEN_LOAD_TITLE, 170, 230, default_temp_change_filament, action_set_temperature);
 	ScreenTransition<float> screen_load_heating	= ScreenTransition<float>(MSG_SCREEN_LOAD_TITLE, MSG_SCREEN_LOAD_ABORT, &TemperatureManager::getInstance());
-	ScreenDialog<void> screen_load_press      = ScreenDialog<void>(MSG_SCREEN_LOAD_TITLE, "", MSG_SCREEN_LOAD_CONTINUE, action_filament_load);
-	ScreenMenu screen_load_confirm      = ScreenMenu(MSG_SCREEN_LOAD_CONFIRM, MSG_SCREEN_LOAD_TEXT);
+	ScreenDialog<void> screen_load_press      = ScreenDialog<void>(MSG_SCREEN_LOAD_TITLE, MSG_SCREEN_LOAD_TEXT1, MSG_SCREEN_LOAD_CONTINUE, action_filament_load);
+	ScreenMenu screen_load_confirm      = ScreenMenu(MSG_SCREEN_LOAD_CONFIRM, MSG_SCREEN_LOAD_TEXT2);
 	//Level Plate screens
 	ScreenMenu screen_level_init     = ScreenMenu(MSG_SCREEN_LEVEL_TITLE);
 	ScreenTransition<float> screen_level_cooling	= ScreenTransition<float>(MSG_SCREEN_LEVEL_TITLE, MSG_SCREEN_LEVEL_ABORT, &TemperatureManager::getInstance());
-	ScreenDialog<void> screen_level1          = ScreenDialog<void>("", "", MSG_SCREEN_LEVEL1, do_nothing);
-	ScreenDialog<void> screen_level2          = ScreenDialog<void>("", "", MSG_SCREEN_LEVEL2, do_nothing);
-	ScreenDialog<void> screen_level3          = ScreenDialog<void>("", "", MSG_SCREEN_LEVEL3, do_nothing);
-	ScreenDialog<void> screen_level4          = ScreenDialog<void>("", "", MSG_SCREEN_LEVEL4, do_nothing);
+	ScreenDialog<void> screen_level1          = ScreenDialog<void>(MSG_SCREEN_LEVEL1_TITLE, MSG_SCREEN_LEVEL1_TEXT, MSG_SCREEN_LEVEL1_BOX, do_nothing);
+	ScreenDialog<void> screen_level2          = ScreenDialog<void>(MSG_SCREEN_LEVEL2_TITLE, MSG_SCREEN_LEVEL2_TEXT, MSG_SCREEN_LEVEL2_BOX, do_nothing);
+	ScreenDialog<void> screen_level3          = ScreenDialog<void>(MSG_SCREEN_LEVEL3_TITLE, MSG_SCREEN_LEVEL3_TEXT, MSG_SCREEN_LEVEL3_BOX, do_nothing);
+	ScreenDialog<void> screen_level4          = ScreenDialog<void>(MSG_SCREEN_LEVEL4_TITLE, MSG_SCREEN_LEVEL4_TEXT, MSG_SCREEN_LEVEL4_BOX, do_nothing);
 	ScreenMenu screen_level_confirm     = ScreenMenu(MSG_SCREEN_LEVEL_RETRY);
 	//AutoHome
 	ScreenAction<void> screen_autohome = ScreenAction<void>(MSG_SCREEN_AUTOHOME, action_homing);
@@ -109,7 +109,7 @@ namespace screen
 	//Light
 	ScreenStatus<bool, void> screen_light = ScreenStatus<bool, void>(MSG_SCREEN_LIGHT, LightManager::setState, &LightManager::getInstance());
 	//Info
-	ScreenDialog<void> screen_info            = ScreenDialog<void>(MSG_SCREEN_INFO, "", MSG_SCREEN_INFO, do_nothing);
+	ScreenDialog<void> screen_info            = ScreenDialog<void>(MSG_SCREEN_INFO, MSG_SCREEN_INFO_TEXT, MSG_SCREEN_INFO_BOX, do_nothing);
 
 	//Back to main
 	ScreenAction<void> screen_back2main             = ScreenAction<void>(MSG_SCREEN_BACK2MAIN, do_nothing);
@@ -126,9 +126,9 @@ namespace screen
 	ScreenAction<void> screen_stop_OK = ScreenAction<void>(MSG_SCREEN_STOP_OK, action_stop_print);
 	//Change Filament Screens
 	ScreenMenu screen_change_confirm	= ScreenMenu(MSG_SCREEN_CHANGE_CONFIRM);
-	ScreenDialog<void> screen_change_start    = ScreenDialog<void>("", "", MSG_SCREEN_CHANGE_START, do_nothing);
-	ScreenDialog<void> screen_change_pullout  = ScreenDialog<void>("", "", MSG_SCREEN_CHANGE_PULLOUT, do_nothing);
-	ScreenDialog<void> screen_change_insert   = ScreenDialog<void>("", "", MSG_SCREEN_CHANGE_INSERT, do_nothing);
+	ScreenDialog<void> screen_change_start    = ScreenDialog<void>(MSG_SCREEN_CHANGE_TITLE, MSG_SCREEN_CHANGE_START, MSG_SCREEN_CHANGE_BOX, do_nothing);
+	ScreenDialog<void> screen_change_pullout  = ScreenDialog<void>(MSG_SCREEN_CHANGE_TITLE, MSG_SCREEN_CHANGE_PULLOUT, MSG_SCREEN_CHANGE_BOX, do_nothing);
+	ScreenDialog<void> screen_change_insert   = ScreenDialog<void>(MSG_SCREEN_CHANGE_TITLE, MSG_SCREEN_CHANGE_INSERT, MSG_SCREEN_CHANGE_BOX, do_nothing);
 	ScreenMenu screen_change_retry      = ScreenMenu(MSG_SCREEN_CHANGE_RETRY);
 	//Change Speed screen
 	ScreenSelector<void, uint16_t> screen_speed			= ScreenSelector<void, uint16_t>(MSG_SCREEN_SPEED, 10, 400, 100, action_set_temperature);
