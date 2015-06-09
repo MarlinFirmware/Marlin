@@ -74,19 +74,19 @@ namespace screen
 	ScreenSelector<void, uint16_t> screen_unload_select = ScreenSelector<void, uint16_t>(MSG_SCREEN_UNLOAD_TITLE, 170, 230, default_temp_change_filament, action_set_temperature);
 	ScreenTransition<float> screen_unload_heating	= ScreenTransition<float>(MSG_SCREEN_UNLOAD_TITLE, MSG_SCREEN_UNLOAD_ABORT, &TemperatureManager::getInstance());
 	ScreenDialog<void> screen_unload_pull     = ScreenDialog<void>(MSG_SCREEN_UNLOAD_TITLE, MSG_SCREEN_UNLOAD_TEXT1, MSG_SCREEN_UNLOAD_CONTINUE, action_filament_unload);
-	ScreenMenu screen_unload_confirm    = ScreenMenu(MSG_SCREEN_UNLOAD_CONFIRM, MSG_SCREEN_UNLOAD_TEXT2);
+	ScreenMenu screen_unload_confirm    = ScreenMenu(MSG_SCREEN_UNLOAD_TITLE, MSG_SCREEN_UNLOAD_CONFIRM);
 	//Load Filament screens
 	ScreenSelector<void, uint16_t> screen_load_select   = ScreenSelector<void, uint16_t>(MSG_SCREEN_LOAD_TITLE, 170, 230, default_temp_change_filament, action_set_temperature);
 	ScreenTransition<float> screen_load_heating	= ScreenTransition<float>(MSG_SCREEN_LOAD_TITLE, MSG_SCREEN_LOAD_ABORT, &TemperatureManager::getInstance());
 	ScreenDialog<void> screen_load_press      = ScreenDialog<void>(MSG_SCREEN_LOAD_TITLE, MSG_SCREEN_LOAD_TEXT1, MSG_SCREEN_LOAD_CONTINUE, action_filament_load);
-	ScreenMenu screen_load_confirm      = ScreenMenu(MSG_SCREEN_LOAD_CONFIRM, MSG_SCREEN_LOAD_TEXT2);
+	ScreenMenu screen_load_confirm      = ScreenMenu(MSG_SCREEN_LOAD_TITLE, MSG_SCREEN_LOAD_CONFIRM);
 	//Level Plate screens
 	ScreenMenu screen_level_init     = ScreenMenu(MSG_SCREEN_LEVEL_TITLE, MSG_SCREEN_LEVEL_TEXT);
 	ScreenTransition<float> screen_level_cooling	= ScreenTransition<float>(MSG_SCREEN_LEVEL_TITLE, MSG_SCREEN_LEVEL_ABORT, &TemperatureManager::getInstance());
-	ScreenDialog<void> screen_level1          = ScreenDialog<void>(MSG_SCREEN_LEVEL1_TITLE, MSG_SCREEN_LEVEL1_TEXT, MSG_SCREEN_LEVEL1_BOX, do_nothing);
-	ScreenDialog<void> screen_level2          = ScreenDialog<void>(MSG_SCREEN_LEVEL2_TITLE, MSG_SCREEN_LEVEL2_TEXT, MSG_SCREEN_LEVEL2_BOX, do_nothing);
-	ScreenDialog<void> screen_level3          = ScreenDialog<void>(MSG_SCREEN_LEVEL3_TITLE, MSG_SCREEN_LEVEL3_TEXT, MSG_SCREEN_LEVEL3_BOX, do_nothing);
-	ScreenDialog<void> screen_level4          = ScreenDialog<void>(MSG_SCREEN_LEVEL4_TITLE, MSG_SCREEN_LEVEL4_TEXT, MSG_SCREEN_LEVEL4_BOX, do_nothing);
+	ScreenDialog<void> screen_level1          = ScreenDialog<void>(MSG_SCREEN_LEVEL_TITLE, MSG_SCREEN_LEVEL_TEXT1, MSG_SCREEN_LEVEL1_BOX, do_nothing);
+	ScreenDialog<void> screen_level2          = ScreenDialog<void>(MSG_SCREEN_LEVEL_TITLE, MSG_SCREEN_LEVEL_TEXT2, MSG_SCREEN_LEVEL2_BOX, do_nothing);
+	ScreenDialog<void> screen_level3          = ScreenDialog<void>(MSG_SCREEN_LEVEL_TITLE, MSG_SCREEN_LEVEL_TEXT3, MSG_SCREEN_LEVEL3_BOX, do_nothing);
+	ScreenDialog<void> screen_level4          = ScreenDialog<void>(MSG_SCREEN_LEVEL_TITLE, MSG_SCREEN_LEVEL_TEXT4, MSG_SCREEN_LEVEL4_BOX, do_nothing);
 	ScreenMenu screen_level_confirm     = ScreenMenu(MSG_SCREEN_LEVEL_CONFIRM_TITLE, MSG_SCREEN_LEVEL_CONFIRM_TEXT);
 	//AutoHome
 	ScreenAction<void> screen_autohome = ScreenAction<void>(MSG_SCREEN_AUTOHOME, action_homing);
