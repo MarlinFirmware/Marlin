@@ -108,7 +108,7 @@ namespace screen
 	ScreenSelector<void, uint16_t> screen_move_1        = ScreenSelector<void, uint16_t>(MSG_SCREEN_MOVE_1MM, 0, 100, 50, action_set_temperature);
 	ScreenSelector<void, uint16_t> screen_move_01       = ScreenSelector<void, uint16_t>(MSG_SCREEN_MOVE_01MM, 0, 100, 50, action_set_temperature);
 	//Temperature
-	ScreenSelector<void, uint16_t> screen_temperature   = ScreenSelector<void, uint16_t>(MSG_SCREEN_TEMP_TITLE, 0, 250, default_temp_change_filament, action_set_temperature);
+	ScreenSelector<void, uint16_t> screen_temperature_main   = ScreenSelector<void, uint16_t>(MSG_SCREEN_TEMP_TITLE, 0, 250, default_temp_change_filament, action_set_temperature);
 	//Light
 	ScreenStatus<bool, void> screen_light = ScreenStatus<bool, void>(MSG_SCREEN_LIGHT, LightManager::setState, &LightManager::getInstance());
 	//Info
@@ -141,7 +141,8 @@ namespace screen
 	ScreenAction<void> screen_change_retry					= ScreenAction<void>(MSG_SCREEN_CHANGE_RETRY, do_nothing);
 	//Change Speed screen
 	ScreenSelector<void, uint16_t> screen_speed			= ScreenSelector<void, uint16_t>(MSG_SCREEN_SPEED, 10, 400, 100, action_set_temperature);
-
+	//Temperature
+	ScreenSelector<void, uint16_t> screen_temperature_print	= ScreenSelector<void, uint16_t>(MSG_SCREEN_TEMP_TITLE, 170, 230, default_temp_change_filament, action_set_temperature);
 
 	Screen * GuiBuild()
 	{
@@ -155,7 +156,7 @@ namespace screen
 		screen_main.add(screen_settings);
 		screen_main.add(screen_move);
 		screen_main.add(screen_stepper);
-		screen_main.add(screen_temperature);
+		screen_main.add(screen_temperature_main);
 		screen_main.add(screen_info);
 		//SD Card List
 		screen_SD_list.add(screen_main);
@@ -273,8 +274,8 @@ namespace screen
 		screen_move_10.icon(icon_move_10mm);
 		//screen_move_e.icon(icon_move_e);
 		//Temperature
-		screen_temperature.add(screen_main);
-		screen_temperature.icon(icon_temperature);
+		screen_temperature_main.add(screen_main);
+		screen_temperature_main.icon(icon_temperature);
 		//Back to main
 		screen_back2main.add(screen_main);
 		screen_back2main.icon(icon_back);
@@ -294,7 +295,7 @@ namespace screen
 		screen_print.add(screen_stop_confirm);
 		screen_print.add(screen_change_pause);
 		screen_print.add(screen_speed);
-		screen_print.add(screen_temperature);
+		screen_print.add(screen_temperature_print);
 		//Play/Pause
 		screen_play_pause.add(screen_print);
 		screen_play_pause.icon(icon_pause);
@@ -340,11 +341,12 @@ namespace screen
 		//Change filament OK to print
 		screen_change_ok2print.add(screen_print);
 		screen_change_ok2print.icon(icon_ok);
-
 		//Change speed screens
 		screen_speed.add(screen_print);
 		screen_speed.icon(icon_change_speed);
-		//
+		//Temperature
+		screen_temperature_print.add(screen_print);
+		screen_temperature_print.icon(icon_temperature);
 
 		return (Screen *) &screen_main;
 	}
