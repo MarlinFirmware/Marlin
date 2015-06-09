@@ -6,6 +6,8 @@
 #ifndef CONFIGURATION_H
 #define CONFIGURATION_H
 
+#define REQUIRES_CUSTOMIZED_CONFIGURATION_ADV_H
+
 #include "boards.h"
 
 //===========================================================================

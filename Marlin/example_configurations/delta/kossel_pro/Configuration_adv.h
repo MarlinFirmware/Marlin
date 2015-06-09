@@ -5,6 +5,8 @@
 #ifndef CONFIGURATION_ADV_H
 #define CONFIGURATION_ADV_H
 
+#define PROVIDES_CUSTOMIZED_CONFIGURATION_ADV_H
+
 #include "Conditionals.h"
 
 // @section temperature
