@@ -32,7 +32,7 @@ namespace screen
 
 			void title(const char * title);
 
-			void short_text(const char * text);
+			void text(const char * text);
 
 			void printing_status(const uint8_t percentage, const uint16_t time);
 
