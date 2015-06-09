@@ -204,7 +204,7 @@ const char MSG_SCREEN_LOAD_CONTINUE[] PROGMEM        = "Press to continue";
 const char MSG_SCREEN_LOAD_PRESS[] PROGMEM           = "Push to continue";
 const char MSG_SCREEN_LOAD_CONFIRM[] PROGMEM         = "Finished?";
 
-const char MSG_SCREEN_LEVEL_TITLE[] PROGMEM          = "Level Plate";
+const char MSG_SCREEN_LEVEL_TITLE[] PROGMEM          = "Level plate";
 const char MSG_SCREEN_LEVEL_TEXT[] PROGMEM           = "Start leveling?";
 const char MSG_SCREEN_LEVEL_ABORT[] PROGMEM          = "Push to abort";
 const char MSG_SCREEN_LEVEL_CONTINUE[] PROGMEM       = "Push to continue";
@@ -310,20 +310,20 @@ const char MSG_SCREEN_UNLOAD_TEXT2[] PROGMEM         = "Iniciar proceso?";
 const char MSG_SCREEN_UNLOAD_ABORT[] PROGMEM         = "Pulse para cancelar";
 const char MSG_SCREEN_UNLOAD_CONTINUE[] PROGMEM      = "Pulse para continuar";
 const char MSG_SCREEN_UNLOAD_PULL[] PROGMEM          = "Extruir y sacar";
-const char MSG_SCREEN_UNLOAD_CONFIRM[] PROGMEM       = "Finished?";
+const char MSG_SCREEN_UNLOAD_CONFIRM[] PROGMEM       = "Finalizado?";
 
 const char MSG_SCREEN_LOAD_TITLE[] PROGMEM           = "Cargar filamento";
 const char MSG_SCREEN_LOAD_TEXT1[] PROGMEM           = "Test";
 const char MSG_SCREEN_LOAD_TEXT2[] PROGMEM           = "Iniciar proceso?";
 const char MSG_SCREEN_LOAD_ABORT[] PROGMEM           = "Pulse para cancelar";
 const char MSG_SCREEN_LOAD_CONTINUE[] PROGMEM        = "Pulse para continuar";
-const char MSG_SCREEN_LOAD_PRESS[] PROGMEM           = "Push to continue";
-const char MSG_SCREEN_LOAD_CONFIRM[] PROGMEM         = "Finished?";
+const char MSG_SCREEN_LOAD_PRESS[] PROGMEM           = "Pulse para continuar";
+const char MSG_SCREEN_LOAD_CONFIRM[] PROGMEM         = "Finalizado?";
 
-const char MSG_SCREEN_LEVEL_TITLE[] PROGMEM          = "Level Plate";
+const char MSG_SCREEN_LEVEL_TITLE[] PROGMEM          = "Nivelar base";
 const char MSG_SCREEN_LEVEL_TEXT[] PROGMEM           = "Comenzar nivelacion?";
-const char MSG_SCREEN_LEVEL_ABORT[] PROGMEM          = "Push to abort";
-const char MSG_SCREEN_LEVEL_CONTINUE[] PROGMEM       = "Push to continue";
+const char MSG_SCREEN_LEVEL_ABORT[] PROGMEM          = "Pulse para cancelar";
+const char MSG_SCREEN_LEVEL_CONTINUE[] PROGMEM       = "Pulse para continuar";
 
 const char MSG_SCREEN_LEVEL1_TITLE[] PROGMEM         = "Nivelar base";
 const char MSG_SCREEN_LEVEL2_TITLE[] PROGMEM         = "Nivelar base";
