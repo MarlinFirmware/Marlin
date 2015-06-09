@@ -515,7 +515,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define	Z_steps_per_mm (Z_motor_steps_per_rev*Z_microstep)/Z_thread_pitch
 #define	E0_steps_per_mm (E0_motor_steps_per_rev*E0_microstep)*(E0_big_gear_teeth/E0_small_gear_teeth)/(E0_hob_effective_diameter*3.14159)
 
-#define DEFAULT_AXIS_STEPS_PER_UNIT   {X_steps_per_mm,Y_steps_per_mm,Z_steps_per_mm,96,37}  // Calculé avec : http://reprap.org/wiki/Triffid_Hunter%27s_Calibration_Guide - default steps per unit for Ultimaker {78.7402,78.7402,200.0*8/3,760*1.1}
+#define DEFAULT_AXIS_STEPS_PER_UNIT   {X_steps_per_mm,Y_steps_per_mm,Z_steps_per_mm,98,9}  // Calculé avec : http://reprap.org/wiki/Triffid_Hunter%27s_Calibration_Guide - default steps per unit for Ultimaker {78.7402,78.7402,200.0*8/3,760*1.1}
 #define DEFAULT_MAX_FEEDRATE          {500, 500, 4, 25}    // (mm/sec)
 #define DEFAULT_MAX_ACCELERATION      {9000,9000,100,10000}    // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for Skeinforge 40+, for older versions raise them a lot.
 
