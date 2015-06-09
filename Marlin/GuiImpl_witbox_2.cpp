@@ -273,7 +273,7 @@ namespace screen
 		screen_ok2main.add(screen_main);
 		screen_ok2main.icon(icon_ok);
 		//Light
-		screen_light.add(screen_main);
+		screen_light.add(screen_settings);
 		screen_light.icon(icon_lightled_disable);
 		screen_light.icon(icon_lightled);
 		//Info
