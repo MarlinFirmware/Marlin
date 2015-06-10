@@ -1491,13 +1491,6 @@ static void setup_for_endstop_move() {
     run_z_probe();
     float measured_z = current_position[Z_AXIS];
 
-    #if Z_RAISE_BETWEEN_PROBINGS > 0
-      if (probe_action == ProbeStay) {
-        do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS] + Z_RAISE_BETWEEN_PROBINGS); // this also updates current_position
-        st_synchronize();
-      }
-    #endif
-
     #if !defined(Z_PROBE_SLED) && !defined(Z_PROBE_ALLEN_KEY)
       if (probe_action & ProbeStow) stow_z_probe();
     #endif
