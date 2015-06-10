@@ -85,10 +85,12 @@ namespace screen
 			char * word = (char *) malloc (MAX_LINE_CHARS);
 			char * safeBuffer = buffer;
 			char * safeWord = word;
-			char phrase[MAX_LINE_CHARS + 1] = "";
+			char phrase[64] = "";
 
 			if (buffer)
 			{
+				memset(phrase, 0, 64);
+
 				strcpy_P(buffer, msg);
 
 				//First pass to get number of lines
@@ -96,20 +98,19 @@ namespace screen
 				{
 					word = strsep(&buffer, " ");
 
-					if ( (strlen(phrase) + strlen(word) + 1 <= MAX_LINE_CHARS) && (word == NULL) )
+					if ( (strlen(phrase) + strlen(word) <= MAX_LINE_CHARS) && (word == NULL) )
 					{
-						strcat(phrase, word);
-						strcat(phrase, " ");
+						//Last line. Do nothing
 					}
-					else if ( (strlen(phrase) + strlen(word) + 1 <= MAX_LINE_CHARS) && (word != NULL) )
+					else if ( (strlen(phrase) + strlen(word) <= MAX_LINE_CHARS) && (word != NULL) )
 					{
 						strcat(phrase, word);
 						strcat(phrase, " ");
 					}
 					else 
 					{
-						phrase[0] = '\0';
-						strcat(phrase, word);
+						memset(phrase, 0, 64);
+						strcpy(phrase, word);
 						strcat(phrase, " ");
 						total_lines++;
 					}
@@ -118,7 +119,7 @@ namespace screen
 
 				buffer = safeBuffer;
 				word = safeWord;
-				memset(phrase, 0, MAX_LINE_CHARS);
+				memset(phrase, 0, 64);
 
 				strcpy_P(buffer, msg);
 
@@ -129,37 +130,30 @@ namespace screen
 
 					if ( (strlen(phrase) + strlen(word) <= MAX_LINE_CHARS) && (word == NULL) )
 					{
-						strcat(phrase, word);
+						phrase[strlen(phrase) - 1] = '\0';
 						switch (total_lines)
 						{
 							case 1:
 								text(phrase, 16);
 								break;
 							case 2:
-								switch (n_lines)
+								if(n_lines == 1)
 								{
-									case 1:
-										text(phrase, 10);
-										break;
-									case 2:
-										text(phrase, 0);
-										break;
-									default:
-										break;
+									text(phrase, 10);
+								}
+								else
+								{
+									text(phrase, 0);
 								}
 								break;
 							case 3:
-								switch (n_lines)
+								if(n_lines == 1)
 								{
-									case 1:
-										text(phrase, 6);
-										break;
-									case 2:
-									case 3:
-										text(phrase, 0);
-										break;
-									default:
-										break;
+									text(phrase, 6);
+								}
+								else
+								{
+									text(phrase, 0);
 								}
 								break;
 							case 4:
@@ -183,30 +177,23 @@ namespace screen
 								text(phrase, 16);
 								break;
 							case 2:
-								switch (n_lines)
+								if(n_lines == 1)
 								{
-									case 1:
-										text(phrase, 10);
-										break;
-									case 2:
-										text(phrase, 0);
-										break;
-									default:
-										break;
+									text(phrase, 10);
+								}
+								else
+								{
+									text(phrase, 0);
 								}
 								break;
 							case 3:
-								switch (n_lines)
+								if(n_lines == 1)
 								{
-									case 1:
-										text(phrase, 6);
-										break;
-									case 2:
-									case 3:
-										text(phrase, 0);
-										break;
-									default:
-										break;
+									text(phrase, 6);
+								}
+								else
+								{
+									text(phrase, 0);
 								}
 								break;
 							case 4:
@@ -215,8 +202,8 @@ namespace screen
 							default:
 								break;
 						}
-						phrase[0] = '\0';
-						strcat(phrase, word);
+						memset(phrase, 0, 64);
+						strcpy(phrase, word);
 						strcat(phrase, " ");
 						n_lines++;
 					}
@@ -226,7 +213,6 @@ namespace screen
 			free(safeWord);
 			free(safeBuffer);
 		}
-		
 	}
 
 	void GuiPainter::printing_status(const uint8_t percentage, const uint16_t time)
