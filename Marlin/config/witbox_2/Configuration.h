@@ -8,8 +8,13 @@
 // User-specified version info of this build to display in [Pronterface, etc] terminal window during
 // startup. Implementation of an idea by Prof Braino to inform user that any changes made to this
 // build by the user have been successfully uploaded into firmware.
+#define STRING_VERSION "FW v2.0"
+#define STRING_URL "bq.com"
 #define STRING_VERSION_CONFIG_H __DATE__ " " __TIME__ // build date and time
-#define STRING_CONFIG_H_AUTHOR "(bq Witbox FW v2.0)" // Who made the changes.
+#define STRING_CONFIG_H_AUTHOR "(bq Witbox 2)" // Who made the changes.
+#define STRING_SPLASH_LINE1 "v" STRING_VERSION // will be shown during bootup in line 1
+#define STRING_SPLASH_LINE2 STRING_VERSION_CONFIG_H // will be shown during bootup in line2
+
 
 // SERIAL_PORT selects which serial port should be used for communication with the host.
 // This allows the connection of wireless adapters (for instance) to non-default port pins.
@@ -225,7 +230,7 @@
 // The pullups are needed if you directly connect a mechanical endswitch between the signal and ground pins.
 const bool X_MIN_ENDSTOP_INVERTING = true; // set to true to invert the logic of the endstop.
 const bool Y_MIN_ENDSTOP_INVERTING = true; // set to true to invert the logic of the endstop.
-const bool Z_MIN_ENDSTOP_INVERTING = true; // set to true to invert the logic of the endstop.
+const bool Z_MIN_ENDSTOP_INVERTING = false; // set to true to invert the logic of the endstop.
 const bool X_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of the endstop.
 const bool Y_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of the endstop.
 const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of the endstop.
@@ -246,12 +251,12 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 // Disables axis when it's not being used.
 #define DISABLE_X false
 #define DISABLE_Y false
-#define DISABLE_Z true
+#define DISABLE_Z false
 #define DISABLE_E false // For all extruders
 #define DISABLE_INACTIVE_EXTRUDER true //disable only inactive extruders and keep active extruder enabled
 
 #define INVERT_X_DIR true    // for Mendel set to false, for Orca set to true
-#define INVERT_Y_DIR false    // for Mendel set to true, for Orca set to false
+#define INVERT_Y_DIR false  // for Mendel set to true, for Orca set to false
 #define INVERT_Z_DIR true     // for Mendel set to false, for Orca set to true
 #define INVERT_E0_DIR false   // for direct drive extruder v9 set to true, for geared extruder set to false
 #define INVERT_E1_DIR false    // for direct drive extruder v9 set to true, for geared extruder set to false
@@ -279,11 +284,13 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define Z_MAX_LENGTH (Z_MAX_POS - Z_MIN_POS)
 //============================= Bed Auto Leveling ===========================
 
-#define ENABLE_AUTO_BED_LEVELING // Delete the comment to enable (remove // at the start of the line)
-#define Z_PROBE_REPEATABILITY_TEST  // If not commented out, Z-Probe Repeatability test will be included if Auto Bed Leveling is Enabled.
+//#define ENABLE_AUTO_BED_LEVELING // Delete the comment to enable (remove // at the start of the line)
+//#define Z_PROBE_REPEATABILITY_TEST  // If not commented out, Z-Probe Repeatability test will be included if Auto Bed Leveling is Enabled.
 
 #ifdef ENABLE_AUTO_BED_LEVELING
-
+  #ifndef Z_SAFE_HOMING
+  #define Z_SAFE_HOMING
+  #endif
 // There are 2 different ways to pick the X and Y locations to probe:
 
 //  - "grid" mode
@@ -304,10 +311,10 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
   #ifdef AUTO_BED_LEVELING_GRID
 
     // set the rectangle in which to probe
-    #define LEFT_PROBE_BED_POSITION 30
-    #define RIGHT_PROBE_BED_POSITION 200
-    #define BACK_PROBE_BED_POSITION 185
-    #define FRONT_PROBE_BED_POSITION 30
+    #define LEFT_PROBE_BED_POSITION 15
+    #define RIGHT_PROBE_BED_POSITION 170
+    #define BACK_PROBE_BED_POSITION 180
+    #define FRONT_PROBE_BED_POSITION 20
 
      // set the number of grid points per dimension
      // I wouldn't see a reason to go above 3 (=9 probing points on the bed)
@@ -319,26 +326,38 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
     // is used to esimate the plane of the print bed
 
       #define ABL_PROBE_PT_1_X (X_MAX_POS-X_MIN_POS)/2
-      #define ABL_PROBE_PT_1_Y Y_MAX_POS-10
-      #define ABL_PROBE_PT_2_X 205
-      #define ABL_PROBE_PT_2_Y 5
-      #define ABL_PROBE_PT_3_X 90
-      #define ABL_PROBE_PT_3_Y 5
+      #define ABL_PROBE_PT_1_Y Y_MAX_POS - 50
+      #define ABL_PROBE_PT_2_X X_MAX_POS - 50
+      #define ABL_PROBE_PT_2_Y Y_MIN_POS + 50
+      #define ABL_PROBE_PT_3_X X_MIN_POS + 50
+      #define ABL_PROBE_PT_3_Y Y_MIN_POS + 50
 
   #endif // AUTO_BED_LEVELING_GRID
+#endif // ENABLE_AUTO_BED_LEVELING
 
+//If you have enabled the Bed Auto Leveling and are using the same Z Probe for Z Homing,
+//it is highly recommended you let this Z_SAFE_HOMING enabled!!!
 
-  // these are the offsets to the probe relative to the extruder tip (Hotend - Probe)
-  #define X_PROBE_OFFSET_FROM_EXTRUDER 0//26.3
-  #define Y_PROBE_OFFSET_FROM_EXTRUDER 0//5
-  #define Z_PROBE_OFFSET_FROM_EXTRUDER 0//-0.9 //-2.4
+#define Z_SAFE_HOMING   // This feature is meant to avoid Z homing with probe outside the bed area.
+                        // When defined, it will:
+                        // - Allow Z homing only after X and Y homing AND stepper drivers still enabled
+                        // - If stepper drivers timeout, it will need X and Y homing again before Z homing
+                        // - Position the probe in a defined XY point before Z Homing when homing all axis (G28)
+                        // - Block Z homing only when the probe is outside bed area.
+
+#ifdef Z_SAFE_HOMING
 
   #define Z_RAISE_BEFORE_HOMING 0       // (in mm) Raise Z before homing (G28) for Probe Clearance.
                                         // Be sure you have this distance over your Z_MAX_POS in case
-
   #define Z_RAISE_BEFORE_PROBING 15    //How much the extruder will be raised before traveling to the first probing point.
   #define Z_RAISE_BETWEEN_PROBINGS 15  //How much the extruder will be raised when traveling from between next probing points
 
+
+
+  // these are the offsets to the probe relative to the extruder tip (Hotend - Probe)
+  #define X_PROBE_OFFSET_FROM_EXTRUDER -35
+  #define Y_PROBE_OFFSET_FROM_EXTRUDER -5
+  #define Z_PROBE_OFFSET_FROM_EXTRUDER -4
 
   //If defined, the Probe servo will be turned on only during movement and then turned off to avoid jerk
   //The value is the delay to turn the servo off after powered on - depends on the servo speed; 300ms is good value, but you can try lower it.
@@ -346,26 +365,10 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 //  #define PROBE_SERVO_DEACTIVATION_DELAY 300
 
+    #define Z_SAFE_HOMING_X_POINT (X_MAX_POS + X_MIN_POS)/2    // X point for Z homing when homing all axis (G28)
+    #define Z_SAFE_HOMING_Y_POINT (Y_MAX_POS + Y_MIN_POS)/2  // Y point for Z homing when homing all axis (G28)
 
-//If you have enabled the Bed Auto Leveling and are using the same Z Probe for Z Homing,
-//it is highly recommended you let this Z_SAFE_HOMING enabled!!!
-
-  #define Z_SAFE_HOMING   // This feature is meant to avoid Z homing with probe outside the bed area.
-                          // When defined, it will:
-                          // - Allow Z homing only after X and Y homing AND stepper drivers still enabled
-                          // - If stepper drivers timeout, it will need X and Y homing again before Z homing
-                          // - Position the probe in a defined XY point before Z Homing when homing all axis (G28)
-                          // - Block Z homing only when the probe is outside bed area.
-
-  #ifdef Z_SAFE_HOMING
-
-    #define Z_SAFE_HOMING_X_POINT ((X_MAX_LENGTH)/2)// + 2*X_PROBE_OFFSET_FROM_EXTRUDER)/2)    // X point for Z homing when homing all axis (G28)
-    #define Z_SAFE_HOMING_Y_POINT ((Y_MAX_LENGTH)/2)//+ 2*Y_PROBE_OFFSET_FROM_EXTRUDER)/2)    // Y point for Z homing when homing all axis (G28)
-
-  #endif
-
-#endif // ENABLE_AUTO_BED_LEVELING
-
+#endif //Z_SAFE_HOMING
 
 // The position of the homing switches
 //#define MANUAL_HOME_POSITIONS  // If defined, MANUAL_*_HOME_POS below will be used
@@ -384,7 +387,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 // default settings
 
-#define DEFAULT_AXIS_STEPS_PER_UNIT   {80,80,600*8/3,102.073}  // default steps per unit for Ultimaker
+#define DEFAULT_AXIS_STEPS_PER_UNIT   {2*80,2*80,2*600*8/3,2*102.073}  // default steps per unit for Ultimaker
 #define DEFAULT_MAX_FEEDRATE          {350, 350, 7.2, 80}    // (mm/sec)
 #define DEFAULT_MAX_ACCELERATION      {1000,1000,10,1000}    // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for Skeinforge 40+, for older versions raise them a lot.
 
@@ -427,7 +430,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #endif
 
 #if defined(ENABLE_AUTO_BED_LEVELING) || defined(WITBOX)
-  #define XY_TRAVEL_SPEED 8000 		// X and Y axis travel speed between probes and Witbox movements, in mm/min
+  #define XY_TRAVEL_SPEED 150//8000		// X and Y axis travel speed between probes and Witbox movements, in mm/s
 #endif
 //===========================================================================
 //=============================Additional Features===========================
@@ -575,6 +578,34 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 //
 //#define SERVO_ENDSTOPS {-1, -1, 0} // Servo index for X, Y, Z. Disable with -1
 //#define SERVO_ENDSTOP_ANGLES {0,0, 0,0, 70,0} // X,Y,Z Axis Extend and Retract angles
+
+/**********************************************************************\
+ * Support for a filament diameter sensor
+ * Also allows adjustment of diameter at print time (vs  at slicing)
+ * Single extruder only at this point (extruder 0)
+ * 
+ * Motherboards
+ * 34 - RAMPS1.4 - uses Analog input 5 on the AUX2 connector 
+ * 81 - Printrboard - Uses Analog input 2 on the Exp1 connector (version B,C,D,E)
+ * 301 - Rambo  - uses Analog input 3
+ * Note may require analog pins to be defined for different motherboards
+ **********************************************************************/
+// Uncomment below to enable
+//#define FILAMENT_SENSOR
+
+#define FILAMENT_SENSOR_EXTRUDER_NUM   0  //The number of the extruder that has the filament sensor (0,1,2)
+#define MEASUREMENT_DELAY_CM        14  //measurement delay in cm.  This is the distance from filament sensor to middle of barrel
+
+#define DEFAULT_NOMINAL_FILAMENT_DIA  1.75  //Enter the diameter (in mm) of the filament generally used (3.0 mm or 1.75 mm) - this is then used in the slicer software.  Used for sensor reading validation
+#define MEASURED_UPPER_LIMIT          3.30  //upper limit factor used for sensor reading validation in mm
+#define MEASURED_LOWER_LIMIT          1.90  //lower limit factor for sensor reading validation in mm
+#define MAX_MEASUREMENT_DELAY       20  //delay buffer size in bytes (1 byte = 1cm)- limits maximum measurement delay allowable (must be larger than MEASUREMENT_DELAY_CM  and lower number saves RAM)
+
+//defines used in the code
+#define DEFAULT_MEASURED_FILAMENT_DIA  DEFAULT_NOMINAL_FILAMENT_DIA  //set measured to nominal initially 
+
+//When using an LCD, uncomment the line below to display the Filament sensor data on the last line instead of status.  Status will appear for 5 sec.
+//#define FILAMENT_LCD_DISPLAY
 
 #include "Configuration_adv.h"
 #include "thermistortables.h"

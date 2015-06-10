@@ -1,6 +1,21 @@
 #ifndef CONFIGURATION_H
 #define CONFIGURATION_H
 
+//===========================================================================
+//============================= Getting Started =============================
+//===========================================================================
+/*
+Here are some standard links for getting your machine calibrated:
+ * http://reprap.org/wiki/Calibration 
+ * http://youtu.be/wAL9d7FgInk
+ * http://calculator.josefprusa.cz
+ * http://reprap.org/wiki/Triffid_Hunter%27s_Calibration_Guide
+ * http://www.thingiverse.com/thing:5573
+ * https://sites.google.com/site/repraplogphase/calibration-of-your-reprap
+ * http://www.thingiverse.com/thing:298812
+*/
+
+
 // This configuration file contains the basic settings.
 // Advanced settings can be found in Configuration_adv.h
 // BASIC SETTINGS: select your board type, temperature sensor type, axis scaling, and endstop configuration
@@ -8,8 +23,12 @@
 // User-specified version info of this build to display in [Pronterface, etc] terminal window during
 // startup. Implementation of an idea by Prof Braino to inform user that any changes made to this
 // build by the user have been successfully uploaded into firmware.
+#define STRING_VERSION "FW 1.4.2"
+#define STRING_URL "bq.com"
 #define STRING_VERSION_CONFIG_H __DATE__ " " __TIME__ // build date and time
-#define STRING_CONFIG_H_AUTHOR "(bq Hephestos FW v1.4.2)" // Who made the changes.
+#define STRING_CONFIG_H_AUTHOR "(bq Hephestos 2)" // Who made the changes.
+#define STRING_SPLASH_LINE1 "v" STRING_VERSION // will be shown during bootup in line 1
+#define STRING_SPLASH_LINE2 STRING_VERSION_CONFIG_H // will be shown during bootup in line2
 
 // SERIAL_PORT selects which serial port should be used for communication with the host.
 // This allows the connection of wireless adapters (for instance) to non-default port pins.
@@ -268,10 +287,10 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 // Travel limits after homing
 #define X_MAX_POS 220 //Temp
-#define X_MIN_POS 10
+#define X_MIN_POS 0
 #define Y_MAX_POS 297
 #define Y_MIN_POS 0
-#define Z_MAX_POS 250
+#define Z_MAX_POS 210
 #define Z_MIN_POS 0
 
 #define X_MAX_LENGTH (X_MAX_POS - X_MIN_POS)
@@ -352,7 +371,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
   // these are the offsets to the probe relative to the extruder tip (Hotend - Probe)
   #define X_PROBE_OFFSET_FROM_EXTRUDER -35//26.3
   #define Y_PROBE_OFFSET_FROM_EXTRUDER -5//5
-  #define Z_PROBE_OFFSET_FROM_EXTRUDER -4//-0.9 //-2.4
+  #define Z_PROBE_OFFSET_FROM_EXTRUDER -0.9//-0.9 //-2.4
 
   //If defined, the Probe servo will be turned on only during movement and then turned off to avoid jerk
   //The value is the delay to turn the servo off after powered on - depends on the servo speed; 300ms is good value, but you can try lower it.
@@ -360,8 +379,8 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 //  #define PROBE_SERVO_DEACTIVATION_DELAY 300
 
-    #define Z_SAFE_HOMING_X_POINT 110    // X point for Z homing when homing all axis (G28)
-    #define Z_SAFE_HOMING_Y_POINT 150  // Y point for Z homing when homing all axis (G28)
+    #define Z_SAFE_HOMING_X_POINT (X_MAX_POS + X_MIN_POS)/2    // X point for Z homing when homing all axis (G28)
+    #define Z_SAFE_HOMING_Y_POINT (Y_MAX_POS + Y_MIN_POS)/2  // Y point for Z homing when homing all axis (G28)
 
 #endif //Z_SAFE_HOMING
 
@@ -383,7 +402,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 // default settings
 
 #define DEFAULT_AXIS_STEPS_PER_UNIT   {160, 160, 8000,2*100.47095761381482}  // default steps per unit for Ultimaker
-#define DEFAULT_MAX_FEEDRATE          {250, 250, 2, 25}    // (mm/sec)
+#define DEFAULT_MAX_FEEDRATE          {250, 250, 3.3, 25}    // (mm/sec)
 #define DEFAULT_MAX_ACCELERATION      {3000,3000,100,10000}    // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for Skeinforge 40+, for older versions raise them a lot.
 #define DEFAULT_ACCELERATION          1000    // X, Y, Z and E max acceleration in mm/s^2 for printing moves
 #define DEFAULT_RETRACT_ACCELERATION  1000   // X, Y, Z and E max acceleration in mm/s^2 for retracts
@@ -423,8 +442,8 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
     #define COOLDOWN_FAN_SPEED 255
 #endif
 
-#if defined(Z_SAFE_HOMING) || defined(ENABLE_AUTO_BED_LEVELING)
-  #define XY_TRAVEL_SPEED 200//8000		// X and Y axis travel speed between probes and Witbox movements, in mm/min
+#if defined(ENABLE_AUTO_BED_LEVELING) || defined(WITBOX)
+  #define XY_TRAVEL_SPEED 150//8000		// X and Y axis travel speed between probes and Witbox movements, in mm/s
 #endif
 //===========================================================================
 //=============================Additional Features===========================
@@ -572,6 +591,34 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 //
 //#define SERVO_ENDSTOPS {-1, -1, 0} // Servo index for X, Y, Z. Disable with -1
 //#define SERVO_ENDSTOP_ANGLES {0,0, 0,0, 70,0} // X,Y,Z Axis Extend and Retract angles
+
+/**********************************************************************\
+ * Support for a filament diameter sensor
+ * Also allows adjustment of diameter at print time (vs  at slicing)
+ * Single extruder only at this point (extruder 0)
+ * 
+ * Motherboards
+ * 34 - RAMPS1.4 - uses Analog input 5 on the AUX2 connector 
+ * 81 - Printrboard - Uses Analog input 2 on the Exp1 connector (version B,C,D,E)
+ * 301 - Rambo  - uses Analog input 3
+ * Note may require analog pins to be defined for different motherboards
+ **********************************************************************/
+// Uncomment below to enable
+//#define FILAMENT_SENSOR
+
+#define FILAMENT_SENSOR_EXTRUDER_NUM   0  //The number of the extruder that has the filament sensor (0,1,2)
+#define MEASUREMENT_DELAY_CM        14  //measurement delay in cm.  This is the distance from filament sensor to middle of barrel
+
+#define DEFAULT_NOMINAL_FILAMENT_DIA  1.75  //Enter the diameter (in mm) of the filament generally used (3.0 mm or 1.75 mm) - this is then used in the slicer software.  Used for sensor reading validation
+#define MEASURED_UPPER_LIMIT          3.30  //upper limit factor used for sensor reading validation in mm
+#define MEASURED_LOWER_LIMIT          1.90  //lower limit factor for sensor reading validation in mm
+#define MAX_MEASUREMENT_DELAY       20  //delay buffer size in bytes (1 byte = 1cm)- limits maximum measurement delay allowable (must be larger than MEASUREMENT_DELAY_CM  and lower number saves RAM)
+
+//defines used in the code
+#define DEFAULT_MEASURED_FILAMENT_DIA  DEFAULT_NOMINAL_FILAMENT_DIA  //set measured to nominal initially 
+
+//When using an LCD, uncomment the line below to display the Filament sensor data on the last line instead of status.  Status will appear for 5 sec.
+//#define FILAMENT_LCD_DISPLAY
 
 #include "Configuration_adv.h"
 #include "thermistortables.h"

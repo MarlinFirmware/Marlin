@@ -60,6 +60,8 @@ DOGLCD             ?= 1
 ############################################################################
 # Below here nothing should be changed...
 
+# Here the Arduino variant is selected by the board type
+# HARDWARE_VARIANT = "arduino", "Sanguino", "Gen7", ...
 # MCU = "atmega1280", "Mega2560", "atmega2560", "atmega644p", ...
 
 #RAMPS
@@ -86,7 +88,7 @@ F_CPU ?= 16000000
 ifeq ($(HARDWARE_VARIANT), arduino)
 HARDWARE_DIR = $(ARDUINO_INSTALL_DIR)/hardware
 endif
-HARDWARE_SRC = $(HARDWARE_DIR)/$(HARDWARE_VARIANT)/cores/arduino
+HARDWARE_SRC = $(HARDWARE_DIR)/$(HARDWARE_VARIANT)/avr/cores/arduino
 
 TARGET = $(notdir $(CURDIR))
 
@@ -102,20 +104,21 @@ VPATH += libraries/SdFat
 
 ifeq ($(HARDWARE_VARIANT), arduino)
 HARDWARE_SUB_VARIANT ?= mega
-VPATH += $(ARDUINO_INSTALL_DIR)/hardware/arduino/variants/$(HARDWARE_SUB_VARIANT)
-VPATH += $(ARDUINO_INSTALL_DIR)/libraries/SPI
+VPATH += $(ARDUINO_INSTALL_DIR)/hardware/arduino/avr/variants/$(HARDWARE_SUB_VARIANT)
+VPATH += $(ARDUINO_INSTALL_DIR)/hardware/arduino/avr/libraries/SPI
 
 ifeq ($(DOGLCD), 1)
 VPATH += libraries/U8glib
 VPATH += libraries/U8glib/utility
 else
-VPATH += $(ARDUINO_INSTALL_DIR)/libraries/LiquidCrystal
+VPATH += $(ARDUINO_INSTALL_DIR)/libraries/LiquidCrystal/src
 endif
 
 SRC = wiring.c \
 	wiring_analog.c wiring_digital.c \
 	wiring_pulse.c \
-	wiring_shift.c WInterrupts.c
+	wiring_shift.c WInterrupts.c \
+	hooks.c
 
 CXXSRC = WMath.cpp WString.cpp Print.cpp Marlin_main.cpp	\
 	MarlinSerial.cpp Sd2Card.cpp SdBaseFile.cpp SdFatUtil.cpp	\
@@ -124,8 +127,8 @@ CXXSRC = WMath.cpp WString.cpp Print.cpp Marlin_main.cpp	\
 	watchdog.cpp SPI.cpp Tone.cpp digipot_mcp4451.cpp \
 	vector_3.cpp qr_solve.cpp 
 CXXSRC += new.cpp GuiManager.cpp GuiPainter.cpp GuiAction.cpp GuiImpl_witbox_2.cpp Icon.cpp \
-	Screen.cpp ScreenList.cpp ScreenMenu.cpp ScreenSelector.cpp ScreenDialog.cpp ScreenPrint.cpp ScreenStatus.cpp \
-	Light.cpp Subject.cpp Observer.cpp \
+	Screen.cpp ScreenList.cpp ScreenMenu.cpp ScreenPrint.cpp \
+	LightManager.cpp PrintManager.cpp SteppersManager.cpp TemperatureManager.cpp ViewManager.cpp \
 	ultralcd_st7920_u8glib_rrd.cpp
 
 ifeq ($(DOGLCD), 1)
@@ -164,7 +167,7 @@ OBJDUMP = $(AVR_TOOLS_PATH)avr-objdump
 AR  = $(AVR_TOOLS_PATH)avr-ar
 SIZE = $(AVR_TOOLS_PATH)avr-size
 NM = $(AVR_TOOLS_PATH)avr-nm
-AVRDUDE = $(ARDUINO_INSTALL_DIR)/hardware/tools/avrdude
+AVRDUDE = $(ARDUINO_INSTALL_DIR)/hardware/tools/avr/bin/avrdude
 REMOVE = rm -f
 MV = mv -f
 
@@ -194,7 +197,7 @@ endif
 CEXTRA = -fno-use-cxa-atexit
 
 CFLAGS := $(CDEBUG) $(CDEFS) $(CINCS) -O$(OPT) $(CWARN) $(CEXTRA) $(CTUNING)
-CXXFLAGS :=         $(CDEFS) $(CINCS) -O$(OPT) -Wall    $(CEXTRA) $(CTUNING)
+CXXFLAGS :=         $(CDEFS) $(CINCS) -O$(OPT) -Wall -std=c++11 $(CEXTRA) $(CTUNING)
 #ASFLAGS = -Wa,-adhlns=$(<:.S=.lst),-gstabs
 LDFLAGS = -lm
 
@@ -203,7 +206,7 @@ LDFLAGS = -lm
 AVRDUDE_PORT = $(UPLOAD_PORT)
 AVRDUDE_WRITE_FLASH = -D -U flash:w:$(BUILD_DIR)/$(TARGET).hex:i
 ifeq ($(shell uname -s), Linux)
-AVRDUDE_CONF = $(ARDUINO_INSTALL_DIR)/hardware/tools/avrdude.conf
+AVRDUDE_CONF = $(ARDUINO_INSTALL_DIR)/hardware/tools/avr/etc/avrdude.conf
 else
 AVRDUDE_CONF = $(ARDUINO_INSTALL_DIR)/hardware/tools/avr/etc/avrdude.conf
 endif

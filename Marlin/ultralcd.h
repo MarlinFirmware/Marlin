@@ -118,4 +118,7 @@ char *ftostr5(const float &x);
 char *ftostr51(const float &x);
 char *ftostr52(const float &x);
 
+int lcd_strlen(char *s);
+int lcd_strlen_P(const char *s);
+
 #endif // ULTRALCD_H

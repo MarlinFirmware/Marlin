@@ -1,390 +1,187 @@
+/**
+ * pins.h
+ */
+
 #ifndef PINS_H
 #define PINS_H
 
-/*==============================================================================
-| Motherboard: RAMPS
-| Revision: v1.4
-| 
-| Compatible with:
-|   - RepRapDiscount Smart Controller
-|   - bq LCD Smart Controller
-|
-==============================================================================*/
+#include "boards.h"
 
-#if (MOTHERBOARD == 33)
-#define KNOWN_BOARD 1
-#define LARGE_FLASH true
+// Preset optional pins
+#define X_MS1_PIN -1
+#define X_MS2_PIN -1
+#define Y_MS1_PIN -1
+#define Y_MS2_PIN -1
+#define Z_MS1_PIN -1
+#define Z_MS2_PIN -1
+#define E0_MS1_PIN -1
+#define E0_MS2_PIN -1
+#define E1_MS1_PIN -1
+#define E1_MS2_PIN -1
+#define DIGIPOTSS_PIN -1
+#define HEATER_3_PIN -1
+#define TEMP_3_PIN -1
 
-
-#   ifndef __AVR_ATmega2560__
-#   error Oops!  Make sure you have 'Arduino Mega' selected from the \
-    'Tools -> Boards' menu.
-#   endif
-
-// Motors
-#define X_STEP_PIN         	54
-#define X_DIR_PIN          	55
-#define X_ENABLE_PIN       	38
-
-#define Y_STEP_PIN         	60
-#define Y_DIR_PIN          	61
-#define Y_ENABLE_PIN       	56
-
-#define Z_STEP_PIN         	46
-#define Z_DIR_PIN          	48
-#define Z_ENABLE_PIN       	62
-
-#define E0_STEP_PIN        	26
-#define E0_DIR_PIN         	28
-#define E0_ENABLE_PIN      	24
-
-#define E1_STEP_PIN        	36
-#define E1_DIR_PIN         	34
-#define E1_ENABLE_PIN      	30
-
-// Endstops
-#define X_MIN_PIN           3
-#define X_MAX_PIN           2
-
-#define Y_MIN_PIN          	14
-#define Y_MAX_PIN          	15
-
-#define Z_MIN_PIN          	18
-#define Z_MAX_PIN          	19
-
-// Heaters
-#define HEATER_0_PIN       	10
-#define HEATER_BED_PIN     	8
-
-// Thermistors
-#define TEMP_0_PIN         	13   // Analog Numbering
-#define TEMP_1_PIN         	15   // Analog Numbering
-#define TEMP_BED_PIN       	14   // Analog Numbering
-
-// Cooling Fans
-#define FAN_PIN            	9
-
-// External Power Supply 
-#define PS_ON_PIN          	12
-
-// LEDs
-#define LED_PIN            	13
-
-/*------------------------------------------------------------------------------
-| RepRapDiscount Smart Controller:
-+-----------------------------------------------------------------------------*/
-#   ifdef REPRAP_DISCOUNT_SMART_CONTROLLER
-// Reset Button
-#   define KILL_PIN           	41
-// LCD
-#   define LCD_PINS_RS        	16
-#   define LCD_PINS_ENABLE    	17
-#   define LCD_PINS_D4        	23
-#   define LCD_PINS_D5        	25
-#   define LCD_PINS_D6        	27
-#   define LCD_PINS_D7        	29
-// Button & Encoder
-#   define BTN_EN1            	31
-#   define BTN_EN2            	33
-#   define BTN_ENC            	35
-// Buzzer
-#   define BEEPER             	37
-// SD Card Reader
-#   define SDSS               	53
-#   define SDCARDDETECT       	49
-#   endif // REPRAP_DISCOUNT_SMART_CONTROLLER
-
-/*------------------------------------------------------------------------------
-| bq LCD Smart Controller:
-+-----------------------------------------------------------------------------*/
-#   ifdef BQ_LCD_SMART_CONTROLLER
-// Reset Button
-#   define KILL_PIN           	41
-// LCD
-#   define LCD_PIN_BL         	39
-#   define LCD_PINS_RS        	16
-#   define LCD_PINS_ENABLE    	17
-#   define LCD_PINS_D4        	23
-// Button & Encoder
-#   define BTN_EN1            	31
-#   define BTN_EN2            	33
-#   define BTN_ENC            	35
-// Buzzer
-#   define BEEPER             	37
-// SD Card Reader
-#   define SDSS                 53
-#   define SDCARDDETECT         49
-#   endif // BQ_LCD_SMART_CONTROLLER
-
-#endif // (MOTHERBOARD == 33)
-
-
-
-
-
-/*==============================================================================
-| Motherboard: bq CNC
-| Revision: v1.1
-| 
-| Compatible with:
-|   - bq LCD Smart Controller
-|   - RepRapDiscount Smart Controller
-|
-==============================================================================*/
-
-#if (MOTHERBOARD == 40)
-#define KNOWN_BOARD 1
-#define LARGE_FLASH true
-
-#   ifndef __AVR_ATmega2560__
-#   error Oops!  Make sure you have 'Arduino Mega' selected from the \
-    'Tools -> Boards' menu.
-#   endif // __AVR_ATmega2560__
-
-// Motors
-#define X_STEP_PIN      	54
-#define X_DIR_PIN       	55
-#define X_ENABLE_PIN    	38
-
-#define Y_STEP_PIN      	60
-#define Y_DIR_PIN       	61
-#define Y_ENABLE_PIN    	56
-
-#define Z_STEP_PIN      	46
-#define Z_DIR_PIN       	48
-#define Z_ENABLE_PIN    	77
-
-#define E0_STEP_PIN     	26
-#define E0_DIR_PIN      	28
-#define E0_ENABLE_PIN   	24
-
-#define E1_STEP_PIN     	36
-#define E1_DIR_PIN      	34
-#define E1_ENABLE_PIN   	30
-
-// Digital potentiometers
-#define DIGIPOTSS_PIN   	22
-#define DIGIPOT_CHANNELS    { 4, 5, 3 , 0, 1 }
-
-// Endstops
-#define X_MIN_PIN       	3
-#define X_MAX_PIN       	79
-
-#define Y_MIN_PIN       	14
-#define Y_MAX_PIN       	15
-
-#define Z_MIN_PIN       	18
-#define Z_MAX_PIN       	19
-
-// Heaters
-#define HEATER_0_PIN    	9
-#define HEATER_1_PIN       	10
-#define HEATER_BED_PIN  	8
-
-// Thermistors
-#define TEMP_0_PIN      	13  // Analog numbering: DIO67
-#define TEMP_1_PIN      	14  // Analog numbering: DIO68
-#define TEMP_2_PIN      	15  // Analog numbering: DIO69
-#define TEMP_3_PIN      	8   // Analog numbering: DIO62
-#define TEMP_BED_PIN    	TEMP_1_PIN
-
-// Cooling Fans
-#define FAN_0_PIN       	12
-#define FAN_1_PIN       	7
-#define FAN_PIN         	FAN_0_PIN    
-#define FAN_EXTRUDER      11
-
-// Auxiliar Power Channel Driver
-#define AUX_DRIVER_PIN    2
-
-// External Power Supply
-#define PS_ON_PIN       	81
-
-// LEDs
-#define LED_PIN         	13
-
-/*------------------------------------------------------------------------------
-| RepRapDiscount Smart Controller:
-+-----------------------------------------------------------------------------*/
-#   ifdef REPRAP_DISCOUNT_SMART_CONTROLLER
-// Reset Button
-#define KILL_PIN        	41
-// LCD
-#define LCD_PINS_RS         16
-#define LCD_PINS_ENABLE     17
-#define LCD_PINS_D4         23
-#define LCD_PINS_D5         25
-#define LCD_PINS_D6         27
-#define LCD_PINS_D7         29
-// Button & Encoder
-#define BTN_EN1             31
-#define BTN_EN2             33
-#define BTN_ENC             35
-// Buzzer
-#define BEEPER              37
-// SD Card Reader
-#define SDSS                53
-#define SDCARDDETECT        49
-#   endif // REPRAP_DISCOUNT_SMART_CONTROLLER
-
-/*------------------------------------------------------------------------------
-| bq LCD Smart Controller:
-+-----------------------------------------------------------------------------*/
-#   ifdef BQ_LCD_SMART_CONTROLLER
-// Reset Button
-#   define KILL_PIN           	41
-// LCD
-#   define LCD_PIN_BL          39
-#   define LCD_PINS_RS         16
-#   define LCD_PINS_ENABLE     17
-#   define LCD_PINS_D4         23
-// Button & Encoder
-#   define BTN_EN1             31
-#   define BTN_EN2             33
-#   define BTN_ENC             35
-// Buzzer
-#   define BEEPER              37
-// SD Card Reader
-#   define SDSS                53
-#   define SDCARDDETECT        49
-#   endif // BQ_LCD_SMART_CONTROLLER
-
-#endif // (MOTHERBOARD == 77)
-
-
-
-
-
-/*==============================================================================
-| Defines for not used pins
-==============================================================================*/
-
-// Microsteppers
-#ifndef X_MS1_PIN
-#define X_MS1_PIN 			-1
-#endif
-#ifndef X_MS2_PIN
-#define X_MS2_PIN 			-1
+#if MB(GEN7_CUSTOM)
+  #include "pins_GEN7_CUSTOM.h"
+#elif MB(GEN7_12)
+  #include "pins_GEN7_12.h"
+#elif MB(GEN7_13)
+  #include "pins_GEN7_13.h"
+#elif MB(GEN7_14)
+  #include "pins_GEN7_14.h"
+#elif MB(CHEAPTRONIC)
+  #include "pins_CHEAPTRONIC.h"
+#elif MB(SETHI)
+  #include "pins_SETHI.h"
+#elif MB(RAMPS_OLD)
+  #include "pins_RAMPS_OLD.h"
+#elif MB(RAMPS_13_EFB) || MB(RAMPS_13_EEB) || MB(RAMPS_13_EFF) || MB(RAMPS_13_EEF)
+  #include "pins_RAMPS_13.h"
+#elif MB(DUEMILANOVE_328P)
+  #include "pins_DUEMILANOVE_328P.h"
+#elif MB(GEN6)
+  #include "pins_GEN6.h"
+#elif MB(GEN6_DELUXE)
+  #include "pins_GEN6_DELUXE.h"
+#elif MB(SANGUINOLOLU_11)
+  #include "pins_SANGUINOLOLU_11.h"
+#elif MB(SANGUINOLOLU_12)
+  #include "pins_SANGUINOLOLU_12.h"
+#elif MB(MELZI)
+  #include "pins_MELZI.h"
+#elif MB(STB_11)
+  #include "pins_STB_11.h"
+#elif MB(AZTEEG_X1)
+  #include "pins_AZTEEG_X1.h"
+#elif MB(MELZI_1284)
+  #include "pins_MELZI_1284.h"
+#elif MB(AZTEEG_X3)
+  #include "pins_AZTEEG_X3.h"
+#elif MB(AZTEEG_X3_PRO)
+  #include "pins_AZTEEG_X3_PRO.h"
+#elif MB(ULTIMAKER)
+  #include "pins_ULTIMAKER.h"
+#elif MB(ULTIMAKER_OLD)
+  #include "pins_ULTIMAKER_OLD.h"
+#elif MB(ULTIMAIN_2)
+  #include "pins_ULTIMAIN_2.h"
+#elif MB(3DRAG)
+  #include "pins_3DRAG.h"
+#elif MB(K8200)
+  #include "pins_K8200.h"
+#elif MB(TEENSYLU)
+  #include "pins_TEENSYLU.h"
+#elif MB(RUMBA)
+  #include "pins_RUMBA.h"
+#elif MB(PRINTRBOARD)
+  #include "pins_PRINTRBOARD.h"
+#elif MB(BRAINWAVE)
+  #include "pins_BRAINWAVE.h"
+#elif MB(SAV_MKI)
+  #include "pins_SAV_MKI.h"
+#elif MB(TEENSY2)
+  #include "pins_TEENSY2.h"
+#elif MB(GEN3_PLUS)
+  #include "pins_GEN3_PLUS.h"
+#elif MB(GEN3_MONOLITHIC)
+  #include "pins_GEN3_MONOLITHIC.h"
+#elif MB(MEGATRONICS)
+  #include "pins_MEGATRONICS.h"
+#elif MB(MEGATRONICS_1)
+  #include "pins_MEGATRONICS_1.h"
+#elif MB(MEGATRONICS_2)
+  #include "pins_MEGATRONICS_2.h"
+#elif MB(MEGATRONICS_3)
+  #include "pins_MEGATRONICS_3.h"
+#elif MB(OMCA_A)
+  #include "pins_OMCA_A.h"
+#elif MB(OMCA)
+  #include "pins_OMCA.h"
+#elif MB(RAMBO)
+  #include "pins_RAMBO.h"
+#elif MB(ELEFU_3)
+  #include "pins_ELEFU_3.h"
+#elif MB(5DPRINT)
+  #include "pins_5DPRINT.h"
+#elif MB(LEAPFROG)
+  #include "pins_LEAPFROG.h"
+#elif MB(BQCNC)
+  #include "pins_BQCNC.h"
+#elif MB(HEPHESTOS)
+  #include "pins_HEPHESTOS.h"
+#elif MB(BAM_DICE)
+  #include "pins_RAMPS_13.h"
+#elif MB(BAM_DICE_DUE)
+  #include "pins_BAM_DICE_DUE.h"
+#elif MB(99)
+  #include "pins_99.h"
+#else
+  #error Unknown MOTHERBOARD value set in Configuration.h
 #endif
 
-#ifndef Y_MS1_PIN
-#define Y_MS1_PIN 			-1
-#endif
-#ifndef Y_MS2_PIN
-#define Y_MS2_PIN 			-1
-#endif
+// List of pins which to ignore when asked to change by gcode, 0 and 1 are RX and TX, do not mess with those!
+#define _E0_PINS E0_STEP_PIN, E0_DIR_PIN, E0_ENABLE_PIN, HEATER_0_PIN, analogInputToDigitalPin(TEMP_0_PIN),
+#define _E1_PINS
+#define _E2_PINS
+#define _E3_PINS
 
-#ifndef Z_MS1_PIN
-#define Z_MS1_PIN 			-1
-#endif
-#ifndef Z_MS2_PIN
-#define Z_MS2_PIN 			-1
-#endif
-
-#ifndef E0_MS1_PIN
-#define E0_MS1_PIN 			-1
-#endif
-#ifndef E0_MS2_PIN
-#define E0_MS2_PIN 			-1
-#endif
-
-#ifndef E1_MS1_PIN
-#define E1_MS1_PIN 			-1
-#endif
-#ifndef E1_MS2_PIN
-#define E1_MS2_PIN 			-1
-#endif
-
-// Digital Potentiometers
-#ifndef DIGIPOTSS_PIN
-#define DIGIPOTSS_PIN 		-1
-#endif
-
-// Heaters
-#ifndef HEATER_1_PIN
-#define HEATER_1_PIN		-1
-#endif
-
-#ifndef HEATER_2_PIN
-#define HEATER_2_PIN		-1
-#endif
-
-#ifndef HEATER_BED_PIN
-#define HEATER_BED_PIN		-1
-#endif
-
-// Thermistors
-#ifndef TEMP_1_PIN
-#define TEMP_1_PIN			-1
-#endif
-
-#ifndef TEMP_2_PIN
-#define TEMP_2_PIN			-1
-#endif
-
-#ifndef TEMP_BED_PIN
-#define TEMP_BED_PIN		-1
-#endif
-
-// SD Card Reader
-#ifndef SDPOWER
-#define SDPOWER        		-1
-#endif
-
-#ifndef SDSS
-#define SDSS               	-1
-#endif
-
-#ifndef SDCARDDETECT
-#define SDCARDDETECT       	-1
-#endif
-
-// Auto-leveling platform servos
-#ifdef SERVO0_PIN
-#define SERVO0_PIN      	-1
-#endif
-
-#ifdef SERVO1_PIN
-#define SERVO1_PIN      	-1
-#endif
-
-#ifdef SERVO2_PIN
-#define SERVO2_PIN      	-1
-#endif
-
-#ifdef SERVO3_PIN
-#define SERVO3_PIN      	-1
-#endif
-
-
-
-
-
-/*==============================================================================
-| Other defines
-==============================================================================*/
-
-#define _E0_PINS E0_STEP_PIN, E0_DIR_PIN, E0_ENABLE_PIN, HEATER_0_PIN,
 #if EXTRUDERS > 1
-  #define _E1_PINS E1_STEP_PIN, E1_DIR_PIN, E1_ENABLE_PIN, HEATER_1_PIN,
-#else
-  #define _E1_PINS
-#endif
-#if EXTRUDERS > 2
-  #define _E2_PINS E2_STEP_PIN, E2_DIR_PIN, E2_ENABLE_PIN, HEATER_2_PIN,
-#else
-  #define _E2_PINS
+  #define _E1_PINS E1_STEP_PIN, E1_DIR_PIN, E1_ENABLE_PIN, HEATER_1_PIN, analogInputToDigitalPin(TEMP_1_PIN),
+  #if EXTRUDERS > 2
+    #define _E2_PINS E2_STEP_PIN, E2_DIR_PIN, E2_ENABLE_PIN, HEATER_2_PIN, analogInputToDigitalPin(TEMP_2_PIN),
+    #if EXTRUDERS > 3
+      #define _E3_PINS E3_STEP_PIN, E3_DIR_PIN, E3_ENABLE_PIN, HEATER_3_PIN, analogInputToDigitalPin(TEMP_3_PIN),
+    #endif
+  #endif
 #endif
 
-#define SENSITIVE_PINS { 0, 1, \
-                    X_STEP_PIN, X_DIR_PIN, X_ENABLE_PIN, X_MIN_PIN, X_MAX_PIN, \
-                    Y_STEP_PIN, Y_DIR_PIN, Y_ENABLE_PIN, Y_MIN_PIN, Y_MAX_PIN, \
-                    Z_STEP_PIN, Z_DIR_PIN, Z_ENABLE_PIN, Z_MIN_PIN, Z_MAX_PIN, \
-                    PS_ON_PIN, HEATER_BED_PIN, FAN_PIN, \
-                    _E0_PINS _E1_PINS _E2_PINS \
-                    analogInputToDigitalPin(TEMP_0_PIN), \
-                    analogInputToDigitalPin(TEMP_1_PIN), \
-                    analogInputToDigitalPin(TEMP_2_PIN), \
-                    analogInputToDigitalPin(TEMP_BED_PIN) }
+#ifdef X_STOP_PIN
+  #if X_HOME_DIR < 0
+    #define X_MIN_PIN X_STOP_PIN
+    #define X_MAX_PIN -1
+  #else
+    #define X_MIN_PIN -1
+    #define X_MAX_PIN X_STOP_PIN
+  #endif
+#endif
 
-#endif // PINS_H
+#ifdef Y_STOP_PIN
+  #if Y_HOME_DIR < 0
+    #define Y_MIN_PIN Y_STOP_PIN
+    #define Y_MAX_PIN -1
+  #else
+    #define Y_MIN_PIN -1
+    #define Y_MAX_PIN Y_STOP_PIN
+  #endif
+#endif
+
+#ifdef Z_STOP_PIN
+  #if Z_HOME_DIR < 0
+    #define Z_MIN_PIN Z_STOP_PIN
+    #define Z_MAX_PIN -1
+  #else
+    #define Z_MIN_PIN -1
+    #define Z_MAX_PIN Z_STOP_PIN
+  #endif
+#endif
+
+#ifdef DISABLE_MAX_ENDSTOPS
+  #define X_MAX_PIN          -1
+  #define Y_MAX_PIN          -1
+  #define Z_MAX_PIN          -1
+#endif
+
+#ifdef DISABLE_MIN_ENDSTOPS
+  #define X_MIN_PIN          -1
+  #define Y_MIN_PIN          -1
+  #define Z_MIN_PIN          -1
+#endif
+
+#define SENSITIVE_PINS { 0, 1, X_STEP_PIN, X_DIR_PIN, X_ENABLE_PIN, X_MIN_PIN, X_MAX_PIN, Y_STEP_PIN, Y_DIR_PIN, Y_ENABLE_PIN, Y_MIN_PIN, Y_MAX_PIN, Z_STEP_PIN, Z_DIR_PIN, Z_ENABLE_PIN, Z_MIN_PIN, Z_MAX_PIN, PS_ON_PIN, \
+                        HEATER_BED_PIN, FAN_PIN, \
+                        _E0_PINS _E1_PINS _E2_PINS _E3_PINS \
+                        analogInputToDigitalPin(TEMP_BED_PIN) \
+                       }
+
+#endif //__PINS_H

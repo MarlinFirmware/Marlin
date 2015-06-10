@@ -36,7 +36,7 @@
 # Note that all settings are set with ?=, this means you can override them
 # from the commandline with "make HARDWARE_MOTHERBOARD=71" for example
 
-# This defined the board you are compiling for (see Configuration.h for the options)
+# This defined the board you are compiling for (see boards.h for the options)
 HARDWARE_MOTHERBOARD ?= 33
 
 # Arduino source install directory, and version number
@@ -49,9 +49,11 @@ AVR_TOOLS_PATH ?= $(ARDUINO_INSTALL_DIR)/hardware/tools/avr/bin/
 #Programmer configuration
 UPLOAD_RATE        ?= 115200
 AVRDUDE_PROGRAMMER ?= wiring
+# on most linuxes this will be /dev/ttyACM0 or /dev/ttyACM1 
 UPLOAD_PORT        ?= /dev/ttyUSB0
 
-#Directory used to build files in, contains all the build files, from object files to the final hex file.
+#Directory used to build files in, contains all the build files, from object files to the final hex file
+#on linux it is best to put an absolute path like /home/username/tmp .
 BUILD_DIR          ?= applet
 
 # This define if graphical display is used
@@ -88,7 +90,7 @@ F_CPU ?= 16000000
 ifeq ($(HARDWARE_VARIANT), arduino)
 HARDWARE_DIR = $(ARDUINO_INSTALL_DIR)/hardware
 endif
-HARDWARE_SRC = $(HARDWARE_DIR)/$(HARDWARE_VARIANT)/cores/arduino
+HARDWARE_SRC = $(HARDWARE_DIR)/$(HARDWARE_VARIANT)/avr/cores/arduino
 
 TARGET = $(notdir $(CURDIR))
 
@@ -104,20 +106,21 @@ VPATH += libraries/SdFat
 
 ifeq ($(HARDWARE_VARIANT), arduino)
 HARDWARE_SUB_VARIANT ?= mega
-VPATH += $(ARDUINO_INSTALL_DIR)/hardware/arduino/variants/$(HARDWARE_SUB_VARIANT)
-VPATH += $(ARDUINO_INSTALL_DIR)/libraries/SPI
+VPATH += $(ARDUINO_INSTALL_DIR)/hardware/arduino/avr/variants/$(HARDWARE_SUB_VARIANT)
+VPATH += $(ARDUINO_INSTALL_DIR)/hardware/arduino/avr/libraries/SPI
 
 ifeq ($(DOGLCD), 1)
 VPATH += libraries/U8glib
 VPATH += libraries/U8glib/utility
 else
-VPATH += $(ARDUINO_INSTALL_DIR)/libraries/LiquidCrystal
+VPATH += $(ARDUINO_INSTALL_DIR)/libraries/LiquidCrystal/src
 endif
 
 SRC = wiring.c \
 	wiring_analog.c wiring_digital.c \
 	wiring_pulse.c \
-	wiring_shift.c WInterrupts.c
+	wiring_shift.c WInterrupts.c \
+	hooks.c
 
 CXXSRC = WMath.cpp WString.cpp Print.cpp Marlin_main.cpp	\
 	MarlinSerial.cpp Sd2Card.cpp SdBaseFile.cpp SdFatUtil.cpp	\
@@ -162,7 +165,7 @@ OBJDUMP = $(AVR_TOOLS_PATH)avr-objdump
 AR  = $(AVR_TOOLS_PATH)avr-ar
 SIZE = $(AVR_TOOLS_PATH)avr-size
 NM = $(AVR_TOOLS_PATH)avr-nm
-AVRDUDE = $(ARDUINO_INSTALL_DIR)/hardware/tools/avrdude
+AVRDUDE = $(ARDUINO_INSTALL_DIR)/hardware/tools/avr/bin/avrdude
 REMOVE = rm -f
 MV = mv -f
 
@@ -201,7 +204,7 @@ LDFLAGS = -lm
 AVRDUDE_PORT = $(UPLOAD_PORT)
 AVRDUDE_WRITE_FLASH = -D -U flash:w:$(BUILD_DIR)/$(TARGET).hex:i
 ifeq ($(shell uname -s), Linux)
-AVRDUDE_CONF = $(ARDUINO_INSTALL_DIR)/hardware/tools/avrdude.conf
+AVRDUDE_CONF = $(ARDUINO_INSTALL_DIR)/hardware/tools/avr/etc/avrdude.conf
 else
 AVRDUDE_CONF = $(ARDUINO_INSTALL_DIR)/hardware/tools/avr/etc/avrdude.conf
 endif

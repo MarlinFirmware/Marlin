@@ -5,8 +5,6 @@
 
 #include "PrintManager.h"
 
-extern "C" void	atexit( void ) { }
-
 namespace screen
 {
 	GuiPainter::GuiPainter()

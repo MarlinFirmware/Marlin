@@ -10,6 +10,14 @@
 #include "GuiImpl_witbox_2.h"
 #include "ViewManager.h"
 
+//C++ helpers for Arduino
+
+__extension__ typedef int __guard __attribute__((mode (__DI__)));
+extern "C" int __cxa_guard_acquire(__guard *g) { return !*(char *)(g); };
+extern "C" void __cxa_guard_release (__guard *g) { *(char *)g = 1; };
+extern "C" void __cxa_guard_abort (__guard *) {}; 
+extern "C" void __cxa_pure_virtual() { while (1); }
+
 /////////////////////////////////////////////////////////////////////////
 //                          Marlin interface                           //
 /////////////////////////////////////////////////////////////////////////
@@ -24,8 +32,20 @@ int absPreheatHotendTemp;
 int absPreheatHPBTemp;
 int absPreheatFanSpeed;
 
+#define BLEN_C 2 
+#define BLEN_B 1
+#define BLEN_A 0
 
-//screen::Screen * active_view;
+#define EN_C (1<<BLEN_C)
+#define EN_B (1<<BLEN_B)
+#define EN_A (1<<BLEN_A)
+
+#  if ( defined(EN_A) && defined(EN_B) )
+#define encrot0 0
+#define encrot1 2
+#define encrot2 3
+#define encrot3 1
+#  endif // ( defined(EN_A) && defined(EN_B) )
 
 /*******************************************************************************
 **   Variables
@@ -77,17 +97,11 @@ uint16_t lcd_timer = 0;
 uint8_t lcd_status_message_level;
 char lcd_status_message[LCD_WIDTH+1] = WELCOME_MSG;
 
+int lcd_contrast;
 
 // View drawers variables
 uint8_t display_view_menu_offset = 0;
 uint8_t display_view_wizard_page = 0;
-
-// TODO : Review structure of this file to include it above.
-#ifdef DOGLCD
-#include "dogm_lcd_implementation.h"
-#else
-#include "ultralcd_implementation_hitachi_HD44780.h"
-#endif
 
 
 
@@ -99,49 +113,91 @@ uint8_t display_view_wizard_page = 0;
 // General API definitions
 // 
 
+uint8_t lcd_implementation_update_buttons()
+{
+  uint8_t buttons_vector = 0x00;
+  if ( READ(BTN_EN1) == 0 )  buttons_vector |= EN_A;
+  if ( READ(BTN_EN2) == 0 )  buttons_vector |= EN_B;
+  if ( READ(BTN_ENC) == 0 )  buttons_vector |= EN_C;
+
+  return buttons_vector;
+}
+
+static void lcd_implementation_quick_feedback()
+{
+#if ( defined(BEEPER) && (BEEPER > 0) )
+   SET_OUTPUT(BEEPER);
+   frequency_ratio = 0;
+   beeper_duration = 100;
+   beeper_level = false;
+#endif
+}
 void lcd_init()
 {
-    // Low level init libraries for lcd & encoder
-    lcd_implementation_init();
+	// Low level init libraries for lcd & encoder
+	pinMode(39, OUTPUT);   //Contraste = 4.5V
+	digitalWrite(39, HIGH);
+	pinMode(43, OUTPUT);           //RESET DEL LCD A HIGH
+	digitalWrite(43, HIGH);
 
-    pinMode(BTN_EN1,INPUT);
-    pinMode(BTN_EN2,INPUT);
-    WRITE(BTN_EN1,HIGH);
-    WRITE(BTN_EN2,HIGH);
+/* Review
+	u8g.firstPage();
+	do 
+	{
+		u8g.drawXBMP(0,0,START_BMPWIDTH,START_BMPHEIGHT,start_bmp);
+	} while(u8g.nextPage());
 
-    pinMode(BTN_ENC,INPUT);
-    WRITE(BTN_ENC,HIGH);
+#ifdef LCD_SCREEN_ROT_90
+	u8g.setRot90();   // Rotate screen by 90°
+#endif
 
-    // Init for SD card library
-    pinMode(SDCARDDETECT,INPUT);
-    WRITE(SDCARDDETECT, HIGH);
+#ifdef LCD_SCREEN_ROT_180
+	u8g.setRot180();  // Rotate screen by 180°
+#endif
 
-    // Init Timer 5 and set the OVF interrupt (triggered every 125 us)
-    TCCR5A = 0x03;
-    TCCR5B = 0x19;
+#ifdef LCD_SCREEN_ROT_270
+	u8g.setRot270();  // Rotate screen by 270°
+#endif
+*/
 
-    OCR5AH = 0x07;
-    OCR5AL = 0xD0;
+	pinMode(BTN_EN1,INPUT);
+	pinMode(BTN_EN2,INPUT);
+	WRITE(BTN_EN1,HIGH);
+	WRITE(BTN_EN2,HIGH);
 
-    lcd_enable_interrupt();
+	pinMode(BTN_ENC,INPUT);
+	WRITE(BTN_ENC,HIGH);
 
-    display_time_refresh = millis();
-    display_timeout = millis();
-    refresh_interval = millis();
-    lcd_enable_display_timeout();
+	// Init for SD card library
+	pinMode(SDCARDDETECT,INPUT);
+	WRITE(SDCARDDETECT, HIGH);
 
-    lcd_enable_encoder();
-    lcd_get_encoder_updated();
-    encoder_position = 0;
+	// Init Timer 5 and set the OVF interrupt (triggered every 125 us)
+	TCCR5A = 0x03;
+	TCCR5B = 0x19;
 
-    lcd_enable_button();
-    lcd_get_button_updated();
-    lcd_get_button_clicked();
+	OCR5AH = 0x07;
+	OCR5AL = 0xD0;
 
-    screen::ViewManager::getInstance().activeView(screen::GuiBuild());
-    screen::ViewManager::getInstance().activeView()->draw();
-    
-    SERIAL_ECHOLN("LCD initialized!");
+	lcd_enable_interrupt();
+
+	display_time_refresh = millis();
+	display_timeout = millis();
+	refresh_interval = millis();
+	lcd_enable_display_timeout();
+
+	lcd_enable_encoder();
+	lcd_get_encoder_updated();
+	encoder_position = 0;
+
+	lcd_enable_button();
+	lcd_get_button_updated();
+	lcd_get_button_clicked();
+
+	screen::ViewManager::getInstance().activeView(screen::GuiBuild());
+	screen::ViewManager::getInstance().activeView()->draw();
+
+	SERIAL_ECHOLN("LCD initialized!");
 }
 
 

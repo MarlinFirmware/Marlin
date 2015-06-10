@@ -1012,7 +1012,7 @@ void SdBaseFile::printFatTime( uint16_t fatTime) {
  * the value zero, false, is returned for failure.
  */
 bool SdBaseFile::printName() {
-  char name[13];
+  char name[FILENAME_LENGTH];
   if (!getFilename(name)) return false;
   MYSERIAL.print(name);
   return true;
@@ -1135,7 +1135,7 @@ int8_t SdBaseFile::readDir(dir_t* dir, char* longFilename) {
     	if (VFAT->firstClusterLow == 0 && (VFAT->sequenceNumber & 0x1F) > 0 && (VFAT->sequenceNumber & 0x1F) <= MAX_VFAT_ENTRIES)
     	{
 			//TODO: Store the filename checksum to verify if a none-long filename aware system modified the file table.
-    		n = ((VFAT->sequenceNumber & 0x1F) - 1) * 13;
+    		n = ((VFAT->sequenceNumber & 0x1F) - 1) * FILENAME_LENGTH;
 			longFilename[n+0] = VFAT->name1[0];
 			longFilename[n+1] = VFAT->name1[1];
 			longFilename[n+2] = VFAT->name1[2];
@@ -1151,7 +1151,7 @@ int8_t SdBaseFile::readDir(dir_t* dir, char* longFilename) {
 			longFilename[n+12] = VFAT->name3[1];
 			//If this VFAT entry is the last one, add a NUL terminator at the end of the string
 			if (VFAT->sequenceNumber & 0x40)
-				longFilename[n+13] = '\0';
+				longFilename[n+FILENAME_LENGTH] = '\0';
 		}
     }
     // return if normal file or subdirectory

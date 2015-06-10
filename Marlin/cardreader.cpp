@@ -23,12 +23,14 @@ CardReader::CardReader()
    memset(workDirParents, 0, sizeof(workDirParents));
 
    autostart_stilltocheck=true; //the SD start is delayed, because otherwise the serial cannot answer fast enough to make contact with the host software.
-   lastnr=0;
+   autostart_index=0;
   //power to SD reader
-  #if SDPOWER > -1
-    SET_OUTPUT(SDPOWER); 
-    WRITE(SDPOWER,HIGH);
-  #endif //SDPOWER
+  #ifdef SDPOWER
+    #if SDPOWER > -1
+      SET_OUTPUT(SDPOWER); 
+      WRITE(SDPOWER,HIGH);
+    #endif //SDPOWER
+  #endif
   
   autostart_atmillis=millis()+5000;
 }
@@ -50,7 +52,7 @@ char *createFilename(char *buffer,const dir_t &p) //buffer>12characters
 }
 
 
-void  CardReader::lsDive(const char *prepend,SdFile parent)
+void CardReader::lsDive(const char *prepend, SdFile parent, const char * const match/*=NULL*/)
 {
   dir_t p;
  uint8_t cnt=0;
@@ -60,12 +62,12 @@ void  CardReader::lsDive(const char *prepend,SdFile parent)
     if( DIR_IS_SUBDIR(&p) && lsAction!=LS_Count && lsAction!=LS_GetFilename) // hence LS_SerialPrint
     {
 
-      char path[13*2];
-      char lfilename[13];
+      char path[FILENAME_LENGTH*2];
+      char lfilename[FILENAME_LENGTH];
       createFilename(lfilename,p);
       
       path[0]=0;
-      if(strlen(prepend)==0) //avoid leading / if already in prepend
+      if(prepend[0]==0) //avoid leading / if already in prepend
       {
        strcat(path,"/");
       }
@@ -92,16 +94,12 @@ void  CardReader::lsDive(const char *prepend,SdFile parent)
     }
     else
     {
-      if (p.name[0] == DIR_NAME_FREE) break;
-      if (p.name[0] == DIR_NAME_DELETED || p.name[0] == '.'|| p.name[0] == '_') continue;
-      if (longFilename[0] != '\0' &&
-          (longFilename[0] == '.' || longFilename[0] == '_')) continue;
-      if ( p.name[0] == '.')
-      {
-        if ( p.name[1] != '.')
-        continue;
-      }
-      
+      char pn0 = p.name[0];
+      if (pn0 == DIR_NAME_FREE) break;
+      if (pn0 == DIR_NAME_DELETED || pn0 == '.' || pn0 == '_') continue;
+      char lf0 = longFilename[0];
+      if (lf0 == '.' || lf0 == '_') continue;
+
       if (!DIR_IS_FILE_OR_SUBDIR(&p)) continue;
       filenameIsDir=DIR_IS_SUBDIR(&p);
       
@@ -124,8 +122,10 @@ void  CardReader::lsDive(const char *prepend,SdFile parent)
       } 
       else if(lsAction==LS_GetFilename)
       {
-        if(cnt==nrFiles)
-          return;
+        if (match != NULL) {
+          if (strcasecmp(match, filename) == 0) return;
+        }
+        else if (cnt == nrFiles) return;
         cnt++;
         
       }
@@ -150,9 +150,17 @@ void CardReader::initsd()
   if(root.isOpen())
     root.close();
 #ifdef SDSLOW
-  if (!card.init(SPI_HALF_SPEED,SDSS))
+  if (!card.init(SPI_HALF_SPEED,SDSS)
+  #if defined(LCD_SDSS) && (LCD_SDSS != SDSS)
+    && !card.init(SPI_HALF_SPEED,LCD_SDSS)
+  #endif
+    )
 #else
-  if (!card.init(SPI_FULL_SPEED,SDSS))
+  if (!card.init(SPI_FULL_SPEED,SDSS)
+  #if defined(LCD_SDSS) && (LCD_SDSS != SDSS)
+    && !card.init(SPI_FULL_SPEED,LCD_SDSS)
+  #endif
+    )
 #endif
   {
     //if (!card.init(SPI_HALF_SPEED,SDSS))
@@ -235,7 +243,7 @@ void CardReader::getAbsFilename(char *t)
     while(*t!=0 && cnt< MAXPATHNAMELENGTH) 
     {t++;cnt++;}  //crawl counter forward.
   }
-  if(cnt<MAXPATHNAMELENGTH-13)
+  if(cnt<MAXPATHNAMELENGTH-FILENAME_LENGTH)
     file.getFilename(t);
   else
     t[0]=0;
@@ -305,7 +313,7 @@ void CardReader::openFile(char* name,bool read, bool replace_current/*=true*/)
       //SERIAL_ECHO("end  :");SERIAL_ECHOLN((int)(dirname_end-name));
       if(dirname_end>0 && dirname_end>dirname_start)
       {
-        char subdirname[13];
+        char subdirname[FILENAME_LENGTH];
         strncpy(subdirname, dirname_start, dirname_end-dirname_start);
         subdirname[dirname_end-dirname_start]=0;
         SERIAL_ECHOLN(subdirname);
@@ -350,7 +358,8 @@ void CardReader::openFile(char* name,bool read, bool replace_current/*=true*/)
       sdpos = 0;
       
       SERIAL_PROTOCOLLNPGM(MSG_SD_FILE_SELECTED);
-      lcd_setstatus(fname);
+      getfilename(0, fname);
+      lcd_setstatus(longFilename[0] ? longFilename : fname);
     }
     else
     {
@@ -401,7 +410,7 @@ void CardReader::removeFile(char* name)
       //SERIAL_ECHO("end  :");SERIAL_ECHOLN((int)(dirname_end-name));
       if(dirname_end>0 && dirname_end>dirname_start)
       {
-        char subdirname[13];
+        char subdirname[FILENAME_LENGTH];
         strncpy(subdirname, dirname_start, dirname_end-dirname_start);
         subdirname[dirname_end-dirname_start]=0;
         SERIAL_ECHOLN(subdirname);
@@ -437,7 +446,7 @@ void CardReader::removeFile(char* name)
     if (file.remove(curDir, fname)) 
     {
       SERIAL_PROTOCOLPGM("File deleted:");
-      SERIAL_PROTOCOL(fname);
+      SERIAL_PROTOCOLLN(fname);
       sdpos = 0;
     }
     else
@@ -503,7 +512,7 @@ void CardReader::checkautostart(bool force)
   }
   
   char autoname[30];
-  sprintf_P(autoname, PSTR("auto%i.g"), lastnr);
+  sprintf_P(autoname, PSTR("auto%i.g"), autostart_index);
   for(int8_t i=0;i<(int8_t)strlen(autoname);i++)
     autoname[i]=tolower(autoname[i]);
   dir_t p;
@@ -530,9 +539,9 @@ void CardReader::checkautostart(bool force)
     }
   }
   if(!found)
-    lastnr=-1;
+    autostart_index=-1;
   else
-    lastnr++;
+    autostart_index++;
 }
 
 void CardReader::closefile(bool store_location)
@@ -552,13 +561,13 @@ void CardReader::closefile(bool store_location)
   
 }
 
-void CardReader::getfilename(const uint8_t nr)
+void CardReader::getfilename(uint16_t nr, const char * const match/*=NULL*/)
 {
   curDir=&workDir;
   lsAction=LS_GetFilename;
   nrFiles=nr;
   curDir->rewind();
-  lsDive("",*curDir);
+  lsDive("",*curDir,match);
   
 }
 

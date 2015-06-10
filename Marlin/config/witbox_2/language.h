@@ -128,7 +128,7 @@
 #define MSG_BABYSTEPPING_Z "Babystepping Z"
 #define MSG_SERIAL_ERROR_MENU_STRUCTURE "Error in menu structure"
 
-//Marlin messages
+#define MSG_ERR_EEPROM_WRITE                "Error writing to EEPROM!"
 
 #define WELCOME_MSG "Ready"
 #define MSG_ON "On"
