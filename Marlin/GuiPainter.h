@@ -33,7 +33,7 @@ namespace screen
 			void title(const char * title);
 
 			void text(const char * msg, uint8_t v_pad = 0);
-			void text_P(const char * msg);
+			void text_P(const char * msg, uint8_t v_pad = 0);
 
 			void printing_status(const uint8_t percentage, const uint16_t time);
 

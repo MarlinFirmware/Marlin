@@ -55,20 +55,20 @@ namespace screen
 		}
 	}
 
-	void GuiPainter::text_P(const char * msg)
+	void GuiPainter::text_P(const char * msg, uint8_t v_pad)
 	{
 		if ( (msg != NULL) && (strlen_P(msg) > 0) )
 		{
 			uint8_t x_init = coordinateXInit();
-			uint8_t y_init = coordinateYInit() + 3;
+			uint8_t y_init = coordinateYInit() + v_pad;
 			uint8_t x_end = coordinateXEnd();
 
 			setColorIndex(1);
 			setFont(u8g_font_6x9);
-			setPrintPos(x_end/2 - (strlen_P(msg)*6)/2, y_init + 2);
+			setPrintPos(x_end/2 - (strlen_P(msg)*6)/2, y_init);
 			print_P(msg);
 
-			coordinateYInit(y_init + 12);
+			coordinateYInit(y_init + 10);
 		}
 	}
 
