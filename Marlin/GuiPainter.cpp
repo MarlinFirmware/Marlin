@@ -76,7 +76,7 @@ namespace screen
 	{
 		if ( (msg != NULL) && (strlen_P(msg) > 0) )
 		{
-			const int MAX_LINE_CHARS = 21;
+			const int MAX_LINE_CHARS = 20;
 			int n_words = 0;
 			int n_lines = 1;
 			int total_lines = 1;
@@ -130,7 +130,6 @@ namespace screen
 					if ( (strlen(phrase) + strlen(word) <= MAX_LINE_CHARS) && (word == NULL) )
 					{
 						strcat(phrase, word);
-						strcat(phrase, " ");
 						switch (total_lines)
 						{
 							case 1:
@@ -177,6 +176,7 @@ namespace screen
 					}
 					else
 					{
+						phrase[strlen(phrase) - 1] = '\0';
 						switch (total_lines)
 						{
 							case 1:
