@@ -6,6 +6,7 @@
 /// \ingroup common
 ///
 /// \brief Template for Singleton instantiation.
+/// C++11 version using veriadic templates.
 ///
 /// Copyright 2008-2015 Ivan Galvez Junquera (ivgalvez@gmail.com).
 /// http://gitlab.com/ivgalvez-sandbox
@@ -32,79 +33,27 @@ namespace common
 	//! <BR>
 	//! A typedef for your implemented class is recommended to make use of the template.
 	//!
-	//! \warning Singletons have serious drawbacks, specially when dealing with multithreaded
-	//! environments. Check Alexandrescu's 'Modern C++'.
+	//! \warning Singletons have serious drawbacks, although C++11 does guarantee that 
+	//! this construction is thread safe.
 	//! \ingroup common
 	//! \author Ivan Galvez Junquera
 	template <typename T>
 		class Singleton
 	{
 		public:
-			//! \brief This method returns the existing instante.
-			//! The construction relies on the fact that function-static objects are only
-			//! initialized when the function is first being called upon.
-			//!
-			//! \warning C++03 does not officially guarantee that the construction of static function
-			//! objects is thread safe. So this method must be guarded with a critical section. 
-			//! <BR>
-			//! However, gcc has an explicit patch as part of the compiler that guarantees that each 
-			//! static function object will only be initialized once even in the presence of threads.
-			//!
-			//! \returns An instance reference to the class, so the caller cannot be
-			//! tempted to delete the singleton
-			static T & getInstance()
-			{
-				static T m_instance;
-				return m_instance;
-			}
-
 			//! \brief This method returns the existing instance.
 			//! The construction relies on the fact that function-static objects are only
 			//! initialized when the function is first being called upon.
-			//! <BR>
-			//! This version of the method allows the use of a constructor parameter for
-			//! the singleton class.
 			//!
-			//! \warning C++03 does not officially guarantee that the construction of static function
-			//! objects is thread safe. So this method must be guarded with a critical section. 
-			//! <BR>
-			//! However, gcc has an explicit patch as part of the compiler that guarantees that each 
-			//! static function object will only be initialized once even in the presence of threads.
-			//!
-			//! \param arg1 Parameter for the constructor of the class.
+			//! \param args Variable list of generic arguments to be passed to the class' 
+			//! constructor.
 			//!
 			//! \returns An instance reference to the class, so the caller cannot be
 			//! tempted to delete the singleton
-			template <class Arg1> 
-				static T & getInstance(Arg1 arg1)
+			template <typename... Args> 
+				static T & getInstance(Args... args)
 			{
-				static T m_instance(arg1);
-				return m_instance;
-			}
-
-			//! \brief This method returns the existing instance.
-			//! The construction relies on the fact that function-static objects are only
-			//! initialized when the function is first being called upon.
-			//! <BR>
-			//! This version of the method allows the use of 2 constructor parameter for
-			//! the singleton class. Obviously, without variadic templates this solution 
-			//! doesn't scale up.
-			//!
-			//! \warning C++03 does not officially guarantee that the construction of static function
-			//! objects is thread safe. So this method must be guarded with a critical section. 
-			//! <BR>
-			//! However, gcc has an explicit patch as part of the compiler that guarantees that each 
-			//! static function object will only be initialized once even in the presence of threads.
-			//!
-			//! \param arg1 First parameter for the constructor of the class.
-			//! \param arg2 Second parameter for the constructor of the class.
-			//!
-			//! \returns An instance reference to the class, so the caller cannot be
-			//! tempted to delete the singleton
-			template <class Arg1, class Arg2> 
-				static T & getInstance(Arg1 arg1, Arg2 arg2)
-			{
-				static T m_instance(arg1, arg2);
+				static T m_instance(args...);
 				return m_instance;
 			}
 
@@ -128,11 +77,11 @@ namespace common
 			//! The copy constructor is hidden.
 			//!
 			//! \param orig Original instance to be copied.
-			Singleton(Singleton const & orig);
+			Singleton(Singleton const & orig) = delete;
 
 			//! \brief Assign operator.
 			//! The assign operator is hidden to avoid copies of the class.
-			Singleton & operator=(Singleton const &);
+			Singleton & operator=(Singleton const &) = delete;
 	};
 }
 #endif // SINGLETON_H
