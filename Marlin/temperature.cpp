@@ -191,8 +191,7 @@ static void updateTemperaturesFromRawValues();
 //================================ Functions ================================
 //===========================================================================
 
-void PID_autotune(float temp, int extruder, int ncycles)
-{
+void PID_autotune(float temp, int extruder, int ncycles) {
   float input = 0.0;
   int cycles = 0;
   bool heating = true;
@@ -324,11 +323,11 @@ void PID_autotune(float temp, int extruder, int ncycles)
       int p;
       if (extruder < 0) {
         p = soft_pwm_bed;
-        SERIAL_PROTOCOLPGM(MSG_OK_B);
+        SERIAL_PROTOCOLPGM(MSG_B);
       }
       else {
         p = soft_pwm[extruder];
-        SERIAL_PROTOCOLPGM(MSG_OK_T);
+        SERIAL_PROTOCOLPGM(MSG_T);
       }
 
       SERIAL_PROTOCOL(input);
