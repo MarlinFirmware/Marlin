@@ -193,7 +193,7 @@ const char MSG_SCREEN_SD_LIST_BACK[] PROGMEM         = "Back to main menu";
 const char MSG_SCREEN_SD_LIST_PREV[] PROGMEM         = "Previous folder";
 
 const char MSG_SCREEN_UNLOAD_TITLE[] PROGMEM         = "Unload filament";
-const char MSG_SCREEN_UNLOAD_TEXT1[] PROGMEM         = "Test";
+const char MSG_SCREEN_UNLOAD_TEXT1[] PROGMEM         = "Press the button let it extrude the filament & pull";
 const char MSG_SCREEN_UNLOAD_TEXT2[] PROGMEM         = "Start process?";
 const char MSG_SCREEN_UNLOAD_ABORT[] PROGMEM         = "Press to abort";
 const char MSG_SCREEN_UNLOAD_CONTINUE[] PROGMEM      = "Press to continue";
@@ -201,7 +201,7 @@ const char MSG_SCREEN_UNLOAD_PULL[] PROGMEM          = "Extrude and pull";
 const char MSG_SCREEN_UNLOAD_CONFIRM[] PROGMEM       = "Finished?";
 
 const char MSG_SCREEN_LOAD_TITLE[] PROGMEM           = "Load filament";
-const char MSG_SCREEN_LOAD_TEXT1[] PROGMEM           = "Test";
+const char MSG_SCREEN_LOAD_TEXT1[] PROGMEM           = "Press the button and press the filament inside";
 const char MSG_SCREEN_LOAD_TEXT2[] PROGMEM           = "Start process?";
 const char MSG_SCREEN_LOAD_ABORT[] PROGMEM           = "Press to abort";
 const char MSG_SCREEN_LOAD_CONTINUE[] PROGMEM        = "Press to continue";
@@ -213,15 +213,15 @@ const char MSG_SCREEN_LEVEL_TEXT[] PROGMEM           = "Start leveling?";
 const char MSG_SCREEN_LEVEL_ABORT[] PROGMEM          = "Push to abort";
 const char MSG_SCREEN_LEVEL_CONTINUE[] PROGMEM       = "Push to continue";
 const char MSG_SCREEN_LEVEL_TEXT0[] PROGMEM          = "Text0";
-const char MSG_SCREEN_LEVEL_TEXT1[] PROGMEM          = "Text1";
-const char MSG_SCREEN_LEVEL_TEXT2[] PROGMEM          = "Text2";
-const char MSG_SCREEN_LEVEL_TEXT3[] PROGMEM          = "Text3";
-const char MSG_SCREEN_LEVEL_TEXT4[] PROGMEM          = "Text4";
+const char MSG_SCREEN_LEVEL_TEXT1[] PROGMEM          = "Adjust first point 1mm between the plate and extruder";
+const char MSG_SCREEN_LEVEL_TEXT2[] PROGMEM          = "Adjust second point 1mm between the plate and extruder";
+const char MSG_SCREEN_LEVEL_TEXT3[] PROGMEM          = "Adjust third point 1mm between the plate and extruder";
+const char MSG_SCREEN_LEVEL_TEXT4[] PROGMEM          = "Adjust center point 1mm between the plate and extruder";
 const char MSG_SCREEN_LEVEL_BOX0[] PROGMEM           = "Box0";
-const char MSG_SCREEN_LEVEL_BOX1[] PROGMEM           = "Box1";
-const char MSG_SCREEN_LEVEL_BOX2[] PROGMEM           = "Box2";
-const char MSG_SCREEN_LEVEL_BOX3[] PROGMEM           = "Box3";
-const char MSG_SCREEN_LEVEL_BOX4[] PROGMEM           = "Box4";
+const char MSG_SCREEN_LEVEL_BOX1[] PROGMEM           = "Push to continue";
+const char MSG_SCREEN_LEVEL_BOX2[] PROGMEM           = "Push to continue";
+const char MSG_SCREEN_LEVEL_BOX3[] PROGMEM           = "Push to continue";
+const char MSG_SCREEN_LEVEL_BOX4[] PROGMEM           = "Push to continue";
 const char MSG_SCREEN_LEVEL_CONFIRM[] PROGMEM        = "Finished?";
 const char MSG_SCREEN_LEVEL0_BOX[] PROGMEM           = "Box0";
 
@@ -251,8 +251,7 @@ const char MSG_SCREEN_LIGHT[] PROGMEM                = "Led light on";
 const char MSG_SCREEN_PRINT[] PROGMEM                = "Confirm";
 const char MSG_SCREEN_INFO[] PROGMEM                 = "FW info";
 const char MSG_SCREEN_INFO_TEXT[] PROGMEM            = "FW info";
-const char MSG_SCREEN_INFO_BOX[] PROGMEM             = "FW info";
-
+const char MSG_SCREEN_INFO_BOX[] PROGMEM             = "FW info"; 
 
 const char MSG_SCREEN_STOP_CONFIRM[] PROGMEM         = "Stop";
 const char MSG_SCREEN_STOP_BACK[] PROGMEM            = "Back";
@@ -312,7 +311,7 @@ const char MSG_SCREEN_SD_LIST_BACK[] PROGMEM         = "Volver al menu";
 const char MSG_SCREEN_SD_LIST_PREV[] PROGMEM         = "Carpeta anterior";
 
 const char MSG_SCREEN_UNLOAD_TITLE[] PROGMEM         = "Descargar filamento";
-const char MSG_SCREEN_UNLOAD_TEXT1[] PROGMEM         = "Test";
+const char MSG_SCREEN_UNLOAD_TEXT1[] PROGMEM         = "Pulse el botón deje extruir el filamento y extraigalo";
 const char MSG_SCREEN_UNLOAD_TEXT2[] PROGMEM         = "Iniciar proceso?";
 const char MSG_SCREEN_UNLOAD_ABORT[] PROGMEM         = "Pulse para cancelar";
 const char MSG_SCREEN_UNLOAD_CONTINUE[] PROGMEM      = "Pulse para continuar";
@@ -320,7 +319,7 @@ const char MSG_SCREEN_UNLOAD_PULL[] PROGMEM          = "Extruir y sacar";
 const char MSG_SCREEN_UNLOAD_CONFIRM[] PROGMEM       = "Finalizado?";
 
 const char MSG_SCREEN_LOAD_TITLE[] PROGMEM           = "Cargar filamento";
-const char MSG_SCREEN_LOAD_TEXT1[] PROGMEM           = "Test";
+const char MSG_SCREEN_LOAD_TEXT1[] PROGMEM           = "Pulse el botón e introduzca el filamento";
 const char MSG_SCREEN_LOAD_TEXT2[] PROGMEM           = "Iniciar proceso?";
 const char MSG_SCREEN_LOAD_ABORT[] PROGMEM           = "Pulse para cancelar";
 const char MSG_SCREEN_LOAD_CONTINUE[] PROGMEM        = "Pulse para continuar";
@@ -331,14 +330,16 @@ const char MSG_SCREEN_LEVEL_TITLE[] PROGMEM          = "Nivelar base";
 const char MSG_SCREEN_LEVEL_TEXT[] PROGMEM           = "Comenzar nivelacion?";
 const char MSG_SCREEN_LEVEL_ABORT[] PROGMEM          = "Pulse para cancelar";
 const char MSG_SCREEN_LEVEL_CONTINUE[] PROGMEM       = "Pulse para continuar";
-const char MSG_SCREEN_LEVEL_TEXT1[] PROGMEM          = "Text1";
-const char MSG_SCREEN_LEVEL_TEXT2[] PROGMEM          = "Text2";
-const char MSG_SCREEN_LEVEL_TEXT3[] PROGMEM          = "Text3";
-const char MSG_SCREEN_LEVEL_TEXT4[] PROGMEM          = "Text4";
-const char MSG_SCREEN_LEVEL_BOX1[] PROGMEM           = "Box1";
-const char MSG_SCREEN_LEVEL_BOX2[] PROGMEM           = "Box2";
-const char MSG_SCREEN_LEVEL_BOX3[] PROGMEM           = "Box3";
-const char MSG_SCREEN_LEVEL_BOX4[] PROGMEM           = "Box4";
+const char MSG_SCREEN_LEVEL_TEXT0[] PROGMEM          = "text0";
+const char MSG_SCREEN_LEVEL_TEXT1[] PROGMEM          = "Ajuste el primer punto 1mm entre la cama y el extrusor";
+const char MSG_SCREEN_LEVEL_TEXT2[] PROGMEM          = "Ajuste el segundo punto 1mm entre la cama y el extrusor";
+const char MSG_SCREEN_LEVEL_TEXT3[] PROGMEM          = "Ajuste el tercer punto 1mm entre la cama y el extrusor";
+const char MSG_SCREEN_LEVEL_TEXT4[] PROGMEM          = "Ajuste el punto central 1mm entre la cama y el extrusor";
+const char MSG_SCREEN_LEVEL_BOX0[] PROGMEM           = "box0";
+const char MSG_SCREEN_LEVEL_BOX1[] PROGMEM           = "Pulse para continuar";
+const char MSG_SCREEN_LEVEL_BOX2[] PROGMEM           = "Pulse para continuar";
+const char MSG_SCREEN_LEVEL_BOX3[] PROGMEM           = "Pulse para continuar";
+const char MSG_SCREEN_LEVEL_BOX4[] PROGMEM           = "Pulse para continuar";
 const char MSG_SCREEN_LEVEL_CONFIRM[] PROGMEM        = "Finalizado?";
 
 

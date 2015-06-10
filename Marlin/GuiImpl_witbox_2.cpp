@@ -75,11 +75,14 @@ namespace screen
 	ScreenTransition<float> screen_unload_heating	= ScreenTransition<float>(MSG_SCREEN_UNLOAD_TITLE, MSG_SCREEN_UNLOAD_ABORT, &TemperatureManager::getInstance());
 	ScreenDialog<void> screen_unload_pull     = ScreenDialog<void>(MSG_SCREEN_UNLOAD_TITLE, MSG_SCREEN_UNLOAD_TEXT1, MSG_SCREEN_UNLOAD_CONTINUE, action_filament_unload);
 	ScreenMenu screen_unload_confirm    = ScreenMenu(MSG_SCREEN_UNLOAD_TITLE, MSG_SCREEN_UNLOAD_CONFIRM);
+	ScreenMenu screen_unload_init = ScreenMenu(MSG_SCREEN_UNLOAD_TITLE, MSG_SCREEN_UNLOAD_TEXT2);
 	//Load Filament screens
 	ScreenSelector<void, uint16_t> screen_load_select   = ScreenSelector<void, uint16_t>(MSG_SCREEN_LOAD_TITLE, 170, 230, default_temp_change_filament, action_set_temperature);
 	ScreenTransition<float> screen_load_heating	= ScreenTransition<float>(MSG_SCREEN_LOAD_TITLE, MSG_SCREEN_LOAD_ABORT, &TemperatureManager::getInstance());
 	ScreenDialog<void> screen_load_press      = ScreenDialog<void>(MSG_SCREEN_LOAD_TITLE, MSG_SCREEN_LOAD_TEXT1, MSG_SCREEN_LOAD_CONTINUE, action_filament_load);
 	ScreenMenu screen_load_confirm      = ScreenMenu(MSG_SCREEN_LOAD_TITLE, MSG_SCREEN_LOAD_CONFIRM);
+	ScreenMenu screen_load_init = ScreenMenu(MSG_SCREEN_LOAD_TITLE, MSG_SCREEN_LOAD_TEXT2);
+
 	//Level Plate screens
 	ScreenMenu screen_level_init					= ScreenMenu(MSG_SCREEN_LEVEL_TITLE, MSG_SCREEN_LEVEL_TEXT);
 	ScreenAction<void> screen_level_cooling			= ScreenAction<void>("", action_cooldown);
@@ -149,8 +152,8 @@ namespace screen
 		// Build the UI
 		//Main Menu
 		screen_main.add(screen_SD_list);
-		screen_main.add(screen_unload_select);
-		screen_main.add(screen_load_select);
+		screen_main.add(screen_unload_init);
+		screen_main.add(screen_load_init);
 		screen_main.add(screen_level_init);
 		screen_main.add(screen_autohome);
 		screen_main.add(screen_settings);
@@ -173,9 +176,13 @@ namespace screen
 		screen_SD_OK.add(screen_print);
 		screen_SD_OK.icon(icon_ok);
 		//screen_print.icon(icon_ok);
+		//Unload Filament Init
+		screen_unload_init.add(screen_back2main);
+		screen_unload_init.add(screen_unload_select);
+		screen_unload_init.icon(icon_filament_unload);
 		//Unload Filament Select
 		screen_unload_select.add(screen_unload_heating);
-		screen_unload_select.icon(icon_filament_unload);
+		screen_unload_select.icon(icon_ok);
 		//Unload Filament Heating
 		screen_unload_heating.add(screen_main);
 		screen_unload_heating.add(screen_unload_pull);
@@ -185,9 +192,13 @@ namespace screen
 		//Unload Filament Confirm
 		screen_unload_confirm.add(screen_unload_pull);
 		screen_unload_confirm.add(screen_ok2main);
+		//Load Filament Init
+		screen_load_init.add(screen_back2main);
+		screen_load_init.add(screen_load_select);
+		screen_load_init.icon(icon_filament_load);
 		//Load Filament Select
 		screen_load_select.add(screen_load_heating);
-		screen_load_select.icon(icon_filament_load);
+		screen_load_select.icon(icon_ok);
 		//Load Filament Heating
 		screen_load_heating.add(screen_main);
 		screen_load_heating.add(screen_load_press);
