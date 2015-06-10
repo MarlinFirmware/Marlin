@@ -177,6 +177,10 @@ const char MSG_CHANGE_SPEED[] PROGMEM                = "Change speed";
 const char MSG_BACK[] PROGMEM                        = "Back";
 const char MSG_RETRY[] PROGMEM                       = "Retry";
 const char MSG_OK2[] PROGMEM                         = "Confirm";
+const char MSG_MOVE_X[] PROGMEM                      = "Move X";
+const char MSG_MOVE_Y[] PROGMEM                      = "Move Y";
+const char MSG_MOVE_Z[] PROGMEM                      = "Move Z";
+const char MSG_MOVE_E[] PROGMEM                      = "Move E";
 
 const char MSG_SCREEN_LOGO[] PROGMEM                 = "BQ logo";
 const char MSG_SCREEN_LOGO_TEXT[] PROGMEM            = "Test";
@@ -204,39 +208,40 @@ const char MSG_SCREEN_LOAD_CONTINUE[] PROGMEM        = "Press to continue";
 const char MSG_SCREEN_LOAD_PRESS[] PROGMEM           = "Push to continue";
 const char MSG_SCREEN_LOAD_CONFIRM[] PROGMEM         = "Finished?";
 
-const char MSG_SCREEN_LEVEL_TITLE[] PROGMEM          = "Level Plate";
+const char MSG_SCREEN_LEVEL_TITLE[] PROGMEM          = "Level plate";
+const char MSG_SCREEN_LEVEL_TEXT[] PROGMEM           = "Start leveling?";
 const char MSG_SCREEN_LEVEL_ABORT[] PROGMEM          = "Push to abort";
 const char MSG_SCREEN_LEVEL_CONTINUE[] PROGMEM       = "Push to continue";
-
-const char MSG_SCREEN_LEVEL1_TITLE[] PROGMEM         = "Screen1";
-const char MSG_SCREEN_LEVEL2_TITLE[] PROGMEM         = "Screen2";
-const char MSG_SCREEN_LEVEL3_TITLE[] PROGMEM         = "Screen3";
-const char MSG_SCREEN_LEVEL4_TITLE[] PROGMEM         = "Screen4";
-const char MSG_SCREEN_LEVEL1_TEXT[] PROGMEM          = "Text1";
-const char MSG_SCREEN_LEVEL2_TEXT[] PROGMEM          = "Text2";
-const char MSG_SCREEN_LEVEL3_TEXT[] PROGMEM          = "Text3";
-const char MSG_SCREEN_LEVEL4_TEXT[] PROGMEM          = "Text4";
-const char MSG_SCREEN_LEVEL1_BOX[] PROGMEM           = "Box1";
-const char MSG_SCREEN_LEVEL2_BOX[] PROGMEM           = "Box2";
-const char MSG_SCREEN_LEVEL3_BOX[] PROGMEM           = "Box3";
-const char MSG_SCREEN_LEVEL4_BOX[] PROGMEM           = "Box4";
-const char MSG_SCREEN_LEVEL_RETRY[] PROGMEM          = "Finished?";
+const char MSG_SCREEN_LEVEL_TEXT0[] PROGMEM          = "Text0";
+const char MSG_SCREEN_LEVEL_TEXT1[] PROGMEM          = "Text1";
+const char MSG_SCREEN_LEVEL_TEXT2[] PROGMEM          = "Text2";
+const char MSG_SCREEN_LEVEL_TEXT3[] PROGMEM          = "Text3";
+const char MSG_SCREEN_LEVEL_TEXT4[] PROGMEM          = "Text4";
+const char MSG_SCREEN_LEVEL_BOX0[] PROGMEM           = "Box0";
+const char MSG_SCREEN_LEVEL_BOX1[] PROGMEM           = "Box1";
+const char MSG_SCREEN_LEVEL_BOX2[] PROGMEM           = "Box2";
+const char MSG_SCREEN_LEVEL_BOX3[] PROGMEM           = "Box3";
+const char MSG_SCREEN_LEVEL_BOX4[] PROGMEM           = "Box4";
+const char MSG_SCREEN_LEVEL_CONFIRM[] PROGMEM        = "Finished?";
+const char MSG_SCREEN_LEVEL0_BOX[] PROGMEM           = "Box0";
 
 const char MSG_SCREEN_AUTOHOME[] PROGMEM             = "Auto-home";
 const char MSG_SCREEN_SETTINGS[] PROGMEM             = "Settings";
 const char MSG_SCREEN_SETTINGS_TEXT[] PROGMEM        = "Choose an option";
 const char MSG_SCREEN_STEPPER[] PROGMEM              = "Steppers on";
 
-const char MSG_SCREEN_MOVE[] PROGMEM                 = "Move axis";
-const char MSG_SCREEN_BACK2MAIN[] PROGMEM            = "Back";
-const char MSG_SCREEN_MOVE_X[] PROGMEM               = "Move X";
-const char MSG_SCREEN_MOVE_Y[] PROGMEM               = "Move Y";
-const char MSG_SCREEN_MOVE_Z[] PROGMEM               = "Move Z";
-const char MSG_SCREEN_MOVE_E[] PROGMEM               = "Move Extruder";
+const char MSG_SCREEN_MOVE_TITLE[] PROGMEM           = "Move axis";
+const char MSG_SCREEN_MOVE_TEXT[] PROGMEM            = "Select axis";
+const char MSG_SCREEN_MOVE_X[] PROGMEM               = "X axis / Select mm";
+const char MSG_SCREEN_MOVE_Y[] PROGMEM               = "Y axis / Select mm";
+const char MSG_SCREEN_MOVE_Z[] PROGMEM               = "Z axis / Select mm";
+const char MSG_SCREEN_MOVE_E[] PROGMEM               = "Extruder / Select mm";
 const char MSG_SCREEN_MOVE_2MOVE[] PROGMEM           = "Back";
 const char MSG_SCREEN_MOVE_01MM[] PROGMEM            = "0.1mm";
 const char MSG_SCREEN_MOVE_1MM[] PROGMEM             = "1mm";
 const char MSG_SCREEN_MOVE_10MM[] PROGMEM            = "10mm";
+
+const char MSG_SCREEN_BACK2MAIN[] PROGMEM            = "Back";
 
 const char MSG_SCREEN_PRINT_PRINTING[] PROGMEM       = "Printing";
 const char MSG_SCREEN_PRINT_PAUSED[] PROGMEM         = "Paused";
@@ -291,6 +296,10 @@ const char MSG_CHANGE_SPEED[] PROGMEM                = "Cambiar velocidad";
 const char MSG_BACK[] PROGMEM                        = "Volver";
 const char MSG_RETRY[] PROGMEM                       = "Reintentar";
 const char MSG_OK2[] PROGMEM                         = "Confirmar";
+const char MSG_MOVE_X[] PROGMEM                      = "Mover X";
+const char MSG_MOVE_Y[] PROGMEM                      = "Mover Y";
+const char MSG_MOVE_Z[] PROGMEM                      = "Mover Z";
+const char MSG_MOVE_E[] PROGMEM                      = "Mover E";
 
 const char MSG_SCREEN_LOGO[] PROGMEM                 = "BQ logo";
 const char MSG_SCREEN_LOGO_TEXT[] PROGMEM            = "Test";
@@ -308,49 +317,48 @@ const char MSG_SCREEN_UNLOAD_TEXT2[] PROGMEM         = "Iniciar proceso?";
 const char MSG_SCREEN_UNLOAD_ABORT[] PROGMEM         = "Pulse para cancelar";
 const char MSG_SCREEN_UNLOAD_CONTINUE[] PROGMEM      = "Pulse para continuar";
 const char MSG_SCREEN_UNLOAD_PULL[] PROGMEM          = "Extruir y sacar";
-const char MSG_SCREEN_UNLOAD_CONFIRM[] PROGMEM       = "Finished?";
+const char MSG_SCREEN_UNLOAD_CONFIRM[] PROGMEM       = "Finalizado?";
 
 const char MSG_SCREEN_LOAD_TITLE[] PROGMEM           = "Cargar filamento";
 const char MSG_SCREEN_LOAD_TEXT1[] PROGMEM           = "Test";
 const char MSG_SCREEN_LOAD_TEXT2[] PROGMEM           = "Iniciar proceso?";
 const char MSG_SCREEN_LOAD_ABORT[] PROGMEM           = "Pulse para cancelar";
 const char MSG_SCREEN_LOAD_CONTINUE[] PROGMEM        = "Pulse para continuar";
-const char MSG_SCREEN_LOAD_PRESS[] PROGMEM           = "Push to continue";
-const char MSG_SCREEN_LOAD_CONFIRM[] PROGMEM         = "Finished?";
+const char MSG_SCREEN_LOAD_PRESS[] PROGMEM           = "Pulse para continuar";
+const char MSG_SCREEN_LOAD_CONFIRM[] PROGMEM         = "Finalizado?";
 
-const char MSG_SCREEN_LEVEL_TITLE[] PROGMEM          = "Level Plate";
-const char MSG_SCREEN_LEVEL_ABORT[] PROGMEM          = "Push to abort";
-const char MSG_SCREEN_LEVEL_CONTINUE[] PROGMEM       = "Push to continue";
+const char MSG_SCREEN_LEVEL_TITLE[] PROGMEM          = "Nivelar base";
+const char MSG_SCREEN_LEVEL_TEXT[] PROGMEM           = "Comenzar nivelacion?";
+const char MSG_SCREEN_LEVEL_ABORT[] PROGMEM          = "Pulse para cancelar";
+const char MSG_SCREEN_LEVEL_CONTINUE[] PROGMEM       = "Pulse para continuar";
+const char MSG_SCREEN_LEVEL_TEXT1[] PROGMEM          = "Text1";
+const char MSG_SCREEN_LEVEL_TEXT2[] PROGMEM          = "Text2";
+const char MSG_SCREEN_LEVEL_TEXT3[] PROGMEM          = "Text3";
+const char MSG_SCREEN_LEVEL_TEXT4[] PROGMEM          = "Text4";
+const char MSG_SCREEN_LEVEL_BOX1[] PROGMEM           = "Box1";
+const char MSG_SCREEN_LEVEL_BOX2[] PROGMEM           = "Box2";
+const char MSG_SCREEN_LEVEL_BOX3[] PROGMEM           = "Box3";
+const char MSG_SCREEN_LEVEL_BOX4[] PROGMEM           = "Box4";
+const char MSG_SCREEN_LEVEL_CONFIRM[] PROGMEM        = "Finalizado?";
 
-const char MSG_SCREEN_LEVEL1_TITLE[] PROGMEM         = "Screen1";
-const char MSG_SCREEN_LEVEL2_TITLE[] PROGMEM         = "Screen2";
-const char MSG_SCREEN_LEVEL3_TITLE[] PROGMEM         = "Screen3";
-const char MSG_SCREEN_LEVEL4_TITLE[] PROGMEM         = "Screen4";
-const char MSG_SCREEN_LEVEL1_TEXT[] PROGMEM          = "Text1";
-const char MSG_SCREEN_LEVEL2_TEXT[] PROGMEM          = "Text2";
-const char MSG_SCREEN_LEVEL3_TEXT[] PROGMEM          = "Text3";
-const char MSG_SCREEN_LEVEL4_TEXT[] PROGMEM          = "Text4";
-const char MSG_SCREEN_LEVEL1_BOX[] PROGMEM           = "Box1";
-const char MSG_SCREEN_LEVEL2_BOX[] PROGMEM           = "Box2";
-const char MSG_SCREEN_LEVEL3_BOX[] PROGMEM           = "Box3";
-const char MSG_SCREEN_LEVEL4_BOX[] PROGMEM           = "Box4";
-const char MSG_SCREEN_LEVEL_RETRY[] PROGMEM          = "OK?";
 
 const char MSG_SCREEN_AUTOHOME[] PROGMEM             = "Auto-home";
 const char MSG_SCREEN_SETTINGS[] PROGMEM             = "Configuracion";
 const char MSG_SCREEN_SETTINGS_TEXT[] PROGMEM        = "Seleccione opcion";
 const char MSG_SCREEN_STEPPER[] PROGMEM              = "Motores activos";
 
-const char MSG_SCREEN_MOVE[] PROGMEM                 = "Mover ejes";
-const char MSG_SCREEN_BACK2MAIN[] PROGMEM            = "Volver";
-const char MSG_SCREEN_MOVE_X[] PROGMEM               = "Mover X";
-const char MSG_SCREEN_MOVE_Y[] PROGMEM               = "Mover Y";
-const char MSG_SCREEN_MOVE_Z[] PROGMEM               = "Mover Z";
-const char MSG_SCREEN_MOVE_E[] PROGMEM               = "Mover extrusor";
+const char MSG_SCREEN_MOVE_TITLE[] PROGMEM           = "Mover ejes";
+const char MSG_SCREEN_MOVE_TEXT[] PROGMEM            = "Seleccione eje";
+const char MSG_SCREEN_MOVE_X[] PROGMEM               = "Eje X / mm";
+const char MSG_SCREEN_MOVE_Y[] PROGMEM               = "Eje Y / mm";
+const char MSG_SCREEN_MOVE_Z[] PROGMEM               = "Eje Z / mm";
+const char MSG_SCREEN_MOVE_E[] PROGMEM               = "Extrusor / mm";
 const char MSG_SCREEN_MOVE_01MM[] PROGMEM            = "0.1mm";
 const char MSG_SCREEN_MOVE_1MM[] PROGMEM             = "1mm";
 const char MSG_SCREEN_MOVE_10MM[] PROGMEM            = "10mm";
 const char MSG_SCREEN_MOVE_2MOVE[] PROGMEM           = "Volver";
+
+const char MSG_SCREEN_BACK2MAIN[] PROGMEM            = "Volver";
 
 const char MSG_SCREEN_PRINT_PRINTING[] PROGMEM       = "Imprimiendo";
 const char MSG_SCREEN_PRINT_PAUSED[] PROGMEM         = "En pausa";

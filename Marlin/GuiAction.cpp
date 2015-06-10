@@ -23,6 +23,11 @@ void action_set_temperature(uint16_t degrees)
 	TemperatureManager::getInstance().setTargetTemperature(degrees);
 }
 
+void action_cooldown()
+{
+	TemperatureManager::getInstance().setTargetTemperature(0);
+}
+
 void action_filament_unload()
 {
 	enquecommand_P(PSTR("M702"));
@@ -31,6 +36,121 @@ void action_filament_unload()
 void action_filament_load()
 {
 	enquecommand_P(PSTR("M701"));
+}
+
+void action_level_plate()
+{
+	static uint8_t level_plate_step = 0;
+
+	switch (level_plate_step)
+	{
+		case 0:
+			target[X_AXIS] = plan_get_axis_position(X_AXIS);
+			target[Y_AXIS] = plan_get_axis_position(Y_AXIS);
+			target[Z_AXIS] = plan_get_axis_position(Z_AXIS);
+			target[E_AXIS] = plan_get_axis_position(E_AXIS);
+
+			plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], manual_feedrate[X_AXIS] / 60, active_extruder);
+
+			target[Z_AXIS] += 10;
+			plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], manual_feedrate[X_AXIS] / 60, active_extruder);
+
+			target[X_AXIS] = 148.5;
+			target[Y_AXIS] = 200;
+			plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], manual_feedrate[X_AXIS] / 60, active_extruder);
+
+			target[Z_AXIS] -= 10;
+			plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], manual_feedrate[X_AXIS] / 60, active_extruder);
+			st_synchronize();
+
+			break;
+
+		case 1:
+			target[X_AXIS] = plan_get_axis_position(X_AXIS);
+			target[Y_AXIS] = plan_get_axis_position(Y_AXIS);
+			target[Z_AXIS] = plan_get_axis_position(Z_AXIS);
+			target[E_AXIS] = plan_get_axis_position(E_AXIS);
+
+			plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], manual_feedrate[X_AXIS] / 60, active_extruder);
+
+			target[Z_AXIS] += 10;
+			plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], manual_feedrate[X_AXIS] / 60, active_extruder);
+
+			target[X_AXIS] = 90;
+			target[Y_AXIS] = 10;
+			plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], manual_feedrate[X_AXIS] / 60, active_extruder);
+
+			target[Z_AXIS] -= 10;
+			plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], manual_feedrate[X_AXIS] / 60, active_extruder);
+			st_synchronize();
+
+			break;
+
+		case 2:
+			target[X_AXIS] = plan_get_axis_position(X_AXIS);
+			target[Y_AXIS] = plan_get_axis_position(Y_AXIS);
+			target[Z_AXIS] = plan_get_axis_position(Z_AXIS);
+			target[E_AXIS] = plan_get_axis_position(E_AXIS);
+
+			plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], manual_feedrate[X_AXIS] / 60, active_extruder);
+
+			target[Z_AXIS] += 10;
+			plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], manual_feedrate[X_AXIS] / 60, active_extruder);
+
+			target[X_AXIS] = 207;
+			target[Y_AXIS] = 10;
+			plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], manual_feedrate[X_AXIS] / 60, active_extruder);
+
+			target[Z_AXIS] -= 10;
+			plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], manual_feedrate[X_AXIS] / 60, active_extruder);
+			st_synchronize();
+
+			break;
+
+		case 3:
+			target[X_AXIS] = plan_get_axis_position(X_AXIS);
+			target[Y_AXIS] = plan_get_axis_position(Y_AXIS);
+			target[Z_AXIS] = plan_get_axis_position(Z_AXIS);
+			target[E_AXIS] = plan_get_axis_position(E_AXIS);
+
+			plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], manual_feedrate[X_AXIS] / 60, active_extruder);
+
+			target[Z_AXIS] += 10;
+			plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], manual_feedrate[X_AXIS] / 60, active_extruder);
+
+			target[X_AXIS] = 148.5;
+			target[Y_AXIS] = 105;
+			plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], manual_feedrate[X_AXIS] / 60, active_extruder);
+
+			target[Z_AXIS] -= 10;
+			plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], manual_feedrate[X_AXIS] / 60, active_extruder);
+			st_synchronize();
+
+			break;
+
+		case 4:
+			target[X_AXIS] = plan_get_axis_position(X_AXIS);
+			target[Y_AXIS] = plan_get_axis_position(Y_AXIS);
+			target[Z_AXIS] = plan_get_axis_position(Z_AXIS);
+			target[E_AXIS] = plan_get_axis_position(E_AXIS);
+
+			plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], manual_feedrate[X_AXIS] / 60, active_extruder);
+
+			target[Z_AXIS] += 10;
+			plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], manual_feedrate[X_AXIS] / 60, active_extruder);
+
+			target[X_AXIS] = 297;
+			target[Y_AXIS] = 210;
+			plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], manual_feedrate[X_AXIS] / 60, active_extruder);
+
+			target[Z_AXIS] -= 10;
+			plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], manual_feedrate[X_AXIS] / 60, active_extruder);
+			st_synchronize();
+
+			break;
+	}
+
+	level_plate_step = ++level_plate_step % 5;
 }
 
 void action_homing()
