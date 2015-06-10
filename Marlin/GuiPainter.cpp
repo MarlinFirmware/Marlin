@@ -72,6 +72,163 @@ namespace screen
 		}
 	}
 
+	void GuiPainter::multiText(const char * msg)
+	{
+		if ( (msg != NULL) && (strlen_P(msg) > 0) )
+		{
+			const int MAX_LINE_CHARS = 21;
+			int n_words = 0;
+			int n_lines = 1;
+			int total_lines = 1;
+
+			char * buffer = (char *) malloc (1 + strlen_P(msg));
+			char * word = (char *) malloc (MAX_LINE_CHARS);
+			char * safeBuffer = buffer;
+			char * safeWord = word;
+			char phrase[MAX_LINE_CHARS + 1] = "";
+
+			if (buffer)
+			{
+				strcpy_P(buffer, msg);
+
+				//First pass to get number of lines
+				do
+				{
+					word = strsep(&buffer, " ");
+
+					if ( (strlen(phrase) + strlen(word) + 1 <= MAX_LINE_CHARS) && (word == NULL) )
+					{
+						strcat(phrase, word);
+						strcat(phrase, " ");
+					}
+					else if ( (strlen(phrase) + strlen(word) + 1 <= MAX_LINE_CHARS) && (word != NULL) )
+					{
+						strcat(phrase, word);
+						strcat(phrase, " ");
+					}
+					else 
+					{
+						phrase[0] = '\0';
+						strcat(phrase, word);
+						strcat(phrase, " ");
+						total_lines++;
+					}
+				}
+				while ( word != NULL );
+
+				buffer = safeBuffer;
+				word = safeWord;
+				memset(phrase, 0, MAX_LINE_CHARS);
+
+				strcpy_P(buffer, msg);
+
+				//Second pass to print
+				do
+				{
+					word = strsep(&buffer, " ");
+
+					if ( (strlen(phrase) + strlen(word) <= MAX_LINE_CHARS) && (word == NULL) )
+					{
+						strcat(phrase, word);
+						strcat(phrase, " ");
+						switch (total_lines)
+						{
+							case 1:
+								text(phrase, 16);
+								break;
+							case 2:
+								switch (n_lines)
+								{
+									case 1:
+										text(phrase, 10);
+										break;
+									case 2:
+										text(phrase, 0);
+										break;
+									default:
+										break;
+								}
+								break;
+							case 3:
+								switch (n_lines)
+								{
+									case 1:
+										text(phrase, 6);
+										break;
+									case 2:
+									case 3:
+										text(phrase, 0);
+										break;
+									default:
+										break;
+								}
+								break;
+							case 4:
+								text(phrase, 0);
+								break;
+							default:
+								break;
+						}
+					}
+					else if ( (strlen(phrase) + strlen(word) <= MAX_LINE_CHARS) && (word != NULL) )
+					{
+						strcat(phrase, word);
+						strcat(phrase, " ");
+					}
+					else
+					{
+						switch (total_lines)
+						{
+							case 1:
+								text(phrase, 16);
+								break;
+							case 2:
+								switch (n_lines)
+								{
+									case 1:
+										text(phrase, 10);
+										break;
+									case 2:
+										text(phrase, 0);
+										break;
+									default:
+										break;
+								}
+								break;
+							case 3:
+								switch (n_lines)
+								{
+									case 1:
+										text(phrase, 6);
+										break;
+									case 2:
+									case 3:
+										text(phrase, 0);
+										break;
+									default:
+										break;
+								}
+								break;
+							case 4:
+								text(phrase, 0);
+								break;
+							default:
+								break;
+						}
+						phrase[0] = '\0';
+						strcat(phrase, word);
+						strcat(phrase, " ");
+						n_lines++;
+					}
+				}
+				while ( word != NULL );
+			}
+			free(safeWord);
+			free(safeBuffer);
+		}
+		
+	}
+
 	void GuiPainter::printing_status(const uint8_t percentage, const uint16_t time)
 	{
 		uint8_t x_init = coordinateXInit();

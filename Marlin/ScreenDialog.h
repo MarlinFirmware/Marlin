@@ -43,13 +43,11 @@ namespace screen
 	template <typename R, typename... Args>
 	void ScreenDialog<R, Args...>::draw()
 	{
-		SERIAL_ECHO("DRAW: ");
-		SERIAL_ECHOLN(m_title);
-
 		painter.firstPage();
 		do
 		{
 			painter.title(m_title);
+			painter.multiText(m_message);
 			painter.box(m_box);
 
 		} while ( painter.nextPage() );
