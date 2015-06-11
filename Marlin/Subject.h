@@ -9,14 +9,18 @@ template <typename T>
 	public:
 		void attach (Observer<T> * observer);
 
-   protected:
-      Observer<T> * m_observer;
+	protected:
+		virtual void notify() = 0;
+
+	protected:
+		Observer<T> * m_observer;
 };
 
 template <typename T>
 void Subject<T>::attach (Observer<T> * observer)
 {
 	m_observer = observer;
+	notify();
 };
 
 #endif //SUBJECT_H
