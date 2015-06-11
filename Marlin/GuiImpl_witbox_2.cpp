@@ -59,6 +59,7 @@ namespace screen
 	Icon icon_move_10mm         = Icon(icon_size, bits_10mm_normal,              bits_10mm_focused,              MSG_SCREEN_MOVE_10MM);
 	Icon icon_autolevel         = Icon(icon_size, bits_autolevel_normal,         bits_autolevel_focused,         MSG_AUTOLEVEL);
 	Icon icon_autolevel_disable = Icon(icon_size, bits_autolevel_disable_normal, bits_autolevel_disable_focused, MSG_AUTOLEVEL_DISABLE);
+	Icon icon_offset            = Icon(icon_size, bits_offset_normal,            bits_offset_focused,            MSG_OFFSET);
 
 	/////////////////////////
 	// Instantiate Screens //
@@ -120,6 +121,11 @@ namespace screen
 	ScreenDialog<void> screen_info            = ScreenDialog<void>(MSG_SCREEN_INFO, MSG_SCREEN_INFO_TEXT, MSG_SCREEN_INFO_BOX, do_nothing);
 	//Autolevel
 	ScreenStatus<bool, void> screen_autolevel = ScreenStatus<bool, void>(MSG_SCREEN_AUTOLEVEL, AutoLevelManager::setState, &AutoLevelManager::getInstance());
+	//Offset
+	ScreenMenu screen_offset                  = ScreenMenu(MSG_SCREEN_OFFSET_TITLE, MSG_SCREEN_OFFSET_TEXT);
+	ScreenDialog<void> screen_offset_dialog   = ScreenDialog<void>(MSG_SCREEN_OFFSET_TITLE, MSG_SCREEN_OFFSET_DIALOG_TEXT, MSG_SCREEN_OFFSET_DIALOG_BOX, do_nothing);
+	ScreenSelector<void, uint16_t> screen_offset_set = ScreenSelector<void, uint16_t> (MSG_SCREEN_OFFSET_TITLE, 0, 4, 0, action_set_temperature);
+	ScreenMenu screen_offset_finish                  = ScreenMenu(MSG_SCREEN_OFFSET_TITLE, MSG_SCREEN_OFFSET_FINISH);
 
 	//Back to main
 	ScreenAction<void> screen_back2main             = ScreenAction<void>(MSG_SCREEN_BACK2MAIN, do_nothing);
@@ -243,6 +249,7 @@ namespace screen
 		screen_autohome.icon(icon_homing);
 		//Settings
 		screen_settings.add(screen_back2main);
+		screen_settings.add(screen_offset);
 		screen_settings.add(screen_autolevel);
 		screen_settings.add(screen_light);
 		screen_settings.add(screen_info);
@@ -309,6 +316,19 @@ namespace screen
 		//Info
 		screen_info.add(screen_main);
 		screen_info.icon(icon_info);
+		//Offset
+		screen_offset.add(screen_back2main);
+		screen_offset.add(screen_offset_dialog);
+		screen_offset.icon(icon_offset);
+
+		screen_offset_dialog.add(screen_offset_set);
+		screen_offset_dialog.icon(icon_ok);
+
+		screen_offset_set.add(screen_offset_finish);
+		screen_offset_set.icon(icon_retry);
+
+		screen_offset_finish.add(screen_offset_set);
+		screen_offset_finish.add(screen_ok2main);
 
 		//Print Menu
 		screen_print.add(screen_play_pause);
