@@ -16,12 +16,14 @@ namespace screen
 			ScreenStatus(const char * title = 0, typename Functor<R, Args...>::FuncPtr fptr = do_nothing, Subject<T> * model = 0);
 			virtual ~ScreenStatus();
 
+			void add(Screen & component);
 			void init();
 			void icon(Icon & component);
 			Icon & icon();
 			void update(T value);
 
 		private:
+			Screen * m_next_screen;
 			Icon * m_icon_alternate;
 			uint8_t m_icon_index;
 			T m_status;
@@ -39,6 +41,12 @@ namespace screen
 	template <typename T, typename R, typename... Args>
 	ScreenStatus<T, R, Args...>::~ScreenStatus()
 	{ }
+
+	template <typename T, typename R, typename... Args>
+	void ScreenStatus<T, R, Args...>::add(Screen & component)
+	{
+		m_next_screen = &component;
+	}
 
 	template <typename T, typename R, typename... Args>
 	void ScreenStatus<T, R, Args...>::init()
