@@ -15,8 +15,10 @@ namespace screen
 
 			void press();
 			void draw();
+			void add(Screen & component);
 
 		private:
+			Screen * m_next_screen;
 			const char * m_message;
 			const char * m_box;
 	};
@@ -32,6 +34,12 @@ namespace screen
 	template <typename R, typename... Args>
 	ScreenDialog<R, Args...>::~ScreenDialog()
 	{ }
+
+	template <typename R, typename... Args>
+	void ScreenDialog<R, Args...>::add(Screen & component)
+	{
+		m_next_screen = &component;
+	}
 
 	template <typename R, typename... Args>
 	void ScreenDialog<R, Args...>::press()
@@ -53,6 +61,5 @@ namespace screen
 		} while ( painter.nextPage() );
 	}
 }
-
 
 #endif //SCREEN_DIALOG_H

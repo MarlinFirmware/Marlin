@@ -31,12 +31,5 @@ namespace screen
 	}
 
 	void Screen::press()
-	{
-		ViewManager::getInstance().activeView(m_next_screen);
-	}
-
-	void Screen::add(Screen & component)
-	{
-		m_next_screen = &component;
-	}
+	{ }
 }
