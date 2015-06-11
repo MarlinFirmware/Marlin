@@ -212,18 +212,17 @@ const char MSG_SCREEN_LEVEL_TITLE[] PROGMEM          = "Level plate";
 const char MSG_SCREEN_LEVEL_TEXT[] PROGMEM           = "Start leveling?";
 const char MSG_SCREEN_LEVEL_ABORT[] PROGMEM          = "Push to abort";
 const char MSG_SCREEN_LEVEL_CONTINUE[] PROGMEM       = "Push to continue";
-const char MSG_SCREEN_LEVEL_TEXT0[] PROGMEM          = "Text0";
+const char MSG_SCREEN_LEVEL_TEXT0[] PROGMEM          = "Performing homing operation";
 const char MSG_SCREEN_LEVEL_TEXT1[] PROGMEM          = "Adjust first point 1mm between the plate and extruder";
 const char MSG_SCREEN_LEVEL_TEXT2[] PROGMEM          = "Adjust second point 1mm between the plate and extruder";
 const char MSG_SCREEN_LEVEL_TEXT3[] PROGMEM          = "Adjust third point 1mm between the plate and extruder";
 const char MSG_SCREEN_LEVEL_TEXT4[] PROGMEM          = "Adjust center point 1mm between the plate and extruder";
-const char MSG_SCREEN_LEVEL_BOX0[] PROGMEM           = "Box0";
+const char MSG_SCREEN_LEVEL_BOX0[] PROGMEM           = "Please wait";
 const char MSG_SCREEN_LEVEL_BOX1[] PROGMEM           = "Push to continue";
 const char MSG_SCREEN_LEVEL_BOX2[] PROGMEM           = "Push to continue";
 const char MSG_SCREEN_LEVEL_BOX3[] PROGMEM           = "Push to continue";
 const char MSG_SCREEN_LEVEL_BOX4[] PROGMEM           = "Push to continue";
 const char MSG_SCREEN_LEVEL_CONFIRM[] PROGMEM        = "Finished?";
-const char MSG_SCREEN_LEVEL0_BOX[] PROGMEM           = "Box0";
 
 const char MSG_SCREEN_AUTOHOME[] PROGMEM             = "Auto-home";
 const char MSG_SCREEN_SETTINGS[] PROGMEM             = "Settings";
@@ -330,18 +329,17 @@ const char MSG_SCREEN_LEVEL_TITLE[] PROGMEM          = "Nivelar base";
 const char MSG_SCREEN_LEVEL_TEXT[] PROGMEM           = "Comenzar nivelacion?";
 const char MSG_SCREEN_LEVEL_ABORT[] PROGMEM          = "Pulse para cancelar";
 const char MSG_SCREEN_LEVEL_CONTINUE[] PROGMEM       = "Pulse para continuar";
-const char MSG_SCREEN_LEVEL_TEXT0[] PROGMEM          = "text0";
+const char MSG_SCREEN_LEVEL_TEXT0[] PROGMEM          = "Realizando homing";
 const char MSG_SCREEN_LEVEL_TEXT1[] PROGMEM          = "Ajuste el primer punto 1mm entre la cama y el extrusor";
 const char MSG_SCREEN_LEVEL_TEXT2[] PROGMEM          = "Ajuste el segundo punto 1mm entre la cama y el extrusor";
 const char MSG_SCREEN_LEVEL_TEXT3[] PROGMEM          = "Ajuste el tercer punto 1mm entre la cama y el extrusor";
 const char MSG_SCREEN_LEVEL_TEXT4[] PROGMEM          = "Ajuste el punto central 1mm entre la cama y el extrusor";
-const char MSG_SCREEN_LEVEL_BOX0[] PROGMEM           = "box0";
+const char MSG_SCREEN_LEVEL_BOX0[] PROGMEM           = "Por favor espere";
 const char MSG_SCREEN_LEVEL_BOX1[] PROGMEM           = "Pulse para continuar";
 const char MSG_SCREEN_LEVEL_BOX2[] PROGMEM           = "Pulse para continuar";
 const char MSG_SCREEN_LEVEL_BOX3[] PROGMEM           = "Pulse para continuar";
 const char MSG_SCREEN_LEVEL_BOX4[] PROGMEM           = "Pulse para continuar";
 const char MSG_SCREEN_LEVEL_CONFIRM[] PROGMEM        = "Finalizado?";
-
 
 const char MSG_SCREEN_AUTOHOME[] PROGMEM             = "Auto-home";
 const char MSG_SCREEN_SETTINGS[] PROGMEM             = "Configuracion";
@@ -354,10 +352,10 @@ const char MSG_SCREEN_MOVE_X[] PROGMEM               = "Eje X / mm";
 const char MSG_SCREEN_MOVE_Y[] PROGMEM               = "Eje Y / mm";
 const char MSG_SCREEN_MOVE_Z[] PROGMEM               = "Eje Z / mm";
 const char MSG_SCREEN_MOVE_E[] PROGMEM               = "Extrusor / mm";
+const char MSG_SCREEN_MOVE_2MOVE[] PROGMEM           = "Volver";
 const char MSG_SCREEN_MOVE_01MM[] PROGMEM            = "0.1mm";
 const char MSG_SCREEN_MOVE_1MM[] PROGMEM             = "1mm";
 const char MSG_SCREEN_MOVE_10MM[] PROGMEM            = "10mm";
-const char MSG_SCREEN_MOVE_2MOVE[] PROGMEM           = "Volver";
 
 const char MSG_SCREEN_BACK2MAIN[] PROGMEM            = "Volver";
 
