@@ -13,6 +13,7 @@
 #include "ScreenAction.h"
 #include "ScreenPrint.h"
 
+#include "AutoLevelManager.h"
 #include "LightManager.h"
 #include "PrintManager.h"
 #include "SteppersManager.h"
@@ -27,36 +28,37 @@ namespace screen
 	///////////////////////
 	Size icon_size = Size(icon_width, icon_height);
 
-	Icon icon_nosd             = Icon(icon_size, bits_nosd_normal,             bits_nosd_focused,             MSG_NOSD);
-	Icon icon_sd               = Icon(icon_size, bits_sd_normal,               bits_sd_focused,               MSG_SD);
-	Icon icon_filament_unload  = Icon(icon_size, bits_filament_unload_normal,  bits_filament_unload_focused,  MSG_FILAMENT_UNLOAD);
-	Icon icon_filament_load    = Icon(icon_size, bits_filament_load_normal,    bits_filament_load_focused,    MSG_FILAMENT_LOAD);
-	Icon icon_leveling         = Icon(icon_size, bits_leveling_normal,         bits_leveling_focused,         MSG_LEVELING);
-	Icon icon_homing           = Icon(icon_size, bits_homing_normal,           bits_homing_focused,           MSG_HOMING);
-	Icon icon_settings         = Icon(icon_size, bits_settings_normal,         bits_settings_focused,         MSG_SETTINGS);
-	Icon icon_steppers         = Icon(icon_size, bits_steppers_normal,         bits_steppers_focused,         MSG_STEPPERS);
-	Icon icon_steppers_off     = Icon(icon_size, bits_steppers_off_normal,     bits_steppers_off_focused,     MSG_STEPPERS_OFF);
-	Icon icon_moveaxis         = Icon(icon_size, bits_moveaxis_normal,         bits_moveaxis_focused,         MSG_MOVEAXIS);
-	Icon icon_temperature      = Icon(icon_size, bits_temperature_normal,      bits_temperature_focused,      MSG_TEMPERATURE);
-	Icon icon_lightled_disable = Icon(icon_size, bits_lightled_disable_normal, bits_lightled_disable_focused, MSG_LIGHTLED_DISABLE);
-	Icon icon_lightled         = Icon(icon_size, bits_lightled_normal,         bits_lightled_focused,         MSG_LIGHTLED);
-	Icon icon_info             = Icon(icon_size, bits_info_normal,             bits_info_focused,             MSG_INFO);
-	Icon icon_play             = Icon(icon_size, bits_play_normal,             bits_play_focused,             MSG_PLAY);
-	Icon icon_pause            = Icon(icon_size, bits_pause_normal,            bits_pause_focused,            MSG_PAUSE);
-	Icon icon_stop             = Icon(icon_size, bits_stop_normal,             bits_stop_focused,             MSG_STOP);
-	Icon icon_change_filament  = Icon(icon_size, bits_change_filament_normal,  bits_change_filament_focused,  MSG_CHANGE_FILAMENT);
-	Icon icon_change_speed     = Icon(icon_size, bits_change_speed_normal,     bits_change_speed_focused,     MSG_CHANGE_SPEED);
-	Icon icon_back             = Icon(icon_size, bits_back_normal,             bits_back_focused,             MSG_BACK);
-	Icon icon_retry            = Icon(icon_size, bits_retry_normal,            bits_retry_focused,            MSG_RETRY);
-	Icon icon_ok               = Icon(icon_size, bits_ok_normal,               bits_ok_focused,               MSG_OK2);
-	Icon icon_move_x           = Icon(icon_size, bits_x_axis_normal,           bits_x_axis_focused,           MSG_MOVE_X);
-	Icon icon_move_y           = Icon(icon_size, bits_y_axis_normal,           bits_y_axis_focused,           MSG_MOVE_Y);
-	Icon icon_move_z           = Icon(icon_size, bits_z_axis_normal,           bits_z_axis_focused,           MSG_MOVE_Z);
-	Icon icon_move_e           = Icon(icon_size, bits_e_axis_normal,           bits_e_axis_focused,           MSG_MOVE_E);
-	Icon icon_move_01mm        = Icon(icon_size, bits_01mm_normal,             bits_01mm_focused,             MSG_SCREEN_MOVE_01MM);
-	Icon icon_move_1mm         = Icon(icon_size, bits_1mm_normal,              bits_1mm_focused,              MSG_SCREEN_MOVE_1MM);
-	Icon icon_move_10mm        = Icon(icon_size, bits_10mm_normal,             bits_10mm_focused,             MSG_SCREEN_MOVE_10MM);
-
+	Icon icon_nosd              = Icon(icon_size, bits_nosd_normal,              bits_nosd_focused,              MSG_NOSD);
+	Icon icon_sd                = Icon(icon_size, bits_sd_normal,                bits_sd_focused,                MSG_SD);
+	Icon icon_filament_unload   = Icon(icon_size, bits_filament_unload_normal,   bits_filament_unload_focused,   MSG_FILAMENT_UNLOAD);
+	Icon icon_filament_load     = Icon(icon_size, bits_filament_load_normal,     bits_filament_load_focused,     MSG_FILAMENT_LOAD);
+	Icon icon_leveling          = Icon(icon_size, bits_leveling_normal,          bits_leveling_focused,          MSG_LEVELING);
+	Icon icon_homing            = Icon(icon_size, bits_homing_normal,            bits_homing_focused,            MSG_HOMING);
+	Icon icon_settings          = Icon(icon_size, bits_settings_normal,          bits_settings_focused,          MSG_SETTINGS);
+	Icon icon_steppers          = Icon(icon_size, bits_steppers_normal,          bits_steppers_focused,          MSG_STEPPERS);
+	Icon icon_steppers_off      = Icon(icon_size, bits_steppers_off_normal,      bits_steppers_off_focused,      MSG_STEPPERS_OFF);
+	Icon icon_moveaxis          = Icon(icon_size, bits_moveaxis_normal,          bits_moveaxis_focused,          MSG_MOVEAXIS);
+	Icon icon_temperature       = Icon(icon_size, bits_temperature_normal,       bits_temperature_focused,       MSG_TEMPERATURE);
+	Icon icon_lightled_disable  = Icon(icon_size, bits_lightled_disable_normal,  bits_lightled_disable_focused,  MSG_LIGHTLED_DISABLE);
+	Icon icon_lightled          = Icon(icon_size, bits_lightled_normal,          bits_lightled_focused,          MSG_LIGHTLED);
+	Icon icon_info              = Icon(icon_size, bits_info_normal,              bits_info_focused,              MSG_INFO);
+	Icon icon_play              = Icon(icon_size, bits_play_normal,              bits_play_focused,              MSG_PLAY);
+	Icon icon_pause             = Icon(icon_size, bits_pause_normal,             bits_pause_focused,             MSG_PAUSE);
+	Icon icon_stop              = Icon(icon_size, bits_stop_normal,              bits_stop_focused,              MSG_STOP);
+	Icon icon_change_filament   = Icon(icon_size, bits_change_filament_normal,   bits_change_filament_focused,   MSG_CHANGE_FILAMENT);
+	Icon icon_change_speed      = Icon(icon_size, bits_change_speed_normal,      bits_change_speed_focused,      MSG_CHANGE_SPEED);
+	Icon icon_back              = Icon(icon_size, bits_back_normal,              bits_back_focused,              MSG_BACK);
+	Icon icon_retry             = Icon(icon_size, bits_retry_normal,             bits_retry_focused,             MSG_RETRY);
+	Icon icon_ok                = Icon(icon_size, bits_ok_normal,                bits_ok_focused,                MSG_OK2);
+	Icon icon_move_x            = Icon(icon_size, bits_x_axis_normal,            bits_x_axis_focused,            MSG_MOVE_X);
+	Icon icon_move_y            = Icon(icon_size, bits_y_axis_normal,            bits_y_axis_focused,            MSG_MOVE_Y);
+	Icon icon_move_z            = Icon(icon_size, bits_z_axis_normal,            bits_z_axis_focused,            MSG_MOVE_Z);
+	Icon icon_move_e            = Icon(icon_size, bits_e_axis_normal,            bits_e_axis_focused,            MSG_MOVE_E);
+	Icon icon_move_01mm         = Icon(icon_size, bits_01mm_normal,              bits_01mm_focused,              MSG_SCREEN_MOVE_01MM);
+	Icon icon_move_1mm          = Icon(icon_size, bits_1mm_normal,               bits_1mm_focused,               MSG_SCREEN_MOVE_1MM);
+	Icon icon_move_10mm         = Icon(icon_size, bits_10mm_normal,              bits_10mm_focused,              MSG_SCREEN_MOVE_10MM);
+	Icon icon_autolevel         = Icon(icon_size, bits_autolevel_normal,         bits_autolevel_focused,         MSG_AUTOLEVEL);
+	Icon icon_autolevel_disable = Icon(icon_size, bits_autolevel_disable_normal, bits_autolevel_disable_focused, MSG_AUTOLEVEL_DISABLE);
 
 	/////////////////////////
 	// Instantiate Screens //
@@ -116,6 +118,8 @@ namespace screen
 	ScreenStatus<bool, void> screen_light = ScreenStatus<bool, void>(MSG_SCREEN_LIGHT, LightManager::setState, &LightManager::getInstance());
 	//Info
 	ScreenDialog<void> screen_info            = ScreenDialog<void>(MSG_SCREEN_INFO, MSG_SCREEN_INFO_TEXT, MSG_SCREEN_INFO_BOX, do_nothing);
+	//Autolevel
+	ScreenStatus<bool, void> screen_autolevel = ScreenStatus<bool, void>(MSG_SCREEN_AUTOLEVEL, AutoLevelManager::setState, &AutoLevelManager::getInstance());
 
 	//Back to main
 	ScreenAction<void> screen_back2main             = ScreenAction<void>(MSG_SCREEN_BACK2MAIN, do_nothing);
@@ -239,6 +243,7 @@ namespace screen
 		screen_autohome.icon(icon_homing);
 		//Settings
 		screen_settings.add(screen_back2main);
+		screen_settings.add(screen_autolevel);
 		screen_settings.add(screen_light);
 		screen_settings.add(screen_info);
 		screen_settings.icon(icon_settings);
@@ -293,6 +298,10 @@ namespace screen
 		//Ok to main
 		screen_ok2main.add(screen_main);
 		screen_ok2main.icon(icon_ok);
+		//Autolevel
+		screen_autolevel.add(screen_settings);
+		screen_autolevel.icon(icon_autolevel_disable);
+		screen_autolevel.icon(icon_autolevel);
 		//Light
 		screen_light.add(screen_settings);
 		screen_light.icon(icon_lightled_disable);

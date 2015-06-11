@@ -181,6 +181,8 @@ const char MSG_MOVE_X[] PROGMEM                      = "Move X";
 const char MSG_MOVE_Y[] PROGMEM                      = "Move Y";
 const char MSG_MOVE_Z[] PROGMEM                      = "Move Z";
 const char MSG_MOVE_E[] PROGMEM                      = "Move E";
+const char MSG_AUTOLEVEL[] PROGMEM                   = "Autolevel: On";
+const char MSG_AUTOLEVEL_DISABLE[] PROGMEM           = "Autolevel: Off";
 
 const char MSG_SCREEN_LOGO[] PROGMEM                 = "BQ logo";
 const char MSG_SCREEN_LOGO_TEXT[] PROGMEM            = "Test";
@@ -247,6 +249,7 @@ const char MSG_SCREEN_PRINT_PAUSED[] PROGMEM         = "Paused";
 
 const char MSG_SCREEN_TEMP_TITLE[] PROGMEM           = "Change temperature";
 const char MSG_SCREEN_LIGHT[] PROGMEM                = "Led light on";
+const char MSG_SCREEN_AUTOLEVEL[] PROGMEM            = "Autolevel";
 const char MSG_SCREEN_PRINT[] PROGMEM                = "Confirm";
 const char MSG_SCREEN_INFO[] PROGMEM                 = "FW info";
 const char MSG_SCREEN_INFO_TEXT[] PROGMEM            = "FW info";
@@ -298,6 +301,8 @@ const char MSG_MOVE_X[] PROGMEM                      = "Mover X";
 const char MSG_MOVE_Y[] PROGMEM                      = "Mover Y";
 const char MSG_MOVE_Z[] PROGMEM                      = "Mover Z";
 const char MSG_MOVE_E[] PROGMEM                      = "Mover E";
+const char MSG_AUTOLEVEL[] PROGMEM                   = "Autolevel: On";
+const char MSG_AUTOLEVEL_DISABLE[] PROGMEM           = "Autolevel: Off";
 
 const char MSG_SCREEN_LOGO[] PROGMEM                 = "BQ logo";
 const char MSG_SCREEN_LOGO_TEXT[] PROGMEM            = "Test";
@@ -364,6 +369,7 @@ const char MSG_SCREEN_PRINT_PAUSED[] PROGMEM         = "En pausa";
 
 const char MSG_SCREEN_TEMP_TITLE[] PROGMEM           = "Cambiar temperatura";
 const char MSG_SCREEN_LIGHT[] PROGMEM                = "Luces encendidas";
+const char MSG_SCREEN_AUTOLEVEL[] PROGMEM            = "Autolevel";
 const char MSG_SCREEN_PRINT[] PROGMEM                = "Confirmar";
 const char MSG_SCREEN_INFO[] PROGMEM                 = "FW info";
 const char MSG_SCREEN_INFO_TEXT[] PROGMEM            = "FW info";
