@@ -399,7 +399,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = false; // set to true to invert the logic o
   // X and Y offsets must be integers
   #define X_PROBE_OFFSET_FROM_EXTRUDER 0
   #define Y_PROBE_OFFSET_FROM_EXTRUDER 0
-  #define Z_PROBE_OFFSET_FROM_EXTRUDER 0
+  #define Z_PROBE_OFFSET_FROM_EXTRUDER -1	//ROBO-BH
 
   #define Z_RAISE_BEFORE_HOMING 4       // (in mm) Raise Z before homing (G28) for Probe Clearance.
                                         // Be sure you have this distance over your Z_MAX_POS in case
@@ -516,7 +516,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = false; // set to true to invert the logic o
 // M501 - reads parameters from EEPROM (if you need reset them after you changed them temporarily).
 // M502 - reverts to the default "factory settings".  You still need to store them in EEPROM afterwards if you want to.
 //define this to enable EEPROM support
-//#define EEPROM_SETTINGS
+#define EEPROM_SETTINGS		//ROBO-BH
 //to disable EEPROM Serial responses and decrease program space by ~1700 byte: comment this out:
 // please keep turned on if you can.
 //#define EEPROM_CHITCHAT
