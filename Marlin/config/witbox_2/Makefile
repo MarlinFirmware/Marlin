@@ -41,7 +41,7 @@ HARDWARE_MOTHERBOARD ?= 40
 
 # Arduino source install directory, and version number
 ARDUINO_INSTALL_DIR  ?= ${ARDUINO}
-ARDUINO_VERSION      ?= 105
+ARDUINO_VERSION      ?= 164
 
 # You can optionally set a path to the avr-gcc tools. Requires a trailing slash. (ex: /usr/local/avr-gcc/bin)
 AVR_TOOLS_PATH ?= $(ARDUINO_INSTALL_DIR)/hardware/tools/avr/bin/
@@ -125,7 +125,7 @@ CXXSRC = WMath.cpp WString.cpp Print.cpp Marlin_main.cpp	\
 	SdFile.cpp SdVolume.cpp motion_control.cpp planner.cpp		\
 	stepper.cpp temperature.cpp cardreader.cpp ConfigurationStore.cpp \
 	watchdog.cpp SPI.cpp Tone.cpp digipot_mcp4451.cpp \
-	vector_3.cpp qr_solve.cpp 
+	vector_3.cpp qr_solve.cpp abi.cpp
 CXXSRC += new.cpp GuiManager.cpp GuiPainter.cpp GuiAction.cpp GuiImpl_witbox_2.cpp Icon.cpp \
 	Screen.cpp ScreenList.cpp ScreenMenu.cpp ScreenPrint.cpp \
 	LightManager.cpp PrintManager.cpp SteppersManager.cpp TemperatureManager.cpp ViewManager.cpp AutoLevelManager.cpp \
