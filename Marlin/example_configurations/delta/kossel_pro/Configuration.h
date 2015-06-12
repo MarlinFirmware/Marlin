@@ -576,13 +576,13 @@ const bool Z_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the logic
     // 2 or 3 sets of coordinates for deploying and retracting the spring loaded touch probe on G29,
     // if servo actuated touch probe is not defined. Uncomment as appropriate for your printer/probe.
 
-    //#define Z_PROBE_ALLEN_KEY_DEPLOY_1_X 30
+    //#define Z_PROBE_ALLEN_KEY_DEPLOY_1_X 30.0
     //#define Z_PROBE_ALLEN_KEY_DEPLOY_1_Y DELTA_PRINTABLE_RADIUS
-    //#define Z_PROBE_ALLEN_KEY_DEPLOY_1_Z 100
+    //#define Z_PROBE_ALLEN_KEY_DEPLOY_1_Z 100.0
     //#define Z_PROBE_ALLEN_KEY_DEPLOY_1_FEEDRATE HOMING_FEEDRATE_X
-    //#define Z_PROBE_ALLEN_KEY_DEPLOY_2_X 0
+    //#define Z_PROBE_ALLEN_KEY_DEPLOY_2_X 0.0
     //#define Z_PROBE_ALLEN_KEY_DEPLOY_2_Y DELTA_PRINTABLE_RADIUS
-    //#define Z_PROBE_ALLEN_KEY_DEPLOY_2_Z 100
+    //#define Z_PROBE_ALLEN_KEY_DEPLOY_2_Z 100.0
     //#define Z_PROBE_ALLEN_KEY_DEPLOY_2_FEEDRATE (HOMING_FEEDRATE_X/10)
 
     //#define Z_PROBE_ALLEN_KEY_STOW_1_X -64.0 // Move the probe into position
