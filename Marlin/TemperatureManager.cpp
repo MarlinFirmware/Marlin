@@ -1,12 +1,6 @@
 #include "TemperatureManager.h"
 #include "temperature.h"
 
-TemperatureManager & TemperatureManager::getInstance()
-{
-	static TemperatureManager m_instance;
-	return m_instance;
-}
-
 TemperatureManager::TemperatureManager()
 	: Subject<float>()
 	, m_current_temperature(0)

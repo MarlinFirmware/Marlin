@@ -55,7 +55,7 @@ namespace screen
 	template <typename T>
 	void ScreenTransition<T>::draw()
 	{
-		uint16_t target = (uint16_t) TemperatureManager::getInstance().getTargetTemperature();
+		uint16_t target = (uint16_t) TemperatureManager::single::instance().getTargetTemperature();
 		char c_target[4] = { 0 };
 		snprintf(c_target, 4, "%d", target);
 

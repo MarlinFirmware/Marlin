@@ -1,11 +1,5 @@
 #include "SteppersManager.h"
 
-SteppersManager & SteppersManager::getInstance()
-{
-	static SteppersManager instance;
-	return instance;
-}
-
 SteppersManager::SteppersManager()
 	: Subject<bool>()
 	, m_state(false)
@@ -13,13 +7,10 @@ SteppersManager::SteppersManager()
 	notify();
 }
 
-SteppersManager::~SteppersManager()
-{ }
-
 void SteppersManager::setState()
 {
 	//Always disable steppers
-	SteppersManager::getInstance().state(true);
+	SteppersManager::single::instance().state(true);
 }
 
 void SteppersManager::state(bool state)

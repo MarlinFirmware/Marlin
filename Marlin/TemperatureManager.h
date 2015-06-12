@@ -3,27 +3,22 @@
 
 #include <stdint.h>
 
+#include "Singleton.h"
 #include "Subject.h"
 
 class TemperatureManager : public Subject<float>
 {
 	public:
-		static TemperatureManager & getInstance();
+		typedef Singleton<TemperatureManager> single;
+
+	public:
+		TemperatureManager();
 
 		void updateCurrentTemperature(float temp);
-
 		void setTargetTemperature(uint16_t target);
 		uint16_t getTargetTemperature();
 
-	protected:
-		TemperatureManager();
-		virtual ~TemperatureManager()
-		{ };
-
 	private:
-		TemperatureManager(TemperatureManager const & orig);
-		TemperatureManager & operator=(TemperatureManager & orig);
-
 		void notify();
 
 	private:

@@ -1,6 +1,7 @@
 #ifndef PRINT_MANAGER_H
 #define PRINT_MANAGER_H
 
+#include "Singleton.h"
 #include "Subject.h"
 
 typedef enum
@@ -14,26 +15,21 @@ typedef enum
 class PrintManager : public Subject<PrinterState_t>
 {
 	public:
-		static PrintManager & getInstance();
+		typedef Singleton<PrintManager> single;
+
+	public:
+		PrintManager();
 
 		static void startPrint();
 		static void stopPrint();
 		static void pausePrint();
 		static void resumePrint();
-
 		static void togglePause();
 
 		void state(PrinterState_t state);
 		PrinterState_t state();
 
-	protected:
-		PrintManager();
-		~PrintManager();
-
 	private:
-		PrintManager(PrintManager const & orig);
-		PrintManager & operator=(PrintManager & orig);
-
 		void notify();
 
 	private:

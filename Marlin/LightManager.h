@@ -1,25 +1,24 @@
 #ifndef LIGHT_MANAGER_H
 #define LIGHT_MANAGER_H
 
+#include "Singleton.h"
 #include "Subject.h"
 
 class LightManager : public Subject<bool>
 {
 	public:
-		static LightManager & getInstance();
-		static void setState();
+		typedef Singleton<LightManager> single;
+
+	public:
+		LightManager();
 
 		void state(bool state);
 		bool state();
 
-	protected:
-		LightManager();
-		~LightManager();
+		static void setState();
 
 	private:
 		void notify();
-		LightManager(LightManager const & orig);
-		LightManager & operator=(LightManager & orig);
 
 	private:
 		bool m_state;

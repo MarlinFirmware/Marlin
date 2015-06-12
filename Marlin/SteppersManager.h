@@ -1,25 +1,24 @@
 #ifndef STEPPERS_MANAGER_H
 #define STEPPERS_MANAGER_H
 
+#include "Singleton.h"
 #include "Subject.h"
 
 class SteppersManager : public Subject<bool>
 {
 	public:
-      static SteppersManager & getInstance();
-      static void setState();
+		typedef Singleton<SteppersManager> single;
+
+	public:
+		SteppersManager();
 
 		void state(bool state);
 		bool state();
 
-	protected:
-		SteppersManager();
-		~SteppersManager();
+      static void setState();
 
 	private:
 		void notify();
-      SteppersManager(SteppersManager const & orig);
-      SteppersManager & operator=(SteppersManager & orig);
 
 	private:
 		bool m_state;

@@ -1,11 +1,5 @@
 #include "LightManager.h"
 
-LightManager & LightManager::getInstance()
-{
-	static LightManager instance;
-	return instance;
-}
-
 LightManager::LightManager()
 	: Subject<bool>()
 	, m_state(false)
@@ -13,13 +7,10 @@ LightManager::LightManager()
 	notify();
 }
 
-LightManager::~LightManager()
-{ }
-
 void LightManager::setState()
 {
 	//Switch current status
-	LightManager::getInstance().state(!LightManager::getInstance().state());
+	LightManager::single::instance().state(!LightManager::single::instance().state());
 }
 
 void LightManager::state(bool state)

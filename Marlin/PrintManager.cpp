@@ -2,66 +2,66 @@
 
 #include "GuiAction.h"
 
-PrintManager & PrintManager::getInstance()
+PrintManager::PrintManager()
+	: m_state(STOPPED)
 {
-	static PrintManager instance;
-	return instance;
+	notify();
 }
 
 void PrintManager::startPrint()
 {
-	if (PrintManager::getInstance().state() != STOPPED)
+	if (PrintManager::single::instance().state() != STOPPED)
 	{
 		return;
 	}
 
-	PrintManager::getInstance().state(PRINTING);
+	PrintManager::single::instance().state(PRINTING);
 	action_start_print();
 }
 
 void PrintManager::stopPrint()
 {
-	if (PrintManager::getInstance().state() != PRINTING)
+	if (PrintManager::single::instance().state() != PRINTING)
 	{
 		return;
 	}
 
-	PrintManager::getInstance().state(STOPPED);
+	PrintManager::single::instance().state(STOPPED);
 	action_stop_print();
 }
 
 void PrintManager::resumePrint()
 {
-	if (PrintManager::getInstance().state() != PAUSED)
+	if (PrintManager::single::instance().state() != PAUSED)
 	{
 		return;
 	}
 
-	PrintManager::getInstance().state(PRINTING);
+	PrintManager::single::instance().state(PRINTING);
 	action_resume_print();
 }
 
 void PrintManager::pausePrint()
 {
-	if (PrintManager::getInstance().state() != PRINTING)
+	if (PrintManager::single::instance().state() != PRINTING)
 	{
 		return;
 	}
 
-	PrintManager::getInstance().state(PAUSED);
+	PrintManager::single::instance().state(PAUSED);
 	action_pause_print();
 }
 
 void PrintManager::togglePause()
 {
-	if (PrintManager::getInstance().state() == PRINTING)
+	if (PrintManager::single::instance().state() == PRINTING)
 	{
-		PrintManager::getInstance().state(PAUSED);
+		PrintManager::single::instance().state(PAUSED);
 		action_pause_print();
 	}
-	else if (PrintManager::getInstance().state() == PAUSED)
+	else if (PrintManager::single::instance().state() == PAUSED)
 	{
-		PrintManager::getInstance().state(PRINTING);
+		PrintManager::single::instance().state(PRINTING);
 		action_resume_print();
 	}
 	return;
@@ -77,15 +77,6 @@ PrinterState_t PrintManager::state()
 {
 	return m_state;
 }
-
-PrintManager::PrintManager()
-	: m_state(STOPPED)
-{ 
-	notify();
-}
-
-PrintManager::~PrintManager()
-{ }
 
 void PrintManager::notify()
 {

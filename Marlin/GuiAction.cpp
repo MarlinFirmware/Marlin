@@ -20,12 +20,12 @@ static float manual_feedrate[] = MANUAL_FEEDRATE;
 
 void action_set_temperature(uint16_t degrees)
 {
-	TemperatureManager::getInstance().setTargetTemperature(degrees);
+	TemperatureManager::single::instance().setTargetTemperature(degrees);
 }
 
 void action_cooldown()
 {
-	TemperatureManager::getInstance().setTargetTemperature(0);
+	TemperatureManager::single::instance().setTargetTemperature(0);
 }
 
 void action_filament_unload()
@@ -175,7 +175,7 @@ void action_start_print()
 			return;
 		}
 	}
-	TemperatureManager::getInstance().setTargetTemperature(200);
+	TemperatureManager::single::instance().setTargetTemperature(200);
 	fanSpeed = PREHEAT_FAN_SPEED;
 	sprintf_P(cmd, PSTR("M23 %s"), card.filename);
 	enquecommand_P(PSTR("G28"));
@@ -199,7 +199,7 @@ void action_stop_print()
 		card.sdprinting = false;
 		card.closefile();
 
-		TemperatureManager::getInstance().setTargetTemperature(0);
+		TemperatureManager::single::instance().setTargetTemperature(0);
 
 		flush_commands();
 		quickStop();

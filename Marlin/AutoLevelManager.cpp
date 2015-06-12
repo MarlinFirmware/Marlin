@@ -1,11 +1,5 @@
 #include "AutoLevelManager.h"
 
-AutoLevelManager & AutoLevelManager::getInstance()
-{
-	static AutoLevelManager instance;
-	return instance;
-}
-
 AutoLevelManager::AutoLevelManager()
 	: Subject<bool>()
 	, m_state(false)
@@ -13,13 +7,10 @@ AutoLevelManager::AutoLevelManager()
 	notify();
 }
 
-AutoLevelManager::~AutoLevelManager()
-{ }
-
 void AutoLevelManager::setState()
 {
 	//Switch current status
-	AutoLevelManager::getInstance().state(!AutoLevelManager::getInstance().state());
+	AutoLevelManager::single::instance().state(!AutoLevelManager::single::instance().state());
 }
 
 void AutoLevelManager::state(bool state)

@@ -227,7 +227,7 @@ namespace screen
 		coordinateXInit(x_init + (strlen(itostr3left(percentage))+strlen("%"))*6 + 7+1);
 		x_init = coordinateXInit();
 
-		if (PrintManager::getInstance().state() == PRINTING)
+		if (PrintManager::single::instance().state() == PRINTING)
 		{
 			setColorIndex(1);
 			setFont(u8g_font_6x9);

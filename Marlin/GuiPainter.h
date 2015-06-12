@@ -16,7 +16,7 @@ namespace screen
 	class GuiPainter
 	{
 		public:
-			typedef common::Singleton<screen::GuiPainter> singleton;
+			typedef Singleton<screen::GuiPainter> singleton;
 
 			typedef enum
 			{
@@ -91,6 +91,6 @@ namespace screen
 
 	};
 }
-#define painter screen::GuiPainter::singleton::getInstance()
+#define painter screen::GuiPainter::singleton::instance()
 
 #endif //GUI_IMPL_H
