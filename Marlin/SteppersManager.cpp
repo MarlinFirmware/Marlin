@@ -12,8 +12,6 @@ SteppersManager::SteppersManager()
 	m_steppers[Y_AXIS] = Stepper(Y_ENABLE_PIN, Y_ENABLE_ON);
 	m_steppers[Z_AXIS] = Stepper(Z_ENABLE_PIN, Z_ENABLE_ON);
 	m_steppers[EXTRUDER] = Stepper(E0_ENABLE_PIN, E_ENABLE_ON);
-	
-	notify();
 }
 
 void SteppersManager::disableAllSteppers()

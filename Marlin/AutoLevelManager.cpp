@@ -3,9 +3,7 @@
 AutoLevelManager::AutoLevelManager()
 	: Subject<bool>()
 	, m_state(false)
-{ 
-	notify();
-}
+{ }
 
 void AutoLevelManager::setState()
 {

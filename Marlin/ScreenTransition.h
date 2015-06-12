@@ -40,7 +40,9 @@ namespace screen
 		, m_text(text)
 		, m_num_item_added(0)
 		, m_observed(0)
-	{ }
+	{
+		this->connect();
+	}
 
 	template <typename T>
 	ScreenTransition<T>::~ScreenTransition()

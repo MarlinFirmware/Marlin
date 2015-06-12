@@ -25,12 +25,10 @@ class PrintManager : public Subject<PrinterState_t>
 		static void pausePrint();
 		static void resumePrint();
 		static void togglePause();
+		void notify();
 
 		void state(PrinterState_t state);
 		PrinterState_t state();
-
-	private:
-		void notify();
 
 	private:
 		PrinterState_t m_state;
