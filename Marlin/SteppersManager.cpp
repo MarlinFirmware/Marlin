@@ -8,9 +8,9 @@ SteppersManager::SteppersManager()
 	: Subject<bool>()
 	, m_steppers_disabled(false)
 {
-	m_steppers[X_AXIS] = Stepper(X_ENABLE_PIN, X_ENABLE_ON);
-	m_steppers[Y_AXIS] = Stepper(Y_ENABLE_PIN, Y_ENABLE_ON);
-	m_steppers[Z_AXIS] = Stepper(Z_ENABLE_PIN, Z_ENABLE_ON);
+	m_steppers[AXIS_X] = Stepper(X_ENABLE_PIN, X_ENABLE_ON);
+	m_steppers[AXIS_Y] = Stepper(Y_ENABLE_PIN, Y_ENABLE_ON);
+	m_steppers[AXIS_Z] = Stepper(Z_ENABLE_PIN, Z_ENABLE_ON);
 	m_steppers[EXTRUDER] = Stepper(E0_ENABLE_PIN, E_ENABLE_ON);
 }
 
