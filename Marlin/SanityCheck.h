@@ -96,13 +96,13 @@
    */
   #ifdef MESH_BED_LEVELING
     #ifdef DELTA
-      #error MESH_BED_LEVELING does not yet support DELTA printers
+      #error MESH_BED_LEVELING does not yet support DELTA printers.
     #endif
     #ifdef ENABLE_AUTO_BED_LEVELING
-      #error Select ENABLE_AUTO_BED_LEVELING or MESH_BED_LEVELING, not both
+      #error Select ENABLE_AUTO_BED_LEVELING or MESH_BED_LEVELING, not both.
     #endif
     #if MESH_NUM_X_POINTS > 7 || MESH_NUM_Y_POINTS > 7
-      #error MESH_NUM_X_POINTS and MESH_NUM_Y_POINTS need to be less than 8
+      #error MESH_NUM_X_POINTS and MESH_NUM_Y_POINTS need to be less than 8.
     #endif
   #endif
 
@@ -129,23 +129,23 @@
      */
     #if defined(Z_PROBE_ENDSTOP)
       #ifndef Z_PROBE_PIN
-        #error You must have a Z_PROBE_PIN defined in your pins_XXXX.h file if you enable Z_PROBE_ENDSTOP
+        #error You must have a Z_PROBE_PIN defined in your pins_XXXX.h file if you enable Z_PROBE_ENDSTOP.
       #endif
       #if Z_PROBE_PIN == -1
-        #error You must set Z_PROBE_PIN to a valid pin if you enable Z_PROBE_ENDSTOP
+        #error You must set Z_PROBE_PIN to a valid pin if you enable Z_PROBE_ENDSTOP.
       #endif
 // Forcing Servo definitions can break some hall effect sensor setups. Leaving these here for further comment.
 //      #ifndef NUM_SERVOS
-//        #error You must have NUM_SERVOS defined and there must be at least 1 configured to use Z_PROBE_ENDSTOP
+//        #error You must have NUM_SERVOS defined and there must be at least 1 configured to use Z_PROBE_ENDSTOP.
 //      #endif
 //      #if defined(NUM_SERVOS) && NUM_SERVOS < 1
-//        #error You must have at least 1 servo defined for NUM_SERVOS to use Z_PROBE_ENDSTOP
+//        #error You must have at least 1 servo defined for NUM_SERVOS to use Z_PROBE_ENDSTOP.
 //      #endif
 //      #ifndef SERVO_ENDSTOPS
-//        #error You must have SERVO_ENDSTOPS defined and have the Z index set to at least 0 or above to use Z_PROBE_ENDSTOP
+//        #error You must have SERVO_ENDSTOPS defined and have the Z index set to at least 0 or above to use Z_PROBE_ENDSTOP.
 //      #endif
 //      #ifndef SERVO_ENDSTOP_ANGLES
-//        #error You must have SERVO_ENDSTOP_ANGLES defined for Z Extend and Retract to use Z_PROBE_AND_ENSTOP
+//        #error You must have SERVO_ENDSTOP_ANGLES defined for Z Extend and Retract to use Z_PROBE_ENDSTOP.
 //      #endif
     #endif
     /**
@@ -176,7 +176,7 @@
         #define X_PROBE_ERROR
       #endif
       #ifdef X_PROBE_ERROR
-        #error The X axis probing range is too small to fit all the points defined in AUTO_BED_LEVELING_GRID_POINTS
+        #error The X axis probing range is too small to fit all the points defined in AUTO_BED_LEVELING_GRID_POINTS.
       #endif
       #if Y_PROBE_OFFSET_FROM_EXTRUDER < 0
         #if PROBE_SIZE_Y <= -PROBE_AREA_DEPTH
@@ -186,7 +186,7 @@
         #define Y_PROBE_ERROR
       #endif
       #ifdef Y_PROBE_ERROR
-        #error The Y axis probing range is too small to fit all the points defined in AUTO_BED_LEVELING_GRID_POINTS
+        #error The Y axis probing range is too small to fit all the points defined in AUTO_BED_LEVELING_GRID_POINTS.
       #endif
 
       #undef PROBE_SIZE_X
@@ -272,18 +272,18 @@
    */
   #if HAS_AUTO_FAN && HAS_FAN
     #if EXTRUDER_0_AUTO_FAN_PIN == FAN_PIN
-      #error You cannot set EXTRUDER_0_AUTO_FAN_PIN equal to FAN_PIN
+      #error You cannot set EXTRUDER_0_AUTO_FAN_PIN equal to FAN_PIN.
     #elif EXTRUDER_1_AUTO_FAN_PIN == FAN_PIN
-      #error You cannot set EXTRUDER_1_AUTO_FAN_PIN equal to FAN_PIN
+      #error You cannot set EXTRUDER_1_AUTO_FAN_PIN equal to FAN_PIN.
     #elif EXTRUDER_2_AUTO_FAN_PIN == FAN_PIN
-      #error You cannot set EXTRUDER_2_AUTO_FAN_PIN equal to FAN_PIN
+      #error You cannot set EXTRUDER_2_AUTO_FAN_PIN equal to FAN_PIN.
     #elif EXTRUDER_3_AUTO_FAN_PIN == FAN_PIN
-      #error You cannot set EXTRUDER_3_AUTO_FAN_PIN equal to FAN_PIN
+      #error You cannot set EXTRUDER_3_AUTO_FAN_PIN equal to FAN_PIN.
     #endif
   #endif
 
   #if HAS_FAN && CONTROLLERFAN_PIN == FAN_PIN
-    #error You cannot set CONTROLLERFAN_PIN equal to FAN_PIN
+    #error You cannot set CONTROLLERFAN_PIN equal to FAN_PIN.
   #endif
 
   /**
@@ -291,38 +291,38 @@
    */
   #if EXTRUDERS > 3
     #if !HAS_HEATER_3
-      #error HEATER_3_PIN not defined for this board
+      #error HEATER_3_PIN not defined for this board.
     #endif
   #elif EXTRUDERS > 2
     #if !HAS_HEATER_2
-      #error HEATER_2_PIN not defined for this board
+      #error HEATER_2_PIN not defined for this board.
     #endif
   #elif EXTRUDERS > 1 || defined(HEATERS_PARALLEL)
     #if !HAS_HEATER_1
-      #error HEATER_1_PIN not defined for this board
+      #error HEATER_1_PIN not defined for this board.
     #endif
   #endif
   #if !HAS_HEATER_0
-    #error HEATER_0_PIN not defined for this board
+    #error HEATER_0_PIN not defined for this board.
   #endif
 
   /**
    * Warnings for old configurations
    */
   #ifdef X_HOME_RETRACT_MM
-    #error [XYZ]_HOME_RETRACT_MM settings have been renamed [XYZ]_HOME_BUMP_MM
+    #error [XYZ]_HOME_RETRACT_MM settings have been renamed [XYZ]_HOME_BUMP_MM.
   #endif
 
   #if WATCH_TEMP_PERIOD > 500
-    #error WATCH_TEMP_PERIOD now uses seconds instead of milliseconds
+    #error WATCH_TEMP_PERIOD now uses seconds instead of milliseconds.
   #endif
 
   #if !defined(THERMAL_PROTECTION_HOTENDS) && (defined(WATCH_TEMP_PERIOD) || defined(THERMAL_PROTECTION_PERIOD))
-    #error Thermal Runaway Protection for hotends must now be enabled with THERMAL_PROTECTION_HOTENDS
+    #error Thermal Runaway Protection for hotends must now be enabled with THERMAL_PROTECTION_HOTENDS.
   #endif
 
   #if !defined(THERMAL_PROTECTION_BED) && defined(THERMAL_PROTECTION_BED_PERIOD)
-    #error Thermal Runaway Protection for the bed must now be enabled with THERMAL_PROTECTION_BED
+    #error Thermal Runaway Protection for the bed must now be enabled with THERMAL_PROTECTION_BED.
   #endif
 
 #endif //SANITYCHECK_H
