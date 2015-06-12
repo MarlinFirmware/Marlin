@@ -102,7 +102,7 @@ namespace screen
 	//Settings
 	ScreenMenu screen_settings          = ScreenMenu(MSG_SCREEN_SETTINGS, MSG_SCREEN_SETTINGS_TEXT);
 	//Steppers
-	ScreenStatus<bool, void> screen_stepper   = ScreenStatus<bool, void>(MSG_SCREEN_STEPPER, SteppersManager::setState, &SteppersManager::single::instance());
+	ScreenStatus<bool, void> screen_stepper   = ScreenStatus<bool, void>(MSG_SCREEN_STEPPER, SteppersManager::disableAllSteppers, &SteppersManager::single::instance());
 	//Move Axis screens
 	ScreenMenu screen_move              = ScreenMenu(MSG_SCREEN_MOVE_TITLE, MSG_SCREEN_MOVE_TEXT);
 	ScreenMenu screen_move_x            = ScreenMenu(MSG_SCREEN_MOVE_TITLE, MSG_SCREEN_MOVE_X);

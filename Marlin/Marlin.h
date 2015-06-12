@@ -113,13 +113,15 @@ void flush_commands();
 
 void manage_inactivity(bool ignore_stepper_queue=false);
 
+#include "SteppersManager.h"
+
 #if defined(DUAL_X_CARRIAGE) && defined(X_ENABLE_PIN) && X_ENABLE_PIN > -1 \
     && defined(X2_ENABLE_PIN) && X2_ENABLE_PIN > -1
   #define  enable_x() do { WRITE(X_ENABLE_PIN, X_ENABLE_ON); WRITE(X2_ENABLE_PIN, X_ENABLE_ON); } while (0)
   #define disable_x() do { WRITE(X_ENABLE_PIN,!X_ENABLE_ON); WRITE(X2_ENABLE_PIN,!X_ENABLE_ON); axis_known_position[X_AXIS] = false; } while (0)
 #elif defined(X_ENABLE_PIN) && X_ENABLE_PIN > -1
-  #define  enable_x() WRITE(X_ENABLE_PIN, X_ENABLE_ON)
-  #define disable_x() { WRITE(X_ENABLE_PIN,!X_ENABLE_ON); axis_known_position[X_AXIS] = false; }
+  #define  enable_x() SteppersManager::single::instance().enableStepper(SteppersManager::AXIS_X);
+  #define disable_x() SteppersManager::single::instance().disableStepper(SteppersManager::AXIS_X);
 #else
   #define enable_x() ;
   #define disable_x() ;
@@ -130,8 +132,8 @@ void manage_inactivity(bool ignore_stepper_queue=false);
     #define  enable_y() { WRITE(Y_ENABLE_PIN, Y_ENABLE_ON); WRITE(Y2_ENABLE_PIN,  Y_ENABLE_ON); }
     #define disable_y() { WRITE(Y_ENABLE_PIN,!Y_ENABLE_ON); WRITE(Y2_ENABLE_PIN, !Y_ENABLE_ON); axis_known_position[Y_AXIS] = false; }
   #else
-    #define  enable_y() WRITE(Y_ENABLE_PIN, Y_ENABLE_ON)
-    #define disable_y() { WRITE(Y_ENABLE_PIN,!Y_ENABLE_ON); axis_known_position[Y_AXIS] = false; }
+    #define  enable_y() SteppersManager::single::instance().enableStepper(SteppersManager::AXIS_Y);
+    #define disable_y() SteppersManager::single::instance().disableStepper(SteppersManager::AXIS_Y);
   #endif
 #else
   #define enable_y() ;
@@ -143,8 +145,8 @@ void manage_inactivity(bool ignore_stepper_queue=false);
     #define  enable_z() { WRITE(Z_ENABLE_PIN, Z_ENABLE_ON); WRITE(Z2_ENABLE_PIN, Z_ENABLE_ON); }
     #define disable_z() { WRITE(Z_ENABLE_PIN,!Z_ENABLE_ON); WRITE(Z2_ENABLE_PIN,!Z_ENABLE_ON); axis_known_position[Z_AXIS] = false; }
   #else
-    #define  enable_z() WRITE(Z_ENABLE_PIN, Z_ENABLE_ON)
-    #define disable_z() { WRITE(Z_ENABLE_PIN,!Z_ENABLE_ON); axis_known_position[Z_AXIS] = false; }
+    #define  enable_z() SteppersManager::single::instance().enableStepper(SteppersManager::AXIS_Z);
+    #define disable_z() SteppersManager::single::instance().disableStepper(SteppersManager::AXIS_Z);
   #endif
 #else
   #define enable_z() ;
@@ -152,8 +154,8 @@ void manage_inactivity(bool ignore_stepper_queue=false);
 #endif
 
 #if defined(E0_ENABLE_PIN) && (E0_ENABLE_PIN > -1)
-  #define enable_e0() WRITE(E0_ENABLE_PIN, E_ENABLE_ON)
-  #define disable_e0() WRITE(E0_ENABLE_PIN,!E_ENABLE_ON)
+  #define enable_e0() SteppersManager::single::instance().enableStepper(SteppersManager::EXTRUDER);
+  #define disable_e0() SteppersManager::single::instance().disableStepper(SteppersManager::EXTRUDER);
 #else
   #define enable_e0()  /* nothing */
   #define disable_e0() /* nothing */
