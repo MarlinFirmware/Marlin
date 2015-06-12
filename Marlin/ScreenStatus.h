@@ -36,7 +36,9 @@ namespace screen
 		, Observer<T>(model)
 		, m_icon_index(0)
 		, m_status()
-	{ }
+	{ 
+		this->connect();
+	}
 
 	template <typename T, typename R, typename... Args>
 	ScreenStatus<T, R, Args...>::~ScreenStatus()

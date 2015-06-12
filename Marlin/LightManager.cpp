@@ -3,9 +3,7 @@
 LightManager::LightManager()
 	: Subject<bool>()
 	, m_state(false)
-{ 
-	notify();
-}
+{ }
 
 void LightManager::setState()
 {

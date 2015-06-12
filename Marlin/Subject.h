@@ -8,8 +8,6 @@ template <typename T>
 {
 	public:
 		void attach (Observer<T> * observer);
-
-	protected:
 		virtual void notify() = 0;
 
    protected:

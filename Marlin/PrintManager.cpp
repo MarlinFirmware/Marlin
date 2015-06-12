@@ -4,9 +4,7 @@
 
 PrintManager::PrintManager()
 	: m_state(STOPPED)
-{
-	notify();
-}
+{ }
 
 void PrintManager::startPrint()
 {

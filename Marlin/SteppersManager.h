@@ -26,10 +26,7 @@ class SteppersManager : public Subject<bool>
 
 		void enableStepper(Stepper_t stepper);
 		void disableStepper(Stepper_t stepper);
-
-	private:
 		void notify();
-
 
 	private:
 		bool m_steppers_disabled;

@@ -17,8 +17,6 @@ class TemperatureManager : public Subject<float>
 		void updateCurrentTemperature(float temp);
 		void setTargetTemperature(uint16_t target);
 		uint16_t getTargetTemperature();
-
-	private:
 		void notify();
 
 	private:

@@ -5,9 +5,7 @@ TemperatureManager::TemperatureManager()
 	: Subject<float>()
 	, m_current_temperature(0)
 	, m_target_temperature(0)
-{ 
-	notify();
-}
+{ }
 
 void TemperatureManager::updateCurrentTemperature(float temp)
 {
