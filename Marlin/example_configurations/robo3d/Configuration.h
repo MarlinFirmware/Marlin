@@ -48,7 +48,7 @@
 #endif
 
 // Define this to set a custom name for your generic Mendel,
-#define CUSTOM_MENDEL_NAME "Robo3D v1.0.2+"	//ROBO-BH
+#define CUSTOM_MENDEL_NAME "Robo3D v1.0.2"	//ROBO-BH
 
 // Define this to set a unique identifier for this printer, (Used by some programs to differentiate between machines)
 // You can use an online service to generate a random UUID. (eg http://www.uuidgenerator.net/version4)
