@@ -9,7 +9,9 @@ SteppersManager & SteppersManager::getInstance()
 SteppersManager::SteppersManager()
 	: Subject<bool>()
 	, m_state(false)
-{ }
+{ 
+	notify();
+}
 
 SteppersManager::~SteppersManager()
 { }
@@ -18,12 +20,12 @@ void SteppersManager::setState()
 {
 	//Always disable steppers
 	SteppersManager::getInstance().state(true);
-	SteppersManager::getInstance().notify();
 }
 
 void SteppersManager::state(bool state)
 {
 	m_state = state;
+	notify();
 }
 
 bool SteppersManager::state()

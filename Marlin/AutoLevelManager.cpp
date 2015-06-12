@@ -9,7 +9,9 @@ AutoLevelManager & AutoLevelManager::getInstance()
 AutoLevelManager::AutoLevelManager()
 	: Subject<bool>()
 	, m_state(false)
-{ }
+{ 
+	notify();
+}
 
 AutoLevelManager::~AutoLevelManager()
 { }
@@ -18,12 +20,12 @@ void AutoLevelManager::setState()
 {
 	//Switch current status
 	AutoLevelManager::getInstance().state(!AutoLevelManager::getInstance().state());
-	AutoLevelManager::getInstance().notify();
 }
 
 void AutoLevelManager::state(bool state)
 {
 	m_state = state;
+	notify();
 }
 
 bool AutoLevelManager::state()

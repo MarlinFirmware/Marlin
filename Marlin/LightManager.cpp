@@ -9,7 +9,9 @@ LightManager & LightManager::getInstance()
 LightManager::LightManager()
 	: Subject<bool>()
 	, m_state(false)
-{ }
+{ 
+	notify();
+}
 
 LightManager::~LightManager()
 { }
@@ -18,12 +20,12 @@ void LightManager::setState()
 {
 	//Switch current status
 	LightManager::getInstance().state(!LightManager::getInstance().state());
-	LightManager::getInstance().notify();
 }
 
 void LightManager::state(bool state)
 {
 	m_state = state;
+	notify();
 }
 
 bool LightManager::state()

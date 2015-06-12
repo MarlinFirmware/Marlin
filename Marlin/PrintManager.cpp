@@ -80,7 +80,9 @@ PrinterState_t PrintManager::state()
 
 PrintManager::PrintManager()
 	: m_state(STOPPED)
-{ }
+{ 
+	notify();
+}
 
 PrintManager::~PrintManager()
 { }
