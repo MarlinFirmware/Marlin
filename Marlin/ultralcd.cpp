@@ -736,9 +736,9 @@ static void _lcd_move(const char *name, AxisEnum axis, int min, int max) {
   if (lcdDrawUpdate) lcd_implementation_drawedit(name, ftostr31(current_position[axis]));
   if (LCD_CLICKED) lcd_goto_menu(lcd_move_menu_axis);
 }
-static void lcd_move_x() { _lcd_move(PSTR("X"), X_AXIS, X_MIN_POS, X_MAX_POS); }
-static void lcd_move_y() { _lcd_move(PSTR("Y"), Y_AXIS, Y_MIN_POS, Y_MAX_POS); }
-static void lcd_move_z() { _lcd_move(PSTR("Z"), Z_AXIS, Z_MIN_POS, Z_MAX_POS); }
+static void lcd_move_x() { _lcd_move(PSTR(MSG_MOVE_X), X_AXIS, X_MIN_POS, X_MAX_POS); }
+static void lcd_move_y() { _lcd_move(PSTR(MSG_MOVE_Y), Y_AXIS, Y_MIN_POS, Y_MAX_POS); }
+static void lcd_move_z() { _lcd_move(PSTR(MSG_MOVE_Z), Z_AXIS, Z_MIN_POS, Z_MAX_POS); }
 static void lcd_move_e() {
   if (encoderPosition != 0) {
     current_position[E_AXIS] += float((int)encoderPosition) * move_menu_scale;
@@ -746,7 +746,7 @@ static void lcd_move_e() {
     line_to_current(E_AXIS);
     lcdDrawUpdate = 1;
   }
-  if (lcdDrawUpdate) lcd_implementation_drawedit(PSTR("Extruder"), ftostr31(current_position[E_AXIS]));
+  if (lcdDrawUpdate) lcd_implementation_drawedit(PSTR(MSG_MOVE_E), ftostr31(current_position[E_AXIS]));
   if (LCD_CLICKED) lcd_goto_menu(lcd_move_menu_axis);
 }
 
