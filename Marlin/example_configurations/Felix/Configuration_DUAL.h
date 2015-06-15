@@ -274,7 +274,7 @@ Here are some standard links for getting your machine calibrated:
 // #define COREXY
 
 // Enable this option for Toshiba steppers
-// #define CONFIG_STEPPERS_TOSHIBA
+//#define CONFIG_STEPPERS_TOSHIBA
 
 // @section homing
 
