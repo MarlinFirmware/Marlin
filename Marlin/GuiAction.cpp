@@ -156,12 +156,10 @@ void action_level_plate()
 void action_homing()
 {
 	enquecommand_P(PSTR("G28"));
-	SERIAL_ECHOLN("G28");
 }
 
 void action_start_print()
 {
-	SERIAL_ECHOLN("START PRINT");
 	char cmd[30];
 	char* c;
 	strcpy(cmd, card.longFilename);
@@ -170,8 +168,6 @@ void action_start_print()
 		if ((uint8_t)*c > 127)
 		{
 			SERIAL_ECHOLN(MSG_SD_BAD_FILENAME);
-			//LCD_MESSAGEPGM(MSG_SD_BAD_FILENAME);
-			//draw_status_screen();
 			return;
 		}
 	}
@@ -188,57 +184,48 @@ void action_start_print()
 
 void action_stop_print()
 {
-	SERIAL_ECHOLN("STOP PRINT");
-	if (buffer_recursivity > 0)
-	{
-		SERIAL_ECHOLN("Buffer recursivity");
-	}
-	else
-	{
-		SERIAL_ECHOLN("else");
-		card.sdprinting = false;
-		card.closefile();
+	card.sdprinting = false;
+	card.closefile();
 
-		TemperatureManager::single::instance().setTargetTemperature(0);
+	TemperatureManager::single::instance().setTargetTemperature(0);
 
-		flush_commands();
-		quickStop();
+	flush_commands();
+	quickStop();
 
-		plan_reset_position();
+	plan_reset_position();
 
-		current_position[X_AXIS] = plan_get_axis_position(X_AXIS);
-		current_position[Y_AXIS] = plan_get_axis_position(Y_AXIS);
-		current_position[Z_AXIS] = plan_get_axis_position(Z_AXIS) + 10;
-		current_position[E_AXIS] = plan_get_axis_position(E_AXIS) - 10;
+	current_position[X_AXIS] = plan_get_axis_position(X_AXIS);
+	current_position[Y_AXIS] = plan_get_axis_position(Y_AXIS);
+	current_position[Z_AXIS] = plan_get_axis_position(Z_AXIS) + 10;
+	current_position[E_AXIS] = plan_get_axis_position(E_AXIS) - 10;
 
-		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], manual_feedrate[X_AXIS] / 60, active_extruder);
+	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], manual_feedrate[X_AXIS] / 60, active_extruder);
 
 #if X_MAX_POS < 250
-		current_position[X_AXIS] = X_MIN_POS;
-		current_position[Y_AXIS] = 150;
-		current_position[Z_AXIS] += 20;
+	current_position[X_AXIS] = X_MIN_POS;
+	current_position[Y_AXIS] = 150;
+	current_position[Z_AXIS] += 20;
 #else // X_MAX_POS < 250
-		current_position[X_AXIS] = X_MAX_POS - 15;
-		current_position[Y_AXIS] = Y_MAX_POS - 15;
-		current_position[Z_AXIS] = Z_MAX_POS - 15;
+	current_position[X_AXIS] = X_MAX_POS - 15;
+	current_position[Y_AXIS] = Y_MAX_POS - 15;
+	current_position[Z_AXIS] = Z_MAX_POS - 15;
 #endif // X_MAX_POS < 250
 
-		if (current_position[Z_AXIS] > Z_MAX_POS)
-		{
-			current_position[Z_AXIS] = Z_MAX_POS;
-		}
-
-		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], manual_feedrate[X_AXIS] / 60, active_extruder);
-		st_synchronize();
-
-		if (SD_FINISHED_STEPPERRELEASE)
-		{
-			enquecommand_P(PSTR(SD_FINISHED_RELEASECOMMAND));
-		}
-		// autotempShutdown();
-
-		cancel_heatup = true;
+	if (current_position[Z_AXIS] > Z_MAX_POS)
+	{
+		current_position[Z_AXIS] = Z_MAX_POS;
 	}
+
+	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], manual_feedrate[X_AXIS] / 60, active_extruder);
+	st_synchronize();
+
+	if (SD_FINISHED_STEPPERRELEASE)
+	{
+		enquecommand_P(PSTR(SD_FINISHED_RELEASECOMMAND));
+	}
+	// autotempShutdown();
+
+	cancel_heatup = true;
 }
 
 extern float target[4];
