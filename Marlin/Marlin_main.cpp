@@ -45,7 +45,7 @@
 #include "watchdog.h"
 #include "ConfigurationStore.h"
 #include "language.h"
-#include "pins_arduino.h"
+#include "pins_arduino_extended.h"
 #include "math.h"
 
 #ifdef BLINKM
