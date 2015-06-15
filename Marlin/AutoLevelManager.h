@@ -4,6 +4,11 @@
 #include "Singleton.h"
 #include "Subject.h"
 
+#include <stdint.h>
+
+extern void _EEPROM_readData(int &pos, uint8_t* value, uint8_t size);
+extern void _EEPROM_writeData(int &pos, uint8_t* value, uint8_t size);
+
 class AutoLevelManager : public Subject<bool>
 {
 	public:
@@ -17,6 +22,9 @@ class AutoLevelManager : public Subject<bool>
 		void notify();
 
 		static void setState();
+
+		bool ReadFromEEPROM();
+		void WriteToEEPROM(bool state);
 
 
 	private:
