@@ -36,7 +36,7 @@
   #endif
 #endif // ENABLE_AUTO_BED_LEVELING
 
-#define HAS_LCD_BUZZ (defined(ULTRALCD) || (defined(BEEPER) && BEEPER >= 0) || defined(LCD_USE_I2C_BUZZER))
+#define HAS_LCD_BUZZ (defined(ULTRA_LCD) || (defined(BEEPER) && BEEPER >= 0) || defined(LCD_USE_I2C_BUZZER))
 #define SERVO_LEVELING (defined(ENABLE_AUTO_BED_LEVELING) && PROBE_SERVO_DEACTIVATION_DELAY > 0)
 
 #ifdef MESH_BED_LEVELING
