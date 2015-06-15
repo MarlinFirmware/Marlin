@@ -52,8 +52,6 @@
   #ifdef FILAMENT_LCD_DISPLAY
     extern millis_t previous_lcd_status_ms;
   #endif
-
-  void lcd_buzz(long duration,uint16_t freq);
   void lcd_quick_feedback(); // Audible feedback for a button click - could also be visual
   bool lcd_clicked();
 
@@ -106,13 +104,16 @@
   FORCE_INLINE void lcd_setstatuspgm(const char* message, const uint8_t level=0) {}
   FORCE_INLINE void lcd_buttons_update() {}
   FORCE_INLINE void lcd_reset_alert_level() {}
-  FORCE_INLINE void lcd_buzz(long duration, uint16_t freq) {}
   FORCE_INLINE bool lcd_detected(void) { return true; }
 
   #define LCD_MESSAGEPGM(x) do{}while(0)
   #define LCD_ALERTMESSAGEPGM(x) do{}while(0)
 
 #endif //ULTRA_LCD
+
+#if HAS_BUZZER
+  void buzz(long duration,uint16_t freq);
+#endif
 
 char *itostr2(const uint8_t &x);
 char *itostr31(const int &xx);
