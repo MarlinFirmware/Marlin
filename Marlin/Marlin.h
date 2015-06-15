@@ -338,4 +338,8 @@ extern uint8_t active_extruder;
 
 extern void calculate_volumetric_multipliers();
 
+#if HAS_BUZZER
+  void buzz(long duration,uint16_t freq);
+#endif
+
 #endif //MARLIN_H

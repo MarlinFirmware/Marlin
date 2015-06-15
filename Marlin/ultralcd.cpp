@@ -1749,25 +1749,6 @@ void lcd_reset_alert_level() { lcd_status_message_level = 0; }
 
 #endif // ULTIPANEL
 
-#if HAS_BUZZER
-  void buzz(long duration, uint16_t freq) {
-    if (freq > 0) {
-      #ifdef LCD_USE_I2C_BUZZER
-        lcd.buzz(duration, freq);
-      #elif defined(BEEPER) && BEEPER >= 0
-        SET_OUTPUT(BEEPER);
-        tone(BEEPER, freq, duration);
-        delay(duration);
-      #else
-        delay(duration);
-      #endif
-    }
-    else {
-      delay(duration);
-    }
-  }
-#endif
-
 /*********************************/
 /** Number to string conversion **/
 /*********************************/

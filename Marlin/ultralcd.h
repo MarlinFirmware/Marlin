@@ -111,10 +111,6 @@
 
 #endif //ULTRA_LCD
 
-#if HAS_BUZZER
-  void buzz(long duration,uint16_t freq);
-#endif
-
 char *itostr2(const uint8_t &x);
 char *itostr31(const int &xx);
 char *itostr3(const int &xx);
