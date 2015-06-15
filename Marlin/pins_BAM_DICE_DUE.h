@@ -2,9 +2,7 @@
  * BAM&DICE Due (Arduino Mega) pin assignments
  */
 
-#define IS_RAMPS_EFB
-
-#include "pins_RAMPS_13.h"
+#include "pins_RAMPS_13_EFB.h"
 
 #undef TEMP_0_PIN
 #undef TEMP_1_PIN
