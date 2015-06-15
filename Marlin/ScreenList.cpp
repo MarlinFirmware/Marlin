@@ -18,7 +18,6 @@ State_t run_state(State_t current_state, Event_t event)
 
 State_t do_state_prepare(Event_t event)
 {
-	SERIAL_ECHOLN ("[do_state_prepare]");
 	if (event == EVENT_PREPARED)
 		return STATE_PAINT;
 
@@ -27,7 +26,6 @@ State_t do_state_prepare(Event_t event)
 
 State_t do_state_paint(Event_t event)
 {
-	SERIAL_ECHOLN ("[do_state_paint]");
 	if (event == EVENT_KEYPRESS)
 		return STATE_PREPARE;
 
@@ -54,8 +52,7 @@ namespace screen
 	}
 
 	ScreenList::~ScreenList()
-	{
-	}
+	{ }
 
 	void ScreenList::left()
 	{
@@ -119,7 +116,6 @@ namespace screen
 				m_offset = 1;
 				m_scroll_size = 47;
 			}
-
 			state = run_state(state, EVENT_PREPARED);
 		}
 
@@ -165,7 +161,6 @@ namespace screen
 				{
 					painter.setColorIndex(1);
 				}
-
 
 				if ((int)(m_index + i - window_selector) < 0 || (m_index + i - window_selector) >= m_num_list)
 				{
@@ -217,15 +212,12 @@ namespace screen
 				painter.setColorIndex(0);
 				painter.drawBox(124, 15, 2, scroll_upper_bar);
 			}
-
 		} while( painter.nextPage() );
 	}
 
 	void ScreenList::press()
 	{
-		SERIAL_ECHOLN("ScreenList::press");
 		state = run_state(state, EVENT_KEYPRESS);
-		SERIAL_ECHOLN("ScreenList::press - State machine run");
 
 		if (m_index == 0)
 		{
@@ -241,19 +233,13 @@ namespace screen
 		}
 		else
 		{
-		/*
-			card.getfilename(m_index);
-			SERIAL_ECHOLN("ScreenList::press - card.getfilename");
-			*/
 			card.getfilename(m_index - m_offset);
 			if (card.filenameIsDir == true)
 			{
-				SERIAL_ECHOLN("ScreenList::press - isDir");
 				card.chdir(card.filename);
 				ViewManager::getInstance().activeView(this);
 				return;
 			}
-			SERIAL_ECHOLN("ScreenList::press - return next screen");
 			ViewManager::getInstance().activeView(m_next_screen);
 		}
 	}
@@ -309,7 +295,6 @@ namespace screen
 			{
 				card.release();
 			}
-
 			state = run_state(state, EVENT_SDCHANGED);
 		}
 	}

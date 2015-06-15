@@ -103,8 +103,6 @@ VPATH += $(HARDWARE_SRC)
 VPATH += libraries/SdFat
 
 ifeq ($(HARDWARE_VARIANT), arduino)
-HARDWARE_SUB_VARIANT ?= mega
-VPATH += $(ARDUINO_INSTALL_DIR)/hardware/arduino/avr/variants/$(HARDWARE_SUB_VARIANT)
 VPATH += $(ARDUINO_INSTALL_DIR)/hardware/arduino/avr/libraries/SPI
 
 ifeq ($(DOGLCD), 1)

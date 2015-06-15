@@ -12,6 +12,7 @@
 #include "ScreenTransition.h"
 #include "ScreenAction.h"
 #include "ScreenPrint.h"
+#include "ScreenDynamic.h"
 
 #include "AutoLevelManager.h"
 #include "LightManager.h"
@@ -110,9 +111,17 @@ namespace screen
 	ScreenMenu screen_move_z            = ScreenMenu(MSG_SCREEN_MOVE_TITLE, MSG_SCREEN_MOVE_Z);
 	ScreenMenu screen_move_e            = ScreenMenu(MSG_SCREEN_MOVE_TITLE, MSG_SCREEN_MOVE_E);
 	ScreenAction<void> screen_move_back2move        	= ScreenAction<void>(MSG_SCREEN_MOVE_2MOVE, do_nothing);
-	ScreenSelector<void, uint16_t> screen_move_10       = ScreenSelector<void, uint16_t>(MSG_SCREEN_MOVE_10MM, 0, 100, 50, action_set_temperature);
-	ScreenSelector<void, uint16_t> screen_move_1        = ScreenSelector<void, uint16_t>(MSG_SCREEN_MOVE_1MM, 0, 100, 50, action_set_temperature);
-	ScreenSelector<void, uint16_t> screen_move_01       = ScreenSelector<void, uint16_t>(MSG_SCREEN_MOVE_01MM, 0, 100, 50, action_set_temperature);
+	ScreenDynamic<float> screen_move_x_10		= ScreenDynamic<float>(MSG_SCREEN_MOVE_10MM, X_AXIS, X_MIN_POS, X_MAX_POS, 10, action_move_axis_to);
+	ScreenDynamic<float> screen_move_x_1		= ScreenDynamic<float>(MSG_SCREEN_MOVE_1MM, X_AXIS, X_MIN_POS, X_MAX_POS, 1, action_move_axis_to);
+	ScreenDynamic<float> screen_move_x_01		= ScreenDynamic<float>(MSG_SCREEN_MOVE_01MM, X_AXIS, X_MIN_POS, X_MAX_POS, 0.1, action_move_axis_to);
+	ScreenDynamic<float> screen_move_y_10		= ScreenDynamic<float>(MSG_SCREEN_MOVE_10MM, Y_AXIS, Y_MIN_POS, Y_MAX_POS, 10, action_move_axis_to);
+	ScreenDynamic<float> screen_move_y_1		= ScreenDynamic<float>(MSG_SCREEN_MOVE_1MM, Y_AXIS, Y_MIN_POS, Y_MAX_POS, 1, action_move_axis_to);
+	ScreenDynamic<float> screen_move_y_01		= ScreenDynamic<float>(MSG_SCREEN_MOVE_01MM, Y_AXIS, Y_MIN_POS, Y_MAX_POS, 0.1, action_move_axis_to);
+	ScreenDynamic<float> screen_move_z_10		= ScreenDynamic<float>(MSG_SCREEN_MOVE_10MM, Z_AXIS, Z_MIN_POS, Z_MAX_POS, 10, action_move_axis_to);
+	ScreenDynamic<float> screen_move_z_1		= ScreenDynamic<float>(MSG_SCREEN_MOVE_1MM, Z_AXIS, Z_MIN_POS, Z_MAX_POS, 1, action_move_axis_to);
+	ScreenDynamic<float> screen_move_z_01		= ScreenDynamic<float>(MSG_SCREEN_MOVE_01MM, Z_AXIS, Z_MIN_POS, Z_MAX_POS, 0.1, action_move_axis_to);
+	ScreenDynamic<float> screen_move_e_1		= ScreenDynamic<float>(MSG_SCREEN_MOVE_1MM, E_AXIS, -1E9, 1E9, 1, action_move_axis_to);
+	ScreenDynamic<float> screen_move_e_01		= ScreenDynamic<float>(MSG_SCREEN_MOVE_01MM, E_AXIS, -1E9, 1E9, 0.1, action_move_axis_to);
 	//Temperature
 	ScreenSelector<void, uint16_t> screen_temperature_main   = ScreenSelector<void, uint16_t>(MSG_SCREEN_TEMP_TITLE, 0, 250, default_temp_change_filament, action_set_temperature);
 	//Light
@@ -270,32 +279,53 @@ namespace screen
 		screen_move_back2move.icon(icon_back);
 
 		screen_move_x.add(screen_move_back2move);
-		screen_move_x.add(screen_move_10);
-		screen_move_x.add(screen_move_1);
-		screen_move_x.add(screen_move_01);
+		screen_move_x.add(screen_move_x_10);
+		screen_move_x.add(screen_move_x_1);
+		screen_move_x.add(screen_move_x_01);
 		screen_move_x.icon(icon_move_x);
 
 		screen_move_y.add(screen_move_back2move);
-		screen_move_y.add(screen_move_10);
-		screen_move_y.add(screen_move_1);
-		screen_move_y.add(screen_move_01);
+		screen_move_y.add(screen_move_y_10);
+		screen_move_y.add(screen_move_y_1);
+		screen_move_y.add(screen_move_y_01);
 		screen_move_y.icon(icon_move_y);
 
 		screen_move_z.add(screen_move_back2move);
-		screen_move_z.add(screen_move_10);
-		screen_move_z.add(screen_move_1);
-		screen_move_z.add(screen_move_01);
+		screen_move_z.add(screen_move_z_10);
+		screen_move_z.add(screen_move_z_1);
+		screen_move_z.add(screen_move_z_01);
 		screen_move_z.icon(icon_move_z);
 
 		screen_move_e.add(screen_move_back2move);
-		screen_move_e.add(screen_move_1);
-		screen_move_e.add(screen_move_01);
+		screen_move_e.add(screen_move_e_1);
+		screen_move_e.add(screen_move_e_01);
 		screen_move_e.icon(icon_move_e);
 
-		screen_move_01.icon(icon_move_01mm);
-		screen_move_1.icon(icon_move_1mm);
-		screen_move_10.icon(icon_move_10mm);
-		//screen_move_e.icon(icon_move_e);
+		screen_move_x_01.add(screen_move_back2move);
+		screen_move_x_01.icon(icon_move_01mm);
+		screen_move_y_01.add(screen_move_back2move);
+		screen_move_y_01.icon(icon_move_01mm);
+		screen_move_z_01.add(screen_move_back2move);
+		screen_move_z_01.icon(icon_move_01mm);
+		screen_move_e_01.add(screen_move_back2move);
+		screen_move_e_01.icon(icon_move_01mm);
+
+		screen_move_x_1.add(screen_move_back2move);
+		screen_move_x_1.icon(icon_move_1mm);
+		screen_move_y_1.add(screen_move_back2move);
+		screen_move_y_1.icon(icon_move_1mm);
+		screen_move_z_1.add(screen_move_back2move);
+		screen_move_z_1.icon(icon_move_1mm);
+		screen_move_e_1.add(screen_move_back2move);
+		screen_move_e_1.icon(icon_move_1mm);
+
+		screen_move_x_10.add(screen_move_back2move);
+		screen_move_x_10.icon(icon_move_10mm);
+		screen_move_y_10.add(screen_move_back2move);
+		screen_move_y_10.icon(icon_move_10mm);
+		screen_move_z_10.add(screen_move_back2move);
+		screen_move_z_10.icon(icon_move_10mm);
+
 		//Temperature
 		screen_temperature_main.add(screen_main);
 		screen_temperature_main.icon(icon_temperature);
