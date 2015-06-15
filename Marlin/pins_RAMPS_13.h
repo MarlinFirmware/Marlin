@@ -77,7 +77,7 @@
   #define FILRUNOUT_PIN        4
 #endif
 
-#if MB(RAMPS_13_EFB) || MB(RAMPS_13_EFF) || defined(IS_RAMPS_EFB)
+#if MB(RAMPS_13_EFF) || defined(IS_RAMPS_EFB)
   #define FAN_PIN            9 // (Sprinter config)
   #if MB(RAMPS_13_EFF)
     #define CONTROLLERFAN_PIN  -1 // Pin used for the fan to cool controller
@@ -102,7 +102,7 @@
   #define HEATER_0_PIN       10   // EXTRUDER 1
 #endif
 
-#if MB(RAMPS_13_EFB) || MB(RAMPS_13_SF) || defined(IS_RAMPS_EFB)
+#if MB(RAMPS_13_SF) || defined(IS_RAMPS_EFB)
   #define HEATER_1_PIN       -1
 #else
   #define HEATER_1_PIN       9    // EXTRUDER 2 (FAN On Sprinter)
