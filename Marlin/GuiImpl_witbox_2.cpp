@@ -105,7 +105,7 @@ namespace screen
 	//Steppers
 	ScreenStatus<bool, void> screen_stepper   = ScreenStatus<bool, void>(MSG_SCREEN_STEPPER, SteppersManager::disableAllSteppers, &SteppersManager::single::instance());
 	//Move Axis screens
-	ScreenMenu screen_move              = ScreenMenu(MSG_SCREEN_MOVE_TITLE, MSG_SCREEN_MOVE_TEXT);
+/*	ScreenMenu screen_move              = ScreenMenu(MSG_SCREEN_MOVE_TITLE, MSG_SCREEN_MOVE_TEXT);
 	ScreenMenu screen_move_x            = ScreenMenu(MSG_SCREEN_MOVE_TITLE, MSG_SCREEN_MOVE_X);
 	ScreenMenu screen_move_y            = ScreenMenu(MSG_SCREEN_MOVE_TITLE, MSG_SCREEN_MOVE_Y);
 	ScreenMenu screen_move_z            = ScreenMenu(MSG_SCREEN_MOVE_TITLE, MSG_SCREEN_MOVE_Z);
@@ -121,13 +121,13 @@ namespace screen
 	ScreenDynamic<float> screen_move_z_1		= ScreenDynamic<float>(MSG_SCREEN_MOVE_1MM, Z_AXIS, Z_MIN_POS, Z_MAX_POS, 1, action_move_axis_to);
 	ScreenDynamic<float> screen_move_z_01		= ScreenDynamic<float>(MSG_SCREEN_MOVE_01MM, Z_AXIS, Z_MIN_POS, Z_MAX_POS, 0.1, action_move_axis_to);
 	ScreenDynamic<float> screen_move_e_1		= ScreenDynamic<float>(MSG_SCREEN_MOVE_1MM, E_AXIS, -1E9, 1E9, 1, action_move_axis_to);
-	ScreenDynamic<float> screen_move_e_01		= ScreenDynamic<float>(MSG_SCREEN_MOVE_01MM, E_AXIS, -1E9, 1E9, 0.1, action_move_axis_to);
+	ScreenDynamic<float> screen_move_e_01		= ScreenDynamic<float>(MSG_SCREEN_MOVE_01MM, E_AXIS, -1E9, 1E9, 0.1, action_move_axis_to);*/
 	//Temperature
 	ScreenSelector<void, uint16_t> screen_temperature_main   = ScreenSelector<void, uint16_t>(MSG_SCREEN_TEMP_TITLE, 0, 250, default_temp_change_filament, action_set_temperature);
 	//Light
 	ScreenStatus<bool, void> screen_light = ScreenStatus<bool, void>(MSG_SCREEN_LIGHT, LightManager::setState, &LightManager::single::instance());
 	//Info
-	ScreenDialog<void> screen_info            = ScreenDialog<void>(MSG_SCREEN_INFO, MSG_SCREEN_INFO_TEXT, MSG_SCREEN_INFO_BOX, do_nothing);
+//	ScreenDialog<void> screen_info            = ScreenDialog<void>(MSG_SCREEN_INFO, MSG_SCREEN_INFO_TEXT, MSG_SCREEN_INFO_BOX, do_nothing);
 	//Autolevel
 	ScreenStatus<bool, void> screen_autolevel = ScreenStatus<bool, void>(MSG_SCREEN_AUTOLEVEL, AutoLevelManager::setState, &AutoLevelManager::single::instance());
 	//Offset
@@ -152,7 +152,7 @@ namespace screen
 	ScreenAction<void> screen_stop_back             = ScreenAction<void>(MSG_SCREEN_STOP_BACK, do_nothing);
 	ScreenAction<void> screen_stop_OK = ScreenAction<void>(MSG_SCREEN_STOP_OK, action_stop_print);
 	//Change Filament Screens
-	ScreenAction<void> screen_change_pause					= ScreenAction<void>(MSG_SCREEN_CHANGE_CONFIRM, action_pause_print);
+/*	ScreenAction<void> screen_change_pause					= ScreenAction<void>(MSG_SCREEN_CHANGE_CONFIRM, action_pause_print);
 	ScreenMenu screen_change_confirm_first					= ScreenMenu(MSG_SCREEN_CHANGE_CONFIRM);
 	ScreenAction<void> screen_change_back2print				= ScreenAction<void>(MSG_BACK, action_resume_print);
 	ScreenSelector<void, uint16_t> screen_change_selector	= ScreenSelector<void, uint16_t>(MSG_SCREEN_TEMP_TITLE, 0, 250, default_temp_change_filament, action_set_temperature);
@@ -162,7 +162,7 @@ namespace screen
 	ScreenDialog<void> screen_change_insert					= ScreenDialog<void>(MSG_SCREEN_CHANGE_TITLE, MSG_SCREEN_CHANGE_INSERT, MSG_SCREEN_CHANGE_BOX, action_filament_load);
 	ScreenMenu screen_change_confirm_second					= ScreenMenu(MSG_SCREEN_CHANGE_CONFIRM);
 	ScreenAction<void> screen_change_ok2print				= ScreenAction<void>(MSG_OK2, action_resume_print);
-	ScreenAction<void> screen_change_retry					= ScreenAction<void>(MSG_SCREEN_CHANGE_RETRY, do_nothing);
+	ScreenAction<void> screen_change_retry					= ScreenAction<void>(MSG_SCREEN_CHANGE_RETRY, do_nothing);*/
 	//Change Speed screen
 	ScreenSelector<void, uint16_t> screen_speed			= ScreenSelector<void, uint16_t>(MSG_SCREEN_SPEED, 10, 400, 100, action_set_temperature);
 	//Temperature
@@ -178,10 +178,10 @@ namespace screen
 		screen_main.add(screen_level_init);
 		screen_main.add(screen_autohome);
 		screen_main.add(screen_settings);
-		screen_main.add(screen_move);
+//		screen_main.add(screen_move);
 		screen_main.add(screen_stepper);
 		screen_main.add(screen_temperature_main);
-		screen_main.add(screen_info);
+//		screen_main.add(screen_info);
 		//SD Card List
 		screen_SD_list.add(screen_main);
 		screen_SD_list.add(screen_SD_confirm);
@@ -263,14 +263,14 @@ namespace screen
 		screen_settings.add(screen_offset);
 		screen_settings.add(screen_autolevel);
 		screen_settings.add(screen_light);
-		screen_settings.add(screen_info);
+//		screen_settings.add(screen_info);
 		screen_settings.icon(icon_settings);
 		//Stepper
 		screen_stepper.add(screen_main);
 		screen_stepper.icon(icon_steppers);
 		screen_stepper.icon(icon_steppers_off);
 		//Move Axis
-		screen_move.add(screen_back2main);
+/*		screen_move.add(screen_back2main);
 		screen_move.add(screen_move_x);
 		screen_move.add(screen_move_y);
 		screen_move.add(screen_move_z);
@@ -326,7 +326,7 @@ namespace screen
 		screen_move_y_10.add(screen_move_back2move);
 		screen_move_y_10.icon(icon_move_10mm);
 		screen_move_z_10.add(screen_move_back2move);
-		screen_move_z_10.icon(icon_move_10mm);
+		screen_move_z_10.icon(icon_move_10mm);*/
 
 		//Temperature
 		screen_temperature_main.add(screen_main);
@@ -346,8 +346,8 @@ namespace screen
 		screen_light.icon(icon_lightled_disable);
 		screen_light.icon(icon_lightled);
 		//Info
-		screen_info.add(screen_main);
-		screen_info.icon(icon_info);
+/*		screen_info.add(screen_main);
+		screen_info.icon(icon_info);*/
 		//Offset
 		screen_offset.add(screen_back2main);
 		screen_offset.add(screen_offset_home);
@@ -368,7 +368,7 @@ namespace screen
 		//Print Menu
 		screen_print.add(screen_play_pause);
 		screen_print.add(screen_stop_confirm);
-		screen_print.add(screen_change_pause);
+//		screen_print.add(screen_change_pause);
 		screen_print.add(screen_speed);
 		screen_print.add(screen_temperature_print);
 		//Play/Pause
@@ -385,7 +385,7 @@ namespace screen
 		//Stop Confirm OK
 		screen_stop_OK.add(screen_main);
 		screen_stop_OK.icon(icon_ok);
-		//Change filament pause
+/*		//Change filament pause
 		screen_change_pause.add(screen_change_confirm_first);
 		screen_change_pause.icon(icon_change_filament);
 		//Change filament first confirm
@@ -415,7 +415,7 @@ namespace screen
 		screen_change_retry.icon(icon_retry);
 		//Change filament OK to print
 		screen_change_ok2print.add(screen_print);
-		screen_change_ok2print.icon(icon_ok);
+		screen_change_ok2print.icon(icon_ok);*/
 		//Change speed screens
 		screen_speed.add(screen_print);
 		screen_speed.icon(icon_change_speed);
