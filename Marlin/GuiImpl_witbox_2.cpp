@@ -132,8 +132,10 @@ namespace screen
 	ScreenStatus<bool, void> screen_autolevel = ScreenStatus<bool, void>(MSG_SCREEN_AUTOLEVEL, AutoLevelManager::setState, &AutoLevelManager::single::instance());
 	//Offset
 	ScreenMenu screen_offset                  = ScreenMenu(MSG_SCREEN_OFFSET_TITLE, MSG_SCREEN_OFFSET_TEXT);
+	ScreenAction<void> screen_offset_home     = ScreenAction<void>(MSG_SCREEN_OFFSET_TITLE, action_offset);
+	ScreenDialog<void> screen_offset_wait     = ScreenDialog<void>(MSG_SCREEN_OFFSET_TITLE, MSG_SCREEN_OFFSET_WAIT, MSG_SCREEN_OFFSET_WAIT_BOX, do_nothing);
 	ScreenDialog<void> screen_offset_dialog   = ScreenDialog<void>(MSG_SCREEN_OFFSET_TITLE, MSG_SCREEN_OFFSET_DIALOG_TEXT, MSG_SCREEN_OFFSET_DIALOG_BOX, do_nothing);
-	ScreenSelector<void, uint16_t> screen_offset_set = ScreenSelector<void, uint16_t> (MSG_SCREEN_OFFSET_TITLE, 0, 4, 0, action_set_temperature);
+	ScreenSelector<void, uint16_t> screen_offset_set = ScreenSelector<void, uint16_t> (MSG_SCREEN_OFFSET_TITLE, 0, 4, 0, action_set_offset);
 	ScreenMenu screen_offset_finish                  = ScreenMenu(MSG_SCREEN_OFFSET_TITLE, MSG_SCREEN_OFFSET_FINISH);
 
 	//Back to main
@@ -348,11 +350,14 @@ namespace screen
 		screen_info.icon(icon_info);
 		//Offset
 		screen_offset.add(screen_back2main);
-		screen_offset.add(screen_offset_dialog);
+		screen_offset.add(screen_offset_home);
 		screen_offset.icon(icon_offset);
 
+		screen_offset_home.add(screen_offset_wait);
+		screen_offset_home.icon(icon_ok);
+
+		screen_offset_wait.add(screen_offset_dialog);
 		screen_offset_dialog.add(screen_offset_set);
-		screen_offset_dialog.icon(icon_ok);
 
 		screen_offset_set.add(screen_offset_finish);
 		screen_offset_set.icon(icon_retry);

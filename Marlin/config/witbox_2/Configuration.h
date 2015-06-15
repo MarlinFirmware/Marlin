@@ -308,7 +308,21 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
   // AUTO_BED_LEVELING_GRID_POINTSxAUTO_BED_LEVELING_GRID_POINTS grid
   // and least squares solution is calculated
   // Note: this feature occupies 10'206 byte
-  #ifdef AUTO_BED_LEVELING_GRID
+  
+#endif // ENABLE_AUTO_BED_LEVELING
+
+//If you have enabled the Bed Auto Leveling and are using the same Z Probe for Z Homing,
+//it is highly recommended you let this Z_SAFE_HOMING enabled!!!
+#define Z_SAFE_HOMING   // This feature is meant to avoid Z homing with probe outside the bed area.
+                        // When defined, it will:
+                        // - Allow Z homing only after X and Y homing AND stepper drivers still enabled
+                        // - If stepper drivers timeout, it will need X and Y homing again before Z homing
+                        // - Position the probe in a defined XY point before Z Homing when homing all axis (G28)
+                        // - Block Z homing only when the probe is outside bed area.
+
+#ifdef Z_SAFE_HOMING
+
+#ifdef AUTO_BED_LEVELING_GRID
 
     // set the rectangle in which to probe
     #define LEFT_PROBE_BED_POSITION 15
@@ -333,18 +347,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
       #define ABL_PROBE_PT_3_Y Y_MIN_POS + 50
 
   #endif // AUTO_BED_LEVELING_GRID
-#endif // ENABLE_AUTO_BED_LEVELING
-
-//If you have enabled the Bed Auto Leveling and are using the same Z Probe for Z Homing,
-//it is highly recommended you let this Z_SAFE_HOMING enabled!!!
-#define Z_SAFE_HOMING   // This feature is meant to avoid Z homing with probe outside the bed area.
-                        // When defined, it will:
-                        // - Allow Z homing only after X and Y homing AND stepper drivers still enabled
-                        // - If stepper drivers timeout, it will need X and Y homing again before Z homing
-                        // - Position the probe in a defined XY point before Z Homing when homing all axis (G28)
-                        // - Block Z homing only when the probe is outside bed area.
-
-#ifdef Z_SAFE_HOMING
+  
 
   #define Z_RAISE_BEFORE_HOMING 0       // (in mm) Raise Z before homing (G28) for Probe Clearance.
                                         // Be sure you have this distance over your Z_MAX_POS in case

@@ -77,14 +77,14 @@ unsigned long axis_steps_per_sqr_second[NUM_AXIS];
 
 extern uint8_t buffer_recursivity;
 
-#ifdef ENABLE_AUTO_BED_LEVELING
+#ifdef Z_SAFE_HOMING
 // this holds the required transform to compensate for bed level
 matrix_3x3 plan_bed_level_matrix = {
 	1.0, 0.0, 0.0,
 	0.0, 1.0, 0.0,
 	0.0, 0.0, 1.0
 };
-#endif // #ifdef ENABLE_AUTO_BED_LEVELING
+#endif // #ifdef Z_SAFE_HOMING
 
 // The current position of the tool in absolute steps
 long position[NUM_AXIS];   //rescaled from extern when axis_steps_per_unit are changed by gcode
@@ -532,11 +532,11 @@ float junction_deviation = 0.1;
 // Add a new linear movement to the buffer. steps_x, _y and _z is the absolute position in 
 // mm. Microseconds specify how many microseconds the move should take to perform. To aid acceleration
 // calculation the caller must also provide the physical length of the line in millimeters.
-#ifdef ENABLE_AUTO_BED_LEVELING
+#ifdef Z_SAFE_HOMING
 void plan_buffer_line(float x, float y, float z, const float &e, float feed_rate, const uint8_t &extruder)
 #else
 void plan_buffer_line(const float &x, const float &y, const float &z, const float &e, float feed_rate, const uint8_t &extruder)
-#endif  //ENABLE_AUTO_BED_LEVELING
+#endif  //Z_SAFE_HOMING
 {
   // Calculate the buffer head after we push this byte
   next_buffer_head = next_block_index(block_buffer_head);
@@ -554,9 +554,9 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
   }
   buffer_recursivity--;
 
-#ifdef ENABLE_AUTO_BED_LEVELING
+#ifdef Z_SAFE_HOMING
   apply_rotation_xyz(plan_bed_level_matrix, x, y, z);
-#endif // ENABLE_AUTO_BED_LEVELING
+#endif // Z_SAFE_HOMING
 
   // The target position of the tool in absolute steps
   // Calculate target position in absolute steps
@@ -1064,7 +1064,7 @@ Having the real displacement of the head, we can calculate the total movement le
   st_wake_up();
 }
 
-#ifdef ENABLE_AUTO_BED_LEVELING
+#ifdef Z_SAFE_HOMING
 vector_3 plan_get_position() {
 	vector_3 position = vector_3(st_get_position_mm(X_AXIS), st_get_position_mm(Y_AXIS), st_get_position_mm(Z_AXIS));
 
@@ -1077,21 +1077,21 @@ vector_3 plan_get_position() {
 
 	return position;
 }
-#endif // ENABLE_AUTO_BED_LEVELING
+#endif // Z_SAFE_HOMING
 
 float plan_get_axis_position(uint8_t axis)
 {
   return position[axis] / axis_steps_per_unit[axis];
 }
 
-#ifdef ENABLE_AUTO_BED_LEVELING
+#ifdef Z_SAFE_HOMING
 void plan_set_position(float x, float y, float z, const float &e)
 {
   apply_rotation_xyz(plan_bed_level_matrix, x, y, z);
 #else
 void plan_set_position(const float &x, const float &y, const float &z, const float &e)
 {
-#endif // ENABLE_AUTO_BED_LEVELING
+#endif // Z_SAFE_HOMING
 
   position[X_AXIS] = lround(x*axis_steps_per_unit[X_AXIS]);
   position[Y_AXIS] = lround(y*axis_steps_per_unit[Y_AXIS]);

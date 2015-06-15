@@ -1067,7 +1067,27 @@ static void axis_is_at_home(int axis) {
 #endif
 }
 
-#ifdef ENABLE_AUTO_BED_LEVELING
+#ifdef Z_SAFE_HOMING
+
+void do_blocking_move_to(float x, float y, float z) {
+    float oldFeedRate = feedrate;
+
+    feedrate = homing_feedrate[Z_AXIS];
+
+    current_position[Z_AXIS] = z;
+    plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate, active_extruder);
+    st_synchronize();
+
+    feedrate = XY_TRAVEL_SPEED;
+
+    current_position[X_AXIS] = x;
+    current_position[Y_AXIS] = y;
+    plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate, active_extruder);
+    st_synchronize();
+
+    feedrate = oldFeedRate;
+}
+
 static void do_blocking_extrude_to(float e) {
 	float oldFeedRate = feedrate;
 	feedrate = EXTRUSION_SPEED;
@@ -1165,7 +1185,7 @@ static void do_blocking_move_relative(float offset_x, float offset_y, float offs
     do_blocking_move_to(current_position[X_AXIS] + offset_x, current_position[Y_AXIS] + offset_y, current_position[Z_AXIS] + offset_z);
 }
 
-static void setup_for_endstop_move() {
+void setup_for_endstop_move() {
     saved_feedrate = feedrate;
     saved_feedmultiply = feedmultiply;
     feedmultiply = 100;
@@ -1174,7 +1194,7 @@ static void setup_for_endstop_move() {
     enable_endstops(true);
 }
 
-static void clean_up_after_endstop_move() {
+void clean_up_after_endstop_move() {
 #ifdef ENDSTOPS_ONLY_FOR_HOMING
     enable_endstops(false);
 #endif
@@ -1217,7 +1237,7 @@ static void retract_z_probe() {
 }
 
 /// Probe bed height at position (x,y), returns the measured z value
-static float probe_pt(float x, float y, float z_before, int retract_action=0) {
+float probe_pt(float x, float y, float z_before, int retract_action=0) {
   // move to right place
   do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], z_before);
   do_blocking_move_to(x - X_PROBE_OFFSET_FROM_EXTRUDER, y - Y_PROBE_OFFSET_FROM_EXTRUDER, current_position[Z_AXIS]);
@@ -1244,29 +1264,7 @@ static float probe_pt(float x, float y, float z_before, int retract_action=0) {
   return measured_z;
 }
 
-#endif // #ifdef ENABLE_AUTO_BED_LEVELING
-
-#if defined (ENABLE_AUTO_BED_LEVELING) || defined (WITBOX)
-static void do_blocking_move_to(float x, float y, float z) {
-    float oldFeedRate = feedrate;
-
-    feedrate = homing_feedrate[Z_AXIS];
-
-    current_position[Z_AXIS] = z;
-    plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
-    st_synchronize();
-
-    feedrate = XY_TRAVEL_SPEED;
-
-    current_position[X_AXIS] = x;
-    current_position[Y_AXIS] = y;
-    plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
-    st_synchronize();
-
-    feedrate = oldFeedRate;
-}
-#endif // #if defined (ENABLE_AUTO_BED_LEVELING) || defined (WITBOX)
-
+#endif // #ifdef Z_SAFE_HOMING
 
 static void homeaxis(int axis) {
 #define HOMEAXIS_DO(LETTER) \

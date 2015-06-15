@@ -19,7 +19,7 @@
 #include <math.h>
 #include "Marlin.h"
 
-#ifdef ENABLE_AUTO_BED_LEVELING
+#ifdef Z_SAFE_HOMING
 #include "vector_3.h"
 
 vector_3::vector_3() : x(0), y(0), z(0) { }
@@ -163,5 +163,5 @@ void matrix_3x3::debug(char* title)
 	}
 }
 
-#endif // #ifdef ENABLE_AUTO_BED_LEVELING
+#endif // #ifdef Z_SAFE_HOMING
 

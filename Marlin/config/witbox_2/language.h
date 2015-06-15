@@ -261,6 +261,8 @@ const char MSG_SCREEN_OFFSET_TEXT[] PROGMEM          = "Adjust offset?";
 const char MSG_SCREEN_OFFSET_DIALOG_TEXT[] PROGMEM   = "Adjust the distance between the extruder & plate";
 const char MSG_SCREEN_OFFSET_DIALOG_BOX[] PROGMEM    = "Push to continue";
 const char MSG_SCREEN_OFFSET_FINISH[] PROGMEM        = "Finished?";
+const char MSG_SCREEN_OFFSET_WAIT[] PROGMEM          = "Please wait. Performing homing operation";
+const char MSG_SCREEN_OFFSET_WAIT_BOX[] PROGMEM      = "Push to continue";
 
 const char MSG_SCREEN_STOP_CONFIRM[] PROGMEM         = "Stop";
 const char MSG_SCREEN_STOP_BACK[] PROGMEM            = "Back";
@@ -388,6 +390,8 @@ const char MSG_SCREEN_OFFSET_TEXT[] PROGMEM          = "Ajustar offset?";
 const char MSG_SCREEN_OFFSET_DIALOG_TEXT[] PROGMEM   = "Ajustar la distancia entre el extrusor y la cama";
 const char MSG_SCREEN_OFFSET_DIALOG_BOX[] PROGMEM    = "Pulse para continuar";
 const char MSG_SCREEN_OFFSET_FINISH[] PROGMEM        = "Finalizado?";
+const char MSG_SCREEN_OFFSET_WAIT[] PROGMEM          = "Espere";
+const char MSG_SCREEN_OFFSET_WAIT_BOX[] PROGMEM      = "Pulse para continuar";
 
 const char MSG_SCREEN_STOP_CONFIRM[] PROGMEM         = "Parar";
 const char MSG_SCREEN_STOP_BACK[] PROGMEM            = "Vovler";

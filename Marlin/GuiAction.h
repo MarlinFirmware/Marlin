@@ -20,4 +20,7 @@ extern void action_stop_print();
 extern void action_pause_print();
 extern void action_resume_print();
 
+extern void action_offset();
+extern void action_set_offset(uint16_t value);
+
 #endif // GUI_ACTION_H

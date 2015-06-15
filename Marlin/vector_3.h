@@ -19,7 +19,7 @@
 #ifndef VECTOR_3_H
 #define VECTOR_3_H
 
-#ifdef ENABLE_AUTO_BED_LEVELING
+#ifdef Z_SAFE_HOMING
 class matrix_3x3;
 
 struct vector_3
@@ -57,6 +57,6 @@ struct matrix_3x3
 
 
 void apply_rotation_xyz(matrix_3x3 rotationMatrix, float &x, float& y, float& z);
-#endif // ENABLE_AUTO_BED_LEVELING
+#endif // Z_SAFE_HOMING
 
 #endif // VECTOR_3_H
