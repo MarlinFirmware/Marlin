@@ -35,8 +35,7 @@
 #elif MB(RAMPS_OLD)
   #include "pins_RAMPS_OLD.h"
 #elif MB(RAMPS_13_EFB)
-  #define IS_RAMPS_EFB
-  #include "pins_RAMPS_13.h"
+  #include "pins_RAMPS_13_EFB.h"
 #elif MB(RAMPS_13_EEB) || MB(RAMPS_13_EFF) || MB(RAMPS_13_EEF) || MB(RAMPS_13_SF)
   #include "pins_RAMPS_13.h"
 #elif MB(GEN6)
