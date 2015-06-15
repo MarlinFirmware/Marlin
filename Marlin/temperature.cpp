@@ -370,17 +370,14 @@ int getHeaterPower(int heater) {
 
 #if HAS_AUTO_FAN
 
-void setExtruderAutoFanState(int pin, bool state)
-{
+void setExtruderAutoFanState(int pin, bool state) {
   unsigned char newFanSpeed = (state != 0) ? EXTRUDER_AUTO_FAN_SPEED : 0;
   // this idiom allows both digital and PWM fan outputs (see M42 handling).
-  pinMode(pin, OUTPUT);
   digitalWrite(pin, newFanSpeed);
   analogWrite(pin, newFanSpeed);
 }
 
-void checkExtruderAutoFans()
-{
+void checkExtruderAutoFans() {
   uint8_t fanState = 0;
 
   // which fan pins need to be turned on?      
@@ -443,7 +440,7 @@ void checkExtruderAutoFans()
   #endif
 }
 
-#endif // any extruder auto fan pins set
+#endif // HAS_AUTO_FAN
 
 //
 // Temperature Error Handlers
@@ -917,7 +914,20 @@ void tp_init() {
   #if HAS_FILAMENT_SENSOR
     ANALOG_SELECT(FILWIDTH_PIN);
   #endif
-  
+
+  #if HAS_AUTO_FAN_0
+    pinMode(EXTRUDER_0_AUTO_FAN_PIN, OUTPUT);
+  #endif
+  #if HAS_AUTO_FAN_1 && (EXTRUDER_1_AUTO_FAN_PIN != EXTRUDER_0_AUTO_FAN_PIN)
+    pinMode(EXTRUDER_1_AUTO_FAN_PIN, OUTPUT);
+  #endif
+  #if HAS_AUTO_FAN_2 && (EXTRUDER_2_AUTO_FAN_PIN != EXTRUDER_0_AUTO_FAN_PIN) && (EXTRUDER_2_AUTO_FAN_PIN != EXTRUDER_1_AUTO_FAN_PIN)
+    pinMode(EXTRUDER_2_AUTO_FAN_PIN, OUTPUT);
+  #endif
+  #if HAS_AUTO_FAN_3 && (EXTRUDER_3_AUTO_FAN_PIN != EXTRUDER_0_AUTO_FAN_PIN) && (EXTRUDER_3_AUTO_FAN_PIN != EXTRUDER_1_AUTO_FAN_PIN) && (EXTRUDER_3_AUTO_FAN_PIN != EXTRUDER_2_AUTO_FAN_PIN)
+    pinMode(EXTRUDER_3_AUTO_FAN_PIN, OUTPUT);
+  #endif
+
   // Use timer0 for temperature measurement
   // Interleave temperature interrupt with millies interrupt
   OCR0B = 128;
