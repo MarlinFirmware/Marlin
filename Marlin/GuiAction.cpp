@@ -158,6 +158,12 @@ void action_homing()
 	enquecommand_P(PSTR("G28"));
 }
 
+void action_move_axis_to(uint8_t axis, float position)
+{
+	current_position[axis] = position;
+	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], manual_feedrate[X_AXIS]/60, active_extruder);
+}
+
 void action_start_print()
 {
 	char cmd[30];

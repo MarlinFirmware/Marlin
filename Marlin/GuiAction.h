@@ -13,6 +13,8 @@ extern void action_level_plate();
 
 extern void action_homing();
 
+extern void action_move_axis_to(uint8_t axis, float position);
+
 extern void action_start_print();
 extern void action_stop_print();
 extern void action_pause_print();
