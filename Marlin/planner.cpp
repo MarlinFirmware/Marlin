@@ -542,6 +542,11 @@ float junction_deviation = 0.1;
     block->steps[A_AXIS] = labs(dx + dy);
     block->steps[B_AXIS] = labs(dx - dy);
     block->steps[Z_AXIS] = labs(dz);
+  #elif defined(COREXZ)
+    // corexz planning
+    block->steps[A_AXIS] = labs(dx + dz);
+    block->steps[Y_AXIS] = labs(dy);
+    block->steps[C_AXIS] = labs(dx - dz);
   #else
     // default non-h-bot planning
     block->steps[X_AXIS] = labs(dx);
@@ -572,6 +577,12 @@ float junction_deviation = 0.1;
     if (dz < 0) db |= BIT(Z_AXIS);
     if (dx + dy < 0) db |= BIT(A_AXIS); // Motor A direction
     if (dx - dy < 0) db |= BIT(B_AXIS); // Motor B direction
+  #elif defined(COREXZ)
+    if (dx < 0) db |= BIT(X_HEAD); // Save the real Extruder (head) direction in X Axis
+    if (dy < 0) db |= BIT(Y_AXIS);
+    if (dz < 0) db |= BIT(Z_HEAD); // ...and Z
+    if (dx + dz < 0) db |= BIT(A_AXIS); // Motor A direction
+    if (dx - dz < 0) db |= BIT(C_AXIS); // Motor B direction
   #else
     if (dx < 0) db |= BIT(X_AXIS);
     if (dy < 0) db |= BIT(Y_AXIS); 
@@ -591,6 +602,11 @@ float junction_deviation = 0.1;
     #ifndef Z_LATE_ENABLE
       if (block->steps[Z_AXIS]) enable_z();
     #endif
+  #elif defined(COREXZ)
+    if (block->steps[A_AXIS] || block->steps[C_AXIS]) {
+      enable_x();
+      enable_z();
+    }
   #else
     if (block->steps[X_AXIS]) enable_x();
     if (block->steps[Y_AXIS]) enable_y();
@@ -683,6 +699,13 @@ float junction_deviation = 0.1;
     delta_mm[Z_AXIS] = dz / axis_steps_per_unit[Z_AXIS];
     delta_mm[A_AXIS] = (dx + dy) / axis_steps_per_unit[A_AXIS];
     delta_mm[B_AXIS] = (dx - dy) / axis_steps_per_unit[B_AXIS];
+  #elif defined(COREXZ)
+    float delta_mm[6];
+    delta_mm[X_HEAD] = dx / axis_steps_per_unit[A_AXIS];
+    delta_mm[Y_AXIS] = dy / axis_steps_per_unit[Y_AXIS];
+    delta_mm[Z_HEAD] = dz / axis_steps_per_unit[C_AXIS];
+    delta_mm[A_AXIS] = (dx + dz) / axis_steps_per_unit[A_AXIS];
+    delta_mm[C_AXIS] = (dx - dz) / axis_steps_per_unit[C_AXIS];
   #else
     float delta_mm[4];
     delta_mm[X_AXIS] = dx / axis_steps_per_unit[X_AXIS];
@@ -698,6 +721,8 @@ float junction_deviation = 0.1;
     block->millimeters = sqrt(
       #ifdef COREXY
         square(delta_mm[X_HEAD]) + square(delta_mm[Y_HEAD]) + square(delta_mm[Z_AXIS])
+      #elif defined(COREXZ)
+        square(delta_mm[X_HEAD]) + square(delta_mm[Y_AXIS]) + square(delta_mm[Z_HEAD])
       #else
         square(delta_mm[X_AXIS]) + square(delta_mm[Y_AXIS]) + square(delta_mm[Z_AXIS])
       #endif
