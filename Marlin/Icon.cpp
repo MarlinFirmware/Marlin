@@ -33,4 +33,7 @@ namespace screen
 		painter.setColorIndex(1);
 		painter.drawBitmap(x, y, m_size.width, m_size.height, (focused) ? m_focused_bitmap : m_bitmap);
 	}
+
+	void Icon::show()
+	{ }
 }

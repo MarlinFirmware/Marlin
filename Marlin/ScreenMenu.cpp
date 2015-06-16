@@ -12,6 +12,14 @@ namespace screen
 	ScreenMenu::~ScreenMenu()
 	{ }
 
+	void ScreenMenu::init()
+	{
+		for (unsigned int i = 0;i <= m_num_items -1; ++i)
+		{
+			m_items[i]->icon().show();
+		}
+	}
+
 	void ScreenMenu::left()
 	{
 		if (m_index == 0)

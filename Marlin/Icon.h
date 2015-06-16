@@ -28,6 +28,8 @@ namespace screen
 			const char * text() const;
 			virtual void draw(uint8_t x, uint8_t y, bool focused = false);
 
+			virtual void show();
+
 		protected:
 			Size m_size;
 			const unsigned char * m_bitmap;
