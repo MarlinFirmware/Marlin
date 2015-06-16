@@ -53,7 +53,7 @@
  // Heaters
  #define HEATER_0_PIN       9
  #define HEATER_1_PIN       10
- #define HEATER_BED_PIN     8
+ #define HEATER_BED_PIN     -1
 
  // Thermistors
  #define TEMP_0_PIN         13  // Analog numbering: DIO67
@@ -76,6 +76,9 @@
 
  // LEDs
  #define LED_PIN            13
+
+ //	Light
+ #define LIGHT_PIN			8
 
 #endif // BQCNC
 

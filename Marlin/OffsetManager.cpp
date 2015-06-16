@@ -11,7 +11,6 @@ OffsetManager::OffsetManager()
 void OffsetManager::saveOffset()
 {
 	WriteToEEPROM(m_offset);
-	notify();
 }
 
 void OffsetManager::offset(float value)
