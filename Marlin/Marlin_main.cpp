@@ -4887,7 +4887,16 @@ inline void gcode_M503() {
 #ifdef FILAMENTCHANGEENABLE
 
   /**
-   * M600: Pause for filament change X[pos] Y[pos] Z[relative lift] E[initial retract] L[later retract distance for removal]
+   * M600: Pause for filament change
+   *
+   *  E[distance] - Retract the filament this far (negative value)
+   *  Z[distance] - Move the Z axis by this distance
+   *  X[position] - Move to this X position, with Y
+   *  Y[position] - Move to this Y position, with X
+   *  L[distance] - Retract distance for removal (manual reload)
+   *
+   *  Default values are used for omitted arguments.
+   *
    */
   inline void gcode_M600() {
 
@@ -4987,6 +4996,7 @@ inline void gcode_M503() {
     lcd_reset_alert_level();
 
     #ifdef DELTA
+      // Move XYZ to starting position, then E
       calculate_delta(lastpos);
       plan_buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], destination[E_AXIS], fr60, active_extruder);
       plan_buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], lastpos[E_AXIS], fr60, active_extruder);
