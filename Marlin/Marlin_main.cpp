@@ -364,7 +364,7 @@ const char errormagic[] PROGMEM = "Error:";
 const char echomagic[] PROGMEM = "echo:";
 
 const char axis_codes[NUM_AXIS] = {'X', 'Y', 'Z', 'E'};
-static float destination[NUM_AXIS] = { 0, 0, 0, 0 };
+float destination[NUM_AXIS] = { 0, 0, 0, 0 };
 
 #ifndef DELTA
   static float delta[3] = { 0, 0, 0 };
@@ -944,7 +944,7 @@ DEFINE_PGM_READ_ANY(signed char, byte);
 #define XYZ_CONSTS_FROM_CONFIG(type, array, CONFIG) \
 static const PROGMEM type array##_P[3] =        \
     { X_##CONFIG, Y_##CONFIG, Z_##CONFIG };     \
-static inline type array(int axis)          \
+type array(int axis)                     \
     { return pgm_read_any(&array##_P[axis]); }
 
 XYZ_CONSTS_FROM_CONFIG(float, base_min_pos,    MIN_POS);
@@ -1266,7 +1266,7 @@ float probe_pt(float x, float y, float z_before, int retract_action=0) {
 
 #endif // #ifdef Z_SAFE_HOMING
 
-static void homeaxis(int axis) {
+void homeaxis(int axis) {
 #define HOMEAXIS_DO(LETTER) \
   ((LETTER##_MIN_PIN > -1 && LETTER##_HOME_DIR==-1) || (LETTER##_MAX_PIN > -1 && LETTER##_HOME_DIR==1))
 

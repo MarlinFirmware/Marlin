@@ -17,6 +17,8 @@ extern int stop_buffer_code;
 
 static float manual_feedrate[] = MANUAL_FEEDRATE;
 
+#define HOMEAXIS(LETTER) homeaxis(LETTER##_AXIS)
+
 void action_set_temperature(uint16_t degrees)
 {
 	TemperatureManager::single::instance().setTargetTemperature(degrees);
@@ -154,7 +156,145 @@ void action_level_plate()
 
 void action_homing()
 {
-	enquecommand_P(PSTR("G28"));
+	lcd_disable_interrupt();
+
+#ifdef ENABLE_AUTO_BED_LEVELING
+	plan_bed_level_matrix.set_to_identity();
+#endif //ENABLE_AUTO_BED_LEVELING
+
+	float saved_feedrate = feedrate;
+	int saved_feedmultiply = feedmultiply;
+	feedmultiply = 100;
+
+	enable_endstops(true);
+
+#ifdef Z_SAFE_HOMING
+	for(int8_t i=0; i < NUM_AXIS; i++)
+	{
+		destination[i] = current_position[i];
+	}
+
+	destination[Z_AXIS] = current_position[Z_AXIS] + 5;
+	feedrate = max_feedrate[Z_AXIS];
+
+	plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate, active_extruder);
+	st_synchronize();
+#endif
+
+	for(int8_t i=0; i < NUM_AXIS; i++)
+	{
+		destination[i] = current_position[i];
+	}
+
+	feedrate = 0.0;
+
+#if Z_HOME_DIR > 0
+	HOMEAXIS(Z);
+#endif //Z_HOME_DIR > 0
+
+#ifdef QUICK_HOME
+	current_position[X_AXIS] = 0;current_position[Y_AXIS] = 0;
+
+#	ifndef DUAL_X_CARRIAGE
+	int x_axis_home_dir = home_dir(X_AXIS);
+#	else //DUAL_X_CARRIAGE
+	int x_axis_home_dir = x_home_dir(active_extruder);
+	extruder_duplication_enabled = false;
+#	endif //DUAL_X_CARRIAGE
+
+	plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+	destination[X_AXIS] = 1.5 * max_length(X_AXIS) * x_axis_home_dir;destination[Y_AXIS] = 1.5 * max_length(Y_AXIS) * home_dir(Y_AXIS);
+	feedrate = homing_feedrate[X_AXIS];
+	if(homing_feedrate[Y_AXIS]<feedrate)
+	{
+		feedrate = homing_feedrate[Y_AXIS];
+	}
+	if (max_length(X_AXIS) > max_length(Y_AXIS))
+	{
+		feedrate *= sqrt(pow(max_length(Y_AXIS) / max_length(X_AXIS), 2) + 1);
+	}
+	else
+	{
+		feedrate *= sqrt(pow(max_length(X_AXIS) / max_length(Y_AXIS), 2) + 1);
+	}
+	plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate/60, active_extruder);
+	st_synchronize();
+
+	axis_is_at_home(X_AXIS);
+	axis_is_at_home(Y_AXIS);
+	plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+	destination[X_AXIS] = current_position[X_AXIS];
+	destination[Y_AXIS] = current_position[Y_AXIS];
+	plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate/60, active_extruder);
+	feedrate = 0.0;
+	st_synchronize();
+	endstops_hit_on_purpose();
+
+	current_position[X_AXIS] = destination[X_AXIS];
+	current_position[Y_AXIS] = destination[Y_AXIS];
+	current_position[Z_AXIS] = destination[Z_AXIS];
+
+#endif //QUICK_HOME
+
+#ifdef DUAL_X_CARRIAGE
+	int tmp_extruder = active_extruder;
+	extruder_duplication_enabled = false;
+	active_extruder = !active_extruder;
+	HOMEAXIS(X);
+	inactive_extruder_x_pos = current_position[X_AXIS];
+	active_extruder = tmp_extruder;
+	HOMEAXIS(X);
+	// reset state used by the different modes
+	memcpy(raised_parked_position, current_position, sizeof(raised_parked_position));
+	delayed_move_time = 0;
+	active_extruder_parked = true;
+#else //DUAL_X_CARRIAGE
+	HOMEAXIS(X);
+#endif //DUAL_X_CARRIAGE
+
+	HOMEAXIS(Y);
+
+#if Z_HOME_DIR < 0
+#	ifndef Z_SAFE_HOMING
+#		if defined (Z_RAISE_BEFORE_HOMING) && (Z_RAISE_BEFORE_HOMING > 0)
+	destination[Z_AXIS] = Z_RAISE_BEFORE_HOMING * home_dir(Z_AXIS) * (-1);    // Set destination away from bed
+	feedrate = max_feedrate[Z_AXIS];
+	plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate, active_extruder);
+	st_synchronize();
+#		endif //defined (Z_RAISE_BEFORE_HOMING) && (Z_RAISE_BEFORE_HOMING > 0)
+	HOMEAXIS(Z);
+#	else //Z_SAFE_HOMING
+	destination[X_AXIS] = round(Z_SAFE_HOMING_X_POINT);
+	destination[Y_AXIS] = round(Z_SAFE_HOMING_Y_POINT);
+	destination[Z_AXIS] = Z_RAISE_BEFORE_HOMING * home_dir(Z_AXIS) * (-1);    // Set destination away from bed
+	feedrate = XY_TRAVEL_SPEED;
+	current_position[Z_AXIS] = 0;
+
+	plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+	plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate, active_extruder);
+	st_synchronize();
+	current_position[X_AXIS] = destination[X_AXIS];
+	current_position[Y_AXIS] = destination[Y_AXIS];
+
+	HOMEAXIS(Z);
+
+#	endif //Z_SAFE_HOMING
+#endif //Z_HOME_DIR < 0
+
+#ifdef Z_SAFE_HOMING
+	current_position[Z_AXIS] += zprobe_zoffset;
+#endif //Z_SAFE_HOMING
+	plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+
+#ifdef ENDSTOPS_ONLY_FOR_HOMING
+	enable_endstops(false);
+#endif //ENDSTOPS_ONLY_FOR_HOMING
+
+	feedrate = saved_feedrate;
+	feedmultiply = saved_feedmultiply;
+	endstops_hit_on_purpose();
+
+	lcd_enable_interrupt();
 }
 
 void action_move_axis_to(uint8_t axis, float position)
