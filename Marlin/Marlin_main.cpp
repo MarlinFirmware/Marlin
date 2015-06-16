@@ -4963,10 +4963,14 @@ inline void gcode_M503() {
     disable_e3();
     delay(100);
     LCD_ALERTMESSAGEPGM(MSG_FILAMENTCHANGE);
-    uint8_t cnt = 0;
+    millis_t next_tick = 0;
     while (!lcd_clicked()) {
       #ifndef AUTO_FILAMENT_CHANGE
-        if (++cnt == 0) lcd_quick_feedback(); // every 256th frame till the lcd is clicked
+        millis_t ms = millis();
+        if (ms >= next_tick) {
+          lcd_quick_feedback();
+          next_tick = ms + 2500; // feedback every 2.5s while waiting
+        }
         manage_heater();
         manage_inactivity(true);
         lcd_update();
@@ -4976,6 +4980,7 @@ inline void gcode_M503() {
         st_synchronize();
       #endif
     } // while(!lcd_clicked)
+    lcd_quick_feedback(); // click sound feedback
 
     #ifdef AUTO_FILAMENT_CHANGE
       current_position[E_AXIS]= 0;
