@@ -283,6 +283,11 @@ extern uint8_t active_extruder;
 extern float feedrate;
 extern float target[4];
 extern float lastpos[4];
+extern float destination[4];
+extern int feedmultiply;
+
+extern void homeaxis(int axis);
+extern signed char home_dir(int axis);
 
 #ifdef DIGIPOT_I2C
 extern void digipot_i2c_set_current( int channel, float current );
