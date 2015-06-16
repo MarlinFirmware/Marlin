@@ -31,7 +31,7 @@
   // encoder click is directly connected
   #define BLEN_C 2 
   #define EN_C BIT(BLEN_C) 
-#endif 
+#endif
   
 //
 // Setup other button mappings of each panel
