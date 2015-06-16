@@ -422,11 +422,11 @@ void checkExtruderAutoFans() {
   // update extruder auto fan states
   #if HAS_AUTO_FAN_0
     setExtruderAutoFanState(EXTRUDER_0_AUTO_FAN_PIN, (fanState & 1) != 0);
-  #endif 
+  #endif
   #if HAS_AUTO_FAN_1
     if (EXTRUDER_1_AUTO_FAN_PIN != EXTRUDER_0_AUTO_FAN_PIN)
       setExtruderAutoFanState(EXTRUDER_1_AUTO_FAN_PIN, (fanState & 2) != 0);
-  #endif 
+  #endif
   #if HAS_AUTO_FAN_2
     if (EXTRUDER_2_AUTO_FAN_PIN != EXTRUDER_0_AUTO_FAN_PIN
         && EXTRUDER_2_AUTO_FAN_PIN != EXTRUDER_1_AUTO_FAN_PIN)
@@ -1238,7 +1238,7 @@ ISR(TIMER0_COMPB_vect) {
       static unsigned char state_timer_heater_ ## n = 0
   #else
     #define ISR_STATICS(n) static unsigned char soft_pwm_ ## n
-  #endif 
+  #endif
 
   // Statics per heater
   ISR_STATICS(0);
