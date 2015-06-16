@@ -2,9 +2,7 @@
  * AZTEEG_X3 Arduino Mega with RAMPS v1.3 pin assignments
  */
 
-#define IS_RAMPS_EFB
-
-#include "pins_RAMPS_13.h"
+#include "pins_RAMPS_13_EFB.h"
 
 //LCD Pins//
 
