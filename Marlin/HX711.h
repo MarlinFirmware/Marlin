@@ -82,7 +82,7 @@ class HX711
 		// wakes up the chip after power down mode
 		void power_up();
 };
-#ifdef ENABLE_WEIGHT_SENSOR_FOR_BED_LAVEL
+#ifdef ELECTRONIC_SCALE_PROBE
 	extern HX711 scale;
 #endif
 #endif /* HX711_h */

@@ -555,12 +555,12 @@ const bool Z_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the logic
 #endif // ENABLE_AUTO_BED_LEVELING
 
 //Enable weight sensor (load cell) for Z axis.
-#define ENABLE_WEIGHT_SENSOR_FOR_BED_LAVEL
-#ifdef ENABLE_WEIGHT_SENSOR_FOR_BED_LAVEL
-	#define WEIGHT_SENSOR_GAIN 64 // 128 or 64 only for A channel 32 only for B channel
-	#define WEIGHT_SENSIVITY_HARD 40
-	#define WEIGHT_SENSIVITY_ACCURATE 5
-	#define WEIGHT_SCALE 1000.f
+#define ELECTRONIC_SCALE_PROBE
+#ifdef ELECTRONIC_SCALE_PROBE
+	#define SCALE_GAIN 64 // 128 or 64 only for A channel 32 only for B channel
+	#define SCALE_SENSIVITY_HARD 40
+	#define SCALE_SENSIVITY_ACCURATE 5
+	#define SCALE_DIVISOR 1000.f
 #endif
 
 // @section homing

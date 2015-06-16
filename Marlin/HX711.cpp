@@ -43,7 +43,7 @@ void HX711::set_gain(byte gain) {
 
 bool HX711::try_read()
 {
-	if (!is_ready())
+	if (!is_enable || !is_ready())
 		return false;
 
 	byte data[3];
@@ -89,7 +89,7 @@ bool HX711::stuff_is_detected()
 }
 
 long HX711::read() {
-	while (!try_read());
+	while (!try_read() || !is_enable);
 	return current_raw_weight;
 }
 

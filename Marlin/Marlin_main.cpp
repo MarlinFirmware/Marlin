@@ -639,9 +639,9 @@ void setup() {
   setup_photpin();
   servo_init();
 
-#ifdef ENABLE_WEIGHT_SENSOR_FOR_BED_LAVEL
-  scale.set_gain((byte)WEIGHT_SENSOR_GAIN);
-  scale.set_scale(WEIGHT_SCALE);
+#ifdef ELECTRONIC_SCALE_PROBE
+  scale.set_gain((byte)SCALE_GAIN);
+  scale.set_scale(SCALE_DIVISOR);
 #endif
 
   lcd_init();
@@ -1186,8 +1186,8 @@ inline void set_destination_to_current() { memcpy(destination, current_position,
       // move down until you find the bed
       float zPosition = -10;
       line_to_z(zPosition);
-#ifdef ENABLE_WEIGHT_SENSOR_FOR_BED_LAVEL
-	  st_synchronize(WEIGHT_SENSIVITY_HARD, Z_AXIS);
+#ifdef ELECTRONIC_SCALE_PROBE
+	  st_synchronize(SCALE_SENSIVITY_HARD, Z_AXIS);
 #else
 	  st_synchronize();
 #endif
@@ -1206,8 +1206,8 @@ inline void set_destination_to_current() { memcpy(destination, current_position,
 
       zPosition -= home_bump_mm(Z_AXIS) * 2;
       line_to_z(zPosition);
-#ifdef ENABLE_WEIGHT_SENSOR_FOR_BED_LAVEL
-	  st_synchronize(WEIGHT_SENSIVITY_ACCURATE, Z_AXIS);
+#ifdef ELECTRONIC_SCALE_PROBE
+	  st_synchronize(SCALE_SENSIVITY_ACCURATE, Z_AXIS);
 #else
 	  st_synchronize();
 #endif
@@ -1275,7 +1275,9 @@ inline void set_destination_to_current() { memcpy(destination, current_position,
   }
 
   static void deploy_z_probe() {
-
+	#ifdef ELECTRONIC_SCALE_PROBE
+	  scale.enable();
+	#endif
     #ifdef SERVO_ENDSTOPS
 
       // Engage Z Servo endstop if enabled
@@ -1334,8 +1336,12 @@ inline void set_destination_to_current() { memcpy(destination, current_position,
   }
 
   static void stow_z_probe(bool doRaise=true) {
-
-    #ifdef SERVO_ENDSTOPS
+	
+	#ifdef ELECTRONIC_SCALE_PROBE
+	  scale.disable();
+	#endif
+    
+	#ifdef SERVO_ENDSTOPS
 
       // Retract Z Servo endstop if enabled
       if (servo_endstops[Z_AXIS] >= 0) {
@@ -1567,8 +1573,8 @@ static void homeaxis(AxisEnum axis) {
     feedrate = homing_feedrate[axis];
     line_to_destination();
 	
-#ifdef ENABLE_WEIGHT_SENSOR_FOR_BED_LAVEL
-	st_synchronize(WEIGHT_SENSIVITY_HARD, axis);
+#ifdef ELECTRONIC_SCALE_PROBE
+	st_synchronize(SCALE_SENSIVITY_HARD, axis);
 #else
 	st_synchronize();
 #endif
@@ -1593,8 +1599,8 @@ static void homeaxis(AxisEnum axis) {
     destination[axis] = 2 * home_bump_mm(axis) * axis_home_dir;
     line_to_destination();
 
-#ifdef ENABLE_WEIGHT_SENSOR_FOR_BED_LAVEL
-	st_synchronize(WEIGHT_SENSIVITY_ACCURATE, axis);
+#ifdef ELECTRONIC_SCALE_PROBE
+	st_synchronize(SCALE_SENSIVITY_ACCURATE, axis);
 #else
 	st_synchronize();
 #endif

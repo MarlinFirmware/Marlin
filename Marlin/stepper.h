@@ -59,7 +59,7 @@ void st_init();
 // Block until all buffered steps are executed
 void st_synchronize();
 
-#ifdef ENABLE_WEIGHT_SENSOR_FOR_BED_LAVEL
+#ifdef ELECTRONIC_SCALE_PROBE
 void st_synchronize(long sensivity, uint8_t axis);
 #endif
 

@@ -106,11 +106,22 @@
     #endif
   #endif
 
+  #ifdef ELECTRONIC_SCALE_PROBE
+    #ifdef Z_PROBE_ENDSTOP
+      #error You can choose only one of the options: ELECTRONIC_SCALE_PROBE or Z_PROBE_ENDSTOP
+    #endif
+    #ifndef HX711_PD_SCK_PIN
+      #error You must have a HX711_PD_SCK_PIN defined in your pins_XXXX.h file if you enable ELECTRONIC_SCALE_PROBE
+    #endif
+    #ifndef HX711_PD_DOUT_PIN
+      #error You must have a HX711_PD_DOUT_PIN defined in your pins_XXXX.h file if you enable ELECTRONIC_SCALE_PROBE
+    #endif
+  #endif
+
   /**
    * Auto Bed Leveling
    */
   #ifdef ENABLE_AUTO_BED_LEVELING
-
     /**
      * Require a Z Min pin
      */
