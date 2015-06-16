@@ -2,6 +2,9 @@
 #include "GuiBitmaps_witbox_2.h"
 #include "GuiAction.h"
 
+#include "Icon.h"
+#include "IconWidget.h"
+
 #include "Screen.h"
 #include "ScreenMenu.h"
 #include "ScreenPrint.h"
@@ -40,7 +43,7 @@ namespace screen
 	Icon icon_steppers          = Icon(icon_size, bits_steppers_normal,          bits_steppers_focused,          MSG_STEPPERS);
 	Icon icon_steppers_off      = Icon(icon_size, bits_steppers_off_normal,      bits_steppers_off_focused,      MSG_STEPPERS_OFF);
 	Icon icon_moveaxis          = Icon(icon_size, bits_moveaxis_normal,          bits_moveaxis_focused,          MSG_MOVEAXIS);
-	Icon icon_temperature       = Icon(icon_size, bits_temperature_normal,       bits_temperature_focused,       MSG_TEMPERATURE);
+	IconWidget<float> icon_temperature = IconWidget<float>(icon_size, bits_temperature_normal, bits_temperature_focused,       MSG_TEMPERATURE, &TemperatureManager::single::instance());
 	Icon icon_lightled_disable  = Icon(icon_size, bits_lightled_disable_normal,  bits_lightled_disable_focused,  MSG_LIGHTLED_DISABLE);
 	Icon icon_lightled          = Icon(icon_size, bits_lightled_normal,          bits_lightled_focused,          MSG_LIGHTLED);
 	Icon icon_info              = Icon(icon_size, bits_info_normal,              bits_info_focused,              MSG_INFO);
@@ -182,7 +185,7 @@ namespace screen
 //		screen_main.add(screen_move);
 		screen_main.add(screen_stepper);
 		screen_main.add(screen_temperature_main);
-		screen_main.add(screen_info);
+//		screen_main.add(screen_info);
 		//SD Card List
 		screen_SD_list.add(screen_main);
 		screen_SD_list.add(screen_SD_confirm);
