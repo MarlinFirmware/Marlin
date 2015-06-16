@@ -4891,6 +4891,12 @@ inline void gcode_M503() {
    */
   inline void gcode_M600() {
     float target[NUM_AXIS], lastpos[NUM_AXIS], fr60 = feedrate / 60;
+    if (degHotend(active_extruder) < extrude_min_temp) {
+      SERIAL_ERROR_START;
+      SERIAL_ERRORLNPGM(MSG_TOO_COLD_FOR_M600);
+      return;
+    }
+
     for (int i=0; i<NUM_AXIS; i++)
       target[i] = lastpos[i] = current_position[i];
 
