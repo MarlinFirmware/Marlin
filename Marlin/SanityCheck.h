@@ -153,6 +153,12 @@
      */
     #ifdef AUTO_BED_LEVELING_GRID
       #ifndef DELTA_PROBABLE_RADIUS
+        // Be sure points are in the right order
+        #if LEFT_PROBE_BED_POSITION > RIGHT_PROBE_BED_POSITION
+          #error LEFT_PROBE_BED_POSITION must be less than RIGHT_PROBE_BED_POSITION.
+        #elif FRONT_PROBE_BED_POSITION > BACK_PROBE_BED_POSITION
+          #error BACK_PROBE_BED_POSITION must be less than FRONT_PROBE_BED_POSITION.
+        #endif
         // Make sure probing points are reachable
         #if LEFT_PROBE_BED_POSITION < MIN_PROBE_X
           #error "The given LEFT_PROBE_BED_POSITION can't be reached by the probe."
