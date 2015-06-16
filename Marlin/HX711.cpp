@@ -89,7 +89,9 @@ bool HX711::stuff_is_detected()
 }
 
 long HX711::read() {
-	while (!try_read() || !is_enable);
+	if (!is_enable)
+		return current_raw_weight;
+	while (!try_read());
 	return current_raw_weight;
 }
 
