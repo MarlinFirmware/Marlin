@@ -20,7 +20,7 @@ class OffsetManager : public Subject<float>
 		void offset(float value);
 		float offset();
 
-		static void setOffset(uint16_t value);
+		void saveOffset();
 
 	private:
 		float ReadFromEEPROM();

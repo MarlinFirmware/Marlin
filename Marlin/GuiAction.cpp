@@ -9,6 +9,7 @@
 
 #include "GuiManager.h"
 #include "TemperatureManager.h"
+#include "OffsetManager.h"
 
 extern uint8_t buffer_recursivity;
 extern bool cancel_heatup;
@@ -271,8 +272,9 @@ extern float probe_pt(float x, float y, float z_before, int retract_action = 0);
 
 void action_offset()
 {
-	action_homing();
 
+	action_homing();
+	
 	z_saved_homing = current_position[Z_AXIS];
 		
 	st_synchronize();
@@ -315,10 +317,10 @@ void action_offset()
 
 }
 
-void action_set_offset(uint16_t value)
+void action_set_offset(uint8_t axis, float value)
 {
 
-	float Z_offset_tmp = 0.6;
+	float Z_offset_tmp = -value;
 	
 	do_blocking_move_to(Z_SAFE_HOMING_X_POINT,Z_SAFE_HOMING_Y_POINT, z_saved_homing - Z_offset_tmp);
 	
@@ -326,4 +328,11 @@ void action_set_offset(uint16_t value)
 	vector_3 vector_offsets = vector_3(X_PROBE_OFFSET_FROM_EXTRUDER, Y_PROBE_OFFSET_FROM_EXTRUDER, 0);
 	
 	apply_rotation_xyz(plan_bed_level_matrix, vector_offsets.x, vector_offsets.y, vector_offsets.z);
+
+	OffsetManager::single::instance().offset(Z_offset_tmp);
+}
+
+void action_save_offset()
+{
+	OffsetManager::single::instance().saveOffset();
 }

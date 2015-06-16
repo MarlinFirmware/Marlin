@@ -135,7 +135,8 @@ namespace screen
 	ScreenAction<void> screen_offset_home     = ScreenAction<void>(MSG_SCREEN_OFFSET_TITLE, action_offset);
 	ScreenDialog<void> screen_offset_wait     = ScreenDialog<void>(MSG_SCREEN_OFFSET_TITLE, MSG_SCREEN_OFFSET_WAIT, MSG_SCREEN_OFFSET_WAIT_BOX, do_nothing);
 	ScreenDialog<void> screen_offset_dialog   = ScreenDialog<void>(MSG_SCREEN_OFFSET_TITLE, MSG_SCREEN_OFFSET_DIALOG_TEXT, MSG_SCREEN_OFFSET_DIALOG_BOX, do_nothing);
-	ScreenSelector<void, uint16_t> screen_offset_set = ScreenSelector<void, uint16_t> (MSG_SCREEN_OFFSET_TITLE, 0, 4, 0, action_set_offset);
+	ScreenDynamic<float> screen_offset_set    = ScreenDynamic<float> (MSG_SCREEN_OFFSET_TITLE, Z_AXIS, 0.0, 4.0, 0.1, action_set_offset);
+	ScreenAction<void> screen_offset_ok2main  = ScreenAction<void>(MSG_SCREEN_OFFSET_TITLE, action_save_offset);
 	ScreenMenu screen_offset_finish                  = ScreenMenu(MSG_SCREEN_OFFSET_TITLE, MSG_SCREEN_OFFSET_FINISH);
 
 	//Back to main
@@ -363,7 +364,10 @@ namespace screen
 		screen_offset_set.icon(icon_retry);
 
 		screen_offset_finish.add(screen_offset_set);
-		screen_offset_finish.add(screen_ok2main);
+		screen_offset_finish.add(screen_offset_ok2main);
+
+		screen_offset_ok2main.add(screen_ok2main);
+		screen_offset_ok2main.icon(icon_ok);
 
 		//Print Menu
 		screen_print.add(screen_play_pause);

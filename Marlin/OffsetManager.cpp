@@ -1,6 +1,6 @@
-#include "AutoLevelManager.h"
+#include "OffsetManager.h"
 
-static const int ZOFFSET_ZPROBE_EEPROM_POS = 236;
+static const int ZOFFSET_ZPROBE_EEPROM_POS = 232;
 
 OffsetManager::OffsetManager()
 	: Subject<float>()
@@ -8,17 +8,15 @@ OffsetManager::OffsetManager()
 	m_offset = ReadFromEEPROM();
 }
 
-void OffsetManager::setOffset(uint16_t value)
+void OffsetManager::saveOffset()
 {
-	float offset = (float) value;
-	offset = offset/100;
-	OffsetManager::single::instance().offset(offset);
+	WriteToEEPROM(m_offset);
+	notify();
 }
 
 void OffsetManager::offset(float value)
 {
 	m_offset = value;
-	WriteToEEPROM(value);
 	notify();
 }
 
@@ -47,6 +45,6 @@ void OffsetManager::notify()
 {
 	if (this->m_observer != 0)
 	{
-		this->m_observer->update(m_state);
+		this->m_observer->update(m_offset);
 	}
 }
