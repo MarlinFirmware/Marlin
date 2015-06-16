@@ -13,6 +13,7 @@
 #include "ScreenAction.h"
 #include "ScreenPrint.h"
 #include "ScreenDynamic.h"
+#include "ScreenAbout.h"
 
 #include "AutoLevelManager.h"
 #include "LightManager.h"
@@ -127,7 +128,7 @@ namespace screen
 	//Light
 	ScreenStatus<bool, void> screen_light = ScreenStatus<bool, void>(MSG_SCREEN_LIGHT, LightManager::setState, &LightManager::single::instance());
 	//Info
-//	ScreenDialog<void> screen_info            = ScreenDialog<void>(MSG_SCREEN_INFO, MSG_SCREEN_INFO_TEXT, MSG_SCREEN_INFO_BOX, do_nothing);
+	ScreenAbout screen_info            = ScreenAbout(MSG_SCREEN_INFO, MSG_SCREEN_INFO_TEXT, MSG_SCREEN_INFO_BOX, bits_logo_about);
 	//Autolevel
 	ScreenStatus<bool, void> screen_autolevel = ScreenStatus<bool, void>(MSG_SCREEN_AUTOLEVEL, AutoLevelManager::setState, &AutoLevelManager::single::instance());
 	//Offset
@@ -181,7 +182,7 @@ namespace screen
 //		screen_main.add(screen_move);
 		screen_main.add(screen_stepper);
 		screen_main.add(screen_temperature_main);
-//		screen_main.add(screen_info);
+		screen_main.add(screen_info);
 		//SD Card List
 		screen_SD_list.add(screen_main);
 		screen_SD_list.add(screen_SD_confirm);
@@ -346,8 +347,8 @@ namespace screen
 		screen_light.icon(icon_lightled_disable);
 		screen_light.icon(icon_lightled);
 		//Info
-/*		screen_info.add(screen_main);
-		screen_info.icon(icon_info);*/
+		screen_info.add(screen_main);
+		screen_info.icon(icon_info);
 		//Offset
 		screen_offset.add(screen_back2main);
 		screen_offset.add(screen_offset_home);

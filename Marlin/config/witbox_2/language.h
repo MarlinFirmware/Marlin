@@ -254,7 +254,7 @@ const char MSG_SCREEN_AUTOLEVEL[] PROGMEM            = "Autolevel";
 const char MSG_SCREEN_PRINT[] PROGMEM                = "Confirm";
 const char MSG_SCREEN_INFO[] PROGMEM                 = "FW info";
 const char MSG_SCREEN_INFO_TEXT[] PROGMEM            = "FW info";
-const char MSG_SCREEN_INFO_BOX[] PROGMEM             = "FW info"; 
+const char MSG_SCREEN_INFO_BOX[] PROGMEM             = "Push to continue"; 
 
 const char MSG_SCREEN_OFFSET_TITLE[] PROGMEM         = "Offset";
 const char MSG_SCREEN_OFFSET_TEXT[] PROGMEM          = "Adjust offset?";
@@ -383,7 +383,7 @@ const char MSG_SCREEN_AUTOLEVEL[] PROGMEM            = "Autolevel";
 const char MSG_SCREEN_PRINT[] PROGMEM                = "Confirmar";
 const char MSG_SCREEN_INFO[] PROGMEM                 = "FW info";
 const char MSG_SCREEN_INFO_TEXT[] PROGMEM            = "FW info";
-const char MSG_SCREEN_INFO_BOX[] PROGMEM             = "FW info";
+const char MSG_SCREEN_INFO_BOX[] PROGMEM             = "Pulse para continuar";
 
 const char MSG_SCREEN_OFFSET_TITLE[] PROGMEM         = "Offset";
 const char MSG_SCREEN_OFFSET_TEXT[] PROGMEM          = "Ajustar offset?";
