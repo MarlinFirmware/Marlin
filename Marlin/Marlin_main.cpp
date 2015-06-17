@@ -1275,9 +1275,6 @@ inline void set_destination_to_current() { memcpy(destination, current_position,
   }
 
   static void deploy_z_probe() {
-	#ifdef ELECTRONIC_SCALE_PROBE
-	  scale.enable();
-	#endif
     #ifdef SERVO_ENDSTOPS
 
       // Engage Z Servo endstop if enabled
@@ -1337,10 +1334,6 @@ inline void set_destination_to_current() { memcpy(destination, current_position,
 
   static void stow_z_probe(bool doRaise=true) {
 	
-	#ifdef ELECTRONIC_SCALE_PROBE
-	  scale.disable();
-	#endif
-    
 	#ifdef SERVO_ENDSTOPS
 
       // Retract Z Servo endstop if enabled

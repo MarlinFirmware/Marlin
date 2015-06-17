@@ -38,7 +38,9 @@ void HX711::set_gain(byte gain) {
 	}
 
 	digitalWrite(PD_SCK, LOW);
+	enable();
 	read();
+	disable();
 }
 
 bool HX711::try_read()
@@ -82,7 +84,7 @@ void HX711::disable()
 bool HX711::stuff_is_detected()
 {
 	if (!is_enable)
-		return false;
+		return true;
 	if (STUFF_SENSIVITY != 0 && current_weight + STUFF_SENSIVITY <= 0)
 		return true;
 	return false;
@@ -90,9 +92,12 @@ bool HX711::stuff_is_detected()
 
 long HX711::read() {
 	if (!is_enable)
+	{
+		SERIAL_ERRORLN("you call procedure 'read' but scale is not enabled");
 		return current_raw_weight;
+	}
 	while (!try_read());
-	return current_raw_weight;
+		return current_raw_weight;
 }
 
 long HX711::read_average(byte times) {
@@ -113,7 +118,9 @@ float HX711::get_units(byte times) {
 }
 
 void HX711::tare() {
-	read();
+	enable();
+	current_raw_weight = read_average();
+	disable();
 	set_offset(current_raw_weight);
 }
 
