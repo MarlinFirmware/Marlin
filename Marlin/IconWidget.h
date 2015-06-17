@@ -48,6 +48,7 @@ namespace screen
 	
 		painter.setPrintPos(x + m_size.width + 3, y + (m_size.height / 2) - (max_font_height / 2) + 1);
 		painter.print(painter.itostr3left((int)m_value));
+		painter.print("\xb0");
 	}
 
 	template <typename T>
