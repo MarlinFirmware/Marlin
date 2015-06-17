@@ -52,6 +52,7 @@ namespace screen
 	void ScreenTransition<T>::init()
 	{
 		this->m_model->attach(this);
+		this->connect();
 	}
 
 	template <typename T>
