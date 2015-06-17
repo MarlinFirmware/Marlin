@@ -67,8 +67,11 @@ namespace screen
 				int row = i / 5;
 				int row_t = (m_num_items-1) / 5;
 
-				int x = (x_end + x_init)/2 - (m_num_items*(icon_width+2)/(1+row_t)-2)/2 +col*(icon_width+2);
-				int y = (y_end + y_init)/(2*(1+row_t)) + row_t - (icon_height/2) + ((icon_height+5)*row);
+				//int x = (x_end + x_init)/2 - (m_num_items*(icon_width+2)/(1+row_t)-2)/2 +col*(icon_width+2);
+				//int y = (y_end + y_init)/(2*(1+row_t)) + row_t - (icon_height/2) + ((icon_height+5)*row);
+
+				int x = (x_end + x_init)/2 - (m_num_items*(m_items[i]->icon().width()+2)/(1+row_t)-2)/2 +col*(m_items[i]->icon().width()+2);
+				int y = (y_end + y_init)/(2*(1+row_t)) + row_t - (m_items[i]->icon().height()/2) + ((m_items[i]->icon().height()+5)*row);
 
 				if (i == m_index)
 				{

@@ -32,6 +32,7 @@ namespace screen
 	// Instantiate Icons //
 	///////////////////////
 	Size icon_size = Size(icon_width, icon_height);
+	Size widget_size = Size(widget_width, widget_height);
 
 	Icon icon_nosd              = Icon(icon_size, bits_nosd_normal,              bits_nosd_focused,              MSG_NOSD);
 	Icon icon_sd                = Icon(icon_size, bits_sd_normal,                bits_sd_focused,                MSG_SD);
@@ -43,7 +44,7 @@ namespace screen
 	Icon icon_steppers          = Icon(icon_size, bits_steppers_normal,          bits_steppers_focused,          MSG_STEPPERS);
 	Icon icon_steppers_off      = Icon(icon_size, bits_steppers_off_normal,      bits_steppers_off_focused,      MSG_STEPPERS_OFF);
 	Icon icon_moveaxis          = Icon(icon_size, bits_moveaxis_normal,          bits_moveaxis_focused,          MSG_MOVEAXIS);
-	IconWidget<float> icon_temperature = IconWidget<float>(icon_size, bits_temperature_normal, bits_temperature_focused,       MSG_TEMPERATURE, &TemperatureManager::single::instance());
+	IconWidget<float> icon_temperature = IconWidget<float>(widget_size, bits_temperature_widget_normal, bits_temperature_widget_focused,       MSG_TEMPERATURE, &TemperatureManager::single::instance());
 	Icon icon_lightled_disable  = Icon(icon_size, bits_lightled_disable_normal,  bits_lightled_disable_focused,  MSG_LIGHTLED_DISABLE);
 	Icon icon_lightled          = Icon(icon_size, bits_lightled_normal,          bits_lightled_focused,          MSG_LIGHTLED);
 	Icon icon_info              = Icon(icon_size, bits_info_normal,              bits_info_focused,              MSG_INFO);

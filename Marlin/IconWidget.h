@@ -45,8 +45,21 @@ namespace screen
 	{
 		painter.setColorIndex(1);
 		painter.drawBitmap(x, y, m_size.width, m_size.height, (focused) ? m_focused_bitmap : m_bitmap);
-	
-		painter.setPrintPos(x + m_size.width + 3, y + (m_size.height / 2) - (max_font_height / 2) + 1);
+		
+		if(focused)
+		{
+			painter.setColorIndex(0);
+		}
+		uint8_t margin = 26;
+		if(m_value > 99)
+		{
+			margin = 20;
+		}
+		else if(m_value < 10 && m_value >= 0)
+		{
+			margin = 32;
+		}
+		painter.setPrintPos(x + margin, y + (m_size.height / 2) - (max_font_height / 2));
 		painter.print(painter.itostr3left((int)m_value));
 		painter.print("\xb0");
 	}
