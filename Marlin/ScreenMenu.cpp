@@ -45,7 +45,7 @@ namespace screen
 			//Paint title on top of screen
 			painter.title(m_title);
 			//Paint text on the screen
-			painter.text_P(m_text, 5);
+			painter.text_P(m_text, 0, 5);
 			//Paint selection box on bottom of screen
 			painter.box((m_items[m_index]->icon()).text());
 			//Icon grid

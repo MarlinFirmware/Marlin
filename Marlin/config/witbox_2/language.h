@@ -26,9 +26,9 @@
 #define PROTOCOL_VERSION "1.0"
 
 #if defined(WITBOX)
-	#define MACHINE_NAME "bq Witbox 2"
+	#define MACHINE_NAME "Witbox 2"
 	#define FIRMWARE_URL "http://www.bqreaders.com/descargas-witbox.html"
-	#define FIRMWARE_VER "v2.0.0"
+	#define FIRMWARE_VER "2.0.0"
 	#define BUILD_VER ""
 #elif defined(CUSTOM_MENDEL_NAME)
 	#define MACHINE_NAME CUSTOM_MENDEL_NAME
