@@ -52,6 +52,7 @@
 #include "language.h"
 #include "pins_arduino.h"
 #include "math.h"
+#include "buzzer.h"
 
 #ifdef BLINKM
   #include "blinkm.h"
