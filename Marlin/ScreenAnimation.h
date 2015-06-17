@@ -9,11 +9,11 @@
 namespace screen
 {
 	template <typename T>
-		class ScreenTransition : public Screen , public Observer<T>
+		class ScreenAnimation : public Screen , public Observer<T>
 	{
 		public:
-			ScreenTransition(const char * title, const char * text, Subject<T> * model = 0);
-			virtual ~ScreenTransition();
+			ScreenAnimation(const char * title, const char * text, Subject<T> * model = 0);
+			virtual ~ScreenAnimation();
 
 			void init();
 
@@ -34,7 +34,7 @@ namespace screen
 	};
 
 	template <typename T>
-	ScreenTransition<T>::ScreenTransition(const char * title, const char * text, Subject<T> * model)
+	ScreenAnimation<T>::ScreenAnimation(const char * title, const char * text, Subject<T> * model)
 		: Screen(title, SELECTOR)
 		, Observer<T>(model)
 		, m_text(text)
@@ -45,18 +45,18 @@ namespace screen
 	}
 
 	template <typename T>
-	ScreenTransition<T>::~ScreenTransition()
+	ScreenAnimation<T>::~ScreenAnimation()
 	{ }
 
 	template <typename T>
-	void ScreenTransition<T>::init()
+	void ScreenAnimation<T>::init()
 	{
 		this->m_model->attach(this);
 		this->connect();
 	}
 
 	template <typename T>
-	void ScreenTransition<T>::draw()
+	void ScreenAnimation<T>::draw()
 	{
 		uint16_t target = (uint16_t) TemperatureManager::single::instance().getTargetTemperature();
 		char c_target[4] = { 0 };
@@ -100,13 +100,13 @@ namespace screen
 	}
 
 	template <typename T>
-	void ScreenTransition<T>::press()
+	void ScreenAnimation<T>::press()
 	{
 		ViewManager::getInstance().activeView(m_back_screen);
 	}
 
 	template <typename T>
-	void ScreenTransition<T>::add(Screen & component)
+	void ScreenAnimation<T>::add(Screen & component)
 	{
 		if (m_num_item_added % 2)
 		{
@@ -120,7 +120,7 @@ namespace screen
 	}
 
 	template<typename T>
-	void ScreenTransition<T>::update(T value)
+	void ScreenAnimation<T>::update(T value)
 	{
 		m_observed = value;
 	}
