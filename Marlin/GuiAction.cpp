@@ -400,6 +400,11 @@ void action_resume_print()
 	stop_buffer = false;
 }
 
+void action_set_feedrate_multiply(uint16_t value)
+{
+	feedmultiply = value;
+}
+
 float z_saved_homing;
 vector_3 planeNormal;
 

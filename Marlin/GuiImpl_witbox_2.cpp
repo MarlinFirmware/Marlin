@@ -165,7 +165,7 @@ namespace screen
 	ScreenAction<void> screen_change_ok2print				= ScreenAction<void>(MSG_OK2, action_resume_print);
 	ScreenAction<void> screen_change_retry					= ScreenAction<void>(MSG_SCREEN_CHANGE_RETRY, do_nothing);*/
 	//Change Speed screen
-	ScreenSelector<void, uint16_t> screen_speed			= ScreenSelector<void, uint16_t>(MSG_SCREEN_SPEED, 10, 400, 100, action_set_temperature);
+	ScreenSelector<void, uint16_t> screen_speed			= ScreenSelector<void, uint16_t>(MSG_SCREEN_SPEED, 10, 400, 100, action_set_feedrate_multiply);
 	//Temperature
 	ScreenSelector<void, uint16_t> screen_temperature_print	= ScreenSelector<void, uint16_t>(MSG_SCREEN_TEMP_TITLE, 170, 230, default_temp_change_filament, action_set_temperature);
 
