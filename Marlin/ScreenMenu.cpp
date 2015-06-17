@@ -38,6 +38,22 @@ namespace screen
 
 	void ScreenMenu::draw()
 	{
+		uint8_t num_rows = m_num_items / 5;
+
+		uint8_t items_per_row_0;
+		uint8_t items_per_row_1;
+
+		if (num_rows > 0)
+		{
+			items_per_row_0 = m_num_items / 2 + m_num_items % 2;
+			items_per_row_1 = m_num_items - items_per_row_0;
+		}
+		else
+		{
+			items_per_row_0 = m_num_items;
+			items_per_row_1 = 0;
+		}
+
 		//Start painting sequence
 		painter.firstPage();
 		do 
@@ -53,25 +69,38 @@ namespace screen
 			uint8_t y_init = painter.coordinateYInit() + 5;
 			uint8_t x_end = painter.coordinateXEnd();
 			uint8_t y_end = painter.coordinateYEnd();
+
 			for (unsigned int i = 0;i <= m_num_items -1; ++i)
 			{
-				int col = i % 5;
-				int row = i / 5;
-				int row_t = (m_num_items-1) / 5;
+				uint8_t row = i / items_per_row_0;
+				uint8_t col = i % items_per_row_0;
 
-				int x = (x_end + x_init)/2 - (m_num_items*(icon_width+2)/(1+row_t)-2)/2 +col*(icon_width+2);
-				int y = (y_end + y_init)/(2*(1+row_t)) + row_t - (icon_height/2) + ((icon_height+5)*row);
+				uint8_t x = 0;
+				uint8_t y = 0;
 
-				if (i == m_index)
+				if (row == 0)
 				{
-					(m_items[i]->icon()).draw(x,y, true);
+					x = (x_end + x_init) / 2 - (items_per_row_0 * (icon_width + 2) / 2) + col * (icon_width + 2) + items_per_row_0 % 2;
+					y = (y_end + y_init) / 2 - (num_rows * (icon_height + 5) + icon_height) / 2;
 				}
 				else
 				{
-					(m_items[i]->icon()).draw(x,y);
+					x = (x_end + x_init) / 2 - (items_per_row_1 * (icon_width + 2) / 2) + col * (icon_width + 2) + items_per_row_1 % 2;
+					y = (y_end + y_init) / 2 - (num_rows * (icon_height + 5) + icon_height) / 2 + (icon_height + 5);
 				}
-			}		
-		} while( painter.nextPage() ); 
+
+
+				if (i == m_index)
+				{
+					m_items[i]->icon().draw(x,y, true);
+				}
+				else
+				{
+					m_items[i]->icon().draw(x,y);
+				}
+			}	
+
+		} while( painter.nextPage() ); 	
 	}
 
 	void ScreenMenu::press()
