@@ -4,6 +4,7 @@ static const int ZOFFSET_ZPROBE_EEPROM_POS = 232;
 
 OffsetManager::OffsetManager()
 	: Subject<float>()
+	, m_offset(0.0f)
 {
 	m_offset = ReadFromEEPROM();
 }
@@ -21,7 +22,6 @@ void OffsetManager::offset(float value)
 
 float OffsetManager::offset()
 {
-	m_offset = ReadFromEEPROM();
 	return m_offset;
 }
 

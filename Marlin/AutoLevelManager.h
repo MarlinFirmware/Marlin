@@ -23,6 +23,7 @@ class AutoLevelManager : public Subject<bool>
 
 		static void setState();
 
+	private:
 		bool ReadFromEEPROM();
 		void WriteToEEPROM(bool state);
 

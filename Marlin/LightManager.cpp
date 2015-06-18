@@ -7,9 +7,10 @@ static const int LIGHT_EEPROM_POS = 504;
 
 LightManager::LightManager()
 	: Subject<bool>()
+	, m_state(false)
 { 
-	m_state = ReadFromEEPROM();
 	pinMode(LIGHT_PIN, OUTPUT);
+	m_state = ReadFromEEPROM();
 	digitalWrite(LIGHT_PIN, m_state);
 }
 
@@ -21,9 +22,9 @@ void LightManager::setState()
 
 void LightManager::state(bool state)
 {
-	m_state = state;
-	digitalWrite(LIGHT_PIN, m_state);
+	digitalWrite(LIGHT_PIN, state);
 	WriteToEEPROM(state);
+	m_state = state;
 	notify();
 }
 
@@ -36,14 +37,14 @@ bool LightManager::ReadFromEEPROM()
 {
 	int i = LIGHT_EEPROM_POS;
 	int dummy = 0;
-	m_state = false;
+
 	_EEPROM_readData(i, (uint8_t*)&dummy, sizeof(dummy));
 	if(dummy == 1)
 	{
-		m_state = true;
+		return true;
 	}
 
-	return m_state;
+	return false;
 }
 
 void LightManager::WriteToEEPROM(bool state)
