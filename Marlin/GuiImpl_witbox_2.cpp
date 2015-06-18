@@ -90,9 +90,9 @@ namespace screen
 
 	//Level Plate screens
 	ScreenMenu screen_level_init					= ScreenMenu(MSG_SCREEN_LEVEL_TITLE, MSG_SCREEN_LEVEL_TEXT);
-	ScreenAction<void> screen_level_cooling			= ScreenAction<void>("", action_cooldown);
+	ScreenAction<void> screen_level_cooling			= ScreenAction<void>(NULL, action_cooldown);
 	ScreenAnimation<float> screen_level_animation	= ScreenAnimation<float>(MSG_SCREEN_LEVEL_TITLE, MSG_SCREEN_LEVEL_ABORT, &TemperatureManager::single::instance());
-	ScreenAction<void> screen_level_homing			= ScreenAction<void>("", action_homing);
+	ScreenAction<void> screen_level_homing			= ScreenAction<void>(NULL, action_homing);
 	ScreenDialog<void> screen_level0				= ScreenDialog<void>(MSG_SCREEN_LEVEL_TITLE, MSG_SCREEN_LEVEL_TEXT0, MSG_SCREEN_LEVEL_BOX0, action_level_plate);
 	ScreenDialog<void> screen_level1				= ScreenDialog<void>(MSG_SCREEN_LEVEL_TITLE, MSG_SCREEN_LEVEL_TEXT1, MSG_SCREEN_LEVEL_BOX1, action_level_plate);
 	ScreenDialog<void> screen_level2				= ScreenDialog<void>(MSG_SCREEN_LEVEL_TITLE, MSG_SCREEN_LEVEL_TEXT2, MSG_SCREEN_LEVEL_BOX2, action_level_plate);
@@ -147,7 +147,7 @@ namespace screen
 	//Print screen
 	ScreenPrint screen_print            = ScreenPrint(MSG_SCREEN_PRINT_PRINTING);
 	//Play/Pause
-	ScreenStatus<PrinterState_t, void> screen_play_pause = ScreenStatus<PrinterState_t, void>("Pause", PrintManager::togglePause, &PrintManager::single::instance());
+	ScreenStatus<PrinterState_t, void> screen_play_pause = ScreenStatus<PrinterState_t, void>(MSG_SCREEN_PRINT_PAUSE, PrintManager::togglePause, &PrintManager::single::instance());
 	//Stop
 	ScreenMenu screen_stop_confirm      = ScreenMenu(MSG_SCREEN_STOP_CONFIRM);
 	ScreenAction<void> screen_stop_back             = ScreenAction<void>(MSG_SCREEN_STOP_BACK, do_nothing);

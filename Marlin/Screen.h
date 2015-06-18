@@ -27,7 +27,7 @@ namespace screen
 			} ScreenType_t;
 
 		public:
-			Screen(const char * title, ScreenType_t const & type = SIMPLE);
+			Screen(const char * title = 0, ScreenType_t const & type = SIMPLE);
 			virtual ~Screen();
 
 			const char * title() const;
