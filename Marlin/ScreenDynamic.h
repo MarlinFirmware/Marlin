@@ -1,6 +1,8 @@
 #ifndef SCREEN_DYNAMIC_H
 #define SCREEN_DYNAMIC_H
 
+#include "language.h"
+
 namespace screen
 {
 	template <typename T>
