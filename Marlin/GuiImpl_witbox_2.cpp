@@ -110,12 +110,13 @@ namespace screen
 	//Steppers
 	ScreenStatus<bool, void> screen_stepper   = ScreenStatus<bool, void>(MSG_SCREEN_STEPPER, SteppersManager::disableAllSteppers, &SteppersManager::single::instance());
 	//Move Axis screens
-/*	ScreenMenu screen_move              = ScreenMenu(MSG_SCREEN_MOVE_TITLE, MSG_SCREEN_MOVE_TEXT);
+	ScreenMenu screen_move              = ScreenMenu(MSG_SCREEN_MOVE_TITLE, MSG_SCREEN_MOVE_TEXT);
 	ScreenMenu screen_move_x            = ScreenMenu(MSG_SCREEN_MOVE_TITLE, MSG_SCREEN_MOVE_X);
 	ScreenMenu screen_move_y            = ScreenMenu(MSG_SCREEN_MOVE_TITLE, MSG_SCREEN_MOVE_Y);
 	ScreenMenu screen_move_z            = ScreenMenu(MSG_SCREEN_MOVE_TITLE, MSG_SCREEN_MOVE_Z);
 	ScreenMenu screen_move_e            = ScreenMenu(MSG_SCREEN_MOVE_TITLE, MSG_SCREEN_MOVE_E);
 	ScreenAction<void> screen_move_back2move        	= ScreenAction<void>(MSG_SCREEN_MOVE_2MOVE, do_nothing);
+/*
 	ScreenDynamic<float> screen_move_x_10		= ScreenDynamic<float>(MSG_SCREEN_MOVE_10MM, X_AXIS, X_MIN_POS, X_MAX_POS, 10, action_move_axis_to);
 	ScreenDynamic<float> screen_move_x_1		= ScreenDynamic<float>(MSG_SCREEN_MOVE_1MM, X_AXIS, X_MIN_POS, X_MAX_POS, 1, action_move_axis_to);
 	ScreenDynamic<float> screen_move_x_01		= ScreenDynamic<float>(MSG_SCREEN_MOVE_01MM, X_AXIS, X_MIN_POS, X_MAX_POS, 0.1, action_move_axis_to);
@@ -184,10 +185,9 @@ namespace screen
 		screen_main.add(screen_level_init);
 		screen_main.add(screen_autohome);
 		screen_main.add(screen_settings);
-//		screen_main.add(screen_move);
+		screen_main.add(screen_move);
 		screen_main.add(screen_stepper);
 		screen_main.add(screen_temperature_main);
-		screen_main.add(screen_info);
 		//SD Card List
 		screen_SD_list.add(screen_main);
 		screen_SD_list.add(screen_SD_confirm);
@@ -276,39 +276,40 @@ namespace screen
 		screen_stepper.icon(icon_steppers);
 		screen_stepper.icon(icon_steppers_off);
 		//Move Axis
-/*		screen_move.add(screen_back2main);
+		screen_move.add(screen_back2main);
 		screen_move.add(screen_move_x);
 		screen_move.add(screen_move_y);
 		screen_move.add(screen_move_z);
 		screen_move.add(screen_move_e);
 		screen_move.icon(icon_moveaxis);
 
-		screen_move_back2move.add(screen_move);
+//		screen_move_back2move.add(screen_move);
 		screen_move_back2move.icon(icon_back);
 
-		screen_move_x.add(screen_move_back2move);
-		screen_move_x.add(screen_move_x_10);
-		screen_move_x.add(screen_move_x_1);
-		screen_move_x.add(screen_move_x_01);
+//		screen_move_x.add(screen_move_back2move);
+//		screen_move_x.add(screen_move_x_10);
+//		screen_move_x.add(screen_move_x_1);
+//		screen_move_x.add(screen_move_x_01);
 		screen_move_x.icon(icon_move_x);
 
-		screen_move_y.add(screen_move_back2move);
-		screen_move_y.add(screen_move_y_10);
-		screen_move_y.add(screen_move_y_1);
-		screen_move_y.add(screen_move_y_01);
+//		screen_move_y.add(screen_move_back2move);
+//		screen_move_y.add(screen_move_y_10);
+//		screen_move_y.add(screen_move_y_1);
+//		screen_move_y.add(screen_move_y_01);
 		screen_move_y.icon(icon_move_y);
 
-		screen_move_z.add(screen_move_back2move);
-		screen_move_z.add(screen_move_z_10);
-		screen_move_z.add(screen_move_z_1);
-		screen_move_z.add(screen_move_z_01);
+//		screen_move_z.add(screen_move_back2move);
+//		screen_move_z.add(screen_move_z_10);
+//		screen_move_z.add(screen_move_z_1);
+//		screen_move_z.add(screen_move_z_01);
 		screen_move_z.icon(icon_move_z);
 
-		screen_move_e.add(screen_move_back2move);
-		screen_move_e.add(screen_move_e_1);
-		screen_move_e.add(screen_move_e_01);
+//		screen_move_e.add(screen_move_back2move);
+//		screen_move_e.add(screen_move_e_1);
+//		screen_move_e.add(screen_move_e_01);
 		screen_move_e.icon(icon_move_e);
 
+/*
 		screen_move_x_01.add(screen_move_back2move);
 		screen_move_x_01.icon(icon_move_01mm);
 		screen_move_y_01.add(screen_move_back2move);
