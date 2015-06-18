@@ -10,9 +10,6 @@ namespace screen
 		, m_text(text)
 	{ }
 
-	Icon::~Icon()
-	{ }
-
 	uint8_t const & Icon::width() const
 	{
 		return m_size.width;
@@ -33,4 +30,7 @@ namespace screen
 		painter.setColorIndex(1);
 		painter.drawBitmap(x, y, m_size.width, m_size.height, (focused) ? m_focused_bitmap : m_bitmap);
 	}
+
+	void Icon::show()
+	{ }
 }

@@ -13,6 +13,8 @@ namespace screen
 			ScreenMenu(const char * title = 0, const char * text = 0);
 			virtual ~ScreenMenu();
 
+			void init();
+
 			void left();
 			void right();
 			virtual void draw();

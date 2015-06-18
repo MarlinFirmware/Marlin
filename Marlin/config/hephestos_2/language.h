@@ -181,6 +181,9 @@ const char MSG_MOVE_X[] PROGMEM                      = "Move X";
 const char MSG_MOVE_Y[] PROGMEM                      = "Move Y";
 const char MSG_MOVE_Z[] PROGMEM                      = "Move Z";
 const char MSG_MOVE_E[] PROGMEM                      = "Move E";
+const char MSG_AUTOLEVEL[] PROGMEM                   = "Autolevel: On";
+const char MSG_AUTOLEVEL_DISABLE[] PROGMEM           = "Autolevel: Off";
+const char MSG_OFFSET[] PROGMEM                      = "Offset";
 
 const char MSG_SCREEN_LOGO[] PROGMEM                 = "BQ logo";
 const char MSG_SCREEN_LOGO_TEXT[] PROGMEM            = "Test";
@@ -243,14 +246,22 @@ const char MSG_SCREEN_MOVE_10MM[] PROGMEM            = "10mm";
 const char MSG_SCREEN_BACK2MAIN[] PROGMEM            = "Back";
 
 const char MSG_SCREEN_PRINT_PRINTING[] PROGMEM       = "Printing";
+const char MSG_SCREEN_PRINT_PAUSE[] PROGMEM          = "Pause";
 const char MSG_SCREEN_PRINT_PAUSED[] PROGMEM         = "Paused";
 
 const char MSG_SCREEN_TEMP_TITLE[] PROGMEM           = "Change temperature";
 const char MSG_SCREEN_LIGHT[] PROGMEM                = "Led light on";
+const char MSG_SCREEN_AUTOLEVEL[] PROGMEM            = "Autolevel";
 const char MSG_SCREEN_PRINT[] PROGMEM                = "Confirm";
 const char MSG_SCREEN_INFO[] PROGMEM                 = "FW info";
 const char MSG_SCREEN_INFO_TEXT[] PROGMEM            = "FW info";
 const char MSG_SCREEN_INFO_BOX[] PROGMEM             = "FW info"; 
+
+const char MSG_SCREEN_OFFSET_TITLE[] PROGMEM         = "Offset";
+const char MSG_SCREEN_OFFSET_TEXT[] PROGMEM          = "Adjust offset?";
+const char MSG_SCREEN_OFFSET_DIALOG_TEXT[] PROGMEM   = "Adjust the distance between the extruder & plate";
+const char MSG_SCREEN_OFFSET_DIALOG_BOX[] PROGMEM    = "Push to continue";
+const char MSG_SCREEN_OFFSET_FINISH[] PROGMEM        = "Finished?";
 
 const char MSG_SCREEN_STOP_CONFIRM[] PROGMEM         = "Stop";
 const char MSG_SCREEN_STOP_BACK[] PROGMEM            = "Back";
@@ -298,6 +309,9 @@ const char MSG_MOVE_X[] PROGMEM                      = "Mover X";
 const char MSG_MOVE_Y[] PROGMEM                      = "Mover Y";
 const char MSG_MOVE_Z[] PROGMEM                      = "Mover Z";
 const char MSG_MOVE_E[] PROGMEM                      = "Mover E";
+const char MSG_AUTOLEVEL[] PROGMEM                   = "Autolevel: On";
+const char MSG_AUTOLEVEL_DISABLE[] PROGMEM           = "Autolevel: Off";
+const char MSG_OFFSET[] PROGMEM                      = "Offset";
 
 const char MSG_SCREEN_LOGO[] PROGMEM                 = "BQ logo";
 const char MSG_SCREEN_LOGO_TEXT[] PROGMEM            = "Test";
@@ -360,14 +374,22 @@ const char MSG_SCREEN_MOVE_10MM[] PROGMEM            = "10mm";
 const char MSG_SCREEN_BACK2MAIN[] PROGMEM            = "Volver";
 
 const char MSG_SCREEN_PRINT_PRINTING[] PROGMEM       = "Imprimiendo";
+const char MSG_SCREEN_PRINT_PAUSE[] PROGMEM          = "Pausa";
 const char MSG_SCREEN_PRINT_PAUSED[] PROGMEM         = "En pausa";
 
 const char MSG_SCREEN_TEMP_TITLE[] PROGMEM           = "Cambiar temperatura";
 const char MSG_SCREEN_LIGHT[] PROGMEM                = "Luces encendidas";
+const char MSG_SCREEN_AUTOLEVEL[] PROGMEM            = "Autolevel";
 const char MSG_SCREEN_PRINT[] PROGMEM                = "Confirmar";
 const char MSG_SCREEN_INFO[] PROGMEM                 = "FW info";
 const char MSG_SCREEN_INFO_TEXT[] PROGMEM            = "FW info";
 const char MSG_SCREEN_INFO_BOX[] PROGMEM             = "FW info";
+
+const char MSG_SCREEN_OFFSET_TITLE[] PROGMEM         = "Offset";
+const char MSG_SCREEN_OFFSET_TEXT[] PROGMEM          = "Ajustar offset?";
+const char MSG_SCREEN_OFFSET_DIALOG_TEXT[] PROGMEM   = "Ajustar la distancia entre el extrusor y la cama";
+const char MSG_SCREEN_OFFSET_DIALOG_BOX[] PROGMEM    = "Pulse para continuar";
+const char MSG_SCREEN_OFFSET_FINISH[] PROGMEM        = "Finalizado?";
 
 const char MSG_SCREEN_STOP_CONFIRM[] PROGMEM         = "Parar";
 const char MSG_SCREEN_STOP_BACK[] PROGMEM            = "Vovler";

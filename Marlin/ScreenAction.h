@@ -15,11 +15,7 @@ namespace screen
 			ScreenAction(const char * title = 0, typename Functor<R, Args...>::FuncPtr fptr = do_nothing);
 			virtual ~ScreenAction();
 
-			void add(Screen & component);
 			void init();
-
-		private:
-			Screen * m_next_screen;
 	};
 
 	template <typename R, typename... Args>
@@ -31,12 +27,6 @@ namespace screen
 	template <typename R, typename... Args>
 	ScreenAction<R, Args...>::~ScreenAction()
 	{ }
-
-	template <typename R, typename... Args>
-   void ScreenAction<R, Args...>::add(Screen & component)
-   {
-      m_next_screen = &component;
-   }
 
 	template <typename R, typename... Args>
 	void ScreenAction<R, Args...>::init()

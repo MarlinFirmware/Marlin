@@ -26,9 +26,9 @@
 #define PROTOCOL_VERSION "1.0"
 
 #if defined(WITBOX)
-	#define MACHINE_NAME "bq Witbox 2"
+	#define MACHINE_NAME "Witbox 2"
 	#define FIRMWARE_URL "http://www.bqreaders.com/descargas-witbox.html"
-	#define FIRMWARE_VER "v2.0.0"
+	#define FIRMWARE_VER "2.0.0"
 	#define BUILD_VER ""
 #elif defined(CUSTOM_MENDEL_NAME)
 	#define MACHINE_NAME CUSTOM_MENDEL_NAME
@@ -246,6 +246,7 @@ const char MSG_SCREEN_MOVE_10MM[] PROGMEM            = "10mm";
 const char MSG_SCREEN_BACK2MAIN[] PROGMEM            = "Back";
 
 const char MSG_SCREEN_PRINT_PRINTING[] PROGMEM       = "Printing";
+const char MSG_SCREEN_PRINT_PAUSE[] PROGMEM          = "Pause";
 const char MSG_SCREEN_PRINT_PAUSED[] PROGMEM         = "Paused";
 
 const char MSG_SCREEN_TEMP_TITLE[] PROGMEM           = "Change temperature";
@@ -375,6 +376,7 @@ const char MSG_SCREEN_MOVE_10MM[] PROGMEM            = "10mm";
 const char MSG_SCREEN_BACK2MAIN[] PROGMEM            = "Volver";
 
 const char MSG_SCREEN_PRINT_PRINTING[] PROGMEM       = "Imprimiendo";
+const char MSG_SCREEN_PRINT_PAUSE[] PROGMEM          = "Pausa";
 const char MSG_SCREEN_PRINT_PAUSED[] PROGMEM         = "En pausa";
 
 const char MSG_SCREEN_TEMP_TITLE[] PROGMEM           = "Cambiar temperatura";

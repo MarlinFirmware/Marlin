@@ -27,7 +27,7 @@ namespace screen
 			} ScreenType_t;
 
 		public:
-			Screen(const char * title, ScreenType_t const & type = SIMPLE);
+			Screen(const char * title = 0, ScreenType_t const & type = SIMPLE);
 			virtual ~Screen();
 
 			const char * title() const;
@@ -41,11 +41,12 @@ namespace screen
 			virtual void icon(Icon & component);
 			virtual Icon & icon();
 			virtual void press();
-			virtual void add(Screen & component) {};
+			virtual void add(Screen & component);
 
 		protected:
 			ScreenType_t m_type;
 			const char * m_title;
+			Screen * m_next_screen;
 			Icon * m_icon;
 	};
 }

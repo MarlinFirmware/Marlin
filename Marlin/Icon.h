@@ -21,12 +21,13 @@ namespace screen
 	{	
 		public:
 			Icon(Size const & size, const unsigned char * bitmap, const unsigned char * focused_bitmap = 0, const char * text = 0);
-			~Icon();
 
 			uint8_t const & width() const;
 			uint8_t const & height() const;
 			const char * text() const;
-			void draw(uint8_t x, uint8_t y, bool focused = false);
+			virtual void draw(uint8_t x, uint8_t y, bool focused = false);
+
+			virtual void show();
 
 		protected:
 			Size m_size;

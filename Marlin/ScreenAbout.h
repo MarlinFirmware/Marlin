@@ -15,11 +15,8 @@ namespace screen
 
 			void press();
 			virtual void draw();
-			void add(Screen & component);
 
 		protected:
-			Screen * m_next_screen;
-
 			const char * m_text;
 			const char * m_box;
 			const unsigned char * m_bitmap;

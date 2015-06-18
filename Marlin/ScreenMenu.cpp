@@ -12,6 +12,14 @@ namespace screen
 	ScreenMenu::~ScreenMenu()
 	{ }
 
+	void ScreenMenu::init()
+	{
+		for (unsigned int i = 0;i <= m_num_items -1; ++i)
+		{
+			m_items[i]->icon().show();
+		}
+	}
+
 	void ScreenMenu::left()
 	{
 		if (m_index == 0)
@@ -38,14 +46,61 @@ namespace screen
 
 	void ScreenMenu::draw()
 	{
+		int total_width_0 = 0;
+		int total_width_1 = 0;
+		int items_per_row_0 = 0;
+		int items_per_row_1 = 0;
+		int num_rows = 2;
+		int max_width = 128;
+
+		//Get total width of icons
+		for(unsigned int i = 0; i < m_num_items; i++)
+		{
+			total_width_1 += m_items[i]->icon().width() + 2;
+		}
+
+		total_width_0 = 0;
+		total_width_1 = total_width_1 - 2;
+
+		int aux_width_0 = total_width_0;
+		int aux_width_1 = total_width_1;
+
+		if(total_width_1 <= max_width)
+		{
+			num_rows = 1;
+			items_per_row_0 = m_num_items;
+			items_per_row_1 = 0;
+			aux_width_0 = total_width_1;
+			aux_width_1 = 0;
+		}
+		else
+		{
+			//Split the number of icons between rows uniformly assuring line 0 width > line 1 width 
+			int i = 0;
+			while(aux_width_0 < aux_width_1)
+			{
+				aux_width_0 += m_items[i]->icon().width() + 2;
+				aux_width_1 -= m_items[i]->icon().width() + 2;
+				items_per_row_0++;
+				i++;
+			}
+			items_per_row_1 = m_num_items - items_per_row_0;
+			aux_width_0 -= 2;
+		}
+
 		//Start painting sequence
 		painter.firstPage();
-		do 
+		do
 		{
+			total_width_0 = aux_width_0;
+			total_width_1 = aux_width_1;
+			int aux2_width_0 = 0;
+			int aux2_width_1 = 0;
+			
 			//Paint title on top of screen
 			painter.title(m_title);
 			//Paint text on the screen
-			painter.text_P(m_text, 5);
+			painter.text_P(m_text, 0, 5);
 			//Paint selection box on bottom of screen
 			painter.box((m_items[m_index]->icon()).text());
 			//Icon grid
@@ -53,24 +108,38 @@ namespace screen
 			uint8_t y_init = painter.coordinateYInit() + 5;
 			uint8_t x_end = painter.coordinateXEnd();
 			uint8_t y_end = painter.coordinateYEnd();
-			for (unsigned int i = 0;i <= m_num_items -1; ++i)
+
+			for (unsigned int i = 0; i < m_num_items; i++)
 			{
-				int col = i % 5;
-				int row = i / 5;
-				int row_t = (m_num_items-1) / 5;
+				uint8_t row = i / items_per_row_0;
 
-				int x = (x_end + x_init)/2 - (m_num_items*(icon_width+2)/(1+row_t)-2)/2 +col*(icon_width+2);
-				int y = (y_end + y_init)/(2*(1+row_t)) + row_t - (icon_height/2) + ((icon_height+5)*row);
+				uint8_t x = 0;
+				uint8_t y = 0;
 
-				if (i == m_index)
+				if (i < items_per_row_0)
 				{
-					(m_items[i]->icon()).draw(x,y, true);
+					x = (x_end + x_init) / 2 - (total_width_0 / 2) + aux2_width_0;
+					y = (y_end + y_init) / 2 - ((num_rows - 1) * (m_items[i]->icon().height() + 5) + m_items[i]->icon().height()) / 2;
+					aux2_width_0 += m_items[i]->icon().width() + 2;
 				}
 				else
 				{
-					(m_items[i]->icon()).draw(x,y);
+					x = (x_end + x_init) / 2 - (total_width_1 / 2) + aux2_width_1;
+					y = (y_end + y_init) / 2 - ((num_rows - 1) * (m_items[i]->icon().height() + 5) + m_items[i]->icon().height()) / 2 + (m_items[i]->icon().height() + 5);
+					aux2_width_1 += m_items[i]->icon().width() + 2;
 				}
-			}		
+
+				//Choosing bitmap state
+				if (i == m_index)
+				{
+					m_items[i]->icon().draw(x,y, true);
+				}
+				else
+				{
+					m_items[i]->icon().draw(x,y);
+				}
+			}	
+
 		} while( painter.nextPage() ); 
 	}
 

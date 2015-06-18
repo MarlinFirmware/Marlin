@@ -2,6 +2,9 @@
 #include "GuiBitmaps_witbox_2.h"
 #include "GuiAction.h"
 
+#include "Icon.h"
+#include "IconWidget.h"
+
 #include "Screen.h"
 #include "ScreenMenu.h"
 #include "ScreenPrint.h"
@@ -9,7 +12,7 @@
 #include "ScreenSelector.h"
 #include "ScreenList.h"
 #include "ScreenStatus.h"
-#include "ScreenTransition.h"
+#include "ScreenAnimation.h"
 #include "ScreenAction.h"
 #include "ScreenPrint.h"
 #include "ScreenDynamic.h"
@@ -29,6 +32,7 @@ namespace screen
 	// Instantiate Icons //
 	///////////////////////
 	Size icon_size = Size(icon_width, icon_height);
+	Size widget_size = Size(widget_width, widget_height);
 
 	Icon icon_nosd              = Icon(icon_size, bits_nosd_normal,              bits_nosd_focused,              MSG_NOSD);
 	Icon icon_sd                = Icon(icon_size, bits_sd_normal,                bits_sd_focused,                MSG_SD);
@@ -40,7 +44,7 @@ namespace screen
 	Icon icon_steppers          = Icon(icon_size, bits_steppers_normal,          bits_steppers_focused,          MSG_STEPPERS);
 	Icon icon_steppers_off      = Icon(icon_size, bits_steppers_off_normal,      bits_steppers_off_focused,      MSG_STEPPERS_OFF);
 	Icon icon_moveaxis          = Icon(icon_size, bits_moveaxis_normal,          bits_moveaxis_focused,          MSG_MOVEAXIS);
-	Icon icon_temperature       = Icon(icon_size, bits_temperature_normal,       bits_temperature_focused,       MSG_TEMPERATURE);
+	IconWidget<float> icon_temperature = IconWidget<float>(widget_size, bits_temperature_widget_normal, bits_temperature_widget_focused,       MSG_TEMPERATURE, &TemperatureManager::single::instance());
 	Icon icon_lightled_disable  = Icon(icon_size, bits_lightled_disable_normal,  bits_lightled_disable_focused,  MSG_LIGHTLED_DISABLE);
 	Icon icon_lightled          = Icon(icon_size, bits_lightled_normal,          bits_lightled_focused,          MSG_LIGHTLED);
 	Icon icon_info              = Icon(icon_size, bits_info_normal,              bits_info_focused,              MSG_INFO);
@@ -77,22 +81,22 @@ namespace screen
 	ScreenAction<void> screen_SD_back   = ScreenAction<void>(MSG_SCREEN_SD_BACK, do_nothing);
 	//Unload Filament screens
 	ScreenSelector<void, uint16_t> screen_unload_select = ScreenSelector<void, uint16_t>(MSG_SCREEN_UNLOAD_TITLE, 170, 230, default_temp_change_filament, action_set_temperature);
-	ScreenTransition<float> screen_unload_heating	= ScreenTransition<float>(MSG_SCREEN_UNLOAD_TITLE, MSG_SCREEN_UNLOAD_ABORT, &TemperatureManager::single::instance());
+	ScreenAnimation<float> screen_unload_heating	= ScreenAnimation<float>(MSG_SCREEN_UNLOAD_TITLE, MSG_SCREEN_UNLOAD_ABORT, &TemperatureManager::single::instance());
 	ScreenDialog<void> screen_unload_pull     = ScreenDialog<void>(MSG_SCREEN_UNLOAD_TITLE, MSG_SCREEN_UNLOAD_TEXT1, MSG_SCREEN_UNLOAD_CONTINUE, action_filament_unload);
 	ScreenMenu screen_unload_confirm    = ScreenMenu(MSG_SCREEN_UNLOAD_TITLE, MSG_SCREEN_UNLOAD_CONFIRM);
 	ScreenMenu screen_unload_init = ScreenMenu(MSG_SCREEN_UNLOAD_TITLE, MSG_SCREEN_UNLOAD_TEXT2);
 	//Load Filament screens
 	ScreenSelector<void, uint16_t> screen_load_select   = ScreenSelector<void, uint16_t>(MSG_SCREEN_LOAD_TITLE, 170, 230, default_temp_change_filament, action_set_temperature);
-	ScreenTransition<float> screen_load_heating	= ScreenTransition<float>(MSG_SCREEN_LOAD_TITLE, MSG_SCREEN_LOAD_ABORT, &TemperatureManager::single::instance());
+	ScreenAnimation<float> screen_load_heating	= ScreenAnimation<float>(MSG_SCREEN_LOAD_TITLE, MSG_SCREEN_LOAD_ABORT, &TemperatureManager::single::instance());
 	ScreenDialog<void> screen_load_press      = ScreenDialog<void>(MSG_SCREEN_LOAD_TITLE, MSG_SCREEN_LOAD_TEXT1, MSG_SCREEN_LOAD_CONTINUE, action_filament_load);
 	ScreenMenu screen_load_confirm      = ScreenMenu(MSG_SCREEN_LOAD_TITLE, MSG_SCREEN_LOAD_CONFIRM);
 	ScreenMenu screen_load_init = ScreenMenu(MSG_SCREEN_LOAD_TITLE, MSG_SCREEN_LOAD_TEXT2);
 
 	//Level Plate screens
 	ScreenMenu screen_level_init					= ScreenMenu(MSG_SCREEN_LEVEL_TITLE, MSG_SCREEN_LEVEL_TEXT);
-	ScreenAction<void> screen_level_cooling			= ScreenAction<void>("", action_cooldown);
-	ScreenTransition<float> screen_level_transition	= ScreenTransition<float>(MSG_SCREEN_LEVEL_TITLE, MSG_SCREEN_LEVEL_ABORT, &TemperatureManager::single::instance());
-	ScreenAction<void> screen_level_homing			= ScreenAction<void>("", action_homing);
+	ScreenAction<void> screen_level_cooling			= ScreenAction<void>(NULL, action_cooldown);
+	ScreenAnimation<float> screen_level_animation	= ScreenAnimation<float>(MSG_SCREEN_LEVEL_TITLE, MSG_SCREEN_LEVEL_ABORT, &TemperatureManager::single::instance());
+	ScreenAction<void> screen_level_homing			= ScreenAction<void>(NULL, action_homing);
 	ScreenDialog<void> screen_level0				= ScreenDialog<void>(MSG_SCREEN_LEVEL_TITLE, MSG_SCREEN_LEVEL_TEXT0, MSG_SCREEN_LEVEL_BOX0, action_level_plate);
 	ScreenDialog<void> screen_level1				= ScreenDialog<void>(MSG_SCREEN_LEVEL_TITLE, MSG_SCREEN_LEVEL_TEXT1, MSG_SCREEN_LEVEL_BOX1, action_level_plate);
 	ScreenDialog<void> screen_level2				= ScreenDialog<void>(MSG_SCREEN_LEVEL_TITLE, MSG_SCREEN_LEVEL_TEXT2, MSG_SCREEN_LEVEL_BOX2, action_level_plate);
@@ -148,7 +152,7 @@ namespace screen
 	//Print screen
 	ScreenPrint screen_print            = ScreenPrint(MSG_SCREEN_PRINT_PRINTING);
 	//Play/Pause
-	ScreenStatus<PrinterState_t, void> screen_play_pause = ScreenStatus<PrinterState_t, void>("Pause", PrintManager::togglePause, &PrintManager::single::instance());
+	ScreenStatus<PrinterState_t, void> screen_play_pause = ScreenStatus<PrinterState_t, void>(MSG_SCREEN_PRINT_PAUSE, PrintManager::togglePause, &PrintManager::single::instance());
 	//Stop
 	ScreenMenu screen_stop_confirm      = ScreenMenu(MSG_SCREEN_STOP_CONFIRM);
 	ScreenAction<void> screen_stop_back             = ScreenAction<void>(MSG_SCREEN_STOP_BACK, do_nothing);
@@ -158,7 +162,7 @@ namespace screen
 	ScreenMenu screen_change_confirm_first					= ScreenMenu(MSG_SCREEN_CHANGE_CONFIRM);
 	ScreenAction<void> screen_change_back2print				= ScreenAction<void>(MSG_BACK, action_resume_print);
 	ScreenSelector<void, uint16_t> screen_change_selector	= ScreenSelector<void, uint16_t>(MSG_SCREEN_TEMP_TITLE, 0, 250, default_temp_change_filament, action_set_temperature);
-	ScreenTransition<float> screen_change_transition		= ScreenTransition<float>(MSG_SCREEN_LOAD_TITLE, MSG_SCREEN_LOAD_ABORT, &TemperatureManager::single::instance());
+	ScreenAnimation<float> screen_change_animation		= ScreenAnimation<float>(MSG_SCREEN_LOAD_TITLE, MSG_SCREEN_LOAD_ABORT, &TemperatureManager::single::instance());
 	ScreenDialog<void> screen_change_start					= ScreenDialog<void>(MSG_SCREEN_CHANGE_TITLE, MSG_SCREEN_CHANGE_START, MSG_SCREEN_CHANGE_BOX, action_filament_unload);
 	ScreenDialog<void> screen_change_pullout				= ScreenDialog<void>(MSG_SCREEN_CHANGE_TITLE, MSG_SCREEN_CHANGE_PULLOUT, MSG_SCREEN_CHANGE_BOX, do_nothing);
 	ScreenDialog<void> screen_change_insert					= ScreenDialog<void>(MSG_SCREEN_CHANGE_TITLE, MSG_SCREEN_CHANGE_INSERT, MSG_SCREEN_CHANGE_BOX, action_filament_load);
@@ -166,7 +170,7 @@ namespace screen
 	ScreenAction<void> screen_change_ok2print				= ScreenAction<void>(MSG_OK2, action_resume_print);
 	ScreenAction<void> screen_change_retry					= ScreenAction<void>(MSG_SCREEN_CHANGE_RETRY, do_nothing);*/
 	//Change Speed screen
-	ScreenSelector<void, uint16_t> screen_speed			= ScreenSelector<void, uint16_t>(MSG_SCREEN_SPEED, 10, 400, 100, action_set_temperature);
+	ScreenSelector<void, uint16_t> screen_speed			= ScreenSelector<void, uint16_t>(MSG_SCREEN_SPEED, 10, 400, 100, action_set_feedrate_multiply);
 	//Temperature
 	ScreenSelector<void, uint16_t> screen_temperature_print	= ScreenSelector<void, uint16_t>(MSG_SCREEN_TEMP_TITLE, 170, 230, default_temp_change_filament, action_set_temperature);
 
@@ -236,11 +240,11 @@ namespace screen
 		screen_level_init.add(screen_level_cooling);
 		screen_level_init.icon(icon_leveling);
 		//Level Plate Cooling
-		screen_level_cooling.add(screen_level_transition);
+		screen_level_cooling.add(screen_level_animation);
 		screen_level_cooling.icon(icon_ok);
 		//Level Plate Transition
-		screen_level_transition.add(screen_main);
-		screen_level_transition.add(screen_level_homing);
+		screen_level_animation.add(screen_main);
+		screen_level_animation.add(screen_level_homing);
 		//Level Plate Homing
 		screen_level_homing.add(screen_level0);
 		//Level screen 0
@@ -400,11 +404,11 @@ namespace screen
 		screen_change_back2print.add(screen_print);
 		screen_change_back2print.icon(icon_back);
 		//Change filament selector
-		screen_change_selector.add(screen_change_transition);
+		screen_change_selector.add(screen_change_animation);
 		screen_change_selector.icon(icon_ok);
 		//Change filament transition
-		screen_change_transition.add(screen_change_back2print);
-		screen_change_transition.add(screen_change_start);
+		screen_change_animation.add(screen_change_back2print);
+		screen_change_animation.add(screen_change_start);
 		//Change filament start
 		screen_change_start.add(screen_change_pullout);
 		screen_change_start.icon(icon_ok);
