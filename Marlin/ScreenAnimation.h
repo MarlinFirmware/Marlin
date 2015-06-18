@@ -29,7 +29,6 @@ namespace screen
 			T m_observed;
 
 			Screen * m_back_screen;
-			Screen * m_next_screen;
 			uint8_t m_num_item_added;
 	};
 

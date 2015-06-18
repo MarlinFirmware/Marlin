@@ -18,7 +18,6 @@ namespace screen
 			void right();
 			void draw();
 			void press();
-			void add(Screen & component);
 
 		private:
 			uint8_t m_axis;
@@ -26,7 +25,6 @@ namespace screen
 			T m_minimum_value;
 			T m_maximum_value;
 			T m_scale;
-			Screen * m_next_screen;
 
 			uint32_t m_next_time;
 	};
@@ -139,12 +137,6 @@ namespace screen
 	void ScreenDynamic<T>::press()
 	{
 		ViewManager::getInstance().activeView(m_next_screen);
-	}
-
-	template <typename T>
-	void ScreenDynamic<T>::add(Screen & component)
-	{
-		m_next_screen = &component;
 	}
 }
 

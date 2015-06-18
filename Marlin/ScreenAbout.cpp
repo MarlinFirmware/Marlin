@@ -54,9 +54,4 @@ namespace screen
 	{
 		ViewManager::getInstance().activeView(m_next_screen);
 	}
-
-	void ScreenAbout::add(Screen & component)
-	{
-		m_next_screen = &component;
-	}
 }
