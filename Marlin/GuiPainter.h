@@ -32,8 +32,8 @@ namespace screen
 
 			void title(const char * title);
 
-			void text(const char * msg, uint8_t v_pad = 0);
-			void text_P(const char * msg, uint8_t v_pad = 0);
+			void text(const char * msg, uint8_t h_pad = 0, uint8_t v_pad = 0);
+			void text_P(const char * msg, uint8_t h_pad = 0, uint8_t v_pad = 0);
 			
 			void multiText(const char * msg);
 
