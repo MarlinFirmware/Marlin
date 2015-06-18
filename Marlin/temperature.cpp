@@ -175,6 +175,11 @@ static void updateTemperaturesFromRawValues();
   millis_t watch_heater_next_ms[EXTRUDERS] = { 0 };
 #endif
 
+#ifdef THERMAL_PROTECTION_BED
+  int watch_target_temp_bed = 0;
+  millis_t watch_heater_bed_next_ms = 0;
+#endif
+
 #ifndef SOFT_PWM_SCALE
   #define SOFT_PWM_SCALE 0
 #endif
@@ -620,7 +625,7 @@ void manage_heater() {
       // Is it time to check this extruder's heater?
       if (watch_heater_next_ms[e] && ms > watch_heater_next_ms[e]) {
         // Has it failed to increase enough?
-        if (degHotend(e) < watch_target_temp[e]) {
+        if (current_temperature[e] < watch_target_temp[e]) {
           // Stop!
           _temp_error(e, PSTR(MSG_T_HEATING_FAILED), PSTR(MSG_HEATING_FAILED_LCD));
         }
@@ -670,6 +675,19 @@ void manage_heater() {
   #if TEMP_SENSOR_BED != 0
   
     #ifdef THERMAL_PROTECTION_BED
+      // Is it time to check this extruder's heater?
+      if (watch_heater_bed_next_ms && ms > watch_heater_bed_next_ms) {
+        // Has it failed to increase enough?
+        if (current_temperature_bed < watch_target_temp_bed) {
+          // Stop!
+          _temp_error(-1, PSTR(MSG_T_HEATING_FAILED), PSTR(MSG_HEATING_FAILED_LCD));
+        }
+        else {
+          // Start again if the target is still far off
+          start_watching_heater_bed();
+        }
+      }
+
       thermal_runaway_protection(&thermal_runaway_bed_state_machine, &thermal_runaway_bed_timer, current_temperature_bed, target_temperature_bed, -1, THERMAL_PROTECTION_BED_PERIOD, THERMAL_PROTECTION_BED_HYSTERESIS);
     #endif
 
@@ -1011,12 +1029,28 @@ void tp_init() {
    * This is called when the temperature is set. (M104, M109)
    */
   void start_watching_heater(int e) {
-    if (degHotend(e) < degTargetHotend(e) - (WATCH_TEMP_INCREASE + TEMP_HYSTERESIS + 1)) {
-      watch_target_temp[e] = degHotend(e) + WATCH_TEMP_INCREASE;
+    if (current_temperature[e] < target_temperature[e] - (WATCH_TEMP_INCREASE + TEMP_HYSTERESIS + 1)) {
+      watch_target_temp[e] = current_temperature[e] + WATCH_TEMP_INCREASE;
       watch_heater_next_ms[e] = millis() + WATCH_TEMP_PERIOD * 1000;
     }
     else
       watch_heater_next_ms[e] = 0;
+  }
+#endif
+
+#ifdef THERMAL_PROTECTION_BED
+  /**
+   * Start Heating Sanity Check for bed that is below
+   * its target temperature by a configurable margin.
+   * This is called when the temperature is set. (M140, M190)
+   */
+  void start_watching_heater_bed() {
+    if (current_temperature_bed < target_temperature_bed - (WATCH_TEMP_BED_INCREASE + TEMP_HYSTERESIS + 1)) {
+      watch_target_temp_bed = current_temperature_bed + WATCH_TEMP_BED_INCREASE;
+      watch_heater_bed_next_ms = millis() + WATCH_TEMP_BED_PERIOD * 1000;
+    }
+    else
+      watch_heater_bed_next_ms = 0;
   }
 #endif
 

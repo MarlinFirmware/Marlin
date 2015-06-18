@@ -99,6 +99,9 @@ FORCE_INLINE float degTargetBed() { return target_temperature_bed; }
 #ifdef THERMAL_PROTECTION_HOTENDS
   void start_watching_heater(int e=0);
 #endif
+#ifdef THERMAL_PROTECTION_BED
+  void start_watching_heater_bed();
+#endif
 
 FORCE_INLINE void setTargetHotend(const float &celsius, uint8_t extruder) {
   target_temperature[extruder] = celsius;
@@ -106,7 +109,12 @@ FORCE_INLINE void setTargetHotend(const float &celsius, uint8_t extruder) {
     start_watching_heater(extruder);
   #endif
 }
-FORCE_INLINE void setTargetBed(const float &celsius) { target_temperature_bed = celsius; }
+FORCE_INLINE void setTargetBed(const float &celsius) {
+  target_temperature_bed = celsius;
+  #ifdef THERMAL_PROTECTION_BED
+    start_watching_heater_bed();
+  #endif
+}
 
 FORCE_INLINE bool isHeatingHotend(uint8_t extruder) { return target_temperature[extruder] > current_temperature[extruder]; }
 FORCE_INLINE bool isHeatingBed() { return target_temperature_bed > current_temperature_bed; }

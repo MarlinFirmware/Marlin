@@ -34,6 +34,9 @@
 #ifdef THERMAL_PROTECTION_BED
   #define THERMAL_PROTECTION_BED_PERIOD 20    // Seconds
   #define THERMAL_PROTECTION_BED_HYSTERESIS 2 // Degrees Celsius
+
+  #define WATCH_TEMP_BED_PERIOD 0             // Seconds
+  #define WATCH_TEMP_BED_INCREASE 4           // Degrees Celsius
 #endif
 
 #ifdef PIDTEMP
