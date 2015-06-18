@@ -21,7 +21,6 @@ namespace screen
 	{	
 		public:
 			Icon(Size const & size, const unsigned char * bitmap, const unsigned char * focused_bitmap = 0, const char * text = 0);
-			~Icon();
 
 			uint8_t const & width() const;
 			uint8_t const & height() const;
