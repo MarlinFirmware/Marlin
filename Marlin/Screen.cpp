@@ -20,6 +20,11 @@ namespace screen
 		return m_type;
 	}
 
+   void Screen::add(Screen & component)
+   {
+      m_next_screen = &component;
+   }
+
 	void Screen::icon(Icon & component)
 	{
 		m_icon = &component;

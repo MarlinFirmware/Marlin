@@ -246,6 +246,7 @@ const char MSG_SCREEN_MOVE_10MM[] PROGMEM            = "10mm";
 const char MSG_SCREEN_BACK2MAIN[] PROGMEM            = "Back";
 
 const char MSG_SCREEN_PRINT_PRINTING[] PROGMEM       = "Printing";
+const char MSG_SCREEN_PRINT_PAUSE[] PROGMEM          = "Pause";
 const char MSG_SCREEN_PRINT_PAUSED[] PROGMEM         = "Paused";
 
 const char MSG_SCREEN_TEMP_TITLE[] PROGMEM           = "Change temperature";
@@ -375,6 +376,7 @@ const char MSG_SCREEN_MOVE_10MM[] PROGMEM            = "10mm";
 const char MSG_SCREEN_BACK2MAIN[] PROGMEM            = "Volver";
 
 const char MSG_SCREEN_PRINT_PRINTING[] PROGMEM       = "Imprimiendo";
+const char MSG_SCREEN_PRINT_PAUSE[] PROGMEM          = "Pausa";
 const char MSG_SCREEN_PRINT_PAUSED[] PROGMEM         = "En pausa";
 
 const char MSG_SCREEN_TEMP_TITLE[] PROGMEM           = "Cambiar temperatura";

@@ -22,14 +22,12 @@ namespace screen
 			void right();
 			void draw();
 			void press();
-         void add(Screen & component);
 
 		private:
          uint16_t m_select;
          uint16_t m_minimum_value;
          uint16_t m_maximum_value;
          uint16_t m_default;
-         Screen * m_next_screen;
 	};
 
 	template <typename R, typename... Args>
@@ -130,12 +128,6 @@ namespace screen
 	{
 		this->action(m_select);
 		ViewManager::getInstance().activeView(m_next_screen);
-	}
-
-	template <typename R, typename... Args>
-	void ScreenSelector<R, Args...>::add(Screen & component)
-	{
-		m_next_screen = &component;
 	}
 }
 

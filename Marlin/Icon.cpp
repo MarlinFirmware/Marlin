@@ -10,9 +10,6 @@ namespace screen
 		, m_text(text)
 	{ }
 
-	Icon::~Icon()
-	{ }
-
 	uint8_t const & Icon::width() const
 	{
 		return m_size.width;

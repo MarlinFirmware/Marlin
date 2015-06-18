@@ -56,7 +56,6 @@ namespace screen
 			Icon * m_icon_alternate;
 
 			Screen * m_back_screen;
-			Screen * m_next_screen;
 			uint8_t m_num_item_added;
 
 			bool m_sdcard_inserted;
