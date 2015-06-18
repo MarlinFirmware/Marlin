@@ -132,30 +132,30 @@ namespace screen
 						switch (total_lines)
 						{
 							case 1:
-								text(phrase, 16);
+								text(phrase, 0, 16);
 								break;
 							case 2:
 								if(n_lines == 1)
 								{
-									text(phrase, 10);
+									text(phrase, 0, 10);
 								}
 								else
 								{
-									text(phrase, 0);
+									text(phrase, 0, 0);
 								}
 								break;
 							case 3:
 								if(n_lines == 1)
 								{
-									text(phrase, 6);
+									text(phrase, 0, 6);
 								}
 								else
 								{
-									text(phrase, 0);
+									text(phrase, 0, 0);
 								}
 								break;
 							case 4:
-								text(phrase, 0);
+								text(phrase, 0, 0);
 								break;
 							default:
 								break;
@@ -172,30 +172,30 @@ namespace screen
 						switch (total_lines)
 						{
 							case 1:
-								text(phrase, 16);
+								text(phrase, 0, 16);
 								break;
 							case 2:
 								if(n_lines == 1)
 								{
-									text(phrase, 10);
+									text(phrase, 0, 10);
 								}
 								else
 								{
-									text(phrase, 0);
+									text(phrase, 0, 0);
 								}
 								break;
 							case 3:
 								if(n_lines == 1)
 								{
-									text(phrase, 6);
+									text(phrase, 0, 6);
 								}
 								else
 								{
-									text(phrase, 0);
+									text(phrase, 0, 0);
 								}
 								break;
 							case 4:
-								text(phrase, 0);
+								text(phrase, 0, 0);
 								break;
 							default:
 								break;
