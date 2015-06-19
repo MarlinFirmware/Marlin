@@ -24,7 +24,7 @@ namespace screen
 
 			uint8_t const & width() const;
 			uint8_t const & height() const;
-			const char * text() const;
+			virtual const char * text() const;
 			virtual void draw(uint8_t x, uint8_t y, bool focused = false);
 
 			virtual void show();
