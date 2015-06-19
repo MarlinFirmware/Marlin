@@ -1,24 +1,57 @@
 #include "ScreenPrint.h"
 
 #include "cardreader.h"
+#include "TemperatureManager.h"
 
 namespace screen
 {
-	ScreenPrint::ScreenPrint(const char * title)
+	ScreenPrint::ScreenPrint(const char * title, Subject<float> * model)
 		: ScreenMenu(title)
-	{ }
+		, Observer<float>(model)
+		, m_observed(0)
+	{ 
+		this->connect();
+	}
 
 	ScreenPrint::~ScreenPrint()
 	{ }
 
+	void ScreenPrint::init()
+	{
+		this->m_model->attach(this);
+		this->connect();
+
+		for (unsigned int i = 0;i <= m_num_icons -1; ++i)
+		{
+			m_icons[i]->show();
+		}
+	}
+
 	void ScreenPrint::draw()
 	{
-      //Start painting sequence
+		char t_target[4] = { 0 };
+		dtostrf(TemperatureManager::single::instance().getTargetTemperature(), 3, 0, t_target);
+		int size_target = strlen(t_target);
+
+		//Start painting sequence
 		painter.firstPage();
 		do 
 		{
-         //Paint title on top of screen
+			//Paint title on top of screen
 			painter.title(m_title);
+
+			//Print widget text
+			painter.setColorIndex(1);
+			char t_current[4] = { 0 };
+			dtostrf(m_observed, 3, 0, t_current);
+			int size_current = strlen(t_current);
+			
+			painter.setPrintPos(128 - (size_target*6) - (size_current*6) - 11, 3);
+			painter.print(t_current);
+			painter.print("/");
+			painter.print(t_target);
+			painter.print("\xb0");
+
 			//Status widget
 			uint16_t actual_time = 0;
 			if (starttime != 0)
@@ -52,5 +85,10 @@ namespace screen
 				}
 			}	
 		} while( painter.nextPage() ); 
+	}
+
+	void ScreenPrint::update(float value)
+	{
+		m_observed = value;
 	}
 }

@@ -7,13 +7,20 @@
 
 namespace screen
 {
-	class ScreenPrint : public ScreenMenu
+	class ScreenPrint : public ScreenMenu , public Observer<float>
 	{
 		public:
-			ScreenPrint(const char * title = 0);
+			ScreenPrint(const char * title = 0, Subject<float> * model = 0);
 			virtual ~ScreenPrint();
 
+			void init();
+			
 			virtual void draw();
+
+			void update(float value);
+		
+		private:
+			float m_observed;
 	};
 }
 

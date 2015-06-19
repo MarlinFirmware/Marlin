@@ -166,7 +166,7 @@ namespace screen
 	ScreenMenu screen_offset_finish          = ScreenMenu(MSG_SCREEN_OFFSET_TITLE, MSG_SCREEN_OFFSET_FINISH);
 
 	// Print
-	ScreenPrint screen_print = ScreenPrint(MSG_SCREEN_PRINT_PRINTING);
+	ScreenPrint screen_print          = ScreenPrint(MSG_SCREEN_PRINT_PRINTING, &TemperatureManager::single::instance());
 
 	// Play/Pause
 	ScreenAction<void> screen_play_pause = ScreenAction<void>(MSG_SCREEN_PRINT_PAUSE, PrintManager::togglePause);
