@@ -1,5 +1,5 @@
-#ifndef SCREEN_TRANSITION_H
-#define SCREEN_TRANSITION_H
+#ifndef SCREEN_ANIMATION_H
+#define SCREEN_ANIMATION_H
 
 #include "Screen.h"
 
@@ -126,4 +126,4 @@ namespace screen
 }
 
 
-#endif //SCREEN_TRANSITION_H
+#endif //SCREEN_ANIMATION_H

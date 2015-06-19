@@ -13,6 +13,7 @@ namespace screen
 			ScreenDialog(const char * title, const char * message, const char * box, typename Functor<R, Args...>::FuncPtr fptr = do_nothing);
 			virtual ~ScreenDialog();
 
+			void init();
 			void press();
 			void draw();
 
@@ -34,9 +35,15 @@ namespace screen
 	{ }
 
 	template <typename R, typename... Args>
+	void ScreenDialog<R, Args...>::init()
+	{
+		draw();
+		this->action();
+	}
+
+	template <typename R, typename... Args>
 	void ScreenDialog<R, Args...>::press()
 	{
-		this->action();
 		ViewManager::getInstance().activeView(m_next_screen);
 	}
 

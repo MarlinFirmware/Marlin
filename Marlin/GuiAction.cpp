@@ -27,17 +27,31 @@ void action_set_temperature(uint16_t degrees)
 
 void action_cooldown()
 {
-	TemperatureManager::single::instance().setTargetTemperature(0);
+	TemperatureManager::single::instance().setTargetTemperature(30);
 }
 
 void action_filament_unload()
 {
-	enquecommand_P(PSTR("M702"));
+	st_synchronize();
+	plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+
+	current_position[E_AXIS] += 50.0;
+	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS], 300/60, active_extruder);
+	st_synchronize();
+
+	current_position[E_AXIS] -= 60.0;
+	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS], 300/60, active_extruder);
+	st_synchronize();
 }
 
 void action_filament_load()
 {
-	enquecommand_P(PSTR("M701"));
+	st_synchronize();
+	plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+
+	current_position[E_AXIS] += 100.0;
+	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS], 300/60, active_extruder);
+	st_synchronize();
 }
 
 void action_level_plate()
@@ -418,8 +432,6 @@ extern float probe_pt(float x, float y, float z_before, int retract_action = 0);
 void action_offset()
 {
 
-	action_homing();
-	
 	z_saved_homing = current_position[Z_AXIS];
 		
 	st_synchronize();
