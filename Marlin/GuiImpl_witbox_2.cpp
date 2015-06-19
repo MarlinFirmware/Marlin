@@ -4,6 +4,7 @@
 
 #include "Icon.h"
 #include "IconWidget.h"
+#include "IconStatus.h"
 
 #include "Screen.h"
 #include "ScreenMenu.h"
@@ -11,7 +12,6 @@
 #include "ScreenDialog.h"
 #include "ScreenSelector.h"
 #include "ScreenList.h"
-#include "ScreenStatus.h"
 #include "ScreenAnimation.h"
 #include "ScreenTransition.h"
 #include "ScreenAction.h"
@@ -43,16 +43,13 @@ namespace screen
 	Icon icon_leveling          = Icon(icon_size, bits_leveling_normal,          bits_leveling_focused,          MSG_LEVELING);
 	Icon icon_homing            = Icon(icon_size, bits_homing_normal,            bits_homing_focused,            MSG_HOMING);
 	Icon icon_settings          = Icon(icon_size, bits_settings_normal,          bits_settings_focused,          MSG_SETTINGS);
-	Icon icon_steppers          = Icon(icon_size, bits_steppers_normal,          bits_steppers_focused,          MSG_STEPPERS);
-	Icon icon_steppers_off      = Icon(icon_size, bits_steppers_off_normal,      bits_steppers_off_focused,      MSG_STEPPERS_OFF);
+	IconStatus<bool> icon_steppers = IconStatus<bool>(icon_size, bits_steppers_normal, bits_steppers_focused, bits_steppers_off_normal, bits_steppers_off_focused, MSG_STEPPERS, MSG_STEPPERS_OFF, &SteppersManager::single::instance());
 	Icon icon_moveaxis          = Icon(icon_size, bits_moveaxis_normal,          bits_moveaxis_focused,          MSG_MOVEAXIS);
 	Icon icon_temperature       = Icon(icon_size, bits_temperature_normal,       bits_temperature_focused,       MSG_TEMPERATURE);
 	IconWidget<float> widget_temperature = IconWidget<float>(widget_size, bits_temperature_widget_normal, bits_temperature_widget_focused, MSG_TEMPERATURE, &TemperatureManager::single::instance());
-	Icon icon_lightled_disable  = Icon(icon_size, bits_lightled_disable_normal,  bits_lightled_disable_focused,  MSG_LIGHTLED_DISABLE);
-	Icon icon_lightled          = Icon(icon_size, bits_lightled_normal,          bits_lightled_focused,          MSG_LIGHTLED);
+	IconStatus<bool> icon_lightled = IconStatus<bool>(icon_size, bits_lightled_disable_normal, bits_lightled_disable_focused, bits_lightled_normal, bits_lightled_focused, MSG_LIGHTLED_DISABLE, MSG_LIGHTLED, &LightManager::single::instance());
 	Icon icon_info              = Icon(icon_size, bits_info_normal,              bits_info_focused,              MSG_INFO);
-	Icon icon_play              = Icon(icon_size, bits_play_normal,              bits_play_focused,              MSG_PLAY);
-	Icon icon_pause             = Icon(icon_size, bits_pause_normal,             bits_pause_focused,             MSG_PAUSE);
+	IconStatus<PrinterState_t> icon_play_pause = IconStatus<PrinterState_t>(icon_size, bits_pause_normal, bits_pause_focused, bits_play_normal, bits_play_focused, MSG_PAUSE, MSG_PLAY, &PrintManager::single::instance());
 	Icon icon_stop              = Icon(icon_size, bits_stop_normal,              bits_stop_focused,              MSG_STOP);
 	Icon icon_change_filament   = Icon(icon_size, bits_change_filament_normal,   bits_change_filament_focused,   MSG_CHANGE_FILAMENT);
 	Icon icon_change_speed      = Icon(icon_size, bits_change_speed_normal,      bits_change_speed_focused,      MSG_CHANGE_SPEED);
@@ -66,8 +63,7 @@ namespace screen
 	Icon icon_move_01mm         = Icon(icon_size, bits_01mm_normal,              bits_01mm_focused,              MSG_SCREEN_MOVE_01MM);
 	Icon icon_move_1mm          = Icon(icon_size, bits_1mm_normal,               bits_1mm_focused,               MSG_SCREEN_MOVE_1MM);
 	Icon icon_move_10mm         = Icon(icon_size, bits_10mm_normal,              bits_10mm_focused,              MSG_SCREEN_MOVE_10MM);
-	Icon icon_autolevel         = Icon(icon_size, bits_autolevel_normal,         bits_autolevel_focused,         MSG_AUTOLEVEL);
-	Icon icon_autolevel_disable = Icon(icon_size, bits_autolevel_disable_normal, bits_autolevel_disable_focused, MSG_AUTOLEVEL_DISABLE);
+	IconStatus<bool> icon_autolevel = IconStatus<bool>(icon_size, bits_autolevel_disable_normal, bits_autolevel_disable_focused, bits_autolevel_normal, bits_autolevel_focused, MSG_AUTOLEVEL_DISABLE, MSG_AUTOLEVEL, &AutoLevelManager::single::instance());
 	Icon icon_offset            = Icon(icon_size, bits_offset_normal,            bits_offset_focused,            MSG_OFFSET);
 
 
@@ -127,7 +123,7 @@ namespace screen
 	ScreenMenu screen_settings = ScreenMenu(MSG_SCREEN_SETTINGS, MSG_SCREEN_SETTINGS_TEXT);
 
 	// Steppers
-	ScreenStatus<bool, void> screen_stepper = ScreenStatus<bool, void>(MSG_SCREEN_STEPPER, SteppersManager::disableAllSteppers, &SteppersManager::single::instance());
+	ScreenAction<void> screen_stepper = ScreenAction<void>(MSG_SCREEN_STEPPER, SteppersManager::disableAllSteppers);
 
 	// Move Axis screens
 	ScreenMenu screen_move                = ScreenMenu(MSG_SCREEN_MOVE_TITLE, MSG_SCREEN_MOVE_TEXT);
@@ -153,13 +149,13 @@ namespace screen
 	ScreenSelector<void, uint16_t> screen_temperature_main = ScreenSelector<void, uint16_t>(MSG_SCREEN_TEMP_TITLE, 0, 250, default_temp_change_filament, action_set_temperature);
 
 	// Light
-	ScreenStatus<bool, void> screen_light = ScreenStatus<bool, void>(MSG_SCREEN_LIGHT, LightManager::setState, &LightManager::single::instance());
+	ScreenAction<void> screen_light = ScreenAction<void>(MSG_SCREEN_LIGHT, LightManager::setState);
 
 	// Info
 	ScreenAbout screen_info = ScreenAbout(MSG_SCREEN_INFO, MSG_SCREEN_INFO_TEXT, MSG_SCREEN_INFO_BOX, bits_logo_about);
 
 	// Autolevel
-	ScreenStatus<bool, void> screen_autolevel = ScreenStatus<bool, void>(MSG_SCREEN_AUTOLEVEL, AutoLevelManager::setState, &AutoLevelManager::single::instance());
+	ScreenAction<void> screen_autolevel = ScreenAction<void>(MSG_SCREEN_AUTOLEVEL, AutoLevelManager::setState); 
 
 	// Offset
 	ScreenMenu screen_offset                 = ScreenMenu(MSG_SCREEN_OFFSET_TITLE, MSG_SCREEN_OFFSET_TEXT);
@@ -173,7 +169,7 @@ namespace screen
 	ScreenPrint screen_print = ScreenPrint(MSG_SCREEN_PRINT_PRINTING);
 
 	// Play/Pause
-	ScreenStatus<PrinterState_t, void> screen_play_pause = ScreenStatus<PrinterState_t, void>(MSG_SCREEN_PRINT_PAUSE, PrintManager::togglePause, &PrintManager::single::instance());
+	ScreenAction<void> screen_play_pause = ScreenAction<void>(MSG_SCREEN_PRINT_PAUSE, PrintManager::togglePause);
 
 	// Stop
 	ScreenMenu screen_stop_confirm    = ScreenMenu(MSG_SCREEN_STOP_CONFIRM);
@@ -218,7 +214,6 @@ namespace screen
 		screen_main.icon(icon_moveaxis);
 		screen_main.add(screen_stepper);
 		screen_main.icon(icon_steppers);
-		//screen_main.icon(icon_steppers_off);
 		screen_main.add(screen_temperature_main);
 		screen_main.icon(widget_temperature);
 
@@ -319,11 +314,9 @@ namespace screen
 		screen_settings.add(screen_offset);
 		screen_settings.icon(icon_offset);
 		screen_settings.add(screen_autolevel);
-		screen_settings.icon(icon_autolevel_disable);
-		//screen_settings.icon(icon_autolevel);
+		screen_settings.icon(icon_autolevel);
 		screen_settings.add(screen_light);
-		screen_settings.icon(icon_lightled_disable);
-		//screen_settings.icon(icon_lightled);
+		screen_settings.icon(icon_lightled);
 		screen_settings.add(screen_info);
 		screen_settings.icon(icon_info);
 
@@ -420,8 +413,7 @@ namespace screen
 
 		// Print Menu
 		screen_print.add(screen_play_pause);
-		screen_print.icon(icon_pause);
-		//screen_print.icon(icon_play);
+		screen_print.icon(icon_play_pause);
 		screen_print.add(screen_stop_confirm);
 		screen_print.icon(icon_stop);
 		screen_print.add(screen_change_confirm_first);
