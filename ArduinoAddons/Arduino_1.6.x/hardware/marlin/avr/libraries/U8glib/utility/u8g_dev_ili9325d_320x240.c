@@ -272,7 +272,7 @@ uint8_t u8g_dev_ili9325d_320x240_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t msg, voi
   switch(msg)
   {
     case U8G_DEV_MSG_INIT:
-      u8g_InitCom(u8g, dev);
+      u8g_InitCom(u8g, dev, U8G_SPI_CLK_CYCLE_50NS);
       //for(;;)
         u8g_WriteEscSeqP(u8g, dev, u8g_dev_ili9325d_320x240_init_seq);
     

@@ -2,10 +2,15 @@
 U8GLIB
 http://code.google.com/p/u8glib/
 
-
 Install instructions for the Arduino environment.
 
-  1. Unzip u8glib_arduino_vX.XX.zip into the "libraries" folder
+  1. Start Arduino IDE
+  2. In the Arduino IDE, import the library from the "Add Library" Menu.
+
+Alternative install instructions for the Arduino environment.
+
+  1. Unzip u8glib_arduino_vX.XX.zip into the "libraries" folder of the
+      Arduino install directory
   2. Start Arduino IDE
 
 Install instructions for the Chipkit (Arduino) environment.

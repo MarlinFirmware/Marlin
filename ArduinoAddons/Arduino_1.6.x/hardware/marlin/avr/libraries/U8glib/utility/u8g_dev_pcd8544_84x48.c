@@ -69,12 +69,36 @@ static const uint8_t u8g_dev_pcd8544_init_seq[] PROGMEM = {
   U8G_ESC_END                /* end of sequence */
 };
 
+
+static const uint8_t u8g_dev_pcd8544_sleep_on[] PROGMEM = {
+  U8G_ESC_ADR(0),           	/* instruction mode */
+  U8G_ESC_CS(1),             	/* enable chip */
+  
+  0x020,		                /* activate chip (PD=0), horizontal increment (V=0), enter normal command set (H=0) */
+  0x00c,		                /* display on, normal */
+  U8G_ESC_CS(0),             	/* disable chip, bugfix 12 nov 2014 */
+  U8G_ESC_END                	/* end of sequence */
+};
+
+static const uint8_t u8g_dev_pcd8544_sleep_off[] PROGMEM = {
+  U8G_ESC_ADR(0),           	/* instruction mode */
+  U8G_ESC_CS(1),             	/* enable chip */
+  0x020,		                /* activate chip (PD=0), horizontal increment (V=0), enter normal command set (H=0) */
+  0x008,		                /* display blank */
+  0x024,		                /* power down (PD=1), horizontal increment (V=0), enter normal command set (H=0) */
+  
+  U8G_ESC_DLY(50),       	/* delay 50 ms */
+  U8G_ESC_CS(0),             	/* disable chip, bugfix 12 nov 2014 */
+  U8G_ESC_END                	/* end of sequence */
+};
+
+
 uint8_t u8g_dev_pcd8544_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t msg, void *arg)
 {
   switch(msg)
   {
     case U8G_DEV_MSG_INIT:
-      u8g_InitCom(u8g, dev);
+      u8g_InitCom(u8g, dev, U8G_SPI_CLK_CYCLE_400NS);
       u8g_WriteEscSeqP(u8g, dev, u8g_dev_pcd8544_init_seq);
       break;
     case U8G_DEV_MSG_STOP:
@@ -101,10 +125,17 @@ uint8_t u8g_dev_pcd8544_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t msg, void *arg)
       u8g_WriteByte(u8g, dev, 0x080 | ( (*(uint8_t *)arg) >> 1 ) );
       u8g_SetChipSelect(u8g, dev, 0);
       return 1;
+    case U8G_DEV_MSG_SLEEP_ON:
+      u8g_WriteEscSeqP(u8g, dev, u8g_dev_pcd8544_sleep_on);    
+      return 1;
+    case U8G_DEV_MSG_SLEEP_OFF:
+      u8g_WriteEscSeqP(u8g, dev, u8g_dev_pcd8544_sleep_off);    
+      return 1;
   }
   return u8g_dev_pb8v1_base_fn(u8g, dev, msg, arg);
 }
 
 
 U8G_PB_DEV(u8g_dev_pcd8544_84x48_sw_spi , WIDTH, HEIGHT, PAGE_HEIGHT, u8g_dev_pcd8544_fn, U8G_COM_SW_SPI);
+U8G_PB_DEV(u8g_dev_pcd8544_84x48_hw_spi , WIDTH, HEIGHT, PAGE_HEIGHT, u8g_dev_pcd8544_fn, U8G_COM_HW_SPI);
 

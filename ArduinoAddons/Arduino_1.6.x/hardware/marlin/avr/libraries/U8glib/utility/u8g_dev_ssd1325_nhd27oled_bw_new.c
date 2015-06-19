@@ -112,7 +112,7 @@ static const uint8_t u8g_dev_ssd13xx_sleep_on[] PROGMEM = {
   U8G_ESC_ADR(0),           /* instruction mode */
   U8G_ESC_CS(1),             /* enable chip */
   0x0ae,		/* display off */      
-  U8G_ESC_CS(1),             /* disable chip */
+  U8G_ESC_CS(0),             /* disable chip, bugfix 12 nov 2014 */
   U8G_ESC_END                /* end of sequence */
 };
 
@@ -121,7 +121,7 @@ static const uint8_t u8g_dev_ssd13xx_sleep_off[] PROGMEM = {
   U8G_ESC_CS(1),             /* enable chip */
   0x0af,		/* display on */      
   U8G_ESC_DLY(50),       /* delay 50 ms */
-  U8G_ESC_CS(1),             /* disable chip */
+  U8G_ESC_CS(0),             /* disable chip, bugfix 12 nov 2014 */
   U8G_ESC_END                /* end of sequence */
 };
 
@@ -133,7 +133,7 @@ static uint8_t u8g_dev_ssd1325_nhd27oled_bw_fn(u8g_t *u8g, u8g_dev_t *dev, uint8
     //case U8G_DEV_MSG_IS_BBX_INTERSECTION:
     //  return u8g_pb_IsIntersection((u8g_pb_t *)(dev->dev_mem), (u8g_dev_arg_bbx_t *)arg);
     case U8G_DEV_MSG_INIT:
-      u8g_InitCom(u8g, dev);
+      u8g_InitCom(u8g, dev, U8G_SPI_CLK_CYCLE_300NS);
       u8g_WriteEscSeqP(u8g, dev, u8g_dev_ssd1325_nhd_27_12864_init_seq);
       break;
     case U8G_DEV_MSG_STOP:
@@ -178,7 +178,7 @@ static uint8_t u8g_dev_ssd1325_nhd27oled_2x_bw_fn(u8g_t *u8g, u8g_dev_t *dev, ui
   switch(msg)
   {
     case U8G_DEV_MSG_INIT:
-      u8g_InitCom(u8g, dev);
+      u8g_InitCom(u8g, dev, U8G_SPI_CLK_CYCLE_300NS);
       u8g_WriteEscSeqP(u8g, dev, u8g_dev_ssd1325_nhd_27_12864_init_seq);
       break;
     case U8G_DEV_MSG_STOP:
