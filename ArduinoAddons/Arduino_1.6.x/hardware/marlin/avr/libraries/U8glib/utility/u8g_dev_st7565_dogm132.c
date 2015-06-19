@@ -101,7 +101,7 @@ static const uint8_t u8g_dev_st7565_dogm132_sleep_on[] PROGMEM = {
   0x000,		                /* indicator register set (not sure if this is required) */
   0x0ae,		/* display off */      
   0x0a5,		/* all points on */      
-  U8G_ESC_CS(1),             /* disable chip */
+  U8G_ESC_CS(0),             /* disable chip, bugfix 12 nov 2014 */
   U8G_ESC_END                /* end of sequence */
 };
 
@@ -111,7 +111,7 @@ static const uint8_t u8g_dev_st7565_dogm132_sleep_off[] PROGMEM = {
   0x0a4,		/* all points off */      
   0x0af,		/* display on */      
   U8G_ESC_DLY(50),       /* delay 50 ms */
-  U8G_ESC_CS(1),             /* disable chip */
+  U8G_ESC_CS(0),             /* disable chip, bugfix 12 nov 2014 */
   U8G_ESC_END                /* end of sequence */
 };
 
@@ -120,7 +120,7 @@ uint8_t u8g_dev_st7565_dogm132_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t msg, void 
   switch(msg)
   {
     case U8G_DEV_MSG_INIT:
-      u8g_InitCom(u8g, dev);
+      u8g_InitCom(u8g, dev, U8G_SPI_CLK_CYCLE_400NS);
       u8g_WriteEscSeqP(u8g, dev, u8g_dev_st7565_dogm132_init_seq);
       break;
     case U8G_DEV_MSG_STOP:
