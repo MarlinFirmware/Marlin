@@ -17,8 +17,8 @@ namespace screen
 			virtual ~ScreenStatus();
 
 			void init();
-			void icon(Icon & component);
-			Icon & icon();
+//			void icon(Icon & component);
+//			Icon & icon();
 			void update(T value);
 
 		private:
@@ -49,6 +49,7 @@ namespace screen
 		ViewManager::getInstance().activeView(m_next_screen);
 	}
 
+/*
 	template <typename T, typename R, typename... Args>
 	void ScreenStatus<T, R, Args...>::icon(Icon & component)
 	{
@@ -72,6 +73,7 @@ namespace screen
 		}
 		return * m_icon;
 	}
+*/
 
 	template <typename T, typename R, typename... Args>
 	void ScreenStatus<T, R, Args...>::update(T value) 

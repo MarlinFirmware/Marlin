@@ -257,6 +257,7 @@ namespace screen
 		m_num_item_added++;
 	}
 
+/*
 	void ScreenList::icon(Icon & component)
 	{
 		if (m_icon_index < 1)
@@ -280,6 +281,7 @@ namespace screen
 		}
 		return * m_icon;
 	}
+*/
 
 	void ScreenList::updateSdcardStatus()
 	{

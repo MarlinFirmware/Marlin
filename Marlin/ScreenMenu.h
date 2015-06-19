@@ -4,6 +4,7 @@
 #include <stdint.h>
 
 #include "Screen.h"
+#include "Icon.h"
 
 namespace screen
 {
@@ -20,11 +21,14 @@ namespace screen
 			virtual void draw();
 			void press();
 			void add(Screen & component);
+			void icon(Icon & component);
 
 		protected:
 			uint16_t m_index;
 			uint16_t m_num_items;
+			uint16_t m_num_icons;
 			Screen * m_items[max_items];
+			Icon * m_icons[max_items];
 			const char * m_text;
 	};
 }

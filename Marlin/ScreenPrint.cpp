@@ -27,7 +27,7 @@ namespace screen
 			}
 			painter.printing_status(card.percentDone(), actual_time);
 			//Paint selection box on bottom of screen
-			painter.box((m_items[m_index]->icon()).text());
+			painter.box((m_icons[m_index])->text());
 			//Icon grid
 			uint8_t x_init = painter.coordinateXInit();
 			uint8_t y_init = painter.coordinateYInit() + 5;
@@ -44,11 +44,11 @@ namespace screen
 
 				if (i == m_index)
 				{
-					(m_items[i]->icon()).draw(x,y, true);
+					m_icons[i]->draw(x,y, true);
 				}
 				else
 				{
-					(m_items[i]->icon()).draw(x,y);
+					m_icons[i]->draw(x,y);
 				}
 			}	
 		} while( painter.nextPage() ); 

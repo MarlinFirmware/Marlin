@@ -4,7 +4,6 @@
 #include <new.h>
 #include <stdint.h>
 
-#include "Icon.h"
 #include "GuiPainter.h"
 #include "ViewManager.h"
 
@@ -38,8 +37,6 @@ namespace screen
 			virtual void draw() {};
 			virtual void init() {};
 
-			virtual void icon(Icon & component);
-			virtual Icon & icon();
 			virtual void press();
 			virtual void add(Screen & component);
 
@@ -47,7 +44,6 @@ namespace screen
 			ScreenType_t m_type;
 			const char * m_title;
 			Screen * m_next_screen;
-			Icon * m_icon;
 	};
 }
 #endif //SCREEN_H

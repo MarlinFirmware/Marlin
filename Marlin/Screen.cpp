@@ -25,16 +25,6 @@ namespace screen
       m_next_screen = &component;
    }
 
-	void Screen::icon(Icon & component)
-	{
-		m_icon = &component;
-	}
-
-	Icon & Screen::icon()
-	{
-		return * m_icon;
-	}
-
 	void Screen::press()
 	{ }
 }

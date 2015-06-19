@@ -43,8 +43,8 @@ namespace screen
 			void draw();
 			void press();
 			void add(Screen & component);
-			void icon(Icon & component);
-			Icon & icon();
+//			void icon(Icon & component);
+//			Icon & icon();
 
 		private:
 			void updateSdcardStatus();
@@ -53,7 +53,7 @@ namespace screen
 			uint16_t m_index;
 			uint16_t m_num_list;
 			uint8_t m_icon_index;
-			Icon * m_icon_alternate;
+//			Icon * m_icon_alternate;
 
 			Screen * m_back_screen;
 			uint8_t m_num_item_added;
