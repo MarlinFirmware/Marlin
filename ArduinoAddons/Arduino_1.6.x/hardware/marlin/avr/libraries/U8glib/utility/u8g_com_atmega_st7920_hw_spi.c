@@ -38,6 +38,12 @@
   and
     SCK is at PORTB, Pin 5
 
+  Update for ATOMIC operation done (01 Jun 2013)
+    U8G_ATOMIC_OR(ptr, val)
+    U8G_ATOMIC_AND(ptr, val)
+    U8G_ATOMIC_START()
+    U8G_ATOMIC_END()
+ 
 
 */
 
@@ -106,12 +112,16 @@ uint8_t u8g_com_atmega_st7920_hw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val
       u8g_SetPIOutput(u8g, U8G_PI_CS);
       //u8g_SetPIOutput(u8g, U8G_PI_A0);
       
+      U8G_ATOMIC_START();
+      
       DDRB |= _BV(3);          /* D0, MOSI */
       DDRB |= _BV(5);          /* SCK */
       DDRB |= _BV(2);		/* slave select */
     
       PORTB &= ~_BV(3);        /* D0, MOSI = 0 */
       PORTB &= ~_BV(5);        /* SCK = 0 */
+      U8G_ATOMIC_END();
+      
       u8g_SetPILevel(u8g, U8G_PI_CS, 1);
 
       /*
@@ -125,7 +135,8 @@ uint8_t u8g_com_atmega_st7920_hw_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val
       
       /* maybe set CPOL and CPHA to 1 */
       /* 20 Dez 2012: did set CPOL and CPHA to 1 in Arduino variant! */
-      SPCR =  (1<<SPE) | (1<<MSTR)|(0<<SPR1)|(0<<SPR0)|(0<<CPOL)|(0<<CPHA);
+      /* 24 Jan 2014: implemented, see also issue 221 */
+      SPCR =  (1<<SPE) | (1<<MSTR)|(0<<SPR1)|(0<<SPR0)|(1<<CPOL)|(1<<CPHA);
 #ifdef U8G_HW_SPI_2X
       SPSR = (1 << SPI2X);  /* double speed, issue 89 */
 #endif

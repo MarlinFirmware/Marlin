@@ -33,6 +33,13 @@
 
   A special SPI interface for ST7920 controller
 
+  Update for ATOMIC operation done (01 Jun 2013)
+    U8G_ATOMIC_OR(ptr, val)
+    U8G_ATOMIC_AND(ptr, val)
+    U8G_ATOMIC_START();
+    U8G_ATOMIC_END();
+
+
 */
 
 #include "u8g.h"
@@ -51,10 +58,10 @@
 
 #if defined(__AVR__)
 
-uint8_t u8g_bitData, u8g_bitNotData;
-uint8_t u8g_bitClock, u8g_bitNotClock;
-volatile uint8_t *u8g_outData;
-volatile uint8_t *u8g_outClock;
+static uint8_t u8g_bitData, u8g_bitNotData;
+static uint8_t u8g_bitClock, u8g_bitNotClock;
+static volatile uint8_t *u8g_outData;
+static volatile uint8_t *u8g_outClock;
 
 static void u8g_com_arduino_init_shift_out(uint8_t dataPin, uint8_t clockPin)
 {
@@ -80,12 +87,17 @@ static void u8g_com_arduino_do_shift_out_msb_first(uint8_t val)
   uint8_t bitNotClock = u8g_bitNotClock;
   volatile uint8_t *outData = u8g_outData;
   volatile uint8_t *outClock = u8g_outClock;
+  
+  
+  U8G_ATOMIC_START();
+  bitData |= *outData;
+  bitNotData &= *outData;
   do
   {
     if ( val & 128 )
-      *outData |= bitData;
+      *outData = bitData;
     else
-      *outData &= bitNotData;
+      *outData = bitNotData;
 
     /*
     *outClock |= bitClock;
@@ -102,6 +114,7 @@ static void u8g_com_arduino_do_shift_out_msb_first(uint8_t val)
     *outClock |= bitClock;
     //u8g_MicroDelay();
   } while( cnt != 0 );
+  U8G_ATOMIC_END();
 }
 
 #elif defined(__18CXX) || defined(__PIC32MX)
@@ -129,6 +142,7 @@ static void u8g_com_arduino_init_shift_out(uint8_t dataPin, uint8_t clockPin)
 static void u8g_com_arduino_do_shift_out_msb_first(uint8_t val)
 {
   uint8_t cnt = 8;
+  U8G_ATOMIC_START();
   do
   {
     if ( val & 128 )
@@ -146,6 +160,7 @@ static void u8g_com_arduino_do_shift_out_msb_first(uint8_t val)
     u8g_MicroDelay();
     
   } while( cnt != 0 );
+  U8G_ATOMIC_END();
 }
 
 #else
@@ -183,7 +198,33 @@ static void u8g_com_arduino_do_shift_out_msb_first(uint8_t val)
 #endif 
 
 
+static void u8g_com_arduino_st7920_write_byte_seq(uint8_t rs, uint8_t *ptr, uint8_t len)
+{
+  uint8_t i;
 
+  if ( rs == 0 )
+  {
+    /* command */
+    u8g_com_arduino_do_shift_out_msb_first(0x0f8);
+  }
+  else if ( rs == 1 )
+  {
+    /* data */
+    u8g_com_arduino_do_shift_out_msb_first(0x0fa);
+  }
+
+  while( len > 0 )
+  {
+    u8g_com_arduino_do_shift_out_msb_first(*ptr & 0x0f0);
+    u8g_com_arduino_do_shift_out_msb_first(*ptr << 4);
+    ptr++;
+    len--;
+    u8g_10MicroDelay();
+  }
+  
+  for( i = 0; i < 4; i++ )
+    u8g_10MicroDelay();
+}
 
 static void u8g_com_arduino_st7920_write_byte(uint8_t rs, uint8_t val)
 {
@@ -207,7 +248,6 @@ static void u8g_com_arduino_st7920_write_byte(uint8_t rs, uint8_t val)
     u8g_10MicroDelay();
     
 }
-
 
 
 uint8_t u8g_com_arduino_st7920_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, void *arg_ptr)
@@ -243,6 +283,9 @@ uint8_t u8g_com_arduino_st7920_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, 
         /* enable */
         //u8g_com_arduino_digital_write(u8g, U8G_PI_SCK, HIGH);
         u8g_com_arduino_digital_write(u8g, U8G_PI_CS, HIGH);
+	/* 28 Dec 2013 reassign pins, fixes issue with more than one display */
+	/* issue 227 */
+	u8g_com_arduino_init_shift_out(u8g->pin_list[U8G_PI_MOSI], u8g->pin_list[U8G_PI_SCK]);
       }
       break;
 
@@ -253,15 +296,7 @@ uint8_t u8g_com_arduino_st7920_spi_fn(u8g_t *u8g, uint8_t msg, uint8_t arg_val, 
       break;
     
     case U8G_COM_MSG_WRITE_SEQ:
-      {
-        register uint8_t *ptr = arg_ptr;
-        while( arg_val > 0 )
-        {
-          u8g_com_arduino_st7920_write_byte(u8g->pin_list[U8G_PI_A0_STATE], *ptr++);
-          //u8g->pin_list[U8G_PI_A0_STATE] = 2; 
-          arg_val--;
-        }
-      }
+      u8g_com_arduino_st7920_write_byte_seq(u8g->pin_list[U8G_PI_A0_STATE], (uint8_t *)arg_ptr, arg_val);
       break;
 
       case U8G_COM_MSG_WRITE_SEQ_P:

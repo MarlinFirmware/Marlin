@@ -50,7 +50,7 @@
   uint8_t u8g_is_intersection_boolean(u8g_uint_t a0, u8g_uint_t a1, u8g_uint_t v0, u8g_uint_t v1)
   However, this is slower than a decision tree version:  
   static uint8_t u8g_is_intersection_decision_tree(u8g_uint_t a0, u8g_uint_t a1, u8g_uint_t v0, u8g_uint_t v1) 
-  Also suprising is, that he the macro implementation is slower than the inlined version.
+  Also suprising is, that the macro implementation is slower than the inlined version.
   
   The decision tree is based on the expansion of the truth table.
   
@@ -59,7 +59,7 @@
 #include "u8g.h"
 
 #ifdef __GNUC__
-#define U8G_ALWAYS_INLINE __attribute__((always_inline))
+#define U8G_ALWAYS_INLINE __inline__ __attribute__((always_inline))
 #else
 #define U8G_ALWAYS_INLINE
  #endif 
@@ -94,8 +94,8 @@ static uint8_t u8g_is_intersection_boolean(u8g_uint_t a0, u8g_uint_t a1, u8g_uin
 
 #define U8G_IS_INTERSECTION_MACRO(a0,a1,v0,v1) ((uint8_t)( (v0) <= (a1) ) ? ( ( (v1) >= (a0) ) ? ( 1 ) : ( (v0) > (v1) ) ) : ( ( (v1) >= (a0) ) ? ( (v0) > (v1) ) : ( 0 ) ))
 
-static uint8_t u8g_is_intersection_decision_tree(u8g_uint_t a0, u8g_uint_t a1, u8g_uint_t v0, u8g_uint_t v1)  U8G_ALWAYS_INLINE;
-static uint8_t u8g_is_intersection_decision_tree(u8g_uint_t a0, u8g_uint_t a1, u8g_uint_t v0, u8g_uint_t v1) 
+//static uint8_t u8g_is_intersection_decision_tree(u8g_uint_t a0, u8g_uint_t a1, u8g_uint_t v0, u8g_uint_t v1) U8G_ALWAYS_INLINE;
+static uint8_t U8G_ALWAYS_INLINE u8g_is_intersection_decision_tree(u8g_uint_t a0, u8g_uint_t a1, u8g_uint_t v0, u8g_uint_t v1) 
 {
   /* surprisingly the macro leads to larger code */
   /* return U8G_IS_INTERSECTION_MACRO(a0,a1,v0,v1); */

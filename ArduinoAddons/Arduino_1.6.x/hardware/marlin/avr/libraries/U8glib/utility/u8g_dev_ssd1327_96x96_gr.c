@@ -233,7 +233,7 @@ uint8_t u8g_dev_ssd1327_96x96_gr_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t msg, voi
   switch(msg)
   {
     case U8G_DEV_MSG_INIT:
-      u8g_InitCom(u8g, dev);
+      u8g_InitCom(u8g, dev, U8G_SPI_CLK_CYCLE_300NS);
       u8g_WriteEscSeqP(u8g, dev, u8g_dev_ssd1327_2bit_96x96_init_seq);
       break;
     case U8G_DEV_MSG_STOP:
@@ -261,7 +261,7 @@ uint8_t u8g_dev_ssd1327_96x96_2x_gr_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t msg, 
   switch(msg)
   {
     case U8G_DEV_MSG_INIT:
-      u8g_InitCom(u8g, dev);
+      u8g_InitCom(u8g, dev, U8G_SPI_CLK_CYCLE_300NS);
       u8g_WriteEscSeqP(u8g, dev, u8g_dev_ssd1327_2bit_96x96_init_seq);
       break;
     case U8G_DEV_MSG_STOP:
