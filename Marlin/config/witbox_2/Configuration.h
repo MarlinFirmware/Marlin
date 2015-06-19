@@ -230,7 +230,7 @@
 // The pullups are needed if you directly connect a mechanical endswitch between the signal and ground pins.
 const bool X_MIN_ENDSTOP_INVERTING = true; // set to true to invert the logic of the endstop.
 const bool Y_MIN_ENDSTOP_INVERTING = true; // set to true to invert the logic of the endstop.
-const bool Z_MIN_ENDSTOP_INVERTING = true; // set to true to invert the logic of the endstop.
+const bool Z_MIN_ENDSTOP_INVERTING = false; // set to true to invert the logic of the endstop.
 const bool X_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of the endstop.
 const bool Y_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of the endstop.
 const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of the endstop.
@@ -284,13 +284,25 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define Z_MAX_LENGTH (Z_MAX_POS - Z_MIN_POS)
 //============================= Bed Auto Leveling ===========================
 
-//#define ENABLE_AUTO_BED_LEVELING // Delete the comment to enable (remove // at the start of the line)
+#define ENABLE_AUTO_BED_LEVELING // Delete the comment to enable (remove // at the start of the line)
 //#define Z_PROBE_REPEATABILITY_TEST  // If not commented out, Z-Probe Repeatability test will be included if Auto Bed Leveling is Enabled.
 
 #ifdef ENABLE_AUTO_BED_LEVELING
   #ifndef Z_SAFE_HOMING
-  #define Z_SAFE_HOMING
+    #define Z_SAFE_HOMING
   #endif
+#endif // ENABLE_AUTO_BED_LEVELING
+
+//If you have enabled the Bed Auto Leveling and are using the same Z Probe for Z Homing,
+//it is highly recommended you let this Z_SAFE_HOMING enabled!!!
+
+#define Z_SAFE_HOMING   // This feature is meant to avoid Z homing with probe outside the bed area.
+                        // When defined, it will:
+                        // - Allow Z homing only after X and Y homing AND stepper drivers still enabled
+                        // - If stepper drivers timeout, it will need X and Y homing again before Z homing
+                        // - Position the probe in a defined XY point before Z Homing when homing all axis (G28)
+                        // - Block Z homing only when the probe is outside bed area.
+#ifdef Z_SAFE_HOMING
 // There are 2 different ways to pick the X and Y locations to probe:
 
 //  - "grid" mode
@@ -308,27 +320,13 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
   // AUTO_BED_LEVELING_GRID_POINTSxAUTO_BED_LEVELING_GRID_POINTS grid
   // and least squares solution is calculated
   // Note: this feature occupies 10'206 byte
-  
-#endif // ENABLE_AUTO_BED_LEVELING
-
-//If you have enabled the Bed Auto Leveling and are using the same Z Probe for Z Homing,
-//it is highly recommended you let this Z_SAFE_HOMING enabled!!!
-#define Z_SAFE_HOMING   // This feature is meant to avoid Z homing with probe outside the bed area.
-                        // When defined, it will:
-                        // - Allow Z homing only after X and Y homing AND stepper drivers still enabled
-                        // - If stepper drivers timeout, it will need X and Y homing again before Z homing
-                        // - Position the probe in a defined XY point before Z Homing when homing all axis (G28)
-                        // - Block Z homing only when the probe is outside bed area.
-
-#ifdef Z_SAFE_HOMING
-
-#ifdef AUTO_BED_LEVELING_GRID
+  #ifdef AUTO_BED_LEVELING_GRID
 
     // set the rectangle in which to probe
-    #define LEFT_PROBE_BED_POSITION 15
-    #define RIGHT_PROBE_BED_POSITION 170
-    #define BACK_PROBE_BED_POSITION 180
-    #define FRONT_PROBE_BED_POSITION 20
+    #define LEFT_PROBE_BED_POSITION 30
+    #define RIGHT_PROBE_BED_POSITION 200
+    #define BACK_PROBE_BED_POSITION 185
+    #define FRONT_PROBE_BED_POSITION 30
 
      // set the number of grid points per dimension
      // I wouldn't see a reason to go above 3 (=9 probing points on the bed)
@@ -339,27 +337,25 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
     // with no grid, just probe 3 arbitrary points.  A simple cross-product
     // is used to esimate the plane of the print bed
 
-      #define ABL_PROBE_PT_1_X (X_MAX_POS-X_MIN_POS)/2
-      #define ABL_PROBE_PT_1_Y Y_MAX_POS - 50
-      #define ABL_PROBE_PT_2_X X_MAX_POS - 50
-      #define ABL_PROBE_PT_2_Y Y_MIN_POS + 50
-      #define ABL_PROBE_PT_3_X X_MIN_POS + 50
-      #define ABL_PROBE_PT_3_Y Y_MIN_POS + 50
+      #define ABL_PROBE_PT_1_X X_MIN_POS + 30 + X_PROBE_OFFSET_FROM_EXTRUDER
+      #define ABL_PROBE_PT_1_Y Y_MIN_POS + 30 + Y_PROBE_OFFSET_FROM_EXTRUDER
+      #define ABL_PROBE_PT_2_X X_MAX_POS - 30 + X_PROBE_OFFSET_FROM_EXTRUDER 
+      #define ABL_PROBE_PT_2_Y Y_MIN_POS + 30 + Y_PROBE_OFFSET_FROM_EXTRUDER
+      #define ABL_PROBE_PT_3_X (X_MAX_POS+X_MIN_POS)/2 + X_PROBE_OFFSET_FROM_EXTRUDER
+      #define ABL_PROBE_PT_3_Y Y_MAX_POS - 30 + Y_PROBE_OFFSET_FROM_EXTRUDER
 
   #endif // AUTO_BED_LEVELING_GRID
-  
 
   #define Z_RAISE_BEFORE_HOMING 0       // (in mm) Raise Z before homing (G28) for Probe Clearance.
                                         // Be sure you have this distance over your Z_MAX_POS in case
   #define Z_RAISE_BEFORE_PROBING 15    //How much the extruder will be raised before traveling to the first probing point.
-  #define Z_RAISE_BETWEEN_PROBINGS 15  //How much the extruder will be raised when traveling from between next probing points
-
+  #define Z_RAISE_BETWEEN_PROBINGS 10  //How much the extruder will be raised when traveling from between next probing points
 
 
   // these are the offsets to the probe relative to the extruder tip (Hotend - Probe)
-  #define X_PROBE_OFFSET_FROM_EXTRUDER -35
-  #define Y_PROBE_OFFSET_FROM_EXTRUDER -5
-  #define Z_PROBE_OFFSET_FROM_EXTRUDER -4
+  #define X_PROBE_OFFSET_FROM_EXTRUDER -29.5
+  #define Y_PROBE_OFFSET_FROM_EXTRUDER -26.5
+  #define Z_PROBE_OFFSET_FROM_EXTRUDER 0
 
   //If defined, the Probe servo will be turned on only during movement and then turned off to avoid jerk
   //The value is the delay to turn the servo off after powered on - depends on the servo speed; 300ms is good value, but you can try lower it.
@@ -367,8 +363,8 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 //  #define PROBE_SERVO_DEACTIVATION_DELAY 300
 
-    #define Z_SAFE_HOMING_X_POINT (X_MAX_POS + X_MIN_POS)/2    // X point for Z homing when homing all axis (G28)
-    #define Z_SAFE_HOMING_Y_POINT (Y_MAX_POS + Y_MIN_POS)/2  // Y point for Z homing when homing all axis (G28)
+    #define Z_SAFE_HOMING_X_POINT (X_MAX_POS + X_MIN_POS)/2 + X_PROBE_OFFSET_FROM_EXTRUDER   // X point for Z homing when homing all axis (G28)
+    #define Z_SAFE_HOMING_Y_POINT (Y_MAX_POS + Y_MIN_POS)/2 + Y_PROBE_OFFSET_FROM_EXTRUDER // Y point for Z homing when homing all axis (G28)
 
 #endif //Z_SAFE_HOMING
 
