@@ -5,10 +5,8 @@
 
 namespace screen
 {
-	ScreenAbout::ScreenAbout(const char * title, const char * text, const char * box, const unsigned char * bitmap)
-		: Screen(title, MENU)
-		, m_text(text)
-		, m_box(box)
+	ScreenAbout::ScreenAbout(const char * title, const char * message, const char * box, const unsigned char * bitmap)
+		: ScreenDialog<void>(title, message, box)
 		, m_bitmap(bitmap)
 	{ }
 
@@ -49,9 +47,9 @@ namespace screen
 		} while( painter.nextPage() ); 
 
 	}
-
+/*
 	void ScreenAbout::press()
 	{
 		ViewManager::getInstance().activeView(m_next_screen);
-	}
+	}*/
 }

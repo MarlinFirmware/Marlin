@@ -269,7 +269,7 @@ namespace screen
 		screen_settings.add(screen_offset);
 		screen_settings.add(screen_autolevel);
 		screen_settings.add(screen_light);
-//		screen_settings.add(screen_info);
+		screen_settings.add(screen_info);
 		screen_settings.icon(icon_settings);
 		//Stepper
 		screen_stepper.add(screen_main);

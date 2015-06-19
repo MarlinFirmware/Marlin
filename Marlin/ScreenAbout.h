@@ -3,22 +3,19 @@
 
 #include <stdint.h>
 
-#include "Screen.h"
+#include "ScreenDialog.h"
 
 namespace screen
 {
-	class ScreenAbout : public Screen
+	class ScreenAbout : public ScreenDialog<void>
 	{
 		public:
-			ScreenAbout(const char * title = 0, const char * text = 0, const char * box = 0, const unsigned char * bitmap = 0);
+			ScreenAbout(const char * title = 0, const char * message = 0, const char * box = 0, const unsigned char * bitmap = 0);
 			virtual ~ScreenAbout();
 
-			void press();
 			virtual void draw();
 
 		protected:
-			const char * m_text;
-			const char * m_box;
 			const unsigned char * m_bitmap;
 	};
 }
