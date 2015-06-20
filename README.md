@@ -6,6 +6,10 @@ This printer is based on RepRap project.
 ##### [RepRap.org Wiki Page](http://reprap.org/wiki/Marlin)
 
 ## Credits
+Contributors:
+Ashwin Prasada [iashwinprasada]
+Thejeswi Preetham [thejeswi]
+
 Thanks to Marlin and the RepRap community. Without which our printer would not have been possible.
 (https://github.com/MarlinFirmware/Marlin)
 ## License
