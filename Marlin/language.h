@@ -51,7 +51,8 @@
   #ifdef CUSTOM_MENDEL_NAME
     #define MACHINE_NAME CUSTOM_MENDEL_NAME
   #else
-    #define MACHINE_NAME "Mendel"
+    #define MACHINE_NAME "EZ-MAKER"
+    #define FIRMWARE_URL "https://www.ez3.in/downloads"
   #endif
 
 // Default firmware set to Mendel
@@ -60,7 +61,7 @@
 
 
 #ifndef MACHINE_UUID
-   #define MACHINE_UUID "00000000-0000-0000-0000-000000000000"
+   #define MACHINE_UUID "ES200-16.06.2015-011"
 #endif
 
 
@@ -83,7 +84,7 @@
 #define MSG_BROWNOUT_RESET                  " Brown out Reset"
 #define MSG_WATCHDOG_RESET                  " Watchdog Reset"
 #define MSG_SOFTWARE_RESET                  " Software Reset"
-#define MSG_AUTHOR                          " | Author: "
+#define MSG_AUTHOR                          "| EZ3-India"
 #define MSG_CONFIGURATION_VER               " Last Updated: "
 #define MSG_FREE_MEMORY                     " Free Memory: "
 #define MSG_PLANNER_BUFFER_BYTES            "  PlannerBufferBytes: "
@@ -103,10 +104,10 @@
 #define MSG_M221_INVALID_EXTRUDER           "M221 Invalid extruder "
 #define MSG_ERR_NO_THERMISTORS              "No thermistors - no temperature"
 #define MSG_M109_INVALID_EXTRUDER           "M109 Invalid extruder "
-#define MSG_HEATING                         "Heating..."
-#define MSG_HEATING_COMPLETE                "Heating done."
-#define MSG_BED_HEATING                     "Bed Heating."
-#define MSG_BED_DONE                        "Bed done."
+#define MSG_HEATING                         "Hotend Heating"
+#define MSG_HEATING_COMPLETE                "Hotend Heated"  //EZ-Maker Ugly fix. (Marlin default: Printing...) 
+#define MSG_BED_HEATING                     "Bed Heating"
+#define MSG_BED_DONE                        "Bed Heated"
 #define MSG_M115_REPORT                     "FIRMWARE_NAME:Marlin V1.0.2; Sprinter/grbl mashup for gen6 FIRMWARE_URL:" FIRMWARE_URL " PROTOCOL_VERSION:" PROTOCOL_VERSION " MACHINE_TYPE:" MACHINE_NAME " EXTRUDER_COUNT:" STRINGIFY(EXTRUDERS) " UUID:" MACHINE_UUID "\n"
 #define MSG_COUNT_X                         " Count X: "
 #define MSG_ERR_KILLED                      "Printer halted. kill() called!"

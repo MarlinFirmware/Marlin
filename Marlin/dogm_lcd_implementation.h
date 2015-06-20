@@ -72,6 +72,7 @@
 #define FONT_STATUSMENU	u8g_font_6x9
 
 int lcd_contrast;
+bool printing_started = false;
 
 // LCD selection
 #ifdef U8GLIB_ST7920
@@ -124,19 +125,12 @@ static void lcd_implementation_init()
 			u8g.drawBitmapP(0,0,START_BMPBYTEWIDTH,START_BMPHEIGHT,start_bmp);
 			// Welcome message
 			u8g.setFont(u8g_font_6x10_marlin);
-			u8g.drawStr(62,10,"MARLIN"); 
+			u8g.drawStr(62,10,"EZ3-India"); 
+			u8g.drawStr(62,28,"EZ-MAKER");
 			u8g.setFont(u8g_font_5x8);
-			u8g.drawStr(62,19,"V1.0.2");
-			u8g.setFont(u8g_font_6x10_marlin);
-			u8g.drawStr(62,28,"by ErikZalm");
-			u8g.drawStr(62,41,"DOGM128 LCD");
-			u8g.setFont(u8g_font_5x8);
-			u8g.drawStr(62,48,"enhancements");
-			u8g.setFont(u8g_font_5x8);
-			u8g.drawStr(62,55,"by STB, MM");
-			u8g.drawStr(62,61,"uses u");
-			u8g.drawStr90(92,57,"8");
-			u8g.drawStr(100,61,"glib");
+			//u8g.drawStr(62,40,"Model#");
+			u8g.drawStr(62,52,"ES-200");
+			u8g.drawStr(80,61,"V 1.14");
 	   } while( u8g.nextPage() );
 }
 
@@ -287,8 +281,23 @@ static void lcd_implementation_status_screen()
  // Status line
  u8g.setFont(FONT_STATUSMENU);
  u8g.setPrintPos(0,61);
+ //~ int diff_temp = target_temperature[0] - current_temperature[0]; //EZ-Maker assist
  #ifndef FILAMENT_LCD_DISPLAY
+    if (printing_started && IS_SD_PRINTING)//EZ-Maker show current file 
+    {
+		u8g.print(card.longFilename);
+	}
+	else
+	{
+	if (IS_SD_PRINTING && !(isHeatingBed() || isHeatingHotend0() ))
+	        printing_started = true;
+	else
+	{
+	if (!IS_SD_PRINTING)
+	     printing_started = false;
  	u8g.print(lcd_status_message);
+    }
+    }
  #else
 	if(message_millis+5000>millis()){  //Display both Status message line and Filament display on the last line
 	 u8g.print(lcd_status_message);

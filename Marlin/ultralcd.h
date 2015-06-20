@@ -12,6 +12,9 @@
   void lcd_setalertstatuspgm(const char* message);
   void lcd_reset_alert_level();
   bool lcd_detected(void);
+  void lcd_filament_change_idle();
+  void lcd_filament_change_print();
+  void lcd_cooldown();
 
 #ifdef DOGLCD
   extern int lcd_contrast;
