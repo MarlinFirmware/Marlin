@@ -54,7 +54,9 @@
 #include "language.h"
 #include "pins_arduino.h"
 #include "math.h"
-#include "HX711.h"
+#ifdef ELECTRONIC_SCALE_PROBE
+  #include "HX711.h"
+#endif
 
 #ifdef BLINKM
   #include "blinkm.h"
