@@ -84,27 +84,22 @@ namespace screen
 
 	// Unload Filament screens
 	ScreenMenu screen_unload_init                       = ScreenMenu(MSG_SCREEN_UNLOAD_TITLE, MSG_SCREEN_UNLOAD_TEXT2);
-/*
 	ScreenSelector<void, uint16_t> screen_unload_select = ScreenSelector<void, uint16_t>(MSG_SCREEN_UNLOAD_TITLE, 170, 230, default_temp_change_filament, action_set_temperature);
 	ScreenAnimation<float> screen_unload_heating        = ScreenAnimation<float>(MSG_SCREEN_UNLOAD_TITLE, MSG_SCREEN_UNLOAD_ABORT, &TemperatureManager::single::instance());
 	ScreenDialog<void> screen_unload_info               = ScreenDialog<void>(MSG_SCREEN_UNLOAD_TITLE, MSG_SCREEN_UNLOAD_TEXT1, MSG_SCREEN_UNLOAD_CONTINUE, do_nothing);
 	ScreenTransition screen_unloading                   = ScreenTransition(MSG_SCREEN_UNLOAD_TITLE, MSG_SCREEN_UNLOADING_TEXT, MSG_SCREEN_LEVEL_BOX0, action_filament_unload);
 	ScreenMenu screen_unload_confirm                    = ScreenMenu(MSG_SCREEN_UNLOAD_TITLE, MSG_SCREEN_UNLOAD_CONFIRM);
-*/
 
 	// Load Filament screens
 	ScreenMenu screen_load_init                        = ScreenMenu(MSG_SCREEN_LOAD_TITLE, MSG_SCREEN_LOAD_TEXT2);
-/*
 	ScreenSelector<void, uint16_t> screen_load_select  = ScreenSelector<void, uint16_t>(MSG_SCREEN_LOAD_TITLE, 170, 230, default_temp_change_filament, action_set_temperature);
 	ScreenAnimation<float> screen_load_heating         = ScreenAnimation<float>(MSG_SCREEN_LOAD_TITLE, MSG_SCREEN_LOAD_ABORT, &TemperatureManager::single::instance());
 	ScreenDialog<void> screen_load_info                = ScreenDialog<void>(MSG_SCREEN_LOAD_TITLE, MSG_SCREEN_LOAD_TEXT1, MSG_SCREEN_LOAD_CONTINUE, do_nothing);
 	ScreenTransition screen_loading                    = ScreenTransition(MSG_SCREEN_LOAD_TITLE, MSG_SCREEN_LOADING_TEXT, MSG_SCREEN_LEVEL_BOX0, action_filament_load);
 	ScreenMenu screen_load_confirm                     = ScreenMenu(MSG_SCREEN_LOAD_TITLE, MSG_SCREEN_LOAD_CONFIRM);
-*/
 
 	// Level Plate screens
 	ScreenMenu screen_level_init                   = ScreenMenu(MSG_SCREEN_LEVEL_TITLE, MSG_SCREEN_LEVEL_TEXT);
-/*
 	ScreenAction<void> screen_level_cooling        = ScreenAction<void>(NULL, action_cooldown);
 	ScreenAnimation<float> screen_level_animation  = ScreenAnimation<float>(MSG_SCREEN_LEVEL_TITLE, MSG_SCREEN_LEVEL_ABORT, &TemperatureManager::single::instance());
 	ScreenTransition screen_level_homing           = ScreenTransition(MSG_SCREEN_LEVEL_TITLE, MSG_SCREEN_LEVEL_TEXT0, MSG_SCREEN_LEVEL_BOX0, action_homing);
@@ -114,7 +109,7 @@ namespace screen
 	ScreenDialog<void> screen_level4               = ScreenDialog<void>(MSG_SCREEN_LEVEL_TITLE, MSG_SCREEN_LEVEL_TEXT4, MSG_SCREEN_LEVEL_BOX4, action_level_plate);
 	ScreenAction<void> screen_level5               = ScreenAction<void>(MSG_SCREEN_AUTOHOME, action_level_plate);
 	ScreenMenu screen_level_confirm                = ScreenMenu(MSG_SCREEN_LEVEL_TITLE, MSG_SCREEN_LEVEL_CONFIRM);
-*/
+
 
 	// AutoHome
 	ScreenAction<void> screen_autohome = ScreenAction<void>(MSG_SCREEN_AUTOHOME, action_homing);
@@ -230,7 +225,6 @@ namespace screen
 		screen_SD_OK.add(screen_print);
 
 		// Unload Filament Screens
-/*
 		// Unload Filament Init
 		screen_unload_init.add(screen_main);
 		screen_unload_init.icon(icon_back);
@@ -250,10 +244,8 @@ namespace screen
 		screen_unload_confirm.icon(icon_retry);
 		screen_unload_confirm.add(screen_main);
 		screen_unload_confirm.icon(icon_ok);
-*/
 
 		// Load Filament screens
-/*
 		// Load Filament Init
 		screen_load_init.add(screen_main);
 		screen_load_init.icon(icon_back);
@@ -273,10 +265,8 @@ namespace screen
 		screen_load_confirm.icon(icon_retry);
 		screen_load_confirm.add(screen_main);
 		screen_load_confirm.icon(icon_ok);
-*/
 
 		// Level Plate
-/*
 		screen_level_init.add(screen_main);
 		screen_level_init.icon(icon_back);
 		screen_level_init.add(screen_level_cooling);
@@ -303,7 +293,6 @@ namespace screen
 		screen_level_confirm.icon(icon_retry);
 		screen_level_confirm.add(screen_main);
 		screen_level_confirm.icon(icon_ok);
-*/
 
 		// AutoHome
 		screen_autohome.add(screen_main);
