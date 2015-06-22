@@ -47,7 +47,7 @@ Here are some standard links for getting your machine calibrated:
 // 40 = bqCNC
 
 #ifndef MOTHERBOARD
-#define MOTHERBOARD 40
+#define MOTHERBOARD 43
 #endif
 
 // Define this to set a custom name for your generic Mendel,

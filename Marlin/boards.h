@@ -48,9 +48,12 @@
 #define BOARD_ELEFU_3           21   // Elefu Ra Board (v3)
 #define BOARD_5DPRINT           88   // 5DPrint D8 Driver Board
 #define BOARD_LEAPFROG          999  // Leapfrog
+
 #define BOARD_BQCNC             40   // bq CNC
 #define BOARD_WITBOX            41   // bq WITBOX
 #define BOARD_HEPHESTOS         42   // bq Prusa i3 Hephestos
+#define BOARD_BQ_ZUM_MEGA_3D	43   // bq ZUM Mega 3D
+
 #define BOARD_BAM_DICE          401  // 2PrintBeta BAM&DICE with STK drivers
 #define BOARD_BAM_DICE_DUE      402  // 2PrintBeta BAM&DICE Due with STK drivers
 
