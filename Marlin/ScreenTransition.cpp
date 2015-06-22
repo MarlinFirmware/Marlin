@@ -30,9 +30,4 @@ namespace screen
 
 		} while ( painter.nextPage() );
 	}
-
-	void ScreenTransition::add(Screen & component)
-	{
-		m_next_screen = &component;
-	}
 }

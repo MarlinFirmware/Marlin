@@ -20,7 +20,7 @@ namespace screen
 			void draw();
 			void press();
 
-			void add(Screen & component);
+			void add(ScreenIndex_t const & component);
 			void update(T value);
 
 		private:
@@ -28,7 +28,7 @@ namespace screen
 
 			T m_observed;
 
-			Screen * m_back_screen;
+			ScreenIndex_t m_back_screen;
 			uint8_t m_num_item_added;
 	};
 
@@ -105,15 +105,15 @@ namespace screen
 	}
 
 	template <typename T>
-	void ScreenAnimation<T>::add(Screen & component)
+	void ScreenAnimation<T>::add(ScreenIndex_t const & component)
 	{
 		if (m_num_item_added % 2)
 		{
-			m_next_screen = &component;
+			m_next_screen = component;
 		}
 		else
 		{
-			m_back_screen = &component;
+			m_back_screen = component;
 		}
 		m_num_item_added++;
 	}

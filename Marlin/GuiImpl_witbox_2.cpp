@@ -9,13 +9,13 @@
 #include "Screen.h"
 #include "ScreenMenu.h"
 #include "ScreenList.h"
-/*
-#include "ScreenPrint.h"
+#include "ScreenAction.h"
 #include "ScreenDialog.h"
 #include "ScreenSelector.h"
 #include "ScreenAnimation.h"
 #include "ScreenTransition.h"
-#include "ScreenAction.h"
+/*
+#include "ScreenPrint.h"
 #include "ScreenPrint.h"
 #include "ScreenDynamic.h"
 #include "ScreenAbout.h"
@@ -72,33 +72,6 @@ namespace screen
 	/////////////////////////
 	// Instantiate Screens //
 	/////////////////////////
-
-	// Logo Splash
-//	ScreenDialog<void> screen_logo = ScreenDialog<void>(MSG_SCREEN_LOGO, MSG_SCREEN_LOGO_TEXT, MSG_SCREEN_LOGO_BOX, do_nothing);
-
-
-	// SD Card screens
-/*
-	ScreenAction<void> screen_SD_OK = ScreenAction<void>(MSG_SCREEN_SD_BACK, PrintManager::startPrint);
-*/
-
-	// Unload Filament screens
-/*
-	ScreenSelector<void, uint16_t> screen_unload_select = ScreenSelector<void, uint16_t>(MSG_SCREEN_UNLOAD_TITLE, 170, 230, default_temp_change_filament, action_set_temperature);
-	ScreenAnimation<float> screen_unload_heating        = ScreenAnimation<float>(MSG_SCREEN_UNLOAD_TITLE, MSG_SCREEN_UNLOAD_ABORT, &TemperatureManager::single::instance());
-	ScreenDialog<void> screen_unload_info               = ScreenDialog<void>(MSG_SCREEN_UNLOAD_TITLE, MSG_SCREEN_UNLOAD_TEXT1, MSG_SCREEN_UNLOAD_CONTINUE, do_nothing);
-	ScreenTransition screen_unloading                   = ScreenTransition(MSG_SCREEN_UNLOAD_TITLE, MSG_SCREEN_UNLOADING_TEXT, MSG_SCREEN_LEVEL_BOX0, action_filament_unload);
-	ScreenMenu screen_unload_confirm                    = ScreenMenu(MSG_SCREEN_UNLOAD_TITLE, MSG_SCREEN_UNLOAD_CONFIRM);
-*/
-
-	// Load Filament screens
-/*
-	ScreenSelector<void, uint16_t> screen_load_select  = ScreenSelector<void, uint16_t>(MSG_SCREEN_LOAD_TITLE, 170, 230, default_temp_change_filament, action_set_temperature);
-	ScreenAnimation<float> screen_load_heating         = ScreenAnimation<float>(MSG_SCREEN_LOAD_TITLE, MSG_SCREEN_LOAD_ABORT, &TemperatureManager::single::instance());
-	ScreenDialog<void> screen_load_info                = ScreenDialog<void>(MSG_SCREEN_LOAD_TITLE, MSG_SCREEN_LOAD_TEXT1, MSG_SCREEN_LOAD_CONTINUE, do_nothing);
-	ScreenTransition screen_loading                    = ScreenTransition(MSG_SCREEN_LOAD_TITLE, MSG_SCREEN_LOADING_TEXT, MSG_SCREEN_LEVEL_BOX0, action_filament_load);
-	ScreenMenu screen_load_confirm                     = ScreenMenu(MSG_SCREEN_LOAD_TITLE, MSG_SCREEN_LOAD_CONFIRM);
-*/
 
 	// Level Plate screens
 /*
@@ -192,6 +165,172 @@ namespace screen
 	ScreenSelector<void, uint16_t> screen_temperature_print = ScreenSelector<void, uint16_t>(MSG_SCREEN_TEMP_TITLE, 170, 230, default_temp_change_filament, action_set_temperature);
 */
 
+	static ScreenDialog<void> * make_screen_logo()
+	{
+		return (new ScreenDialog<void>(MSG_SCREEN_LOGO, MSG_SCREEN_LOGO_TEXT, MSG_SCREEN_LOGO_BOX, do_nothing));
+	}
+
+	static ScreenMenu * make_screen_main()
+	{
+		// Main Menu
+		ScreenMenu * local_view = new ScreenMenu();
+		// Main Menu
+		local_view->add(screen_SD_list);
+		local_view->icon(icon_sd);
+		//local_view->icon(icon_nosd);
+		local_view->add(screen_unload_init);
+		local_view->icon(icon_filament_unload);
+		local_view->add(screen_load_init);
+		local_view->icon(icon_filament_load);
+		local_view->add(screen_level_init);
+		local_view->icon(icon_leveling);
+		local_view->add(screen_autohome);
+		local_view->icon(icon_homing);
+		local_view->add(screen_settings);
+		local_view->icon(icon_settings);
+		local_view->add(screen_move);
+		local_view->icon(icon_moveaxis);
+		local_view->add(screen_stepper);
+		local_view->icon(icon_steppers);
+		local_view->add(screen_temperature_main);
+		local_view->icon(widget_temperature);
+		return local_view;
+	}	
+
+	static ScreenList * make_screen_SD_list()
+	{
+		ScreenList * local_view = new ScreenList(MSG_SCREEN_SD_LIST);
+		local_view->add(screen_main);
+		local_view->add(screen_SD_confirm);
+		return local_view;
+	}
+
+	static ScreenMenu * make_screen_SD_confirm()
+	{
+		ScreenMenu * local_view = new ScreenMenu(MSG_SCREEN_SD_CONFIRM);
+		local_view->add(screen_SD_list);
+		local_view->icon(icon_back);
+		local_view->add(screen_SD_OK);
+		local_view->icon(icon_ok);
+		return local_view;
+	}
+
+	static ScreenAction<void> * make_screen_SD_OK()
+	{
+		ScreenAction<void> * local_view = new ScreenAction<void>(MSG_SCREEN_SD_BACK, PrintManager::startPrint);
+		local_view->add(screen_print);
+		return local_view;
+	}
+
+	static ScreenMenu * make_screen_unload_init()
+	{
+		ScreenMenu * local_view = new ScreenMenu(MSG_SCREEN_UNLOAD_TITLE, MSG_SCREEN_UNLOAD_TEXT2);
+		local_view->add(screen_main);
+		local_view->icon(icon_back);
+		local_view->add(screen_unload_select);
+		local_view->icon(icon_ok);
+		return local_view;
+	}
+
+	static ScreenSelector<void, uint16_t> * make_screen_unload_select()
+	{
+		ScreenSelector<void, uint16_t> * local_view = new ScreenSelector<void, uint16_t>(MSG_SCREEN_UNLOAD_TITLE, 170, 230, default_temp_change_filament, action_set_temperature);
+		local_view->add(screen_unload_heating);
+		return local_view;
+	}
+
+	static ScreenAnimation<float> * make_screen_unload_heating()
+	{
+		ScreenAnimation<float> * local_view = new ScreenAnimation<float>(MSG_SCREEN_UNLOAD_TITLE, MSG_SCREEN_UNLOAD_ABORT, &TemperatureManager::single::instance());
+		local_view->add(screen_main);
+		local_view->add(screen_unload_info);
+		return local_view;
+	}
+
+	static ScreenDialog<void> * make_screen_unload_info()
+	{
+		ScreenDialog<void> * local_view = new ScreenDialog<void>(MSG_SCREEN_UNLOAD_TITLE, MSG_SCREEN_UNLOAD_TEXT1, MSG_SCREEN_UNLOAD_CONTINUE, do_nothing);
+		local_view->add(screen_unloading);
+		return local_view;
+	}
+
+	static ScreenTransition * make_screen_unloading()
+	{
+				ScreenTransition * local_view = new ScreenTransition(MSG_SCREEN_UNLOAD_TITLE, MSG_SCREEN_UNLOADING_TEXT, MSG_SCREEN_LEVEL_BOX0, action_filament_unload);
+				local_view->add(screen_unload_confirm);
+      return local_view;
+   }
+
+	static ScreenMenu * make_screen_unload_confirm()
+	{
+		ScreenMenu * local_view = new ScreenMenu(MSG_SCREEN_UNLOAD_TITLE, MSG_SCREEN_UNLOAD_CONFIRM);
+		local_view->add(screen_unload_info);
+		local_view->icon(icon_retry);
+		local_view->add(screen_main);
+		local_view->icon(icon_ok);
+		return local_view;
+	}
+
+	static ScreenMenu * make_screen_load_init()
+	{
+		ScreenMenu * local_view = new ScreenMenu(MSG_SCREEN_LOAD_TITLE, MSG_SCREEN_LOAD_TEXT2);
+		local_view->add(screen_main);
+		local_view->icon(icon_back);
+		local_view->add(screen_load_select);
+		local_view->icon(icon_ok);
+		return local_view;
+	}
+
+	static ScreenMenu * make_screen_level_init()
+	{
+		ScreenMenu * local_view = new ScreenMenu(MSG_SCREEN_LEVEL_TITLE, MSG_SCREEN_LEVEL_TEXT);
+		local_view->add(screen_main);
+		local_view->icon(icon_back);
+		local_view->add(screen_level_cooling);
+		local_view->icon(icon_ok);
+		return local_view;
+	}
+
+	static ScreenSelector<void, uint16_t> * make_screen_load_select()
+	{
+		ScreenSelector<void, uint16_t> * local_view  = new ScreenSelector<void, uint16_t>(MSG_SCREEN_LOAD_TITLE, 170, 230, default_temp_change_filament, action_set_temperature);
+		local_view->add(screen_load_heating);
+		return local_view;
+	}
+
+	static ScreenAnimation<float> * make_screen_load_heating()
+	{
+		ScreenAnimation<float> * local_view = new ScreenAnimation<float>(MSG_SCREEN_LOAD_TITLE, MSG_SCREEN_LOAD_ABORT, &TemperatureManager::single::instance());
+		local_view->add(screen_main);
+		local_view->add(screen_load_info);
+		return local_view;
+	}
+
+	static ScreenDialog<void> * make_screen_load_info()
+	{
+		ScreenDialog<void> * local_view = new ScreenDialog<void>(MSG_SCREEN_LOAD_TITLE, MSG_SCREEN_LOAD_TEXT1, MSG_SCREEN_LOAD_CONTINUE, do_nothing);
+		local_view->add(screen_loading);
+		return local_view;
+	}
+
+	static ScreenTransition * make_screen_loading()
+	{
+		ScreenTransition * local_view = new ScreenTransition(MSG_SCREEN_LOAD_TITLE, MSG_SCREEN_LOADING_TEXT, MSG_SCREEN_LEVEL_BOX0, action_filament_load);
+		local_view->add(screen_load_confirm);
+		return local_view;
+	}
+
+	static ScreenMenu * make_screen_load_confirm()
+	{
+		ScreenMenu * local_view = new ScreenMenu(MSG_SCREEN_LOAD_TITLE, MSG_SCREEN_LOAD_CONFIRM);
+		local_view->add(screen_load_info);
+		local_view->icon(icon_retry);
+		local_view->add(screen_main);
+		local_view->icon(icon_ok);
+		return local_view;
+	}
+
+
 	Screen * new_view;
 
 	// Build the UI
@@ -199,134 +338,80 @@ namespace screen
 	{
 		switch (screen_index)
 		{
-			case screen_main:
-			{
-				// Main Menu
-				ScreenMenu * local_view = new ScreenMenu();
-				// Main Menu
-				local_view->add(screen_SD_list);
-				local_view->icon(icon_sd);
-				//local_view->icon(icon_nosd);
-				local_view->add(screen_unload_init);
-				local_view->icon(icon_filament_unload);
-				local_view->add(screen_load_init);
-				local_view->icon(icon_filament_load);
-				local_view->add(screen_level_init);
-				local_view->icon(icon_leveling);
-				local_view->add(screen_autohome);
-				local_view->icon(icon_homing);
-				local_view->add(screen_settings);
-				local_view->icon(icon_settings);
-				local_view->add(screen_move);
-				local_view->icon(icon_moveaxis);
-				local_view->add(screen_stepper);
-				local_view->icon(icon_steppers);
-				local_view->add(screen_temperature_main);
-				local_view->icon(widget_temperature);
-				new_view = local_view;
+			case screen_logo:
+				new_view = make_screen_logo();
 				break;
-			}
+
+			case screen_main:
+				new_view = make_screen_main();
+				break;
 
 			case screen_SD_list:
-			{
-				ScreenList * local_view = new ScreenList(MSG_SCREEN_SD_LIST);
-				local_view->add(screen_main);
-				local_view->add(screen_SD_confirm);
-				new_view = local_view;
+				new_view = make_screen_SD_list();
 				break;
-			}
 
 			case screen_SD_confirm:
-			{
-				ScreenMenu * local_view = new ScreenMenu(MSG_SCREEN_SD_CONFIRM);
-				local_view->add(screen_SD_list);
-				local_view->icon(icon_back);
-				local_view->add(screen_SD_OK);
-				local_view->icon(icon_ok);
-				new_view = local_view;
+				new_view = make_screen_SD_confirm();
 				break;
-			}
+
+			case screen_SD_OK:
+				new_view = make_screen_SD_OK();
+				break;
 
 			case screen_unload_init:
-			{
-				ScreenMenu * local_view = new ScreenMenu(MSG_SCREEN_UNLOAD_TITLE, MSG_SCREEN_UNLOAD_TEXT2);
-				local_view->add(screen_main);
-				local_view->icon(icon_back);
-				local_view->add(screen_unload_select);
-				local_view->icon(icon_ok);
-				new_view = local_view;
+				new_view = make_screen_unload_init();
 				break;
-			}
+
+			case screen_unload_select:
+				new_view = make_screen_unload_select();
+				break;
+
+			case screen_unload_heating:
+				new_view = make_screen_unload_heating();
+				break;
+
+			case screen_unload_info:
+				new_view = make_screen_unload_info();
+				break;
+
+			case screen_unloading:
+				new_view = make_screen_unloading();
+				break;
+
+			case screen_unload_confirm:
+				new_view = make_screen_unload_confirm();
+				break;
 
 			case screen_load_init:
-			{
-				ScreenMenu * local_view = new ScreenMenu(MSG_SCREEN_LOAD_TITLE, MSG_SCREEN_LOAD_TEXT2);
-				local_view->add(screen_main);
-				local_view->icon(icon_back);
-				local_view->add(screen_load_select);
-				local_view->icon(icon_ok);
-				new_view = local_view;
+				new_view = make_screen_load_init();
 				break;
-			}
 	
 			case screen_level_init:
-			{
-				ScreenMenu * local_view = new ScreenMenu(MSG_SCREEN_LEVEL_TITLE, MSG_SCREEN_LEVEL_TEXT);
-				local_view->add(screen_main);
-				local_view->icon(icon_back);
-				local_view->add(screen_level_cooling);
-				local_view->icon(icon_ok);
-				new_view = local_view;
+				new_view = make_screen_level_init();
 				break;
-			}
+
+			case screen_load_select:
+            new_view = make_screen_load_select();
+            break;
+
+			case screen_load_heating:
+				new_view = make_screen_load_heating();
+				break;
+
+			case screen_load_info:
+				new_view = make_screen_load_info();
+				break;
+
+			case screen_loading:
+				new_view = make_screen_loading();
+				break;
+
+			case screen_load_confirm:
+				new_view = make_screen_load_confirm();
+				break;
 		}
 
 
-/*
-		// SD Card screens
-		// SD Card List 
-		// SD Card Confirm
-		// SD Confirm OK
-		screen_SD_OK.add(screen_print);
-*/
-
-		// Unload Filament Screens
-/*
-		// Unload Filament Init
-		// Unload Filament Select
-		screen_unload_select.add(screen_unload_heating);
-		// Unload Filament Heating
-		screen_unload_heating.add(screen_main);
-		screen_unload_heating.add(screen_unload_info);
-		// Unload filament Info
-		screen_unload_info.add(screen_unloading);
-		// Unload filament Unloading
-		screen_unloading.add(screen_unload_confirm);
-		//Unload Filament Confirm
-		screen_unload_confirm.add(screen_unload_info);
-		screen_unload_confirm.icon(icon_retry);
-		screen_unload_confirm.add(screen_main);
-		screen_unload_confirm.icon(icon_ok);
-*/
-
-		// Load Filament screens
-/*
-		// Load Filament Init
-		// Load Filament Select
-		screen_load_select.add(screen_load_heating);
-		// Load Filament Heating
-		screen_load_heating.add(screen_main);
-		screen_load_heating.add(screen_load_info);
-		// Load Filament Info
-		screen_load_info.add(screen_loading);
-		// Load Filament Loading
-		screen_loading.add(screen_load_confirm);
-		// Load Filament Confirm
-		screen_load_confirm.add(screen_load_info);
-		screen_load_confirm.icon(icon_retry);
-		screen_load_confirm.add(screen_main);
-		screen_load_confirm.icon(icon_ok);
-*/
 
 		// Level Plate
 /*

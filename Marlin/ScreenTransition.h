@@ -16,10 +16,7 @@ namespace screen
 
 			void draw();
 
-			void add(Screen & component);
-
 		private:
-			Screen * m_next_screen;
 			const char * m_message;
 			const char * m_box;
 	};
