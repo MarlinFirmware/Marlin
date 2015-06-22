@@ -201,22 +201,22 @@ namespace screen
 	Screen * GuiBuild()
 	{
 		// Main Menu
-		screen_main.add(screen_SD_list);
+//		screen_main.add(screen_SD_list);
 		screen_main.icon(icon_sd);
 		//screen_main.icon(icon_nosd);
-		screen_main.add(screen_unload_init);
+//		screen_main.add(screen_unload_init);
 		screen_main.icon(icon_filament_unload);
-		screen_main.add(screen_load_init);
+//		screen_main.add(screen_load_init);
 		screen_main.icon(icon_filament_load);
-		screen_main.add(screen_level_init);
+//		screen_main.add(screen_level_init);
 		screen_main.icon(icon_leveling);
-		screen_main.add(screen_autohome);
+//		screen_main.add(screen_autohome);
 		screen_main.icon(icon_homing);
-		screen_main.add(screen_settings);
+//		screen_main.add(screen_settings);
 		screen_main.icon(icon_settings);
-		screen_main.add(screen_move);
+//		screen_main.add(screen_move);
 		screen_main.icon(icon_moveaxis);
-		screen_main.add(screen_stepper);
+//		screen_main.add(screen_stepper);
 		screen_main.icon(icon_steppers);
 //		screen_main.add(screen_temperature_main);
 //		screen_main.icon(widget_temperature);
