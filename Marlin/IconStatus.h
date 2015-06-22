@@ -17,7 +17,7 @@ namespace screen
 
 			void update(T value);
 
-			const char * text();
+			const char * text() const;
 			void draw(uint8_t x, uint8_t y, bool focused = false);
 			virtual void show();
 
@@ -48,9 +48,9 @@ namespace screen
 	}
 
 	template <typename T>
-	const char * IconStatus<T>::text()
+	const char * IconStatus<T>::text() const
 	{
-      if (m_value)
+		if (m_value)
 		{
 			return m_alt_text;
 		}
@@ -64,8 +64,9 @@ namespace screen
 	void IconStatus<T>::draw(uint8_t x, uint8_t y, bool focused)
 	{
 		painter.setColorIndex(1);
-      if (m_value)
-      {
+
+    	if (m_value)
+    	{
 			painter.drawBitmap(x, y, m_size.width, m_size.height, (focused) ? m_alt_focused_bitmap : m_alt_bitmap);
 		}
 		else
