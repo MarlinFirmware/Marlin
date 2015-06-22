@@ -315,6 +315,8 @@ void action_homing()
 void action_move_axis_to(uint8_t axis, float position)
 {
 	current_position[axis] = position;
+	SERIAL_ECHO("action_move_pos: ");
+	SERIAL_ECHOLN(position);
 	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], manual_feedrate[X_AXIS]/60, active_extruder);
 }
 
@@ -422,6 +424,7 @@ void action_set_feedrate_multiply(uint16_t value)
 
 float z_saved_homing;
 vector_3 planeNormal;
+vector_3 vector_offsets; 
 
 extern float current_position[NUM_AXIS];
 extern void clean_up_after_endstop_move();
@@ -431,16 +434,14 @@ extern float probe_pt(float x, float y, float z_before, int retract_action = 0);
 
 void action_offset()
 {
-
-	z_saved_homing = current_position[Z_AXIS];
-		
 	st_synchronize();
 	// make sure the bed_level_rotation_matrix is identity or the planner will get it incorectly
 	plan_bed_level_matrix.set_to_identity();
 	vector_3 uncorrected_position = plan_get_position();
 	current_position[X_AXIS] = uncorrected_position.x;
 	current_position[Y_AXIS] = uncorrected_position.y;
-	current_position[Z_AXIS] = uncorrected_position.z;
+	current_position[Z_AXIS] = 0;
+	z_saved_homing = current_position[Z_AXIS];
 	plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
 	setup_for_endstop_move();
 
@@ -449,10 +450,8 @@ void action_offset()
 	// Probe at 3 arbitrary points
 	// probe 1
 	float z_at_pt_1 = probe_pt(ABL_PROBE_PT_1_X, ABL_PROBE_PT_1_Y, Z_RAISE_BEFORE_PROBING);
-
 	// probe 2
 	float z_at_pt_2 = probe_pt(ABL_PROBE_PT_2_X, ABL_PROBE_PT_2_Y, current_position[Z_AXIS] + Z_RAISE_BETWEEN_PROBINGS);
-
 	// probe 3
 	float z_at_pt_3 = probe_pt(ABL_PROBE_PT_3_X, ABL_PROBE_PT_3_Y, current_position[Z_AXIS] + Z_RAISE_BETWEEN_PROBINGS);
 
@@ -470,26 +469,29 @@ void action_offset()
 
 	planeNormal = vector_3(planeNormal.x, planeNormal.y, abs(planeNormal.z));
 
-	do_blocking_move_to(Z_SAFE_HOMING_X_POINT,Z_SAFE_HOMING_Y_POINT, z_saved_homing+5);
+	current_position[X_AXIS] = Z_SAFE_HOMING_X_POINT;
+	current_position[Y_AXIS] = Z_SAFE_HOMING_Y_POINT;
+	do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], Z_RAISE_BETWEEN_PROBINGS);
 
+	current_position[Z_AXIS] = z_saved_homing;
+	do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]);
+
+	plan_bed_level_matrix = matrix_3x3::create_look_at(planeNormal);
+	vector_offsets = vector_3(X_PROBE_OFFSET_FROM_EXTRUDER, Y_PROBE_OFFSET_FROM_EXTRUDER, 0);
+	
+	apply_rotation_xyz(plan_bed_level_matrix, vector_offsets.x, vector_offsets.y, vector_offsets.z);
+	plan_bed_level_matrix.set_to_identity();
+	current_position[Z_AXIS] = plan_get_axis_position(Z_AXIS);
 }
 
 void action_set_offset(uint8_t axis, float value)
 {
-
-	float Z_offset_tmp = -value;
-	
-	do_blocking_move_to(Z_SAFE_HOMING_X_POINT,Z_SAFE_HOMING_Y_POINT, z_saved_homing - Z_offset_tmp);
-	
-	plan_bed_level_matrix = matrix_3x3::create_look_at(planeNormal);
-	vector_3 vector_offsets = vector_3(X_PROBE_OFFSET_FROM_EXTRUDER, Y_PROBE_OFFSET_FROM_EXTRUDER, 0);
-	
-	apply_rotation_xyz(plan_bed_level_matrix, vector_offsets.x, vector_offsets.y, vector_offsets.z);
-
-	OffsetManager::single::instance().offset(Z_offset_tmp);
+	action_move_axis_to(Z_AXIS,-value);
+	OffsetManager::single::instance().offset(value + vector_offsets.z);
 }
 
 void action_save_offset()
 {
 	OffsetManager::single::instance().saveOffset();
+	do_blocking_move_to(0, current_position[Y_AXIS], 50);
 }

@@ -405,7 +405,8 @@ void Config_ResetDefault() {
     absPreheatFanSpeed = ABS_PREHEAT_FAN_SPEED;
   #endif
 #ifdef Z_SAFE_HOMING
-    zprobe_zoffset = -Z_PROBE_OFFSET_FROM_EXTRUDER;
+    int k = 232;
+    EEPROM_READ_VAR(k,zprobe_zoffset);
   #endif
 
   #ifdef DOGLCD
