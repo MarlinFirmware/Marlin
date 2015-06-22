@@ -1,6 +1,7 @@
 #include "OffsetManager.h"
 
 static const int ZOFFSET_ZPROBE_EEPROM_POS = 232;
+static const int FIRST_POWER_ON = 550;
 
 OffsetManager::OffsetManager()
 	: Subject<float>()
@@ -23,6 +24,22 @@ void OffsetManager::offset(float value)
 float OffsetManager::offset()
 {
 	return m_offset;
+}
+
+bool OffsetManager::isFirstTime()
+{
+	int i = FIRST_POWER_ON;
+	unsigned char value;
+	_EEPROM_readData(i, (uint8_t*)&value, sizeof(value));
+
+	if (value == 0xFF)
+	{
+		i = FIRST_POWER_ON;
+		value = 0x00;
+		_EEPROM_writeData(i, (uint8_t*)&value, sizeof(value));
+		return true;
+	}
+	return false;
 }
 
 float OffsetManager::ReadFromEEPROM()

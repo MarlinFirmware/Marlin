@@ -88,6 +88,7 @@ namespace screen
 	ScreenTransition screen_offset_calculate = ScreenTransition(MSG_SCREEN_OFFSET_TITLE, MSG_SCREEN_OFFSET_PLANE_TEXT, MSG_SCREEN_OFFSET_WAIT, action_offset);
 	ScreenDialog<void> screen_offset_info    = ScreenDialog<void>(MSG_SCREEN_OFFSET_TITLE, MSG_SCREEN_OFFSET_DIALOG_TEXT, MSG_SCREEN_OFFSET_DIALOG_BOX, do_nothing);
 	ScreenDynamic<float> screen_offset_set   = ScreenDynamic<float>(MSG_SCREEN_OFFSET_TITLE, Z_AXIS, 0.0, 4.0, 0.1, action_set_offset);
+	ScreenAction<void> screen_offset_save    = ScreenAction<void>(MSG_SCREEN_OFFSET_TITLE,action_save_offset);
 	ScreenMenu screen_offset_finish          = ScreenMenu(MSG_SCREEN_OFFSET_TITLE, MSG_SCREEN_OFFSET_FINISH);
 
 	// Print
@@ -740,8 +741,10 @@ namespace screen
 
 		screen_offset_finish.add(screen_offset_info);
 		screen_offset_finish.icon(icon_retry);
-		screen_offset_finish.add(screen_main);
+		screen_offset_finish.add(screen_offset_save);
 		screen_offset_finish.icon(icon_ok);
+
+		screen_offset_save.add(screen_main);
 
 		// Print Menu
 		screen_print.add(screen_play_pause);

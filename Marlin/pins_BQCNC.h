@@ -1,6 +1,6 @@
 /****************************************************************************************
 * Motherboard: bq CNC
-* Revision: v1.1
+* Revision: v1.3
 * 
 * Compatible with:
 *   - bq LCD Smart Controller
@@ -32,53 +32,36 @@
  #define E0_DIR_PIN         28
  #define E0_ENABLE_PIN      24
 
- #define E1_STEP_PIN        36
- #define E1_DIR_PIN         34
- #define E1_ENABLE_PIN      30
-
  // Digital potentiometers
  #define DIGIPOTSS_PIN      22
- #define DIGIPOT_CHANNELS    { 4, 5, 3 , 0, 1 }
+ #define DIGIPOT_CHANNELS   { 4, 5, 3 , 0, 1 }
 
  // Endstops
- #define X_MIN_PIN          3
  #define X_MAX_PIN          79
 
- #define Y_MIN_PIN          14
  #define Y_MAX_PIN          15
 
  #define Z_MIN_PIN          18
  #define Z_MAX_PIN          19
 
- // Heaters
+ // Heater
  #define HEATER_0_PIN       9
- #define HEATER_1_PIN       10
- #define HEATER_BED_PIN     -1
 
- // Thermistors
- #define TEMP_0_PIN         13  // Analog numbering: DIO67
- #define TEMP_1_PIN         14  // Analog numbering: DIO68
- #define TEMP_2_PIN         15  // Analog numbering: DIO69
- #define TEMP_3_PIN         8   // Analog numbering: DIO62
- #define TEMP_BED_PIN       TEMP_1_PIN
+ // Thermistor
+ #define TEMP_0_PIN         13
 
  // Cooling Fans
- #define FAN_0_PIN          12
- #define FAN_1_PIN          7
- #define FAN_PIN            FAN_0_PIN 
- #define FAN_EXTRUDER		11   
+ #define FAN_BOX_PIN        2
+ #define FAN_BLOWER_PIN     12
+ #define FAN_BLOCK_PIN      7
 
- // Auxiliar Power Channel Driver
- #define AUX_DRIVER_PIN     2
+ #define FAN_PIN            FAN_BLOWER_PIN
 
- // External Power Supply
- #define PS_ON_PIN          81
-
- // LEDs
+ // LED
  #define LED_PIN            13
 
- //	Light
- #define LIGHT_PIN			8
+ //	Lights
+ #define LIGHT_PIN			10
 
 #endif // BQCNC
 

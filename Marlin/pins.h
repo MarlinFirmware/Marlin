@@ -18,9 +18,23 @@
 #define E0_MS2_PIN -1
 #define E1_MS1_PIN -1
 #define E1_MS2_PIN -1
+
 #define DIGIPOTSS_PIN -1
+
+#define X_MIN_PIN -1
+#define X_MAX_PIN -1
+#define Y_MIN_PIN -1
+#define Y_MAX_PIN -1
+#define Z_MIN_PIN -1
+#define Z_MAX_PIN -1
+
 #define HEATER_3_PIN -1
 #define TEMP_3_PIN -1
+#define HEATER_BED_PIN -1
+#define TEMP_BED_PIN -1
+
+
+#define PS_ON_PIN -1
 
 #if MB(GEN7_CUSTOM)
   #include "pins_GEN7_CUSTOM.h"
