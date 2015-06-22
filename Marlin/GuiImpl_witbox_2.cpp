@@ -79,8 +79,10 @@ namespace screen
 
 	// SD Card screens
 	ScreenList screen_SD_list       = ScreenList(MSG_SCREEN_SD_LIST);
+/*
 	ScreenMenu screen_SD_confirm    = ScreenMenu(MSG_SCREEN_SD_CONFIRM);
 	ScreenAction<void> screen_SD_OK = ScreenAction<void>(MSG_SCREEN_SD_BACK, PrintManager::startPrint);
+*/
 
 	// Unload Filament screens
 	ScreenMenu screen_unload_init                       = ScreenMenu(MSG_SCREEN_UNLOAD_TITLE, MSG_SCREEN_UNLOAD_TEXT2);
@@ -144,6 +146,7 @@ namespace screen
 	ScreenDynamic<float> screen_move_e_1  = ScreenDynamic<float>(MSG_SCREEN_MOVE_1MM, E_AXIS, -1E9, 1E9, 1, action_move_axis_to);
 	ScreenDynamic<float> screen_move_e_01 = ScreenDynamic<float>(MSG_SCREEN_MOVE_01MM, E_AXIS, -1E9, 1E9, 0.1, action_move_axis_to);
 */
+/*
 
 	// Temperature
 	ScreenSelector<void, uint16_t> screen_temperature_main = ScreenSelector<void, uint16_t>(MSG_SCREEN_TEMP_TITLE, 0, 250, default_temp_change_filament, action_set_temperature);
@@ -192,6 +195,7 @@ namespace screen
 	ScreenSelector<void, uint16_t> screen_speed = ScreenSelector<void, uint16_t>(MSG_SCREEN_SPEED, 10, 400, 100, action_set_feedrate_multiply);
 	// Temperature
 	ScreenSelector<void, uint16_t> screen_temperature_print = ScreenSelector<void, uint16_t>(MSG_SCREEN_TEMP_TITLE, 170, 230, default_temp_change_filament, action_set_temperature);
+*/
 
 	// Build the UI
 	Screen * GuiBuild()
@@ -214,9 +218,10 @@ namespace screen
 		screen_main.icon(icon_moveaxis);
 		screen_main.add(screen_stepper);
 		screen_main.icon(icon_steppers);
-		screen_main.add(screen_temperature_main);
-		screen_main.icon(widget_temperature);
+//		screen_main.add(screen_temperature_main);
+//		screen_main.icon(widget_temperature);
 
+/*
 		// SD Card screens
 		// SD Card List 
 		screen_SD_list.add(screen_main);
@@ -228,6 +233,7 @@ namespace screen
 		screen_SD_confirm.icon(icon_ok);
 		// SD Confirm OK
 		screen_SD_OK.add(screen_print);
+*/
 
 		// Unload Filament Screens
 /*
@@ -306,6 +312,7 @@ namespace screen
 */
 
 		// AutoHome
+/*
 		screen_autohome.add(screen_main);
 
 		// Settings
@@ -322,6 +329,7 @@ namespace screen
 
 		// Stepper
 		screen_stepper.add(screen_main);
+*/
 
 		// Move Axis
 /*
@@ -383,6 +391,7 @@ namespace screen
 		screen_move_z_10.add(screen_move);
 */
 
+/*
 		// Temperature
 		screen_temperature_main.add(screen_main);
 
@@ -466,7 +475,8 @@ namespace screen
 		screen_speed.add(screen_print);
 		// Temperature
 		screen_temperature_print.add(screen_print);
+*/
 
-		return (Screen *) &screen_main;
+		return new ScreenMenu(screen_main);
 	}
 }
