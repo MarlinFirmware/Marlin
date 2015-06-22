@@ -11,8 +11,7 @@ namespace screen
 		public:
 			static ViewManager & getInstance();
 
-			void buildView();
-			void activeView(Screen* state);
+			void activeView(ScreenIndex_t const & index);
 			Screen * activeView();
 
 		protected:

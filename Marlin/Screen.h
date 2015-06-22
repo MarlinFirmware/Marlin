@@ -39,12 +39,12 @@ namespace screen
 			virtual void init() {};
 
 			virtual void press();
-			virtual void add(Screen & component);
+			virtual void add(ScreenIndex_t const & view);
 
 		protected:
 			ScreenType_t m_type;
 			const char * m_title;
-			Screen * m_next_screen;
+			ScreenIndex_t m_next_screen;
 	};
 }
 #endif //SCREEN_H

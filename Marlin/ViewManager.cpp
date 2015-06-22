@@ -8,15 +8,10 @@ namespace screen
 		return instance;
 	}
 
-	void ViewManager::buildView()
+	void ViewManager::activeView(ScreenIndex_t const & index)
 	{
 		delete m_active_view;
-		m_active_view = GuiBuild(screen_main);
-	}
-
-	void ViewManager::activeView(Screen* screen)
-	{
-		m_active_view = screen;
+		m_active_view = GuiBuild(index);
 		m_active_view->init();
 	}
 

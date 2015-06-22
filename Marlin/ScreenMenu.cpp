@@ -149,11 +149,11 @@ namespace screen
 		ViewManager::getInstance().activeView(m_items[m_index]);
 	}
 
-	void ScreenMenu::add(Screen & component)
+	void ScreenMenu::add(ScreenIndex_t const & component)
 	{
 		if (m_num_items < max_items)
 		{
-			m_items[m_num_items] = &component;
+			m_items[m_num_items] = component;
 			++m_num_items;
 		}
 	}

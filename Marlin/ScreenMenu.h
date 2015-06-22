@@ -5,6 +5,7 @@
 
 #include "Screen.h"
 #include "Icon.h"
+#include "GuiImpl_witbox_2.h"
 
 namespace screen
 {
@@ -20,14 +21,14 @@ namespace screen
 			void right();
 			virtual void draw();
 			void press();
-			void add(Screen & component);
+			void add(ScreenIndex_t const & component);
 			void icon(Icon & component);
 
 		protected:
 			uint16_t m_index;
 			uint16_t m_num_items;
 			uint16_t m_num_icons;
-			Screen * m_items[max_items];
+			ScreenIndex_t m_items[max_items];
 			Icon * m_icons[max_items];
 			const char * m_text;
 	};

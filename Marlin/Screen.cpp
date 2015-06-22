@@ -20,9 +20,9 @@ namespace screen
 		return m_type;
 	}
 
-   void Screen::add(Screen & component)
+   void Screen::add(ScreenIndex_t const & view)
    {
-      m_next_screen = &component;
+      m_next_screen = view;
    }
 
 	void Screen::press()
