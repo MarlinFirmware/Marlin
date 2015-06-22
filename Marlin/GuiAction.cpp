@@ -71,8 +71,8 @@ void action_level_plate()
 			target[Z_AXIS] += 10;
 			plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], manual_feedrate[X_AXIS] / 60, active_extruder);
 
-			target[X_AXIS] = 148.5;
-			target[Y_AXIS] = 200;
+			target[X_AXIS] = ABL_PROBE_PT_1_X;
+			target[Y_AXIS] = ABL_PROBE_PT_1_Y;
 			plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], manual_feedrate[X_AXIS] / 60, active_extruder);
 
 			target[Z_AXIS] -= 10;
@@ -92,8 +92,8 @@ void action_level_plate()
 			target[Z_AXIS] += 10;
 			plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], manual_feedrate[X_AXIS] / 60, active_extruder);
 
-			target[X_AXIS] = 90;
-			target[Y_AXIS] = 10;
+			target[X_AXIS] = ABL_PROBE_PT_2_X;
+			target[Y_AXIS] = ABL_PROBE_PT_2_Y;
 			plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], manual_feedrate[X_AXIS] / 60, active_extruder);
 
 			target[Z_AXIS] -= 10;
@@ -113,8 +113,8 @@ void action_level_plate()
 			target[Z_AXIS] += 10;
 			plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], manual_feedrate[X_AXIS] / 60, active_extruder);
 
-			target[X_AXIS] = 207;
-			target[Y_AXIS] = 10;
+			target[X_AXIS] = ABL_PROBE_PT_3_X;
+			target[Y_AXIS] = ABL_PROBE_PT_3_Y;
 			plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], manual_feedrate[X_AXIS] / 60, active_extruder);
 
 			target[Z_AXIS] -= 10;
@@ -134,8 +134,8 @@ void action_level_plate()
 			target[Z_AXIS] += 10;
 			plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], manual_feedrate[X_AXIS] / 60, active_extruder);
 
-			target[X_AXIS] = 148.5;
-			target[Y_AXIS] = 105;
+			target[X_AXIS] = Z_SAFE_HOMING_X_POINT;
+			target[Y_AXIS] = Z_SAFE_HOMING_Y_POINT;
 			plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], manual_feedrate[X_AXIS] / 60, active_extruder);
 
 			target[Z_AXIS] -= 10;
@@ -155,8 +155,8 @@ void action_level_plate()
 			target[Z_AXIS] += 10;
 			plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], manual_feedrate[X_AXIS] / 60, active_extruder);
 
-			target[X_AXIS] = 297;
-			target[Y_AXIS] = 210;
+			target[X_AXIS] = X_MAX_POS;
+			target[Y_AXIS] = Y_MAX_POS;
 			plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], manual_feedrate[X_AXIS] / 60, active_extruder);
 
 			target[Z_AXIS] -= 10;
