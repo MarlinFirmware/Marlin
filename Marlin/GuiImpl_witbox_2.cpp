@@ -75,15 +75,6 @@ namespace screen
 
 	// Level Plate screens
 /*
-	ScreenAction<void> screen_level_cooling        = ScreenAction<void>(NULL, action_cooldown);
-	ScreenAnimation<float> screen_level_animation  = ScreenAnimation<float>(MSG_SCREEN_LEVEL_TITLE, MSG_SCREEN_LEVEL_ABORT, &TemperatureManager::single::instance());
-	ScreenTransition screen_level_homing           = ScreenTransition(MSG_SCREEN_LEVEL_TITLE, MSG_SCREEN_LEVEL_TEXT0, MSG_SCREEN_LEVEL_BOX0, action_homing);
-	ScreenDialog<void> screen_level1               = ScreenDialog<void>(MSG_SCREEN_LEVEL_TITLE, MSG_SCREEN_LEVEL_TEXT1, MSG_SCREEN_LEVEL_BOX1, action_level_plate);
-	ScreenDialog<void> screen_level2               = ScreenDialog<void>(MSG_SCREEN_LEVEL_TITLE, MSG_SCREEN_LEVEL_TEXT2, MSG_SCREEN_LEVEL_BOX2, action_level_plate);
-	ScreenDialog<void> screen_level3               = ScreenDialog<void>(MSG_SCREEN_LEVEL_TITLE, MSG_SCREEN_LEVEL_TEXT3, MSG_SCREEN_LEVEL_BOX3, action_level_plate);
-	ScreenDialog<void> screen_level4               = ScreenDialog<void>(MSG_SCREEN_LEVEL_TITLE, MSG_SCREEN_LEVEL_TEXT4, MSG_SCREEN_LEVEL_BOX4, action_level_plate);
-	ScreenAction<void> screen_level5               = ScreenAction<void>(MSG_SCREEN_AUTOHOME, action_level_plate);
-	ScreenMenu screen_level_confirm                = ScreenMenu(MSG_SCREEN_LEVEL_TITLE, MSG_SCREEN_LEVEL_CONFIRM);
 */
 
 	// AutoHome
@@ -330,6 +321,72 @@ namespace screen
 		return local_view;
 	}
 
+	static ScreenAction<void> * make_screen_level_cooling()
+	{
+		ScreenAction<void> * local_view = new ScreenAction<void>(NULL, action_cooldown);
+		local_view->add(screen_level_animation);
+		return local_view;
+	}
+
+	static ScreenAnimation<float> * make_screen_level_animation()
+	{
+		ScreenAnimation<float> * local_view = new ScreenAnimation<float>(MSG_SCREEN_LEVEL_TITLE, MSG_SCREEN_LEVEL_ABORT, &TemperatureManager::single::instance());
+		local_view->add(screen_main);
+		local_view->add(screen_level_homing);
+		return local_view;
+	}
+
+	static ScreenTransition * make_screen_level_homing()
+	{
+		ScreenTransition * local_view = new ScreenTransition(MSG_SCREEN_LEVEL_TITLE, MSG_SCREEN_LEVEL_TEXT0, MSG_SCREEN_LEVEL_BOX0, action_homing);
+		local_view->add(screen_level1);
+		return local_view;
+	}
+
+	static ScreenDialog<void> * make_screen_level1()
+	{
+		ScreenDialog<void> * local_view = new ScreenDialog<void>(MSG_SCREEN_LEVEL_TITLE, MSG_SCREEN_LEVEL_TEXT1, MSG_SCREEN_LEVEL_BOX1, action_level_plate);
+		local_view->add(screen_level2);
+		return local_view;
+	}
+
+	static ScreenDialog<void> * make_screen_level2()
+	{
+		ScreenDialog<void> * local_view = new ScreenDialog<void>(MSG_SCREEN_LEVEL_TITLE, MSG_SCREEN_LEVEL_TEXT2, MSG_SCREEN_LEVEL_BOX2, action_level_plate);
+		local_view->add(screen_level3);
+		return local_view;
+	}
+
+	static ScreenDialog<void> * make_screen_level3()
+	{
+		ScreenDialog<void> * local_view = new ScreenDialog<void>(MSG_SCREEN_LEVEL_TITLE, MSG_SCREEN_LEVEL_TEXT3, MSG_SCREEN_LEVEL_BOX3, action_level_plate);
+		local_view->add(screen_level4);
+		return local_view;
+	}
+
+	static ScreenDialog<void> * make_screen_level4()
+	{
+		ScreenDialog<void> * local_view = new ScreenDialog<void>(MSG_SCREEN_LEVEL_TITLE, MSG_SCREEN_LEVEL_TEXT4, MSG_SCREEN_LEVEL_BOX4, action_level_plate);
+		local_view->add(screen_level5);
+		return local_view;
+	}
+
+	static ScreenAction<void> * make_screen_level5()
+	{
+		ScreenAction<void> * local_view = new ScreenAction<void>(MSG_SCREEN_AUTOHOME, action_level_plate);
+		local_view->add(screen_level_confirm);
+		return local_view;
+	}
+
+	static ScreenMenu * make_screen_level_confirm()
+	{
+		ScreenMenu * local_view = new ScreenMenu(MSG_SCREEN_LEVEL_TITLE, MSG_SCREEN_LEVEL_CONFIRM);
+		local_view->add(screen_level1);
+		local_view->icon(icon_retry);
+		local_view->add(screen_main);
+		local_view->icon(icon_ok);
+		return local_view;
+	}
 
 	Screen * new_view;
 
@@ -338,105 +395,105 @@ namespace screen
 	{
 		switch (screen_index)
 		{
+			// BQ Logo
 			case screen_logo:
 				new_view = make_screen_logo();
 				break;
 
+			// Main menu
 			case screen_main:
 				new_view = make_screen_main();
 				break;
 
+			// SD Management
 			case screen_SD_list:
 				new_view = make_screen_SD_list();
 				break;
-
 			case screen_SD_confirm:
 				new_view = make_screen_SD_confirm();
 				break;
-
 			case screen_SD_OK:
 				new_view = make_screen_SD_OK();
 				break;
 
+			// Unload filament
 			case screen_unload_init:
 				new_view = make_screen_unload_init();
 				break;
-
 			case screen_unload_select:
 				new_view = make_screen_unload_select();
 				break;
-
 			case screen_unload_heating:
 				new_view = make_screen_unload_heating();
 				break;
-
 			case screen_unload_info:
 				new_view = make_screen_unload_info();
 				break;
-
 			case screen_unloading:
 				new_view = make_screen_unloading();
 				break;
-
 			case screen_unload_confirm:
 				new_view = make_screen_unload_confirm();
 				break;
 
+			// Load filament
 			case screen_load_init:
 				new_view = make_screen_load_init();
 				break;
-	
 			case screen_level_init:
 				new_view = make_screen_level_init();
 				break;
-
 			case screen_load_select:
             new_view = make_screen_load_select();
             break;
-
 			case screen_load_heating:
 				new_view = make_screen_load_heating();
 				break;
-
 			case screen_load_info:
 				new_view = make_screen_load_info();
 				break;
-
 			case screen_loading:
 				new_view = make_screen_loading();
 				break;
-
 			case screen_load_confirm:
 				new_view = make_screen_load_confirm();
 				break;
+
+
+			// Level plate
+			case screen_level_cooling:
+				new_view = make_screen_level_cooling();
+				break;
+			case screen_level_animation:
+				new_view = make_screen_level_animation();
+				break;
+			case screen_level_homing:
+				new_view = make_screen_level_homing();
+				break;
+			case screen_level1:
+				new_view = make_screen_level1();
+				break;
+			case screen_level2:
+				new_view = make_screen_level2();
+				break;
+			case screen_level3:
+				new_view = make_screen_level3();
+				break;
+			case screen_level4:
+				new_view = make_screen_level4();
+				break;
+			case screen_level5:
+				new_view = make_screen_level5();
+				break;
+			case screen_level_confirm:
+				new_view = make_screen_level_confirm();
+				break;
+
 		}
 
 
 
-		// Level Plate
 /*
-		// Level Plate Cooling
-		screen_level_cooling.add(screen_level_animation);
-		// Level Plate Animation
-		screen_level_animation.add(screen_main);
-		screen_level_animation.add(screen_level_homing);
-		// Level Plate Homing
-		screen_level_homing.add(screen_level1);
-		// Level screen 1
-		screen_level1.add(screen_level2);
-		// Level screen 2
-		screen_level2.add(screen_level3);
-		// Level screen 3
-		screen_level3.add(screen_level4);
-		// Level screen 4
-		screen_level4.add(screen_level5);
-		// Level screen 5
-		screen_level5.add(screen_level_confirm);
-		// Level Plate Confirm
-		screen_level_confirm.add(screen_level1);
-		screen_level_confirm.icon(icon_retry);
-		screen_level_confirm.add(screen_main);
-		screen_level_confirm.icon(icon_ok);
 */
 
 		// AutoHome
