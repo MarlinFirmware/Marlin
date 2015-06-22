@@ -23,7 +23,7 @@
 #define BOARD_MELZI             63   // Melzi
 #define BOARD_STB_11            64   // STB V1.1
 #define BOARD_AZTEEG_X1         65   // Azteeg X1
-#define BOARD_MELZI_1284        66   // Melzi with ATmega1284 (MaKr3d version)
+#define BOARD_MELZI_MAKR3D      66   // Melzi with ATmega1284 (MaKr3d version)
 #define BOARD_AZTEEG_X3         67   // Azteeg X3
 #define BOARD_AZTEEG_X3_PRO     68   // Azteeg X3 Pro
 #define BOARD_ULTIMAKER         7    // Ultimaker

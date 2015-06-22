@@ -52,8 +52,8 @@
   #include "pins_STB_11.h"
 #elif MB(AZTEEG_X1)
   #include "pins_AZTEEG_X1.h"
-#elif MB(MELZI_1284)
-  #include "pins_MELZI_1284.h"
+#elif MB(MELZI_MAKR3D)
+  #include "pins_MELZI_MAKR3D.h"
 #elif MB(AZTEEG_X3)
   #include "pins_AZTEEG_X3.h"
 #elif MB(AZTEEG_X3_PRO)
