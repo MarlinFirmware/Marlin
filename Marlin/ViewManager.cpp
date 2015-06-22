@@ -11,7 +11,7 @@ namespace screen
 	void ViewManager::buildView()
 	{
 		delete m_active_view;
-		m_active_view = GuiBuild();
+		m_active_view = GuiBuild(screen_main);
 	}
 
 	void ViewManager::activeView(Screen* screen)

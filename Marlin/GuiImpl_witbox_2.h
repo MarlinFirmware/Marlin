@@ -86,7 +86,7 @@ namespace screen
 	} ScreenIndex_t;
 
 	class Screen;
-	extern Screen * GuiBuild();
+	extern Screen * GuiBuild(ScreenIndex_t const & screen_index);
 
 	// Screen constants
 	const static uint8_t screen_width = 128;

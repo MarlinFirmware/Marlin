@@ -195,35 +195,40 @@ namespace screen
 	ScreenSelector<void, uint16_t> screen_temperature_print = ScreenSelector<void, uint16_t>(MSG_SCREEN_TEMP_TITLE, 170, 230, default_temp_change_filament, action_set_temperature);
 */
 
-	// Build the UI
-	Screen * GuiBuild()
-	{
-		Screen * new_view;
-	
-		// Main Menu
-		ScreenMenu * local_view = new ScreenMenu();
-		// Main Menu
-//		local_view->add(screen_SD_list);
-		local_view->icon(icon_sd);
-		//local_view->icon(icon_nosd);
-//		local_view->add(screen_unload_init);
-		local_view->icon(icon_filament_unload);
-//		local_view->add(screen_load_init);
-		local_view->icon(icon_filament_load);
-//		local_view->add(screen_level_init);
-		local_view->icon(icon_leveling);
-//		local_view->add(screen_autohome);
-		local_view->icon(icon_homing);
-//		local_view->add(screen_settings);
-		local_view->icon(icon_settings);
-//		local_view->add(screen_move);
-		local_view->icon(icon_moveaxis);
-//		local_view->add(screen_stepper);
-		local_view->icon(icon_steppers);
-//		local_view->add(screen_temperature_main);
-//		local_view->icon(widget_temperature);
+	Screen * new_view;
 
-		new_view = local_view;
+	// Build the UI
+	Screen * GuiBuild(ScreenIndex_t const & screen_index)
+	{
+		switch (screen_index)
+		{
+			case screen_main:
+				// Main Menu
+				ScreenMenu * local_view = new ScreenMenu();
+				// Main Menu
+		//		local_view->add(screen_SD_list);
+				local_view->icon(icon_sd);
+				//local_view->icon(icon_nosd);
+		//		local_view->add(screen_unload_init);
+				local_view->icon(icon_filament_unload);
+		//		local_view->add(screen_load_init);
+				local_view->icon(icon_filament_load);
+		//		local_view->add(screen_level_init);
+				local_view->icon(icon_leveling);
+		//		local_view->add(screen_autohome);
+				local_view->icon(icon_homing);
+		//		local_view->add(screen_settings);
+				local_view->icon(icon_settings);
+		//		local_view->add(screen_move);
+				local_view->icon(icon_moveaxis);
+		//		local_view->add(screen_stepper);
+				local_view->icon(icon_steppers);
+		//		local_view->add(screen_temperature_main);
+		//		local_view->icon(widget_temperature);
+				new_view = local_view;
+				break;
+		}
+
 
 /*
 		// SD Card screens
