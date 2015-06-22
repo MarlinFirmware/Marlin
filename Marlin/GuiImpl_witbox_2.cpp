@@ -84,7 +84,6 @@ namespace screen
 
 	// Unload Filament screens
 /*
-	ScreenMenu screen_unload_init                       = ScreenMenu(MSG_SCREEN_UNLOAD_TITLE, MSG_SCREEN_UNLOAD_TEXT2);
 	ScreenSelector<void, uint16_t> screen_unload_select = ScreenSelector<void, uint16_t>(MSG_SCREEN_UNLOAD_TITLE, 170, 230, default_temp_change_filament, action_set_temperature);
 	ScreenAnimation<float> screen_unload_heating        = ScreenAnimation<float>(MSG_SCREEN_UNLOAD_TITLE, MSG_SCREEN_UNLOAD_ABORT, &TemperatureManager::single::instance());
 	ScreenDialog<void> screen_unload_info               = ScreenDialog<void>(MSG_SCREEN_UNLOAD_TITLE, MSG_SCREEN_UNLOAD_TEXT1, MSG_SCREEN_UNLOAD_CONTINUE, do_nothing);
@@ -94,7 +93,6 @@ namespace screen
 
 	// Load Filament screens
 /*
-	ScreenMenu screen_load_init                        = ScreenMenu(MSG_SCREEN_LOAD_TITLE, MSG_SCREEN_LOAD_TEXT2);
 	ScreenSelector<void, uint16_t> screen_load_select  = ScreenSelector<void, uint16_t>(MSG_SCREEN_LOAD_TITLE, 170, 230, default_temp_change_filament, action_set_temperature);
 	ScreenAnimation<float> screen_load_heating         = ScreenAnimation<float>(MSG_SCREEN_LOAD_TITLE, MSG_SCREEN_LOAD_ABORT, &TemperatureManager::single::instance());
 	ScreenDialog<void> screen_load_info                = ScreenDialog<void>(MSG_SCREEN_LOAD_TITLE, MSG_SCREEN_LOAD_TEXT1, MSG_SCREEN_LOAD_CONTINUE, do_nothing);
@@ -104,7 +102,6 @@ namespace screen
 
 	// Level Plate screens
 /*
-	ScreenMenu screen_level_init                   = ScreenMenu(MSG_SCREEN_LEVEL_TITLE, MSG_SCREEN_LEVEL_TEXT);
 	ScreenAction<void> screen_level_cooling        = ScreenAction<void>(NULL, action_cooldown);
 	ScreenAnimation<float> screen_level_animation  = ScreenAnimation<float>(MSG_SCREEN_LEVEL_TITLE, MSG_SCREEN_LEVEL_ABORT, &TemperatureManager::single::instance());
 	ScreenTransition screen_level_homing           = ScreenTransition(MSG_SCREEN_LEVEL_TITLE, MSG_SCREEN_LEVEL_TEXT0, MSG_SCREEN_LEVEL_BOX0, action_homing);
@@ -249,6 +246,39 @@ namespace screen
 				new_view = local_view;
 				break;
 			}
+
+			case screen_unload_init:
+			{
+				ScreenMenu * local_view = new ScreenMenu(MSG_SCREEN_UNLOAD_TITLE, MSG_SCREEN_UNLOAD_TEXT2);
+				local_view->add(screen_main);
+				local_view->icon(icon_back);
+				local_view->add(screen_unload_select);
+				local_view->icon(icon_ok);
+				new_view = local_view;
+				break;
+			}
+
+			case screen_load_init:
+			{
+				ScreenMenu * local_view = new ScreenMenu(MSG_SCREEN_LOAD_TITLE, MSG_SCREEN_LOAD_TEXT2);
+				local_view->add(screen_main);
+				local_view->icon(icon_back);
+				local_view->add(screen_load_select);
+				local_view->icon(icon_ok);
+				new_view = local_view;
+				break;
+			}
+	
+			case screen_level_init:
+			{
+				ScreenMenu * local_view = new ScreenMenu(MSG_SCREEN_LEVEL_TITLE, MSG_SCREEN_LEVEL_TEXT);
+				local_view->add(screen_main);
+				local_view->icon(icon_back);
+				local_view->add(screen_level_cooling);
+				local_view->icon(icon_ok);
+				new_view = local_view;
+				break;
+			}
 		}
 
 
@@ -263,10 +293,6 @@ namespace screen
 		// Unload Filament Screens
 /*
 		// Unload Filament Init
-		screen_unload_init.add(screen_main);
-		screen_unload_init.icon(icon_back);
-		screen_unload_init.add(screen_unload_select);
-		screen_unload_init.icon(icon_ok);
 		// Unload Filament Select
 		screen_unload_select.add(screen_unload_heating);
 		// Unload Filament Heating
@@ -286,10 +312,6 @@ namespace screen
 		// Load Filament screens
 /*
 		// Load Filament Init
-		screen_load_init.add(screen_main);
-		screen_load_init.icon(icon_back);
-		screen_load_init.add(screen_load_select);
-		screen_load_init.icon(icon_ok);
 		// Load Filament Select
 		screen_load_select.add(screen_load_heating);
 		// Load Filament Heating
@@ -308,10 +330,6 @@ namespace screen
 
 		// Level Plate
 /*
-		screen_level_init.add(screen_main);
-		screen_level_init.icon(icon_back);
-		screen_level_init.add(screen_level_cooling);
-		screen_level_init.icon(icon_ok);
 		// Level Plate Cooling
 		screen_level_cooling.add(screen_level_animation);
 		// Level Plate Animation
