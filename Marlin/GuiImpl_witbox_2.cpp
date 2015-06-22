@@ -14,10 +14,10 @@
 #include "ScreenSelector.h"
 #include "ScreenAnimation.h"
 #include "ScreenTransition.h"
+#include "ScreenDynamic.h"
 /*
 #include "ScreenPrint.h"
 #include "ScreenPrint.h"
-#include "ScreenDynamic.h"
 #include "ScreenAbout.h"
 */
 
@@ -75,35 +75,6 @@ namespace screen
 
 /*
 
-
-	// Steppers
-	ScreenAction<void> screen_stepper = ScreenAction<void>(MSG_SCREEN_STEPPER, SteppersManager::disableAllSteppers);
-
-	// Move Axis screens
-	ScreenMenu screen_move                = ScreenMenu(MSG_SCREEN_MOVE_TITLE, MSG_SCREEN_MOVE_TEXT);
-	ScreenMenu screen_move_x              = ScreenMenu(MSG_SCREEN_MOVE_TITLE, MSG_SCREEN_MOVE_X);
-	ScreenMenu screen_move_y              = ScreenMenu(MSG_SCREEN_MOVE_TITLE, MSG_SCREEN_MOVE_Y);
-	ScreenMenu screen_move_z              = ScreenMenu(MSG_SCREEN_MOVE_TITLE, MSG_SCREEN_MOVE_Z);
-	ScreenMenu screen_move_e              = ScreenMenu(MSG_SCREEN_MOVE_TITLE, MSG_SCREEN_MOVE_E);
-	ScreenDynamic<float> screen_move_x_10 = ScreenDynamic<float>(MSG_SCREEN_MOVE_10MM, X_AXIS, X_MIN_POS, X_MAX_POS, 10, action_move_axis_to);
-	ScreenDynamic<float> screen_move_x_1  = ScreenDynamic<float>(MSG_SCREEN_MOVE_1MM, X_AXIS, X_MIN_POS, X_MAX_POS, 1, action_move_axis_to);
-	ScreenDynamic<float> screen_move_x_01 = ScreenDynamic<float>(MSG_SCREEN_MOVE_01MM, X_AXIS, X_MIN_POS, X_MAX_POS, 0.1, action_move_axis_to);
-	ScreenDynamic<float> screen_move_y_10 = ScreenDynamic<float>(MSG_SCREEN_MOVE_10MM, Y_AXIS, Y_MIN_POS, Y_MAX_POS, 10, action_move_axis_to);
-	ScreenDynamic<float> screen_move_y_1  = ScreenDynamic<float>(MSG_SCREEN_MOVE_1MM, Y_AXIS, Y_MIN_POS, Y_MAX_POS, 1, action_move_axis_to);
-	ScreenDynamic<float> screen_move_y_01 = ScreenDynamic<float>(MSG_SCREEN_MOVE_01MM, Y_AXIS, Y_MIN_POS, Y_MAX_POS, 0.1, action_move_axis_to);
-	ScreenDynamic<float> screen_move_z_10 = ScreenDynamic<float>(MSG_SCREEN_MOVE_10MM, Z_AXIS, Z_MIN_POS, Z_MAX_POS, 10, action_move_axis_to);
-	ScreenDynamic<float> screen_move_z_1  = ScreenDynamic<float>(MSG_SCREEN_MOVE_1MM, Z_AXIS, Z_MIN_POS, Z_MAX_POS, 1, action_move_axis_to);
-	ScreenDynamic<float> screen_move_z_01 = ScreenDynamic<float>(MSG_SCREEN_MOVE_01MM, Z_AXIS, Z_MIN_POS, Z_MAX_POS, 0.1, action_move_axis_to);
-	ScreenDynamic<float> screen_move_e_1  = ScreenDynamic<float>(MSG_SCREEN_MOVE_1MM, E_AXIS, -1E9, 1E9, 1, action_move_axis_to);
-	ScreenDynamic<float> screen_move_e_01 = ScreenDynamic<float>(MSG_SCREEN_MOVE_01MM, E_AXIS, -1E9, 1E9, 0.1, action_move_axis_to);
-*/
-/*
-
-	// Temperature
-	ScreenSelector<void, uint16_t> screen_temperature_main = ScreenSelector<void, uint16_t>(MSG_SCREEN_TEMP_TITLE, 0, 250, default_temp_change_filament, action_set_temperature);
-
-	// Light
-	ScreenAction<void> screen_light = ScreenAction<void>(MSG_SCREEN_LIGHT, LightManager::setState);
 
 	// Info
 	ScreenAbout screen_info = ScreenAbout(MSG_SCREEN_INFO, MSG_SCREEN_INFO_TEXT, MSG_SCREEN_INFO_BOX, bits_logo_about);
@@ -401,6 +372,173 @@ namespace screen
 		return local_view;
 	}
 
+	static ScreenAction<void> * make_screen_stepper()
+	{
+		ScreenAction<void> * local_view = new ScreenAction<void>(MSG_SCREEN_STEPPER, SteppersManager::disableAllSteppers);
+		local_view->add(screen_main);
+		return local_view;
+	}
+
+	static ScreenMenu * make_screen_move()
+	{
+		ScreenMenu *  local_view = new ScreenMenu(MSG_SCREEN_MOVE_TITLE, MSG_SCREEN_MOVE_TEXT);
+		local_view->add(screen_main);
+		local_view->icon(icon_back);
+		local_view->add(screen_move_x);
+		local_view->icon(icon_move_x);
+		local_view->add(screen_move_y);
+		local_view->icon(icon_move_y);
+		local_view->add(screen_move_z);
+		local_view->icon(icon_move_z);
+		local_view->add(screen_move_e);
+		local_view->icon(icon_move_e);
+		return local_view;
+	}
+
+	static ScreenMenu * make_screen_move_x()
+	{
+		ScreenMenu * local_view = new ScreenMenu(MSG_SCREEN_MOVE_TITLE, MSG_SCREEN_MOVE_X);
+		local_view->add(screen_move);
+		local_view->icon(icon_back);
+		local_view->add(screen_move_x_10);
+		local_view->icon(icon_move_10mm);
+		local_view->add(screen_move_x_1);
+		local_view->icon(icon_move_1mm);
+		local_view->add(screen_move_x_01);
+		local_view->icon(icon_move_01mm);
+		return local_view;
+	}
+
+	static ScreenMenu * make_screen_move_y()
+	{
+		ScreenMenu * local_view = new ScreenMenu(MSG_SCREEN_MOVE_TITLE, MSG_SCREEN_MOVE_Y);
+		local_view->add(screen_move);
+		local_view->icon(icon_back);
+		local_view->add(screen_move_y_10);
+		local_view->icon(icon_move_10mm);
+		local_view->add(screen_move_y_1);
+		local_view->icon(icon_move_1mm);
+		local_view->add(screen_move_y_01);
+		local_view->icon(icon_move_01mm);
+		return local_view;
+	}
+
+	static ScreenMenu * make_screen_move_z()
+	{
+		ScreenMenu * local_view = new ScreenMenu(MSG_SCREEN_MOVE_TITLE, MSG_SCREEN_MOVE_Z);
+		local_view->add(screen_move);
+		local_view->icon(icon_back);
+		local_view->add(screen_move_z_10);
+		local_view->icon(icon_move_10mm);
+		local_view->add(screen_move_z_1);
+		local_view->icon(icon_move_1mm);
+		local_view->add(screen_move_z_01);
+		local_view->icon(icon_move_01mm);
+		return local_view;
+	}
+
+	static ScreenMenu * make_screen_move_e()
+	{
+		ScreenMenu * local_view = new ScreenMenu(MSG_SCREEN_MOVE_TITLE, MSG_SCREEN_MOVE_E);
+		local_view->add(screen_move);
+		local_view->icon(icon_back);
+		local_view->add(screen_move_e_1);
+		local_view->icon(icon_move_1mm);
+		local_view->add(screen_move_e_01);
+		local_view->icon(icon_move_01mm);
+		return local_view;
+	}
+
+	static ScreenDynamic<float> * make_screen_move_x_01()
+	{
+		ScreenDynamic<float> * local_view = new ScreenDynamic<float>(MSG_SCREEN_MOVE_01MM, X_AXIS, X_MIN_POS, X_MAX_POS, 0.1, action_move_axis_to);
+		local_view->add(screen_move);
+		return local_view;
+	}
+
+	static ScreenDynamic<float> * make_screen_move_y_01()
+	{
+		ScreenDynamic<float> * local_view = new ScreenDynamic<float>(MSG_SCREEN_MOVE_01MM, Y_AXIS, Y_MIN_POS, Y_MAX_POS, 0.1, action_move_axis_to);
+		local_view->add(screen_move);
+		return local_view;
+	}
+
+	static ScreenDynamic<float> * make_screen_move_z_01()
+	{
+		ScreenDynamic<float> * local_view = new ScreenDynamic<float>(MSG_SCREEN_MOVE_01MM, Z_AXIS, Z_MIN_POS, Z_MAX_POS, 0.1, action_move_axis_to);
+		local_view->add(screen_move);
+		return local_view;
+	}
+
+	static ScreenDynamic<float> * make_screen_move_e_01()
+	{
+		ScreenDynamic<float> * local_view = new ScreenDynamic<float>(MSG_SCREEN_MOVE_01MM, E_AXIS, -1E9, 1E9, 0.1, action_move_axis_to);
+		local_view->add(screen_move);
+		return local_view;
+	}
+
+	static ScreenDynamic<float> * make_screen_move_x_1()
+	{
+		ScreenDynamic<float> * local_view = new ScreenDynamic<float>(MSG_SCREEN_MOVE_1MM, X_AXIS, X_MIN_POS, X_MAX_POS, 1, action_move_axis_to);
+		local_view->add(screen_move);
+		return local_view;
+	}
+
+	static ScreenDynamic<float> * make_screen_move_y_1()
+	{
+		ScreenDynamic<float> * local_view = new ScreenDynamic<float>(MSG_SCREEN_MOVE_1MM, Y_AXIS, Y_MIN_POS, Y_MAX_POS, 1, action_move_axis_to);
+		local_view->add(screen_move);
+		return local_view;
+	}
+
+	static ScreenDynamic<float> * make_screen_move_z_1()
+	{
+		ScreenDynamic<float> * local_view = new ScreenDynamic<float>(MSG_SCREEN_MOVE_1MM, Z_AXIS, Z_MIN_POS, Z_MAX_POS, 1, action_move_axis_to);
+		local_view->add(screen_move);
+		return local_view;
+	}
+
+	static ScreenDynamic<float> * make_screen_move_e_1()
+	{
+		ScreenDynamic<float> * local_view = new ScreenDynamic<float>(MSG_SCREEN_MOVE_1MM, E_AXIS, -1E9, 1E9, 1, action_move_axis_to);
+		local_view->add(screen_move);
+		return local_view;
+	}
+
+	static ScreenDynamic<float> * make_screen_move_x_10()
+	{
+		ScreenDynamic<float> * local_view = new ScreenDynamic<float>(MSG_SCREEN_MOVE_10MM, X_AXIS, X_MIN_POS, X_MAX_POS, 10, action_move_axis_to);
+		local_view->add(screen_move);
+		return local_view;
+	}
+
+	static ScreenDynamic<float> * make_screen_move_y_10()
+	{
+		ScreenDynamic<float> * local_view = new ScreenDynamic<float>(MSG_SCREEN_MOVE_10MM, Y_AXIS, Y_MIN_POS, Y_MAX_POS, 10, action_move_axis_to);
+		local_view->add(screen_move);
+		return local_view;
+	}
+
+	static ScreenDynamic<float> * make_screen_move_z_10()
+	{
+		ScreenDynamic<float> * local_view = new ScreenDynamic<float>(MSG_SCREEN_MOVE_10MM, Z_AXIS, Z_MIN_POS, Z_MAX_POS, 10, action_move_axis_to);
+		local_view->add(screen_move);
+		return local_view;
+	}
+
+	static ScreenSelector<void, uint16_t> * make_screen_temperature_main()
+	{
+		ScreenSelector<void, uint16_t> * local_view = new ScreenSelector<void, uint16_t>(MSG_SCREEN_TEMP_TITLE, 0, 250, default_temp_change_filament, action_set_temperature);
+		local_view->add(screen_main);
+		return local_view;
+	}
+
+	static ScreenAction<void> * make_screen_light()
+	{
+		ScreenAction<void> * local_view = new ScreenAction<void>(MSG_SCREEN_LIGHT, LightManager::setState);
+		local_view->add(screen_settings);
+		return local_view;
+	}
 
 	Screen * new_view;
 
@@ -458,8 +596,8 @@ namespace screen
 				new_view = make_screen_level_init();
 				break;
 			case screen_load_select:
-            new_view = make_screen_load_select();
-            break;
+				new_view = make_screen_load_select();
+				break;
 			case screen_load_heating:
 				new_view = make_screen_load_heating();
 				break;
@@ -511,90 +649,80 @@ namespace screen
 			case screen_settings:
 				new_view = make_screen_settings();
 				break;
+
+			// Move Axis
+			case screen_move:
+				new_view = make_screen_move();
+				break;
+			case screen_move_x:
+				new_view = make_screen_move_x();
+				break;
+			case screen_move_y:
+				new_view = make_screen_move_y();
+				break;
+			case screen_move_z:
+				new_view = make_screen_move_z();
+				break;
+			case screen_move_e:
+				new_view = make_screen_move_e();
+				break;
+			case screen_move_x_01:
+				new_view = make_screen_move_x_01();
+				break;
+			case screen_move_y_01:
+				new_view = make_screen_move_y_01();
+				break;
+			case screen_move_z_01:
+				new_view = make_screen_move_z_01();
+				break;
+			case screen_move_e_01:
+				new_view = make_screen_move_e_01();
+				break;
+			case screen_move_x_1:
+				new_view = make_screen_move_x_1();
+				break;
+			case screen_move_y_1:
+				new_view = make_screen_move_y_1();
+				break;
+			case screen_move_z_1:
+				new_view = make_screen_move_z_1();
+				break;
+			case screen_move_e_1:
+				new_view = make_screen_move_e_1();
+				break;
+			case screen_move_x_10:
+				new_view = make_screen_move_x_10();
+				break;
+			case screen_move_y_10:
+				new_view = make_screen_move_y_10();
+				break;
+			case screen_move_z_10:
+				new_view = make_screen_move_z_10();
+				break;
+
+			// Steppers
+			case screen_stepper:
+				new_view = make_screen_stepper();
+				break;
+
+			// Temperature
+			case screen_temperature_main:
+				new_view = make_screen_temperature_main();
+				break;
+
+			// Light
+			case screen_light:
+				new_view = make_screen_light();
+				break;
 		}
 
 
-
 /*
-*/
-
-		// AutoHome
-/*
-
-		// Settings
-		// Stepper
-		screen_stepper.add(screen_main);
-*/
-
-		// Move Axis
-/*
-		screen_move.add(screen_main);
-		screen_move.icon(icon_back);
-		screen_move.add(screen_move_x);
-		screen_move.icon(icon_move_x);
-		screen_move.add(screen_move_y);
-		screen_move.icon(icon_move_y);
-		screen_move.add(screen_move_z);
-		screen_move.icon(icon_move_z);
-		screen_move.add(screen_move_e);
-		screen_move.icon(icon_move_e);
-
-		screen_move_x.add(screen_move);
-		screen_move_x.icon(icon_back);
-		screen_move_x.add(screen_move_x_10);
-		screen_move_x.icon(icon_move_10mm);
-		screen_move_x.add(screen_move_x_1);
-		screen_move_x.icon(icon_move_1mm);
-		screen_move_x.add(screen_move_x_01);
-		screen_move_x.icon(icon_move_01mm);
-
-		screen_move_y.add(screen_move);
-		screen_move_y.icon(icon_back);
-		screen_move_y.add(screen_move_y_10);
-		screen_move_y.icon(icon_move_10mm);
-		screen_move_y.add(screen_move_y_1);
-		screen_move_y.icon(icon_move_1mm);
-		screen_move_y.add(screen_move_y_01);
-		screen_move_y.icon(icon_move_01mm);
-		screen_move_z.add(screen_move);
-		screen_move_z.icon(icon_back);
-		screen_move_z.add(screen_move_z_10);
-		screen_move_z.icon(icon_move_10mm);
-		screen_move_z.add(screen_move_z_1);
-		screen_move_z.icon(icon_move_1mm);
-		screen_move_z.add(screen_move_z_01);
-		screen_move_z.icon(icon_move_01mm);
-		screen_move_e.add(screen_move);
-		screen_move_e.icon(icon_back);
-		screen_move_e.add(screen_move_e_1);
-		screen_move_e.icon(icon_move_1mm);
-		screen_move_e.add(screen_move_e_01);
-		screen_move_e.icon(icon_move_01mm);
-
-		screen_move_x_01.add(screen_move);
-		screen_move_y_01.add(screen_move);
-		screen_move_z_01.add(screen_move);
-		screen_move_e_01.add(screen_move);
-
-		screen_move_x_1.add(screen_move);
-		screen_move_y_1.add(screen_move);
-		screen_move_z_1.add(screen_move);
-		screen_move_e_1.add(screen_move);
-
-		screen_move_x_10.add(screen_move);
-		screen_move_y_10.add(screen_move);
-		screen_move_z_10.add(screen_move);
-*/
-
-/*
-		// Temperature
-		screen_temperature_main.add(screen_main);
 
 		// Autolevel
 		screen_autolevel.add(screen_settings);
 
 		// Light
-		screen_light.add(screen_settings);
 
 		// Info
 		screen_info.add(screen_settings);
