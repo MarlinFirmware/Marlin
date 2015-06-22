@@ -194,7 +194,7 @@ void lcd_init()
 	lcd_get_button_updated();
 	lcd_get_button_clicked();
 
-	screen::ViewManager::getInstance().activeView(screen::GuiBuild());
+	screen::ViewManager::getInstance().buildView();
 	screen::ViewManager::getInstance().activeView()->draw();
 
 	SERIAL_ECHOLN("LCD initialized!");

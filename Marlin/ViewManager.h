@@ -2,6 +2,7 @@
 #define	VIEW_MANAGER_H
 
 #include "Screen.h"
+#include "GuiImpl_witbox_2.h"
 
 namespace screen
 {
@@ -10,8 +11,9 @@ namespace screen
 		public:
 			static ViewManager & getInstance();
 
+			void buildView();
 			void activeView(Screen* state);
-			Screen* activeView();
+			Screen * activeView();
 
 		protected:
 			ViewManager();
@@ -22,7 +24,7 @@ namespace screen
 			ViewManager & operator=(ViewManager & orig);
 
 		private:
-			Screen* m_active_view;
+			Screen * m_active_view;
 	};
 }
 
