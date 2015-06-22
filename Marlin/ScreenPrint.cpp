@@ -9,9 +9,7 @@ namespace screen
 		: ScreenMenu(title)
 		, Observer<float>(model)
 		, m_observed(0)
-	{ 
-		this->connect();
-	}
+	{ }
 
 	ScreenPrint::~ScreenPrint()
 	{ }
