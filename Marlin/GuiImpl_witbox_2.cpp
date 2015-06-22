@@ -15,10 +15,9 @@
 #include "ScreenAnimation.h"
 #include "ScreenTransition.h"
 #include "ScreenDynamic.h"
+#include "ScreenAbout.h"
 /*
 #include "ScreenPrint.h"
-#include "ScreenPrint.h"
-#include "ScreenAbout.h"
 */
 
 #include "AutoLevelManager.h"
@@ -74,23 +73,6 @@ namespace screen
 	/////////////////////////
 
 /*
-
-
-	// Info
-	ScreenAbout screen_info = ScreenAbout(MSG_SCREEN_INFO, MSG_SCREEN_INFO_TEXT, MSG_SCREEN_INFO_BOX, bits_logo_about);
-
-	// Autolevel
-	ScreenAction<void> screen_autolevel = ScreenAction<void>(MSG_SCREEN_AUTOLEVEL, AutoLevelManager::setState); 
-
-	// Offset
-	ScreenMenu screen_offset                 = ScreenMenu(MSG_SCREEN_OFFSET_TITLE, MSG_SCREEN_OFFSET_TEXT);
-	ScreenTransition screen_offset_home      = ScreenTransition(MSG_SCREEN_OFFSET_TITLE, MSG_SCREEN_OFFSET_HOME_TEXT, MSG_SCREEN_OFFSET_WAIT, action_homing);
-	ScreenTransition screen_offset_calculate = ScreenTransition(MSG_SCREEN_OFFSET_TITLE, MSG_SCREEN_OFFSET_PLANE_TEXT, MSG_SCREEN_OFFSET_WAIT, action_offset);
-	ScreenDialog<void> screen_offset_info    = ScreenDialog<void>(MSG_SCREEN_OFFSET_TITLE, MSG_SCREEN_OFFSET_DIALOG_TEXT, MSG_SCREEN_OFFSET_DIALOG_BOX, do_nothing);
-	ScreenDynamic<float> screen_offset_set   = ScreenDynamic<float>(MSG_SCREEN_OFFSET_TITLE, Z_AXIS, 0.0, 4.0, 0.1, action_set_offset);
-	ScreenAction<void> screen_offset_save    = ScreenAction<void>(MSG_SCREEN_OFFSET_TITLE,action_save_offset);
-	ScreenMenu screen_offset_finish          = ScreenMenu(MSG_SCREEN_OFFSET_TITLE, MSG_SCREEN_OFFSET_FINISH);
-
 	// Print
 	ScreenPrint screen_print          = ScreenPrint(MSG_SCREEN_PRINT_PRINTING, &TemperatureManager::single::instance());
 
@@ -209,10 +191,10 @@ namespace screen
 
 	static ScreenTransition * make_screen_unloading()
 	{
-				ScreenTransition * local_view = new ScreenTransition(MSG_SCREEN_UNLOAD_TITLE, MSG_SCREEN_UNLOADING_TEXT, MSG_SCREEN_LEVEL_BOX0, action_filament_unload);
-				local_view->add(screen_unload_confirm);
-      return local_view;
-   }
+		ScreenTransition * local_view = new ScreenTransition(MSG_SCREEN_UNLOAD_TITLE, MSG_SCREEN_UNLOADING_TEXT, MSG_SCREEN_LEVEL_BOX0, action_filament_unload);
+		local_view->add(screen_unload_confirm);
+		return local_view;
+	}
 
 	static ScreenMenu * make_screen_unload_confirm()
 	{
@@ -534,12 +516,81 @@ namespace screen
 		return local_view;
 	}
 
+	static ScreenAction<void> * make_screen_autolevel()
+	{
+		static ScreenAction<void> * local_view = new ScreenAction<void>(MSG_SCREEN_AUTOLEVEL, AutoLevelManager::setState); 
+		local_view->add(screen_settings);
+		return local_view;
+	}
+
 	static ScreenAction<void> * make_screen_light()
 	{
 		ScreenAction<void> * local_view = new ScreenAction<void>(MSG_SCREEN_LIGHT, LightManager::setState);
 		local_view->add(screen_settings);
 		return local_view;
 	}
+
+	static ScreenAbout * make_screen_info()
+	{
+		ScreenAbout * local_view = new ScreenAbout(MSG_SCREEN_INFO, MSG_SCREEN_INFO_TEXT, MSG_SCREEN_INFO_BOX, bits_logo_about);
+		local_view->add(screen_settings);
+		return local_view;
+	}
+
+	static ScreenMenu * make_screen_offset()
+	{
+		ScreenMenu * local_view = new ScreenMenu(MSG_SCREEN_OFFSET_TITLE, MSG_SCREEN_OFFSET_TEXT);
+		local_view->add(screen_main);
+		local_view->icon(icon_back);
+		local_view->add(screen_offset_home);
+		local_view->icon(icon_ok);
+		return local_view;
+	}
+
+	static ScreenTransition * make_screen_offset_home()
+	{
+		ScreenTransition * local_view = new ScreenTransition(MSG_SCREEN_OFFSET_TITLE, MSG_SCREEN_OFFSET_HOME_TEXT, MSG_SCREEN_OFFSET_WAIT, action_homing);
+		local_view->add(screen_offset_calculate);
+		return local_view;
+	}
+
+	static ScreenTransition * make_screen_offset_calculate()
+	{
+		ScreenTransition * local_view = new ScreenTransition(MSG_SCREEN_OFFSET_TITLE, MSG_SCREEN_OFFSET_PLANE_TEXT, MSG_SCREEN_OFFSET_WAIT, action_offset);
+		local_view->add(screen_offset_info);
+		return local_view;
+	}
+
+	static ScreenDialog<void> * make_screen_offset_info()
+	{
+		ScreenDialog<void> * local_view = new ScreenDialog<void>(MSG_SCREEN_OFFSET_TITLE, MSG_SCREEN_OFFSET_DIALOG_TEXT, MSG_SCREEN_OFFSET_DIALOG_BOX, do_nothing);
+		local_view->add(screen_offset_set);
+		return local_view;
+	}
+
+	static ScreenDynamic<float> * make_screen_offset_set()
+	{
+		ScreenDynamic<float> * local_view = new ScreenDynamic<float>(MSG_SCREEN_OFFSET_TITLE, Z_AXIS, 0.0, 4.0, 0.1, action_set_offset);
+		local_view->add(screen_offset_finish);
+		return local_view;
+	}
+
+	static ScreenAction<void> * make_screen_offset_save()
+	{
+		ScreenAction<void> * local_view = new ScreenAction<void>(MSG_SCREEN_OFFSET_TITLE, action_save_offset);
+		local_view->add(screen_offset_info);
+		local_view->add(screen_offset_save);
+		return local_view;
+	}
+
+	static ScreenMenu * make_screen_offset_finish()
+	{
+		ScreenMenu * local_view = new ScreenMenu(MSG_SCREEN_OFFSET_TITLE, MSG_SCREEN_OFFSET_FINISH);
+		local_view->add(screen_main);
+		return local_view;
+	}
+
+
 
 	Screen * new_view;
 
@@ -711,41 +762,50 @@ namespace screen
 				new_view = make_screen_temperature_main();
 				break;
 
+			// Autolevel
+			case screen_autolevel:
+				new_view = make_screen_autolevel();
+				break;
+
 			// Light
 			case screen_light:
 				new_view = make_screen_light();
+				break;
+
+			// Info
+			case screen_info:
+				new_view = make_screen_info();
+				break;
+	
+			// Offset
+			case screen_offset:
+				new_view = make_screen_offset();
+				break;
+			case screen_offset_home:
+				new_view = make_screen_offset_home();
+				break;
+			case screen_offset_calculate:
+				new_view = make_screen_offset_calculate();
+				break;
+      	case screen_offset_info:
+				new_view = make_screen_offset_info();
+				break;
+      	case screen_offset_set:
+				new_view = make_screen_offset_set();
+				break;
+      	case screen_offset_finish:
+				new_view = make_screen_offset_finish();
+				break;
+      	case screen_offset_save:
+				new_view = make_screen_offset_save();
 				break;
 		}
 
 
 /*
 
-		// Autolevel
-		screen_autolevel.add(screen_settings);
-
-		// Light
-
-		// Info
-		screen_info.add(screen_settings);
 
 		// Offset
-		screen_offset.add(screen_main);
-		screen_offset.icon(icon_back);
-		screen_offset.add(screen_offset_home);
-		screen_offset.icon(icon_ok);
-
-		screen_offset_home.add(screen_offset_calculate);
-		screen_offset_calculate.add(screen_offset_info);
-		screen_offset_info.add(screen_offset_set);
-		screen_offset_set.add(screen_offset_finish);
-
-		screen_offset_finish.add(screen_offset_info);
-		screen_offset_finish.icon(icon_retry);
-		screen_offset_finish.add(screen_offset_save);
-		screen_offset_finish.icon(icon_ok);
-
-		screen_offset_save.add(screen_main);
-
 		// Print Menu
 		screen_print.add(screen_play_pause);
 		screen_print.icon(icon_play_pause);
