@@ -8,11 +8,11 @@
 
 #include "Screen.h"
 #include "ScreenMenu.h"
+#include "ScreenList.h"
 /*
 #include "ScreenPrint.h"
 #include "ScreenDialog.h"
 #include "ScreenSelector.h"
-#include "ScreenList.h"
 #include "ScreenAnimation.h"
 #include "ScreenTransition.h"
 #include "ScreenAction.h"
@@ -79,8 +79,6 @@ namespace screen
 
 	// SD Card screens
 /*
-	ScreenList screen_SD_list       = ScreenList(MSG_SCREEN_SD_LIST);
-	ScreenMenu screen_SD_confirm    = ScreenMenu(MSG_SCREEN_SD_CONFIRM);
 	ScreenAction<void> screen_SD_OK = ScreenAction<void>(MSG_SCREEN_SD_BACK, PrintManager::startPrint);
 */
 
@@ -205,6 +203,7 @@ namespace screen
 		switch (screen_index)
 		{
 			case screen_main:
+			{
 				// Main Menu
 				ScreenMenu * local_view = new ScreenMenu();
 				// Main Menu
@@ -229,19 +228,34 @@ namespace screen
 				local_view->icon(widget_temperature);
 				new_view = local_view;
 				break;
+			}
+
+			case screen_SD_list:
+			{
+				ScreenList * local_view = new ScreenList(MSG_SCREEN_SD_LIST);
+				local_view->add(screen_main);
+				local_view->add(screen_SD_confirm);
+				new_view = local_view;
+				break;
+			}
+
+			case screen_SD_confirm:
+			{
+				ScreenMenu * local_view = new ScreenMenu(MSG_SCREEN_SD_CONFIRM);
+				local_view->add(screen_SD_list);
+				local_view->icon(icon_back);
+				local_view->add(screen_SD_OK);
+				local_view->icon(icon_ok);
+				new_view = local_view;
+				break;
+			}
 		}
 
 
 /*
 		// SD Card screens
 		// SD Card List 
-		screen_SD_list.add(screen_main);
-		screen_SD_list.add(screen_SD_confirm);
 		// SD Card Confirm
-		screen_SD_confirm.add(screen_SD_list);
-		screen_SD_confirm.icon(icon_back);
-		screen_SD_confirm.add(screen_SD_OK);
-		screen_SD_confirm.icon(icon_ok);
 		// SD Confirm OK
 		screen_SD_OK.add(screen_print);
 */

@@ -228,7 +228,7 @@ namespace screen
 		if (m_directory_is_root == false && (m_index == 1))
 		{
 			card.updir();
-			ViewManager::getInstance().activeView(this);
+			ViewManager::getInstance().activeView(screen_SD_list);
 			return;
 		}
 		else
@@ -237,22 +237,22 @@ namespace screen
 			if (card.filenameIsDir == true)
 			{
 				card.chdir(card.filename);
-				ViewManager::getInstance().activeView(this);
+				ViewManager::getInstance().activeView(screen_SD_list);
 				return;
 			}
 			ViewManager::getInstance().activeView(m_next_screen);
 		}
 	}
 
-	void ScreenList::add(Screen & component)
+	void ScreenList::add(ScreenIndex_t const & view)
 	{
 		if (m_num_item_added % 2)
 		{
-			m_next_screen = &component;
+			m_next_screen = view;
 		}
 		else
 		{
-			m_back_screen = &component;
+			m_back_screen = view;
 		}
 		m_num_item_added++;
 	}

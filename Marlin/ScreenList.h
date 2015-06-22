@@ -42,7 +42,7 @@ namespace screen
 			void right();
 			void draw();
 			void press();
-			void add(Screen & component);
+			void add(ScreenIndex_t const & view);
 //			void icon(Icon & component);
 //			Icon & icon();
 
@@ -55,7 +55,7 @@ namespace screen
 			uint8_t m_icon_index;
 //			Icon * m_icon_alternate;
 
-			Screen * m_back_screen;
+			ScreenIndex_t m_back_screen;
 			uint8_t m_num_item_added;
 
 			bool m_sdcard_inserted;
