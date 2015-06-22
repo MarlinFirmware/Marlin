@@ -72,21 +72,19 @@ namespace screen
 	/////////////////////////
 
 	// Logo Splash
-	ScreenDialog<void> screen_logo = ScreenDialog<void>(MSG_SCREEN_LOGO, MSG_SCREEN_LOGO_TEXT, MSG_SCREEN_LOGO_BOX, do_nothing);
+//	ScreenDialog<void> screen_logo = ScreenDialog<void>(MSG_SCREEN_LOGO, MSG_SCREEN_LOGO_TEXT, MSG_SCREEN_LOGO_BOX, do_nothing);
 
-	// Main Menu
-	ScreenMenu screen_main = ScreenMenu();
 
 	// SD Card screens
-	ScreenList screen_SD_list       = ScreenList(MSG_SCREEN_SD_LIST);
 /*
+	ScreenList screen_SD_list       = ScreenList(MSG_SCREEN_SD_LIST);
 	ScreenMenu screen_SD_confirm    = ScreenMenu(MSG_SCREEN_SD_CONFIRM);
 	ScreenAction<void> screen_SD_OK = ScreenAction<void>(MSG_SCREEN_SD_BACK, PrintManager::startPrint);
 */
 
 	// Unload Filament screens
-	ScreenMenu screen_unload_init                       = ScreenMenu(MSG_SCREEN_UNLOAD_TITLE, MSG_SCREEN_UNLOAD_TEXT2);
 /*
+	ScreenMenu screen_unload_init                       = ScreenMenu(MSG_SCREEN_UNLOAD_TITLE, MSG_SCREEN_UNLOAD_TEXT2);
 	ScreenSelector<void, uint16_t> screen_unload_select = ScreenSelector<void, uint16_t>(MSG_SCREEN_UNLOAD_TITLE, 170, 230, default_temp_change_filament, action_set_temperature);
 	ScreenAnimation<float> screen_unload_heating        = ScreenAnimation<float>(MSG_SCREEN_UNLOAD_TITLE, MSG_SCREEN_UNLOAD_ABORT, &TemperatureManager::single::instance());
 	ScreenDialog<void> screen_unload_info               = ScreenDialog<void>(MSG_SCREEN_UNLOAD_TITLE, MSG_SCREEN_UNLOAD_TEXT1, MSG_SCREEN_UNLOAD_CONTINUE, do_nothing);
@@ -95,8 +93,8 @@ namespace screen
 */
 
 	// Load Filament screens
-	ScreenMenu screen_load_init                        = ScreenMenu(MSG_SCREEN_LOAD_TITLE, MSG_SCREEN_LOAD_TEXT2);
 /*
+	ScreenMenu screen_load_init                        = ScreenMenu(MSG_SCREEN_LOAD_TITLE, MSG_SCREEN_LOAD_TEXT2);
 	ScreenSelector<void, uint16_t> screen_load_select  = ScreenSelector<void, uint16_t>(MSG_SCREEN_LOAD_TITLE, 170, 230, default_temp_change_filament, action_set_temperature);
 	ScreenAnimation<float> screen_load_heating         = ScreenAnimation<float>(MSG_SCREEN_LOAD_TITLE, MSG_SCREEN_LOAD_ABORT, &TemperatureManager::single::instance());
 	ScreenDialog<void> screen_load_info                = ScreenDialog<void>(MSG_SCREEN_LOAD_TITLE, MSG_SCREEN_LOAD_TEXT1, MSG_SCREEN_LOAD_CONTINUE, do_nothing);
@@ -105,8 +103,8 @@ namespace screen
 */
 
 	// Level Plate screens
-	ScreenMenu screen_level_init                   = ScreenMenu(MSG_SCREEN_LEVEL_TITLE, MSG_SCREEN_LEVEL_TEXT);
 /*
+	ScreenMenu screen_level_init                   = ScreenMenu(MSG_SCREEN_LEVEL_TITLE, MSG_SCREEN_LEVEL_TEXT);
 	ScreenAction<void> screen_level_cooling        = ScreenAction<void>(NULL, action_cooldown);
 	ScreenAnimation<float> screen_level_animation  = ScreenAnimation<float>(MSG_SCREEN_LEVEL_TITLE, MSG_SCREEN_LEVEL_ABORT, &TemperatureManager::single::instance());
 	ScreenTransition screen_level_homing           = ScreenTransition(MSG_SCREEN_LEVEL_TITLE, MSG_SCREEN_LEVEL_TEXT0, MSG_SCREEN_LEVEL_BOX0, action_homing);
@@ -119,6 +117,7 @@ namespace screen
 */
 
 	// AutoHome
+/*
 	ScreenAction<void> screen_autohome = ScreenAction<void>(MSG_SCREEN_AUTOHOME, action_homing);
 
 	// Settings
@@ -129,7 +128,6 @@ namespace screen
 
 	// Move Axis screens
 	ScreenMenu screen_move                = ScreenMenu(MSG_SCREEN_MOVE_TITLE, MSG_SCREEN_MOVE_TEXT);
-/*
 	ScreenMenu screen_move_x              = ScreenMenu(MSG_SCREEN_MOVE_TITLE, MSG_SCREEN_MOVE_X);
 	ScreenMenu screen_move_y              = ScreenMenu(MSG_SCREEN_MOVE_TITLE, MSG_SCREEN_MOVE_Y);
 	ScreenMenu screen_move_z              = ScreenMenu(MSG_SCREEN_MOVE_TITLE, MSG_SCREEN_MOVE_Z);
@@ -200,26 +198,32 @@ namespace screen
 	// Build the UI
 	Screen * GuiBuild()
 	{
+		Screen * new_view;
+	
 		// Main Menu
-//		screen_main.add(screen_SD_list);
-		screen_main.icon(icon_sd);
-		//screen_main.icon(icon_nosd);
-//		screen_main.add(screen_unload_init);
-		screen_main.icon(icon_filament_unload);
-//		screen_main.add(screen_load_init);
-		screen_main.icon(icon_filament_load);
-//		screen_main.add(screen_level_init);
-		screen_main.icon(icon_leveling);
-//		screen_main.add(screen_autohome);
-		screen_main.icon(icon_homing);
-//		screen_main.add(screen_settings);
-		screen_main.icon(icon_settings);
-//		screen_main.add(screen_move);
-		screen_main.icon(icon_moveaxis);
-//		screen_main.add(screen_stepper);
-		screen_main.icon(icon_steppers);
-//		screen_main.add(screen_temperature_main);
-//		screen_main.icon(widget_temperature);
+		ScreenMenu * local_view = new ScreenMenu();
+		// Main Menu
+//		local_view->add(screen_SD_list);
+		local_view->icon(icon_sd);
+		//local_view->icon(icon_nosd);
+//		local_view->add(screen_unload_init);
+		local_view->icon(icon_filament_unload);
+//		local_view->add(screen_load_init);
+		local_view->icon(icon_filament_load);
+//		local_view->add(screen_level_init);
+		local_view->icon(icon_leveling);
+//		local_view->add(screen_autohome);
+		local_view->icon(icon_homing);
+//		local_view->add(screen_settings);
+		local_view->icon(icon_settings);
+//		local_view->add(screen_move);
+		local_view->icon(icon_moveaxis);
+//		local_view->add(screen_stepper);
+		local_view->icon(icon_steppers);
+//		local_view->add(screen_temperature_main);
+//		local_view->icon(widget_temperature);
+
+		new_view = local_view;
 
 /*
 		// SD Card screens
@@ -477,6 +481,6 @@ namespace screen
 		screen_temperature_print.add(screen_print);
 */
 
-		return new ScreenMenu(screen_main);
+		return new_view; 
 	}
 }
