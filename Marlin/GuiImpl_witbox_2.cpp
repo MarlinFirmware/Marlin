@@ -73,16 +73,8 @@ namespace screen
 	// Instantiate Screens //
 	/////////////////////////
 
-	// Level Plate screens
 /*
-*/
 
-	// AutoHome
-/*
-	ScreenAction<void> screen_autohome = ScreenAction<void>(MSG_SCREEN_AUTOHOME, action_homing);
-
-	// Settings
-	ScreenMenu screen_settings = ScreenMenu(MSG_SCREEN_SETTINGS, MSG_SCREEN_SETTINGS_TEXT);
 
 	// Steppers
 	ScreenAction<void> screen_stepper = ScreenAction<void>(MSG_SCREEN_STEPPER, SteppersManager::disableAllSteppers);
@@ -163,9 +155,7 @@ namespace screen
 
 	static ScreenMenu * make_screen_main()
 	{
-		// Main Menu
 		ScreenMenu * local_view = new ScreenMenu();
-		// Main Menu
 		local_view->add(screen_SD_list);
 		local_view->icon(icon_sd);
 		//local_view->icon(icon_nosd);
@@ -388,6 +378,30 @@ namespace screen
 		return local_view;
 	}
 
+	static ScreenAction<void> * make_screen_autohome()
+	{
+		ScreenAction<void> * local_view = new ScreenAction<void>(MSG_SCREEN_AUTOHOME, action_homing);
+		local_view->add(screen_main);
+		return local_view;
+	}
+
+	static ScreenMenu * make_screen_settings()
+	{
+		ScreenMenu * local_view = new ScreenMenu(MSG_SCREEN_SETTINGS, MSG_SCREEN_SETTINGS_TEXT);
+		local_view->add(screen_main);
+		local_view->icon(icon_back);
+		local_view->add(screen_offset);
+		local_view->icon(icon_offset);
+		local_view->add(screen_autolevel);
+		local_view->icon(icon_autolevel);
+		local_view->add(screen_light);
+		local_view->icon(icon_lightled);
+		local_view->add(screen_info);
+		local_view->icon(icon_info);
+		return local_view;
+	}
+
+
 	Screen * new_view;
 
 	// Build the UI
@@ -459,7 +473,6 @@ namespace screen
 				new_view = make_screen_load_confirm();
 				break;
 
-
 			// Level plate
 			case screen_level_cooling:
 				new_view = make_screen_level_cooling();
@@ -489,6 +502,15 @@ namespace screen
 				new_view = make_screen_level_confirm();
 				break;
 
+			// Auto home
+			case screen_autohome:
+				new_view = make_screen_autohome();
+				break;
+
+			// Settings
+			case screen_settings:
+				new_view = make_screen_settings();
+				break;
 		}
 
 
@@ -498,20 +520,8 @@ namespace screen
 
 		// AutoHome
 /*
-		screen_autohome.add(screen_main);
 
 		// Settings
-		screen_settings.add(screen_main);
-		screen_settings.icon(icon_back);
-		screen_settings.add(screen_offset);
-		screen_settings.icon(icon_offset);
-		screen_settings.add(screen_autolevel);
-		screen_settings.icon(icon_autolevel);
-		screen_settings.add(screen_light);
-		screen_settings.icon(icon_lightled);
-		screen_settings.add(screen_info);
-		screen_settings.icon(icon_info);
-
 		// Stepper
 		screen_stepper.add(screen_main);
 */

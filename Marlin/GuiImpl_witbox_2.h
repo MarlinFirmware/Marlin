@@ -59,6 +59,7 @@ namespace screen
 		screen_temperature_main,
 		screen_light,
 		screen_autolevel,
+		screen_info,
 		screen_offset,
 		screen_offset_home,
 		screen_offset_wait,
