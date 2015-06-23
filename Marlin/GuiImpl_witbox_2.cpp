@@ -121,8 +121,7 @@ namespace screen
 	ScreenAction<void> screen_stepper = ScreenAction<void>(MSG_SCREEN_STEPPER, SteppersManager::disableAllSteppers);
 
 	// Move Axis screens
-	ScreenMenu screen_move                = ScreenMenu(MSG_SCREEN_MOVE_TITLE, MSG_SCREEN_MOVE_TEXT);
-/*
+/*	ScreenMenu screen_move                = ScreenMenu(MSG_SCREEN_MOVE_TITLE, MSG_SCREEN_MOVE_TEXT);
 	ScreenMenu screen_move_x              = ScreenMenu(MSG_SCREEN_MOVE_TITLE, MSG_SCREEN_MOVE_X);
 	ScreenMenu screen_move_y              = ScreenMenu(MSG_SCREEN_MOVE_TITLE, MSG_SCREEN_MOVE_Y);
 	ScreenMenu screen_move_z              = ScreenMenu(MSG_SCREEN_MOVE_TITLE, MSG_SCREEN_MOVE_Z);
@@ -172,7 +171,7 @@ namespace screen
 	ScreenAction<void> screen_stop_OK = ScreenAction<void>(MSG_SCREEN_STOP_OK, action_stop_print);
 
 	// Change Filament Screens
-	ScreenMenu screen_change_confirm_first                = ScreenMenu(MSG_SCREEN_CHANGE_TITLE, MSG_SCREEN_CHANGE_CONFIRM);
+/*	ScreenMenu screen_change_confirm_first                = ScreenMenu(MSG_SCREEN_CHANGE_TITLE, MSG_SCREEN_CHANGE_CONFIRM);
 	ScreenDialog<void> screen_change_pausing              = ScreenDialog<void>(MSG_SCREEN_CHANGE_TITLE, MSG_SCREEN_UNLOADING_TEXT, MSG_SCREEN_LEVEL_BOX0, action_pause_print);
 	ScreenSelector<void, uint16_t> screen_change_selector = ScreenSelector<void, uint16_t>(MSG_SCREEN_TEMP_TITLE, 0, 250, default_temp_change_filament, action_set_temperature);
 	ScreenAnimation<float> screen_change_animation        = ScreenAnimation<float>(MSG_SCREEN_CHANGE_TITLE, MSG_SCREEN_LOAD_ABORT, &TemperatureManager::single::instance());
@@ -183,7 +182,7 @@ namespace screen
 	ScreenTransition screen_change_loading                = ScreenTransition(MSG_SCREEN_CHANGE_TITLE, MSG_SCREEN_LOADING_TEXT, MSG_SCREEN_LEVEL_BOX0, action_filament_load);
 	ScreenMenu screen_change_confirm_second               = ScreenMenu(MSG_SCREEN_CHANGE_TITLE, MSG_SCREEN_CHANGE_CONFIRM);
 	ScreenAction<void> screen_change_ok2print             = ScreenAction<void>(MSG_OK2, action_resume_print);
-
+*/
 	// Change Speed screen
 	ScreenSelector<void, uint16_t> screen_speed = ScreenSelector<void, uint16_t>(MSG_SCREEN_SPEED, 10, 400, 100, action_set_feedrate_multiply);
 	// Temperature
@@ -195,7 +194,6 @@ namespace screen
 		// Main Menu
 		screen_main.add(screen_SD_list);
 		screen_main.icon(icon_sd);
-		//screen_main.icon(icon_nosd);
 		screen_main.add(screen_unload_init);
 		screen_main.icon(icon_filament_unload);
 		screen_main.add(screen_load_init);
@@ -206,8 +204,8 @@ namespace screen
 		screen_main.icon(icon_homing);
 		screen_main.add(screen_settings);
 		screen_main.icon(icon_settings);
-		screen_main.add(screen_move);
-		screen_main.icon(icon_moveaxis);
+//		screen_main.add(screen_move);
+//		screen_main.icon(icon_moveaxis);
 		screen_main.add(screen_stepper);
 		screen_main.icon(icon_steppers);
 		screen_main.add(screen_temperature_main);
@@ -408,8 +406,8 @@ namespace screen
 		screen_print.icon(icon_play_pause);
 		screen_print.add(screen_stop_confirm);
 		screen_print.icon(icon_stop);
-		screen_print.add(screen_change_confirm_first);
-		screen_print.icon(icon_change_filament);
+//		screen_print.add(screen_change_confirm_first);
+//		screen_print.icon(icon_change_filament);
 		screen_print.add(screen_speed);
 		screen_print.icon(icon_change_speed);
 		screen_print.add(screen_temperature_print);
@@ -426,7 +424,7 @@ namespace screen
 
 		// Change filament screens
 		// Change filament first confirm
-		screen_change_confirm_first.add(screen_print);
+/*		screen_change_confirm_first.add(screen_print);
 		screen_change_confirm_first.icon(icon_back);
 		screen_change_confirm_first.add(screen_change_pausing);
 		screen_change_confirm_first.icon(icon_ok);
@@ -453,7 +451,7 @@ namespace screen
 		screen_change_confirm_second.add(screen_change_ok2print);
 		screen_change_confirm_second.icon(icon_ok);
 		// Change filament OK to print
-		screen_change_ok2print.add(screen_print);
+		screen_change_ok2print.add(screen_print);*/
 		// Change speed screens
 		screen_speed.add(screen_print);
 		// Temperature
