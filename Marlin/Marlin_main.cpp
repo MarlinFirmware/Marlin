@@ -391,7 +391,7 @@ static char *strchr_pointer; ///< A pointer to find chars in the command string 
 const int sensitive_pins[] = SENSITIVE_PINS; ///< Sensitive pin list for M42
 
 // Inactivity shutdown
-static unsigned long previous_millis_cmd = 0;
+unsigned long previous_millis_cmd = 0;
 static unsigned long max_inactive_time = 0;
 static unsigned long stepper_inactive_time = DEFAULT_STEPPER_DEACTIVE_TIME*1000l;
 
