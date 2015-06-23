@@ -175,9 +175,9 @@ void action_homing()
 {
 	lcd_disable_interrupt();
 
-#ifdef ENABLE_AUTO_BED_LEVELING
+#ifdef Z_SAFE_HOMING
 	plan_bed_level_matrix.set_to_identity();
-#endif //ENABLE_AUTO_BED_LEVELING
+#endif //Z_SAFE_HOMING
 
 	float saved_feedrate = feedrate;
 	int saved_feedmultiply = feedmultiply;
@@ -188,10 +188,10 @@ void action_homing()
 #ifdef Z_SAFE_HOMING
 	for(int8_t i=0; i < NUM_AXIS; i++)
 	{
-		destination[i] = current_position[i];
+		destination[i] = plan_get_axis_position(i);
 	}
 
-	destination[Z_AXIS] = current_position[Z_AXIS] + 5;
+	destination[Z_AXIS] += 5;
 	feedrate = max_feedrate[Z_AXIS];
 
 	plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate, active_extruder);
@@ -485,14 +485,25 @@ void action_offset()
 	current_position[Z_AXIS] = plan_get_axis_position(Z_AXIS);
 }
 
+void action_offset_homing()
+{
+	zprobe_zoffset = -Z_PROBE_OFFSET_FROM_EXTRUDER;
+	action_homing();
+}
+
 void action_set_offset(uint8_t axis, float value)
 {
 	action_move_axis_to(Z_AXIS,-value);
-	OffsetManager::single::instance().offset(value + vector_offsets.z);
+	zprobe_zoffset = value + vector_offsets.z;
+	OffsetManager::single::instance().offset(zprobe_zoffset);
 }
 
 void action_save_offset()
 {
 	OffsetManager::single::instance().saveOffset();
+	if(!OffsetManager::single::instance().isOffsetOnEEPROM())
+	{
+		OffsetManager::single::instance().offsetOnEEPROM();
+	}
 	do_blocking_move_to(0, current_position[Y_AXIS], 50);
 }

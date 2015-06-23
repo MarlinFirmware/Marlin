@@ -3,7 +3,7 @@
 #include <Arduino.h>
 #include "Configuration.h"
 
-static const int LIGHT_EEPROM_POS = 504;
+static const int LIGHT_EEPROM_POS = 505;
 
 LightManager::LightManager()
 	: Subject<bool>()

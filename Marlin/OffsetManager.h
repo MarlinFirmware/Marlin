@@ -19,7 +19,8 @@ class OffsetManager : public Subject<float>
 
 		void offset(float value);
 		float offset();
-		bool isOffsetSet();
+		bool isOffsetOnEEPROM();
+		void offsetOnEEPROM();
 
 		void saveOffset();
 

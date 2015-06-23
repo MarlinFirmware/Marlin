@@ -407,10 +407,14 @@ void Config_ResetDefault() {
     absPreheatFanSpeed = ABS_PREHEAT_FAN_SPEED;
   #endif
 #ifdef Z_SAFE_HOMING
-    if(OffsetManager::single::instance().isOffsetSet())
+    if(OffsetManager::single::instance().isOffsetOnEEPROM())
     {
       int k = 232;
       EEPROM_READ_VAR(k,zprobe_zoffset);
+      if(zprobe_zoffset < 0 || zprobe_zoffset > 10)
+      {
+        zprobe_zoffset = -Z_PROBE_OFFSET_FROM_EXTRUDER;
+      }
     }
     else
     {
