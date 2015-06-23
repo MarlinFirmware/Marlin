@@ -63,10 +63,11 @@
  #define TEMP_BED_PIN       TEMP_1_PIN
 
  // Cooling Fans
- #define FAN_0_PIN          12
- #define FAN_1_PIN          7
- #define FAN_PIN            FAN_0_PIN 
- #define FAN_EXTRUDER		11   
+ #define FAN_BLOWER_PIN     12
+ #define FAN_BLOCK_PIN		11 
+ 
+ #define FAN_PIN            FAN_BLOWER_PIN 
+  
 
  // Auxiliar Power Channel Driver
  #define AUX_DRIVER_PIN     2

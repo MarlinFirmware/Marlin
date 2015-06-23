@@ -391,7 +391,7 @@ static char *strchr_pointer; ///< A pointer to find chars in the command string 
 const int sensitive_pins[] = SENSITIVE_PINS; ///< Sensitive pin list for M42
 
 // Inactivity shutdown
-static unsigned long previous_millis_cmd = 0;
+unsigned long previous_millis_cmd = 0;
 static unsigned long max_inactive_time = 0;
 static unsigned long stepper_inactive_time = DEFAULT_STEPPER_DEACTIVE_TIME*1000l;
 
@@ -1067,8 +1067,6 @@ static void axis_is_at_home(int axis) {
 #endif
 }
 
-#ifdef Z_SAFE_HOMING
-
 void do_blocking_move_to(float x, float y, float z) {
     float oldFeedRate = feedrate;
 
@@ -1087,6 +1085,8 @@ void do_blocking_move_to(float x, float y, float z) {
 
     feedrate = oldFeedRate;
 }
+
+#ifdef Z_SAFE_HOMING
 
 static void do_blocking_extrude_to(float e) {
 	float oldFeedRate = feedrate;
@@ -4090,22 +4090,24 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
     			lcd_enable_interrupt();
 
     			#ifndef Z_SAFE_HOMING
-    				#if X_MAX_POS > 250 //Witbox
-    					do_blocking_move_to((X_MAX_POS-X_MIN_POS)/2,Y_MAX_POS-10, current_position[Z_AXIS]);
-    				#elif Y_MAX_POS > 250 //Hephestos XL
-    					do_blocking_move_to(20, 260, current_position[Z_AXIS]);
-  					#else //Hephestos
-    					do_blocking_move_to(20, 190, current_position[Z_AXIS]);
-    				#endif
-    			#else
-    				#if X_MAX_POS > 250 //Witbox 2
-    					do_blocking_move_to((X_MAX_POS-X_MIN_POS)/2,Y_MAX_POS-10, current_position[Z_AXIS]);
-    				#elif Z_MAX_POS > 200 //Hephestos 2
-    					do_blocking_move_to(5, 10, current_position[Z_AXIS]);
-    				#endif
-    			#endif
+            #if X_MAX_POS > 250 //Witbox
+              do_blocking_move_to((X_MAX_POS-X_MIN_POS)/2,Y_MAX_POS-10, current_position[Z_AXIS]);
+            #elif Y_MAX_POS > 250 //Hephestos XL
+              do_blocking_move_to(20, 260, current_position[Z_AXIS]);
+            #else //Hephestos
+              do_blocking_move_to(20, 190, current_position[Z_AXIS]);
+            #endif
 
-    			do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], Z_MIN_POS);
+          do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], Z_MIN_POS);
+          #else
+            #if X_MAX_POS > 250 //Witbox 2
+              do_blocking_move_to(ABL_PROBE_PT_1_X,ABL_PROBE_PT_1_Y, current_position[Z_AXIS]);
+            #elif Z_MAX_POS > 200 //Hephestos 2
+            do_blocking_move_to(ABL_PROBE_PT_1_X, ABL_PROBE_PT_1_Y, current_position[Z_AXIS]);
+            #endif
+
+          do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], -Z_PROBE_OFFSET_FROM_EXTRUDER);
+          #endif
 
     			lcd_clear_triggered_flags();
     			while(!LCD_CLICKED) {          
@@ -4117,22 +4119,24 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
   	
   				do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS],Z_MIN_POS+10);
   				#ifndef Z_SAFE_HOMING
-    				#if X_MAX_POS > 250 //Witbox
-    					do_blocking_move_to(90, 5, current_position[Z_AXIS]);
-    				#elif Y_MAX_POS > 250 //Hephestos XL
-    					do_blocking_move_to(190, 260, current_position[Z_AXIS]);
-  					#else //Hephestos
-    					do_blocking_move_to(195, 190, current_position[Z_AXIS]);
-    				#endif
-    			#else
-    				#if X_MAX_POS > 250 //Witbox 2
-    					do_blocking_move_to(90, 5, current_position[Z_AXIS]);
-    				#elif Z_MAX_POS > 200 //Hephestos 2
-    					do_blocking_move_to(215, 10, current_position[Z_AXIS]);
-    				#endif
-    			#endif
+            #if X_MAX_POS > 250 //Witbox
+              do_blocking_move_to(90, 5, current_position[Z_AXIS]);
+            #elif Y_MAX_POS > 250 //Hephestos XL
+              do_blocking_move_to(190, 260, current_position[Z_AXIS]);
+            #else //Hephestos
+              do_blocking_move_to(195, 190, current_position[Z_AXIS]);
+            #endif
 
-    			do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], Z_MIN_POS);
+            do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], Z_MIN_POS);
+          #else
+            #if X_MAX_POS > 250 //Witbox 2
+              do_blocking_move_to(ABL_PROBE_PT_2_X, ABL_PROBE_PT_2_Y, current_position[Z_AXIS]);
+            #elif Z_MAX_POS > 200 //Hephestos 2
+              do_blocking_move_to(ABL_PROBE_PT_2_X, ABL_PROBE_PT_2_Y, current_position[Z_AXIS]);
+            #endif
+
+            do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], -Z_PROBE_OFFSET_FROM_EXTRUDER);
+          #endif
   	  
     			lcd_clear_triggered_flags();
   				while(!LCD_CLICKED) {
@@ -4146,22 +4150,24 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
   		  
   				do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS],Z_MIN_POS+10);
   				#ifndef Z_SAFE_HOMING
-    				#if X_MAX_POS > 250 //Witbox
-    					do_blocking_move_to(205, 5, current_position[Z_AXIS]);
-    				#elif Y_MAX_POS > 250 //Hephestos XL
-    					do_blocking_move_to(20, 40, current_position[Z_AXIS]);
-  					#else //Hephestos
-    					do_blocking_move_to(20, 20, current_position[Z_AXIS]);
-    				#endif
-    			#else
-    				#if X_MAX_POS > 250 //Witbox 2
-    					do_blocking_move_to(205, 5, current_position[Z_AXIS]);
-    				#elif Z_MAX_POS > 200 //Hephestos 2
-    					do_blocking_move_to(110, 280, current_position[Z_AXIS]);
-    				#endif
-    			#endif
-  				
-    			do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], Z_MIN_POS);
+            #if X_MAX_POS > 250 //Witbox
+              do_blocking_move_to(205, 5, current_position[Z_AXIS]);
+            #elif Y_MAX_POS > 250 //Hephestos XL
+              do_blocking_move_to(20, 40, current_position[Z_AXIS]);
+            #else //Hephestos
+              do_blocking_move_to(20, 20, current_position[Z_AXIS]);
+            #endif
+
+            do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], Z_MIN_POS);
+          #else
+            #if X_MAX_POS > 250 //Witbox 2
+              do_blocking_move_to(ABL_PROBE_PT_3_X, ABL_PROBE_PT_3_Y, current_position[Z_AXIS]);
+            #elif Z_MAX_POS > 200 //Hephestos 2
+              do_blocking_move_to(ABL_PROBE_PT_3_X, ABL_PROBE_PT_3_Y, current_position[Z_AXIS]);
+            #endif
+
+            do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], -Z_PROBE_OFFSET_FROM_EXTRUDER);
+          #endif
 
     			lcd_clear_triggered_flags();
   	 			while(!LCD_CLICKED) {
@@ -4171,37 +4177,46 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
 
   				// prob 4
   				#if X_MAX_POS < 250 && Z_MAX_POS < 200
-    				lcd_wizard_set_page(4);
-    				lcd_update();
-  		  
-    				do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS],Z_MIN_POS+10);
-    				#if Y_MAX_POS > 250 //Hephestos XL
-    					do_blocking_move_to(190, 40, current_position[Z_AXIS]);
-    				#else //Hephestos
-    					do_blocking_move_to(195, 20, current_position[Z_AXIS]);
-    				#endif
-    			#endif
+            lcd_wizard_set_page(4);
+            lcd_update();
+        
+            do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS],Z_MIN_POS+10);
+            #if Y_MAX_POS > 250 //Hephestos XL
+              do_blocking_move_to(190, 40, current_position[Z_AXIS]);
+            #else //Hephestos
+              do_blocking_move_to(195, 20, current_position[Z_AXIS]);
+            #endif
 
-	    		do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], Z_MIN_POS);
-  	
-    			lcd_clear_triggered_flags();
-    			while(!LCD_CLICKED){
-      				manage_heater();
-      				manage_inactivity();
-    			}
+          do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], Z_MIN_POS);
+    
+          lcd_clear_triggered_flags();
+          while(!LCD_CLICKED){
+              manage_heater();
+              manage_inactivity();
+          }
+          #endif
 
     			// final prob
     			lcd_wizard_set_page(5);
     			lcd_update();
   		 
   				do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS],Z_MIN_POS+10);
-  				#if X_MAX_POS > 250
-  	  				do_blocking_move_to(150, 105, current_position[Z_AXIS]);
-  				#else
-    				do_blocking_move_to((X_MAX_POS-X_MIN_POS)/2, (Y_MAX_POS-Y_MIN_POS)/2, current_position[Z_AXIS]);
-  				#endif
+  				#ifndef Z_SAFE_HOMING
+            #if X_MAX_POS > 250 //Witbox
+                do_blocking_move_to(150, 105, current_position[Z_AXIS]);
+            #else //Hephestos
+              do_blocking_move_to((X_MAX_POS+X_MIN_POS)/2, (Y_MAX_POS+Y_MIN_POS)/2, current_position[Z_AXIS]);
+            #endif
+              do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], Z_MIN_POS);
+          #else
+            #if X_MAX_POS > 250 //Witbox 2
+                do_blocking_move_to(Z_SAFE_HOMING_X_POINT, Z_SAFE_HOMING_Y_POINT, current_position[Z_AXIS]);
+            #else //Hephestos
+              do_blocking_move_to(Z_SAFE_HOMING_X_POINT, Z_SAFE_HOMING_Y_POINT, current_position[Z_AXIS]);
+            #endif
+          do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], -Z_PROBE_OFFSET_FROM_EXTRUDER);
 
-  					do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], Z_MIN_POS);
+          #endif
   	      
     			lcd_clear_triggered_flags();
   				while(!LCD_CLICKED){                  

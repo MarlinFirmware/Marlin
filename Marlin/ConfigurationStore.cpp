@@ -68,6 +68,8 @@
 #include "ultralcd.h"
 #include "ConfigurationStore.h"
 
+#include "OffsetManager.h"
+
 void _EEPROM_writeData(int &pos, uint8_t* value, uint8_t size) {
   uint8_t c;
   while(size--) {
@@ -405,8 +407,16 @@ void Config_ResetDefault() {
     absPreheatFanSpeed = ABS_PREHEAT_FAN_SPEED;
   #endif
 #ifdef Z_SAFE_HOMING
-    int k = 232;
-    EEPROM_READ_VAR(k,zprobe_zoffset);
+    if(OffsetManager::single::instance().isOffsetSet())
+    {
+      int k = 232;
+      EEPROM_READ_VAR(k,zprobe_zoffset);
+    }
+    else
+    {
+      zprobe_zoffset = -Z_PROBE_OFFSET_FROM_EXTRUDER;
+    }
+    
   #endif
 
   #ifdef DOGLCD

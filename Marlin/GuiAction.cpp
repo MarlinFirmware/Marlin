@@ -18,6 +18,8 @@ extern int stop_buffer_code;
 
 static float manual_feedrate[] = MANUAL_FEEDRATE;
 
+extern unsigned long previous_millis_cmd;
+
 #define HOMEAXIS(LETTER) homeaxis(LETTER##_AXIS)
 
 void action_set_temperature(uint16_t degrees)
@@ -309,6 +311,7 @@ void action_homing()
 	feedmultiply = saved_feedmultiply;
 	endstops_hit_on_purpose();
 
+	previous_millis_cmd = millis();
 	lcd_enable_interrupt();
 }
 
