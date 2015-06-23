@@ -21,6 +21,7 @@ extern void action_pause_print();
 extern void action_resume_print();
 extern void action_set_feedrate_multiply(uint16_t value);
 
+extern void action_offset_homing();
 extern void action_offset();
 extern void action_set_offset(uint8_t axis, float value);
 extern void action_save_offset();

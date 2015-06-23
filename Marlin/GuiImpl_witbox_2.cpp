@@ -153,7 +153,7 @@ namespace screen
 
 	// Offset
 	ScreenMenu screen_offset                 = ScreenMenu(MSG_SCREEN_OFFSET_TITLE, MSG_SCREEN_OFFSET_TEXT);
-	ScreenTransition screen_offset_home      = ScreenTransition(MSG_SCREEN_OFFSET_TITLE, MSG_SCREEN_OFFSET_HOME_TEXT, MSG_SCREEN_OFFSET_WAIT, action_homing);
+	ScreenTransition screen_offset_home      = ScreenTransition(MSG_SCREEN_OFFSET_TITLE, MSG_SCREEN_OFFSET_HOME_TEXT, MSG_SCREEN_OFFSET_WAIT, action_offset_homing);
 	ScreenTransition screen_offset_calculate = ScreenTransition(MSG_SCREEN_OFFSET_TITLE, MSG_SCREEN_OFFSET_PLANE_TEXT, MSG_SCREEN_OFFSET_WAIT, action_offset);
 	ScreenDialog<void> screen_offset_info    = ScreenDialog<void>(MSG_SCREEN_OFFSET_TITLE, MSG_SCREEN_OFFSET_DIALOG_TEXT, MSG_SCREEN_OFFSET_DIALOG_BOX, do_nothing);
 	ScreenDynamic<float> screen_offset_set   = ScreenDynamic<float>(MSG_SCREEN_OFFSET_TITLE, Z_AXIS, 0.0, 4.0, 0.1, action_set_offset);

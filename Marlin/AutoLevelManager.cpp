@@ -1,6 +1,6 @@
 #include "AutoLevelManager.h"
 
-static const int CUSTOM_EEPROM_POS = 500;
+static const int CUSTOM_EEPROM_POS = 501;
 
 AutoLevelManager::AutoLevelManager()
 	: Subject<bool>()

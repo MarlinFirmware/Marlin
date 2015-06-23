@@ -485,6 +485,12 @@ void action_offset()
 	current_position[Z_AXIS] = plan_get_axis_position(Z_AXIS);
 }
 
+void action_offset_homing()
+{
+	zprobe_zoffset = -Z_PROBE_OFFSET_FROM_EXTRUDER;
+	action_homing();
+}
+
 void action_set_offset(uint8_t axis, float value)
 {
 	action_move_axis_to(Z_AXIS,-value);
@@ -494,5 +500,9 @@ void action_set_offset(uint8_t axis, float value)
 void action_save_offset()
 {
 	OffsetManager::single::instance().saveOffset();
+	if(!OffsetManager::single::instance().isOffsetOnEEPROM())
+	{
+		OffsetManager::single::instance().offsetOnEEPROM();
+	}
 	do_blocking_move_to(0, current_position[Y_AXIS], 50);
 }
