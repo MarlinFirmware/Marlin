@@ -227,19 +227,18 @@ namespace screen
 		coordinateXInit(x_init + (strlen(itostr3left(percentage))+strlen("%"))*6 + 7+1);
 		x_init = coordinateXInit();
 
-		if (PrintManager::single::instance().state() == PRINTING)
-		{
-			setColorIndex(1);
-			setFont(u8g_font_6x9);
-			uint8_t x = x_end - (strlen(itostr2(time/60)) + strlen(":") + strlen(itostr2(time%60))) * 6;
-			setPrintPos(x, y_init);
-			print(itostr2(time/60));
-			print(":");
-			print(itostr2(time%60));
+		//Print the elapsed time on the right of the progress bar 
+		setColorIndex(1);
+		setFont(u8g_font_6x9);
+		uint8_t x = x_end - (strlen(itostr2(time/60)) + strlen(":") + strlen(itostr2(time%60))) * 6;
+		setPrintPos(x, y_init);
+		print(itostr2(time/60));
+		print(":");
+		print(itostr2(time%60));
 
-			coordinateXEnd(x-2);
-			x_end = coordinateXEnd();
-		}
+		coordinateXEnd(x-2);
+		x_end = coordinateXEnd();
+	
 		setColorIndex(1);
 		m_impl.drawBox(x_init, y_init + 1,x_end-x_init,  6);
 		setColorIndex(0);
