@@ -24,7 +24,4 @@ namespace screen
    {
       m_next_screen = view;
    }
-
-	void Screen::press()
-	{ }
 }
