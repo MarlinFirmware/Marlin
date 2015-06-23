@@ -1132,8 +1132,8 @@ static void set_bed_level_equation_3pts(float z_at_pt_1, float z_at_pt_2, float 
     vector_3 pt3 = vector_3(ABL_PROBE_PT_3_X, ABL_PROBE_PT_3_Y, z_at_pt_3);
 
     vector_3 from_2_to_1 = (pt1 - pt2).get_normal();
-    vector_3 from_2_to_3 = (pt3 - pt2).get_normal();
-    vector_3 planeNormal = vector_3::cross(from_2_to_1, from_2_to_3).get_normal();
+    vector_3 from_3_to_2 = (pt2 - pt3).get_normal();
+    vector_3 planeNormal = vector_3::cross(from_2_to_1, from_3_to_2).get_normal();
     planeNormal = vector_3(planeNormal.x, planeNormal.y, abs(planeNormal.z));
 
     plan_bed_level_matrix = matrix_3x3::create_look_at(planeNormal);
@@ -1933,7 +1933,7 @@ void process_commands()
             z_tmp = current_position[Z_AXIS];
 
             apply_rotation_xyz(plan_bed_level_matrix, x_tmp, y_tmp, z_tmp);         //Apply the correction sending the probe offset
-            current_position[Z_AXIS] = z_tmp - real_z + current_position[Z_AXIS];   //The difference is added to current position and sent to planner.
+            current_position[Z_AXIS] = real_z -z_tmp + current_position[Z_AXIS];   //The difference is added to current position and sent to planner.
             plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
 #ifdef Z_PROBE_SLED
             dock_sled(true, -SLED_DOCKING_OFFSET); // correct for over travel.
