@@ -175,9 +175,9 @@ void action_homing()
 {
 	lcd_disable_interrupt();
 
-#ifdef ENABLE_AUTO_BED_LEVELING
+#ifdef Z_SAFE_HOMING
 	plan_bed_level_matrix.set_to_identity();
-#endif //ENABLE_AUTO_BED_LEVELING
+#endif //Z_SAFE_HOMING
 
 	float saved_feedrate = feedrate;
 	int saved_feedmultiply = feedmultiply;
@@ -188,10 +188,10 @@ void action_homing()
 #ifdef Z_SAFE_HOMING
 	for(int8_t i=0; i < NUM_AXIS; i++)
 	{
-		destination[i] = current_position[i];
+		destination[i] = plan_get_axis_position(i);
 	}
 
-	destination[Z_AXIS] = current_position[Z_AXIS] + 5;
+	destination[Z_AXIS] += 5;
 	feedrate = max_feedrate[Z_AXIS];
 
 	plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS], destination[E_AXIS], feedrate, active_extruder);
