@@ -21,6 +21,7 @@
 #include "AutoLevelManager.h"
 #include "LightManager.h"
 #include "PrintManager.h"
+#include "SDManager.h"
 #include "SteppersManager.h"
 #include "TemperatureManager.h"
 
