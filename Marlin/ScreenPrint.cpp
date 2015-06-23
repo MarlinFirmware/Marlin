@@ -2,6 +2,8 @@
 
 #include "cardreader.h"
 #include "TemperatureManager.h"
+#include "PrintManager.h"
+#include "language.h"
 
 namespace screen
 {
@@ -27,18 +29,32 @@ namespace screen
 
 	void ScreenPrint::draw()
 	{
-		char t_target[4] = { 0 };
-		dtostrf(TemperatureManager::single::instance().getTargetTemperature(), 3, 0, t_target);
-		int size_target = strlen(t_target);
-
 		//Start painting sequence
 		painter.firstPage();
 		do 
 		{
+			switch(PrintManager::single::instance().state())
+			{
+				case 0:
+					m_title = MSG_SCREEN_PRINT_PRINTING;
+					break;
+				case 1:
+					m_title = MSG_SCREEN_PRINT_PAUSED;
+					break;
+				case 2:
+					m_title = MSG_SCREEN_PRINT_STOPPED;
+					break;
+				default:
+					break;
+			}
 			//Paint title on top of screen
 			painter.title(m_title);
 
 			//Print widget text
+			char t_target[4] = { 0 };
+			dtostrf(TemperatureManager::single::instance().getTargetTemperature(), 3, 0, t_target);
+			int size_target = strlen(t_target);
+
 			painter.setColorIndex(1);
 			char t_current[4] = { 0 };
 			dtostrf(m_observed, 3, 0, t_current);
