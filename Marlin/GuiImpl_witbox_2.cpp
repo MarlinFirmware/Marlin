@@ -35,8 +35,6 @@ namespace screen
 	Size icon_size = Size(icon_width, icon_height);
 	Size widget_size = Size(widget_width, widget_height);
 
-	Icon icon_nosd              = Icon(icon_size, bits_nosd_normal,              bits_nosd_focused,              MSG_NOSD);
-	Icon icon_sd                = Icon(icon_size, bits_sd_normal,                bits_sd_focused,                MSG_SD);
 	Icon icon_filament_unload   = Icon(icon_size, bits_filament_unload_normal,   bits_filament_unload_focused,   MSG_FILAMENT_UNLOAD);
 	Icon icon_filament_load     = Icon(icon_size, bits_filament_load_normal,     bits_filament_load_focused,     MSG_FILAMENT_LOAD);
 	Icon icon_leveling          = Icon(icon_size, bits_leveling_normal,          bits_leveling_focused,          MSG_LEVELING);
@@ -59,6 +57,7 @@ namespace screen
 	Icon icon_move_1mm          = Icon(icon_size, bits_1mm_normal,               bits_1mm_focused,               MSG_SCREEN_MOVE_1MM);
 	Icon icon_move_10mm         = Icon(icon_size, bits_10mm_normal,              bits_10mm_focused,              MSG_SCREEN_MOVE_10MM);
 	Icon icon_offset            = Icon(icon_size, bits_offset_normal,            bits_offset_focused,            MSG_OFFSET);
+   IconStatus<SDState_t> icon_sd = IconStatus<SDState_t>(icon_size, bits_nosd_normal, bits_nosd_focused, bits_sd_normal, bits_sd_focused, MSG_NOSD, MSG_SD, &SDManager::single::instance());
 	IconStatus<bool> icon_autolevel = IconStatus<bool>(icon_size, bits_autolevel_disable_normal, bits_autolevel_disable_focused, bits_autolevel_normal, bits_autolevel_focused, MSG_AUTOLEVEL_DISABLE, MSG_AUTOLEVEL, &AutoLevelManager::single::instance());
 	IconStatus<bool> icon_steppers = IconStatus<bool>(icon_size, bits_steppers_normal, bits_steppers_focused, bits_steppers_off_normal, bits_steppers_off_focused, MSG_STEPPERS, MSG_STEPPERS_OFF, &SteppersManager::single::instance());
 	IconStatus<bool> icon_lightled = IconStatus<bool>(icon_size, bits_lightled_disable_normal, bits_lightled_disable_focused, bits_lightled_normal, bits_lightled_focused, MSG_LIGHTLED_DISABLE, MSG_LIGHTLED, &LightManager::single::instance());
