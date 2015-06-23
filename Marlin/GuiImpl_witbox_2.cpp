@@ -168,7 +168,7 @@ namespace screen
 
 	// Stop
 	ScreenMenu screen_stop_confirm    = ScreenMenu(MSG_SCREEN_STOP_CONFIRM);
-	ScreenAction<void> screen_stop_OK = ScreenAction<void>(MSG_SCREEN_STOP_OK, action_stop_print);
+	ScreenAction<void> screen_stop_OK = ScreenAction<void>(MSG_SCREEN_STOP_OK, PrintManager::stopPrint);
 
 	// Change Filament Screens
 /*	ScreenMenu screen_change_confirm_first                = ScreenMenu(MSG_SCREEN_CHANGE_TITLE, MSG_SCREEN_CHANGE_CONFIRM);

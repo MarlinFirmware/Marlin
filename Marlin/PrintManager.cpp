@@ -19,7 +19,8 @@ void PrintManager::startPrint()
 
 void PrintManager::stopPrint()
 {
-	if (PrintManager::single::instance().state() != PRINTING)
+	if ( (PrintManager::single::instance().state() != PRINTING) &&
+	     (PrintManager::single::instance().state() != PAUSED) )
 	{
 		return;
 	}

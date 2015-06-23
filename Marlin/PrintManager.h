@@ -20,15 +20,18 @@ class PrintManager : public Subject<PrinterState_t>
 	public:
 		PrintManager();
 
+		PrinterState_t state();
+
 		static void startPrint();
 		static void stopPrint();
 		static void pausePrint();
 		static void resumePrint();
 		static void togglePause();
+
 		void notify();
 
+	private:
 		void state(PrinterState_t state);
-		PrinterState_t state();
 
 	private:
 		PrinterState_t m_state;
