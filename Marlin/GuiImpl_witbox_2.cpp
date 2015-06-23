@@ -16,9 +16,7 @@
 #include "ScreenTransition.h"
 #include "ScreenDynamic.h"
 #include "ScreenAbout.h"
-/*
 #include "ScreenPrint.h"
-*/
 
 #include "AutoLevelManager.h"
 #include "LightManager.h"
@@ -74,15 +72,6 @@ namespace screen
 
 /*
 	// Print
-	ScreenPrint screen_print          = ScreenPrint(MSG_SCREEN_PRINT_PRINTING, &TemperatureManager::single::instance());
-
-	// Play/Pause
-	ScreenAction<void> screen_play_pause = ScreenAction<void>(MSG_SCREEN_PRINT_PAUSE, PrintManager::togglePause);
-
-	// Stop
-	ScreenMenu screen_stop_confirm    = ScreenMenu(MSG_SCREEN_STOP_CONFIRM);
-	ScreenAction<void> screen_stop_OK = ScreenAction<void>(MSG_SCREEN_STOP_OK, action_stop_print);
-
 	// Change Filament Screens
 	ScreenMenu screen_change_confirm_first                = ScreenMenu(MSG_SCREEN_CHANGE_TITLE, MSG_SCREEN_CHANGE_CONFIRM);
 	ScreenDialog<void> screen_change_pausing              = ScreenDialog<void>(MSG_SCREEN_CHANGE_TITLE, MSG_SCREEN_UNLOADING_TEXT, MSG_SCREEN_LEVEL_BOX0, action_pause_print);
@@ -590,7 +579,45 @@ namespace screen
 		return local_view;
 	}
 
+	static ScreenPrint * make_screen_print()
+	{
+		ScreenPrint * local_view = new ScreenPrint(MSG_SCREEN_PRINT_PRINTING, &TemperatureManager::single::instance());
+		local_view->add(screen_play_pause);
+		local_view->icon(icon_play_pause);
+		local_view->add(screen_stop_confirm);
+		local_view->icon(icon_stop);
+		local_view->add(screen_change_confirm_first);
+		local_view->icon(icon_change_filament);
+		local_view->add(screen_speed);
+		local_view->icon(icon_change_speed);
+		local_view->add(screen_temperature_print);
+		local_view->icon(icon_temperature);
+		return local_view;
+	}
 
+	static ScreenAction<void> * make_screen_play_pause()
+	{
+		ScreenAction<void> * local_view = new ScreenAction<void>(MSG_SCREEN_PRINT_PAUSE, PrintManager::togglePause);
+		local_view->add(screen_print);
+		return local_view;
+	}
+
+	static ScreenMenu * make_screen_stop_confirm()
+	{
+		ScreenMenu * local_view = new ScreenMenu(MSG_SCREEN_STOP_CONFIRM);
+		local_view->add(screen_print);
+		local_view->icon(icon_back);
+		local_view->add(screen_stop_OK);
+		local_view->icon(icon_ok);
+		return local_view;
+	}
+
+	ScreenAction<void> * make_screen_stop_OK()
+	{
+		ScreenAction<void> * local_view = new ScreenAction<void>(MSG_SCREEN_STOP_OK, action_stop_print);
+		local_view->add(screen_main);
+		return local_view;
+	}
 
 	Screen * new_view;
 
@@ -799,33 +826,26 @@ namespace screen
       	case screen_offset_save:
 				new_view = make_screen_offset_save();
 				break;
+
+			// Print Menu
+			case screen_print:
+				new_view = make_screen_print();
+				break;
+			case screen_play_pause:
+				new_view = make_screen_play_pause();
+				break;
+			case screen_stop_confirm:
+				new_view = make_screen_stop_confirm();
+				break;
+			case screen_stop_OK:
+				new_view = make_screen_stop_OK();
+				break;
+
 		}
 
 
 /*
 
-
-		// Offset
-		// Print Menu
-		screen_print.add(screen_play_pause);
-		screen_print.icon(icon_play_pause);
-		screen_print.add(screen_stop_confirm);
-		screen_print.icon(icon_stop);
-		screen_print.add(screen_change_confirm_first);
-		screen_print.icon(icon_change_filament);
-		screen_print.add(screen_speed);
-		screen_print.icon(icon_change_speed);
-		screen_print.add(screen_temperature_print);
-		screen_print.icon(icon_temperature);
-		// Play/Pause
-		screen_play_pause.add(screen_print);
-		// Stop Confirm
-		screen_stop_confirm.add(screen_print);
-		screen_stop_confirm.icon(icon_back);
-		screen_stop_confirm.add(screen_stop_OK);
-		screen_stop_confirm.icon(icon_ok);
-		// Stop Confirm OK
-		screen_stop_OK.add(screen_main);
 
 		// Change filament screens
 		// Change filament first confirm
