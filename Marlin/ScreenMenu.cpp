@@ -45,6 +45,11 @@ namespace screen
 		}
 	}
 
+	void ScreenMenu::press()
+	{
+		ViewManager::getInstance().activeView(m_items[m_index]);
+	}
+
 	void ScreenMenu::draw()
 	{
 		int total_width_0 = 0;
@@ -142,11 +147,6 @@ namespace screen
 			}	
 
 		} while( painter.nextPage() ); 
-	}
-
-	void ScreenMenu::press()
-	{
-		ViewManager::getInstance().activeView(m_items[m_index]);
 	}
 
 	void ScreenMenu::add(ScreenIndex_t const & component)

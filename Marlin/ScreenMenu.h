@@ -16,11 +16,10 @@ namespace screen
 			virtual ~ScreenMenu();
 
 			void init();
-
 			void left();
 			void right();
-			virtual void draw();
 			void press();
+			virtual void draw();
 			void add(ScreenIndex_t const & component);
 			void icon(Icon & component);
 
