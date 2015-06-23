@@ -19,7 +19,7 @@ class OffsetManager : public Subject<float>
 
 		void offset(float value);
 		float offset();
-		bool isFirstTime();
+		bool isOffsetSet();
 
 		void saveOffset();
 
