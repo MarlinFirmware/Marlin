@@ -494,7 +494,8 @@ void action_offset_homing()
 void action_set_offset(uint8_t axis, float value)
 {
 	action_move_axis_to(Z_AXIS,-value);
-	OffsetManager::single::instance().offset(value + vector_offsets.z);
+	zprobe_zoffset = value + vector_offsets.z;
+	OffsetManager::single::instance().offset(zprobe_zoffset);
 }
 
 void action_save_offset()
