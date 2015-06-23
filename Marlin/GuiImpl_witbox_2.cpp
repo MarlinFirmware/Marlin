@@ -66,30 +66,9 @@ namespace screen
 	Icon icon_offset            = Icon(icon_size, bits_offset_normal,            bits_offset_focused,            MSG_OFFSET);
 
 
-	/////////////////////////
-	// Instantiate Screens //
-	/////////////////////////
-
-/*
-	// Print
-	// Change Filament Screens
-	ScreenMenu screen_change_confirm_first                = ScreenMenu(MSG_SCREEN_CHANGE_TITLE, MSG_SCREEN_CHANGE_CONFIRM);
-	ScreenDialog<void> screen_change_pausing              = ScreenDialog<void>(MSG_SCREEN_CHANGE_TITLE, MSG_SCREEN_UNLOADING_TEXT, MSG_SCREEN_LEVEL_BOX0, action_pause_print);
-	ScreenSelector<void, uint16_t> screen_change_selector = ScreenSelector<void, uint16_t>(MSG_SCREEN_TEMP_TITLE, 0, 250, default_temp_change_filament, action_set_temperature);
-	ScreenAnimation<float> screen_change_animation        = ScreenAnimation<float>(MSG_SCREEN_CHANGE_TITLE, MSG_SCREEN_LOAD_ABORT, &TemperatureManager::single::instance());
-	ScreenDialog<void> screen_change_info                 = ScreenDialog<void>(MSG_SCREEN_CHANGE_TITLE, MSG_SCREEN_CHANGE_START, MSG_SCREEN_CHANGE_BOX, do_nothing);
-	ScreenDialog<void> screen_change_pullout_info         = ScreenDialog<void>(MSG_SCREEN_CHANGE_TITLE, MSG_SCREEN_CHANGE_PULLOUT, MSG_SCREEN_CHANGE_BOX, do_nothing);
-	ScreenTransition screen_change_unloading              = ScreenTransition(MSG_SCREEN_CHANGE_TITLE, MSG_SCREEN_UNLOADING_TEXT, MSG_SCREEN_LEVEL_BOX0, action_filament_load);
-	ScreenDialog<void> screen_change_insert_info          = ScreenDialog<void>(MSG_SCREEN_CHANGE_TITLE, MSG_SCREEN_CHANGE_INSERT, MSG_SCREEN_CHANGE_BOX, do_nothing);
-	ScreenTransition screen_change_loading                = ScreenTransition(MSG_SCREEN_CHANGE_TITLE, MSG_SCREEN_LOADING_TEXT, MSG_SCREEN_LEVEL_BOX0, action_filament_load);
-	ScreenMenu screen_change_confirm_second               = ScreenMenu(MSG_SCREEN_CHANGE_TITLE, MSG_SCREEN_CHANGE_CONFIRM);
-	ScreenAction<void> screen_change_ok2print             = ScreenAction<void>(MSG_OK2, action_resume_print);
-
-	// Change Speed screen
-	ScreenSelector<void, uint16_t> screen_speed = ScreenSelector<void, uint16_t>(MSG_SCREEN_SPEED, 10, 400, 100, action_set_feedrate_multiply);
-	// Temperature
-	ScreenSelector<void, uint16_t> screen_temperature_print = ScreenSelector<void, uint16_t>(MSG_SCREEN_TEMP_TITLE, 170, 230, default_temp_change_filament, action_set_temperature);
-*/
+	///////////////////////////////
+	// Instantiation of  Screens //
+	///////////////////////////////
 
 	static ScreenDialog<void> * make_screen_logo()
 	{
@@ -612,10 +591,108 @@ namespace screen
 		return local_view;
 	}
 
-	ScreenAction<void> * make_screen_stop_OK()
+	static ScreenAction<void> * make_screen_stop_OK()
 	{
 		ScreenAction<void> * local_view = new ScreenAction<void>(MSG_SCREEN_STOP_OK, action_stop_print);
 		local_view->add(screen_main);
+		return local_view;
+	}
+
+	static ScreenMenu * make_screen_change_confirm_first()
+	{
+		ScreenMenu * local_view = new ScreenMenu(MSG_SCREEN_CHANGE_TITLE, MSG_SCREEN_CHANGE_CONFIRM);
+		local_view->add(screen_print);
+		local_view->icon(icon_back);
+		local_view->add(screen_change_pausing);
+		local_view->icon(icon_ok);
+		return local_view;
+	}
+
+	static ScreenDialog<void> * make_screen_change_pausing()
+	{
+		ScreenDialog<void> * local_view = new ScreenDialog<void>(MSG_SCREEN_CHANGE_TITLE, MSG_SCREEN_UNLOADING_TEXT, MSG_SCREEN_LEVEL_BOX0, action_pause_print);
+		local_view->add(screen_change_selector);
+		return local_view;
+	}
+
+	static ScreenSelector<void, uint16_t> * make_screen_change_selector()
+	{
+		ScreenSelector<void, uint16_t> * local_view = new ScreenSelector<void, uint16_t>(MSG_SCREEN_TEMP_TITLE, 0, 250, default_temp_change_filament, action_set_temperature);
+		local_view->add(screen_change_animation);
+		return local_view;
+	}
+
+	static ScreenAnimation<float> * make_screen_change_animation()
+	{
+		ScreenAnimation<float> * local_view = new ScreenAnimation<float>(MSG_SCREEN_CHANGE_TITLE, MSG_SCREEN_LOAD_ABORT, &TemperatureManager::single::instance());
+		local_view->add(screen_print);
+		local_view->add(screen_change_info);
+		return local_view;
+	}
+
+	static ScreenDialog<void> * make_screen_change_info()
+	{
+		ScreenDialog<void> * local_view = new ScreenDialog<void>(MSG_SCREEN_CHANGE_TITLE, MSG_SCREEN_CHANGE_START, MSG_SCREEN_CHANGE_BOX, do_nothing);
+		local_view->add(screen_change_pullout_info);
+		return local_view;
+	}
+
+	static ScreenDialog<void> * make_screen_change_pullout_info()
+	{
+		ScreenDialog<void> * local_view = new ScreenDialog<void>(MSG_SCREEN_CHANGE_TITLE, MSG_SCREEN_CHANGE_PULLOUT, MSG_SCREEN_CHANGE_BOX, do_nothing);
+		local_view->add(screen_change_unloading);
+		return local_view;
+	}
+
+	static ScreenTransition * make_screen_change_unloading()
+	{
+		ScreenTransition * local_view = new ScreenTransition(MSG_SCREEN_CHANGE_TITLE, MSG_SCREEN_UNLOADING_TEXT, MSG_SCREEN_LEVEL_BOX0, action_filament_load);
+		local_view->add(screen_change_insert_info);
+		return local_view;
+	}
+
+	static ScreenDialog<void> * make_screen_change_insert_info()
+	{
+		ScreenDialog<void> * local_view = new ScreenDialog<void>(MSG_SCREEN_CHANGE_TITLE, MSG_SCREEN_CHANGE_INSERT, MSG_SCREEN_CHANGE_BOX, do_nothing);
+		local_view->add(screen_change_loading);
+		return local_view;
+	}
+
+	static ScreenTransition * make_screen_change_loading()
+	{
+		ScreenTransition * local_view = new ScreenTransition(MSG_SCREEN_CHANGE_TITLE, MSG_SCREEN_LOADING_TEXT, MSG_SCREEN_LEVEL_BOX0, action_filament_load);
+		local_view->add(screen_change_confirm_second);
+		return local_view;
+	}
+
+	static ScreenMenu * make_screen_change_confirm_second()
+	{
+		ScreenMenu * local_view = new ScreenMenu(MSG_SCREEN_CHANGE_TITLE, MSG_SCREEN_CHANGE_CONFIRM);
+		local_view->add(screen_change_info);
+		local_view->icon(icon_retry);
+		local_view->add(screen_change_ok2print);
+		local_view->icon(icon_ok);
+		return local_view;
+	}
+
+	static ScreenAction<void> * make_screen_change_ok2print()
+	{
+		ScreenAction<void> * local_view = new ScreenAction<void>(MSG_OK2, action_resume_print);
+		local_view->add(screen_print);
+		return local_view;
+	}
+
+   static ScreenSelector<void, uint16_t> * make_screen_speed()
+	{
+		ScreenSelector<void, uint16_t> * local_view = new ScreenSelector<void, uint16_t>(MSG_SCREEN_SPEED, 10, 400, 100, action_set_feedrate_multiply);
+		local_view->add(screen_print);
+		return local_view;
+	}
+
+   static ScreenSelector<void, uint16_t> * make_screen_temperature_print()
+	{
+		ScreenSelector<void, uint16_t> * local_view = new ScreenSelector<void, uint16_t>(MSG_SCREEN_TEMP_TITLE, 170, 230, default_temp_change_filament, action_set_temperature);
+		local_view->add(screen_print);
 		return local_view;
 	}
 
@@ -671,9 +748,6 @@ namespace screen
 			case screen_load_init:
 				new_view = make_screen_load_init();
 				break;
-			case screen_level_init:
-				new_view = make_screen_level_init();
-				break;
 			case screen_load_select:
 				new_view = make_screen_load_select();
 				break;
@@ -691,6 +765,9 @@ namespace screen
 				break;
 
 			// Level plate
+			case screen_level_init:
+				new_view = make_screen_level_init();
+				break;
 			case screen_level_cooling:
 				new_view = make_screen_level_cooling();
 				break;
@@ -827,7 +904,7 @@ namespace screen
 				new_view = make_screen_offset_save();
 				break;
 
-			// Print Menu
+			// Print menu and control
 			case screen_print:
 				new_view = make_screen_print();
 				break;
@@ -841,48 +918,51 @@ namespace screen
 				new_view = make_screen_stop_OK();
 				break;
 
+			// Change filament
+			case screen_change_confirm_first:
+				new_view = make_screen_change_confirm_first();
+				break;
+			case screen_change_pausing:
+				new_view = make_screen_change_pausing();
+				break;
+			case screen_change_selector:	
+				new_view = make_screen_change_selector();
+				break;
+			case screen_change_animation:
+				new_view = make_screen_change_animation();
+				break;
+			case screen_change_info:
+				new_view = make_screen_change_info();
+				break;
+			case screen_change_pullout_info:
+				new_view = make_screen_change_pullout_info();
+				break;
+			case screen_change_unloading:
+				new_view = make_screen_change_unloading();
+				break;
+			case screen_change_insert_info:
+				new_view = make_screen_change_insert_info();
+				break;
+			case screen_change_loading:
+				new_view = make_screen_change_loading();
+				break;
+			case screen_change_confirm_second:
+				new_view = make_screen_change_confirm_second();
+				break;
+			case screen_change_ok2print:
+				new_view = make_screen_change_ok2print();
+				break;
+
+			// Change speed
+			case screen_speed:
+				new_view = make_screen_speed();
+				break;
+
+			// Temperature on print
+			case screen_temperature_print:
+				new_view = make_screen_temperature_print();
+				break;
 		}
-
-
-/*
-
-
-		// Change filament screens
-		// Change filament first confirm
-		screen_change_confirm_first.add(screen_print);
-		screen_change_confirm_first.icon(icon_back);
-		screen_change_confirm_first.add(screen_change_pausing);
-		screen_change_confirm_first.icon(icon_ok);
-		// Change filament pausing
-		screen_change_pausing.add(screen_change_selector);
-		// Change filament selector
-		screen_change_selector.add(screen_change_animation);
-		// Change filament animation
-		screen_change_animation.add(screen_print);
-		screen_change_animation.add(screen_change_info);
-		// Change filament Info
-		screen_change_info.add(screen_change_pullout_info);
-		// Change filament pullout
-		screen_change_pullout_info.add(screen_change_unloading);
-		// Change filament Unloading
-		screen_change_unloading.add(screen_change_insert_info);
-		//Change filament insert
-		screen_change_insert_info.add(screen_change_loading);
-		// Change filament loading
-		screen_change_loading.add(screen_change_confirm_second);
-		// Change filament second confirm
-		screen_change_confirm_second.add(screen_change_info);
-		screen_change_confirm_second.icon(icon_retry);
-		screen_change_confirm_second.add(screen_change_ok2print);
-		screen_change_confirm_second.icon(icon_ok);
-		// Change filament OK to print
-		screen_change_ok2print.add(screen_print);
-		// Change speed screens
-		screen_speed.add(screen_print);
-		// Temperature
-		screen_temperature_print.add(screen_print);
-*/
-
 		return new_view; 
 	}
 }
