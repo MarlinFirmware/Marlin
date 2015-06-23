@@ -1,6 +1,10 @@
 #ifndef CARDREADER_H
 #define CARDREADER_H
 
+#include "Configuration.h"
+#include "pins.h"
+#include "fastio.h"
+
 #ifdef SDSUPPORT
 
 #define MAX_DIR_DEPTH 10
@@ -80,6 +84,7 @@ private:
   void lsDive(const char *prepend, SdFile parent, const char * const match=NULL);
 };
 extern CardReader card;
+
 #define IS_SD_PRINTING (card.sdprinting)
 
 #if (SDCARDDETECT > -1)

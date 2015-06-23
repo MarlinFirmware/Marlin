@@ -22,6 +22,7 @@
 #include "AutoLevelManager.h"
 #include "LightManager.h"
 #include "PrintManager.h"
+#include "SDManager.h"
 #include "SteppersManager.h"
 #include "TemperatureManager.h"
 
@@ -36,8 +37,7 @@ namespace screen
 	Size icon_size = Size(icon_width, icon_height);
 	Size widget_size = Size(widget_width, widget_height);
 
-	Icon icon_nosd              = Icon(icon_size, bits_nosd_normal,              bits_nosd_focused,              MSG_NOSD);
-	Icon icon_sd                = Icon(icon_size, bits_sd_normal,                bits_sd_focused,                MSG_SD);
+	IconStatus<SDState_t> icon_sd = IconStatus<SDState_t>(icon_size, bits_nosd_normal, bits_nosd_focused, bits_sd_normal, bits_sd_focused, MSG_NOSD, MSG_SD, &SDManager::single::instance());
 	Icon icon_filament_unload   = Icon(icon_size, bits_filament_unload_normal,   bits_filament_unload_focused,   MSG_FILAMENT_UNLOAD);
 	Icon icon_filament_load     = Icon(icon_size, bits_filament_load_normal,     bits_filament_load_focused,     MSG_FILAMENT_LOAD);
 	Icon icon_leveling          = Icon(icon_size, bits_leveling_normal,          bits_leveling_focused,          MSG_LEVELING);

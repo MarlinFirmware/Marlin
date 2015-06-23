@@ -8,6 +8,8 @@
 
 #include "Screen.h"
 #include "GuiImpl_witbox_2.h"
+
+#include "SDManager.h"
 #include "ViewManager.h"
 
 //C++ helpers for Arduino
@@ -314,6 +316,7 @@ static void lcd_update_encoder()
 
 void lcd_update(bool force)
 {
+    SDManager::updateSDStatus();
     // Manage the events triggered in ISR (Timer 5 Overflow)
     for (int8_t times = lcd_get_encoder_right(); times > 0; times--)
     {
