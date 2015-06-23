@@ -47,9 +47,4 @@ namespace screen
 		} while( painter.nextPage() ); 
 
 	}
-/*
-	void ScreenAbout::press()
-	{
-		ViewManager::getInstance().activeView(m_next_screen);
-	}*/
 }
