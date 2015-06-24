@@ -15,7 +15,7 @@ namespace screen
 
 			void init();
 			void press();
-			void draw();
+			virtual void draw();
 
 		protected:
 			const char * m_message;
