@@ -8,6 +8,8 @@
 
 #include "Screen.h"
 #include "GuiImpl_witbox_2.h"
+#include "GuiPainter.h"
+#include "GuiBitmaps_witbox_2.h"
 
 #include "SDManager.h"
 #include "ViewManager.h"
@@ -142,13 +144,16 @@ void lcd_init()
 	pinMode(43, OUTPUT);           //RESET DEL LCD A HIGH
 	digitalWrite(43, HIGH);
 
-/* Review
-	u8g.firstPage();
+ 
+	painter.firstPage();
 	do 
 	{
-		u8g.drawXBMP(0,0,START_BMPWIDTH,START_BMPHEIGHT,start_bmp);
-	} while(u8g.nextPage());
+		painter.drawBitmap(34,10,splash_width,splash_height,bits_logo_splash);
+	} while(painter.nextPage());
 
+    delay(2000);
+
+/*
 #ifdef LCD_SCREEN_ROT_90
 	u8g.setRot90();   // Rotate screen by 90°
 #endif
