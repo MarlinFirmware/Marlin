@@ -10,6 +10,7 @@
 #include "GuiManager.h"
 #include "TemperatureManager.h"
 #include "OffsetManager.h"
+#include "AutoLevelManager.h"
 
 extern uint8_t buffer_recursivity;
 extern bool cancel_heatup;
@@ -338,6 +339,12 @@ void action_start_print()
 	fanSpeed = PREHEAT_FAN_SPEED;
 	sprintf_P(cmd, PSTR("M23 %s"), card.filename);
 	enquecommand_P(PSTR("G28"));
+	#ifdef ENABLE_AUTO_BED_LEVELING
+		if (AutoLevelManager::single::instance().state())
+		{
+			enquecommand_P(PSTR("G29"));
+		}
+	#endif
 	enquecommand_P(PSTR("G1 Z10"));
 	for(c = &cmd[4]; *c; c++)
 	*c = tolower(*c);
