@@ -592,7 +592,7 @@ namespace screen
 
 	static ScreenAction<void> * make_screen_stop_OK()
 	{
-		ScreenAction<void> * local_view = new ScreenAction<void>(MSG_SCREEN_STOP_OK, action_stop_print);
+		ScreenAction<void> * local_view = new ScreenAction<void>(MSG_SCREEN_STOP_OK, PrintManager::stopPrint);
 		local_view->add(screen_main);
 		return local_view;
 	}
