@@ -647,9 +647,15 @@ void setup()
   setup_homepin();
 }
 
+#ifndef DOGLCD
+uint8_t buffer_recursivity = 0;
+#else // DOGLCD
+bool stop_planner_buffer = false;
+#endif // DOGLCD
+
 bool stop_buffer = false;
 int stop_buffer_code = 0;
-uint8_t buffer_recursivity = 0;
+
 
 void loop()
 {
