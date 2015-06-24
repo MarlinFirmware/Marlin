@@ -70,11 +70,6 @@ namespace screen
 	// Instantiation of  Screens //
 	///////////////////////////////
 
-	static ScreenDialog<void> * make_screen_logo()
-	{
-		return (new ScreenDialog<void>(MSG_SCREEN_LOGO, MSG_SCREEN_LOGO_TEXT, MSG_SCREEN_LOGO_BOX, do_nothing));
-	}
-
 	static ScreenMenu * make_screen_main()
 	{
 		ScreenMenu * local_view = new ScreenMenu();
@@ -702,11 +697,6 @@ namespace screen
 	{
 		switch (screen_index)
 		{
-			// BQ Logo
-			case screen_logo:
-				new_view = make_screen_logo();
-				break;
-
 			// Main menu
 			case screen_main:
 				new_view = make_screen_main();
