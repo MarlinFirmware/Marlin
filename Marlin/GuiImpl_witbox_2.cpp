@@ -537,7 +537,7 @@ namespace screen
 
 	static ScreenDynamic<float> * make_screen_offset_set()
 	{
-		ScreenDynamic<float> * local_view = new ScreenDynamic<float>(MSG_SCREEN_OFFSET_TITLE, Z_AXIS, 0.0, 4.0, 0.1, action_set_offset);
+		ScreenDynamic<float> * local_view = new ScreenDynamic<float>(MSG_SCREEN_OFFSET_TITLE, Z_AXIS, 0.0, 4.0, 0.02, action_set_offset);
 		local_view->add(screen_offset_finish);
 		return local_view;
 	}
