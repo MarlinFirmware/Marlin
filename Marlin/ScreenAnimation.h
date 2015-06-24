@@ -45,7 +45,9 @@ namespace screen
 
 	template <typename T>
 	ScreenAnimation<T>::~ScreenAnimation()
-	{ }
+	{ 
+		this->m_model->dettach();
+	}
 
 	template <typename T>
 	void ScreenAnimation<T>::init()

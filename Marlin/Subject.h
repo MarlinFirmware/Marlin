@@ -8,6 +8,7 @@ template <typename T>
 {
 	public:
 		void attach (Observer<T> * observer);
+		void dettach();
 		virtual void notify() = 0;
 
    protected:
@@ -20,4 +21,9 @@ void Subject<T>::attach (Observer<T> * observer)
 	m_observer = observer;
 };
 
+template <typename T>
+void Subject<T>::dettach()
+{
+	m_observer = 0;
+};
 #endif //SUBJECT_H

@@ -32,7 +32,9 @@ namespace screen
 
 	template <typename T>
 	IconWidget<T>::~IconWidget()
-	{ }
+	{
+		this->m_model->dettach();
+	}
 
 	template <typename T>
 	void IconWidget<T>::update(T value)
