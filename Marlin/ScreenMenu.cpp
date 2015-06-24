@@ -23,6 +23,7 @@ namespace screen
 
 	void ScreenMenu::left()
 	{
+		m_needs_drawing = true;
 		if (m_index == 0)
 		{
 			m_index = 0;
@@ -35,6 +36,7 @@ namespace screen
 
 	void ScreenMenu::right()
 	{
+		m_needs_drawing = true;
 		if ( m_index == (m_num_items -1) )
 		{
 			m_index = m_num_items -1;
