@@ -75,7 +75,11 @@ float max_e_jerk;
 float mintravelfeedrate;
 unsigned long axis_steps_per_sqr_second[NUM_AXIS];
 
+#ifndef DOGLCD
 extern uint8_t buffer_recursivity;
+#else // DOGLCD
+extern bool stop_planner_buffer;
+#endif //DOGLCD
 
 #ifdef Z_SAFE_HOMING
 // this holds the required transform to compensate for bed level
@@ -543,7 +547,10 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
 
   // If the buffer is full: good! That means we are well ahead of the robot. 
   // Rest here until there is room in the buffer.
+#ifndef DOGLCD
   buffer_recursivity++;
+#endif // DOGLCD
+
   while(block_buffer_tail == next_buffer_head)
   {
     next_buffer_head = next_block_index(block_buffer_head);
@@ -551,8 +558,19 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
     manage_heater(); 
     manage_inactivity(); 
     lcd_update();
+
+#ifdef DOGLCD
+    if (stop_planner_buffer == true)
+    {
+      stop_planner_buffer = false;
+      return;
+    }
+#endif // DOGLCD
   }
+
+#ifndef DOGLCD
   buffer_recursivity--;
+#endif // DOGLCD
 
 #ifdef Z_SAFE_HOMING
   apply_rotation_xyz(plan_bed_level_matrix, x, y, z);

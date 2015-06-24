@@ -12,8 +12,8 @@
 #include "OffsetManager.h"
 #include "AutoLevelManager.h"
 
-extern uint8_t buffer_recursivity;
 extern bool cancel_heatup;
+extern bool stop_planner_buffer;
 extern bool stop_buffer;
 extern int stop_buffer_code;
 
@@ -423,6 +423,7 @@ void action_stop_print()
 	// autotempShutdown();
 
 	cancel_heatup = true;
+	stop_planner_buffer = true;
 }
 
 extern float target[4];
