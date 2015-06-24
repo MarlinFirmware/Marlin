@@ -17,6 +17,7 @@
 #include "ScreenDynamic.h"
 #include "ScreenAbout.h"
 #include "ScreenPrint.h"
+#include "ScreenFile.h"
 
 #include "AutoLevelManager.h"
 #include "LightManager.h"
@@ -102,9 +103,9 @@ namespace screen
 		return local_view;
 	}
 
-	static ScreenMenu * make_screen_SD_confirm()
+	static ScreenFile * make_screen_SD_confirm()
 	{
-		ScreenMenu * local_view = new ScreenMenu(MSG_SCREEN_SD_CONFIRM);
+		ScreenFile * local_view = new ScreenFile(MSG_SCREEN_SD_CONFIRM);
 		local_view->add(screen_SD_list);
 		local_view->icon(icon_back);
 		local_view->add(screen_SD_OK);
@@ -575,9 +576,9 @@ namespace screen
 		return local_view;
 	}
 
-	static ScreenMenu * make_screen_stop_confirm()
+	static ScreenFile * make_screen_stop_confirm()
 	{
-		ScreenMenu * local_view = new ScreenMenu(MSG_SCREEN_STOP_CONFIRM);
+		ScreenFile * local_view = new ScreenFile(MSG_SCREEN_STOP_CONFIRM);
 		local_view->add(screen_print);
 		local_view->icon(icon_back);
 		local_view->add(screen_stop_OK);
