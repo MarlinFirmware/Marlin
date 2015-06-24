@@ -5,6 +5,7 @@ namespace screen
 	Screen::Screen(const char * title, ScreenType_t const & type)
 		: m_title(title)
 		, m_type(type)
+		, m_needs_drawing(true)
 	{ }
 
 	Screen::~Screen()

@@ -44,6 +44,7 @@ namespace screen
 			ScreenType_t m_type;
 			const char * m_title;
 			ScreenIndex_t m_next_screen;
+			bool m_needs_drawing;
 	};
 }
 #endif //SCREEN_H
