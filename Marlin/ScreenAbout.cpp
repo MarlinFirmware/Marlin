@@ -34,16 +34,10 @@ namespace screen
 			painter.setColorIndex(1);
 			painter.drawBitmap(x_init + x_offset, y_init + y_offset, logo_width, logo_height, bits_logo_about);
 			//Paint text on the screen
-			char t[64];
-			strcpy(t, MACHINE_NAME);
 			painter.setPrintPos(x_offset + logo_width + 8, y_init + 8);
-			painter.print(t);
-			memset(t, 0, sizeof(t));
-			strcat(t, FIRMWARE_VER);
-			strcat(t, " ");
-			strcat(t, BUILD_VER);
+			painter.print(MACHINE_NAME);
 			painter.setPrintPos(x_offset + logo_width + 8, y_init + 24);
-			painter.print(t);
+			painter.print(BUILD_VER);
 		} while( painter.nextPage() ); 
 
 	}

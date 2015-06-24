@@ -13,7 +13,7 @@ namespace screen
 			ScreenAbout(const char * title = 0, const char * message = 0, const char * box = 0, const unsigned char * bitmap = 0);
 			virtual ~ScreenAbout();
 
-			virtual void draw();
+			void draw();
 
 		protected:
 			const unsigned char * m_bitmap;
