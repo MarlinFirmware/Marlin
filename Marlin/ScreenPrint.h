@@ -21,6 +21,8 @@ namespace screen
 		
 		private:
 			float m_observed;
+			uint16_t m_actual_time;
+			uint8_t m_percent_done;
 	};
 }
 
