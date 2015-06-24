@@ -801,7 +801,7 @@ void get_command() {
 
         gcode_N = strtol(npos + 1, NULL, 10);
 
-        if (!M110 && gcode_N != gcode_LastN + 1) {
+        if (gcode_N != gcode_LastN + 1 && !M110) {
           gcode_line_error(PSTR(MSG_ERR_LINE_NO));
           return;
         }
