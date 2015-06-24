@@ -791,8 +791,17 @@ void get_command() {
       char *npos = strchr(command, 'N');
       char *apos = strchr(command, '*');
       if (npos) {
+
+        boolean M110 = strstr_P(command, PSTR("M110")) != NULL;
+
+        if (M110) {
+          char *n2pos = strchr(command + 4, 'N');
+          if (n2pos) npos = n2pos;
+        }
+
         gcode_N = strtol(npos + 1, NULL, 10);
-        if (gcode_N != gcode_LastN + 1 && strstr_P(command, PSTR("M110")) == NULL) {
+
+        if (!M110 && gcode_N != gcode_LastN + 1) {
           gcode_line_error(PSTR(MSG_ERR_LINE_NO));
           return;
         }
