@@ -640,7 +640,7 @@ namespace screen
 
 	static ScreenTransition * make_screen_change_unloading()
 	{
-		ScreenTransition * local_view = new ScreenTransition(MSG_SCREEN_CHANGE_TITLE, MSG_SCREEN_UNLOADING_TEXT, MSG_SCREEN_LEVEL_BOX0, action_filament_load);
+		ScreenTransition * local_view = new ScreenTransition(MSG_SCREEN_CHANGE_TITLE, MSG_SCREEN_UNLOADING_TEXT, MSG_SCREEN_LEVEL_BOX0, action_filament_unload);
 		local_view->add(screen_change_insert_info);
 		return local_view;
 	}
