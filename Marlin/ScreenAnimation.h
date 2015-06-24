@@ -12,7 +12,15 @@ namespace screen
 		class ScreenAnimation : public Screen , public Observer<T>
 	{
 		public:
-			ScreenAnimation(const char * title, const char * text, Subject<T> * model = 0);
+			typedef enum
+			{
+				LESS_OR_EQUAL,
+				GREATER_OR_EQUAL,
+				NUM_CONDITIONS
+			} Condition_t;
+
+		public:
+			ScreenAnimation(const char * title, const char * text, Condition_t condition, uint16_t target, Subject<T> * model = 0);
 			virtual ~ScreenAnimation();
 
 			void init();
@@ -24,21 +32,29 @@ namespace screen
 			void update(T value);
 
 		private:
+			bool isConditionMeet();
+
+		private:
 			const char * m_text;
 
+			uint16_t m_target;
 			T m_observed;
 
 			ScreenIndex_t m_back_screen;
 			uint8_t m_num_item_added;
+
+			Condition_t m_condition;
 	};
 
 	template <typename T>
-	ScreenAnimation<T>::ScreenAnimation(const char * title, const char * text, Subject<T> * model)
+	ScreenAnimation<T>::ScreenAnimation(const char * title, const char * text, Condition_t condition, uint16_t target, Subject<T> * model)
 		: Screen(title, SELECTOR)
 		, Observer<T>(model)
 		, m_text(text)
 		, m_num_item_added(0)
 		, m_observed(0)
+		, m_condition(condition)
+		, m_target(target)
 	{
 		this->connect();
 	}
@@ -59,9 +75,8 @@ namespace screen
 	template <typename T>
 	void ScreenAnimation<T>::draw()
 	{
-		uint16_t target = (uint16_t) TemperatureManager::single::instance().getTargetTemperature();
 		char c_target[4] = { 0 };
-		snprintf(c_target, 4, "%d", target);
+		snprintf(c_target, 4, "%d", m_target);
 
 		char c_current[4] = { 0 };
 		dtostrf(m_observed, 3, 0, c_current);
@@ -94,7 +109,7 @@ namespace screen
 			
 		} while ( painter.nextPage() );
 
-		if (target == (uint16_t) m_observed)
+		if ( isConditionMeet() )
 		{
 			ViewManager::getInstance().activeView(m_next_screen);
 		}
@@ -124,6 +139,20 @@ namespace screen
 	void ScreenAnimation<T>::update(T value)
 	{
 		m_observed = value;
+	}
+
+	template<typename T>
+	bool ScreenAnimation<T>::isConditionMeet()
+	{
+		switch(m_condition)
+		{
+			case LESS_OR_EQUAL:
+				return ((uint16_t) m_observed <= m_target);
+			case GREATER_OR_EQUAL:
+				return ((uint16_t) m_observed >= m_target);
+			default:
+				return false;
+		}
 	}
 }
 
