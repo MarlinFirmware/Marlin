@@ -15,6 +15,7 @@
 extern bool cancel_heatup;
 extern bool stop_planner_buffer;
 extern bool stop_buffer;
+bool change_filament = false; 
 extern int stop_buffer_code;
 
 static float manual_feedrate[] = MANUAL_FEEDRATE;
@@ -36,9 +37,13 @@ void action_cooldown()
 void action_filament_unload()
 {
 	st_synchronize();
+	vector_3 update_position = plan_get_position();
+	current_position[X_AXIS] = update_position.x;
+	current_position[Y_AXIS] = update_position.y;
+	current_position[Z_AXIS] = update_position.z;
 	plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
 
-	if (current_position[Z_AXIS] <= (Z_MIN_POS+30))
+	if (current_position[Z_AXIS] < (Z_MIN_POS+30) && change_filament == false)
 	{
 		#ifdef DISABLE_MAX_ENDSTOPS
 			current_position[Z_AXIS] += 10;
@@ -63,9 +68,13 @@ void action_filament_unload()
 void action_filament_load()
 {
 	st_synchronize();
+	vector_3 update_position = plan_get_position();
+	current_position[X_AXIS] = update_position.x;
+	current_position[Y_AXIS] = update_position.y;
+	current_position[Z_AXIS] = update_position.z;
 	plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
 
-	if (current_position[Z_AXIS] <= (Z_MIN_POS+30))
+	if (current_position[Z_AXIS] < (Z_MIN_POS+30) && change_filament == false)
 	{
 		#ifdef DISABLE_MAX_ENDSTOPS
 			current_position[Z_AXIS] += 10;
@@ -82,6 +91,11 @@ void action_filament_load()
 	current_position[E_AXIS] += 100.0;
 	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS], 300/60, active_extruder);
 	st_synchronize();
+	current_position[E_AXIS] = lastpos[E_AXIS];
+
+	plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+	
+	change_filament = false;
 }
 
 void action_level_plate()
@@ -432,6 +446,7 @@ extern float lastpos[4];
 void action_pause_print()
 {
 	lcd_disable_button();
+	change_filament = true;
 	card.sdprinting = false;
 	stop_buffer = true;
 	stop_buffer_code = 1;
@@ -441,16 +456,22 @@ void action_resume_print()
 {
 	lcd_disable_button();
 
-	plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], feedrate/60, active_extruder); //should do nothing
-	plan_buffer_line(lastpos[X_AXIS], lastpos[Y_AXIS], target[Z_AXIS], target[E_AXIS], feedrate/60, active_extruder); //move xy back
-	plan_buffer_line(lastpos[X_AXIS], lastpos[Y_AXIS], lastpos[Z_AXIS], target[E_AXIS], feedrate/60, active_extruder); //move z back
+	plan_buffer_line(lastpos[X_AXIS], lastpos[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder); //move xy back
+	plan_buffer_line(lastpos[X_AXIS], lastpos[Y_AXIS], lastpos[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder); //move z back
 	plan_buffer_line(lastpos[X_AXIS], lastpos[Y_AXIS], lastpos[Z_AXIS], lastpos[E_AXIS], feedrate/60, active_extruder); //final untretract
 	st_synchronize();
 
-	card.sdprinting = true;
+	vector_3 update_position = plan_get_position();
+	current_position[X_AXIS] = update_position.x;
+	current_position[Y_AXIS] = update_position.y;
+	current_position[Z_AXIS] = update_position.z;
 
+	plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+
+	card.sdprinting = true;
 	lcd_enable_button();
 	stop_buffer = false;
+	change_filament = false;
 }
 
 void action_set_feedrate_multiply(uint16_t value)
