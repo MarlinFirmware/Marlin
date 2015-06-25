@@ -62,6 +62,7 @@ namespace screen
 		else
 		{
 			--m_select;
+			m_needs_drawing = true;
 		}
 	}
 
@@ -75,52 +76,60 @@ namespace screen
 		else
 		{
 			++m_select;
+			m_needs_drawing = true;
+
 		}
 	}
 
 	template <typename R, typename... Args>
 	void ScreenSelector<R, Args...>::draw()
 	{
-		painter.firstPage();
-		do
+		if (m_needs_drawing)
 		{
-			painter.title(m_title);
-			painter.box(MSG_SELECTOR_BOX); 
+			m_needs_drawing = false;
 
-			uint8_t x_init = painter.coordinateXInit();
-			uint8_t x_end = painter.coordinateXEnd();
-			uint8_t y_init = painter.coordinateYInit();
-			uint8_t y_end = painter.coordinateYEnd();
-
-			painter.setColorIndex(1);
-			painter.setFont(u8g_font_6x9);
-
-			char tmp_selected[4] = { 0 };
-			snprintf(tmp_selected, 4, "%d", m_select);
-
-			painter.setPrintPos((x_end + x_init)/2 - (strlen("<  >")*6)/2 - (strlen(tmp_selected)*6)/2, (y_end + y_init)/2 - 9/2);
-
-			if (m_select != m_minimum_value)
+			painter.firstPage();
+			do
 			{
-				painter.print("< ");
-			}
-			else
-			{
-				painter.print("  ");
-			}
+				painter.title(m_title);
+				painter.box(MSG_SELECTOR_BOX); 
 
-			painter.print(tmp_selected);
+				uint8_t x_init = painter.coordinateXInit();
+				uint8_t x_end = painter.coordinateXEnd();
+				uint8_t y_init = painter.coordinateYInit();
+				uint8_t y_end = painter.coordinateYEnd();
 
-			if (m_select != m_maximum_value)
-			{
-				painter.print(" >");
-			}
-			else
-			{
-				painter.print("  ");
-			}
+				painter.setColorIndex(1);
+				painter.setFont(u8g_font_6x9);
 
-		} while( painter.nextPage() );
+				char tmp_selected[4] = { 0 };
+				snprintf(tmp_selected, 4, "%d", m_select);
+
+				painter.setPrintPos((x_end + x_init)/2 - (strlen("<  >")*6)/2 - (strlen(tmp_selected)*6)/2, (y_end + y_init)/2 - 9/2);
+
+				if (m_select != m_minimum_value)
+				{
+					painter.print("< ");
+				}
+				else
+				{
+					painter.print("  ");
+				}
+
+				painter.print(tmp_selected);
+
+				if (m_select != m_maximum_value)
+				{
+					painter.print(" >");
+				}
+				else
+				{
+					painter.print("  ");
+				}
+
+			} while( painter.nextPage() );
+		}
+		
 	}
 
 	template <typename R, typename... Args>
