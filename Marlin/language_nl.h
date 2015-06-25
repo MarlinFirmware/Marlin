@@ -101,7 +101,7 @@
 #define MSG_DWELL                           "Slapen..."
 #define MSG_USERWAIT                        "Wachten..."
 #define MSG_RESUMING                        "Print hervatten"
-#define MSG_PRINT_ABORTED                   "Print aborted"
+#define MSG_PRINT_ABORTED                   "Print afgebroken"
 #define MSG_NO_MOVE                         "Geen beweging."
 #define MSG_KILLED                          "AFGEBROKEN. "
 #define MSG_STOPPED                         "GESTOPT. "
@@ -127,11 +127,11 @@
 #define MSG_END_MINUTE                      "minutes"
 
 #ifdef DELTA_CALIBRATION_MENU
-    #define MSG_DELTA_CALIBRATE             "Delta Calibration"
-    #define MSG_DELTA_CALIBRATE_X           "Calibrate X"
-    #define MSG_DELTA_CALIBRATE_Y           "Calibrate Y"
-    #define MSG_DELTA_CALIBRATE_Z           "Calibrate Z"
-    #define MSG_DELTA_CALIBRATE_CENTER      "Calibrate Center"
+    #define MSG_DELTA_CALIBRATE             "Delta Calibratie"
+    #define MSG_DELTA_CALIBRATE_X           "Kalibreer X"
+    #define MSG_DELTA_CALIBRATE_Y           "Kalibreer Y"
+    #define MSG_DELTA_CALIBRATE_Z           "Kalibreer Z"
+    #define MSG_DELTA_CALIBRATE_CENTER      "Kalibreer Midden"
 #endif // DELTA_CALIBRATION_MENU
 
 #endif // LANGUAGE_NL_H
