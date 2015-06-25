@@ -55,11 +55,7 @@ namespace screen
 	template <typename R, typename... Args>
 	void ScreenSelector<R, Args...>::left()
 	{
-		if (m_select == m_minimum_value)
-		{
-			m_select = m_minimum_value;
-		}
-		else
+		if (m_select != m_minimum_value)
 		{
 			--m_select;
 			m_needs_drawing = true;
@@ -69,15 +65,10 @@ namespace screen
 	template <typename R, typename... Args>
 	void ScreenSelector<R, Args...>::right()
 	{
-		if (m_select == m_maximum_value)
-		{
-			m_select = m_maximum_value;
-		}
-		else
+		if (m_select != m_maximum_value)
 		{
 			++m_select;
 			m_needs_drawing = true;
-
 		}
 	}
 
@@ -129,7 +120,6 @@ namespace screen
 
 			} while( painter.nextPage() );
 		}
-		
 	}
 
 	template <typename R, typename... Args>
