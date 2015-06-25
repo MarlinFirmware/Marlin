@@ -10,7 +10,7 @@ namespace screen
 		: ScreenMenu(title)
 		, Observer<float>(model)
 		, m_observed(0)
-		, m_actual_time(0)
+		, m_printed_time( { 0, 0, 0, 0 } )
 		, m_percent_done(0)
 		, m_printing_status(PRINTING)
 		, m_target_temperature(0)
@@ -34,10 +34,11 @@ namespace screen
 
 	void ScreenPrint::draw()
 	{
-		uint16_t actual_time = millis()/60000 - starttime/60000;
-		if (m_actual_time != actual_time)
+		PrintManager::updateTime();
+		if ( (m_printed_time.hours !=  PrintManager::printingTime().hours) ||
+			 (m_printed_time.minutes != PrintManager::printingTime().minutes) )
 		{
-			m_actual_time = actual_time;
+			m_printed_time = PrintManager::printingTime();
 			m_needs_drawing = true;
 		}
 
@@ -96,7 +97,7 @@ namespace screen
 				painter.print("\xb0");
 
 				//Status widget
-				painter.printing_status(m_percent_done, m_actual_time);
+				painter.printingStatus(m_percent_done, m_printed_time.hours, m_printed_time.minutes);
 				//Paint selection box on bottom of screen
 				painter.box((m_icons[m_index])->text());
 				//Icon grid

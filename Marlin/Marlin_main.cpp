@@ -61,6 +61,10 @@
   #include <SPI.h>
 #endif
 
+#ifdef DOGLCD
+  #include "PrintManager.h"
+#endif
+
 // look here for descriptions of G-codes: http://linuxcnc.org/handbook/gcode/g-code.html
 // http://objects.reprap.org/wiki/Mendel_User_Manual:_RepRapGCodes
 
@@ -880,6 +884,9 @@ void get_command()
        serial_count >= (MAX_CMD_SIZE - 1)||n==-1)
     {
       if(card.eof()){
+#ifdef DOGLCD
+        PrintManager::endPrint();
+#endif
         SERIAL_PROTOCOLLNPGM(MSG_FILE_PRINTED);
         stoptime=millis();
         char time[30];
@@ -893,7 +900,6 @@ void get_command()
         lcd_setstatus(time);
         card.printingHasFinished();
         card.checkautostart(true);
-
       }
       if(serial_char=='#')
         stop_buffering=true;

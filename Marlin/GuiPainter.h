@@ -37,7 +37,7 @@ namespace screen
 			
 			void multiText(const char * msg);
 
-			void printing_status(const uint8_t percentage, const uint16_t time);
+			void printingStatus(const uint8_t percentage, const uint8_t hour, const uint8_t minute);
 
 			void selector(uint16_t number, uint16_t total);
 

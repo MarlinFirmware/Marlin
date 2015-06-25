@@ -213,7 +213,7 @@ namespace screen
 		}
 	}
 
-	void GuiPainter::printing_status(const uint8_t percentage, const uint16_t time)
+	void GuiPainter::printingStatus(const uint8_t percentage, const uint8_t hour, const uint8_t minute)
 	{
 		uint8_t x_init = coordinateXInit();
 		uint8_t y_init = coordinateYInit() + 5;
@@ -230,11 +230,11 @@ namespace screen
 		//Print the elapsed time on the right of the progress bar 
 		setColorIndex(1);
 		setFont(u8g_font_6x9);
-		uint8_t x = x_end - (strlen(itostr2(time/60)) + strlen(":") + strlen(itostr2(time%60))) * 6;
+		uint8_t x = x_end - (strlen(itostr2(hour)) + strlen(":") + strlen(itostr2(minute))) * 6;
 		setPrintPos(x, y_init);
-		print(itostr2(time/60));
+		print(itostr2(hour));
 		print(":");
-		print(itostr2(time%60));
+		print(itostr2(minute));
 
 		coordinateXEnd(x-2);
 		x_end = coordinateXEnd();
