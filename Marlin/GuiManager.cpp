@@ -144,29 +144,6 @@ void lcd_init()
 	pinMode(43, OUTPUT);           //RESET DEL LCD A HIGH
 	digitalWrite(43, HIGH);
 
- 
-	painter.firstPage();
-	do 
-	{
-		painter.drawBitmap(34,10,splash_width,splash_height,bits_logo_splash);
-	} while(painter.nextPage());
-
-    delay(2000);
-
-/*
-#ifdef LCD_SCREEN_ROT_90
-	u8g.setRot90();   // Rotate screen by 90°
-#endif
-
-#ifdef LCD_SCREEN_ROT_180
-	u8g.setRot180();  // Rotate screen by 180°
-#endif
-
-#ifdef LCD_SCREEN_ROT_270
-	u8g.setRot270();  // Rotate screen by 270°
-#endif
-*/
-
 	pinMode(BTN_EN1,INPUT);
 	pinMode(BTN_EN2,INPUT);
 	WRITE(BTN_EN1,HIGH);
@@ -201,7 +178,7 @@ void lcd_init()
 	lcd_get_button_updated();
 	lcd_get_button_clicked();
 
-	screen::ViewManager::getInstance().activeView(screen::screen_main);
+	screen::ViewManager::getInstance().activeView(screen::screen_splash);
 	screen::ViewManager::getInstance().activeView()->draw();
 
 	SERIAL_ECHOLN("LCD initialized!");

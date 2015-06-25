@@ -18,6 +18,7 @@
 #include "ScreenAbout.h"
 #include "ScreenPrint.h"
 #include "ScreenFile.h"
+#include "ScreenSplash.h"
 
 #include "AutoLevelManager.h"
 #include "LightManager.h"
@@ -70,6 +71,13 @@ namespace screen
 	///////////////////////////////
 	// Instantiation of  Screens //
 	///////////////////////////////
+
+	static ScreenSplash * make_screen_splash()
+	{
+		ScreenSplash * local_view = new ScreenSplash(2000);
+		local_view->add(screen_main);
+		return local_view;
+	}
 
 	static ScreenMenu * make_screen_main()
 	{
@@ -698,6 +706,10 @@ namespace screen
 	{
 		switch (screen_index)
 		{
+			// Splash
+			case screen_splash:
+				new_view = make_screen_splash();
+				break;
 			// Main menu
 			case screen_main:
 				new_view = make_screen_main();

@@ -8,7 +8,8 @@ namespace screen
 {
 	typedef enum
 	{
-		screen_main = 0,
+		screen_splash = 0,
+		screen_main,
 		screen_SD_list,
 		screen_SD_confirm,
 		screen_SD_OK,
