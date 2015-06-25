@@ -2,7 +2,6 @@
 
 #include "cardreader.h"
 #include "TemperatureManager.h"
-#include "PrintManager.h"
 #include "language.h"
 
 namespace screen
@@ -13,6 +12,8 @@ namespace screen
 		, m_observed(0)
 		, m_actual_time(0)
 		, m_percent_done(0)
+		, m_printing_status(PRINTING)
+		, m_target_temperature(0)
 	{ }
 
 	ScreenPrint::~ScreenPrint()
@@ -47,6 +48,32 @@ namespace screen
 			m_needs_drawing = true;
 		}
 
+		if(PrintManager::single::instance().state() != m_printing_status)
+		{
+			m_printing_status = PrintManager::single::instance().state();
+			switch(m_printing_status)
+			{
+				case PRINTING:
+					m_title = MSG_SCREEN_PRINT_PRINTING;
+					break;
+				case PAUSED:
+					m_title = MSG_SCREEN_PRINT_PAUSED;
+					break;
+				default:
+					break;
+			}
+			m_needs_drawing = true;
+		}
+
+		char t_target[4] = { 0 };
+		if(TemperatureManager::single::instance().getTargetTemperature() != m_target_temperature)
+		{
+			m_target_temperature = TemperatureManager::single::instance().getTargetTemperature();
+			m_needs_drawing = true;
+		}
+		dtostrf(m_target_temperature, 3, 0, t_target);
+		int size_target = strlen(t_target);
+
 		if (m_needs_drawing)
 		{
 			m_needs_drawing = false;
@@ -54,24 +81,8 @@ namespace screen
 			painter.firstPage();
 			do 
 			{
-				switch(PrintManager::single::instance().state())
-				{
-					case PRINTING:
-						m_title = MSG_SCREEN_PRINT_PRINTING;
-						break;
-					case PAUSED:
-						m_title = MSG_SCREEN_PRINT_PAUSED;
-						break;
-					default:
-						break;
-				}
 				//Paint title on top of screen
 				painter.title(m_title);
-
-				//Print widget text
-				char t_target[4] = { 0 };
-				dtostrf(TemperatureManager::single::instance().getTargetTemperature(), 3, 0, t_target);
-				int size_target = strlen(t_target);
 
 				painter.setColorIndex(1);
 				char t_current[4] = { 0 };
@@ -117,6 +128,10 @@ namespace screen
 
 	void ScreenPrint::update(float value)
 	{
-		m_observed = value;
+		if ((int) value != (int) m_observed)
+		{
+			m_observed = value;
+			m_needs_drawing = true;
+		}
 	}
 }
