@@ -46,7 +46,7 @@
 
 #if MB(ULTIMAKER)|| MB(ULTIMAKER_OLD)|| MB(ULTIMAIN_2)
   #define MACHINE_NAME "Ultimaker"
-  #define SOURCE_CODE_URL "http://firmware.ultimaker.com"
+  #define SOURCE_CODE_URL "https://github.com/Ultimaker/Marlin"
 #elif MB(RUMBA)
   #define MACHINE_NAME "Rumba"
 #elif MB(3DRAG)
