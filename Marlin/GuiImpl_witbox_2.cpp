@@ -489,7 +489,7 @@ namespace screen
 
 	static ScreenAction<void> * make_screen_autolevel()
 	{
-		static ScreenAction<void> * local_view = new ScreenAction<void>(MSG_SCREEN_AUTOLEVEL, AutoLevelManager::setState); 
+		ScreenAction<void> * local_view = new ScreenAction<void>(MSG_SCREEN_AUTOLEVEL, AutoLevelManager::setState); 
 		local_view->add(screen_settings);
 		return local_view;
 	}
@@ -542,22 +542,24 @@ namespace screen
 	static ScreenDynamic<float> * make_screen_offset_set()
 	{
 		ScreenDynamic<float> * local_view = new ScreenDynamic<float>(MSG_SCREEN_OFFSET_TITLE, Z_AXIS, 0.0, 4.0, 0.02, action_set_offset);
-		local_view->add(screen_offset_finish);
+		local_view->add(screen_offset_save);
 		return local_view;
 	}
 
 	static ScreenAction<void> * make_screen_offset_save()
 	{
 		ScreenAction<void> * local_view = new ScreenAction<void>(MSG_SCREEN_OFFSET_TITLE, action_save_offset);
-		local_view->add(screen_offset_info);
-		local_view->add(screen_offset_save);
+		local_view->add(screen_offset_finish);
 		return local_view;
 	}
 
 	static ScreenMenu * make_screen_offset_finish()
 	{
 		ScreenMenu * local_view = new ScreenMenu(MSG_SCREEN_OFFSET_TITLE, MSG_SCREEN_OFFSET_FINISH);
+		local_view->add(screen_offset_info);
+		local_view->icon(icon_back);
 		local_view->add(screen_main);
+		local_view->icon(icon_ok);
 		return local_view;
 	}
 
