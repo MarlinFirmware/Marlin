@@ -2114,7 +2114,7 @@ void process_commands()
 
 				plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], feedrate/60, active_extruder);
 
-      			st_synchronize();
+        st_synchronize();
 
 				LCD_MESSAGEPGM(MSG_PAUSED);
 				lcd_update();
