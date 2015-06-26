@@ -23,10 +23,10 @@ class HX711
 		bool is_enable;
 
 	public:
-		long STUFF_SENSIVITY=9999999;	// Sensivity for check material on the weights
+		long STUFF_SENSIVITY;	// Sensivity for check material on the weights
 		// Current value of this scale
-		float current_weight = 0;
-		float current_raw_weight = 0;
+		float current_weight;
+		float current_raw_weight;
 #define set_current_weight() {current_weight = (current_raw_weight-OFFSET)/SCALE;}
 #define set_stuff_sensivity(sensivity) {STUFF_SENSIVITY = sensivity;}
 		void enable();
