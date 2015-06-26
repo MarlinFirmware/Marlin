@@ -613,9 +613,9 @@ namespace screen
 		return local_view;
 	}
 
-	static ScreenDialog<void> * make_screen_change_pausing()
+	static ScreenTransition * make_screen_change_pausing()
 	{
-		ScreenDialog<void> * local_view = new ScreenDialog<void>(MSG_SCREEN_CHANGE_TITLE, MSG_SCREEN_UNLOADING_TEXT, MSG_SCREEN_LEVEL_BOX0, action_pause_print);
+		ScreenTransition * local_view = new ScreenTransition(MSG_SCREEN_CHANGE_TITLE, MSG_SCREEN_UNLOADING_TEXT, MSG_SCREEN_LEVEL_BOX0, action_pause_print, &PrintManager::single::instance());
 		local_view->add(screen_change_selector);
 		return local_view;
 	}

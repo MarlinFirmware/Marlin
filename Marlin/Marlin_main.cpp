@@ -2144,10 +2144,12 @@ void process_commands()
 				plan_buffer_line(lastpos[X_AXIS], lastpos[Y_AXIS], lastpos[Z_AXIS], lastpos[E_AXIS], feedrate/60, active_extruder); //final untretract
 				st_synchronize();
 
+
 				lcd_enable_button();
 				stop_buffer = false;
-#endif //DOGLCD
-        
+#else //DOGLCD
+        PrintManager::single::instance().state(PAUSED);
+#endif//DOGLCD
       break;
     case 26: //M26 - Set SD index
       if(card.cardOK && code_seen('S')) {

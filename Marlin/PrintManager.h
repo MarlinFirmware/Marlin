@@ -18,6 +18,7 @@ typedef enum
 {
 	PRINTING,
 	PAUSED,
+	PAUSING,
 	STOPPED,
 	NUM_PRINTER_STATES
 } PrinterState_t;
@@ -47,7 +48,7 @@ class PrintManager : public Subject<PrinterState_t>
 
 		void notify();
 
-	private:
+
 		void state(PrinterState_t state);
 
 	private:

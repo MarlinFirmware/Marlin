@@ -6,7 +6,6 @@
 #include "ScreenMenu.h"
 #include "PrintManager.h"
 
-#include "PrintManager.h"
 
 namespace screen
 {

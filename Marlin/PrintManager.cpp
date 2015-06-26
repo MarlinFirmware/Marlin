@@ -49,7 +49,7 @@ void PrintManager::pausePrint()
 		return;
 	}
 
-	PrintManager::single::instance().state(PAUSED);
+	PrintManager::single::instance().state(PAUSING);
 	action_pause_print();
 }
 
