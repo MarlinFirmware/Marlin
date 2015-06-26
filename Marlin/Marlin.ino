@@ -33,14 +33,14 @@
 #include "Configuration.h"
 #include "pins.h"
 
-#ifdef ULTRA_LCD
-  #if defined(LCD_I2C_TYPE_PCF8575)
+#if ENABLED(ULTRA_LCD)
+  #if ENABLED(LCD_I2C_TYPE_PCF8575)
     #include <Wire.h>
     #include <LiquidCrystal_I2C.h>
-  #elif defined(LCD_I2C_TYPE_MCP23017) || defined(LCD_I2C_TYPE_MCP23008)
+  #elif ENABLED(LCD_I2C_TYPE_MCP23017) || ENABLED(LCD_I2C_TYPE_MCP23008)
     #include <Wire.h>
     #include <LiquidTWI2.h>
-  #elif defined(DOGLCD)
+  #elif ENABLED(DOGLCD)
     #include <U8glib.h> // library for graphics LCD by Oli Kraus (https://code.google.com/p/u8glib/)
   #else
     #include <LiquidCrystal.h> // library for character LCD
@@ -51,16 +51,16 @@
   #include <SPI.h>
 #endif
 
-#if defined(DIGIPOT_I2C)
+#if ENABLED(DIGIPOT_I2C)
   #include <Wire.h>
 #endif
 
-#ifdef HAVE_TMCDRIVER
+#if ENABLED(HAVE_TMCDRIVER)
   #include <SPI.h>
   #include <TMC26XStepper.h>
 #endif
 
-#ifdef HAVE_L6470DRIVER
+#if ENABLED(HAVE_L6470DRIVER)
   #include <SPI.h>
   #include <L6470.h>
 #endif
