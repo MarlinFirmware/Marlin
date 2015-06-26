@@ -475,7 +475,7 @@ ISR(TIMER1_COMPA_vect) {
       #else
         byte
       #endif
-      current_endstop_bits;
+          current_endstop_bits = 0;
 
       #define _ENDSTOP_PIN(AXIS, MINMAX) AXIS ##_## MINMAX ##_PIN
       #define _ENDSTOP_INVERTING(AXIS, MINMAX) AXIS ##_## MINMAX ##_ENDSTOP_INVERTING
