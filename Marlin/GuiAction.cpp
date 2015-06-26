@@ -94,8 +94,6 @@ void action_filament_load()
 	current_position[E_AXIS] = lastpos[E_AXIS];
 
 	plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
-	
-	change_filament = false;
 }
 
 void action_level_plate()

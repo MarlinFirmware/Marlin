@@ -74,6 +74,11 @@ else ifeq  ($(HARDWARE_MOTHERBOARD),40)
 HARDWARE_VARIANT ?= arduino
 MCU              ?= atmega2560
 
+#bq ZUM Mega 3D
+else ifeq  ($(HARDWARE_MOTHERBOARD),43)
+HARDWARE_VARIANT ?= arduino
+MCU              ?= atmega2560
+
 endif
 
 # Be sure to regenerate speed_lookuptable.h with create_speed_lookuptable.py
