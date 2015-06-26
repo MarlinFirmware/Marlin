@@ -30,6 +30,7 @@ class AutoLevelManager : public Subject<bool>
 
 	private:
 		bool m_state;
+		static const int EEPROM_POS = 501;
 };
 
 #endif //AUTOLEVEL_MANAGER_H

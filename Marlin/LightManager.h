@@ -29,6 +29,7 @@ class LightManager : public Subject<bool>
 
 	private:
 		bool m_state;
+		static const int EEPROM_POS = 505;
 };
 
 #endif //LIGHT_MANAGER_H

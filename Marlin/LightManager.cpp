@@ -3,15 +3,11 @@
 #include <Arduino.h>
 #include "Configuration.h"
 
-static const int LIGHT_EEPROM_POS = 505;
-
 LightManager::LightManager()
 	: Subject<bool>()
-	, m_state(false)
 { 
 	pinMode(LIGHT_PIN, OUTPUT);
-	m_state = ReadFromEEPROM();
-	digitalWrite(LIGHT_PIN, m_state);
+	state(ReadFromEEPROM());
 }
 
 void LightManager::setState()
@@ -35,7 +31,7 @@ bool LightManager::state()
 
 bool LightManager::ReadFromEEPROM()
 {
-	int i = LIGHT_EEPROM_POS;
+	int i = EEPROM_POS;
 	int dummy = 0;
 
 	_EEPROM_readData(i, (uint8_t*)&dummy, sizeof(dummy));
@@ -49,7 +45,7 @@ bool LightManager::ReadFromEEPROM()
 
 void LightManager::WriteToEEPROM(bool state)
 {
-	int i = LIGHT_EEPROM_POS;
+	int i = EEPROM_POS;
 	int dummy = 0;
 	if(state)
 	{

@@ -1,12 +1,9 @@
 #include "AutoLevelManager.h"
 
-static const int CUSTOM_EEPROM_POS = 501;
-
 AutoLevelManager::AutoLevelManager()
 	: Subject<bool>()
-	, m_state(false)
 {
-	m_state = ReadFromEEPROM();
+	state(ReadFromEEPROM());
 }
 
 void AutoLevelManager::setState()
@@ -20,7 +17,6 @@ void AutoLevelManager::state(bool state)
 	WriteToEEPROM(state);
 	m_state = state;
 	notify();
-
 }
 
 bool AutoLevelManager::state()
@@ -30,7 +26,7 @@ bool AutoLevelManager::state()
 
 bool AutoLevelManager::ReadFromEEPROM()
 {
-	int i = CUSTOM_EEPROM_POS;
+	int i = EEPROM_POS;
 	int dummy = 0;
 
 	_EEPROM_readData(i, (uint8_t*)&dummy, sizeof(dummy));
@@ -43,7 +39,7 @@ bool AutoLevelManager::ReadFromEEPROM()
 
 void AutoLevelManager::WriteToEEPROM(bool state)
 {
-	int i = CUSTOM_EEPROM_POS;
+	int i = EEPROM_POS;
 	int dummy = 0;
 	if(state)
 	{
