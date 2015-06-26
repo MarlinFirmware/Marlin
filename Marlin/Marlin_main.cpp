@@ -3362,7 +3362,7 @@ inline void gcode_M42() {
       if (verbose_level > 1) {
         SERIAL_PROTOCOL(n+1);
         SERIAL_PROTOCOLPGM(" of ");
-        SERIAL_PROTOCOL(n_samples);
+        SERIAL_PROTOCOL((int)n_samples);
         SERIAL_PROTOCOLPGM("   z: ");
         SERIAL_PROTOCOL_F(current_position[Z_AXIS], 6);
         if (verbose_level > 2) {
