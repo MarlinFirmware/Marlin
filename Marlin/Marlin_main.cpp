@@ -797,6 +797,8 @@ void get_command() {
           return;
         }
 
+        gcode_LastN = gcode_N;
+
         if (apos) {
           byte checksum = 0, count = 0;
           while (command[count] != '*') checksum ^= command[count++];
@@ -811,8 +813,6 @@ void get_command() {
           gcode_line_error(PSTR(MSG_ERR_NO_CHECKSUM));
           return;
         }
-
-        gcode_LastN = gcode_N;
         // if no errors, continue parsing
       }
       else if (apos) { // No '*' without 'N'
