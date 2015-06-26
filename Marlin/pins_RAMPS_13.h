@@ -139,6 +139,11 @@
   #define SLED_PIN         -1
 #endif
 
+#ifdef ELECTRONIC_SCALE_PROBE
+	#define HX711_PD_SCK_PIN 4 //SERVO3_PIN
+	#define HX711_PD_DOUT_PIN 5 //SERVO2_PIN
+#endif //ELECTRONIC_SCALE_PROBE
+
 #ifdef ULTRA_LCD
 
   #ifdef NEWPANEL

@@ -30,8 +30,15 @@
 #include "language.h"
 #include "cardreader.h"
 #include "speed_lookuptable.h"
+#ifdef ELECTRONIC_SCALE_PROBE
+	#include "HX711.h"
+#endif
 #if HAS_DIGIPOTSS
   #include <SPI.h>
+#endif
+
+#ifdef ELECTRONIC_SCALE_PROBE
+	HX711 scale(HX711_PD_DOUT_PIN, HX711_PD_SCK_PIN);
 #endif
 
 //===========================================================================
@@ -475,7 +482,7 @@ ISR(TIMER1_COMPA_vect) {
       #else
         byte
       #endif
-          current_endstop_bits = 0;
+      current_endstop_bits;
 
       #define _ENDSTOP_PIN(AXIS, MINMAX) AXIS ##_## MINMAX ##_PIN
       #define _ENDSTOP_INVERTING(AXIS, MINMAX) AXIS ##_## MINMAX ##_ENDSTOP_INVERTING
@@ -570,8 +577,21 @@ ISR(TIMER1_COMPA_vect) {
                 step_events_completed = current_block->step_event_count;
             }
           #else // !Z_DUAL_ENDSTOPS
-
-            UPDATE_ENDSTOP(Z, MIN);
+			#ifdef ELECTRONIC_SCALE_PROBE
+				if (scale.try_read() && scale.stuff_is_detected())
+				{
+					bool z_min_endstop = true;
+					if (z_min_endstop && old_z_min_endstop && (current_block->steps[Z_AXIS] > 0)) 
+					{
+						endstops_trigsteps[Z_AXIS] = count_position[Z_AXIS];
+						endstop_z_hit = true;
+						step_events_completed = current_block->step_event_count;
+					}
+					old_z_min_endstop = z_min_endstop;
+				}
+			#else
+				UPDATE_ENDSTOP(Z, MIN);
+			#endif
           #endif // !Z_DUAL_ENDSTOPS
         #endif // Z_MIN_PIN
 
@@ -1049,6 +1069,31 @@ void st_init() {
  * Block until all buffered steps are executed
  */
 void st_synchronize() { while (blocks_queued()) idle(); }
+
+#ifdef ELECTRONIC_SCALE_PROBE
+void st_synchronize(long sensivity, uint8_t axis){
+	if (axis == Z_AXIS)
+	{
+		SERIAL_PROTOCOLLN("----------------");
+		SERIAL_PROTOCOL("tare value: ");
+		SERIAL_PROTOCOL(scale.current_weight);
+		SERIAL_PROTOCOL(" sensivity: ");
+		SERIAL_PROTOCOLLN(sensivity);
+
+		delay(500);
+		scale.tare();
+		scale.STUFF_SENSIVITY = sensivity;
+		scale.enable();
+	}
+	st_synchronize();
+	if (axis == Z_AXIS)
+	{
+		scale.disable();
+		SERIAL_PROTOCOL("bed detected: ");
+		SERIAL_PROTOCOLLN(scale.current_weight);
+	}
+}
+#endif
 
 void st_set_position(const long &x, const long &y, const long &z, const long &e) {
   CRITICAL_SECTION_START;
