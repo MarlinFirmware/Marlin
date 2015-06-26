@@ -60,6 +60,9 @@ namespace screen
 				case PAUSED:
 					m_title = MSG_SCREEN_PRINT_PAUSED;
 					break;
+				case PAUSING:
+					m_title = MSG_SCREEN_PRINT_PAUSING;
+					break;
 				default:
 					break;
 			}
