@@ -52,6 +52,7 @@
 #include "language.h"
 #include "pins_arduino.h"
 #include "math.h"
+#include "buzzer.h"
 
 #ifdef BLINKM
   #include "blinkm.h"
@@ -137,6 +138,7 @@
  * M109 - Sxxx Wait for extruder current temp to reach target temp. Waits only when heating
  *        Rxxx Wait for extruder current temp to reach target temp. Waits when heating and cooling
  *        IF AUTOTEMP is enabled, S<mintemp> B<maxtemp> F<factor>. Exit autotemp by any M109 without F
+ * M110 - Set the current line number
  * M111 - Set debug flags with S<mask>. See flag bits defined in Marlin.h.
  * M112 - Emergency stop
  * M114 - Output current position to serial port
@@ -790,8 +792,17 @@ void get_command() {
       char *npos = strchr(command, 'N');
       char *apos = strchr(command, '*');
       if (npos) {
+
+        boolean M110 = strstr_P(command, PSTR("M110")) != NULL;
+
+        if (M110) {
+          char *n2pos = strchr(command + 4, 'N');
+          if (n2pos) npos = n2pos;
+        }
+
         gcode_N = strtol(npos + 1, NULL, 10);
-        if (gcode_N != gcode_LastN + 1 && strstr_P(command, PSTR("M110")) == NULL) {
+
+        if (gcode_N != gcode_LastN + 1 && !M110) {
           gcode_line_error(PSTR(MSG_ERR_LINE_NO));
           return;
         }
@@ -806,7 +817,7 @@ void get_command() {
           }
           // if no errors, continue parsing
         }
-        else {
+        else if (npos == command) {
           gcode_line_error(PSTR(MSG_ERR_NO_CHECKSUM));
           return;
         }
@@ -4886,52 +4897,69 @@ inline void gcode_M503() {
 #ifdef FILAMENTCHANGEENABLE
 
   /**
-   * M600: Pause for filament change X[pos] Y[pos] Z[relative lift] E[initial retract] L[later retract distance for removal]
+   * M600: Pause for filament change
+   *
+   *  E[distance] - Retract the filament this far (negative value)
+   *  Z[distance] - Move the Z axis by this distance
+   *  X[position] - Move to this X position, with Y
+   *  Y[position] - Move to this Y position, with X
+   *  L[distance] - Retract distance for removal (manual reload)
+   *
+   *  Default values are used for omitted arguments.
+   *
    */
   inline void gcode_M600() {
-    float target[NUM_AXIS], lastpos[NUM_AXIS], fr60 = feedrate / 60;
-    for (int i=0; i<NUM_AXIS; i++)
-      target[i] = lastpos[i] = current_position[i];
 
-    #define BASICPLAN plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], fr60, active_extruder);
+    if (degHotend(active_extruder) < extrude_min_temp) {
+      SERIAL_ERROR_START;
+      SERIAL_ERRORLNPGM(MSG_TOO_COLD_FOR_M600);
+      return;
+    }
+
+    float lastpos[NUM_AXIS], fr60 = feedrate / 60;
+
+    for (int i=0; i<NUM_AXIS; i++)
+      lastpos[i] = destination[i] = current_position[i];
+
     #ifdef DELTA
-      #define RUNPLAN calculate_delta(target); BASICPLAN
+      #define RUNPLAN calculate_delta(destination); \
+                      plan_buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], destination[E_AXIS], fr60, active_extruder);
     #else
-      #define RUNPLAN BASICPLAN
+      #define RUNPLAN line_to_destination();
     #endif
 
     //retract by E
-    if (code_seen('E')) target[E_AXIS] += code_value();
+    if (code_seen('E')) destination[E_AXIS] += code_value();
     #ifdef FILAMENTCHANGE_FIRSTRETRACT
-      else target[E_AXIS] += FILAMENTCHANGE_FIRSTRETRACT;
+      else destination[E_AXIS] += FILAMENTCHANGE_FIRSTRETRACT;
     #endif
 
     RUNPLAN;
 
     //lift Z
-    if (code_seen('Z')) target[Z_AXIS] += code_value();
+    if (code_seen('Z')) destination[Z_AXIS] += code_value();
     #ifdef FILAMENTCHANGE_ZADD
-      else target[Z_AXIS] += FILAMENTCHANGE_ZADD;
+      else destination[Z_AXIS] += FILAMENTCHANGE_ZADD;
     #endif
 
     RUNPLAN;
 
     //move xy
-    if (code_seen('X')) target[X_AXIS] = code_value();
+    if (code_seen('X')) destination[X_AXIS] = code_value();
     #ifdef FILAMENTCHANGE_XPOS
-      else target[X_AXIS] = FILAMENTCHANGE_XPOS;
+      else destination[X_AXIS] = FILAMENTCHANGE_XPOS;
     #endif
 
-    if (code_seen('Y')) target[Y_AXIS] = code_value();
+    if (code_seen('Y')) destination[Y_AXIS] = code_value();
     #ifdef FILAMENTCHANGE_YPOS
-      else target[Y_AXIS] = FILAMENTCHANGE_YPOS;
+      else destination[Y_AXIS] = FILAMENTCHANGE_YPOS;
     #endif
 
     RUNPLAN;
 
-    if (code_seen('L')) target[E_AXIS] += code_value();
+    if (code_seen('L')) destination[E_AXIS] += code_value();
     #ifdef FILAMENTCHANGE_FINALRETRACT
-      else target[E_AXIS] += FILAMENTCHANGE_FINALRETRACT;
+      else destination[E_AXIS] += FILAMENTCHANGE_FINALRETRACT;
     #endif
 
     RUNPLAN;
@@ -4945,10 +4973,14 @@ inline void gcode_M503() {
     disable_e3();
     delay(100);
     LCD_ALERTMESSAGEPGM(MSG_FILAMENTCHANGE);
-    uint8_t cnt = 0;
+    millis_t next_tick = 0;
     while (!lcd_clicked()) {
       #ifndef AUTO_FILAMENT_CHANGE
-        if (++cnt == 0) lcd_quick_feedback(); // every 256th frame till the lcd is clicked
+        millis_t ms = millis();
+        if (ms >= next_tick) {
+          lcd_quick_feedback();
+          next_tick = ms + 2500; // feedback every 2.5s while waiting
+        }
         manage_heater();
         manage_inactivity(true);
         lcd_update();
@@ -4958,6 +4990,7 @@ inline void gcode_M503() {
         st_synchronize();
       #endif
     } // while(!lcd_clicked)
+    lcd_quick_feedback(); // click sound feedback
 
     #ifdef AUTO_FILAMENT_CHANGE
       current_position[E_AXIS]= 0;
@@ -4965,12 +4998,12 @@ inline void gcode_M503() {
     #endif
           
     //return to normal
-    if (code_seen('L')) target[E_AXIS] -= code_value();
+    if (code_seen('L')) destination[E_AXIS] -= code_value();
     #ifdef FILAMENTCHANGE_FINALRETRACT
-      else target[E_AXIS] -= FILAMENTCHANGE_FINALRETRACT;
+      else destination[E_AXIS] -= FILAMENTCHANGE_FINALRETRACT;
     #endif
 
-    current_position[E_AXIS] = target[E_AXIS]; //the long retract of L is compensated by manual filament feeding
+    current_position[E_AXIS] = destination[E_AXIS]; //the long retract of L is compensated by manual filament feeding
     plan_set_e_position(current_position[E_AXIS]);
 
     RUNPLAN; //should do nothing
@@ -4978,13 +5011,19 @@ inline void gcode_M503() {
     lcd_reset_alert_level();
 
     #ifdef DELTA
+      // Move XYZ to starting position, then E
       calculate_delta(lastpos);
-      plan_buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], target[E_AXIS], fr60, active_extruder); //move xyz back
-      plan_buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], lastpos[E_AXIS], fr60, active_extruder); //final untretract
+      plan_buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], destination[E_AXIS], fr60, active_extruder);
+      plan_buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], lastpos[E_AXIS], fr60, active_extruder);
     #else
-      plan_buffer_line(lastpos[X_AXIS], lastpos[Y_AXIS], target[Z_AXIS], target[E_AXIS], fr60, active_extruder); //move xy back
-      plan_buffer_line(lastpos[X_AXIS], lastpos[Y_AXIS], lastpos[Z_AXIS], target[E_AXIS], fr60, active_extruder); //move z back
-      plan_buffer_line(lastpos[X_AXIS], lastpos[Y_AXIS], lastpos[Z_AXIS], lastpos[E_AXIS], fr60, active_extruder); //final untretract
+      // Move XY to starting position, then Z, then E
+      destination[X_AXIS] = lastpos[X_AXIS];
+      destination[Y_AXIS] = lastpos[Y_AXIS];
+      line_to_destination();
+      destination[Z_AXIS] = lastpos[Z_AXIS];
+      line_to_destination();
+      destination[E_AXIS] = lastpos[E_AXIS];
+      line_to_destination();
     #endif        
 
     #ifdef FILAMENT_RUNOUT_SENSOR

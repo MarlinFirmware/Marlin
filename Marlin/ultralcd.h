@@ -2,6 +2,7 @@
 #define ULTRALCD_H
 
 #include "Marlin.h"
+#include "buzzer.h"
 
 #ifdef ULTRA_LCD
   int lcd_strlen(char *s);
@@ -14,6 +15,10 @@
   void lcd_setalertstatuspgm(const char* message);
   void lcd_reset_alert_level();
   bool lcd_detected(void);
+
+  #ifdef LCD_USE_I2C_BUZZER
+    void lcd_buzz(long duration, uint16_t freq);
+  #endif
 
   #if defined(LCD_PROGRESS_BAR) && PROGRESS_MSG_EXPIRE > 0
     void dontExpireStatus();
@@ -110,10 +115,6 @@
   #define LCD_ALERTMESSAGEPGM(x) do{}while(0)
 
 #endif //ULTRA_LCD
-
-#if HAS_BUZZER
-  void buzz(long duration,uint16_t freq);
-#endif
 
 char *itostr2(const uint8_t &x);
 char *itostr31(const int &xx);
