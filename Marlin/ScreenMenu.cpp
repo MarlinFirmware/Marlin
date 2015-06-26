@@ -15,10 +15,10 @@ namespace screen
 
 	void ScreenMenu::init()
 	{
-		for (unsigned int i = 0;i <= m_num_icons -1; ++i)
+		for (unsigned int i = 0;i < m_num_icons; ++i)
 		{
 			m_icons[i]->show();
-		}
+		}	
 	}
 
 	void ScreenMenu::left()
