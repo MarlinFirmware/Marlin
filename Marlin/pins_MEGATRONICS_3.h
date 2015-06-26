@@ -9,7 +9,7 @@
 #define LARGE_FLASH        true
 
 
-#ifdef Z_PROBE_SLED
+#if ENABLED(Z_PROBE_SLED)
   #define SLED_PIN         -1
 #endif
 

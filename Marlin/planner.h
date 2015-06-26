@@ -37,7 +37,7 @@ typedef struct {
   long acceleration_rate;                   // The acceleration rate used for acceleration calculation
   unsigned char direction_bits;             // The direction bit set for this block (refers to *_DIRECTION_BIT in config.h)
   unsigned char active_extruder;            // Selects the active extruder
-  #ifdef ADVANCE
+  #if ENABLED(ADVANCE)
     long advance_rate;
     volatile long initial_advance;
     volatile long final_advance;
@@ -60,7 +60,7 @@ typedef struct {
   unsigned long final_rate;                          // The minimal rate at exit
   unsigned long acceleration_st;                     // acceleration steps/sec^2
   unsigned long fan_speed;
-  #ifdef BARICUDA
+  #if ENABLED(BARICUDA)
     unsigned long valve_pressure;
     unsigned long e_to_p_pressure;
   #endif
@@ -79,9 +79,9 @@ extern volatile unsigned char block_buffer_head;
 extern volatile unsigned char block_buffer_tail;
 FORCE_INLINE uint8_t movesplanned() { return BLOCK_MOD(block_buffer_head - block_buffer_tail + BLOCK_BUFFER_SIZE); }
 
-#if defined(ENABLE_AUTO_BED_LEVELING) || defined(MESH_BED_LEVELING)
+#if ENABLED(ENABLE_AUTO_BED_LEVELING) || ENABLED(MESH_BED_LEVELING)
 
-  #if defined(ENABLE_AUTO_BED_LEVELING)
+  #if ENABLED(ENABLE_AUTO_BED_LEVELING)
     #include "vector_3.h"
 
     // Transform required to compensate for bed level
@@ -133,7 +133,7 @@ extern float max_e_jerk;
 extern float mintravelfeedrate;
 extern unsigned long axis_steps_per_sqr_second[NUM_AXIS];
 
-#ifdef AUTOTEMP
+#if ENABLED(AUTOTEMP)
   extern bool autotemp_enabled;
   extern float autotemp_max;
   extern float autotemp_min;

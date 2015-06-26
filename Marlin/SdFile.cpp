@@ -19,7 +19,7 @@
  */
 #include "Marlin.h"
 
-#ifdef SDSUPPORT
+#if ENABLED(SDSUPPORT)
 #include "SdFile.h"
 /**  Create a file object and open it in the current working directory.
  *

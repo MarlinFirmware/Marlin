@@ -178,7 +178,7 @@
 
 #endif
 
-#if defined( KANA )
+#if ENABLED(KANA)
   #define WELCOME_MSG                         "Language TEST"
 
   #define MSG_WATCH                           "\001\002\003\004\005\006\007\010\011"

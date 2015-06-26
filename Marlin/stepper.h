@@ -33,7 +33,7 @@
   #define NORM_E_DIR() { if(current_block->active_extruder == 2) { E2_DIR_WRITE(!INVERT_E2_DIR); } else { if(current_block->active_extruder == 1) { E1_DIR_WRITE(!INVERT_E1_DIR); } else { E0_DIR_WRITE(!INVERT_E0_DIR); }}}
   #define REV_E_DIR() { if(current_block->active_extruder == 2) { E2_DIR_WRITE(INVERT_E2_DIR); } else { if(current_block->active_extruder == 1) { E1_DIR_WRITE(INVERT_E1_DIR); } else { E0_DIR_WRITE(INVERT_E0_DIR); }}}
 #elif EXTRUDERS > 1
-  #ifndef DUAL_X_CARRIAGE
+  #if DISABLED(DUAL_X_CARRIAGE)
     #define E_STEP_WRITE(v) { if(current_block->active_extruder == 1) { E1_STEP_WRITE(v); } else { E0_STEP_WRITE(v); }}
     #define NORM_E_DIR() { if(current_block->active_extruder == 1) { E1_DIR_WRITE(!INVERT_E1_DIR); } else { E0_DIR_WRITE(!INVERT_E0_DIR); }}
     #define REV_E_DIR() { if(current_block->active_extruder == 1) { E1_DIR_WRITE(INVERT_E1_DIR); } else { E0_DIR_WRITE(INVERT_E0_DIR); }}
@@ -49,8 +49,8 @@
   #define REV_E_DIR() E0_DIR_WRITE(INVERT_E0_DIR)
 #endif
 
-#ifdef ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED
-extern bool abort_on_endstop_hit;
+#if ENABLED(ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED)
+  extern bool abort_on_endstop_hit;
 #endif
 
 // Initialize and start the stepper motor subsystem
@@ -66,7 +66,7 @@ void st_set_e_position(const long &e);
 // Get current position in steps
 long st_get_position(uint8_t axis);
 
-#ifdef ENABLE_AUTO_BED_LEVELING
+#if ENABLED(ENABLE_AUTO_BED_LEVELING)
   // Get current position in mm
   float st_get_position_mm(AxisEnum axis);
 #endif
@@ -97,13 +97,13 @@ void digipot_current(uint8_t driver, int current);
 void microstep_init();
 void microstep_readings();
 
-#ifdef Z_DUAL_ENDSTOPS
+#if ENABLED(Z_DUAL_ENDSTOPS)
   void In_Homing_Process(bool state);
   void Lock_z_motor(bool state);
   void Lock_z2_motor(bool state);
 #endif
 
-#ifdef BABYSTEPPING
+#if ENABLED(BABYSTEPPING)
   void babystep(const uint8_t axis,const bool direction); // perform a short step with a single stepper motor, outside of any convention
 #endif
      
