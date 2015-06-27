@@ -2657,7 +2657,7 @@ inline void gcode_G28() {
       #ifdef DELTA
         delta_grid_spacing[0] = xGridSpacing;
         delta_grid_spacing[1] = yGridSpacing;
-        float z_offset = Z_PROBE_OFFSET_FROM_EXTRUDER;
+        float z_offset = zprobe_zoffset;
         if (code_seen(axis_codes[Z_AXIS])) z_offset += code_value();
       #else // !DELTA
         // solve the plane equation ax + by + d = z
@@ -5863,7 +5863,7 @@ void clamp_to_software_endstops(float target[3]) {
     
     float negative_z_offset = 0;
     #ifdef ENABLE_AUTO_BED_LEVELING
-      if (Z_PROBE_OFFSET_FROM_EXTRUDER < 0) negative_z_offset += Z_PROBE_OFFSET_FROM_EXTRUDER;
+      if (zprobe_zoffset < 0) negative_z_offset += zprobe_zoffset;
       if (home_offset[Z_AXIS] < 0) negative_z_offset += home_offset[Z_AXIS];
     #endif
     NOLESS(target[Z_AXIS], min_pos[Z_AXIS] + negative_z_offset);
