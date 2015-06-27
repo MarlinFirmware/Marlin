@@ -34,6 +34,10 @@
 #ifdef THERMAL_PROTECTION_BED
   #define THERMAL_PROTECTION_BED_PERIOD 20    // Seconds
   #define THERMAL_PROTECTION_BED_HYSTERESIS 2 // Degrees Celsius
+
+  #define WATCH_TEMP_BED_PERIOD 30            // Seconds
+  #define WATCH_TEMP_BED_INCREASE 1           // Degrees Celsius
+  #define WATCH_TEMP_BED_MAX_TEMP 70          // Maximum temperature the bead heater is tested (may heat to slow above this temperature)
 #endif
 
 /**
