@@ -5794,7 +5794,11 @@ void clamp_to_software_endstops(float target[3]) {
     NOLESS(target[Y_AXIS], min_pos[Y_AXIS]);
     
     float negative_z_offset = 0;
+<<<<<<< HEAD
     #if ENABLED(ENABLE_AUTO_BED_LEVELING)
+=======
+    #ifdef ENABLE_AUTO_BED_LEVELING
+>>>>>>> Z-height fix V2b
       if (zprobe_zoffset < 0) negative_z_offset += zprobe_zoffset;
       if (home_offset[Z_AXIS] < 0) negative_z_offset += home_offset[Z_AXIS];
     #endif
