@@ -1045,7 +1045,7 @@ void tp_init() {
    * This is called when the temperature is set. (M140, M190)
    */
   void start_watching_heater_bed() {
-    if (current_temperature_bed < target_temperature_bed - (WATCH_TEMP_BED_INCREASE + TEMP_HYSTERESIS + 1)) {
+    if ((current_temperature_bed < WATCH_TEMP_BED_MAX_TEMP) && (current_temperature_bed < target_temperature_bed - (WATCH_TEMP_BED_INCREASE + TEMP_HYSTERESIS + 1))) {
       watch_target_temp_bed = current_temperature_bed + WATCH_TEMP_BED_INCREASE;
       watch_heater_bed_next_ms = millis() + WATCH_TEMP_BED_PERIOD * 1000;
     }
