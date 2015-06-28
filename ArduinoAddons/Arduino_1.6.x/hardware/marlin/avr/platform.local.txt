@@ -1,0 +1,6 @@
+compiler.cpp.extra_flags=-DHAS_AUTOMATIC_VERSIONING
+build.custom_bin.path.macosx=/usr/local/bin/
+build.custom_bin.path.linux=
+recipe.hooks.prebuild0.pattern={build.custom_bin.path}generate_version_header_for_marlin "{build.source.path}" "{build.path}/_Version.h"
+# Please help -- We need an implementation on Windows
+recipe.hooks.prebuild0.pattern.windows=
