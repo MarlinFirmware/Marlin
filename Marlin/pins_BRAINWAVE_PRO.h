@@ -56,7 +56,7 @@
 #define ALARM_PIN          -1
 #define SDCARDDETECT       12
 
-#ifndef SDSUPPORT
+#if DISABLED(SDSUPPORT)
 // these pins are defined in the SD library if building with SD support
   #define SCK_PIN          21
   #define MISO_PIN         23

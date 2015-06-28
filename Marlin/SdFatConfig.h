@@ -22,7 +22,7 @@
  * \brief configuration definitions
  */
 #include "Marlin.h"
-#ifdef SDSUPPORT
+#if ENABLED(SDSUPPORT)
 
 #ifndef SdFatConfig_h
 #define SdFatConfig_h
