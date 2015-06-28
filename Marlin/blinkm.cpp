@@ -3,9 +3,9 @@
   Created by Tim Koster, August 21 2013.
 */
 #include "Marlin.h"
-#ifdef BLINKM
 
 #include "blinkm.h"
+#if ENABLED(BLINKM)
 
 void SendColors(byte red, byte grn, byte blu) {
   Wire.begin(); 

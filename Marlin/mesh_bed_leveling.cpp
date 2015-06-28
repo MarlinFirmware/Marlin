@@ -1,6 +1,6 @@
 #include "mesh_bed_leveling.h"
 
-#ifdef MESH_BED_LEVELING
+#if ENABLED(MESH_BED_LEVELING)
 
   mesh_bed_leveling mbl;
 
