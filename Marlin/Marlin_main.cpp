@@ -3805,7 +3805,7 @@ inline void gcode_M81() {
 inline void gcode_M82() { axis_relative_modes[E_AXIS] = false; }
 
 /**
- * M82: Set E codes relative while in Absolute Coordinates (G90) mode
+ * M83: Set E codes relative while in Absolute Coordinates (G90) mode
  */
 inline void gcode_M83() { axis_relative_modes[E_AXIS] = true; }
 
@@ -6153,6 +6153,9 @@ void mesh_plan_buffer_line(float x, float y, float z, const float e, float feed_
 
 /**
  * Prepare a single move and get ready for the next one
+ *
+ * (This may call plan_buffer_line several times to put
+ *  smaller moves into the planner for DELTA or SCARA.)
  */
 void prepare_move() {
   clamp_to_software_endstops(destination);
