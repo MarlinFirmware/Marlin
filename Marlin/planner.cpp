@@ -507,7 +507,7 @@ float junction_deviation = 0.1;
 
   #ifdef PREVENT_DANGEROUS_EXTRUDE
     if (de) {
-      if (degHotend(extruder) < extrude_min_temp && !(marlin_debug_flags & DEBUG_DRYRUN)) {
+      if (degHotend(extruder) < extrude_min_temp && ((marlin_debug_flags & DEBUG_DRYRUN) != 0)) {
         position[E_AXIS] = target[E_AXIS]; // Behave as if the move really took place, but ignore E part
         de = 0; // no difference
         SERIAL_ECHO_START;
