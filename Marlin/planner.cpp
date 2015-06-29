@@ -505,15 +505,16 @@ float junction_deviation = 0.1;
         dz = target[Z_AXIS] - position[Z_AXIS],
         de = target[E_AXIS] - position[E_AXIS];
 
+  // In DRYRUN mode Extruder movement set to zero
+  if (marlin_debug_flags & DEBUG_DRYRUN) de = 0;
+
   #ifdef PREVENT_DANGEROUS_EXTRUDE
     if (de) {
       if (degHotend(extruder) < extrude_min_temp) {
         position[E_AXIS] = target[E_AXIS]; // Behave as if the move really took place, but ignore E part
         de = 0; // no difference
-        if (!(marlin_debug_flags & DEBUG_DRYRUN)) {
-          SERIAL_ECHO_START;
-          SERIAL_ECHOLNPGM(MSG_ERR_COLD_EXTRUDE_STOP);
-        }
+        SERIAL_ECHO_START;
+        SERIAL_ECHOLNPGM(MSG_ERR_COLD_EXTRUDE_STOP);
       }
       #ifdef PREVENT_LENGTHY_EXTRUDE
         if (labs(de) > axis_steps_per_unit[E_AXIS] * EXTRUDE_MAXLENGTH) {
