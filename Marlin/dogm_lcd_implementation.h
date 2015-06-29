@@ -39,6 +39,11 @@
 #include "ultralcd.h"
 #include "ultralcd_st7920_u8glib_rrd.h"
 
+#define WHITE_LED digitalWrite(40,0);digitalWrite(44,0);digitalWrite(42,0)
+#define RED_LED digitalWrite(40,0);digitalWrite(44,1);digitalWrite(42,1)
+#define BLUE_LED digitalWrite(40,1);digitalWrite(44,0);digitalWrite(42,1)
+
+
 /* Russian language not supported yet, needs custom font
 
 #ifdef LANGUAGE_RU
@@ -95,11 +100,11 @@ static void lcd_implementation_init()
  pinMode(40, OUTPUT);
  pinMode(42, OUTPUT);
  pinMode(44, OUTPUT);
-
+/*
  digitalWrite(40,LOW);
  digitalWrite(42,LOW);
  digitalWrite(44,LOW);
-	
+*/	
 	
 #ifdef LCD_PIN_BL
 	pinMode(LCD_PIN_BL, OUTPUT);	// Enable LCD backlight
@@ -296,19 +301,11 @@ static void lcd_implementation_status_screen()
  u8g.setPrintPos(0,61);
  //~ int diff_temp = target_temperature[0] - current_temperature[0]; //EZ-Maker assist
  #ifndef FILAMENT_LCD_DISPLAY
-	if(isHeatingBed() || isHeatingHotend0() ) //EZ-Maker show current file + RGB color code
-	{
-		digitalWrite(40,0);
-		digitalWrite(44,1);
-		digitalWrite(42,1);
-	}
- 
-    if (printing_started && IS_SD_PRINTING)
+	
+     if (printing_started && IS_SD_PRINTING)
     {
 		u8g.print(card.longFilename);
-		digitalWrite(44,0);
-		digitalWrite(40,1);
-		digitalWrite(42,1);
+		BLUE_LED;
 	}
 	else
 	{
@@ -318,13 +315,21 @@ static void lcd_implementation_status_screen()
 				printing_started = true;
 		
 			}
+	
 	else
-	{
+		
 	if (!IS_SD_PRINTING)
-	     printing_started = false;
- 	u8g.print(lcd_status_message);
-	    
+	{
+		printing_started = false;
+		u8g.print(lcd_status_message);
+		WHITE_LED;
     }
+	
+	if(IS_SD_PRINTING && !printing_started) //EZ-Maker show current file + RGB color code
+	{
+		RED_LED;
+	}
+	
     }
  #else
 	if(message_millis+5000>millis()){  //Display both Status message line and Filament display on the last line
