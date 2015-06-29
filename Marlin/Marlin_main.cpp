@@ -5855,17 +5855,18 @@ void ok_to_send() {
   SERIAL_EOL;  
 }
 
-void clamp_to_software_endstops(float target[3]) {
+void clamp_to_software_endstops(float target[3]) { // This should take into account offsets set by M206 but seems not to (#2357)
   if (min_software_endstops) {
     NOLESS(target[X_AXIS], min_pos[X_AXIS]);
     NOLESS(target[Y_AXIS], min_pos[Y_AXIS]);
     
-    float negative_z_offset = 0;
+    float negative_z_offset = 0; 
     #ifdef ENABLE_AUTO_BED_LEVELING
       if (Z_PROBE_OFFSET_FROM_EXTRUDER < 0) negative_z_offset += Z_PROBE_OFFSET_FROM_EXTRUDER;
-      if (home_offset[Z_AXIS] < 0) negative_z_offset += home_offset[Z_AXIS];
+      //if (home_offset[Z_AXIS] < 0) negative_z_offset += home_offset[Z_AXIS]; // half the attempt to fix #2357
     #endif
-    NOLESS(target[Z_AXIS], min_pos[Z_AXIS] + negative_z_offset);
+    if (home_offset[Z_AXIS] != 0) negative_z_offset -= home_offset[Z_AXIS]; // #2357, other half (WARNING! Makes offset work in opposite direction! Danger of chrashing nozzle into bed!)
+    NOLESS(target[Z_AXIS], min_pos[Z_AXIS] + negative_z_offset); // #2357
   }
 
   if (max_software_endstops) {
