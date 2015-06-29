@@ -325,12 +325,14 @@ static void lcd_implementation_status_screen()
 		WHITE_LED;
     }
 	
+	}
+
 	if(IS_SD_PRINTING && !printing_started) //EZ-Maker show current file + RGB color code
 	{
 		RED_LED;
 	}
 	
-    }
+    
  #else
 	if(message_millis+5000>millis()){  //Display both Status message line and Filament display on the last line
 	 u8g.print(lcd_status_message);
