@@ -76,6 +76,7 @@ namespace screen
 	{
 		ScreenSplash * local_view = new ScreenSplash(2000);
 		local_view->add(screen_main);
+		local_view->add(screen_offset_home);
 		return local_view;
 	}
 

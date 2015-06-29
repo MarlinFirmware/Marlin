@@ -12,9 +12,13 @@ namespace screen
 			~ScreenSplash();
 
 			void draw();
+			void add(ScreenIndex_t const & component);
 
 		private:
 			uint32_t m_destroy_time;
+
+			ScreenIndex_t m_alt_screen;
+			uint8_t m_num_item_added;
 	};
 }
 
