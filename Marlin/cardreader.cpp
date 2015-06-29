@@ -641,6 +641,7 @@ void CardReader::printingHasFinished()
 		digitalWrite(44,1);
 		digitalWrite(40,1);
           enquecommand_P(PSTR(SD_FINISHED_RELEASECOMMAND));
+		  delay(5000);
       }
       autotempShutdown();
     }
