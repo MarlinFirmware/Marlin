@@ -19,6 +19,7 @@ namespace screen
 		{
 			m_icons[i]->show();
 		}	
+		m_index = index;
 	}
 
 	void ScreenMenu::left()
@@ -49,6 +50,7 @@ namespace screen
 
 	void ScreenMenu::press()
 	{
+		ViewManager::getInstance().setLastFocus(m_index);
 		ViewManager::getInstance().activeView(m_items[m_index]);
 	}
 
