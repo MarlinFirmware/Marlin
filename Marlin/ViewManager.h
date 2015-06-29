@@ -1,6 +1,8 @@
 #ifndef VIEW_MANAGER_H
 #define	VIEW_MANAGER_H
 
+#include <stdint.h>
+
 #include "Screen.h"
 #include "GuiImpl_witbox_2.h"
 
@@ -13,6 +15,7 @@ namespace screen
 
 			void activeView(ScreenIndex_t const & index);
 			Screen * activeView();
+			void setLastFocus(uint16_t last_focus);
 
 		protected:
 			ViewManager();
@@ -24,6 +27,7 @@ namespace screen
 
 		private:
 			Screen * m_active_view;
+			uint16_t m_last_focus;
 	};
 }
 

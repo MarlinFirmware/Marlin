@@ -15,7 +15,7 @@ namespace screen
 			ScreenAction(const char * title = 0, typename Functor<R, Args...>::FuncPtr fptr = do_nothing);
 			virtual ~ScreenAction();
 
-			void init();
+			void init(uint16_t index = 0);
 	};
 
 	template <typename R, typename... Args>
@@ -29,7 +29,7 @@ namespace screen
 	{ }
 
 	template <typename R, typename... Args>
-	void ScreenAction<R, Args...>::init()
+	void ScreenAction<R, Args...>::init(uint16_t index)
 	{
 		this->action();
 		ViewManager::getInstance().activeView(m_next_screen);

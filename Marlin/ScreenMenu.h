@@ -15,7 +15,7 @@ namespace screen
 			ScreenMenu(const char * title = 0, const char * text = 0);
 			virtual ~ScreenMenu();
 
-			void init();
+			void init(uint16_t index = 0);
 			void left();
 			void right();
 			void press();

@@ -36,7 +36,7 @@ namespace screen
 			virtual void right() {};
 			virtual void press() {};
 			virtual void draw() {};
-			virtual void init() {};
+			virtual void init(uint16_t index = 0) {};
 			virtual void add(ScreenIndex_t const & view);
 
 		protected:

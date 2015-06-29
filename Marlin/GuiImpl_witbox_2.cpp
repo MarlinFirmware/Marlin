@@ -512,7 +512,7 @@ namespace screen
 	static ScreenMenu * make_screen_offset()
 	{
 		ScreenMenu * local_view = new ScreenMenu(MSG_SCREEN_OFFSET_TITLE, MSG_SCREEN_OFFSET_TEXT);
-		local_view->add(screen_main);
+		local_view->add(screen_settings);
 		local_view->icon(icon_back);
 		local_view->add(screen_offset_home);
 		local_view->icon(icon_ok);

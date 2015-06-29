@@ -13,7 +13,7 @@ namespace screen
 			ScreenDialog(const char * title, const char * message, const char * box, typename Functor<R, Args...>::FuncPtr fptr = do_nothing);
 			virtual ~ScreenDialog();
 
-			void init();
+			void init(uint16_t index = 0);
 			void press();
 			virtual void draw();
 
@@ -35,7 +35,7 @@ namespace screen
 	{ }
 
 	template <typename R, typename... Args>
-	void ScreenDialog<R, Args...>::init()
+	void ScreenDialog<R, Args...>::init(uint16_t index)
 	{
 		draw();
 		this->action();
