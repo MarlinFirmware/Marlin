@@ -44,6 +44,7 @@ The current Marlin dev team consists of:
  - Bernhard Kubicek [@bkubicek]
 
 More features have been added by:
+  - Alberto Cotronei [@MagoKimbra]
   - Lampmaker,
   - Bradley Feldman,
   - and others...
