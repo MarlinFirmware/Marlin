@@ -21,7 +21,7 @@ namespace screen
 		this->m_model->dettach();
 	}
 
-	void ScreenPrint::init()
+	void ScreenPrint::init(uint16_t index)
 	{
 		this->m_model->attach(this);
 		this->connect();

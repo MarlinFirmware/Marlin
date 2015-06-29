@@ -23,7 +23,7 @@ namespace screen
 			ScreenAnimation(const char * title, const char * text, Condition_t condition, uint16_t target, Subject<T> * model = 0);
 			virtual ~ScreenAnimation();
 
-			void init();
+			void init(uint16_t index = 0);
 
 			void draw();
 			void press();
@@ -66,7 +66,7 @@ namespace screen
 	}
 
 	template <typename T>
-	void ScreenAnimation<T>::init()
+	void ScreenAnimation<T>::init(uint16_t index)
 	{
 		this->m_model->attach(this);
 		this->connect();

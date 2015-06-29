@@ -13,12 +13,13 @@ namespace screen
 	ScreenMenu::~ScreenMenu()
 	{ }
 
-	void ScreenMenu::init()
+	void ScreenMenu::init(uint16_t index)
 	{
 		for (unsigned int i = 0;i < m_num_icons; ++i)
 		{
 			m_icons[i]->show();
 		}	
+		m_index = index;
 	}
 
 	void ScreenMenu::left()
@@ -49,6 +50,7 @@ namespace screen
 
 	void ScreenMenu::press()
 	{
+		ViewManager::getInstance().setLastFocus(m_index);
 		ViewManager::getInstance().activeView(m_items[m_index]);
 	}
 

@@ -14,7 +14,7 @@ namespace screen
 			ScreenTransition(const char * title, const char * message, const char * box, typename Functor<void>::FuncPtr fptr = do_nothing,  Subject<PrinterState_t> * model = 0);
 			virtual ~ScreenTransition();
 
-			void init();
+			void init(uint16_t index = 0);
 			void draw();
 			void update(PrinterState_t value);
 
