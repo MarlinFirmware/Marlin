@@ -634,9 +634,12 @@ void CardReader::printingHasFinished()
       quickStop();
       file.close();
       sdprinting = false;
-      if(SD_FINISHED_STEPPERRELEASE)
+      if(SD_FINISHED_STEPPERRELEASE) //EZ-MAKER Customization RGB code
       {
           //finishAndDisableSteppers();
+		digitalWrite(42,0);
+		digitalWrite(44,1);
+		digitalWrite(40,1);
           enquecommand_P(PSTR(SD_FINISHED_RELEASECOMMAND));
       }
       autotempShutdown();

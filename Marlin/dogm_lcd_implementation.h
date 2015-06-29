@@ -74,10 +74,14 @@
 int lcd_contrast;
 bool printing_started = false;
 
+
+
+
 // LCD selection
 #ifdef U8GLIB_ST7920
 //U8GLIB_ST7920_128X64_RRD u8g(0,0,0);
 U8GLIB_ST7920_128X64_RRD u8g(0);
+#elif defined(MAKRPANEL)
 #elif defined(MAKRPANEL)
 // The MaKrPanel display, ST7565 controller as well
 U8GLIB_NHD_C12864 u8g(DOGLCD_CS, DOGLCD_A0);
@@ -88,6 +92,15 @@ U8GLIB_DOGM128 u8g(DOGLCD_CS, DOGLCD_A0);	// HW-SPI Com: CS, A0
 
 static void lcd_implementation_init()
 {
+ pinMode(40, OUTPUT);
+ pinMode(42, OUTPUT);
+ pinMode(44, OUTPUT);
+
+ digitalWrite(40,LOW);
+ digitalWrite(42,LOW);
+ digitalWrite(44,LOW);
+	
+	
 #ifdef LCD_PIN_BL
 	pinMode(LCD_PIN_BL, OUTPUT);	// Enable LCD backlight
 	digitalWrite(LCD_PIN_BL, HIGH);
@@ -283,19 +296,34 @@ static void lcd_implementation_status_screen()
  u8g.setPrintPos(0,61);
  //~ int diff_temp = target_temperature[0] - current_temperature[0]; //EZ-Maker assist
  #ifndef FILAMENT_LCD_DISPLAY
-    if (printing_started && IS_SD_PRINTING)//EZ-Maker show current file 
+	if(isHeatingBed() || isHeatingHotend0() ) //EZ-Maker show current file + RGB color code
+	{
+		digitalWrite(40,0);
+		digitalWrite(44,1);
+		digitalWrite(42,1);
+	}
+ 
+    if (printing_started && IS_SD_PRINTING)
     {
 		u8g.print(card.longFilename);
+		digitalWrite(44,0);
+		digitalWrite(40,1);
+		digitalWrite(42,1);
 	}
 	else
 	{
 	if (IS_SD_PRINTING && !(isHeatingBed() || isHeatingHotend0() ))
-	        printing_started = true;
+	        
+			{
+				printing_started = true;
+		
+			}
 	else
 	{
 	if (!IS_SD_PRINTING)
 	     printing_started = false;
  	u8g.print(lcd_status_message);
+	    
     }
     }
  #else
