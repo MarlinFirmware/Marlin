@@ -86,14 +86,6 @@
 #define MSG_ESTEPS                          "Esteps/mm"
 #define MSG_TEMPERATURE                     "Lampotila"
 #define MSG_MOTION                          "Liike"
-<<<<<<< HEAD
-=======
-#define MSG_VOLUMETRIC                      "Filament"
-#define MSG_VOLUMETRIC_ENABLED		        "E in mm3"
-#define MSG_FILAMENT_SIZE_EXTRUDER_0        "Fil. Dia. 1"
-#define MSG_FILAMENT_SIZE_EXTRUDER_1        "Fil. Dia. 2"
-#define MSG_FILAMENT_SIZE_EXTRUDER_2        "Fil. Dia. 3"
->>>>>>> MarlinFirmware/1.0.x
 #define MSG_CONTRAST                        "LCD contrast"
 #define MSG_STORE_EPROM                     "Tallenna muistiin"
 #define MSG_LOAD_EPROM                      "Lataa muistista"

@@ -86,14 +86,6 @@
 #define MSG_ESTEPS                          "Esteps/mm"
 #define MSG_TEMPERATURE                     "Temperatuur"
 #define MSG_MOTION                          "Beweging"
-<<<<<<< HEAD
-=======
-#define MSG_VOLUMETRIC                      "Filament"
-#define MSG_VOLUMETRIC_ENABLED		        "E in mm3"
-#define MSG_FILAMENT_SIZE_EXTRUDER_0        "Fil. Dia. 1"
-#define MSG_FILAMENT_SIZE_EXTRUDER_1        "Fil. Dia. 2"
-#define MSG_FILAMENT_SIZE_EXTRUDER_2        "Fil. Dia. 3"
->>>>>>> MarlinFirmware/1.0.x
 #define MSG_CONTRAST                        "LCD contrast"
 #define MSG_STORE_EPROM                     "Geheugen opslaan"
 #define MSG_LOAD_EPROM                      "Geheugen laden"
@@ -110,11 +102,7 @@
 #define MSG_DWELL                           "Slapen..."
 #define MSG_USERWAIT                        "Wachten..."
 #define MSG_RESUMING                        "Print hervatten"
-<<<<<<< HEAD
 #define MSG_PRINT_ABORTED                   "Print aborted"
-=======
-#define MSG_PRINT_ABORTED                   "Print afgebroken"
->>>>>>> MarlinFirmware/1.0.x
 #define MSG_NO_MOVE                         "Geen beweging."
 #define MSG_KILLED                          "AFGEBROKEN. "
 #define MSG_STOPPED                         "GESTOPT. "
@@ -140,19 +128,11 @@
 #define MSG_RECTRACT                        "Terugtrekken"
 
 #ifdef DELTA_CALIBRATION_MENU
-<<<<<<< HEAD
     #define MSG_DELTA_CALIBRATE             "Delta Calibration"
     #define MSG_DELTA_CALIBRATE_X           "Calibrate X"
     #define MSG_DELTA_CALIBRATE_Y           "Calibrate Y"
     #define MSG_DELTA_CALIBRATE_Z           "Calibrate Z"
     #define MSG_DELTA_CALIBRATE_CENTER      "Calibrate Center"
-=======
-    #define MSG_DELTA_CALIBRATE             "Delta Calibratie"
-    #define MSG_DELTA_CALIBRATE_X           "Kalibreer X"
-    #define MSG_DELTA_CALIBRATE_Y           "Kalibreer Y"
-    #define MSG_DELTA_CALIBRATE_Z           "Kalibreer Z"
-    #define MSG_DELTA_CALIBRATE_CENTER      "Kalibreer Midden"
->>>>>>> MarlinFirmware/1.0.x
 #endif // DELTA_CALIBRATION_MENU
 
 #endif // LANGUAGE_NL_H

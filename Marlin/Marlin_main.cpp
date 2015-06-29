@@ -61,7 +61,7 @@
 #include <SPI.h>
 #endif
 
-#define VERSION_STRING  "1.0.2"
+#define VERSION_STRING  "1.0.0"
 
 // look here for descriptions of G-codes: http://linuxcnc.org/handbook/gcode/g-code.html
 // http://objects.reprap.org/wiki/Mendel_User_Manual:_RepRapGCodes
@@ -212,15 +212,6 @@ int extruder_multiply[EXTRUDERS] = {100
     , 100
     #if EXTRUDERS > 2
       , 100
-    #endif
-  #endif
-};
-bool volumetric_enabled = false;
-float filament_size[EXTRUDERS] = { DEFAULT_NOMINAL_FILAMENT_DIA
-  #if EXTRUDERS > 1
-      , DEFAULT_NOMINAL_FILAMENT_DIA
-    #if EXTRUDERS > 2
-       , DEFAULT_NOMINAL_FILAMENT_DIA
     #endif
   #endif
 };
@@ -2832,7 +2823,21 @@ Sigma_Exit:
     #endif //BLINKM
     case 200: // M200 D<millimeters> set filament diameter and set E axis units to cubic millimeters (use S0 to set back to millimeters).
       {
-
+        float area = .0;
+        float radius = .0;
+        if(code_seen('D')) {
+          radius = (float)code_value() * .5;
+          if(radius == 0) {
+            area = 1;
+          } else {
+            area = M_PI * pow(radius, 2);
+          }
+        } else {
+          //reserved for setting filament diameter via UFID or filament measuring device
+          break;
+        
+          
+        }
         tmp_extruder = active_extruder;
         if(code_seen('T')) {
           tmp_extruder = code_value();
@@ -2842,32 +2847,7 @@ Sigma_Exit:
             break;
           }
         }
-
-        float area = .0;
-        if(code_seen('D')) {
-		  float diameter = (float)code_value();
-		  if (diameter == 0.0) {
-			// setting any extruder filament size disables volumetric on the assumption that
-			// slicers either generate in extruder values as cubic mm or as as filament feeds
-			// for all extruders
-		    volumetric_enabled = false;
-		  } else {
-            filament_size[tmp_extruder] = (float)code_value();
-			// make sure all extruders have some sane value for the filament size
-			filament_size[0] = (filament_size[0] == 0.0 ? DEFAULT_NOMINAL_FILAMENT_DIA : filament_size[0]);
-            #if EXTRUDERS > 1
-			filament_size[1] = (filament_size[1] == 0.0 ? DEFAULT_NOMINAL_FILAMENT_DIA : filament_size[1]);
-            #if EXTRUDERS > 2
-			filament_size[2] = (filament_size[2] == 0.0 ? DEFAULT_NOMINAL_FILAMENT_DIA : filament_size[2]);
-            #endif
-            #endif
-			volumetric_enabled = true;
-		  }
-        } else {
-          //reserved for setting filament diameter via UFID or filament measuring device
-          break;
-        }
-		calculate_volumetric_multipliers();
+        volumetric_multiplier[tmp_extruder] = 1 / area;
       }
       break;
     case 201: // M201
@@ -4598,31 +4578,5 @@ bool setTargetedHotend(int code){
     }
   }
   return false;
-}
-
-
-float calculate_volumetric_multiplier(float diameter) {
-	float area = .0;
-	float radius = .0;
-
-	radius = diameter * .5;
-	if (! volumetric_enabled || radius == 0) {
-		area = 1;
-	}
-	else {
-		area = M_PI * pow(radius, 2);
-	}
-
-	return 1.0 / area;
-}
-
-void calculate_volumetric_multipliers() {
-	volumetric_multiplier[0] = calculate_volumetric_multiplier(filament_size[0]);
-#if EXTRUDERS > 1
-	volumetric_multiplier[1] = calculate_volumetric_multiplier(filament_size[1]);
-#if EXTRUDERS > 2
-	volumetric_multiplier[2] = calculate_volumetric_multiplier(filament_size[2]);
-#endif
-#endif
 }
 

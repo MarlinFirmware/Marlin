@@ -13,15 +13,9 @@
 #define MSG_SD_REMOVED                      "Cartao removido"
 #define MSG_MAIN                            " Menu principal \003"
 #define MSG_AUTOSTART                       "Autostart"
-<<<<<<< HEAD
 #define MSG_DISABLE_STEPPERS                " Apagar motores"
 #define MSG_AUTO_HOME                       "Ir para origen"
 #define MSG_SET_HOME_OFFSETS                "Set home offsets"
-=======
-#define MSG_DISABLE_STEPPERS                " Parar motores"
-#define MSG_AUTO_HOME                       "Ir para origen"
-#define MSG_SET_HOME_OFFSETS                "def. orig. offset"
->>>>>>> MarlinFirmware/1.0.x
 #define MSG_SET_ORIGIN                      "Estabelecer orig."
 #define MSG_PREHEAT_PLA                     "Pre-aquecer PLA"
 #define MSG_PREHEAT_PLA0                    " pre-aquecer PLA 1"
@@ -29,18 +23,13 @@
 #define MSG_PREHEAT_PLA2                    " pre-aquecer PLA 3"
 #define MSG_PREHEAT_PLA012                  " pre-aq. PLA Tudo"
 #define MSG_PREHEAT_PLA_BEDONLY             " pre-aq. PLA \002Base"
-<<<<<<< HEAD
 #define MSG_PREHEAT_PLA_SETTINGS            "PLA setting"
-=======
-#define MSG_PREHEAT_PLA_SETTINGS            "Config. PLA"
->>>>>>> MarlinFirmware/1.0.x
 #define MSG_PREHEAT_ABS                     "Pre-aquecer ABS"
 #define MSG_PREHEAT_ABS0                    " pre-aquecer ABS 1"
 #define MSG_PREHEAT_ABS1                    " pre-aquecer ABS 2"
 #define MSG_PREHEAT_ABS2                    " pre-aquecer ABS 3"
 #define MSG_PREHEAT_ABS012                  " pre-aq. ABS Tudo"
 #define MSG_PREHEAT_ABS_BEDONLY             " pre-aq. ABS \002Base"
-<<<<<<< HEAD
 #define MSG_PREHEAT_ABS_SETTINGS            "ABS setting"
 #define MSG_COOLDOWN                        "Esfriar"
 #define MSG_SWITCH_PS_ON                    "Switch Power On"
@@ -57,24 +46,6 @@
 #define MSG_MOVE_01MM                       "Move 0.1mm"
 #define MSG_MOVE_1MM                        "Move 1mm"
 #define MSG_MOVE_10MM                       "Move 10mm"
-=======
-#define MSG_PREHEAT_ABS_SETTINGS            "Config. ABS"
-#define MSG_COOLDOWN                        "Esfriar"
-#define MSG_SWITCH_PS_ON                    "Interruptor On"
-#define MSG_SWITCH_PS_OFF                   "Interruptor Off"
-#define MSG_EXTRUDE                         "Extrudar"
-#define MSG_RETRACT                         "Retrair"
-#define MSG_MOVE_AXIS                       "Mover eixo      \x7E"
-#define MSG_MOVE_X                          "Mover X"
-#define MSG_MOVE_Y                          "Mover Y"
-#define MSG_MOVE_Z                          "Mover Z"
-#define MSG_MOVE_E                          "Extrusor"
-#define MSG_MOVE_E1                         "Extrusor2"
-#define MSG_MOVE_E2                         "Extrusor3"
-#define MSG_MOVE_01MM                       "Mover 0.1mm"
-#define MSG_MOVE_1MM                        "Mover 1mm"
-#define MSG_MOVE_10MM                       "Mover 10mm"
->>>>>>> MarlinFirmware/1.0.x
 #define MSG_SPEED                           "Velocidade:"
 #define MSG_NOZZLE                          "\002Nozzle:"
 #define MSG_NOZZLE1                         "\002Nozzle2:"
@@ -115,16 +86,7 @@
 #define MSG_ESTEPS                          "Epasso/mm:"
 #define MSG_TEMPERATURE                     "Temperatura"
 #define MSG_MOTION                          "Movimento"
-<<<<<<< HEAD
 #define MSG_CONTRAST                        "Contrast"
-=======
-#define MSG_VOLUMETRIC                      "Filamento"
-#define MSG_VOLUMETRIC_ENABLED		        "E in mm3"
-#define MSG_FILAMENT_SIZE_EXTRUDER_0        "Fil. Dia. 1"
-#define MSG_FILAMENT_SIZE_EXTRUDER_1        "Fil. Dia. 2"
-#define MSG_FILAMENT_SIZE_EXTRUDER_2        "Fil. Dia. 3"
-#define MSG_CONTRAST                        "Contraste"
->>>>>>> MarlinFirmware/1.0.x
 #define MSG_STORE_EPROM                     "Guardar memoria"
 #define MSG_LOAD_EPROM                      "Carregar memoria"
 #define MSG_RESTORE_FAILSAFE                "Rest. de emergen."
@@ -139,13 +101,8 @@
 #define MSG_NO_CARD                         "Sem cartao SD"
 #define MSG_DWELL                           "Repouso..."
 #define MSG_USERWAIT                        "Esperando ordem"
-<<<<<<< HEAD
 #define MSG_RESUMING                        "Resuming print"
 #define MSG_PRINT_ABORTED                   "Print aborted"
-=======
-#define MSG_RESUMING                        "Resum. impressao"
-#define MSG_PRINT_ABORTED                   "impress. abortada"
->>>>>>> MarlinFirmware/1.0.x
 #define MSG_NO_MOVE                         "Sem movimento"
 #define MSG_KILLED                          "PARADA DE EMERG."
 #define MSG_STOPPED                         "PARADA. "
@@ -156,17 +113,10 @@
 #define MSG_CONTROL_RETRACT_RECOVER         " DesRet +mm:"
 #define MSG_CONTROL_RETRACT_RECOVER_SWAP    "Troca DesRet +mm:"
 #define MSG_CONTROL_RETRACT_RECOVERF        " DesRet  V:"
-<<<<<<< HEAD
 #define MSG_AUTORETRACT                     " AutoRetr.:"
 #define MSG_FILAMENTCHANGE                  "Change filament"
 #define MSG_INIT_SDCARD                     "Init. SD-Card"
 #define MSG_CNG_SDCARD                      "Change SD-Card"
-=======
-#define MSG_AUTORETRACT                     " Auto Retr.:"
-#define MSG_FILAMENTCHANGE                  "Trocar filamento"
-#define MSG_INIT_SDCARD                     "Cartao SD Inic."
-#define MSG_CNG_SDCARD                      "Cartao SD trocado"
->>>>>>> MarlinFirmware/1.0.x
 #define MSG_ZPROBE_OUT                      "Son. fora da mesa"
 #define MSG_POSITION_UNKNOWN                "XY antes de Z"
 #define MSG_ZPROBE_ZOFFSET                  "Z Offset"
@@ -180,7 +130,6 @@
 #define MSG_PREPARE_ALT                     "Preparar \003"
 #define MSG_CONTROL_ARROW                   "Controle \x7E"
 #define MSG_RETRACT_ARROW                   "Retrair \x7E"
-<<<<<<< HEAD
 #define MSG_STEPPER_RELEASED                "Lancado."
 
 #ifdef DELTA_CALIBRATION_MENU
@@ -189,16 +138,6 @@
     #define MSG_DELTA_CALIBRATE_Y           "Calibrate Y"
     #define MSG_DELTA_CALIBRATE_Z           "Calibrate Z"
     #define MSG_DELTA_CALIBRATE_CENTER      "Calibrate Center"
-=======
-#define MSG_STEPPER_RELEASED                "Iniciado."
-
-#ifdef DELTA_CALIBRATION_MENU
-    #define MSG_DELTA_CALIBRATE             "Calibracao Delta"
-    #define MSG_DELTA_CALIBRATE_X           "Calibrar X"
-    #define MSG_DELTA_CALIBRATE_Y           "Calibrar Y"
-    #define MSG_DELTA_CALIBRATE_Z           "Calibrar Z"
-    #define MSG_DELTA_CALIBRATE_CENTER      "Calibrar Centro"
->>>>>>> MarlinFirmware/1.0.x
 #endif // DELTA_CALIBRATION_MENU
 
 #endif // LANGUAGE_PT_H
