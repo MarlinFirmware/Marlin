@@ -34,10 +34,10 @@
   #include "pins_SETHI.h"
 #elif MB(RAMPS_OLD)
   #include "pins_RAMPS_OLD.h"
-#elif MB(RAMPS_13_EFB) || MB(RAMPS_13_EEB) || MB(RAMPS_13_EFF) || MB(RAMPS_13_EEF)
+#elif MB(RAMPS_13_EFB)
+  #include "pins_RAMPS_13_EFB.h"
+#elif MB(RAMPS_13_EEB) || MB(RAMPS_13_EFF) || MB(RAMPS_13_EEF) || MB(RAMPS_13_SF)
   #include "pins_RAMPS_13.h"
-#elif MB(DUEMILANOVE_328P)
-  #include "pins_DUEMILANOVE_328P.h"
 #elif MB(GEN6)
   #include "pins_GEN6.h"
 #elif MB(GEN6_DELUXE)
@@ -52,8 +52,8 @@
   #include "pins_STB_11.h"
 #elif MB(AZTEEG_X1)
   #include "pins_AZTEEG_X1.h"
-#elif MB(MELZI_1284)
-  #include "pins_MELZI_1284.h"
+#elif MB(MELZI_MAKR3D)
+  #include "pins_MELZI_MAKR3D.h"
 #elif MB(AZTEEG_X3)
   #include "pins_AZTEEG_X3.h"
 #elif MB(AZTEEG_X3_PRO)
@@ -76,6 +76,8 @@
   #include "pins_PRINTRBOARD.h"
 #elif MB(BRAINWAVE)
   #include "pins_BRAINWAVE.h"
+#elif MB(BRAINWAVE_PRO)
+  #include "pins_BRAINWAVE_PRO.h"
 #elif MB(SAV_MKI)
   #include "pins_SAV_MKI.h"
 #elif MB(TEENSY2)
@@ -86,8 +88,8 @@
   #include "pins_GEN3_MONOLITHIC.h"
 #elif MB(MEGATRONICS)
   #include "pins_MEGATRONICS.h"
-#elif MB(MEGATRONICS_1)
-  #include "pins_MEGATRONICS_1.h"
+#elif MB(MINITRONICS)
+  #include "pins_MINITRONICS.h"
 #elif MB(MEGATRONICS_2)
   #include "pins_MEGATRONICS_2.h"
 #elif MB(MEGATRONICS_3)
@@ -98,22 +100,22 @@
   #include "pins_OMCA.h"
 #elif MB(RAMBO)
   #include "pins_RAMBO.h"
+#elif MB(MINIRAMBO)
+  #include "pins_MINIRAMBO.h"
 #elif MB(ELEFU_3)
   #include "pins_ELEFU_3.h"
 #elif MB(5DPRINT)
   #include "pins_5DPRINT.h"
 #elif MB(LEAPFROG)
   #include "pins_LEAPFROG.h"
-#elif MB(WITBOX)
-  #include "pins_WITBOX.h"
-#elif MB(HEPHESTOS)
-  #include "pins_HEPHESTOS.h"
 #elif MB(BAM_DICE)
   #include "pins_RAMPS_13.h"
 #elif MB(BAM_DICE_DUE)
   #include "pins_BAM_DICE_DUE.h"
 #elif MB(FELIX2)
   #include "pins_FELIX2.h"
+#elif MB(MKS_BASE)
+  #include "pins_MKS_BASE.h"
 #elif MB(99)
   #include "pins_99.h"
 #else
@@ -188,6 +190,7 @@
 #endif
 
 #if defined(DISABLE_Z_PROBE_ENDSTOP) || !defined(Z_PROBE_ENDSTOP) // Allow code to compile regardless of Z_PROBE_ENDSTOP setting.
+  #undef Z_PROBE_PIN
   #define Z_PROBE_PIN        -1
 #endif
 

@@ -22,6 +22,10 @@
   #endif
 #endif
 
+#ifdef Z_PROBE_SLED
+  #define SLED_PIN         -1
+#endif
+
 #undef X_MS1_PIN
 #undef X_MS2_PIN
 #undef Y_MS1_PIN

@@ -1,54 +1,51 @@
-/*
-  planner.c - buffers movement commands and manages the acceleration profile plan
- Part of Grbl
- 
- Copyright (c) 2009-2011 Simen Svale Skogsrud
- 
- Grbl is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
- 
- Grbl is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
- 
- You should have received a copy of the GNU General Public License
- along with Grbl.  If not, see <http://www.gnu.org/licenses/>.
- */
-
-/* The ring buffer implementation gleaned from the wiring_serial library by David A. Mellis. */
-
-/*  
- Reasoning behind the mathematics in this module (in the key of 'Mathematica'):
- 
- s == speed, a == acceleration, t == time, d == distance
- 
- Basic definitions:
- 
- Speed[s_, a_, t_] := s + (a*t) 
- Travel[s_, a_, t_] := Integrate[Speed[s, a, t], t]
- 
- Distance to reach a specific speed with a constant acceleration:
- 
- Solve[{Speed[s, a, t] == m, Travel[s, a, t] == d}, d, t]
- d -> (m^2 - s^2)/(2 a) --> estimate_acceleration_distance()
- 
- Speed after a given distance of travel with constant acceleration:
- 
- Solve[{Speed[s, a, t] == m, Travel[s, a, t] == d}, m, t]
- m -> Sqrt[2 a d + s^2]    
- 
- DestinationSpeed[s_, a_, d_] := Sqrt[2 a d + s^2]
- 
- When to start braking (di) to reach a specified destionation speed (s2) after accelerating
- from initial speed s1 without ever stopping at a plateau:
- 
- Solve[{DestinationSpeed[s1, a, di] == DestinationSpeed[s2, a, d - di]}, di]
- di -> (2 a d - s1^2 + s2^2)/(4 a) --> intersection_distance()
- 
- IntersectionDistance[s1_, s2_, a_, d_] := (2 a d - s1^2 + s2^2)/(4 a)
+/**
+ * planner.cpp - Buffer movement commands and manage the acceleration profile plan
+ * Part of Grbl
+ * 
+ * Copyright (c) 2009-2011 Simen Svale Skogsrud
+ *
+ * Grbl is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Grbl is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Grbl.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ *
+ * The ring buffer implementation gleaned from the wiring_serial library by David A. Mellis.
+ *
+ *
+ * Reasoning behind the mathematics in this module (in the key of 'Mathematica'):
+ *
+ * s == speed, a == acceleration, t == time, d == distance
+ *
+ * Basic definitions:
+ *   Speed[s_, a_, t_] := s + (a*t)
+ *   Travel[s_, a_, t_] := Integrate[Speed[s, a, t], t]
+ *
+ * Distance to reach a specific speed with a constant acceleration:
+ *   Solve[{Speed[s, a, t] == m, Travel[s, a, t] == d}, d, t]
+ *   d -> (m^2 - s^2)/(2 a) --> estimate_acceleration_distance()
+ *
+ * Speed after a given distance of travel with constant acceleration:
+ *   Solve[{Speed[s, a, t] == m, Travel[s, a, t] == d}, m, t]
+ *   m -> Sqrt[2 a d + s^2]
+ *
+ * DestinationSpeed[s_, a_, d_] := Sqrt[2 a d + s^2]
+ *
+ * When to start braking (di) to reach a specified destination speed (s2) after accelerating
+ * from initial speed s1 without ever stopping at a plateau:
+ *   Solve[{DestinationSpeed[s1, a, di] == DestinationSpeed[s2, a, d - di]}, di]
+ *   di -> (2 a d - s1^2 + s2^2)/(4 a) --> intersection_distance()
+ *
+ * IntersectionDistance[s1_, s2_, a_, d_] := (2 a d - s1^2 + s2^2)/(4 a)
+ *
  */
 
 #include "Marlin.h"
@@ -60,39 +57,34 @@
 
 #ifdef MESH_BED_LEVELING
   #include "mesh_bed_leveling.h"
-#endif  // MESH_BED_LEVELING
+#endif
 
 //===========================================================================
 //============================= public variables ============================
 //===========================================================================
 
-unsigned long minsegmenttime;
+millis_t minsegmenttime;
 float max_feedrate[NUM_AXIS]; // Max speeds in mm per minute
 float axis_steps_per_unit[NUM_AXIS];
 unsigned long max_acceleration_units_per_sq_second[NUM_AXIS]; // Use M201 to override by software
 float minimumfeedrate;
-float acceleration;         // Normal acceleration mm/s^2  THIS IS THE DEFAULT ACCELERATION for all printing moves. M204 SXXXX
-float retract_acceleration; //  mm/s^2   filament pull-pack and push-forward  while standing still in the other axis M204 TXXXX
-float travel_acceleration;  // Travel acceleration mm/s^2  THIS IS THE DEFAULT ACCELERATION for all NON printing moves. M204 MXXXX
-float max_xy_jerk; //speed than can be stopped at once, if i understand correctly.
+float acceleration;         // Normal acceleration mm/s^2  DEFAULT ACCELERATION for all printing moves. M204 SXXXX
+float retract_acceleration; // Retract acceleration mm/s^2 filament pull-back and push-forward while standing still in the other axes M204 TXXXX
+float travel_acceleration;  // Travel acceleration mm/s^2  DEFAULT ACCELERATION for all NON printing moves. M204 MXXXX
+float max_xy_jerk;          // The largest speed change requiring no acceleration
 float max_z_jerk;
 float max_e_jerk;
 float mintravelfeedrate;
 unsigned long axis_steps_per_sqr_second[NUM_AXIS];
 
 #ifdef ENABLE_AUTO_BED_LEVELING
-  // this holds the required transform to compensate for bed level
+  // Transform required to compensate for bed level
   matrix_3x3 plan_bed_level_matrix = {
     1.0, 0.0, 0.0,
     0.0, 1.0, 0.0,
     0.0, 0.0, 1.0
   };
 #endif // ENABLE_AUTO_BED_LEVELING
-
-// The current position of the tool in absolute steps
-long position[NUM_AXIS];   //rescaled from extern when axis_steps_per_unit are changed by gcode
-static float previous_speed[NUM_AXIS]; // Speed of previous path line segment
-static float previous_nominal_speed; // Nominal speed of previous path line segment
 
 #ifdef AUTOTEMP
   float autotemp_max = 250;
@@ -101,18 +93,25 @@ static float previous_nominal_speed; // Nominal speed of previous path line segm
   bool autotemp_enabled = false;
 #endif
 
-unsigned char g_uc_extruder_last_move[4] = {0,0,0,0};
+//===========================================================================
+//============ semi-private variables, used in inline functions =============
+//===========================================================================
 
-//===========================================================================
-//=================semi-private variables, used in inline  functions    =====
-//===========================================================================
 block_t block_buffer[BLOCK_BUFFER_SIZE];            // A ring buffer for motion instfructions
 volatile unsigned char block_buffer_head;           // Index of the next block to be pushed
 volatile unsigned char block_buffer_tail;           // Index of the block to process now
 
 //===========================================================================
-//=============================private variables ============================
+//============================ private variables ============================
 //===========================================================================
+
+// The current position of the tool in absolute steps
+long position[NUM_AXIS];               // Rescaled from extern when axis_steps_per_unit are changed by gcode
+static float previous_speed[NUM_AXIS]; // Speed of previous path line segment
+static float previous_nominal_speed;   // Nominal speed of previous path line segment
+
+unsigned char g_uc_extruder_last_move[4] = {0,0,0,0};
+
 #ifdef XY_FREQUENCY_LIMIT
   // Used for the frequency limit
   #define MAX_FREQ_TIME (1000000.0/XY_FREQUENCY_LIMIT)
@@ -126,14 +125,14 @@ volatile unsigned char block_buffer_tail;           // Index of the block to pro
   static char meas_sample; //temporary variable to hold filament measurement sample
 #endif
 
+//===========================================================================
+//================================ functions ================================
+//===========================================================================
+
 // Get the next / previous index of the next block in the ring buffer
 // NOTE: Using & here (not %) because BLOCK_BUFFER_SIZE is always a power of 2
 FORCE_INLINE int8_t next_block_index(int8_t block_index) { return BLOCK_MOD(block_index + 1); }
 FORCE_INLINE int8_t prev_block_index(int8_t block_index) { return BLOCK_MOD(block_index - 1); }
-
-//===========================================================================
-//================================ Functions ================================
-//===========================================================================
 
 // Calculates the distance (not time) it takes to accelerate from initial_rate to target_rate using the 
 // given acceleration:
@@ -159,8 +158,8 @@ void calculate_trapezoid_for_block(block_t *block, float entry_factor, float exi
   unsigned long final_rate = ceil(block->nominal_rate * exit_factor); // (step/min)
 
   // Limit minimal step rate (Otherwise the timer will overflow.)
-  if (initial_rate < 120) initial_rate = 120;
-  if (final_rate < 120) final_rate = 120;
+  NOLESS(initial_rate, 120);
+  NOLESS(final_rate, 120);
 
   long acceleration = block->acceleration_st;
   int32_t accelerate_steps = ceil(estimate_acceleration_distance(initial_rate, block->nominal_rate, acceleration));
@@ -382,16 +381,18 @@ void plan_init() {
     }
 
     float t = autotemp_min + high * autotemp_factor;
-    if (t < autotemp_min) t = autotemp_min;
-    if (t > autotemp_max) t = autotemp_max;
-    if (oldt > t) t = AUTOTEMP_OLDWEIGHT * oldt + (1 - AUTOTEMP_OLDWEIGHT) * t;
+    t = constrain(t, autotemp_min, autotemp_max);
+    if (oldt > t) {
+      t *= (1 - AUTOTEMP_OLDWEIGHT);
+      t += AUTOTEMP_OLDWEIGHT * oldt;
+    }
     oldt = t;
     setTargetHotend0(t);
   }
 #endif
 
 void check_axes_activity() {
-  unsigned char axis_active[NUM_AXIS],
+  unsigned char axis_active[NUM_AXIS] = { 0 },
                 tail_fan_speed = fanSpeed;
   #ifdef BARICUDA
     unsigned char tail_valve_pressure = ValvePressure,
@@ -426,24 +427,30 @@ void check_axes_activity() {
 
   #if HAS_FAN
     #ifdef FAN_KICKSTART_TIME
-      static unsigned long fan_kick_end;
+      static millis_t fan_kick_end;
       if (tail_fan_speed) {
+        millis_t ms = millis();
         if (fan_kick_end == 0) {
           // Just starting up fan - run at full power.
-          fan_kick_end = millis() + FAN_KICKSTART_TIME;
+          fan_kick_end = ms + FAN_KICKSTART_TIME;
           tail_fan_speed = 255;
-        } else if (fan_kick_end > millis())
+        } else if (fan_kick_end > ms)
           // Fan still spinning up.
           tail_fan_speed = 255;
         } else {
           fan_kick_end = 0;
         }
-    #endif//FAN_KICKSTART_TIME
-    #ifdef FAN_SOFT_PWM
-      fanSpeedSoftPwm = tail_fan_speed;
+    #endif //FAN_KICKSTART_TIME
+    #ifdef FAN_MIN_PWM
+      #define CALC_FAN_SPEED (tail_fan_speed ? ( FAN_MIN_PWM + (tail_fan_speed * (255 - FAN_MIN_PWM)) / 255 ) : 0)
     #else
-      analogWrite(FAN_PIN, tail_fan_speed);
-    #endif //!FAN_SOFT_PWM
+      #define CALC_FAN_SPEED tail_fan_speed
+    #endif // FAN_MIN_PWM
+    #ifdef FAN_SOFT_PWM
+      fanSpeedSoftPwm = CALC_FAN_SPEED;
+    #else
+      analogWrite(FAN_PIN, CALC_FAN_SPEED);
+    #endif // FAN_SOFT_PWM
   #endif // HAS_FAN
 
   #ifdef AUTOTEMP
@@ -476,11 +483,7 @@ float junction_deviation = 0.1;
 
   // If the buffer is full: good! That means we are well ahead of the robot. 
   // Rest here until there is room in the buffer.
-  while(block_buffer_tail == next_buffer_head) {
-    manage_heater(); 
-    manage_inactivity(); 
-    lcd_update();
-  }
+  while (block_buffer_tail == next_buffer_head) idle();
 
   #ifdef MESH_BED_LEVELING
     if (mbl.active) z += mbl.get_z(x, y);
@@ -504,7 +507,7 @@ float junction_deviation = 0.1;
 
   #ifdef PREVENT_DANGEROUS_EXTRUDE
     if (de) {
-      if (degHotend(active_extruder) < extrude_min_temp) {
+      if (degHotend(extruder) < extrude_min_temp && !(marlin_debug_flags & DEBUG_DRYRUN)) {
         position[E_AXIS] = target[E_AXIS]; // Behave as if the move really took place, but ignore E part
         de = 0; // no difference
         SERIAL_ECHO_START;
@@ -541,8 +544,8 @@ float junction_deviation = 0.1;
 
   block->steps[Z_AXIS] = labs(dz);
   block->steps[E_AXIS] = labs(de);
-  block->steps[E_AXIS] *= volumetric_multiplier[active_extruder];
-  block->steps[E_AXIS] *= extruder_multiply[active_extruder];
+  block->steps[E_AXIS] *= volumetric_multiplier[extruder];
+  block->steps[E_AXIS] *= extruder_multiplier[extruder];
   block->steps[E_AXIS] /= 100;
   block->step_event_count = max(block->steps[X_AXIS], max(block->steps[Y_AXIS], max(block->steps[Z_AXIS], block->steps[E_AXIS])));
 
@@ -651,10 +654,10 @@ float junction_deviation = 0.1;
     }
   }
 
-  if (block->steps[E_AXIS]) {
-    if (feed_rate < minimumfeedrate) feed_rate = minimumfeedrate;
-  }
-  else if (feed_rate < mintravelfeedrate) feed_rate = mintravelfeedrate;
+  if (block->steps[E_AXIS])
+    NOLESS(feed_rate, minimumfeedrate);
+  else
+    NOLESS(feed_rate, mintravelfeedrate);
 
   /**
    * This part of the code calculates the total length of the movement. 
@@ -676,7 +679,7 @@ float junction_deviation = 0.1;
     delta_mm[Y_AXIS] = dy / axis_steps_per_unit[Y_AXIS];
   #endif
   delta_mm[Z_AXIS] = dz / axis_steps_per_unit[Z_AXIS];
-  delta_mm[E_AXIS] = (de / axis_steps_per_unit[E_AXIS]) * volumetric_multiplier[active_extruder] * extruder_multiply[active_extruder] / 100.0;
+  delta_mm[E_AXIS] = (de / axis_steps_per_unit[E_AXIS]) * volumetric_multiplier[extruder] * extruder_multiplier[extruder] / 100.0;
 
   if (block->steps[X_AXIS] <= dropsegments && block->steps[Y_AXIS] <= dropsegments && block->steps[Z_AXIS] <= dropsegments) {
     block->millimeters = fabs(delta_mm[E_AXIS]);
@@ -958,7 +961,7 @@ float junction_deviation = 0.1;
     vector_3 position = vector_3(st_get_position_mm(X_AXIS), st_get_position_mm(Y_AXIS), st_get_position_mm(Z_AXIS));
 
     //position.debug("in plan_get position");
-    //plan_bed_level_matrix.debug("in plan_get bed_level");
+    //plan_bed_level_matrix.debug("in plan_get_position");
     matrix_3x3 inverse = matrix_3x3::transpose(plan_bed_level_matrix);
     //inverse.debug("in plan_get inverse");
     position.apply_rotation(inverse);
@@ -980,10 +983,10 @@ float junction_deviation = 0.1;
       apply_rotation_xyz(plan_bed_level_matrix, x, y, z);
     #endif
 
-    float nx = position[X_AXIS] = lround(x * axis_steps_per_unit[X_AXIS]);
-    float ny = position[Y_AXIS] = lround(y * axis_steps_per_unit[Y_AXIS]);
-    float nz = position[Z_AXIS] = lround(z * axis_steps_per_unit[Z_AXIS]);
-    float ne = position[E_AXIS] = lround(e * axis_steps_per_unit[E_AXIS]);
+    float nx = position[X_AXIS] = lround(x * axis_steps_per_unit[X_AXIS]),
+          ny = position[Y_AXIS] = lround(y * axis_steps_per_unit[Y_AXIS]),
+          nz = position[Z_AXIS] = lround(z * axis_steps_per_unit[Z_AXIS]),
+          ne = position[E_AXIS] = lround(e * axis_steps_per_unit[E_AXIS]);
     st_set_position(nx, ny, nz, ne);
     previous_nominal_speed = 0.0; // Resets planner junction speeds. Assumes start from rest.
 

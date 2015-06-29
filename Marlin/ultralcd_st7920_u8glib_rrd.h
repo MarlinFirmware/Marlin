@@ -16,8 +16,8 @@
 //#define PAGE_HEIGHT 16  //256 byte framebuffer
 #define PAGE_HEIGHT 32  //512 byte framebuffer
 
-#define WIDTH 128
-#define HEIGHT 64
+#define LCD_PIXEL_WIDTH 128
+#define LCD_PIXEL_HEIGHT 64
 
 #include <U8glib.h>
 
@@ -64,12 +64,12 @@ uint8_t u8g_dev_rrd_st7920_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t msg, vo
         ST7920_WRITE_BYTE(0x01);       //clear CGRAM ram
         u8g_Delay(15);                 //delay for CGRAM clear
         ST7920_WRITE_BYTE(0x3E);       //extended mode + GDRAM active
-        for(y=0;y<HEIGHT/2;y++)        //clear GDRAM
+        for(y=0;y<LCD_PIXEL_HEIGHT/2;y++)        //clear GDRAM
         {
           ST7920_WRITE_BYTE(0x80|y);   //set y
           ST7920_WRITE_BYTE(0x80);     //set x = 0
           ST7920_SET_DAT();
-          for(i=0;i<2*WIDTH/8;i++)     //2x width clears both segments
+          for(i=0;i<2*LCD_PIXEL_WIDTH/8;i++)     //2x width clears both segments
             ST7920_WRITE_BYTE(0);
           ST7920_SET_CMD();
         }
@@ -103,7 +103,7 @@ uint8_t u8g_dev_rrd_st7920_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t msg, vo
           }
 
           ST7920_SET_DAT();
-          ST7920_WRITE_BYTES(ptr,WIDTH/8); //ptr is incremented inside of macro
+          ST7920_WRITE_BYTES(ptr,LCD_PIXEL_WIDTH/8); //ptr is incremented inside of macro
           y++;
         }
         ST7920_NCS();
@@ -119,8 +119,8 @@ uint8_t u8g_dev_rrd_st7920_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t msg, vo
 #endif
 }
 
-uint8_t   u8g_dev_st7920_128x64_rrd_buf[WIDTH*(PAGE_HEIGHT/8)] U8G_NOCOMMON;
-u8g_pb_t  u8g_dev_st7920_128x64_rrd_pb = {{PAGE_HEIGHT,HEIGHT,0,0,0},WIDTH,u8g_dev_st7920_128x64_rrd_buf};
+uint8_t   u8g_dev_st7920_128x64_rrd_buf[LCD_PIXEL_WIDTH*(PAGE_HEIGHT/8)] U8G_NOCOMMON;
+u8g_pb_t  u8g_dev_st7920_128x64_rrd_pb = {{PAGE_HEIGHT,LCD_PIXEL_HEIGHT,0,0,0},LCD_PIXEL_WIDTH,u8g_dev_st7920_128x64_rrd_buf};
 u8g_dev_t u8g_dev_st7920_128x64_rrd_sw_spi = {u8g_dev_rrd_st7920_128x64_fn,&u8g_dev_st7920_128x64_rrd_pb,&u8g_com_null_fn};
 
 class U8GLIB_ST7920_128X64_RRD : public U8GLIB
