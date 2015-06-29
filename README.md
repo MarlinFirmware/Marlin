@@ -13,4 +13,49 @@ That repository is based on the same git tree as this one. To move to the new re
 
 As soon as we complete the transition and close the remaining items based on it, this branch will be deleted.
 
+<<<<<<< HEAD
 ## New Pull Requests must be made to the [MarlinDev Project Repository](https://github.com/MarlinFirmware/MarlinDev/)
+=======
+## Current Status: Bug Fixing
+
+Marlin development is being accelerated to catch up with a long list of issues. Check the Issues and Pull Requests links on the right to to see what we are currently working on.
+
+[![Coverity Scan Build Status](https://scan.coverity.com/projects/2224/badge.svg)](https://scan.coverity.com/projects/2224)
+[![Travis Build Status](https://travis-ci.org/MarlinFirmware/Marlin.svg)](https://travis-ci.org/MarlinFirmware/Marlin)
+
+##### [RepRap.org Wiki Page](http://reprap.org/wiki/Marlin)
+
+## Contact
+
+__Google Hangout:__ <a href="https://plus.google.com/hangouts/_/gxn3wrea5gdhoo223yimsiforia" target="_blank">. Hangout</a> We have a hangout every 2 weeks. Search the issue list for "Hangout" and you will see what time and date the next event is going on.
+
+## Credits
+
+The current Marlin dev team consists of:
+
+ - Scott Lahteine [@thinkyhead] - English
+ - Andreas Hardtung [@AnHardt]
+ - [@Wurstnase]
+ - [@fmalpartida] - English, Spanish
+ - [@CONSULitAS]
+ - [@maverikou]
+ - Chris Palmer [@nophead]
+ - [@paclema]
+ - [@epatel]
+ - Erik van der Zalm [@ErikZalm]
+ - David Braam [@daid]
+ - Bernhard Kubicek [@bkubicek]
+
+More features have been added by:
+  - Alberto Cotronei [@MagoKimbra]
+  - Lampmaker,
+  - Bradley Feldman,
+  - and others...
+
+## License
+
+Marlin is published under the [GPL license](/Documentation/COPYING.md) because We believe in open development.
+Do not use this code in products (3D printers, CNC etc) that are closed source or are crippled by a patent.
+
+[![Flattr this git repo](http://api.flattr.com/button/flattr-badge-large.png)](https://flattr.com/submit/auto?user_id=ErikZalm&url=https://github.com/MarlinFirmware/Marlin&title=Marlin&language=&tags=github&category=software)
+>>>>>>> Add MagoKimbra to the list of contributors
