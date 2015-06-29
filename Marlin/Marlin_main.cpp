@@ -53,6 +53,7 @@
 #include "pins_arduino.h"
 #include "math.h"
 #include "buzzer.h"
+
 #ifdef ELECTRONIC_SCALE_PROBE
   #include "HX711.h"
 #endif
@@ -141,6 +142,7 @@
  * M109 - Sxxx Wait for extruder current temp to reach target temp. Waits only when heating
  *        Rxxx Wait for extruder current temp to reach target temp. Waits when heating and cooling
  *        IF AUTOTEMP is enabled, S<mintemp> B<maxtemp> F<factor>. Exit autotemp by any M109 without F
+ * M110 - Set the current line number
  * M111 - Set debug flags with S<mask>. See flag bits defined in Marlin.h.
  * M112 - Emergency stop
  * M114 - Output current position to serial port
@@ -799,8 +801,17 @@ void get_command() {
       char *npos = strchr(command, 'N');
       char *apos = strchr(command, '*');
       if (npos) {
+
+        boolean M110 = strstr_P(command, PSTR("M110")) != NULL;
+
+        if (M110) {
+          char *n2pos = strchr(command + 4, 'N');
+          if (n2pos) npos = n2pos;
+        }
+
         gcode_N = strtol(npos + 1, NULL, 10);
-        if (gcode_N != gcode_LastN + 1 && strstr_P(command, PSTR("M110")) == NULL) {
+
+        if (gcode_N != gcode_LastN + 1 && !M110) {
           gcode_line_error(PSTR(MSG_ERR_LINE_NO));
           return;
         }
@@ -815,7 +826,7 @@ void get_command() {
           }
           // if no errors, continue parsing
         }
-        else {
+        else if (npos == command) {
           gcode_line_error(PSTR(MSG_ERR_NO_CHECKSUM));
           return;
         }
@@ -3377,7 +3388,7 @@ inline void gcode_M42() {
       if (verbose_level > 1) {
         SERIAL_PROTOCOL(n+1);
         SERIAL_PROTOCOLPGM(" of ");
-        SERIAL_PROTOCOL(n_samples);
+        SERIAL_PROTOCOL((int)n_samples);
         SERIAL_PROTOCOLPGM("   z: ");
         SERIAL_PROTOCOL_F(current_position[Z_AXIS], 6);
         if (verbose_level > 2) {
@@ -3820,7 +3831,7 @@ inline void gcode_M81() {
 inline void gcode_M82() { axis_relative_modes[E_AXIS] = false; }
 
 /**
- * M82: Set E codes relative while in Absolute Coordinates (G90) mode
+ * M83: Set E codes relative while in Absolute Coordinates (G90) mode
  */
 inline void gcode_M83() { axis_relative_modes[E_AXIS] = true; }
 
@@ -6168,6 +6179,9 @@ void mesh_plan_buffer_line(float x, float y, float z, const float e, float feed_
 
 /**
  * Prepare a single move and get ready for the next one
+ *
+ * (This may call plan_buffer_line several times to put
+ *  smaller moves into the planner for DELTA or SCARA.)
  */
 void prepare_move() {
   clamp_to_software_endstops(destination);

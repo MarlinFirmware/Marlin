@@ -1,0 +1,75 @@
+#######################################
+# Syntax Coloring Map For Test
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+
+Stepper	TMC26XStepper
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+
+start				KEYWORD2
+step				KEYWORD2
+setSpeed			KEYWORD2
+getSpeed			KEYWORD2
+setMicrosteps			KEYWORD2
+getMicrosteps			KEYWORD2
+move				KEYWORD2
+isMoving			KEYWORD2
+getStepsLeft			KEYWORD2
+stop				KEYWORD2
+setConstantOffTimeChopper	KEYWORD2
+setSpreadCycleChopper		KEYWORD2
+setRandomOffTime		KEYWORD2
+setCurrent			KEYWORD2
+getCurrent			KEYWORD2
+setStallGuardThreshold		KEYWORD2
+getStallGuardThreshold		KEYWORD2
+getStallGuardFilter		KEYWORD2
+setCoolStepConfiguration	KEYWORD2
+setCoolStepEnabled		KEYWORD2
+isCoolStepEnabled		KEYWORD2
+getCoolStepLowerSgThreshold	KEYWORD2
+getCoolStepUpperSgThreshold	KEYWORD2
+getCoolStepNumberOfSGReadings	KEYWORD2
+getCoolStepCurrentIncrementSize	KEYWORD2
+getCoolStepLowerCurrentLimit	KEYWORD2
+getMotorPosition		KEYWORD2
+getCurrentStallGuardReading	KEYWORD2
+getCurrentCSReading		KEYWORD2
+isCurrentScalingHalfed		KEYWORD2
+getCurrentCurrent		KEYWORD2
+isStallGuardOverThreshold	KEYWORD2
+getOverTemperature		KEYWORD2
+isShortToGroundA		KEYWORD2
+isShortToGroundB		KEYWORD2
+isOpenLoadA			KEYWORD2
+isOpenLoadB			KEYWORD2
+isStandStill			KEYWORD2
+isStallGuardReached		KEYWORD2
+setEnabled			KEYWORD2
+isEnabled			KEYWORD2
+readStatus			KEYWORD2
+getResistor			KEYWORD2
+debugLastStatus			KEYWORD2
+version				KEYWORD2
+
+######################################
+# Instances (KEYWORD2)
+#######################################
+
+#######################################
+# Constants (LITERAL1)
+#######################################
+
+TMC262_OVERTEMPERATURE_PREWARING	LITERAL1
+TMC262_OVERTEMPERATURE_SHUTDOWN 	LITERAL1
+TMC262_READOUT_POSITION 		LITERAL1
+TMC262_READOUT_STALLGUARD 		LITERAL1
+TMC262_READOUT_CURRENT 		LITERAL1
+COOL_STEP_HALF_CS_LIMIT		LITERAL1
+COOL_STEP_QUARTDER_CS_LIMIT		LITERAL1
