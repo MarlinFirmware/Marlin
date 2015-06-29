@@ -655,14 +655,8 @@
     #define LED_PIN            13
   #endif
 
-<<<<<<< HEAD
   #if MB(RAMPS_13_EFB) || MB(RAMPS_13_EFF) || MB(AZTEEG_X3) || MB(AZTEEG_X3_PRO)
-=======
-  #if MB(RAMPS_13_EFB) || MB(RAMPS_13_EFF) || MB(AZTEEG_X3)
->>>>>>> MarlinFirmware/1.0.x
     #define FAN_PIN            9 // (Sprinter config)
-  #elif MB(AZTEEG_X3_PRO)
-    #define FAN_PIN            11 // Last Heater Pin on board
   #else
     #define FAN_PIN            4 // IO pin. Buffer needed
   #endif
@@ -910,9 +904,9 @@
   #define SCK_PIN          52
   #define MISO_PIN         50
   #define MOSI_PIN         51
-  #define MAX6675_SS       66// Do not use pin 53 if there is even the remote possibility of using Dsplay/SD card
+  #define MAX6675_SS       53
 #else
-  #define MAX6675_SS       66// Do not use pin 49 as this is tied to the switch inside the SD card socket to detect if there is an SD card present
+  #define MAX6675_SS       49
 #endif
 
 #endif // RAMPS_OLD || RAMPS_13_EFB || RAMPS_13_EEB || RAMPS_13_EFF || 3DRAG
@@ -1993,7 +1987,6 @@
 #define BTN_EN1            41
 #define BTN_EN2            40
 #define BTN_ENC            12
-<<<<<<< HEAD
 
 #define KILL_PIN           42 // A2 = 42 - teensy = 40
 #define HOME_PIN          -1 // A4 = marlin 44 - teensy = 42
@@ -2004,18 +1997,6 @@
 
 #endif
 
-=======
-
-#define KILL_PIN           42 // A2 = 42 - teensy = 40
-#define HOME_PIN          -1 // A4 = marlin 44 - teensy = 42
-
-#ifdef NUM_SERVOS
-  #define SERVO0_PIN       41 // In teensy's pin definition for pinMode (in Servo.cpp)
-#endif
-
-#endif
-
->>>>>>> MarlinFirmware/1.0.x
 #endif // SAV_MKI
 
 /****************************************************************************************

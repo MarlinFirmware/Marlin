@@ -292,20 +292,6 @@
 // using:
 //#define MENU_ADDAUTOSTART
 
-// Show a progress bar on the LCD when printing from SD
-//#define LCD_PROGRESS_BAR
-
-#ifdef LCD_PROGRESS_BAR
-  // Amount of time (ms) to show the bar
-  #define PROGRESS_BAR_BAR_TIME 2000
-  // Amount of time (ms) to show the status message
-  #define PROGRESS_BAR_MSG_TIME 2000
-  // Amount of time (ms) to retain the status message (0=forever)
-  #define PROGRESS_MSG_EXPIRE   0
-  // Enable this to show messages for MSG_TIME then hide them
-  //#define PROGRESS_MSG_ONCE
-#endif
-
 // The hardware watchdog should reset the Microcontroller disabling all outputs, in case the firmware gets stuck and doesn't do temperature regulation.
 //#define USE_WATCHDOG
 
@@ -341,10 +327,10 @@
 
 // extruder advance constant (s2/mm3)
 //
-// advance (steps) = STEPS_PER_CUBIC_MM_E * EXTRUDER_ADVANCE_K * cubic mm per second ^ 2
+// advance (steps) = STEPS_PER_CUBIC_MM_E * EXTUDER_ADVANCE_K * cubic mm per second ^ 2
 //
 // hooke's law says:		force = k * distance
-// Bernoulli's principle says:	v ^ 2 / 2 + g . h + pressure / density = constant
+// bernoulli's priniciple says:	v ^ 2 / 2 + g . h + pressure / density = constant
 // so: v ^ 2 is proportional to number of steps we advance the extruder
 //#define ADVANCE
 
@@ -353,8 +339,8 @@
 
   #define D_FILAMENT 2.85
   #define STEPS_MM_E 836
-  #define EXTRUSION_AREA (0.25 * D_FILAMENT * D_FILAMENT * 3.14159)
-  #define STEPS_PER_CUBIC_MM_E (axis_steps_per_unit[E_AXIS]/ EXTRUSION_AREA)
+  #define EXTRUTION_AREA (0.25 * D_FILAMENT * D_FILAMENT * 3.14159)
+  #define STEPS_PER_CUBIC_MM_E (axis_steps_per_unit[E_AXIS]/ EXTRUTION_AREA)
 
 #endif // ADVANCE
 
@@ -450,11 +436,6 @@ const unsigned int dropsegments=5; //everything with less than this number of st
 //===========================================================================
 //=============================  Define Defines  ============================
 //===========================================================================
-
-#if defined (ENABLE_AUTO_BED_LEVELING) && defined (DELTA)
-  #error "Bed Auto Leveling is still not compatible with Delta Kinematics."
-#endif  
-
 #if EXTRUDERS > 1 && defined TEMP_SENSOR_1_AS_REDUNDANT
   #error "You cannot use TEMP_SENSOR_1_AS_REDUNDANT if EXTRUDERS > 1"
 #endif
