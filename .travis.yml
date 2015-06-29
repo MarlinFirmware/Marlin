@@ -38,16 +38,23 @@ script:
   # backup configuration.h
   - cp Marlin/Configuration.h Marlin/Configuration.h.backup
   - cp Marlin/Configuration_adv.h Marlin/Configuration_adv.h.backup
+  # add sensor for bed
+  - sed -i 's/#define TEMP_SENSOR_BED 0/#define TEMP_SENSOR_BED 1/g' Marlin/Configuration.h
+  - rm -rf .build/
+  - DISPLAY=:1.0 ~/bin/arduino --verify --board marlin:avr:mega  Marlin/Marlin.ino
   # change extruder numbers from 1 to 2
-  # commented out for the moment fails build but compiles fine in Arduino
-  #- sed -i 's/#define EXTRUDERS 1/#define EXTRUDERS 2/g' Marlin/Configuration.h
-  #- rm -rf .build/
-  #- DISPLAY=:1.0 ~/bin/arduino --verify --board marlin:avr:mega  Marlin/Marlin.ino
+  - sed -i 's/#define MOTHERBOARD BOARD_RAMPS_13_EFB/#define MOTHERBOARD BOARD_RAMPS_13_EEB/g' Marlin/Configuration.h
+  - sed -i 's/#define EXTRUDERS 1/#define EXTRUDERS 2/g' Marlin/Configuration.h
+  - sed -i 's/#define TEMP_SENSOR_1 0/#define TEMP_SENSOR_1 1/g' Marlin/Configuration.h
+  #- cat Marlin/Configuration.h
+  - rm -rf .build/
+  - DISPLAY=:1.0 ~/bin/arduino --verify --board marlin:avr:mega  Marlin/Marlin.ino
   # change extruder numbers from 2 to 3, needs to be a board with 3 extruders defined in pins.h 
-  #- sed -i 's/#define MOTHERBOARD BOARD_ULTIMAKER/#define MOTHERBOARD BOARD_AZTEEG_X3_PRO/g' Marlin/Configuration.h
-  #- sed -i 's/#define EXTRUDERS 2/#define EXTRUDERS 3/g' Marlin/Configuration.h
-  #- rm -rf .build/
-  #- DISPLAY=:1.0 ~/bin/arduino --verify --board marlin:avr:mega  Marlin/Marlin.ino
+  - sed -i 's/#define MOTHERBOARD BOARD_RAMPS_13_EEB/#define MOTHERBOARD BOARD_RUMBA/g' Marlin/Configuration.h
+  - sed -i 's/#define EXTRUDERS 2/#define EXTRUDERS 3/g' Marlin/Configuration.h
+  - sed -i 's/#define TEMP_SENSOR_2 0/#define TEMP_SENSOR_2 1/g' Marlin/Configuration.h
+  - rm -rf .build/
+  - DISPLAY=:1.0 ~/bin/arduino --verify --board marlin:avr:mega  Marlin/Marlin.ino
   # enable PIDTEMPBED 
   - cp Marlin/Configuration.h.backup Marlin/Configuration.h
   - sed -i 's/\/\/#define PIDTEMPBED/#define PIDTEMPBED/g' Marlin/Configuration.h
