@@ -580,14 +580,7 @@ ISR(TIMER1_COMPA_vect) {
 			#ifdef ELECTRONIC_SCALE_PROBE
 				if (scale.try_read() && scale.stuff_is_detected())
 				{
-					bool z_min_endstop = true;
-					if (z_min_endstop && old_z_min_endstop && (current_block->steps[Z_AXIS] > 0)) 
-					{
-						endstops_trigsteps[Z_AXIS] = count_position[Z_AXIS];
-						endstop_z_hit = true;
-						step_events_completed = current_block->step_event_count;
-					}
-					old_z_min_endstop = z_min_endstop;
+					_ENDSTOP_HIT(Z);
 				}
 			#else
 				UPDATE_ENDSTOP(Z, MIN);

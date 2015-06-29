@@ -1,6 +1,5 @@
 #ifndef __HX711_h
 #define __HX711_h
-
 #if ARDUINO >= 100
 #include "Arduino.h"
 #else
