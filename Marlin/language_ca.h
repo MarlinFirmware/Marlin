@@ -86,6 +86,14 @@
 #define MSG_ESTEPS                          "Epassos/mm"
 #define MSG_TEMPERATURE                     "Temperatura"
 #define MSG_MOTION                          "Moviment"
+<<<<<<< HEAD
+=======
+#define MSG_VOLUMETRIC                      "Filament"
+#define MSG_VOLUMETRIC_ENABLED		        "E in mm3"
+#define MSG_FILAMENT_SIZE_EXTRUDER_0        "Fil. Dia. 1"
+#define MSG_FILAMENT_SIZE_EXTRUDER_1        "Fil. Dia. 2"
+#define MSG_FILAMENT_SIZE_EXTRUDER_2        "Fil. Dia. 3"
+>>>>>>> MarlinFirmware/1.0.x
 #define MSG_CONTRAST                        "Contrast de LCD"
 #define MSG_STORE_EPROM                     "Desar a memoria"
 #define MSG_LOAD_EPROM                      "Carregar de mem."
