@@ -13,7 +13,7 @@ namespace screen
 	ScreenMenu::~ScreenMenu()
 	{ }
 
-	void ScreenMenu::init()
+	void ScreenMenu::init(uint16_t index)
 	{
 		for (unsigned int i = 0;i < m_num_icons; ++i)
 		{

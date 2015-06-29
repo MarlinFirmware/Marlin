@@ -12,7 +12,7 @@ namespace screen
 			ScreenDynamic(const char * title, uint8_t axis, T min, T max, T scale, typename Functor<void, uint8_t, T>::FuncPtr fptr);
 			virtual ~ScreenDynamic();
 
-			void init();
+			void init(uint16_t index = 0);
 
 			void left();
 			void right();
@@ -45,7 +45,7 @@ namespace screen
 	{ }
 
 	template <typename T>
-	void ScreenDynamic<T>::init()
+	void ScreenDynamic<T>::init(uint16_t index)
 	{
 		m_select = current_position[m_axis];
 		m_next_time = millis() + 500;

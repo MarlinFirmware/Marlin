@@ -14,7 +14,7 @@ namespace screen
 	ScreenTransition::~ScreenTransition()
 	{ }
 
-	void ScreenTransition::init()
+	void ScreenTransition::init(uint16_t index)
 	{
 		draw();
 		this->action();

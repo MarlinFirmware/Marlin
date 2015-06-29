@@ -15,7 +15,7 @@ namespace screen
 			ScreenPrint(const char * title = 0, Subject<float> * model = 0);
 			virtual ~ScreenPrint();
 
-			void init();
+			void init(uint16_t index = 0);
 			
 			virtual void draw();
 
