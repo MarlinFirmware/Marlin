@@ -1,3 +1,30 @@
+///////////////////////////////////////////////////////////////////////////////
+/// \file ScreenMenu.cpp
+///
+/// \author Ivan Galvez Junquera
+///         Ruy Garcia
+///         Victor Andueza 
+///         Joaquin Herrero
+///
+/// \brief Implementation of menu-type screens.
+///
+/// Copyright (c) 2015 BQ - Mundo Reader S.L.
+/// http://www.bq.com
+///
+/// This file is free software; you can redistribute it and/or modify
+/// it under the terms of either the GNU General Public License version 2 or 
+/// later or the GNU Lesser General Public License version 2.1 or later, both
+/// as published by the Free Software Foundation.
+///
+/// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
+/// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
+/// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL 
+/// THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
+/// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
+/// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
+/// DEALINGS IN THE SOFTWARE.
+///////////////////////////////////////////////////////////////////////////////
+
 #include "ScreenMenu.h"
 
 namespace screen
@@ -18,7 +45,7 @@ namespace screen
 		for (unsigned int i = 0;i < m_num_icons; ++i)
 		{
 			m_icons[i]->show();
-		}	
+		}
 		m_index = index;
 	}
 
@@ -56,7 +83,7 @@ namespace screen
 
 	void ScreenMenu::draw()
 	{
-		if ( !m_text || m_needs_drawing ) 
+		if ( !m_text || m_needs_drawing )
 		{
 			m_needs_drawing = false;
 			int total_width_0 = 0;
@@ -87,7 +114,7 @@ namespace screen
 			}
 			else
 			{
-				//Split the number of icons between rows uniformly assuring line 0 width > line 1 width 
+				//Split the number of icons between rows uniformly assuring line 0 width > line 1 width
 				int i = 0;
 				while(aux_width_0 < aux_width_1)
 				{
@@ -150,7 +177,7 @@ namespace screen
 						m_icons[i]->draw(x,y);
 					}
 				}
-			} while( painter.nextPage() ); 
+			} while( painter.nextPage() );
 		}
 	}
 
@@ -163,7 +190,7 @@ namespace screen
 		}
 	}
 
-   void ScreenMenu::icon(Icon & component)
+	void ScreenMenu::icon(Icon & component)
 	{
 		if (m_num_icons < max_items)
 		{

@@ -1,3 +1,30 @@
+///////////////////////////////////////////////////////////////////////////////
+/// \file ScreenFile.cpp
+///
+/// \author Ivan Galvez Junquera
+///         Ruy Garcia
+///         Victor Andueza 
+///         Joaquin Herrero
+///
+/// \brief Implementation of file confirmation screen.
+///
+/// Copyright (c) 2015 BQ - Mundo Reader S.L.
+/// http://www.bq.com
+///
+/// This file is free software; you can redistribute it and/or modify
+/// it under the terms of either the GNU General Public License version 2 or 
+/// later or the GNU Lesser General Public License version 2.1 or later, both
+/// as published by the Free Software Foundation.
+///
+/// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
+/// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
+/// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL 
+/// THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
+/// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
+/// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
+/// DEALINGS IN THE SOFTWARE.
+///////////////////////////////////////////////////////////////////////////////
+
 #include "ScreenFile.h"
 
 #include "cardreader.h"
@@ -42,7 +69,7 @@ namespace screen
 		}
 		else
 		{
-			//Split the number of icons between rows uniformly assuring line 0 width > line 1 width 
+			//Split the number of icons between rows uniformly assuring line 0 width > line 1 width
 			int i = 0;
 			while(aux_width_0 < aux_width_1)
 			{
@@ -54,7 +81,7 @@ namespace screen
 			items_per_row_1 = m_num_icons - items_per_row_0;
 			aux_width_0 -= 2;
 		}
-		
+
 		char text[18];
 		strncpy(text,card.longFilename,18);
 		text[17] = '\0';
@@ -67,7 +94,7 @@ namespace screen
 			total_width_1 = aux_width_1;
 			int aux2_width_0 = 0;
 			int aux2_width_1 = 0;
-			
+
 			//Paint title on top of screen
 			painter.title(m_title);
 			//Paint text on the screen
@@ -109,8 +136,8 @@ namespace screen
 				{
 					m_icons[i]->draw(x,y);
 				}
-			}	
+			}
 
-		} while( painter.nextPage() ); 
+		} while( painter.nextPage() );
 	}
 }

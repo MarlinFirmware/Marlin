@@ -1,7 +1,35 @@
+///////////////////////////////////////////////////////////////////////////////
+/// \file ScreenSelector.h
+///
+/// \author Ivan Galvez Junquera
+///         Ruy Garcia
+///         Victor Andueza 
+///         Joaquin Herrero
+///
+/// \brief Definition of selector-type screens.
+///
+/// Copyright (c) 2015 BQ - Mundo Reader S.L.
+/// http://www.bq.com
+///
+/// This file is free software; you can redistribute it and/or modify
+/// it under the terms of either the GNU General Public License version 2 or 
+/// later or the GNU Lesser General Public License version 2.1 or later, both
+/// as published by the Free Software Foundation.
+///
+/// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
+/// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
+/// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL 
+/// THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
+/// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
+/// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
+/// DEALINGS IN THE SOFTWARE.
+///////////////////////////////////////////////////////////////////////////////
+
 #ifndef SCREEN_SELECTOR_H
 #define SCREEN_SELECTOR_H
 
 #include <stdint.h>
+
 #include "Screen.h"
 #include "Functor.h"
 
@@ -24,36 +52,34 @@ namespace screen
 			void press();
 
 		private:
-         uint16_t m_select;
-         uint16_t m_minimum_value;
-         uint16_t m_maximum_value;
-         uint16_t m_default;
+			uint16_t m_select;
+			uint16_t m_minimum_value;
+			uint16_t m_maximum_value;
+			uint16_t m_default;
 	};
 
 	template <typename R, typename... Args>
-	ScreenSelector<R, Args...>::ScreenSelector(const char * title, uint16_t min, uint16_t max, uint16_t dflt, typename Functor<R, Args...>::FuncPtr fptr)
+		ScreenSelector<R, Args...>::ScreenSelector(const char * title, uint16_t min, uint16_t max, uint16_t dflt, typename Functor<R, Args...>::FuncPtr fptr)
 		: Screen(title, SELECTOR)
 		, Functor<R, Args...>(fptr)
 		, m_minimum_value(min)
 		, m_maximum_value(max)
 		, m_default(dflt)
 		, m_select(dflt)
-	{
-	}
+	{ }
 
 	template <typename R, typename... Args>
-	ScreenSelector<R, Args...>::~ScreenSelector()
-	{
-	}
+		ScreenSelector<R, Args...>::~ScreenSelector()
+	{ }
 
 	template <typename R, typename... Args>
-	void ScreenSelector<R, Args...>::init(uint16_t index)
+		void ScreenSelector<R, Args...>::init(uint16_t index)
 	{
 		m_select = m_default;
 	}
 
 	template <typename R, typename... Args>
-	void ScreenSelector<R, Args...>::left()
+		void ScreenSelector<R, Args...>::left()
 	{
 		if (m_select != m_minimum_value)
 		{
@@ -63,7 +89,7 @@ namespace screen
 	}
 
 	template <typename R, typename... Args>
-	void ScreenSelector<R, Args...>::right()
+		void ScreenSelector<R, Args...>::right()
 	{
 		if (m_select != m_maximum_value)
 		{
@@ -73,7 +99,7 @@ namespace screen
 	}
 
 	template <typename R, typename... Args>
-	void ScreenSelector<R, Args...>::draw()
+		void ScreenSelector<R, Args...>::draw()
 	{
 		if (m_needs_drawing)
 		{
@@ -83,7 +109,7 @@ namespace screen
 			do
 			{
 				painter.title(m_title);
-				painter.box(MSG_SELECTOR_BOX); 
+				painter.box(MSG_SELECTOR_BOX);
 
 				uint8_t x_init = painter.coordinateXInit();
 				uint8_t x_end = painter.coordinateXEnd();
@@ -123,11 +149,10 @@ namespace screen
 	}
 
 	template <typename R, typename... Args>
-	void ScreenSelector<R, Args...>::press()
+		void ScreenSelector<R, Args...>::press()
 	{
 		this->action(m_select);
 		ViewManager::getInstance().activeView(m_next_screen);
 	}
 }
-
 #endif //SCREEN_SELECTOR_H

@@ -1,3 +1,30 @@
+///////////////////////////////////////////////////////////////////////////////
+/// \file ScreenList.cpp
+///
+/// \author Ivan Galvez Junquera
+///         Ruy Garcia
+///         Victor Andueza 
+///         Joaquin Herrero
+///
+/// \brief Implementation of SD screen list class.
+///
+/// Copyright (c) 2015 BQ - Mundo Reader S.L.
+/// http://www.bq.com
+///
+/// This file is free software; you can redistribute it and/or modify
+/// it under the terms of either the GNU General Public License version 2 or 
+/// later or the GNU Lesser General Public License version 2.1 or later, both
+/// as published by the Free Software Foundation.
+///
+/// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
+/// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
+/// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL 
+/// THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
+/// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
+/// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
+/// DEALINGS IN THE SOFTWARE.
+///////////////////////////////////////////////////////////////////////////////
+
 #include "ScreenList.h"
 #include "cardreader.h"
 #include "language.h"
@@ -24,6 +51,8 @@ State_t do_state_prepare(Event_t event)
 	return STATE_PREPARE;
 }
 
+
+
 State_t do_state_paint(Event_t event)
 {
 	if (event == EVENT_KEYPRESS)
@@ -34,6 +63,7 @@ State_t do_state_paint(Event_t event)
 
 	return STATE_PAINT;
 }
+
 
 
 namespace screen
@@ -94,7 +124,8 @@ namespace screen
 				strncpy(m_directory, card.filename, 9);
 				m_directory[9] = '\0';
 
-				if (card.filename[0] != '/') {
+				if (card.filename[0] != '/')
+				{
 					m_directory_is_root = false;
 					m_offset = 2;
 				}
@@ -152,7 +183,8 @@ namespace screen
 
 			for (uint8_t i = 0; i < window_size; i++)
 			{
-				if (i == window_selector) {
+				if (i == window_selector)
+				{
 					painter.setColorIndex(1);
 					painter.drawBox(painter.coordinateXInit(), painter.coordinateYInit() + i * (max_font_height + 1), 128, max_font_height);
 					painter.setColorIndex(0);
@@ -256,32 +288,6 @@ namespace screen
 		}
 		m_num_item_added++;
 	}
-
-/*
-	void ScreenList::icon(Icon & component)
-	{
-		if (m_icon_index < 1)
-		{
-			m_icon = &component;
-		}
-      else
-      {
-         m_icon_alternate = &component;
-      }
-      ++m_icon_index;
-	}
-
-	Icon & ScreenList::icon()
-	{
-		updateSdcardStatus();
-
-		if (m_sdcard_inserted == true)
-		{
-			return * m_icon_alternate;
-		}
-		return * m_icon;
-	}
-*/
 
 	void ScreenList::updateSdcardStatus()
 	{

@@ -1,3 +1,30 @@
+///////////////////////////////////////////////////////////////////////////////
+/// \file ScreenPrint.h
+///
+/// \author Ivan Galvez Junquera
+///         Ruy Garcia
+///         Victor Andueza 
+///         Joaquin Herrero
+///
+/// \brief Implementation of printing screen.
+///
+/// Copyright (c) 2015 BQ - Mundo Reader S.L.
+/// http://www.bq.com
+///
+/// This file is free software; you can redistribute it and/or modify
+/// it under the terms of either the GNU General Public License version 2 or 
+/// later or the GNU Lesser General Public License version 2.1 or later, both
+/// as published by the Free Software Foundation.
+///
+/// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
+/// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
+/// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL 
+/// THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
+/// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
+/// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
+/// DEALINGS IN THE SOFTWARE.
+///////////////////////////////////////////////////////////////////////////////
+
 #include "ScreenPrint.h"
 
 #include "cardreader.h"
@@ -10,7 +37,7 @@ namespace screen
 		: ScreenMenu(title)
 		, Observer<float>(model)
 		, m_observed(0)
-		, m_printed_time( { 0, 0, 0, 0 } )
+		, m_printed_time( { 0, 0, 0, 0 })
 		, m_percent_done(0)
 		, m_printing_status(PRINTING)
 		, m_target_temperature(0)
@@ -36,7 +63,7 @@ namespace screen
 	{
 		PrintManager::updateTime();
 		if ( (m_printed_time.hours !=  PrintManager::printingTime().hours) ||
-			 (m_printed_time.minutes != PrintManager::printingTime().minutes) )
+			(m_printed_time.minutes != PrintManager::printingTime().minutes) )
 		{
 			m_printed_time = PrintManager::printingTime();
 			m_needs_drawing = true;
@@ -45,7 +72,7 @@ namespace screen
 		uint8_t percent_done = card.percentDone();
 		if (m_percent_done != percent_done)
 		{
-			m_percent_done = percent_done;	
+			m_percent_done = percent_done;
 			m_needs_drawing = true;
 		}
 
@@ -83,7 +110,7 @@ namespace screen
 			m_needs_drawing = false;
 			//Start painting sequence
 			painter.firstPage();
-			do 
+			do
 			{
 				//Paint title on top of screen
 				painter.title(m_title);
@@ -125,8 +152,8 @@ namespace screen
 					{
 						m_icons[i]->draw(x,y);
 					}
-				}	
-			} while( painter.nextPage() ); 
+				}
+			} while( painter.nextPage() );
 		}
 	}
 

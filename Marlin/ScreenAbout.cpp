@@ -1,5 +1,31 @@
-#include "ScreenAbout.h"
+///////////////////////////////////////////////////////////////////////////////
+/// \file ScreenAbout.cpp
+///
+/// \author Ivan Galvez Junquera
+///         Ruy Garcia
+///         Victor Andueza 
+///         Joaquin Herrero
+///
+/// \brief Implementation of About Screen.
+///
+/// Copyright (c) 2015 BQ - Mundo Reader S.L.
+/// http://www.bq.com
+///
+/// This file is free software; you can redistribute it and/or modify
+/// it under the terms of either the GNU General Public License version 2 or 
+/// later or the GNU Lesser General Public License version 2.1 or later, both
+/// as published by the Free Software Foundation.
+///
+/// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
+/// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
+/// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL 
+/// THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
+/// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
+/// FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER 
+/// DEALINGS IN THE SOFTWARE.
+///////////////////////////////////////////////////////////////////////////////
 
+#include "ScreenAbout.h"
 #include "GuiBitmaps_witbox_2.h"
 #include "language.h"
 
@@ -17,7 +43,7 @@ namespace screen
 	{
 		//Start painting sequence
 		painter.firstPage();
-		do 
+		do
 		{
 			painter.setColorIndex(1);
 			//Paint title on top of screen
@@ -38,7 +64,6 @@ namespace screen
 			painter.print(MACHINE_NAME);
 			painter.setPrintPos(x_offset + logo_width + 8, y_init + 24);
 			painter.print(BUILD_VER);
-		} while( painter.nextPage() ); 
-
+		} while( painter.nextPage() );
 	}
 }
