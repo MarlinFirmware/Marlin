@@ -20,14 +20,12 @@ namespace screen
 		{
 			if(!OffsetManager::single::instance().isOffsetOnEEPROM())
 			{
-				SERIAL_ECHOLN("OFFSET NOT SET");
 				ViewManager::getInstance().activeView(m_alt_screen);
-			}			
+			}
 			else
 			{
-				SERIAL_ECHOLN("OFFSET PREVIOUSLY SET");
 				ViewManager::getInstance().activeView(m_next_screen);
-			}	
+			}
 			return;
 		}
 
