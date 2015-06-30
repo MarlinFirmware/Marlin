@@ -28,7 +28,7 @@
 template <typename T> class Subject;
 
 template <typename T>
-class Observer
+	class Observer
 {
 	public:
 		Observer(Subject<T> * model);
@@ -42,7 +42,7 @@ class Observer
 #include "Subject.h"
 
 template <typename T>
-Observer<T>::Observer(Subject<T> * model)
+	Observer<T>::Observer(Subject<T> * model)
 	: m_model(model)
 {
 	if (m_model != 0)
@@ -52,7 +52,7 @@ Observer<T>::Observer(Subject<T> * model)
 }
 
 template <typename T>
-void Observer<T>::connect()
+	void Observer<T>::connect()
 {
 	if (m_model != 0)
 	{

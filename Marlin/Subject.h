@@ -28,7 +28,7 @@
 #include "Observer.h"
 
 template <typename T>
-class Subject
+	class Subject
 {
 	public:
 		void attach (Observer<T> * observer);
@@ -40,13 +40,13 @@ class Subject
 };
 
 template <typename T>
-void Subject<T>::attach (Observer<T> * observer)
+	void Subject<T>::attach (Observer<T> * observer)
 {
 	m_observer = observer;
 };
 
 template <typename T>
-void Subject<T>::dettach()
+	void Subject<T>::dettach()
 {
 	m_observer = 0;
 };

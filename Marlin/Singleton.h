@@ -33,7 +33,7 @@
 //! \ingroup common
 //! \author Ivan Galvez Junquera
 template <typename T>
-class Singleton
+	class Singleton
 {
 	public:
 		//! \brief This method returns the existing instance.
@@ -46,7 +46,7 @@ class Singleton
 		//! \returns An instance reference to the class, so the caller cannot be
 		//! tempted to delete the singleton
 		template <typename... Args>
-		static T & instance(Args... args)
+			static T & instance(Args... args)
 		{
 			static T m_instance(args...);
 			return m_instance;

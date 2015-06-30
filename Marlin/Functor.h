@@ -25,7 +25,7 @@
 static void do_nothing() {};
 
 template <typename R, typename... Args>
-class Functor
+	class Functor
 {
 	public:
 		typedef R (*FuncPtr)(Args... args);
