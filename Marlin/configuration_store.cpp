@@ -478,11 +478,17 @@ void Config_ResetDefault() {
   float tmp2[] = DEFAULT_MAX_FEEDRATE;
   long tmp3[] = DEFAULT_MAX_ACCELERATION;
   #if EXTRUDERS > 1
+      float tmp4[]=
     #ifdef EXTRUDER_OFFSET_X
-      float tmp4[]=EXTRUDER_OFFSET_X;
+      EXTRUDER_OFFSET_X;
+    #else
+      0;
     #endif // EXTRUDER_OFFSET_X
+      float tmp5[]=
     #ifdef EXTRUDER_OFFSET_Y
-      float tmp5[]=EXTRUDER_OFFSET_Y;
+      EXTRUDER_OFFSET_Y;
+    #else
+      0;
     #endif // EXTRUDER_OFFSET_Y
   #endif // EXTRUDERS > 1
   for (uint16_t i = 0; i < NUM_AXIS; i++) {
