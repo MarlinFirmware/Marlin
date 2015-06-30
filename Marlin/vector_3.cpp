@@ -19,7 +19,7 @@
 #include <math.h>
 #include "Marlin.h"
 
-#ifdef ENABLE_AUTO_BED_LEVELING
+#if ENABLED(ENABLE_AUTO_BED_LEVELING)
 #include "vector_3.h"
 
 vector_3::vector_3() : x(0), y(0), z(0) { }
