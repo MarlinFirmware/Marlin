@@ -482,13 +482,13 @@ void Config_ResetDefault() {
     #ifdef EXTRUDER_OFFSET_X
       EXTRUDER_OFFSET_X;
     #else
-      0;
+      {0,0};
     #endif // EXTRUDER_OFFSET_X
     float tmp5[]=
     #ifdef EXTRUDER_OFFSET_Y
       EXTRUDER_OFFSET_Y;
     #else
-      0;
+      {0,0};
     #endif // EXTRUDER_OFFSET_Y
   #endif // EXTRUDERS > 1
   for (uint16_t i = 0; i < NUM_AXIS; i++) {
