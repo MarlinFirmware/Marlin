@@ -63,6 +63,10 @@ namespace screen
 			painter.setPrintPos(x_offset + logo_width + 8, y_init + 8);
 			painter.print(MACHINE_NAME);
 			painter.setPrintPos(x_offset + logo_width + 8, y_init + 24);
+			painter.print(FIRMWARE_VER);
+			int desp = strlen(FIRMWARE_VER);
+			desp = (desp + 1) * 6;
+			painter.setPrintPos(x_offset + logo_width + 8 + desp, y_init + 24);
 			painter.print(BUILD_VER);
 		} while( painter.nextPage() );
 	}
