@@ -244,6 +244,8 @@ const char MSG_SCREEN_MOVE_2MOVE[] PROGMEM           = "Back";
 const char MSG_SCREEN_MOVE_01MM[] PROGMEM            = "0.1mm";
 const char MSG_SCREEN_MOVE_1MM[] PROGMEM             = "1mm";
 const char MSG_SCREEN_MOVE_10MM[] PROGMEM            = "10mm";
+const char MSG_SCREEN_MOVE_HEAT_CONFIRM[] PROGMEM    = "Preheat extruder?";
+const char MSG_SCREEN_MOVE_BOX0[] PROGMEM            = "Press to abort";
 
 const char MSG_SCREEN_BACK2MAIN[] PROGMEM            = "Back";
 
@@ -381,6 +383,8 @@ const char MSG_SCREEN_MOVE_2MOVE[] PROGMEM           = "Volver";
 const char MSG_SCREEN_MOVE_01MM[] PROGMEM            = "0.1mm";
 const char MSG_SCREEN_MOVE_1MM[] PROGMEM             = "1mm";
 const char MSG_SCREEN_MOVE_10MM[] PROGMEM            = "10mm";
+const char MSG_SCREEN_MOVE_HEAT_CONFIRM[] PROGMEM    = "Calentar extrusor?";
+const char MSG_SCREEN_MOVE_BOX0[] PROGMEM            = "Pulse para abortar";
 
 const char MSG_SCREEN_BACK2MAIN[] PROGMEM            = "Volver";
 

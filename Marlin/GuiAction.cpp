@@ -29,6 +29,11 @@ void action_set_temperature(uint16_t degrees)
 	TemperatureManager::single::instance().setTargetTemperature(degrees);
 }
 
+void action_preheat()
+{
+	TemperatureManager::single::instance().setTargetTemperature(PLA_PREHEAT_HOTEND_TEMP);
+}
+
 void action_cooldown()
 {
 	TemperatureManager::single::instance().setTargetTemperature(30);

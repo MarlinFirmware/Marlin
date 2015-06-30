@@ -4,6 +4,7 @@
 #include <stdint.h>
 
 extern void action_set_temperature(uint16_t degrees);
+extern void action_preheat();
 extern void action_cooldown();
 
 extern void action_filament_unload();

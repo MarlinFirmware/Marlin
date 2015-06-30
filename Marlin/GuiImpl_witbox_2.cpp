@@ -345,8 +345,33 @@ namespace screen
 		local_view->icon(icon_move_y);
 		local_view->add(screen_move_z);
 		local_view->icon(icon_move_z);
-		local_view->add(screen_move_e);
+		local_view->add(screen_move_heat_confirm);
 		local_view->icon(icon_move_e);
+		return local_view;
+	}
+
+	static ScreenMenu * make_screen_move_heat_confirm()
+	{
+		ScreenMenu * local_view = new ScreenMenu(MSG_SCREEN_MOVE_TITLE, MSG_SCREEN_MOVE_HEAT_CONFIRM);
+		local_view->add(screen_move);
+		local_view->icon(icon_back);
+		local_view->add(screen_move_heat);
+		local_view->icon(icon_ok);
+		return local_view;
+	}
+
+	static ScreenAction<void> * make_screen_move_heat()
+	{
+		ScreenAction<void> * local_view = new ScreenAction<void>(MSG_SCREEN_MOVE_TITLE, action_preheat);
+		local_view->add(screen_move_heating);
+		return local_view;
+	}
+
+	static ScreenAnimation<float> * make_screen_move_heating()
+	{
+		ScreenAnimation<float> * local_view = new ScreenAnimation<float>(MSG_SCREEN_MOVE_TITLE, MSG_SCREEN_MOVE_BOX0, screen::ScreenAnimation<float>::GREATER_OR_EQUAL, TemperatureManager::single::instance().getTargetTemperature(), &TemperatureManager::single::instance());
+		local_view->add(screen_move);
+		local_view->add(screen_move_e);
 		return local_view;
 	}
 
@@ -859,6 +884,15 @@ namespace screen
 				break;
 			case screen_move_z_10:
 				new_view = make_screen_move_z_10();
+				break;
+			case screen_move_heat_confirm:
+				new_view = make_screen_move_heat_confirm();
+				break;
+			case screen_move_heat:
+				new_view = make_screen_move_heat();
+				break;
+			case screen_move_heating:
+				new_view = make_screen_move_heating();
 				break;
 
 			// Steppers
