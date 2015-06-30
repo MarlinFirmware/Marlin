@@ -4812,8 +4812,7 @@ inline void gcode_M503() {
    *
    */
   inline void gcode_M600() {
-<<<<<<< HEAD
-
+    change_filament = true;
     if (degHotend(active_extruder) < extrude_min_temp) {
       SERIAL_ERROR_START;
       SERIAL_ERRORLNPGM(MSG_TOO_COLD_FOR_M600);
@@ -4822,10 +4821,6 @@ inline void gcode_M503() {
 
     float lastpos[NUM_AXIS], fr60 = feedrate / 60;
 
-=======
-    change_filament = true;
-    float target[NUM_AXIS], lastpos[NUM_AXIS], fr60 = feedrate / 60;
->>>>>>> M601: Resume the print from filament change
     for (int i=0; i<NUM_AXIS; i++)
       lastpos[i] = destination[i] = current_position[i];
 
@@ -4881,9 +4876,8 @@ inline void gcode_M503() {
     disable_e3();
     delay(100);
     LCD_ALERTMESSAGEPGM(MSG_FILAMENTCHANGE);
-<<<<<<< HEAD
     millis_t next_tick = 0;
-    while (!lcd_clicked()) {
+    while (!lcd_clicked() && change_filament) {
       #ifndef AUTO_FILAMENT_CHANGE
         millis_t ms = millis();
         if (ms >= next_tick) {
@@ -4901,15 +4895,6 @@ inline void gcode_M503() {
       #endif
     } // while(!lcd_clicked)
     lcd_quick_feedback(); // click sound feedback
-=======
-    uint8_t cnt = 0;
-    while (!lcd_clicked() && change_filament) {
-      if (++cnt == 0) lcd_quick_feedback(); // every 256th frame till the lcd is clicked
-      manage_heater();
-      manage_inactivity(true);
-      lcd_update();
-    } // while(!lcd_clicked && change_filament)
->>>>>>> M601: Resume the print from filament change
 
     #ifdef AUTO_FILAMENT_CHANGE
       current_position[E_AXIS] = 0;
