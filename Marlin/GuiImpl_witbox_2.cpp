@@ -19,6 +19,7 @@
 #include "ScreenPrint.h"
 #include "ScreenFile.h"
 #include "ScreenSplash.h"
+#include "ScreenComplete.h"
 
 #include "AutoLevelManager.h"
 #include "LightManager.h"
@@ -605,6 +606,13 @@ namespace screen
 		return local_view;
 	}
 
+	static ScreenDialog<void> * make_screen_print_complete()
+	{
+		ScreenComplete * local_view = new ScreenComplete(MSG_SCREEN_PRINT_COMPLETED, MSG_SCREEN_PRINT_COMPLETED, MSG_SCREEN_PRINT_COMPLETED_BOX, PrintManager::printingTime());
+		local_view->add(screen_main);
+		return local_view;
+	}
+
 	static ScreenAction<void> * make_screen_play_pause()
 	{
 		ScreenAction<void> * local_view = new ScreenAction<void>(MSG_SCREEN_PRINT_PAUSE, PrintManager::togglePause);
@@ -946,6 +954,9 @@ namespace screen
 			// Print menu and control
 			case screen_print:
 				new_view = make_screen_print();
+				break;
+			case screen_print_complete:
+				new_view = make_screen_print_complete();
 				break;
 			case screen_play_pause:
 				new_view = make_screen_play_pause();

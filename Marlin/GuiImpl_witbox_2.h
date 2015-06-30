@@ -70,6 +70,7 @@ namespace screen
 		screen_offset_finish,
 		screen_offset_save,
 		screen_print,
+		screen_print_complete,
 		screen_play_pause,
 		screen_stop_confirm,
 		screen_stop_OK,

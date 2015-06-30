@@ -250,6 +250,8 @@ const char MSG_SCREEN_MOVE_BOX0[] PROGMEM            = "Press to abort";
 const char MSG_SCREEN_BACK2MAIN[] PROGMEM            = "Back";
 
 const char MSG_SCREEN_PRINT_PRINTING[] PROGMEM       = "Printing";
+const char MSG_SCREEN_PRINT_COMPLETED[] PROGMEM      = "Printing Complete";
+const char MSG_SCREEN_PRINT_COMPLETED_BOX[] PROGMEM  = "Push to continue";
 const char MSG_SCREEN_PRINT_PAUSE[] PROGMEM          = "Pause";
 const char MSG_SCREEN_PRINT_PAUSED[] PROGMEM         = "Paused";
 const char MSG_SCREEN_PRINT_PAUSING[] PROGMEM        = "Pausing...";
@@ -389,6 +391,8 @@ const char MSG_SCREEN_MOVE_BOX0[] PROGMEM            = "Pulse para abortar";
 const char MSG_SCREEN_BACK2MAIN[] PROGMEM            = "Volver";
 
 const char MSG_SCREEN_PRINT_PRINTING[] PROGMEM       = "Imprimiendo";
+const char MSG_SCREEN_PRINT_COMPLETED[] PROGMEM      = "Impresion Finalizada";
+const char MSG_SCREEN_PRINT_COMPLETED_BOX[] PROGMEM  = "Pulse para continuar";
 const char MSG_SCREEN_PRINT_PAUSE[] PROGMEM          = "Pausa";
 const char MSG_SCREEN_PRINT_PAUSED[] PROGMEM         = "En pausa";
 const char MSG_SCREEN_PRINT_PAUSING[] PROGMEM        = "Pausando...";

@@ -29,6 +29,7 @@
 
 #include "cardreader.h"
 #include "TemperatureManager.h"
+#include "ViewManager.h"
 #include "language.h"
 
 namespace screen
@@ -154,6 +155,11 @@ namespace screen
 					}
 				}
 			} while( painter.nextPage() );
+		}
+
+		if (PrintManager::single::instance().state() == STOPPED)
+		{
+			ViewManager::getInstance().activeView(screen_print_complete);
 		}
 	}
 
