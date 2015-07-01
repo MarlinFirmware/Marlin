@@ -546,7 +546,7 @@ void action_offset()
 
 void action_offset_homing()
 {
-	zprobe_zoffset = -Z_PROBE_OFFSET_FROM_EXTRUDER;
+	zprobe_zoffset = Z_PROBE_OFFSET_FROM_EXTRUDER;
 	action_homing();
 }
 

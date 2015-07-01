@@ -547,7 +547,7 @@ namespace screen
 
 	static ScreenTransition * make_screen_offset_home()
 	{
-		ScreenTransition * local_view = new ScreenTransition(MSG_SCREEN_OFFSET_TITLE, MSG_SCREEN_OFFSET_HOME_TEXT, MSG_SCREEN_OFFSET_WAIT, action_homing);
+		ScreenTransition * local_view = new ScreenTransition(MSG_SCREEN_OFFSET_TITLE, MSG_SCREEN_OFFSET_HOME_TEXT, MSG_SCREEN_OFFSET_WAIT, action_offset_homing);
 		local_view->add(screen_offset_calculate);
 		return local_view;
 	}
@@ -583,7 +583,7 @@ namespace screen
 	static ScreenMenu * make_screen_offset_finish()
 	{
 		ScreenMenu * local_view = new ScreenMenu(MSG_SCREEN_OFFSET_TITLE, MSG_SCREEN_OFFSET_FINISH);
-		local_view->add(screen_offset_info);
+		local_view->add(screen_offset_home);
 		local_view->icon(icon_back);
 		local_view->add(screen_main);
 		local_view->icon(icon_ok);
