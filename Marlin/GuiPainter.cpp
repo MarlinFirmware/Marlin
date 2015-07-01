@@ -365,6 +365,11 @@ namespace screen
 		m_impl.drawXBMP(x, y, width, height, bitmap);
 	}
 
+	void GuiPainter::begin()
+	{
+		m_impl.begin();
+	}
+
 	void GuiPainter::firstPage()
 	{
 		m_impl.firstPage();

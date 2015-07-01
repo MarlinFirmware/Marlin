@@ -58,6 +58,8 @@ namespace screen
 
 			void drawBitmap(uint8_t x, uint8_t y, uint8_t width, uint8_t height, const unsigned char* bitmap);
 
+			void begin();
+
 			void firstPage();
 			bool nextPage();
 

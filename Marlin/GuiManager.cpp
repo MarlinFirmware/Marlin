@@ -138,6 +138,8 @@ static void lcd_implementation_quick_feedback()
 }
 void lcd_init()
 {
+    painter.begin();
+
 	// Low level init libraries for lcd & encoder
 	pinMode(39, OUTPUT);   //Contraste = 4.5V
 	digitalWrite(39, HIGH);
