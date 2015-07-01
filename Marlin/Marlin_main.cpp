@@ -2760,6 +2760,7 @@ inline void gcode_G28() {
               real_z = st_get_position_mm(Z_AXIS);  //get the real Z (since plan_get_position is now correcting the plane)
 
         apply_rotation_xyz(plan_bed_level_matrix, x_tmp, y_tmp, z_tmp); // Apply the correction sending the probe offset
+<<<<<<< HEAD
 
         // Get the current Z position and send it to the planner.
         //
@@ -2783,6 +2784,10 @@ inline void gcode_G28() {
           #endif
           ;
         // current_position[Z_AXIS] += home_offset[Z_AXIS]; // The probe determines Z=0, not "Z home"
+=======
+        //line below controls z probe offset, zprobe_zoffset is the actual offset that can be modified via m851
+        current_position[Z_AXIS] = z_tmp - real_z + zprobe_zoffset;                     // The difference is added to current position and sent to planner.
+>>>>>>> z-probe offset fix
         sync_plan_position();
       }
     #endif // !DELTA
