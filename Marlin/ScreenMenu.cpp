@@ -141,7 +141,7 @@ namespace screen
 				//Paint text on the screen
 				painter.text_P(m_text, 0, 5);
 				//Paint selection box on bottom of screen
-				painter.box((m_icons[m_index])->text());
+				painter.arrowBox((m_icons[m_index])->text());
 				//Icon grid
 				uint8_t x_init = painter.coordinateXInit();
 				uint8_t y_init = painter.coordinateYInit() + 5;

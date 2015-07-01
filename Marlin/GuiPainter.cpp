@@ -268,8 +268,34 @@ namespace screen
 		print (" >");
 	}
 
-	void GuiPainter::box(const char* nextScreen)
+	void GuiPainter::box(const char* text)
 	{
+		uint8_t save_color_index = m_impl.getColorIndex();
+
+		uint8_t x_init = coordinateXInit();
+		uint8_t x_end = coordinateXEnd();
+		uint8_t y_end = coordinateYEnd();
+
+		//Print box
+		setColorIndex(1);
+		m_impl.drawBox(x_init, y_end - 9, x_end, y_end - 9);
+
+		//Set font and color
+		setFont(u8g_font_6x9);
+		setColorIndex(0);
+
+		//Print text label
+		setPrintPos(x_end/2 - (strlen_P(text)*6)/2, y_end - 9);
+		print_P(text);
+		coordinateYEnd(51);
+
+		setColorIndex(save_color_index);
+	}
+
+	void GuiPainter::arrowBox(const char* text)
+	{
+		uint8_t save_color_index = m_impl.getColorIndex();
+
 		uint8_t x_init = coordinateXInit();
 		uint8_t x_end = coordinateXEnd();
 		uint8_t y_end = coordinateYEnd();
@@ -286,9 +312,11 @@ namespace screen
 		setPrintPos(x_end-7, y_end - 9);
 		print(">");
 		//Print text label
-		setPrintPos(x_end/2 - (strlen_P(nextScreen)*6)/2, y_end - 9);
-		print_P(nextScreen);
+		setPrintPos(x_end/2 - (strlen_P(text)*6)/2, y_end - 9);
+		print_P(text);
 		coordinateYEnd(51);
+
+		setColorIndex(save_color_index);
 	}
 
 	void GuiPainter::setColorIndex(uint8_t color)

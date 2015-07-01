@@ -41,7 +41,8 @@ namespace screen
 
 			void selector(uint16_t number, uint16_t total);
 
-			void box(const char* nextScreen);
+			void box(const char* text);
+			void arrowBox(const char* text);
 
 			void setColorIndex(uint8_t color);
 
@@ -58,7 +59,6 @@ namespace screen
 			void drawBitmap(uint8_t x, uint8_t y, uint8_t width, uint8_t height, const unsigned char* bitmap);
 
 			void firstPage();
-
 			bool nextPage();
 
 			void coordinateXInit(uint8_t coordinate);
