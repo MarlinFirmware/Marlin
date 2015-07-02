@@ -62,7 +62,7 @@
 #endif
 
 #define PS_ON_PIN          -1
-#define KILL_PIN           -1
+#define KILL_PIN           7  // added emergency stop, misusing SCK (pin 7) for it
 
 #define HEATER_0_PIN       13 // (extruder)
 #define HEATER_1_PIN       -1
@@ -101,7 +101,7 @@
 //#define SDSS               24
 
 #ifdef ULTRA_LCD
- #ifdef NEWPANEL
+ //#ifdef NEWPANEL // useless define, also no longer in configuration.h. Still in ultipanel_somethinghd44780.cpp
    //we have no buzzer installed
    #define BEEPER -1
    //LCD Pins
@@ -147,7 +147,7 @@
    //not connected to a pin
    #define SDCARDDETECT -1
 
- #endif //NEWPANEL
+// #endif //NEWPANEL
 #endif //ULTRA_LCD
 
 #ifdef MAKRPANEL
