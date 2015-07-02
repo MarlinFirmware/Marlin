@@ -83,7 +83,7 @@ namespace screen
 
 			bool m_sdcard_inserted;
 
-			char m_directory[20];
+			char m_directory[10];
 			bool m_directory_is_root;
 			uint8_t m_offset;
 

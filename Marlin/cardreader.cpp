@@ -598,8 +598,6 @@ void CardReader::chdir(const char * relpath)
   }
   else
   {
-    strcpy(previousFolderName, folderName);
-    strcpy(folderName, longFilename);
     if (workDirDepth < MAX_DIR_DEPTH) {
       for (int d = ++workDirDepth; d--;)
         workDirParents[d+1] = workDirParents[d];
@@ -618,8 +616,6 @@ void CardReader::updir()
     int d;
     for (int d = 0; d < workDirDepth; d++)
       workDirParents[d] = workDirParents[d+1];
-    strcpy(folderName, previousFolderName);
-    strcpy(previousFolderName, longFilename);
   }
 }
 

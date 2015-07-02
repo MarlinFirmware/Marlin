@@ -58,8 +58,6 @@ public:
   bool cardOK;
   char filename[FILENAME_LENGTH];
   char longFilename[LONG_FILENAME_LENGTH];
-  char folderName[LONG_FILENAME_LENGTH];
-  char previousFolderName[LONG_FILENAME_LENGTH];
   bool filenameIsDir;
   int autostart_index;
 private:

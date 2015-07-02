@@ -121,14 +121,11 @@ namespace screen
 				m_index = 0;
 
 				card.getWorkDirName();
-				strncpy(m_directory, card.filename, 19);
-				m_directory[19] = '\0';
+				strncpy(m_directory, card.filename, 9);
+				m_directory[9] = '\0';
 
 				if (card.filename[0] != '/')
 				{
-					strncpy(m_directory, card.folderName, 19);
-					m_directory[19] = '\0';
-
 					m_directory_is_root = false;
 					m_offset = 2;
 				}
@@ -157,33 +154,24 @@ namespace screen
 		do
 		{
 			// Draw title
-			uint8_t x_init = painter.coordinateXInit();
-			uint8_t y_init = painter.coordinateYInit();
-			uint8_t x_end = painter.coordinateXEnd();
-
 			if (m_directory_is_root == true)
 			{
-				painter.setColorIndex(1);
-				painter.setFont(u8g_font_6x9);
-				painter.setPrintPos(x_init, y_init + 3);
-				painter.print("/");
-				painter.setPrintPos(x_init + 6, y_init + 3);
-				painter.print_P(m_title);
+				painter.title(m_title);
 			}
 			else
 			{
+				uint8_t x_init = painter.coordinateXInit();
+				uint8_t y_init = painter.coordinateYInit();
+				uint8_t x_end = painter.coordinateXEnd();
+
 				painter.setColorIndex(1);
 				painter.setFont(u8g_font_6x9);
-				painter.drawBitmap(x_init, y_init + 3, little_icon_width, little_icon_height, bits_updir_small);
-				painter.setPrintPos(x_init + 6, y_init + 3);
-				painter.print("/");
-				painter.setPrintPos(x_init + 12, y_init + 3);
+				painter.setPrintPos(x_init, y_init + 3);
 				painter.print(m_directory);
-			}
+				painter.drawLine(x_init, y_init + 13, x_end, y_init + 13);
 
-			//Draw line separator
-			painter.drawLine(x_init, y_init + 13, x_end, y_init + 13);
-			painter.coordinateYInit(14);
+				painter.coordinateYInit(14);
+			}
 
 			// Draw list
 			uint8_t window_size = 50 / (max_font_height + 1);
