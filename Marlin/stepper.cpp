@@ -496,13 +496,16 @@ ISR(TIMER1_COMPA_vect) {
       #define COPY_BIT(bits, COPY_BIT, BIT) SET_BIT(bits, BIT, TEST(bits, COPY_BIT))
       // TEST_ENDSTOP: test the old and the current status of an endstop
       #define TEST_ENDSTOP(ENDSTOP) (TEST(current_endstop_bits, ENDSTOP) && TEST(old_endstop_bits, ENDSTOP))
+      // PROCESSING_ENDSTOP: 
+      #define PROCESSING_ENDSTOP(AXIS) \
+		endstops_trigsteps[_AXIS(AXIS)] = count_position[_AXIS(AXIS)]; \
+          _ENDSTOP_HIT(AXIS); \
+          step_events_completed = current_block->step_event_count; 
 
       #define UPDATE_ENDSTOP(AXIS,MINMAX) \
-        SET_ENDSTOP_BIT(AXIS, MINMAX); \
+	  SET_ENDSTOP_BIT(AXIS, MINMAX); \
         if (TEST_ENDSTOP(_ENDSTOP(AXIS, MINMAX))  && (current_block->steps[_AXIS(AXIS)] > 0)) { \
-          endstops_trigsteps[_AXIS(AXIS)] = count_position[_AXIS(AXIS)]; \
-          _ENDSTOP_HIT(AXIS); \
-          step_events_completed = current_block->step_event_count; \
+          PROCESSING_ENDSTOP(AXIS); \
         }
       
       #ifdef COREXY
@@ -577,21 +580,15 @@ ISR(TIMER1_COMPA_vect) {
                 step_events_completed = current_block->step_event_count;
             }
           #else // !Z_DUAL_ENDSTOPS
-			#ifdef ELECTRONIC_SCALE_PROBE
-				if (scale.try_read() && scale.stuff_is_detected())
-				{
-					bool z_min_endstop = true;
-					if (z_min_endstop && old_z_min_endstop && (current_block->steps[Z_AXIS] > 0)) 
-					{
-						endstops_trigsteps[Z_AXIS] = count_position[Z_AXIS];
-						endstop_z_hit = true;
-						step_events_completed = current_block->step_event_count;
-					}
-					old_z_min_endstop = z_min_endstop;
-				}
-			#else
-				UPDATE_ENDSTOP(Z, MIN);
-			#endif
+            #ifdef ELECTRONIC_SCALE_PROBE
+		      if (scale.try_read() && scale.stuff_is_detected())
+			  {
+				  SET_BIT(current_endstop_bits, _ENDSTOP(Z, MIN), 1);
+				  PROCESSING_ENDSTOP(Z);
+		      }
+            #else
+			  UPDATE_ENDSTOP(Z, MIN);
+            #endif
           #endif // !Z_DUAL_ENDSTOPS
         #endif // Z_MIN_PIN
 
