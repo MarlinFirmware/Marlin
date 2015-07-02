@@ -108,6 +108,8 @@ void action_level_plate()
 	switch (level_plate_step)
 	{
 		case 0:
+			lcd_disable_button();
+
 			target[X_AXIS] = plan_get_axis_position(X_AXIS);
 			target[Y_AXIS] = plan_get_axis_position(Y_AXIS);
 			target[Z_AXIS] = plan_get_axis_position(Z_AXIS);
@@ -126,9 +128,13 @@ void action_level_plate()
 			plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], manual_feedrate[X_AXIS] / 60, active_extruder);
 			st_synchronize();
 
+			lcd_enable_button();
+
 			break;
 
 		case 1:
+			lcd_disable_button();
+
 			target[X_AXIS] = plan_get_axis_position(X_AXIS);
 			target[Y_AXIS] = plan_get_axis_position(Y_AXIS);
 			target[Z_AXIS] = plan_get_axis_position(Z_AXIS);
@@ -147,9 +153,13 @@ void action_level_plate()
 			plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], manual_feedrate[X_AXIS] / 60, active_extruder);
 			st_synchronize();
 
+			lcd_enable_button();
+
 			break;
 
 		case 2:
+			lcd_disable_button();
+
 			target[X_AXIS] = plan_get_axis_position(X_AXIS);
 			target[Y_AXIS] = plan_get_axis_position(Y_AXIS);
 			target[Z_AXIS] = plan_get_axis_position(Z_AXIS);
@@ -168,9 +178,13 @@ void action_level_plate()
 			plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], manual_feedrate[X_AXIS] / 60, active_extruder);
 			st_synchronize();
 
+			lcd_enable_button();
+
 			break;
 
 		case 3:
+			lcd_disable_button();
+
 			target[X_AXIS] = plan_get_axis_position(X_AXIS);
 			target[Y_AXIS] = plan_get_axis_position(Y_AXIS);
 			target[Z_AXIS] = plan_get_axis_position(Z_AXIS);
@@ -189,9 +203,13 @@ void action_level_plate()
 			plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], manual_feedrate[X_AXIS] / 60, active_extruder);
 			st_synchronize();
 
+			lcd_enable_button();
+
 			break;
 
 		case 4:
+			lcd_disable_button();
+
 			target[X_AXIS] = plan_get_axis_position(X_AXIS);
 			target[Y_AXIS] = plan_get_axis_position(Y_AXIS);
 			target[Z_AXIS] = plan_get_axis_position(Z_AXIS);
@@ -209,6 +227,8 @@ void action_level_plate()
 			target[Z_AXIS] -= 10;
 			plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], manual_feedrate[X_AXIS] / 60, active_extruder);
 			st_synchronize();
+
+			lcd_enable_button();
 
 			break;
 	}
