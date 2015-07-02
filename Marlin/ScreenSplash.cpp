@@ -27,6 +27,7 @@
 
 #include "ScreenSplash.h"
 #include "OffsetManager.h"
+#include "StorageManager.h"
 
 namespace screen
 {
@@ -44,7 +45,11 @@ namespace screen
 	{
 		if (millis() > m_destroy_time)
 		{
-			if(!OffsetManager::single::instance().isOffsetOnEEPROM())
+			if (StorageManager::getEmergencyFlag() != 0x00)
+			{
+				ViewManager::getInstance().activeView(m_block_screen);
+			}
+			else if (!OffsetManager::single::instance().isOffsetOnEEPROM())
 			{
 				ViewManager::getInstance().activeView(m_alt_screen);
 			}
@@ -65,13 +70,19 @@ namespace screen
 
 	void ScreenSplash::add(ScreenIndex_t const & component)
 	{
-		if (m_num_item_added % 2)
+		switch (m_num_item_added % 3)
 		{
-			m_alt_screen = component;
-		}
-		else
-		{
-			m_next_screen = component;
+			case 0:
+				m_next_screen = component;
+				break;
+
+			case 1:
+				m_alt_screen = component;
+				break;
+
+			case 2:
+				m_block_screen = component;
+				break;
 		}
 		m_num_item_added++;
 	}

@@ -63,6 +63,7 @@
 
 #ifdef DOGLCD
   #include "PrintManager.h"
+  #include "StorageManager.h"
 #endif
 
 // look here for descriptions of G-codes: http://linuxcnc.org/handbook/gcode/g-code.html
@@ -632,7 +633,13 @@ void setup()
   st_init();    // Initialize stepper, this enables interrupts!
   setup_photpin();
   servo_init();
- 
+
+#ifdef DOGLCD
+  if (StorageManager::getEmergencyFlag() != 0x00)
+  {
+    SERIAL_ECHOLN("--- EMERGENCY STOP ACTIVE ---");
+  }
+#endif //DOGLCD
 
   lcd_init();
   _delay_ms(1000);	// wait 1sec to display the splash screen

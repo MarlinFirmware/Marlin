@@ -20,6 +20,7 @@
 #include "ScreenFile.h"
 #include "ScreenSplash.h"
 #include "ScreenComplete.h"
+#include "ScreenEmergency.h"
 
 #include "AutoLevelManager.h"
 #include "LightManager.h"
@@ -78,6 +79,13 @@ namespace screen
 		ScreenSplash * local_view = new ScreenSplash(2000);
 		local_view->add(screen_main);
 		local_view->add(screen_offset_home);
+		local_view->add(screen_emergency);
+		return local_view;
+	}
+
+	static ScreenEmergency * make_screen_emergency()
+	{
+		ScreenEmergency * local_view = new ScreenEmergency(MSG_SCREEN_EMERGENCY_TITLE, MSG_SCREEN_EMERGENCY_TEXT, MSG_SCREEN_EMERGENCY_BOX);
 		return local_view;
 	}
 
@@ -746,6 +754,12 @@ namespace screen
 			case screen_splash:
 				new_view = make_screen_splash();
 				break;
+
+			// Emergency stop
+			case screen_emergency:
+				new_view = make_screen_emergency();
+				break;
+
 			// Main menu
 			case screen_main:
 				new_view = make_screen_main();

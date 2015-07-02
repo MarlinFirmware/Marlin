@@ -155,6 +155,10 @@
 // LCD Menu Messages
 #if LANGUAGE_CHOICE == 1
 
+const char MSG_SCREEN_EMERGENCY_TITLE[] PROGMEM      = "Emergency Stop active";
+const char MSG_SCREEN_EMERGENCY_TEXT[] PROGMEM       = "Keep the button pressed to unlock the machine";
+const char MSG_SCREEN_EMERGENCY_BOX[] PROGMEM        = "Keep pressed";
+
 const char MSG_NOSD[] PROGMEM                        = "Insert SD card";
 const char MSG_SD[] PROGMEM                          = "SD card";
 const char MSG_FILAMENT_UNLOAD[] PROGMEM             = "Unload filament";
@@ -295,6 +299,10 @@ const char MSG_OK1[] PROGMEM                         = "OK";
 
 
 #if LANGUAGE_CHOICE == 5
+
+const char MSG_SCREEN_EMERGENCY_TITLE[] PROGMEM      = "Parada Emerg. activa";
+const char MSG_SCREEN_EMERGENCY_TEXT[] PROGMEM       = "Deje pulsado el boton para desbloquear la maquina";
+const char MSG_SCREEN_EMERGENCY_BOX[] PROGMEM        = "Mantenga pulsado";
 
 const char MSG_NOSD[] PROGMEM                        = "Inserte tarjeta SD";
 const char MSG_SD[] PROGMEM                          = "Tarjeta SD";

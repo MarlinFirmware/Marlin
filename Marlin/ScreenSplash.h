@@ -45,6 +45,7 @@ namespace screen
 			uint32_t m_destroy_time;
 
 			ScreenIndex_t m_alt_screen;
+			ScreenIndex_t m_block_screen;
 			uint8_t m_num_item_added;
 	};
 }

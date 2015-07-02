@@ -10,9 +10,13 @@
 #include "GuiImpl_witbox_2.h"
 #include "GuiPainter.h"
 #include "GuiBitmaps_witbox_2.h"
+#include "GuiAction.h"
 
+#include "StorageManager.h"
 #include "SDManager.h"
 #include "ViewManager.h"
+
+#include <avr/wdt.h>
 
 //C++ helpers for Arduino
 
@@ -107,7 +111,7 @@ int lcd_contrast;
 uint8_t display_view_menu_offset = 0;
 uint8_t display_view_wizard_page = 0;
 
-
+static void lcd_emergency_stop();
 
 /*******************************************************************************
 **   Function definitions
@@ -209,8 +213,10 @@ static void lcd_update_button()
     if ((button_clicked == true) || (button_pressed_count > 50)) 
     {
         lcd_implementation_quick_feedback();
-	//if (button_pressed_count == 200)
-	//    lcd_emergency_stop();
+        if (button_pressed_count == 200)
+        {
+            lcd_emergency_stop();
+        }
     }
 
     // Update button trigger
@@ -497,6 +503,44 @@ void lcd_reset_alert_level()
 static void lcd_set_encoder_position(int8_t position)
 {
     encoder_position = position;
+}
+
+static void lcd_emergency_stop()
+{
+    if (StorageManager::getEmergencyFlag() == 0x00)
+    {
+        SERIAL_ECHOLN("KILLED: Emergency stop active!");
+        StorageManager::setEmergencyFlag();
+        cli();
+
+        stop_buffer = true;
+        stop_buffer_code = 999;
+
+        if (IS_SD_PRINTING)
+        {
+            card.sdprinting = false;
+            card.closefile();
+        }
+
+        quickStop();
+        disable_x();
+        disable_y();
+        disable_z();
+        disable_e0();
+        disable_e1();
+        disable_e2();
+
+        cancel_heatup = true;
+
+        action_cooldown();
+    }
+    else
+    {
+        StorageManager::clearEmergencyFlag();
+    }
+
+    wdt_enable(WDTO_15MS);
+    while (1) { }
 }
 
 ISR(TIMER5_OVF_vect)
