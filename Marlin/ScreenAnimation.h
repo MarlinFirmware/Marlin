@@ -85,12 +85,11 @@ namespace screen
 		, m_observed(0)
 		, m_condition(condition)
 		, m_target(target)
+		, m_previous_time(0)
+		, m_current_time(0)
 		, m_frame(0)
-
 	{
 		this->connect();
-		m_previous_time = 0;
-		m_current_time = m_previous_time;
 	}
 
 	template <typename T>
