@@ -490,13 +490,25 @@ ISR(TIMER1_COMPA_vect) {
       // TEST_ENDSTOP: test the old and the current status of an endstop
       #define TEST_ENDSTOP(ENDSTOP) (TEST(current_endstop_bits, ENDSTOP) && TEST(old_endstop_bits, ENDSTOP))
 
-      #define UPDATE_ENDSTOP(AXIS,MINMAX) \
-        SET_ENDSTOP_BIT(AXIS, MINMAX); \
-        if (TEST_ENDSTOP(_ENDSTOP(AXIS, MINMAX))  && (current_block->steps[_AXIS(AXIS)] > 0)) { \
-          endstops_trigsteps[_AXIS(AXIS)] = count_position[_AXIS(AXIS)]; \
-          _ENDSTOP_HIT(AXIS); \
-          step_events_completed = current_block->step_event_count; \
-        }
+      //Quick home causes the head to move in diagonal, when core xy is enabled this is performed only with the A('X') motor
+      //Made an exception so it doesn't checks if there is steps in the axis the endstop is mounted on
+	  #ifdef COREXY && QUICK_HOME 
+        #define UPDATE_ENDSTOP(AXIS,MINMAX) \
+          SET_ENDSTOP_BIT(AXIS, MINMAX); \
+          if (TEST_ENDSTOP(_ENDSTOP(AXIS, MINMAX)))  { \
+            endstops_trigsteps[_AXIS(AXIS)] = count_position[_AXIS(AXIS)]; \
+            _ENDSTOP_HIT(AXIS); \
+            step_events_completed = current_block->step_event_count; \
+          }	  
+	  #else
+        #define UPDATE_ENDSTOP(AXIS,MINMAX) \
+          SET_ENDSTOP_BIT(AXIS, MINMAX); \
+          if (TEST_ENDSTOP(_ENDSTOP(AXIS, MINMAX))  && (current_block->steps[_AXIS(AXIS)] > 0)) { \
+            endstops_trigsteps[_AXIS(AXIS)] = count_position[_AXIS(AXIS)]; \
+            _ENDSTOP_HIT(AXIS); \
+            step_events_completed = current_block->step_event_count; \
+          }
+	  #endif
       
       #ifdef COREXY
         // Head direction in -X axis for CoreXY bots.
