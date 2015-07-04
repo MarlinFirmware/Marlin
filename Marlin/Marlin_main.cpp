@@ -1712,9 +1712,19 @@ void process_commands()
             // "B" vector of Z points
             double eqnBVector[AUTO_BED_LEVELING_GRID_POINTS*AUTO_BED_LEVELING_GRID_POINTS];
 
-
             int probePointCounter = 0;
             bool zig = true;
+
+	    /*
+	     * TOL: a relative tolerance used to determine the
+	     * numerical rank. The problem should be scaled so that all the
+	     * elements of A have roughly the same absolute accuracy, EPS.
+	     * Then a reasonable value for TOL is roughly EPS divided by the
+	     * magnitude of the largest element.
+	     *
+	     * Yes, the expectation is that the compiler calculates it. :-)
+	     */
+	    double tol = 2.220446049250313E-016 / max( RIGHT_PROBE_BED_POSITION, BACK_PROBE_BED_POSITION);
 
             for (int yProbe=FRONT_PROBE_BED_POSITION; yProbe <= BACK_PROBE_BED_POSITION; yProbe += yGridSpacing)
             {
@@ -1760,7 +1770,8 @@ void process_commands()
             clean_up_after_endstop_move();
 
             // solve lsq problem
-            double *plane_equation_coefficients = qr_solve(AUTO_BED_LEVELING_GRID_POINTS*AUTO_BED_LEVELING_GRID_POINTS, 3, eqnAMatrix, eqnBVector);
+	    double plane_equation_coefficients[3];
+	    qr_solve(tol, eqnAMatrix, eqnBVector, plane_equation_coefficients);
 
             SERIAL_PROTOCOLPGM("Eqn coefficients: a: ");
             SERIAL_PROTOCOL(plane_equation_coefficients[0]);
@@ -1771,8 +1782,6 @@ void process_commands()
 
 
             set_bed_level_equation_lsq(plane_equation_coefficients);
-
-            free(plane_equation_coefficients);
 
 #else // AUTO_BED_LEVELING_GRID not defined
 
