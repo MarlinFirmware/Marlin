@@ -4889,12 +4889,8 @@ inline void gcode_M503() {
         lcd_update();
       #else
         current_position[E_AXIS] += AUTO_FILAMENT_CHANGE_LENGTH;
-<<<<<<< HEAD
         destination[E_AXIS] = current_position[E_AXIS];
         line_to_destination(AUTO_FILAMENT_CHANGE_FEEDRATE);
-=======
-        plan_buffer_line(destination[X_AXIS],destination[Y_AXIS],destination[Z_MAX_ENDSTOP_INVERTING],current_position[E_AXIS],AUTO_FILAMENT_CHANGE_FEEDRATE/60,active_extruder);
->>>>>>> Should be destination here not target.
         st_synchronize();
       #endif
     } // while(!lcd_clicked)
