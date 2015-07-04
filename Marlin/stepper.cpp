@@ -490,7 +490,7 @@ ISR(TIMER1_COMPA_vect) {
       // TEST_ENDSTOP: test the old and the current status of an endstop
       #define TEST_ENDSTOP(ENDSTOP) (TEST(current_endstop_bits, ENDSTOP) && TEST(old_endstop_bits, ENDSTOP))
 
-	  #ifndef COREXY
+      #ifndef COREXY
         #define UPDATE_ENDSTOP(AXIS,MINMAX) \
           SET_ENDSTOP_BIT(AXIS, MINMAX); \
           if (TEST_ENDSTOP(_ENDSTOP(AXIS, MINMAX))  && (current_block->steps[_AXIS(AXIS)] > 0)) { \
@@ -506,8 +506,8 @@ ISR(TIMER1_COMPA_vect) {
 		    _ENDSTOP_HIT(AXIS); \
 		    step_events_completed = current_block->step_event_count; \
 		  }
-	  #endif
-      
+      #endif
+
       #ifdef COREXY
         // Head direction in -X axis for CoreXY bots.
         // If DeltaX == -DeltaY, the movement is only in Y axis
