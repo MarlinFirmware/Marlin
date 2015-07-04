@@ -200,6 +200,7 @@ static void lcd_implementation_init() {
 	  digitalWrite(LCD_PIN_BL, HIGH);
   #endif
 
+<<<<<<< HEAD
   #if ENABLED(LCD_PIN_RESET)
     pinMode(LCD_PIN_RESET, OUTPUT);           
     digitalWrite(LCD_PIN_RESET, HIGH);
@@ -207,6 +208,14 @@ static void lcd_implementation_init() {
   #ifndef MINIPANEL//setContrast not working for Mini Panel
     u8g.setContrast(lcd_contrast);	
   #endif
+=======
+  #ifdef LCD_PIN_RESET
+    pinMode(LCD_PIN_RESET, OUTPUT);           
+    digitalWrite(LCD_PIN_RESET, HIGH);
+  #endif
+
+  u8g.setContrast(lcd_contrast);	
+>>>>>>> Enable LCD_PIN_RESET if it exists
 	// FIXME: remove this workaround
   // Uncomment this if you have the first generation (V1.10) of STBs board
   // pinMode(17, OUTPUT);	// Enable LCD backlight
