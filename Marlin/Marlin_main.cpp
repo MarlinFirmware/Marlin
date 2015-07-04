@@ -4987,14 +4987,15 @@ inline void gcode_M503() {
         lcd_update();
       #else
         current_position[E_AXIS] += AUTO_FILAMENT_CHANGE_LENGTH;
-        plan_buffer_line(target[X_AXIS],target[Y_AXIS],target[Z_MAX_ENDSTOP_INVERTING],current_position[E_AXIS],AUTO_FILAMENT_CHANGE_FEEDRATE/60,active_extruder);
+        destination[E_AXIS] = current_position[E_AXIS];
+        line_to_destination(AUTO_FILAMENT_CHANGE_FEEDRATE);
         st_synchronize();
       #endif
     } // while(!lcd_clicked)
     lcd_quick_feedback(); // click sound feedback
 
     #ifdef AUTO_FILAMENT_CHANGE
-      current_position[E_AXIS]= 0;
+      current_position[E_AXIS] = 0;
       st_synchronize();
     #endif
           
