@@ -490,13 +490,23 @@ ISR(TIMER1_COMPA_vect) {
       // TEST_ENDSTOP: test the old and the current status of an endstop
       #define TEST_ENDSTOP(ENDSTOP) (TEST(current_endstop_bits, ENDSTOP) && TEST(old_endstop_bits, ENDSTOP))
 
-      #define UPDATE_ENDSTOP(AXIS,MINMAX) \
-        SET_ENDSTOP_BIT(AXIS, MINMAX); \
-        if (TEST_ENDSTOP(_ENDSTOP(AXIS, MINMAX))  && (current_block->steps[_AXIS(AXIS)] > 0)) { \
-          endstops_trigsteps[_AXIS(AXIS)] = count_position[_AXIS(AXIS)]; \
-          _ENDSTOP_HIT(AXIS); \
-          step_events_completed = current_block->step_event_count; \
-        }
+	  #ifndef COREXY
+        #define UPDATE_ENDSTOP(AXIS,MINMAX) \
+          SET_ENDSTOP_BIT(AXIS, MINMAX); \
+          if (TEST_ENDSTOP(_ENDSTOP(AXIS, MINMAX))  && (current_block->steps[_AXIS(AXIS)] > 0)) { \
+            endstops_trigsteps[_AXIS(AXIS)] = count_position[_AXIS(AXIS)]; \
+            _ENDSTOP_HIT(AXIS); \
+            step_events_completed = current_block->step_event_count; \
+          }	  
+      #else // CoreXY checks for axis movement, not steps.
+	    #define UPDATE_ENDSTOP(AXIS,MINMAX) \
+	  	  SET_ENDSTOP_BIT(AXIS, MINMAX); \
+		  if (TEST_ENDSTOP(_ENDSTOP(AXIS, MINMAX))  && (current_block->axis_movement[_AXIS(AXIS)] != 0)) { \
+		    endstops_trigsteps[_AXIS(AXIS)] = count_position[_AXIS(AXIS)]; \
+		    _ENDSTOP_HIT(AXIS); \
+		    step_events_completed = current_block->step_event_count; \
+		  }
+	  #endif
       
       #ifdef COREXY
         // Head direction in -X axis for CoreXY bots.

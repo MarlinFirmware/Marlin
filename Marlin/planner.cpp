@@ -536,6 +536,10 @@ float junction_deviation = 0.1;
     // these equations follow the form of the dA and dB equations on http://www.corexy.com/theory.html
     block->steps[A_AXIS] = labs(dx + dy);
     block->steps[B_AXIS] = labs(dx - dy);
+    block->axis_movement[X_AXIS] = dx;
+    block->axis_movement[Y_AXIS] = dy;
+    block->axis_movement[Z_AXIS] = dz;
+    block->axis_movement[E_AXIS] = de;
   #else
     // default non-h-bot planning
     block->steps[X_AXIS] = labs(dx);

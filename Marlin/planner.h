@@ -37,6 +37,9 @@ typedef struct {
   long acceleration_rate;                   // The acceleration rate used for acceleration calculation
   unsigned char direction_bits;             // The direction bit set for this block (refers to *_DIRECTION_BIT in config.h)
   unsigned char active_extruder;            // Selects the active extruder
+  #ifdef COREXY
+    float axis_movement[NUM_AXIS];			// Actual movement on each axis
+  #endif
   #ifdef ADVANCE
     long advance_rate;
     volatile long initial_advance;
