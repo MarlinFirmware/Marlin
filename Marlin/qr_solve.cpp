@@ -989,7 +989,7 @@ void dswap ( int n, double x[], int incx, double y[], int incy )
 
 /******************************************************************************/
 
-void qr_solve ( double a[], double b[], double result[] )
+void qr_solve ( const int lda, double a[], double b[], double result[] )
 
 /******************************************************************************/
 /*
@@ -1036,22 +1036,18 @@ void qr_solve ( double a[], double b[], double result[] )
 
   Parameters:
 
-    Input, double TOL, a relative tolerance used to determine the
-    numerical rank.  The problem should be scaled so that all the elements
-    of A have roughly the same absolute accuracy, EPS.  Then a reasonable
-    value for TOL is roughly EPS divided by the magnitude of the largest
-    element.
+    Input, int LDA, the leading dimension of the array A.  LDA must
+    be at least 3. Typically this will have a value such as 
+    AUTO_BED_LEVELING_GRID_POINTS*AUTO_BED_LEVELING_GRID_POINTS.
 
-    Input, double A[AUTO_BED_LEVELING_GRID_POINTS*AUTO_BED_LEVELING_GRID_POINTS*3], the matrix.
+    Input, double A[LDA*3], the matrix. (typically contains probe point coordinates.
 
-    Input, double B[AUTO_BED_LEVELING_GRID_POINTS*AUTO_BED_LEVELING_GRID_POINTS], the right hand side (Z probe height data).
+    Input, double B[LDA], the right hand side. (typically contains Z probe height data).
 
     Output, double RESULT[3], the least squares solution.
 */
 {
-  const int lda = AUTO_BED_LEVELING_GRID_POINTS*AUTO_BED_LEVELING_GRID_POINTS;
-;
- int kr;
+  int kr;
   int i;
   int j;
   int jj;

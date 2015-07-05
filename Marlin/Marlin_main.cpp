@@ -2666,10 +2666,10 @@ inline void gcode_G28() {
         // the normal vector to the plane is formed by the coefficients of the plane equation in the standard form, which is Vx*x+Vy*y+Vz*z+d = 0
         // so Vx = -a Vy = -b Vz = 1 (we want the vector facing towards positive Z
 
-        int abl2 = auto_bed_leveling_grid_points * auto_bed_leveling_grid_points;
+        int lda = auto_bed_leveling_grid_points * auto_bed_leveling_grid_points;
 
-        double eqnAMatrix[abl2 * 3], // "A" matrix of the linear system of equations
-               eqnBVector[abl2],     // "B" vector of Z points
+        double eqnAMatrix[lda * 3], // "A" matrix of the linear system of equations
+               eqnBVector[lda],     // "B" vector of Z points
                mean = 0.0;
       #endif // !DELTA
 
@@ -2728,9 +2728,9 @@ inline void gcode_G28() {
             mean += measured_z;
 
             eqnBVector[probePointCounter] = measured_z;
-            eqnAMatrix[probePointCounter + 0 * abl2] = xProbe;
-            eqnAMatrix[probePointCounter + 1 * abl2] = yProbe;
-            eqnAMatrix[probePointCounter + 2 * abl2] = 1;
+            eqnAMatrix[probePointCounter + 0 * lda] = xProbe;
+            eqnAMatrix[probePointCounter + 1 * lda] = yProbe;
+            eqnAMatrix[probePointCounter + 2 * lda] = 1;
           #else
             bed_level[xCount][yCount] = measured_z + z_offset;
           #endif
@@ -2753,9 +2753,9 @@ inline void gcode_G28() {
 
         // solve lsq problem
 	double plane_equation_coefficients[3];
-	qr_solve(eqnAMatrix, eqnBVector, plane_equation_coefficients);
+	qr_solve(lda, eqnAMatrix, eqnBVector, plane_equation_coefficients);
 
-        mean /= abl2;
+        mean /= lda;
 
         if (verbose_level) {
           SERIAL_PROTOCOLPGM("Eqn coefficients: a: ");
