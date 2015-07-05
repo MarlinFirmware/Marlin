@@ -2574,8 +2574,18 @@ inline void gcode_G28() {
       int auto_bed_leveling_grid_points = AUTO_BED_LEVELING_GRID_POINTS;
       #ifndef DELTA
         if (code_seen('P')) auto_bed_leveling_grid_points = code_value_short();
-        if (auto_bed_leveling_grid_points < 2) {
-          SERIAL_PROTOCOLPGM("?Number of probed (P)oints is implausible (2 minimum).\n");
+        if ((auto_bed_leveling_grid_points < 2) ||
+	    (auto_bed_leveling_grid_points > 10)) {
+	  /*
+	   * How much memory is consumed by changes in P?
+	   * (P*P*3*8) + (P*8) bytes, Thus a P of 10 uses 3200 bytes.
+	   *
+      	   * At present that would barely work on a PrintrBoard which is the
+	   * smallest board that can support ABL and only has 8K of RAM of which
+	   * about 4100 is already used up. 4100 + 3200 leaves a very tight
+	   * stack for the rest of this command to use.
+	   */
+          SERIAL_PROTOCOLPGM("?Number of probed (P)oints is implausible (2 minimum and 10 maximum).\n");
           return;
         }
       #endif
