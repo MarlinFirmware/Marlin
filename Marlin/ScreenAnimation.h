@@ -53,7 +53,6 @@ namespace screen
 			void init(uint16_t index = 0);
 
 			void draw();
-			void press();
 
 			void add(ScreenIndex_t const & component);
 			void update(T value);
@@ -67,9 +66,6 @@ namespace screen
 			uint16_t m_target;
 			T m_observed;
 
-			ScreenIndex_t m_back_screen;
-			uint8_t m_num_item_added;
-
 			Condition_t m_condition;
 			uint32_t m_previous_time;
 			uint32_t m_current_time;
@@ -81,7 +77,6 @@ namespace screen
 		: Screen(title, SELECTOR)
 		, Observer<T>(model)
 		, m_text(text)
-		, m_num_item_added(0)
 		, m_observed(0)
 		, m_condition(condition)
 		, m_target(target)
@@ -187,23 +182,9 @@ namespace screen
 	}
 
 	template <typename T>
-		void ScreenAnimation<T>::press()
-	{
-		ViewManager::getInstance().activeView(m_back_screen);
-	}
-
-	template <typename T>
 		void ScreenAnimation<T>::add(ScreenIndex_t const & component)
 	{
-		if (m_num_item_added % 2)
-		{
-			m_next_screen = component;
-		}
-		else
-		{
-			m_back_screen = component;
-		}
-		m_num_item_added++;
+		m_next_screen = component;
 	}
 
 	template<typename T>
