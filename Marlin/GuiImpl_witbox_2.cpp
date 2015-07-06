@@ -506,6 +506,14 @@ namespace screen
 	static ScreenSelector<void, uint16_t> * make_screen_temperature_main()
 	{
 		ScreenSelector<void, uint16_t> * local_view = new ScreenSelector<void, uint16_t>(MSG_SCREEN_TEMP_TITLE, 0, 250, 10, default_temp_change_filament, action_set_temperature);
+		local_view->add(screen_heating_main);
+		return local_view;
+	}
+
+	static ScreenAnimation<float> * make_screen_heating_main()
+	{
+		ScreenAnimation<float> * local_view = new ScreenAnimation<float>(MSG_SCREEN_HEATING_MAIN_TITLE, MSG_SCREEN_HEATING_MAIN_BOX, screen::ScreenAnimation<float>::GREATER_OR_EQUAL, TemperatureManager::single::instance().getTargetTemperature(), &TemperatureManager::single::instance());
+		local_view->add(screen_main);
 		local_view->add(screen_main);
 		return local_view;
 	}
@@ -907,7 +915,9 @@ namespace screen
 			case screen_temperature_main:
 				new_view = make_screen_temperature_main();
 				break;
-
+			case screen_heating_main:
+				new_view = make_screen_heating_main();
+				break;
 			// Autolevel
 			case screen_autolevel:
 				new_view = make_screen_autolevel();

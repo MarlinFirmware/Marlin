@@ -288,6 +288,9 @@ const char MSG_SCREEN_CHANGE_INSERT[] PROGMEM        = "Insert & press";
 const char MSG_SCREEN_CHANGE_RETRY[] PROGMEM         = "Finished?";
 const char MSG_SCREEN_CHANGE_PAUSING[] PROGMEM       = "Pausing...";
 
+const char MSG_SCREEN_HEATING_MAIN_TITLE[] PROGMEM   = "Change temperature";
+const char MSG_SCREEN_HEATING_MAIN_BOX[] PROGMEM     = "Back";
+
 const char MSG_SCREEN_SPEED[] PROGMEM                = "Change speed";
 const char MSG_SELECTOR_BOX[] PROGMEM                = "Select a value";
 const char MSG_OK1[] PROGMEM                         = "OK";
@@ -428,6 +431,9 @@ const char MSG_SCREEN_CHANGE_PULLOUT[] PROGMEM       = "Tire del filamento";
 const char MSG_SCREEN_CHANGE_INSERT[] PROGMEM        = "Insertar & pulsar";
 const char MSG_SCREEN_CHANGE_RETRY[] PROGMEM         = "OK?";
 const char MSG_SCREEN_CHANGE_PAUSING[] PROGMEM       = "Pausando...";
+
+const char MSG_SCREEN_HEATING_MAIN_TITLE[] PROGMEM   = "Cambiar temperatura";
+const char MSG_SCREEN_HEATING_MAIN_BOX[] PROGMEM     = "Volver";
 
 const char MSG_SCREEN_SPEED[] PROGMEM                = "Cambiar velocidad";
 const char MSG_SELECTOR_BOX[] PROGMEM                = "Seleccione un valor";
