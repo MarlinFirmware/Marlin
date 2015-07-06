@@ -1982,10 +1982,9 @@ inline void gcode_G4() {
     int8_t axis[3] = { -1, -1, -1 };
     const uint8_t axis_order[] = { Z_AXIS
     #ifdef BABYSTEP_XY
-      , X_AXIS, Y_AXIS }; // in the order: Z, X, then Y
-    #else
-      };
+      , X_AXIS, Y_AXIS // in the order: Z, X, then Y
     #endif //BABYSTEP_XY
+      };
     for (uint8_t i=0; i<(sizeof(axis_order)/sizeof(*axis_order)); i++) {
       boolean endstop = false;
       if (code_seen(axis_codes[axis_order[i]]) && axis[i] == -1) {
