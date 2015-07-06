@@ -1979,26 +1979,21 @@ inline void gcode_G4() {
 
 #ifdef BABYSTEPPING
   inline void gcode_G5() {
-    short axis[3] = {-1, -1, -1};
-    for(unsigned short i=0; i<3; i++){ // in the order: Z, X, then Y
+    int8_t axis[3] = { -1, -1, -1 };
+    const uint8_t axis_order[] = { Z_AXIS
+    #ifdef BABYSTEP_XY
+      , X_AXIS, Y_AXIS }; // in the order: Z, X, then Y
+    #else
+      };
+    #endif //BABYSTEP_XY
+    for(uint8_t i=0; i<(sizeof(axis_order)/sizeof(*axis_order)); i++) {
       boolean endstop = false;
-      if(i == 0 && code_seen(axis_codes[Z_AXIS]) && axis[0] == -1)
-      {
-        SERIAL_PROTOCOLPGM("Babystepping Z ");
-        axis[i] = Z_AXIS;
+      if (code_seen(axis_codes[axis_order[i]]) && axis[i] == -1) {
+        axis[i] = axis_order[i];
+        SERIAL_PROTOCOLPGM("Babystepping ");
+        SERIAL_CHAR(axis_codes[axis_order[i]]);
+        SERIAL_CHAR(' ');
       }
-      #ifdef BABYSTEP_XY
-        else if(i == 1 && code_seen(axis_codes[X_AXIS]) && axis[1] == -1)
-        {
-          SERIAL_PROTOCOLPGM("Babystepping X ");
-          axis[i] = X_AXIS;
-        }
-        else if(i == 2 && code_seen(axis_codes[Y_AXIS]) && axis[2] == -1)
-        {
-          SERIAL_PROTOCOLPGM("Babystepping Y ");
-          axis[i] = Y_AXIS;
-        }
-      #endif //BABYSTEP_XY
       else
         continue;
       long babysteps = code_value();
@@ -2037,7 +2032,7 @@ inline void gcode_G4() {
       SERIAL_PROTOCOLPGM("mm\n");
       if(endstop)
       {
-        SERIAL_PROTOCOLPGM("BABY_ENDSTOP PREVENTED A COLLISION!!\n");
+        SERIAL_PROTOCOLPGM("BABY_ENDSTOP PREVENTED A COLLISION!\n");
         endstop = false;
       }
       if(current_position[axis[i]] < baby_min_endstop[axis[i]])
