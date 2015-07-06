@@ -2835,8 +2835,8 @@ inline void gcode_G28() {
               real_z = (float)st_get_position(Z_AXIS) / axis_steps_per_unit[Z_AXIS];  //get the real Z (since the auto bed leveling is already correcting the plane)
 
         apply_rotation_xyz(plan_bed_level_matrix, x_tmp, y_tmp, z_tmp); // Apply the correction sending the probe offset
-        //line below controls z probe offset, zprobe_zoffset is the actual offset that can be modified via m851
-        current_position[Z_AXIS] = z_tmp - real_z + zprobe_zoffset;                     // The difference is added to current position and sent to planner.
+        //line below controls z probe offset, zprobe_zoffset is the actual offset that can be modified via m851 or is read from EEPROM
+        current_position[Z_AXIS] = z_tmp - real_z - zprobe_zoffset; // The difference is added to current position and sent to planner.
         sync_plan_position();
       }
     #endif // !DELTA
