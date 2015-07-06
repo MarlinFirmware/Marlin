@@ -336,6 +336,12 @@ extern uint8_t active_extruder;
   extern void digipot_i2c_init();
 #endif
 
+// RigidBot Feature
+#ifdef STEPPER_RESET_PIN
+  void disableStepperDrivers(void);
+  void enableStepperDrivers(void);
+#endif
+
 extern void calculate_volumetric_multipliers();
 
 #endif //MARLIN_H

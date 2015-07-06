@@ -118,6 +118,8 @@
   #include "pins_MKS_BASE.h"
 #elif MB(99)
   #include "pins_99.h"
+#elif MB(RIGIDBOT)
+  #include "pins_RIGIDBOT.h"
 #else
   #error Unknown MOTHERBOARD value set in Configuration.h
 #endif
