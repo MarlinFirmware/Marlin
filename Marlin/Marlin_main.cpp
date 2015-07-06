@@ -2761,6 +2761,7 @@ inline void gcode_G28() {
 
         apply_rotation_xyz(plan_bed_level_matrix, x_tmp, y_tmp, z_tmp); // Apply the correction sending the probe offset
 <<<<<<< HEAD
+<<<<<<< HEAD
 
         // Get the current Z position and send it to the planner.
         //
@@ -2788,6 +2789,10 @@ inline void gcode_G28() {
         //line below controls z probe offset, zprobe_zoffset is the actual offset that can be modified via m851
         current_position[Z_AXIS] = z_tmp - real_z + zprobe_zoffset;                     // The difference is added to current position and sent to planner.
 >>>>>>> z-probe offset fix
+=======
+        //line below controls z probe offset, zprobe_zoffset is the actual offset that can be modified via m851 or is read from EEPROM
+        current_position[Z_AXIS] = z_tmp - real_z - zprobe_zoffset; // The difference is added to current position and sent to planner.
+>>>>>>> Correct the sign of zprobe_zoffset for G29
         sync_plan_position();
       }
     #endif // !DELTA
