@@ -170,36 +170,6 @@
           #error "The given BACK_PROBE_BED_POSITION can't be reached by the probe."
         #endif
       #endif
-      #define PROBE_SIZE_X (X_PROBE_OFFSET_FROM_EXTRUDER * (AUTO_BED_LEVELING_GRID_POINTS-1))
-      #define PROBE_SIZE_Y (Y_PROBE_OFFSET_FROM_EXTRUDER * (AUTO_BED_LEVELING_GRID_POINTS-1))
-      #define PROBE_AREA_WIDTH (RIGHT_PROBE_BED_POSITION - LEFT_PROBE_BED_POSITION)
-      #define PROBE_AREA_DEPTH (BACK_PROBE_BED_POSITION - FRONT_PROBE_BED_POSITION)
-      #if X_PROBE_OFFSET_FROM_EXTRUDER < 0
-        #if PROBE_SIZE_X <= -PROBE_AREA_WIDTH
-          #define X_PROBE_ERROR
-        #endif
-      #elif PROBE_SIZE_X >= PROBE_AREA_WIDTH
-        #define X_PROBE_ERROR
-      #endif
-      #ifdef X_PROBE_ERROR
-        #error The X axis probing range is too small to fit all the points defined in AUTO_BED_LEVELING_GRID_POINTS.
-      #endif
-      #if Y_PROBE_OFFSET_FROM_EXTRUDER < 0
-        #if PROBE_SIZE_Y <= -PROBE_AREA_DEPTH
-          #define Y_PROBE_ERROR
-        #endif
-      #elif PROBE_SIZE_Y >= PROBE_AREA_DEPTH
-        #define Y_PROBE_ERROR
-      #endif
-      #ifdef Y_PROBE_ERROR
-        #error The Y axis probing range is too small to fit all the points defined in AUTO_BED_LEVELING_GRID_POINTS.
-      #endif
-
-      #undef PROBE_SIZE_X
-      #undef PROBE_SIZE_Y
-      #undef PROBE_AREA_WIDTH
-      #undef PROBE_AREA_DEPTH
-
     #else // !AUTO_BED_LEVELING_GRID
 
       // Check the triangulation points
