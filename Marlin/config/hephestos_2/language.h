@@ -250,7 +250,8 @@ const char MSG_SCREEN_MOVE_BOX0[] PROGMEM            = "Please wait";
 const char MSG_SCREEN_BACK2MAIN[] PROGMEM            = "Back";
 
 const char MSG_SCREEN_PRINT_PRINTING[] PROGMEM       = "Printing";
-const char MSG_SCREEN_PRINT_COMPLETED[] PROGMEM      = "Printing Complete";
+const char MSG_SCREEN_PRINT_TITLE[] PROGMEM          = "Print finished";
+const char MSG_SCREEN_PRINT_COMPLETED[] PROGMEM      = "Remove the piece from the plate";
 const char MSG_SCREEN_PRINT_COMPLETED_BOX[] PROGMEM  = "Push to continue";
 const char MSG_SCREEN_PRINT_PAUSE[] PROGMEM          = "Pause";
 const char MSG_SCREEN_PRINT_PAUSED[] PROGMEM         = "Paused";
@@ -394,7 +395,8 @@ const char MSG_SCREEN_MOVE_BOX0[] PROGMEM            = "Por favor, espere";
 const char MSG_SCREEN_BACK2MAIN[] PROGMEM            = "Volver";
 
 const char MSG_SCREEN_PRINT_PRINTING[] PROGMEM       = "Imprimiendo";
-const char MSG_SCREEN_PRINT_COMPLETED[] PROGMEM      = "Impresion Finalizada";
+const char MSG_SCREEN_PRINT_TITLE[] PROGMEM          = "Impresion finalizada";
+const char MSG_SCREEN_PRINT_COMPLETED[] PROGMEM      = "Retire la pieza del plato";
 const char MSG_SCREEN_PRINT_COMPLETED_BOX[] PROGMEM  = "Pulse para continuar";
 const char MSG_SCREEN_PRINT_PAUSE[] PROGMEM          = "Pausa";
 const char MSG_SCREEN_PRINT_PAUSED[] PROGMEM         = "En pausa";

@@ -612,7 +612,7 @@ namespace screen
 
 	static ScreenDialog<void> * make_screen_print_complete()
 	{
-		ScreenComplete * local_view = new ScreenComplete(MSG_SCREEN_PRINT_COMPLETED, MSG_SCREEN_PRINT_COMPLETED, MSG_SCREEN_PRINT_COMPLETED_BOX, PrintManager::printingTime());
+		ScreenComplete * local_view = new ScreenComplete(MSG_SCREEN_PRINT_TITLE, MSG_SCREEN_PRINT_COMPLETED, MSG_SCREEN_PRINT_COMPLETED_BOX, PrintManager::printingTime());
 		local_view->add(screen_main);
 		return local_view;
 	}
