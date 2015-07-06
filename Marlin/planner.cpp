@@ -429,22 +429,28 @@ void check_axes_activity() {
     #ifdef FAN_KICKSTART_TIME
       static millis_t fan_kick_end;
       if (tail_fan_speed) {
+        millis_t ms = millis();
         if (fan_kick_end == 0) {
           // Just starting up fan - run at full power.
-          fan_kick_end = millis() + FAN_KICKSTART_TIME;
+          fan_kick_end = ms + FAN_KICKSTART_TIME;
           tail_fan_speed = 255;
-        } else if (fan_kick_end > millis())
+        } else if (fan_kick_end > ms)
           // Fan still spinning up.
           tail_fan_speed = 255;
         } else {
           fan_kick_end = 0;
         }
-    #endif//FAN_KICKSTART_TIME
-    #ifdef FAN_SOFT_PWM
-      fanSpeedSoftPwm = tail_fan_speed;
+    #endif //FAN_KICKSTART_TIME
+    #ifdef FAN_MIN_PWM
+      #define CALC_FAN_SPEED (tail_fan_speed ? ( FAN_MIN_PWM + (tail_fan_speed * (255 - FAN_MIN_PWM)) / 255 ) : 0)
     #else
-      analogWrite(FAN_PIN, tail_fan_speed);
-    #endif //!FAN_SOFT_PWM
+      #define CALC_FAN_SPEED tail_fan_speed
+    #endif // FAN_MIN_PWM
+    #ifdef FAN_SOFT_PWM
+      fanSpeedSoftPwm = CALC_FAN_SPEED;
+    #else
+      analogWrite(FAN_PIN, CALC_FAN_SPEED);
+    #endif // FAN_SOFT_PWM
   #endif // HAS_FAN
 
   #ifdef AUTOTEMP
@@ -477,11 +483,7 @@ float junction_deviation = 0.1;
 
   // If the buffer is full: good! That means we are well ahead of the robot. 
   // Rest here until there is room in the buffer.
-  while(block_buffer_tail == next_buffer_head) {
-    manage_heater(); 
-    manage_inactivity(); 
-    lcd_update();
-  }
+  while (block_buffer_tail == next_buffer_head) idle();
 
   #ifdef MESH_BED_LEVELING
     if (mbl.active) z += mbl.get_z(x, y);
@@ -505,7 +507,7 @@ float junction_deviation = 0.1;
 
   #ifdef PREVENT_DANGEROUS_EXTRUDE
     if (de) {
-      if (degHotend(extruder) < extrude_min_temp) {
+      if (degHotend(extruder) < extrude_min_temp && !(marlin_debug_flags & DEBUG_DRYRUN)) {
         position[E_AXIS] = target[E_AXIS]; // Behave as if the move really took place, but ignore E part
         de = 0; // no difference
         SERIAL_ECHO_START;
@@ -543,7 +545,7 @@ float junction_deviation = 0.1;
   block->steps[Z_AXIS] = labs(dz);
   block->steps[E_AXIS] = labs(de);
   block->steps[E_AXIS] *= volumetric_multiplier[extruder];
-  block->steps[E_AXIS] *= extruder_multiply[extruder];
+  block->steps[E_AXIS] *= extruder_multiplier[extruder];
   block->steps[E_AXIS] /= 100;
   block->step_event_count = max(block->steps[X_AXIS], max(block->steps[Y_AXIS], max(block->steps[Z_AXIS], block->steps[E_AXIS])));
 
@@ -677,7 +679,7 @@ float junction_deviation = 0.1;
     delta_mm[Y_AXIS] = dy / axis_steps_per_unit[Y_AXIS];
   #endif
   delta_mm[Z_AXIS] = dz / axis_steps_per_unit[Z_AXIS];
-  delta_mm[E_AXIS] = (de / axis_steps_per_unit[E_AXIS]) * volumetric_multiplier[extruder] * extruder_multiply[extruder] / 100.0;
+  delta_mm[E_AXIS] = (de / axis_steps_per_unit[E_AXIS]) * volumetric_multiplier[extruder] * extruder_multiplier[extruder] / 100.0;
 
   if (block->steps[X_AXIS] <= dropsegments && block->steps[Y_AXIS] <= dropsegments && block->steps[Z_AXIS] <= dropsegments) {
     block->millimeters = fabs(delta_mm[E_AXIS]);
@@ -959,7 +961,7 @@ float junction_deviation = 0.1;
     vector_3 position = vector_3(st_get_position_mm(X_AXIS), st_get_position_mm(Y_AXIS), st_get_position_mm(Z_AXIS));
 
     //position.debug("in plan_get position");
-    //plan_bed_level_matrix.debug("in plan_get bed_level");
+    //plan_bed_level_matrix.debug("in plan_get_position");
     matrix_3x3 inverse = matrix_3x3::transpose(plan_bed_level_matrix);
     //inverse.debug("in plan_get inverse");
     position.apply_rotation(inverse);
@@ -981,10 +983,10 @@ float junction_deviation = 0.1;
       apply_rotation_xyz(plan_bed_level_matrix, x, y, z);
     #endif
 
-    float nx = position[X_AXIS] = lround(x * axis_steps_per_unit[X_AXIS]);
-    float ny = position[Y_AXIS] = lround(y * axis_steps_per_unit[Y_AXIS]);
-    float nz = position[Z_AXIS] = lround(z * axis_steps_per_unit[Z_AXIS]);
-    float ne = position[E_AXIS] = lround(e * axis_steps_per_unit[E_AXIS]);
+    float nx = position[X_AXIS] = lround(x * axis_steps_per_unit[X_AXIS]),
+          ny = position[Y_AXIS] = lround(y * axis_steps_per_unit[Y_AXIS]),
+          nz = position[Z_AXIS] = lround(z * axis_steps_per_unit[Z_AXIS]),
+          ne = position[E_AXIS] = lround(e * axis_steps_per_unit[E_AXIS]);
     st_set_position(nx, ny, nz, ne);
     previous_nominal_speed = 0.0; // Resets planner junction speeds. Assumes start from rest.
 

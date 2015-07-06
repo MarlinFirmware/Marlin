@@ -7,12 +7,11 @@
 #include "stepper.h"
 #include "configuration_store.h"
 
-int8_t encoderDiff; /* encoderDiff is updated from interrupt context and added to encoderPosition every LCD update */
+int8_t encoderDiff; // updated from interrupt context and added to encoderPosition every LCD update
 
 bool encoderRateMultiplierEnabled;
 int32_t lastEncoderMovementMillis;
 
-/* Configuration settings */
 int plaPreheatHotendTemp;
 int plaPreheatHPBTemp;
 int plaPreheatFanSpeed;
@@ -25,9 +24,7 @@ int absPreheatFanSpeed;
   millis_t previous_lcd_status_ms = 0;
 #endif
 
-/* !Configuration settings */
-
-//Function pointer to menu functions.
+// Function pointer to menu functions.
 typedef void (*menuFunc_t)();
 
 uint8_t lcd_status_message_level;
@@ -212,11 +209,11 @@ static void lcd_status_screen();
       } } while(0)
 
   /** Used variables to keep track of the menu */
-  #ifndef REPRAPWORLD_KEYPAD
-    volatile uint8_t buttons; // Bits of the pressed buttons.
-  #else
-    volatile uint8_t buttons_reprapworld_keypad; // The reprapworld_keypad shift register values
+  volatile uint8_t buttons;  //the last checked buttons in a bit array.
+  #ifdef REPRAPWORLD_KEYPAD
+    volatile uint8_t buttons_reprapworld_keypad; // to store the keypad shift register values
   #endif
+    
   #ifdef LCD_HAS_SLOW_BUTTONS
     volatile uint8_t slow_buttons; // Bits of the pressed buttons.
   #endif
@@ -491,16 +488,16 @@ static void lcd_tune_menu() {
     MENU_MULTIPLIER_ITEM_EDIT(int3, MSG_BED, &target_temperature_bed, 0, BED_MAXTEMP - 15);
   #endif
   MENU_MULTIPLIER_ITEM_EDIT(int3, MSG_FAN_SPEED, &fanSpeed, 0, 255);
-  MENU_ITEM_EDIT(int3, MSG_FLOW, &extruder_multiply[active_extruder], 10, 999);
-  MENU_ITEM_EDIT(int3, MSG_FLOW MSG_F0, &extruder_multiply[0], 10, 999);
+  MENU_ITEM_EDIT(int3, MSG_FLOW, &extruder_multiplier[active_extruder], 10, 999);
+  MENU_ITEM_EDIT(int3, MSG_FLOW MSG_N0, &extruder_multiplier[0], 10, 999);
   #if TEMP_SENSOR_1 != 0
-    MENU_ITEM_EDIT(int3, MSG_FLOW MSG_F1, &extruder_multiply[1], 10, 999);
+    MENU_ITEM_EDIT(int3, MSG_FLOW MSG_N1, &extruder_multiplier[1], 10, 999);
   #endif
   #if TEMP_SENSOR_2 != 0
-    MENU_ITEM_EDIT(int3, MSG_FLOW MSG_F2, &extruder_multiply[2], 10, 999);
+    MENU_ITEM_EDIT(int3, MSG_FLOW MSG_N2, &extruder_multiplier[2], 10, 999);
   #endif
   #if TEMP_SENSOR_3 != 0
-    MENU_ITEM_EDIT(int3, MSG_FLOW MSG_F3, &extruder_multiply[3], 10, 999);
+    MENU_ITEM_EDIT(int3, MSG_FLOW MSG_N3, &extruder_multiplier[3], 10, 999);
   #endif
 
   #ifdef BABYSTEPPING
@@ -518,10 +515,11 @@ static void lcd_tune_menu() {
 
 void _lcd_preheat(int endnum, const float temph, const float tempb, const int fan) {
   if (temph > 0) setTargetHotend(temph, endnum);
-  setTargetBed(tempb);
+  #if TEMP_SENSOR_BED != 0
+    setTargetBed(tempb);
+  #endif
   fanSpeed = fan;
   lcd_return_to_status();
-  setWatch(); // heater sanity check timer
 }
 void lcd_preheat_pla0() { _lcd_preheat(0, plaPreheatHotendTemp, plaPreheatHPBTemp, plaPreheatFanSpeed); }
 void lcd_preheat_abs0() { _lcd_preheat(0, absPreheatHotendTemp, absPreheatHPBTemp, absPreheatFanSpeed); }
@@ -603,11 +601,7 @@ void lcd_preheat_abs0() { _lcd_preheat(0, absPreheatHotendTemp, absPreheatHPBTem
 #endif // more than one temperature sensor present
 
 void lcd_cooldown() {
-  setTargetHotend0(0);
-  setTargetHotend1(0);
-  setTargetHotend2(0);
-  setTargetHotend3(0);
-  setTargetBed(0);
+  disable_all_heaters();
   fanSpeed = 0;
   lcd_return_to_status();
 }
@@ -742,9 +736,9 @@ static void _lcd_move(const char *name, AxisEnum axis, int min, int max) {
   if (lcdDrawUpdate) lcd_implementation_drawedit(name, ftostr31(current_position[axis]));
   if (LCD_CLICKED) lcd_goto_menu(lcd_move_menu_axis);
 }
-static void lcd_move_x() { _lcd_move(PSTR("X"), X_AXIS, X_MIN_POS, X_MAX_POS); }
-static void lcd_move_y() { _lcd_move(PSTR("Y"), Y_AXIS, Y_MIN_POS, Y_MAX_POS); }
-static void lcd_move_z() { _lcd_move(PSTR("Z"), Z_AXIS, Z_MIN_POS, Z_MAX_POS); }
+static void lcd_move_x() { _lcd_move(PSTR(MSG_MOVE_X), X_AXIS, X_MIN_POS, X_MAX_POS); }
+static void lcd_move_y() { _lcd_move(PSTR(MSG_MOVE_Y), Y_AXIS, Y_MIN_POS, Y_MAX_POS); }
+static void lcd_move_z() { _lcd_move(PSTR(MSG_MOVE_Z), Z_AXIS, Z_MIN_POS, Z_MAX_POS); }
 static void lcd_move_e() {
   if (encoderPosition != 0) {
     current_position[E_AXIS] += float((int)encoderPosition) * move_menu_scale;
@@ -752,7 +746,7 @@ static void lcd_move_e() {
     line_to_current(E_AXIS);
     lcdDrawUpdate = 1;
   }
-  if (lcdDrawUpdate) lcd_implementation_drawedit(PSTR("Extruder"), ftostr31(current_position[E_AXIS]));
+  if (lcdDrawUpdate) lcd_implementation_drawedit(PSTR(MSG_MOVE_E), ftostr31(current_position[E_AXIS]));
   if (LCD_CLICKED) lcd_goto_menu(lcd_move_menu_axis);
 }
 
@@ -873,10 +867,17 @@ static void lcd_control_menu() {
  * "Control" > "Temperature" submenu
  *
  */
-
 static void lcd_control_temperature_menu() {
   START_MENU();
+
+  //
+  // ^ Control
+  //
   MENU_ITEM(back, MSG_CONTROL, lcd_control_menu);
+
+  //
+  // Nozzle, Nozzle 2, Nozzle 3, Nozzle 4
+  //
   #if TEMP_SENSOR_0 != 0
     MENU_MULTIPLIER_ITEM_EDIT(int3, MSG_NOZZLE, &target_temperature[0], 0, HEATER_0_MAXTEMP - 15);
   #endif
@@ -895,16 +896,32 @@ static void lcd_control_temperature_menu() {
       #endif // EXTRUDERS > 3
     #endif // EXTRUDERS > 2
   #endif // EXTRUDERS > 1
+
+  //
+  // Bed
+  //
   #if TEMP_SENSOR_BED != 0
     MENU_MULTIPLIER_ITEM_EDIT(int3, MSG_BED, &target_temperature_bed, 0, BED_MAXTEMP - 15);
   #endif
+
+  //
+  // Fan Speed
+  //
   MENU_MULTIPLIER_ITEM_EDIT(int3, MSG_FAN_SPEED, &fanSpeed, 0, 255);
+
+  //
+  // Autotemp, Min, Max, Fact
+  //
   #if defined(AUTOTEMP) && (TEMP_SENSOR_0 != 0)
     MENU_ITEM_EDIT(bool, MSG_AUTOTEMP, &autotemp_enabled);
     MENU_ITEM_EDIT(float3, MSG_MIN, &autotemp_min, 0, HEATER_0_MAXTEMP - 15);
     MENU_ITEM_EDIT(float3, MSG_MAX, &autotemp_max, 0, HEATER_0_MAXTEMP - 15);
     MENU_ITEM_EDIT(float32, MSG_FACTOR, &autotemp_factor, 0.0, 1.0);
   #endif
+
+  //
+  // PID-P, PID-I, PID-D, PID-C
+  //
   #ifdef PIDTEMP
     // set up temp variables - undo the default scaling
     raw_Ki = unscalePID_i(PID_PARAM(Ki,0));
@@ -957,7 +974,15 @@ static void lcd_control_temperature_menu() {
       #endif//EXTRUDERS > 1
     #endif //PID_PARAMS_PER_EXTRUDER
   #endif//PIDTEMP
+
+  //
+  // Preheat PLA conf
+  //
   MENU_ITEM(submenu, MSG_PREHEAT_PLA_SETTINGS, lcd_control_temperature_preheat_pla_settings_menu);
+
+  //
+  // Preheat ABS conf
+  //
   MENU_ITEM(submenu, MSG_PREHEAT_ABS_SETTINGS, lcd_control_temperature_preheat_abs_settings_menu);
   END_MENU();
 }
@@ -967,7 +992,6 @@ static void lcd_control_temperature_menu() {
  * "Temperature" > "Preheat PLA conf" submenu
  *
  */
-
 static void lcd_control_temperature_preheat_pla_settings_menu() {
   START_MENU();
   MENU_ITEM(back, MSG_TEMPERATURE, lcd_control_temperature_menu);
@@ -989,7 +1013,6 @@ static void lcd_control_temperature_preheat_pla_settings_menu() {
  * "Temperature" > "Preheat ABS conf" submenu
  *
  */
-
 static void lcd_control_temperature_preheat_abs_settings_menu() {
   START_MENU();
   MENU_ITEM(back, MSG_TEMPERATURE, lcd_control_temperature_menu);
@@ -1011,7 +1034,6 @@ static void lcd_control_temperature_preheat_abs_settings_menu() {
  * "Control" > "Motion" submenu
  *
  */
-
 static void lcd_control_motion_menu() {
   START_MENU();
   MENU_ITEM(back, MSG_CONTROL, lcd_control_menu);
@@ -1053,7 +1075,6 @@ static void lcd_control_motion_menu() {
  * "Control" > "Filament" submenu
  *
  */
-
 static void lcd_control_volumetric_menu() {
   START_MENU();
   MENU_ITEM(back, MSG_CONTROL, lcd_control_menu);
@@ -1081,17 +1102,27 @@ static void lcd_control_volumetric_menu() {
  * "Control" > "Contrast" submenu
  *
  */
-
 #ifdef HAS_LCD_CONTRAST
   static void lcd_set_contrast() {
     if (encoderPosition != 0) {
-      lcd_contrast -= encoderPosition;
-      lcd_contrast &= 0x3F;
+      #ifdef U8GLIB_LM6059_AF
+        lcd_contrast += encoderPosition;
+        lcd_contrast &= 0xFF;
+      #else
+        lcd_contrast -= encoderPosition;
+        lcd_contrast &= 0x3F;
+      #endif
       encoderPosition = 0;
       lcdDrawUpdate = 1;
       u8g.setContrast(lcd_contrast);
     }
-    if (lcdDrawUpdate) lcd_implementation_drawedit(PSTR(MSG_CONTRAST), itostr2(lcd_contrast));
+    if (lcdDrawUpdate) {
+      #ifdef U8GLIB_LM6059_AF
+        lcd_implementation_drawedit(PSTR(MSG_CONTRAST), itostr3(lcd_contrast));
+      #else
+        lcd_implementation_drawedit(PSTR(MSG_CONTRAST), itostr2(lcd_contrast));
+      #endif
+    }
     if (LCD_CLICKED) lcd_goto_menu(lcd_control_menu);
   }
 #endif // HAS_LCD_CONTRAST
@@ -1101,7 +1132,6 @@ static void lcd_control_volumetric_menu() {
  * "Control" > "Retract" submenu
  *
  */
-
 #ifdef FWRETRACT
   static void lcd_control_retract_menu() {
     START_MENU();
@@ -1139,7 +1169,6 @@ static void lcd_sd_updir() {
  * "Print from SD" submenu
  *
  */
-
 void lcd_sdcard_menu() {
   if (lcdDrawUpdate == 0 && LCD_CLICKED == 0) return;	// nothing to do (so don't thrash the SD card)
   uint16_t fileCnt = card.getnrfilenames();
@@ -1273,6 +1302,13 @@ menu_edit_type(unsigned long, long5, ftostr5, 0.01)
  * Audio feedback for controller clicks
  *
  */
+
+#ifdef LCD_USE_I2C_BUZZER
+  void lcd_buzz(long duration, uint16_t freq) { // called from buzz() in Marlin_main.cpp where lcd is unknown
+    lcd.buzz(duration, freq);
+  }
+#endif
+
 void lcd_quick_feedback() {
   lcdDrawUpdate = 2;
   next_button_update_ms = millis() + 500;
@@ -1284,7 +1320,7 @@ void lcd_quick_feedback() {
     #ifndef LCD_FEEDBACK_FREQUENCY_DURATION_MS
       #define LCD_FEEDBACK_FREQUENCY_DURATION_MS (1000/6)
     #endif    
-    lcd_buzz(LCD_FEEDBACK_FREQUENCY_DURATION_MS, LCD_FEEDBACK_FREQUENCY_HZ);
+    lcd.buzz(LCD_FEEDBACK_FREQUENCY_DURATION_MS, LCD_FEEDBACK_FREQUENCY_HZ);
   #elif defined(BEEPER) && BEEPER >= 0
     #ifndef LCD_FEEDBACK_FREQUENCY_HZ
       #define LCD_FEEDBACK_FREQUENCY_HZ 5000
@@ -1292,7 +1328,7 @@ void lcd_quick_feedback() {
     #ifndef LCD_FEEDBACK_FREQUENCY_DURATION_MS
       #define LCD_FEEDBACK_FREQUENCY_DURATION_MS 2
     #endif
-    lcd_buzz(LCD_FEEDBACK_FREQUENCY_DURATION_MS, LCD_FEEDBACK_FREQUENCY_HZ);
+    buzz(LCD_FEEDBACK_FREQUENCY_DURATION_MS, LCD_FEEDBACK_FREQUENCY_HZ);
   #else
     #ifndef LCD_FEEDBACK_FREQUENCY_DURATION_MS
       #define LCD_FEEDBACK_FREQUENCY_DURATION_MS 2
@@ -1636,7 +1672,7 @@ void lcd_reset_alert_level() { lcd_status_message_level = 0; }
     #define encrot1 2
     #define encrot2 3
     #define encrot3 1
-  #endif 
+  #endif
 
   /**
    * Read encoder buttons from the hardware registers
@@ -1714,23 +1750,6 @@ void lcd_reset_alert_level() { lcd_status_message_level = 0; }
     #else
       return true;
     #endif
-  }
-
-  void lcd_buzz(long duration, uint16_t freq) {
-    if (freq > 0) {
-      #ifdef LCD_USE_I2C_BUZZER
-        lcd.buzz(duration, freq);
-      #elif defined(BEEPER) && BEEPER >= 0
-        SET_OUTPUT(BEEPER);
-        tone(BEEPER, freq, duration);
-        delay(duration);
-      #else
-        delay(duration);
-      #endif
-    }
-    else {
-      delay(duration);
-    }
   }
 
   bool lcd_clicked() { return LCD_CLICKED; }
