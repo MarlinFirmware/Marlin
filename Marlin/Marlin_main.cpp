@@ -3087,6 +3087,7 @@ inline void gcode_M19() {
     {
       gcode_get_destination(); // For Z
       prepare_move();
+      st_synchronize();
       enqueuecommands_P(PSTR("M114")); // tell the host where it is
     }
 >>>>>>> Created the macros RESUME_FEATURE and TRACK_LAYER and wrapped everything with them.
