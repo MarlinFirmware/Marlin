@@ -5334,6 +5334,10 @@ void process_next_command() {
         case 3: // G3  - CCW ARC
           gcode_G2_G3(codenum == 2);
           break;
+      #else
+        SERIAL_ECHO_START;
+        SERIAL_ECHOLNPGM("G2 and G3 are not implemented for DELTA and SCARA!");
+        Stop();
       #endif
 
       // G4 Dwell
