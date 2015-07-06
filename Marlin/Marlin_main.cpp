@@ -1986,7 +1986,7 @@ inline void gcode_G4() {
     #else
       };
     #endif //BABYSTEP_XY
-    for(uint8_t i=0; i<(sizeof(axis_order)/sizeof(*axis_order)); i++) {
+    for (uint8_t i=0; i<(sizeof(axis_order)/sizeof(*axis_order)); i++) {
       boolean endstop = false;
       if (code_seen(axis_codes[axis_order[i]]) && axis[i] == -1) {
         axis[i] = axis_order[i];
@@ -1997,11 +1997,9 @@ inline void gcode_G4() {
       else
         continue;
       long babysteps = code_value();
-      if(babysteps < 0 && (current_position[axis[i]] > baby_min_endstop[axis[i]]))  // negative babysteps on Z can ignore min endstop, be careful!
-      {
+      if (babysteps < 0 && (current_position[axis[i]] > baby_min_endstop[axis[i]])) { // negative babysteps on Z can ignore min endstop, be careful!
         SERIAL_PROTOCOLPGM("-= ");
-        if(current_position[axis[i]] + babysteps/axis_steps_per_unit[axis[i]] < baby_min_endstop[axis[i]])
-        {
+        if(current_position[axis[i]] + babysteps/axis_steps_per_unit[axis[i]] < baby_min_endstop[axis[i]]) {
           endstop = true;
           babysteps = -1 * (current_position[axis[i]] - baby_min_endstop[axis[i]]) * axis_steps_per_unit[axis[i]];
         }
@@ -2010,11 +2008,9 @@ inline void gcode_G4() {
         SERIAL_PROTOCOL_F(-1 * babysteps/axis_steps_per_unit[axis[i]], 6);
         babystepsTodo[axis[i]] += babysteps;
       }
-      else if(babysteps > 0 && current_position[axis[i]] < baby_max_endstop[axis[i]])
-      {
+      else if (babysteps > 0 && current_position[axis[i]] < baby_max_endstop[axis[i]]) {
         SERIAL_PROTOCOLPGM("+= ");
-        if(current_position[axis[i]] + babysteps/axis_steps_per_unit[axis[i]] > baby_max_endstop[axis[i]])
-        {
+        if(current_position[axis[i]] + babysteps/axis_steps_per_unit[axis[i]] > baby_max_endstop[axis[i]]) {
           endstop = true;
           babysteps = (baby_max_endstop[axis[i]] - current_position[axis[i]]) * axis_steps_per_unit[axis[i]];
         }
@@ -2023,20 +2019,17 @@ inline void gcode_G4() {
         SERIAL_PROTOCOL_F(babysteps/axis_steps_per_unit[axis[i]], 6);
         babystepsTodo[axis[i]] += babysteps;
       }
-      else
-      {
+      else {
         if((current_position[axis[i]] == baby_min_endstop[axis[i]] || current_position[axis[i]] == baby_max_endstop[axis[i]]) && babysteps != 0)
           endstop = true;
         SERIAL_PROTOCOL("= 0");
       }
       SERIAL_PROTOCOLPGM("mm\n");
-      if(endstop)
-      {
+      if (endstop) {
         SERIAL_PROTOCOLPGM("BABY_ENDSTOP PREVENTED A COLLISION!\n");
         endstop = false;
       }
-      if(current_position[axis[i]] < baby_min_endstop[axis[i]])
-      {
+      if (current_position[axis[i]] < baby_min_endstop[axis[i]]) {
         baby_min_endstop[axis[i]] = current_position[axis[i]];
         baby_max_endstop[axis[i]] += baby_min_endstop[axis[i]];
       }

@@ -450,11 +450,11 @@ void lcd_set_home_offsets() {
   static void _lcd_babystep(int axis, const char *msg) {
     if (encoderPosition != 0) {
       babystepsTodo[axis] += (int)encoderPosition;
-      baby_max_endstop[axis] -= ((int)encoderPosition)/axis_steps_per_unit[axis];
-      baby_min_endstop[axis] -= ((int)encoderPosition)/axis_steps_per_unit[axis];
+      float diff = int(encoderPosition) / axis_steps_per_unit[axis];
+      baby_max_endstop[axis] -= diff;
+      baby_min_endstop[axis] -= diff;
      #ifdef BABYSTEP_OFFSET
-      if(axis == Z_AXIS)
-        home_offset[axis] += ((int)encoderPosition)/axis_steps_per_unit[axis];
+      if(axis == Z_AXIS) home_offset[axis] += diff;
      #endif //BABYSTEP_OFFSET
       encoderPosition = 0;
       lcdDrawUpdate = 1;
