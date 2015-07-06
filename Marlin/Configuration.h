@@ -612,6 +612,11 @@ const bool Z_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the logic
   #define EEPROM_CHITCHAT // Please keep turned on if you can.
 #endif
 
+//
+// M99 Free Memory Watcher
+//
+#define M99_FREE_MEMORY_WATCHER // uncomment to add the M99 Free Memory Watcher for debug purpose
+
 // @section temperature
 
 // Preheat Constants
