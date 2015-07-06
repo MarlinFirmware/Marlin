@@ -225,6 +225,10 @@
  *
  */
 
+#ifdef M99_FREE_MEMORY_WATCHER
+  void m99_code();
+#endif
+
 #ifdef SDSUPPORT
   CardReader card;
 #endif
@@ -5371,6 +5375,12 @@ void process_next_command() {
           gcode_M48();
           break;
       #endif // ENABLE_AUTO_BED_LEVELING && Z_PROBE_REPEATABILITY_TEST
+
+      #ifdef M99_FREE_MEMORY_WATCHER
+        case 99:
+          m99_code();
+          break;
+      #endif
 
       case 104: // M104
         gcode_M104();
