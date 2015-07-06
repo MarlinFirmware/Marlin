@@ -35,7 +35,7 @@ namespace screen
 			void text(const char * msg, uint8_t h_pad = 0, uint8_t v_pad = 0);
 			void text_P(const char * msg, uint8_t h_pad = 0, uint8_t v_pad = 0);
 			
-			void multiText(const char * msg);
+			void multiText(const char * msg, bool align_top);
 
 			void printingStatus(const uint8_t percentage, const uint8_t hour, const uint8_t minute);
 

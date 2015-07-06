@@ -70,7 +70,7 @@ namespace screen
 		}
 	}
 
-	void GuiPainter::multiText(const char * msg)
+	void GuiPainter::multiText(const char * msg, bool align_top)
 	{
 		if ( (msg != NULL) && (strlen_P(msg) > 0) )
 		{
@@ -132,12 +132,26 @@ namespace screen
 						switch (total_lines)
 						{
 							case 1:
-								text(phrase, 0, 16);
+								if(align_top)
+								{
+									text(phrase, 0, 3);
+								}
+								else
+								{
+									text(phrase, 0, 16);
+								}
 								break;
 							case 2:
 								if(n_lines == 1)
 								{
-									text(phrase, 0, 10);
+									if(align_top)
+									{
+										text(phrase, 0, 3);
+									}
+									else
+									{
+										text(phrase, 0, 10);
+									}
 								}
 								else
 								{
@@ -147,7 +161,14 @@ namespace screen
 							case 3:
 								if(n_lines == 1)
 								{
-									text(phrase, 0, 6);
+									if(align_top)
+									{
+										text(phrase, 0, 3);
+									}
+									else
+									{
+										text(phrase, 0, 6);
+									}
 								}
 								else
 								{
@@ -172,12 +193,26 @@ namespace screen
 						switch (total_lines)
 						{
 							case 1:
-								text(phrase, 0, 16);
+								if(align_top)
+								{
+									text(phrase, 0, 3);
+								}
+								else
+								{
+									text(phrase, 0, 16);
+								}
 								break;
 							case 2:
 								if(n_lines == 1)
 								{
-									text(phrase, 0, 10);
+									if(align_top)
+									{
+										text(phrase, 0, 3);
+									}
+									else
+									{
+										text(phrase, 0, 10);
+									}
 								}
 								else
 								{
@@ -187,7 +222,14 @@ namespace screen
 							case 3:
 								if(n_lines == 1)
 								{
-									text(phrase, 0, 6);
+									if(align_top)
+									{
+										text(phrase, 0, 3);
+									}
+									else
+									{
+										text(phrase, 0, 6);
+									}
 								}
 								else
 								{
