@@ -4237,12 +4237,12 @@ inline void gcode_M211() {
   // manage bit mask in enable_software_endstops
   uint8_t smask = 0x00;
 
-  if (code_seen_str("X0")) smask |= 1;
-  if (code_seen_str("Y0")) smask |= 2;
-  if (code_seen_str("Z0")) smask |= 4;
-  if (code_seen_str("X1")) smask |= 16;
-  if (code_seen_str("Y1")) smask |= 32;
-  if (code_seen_str("Z1")) smask |= 64;
+  if (code_seen_str("X0")) smask |= BIT(X_AXIS);
+  if (code_seen_str("Y0")) smask |= BIT(Y_AXIS);
+  if (code_seen_str("Z0")) smask |= BIT(Z_AXIS);
+  if (code_seen_str("X1")) smask |= BIT(X_AXIS+4);
+  if (code_seen_str("Y1")) smask |= BIT(Y_AXIS+4);
+  if (code_seen_str("Z1")) smask |= BIT(Z_AXIS+4);
 
 
   // Set mask
@@ -4262,17 +4262,17 @@ inline void gcode_M211() {
     // Print state
   SERIAL_PROTOCOLLN(MSG_M211_REPORT);
   SERIAL_PROTOCOLPGM(MSG_X_MIN);
-  SERIAL_PROTOCOLLN(((enabled_software_endstops & 1) > 0?MSG_ENABLED:MSG_DISABLED));
+  SERIAL_PROTOCOLLN(TEST(enabled_software_endstops, X_AXIS)?MSG_ENABLED:MSG_DISABLED);
   SERIAL_PROTOCOLPGM(MSG_X_MAX);
-  SERIAL_PROTOCOLLN(((enabled_software_endstops & 16) > 0?MSG_ENABLED:MSG_DISABLED));
+  SERIAL_PROTOCOLLN(TEST(enabled_software_endstops, Y_AXIS)?MSG_ENABLED:MSG_DISABLED);
   SERIAL_PROTOCOLPGM(MSG_Y_MIN);
-  SERIAL_PROTOCOLLN(((enabled_software_endstops & 2) > 0?MSG_ENABLED:MSG_DISABLED));
+  SERIAL_PROTOCOLLN(TEST(enabled_software_endstops, Z_AXIS)?MSG_ENABLED:MSG_DISABLED);
   SERIAL_PROTOCOLPGM(MSG_Y_MAX);
-  SERIAL_PROTOCOLLN(((enabled_software_endstops & 32) > 0?MSG_ENABLED:MSG_DISABLED));
+  SERIAL_PROTOCOLLN(TEST(enabled_software_endstops, X_AXIS+4)?MSG_ENABLED:MSG_DISABLED);
   SERIAL_PROTOCOLPGM(MSG_Z_MIN);
-  SERIAL_PROTOCOLLN(((enabled_software_endstops & 4) > 0?MSG_ENABLED:MSG_DISABLED));
+  SERIAL_PROTOCOLLN(TEST(enabled_software_endstops, Y_AXIS+4)?MSG_ENABLED:MSG_DISABLED);
   SERIAL_PROTOCOLPGM(MSG_Z_MAX);
-  SERIAL_PROTOCOLLN(((enabled_software_endstops & 64) > 0?MSG_ENABLED:MSG_DISABLED));
+  SERIAL_PROTOCOLLN(TEST(enabled_software_endstops, Z_AXIS+4)?MSG_ENABLED:MSG_DISABLED);
   }
 }
 #endif
@@ -5924,8 +5924,8 @@ void clamp_to_software_endstops(float target[3]) {
       NOLESS(target[X_AXIS], min_pos[X_AXIS]);
       NOLESS(target[Y_AXIS], min_pos[Y_AXIS]);
     #else
-      if (enabled_software_endstops & 1) NOLESS(target[X_AXIS], min_pos[X_AXIS]);
-      if (enabled_software_endstops & 2) NOLESS(target[Y_AXIS], min_pos[Y_AXIS]);
+      if (TEST(enabled_software_endstops, X_AXIS)) NOLESS(target[X_AXIS], min_pos[X_AXIS]);
+      if (TEST(enabled_software_endstops, Y_AXIS)) NOLESS(target[Y_AXIS], min_pos[Y_AXIS]);
     #endif    
     
     float negative_z_offset = 0;
@@ -5936,7 +5936,7 @@ void clamp_to_software_endstops(float target[3]) {
     #ifndef ENABLE_M211
       NOLESS(target[Z_AXIS], min_pos[Z_AXIS] + negative_z_offset);
     #else
-      if (enabled_software_endstops & 4) NOLESS(target[Z_AXIS], min_pos[Z_AXIS] + negative_z_offset);
+      if (TEST(enabled_software_endstops, Z_AXIS)) NOLESS(target[Z_AXIS], min_pos[Z_AXIS] + negative_z_offset);
     #endif
   }
 
@@ -5946,9 +5946,9 @@ void clamp_to_software_endstops(float target[3]) {
       NOMORE(target[Y_AXIS], max_pos[Y_AXIS]);
       NOMORE(target[Z_AXIS], max_pos[Z_AXIS]);
     #else
-      if (enabled_software_endstops & 16) NOMORE(target[X_AXIS], max_pos[X_AXIS]);
-      if (enabled_software_endstops & 32) NOMORE(target[Y_AXIS], max_pos[Y_AXIS]);
-      if (enabled_software_endstops & 64) NOMORE(target[Z_AXIS], max_pos[Z_AXIS]);
+      if (TEST(enabled_software_endstops, X_AXIS+4)) NOMORE(target[X_AXIS], max_pos[X_AXIS]);
+      if (TEST(enabled_software_endstops, Y_AXIS+4)) NOMORE(target[Y_AXIS], max_pos[Y_AXIS]);
+      if (TEST(enabled_software_endstops, Z_AXIS+4)) NOMORE(target[Z_AXIS], max_pos[Z_AXIS]);
     #endif
   }
 }

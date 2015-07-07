@@ -391,6 +391,8 @@ const bool Z_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the logic
 // In combination with G92 command marlin can be used to manually do an X,Y,Z axis homing and mill down an part
 #define ENABLE_M211
 
+// @section machine
+
 // Travel limits after homing (units are in mm)
 #define X_MIN_POS 0
 #define Y_MIN_POS 0
