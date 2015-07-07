@@ -3636,16 +3636,18 @@ inline void gcode_M109() {
 inline void gcode_M111() {
   marlin_debug_flags = code_seen('S') ? code_value_short() : DEBUG_INFO|DEBUG_COMMUNICATION;
   
-  SERIAL_ECHO_START;
-  if (marlin_debug_flags & DEBUG_ECHO) SERIAL_ECHOLNPGM(MSG_DEBUG_ECHO);
+  if (marlin_debug_flags & DEBUG_ECHO) {
+    SERIAL_ECHO_START;
+    SERIAL_ECHOLNPGM(MSG_DEBUG_ECHO);
+  }
   // FOR MOMENT NOT ACTIVE
   //if (marlin_debug_flags & DEBUG_INFO) SERIAL_ECHOLNPGM(MSG_DEBUG_INFO);
   //if (marlin_debug_flags & DEBUG_ERRORS) SERIAL_ECHOLNPGM(MSG_DEBUG_ERRORS);
   if (marlin_debug_flags & DEBUG_DRYRUN) {
+    SERIAL_ECHO_START;
     SERIAL_ECHOLNPGM(MSG_DEBUG_DRYRUN);
     disable_all_heaters();
   }
-  SERIAL_EOL;
 }
 
 /**
