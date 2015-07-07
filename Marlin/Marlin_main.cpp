@@ -3643,10 +3643,7 @@ inline void gcode_M111() {
   //if (marlin_debug_flags & DEBUG_ERRORS) SERIAL_ECHOLNPGM(MSG_DEBUG_ERRORS);
   if (marlin_debug_flags & DEBUG_DRYRUN) {
     SERIAL_ECHOLNPGM(MSG_DEBUG_DRYRUN);
-    setTargetBed(0);
-    for (int8_t cur_hotend = 0; cur_hotend < EXTRUDERS; ++cur_hotend) {
-      setTargetHotend(0, cur_hotend);
-    }
+    disable_all_heaters();
   }
   SERIAL_EOL;
 }
