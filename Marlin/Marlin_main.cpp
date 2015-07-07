@@ -967,6 +967,7 @@ int16_t code_value_short() { return (int16_t)strtol(seen_pointer + 1, NULL, 10);
 
 bool code_seen(char code) {
   seen_pointer = strchr(current_command_args, code);
+  if (seen_pointer == NULL) seen_pointer = strchr(current_command_args, code + ('a'-'A'));
   return (seen_pointer != NULL); // Return TRUE if the code-letter was found
 }
 
