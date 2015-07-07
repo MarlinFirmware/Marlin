@@ -966,8 +966,8 @@ long code_value_long() { return strtol(seen_pointer + 1, NULL, 10); }
 int16_t code_value_short() { return (int16_t)strtol(seen_pointer + 1, NULL, 10); }
 
 bool code_seen(char code) {
-  seen_pointer = strchr(current_command_args, code); // +3 since "G0 " is the shortest prefix
-  return (seen_pointer != NULL);  //Return True if a character was found
+  seen_pointer = strchr(current_command_args, code);
+  return (seen_pointer != NULL); // Return TRUE if the code-letter was found
 }
 
 #define DEFINE_PGM_READ_ANY(type, reader)       \
