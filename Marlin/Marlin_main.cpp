@@ -2388,7 +2388,7 @@ inline void gcode_G28() {
   inline void gcode_G29() {
 
     static int probe_point = -1;
-    MeshLevelingState state = code_seen('S') || code_seen('s') ? (MeshLevelingState)code_value_short() : MeshReport;
+    MeshLevelingState state = code_seen('S') ? (MeshLevelingState)code_value_short() : MeshReport;
     if (state < 0 || state > 3) {
       SERIAL_PROTOCOLLNPGM("S out of range (0-3).");
       return;
@@ -2466,7 +2466,7 @@ inline void gcode_G28() {
         break;
 
       case MeshSet:
-        if (code_seen('X') || code_seen('x')) {
+        if (code_seen('X')) {
           ix = code_value_long()-1;
           if (ix < 0 || ix >= MESH_NUM_X_POINTS) {
             SERIAL_PROTOCOLPGM("X out of range (1-" STRINGIFY(MESH_NUM_X_POINTS) ").\n");
@@ -2476,7 +2476,7 @@ inline void gcode_G28() {
             SERIAL_PROTOCOLPGM("X not entered.\n");
             return;
         }
-        if (code_seen('Y') || code_seen('y')) {
+        if (code_seen('Y')) {
           iy = code_value_long()-1;
           if (iy < 0 || iy >= MESH_NUM_Y_POINTS) {
             SERIAL_PROTOCOLPGM("Y out of range (1-" STRINGIFY(MESH_NUM_Y_POINTS) ").\n");
@@ -2486,7 +2486,7 @@ inline void gcode_G28() {
             SERIAL_PROTOCOLPGM("Y not entered.\n");
             return;
         }
-        if (code_seen('Z') || code_seen('z')) {
+        if (code_seen('Z')) {
           z = code_value();
         } else {
           SERIAL_PROTOCOLPGM("Z not entered.\n");
@@ -2553,19 +2553,19 @@ inline void gcode_G28() {
       return;
     }
 
-    int verbose_level = code_seen('V') || code_seen('v') ? code_value_short() : 1;
+    int verbose_level = code_seen('V') ? code_value_short() : 1;
     if (verbose_level < 0 || verbose_level > 4) {
       SERIAL_ECHOLNPGM("?(V)erbose Level is implausible (0-4).");
       return;
     }
 
-    bool dryrun = code_seen('D') || code_seen('d'),
-         deploy_probe_for_each_reading = code_seen('E') || code_seen('e');
+    bool dryrun = code_seen('D'),
+         deploy_probe_for_each_reading = code_seen('E');
 
     #ifdef AUTO_BED_LEVELING_GRID
 
       #ifndef DELTA
-        bool do_topography_map = verbose_level > 2 || code_seen('T') || code_seen('t');
+        bool do_topography_map = verbose_level > 2 || code_seen('T');
       #endif
 
       if (verbose_level > 0) {
@@ -3223,7 +3223,7 @@ inline void gcode_M42() {
     double sum = 0.0, mean = 0.0, sigma = 0.0, sample_set[50];
     uint8_t verbose_level = 1, n_samples = 10, n_legs = 0;
 
-    if (code_seen('V') || code_seen('v')) {
+    if (code_seen('V')) {
       verbose_level = code_value_short();
       if (verbose_level < 0 || verbose_level > 4 ) {
         SERIAL_PROTOCOLPGM("?Verbose Level not plausible (0-4).\n");
@@ -3234,7 +3234,7 @@ inline void gcode_M42() {
     if (verbose_level > 0)
       SERIAL_PROTOCOLPGM("M48 Z-Probe Repeatability test\n");
 
-    if (code_seen('P') || code_seen('p')) {
+    if (code_seen('P')) {
       n_samples = code_value_short();
       if (n_samples < 4 || n_samples > 50) {
         SERIAL_PROTOCOLPGM("?Sample size not plausible (4-50).\n");
@@ -3249,9 +3249,9 @@ inline void gcode_M42() {
            X_probe_location = X_current, Y_probe_location = Y_current,
            Z_start_location = Z_current + Z_RAISE_BEFORE_PROBING;
 
-    bool deploy_probe_for_each_reading = code_seen('E') || code_seen('e');
+    bool deploy_probe_for_each_reading = code_seen('E');
 
-    if (code_seen('X') || code_seen('x')) {
+    if (code_seen('X')) {
       X_probe_location = code_value() - X_PROBE_OFFSET_FROM_EXTRUDER;
       if (X_probe_location < X_MIN_POS || X_probe_location > X_MAX_POS) {
         out_of_range_error(PSTR("X"));
@@ -3259,7 +3259,7 @@ inline void gcode_M42() {
       }
     }
 
-    if (code_seen('Y') || code_seen('y')) {
+    if (code_seen('Y')) {
       Y_probe_location = code_value() -  Y_PROBE_OFFSET_FROM_EXTRUDER;
       if (Y_probe_location < Y_MIN_POS || Y_probe_location > Y_MAX_POS) {
         out_of_range_error(PSTR("Y"));
@@ -3267,7 +3267,7 @@ inline void gcode_M42() {
       }
     }
 
-    if (code_seen('L') || code_seen('l')) {
+    if (code_seen('L')) {
       n_legs = code_value_short();
       if (n_legs == 1) n_legs = 2;
       if (n_legs < 0 || n_legs > 15) {
