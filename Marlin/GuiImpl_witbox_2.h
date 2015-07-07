@@ -60,6 +60,7 @@ namespace screen
 		screen_move_heating,
 		screen_stepper,
 		screen_temperature_main,
+		screen_heating_main,
 		screen_autolevel,
 		screen_light,
 		screen_info,
@@ -88,6 +89,7 @@ namespace screen
 		screen_change_ok2print,
 		screen_speed,
 		screen_temperature_print,
+		screen_none,
 	} ScreenIndex_t;
 
 	class Screen;

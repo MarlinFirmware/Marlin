@@ -83,6 +83,7 @@ namespace screen
 		, m_text(text)
 		, m_num_item_added(0)
 		, m_observed(0)
+		, m_back_screen(screen_none)
 		, m_condition(condition)
 		, m_target(target)
 		, m_previous_time(0)
@@ -189,13 +190,16 @@ namespace screen
 	template <typename T>
 		void ScreenAnimation<T>::press()
 	{
-		ViewManager::getInstance().activeView(m_back_screen);
+		if(m_back_screen != screen_none)
+		{
+			ViewManager::getInstance().activeView(m_back_screen);
+		}
 	}
 
 	template <typename T>
 		void ScreenAnimation<T>::add(ScreenIndex_t const & component)
 	{
-		if (m_num_item_added % 2)
+		if ((m_num_item_added % 2) == 0)
 		{
 			m_next_screen = component;
 		}

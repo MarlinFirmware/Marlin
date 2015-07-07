@@ -57,7 +57,7 @@ namespace screen
 		do
 		{
 			painter.title(m_title);
-			painter.multiText(m_message);
+			painter.multiText(m_message, false);
 			painter.box(m_box);
 		} while ( painter.nextPage() );
 		if (this->m_model != 0 && m_printing_status == PAUSED)
