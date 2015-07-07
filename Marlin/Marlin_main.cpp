@@ -3604,7 +3604,6 @@ inline void gcode_M111() {
     SERIAL_ECHOLNPGM(MSG_DEBUG_DRYRUN);
     disable_all_heaters();
   }
-  SERIAL_EOL;
 }
 
 /**
