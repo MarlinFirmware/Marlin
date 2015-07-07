@@ -1,5 +1,5 @@
-#ifndef GUI_IMPL_H
-#define GUI_IMPL_H
+#ifndef GUI_PAINTER_H
+#define GUI_PAINTER_H
 
 #include <stdint.h>
 
@@ -18,36 +18,41 @@ namespace screen
 		public:
 			typedef Singleton<screen::GuiPainter> singleton;
 
-			typedef enum
+			struct Area
 			{
-				XINIT = 0,
-				YINIT,
-				XEND,
-				YEND,
-			} CoordinateType_t;
+				Area()
+					: x_init(0)
+					, y_init(0)
+					, x_end(0)
+					, y_end(0)
+				{ }
+
+				uint8_t x_init;
+				uint8_t y_init;
+				uint8_t x_end;
+				uint8_t y_end;
+			};
 
 		public:
 			GuiPainter();
 			~GuiPainter();
 
+			void begin();
+			void firstPage();
+			bool nextPage();
+
 			void title(const char * title);
+			void box(const char* text);
+			void arrowBox(const char* text);
+			void printingStatus(const uint8_t percentage, const uint8_t hour, const uint8_t minute);
+			void selector(uint16_t number, uint16_t total);
 
 			void text(const char * msg, uint8_t h_pad = 0, uint8_t v_pad = 0);
 			void text_P(const char * msg, uint8_t h_pad = 0, uint8_t v_pad = 0);
-			
 			void multiText(const char * msg, bool align_top = false);
 
-			void printingStatus(const uint8_t percentage, const uint8_t hour, const uint8_t minute);
-
-			void selector(uint16_t number, uint16_t total);
-
-			void box(const char* text);
-			void arrowBox(const char* text);
-
-			void setColorIndex(uint8_t color);
-
 			void setFont(const u8g_fntpgm_uint8_t* font);
-
+			void setColorIndex(uint8_t color);
 			void setPrintPos(uint8_t x, uint8_t y);
 
 			void print(const char * text);
@@ -55,13 +60,11 @@ namespace screen
 
 			void drawLine(uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2);
 			void drawBox(uint8_t x, uint8_t y, uint8_t w, uint8_t h);
-
 			void drawBitmap(uint8_t x, uint8_t y, uint8_t width, uint8_t height, const unsigned char* bitmap);
 
-			void begin();
+			char * itostr2(const int &xx);
 
-			void firstPage();
-			bool nextPage();
+			char * itostr3left(const int &xx);
 
 			void coordinateXInit(uint8_t coordinate);
 
@@ -79,10 +82,6 @@ namespace screen
 
 			uint8_t coordinateYEnd ();
 
-			char * itostr2(const int &xx);
-
-			char * itostr3left(const int &xx);
-
 		private:
 			U8GLIB_ST7920_128X64_RRD m_impl;
 			uint8_t m_x_init;
@@ -90,9 +89,9 @@ namespace screen
 			uint8_t m_x_end;
 			uint8_t m_y_end;
 
-
+			Area m_working_area;
 	};
 }
 #define painter screen::GuiPainter::singleton::instance()
 
-#endif //GUI_IMPL_H
+#endif // GUI_PAINTER_H
