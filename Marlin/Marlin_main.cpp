@@ -2453,7 +2453,11 @@ inline void gcode_G28() {
 
     #if ENABLED(AUTO_BED_LEVELING_GRID)
 
+<<<<<<< HEAD
       #if DISABLED(DELTA)
+=======
+      #ifndef DELTA
+>>>>>>> Call code_seen only once per parameter
         bool do_topography_map = verbose_level > 2 || code_seen('T');
       #endif
 
