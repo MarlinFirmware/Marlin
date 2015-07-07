@@ -601,6 +601,12 @@ void setup() {
   setup_killpin();
   setup_filrunoutpin();
   setup_powerhold();
+
+  // RigidBot Feature
+  #ifdef STEPPER_RESET_FIX
+     disableStepperDrivers();
+  #endif
+
   MYSERIAL.begin(BAUDRATE);
   SERIAL_PROTOCOLLNPGM("start");
   SERIAL_ECHO_START;
@@ -654,6 +660,11 @@ void setup() {
 
   #if HAS_CONTROLLERFAN
     SET_OUTPUT(CONTROLLERFAN_PIN); //Set pin used for driver cooling fan
+  #endif
+
+  // RigidBot Feature
+  #ifdef STEPPER_RESET_FIX
+     enableStepperDrivers();
   #endif
 
   #ifdef DIGIPOT_I2C
@@ -931,6 +942,20 @@ bool code_has_value() {
   if (c == '.') c = seen_pointer[++i];
   return (c >= '0' && c <= '9');
 }
+
+// RigidBot Feature
+#ifdef STEPPER_RESET_PIN
+  void disableStepperDrivers() {
+    pinMode(STEPPER_RESET_PIN, OUTPUT);    // set to output
+    digitalWrite(STEPPER_RESET_PIN, LOW);  // drive it down to hold in reset motor driver chips
+    return;
+  }
+
+  void enableStepperDrivers() {
+    pinMode(STEPPER_RESET_PIN, INPUT);     // set to input, which allows it to be pulled high by pullups
+    return;
+  }
+#endif //STEPPER_RESET_PIN
 
 float code_value() {
   float ret;
