@@ -23,8 +23,8 @@ namespace screen
 				Area()
 					: x_init(0)
 					, y_init(0)
-					, x_end(0)
-					, y_end(0)
+					, x_end(screen_width - 1)
+					, y_end(screen_height - 1)
 				{ }
 
 				uint8_t x_init;
@@ -40,6 +40,10 @@ namespace screen
 			void begin();
 			void firstPage();
 			bool nextPage();
+
+			void clearWorkingArea();
+			void setWorkingArea(Area a);
+			Area getWorkingArea();
 
 			void title(const char * title);
 			void box(const char* text);

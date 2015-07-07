@@ -35,6 +35,22 @@ namespace screen
 		m_impl.nextPage();
 	}
 
+	void GuiPainter::clearWorkingArea()
+	{
+		m_working_area = Area();
+	}
+	
+	void GuiPainter::setWorkingArea(Area a)
+	{
+		m_working_area = a;
+	}
+
+	GuiPainter::Area GuiPainter::getWorkingArea()
+	{
+		return m_working_area;
+	}
+
+
 	void GuiPainter::title(const char * title)
 	{
 		if ( (title != NULL) && (strlen_P(title) > 0) )
