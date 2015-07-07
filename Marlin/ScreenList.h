@@ -28,6 +28,8 @@
 #ifndef SCREEN_LIST_H
 #define SCREEN_LIST_H
 
+#include <stdint.h>
+
 #include "Screen.h"
 
 typedef enum
@@ -72,6 +74,11 @@ namespace screen
 
 		private:
 			void updateSdcardStatus();
+
+		public:
+			static uint8_t directory_index;
+			static uint8_t directory_array[10];
+			static bool from_updir;
 
 		private:
 			uint16_t m_index;

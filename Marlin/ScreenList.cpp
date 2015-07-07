@@ -51,8 +51,6 @@ State_t do_state_prepare(Event_t event)
 	return STATE_PREPARE;
 }
 
-
-
 State_t do_state_paint(Event_t event)
 {
 	if (event == EVENT_KEYPRESS)
@@ -65,9 +63,12 @@ State_t do_state_paint(Event_t event)
 }
 
 
-
 namespace screen
 {
+	uint8_t ScreenList::directory_index = 0;
+	uint8_t ScreenList::directory_array[10] = { 0 };
+	bool ScreenList::from_updir = false;
+
 	ScreenList::ScreenList(const char * title)
 		: Screen(title, LIST)
 		, m_index(0)
@@ -126,8 +127,25 @@ namespace screen
 
 				if (card.filename[0] != '/')
 				{
-					strncpy(m_directory, card.folderName, 19);
-					m_directory[19] = '\0';
+					if(from_updir)
+					{
+						if(directory_index > 0)
+						{
+							char prev_folder[20];
+							strncpy(prev_folder, card.filename, 19);
+							card.updir();
+							card.getfilename(directory_array[directory_index-1]-1);
+							strncpy(m_directory, card.longFilename, sizeof(m_directory));
+							card.chdir(prev_folder);
+							painter.print(m_directory);
+							from_updir = false;
+						}
+					}
+					else
+					{
+						strncpy(m_directory, card.folderName, 19);
+						m_directory[19] = '\0';
+					}
 
 					m_directory_is_root = false;
 					m_offset = 2;
@@ -169,6 +187,8 @@ namespace screen
 				painter.print("/");
 				painter.setPrintPos(x_init + 6, y_init + 3);
 				painter.print_P(m_title);
+				memset(directory_array,0,sizeof(directory_array));
+				directory_index = 0;
 			}
 			else
 			{
@@ -265,12 +285,16 @@ namespace screen
 
 		if (m_index == 0)
 		{
+			directory_index = 0;
 			ViewManager::getInstance().activeView(m_back_screen);
 			return;
 		}
 
 		if (m_directory_is_root == false && (m_index == 1))
 		{
+			directory_index--;
+			from_updir = true;
+
 			card.updir();
 			ViewManager::getInstance().activeView(screen_SD_list);
 			return;
@@ -280,6 +304,11 @@ namespace screen
 			card.getfilename(m_index - m_offset);
 			if (card.filenameIsDir == true)
 			{
+				if(directory_index < 9)
+				{
+					directory_array[directory_index] = m_index - m_offset + 1;
+					directory_index++;
+				}
 				card.chdir(card.filename);
 				ViewManager::getInstance().activeView(screen_SD_list);
 				return;
