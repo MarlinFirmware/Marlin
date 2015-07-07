@@ -85,7 +85,7 @@ namespace screen
 
 	static ScreenEmergency * make_screen_emergency()
 	{
-		ScreenEmergency * local_view = new ScreenEmergency(MSG_SCREEN_EMERGENCY_TITLE, MSG_SCREEN_EMERGENCY_TEXT, MSG_SCREEN_EMERGENCY_BOX);
+		ScreenEmergency * local_view = new ScreenEmergency(MSG_SCREEN_EMERGENCY_TITLE, MSG_SCREEN_EMERGENCY_TEXT, MSG_SCREEN_EMERGENCY_BOX, bits_emergency);
 		return local_view;
 	}
 
