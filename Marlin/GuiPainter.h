@@ -49,7 +49,6 @@ namespace screen
 			void box(const char* text);
 			void arrowBox(const char* text);
 			void printingStatus(const uint8_t percentage, const uint8_t hour, const uint8_t minute);
-			void selector(uint16_t number, uint16_t total);
 
 			void text(const char * msg, uint8_t h_pad = 0, uint8_t v_pad = 0);
 			void text_P(const char * msg, uint8_t h_pad = 0, uint8_t v_pad = 0);

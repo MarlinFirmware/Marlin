@@ -39,7 +39,7 @@ namespace screen
 	{
 		m_working_area = Area();
 	}
-	
+
 	void GuiPainter::setWorkingArea(Area a)
 	{
 		m_working_area = a;
@@ -55,17 +55,17 @@ namespace screen
 	{
 		if ( (title != NULL) && (strlen_P(title) > 0) )
 		{
-			uint8_t x_init = coordinateXInit();
-			uint8_t y_init = coordinateYInit();
-			uint8_t x_end = coordinateXEnd();
+			uint8_t save_color_index = m_impl.getColorIndex();
 
 			setColorIndex(1);
 			setFont(u8g_font_6x9);
-			setPrintPos(x_init, y_init + 3);
+			setPrintPos(0, 3);
 			print_P(title);
-			drawLine(x_init, y_init + 13, x_end, y_init + 13);
+
+			drawLine(0, title_height - 1, title_width - 1, title_height - 1);
 
 			coordinateYInit(14);
+			setColorIndex(save_color_index);
 		}
 	}
 
@@ -73,23 +73,19 @@ namespace screen
 	{
 		uint8_t save_color_index = m_impl.getColorIndex();
 
-		uint8_t x_init = coordinateXInit();
-		uint8_t x_end = coordinateXEnd();
-		uint8_t y_end = coordinateYEnd();
-
 		//Print box
 		setColorIndex(1);
-		m_impl.drawBox(x_init, y_end - 9, x_end, y_end - 9);
+		m_impl.drawBox(0, ((screen_height - 1) - (box_height - 1)), (box_width - 1), screen_height - 1);
 
 		//Set font and color
 		setFont(u8g_font_6x9);
 		setColorIndex(0);
 
 		//Print text label
-		setPrintPos(x_end/2 - (strlen_P(text)*6)/2, y_end - 9);
+		setPrintPos( (screen_width - strlen_P(text) * max_font_width) / 2, ((screen_height - 1) - (max_font_height - 1)));
 		print_P(text);
-		coordinateYEnd(51);
 
+		coordinateYEnd(51);
 		setColorIndex(save_color_index);
 	}
 
@@ -97,26 +93,25 @@ namespace screen
 	{
 		uint8_t save_color_index = m_impl.getColorIndex();
 
-		uint8_t x_init = coordinateXInit();
-		uint8_t x_end = coordinateXEnd();
-		uint8_t y_end = coordinateYEnd();
-
 		//Print box
 		setColorIndex(1);
-		m_impl.drawBox(x_init, y_end - 9, x_end, y_end - 9);
+		m_impl.drawBox(0, ((screen_height - 1) - (box_height - 1)), (box_width - 1), screen_height - 1);
+
 		//Set font and color
 		setFont(u8g_font_6x9);
 		setColorIndex(0);
-		//Print arrows
-		setPrintPos(2, y_end - 9);
-		print("<");
-		setPrintPos(x_end-7, y_end - 9);
-		print(">");
-		//Print text label
-		setPrintPos(x_end/2 - (strlen_P(text)*6)/2, y_end - 9);
-		print_P(text);
-		coordinateYEnd(51);
 
+		//Print arrows
+		setPrintPos(2, ((screen_height - 1) - (max_font_height - 1)));
+		print("<");
+		setPrintPos(((screen_width - 1) - 2 - (max_font_width - 1)), ((screen_height - 1) - (max_font_height - 1)));
+		print(">");
+
+		//Print text label
+		setPrintPos( (screen_width - strlen_P(text) * max_font_width) / 2, ((screen_height - 1) - (max_font_height - 1)));
+		print_P(text);
+
+		coordinateYEnd(51);
 		setColorIndex(save_color_index);
 	}
 
@@ -156,23 +151,6 @@ namespace screen
 		coordinateXInit(0);
 		coordinateXEnd(screen_width);
 		coordinateYInit(y_init + 9);
-	}
-
-	void GuiPainter::selector(uint16_t number, uint16_t total)
-	{
-		uint8_t x_init = coordinateXInit();
-		uint8_t x_end = coordinateXEnd();
-		uint8_t y_init = coordinateYInit();
-		uint8_t y_end = coordinateYEnd();
-
-		setColorIndex(1);
-		setFont(u8g_font_6x9);
-		setPrintPos((x_end + x_init)/2 - (strlen("< / >")*6)/2 - (strlen(itostr2(number))*6)/2 - (strlen(itostr2(total))*6)/2, (y_end + y_init)/2 - 9/2);
-		print ("< ");
-		print(itostr2(number));
-		print("/");
-		print(itostr2(total));
-		print (" >");
 	}
 
 	void GuiPainter::text(const char * msg, uint8_t h_pad, uint8_t v_pad)
