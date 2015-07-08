@@ -58,7 +58,7 @@
     #define REPRAP_DISCOUNT_SMART_CONTROLLER
   #endif
 
-  #if defined(ULTIMAKERCONTROLLER) || defined(REPRAP_DISCOUNT_SMART_CONTROLLER) || defined(G3D_PANEL)
+  #if defined(ULTIMAKERCONTROLLER) || defined(REPRAP_DISCOUNT_SMART_CONTROLLER) || defined(G3D_PANEL) || defined(RIGIDPANEL)
     #define ULTIPANEL
     #define NEWPANEL
   #endif
