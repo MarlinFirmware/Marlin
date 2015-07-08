@@ -30,6 +30,7 @@
 // LCD Panel options for the RigidBoard
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 #if ENABLED(RIGIDBOT_PANEL)
 
   #undef BEEPER_PIN
@@ -39,6 +40,9 @@
   #define SD_DETECT_PIN 22
 =======
 #ifdef RIGIDPANEL
+=======
+#ifdef RIGIDBOT_PANEL
+>>>>>>> Use RIGIDBOT_PANEL for consistency with online docs
 
   #undef BEEPER
   #define BEEPER -1

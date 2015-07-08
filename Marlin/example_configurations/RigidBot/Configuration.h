@@ -828,11 +828,17 @@ const bool Z_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the logic
 //
 // ==> REMEMBER TO INSTALL U8glib to your ARDUINO library folder: http://code.google.com/p/u8glib/wiki/u8glib
 <<<<<<< HEAD
+<<<<<<< HEAD
 //
 // RigidBoard: To rewire this for a RigidBot see http://rigidtalk.com/wiki/index.php?title=LCD_Smart_Controller
 //
 =======
 >>>>>>> RIGIDBOARD / RIGIDPANEL
+=======
+//
+// RigidBoard: To rewire this for a RigidBot see http://rigidtalk.com/wiki/index.php?title=LCD_Smart_Controller
+//
+>>>>>>> Use RIGIDBOT_PANEL for consistency with online docs
 //#define REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
 
 // The RepRapWorld REPRAPWORLD_KEYPAD v1.1
@@ -846,6 +852,7 @@ const bool Z_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the logic
 //#define RA_CONTROL_PANEL
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 // RigidBot Panel V1.0
 // http://www.inventapart.com/
 #define RIGIDBOT_PANEL
@@ -854,6 +861,11 @@ const bool Z_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the logic
 // http://rigidbot.com/
 #define RIGIDPANEL
 >>>>>>> RIGIDBOARD / RIGIDPANEL
+=======
+// RigidBot Panel V1.0
+// http://www.inventapart.com/
+#define RIGIDBOT_PANEL
+>>>>>>> Use RIGIDBOT_PANEL for consistency with online docs
 
 /**
  * I2C Panels

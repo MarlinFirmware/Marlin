@@ -59,10 +59,14 @@
   #endif
 
 <<<<<<< HEAD
+<<<<<<< HEAD
   #if ENABLED(ULTIMAKERCONTROLLER) || ENABLED(REPRAP_DISCOUNT_SMART_CONTROLLER) || ENABLED(G3D_PANEL)
 =======
   #if defined(ULTIMAKERCONTROLLER) || defined(REPRAP_DISCOUNT_SMART_CONTROLLER) || defined(G3D_PANEL) || defined(RIGIDPANEL)
 >>>>>>> RIGIDBOARD / RIGIDPANEL
+=======
+  #if defined(ULTIMAKERCONTROLLER) || defined(REPRAP_DISCOUNT_SMART_CONTROLLER) || defined(G3D_PANEL) || defined(RIGIDBOT_PANEL)
+>>>>>>> Use RIGIDBOT_PANEL for consistency with online docs
     #define ULTIPANEL
     #define NEWPANEL
   #endif
