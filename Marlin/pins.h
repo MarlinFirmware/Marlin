@@ -118,8 +118,11 @@
   #include "pins_MKS_BASE.h"
 #elif MB(RIGIDBOARD)
   #include "pins_RIGIDBOARD.h"
+<<<<<<< HEAD
 #elif MB(MEGACONTROLLER)
   #include "pins_MEGACONTROLLER.h"
+=======
+>>>>>>> RigidBoard include for pins.h
 #elif MB(99)
   #include "pins_99.h"
 #else
