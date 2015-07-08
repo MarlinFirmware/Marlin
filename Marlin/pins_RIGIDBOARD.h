@@ -4,7 +4,13 @@
 
 #include "pins_RAMPS_13.h"
 
+<<<<<<< HEAD
 #if ENABLED(Z_PROBE_ENDSTOP)
+=======
+#define CONTROLLERFAN_PIN         4 //Pin used for the fan to cool motherboard (-1 to disable) //Fans/Water Pump to cool the hotend cool side.
+
+#ifdef Z_PROBE_ENDSTOP
+>>>>>>> RIGIDBOARD / RIGIDPANEL
   #define Z_PROBE_PIN      19
 #endif
 
@@ -20,6 +26,7 @@
 
 // LCD Panel options for the RigidBoard
 
+<<<<<<< HEAD
 #if ENABLED(RIGIDBOT_PANEL)
 
   #undef BEEPER_PIN
@@ -27,6 +34,15 @@
 
   #undef SD_DETECT_PIN
   #define SD_DETECT_PIN 22
+=======
+#ifdef RIGIDPANEL
+
+  #undef BEEPER
+  #define BEEPER -1
+
+  #undef SDCARDDETECT
+  #define SDCARDDETECT 22
+>>>>>>> RIGIDBOARD / RIGIDPANEL
 
   // Extra button definitions, substitute for EN1 / EN2
   #define BTN_UP  37 // BTN_EN1
@@ -43,6 +59,7 @@
   #undef  BTN_ENC
   #define BTN_ENC 31
 
+<<<<<<< HEAD
   #undef  SD_DETECT_PIN
   #define SD_DETECT_PIN 22
 
@@ -53,6 +70,18 @@
 
   #undef  SD_DETECT_PIN
   #define SD_DETECT_PIN 22
+=======
+  #undef  SDCARDDETECT
+  #define SDCARDDETECT 22
+
+#elif defined(REPRAP_DISCOUNT_SMART_CONTROLLER)
+
+  #undef BEEPER
+  #define BEEPER -1
+
+  #undef  SDCARDDETECT
+  #define SDCARDDETECT 22
+>>>>>>> RIGIDBOARD / RIGIDPANEL
 
   #undef  KILL_PIN
   #define KILL_PIN 32

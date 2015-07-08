@@ -2,7 +2,10 @@
 #define CONFIGURATION_H
 
 #include "boards.h"
+<<<<<<< HEAD
 #include "macros.h"
+=======
+>>>>>>> RIGIDBOARD / RIGIDPANEL
 
 //===========================================================================
 //============================= Getting Started =============================
@@ -38,7 +41,11 @@ Here are some standard links for getting your machine calibrated:
 
 // @section info
 
+<<<<<<< HEAD
 #if ENABLED(HAS_AUTOMATIC_VERSIONING)
+=======
+#ifdef HAS_AUTOMATIC_VERSIONING
+>>>>>>> RIGIDBOARD / RIGIDPANEL
   #include "_Version.h"
 #else
   #include "Default_Version.h"
@@ -82,7 +89,11 @@ Here are some standard links for getting your machine calibrated:
 
 // This defines the number of extruders
 // :[1,2,3,4]
+<<<<<<< HEAD
 #define EXTRUDERS 1  // Single extruder. Set to 2 for dual extruders
+=======
+#define EXTRUDERS 2
+>>>>>>> RIGIDBOARD / RIGIDPANEL
 
 // Offset of the extruders (uncomment if using more than one and relying on firmware to position when changing).
 // The offset has to be X=0, Y=0 for the extruder 0 hotend (default extruder).
@@ -144,11 +155,19 @@ Here are some standard links for getting your machine calibrated:
 //     #define DUMMY_THERMISTOR_998_VALUE 25
 //     #define DUMMY_THERMISTOR_999_VALUE 100
 // :{ '0': "Not used", '4': "10k !! do not use for a hotend. Bad resolution at high temp. !!", '1': "100k / 4.7k - EPCOS", '51': "100k / 1k - EPCOS", '6': "100k / 4.7k EPCOS - Not as accurate as Table 1", '5': "100K / 4.7k - ATC Semitec 104GT-2 (Used in ParCan & J-Head)", '7': "100k / 4.7k Honeywell 135-104LAG-J01", '71': "100k / 4.7k Honeywell 135-104LAF-J01", '8': "100k / 4.7k 0603 SMD Vishay NTCS0603E3104FXT", '9': "100k / 4.7k GE Sensing AL03006-58.2K-97-G1", '10': "100k / 4.7k RS 198-961", '11': "100k / 4.7k beta 3950 1%", '12': "100k / 4.7k 0603 SMD Vishay NTCS0603E3104FXT (calibrated for Makibox hot bed)", '13': "100k Hisens 3950  1% up to 300°C for hotend 'Simple ONE ' & hotend 'All In ONE'", '60': "100k Maker's Tool Works Kapton Bed Thermistor beta=3950", '55': "100k / 1k - ATC Semitec 104GT-2 (Used in ParCan & J-Head)", '2': "200k / 4.7k - ATC Semitec 204GT-2", '52': "200k / 1k - ATC Semitec 204GT-2", '-2': "Thermocouple + MAX6675 (only for sensor 0)", '-1': "Thermocouple + AD595", '3': "Mendel-parts / 4.7k", '1047': "Pt1000 / 4.7k", '1010': "Pt1000 / 1k (non standard)", '20': "PT100 (Ultimainboard V2.x)", '147': "Pt100 / 4.7k", '110': "Pt100 / 1k (non-standard)", '998': "Dummy 1", '999': "Dummy 2" }
+<<<<<<< HEAD
 #define TEMP_SENSOR_0 1 // DGlass3D = 5; RigidBot = 1; 3DSv6 = 5
 #define TEMP_SENSOR_1 0
 #define TEMP_SENSOR_2 0
 #define TEMP_SENSOR_3 0
 #define TEMP_SENSOR_BED 1
+=======
+#define TEMP_SENSOR_0 5 // DGlass3D = 5; RigidBot = 1; 3DSv6 = 5
+#define TEMP_SENSOR_1 5 // DGlass3D = 5; RigidBot = 1; 3DSv6 = 5
+#define TEMP_SENSOR_2 0
+#define TEMP_SENSOR_3 0
+#define TEMP_SENSOR_BED 0
+>>>>>>> RIGIDBOARD / RIGIDPANEL
 
 // This makes temp sensor 1 a redundant sensor for sensor 0. If the temperatures difference between these sensors is to high the print will be aborted.
 //#define TEMP_SENSOR_1_AS_REDUNDANT
@@ -195,7 +214,11 @@ Here are some standard links for getting your machine calibrated:
 #define PIDTEMP
 #define BANG_MAX 255 // limits current to nozzle while in bang-bang mode; 255=full current
 #define PID_MAX BANG_MAX // limits current to nozzle while PID is active (see PID_FUNCTIONAL_RANGE below); 255=full current
+<<<<<<< HEAD
 #if ENABLED(PIDTEMP)
+=======
+#ifdef PIDTEMP
+>>>>>>> RIGIDBOARD / RIGIDPANEL
   //#define PID_DEBUG // Sends debug data to the serial port.
   //#define PID_OPENLOOP 1 // Puts PID in open loop. M104/M140 sets the output power from 0 to PID_MAX
   //#define SLOW_PWM_HEATERS // PWM with very low frequency (roughly 0.125Hz=8s) and minimum state time of approximately 1s useful for heaters driven by a relay
@@ -207,6 +230,7 @@ Here are some standard links for getting your machine calibrated:
   #define K1 0.95 //smoothing factor within the PID
 
   // If you are using a pre-configured hotend then you can use one of the value sets by uncommenting it
+<<<<<<< HEAD
 
   // Rigidbot hotend
   #define  DEFAULT_Kp 16.17
@@ -217,6 +241,22 @@ Here are some standard links for getting your machine calibrated:
   // #define  DEFAULT_Kp 10
   // #define  DEFAULT_Ki 0.85
   // #define  DEFAULT_Kd 245
+=======
+  // DGlass3D/E3Dv6
+  #define  DEFAULT_Kp 38.59     //Base DGlass3D/E3Dv6 = 10   ; RigidBot redesigned = 16.17
+  #define  DEFAULT_Ki 4.21      //Base DGlass3D/E3Dv6 = 0.85 ; RigidBot redesigned = 0.85
+  #define  DEFAULT_Kd 88.41     //Base DGlass3D/E3Dv6 = 245  ; RigidBot redesigned = 76.55
+
+  // MakerGear
+  //#define  DEFAULT_Kp 7.0
+  //#define  DEFAULT_Ki 0.1
+  //#define  DEFAULT_Kd 12
+
+  // Mendel Parts V9 on 12V
+  //#define  DEFAULT_Kp 63.0
+  //#define  DEFAULT_Ki 2.25
+  //#define  DEFAULT_Kd 440
+>>>>>>> RIGIDBOARD / RIGIDPANEL
 
 #endif // PIDTEMP
 
@@ -244,7 +284,11 @@ Here are some standard links for getting your machine calibrated:
 
 //#define PID_BED_DEBUG // Sends debug data to the serial port.
 
+<<<<<<< HEAD
 #if ENABLED(PIDTEMPBED)
+=======
+#ifdef PIDTEMPBED
+>>>>>>> RIGIDBOARD / RIGIDPANEL
 
   #define PID_BED_INTEGRAL_DRIVE_MAX MAX_BED_POWER //limit for the integral term
 
@@ -253,6 +297,15 @@ Here are some standard links for getting your machine calibrated:
   #define  DEFAULT_bedKi 66.5
   #define  DEFAULT_bedKd 480
 
+<<<<<<< HEAD
+=======
+  //120v 250W silicone heater into 4mm borosilicate (MendelMax 1.5+)
+  //from pidautotune
+  //#define  DEFAULT_bedKp 97.1
+  //#define  DEFAULT_bedKi 1.41
+  //#define  DEFAULT_bedKd 1675.16
+
+>>>>>>> RIGIDBOARD / RIGIDPANEL
   // FIND YOUR OWN: "M303 E-1 C8 S90" to run autotune on the bed at 90 degreesC for 8 cycles.
 #endif // PIDTEMPBED
 
@@ -294,7 +347,11 @@ Here are some standard links for getting your machine calibrated:
 // @section machine
 
 // Uncomment this option to enable CoreXY kinematics
+<<<<<<< HEAD
 //#define COREXY
+=======
+// #define COREXY
+>>>>>>> RIGIDBOARD / RIGIDPANEL
 
 // Enable this option for Toshiba steppers
 //#define CONFIG_STEPPERS_TOSHIBA
@@ -304,7 +361,11 @@ Here are some standard links for getting your machine calibrated:
 // coarse Endstop Settings
 #define ENDSTOPPULLUPS // Comment this out (using // at the start of the line) to disable the endstop pullup resistors
 
+<<<<<<< HEAD
 #if DISABLED(ENDSTOPPULLUPS)
+=======
+#ifndef ENDSTOPPULLUPS
+>>>>>>> RIGIDBOARD / RIGIDPANEL
   // fine endstop settings: Individual pullups. will be ignored if ENDSTOPPULLUPS is defined
   // #define ENDSTOPPULLUP_XMAX
   // #define ENDSTOPPULLUP_YMAX
@@ -383,9 +444,15 @@ const bool Z_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the logic
 #define X_MIN_POS 0
 #define Y_MIN_POS 0
 #define Z_MIN_POS 0
+<<<<<<< HEAD
 #define X_MAX_POS 254  // RigidBot regular is 254mm, RigitBot Big is 406mm
 #define Y_MAX_POS 248  // RigidBot regular is 248mm, RigitBot Big is 304mm
 #define Z_MAX_POS 254  // RigidBot regular and Big are 254mm
+=======
+#define X_MAX_POS 406  // RigidBot Big
+#define Y_MAX_POS 304  // RigidBot Big
+#define Z_MAX_POS 254  // RigidBot Big
+>>>>>>> RIGIDBOARD / RIGIDPANEL
 
 //===========================================================================
 //========================= Filament Runout Sensor ==========================
@@ -394,7 +461,11 @@ const bool Z_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the logic
                                  // In RAMPS uses servo pin 2. Can be changed in pins file. For other boards pin definition should be made.
                                  // It is assumed that when logic high = filament available
                                  //                    when logic  low = filament ran out
+<<<<<<< HEAD
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
+=======
+#ifdef FILAMENT_RUNOUT_SENSOR
+>>>>>>> RIGIDBOARD / RIGIDPANEL
   const bool FIL_RUNOUT_INVERTING = true;  // Should be uncommented and true or false should assigned
   #define ENDSTOPPULLUP_FIL_RUNOUT // Uncomment to use internal pullup for filament runout pins if the sensor is defined.
   #define FILAMENT_RUNOUT_SCRIPT "M600"
@@ -407,11 +478,19 @@ const bool Z_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the logic
 // #define MANUAL_BED_LEVELING  // Add display menu option for bed leveling
 // #define MESH_BED_LEVELING    // Enable mesh bed leveling
 
+<<<<<<< HEAD
 #if ENABLED(MANUAL_BED_LEVELING)
   #define MBL_Z_STEP 0.025  // Step size while manually probing Z axis
 #endif  // MANUAL_BED_LEVELING
 
 #if ENABLED(MESH_BED_LEVELING)
+=======
+#ifdef MANUAL_BED_LEVELING
+  #define MBL_Z_STEP 0.025  // Step size while manually probing Z axis
+#endif  // MANUAL_BED_LEVELING
+
+#ifdef MESH_BED_LEVELING
+>>>>>>> RIGIDBOARD / RIGIDPANEL
   #define MESH_MIN_X 10
   #define MESH_MAX_X (X_MAX_POS - MESH_MIN_X)
   #define MESH_MIN_Y 10
@@ -430,7 +509,11 @@ const bool Z_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the logic
 //#define ENABLE_AUTO_BED_LEVELING // Delete the comment to enable (remove // at the start of the line)
 //#define Z_PROBE_REPEATABILITY_TEST  // If not commented out, Z-Probe Repeatability test will be included if Auto Bed Leveling is Enabled.
 
+<<<<<<< HEAD
 #if ENABLED(ENABLE_AUTO_BED_LEVELING)
+=======
+#ifdef ENABLE_AUTO_BED_LEVELING
+>>>>>>> RIGIDBOARD / RIGIDPANEL
 
   // There are 2 different ways to specify probing locations
   //
@@ -447,7 +530,11 @@ const bool Z_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the logic
   // Note: this feature generates 10KB extra code size
   #define AUTO_BED_LEVELING_GRID
 
+<<<<<<< HEAD
   #if ENABLED(AUTO_BED_LEVELING_GRID)
+=======
+  #ifdef AUTO_BED_LEVELING_GRID
+>>>>>>> RIGIDBOARD / RIGIDPANEL
 
     #define LEFT_PROBE_BED_POSITION 15
     #define RIGHT_PROBE_BED_POSITION 170
@@ -494,6 +581,16 @@ const bool Z_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the logic
   //#define Z_PROBE_SLED // turn on if you have a z-probe mounted on a sled like those designed by Charles Bell
   //#define SLED_DOCKING_OFFSET 5 // the extra distance the X axis must travel to pickup the sled. 0 should be fine but you can push it further if you'd like.
 
+<<<<<<< HEAD
+=======
+  //If defined, the Probe servo will be turned on only during movement and then turned off to avoid jerk
+  //The value is the delay to turn the servo off after powered on - depends on the servo speed; 300ms is good value, but you can try lower it.
+  // You MUST HAVE the SERVO_ENDSTOPS defined to use here a value higher than zero otherwise your code will not compile.
+
+//  #define PROBE_SERVO_DEACTIVATION_DELAY 300
+
+
+>>>>>>> RIGIDBOARD / RIGIDPANEL
 //If you have enabled the Bed Auto Leveling and are using the same Z Probe for Z Homing,
 //it is highly recommended you let this Z_SAFE_HOMING enabled!!!
 
@@ -504,7 +601,11 @@ const bool Z_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the logic
                           // - Position the probe in a defined XY point before Z Homing when homing all axis (G28)
                           // - Block Z homing only when the probe is outside bed area.
 
+<<<<<<< HEAD
   #if ENABLED(Z_SAFE_HOMING)
+=======
+  #ifdef Z_SAFE_HOMING
+>>>>>>> RIGIDBOARD / RIGIDPANEL
 
     #define Z_SAFE_HOMING_X_POINT ((X_MIN_POS + X_MAX_POS) / 2)    // X point for Z homing when homing all axis (G28)
     #define Z_SAFE_HOMING_Y_POINT ((Y_MIN_POS + Y_MAX_POS) / 2)    // Y point for Z homing when homing all axis (G28)
@@ -516,7 +617,11 @@ const bool Z_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the logic
   // If you want to still use the Z min endstop for homing, disable Z_SAFE_HOMING above. Eg; to park the head outside the bed area when homing with G28.
   // WARNING: The Z MIN endstop will need to set properly as it would without a Z PROBE to prevent head crashes and premature stopping during a print.
   // To use a separate Z PROBE endstop, you must have a Z_PROBE_PIN defined in the pins.h file for your control board.
+<<<<<<< HEAD
   // If you are using a servo based Z PROBE, you will need to enable NUM_SERVOS, Z_ENDSTOP_SERVO_NR and SERVO_ENDSTOP_ANGLES in the R/C Servo below.
+=======
+  // If you are using a servo based Z PROBE, you will need to enable NUM_SERVOS, SERVO_ENDSTOPS and SERVO_ENDSTOPS_ANGLES in the R/C Servo below.
+>>>>>>> RIGIDBOARD / RIGIDPANEL
   // RAMPS 1.3/1.4 boards may be able to use the 5V, Ground and the D32 pin in the Aux 4 section of the RAMPS board. Use 5V for powered sensors, otherwise connect to ground and D32
   // for normally closed configuration and 5V and D32 for normally open configurations. Normally closed configuration is advised and assumed.
   // The D32 pin in Aux 4 on RAMPS maps to the Arduino D32 pin. Z_PROBE_PIN is setting the pin to use on the Arduino. Since the D32 pin on the RAMPS maps to D32 on Arduino, this works.
@@ -536,7 +641,11 @@ const bool Z_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the logic
 
 // Manual homing switch locations:
 // For deltabots this means top and center of the Cartesian print volume.
+<<<<<<< HEAD
 #if ENABLED(MANUAL_HOME_POSITIONS)
+=======
+#ifdef MANUAL_HOME_POSITIONS
+>>>>>>> RIGIDBOARD / RIGIDPANEL
   #define MANUAL_X_HOME_POS 0
   #define MANUAL_Y_HOME_POS 0
   #define MANUAL_Z_HOME_POS 0
@@ -549,6 +658,7 @@ const bool Z_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the logic
  * MOVEMENT SETTINGS
  */
 
+<<<<<<< HEAD
 #define HOMING_FEEDRATE {50*60, 50*60, 15*60, 0}  // set the homing speeds (mm/min)
 
 // default settings
@@ -561,6 +671,19 @@ const bool Z_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the logic
 #define DEFAULT_ACCELERATION          600    // X, Y, Z and E acceleration in mm/s^2 for printing moves
 #define DEFAULT_RETRACT_ACCELERATION  1000   // E acceleration in mm/s^2 for retracts
 #define DEFAULT_TRAVEL_ACCELERATION   3000   // X, Y, Z acceleration in mm/s^2 for travel (non printing) moves
+=======
+#define HOMING_FEEDRATE {50*60, 50*60, 4*60, 0}  // set the homing speeds (mm/min)
+
+// default settings
+
+#define DEFAULT_AXIS_STEPS_PER_UNIT   {100.06,50.06,1600,76}  // default steps per unit for RigidBot with 16-teth pulleys, HPX2-MAX E=504, RigidBot E=53.5, Peter Stoneham's=76
+#define DEFAULT_MAX_FEEDRATE          {500, 500, 5, 25}         // (mm/sec)
+#define DEFAULT_MAX_ACCELERATION      {800,800,100,10000}       // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for Skeinforge 40+, for older versions raise them a lot.
+
+#define DEFAULT_ACCELERATION          600    // X, Y, Z and E acceleration in mm/s^2 for printing moves
+#define DEFAULT_RETRACT_ACCELERATION  1000   // E acceleration in mm/s^2 for retracts
+#define DEFAULT_TRAVEL_ACCELERATION   3000    // X, Y, Z acceleration in mm/s^2 for travel (non printing) moves
+>>>>>>> RIGIDBOARD / RIGIDPANEL
 
 // The speed change that does not require acceleration (i.e. the software might assume it can be done instantaneously)
 #define DEFAULT_XYJERK                8.0    // (mm/sec)
@@ -573,11 +696,21 @@ const bool Z_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the logic
 //=============================================================================
 
 // @section more
+<<<<<<< HEAD
 
 // Custom M code points
 #define CUSTOM_M_CODES
 #if ENABLED(CUSTOM_M_CODES)
   #if ENABLED(ENABLE_AUTO_BED_LEVELING)
+=======
+// RigidBot - Disable stepper drivers until voltage has stabilized
+#define STEPPER_RESET_FIX
+
+// Custom M code points
+#define CUSTOM_M_CODES
+#ifdef CUSTOM_M_CODES
+  #ifdef ENABLE_AUTO_BED_LEVELING
+>>>>>>> RIGIDBOARD / RIGIDPANEL
     #define CUSTOM_M_CODE_SET_Z_PROBE_OFFSET 851
     #define Z_PROBE_OFFSET_RANGE_MIN -20
     #define Z_PROBE_OFFSET_RANGE_MAX 20
@@ -594,16 +727,23 @@ const bool Z_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the logic
 //define this to enable EEPROM support
 //#define EEPROM_SETTINGS
 
+<<<<<<< HEAD
 #if ENABLED(EEPROM_SETTINGS)
+=======
+#ifdef EEPROM_SETTINGS
+>>>>>>> RIGIDBOARD / RIGIDPANEL
   // To disable EEPROM Serial responses and decrease program space by ~1700 byte: comment this out:
   #define EEPROM_CHITCHAT // Please keep turned on if you can.
 #endif
 
+<<<<<<< HEAD
 //
 // M100 Free Memory Watcher
 //
 //#define M100_FREE_MEMORY_WATCHER // uncomment to add the M100 Free Memory Watcher for debug purpose
 
+=======
+>>>>>>> RIGIDBOARD / RIGIDPANEL
 // @section temperature
 
 // Preheat Constants
@@ -626,8 +766,13 @@ const bool Z_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the logic
 // Choose ONE of these 3 charsets. This has to match your hardware. Ignored for full graphic display.
 // To find out what type you have - compile with (test) - upload - click to get the menu. You'll see two typical lines from the upper half of the charset.
 // See also documentation/LCDLanguageFont.md
+<<<<<<< HEAD
   #define DISPLAY_CHARSET_HD44780_JAPAN        // this is the most common hardware
   //#define DISPLAY_CHARSET_HD44780_WESTERN
+=======
+  //#define DISPLAY_CHARSET_HD44780_JAPAN        // this is the most common hardware
+  #define DISPLAY_CHARSET_HD44780_WESTERN
+>>>>>>> RIGIDBOARD / RIGIDPANEL
   //#define DISPLAY_CHARSET_HD44780_CYRILLIC
 
 //#define ULTRA_LCD  //general LCD support, also 16x2
@@ -639,7 +784,10 @@ const bool Z_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the logic
 //#define ENCODER_STEPS_PER_MENU_ITEM 5 // Set according to ENCODER_PULSES_PER_STEP or your liking
 //#define ULTIMAKERCONTROLLER //as available from the Ultimaker online store.
 //#define ULTIPANEL  //the UltiPanel as on Thingiverse
+<<<<<<< HEAD
 //#define SPEAKER // The sound device is a speaker - not a buzzer. A buzzer resonates with his own frequency.
+=======
+>>>>>>> RIGIDBOARD / RIGIDPANEL
 //#define LCD_FEEDBACK_FREQUENCY_DURATION_MS 100 // the duration the buzzer plays the UI feedback sound. ie Screen Click
 //#define LCD_FEEDBACK_FREQUENCY_HZ 1000         // this is the tone frequency the buzzer plays when on UI feedback. ie Screen Click
                                                  // 0 to disable buzzer feedback. Test with M300 S<frequency Hz> P<duration ms>
@@ -661,7 +809,11 @@ const bool Z_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the logic
 //
 // ==> REMEMBER TO INSTALL U8glib to your ARDUINO library folder: http://code.google.com/p/u8glib/wiki/u8glib
 //#define ELB_FULL_GRAPHIC_CONTROLLER
+<<<<<<< HEAD
 //#define SD_DETECT_INVERTED
+=======
+//#define SDCARDDETECTINVERTED
+>>>>>>> RIGIDBOARD / RIGIDPANEL
 
 // The RepRapDiscount Smart Controller (white PCB)
 // http://reprap.org/wiki/RepRapDiscount_Smart_Controller
@@ -675,9 +827,12 @@ const bool Z_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the logic
 // http://reprap.org/wiki/RepRapDiscount_Full_Graphic_Smart_Controller
 //
 // ==> REMEMBER TO INSTALL U8glib to your ARDUINO library folder: http://code.google.com/p/u8glib/wiki/u8glib
+<<<<<<< HEAD
 //
 // RigidBoard: To rewire this for a RigidBot see http://rigidtalk.com/wiki/index.php?title=LCD_Smart_Controller
 //
+=======
+>>>>>>> RIGIDBOARD / RIGIDPANEL
 //#define REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
 
 // The RepRapWorld REPRAPWORLD_KEYPAD v1.1
@@ -690,9 +845,15 @@ const bool Z_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the logic
 // REMEMBER TO INSTALL LiquidCrystal_I2C.h in your ARDUINO library folder: https://github.com/kiyoshigawa/LiquidCrystal_I2C
 //#define RA_CONTROL_PANEL
 
+<<<<<<< HEAD
 // RigidBot Panel V1.0
 // http://www.inventapart.com/
 #define RIGIDBOT_PANEL
+=======
+// The RigidPanel controller for RigidBot
+// http://rigidbot.com/
+#define RIGIDPANEL
+>>>>>>> RIGIDBOARD / RIGIDPANEL
 
 /**
  * I2C Panels
@@ -701,12 +862,15 @@ const bool Z_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the logic
 //#define LCD_I2C_SAINSMART_YWROBOT
 
 // PANELOLU2 LCD with status LEDs, separate encoder and click inputs
+<<<<<<< HEAD
 //
 // This uses the LiquidTWI2 library v1.2.3 or later ( https://github.com/lincomatic/LiquidTWI2 )
 // Make sure the LiquidTWI2 directory is placed in the Arduino or Sketchbook libraries subdirectory.
 // (v1.2.3 no longer requires you to define PANELOLU in the LiquidTWI2.h library header file)
 // Note: The PANELOLU2 encoder click input can either be directly connected to a pin
 //       (if BTN_ENC defined to != -1) or read through I2C (when BTN_ENC == -1).
+=======
+>>>>>>> RIGIDBOARD / RIGIDPANEL
 //#define LCD_I2C_PANELOLU2
 
 // Panucatt VIKI LCD with status LEDs, integrated click & L/R/U/P buttons, separate encoder inputs
@@ -776,6 +940,7 @@ const bool Z_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the logic
 // This allows for servo actuated endstops, primary usage is for the Z Axis to eliminate calibration or bed height changes.
 // Use M851 to set the z-probe vertical offset from the nozzle. Store that setting with M500.
 //
+<<<<<<< HEAD
 //#define X_ENDSTOP_SERVO_NR 1
 //#define Y_ENDSTOP_SERVO_NR 2
 //#define Z_ENDSTOP_SERVO_NR 0
@@ -792,6 +957,10 @@ const bool Z_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the logic
   // If the servo can't reach the requested position, increase it.
   #define SERVO_DEACTIVATION_DELAY 300
 #endif
+=======
+//#define SERVO_ENDSTOPS {-1, -1, 0} // Servo index for X, Y, Z. Disable with -1
+//#define SERVO_ENDSTOP_ANGLES {0,0, 0,0, 70,0} // X,Y,Z Axis Extend and Retract angles
+>>>>>>> RIGIDBOARD / RIGIDPANEL
 
 /**********************************************************************\
  * Support for a filament diameter sensor
@@ -829,4 +998,8 @@ const bool Z_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the logic
 #include "Configuration_adv.h"
 #include "thermistortables.h"
 
+<<<<<<< HEAD
 #endif //CONFIGURATION_H
+=======
+#endif //CONFIGURATION_H
+>>>>>>> RIGIDBOARD / RIGIDPANEL
