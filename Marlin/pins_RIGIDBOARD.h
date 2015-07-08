@@ -20,7 +20,7 @@
 
 // LCD Panel options for the RigidBoard
 
-#ifdef RIGIDPANEL
+#ifdef RIGIDBOT_PANEL
 
   #undef BEEPER
   #define BEEPER -1
