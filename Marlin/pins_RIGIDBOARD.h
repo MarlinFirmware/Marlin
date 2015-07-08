@@ -5,10 +5,13 @@
 #include "pins_RAMPS_13.h"
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 #if ENABLED(Z_PROBE_ENDSTOP)
 =======
 #define CONTROLLERFAN_PIN         4 //Pin used for the fan to cool motherboard (-1 to disable) //Fans/Water Pump to cool the hotend cool side.
 
+=======
+>>>>>>> RigidBot CONTROLLERFAN_PIN in Configuration_adv.h
 #ifdef Z_PROBE_ENDSTOP
 >>>>>>> RIGIDBOARD / RIGIDPANEL
   #define Z_PROBE_PIN      19
