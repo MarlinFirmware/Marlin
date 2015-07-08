@@ -141,8 +141,14 @@
 
 #if ENABLED(ULTRA_LCD)
 
+<<<<<<< HEAD
   #if ENABLED(NEWPANEL)
     #if ENABLED(PANEL_ONE)
+=======
+  #ifdef NEWPANEL
+
+    #ifdef PANEL_ONE
+>>>>>>> Cleanup of pins_RAMPS_13.h
       #define LCD_PINS_RS 40
       #define LCD_PINS_ENABLE 42
       #define LCD_PINS_D4 65
@@ -158,8 +164,13 @@
       #define LCD_PINS_D7 29
     #endif
 
+<<<<<<< HEAD
     #if ENABLED(REPRAP_DISCOUNT_SMART_CONTROLLER)
       #define BEEPER_PIN 37
+=======
+    #ifdef REPRAP_DISCOUNT_SMART_CONTROLLER
+      #define BEEPER 37
+>>>>>>> Cleanup of pins_RAMPS_13.h
 
       #define BTN_EN1 31
       #define BTN_EN2 33
@@ -242,8 +253,13 @@
 
     #endif
   #else // !NEWPANEL (Old-style panel with shift register)
+<<<<<<< HEAD
 
     #define BEEPER_PIN 33   // No Beeper added
+=======
+    // Arduino pin to trigger a piezzo beeper
+    #define BEEPER 33   // No Beeper added
+>>>>>>> Cleanup of pins_RAMPS_13.h
 
     // Buttons are attached to a shift register
     // Not wired yet
