@@ -4,8 +4,6 @@
 
 #include "pins_RAMPS_13.h"
 
-#define CONTROLLERFAN_PIN         4 //Pin used for the fan to cool motherboard (-1 to disable) //Fans/Water Pump to cool the hotend cool side.
-
 #ifdef Z_PROBE_ENDSTOP
   #define Z_PROBE_PIN      19
 #endif
