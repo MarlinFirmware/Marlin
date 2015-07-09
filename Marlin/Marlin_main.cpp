@@ -5293,7 +5293,7 @@ void process_next_command() {
     while (*current_command == ' ') ++current_command; // skip [ ]*
   }
   char *starpos = strchr(current_command, '*');  // * should always be the last parameter
-  if (starpos) *starpos = '\0';
+  if (starpos) while (*starpos == ' ' || *starpos == '*') *starpos-- = '\0'; // nullify '*' and ' '
 
   // Get the command code, which must be G, M, or T
   char command_code = *current_command;
