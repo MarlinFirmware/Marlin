@@ -15,8 +15,7 @@ namespace screen
 	void ScreenComplete::draw()
 	{
 		char c_time[24];
-		snprintf(c_time, 24, "%d hours, %d minutes", m_time.hours, m_time.minutes);
-
+		snprintf(c_time, 24, "Total time: %02d:%02d", m_time.hours, m_time.minutes);
 		painter.firstPage();
 		do
 		{
@@ -24,12 +23,15 @@ namespace screen
 			painter.box(m_box);
 
 			painter.setColorIndex(1);
-			painter.setPrintPos(13, 20);
-			painter.print_P(m_message);
-			painter.setPrintPos(2, 36);
-			painter.print("Total time:");
-			painter.setPrintPos(2, 45);
-			painter.print(c_time);
+
+			Area text_area(0, 14, 127, 41);
+			painter.setWorkingArea(text_area);
+			painter.multiText(m_message);
+
+			Area time_area(0, 42, 127, 54);
+			painter.setWorkingArea(time_area);
+			painter.text(c_time);
+
 		} while( painter.nextPage() );
 	}
 }

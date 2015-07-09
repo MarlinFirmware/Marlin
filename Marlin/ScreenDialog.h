@@ -81,9 +81,11 @@ namespace screen
 		do
 		{
 			painter.title(m_title);
-			painter.multiText(m_message);
 			painter.box(m_box);
 
+			Area text_area(0, 14, 127, 54);
+			painter.setWorkingArea(text_area);
+			painter.multiText(m_message);
 		} while ( painter.nextPage() );
 	}
 }

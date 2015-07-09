@@ -71,6 +71,9 @@ namespace screen
 			uint8_t m_num_item_added;
 
 			Condition_t m_condition;
+			uint32_t m_previous_time;
+			uint32_t m_current_time;
+			uint8_t m_frame;
 	};
 
 	template <typename T>
@@ -80,8 +83,12 @@ namespace screen
 		, m_text(text)
 		, m_num_item_added(0)
 		, m_observed(0)
+		, m_back_screen(screen_none)
 		, m_condition(condition)
 		, m_target(target)
+		, m_previous_time(0)
+		, m_current_time(0)
+		, m_frame(0)
 	{
 		this->connect();
 	}
@@ -108,33 +115,71 @@ namespace screen
 		char c_current[4] = { 0 };
 		dtostrf(m_observed, 3, 0, c_current);
 
-		painter.firstPage();
-		do
+		//Check time for next progress bar frame
+		m_current_time = millis();
+
+		if(m_current_time >= m_previous_time + 100)
 		{
-			painter.title(m_title);
-			painter.box(m_text);
+			m_current_time = millis();
+			m_previous_time = m_current_time;
+			m_frame = (m_frame + 1) % 8;
 
-			uint8_t y_init = painter.coordinateYInit();
-			uint8_t y_end = painter.coordinateYEnd();
+			painter.firstPage();
+			do
+			{
+				painter.title(m_title);
+				painter.box(m_text);
 
-			painter.setColorIndex(1);
-			if(m_observed > 99.0)
-			{
-				painter.setPrintPos(31,(y_end + y_init)/2 - 9/2);
-			}
-			else if(m_observed > 9.0)
-			{
-				painter.setPrintPos(37,(y_end + y_init)/2 - 9/2);
-			}
-			else
-			{
-				painter.setPrintPos(43,(y_end + y_init)/2 - 9/2);
-			}
-			painter.print(c_current);
-			painter.print(" / ");
-			painter.print(c_target);
+				//Draw temperature
+				uint8_t y_init = painter.coordinateYInit();
+				uint8_t y_end = painter.coordinateYEnd();
 
-		} while ( painter.nextPage() );
+				painter.setColorIndex(1);
+				painter.setPrintPos(31,(y_end + y_init)/2 - 9/2 - 3);
+
+				painter.print(c_current);
+				painter.print("\xb0");
+				painter.print(" / ");
+				painter.print(c_target);
+				painter.print("\xb0");
+
+				//Draw progress bar
+				painter.setColorIndex(1);
+				painter.drawBox(8,38,112,6);
+				painter.setColorIndex(0);
+				painter.drawBox(9,39,110,4);
+				painter.setColorIndex(1);
+
+				switch(m_frame)
+				{
+					case 0:
+						painter.drawBitmap(10, 40, progress_width, progress_height, bits_progress_1);
+						break;
+					case 1:
+						painter.drawBitmap(10, 40, progress_width, progress_height, bits_progress_2);
+						break;
+					case 2:
+						painter.drawBitmap(10, 40, progress_width, progress_height, bits_progress_3);
+						break;
+					case 3:
+						painter.drawBitmap(10, 40, progress_width, progress_height, bits_progress_4);
+						break;
+					case 4:
+						painter.drawBitmap(10, 40, progress_width, progress_height, bits_progress_5);
+						break;
+					case 5:
+						painter.drawBitmap(10, 40, progress_width, progress_height, bits_progress_6);
+						break;
+					case 6:
+						painter.drawBitmap(10, 40, progress_width, progress_height, bits_progress_7);
+						break;
+					case 7:
+						painter.drawBitmap(10, 40, progress_width, progress_height, bits_progress_8);
+						break;
+				}
+
+			} while ( painter.nextPage() );
+		}
 
 		if ( isConditionMeet() )
 		{
@@ -145,13 +190,16 @@ namespace screen
 	template <typename T>
 		void ScreenAnimation<T>::press()
 	{
-		ViewManager::getInstance().activeView(m_back_screen);
+		if(m_back_screen != screen_none)
+		{
+			ViewManager::getInstance().activeView(m_back_screen);
+		}
 	}
 
 	template <typename T>
 		void ScreenAnimation<T>::add(ScreenIndex_t const & component)
 	{
-		if (m_num_item_added % 2)
+		if ((m_num_item_added % 2) == 0)
 		{
 			m_next_screen = component;
 		}

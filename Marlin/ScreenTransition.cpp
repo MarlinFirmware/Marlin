@@ -57,9 +57,13 @@ namespace screen
 		do
 		{
 			painter.title(m_title);
-			painter.multiText(m_message);
 			painter.box(m_box);
+
+			Area text_area(0, 14, 127, 54);
+			painter.setWorkingArea(text_area);
+			painter.multiText(m_message);
 		} while ( painter.nextPage() );
+
 		if (this->m_model != 0 && m_printing_status == PAUSED)
 		{
 			ViewManager::getInstance().activeView(m_next_screen);

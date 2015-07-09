@@ -157,8 +157,7 @@ namespace screen
 
 	static ScreenAnimation<float> * make_screen_unload_heating()
 	{
-		ScreenAnimation<float> * local_view = new ScreenAnimation<float>(MSG_SCREEN_UNLOAD_TITLE, MSG_SCREEN_UNLOAD_ABORT, screen::ScreenAnimation<float>::GREATER_OR_EQUAL, TemperatureManager::single::instance().getTargetTemperature(), &TemperatureManager::single::instance());
-		local_view->add(screen_main);
+		ScreenAnimation<float> * local_view = new ScreenAnimation<float>(MSG_SCREEN_UNLOAD_TITLE, MSG_SCREEN_UNLOAD_WAIT, screen::ScreenAnimation<float>::GREATER_OR_EQUAL, TemperatureManager::single::instance().getTargetTemperature(), &TemperatureManager::single::instance());
 		local_view->add(screen_unload_info);
 		return local_view;
 	}
@@ -206,8 +205,7 @@ namespace screen
 
 	static ScreenAnimation<float> * make_screen_load_heating()
 	{
-		ScreenAnimation<float> * local_view = new ScreenAnimation<float>(MSG_SCREEN_LOAD_TITLE, MSG_SCREEN_LOAD_ABORT, screen::ScreenAnimation<float>::GREATER_OR_EQUAL, TemperatureManager::single::instance().getTargetTemperature(), &TemperatureManager::single::instance());
-		local_view->add(screen_main);
+		ScreenAnimation<float> * local_view = new ScreenAnimation<float>(MSG_SCREEN_LOAD_TITLE, MSG_SCREEN_LOAD_WAIT, screen::ScreenAnimation<float>::GREATER_OR_EQUAL, TemperatureManager::single::instance().getTargetTemperature(), &TemperatureManager::single::instance());
 		local_view->add(screen_load_info);
 		return local_view;
 	}
@@ -255,8 +253,7 @@ namespace screen
 
 	static ScreenAnimation<float> * make_screen_level_animation()
 	{
-		ScreenAnimation<float> * local_view = new ScreenAnimation<float>(MSG_SCREEN_LEVEL_TITLE, MSG_SCREEN_LEVEL_ABORT, screen::ScreenAnimation<float>::LESS_OR_EQUAL, 70, &TemperatureManager::single::instance());
-		local_view->add(screen_main);
+		ScreenAnimation<float> * local_view = new ScreenAnimation<float>(MSG_SCREEN_LEVEL_TITLE, MSG_SCREEN_LEVEL_WAIT, screen::ScreenAnimation<float>::LESS_OR_EQUAL, 70, &TemperatureManager::single::instance());
 		local_view->add(screen_level_homing);
 		return local_view;
 	}
@@ -379,7 +376,6 @@ namespace screen
 	static ScreenAnimation<float> * make_screen_move_heating()
 	{
 		ScreenAnimation<float> * local_view = new ScreenAnimation<float>(MSG_SCREEN_MOVE_TITLE, MSG_SCREEN_MOVE_BOX0, screen::ScreenAnimation<float>::GREATER_OR_EQUAL, TemperatureManager::single::instance().getTargetTemperature(), &TemperatureManager::single::instance());
-		local_view->add(screen_move);
 		local_view->add(screen_move_e);
 		return local_view;
 	}
@@ -518,6 +514,14 @@ namespace screen
 	static ScreenSelector<void, uint16_t> * make_screen_temperature_main()
 	{
 		ScreenSelector<void, uint16_t> * local_view = new ScreenSelector<void, uint16_t>(MSG_SCREEN_TEMP_TITLE, 0, 250, 10, default_temp_change_filament, action_set_temperature);
+		local_view->add(screen_heating_main);
+		return local_view;
+	}
+
+	static ScreenAnimation<float> * make_screen_heating_main()
+	{
+		ScreenAnimation<float> * local_view = new ScreenAnimation<float>(MSG_SCREEN_HEATING_MAIN_TITLE, MSG_SCREEN_HEATING_MAIN_BOX, screen::ScreenAnimation<float>::GREATER_OR_EQUAL, TemperatureManager::single::instance().getTargetTemperature(), &TemperatureManager::single::instance());
+		local_view->add(screen_main);
 		local_view->add(screen_main);
 		return local_view;
 	}
@@ -616,7 +620,7 @@ namespace screen
 
 	static ScreenDialog<void> * make_screen_print_complete()
 	{
-		ScreenComplete * local_view = new ScreenComplete(MSG_SCREEN_PRINT_COMPLETED, MSG_SCREEN_PRINT_COMPLETED, MSG_SCREEN_PRINT_COMPLETED_BOX, PrintManager::printingTime());
+		ScreenComplete * local_view = new ScreenComplete(MSG_SCREEN_PRINT_TITLE, MSG_SCREEN_PRINT_COMPLETED, MSG_SCREEN_PRINT_COMPLETED_BOX, PrintManager::printingTime());
 		local_view->add(screen_main);
 		return local_view;
 	}
@@ -671,8 +675,7 @@ namespace screen
 
 	static ScreenAnimation<float> * make_screen_change_animation()
 	{
-		ScreenAnimation<float> * local_view = new ScreenAnimation<float>(MSG_SCREEN_CHANGE_TITLE, MSG_SCREEN_LOAD_ABORT, screen::ScreenAnimation<float>::GREATER_OR_EQUAL, TemperatureManager::single::instance().getTargetTemperature(), &TemperatureManager::single::instance());
-		local_view->add(screen_print);
+		ScreenAnimation<float> * local_view = new ScreenAnimation<float>(MSG_SCREEN_CHANGE_TITLE, MSG_SCREEN_LOAD_WAIT, screen::ScreenAnimation<float>::GREATER_OR_EQUAL, TemperatureManager::single::instance().getTargetTemperature(), &TemperatureManager::single::instance());
 		local_view->add(screen_change_info);
 		return local_view;
 	}
@@ -926,7 +929,9 @@ namespace screen
 			case screen_temperature_main:
 				new_view = make_screen_temperature_main();
 				break;
-
+			case screen_heating_main:
+				new_view = make_screen_heating_main();
+				break;
 			// Autolevel
 			case screen_autolevel:
 				new_view = make_screen_autolevel();

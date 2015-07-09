@@ -59,14 +59,16 @@ namespace screen
 			uint8_t y_offset = 4;
 			painter.setColorIndex(1);
 			painter.drawBitmap(x_init + x_offset, y_init + y_offset, logo_width, logo_height, bits_logo_about);
-			//Paint text on the screen
-			painter.setPrintPos(x_offset + logo_width + 8, y_init + 8);
+			//Print machine name centered
+			uint8_t h_pad = strlen_P(MACHINE_NAME)*6/2;
+			x_init = x_offset + logo_width + 8;
+			painter.setPrintPos((x_end + x_init)/2 - h_pad, y_init + 8);
 			painter.print(MACHINE_NAME);
-			painter.setPrintPos(x_offset + logo_width + 8, y_init + 24);
+			//Print firmware and build version centered
+			h_pad = (strlen_P(FIRMWARE_VER) + 1 + strlen_P(BUILD_VER))*6/2;
+			painter.setPrintPos((x_end + x_init)/2 - h_pad, y_init + 24);
 			painter.print(FIRMWARE_VER);
-			int desp = strlen(FIRMWARE_VER);
-			desp = (desp + 1) * 6;
-			painter.setPrintPos(x_offset + logo_width + 8 + desp, y_init + 24);
+			painter.print(" ");
 			painter.print(BUILD_VER);
 		} while( painter.nextPage() );
 	}
