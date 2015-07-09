@@ -116,6 +116,8 @@
   #include "pins_FELIX2.h"
 #elif MB(MKS_BASE)
   #include "pins_MKS_BASE.h"
+#elif MB(RIGIDBOARD)
+  #include "pins_RIGIDBOARD.h"
 #elif MB(99)
   #include "pins_99.h"
 #else
