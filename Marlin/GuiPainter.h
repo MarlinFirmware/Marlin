@@ -13,25 +13,35 @@
 
 namespace screen
 {
+	struct Area
+	{
+		Area()
+			: x_init(0)
+			, y_init(0)
+			, x_end(screen_width - 1)
+			, y_end(screen_height - 1)
+		{ }
+
+		Area(uint8_t x0, uint8_t y0, uint8_t x1, uint8_t y1)
+			: x_init(x0)
+			, y_init(y0)
+			, x_end(x1)
+			, y_end(y1)
+		{ }
+
+		uint8_t width() { return x_end - x_init + 1; }
+		uint8_t height() { return y_end - y_init + 1; }
+
+		uint8_t x_init;
+		uint8_t y_init;
+		uint8_t x_end;
+		uint8_t y_end;
+	};
+
 	class GuiPainter
 	{
 		public:
 			typedef Singleton<screen::GuiPainter> singleton;
-
-			struct Area
-			{
-				Area()
-					: x_init(0)
-					, y_init(0)
-					, x_end(screen_width - 1)
-					, y_end(screen_height - 1)
-				{ }
-
-				uint8_t x_init;
-				uint8_t y_init;
-				uint8_t x_end;
-				uint8_t y_end;
-			};
 
 		public:
 			GuiPainter();
@@ -50,9 +60,9 @@ namespace screen
 			void arrowBox(const char* text);
 			void printingStatus(const uint8_t percentage, const uint8_t hour, const uint8_t minute);
 
-			void text(const char * msg, uint8_t h_pad = 0, uint8_t v_pad = 0);
-			void text_P(const char * msg, uint8_t h_pad = 0, uint8_t v_pad = 0);
-			void multiText(const char * msg, bool align_top = false);
+			void text(const char * msg);
+			void text_P(const char * msg);
+			void multiText(const char * msg);
 
 			void setFont(const u8g_fntpgm_uint8_t* font);
 			void setColorIndex(uint8_t color);

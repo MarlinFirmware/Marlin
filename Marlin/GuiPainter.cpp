@@ -32,6 +32,7 @@ namespace screen
 		coordinateYInit(0);
 		coordinateXEnd(screen_width);
 		coordinateYEnd(screen_height);
+		clearWorkingArea();
 		m_impl.nextPage();
 	}
 
@@ -45,7 +46,7 @@ namespace screen
 		m_working_area = a;
 	}
 
-	GuiPainter::Area GuiPainter::getWorkingArea()
+	Area GuiPainter::getWorkingArea()
 	{
 		return m_working_area;
 	}
@@ -75,7 +76,7 @@ namespace screen
 
 		//Print box
 		setColorIndex(1);
-		m_impl.drawBox(0, ((screen_height - 1) - (box_height - 1)), (box_width - 1), screen_height - 1);
+		m_impl.drawBox(0, ((screen_height - 1) - (box_height - 1)), box_width, box_height);
 
 		//Set font and color
 		setFont(u8g_font_6x9);
@@ -95,7 +96,7 @@ namespace screen
 
 		//Print box
 		setColorIndex(1);
-		m_impl.drawBox(0, ((screen_height - 1) - (box_height - 1)), (box_width - 1), screen_height - 1);
+		m_impl.drawBox(0, ((screen_height - 1) - (box_height - 1)), box_width, box_height);
 
 		//Set font and color
 		setFont(u8g_font_6x9);
@@ -153,222 +154,122 @@ namespace screen
 		coordinateYInit(y_init + 9);
 	}
 
-	void GuiPainter::text(const char * msg, uint8_t h_pad, uint8_t v_pad)
+	void GuiPainter::text(const char * msg)
 	{
 		if ( (msg != NULL) && (strlen(msg) > 0) )
 		{
-			uint8_t x_init = coordinateXInit();
-			uint8_t y_init = coordinateYInit() + v_pad;
-			uint8_t x_end = coordinateXEnd();
-
 			setColorIndex(1);
 			setFont(u8g_font_6x9);
-			setPrintPos(h_pad + x_end/2 - (strlen(msg)*6)/2, y_init);
+			setPrintPos(m_working_area.x_init + (m_working_area.width() / 2) - (strlen(msg) * max_font_width / 2), m_working_area.y_init);
 			print(msg);
-
-			coordinateYInit(y_init + 10);
 		}
 	}
 
-	void GuiPainter::text_P(const char * msg, uint8_t h_pad, uint8_t v_pad)
+	void GuiPainter::text_P(const char * msg)
 	{
 		if ( (msg != NULL) && (strlen_P(msg) > 0) )
 		{
-			uint8_t x_init = coordinateXInit();
-			uint8_t y_init = coordinateYInit() + v_pad;
-			uint8_t x_end = coordinateXEnd();
-
 			setColorIndex(1);
 			setFont(u8g_font_6x9);
-			setPrintPos(h_pad + x_end/2 - (strlen_P(msg)*6)/2, y_init);
+			setPrintPos(m_working_area.x_init + (m_working_area.width() - strlen_P(msg) * max_font_width) / 2, m_working_area.y_init);
 			print_P(msg);
-
-			coordinateYInit(y_init + 10);
 		}
 	}
 
-	void GuiPainter::multiText(const char * msg, bool align_top)
+	void GuiPainter::multiText(const char * msg)
 	{
 		if ( (msg != NULL) && (strlen_P(msg) > 0) )
 		{
-			const int MAX_LINE_CHARS = 20;
-			int n_words = 0;
-			int n_lines = 1;
-			int total_lines = 1;
+			Area save_working_area = m_working_area;
 
-			char * buffer = (char *) malloc (1 + strlen_P(msg));
-			char * word = (char *) malloc (MAX_LINE_CHARS);
-			char * safeBuffer = buffer;
-			char * safeWord = word;
-			char phrase[64] = "";
+			uint8_t max_chars_per_line = m_working_area.width() / max_font_width;
+			uint8_t max_num_lines = m_working_area.height() / max_font_height;
 
-			if (buffer)
+			uint8_t chars_per_line[max_num_lines];
+
+			uint8_t num_line = 0;
+			uint8_t total_num_lines = 1;
+
+			uint8_t msg_length = strlen_P(msg) + 1;
+
+			char * text_safe_buffer = (char *) malloc (msg_length);
+			char * text_buffer = text_safe_buffer;
+
+			char * word_safe_buffer = (char *) malloc (msg_length);
+			char * word_buffer = word_safe_buffer;
+
+			char * line_safe_buffer = (char *) malloc (msg_length);
+			char * line_buffer = line_safe_buffer;
+
+			if ( (text_buffer != NULL) && (word_buffer != NULL) && (line_buffer != NULL) )
 			{
-				memset(phrase, 0, 64);
+				memset(text_buffer, 0, msg_length);
+				memset(word_buffer, 0, msg_length);
+				memset(line_buffer, 0, msg_length);
 
-				strcpy_P(buffer, msg);
+				strcpy_P(text_buffer, msg);
 
 				//First pass to get number of lines
 				do
 				{
-					word = strsep(&buffer, " ");
+					word_buffer = strsep(&text_buffer, " ");
 
-					if ( (strlen(phrase) + strlen(word) <= MAX_LINE_CHARS) && (word == NULL) )
+					// The current line is not full yet.
+					if (strlen(line_buffer) + strlen(word_buffer) <= max_chars_per_line)
 					{
-						//Last line. Do nothing
+						strcat(line_buffer, word_buffer);
+						strcat(line_buffer, " ");
 					}
-					else if ( (strlen(phrase) + strlen(word) <= MAX_LINE_CHARS) && (word != NULL) )
-					{
-						strcat(phrase, word);
-						strcat(phrase, " ");
-					}
-					else 
-					{
-						memset(phrase, 0, 64);
-						strcpy(phrase, word);
-						strcat(phrase, " ");
-						total_lines++;
-					}
-				}
-				while ( word != NULL );
-
-				buffer = safeBuffer;
-				word = safeWord;
-				memset(phrase, 0, 64);
-
-				strcpy_P(buffer, msg);
-
-				//Second pass to print
-				do
-				{
-					word = strsep(&buffer, " ");
-
-					if ( (strlen(phrase) + strlen(word) <= MAX_LINE_CHARS) && (word == NULL) )
-					{
-						phrase[strlen(phrase) - 1] = '\0';
-						switch (total_lines)
-						{
-							case 1:
-								if(align_top)
-								{
-									text(phrase, 0, 3);
-								}
-								else
-								{
-									text(phrase, 0, 16);
-								}
-								break;
-							case 2:
-								if(n_lines == 1)
-								{
-									if(align_top)
-									{
-										text(phrase, 0, 3);
-									}
-									else
-									{
-										text(phrase, 0, 10);
-									}
-								}
-								else
-								{
-									text(phrase, 0, 0);
-								}
-								break;
-							case 3:
-								if(n_lines == 1)
-								{
-									if(align_top)
-									{
-										text(phrase, 0, 3);
-									}
-									else
-									{
-										text(phrase, 0, 6);
-									}
-								}
-								else
-								{
-									text(phrase, 0, 0);
-								}
-								break;
-							case 4:
-								text(phrase, 0, 0);
-								break;
-							default:
-								break;
-						}
-					}
-					else if ( (strlen(phrase) + strlen(word) <= MAX_LINE_CHARS) && (word != NULL) )
-					{
-						strcat(phrase, word);
-						strcat(phrase, " ");
-					}
+					// The current line is full.
 					else
 					{
-						phrase[strlen(phrase) - 1] = '\0';
-						switch (total_lines)
-						{
-							case 1:
-								if(align_top)
-								{
-									text(phrase, 0, 3);
-								}
-								else
-								{
-									text(phrase, 0, 16);
-								}
-								break;
-							case 2:
-								if(n_lines == 1)
-								{
-									if(align_top)
-									{
-										text(phrase, 0, 3);
-									}
-									else
-									{
-										text(phrase, 0, 10);
-									}
-								}
-								else
-								{
-									text(phrase, 0, 0);
-								}
-								break;
-							case 3:
-								if(n_lines == 1)
-								{
-									if(align_top)
-									{
-										text(phrase, 0, 3);
-									}
-									else
-									{
-										text(phrase, 0, 6);
-									}
-								}
-								else
-								{
-									text(phrase, 0, 0);
-								}
-								break;
-							case 4:
-								text(phrase, 0, 0);
-								break;
-							default:
-								break;
-						}
-						memset(phrase, 0, 64);
-						strcpy(phrase, word);
-						strcat(phrase, " ");
-						n_lines++;
+						line_buffer[strlen(line_buffer) - 1] = '\0';
+						chars_per_line[num_line] = strlen(line_buffer);
+
+						num_line++;
+						total_num_lines++;
+						memset(line_buffer, 0, msg_length);
+
+						strcat(line_buffer, word_buffer);
+						strcat(line_buffer, " ");
 					}
+				} while ( (word_buffer != NULL) && (total_num_lines <= max_num_lines) );
+
+				line_buffer[strlen(line_buffer) - 1] = '\0';
+				chars_per_line[num_line] = strlen(line_buffer);
+
+				// Calculate the working area initial position
+				uint8_t initial_position = m_working_area.y_init + (m_working_area.height() / 2) - (total_num_lines * max_font_height / 2);
+
+				text_buffer = text_safe_buffer;
+				strcpy_P(text_buffer, msg);
+
+				Area line_area = getWorkingArea();
+				line_area.y_init = initial_position;
+				line_area.y_end = initial_position + max_font_height;
+				setWorkingArea(line_area);
+
+				for (uint8_t i = 0; i < total_num_lines; i++)
+				{
+					char line[max_chars_per_line + 1];
+					memset(line, 0, max_chars_per_line + 1);
+					strncpy(line, text_buffer, chars_per_line[i]);
+					line[max_chars_per_line] = '\0';
+					text_buffer += chars_per_line[i] + 1;
+
+					text(line);
+
+					line_area.y_init += max_font_height;
+					line_area.y_end += max_font_height;
+					setWorkingArea(line_area);
 				}
-				while ( word != NULL );
 			}
-			free(safeWord);
-			free(safeBuffer);
+
+			free(word_safe_buffer);
+			free(text_safe_buffer);
+			free(line_safe_buffer);
+
+			setWorkingArea(save_working_area);
 		}
 	}
 

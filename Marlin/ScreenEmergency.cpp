@@ -1,5 +1,7 @@
 #include "ScreenEmergency.h"
 
+#include "GuiPainter.h"
+
 namespace screen
 {
 	ScreenEmergency::ScreenEmergency(const char * title, const char * message, const char * box)
@@ -20,6 +22,9 @@ namespace screen
 			{
 				painter.title(m_title);
 				painter.box(m_box);
+
+				Area text_area(40, 14, 127, 54);
+				painter.setWorkingArea(text_area);
 				painter.multiText(m_message);
 			} while (painter.nextPage());
 		}

@@ -23,10 +23,14 @@ namespace screen
 			painter.box(m_box);
 
 			painter.setColorIndex(1);
-			painter.multiText(m_message, true);
 
-			painter.setPrintPos(13, 42);
-			painter.print(c_time);
+			Area text_area(0, 14, 127, 41);
+			painter.setWorkingArea(text_area);
+			painter.multiText(m_message);
+
+			Area time_area(0, 42, 127, 54);
+			painter.setWorkingArea(time_area);
+			painter.text(c_time);
 
 		} while( painter.nextPage() );
 	}
