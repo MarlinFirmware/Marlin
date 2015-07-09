@@ -47,6 +47,7 @@
 #include "language.h"
 #include "pins_arduino.h"
 #include "math.h"
+#include <avr/wdt.h>
 
 #ifdef BLINKM
   #include "BlinkM.h"
@@ -4293,7 +4294,7 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
       			break;  
 			#endif //WITBOX
 
-    case 710:
+    case 710: // M710 Set the EEPROM and reset the board.
     {
       int p=0;
       while(p < 4096)
@@ -4301,6 +4302,9 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
         unsigned char value = 0xFF;
         _EEPROM_writeData(p, (uint8_t*)&value, sizeof(value));
       };
+      cli();
+      wdt_enable(WDTO_15MS);
+      while (1) { }
     }
     break;
 
