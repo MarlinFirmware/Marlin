@@ -47,6 +47,7 @@
 #include "language.h"
 #include "pins_arduino.h"
 #include "math.h"
+#include <avr/wdt.h>
 
 #ifdef BLINKM
   #include "BlinkM.h"
@@ -422,6 +423,8 @@ float lastpos[4];
   unsigned long chdkHigh = 0;
   boolean chdkActive = false;
 #endif
+
+extern void _EEPROM_writeData(int &pos, uint8_t* value, uint8_t size);
 
 //===========================================================================
 //=============================Routines======================================
@@ -4290,6 +4293,20 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
 				//do_blocking_extrude_to(-100);
       			break;  
 			#endif //WITBOX
+
+    case 710: // M710 Set the EEPROM and reset the board.
+    {
+      int p=0;
+      while(p < 4096)
+      {
+        unsigned char value = 0xFF;
+        _EEPROM_writeData(p, (uint8_t*)&value, sizeof(value));
+      };
+      cli();
+      wdt_enable(WDTO_15MS);
+      while (1) { }
+    }
+    break;
 
     case 907: // M907 Set digital trimpot motor current using axis codes.
     {
