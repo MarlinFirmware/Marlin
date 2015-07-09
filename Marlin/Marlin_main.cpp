@@ -5927,7 +5927,7 @@ void mesh_plan_buffer_line(float x, float y, float z, const float e, float feed_
 
 #if defined(DELTA) || defined(SCARA)
 
-  inline bool prepare_move_delta(float target[3]) {
+  inline bool prepare_move_delta(float target[NUM_AXIS]) {
     float difference[NUM_AXIS];
     for (int8_t i=0; i < NUM_AXIS; i++) difference[i] = target[i] - current_position[i];
 
