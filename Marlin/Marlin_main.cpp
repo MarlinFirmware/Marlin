@@ -412,7 +412,7 @@ bool target_direction;
 
 void process_next_command();
 
-void plan_arc(float *target, float *offset, uint8_t clockwise);
+void plan_arc(float target[NUM_AXIS], float *offset, uint8_t clockwise);
 
 bool setTargetedHotend(int code);
 
@@ -6072,9 +6072,9 @@ void prepare_move() {
  * options for G2/G3 arc generation. In future these options may be GCode tunable.
  */
 void plan_arc(
-  float *target,    // Destination position
-  float *offset,    // Center of rotation relative to current_position
-  uint8_t clockwise // Clockwise?
+  float target[NUM_AXIS], // Destination position
+  float *offset,          // Center of rotation relative to current_position
+  uint8_t clockwise       // Clockwise?
 ) {
 
   float radius = hypot(offset[X_AXIS], offset[Y_AXIS]),
