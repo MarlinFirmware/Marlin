@@ -90,11 +90,6 @@
 
   // PANELOLU2 LCD with status LEDs, separate encoder and click inputs
   #ifdef LCD_I2C_PANELOLU2
-    // This uses the LiquidTWI2 library v1.2.3 or later ( https://github.com/lincomatic/LiquidTWI2 )
-    // Make sure the LiquidTWI2 directory is placed in the Arduino or Sketchbook libraries subdirectory.
-    // (v1.2.3 no longer requires you to define PANELOLU in the LiquidTWI2.h library header file)
-    // Note: The PANELOLU2 encoder click input can either be directly connected to a pin
-    //       (if BTN_ENC defined to != -1) or read through I2C (when BTN_ENC == -1).
     #define LCD_I2C_TYPE_MCP23017
     #define LCD_I2C_ADDRESS 0x20 // I2C Address of the port expander
     #define LCD_USE_I2C_BUZZER //comment out to disable buzzer on LCD
