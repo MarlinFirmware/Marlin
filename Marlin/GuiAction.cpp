@@ -502,6 +502,11 @@ void action_set_feedrate_multiply(uint16_t value)
 	feedmultiply = value;
 }
 
+uint16_t action_get_feedrate_multiply()
+{
+	return feedmultiply;
+}
+
 float z_saved_homing;
 vector_3 planeNormal;
 vector_3 vector_offsets; 
