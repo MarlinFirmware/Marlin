@@ -5307,8 +5307,8 @@ void process_next_command() {
   //  - Bypass N[0-9][0-9]*[ ]*
   //  - Overwrite * with nul to mark the end
   while (*current_command == ' ') ++current_command;
-  if (*current_command == 'N' && current_command[1] >= '0' && current_command[1] <= '9') {
-    current_command += 2; // skip N[0-9]
+  if (*current_command == 'N' && ((current_command[1] >= '0' && current_command[1] <= '9') || current_command[1] == '-')) {
+    current_command += 2; // skip N[-0-9]
     while (*current_command >= '0' && *current_command <= '9') ++current_command; // skip [0-9]*
     while (*current_command == ' ') ++current_command; // skip [ ]*
   }
