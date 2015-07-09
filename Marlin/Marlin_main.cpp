@@ -6179,6 +6179,9 @@ void plan_arc(
     #ifdef DELTA
       feedrate = feed_rate;
       prepare_move_delta(arc_target);
+    #elif defined(SCARA)
+      feedrate = feed_rate;
+      prepare_move_scara(arc_target);
     #else
       plan_buffer_line(arc_target[X_AXIS], arc_target[Y_AXIS], arc_target[Z_AXIS], arc_target[E_AXIS], feed_rate, active_extruder);
     #endif
@@ -6188,6 +6191,9 @@ void plan_arc(
   #ifdef DELTA
     feedrate = feed_rate;
     prepare_move_delta(target);
+  #elif defined(SCARA)
+    feedrate = feed_rate;
+    prepare_move_scara(target);
   #else
     plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], feed_rate, active_extruder);
   #endif
