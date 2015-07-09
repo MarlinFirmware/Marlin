@@ -135,7 +135,14 @@ namespace screen
 							strncpy(prev_folder, card.filename, 19);
 							card.updir();
 							card.getfilename(directory_array[directory_index-1]-1);
-							strncpy(m_directory, card.longFilename, sizeof(m_directory));
+							if(strcmp(card.longFilename,"")==0)
+							{
+								strncpy(m_directory, card.filename, sizeof(m_directory));
+							}
+							else
+							{
+								strncpy(m_directory, card.longFilename, sizeof(m_directory));
+							}
 							card.chdir(prev_folder);
 							painter.print(m_directory);
 							from_updir = false;
@@ -143,8 +150,16 @@ namespace screen
 					}
 					else
 					{
-						strncpy(m_directory, card.folderName, 19);
-						m_directory[19] = '\0';
+						if(strcmp(card.folderName,"")==0)
+						{
+							strncpy(m_directory, card.filename, 19);
+							m_directory[19] = '\0';
+						}
+						else
+						{
+							strncpy(m_directory, card.folderName, 19);
+							m_directory[19] = '\0';
+						}
 					}
 
 					m_directory_is_root = false;
@@ -252,7 +267,14 @@ namespace screen
 						painter.drawBitmap(painter.coordinateXInit() + 1, painter.coordinateYInit() + i * (max_font_height + 1), little_icon_width, little_icon_height, bits_folder_small);
 					}
 					painter.setPrintPos(painter.coordinateXInit() + 9, painter.coordinateYInit() + i * (max_font_height + 1));
-					painter.print(card.longFilename);
+					if(strcmp(card.longFilename,"") != 0)
+					{
+						painter.print(card.longFilename);
+					}
+					else
+					{
+						painter.print(card.filename);
+					}
 				}
 			}
 
@@ -308,6 +330,7 @@ namespace screen
 				{
 					directory_array[directory_index] = m_index - m_offset + 1;
 					directory_index++;
+					from_updir = false;
 				}
 				card.chdir(card.filename);
 				ViewManager::getInstance().activeView(screen_SD_list);
