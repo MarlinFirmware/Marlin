@@ -105,7 +105,11 @@
   #endif
 
   // PANELOLU2 LCD with status LEDs, separate encoder and click inputs
+<<<<<<< HEAD
   #if ENABLED(LCD_I2C_PANELOLU2)
+=======
+  #ifdef LCD_I2C_PANELOLU2
+>>>>>>> Move note about LiquidTWI2 to Configuration.h
     #define LCD_I2C_TYPE_MCP23017
     #define LCD_I2C_ADDRESS 0x20 // I2C Address of the port expander
     #define LCD_USE_I2C_BUZZER //comment out to disable buzzer on LCD
