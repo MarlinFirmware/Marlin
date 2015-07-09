@@ -734,7 +734,7 @@ namespace screen
 
    static ScreenSelector<void, uint16_t> * make_screen_speed()
 	{
-		ScreenSelector<void, uint16_t> * local_view = new ScreenSelector<void, uint16_t>(MSG_SCREEN_SPEED, 10, 400, 10, 100, action_set_feedrate_multiply);
+		ScreenSelector<void, uint16_t> * local_view = new ScreenSelector<void, uint16_t>(MSG_SCREEN_SPEED, 10, 400, 10, action_get_feedrate_multiply(), action_set_feedrate_multiply);
 		local_view->add(screen_print);
 		return local_view;
 	}
