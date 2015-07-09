@@ -5969,7 +5969,7 @@ void mesh_plan_buffer_line(float x, float y, float z, const float e, float feed_
 #endif // DELTA || SCARA
 
 #ifdef SCARA
-  inline bool prepare_move_scara(const float *target) { return prepare_move_delta(target); }
+  inline bool prepare_move_scara(float target[NUM_AXIS]) { return prepare_move_delta(target); }
 #endif
 
 #ifdef DUAL_X_CARRIAGE
