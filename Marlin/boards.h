@@ -16,6 +16,7 @@
 #define BOARD_RAMPS_13_EEF      36   // RAMPS 1.3 / 1.4 (Power outputs: Extruder0, Extruder1, Fan)
 #define BOARD_RAMPS_13_SF       38   // RAMPS 1.3 / 1.4 (Power outputs: Spindle, Controller Fan)
 #define BOARD_FELIX2            37   // Felix 2.0+ Electronics Board (RAMPS like)
+#define BOARD_RIGIDBOARD        42   // Invent-A-Part RigidBoard
 #define BOARD_GEN6              5    // Gen6
 #define BOARD_GEN6_DELUXE       51   // Gen6 deluxe
 #define BOARD_SANGUINOLOLU_11   6    // Sanguinololu < 1.2
