@@ -507,10 +507,10 @@ static void lcd_set_encoder_position(int8_t position)
 
 static void lcd_emergency_stop()
 {
-    if (StorageManager::getEmergencyFlag() == 0x00)
+    if (eeprom::StorageManager::getEmergencyFlag() != eeprom::EMERGENCY_STOP_ACTIVE)
     {
         SERIAL_ECHOLN("KILLED: Emergency stop active!");
-        StorageManager::setEmergencyFlag();
+        eeprom::StorageManager::setEmergencyFlag();
         cli();
 
         stop_buffer = true;
@@ -536,7 +536,7 @@ static void lcd_emergency_stop()
     }
     else
     {
-        StorageManager::clearEmergencyFlag();
+        eeprom::StorageManager::clearEmergencyFlag();
     }
 
     wdt_enable(WDTO_15MS);

@@ -635,7 +635,7 @@ void setup()
   servo_init();
 
 #ifdef DOGLCD
-  if (StorageManager::getEmergencyFlag() != 0x00)
+  if (eeprom::StorageManager::getEmergencyFlag() != eeprom::EMERGENCY_STOP_INACTIVE)
   {
     SERIAL_ECHOLN("--- EMERGENCY STOP ACTIVE ---");
   }
