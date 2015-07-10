@@ -20,7 +20,7 @@
 // 11 Dutch
 
 #ifndef LANGUAGE_CHOICE
-	#define LANGUAGE_CHOICE 1  // Pick your language from the list above
+	#define LANGUAGE_CHOICE 5  // Pick your language from the list above
 #endif
 
 #define PROTOCOL_VERSION "1.0"
@@ -314,15 +314,15 @@ const char MSG_FILAMENT_UNLOAD[] PROGMEM             = "Expulsar filamento";
 const char MSG_FILAMENT_LOAD[] PROGMEM               = "Insertar filamento";
 const char MSG_LEVELING[] PROGMEM                    = "Nivelar base";
 const char MSG_HOMING[] PROGMEM                      = "Auto-home";
-const char MSG_SETTINGS[] PROGMEM                    = "Configuracion";
+const char MSG_SETTINGS[] PROGMEM                    = "Opciones";
 const char MSG_STEPPERS[] PROGMEM                    = "Desactivar motores";
 const char MSG_STEPPERS_OFF[] PROGMEM                = "Motores desactivados";
 const char MSG_MOVEAXIS[] PROGMEM                    = "Mover ejes";
 const char MSG_TEMPERATURE[] PROGMEM                 = "Temp 0/200C";
-const char MSG_LIGHTLED_DISABLE[] PROGMEM            = "Luces apagadas";
-const char MSG_LIGHTLED[] PROGMEM                    = "Luces encendidas";
+const char MSG_LIGHTLED_DISABLE[] PROGMEM            = "Luz Led : OFF";
+const char MSG_LIGHTLED[] PROGMEM                    = "Luz Led : ON";
 const char MSG_INFO[] PROGMEM                        = "FW info";
-const char MSG_PLAY[] PROGMEM                        = "Imprimir";
+const char MSG_PLAY[] PROGMEM                        = "Continuar";
 const char MSG_PAUSE[] PROGMEM                       = "Pausar";
 const char MSG_STOP[] PROGMEM                        = "Parar";
 const char MSG_CHANGE_FILAMENT[] PROGMEM             = "Cambiar filamento";
@@ -330,51 +330,51 @@ const char MSG_CHANGE_SPEED[] PROGMEM                = "Cambiar velocidad";
 const char MSG_BACK[] PROGMEM                        = "Volver";
 const char MSG_RETRY[] PROGMEM                       = "Reintentar";
 const char MSG_OK2[] PROGMEM                         = "Confirmar";
-const char MSG_MOVE_X[] PROGMEM                      = "Mover X";
-const char MSG_MOVE_Y[] PROGMEM                      = "Mover Y";
-const char MSG_MOVE_Z[] PROGMEM                      = "Mover Z";
-const char MSG_MOVE_E[] PROGMEM                      = "Mover E";
-const char MSG_AUTOLEVEL[] PROGMEM                   = "Autolevel: On";
-const char MSG_AUTOLEVEL_DISABLE[] PROGMEM           = "Autolevel: Off";
-const char MSG_OFFSET[] PROGMEM                      = "Offset";
+const char MSG_MOVE_X[] PROGMEM                      = "Mover eje X";
+const char MSG_MOVE_Y[] PROGMEM                      = "Mover eje Y";
+const char MSG_MOVE_Z[] PROGMEM                      = "Mover eje Z";
+const char MSG_MOVE_E[] PROGMEM                      = "Mover eje E";
+const char MSG_AUTOLEVEL[] PROGMEM                   = "Autolevel : ON";
+const char MSG_AUTOLEVEL_DISABLE[] PROGMEM           = "Autolevel : OFF";
+const char MSG_OFFSET[] PROGMEM                      = "Ajustar offset";
 
 const char MSG_SCREEN_LOGO[] PROGMEM                 = "BQ logo";
 const char MSG_SCREEN_LOGO_TEXT[] PROGMEM            = "Test";
 const char MSG_SCREEN_LOGO_BOX[] PROGMEM             = "Test";
 
 const char MSG_SCREEN_SD_LIST[] PROGMEM              = "Tarjeta SD";
-const char MSG_SCREEN_SD_CONFIRM[] PROGMEM           = "Confirmar Impresion";
+const char MSG_SCREEN_SD_CONFIRM[] PROGMEM           = "Confirmar";
 const char MSG_SCREEN_SD_BACK[] PROGMEM              = "Volver";
 const char MSG_SCREEN_SD_LIST_BACK[] PROGMEM         = "Volver al menu";
 const char MSG_SCREEN_SD_LIST_PREV[] PROGMEM         = "Carpeta anterior";
 
 const char MSG_SCREEN_UNLOAD_TITLE[] PROGMEM         = "Descargar filamento";
-const char MSG_SCREEN_UNLOAD_TEXT1[] PROGMEM         = "Pulse el botón deje extruir el filamento y extraigalo";
+const char MSG_SCREEN_UNLOAD_TEXT1[] PROGMEM         = "Pulsar y extraer el filamento cuando comience a extruir";
 const char MSG_SCREEN_UNLOAD_TEXT2[] PROGMEM         = "Iniciar proceso?";
-const char MSG_SCREEN_UNLOAD_WAIT[] PROGMEM         = "Por favor, espere";
+const char MSG_SCREEN_UNLOAD_WAIT[] PROGMEM          = "Por favor, espere";
 const char MSG_SCREEN_UNLOAD_CONTINUE[] PROGMEM      = "Pulse para continuar";
 const char MSG_SCREEN_UNLOAD_PULL[] PROGMEM          = "Extruir y sacar";
 const char MSG_SCREEN_UNLOAD_CONFIRM[] PROGMEM       = "Finalizado?";
-const char MSG_SCREEN_UNLOADING_TEXT[] PROGMEM       = "Descargando...";
+const char MSG_SCREEN_UNLOADING_TEXT[] PROGMEM       = "Descargando filamento";
 
 const char MSG_SCREEN_LOAD_TITLE[] PROGMEM           = "Cargar filamento";
-const char MSG_SCREEN_LOAD_TEXT1[] PROGMEM           = "Pulse el botón e introduzca el filamento";
+const char MSG_SCREEN_LOAD_TEXT1[] PROGMEM           = "Pulsar e introducir el filamento";
 const char MSG_SCREEN_LOAD_TEXT2[] PROGMEM           = "Iniciar proceso?";
-const char MSG_SCREEN_LOAD_WAIT[] PROGMEM           = "Por favor, espere";
+const char MSG_SCREEN_LOAD_WAIT[] PROGMEM            = "Por favor, espere";
 const char MSG_SCREEN_LOAD_CONTINUE[] PROGMEM        = "Pulse para continuar";
 const char MSG_SCREEN_LOAD_PRESS[] PROGMEM           = "Pulse para continuar";
 const char MSG_SCREEN_LOAD_CONFIRM[] PROGMEM         = "Finalizado?";
-const char MSG_SCREEN_LOADING_TEXT[] PROGMEM         = "Cargando...";
+const char MSG_SCREEN_LOADING_TEXT[] PROGMEM         = "Cargando filamento";
 
 const char MSG_SCREEN_LEVEL_TITLE[] PROGMEM          = "Nivelar base";
-const char MSG_SCREEN_LEVEL_TEXT[] PROGMEM           = "Comenzar nivelacion?";
-const char MSG_SCREEN_LEVEL_WAIT[] PROGMEM          = "Por favor, espere";
+const char MSG_SCREEN_LEVEL_TEXT[] PROGMEM           = "Comenzar nivelado?";
+const char MSG_SCREEN_LEVEL_WAIT[] PROGMEM           = "Por favor, espere";
 const char MSG_SCREEN_LEVEL_CONTINUE[] PROGMEM       = "Pulse para continuar";
 const char MSG_SCREEN_LEVEL_TEXT0[] PROGMEM          = "Realizando homing";
-const char MSG_SCREEN_LEVEL_TEXT1[] PROGMEM          = "Ajuste el primer punto 1mm entre la cama y el extrusor";
-const char MSG_SCREEN_LEVEL_TEXT2[] PROGMEM          = "Ajuste el segundo punto 1mm entre la cama y el extrusor";
-const char MSG_SCREEN_LEVEL_TEXT3[] PROGMEM          = "Ajuste el tercer punto 1mm entre la cama y el extrusor";
-const char MSG_SCREEN_LEVEL_TEXT4[] PROGMEM          = "Ajuste el punto central 1mm entre la cama y el extrusor";
+const char MSG_SCREEN_LEVEL_TEXT1[] PROGMEM          = "Ajusta el tornillo izquierdo hasta que se encienda la luz roja";
+const char MSG_SCREEN_LEVEL_TEXT2[] PROGMEM          = "Repite el paso anterior utilizando el tornillo derecho";
+const char MSG_SCREEN_LEVEL_TEXT3[] PROGMEM          = "Ahora, ajusta el tornillo central";
+const char MSG_SCREEN_LEVEL_TEXT4[] PROGMEM          = "Finalmente ajusta el plato hasta que aparezca la luz";
 const char MSG_SCREEN_LEVEL_BOX0[] PROGMEM           = "Por favor espere";
 const char MSG_SCREEN_LEVEL_BOX1[] PROGMEM           = "Pulse para continuar";
 const char MSG_SCREEN_LEVEL_BOX2[] PROGMEM           = "Pulse para continuar";
@@ -383,7 +383,7 @@ const char MSG_SCREEN_LEVEL_BOX4[] PROGMEM           = "Pulse para continuar";
 const char MSG_SCREEN_LEVEL_CONFIRM[] PROGMEM        = "Finalizado?";
 
 const char MSG_SCREEN_AUTOHOME[] PROGMEM             = "Auto-home";
-const char MSG_SCREEN_SETTINGS[] PROGMEM             = "Configuracion";
+const char MSG_SCREEN_SETTINGS[] PROGMEM             = "Opciones";
 const char MSG_SCREEN_SETTINGS_TEXT[] PROGMEM        = "Seleccione opcion";
 const char MSG_SCREEN_STEPPER[] PROGMEM              = "Motores activos";
 
@@ -394,9 +394,9 @@ const char MSG_SCREEN_MOVE_Y[] PROGMEM               = "Eje Y / mm";
 const char MSG_SCREEN_MOVE_Z[] PROGMEM               = "Eje Z / mm";
 const char MSG_SCREEN_MOVE_E[] PROGMEM               = "Extrusor / mm";
 const char MSG_SCREEN_MOVE_2MOVE[] PROGMEM           = "Volver";
-const char MSG_SCREEN_MOVE_01MM[] PROGMEM            = "0.1mm";
-const char MSG_SCREEN_MOVE_1MM[] PROGMEM             = "1mm";
-const char MSG_SCREEN_MOVE_10MM[] PROGMEM            = "10mm";
+const char MSG_SCREEN_MOVE_01MM[] PROGMEM            = "Mover 0.1mm";
+const char MSG_SCREEN_MOVE_1MM[] PROGMEM             = "Mover 1mm";
+const char MSG_SCREEN_MOVE_10MM[] PROGMEM            = "Mover 10mm";
 const char MSG_SCREEN_MOVE_HEAT_CONFIRM[] PROGMEM    = "Calentar extrusor?";
 const char MSG_SCREEN_MOVE_BOX0[] PROGMEM            = "Por favor, espere";
 
@@ -419,27 +419,27 @@ const char MSG_SCREEN_INFO[] PROGMEM                 = "FW info";
 const char MSG_SCREEN_INFO_TEXT[] PROGMEM            = "FW info";
 const char MSG_SCREEN_INFO_BOX[] PROGMEM             = "Pulse para continuar";
 
-const char MSG_SCREEN_OFFSET_TITLE[] PROGMEM         = "Offset";
+const char MSG_SCREEN_OFFSET_TITLE[] PROGMEM         = "Ajustar offset";
 const char MSG_SCREEN_OFFSET_TEXT[] PROGMEM          = "Ajustar offset?";
-const char MSG_SCREEN_OFFSET_DIALOG_TEXT[] PROGMEM   = "Ajustar la distancia entre el extrusor y la cama";
+const char MSG_SCREEN_OFFSET_DIALOG_TEXT[] PROGMEM   = "Pulsa y luego gira el boton hasta que el extrusor toque la base";
 const char MSG_SCREEN_OFFSET_DIALOG_BOX[] PROGMEM    = "Pulse para continuar";
 const char MSG_SCREEN_OFFSET_FINISH[] PROGMEM        = "Finalizado?";
-const char MSG_SCREEN_OFFSET_WAIT[] PROGMEM          = "Espere";
+const char MSG_SCREEN_OFFSET_WAIT[] PROGMEM          = "Espere...";
 const char MSG_SCREEN_OFFSET_WAIT_BOX[] PROGMEM      = "Pulse para continuar";
-const char MSG_SCREEN_OFFSET_HOME_TEXT[] PROGMEM     = "Realizando homing";
+const char MSG_SCREEN_OFFSET_HOME_TEXT[] PROGMEM     = "Realizando homing...";
 const char MSG_SCREEN_OFFSET_PLANE_TEXT[] PROGMEM    = "Calculando el plano de offset...";
 
 const char MSG_SCREEN_STOP_CONFIRM[] PROGMEM         = "Parar";
-const char MSG_SCREEN_STOP_BACK[] PROGMEM            = "Vovler";
+const char MSG_SCREEN_STOP_BACK[] PROGMEM            = "Volver";
 const char MSG_SCREEN_STOP_OK[] PROGMEM              = "Confirmar";
 
 const char MSG_SCREEN_CHANGE_TITLE[] PROGMEM         = "Cambiar filamento";
 const char MSG_SCREEN_CHANGE_BOX[] PROGMEM           = "Pulse para continuar";
 const char MSG_SCREEN_CHANGE_CONFIRM[] PROGMEM       = "Cambiar filamento";
 const char MSG_SCREEN_CHANGE_START[] PROGMEM         = "Empezar";
-const char MSG_SCREEN_CHANGE_PULLOUT[] PROGMEM       = "Tire del filamento";
-const char MSG_SCREEN_CHANGE_INSERT[] PROGMEM        = "Insertar & pulsar";
-const char MSG_SCREEN_CHANGE_RETRY[] PROGMEM         = "OK?";
+const char MSG_SCREEN_CHANGE_PULLOUT[] PROGMEM       = "Pulsa y extrae el filamento cuando comience a extruir";
+const char MSG_SCREEN_CHANGE_INSERT[] PROGMEM        = "Por ultimo, pulsa e introduce el filamento";
+const char MSG_SCREEN_CHANGE_RETRY[] PROGMEM         = "Finalizado?";
 const char MSG_SCREEN_CHANGE_PAUSING[] PROGMEM       = "Pausando...";
 
 const char MSG_SCREEN_HEATING_MAIN_TITLE[] PROGMEM   = "Cambiar temperatura";
