@@ -44,7 +44,7 @@
 #include "cardreader.h"
 #include "watchdog.h"
 #include "ConfigurationStore.h"
-#include "language.h"
+#include "Serial.h"
 #include "pins_arduino.h"
 #include "math.h"
 #include <avr/wdt.h>

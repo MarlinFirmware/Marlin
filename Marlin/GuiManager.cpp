@@ -4,6 +4,7 @@
 #include "cardreader.h"
 #include "ConfigurationStore.h"
 #include "temperature.h"
+#include "Serial.h"
 #include "language.h"
 
 #include "Screen.h"
