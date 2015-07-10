@@ -6570,12 +6570,16 @@ void calculate_volumetric_multipliers() {
 void writeposition()
 {
   card.openFile("position.g", false);
-  String g92command;
-  char g92commandchar[32];
+  char g92command[32];
+  char xpos[10], ypos[10], zpos[10];
 
-  g92command = String("G92 Z" + String(current_position[Z_AXIS],3) + " X"+String(current_position[X_AXIS],3) + " Y" + String(current_position[Y_AXIS],3) );
-  g92command.toCharArray(g92commandchar,32);
-  card.write_command( g92commandchar );
+  dtostrf(current_position[X_AXIS], 7, 3, xpos);
+  dtostrf(current_position[Y_AXIS], 7, 3, ypos);
+  dtostrf(current_position[Z_AXIS], 7, 3, zpos);
+
+  snprintf_P(g92command, 32, PSTR("G92 Z%s X%s Y%s"), zpos, xpos, ypos);
+
+  card.write_command( g92command );
   card.closefile();
 }
 #endif
