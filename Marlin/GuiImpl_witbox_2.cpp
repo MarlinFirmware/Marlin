@@ -29,7 +29,7 @@
 #include "SteppersManager.h"
 #include "TemperatureManager.h"
 
-#include "language.h"
+#include "Language.h"
 
 namespace screen
 {

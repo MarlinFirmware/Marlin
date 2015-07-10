@@ -6,7 +6,7 @@
 #include "planner.h"
 #include "stepper.h"
 #include "Serial.h"
-#include "language.h"
+#include "Language.h"
 
 #include "GuiManager.h"
 #include "TemperatureManager.h"

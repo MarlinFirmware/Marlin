@@ -5,7 +5,7 @@
 #include "ConfigurationStore.h"
 #include "temperature.h"
 #include "Serial.h"
-#include "language.h"
+#include "Language.h"
 
 #include "Screen.h"
 #include "GuiImpl_witbox_2.h"
