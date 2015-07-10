@@ -740,7 +740,6 @@ void loop() {
     if (stored_position_valid == false) {
       if ((millis() - last_stored_position_timer) > 5000) {
         writeposition();
-        stored_position_valid = true;
       }
     }
   }
@@ -2860,6 +2859,9 @@ inline void gcode_G92() {
       sync_plan_position_delta();
     #else
       sync_plan_position();
+    #endif
+    #ifdef SDSUPPORT
+      positiondirty();
     #endif
   }
 }
@@ -6585,5 +6587,12 @@ void writeposition()
 
   card.write_command( g92command );
   card.closefile();
+  stored_position_valid = true;
+}
+
+void positiondirty()
+{
+  stored_position_valid = false;
+  last_stored_position_timer = millis();
 }
 #endif

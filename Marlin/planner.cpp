@@ -694,8 +694,7 @@ float junction_deviation = 0.1;
   // if the head moves, mark the stored sd card position as dirty
   #ifdef SDSUPPORT
   if ( block->millimeters != 0.0 ) {
-    stored_position_valid = false;
-    last_stored_position_timer = millis();
+    positiondirty();
   }
   #endif
 

@@ -296,6 +296,7 @@ extern bool axis_known_position[3];
 //this is for storing the position on a card so that when turned off the position can be restored without using the z endstop.
 #ifdef SDSUPPORT
   void writeposition();
+  void positiondirty();
   extern bool stored_position_valid;
   extern long unsigned last_stored_position_timer;
   extern float stored_position[NUM_AXIS];
