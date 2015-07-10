@@ -503,12 +503,18 @@ void CardReader::checkautostart(bool force) {
   bool found = false;
   while (root.readDir(p, NULL) > 0) {
     for (int8_t i = 0; i < (int8_t)strlen((char*)p.name); i++) p.name[i] = tolower(p.name[i]);
-    if (p.name[9] != '~' && strncmp((char*)p.name, autoname, 5) == 0) {
-      char cmd[4 + (FILENAME_LENGTH + 1) * MAX_DIR_DEPTH + 2];
-      sprintf_P(cmd, PSTR("M23 %s"), autoname);
-      enqueuecommand(cmd);
-      enqueuecommands_P(PSTR("M24"));
-      found = true;
+    if (p.name[9] != '~') {
+      if (strncmp((char*)p.name, autoname, 5) == 0) {
+        char cmd[4 + (FILENAME_LENGTH + 1) * MAX_DIR_DEPTH + 2];
+        sprintf_P(cmd, PSTR("M23 %s"), autoname);
+        enqueuecommand(cmd);
+        enqueuecommands_P(PSTR("M24"));
+        found = true;
+      }
+      if (strncmp((char*)p.name, "position.g", 10) == 0) {
+        enqueuecommand("M23 position.g");
+        enqueuecommands_P(PSTR("M24"));
+      }
     }
   }
   if (!found)

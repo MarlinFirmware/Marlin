@@ -6569,8 +6569,7 @@ void calculate_volumetric_multipliers() {
 #ifdef SDSUPPORT
 void writeposition()
 {
-  SERIAL_ECHOLNPGM("Start write to file \n");
-  card.openFile("auto0.g", false);
+  card.openFile("position.g", false);
   String g92command;
   char g92commandchar[32];
 
