@@ -234,6 +234,10 @@ const char MSG_SCREEN_LEVEL_BOX4[] PROGMEM           = "Push to continue";
 const char MSG_SCREEN_LEVEL_CONFIRM[] PROGMEM        = "Finished?";
 
 const char MSG_SCREEN_AUTOHOME[] PROGMEM             = "Auto-home";
+const char MSG_SCREEN_AUTOHOME_TITLE[] PROGMEM       = "Auto-home";
+const char MSG_SCREEN_AUTOHOME_TEXT[] PROGMEM        = "Homing...";
+const char MSG_SCREEN_AUTOHOME_WAIT[] PROGMEM        = "Please wait";
+
 const char MSG_SCREEN_SETTINGS[] PROGMEM             = "Settings";
 const char MSG_SCREEN_SETTINGS_TEXT[] PROGMEM        = "Choose an option";
 const char MSG_SCREEN_STEPPER[] PROGMEM              = "Steppers on";
@@ -383,6 +387,10 @@ const char MSG_SCREEN_LEVEL_BOX4[] PROGMEM           = "Pulsa para continuar";
 const char MSG_SCREEN_LEVEL_CONFIRM[] PROGMEM        = "Finalizado?";
 
 const char MSG_SCREEN_AUTOHOME[] PROGMEM             = "Auto-home";
+const char MSG_SCREEN_AUTOHOME_TITLE[] PROGMEM       = "Auto-home";
+const char MSG_SCREEN_AUTOHOME_TEXT[] PROGMEM        = "Homing...";
+const char MSG_SCREEN_AUTOHOME_WAIT[] PROGMEM        = "Por favor, espera";
+
 const char MSG_SCREEN_SETTINGS[] PROGMEM             = "Opciones";
 const char MSG_SCREEN_SETTINGS_TEXT[] PROGMEM        = "Selecciona opcion";
 const char MSG_SCREEN_STEPPER[] PROGMEM              = "Motores activos";

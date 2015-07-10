@@ -310,9 +310,9 @@ namespace screen
 		return local_view;
 	}
 
-	static ScreenAction<void> * make_screen_autohome()
+	static ScreenTransition * make_screen_autohome()
 	{
-		ScreenAction<void> * local_view = new ScreenAction<void>(MSG_SCREEN_AUTOHOME, action_homing);
+		ScreenTransition * local_view = new ScreenTransition(MSG_SCREEN_AUTOHOME_TITLE, MSG_SCREEN_AUTOHOME_TEXT, MSG_SCREEN_AUTOHOME_WAIT, action_homing);
 		local_view->add(screen_main);
 		return local_view;
 	}
