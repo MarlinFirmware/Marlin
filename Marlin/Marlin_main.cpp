@@ -680,6 +680,10 @@ void setup() {
     pinMode(STAT_LED_BLUE, OUTPUT);
     digitalWrite(STAT_LED_BLUE, LOW); // turn it off
   #endif  
+  #ifdef SDSUPPORT
+    enqueuecommands_P(PSTR("M23 position.g"));
+    enqueuecommands_P(PSTR("M24"));
+  #endif
 }
 
 /**

@@ -511,10 +511,6 @@ void CardReader::checkautostart(bool force) {
         enqueuecommands_P(PSTR("M24"));
         found = true;
       }
-      if (strncmp((char*)p.name, "position.g", 10) == 0) {
-        enqueuecommand("M23 position.g");
-        enqueuecommands_P(PSTR("M24"));
-      }
     }
   }
   if (!found)
