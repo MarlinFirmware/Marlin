@@ -293,6 +293,14 @@ extern float min_pos[3];
 extern float max_pos[3];
 extern bool axis_known_position[3];
 
+//this is for storing the position on a card so that when turned off the position can be restored without using the z endstop.
+#ifdef SDSUPPORT
+  void writeposition();
+  extern bool stored_position_valid;
+  extern long unsigned last_stored_position_timer;
+  extern float stored_position[NUM_AXIS];
+#endif
+
 #ifdef ENABLE_AUTO_BED_LEVELING
   extern float zprobe_zoffset;
 #endif

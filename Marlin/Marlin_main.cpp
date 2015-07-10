@@ -228,6 +228,11 @@
 
 #ifdef SDSUPPORT
   CardReader card;
+
+  //this is for storing the position on a card so that when turned off the position can be restored without using the z endstop.
+  unsigned long last_stored_position_timer = 0;
+  bool stored_position_valid = true;
+  float stored_position[NUM_AXIS] = { 0.0, 0.0, 0.0, 0.0 };
 #endif
 
 bool Running = true;
@@ -726,6 +731,16 @@ void loop() {
     commands_in_queue--;
     cmd_queue_index_r = (cmd_queue_index_r + 1) % BUFSIZE;
   }
+#ifdef SDSUPPORT
+  else {
+    if (stored_position_valid == false) {
+      if ((millis() - last_stored_position_timer) > 5000) {
+        writeposition();
+        stored_position_valid = true;
+      }
+    }
+  }
+#endif
   checkHitEndstops();
   idle();
 }
@@ -6549,3 +6564,19 @@ void calculate_volumetric_multipliers() {
   for (int i=0; i<EXTRUDERS; i++)
     volumetric_multiplier[i] = calculate_volumetric_multiplier(filament_size[i]);
 }
+
+// writes the current postion to the sd card so that powering up doesn't require recalibration on unreliable z endstops.
+#ifdef SDSUPPORT
+void writeposition()
+{
+  SERIAL_ECHOLNPGM("Start write to file \n");
+  card.openFile("auto0.g", false);
+  String g92command;
+  char g92commandchar[32];
+
+  g92command = String("G92 Z" + String(current_position[Z_AXIS],3) + " X"+String(current_position[X_AXIS],3) + " Y" + String(current_position[Y_AXIS],3) );
+  g92command.toCharArray(g92commandchar,32);
+  card.write_command( g92commandchar );
+  card.closefile();
+}
+#endif

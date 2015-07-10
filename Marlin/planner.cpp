@@ -691,6 +691,14 @@ float junction_deviation = 0.1;
   }
   float inverse_millimeters = 1.0 / block->millimeters;  // Inverse millimeters to remove multiple divides 
 
+  // if the head moves, mark the stored sd card position as dirty
+  #ifdef SDSUPPORT
+  if ( block->millimeters != 0.0 ) {
+    stored_position_valid = false;
+    last_stored_position_timer = millis();
+  }
+  #endif
+
   // Calculate speed in mm/second for each axis. No divide by zero due to previous checks.
   float inverse_second = feed_rate * inverse_millimeters;
 
