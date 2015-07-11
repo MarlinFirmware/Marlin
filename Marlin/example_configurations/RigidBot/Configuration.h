@@ -588,8 +588,6 @@ const bool Z_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the logic
 //=============================================================================
 
 // @section more
-// RigidBot - Disable stepper drivers until voltage has stabilized
-#define STEPPER_RESET_FIX
 
 // Custom M code points
 #define CUSTOM_M_CODES
