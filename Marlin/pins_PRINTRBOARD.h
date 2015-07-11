@@ -47,7 +47,11 @@
 #endif
 
 #define X_STOP_PIN         35
-#define Y_STOP_PIN          8
+#ifdef SDSUPPORT
+  #define Y_STOP_PIN       37 // Move Ystop to Estop socket
+#else
+  #define Y_STOP_PIN        8 // Ystop in Ystop socket
+#endif
 #define Z_STOP_PIN         36
 #define TEMP_0_PIN          1  // Extruder / Analog pin numbering
 #define TEMP_BED_PIN        0  // Bed / Analog pin numbering
@@ -69,8 +73,6 @@
 #define ALARM_PIN          -1
 
 #ifndef SDSUPPORT
-  #undef Y_STOP_PIN
-  #define Y_STOP_PIN       37 // Move Ystop to Estop socket
   // these pins are defined in the SD library if building with SD support
   #define SCK_PIN           9
   #define MISO_PIN         11
