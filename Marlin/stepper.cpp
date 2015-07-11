@@ -92,8 +92,6 @@ volatile signed char count_direction[NUM_AXIS] = { 1, 1, 1, 1};
 //=============================functions         ============================
 //===========================================================================
 
-#define CHECK_ENDSTOPS  if(check_endstops)
-
 // intRes = intIn1 * intIn2 >> 16
 // uses:
 // r26 to store 0
@@ -409,7 +407,7 @@ ISR(TIMER1_COMPA_vect)
     #else
     if ((((out_bits & (1<<X_AXIS)) != 0)&&(out_bits & (1<<Y_AXIS)) != 0)) {   //-X occurs for -A and -B
     #endif
-      CHECK_ENDSTOPS
+      if(check_endstops)
       {
         #ifdef DUAL_X_CARRIAGE
         // with 2 x-carriages, endstops are only checked in the homing direction for the active extruder
@@ -430,7 +428,7 @@ ISR(TIMER1_COMPA_vect)
       }
     }
     else { // +direction
-      CHECK_ENDSTOPS
+      if(check_endstops)
       {
         #ifdef DUAL_X_CARRIAGE
         // with 2 x-carriages, endstops are only checked in the homing direction for the active extruder
@@ -456,7 +454,7 @@ ISR(TIMER1_COMPA_vect)
     #else
     if ((((out_bits & (1<<X_AXIS)) != 0)&&(out_bits & (1<<Y_AXIS)) == 0)) {   // -Y occurs for -A and +B
     #endif
-      CHECK_ENDSTOPS
+      if(check_endstops)
       {
         #if defined(Y_MIN_PIN) && Y_MIN_PIN > -1
           bool y_min_endstop=(READ(Y_MIN_PIN) != Y_MIN_ENDSTOP_INVERTING);
@@ -470,7 +468,7 @@ ISR(TIMER1_COMPA_vect)
       }
     }
     else { // +direction
-      CHECK_ENDSTOPS
+      if(check_endstops)
       {
         #if defined(Y_MAX_PIN) && Y_MAX_PIN > -1
           bool y_max_endstop=(READ(Y_MAX_PIN) != Y_MAX_ENDSTOP_INVERTING);
@@ -492,7 +490,7 @@ ISR(TIMER1_COMPA_vect)
       #endif
 
       count_direction[Z_AXIS]=-1;
-      CHECK_ENDSTOPS
+      if(check_endstops)
       {
         #if defined(Z_MIN_PIN) && Z_MIN_PIN > -1
           bool z_min_endstop=(READ(Z_MIN_PIN) != Z_MIN_ENDSTOP_INVERTING);
@@ -513,7 +511,7 @@ ISR(TIMER1_COMPA_vect)
       #endif
 
       count_direction[Z_AXIS]=1;
-      CHECK_ENDSTOPS
+      if(check_endstops)
       {
         #if defined(Z_MAX_PIN) && Z_MAX_PIN > -1
           bool z_max_endstop=(READ(Z_MAX_PIN) != Z_MAX_ENDSTOP_INVERTING);
