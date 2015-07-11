@@ -70,7 +70,11 @@
 #define KILL_PIN           -1
 #define ALARM_PIN          -1
 
+<<<<<<< HEAD
 #if DISABLED(SDSUPPORT)
+=======
+#ifndef SDSUPPORT
+>>>>>>> Move Y_STOP_PIN for Printrboard with SD
   // these pins are defined in the SD library if building with SD support
   #define SCK_PIN           9
   #define MISO_PIN         11
