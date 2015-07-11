@@ -683,7 +683,11 @@ void setup() {
     enableStepperDrivers();
   #endif
 
+<<<<<<< HEAD
   #if ENABLED(DIGIPOT_I2C)
+=======
+  #ifdef DIGIPOT_I2C
+>>>>>>> Add STEPPER_RESET_PIN support
     digipot_i2c_init();
   #endif
 
