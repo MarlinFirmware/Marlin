@@ -78,7 +78,7 @@ static inline void handle_interrupts(timer16_Sequence_t timer, volatile uint16_t
   if (Channel[timer] < 0)
     *TCNTn = 0; // channel set to -1 indicated that refresh interval completed so reset the timer
   else {
-    if (SERVO_INDEX(timer,Channel[timer]) < ServoCount && SERVO(timer,Channel[timer]).Pin.isActive)
+    if (SERVO_INDEX(timer,Channel[timer]) < ServoCount)
       digitalWrite( SERVO(timer,Channel[timer]).Pin.nbr,LOW); // pulse this channel low if activated
   }
 
