@@ -772,7 +772,7 @@ const bool Z_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the logic
 // If your servo does not reach the requested position, enlarge the time.
 // You MUST HAVE the SERVO_ENDSTOPS defined to use here a value higher than zero otherwise your code will not compile.
 //
-#define DEACTIVATE_SERVOS_AFTER_MOVE
+//#define DEACTIVATE_SERVOS_AFTER_MOVE
 
 #ifdef DEACTIVATE_SERVOS_AFTER_MOVE
   #define SERVO_DEACTIVATION_DELAY 300
