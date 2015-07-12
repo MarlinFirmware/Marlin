@@ -36,7 +36,13 @@
   #endif
 #endif // ENABLE_AUTO_BED_LEVELING
 
+<<<<<<< HEAD
 #if ENABLED(MESH_BED_LEVELING)
+=======
+#define SERVO_LEVELING (defined(ENABLE_AUTO_BED_LEVELING) && defined(DEACTIVATE_SERVOS_AFTER_MOVE))
+
+#ifdef MESH_BED_LEVELING
+>>>>>>> Activate the new servo.move() function
   #include "mesh_bed_leveling.h"
 #endif
 
@@ -580,8 +586,13 @@ void servo_init() {
   // Set position of Servo Endstops that are defined
   #if HAS_SERVO_ENDSTOPS
     for (int i = 0; i < 3; i++)
+<<<<<<< HEAD
       if (servo_endstop_id[i] >= 0)
         servo[servo_endstop_id[i]].move(servo_endstop_angle[i][1]);
+=======
+      if (servo_endstops[i] >= 0)
+        servo[servo_endstops[i]].move(0, servo_endstop_angles[i * 2 + 1]);
+>>>>>>> Activate the new servo.move() function
   #endif
 
 }
@@ -1329,7 +1340,14 @@ static void setup_for_endstop_move() {
     #if HAS_SERVO_ENDSTOPS
 
       // Engage Z Servo endstop if enabled
+<<<<<<< HEAD
       if (servo_endstop_id[Z_AXIS] >= 0) servo[servo_endstop_id[Z_AXIS]].move(servo_endstop_angle[Z_AXIS][0]);
+=======
+      if (servo_endstops[Z_AXIS] >= 0) {
+        Servo *srv = &servo[servo_endstops[Z_AXIS]];
+        srv->move(0, servo_endstop_angles[Z_AXIS * 2]);
+      }
+>>>>>>> Activate the new servo.move() function
 
     #elif ENABLED(Z_PROBE_ALLEN_KEY)
       feedrate = Z_PROBE_ALLEN_KEY_DEPLOY_1_FEEDRATE;
@@ -1429,7 +1447,12 @@ static void setup_for_endstop_move() {
         #endif
 
         // Change the Z servo angle
+<<<<<<< HEAD
         servo[servo_endstop_id[Z_AXIS]].move(servo_endstop_angle[Z_AXIS][1]);
+=======
+        Servo *srv = &servo[servo_endstops[Z_AXIS]];
+        srv->move(0, servo_endstop_angles[Z_AXIS * 2 + 1]);
+>>>>>>> Activate the new servo.move() function
       }
 
     #elif ENABLED(Z_PROBE_ALLEN_KEY)
@@ -1680,10 +1703,19 @@ static void homeaxis(AxisEnum axis) {
 
     #endif
 
+<<<<<<< HEAD
     #if HAS_SERVO_ENDSTOPS
       // Engage Servo endstop if enabled
       if (axis != Z_AXIS && servo_endstop_id[axis] >= 0)
         servo[servo_endstop_id[axis]].move(servo_endstop_angle[axis][0]);
+=======
+    #ifdef SERVO_ENDSTOPS
+      if (axis != Z_AXIS) {
+        // Engage Servo endstop if enabled
+        if (servo_endstops[axis] > -1)
+          servo[servo_endstops[axis]].move(0, servo_endstop_angles[axis * 2]);
+      }
+>>>>>>> Activate the new servo.move() function
     #endif
 
     // Set a flag for Z motor locking
@@ -1784,10 +1816,17 @@ static void homeaxis(AxisEnum axis) {
     {
       #if HAS_SERVO_ENDSTOPS
         // Retract Servo endstop if enabled
+<<<<<<< HEAD
         if (servo_endstop_id[axis] >= 0)
           servo[servo_endstop_id[axis]].move(servo_endstop_angle[axis][1]);
       #endif
     }
+=======
+        if (servo_endstops[axis] > -1)
+          servo[servo_endstops[axis]].move(0, servo_endstop_angles[axis * 2 + 1]);
+      }
+    #endif
+>>>>>>> Activate the new servo.move() function
 
   }
 }
@@ -4289,8 +4328,15 @@ inline void gcode_M226() {
     int servo_position = 0;
     if (code_seen('S')) {
       servo_position = code_value_short();
+<<<<<<< HEAD
       if (servo_index >= 0 && servo_index < NUM_SERVOS) 
         servo[servo_index].move(servo_position);
+=======
+      if (servo_index >= 0 && servo_index < NUM_SERVOS) {
+        Servo *srv = &servo[servo_index];
+        srv->move(0, servo_position);
+      }
+>>>>>>> Activate the new servo.move() function
       else {
         SERIAL_ECHO_START;
         SERIAL_ECHO("Servo ");
