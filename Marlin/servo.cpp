@@ -244,9 +244,8 @@ uint8_t Servo::attach(int pin) {
 
 uint8_t Servo::attach(int pin, int min, int max) {
   if (this->servoIndex < MAX_SERVOS ) {
-  #if defined(ENABLE_AUTO_BED_LEVELING) && (PROBE_SERVO_DEACTIVATION_DELAY > 0)
-    if (pin > 0) this->pin = pin; else pin = this->pin;
-  #endif
+    if(pin == 0)
+      pin = servos[this->servoIndex].Pin.nbr;
     pinMode(pin, OUTPUT);                                   // set servo pin to output
     servos[this->servoIndex].Pin.nbr = pin;
     // todo min/max check: abs(min - MIN_PULSE_WIDTH) /4 < 128
