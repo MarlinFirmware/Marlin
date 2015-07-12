@@ -40,8 +40,13 @@
    readMicroseconds() - Gets the last written servo pulse width in microseconds. (was read_us() in first release)
    attached()  - Returns true if there is a servo attached.
    detach()    - Stops an attached servos from pulsing its i/o pin.
+<<<<<<< HEAD
    move(angle) - Sequence of attach(0), write(angle),
                    With DEACTIVATE_SERVOS_AFTER_MOVE wait SERVO_DEACTIVATION_DELAY and detach.
+=======
+   move(pin, angel) - Sequence of attach(pin), write(angel),
+                      if DEACTIVATE_SERVOS_AFTER_MOVE is defined waits SERVO_DEACTIVATION_DELAY, than detaches.
+>>>>>>> Add Servo::move() to servo.cpp
  */
 
 #ifndef servo_h
@@ -121,10 +126,17 @@ class Servo {
     int8_t attach(int pin, int min, int max); // as above but also sets min and max values for writes.
     void detach();
     void write(int value);             // if value is < 200 it is treated as an angle, otherwise as pulse width in microseconds
+<<<<<<< HEAD
     void writeMicroseconds(int value); // write pulse width in microseconds
     void move(int value);              // attach the servo, then move to value
                                        // if value is < 200 it is treated as an angle, otherwise as pulse width in microseconds
                                        // if DEACTIVATE_SERVOS_AFTER_MOVE wait SERVO_DEACTIVATION_DELAY, then detach
+=======
+    void writeMicroseconds(int value); // Write pulse width in microseconds
+    uint8_t move(int pin, int value);  // attach the given pin to the next free channel, sets pinMode, returns channel number or 0 if failure.
+                                       // if value is < 200 it is treated as an angle, otherwise as pulse width in microseconds.
+                                       // if DEACTIVATE_SERVOS_AFTER_MOVE is defined waits SERVO_DEACTIVATION_DELAY, than detaches.
+>>>>>>> Add Servo::move() to servo.cpp
     int read();                        // returns current pulse width as an angle between 0 and 180 degrees
     int readMicroseconds();            // returns current pulse width in microseconds for this servo (was read_us() in first release)
     bool attached();                   // return true if this servo is attached, otherwise false
