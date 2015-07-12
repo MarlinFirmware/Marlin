@@ -281,6 +281,7 @@ int8_t Servo::attach(int pin) {
   return this->attach(pin, MIN_PULSE_WIDTH, MAX_PULSE_WIDTH);
 }
 
+<<<<<<< HEAD
 int8_t Servo::attach(int pin, int min, int max) {
 
   if (this->servoIndex >= MAX_SERVOS) return -1;
@@ -297,6 +298,22 @@ int8_t Servo::attach(int pin, int min, int max) {
   if (!isTimerActive(timer)) initISR(timer);
   servo_info[this->servoIndex].Pin.isActive = true;  // this must be set after the check for isTimerActive
 
+=======
+uint8_t Servo::attach(int pin, int min, int max) {
+  if (this->servoIndex < MAX_SERVOS ) {
+    if(pin == 0)
+      pin = servos[this->servoIndex].Pin.nbr;
+    pinMode(pin, OUTPUT);                                   // set servo pin to output
+    servos[this->servoIndex].Pin.nbr = pin;
+    // todo min/max check: abs(min - MIN_PULSE_WIDTH) /4 < 128
+    this->min = (MIN_PULSE_WIDTH - min) / 4; //resolution of min/max is 4 uS
+    this->max = (MAX_PULSE_WIDTH - max) / 4;
+    // initialize the timer if it has not already been initialized
+    timer16_Sequence_t timer = SERVO_INDEX_TO_TIMER(servoIndex);
+    if (!isTimerActive(timer)) initISR(timer);
+    servos[this->servoIndex].Pin.isActive = true;  // this must be set after the check for isTimerActive
+  }
+>>>>>>> Remove the additional pin variable in Servo.cpp
   return this->servoIndex;
 }
 
