@@ -450,6 +450,9 @@ void manage_heater()
 
     #ifndef PID_OPENLOOP
         pid_error[e] = target_temperature[e] - pid_input;
+        //K1 defined in Configuration.h in the PID settings
+        #define K2 (1.0-K1)
+        dTerm[e] = (Kd * (pid_input - temp_dState[e]))*K2 + (K1 * dTerm[e]);
         if(pid_error[e] > PID_FUNCTIONAL_RANGE) {
           pid_output = BANG_MAX;
           pid_reset[e] = true;
@@ -468,9 +471,6 @@ void manage_heater()
           temp_iState[e] = constrain(temp_iState[e], temp_iState_min[e], temp_iState_max[e]);
           iTerm[e] = Ki * temp_iState[e];
 
-          //K1 defined in Configuration.h in the PID settings
-          #define K2 (1.0-K1)
-          dTerm[e] = (Kd * (pid_input - temp_dState[e]))*K2 + (K1 * dTerm[e]);
           pid_output = pTerm[e] + iTerm[e] - dTerm[e];
           if (pid_output > PID_MAX) {
             if (pid_error[e] > 0 )  temp_iState[e] -= pid_error[e]; // conditional un-integration
