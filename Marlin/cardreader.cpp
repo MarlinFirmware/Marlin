@@ -7,7 +7,7 @@
 #include "language.h"
 
 
-#define GREEN_LED digitalWrite(40,1);digitalWrite(44,1);digitalWrite(42,0)
+#define GREEN_LED digitalWrite(40,0);digitalWrite(44,0);digitalWrite(42,1)
 
 
 

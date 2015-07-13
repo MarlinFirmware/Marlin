@@ -39,9 +39,9 @@
 #include "ultralcd.h"
 #include "ultralcd_st7920_u8glib_rrd.h"
 
-#define WHITE_LED digitalWrite(40,0);digitalWrite(44,0);digitalWrite(42,0)
-#define RED_LED digitalWrite(40,0);digitalWrite(44,1);digitalWrite(42,1)
-#define BLUE_LED digitalWrite(40,1);digitalWrite(44,0);digitalWrite(42,1)
+#define WHITE_LED digitalWrite(40,1);digitalWrite(44,1);digitalWrite(42,1)
+#define RED_LED digitalWrite(40,1);digitalWrite(44,0);digitalWrite(42,0)
+#define BLUE_LED digitalWrite(40,0);digitalWrite(44,1);digitalWrite(42,0)
 
 
 /* Russian language not supported yet, needs custom font
@@ -100,11 +100,7 @@ static void lcd_implementation_init()
  pinMode(40, OUTPUT);
  pinMode(42, OUTPUT);
  pinMode(44, OUTPUT);
-/*
- digitalWrite(40,LOW);
- digitalWrite(42,LOW);
- digitalWrite(44,LOW);
-*/
+ WHITE_LED;
 
 #ifdef LCD_PIN_BL
 	pinMode(LCD_PIN_BL, OUTPUT);	// Enable LCD backlight
