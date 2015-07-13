@@ -13,6 +13,7 @@ extern void action_filament_load();
 extern void action_level_plate();
 
 extern void action_homing();
+extern void action_get_plane();
 
 extern void action_move_axis_to(uint8_t axis, float position);
 

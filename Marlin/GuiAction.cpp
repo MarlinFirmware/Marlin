@@ -24,6 +24,14 @@ extern unsigned long previous_millis_cmd;
 
 #define HOMEAXIS(LETTER) homeaxis(LETTER##_AXIS)
 
+float z_offset;
+
+extern float current_position[NUM_AXIS];
+extern void clean_up_after_endstop_move();
+extern void do_blocking_move_to(float x, float y, float z);
+extern void setup_for_endstop_move();
+extern float probe_pt(float x, float y, float z_before, int retract_action = 0);
+
 void action_set_temperature(uint16_t degrees)
 {
 	TemperatureManager::single::instance().setTargetTemperature(degrees);
@@ -380,6 +388,218 @@ void action_homing()
 	lcd_enable_interrupt();
 }
 
+extern bool code_seen(char code);
+
+static void set_bed_level_equation_3pts(float z_at_pt_1, float z_at_pt_2, float z_at_pt_3) {
+
+    plan_bed_level_matrix.set_to_identity();
+
+    vector_3 pt1 = vector_3(ABL_PROBE_PT_1_X, ABL_PROBE_PT_1_Y, z_at_pt_1);
+    vector_3 pt2 = vector_3(ABL_PROBE_PT_2_X, ABL_PROBE_PT_2_Y, z_at_pt_2);
+    vector_3 pt3 = vector_3(ABL_PROBE_PT_3_X, ABL_PROBE_PT_3_Y, z_at_pt_3);
+
+    vector_3 from_2_to_1 = (pt1 - pt2).get_normal();
+    vector_3 from_3_to_2 = (pt2 - pt3).get_normal();
+    vector_3 planeNormal = vector_3::cross(from_2_to_1, from_3_to_2).get_normal();
+    planeNormal = vector_3(planeNormal.x, planeNormal.y, abs(planeNormal.z));
+
+    plan_bed_level_matrix = matrix_3x3::create_look_at(planeNormal);
+
+    vector_3 corrected_position = plan_get_position();
+    current_position[X_AXIS] = corrected_position.x;
+    current_position[Y_AXIS] = corrected_position.y;
+    current_position[Z_AXIS] = corrected_position.z;
+
+    // put the bed at 0 so we don't go below it.
+    current_position[Z_AXIS] = zprobe_zoffset;
+
+    plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+
+}
+
+void action_get_plane()
+{
+
+	#if Z_MIN_PIN == -1
+		#error "You must have a Z_MIN endstop in order to enable Auto Bed Leveling feature!!! Z_MIN_PIN must point to a valid hardware pin."
+	#endif
+
+	// Prevent user from running a G29 without first homing in X and Y
+	if (! (axis_known_position[X_AXIS] && axis_known_position[Y_AXIS]) )
+	{
+		LCD_MESSAGEPGM(MSG_POSITION_UNKNOWN);
+		SERIAL_ECHO_START;
+		SERIAL_ECHOLNPGM(MSG_POSITION_UNKNOWN);
+		return; // abort G29, since we don't know where we are
+	}
+
+	#ifdef Z_PROBE_SLED
+		dock_sled(false);
+	#endif // Z_PROBE_SLED
+	st_synchronize();
+
+	// make sure the bed_level_rotation_matrix is identity or the planner will get it incorectly
+	//vector_3 corrected_position = plan_get_position_mm();
+	//corrected_position.debug("position before G29");
+	plan_bed_level_matrix.set_to_identity();
+	vector_3 uncorrected_position = plan_get_position();
+	//uncorrected_position.debug("position durring G29");
+	current_position[X_AXIS] = uncorrected_position.x;
+	current_position[Y_AXIS] = uncorrected_position.y;
+	current_position[Z_AXIS] = uncorrected_position.z;
+	plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+	setup_for_endstop_move();
+
+	feedrate = homing_feedrate[Z_AXIS];
+	#ifdef AUTO_BED_LEVELING_GRID
+		// probe at the points of a lattice grid
+
+		int xGridSpacing = (RIGHT_PROBE_BED_POSITION - LEFT_PROBE_BED_POSITION) / (AUTO_BED_LEVELING_GRID_POINTS-1);
+		int yGridSpacing = (BACK_PROBE_BED_POSITION - FRONT_PROBE_BED_POSITION) / (AUTO_BED_LEVELING_GRID_POINTS-1);
+
+
+		// solve the plane equation ax + by + d = z
+		// A is the matrix with rows [x y 1] for all the probed points
+		// B is the vector of the Z positions
+		// the normal vector to the plane is formed by the coefficients of the plane equation in the standard form, which is Vx*x+Vy*y+Vz*z+d = 0
+		// so Vx = -a Vy = -b Vz = 1 (we want the vector facing towards positive Z
+
+		// "A" matrix of the linear system of equations
+		double eqnAMatrix[AUTO_BED_LEVELING_GRID_POINTS*AUTO_BED_LEVELING_GRID_POINTS*3];
+		// "B" vector of Z points
+		double eqnBVector[AUTO_BED_LEVELING_GRID_POINTS*AUTO_BED_LEVELING_GRID_POINTS];
+
+
+		int probePointCounter = 0;
+		bool zig = true;
+
+		for (int yProbe=FRONT_PROBE_BED_POSITION; yProbe <= BACK_PROBE_BED_POSITION; yProbe += yGridSpacing)
+		{
+			int xProbe, xInc;
+			if (zig)
+			{
+				xProbe = LEFT_PROBE_BED_POSITION;
+				//xEnd = RIGHT_PROBE_BED_POSITION;
+				xInc = xGridSpacing;
+				zig = false;
+			}
+			else // zag
+			{
+				xProbe = RIGHT_PROBE_BED_POSITION;
+				//xEnd = LEFT_PROBE_BED_POSITION;
+				xInc = -xGridSpacing;
+				zig = true;
+			}
+
+			for (int xCount=0; xCount < AUTO_BED_LEVELING_GRID_POINTS; xCount++)
+			{
+				float z_before;
+				if (probePointCounter == 0)
+				{
+					// raise before probing
+					z_before = Z_RAISE_BEFORE_PROBING;
+				}
+				else
+				{
+					// raise extruder
+					z_before = current_position[Z_AXIS] + Z_RAISE_BETWEEN_PROBINGS;
+				}
+
+				float measured_z;
+				//Enhanced G29 - Do not retract servo between probes
+				if (code_seen('E') || code_seen('e') )
+				{
+					if ((yProbe==FRONT_PROBE_BED_POSITION) && (xCount==0))
+					{
+						measured_z = probe_pt(xProbe, yProbe, z_before,1);
+					}
+					else if ((yProbe==FRONT_PROBE_BED_POSITION + (yGridSpacing * (AUTO_BED_LEVELING_GRID_POINTS-1))) && (xCount == AUTO_BED_LEVELING_GRID_POINTS-1))
+					{
+						measured_z = probe_pt(xProbe, yProbe, z_before,3);
+					}
+					else
+					{
+						measured_z = probe_pt(xProbe, yProbe, z_before,2);
+					}
+				} else {
+					measured_z = probe_pt(xProbe, yProbe, z_before);
+				}
+
+				eqnBVector[probePointCounter] = measured_z;
+
+				eqnAMatrix[probePointCounter + 0*AUTO_BED_LEVELING_GRID_POINTS*AUTO_BED_LEVELING_GRID_POINTS] = xProbe;
+				eqnAMatrix[probePointCounter + 1*AUTO_BED_LEVELING_GRID_POINTS*AUTO_BED_LEVELING_GRID_POINTS] = yProbe;
+				eqnAMatrix[probePointCounter + 2*AUTO_BED_LEVELING_GRID_POINTS*AUTO_BED_LEVELING_GRID_POINTS] = 1;
+				probePointCounter++;
+				xProbe += xInc;
+			}
+		}
+		clean_up_after_endstop_move();
+
+		// solve lsq problem
+		double *plane_equation_coefficients = qr_solve(AUTO_BED_LEVELING_GRID_POINTS*AUTO_BED_LEVELING_GRID_POINTS, 3, eqnAMatrix, eqnBVector);
+
+		SERIAL_PROTOCOLPGM("Eqn coefficients: a: ");
+		SERIAL_PROTOCOL(plane_equation_coefficients[0]);
+		SERIAL_PROTOCOLPGM(" b: ");
+		SERIAL_PROTOCOL(plane_equation_coefficients[1]);
+		SERIAL_PROTOCOLPGM(" d: ");
+		SERIAL_PROTOCOLLN(plane_equation_coefficients[2]);
+
+
+		set_bed_level_equation_lsq(plane_equation_coefficients);
+
+		free(plane_equation_coefficients);
+
+	#else // AUTO_BED_LEVELING_GRID not defined
+
+		// Probe at 3 arbitrary points
+		// Enhanced G29
+
+		float z_at_pt_1, z_at_pt_2, z_at_pt_3;
+
+		if (code_seen('E') || code_seen('e')) {
+			// probe 1
+			z_at_pt_1 = probe_pt(ABL_PROBE_PT_1_X, ABL_PROBE_PT_1_Y, Z_RAISE_BEFORE_PROBING,1);
+			// probe 2
+			z_at_pt_2 = probe_pt(ABL_PROBE_PT_2_X, ABL_PROBE_PT_2_Y, current_position[Z_AXIS] + Z_RAISE_BETWEEN_PROBINGS,2);
+			// probe 3
+			z_at_pt_3 = probe_pt(ABL_PROBE_PT_3_X, ABL_PROBE_PT_3_Y, current_position[Z_AXIS] + Z_RAISE_BETWEEN_PROBINGS,3); 
+		}
+		else
+		{
+			// probe 1
+			z_at_pt_1 = probe_pt(ABL_PROBE_PT_1_X, ABL_PROBE_PT_1_Y, Z_RAISE_BEFORE_PROBING);
+			// probe 2
+			z_at_pt_2 = probe_pt(ABL_PROBE_PT_2_X, ABL_PROBE_PT_2_Y, current_position[Z_AXIS] + Z_RAISE_BETWEEN_PROBINGS);
+			// probe 3
+			z_at_pt_3 = probe_pt(ABL_PROBE_PT_3_X, ABL_PROBE_PT_3_Y, current_position[Z_AXIS] + Z_RAISE_BETWEEN_PROBINGS);
+		}
+		clean_up_after_endstop_move();
+
+		set_bed_level_equation_3pts(z_at_pt_1, z_at_pt_2, z_at_pt_3);
+
+	#endif // AUTO_BED_LEVELING_GRID
+	st_synchronize();
+
+	// The following code correct the Z height difference from z-probe position and hotend tip position.
+	// The Z height on homing is measured by Z-Probe, but the probe is quite far from the hotend.
+	// When the bed is uneven, this height must be corrected.
+	float x_tmp, y_tmp, z_tmp, real_z;
+
+	real_z = float(st_get_position(Z_AXIS))/axis_steps_per_unit[Z_AXIS];  //get the real Z (since the auto bed leveling is already correcting the plane)
+	x_tmp = current_position[X_AXIS] + X_PROBE_OFFSET_FROM_EXTRUDER;
+	y_tmp = current_position[Y_AXIS] + Y_PROBE_OFFSET_FROM_EXTRUDER;
+	z_tmp = current_position[Z_AXIS];
+
+	apply_rotation_xyz(plan_bed_level_matrix, x_tmp, y_tmp, z_tmp);         //Apply the correction sending the probe offset
+	current_position[Z_AXIS] = real_z -z_tmp + current_position[Z_AXIS];   //The difference is added to current position and sent to planner.
+	plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+	#ifdef Z_PROBE_SLED
+		dock_sled(true, -SLED_DOCKING_OFFSET); // correct for over travel.
+	#endif // Z_PROBE_SLED
+}
+
 void action_move_axis_to(uint8_t axis, float position)
 {
 	current_position[axis] = position;
@@ -502,16 +722,6 @@ void action_set_feedrate_multiply(uint16_t value)
 	feedmultiply = value;
 }
 
-float z_saved_homing;
-vector_3 planeNormal;
-vector_3 vector_offsets; 
-
-extern float current_position[NUM_AXIS];
-extern void clean_up_after_endstop_move();
-extern void do_blocking_move_to(float x, float y, float z);
-extern void setup_for_endstop_move();
-extern float probe_pt(float x, float y, float z_before, int retract_action = 0);
-
 void action_offset()
 {
 	st_synchronize();
@@ -521,7 +731,7 @@ void action_offset()
 	current_position[X_AXIS] = uncorrected_position.x;
 	current_position[Y_AXIS] = uncorrected_position.y;
 	current_position[Z_AXIS] = 0;
-	z_saved_homing = current_position[Z_AXIS];
+	float z_saved_homing = current_position[Z_AXIS];
 	plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
 	setup_for_endstop_move();
 
@@ -545,7 +755,7 @@ void action_offset()
 
 	vector_3 from_2_to_1 = (pt1 - pt2).get_normal();
 	vector_3 from_3_to_2 = (pt2 - pt3).get_normal();
-	planeNormal = vector_3::cross(from_2_to_1, from_3_to_2).get_normal();
+	vector_3 planeNormal = vector_3::cross(from_2_to_1, from_3_to_2).get_normal();
 
 	planeNormal = vector_3(planeNormal.x, planeNormal.y, abs(planeNormal.z));
 
@@ -557,9 +767,11 @@ void action_offset()
 	do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS]);
 
 	plan_bed_level_matrix = matrix_3x3::create_look_at(planeNormal);
-	vector_offsets = vector_3(X_PROBE_OFFSET_FROM_EXTRUDER, Y_PROBE_OFFSET_FROM_EXTRUDER, 0);
+	vector_3 vector_offsets = vector_3(X_PROBE_OFFSET_FROM_EXTRUDER, Y_PROBE_OFFSET_FROM_EXTRUDER, 0);
 	
 	apply_rotation_xyz(plan_bed_level_matrix, vector_offsets.x, vector_offsets.y, vector_offsets.z);
+	z_offset = vector_offsets.z;
+
 	plan_bed_level_matrix.set_to_identity();
 	current_position[Z_AXIS] = plan_get_axis_position(Z_AXIS);
 }
@@ -573,7 +785,7 @@ void action_offset_homing()
 void action_set_offset(uint8_t axis, float value)
 {
 	action_move_axis_to(Z_AXIS,-value);
-	zprobe_zoffset = value + vector_offsets.z;
+	zprobe_zoffset = value + z_offset;
 	OffsetManager::single::instance().offset(zprobe_zoffset);
 }
 
