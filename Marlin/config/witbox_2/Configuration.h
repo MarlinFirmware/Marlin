@@ -308,7 +308,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
                         // - If stepper drivers timeout, it will need X and Y homing again before Z homing
                         // - Position the probe in a defined XY point before Z Homing when homing all axis (G28)
                         // - Block Z homing only when the probe is outside bed area.
-#ifdef Z_SAFE_HOMING
+
 // There are 2 different ways to pick the X and Y locations to probe:
 
 //  - "grid" mode
@@ -372,7 +372,6 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
     #define Z_SAFE_HOMING_X_POINT (X_MAX_POS + X_MIN_POS)/2 + X_PROBE_OFFSET_FROM_EXTRUDER   // X point for Z homing when homing all axis (G28)
     #define Z_SAFE_HOMING_Y_POINT (Y_MAX_POS + Y_MIN_POS)/2 + Y_PROBE_OFFSET_FROM_EXTRUDER // Y point for Z homing when homing all axis (G28)
 
-#endif //Z_SAFE_HOMING
 
 // The position of the homing switches
 //#define MANUAL_HOME_POSITIONS  // If defined, MANUAL_*_HOME_POS below will be used

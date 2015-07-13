@@ -129,7 +129,7 @@ CXXSRC = WMath.cpp WString.cpp Print.cpp Marlin_main.cpp	\
 	watchdog.cpp SPI.cpp Tone.cpp ultralcd.cpp digipot_mcp4451.cpp \
 	vector_3.cpp qr_solve.cpp
 
-CXXSRC += HelpersC++.cpp
+CXXSRC += GuiAction.cpp HelpersC++.cpp OffsetManager.cpp
 
 ifeq ($(DOGLCD), 1)
 SRC += u8g_com_arduino_common.c u8g_com_arduino_st7920_spi.c u8g_dev_st7920_128x64.c \
