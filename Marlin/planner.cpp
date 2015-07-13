@@ -81,14 +81,12 @@ extern uint8_t buffer_recursivity;
 extern bool stop_planner_buffer;
 #endif //DOGLCD
 
-#ifdef Z_SAFE_HOMING
 // this holds the required transform to compensate for bed level
 matrix_3x3 plan_bed_level_matrix = {
 	1.0, 0.0, 0.0,
 	0.0, 1.0, 0.0,
 	0.0, 0.0, 1.0
 };
-#endif // #ifdef Z_SAFE_HOMING
 
 // The current position of the tool in absolute steps
 long position[NUM_AXIS];   //rescaled from extern when axis_steps_per_unit are changed by gcode
@@ -1082,7 +1080,6 @@ Having the real displacement of the head, we can calculate the total movement le
   st_wake_up();
 }
 
-#ifdef Z_SAFE_HOMING
 vector_3 plan_get_position() {
 	vector_3 position = vector_3(st_get_position_mm(X_AXIS), st_get_position_mm(Y_AXIS), st_get_position_mm(Z_AXIS));
 
@@ -1095,7 +1092,6 @@ vector_3 plan_get_position() {
 
 	return position;
 }
-#endif // Z_SAFE_HOMING
 
 float plan_get_axis_position(uint8_t axis)
 {
