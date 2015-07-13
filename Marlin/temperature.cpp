@@ -476,6 +476,8 @@ float get_pid_output(int e) {
   #ifdef PIDTEMP
     #ifndef PID_OPENLOOP
       pid_error[e] = target_temperature[e] - current_temperature[e];
+      dTerm[e] = K2 * PID_PARAM(Kd,e) * (current_temperature[e] - temp_dState[e]) + K1 * dTerm[e];
+      temp_dState[e] = current_temperature[e];
       if (pid_error[e] > PID_FUNCTIONAL_RANGE) {
         pid_output = BANG_MAX;
         pid_reset[e] = true;
@@ -494,7 +496,6 @@ float get_pid_output(int e) {
         temp_iState[e] = constrain(temp_iState[e], temp_iState_min[e], temp_iState_max[e]);
         iTerm[e] = PID_PARAM(Ki,e) * temp_iState[e];
 
-        dTerm[e] = K2 * PID_PARAM(Kd,e) * (current_temperature[e] - temp_dState[e]) + K1 * dTerm[e];
         pid_output = pTerm[e] + iTerm[e] - dTerm[e];
         if (pid_output > PID_MAX) {
           if (pid_error[e] > 0) temp_iState[e] -= pid_error[e]; // conditional un-integration
@@ -505,7 +506,6 @@ float get_pid_output(int e) {
           pid_output = 0;
         }
       }
-      temp_dState[e] = current_temperature[e];
     #else
       pid_output = constrain(target_temperature[e], 0, PID_MAX);
     #endif //PID_OPENLOOP
