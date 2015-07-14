@@ -3510,7 +3510,8 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
   				while(!LCD_CLICKED) {
       				manage_heater();
     			}
-  	
+
+          //point 1
   				lcd_wizard_set_page(1);
     			lcd_update();
          
@@ -3671,149 +3672,71 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
   	
     			plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
 
-  				// prob 1
-  				do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS],Z_MIN_POS+10);
-    			lcd_enable_interrupt();
-
-    			#ifndef Z_SAFE_HOMING
-            #if X_MAX_POS > 250 //Witbox
-              do_blocking_move_to((X_MAX_POS-X_MIN_POS)/2,Y_MAX_POS-10, current_position[Z_AXIS]);
-            #elif Y_MAX_POS > 250 //Hephestos XL
-              do_blocking_move_to(20, 260, current_position[Z_AXIS]);
-            #else //Hephestos
-              do_blocking_move_to(20, 190, current_position[Z_AXIS]);
-            #endif
-
-          do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], Z_MIN_POS);
-          #else
-            #if X_MAX_POS > 250 //Witbox 2
-              do_blocking_move_to(ABL_PROBE_PT_1_X,ABL_PROBE_PT_1_Y, current_position[Z_AXIS]);
-            #elif Z_MAX_POS > 200 //Hephestos 2
-            do_blocking_move_to(ABL_PROBE_PT_1_X, ABL_PROBE_PT_1_Y, current_position[Z_AXIS]);
-            #endif
-
-          do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], -Z_PROBE_OFFSET_FROM_EXTRUDER);
-          #endif
-
+          action_level_plate();
     			lcd_clear_triggered_flags();
     			while(!LCD_CLICKED) {          
       				manage_heater();
     			}
-  				// prob 2
+
+          //point 2
   				lcd_wizard_set_page(2);
     			lcd_update();
-  	
-  				do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS],Z_MIN_POS+10);
-  				#ifndef Z_SAFE_HOMING
-            #if X_MAX_POS > 250 //Witbox
-              do_blocking_move_to(90, 5, current_position[Z_AXIS]);
-            #elif Y_MAX_POS > 250 //Hephestos XL
-              do_blocking_move_to(190, 260, current_position[Z_AXIS]);
-            #else //Hephestos
-              do_blocking_move_to(195, 190, current_position[Z_AXIS]);
-            #endif
 
-            do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], Z_MIN_POS);
-          #else
-            #if X_MAX_POS > 250 //Witbox 2
-              do_blocking_move_to(ABL_PROBE_PT_2_X, ABL_PROBE_PT_2_Y, current_position[Z_AXIS]);
-            #elif Z_MAX_POS > 200 //Hephestos 2
-              do_blocking_move_to(ABL_PROBE_PT_2_X, ABL_PROBE_PT_2_Y, current_position[Z_AXIS]);
-            #endif
-
-            do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], -Z_PROBE_OFFSET_FROM_EXTRUDER);
-          #endif
-  	  
+          action_level_plate();
     			lcd_clear_triggered_flags();
   				while(!LCD_CLICKED) {
   	  				manage_heater();
   	  				manage_inactivity();
   				}
   				
-  				// prob 3
+          //point 3
   				lcd_wizard_set_page(3);
     			lcd_update();
-  		  
-  				do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS],Z_MIN_POS+10);
-  				#ifndef Z_SAFE_HOMING
-            #if X_MAX_POS > 250 //Witbox
-              do_blocking_move_to(205, 5, current_position[Z_AXIS]);
-            #elif Y_MAX_POS > 250 //Hephestos XL
-              do_blocking_move_to(20, 40, current_position[Z_AXIS]);
-            #else //Hephestos
-              do_blocking_move_to(20, 20, current_position[Z_AXIS]);
-            #endif
 
-            do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], Z_MIN_POS);
-          #else
-            #if X_MAX_POS > 250 //Witbox 2
-              do_blocking_move_to(ABL_PROBE_PT_3_X, ABL_PROBE_PT_3_Y, current_position[Z_AXIS]);
-            #elif Z_MAX_POS > 200 //Hephestos 2
-              do_blocking_move_to(ABL_PROBE_PT_3_X, ABL_PROBE_PT_3_Y, current_position[Z_AXIS]);
-            #endif
-
-            do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], -Z_PROBE_OFFSET_FROM_EXTRUDER);
-          #endif
-
+          action_level_plate();
     			lcd_clear_triggered_flags();
   	 			while(!LCD_CLICKED) {
   	  				manage_heater();
   	  				manage_inactivity();
   				}
 
-  				// prob 4
-  				#if X_MAX_POS < 250 && Z_MAX_POS < 200
+          //3 or 4 points based on the printer
+          #if X_MAX_POS > 250 || Z_MAX_POS > 200 //witbox 1 & 2 or hephestos 2
+            lcd_wizard_set_page(5);
+            lcd_update();
+
+            action_level_plate();
+            lcd_clear_triggered_flags();
+            while(!LCD_CLICKED){
+                manage_heater();
+                manage_inactivity();
+            }
+          #else
             lcd_wizard_set_page(4);
             lcd_update();
-        
-            do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS],Z_MIN_POS+10);
-            #if Y_MAX_POS > 250 //Hephestos XL
-              do_blocking_move_to(190, 40, current_position[Z_AXIS]);
-            #else //Hephestos
-              do_blocking_move_to(195, 20, current_position[Z_AXIS]);
-            #endif
 
-          do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], Z_MIN_POS);
-    
-          lcd_clear_triggered_flags();
-          while(!LCD_CLICKED){
-              manage_heater();
-              manage_inactivity();
-          }
+            action_level_plate();
+            lcd_clear_triggered_flags();
+            while(!LCD_CLICKED){
+                manage_heater();
+                manage_inactivity();
+            }
+
+            lcd_wizard_set_page(5);
+            lcd_update();
+
+            action_level_plate();
+            lcd_clear_triggered_flags();
+            while(!LCD_CLICKED){
+                manage_heater();
+                manage_inactivity();
+            }
           #endif
 
-    			// final prob
-    			lcd_wizard_set_page(5);
-    			lcd_update();
-  		 
-  				do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS],Z_MIN_POS+10);
-  				#ifndef Z_SAFE_HOMING
-            #if X_MAX_POS > 250 //Witbox
-                do_blocking_move_to(150, 105, current_position[Z_AXIS]);
-            #else //Hephestos
-              do_blocking_move_to((X_MAX_POS+X_MIN_POS)/2, (Y_MAX_POS+Y_MIN_POS)/2, current_position[Z_AXIS]);
-            #endif
-              do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], Z_MIN_POS);
-          #else
-            #if X_MAX_POS > 250 //Witbox 2
-                do_blocking_move_to(Z_SAFE_HOMING_X_POINT, Z_SAFE_HOMING_Y_POINT, current_position[Z_AXIS]);
-            #else //Hephestos
-              do_blocking_move_to(Z_SAFE_HOMING_X_POINT, Z_SAFE_HOMING_Y_POINT, current_position[Z_AXIS]);
-            #endif
-          do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS], -Z_PROBE_OFFSET_FROM_EXTRUDER);
-
-          #endif
-  	      
-    			lcd_clear_triggered_flags();
-  				while(!LCD_CLICKED){                  
-  	  				manage_heater();
-  	  				manage_inactivity();
-  				}
-  	
   				lcd_wizard_set_page(6);
     			lcd_update();
-  		
-  				do_blocking_move_to(current_position[X_AXIS], current_position[Y_AXIS],Z_MIN_POS+50);
+          action_level_plate();
+
     			lcd_wizard_set_page(7);
     			lcd_update();      
     			lcd_enable_display_timeout();
