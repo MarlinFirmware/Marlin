@@ -113,7 +113,15 @@ void action_level_plate()
 {
 	static uint8_t level_plate_step = 0;
 
-	switch (level_plate_step)
+	#ifndef ABL_PROBE_PT_4_X
+		uint8_t max_steps = 5;
+		uint8_t order[5] = {0,1,2,4,5};
+	#else
+		uint8_t max_steps = 6;
+		uint8_t order[6] = {0,1,2,3,4,5};
+	#endif
+
+	switch (order[level_plate_step])
 	{
 		case 0:
 			lcd_disable_button();
@@ -191,6 +199,33 @@ void action_level_plate()
 			break;
 
 		case 3:
+			#ifdef ABL_PROBE_PT_4_X
+				lcd_disable_button();
+
+				target[X_AXIS] = plan_get_axis_position(X_AXIS);
+				target[Y_AXIS] = plan_get_axis_position(Y_AXIS);
+				target[Z_AXIS] = plan_get_axis_position(Z_AXIS);
+				target[E_AXIS] = plan_get_axis_position(E_AXIS);
+
+				plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], manual_feedrate[X_AXIS] / 60, active_extruder);
+
+				target[Z_AXIS] += 10;
+				plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], manual_feedrate[X_AXIS] / 60, active_extruder);
+
+				target[X_AXIS] = ABL_PROBE_PT_4_X;
+				target[Y_AXIS] = ABL_PROBE_PT_4_Y;
+				plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], manual_feedrate[X_AXIS] / 60, active_extruder);
+
+				target[Z_AXIS] -= 10;
+				plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], manual_feedrate[X_AXIS] / 60, active_extruder);
+				st_synchronize();
+
+				lcd_enable_button();
+			#endif // ABL_PROBE_PT_4_X
+
+			break;
+
+		case 4:
 			lcd_disable_button();
 
 			target[X_AXIS] = plan_get_axis_position(X_AXIS);
@@ -215,7 +250,7 @@ void action_level_plate()
 
 			break;
 
-		case 4:
+		case 5:
 			lcd_disable_button();
 
 			target[X_AXIS] = plan_get_axis_position(X_AXIS);
@@ -241,7 +276,7 @@ void action_level_plate()
 			break;
 	}
 
-	level_plate_step = ++level_plate_step % 5;
+	level_plate_step = ++level_plate_step % max_steps;
 }
 
 void action_homing()
