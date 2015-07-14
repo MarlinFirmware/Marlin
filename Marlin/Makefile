@@ -223,7 +223,8 @@ TARGET = $(notdir $(CURDIR))
 # directory is added here
 
 VPATH = .
-VPATH += $(BUILD_DIR)VPATH += $(HARDWARE_SRC)
+VPATH += $(BUILD_DIR)
+VPATH += $(HARDWARE_SRC)
 ifeq ($(HARDWARE_VARIANT), $(filter $(HARDWARE_VARIANT),arduino Teensy))
 VPATH += $(ARDUINO_INSTALL_DIR)/libraries/LiquidCrystal
 VPATH += $(ARDUINO_INSTALL_DIR)/libraries/SPI
