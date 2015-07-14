@@ -3772,9 +3772,6 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
       			break;  
 			#endif //WITBOX
 
-      case 703:
-        action_level_plate();
-      break;
     case 710: // M710 Set the EEPROM and reset the board.
     {
       int p=0;
