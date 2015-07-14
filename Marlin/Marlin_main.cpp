@@ -5869,15 +5869,10 @@ void clamp_to_software_endstops(float target[3]) {
     
     float negative_z_offset = 0;
     #ifdef ENABLE_AUTO_BED_LEVELING
-<<<<<<< HEAD
       if (zprobe_zoffset < 0) negative_z_offset += zprobe_zoffset;
-      if (home_offset[Z_AXIS] < 0) negative_z_offset += home_offset[Z_AXIS];
-=======
-      if (Z_PROBE_OFFSET_FROM_EXTRUDER < 0) negative_z_offset += Z_PROBE_OFFSET_FROM_EXTRUDER;
       #ifndef BABYSTEP_OFFSET
         if (home_offset[Z_AXIS] < 0) negative_z_offset += home_offset[Z_AXIS];
       #endif
->>>>>>> Discovered the need for this after additional testing.
     #endif
     NOLESS(target[Z_AXIS], min_pos[Z_AXIS] + negative_z_offset);
   }
