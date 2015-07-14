@@ -2786,20 +2786,20 @@ inline void gcode_G28() {
           SERIAL_PROTOCOLPGM("|...Front...|\n");
           SERIAL_PROTOCOLPGM("+-----------+\n");
 
-	  float min_diff = 999;
+          float min_diff = 999;
 
           for (int yy = auto_bed_leveling_grid_points - 1; yy >= 0; yy--) {
             for (int xx = 0; xx < auto_bed_leveling_grid_points; xx++) {
               int ind = yy * auto_bed_leveling_grid_points + xx;
               float diff = eqnBVector[ind] - mean;
 
-	      float x_tmp = eqnAMatrix[ind + 0 * abl2],
+              float x_tmp = eqnAMatrix[ind + 0 * abl2],
                 y_tmp = eqnAMatrix[ind + 1 * abl2],
                 z_tmp = 0;
 
-	      apply_rotation_xyz(plan_bed_level_matrix,x_tmp,y_tmp,z_tmp);
+              apply_rotation_xyz(plan_bed_level_matrix,x_tmp,y_tmp,z_tmp);
 
-	      if (eqnBVector[ind] - z_tmp < min_diff)
+              if (eqnBVector[ind] - z_tmp < min_diff)
                 min_diff = eqnBVector[ind] - z_tmp;
 
               if (diff >= 0.0)
@@ -2811,32 +2811,31 @@ inline void gcode_G28() {
             SERIAL_EOL;
           } // yy
           SERIAL_EOL;
+          if (verbose_level > 3) {
+            SERIAL_PROTOCOLPGM(" \nCorrected Bed Height vs. Bed Topology: \n");
 
-	  SERIAL_PROTOCOLPGM(" \nCorrected Bed Height vs. Bed Topology: \n");
+            for (int yy = auto_bed_leveling_grid_points - 1; yy >= 0; yy--) {
+              for (int xx = 0; xx < auto_bed_leveling_grid_points; xx++) {
+                int ind = yy * auto_bed_leveling_grid_points + xx;
+                float x_tmp = eqnAMatrix[ind + 0 * abl2],
+                  y_tmp = eqnAMatrix[ind + 1 * abl2],
+                  z_tmp = 0;
 
-          for (int yy = auto_bed_leveling_grid_points - 1; yy >= 0; yy--) {
-            for (int xx = 0; xx < auto_bed_leveling_grid_points; xx++) {
-              int ind = yy * auto_bed_leveling_grid_points + xx;
-              float x_tmp = eqnAMatrix[ind + 0 * abl2],
-                y_tmp = eqnAMatrix[ind + 1 * abl2],
-                z_tmp = 0;
+                apply_rotation_xyz(plan_bed_level_matrix,x_tmp,y_tmp,z_tmp);
 
-              apply_rotation_xyz(plan_bed_level_matrix,x_tmp,y_tmp,z_tmp);
-
-              float diff = eqnBVector[ind] - z_tmp - min_diff;
-              if (diff >= 0.0)
-                SERIAL_PROTOCOLPGM(" +");
-              // Include + for column alignment
-              else
-                SERIAL_PROTOCOLCHAR(' ');
-              SERIAL_PROTOCOL_F(diff, 5);
-            } // xx
+                float diff = eqnBVector[ind] - z_tmp - min_diff;
+                if (diff >= 0.0)
+                  SERIAL_PROTOCOLPGM(" +");
+                // Include + for column alignment
+                else
+                  SERIAL_PROTOCOLCHAR(' ');
+                SERIAL_PROTOCOL_F(diff, 5);
+              } // xx
+              SERIAL_EOL;
+            } // yy
             SERIAL_EOL;
-          } // yy
-          SERIAL_EOL;
-
+          }
         } //do_topography_map
-
       #endif //!DELTA
 
     #else // !AUTO_BED_LEVELING_GRID
