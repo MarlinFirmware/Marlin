@@ -37,12 +37,14 @@
 # from the commandline with "make HARDWARE_MOTHERBOARD=71" for example
 
 # This defined the board you are compiling for (see boards.h for the options)
-HARDWARE_MOTHERBOARD ?= 11
+HARDWARE_MOTHERBOARD ?= 33
 
 # Arduino source install directory, and version number
 # On most linuxes this will be /usr/share/arduino
+# On Mac OsX its probaly /Applications/Arduino.app/Contents/Resources/Java
+
 ARDUINO_INSTALL_DIR  ?= /usr/share/arduino
-ARDUINO_VERSION      ?= 105
+ARDUINO_VERSION      ?= 106
 
 # You can optionally set a path to the avr-gcc tools. Requires a trailing slash. (ex: /usr/local/avr-gcc/bin)
 AVR_TOOLS_PATH ?=
@@ -50,18 +52,23 @@ AVR_TOOLS_PATH ?=
 #Programmer configuration
 UPLOAD_RATE        ?= 115200
 AVRDUDE_PROGRAMMER ?= wiring
-# on most linuxes this will be /dev/ttyACM0 or /dev/ttyACM1 
-UPLOAD_PORT        ?= /dev/arduino
+# on most linuxes this will be /dev/ttyACM0 or /dev/ttyACM1
+# on OSX its likely to be /dev/arduino  
+UPLOAD_PORT        ?= /dev/ttyACM0
 
 #Directory used to build files in, contains all the build files, from object files to the final hex file
 #on linux it is best to put an absolute path like /home/username/tmp .
-BUILD_DIR          ?= applet
+BUILD_DIR          ?= /home/$(USER)/tmp/MarlinBuild
 
 # This defines whether Liquid_TWI2 support will be built
 LIQUID_TWI2        ?= 0
 
 # this defines if Wire is needed
 WIRE               ?= 0
+
+# this defines if U8Glib Graphics library is needed
+U8GLIB             ?= 0
+
 
 ############################################################################
 # Below here nothing should be changed...
@@ -216,8 +223,7 @@ TARGET = $(notdir $(CURDIR))
 # directory is added here
 
 VPATH = .
-VPATH += $(BUILD_DIR)
-VPATH += $(HARDWARE_SRC)
+VPATH += $(BUILD_DIR)VPATH += $(HARDWARE_SRC)
 ifeq ($(HARDWARE_VARIANT), $(filter $(HARDWARE_VARIANT),arduino Teensy))
 VPATH += $(ARDUINO_INSTALL_DIR)/libraries/LiquidCrystal
 VPATH += $(ARDUINO_INSTALL_DIR)/libraries/SPI
@@ -229,6 +235,10 @@ endif
 ifeq ($(WIRE), 1)
 VPATH += $(ARDUINO_INSTALL_DIR)/libraries/Wire
 VPATH += $(ARDUINO_INSTALL_DIR)/libraries/Wire/utility
+endif
+ifeq ($(U8GLIB), 1)
+VPATH += $(ARDUINO_INSTALL_DIR)/libraries/U8glib
+VPATH += $(ARDUINO_INSTALL_DIR)/libraries/U8glib/utility
 endif
 else
 VPATH += $(HARDWARE_DIR)/libraries/LiquidCrystal
@@ -263,7 +273,7 @@ CXXSRC = WMath.cpp WString.cpp Print.cpp Marlin_main.cpp	\
 	SdFile.cpp SdVolume.cpp planner.cpp stepper.cpp \
 	temperature.cpp cardreader.cpp configuration_store.cpp \
 	watchdog.cpp SPI.cpp servo.cpp Tone.cpp ultralcd.cpp digipot_mcp4451.cpp \
-	vector_3.cpp qr_solve.cpp
+	vector_3.cpp qr_solve.cpp buzzer.cpp
 ifeq ($(LIQUID_TWI2), 0)
 CXXSRC += LiquidCrystal.cpp
 else
@@ -275,6 +285,50 @@ ifeq ($(WIRE), 1)
 SRC += twi.c
 CXXSRC += Wire.cpp
 endif
+
+ifeq ($(U8GLIB), 1)
+SRC +=            u8g_dev_ili9325d_320x240.c          u8g_dev_uc1601_c128032.c \
+u8g_bitmap.c                       u8g_dev_ks0108_128x64.c             u8g_dev_uc1608_240x128.c \
+u8g_circle.c                       u8g_dev_lc7981_160x80.c             u8g_dev_uc1608_240x64.c \
+u8g_clip.c                         u8g_dev_lc7981_240x128.c            u8g_dev_uc1610_dogxl160.c \
+u8g_com_api_16gr.c                 u8g_dev_lc7981_240x64.c             u8g_dev_uc1611_dogm240.c \
+u8g_com_api.c                      u8g_dev_lc7981_320x64.c             u8g_dev_uc1611_dogxl240.c \
+u8g_com_arduino_attiny85_hw_spi.c  u8g_dev_ld7032_60x32.c              u8g_dev_uc1701_dogs102.c \
+u8g_com_arduino_common.c           u8g_dev_null.c                      u8g_dev_uc1701_mini12864.c \
+u8g_com_arduino_fast_parallel.c    u8g_dev_pcd8544_84x48.c             u8g_ellipse.c \
+u8g_com_arduino_hw_spi.c           u8g_dev_pcf8812_96x65.c             u8g_font.c \
+u8g_com_arduino_hw_usart_spi.c     u8g_dev_sbn1661_122x32.c            u8g_font_data.c \
+u8g_com_arduino_no_en_parallel.c   u8g_dev_ssd1306_128x32.c             \
+u8g_com_arduino_parallel.c         u8g_dev_ssd1306_128x64.c            u8g_line.c \
+u8g_com_arduino_port_d_wr.c        u8g_dev_ssd1309_128x64.c            u8g_ll_api.c \
+u8g_com_arduino_ssd_i2c.c          u8g_dev_ssd1322_nhd31oled_bw.c      u8g_page.c \
+u8g_com_arduino_st7920_custom.c    u8g_dev_ssd1322_nhd31oled_gr.c      u8g_pb14v1.c \
+u8g_com_arduino_st7920_hw_spi.c    u8g_dev_ssd1325_nhd27oled_bw.c      u8g_pb16h1.c \
+u8g_com_arduino_st7920_spi.c       u8g_dev_ssd1325_nhd27oled_bw_new.c  u8g_pb16h2.c \
+u8g_com_arduino_std_sw_spi.c       u8g_dev_ssd1325_nhd27oled_gr.c      u8g_pb16v1.c \
+u8g_com_arduino_sw_spi.c           u8g_dev_ssd1325_nhd27oled_gr_new.c  u8g_pb16v2.c \
+u8g_com_arduino_t6963.c            u8g_dev_ssd1327_96x96_gr.c          u8g_pb32h1.c \
+u8g_com_arduino_uc_i2c.c           u8g_dev_ssd1351_128x128.c           u8g_pb8h1.c \
+u8g_com_atmega_hw_spi.c            u8g_dev_st7565_64128n.c             u8g_pb8h1f.c \
+u8g_com_atmega_parallel.c          u8g_dev_st7565_dogm128.c            u8g_pb8h2.c \
+u8g_com_atmega_st7920_hw_spi.c     u8g_dev_st7565_dogm132.c            u8g_pb8h8.c \
+u8g_com_atmega_st7920_spi.c        u8g_dev_st7565_lm6059.c             u8g_pb8v1.c \
+u8g_com_atmega_sw_spi.c            u8g_dev_st7565_lm6063.c             u8g_pb8v2.c \
+u8g_com_i2c.c                      u8g_dev_st7565_nhd_c12832.c         u8g_pb.c \
+u8g_com_io.c                       u8g_dev_st7565_nhd_c12864.c         u8g_pbxh16.c \
+u8g_com_null.c                     u8g_dev_st7687_c144mvgd.c           u8g_pbxh24.c \
+u8g_com_raspberrypi_hw_spi.c       u8g_dev_st7920_128x64.c             u8g_polygon.c \
+u8g_com_raspberrypi_ssd_i2c.c      u8g_dev_st7920_192x32.c             u8g_rect.c \
+u8g_cursor.c                       u8g_dev_st7920_202x32.c             u8g_rot.c \
+u8g_delay.c                        u8g_dev_t6963_128x128.c             u8g_scale.c \
+u8g_dev_a2_micro_printer.c         u8g_dev_t6963_128x64.c              u8g_state.c \
+u8g_dev_flipdisc_2x7.c             u8g_dev_t6963_240x128.c             u8g_u16toa.c \
+u8g_dev_gprof.c                    u8g_dev_t6963_240x64.c              u8g_u8toa.c \
+u8g_dev_ht1632.c                   u8g_dev_tls8204_84x48.c             u8g_virtual_screen.c 
+
+CXXSRC += U8glib.cpp
+endif
+
 
 #Check for Arduino 1.0.0 or higher and use the correct sourcefiles for that version
 ifeq ($(shell [ $(ARDUINO_VERSION) -ge 100 ] && echo true), true)
@@ -350,7 +404,7 @@ LDFLAGS = -lm
 AVRDUDE_PORT = $(UPLOAD_PORT)
 AVRDUDE_WRITE_FLASH = -Uflash:w:$(BUILD_DIR)/$(TARGET).hex:i
 ifeq ($(shell uname -s), Linux)
-AVRDUDE_CONF = $(ARDUINO_INSTALL_DIR)/hardware/tools/avrdude.conf
+AVRDUDE_CONF = /etc/avrdude/avrdude.conf
 else
 AVRDUDE_CONF = $(ARDUINO_INSTALL_DIR)/hardware/tools/avr/etc/avrdude.conf
 endif
