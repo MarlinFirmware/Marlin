@@ -28,7 +28,7 @@
 #define MSG_PREHEAT_PLA_BEDONLY             "Греть PLA Стол"
 #define MSG_PREHEAT_PLA_SETTINGS            "Настройки PLA"
 #define MSG_PREHEAT_ABS                     "Преднагрев ABS"
-#define MSG_PREHEAT_ABS_N                   "Греть ABS Сопло "
+#define MSG_PREHEAT_ABS_N                   "Греть ABS Сопло"
 #define MSG_PREHEAT_ABS_ALL                 "Греть ABS Все"
 #define MSG_PREHEAT_ABS_BEDONLY             "Греть ABS Стол"
 #define MSG_PREHEAT_ABS_SETTINGS            "Настройки ABS"
