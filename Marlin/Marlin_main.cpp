@@ -2724,16 +2724,21 @@ inline void gcode_G28() {
           SERIAL_PROTOCOLPGM("+-----------+\n");
 
 <<<<<<< HEAD
+<<<<<<< HEAD
           float min_diff = 999;
 =======
 	  float min_diff = 999;
 >>>>>>> Add calculation of difference between auto-correct bed level plane, and measured topo map.
+=======
+          float min_diff = 999;
+>>>>>>> Corrected Bed Height vs. Bed Topology for verbosity > 3
 
           for (int yy = auto_bed_leveling_grid_points - 1; yy >= 0; yy--) {
             for (int xx = 0; xx < auto_bed_leveling_grid_points; xx++) {
               int ind = yy * auto_bed_leveling_grid_points + xx;
               float diff = eqnBVector[ind] - mean;
 
+<<<<<<< HEAD
 <<<<<<< HEAD
               float x_tmp = eqnAMatrix[ind + 0 * abl2],
                 y_tmp = eqnAMatrix[ind + 1 * abl2],
@@ -2744,13 +2749,20 @@ inline void gcode_G28() {
               if (eqnBVector[ind] - z_tmp < min_diff)
 =======
 	      float x_tmp = eqnAMatrix[ind + 0 * abl2],
+=======
+              float x_tmp = eqnAMatrix[ind + 0 * abl2],
+>>>>>>> Corrected Bed Height vs. Bed Topology for verbosity > 3
                 y_tmp = eqnAMatrix[ind + 1 * abl2],
                 z_tmp = 0;
 
-	      apply_rotation_xyz(plan_bed_level_matrix,x_tmp,y_tmp,z_tmp);
+              apply_rotation_xyz(plan_bed_level_matrix,x_tmp,y_tmp,z_tmp);
 
+<<<<<<< HEAD
 	      if (eqnBVector[ind] - z_tmp < min_diff)
 >>>>>>> Add calculation of difference between auto-correct bed level plane, and measured topo map.
+=======
+              if (eqnBVector[ind] - z_tmp < min_diff)
+>>>>>>> Corrected Bed Height vs. Bed Topology for verbosity > 3
                 min_diff = eqnBVector[ind] - z_tmp;
 
               if (diff >= 0.0)
@@ -2763,6 +2775,9 @@ inline void gcode_G28() {
           } // yy
           SERIAL_EOL;
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> Corrected Bed Height vs. Bed Topology for verbosity > 3
           if (verbose_level > 3) {
             SERIAL_PROTOCOLPGM(" \nCorrected Bed Height vs. Bed Topology: \n");
 
@@ -2785,6 +2800,7 @@ inline void gcode_G28() {
               } // xx
               SERIAL_EOL;
             } // yy
+<<<<<<< HEAD
             SERIAL_EOL;
           }
         } //do_topography_map
@@ -2809,13 +2825,16 @@ inline void gcode_G28() {
                 SERIAL_PROTOCOLCHAR(' ');
               SERIAL_PROTOCOL_F(diff, 5);
             } // xx
+=======
+>>>>>>> Corrected Bed Height vs. Bed Topology for verbosity > 3
             SERIAL_EOL;
-          } // yy
-          SERIAL_EOL;
-
+          }
         } //do_topography_map
+<<<<<<< HEAD
 
 >>>>>>> Add calculation of difference between auto-correct bed level plane, and measured topo map.
+=======
+>>>>>>> Corrected Bed Height vs. Bed Topology for verbosity > 3
       #endif //!DELTA
 
     #else // !AUTO_BED_LEVELING_GRID
