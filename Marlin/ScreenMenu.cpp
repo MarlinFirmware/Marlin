@@ -83,7 +83,7 @@ namespace screen
 
 	void ScreenMenu::draw()
 	{
-		if ( !m_text || m_needs_drawing )
+		if ( !m_text || m_needs_drawing)
 		{
 			m_needs_drawing = false;
 			int total_width_0 = 0;
@@ -127,6 +127,17 @@ namespace screen
 				aux_width_0 -= 2;
 			}
 
+			Area text_area(0, 18, 127, 30);
+			Area icons_area;
+			if (m_text == 0)
+			{
+				icons_area = Area(0, 4, 127, 52);
+			}
+			else
+			{
+				icons_area = Area(0, 31, 127, 52);
+			}
+
 			//Start painting sequence
 			painter.firstPage();
 			do
@@ -138,15 +149,20 @@ namespace screen
 
 				//Paint title on top of screen
 				painter.title(m_title);
-				//Paint text on the screen
-				painter.text_P(m_text, 0, 5);
 				//Paint selection box on bottom of screen
 				painter.arrowBox((m_icons[m_index])->text());
+
+				//Paint text on the screen
+				painter.setWorkingArea(text_area);
+				painter.text_P(m_text);
+
 				//Icon grid
-				uint8_t x_init = painter.coordinateXInit();
-				uint8_t y_init = painter.coordinateYInit() + 5;
-				uint8_t x_end = painter.coordinateXEnd();
-				uint8_t y_end = painter.coordinateYEnd();
+				painter.setWorkingArea(icons_area);
+
+				uint8_t x_init = icons_area.x_init;
+				uint8_t y_init = icons_area.y_init;
+				uint8_t x_end = icons_area.x_end;
+				uint8_t y_end = icons_area.y_end;
 
 				for (unsigned int i = 0; i < m_num_icons; i++)
 				{
@@ -156,14 +172,14 @@ namespace screen
 
 					if (i < items_per_row_0)
 					{
-						x = (x_end + x_init) / 2 - (total_width_0 / 2) + aux2_width_0;
-						y = (y_end + y_init) / 2 - ((num_rows - 1) * (m_icons[i]->height() + 5) + m_icons[i]->height()) / 2;
+						x = x_init + (icons_area.width() / 2) - (total_width_0 / 2) + aux2_width_0;
+						y = y_init + (icons_area.height() / 2) - ((num_rows - 1) * (m_icons[i]->height() + 5) + m_icons[i]->height()) / 2;
 						aux2_width_0 += m_icons[i]->width() + 2;
 					}
 					else
 					{
-						x = (x_end + x_init) / 2 - (total_width_1 / 2) + aux2_width_1;
-						y = (y_end + y_init) / 2 - ((num_rows - 1) * (m_icons[i]->height() + 5) + m_icons[i]->height()) / 2 + (m_icons[i]->height() + 5);
+						x = x_init + (icons_area.width() / 2) - (total_width_1 / 2) + aux2_width_1;
+						y = y_init + (icons_area.height() / 2) - ((num_rows - 1) * (m_icons[i]->height() + 5) + m_icons[i]->height()) / 2 + (m_icons[i]->height() + 5);
 						aux2_width_1 += m_icons[i]->width() + 2;
 					}
 

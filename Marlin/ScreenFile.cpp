@@ -86,6 +86,9 @@ namespace screen
 		strncpy(text,card.longFilename,18);
 		text[17] = '\0';
 
+		Area text_area(0, 18, 127, 30);
+		Area icons_area(0, 31, 127, 52);
+
 		//Start painting sequence
 		painter.firstPage();
 		do
@@ -97,33 +100,35 @@ namespace screen
 
 			//Paint title on top of screen
 			painter.title(m_title);
-			//Paint text on the screen
-			painter.text(text, 0, 5);
 			//Paint selection box on bottom of screen
 			painter.arrowBox((m_icons[m_index])->text());
+
+			//Paint text on the screen
+			painter.setWorkingArea(text_area);
+			painter.text(text);
+
 			//Icon grid
-			uint8_t x_init = painter.coordinateXInit();
-			uint8_t y_init = painter.coordinateYInit() + 5;
-			uint8_t x_end = painter.coordinateXEnd();
-			uint8_t y_end = painter.coordinateYEnd();
+			uint8_t x_init = icons_area.x_init;
+			uint8_t y_init = icons_area.y_init;
+			uint8_t x_end = icons_area.x_end;
+			uint8_t y_end = icons_area.y_end;
 
 			for (unsigned int i = 0; i < m_num_icons; i++)
 			{
 				uint8_t row = i / items_per_row_0;
-
 				uint8_t x = 0;
 				uint8_t y = 0;
 
 				if (i < items_per_row_0)
 				{
-					x = (x_end + x_init) / 2 - (total_width_0 / 2) + aux2_width_0;
-					y = (y_end + y_init) / 2 - ((num_rows - 1) * (m_icons[i]->height() + 5) + m_icons[i]->height()) / 2;
+					x = x_init + (icons_area.width() / 2) - (total_width_0 / 2) + aux2_width_0;
+					y = y_init + (icons_area.height() / 2) - ((num_rows - 1) * (m_icons[i]->height() + 5) + m_icons[i]->height()) / 2;
 					aux2_width_0 += m_icons[i]->width() + 2;
 				}
 				else
 				{
-					x = (x_end + x_init) / 2 - (total_width_1 / 2) + aux2_width_1;
-					y = (y_end + y_init) / 2 - ((num_rows - 1) * (m_icons[i]->height() + 5) + m_icons[i]->height()) / 2 + (m_icons[i]->height() + 5);
+					x = x_init + (icons_area.width() / 2) - (total_width_1 / 2) + aux2_width_1;
+					y = y_init + (icons_area.height() / 2) - ((num_rows - 1) * (m_icons[i]->height() + 5) + m_icons[i]->height()) / 2 + (m_icons[i]->height() + 5);
 					aux2_width_1 += m_icons[i]->width() + 2;
 				}
 
@@ -137,7 +142,6 @@ namespace screen
 					m_icons[i]->draw(x,y);
 				}
 			}
-
 		} while( painter.nextPage() );
 	}
 }

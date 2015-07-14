@@ -85,7 +85,7 @@ namespace screen
 
 	static ScreenEmergency * make_screen_emergency()
 	{
-		ScreenEmergency * local_view = new ScreenEmergency(MSG_SCREEN_EMERGENCY_TITLE, MSG_SCREEN_EMERGENCY_TEXT, MSG_SCREEN_EMERGENCY_BOX);
+		ScreenEmergency * local_view = new ScreenEmergency(MSG_SCREEN_EMERGENCY_TITLE, MSG_SCREEN_EMERGENCY_TEXT, MSG_SCREEN_EMERGENCY_BOX, bits_emergency);
 		return local_view;
 	}
 
@@ -310,9 +310,9 @@ namespace screen
 		return local_view;
 	}
 
-	static ScreenAction<void> * make_screen_autohome()
+	static ScreenTransition * make_screen_autohome()
 	{
-		ScreenAction<void> * local_view = new ScreenAction<void>(MSG_SCREEN_AUTOHOME, action_homing);
+		ScreenTransition * local_view = new ScreenTransition(MSG_SCREEN_AUTOHOME_TITLE, MSG_SCREEN_AUTOHOME_TEXT, MSG_SCREEN_AUTOHOME_WAIT, action_homing);
 		local_view->add(screen_main);
 		return local_view;
 	}
@@ -661,7 +661,7 @@ namespace screen
 
 	static ScreenTransition * make_screen_change_pausing()
 	{
-		ScreenTransition * local_view = new ScreenTransition(MSG_SCREEN_CHANGE_TITLE, MSG_SCREEN_UNLOADING_TEXT, MSG_SCREEN_LEVEL_BOX0, action_pause_print, &PrintManager::single::instance());
+		ScreenTransition * local_view = new ScreenTransition(MSG_SCREEN_CHANGE_TITLE, MSG_SCREEN_UNLOADING_TEXT, MSG_SCREEN_LEVEL_BOX0, PrintManager::pausePrint);
 		local_view->add(screen_change_selector);
 		return local_view;
 	}
@@ -727,14 +727,14 @@ namespace screen
 
 	static ScreenAction<void> * make_screen_change_ok2print()
 	{
-		ScreenAction<void> * local_view = new ScreenAction<void>(MSG_OK2, action_resume_print);
+		ScreenAction<void> * local_view = new ScreenAction<void>(MSG_OK2, PrintManager::resumePrint);
 		local_view->add(screen_print);
 		return local_view;
 	}
 
    static ScreenSelector<void, uint16_t> * make_screen_speed()
 	{
-		ScreenSelector<void, uint16_t> * local_view = new ScreenSelector<void, uint16_t>(MSG_SCREEN_SPEED, 10, 400, 10, 100, action_set_feedrate_multiply);
+		ScreenSelector<void, uint16_t> * local_view = new ScreenSelector<void, uint16_t>(MSG_SCREEN_SPEED, 10, 400, 10, action_get_feedrate_multiply(), action_set_feedrate_multiply);
 		local_view->add(screen_print);
 		return local_view;
 	}

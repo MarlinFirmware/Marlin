@@ -98,10 +98,20 @@ namespace screen
 	// Screen constants
 	const static uint8_t screen_width = 128;
 	const static uint8_t screen_height = 64;
+
+	const static uint8_t title_width = 128;
+	const static uint8_t title_height = 14;
+
+	const static uint8_t box_width = 128;
+	const static uint8_t box_height = 9;
+
+
+	// Menu constants
 	const static uint8_t max_items = 10;
 	const static uint8_t max_list = 100;
 
 	// Font constants
+	const static uint8_t max_font_width = 6;
 	const static uint8_t max_font_height = 9;
 
 	// Temperature parameters

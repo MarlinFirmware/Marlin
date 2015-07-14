@@ -5,21 +5,27 @@
 
 #include "Singleton.h"
 
-class StorageManager
+namespace eeprom
 {
-	public:
-		typedef Singleton<StorageManager> single;
+	const uint8_t EMERGENCY_STOP_ACTIVE = 0x00;
+	const uint8_t EMERGENCY_STOP_INACTIVE = 0xFF;
 
-	public:
-		StorageManager();
+	class StorageManager
+	{
+		public:
+			typedef Singleton<StorageManager> single;
 
-		static void setEmergencyFlag();
-		static void clearEmergencyFlag();
-		static uint8_t getEmergencyFlag();
+		public:
+			StorageManager();
 
-	private:
-		uint8_t readByte(uint8_t* address);
-		void writeByte(uint8_t* address, uint8_t data);
-};
+			static void setEmergencyFlag();
+			static void clearEmergencyFlag();
+			static uint8_t getEmergencyFlag();
+
+		private:
+			uint8_t readByte(uint8_t* address);
+			void writeByte(uint8_t* address, uint8_t data);
+	};
+}
 
 #endif // STORAGE_MANAGER_H

@@ -8,14 +8,16 @@ namespace screen
 	class ScreenEmergency : public Screen
 	{
 		public:
-			ScreenEmergency(const char * title, const char * message, const char * box);
+			ScreenEmergency(const char * title, const char * message, const char * box, const unsigned char * bitmap);
 			~ScreenEmergency();
 
 			void draw();
 
-		public:
+		private:
 			const char * m_box;
 			const char * m_message;
+
+			const unsigned char * m_bitmap;
 	};
 }
 
