@@ -65,6 +65,7 @@ namespace screen
 			virtual void draw() {};
 			virtual void init(uint16_t index = 0) {};
 			virtual void add(ScreenIndex_t const & view);
+			virtual void text(const char * text) {};
 
 		protected:
 			ScreenType_t m_type;
