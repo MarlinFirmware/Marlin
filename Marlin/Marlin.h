@@ -263,9 +263,9 @@ extern float max_pos[3]; // axis[n].max_pos
 extern bool axis_known_position[3]; // axis[n].is_known
 
 #if defined(DELTA) || defined(SCARA)
-  extern float delta[3];
   void calculate_delta(float cartesian[3]);
   #ifdef DELTA
+    extern float delta[3];
     extern float endstop_adj[3]; // axis[n].endstop_adj
     extern float delta_radius;
     extern float delta_diagonal_rod;
