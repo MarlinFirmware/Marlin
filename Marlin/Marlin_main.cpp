@@ -6176,24 +6176,24 @@ void plan_arc(
 
     clamp_to_software_endstops(arc_target);
 
-    #ifdef DELTA
-      feedrate = feed_rate;
-      prepare_move_delta(arc_target);
-    #elif defined(SCARA)
-      feedrate = feed_rate;
-      prepare_move_scara(arc_target);
+    #if defined(DELTA) || defined(SCARA)
+      calculate_delta(arc_target);
+      #ifdef ENABLE_AUTO_BED_LEVELING
+        adjust_delta(arc_target);
+      #endif
+      plan_buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], arc_target[E_AXIS], feed_rate, active_extruder);
     #else
       plan_buffer_line(arc_target[X_AXIS], arc_target[Y_AXIS], arc_target[Z_AXIS], arc_target[E_AXIS], feed_rate, active_extruder);
     #endif
   }
 
   // Ensure last segment arrives at target location.
-  #ifdef DELTA
-    feedrate = feed_rate;
-    prepare_move_delta(target);
-  #elif defined(SCARA)
-    feedrate = feed_rate;
-    prepare_move_scara(target);
+  #if defined(DELTA) || defined(SCARA)
+    calculate_delta(target);
+    #ifdef ENABLE_AUTO_BED_LEVELING
+      adjust_delta(target);
+    #endif
+    plan_buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], target[E_AXIS], feed_rate, active_extruder);
   #else
     plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], feed_rate, active_extruder);
   #endif
