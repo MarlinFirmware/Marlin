@@ -135,13 +135,13 @@ namespace screen
 							strncpy(prev_folder, card.filename, 19);
 							card.updir();
 							card.getfilename(directory_array[directory_index-1]-1);
-							if(strcmp(card.longFilename,"")==0)
+							if ( (card.longFilename != NULL) && (strlen(card.longFilename) > 0) )
 							{
-								strncpy(m_directory, card.filename, sizeof(m_directory));
+								strncpy(m_directory, card.longFilename, sizeof(m_directory));
 							}
 							else
 							{
-								strncpy(m_directory, card.longFilename, sizeof(m_directory));
+								strncpy(m_directory, card.filename, sizeof(m_directory));
 							}
 							card.chdir(prev_folder);
 							painter.print(m_directory);
@@ -150,18 +150,15 @@ namespace screen
 					}
 					else
 					{
-						if(strcmp(card.folderName,"")==0)
+						if ( (card.folderName != NULL) && (strlen(card.folderName) > 0) )
 						{
-							strncpy(m_directory, card.filename, 19);
-							m_directory[19] = '\0';
+							strncpy(m_directory, card.folderName, 19);
 						}
 						else
 						{
-							strncpy(m_directory, card.folderName, 19);
-							m_directory[19] = '\0';
+							strncpy(m_directory, card.filename, 19);
 						}
 					}
-
 					m_directory_is_root = false;
 					m_offset = 2;
 				}
