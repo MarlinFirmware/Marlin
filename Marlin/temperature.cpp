@@ -80,7 +80,7 @@ unsigned char soft_pwm_bed;
     static TRState thermal_runaway_state_machine[4] = { TRReset, TRReset, TRReset, TRReset };
     static millis_t thermal_runaway_timer[4]; // = {0,0,0,0};
   #endif
-  #ifdef THERMAL_PROTECTION_BED
+  #if defined(THERMAL_PROTECTION_BED) && TEMP_SENSOR_BED != 0
     static TRState thermal_runaway_bed_state_machine = TRReset;
     static millis_t thermal_runaway_bed_timer;
   #endif
