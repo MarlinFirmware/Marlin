@@ -194,7 +194,9 @@ static void lcd_implementation_init() {
 
   #ifdef LCD_PIN_BL // Enable LCD backlight
     pinMode(LCD_PIN_BL, OUTPUT);
-	  digitalWrite(LCD_PIN_BL, HIGH);
+    digitalWrite(LCD_PIN_BL, HIGH);
+    pinMode(LCD_PIN_RESET, OUTPUT);           
+    digitalWrite(LCD_PIN_RESET, HIGH);
   #endif
 
   #ifdef LCD_PIN_RESET
