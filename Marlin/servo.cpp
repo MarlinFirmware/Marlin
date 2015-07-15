@@ -244,10 +244,9 @@ uint8_t Servo::attach(int pin) {
 
 uint8_t Servo::attach(int pin, int min, int max) {
   if (this->servoIndex < MAX_SERVOS ) {
-    if(pin == 0)
-      pin = servos[this->servoIndex].Pin.nbr;
-    pinMode(pin, OUTPUT);                                   // set servo pin to output
-    servos[this->servoIndex].Pin.nbr = pin;
+    if(pin > 0)
+      servos[this->servoIndex].Pin.nbr = pin;
+    pinMode(servos[this->servoIndex].Pin.nbr, OUTPUT); // set servo pin to output
     // todo min/max check: abs(min - MIN_PULSE_WIDTH) /4 < 128
     this->min = (MIN_PULSE_WIDTH - min) / 4; //resolution of min/max is 4 uS
     this->max = (MAX_PULSE_WIDTH - max) / 4;
