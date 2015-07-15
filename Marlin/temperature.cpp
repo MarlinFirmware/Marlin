@@ -1550,7 +1550,7 @@ ISR(TIMER0_COMPB_vect) {
       if (minttemp_raw[0] GE0 current_temperature_raw[0]) min_temp_error(0);
     #endif
 
-    #if HAS_TEMP_1
+    #if HAS_TEMP_1 && EXTRUDERS > 1
       #if HEATER_1_RAW_LO_TEMP > HEATER_1_RAW_HI_TEMP
         #define GE1 <=
       #else
@@ -1560,7 +1560,7 @@ ISR(TIMER0_COMPB_vect) {
       if (minttemp_raw[1] GE1 current_temperature_raw[1]) min_temp_error(1);
     #endif // TEMP_SENSOR_1
 
-    #if HAS_TEMP_2
+    #if HAS_TEMP_2 && EXTRUDERS > 2
       #if HEATER_2_RAW_LO_TEMP > HEATER_2_RAW_HI_TEMP
         #define GE2 <=
       #else
@@ -1570,7 +1570,7 @@ ISR(TIMER0_COMPB_vect) {
       if (minttemp_raw[2] GE2 current_temperature_raw[2]) min_temp_error(2);
     #endif // TEMP_SENSOR_2
 
-    #if HAS_TEMP_3
+    #if HAS_TEMP_3 && EXTRUDERS > 3
       #if HEATER_3_RAW_LO_TEMP > HEATER_3_RAW_HI_TEMP
         #define GE3 <=
       #else
