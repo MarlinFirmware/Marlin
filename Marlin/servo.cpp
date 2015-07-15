@@ -35,12 +35,14 @@
 
  write()     - Sets the servo angle in degrees.  (invalid angle that is valid as pulse in microseconds is treated as microseconds)
  writeMicroseconds() - Sets the servo pulse width in microseconds
+ move(pin, angel) - Sequence of attach(pin), write(angel),
+                    if DEACTIVATE_SERVOS_AFTER_MOVE is defined waits SERVO_DEACTIVATION_DELAY, than detaches.
  read()      - Gets the last written servo pulse width as an angle between 0 and 180.
  readMicroseconds()   - Gets the last written servo pulse width in microseconds. (was read_us() in first release)
  attached()  - Returns true if there is a servo attached.
  detach()    - Stops an attached servos from pulsing its i/o pin.
 
-*/
+ */
 #include "Configuration.h" 
 
 #ifdef NUM_SERVOS
@@ -300,5 +302,18 @@ int Servo::readMicroseconds() {
 }
 
 bool Servo::attached() { return servos[this->servoIndex].Pin.isActive; }
+
+uint8_t Servo::move(int pin, int value) {
+  uint8_t ret;
+  ret = this->attach(pin);
+  if (ret) {
+    this->write(value);
+    #ifdef DEACTIVATE_SERVOS_AFTER_MOVE && (SERVO_DEACTIVATION_DELAY > 0)
+      delay(SERVO_DEACTIVATION_DELAY);
+      this->detach();
+    #endif
+  }
+  return ret;
+}
 
 #endif
