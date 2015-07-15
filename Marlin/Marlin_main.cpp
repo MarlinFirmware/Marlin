@@ -65,6 +65,7 @@
 #ifdef DOGLCD
   #include "PrintManager.h"
   #include "StorageManager.h"
+  #include "Screen.h"
 #endif
 
 // look here for descriptions of G-codes: http://linuxcnc.org/handbook/gcode/g-code.html
@@ -393,6 +394,7 @@ static char serial_char;
 static int serial_count = 0;
 static boolean comment_mode = false;
 static char *strchr_pointer; ///< A pointer to find chars in the command string (X, Y, Z, E, etc.)
+static bool serial_mode = false;
 
 const int sensitive_pins[] = SENSITIVE_PINS; ///< Sensitive pin list for M42
 
@@ -770,6 +772,16 @@ void get_command()
 {
   while( MYSERIAL.available() > 0  && buflen < BUFSIZE) {
     serial_char = MYSERIAL.read();
+
+    #ifdef DOGLCD
+      if(!serial_mode){
+        serial_mode = true;
+        if (screen::ViewManager::getInstance().getViewIndex() != screen::screen_serial){
+          screen::ViewManager::getInstance().activeView(screen::screen_serial);
+        }
+      }
+    #endif
+
     if(serial_char == '\n' ||
        serial_char == '\r' ||
        (serial_char == ':' && comment_mode == false) ||
@@ -860,7 +872,7 @@ void get_command()
         //If command was e-stop process now
         if(strcmp(cmdbuffer[bufindw], "M112") == 0)
           kill();
-        
+
         bufindw = (bufindw + 1)%BUFSIZE;
         buflen += 1;
       }
