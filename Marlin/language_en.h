@@ -375,6 +375,9 @@
 #ifndef MSG_ZPROBE_OUT
 #define MSG_ZPROBE_OUT                      "Z probe out. bed"
 #endif
+#ifndef MSG_Z_POSITION_UNKNOWN
+#define MSG_Z_POSITION_UNKNOWN              "Home Z before G29"
+#endif
 #ifndef MSG_POSITION_UNKNOWN
 #define MSG_POSITION_UNKNOWN                "Home X/Y before Z"
 #endif
