@@ -211,16 +211,6 @@ Here are some standard links for getting your machine calibrated:
   #define  DEFAULT_Ki 4.21      //Base DGlass3D/E3Dv6 = 0.85 ; RigidBot redesigned = 0.85
   #define  DEFAULT_Kd 88.41     //Base DGlass3D/E3Dv6 = 245  ; RigidBot redesigned = 76.55
 
-  // MakerGear
-  //#define  DEFAULT_Kp 7.0
-  //#define  DEFAULT_Ki 0.1
-  //#define  DEFAULT_Kd 12
-
-  // Mendel Parts V9 on 12V
-  //#define  DEFAULT_Kp 63.0
-  //#define  DEFAULT_Ki 2.25
-  //#define  DEFAULT_Kd 440
-
 #endif // PIDTEMP
 
 //===========================================================================
@@ -255,12 +245,6 @@ Here are some standard links for getting your machine calibrated:
   #define  DEFAULT_bedKp 355
   #define  DEFAULT_bedKi 66.5
   #define  DEFAULT_bedKd 480
-
-  //120v 250W silicone heater into 4mm borosilicate (MendelMax 1.5+)
-  //from pidautotune
-  //#define  DEFAULT_bedKp 97.1
-  //#define  DEFAULT_bedKi 1.41
-  //#define  DEFAULT_bedKd 1675.16
 
   // FIND YOUR OWN: "M303 E-1 C8 S90" to run autotune on the bed at 90 degreesC for 8 cycles.
 #endif // PIDTEMPBED
