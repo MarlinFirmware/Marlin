@@ -89,6 +89,7 @@ namespace screen
 		screen_change_ok2print,
 		screen_speed,
 		screen_temperature_print,
+		screen_serial,
 		screen_none,
 	} ScreenIndex_t;
 
