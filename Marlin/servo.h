@@ -45,8 +45,12 @@
                    With DEACTIVATE_SERVOS_AFTER_MOVE wait SERVO_DEACTIVATION_DELAY and detach.
 =======
    move(pin, angel) - Sequence of attach(pin), write(angel),
+<<<<<<< HEAD
                       if DEACTIVATE_SERVOS_AFTER_MOVE is defined waits SERVO_DEACTIVATION_DELAY, than detaches.
 >>>>>>> Add Servo::move() to servo.cpp
+=======
+                      With DEACTIVATE_SERVOS_AFTER_MOVE it waits SERVO_DEACTIVATION_DELAY and detaches.
+>>>>>>> Update configs for new servo deactivation
  */
 
 #ifndef servo_h

@@ -103,6 +103,13 @@
   #endif
 
   /**
+   * Servo deactivation depends on servo endstops
+   */
+  #if defined(DEACTIVATE_SERVOS_AFTER_MOVE) && !defined(SERVO_ENDSTOPS)
+    #error SERVO_ENDSTOPS is required for DEACTIVATE_SERVOS_AFTER_MOVE.
+  #endif
+
+  /**
    * Required LCD language
    */
   #if DISABLED(DOGLCD) && ENABLED(ULTRA_LCD) && DISABLED(DISPLAY_CHARSET_HD44780_JAPAN) && DISABLED(DISPLAY_CHARSET_HD44780_WESTERN) && DISABLED(DISPLAY_CHARSET_HD44780_CYRILLIC)
