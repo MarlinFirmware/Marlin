@@ -767,17 +767,6 @@ const bool Z_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the logic
 //
 //#define NUM_SERVOS 3 // Servo index starts with 0 for M280 command
 
-// If DEACTIVATE_SERVOS_AFTER_MOVE is defined, the servos will be turned on only during movement and then turned off to avoid jitter
-// SERVO_DEACTIVATION_DELAY is the delay to turn the servo off after powered on - depends on the servo speed; 300ms is good value, but you can try lower it.
-// If your servo does not reach the requested position, enlarge the time.
-// You MUST HAVE the SERVO_ENDSTOPS defined to use here a value higher than zero otherwise your code will not compile.
-//
-//#define DEACTIVATE_SERVOS_AFTER_MOVE
-
-#ifdef DEACTIVATE_SERVOS_AFTER_MOVE
-  #define SERVO_DEACTIVATION_DELAY 300
-#endif
-
 // Servo Endstops
 //
 // This allows for servo actuated endstops, primary usage is for the Z Axis to eliminate calibration or bed height changes.
@@ -785,6 +774,18 @@ const bool Z_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the logic
 //
 //#define SERVO_ENDSTOPS {-1, -1, 0} // Servo index for X, Y, Z. Disable with -1
 //#define SERVO_ENDSTOP_ANGLES {0,0, 0,0, 70,0} // X,Y,Z Axis Extend and Retract angles
+
+// Servo deactivation
+//
+// With this option servos are powered only during movement, then turned off to prevent jitter.
+//#define DEACTIVATE_SERVOS_AFTER_MOVE
+
+#ifdef DEACTIVATE_SERVOS_AFTER_MOVE
+  // Delay (in microseconds) before turning the servo off. This depends on the servo speed.
+  // 300ms is a good value but you can try less delay.
+  // If the servo can't reach the requested position, increase it.
+  #define SERVO_DEACTIVATION_DELAY 300
+#endif
 
 /**********************************************************************\
  * Support for a filament diameter sensor
