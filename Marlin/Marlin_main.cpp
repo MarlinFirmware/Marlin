@@ -2570,6 +2570,11 @@ inline void gcode_G28() {
       SERIAL_ECHOLNPGM(MSG_POSITION_UNKNOWN);
       return;
     }
+    if (!axis_known_position[Z_AXIS]) {
+      LCD_MESSAGEPGM(MSG_Z_POSITION_UNKNOWN);
+      SERIAL_ECHO_START;
+      SERIAL_ECHOLNPGM(MSG_Z_POSITION_UNKNOWN);
+    }
 
     int verbose_level = code_seen('V') || code_seen('v') ? code_value_short() : 1;
     if (verbose_level < 0 || verbose_level > 4) {
