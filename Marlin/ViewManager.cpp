@@ -32,6 +32,8 @@ namespace screen
 		{
 			m_active_view->init();
 		}
+
+		m_index = index;
 	}
 
 	Screen * ViewManager::activeView()
@@ -42,6 +44,11 @@ namespace screen
 	void ViewManager::setLastFocus(uint16_t last_focus)
 	{
 		m_last_focus = last_focus;
+	}
+
+	ScreenIndex_t ViewManager::getViewIndex()
+	{
+		return m_index;
 	}
 
 	ViewManager::ViewManager()
