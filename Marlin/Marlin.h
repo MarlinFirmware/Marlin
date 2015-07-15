@@ -259,26 +259,45 @@ extern float min_pos[3]; // axis[n].min_pos
 extern float max_pos[3]; // axis[n].max_pos
 extern bool axis_known_position[3]; // axis[n].is_known
 
+<<<<<<< HEAD
 #if ENABLED(DELTA) || ENABLED(SCARA)
   void calculate_delta(float cartesian[3]);
   #if ENABLED(DELTA)
     extern float delta[3];
+=======
+#if defined(DELTA) || defined(SCARA)
+  extern float delta[3];
+  void calculate_delta(float cartesian[3]);
+  #ifdef DELTA
+>>>>>>> Cleanup and dev notes in Marlin.h
     extern float endstop_adj[3]; // axis[n].endstop_adj
     extern float delta_radius;
     extern float delta_diagonal_rod;
     extern float delta_segments_per_second;
     void recalc_delta_settings(float radius, float diagonal_rod);
+<<<<<<< HEAD
     #if ENABLED(ENABLE_AUTO_BED_LEVELING)
       extern int delta_grid_spacing[2];
       void adjust_delta(float cartesian[3]);
     #endif
   #elif ENABLED(SCARA)
+=======
+    #ifdef ENABLE_AUTO_BED_LEVELING
+      extern int delta_grid_spacing[2];
+      void adjust_delta(float cartesian[3]);
+    #endif
+  #elif defined(SCARA)
+>>>>>>> Cleanup and dev notes in Marlin.h
     extern float axis_scaling[3];  // Build size scaling
     void calculate_SCARA_forward_Transform(float f_scara[3]);
   #endif
 #endif
 
+<<<<<<< HEAD
 #if ENABLED(Z_DUAL_ENDSTOPS)
+=======
+#ifdef Z_DUAL_ENDSTOPS
+>>>>>>> Cleanup and dev notes in Marlin.h
   extern float z_endstop_adj;
 #endif
 
