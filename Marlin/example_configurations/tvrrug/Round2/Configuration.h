@@ -509,13 +509,6 @@ const bool Z_PROBE_ENDSTOP_INVERTING = true; // set to true to invert the logic 
   //#define Z_PROBE_SLED // turn on if you have a z-probe mounted on a sled like those designed by Charles Bell
   //#define SLED_DOCKING_OFFSET 5 // the extra distance the X axis must travel to pickup the sled. 0 should be fine but you can push it further if you'd like.
 
-  //If defined, the Probe servo will be turned on only during movement and then turned off to avoid jerk
-  //The value is the delay to turn the servo off after powered on - depends on the servo speed; 300ms is good value, but you can try lower it.
-  // You MUST HAVE the SERVO_ENDSTOPS defined to use here a value higher than zero otherwise your code will not compile.
-
-//  #define PROBE_SERVO_DEACTIVATION_DELAY 300
-
-
 //If you have enabled the Bed Auto Leveling and are using the same Z Probe for Z Homing,
 //it is highly recommended you let this Z_SAFE_HOMING enabled!!!
 
@@ -790,6 +783,18 @@ const bool Z_PROBE_ENDSTOP_INVERTING = true; // set to true to invert the logic 
 //
 //#define SERVO_ENDSTOPS {-1, -1, 0} // Servo index for X, Y, Z. Disable with -1
 //#define SERVO_ENDSTOP_ANGLES {0,0, 0,0, 70,0} // X,Y,Z Axis Extend and Retract angles
+
+// Servo deactivation
+//
+// With this option servos are powered only during movement, then turned off to prevent jitter.
+//#define DEACTIVATE_SERVOS_AFTER_MOVE
+
+#ifdef DEACTIVATE_SERVOS_AFTER_MOVE
+  // Delay (in microseconds) before turning the servo off. This depends on the servo speed.
+  // 300ms is a good value but you can try less delay.
+  // If the servo can't reach the requested position, increase it.
+  #define SERVO_DEACTIVATION_DELAY 300
+#endif
 
 /**********************************************************************\
  * Support for a filament diameter sensor
