@@ -18,7 +18,7 @@
 //MIN endstops soldered onto the board. Delta code wants the homing endstops to be 
 //the MAX so I swapped them here.
 //
- #ifdef DELTA
+ #if ENABLED(DELTA)
   #undef X_MIN_PIN
   #undef X_MAX_PIN
   #undef Y_MIN_PIN
@@ -34,7 +34,7 @@
   #define Z_MAX_PIN        18
  #endif
 //
- #ifdef Z_PROBE_ENDSTOP
+ #if ENABLED(Z_PROBE_ENDSTOP)
 //#undef Z_MIN_PIN
 //#define Z_MIN_PIN        15
   #define Z_PROBE_PIN      19
@@ -96,7 +96,7 @@
 
 //LCD Pins//
 
- #if defined(VIKI2) || defined(miniVIKI)
+ #if ENABLED(VIKI2) || ENABLED(miniVIKI)
   #define BEEPER           33
  // Pins for DOGM SPI LCD Support
   #define DOGLCD_A0        44
@@ -114,7 +114,7 @@
   #define KILL_PIN         31
  #endif
 
- #ifdef TEMP_STAT_LEDS
+ #if ENABLED(TEMP_STAT_LEDS)
   #define STAT_LED_RED     32
   #define STAT_LED_BLUE    35
  #endif
