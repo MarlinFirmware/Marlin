@@ -774,11 +774,10 @@ void get_command()
        serial_char == '\r' ||
        serial_count >= (MAX_CMD_SIZE - 1) )
     {
+      // end of line == end of comment
+      comment_mode = false;
 
-        // end of line == end of comment
-        comment_mode = false;
-
-        if(!serial_count) {
+      if(!serial_count) {
         // short cut for empty lines
         return;
       }
@@ -801,7 +800,6 @@ void get_command()
 
         if(strchr(cmdbuffer[bufindw], '*') != NULL)
         {
-
           byte checksum = 0;
           byte count = 0;
           while(cmdbuffer[bufindw][count] != '*') checksum = checksum^cmdbuffer[bufindw][count++];
@@ -854,9 +852,9 @@ void get_command()
           break;
         default:
           break;
-
         }
-
+      
+      }
       //If command was e-stop process now
       if(strcmp(cmdbuffer[bufindw], "M112") == 0)
         kill();
@@ -867,14 +865,15 @@ void get_command()
       serial_count = 0; //clear buffer
     }
     else if(serial_char == '\\') {  //Handle escapes
-       
-        if(MYSERIAL.available() > 0  && buflen < BUFSIZE) {
-            // if we have one more character, copy it over
-            serial_char = MYSERIAL.read();
-            cmdbuffer[bufindw][serial_count++] = serial_char;
-        }
+      SERIAL_ECHO("Escape char: ");
+      SERIAL_ECHOLN(serial_char);
+      if(MYSERIAL.available() > 0  && buflen < BUFSIZE) {
+          // if we have one more character, copy it over
+          serial_char = MYSERIAL.read();
+          cmdbuffer[bufindw][serial_count++] = serial_char;
+      }
 
-        //otherwise do nothing        
+      //otherwise do nothing        
     }
     else { // its not a newline, carriage return or escape char
         if(serial_char == ';') comment_mode = true;
@@ -2932,12 +2931,10 @@ Sigma_Exit:
       SERIAL_PROTOCOLPGM(MSG_M115_REPORT);
       break;
     case 117: // M117 display message
-			#ifdef GCODE_MESSAGES_ENABLE
       starpos = (strchr(strchr_pointer + 5,'*'));
       if(starpos!=NULL)
         *(starpos)='\0';
       lcd_setstatus(strchr_pointer + 5);
-			#endif // GCODE_MESSAGES_ENABLE
       break;
     case 114: // M114
       SERIAL_PROTOCOLPGM("X:");
