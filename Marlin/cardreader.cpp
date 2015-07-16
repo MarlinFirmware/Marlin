@@ -62,7 +62,7 @@ void CardReader::lsDive(const char *prepend, SdFile parent, const char * const m
 
       // Allocate enough stack space for the full path to a folder, trailing slash, and nul
       boolean prepend_is_empty = (prepend[0] == '\0');
-      int len = strlen(prepend) + (prepend_is_empty ? 1 : 0) + strlen(lfilename) + 1;
+      int len = strlen(prepend) + (prepend_is_empty ? 1 : 0) + strlen(lfilename) + 1 + 1;
       char path[len];
 
       // Append the FOLDERNAME12/ to the passed string.
