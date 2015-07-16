@@ -1814,7 +1814,11 @@ static void homeaxis(AxisEnum axis) {
     #endif
 
     {
+<<<<<<< HEAD
       #if HAS_SERVO_ENDSTOPS
+=======
+      #ifdef SERVO_ENDSTOPS
+>>>>>>> Move braces in homeaxis to prevent a hanging else
         // Retract Servo endstop if enabled
 <<<<<<< HEAD
         if (servo_endstop_id[axis] >= 0)
@@ -1824,9 +1828,14 @@ static void homeaxis(AxisEnum axis) {
 =======
         if (servo_endstops[axis] > -1)
           servo[servo_endstops[axis]].move(0, servo_endstop_angles[axis * 2 + 1]);
+<<<<<<< HEAD
       }
     #endif
 >>>>>>> Activate the new servo.move() function
+=======
+      #endif
+    }
+>>>>>>> Move braces in homeaxis to prevent a hanging else
 
   }
 }
