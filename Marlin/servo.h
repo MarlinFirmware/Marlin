@@ -41,7 +41,7 @@
    attached()  - Returns true if there is a servo attached.
    detach()    - Stops an attached servos from pulsing its i/o pin.
    move(pin, angel) - Sequence of attach(pin), write(angel),
-                      if DEACTIVATE_SERVOS_AFTER_MOVE is defined waits SERVO_DEACTIVATION_DELAY, than detaches.
+                      With DEACTIVATE_SERVOS_AFTER_MOVE it waits SERVO_DEACTIVATION_DELAY and detaches.
  */
 
 #ifndef servo_h

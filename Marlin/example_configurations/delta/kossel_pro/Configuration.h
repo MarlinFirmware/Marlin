@@ -209,26 +209,10 @@ Here are some standard links for getting your machine calibrated:
   #define PID_INTEGRAL_DRIVE_MAX PID_MAX  //limit for the integral term
   #define K1 0.95 //smoothing factor within the PID
 
-  // If you are using a pre-configured hotend then you can use one of the value sets by uncommenting it
-  // Ultimaker
-  //#define  DEFAULT_Kp 22.2
-  //#define  DEFAULT_Ki 1.08
-  //#define  DEFAULT_Kd 114
-
   // Kossel Pro
   #define  DEFAULT_Kp 19.30
   #define  DEFAULT_Ki 3.51
   #define  DEFAULT_Kd 26.56
-
-  // MakerGear
-  //#define  DEFAULT_Kp 7.0
-  //#define  DEFAULT_Ki 0.1
-  //#define  DEFAULT_Kd 12
-
-  // Mendel Parts V9 on 12V
-  //#define  DEFAULT_Kp 63.0
-  //#define  DEFAULT_Ki 2.25
-  //#define  DEFAULT_Kd 440
 
 #endif // PIDTEMP
 
@@ -265,18 +249,6 @@ Here are some standard links for getting your machine calibrated:
   #define  DEFAULT_bedKp 370.25
   #define  DEFAULT_bedKi 62.77
   #define  DEFAULT_bedKd 545.98
-
-  //120v 250W silicone heater into 4mm borosilicate (MendelMax 1.5+)
-  //from FOPDT model - kp=.39 Tp=405 Tdead=66, Tc set to 79.2, aggressive factor of .15 (vs .1, 1, 10)
-  //#define  DEFAULT_bedKp 10.00
-  //#define  DEFAULT_bedKi .023
-  //#define  DEFAULT_bedKd 305.4
-
-  //120v 250W silicone heater into 4mm borosilicate (MendelMax 1.5+)
-  //from pidautotune
-  //#define  DEFAULT_bedKp 97.1
-  //#define  DEFAULT_bedKi 1.41
-  //#define  DEFAULT_bedKd 1675.16
 
   // FIND YOUR OWN: "M303 E-1 C8 S90" to run autotune on the bed at 90 degreesC for 8 cycles.
 #endif // PIDTEMPBED
@@ -641,13 +613,6 @@ const bool Z_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the logic
     #define Z_PROBE_ALLEN_KEY_STOW_3_FEEDRATE HOMING_FEEDRATE_Z
   #endif
 
-  //If defined, the Probe servo will be turned on only during movement and then turned off to avoid jerk
-  //The value is the delay to turn the servo off after powered on - depends on the servo speed; 300ms is good value, but you can try lower it.
-  // You MUST HAVE the SERVO_ENDSTOPS defined to use here a value higher than zero otherwise your code will not compile.
-
-//  #define PROBE_SERVO_DEACTIVATION_DELAY 300
-
-
 //If you have enabled the Bed Auto Leveling and are using the same Z Probe for Z Homing,
 //it is highly recommended you let this Z_SAFE_HOMING enabled!!!
 
@@ -935,6 +900,18 @@ const bool Z_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the logic
 //
 //#define SERVO_ENDSTOPS {-1, -1, 0} // Servo index for X, Y, Z. Disable with -1
 //#define SERVO_ENDSTOP_ANGLES {0,0, 0,0, 70,0} // X,Y,Z Axis Extend and Retract angles
+
+// Servo deactivation
+//
+// With this option servos are powered only during movement, then turned off to prevent jitter.
+//#define DEACTIVATE_SERVOS_AFTER_MOVE
+
+#ifdef DEACTIVATE_SERVOS_AFTER_MOVE
+  // Delay (in microseconds) before turning the servo off. This depends on the servo speed.
+  // 300ms is a good value but you can try less delay.
+  // If the servo can't reach the requested position, increase it.
+  #define SERVO_DEACTIVATION_DELAY 300
+#endif
 
 /**********************************************************************\
  * Support for a filament diameter sensor
