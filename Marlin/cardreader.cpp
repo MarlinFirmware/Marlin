@@ -62,20 +62,13 @@ void CardReader::lsDive(const char *prepend, SdFile parent, const char * const m
 
       // Allocate enough stack space for the full path to a folder, trailing slash, and nul
       boolean prepend_is_empty = (prepend[0] == '\0');
-      int len = strlen(prepend) + (prepend_is_empty ? 1 : 0) + strlen(lfilename) + 1 + 1;
+      int len = (prepend_is_empty ? 1 : strlen(prepend)) + strlen(lfilename) + 1 + 1;
       char path[len];
 
       // Append the FOLDERNAME12/ to the passed string.
       // It contains the full path to the "parent" argument.
       // We now have the full path to the item in this folder.
-      if (prepend_is_empty) {
-        path[0] = '/'; // a root slash if prepend is empty
-        path[1] = '\0';
-      }
-      else
-        path[0] = '\0';
-
-      strcat(path, prepend);   // 1 character minimum
+      strcpy(path, prepend_is_empty ? "/" : prepend); // root slash if prepend is empty
       strcat(path, lfilename); // FILENAME_LENGTH-1 characters maximum
       strcat(path, "/");       // 1 character
 
