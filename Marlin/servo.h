@@ -128,9 +128,7 @@ class Servo {
     int read();                        // returns current pulse width as an angle between 0 and 180 degrees
     int readMicroseconds();            // returns current pulse width in microseconds for this servo (was read_us() in first release)
     bool attached();                   // return true if this servo is attached, otherwise false
-    #if defined(ENABLE_AUTO_BED_LEVELING) && PROBE_SERVO_DEACTIVATION_DELAY > 0
-      int pin;                           // store the hardware pin of the servo
-    #endif
+
   private:
     uint8_t servoIndex;               // index into the channel data for this servo
     int8_t min;                       // minimum is this value times 4 added to MIN_PULSE_WIDTH
