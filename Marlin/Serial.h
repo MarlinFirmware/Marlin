@@ -13,6 +13,24 @@
 	#define FIRMWARE_URL "https://github.com/ErikZalm/Marlin/"
 #endif
 
+#ifdef CUSTOM_MENDEL_NAME
+  #error CUSTOM_MENDEL_NAME deprecated - use CUSTOM_MACHINE_NAME
+  #define CUSTOM_MACHINE_NAME CUSTOM_MENDEL_NAME
+#endif
+
+#ifdef CUSTOM_MACHINE_NAME
+  #undef MACHINE_NAME
+  #define MACHINE_NAME CUSTOM_MACHINE_NAME
+#endif
+
+#ifndef SOURCE_CODE_URL
+  #define SOURCE_CODE_URL "https://github.com/MarlinFirmware/Marlin"
+#endif
+
+#ifndef BUILD_VERSION
+  #define BUILD_VERSION "V1; Sprinter/grbl mashup for gen6"
+#endif
+
 #ifndef MACHINE_UUID
    #define MACHINE_UUID "00000000-0000-0000-0000-000000000000"
 #endif
