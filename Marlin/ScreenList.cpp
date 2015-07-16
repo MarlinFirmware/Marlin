@@ -51,8 +51,6 @@ State_t do_state_prepare(Event_t event)
 	return STATE_PREPARE;
 }
 
-
-
 State_t do_state_paint(Event_t event)
 {
 	if (event == EVENT_KEYPRESS)
@@ -65,9 +63,12 @@ State_t do_state_paint(Event_t event)
 }
 
 
-
 namespace screen
 {
+	uint8_t ScreenList::directory_index = 0;
+	uint8_t ScreenList::directory_array[10] = { 0 };
+	bool ScreenList::from_updir = false;
+
 	ScreenList::ScreenList(const char * title)
 		: Screen(title, LIST)
 		, m_index(0)
@@ -121,11 +122,43 @@ namespace screen
 				m_index = 0;
 
 				card.getWorkDirName();
-				strncpy(m_directory, card.filename, 9);
-				m_directory[9] = '\0';
+				strncpy(m_directory, card.filename, 19);
+				m_directory[19] = '\0';
 
 				if (card.filename[0] != '/')
 				{
+					if(from_updir)
+					{
+						if(directory_index > 0)
+						{
+							char prev_folder[20];
+							strncpy(prev_folder, card.filename, 19);
+							card.updir();
+							card.getfilename(directory_array[directory_index-1]-1);
+							if ( (card.longFilename != NULL) && (strlen(card.longFilename) > 0) )
+							{
+								strncpy(m_directory, card.longFilename, sizeof(m_directory));
+							}
+							else
+							{
+								strncpy(m_directory, card.filename, sizeof(m_directory));
+							}
+							card.chdir(prev_folder);
+							painter.print(m_directory);
+							from_updir = false;
+						}
+					}
+					else
+					{
+						if ( (card.folderName != NULL) && (strlen(card.folderName) > 0) )
+						{
+							strncpy(m_directory, card.folderName, 19);
+						}
+						else
+						{
+							strncpy(m_directory, card.filename, 19);
+						}
+					}
 					m_directory_is_root = false;
 					m_offset = 2;
 				}
@@ -154,24 +187,35 @@ namespace screen
 		do
 		{
 			// Draw title
+			uint8_t x_init = painter.coordinateXInit();
+			uint8_t y_init = painter.coordinateYInit();
+			uint8_t x_end = painter.coordinateXEnd();
+
 			if (m_directory_is_root == true)
 			{
-				painter.title(m_title);
-			}
-			else
-			{
-				uint8_t x_init = painter.coordinateXInit();
-				uint8_t y_init = painter.coordinateYInit();
-				uint8_t x_end = painter.coordinateXEnd();
-
 				painter.setColorIndex(1);
 				painter.setFont(u8g_font_6x9);
 				painter.setPrintPos(x_init, y_init + 3);
-				painter.print(m_directory);
-				painter.drawLine(x_init, y_init + 13, x_end, y_init + 13);
-
-				painter.coordinateYInit(14);
+				painter.print("/");
+				painter.setPrintPos(x_init + 6, y_init + 3);
+				painter.print_P(m_title);
+				memset(directory_array,0,sizeof(directory_array));
+				directory_index = 0;
 			}
+			else
+			{
+				painter.setColorIndex(1);
+				painter.setFont(u8g_font_6x9);
+				painter.drawBitmap(x_init, y_init + 3, little_icon_width, little_icon_height, bits_updir_small);
+				painter.setPrintPos(x_init + 6, y_init + 3);
+				painter.print("/");
+				painter.setPrintPos(x_init + 12, y_init + 3);
+				painter.print(m_directory);
+			}
+
+			//Draw line separator
+			painter.drawLine(x_init, y_init + 13, x_end, y_init + 13);
+			painter.coordinateYInit(14);
 
 			// Draw list
 			uint8_t window_size = 50 / (max_font_height + 1);
@@ -220,7 +264,14 @@ namespace screen
 						painter.drawBitmap(painter.coordinateXInit() + 1, painter.coordinateYInit() + i * (max_font_height + 1), little_icon_width, little_icon_height, bits_folder_small);
 					}
 					painter.setPrintPos(painter.coordinateXInit() + 9, painter.coordinateYInit() + i * (max_font_height + 1));
-					painter.print(card.longFilename);
+					if(strcmp(card.longFilename,"") != 0)
+					{
+						painter.print(card.longFilename);
+					}
+					else
+					{
+						painter.print(card.filename);
+					}
 				}
 			}
 
@@ -253,12 +304,16 @@ namespace screen
 
 		if (m_index == 0)
 		{
+			directory_index = 0;
 			ViewManager::getInstance().activeView(m_back_screen);
 			return;
 		}
 
 		if (m_directory_is_root == false && (m_index == 1))
 		{
+			directory_index--;
+			from_updir = true;
+
 			card.updir();
 			ViewManager::getInstance().activeView(screen_SD_list);
 			return;
@@ -268,6 +323,12 @@ namespace screen
 			card.getfilename(m_index - m_offset);
 			if (card.filenameIsDir == true)
 			{
+				if(directory_index < 9)
+				{
+					directory_array[directory_index] = m_index - m_offset + 1;
+					directory_index++;
+					from_updir = false;
+				}
 				card.chdir(card.filename);
 				ViewManager::getInstance().activeView(screen_SD_list);
 				return;
