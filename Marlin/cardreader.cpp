@@ -56,6 +56,13 @@ void CardReader::lsDive(const char *prepend, SdFile parent, const char * const m
     // If the entry is a directory and the action is LS_SerialPrint
     if (DIR_IS_SUBDIR(&p) && lsAction != LS_Count && lsAction != LS_GetFilename) {
 
+<<<<<<< HEAD
+=======
+      // Allocate enough stack space for the full path to a folder, trailing slash, and nul
+      int len = strlen(prepend) + FILENAME_LENGTH + 1 + 1;
+      char path[len];
+
+>>>>>>> Fix lsDive filename stack overrun
       // Get the short name for the item, which we know is a folder
       char lfilename[FILENAME_LENGTH];
       createFilename(lfilename, p);
