@@ -4105,9 +4105,8 @@ inline void gcode_M203() {
  */
 inline void gcode_M204() {
   if (code_seen('S')) {  // Kept for legacy compatibility. Should NOT BE USED for new developments.
-    acceleration = code_value();
-    travel_acceleration = acceleration;
-    SERIAL_ECHOPAIR("Setting Print and Travel Acceleration: ", acceleration );
+    travel_acceleration = acceleration = code_value();
+    SERIAL_ECHOPAIR("Setting Print and Travel Acceleration: ", acceleration);
     SERIAL_EOL;
   }
   if (code_seen('P')) {
