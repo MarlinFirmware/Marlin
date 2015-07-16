@@ -524,19 +524,16 @@ void _lcd_preheat(int endnum, const float temph, const float tempb, const int fa
 void lcd_preheat_pla0() { _lcd_preheat(0, plaPreheatHotendTemp, plaPreheatHPBTemp, plaPreheatFanSpeed); }
 void lcd_preheat_abs0() { _lcd_preheat(0, absPreheatHotendTemp, absPreheatHPBTemp, absPreheatFanSpeed); }
 
-#if TEMP_SENSOR_1 != 0 || TEMP_SENSOR_2 != 0 || TEMP_SENSOR_3 != 0 || TEMP_SENSOR_BED != 0 //more than one extruder present
-
-  #if TEMP_SENSOR_1 != 0
-    void lcd_preheat_pla1() { _lcd_preheat(1, plaPreheatHotendTemp, plaPreheatHPBTemp, plaPreheatFanSpeed); }
-    void lcd_preheat_abs1() { _lcd_preheat(1, absPreheatHotendTemp, absPreheatHPBTemp, absPreheatFanSpeed); }
-  #endif
-  #if TEMP_SENSOR_2 != 0
+#if EXTRUDERS > 1
+  void lcd_preheat_pla1() { _lcd_preheat(1, plaPreheatHotendTemp, plaPreheatHPBTemp, plaPreheatFanSpeed); }
+  void lcd_preheat_abs1() { _lcd_preheat(1, absPreheatHotendTemp, absPreheatHPBTemp, absPreheatFanSpeed); }
+  #if EXTRUDERS > 2
     void lcd_preheat_pla2() { _lcd_preheat(2, plaPreheatHotendTemp, plaPreheatHPBTemp, plaPreheatFanSpeed); }
     void lcd_preheat_abs2() { _lcd_preheat(2, absPreheatHotendTemp, absPreheatHPBTemp, absPreheatFanSpeed); }
-  #endif
-  #if TEMP_SENSOR_3 != 0
-    void lcd_preheat_pla3() { _lcd_preheat(3, plaPreheatHotendTemp, plaPreheatHPBTemp, plaPreheatFanSpeed); }
-    void lcd_preheat_abs3() { _lcd_preheat(3, absPreheatHotendTemp, absPreheatHPBTemp, absPreheatFanSpeed); }
+    #if EXTRUDERS > 3
+      void lcd_preheat_pla3() { _lcd_preheat(3, plaPreheatHotendTemp, plaPreheatHPBTemp, plaPreheatFanSpeed); }
+      void lcd_preheat_abs3() { _lcd_preheat(3, absPreheatHotendTemp, absPreheatHPBTemp, absPreheatFanSpeed); }
+    #endif
   #endif
 
   void lcd_preheat_pla0123() {
@@ -552,53 +549,60 @@ void lcd_preheat_abs0() { _lcd_preheat(0, absPreheatHotendTemp, absPreheatHPBTem
     _lcd_preheat(3, absPreheatHotendTemp, absPreheatHPBTemp, absPreheatFanSpeed);
   }
 
-  #if TEMP_SENSOR_0 != 0
+#endif // EXTRUDERS > 1
 
-    void lcd_preheat_pla_bedonly() { _lcd_preheat(0, 0, plaPreheatHPBTemp, plaPreheatFanSpeed); }
-    void lcd_preheat_abs_bedonly() { _lcd_preheat(0, 0, absPreheatHPBTemp, absPreheatFanSpeed); }
+#if TEMP_SENSOR_BED != 0
+  void lcd_preheat_pla_bedonly() { _lcd_preheat(0, 0, plaPreheatHPBTemp, plaPreheatFanSpeed); }
+  void lcd_preheat_abs_bedonly() { _lcd_preheat(0, 0, absPreheatHPBTemp, absPreheatFanSpeed); }
+#endif
 
-    static void lcd_preheat_pla_menu() {
-      START_MENU();
-      MENU_ITEM(back, MSG_PREPARE, lcd_prepare_menu);
-      MENU_ITEM(function, MSG_PREHEAT_PLA_N MSG_H1, lcd_preheat_pla0);
-      #if TEMP_SENSOR_1 != 0
-        MENU_ITEM(function, MSG_PREHEAT_PLA_N MSG_H2, lcd_preheat_pla1);
-      #endif
-      #if TEMP_SENSOR_2 != 0
+static void lcd_preheat_pla_menu() {
+  START_MENU();
+  MENU_ITEM(back, MSG_PREPARE, lcd_prepare_menu);
+  #if EXTRUDERS == 1
+    MENU_ITEM(function, MSG_PREHEAT_PLA, lcd_preheat_pla0);
+  #else
+    MENU_ITEM(function, MSG_PREHEAT_PLA_N MSG_H1, lcd_preheat_pla0);
+    #if EXTRUDERS > 1
+      MENU_ITEM(function, MSG_PREHEAT_PLA_N MSG_H2, lcd_preheat_pla1);
+      #if EXTRUDERS > 2
         MENU_ITEM(function, MSG_PREHEAT_PLA_N MSG_H3, lcd_preheat_pla2);
+        #if EXTRUDERS > 3
+          MENU_ITEM(function, MSG_PREHEAT_PLA_N MSG_H4, lcd_preheat_pla3);
+        #endif
       #endif
-      #if TEMP_SENSOR_3 != 0
-        MENU_ITEM(function, MSG_PREHEAT_PLA_N MSG_H4, lcd_preheat_pla3);
-      #endif
-      MENU_ITEM(function, MSG_PREHEAT_PLA_ALL, lcd_preheat_pla0123);
-      #if TEMP_SENSOR_BED != 0
-        MENU_ITEM(function, MSG_PREHEAT_PLA_BEDONLY, lcd_preheat_pla_bedonly);
-      #endif
-      END_MENU();
-    }
-
-    static void lcd_preheat_abs_menu() {
-      START_MENU();
-      MENU_ITEM(back, MSG_PREPARE, lcd_prepare_menu);
-      MENU_ITEM(function, MSG_PREHEAT_ABS_N MSG_H1, lcd_preheat_abs0);
-      #if TEMP_SENSOR_1 != 0
-        MENU_ITEM(function, MSG_PREHEAT_ABS_N MSG_H2, lcd_preheat_abs1);
-      #endif
-      #if TEMP_SENSOR_2 != 0
-        MENU_ITEM(function, MSG_PREHEAT_ABS_N MSG_H3, lcd_preheat_abs2);
-      #endif
-      #if TEMP_SENSOR_3 != 0
-        MENU_ITEM(function, MSG_PREHEAT_ABS_N MSG_H4, lcd_preheat_abs3);
-      #endif
-      MENU_ITEM(function, MSG_PREHEAT_ABS_ALL, lcd_preheat_abs0123);
-      #if TEMP_SENSOR_BED != 0
-        MENU_ITEM(function, MSG_PREHEAT_ABS_BEDONLY, lcd_preheat_abs_bedonly);
-      #endif
-      END_MENU();
-    }
+    #endif
+    MENU_ITEM(function, MSG_PREHEAT_PLA_ALL, lcd_preheat_pla0123);
   #endif
+  #if TEMP_SENSOR_BED != 0
+    MENU_ITEM(function, MSG_PREHEAT_PLA_BEDONLY, lcd_preheat_pla_bedonly);
+  #endif
+  END_MENU();
+}
 
-#endif // more than one temperature sensor present
+static void lcd_preheat_abs_menu() {
+  START_MENU();
+  MENU_ITEM(back, MSG_PREPARE, lcd_prepare_menu);
+  #if EXTRUDERS == 1
+    MENU_ITEM(function, MSG_PREHEAT_ABS, lcd_preheat_abs0);
+  #else
+    MENU_ITEM(function, MSG_PREHEAT_ABS_N MSG_H1, lcd_preheat_abs0);
+    #if EXTRUDERS > 1
+      MENU_ITEM(function, MSG_PREHEAT_ABS_N MSG_H2, lcd_preheat_abs1);
+      #if EXTRUDERS > 2
+        MENU_ITEM(function, MSG_PREHEAT_ABS_N MSG_H3, lcd_preheat_abs2);
+        #if EXTRUDERS > 3
+          MENU_ITEM(function, MSG_PREHEAT_ABS_N MSG_H4, lcd_preheat_abs3);
+        #endif
+      #endif
+    #endif
+    MENU_ITEM(function, MSG_PREHEAT_ABS_ALL, lcd_preheat_abs0123);
+  #endif
+  #if TEMP_SENSOR_BED != 0
+    MENU_ITEM(function, MSG_PREHEAT_ABS_BEDONLY, lcd_preheat_abs_bedonly);
+  #endif
+  END_MENU();
+}
 
 void lcd_cooldown() {
   disable_all_heaters();
