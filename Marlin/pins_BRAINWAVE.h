@@ -50,7 +50,7 @@
 #define KILL_PIN           -1
 #define ALARM_PIN          -1
 
-#ifndef SDSUPPORT
+#if DISABLED(SDSUPPORT)
   // these pins are defined in the SD library if building with SD support
   #define SCK_PIN           9
   #define MISO_PIN         11

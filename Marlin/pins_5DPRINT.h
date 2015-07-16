@@ -52,7 +52,7 @@
 // The SDSS pin uses a different pin mapping from file Sd2PinMap.h
 #define SDSS               20
 
-#ifndef SDSUPPORT
+#if DISABLED(SDSUPPORT)
 // these pins are defined in the SD library if building with SD support
   #define SCK_PIN           9
   #define MISO_PIN         11
