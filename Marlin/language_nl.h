@@ -126,7 +126,7 @@
 #define MSG_END_HOUR                        "hours"
 #define MSG_END_MINUTE                      "minutes"
 
-#ifdef DELTA_CALIBRATION_MENU
+#if ENABLED(DELTA_CALIBRATION_MENU)
     #define MSG_DELTA_CALIBRATE             "Delta Calibratie"
     #define MSG_DELTA_CALIBRATE_X           "Kalibreer X"
     #define MSG_DELTA_CALIBRATE_Y           "Kalibreer Y"
