@@ -661,7 +661,7 @@ namespace screen
 
 	static ScreenTransition * make_screen_change_pausing()
 	{
-		ScreenTransition * local_view = new ScreenTransition(MSG_SCREEN_CHANGE_TITLE, MSG_SCREEN_UNLOADING_TEXT, MSG_SCREEN_LEVEL_BOX0, action_pause_print, &PrintManager::single::instance());
+		ScreenTransition * local_view = new ScreenTransition(MSG_SCREEN_CHANGE_TITLE, MSG_SCREEN_UNLOADING_TEXT, MSG_SCREEN_LEVEL_BOX0, PrintManager::pausePrint);
 		local_view->add(screen_change_selector);
 		return local_view;
 	}
@@ -727,7 +727,7 @@ namespace screen
 
 	static ScreenAction<void> * make_screen_change_ok2print()
 	{
-		ScreenAction<void> * local_view = new ScreenAction<void>(MSG_OK2, action_resume_print);
+		ScreenAction<void> * local_view = new ScreenAction<void>(MSG_OK2, PrintManager::resumePrint);
 		local_view->add(screen_print);
 		return local_view;
 	}
