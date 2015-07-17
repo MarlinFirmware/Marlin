@@ -27,7 +27,7 @@ typedef struct {
 
 // Extern variables
 extern bool stop_buffer;
-extern int stop_buffer_code;
+extern uint16_t stop_buffer_code;
 extern uint8_t buffer_recursivity;
 
 static float manual_feedrate[] = MANUAL_FEEDRATE;

@@ -17,7 +17,7 @@ extern bool cancel_heatup;
 extern bool stop_planner_buffer;
 extern bool stop_buffer;
 bool change_filament = false; 
-extern int stop_buffer_code;
+extern uint16_t stop_buffer_code;
 
 static float manual_feedrate[] = MANUAL_FEEDRATE;
 

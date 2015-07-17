@@ -48,6 +48,7 @@ void lcd_init();
 
 void lcd_update(bool force = false);
 
+void lcd_emergency_stop();
 
 // Get and clear trigger functions
 bool lcd_get_button_updated();

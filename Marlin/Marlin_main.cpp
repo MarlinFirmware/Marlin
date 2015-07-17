@@ -36,7 +36,6 @@
   #endif
 //#endif // ENABLE_AUTO_BED_LEVELING
 
-#include "ultralcd.h"
 #include "planner.h"
 #include "stepper.h"
 #include "temperature.h"
@@ -63,8 +62,11 @@
 #endif
 
 #ifdef DOGLCD
+  #include "GuiManager.h"
   #include "PrintManager.h"
   #include "StorageManager.h"
+#else // DOGLCD
+  #include "ultralcd.h"
 #endif
 
 #include "GuiAction.h"
@@ -670,7 +672,7 @@ bool stop_planner_buffer = false;
 #endif // DOGLCD
 
 bool stop_buffer = false;
-int stop_buffer_code = 0;
+uint16_t stop_buffer_code = 0;
 
 
 void loop()
@@ -712,12 +714,17 @@ void loop()
 				{
 					stop_buffer = false;
 					stop_buffer_code = 0;
+
+#ifdef DOGLCD
+          lcd_emergency_stop();
+#else DOGLCD
 					bufindr = 0;
 					bufindw = 0;
 					buflen = 0;
 					FlushSerialRequestResend();
 					lcd_reset_alert_level();
 					LCD_MESSAGEPGM(WELCOME_MSG);
+#endif // DOGLCD
 				}
 				break;
 			default:

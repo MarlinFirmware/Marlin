@@ -54,7 +54,7 @@ int absPreheatFanSpeed;
 
 // Extern variables
 extern bool stop_buffer;
-extern int stop_buffer_code;
+extern uint16_t stop_buffer_code;
 uint8_t prev_encoder_position;
 
 
@@ -104,7 +104,6 @@ int lcd_contrast;
 uint8_t display_view_menu_offset = 0;
 uint8_t display_view_wizard_page = 0;
 
-static void lcd_emergency_stop();
 
 /*******************************************************************************
 **   Function definitions
@@ -498,7 +497,7 @@ static void lcd_set_encoder_position(int8_t position)
     encoder_position = position;
 }
 
-static void lcd_emergency_stop()
+void lcd_emergency_stop()
 {
     if (eeprom::StorageManager::getEmergencyFlag() != eeprom::EMERGENCY_STOP_ACTIVE)
     {
