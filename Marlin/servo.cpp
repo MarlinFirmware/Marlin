@@ -45,7 +45,7 @@
 */
 #include "Configuration.h" 
 
-#ifdef NUM_SERVOS
+#if HAS_SERVOS
 
 #include <avr/interrupt.h>
 #include <Arduino.h>
