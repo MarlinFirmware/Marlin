@@ -65,10 +65,8 @@ void st_set_e_position(const long &e);
 // Get current position in steps
 long st_get_position(uint8_t axis);
 
-#ifdef Z_SAFE_HOMING
 // Get current position in mm
 float st_get_position_mm(uint8_t axis);
-#endif  //Z_SAFE_HOMING
 
 // The stepper subsystem goes to sleep when it runs out of things to execute. Call this
 // to notify the subsystem that it is time to go to work.
