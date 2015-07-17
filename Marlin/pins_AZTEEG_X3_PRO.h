@@ -81,7 +81,7 @@
  #undef SERVO2_PIN
  #undef SERVO3_PIN
 
- #ifdef NUM_SERVOS
+ #if HAS_SERVOS
    #define SERVO0_PIN       47
    #if NUM_SERVOS > 1
      #define SERVO1_PIN     -1

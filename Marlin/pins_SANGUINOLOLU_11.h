@@ -48,7 +48,7 @@
   #define SLED_PIN         -1
 #endif
 
-#ifdef NUM_SERVOS
+#if HAS_SERVOS
   #define SERVO0_PIN          -1
   #if NUM_SERVOS > 1
     #define SERVO1_PIN        -1
