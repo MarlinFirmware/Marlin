@@ -40,9 +40,9 @@
    readMicroseconds()   - Gets the last written servo pulse width in microseconds. (was read_us() in first release)
    attached()  - Returns true if there is a servo attached.
    detach()    - Stops an attached servos from pulsing its i/o pin.
-   move(pin, angel) - Sequence of attach(pin), write(angel),
+   move(pin, angle) - Sequence of attach(pin), write(angle),
                       With DEACTIVATE_SERVOS_AFTER_MOVE it waits SERVO_DEACTIVATION_DELAY and detaches.
- */
+*/
 
 #ifndef servo_h
 #define servo_h

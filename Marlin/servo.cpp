@@ -42,7 +42,7 @@
  attached()  - Returns true if there is a servo attached.
  detach()    - Stops an attached servos from pulsing its i/o pin.
 
- */
+*/
 #include "Configuration.h" 
 
 #ifdef NUM_SERVOS
