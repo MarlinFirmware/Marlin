@@ -284,10 +284,12 @@ void action_homing()
 {
 	lcd_disable_interrupt();
 
-#ifdef Z_SAFE_HOMING
-	plan_bed_level_matrix.set_to_identity();
-#endif //Z_SAFE_HOMING
-
+	if (AutoLevelManager::single::instance().state() == false)
+	{
+		plan_bed_level_matrix.set_to_identity();
+		SERIAL_ECHOLN("PLANO MACHACADO");
+	}
+	
 	float saved_feedrate = feedrate;
 	int saved_feedmultiply = feedmultiply;
 	feedmultiply = 100;
