@@ -640,12 +640,18 @@ void Config_PrintSettings(bool forReplay) {
   SERIAL_EOL;
   CONFIG_ECHO_START;
   if (!forReplay) {
-    SERIAL_ECHOLNPGM("Accelerations: P=printing, R=retract and T=travel");
+    SERIAL_ECHOLNPGM("Acceleration: (P)rint, (R)etract, (T)ravel, (S = P and T)");
     CONFIG_ECHO_START;
   }
-  SERIAL_ECHOPAIR("  M204 P", acceleration);
+  SERIAL_ECHO("  M204", acceleration);
+  if (acceleration == travel_acceleration) {
+    SERIAL_ECHOPAIR(" S", acceleration);
+  }
+  else {
+    SERIAL_ECHOPAIR(" P", acceleration);
+    SERIAL_ECHOPAIR(" T", travel_acceleration);
+  }
   SERIAL_ECHOPAIR(" R", retract_acceleration);
-  SERIAL_ECHOPAIR(" T", travel_acceleration);
   SERIAL_EOL;
 
   CONFIG_ECHO_START;
