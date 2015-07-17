@@ -312,6 +312,7 @@ bool target_direction;
 #endif
 
 #ifdef SERVO_ENDSTOPS
+  #define HAS_SERVO_ENDSTOPS
   int servo_endstops[] = SERVO_ENDSTOPS;
   int servo_endstop_angles[] = SERVO_ENDSTOP_ANGLES;
 #endif
@@ -567,7 +568,7 @@ void servo_init() {
   #endif
 
   // Set position of Servo Endstops that are defined
-  #ifdef SERVO_ENDSTOPS
+  #if ENABLED(HAS_SERVO_ENDSTOPS)
     for (int i = 0; i < 3; i++)
       if (servo_endstops[i] >= 0)
         servo[servo_endstops[i]].move(0, servo_endstop_angles[i * 2 + 1]);
@@ -1306,7 +1307,7 @@ static void setup_for_endstop_move() {
 
   static void deploy_z_probe() {
 
-    #ifdef SERVO_ENDSTOPS
+    #if ENABLED(HAS_SERVO_ENDSTOPS)
 
       // Engage Z Servo endstop if enabled
       if (servo_endstops[Z_AXIS] >= 0) {
@@ -1399,7 +1400,7 @@ static void setup_for_endstop_move() {
 
   static void stow_z_probe(bool doRaise=true) {
 
-    #ifdef SERVO_ENDSTOPS
+    #if ENABLED(HAS_SERVO_ENDSTOPS)
 
       // Retract Z Servo endstop if enabled
       if (servo_endstops[Z_AXIS] >= 0) {
@@ -1661,7 +1662,7 @@ static void homeaxis(AxisEnum axis) {
 
     #endif
 
-    #ifdef SERVO_ENDSTOPS
+    #if ENABLED(HAS_SERVO_ENDSTOPS)
       if (axis != Z_AXIS) {
         // Engage Servo endstop if enabled
         if (servo_endstops[axis] > -1)
@@ -1765,7 +1766,7 @@ static void homeaxis(AxisEnum axis) {
     #endif
 
     {
-      #ifdef SERVO_ENDSTOPS
+      #if ENABLED(HAS_SERVO_ENDSTOPS)
         // Retract Servo endstop if enabled
         if (servo_endstops[axis] > -1)
           servo[servo_endstops[axis]].move(0, servo_endstop_angles[axis * 2 + 1]);
@@ -4673,7 +4674,7 @@ inline void gcode_M400() { st_synchronize(); }
 
 #if ENABLED(ENABLE_AUTO_BED_LEVELING) && DISABLED(Z_PROBE_SLED) && (defined(SERVO_ENDSTOPS) || ENABLED(Z_PROBE_ALLEN_KEY))
 
-  #ifdef SERVO_ENDSTOPS
+  #if ENABLED(HAS_SERVO_ENDSTOPS)
     void raise_z_for_servo() {
       float zpos = current_position[Z_AXIS], z_dest = Z_RAISE_BEFORE_HOMING;
       z_dest += axis_known_position[Z_AXIS] ? zprobe_zoffset : zpos;
@@ -4686,7 +4687,7 @@ inline void gcode_M400() { st_synchronize(); }
    * M401: Engage Z Servo endstop if available
    */
   inline void gcode_M401() {
-    #ifdef SERVO_ENDSTOPS
+    #if ENABLED(HAS_SERVO_ENDSTOPS)
       raise_z_for_servo();
     #endif
     deploy_z_probe();
@@ -4696,7 +4697,7 @@ inline void gcode_M400() { st_synchronize(); }
    * M402: Retract Z Servo endstop if enabled
    */
   inline void gcode_M402() {
-    #ifdef SERVO_ENDSTOPS
+    #if ENABLED(HAS_SERVO_ENDSTOPS)
       raise_z_for_servo();
     #endif
     stow_z_probe(false);
