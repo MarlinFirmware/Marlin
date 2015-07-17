@@ -14,7 +14,7 @@
 #endif
 
 // Servo support
-#ifdef NUM_SERVOS
+#if HAS_SERVOS
   #define SERVO0_PIN       46 //AUX3-6
   #if NUM_SERVOS > 1
     #define SERVO1_PIN     47 //AUX3-5

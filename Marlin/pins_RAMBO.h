@@ -9,7 +9,7 @@
 #define LARGE_FLASH true
 
 // Servo support
-#ifdef NUM_SERVOS
+#if HAS_SERVOS
   #define SERVO0_PIN       22 //motor header MX1
   #if NUM_SERVOS > 1
     #define SERVO1_PIN     23 //Motor header MX2

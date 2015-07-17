@@ -57,7 +57,7 @@
   #include "Wire.h"
 #endif
 
-#if NUM_SERVOS > 0
+#if HAS_SERVOS
   #include "servo.h"
 #endif
 
@@ -395,7 +395,7 @@ bool target_direction;
   static bool fromsd[BUFSIZE];
 #endif
 
-#if NUM_SERVOS > 0
+#if HAS_SERVOS
   Servo servo[NUM_SERVOS];
 #endif
 
@@ -4227,7 +4227,7 @@ inline void gcode_M226() {
   } // code_seen('P')
 }
 
-#if NUM_SERVOS > 0
+#if HAS_SERVOS
 
   /**
    * M280: Get or set servo position. P<index> S<angle>
@@ -4258,7 +4258,7 @@ inline void gcode_M226() {
     }
   }
 
-#endif // NUM_SERVOS > 0
+#endif // HAS_SERVOS
 
 #if HAS_BUZZER
 
@@ -5541,11 +5541,11 @@ void process_next_command() {
         gcode_M226();
         break;
 
-      #if NUM_SERVOS > 0
+      #if HAS_SERVOS
         case 280: // M280 - set servo position absolute. P: servo index, S: angle or microseconds
           gcode_M280();
           break;
-      #endif // NUM_SERVOS > 0
+      #endif // HAS_SERVOS
 
       #if HAS_BUZZER
         case 300: // M300 - Play beep tone
