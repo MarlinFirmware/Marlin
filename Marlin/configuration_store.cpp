@@ -643,7 +643,7 @@ void Config_PrintSettings(bool forReplay) {
     SERIAL_ECHOLNPGM("Acceleration: (P)rint, (R)etract, (T)ravel, (S = P and T)");
     CONFIG_ECHO_START;
   }
-  SERIAL_ECHO("  M204", acceleration);
+  SERIAL_ECHOPGM("  M204");
   if (acceleration == travel_acceleration) {
     SERIAL_ECHOPAIR(" S", acceleration);
   }
