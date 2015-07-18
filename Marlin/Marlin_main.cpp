@@ -5199,7 +5199,7 @@ inline void gcode_T(uint8_t tmp_extruder) {
   if (tmp_extruder >= EXTRUDERS) {
     SERIAL_ECHO_START;
     SERIAL_CHAR('T');
-    SERIAL_ECHO(tmp_extruder);
+    SERIAL_PROTOCOL_F(tmp_extruder,DEC);
     SERIAL_ECHOLN(MSG_INVALID_EXTRUDER);
   }
   else {
