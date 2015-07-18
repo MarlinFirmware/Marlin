@@ -613,9 +613,9 @@ const bool Z_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the logic
 #endif
 
 //
-// M99 Free Memory Watcher
+// M100 Free Memory Watcher
 //
-#define M99_FREE_MEMORY_WATCHER // uncomment to add the M99 Free Memory Watcher for debug purpose
+//#define M100_FREE_MEMORY_WATCHER // uncomment to add the M100 Free Memory Watcher for debug purpose
 
 // @section temperature
 

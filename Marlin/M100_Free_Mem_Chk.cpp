@@ -1,20 +1,20 @@
-#define M99_FREE_MEMORY_DUMPER			// Comment out to remove Dump sub-command
-#define M99_FREE_MEMORY_CORRUPTOR		// Comment out to remove Corrupt sub-command
+#define M100_FREE_MEMORY_DUMPER			// Comment out to remove Dump sub-command
+#define M100_FREE_MEMORY_CORRUPTOR		// Comment out to remove Corrupt sub-command
 
 
-// M99 Free Memory Watcher
+// M100 Free Memory Watcher
 //
 // This code watches the free memory block between the bottom of the heap and the top of the stack.
-// This memory block is initialized and watched via the M99 command.
+// This memory block is initialized and watched via the M100 command.
 //
-// M99 I	Initializes the free memory block and prints vitals statistics about the area
-// M99 F	Identifies how much of the free memory block remains free and unused.  It also
+// M100 I	Initializes the free memory block and prints vitals statistics about the area
+// M100 F	Identifies how much of the free memory block remains free and unused.  It also
 // 		detects and reports any corruption within the free memory block that may have
 // 		happened due to errant firmware.
-// M99 D	Does a hex display of the free memory block along with a flag for any errant
+// M100 D	Does a hex display of the free memory block along with a flag for any errant
 // 		data that does not match the expected value.
-// M99 C x	Corrupts x locations within the free memory block.   This is useful to check the
-// 		correctness of the M99 F and M99 D commands.
+// M100 C x	Corrupts x locations within the free memory block.   This is useful to check the
+// 		correctness of the M100 F and M100 D commands.
 //
 // Initial version by Roxy-3DPrintBoard
 //
@@ -23,7 +23,7 @@
 
 #include "Marlin.h"
 
-#ifdef M99_FREE_MEMORY_WATCHER
+#ifdef M100_FREE_MEMORY_WATCHER
 extern void *__brkval;
 extern size_t  __heap_start, __heap_end, __flp;
 
@@ -45,7 +45,7 @@ void serial_echopair_P(const char *, long );
 
 
 //
-// Utility functions used by M99 to get its work done.
+// Utility functions used by M100 to get its work done.
 //
 
 unsigned char *top_of_stack();
@@ -57,14 +57,14 @@ int how_many_E5s_are_here( unsigned char *);
 
 
 
-void m99_code()
+void gcode_M100()
 {
-static int m99_not_initialized=1;
+static int m100_not_initialized=1;
 unsigned char *sp, *ptr;
 int i, j, n;
 
 //
-// M99 D dumps the free memory block from __brkval to the stack pointer.
+// M100 D dumps the free memory block from __brkval to the stack pointer.
 // malloc() eats memory from the start of the block and the stack grows
 // up from the bottom of the block.    Solid 0xE5's indicate nothing has
 // used that memory yet.   There should not be anything but 0xE5's within
@@ -73,7 +73,7 @@ int i, j, n;
 // the right hand column to help spotting them.
 //
 
-#ifdef M99_FREE_MEMORY_DUMPER			// Comment out to remove Dump sub-command
+#ifdef M100_FREE_MEMORY_DUMPER			// Comment out to remove Dump sub-command
 	if ( code_seen('D') ) {
  		ptr = (unsigned char *) __brkval;
 
@@ -123,7 +123,7 @@ int i, j, n;
 #endif
 
 //
-// M99 F   requests the code to return the number of free bytes in the memory pool along with
+// M100 F   requests the code to return the number of free bytes in the memory pool along with
 // other vital statistics that define the memory pool.
 //
 	if ( code_seen('F') ) {
@@ -160,10 +160,10 @@ int i, j, n;
 		return;
 	}
 //
-// M99 C x  Corrupts x locations in the free memory pool and reports the locations of the corruption.
-// This is useful to check the correctness of the M99 D and the M99 F commands.
+// M100 C x  Corrupts x locations in the free memory pool and reports the locations of the corruption.
+// This is useful to check the correctness of the M100 D and the M100 F commands.
 //
-#ifdef M99_FREE_MEMORY_CORRUPTOR
+#ifdef M100_FREE_MEMORY_CORRUPTOR
 	if ( code_seen('C') ) {
 		int x;			// x gets the # of locations to corrupt within the memory pool
 		x = code_value();
@@ -190,12 +190,12 @@ int i, j, n;
 #endif
 
 //
-// M99 I    Initializes the free memory pool so it can be watched and prints vital
+// M100 I    Initializes the free memory pool so it can be watched and prints vital
 // statistics that define the free memory pool.
 //
-	if (m99_not_initialized || code_seen('I') ) {				// If no sub-command is specified, the first time
+	if (m100_not_initialized || code_seen('I') ) {				// If no sub-command is specified, the first time
   		SERIAL_ECHOLNPGM("Initializing free memory block.\n");   	// this happens, it will Initialize.
-  		ptr = (unsigned char *) __brkval;				// Repeated M99 with no sub-command will not destroy the
+  		ptr = (unsigned char *) __brkval;				// Repeated M100 with no sub-command will not destroy the
   		SERIAL_ECHOPAIR("\n__brkval : ",(long) ptr );			// state of the initialized free memory pool.
   		ptr += 8;
 
@@ -219,7 +219,7 @@ int i, j, n;
   				SERIAL_ECHOLNPGM("\n");
 			}
 		}
-		m99_not_initialized = 0;
+		m100_not_initialized = 0;
   		SERIAL_ECHOLNPGM("Done.\n");
 		return;
 	}
@@ -230,8 +230,8 @@ int i, j, n;
 // the stack once the function returns to the caller.
 
 unsigned char *top_of_stack() {
-unsigned char x;
-	return &x;
+  unsigned char x;
+  return &x + 1; // x is pulled on return;
 }
 
 //
