@@ -510,6 +510,9 @@ float junction_deviation = 0.1;
 
   float de = target[E_AXIS] - position[E_AXIS];
 
+  // In DRYRUN mode Extruder movement set to zero
+  if (marlin_debug_flags & DEBUG_DRYRUN) de = 0;
+
   #ifdef PREVENT_DANGEROUS_EXTRUDE
     if (de) {
       if (degHotend(extruder) < extrude_min_temp) {
