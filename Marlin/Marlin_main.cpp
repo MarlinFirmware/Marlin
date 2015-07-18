@@ -6054,8 +6054,11 @@ void mesh_plan_buffer_line(float x, float y, float z, const float e, float feed_
 #ifdef PREVENT_DANGEROUS_EXTRUDE
 
   inline void prevent_dangerous_extrude(float &curr_e, float &dest_e) {
-    if (marlin_debug_flags & DEBUG_DRYRUN) return;
     float de = dest_e - curr_e;
+
+    // In DRYRUN mode Extruder movement set to zero
+    if (marlin_debug_flags & DEBUG_DRYRUN) de = 0;
+
     if (de) {
       if (degHotend(active_extruder) < extrude_min_temp) {
         curr_e = dest_e; // Behave as if the move really took place, but ignore E part
