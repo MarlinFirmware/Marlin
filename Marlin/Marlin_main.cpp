@@ -1023,7 +1023,7 @@ XYZ_CONSTS_FROM_CONFIG(signed char, home_dir, HOME_DIR);
 
 #endif //DUAL_X_CARRIAGE
 
-static void axis_is_at_home(AxisEnum axis) {
+static void set_axis_is_at_home(AxisEnum axis) {
 
   #ifdef DUAL_X_CARRIAGE
     if (axis == X_AXIS) {
@@ -1739,7 +1739,7 @@ static void homeaxis(AxisEnum axis) {
     #endif
 
     // Set the axis position to its home position (plus home offsets)
-    axis_is_at_home(axis);
+    set_axis_is_at_home(axis);
     sync_plan_position();
 
     destination[axis] = current_position[axis];
@@ -2197,8 +2197,8 @@ inline void gcode_G28() {
         line_to_destination();
         st_synchronize();
 
-        axis_is_at_home(X_AXIS);
-        axis_is_at_home(Y_AXIS);
+        set_axis_is_at_home(X_AXIS);
+        set_axis_is_at_home(Y_AXIS);
         sync_plan_position();
 
         destination[X_AXIS] = current_position[X_AXIS];
@@ -5246,7 +5246,7 @@ inline void gcode_T(uint8_t tmp_extruder) {
           active_extruder = tmp_extruder;
 
           // This function resets the max/min values - the current position may be overwritten below.
-          axis_is_at_home(X_AXIS);
+          set_axis_is_at_home(X_AXIS);
 
           if (dual_x_carriage_mode == DXC_FULL_CONTROL_MODE) {
             current_position[X_AXIS] = inactive_extruder_x_pos;
