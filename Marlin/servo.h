@@ -112,17 +112,17 @@ typedef struct {
 typedef struct {
   ServoPin_t Pin;
   unsigned int ticks;
-} servo_t;
+} ServoInfo_t;
 
 class Servo {
   public:
     Servo();
-    uint8_t attach(int pin);           // attach the given pin to the next free channel, sets pinMode, returns channel number or 0 if failure
-    uint8_t attach(int pin, int min, int max); // as above but also sets min and max values for writes.
+    int8_t attach(int pin);           // attach the given pin to the next free channel, set pinMode, return channel number (-1 on fail)
+    int8_t attach(int pin, int min, int max); // as above but also sets min and max values for writes.
     void detach();
     void write(int value);             // if value is < 200 it is treated as an angle, otherwise as pulse width in microseconds
     void writeMicroseconds(int value); // Write pulse width in microseconds
-    uint8_t move(int pin, int value);  // attach the given pin to the next free channel, sets pinMode, returns channel number or 0 if failure.
+    int8_t move(int pin, int value);  // attach the given pin to the next free channel, set pinMode, return channel number (-1 if attach fails)
                                        // if value is < 200 it is treated as an angle, otherwise as pulse width in microseconds.
                                        // if DEACTIVATE_SERVOS_AFTER_MOVE is defined waits SERVO_DEACTIVATION_DELAY, than detaches.
     int read();                        // returns current pulse width as an angle between 0 and 180 degrees
