@@ -36,8 +36,6 @@
   #endif
 #endif // ENABLE_AUTO_BED_LEVELING
 
-#define SERVO_LEVELING (defined(ENABLE_AUTO_BED_LEVELING) && defined(DEACTIVATE_SERVOS_AFTER_MOVE))
-
 #ifdef MESH_BED_LEVELING
   #include "mesh_bed_leveling.h"
 #endif

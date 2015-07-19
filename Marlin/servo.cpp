@@ -35,7 +35,7 @@
 
  write()     - Sets the servo angle in degrees.  (invalid angle that is valid as pulse in microseconds is treated as microseconds)
  writeMicroseconds() - Sets the servo pulse width in microseconds
- move(pin, angel) - Sequence of attach(pin), write(angel).
+ move(pin, angle) - Sequence of attach(pin), write(angle).
                     With DEACTIVATE_SERVOS_AFTER_MOVE it waits SERVO_DEACTIVATION_DELAY and detaches.
  read()      - Gets the last written servo pulse width as an angle between 0 and 180.
  readMicroseconds()   - Gets the last written servo pulse width in microseconds. (was read_us() in first release)
@@ -238,23 +238,26 @@ Servo::Servo() {
     this->servoIndex = INVALID_SERVO;  // too many servos
 }
 
-uint8_t Servo::attach(int pin) {
+int8_t Servo::attach(int pin) {
   return this->attach(pin, MIN_PULSE_WIDTH, MAX_PULSE_WIDTH);
 }
 
-uint8_t Servo::attach(int pin, int min, int max) {
-  if (this->servoIndex < MAX_SERVOS ) {
-    if(pin > 0)
-      servos[this->servoIndex].Pin.nbr = pin;
-    pinMode(servos[this->servoIndex].Pin.nbr, OUTPUT); // set servo pin to output
-    // todo min/max check: abs(min - MIN_PULSE_WIDTH) /4 < 128
-    this->min = (MIN_PULSE_WIDTH - min) / 4; //resolution of min/max is 4 uS
-    this->max = (MAX_PULSE_WIDTH - max) / 4;
-    // initialize the timer if it has not already been initialized
-    timer16_Sequence_t timer = SERVO_INDEX_TO_TIMER(servoIndex);
-    if (!isTimerActive(timer)) initISR(timer);
-    servos[this->servoIndex].Pin.isActive = true;  // this must be set after the check for isTimerActive
-  }
+int8_t Servo::attach(int pin, int min, int max) {
+
+  if (this->servoIndex >= MAX_SERVOS) return -1;
+
+  if (pin > 0) servos[this->servoIndex].Pin.nbr = pin;
+  pinMode(servos[this->servoIndex].Pin.nbr, OUTPUT); // set servo pin to output
+
+  // todo min/max check: abs(min - MIN_PULSE_WIDTH) /4 < 128
+  this->min = (MIN_PULSE_WIDTH - min) / 4; //resolution of min/max is 4 uS
+  this->max = (MAX_PULSE_WIDTH - max) / 4;
+
+  // initialize the timer if it has not already been initialized
+  timer16_Sequence_t timer = SERVO_INDEX_TO_TIMER(servoIndex);
+  if (!isTimerActive(timer)) initISR(timer);
+  servos[this->servoIndex].Pin.isActive = true;  // this must be set after the check for isTimerActive
+
   return this->servoIndex;
 }
 
@@ -301,12 +304,16 @@ int Servo::readMicroseconds() {
 
 bool Servo::attached() { return servos[this->servoIndex].Pin.isActive; }
 
-uint8_t Servo::move(int pin, int value) {
-  uint8_t ret;
-  ret = this->attach(pin);
-  if (ret) {
+int8_t Servo::move(int pin, int value) {
+  int8_t ret;
+  #if SERVO_LEVELING
+    ret = this->attach(pin);
+  #else
+    ret = this->servoIndex;
+  #endif
+  if (ret >= 0) {
     this->write(value);
-    #ifdef DEACTIVATE_SERVOS_AFTER_MOVE && (SERVO_DEACTIVATION_DELAY > 0)
+    #if SERVO_LEVELING
       delay(SERVO_DEACTIVATION_DELAY);
       this->detach();
     #endif
