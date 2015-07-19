@@ -1769,7 +1769,6 @@ static void homeaxis(AxisEnum axis) {
         // Retract Servo endstop if enabled
         if (servo_endstops[axis] > -1)
           servo[servo_endstops[axis]].move(0, servo_endstop_angles[axis * 2 + 1]);
-      #endif
     }
 
   }
