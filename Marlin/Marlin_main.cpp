@@ -410,6 +410,8 @@ bool target_direction;
 
 void process_next_command();
 
+void plan_arc(float target[NUM_AXIS], float *offset, uint8_t clockwise);
+
 bool setTargetedHotend(int code);
 
 void serial_echopair_P(const char *s_P, float v)         { serialprintPGM(s_P); SERIAL_ECHO(v); }
@@ -1895,9 +1897,9 @@ inline void gcode_G0_G1() {
  * options for G2/G3 arc generation. In future these options may be GCode tunable.
  */
 void plan_arc(
-  float *target,    // Destination position
-  float *offset,    // Center of rotation relative to current_position
-  uint8_t clockwise // Clockwise?
+  float target[NUM_AXIS], // Destination position
+  float *offset,          // Center of rotation relative to current_position
+  uint8_t clockwise       // Clockwise?
 ) {
 
   float radius = hypot(offset[X_AXIS], offset[Y_AXIS]),
@@ -1957,7 +1959,7 @@ void plan_arc(
   float cos_T = 1-0.5*theta_per_segment*theta_per_segment; // Small angle approximation
   float sin_T = theta_per_segment;
   
-  float arc_target[4];
+  float arc_target[NUM_AXIS];
   float sin_Ti;
   float cos_Ti;
   float r_axisi;
@@ -1998,10 +2000,28 @@ void plan_arc(
     arc_target[E_AXIS] += extruder_per_segment;
 
     clamp_to_software_endstops(arc_target);
-    plan_buffer_line(arc_target[X_AXIS], arc_target[Y_AXIS], arc_target[Z_AXIS], arc_target[E_AXIS], feed_rate, active_extruder);
+
+    #if defined(DELTA) || defined(SCARA)
+      calculate_delta(arc_target);
+      #ifdef ENABLE_AUTO_BED_LEVELING
+        adjust_delta(arc_target);
+      #endif
+      plan_buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], arc_target[E_AXIS], feed_rate, active_extruder);
+    #else
+      plan_buffer_line(arc_target[X_AXIS], arc_target[Y_AXIS], arc_target[Z_AXIS], arc_target[E_AXIS], feed_rate, active_extruder);
+    #endif
   }
+
   // Ensure last segment arrives at target location.
-  plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], feed_rate, active_extruder);
+  #if defined(DELTA) || defined(SCARA)
+    calculate_delta(target);
+    #ifdef ENABLE_AUTO_BED_LEVELING
+      adjust_delta(target);
+    #endif
+    plan_buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], target[E_AXIS], feed_rate, active_extruder);
+  #else
+    plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], feed_rate, active_extruder);
+  #endif
 
   // As far as the parser is concerned, the position is now == target. In reality the
   // motion control system might still be processing the action and the real tool position
@@ -6074,9 +6094,9 @@ void mesh_plan_buffer_line(float x, float y, float z, const float e, float feed_
 
 #if defined(DELTA) || defined(SCARA)
 
-  inline bool prepare_move_delta() {
+  inline bool prepare_move_delta(float target[NUM_AXIS]) {
     float difference[NUM_AXIS];
-    for (int8_t i=0; i < NUM_AXIS; i++) difference[i] = destination[i] - current_position[i];
+    for (int8_t i=0; i < NUM_AXIS; i++) difference[i] = target[i] - current_position[i];
 
     float cartesian_mm = sqrt(sq(difference[X_AXIS]) + sq(difference[Y_AXIS]) + sq(difference[Z_AXIS]));
     if (cartesian_mm < 0.000001) cartesian_mm = abs(difference[E_AXIS]);
@@ -6093,22 +6113,22 @@ void mesh_plan_buffer_line(float x, float y, float z, const float e, float feed_
       float fraction = float(s) / float(steps);
 
       for (int8_t i = 0; i < NUM_AXIS; i++)
-        destination[i] = current_position[i] + difference[i] * fraction;
+        target[i] = current_position[i] + difference[i] * fraction;
 
-      calculate_delta(destination);
+      calculate_delta(target);
 
       #ifdef ENABLE_AUTO_BED_LEVELING
-        adjust_delta(destination);
+        adjust_delta(target);
       #endif
 
-      //SERIAL_ECHOPGM("destination[X_AXIS]="); SERIAL_ECHOLN(destination[X_AXIS]);
-      //SERIAL_ECHOPGM("destination[Y_AXIS]="); SERIAL_ECHOLN(destination[Y_AXIS]);
-      //SERIAL_ECHOPGM("destination[Z_AXIS]="); SERIAL_ECHOLN(destination[Z_AXIS]);
+      //SERIAL_ECHOPGM("target[X_AXIS]="); SERIAL_ECHOLN(target[X_AXIS]);
+      //SERIAL_ECHOPGM("target[Y_AXIS]="); SERIAL_ECHOLN(target[Y_AXIS]);
+      //SERIAL_ECHOPGM("target[Z_AXIS]="); SERIAL_ECHOLN(target[Z_AXIS]);
       //SERIAL_ECHOPGM("delta[X_AXIS]="); SERIAL_ECHOLN(delta[X_AXIS]);
       //SERIAL_ECHOPGM("delta[Y_AXIS]="); SERIAL_ECHOLN(delta[Y_AXIS]);
       //SERIAL_ECHOPGM("delta[Z_AXIS]="); SERIAL_ECHOLN(delta[Z_AXIS]);
 
-      plan_buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], destination[E_AXIS], feedrate/60*feedrate_multiplier/100.0, active_extruder);
+      plan_buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], target[E_AXIS], feedrate/60*feedrate_multiplier/100.0, active_extruder);
     }
     return true;
   }
@@ -6116,7 +6136,7 @@ void mesh_plan_buffer_line(float x, float y, float z, const float e, float feed_
 #endif // DELTA || SCARA
 
 #ifdef SCARA
-  inline bool prepare_move_scara() { return prepare_move_delta(); }
+  inline bool prepare_move_scara(float target[NUM_AXIS]) { return prepare_move_delta(target); }
 #endif
 
 #ifdef DUAL_X_CARRIAGE
@@ -6193,9 +6213,9 @@ void prepare_move() {
   #endif
 
   #ifdef SCARA
-    if (!prepare_move_scara()) return;
+    if (!prepare_move_scara(destination)) return;
   #elif defined(DELTA)
-    if (!prepare_move_delta()) return;
+    if (!prepare_move_delta(destination)) return;
   #endif
 
   #ifdef DUAL_X_CARRIAGE
