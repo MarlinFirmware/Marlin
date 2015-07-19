@@ -286,6 +286,182 @@ void checkHitEndstops() {
 
 void enable_endstops(bool check) { check_endstops = check; }
 
+// Check endstops
+inline void update_endstops() {
+  
+  #ifdef Z_DUAL_ENDSTOPS
+    uint16_t
+  #else
+    byte
+  #endif
+      current_endstop_bits = 0;
+
+  #define _ENDSTOP_PIN(AXIS, MINMAX) AXIS ##_## MINMAX ##_PIN
+  #define _ENDSTOP_INVERTING(AXIS, MINMAX) AXIS ##_## MINMAX ##_ENDSTOP_INVERTING
+  #define _AXIS(AXIS) AXIS ##_AXIS
+  #define _ENDSTOP_HIT(AXIS) endstop_hit_bits |= BIT(_ENDSTOP(AXIS, MIN))
+  #define _ENDSTOP(AXIS, MINMAX) AXIS ##_## MINMAX
+
+  // SET_ENDSTOP_BIT: set the current endstop bits for an endstop to its status
+  #define SET_ENDSTOP_BIT(AXIS, MINMAX) SET_BIT(current_endstop_bits, _ENDSTOP(AXIS, MINMAX), (READ(_ENDSTOP_PIN(AXIS, MINMAX)) != _ENDSTOP_INVERTING(AXIS, MINMAX)))
+  // COPY_BIT: copy the value of COPY_BIT to BIT in bits
+  #define COPY_BIT(bits, COPY_BIT, BIT) SET_BIT(bits, BIT, TEST(bits, COPY_BIT))
+  // TEST_ENDSTOP: test the old and the current status of an endstop
+  #define TEST_ENDSTOP(ENDSTOP) (TEST(current_endstop_bits, ENDSTOP) && TEST(old_endstop_bits, ENDSTOP))
+
+  #define UPDATE_ENDSTOP(AXIS,MINMAX) \
+    SET_ENDSTOP_BIT(AXIS, MINMAX); \
+    if (TEST_ENDSTOP(_ENDSTOP(AXIS, MINMAX))  && (current_block->steps[_AXIS(AXIS)] > 0)) { \
+      endstops_trigsteps[_AXIS(AXIS)] = count_position[_AXIS(AXIS)]; \
+      _ENDSTOP_HIT(AXIS); \
+      step_events_completed = current_block->step_event_count; \
+    }
+  
+  #ifdef COREXY
+    // Head direction in -X axis for CoreXY bots.
+    // If DeltaX == -DeltaY, the movement is only in Y axis
+    if ((current_block->steps[A_AXIS] != current_block->steps[B_AXIS]) || (TEST(out_bits, A_AXIS) == TEST(out_bits, B_AXIS))) {
+      if (TEST(out_bits, X_HEAD))
+  #elif defined(COREXZ)
+    // Head direction in -X axis for CoreXZ bots.
+    // If DeltaX == -DeltaZ, the movement is only in Z axis
+    if ((current_block->steps[A_AXIS] != current_block->steps[C_AXIS]) || (TEST(out_bits, A_AXIS) == TEST(out_bits, C_AXIS))) {
+      if (TEST(out_bits, X_HEAD))
+  #else
+      if (TEST(out_bits, X_AXIS))   // stepping along -X axis (regular Cartesian bot)
+  #endif
+      { // -direction
+        #ifdef DUAL_X_CARRIAGE
+          // with 2 x-carriages, endstops are only checked in the homing direction for the active extruder
+          if ((current_block->active_extruder == 0 && X_HOME_DIR == -1) || (current_block->active_extruder != 0 && X2_HOME_DIR == -1))
+        #endif
+          {
+            #if HAS_X_MIN
+              UPDATE_ENDSTOP(X, MIN);
+            #endif
+          }
+      }
+      else { // +direction
+        #ifdef DUAL_X_CARRIAGE
+          // with 2 x-carriages, endstops are only checked in the homing direction for the active extruder
+          if ((current_block->active_extruder == 0 && X_HOME_DIR == 1) || (current_block->active_extruder != 0 && X2_HOME_DIR == 1))
+        #endif
+          {
+            #if HAS_X_MAX
+              UPDATE_ENDSTOP(X, MAX);
+            #endif
+          }
+      }
+  #if defined(COREXY) || defined(COREXZ)
+    }
+  #endif
+
+  #ifdef COREXY
+    // Head direction in -Y axis for CoreXY bots.
+    // If DeltaX == DeltaY, the movement is only in X axis
+    if ((current_block->steps[A_AXIS] != current_block->steps[B_AXIS]) || (TEST(out_bits, A_AXIS) != TEST(out_bits, B_AXIS))) {
+      if (TEST(out_bits, Y_HEAD))
+  #else
+      if (TEST(out_bits, Y_AXIS))   // -direction
+  #endif
+      { // -direction
+        #if HAS_Y_MIN
+          UPDATE_ENDSTOP(Y, MIN);
+        #endif
+      }
+      else { // +direction
+        #if HAS_Y_MAX
+          UPDATE_ENDSTOP(Y, MAX);
+        #endif
+      }
+  #if defined(COREXY) || defined(COREXZ)
+    }
+  #endif
+
+  #ifdef COREXZ
+    // Head direction in -Z axis for CoreXZ bots.
+    // If DeltaX == DeltaZ, the movement is only in X axis
+    if ((current_block->steps[A_AXIS] != current_block->steps[C_AXIS]) || (TEST(out_bits, A_AXIS) != TEST(out_bits, C_AXIS))) {
+      if (TEST(out_bits, Z_HEAD))
+  #else
+      if (TEST(out_bits, Z_AXIS))
+  #endif
+      { // z -direction
+        #if HAS_Z_MIN
+
+          #ifdef Z_DUAL_ENDSTOPS
+            SET_ENDSTOP_BIT(Z, MIN);
+              #if HAS_Z2_MIN
+                SET_ENDSTOP_BIT(Z2, MIN);
+              #else
+                COPY_BIT(current_endstop_bits, Z_MIN, Z2_MIN);
+              #endif
+
+            byte z_test = TEST_ENDSTOP(Z_MIN) << 0 + TEST_ENDSTOP(Z2_MIN) << 1; // bit 0 for Z, bit 1 for Z2
+
+            if (z_test && current_block->steps[Z_AXIS] > 0) { // z_test = Z_MIN || Z2_MIN
+              endstops_trigsteps[Z_AXIS] = count_position[Z_AXIS];
+              endstop_hit_bits |= BIT(Z_MIN);
+              if (!performing_homing || (z_test == 0x3))  //if not performing home or if both endstops were trigged during homing...
+                step_events_completed = current_block->step_event_count;
+            }
+          #else // !Z_DUAL_ENDSTOPS
+
+            UPDATE_ENDSTOP(Z, MIN);
+          #endif // !Z_DUAL_ENDSTOPS
+        #endif // Z_MIN_PIN
+
+        #ifdef Z_PROBE_ENDSTOP
+          UPDATE_ENDSTOP(Z, PROBE);
+
+          if (TEST_ENDSTOP(Z_PROBE))
+          {
+            endstops_trigsteps[Z_AXIS] = count_position[Z_AXIS];
+            endstop_hit_bits |= BIT(Z_PROBE);
+          }
+        #endif
+      }
+      else { // z +direction
+        #if HAS_Z_MAX
+
+          #ifdef Z_DUAL_ENDSTOPS
+
+            SET_ENDSTOP_BIT(Z, MAX);
+              #if HAS_Z2_MAX
+                SET_ENDSTOP_BIT(Z2, MAX);
+              #else
+                COPY_BIT(current_endstop_bits, Z_MAX, Z2_MAX)
+              #endif
+
+            byte z_test = TEST_ENDSTOP(Z_MAX) << 0 + TEST_ENDSTOP(Z2_MAX) << 1; // bit 0 for Z, bit 1 for Z2
+
+            if (z_test && current_block->steps[Z_AXIS] > 0) {  // t_test = Z_MAX || Z2_MAX
+              endstops_trigsteps[Z_AXIS] = count_position[Z_AXIS];
+              endstop_hit_bits |= BIT(Z_MIN);
+              if (!performing_homing || (z_test == 0x3))  //if not performing home or if both endstops were trigged during homing...
+                step_events_completed = current_block->step_event_count;
+            }
+
+          #else // !Z_DUAL_ENDSTOPS
+
+            UPDATE_ENDSTOP(Z, MAX);
+
+          #endif // !Z_DUAL_ENDSTOPS
+        #endif // Z_MAX_PIN
+        
+        #ifdef Z_PROBE_ENDSTOP
+          UPDATE_ENDSTOP(Z, PROBE);
+          
+          if (TEST_ENDSTOP(Z_PROBE))
+          {
+            endstops_trigsteps[Z_AXIS] = count_position[Z_AXIS];
+            endstop_hit_bits |= BIT(Z_PROBE);
+          }
+        #endif
+      }
+  old_endstop_bits = current_endstop_bits;
+}
+
 //         __________________________
 //        /|                        |\     _________________         ^
 //       / |                        | \   /|               |\        |
@@ -429,8 +605,7 @@ FORCE_INLINE void trapezoid_generator_reset() {
 // It pops blocks from the block_buffer and executes them by pulsing the stepper pins appropriately.
 ISR(TIMER1_COMPA_vect) {
 
-  if (cleaning_buffer_counter)
-  {
+  if (cleaning_buffer_counter) {
     current_block = NULL;
     plan_discard_current_block();
     #ifdef SD_FINISHED_RELEASECOMMAND
@@ -471,182 +646,8 @@ ISR(TIMER1_COMPA_vect) {
 
   if (current_block != NULL) {
 
-    // Check endstops
-    if (check_endstops) {
-      
-      #ifdef Z_DUAL_ENDSTOPS
-        uint16_t
-      #else
-        byte
-      #endif
-          current_endstop_bits = 0;
-
-      #define _ENDSTOP_PIN(AXIS, MINMAX) AXIS ##_## MINMAX ##_PIN
-      #define _ENDSTOP_INVERTING(AXIS, MINMAX) AXIS ##_## MINMAX ##_ENDSTOP_INVERTING
-      #define _AXIS(AXIS) AXIS ##_AXIS
-      #define _ENDSTOP_HIT(AXIS) endstop_hit_bits |= BIT(_ENDSTOP(AXIS, MIN))
-      #define _ENDSTOP(AXIS, MINMAX) AXIS ##_## MINMAX
-
-      // SET_ENDSTOP_BIT: set the current endstop bits for an endstop to its status
-      #define SET_ENDSTOP_BIT(AXIS, MINMAX) SET_BIT(current_endstop_bits, _ENDSTOP(AXIS, MINMAX), (READ(_ENDSTOP_PIN(AXIS, MINMAX)) != _ENDSTOP_INVERTING(AXIS, MINMAX)))
-      // COPY_BIT: copy the value of COPY_BIT to BIT in bits
-      #define COPY_BIT(bits, COPY_BIT, BIT) SET_BIT(bits, BIT, TEST(bits, COPY_BIT))
-      // TEST_ENDSTOP: test the old and the current status of an endstop
-      #define TEST_ENDSTOP(ENDSTOP) (TEST(current_endstop_bits, ENDSTOP) && TEST(old_endstop_bits, ENDSTOP))
-
-      #define UPDATE_ENDSTOP(AXIS,MINMAX) \
-        SET_ENDSTOP_BIT(AXIS, MINMAX); \
-        if (TEST_ENDSTOP(_ENDSTOP(AXIS, MINMAX))  && (current_block->steps[_AXIS(AXIS)] > 0)) { \
-          endstops_trigsteps[_AXIS(AXIS)] = count_position[_AXIS(AXIS)]; \
-          _ENDSTOP_HIT(AXIS); \
-          step_events_completed = current_block->step_event_count; \
-        }
-      
-      #ifdef COREXY
-        // Head direction in -X axis for CoreXY bots.
-        // If DeltaX == -DeltaY, the movement is only in Y axis
-        if ((current_block->steps[A_AXIS] != current_block->steps[B_AXIS]) || (TEST(out_bits, A_AXIS) == TEST(out_bits, B_AXIS))) {
-          if (TEST(out_bits, X_HEAD))
-      #elif defined(COREXZ)
-        // Head direction in -X axis for CoreXZ bots.
-        // If DeltaX == -DeltaZ, the movement is only in Z axis
-        if ((current_block->steps[A_AXIS] != current_block->steps[C_AXIS]) || (TEST(out_bits, A_AXIS) == TEST(out_bits, C_AXIS))) {
-          if (TEST(out_bits, X_HEAD))
-      #else
-          if (TEST(out_bits, X_AXIS))   // stepping along -X axis (regular Cartesian bot)
-      #endif
-          { // -direction
-            #ifdef DUAL_X_CARRIAGE
-              // with 2 x-carriages, endstops are only checked in the homing direction for the active extruder
-              if ((current_block->active_extruder == 0 && X_HOME_DIR == -1) || (current_block->active_extruder != 0 && X2_HOME_DIR == -1))
-            #endif
-              {
-                #if HAS_X_MIN
-                  UPDATE_ENDSTOP(X, MIN);
-                #endif
-              }
-          }
-          else { // +direction
-            #ifdef DUAL_X_CARRIAGE
-              // with 2 x-carriages, endstops are only checked in the homing direction for the active extruder
-              if ((current_block->active_extruder == 0 && X_HOME_DIR == 1) || (current_block->active_extruder != 0 && X2_HOME_DIR == 1))
-            #endif
-              {
-                #if HAS_X_MAX
-                  UPDATE_ENDSTOP(X, MAX);
-                #endif
-              }
-          }
-      #if defined(COREXY) || defined(COREXZ)
-        }
-      #endif
-
-      #ifdef COREXY
-        // Head direction in -Y axis for CoreXY bots.
-        // If DeltaX == DeltaY, the movement is only in X axis
-        if ((current_block->steps[A_AXIS] != current_block->steps[B_AXIS]) || (TEST(out_bits, A_AXIS) != TEST(out_bits, B_AXIS))) {
-          if (TEST(out_bits, Y_HEAD))
-      #else
-          if (TEST(out_bits, Y_AXIS))   // -direction
-      #endif
-          { // -direction
-            #if HAS_Y_MIN
-              UPDATE_ENDSTOP(Y, MIN);
-            #endif
-          }
-          else { // +direction
-            #if HAS_Y_MAX
-              UPDATE_ENDSTOP(Y, MAX);
-            #endif
-          }
-      #if defined(COREXY) || defined(COREXZ)
-        }
-      #endif
-
-      #ifdef COREXZ
-        // Head direction in -Z axis for CoreXZ bots.
-        // If DeltaX == DeltaZ, the movement is only in X axis
-        if ((current_block->steps[A_AXIS] != current_block->steps[C_AXIS]) || (TEST(out_bits, A_AXIS) != TEST(out_bits, C_AXIS))) {
-          if (TEST(out_bits, Z_HEAD))
-      #else
-          if (TEST(out_bits, Z_AXIS))
-      #endif
-          { // z -direction
-            #if HAS_Z_MIN
-
-              #ifdef Z_DUAL_ENDSTOPS
-                SET_ENDSTOP_BIT(Z, MIN);
-                  #if HAS_Z2_MIN
-                    SET_ENDSTOP_BIT(Z2, MIN);
-                  #else
-                    COPY_BIT(current_endstop_bits, Z_MIN, Z2_MIN);
-                  #endif
-
-                byte z_test = TEST_ENDSTOP(Z_MIN) << 0 + TEST_ENDSTOP(Z2_MIN) << 1; // bit 0 for Z, bit 1 for Z2
-
-                if (z_test && current_block->steps[Z_AXIS] > 0) { // z_test = Z_MIN || Z2_MIN
-                  endstops_trigsteps[Z_AXIS] = count_position[Z_AXIS];
-                  endstop_hit_bits |= BIT(Z_MIN);
-                  if (!performing_homing || (z_test == 0x3))  //if not performing home or if both endstops were trigged during homing...
-                    step_events_completed = current_block->step_event_count;
-                }
-              #else // !Z_DUAL_ENDSTOPS
-
-                UPDATE_ENDSTOP(Z, MIN);
-              #endif // !Z_DUAL_ENDSTOPS
-            #endif // Z_MIN_PIN
-
-            #ifdef Z_PROBE_ENDSTOP
-              UPDATE_ENDSTOP(Z, PROBE);
-
-              if (TEST_ENDSTOP(Z_PROBE))
-              {
-                endstops_trigsteps[Z_AXIS] = count_position[Z_AXIS];
-                endstop_hit_bits |= BIT(Z_PROBE);
-              }
-            #endif
-          }
-          else { // z +direction
-            #if HAS_Z_MAX
-
-              #ifdef Z_DUAL_ENDSTOPS
-
-                SET_ENDSTOP_BIT(Z, MAX);
-                  #if HAS_Z2_MAX
-                    SET_ENDSTOP_BIT(Z2, MAX);
-                  #else
-                    COPY_BIT(current_endstop_bits, Z_MAX, Z2_MAX)
-                  #endif
-
-                byte z_test = TEST_ENDSTOP(Z_MAX) << 0 + TEST_ENDSTOP(Z2_MAX) << 1; // bit 0 for Z, bit 1 for Z2
-
-                if (z_test && current_block->steps[Z_AXIS] > 0) {  // t_test = Z_MAX || Z2_MAX
-                  endstops_trigsteps[Z_AXIS] = count_position[Z_AXIS];
-                  endstop_hit_bits |= BIT(Z_MIN);
-                  if (!performing_homing || (z_test == 0x3))  //if not performing home or if both endstops were trigged during homing...
-                    step_events_completed = current_block->step_event_count;
-                }
-
-              #else // !Z_DUAL_ENDSTOPS
-
-                UPDATE_ENDSTOP(Z, MAX);
-
-              #endif // !Z_DUAL_ENDSTOPS
-            #endif // Z_MAX_PIN
-            
-            #ifdef Z_PROBE_ENDSTOP
-              UPDATE_ENDSTOP(Z, PROBE);
-              
-              if (TEST_ENDSTOP(Z_PROBE))
-              {
-                endstops_trigsteps[Z_AXIS] = count_position[Z_AXIS];
-                endstop_hit_bits |= BIT(Z_PROBE);
-              }
-            #endif
-          }
-      old_endstop_bits = current_endstop_bits;
-    }
-
+    // Update endstops state, if enabled
+    if (check_endstops) update_endstops();
 
     // Take multiple steps per interrupt (For high speed moves)
     for (int8_t i = 0; i < step_loops; i++) {
