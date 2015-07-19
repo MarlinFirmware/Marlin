@@ -106,7 +106,7 @@ volatile unsigned char block_buffer_tail;           // Index of the block to pro
 //===========================================================================
 
 // The current position of the tool in absolute steps
-long position[NUM_AXIS];               // Rescaled from extern when axis_steps_per_unit are changed by gcode
+float position[NUM_AXIS];               // Rescaled from extern when axis_steps_per_unit are changed by gcode
 static float previous_speed[NUM_AXIS]; // Speed of previous path line segment
 static float previous_nominal_speed;   // Nominal speed of previous path line segment
 
@@ -494,40 +494,22 @@ float junction_deviation = 0.1;
   // The target position of the tool in absolute steps
   // Calculate target position in absolute steps
   //this should be done after the wait, because otherwise a M92 code within the gcode disrupts this calculation somehow
-  long target[NUM_AXIS];
+  float target[NUM_AXIS];
   target[X_AXIS] = lround(x * axis_steps_per_unit[X_AXIS]);
   target[Y_AXIS] = lround(y * axis_steps_per_unit[Y_AXIS]);
   target[Z_AXIS] = lround(z * axis_steps_per_unit[Z_AXIS]);     
   target[E_AXIS] = lround(e * axis_steps_per_unit[E_AXIS]);
 
-  float dx = target[X_AXIS] - position[X_AXIS],
-        dy = target[Y_AXIS] - position[Y_AXIS],
-        dz = target[Z_AXIS] - position[Z_AXIS];
-
-  // DRYRUN ignores all temperature constraints and assures that the extruder is instantly satisfied
-  if (marlin_debug_flags & DEBUG_DRYRUN)
-    position[E_AXIS] = target[E_AXIS];
-
-  float de = target[E_AXIS] - position[E_AXIS];
+  check_dryrun_extrusion(position[E_AXIS], target[E_AXIS], extruder);
 
   #ifdef PREVENT_DANGEROUS_EXTRUDE
-    if (de) {
-      if (degHotend(extruder) < extrude_min_temp) {
-        position[E_AXIS] = target[E_AXIS]; // Behave as if the move really took place, but ignore E part
-        de = 0; // no difference
-        SERIAL_ECHO_START;
-        SERIAL_ECHOLNPGM(MSG_ERR_COLD_EXTRUDE_STOP);
-      }
-      #ifdef PREVENT_LENGTHY_EXTRUDE
-        if (labs(de) > axis_steps_per_unit[E_AXIS] * EXTRUDE_MAXLENGTH) {
-          position[E_AXIS] = target[E_AXIS]; // Behave as if the move really took place, but ignore E part
-          de = 0; // no difference
-          SERIAL_ECHO_START;
-          SERIAL_ECHOLNPGM(MSG_ERR_LONG_EXTRUDE_STOP);
-        }
-      #endif
-    }
+    prevent_dangerous_extrude(position[E_AXIS], target[E_AXIS], extruder);
   #endif
+
+  float dx = target[X_AXIS] - position[X_AXIS],
+        dy = target[Y_AXIS] - position[Y_AXIS],
+        dz = target[Z_AXIS] - position[Z_AXIS],
+        de = target[E_AXIS] - position[E_AXIS];
 
   // Prepare to set up new block
   block_t *block = &block_buffer[block_buffer_head];
