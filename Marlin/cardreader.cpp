@@ -56,22 +56,21 @@ void CardReader::lsDive(const char *prepend, SdFile parent, const char * const m
     // If the entry is a directory and the action is LS_SerialPrint
     if (DIR_IS_SUBDIR(&p) && lsAction != LS_Count && lsAction != LS_GetFilename) {
 
-      // Allocate enough stack space for the full path to a folder, trailing slash, and nul
-      int len = strlen(prepend) + FILENAME_LENGTH + 1 + 1;
-      char path[len];
-
       // Get the short name for the item, which we know is a folder
       char lfilename[FILENAME_LENGTH];
       createFilename(lfilename, p);
 
+      // Allocate enough stack space for the full path to a folder, trailing slash, and nul
+      boolean prepend_is_empty = (prepend[0] == '\0');
+      int len = (prepend_is_empty ? 1 : strlen(prepend)) + strlen(lfilename) + 1 + 1;
+      char path[len];
+
       // Append the FOLDERNAME12/ to the passed string.
       // It contains the full path to the "parent" argument.
       // We now have the full path to the item in this folder.
-      path[0] = '\0';
-      if (prepend[0] == '\0') strcat(path, "/"); // a root slash if prepend is empty
-      strcat(path, prepend);
-      strcat(path, lfilename);
-      strcat(path, "/");
+      strcpy(path, prepend_is_empty ? "/" : prepend); // root slash if prepend is empty
+      strcat(path, lfilename); // FILENAME_LENGTH-1 characters maximum
+      strcat(path, "/");       // 1 character
 
       // Serial.print(path);
 
