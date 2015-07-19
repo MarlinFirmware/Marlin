@@ -5927,16 +5927,45 @@ void mesh_plan_buffer_line(float x, float y, float z, const float e, float feed_
 }
 #endif  // MESH_BED_LEVELING
 
+// Prevent extrusion of the active extruder (can be overridden by EXTRUDER_X_DRYRUN_EXCLUDE) while in dry run mode.
+void check_dryrun_extrusion(float &curr_e, float &dest_e, const uint8_t extruder) {
+  float de = dest_e - curr_e;
+  // Check if the active extruder must be enabled while in dry run mode. 
+  if (de && (marlin_debug_flags & DEBUG_DRYRUN)) {
+    switch(extruder) {
+      case 0:
+        if (!EXTRUDER_0_DRYRUN_ENABLE) curr_e = dest_e; // Behave as if the move really took place, but ignore E part
+        break;
+      #if EXTRUDERS > 1
+        case 1:
+          if (!EXTRUDER_1_DRYRUN_ENABLE) curr_e = dest_e; // Behave as if the move really took place, but ignore E part
+          break;
+        #if EXTRUDERS > 2
+          case 2:
+            if (!EXTRUDER_2_DRYRUN_ENABLE) curr_e = dest_e; // Behave as if the move really took place, but ignore E part
+            break;
+          #if EXTRUDERS > 3
+            case 3:
+              if (!EXTRUDER_3_DRYRUN_ENABLE) curr_e = dest_e; // Behave as if the move really took place, but ignore E part
+              break;
+          #endif
+        #endif
+      #endif
+    }
+  }
+}
+
 #ifdef PREVENT_DANGEROUS_EXTRUDE
 
-  inline void prevent_dangerous_extrude(float &curr_e, float &dest_e) {
-    if (marlin_debug_flags & DEBUG_DRYRUN) return;
+  void prevent_dangerous_extrude(float &curr_e, float &dest_e, const uint8_t extruder) {
     float de = dest_e - curr_e;
     if (de) {
-      if (degHotend(active_extruder) < extrude_min_temp) {
+      if ((degHotend(extruder) < extrude_min_temp) && !(marlin_debug_flags & DEBUG_DRYRUN)) {
         curr_e = dest_e; // Behave as if the move really took place, but ignore E part
-        SERIAL_ECHO_START;
-        SERIAL_ECHOLNPGM(MSG_ERR_COLD_EXTRUDE_STOP);
+        if (!(marlin_debug_flags & DEBUG_DRYRUN)) {
+          SERIAL_ECHO_START;
+          SERIAL_ECHOLNPGM(MSG_ERR_COLD_EXTRUDE_STOP);
+        }
       }
       #ifdef PREVENT_LENGTHY_EXTRUDE
         if (labs(de) > EXTRUDE_MAXLENGTH) {
@@ -6066,8 +6095,10 @@ void prepare_move() {
   clamp_to_software_endstops(destination);
   refresh_cmd_timeout();
 
+  check_dryrun_extrusion(current_position[E_AXIS], destination[E_AXIS], active_extruder);
+
   #ifdef PREVENT_DANGEROUS_EXTRUDE
-    prevent_dangerous_extrude(current_position[E_AXIS], destination[E_AXIS]);
+    prevent_dangerous_extrude(current_position[E_AXIS], destination[E_AXIS], active_extruder);
   #endif
 
   #ifdef SCARA
