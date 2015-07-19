@@ -63,6 +63,11 @@ LIQUID_TWI2        ?= 0
 # this defines if Wire is needed
 WIRE               ?= 0
 
+# this defines if u8glib is needed
+U8GLIB             ?= 0
+# path where U8glib is installed, contains U8glib.h
+U8PATH = $(ARDUINO_INSTALL_DIR)/libraries/U8glib
+
 ############################################################################
 # Below here nothing should be changed...
 
@@ -250,6 +255,12 @@ else
 HARDWARE_SUB_VARIANT ?= standard
 VPATH += $(HARDWARE_DIR)/$(HARDWARE_VARIANT)/variants/$(HARDWARE_SUB_VARIANT)
 endif
+
+ifeq ($(U8GLIB), 1)
+VPATH += $(U8PATH)
+VPATH += $(U8PATH)/utility
+endif
+
 SRC = wiring.c \
 	wiring_analog.c wiring_digital.c \
 	wiring_pulse.c \
@@ -274,6 +285,11 @@ endif
 ifeq ($(WIRE), 1)
 SRC += twi.c
 CXXSRC += Wire.cpp
+endif
+
+ifeq ($(U8GLIB), 1)
+CXXSRC += U8glib.cpp
+SRC += $(shell find $(U8PATH) -name '*.c' -type f -exec basename {} \; )
 endif
 
 #Check for Arduino 1.0.0 or higher and use the correct sourcefiles for that version
