@@ -59,7 +59,7 @@
 
 //#define NBR_TIMERS        (MAX_SERVOS / SERVOS_PER_TIMER)
 
-static servo_t servos[MAX_SERVOS];                          // static array of servo structures
+static ServoInfo_t servo_info[MAX_SERVOS];                  // static array of servo info structures
 static volatile int8_t Channel[_Nbr_16timers ];             // counter for the servo being pulsed for each timer (or -1 if refresh interval)
 
 uint8_t ServoCount = 0;                                     // the total number of attached servos
@@ -69,7 +69,7 @@ uint8_t ServoCount = 0;                                     // the total number 
 #define SERVO_INDEX_TO_TIMER(_servo_nbr) ((timer16_Sequence_t)(_servo_nbr / SERVOS_PER_TIMER)) // returns the timer controlling this servo
 #define SERVO_INDEX_TO_CHANNEL(_servo_nbr) (_servo_nbr % SERVOS_PER_TIMER)       // returns the index of the servo on this timer
 #define SERVO_INDEX(_timer,_channel)  ((_timer*SERVOS_PER_TIMER) + _channel)     // macro to access servo index by timer and channel
-#define SERVO(_timer,_channel)  (servos[SERVO_INDEX(_timer,_channel)])            // macro to access servo class by timer and channel
+#define SERVO(_timer,_channel)  (servo_info[SERVO_INDEX(_timer,_channel)])       // macro to access servo class by timer and channel
 
 #define SERVO_MIN() (MIN_PULSE_WIDTH - this->min * 4)  // minimum value in uS for this servo
 #define SERVO_MAX() (MAX_PULSE_WIDTH - this->max * 4)  // maximum value in uS for this servo
@@ -232,7 +232,7 @@ static boolean isTimerActive(timer16_Sequence_t timer) {
 Servo::Servo() {
   if ( ServoCount < MAX_SERVOS) {
     this->servoIndex = ServoCount++;                    // assign a servo index to this instance
-    servos[this->servoIndex].ticks = usToTicks(DEFAULT_PULSE_WIDTH);   // store default values  - 12 Aug 2009
+    servo_info[this->servoIndex].ticks = usToTicks(DEFAULT_PULSE_WIDTH);   // store default values  - 12 Aug 2009
   }
   else
     this->servoIndex = INVALID_SERVO;  // too many servos
@@ -246,8 +246,8 @@ int8_t Servo::attach(int pin, int min, int max) {
 
   if (this->servoIndex >= MAX_SERVOS) return -1;
 
-  if (pin > 0) servos[this->servoIndex].Pin.nbr = pin;
-  pinMode(servos[this->servoIndex].Pin.nbr, OUTPUT); // set servo pin to output
+  if (pin > 0) servo_info[this->servoIndex].Pin.nbr = pin;
+  pinMode(servo_info[this->servoIndex].Pin.nbr, OUTPUT); // set servo pin to output
 
   // todo min/max check: abs(min - MIN_PULSE_WIDTH) /4 < 128
   this->min = (MIN_PULSE_WIDTH - min) / 4; //resolution of min/max is 4 uS
@@ -256,13 +256,13 @@ int8_t Servo::attach(int pin, int min, int max) {
   // initialize the timer if it has not already been initialized
   timer16_Sequence_t timer = SERVO_INDEX_TO_TIMER(servoIndex);
   if (!isTimerActive(timer)) initISR(timer);
-  servos[this->servoIndex].Pin.isActive = true;  // this must be set after the check for isTimerActive
+  servo_info[this->servoIndex].Pin.isActive = true;  // this must be set after the check for isTimerActive
 
   return this->servoIndex;
 }
 
 void Servo::detach() {
-  servos[this->servoIndex].Pin.isActive = false;
+  servo_info[this->servoIndex].Pin.isActive = false;
   timer16_Sequence_t timer = SERVO_INDEX_TO_TIMER(servoIndex);
   if (!isTimerActive(timer)) finISR(timer);
 }
@@ -290,7 +290,7 @@ void Servo::writeMicroseconds(int value) {
 
     uint8_t oldSREG = SREG;
     cli();
-    servos[channel].ticks = value;
+    servo_info[channel].ticks = value;
     SREG = oldSREG;
   }
 }
@@ -299,10 +299,10 @@ void Servo::writeMicroseconds(int value) {
 int Servo::read() { return map( this->readMicroseconds()+1, SERVO_MIN(), SERVO_MAX(), 0, 180); }
 
 int Servo::readMicroseconds() {
-  return (this->servoIndex == INVALID_SERVO) ? 0 : ticksToUs(servos[this->servoIndex].ticks) + TRIM_DURATION;
+  return (this->servoIndex == INVALID_SERVO) ? 0 : ticksToUs(servo_info[this->servoIndex].ticks) + TRIM_DURATION;
 }
 
-bool Servo::attached() { return servos[this->servoIndex].Pin.isActive; }
+bool Servo::attached() { return servo_info[this->servoIndex].Pin.isActive; }
 
 int8_t Servo::move(int pin, int value) {
   int8_t ret;

@@ -112,7 +112,7 @@ typedef struct {
 typedef struct {
   ServoPin_t Pin;
   unsigned int ticks;
-} servo_t;
+} ServoInfo_t;
 
 class Servo {
   public:
