@@ -435,10 +435,7 @@ void action_homing()
 	{
 		enquecommand("G28 X0 Z0");
 	}
-	else
-	{
-		return;
-	}
+
 #	endif //Z_SAFE_HOMING
 #endif //Z_HOME_DIR < 0
 
@@ -458,8 +455,6 @@ void action_homing()
 	previous_millis_cmd = millis();
 	lcd_enable_interrupt();
 }
-
-extern bool code_seen(char code);
 
 static void set_bed_level_equation_3pts(float z_at_pt_1, float z_at_pt_2, float z_at_pt_3) {
 
