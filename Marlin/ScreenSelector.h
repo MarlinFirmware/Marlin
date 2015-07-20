@@ -33,7 +33,7 @@
 #include "Screen.h"
 #include "Functor.h"
 
-#include "language.h"
+#include "Language.h"
 
 namespace screen
 {

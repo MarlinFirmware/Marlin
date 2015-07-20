@@ -3,7 +3,7 @@
 #include "ultralcd.h"
 #include "stepper.h"
 #include "temperature.h"
-#include "language.h"
+#include "Serial.h"
 
 #ifdef SDSUPPORT
 
@@ -598,6 +598,16 @@ void CardReader::chdir(const char * relpath)
   }
   else
   {
+    if(strcmp(longFilename,"") != 0)
+    {
+      strcpy(folderName, longFilename);
+    }
+    else
+    {
+      strcpy(folderName, filename);
+    }
+    folderName[LONG_FILENAME_LENGTH-1] = '0';
+
     if (workDirDepth < MAX_DIR_DEPTH) {
       for (int d = ++workDirDepth; d--;)
         workDirParents[d+1] = workDirParents[d];

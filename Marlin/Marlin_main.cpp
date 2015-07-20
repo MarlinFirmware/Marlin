@@ -44,7 +44,7 @@
 #include "cardreader.h"
 #include "watchdog.h"
 #include "ConfigurationStore.h"
-#include "language.h"
+#include "Serial.h"
 #include "pins_arduino.h"
 #include "math.h"
 #include <avr/wdt.h>
@@ -474,7 +474,7 @@ void enquecommand(const char *cmd)
     //this is dangerous if a mixing of serial and this happens
     strcpy(&(cmdbuffer[bufindw][0]),cmd);
     SERIAL_ECHO_START;
-    SERIAL_ECHOPGM(MSG_Enqueing);
+    SERIAL_ECHOPGM(MSG_Enqueueing);
     SERIAL_ECHO(cmdbuffer[bufindw]);
     SERIAL_ECHOLNPGM("\"");
     bufindw= (bufindw + 1)%BUFSIZE;
@@ -489,7 +489,7 @@ void enquecommand_P(const char *cmd)
     //this is dangerous if a mixing of serial and this happens
     strcpy_P(&(cmdbuffer[bufindw][0]),cmd);
     SERIAL_ECHO_START;
-    SERIAL_ECHOPGM(MSG_Enqueing);
+    SERIAL_ECHOPGM(MSG_Enqueueing);
     SERIAL_ECHO(cmdbuffer[bufindw]);
     SERIAL_ECHOLNPGM("\"");
     bufindw= (bufindw + 1)%BUFSIZE;

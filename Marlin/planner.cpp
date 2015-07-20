@@ -56,7 +56,7 @@
 #include "stepper.h"
 #include "temperature.h"
 #include "ultralcd.h"
-#include "language.h"
+#include "Serial.h"
 
 //===========================================================================
 //=============================public variables ============================

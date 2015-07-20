@@ -4,7 +4,8 @@
 #include "cardreader.h"
 #include "ConfigurationStore.h"
 #include "temperature.h"
-#include "language.h"
+#include "Serial.h"
+#include "Language.h"
 
 #include "Screen.h"
 #include "GuiImpl_witbox_2.h"

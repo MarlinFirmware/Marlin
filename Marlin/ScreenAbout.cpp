@@ -27,7 +27,8 @@
 
 #include "ScreenAbout.h"
 #include "GuiBitmaps_witbox_2.h"
-#include "language.h"
+#include "Serial.h"
+#include "Language.h"
 
 namespace screen
 {

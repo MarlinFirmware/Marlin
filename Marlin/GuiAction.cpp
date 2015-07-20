@@ -5,7 +5,8 @@
 #include "ConfigurationStore.h"
 #include "planner.h"
 #include "stepper.h"
-#include "language.h"
+#include "Serial.h"
+#include "Language.h"
 
 #include "GuiManager.h"
 #include "TemperatureManager.h"

@@ -4,7 +4,8 @@
 #include "cardreader.h"
 #include "ConfigurationStore.h"
 #include "temperature.h"
-#include "language.h"
+#include "Serial.h"
+#include "Language.h"
 
 // Only for new LCD
 typedef struct {

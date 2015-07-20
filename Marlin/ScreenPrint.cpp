@@ -30,7 +30,7 @@
 #include "cardreader.h"
 #include "TemperatureManager.h"
 #include "ViewManager.h"
-#include "language.h"
+#include "Language.h"
 
 namespace screen
 {
