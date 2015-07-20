@@ -26,7 +26,7 @@ namespace screen
 
 			Area text_area(0, 14, 127, 41);
 			painter.setWorkingArea(text_area);
-			painter.multiText(m_message);
+			painter.multiText_P(m_message);
 
 			Area time_area(0, 42, 127, 54);
 			painter.setWorkingArea(time_area);

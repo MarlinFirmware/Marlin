@@ -63,6 +63,7 @@ namespace screen
 			void text(const char * msg);
 			void text_P(const char * msg);
 			void multiText(const char * msg);
+			void multiText_P(const char * msg);
 
 			void setFont(const u8g_fntpgm_uint8_t* font);
 			void setColorIndex(uint8_t color);
