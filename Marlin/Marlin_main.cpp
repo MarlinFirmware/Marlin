@@ -3530,7 +3530,8 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
     			feedmultiply = 100;
     			previous_millis_cmd = millis();
 
-    			lcd_disable_interrupt();
+          lcd_disable_button();
+
     			enable_endstops(true);
 
 				#ifdef Z_SAFE_HOMING
@@ -3667,7 +3668,8 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
       			#endif
 
       			endstops_hit_on_purpose();
-      			lcd_enable_interrupt();
+
+            lcd_enable_button();
 
     			plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
 

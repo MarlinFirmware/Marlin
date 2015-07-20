@@ -282,7 +282,7 @@ void action_level_plate()
 
 void action_homing()
 {
-	lcd_disable_interrupt();
+	lcd_disable_button();
 
 #ifdef Z_SAFE_HOMING
 	plan_bed_level_matrix.set_to_identity();
@@ -421,7 +421,8 @@ void action_homing()
 	endstops_hit_on_purpose();
 
 	previous_millis_cmd = millis();
-	lcd_enable_interrupt();
+
+	lcd_enable_button();
 }
 
 extern bool code_seen(char code);
