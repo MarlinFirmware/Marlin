@@ -26,13 +26,15 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "ScreenSerial.h"
+#include "language.h"
 
 namespace screen
 {
 	ScreenSerial::ScreenSerial(const char * title, const char * text)
 		: Screen(title, MENU)
-		, m_text(text)
-	{ }
+	{
+		strncpy(m_text, text, sizeof(m_text));
+	}
 
 	ScreenSerial::~ScreenSerial()
 	{ }
@@ -59,17 +61,27 @@ namespace screen
 			painter.firstPage();
 			do
 			{
-				painter.title(m_title);
-				Area text_area(0, 18, 127, 55);
+				painter.setColorIndex(1);
+				painter.drawBox(0,0,128,64);
+				painter.setColorIndex(0);
+				painter.drawBox(5,5,118,54);
+				painter.setColorIndex(1);
+				painter.drawBox(5,22,118,3);
+
+				Area title_area(5,10,118,22);
+				painter.setWorkingArea(title_area);
+				painter.text_P(MSG_SCREEN_SERIAL_TITLE);
+
+				Area text_area(5, 25, 118, 59);
 				painter.setWorkingArea(text_area);
-				painter.text(m_text);
+				painter.multiText(m_text);
 			} while( painter.nextPage() );
 		}
 	}
 
 	void ScreenSerial::text(const char * text)
 	{
-		m_text = text;
+		strncpy(m_text, text, sizeof(m_text));
 		m_needs_drawing = true;
 	}
 }

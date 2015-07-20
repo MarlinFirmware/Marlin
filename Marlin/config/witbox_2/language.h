@@ -304,7 +304,7 @@ const char MSG_SCREEN_SPEED[] PROGMEM                = "Change speed";
 const char MSG_SELECTOR_BOX[] PROGMEM                = "Select a value";
 const char MSG_OK1[] PROGMEM                         = "OK";
 
-const char MSG_SCREEN_SERIAL_TITLE[] PROGMEM         = "Serial screen";
+const char MSG_SCREEN_SERIAL_TITLE[] PROGMEM         = "Serial control";
 #endif
 
 
@@ -459,7 +459,8 @@ const char MSG_SCREEN_SPEED[] PROGMEM                = "Cambiar velocidad";
 const char MSG_SELECTOR_BOX[] PROGMEM                = "Selecciona valor";
 const char MSG_OK1[] PROGMEM                         = "OK";
 
-const char MSG_SCREEN_SERIAL_TITLE[] PROGMEM         = "Pantalla serie";
+const char MSG_SCREEN_SERIAL_TITLE[] PROGMEM         = "Control serie";
+
 #endif
 
 #endif // ifndef LANGUAGE_H

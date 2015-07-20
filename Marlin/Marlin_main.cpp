@@ -2935,13 +2935,20 @@ Sigma_Exit:
       SERIAL_PROTOCOLPGM(MSG_M115_REPORT);
       break;
     case 117: // M117 display message
-			#ifdef GCODE_MESSAGES_ENABLE
+
       starpos = (strchr(strchr_pointer + 5,'*'));
       if(starpos!=NULL)
         *(starpos)='\0';
-      lcd_setstatus(strchr_pointer + 5);
-			#endif // GCODE_MESSAGES_ENABLE
+
+      #ifdef DOGLCD
+        if (screen::ViewManager::getInstance().getViewIndex() == screen::screen_serial){
+          screen::ViewManager::getInstance().activeView()->text(strchr_pointer + 5);
+        }
+      #else
+        lcd_setstatus(strchr_pointer + 5);
+      #endif
       break;
+
     case 114: // M114
       SERIAL_PROTOCOLPGM("X:");
       SERIAL_PROTOCOL(current_position[X_AXIS]);

@@ -50,7 +50,7 @@ namespace screen
 		protected:
 			uint16_t m_index;
 			uint16_t m_num_items;
-			const char * m_text;
+			char m_text[64];
 	};
 }
 #endif //SCREEN_SERIAL_H
