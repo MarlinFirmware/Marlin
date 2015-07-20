@@ -2916,7 +2916,7 @@ Sigma_Exit:
                     break;
       }
 
-                lcd_beep_hz_ms(beepS, beepP);
+                lcd_beep_ms(beepP);
     }
     break;
     #endif // M300
