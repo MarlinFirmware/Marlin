@@ -379,7 +379,7 @@ float destination[NUM_AXIS] = { 0, 0, 0, 0 };
 #endif
 
 static float offset[3] = { 0, 0, 0 };
-static bool home_all_axis = true;
+bool home_all_axis = true;
 float feedrate = 1500.0, next_feedrate, saved_feedrate;
 static long gcode_N, gcode_LastN, Stopped_gcode_LastN = 0;
 
