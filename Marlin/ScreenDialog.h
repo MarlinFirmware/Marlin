@@ -85,7 +85,7 @@ namespace screen
 
 			Area text_area(0, 14, 127, 54);
 			painter.setWorkingArea(text_area);
-			painter.multiText(m_message);
+			painter.multiText_P(m_message);
 		} while ( painter.nextPage() );
 	}
 }

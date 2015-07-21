@@ -54,7 +54,7 @@ int absPreheatFanSpeed;
 
 // Extern variables
 extern bool stop_buffer;
-extern int stop_buffer_code;
+extern uint16_t stop_buffer_code;
 uint8_t prev_encoder_position;
 
 
@@ -87,9 +87,7 @@ bool    button_input_updated;
 bool    button_clicked_triggered;
 
 // Beeper related variables
-bool beeper_level = false;
 uint32_t beeper_duration = 0;
-uint8_t beep_count, frequency_ratio;
 
 // ISR related variables
 uint16_t lcd_timer = 0;
@@ -104,7 +102,6 @@ int lcd_contrast;
 uint8_t display_view_menu_offset = 0;
 uint8_t display_view_wizard_page = 0;
 
-static void lcd_emergency_stop();
 
 /*******************************************************************************
 **   Function definitions
@@ -128,9 +125,7 @@ static void lcd_implementation_quick_feedback()
 {
 #if ( defined(BEEPER) && (BEEPER > 0) )
    SET_OUTPUT(BEEPER);
-   frequency_ratio = 0;
    beeper_duration = 100;
-   beeper_level = false;
 #endif
 }
 void lcd_init()
@@ -363,10 +358,8 @@ void lcd_clear_triggered_flags() {
 
 void lcd_disable_buzzer()
 {
-    beep_count = 0;
     beeper_duration = 0;
-    beeper_level = false;
-    WRITE(BEEPER, beeper_level);
+    WRITE(BEEPER, LOW);
 }
 
 // Enable/disable function
@@ -431,20 +424,7 @@ void lcd_beep()
 
 void lcd_beep_ms(uint16_t ms)
 {
-    frequency_ratio = 0;
     beeper_duration = 8 * ms;
-    while (beeper_duration) {
-        lcd_update();
-    }
-}
-
-void lcd_beep_hz_ms(uint16_t frequency, uint16_t ms)
-{
-    frequency_ratio = (4000 / frequency) - 1;
-    beeper_duration = 8 * ms;
-    while (beeper_duration) {
-        lcd_update();
-    }
 }
 
 void lcd_set_refresh(uint8_t mode)
@@ -498,7 +478,7 @@ static void lcd_set_encoder_position(int8_t position)
     encoder_position = position;
 }
 
-static void lcd_emergency_stop()
+void lcd_emergency_stop()
 {
     if (eeprom::StorageManager::getEmergencyFlag() != eeprom::EMERGENCY_STOP_ACTIVE)
     {
@@ -536,24 +516,17 @@ static void lcd_emergency_stop()
     while (1) { }
 }
 
-ISR(TIMER5_OVF_vect)
+ISR(TIMER5_OVF_vect) // Every 125 us
 {
     lcd_timer++;
 
 #if ( defined(BEEPER) && (BEEPER > 0) )
     if (beeper_duration) {
-        if (beep_count == 0) {
-            beeper_level = !beeper_level;
-            beep_count = frequency_ratio;
-        } else {
-            beep_count--;
-        }
+        WRITE(BEEPER, HIGH);
         beeper_duration--;
     } else {
-        beeper_level = false;
-        beep_count = 0;
+        WRITE(BEEPER, LOW);
     }
-    WRITE(BEEPER, beeper_level);    // Tone: 4 KHz (every 125 us)
 #endif // ( defined(BEEPER) && (BEEPER > 0) )
 
     if (lcd_timer % 4 == 0)     // Every 500 us

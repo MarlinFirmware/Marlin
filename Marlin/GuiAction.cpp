@@ -21,7 +21,7 @@ extern bool cancel_heatup;
 extern bool stop_planner_buffer;
 extern bool stop_buffer;
 bool change_filament = false; 
-extern int stop_buffer_code;
+extern uint16_t stop_buffer_code;
 
 static float manual_feedrate[] = MANUAL_FEEDRATE;
 
@@ -286,7 +286,7 @@ void action_level_plate()
 
 void action_homing()
 {
-	lcd_disable_interrupt();
+	lcd_disable_button();
 
 #ifdef LEVEL_SENSOR
 	if (AutoLevelManager::single::instance().state() == false)
@@ -459,7 +459,8 @@ void action_homing()
 	endstops_hit_on_purpose();
 
 	previous_millis_cmd = millis();
-	lcd_enable_interrupt();
+
+	lcd_enable_button();
 }
 
 static void set_bed_level_equation_3pts(float z_at_pt_1, float z_at_pt_2, float z_at_pt_3) 

@@ -34,7 +34,6 @@
     #include "qr_solve.h"
   #endif
 
-#include "ultralcd.h"
 #include "planner.h"
 #include "stepper.h"
 #include "temperature.h"
@@ -61,8 +60,12 @@
 #endif
 
 #ifdef DOGLCD
+  #include "GuiManager.h"
   #include "PrintManager.h"
   #include "StorageManager.h"
+  #include "ViewManager.h"
+#else // DOGLCD
+  #include "ultralcd.h"
 #endif
 
 #include "AutoLevelManager.h"
@@ -400,6 +403,7 @@ static char serial_char;
 static int serial_count = 0;
 static boolean comment_mode = false;
 static char *strchr_pointer; ///< A pointer to find chars in the command string (X, Y, Z, E, etc.)
+static bool serial_mode = false;
 
 const int sensitive_pins[] = SENSITIVE_PINS; ///< Sensitive pin list for M42
 
@@ -675,7 +679,7 @@ bool stop_planner_buffer = false;
 #endif // DOGLCD
 
 bool stop_buffer = false;
-int stop_buffer_code = 0;
+uint16_t stop_buffer_code = 0;
 
 
 void loop()
@@ -717,12 +721,17 @@ void loop()
 				{
 					stop_buffer = false;
 					stop_buffer_code = 0;
+
+#ifdef DOGLCD
+          lcd_emergency_stop();
+#else DOGLCD
 					bufindr = 0;
 					bufindw = 0;
 					buflen = 0;
 					FlushSerialRequestResend();
 					lcd_reset_alert_level();
 					LCD_MESSAGEPGM(WELCOME_MSG);
+#endif // DOGLCD
 				}
 				break;
 			default:
@@ -777,6 +786,16 @@ void get_command()
 {
   while( MYSERIAL.available() > 0  && buflen < BUFSIZE) {
     serial_char = MYSERIAL.read();
+
+    #ifdef DOGLCD
+      if(!serial_mode){
+        serial_mode = true;
+        if (screen::ViewManager::getInstance().getViewIndex() != screen::screen_serial){
+          screen::ViewManager::getInstance().activeView(screen::screen_serial);
+        }
+      }
+    #endif
+
     if(serial_char == '\n' ||
        serial_char == '\r' ||
        serial_count >= (MAX_CMD_SIZE - 1) )
@@ -2504,11 +2523,20 @@ Sigma_Exit:
       SERIAL_PROTOCOLPGM(MSG_M115_REPORT);
       break;
     case 117: // M117 display message
+
       starpos = (strchr(strchr_pointer + 5,'*'));
       if(starpos!=NULL)
         *(starpos)='\0';
-      lcd_setstatus(strchr_pointer + 5);
+
+      #ifdef DOGLCD
+        if (screen::ViewManager::getInstance().getViewIndex() == screen::screen_serial){
+          screen::ViewManager::getInstance().activeView()->text(strchr_pointer + 5);
+        }
+      #else
+        lcd_setstatus(strchr_pointer + 5);
+      #endif
       break;
+
     case 114: // M114
       SERIAL_PROTOCOLPGM("X:");
       SERIAL_PROTOCOL(current_position[X_AXIS]);
@@ -2923,7 +2951,7 @@ Sigma_Exit:
                     break;
       }
 
-                lcd_beep_hz_ms(beepS, beepP);
+                lcd_beep_ms(beepP);
     }
     break;
     #endif // M300
@@ -3537,7 +3565,8 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
     			feedmultiply = 100;
     			previous_millis_cmd = millis();
 
-    			lcd_disable_interrupt();
+          lcd_disable_button();
+
     			enable_endstops(true);
 
 				#ifdef LEVEL_SENSOR
@@ -3674,7 +3703,8 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
       			#endif
 
       			endstops_hit_on_purpose();
-      			lcd_enable_interrupt();
+
+            lcd_enable_button();
 
     			plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
 

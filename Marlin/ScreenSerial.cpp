@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
-/// \file ScreenTransition.h
+/// \file ScreenSerial.cpp
 ///
 /// \author Ivan Galvez Junquera
 ///         Ruy Garcia
 ///         Victor Andueza 
 ///         Joaquin Herrero
 ///
-/// \brief Implementation of transition-type screens.
+/// \brief Implementation of serial screen.
 ///
 /// Copyright (c) 2015 BQ - Mundo Reader S.L.
 /// http://www.bq.com
@@ -25,52 +25,63 @@
 /// DEALINGS IN THE SOFTWARE.
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "ScreenTransition.h"
+#include "ScreenSerial.h"
+#include "Language.h"
 
 namespace screen
 {
-	ScreenTransition::ScreenTransition(const char * title, const char * message, const char * box, typename Functor<void>::FuncPtr fptr, Subject<PrinterState_t> * model)
-		: Screen(title, DIALOG)
-		, Functor<void>(fptr)
-		, Observer<PrinterState_t>(model)
-		, m_message(message)
-		, m_box(box)
-		, m_printing_status(PRINTING)
-	{ }
-
-	ScreenTransition::~ScreenTransition()
-	{ }
-
-	void ScreenTransition::init(uint16_t index)
+	ScreenSerial::ScreenSerial(const char * title, const char * text)
+		: Screen(title, MENU)
 	{
-		draw();
-		this->action();
-		if (this->m_model == 0)
+		strncpy(m_text, text, sizeof(m_text));
+	}
+
+	ScreenSerial::~ScreenSerial()
+	{ }
+
+	void ScreenSerial::init(uint16_t index)
+	{ }
+
+	void ScreenSerial::left()
+	{ }
+
+	void ScreenSerial::right()
+	{ }
+
+	void ScreenSerial::press()
+	{ }
+
+	void ScreenSerial::draw()
+	{
+		if ( !m_text || m_needs_drawing)
 		{
-			ViewManager::getInstance().activeView(m_next_screen);
+			m_needs_drawing = false;
+			
+			//Start painting sequence
+			painter.firstPage();
+			do
+			{
+				painter.setColorIndex(1);
+				painter.drawBox(0,0,128,64);
+				painter.setColorIndex(0);
+				painter.drawBox(5,5,118,54);
+				painter.setColorIndex(1);
+				painter.drawBox(5,22,118,3);
+
+				Area title_area(5,10,118,22);
+				painter.setWorkingArea(title_area);
+				painter.text_P(MSG_SCREEN_SERIAL_TITLE);
+
+				Area text_area(5, 25, 118, 59);
+				painter.setWorkingArea(text_area);
+				painter.multiText(m_text);
+			} while( painter.nextPage() );
 		}
 	}
 
-	void ScreenTransition::draw()
+	void ScreenSerial::text(const char * text)
 	{
-		painter.firstPage();
-		do
-		{
-			painter.title(m_title);
-			painter.box(m_box);
-
-			Area text_area(0, 14, 127, 54);
-			painter.setWorkingArea(text_area);
-			painter.multiText_P(m_message);
-		} while ( painter.nextPage() );
-
-		if (this->m_model != 0 && m_printing_status == PAUSED)
-		{
-			ViewManager::getInstance().activeView(m_next_screen);
-		}
-	}
-	void ScreenTransition::update(PrinterState_t value)
-	{
-		m_printing_status = value;
+		strncpy(m_text, text, sizeof(m_text));
+		m_needs_drawing = true;
 	}
 }

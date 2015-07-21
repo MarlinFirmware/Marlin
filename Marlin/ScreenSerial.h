@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
-/// \file Screen.h
+/// \file ScreenSerial.h
 ///
 /// \author Ivan Galvez Junquera
 ///         Ruy Garcia
 ///         Victor Andueza 
 ///         Joaquin Herrero
 ///
-/// \brief Implementation of base class for Screen interface.
+/// \brief Definition of serial screen.
 ///
 /// Copyright (c) 2015 BQ - Mundo Reader S.L.
 /// http://www.bq.com
@@ -25,53 +25,32 @@
 /// DEALINGS IN THE SOFTWARE.
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef SCREEN_H
-#define SCREEN_H
+#ifndef SCREEN_SERIAL_H
+#define SCREEN_SERIAL_H
 
-#include <new.h>
 #include <stdint.h>
 
-#include "GuiPainter.h"
-#include "ViewManager.h"
+#include "Screen.h"
 
 namespace screen
 {
-	class Screen
+	class ScreenSerial : public Screen
 	{
 		public:
-			typedef enum
-			{
-				SIMPLE = 0,
-				ACTION,
-				STATUS,
-				MENU,
-				PRINT,
-				DIALOG,
-				LIST,
-				SELECTOR,
-				NUM_SCREEN_TYPES,
-			} ScreenType_t;
+			ScreenSerial(const char * title = 0, const char * text = 0);
+			virtual ~ScreenSerial();
 
-		public:
-			Screen(const char * title = 0, ScreenType_t const & type = SIMPLE);
-			virtual ~Screen();
-
-			const char * title() const;
-			ScreenType_t const & type() const;
-
-			virtual void left() {};
-			virtual void right() {};
-			virtual void press() {};
-			virtual void draw() {};
-			virtual void init(uint16_t index = 0) {};
-			virtual void add(ScreenIndex_t const & view);
-			virtual void text(const char * text) {};
+			void init(uint16_t index = 0);
+			void left();
+			void right();
+			void press();
+			virtual void draw();
+			void text(const char * text);
 
 		protected:
-			ScreenType_t m_type;
-			const char * m_title;
-			ScreenIndex_t m_next_screen;
-			bool m_needs_drawing;
+			uint16_t m_index;
+			uint16_t m_num_items;
+			char m_text[64];
 	};
 }
-#endif //SCREEN_H
+#endif //SCREEN_SERIAL_H
