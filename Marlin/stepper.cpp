@@ -1085,13 +1085,11 @@ long st_get_position(uint8_t axis)
   return count_pos;
 }
 
-#ifdef Z_SAFE_HOMING
 float st_get_position_mm(uint8_t axis)
 {
   float steper_position_in_steps = st_get_position(axis);
   return steper_position_in_steps / axis_steps_per_unit[axis];
 }
-#endif  // Z_SAFE_HOMING
 
 void finishAndDisableSteppers()
 {

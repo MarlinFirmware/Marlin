@@ -129,7 +129,7 @@ CXXSRC = WMath.cpp WString.cpp Print.cpp Marlin_main.cpp	\
 	stepper.cpp temperature.cpp cardreader.cpp ConfigurationStore.cpp \
 	watchdog.cpp SPI.cpp Tone.cpp digipot_mcp4451.cpp \
 	vector_3.cpp qr_solve.cpp abi.cpp
-CXXSRC += new.cpp GuiManager.cpp GuiPainter.cpp GuiAction.cpp GuiImpl_witbox_2.cpp Icon.cpp \
+CXXSRC += new.cpp HelpersC++.cpp GuiManager.cpp GuiPainter.cpp GuiAction.cpp GuiImpl_witbox_2.cpp Icon.cpp \
 	Screen.cpp ScreenAbout.cpp ScreenComplete.cpp ScreenEmergency.cpp ScreenFile.cpp ScreenList.cpp ScreenMenu.cpp ScreenPrint.cpp ScreenSplash.cpp ScreenTransition.cpp \
 	Stepper.cpp \
 	AutoLevelManager.cpp LightManager.cpp OffsetManager.cpp PrintManager.cpp SDManager.cpp SteppersManager.cpp StorageManager.cpp TemperatureManager.cpp ViewManager.cpp \
