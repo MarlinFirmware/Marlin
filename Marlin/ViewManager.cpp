@@ -46,7 +46,7 @@ namespace screen
 		m_last_focus = last_focus;
 	}
 
-	ScreenIndex_t ViewManager::getViewIndex()
+	ScreenIndex_t const & ViewManager::getViewIndex() const
 	{
 		return m_index;
 	}
