@@ -414,7 +414,6 @@ void action_homing()
 		st_synchronize();
 #endif //defined (Z_RAISE_BEFORE_HOMING) && (Z_RAISE_BEFORE_HOMING > 0)
 		HOMEAXIS(Z);
-	}
 #else //LEVEL_SENSOR
 		destination[X_AXIS] = round(Z_SAFE_HOMING_X_POINT);
 		destination[Y_AXIS] = round(Z_SAFE_HOMING_Y_POINT);
@@ -430,6 +429,7 @@ void action_homing()
 
 		HOMEAXIS(Z);
 		raised = false;
+#endif //LEVEL_SENSOR
 	}
 	else if (axis_known_position[X_AXIS]==true && code_seen(axis_codes[Z_AXIS]))
 	{
@@ -439,8 +439,10 @@ void action_homing()
 	{
 		enquecommand("G28 X0 Z0");
 	}
-
-#endif //LEVEL_SENSOR
+	else if (axis_known_position[X_AXIS]==false && axis_known_position[Y_AXIS]==false && code_seen(axis_codes[Z_AXIS]))
+	{
+		enquecommand("G28 X0 Y0 Z0");
+	}
 #endif //Z_HOME_DIR < 0
 
 #ifdef LEVEL_SENSOR
