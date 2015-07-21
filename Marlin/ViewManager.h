@@ -16,6 +16,7 @@ namespace screen
 			void activeView(ScreenIndex_t const & index);
 			Screen * activeView();
 			void setLastFocus(uint16_t last_focus);
+			ScreenIndex_t const & getViewIndex() const;
 
 		protected:
 			ViewManager();
@@ -28,6 +29,7 @@ namespace screen
 		private:
 			Screen * m_active_view;
 			uint16_t m_last_focus;
+			ScreenIndex_t m_index;
 	};
 }
 

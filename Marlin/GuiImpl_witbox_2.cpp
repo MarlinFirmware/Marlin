@@ -21,6 +21,7 @@
 #include "ScreenSplash.h"
 #include "ScreenComplete.h"
 #include "ScreenEmergency.h"
+#include "ScreenSerial.h"
 
 #include "AutoLevelManager.h"
 #include "LightManager.h"
@@ -746,6 +747,12 @@ namespace screen
 		return local_view;
 	}
 
+	static ScreenSerial * make_screen_serial()
+	{
+		ScreenSerial * local_view = new ScreenSerial(MSG_SCREEN_SERIAL_TITLE);
+		return local_view;
+	}
+
 	Screen * new_view;
 
 	// Build the UI
@@ -1030,6 +1037,11 @@ namespace screen
 			// Temperature on print
 			case screen_temperature_print:
 				new_view = make_screen_temperature_print();
+				break;
+
+			// Serial screen
+			case screen_serial:
+				new_view = make_screen_serial();
 				break;
 		}
 		return new_view; 
