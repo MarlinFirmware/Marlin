@@ -29,12 +29,10 @@
 
 #include "Marlin.h"
 
-//#ifdef ENABLE_AUTO_BED_LEVELING
 #include "vector_3.h"
   #ifdef AUTO_BED_LEVELING_GRID
     #include "qr_solve.h"
   #endif
-//#endif // ENABLE_AUTO_BED_LEVELING
 
 #include "ultralcd.h"
 #include "planner.h"
@@ -67,6 +65,7 @@
   #include "StorageManager.h"
 #endif
 
+#include "AutoLevelManager.h"
 #include "GuiAction.h"
 
 // look here for descriptions of G-codes: http://linuxcnc.org/handbook/gcode/g-code.html
@@ -366,7 +365,13 @@ bool cancel_heatup = false;
   int delay_index2=-1;  //index into ring buffer - set to -1 on startup to indicate ring buffer needs to be initialized
   float delay_dist=0; //delay distance counter  
   int meas_delay_cm = MEASUREMENT_DELAY_CM;  //distance delay setting
-#endif
+#endif //FILAMENT_SENSOR
+
+#ifdef ENABLE_AUTO_BED_LEVELING
+  bool bed_leveling = true;
+#else
+  bool bed_leveling = false;
+#endif //ENABLE_AUTO_BED_LEVELING
 
 const char errormagic[] PROGMEM = "Error:";
 const char echomagic[] PROGMEM = "echo:";
@@ -1110,7 +1115,7 @@ void do_blocking_move_to(float x, float y, float z) {
     feedrate = oldFeedRate;
 }
 
-#ifdef Z_SAFE_HOMING
+#ifdef LEVEL_SENSOR
 
 static void do_blocking_extrude_to(float e) {
 	float oldFeedRate = feedrate;
@@ -1259,7 +1264,7 @@ float probe_pt(float x, float y, float z_before, int retract_action=0) {
   return measured_z;
 }
 
-#endif // #ifdef Z_SAFE_HOMING
+#endif // #ifdef LEVEL_SENSOR
 
 void homeaxis(int axis) {
 #define HOMEAXIS_DO(LETTER) \
@@ -1520,14 +1525,15 @@ void process_commands()
     case 28: //G28 Home all Axis one at a time
       action_homing();
     break;
-
-#ifdef ENABLE_AUTO_BED_LEVELING
-
+#ifdef LEVEL_SENSOR
     case 29: // G29 Detailed Z-Probe, probes the bed at 3 or more points.
-      action_get_plane();
+      if (bed_leveling == true || (bed_leveling == false && AutoLevelManager::single::instance().state() == true))
+      {
+        action_get_plane();
+      }
     break;
-
 #ifndef Z_PROBE_SLED
+
     case 30: // G30 Single Z Probe
         {
             engage_z_probe(); // Engage Z Servo endstop if available
@@ -1559,7 +1565,8 @@ void process_commands()
         dock_sled(false);
         break;
 #endif // Z_PROBE_SLED
-#endif // ENABLE_AUTO_BED_LEVELING
+#endif // LEVEL_SENSOR
+
     case 90: // G90
       relative_mode = false;
       break;
@@ -1863,11 +1870,12 @@ void process_commands()
 // N for its communication protocol and will get horribly confused if you send it a capital N.
 //
 
-#ifdef ENABLE_AUTO_BED_LEVELING
 #ifdef Z_PROBE_REPEATABILITY_TEST 
 
     case 48: // M48 Z-Probe repeatability
         {
+          if (bed_leveling == true || (bed_leveling == false && bed_leveling == false && AutoLevelManager::single::instance().state() == true))
+          {
             #if Z_MIN_PIN == -1
             #error "You must have a Z_MIN endstop in order to enable calculation of Z-Probe repeatability."
             #endif
@@ -2107,10 +2115,10 @@ SERIAL_PROTOCOL_F(sigma, 6);
 SERIAL_PROTOCOLPGM("\n\n");
 
 Sigma_Exit:
+      }
         break;
 	}
 #endif		// Z_PROBE_REPEATABILITY_TEST 
-#endif		// ENABLE_AUTO_BED_LEVELING
 
     case 104: // M104
       if(setTargetedHotend(104)){
@@ -3526,7 +3534,7 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
     			lcd_disable_interrupt();
     			enable_endstops(true);
 
-				#ifdef Z_SAFE_HOMING
+				#ifdef LEVEL_SENSOR
 					//Extruder is raised before do the homing routine
 					for(int8_t i=0; i < NUM_AXIS; i++) {
 						destination[i] = plan_get_axis_position(i);
@@ -3587,7 +3595,7 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
       			}
 
       			#if Z_HOME_DIR < 0                      // If homing towards BED do Z last
-				#ifndef Z_SAFE_HOMING
+				#ifndef LEVEL_SENSOR
 	  				if((home_all_axis) || (code_seen(axis_codes[Z_AXIS]))) {
 	    				#if defined (Z_RAISE_BEFORE_HOMING) && (Z_RAISE_BEFORE_HOMING > 0)
 	      					destination[Z_AXIS] = Z_RAISE_BEFORE_HOMING * home_dir(Z_AXIS) * (-1);    // Set destination away from bed
@@ -3648,7 +3656,7 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
 	  					current_position[Z_AXIS]=code_value()+add_homing[2];
 					}
       			}
-      			#ifdef Z_SAFE_HOMING
+      			#ifdef LEVEL_SENSOR
 					if((home_all_axis) || (code_seen(axis_codes[Z_AXIS]))) {
 	  					current_position[Z_AXIS] += zprobe_zoffset;  //Add Z_Probe offset (the distance is negative)
 					}
@@ -4043,7 +4051,7 @@ void clamp_to_software_endstops(float target[3])
     if (target[Y_AXIS] < min_pos[Y_AXIS]) target[Y_AXIS] = min_pos[Y_AXIS];
     
     float negative_z_offset = 0;
-    #ifdef ENABLE_AUTO_BED_LEVELING
+    #ifdef LEVEL_SENSOR
       if (Z_PROBE_OFFSET_FROM_EXTRUDER < 0) negative_z_offset = negative_z_offset + Z_PROBE_OFFSET_FROM_EXTRUDER;
       if (add_homing[Z_AXIS] < 0) negative_z_offset = negative_z_offset + add_homing[Z_AXIS];
     #endif

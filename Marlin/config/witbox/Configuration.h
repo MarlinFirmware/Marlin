@@ -384,20 +384,13 @@ const bool Z_PROBE_ENDSTOP_INVERTING = true; // set to true to invert the logic 
 //#define Z_PROBE_REPEATABILITY_TEST  // If not commented out, Z-Probe Repeatability test will be included if Auto Bed Leveling is Enabled.
 
 #ifdef ENABLE_AUTO_BED_LEVELING
-  #ifndef Z_SAFE_HOMING
-    #define Z_SAFE_HOMING
+  #ifndef LEVEL_SENSOR
+    #define LEVEL_SENSOR
   #endif
 #endif // ENABLE_AUTO_BED_LEVELING
 
 //If you have enabled the Bed Auto Leveling and are using the same Z Probe for Z Homing,
-//it is highly recommended you let this Z_SAFE_HOMING enabled!!!
-
-//#define Z_SAFE_HOMING   // This feature is meant to avoid Z homing with probe outside the bed area.
-                        // When defined, it will:
-                        // - Allow Z homing only after X and Y homing AND stepper drivers still enabled
-                        // - If stepper drivers timeout, it will need X and Y homing again before Z homing
-                        // - Position the probe in a defined XY point before Z Homing when homing all axis (G28)
-                        // - Block Z homing only when the probe is outside bed area.
+//it is highly recommended you let this LEVEL_SENSOR enabled!!!
 
 // There are 2 different ways to pick the X and Y locations to probe:
 
@@ -415,7 +408,7 @@ const bool Z_PROBE_ENDSTOP_INVERTING = true; // set to true to invert the logic 
   // with AUTO_BED_LEVELING_GRID, the bed is sampled in a
   // AUTO_BED_LEVELING_GRID_POINTSxAUTO_BED_LEVELING_GRID_POINTS grid
   // and least squares solution is calculated
-  // Note: this feature occupies 10'206 byte
+
   #ifdef AUTO_BED_LEVELING_GRID
 
     // set the rectangle in which to probe

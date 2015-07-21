@@ -406,7 +406,7 @@ void Config_ResetDefault() {
     absPreheatHPBTemp = ABS_PREHEAT_HPB_TEMP;
     absPreheatFanSpeed = ABS_PREHEAT_FAN_SPEED;
   #endif
-#ifdef Z_SAFE_HOMING
+#ifdef LEVEL_SENSOR
     if(OffsetManager::single::instance().isOffsetOnEEPROM())
     {
       int k = 232;
@@ -664,7 +664,7 @@ void Config_PrintSettings(bool forReplay) {
     }
   }
 
-  #ifdef ENABLE_AUTO_BED_LEVELING
+  #ifdef LEVEL_SENSOR
     SERIAL_ECHO_START;
     #ifdef CUSTOM_M_CODES
       if (!forReplay) {
