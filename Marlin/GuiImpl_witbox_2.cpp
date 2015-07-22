@@ -287,14 +287,7 @@ namespace screen
 		return local_view;
 	}
 
-	static ScreenDialog<void> * make_screen_level4()
-	{
-		ScreenDialog<void> * local_view = new ScreenDialog<void>(MSG_SCREEN_LEVEL_TITLE, MSG_SCREEN_LEVEL_TEXT4, MSG_SCREEN_LEVEL_BOX4, action_level_plate);
-		local_view->add(screen_level5);
-		return local_view;
-	}
-
-	static ScreenAction<void> * make_screen_level5()
+	static ScreenAction<void> * make_screen_level4()
 	{
 		ScreenAction<void> * local_view = new ScreenAction<void>(MSG_SCREEN_AUTOHOME, action_level_plate);
 		local_view->add(screen_level_confirm);
@@ -850,9 +843,6 @@ namespace screen
 				break;
 			case screen_level4:
 				new_view = make_screen_level4();
-				break;
-			case screen_level5:
-				new_view = make_screen_level5();
 				break;
 			case screen_level_confirm:
 				new_view = make_screen_level_confirm();
