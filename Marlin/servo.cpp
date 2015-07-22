@@ -306,14 +306,14 @@ bool Servo::attached() { return servo_info[this->servoIndex].Pin.isActive; }
 
 int8_t Servo::move(int pin, int value) {
   int8_t ret;
-  #if SERVO_LEVELING
+  #if defined(DEACTIVATE_SERVOS_AFTER_MOVE) && (SERVO_DEACTIVATION_DELAY > 0)
     ret = this->attach(pin);
   #else
     ret = this->servoIndex;
   #endif
   if (ret >= 0) {
     this->write(value);
-    #if SERVO_LEVELING
+    #if defined(DEACTIVATE_SERVOS_AFTER_MOVE) && (SERVO_DEACTIVATION_DELAY > 0)
       delay(SERVO_DEACTIVATION_DELAY);
       this->detach();
     #endif
