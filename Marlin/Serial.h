@@ -1,47 +1,12 @@
+#ifndef SERIAL_H
+#define SERIAL_H
+
+#include "Language.h"
+
 #define PROTOCOL_VERSION "1.0"
-
-#if defined(WITBOX)
-	#define MACHINE_NAME "Witbox 2"
-	#define FIRMWARE_URL "http://www.bqreaders.com/descargas-witbox.html"
-	#define FIRMWARE_VER "2.0.0"
-	#define BUILD_VER ""
-#elif defined(CUSTOM_MENDEL_NAME)
-	#define MACHINE_NAME CUSTOM_MENDEL_NAME
-#else
-	// Default firmware set to Mendel
-	#define MACHINE_NAME "Mendel"
-	#define FIRMWARE_URL "https://github.com/ErikZalm/Marlin/"
-#endif
-
-#ifdef CUSTOM_MENDEL_NAME
-  #error CUSTOM_MENDEL_NAME deprecated - use CUSTOM_MACHINE_NAME
-  #define CUSTOM_MACHINE_NAME CUSTOM_MENDEL_NAME
-#endif
-
-#ifdef CUSTOM_MACHINE_NAME
-  #undef MACHINE_NAME
-  #define MACHINE_NAME CUSTOM_MACHINE_NAME
-#endif
-
-#ifndef SOURCE_CODE_URL
-  #define SOURCE_CODE_URL "https://github.com/MarlinFirmware/Marlin"
-#endif
-
-#ifndef BUILD_VERSION
-  #define BUILD_VERSION "V1; Sprinter/grbl mashup for gen6"
-#endif
-
-#ifndef MACHINE_UUID
-   #define MACHINE_UUID "00000000-0000-0000-0000-000000000000"
-#endif
-
 
 #define STRINGIFY_(n) #n
 #define STRINGIFY(n) STRINGIFY_(n)
-
-
-// Common LCD messages
-/* nothing here as of yet */
 
 // Common serial messages
 #define MSG_MARLIN "Marlin"
@@ -79,7 +44,7 @@
 #define MSG_HEATING_COMPLETE "Heating done."
 #define MSG_BED_HEATING "Bed Heating."
 #define MSG_BED_DONE "Bed done."
-#define MSG_M115_REPORT "FIRMWARE_NAME:Marlin " BUILD_VERSION " SOURCE_CODE_URL:" SOURCE_CODE_URL " PROTOCOL_VERSION:" PROTOCOL_VERSION " MACHINE_TYPE:" MACHINE_NAME " EXTRUDER_COUNT:" STRINGIFY(EXTRUDERS) " UUID:" MACHINE_UUID "\n"
+#define MSG_M115_REPORT "FIRMWARE_NAME:Marlin " BUILD_VER " SOURCE_CODE_URL:" SOURCE_CODE_URL " PROTOCOL_VERSION:" PROTOCOL_VERSION " MACHINE_TYPE:" MACHINE_NAME " EXTRUDER_COUNT:" STRINGIFY(EXTRUDERS) "\n"
 #define MSG_COUNT_X " Count X: "
 #define MSG_ERR_KILLED "Printer halted. kill() called!"
 #define MSG_ERR_STOPPED "Printer stopped due to errors. Fix the error and use M999 to restart. (Temperature is reset. Set it after restarting)"
@@ -154,4 +119,4 @@
 #define MSG_NO_MOVE "No move"
 #define MSG_PAUSED "Press to resume"
 
-
+#endif //SERIAL_H
