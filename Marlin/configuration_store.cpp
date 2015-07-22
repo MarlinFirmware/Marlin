@@ -475,7 +475,7 @@ void Config_ResetDefault() {
     max_feedrate[i] = tmp2[i];
     max_acceleration_units_per_sq_second[i] = tmp3[i];
     #ifdef SCARA
-      if (i < sizeof(axis_scaling) / sizeof(*axis_scaling))
+      if (i < COUNT(axis_scaling))
         axis_scaling[i] = 1;
     #endif
   }
