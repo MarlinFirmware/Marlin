@@ -44,7 +44,7 @@ static void lcd_status_screen();
   #if HAS_POWER_SWITCH
     extern bool powersupply;
   #endif
-  static float manual_feedrate[] = MANUAL_FEEDRATE;
+  const float manual_feedrate[] = MANUAL_FEEDRATE;
   static void lcd_main_menu();
   static void lcd_tune_menu();
   static void lcd_prepare_menu();
