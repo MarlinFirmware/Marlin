@@ -243,6 +243,8 @@ void setPwmFrequency(uint8_t pin, int val);
   #define CRITICAL_SECTION_END    SREG = _sreg;
 #endif //CRITICAL_SECTION_START
 
+extern bool home_all_axis;
+extern const char axis_codes[NUM_AXIS];
 extern float homing_feedrate[];
 extern bool axis_relative_modes[];
 extern int feedmultiply;
@@ -308,6 +310,7 @@ extern int feedmultiply;
 
 extern void homeaxis(int axis);
 extern signed char home_dir(int axis);
+extern bool code_seen(char code);
 
 #ifdef DIGIPOT_I2C
 extern void digipot_i2c_set_current( int channel, float current );

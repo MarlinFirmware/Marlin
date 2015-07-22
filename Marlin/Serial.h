@@ -112,6 +112,7 @@
 #define MSG_END_HOUR "hours"
 #define MSG_END_MINUTE "minutes"
 #define MSG_ZPROBE_OUT "Z probe out bed"
+#define MSG_ZPROBE_ZOFFSET "Z Offset"
 #define MSG_POSITION_UNKNOWN "Home X/Y before Z"
 #define MSG_PRINTING "Printing..."
 #define MSG_USERWAIT "Wait for user..."

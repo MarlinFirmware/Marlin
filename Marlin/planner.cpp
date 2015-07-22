@@ -534,11 +534,11 @@ float junction_deviation = 0.1;
 // Add a new linear movement to the buffer. steps_x, _y and _z is the absolute position in 
 // mm. Microseconds specify how many microseconds the move should take to perform. To aid acceleration
 // calculation the caller must also provide the physical length of the line in millimeters.
-#ifdef Z_SAFE_HOMING
+#ifdef LEVEL_SENSOR
 void plan_buffer_line(float x, float y, float z, const float &e, float feed_rate, const uint8_t &extruder)
 #else
 void plan_buffer_line(const float &x, const float &y, const float &z, const float &e, float feed_rate, const uint8_t &extruder)
-#endif  //Z_SAFE_HOMING
+#endif  //LEVEL_SENSOR
 {
   // Calculate the buffer head after we push this byte
   next_buffer_head = next_block_index(block_buffer_head);
@@ -570,9 +570,9 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
   buffer_recursivity--;
 #endif // DOGLCD
 
-#ifdef Z_SAFE_HOMING
+#ifdef LEVEL_SENSOR
   apply_rotation_xyz(plan_bed_level_matrix, x, y, z);
-#endif // Z_SAFE_HOMING
+#endif // LEVEL_SENSOR
 
   // The target position of the tool in absolute steps
   // Calculate target position in absolute steps
@@ -1098,14 +1098,14 @@ float plan_get_axis_position(uint8_t axis)
   return position[axis] / axis_steps_per_unit[axis];
 }
 
-#ifdef Z_SAFE_HOMING
+#ifdef LEVEL_SENSOR
 void plan_set_position(float x, float y, float z, const float &e)
 {
   apply_rotation_xyz(plan_bed_level_matrix, x, y, z);
 #else
 void plan_set_position(const float &x, const float &y, const float &z, const float &e)
 {
-#endif // Z_SAFE_HOMING
+#endif // LEVEL_SENSOR
 
   position[X_AXIS] = lround(x*axis_steps_per_unit[X_AXIS]);
   position[Y_AXIS] = lround(y*axis_steps_per_unit[Y_AXIS]);

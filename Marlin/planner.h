@@ -81,22 +81,22 @@ void plan_init();
 // Get the position applying the bed level matrix if enabled
 vector_3 plan_get_position();
 
-#ifdef Z_SAFE_HOMING
+#ifdef LEVEL_SENSOR
 void plan_buffer_line(float x, float y, float z, const float &e, float feed_rate, const uint8_t &extruder);
 
 
 #else
 void plan_buffer_line(const float &x, const float &y, const float &z, const float &e, float feed_rate, const uint8_t &extruder);
-#endif // Z_SAFE_HOMING
+#endif // LEVEL_SENSOR
 
 float plan_get_axis_position(uint8_t axis);
 
 // Set position. Used for G92 instructions.
-#ifdef Z_SAFE_HOMING
+#ifdef LEVEL_SENSOR
 void plan_set_position(float x, float y, float z, const float &e);
 #else
 void plan_set_position(const float &x, const float &y, const float &z, const float &e);
-#endif // Z_SAFE_HOMING
+#endif // LEVEL_SENSOR
 
 void plan_set_e_position(const float &e);
 

@@ -287,21 +287,12 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define X_MAX_LENGTH (X_MAX_POS - X_MIN_POS)
 #define Y_MAX_LENGTH (Y_MAX_POS - Y_MIN_POS)
 #define Z_MAX_LENGTH (Z_MAX_POS - Z_MIN_POS)
+
 //============================= Bed Auto Leveling ===========================
 
-#define ENABLE_AUTO_BED_LEVELING // Delete the comment to enable (remove // at the start of the line)
 //#define Z_PROBE_REPEATABILITY_TEST  // If not commented out, Z-Probe Repeatability test will be included if Auto Bed Leveling is Enabled.
 
-#ifdef ENABLE_AUTO_BED_LEVELING
-  #ifndef Z_SAFE_HOMING
-    #define Z_SAFE_HOMING
-  #endif
-#endif // ENABLE_AUTO_BED_LEVELING
-
-//If you have enabled the Bed Auto Leveling and are using the same Z Probe for Z Homing,
-//it is highly recommended you let this Z_SAFE_HOMING enabled!!!
-
-#define Z_SAFE_HOMING   // This feature is meant to avoid Z homing with probe outside the bed area.
+#define LEVEL_SENSOR   // This feature is meant to avoid Z homing with probe outside the bed area.
                         // When defined, it will:
                         // - Allow Z homing only after X and Y homing AND stepper drivers still enabled
                         // - If stepper drivers timeout, it will need X and Y homing again before Z homing
@@ -324,7 +315,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
   // with AUTO_BED_LEVELING_GRID, the bed is sampled in a
   // AUTO_BED_LEVELING_GRID_POINTSxAUTO_BED_LEVELING_GRID_POINTS grid
   // and least squares solution is calculated
-  // Note: this feature occupies 10'206 byte
+
   #ifdef AUTO_BED_LEVELING_GRID
 
     // set the rectangle in which to probe
@@ -430,7 +421,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
     #define COOLDOWN_FAN_SPEED 255
 #endif
 
-#if defined(ENABLE_AUTO_BED_LEVELING) || defined(WITBOX)
+#if defined(WITBOX)
   #define XY_TRAVEL_SPEED 120//8000		// X and Y axis travel speed between probes and Witbox movements, in mm/s
 #endif
 //===========================================================================

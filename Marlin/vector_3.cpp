@@ -19,7 +19,7 @@
 #include <math.h>
 #include "Marlin.h"
 
-#ifdef Z_SAFE_HOMING
+#ifdef LEVEL_SENSOR
 #include "vector_3.h"
 
 vector_3::vector_3() : x(0), y(0), z(0) { }
@@ -163,5 +163,5 @@ void matrix_3x3::debug(char* title)
 	}
 }
 
-#endif // #ifdef Z_SAFE_HOMING
+#endif // #ifdef LEVEL_SENSOR
 
