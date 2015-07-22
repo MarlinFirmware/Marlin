@@ -3047,7 +3047,7 @@ inline void gcode_M42() {
     if (code_seen('P') && pin_status >= 0 && pin_status <= 255)
       pin_number = code_value_short();
 
-    for (int8_t i = 0; i < (int8_t)(sizeof(sensitive_pins) / sizeof(*sensitive_pins)); i++) {
+    for (int8_t i = 0; i < COUNT(sensitive_pins); i++) {
       if (sensitive_pins[i] == pin_number) {
         pin_number = -1;
         break;
@@ -4192,7 +4192,7 @@ inline void gcode_M226() {
 
     if (pin_state >= -1 && pin_state <= 1) {
 
-      for (int8_t i = 0; i < (int8_t)(sizeof(sensitive_pins)/sizeof(*sensitive_pins)); i++) {
+      for (int8_t i = 0; i < COUNT(sensitive_pins); i++) {
         if (sensitive_pins[i] == pin_number) {
           pin_number = -1;
           break;
