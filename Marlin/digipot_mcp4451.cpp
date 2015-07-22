@@ -1,6 +1,6 @@
 #include "Configuration.h"
 
-#ifdef DIGIPOT_I2C
+#if ENABLED(DIGIPOT_I2C)
 
 #include "Stream.h"
 #include "utility/twi.h"
