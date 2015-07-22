@@ -308,4 +308,8 @@
     #error Thermal Runaway Protection for the bed must now be enabled with THERMAL_PROTECTION_BED.
   #endif
 
+  #ifdef PROBE_SERVO_DEACTIVATION_DELAY
+    #error PROBE_SERVO_DEACTIVATION_DELAY has been replaced with DEACTIVATE_SERVOS_AFTER_MOVE and SERVO_DEACTIVATION_DELAY.
+  #endif
+
 #endif //SANITYCHECK_H
