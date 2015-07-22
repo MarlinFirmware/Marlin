@@ -3731,11 +3731,6 @@ inline void gcode_M18_M84() {
   else {
     bool all_axis = !((code_seen(axis_codes[X_AXIS])) || (code_seen(axis_codes[Y_AXIS])) || (code_seen(axis_codes[Z_AXIS]))|| (code_seen(axis_codes[E_AXIS])));
     if (all_axis) {
-      st_synchronize();
-      disable_e0();
-      disable_e1();
-      disable_e2();
-      disable_e3();
       finishAndDisableSteppers();
     }
     else {
