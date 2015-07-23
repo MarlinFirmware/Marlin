@@ -3,8 +3,13 @@
 
 #include "Printer.h"
 
-#include "Language_ES.h"
 #include "Language_EN.h"
+#include "Language_ES.h"
+#include "Language_DE.h"
+#include "Language_FR.h"
+#include "Language_PT.h"
+#include "Language_IT.h"
+#include "Language_PL.h"
 
 enum class Language
 {
@@ -30,7 +35,6 @@ const char * MSG_##label() \
    { \
       text = ES_##label; \
    } \
-/* \
    else if (LANG == Language::DE) \
    { \
       text = DE_##label; \
@@ -51,7 +55,6 @@ const char * MSG_##label() \
    { \
       text = PL_##label; \
    } \
-*/ \
    return text; \
 }
 
