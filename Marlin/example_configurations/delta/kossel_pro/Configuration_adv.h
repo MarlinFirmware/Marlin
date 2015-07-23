@@ -116,7 +116,12 @@
 #define EXTRUDER_3_AUTO_FAN_PIN -1
 #define EXTRUDER_AUTO_FAN_TEMPERATURE 50
 #define EXTRUDER_AUTO_FAN_SPEED   255  // == full speed
-
+// Set the following to true if you want to enable the extruder motor while in dry run mode (AKA test mode).
+// Set to false if you want to prevent extrusion while in dry run mode.
+#define EXTRUDER_0_DRYRUN_EXCLUDE false
+#define EXTRUDER_1_DRYRUN_EXCLUDE false
+#define EXTRUDER_2_DRYRUN_EXCLUDE false
+#define EXTRUDER_3_DRYRUN_EXCLUDE false
 
 //===========================================================================
 //=============================Mechanical Settings===========================

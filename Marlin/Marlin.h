@@ -219,6 +219,11 @@ enum DebugFlags {
 };
 extern uint8_t marlin_debug_flags;
 
+void check_dryrun_extrusion(float &curr_e, float &dest_e, const uint8_t extruder);
+#ifdef PREVENT_DANGEROUS_EXTRUDE
+  void prevent_dangerous_extrude(float &curr_e, float &dest_e, const uint8_t extruder);
+#endif // PREVENT_DANGEROUS_EXTRUDE
+
 extern bool Running;
 inline bool IsRunning() { return  Running; }
 inline bool IsStopped() { return !Running; }
