@@ -3687,11 +3687,6 @@ inline void gcode_M140() {
  */
 inline void gcode_M81() {
   disable_all_heaters();
-  st_synchronize();
-  disable_e0();
-  disable_e1();
-  disable_e2();
-  disable_e3();
   finishAndDisableSteppers();
   fanSpeed = 0;
   delay(1000); // Wait 1 second before switching off
