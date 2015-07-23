@@ -246,7 +246,7 @@ static int cmd_queue_index_w = 0;
 static int commands_in_queue = 0;
 static char command_queue[BUFSIZE][MAX_CMD_SIZE];
 
-float homing_feedrate[] = HOMING_FEEDRATE;
+const float homing_feedrate[] = HOMING_FEEDRATE;
 bool axis_relative_modes[] = AXIS_RELATIVE_MODES;
 int feedrate_multiplier = 100; //100->1 200->2
 int saved_feedrate_multiplier;
@@ -310,8 +310,8 @@ bool target_direction;
 #endif
 
 #ifdef SERVO_ENDSTOPS
-  int servo_endstops[] = SERVO_ENDSTOPS;
-  int servo_endstop_angles[] = SERVO_ENDSTOP_ANGLES;
+  const int servo_endstops[] = SERVO_ENDSTOPS;
+  const int servo_endstop_angles[] = SERVO_ENDSTOP_ANGLES;
 #endif
 
 #ifdef BARICUDA
