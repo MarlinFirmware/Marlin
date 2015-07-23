@@ -5,7 +5,7 @@
 #include "stepper.h"
 #include "temperature.h"
 #include "language.h"
-
+#include "ConfigurationStore.h"
 
 #define GREEN_LED digitalWrite(40,1);digitalWrite(44,1);digitalWrite(42,0)
 
@@ -644,7 +644,10 @@ void CardReader::printingHasFinished()
       {
           enquecommand_P(PSTR(SD_FINISHED_RELEASECOMMAND));
           GREEN_LED;
+          totalprints();
+          
       }
+
       autotempShutdown();
     }
 }
