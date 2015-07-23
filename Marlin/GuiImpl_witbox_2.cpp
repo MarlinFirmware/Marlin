@@ -15,6 +15,7 @@
 #include "ScreenAnimation.h"
 #include "ScreenTransition.h"
 #include "ScreenDynamicAxis.h"
+#include "ScreenDynamicFeedrate.h"
 #include "ScreenAbout.h"
 #include "ScreenPrint.h"
 #include "ScreenFile.h"
@@ -733,9 +734,9 @@ namespace screen
 		return local_view;
 	}
 
-   static ScreenSelector<void, uint16_t> * make_screen_speed()
+   static ScreenDynamicFeedrate<uint16_t> * make_screen_speed()
 	{
-		ScreenSelector<void, uint16_t> * local_view = new ScreenSelector<void, uint16_t>(MSG_SCREEN_SPEED, 10, 400, 10, action_get_feedrate_multiply(), action_set_feedrate_multiply);
+		ScreenDynamicFeedrate<uint16_t> * local_view = new ScreenDynamicFeedrate<uint16_t>(MSG_SCREEN_SPEED, 10, 400, 10, action_set_feedrate_multiply);
 		local_view->add(screen_print);
 		return local_view;
 	}
