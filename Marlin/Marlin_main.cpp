@@ -2750,7 +2750,7 @@ inline void gcode_G28() {
 
         // Get the current Z position and send it to the planner.
         //
-        // >> (z_tmp - real_z) : The rotated current Z minus the uncorrected Z (since homing)
+        // >> (z_tmp - real_z) : The rotated current Z minus the uncorrected Z (most recent plan_set_position/sync_plan_position)
         //
         // >> zprobe_zoffset : Z distance from nozzle to probe (set by default, M851, EEPROM, or Menu)
         //
