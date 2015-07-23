@@ -48,7 +48,7 @@ namespace screen
 			void press();
 			virtual void draw();
 			void add(ScreenIndex_t const & component);
-			void icon(Icon & component);
+			void icon(Icon * component);
 
 		protected:
 			uint16_t m_index;
