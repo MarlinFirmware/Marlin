@@ -305,10 +305,10 @@ Here are some standard links for getting your machine calibrated:
 // @section machine
 
 // Uncomment this option to enable CoreXY kinematics
-// #define COREXY
+//#define COREXY
 
 // Uncomment this option to enable CoreXZ kinematics
-// #define COREXZ
+//#define COREXZ
 
 // Enable this option for Toshiba steppers
 //#define CONFIG_STEPPERS_TOSHIBA
