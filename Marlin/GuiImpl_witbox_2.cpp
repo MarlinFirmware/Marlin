@@ -41,34 +41,34 @@ namespace screen
 	Size icon_size = Size(icon_width, icon_height);
 	Size widget_size = Size(widget_width, widget_height);
 
-	Icon icon_filament_unload   = Icon(icon_size, bits_filament_unload_normal,   bits_filament_unload_focused,   MSG_FILAMENT_UNLOAD);
-	Icon icon_filament_load     = Icon(icon_size, bits_filament_load_normal,     bits_filament_load_focused,     MSG_FILAMENT_LOAD);
-	Icon icon_leveling          = Icon(icon_size, bits_leveling_normal,          bits_leveling_focused,          MSG_LEVELING);
-	Icon icon_homing            = Icon(icon_size, bits_homing_normal,            bits_homing_focused,            MSG_HOMING);
-	Icon icon_settings          = Icon(icon_size, bits_settings_normal,          bits_settings_focused,          MSG_SETTINGS);
-	Icon icon_moveaxis          = Icon(icon_size, bits_moveaxis_normal,          bits_moveaxis_focused,          MSG_MOVEAXIS);
-	Icon icon_temperature       = Icon(icon_size, bits_temperature_normal,       bits_temperature_focused,       MSG_TEMPERATURE);
-	Icon icon_info              = Icon(icon_size, bits_info_normal,              bits_info_focused,              MSG_INFO);
-	Icon icon_stop              = Icon(icon_size, bits_stop_normal,              bits_stop_focused,              MSG_STOP);
-	Icon icon_change_filament   = Icon(icon_size, bits_change_filament_normal,   bits_change_filament_focused,   MSG_CHANGE_FILAMENT);
-	Icon icon_change_speed      = Icon(icon_size, bits_change_speed_normal,      bits_change_speed_focused,      MSG_CHANGE_SPEED);
-	Icon icon_back              = Icon(icon_size, bits_back_normal,              bits_back_focused,              MSG_BACK);
-	Icon icon_retry             = Icon(icon_size, bits_retry_normal,             bits_retry_focused,             MSG_RETRY);
-	Icon icon_ok                = Icon(icon_size, bits_ok_normal,                bits_ok_focused,                MSG_OK2);
-	Icon icon_move_x            = Icon(icon_size, bits_x_axis_normal,            bits_x_axis_focused,            MSG_MOVE_X);
-	Icon icon_move_y            = Icon(icon_size, bits_y_axis_normal,            bits_y_axis_focused,            MSG_MOVE_Y);
-	Icon icon_move_z            = Icon(icon_size, bits_z_axis_normal,            bits_z_axis_focused,            MSG_MOVE_Z);
-	Icon icon_move_e            = Icon(icon_size, bits_e_axis_normal,            bits_e_axis_focused,            MSG_MOVE_E);
-	Icon icon_move_01mm         = Icon(icon_size, bits_01mm_normal,              bits_01mm_focused,              MSG_SCREEN_MOVE_01MM);
-	Icon icon_move_1mm          = Icon(icon_size, bits_1mm_normal,               bits_1mm_focused,               MSG_SCREEN_MOVE_1MM);
-	Icon icon_move_10mm         = Icon(icon_size, bits_10mm_normal,              bits_10mm_focused,              MSG_SCREEN_MOVE_10MM);
-	Icon icon_offset            = Icon(icon_size, bits_offset_normal,            bits_offset_focused,            MSG_OFFSET);
-   IconStatus<SDState_t> icon_sd = IconStatus<SDState_t>(icon_size, bits_nosd_normal, bits_nosd_focused, bits_sd_normal, bits_sd_focused, MSG_NOSD, MSG_SD, &SDManager::single::instance());
-	IconStatus<bool> icon_autolevel = IconStatus<bool>(icon_size, bits_autolevel_disable_normal, bits_autolevel_disable_focused, bits_autolevel_normal, bits_autolevel_focused, MSG_AUTOLEVEL_DISABLE, MSG_AUTOLEVEL, &AutoLevelManager::single::instance());
-	IconStatus<bool> icon_steppers = IconStatus<bool>(icon_size, bits_steppers_normal, bits_steppers_focused, bits_steppers_off_normal, bits_steppers_off_focused, MSG_STEPPERS, MSG_STEPPERS_OFF, &SteppersManager::single::instance());
-	IconStatus<bool> icon_lightled = IconStatus<bool>(icon_size, bits_lightled_disable_normal, bits_lightled_disable_focused, bits_lightled_normal, bits_lightled_focused, MSG_LIGHTLED_DISABLE, MSG_LIGHTLED, &LightManager::single::instance());
-	IconStatus<PrinterState_t> icon_play_pause = IconStatus<PrinterState_t>(icon_size, bits_pause_normal, bits_pause_focused, bits_play_normal, bits_play_focused, MSG_PAUSE, MSG_PLAY, &PrintManager::single::instance());
-	IconWidget<float> widget_temperature = IconWidget<float>(widget_size, bits_temperature_widget_normal, bits_temperature_widget_focused, MSG_TEMPERATURE, &TemperatureManager::single::instance());
+	Icon icon_filament_unload   = Icon(icon_size, bits_filament_unload_normal,   bits_filament_unload_focused,   MSG_FILAMENT_UNLOAD());
+	Icon icon_filament_load     = Icon(icon_size, bits_filament_load_normal,     bits_filament_load_focused,     MSG_FILAMENT_LOAD());
+	Icon icon_leveling          = Icon(icon_size, bits_leveling_normal,          bits_leveling_focused,          MSG_LEVELING());
+	Icon icon_homing            = Icon(icon_size, bits_homing_normal,            bits_homing_focused,            MSG_HOMING());
+	Icon icon_settings          = Icon(icon_size, bits_settings_normal,          bits_settings_focused,          MSG_SETTINGS());
+	Icon icon_moveaxis          = Icon(icon_size, bits_moveaxis_normal,          bits_moveaxis_focused,          MSG_MOVEAXIS());
+	Icon icon_temperature       = Icon(icon_size, bits_temperature_normal,       bits_temperature_focused,       MSG_TEMPERATURE());
+	Icon icon_info              = Icon(icon_size, bits_info_normal,              bits_info_focused,              MSG_INFO());
+	Icon icon_stop              = Icon(icon_size, bits_stop_normal,              bits_stop_focused,              MSG_STOP());
+	Icon icon_change_filament   = Icon(icon_size, bits_change_filament_normal,   bits_change_filament_focused,   MSG_CHANGE_FILAMENT());
+	Icon icon_change_speed      = Icon(icon_size, bits_change_speed_normal,      bits_change_speed_focused,      MSG_CHANGE_SPEED());
+	Icon icon_back              = Icon(icon_size, bits_back_normal,              bits_back_focused,              MSG_BACK());
+	Icon icon_retry             = Icon(icon_size, bits_retry_normal,             bits_retry_focused,             MSG_RETRY());
+	Icon icon_ok                = Icon(icon_size, bits_ok_normal,                bits_ok_focused,                MSG_OK2());
+	Icon icon_move_x            = Icon(icon_size, bits_x_axis_normal,            bits_x_axis_focused,            MSG_MOVE_X());
+	Icon icon_move_y            = Icon(icon_size, bits_y_axis_normal,            bits_y_axis_focused,            MSG_MOVE_Y());
+	Icon icon_move_z            = Icon(icon_size, bits_z_axis_normal,            bits_z_axis_focused,            MSG_MOVE_Z());
+	Icon icon_move_e            = Icon(icon_size, bits_e_axis_normal,            bits_e_axis_focused,            MSG_MOVE_E());
+	Icon icon_move_01mm         = Icon(icon_size, bits_01mm_normal,              bits_01mm_focused,              MSG_SCREEN_MOVE_01MM());
+	Icon icon_move_1mm          = Icon(icon_size, bits_1mm_normal,               bits_1mm_focused,               MSG_SCREEN_MOVE_1MM());
+	Icon icon_move_10mm         = Icon(icon_size, bits_10mm_normal,              bits_10mm_focused,              MSG_SCREEN_MOVE_10MM());
+	Icon icon_offset            = Icon(icon_size, bits_offset_normal,            bits_offset_focused,            MSG_OFFSET());
+   IconStatus<SDState_t> icon_sd = IconStatus<SDState_t>(icon_size, bits_nosd_normal, bits_nosd_focused, bits_sd_normal, bits_sd_focused, MSG_NOSD(), MSG_SD(), &SDManager::single::instance());
+	IconStatus<bool> icon_autolevel = IconStatus<bool>(icon_size, bits_autolevel_disable_normal, bits_autolevel_disable_focused, bits_autolevel_normal, bits_autolevel_focused, MSG_AUTOLEVEL_DISABLE(), MSG_AUTOLEVEL(), &AutoLevelManager::single::instance());
+	IconStatus<bool> icon_steppers = IconStatus<bool>(icon_size, bits_steppers_normal, bits_steppers_focused, bits_steppers_off_normal, bits_steppers_off_focused, MSG_STEPPERS(), MSG_STEPPERS_OFF(), &SteppersManager::single::instance());
+	IconStatus<bool> icon_lightled = IconStatus<bool>(icon_size, bits_lightled_disable_normal, bits_lightled_disable_focused, bits_lightled_normal, bits_lightled_focused, MSG_LIGHTLED_DISABLE(), MSG_LIGHTLED(), &LightManager::single::instance());
+	IconStatus<PrinterState_t> icon_play_pause = IconStatus<PrinterState_t>(icon_size, bits_pause_normal, bits_pause_focused, bits_play_normal, bits_play_focused, MSG_PAUSE(), MSG_PLAY(), &PrintManager::single::instance());
+	IconWidget<float> widget_temperature = IconWidget<float>(widget_size, bits_temperature_widget_normal, bits_temperature_widget_focused, MSG_TEMPERATURE(), &TemperatureManager::single::instance());
 
 
 	///////////////////////////////
@@ -86,7 +86,7 @@ namespace screen
 
 	static ScreenEmergency * make_screen_emergency()
 	{
-		ScreenEmergency * local_view = new ScreenEmergency(MSG_SCREEN_EMERGENCY_TITLE, MSG_SCREEN_EMERGENCY_TEXT, MSG_SCREEN_EMERGENCY_BOX, bits_emergency);
+		ScreenEmergency * local_view = new ScreenEmergency(MSG_SCREEN_EMERGENCY_TITLE(), MSG_SCREEN_EMERGENCY_TEXT(), MSG_SCREEN_EMERGENCY_BOX(), bits_emergency);
 		return local_view;
 	}
 
@@ -116,7 +116,7 @@ namespace screen
 
 	static ScreenList * make_screen_SD_list()
 	{
-		ScreenList * local_view = new ScreenList(MSG_SCREEN_SD_LIST);
+		ScreenList * local_view = new ScreenList(MSG_SCREEN_SD_LIST());
 		local_view->add(screen_main);
 		local_view->add(screen_SD_confirm);
 		return local_view;
@@ -124,7 +124,7 @@ namespace screen
 
 	static ScreenFile * make_screen_SD_confirm()
 	{
-		ScreenFile * local_view = new ScreenFile(MSG_SCREEN_SD_CONFIRM);
+		ScreenFile * local_view = new ScreenFile(MSG_SCREEN_SD_CONFIRM());
 		local_view->add(screen_SD_list);
 		local_view->icon(icon_back);
 		local_view->add(screen_SD_OK);
@@ -134,14 +134,14 @@ namespace screen
 
 	static ScreenAction<void> * make_screen_SD_OK()
 	{
-		ScreenAction<void> * local_view = new ScreenAction<void>(MSG_SCREEN_SD_BACK, PrintManager::startPrint);
+		ScreenAction<void> * local_view = new ScreenAction<void>(MSG_SCREEN_SD_BACK(), PrintManager::startPrint);
 		local_view->add(screen_print);
 		return local_view;
 	}
 
 	static ScreenMenu * make_screen_unload_init()
 	{
-		ScreenMenu * local_view = new ScreenMenu(MSG_SCREEN_UNLOAD_TITLE, MSG_SCREEN_UNLOAD_TEXT2);
+		ScreenMenu * local_view = new ScreenMenu(MSG_SCREEN_UNLOAD_TITLE(), MSG_SCREEN_UNLOAD_TEXT2());
 		local_view->add(screen_main);
 		local_view->icon(icon_back);
 		local_view->add(screen_unload_select);
@@ -151,35 +151,35 @@ namespace screen
 
 	static ScreenSelector<void, uint16_t> * make_screen_unload_select()
 	{
-		ScreenSelector<void, uint16_t> * local_view = new ScreenSelector<void, uint16_t>(MSG_SCREEN_UNLOAD_TITLE, 170, 230, 1, default_temp_change_filament, action_set_temperature);
+		ScreenSelector<void, uint16_t> * local_view = new ScreenSelector<void, uint16_t>(MSG_SCREEN_UNLOAD_TITLE(), 170, 230, 1, default_temp_change_filament, action_set_temperature);
 		local_view->add(screen_unload_heating);
 		return local_view;
 	}
 
 	static ScreenAnimation<float> * make_screen_unload_heating()
 	{
-		ScreenAnimation<float> * local_view = new ScreenAnimation<float>(MSG_SCREEN_UNLOAD_TITLE, MSG_SCREEN_UNLOAD_WAIT, screen::ScreenAnimation<float>::GREATER_OR_EQUAL, TemperatureManager::single::instance().getTargetTemperature(), &TemperatureManager::single::instance());
+		ScreenAnimation<float> * local_view = new ScreenAnimation<float>(MSG_SCREEN_UNLOAD_TITLE(), MSG_SCREEN_UNLOAD_WAIT(), screen::ScreenAnimation<float>::GREATER_OR_EQUAL, TemperatureManager::single::instance().getTargetTemperature(), &TemperatureManager::single::instance());
 		local_view->add(screen_unload_info);
 		return local_view;
 	}
 
 	static ScreenDialog<void> * make_screen_unload_info()
 	{
-		ScreenDialog<void> * local_view = new ScreenDialog<void>(MSG_SCREEN_UNLOAD_TITLE, MSG_SCREEN_UNLOAD_TEXT1, MSG_SCREEN_UNLOAD_CONTINUE, do_nothing);
+		ScreenDialog<void> * local_view = new ScreenDialog<void>(MSG_SCREEN_UNLOAD_TITLE(), MSG_SCREEN_UNLOAD_TEXT1(), MSG_SCREEN_UNLOAD_CONTINUE(), do_nothing);
 		local_view->add(screen_unloading);
 		return local_view;
 	}
 
 	static ScreenTransition * make_screen_unloading()
 	{
-		ScreenTransition * local_view = new ScreenTransition(MSG_SCREEN_UNLOAD_TITLE, MSG_SCREEN_UNLOADING_TEXT, MSG_SCREEN_LEVEL_BOX0, action_filament_unload);
+		ScreenTransition * local_view = new ScreenTransition(MSG_SCREEN_UNLOAD_TITLE(), MSG_SCREEN_UNLOADING_TEXT(), MSG_SCREEN_LEVEL_BOX0(), action_filament_unload);
 		local_view->add(screen_unload_confirm);
 		return local_view;
 	}
 
 	static ScreenMenu * make_screen_unload_confirm()
 	{
-		ScreenMenu * local_view = new ScreenMenu(MSG_SCREEN_UNLOAD_TITLE, MSG_SCREEN_UNLOAD_CONFIRM);
+		ScreenMenu * local_view = new ScreenMenu(MSG_SCREEN_UNLOAD_TITLE(), MSG_SCREEN_UNLOAD_CONFIRM());
 		local_view->add(screen_unload_info);
 		local_view->icon(icon_retry);
 		local_view->add(screen_main);
@@ -189,7 +189,7 @@ namespace screen
 
 	static ScreenMenu * make_screen_load_init()
 	{
-		ScreenMenu * local_view = new ScreenMenu(MSG_SCREEN_LOAD_TITLE, MSG_SCREEN_LOAD_TEXT2);
+		ScreenMenu * local_view = new ScreenMenu(MSG_SCREEN_LOAD_TITLE(), MSG_SCREEN_LOAD_TEXT2());
 		local_view->add(screen_main);
 		local_view->icon(icon_back);
 		local_view->add(screen_load_select);
@@ -199,35 +199,35 @@ namespace screen
 
 	static ScreenSelector<void, uint16_t> * make_screen_load_select()
 	{
-		ScreenSelector<void, uint16_t> * local_view  = new ScreenSelector<void, uint16_t>(MSG_SCREEN_LOAD_TITLE, 170, 230, 1, default_temp_change_filament, action_set_temperature);
+		ScreenSelector<void, uint16_t> * local_view  = new ScreenSelector<void, uint16_t>(MSG_SCREEN_LOAD_TITLE(), 170, 230, 1, default_temp_change_filament, action_set_temperature);
 		local_view->add(screen_load_heating);
 		return local_view;
 	}
 
 	static ScreenAnimation<float> * make_screen_load_heating()
 	{
-		ScreenAnimation<float> * local_view = new ScreenAnimation<float>(MSG_SCREEN_LOAD_TITLE, MSG_SCREEN_LOAD_WAIT, screen::ScreenAnimation<float>::GREATER_OR_EQUAL, TemperatureManager::single::instance().getTargetTemperature(), &TemperatureManager::single::instance());
+		ScreenAnimation<float> * local_view = new ScreenAnimation<float>(MSG_SCREEN_LOAD_TITLE(), MSG_SCREEN_LOAD_WAIT(), screen::ScreenAnimation<float>::GREATER_OR_EQUAL, TemperatureManager::single::instance().getTargetTemperature(), &TemperatureManager::single::instance());
 		local_view->add(screen_load_info);
 		return local_view;
 	}
 
 	static ScreenDialog<void> * make_screen_load_info()
 	{
-		ScreenDialog<void> * local_view = new ScreenDialog<void>(MSG_SCREEN_LOAD_TITLE, MSG_SCREEN_LOAD_TEXT1, MSG_SCREEN_LOAD_CONTINUE, do_nothing);
+		ScreenDialog<void> * local_view = new ScreenDialog<void>(MSG_SCREEN_LOAD_TITLE(), MSG_SCREEN_LOAD_TEXT1(), MSG_SCREEN_LOAD_CONTINUE(), do_nothing);
 		local_view->add(screen_loading);
 		return local_view;
 	}
 
 	static ScreenTransition * make_screen_loading()
 	{
-		ScreenTransition * local_view = new ScreenTransition(MSG_SCREEN_LOAD_TITLE, MSG_SCREEN_LOADING_TEXT, MSG_SCREEN_LEVEL_BOX0, action_filament_load);
+		ScreenTransition * local_view = new ScreenTransition(MSG_SCREEN_LOAD_TITLE(), MSG_SCREEN_LOADING_TEXT(), MSG_SCREEN_LEVEL_BOX0(), action_filament_load);
 		local_view->add(screen_load_confirm);
 		return local_view;
 	}
 
 	static ScreenMenu * make_screen_load_confirm()
 	{
-		ScreenMenu * local_view = new ScreenMenu(MSG_SCREEN_LOAD_TITLE, MSG_SCREEN_LOAD_CONFIRM);
+		ScreenMenu * local_view = new ScreenMenu(MSG_SCREEN_LOAD_TITLE(), MSG_SCREEN_LOAD_CONFIRM());
 		local_view->add(screen_load_info);
 		local_view->icon(icon_retry);
 		local_view->add(screen_main);
@@ -237,7 +237,7 @@ namespace screen
 
 	static ScreenMenu * make_screen_level_init()
 	{
-		ScreenMenu * local_view = new ScreenMenu(MSG_SCREEN_LEVEL_TITLE, MSG_SCREEN_LEVEL_TEXT);
+		ScreenMenu * local_view = new ScreenMenu(MSG_SCREEN_LEVEL_TITLE(), MSG_SCREEN_LEVEL_TEXT());
 		local_view->add(screen_main);
 		local_view->icon(icon_back);
 		local_view->add(screen_level_cooling);
@@ -254,56 +254,56 @@ namespace screen
 
 	static ScreenAnimation<float> * make_screen_level_animation()
 	{
-		ScreenAnimation<float> * local_view = new ScreenAnimation<float>(MSG_SCREEN_LEVEL_TITLE, MSG_SCREEN_LEVEL_WAIT, screen::ScreenAnimation<float>::LESS_OR_EQUAL, 70, &TemperatureManager::single::instance());
+		ScreenAnimation<float> * local_view = new ScreenAnimation<float>(MSG_SCREEN_LEVEL_TITLE(), MSG_SCREEN_LEVEL_WAIT(), screen::ScreenAnimation<float>::LESS_OR_EQUAL, 70, &TemperatureManager::single::instance());
 		local_view->add(screen_level_homing);
 		return local_view;
 	}
 
 	static ScreenTransition * make_screen_level_homing()
 	{
-		ScreenTransition * local_view = new ScreenTransition(MSG_SCREEN_LEVEL_TITLE, MSG_SCREEN_LEVEL_TEXT0, MSG_SCREEN_LEVEL_BOX0, action_homing);
+		ScreenTransition * local_view = new ScreenTransition(MSG_SCREEN_LEVEL_TITLE(), MSG_SCREEN_LEVEL_TEXT0(), MSG_SCREEN_LEVEL_BOX0(), action_homing);
 		local_view->add(screen_level1);
 		return local_view;
 	}
 
 	static ScreenDialog<void> * make_screen_level1()
 	{
-		ScreenDialog<void> * local_view = new ScreenDialog<void>(MSG_SCREEN_LEVEL_TITLE, MSG_SCREEN_LEVEL_TEXT1, MSG_SCREEN_LEVEL_BOX1, action_level_plate);
+		ScreenDialog<void> * local_view = new ScreenDialog<void>(MSG_SCREEN_LEVEL_TITLE(), MSG_SCREEN_LEVEL_TEXT1(), MSG_SCREEN_LEVEL_BOX1(), action_level_plate);
 		local_view->add(screen_level2);
 		return local_view;
 	}
 
 	static ScreenDialog<void> * make_screen_level2()
 	{
-		ScreenDialog<void> * local_view = new ScreenDialog<void>(MSG_SCREEN_LEVEL_TITLE, MSG_SCREEN_LEVEL_TEXT2, MSG_SCREEN_LEVEL_BOX2, action_level_plate);
+		ScreenDialog<void> * local_view = new ScreenDialog<void>(MSG_SCREEN_LEVEL_TITLE(), MSG_SCREEN_LEVEL_TEXT2(), MSG_SCREEN_LEVEL_BOX2(), action_level_plate);
 		local_view->add(screen_level3);
 		return local_view;
 	}
 
 	static ScreenDialog<void> * make_screen_level3()
 	{
-		ScreenDialog<void> * local_view = new ScreenDialog<void>(MSG_SCREEN_LEVEL_TITLE, MSG_SCREEN_LEVEL_TEXT3, MSG_SCREEN_LEVEL_BOX3, action_level_plate);
+		ScreenDialog<void> * local_view = new ScreenDialog<void>(MSG_SCREEN_LEVEL_TITLE(), MSG_SCREEN_LEVEL_TEXT3(), MSG_SCREEN_LEVEL_BOX3(), action_level_plate);
 		local_view->add(screen_level4);
 		return local_view;
 	}
 
 	static ScreenDialog<void> * make_screen_level4()
 	{
-		ScreenDialog<void> * local_view = new ScreenDialog<void>(MSG_SCREEN_LEVEL_TITLE, MSG_SCREEN_LEVEL_TEXT4, MSG_SCREEN_LEVEL_BOX4, action_level_plate);
+		ScreenDialog<void> * local_view = new ScreenDialog<void>(MSG_SCREEN_LEVEL_TITLE(), MSG_SCREEN_LEVEL_TEXT4(), MSG_SCREEN_LEVEL_BOX4(), action_level_plate);
 		local_view->add(screen_level5);
 		return local_view;
 	}
 
 	static ScreenAction<void> * make_screen_level5()
 	{
-		ScreenAction<void> * local_view = new ScreenAction<void>(MSG_SCREEN_AUTOHOME, action_level_plate);
+		ScreenAction<void> * local_view = new ScreenAction<void>(MSG_SCREEN_AUTOHOME(), action_level_plate);
 		local_view->add(screen_level_confirm);
 		return local_view;
 	}
 
 	static ScreenMenu * make_screen_level_confirm()
 	{
-		ScreenMenu * local_view = new ScreenMenu(MSG_SCREEN_LEVEL_TITLE, MSG_SCREEN_LEVEL_CONFIRM);
+		ScreenMenu * local_view = new ScreenMenu(MSG_SCREEN_LEVEL_TITLE(), MSG_SCREEN_LEVEL_CONFIRM());
 		local_view->add(screen_level1);
 		local_view->icon(icon_retry);
 		local_view->add(screen_main);
@@ -313,14 +313,14 @@ namespace screen
 
 	static ScreenTransition * make_screen_autohome()
 	{
-		ScreenTransition * local_view = new ScreenTransition(MSG_SCREEN_AUTOHOME_TITLE, MSG_SCREEN_AUTOHOME_TEXT, MSG_SCREEN_AUTOHOME_WAIT, action_homing);
+		ScreenTransition * local_view = new ScreenTransition(MSG_SCREEN_AUTOHOME_TITLE(), MSG_SCREEN_AUTOHOME_TEXT(), MSG_SCREEN_AUTOHOME_WAIT(), action_homing);
 		local_view->add(screen_main);
 		return local_view;
 	}
 
 	static ScreenMenu * make_screen_settings()
 	{
-		ScreenMenu * local_view = new ScreenMenu(MSG_SCREEN_SETTINGS, MSG_SCREEN_SETTINGS_TEXT);
+		ScreenMenu * local_view = new ScreenMenu(MSG_SCREEN_SETTINGS(), MSG_SCREEN_SETTINGS_TEXT());
 		local_view->add(screen_main);
 		local_view->icon(icon_back);
 		local_view->add(screen_offset);
@@ -336,14 +336,14 @@ namespace screen
 
 	static ScreenAction<void> * make_screen_stepper()
 	{
-		ScreenAction<void> * local_view = new ScreenAction<void>(MSG_SCREEN_STEPPER, SteppersManager::disableAllSteppers);
+		ScreenAction<void> * local_view = new ScreenAction<void>(MSG_SCREEN_STEPPER(), SteppersManager::disableAllSteppers);
 		local_view->add(screen_main);
 		return local_view;
 	}
 
 	static ScreenMenu * make_screen_move()
 	{
-		ScreenMenu *  local_view = new ScreenMenu(MSG_SCREEN_MOVE_TITLE, MSG_SCREEN_MOVE_TEXT);
+		ScreenMenu *  local_view = new ScreenMenu(MSG_SCREEN_MOVE_TITLE(), MSG_SCREEN_MOVE_TEXT());
 		local_view->add(screen_main);
 		local_view->icon(icon_back);
 		local_view->add(screen_move_x);
@@ -359,7 +359,7 @@ namespace screen
 
 	static ScreenMenu * make_screen_move_heat_confirm()
 	{
-		ScreenMenu * local_view = new ScreenMenu(MSG_SCREEN_MOVE_TITLE, MSG_SCREEN_MOVE_HEAT_CONFIRM);
+		ScreenMenu * local_view = new ScreenMenu(MSG_SCREEN_MOVE_TITLE(), MSG_SCREEN_MOVE_HEAT_CONFIRM());
 		local_view->add(screen_move);
 		local_view->icon(icon_back);
 		local_view->add(screen_move_heat);
@@ -369,21 +369,21 @@ namespace screen
 
 	static ScreenAction<void> * make_screen_move_heat()
 	{
-		ScreenAction<void> * local_view = new ScreenAction<void>(MSG_SCREEN_MOVE_TITLE, action_preheat);
+		ScreenAction<void> * local_view = new ScreenAction<void>(MSG_SCREEN_MOVE_TITLE(), action_preheat);
 		local_view->add(screen_move_heating);
 		return local_view;
 	}
 
 	static ScreenAnimation<float> * make_screen_move_heating()
 	{
-		ScreenAnimation<float> * local_view = new ScreenAnimation<float>(MSG_SCREEN_MOVE_TITLE, MSG_SCREEN_MOVE_BOX0, screen::ScreenAnimation<float>::GREATER_OR_EQUAL, TemperatureManager::single::instance().getTargetTemperature(), &TemperatureManager::single::instance());
+		ScreenAnimation<float> * local_view = new ScreenAnimation<float>(MSG_SCREEN_MOVE_TITLE(), MSG_SCREEN_MOVE_BOX0(), screen::ScreenAnimation<float>::GREATER_OR_EQUAL, TemperatureManager::single::instance().getTargetTemperature(), &TemperatureManager::single::instance());
 		local_view->add(screen_move_e);
 		return local_view;
 	}
 
 	static ScreenMenu * make_screen_move_x()
 	{
-		ScreenMenu * local_view = new ScreenMenu(MSG_SCREEN_MOVE_TITLE, MSG_SCREEN_MOVE_X);
+		ScreenMenu * local_view = new ScreenMenu(MSG_SCREEN_MOVE_TITLE(), MSG_SCREEN_MOVE_X());
 		local_view->add(screen_move);
 		local_view->icon(icon_back);
 		local_view->add(screen_move_x_10);
@@ -397,7 +397,7 @@ namespace screen
 
 	static ScreenMenu * make_screen_move_y()
 	{
-		ScreenMenu * local_view = new ScreenMenu(MSG_SCREEN_MOVE_TITLE, MSG_SCREEN_MOVE_Y);
+		ScreenMenu * local_view = new ScreenMenu(MSG_SCREEN_MOVE_TITLE(), MSG_SCREEN_MOVE_Y());
 		local_view->add(screen_move);
 		local_view->icon(icon_back);
 		local_view->add(screen_move_y_10);
@@ -411,7 +411,7 @@ namespace screen
 
 	static ScreenMenu * make_screen_move_z()
 	{
-		ScreenMenu * local_view = new ScreenMenu(MSG_SCREEN_MOVE_TITLE, MSG_SCREEN_MOVE_Z);
+		ScreenMenu * local_view = new ScreenMenu(MSG_SCREEN_MOVE_TITLE(), MSG_SCREEN_MOVE_Z());
 		local_view->add(screen_move);
 		local_view->icon(icon_back);
 		local_view->add(screen_move_z_10);
@@ -425,7 +425,7 @@ namespace screen
 
 	static ScreenMenu * make_screen_move_e()
 	{
-		ScreenMenu * local_view = new ScreenMenu(MSG_SCREEN_MOVE_TITLE, MSG_SCREEN_MOVE_E);
+		ScreenMenu * local_view = new ScreenMenu(MSG_SCREEN_MOVE_TITLE(), MSG_SCREEN_MOVE_E());
 		local_view->add(screen_move);
 		local_view->icon(icon_back);
 		local_view->add(screen_move_e_1);
@@ -437,91 +437,91 @@ namespace screen
 
 	static ScreenDynamic<float> * make_screen_move_x_01()
 	{
-		ScreenDynamic<float> * local_view = new ScreenDynamic<float>(MSG_SCREEN_MOVE_01MM, X_AXIS, X_MIN_POS, X_MAX_POS, 0.1, action_move_axis_to);
+		ScreenDynamic<float> * local_view = new ScreenDynamic<float>(MSG_SCREEN_MOVE_01MM(), X_AXIS, X_MIN_POS, X_MAX_POS, 0.1, action_move_axis_to);
 		local_view->add(screen_move);
 		return local_view;
 	}
 
 	static ScreenDynamic<float> * make_screen_move_y_01()
 	{
-		ScreenDynamic<float> * local_view = new ScreenDynamic<float>(MSG_SCREEN_MOVE_01MM, Y_AXIS, Y_MIN_POS, Y_MAX_POS, 0.1, action_move_axis_to);
+		ScreenDynamic<float> * local_view = new ScreenDynamic<float>(MSG_SCREEN_MOVE_01MM(), Y_AXIS, Y_MIN_POS, Y_MAX_POS, 0.1, action_move_axis_to);
 		local_view->add(screen_move);
 		return local_view;
 	}
 
 	static ScreenDynamic<float> * make_screen_move_z_01()
 	{
-		ScreenDynamic<float> * local_view = new ScreenDynamic<float>(MSG_SCREEN_MOVE_01MM, Z_AXIS, Z_MIN_POS, Z_MAX_POS, 0.1, action_move_axis_to);
+		ScreenDynamic<float> * local_view = new ScreenDynamic<float>(MSG_SCREEN_MOVE_01MM(), Z_AXIS, Z_MIN_POS, Z_MAX_POS, 0.1, action_move_axis_to);
 		local_view->add(screen_move);
 		return local_view;
 	}
 
 	static ScreenDynamic<float> * make_screen_move_e_01()
 	{
-		ScreenDynamic<float> * local_view = new ScreenDynamic<float>(MSG_SCREEN_MOVE_01MM, E_AXIS, -1E9, 1E9, 0.1, action_move_axis_to);
+		ScreenDynamic<float> * local_view = new ScreenDynamic<float>(MSG_SCREEN_MOVE_01MM(), E_AXIS, -1E9, 1E9, 0.1, action_move_axis_to);
 		local_view->add(screen_move);
 		return local_view;
 	}
 
 	static ScreenDynamic<float> * make_screen_move_x_1()
 	{
-		ScreenDynamic<float> * local_view = new ScreenDynamic<float>(MSG_SCREEN_MOVE_1MM, X_AXIS, X_MIN_POS, X_MAX_POS, 1, action_move_axis_to);
+		ScreenDynamic<float> * local_view = new ScreenDynamic<float>(MSG_SCREEN_MOVE_1MM(), X_AXIS, X_MIN_POS, X_MAX_POS, 1, action_move_axis_to);
 		local_view->add(screen_move);
 		return local_view;
 	}
 
 	static ScreenDynamic<float> * make_screen_move_y_1()
 	{
-		ScreenDynamic<float> * local_view = new ScreenDynamic<float>(MSG_SCREEN_MOVE_1MM, Y_AXIS, Y_MIN_POS, Y_MAX_POS, 1, action_move_axis_to);
+		ScreenDynamic<float> * local_view = new ScreenDynamic<float>(MSG_SCREEN_MOVE_1MM(), Y_AXIS, Y_MIN_POS, Y_MAX_POS, 1, action_move_axis_to);
 		local_view->add(screen_move);
 		return local_view;
 	}
 
 	static ScreenDynamic<float> * make_screen_move_z_1()
 	{
-		ScreenDynamic<float> * local_view = new ScreenDynamic<float>(MSG_SCREEN_MOVE_1MM, Z_AXIS, Z_MIN_POS, Z_MAX_POS, 1, action_move_axis_to);
+		ScreenDynamic<float> * local_view = new ScreenDynamic<float>(MSG_SCREEN_MOVE_1MM(), Z_AXIS, Z_MIN_POS, Z_MAX_POS, 1, action_move_axis_to);
 		local_view->add(screen_move);
 		return local_view;
 	}
 
 	static ScreenDynamic<float> * make_screen_move_e_1()
 	{
-		ScreenDynamic<float> * local_view = new ScreenDynamic<float>(MSG_SCREEN_MOVE_1MM, E_AXIS, -1E9, 1E9, 1, action_move_axis_to);
+		ScreenDynamic<float> * local_view = new ScreenDynamic<float>(MSG_SCREEN_MOVE_1MM(), E_AXIS, -1E9, 1E9, 1, action_move_axis_to);
 		local_view->add(screen_move);
 		return local_view;
 	}
 
 	static ScreenDynamic<float> * make_screen_move_x_10()
 	{
-		ScreenDynamic<float> * local_view = new ScreenDynamic<float>(MSG_SCREEN_MOVE_10MM, X_AXIS, X_MIN_POS, X_MAX_POS, 10, action_move_axis_to);
+		ScreenDynamic<float> * local_view = new ScreenDynamic<float>(MSG_SCREEN_MOVE_10MM(), X_AXIS, X_MIN_POS, X_MAX_POS, 10, action_move_axis_to);
 		local_view->add(screen_move);
 		return local_view;
 	}
 
 	static ScreenDynamic<float> * make_screen_move_y_10()
 	{
-		ScreenDynamic<float> * local_view = new ScreenDynamic<float>(MSG_SCREEN_MOVE_10MM, Y_AXIS, Y_MIN_POS, Y_MAX_POS, 10, action_move_axis_to);
+		ScreenDynamic<float> * local_view = new ScreenDynamic<float>(MSG_SCREEN_MOVE_10MM(), Y_AXIS, Y_MIN_POS, Y_MAX_POS, 10, action_move_axis_to);
 		local_view->add(screen_move);
 		return local_view;
 	}
 
 	static ScreenDynamic<float> * make_screen_move_z_10()
 	{
-		ScreenDynamic<float> * local_view = new ScreenDynamic<float>(MSG_SCREEN_MOVE_10MM, Z_AXIS, Z_MIN_POS, Z_MAX_POS, 10, action_move_axis_to);
+		ScreenDynamic<float> * local_view = new ScreenDynamic<float>(MSG_SCREEN_MOVE_10MM(), Z_AXIS, Z_MIN_POS, Z_MAX_POS, 10, action_move_axis_to);
 		local_view->add(screen_move);
 		return local_view;
 	}
 
 	static ScreenSelector<void, uint16_t> * make_screen_temperature_main()
 	{
-		ScreenSelector<void, uint16_t> * local_view = new ScreenSelector<void, uint16_t>(MSG_SCREEN_TEMP_TITLE, 0, 250, 10, default_temp_change_filament, action_set_temperature);
+		ScreenSelector<void, uint16_t> * local_view = new ScreenSelector<void, uint16_t>(MSG_SCREEN_TEMP_TITLE(), 0, 250, 10, default_temp_change_filament, action_set_temperature);
 		local_view->add(screen_heating_main);
 		return local_view;
 	}
 
 	static ScreenAnimation<float> * make_screen_heating_main()
 	{
-		ScreenAnimation<float> * local_view = new ScreenAnimation<float>(MSG_SCREEN_HEATING_MAIN_TITLE, MSG_SCREEN_HEATING_MAIN_BOX, screen::ScreenAnimation<float>::GREATER_OR_EQUAL, TemperatureManager::single::instance().getTargetTemperature(), &TemperatureManager::single::instance());
+		ScreenAnimation<float> * local_view = new ScreenAnimation<float>(MSG_SCREEN_HEATING_MAIN_TITLE(), MSG_SCREEN_HEATING_MAIN_BOX(), screen::ScreenAnimation<float>::GREATER_OR_EQUAL, TemperatureManager::single::instance().getTargetTemperature(), &TemperatureManager::single::instance());
 		local_view->add(screen_main);
 		local_view->add(screen_main);
 		return local_view;
@@ -529,28 +529,28 @@ namespace screen
 
 	static ScreenAction<void> * make_screen_autolevel()
 	{
-		ScreenAction<void> * local_view = new ScreenAction<void>(MSG_SCREEN_AUTOLEVEL, AutoLevelManager::setState); 
+		ScreenAction<void> * local_view = new ScreenAction<void>(MSG_SCREEN_AUTOLEVEL(), AutoLevelManager::setState); 
 		local_view->add(screen_settings);
 		return local_view;
 	}
 
 	static ScreenAction<void> * make_screen_light()
 	{
-		ScreenAction<void> * local_view = new ScreenAction<void>(MSG_SCREEN_LIGHT, LightManager::setState);
+		ScreenAction<void> * local_view = new ScreenAction<void>(MSG_SCREEN_LIGHT(), LightManager::setState);
 		local_view->add(screen_settings);
 		return local_view;
 	}
 
 	static ScreenAbout * make_screen_info()
 	{
-		ScreenAbout * local_view = new ScreenAbout(MSG_SCREEN_INFO, MSG_SCREEN_INFO_TEXT, MSG_SCREEN_INFO_BOX, bits_logo_about);
+		ScreenAbout * local_view = new ScreenAbout(MSG_SCREEN_INFO(), MSG_SCREEN_INFO_TEXT(), MSG_SCREEN_INFO_BOX(), bits_logo_about);
 		local_view->add(screen_settings);
 		return local_view;
 	}
 
 	static ScreenMenu * make_screen_offset()
 	{
-		ScreenMenu * local_view = new ScreenMenu(MSG_SCREEN_OFFSET_TITLE, MSG_SCREEN_OFFSET_TEXT);
+		ScreenMenu * local_view = new ScreenMenu(MSG_SCREEN_OFFSET_TITLE(), MSG_SCREEN_OFFSET_TEXT());
 		local_view->add(screen_settings);
 		local_view->icon(icon_back);
 		local_view->add(screen_offset_home);
@@ -560,42 +560,42 @@ namespace screen
 
 	static ScreenTransition * make_screen_offset_home()
 	{
-		ScreenTransition * local_view = new ScreenTransition(MSG_SCREEN_OFFSET_TITLE, MSG_SCREEN_OFFSET_HOME_TEXT, MSG_SCREEN_OFFSET_WAIT, action_offset_homing);
+		ScreenTransition * local_view = new ScreenTransition(MSG_SCREEN_OFFSET_TITLE(), MSG_SCREEN_OFFSET_HOME_TEXT(), MSG_SCREEN_OFFSET_WAIT(), action_offset_homing);
 		local_view->add(screen_offset_calculate);
 		return local_view;
 	}
 
 	static ScreenTransition * make_screen_offset_calculate()
 	{
-		ScreenTransition * local_view = new ScreenTransition(MSG_SCREEN_OFFSET_TITLE, MSG_SCREEN_OFFSET_PLANE_TEXT, MSG_SCREEN_OFFSET_WAIT, action_offset);
+		ScreenTransition * local_view = new ScreenTransition(MSG_SCREEN_OFFSET_TITLE(), MSG_SCREEN_OFFSET_PLANE_TEXT(), MSG_SCREEN_OFFSET_WAIT(), action_offset);
 		local_view->add(screen_offset_info);
 		return local_view;
 	}
 
 	static ScreenDialog<void> * make_screen_offset_info()
 	{
-		ScreenDialog<void> * local_view = new ScreenDialog<void>(MSG_SCREEN_OFFSET_TITLE, MSG_SCREEN_OFFSET_DIALOG_TEXT, MSG_SCREEN_OFFSET_DIALOG_BOX, do_nothing);
+		ScreenDialog<void> * local_view = new ScreenDialog<void>(MSG_SCREEN_OFFSET_TITLE(), MSG_SCREEN_OFFSET_DIALOG_TEXT(), MSG_SCREEN_OFFSET_DIALOG_BOX(), do_nothing);
 		local_view->add(screen_offset_set);
 		return local_view;
 	}
 
 	static ScreenDynamic<float> * make_screen_offset_set()
 	{
-		ScreenDynamic<float> * local_view = new ScreenDynamic<float>(MSG_SCREEN_OFFSET_TITLE, Z_AXIS, 0.0, 4.0, 0.02, action_set_offset);
+		ScreenDynamic<float> * local_view = new ScreenDynamic<float>(MSG_SCREEN_OFFSET_TITLE(), Z_AXIS, 0.0, 4.0, 0.02, action_set_offset);
 		local_view->add(screen_offset_save);
 		return local_view;
 	}
 
 	static ScreenAction<void> * make_screen_offset_save()
 	{
-		ScreenAction<void> * local_view = new ScreenAction<void>(MSG_SCREEN_OFFSET_TITLE, action_save_offset);
+		ScreenAction<void> * local_view = new ScreenAction<void>(MSG_SCREEN_OFFSET_TITLE(), action_save_offset);
 		local_view->add(screen_offset_finish);
 		return local_view;
 	}
 
 	static ScreenMenu * make_screen_offset_finish()
 	{
-		ScreenMenu * local_view = new ScreenMenu(MSG_SCREEN_OFFSET_TITLE, MSG_SCREEN_OFFSET_FINISH);
+		ScreenMenu * local_view = new ScreenMenu(MSG_SCREEN_OFFSET_TITLE(), MSG_SCREEN_OFFSET_FINISH());
 		local_view->add(screen_offset_home);
 		local_view->icon(icon_back);
 		local_view->add(screen_main);
@@ -605,7 +605,7 @@ namespace screen
 
 	static ScreenPrint * make_screen_print()
 	{
-		ScreenPrint * local_view = new ScreenPrint(MSG_SCREEN_PRINT_PRINTING, &TemperatureManager::single::instance());
+		ScreenPrint * local_view = new ScreenPrint(MSG_SCREEN_PRINT_PRINTING(), &TemperatureManager::single::instance());
 		local_view->add(screen_play_pause);
 		local_view->icon(icon_play_pause);
 		local_view->add(screen_stop_confirm);
@@ -621,21 +621,21 @@ namespace screen
 
 	static ScreenDialog<void> * make_screen_print_complete()
 	{
-		ScreenComplete * local_view = new ScreenComplete(MSG_SCREEN_PRINT_TITLE, MSG_SCREEN_PRINT_COMPLETED, MSG_SCREEN_PRINT_COMPLETED_BOX, PrintManager::printingTime());
+		ScreenComplete * local_view = new ScreenComplete(MSG_SCREEN_PRINT_TITLE(), MSG_SCREEN_PRINT_COMPLETED(), MSG_SCREEN_PRINT_COMPLETED_BOX(), PrintManager::printingTime());
 		local_view->add(screen_main);
 		return local_view;
 	}
 
 	static ScreenAction<void> * make_screen_play_pause()
 	{
-		ScreenAction<void> * local_view = new ScreenAction<void>(MSG_SCREEN_PRINT_PAUSE, PrintManager::togglePause);
+		ScreenAction<void> * local_view = new ScreenAction<void>(MSG_SCREEN_PRINT_PAUSE(), PrintManager::togglePause);
 		local_view->add(screen_print);
 		return local_view;
 	}
 
 	static ScreenFile * make_screen_stop_confirm()
 	{
-		ScreenFile * local_view = new ScreenFile(MSG_SCREEN_STOP_CONFIRM);
+		ScreenFile * local_view = new ScreenFile(MSG_SCREEN_STOP_CONFIRM());
 		local_view->add(screen_print);
 		local_view->icon(icon_back);
 		local_view->add(screen_stop_OK);
@@ -645,14 +645,14 @@ namespace screen
 
 	static ScreenAction<void> * make_screen_stop_OK()
 	{
-		ScreenAction<void> * local_view = new ScreenAction<void>(MSG_SCREEN_STOP_OK, PrintManager::stopPrint);
+		ScreenAction<void> * local_view = new ScreenAction<void>(MSG_SCREEN_STOP_OK(), PrintManager::stopPrint);
 		local_view->add(screen_main);
 		return local_view;
 	}
 
 	static ScreenMenu * make_screen_change_confirm_first()
 	{
-		ScreenMenu * local_view = new ScreenMenu(MSG_SCREEN_CHANGE_TITLE, MSG_SCREEN_CHANGE_CONFIRM);
+		ScreenMenu * local_view = new ScreenMenu(MSG_SCREEN_CHANGE_TITLE(), MSG_SCREEN_CHANGE_CONFIRM());
 		local_view->add(screen_print);
 		local_view->icon(icon_back);
 		local_view->add(screen_change_pausing);
@@ -662,63 +662,63 @@ namespace screen
 
 	static ScreenTransition * make_screen_change_pausing()
 	{
-		ScreenTransition * local_view = new ScreenTransition(MSG_SCREEN_CHANGE_TITLE, MSG_SCREEN_UNLOADING_TEXT, MSG_SCREEN_LEVEL_BOX0, PrintManager::pausePrint);
+		ScreenTransition * local_view = new ScreenTransition(MSG_SCREEN_CHANGE_TITLE(), MSG_SCREEN_UNLOADING_TEXT(), MSG_SCREEN_LEVEL_BOX0(), PrintManager::pausePrint);
 		local_view->add(screen_change_selector);
 		return local_view;
 	}
 
 	static ScreenSelector<void, uint16_t> * make_screen_change_selector()
 	{
-		ScreenSelector<void, uint16_t> * local_view = new ScreenSelector<void, uint16_t>(MSG_SCREEN_TEMP_TITLE, 170, 250, 1, default_temp_change_filament, action_set_temperature);
+		ScreenSelector<void, uint16_t> * local_view = new ScreenSelector<void, uint16_t>(MSG_SCREEN_TEMP_TITLE(), 170, 250, 1, default_temp_change_filament, action_set_temperature);
 		local_view->add(screen_change_animation);
 		return local_view;
 	}
 
 	static ScreenAnimation<float> * make_screen_change_animation()
 	{
-		ScreenAnimation<float> * local_view = new ScreenAnimation<float>(MSG_SCREEN_CHANGE_TITLE, MSG_SCREEN_LOAD_WAIT, screen::ScreenAnimation<float>::GREATER_OR_EQUAL, TemperatureManager::single::instance().getTargetTemperature(), &TemperatureManager::single::instance());
+		ScreenAnimation<float> * local_view = new ScreenAnimation<float>(MSG_SCREEN_CHANGE_TITLE(), MSG_SCREEN_LOAD_WAIT(), screen::ScreenAnimation<float>::GREATER_OR_EQUAL, TemperatureManager::single::instance().getTargetTemperature(), &TemperatureManager::single::instance());
 		local_view->add(screen_change_info);
 		return local_view;
 	}
 
 	static ScreenDialog<void> * make_screen_change_info()
 	{
-		ScreenDialog<void> * local_view = new ScreenDialog<void>(MSG_SCREEN_CHANGE_TITLE, MSG_SCREEN_CHANGE_START, MSG_SCREEN_CHANGE_BOX, do_nothing);
+		ScreenDialog<void> * local_view = new ScreenDialog<void>(MSG_SCREEN_CHANGE_TITLE(), MSG_SCREEN_CHANGE_START(), MSG_SCREEN_CHANGE_BOX(), do_nothing);
 		local_view->add(screen_change_pullout_info);
 		return local_view;
 	}
 
 	static ScreenDialog<void> * make_screen_change_pullout_info()
 	{
-		ScreenDialog<void> * local_view = new ScreenDialog<void>(MSG_SCREEN_CHANGE_TITLE, MSG_SCREEN_CHANGE_PULLOUT, MSG_SCREEN_CHANGE_BOX, do_nothing);
+		ScreenDialog<void> * local_view = new ScreenDialog<void>(MSG_SCREEN_CHANGE_TITLE(), MSG_SCREEN_CHANGE_PULLOUT(), MSG_SCREEN_CHANGE_BOX(), do_nothing);
 		local_view->add(screen_change_unloading);
 		return local_view;
 	}
 
 	static ScreenTransition * make_screen_change_unloading()
 	{
-		ScreenTransition * local_view = new ScreenTransition(MSG_SCREEN_CHANGE_TITLE, MSG_SCREEN_UNLOADING_TEXT, MSG_SCREEN_LEVEL_BOX0, action_filament_unload);
+		ScreenTransition * local_view = new ScreenTransition(MSG_SCREEN_CHANGE_TITLE(), MSG_SCREEN_UNLOADING_TEXT(), MSG_SCREEN_LEVEL_BOX0(), action_filament_unload);
 		local_view->add(screen_change_insert_info);
 		return local_view;
 	}
 
 	static ScreenDialog<void> * make_screen_change_insert_info()
 	{
-		ScreenDialog<void> * local_view = new ScreenDialog<void>(MSG_SCREEN_CHANGE_TITLE, MSG_SCREEN_CHANGE_INSERT, MSG_SCREEN_CHANGE_BOX, do_nothing);
+		ScreenDialog<void> * local_view = new ScreenDialog<void>(MSG_SCREEN_CHANGE_TITLE(), MSG_SCREEN_CHANGE_INSERT(), MSG_SCREEN_CHANGE_BOX(), do_nothing);
 		local_view->add(screen_change_loading);
 		return local_view;
 	}
 
 	static ScreenTransition * make_screen_change_loading()
 	{
-		ScreenTransition * local_view = new ScreenTransition(MSG_SCREEN_CHANGE_TITLE, MSG_SCREEN_LOADING_TEXT, MSG_SCREEN_LEVEL_BOX0, action_filament_load);
+		ScreenTransition * local_view = new ScreenTransition(MSG_SCREEN_CHANGE_TITLE(), MSG_SCREEN_LOADING_TEXT(), MSG_SCREEN_LEVEL_BOX0(), action_filament_load);
 		local_view->add(screen_change_confirm_second);
 		return local_view;
 	}
 
 	static ScreenMenu * make_screen_change_confirm_second()
 	{
-		ScreenMenu * local_view = new ScreenMenu(MSG_SCREEN_CHANGE_TITLE, MSG_SCREEN_CHANGE_CONFIRM);
+		ScreenMenu * local_view = new ScreenMenu(MSG_SCREEN_CHANGE_TITLE(), MSG_SCREEN_CHANGE_CONFIRM());
 		local_view->add(screen_change_info);
 		local_view->icon(icon_retry);
 		local_view->add(screen_change_ok2print);
@@ -728,28 +728,28 @@ namespace screen
 
 	static ScreenAction<void> * make_screen_change_ok2print()
 	{
-		ScreenAction<void> * local_view = new ScreenAction<void>(MSG_OK2, PrintManager::resumePrint);
+		ScreenAction<void> * local_view = new ScreenAction<void>(MSG_OK2(), PrintManager::resumePrint);
 		local_view->add(screen_print);
 		return local_view;
 	}
 
    static ScreenSelector<void, uint16_t> * make_screen_speed()
 	{
-		ScreenSelector<void, uint16_t> * local_view = new ScreenSelector<void, uint16_t>(MSG_SCREEN_SPEED, 10, 400, 10, action_get_feedrate_multiply(), action_set_feedrate_multiply);
+		ScreenSelector<void, uint16_t> * local_view = new ScreenSelector<void, uint16_t>(MSG_SCREEN_SPEED(), 10, 400, 10, action_get_feedrate_multiply(), action_set_feedrate_multiply);
 		local_view->add(screen_print);
 		return local_view;
 	}
 
    static ScreenSelector<void, uint16_t> * make_screen_temperature_print()
 	{
-		ScreenSelector<void, uint16_t> * local_view = new ScreenSelector<void, uint16_t>(MSG_SCREEN_TEMP_TITLE, 170, 230, 1, TemperatureManager::single::instance().getTargetTemperature(), action_set_temperature);
+		ScreenSelector<void, uint16_t> * local_view = new ScreenSelector<void, uint16_t>(MSG_SCREEN_TEMP_TITLE(), 170, 230, 1, TemperatureManager::single::instance().getTargetTemperature(), action_set_temperature);
 		local_view->add(screen_print);
 		return local_view;
 	}
 
 	static ScreenSerial * make_screen_serial()
 	{
-		ScreenSerial * local_view = new ScreenSerial(MSG_SCREEN_SERIAL_TITLE);
+		ScreenSerial * local_view = new ScreenSerial(MSG_SCREEN_SERIAL_TITLE());
 		return local_view;
 	}
 

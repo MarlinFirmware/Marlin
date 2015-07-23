@@ -70,7 +70,7 @@ namespace screen
 
 				Area title_area(5,10,118,22);
 				painter.setWorkingArea(title_area);
-				painter.text_P(MSG_SCREEN_SERIAL_TITLE);
+				painter.text_P(MSG_SCREEN_SERIAL_TITLE());
 
 				Area text_area(5, 25, 118, 59);
 				painter.setWorkingArea(text_area);
