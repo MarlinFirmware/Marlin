@@ -788,7 +788,7 @@ void get_command()
     serial_char = MYSERIAL.read();
 
     #ifdef DOGLCD
-      if(!serial_mode){
+      if(eeprom::StorageManager::getScreenSerialState() == eeprom::SCREEN_SERIAL_ACTIVE && !serial_mode){
         serial_mode = true;
         if (screen::ViewManager::getInstance().getViewIndex() != screen::screen_serial){
           screen::ViewManager::getInstance().activeView(screen::screen_serial);
