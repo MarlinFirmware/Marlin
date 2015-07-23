@@ -13,7 +13,7 @@
 //=============================Thermal Settings  ============================
 //===========================================================================
 
-#ifdef BED_LIMIT_SWITCHING
+#if ENABLED(BED_LIMIT_SWITCHING)
   #define BED_HYSTERESIS 2 //only disable heating if T>target+BED_HYSTERESIS and enable heating if T>target-BED_HYSTERESIS
 #endif
 #define BED_CHECK_INTERVAL 5000 //ms between checks in bang-bang control
@@ -21,7 +21,7 @@
 /**
  * Thermal Protection parameters
  */
-#ifdef THERMAL_PROTECTION_HOTENDS
+#if ENABLED(THERMAL_PROTECTION_HOTENDS)
   #define THERMAL_PROTECTION_PERIOD 40        // Seconds
   #define THERMAL_PROTECTION_HYSTERESIS 4     // Degrees Celsius
 
@@ -35,16 +35,16 @@
   #define WATCH_TEMP_INCREASE 4               // Degrees Celsius
 #endif
 
-#ifdef THERMAL_PROTECTION_BED
+#if ENABLED(THERMAL_PROTECTION_BED)
   #define THERMAL_PROTECTION_BED_PERIOD 20    // Seconds
   #define THERMAL_PROTECTION_BED_HYSTERESIS 2 // Degrees Celsius
 #endif
 
-#ifdef PIDTEMP
+#if ENABLED(PIDTEMP)
   // this adds an experimental additional term to the heating power, proportional to the extrusion speed.
   // if Kc is chosen well, the additional required power due to increased melting should be compensated.
   #define PID_ADD_EXTRUSION_RATE
-  #ifdef PID_ADD_EXTRUSION_RATE
+  #if ENABLED(PID_ADD_EXTRUSION_RATE)
     #define  DEFAULT_Kc (1) //heating power=Kc*(e_speed)
   #endif
 #endif
@@ -60,7 +60,7 @@
  * On an Ultimaker, some initial testing worked with M109 S215 B260 F1 in the start.gcode
  */
 #define AUTOTEMP
-#ifdef AUTOTEMP
+#if ENABLED(AUTOTEMP)
   #define AUTOTEMP_OLDWEIGHT 0.98
 #endif
 
@@ -130,20 +130,20 @@
 
 //// AUTOSET LOCATIONS OF LIMIT SWITCHES
 //// Added by ZetaPhoenix 09-15-2012
-#ifdef MANUAL_HOME_POSITIONS  // Use manual limit switch locations
+#if ENABLED(MANUAL_HOME_POSITIONS)  // Use manual limit switch locations
   #define X_HOME_POS MANUAL_X_HOME_POS
   #define Y_HOME_POS MANUAL_Y_HOME_POS
   #define Z_HOME_POS MANUAL_Z_HOME_POS
 #else //Set min/max homing switch positions based upon homing direction and min/max travel limits
   //X axis
   #if X_HOME_DIR == -1
-    #ifdef BED_CENTER_AT_0_0
+    #if ENABLED(BED_CENTER_AT_0_0)
       #define X_HOME_POS X_MAX_LENGTH * -0.5
     #else
       #define X_HOME_POS X_MIN_POS
     #endif //BED_CENTER_AT_0_0
   #else
-    #ifdef BED_CENTER_AT_0_0
+    #if ENABLED(BED_CENTER_AT_0_0)
       #define X_HOME_POS X_MAX_LENGTH * 0.5
     #else
       #define X_HOME_POS X_MAX_POS
@@ -152,13 +152,13 @@
 
   //Y axis
   #if Y_HOME_DIR == -1
-    #ifdef BED_CENTER_AT_0_0
+    #if ENABLED(BED_CENTER_AT_0_0)
       #define Y_HOME_POS Y_MAX_LENGTH * -0.5
     #else
       #define Y_HOME_POS Y_MIN_POS
     #endif //BED_CENTER_AT_0_0
   #else
-    #ifdef BED_CENTER_AT_0_0
+    #if ENABLED(BED_CENTER_AT_0_0)
       #define Y_HOME_POS Y_MAX_LENGTH * 0.5
     #else
       #define Y_HOME_POS Y_MAX_POS
@@ -184,7 +184,7 @@
 // On a RAMPS (or other 5 driver) motherboard, using this feature will limit you to using 1 extruder.
 //#define Z_DUAL_STEPPER_DRIVERS
 
-#ifdef Z_DUAL_STEPPER_DRIVERS
+#if ENABLED(Z_DUAL_STEPPER_DRIVERS)
   #undef EXTRUDERS
   #define EXTRUDERS 1
 #endif
@@ -195,7 +195,7 @@
 // Define if the two Y drives need to rotate in opposite directions
 #define INVERT_Y2_VS_Y_DIR true
 
-#ifdef Y_DUAL_STEPPER_DRIVERS
+#if ENABLED(Y_DUAL_STEPPER_DRIVERS)
   #undef EXTRUDERS
   #define EXTRUDERS 1
 #endif
@@ -209,7 +209,7 @@
 // prevents hot-end ooze contaminating the print. It also reduces the weight of each x-carriage
 // allowing faster printing speeds.
 //#define DUAL_X_CARRIAGE
-#ifdef DUAL_X_CARRIAGE
+#if ENABLED(DUAL_X_CARRIAGE)
   // Configuration for second X-carriage
   // Note: the first x-carriage is defined as the x-carriage which homes to the minimum endstop;
   // the second x-carriage always homes to the maximum endstop.
@@ -266,7 +266,7 @@
 
 // @section machine
 
-#ifdef CONFIG_STEPPERS_TOSHIBA
+#if ENABLED(CONFIG_STEPPERS_TOSHIBA)
 #define MAX_STEP_FREQUENCY 10000 // Max step frequency for Toshiba Stepper Controllers
 #else
 #define MAX_STEP_FREQUENCY 40000 // Max step frequency for Ultimaker (5000 pps / half step)
@@ -285,7 +285,7 @@
 
 // @section lcd
 
-#ifdef ULTIPANEL
+#if ENABLED(ULTIPANEL)
   #define MANUAL_FEEDRATE {50*60, 50*60, 4*60, 60} // Feedrates for manual moves along X, Y, Z, E from panel
   #define ULTIPANEL_FEEDMULTIPLY  // Comment to disable setting feedrate multiplier via encoder
 #endif
@@ -338,7 +338,7 @@
 
 // @section lcd
 
-#ifdef SDSUPPORT
+#if ENABLED(SDSUPPORT)
 
   // If you are using a RAMPS board or cheap E-bay purchased boards that do not detect when an SD card is inserted
   // You can get round this by connecting a push button or single throw switch to the pin defined as SDCARDCARDDETECT
@@ -357,7 +357,7 @@
   // Show a progress bar on HD44780 LCDs for SD printing
   //#define LCD_PROGRESS_BAR
 
-  #ifdef LCD_PROGRESS_BAR
+  #if ENABLED(LCD_PROGRESS_BAR)
     // Amount of time (ms) to show the bar
     #define PROGRESS_BAR_BAR_TIME 2000
     // Amount of time (ms) to show the status message
@@ -380,7 +380,7 @@
 #endif // SDSUPPORT
 
 // for dogm lcd displays you can choose some additional fonts:
-#ifdef DOGLCD
+#if ENABLED(DOGLCD)
   // save 3120 bytes of PROGMEM by commenting out #define USE_BIG_EDIT_FONT
   // we don't have a big font for Cyrillic, Kana
   //#define USE_BIG_EDIT_FONT
@@ -395,7 +395,7 @@
 // The hardware watchdog should reset the microcontroller disabling all outputs, in case the firmware gets stuck and doesn't do temperature regulation.
 //#define USE_WATCHDOG
 
-#ifdef USE_WATCHDOG
+#if ENABLED(USE_WATCHDOG)
 // If you have a watchdog reboot in an ArduinoMega2560 then the device will hang forever, as a watchdog reset will leave the watchdog on.
 // The "WATCHDOG_RESET_MANUAL" goes around this by not using the hardware reset.
 //  However, THIS FEATURE IS UNSAFE!, as it will only work if interrupts are disabled. And the code could hang in an interrupt routine with interrupts disabled.
@@ -408,18 +408,18 @@
 // it can e.g. be used to change z-positions in the print startup phase in real-time
 // does not respect endstops!
 //#define BABYSTEPPING
-#ifdef BABYSTEPPING
+#if ENABLED(BABYSTEPPING)
   #define BABYSTEP_XY  //not only z, but also XY in the menu. more clutter, more functions
   #define BABYSTEP_INVERT_Z false  //true for inverse movements in Z
   #define BABYSTEP_Z_MULTIPLICATOR 2 //faster z movements
 
 // @section extruder
-  #ifdef COREXY
+  #if ENABLED(COREXY)
     #error BABYSTEPPING not implemented for COREXY yet.
   #endif
 
-  #ifdef DELTA
-    #ifdef BABYSTEP_XY
+  #if ENABLED(DELTA)
+    #if ENABLED(BABYSTEP_XY)
       #error BABYSTEPPING only implemented for Z axis on deltabots.
     #endif
   #endif
@@ -434,7 +434,7 @@
 // so: v ^ 2 is proportional to number of steps we advance the extruder
 //#define ADVANCE
 
-#ifdef ADVANCE
+#if ENABLED(ADVANCE)
   #define EXTRUDER_ADVANCE_K .0
 
   #define D_FILAMENT 2.85
@@ -451,7 +451,7 @@
 
 const unsigned int dropsegments=5; //everything with less than this number of steps will be ignored as move and joined with the next movement
 
-#ifdef ULTIPANEL
+#if ENABLED(ULTIPANEL)
  #undef SDCARDDETECTINVERTED
 #endif
 
@@ -512,7 +512,7 @@ const unsigned int dropsegments=5; //everything with less than this number of st
 // the moves are than replaced by the firmware controlled ones.
 
 // #define FWRETRACT  //ONLY PARTIALLY TESTED
-#ifdef FWRETRACT
+#if ENABLED(FWRETRACT)
   #define MIN_RETRACT 0.1                //minimum extruded mm to accept a automatic gcode retraction attempt
   #define RETRACT_LENGTH 3               //default retract length (positive mm)
   #define RETRACT_LENGTH_SWAP 13         //default swap retract length (positive mm), for extruder change
@@ -524,9 +524,9 @@ const unsigned int dropsegments=5; //everything with less than this number of st
 #endif
 
 // Add support for experimental filament exchange support M600; requires display
-#ifdef ULTIPANEL
+#if ENABLED(ULTIPANEL)
   #define FILAMENTCHANGEENABLE
-  #ifdef FILAMENTCHANGEENABLE
+  #if ENABLED(FILAMENTCHANGEENABLE)
     #define FILAMENTCHANGE_XPOS 3
     #define FILAMENTCHANGE_YPOS 3
     #define FILAMENTCHANGE_ZADD 10
@@ -543,7 +543,7 @@ const unsigned int dropsegments=5; //everything with less than this number of st
 // @section tmc
 
 //#define HAVE_TMCDRIVER
-#ifdef HAVE_TMCDRIVER
+#if ENABLED(HAVE_TMCDRIVER)
 
 //  #define X_IS_TMC
   #define X_MAX_CURRENT 1000  //in mA
@@ -597,8 +597,8 @@ const unsigned int dropsegments=5; //everything with less than this number of st
 
 #endif
 
-#ifdef FILAMENTCHANGEENABLE
-  #ifdef EXTRUDER_RUNOUT_PREVENT
+#if ENABLED(FILAMENTCHANGEENABLE)
+  #if ENABLED(EXTRUDER_RUNOUT_PREVENT)
     #error EXTRUDER_RUNOUT_PREVENT currently incompatible with FILAMENTCHANGE
   #endif
 #endif
