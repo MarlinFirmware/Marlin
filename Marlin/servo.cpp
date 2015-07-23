@@ -321,4 +321,17 @@ int8_t Servo::move(int pin, int value) {
   return ret;
 }
 
+uint8_t Servo::move(int pin, int value) {
+  uint8_t ret;
+  ret = this->attach(pin);
+  if (ret) {
+    this->write(value);
+    #ifdef DEACTIVATE_SERVOS_AFTER_MOVE && (SERVO_DEACTIVATION_DELAY > 0)
+      delay(SERVO_DEACTIVATION_DELAY);
+      this->detach();
+    #endif
+  }
+  return ret;
+}
+
 #endif
