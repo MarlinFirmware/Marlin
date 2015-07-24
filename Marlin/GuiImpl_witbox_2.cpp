@@ -514,7 +514,7 @@ namespace screen
 
 	static ScreenAnimation<float> * make_screen_heating_main()
 	{
-		ScreenAnimation<float> * local_view = new ScreenAnimation<float>(MSG_SCREEN_HEATING_MAIN_TITLE, MSG_SCREEN_HEATING_MAIN_BOX, screen::ScreenAnimation<float>::GREATER_OR_EQUAL, TemperatureManager::single::instance().getTargetTemperature(), &TemperatureManager::single::instance());
+		ScreenAnimation<float> * local_view = new ScreenAnimation<float>(MSG_SCREEN_HEATING_MAIN_TITLE, MSG_SCREEN_HEATING_MAIN_BOX, screen::ScreenAnimation<float>::EQUAL, TemperatureManager::single::instance().getTargetTemperature(), &TemperatureManager::single::instance());
 		local_view->add(screen_main);
 		local_view->add(screen_main);
 		return local_view;
