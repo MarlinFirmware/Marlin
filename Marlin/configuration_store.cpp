@@ -832,7 +832,10 @@ void Config_PrintSettings(bool forReplay) {
   if (!forReplay) {
     CONFIG_ECHO_START;
     SERIAL_ECHOPGM("Filament settings:");
-    SERIAL_ECHOLNPGM(volumetric_enabled ? "" : " Disabled");
+    if (volumetric_enabled)
+      SERIAL_EOL;
+    else
+      SERIAL_ECHOLNPGM(" Disabled");
   }
 
   CONFIG_ECHO_START;
@@ -856,8 +859,7 @@ void Config_PrintSettings(bool forReplay) {
 
   if (!volumetric_enabled) {
     CONFIG_ECHO_START;
-    SERIAL_ECHOPAIR("  M200 D0");
-    SERIAL_EOL;
+    SERIAL_ECHOLNPGM("  M200 D0");
   }
 
   /**
