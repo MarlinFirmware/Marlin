@@ -607,6 +607,7 @@ float junction_deviation = 0.1;
       enable_x();
       enable_z();
     }
+    if (block->steps[Y_AXIS]) enable_y();
   #else
     if (block->steps[X_AXIS]) enable_x();
     if (block->steps[Y_AXIS]) enable_y();
