@@ -35,7 +35,6 @@ namespace screen
 		screen_level2,
 		screen_level3,
 		screen_level4,
-		screen_level5,
 		screen_level_confirm,
 		screen_autohome,
 		screen_settings,
