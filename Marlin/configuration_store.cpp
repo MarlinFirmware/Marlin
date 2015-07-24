@@ -565,16 +565,8 @@ void Config_ResetDefault() {
   #endif
 
   volumetric_enabled = false;
-  filament_size[0] = DEFAULT_NOMINAL_FILAMENT_DIA;
-  #if EXTRUDERS > 1
-    filament_size[1] = DEFAULT_NOMINAL_FILAMENT_DIA;
-    #if EXTRUDERS > 2
-      filament_size[2] = DEFAULT_NOMINAL_FILAMENT_DIA;
-      #if EXTRUDERS > 3
-        filament_size[3] = DEFAULT_NOMINAL_FILAMENT_DIA;
-      #endif
-    #endif
-  #endif
+  for (int q=0; q<COUNT(filament_size); q++)
+    filament_size[q] = DEFAULT_NOMINAL_FILAMENT_DIA;
   calculate_volumetric_multipliers();
 
   SERIAL_ECHO_START;
