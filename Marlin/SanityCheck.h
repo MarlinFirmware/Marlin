@@ -312,4 +312,8 @@
     #error PROBE_SERVO_DEACTIVATION_DELAY has been replaced with DEACTIVATE_SERVOS_AFTER_MOVE and SERVO_DEACTIVATION_DELAY.
   #endif
 
+  #if defined(COREXZ) && defined(Z_LATE_ENABLE)
+    #error "Z_LATE_ENABLE can't be used with COREXZ."
+  #endif
+
 #endif //SANITYCHECK_H
