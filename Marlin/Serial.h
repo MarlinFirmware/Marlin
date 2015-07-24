@@ -1,8 +1,6 @@
 #ifndef SERIAL_H
 #define SERIAL_H
 
-#include "Language.h"
-
 #define PROTOCOL_VERSION "1.0"
 
 #define STRINGIFY_(n) #n
