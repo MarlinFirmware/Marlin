@@ -15,8 +15,10 @@
 
 ## Quick Information
 
-This is a firmware for reprap single-processor electronics setups but this particular fork is specifically suited for BQ printers. 
+This is a firmware for reprap single-processor electronics setups but this particular fork is specifically suited for [BQ printers](http://bq.com/3d-world). 
+
 It supports printing from SD card+Folders, and look-ahead trajectory planning.
+
 Based on [Marlin](https://github.com/ErikZalm/Marlin), from Erik Zalm, this firmware is a mashup between [Sprinter](https://github.com/kliment/Sprinter), [grbl](https://github.com/simen/grbl) and many original parts.
 
 ## Contact
