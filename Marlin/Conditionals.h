@@ -75,6 +75,14 @@
     #define NEWPANEL
   #endif
 
+  #ifdef MINIPANEL
+   #define DOGLCD
+   #define SDSUPPORT
+   #define ULTIPANEL
+   #define NEWPANEL
+   #define DEFAULT_LCD_CONTRAST 17
+  #endif
+
   /**
    * I2C PANELS
    */
