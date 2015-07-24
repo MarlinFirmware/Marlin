@@ -5,7 +5,7 @@
 #include "ConfigurationStore.h"
 #include "temperature.h"
 #include "Serial.h"
-#include "Language.h"
+#include "Language_texts.h"
 
 // Only for new LCD
 typedef struct {
