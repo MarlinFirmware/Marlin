@@ -245,13 +245,13 @@ namespace screen
 					{
 						painter.drawBitmap(painter.coordinateXInit() + 1, painter.coordinateYInit() + i * (max_font_height + 1), little_icon_width, little_icon_height, bits_back_small);
 						painter.setPrintPos(painter.coordinateXInit() + 9, painter.coordinateYInit() + i * (max_font_height + 1));
-						painter.print_P(MSG_SCREEN_SD_LIST_BACK);
+						painter.print_P(MSG_SCREEN_SD_LIST_BACK());
 					}
 					else
 					{
 						painter.drawBitmap(painter.coordinateXInit() + 1, painter.coordinateYInit() + i * (max_font_height + 1), little_icon_width, little_icon_height, bits_updir_small);
 						painter.setPrintPos(painter.coordinateXInit() + 9, painter.coordinateYInit() + i * (max_font_height + 1));
-						painter.print_P(MSG_SCREEN_SD_LIST_PREV);
+						painter.print_P(MSG_SCREEN_SD_LIST_PREV());
 					}
 				}
 				else

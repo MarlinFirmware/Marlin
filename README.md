@@ -15,22 +15,11 @@
 
 ## Quick Information
 
-This is a firmware for reprap single-processor electronics setups.
-It also works on the Ultimaker PCB. It supports printing from SD card+Folders, and look-ahead trajectory planning.
-This firmware is a mashup between [Sprinter](https://github.com/kliment/Sprinter), [grbl](https://github.com/simen/grbl) and many original parts.
+This is a firmware for reprap single-processor electronics setups but this particular fork is specifically suited for [BQ printers](http://bq.com/3d-world). 
 
-## Current Status: Bug Fixing
+It supports printing from SD card+Folders, and look-ahead trajectory planning.
 
-The Marlin development is currently revived. There's a long list of reported issues and pull requests, which we are working on currently.
-We are actively looking for testers. So please try the current development version and report new issues and feedback.
-
-[![Coverity Scan Build Status](https://scan.coverity.com/projects/2224/badge.svg)](https://scan.coverity.com/projects/2224)
-[![Travis Build Status](https://travis-ci.org/MarlinFirmware/Marlin.svg)](https://travis-ci.org/MarlinFirmware/Marlin)
-
-What bugs are we working on: [Bug Fixing Round 2](https://github.com/MarlinFirmware/Marlin/milestones/Bug%20Fixing%20Round%202)
-*  M700 - Level plate script for use with Witbox printer.
-*  M701 - Load filament script for use with Witbox printer.
-*  M702 - Unload filament script for use with Witbox printer.
+Based on [Marlin](https://github.com/ErikZalm/Marlin), from Erik Zalm, this firmware is a mashup between [Sprinter](https://github.com/kliment/Sprinter), [grbl](https://github.com/simen/grbl) and many original parts.
 
 ## Contact
 
@@ -40,7 +29,7 @@ __Mailing List:__ marlin@lists.0l.de ([Subscribe](http://lists.0l.de/mailman/lis
 
 ## Credits
 
-The current Marlin dev team consists of:
+Besides the BQ team, focused on specific changes and improvements for Witbox and Hephestos printers, the original Marlin dev team consists of:
 
  - Erik van der Zalm ([@ErikZalm](https://github.com/ErikZalm))
  - [@daid](https://github.com/daid)
@@ -53,7 +42,7 @@ A fork by bkubicek for the Ultimaker was merged.
 More features have been added by:
   - Lampmaker,
   - Bradley Feldman,
-  - and others...
+  - and many others...
 
 ## Licence
 

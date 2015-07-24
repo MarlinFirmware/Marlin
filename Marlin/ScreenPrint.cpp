@@ -83,13 +83,13 @@ namespace screen
 			switch(m_printing_status)
 			{
 				case PRINTING:
-					m_title = MSG_SCREEN_PRINT_PRINTING;
+					m_title = MSG_SCREEN_PRINT_PRINTING();
 					break;
 				case PAUSED:
-					m_title = MSG_SCREEN_PRINT_PAUSED;
+					m_title = MSG_SCREEN_PRINT_PAUSED();
 					break;
 				case PAUSING:
-					m_title = MSG_SCREEN_PRINT_PAUSING;
+					m_title = MSG_SCREEN_PRINT_PAUSING();
 					break;
 				default:
 					break;
