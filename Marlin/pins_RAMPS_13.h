@@ -191,6 +191,27 @@
       #define DOGLCD_CS 29
       #define DOGLCD_A0 27
       #define LCD_PIN_BL 33
+    #elif defined(MINIPANEL)
+       #define BEEPER 42
+       // Pins for DOGM SPI LCD Support
+       #define DOGLCD_A0  44
+       #define DOGLCD_CS  66
+       #define LCD_PIN_BL	65	// backlight LED on A11/D65
+       #define SDSS   53
+       
+       #define KILL_PIN 64
+       // GLCD features
+       //#define LCD_CONTRAST 190
+       // Uncomment screen orientation
+         // #define LCD_SCREEN_ROT_90
+         // #define LCD_SCREEN_ROT_180
+         // #define LCD_SCREEN_ROT_270
+       //The encoder and click button
+       #define BTN_EN1 40
+       #define BTN_EN2 63
+       #define BTN_ENC 59  //the click switch
+       //not connected to a pin
+       #define SDCARDDETECT 49
     #else
       // arduino pin which triggers an piezzo beeper
       #define BEEPER 33  // Beeper on AUX-4
