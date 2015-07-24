@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
-/// \file ScreenDynamic.h
+/// \file ScreenDynamicAxis.h
 ///
 /// \author Ivan Galvez Junquera
 ///         Ruy Garcia
 ///         Victor Andueza 
 ///         Joaquin Herrero
 ///
-/// \brief Definition of dynamic-type screens.
+/// \brief Definition of dynamic-type screens to change the axis positions.
 ///
 /// Copyright (c) 2015 BQ - Mundo Reader S.L.
 /// http://www.bq.com
@@ -25,19 +25,19 @@
 /// DEALINGS IN THE SOFTWARE.
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef SCREEN_DYNAMIC_H
-#define SCREEN_DYNAMIC_H
+#ifndef SCREEN_DYNAMIC_AXIS_H
+#define SCREEN_DYNAMIC_AXIS_H
 
 #include "Language.h"
 
 namespace screen
 {
 	template <typename T>
-		class ScreenDynamic : public Screen , public Functor<void, uint8_t, T>
+		class ScreenDynamicAxis : public Screen , public Functor<void, uint8_t, T>
 	{
 		public:
-			ScreenDynamic(const char * title, uint8_t axis, T min, T max, T scale, typename Functor<void, uint8_t, T>::FuncPtr fptr);
-			virtual ~ScreenDynamic();
+			ScreenDynamicAxis(const char * title, uint8_t axis, T min, T max, T scale, typename Functor<void, uint8_t, T>::FuncPtr fptr);
+			virtual ~ScreenDynamicAxis();
 
 			void init(uint16_t index = 0);
 
@@ -57,7 +57,7 @@ namespace screen
 	};
 
 	template <typename T>
-		ScreenDynamic<T>::ScreenDynamic(const char * title, uint8_t axis, T min, T max, T scale, typename Functor<void, uint8_t, T>::FuncPtr fptr)
+		ScreenDynamicAxis<T>::ScreenDynamicAxis(const char * title, uint8_t axis, T min, T max, T scale, typename Functor<void, uint8_t, T>::FuncPtr fptr)
 		: Screen(title, SELECTOR)
 		, Functor<void, uint8_t, T>(fptr)
 		, m_minimum_value(min)
@@ -68,18 +68,18 @@ namespace screen
 	{ }
 
 	template <typename T>
-		ScreenDynamic<T>::~ScreenDynamic()
+		ScreenDynamicAxis<T>::~ScreenDynamicAxis()
 	{ }
 
 	template <typename T>
-		void ScreenDynamic<T>::init(uint16_t index)
+		void ScreenDynamicAxis<T>::init(uint16_t index)
 	{
 		m_select = current_position[m_axis];
 		m_next_time = millis() + 500;
 	}
 
 	template <typename T>
-		void ScreenDynamic<T>::left()
+		void ScreenDynamicAxis<T>::left()
 	{
 		if (m_select != m_minimum_value)
 		{
@@ -95,7 +95,7 @@ namespace screen
 	}
 
 	template <typename T>
-		void ScreenDynamic<T>::right()
+		void ScreenDynamicAxis<T>::right()
 	{
 		if (m_select != m_maximum_value)
 		{
@@ -111,7 +111,7 @@ namespace screen
 	}
 
 	template <typename T>
-		void ScreenDynamic<T>::draw()
+		void ScreenDynamicAxis<T>::draw()
 	{
 		painter.firstPage();
 		do
@@ -161,9 +161,9 @@ namespace screen
 	}
 
 	template <typename T>
-		void ScreenDynamic<T>::press()
+		void ScreenDynamicAxis<T>::press()
 	{
 		ViewManager::getInstance().activeView(m_next_screen);
 	}
 }
-#endif //SCREEN_DYNAMIC_H
+#endif // SCREEN_DYNAMIC_AXIS_H

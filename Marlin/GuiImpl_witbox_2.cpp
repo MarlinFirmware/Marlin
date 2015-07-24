@@ -14,7 +14,8 @@
 #include "ScreenSelector.h"
 #include "ScreenAnimation.h"
 #include "ScreenTransition.h"
-#include "ScreenDynamic.h"
+#include "ScreenDynamicAxis.h"
+#include "ScreenDynamicFeedrate.h"
 #include "ScreenAbout.h"
 #include "ScreenPrint.h"
 #include "ScreenFile.h"
@@ -428,79 +429,79 @@ namespace screen
 		return local_view;
 	}
 
-	static ScreenDynamic<float> * make_screen_move_x_01()
+	static ScreenDynamicAxis<float> * make_screen_move_x_01()
 	{
-		ScreenDynamic<float> * local_view = new ScreenDynamic<float>(MSG_SCREEN_MOVE_01MM, X_AXIS, X_MIN_POS, X_MAX_POS, 0.1, action_move_axis_to);
+		ScreenDynamicAxis<float> * local_view = new ScreenDynamicAxis<float>(MSG_SCREEN_MOVE_01MM, X_AXIS, X_MIN_POS, X_MAX_POS, 0.1, action_move_axis_to);
 		local_view->add(screen_move);
 		return local_view;
 	}
 
-	static ScreenDynamic<float> * make_screen_move_y_01()
+	static ScreenDynamicAxis<float> * make_screen_move_y_01()
 	{
-		ScreenDynamic<float> * local_view = new ScreenDynamic<float>(MSG_SCREEN_MOVE_01MM, Y_AXIS, Y_MIN_POS, Y_MAX_POS, 0.1, action_move_axis_to);
+		ScreenDynamicAxis<float> * local_view = new ScreenDynamicAxis<float>(MSG_SCREEN_MOVE_01MM, Y_AXIS, Y_MIN_POS, Y_MAX_POS, 0.1, action_move_axis_to);
 		local_view->add(screen_move);
 		return local_view;
 	}
 
-	static ScreenDynamic<float> * make_screen_move_z_01()
+	static ScreenDynamicAxis<float> * make_screen_move_z_01()
 	{
-		ScreenDynamic<float> * local_view = new ScreenDynamic<float>(MSG_SCREEN_MOVE_01MM, Z_AXIS, Z_MIN_POS, Z_MAX_POS, 0.1, action_move_axis_to);
+		ScreenDynamicAxis<float> * local_view = new ScreenDynamicAxis<float>(MSG_SCREEN_MOVE_01MM, Z_AXIS, Z_MIN_POS, Z_MAX_POS, 0.1, action_move_axis_to);
 		local_view->add(screen_move);
 		return local_view;
 	}
 
-	static ScreenDynamic<float> * make_screen_move_e_01()
+	static ScreenDynamicAxis<float> * make_screen_move_e_01()
 	{
-		ScreenDynamic<float> * local_view = new ScreenDynamic<float>(MSG_SCREEN_MOVE_01MM, E_AXIS, -1E9, 1E9, 0.1, action_move_axis_to);
+		ScreenDynamicAxis<float> * local_view = new ScreenDynamicAxis<float>(MSG_SCREEN_MOVE_01MM, E_AXIS, -1E9, 1E9, 0.1, action_move_axis_to);
 		local_view->add(screen_move);
 		return local_view;
 	}
 
-	static ScreenDynamic<float> * make_screen_move_x_1()
+	static ScreenDynamicAxis<float> * make_screen_move_x_1()
 	{
-		ScreenDynamic<float> * local_view = new ScreenDynamic<float>(MSG_SCREEN_MOVE_1MM, X_AXIS, X_MIN_POS, X_MAX_POS, 1, action_move_axis_to);
+		ScreenDynamicAxis<float> * local_view = new ScreenDynamicAxis<float>(MSG_SCREEN_MOVE_1MM, X_AXIS, X_MIN_POS, X_MAX_POS, 1, action_move_axis_to);
 		local_view->add(screen_move);
 		return local_view;
 	}
 
-	static ScreenDynamic<float> * make_screen_move_y_1()
+	static ScreenDynamicAxis<float> * make_screen_move_y_1()
 	{
-		ScreenDynamic<float> * local_view = new ScreenDynamic<float>(MSG_SCREEN_MOVE_1MM, Y_AXIS, Y_MIN_POS, Y_MAX_POS, 1, action_move_axis_to);
+		ScreenDynamicAxis<float> * local_view = new ScreenDynamicAxis<float>(MSG_SCREEN_MOVE_1MM, Y_AXIS, Y_MIN_POS, Y_MAX_POS, 1, action_move_axis_to);
 		local_view->add(screen_move);
 		return local_view;
 	}
 
-	static ScreenDynamic<float> * make_screen_move_z_1()
+	static ScreenDynamicAxis<float> * make_screen_move_z_1()
 	{
-		ScreenDynamic<float> * local_view = new ScreenDynamic<float>(MSG_SCREEN_MOVE_1MM, Z_AXIS, Z_MIN_POS, Z_MAX_POS, 1, action_move_axis_to);
+		ScreenDynamicAxis<float> * local_view = new ScreenDynamicAxis<float>(MSG_SCREEN_MOVE_1MM, Z_AXIS, Z_MIN_POS, Z_MAX_POS, 1, action_move_axis_to);
 		local_view->add(screen_move);
 		return local_view;
 	}
 
-	static ScreenDynamic<float> * make_screen_move_e_1()
+	static ScreenDynamicAxis<float> * make_screen_move_e_1()
 	{
-		ScreenDynamic<float> * local_view = new ScreenDynamic<float>(MSG_SCREEN_MOVE_1MM, E_AXIS, -1E9, 1E9, 1, action_move_axis_to);
+		ScreenDynamicAxis<float> * local_view = new ScreenDynamicAxis<float>(MSG_SCREEN_MOVE_1MM, E_AXIS, -1E9, 1E9, 1, action_move_axis_to);
 		local_view->add(screen_move);
 		return local_view;
 	}
 
-	static ScreenDynamic<float> * make_screen_move_x_10()
+	static ScreenDynamicAxis<float> * make_screen_move_x_10()
 	{
-		ScreenDynamic<float> * local_view = new ScreenDynamic<float>(MSG_SCREEN_MOVE_10MM, X_AXIS, X_MIN_POS, X_MAX_POS, 10, action_move_axis_to);
+		ScreenDynamicAxis<float> * local_view = new ScreenDynamicAxis<float>(MSG_SCREEN_MOVE_10MM, X_AXIS, X_MIN_POS, X_MAX_POS, 10, action_move_axis_to);
 		local_view->add(screen_move);
 		return local_view;
 	}
 
-	static ScreenDynamic<float> * make_screen_move_y_10()
+	static ScreenDynamicAxis<float> * make_screen_move_y_10()
 	{
-		ScreenDynamic<float> * local_view = new ScreenDynamic<float>(MSG_SCREEN_MOVE_10MM, Y_AXIS, Y_MIN_POS, Y_MAX_POS, 10, action_move_axis_to);
+		ScreenDynamicAxis<float> * local_view = new ScreenDynamicAxis<float>(MSG_SCREEN_MOVE_10MM, Y_AXIS, Y_MIN_POS, Y_MAX_POS, 10, action_move_axis_to);
 		local_view->add(screen_move);
 		return local_view;
 	}
 
-	static ScreenDynamic<float> * make_screen_move_z_10()
+	static ScreenDynamicAxis<float> * make_screen_move_z_10()
 	{
-		ScreenDynamic<float> * local_view = new ScreenDynamic<float>(MSG_SCREEN_MOVE_10MM, Z_AXIS, Z_MIN_POS, Z_MAX_POS, 10, action_move_axis_to);
+		ScreenDynamicAxis<float> * local_view = new ScreenDynamicAxis<float>(MSG_SCREEN_MOVE_10MM, Z_AXIS, Z_MIN_POS, Z_MAX_POS, 10, action_move_axis_to);
 		local_view->add(screen_move);
 		return local_view;
 	}
@@ -572,9 +573,9 @@ namespace screen
 		return local_view;
 	}
 
-	static ScreenDynamic<float> * make_screen_offset_set()
+	static ScreenDynamicAxis<float> * make_screen_offset_set()
 	{
-		ScreenDynamic<float> * local_view = new ScreenDynamic<float>(MSG_SCREEN_OFFSET_TITLE, Z_AXIS, 0.0, 4.0, 0.02, action_set_offset);
+		ScreenDynamicAxis<float> * local_view = new ScreenDynamicAxis<float>(MSG_SCREEN_OFFSET_TITLE, Z_AXIS, 0.0, 4.0, 0.02, action_set_offset);
 		local_view->add(screen_offset_save);
 		return local_view;
 	}
@@ -726,9 +727,9 @@ namespace screen
 		return local_view;
 	}
 
-   static ScreenSelector<void, uint16_t> * make_screen_speed()
+   static ScreenDynamicFeedrate<uint16_t> * make_screen_speed()
 	{
-		ScreenSelector<void, uint16_t> * local_view = new ScreenSelector<void, uint16_t>(MSG_SCREEN_SPEED, 10, 400, 10, action_get_feedrate_multiply(), action_set_feedrate_multiply);
+		ScreenDynamicFeedrate<uint16_t> * local_view = new ScreenDynamicFeedrate<uint16_t>(MSG_SCREEN_SPEED, 10, 400, 10, action_set_feedrate_multiply);
 		local_view->add(screen_print);
 		return local_view;
 	}
