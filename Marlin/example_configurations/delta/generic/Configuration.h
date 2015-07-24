@@ -821,6 +821,10 @@ const bool Z_PROBE_ENDSTOP_INVERTING = true; // set to true to invert the logic 
 // in ultralcd.cpp@lcd_delta_calibrate_menu()
 // #define DELTA_CALIBRATION_MENU
 
+// The MakerLab Mini Panel with graphic controller and SD support
+// http://reprap.org/wiki/Mini_panel
+// #define MINIPANEL
+
 /**
  * I2C Panels
  */
