@@ -132,30 +132,44 @@ namespace screen
 				painter.setColorIndex(1);
 				painter.setFont(u8g_font_6x9);
 
-				char tmp_selected[4] = { 0 };
-				snprintf(tmp_selected, 4, "%d", m_select);
-
-				painter.setPrintPos((x_end + x_init)/2 - (strlen("<  >")*6)/2 - (strlen(tmp_selected)*6)/2, (y_end + y_init)/2 - 9/2);
-
-				if (m_select != m_minimum_value)
+				char tmp_selected[7] = { 0 };
+				int number_size = 3;
+				if(m_select < 100)
 				{
-					painter.print("< ");
+					number_size = 2;
 				}
-				else
+				else if(m_select > 10)
 				{
-					painter.print("  ");
+					number_size = 1;
 				}
 
-				painter.print(tmp_selected);
+				dtostrf(m_select, number_size, 0, tmp_selected);
+				char info[20] = { 0 };
+				char units[] = "\xb0";
 
-				if (m_select != m_maximum_value)
+				if (m_select != m_minimum_value && m_select != m_maximum_value)
 				{
-					painter.print(" >");
+					strcat(info, "< ");
+					strcat(info, tmp_selected);
+					strcat(info, units);
+					strcat(info, " >");
 				}
-				else
+				else if (m_select != m_minimum_value)
 				{
-					painter.print("  ");
+					strcat(info, "< ");
+					strcat(info, tmp_selected);
+					strcat(info, units);
 				}
+				else if (m_select != m_maximum_value)
+				{
+					strcat(info, tmp_selected);
+					strcat(info, units);
+					strcat(info, " >");
+				}
+
+				Area info_area(0, ((y_end + y_init)/2 - 9/2), 128, 9);
+				painter.setWorkingArea(info_area);
+				painter.text(info);
 
 			} while( painter.nextPage() );
 		}
