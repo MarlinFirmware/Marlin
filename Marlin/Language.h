@@ -1,7 +1,7 @@
 #ifndef LANGUAGE_H
 #define LANGUAGE_H
 
-#include "Printer.h"
+#include "Configuration.h"
 
 #include "Language_EN.h"
 #include "Language_ES.h"
