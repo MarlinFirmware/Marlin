@@ -31,6 +31,8 @@
 #include "Screen.h"
 #include "Functor.h"
 
+#include "GuiManager.h"
+
 namespace screen
 {
 	template <typename R, typename... Args>
@@ -64,8 +66,10 @@ namespace screen
 	template <typename R, typename... Args>
 		void ScreenDialog<R, Args...>::init(uint16_t index)
 	{
+		lcd_disable_button();
 		draw();
 		this->action();
+		lcd_enable_button();
 	}
 
 	template <typename R, typename... Args>

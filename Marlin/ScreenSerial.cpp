@@ -26,7 +26,10 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "ScreenSerial.h"
+
 #include "Language.h"
+
+#include "GuiManager.h"
 
 namespace screen
 {
@@ -40,7 +43,9 @@ namespace screen
 	{ }
 
 	void ScreenSerial::init(uint16_t index)
-	{ }
+	{
+		lcd_disable_encoder();
+	}
 
 	void ScreenSerial::left()
 	{ }
