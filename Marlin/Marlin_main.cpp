@@ -1096,12 +1096,13 @@ static void set_axis_is_at_home(AxisEnum axis) {
  */
 inline void set_homing_bump_feedrate(AxisEnum axis) {
   const int homing_bump_divisor[] = HOMING_BUMP_DIVISOR;
-  if (homing_bump_divisor[axis] >= 1)
-    feedrate = homing_feedrate[axis] / homing_bump_divisor[axis];
-  else {
-    feedrate = homing_feedrate[axis] / 10;
-    SERIAL_ECHOLN("Warning: The Homing Bump Feedrate Divisor cannot be less than 1");
+  int hbd = homing_bump_divisor[axis];
+  if (hbd < 1) {
+    hbd = 10;
+    SERIAL_ECHO_START;
+    SERIAL_ECHOLNPGM("Warning: Homing Bump Divisor < 1");
   }
+  feedrate = homing_feedrate[axis] / hbd;
 }
 inline void line_to_current_position() {
   plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder);
