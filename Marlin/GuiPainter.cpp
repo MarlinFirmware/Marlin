@@ -70,27 +70,7 @@ namespace screen
 		}
 	}
 
-	void GuiPainter::box(const char* text)
-	{
-		uint8_t save_color_index = m_impl.getColorIndex();
-
-		//Print box
-		setColorIndex(1);
-		m_impl.drawBox(0, ((screen_height - 1) - (box_height - 1)), box_width, box_height);
-
-		//Set font and color
-		setFont(u8g_font_6x9);
-		setColorIndex(0);
-
-		//Print text label
-		setPrintPos( (screen_width - strlen_P(text) * max_font_width) / 2, ((screen_height - 1) - (max_font_height - 1)));
-		print_P(text);
-
-		coordinateYEnd(51);
-		setColorIndex(save_color_index);
-	}
-
-	void GuiPainter::arrowBox(const char* text)
+	void GuiPainter::box(const char* text, ArrowType_t arrow)
 	{
 		uint8_t save_color_index = m_impl.getColorIndex();
 
@@ -103,10 +83,28 @@ namespace screen
 		setColorIndex(0);
 
 		//Print arrows
-		setPrintPos(2, ((screen_height - 1) - (max_font_height - 1)));
-		print("<");
-		setPrintPos(((screen_width - 1) - 2 - (max_font_width - 1)), ((screen_height - 1) - (max_font_height - 1)));
-		print(">");
+		switch (arrow)
+		{
+			case LEFT:
+				setPrintPos(2, ((screen_height - 1) - (max_font_height - 1)));
+				print("<");
+			break;
+
+			case RIGHT:
+				setPrintPos(((screen_width - 1) - 2 - (max_font_width - 1)), ((screen_height - 1) - (max_font_height - 1)));
+				print(">");
+			break;
+
+			case BOTH:
+				setPrintPos(2, ((screen_height - 1) - (max_font_height - 1)));
+				print("<");
+				setPrintPos(((screen_width - 1) - 2 - (max_font_width - 1)), ((screen_height - 1) - (max_font_height - 1)));
+				print(">");
+			break;
+
+			case NONE:
+			break;
+		}
 
 		//Print text label
 		setPrintPos( (screen_width - strlen_P(text) * max_font_width) / 2, ((screen_height - 1) - (max_font_height - 1)));

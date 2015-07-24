@@ -122,7 +122,7 @@ namespace screen
 			do
 			{
 				painter.title(m_title);
-				painter.arrowBox(MSG_SELECTOR_BOX);
+				painter.box(MSG_SELECTOR_BOX);
 
 				uint8_t x_init = painter.coordinateXInit();
 				uint8_t x_end = painter.coordinateXEnd();
