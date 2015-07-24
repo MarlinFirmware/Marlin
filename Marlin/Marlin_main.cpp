@@ -787,14 +787,16 @@ void get_command()
   while( MYSERIAL.available() > 0  && buflen < BUFSIZE) {
     serial_char = MYSERIAL.read();
 
-    #ifdef DOGLCD
-      if(eeprom::StorageManager::getScreenSerialState() == eeprom::SCREEN_SERIAL_ACTIVE && !serial_mode){
-        serial_mode = true;
-        if (screen::ViewManager::getInstance().getViewIndex() != screen::screen_serial){
-          screen::ViewManager::getInstance().activeView(screen::screen_serial);
-        }
-      }
-    #endif
+#ifdef DOGLCD
+		if(eeprom::StorageManager::getScreenSerialState() == eeprom::SCREEN_SERIAL_ACTIVE && !serial_mode)
+		{
+			serial_mode = true;
+			if (screen::ViewManager::getInstance().getViewIndex() != screen::screen_serial)
+			{
+				screen::ViewManager::getInstance().activeView(screen::screen_serial);
+		 	}
+	 	}
+#endif
 
     if(serial_char == '\n' ||
        serial_char == '\r' ||
