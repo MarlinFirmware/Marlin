@@ -38,7 +38,12 @@ namespace screen
 	{ }
 
 	ScreenMenu::~ScreenMenu()
-	{ }
+	{ 
+		for (unsigned int i = 0;i < m_num_icons; ++i)
+		{
+			delete m_icons[i];
+		}
+	}
 
 	void ScreenMenu::init(uint16_t index)
 	{
@@ -206,11 +211,11 @@ namespace screen
 		}
 	}
 
-	void ScreenMenu::icon(Icon & component)
+	void ScreenMenu::icon(Icon * component)
 	{
 		if (m_num_icons < max_items)
 		{
-			m_icons[m_num_icons] = &component;
+			m_icons[m_num_icons] = component;
 			++m_num_icons;
 		}
 	}

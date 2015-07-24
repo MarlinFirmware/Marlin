@@ -42,6 +42,7 @@ namespace screen
 			typedef enum
 			{
 				LESS_OR_EQUAL,
+				EQUAL,
 				GREATER_OR_EQUAL,
 				NUM_CONDITIONS
 			} Condition_t;
@@ -223,6 +224,8 @@ namespace screen
 		{
 			case LESS_OR_EQUAL:
 				return ((uint16_t) m_observed <= m_target);
+			case EQUAL:
+				return ((uint16_t) m_observed == m_target);
 			case GREATER_OR_EQUAL:
 				return ((uint16_t) m_observed >= m_target);
 			default:
