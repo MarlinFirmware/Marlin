@@ -826,39 +826,45 @@ void Config_PrintSettings(bool forReplay) {
 
   #endif // FWRETRACT
 
-  if (volumetric_enabled) {
-    if (!forReplay) {
-      CONFIG_ECHO_START;
-      SERIAL_ECHOLNPGM("Filament settings:");
-    }
-
+  /**
+   * Volumetric extrusion M200
+   */
+  if (!forReplay) {
     CONFIG_ECHO_START;
-    SERIAL_ECHOPAIR("  M200 D", filament_size[0]);
-    SERIAL_EOL;
-
-    #if EXTRUDERS > 1
-      CONFIG_ECHO_START;
-      SERIAL_ECHOPAIR("  M200 T1 D", filament_size[1]);
+    SERIAL_ECHOPGM("Filament settings:");
+    if (volumetric_enabled)
       SERIAL_EOL;
-      #if EXTRUDERS > 2
-        CONFIG_ECHO_START;
-        SERIAL_ECHOPAIR("  M200 T2 D", filament_size[2]);
-        SERIAL_EOL;
-        #if EXTRUDERS > 3
-          CONFIG_ECHO_START;
-          SERIAL_ECHOPAIR("  M200 T3 D", filament_size[3]);
-          SERIAL_EOL;
-        #endif
-      #endif
-    #endif
-
-  } else {
-    if (!forReplay) {
-      CONFIG_ECHO_START;
-      SERIAL_ECHOLNPGM("Filament settings: Disabled");
-    }
+    else
+      SERIAL_ECHOLNPGM(" Disabled");
   }
 
+  CONFIG_ECHO_START;
+  SERIAL_ECHOPAIR("  M200 D", filament_size[0]);
+  SERIAL_EOL;
+  #if EXTRUDERS > 1
+    CONFIG_ECHO_START;
+    SERIAL_ECHOPAIR("  M200 T1 D", filament_size[1]);
+    SERIAL_EOL;
+    #if EXTRUDERS > 2
+      CONFIG_ECHO_START;
+      SERIAL_ECHOPAIR("  M200 T2 D", filament_size[2]);
+      SERIAL_EOL;
+      #if EXTRUDERS > 3
+        CONFIG_ECHO_START;
+        SERIAL_ECHOPAIR("  M200 T3 D", filament_size[3]);
+        SERIAL_EOL;
+      #endif
+    #endif
+  #endif
+
+  if (!volumetric_enabled) {
+    CONFIG_ECHO_START;
+    SERIAL_ECHOLNPGM("  M200 D0");
+  }
+
+  /**
+   * Auto Bed Leveling
+   */
   #ifdef ENABLE_AUTO_BED_LEVELING
     #ifdef CUSTOM_M_CODES
       if (!forReplay) {
