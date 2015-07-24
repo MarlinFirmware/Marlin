@@ -555,22 +555,26 @@ void suicide() {
 void servo_init() {
   #if NUM_SERVOS >= 1 && HAS_SERVO_0
     servo[0].attach(SERVO0_PIN);
+    servo[0].detach(); // Just set up the pin. We don't have a position yet. Don't move to a random position.
   #endif
   #if NUM_SERVOS >= 2 && HAS_SERVO_1
     servo[1].attach(SERVO1_PIN);
+    servo[1].detach();
   #endif
   #if NUM_SERVOS >= 3 && HAS_SERVO_2
     servo[2].attach(SERVO2_PIN);
+    servo[2].detach();
   #endif
   #if NUM_SERVOS >= 4 && HAS_SERVO_3
     servo[3].attach(SERVO3_PIN);
+    servo[3].detach();
   #endif
 
   // Set position of Servo Endstops that are defined
   #ifdef SERVO_ENDSTOPS
     for (int i = 0; i < 3; i++)
       if (servo_endstops[i] >= 0)
-        servo[servo_endstops[i]].move(0, servo_endstop_angles[i * 2 + 1]);
+        servo[servo_endstops[i]].move(servo_endstop_angles[i * 2 + 1]);
   #endif
 
 }
@@ -1310,10 +1314,7 @@ static void setup_for_endstop_move() {
     #ifdef SERVO_ENDSTOPS
 
       // Engage Z Servo endstop if enabled
-      if (servo_endstops[Z_AXIS] >= 0) {
-        Servo *srv = &servo[servo_endstops[Z_AXIS]];
-        srv->move(0, servo_endstop_angles[Z_AXIS * 2]);
-      }
+      if (servo_endstops[Z_AXIS] >= 0) servo[servo_endstops[Z_AXIS]].move(servo_endstop_angles[Z_AXIS * 2]);
 
     #elif defined(Z_PROBE_ALLEN_KEY)
       feedrate = Z_PROBE_ALLEN_KEY_DEPLOY_1_FEEDRATE;
@@ -1413,8 +1414,7 @@ static void setup_for_endstop_move() {
         #endif
 
         // Change the Z servo angle
-        Servo *srv = &servo[servo_endstops[Z_AXIS]];
-        srv->move(0, servo_endstop_angles[Z_AXIS * 2 + 1]);
+        servo[servo_endstops[Z_AXIS]].move(servo_endstop_angles[Z_AXIS * 2 + 1]);
       }
 
     #elif defined(Z_PROBE_ALLEN_KEY)
@@ -1665,8 +1665,8 @@ static void homeaxis(AxisEnum axis) {
     #ifdef SERVO_ENDSTOPS
       if (axis != Z_AXIS) {
         // Engage Servo endstop if enabled
-        if (servo_endstops[axis] > -1)
-          servo[servo_endstops[axis]].move(0, servo_endstop_angles[axis * 2]);
+        if (servo_endstops[axis] >= 0) 
+          servo[servo_endstops[axis]].move(servo_endstop_angles[axis * 2]);
       }
     #endif
 
@@ -1768,8 +1768,8 @@ static void homeaxis(AxisEnum axis) {
     {
       #ifdef SERVO_ENDSTOPS
         // Retract Servo endstop if enabled
-        if (servo_endstops[axis] > -1)
-          servo[servo_endstops[axis]].move(0, servo_endstop_angles[axis * 2 + 1]);
+        if (servo_endstops[axis] >= 0)
+          servo[servo_endstops[axis]].move(servo_endstop_angles[axis * 2 + 1]);
       #endif
     }
 
@@ -4233,10 +4233,8 @@ inline void gcode_M226() {
     int servo_position = 0;
     if (code_seen('S')) {
       servo_position = code_value_short();
-      if (servo_index >= 0 && servo_index < NUM_SERVOS) {
-        Servo *srv = &servo[servo_index];
-        srv->move(0, servo_position);
-      }
+      if (servo_index >= 0 && servo_index < NUM_SERVOS) 
+        servo[servo_index].move(servo_position);
       else {
         SERIAL_ECHO_START;
         SERIAL_ECHO("Servo ");
