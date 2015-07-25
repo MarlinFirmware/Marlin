@@ -37,11 +37,11 @@
    write()     - Sets the servo angle in degrees.  (invalid angle that is valid as pulse in microseconds is treated as microseconds)
    writeMicroseconds() - Sets the servo pulse width in microseconds
    read()      - Gets the last written servo pulse width as an angle between 0 and 180.
-   readMicroseconds()   - Gets the last written servo pulse width in microseconds. (was read_us() in first release)
+   readMicroseconds() - Gets the last written servo pulse width in microseconds. (was read_us() in first release)
    attached()  - Returns true if there is a servo attached.
    detach()    - Stops an attached servos from pulsing its i/o pin.
-   move(pin, angel) - Sequence of attach(pin), write(angel),
-                      With DEACTIVATE_SERVOS_AFTER_MOVE it waits SERVO_DEACTIVATION_DELAY and detaches.
+   move(angle) - Sequence of attach(0), write(angle),
+                   With DEACTIVATE_SERVOS_AFTER_MOVE wait SERVO_DEACTIVATION_DELAY and detach.
  */
 
 #ifndef servo_h
@@ -117,14 +117,14 @@ typedef struct {
 class Servo {
   public:
     Servo();
-    int8_t attach(int pin);           // attach the given pin to the next free channel, set pinMode, return channel number (-1 on fail)
+    int8_t attach(int pin);            // attach the given pin to the next free channel, set pinMode, return channel number (-1 on fail)
     int8_t attach(int pin, int min, int max); // as above but also sets min and max values for writes.
     void detach();
     void write(int value);             // if value is < 200 it is treated as an angle, otherwise as pulse width in microseconds
-    void writeMicroseconds(int value); // Write pulse width in microseconds
-    int8_t move(int pin, int value);  // attach the given pin to the next free channel, set pinMode, return channel number (-1 if attach fails)
-                                       // if value is < 200 it is treated as an angle, otherwise as pulse width in microseconds.
-                                       // if DEACTIVATE_SERVOS_AFTER_MOVE is defined waits SERVO_DEACTIVATION_DELAY, than detaches.
+    void writeMicroseconds(int value); // write pulse width in microseconds
+    void move(int value);              // attach the servo, then move to value
+                                       // if value is < 200 it is treated as an angle, otherwise as pulse width in microseconds
+                                       // if DEACTIVATE_SERVOS_AFTER_MOVE wait SERVO_DEACTIVATION_DELAY, then detach
     int read();                        // returns current pulse width as an angle between 0 and 180 degrees
     int readMicroseconds();            // returns current pulse width in microseconds for this servo (was read_us() in first release)
     bool attached();                   // return true if this servo is attached, otherwise false
