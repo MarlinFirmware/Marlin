@@ -304,21 +304,14 @@ int Servo::readMicroseconds() {
 
 bool Servo::attached() { return servo_info[this->servoIndex].Pin.isActive; }
 
-int8_t Servo::move(int pin, int value) {
-  int8_t ret;
-  #if defined(DEACTIVATE_SERVOS_AFTER_MOVE) && (SERVO_DEACTIVATION_DELAY > 0)
-    ret = this->attach(pin);
-  #else
-    ret = this->servoIndex;
-  #endif
-  if (ret >= 0) {
+void Servo::move(int value) {
+  if (this->attach(0) >= 0) {
     this->write(value);
-    #if defined(DEACTIVATE_SERVOS_AFTER_MOVE) && (SERVO_DEACTIVATION_DELAY > 0)
+    #ifdef DEACTIVATE_SERVOS_AFTER_MOVE
       delay(SERVO_DEACTIVATION_DELAY);
       this->detach();
     #endif
   }
-  return ret;
 }
 
 #endif
