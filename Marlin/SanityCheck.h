@@ -83,12 +83,23 @@
   #if NUM_SERVOS > 4
     #error The maximum number of SERVOS in Marlin is 4.
   #endif
+  #if defined(NUM_SERVOS) && NUM_SERVOS > 0
+    #if X_ENDSTOP_SERVO_NR >= 0 || Y_ENDSTOP_SERVO_NR >= 0 || Z_ENDSTOP_SERVO_NR >= 0
+      #if X_ENDSTOP_SERVO_NR >= NUM_SERVOS
+        #error X_ENDSTOP_SERVO_NR must be smaller than NUM_SERVOS.
+      #elif Y_ENDSTOP_SERVO_NR >= NUM_SERVOS
+        #error Y_ENDSTOP_SERVO_NR must be smaller than NUM_SERVOS.
+      #elif Z_ENDSTOP_SERVO_NR >= NUM_SERVOS
+        #error Z_ENDSTOP_SERVO_NR must be smaller than NUM_SERVOS.
+      #endif
+    #endif
+  #endif
 
   /**
    * Servo deactivation depends on servo endstops
    */
   #if defined(DEACTIVATE_SERVOS_AFTER_MOVE) && !defined(SERVO_ENDSTOPS)
-    #error SERVO_ENDSTOPS is required for DEACTIVATE_SERVOS_AFTER_MOVE.
+    #error At least one of the ?_ENDSTOP_SERVO_NR is required for DEACTIVATE_SERVOS_AFTER_MOVE.
   #endif
 
   /**
@@ -148,8 +159,8 @@
 //      #if defined(NUM_SERVOS) && NUM_SERVOS < 1
 //        #error You must have at least 1 servo defined for NUM_SERVOS to use Z_PROBE_ENDSTOP.
 //      #endif
-//      #ifndef SERVO_ENDSTOPS
-//        #error You must have SERVO_ENDSTOPS defined and have the Z index set to at least 0 or above to use Z_PROBE_ENDSTOP.
+//      #if Z_ENDSTOP_SERVO_NR < 0
+//        #error You must have Z_ENDSTOP_SERVO_NR set to at least 0 or above to use Z_PROBE_ENDSTOP.
 //      #endif
 //      #ifndef SERVO_ENDSTOP_ANGLES
 //        #error You must have SERVO_ENDSTOP_ANGLES defined for Z Extend and Retract to use Z_PROBE_ENDSTOP.
