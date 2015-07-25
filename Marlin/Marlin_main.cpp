@@ -4019,7 +4019,7 @@ void set_home_offset(AxisEnum axis, float offs) {
     min_pos[axis] += diff;
     max_pos[axis] += diff;
   }
-  home_offset[i] = offs;
+  home_offset[axis] = offs;
 }
 
 /**
