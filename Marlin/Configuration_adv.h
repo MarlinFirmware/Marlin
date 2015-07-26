@@ -324,6 +324,12 @@
   // This allows hosts to request long names for files and folders with M33
   //#define LONG_FILENAME_HOST_SUPPORT
 
+  // This option allows you to abort SD printing when any endstop is triggered.
+  // This feature must be enabled with "M540 S1" or from the LCD menu.
+  // To have any effect, endstops must be enabled during SD printing.
+  // With ENDSTOPS_ONLY_FOR_HOMING you must send "M120" to enable endstops.
+  //#define ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED
+
 #endif // SDSUPPORT
 
 // for dogm lcd displays you can choose some additional fonts:
@@ -348,9 +354,6 @@
 //  However, THIS FEATURE IS UNSAFE!, as it will only work if interrupts are disabled. And the code could hang in an interrupt routine with interrupts disabled.
 //#define WATCHDOG_RESET_MANUAL
 #endif
-
-// Enable the option to stop SD printing when hitting and endstops, needs to be enabled from the LCD menu when this option is enabled.
-//#define ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED
 
 // @section lcd
 

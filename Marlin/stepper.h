@@ -50,7 +50,7 @@
 #endif
 
 #ifdef ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED
-extern bool abort_on_endstop_hit;
+  extern bool abort_on_endstop_hit;
 #endif
 
 // Initialize and start the stepper motor subsystem
