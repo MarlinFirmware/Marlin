@@ -4032,15 +4032,24 @@ inline void gcode_M205() {
   if (code_seen('E')) max_e_jerk = code_value();
 }
 
+void set_home_offset(uint8_t axis, float offs) {
+  if (axis_known_position[axis]) {
+    float diff = offs - home_offset[axis];
+    current_position[axis] += diff;
+    min_pos[axis] += diff;
+    max_pos[axis] += diff;
+  }
+  home_offset[axis] = offs;
+}
+
 /**
  * M206: Set Additional Homing Offset (X Y Z). SCARA aliases T=X, P=Y
  */
 inline void gcode_M206() {
-  for (int8_t i=X_AXIS; i <= Z_AXIS; i++) {
-    if (code_seen(axis_codes[i])) {
-      home_offset[i] = code_value();
-    }
-  }
+  for (int8_t i=X_AXIS; i <= Z_AXIS; i++)
+    if (code_seen(axis_codes[i]))
+      set_home_offset(i, code_value());
+
   #ifdef SCARA
     if (code_seen('T')) home_offset[X_AXIS] = code_value(); // Theta
     if (code_seen('P')) home_offset[Y_AXIS] = code_value(); // Psi
@@ -4207,7 +4216,7 @@ inline void gcode_M226() {
 
     if (pin_state >= -1 && pin_state <= 1) {
 
-      for (int8_t i = 0; i < COUNT(sensitive_pins); i++) {
+      for (uint8_t i = 0; i < COUNT(sensitive_pins); i++) {
         if (sensitive_pins[i] == pin_number) {
           pin_number = -1;
           break;
@@ -4699,16 +4708,15 @@ inline void gcode_M410() { quickStop(); }
  */
 inline void gcode_M428() {
   bool err = false;
-  float new_offs[3], new_pos[3];
-  memcpy(new_pos, current_position, sizeof(new_pos));
+  float new_offs[3];
   memcpy(new_offs, home_offset, sizeof(new_offs));
   for (int8_t i = X_AXIS; i <= Z_AXIS; i++) {
     if (axis_known_position[i]) {
-      float base = (new_pos[i] > (min_pos[i] + max_pos[i]) / 2) ? base_home_pos(i) : 0,
-            diff = new_pos[i] - base;
+      float mid = (min_pos[i] + max_pos[i]) / 2,
+            base = (current_position[i] > mid) ? base_home_pos(i) : 0,
+            diff = current_position[i] - base;
       if (diff > -20 && diff < 20) {
         new_offs[i] -= diff;
-        new_pos[i] = base;
       }
       else {
         SERIAL_ERROR_START;
@@ -4724,8 +4732,7 @@ inline void gcode_M428() {
   }
 
   if (!err) {
-    memcpy(current_position, new_pos, sizeof(new_pos));
-    memcpy(home_offset, new_offs, sizeof(new_offs));
+    for (int8_t i = X_AXIS; i <= Z_AXIS; i++) set_home_offset(i, new_offs[i]);
     sync_plan_position();
     LCD_ALERTMESSAGEPGM("Offset applied.");
     #if HAS_BUZZER
