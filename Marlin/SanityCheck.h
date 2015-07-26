@@ -51,7 +51,7 @@
   #endif
 
   /**
-   * Options only for EXTRUDERS == 1
+   * Options only for EXTRUDERS > 1
    */
   #if EXTRUDERS > 1
 
@@ -281,23 +281,37 @@
   #endif
 
   /**
-   * Test required HEATER defines
+   * Test required HEATER and TEMP_SENSOR defines
    */
   #if EXTRUDERS > 3
     #if !HAS_HEATER_3
       #error HEATER_3_PIN not defined for this board.
+    #elif TEMP_SENSOR_3 == 0
+      #error TEMP_SENSOR_3 is required with 4 EXTRUDERS.
     #endif
   #elif EXTRUDERS > 2
     #if !HAS_HEATER_2
       #error HEATER_2_PIN not defined for this board.
+    #elif TEMP_SENSOR_2 == 0
+      #error TEMP_SENSOR_2 is required with 3 or more EXTRUDERS.
     #endif
   #elif EXTRUDERS > 1 || defined(HEATERS_PARALLEL)
     #if !HAS_HEATER_1
       #error HEATER_1_PIN not defined for this board.
     #endif
   #endif
+  #if TEMP_SENSOR_1 == 0
+    #if EXTRUDERS > 1
+      #error TEMP_SENSOR_1 is required with 2 or more EXTRUDERS.
+    #elif ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
+      #error TEMP_SENSOR_1 is required with TEMP_SENSOR_1_AS_REDUNDANT.
+    #endif
+  #endif
   #if !HAS_HEATER_0
     #error HEATER_0_PIN not defined for this board.
+  #endif
+  #if TEMP_SENSOR_0 == 0
+    #error TEMP_SENSOR_0 is required.
   #endif
 
   /**
