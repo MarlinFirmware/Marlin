@@ -349,7 +349,13 @@
 //#define WATCHDOG_RESET_MANUAL
 #endif
 
-// Enable the option to stop SD printing when hitting and endstops, needs to be enabled from the LCD menu when this option is enabled.
+/*
+ * Uncomment this line to enable the option to stop SD printing when hitting an
+ * endstop. This needs to be enabled from the LCD menu when this option is
+ * enabled, AND note that you will need to either disable
+ * ENDSTOPS_ONLY_FOR_HOMING, above; or send the printer an M121 command whenever
+ * you want endstops to be actively checked.
+ */
 //#define ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED
 
 // @section lcd
