@@ -4012,7 +4012,7 @@ inline void gcode_M205() {
   if (code_seen('E')) max_e_jerk = code_value();
 }
 
-void set_home_offset(AxisEnum axis, float offs) {
+void set_home_offset(uint8_t axis, float offs) {
   if (axis_known_position[axis]) {
     float diff = offs - home_offset[axis];
     current_position[axis] += diff;
@@ -4696,8 +4696,8 @@ inline void gcode_M428() {
   for (int8_t i = X_AXIS; i <= Z_AXIS; i++) {
     if (axis_known_position[i]) {
       float mid = (min_pos[i] + max_pos[i]) / 2,
-            base = (new_pos[i] > mid) ? base_home_pos(i) : 0,
-            diff = new_pos[i] - base;
+            base = (current_position[i] > mid) ? base_home_pos(i) : 0,
+            diff = current_position[i] - base;
       if (diff > -20 && diff < 20) {
         new_offs[i] -= diff;
       }
