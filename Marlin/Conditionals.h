@@ -285,6 +285,12 @@
     #define MAX_PROBE_X (min(X_MAX_POS, X_MAX_POS + X_PROBE_OFFSET_FROM_EXTRUDER))
     #define MIN_PROBE_Y (max(Y_MIN_POS, Y_MIN_POS + Y_PROBE_OFFSET_FROM_EXTRUDER))
     #define MAX_PROBE_Y (min(Y_MAX_POS, Y_MAX_POS + Y_PROBE_OFFSET_FROM_EXTRUDER))
+
+    // Z_RAISE_AFTER_PROBING is not for all probes. Be sure that it is zero in that cases
+    #if !defined(SERVO_ENDSTOPS) && !defined(Z_PROBE_ALLEN_KEY) && !defined(Z_PROBE_SLED)
+      #undef Z_RAISE_AFTER_PROBING
+      #define Z_RAISE_AFTER_PROBING 0
+    #endif
   #endif
 
   #define SERVO_LEVELING (defined(ENABLE_AUTO_BED_LEVELING) && defined(DEACTIVATE_SERVOS_AFTER_MOVE))
