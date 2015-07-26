@@ -4051,8 +4051,8 @@ inline void gcode_M206() {
       set_home_offset(i, code_value());
 
   #ifdef SCARA
-    if (code_seen('T')) home_offset[X_AXIS] = code_value(); // Theta
-    if (code_seen('P')) home_offset[Y_AXIS] = code_value(); // Psi
+    if (code_seen('T')) set_home_offset(X_AXIS, code_value()); // Theta
+    if (code_seen('P')) set_home_offset(Y_AXIS, code_value()); // Psi
   #endif
 }
 
