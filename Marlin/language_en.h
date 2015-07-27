@@ -420,6 +420,18 @@
 #ifndef MSG_END_MINUTE
 #define MSG_END_MINUTE                      "minutes"
 #endif
+#ifndef MSG_HEATING
+#define MSG_HEATING                         "Heating..."
+#endif
+#ifndef MSG_HEATING_COMPLETE
+#define MSG_HEATING_COMPLETE                "Heating done."
+#endif
+#ifndef MSG_BED_HEATING
+#define MSG_BED_HEATING                     "Bed Heating."
+#endif
+#ifndef MSG_BED_DONE
+#define MSG_BED_DONE                        "Bed done."
+#endif
 
 #ifdef DELTA_CALIBRATION_MENU
   #ifndef MSG_DELTA_CALIBRATE
