@@ -75,6 +75,39 @@
       #error EXTRUDERS must be 1 with Z_DUAL_STEPPER_DRIVERS.
     #endif
 
+    #if !defined(TEMP_1_PIN) || TEMP_1_PIN < 0
+      #error TEMP_1_PIN undefined or "-1" with EXTRUDERS > 1.
+    #endif
+    #if !defined(E1_ENABLE_PIN) || E1_ENABLE_PIN < 0
+      #error E1_ENABLE_PIN undefined or "-1" with EXTRUDERS > 1.
+    #endif
+    #if !defined(E1_STEP_PIN) || E1_STEP_PIN < 0
+      #error E1_STEP_PIN undefined or "-1" with EXTRUDERS > 1.
+    #endif
+    #if !defined(E1_DIR_PIN) || E1_DIR_PIN < 0
+      #error E1_DIR_PIN undefined or "-1" with EXTRUDERS > 1.
+    #endif
+    #if !defined(HEATER_1_PIN) || HEATER_1_PIN < 0
+      #error HEATER_1_PIN undefined or "-1" with EXTRUDERS > 1.
+    #endif
+
+    #if EXTRUDERS > 2
+      #if !defined(TEMP_2_PIN) || TEMP_2_PIN < 0
+        #error TEMP_2_PIN undefined or "-1" with EXTRUDERS > 2.
+      #endif
+      #if !defined(E2_ENABLE_PIN) || E2_ENABLE_PIN < 0
+        #error E2_ENABLE_PIN undefined or "-1" with EXTRUDERS > 2.
+      #endif
+      #if !defined(E2_STEP_PIN) || E2_STEP_PIN < 0
+        #error E2_STEP_PIN undefined or "-1" with EXTRUDERS > 2.
+      #endif
+      #if !defined(E2_DIR_PIN) || E2_DIR_PIN < 0
+        #error E2_DIR_PIN undefined or "-1" with EXTRUDERS > 2.
+      #endif
+      #if !defined(HEATER_2_PIN) || HEATER_2_PIN < 0
+        #error HEATER_2_PIN undefined or "-1" with EXTRUDERS > 2.
+      #endif
+    #endif // EXTRUDERS > 2
   #endif // EXTRUDERS > 1
 
   /**
