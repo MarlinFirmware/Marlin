@@ -124,6 +124,10 @@
 #define MSG_ENDSTOP_ABORT                   "Endstop Abbr. Ein"
 #define MSG_END_HOUR                        "Stunden"
 #define MSG_END_MINUTE                      "Minuten"
+#define MSG_HEATING                         "Aufheizen..."
+#define MSG_HEATING_COMPLETE                "Aufgeheizt"
+#define MSG_BED_HEATING                     "Bett aufheizen"
+#define MSG_BED_DONE                        "Bett aufgeheizt"
 
 #ifdef DELTA_CALIBRATION_MENU
     #define MSG_DELTA_CALIBRATE             "Delta kalibrieren"
