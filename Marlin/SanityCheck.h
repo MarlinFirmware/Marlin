@@ -281,25 +281,42 @@
   #endif
 
   /**
-   * Test required HEATER and TEMP_SENSOR defines
+   * Test Heater, Temp Sensor, and Extruder Pins; Sensor Type must also be set.
    */
   #if EXTRUDERS > 3
     #if !HAS_HEATER_3
       #error HEATER_3_PIN not defined for this board.
+    #elif !PIN_EXISTS(TEMP_3)
+      #error TEMP_3_PIN not defined for this board.
+    #elif !PIN_EXISTS(E3_STEP) || !PIN_EXISTS(E3_DIR) || !PIN_EXISTS(E3_ENABLE)
+      #error E3_STEP_PIN, E3_DIR_PIN, or E3_ENABLE_PIN not defined for this board.
     #elif TEMP_SENSOR_3 == 0
       #error TEMP_SENSOR_3 is required with 4 EXTRUDERS.
     #endif
   #elif EXTRUDERS > 2
     #if !HAS_HEATER_2
       #error HEATER_2_PIN not defined for this board.
+    #elif !PIN_EXISTS(TEMP_2)
+      #error TEMP_2_PIN not defined for this board.
+    #elif !PIN_EXISTS(E2_STEP) || !PIN_EXISTS(E2_DIR) || !PIN_EXISTS(E2_ENABLE)
+      #error E2_STEP_PIN, E2_DIR_PIN, or E2_ENABLE_PIN not defined for this board.
     #elif TEMP_SENSOR_2 == 0
       #error TEMP_SENSOR_2 is required with 3 or more EXTRUDERS.
     #endif
-  #elif EXTRUDERS > 1 || defined(HEATERS_PARALLEL)
+  #elif EXTRUDERS > 1
+    #if !PIN_EXISTS(TEMP_1)
+      #error TEMP_1_PIN not defined for this board.
+    #elif !PIN_EXISTS(E1_STEP) || !PIN_EXISTS(E1_DIR) || !PIN_EXISTS(E1_ENABLE)
+      #error E1_STEP_PIN, E1_DIR_PIN, or E1_ENABLE_PIN not defined for this board.
+    #endif
+  #endif
+
+  #if EXTRUDERS > 1 || defined(HEATERS_PARALLEL)
     #if !HAS_HEATER_1
       #error HEATER_1_PIN not defined for this board.
     #endif
   #endif
+
   #if TEMP_SENSOR_1 == 0
     #if EXTRUDERS > 1
       #error TEMP_SENSOR_1 is required with 2 or more EXTRUDERS.
@@ -307,10 +324,14 @@
       #error TEMP_SENSOR_1 is required with TEMP_SENSOR_1_AS_REDUNDANT.
     #endif
   #endif
+
   #if !HAS_HEATER_0
     #error HEATER_0_PIN not defined for this board.
-  #endif
-  #if TEMP_SENSOR_0 == 0
+  #elif !PIN_EXISTS(TEMP_0)
+    #error TEMP_0_PIN not defined for this board.
+  #elif !PIN_EXISTS(E0_STEP) || !PIN_EXISTS(E0_DIR) || !PIN_EXISTS(E0_ENABLE)
+    #error E0_STEP_PIN, E0_DIR_PIN, or E0_ENABLE_PIN not defined for this board.
+  #elif TEMP_SENSOR_0 == 0
     #error TEMP_SENSOR_0 is required.
   #endif
 
