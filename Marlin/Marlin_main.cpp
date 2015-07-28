@@ -4336,7 +4336,7 @@ inline void gcode_M226() {
       #ifdef PID_PARAMS_PER_HOTEND
         SERIAL_PROTOCOL(" e:"); // specify extruder in serial output
         SERIAL_PROTOCOL(e);
-      #endif // PID_PARAMS_PER_EXTRUDER
+      #endif // PID_PARAMS_PER_HOTEND
       SERIAL_PROTOCOL(" p:");
       SERIAL_PROTOCOL(PID_PARAM(Kp, e));
       SERIAL_PROTOCOL(" i:");
