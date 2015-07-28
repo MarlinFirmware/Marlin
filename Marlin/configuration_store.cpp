@@ -205,7 +205,7 @@ void Config_StoreSettings()  {
   for (int e = 0; e < 4; e++) {
 
     #ifdef PIDTEMP
-      if (e < EXTRUDERS) {
+      if (e < HOTENDS) {
         EEPROM_WRITE_VAR(i, PID_PARAM(Kp, e));
         EEPROM_WRITE_VAR(i, PID_PARAM(Ki, e));
         EEPROM_WRITE_VAR(i, PID_PARAM(Kd, e));
@@ -371,9 +371,9 @@ void Config_RetrieveSettings() {
     EEPROM_READ_VAR(i, absPreheatFanSpeed);
 
     #ifdef PIDTEMP
-      for (int e = 0; e < 4; e++) { // 4 = max extruders currently supported by Marlin
+      for (int e = 0; e < 4; e++) { // 4 = max hotends currently supported by Marlin
         EEPROM_READ_VAR(i, dummy); // Kp
-        if (e < EXTRUDERS && dummy != DUMMY_PID_VALUE) {
+        if (e < HOTENDS && dummy != DUMMY_PID_VALUE) {
           // do not need to scale PID values as the values in EEPROM are already scaled
           PID_PARAM(Kp, e) = dummy;
           EEPROM_READ_VAR(i, PID_PARAM(Ki, e));
@@ -526,8 +526,8 @@ void Config_ResetDefault() {
   #endif
 
   #ifdef PIDTEMP
-    #ifdef PID_PARAMS_PER_EXTRUDER
-      for (int e = 0; e < EXTRUDERS; e++)
+    #ifdef PID_PARAMS_PER_HOTEND
+      for (int e = 0; e < HOTENDS; e++)
     #else
       int e = 0; // only need to write once
     #endif
@@ -565,16 +565,11 @@ void Config_ResetDefault() {
   #endif
 
   volumetric_enabled = false;
-  filament_size[0] = DEFAULT_NOMINAL_FILAMENT_DIA;
-  #if EXTRUDERS > 1
-    filament_size[1] = DEFAULT_NOMINAL_FILAMENT_DIA;
-    #if EXTRUDERS > 2
-      filament_size[2] = DEFAULT_NOMINAL_FILAMENT_DIA;
-      #if EXTRUDERS > 3
-        filament_size[3] = DEFAULT_NOMINAL_FILAMENT_DIA;
-      #endif
-    #endif
-  #endif
+
+  for (short i = 0; i < EXTRUDERS; i++) {
+    filament_size[i] = DEFAULT_NOMINAL_FILAMENT_DIA;
+  }
+
   calculate_volumetric_multipliers();
 
   SERIAL_ECHO_START;
@@ -742,9 +737,9 @@ void Config_PrintSettings(bool forReplay) {
       SERIAL_ECHOLNPGM("PID settings:");
     }
     #ifdef PIDTEMP
-      #if EXTRUDERS > 1
+      #if HOTENDS > 1
         if (forReplay) {
-          for (uint8_t i = 0; i < EXTRUDERS; i++) {
+          for (uint8_t i = 0; i < HOTENDS; i++) {
             CONFIG_ECHO_START;
             SERIAL_ECHOPAIR("  M301 E", (unsigned long)i);
             SERIAL_ECHOPAIR(" P", PID_PARAM(Kp, i));
@@ -757,8 +752,8 @@ void Config_PrintSettings(bool forReplay) {
           }
         }
         else
-      #endif // EXTRUDERS > 1
-      // !forReplay || EXTRUDERS == 1
+      #endif // HOTENDS > 1
+      // !forReplay || HOTENDS == 1
       {
         CONFIG_ECHO_START;
         SERIAL_ECHOPAIR("  M301 P", PID_PARAM(Kp, 0)); // for compatibility with hosts, only echo values for E0

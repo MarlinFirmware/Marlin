@@ -297,17 +297,18 @@ bool target_direction;
   float z_endstop_adj = 0;
 #endif
 
-// Extruder offsets
-#if EXTRUDERS > 1
-  #ifndef EXTRUDER_OFFSET_X
-    #define EXTRUDER_OFFSET_X { 0 }
+// Hotend offset
+#if HOTENDS > 1
+  #ifndef DUAL_X_CARRIAGE
+
+    #define HOTEND_OFFSET_X { 0 }
   #endif
-  #ifndef EXTRUDER_OFFSET_Y
-    #define EXTRUDER_OFFSET_Y { 0 }
+  #ifndef HOTEND_OFFSET_Y
+    #define HOTEND_OFFSET_Y { 0 }
   #endif
-  float extruder_offset[][EXTRUDERS] = {
-    EXTRUDER_OFFSET_X,
-    EXTRUDER_OFFSET_Y
+  float hotend_offset[][HOTENDS] = {
+    HOTEND_OFFSET_X,
+    HOTEND_OFFSET_Y
     #ifdef DUAL_X_CARRIAGE
       , { 0 } // supports offsets in XYZ plane
     #endif
@@ -3361,6 +3362,10 @@ inline void gcode_M104() {
   if (setTargetedHotend(104)) return;
   if (marlin_debug_flags & DEBUG_DRYRUN) return;
 
+  #if HOTENDS == 1
+    if (target_extruder != active_extruder) return;
+  #endif
+
   if (code_seen('S')) {
     float temp = code_value();
     setTargetHotend(temp, target_extruder);
@@ -3460,6 +3465,10 @@ inline void gcode_M105() {
 inline void gcode_M109() {
   if (setTargetedHotend(109)) return;
   if (marlin_debug_flags & DEBUG_DRYRUN) return;
+
+  #if HOTENDS == 1
+    if (target_extruder != active_extruder) return;
+  #endif
 
   LCD_MESSAGEPGM(MSG_HEATING);
 
@@ -4151,13 +4160,13 @@ inline void gcode_M206() {
           unknown_command_error();
           return;
       }
-      for (int i=0; i<EXTRUDERS; i++) retracted[i] = false;
+      for (int i = 0; i < EXTRUDERS; i++) retracted[i] = false;
     }
   }
 
 #endif // FWRETRACT
 
-#if EXTRUDERS > 1
+#if HOTENDS > 1
 
   /**
    * M218 - set hotend offset (in mm), T<extruder_number> X<offset_on_X> Y<offset_on_Y>
@@ -4165,29 +4174,29 @@ inline void gcode_M206() {
   inline void gcode_M218() {
     if (setTargetedHotend(218)) return;
 
-    if (code_seen('X')) extruder_offset[X_AXIS][target_extruder] = code_value();
-    if (code_seen('Y')) extruder_offset[Y_AXIS][target_extruder] = code_value();
+    if (code_seen('X')) hotend_offset[X_AXIS][target_extruder] = code_value();
+    if (code_seen('Y')) hotend_offset[Y_AXIS][target_extruder] = code_value();
 
     #ifdef DUAL_X_CARRIAGE
-      if (code_seen('Z')) extruder_offset[Z_AXIS][target_extruder] = code_value();
+      if (code_seen('Z')) hotend_offset[Z_AXIS][target_extruder] = code_value();
     #endif
 
     SERIAL_ECHO_START;
     SERIAL_ECHOPGM(MSG_HOTEND_OFFSET);
-    for (int e = 0; e < EXTRUDERS; e++) {
+    for (int e = 0; e < HOTENDS; e++) {
       SERIAL_CHAR(' ');
-      SERIAL_ECHO(extruder_offset[X_AXIS][e]);
+      SERIAL_ECHO(hotend_offset[X_AXIS][e]);
       SERIAL_CHAR(',');
-      SERIAL_ECHO(extruder_offset[Y_AXIS][e]);
+      SERIAL_ECHO(hotend_offset[Y_AXIS][e]);
       #ifdef DUAL_X_CARRIAGE
         SERIAL_CHAR(',');
-        SERIAL_ECHO(extruder_offset[Z_AXIS][e]);
+        SERIAL_ECHO(hotend_offset[Z_AXIS][e]);
       #endif
     }
     SERIAL_EOL;
   }
 
-#endif // EXTRUDERS > 1
+#endif // HOTENDS > 1
 
 /**
  * M220: Set speed percentage factor, aka "Feed Rate" (M220 S95)
@@ -4314,7 +4323,7 @@ inline void gcode_M226() {
     // default behaviour (omitting E parameter) is to update for extruder 0 only
     int e = code_seen('E') ? code_value() : 0; // extruder being updated
 
-    if (e < EXTRUDERS) { // catch bad input value
+    if (e < HOTENDS) { // catch bad input value
       if (code_seen('P')) PID_PARAM(Kp, e) = code_value();
       if (code_seen('I')) PID_PARAM(Ki, e) = scalePID_i(code_value());
       if (code_seen('D')) PID_PARAM(Kd, e) = scalePID_d(code_value());
@@ -4324,7 +4333,7 @@ inline void gcode_M226() {
 
       updatePID();
       SERIAL_PROTOCOL(MSG_OK);
-      #ifdef PID_PARAMS_PER_EXTRUDER
+      #ifdef PID_PARAMS_PER_HOTEND
         SERIAL_PROTOCOL(" e:"); // specify extruder in serial output
         SERIAL_PROTOCOL(e);
       #endif // PID_PARAMS_PER_EXTRUDER
@@ -4845,7 +4854,7 @@ inline void gcode_M503() {
 
     float lastpos[NUM_AXIS], fr60 = feedrate / 60;
 
-    for (int i=0; i<NUM_AXIS; i++)
+    for (int i = 0; i < NUM_AXIS; i++)
       lastpos[i] = destination[i] = current_position[i];
 
     #ifdef DELTA
@@ -4894,10 +4903,7 @@ inline void gcode_M503() {
     //finish moves
     st_synchronize();
     //disable extruder steppers so filament can be removed
-    disable_e0();
-    disable_e1();
-    disable_e2();
-    disable_e3();
+    disable_e();
     delay(100);
     LCD_ALERTMESSAGEPGM(MSG_FILAMENTCHANGE);
     millis_t next_tick = 0;
@@ -5168,9 +5174,11 @@ inline void gcode_T(uint8_t tmp_extruder) {
             delayed_move_time = 0;
           }
         #else // !DUAL_X_CARRIAGE
-          // Offset extruder (only by XY)
-          for (int i=X_AXIS; i<=Y_AXIS; i++)
-            current_position[i] += extruder_offset[i][tmp_extruder] - extruder_offset[i][active_extruder];
+          // Offset hotend (only by XY)
+          #if HOTENDS > 1
+            for (int i = X_AXIS; i <= Y_AXIS; i++)
+              current_position[i] += hotend_offset[i][tmp_extruder] - hotend_offset[i][active_extruder];
+          #endif // HOTENDS > 1
           // Set the new active extruder and position
           active_extruder = tmp_extruder;
         #endif // !DUAL_X_CARRIAGE
@@ -5557,7 +5565,7 @@ void process_next_command() {
           break;
       #endif // FWRETRACT
 
-      #if EXTRUDERS > 1
+      #if HOTENDS > 1
         case 218: // M218 - set hotend offset (in mm), T<extruder_number> X<offset_on_X> Y<offset_on_Y>
           gcode_M218();
           break;
@@ -6380,8 +6388,8 @@ void plan_arc(
     float max_temp = 0.0;
     if (millis() > next_status_led_update_ms) {
       next_status_led_update_ms += 500; // Update every 0.5s
-      for (int8_t cur_extruder = 0; cur_extruder < EXTRUDERS; ++cur_extruder)
-         max_temp = max(max(max_temp, degHotend(cur_extruder)), degTargetHotend(cur_extruder));
+      for (int8_t cur_hotend = 0; cur_hotend < HOTENDS; ++cur_hotend)
+         max_temp = max(max(max_temp, degHotend(cur_hotend)), degTargetHotend(cur_hotend));
       #if HAS_TEMP_BED
         max_temp = max(max(max_temp, degTargetBed()), degBed());
       #endif

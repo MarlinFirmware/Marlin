@@ -3,10 +3,10 @@
  *
  * Applies to the following boards:
  *
- *  RAMPS_13_EFB (Extruder, Fan, Bed)
- *  RAMPS_13_EEB (Extruder, Extruder, Bed)
- *  RAMPS_13_EFF (Extruder, Fan, Fan)
- *  RAMPS_13_EEF (Extruder, Extruder, Fan)
+ *  RAMPS_13_EFB (Hotend, Fan, Bed)
+ *  RAMPS_13_EEB (Hotend, Hotend, Bed)
+ *  RAMPS_13_EFF (Hotend, Fan, Fan)
+ *  RAMPS_13_EEF (Hotend, Hotend, Fan)
  *  RAMPS_13_SF  (Spindle, Controller Fan)
  *
  *  Other pins_MYBOARD.h files may override these defaults

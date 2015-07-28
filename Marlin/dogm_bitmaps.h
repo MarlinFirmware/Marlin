@@ -82,7 +82,7 @@
 // When only one extruder is selected, the "1" on the symbol will not 
 // be displayed.
 
-#if EXTRUDERS == 1
+#if HOTENDS == 1
 	#define STATUS_SCREENWIDTH 		115	//Width in pixels
 	#define STATUS_SCREENHEIGHT 	19	//Height in pixels
 	#define STATUS_SCREENBYTEWIDTH 	15	//Width in bytes
@@ -132,7 +132,7 @@
 	0x1E,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x01,0xFF,0xFF,0x80,0x7F,0xFF,0xE0,
 	0x0C,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x01,0xFF,0xFF,0x80,0x00,0x00,0x00
 	};
-#elif EXTRUDERS == 2
+#elif HOTENDS == 2
 	#define STATUS_SCREENWIDTH 		115	//Width in pixels
 	#define STATUS_SCREENHEIGHT 	19	//Height in pixels
 	#define STATUS_SCREENBYTEWIDTH 	15	//Width in bytes

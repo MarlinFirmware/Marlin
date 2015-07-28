@@ -24,8 +24,7 @@
 static void ST7920_SWSPI_SND_8BIT(uint8_t val)
 {
   uint8_t i;
-  for( i=0; i<8; i++ )
-  {
+  for( i = 0; i < 8; i++ ) {
     WRITE(ST7920_CLK_PIN,0);
     #if F_CPU == 20000000
       __asm__("nop\n\t"); 
@@ -64,12 +63,12 @@ uint8_t u8g_dev_rrd_st7920_128x64_fn(u8g_t *u8g, u8g_dev_t *dev, uint8_t msg, vo
         ST7920_WRITE_BYTE(0x01);       //clear CGRAM ram
         u8g_Delay(15);                 //delay for CGRAM clear
         ST7920_WRITE_BYTE(0x3E);       //extended mode + GDRAM active
-        for(y=0;y<LCD_PIXEL_HEIGHT/2;y++)        //clear GDRAM
+        for(y = 0; y < LCD_PIXEL_HEIGHT / 2; y++)        //clear GDRAM
         {
           ST7920_WRITE_BYTE(0x80|y);   //set y
           ST7920_WRITE_BYTE(0x80);     //set x = 0
           ST7920_SET_DAT();
-          for(i=0;i<2*LCD_PIXEL_WIDTH/8;i++)     //2x width clears both segments
+          for(i = 0; i < 2 * LCD_PIXEL_WIDTH / 8; i++)     //2x width clears both segments
             ST7920_WRITE_BYTE(0);
           ST7920_SET_CMD();
         }

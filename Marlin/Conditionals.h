@@ -216,6 +216,16 @@
 
   #define CONDITIONALS_H
 
+  /**
+   * SINGLENOZZLE
+   */
+  #ifdef SINGLENOZZLE
+    #define HOTENDS 1
+    #undef TEMP_SENSOR_1_AS_REDUNDANT
+  #else
+    #define HOTENDS EXTRUDERS
+  #endif
+
   #include "pins.h"
 
   #ifndef USBCON
@@ -407,6 +417,21 @@
   #endif
 
   #define ARRAY_BY_EXTRUDERS1(v1) ARRAY_BY_EXTRUDERS(v1, v1, v1, v1)
+
+  /**
+   * ARRAY_BY_HOTENDS based on HOTENDS
+   */
+  #if HOTENDS > 3
+    #define ARRAY_BY_HOTENDS(v1, v2, v3, v4) { v1, v2, v3, v4 }
+  #elif HOTENDS > 2
+    #define ARRAY_BY_HOTENDS(v1, v2, v3, v4) { v1, v2, v3 }
+  #elif HOTENDS > 1
+    #define ARRAY_BY_HOTENDS(v1, v2, v3, v4) { v1, v2 }
+  #else
+    #define ARRAY_BY_HOTENDS(v1, v2, v3, v4) { v1 }
+  #endif
+
+  #define ARRAY_BY_HOTENDS1(v1) ARRAY_BY_HOTENDS(v1, v1, v1, v1)
 
   /**
    * Shorthand for pin tests, used wherever needed

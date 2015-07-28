@@ -456,10 +456,10 @@ static void lcd_implementation_status_screen() {
     //
     // Hotend 1 or Bed Temperature
     //
-    #if EXTRUDERS > 1 || TEMP_SENSOR_BED != 0
+    #if HOTENDS > 1 || TEMP_SENSOR_BED != 0
 
       lcd.setCursor(8, 0);
-      #if EXTRUDERS > 1
+      #if HOTENDS > 1
         lcd.print(LCD_STR_THERMOMETER[0]);
         LCD_TEMP_ONLY(degHotend(1), degTargetHotend(1));
       #else
@@ -467,7 +467,7 @@ static void lcd_implementation_status_screen() {
         LCD_TEMP_ONLY(degBed(), degTargetBed());
       #endif
 
-    #endif // EXTRUDERS > 1 || TEMP_SENSOR_BED != 0
+    #endif // HOTENDS > 1 || TEMP_SENSOR_BED != 0
 
   #else // LCD_WIDTH >= 20
 
@@ -479,15 +479,15 @@ static void lcd_implementation_status_screen() {
     //
     // Hotend 1 or Bed Temperature
     //
-    #if EXTRUDERS > 1 || TEMP_SENSOR_BED != 0
+    #if HOTENDS > 1 || TEMP_SENSOR_BED != 0
       lcd.setCursor(10, 0);
-      #if EXTRUDERS > 1
+      #if HOTENDS > 1
         LCD_TEMP(degHotend(1), degTargetHotend(1), LCD_STR_THERMOMETER[0]);
       #else
         LCD_TEMP(degBed(), degTargetBed(), LCD_STR_BEDTEMP[0]);
       #endif
 
-    #endif  // EXTRUDERS > 1 || TEMP_SENSOR_BED != 0
+    #endif // HOTENDS > 1 || TEMP_SENSOR_BED != 0
 
   #endif // LCD_WIDTH >= 20
 
@@ -506,18 +506,18 @@ static void lcd_implementation_status_screen() {
           lcd.print(itostr3(card.percentDone()));
         else
           lcd_printPGM(PSTR("---"));
-          lcd.print('%');
+        lcd.print('%');
       #endif // SDSUPPORT
 
     #else // LCD_WIDTH >= 20
 
       lcd.setCursor(0, 1);
 
-      #if EXTRUDERS > 1 && TEMP_SENSOR_BED != 0
+      #if HOTENDS > 1 && TEMP_SENSOR_BED != 0
 
-        // If we both have a 2nd extruder and a heated bed,
+        // If we both have a 2nd hotend and a heated bed,
         // show the heated bed temp on the left,
-        // since the first line is filled with extruder temps
+        // since the first line is filled with hotend temps
         LCD_TEMP(degBed(), degTargetBed(), LCD_STR_BEDTEMP[0]);
 
       #else
@@ -534,7 +534,7 @@ static void lcd_implementation_status_screen() {
         else
           lcd_printPGM(PSTR("---"));
 
-      #endif // EXTRUDERS > 1 || TEMP_SENSOR_BED != 0
+      #endif // HOTENDS > 1 || TEMP_SENSOR_BED != 0
 
     #endif // LCD_WIDTH >= 20
 
@@ -740,7 +740,7 @@ static void lcd_implementation_drawmenu_sddirectory(bool sel, uint8_t row, const
       if (target_temperature_bed > 0) leds |= LED_A;
       if (target_temperature[0] > 0) leds |= LED_B;
       if (fanSpeed) leds |= LED_C;
-      #if EXTRUDERS > 1
+      #if HOTENDS > 1
         if (target_temperature[1] > 0) leds |= LED_C;
       #endif
       if (leds != ledsprev) {
