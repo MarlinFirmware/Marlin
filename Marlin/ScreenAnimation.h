@@ -103,7 +103,7 @@ namespace screen
 	template <typename T>
 		void ScreenAnimation<T>::init(uint16_t index)
 	{
-		this->m_model->attach(this);
+//		this->m_model->attach(this);
 		this->connect();
 	}
 

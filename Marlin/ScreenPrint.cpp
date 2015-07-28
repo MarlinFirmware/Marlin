@@ -51,7 +51,7 @@ namespace screen
 
 	void ScreenPrint::init(uint16_t index)
 	{
-		this->m_model->attach(this);
+//		this->m_model->attach(this);
 		this->connect();
 
 		for (unsigned int i = 0;i <= m_num_icons -1; ++i)
