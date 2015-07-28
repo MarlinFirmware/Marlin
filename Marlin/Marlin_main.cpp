@@ -213,6 +213,7 @@
  * ************* SCARA End ***************
  *
  * ************ Custom codes - This can change to suit future G-code regulations
+ * M100 - Watch Free Memory (For Debugging Only)
  * M851 - Set probe's Z offset (mm above extruder -- The value will always be negative)
 
 
@@ -224,6 +225,10 @@
  * T0-T3 - Select a tool by index (usually an extruder) [ F<mm/min> ]
  *
  */
+
+#ifdef M100_FREE_MEMORY_WATCHER
+  void gcode_M100();
+#endif
 
 #ifdef SDSUPPORT
   CardReader card;
@@ -414,6 +419,8 @@ void plan_arc(float target[NUM_AXIS], float *offset, uint8_t clockwise);
 
 bool setTargetedHotend(int code);
 
+void serial_echopair_P(const char *s_P, int v)           { serialprintPGM(s_P); SERIAL_ECHO(v); }
+void serial_echopair_P(const char *s_P, long v)          { serialprintPGM(s_P); SERIAL_ECHO(v); }
 void serial_echopair_P(const char *s_P, float v)         { serialprintPGM(s_P); SERIAL_ECHO(v); }
 void serial_echopair_P(const char *s_P, double v)        { serialprintPGM(s_P); SERIAL_ECHO(v); }
 void serial_echopair_P(const char *s_P, unsigned long v) { serialprintPGM(s_P); SERIAL_ECHO(v); }
@@ -5371,6 +5378,12 @@ void process_next_command() {
           gcode_M48();
           break;
       #endif // ENABLE_AUTO_BED_LEVELING && Z_PROBE_REPEATABILITY_TEST
+
+      #ifdef M100_FREE_MEMORY_WATCHER
+        case 100:
+          gcode_M100();
+          break;
+      #endif
 
       case 104: // M104
         gcode_M104();
