@@ -6,7 +6,7 @@
 class Stepper
 {
 	public:
-		Stepper() {}
+		Stepper() {};
 		Stepper(uint8_t pin, bool polarity);
 		~Stepper();
 
