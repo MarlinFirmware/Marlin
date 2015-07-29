@@ -281,23 +281,65 @@
   #endif
 
   /**
-   * Test required HEATER defines
+   * Test Heater, Temp Sensor; Sensor Type must also be set.
    */
   #if HOTENDS > 3
     #if !HAS_HEATER_3
-      #error HEATER_3_PIN not defined for this board
+      #error HEATER_3_PIN not defined for this board.
+    #elif !PIN_EXISTS(TEMP_3)
+      #error TEMP_3_PIN not defined for this board.
     #endif
   #elif HOTENDS > 2
     #if !HAS_HEATER_2
-      #error HEATER_2_PIN not defined for this board
+      #error HEATER_2_PIN not defined for this board.
+    #elif !PIN_EXISTS(TEMP_2)
+      #error TEMP_2_PIN not defined for this board.
     #endif
-  #elif HOTENDS > 1 || defined(HEATERS_PARALLEL)
-    #if !HAS_HEATER_1
-      #error HEATER_1_PIN not defined for this board
+  #elif HOTENDS > 1
+    #if !PIN_EXISTS(TEMP_1)
+      #error TEMP_1_PIN not defined for this board.
     #endif
   #endif
+
+  #if HOTENDS > 1 || defined(HEATERS_PARALLEL)
+    #if !HAS_HEATER_1
+      #error HEATER_1_PIN not defined for this board.
+    #endif
+  #endif
+
+  #if TEMP_SENSOR_1 == 0
+    #if HOTENDS > 1
+      #error TEMP_SENSOR_1 is required with 2 or more EXTRUDERS.
+    #elif ENABLED(TEMP_SENSOR_1_AS_REDUNDANT)
+      #error TEMP_SENSOR_1 is required with TEMP_SENSOR_1_AS_REDUNDANT.
+    #endif
+  #endif
+
   #if !HAS_HEATER_0
     #error HEATER_0_PIN not defined for this board
+  #elif !PIN_EXISTS(TEMP_0)
+    #error TEMP_0_PIN not defined for this board.
+  #endif
+
+  /**
+   * Test Extruder Pins;
+   */
+  #if EXTRUDERS > 3
+    #if !PIN_EXISTS(E3_STEP) || !PIN_EXISTS(E3_DIR) || !PIN_EXISTS(E3_ENABLE)
+      #error E3_STEP_PIN, E3_DIR_PIN, or E3_ENABLE_PIN not defined for this board.
+    #endif
+  #elif EXTRUDERS > 2
+    #if !PIN_EXISTS(E2_STEP) || !PIN_EXISTS(E2_DIR) || !PIN_EXISTS(E2_ENABLE)
+      #error E2_STEP_PIN, E2_DIR_PIN, or E2_ENABLE_PIN not defined for this board.
+    #endif
+  #elif EXTRUDERS > 1
+    #if !PIN_EXISTS(E1_STEP) || !PIN_EXISTS(E1_DIR) || !PIN_EXISTS(E1_ENABLE)
+      #error E1_STEP_PIN, E1_DIR_PIN, or E1_ENABLE_PIN not defined for this board.
+    #endif
+  #endif
+
+  #if !PIN_EXISTS(E0_STEP) || !PIN_EXISTS(E0_DIR) || !PIN_EXISTS(E0_ENABLE)
+    #error E0_STEP_PIN, E0_DIR_PIN, or E0_ENABLE_PIN not defined for this board.
   #endif
 
   /**
