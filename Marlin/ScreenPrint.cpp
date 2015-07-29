@@ -127,7 +127,18 @@ namespace screen
 				//Status widget
 				painter.printingStatus(m_percent_done, m_printed_time.hours, m_printed_time.minutes);
 				//Paint selection box on bottom of screen
-				painter.arrowBox((m_icons[m_index])->text());
+				if ( m_index != (m_num_items -1) && m_index != 0)
+				{
+					painter.box((m_icons[m_index])->text(), BOTH);
+				}
+				else if(m_index == (m_num_items -1))
+				{
+					painter.box((m_icons[m_index])->text(), LEFT);
+				}
+				else if (m_index == 0)
+				{
+					painter.box((m_icons[m_index])->text(), RIGHT);
+				}
 				//Icon grid
 				uint8_t x_init = painter.coordinateXInit();
 				uint8_t y_init = painter.coordinateYInit() + 5;

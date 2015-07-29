@@ -38,6 +38,15 @@ namespace screen
 		uint8_t y_end;
 	};
 
+	typedef enum
+	{
+		NONE = 0,
+		LEFT,
+		RIGHT,
+		BOTH,
+		NUM_SCREEN_TYPES,
+	} ArrowType_t;
+
 	class GuiPainter
 	{
 		public:
@@ -56,8 +65,7 @@ namespace screen
 			Area getWorkingArea();
 
 			void title(const char * title);
-			void box(const char* text);
-			void arrowBox(const char* text);
+			void box(const char* text, ArrowType_t arrow = NONE);
 			void printingStatus(const uint8_t percentage, const uint8_t hour, const uint8_t minute);
 
 			void text(const char * msg);

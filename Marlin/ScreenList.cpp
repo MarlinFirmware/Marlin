@@ -74,7 +74,6 @@ namespace screen
 		, m_index(0)
 		, m_icon_index(0)
 		, m_num_list(0)
-		, m_offset(0)
 		, m_num_item_added(0)
 	{
 		memset(m_directory, 0, sizeof(m_directory));
@@ -160,15 +159,13 @@ namespace screen
 						}
 					}
 					m_directory_is_root = false;
-					m_offset = 2;
 				}
 				else
 				{
 					m_directory_is_root = true;
-					m_offset = 1;
 				}
 
-				m_num_list += m_offset;
+				m_num_list++;
 
 				m_scroll_size = (float) 47 / m_num_list;
 			}
@@ -177,7 +174,6 @@ namespace screen
 				m_num_list = 1;
 				m_index = 0;
 				m_directory_is_root = true;
-				m_offset = 1;
 				m_scroll_size = 47;
 			}
 			state = run_state(state, EVENT_PREPARED);
@@ -245,19 +241,22 @@ namespace screen
 
 				if ((m_index + i - window_selector) == 0)
 				{
-					painter.drawBitmap(painter.coordinateXInit() + 1, painter.coordinateYInit() + i * (max_font_height + 1), little_icon_width, little_icon_height, bits_back_small);
-					painter.setPrintPos(painter.coordinateXInit() + 9, painter.coordinateYInit() + i * (max_font_height + 1));
-					painter.print_P(MSG_SCREEN_SD_LIST_BACK());
-				}
-				else if (m_directory_is_root == false && (m_index + i - window_selector) == 1)
-				{
-					painter.drawBitmap(painter.coordinateXInit() + 1, painter.coordinateYInit() + i * (max_font_height + 1), little_icon_width, little_icon_height, bits_updir_small);
-					painter.setPrintPos(painter.coordinateXInit() + 9, painter.coordinateYInit() + i * (max_font_height + 1));
-					painter.print_P(MSG_SCREEN_SD_LIST_PREV());
+					if(m_directory_is_root)
+					{
+						painter.drawBitmap(painter.coordinateXInit() + 1, painter.coordinateYInit() + i * (max_font_height + 1), little_icon_width, little_icon_height, bits_back_small);
+						painter.setPrintPos(painter.coordinateXInit() + 9, painter.coordinateYInit() + i * (max_font_height + 1));
+						painter.print_P(MSG_SCREEN_SD_LIST_BACK());
+					}
+					else
+					{
+						painter.drawBitmap(painter.coordinateXInit() + 1, painter.coordinateYInit() + i * (max_font_height + 1), little_icon_width, little_icon_height, bits_updir_small);
+						painter.setPrintPos(painter.coordinateXInit() + 9, painter.coordinateYInit() + i * (max_font_height + 1));
+						painter.print_P(MSG_SCREEN_SD_LIST_PREV());
+					}
 				}
 				else
 				{
-					card.getfilename(m_index + i - window_selector - m_offset);
+					card.getfilename(m_index + i - window_selector - 1);
 
 					if (card.filenameIsDir == true)
 					{
@@ -304,28 +303,30 @@ namespace screen
 
 		if (m_index == 0)
 		{
-			directory_index = 0;
-			ViewManager::getInstance().activeView(m_back_screen);
-			return;
-		}
+			if (m_directory_is_root == true)
+			{
+				directory_index = 0;
+				ViewManager::getInstance().activeView(m_back_screen);
+				return;
+			}
+			else
+			{
+				directory_index--;
+				from_updir = true;
 
-		if (m_directory_is_root == false && (m_index == 1))
-		{
-			directory_index--;
-			from_updir = true;
-
-			card.updir();
-			ViewManager::getInstance().activeView(screen_SD_list);
-			return;
+				card.updir();
+				ViewManager::getInstance().activeView(screen_SD_list);
+				return;
+			}
 		}
 		else
 		{
-			card.getfilename(m_index - m_offset);
+			card.getfilename(m_index - 1);
 			if (card.filenameIsDir == true)
 			{
 				if(directory_index < 9)
 				{
-					directory_array[directory_index] = m_index - m_offset + 1;
+					directory_array[directory_index] = m_index;
 					directory_index++;
 					from_updir = false;
 				}

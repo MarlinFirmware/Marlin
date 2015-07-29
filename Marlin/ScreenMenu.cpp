@@ -155,7 +155,18 @@ namespace screen
 				//Paint title on top of screen
 				painter.title(m_title);
 				//Paint selection box on bottom of screen
-				painter.arrowBox((m_icons[m_index])->text());
+				if ( m_index != (m_num_items -1) && m_index != 0)
+				{
+					painter.box((m_icons[m_index])->text(), BOTH);
+				}
+				else if(m_index == (m_num_items -1))
+				{
+					painter.box((m_icons[m_index])->text(), LEFT);
+				}
+				else if (m_index == 0)
+				{
+					painter.box((m_icons[m_index])->text(), RIGHT);
+				}
 
 				//Paint text on the screen
 				painter.setWorkingArea(text_area);

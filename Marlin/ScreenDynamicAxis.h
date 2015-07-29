@@ -117,7 +117,8 @@ namespace screen
 		do
 		{
 			painter.title(m_title);
-			painter.arrowBox(MSG_SELECTOR_BOX());
+
+			painter.box(MSG_SELECTOR_BOX());
 
 			uint8_t x_init = painter.coordinateXInit();
 			uint8_t x_end = painter.coordinateXEnd();
@@ -128,29 +129,43 @@ namespace screen
 			painter.setFont(u8g_font_6x9);
 
 			char tmp_selected[7] = { 0 };
-			dtostrf(m_select, 6, 2, tmp_selected);
-
-			painter.setPrintPos((x_end + x_init)/2 - (strlen("<  >")*6)/2 - (strlen(tmp_selected)*6)/2, (y_end + y_init)/2 - 9/2);
-
-			if (m_select != m_minimum_value)
+			int number_size = 4;
+			if(m_select >= 100)
 			{
-				painter.print("< ");
+				number_size = 6;
 			}
-			else
+			else if(m_select >= 10 && m_select < 100)
 			{
-				painter.print("  ");
+				number_size = 5;
 			}
 
-			painter.print(tmp_selected);
+			dtostrf(m_select, number_size, 2, tmp_selected);
+			char info[20] = { 0 };
+			char units[] = "mm";
 
-			if (m_select != m_maximum_value)
+			if (m_select != m_minimum_value && m_select != m_maximum_value)
 			{
-				painter.print(" >");
+				strcat(info, "< ");
+				strcat(info, tmp_selected);
+				strcat(info, units);
+				strcat(info, " >");
 			}
-			else
+			else if (m_select != m_minimum_value)
 			{
-				painter.print("  ");
+				strcat(info, "< ");
+				strcat(info, tmp_selected);
+				strcat(info, units);
 			}
+			else if (m_select != m_maximum_value)
+			{
+				strcat(info, tmp_selected);
+				strcat(info, units);
+				strcat(info, " >");
+			}
+
+			Area info_area(0, ((y_end + y_init)/2 - 9/2), 128, 9);
+			painter.setWorkingArea(info_area);
+			painter.text(info);
 
 		} while( painter.nextPage() );
 

@@ -92,7 +92,6 @@ namespace screen
 
 			char m_directory[20];
 			bool m_directory_is_root;
-			uint8_t m_offset;
 
 			float m_scroll_size;
 	};
