@@ -3410,8 +3410,8 @@ inline void gcode_M105() {
   #endif
 
   SERIAL_PROTOCOLPGM(" @:");
-  #ifdef EXTRUDER_WATTS
-    SERIAL_PROTOCOL((EXTRUDER_WATTS * getHeaterPower(target_extruder))/127);
+  #ifdef HOTEND_WATTS
+    SERIAL_PROTOCOL((HOTEND_WATTS * getHeaterPower(target_extruder))/127);
     SERIAL_PROTOCOLCHAR('W');
   #else
     SERIAL_PROTOCOL(getHeaterPower(target_extruder));
