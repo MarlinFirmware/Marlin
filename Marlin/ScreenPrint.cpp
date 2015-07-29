@@ -45,9 +45,7 @@ namespace screen
 	{ }
 
 	ScreenPrint::~ScreenPrint()
-	{
-		this->m_model->dettach();
-	}
+	{ }
 
 	void ScreenPrint::init(uint16_t index)
 	{

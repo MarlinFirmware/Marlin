@@ -31,12 +31,20 @@ template <typename T>
 	class Subject
 {
 	public:
+		Subject();
+		virtual ~Subject() {};
 		void attach (Observer<T> * observer);
 		void dettach();
 		virtual void notify() = 0;
 
 	protected:
 		Observer<T> * m_observer;
+};
+
+template <typename T>
+	Subject<T>::Subject()
+{
+	m_observer = 0;
 };
 
 template <typename T>

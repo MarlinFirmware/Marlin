@@ -66,9 +66,7 @@ namespace screen
 
 	template <typename T>
 	IconStatus<T>::~IconStatus()
-	{ 
-		this->m_model->dettach();
-	}
+	{ }
 
 	template <typename T>
 	void IconStatus<T>::update(T value)
