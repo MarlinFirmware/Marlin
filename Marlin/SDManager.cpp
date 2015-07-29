@@ -3,7 +3,8 @@
 #include "cardreader.h"
 
 SDManager::SDManager()
-	: m_state(SD_IS_NOT_INSERTED)
+	: Subject<SDState_t>()
+	, m_state(SD_IS_NOT_INSERTED)
 { }
 
 void SDManager::updateSDStatus()
