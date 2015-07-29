@@ -30,6 +30,7 @@
 
 #include "Screen.h"
 
+#include "GuiManager.h"
 #include "TemperatureManager.h"
 #include "ViewManager.h"
 
@@ -92,6 +93,7 @@ namespace screen
 		, m_frame(0)
 	{
 		this->connect();
+		lcd_disable_button();
 	}
 
 	template <typename T>
@@ -181,6 +183,7 @@ namespace screen
 
 		if ( isConditionMeet() )
 		{
+			lcd_enable_button();
 			ViewManager::getInstance().activeView(m_next_screen);
 		}
 	}
@@ -204,6 +207,7 @@ namespace screen
 		else
 		{
 			m_back_screen = component;
+			lcd_enable_button();
 		}
 		m_num_item_added++;
 	}

@@ -197,8 +197,8 @@ static void lcd_update_button()
         button_pressed_count = 0;
     }
 
-    // Beeper feedback
-    if ((button_clicked == true) || (button_pressed_count > 50)) 
+    // Long-press management
+    if (button_pressed_count > 50)
     {
         lcd_implementation_quick_feedback();
         if (button_pressed_count == 200)
@@ -207,8 +207,10 @@ static void lcd_update_button()
         }
     }
 
-    // Update button trigger
-    if ((button_clicked == true) && (button_input_blocked == false)) {
+    // Short-press management
+    if ((button_clicked == true) && (button_input_blocked == false))
+    {
+        lcd_implementation_quick_feedback();
         button_clicked_triggered = true;
     }
 

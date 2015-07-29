@@ -27,6 +27,8 @@
 
 #include "ScreenTransition.h"
 
+#include "GuiManager.h"
+
 namespace screen
 {
 	ScreenTransition::ScreenTransition(const char * title, const char * message, const char * box, typename Functor<void>::FuncPtr fptr, Subject<PrinterState_t> * model)
@@ -43,10 +45,12 @@ namespace screen
 
 	void ScreenTransition::init(uint16_t index)
 	{
+		lcd_disable_button();
 		draw();
 		this->action();
 		if (this->m_model == 0)
 		{
+			lcd_enable_button();
 			ViewManager::getInstance().activeView(m_next_screen);
 		}
 	}
@@ -66,6 +70,7 @@ namespace screen
 
 		if (this->m_model != 0 && m_printing_status == PAUSED)
 		{
+			lcd_enable_button();
 			ViewManager::getInstance().activeView(m_next_screen);
 		}
 	}
