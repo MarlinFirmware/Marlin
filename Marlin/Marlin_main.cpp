@@ -2811,7 +2811,11 @@ inline void gcode_G28() {
         int ind = abl2-1; // last point probe = current point
         vector_3 probe_point = vector_3(eqnAMatrix[ind + 0 * abl2], eqnAMatrix[ind + 1 * abl2], eqnBVector[ind]);
         probe_point.apply_rotation(inverse_bed_level_matrix);
-        current_position[Z_AXIS] = probe_point.z - rot_max_diff - zprobe_zoffset;
+        current_position[Z_AXIS] = probe_point.z - rot_max_diff - zprobe_zoffset
+        #if defined(SERVO_ENDSTOPS) || ENABLED(Z_PROBE_ALLEN_KEY) || ENABLED(Z_PROBE_SLED)
+        + Z_RAISE_AFTER_PROBING
+        #endif
+        ;
         sync_plan_position();
         //SERIAL_PROTOCOLPGM("current_position[Z_AXIS]=");SERIAL_PROTOCOL_F(current_position[Z_AXIS], 5);SERIAL_EOL;
       }
