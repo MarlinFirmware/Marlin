@@ -19,8 +19,11 @@ TemperatureManager::TemperatureManager()
 
 void TemperatureManager::updateCurrentTemperature(float temp)
 {
-	m_current_temperature = temp;
-	notify();
+	if (m_current_temperature != temp)
+	{
+		m_current_temperature = temp;
+		notify();
+	}
 }
 
 void TemperatureManager::setTargetTemperature(uint16_t target)
