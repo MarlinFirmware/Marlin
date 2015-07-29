@@ -1677,11 +1677,9 @@ static void homeaxis(AxisEnum axis) {
     #endif
 
     #ifdef SERVO_ENDSTOPS
-      if (axis != Z_AXIS) {
-        // Engage Servo endstop if enabled
-        if (servo_endstops[axis] >= 0) 
-          servo[servo_endstops[axis]].move(servo_endstop_angles[axis * 2]);
-      }
+      // Engage Servo endstop if enabled
+      if (axis != Z_AXIS && servo_endstops[axis] >= 0)
+        servo[servo_endstops[axis]].move(servo_endstop_angles[axis][0]);
     #endif
 
     // Set a flag for Z motor locking
