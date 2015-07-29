@@ -2779,7 +2779,7 @@ inline void gcode_G28() {
         //      added here, it could be seen as a compensating factor for the Z probe.
         //
         current_position[Z_AXIS] = -zprobe_zoffset + (z_tmp - real_z)
-          #if ENABLED(SERVO_ENDSTOPS) || ENABLED(Z_PROBE_ALLEN_KEY) || ENABLED(Z_PROBE_SLED)
+          #if defined(SERVO_ENDSTOPS) || ENABLED(Z_PROBE_ALLEN_KEY) || ENABLED(Z_PROBE_SLED)
              + Z_RAISE_AFTER_PROBING
           #endif
           ;
