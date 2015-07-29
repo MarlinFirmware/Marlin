@@ -1,7 +1,6 @@
-#include "SteppersManager.h"
-
 #include <stdint.h>
 
+#include "SteppersManager.h"
 #include "Configuration.h"
 
 SteppersManager::SteppersManager()
@@ -16,36 +15,43 @@ SteppersManager::SteppersManager()
 
 void SteppersManager::disableAllSteppers()
 {
-	for (uint8_t i = 0; i < NUM_STEPPERS; i++)
+	if (!SteppersManager::single::instance().m_steppers_disabled)
 	{
-		SteppersManager::single::instance().m_steppers[i].disable();
+		for (uint8_t i = 0; i < NUM_STEPPERS; i++)
+		{
+			SteppersManager::single::instance().m_steppers[i].disable();
+		}
+		SteppersManager::single::instance().m_steppers_disabled = true;
+		SteppersManager::single::instance().notify();
 	}
-
-	SteppersManager::single::instance().m_steppers_disabled = true;
-	SteppersManager::single::instance().notify();
 }
 
 void SteppersManager::enableStepper(Stepper_t stepper)
 {
-	m_steppers[stepper].enable();
-
-	m_steppers_disabled = false;
-	notify();
+	if ( !m_steppers[stepper].isEnabled() )
+	{
+		m_steppers[stepper].enable();
+		m_steppers_disabled = false;
+		notify();
+	}
 }
 
 void SteppersManager::disableStepper(Stepper_t stepper)
 {
-	m_steppers[stepper].disable();
-
-	m_steppers_disabled = true;
-	for (uint8_t i = 0; i < NUM_STEPPERS; i++)
+	if ( m_steppers[stepper].isEnabled() )
 	{
-		if (m_steppers[i].isEnabled() == true)
+		m_steppers[stepper].disable();
+
+		m_steppers_disabled = true;
+		for (uint8_t i = 0; i < NUM_STEPPERS; i++)
 		{
-			m_steppers_disabled = false;
+			if (m_steppers[i].isEnabled() == true)
+			{
+				m_steppers_disabled = false;
+			}
 		}
+		notify();
 	}
-	notify();
 }
 
 void SteppersManager::notify()
