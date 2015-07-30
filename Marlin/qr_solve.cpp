@@ -260,7 +260,7 @@ double r8mat_amax ( int m, int n, double a[] )
   return value;
 }
 
-double *r8mat_copy_new ( int m, int n, double a1[] )
+void r8mat_copy( double a2[], int m, int n, double a1[] )
 
 /******************************************************************************/
 /*
@@ -294,11 +294,8 @@ double *r8mat_copy_new ( int m, int n, double a1[] )
     Output, double R8MAT_COPY_NEW[M*N], the copy of A1.
 */
 {
-  double *a2;
   int i;
   int j;
-
-  a2 = ( double * ) malloc ( m * n * sizeof ( double ) );
 
   for ( j = 0; j < n; j++ )
   {
@@ -307,8 +304,6 @@ double *r8mat_copy_new ( int m, int n, double a1[] )
       a2[i+j*m] = a1[i+j*m];
     }
   }
-
-  return a2;
 }
 
 /******************************************************************************/
@@ -726,14 +721,13 @@ void dqrank ( double a[], int lda, int m, int n, double tol, int *kr,
   int j;
   int job;
   int k;
-  double *work;
+  double work[n];
 
   for ( i = 0; i < n; i++ )
   {
     jpvt[i] = 0;
   }
 
-  work = ( double * ) malloc ( n * sizeof ( double ) );
   job = 1;
 
   dqrdc ( a, lda, m, n, qraux, jpvt, work, job );
@@ -749,8 +743,6 @@ void dqrank ( double a[], int lda, int m, int n, double tol, int *kr,
     }
     *kr = j + 1;
   }
-
-  free ( work );
 
   return;
 }
@@ -1845,7 +1837,7 @@ void dswap ( int n, double x[], int incx, double y[], int incy )
 
 /******************************************************************************/
 
-double *qr_solve ( int m, int n, double a[], double b[] )
+void qr_solve ( double x[], int m, int n, double a[], double b[] )
 
 /******************************************************************************/
 /*
@@ -1895,34 +1887,22 @@ double *qr_solve ( int m, int n, double a[], double b[] )
     Output, double QR_SOLVE[N], the least squares solution.
 */
 {
-  double *a_qr;
+  double a_qr[n*m];
   int ind;
   int itask;
-  int *jpvt;
+  int jpvt[n];
   int kr;
   int lda;
-  double *qraux;
-  double *r;
+  double qraux[n];
+  double r[m];
   double tol;
-  double *x;
 
-  a_qr = r8mat_copy_new ( m, n, a );
+  r8mat_copy( a_qr, m, n, a );
   lda = m;
   tol = r8_epsilon ( ) / r8mat_amax ( m, n, a_qr );
-  x = ( double * ) malloc ( n * sizeof ( double ) );
-  jpvt = ( int * ) malloc ( n * sizeof ( int ) );
-  qraux = ( double * ) malloc ( n * sizeof ( double ) );
-  r = ( double * ) malloc ( m * sizeof ( double ) );
   itask = 1;
 
   ind = dqrls ( a_qr, lda, m, n, tol, &kr, b, x, r, jpvt, qraux, itask );
-
-  free ( a_qr );
-  free ( jpvt );
-  free ( qraux ); 
-  free ( r );
-
-  return x;
 }
 /******************************************************************************/
 
