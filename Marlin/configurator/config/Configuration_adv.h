@@ -94,6 +94,11 @@
 // before setting a PWM value. (Does not work with software PWM for fan on Sanguinololu)
 //#define FAN_KICKSTART_TIME 100
 
+// This defines the minimal speed for the main fan, run in PWM mode
+// to enable uncomment and set minimal PWM speed for reliable running (1-255)
+// if fan speed is [1 - (FAN_MIN_PWM-1)] it is set to FAN_MIN_PWM
+//#define FAN_MIN_PWM 50
+
 // @section extruder
 
 // Extruder cooling fans
@@ -290,7 +295,9 @@
   // You can get round this by connecting a push button or single throw switch to the pin defined as SDCARDCARDDETECT
   // in the pins.h file.  When using a push button pulling the pin to ground this will need inverted.  This setting should
   // be commented out otherwise
-  #define SDCARDDETECTINVERTED
+  #ifndef ELB_FULL_GRAPHIC_CONTROLLER
+    #define SDCARDDETECTINVERTED
+  #endif
 
   #define SD_FINISHED_STEPPERRELEASE true  //if sd support and the file is finished: disable steppers?
   #define SD_FINISHED_RELEASECOMMAND "M84 X Y Z E" // You might want to keep the z enabled so your bed stays in place.
@@ -448,6 +455,9 @@ const unsigned int dropsegments=5; //everything with less than this number of st
     #define FILAMENTCHANGE_ZADD 10
     #define FILAMENTCHANGE_FIRSTRETRACT -2
     #define FILAMENTCHANGE_FINALRETRACT -100
+    #define AUTO_FILAMENT_CHANGE                //This extrude filament until you press the button on LCD
+    #define AUTO_FILAMENT_CHANGE_LENGTH 0.04    //Extrusion length on automatic extrusion loop
+    #define AUTO_FILAMENT_CHANGE_FEEDRATE 300   //Extrusion feedrate (mm/min) on automatic extrusion loop
   #endif
 #endif
 
