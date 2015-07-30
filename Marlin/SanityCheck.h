@@ -6,6 +6,14 @@
 #ifndef SANITYCHECK_H
   #define SANITYCHECK_H
 
+/**
+ * Configurations expecting Customized Advanced Configurations
+ */
+#if defined(REQUIRES_CUSTOMIZED_CONFIGURATION_ADV_H) && !defined(PROVIDES_CUSTOMIZED_CONFIGURATION_ADV_H)
+  #error This printer requires customization of some Advanced Configuration parameters. Be sure to include the appropriate Configuration_adv.h file.
+#endif
+
+
   /**
    * Dual Stepper Drivers
    */

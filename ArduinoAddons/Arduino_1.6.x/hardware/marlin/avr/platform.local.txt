@@ -1,6 +1,15 @@
 compiler.cpp.extra_flags=-DHAS_AUTOMATIC_VERSIONING
 build.custom_bin.path.macosx=/usr/local/bin/
 build.custom_bin.path.linux=
+build.printer_options=NONE
+
 recipe.hooks.prebuild0.pattern={build.custom_bin.path}generate_version_header_for_marlin "{build.source.path}" "{build.path}/_Version.h"
+recipe.hooks.prebuild1.pattern={build.custom_bin.path}copy_files "{build.source.path}/example_configurations/default/Configuration" "{build.path}/"
+recipe.hooks.prebuild2.pattern={build.custom_bin.path}copy_files "{build.source.path}/example_configurations/{build.printer}/Configuration" "{build.path}/"
+recipe.hooks.prebuild3.pattern={build.custom_bin.path}copy_files "{build.source.path}/example_configurations/{build.printer_options}" "{build.path}/Options.h"
+
 # Please help -- We need an implementation on Windows
 recipe.hooks.prebuild0.pattern.windows=
+recipe.hooks.prebuild1.pattern.windows=
+recipe.hooks.prebuild2.pattern.windows=
+recipe.hooks.prebuild3.pattern.windows=

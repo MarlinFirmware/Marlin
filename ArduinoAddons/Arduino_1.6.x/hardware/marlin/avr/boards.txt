@@ -4,6 +4,7 @@
 ##############################################################
 
 menu.cpu=Processor
+menu.options=Configuration Options
 
 ########################################
 ## Arduino Mega or Mega 2560
@@ -35,6 +36,9 @@ mega.build.variant=mega
 mega.build.board=AVR_MEGA2560
 mega.build.mcu=atmega2560
 
+mega.build.printer=ramps
+mega.build.printer_options=ramps/Options
+
 ## Arduino Mega w/ ATmega2560
 ## -------------------------
 mega.menu.cpu.atmega2560=ATmega2560 (Mega 2560)
@@ -64,6 +68,15 @@ mega.menu.cpu.atmega1280.bootloader.file=atmega/ATmegaBOOT_168_atmega1280.hex
 
 mega.menu.cpu.atmega1280.build.mcu=atmega1280
 mega.menu.cpu.atmega1280.build.board=AVR_MEGA
+
+mega.menu.options.default=Base Model
+mega.menu.options.default.build.printer_options=ramps/Options.
+mega.menu.options.T1=Dual Extruders
+mega.menu.options.T1.build.printer_options=ramps/TestOptions1.
+mega.menu.options.T3=Bed Control
+mega.menu.options.T3.build.printer_options=ramps/TestOptions3.
+mega.menu.options.T4=Bed Leveling
+mega.menu.options.T4.build.printer_options=ramps/TestOptions4.
 
 ########################################
 ## RAMBo
@@ -190,6 +203,7 @@ BrainwavePro.build.variant=at90usb
 BrainwavePro.build.vid=0x16D0
 BrainwavePro.build.pid=0x076B
 BrainwavePro.build.extra_flags=-DAT90USBxx_TEENSYPP_ASSIGNMENTS -DUSB_VID={build.vid} -DUSB_PID={build.pid}
+BrainwavePro.build.printer=delta/kossel_pro
 
 ########################################
 ## KosselPro -- BrainwavePro with HID boot
@@ -221,6 +235,7 @@ KosselPro.build.variant=at90usb
 KosselPro.build.vid=0x16D0
 KosselPro.build.pid=0x076B
 KosselPro.build.extra_flags=-DAT90USBxx_TEENSYPP_ASSIGNMENTS -DUSB_VID={build.vid} -DUSB_PID={build.pid}
+KosselPro.build.printer=delta/kossel_pro
 
 ########################################
 ## SAVMkI (CDC)
@@ -251,6 +266,7 @@ SAVMkI.build.variant=at90usb
 SAVMkI.build.vid=0x16D0
 SAVMkI.build.pid=0x076B
 SAVMkI.build.extra_flags=-DUSB_VID={build.vid} -DUSB_PID={build.pid}
+SAVMkI.build.printer=delta/generic
 
 ########################################
 ## SAVMkI (HID)
@@ -282,3 +298,4 @@ SAVMkI_HID.build.variant=at90usb
 SAVMkI_HID.build.vid=0x16D0
 SAVMkI_HID.build.pid=0x076B
 SAVMkI_HID.build.extra_flags=-DUSB_VID={build.vid} -DUSB_PID={build.pid}
+SAVMkI_HID.build.printer=delta/generic

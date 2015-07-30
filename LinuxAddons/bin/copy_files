@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+# copy_files
+
+# Copy all of the files in the source directory
+# to the destination directory
+
+# This routine is needed because the Arduino IDE receipes
+# do not handle shell wildcards
+
+SOURCE="$1" export SOURCE
+DESTINATION_DIR="$2" export DESTINATION_DIR
+cp ${SOURCE}* $DESTINATION_DIR 2>/dev/null || :
