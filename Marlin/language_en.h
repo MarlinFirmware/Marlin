@@ -163,13 +163,13 @@
 #define MSG_CONTROL                         "Control"
 #endif
 #ifndef MSG_MIN
-#define MSG_MIN                             " "LCD_STR_THERMOMETER " Min"
+#define MSG_MIN                             " " LCD_STR_THERMOMETER " Min"
 #endif
 #ifndef MSG_MAX
-#define MSG_MAX                             " "LCD_STR_THERMOMETER " Max"
+#define MSG_MAX                             " " LCD_STR_THERMOMETER " Max"
 #endif
 #ifndef MSG_FACTOR
-#define MSG_FACTOR                          " "LCD_STR_THERMOMETER " Fact"
+#define MSG_FACTOR                          " " LCD_STR_THERMOMETER " Fact"
 #endif
 #ifndef MSG_AUTOTEMP
 #define MSG_AUTOTEMP                        "Autotemp"
