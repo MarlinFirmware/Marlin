@@ -23,7 +23,7 @@
  */
 #include "Marlin.h"
 
-#ifdef SDSUPPORT
+#if ENABLED(SDSUPPORT)
 #include "SdBaseFile.h"
 #include <Print.h>
 #ifndef SdFile_h
