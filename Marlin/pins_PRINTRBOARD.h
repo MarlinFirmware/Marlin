@@ -79,7 +79,7 @@
 
 #if ENABLED(ULTRA_LCD) && ENABLED(NEWPANEL)
   //we have no buzzer installed
-  #define BEEPER -1
+  #define BEEPER_PIN -1
   //LCD Pins
   #if ENABLED(LCD_I2C_PANELOLU2)
     #define BTN_EN1 27  //RX1 - fastio.h pin mapping 27
@@ -92,7 +92,7 @@
 #endif // ULTRA_LCD && NEWPANEL
 
 #if ENABLED(VIKI2) || ENABLED(miniVIKI)
- #define BEEPER 32 //FastIO
+ #define BEEPER_PIN 32 //FastIO
  // Pins for DOGM SPI LCD Support
  #define DOGLCD_A0  42 //Non-FastIO
  #define DOGLCD_CS  43 //Non-FastIO

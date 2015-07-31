@@ -58,8 +58,7 @@
 #define MOTOR_CURRENT_PWM_RANGE 2000
 #define DEFAULT_PWM_MOTOR_CURRENT  {1300, 1300, 1250}
 
-//arduino pin witch triggers an piezzo beeper
-#define BEEPER 18
+#define BEEPER_PIN 18
 
 #define LCD_PINS_RS 20
 #define LCD_PINS_ENABLE 15

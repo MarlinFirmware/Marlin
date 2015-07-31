@@ -7,22 +7,22 @@
     if (freq > 0) {
       #if ENABLED(LCD_USE_I2C_BUZZER)
         lcd_buzz(duration, freq);
-      #elif defined(BEEPER) && BEEPER >= 0 // on-board buzzers have no further condition
-        SET_OUTPUT(BEEPER);
+      #elif PIN_EXISTS(BEEPER) // on-board buzzers have no further condition
+        SET_OUTPUT(BEEPER_PIN);
         #ifdef SPEAKER // a speaker needs a AC ore a pulsed DC
-          //tone(BEEPER, freq, duration); // needs a PWMable pin
+          //tone(BEEPER_PIN, freq, duration); // needs a PWMable pin
           unsigned int delay = 1000000 / freq / 2;
           int i = duration * freq / 1000;
           while (i--) {
-            WRITE(BEEPER,HIGH);
+            WRITE(BEEPER_PIN, HIGH);
             delayMicroseconds(delay);
-            WRITE(BEEPER,LOW);
+            WRITE(BEEPER_PIN, LOW);
             delayMicroseconds(delay);
            }
         #else // buzzer has its own resonator - needs a DC
-          WRITE(BEEPER, HIGH);
+          WRITE(BEEPER_PIN, HIGH);
           delay(duration);
-          WRITE(BEEPER, LOW);
+          WRITE(BEEPER_PIN, LOW);
         #endif
       #else
         delay(duration);
