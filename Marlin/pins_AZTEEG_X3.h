@@ -24,8 +24,8 @@
  #define SDCARDDETECT -1 // Pin 49 if using display sd interface   
  
   #if ENABLED(TEMP_STAT_LEDS)
-   #define STAT_LED_RED 64
-   #define STAT_LED_BLUE 63
+    #define STAT_LED_RED 64
+    #define STAT_LED_BLUE 63
   #endif
 
 #elif ENABLED(TEMP_STAT_LEDS)
