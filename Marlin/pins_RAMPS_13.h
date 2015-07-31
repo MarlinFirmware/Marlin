@@ -117,10 +117,10 @@
 #if MB(RAMPS_13_EFF) || MB(RAMPS_13_EEF) || MB(RAMPS_13_SF)
   #define HEATER_BED_PIN     -1    // NO BED
 #else
-  #define HEATER_BED_PIN     8    // BED
+  #define HEATER_BED_PIN      8    // BED
 #endif
 
-#define TEMP_BED_PIN       14   // ANALOG NUMBERING
+#define TEMP_BED_PIN         14   // ANALOG NUMBERING
 
 #if HAS_SERVOS
   #define SERVO0_PIN         11
@@ -136,7 +136,7 @@
 #endif
 
 #if ENABLED(Z_PROBE_SLED)
-  #define SLED_PIN         -1
+  #define SLED_PIN           -1
 #endif
 
 #if ENABLED(ULTRA_LCD)
