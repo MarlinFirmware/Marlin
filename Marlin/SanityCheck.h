@@ -362,4 +362,8 @@
     #error "Z_LATE_ENABLE can't be used with COREXZ."
   #endif
 
+  #ifdef BEEPER
+    #error BEEPER has been replaced with BEEPER_PIN. Please update your pins definitions.
+  #endif
+
 #endif //SANITYCHECK_H
