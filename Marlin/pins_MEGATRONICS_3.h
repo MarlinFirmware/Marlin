@@ -76,7 +76,7 @@
 #define TEMP_2_PIN   (TEMP_SENSOR_2 == -1 ?   9 : 12) // ANALOG NUMBERING
 #define TEMP_BED_PIN (TEMP_SENSOR_BED == -1 ? 8 : 14) // ANALOG NUMBERING
 
-#define BEEPER 61
+#define BEEPER_PIN 61
 
 #define LCD_PINS_RS 32
 #define LCD_PINS_ENABLE 31

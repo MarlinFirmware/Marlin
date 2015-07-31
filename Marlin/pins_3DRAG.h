@@ -30,8 +30,8 @@
 #define HEATER_BED_PIN     9    // BED
 
 #if ENABLED(ULTRA_LCD) && ENABLED(NEWPANEL)
-  #undef BEEPER
-  #define BEEPER -1
+  #undef BEEPER_PIN
+  #define BEEPER_PIN -1
 
   #undef LCD_PINS_RS
   #undef LCD_PINS_ENABLE
@@ -56,6 +56,6 @@
 
 #else
 
-  #define BEEPER 33
+  #define BEEPER_PIN 33
 
 #endif // ULTRA_LCD && NEWPANEL

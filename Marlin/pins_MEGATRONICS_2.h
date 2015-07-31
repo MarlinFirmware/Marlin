@@ -74,7 +74,7 @@
   #define TEMP_BED_PIN 14 // ANALOG NUMBERING
 #endif
 
-#define BEEPER 64
+#define BEEPER_PIN 64
 
 
 #define LCD_PINS_RS 14

@@ -91,8 +91,8 @@
 #if ENABLED(ULTRA_LCD)
   #define KILL_PIN 32
   #if ENABLED(NEWPANEL)
-   //arduino pin which triggers an piezzo beeper
-    #define BEEPER 84      // Beeper on AUX-4
+
+    #define BEEPER_PIN 84      // Beeper on AUX-4
     #define LCD_PINS_RS 82
     #define LCD_PINS_ENABLE 18
     #define LCD_PINS_D4 19

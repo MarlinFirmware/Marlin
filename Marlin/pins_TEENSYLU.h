@@ -68,9 +68,10 @@
 #endif
 
 #if ENABLED(ULTRA_LCD) && ENABLED(NEWPANEL)
-  //we have no buzzer installed
-  #define BEEPER -1
   //LCD Pins
+
+  #define BEEPER_PIN -1
+
   #if ENABLED(LCD_I2C_PANELOLU2)
     #define BTN_EN1 27  //RX1 - fastio.h pin mapping 27
     #define BTN_EN2 26  //TX1 - fastio.h pin mapping 26
