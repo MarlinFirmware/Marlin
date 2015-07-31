@@ -4,7 +4,7 @@
 
 #include "pins_RAMPS_13.h"
 
-#ifdef Z_PROBE_ENDSTOP
+#if ENABLED(Z_PROBE_ENDSTOP)
   #define Z_PROBE_PIN      19
 #endif
 
@@ -20,7 +20,7 @@
 
 // LCD Panel options for the RigidBoard
 
-#ifdef RIGIDBOT_PANEL
+#if ENABLED(RIGIDBOT_PANEL)
 
   #undef BEEPER
   #define BEEPER -1

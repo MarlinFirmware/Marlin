@@ -53,10 +53,10 @@
 #define HEATER_1_PIN 7
 #define TEMP_1_PIN 1
 
-#ifdef BARICUDA
-#define HEATER_2_PIN 6
+#if ENABLED(BARICUDA)
+  #define HEATER_2_PIN 6
 #else
-#define HEATER_2_PIN -1
+  #define HEATER_2_PIN -1
 #endif
 
 #define TEMP_2_PIN -1
@@ -88,9 +88,9 @@
 #define KILL_PIN           -1 //80 with Smart Controller LCD
 #define SUICIDE_PIN        -1  //PIN that has to be turned on right after start, to keep power flowing.
 
-#ifdef ULTRA_LCD
+#if ENABLED(ULTRA_LCD)
   #define KILL_PIN 32
-  #ifdef NEWPANEL
+  #if ENABLED(NEWPANEL)
    //arduino pin which triggers an piezzo beeper
     #define BEEPER 84      // Beeper on AUX-4
     #define LCD_PINS_RS 82
