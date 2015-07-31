@@ -95,7 +95,7 @@
 #if ENABLED(ULTRA_LCD) && ENABLED(NEWPANEL)
 
   // No buzzer installed
-  #define BEEPER -1
+  #define BEEPER_PIN -1
 
   // LCD Pins
   #if ENABLED(DOGLCD)
@@ -106,7 +106,7 @@
         #define LCD_PINS_RS     30 //CS chip select /SS chip slave select
         #define LCD_PINS_ENABLE 29 //SID (MOSI)
         #define LCD_PINS_D4     17 //SCK (CLK) clock
-        #define BEEPER          27 // Pin 27 is take by LED_Pin, but Melzi LED do nothing with Marlin and I take this pin for BEEPER.... See here > [github.com] , If you want use this pin with Gcode M42 instead BEEPER
+        #define BEEPER_PIN      27 // Pin 27 is taken by LED_PIN, but Melzi LED does nothing with Marlin so this can be used for BEEPER_PIN. You can use this pin with M42 instead of BEEPER_PIN.
       #else         // Sanguinololu 1.3
         #define LCD_PINS_RS      4 
         #define LCD_PINS_ENABLE 17 
@@ -160,7 +160,7 @@
 
 #elif ENABLED(MAKRPANEL)
 
-  #define BEEPER                29
+  #define BEEPER_PIN            29
 
   // Pins for DOGM SPI LCD Support
   #define DOGLCD_A0             30

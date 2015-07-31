@@ -58,7 +58,7 @@
 #define HEATER_BED_PIN     10   // BED
 #define TEMP_BED_PIN       14   // ANALOG NUMBERING
 
-#define BEEPER             33   // AUX-4
+#define BEEPER_PIN         33   // AUX-4
 
 #if defined(ULTRA_LCD) && defined(NEWPANEL)
 
