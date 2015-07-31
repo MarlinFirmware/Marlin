@@ -9,7 +9,7 @@
   #error Oops!  Make sure you have 'Teensy++ 2.0' selected from the 'Tools -> Boards' menu.
 #endif
 
-#ifdef AT90USBxx_TEENSYPP_ASSIGNMENTS  // use Teensyduino Teensy++2.0 pin assignments instead of Marlin traditional.
+#if ENABLED(AT90USBxx_TEENSYPP_ASSIGNMENTS)  // use Teensyduino Teensy++2.0 pin assignments instead of Marlin traditional.
   #error These Teensylu assignments depend on traditional Marlin assignments, not AT90USBxx_TEENSYPP_ASSIGNMENTS in fastio.h
 #endif
 
@@ -38,7 +38,7 @@
 
 // If soft or fast PWM is off then use Teensyduino pin numbering, Marlin
 // fastio pin numbering otherwise
-#ifdef FAN_SOFT_PWM || FAST_PWM_FAN
+#if ENABLED(FAN_SOFT_PWM) || ENABLED(FAST_PWM_FAN)
   #define FAN_PIN          22
 #else
   #define FAN_PIN          16
@@ -60,18 +60,18 @@
 #define KILL_PIN           -1
 #define ALARM_PIN          -1
 
-#ifndef SDSUPPORT
+#if DISABLED(SDSUPPORT)
 // these pins are defined in the SD library if building with SD support
   #define SCK_PIN           9
   #define MISO_PIN         11
   #define MOSI_PIN         10
 #endif
 
-#if defined(ULTRA_LCD) && defined(NEWPANEL)
+#if ENABLED(ULTRA_LCD) && ENABLED(NEWPANEL)
   //we have no buzzer installed
   #define BEEPER -1
   //LCD Pins
-  #ifdef LCD_I2C_PANELOLU2
+  #if ENABLED(LCD_I2C_PANELOLU2)
     #define BTN_EN1 27  //RX1 - fastio.h pin mapping 27
     #define BTN_EN2 26  //TX1 - fastio.h pin mapping 26
     #define BTN_ENC 43 //A3 - fastio.h pin mapping 43
