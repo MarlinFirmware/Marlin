@@ -153,7 +153,7 @@ extern MarlinSerial MSerial;
 #endif // !USBCON
 
 // Use the UART for BT in AT90USB configurations
-#if defined(USBCON) && ENABLED(BTENABLED)
+#if defined(USBCON) && ENABLED(BLUETOOTH)
   extern HardwareSerial bt;
 #endif
 
