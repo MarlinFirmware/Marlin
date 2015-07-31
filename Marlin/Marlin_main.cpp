@@ -316,7 +316,7 @@ bool target_direction;
 
 #ifdef SERVO_ENDSTOPS
   const int servo_endstops[] = SERVO_ENDSTOPS;
-  const int servo_endstop_angles[][] = SERVO_ENDSTOP_ANGLES;
+  const int servo_endstop_angles[][2] = SERVO_ENDSTOP_ANGLES;
 #endif
 
 #ifdef BARICUDA
