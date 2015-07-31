@@ -78,4 +78,4 @@
 #define BLEN_B 1
 #define BLEN_A 0
 
-#define SDCARDDETECT_PIN -1  // Minitronics does not use this port
+#define SDCARDDETECT_PIN -1  // Minitronics doesn't use this

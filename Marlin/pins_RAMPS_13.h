@@ -237,7 +237,7 @@
       #if ENABLED(G3D_PANEL)
         #define SDCARDDETECT_PIN 49
       #else
-        #define SDCARDDETECT_PIN -1  // Ramps does not use this port
+        #define SDCARDDETECT_PIN -1  // Ramps doesn't use this
       #endif
 
     #endif
