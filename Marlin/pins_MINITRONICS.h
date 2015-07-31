@@ -59,8 +59,7 @@
 #define HEATER_BED_PIN 3 // BED
 #define TEMP_BED_PIN 6 // ANALOG NUMBERING
 
-#define BEEPER -1
-
+#define BEEPER_PIN -1
 
 #define LCD_PINS_RS -1
 #define LCD_PINS_ENABLE -1

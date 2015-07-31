@@ -53,7 +53,7 @@
 #define TEMP_2_PIN         1  //ANALOG NUMBERING
 #define TEMP_BED_PIN       0  //ANALOG NUMBERING
 
-#define BEEPER             36
+#define BEEPER_PIN         36
 
 #define KILL_PIN           -1
 

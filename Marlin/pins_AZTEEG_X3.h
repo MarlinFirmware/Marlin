@@ -8,7 +8,8 @@
 
 #if ENABLED(VIKI2) || ENABLED(miniVIKI)
 
- #define BEEPER 33
+ #define BEEPER_PIN 33
+
  // Pins for DOGM SPI LCD Support
  #define DOGLCD_A0  31 
  #define DOGLCD_CS  32 
