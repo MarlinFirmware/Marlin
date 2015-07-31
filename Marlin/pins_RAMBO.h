@@ -133,7 +133,7 @@
     #define BLEN_B 1
     #define BLEN_A 0
 
-    #define SDCARDDETECT_PIN 81 // Ramps doesn't use this
+    #define SD_DETECT_PIN 81 // Ramps doesn't use this
 
   #else //!NEWPANEL - old style panel with shift register
 
@@ -180,7 +180,7 @@
  #define BTN_EN2 84
  #define BTN_ENC 83  //the click switch
 
- #define SDCARDDETECT_PIN -1 // Pin 72 if using easy adapter board   
+ #define SD_DETECT_PIN -1 // Pin 72 if using easy adapter board   
 
   #if ENABLED(TEMP_STAT_LEDS)
    #define STAT_LED_RED      22
