@@ -374,4 +374,8 @@
     #error SDCARDDETECTINVERTED is now SD_DETECT_INVERTED. Please update your configuration.
   #endif
 
+  #ifdef BTENABLED
+    #error BTENABLED has been replaced with BLUETOOTH. Please update your configuration.
+  #endif
+
 #endif //SANITYCHECK_H
