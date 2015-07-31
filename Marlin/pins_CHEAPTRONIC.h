@@ -86,4 +86,4 @@
 #define BLEN_A 0
 
 // Cheaptronic v1.0 does not use this port
-#define SDCARDDETECT -1
+#define SDCARDDETECT_PIN -1
