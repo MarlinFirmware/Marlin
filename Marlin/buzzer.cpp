@@ -5,9 +5,9 @@
 #if HAS_BUZZER
   void buzz(long duration, uint16_t freq) {
     if (freq > 0) {
-      #ifdef LCD_USE_I2C_BUZZER
+      #if ENABLED(LCD_USE_I2C_BUZZER)
         lcd_buzz(duration, freq);
-      #elif defined(BEEPER) && BEEPER >= 0 // on-board buzzers have no further condition
+      #elif HAS_BUZZER // on-board buzzers have no further condition
         SET_OUTPUT(BEEPER);
         #ifdef SPEAKER // a speaker needs a AC ore a pulsed DC
           //tone(BEEPER, freq, duration); // needs a PWMable pin
