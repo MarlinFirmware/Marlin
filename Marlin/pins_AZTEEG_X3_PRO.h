@@ -6,7 +6,7 @@
 
 #undef FAN_PIN
 #define FAN_PIN             6 //Part Cooling System
-#define BEEPER             33
+#define BEEPER_PIN         33
 #define CONTROLLERFAN_PIN   4 //Pin used for the fan to cool motherboard (-1 to disable)
 //Fans/Water Pump to cool the hotend cool side.
 #define EXTRUDER_0_AUTO_FAN_PIN   5
@@ -97,7 +97,7 @@
 //LCD Pins//
 
  #if ENABLED(VIKI2) || ENABLED(miniVIKI)
-  #define BEEPER           33
+  #define BEEPER_PIN       33
  // Pins for DOGM SPI LCD Support
   #define DOGLCD_A0        44
   #define DOGLCD_CS        45

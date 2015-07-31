@@ -68,16 +68,17 @@
 #endif
 
 #if ENABLED(ULTRA_LCD) && ENABLED(NEWPANEL)
-  //we have no buzzer installed
-  #define BEEPER -1
-  //LCD Pins
+
+  #define BEEPER_PIN       -1
+
   #if ENABLED(LCD_I2C_PANELOLU2)
-    #define BTN_EN1 27  //RX1 - fastio.h pin mapping 27
-    #define BTN_EN2 26  //TX1 - fastio.h pin mapping 26
-    #define BTN_ENC 43 //A3 - fastio.h pin mapping 43
-    #define SDSS   40 //use SD card on Panelolu2 (Teensyduino pin mapping)
+    #define BTN_EN1        27  //RX1 - fastio.h pin mapping 27
+    #define BTN_EN2        26  //TX1 - fastio.h pin mapping 26
+    #define BTN_ENC        43  //A3 - fastio.h pin mapping 43
+    #define SDSS           40  //use SD card on Panelolu2 (Teensyduino pin mapping)
   #endif // LCD_I2C_PANELOLU2
-  //not connected to a pin
-  #define SDCARDDETECT -1    
+
+  #define SDCARDDETECT     -1
+
 #endif // ULTRA_LCD && NEWPANEL
 

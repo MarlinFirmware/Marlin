@@ -1325,7 +1325,7 @@ void lcd_quick_feedback() {
       #define LCD_FEEDBACK_FREQUENCY_DURATION_MS (1000/6)
     #endif    
     lcd.buzz(LCD_FEEDBACK_FREQUENCY_DURATION_MS, LCD_FEEDBACK_FREQUENCY_HZ);
-  #elif defined(BEEPER) && BEEPER >= 0
+  #elif PIN_EXISTS(BEEPER)
     #ifndef LCD_FEEDBACK_FREQUENCY_HZ
       #define LCD_FEEDBACK_FREQUENCY_HZ 5000
     #endif
