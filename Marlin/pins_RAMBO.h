@@ -110,10 +110,13 @@
 #define SUICIDE_PIN        -1  //PIN that has to be turned on right after start, to keep power flowing.
 
 #if ENABLED(ULTRA_LCD)
+
   #define KILL_PIN 80
+
   #if ENABLED(NEWPANEL)
-   //arduino pin which triggers an piezzo beeper
-    #define BEEPER 79      // Beeper on AUX-4
+
+    #define BEEPER_PIN 79      // Beeper on AUX-4
+
     #define LCD_PINS_RS 70
     #define LCD_PINS_ENABLE 71
     #define LCD_PINS_D4 72
@@ -133,10 +136,11 @@
     #define SDCARDDETECT 81    // Ramps does not use this port
 
   #else //!NEWPANEL - old style panel with shift register
-    //arduino pin witch triggers an piezzo beeper
-    #define BEEPER 33    No Beeper added
+
+    #define BEEPER_PIN 33    // No Beeper added
+
     //buttons are attached to a shift register
-    // Not wired this yet
+    // Not wired yet
     // #define SHIFT_CLK 38
     // #define SHIFT_LD 42
     // #define SHIFT_OUT 40
@@ -165,7 +169,7 @@
 #endif // ULTRA_LCD
 
 #if ENABLED(VIKI2) || ENABLED(miniVIKI)
- #define BEEPER 44
+ #define BEEPER_PIN 44
  // Pins for DOGM SPI LCD Support
  #define DOGLCD_A0  70 
  #define DOGLCD_CS  71 
