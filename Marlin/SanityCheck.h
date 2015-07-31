@@ -366,4 +366,8 @@
     #error BEEPER has been replaced with BEEPER_PIN. Please update your pins definitions.
   #endif
 
+  #ifdef BTENABLED
+    #error BTENABLED has been replaced with BLUETOOTH. Please update your configuration.
+  #endif
+
 #endif //SANITYCHECK_H

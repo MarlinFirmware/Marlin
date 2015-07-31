@@ -287,6 +287,6 @@ MarlinSerial MSerial;
 #endif // !USBCON
 
 // For AT90USB targets use the UART for BT interfacing
-#if defined(USBCON) && ENABLED(BTENABLED)
+#if defined(USBCON) && ENABLED(BLUETOOTH)
   HardwareSerial bt;
 #endif
