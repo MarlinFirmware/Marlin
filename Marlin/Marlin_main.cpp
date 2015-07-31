@@ -2646,8 +2646,6 @@ inline void gcode_G28() {
         double plane_equation_coefficients[3];
         qr_solve(plane_equation_coefficients, abl2, 3, eqnAMatrix, eqnBVector);
 
-        mean /= abl2;
-
         if (verbose_level) {
           SERIAL_PROTOCOLPGM("Eqn coefficients: a: ");
           SERIAL_PROTOCOL_F(plane_equation_coefficients[0], 8);
@@ -2656,42 +2654,50 @@ inline void gcode_G28() {
           SERIAL_PROTOCOLPGM(" d: ");
           SERIAL_PROTOCOL_F(plane_equation_coefficients[2], 8);
           SERIAL_EOL;
-          if (verbose_level > 2) {
-            SERIAL_PROTOCOLPGM("Mean of sampled points: ");
-            SERIAL_PROTOCOL_F(mean, 8);
-            SERIAL_EOL;
-          }
         }
 
         if (!dryrun) set_bed_level_equation_lsq(plane_equation_coefficients);
         free(plane_equation_coefficients);
+        matrix_3x3 inverse_bed_level_matrix = matrix_3x3::transpose(plan_bed_level_matrix); // inverse bed level matrix
+
+        // search minimum and maximum point on bed in rotated coordinats
+        float rot_diff = 0,
+              rot_min_diff = Z_MAX_POS,
+              rot_max_diff = -Z_MAX_POS;
+        for (int ProbeCount = 0; ProbeCount < abl2; ProbeCount++)
+          {
+            vector_3 probe_point = vector_3(eqnAMatrix[ProbeCount + 0 * abl2], eqnAMatrix[ProbeCount + 1 * abl2], eqnBVector[ProbeCount]);
+            probe_point.apply_rotation(inverse_bed_level_matrix);
+            float rot_diff =  probe_point.z ;
+            if (rot_diff < rot_min_diff ) rot_min_diff = rot_diff;
+            if (rot_diff > rot_max_diff ) rot_max_diff = rot_diff;
+          }
+        //SERIAL_PROTOCOLPGM("rot_min_diff=");SERIAL_PROTOCOL_F(rot_min_diff, 5);SERIAL_EOL;
+        //SERIAL_PROTOCOLPGM("rot_max_diff=");SERIAL_PROTOCOL_F(rot_max_diff, 5);SERIAL_EOL;
+        //SERIAL_PROTOCOLPGM("difference=");SERIAL_PROTOCOL_F(rot_max_diff-rot_min_diff, 5);SERIAL_EOL;
 
         // Show the Topography map if enabled
         if (do_topography_map) {
+          // search minimum measured Z
+          float diff = 0,
+                min_diff = Z_MAX_POS;
+          for (int ProbeCount = 0; ProbeCount < abl2; ProbeCount++)
+            {
+              diff = eqnBVector[ProbeCount];
+              if (diff < min_diff ) min_diff = diff;
+            }
+          //SERIAL_PROTOCOLPGM("min_diff=");SERIAL_PROTOCOL_F(min_diff, 5);SERIAL_EOL;
 
-          SERIAL_PROTOCOLPGM(" \nBed Height Topography: \n");
-          SERIAL_PROTOCOLPGM("+-----------+\n");
+          SERIAL_PROTOCOLPGM("\n+-----------+\n");
           SERIAL_PROTOCOLPGM("|...Back....|\n");
           SERIAL_PROTOCOLPGM("|Left..Right|\n");
           SERIAL_PROTOCOLPGM("|...Front...|\n");
           SERIAL_PROTOCOLPGM("+-----------+\n");
-
-          float min_diff = 999;
-
+          SERIAL_PROTOCOLPGM("Measured Bed Topography: \n");
           for (int yy = auto_bed_leveling_grid_points - 1; yy >= 0; yy--) {
             for (int xx = 0; xx < auto_bed_leveling_grid_points; xx++) {
               int ind = yy * auto_bed_leveling_grid_points + xx;
-              float diff = eqnBVector[ind] - mean;
-
-              float x_tmp = eqnAMatrix[ind + 0 * abl2],
-                y_tmp = eqnAMatrix[ind + 1 * abl2],
-                z_tmp = 0;
-
-              apply_rotation_xyz(plan_bed_level_matrix,x_tmp,y_tmp,z_tmp);
-
-              if (eqnBVector[ind] - z_tmp < min_diff)
-                min_diff = eqnBVector[ind] - z_tmp;
-
+              float diff = eqnBVector[ind];
               if (diff >= 0.0)
                 SERIAL_PROTOCOLPGM(" +");   // Include + for column alignment
               else
@@ -2701,30 +2707,80 @@ inline void gcode_G28() {
             SERIAL_EOL;
           } // yy
           SERIAL_EOL;
-          if (verbose_level > 3) {
-            SERIAL_PROTOCOLPGM(" \nCorrected Bed Height vs. Bed Topology: \n");
 
-            for (int yy = auto_bed_leveling_grid_points - 1; yy >= 0; yy--) {
-              for (int xx = 0; xx < auto_bed_leveling_grid_points; xx++) {
-                int ind = yy * auto_bed_leveling_grid_points + xx;
-                float x_tmp = eqnAMatrix[ind + 0 * abl2],
-                  y_tmp = eqnAMatrix[ind + 1 * abl2],
-                  z_tmp = 0;
-
-                apply_rotation_xyz(plan_bed_level_matrix,x_tmp,y_tmp,z_tmp);
-
-                float diff = eqnBVector[ind] - z_tmp - min_diff;
-                if (diff >= 0.0)
-                  SERIAL_PROTOCOLPGM(" +");
-                // Include + for column alignment
-                else
-                  SERIAL_PROTOCOLCHAR(' ');
-                SERIAL_PROTOCOL_F(diff, 5);
-              } // xx
-              SERIAL_EOL;
-            } // yy
+          SERIAL_PROTOCOLPGM(" \nCorrected Bed Topography: \n");
+          for (int yy = auto_bed_leveling_grid_points - 1; yy >= 0; yy--) {
+            for (int xx = 0; xx < auto_bed_leveling_grid_points; xx++) {
+              int ind = yy * auto_bed_leveling_grid_points + xx;
+              float diff = eqnBVector[ind] - min_diff;
+              if (diff >= 0.0)
+                SERIAL_PROTOCOLPGM(" +");   // Include + for column alignment
+              else
+                SERIAL_PROTOCOLCHAR(' ');
+              SERIAL_PROTOCOL_F(diff, 5);
+            } // xx
             SERIAL_EOL;
-          }
+          } // yy
+          SERIAL_EOL;
+
+          /*
+          SERIAL_PROTOCOLPGM(" \nBed Topography in new coordinats:\n");
+                for (int yy = auto_bed_leveling_grid_points - 1; yy >= 0; yy--) {
+                  for (int xx = 0; xx < auto_bed_leveling_grid_points; xx++) {
+                    int ind = yy * auto_bed_leveling_grid_points + xx;
+
+                    vector_3 probe_point = vector_3(eqnAMatrix[ind + 0 * abl2], eqnAMatrix[ind + 1 * abl2], eqnBVector[ind]);
+                    probe_point.apply_rotation(inverse_bed_level_matrix);
+                    float diff = probe_point.z;
+                    if (diff >= 0.0)
+                      SERIAL_PROTOCOLPGM(" +");
+                    // Include + for column alignment
+                    else
+                      SERIAL_PROTOCOLCHAR(' ');
+                    SERIAL_PROTOCOL_F(diff, 5);
+                  } // xx
+                  SERIAL_EOL;
+                } // yy
+                SERIAL_EOL;
+          */
+          SERIAL_PROTOCOLPGM(" \nCorrected Bed Topography in new coordinats:\n");
+                for (int yy = auto_bed_leveling_grid_points - 1; yy >= 0; yy--) {
+                  for (int xx = 0; xx < auto_bed_leveling_grid_points; xx++) {
+                    int ind = yy * auto_bed_leveling_grid_points + xx;
+                    vector_3 probe_point = vector_3(eqnAMatrix[ind + 0 * abl2], eqnAMatrix[ind + 1 * abl2], eqnBVector[ind]);
+                    probe_point.apply_rotation(inverse_bed_level_matrix);
+                    float diff = probe_point.z - rot_min_diff;
+                    if (diff >= 0.0)
+                      SERIAL_PROTOCOLPGM(" +");
+                    // Include + for column alignment
+                    else
+                      SERIAL_PROTOCOLCHAR(' ');
+                    SERIAL_PROTOCOL_F(diff, 5);
+                  } // xx
+                  SERIAL_EOL;
+                } // yy
+                SERIAL_EOL;
+
+          SERIAL_PROTOCOLPGM(" \nHeight from Bed to Nozzle : \n");
+          SERIAL_PROTOCOLPGM(" (+) is airprinting, (-) is touch under bed surface \n");
+                for (int yy = auto_bed_leveling_grid_points - 1; yy >= 0; yy--) {
+                  for (int xx = 0; xx < auto_bed_leveling_grid_points; xx++) {
+                    int ind = yy * auto_bed_leveling_grid_points + xx;
+                    vector_3 probe_point = vector_3(eqnAMatrix[ind + 0 * abl2], eqnAMatrix[ind + 1 * abl2], eqnBVector[ind]);
+                    probe_point.apply_rotation(inverse_bed_level_matrix);
+                    float diff = -(probe_point.z - rot_max_diff);
+                    if (diff >= 0.0)
+                      SERIAL_PROTOCOLPGM(" +");
+                    // Include + for column alignment
+                    else
+                      SERIAL_PROTOCOLCHAR(' ');
+                    SERIAL_PROTOCOL_F(diff, 5);
+                  } // xx
+                  SERIAL_EOL;
+                } // yy
+                SERIAL_EOL;
+
+
         } //do_topography_map
       #endif //!DELTA
 
@@ -2751,39 +2807,16 @@ inline void gcode_G28() {
         plan_bed_level_matrix.debug(" \n\nBed Level Correction Matrix:");
 
       if (!dryrun) {
-        // Correct the Z height difference from z-probe position and hotend tip position.
-        // The Z height on homing is measured by Z-Probe, but the probe is quite far from the hotend.
-        // When the bed is uneven, this height must be corrected.
-        float x_tmp = current_position[X_AXIS] + X_PROBE_OFFSET_FROM_EXTRUDER,
-              y_tmp = current_position[Y_AXIS] + Y_PROBE_OFFSET_FROM_EXTRUDER,
-              z_tmp = current_position[Z_AXIS],
-              real_z = st_get_position_mm(Z_AXIS);  //get the real Z (since plan_get_position is now correcting the plane)
-
-        apply_rotation_xyz(plan_bed_level_matrix, x_tmp, y_tmp, z_tmp); // Apply the correction sending the probe offset
-
-        // Get the current Z position and send it to the planner.
-        //
-        // >> (z_tmp - real_z) : The rotated current Z minus the uncorrected Z (most recent plan_set_position/sync_plan_position)
-        //
-        // >> zprobe_zoffset : Z distance from nozzle to probe (set by default, M851, EEPROM, or Menu)
-        //
-        // >> Z_RAISE_AFTER_PROBING : The distance the probe will have lifted after the last probe
-        //
-        // >> Should home_offset[Z_AXIS] be included?
-        //
-        //      Discussion: home_offset[Z_AXIS] was applied in G28 to set the starting Z.
-        //      If Z is not tweaked in G29 -and- the Z probe in G29 is not actually "homing" Z...
-        //      then perhaps it should not be included here. The purpose of home_offset[] is to
-        //      adjust for inaccurate endstops, not for reasonably accurate probes. If it were
-        //      added here, it could be seen as a compensating factor for the Z probe.
-        //
-        current_position[Z_AXIS] = -zprobe_zoffset + (z_tmp - real_z)
-          #if defined(SERVO_ENDSTOPS) || ENABLED(Z_PROBE_ALLEN_KEY) || ENABLED(Z_PROBE_SLED)
-             + Z_RAISE_AFTER_PROBING
-          #endif
-          ;
-        // current_position[Z_AXIS] += home_offset[Z_AXIS]; // The probe determines Z=0, not "Z home"
+        int ind = abl2-1; // last point probe = current point
+        vector_3 probe_point = vector_3(eqnAMatrix[ind + 0 * abl2], eqnAMatrix[ind + 1 * abl2], eqnBVector[ind]);
+        probe_point.apply_rotation(inverse_bed_level_matrix);
+        current_position[Z_AXIS] = probe_point.z - rot_max_diff - zprobe_zoffset
+        #if defined(SERVO_ENDSTOPS) || ENABLED(Z_PROBE_ALLEN_KEY) || ENABLED(Z_PROBE_SLED)
+        + Z_RAISE_AFTER_PROBING
+        #endif
+        ;
         sync_plan_position();
+        //SERIAL_PROTOCOLPGM("current_position[Z_AXIS]=");SERIAL_PROTOCOL_F(current_position[Z_AXIS], 5);SERIAL_EOL;
       }
     #endif // !DELTA
 
