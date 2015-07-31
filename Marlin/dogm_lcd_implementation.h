@@ -190,14 +190,16 @@ char lcd_printPGM(const char* str) {
   return n;
 }
 
-static bool show_splashscreen = true;
+#if ENABLED(SHOW_BOOTSCREEN)
+  static bool show_bootscreen = true;
+#endif
 
 /* Warning: This function is called from interrupt context */
 static void lcd_implementation_init() {
 
   #if ENABLED(LCD_PIN_BL) // Enable LCD backlight
     pinMode(LCD_PIN_BL, OUTPUT);
-	  digitalWrite(LCD_PIN_BL, HIGH);
+    digitalWrite(LCD_PIN_BL, HIGH);
   #endif
 
   #if ENABLED(LCD_PIN_RESET)
@@ -207,44 +209,49 @@ static void lcd_implementation_init() {
   #ifndef MINIPANEL//setContrast not working for Mini Panel
     u8g.setContrast(lcd_contrast);	
   #endif
-	// FIXME: remove this workaround
+  // FIXME: remove this workaround
   // Uncomment this if you have the first generation (V1.10) of STBs board
-  // pinMode(17, OUTPUT);	// Enable LCD backlight
+  // pinMode(17, OUTPUT); // Enable LCD backlight
   // digitalWrite(17, HIGH);
 
   #if ENABLED(LCD_SCREEN_ROT_90)
     u8g.setRot90();   // Rotate screen by 90°
   #elif ENABLED(LCD_SCREEN_ROT_180)
-    u8g.setRot180();	// Rotate screen by 180°
+    u8g.setRot180();  // Rotate screen by 180°
   #elif ENABLED(LCD_SCREEN_ROT_270)
-    u8g.setRot270();	// Rotate screen by 270°
-  #endif
-	
-  // Show splashscreen
-  int offx = (u8g.getWidth() - START_BMPWIDTH) / 2;
-  #if ENABLED(START_BMPHIGH)
-    int offy = 0;
-  #else
-    int offy = DOG_CHAR_HEIGHT;
+    u8g.setRot270();  // Rotate screen by 270°
   #endif
 
-  int txt1X = (u8g.getWidth() - (sizeof(STRING_SPLASH_LINE1) - 1)*DOG_CHAR_WIDTH) / 2;
+  #if ENABLED(SHOW_BOOTSCREEN)
+    int offx = (u8g.getWidth() - START_BMPWIDTH) / 2;
+    #if ENABLED(START_BMPHIGH)
+      int offy = 0;
+    #else
+      int offy = DOG_CHAR_HEIGHT;
+    #endif
 
-	u8g.firstPage();
-  do {
-    if (show_splashscreen) {
-      u8g.drawBitmapP(offx, offy, START_BMPBYTEWIDTH, START_BMPHEIGHT, start_bmp);
-      lcd_setFont(FONT_MENU);
-      #ifndef STRING_SPLASH_LINE2
-        u8g.drawStr(txt1X, u8g.getHeight() - DOG_CHAR_HEIGHT, STRING_SPLASH_LINE1);
-      #else
-        int txt2X = (u8g.getWidth() - (sizeof(STRING_SPLASH_LINE2) - 1)*DOG_CHAR_WIDTH) / 2;
-        u8g.drawStr(txt1X, u8g.getHeight() - DOG_CHAR_HEIGHT*3/2, STRING_SPLASH_LINE1);
-        u8g.drawStr(txt2X, u8g.getHeight() - DOG_CHAR_HEIGHT*1/2, STRING_SPLASH_LINE2);
-      #endif
+    int txt1X = (u8g.getWidth() - (sizeof(STRING_SPLASH_LINE1) - 1)*DOG_CHAR_WIDTH) / 2;
+
+    u8g.firstPage();
+    do {
+      if (show_bootscreen) {
+        u8g.drawBitmapP(offx, offy, START_BMPBYTEWIDTH, START_BMPHEIGHT, start_bmp);
+        lcd_setFont(FONT_MENU);
+        #ifndef STRING_SPLASH_LINE2
+          u8g.drawStr(txt1X, u8g.getHeight() - DOG_CHAR_HEIGHT, STRING_SPLASH_LINE1);
+        #else
+          int txt2X = (u8g.getWidth() - (sizeof(STRING_SPLASH_LINE2) - 1)*DOG_CHAR_WIDTH) / 2;
+          u8g.drawStr(txt1X, u8g.getHeight() - DOG_CHAR_HEIGHT*3/2, STRING_SPLASH_LINE1);
+          u8g.drawStr(txt2X, u8g.getHeight() - DOG_CHAR_HEIGHT*1/2, STRING_SPLASH_LINE2);
+        #endif
+      }
+    } while (u8g.nextPage());
+
+    if (show_bootscreen) {
+      delay(1000);
+      show_bootscreen = false;
     }
-  } while (u8g.nextPage());
-  show_splashscreen = false;
+  #endif
 }
 
 static void lcd_implementation_clear() { } // Automatically cleared by Picture Loop

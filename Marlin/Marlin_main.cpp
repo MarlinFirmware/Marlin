@@ -666,7 +666,6 @@ void setup() {
   Config_RetrieveSettings();
 
   lcd_init();
-  _delay_ms(1000);  // wait 1sec to display the splash screen
 
   tp_init();    // Initialize temperature loop
   plan_init();  // Initialize planner;
