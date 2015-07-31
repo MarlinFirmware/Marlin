@@ -54,7 +54,7 @@
 #define PS_ON_PIN          -1
 #define KILL_PIN           -1
 #define ALARM_PIN          -1
-#define SDCARDDETECT_PIN   12
+#define SD_DETECT_PIN      12
 
 #if DISABLED(SDSUPPORT)
 // these pins are defined in the SD library if building with SD support

@@ -57,7 +57,7 @@
 //#define RX_ENABLE_PIN       13
 
 #define BEEPER_PIN -1
-#define SDCARDDETECT_PIN -1
+#define SD_DETECT_PIN -1
 #define SUICIDE_PIN -1    //has to be defined; otherwise Power_off doesn't work
 
 #define KILL_PIN -1

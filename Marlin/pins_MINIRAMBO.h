@@ -107,7 +107,7 @@
     #define BTN_EN2         72
     #define BTN_ENC          9  // the click
 
-    #define SDCARDDETECT_PIN 15
+    #define SD_DETECT_PIN   15
 
   #endif //NEWPANEL
 #endif //ULTRA_LCD

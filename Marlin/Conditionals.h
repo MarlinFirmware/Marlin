@@ -321,7 +321,7 @@
   #endif
 
   #if ENABLED(ULTIPANEL) && DISABLED(ELB_FULL_GRAPHIC_CONTROLLER)
-    #undef SDCARDDETECTINVERTED
+    #undef SD_DETECT_INVERTED
   #endif
 
   // Power Signal Control Definitions
