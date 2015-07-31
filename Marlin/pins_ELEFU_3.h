@@ -61,7 +61,7 @@
 // Data from: http://www.doc-diy.net/photo/rc-1_hacked/
 #define PHOTOGRAPH_PIN     29
 
-#ifdef RA_CONTROL_PANEL
+#if ENABLED(RA_CONTROL_PANEL)
 
   #define SDSS             53
   #define SDCARDDETECT     28
@@ -76,7 +76,7 @@
 
 #endif // RA_CONTROL_PANEL
 
-#ifdef RA_DISCO
+#if ENABLED(RA_DISCO)
   //variables for which pins the TLC5947 is using
   #define TLC_CLOCK_PIN    25
   #define TLC_BLANK_PIN    23
