@@ -15,12 +15,12 @@ For the second half of the font we now support up to 11x11 pixel.
  * Use 'bdf2u8g.exe' to produce the *.h file. Examples for the existing fonts are in 'make_fonts.bat'
  * Edit the produced .h file to match our needs. See hints in 'README.fonts' or the other 'dogm_font_data_.h' files.
  * Make a new entry in the font list in 'dogm_lcd_implementation.h' before the '#else // fall back'
-    #elif defined( DISPLAY_CHARSET_NEWNAME )
+    #elif ENABLED(DISPLAY_CHARSET_NEWNAME)
       #include "dogm_font_data_yourfont.h"
       #define FONT_MENU_NAME YOURFONTNAME
     #else // fall-back
  * Add your font to the list of permitted fonts in 'language_en.h'
-    ... || defined(DISPLAY_CHARSET_YOUR_NEW_FONT) ... )
+    ... || ENABLED(DISPLAY_CHARSET_YOUR_NEW_FONT) ... )
 
 
 Especially the Kana font should be revised by someone who knows what he/she does. I am only a west-European with very little knowledge about this script.
