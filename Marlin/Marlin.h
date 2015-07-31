@@ -51,7 +51,7 @@ typedef unsigned long millis_t;
 #include "WString.h"
 
 #ifdef USBCON
-  #ifdef BTENABLED
+  #if ENABLED(BTENABLED)
     #define MYSERIAL bt
   #else
     #define MYSERIAL Serial
@@ -110,7 +110,7 @@ void idle(); // the standard idle routine calls manage_inactivity(false)
 
 void manage_inactivity(bool ignore_stepper_queue=false);
 
-#if defined(DUAL_X_CARRIAGE) && HAS_X_ENABLE && HAS_X2_ENABLE
+#if ENABLED(DUAL_X_CARRIAGE) && HAS_X_ENABLE && HAS_X2_ENABLE
   #define  enable_x() do { X_ENABLE_WRITE( X_ENABLE_ON); X2_ENABLE_WRITE( X_ENABLE_ON); } while (0)
   #define disable_x() do { X_ENABLE_WRITE(!X_ENABLE_ON); X2_ENABLE_WRITE(!X_ENABLE_ON); axis_known_position[X_AXIS] = false; } while (0)
 #elif HAS_X_ENABLE
@@ -122,7 +122,7 @@ void manage_inactivity(bool ignore_stepper_queue=false);
 #endif
 
 #if HAS_Y_ENABLE
-  #ifdef Y_DUAL_STEPPER_DRIVERS
+  #if ENABLED(Y_DUAL_STEPPER_DRIVERS)
     #define  enable_y() { Y_ENABLE_WRITE( Y_ENABLE_ON); Y2_ENABLE_WRITE(Y_ENABLE_ON); }
     #define disable_y() { Y_ENABLE_WRITE(!Y_ENABLE_ON); Y2_ENABLE_WRITE(!Y_ENABLE_ON); axis_known_position[Y_AXIS] = false; }
   #else
@@ -135,7 +135,7 @@ void manage_inactivity(bool ignore_stepper_queue=false);
 #endif
 
 #if HAS_Z_ENABLE
-  #ifdef Z_DUAL_STEPPER_DRIVERS
+  #if ENABLED(Z_DUAL_STEPPER_DRIVERS)
     #define  enable_z() { Z_ENABLE_WRITE( Z_ENABLE_ON); Z2_ENABLE_WRITE(Z_ENABLE_ON); }
     #define disable_z() { Z_ENABLE_WRITE(!Z_ENABLE_ON); Z2_ENABLE_WRITE(!Z_ENABLE_ON); axis_known_position[Z_AXIS] = false; }
   #else
@@ -205,7 +205,7 @@ void prepare_move();
 void kill(const char *);
 void Stop();
 
-#ifdef FILAMENT_RUNOUT_SENSOR
+#if ENABLED(FILAMENT_RUNOUT_SENSOR)
   void filrunout();
 #endif
 
@@ -234,7 +234,7 @@ void clamp_to_software_endstops(float target[3]);
 extern millis_t previous_cmd_ms;
 inline void refresh_cmd_timeout() { previous_cmd_ms = millis(); }
 
-#ifdef FAST_PWM_FAN
+#if ENABLED(FAST_PWM_FAN)
   void setPwmFrequency(uint8_t pin, int val);
 #endif
 
@@ -255,49 +255,49 @@ extern float min_pos[3]; // axis[n].min_pos
 extern float max_pos[3]; // axis[n].max_pos
 extern bool axis_known_position[3]; // axis[n].is_known
 
-#if defined(DELTA) || defined(SCARA)
+#if ENABLED(DELTA) || ENABLED(SCARA)
   void calculate_delta(float cartesian[3]);
-  #ifdef DELTA
+  #if ENABLED(DELTA)
     extern float delta[3];
     extern float endstop_adj[3]; // axis[n].endstop_adj
     extern float delta_radius;
     extern float delta_diagonal_rod;
     extern float delta_segments_per_second;
     void recalc_delta_settings(float radius, float diagonal_rod);
-    #ifdef ENABLE_AUTO_BED_LEVELING
+    #if ENABLED(ENABLE_AUTO_BED_LEVELING)
       extern int delta_grid_spacing[2];
       void adjust_delta(float cartesian[3]);
     #endif
-  #elif defined(SCARA)
+  #elif ENABLED(SCARA)
     extern float axis_scaling[3];  // Build size scaling
     void calculate_SCARA_forward_Transform(float f_scara[3]);
   #endif
 #endif
 
-#ifdef Z_DUAL_ENDSTOPS
+#if ENABLED(Z_DUAL_ENDSTOPS)
   extern float z_endstop_adj;
 #endif
 
-#ifdef ENABLE_AUTO_BED_LEVELING
+#if ENABLED(ENABLE_AUTO_BED_LEVELING)
   extern float zprobe_zoffset;
 #endif
 
-#ifdef PREVENT_DANGEROUS_EXTRUDE
+#if ENABLED(PREVENT_DANGEROUS_EXTRUDE)
   extern float extrude_min_temp;
 #endif
 
 extern int fanSpeed;
 
-#ifdef BARICUDA
+#if ENABLED(BARICUDA)
   extern int ValvePressure;
   extern int EtoPPressure;
 #endif
 
-#ifdef FAN_SOFT_PWM
+#if ENABLED(FAN_SOFT_PWM)
   extern unsigned char fanSpeedSoftPwm;
 #endif
 
-#ifdef FILAMENT_SENSOR
+#if ENABLED(FILAMENT_SENSOR)
   extern float filament_width_nominal;  //holds the theoretical filament diameter ie., 3.00 or 1.75
   extern bool filament_sensor;  //indicates that filament sensor readings should control extrusion
   extern float filament_width_meas; //holds the filament diameter as accurately measured
@@ -307,7 +307,7 @@ extern int fanSpeed;
   extern int meas_delay_cm; //delay distance
 #endif
 
-#ifdef FWRETRACT
+#if ENABLED(FWRETRACT)
   extern bool autoretract_enabled;
   extern bool retracted[EXTRUDERS]; // extruder[n].retracted
   extern float retract_length, retract_length_swap, retract_feedrate, retract_zlift;
@@ -320,7 +320,7 @@ extern millis_t print_job_stop_ms;
 // Handling multiple extruders pins
 extern uint8_t active_extruder;
 
-#ifdef DIGIPOT_I2C
+#if ENABLED(DIGIPOT_I2C)
   extern void digipot_i2c_set_current( int channel, float current );
   extern void digipot_i2c_init();
 #endif
