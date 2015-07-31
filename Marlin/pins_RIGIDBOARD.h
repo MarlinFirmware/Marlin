@@ -25,8 +25,8 @@
   #undef BEEPER_PIN
   #define BEEPER_PIN -1
 
-  #undef SDCARDDETECT_PIN
-  #define SDCARDDETECT_PIN 22
+  #undef SD_DETECT_PIN
+  #define SD_DETECT_PIN 22
 
   // Extra button definitions, substitute for EN1 / EN2
   #define BTN_UP  37 // BTN_EN1
@@ -43,16 +43,16 @@
   #undef  BTN_ENC
   #define BTN_ENC 31
 
-  #undef  SDCARDDETECT_PIN
-  #define SDCARDDETECT_PIN 22
+  #undef  SD_DETECT_PIN
+  #define SD_DETECT_PIN 22
 
 #elif defined(REPRAP_DISCOUNT_SMART_CONTROLLER)
 
   #undef BEEPER_PIN
   #define BEEPER_PIN -1
 
-  #undef  SDCARDDETECT_PIN
-  #define SDCARDDETECT_PIN 22
+  #undef  SD_DETECT_PIN
+  #define SD_DETECT_PIN 22
 
   #undef  KILL_PIN
   #define KILL_PIN 32

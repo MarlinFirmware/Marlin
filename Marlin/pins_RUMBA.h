@@ -101,7 +101,7 @@
 
 #define SDPOWER            -1
 #define SDSS               53
-#define SDCARDDETECT_PIN   49
+#define SD_DETECT_PIN      49
 #define BEEPER_PIN         44
 #define LCD_PINS_RS        19
 #define LCD_PINS_ENABLE    42
