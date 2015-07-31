@@ -21,7 +21,7 @@
 #include "Marlin.h"
 #include "macros.h"
 
-#ifdef SDSUPPORT
+#if ENABLED(SDSUPPORT)
 
 #ifndef Sd2PinMap_h
 #define Sd2PinMap_h
