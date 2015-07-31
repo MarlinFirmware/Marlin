@@ -110,7 +110,9 @@
 #define SUICIDE_PIN        -1  //PIN that has to be turned on right after start, to keep power flowing.
 
 #if ENABLED(ULTRA_LCD)
+
   #define KILL_PIN 80
+
   #if ENABLED(NEWPANEL)
 
     #define BEEPER_PIN 79      // Beeper on AUX-4
@@ -138,7 +140,7 @@
     #define BEEPER_PIN 33    // No Beeper added
 
     //buttons are attached to a shift register
-    // Not wired this yet
+    // Not wired yet
     // #define SHIFT_CLK 38
     // #define SHIFT_LD 42
     // #define SHIFT_OUT 40

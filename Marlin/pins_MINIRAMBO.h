@@ -89,7 +89,9 @@
 #define SUICIDE_PIN        -1  //PIN that has to be turned on right after start, to keep power flowing.
 
 #if ENABLED(ULTRA_LCD)
+
   #define KILL_PIN 32
+
   #if ENABLED(NEWPANEL)
 
     #define BEEPER_PIN 84      // Beeper on AUX-4
@@ -107,5 +109,5 @@
 
     #define SDCARDDETECT 15
 
-  #endif
+  #endif //NEWPANEL
 #endif //ULTRA_LCD
