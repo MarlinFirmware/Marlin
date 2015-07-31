@@ -133,7 +133,7 @@
     #define BLEN_B 1
     #define BLEN_A 0
 
-    #define SDCARDDETECT_PIN 81 // Ramps doesn't use this port
+    #define SDCARDDETECT_PIN 81 // Ramps doesn't use this
 
   #else //!NEWPANEL - old style panel with shift register
 
