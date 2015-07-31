@@ -816,14 +816,14 @@ void get_command() {
         fromsd[cmd_queue_index_w] = false;
       #endif
 
-      char *npos = strchr(command, 'N');
+      char *npos = strchr(command, 'N'); if (npos == NULL) npos = strchr(command, 'n');
       char *apos = strchr(command, '*');
       if (npos) {
 
-        boolean M110 = strstr_P(command, PSTR("M110")) != NULL;
+        boolean M110 = strstr_P(command, PSTR("M110")) != NULL || strstr_P(command, PSTR("m110")) != NULL;
 
         if (M110) {
-          char *n2pos = strchr(command + 4, 'N');
+          char *n2pos = strchr(command + 4, 'N'); if (n2pos == NULL) n2pos = strchr(command + 4, 'n');
           if (n2pos) npos = n2pos;
         }
 
@@ -859,7 +859,7 @@ void get_command() {
 
       // Movement commands alert when stopped
       if (IsStopped()) {
-        char *gpos = strchr(command, 'G');
+        char *gpos = strchr(command, 'G'); if (gpos == NULL) gpos = strchr(command, 'g');
         if (gpos) {
           int codenum = strtol(gpos + 1, NULL, 10);
           switch (codenum) {
@@ -875,7 +875,7 @@ void get_command() {
       }
 
       // If command was e-stop process now
-      if (strcmp(command, "M112") == 0) kill(PSTR(MSG_KILLED));
+      if (strcmp(command, "M112") == 0 || strcmp(command, "m112") == 0) kill(PSTR(MSG_KILLED));
 
       cmd_queue_index_w = (cmd_queue_index_w + 1) % BUFSIZE;
       commands_in_queue += 1;
@@ -961,7 +961,7 @@ bool code_has_value() {
 
 float code_value() {
   float ret;
-  char *e = strchr(seen_pointer, 'E');
+  char *e = strchr(seen_pointer, 'E'); if (e == NULL) e = strchr(seen_pointer, 'e'); 
   if (e) {
     *e = 0;
     ret = strtod(seen_pointer+1, NULL);
@@ -978,6 +978,7 @@ int16_t code_value_short() { return (int16_t)strtol(seen_pointer + 1, NULL, 10);
 
 bool code_seen(char code) {
   seen_pointer = strchr(current_command_args, code);
+  if (seen_pointer == NULL) seen_pointer = strchr(current_command_args, code + ('a'-'A'));
   return (seen_pointer != NULL); // Return TRUE if the code-letter was found
 }
 
@@ -5212,8 +5213,8 @@ void process_next_command() {
   //  - Bypass N[0-9][0-9]*[ ]*
   //  - Overwrite * with nul to mark the end
   while (*current_command == ' ') ++current_command;
-  if (*current_command == 'N' && ((current_command[1] >= '0' && current_command[1] <= '9') || current_command[1] == '-')) {
-    current_command += 2; // skip N[-0-9]
+  if ((*current_command == 'N' || *current_command == 'n') && ((current_command[1] >= '0' && current_command[1] <= '9') || current_command[1] == '-')) {
+    current_command += 2; // skip [Nn][-0-9]
     while (*current_command >= '0' && *current_command <= '9') ++current_command; // skip [0-9]*
     while (*current_command == ' ') ++current_command; // skip [ ]*
   }
@@ -5243,7 +5244,7 @@ void process_next_command() {
 
   // Handle a known G, M, or T
   switch(command_code) {
-    case 'G': switch (codenum) {
+    case 'G': case 'g': switch (codenum) {
 
       // G0, G1
       case 0:
@@ -5315,7 +5316,7 @@ void process_next_command() {
     }
     break;
 
-    case 'M': switch (codenum) {
+    case 'M': case 'm': switch (codenum) {
       #ifdef ULTIPANEL
         case 0: // M0 - Unconditional stop - Wait for user button press on LCD
         case 1: // M1 - Conditional stop - Wait for user button press on LCD
@@ -5751,7 +5752,7 @@ void process_next_command() {
     }
     break;
 
-    case 'T':
+    case 'T': case 't':
       gcode_T(codenum);
     break;
 
