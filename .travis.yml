@@ -65,6 +65,15 @@ script:
   - sed -i 's/\/\/#define ENABLE_AUTO_BED_LEVELING/#define ENABLE_AUTO_BED_LEVELING/g' Marlin/Configuration.h
   - rm -rf .build/
   - DISPLAY=:1.0 ~/bin/arduino --verify --board marlin:avr:mega  Marlin/Marlin.ino
+  # enable AUTO_BED_LEVELING with servos
+  - cp Marlin/Configuration.h.backup Marlin/Configuration.h
+  - sed -i 's/\/\/#define ENABLE_AUTO_BED_LEVELING/#define ENABLE_AUTO_BED_LEVELING/g' Marlin/Configuration.h
+  - sed -i 's/\/\/#define NUM_SERVOS/#define NUM_SERVOS/g' Marlin/Configuration.h
+  - sed -i 's/\/\/#define Z_ENDSTOP_SERVO_NR/#define Z_ENDSTOP_SERVO_NR/g' Marlin/Configuration.h
+  - sed -i 's/\/\/#define SERVO_ENDSTOP_ANGLES/#define SERVO_ENDSTOP_ANGLES/g' Marlin/Configuration.h
+  - sed -i 's/\/\/#define DEACTIVATE_SERVOS_AFTER_MOVE/#define DEACTIVATE_SERVOS_AFTER_MOVE/g' Marlin/Configuration.h
+  - rm -rf .build/
+  - DISPLAY=:1.0 ~/bin/arduino --verify --board marlin:avr:mega  Marlin/Marlin.ino
   # enable EEPROM_SETTINGS & EEPROM_CHITCHAT
   - cp Marlin/Configuration.h.backup Marlin/Configuration.h
   - sed -i 's/\/\/#define EEPROM_SETTINGS/#define EEPROM_SETTINGS/g' Marlin/Configuration.h
