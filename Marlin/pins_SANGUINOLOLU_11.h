@@ -156,7 +156,7 @@
     #define LCD_SDSS            28 // Smart Controller SD card reader rather than the Melzi
   #endif //Panelolu2
 
-  #define SDCARDDETECT          -1
+  #define SDCARDDETECT_PIN      -1
 
 #elif ENABLED(MAKRPANEL)
 
@@ -178,7 +178,7 @@
   #define BTN_EN2               10
   #define BTN_ENC               16
 
-  #define SDCARDDETECT          -1
+  #define SDCARDDETECT_PIN      -1
 
 #endif // MAKRPANEL
 

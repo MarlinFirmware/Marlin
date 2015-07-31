@@ -42,7 +42,7 @@
 
 #define SDPOWER            -1
 #define SDSS               11
-#define SDCARDDETECT       -1 // 10 optional also used as mode pin
+#define SDCARDDETECT_PIN   -1 // 10 optional also used as mode pin
 #define LED_PIN            13
 #define FAN_PIN            7
 #define PS_ON_PIN          -1

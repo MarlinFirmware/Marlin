@@ -107,6 +107,6 @@
     #define BTN_EN2 11
     #define BTN_ENC 10  //the click switch
     //not connected to a pin
-    #define SDCARDDETECT 49
+    #define SDCARDDETECT_PIN 49
 #endif //Minipanel
 
