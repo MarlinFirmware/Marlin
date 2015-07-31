@@ -526,6 +526,7 @@
     #endif
     #if (X_ENDSTOP_SERVO_NR >= 0) || (Y_ENDSTOP_SERVO_NR >= 0) || (Z_ENDSTOP_SERVO_NR >= 0)
       #define SERVO_ENDSTOPS {X_ENDSTOP_SERVO_NR, Y_ENDSTOP_SERVO_NR, Z_ENDSTOP_SERVO_NR}
+      #define HAS_SERVO_ENDSTOPS true
     #endif
   #endif
 
