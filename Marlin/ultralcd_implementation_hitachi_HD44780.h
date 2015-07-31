@@ -193,6 +193,11 @@
 
 #include "utf_mapper.h"
 
+#if ENABLED(SHOW_BOOTSCREEN)
+  static void bootscreen();
+  static bool show_bootscreen = true;
+#endif
+
 #if ENABLED(LCD_PROGRESS_BAR)
   static millis_t progress_bar_ms = 0;
   #if PROGRESS_MSG_EXPIRE > 0
@@ -377,6 +382,10 @@ static void lcd_implementation_init(
     lcd.begin(LCD_WIDTH, LCD_HEIGHT);
   #endif
 
+  #if ENABLED(SHOW_BOOTSCREEN)
+    if (show_bootscreen) bootscreen();
+  #endif
+
   lcd_set_custom_characters(
     #if ENABLED(LCD_PROGRESS_BAR)
       progress_bar_set
@@ -404,6 +413,82 @@ char lcd_print(char* str) {
 
 unsigned lcd_print(char c) { return charset_mapper(c); }
 
+#if ENABLED(SHOW_BOOTSCREEN)
+  static void bootscreen() {
+    show_bootscreen = false;
+    byte top_left[8] = {
+      B00000,
+      B00000,
+      B00000,
+      B00000,
+      B00001,
+      B00010,
+      B00100,
+      B00100
+    };
+    byte top_right[8] = {
+      B00000,
+      B00000,
+      B00000,
+      B11100,
+      B11100,
+      B01100,
+      B00100,
+      B00100
+    };
+    byte botom_left[8] = {
+      B00100,
+      B00010,
+      B00001,
+      B00000,
+      B00000,
+      B00000,
+      B00000,
+      B00000
+    };
+    byte botom_right[8] = {
+      B00100,
+      B01000,
+      B10000,
+      B00000,
+      B00000,
+      B00000,
+      B00000,
+      B00000
+    };
+    lcd.createChar(0, top_left);
+    lcd.createChar(1, top_right);
+    lcd.createChar(2, botom_left);
+    lcd.createChar(3, botom_right);
+
+    lcd.clear();
+    //                                                         12345678901234567890
+    lcd.setCursor(0, 0); lcd.print('\x00'); lcd_printPGM(PSTR( "------"));  lcd.print('\x01');
+    lcd.setCursor(0, 1);                    lcd_printPGM(PSTR("|Marlin| "));
+    #if (LCD_WIDTH > 16) && defined(STRING_SPLASH_LINE1)
+       lcd_printPGM(PSTR(STRING_SPLASH_LINE1));
+    #endif
+    lcd.setCursor(0, 2); lcd.print('\x02'); lcd_printPGM(PSTR( "------"));  lcd.print('\x03');
+    lcd.setCursor(0, 3);                    lcd_printPGM(PSTR("marlinfirmware.org"));
+    delay(2000);
+
+    #if (LCD_WIDTH <= 16) && defined(STRING_SPLASH_LINE1)
+      lcd.setCursor(0, 3);
+      lcd_printPGM(PSTR("                  "));
+      lcd.setCursor(0, 3);
+      lcd_printPGM(PSTR(STRING_SPLASH_LINE1));
+      delay(1000);
+    #endif
+
+    #ifdef STRING_SPLASH_LINE2
+      lcd.setCursor(0, 3);
+      lcd_printPGM(PSTR("                  "));
+      lcd.setCursor(0, 3);
+      lcd_printPGM(PSTR(STRING_SPLASH_LINE2));
+      delay(1000);
+    #endif
+  }
+#endif // SHOW_BOOTSCREEN
 /*
 Possible status screens:
 16x2   |000/000 B000/000|
