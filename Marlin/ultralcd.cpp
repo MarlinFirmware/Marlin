@@ -221,7 +221,7 @@ static void lcd_status_screen();
   millis_t next_button_update_ms;
   uint8_t lastEncoderBits;
   uint32_t encoderPosition;
-  #if (SDCARDDETECT > 0)
+  #if PIN_EXISTS(SDCARDDETECT)
     bool lcd_oldcardstatus;
   #endif
 
@@ -411,14 +411,14 @@ static void lcd_main_menu() {
       }
       else {
         MENU_ITEM(submenu, MSG_CARD_MENU, lcd_sdcard_menu);
-        #if SDCARDDETECT < 1
+        #if !PIN_EXISTS(SDCARDDETECT)
           MENU_ITEM(gcode, MSG_CNG_SDCARD, PSTR("M21"));  // SD-card changed by user
         #endif
       }
     }
     else {
       MENU_ITEM(submenu, MSG_NO_CARD, lcd_sdcard_menu);
-      #if SDCARDDETECT < 1
+      #if !PIN_EXISTS(SDCARDDETECT)
         MENU_ITEM(gcode, MSG_INIT_SDCARD, PSTR("M21")); // Manually initialize the SD-card via user interface
       #endif
     }
@@ -1156,7 +1156,7 @@ static void lcd_control_volumetric_menu() {
   }
 #endif // FWRETRACT
 
-#if SDCARDDETECT == -1
+#if !PIN_EXISTS(SDCARDDETECT)
   static void lcd_sd_refresh() {
     card.initsd();
     currentMenuViewOffset = 0;
@@ -1180,7 +1180,7 @@ void lcd_sdcard_menu() {
   MENU_ITEM(back, MSG_MAIN, lcd_main_menu);
   card.getWorkDirName();
   if (card.filename[0] == '/') {
-    #if SDCARDDETECT == -1
+    #if !PIN_EXISTS(SDCARDDETECT)
       MENU_ITEM(function, LCD_STR_REFRESH MSG_REFRESH, lcd_sd_refresh);
     #endif
   }
@@ -1407,11 +1407,11 @@ void lcd_init() {
   #endif // SR_LCD_2W_NL
 #endif//!NEWPANEL
 
-  #if ENABLED(SDSUPPORT) && defined(SDCARDDETECT) && (SDCARDDETECT > 0)
-    pinMode(SDCARDDETECT, INPUT);
-    WRITE(SDCARDDETECT, HIGH);
+  #if ENABLED(SDSUPPORT) && PIN_EXISTS(SDCARDDETECT)
+    pinMode(SDCARDDETECT_PIN, INPUT);
+    WRITE(SDCARDDETECT_PIN, HIGH);
     lcd_oldcardstatus = IS_SD_INSERTED;
-  #endif //(SDCARDDETECT > 0)
+  #endif
 
   #if ENABLED(LCD_HAS_SLOW_BUTTONS)
     slow_buttons = 0;
@@ -1466,7 +1466,7 @@ void lcd_update() {
 
   lcd_buttons_update();
 
-  #if (SDCARDDETECT > 0)
+  #if PIN_EXISTS(SDCARDDETECT)
     if (IS_SD_INSERTED != lcd_oldcardstatus && lcd_detected()) {
       lcdDrawUpdate = 2;
       lcd_oldcardstatus = IS_SD_INSERTED;

@@ -76,4 +76,4 @@
 #define BLEN_B 1
 #define BLEN_A 0
 
-#define SDCARDDETECT 39
+#define SDCARDDETECT_PIN 39

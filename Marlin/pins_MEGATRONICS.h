@@ -78,6 +78,6 @@
   #define BLEN_B           1
   #define BLEN_A           0
 
-  #define SDCARDDETECT    -1   // RAMPS doesn't use this
+  #define SDCARDDETECT_PIN -1   // RAMPS doesn't use this
 
 #endif // ULTRA_LCD && NEWPANEL

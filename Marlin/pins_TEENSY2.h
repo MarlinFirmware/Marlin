@@ -86,7 +86,7 @@
 #define TEMP_2_PIN         -1
 
 #define SDPOWER            -1
-#define SDCARDDETECT       -1   
+#define SDCARDDETECT_PIN   -1   
 #define SDSS               20 // 8
 #define LED_PIN             6
 #define PS_ON_PIN          27
