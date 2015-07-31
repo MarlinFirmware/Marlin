@@ -68,7 +68,6 @@
 #endif
 
 #if ENABLED(ULTRA_LCD) && ENABLED(NEWPANEL)
-  //LCD Pins
 
   #define BEEPER_PIN -1
 
@@ -78,7 +77,8 @@
     #define BTN_ENC 43 //A3 - fastio.h pin mapping 43
     #define SDSS   40 //use SD card on Panelolu2 (Teensyduino pin mapping)
   #endif // LCD_I2C_PANELOLU2
-  //not connected to a pin
+
   #define SDCARDDETECT -1    
+
 #endif // ULTRA_LCD && NEWPANEL
 
