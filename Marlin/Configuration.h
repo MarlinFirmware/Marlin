@@ -530,7 +530,7 @@ const bool Z_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the logic
   // If you want to still use the Z min endstop for homing, disable Z_SAFE_HOMING above. Eg; to park the head outside the bed area when homing with G28.
   // WARNING: The Z MIN endstop will need to set properly as it would without a Z PROBE to prevent head crashes and premature stopping during a print.
   // To use a separate Z PROBE endstop, you must have a Z_PROBE_PIN defined in the pins.h file for your control board.
-  // If you are using a servo based Z PROBE, you will need to enable NUM_SERVOS, Z_ENDSTOP_SERVO_NR and SERVO_ENDSTOPS_ANGLES in the R/C Servo below.
+  // If you are using a servo based Z PROBE, you will need to enable NUM_SERVOS, Z_ENDSTOP_SERVO_NR and SERVO_ENDSTOP_ANGLES in the R/C Servo below.
   // RAMPS 1.3/1.4 boards may be able to use the 5V, Ground and the D32 pin in the Aux 4 section of the RAMPS board. Use 5V for powered sensors, otherwise connect to ground and D32
   // for normally closed configuration and 5V and D32 for normally open configurations. Normally closed configuration is advised and assumed.
   // The D32 pin in Aux 4 on RAMPS maps to the Arduino D32 pin. Z_PROBE_PIN is setting the pin to use on the Arduino. Since the D32 pin on the RAMPS maps to D32 on Arduino, this works.
