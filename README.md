@@ -5,9 +5,15 @@
 
 ## Release Branch
 
-The Release branch contains the latest tagged version of Marlin (currently 1.0.2 – January 2015). It also includes a version 1.0.1 (December 2014). Any version of Marlin before 1.0.1 (when we started tagging versions) can be collectively referred to as Marlin 1.0.0.
+The Release branch contains the latest tagged version of Marlin (currently 1.0.2-1 – January 2015). It also includes a version 1.0.1 (December 2014). Any version of Marlin before 1.0.1 (when we started tagging versions) can be collectively referred to as Marlin 1.0.0.
 
-For the most up-to-date Marlin code, please go to the [Development branch](https://github.com/MarlinFirmware/Marlin/tree/Development) – __Not for production use – use with caution!__ When reporting any issues, please check to see if they are resolved in the Development branch first. But let us know if issues exist in tagged releases so we may document and patch them.
+## Patches - 1.0.x Branch
+
+Any patches developed for this family of releases will be found on the [1.0.x] branch](https://github.com/MarlinFirmware/Marlin/tree/1.0.x) of this repository.
+
+## This Repository is Not For Feature Development
+
+Development of future versions of Marlin is ongoing. However, to keep issues separate, that effort takes place in a companion [Development Repository](https://github.com/MarlinFirmware/MarlinDev/). Please make all suggestions for future features in that project. Issues raised here should be restricted to errors in the tagged releases.
 
 ## Current Status: In Development
 
@@ -20,7 +26,7 @@ Marlin development is being accelerated to catch up with a long list of issues. 
 
 ## Contact
 
-__Google Hangout:__ <a href="https://plus.google.com/hangouts/_/gxn3wrea5gdhoo223yimsiforia" target="_blank">. Hangout</a> We have a hangout every 2 weeks. Search the issue list for "Hangout" and you will see what time and date the next event is going on.
+__Google Hangout:__ <a href="https://plus.google.com/hangouts/_/gxn3wrea5gdhoo223yimsiforia" target="_blank">. Hangout</a> We have a hangout every 2 weeks. Search the issue list for "Hangout" to determine the time and date of the next event.
 
 ## Credits
 
@@ -38,8 +44,10 @@ The current Marlin dev team consists of:
  - Erik van der Zalm [@ErikZalm]
  - David Braam [@daid]
  - Bernhard Kubicek [@bkubicek]
+ - Richard Wackerbarth [@Wackerbarth] - English
 
 More features have been added by:
+  - Alberto Cotronei [@MagoKimbra]
   - Lampmaker,
   - Bradley Feldman,
   - and others...
