@@ -734,7 +734,7 @@ const bool Z_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the logic
 // SAV OLEd LCD module support using either SSD1306 or SH1106 based LCD modules
 // ==> REMEMBER TO INSTALL U8glib to your ARDUINO library folder: http://code.google.com/p/u8glib/wiki/u8glib
 //#define SAV_3DGLCD
-#ifdef SAV_3DGLCD
+#if ENABLED(SAV_3DGLCD)
   //#define U8GLIB_SSD1306
   #define U8GLIB_SH1106
 #endif

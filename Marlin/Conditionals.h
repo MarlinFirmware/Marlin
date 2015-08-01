@@ -214,10 +214,7 @@
     #if ENABLED(U8GLIB_ST7920)
       #undef HAS_LCD_CONTRAST
     #endif
-    #if ENABLED(U8GLIB_SSD1306)
-      #undef HAS_LCD_CONTRAST
-    #endif
-    #if defined(U8GLIB_SSD1306) || defined(U8GLIB_SH1106)
+    #if ENABLED(U8GLIB_SSD1306) || ENABLED(U8GLIB_SH1106)
       #undef HAS_LCD_CONTRAST
     #endif
   #endif
