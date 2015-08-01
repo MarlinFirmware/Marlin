@@ -75,7 +75,7 @@
     #define NEWPANEL
   #endif
 
-  #ifdef MINIPANEL
+  #if ENABLED(MINIPANEL)
    #define DOGLCD
    #define SDSUPPORT
    #define ULTIPANEL

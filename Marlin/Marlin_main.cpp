@@ -4901,7 +4901,7 @@ inline void gcode_M503() {
     LCD_ALERTMESSAGEPGM(MSG_FILAMENTCHANGE);
     millis_t next_tick = 0;
     while (!lcd_clicked()) {
-      #ifndef AUTO_FILAMENT_CHANGE
+      #if DISABLED(AUTO_FILAMENT_CHANGE)
         millis_t ms = millis();
         if (ms >= next_tick) {
           lcd_quick_feedback();
@@ -4919,7 +4919,7 @@ inline void gcode_M503() {
     } // while(!lcd_clicked)
     lcd_quick_feedback(); // click sound feedback
 
-    #ifdef AUTO_FILAMENT_CHANGE
+    #if ENABLED(AUTO_FILAMENT_CHANGE)
       current_position[E_AXIS] = 0;
       st_synchronize();
     #endif
@@ -6229,7 +6229,7 @@ void plan_arc(
 
     clamp_to_software_endstops(arc_target);
 
-    #if defined(DELTA) || defined(SCARA)
+    #if ENABLED(DELTA) || ENABLED(SCARA)
       calculate_delta(arc_target);
       #ifdef ENABLE_AUTO_BED_LEVELING
         adjust_delta(arc_target);
@@ -6241,7 +6241,7 @@ void plan_arc(
   }
 
   // Ensure last segment arrives at target location.
-  #if defined(DELTA) || defined(SCARA)
+  #if ENABLED(DELTA) || ENABLED(SCARA)
     calculate_delta(target);
     #ifdef ENABLE_AUTO_BED_LEVELING
       adjust_delta(target);
