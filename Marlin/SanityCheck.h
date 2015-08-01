@@ -378,4 +378,8 @@
     #error BTENABLED has been replaced with BLUETOOTH. Please update your configuration.
   #endif
 
+  #ifdef CUSTOM_MENDEL_NAME
+    #error CUSTOM_MENDEL_NAME deprecated - use CUSTOM_MACHINE_NAME instead
+  #endif
+
 #endif //SANITYCHECK_H
