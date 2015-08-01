@@ -9,7 +9,7 @@ The Release branch contains the latest tagged version of Marlin (currently 1.0.2
 
 ## Patches - 1.0.x Branch
 
-Any patches developed for this family of releases will be found on the [1.0.x] branch](https://github.com/MarlinFirmware/Marlin/tree/1.0.x) of this repository.
+Any patches developed for this family of releases will be found on the [1.0.x branch](https://github.com/MarlinFirmware/Marlin/tree/1.0.x) of this repository.
 
 ## This Repository is Not For Feature Development
 
