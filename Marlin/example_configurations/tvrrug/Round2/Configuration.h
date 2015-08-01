@@ -38,7 +38,7 @@ Here are some standard links for getting your machine calibrated:
 
 // @section info
 
-#if ENABLED(HAS_AUTOMATIC_VERSIONING)
+#if ENABLED(USE_AUTOMATIC_VERSIONING)
   #include "_Version.h"
 #else
   #include "Default_Version.h"
