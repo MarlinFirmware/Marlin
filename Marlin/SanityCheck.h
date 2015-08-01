@@ -366,4 +366,8 @@
     #error BEEPER has been replaced with BEEPER_PIN. Please update your pins definitions.
   #endif
 
+  #ifdef CUSTOM_MENDEL_NAME
+    #error CUSTOM_MENDEL_NAME deprecated - use CUSTOM_MACHINE_NAME instead
+  #endif
+
 #endif //SANITYCHECK_H
