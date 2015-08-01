@@ -52,12 +52,12 @@ typedef unsigned long millis_t;
 
 #ifdef USBCON
   #if ENABLED(BLUETOOTH)
-    #define MYSERIAL bt
+    #define MYSERIAL bluetoothSerial
   #else
     #define MYSERIAL Serial
   #endif // BLUETOOTH
 #else
-  #define MYSERIAL MSerial
+  #define MYSERIAL customizedSerial
 #endif
 
 #define SERIAL_CHAR(x) MYSERIAL.write(x)

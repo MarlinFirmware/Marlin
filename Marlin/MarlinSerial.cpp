@@ -281,12 +281,12 @@ void MarlinSerial::printFloat(double number, uint8_t digits) {
 // Preinstantiate Objects //////////////////////////////////////////////////////
 
 
-MarlinSerial MSerial;
+MarlinSerial customizedSerial;
 
 #endif // whole file
 #endif // !USBCON
 
 // For AT90USB targets use the UART for BT interfacing
 #if defined(USBCON) && ENABLED(BLUETOOTH)
-  HardwareSerial bt;
+  HardwareSerial bluetoothSerial;
 #endif

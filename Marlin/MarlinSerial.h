@@ -149,12 +149,12 @@ class MarlinSerial { //: public Stream
     void println(void);
 };
 
-extern MarlinSerial MSerial;
+extern MarlinSerial customizedSerial;
 #endif // !USBCON
 
-// Use the UART for BT in AT90USB configurations
+// Use the UART for Bluetooth in AT90USB configurations
 #if defined(USBCON) && ENABLED(BLUETOOTH)
-  extern HardwareSerial bt;
+  extern HardwareSerial bluetoothSerial;
 #endif
 
 #endif
