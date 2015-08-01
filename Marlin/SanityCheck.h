@@ -366,4 +366,12 @@
     #error BEEPER has been replaced with BEEPER_PIN. Please update your pins definitions.
   #endif
 
+  #ifdef SDCARDDETECT
+    #error SDCARDDETECT is now SD_DETECT_PIN. Please update your pins definitions.
+  #endif
+
+  #ifdef SDCARDDETECTINVERTED
+    #error SDCARDDETECTINVERTED is now SD_DETECT_INVERTED. Please update your configuration.
+  #endif
+
 #endif //SANITYCHECK_H
