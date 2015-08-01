@@ -382,4 +382,8 @@
     #error CUSTOM_MENDEL_NAME deprecated - use CUSTOM_MACHINE_NAME instead
   #endif
 
+  #ifdef HAS_AUTOMATIC_VERSIONING
+    #error HAS_AUTOMATIC_VERSIONING deprecated - use USE_AUTOMATIC_VERSIONING instead
+  #endif
+
 #endif //SANITYCHECK_H
