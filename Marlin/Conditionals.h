@@ -210,12 +210,10 @@
   #endif
 
   #if ENABLED(DOGLCD)
-    #define HAS_LCD_CONTRAST
-    #if ENABLED(U8GLIB_ST7920)
-      #undef HAS_LCD_CONTRAST
-    #endif
-    #if ENABLED(U8GLIB_SSD1306) || ENABLED(U8GLIB_SH1106)
-      #undef HAS_LCD_CONTRAST
+    #if ENABLED(U8GLIB_ST7920) || ENABLED(U8GLIB_SSD1306) || ENABLED(U8GLIB_SH1106)
+      #define HAS_LCD_CONTRAST false
+    #else
+      #define HAS_LCD_CONTRAST true
     #endif
   #endif
 
