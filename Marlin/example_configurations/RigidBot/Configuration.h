@@ -82,7 +82,7 @@ Here are some standard links for getting your machine calibrated:
 
 // This defines the number of extruders
 // :[1,2,3,4]
-#define EXTRUDERS 2
+#define EXTRUDERS 1  // Single extruder. Set to 2 for dual extruders
 
 // Offset of the extruders (uncomment if using more than one and relying on firmware to position when changing).
 // The offset has to be X=0, Y=0 for the extruder 0 hotend (default extruder).
@@ -144,11 +144,11 @@ Here are some standard links for getting your machine calibrated:
 //     #define DUMMY_THERMISTOR_998_VALUE 25
 //     #define DUMMY_THERMISTOR_999_VALUE 100
 // :{ '0': "Not used", '4': "10k !! do not use for a hotend. Bad resolution at high temp. !!", '1': "100k / 4.7k - EPCOS", '51': "100k / 1k - EPCOS", '6': "100k / 4.7k EPCOS - Not as accurate as Table 1", '5': "100K / 4.7k - ATC Semitec 104GT-2 (Used in ParCan & J-Head)", '7': "100k / 4.7k Honeywell 135-104LAG-J01", '71': "100k / 4.7k Honeywell 135-104LAF-J01", '8': "100k / 4.7k 0603 SMD Vishay NTCS0603E3104FXT", '9': "100k / 4.7k GE Sensing AL03006-58.2K-97-G1", '10': "100k / 4.7k RS 198-961", '11': "100k / 4.7k beta 3950 1%", '12': "100k / 4.7k 0603 SMD Vishay NTCS0603E3104FXT (calibrated for Makibox hot bed)", '13': "100k Hisens 3950  1% up to 300°C for hotend 'Simple ONE ' & hotend 'All In ONE'", '60': "100k Maker's Tool Works Kapton Bed Thermistor beta=3950", '55': "100k / 1k - ATC Semitec 104GT-2 (Used in ParCan & J-Head)", '2': "200k / 4.7k - ATC Semitec 204GT-2", '52': "200k / 1k - ATC Semitec 204GT-2", '-2': "Thermocouple + MAX6675 (only for sensor 0)", '-1': "Thermocouple + AD595", '3': "Mendel-parts / 4.7k", '1047': "Pt1000 / 4.7k", '1010': "Pt1000 / 1k (non standard)", '20': "PT100 (Ultimainboard V2.x)", '147': "Pt100 / 4.7k", '110': "Pt100 / 1k (non-standard)", '998': "Dummy 1", '999': "Dummy 2" }
-#define TEMP_SENSOR_0 5 // DGlass3D = 5; RigidBot = 1; 3DSv6 = 5
-#define TEMP_SENSOR_1 5 // DGlass3D = 5; RigidBot = 1; 3DSv6 = 5
+#define TEMP_SENSOR_0 1 // DGlass3D = 5; RigidBot = 1; 3DSv6 = 5
+#define TEMP_SENSOR_1 0
 #define TEMP_SENSOR_2 0
 #define TEMP_SENSOR_3 0
-#define TEMP_SENSOR_BED 0
+#define TEMP_SENSOR_BED 1
 
 // This makes temp sensor 1 a redundant sensor for sensor 0. If the temperatures difference between these sensors is to high the print will be aborted.
 //#define TEMP_SENSOR_1_AS_REDUNDANT
@@ -207,10 +207,16 @@ Here are some standard links for getting your machine calibrated:
   #define K1 0.95 //smoothing factor within the PID
 
   // If you are using a pre-configured hotend then you can use one of the value sets by uncommenting it
-  // DGlass3D/E3Dv6
-  #define  DEFAULT_Kp 38.59     //Base DGlass3D/E3Dv6 = 10   ; RigidBot redesigned = 16.17
-  #define  DEFAULT_Ki 4.21      //Base DGlass3D/E3Dv6 = 0.85 ; RigidBot redesigned = 0.85
-  #define  DEFAULT_Kd 88.41     //Base DGlass3D/E3Dv6 = 245  ; RigidBot redesigned = 76.55
+
+  // Rigidbot hotend
+  #define  DEFAULT_Kp 16.17
+  #define  DEFAULT_Ki 0.85
+  #define  DEFAULT_Kd 76.55
+
+  // Base DGlass3D/E3Dv6 hotend
+  // #define  DEFAULT_Kp 10
+  // #define  DEFAULT_Ki 0.85
+  // #define  DEFAULT_Kd 245
 
 #endif // PIDTEMP
 
@@ -288,7 +294,7 @@ Here are some standard links for getting your machine calibrated:
 // @section machine
 
 // Uncomment this option to enable CoreXY kinematics
-// #define COREXY
+//#define COREXY
 
 // Enable this option for Toshiba steppers
 //#define CONFIG_STEPPERS_TOSHIBA
@@ -298,7 +304,7 @@ Here are some standard links for getting your machine calibrated:
 // coarse Endstop Settings
 #define ENDSTOPPULLUPS // Comment this out (using // at the start of the line) to disable the endstop pullup resistors
 
-#ifndef ENDSTOPPULLUPS
+#if DISABLED(ENDSTOPPULLUPS)
   // fine endstop settings: Individual pullups. will be ignored if ENDSTOPPULLUPS is defined
   // #define ENDSTOPPULLUP_XMAX
   // #define ENDSTOPPULLUP_YMAX
@@ -377,9 +383,9 @@ const bool Z_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the logic
 #define X_MIN_POS 0
 #define Y_MIN_POS 0
 #define Z_MIN_POS 0
-#define X_MAX_POS 406  // RigidBot Big
-#define Y_MAX_POS 304  // RigidBot Big
-#define Z_MAX_POS 254  // RigidBot Big
+#define X_MAX_POS 254  // Rigidbot regular is 254mm
+#define Y_MAX_POS 248  // Rigidbot regular is 248mm
+#define Z_MAX_POS 254  // Rigidbot is 254mm
 
 //===========================================================================
 //========================= Filament Runout Sensor ==========================
@@ -543,17 +549,18 @@ const bool Z_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the logic
  * MOVEMENT SETTINGS
  */
 
-#define HOMING_FEEDRATE {50*60, 50*60, 4*60, 0}  // set the homing speeds (mm/min)
+#define HOMING_FEEDRATE {50*60, 50*60, 15*60, 0}  // set the homing speeds (mm/min)
 
 // default settings
 
-#define DEFAULT_AXIS_STEPS_PER_UNIT   {100.06,50.06,1600,76}  // default steps per unit for RigidBot with 16-teth pulleys, HPX2-MAX E=504, RigidBot E=53.5, Peter Stoneham's=76
-#define DEFAULT_MAX_FEEDRATE          {500, 500, 5, 25}         // (mm/sec)
-#define DEFAULT_MAX_ACCELERATION      {800,800,100,10000}       // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for Skeinforge 40+, for older versions raise them a lot.
+#define DEFAULT_AXIS_STEPS_PER_UNIT   {44.3090, 22.1545, 1600, 53.5}  // default steps per unit for RigidBot with standard hardware
+                                                                      // default steps for 16-teth polleys {100.06,50.06,1600,76},  HPX2-MAX E=504, RigidBot E=53.5, Peter Stoneham's=76
+#define DEFAULT_MAX_FEEDRATE          {500, 500, 5, 25}    // (mm/sec)
+#define DEFAULT_MAX_ACCELERATION      {800, 800, 100, 10000}    // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for Skeinforge 40+, for older versions raise them a lot.
 
 #define DEFAULT_ACCELERATION          600    // X, Y, Z and E acceleration in mm/s^2 for printing moves
 #define DEFAULT_RETRACT_ACCELERATION  1000   // E acceleration in mm/s^2 for retracts
-#define DEFAULT_TRAVEL_ACCELERATION   3000    // X, Y, Z acceleration in mm/s^2 for travel (non printing) moves
+#define DEFAULT_TRAVEL_ACCELERATION   3000   // X, Y, Z acceleration in mm/s^2 for travel (non printing) moves
 
 // The speed change that does not require acceleration (i.e. the software might assume it can be done instantaneously)
 #define DEFAULT_XYJERK                8.0    // (mm/sec)
@@ -592,6 +599,11 @@ const bool Z_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the logic
   #define EEPROM_CHITCHAT // Please keep turned on if you can.
 #endif
 
+//
+// M100 Free Memory Watcher
+//
+//#define M100_FREE_MEMORY_WATCHER // uncomment to add the M100 Free Memory Watcher for debug purpose
+
 // @section temperature
 
 // Preheat Constants
@@ -614,8 +626,8 @@ const bool Z_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the logic
 // Choose ONE of these 3 charsets. This has to match your hardware. Ignored for full graphic display.
 // To find out what type you have - compile with (test) - upload - click to get the menu. You'll see two typical lines from the upper half of the charset.
 // See also documentation/LCDLanguageFont.md
-  //#define DISPLAY_CHARSET_HD44780_JAPAN        // this is the most common hardware
-  #define DISPLAY_CHARSET_HD44780_WESTERN
+  #define DISPLAY_CHARSET_HD44780_JAPAN        // this is the most common hardware
+  //#define DISPLAY_CHARSET_HD44780_WESTERN
   //#define DISPLAY_CHARSET_HD44780_CYRILLIC
 
 //#define ULTRA_LCD  //general LCD support, also 16x2
