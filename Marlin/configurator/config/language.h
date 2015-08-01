@@ -40,6 +40,8 @@
 
 #if ENABLED(USE_AUTOMATIC_VERSIONING)
   #include "_Version.h"
+#else
+  #include "Default_Version.h"
 #endif
 
 #define PROTOCOL_VERSION "1.0"
