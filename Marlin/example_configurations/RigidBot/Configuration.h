@@ -383,9 +383,9 @@ const bool Z_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the logic
 #define X_MIN_POS 0
 #define Y_MIN_POS 0
 #define Z_MIN_POS 0
-#define X_MAX_POS 254  // Rigidbot regular is 254mm
-#define Y_MAX_POS 248  // Rigidbot regular is 248mm
-#define Z_MAX_POS 254  // Rigidbot is 254mm
+#define X_MAX_POS 254  // RigidBot regular is 254mm, RigitBot Big is 406mm
+#define Y_MAX_POS 248  // RigidBot regular is 248mm, RigitBot Big is 304mm
+#define Z_MAX_POS 254  // RigidBot regular and Big are 254mm
 
 //===========================================================================
 //========================= Filament Runout Sensor ==========================
