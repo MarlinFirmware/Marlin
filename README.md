@@ -3,22 +3,26 @@
 
  Documentation has moved to [marlinfirmware.org](http://www.marlinfirmware.org).
 
-## Development Branch
+## Development Only
 
 __Not for production use – use with caution!__
 
-The Development branch contains the most up-to-date Marlin code. When reporting any issues, please check to see if they are resolved in this branch first. But let us know if issues exist in tagged releases so that we can document and patch them.
+The [dev branch](https://github.com/MarlinFirmware/MarlinDev/tree/dev) contains the most up-to-date Marlin code. When reporting any issues, please check to see if they are resolved in this branch first. But let us know if issues exist in tagged releases so that we can document and patch them.
 
-There is now also an ["Integration" branch](https://github.com/MarlinFirmware/Marlin/tree/Integration) which will be used in development to migrate changes for wider testing from the Development branch on their way to Release. It's a nascent branch, so for now please rely on Development and Release for issues and features under most active discussion.
+## Testing
+The [RC branch](https://github.com/MarlinFirmware/MarlinDev/tree/RC) will contain the latest pre-release candidate.
 
-For the latest tagged version of Marlin (currently 1.0.2 – January 2015) you should switch to the [Release branch](https://github.com/MarlinFirmware/Marlin/tree/Release).
+## Submitting Patches
+Development patches should be submitted as a Pull Request against the [master](https://github.com/MarlinFirmware/MarlinDev/tree/master) branch
+ 
+For the latest tagged version of Marlin (currently 1.0.2 – January 2015) you should switch to the [Release Repository](https://github.com/MarlinFirmware/Marlin).
 
 ## Current Status: Bug Fixing
 
 Marlin development is being accelerated to catch up with a long list of issues. Check the Issues and Pull Requests links on the right to to see what we are currently working on.
 
 [![Coverity Scan Build Status](https://scan.coverity.com/projects/2224/badge.svg)](https://scan.coverity.com/projects/2224)
-[![Travis Build Status](https://travis-ci.org/MarlinFirmware/Marlin.svg)](https://travis-ci.org/MarlinFirmware/Marlin)
+[![Travis Build Status](https://travis-ci.org/MarlinFirmware/MarlinDev.svg)](https://travis-ci.org/MarlinFirmware/MarlinDev)
 
 ##### [RepRap.org Wiki Page](http://reprap.org/wiki/Marlin)
 
