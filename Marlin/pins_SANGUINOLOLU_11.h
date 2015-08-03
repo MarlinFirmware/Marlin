@@ -37,19 +37,6 @@
   #define SLED_PIN         -1
 #endif
 
-#if HAS_SERVOS
-  #define SERVO0_PIN       -1
-  #if NUM_SERVOS > 1
-    #define SERVO1_PIN     -1
-    #if NUM_SERVOS > 2
-      #define SERVO2_PIN   -1
-      #if NUM_SERVOS > 3
-        #define SERVO3_PIN -1
-      #endif
-    #endif
-  #endif
-#endif
-
 #define PS_ON_PIN          -1
 #define KILL_PIN           -1
 

@@ -76,23 +76,7 @@
 //on a Delta with 1 servo. Running through the Z servo endstop in code. 
 //Physical wire attachment was done on EXT1 on the GND, 5V, and D47 pins.
 //
- #undef SERVO0_PIN
- #undef SERVO1_PIN
- #undef SERVO2_PIN
- #undef SERVO3_PIN
-
- #if HAS_SERVOS
-   #define SERVO0_PIN       47
-   #if NUM_SERVOS > 1
-     #define SERVO1_PIN     -1
-     #if NUM_SERVOS > 2
-       #define SERVO2_PIN   -1
-       #if NUM_SERVOS > 3
-         #define SERVO3_PIN -1
-       #endif
-     #endif
-   #endif
- #endif
+#define SERVO0_PIN         47
 
 //LCD Pins//
 
