@@ -2694,7 +2694,7 @@ inline void gcode_G28() {
           SERIAL_PROTOCOLPGM("|...Front...|\n");
           SERIAL_PROTOCOLPGM("+-----------+\n");
           SERIAL_PROTOCOLPGM("Measured ");SERIAL_PROTOCOLPGM("Bed Topography");
-          SERIAL_PROTOCOLNPGM(":");
+          SERIAL_PROTOCOLPGM(":\n");
           for (int yy = auto_bed_leveling_grid_points - 1; yy >= 0; yy--) {
             for (int xx = 0; xx < auto_bed_leveling_grid_points; xx++) {
               int ind = yy * auto_bed_leveling_grid_points + xx;
@@ -2710,7 +2710,7 @@ inline void gcode_G28() {
           SERIAL_EOL;
 
           SERIAL_PROTOCOLPGM("Corrected ");SERIAL_PROTOCOLPGM("Bed Topography");
-          SERIAL_PROTOCOLNPGM(":");
+          SERIAL_PROTOCOLPGM(":\n");
           for (int yy = auto_bed_leveling_grid_points - 1; yy >= 0; yy--) {
             for (int xx = 0; xx < auto_bed_leveling_grid_points; xx++) {
               int ind = yy * auto_bed_leveling_grid_points + xx;
@@ -2727,7 +2727,7 @@ inline void gcode_G28() {
 
           /*
           SERIAL_PROTOCOLPGM("Bed Topography");SERIAL_PROTOCOLPGM(" in new coordinates");
-          SERIAL_PROTOCOLNPGM(":");
+          SERIAL_PROTOCOLPGM(":\n");
                 for (int yy = auto_bed_leveling_grid_points - 1; yy >= 0; yy--) {
                   for (int xx = 0; xx < auto_bed_leveling_grid_points; xx++) {
                     int ind = yy * auto_bed_leveling_grid_points + xx;
@@ -2747,8 +2747,8 @@ inline void gcode_G28() {
                 SERIAL_EOL;
           */
 
-          SERIAL_PROTOCOLPGM("Corrected ");SERIAL_PROTOCOLPGM("Bed Topography";
-          SERIAL_PROTOCOLPGM(" in new coordinates");SERIAL_PROTOCOLNPGM(":");
+          SERIAL_PROTOCOLPGM("Corrected ");SERIAL_PROTOCOLPGM("Bed Topography");
+          SERIAL_PROTOCOLPGM(" in new coordinates");SERIAL_PROTOCOLPGM(":\n");
                 for (int yy = auto_bed_leveling_grid_points - 1; yy >= 0; yy--) {
                   for (int xx = 0; xx < auto_bed_leveling_grid_points; xx++) {
                     int ind = yy * auto_bed_leveling_grid_points + xx;
@@ -2766,8 +2766,8 @@ inline void gcode_G28() {
                 } // yy
                 SERIAL_EOL;
 
-          SERIAL_PROTOCOLNPGM("Height from Bed to Nozzle");
-          SERIAL_PROTOCOLNPGM("(+) above, or (-) below surface :");
+          SERIAL_PROTOCOLPGM("Height from Bed to Nozzle\n");
+          SERIAL_PROTOCOLPGM("(+) above, or (-) below surface :\n");
                 for (int yy = auto_bed_leveling_grid_points - 1; yy >= 0; yy--) {
                   for (int xx = 0; xx < auto_bed_leveling_grid_points; xx++) {
                     int ind = yy * auto_bed_leveling_grid_points + xx;
