@@ -64,7 +64,7 @@
 #if ENABLED(RA_CONTROL_PANEL)
 
   #define SDSS             53
-  #define SDCARDDETECT     28
+  #define SD_DETECT_PIN    28
 
   #define BTN_EN1          14
   #define BTN_EN2          39

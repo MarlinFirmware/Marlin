@@ -70,7 +70,7 @@
 
 #define SDPOWER            -1
 #define SDSS               11
-#define SDCARDDETECT       -1 // 10 optional also used as mode pin
+#define SD_DETECT_PIN      -1 // 10 optional also used as mode pin
 #define LED_PIN            -1
 #define FAN_PIN            14 // PWM on MIDDLE connector
 #define PS_ON_PIN          -1
