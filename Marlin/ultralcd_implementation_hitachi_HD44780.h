@@ -193,6 +193,11 @@
 
 #include "utf_mapper.h"
 
+#if ENABLED(SHOW_BOOTSCREEN)
+  static void bootscreen();
+  static bool show_bootscreen = true;
+#endif
+
 #if ENABLED(LCD_PROGRESS_BAR)
   static millis_t progress_bar_ms = 0;
   #if PROGRESS_MSG_EXPIRE > 0
@@ -377,6 +382,10 @@ static void lcd_implementation_init(
     lcd.begin(LCD_WIDTH, LCD_HEIGHT);
   #endif
 
+  #if ENABLED(SHOW_BOOTSCREEN)
+    if (show_bootscreen) bootscreen();
+  #endif
+
   lcd_set_custom_characters(
     #if ENABLED(LCD_PROGRESS_BAR)
       progress_bar_set
@@ -404,6 +413,91 @@ char lcd_print(char* str) {
 
 unsigned lcd_print(char c) { return charset_mapper(c); }
 
+#if ENABLED(SHOW_BOOTSCREEN)
+  void lcd_erase_line(int line) {
+    lcd.setCursor(0, 3);
+    for (int i=0; i < LCD_WIDTH; i++)
+      lcd_print(' ');
+  }
+
+  // scrol the PSTR'text' in a 'len' wide field for 'time' milliseconds at position col,line
+  void lcd_scroll(int col, int line, const char * text, int len, int time) {
+    char tmp[LCD_WIDTH+1] = {0};
+    int n = max(lcd_strlen_P(text) - len, 0);
+    for (int i = 0; i <= n; i++) {
+      strncpy_P(tmp, text+i, min(len, LCD_WIDTH));
+      lcd.setCursor(col, line);
+      lcd_print(tmp);
+      delay(time / max(n, 1));
+    }
+  }
+
+  static void bootscreen() {
+    show_bootscreen = false;
+    byte top_left[8] = {
+      B00000,
+      B00000,
+      B00000,
+      B00000,
+      B00001,
+      B00010,
+      B00100,
+      B00100
+    };
+    byte top_right[8] = {
+      B00000,
+      B00000,
+      B00000,
+      B11100,
+      B11100,
+      B01100,
+      B00100,
+      B00100
+    };
+    byte botom_left[8] = {
+      B00100,
+      B00010,
+      B00001,
+      B00000,
+      B00000,
+      B00000,
+      B00000,
+      B00000
+    };
+    byte botom_right[8] = {
+      B00100,
+      B01000,
+      B10000,
+      B00000,
+      B00000,
+      B00000,
+      B00000,
+      B00000
+    };
+    lcd.createChar(0, top_left);
+    lcd.createChar(1, top_right);
+    lcd.createChar(2, botom_left);
+    lcd.createChar(3, botom_right);
+
+    lcd.clear();
+
+    #define TEXT_SCREEN_LOGO_SHIFT ((LCD_WIDTH/2) - 4)
+    lcd.setCursor(TEXT_SCREEN_LOGO_SHIFT, 0); lcd.print('\x00'); lcd_printPGM(PSTR( "------" ));  lcd.print('\x01');
+    lcd.setCursor(TEXT_SCREEN_LOGO_SHIFT, 1);                    lcd_printPGM(PSTR("|Marlin|"));
+    lcd.setCursor(TEXT_SCREEN_LOGO_SHIFT, 2); lcd.print('\x02'); lcd_printPGM(PSTR( "------" ));  lcd.print('\x03');
+
+    lcd_scroll(0, 3, PSTR("www.marlinfirmware.org"), LCD_WIDTH, 3000);
+
+    #ifdef STRING_SPLASH_LINE1
+      lcd_erase_line(3);
+      lcd_scroll(0, 3, PSTR(STRING_SPLASH_LINE1), LCD_WIDTH, 1000);
+    #endif
+    #ifdef STRING_SPLASH_LINE2
+      lcd_erase_line(3);
+      lcd_scroll(0, 3, PSTR(STRING_SPLASH_LINE2), LCD_WIDTH, 1000);
+    #endif
+  }
+#endif // SHOW_BOOTSCREEN
 /*
 Possible status screens:
 16x2   |000/000 B000/000|
