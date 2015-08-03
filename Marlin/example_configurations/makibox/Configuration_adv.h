@@ -300,10 +300,10 @@
 #if ENABLED(SDSUPPORT)
 
   // If you are using a RAMPS board or cheap E-bay purchased boards that do not detect when an SD card is inserted
-  // You can get round this by connecting a push button or single throw switch to the pin defined as SDCARDCARDDETECT
+  // You can get round this by connecting a push button or single throw switch to the pin defined as SD_DETECT_PIN
   // in the pins.h file.  When using a push button pulling the pin to ground this will need inverted.  This setting should
   // be commented out otherwise
-  //#define SDCARDDETECTINVERTED
+  //#define SD_DETECT_INVERTED
 
   #define SD_FINISHED_STEPPERRELEASE true  //if sd support and the file is finished: disable steppers?
   #define SD_FINISHED_RELEASECOMMAND "M84 X Y Z E" // You might want to keep the z enabled so your bed stays in place.

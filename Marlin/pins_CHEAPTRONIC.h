@@ -86,4 +86,4 @@
 #define BLEN_A 0
 
 // Cheaptronic v1.0 doesn't use this
-#define SDCARDDETECT_PIN -1
+#define SD_DETECT_PIN -1
