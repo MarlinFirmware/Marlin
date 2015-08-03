@@ -422,15 +422,13 @@ unsigned lcd_print(char c) { return charset_mapper(c); }
 
   // scrol the PSTR'text' in a 'len' wide field for 'time' milliseconds at position col,line
   void lcd_scroll(int col, int line, const char * text, int len, int time) {
-    int l = lcd_strlen_P(text);
     char tmp[LCD_WIDTH+1] = {0};
-    int n = l - len;
-    int t = time / ((n>1) ? n: 1);
-    for (int i = 0; i <= (((n-1)>0) ? n-1 : 0); i++) {
+    int n = max(lcd_strlen_P(text) - len, 0);
+    for (int i = 0; i <= n; i++) {
       strncpy_P(tmp, text+i, min(len, LCD_WIDTH));
       lcd.setCursor(col, line);
       lcd_print(tmp);
-      delay(t);
+      delay(time / max(n, 1));
     }
   }
 
@@ -482,23 +480,21 @@ unsigned lcd_print(char c) { return charset_mapper(c); }
     lcd.createChar(3, botom_right);
 
     lcd.clear();
-    //                                                         12345678901234567890
-    lcd.setCursor(0, 0); lcd.print('\x00'); lcd_printPGM(PSTR( "------"));  lcd.print('\x01');
-    lcd.setCursor(0, 1);                    lcd_printPGM(PSTR("|Marlin| "));
-    #if (LCD_WIDTH > 16) && defined(STRING_SPLASH_LINE1)
-       lcd_printPGM(PSTR(STRING_SPLASH_LINE1));
-    #endif
-    lcd.setCursor(0, 2); lcd.print('\x02'); lcd_printPGM(PSTR( "------"));  lcd.print('\x03');
 
-    lcd_scroll(0, 3, PSTR("www.marlinfirmware.org" " "), LCD_WIDTH, 2000);
+    #define TEXT_SCREEN_LOGO_SHIFT ((LCD_WIDTH/2) - 4)
+    lcd.setCursor(TEXT_SCREEN_LOGO_SHIFT, 0); lcd.print('\x00'); lcd_printPGM(PSTR( "------" ));  lcd.print('\x01');
+    lcd.setCursor(TEXT_SCREEN_LOGO_SHIFT, 1);                    lcd_printPGM(PSTR("|Marlin|"));
+    lcd.setCursor(TEXT_SCREEN_LOGO_SHIFT, 2); lcd.print('\x02'); lcd_printPGM(PSTR( "------" ));  lcd.print('\x03');
 
-    #if (LCD_WIDTH <= 16) && defined(STRING_SPLASH_LINE1)
+    lcd_scroll(0, 3, PSTR("www.marlinfirmware.org"), LCD_WIDTH, 3000);
+
+    #ifdef STRING_SPLASH_LINE1
       lcd_erase_line(3);
-      lcd_scroll(0, 3, PSTR(STRING_SPLASH_LINE1 " "), LCD_WIDTH, 1000);
+      lcd_scroll(0, 3, PSTR(STRING_SPLASH_LINE1), LCD_WIDTH, 1000);
     #endif
     #ifdef STRING_SPLASH_LINE2
       lcd_erase_line(3);
-      lcd_scroll(0, 3, PSTR(STRING_SPLASH_LINE2 " "), LCD_WIDTH, 1000);
+      lcd_scroll(0, 3, PSTR(STRING_SPLASH_LINE2), LCD_WIDTH, 1000);
     #endif
   }
 #endif // SHOW_BOOTSCREEN
