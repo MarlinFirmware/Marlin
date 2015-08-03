@@ -307,7 +307,7 @@ bool Servo::attached() { return servo_info[this->servoIndex].Pin.isActive; }
 void Servo::move(int value) {
   if (this->attach(0) >= 0) {
     this->write(value);
-    #ifdef DEACTIVATE_SERVOS_AFTER_MOVE
+    #if ENABLED(DEACTIVATE_SERVOS_AFTER_MOVE)
       delay(SERVO_DEACTIVATION_DELAY);
       this->detach();
     #endif

@@ -275,7 +275,7 @@ static void lcd_status_screen() {
 
   #if ENABLED(LCD_PROGRESS_BAR)
     millis_t ms = millis();
-    #ifndef PROGRESS_MSG_ONCE
+    #if DISABLED(PROGRESS_MSG_ONCE)
       if (ms > progress_bar_ms + PROGRESS_BAR_MSG_TIME + PROGRESS_BAR_BAR_TIME) {
         progress_bar_ms = ms;
       }

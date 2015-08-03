@@ -45,7 +45,7 @@
 #endif
 
 #define X_STOP_PIN         35
-#ifdef SDSUPPORT
+#if ENABLED(SDSUPPORT)
   #define Y_STOP_PIN       37 // Move Ystop to Estop socket
 #else
   #define Y_STOP_PIN        8 // Ystop in Ystop socket
