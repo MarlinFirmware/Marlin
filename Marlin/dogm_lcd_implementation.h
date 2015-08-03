@@ -125,10 +125,10 @@
 #elif ENABLED(U8GLIB_LM6059_AF)
   // Based on the Adafruit ST7565 (http://www.adafruit.com/products/250)
   U8GLIB_LM6059 u8g(DOGLCD_CS, DOGLCD_A0);
-#elif defined U8GLIB_SSD1306
+#elif ENABLED(U8GLIB_SSD1306)
   // Generic support for SSD1306 OLED I2C LCDs
   U8GLIB_SSD1306_128X64 u8g(U8G_I2C_OPT_NONE);
-#elif defined(MINIPANEL)
+#elif ENABLED(MINIPANEL)
   // The MINIPanel display
   U8GLIB_MINI12864 u8g(DOGLCD_CS, DOGLCD_A0);
 #else
@@ -206,7 +206,7 @@ static void lcd_implementation_init() {
     pinMode(LCD_PIN_RESET, OUTPUT);           
     digitalWrite(LCD_PIN_RESET, HIGH);
   #endif
-  #ifndef MINIPANEL//setContrast not working for Mini Panel
+  #if DISABLED(MINIPANEL) // setContrast not working for Mini Panel
     u8g.setContrast(lcd_contrast);	
   #endif
   // FIXME: remove this workaround

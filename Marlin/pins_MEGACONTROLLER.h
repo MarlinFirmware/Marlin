@@ -80,7 +80,7 @@
   #define TEMP_BED_PIN 1 // ANALOG NUMBERING
 #endif
 
-#ifdef MINIPANEL
+#if ENABLED(MINIPANEL)
     #define BEEPER_PIN 46
     // Pins for DOGM SPI LCD Support
     #define DOGLCD_A0  47
