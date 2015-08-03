@@ -146,7 +146,7 @@
      * Require a Z Probe Pin if Z_PROBE_ENDSTOP is enabled.
      */
     #if ENABLED(Z_PROBE_ENDSTOP)
-      #ifndef Z_PROBE_PIN
+      #if !PIN_EXISTS(Z_PROBE)
         #error You must have a Z_PROBE_PIN defined in your pins_XXXX.h file if you enable Z_PROBE_ENDSTOP.
       #endif
       #if Z_PROBE_PIN == -1
