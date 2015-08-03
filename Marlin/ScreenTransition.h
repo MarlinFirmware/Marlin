@@ -45,7 +45,7 @@ namespace screen
 			void update(PrinterState_t value);
 
 		private:
-			const char * m_message;
+			char m_message[64];
 			const char * m_box;
 			PrinterState_t m_printing_status;
 	};

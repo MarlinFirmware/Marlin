@@ -43,7 +43,9 @@ const char PT_SCREEN_LOGO_BOX[] PROGMEM             = "Test";
 
 const char PT_SCREEN_SD_LIST[] PROGMEM              = "SD Card";
 const char PT_SCREEN_SD_CONFIRM[] PROGMEM           = "Confirm Print";
-const char PT_SCREEN_SD_BACK[] PROGMEM              = "Back";
+const char PT_SCREEN_SD_TITLE[] PROGMEM             = "Printing";
+const char PT_SCREEN_SD_TEXT[] PROGMEM              = "Starting print";
+const char PT_SCREEN_SD_WAIT[] PROGMEM              = "Please wait";
 const char PT_SCREEN_SD_LIST_BACK[] PROGMEM         = "Back to main menu";
 const char PT_SCREEN_SD_LIST_PREV[] PROGMEM         = "Previous folder";
 

@@ -12,6 +12,7 @@
 #include "TemperatureManager.h"
 #include "OffsetManager.h"
 #include "AutoLevelManager.h"
+#include "PrintManager.h"
 
 bool raised = false;
 extern bool home_all_axis;
@@ -670,15 +671,29 @@ void action_start_print()
 	TemperatureManager::single::instance().setTargetTemperature(200);
 	fanSpeed = PREHEAT_FAN_SPEED;
 	sprintf_P(cmd, PSTR("M23 %s"), card.filename);
-	enquecommand_P(PSTR("G28"));
+
+#ifdef DOGLCD
+	PrintManager::single::instance().state(HOMING);
+#endif // DOGLCD
+	action_homing();
+
 	if (bed_leveling == true || (bed_leveling == false && AutoLevelManager::single::instance().state() == true))
 	{
-		enquecommand_P(PSTR("G29"));
+#ifdef DOGLCD
+		PrintManager::single::instance().state(LEVELING);
+#endif //DOGLCD
+		action_get_plane();
 	}
 	enquecommand_P(PSTR("G1 Z10"));
+
 	for(c = &cmd[4]; *c; c++)
 	*c = tolower(*c);
 	enquecommand(cmd);
+
+#ifdef DOGLCD
+	PrintManager::single::instance().state(HEATING);
+#endif //DOGLCD
+
 	enquecommand_P(PSTR("M24"));
 }
 
