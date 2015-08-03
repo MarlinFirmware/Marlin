@@ -182,7 +182,7 @@
       #define DOGLCD_CS 29
       #define DOGLCD_A0 27
       #define LCD_PIN_BL 33
-    #elif defined(MINIPANEL)
+    #elif ENABLED(MINIPANEL)
        #define BEEPER_PIN 42
        // Pins for DOGM SPI LCD Support
        #define DOGLCD_A0  44
