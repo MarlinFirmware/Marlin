@@ -4900,7 +4900,7 @@ inline void gcode_M503() {
     LCD_ALERTMESSAGEPGM(MSG_FILAMENTCHANGE);
     millis_t next_tick = 0;
     while (!lcd_clicked()) {
-      #ifndef AUTO_FILAMENT_CHANGE
+      #if DISABLED(AUTO_FILAMENT_CHANGE)
         millis_t ms = millis();
         if (ms >= next_tick) {
           lcd_quick_feedback();
@@ -4918,7 +4918,7 @@ inline void gcode_M503() {
     } // while(!lcd_clicked)
     lcd_quick_feedback(); // click sound feedback
 
-    #ifdef AUTO_FILAMENT_CHANGE
+    #if ENABLED(AUTO_FILAMENT_CHANGE)
       current_position[E_AXIS] = 0;
       st_synchronize();
     #endif
@@ -5377,7 +5377,7 @@ void process_next_command() {
           break;
       #endif // ENABLE_AUTO_BED_LEVELING && Z_PROBE_REPEATABILITY_TEST
 
-      #ifdef M100_FREE_MEMORY_WATCHER
+      #if ENABLED(M100_FREE_MEMORY_WATCHER)
         case 100:
           gcode_M100();
           break;
@@ -6228,9 +6228,9 @@ void plan_arc(
 
     clamp_to_software_endstops(arc_target);
 
-    #if defined(DELTA) || defined(SCARA)
+    #if ENABLED(DELTA) || ENABLED(SCARA)
       calculate_delta(arc_target);
-      #ifdef ENABLE_AUTO_BED_LEVELING
+      #if ENABLED(ENABLE_AUTO_BED_LEVELING)
         adjust_delta(arc_target);
       #endif
       plan_buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], arc_target[E_AXIS], feed_rate, active_extruder);
@@ -6240,9 +6240,9 @@ void plan_arc(
   }
 
   // Ensure last segment arrives at target location.
-  #if defined(DELTA) || defined(SCARA)
+  #if ENABLED(DELTA) || ENABLED(SCARA)
     calculate_delta(target);
-    #ifdef ENABLE_AUTO_BED_LEVELING
+    #if ENABLED(ENABLE_AUTO_BED_LEVELING)
       adjust_delta(target);
     #endif
     plan_buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], target[E_AXIS], feed_rate, active_extruder);
