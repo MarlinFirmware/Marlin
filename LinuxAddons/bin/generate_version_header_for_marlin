@@ -21,11 +21,16 @@ echo "#define STRING_DISTRIBUTION_DATE" `date '+"%Y-%m-%d %H:%M"'` >>"$OUTFILE"
   else
     BRANCH=" $BRANCH"
   fi
-  VERSION=`git describe --tags --first-parent 2>/dev/null` 
+  VERSION=`git describe --tags --first-parent 2>/dev/null`
   if [ "x$VERSION" != "x" ] ; then
-    echo "#define BUILD_VERSION \"$VERSION\"" | sed "s/-/$BRANCH-/" >>"$OUTFILE"
+    echo "#define SHORT_BUILD_VERSION \"$VERSION\"" | sed "s/-.*/$BRANCH\"/" >>"$OUTFILE"
+    echo "#define DETAILED_BUILD_VERSION \"$VERSION\"" | sed "s/-/$BRANCH-/" >>"$OUTFILE"
+  else
+    VERSION=`git describe --tags --first-parent --always 2>/dev/null`
+    echo "#define SHORT_BUILD_VERSION \"$BRANCH\"" >>"$OUTFILE"
+    echo "#define DETAILED_BUILD_VERSION \"${BRANCH}-$VERSION\"" >>"$OUTFILE"
   fi
-  URL=`git config --local --get remote.origin.url | sed "sx.*github.com:xhttps://github.com/x" | sed "sx\.gitx/x"`
+  URL=`git config --local --get remote.origin.url | sed "sx.*github.com.xhttps://github.com/x" | sed "sx\.gitx/x"`
   if [ "x$URL" != "x" ] ; then
     echo "#define SOURCE_CODE_URL  \""$URL"\"" >>"$OUTFILE"
     echo "// Deprecated URL definition" >>"$OUTFILE"
