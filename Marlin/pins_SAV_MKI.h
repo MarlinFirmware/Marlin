@@ -108,6 +108,4 @@
   #define HOME_PIN           EXT_AUX_A4_IO
 #endif // SAV_3DLCD || SAV_3DGLCD
 
-#if HAS_SERVOS
-  #define SERVO0_PIN       41 // In teensy's pin definition for pinMode (in servo.cpp)
-#endif
+#define SERVO0_PIN         41 // In teensy's pin definition for pinMode (in servo.cpp)

@@ -10,18 +10,10 @@
   #error Mega Controller supports up to 2 extruders. Comment this line to keep going.
 #endif
 
-#ifdef NUM_SERVOS
-   #define SERVO0_PIN         30
-   #if NUM_SERVOS > 1
-     #define SERVO1_PIN       31
-     #if NUM_SERVOS > 2
-       #define SERVO2_PIN     32
-       #if NUM_SERVOS > 3
-         #define SERVO3_PIN   33
-       #endif
-     #endif
-   #endif
-#endif // NUM_SERVOS
+#define SERVO0_PIN 30
+#define SERVO1_PIN 31
+#define SERVO2_PIN 32
+#define SERVO3_PIN 33
 
 #define X_STEP_PIN 62//A8
 #define X_DIR_PIN 63//A9

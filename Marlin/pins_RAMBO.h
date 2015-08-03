@@ -9,18 +9,10 @@
 #define LARGE_FLASH true
 
 // Servo support
-#if HAS_SERVOS
-  #define SERVO0_PIN       22 //motor header MX1
-  #if NUM_SERVOS > 1
-    #define SERVO1_PIN     23 //Motor header MX2
-    #if NUM_SERVOS > 2
-      #define SERVO2_PIN   24 //Motor header MX3
-      #if NUM_SERVOS > 3
-        #define SERVO2_PIN  5 //pwm header pin 5
-      #endif
-    #endif
-  #endif
-#endif
+#define SERVO0_PIN 22 // Motor header MX1
+#define SERVO1_PIN 23 // Motor header MX2
+#define SERVO2_PIN 24 // Motor header MX3
+#define SERVO2_PIN  5 // PWM header pin 5
 
 #if ENABLED(Z_PROBE_SLED)
   #define SLED_PIN         -1
