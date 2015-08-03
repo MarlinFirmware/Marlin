@@ -2661,7 +2661,7 @@ inline void gcode_G28() {
         free(plane_equation_coefficients);
         matrix_3x3 inverse_bed_level_matrix = matrix_3x3::transpose(plan_bed_level_matrix); // inverse bed level matrix
 
-        // search minimum and maximum point on bed in rotated coordinats
+        // search minimum and maximum point on bed in rotated coordinates
         float rot_diff = 0,
               rot_min_diff = Z_MAX_POS,
               rot_max_diff = -Z_MAX_POS;
@@ -2682,11 +2682,10 @@ inline void gcode_G28() {
           // search minimum measured Z
           float diff = 0,
                 min_diff = Z_MAX_POS;
-          for (int ProbeCount = 0; ProbeCount < abl2; ProbeCount++)
-            {
-              diff = eqnBVector[ProbeCount];
-              if (diff < min_diff ) min_diff = diff;
-            }
+          for (uint8_t i = 0; i < abl2; i++) {
+            diff = eqnBVector[i];
+            if (diff < min_diff ) min_diff = diff;
+          }
           //SERIAL_PROTOCOLPGM("min_diff=");SERIAL_PROTOCOL_F(min_diff, 5);SERIAL_EOL;
 
           SERIAL_PROTOCOLPGM("\n+-----------+\n");
@@ -2694,7 +2693,8 @@ inline void gcode_G28() {
           SERIAL_PROTOCOLPGM("|Left..Right|\n");
           SERIAL_PROTOCOLPGM("|...Front...|\n");
           SERIAL_PROTOCOLPGM("+-----------+\n");
-          SERIAL_PROTOCOLPGM("Measured Bed Topography: \n");
+          SERIAL_PROTOCOLPGM("Measured ");SERIAL_PROTOCOLPGM("Bed Topography");
+          SERIAL_PROTOCOLNPGM(":");
           for (int yy = auto_bed_leveling_grid_points - 1; yy >= 0; yy--) {
             for (int xx = 0; xx < auto_bed_leveling_grid_points; xx++) {
               int ind = yy * auto_bed_leveling_grid_points + xx;
@@ -2709,7 +2709,8 @@ inline void gcode_G28() {
           } // yy
           SERIAL_EOL;
 
-          SERIAL_PROTOCOLPGM(" \nCorrected Bed Topography: \n");
+          SERIAL_PROTOCOLPGM("Corrected ");SERIAL_PROTOCOLPGM("Bed Topography");
+          SERIAL_PROTOCOLNPGM(":");
           for (int yy = auto_bed_leveling_grid_points - 1; yy >= 0; yy--) {
             for (int xx = 0; xx < auto_bed_leveling_grid_points; xx++) {
               int ind = yy * auto_bed_leveling_grid_points + xx;
@@ -2725,7 +2726,8 @@ inline void gcode_G28() {
           SERIAL_EOL;
 
           /*
-          SERIAL_PROTOCOLPGM(" \nBed Topography in new coordinats:\n");
+          SERIAL_PROTOCOLPGM("Bed Topography");SERIAL_PROTOCOLPGM(" in new coordinates");
+          SERIAL_PROTOCOLNPGM(":");
                 for (int yy = auto_bed_leveling_grid_points - 1; yy >= 0; yy--) {
                   for (int xx = 0; xx < auto_bed_leveling_grid_points; xx++) {
                     int ind = yy * auto_bed_leveling_grid_points + xx;
@@ -2744,7 +2746,9 @@ inline void gcode_G28() {
                 } // yy
                 SERIAL_EOL;
           */
-          SERIAL_PROTOCOLPGM(" \nCorrected Bed Topography in new coordinats:\n");
+
+          SERIAL_PROTOCOLPGM("Corrected ");SERIAL_PROTOCOLPGM("Bed Topography";
+          SERIAL_PROTOCOLPGM(" in new coordinates");SERIAL_PROTOCOLNPGM(":");
                 for (int yy = auto_bed_leveling_grid_points - 1; yy >= 0; yy--) {
                   for (int xx = 0; xx < auto_bed_leveling_grid_points; xx++) {
                     int ind = yy * auto_bed_leveling_grid_points + xx;
@@ -2762,8 +2766,8 @@ inline void gcode_G28() {
                 } // yy
                 SERIAL_EOL;
 
-          SERIAL_PROTOCOLPGM(" \nHeight from Bed to Nozzle : \n");
-          SERIAL_PROTOCOLPGM(" (+) is airprinting, (-) is touch under bed surface \n");
+          SERIAL_PROTOCOLNPGM("Height from Bed to Nozzle");
+          SERIAL_PROTOCOLNPGM("(+) above, or (-) below surface :");
                 for (int yy = auto_bed_leveling_grid_points - 1; yy >= 0; yy--) {
                   for (int xx = 0; xx < auto_bed_leveling_grid_points; xx++) {
                     int ind = yy * auto_bed_leveling_grid_points + xx;
@@ -2811,7 +2815,7 @@ inline void gcode_G28() {
         int ind = abl2-1; // last point probe = current point
         vector_3 probe_point = vector_3(eqnAMatrix[ind + 0 * abl2], eqnAMatrix[ind + 1 * abl2], eqnBVector[ind]);
         probe_point.apply_rotation(inverse_bed_level_matrix);
-        current_position[Z_AXIS] = probe_point.z - rot_max_diff - zprobe_zoffset
+        current_position[Z_AXIS] = -zprobe_zoffset + (probe_point.z - rot_max_diff)
         #if defined(SERVO_ENDSTOPS) || ENABLED(Z_PROBE_ALLEN_KEY) || ENABLED(Z_PROBE_SLED)
         + Z_RAISE_AFTER_PROBING
         #endif
