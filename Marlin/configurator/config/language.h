@@ -20,6 +20,7 @@
 // de       German
 // es       Spanish
 // ru       Russian
+// bg       Bulgarian
 // it       Italian
 // pt       Portuguese
 // pt-br    Portuguese (Brazil)
@@ -45,7 +46,7 @@
 
 #if MB(ULTIMAKER)|| MB(ULTIMAKER_OLD)|| MB(ULTIMAIN_2)
   #define MACHINE_NAME "Ultimaker"
-  #define SOURCE_CODE_URL "http://firmware.ultimaker.com"
+  #define SOURCE_CODE_URL "https://github.com/Ultimaker/Marlin"
 #elif MB(RUMBA)
   #define MACHINE_NAME "Rumba"
 #elif MB(3DRAG)
@@ -122,10 +123,6 @@
 #define MSG_INVALID_EXTRUDER                "Invalid extruder"
 #define MSG_INVALID_SOLENOID                "Invalid solenoid"
 #define MSG_ERR_NO_THERMISTORS              "No thermistors - no temperature"
-#define MSG_HEATING                         "Heating..."
-#define MSG_HEATING_COMPLETE                "Heating done."
-#define MSG_BED_HEATING                     "Bed Heating."
-#define MSG_BED_DONE                        "Bed done."
 #define MSG_M115_REPORT                     "FIRMWARE_NAME:Marlin " BUILD_VERSION " SOURCE_CODE_URL:" SOURCE_CODE_URL " PROTOCOL_VERSION:" PROTOCOL_VERSION " MACHINE_TYPE:" MACHINE_NAME " EXTRUDER_COUNT:" STRINGIFY(EXTRUDERS) " UUID:" MACHINE_UUID "\n"
 #define MSG_COUNT_X                         " Count X: "
 #define MSG_ERR_KILLED                      "Printer halted. kill() called!"
@@ -195,6 +192,8 @@
 #define MSG_KP                              " Kp: "
 #define MSG_KI                              " Ki: "
 #define MSG_KD                              " Kd: "
+#define MSG_B                               "B:"
+#define MSG_T                               "T:"
 #define MSG_AT                              " @:"
 #define MSG_PID_AUTOTUNE_FINISHED           MSG_PID_AUTOTUNE " finished! Put the last Kp, Ki and Kd constants from below into Configuration.h"
 #define MSG_PID_DEBUG                       " PID_DEBUG "
@@ -213,6 +212,11 @@
 #define MSG_T_MAXTEMP                       "MAXTEMP triggered"
 #define MSG_T_MINTEMP                       "MINTEMP triggered"
 
+// Debug
+#define MSG_DEBUG_ECHO                      "DEBUG ECHO ENABLED"
+#define MSG_DEBUG_INFO                      "DEBUG INFO ENABLED"
+#define MSG_DEBUG_ERRORS                    "DEBUG ERRORS ENABLED"
+#define MSG_DEBUG_DRYRUN                    "DEBUG DRYRUN ENABLED"
 
 // LCD Menu Messages
 
