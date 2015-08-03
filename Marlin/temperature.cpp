@@ -1052,8 +1052,11 @@ void thermal_runaway_protection(int *state, unsigned long *timer, float temperat
       else if ( (millis() - *timer) > ((unsigned long) period_seconds) * 1000)
       {
         SERIAL_ERROR_START;
-        SERIAL_ERRORLNPGM("Thermal Runaway, system stopped! Heater_ID: ");
-        SERIAL_ERRORLN((int)heater_id);
+        SERIAL_ERRORPGM("Thermal Runaway, system stopped! Heater_ID: ");
+        if (heater_id == 9)
+          SERIAL_ERRORLNPGM("bed");
+        else
+          SERIAL_ERRORLN((int)heater_id);
         LCD_ALERTMESSAGEPGM("THERMAL RUNAWAY");
         thermal_runaway = true;
         while(1)
