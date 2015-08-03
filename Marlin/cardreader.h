@@ -81,11 +81,11 @@ extern CardReader card;
 
 #define IS_SD_PRINTING (card.sdprinting)
 
-#if PIN_EXISTS(SDCARDDETECT)
-  #if ENABLED(SDCARDDETECTINVERTED)
-    #define IS_SD_INSERTED (READ(SDCARDDETECT_PIN) != 0)
+#if PIN_EXISTS(SD_DETECT)
+  #if ENABLED(SD_DETECT_INVERTED)
+    #define IS_SD_INSERTED (READ(SD_DETECT_PIN) != 0)
   #else
-    #define IS_SD_INSERTED (READ(SDCARDDETECT_PIN) == 0)
+    #define IS_SD_INSERTED (READ(SD_DETECT_PIN) == 0)
   #endif
 #else
   //No card detect line? Assume the card is inserted.

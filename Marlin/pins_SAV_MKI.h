@@ -83,7 +83,7 @@
 #define LED_PIN            -1
 #define PS_ON_PIN          -1
 #define ALARM_PIN          -1
-#define SDCARDDETECT_PIN   -1
+#define SD_DETECT_PIN      -1
 
 #define BEEPER_PIN         -1
 #define LCD_PINS_RS        -1

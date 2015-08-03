@@ -109,7 +109,7 @@
   #define BTN_ENC          39  //the click switch
  
   #define SDSS             53
-  #define SDCARDDETECT_PIN 49
+  #define SD_DETECT_PIN 49
   
   #define KILL_PIN         31
  #endif

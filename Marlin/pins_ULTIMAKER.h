@@ -73,7 +73,7 @@
     #define BTN_EN2 42
     #define BTN_ENC 19
 
-    #define SDCARDDETECT_PIN 38
+    #define SD_DETECT_PIN 38
 
   #else //!NEWPANEL - Old style panel with shift register
 
@@ -90,7 +90,7 @@
     #define LCD_PINS_D6 20
     #define LCD_PINS_D7 19
 
-    #define SDCARDDETECT_PIN -1
+    #define SD_DETECT_PIN -1
 
   #endif // !NEWPANEL
 
