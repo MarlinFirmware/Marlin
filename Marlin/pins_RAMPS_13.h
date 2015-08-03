@@ -69,48 +69,48 @@
 #if MB(RAMPS_13_EEB) && ENABLED(FILAMENT_SENSOR)  // FMM added for Filament Extruder
   // define analog pin for the filament width sensor input
   // Use the RAMPS 1.4 Analog input 5 on the AUX2 connector
-  #define FILWIDTH_PIN        5
+  #define FILWIDTH_PIN      5
 #endif
 
 #if ENABLED(Z_PROBE_ENDSTOP)
   // Define a pin to use as the signal pin on Arduino for the Z_PROBE endstop.
-  #define Z_PROBE_PIN 32
+  #define Z_PROBE_PIN      32
 #endif
 
 #if ENABLED(FILAMENT_RUNOUT_SENSOR)
   // define digital pin 4 for the filament runout sensor. Use the RAMPS 1.4 digital input 4 on the servos connector
-  #define FILRUNOUT_PIN        4
+  #define FILRUNOUT_PIN     4
 #endif
 
 #if MB(RAMPS_13_EFF) || ENABLED(IS_RAMPS_EFB)
-  #define FAN_PIN            9 // (Sprinter config)
+  #define FAN_PIN           9 // (Sprinter config)
   #if MB(RAMPS_13_EFF)
     #define CONTROLLERFAN_PIN  -1 // Pin used for the fan to cool controller
   #endif
 #elif MB(RAMPS_13_EEF) || MB(RAMPS_13_SF)
-  #define FAN_PIN            8
+  #define FAN_PIN           8
 #else
-  #define FAN_PIN            4 // IO pin. Buffer needed
+  #define FAN_PIN           4 // IO pin. Buffer needed
 #endif
 
 #define PS_ON_PIN          12
 
 #if ENABLED(REPRAP_DISCOUNT_SMART_CONTROLLER) || ENABLED(G3D_PANEL)
-  #define KILL_PIN           41
+  #define KILL_PIN         41
 #else
-  #define KILL_PIN           -1
+  #define KILL_PIN         -1
 #endif
 
 #if MB(RAMPS_13_EFF)
-  #define HEATER_0_PIN       8
+  #define HEATER_0_PIN      8
 #else
-  #define HEATER_0_PIN       10   // EXTRUDER 1
+  #define HEATER_0_PIN     10   // EXTRUDER 1
 #endif
 
 #if MB(RAMPS_13_SF) || ENABLED(IS_RAMPS_EFB)
-  #define HEATER_1_PIN       -1
+  #define HEATER_1_PIN     -1
 #else
-  #define HEATER_1_PIN       9    // EXTRUDER 2 (FAN On Sprinter)
+  #define HEATER_1_PIN      9   // EXTRUDER 2 (FAN On Sprinter)
 #endif
 
 #define HEATER_2_PIN       -1
@@ -120,9 +120,9 @@
 #define TEMP_2_PIN         -1   // ANALOG NUMBERING
 
 #if MB(RAMPS_13_EFF) || MB(RAMPS_13_EEF) || MB(RAMPS_13_SF)
-  #define HEATER_BED_PIN     -1    // NO BED
+  #define HEATER_BED_PIN   -1    // NO BED
 #else
-  #define HEATER_BED_PIN      8    // BED
+  #define HEATER_BED_PIN    8    // BED
 #endif
 
 #define TEMP_BED_PIN         14   // ANALOG NUMBERING
