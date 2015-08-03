@@ -9,7 +9,7 @@
         lcd_buzz(duration, freq);
       #elif PIN_EXISTS(BEEPER) // on-board buzzers have no further condition
         SET_OUTPUT(BEEPER_PIN);
-        #ifdef SPEAKER // a speaker needs a AC ore a pulsed DC
+        #if ENABLED(SPEAKER) // a speaker needs a AC ore a pulsed DC
           //tone(BEEPER_PIN, freq, duration); // needs a PWMable pin
           unsigned int delay = 1000000 / freq / 2;
           int i = duration * freq / 1000;

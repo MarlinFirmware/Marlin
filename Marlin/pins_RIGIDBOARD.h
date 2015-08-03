@@ -46,7 +46,7 @@
   #undef  SD_DETECT_PIN
   #define SD_DETECT_PIN 22
 
-#elif defined(REPRAP_DISCOUNT_SMART_CONTROLLER)
+#elif ENABLED(REPRAP_DISCOUNT_SMART_CONTROLLER)
 
   #undef BEEPER_PIN
   #define BEEPER_PIN -1
@@ -61,10 +61,10 @@
 
 // SPI for Max6675 Thermocouple
 #undef MAX6675_SS
-#ifndef SDSUPPORT
-  #define MAX6675_SS       53 // Don't use pin 53 if there is even the remote possibility of using Display/SD card
-#else
+#if ENABLED(SDSUPPORT)
   #define MAX6675_SS       49 // Don't use pin 49 as this is tied to the switch inside the SD card socket to detect if there is an SD card present
+#else
+  #define MAX6675_SS       53 // Don't use pin 53 if there is even the remote possibility of using Display/SD card
 #endif
 
 // RigidBot swaps E0 / E1 plugs vs RAMPS 1.3
