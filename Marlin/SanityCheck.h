@@ -338,51 +338,29 @@
   /**
    * Warnings for old configurations
    */
-  #ifdef X_HOME_RETRACT_MM
-    #error [XYZ]_HOME_RETRACT_MM settings have been renamed [XYZ]_HOME_BUMP_MM.
-  #endif
-
   #if WATCH_TEMP_PERIOD > 500
     #error WATCH_TEMP_PERIOD now uses seconds instead of milliseconds.
-  #endif
-
-  #if DISABLED(THERMAL_PROTECTION_HOTENDS) && (defined(WATCH_TEMP_PERIOD) || defined(THERMAL_PROTECTION_PERIOD))
-    #error Thermal Runaway Protection for hotends must now be enabled with THERMAL_PROTECTION_HOTENDS.
-  #endif
-
-  #if DISABLED(THERMAL_PROTECTION_BED) && defined(THERMAL_PROTECTION_BED_PERIOD)
-    #error Thermal Runaway Protection for the bed must now be enabled with THERMAL_PROTECTION_BED.
-  #endif
-
-  #ifdef PROBE_SERVO_DEACTIVATION_DELAY
-    #error PROBE_SERVO_DEACTIVATION_DELAY has been replaced with DEACTIVATE_SERVOS_AFTER_MOVE and SERVO_DEACTIVATION_DELAY.
-  #endif
-
-  #if defined(COREXZ) && defined(Z_LATE_ENABLE)
+  #elif DISABLED(THERMAL_PROTECTION_HOTENDS) && (defined(WATCH_TEMP_PERIOD) || defined(THERMAL_PROTECTION_PERIOD))
+    #error Thermal Runaway Protection for hotends is now enabled with THERMAL_PROTECTION_HOTENDS.
+  #elif DISABLED(THERMAL_PROTECTION_BED) && defined(THERMAL_PROTECTION_BED_PERIOD)
+    #error Thermal Runaway Protection for the bed is now enabled with THERMAL_PROTECTION_BED.
+  #elif ENABLED(COREXZ) && ENABLED(Z_LATE_ENABLE)
     #error "Z_LATE_ENABLE can't be used with COREXZ."
-  #endif
-
-  #ifdef BEEPER
-    #error BEEPER has been replaced with BEEPER_PIN. Please update your pins definitions.
-  #endif
-
-  #ifdef SDCARDDETECT
+  #elif defined(X_HOME_RETRACT_MM)
+    #error [XYZ]_HOME_RETRACT_MM settings have been renamed [XYZ]_HOME_BUMP_MM.
+  #elif defined(PROBE_SERVO_DEACTIVATION_DELAY)
+    #error PROBE_SERVO_DEACTIVATION_DELAY has been replaced with DEACTIVATE_SERVOS_AFTER_MOVE and SERVO_DEACTIVATION_DELAY.
+  #elif defined(BEEPER)
+    #error BEEPER is now BEEPER_PIN. Please update your pins definitions.
+  #elif defined(SDCARDDETECT)
     #error SDCARDDETECT is now SD_DETECT_PIN. Please update your pins definitions.
-  #endif
-
-  #ifdef SDCARDDETECTINVERTED
+  #elif defined(SDCARDDETECTINVERTED)
     #error SDCARDDETECTINVERTED is now SD_DETECT_INVERTED. Please update your configuration.
-  #endif
-
-  #ifdef BTENABLED
-    #error BTENABLED has been replaced with BLUETOOTH. Please update your configuration.
-  #endif
-
-  #ifdef CUSTOM_MENDEL_NAME
-    #error CUSTOM_MENDEL_NAME deprecated - use CUSTOM_MACHINE_NAME instead
-  #endif
-
-  #ifdef HAS_AUTOMATIC_VERSIONING
+  #elif defined(BTENABLED)
+    #error BTENABLED is now BLUETOOTH. Please update your configuration.
+  #elif defined(CUSTOM_MENDEL_NAME)
+    #error CUSTOM_MENDEL_NAME is now CUSTOM_MACHINE_NAME. Please update your configuration.
+  #elif defined(HAS_AUTOMATIC_VERSIONING)
     #error HAS_AUTOMATIC_VERSIONING deprecated - use USE_AUTOMATIC_VERSIONING instead
   #endif
 
