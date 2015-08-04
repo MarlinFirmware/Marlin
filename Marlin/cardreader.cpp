@@ -481,7 +481,8 @@ void CardReader::write_command(char *buf) {
 }
 
 void CardReader::checkautostart(bool force) {
-  if (!(force || !autostart_stilltocheck || next_autostart_ms >= millis())) return;
+  if (!force && (!autostart_stilltocheck || next_autostart_ms < millis()))
+    return;
 
   autostart_stilltocheck = false;
 
