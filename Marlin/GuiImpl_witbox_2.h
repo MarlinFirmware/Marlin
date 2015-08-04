@@ -106,10 +106,8 @@ namespace screen
 	const static uint8_t box_width = 128;
 	const static uint8_t box_height = 9;
 
-
 	// Menu constants
 	const static uint8_t max_items = 10;
-	const static uint8_t max_list = 100;
 
 	// Font constants
 	const static uint8_t max_font_width = 6;
@@ -118,6 +116,4 @@ namespace screen
 	// Temperature parameters
 	const static uint8_t default_temp_change_filament = 220;
 }
-
 #endif //GUI_IMPL_WITBOX_2_H
-
