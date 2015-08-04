@@ -133,7 +133,6 @@ const char PT_SCREEN_HEATING_MAIN_TITLE[] PROGMEM   = "Change temperature";
 const char PT_SCREEN_HEATING_MAIN_BOX[] PROGMEM     = "Back";
 const char PT_SCREEN_SPEED[] PROGMEM                = "Change speed";
 const char PT_SELECTOR_BOX[] PROGMEM                = "Select a value";
-const char PT_OK1[] PROGMEM                         = "OK";
 const char PT_SCREEN_SERIAL_TITLE[] PROGMEM         = "Serial control";
 
 #endif //LANGUAGE_PT_H

@@ -191,7 +191,6 @@ enum class Label
 	SCREEN_HEATING_MAIN_BOX,
 	SCREEN_SPEED,
 	SELECTOR_BOX,
-	OK1,
 	SCREEN_SERIAL_TITLE
 };
 
@@ -325,6 +324,5 @@ extern const char * MSG_SCREEN_HEATING_MAIN_TITLE();
 extern const char * MSG_SCREEN_HEATING_MAIN_BOX();
 extern const char * MSG_SCREEN_SPEED();
 extern const char * MSG_SELECTOR_BOX();
-extern const char * MSG_OK1();
 extern const char * MSG_SCREEN_SERIAL_TITLE();
 #endif // ifndef LANGUAGE_H

@@ -133,7 +133,6 @@ const char EN_SCREEN_HEATING_MAIN_TITLE[] PROGMEM   = "Change temperature";
 const char EN_SCREEN_HEATING_MAIN_BOX[] PROGMEM     = "Back";
 const char EN_SCREEN_SPEED[] PROGMEM                = "Change speed";
 const char EN_SELECTOR_BOX[] PROGMEM                = "Select a value";
-const char EN_OK1[] PROGMEM                         = "OK";
 const char EN_SCREEN_SERIAL_TITLE[] PROGMEM         = "Serial control";
 
 #endif //LANGUAGE_EN_H
