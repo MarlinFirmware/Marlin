@@ -93,9 +93,6 @@ enum class Label
 	AUTOLEVEL,
 	AUTOLEVEL_DISABLE,
 	OFFSET,
-	SCREEN_LOGO,
-	SCREEN_LOGO_TEXT,
-	SCREEN_LOGO_BOX,
 	SCREEN_SD_LIST,
 	SCREEN_SD_CONFIRM,
 	SCREEN_SD_BACK,
@@ -227,9 +224,6 @@ extern const char * MSG_MOVE_E();
 extern const char * MSG_AUTOLEVEL();
 extern const char * MSG_AUTOLEVEL_DISABLE();
 extern const char * MSG_OFFSET();
-extern const char * MSG_SCREEN_LOGO();
-extern const char * MSG_SCREEN_LOGO_TEXT();
-extern const char * MSG_SCREEN_LOGO_BOX();
 extern const char * MSG_SCREEN_SD_LIST();
 extern const char * MSG_SCREEN_SD_CONFIRM();
 extern const char * MSG_SCREEN_SD_BACK();
