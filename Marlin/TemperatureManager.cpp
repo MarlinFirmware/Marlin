@@ -26,6 +26,11 @@ void TemperatureManager::updateCurrentTemperature(float temp)
 	}
 }
 
+uint16_t TemperatureManager::getCurrentTemperature()
+{
+	return m_current_temperature;
+}
+
 void TemperatureManager::setTargetTemperature(uint16_t target)
 {
 	m_target_temperature = target;

@@ -20,6 +20,9 @@ typedef enum
 	PAUSED,
 	PAUSING,
 	STOPPED,
+	HOMING,
+	LEVELING,
+	HEATING,
 	NUM_PRINTER_STATES
 } PrinterState_t;
 

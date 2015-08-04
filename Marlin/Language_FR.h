@@ -43,7 +43,9 @@ const char FR_SCREEN_LOGO_BOX[] PROGMEM             = "Test";
 
 const char FR_SCREEN_SD_LIST[] PROGMEM              = "SD Card";
 const char FR_SCREEN_SD_CONFIRM[] PROGMEM           = "Confirm Print";
-const char FR_SCREEN_SD_BACK[] PROGMEM              = "Back";
+const char FR_SCREEN_SD_TITLE[] PROGMEM             = "Printing";
+const char FR_SCREEN_SD_TEXT[] PROGMEM              = "Starting print";
+const char FR_SCREEN_SD_WAIT[] PROGMEM              = "Please wait";
 const char FR_SCREEN_SD_LIST_BACK[] PROGMEM         = "Back to main menu";
 const char FR_SCREEN_SD_LIST_PREV[] PROGMEM         = "Previous folder";
 

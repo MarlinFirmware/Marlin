@@ -118,10 +118,10 @@ namespace screen
 		return local_view;
 	}
 
-	static ScreenAction<void> * make_screen_SD_OK()
+	static ScreenTransition * make_screen_SD_OK()
 	{
-		ScreenAction<void> * local_view = new ScreenAction<void>(MSG_SCREEN_SD_BACK(), PrintManager::startPrint);
-		local_view->add(screen_print);
+		ScreenTransition * local_view = new ScreenTransition(MSG_SCREEN_SD_TITLE(), MSG_SCREEN_SD_TEXT(), MSG_SCREEN_SD_WAIT(), PrintManager::startPrint, &PrintManager::single::instance());
+		local_view->add(screen_print_heating);
 		return local_view;
 	}
 
@@ -662,6 +662,13 @@ namespace screen
 		return local_view;
 	}
 
+	static ScreenAnimation<float> * make_screen_print_heating()
+	{
+		ScreenAnimation<float> * local_view = new ScreenAnimation<float>(MSG_SCREEN_SD_TITLE(), MSG_SCREEN_UNLOAD_WAIT(), screen::ScreenAnimation<float>::GREATER_OR_EQUAL, TemperatureManager::single::instance().getTargetTemperature(), &TemperatureManager::single::instance());
+		local_view->add(screen_print);
+		return local_view;
+	}
+
 	static ScreenDialog<void> * make_screen_print_complete()
 	{
 		ScreenComplete * local_view = new ScreenComplete(MSG_SCREEN_PRINT_TITLE(), MSG_SCREEN_PRINT_COMPLETED(), MSG_SCREEN_PRINT_COMPLETED_BOX(), PrintManager::printingTime());
@@ -988,6 +995,10 @@ namespace screen
 			case screen_heating_main:
 				new_view = make_screen_heating_main();
 				break;
+			case screen_print_heating:
+				new_view = make_screen_print_heating();
+				break;
+
 			// Autolevel
 			case screen_autolevel:
 				new_view = make_screen_autolevel();
