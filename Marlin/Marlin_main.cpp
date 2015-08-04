@@ -866,7 +866,7 @@ void get_command()
           return;
         }
       }
-      if((strchr(cmdbuffer[bufindw], 'G') != NULL)){
+      if(strchr(cmdbuffer[bufindw], 'G') == 0){
         strchr_pointer = strchr(cmdbuffer[bufindw], 'G');
         switch((int)((strtod(strchr_pointer + 1, NULL)))){
         case 0:
@@ -1481,7 +1481,7 @@ void process_commands()
   unsigned long codenum; //throw away variable
   char *starpos = NULL;
 
-  if(code_seen('G'))
+  if(code_seen('G') && strchr(cmdbuffer[bufindw], 'G') == 0)
   {
     switch((int)code_value())
     {
