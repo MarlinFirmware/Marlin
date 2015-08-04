@@ -198,7 +198,6 @@ enum class Label
 extern const char * MSG_SCREEN_EMERGENCY_TITLE();
 extern const char * MSG_SCREEN_EMERGENCY_TEXT();
 extern const char * MSG_SCREEN_EMERGENCY_BOX();
-
 extern const char * MSG_NOSD();
 extern const char * MSG_SD();
 extern const char * MSG_FILAMENT_UNLOAD();
@@ -228,17 +227,14 @@ extern const char * MSG_MOVE_E();
 extern const char * MSG_AUTOLEVEL();
 extern const char * MSG_AUTOLEVEL_DISABLE();
 extern const char * MSG_OFFSET();
-
 extern const char * MSG_SCREEN_LOGO();
 extern const char * MSG_SCREEN_LOGO_TEXT();
 extern const char * MSG_SCREEN_LOGO_BOX();
-
 extern const char * MSG_SCREEN_SD_LIST();
 extern const char * MSG_SCREEN_SD_CONFIRM();
 extern const char * MSG_SCREEN_SD_BACK();
 extern const char * MSG_SCREEN_SD_LIST_BACK();
 extern const char * MSG_SCREEN_SD_LIST_PREV();
-
 extern const char * MSG_SCREEN_UNLOAD_TITLE();
 extern const char * MSG_SCREEN_UNLOAD_TEXT1();
 extern const char * MSG_SCREEN_UNLOAD_TEXT2();
@@ -247,7 +243,6 @@ extern const char * MSG_SCREEN_UNLOAD_CONTINUE();
 extern const char * MSG_SCREEN_UNLOAD_PULL();
 extern const char * MSG_SCREEN_UNLOAD_CONFIRM();
 extern const char * MSG_SCREEN_UNLOADING_TEXT();
-
 extern const char * MSG_SCREEN_LOAD_TITLE();
 extern const char * MSG_SCREEN_LOAD_TEXT1();
 extern const char * MSG_SCREEN_LOAD_TEXT2();
@@ -256,7 +251,6 @@ extern const char * MSG_SCREEN_LOAD_CONTINUE();
 extern const char * MSG_SCREEN_LOAD_PRESS();
 extern const char * MSG_SCREEN_LOAD_CONFIRM();
 extern const char * MSG_SCREEN_LOADING_TEXT();
-
 extern const char * MSG_SCREEN_LEVEL_TITLE();
 extern const char * MSG_SCREEN_LEVEL_TEXT();
 extern const char * MSG_SCREEN_LEVEL_WAIT();
@@ -272,16 +266,13 @@ extern const char * MSG_SCREEN_LEVEL_BOX2();
 extern const char * MSG_SCREEN_LEVEL_BOX3();
 extern const char * MSG_SCREEN_LEVEL_BOX4();
 extern const char * MSG_SCREEN_LEVEL_CONFIRM();
-
 extern const char * MSG_SCREEN_AUTOHOME();
 extern const char * MSG_SCREEN_AUTOHOME_TITLE();
 extern const char * MSG_SCREEN_AUTOHOME_TEXT();
 extern const char * MSG_SCREEN_AUTOHOME_WAIT();
-
 extern const char * MSG_SCREEN_SETTINGS();
 extern const char * MSG_SCREEN_SETTINGS_TEXT();
 extern const char * MSG_SCREEN_STEPPER();
-
 extern const char * MSG_SCREEN_MOVE_TITLE();
 extern const char * MSG_SCREEN_MOVE_TEXT();
 extern const char * MSG_SCREEN_MOVE_X();
@@ -294,9 +285,7 @@ extern const char * MSG_SCREEN_MOVE_1MM();
 extern const char * MSG_SCREEN_MOVE_10MM();
 extern const char * MSG_SCREEN_MOVE_HEAT_CONFIRM();
 extern const char * MSG_SCREEN_MOVE_BOX0();
-
 extern const char * MSG_SCREEN_BACK2MAIN();
-
 extern const char * MSG_SCREEN_PRINT_PRINTING();
 extern const char * MSG_SCREEN_PRINT_TITLE();
 extern const char * MSG_SCREEN_PRINT_COMPLETED();
@@ -305,7 +294,6 @@ extern const char * MSG_SCREEN_PRINT_PAUSE();
 extern const char * MSG_SCREEN_PRINT_PAUSED();
 extern const char * MSG_SCREEN_PRINT_PAUSING();
 extern const char * MSG_SCREEN_PRINT_STOPPED();
-
 extern const char * MSG_SCREEN_TEMP_TITLE();
 extern const char * MSG_SCREEN_LIGHT();
 extern const char * MSG_SCREEN_AUTOLEVEL();
@@ -313,7 +301,6 @@ extern const char * MSG_SCREEN_PRINT();
 extern const char * MSG_SCREEN_INFO();
 extern const char * MSG_SCREEN_INFO_TEXT();
 extern const char * MSG_SCREEN_INFO_BOX();
-
 extern const char * MSG_SCREEN_OFFSET_TITLE();
 extern const char * MSG_SCREEN_OFFSET_TEXT();
 extern const char * MSG_SCREEN_OFFSET_DIALOG_TEXT();
@@ -323,11 +310,9 @@ extern const char * MSG_SCREEN_OFFSET_WAIT();
 extern const char * MSG_SCREEN_OFFSET_WAIT_BOX();
 extern const char * MSG_SCREEN_OFFSET_HOME_TEXT();
 extern const char * MSG_SCREEN_OFFSET_PLANE_TEXT();
-
 extern const char * MSG_SCREEN_STOP_CONFIRM();
 extern const char * MSG_SCREEN_STOP_BACK();
 extern const char * MSG_SCREEN_STOP_OK();
-
 extern const char * MSG_SCREEN_CHANGE_TITLE();
 extern const char * MSG_SCREEN_CHANGE_BOX();
 extern const char * MSG_SCREEN_CHANGE_CONFIRM();
@@ -336,13 +321,10 @@ extern const char * MSG_SCREEN_CHANGE_PULLOUT();
 extern const char * MSG_SCREEN_CHANGE_INSERT();
 extern const char * MSG_SCREEN_CHANGE_RETRY();
 extern const char * MSG_SCREEN_CHANGE_PAUSING();
-
 extern const char * MSG_SCREEN_HEATING_MAIN_TITLE();
 extern const char * MSG_SCREEN_HEATING_MAIN_BOX();
-
 extern const char * MSG_SCREEN_SPEED();
 extern const char * MSG_SELECTOR_BOX();
 extern const char * MSG_OK1();
-
 extern const char * MSG_SCREEN_SERIAL_TITLE();
 #endif // ifndef LANGUAGE_H
