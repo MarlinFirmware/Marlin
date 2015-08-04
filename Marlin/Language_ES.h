@@ -4,11 +4,10 @@
 #include <avr/pgmspace.h>
 
 const char ES_SCREEN_EMERGENCY_TITLE[] PROGMEM      = "Parada Emerg. activa";
-const char ES_SCREEN_EMERGENCY_TEXT[] PROGMEM       = "Deja pulsado el boton para desbloquear la maquina";
-const char ES_SCREEN_EMERGENCY_BOX[] PROGMEM        = "Manten pulsado";
-const char ES_SCREEN_SD_LIST[] PROGMEM              = "Tarjeta SD";
-const char ES_SCREEN_SD_CONFIRM[] PROGMEM           = "Confirmar";
-const char ES_SCREEN_SD_BACK[] PROGMEM              = "Volver";
+const char ES_SCREEN_EMERGENCY_TEXT[] PROGMEM       = "Manten pulsado para desbloquear la maquina";
+const char ES_SCREEN_EMERGENCY_BOX[] PROGMEM        = "Bloqueado";
+const char ES_SCREEN_SD_LIST_TITLE[] PROGMEM        = "Imprimir desde SD";
+const char ES_SCREEN_SD_LIST_CONFIRM[] PROGMEM      = "¿Imprimir archivo?";
 const char ES_SCREEN_SD_LIST_BACK[] PROGMEM         = "Volver al menu";
 const char ES_SCREEN_SD_LIST_PREV[] PROGMEM         = "Carpeta anterior";
 const char ES_SCREEN_UNLOAD_TITLE[] PROGMEM         = "Descargar filamento";

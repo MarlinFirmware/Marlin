@@ -6,9 +6,8 @@
 const char EN_SCREEN_EMERGENCY_TITLE[] PROGMEM      = "Emergency Stop active";
 const char EN_SCREEN_EMERGENCY_TEXT[] PROGMEM       = "Keep the button pressed to unlock the machine";
 const char EN_SCREEN_EMERGENCY_BOX[] PROGMEM        = "Keep pressed";
-const char EN_SCREEN_SD_LIST[] PROGMEM              = "SD Card";
-const char EN_SCREEN_SD_CONFIRM[] PROGMEM           = "Confirm Print";
-const char EN_SCREEN_SD_BACK[] PROGMEM              = "Back";
+const char EN_SCREEN_SD_LIST_TITLE[] PROGMEM        = "SD Card";
+const char EN_SCREEN_SD_LIST_CONFIRM[] PROGMEM      = "Confirm Print";
 const char EN_SCREEN_SD_LIST_BACK[] PROGMEM         = "Back to main menu";
 const char EN_SCREEN_SD_LIST_PREV[] PROGMEM         = "Previous folder";
 const char EN_SCREEN_UNLOAD_TITLE[] PROGMEM         = "Unload filament";

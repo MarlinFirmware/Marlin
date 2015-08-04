@@ -64,9 +64,8 @@ enum class Label
 	SCREEN_EMERGENCY_TITLE,
 	SCREEN_EMERGENCY_TEXT,
 	SCREEN_EMERGENCY_BOX,
-	SCREEN_SD_LIST,
-	SCREEN_SD_CONFIRM,
-	SCREEN_SD_BACK,
+	SCREEN_SD_LIST_TITLE,
+	SCREEN_SD_LIST_CONFIRM,
 	SCREEN_SD_LIST_BACK,
 	SCREEN_SD_LIST_PREV,
 	SCREEN_UNLOAD_TITLE,
@@ -197,9 +196,8 @@ enum class Label
 extern const char * MSG_SCREEN_EMERGENCY_TITLE();
 extern const char * MSG_SCREEN_EMERGENCY_TEXT();
 extern const char * MSG_SCREEN_EMERGENCY_BOX();
-extern const char * MSG_SCREEN_SD_LIST();
-extern const char * MSG_SCREEN_SD_CONFIRM();
-extern const char * MSG_SCREEN_SD_BACK();
+extern const char * MSG_SCREEN_SD_LIST_TITLE();
+extern const char * MSG_SCREEN_SD_LIST_CONFIRM();
 extern const char * MSG_SCREEN_SD_LIST_BACK();
 extern const char * MSG_SCREEN_SD_LIST_PREV();
 extern const char * MSG_SCREEN_UNLOAD_TITLE();

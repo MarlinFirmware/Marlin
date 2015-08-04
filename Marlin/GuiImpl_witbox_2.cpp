@@ -99,7 +99,7 @@ namespace screen
 
 	static ScreenList * make_screen_SD_list()
 	{
-		ScreenList * local_view = new ScreenList(MSG_SCREEN_SD_LIST());
+		ScreenList * local_view = new ScreenList(MSG_SCREEN_SD_LIST_TITLE());
 		local_view->add(screen_main);
 		local_view->add(screen_SD_confirm);
 		return local_view;
@@ -110,7 +110,7 @@ namespace screen
 		Icon * icon_back = new Icon(icon_size, bits_back_normal, bits_back_focused, MSG_ICON_BACK());
 		Icon * icon_ok = new Icon(icon_size, bits_ok_normal, bits_ok_focused, MSG_ICON_OK2());
 
-		ScreenFile * local_view = new ScreenFile(MSG_SCREEN_SD_CONFIRM());
+		ScreenFile * local_view = new ScreenFile(MSG_SCREEN_SD_LIST_CONFIRM());
 		local_view->add(screen_SD_list);
 		local_view->icon(icon_back);
 		local_view->add(screen_SD_OK);
@@ -120,7 +120,7 @@ namespace screen
 
 	static ScreenAction<void> * make_screen_SD_OK()
 	{
-		ScreenAction<void> * local_view = new ScreenAction<void>(MSG_SCREEN_SD_BACK(), PrintManager::startPrint);
+		ScreenAction<void> * local_view = new ScreenAction<void>(NULL, PrintManager::startPrint);
 		local_view->add(screen_print);
 		return local_view;
 	}
