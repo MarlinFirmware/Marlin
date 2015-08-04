@@ -350,8 +350,8 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 
   // these are the offsets to the probe relative to the extruder tip (Hotend - Probe)
-  #define X_PROBE_OFFSET_FROM_EXTRUDER -21
-  #define Y_PROBE_OFFSET_FROM_EXTRUDER 16.8
+  #define X_PROBE_OFFSET_FROM_EXTRUDER -34.4
+  #define Y_PROBE_OFFSET_FROM_EXTRUDER -14.75
   #define Z_PROBE_OFFSET_FROM_EXTRUDER 0
 
   //If defined, the Probe servo will be turned on only during movement and then turned off to avoid jerk
