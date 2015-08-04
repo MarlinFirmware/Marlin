@@ -32,8 +32,8 @@
    * Babystepping
    */
   #if ENABLED(BABYSTEPPING)
-    #if ENABLED(COREXY)
-      #error BABYSTEPPING not implemented for COREXY yet.
+    #if ENABLED(COREXY) && ENABLED(BABYSTEP_XY)
+      #error BABYSTEPPING only implemented for Z axis on CoreXY.
     #endif
     #if ENABLED(SCARA)
       #error BABYSTEPPING is not implemented for SCARA yet.
