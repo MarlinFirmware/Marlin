@@ -64,35 +64,38 @@ enum class Label
 	SCREEN_EMERGENCY_TITLE,
 	SCREEN_EMERGENCY_TEXT,
 	SCREEN_EMERGENCY_BOX,
-	NOSD,
-	SD,
-	FILAMENT_UNLOAD,
-	FILAMENT_LOAD,
-	LEVELING,
-	HOMING,
-	SETTINGS,
-	STEPPERS,
-	STEPPERS_OFF,
-	MOVEAXIS,
-	TEMPERATURE,
-	LIGHTLED_DISABLE,
-	LIGHTLED,
-	INFO,
-	PLAY,
-	PAUSE,
-	STOP,
-	CHANGE_FILAMENT,
-	CHANGE_SPEED,
-	BACK,
-	RETRY,
-	OK2,
-	MOVE_X,
-	MOVE_Y,
-	MOVE_Z,
-	MOVE_E,
-	AUTOLEVEL,
-	AUTOLEVEL_DISABLE,
-	OFFSET,
+	ICON_SD_NOSD,
+	ICON_SD_SD,
+	ICON_FILAMENT_UNLOAD,
+	ICON_FILAMENT_LOAD,
+	ICON_LEVELING,
+	ICON_HOMING,
+	ICON_SETTINGS,
+	ICON_STEPPERS_ON,
+	ICON_STEPPERS_OFF,
+	ICON_MOVEAXIS,
+	ICON_TEMPERATURE,
+	ICON_LIGHTLED_DISABLE,
+	ICON_LIGHTLED,
+	ICON_INFO,
+	ICON_PLAY,
+	ICON_PAUSE,
+	ICON_STOP,
+	ICON_CHANGE_FILAMENT,
+	ICON_CHANGE_SPEED,
+	ICON_BACK,
+	ICON_RETRY,
+	ICON_OK2,
+	ICON_MOVE_X,
+	ICON_MOVE_Y,
+	ICON_MOVE_Z,
+	ICON_MOVE_E,
+	ICON_MOVE_10MM,
+	ICON_MOVE_1MM,
+	ICON_MOVE_01MM,
+	ICON_AUTOLEVEL,
+	ICON_AUTOLEVEL_DISABLE,
+	ICON_OFFSET,
 	SCREEN_SD_LIST,
 	SCREEN_SD_CONFIRM,
 	SCREEN_SD_BACK,
@@ -195,35 +198,38 @@ enum class Label
 extern const char * MSG_SCREEN_EMERGENCY_TITLE();
 extern const char * MSG_SCREEN_EMERGENCY_TEXT();
 extern const char * MSG_SCREEN_EMERGENCY_BOX();
-extern const char * MSG_NOSD();
-extern const char * MSG_SD();
-extern const char * MSG_FILAMENT_UNLOAD();
-extern const char * MSG_FILAMENT_LOAD();
-extern const char * MSG_LEVELING();
-extern const char * MSG_HOMING();
-extern const char * MSG_SETTINGS();
-extern const char * MSG_STEPPERS();
-extern const char * MSG_STEPPERS_OFF();
-extern const char * MSG_MOVEAXIS();
-extern const char * MSG_TEMPERATURE();
-extern const char * MSG_LIGHTLED_DISABLE();
-extern const char * MSG_LIGHTLED();
-extern const char * MSG_INFO();
-extern const char * MSG_PLAY();
-extern const char * MSG_PAUSE();
-extern const char * MSG_STOP();
-extern const char * MSG_CHANGE_FILAMENT();
-extern const char * MSG_CHANGE_SPEED();
-extern const char * MSG_BACK();
-extern const char * MSG_RETRY();
-extern const char * MSG_OK2();
-extern const char * MSG_MOVE_X();
-extern const char * MSG_MOVE_Y();
-extern const char * MSG_MOVE_Z();
-extern const char * MSG_MOVE_E();
-extern const char * MSG_AUTOLEVEL();
-extern const char * MSG_AUTOLEVEL_DISABLE();
-extern const char * MSG_OFFSET();
+extern const char * MSG_ICON_SD_NOSD();
+extern const char * MSG_ICON_SD_SD();
+extern const char * MSG_ICON_FILAMENT_UNLOAD();
+extern const char * MSG_ICON_FILAMENT_LOAD();
+extern const char * MSG_ICON_LEVELING();
+extern const char * MSG_ICON_HOMING();
+extern const char * MSG_ICON_SETTINGS();
+extern const char * MSG_ICON_STEPPERS();
+extern const char * MSG_ICON_STEPPERS_OFF();
+extern const char * MSG_ICON_MOVEAXIS();
+extern const char * MSG_ICON_TEMPERATURE();
+extern const char * MSG_ICON_LIGHTLED_DISABLE();
+extern const char * MSG_ICON_LIGHTLED();
+extern const char * MSG_ICON_INFO();
+extern const char * MSG_ICON_PLAY();
+extern const char * MSG_ICON_PAUSE();
+extern const char * MSG_ICON_STOP();
+extern const char * MSG_ICON_CHANGE_FILAMENT();
+extern const char * MSG_ICON_CHANGE_SPEED();
+extern const char * MSG_ICON_BACK();
+extern const char * MSG_ICON_RETRY();
+extern const char * MSG_ICON_OK2();
+extern const char * MSG_ICON_MOVE_X();
+extern const char * MSG_ICON_MOVE_Y();
+extern const char * MSG_ICON_MOVE_Z();
+extern const char * MSG_ICON_MOVE_E();
+extern const char * MSG_ICON_MOVE_10MM();
+extern const char * MSG_ICON_MOVE_1MM();
+extern const char * MSG_ICON_MOVE_01MM();
+extern const char * MSG_ICON_AUTOLEVEL();
+extern const char * MSG_ICON_AUTOLEVEL_DISABLE();
+extern const char * MSG_ICON_OFFSET();
 extern const char * MSG_SCREEN_SD_LIST();
 extern const char * MSG_SCREEN_SD_CONFIRM();
 extern const char * MSG_SCREEN_SD_BACK();
