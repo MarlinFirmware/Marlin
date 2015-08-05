@@ -323,7 +323,7 @@ namespace screen
 		IconStatus<bool> * icon_lightled = new IconStatus<bool>(icon_size, bits_lightled_disable_normal, bits_lightled_disable_focused, bits_lightled_normal, bits_lightled_focused, MSG_ICON_LIGHTLED_DISABLE(), MSG_ICON_LIGHTLED(), &LightManager::single::instance());
 		Icon * icon_info = new Icon(icon_size, bits_info_normal,              bits_info_focused,              MSG_ICON_INFO());
 
-		ScreenMenu * local_view = new ScreenMenu(MSG_SCREEN_SETTINGS(), MSG_SCREEN_SETTINGS_TEXT());
+		ScreenMenu * local_view = new ScreenMenu(MSG_SCREEN_SETTINGS_TITLE(), MSG_SCREEN_SETTINGS_TEXT());
 		local_view->add(screen_main);
 		local_view->icon(icon_back);
 		local_view->add(screen_offset);

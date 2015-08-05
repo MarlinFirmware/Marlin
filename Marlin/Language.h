@@ -103,9 +103,9 @@ enum class Label
 	SCREEN_LEVEL_CONFIRM_TEXT,
 	SCREEN_AUTOHOME_TITLE,
 	SCREEN_AUTOHOME_TEXT,
-
-	SCREEN_SETTINGS,
+	SCREEN_SETTINGS_TITLE,
 	SCREEN_SETTINGS_TEXT,
+
 	SCREEN_STEPPER,
 	SCREEN_MOVE_TITLE,
 	SCREEN_MOVE_TEXT,
@@ -241,9 +241,9 @@ extern const char * MSG_SCREEN_LEVEL_CONFIRM_TITLE();
 extern const char * MSG_SCREEN_LEVEL_CONFIRM_TEXT();
 extern const char * MSG_SCREEN_AUTOHOME_TITLE();
 extern const char * MSG_SCREEN_AUTOHOME_TEXT();
-
-extern const char * MSG_SCREEN_SETTINGS();
+extern const char * MSG_SCREEN_SETTINGS_TITLE();
 extern const char * MSG_SCREEN_SETTINGS_TEXT();
+
 extern const char * MSG_SCREEN_STEPPER();
 extern const char * MSG_SCREEN_MOVE_TITLE();
 extern const char * MSG_SCREEN_MOVE_TEXT();

@@ -45,9 +45,9 @@ const char FR_SCREEN_LEVEL_CONFIRM_TITLE[] PROGMEM  = "Finished";
 const char FR_SCREEN_LEVEL_CONFIRM_TEXT[] PROGMEM   = "All OK?";
 const char FR_SCREEN_AUTOHOME_TITLE[] PROGMEM       = "Home";
 const char FR_SCREEN_AUTOHOME_TEXT[] PROGMEM        = "Adjusting position";
-
-const char FR_SCREEN_SETTINGS[] PROGMEM             = "Settings";
+const char FR_SCREEN_SETTINGS_TITLE[] PROGMEM       = "Settings";
 const char FR_SCREEN_SETTINGS_TEXT[] PROGMEM        = "Choose an option";
+
 const char FR_SCREEN_STEPPER[] PROGMEM              = "Steppers on";
 const char FR_SCREEN_MOVE_TITLE[] PROGMEM           = "Move axis";
 const char FR_SCREEN_MOVE_TEXT[] PROGMEM            = "Select axis";

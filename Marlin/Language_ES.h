@@ -45,9 +45,9 @@ const char ES_SCREEN_LEVEL_CONFIRM_TITLE[] PROGMEM  = "Finalizado";
 const char ES_SCREEN_LEVEL_CONFIRM_TEXT[] PROGMEM   = "Todo correcto?";
 const char ES_SCREEN_AUTOHOME_TITLE[] PROGMEM       = "Home";
 const char ES_SCREEN_AUTOHOME_TEXT[] PROGMEM        = "Ajustando posicion";
-
-const char ES_SCREEN_SETTINGS[] PROGMEM             = "Opciones";
+const char ES_SCREEN_SETTINGS_TITLE[] PROGMEM       = "Ajustes";
 const char ES_SCREEN_SETTINGS_TEXT[] PROGMEM        = "Selecciona opcion";
+
 const char ES_SCREEN_STEPPER[] PROGMEM              = "Motores activos";
 const char ES_SCREEN_MOVE_TITLE[] PROGMEM           = "Mover ejes";
 const char ES_SCREEN_MOVE_TEXT[] PROGMEM            = "Selecciona eje";
