@@ -760,9 +760,10 @@ void action_resume_print()
 {
 	lcd_disable_button();
 
-	plan_buffer_line(lastpos[X_AXIS], lastpos[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder); //move xy back
-	plan_buffer_line(lastpos[X_AXIS], lastpos[Y_AXIS], lastpos[Z_AXIS], current_position[E_AXIS], feedrate/60, active_extruder); //move z back
-	plan_buffer_line(lastpos[X_AXIS], lastpos[Y_AXIS], lastpos[Z_AXIS], lastpos[E_AXIS], feedrate/60, active_extruder); //final untretract
+	plan_buffer_line(lastpos[X_AXIS], lastpos[Y_AXIS], current_position[Z_AXIS], lastpos[E_AXIS], feedrate/60, active_extruder); //move xy back
+	plan_buffer_line(lastpos[X_AXIS], lastpos[Y_AXIS], lastpos[Z_AXIS], lastpos[E_AXIS], feedrate/60, active_extruder); //move z back
+	lastpos[E_AXIS] += EXTRUDE_ON_RESUME;
+	plan_buffer_line(lastpos[X_AXIS], lastpos[Y_AXIS], lastpos[Z_AXIS], lastpos[E_AXIS], feedrate/30, active_extruder); //extrude on resume
 	st_synchronize();
 
 	vector_3 update_position = plan_get_position();
