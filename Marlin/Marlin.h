@@ -221,7 +221,8 @@ enum DebugFlags {
   DEBUG_INFO          = BIT(1),
   DEBUG_ERRORS        = BIT(2),
   DEBUG_DRYRUN        = BIT(3),
-  DEBUG_COMMUNICATION = BIT(4)
+  DEBUG_COMMUNICATION = BIT(4),
+  DEBUG_LEVELING      = BIT(5)
 };
 extern uint8_t marlin_debug_flags;
 
