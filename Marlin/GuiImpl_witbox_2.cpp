@@ -161,7 +161,7 @@ namespace screen
 
 	static ScreenTransition * make_screen_unloading()
 	{
-		ScreenTransition * local_view = new ScreenTransition(MSG_SCREEN_UNLOADING_TITLE(), MSG_SCREEN_UNLOADING_TEXT(), NULL, action_filament_unload);
+		ScreenTransition * local_view = new ScreenTransition(MSG_SCREEN_UNLOADING_TITLE(), MSG_SCREEN_UNLOADING_TEXT(), MSG_EMPTY(), action_filament_unload);
 		local_view->add(screen_unload_confirm);
 		return local_view;
 	}
@@ -215,7 +215,7 @@ namespace screen
 
 	static ScreenTransition * make_screen_loading()
 	{
-		ScreenTransition * local_view = new ScreenTransition(MSG_SCREEN_LOADING_TITLE(), MSG_SCREEN_LOADING_TEXT(), NULL, action_filament_load);
+		ScreenTransition * local_view = new ScreenTransition(MSG_SCREEN_LOADING_TITLE(), MSG_SCREEN_LOADING_TEXT(), MSG_EMPTY(), action_filament_load);
 		local_view->add(screen_load_confirm);
 		return local_view;
 	}

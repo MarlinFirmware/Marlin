@@ -141,5 +141,6 @@ const char ES_PUSH_TO_CONFIRM[] PROGMEM             = "Pulsa para confirmar";
 const char ES_PUSH_TO_CONTINUE[] PROGMEM            = "Pulsa para continuar";
 const char ES_PUSH_TO_START[] PROGMEM               = "Pulsa para comenzar";
 const char ES_PLEASE_WAIT[] PROGMEM                 = "Por favor, espera";
+const char ES_EMPTY[] PROGMEM                       = "";
 
 #endif //LANGUAGE_ES_H
