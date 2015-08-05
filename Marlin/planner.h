@@ -79,9 +79,9 @@ extern volatile unsigned char block_buffer_head;
 extern volatile unsigned char block_buffer_tail;
 FORCE_INLINE uint8_t movesplanned() { return BLOCK_MOD(block_buffer_head - block_buffer_tail + BLOCK_BUFFER_SIZE); }
 
-#if ENABLED(ENABLE_AUTO_BED_LEVELING) || ENABLED(MESH_BED_LEVELING)
+#if ENABLED(AUTO_BED_LEVELING_FEATURE) || ENABLED(MESH_BED_LEVELING)
 
-  #if ENABLED(ENABLE_AUTO_BED_LEVELING)
+  #if ENABLED(AUTO_BED_LEVELING_FEATURE)
     #include "vector_3.h"
 
     // Transform required to compensate for bed level
@@ -91,7 +91,7 @@ FORCE_INLINE uint8_t movesplanned() { return BLOCK_MOD(block_buffer_head - block
      * Get the position applying the bed level matrix
      */
     vector_3 plan_get_position();
-  #endif  // ENABLE_AUTO_BED_LEVELING
+  #endif  // AUTO_BED_LEVELING_FEATURE
 
   /**
    * Add a new linear movement to the buffer. x, y, z are the signed, absolute target position in
@@ -111,7 +111,7 @@ FORCE_INLINE uint8_t movesplanned() { return BLOCK_MOD(block_buffer_head - block
   void plan_buffer_line(const float &x, const float &y, const float &z, const float &e, float feed_rate, const uint8_t extruder);
   void plan_set_position(const float &x, const float &y, const float &z, const float &e);
 
-#endif // ENABLE_AUTO_BED_LEVELING || MESH_BED_LEVELING
+#endif // AUTO_BED_LEVELING_FEATURE || MESH_BED_LEVELING
 
 void plan_set_e_position(const float &e);
 

@@ -29,12 +29,12 @@
 
 #include "Marlin.h"
 
-#if ENABLED(ENABLE_AUTO_BED_LEVELING)
+#if ENABLED(AUTO_BED_LEVELING_FEATURE)
   #include "vector_3.h"
   #if ENABLED(AUTO_BED_LEVELING_GRID)
     #include "qr_solve.h"
   #endif
-#endif // ENABLE_AUTO_BED_LEVELING
+#endif // AUTO_BED_LEVELING_FEATURE
 
 #if ENABLED(MESH_BED_LEVELING)
   #include "mesh_bed_leveling.h"
@@ -288,7 +288,7 @@ static uint8_t target_extruder;
 bool no_wait_for_cooling = true;
 bool target_direction;
 
-#if ENABLED(ENABLE_AUTO_BED_LEVELING)
+#if ENABLED(AUTO_BED_LEVELING_FEATURE)
   int xy_travel_speed = XY_TRAVEL_SPEED;
   float zprobe_zoffset = Z_PROBE_OFFSET_FROM_EXTRUDER;
 #endif
@@ -366,7 +366,7 @@ bool target_direction;
   float delta_diagonal_rod = DELTA_DIAGONAL_ROD;
   float delta_diagonal_rod_2 = sq(delta_diagonal_rod);
   float delta_segments_per_second = DELTA_SEGMENTS_PER_SECOND;
-  #if ENABLED(ENABLE_AUTO_BED_LEVELING)
+  #if ENABLED(AUTO_BED_LEVELING_FEATURE)
     int delta_grid_spacing[2] = { 0, 0 };
     float bed_level[AUTO_BED_LEVELING_GRID_POINTS][AUTO_BED_LEVELING_GRID_POINTS];
   #endif
@@ -1095,7 +1095,7 @@ static void set_axis_is_at_home(AxisEnum axis) {
     min_pos[axis] = base_min_pos(axis) + home_offset[axis];
     max_pos[axis] = base_max_pos(axis) + home_offset[axis];
 
-    #if ENABLED(ENABLE_AUTO_BED_LEVELING) && Z_HOME_DIR < 0
+    #if ENABLED(AUTO_BED_LEVELING_FEATURE) && Z_HOME_DIR < 0
       if (axis == Z_AXIS) current_position[Z_AXIS] -= zprobe_zoffset;
     #endif
   }
@@ -1146,7 +1146,7 @@ static void setup_for_endstop_move() {
   enable_endstops(true);
 }
 
-#if ENABLED(ENABLE_AUTO_BED_LEVELING)
+#if ENABLED(AUTO_BED_LEVELING_FEATURE)
 
   #if ENABLED(DELTA)
     /**
@@ -1604,7 +1604,7 @@ static void setup_for_endstop_move() {
 
   #endif
 
-#endif // ENABLE_AUTO_BED_LEVELING
+#endif // AUTO_BED_LEVELING_FEATURE
 
 
 #if ENABLED(Z_PROBE_SLED)
@@ -2000,7 +2000,7 @@ inline void gcode_G28() {
   st_synchronize();
 
   // For auto bed leveling, clear the level matrix
-  #if ENABLED(ENABLE_AUTO_BED_LEVELING)
+  #if ENABLED(AUTO_BED_LEVELING_FEATURE)
     plan_bed_level_matrix.set_to_identity();
     #if ENABLED(DELTA)
       reset_bed_level();
@@ -2395,7 +2395,7 @@ inline void gcode_G28() {
     } // switch(state)
   }
 
-#elif ENABLED(ENABLE_AUTO_BED_LEVELING)
+#elif ENABLED(AUTO_BED_LEVELING_FEATURE)
 
   void out_of_range_error(const char *p_edge) {
     SERIAL_PROTOCOLPGM("?Probe ");
@@ -2839,7 +2839,7 @@ inline void gcode_G28() {
 
   #endif //!Z_PROBE_SLED
 
-#endif //ENABLE_AUTO_BED_LEVELING
+#endif //AUTO_BED_LEVELING_FEATURE
 
 /**
  * G92: Set current position to given X Y Z E
@@ -3116,7 +3116,7 @@ inline void gcode_M42() {
   } // code_seen('S')
 }
 
-#if ENABLED(ENABLE_AUTO_BED_LEVELING) && ENABLED(Z_MIN_PROBE_REPEATABILITY_TEST)
+#if ENABLED(AUTO_BED_LEVELING_FEATURE) && ENABLED(Z_MIN_PROBE_REPEATABILITY_TEST)
 
   // This is redundant since the SanityCheck.h already checks for a valid Z_MIN_PROBE_PIN, but here for clarity.
   #if ENABLED(Z_MIN_PROBE_ENDSTOP)
@@ -3366,7 +3366,7 @@ inline void gcode_M42() {
     SERIAL_EOL; SERIAL_EOL;
   }
 
-#endif // ENABLE_AUTO_BED_LEVELING && Z_MIN_PROBE_REPEATABILITY_TEST
+#endif // AUTO_BED_LEVELING_FEATURE && Z_MIN_PROBE_REPEATABILITY_TEST
 
 /**
  * M104: Set hot end temperature
@@ -4585,7 +4585,7 @@ inline void gcode_M303() {
  */
 inline void gcode_M400() { st_synchronize(); }
 
-#if ENABLED(ENABLE_AUTO_BED_LEVELING) && DISABLED(Z_PROBE_SLED) && (HAS_SERVO_ENDSTOPS || ENABLED(Z_PROBE_ALLEN_KEY))
+#if ENABLED(AUTO_BED_LEVELING_FEATURE) && DISABLED(Z_PROBE_SLED) && (HAS_SERVO_ENDSTOPS || ENABLED(Z_PROBE_ALLEN_KEY))
 
   /**
    * M401: Engage Z Servo endstop if available
@@ -4607,7 +4607,7 @@ inline void gcode_M400() { st_synchronize(); }
     stow_z_probe(false);
   }
 
-#endif // ENABLE_AUTO_BED_LEVELING && (HAS_SERVO_ENDSTOPS || Z_PROBE_ALLEN_KEY) && !Z_PROBE_SLED
+#endif // AUTO_BED_LEVELING_FEATURE && (HAS_SERVO_ENDSTOPS || Z_PROBE_ALLEN_KEY) && !Z_PROBE_SLED
 
 #if ENABLED(FILAMENT_SENSOR)
 
@@ -5282,13 +5282,13 @@ void process_next_command() {
         gcode_G28();
         break;
 
-      #if ENABLED(ENABLE_AUTO_BED_LEVELING) || ENABLED(MESH_BED_LEVELING)
+      #if ENABLED(AUTO_BED_LEVELING_FEATURE) || ENABLED(MESH_BED_LEVELING)
         case 29: // G29 Detailed Z probe, probes the bed at 3 or more points.
           gcode_G29();
           break;
       #endif
 
-      #if ENABLED(ENABLE_AUTO_BED_LEVELING)
+      #if ENABLED(AUTO_BED_LEVELING_FEATURE)
 
         #if DISABLED(Z_PROBE_SLED)
 
@@ -5305,7 +5305,7 @@ void process_next_command() {
 
         #endif // Z_PROBE_SLED
 
-      #endif // ENABLE_AUTO_BED_LEVELING
+      #endif // AUTO_BED_LEVELING_FEATURE
 
       case 90: // G90
         relative_mode = false;
@@ -5377,11 +5377,11 @@ void process_next_command() {
         gcode_M42();
         break;
 
-      #if ENABLED(ENABLE_AUTO_BED_LEVELING) && ENABLED(Z_MIN_PROBE_REPEATABILITY_TEST)
+      #if ENABLED(AUTO_BED_LEVELING_FEATURE) && ENABLED(Z_MIN_PROBE_REPEATABILITY_TEST)
         case 48: // M48 Z probe repeatability
           gcode_M48();
           break;
-      #endif // ENABLE_AUTO_BED_LEVELING && Z_MIN_PROBE_REPEATABILITY_TEST
+      #endif // AUTO_BED_LEVELING_FEATURE && Z_MIN_PROBE_REPEATABILITY_TEST
 
       #if ENABLED(M100_FREE_MEMORY_WATCHER)
         case 100:
@@ -5650,14 +5650,14 @@ void process_next_command() {
         gcode_M400();
         break;
 
-      #if ENABLED(ENABLE_AUTO_BED_LEVELING) && (HAS_SERVO_ENDSTOPS || ENABLED(Z_PROBE_ALLEN_KEY)) && DISABLED(Z_PROBE_SLED)
+      #if ENABLED(AUTO_BED_LEVELING_FEATURE) && (HAS_SERVO_ENDSTOPS || ENABLED(Z_PROBE_ALLEN_KEY)) && DISABLED(Z_PROBE_SLED)
         case 401:
           gcode_M401();
           break;
         case 402:
           gcode_M402();
           break;
-      #endif // ENABLE_AUTO_BED_LEVELING && (HAS_SERVO_ENDSTOPS || Z_PROBE_ALLEN_KEY) && !Z_PROBE_SLED
+      #endif // AUTO_BED_LEVELING_FEATURE && (HAS_SERVO_ENDSTOPS || Z_PROBE_ALLEN_KEY) && !Z_PROBE_SLED
 
       #if ENABLED(FILAMENT_SENSOR)
         case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or display nominal filament width
@@ -5799,7 +5799,7 @@ void clamp_to_software_endstops(float target[3]) {
     NOLESS(target[Y_AXIS], min_pos[Y_AXIS]);
     
     float negative_z_offset = 0;
-    #if ENABLED(ENABLE_AUTO_BED_LEVELING)
+    #if ENABLED(AUTO_BED_LEVELING_FEATURE)
       if (zprobe_zoffset < 0) negative_z_offset += zprobe_zoffset;
       if (home_offset[Z_AXIS] < 0) negative_z_offset += home_offset[Z_AXIS];
     #endif
@@ -5849,7 +5849,7 @@ void clamp_to_software_endstops(float target[3]) {
     */
   }
 
-  #if ENABLED(ENABLE_AUTO_BED_LEVELING)
+  #if ENABLED(AUTO_BED_LEVELING_FEATURE)
 
     // Adjust print surface height by linear interpolation over the bed_level array.
     void adjust_delta(float cartesian[3]) {
@@ -5889,7 +5889,7 @@ void clamp_to_software_endstops(float target[3]) {
       SERIAL_ECHOPGM(" offset="); SERIAL_ECHOLN(offset);
       */
     }
-  #endif // ENABLE_AUTO_BED_LEVELING
+  #endif // AUTO_BED_LEVELING_FEATURE
 
 #endif // DELTA
 
@@ -6008,7 +6008,7 @@ void mesh_plan_buffer_line(float x, float y, float z, const float e, float feed_
 
       calculate_delta(target);
 
-      #if ENABLED(ENABLE_AUTO_BED_LEVELING)
+      #if ENABLED(AUTO_BED_LEVELING_FEATURE)
         adjust_delta(target);
       #endif
 
@@ -6236,7 +6236,7 @@ void plan_arc(
 
     #if ENABLED(DELTA) || ENABLED(SCARA)
       calculate_delta(arc_target);
-      #if ENABLED(ENABLE_AUTO_BED_LEVELING)
+      #if ENABLED(AUTO_BED_LEVELING_FEATURE)
         adjust_delta(arc_target);
       #endif
       plan_buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], arc_target[E_AXIS], feed_rate, active_extruder);
@@ -6248,7 +6248,7 @@ void plan_arc(
   // Ensure last segment arrives at target location.
   #if ENABLED(DELTA) || ENABLED(SCARA)
     calculate_delta(target);
-    #if ENABLED(ENABLE_AUTO_BED_LEVELING)
+    #if ENABLED(AUTO_BED_LEVELING_FEATURE)
       adjust_delta(target);
     #endif
     plan_buffer_line(delta[X_AXIS], delta[Y_AXIS], delta[Z_AXIS], target[E_AXIS], feed_rate, active_extruder);

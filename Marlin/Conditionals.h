@@ -279,7 +279,7 @@
   /**
    * Auto Bed Leveling
    */
-  #if ENABLED(ENABLE_AUTO_BED_LEVELING)
+  #if ENABLED(AUTO_BED_LEVELING_FEATURE)
     // Boundaries for probing based on set limits
     #define MIN_PROBE_X (max(X_MIN_POS, X_MIN_POS + X_PROBE_OFFSET_FROM_EXTRUDER))
     #define MAX_PROBE_X (min(X_MAX_POS, X_MAX_POS + X_PROBE_OFFSET_FROM_EXTRUDER))
@@ -287,7 +287,7 @@
     #define MAX_PROBE_Y (min(Y_MAX_POS, Y_MAX_POS + Y_PROBE_OFFSET_FROM_EXTRUDER))
   #endif
 
-  #define SERVO_LEVELING (defined(ENABLE_AUTO_BED_LEVELING) && defined(Z_ENDSTOP_SERVO_NR))
+  #define SERVO_LEVELING (defined(AUTO_BED_LEVELING_FEATURE) && defined(Z_ENDSTOP_SERVO_NR))
 
    /**
     * Sled Options
