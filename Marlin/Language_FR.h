@@ -43,11 +43,9 @@ const char FR_SCREEN_LEVEL3_TITLE[] PROGMEM         = "Level plate";
 const char FR_SCREEN_LEVEL3_TEXT[] PROGMEM          = "Adjust the third point until you see the red light";
 const char FR_SCREEN_LEVEL_CONFIRM_TITLE[] PROGMEM  = "Finished";
 const char FR_SCREEN_LEVEL_CONFIRM_TEXT[] PROGMEM   = "All OK?";
+const char FR_SCREEN_AUTOHOME_TITLE[] PROGMEM       = "Home";
+const char FR_SCREEN_AUTOHOME_TEXT[] PROGMEM        = "Adjusting position";
 
-const char FR_SCREEN_AUTOHOME[] PROGMEM             = "Auto-home";
-const char FR_SCREEN_AUTOHOME_TITLE[] PROGMEM       = "Auto-home";
-const char FR_SCREEN_AUTOHOME_TEXT[] PROGMEM        = "Homing...";
-const char FR_SCREEN_AUTOHOME_WAIT[] PROGMEM        = "Please wait";
 const char FR_SCREEN_SETTINGS[] PROGMEM             = "Settings";
 const char FR_SCREEN_SETTINGS_TEXT[] PROGMEM        = "Choose an option";
 const char FR_SCREEN_STEPPER[] PROGMEM              = "Steppers on";

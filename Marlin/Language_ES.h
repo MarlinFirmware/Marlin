@@ -43,12 +43,9 @@ const char ES_SCREEN_LEVEL3_TITLE[] PROGMEM         = "Nivelar plato";
 const char ES_SCREEN_LEVEL3_TEXT[] PROGMEM          = "Ajusta el tercer punto hasta que se encienda la luz roja";
 const char ES_SCREEN_LEVEL_CONFIRM_TITLE[] PROGMEM  = "Finalizado";
 const char ES_SCREEN_LEVEL_CONFIRM_TEXT[] PROGMEM   = "Todo correcto?";
+const char ES_SCREEN_AUTOHOME_TITLE[] PROGMEM       = "Home";
+const char ES_SCREEN_AUTOHOME_TEXT[] PROGMEM        = "Ajustando posicion";
 
-
-const char ES_SCREEN_AUTOHOME[] PROGMEM             = "Auto-home";
-const char ES_SCREEN_AUTOHOME_TITLE[] PROGMEM       = "Auto-home";
-const char ES_SCREEN_AUTOHOME_TEXT[] PROGMEM        = "Homing...";
-const char ES_SCREEN_AUTOHOME_WAIT[] PROGMEM        = "Por favor, espera";
 const char ES_SCREEN_SETTINGS[] PROGMEM             = "Opciones";
 const char ES_SCREEN_SETTINGS_TEXT[] PROGMEM        = "Selecciona opcion";
 const char ES_SCREEN_STEPPER[] PROGMEM              = "Motores activos";
