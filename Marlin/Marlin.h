@@ -268,7 +268,7 @@ extern bool axis_known_position[3]; // axis[n].is_known
     extern float delta_diagonal_rod;
     extern float delta_segments_per_second;
     void recalc_delta_settings(float radius, float diagonal_rod);
-    #if ENABLED(ENABLE_AUTO_BED_LEVELING)
+    #if ENABLED(AUTO_BED_LEVELING_FEATURE)
       extern int delta_grid_spacing[2];
       void adjust_delta(float cartesian[3]);
     #endif
@@ -282,7 +282,7 @@ extern bool axis_known_position[3]; // axis[n].is_known
   extern float z_endstop_adj;
 #endif
 
-#if ENABLED(ENABLE_AUTO_BED_LEVELING)
+#if ENABLED(AUTO_BED_LEVELING_FEATURE)
   extern float zprobe_zoffset;
 #endif
 
