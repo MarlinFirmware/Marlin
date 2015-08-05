@@ -238,7 +238,7 @@ namespace screen
 		Icon * icon_back = new Icon(icon_size, bits_back_normal, bits_back_focused, MSG_ICON_BACK());
       Icon * icon_ok = new Icon(icon_size, bits_ok_normal, bits_ok_focused, MSG_ICON_OK2());
 
-		ScreenMenu * local_view = new ScreenMenu(MSG_SCREEN_LEVEL_TITLE(), MSG_SCREEN_LEVEL_TEXT());
+		ScreenMenu * local_view = new ScreenMenu(MSG_SCREEN_LEVEL_INIT_TITLE(), MSG_SCREEN_LEVEL_INIT_TEXT());
 		local_view->add(screen_main);
 		local_view->icon(icon_back);
 		local_view->add(screen_level_cooling);
@@ -255,42 +255,42 @@ namespace screen
 
 	static ScreenAnimation<float> * make_screen_level_animation()
 	{
-		ScreenAnimation<float> * local_view = new ScreenAnimation<float>(MSG_SCREEN_LEVEL_TITLE(), MSG_SCREEN_LEVEL_WAIT(), screen::ScreenAnimation<float>::LESS_OR_EQUAL, 70, &TemperatureManager::single::instance());
+		ScreenAnimation<float> * local_view = new ScreenAnimation<float>(MSG_SCREEN_LEVEL_COOLING_TITLE(), MSG_PLEASE_WAIT(), screen::ScreenAnimation<float>::LESS_OR_EQUAL, 70, &TemperatureManager::single::instance());
 		local_view->add(screen_level_homing);
 		return local_view;
 	}
 
 	static ScreenTransition * make_screen_level_homing()
 	{
-		ScreenTransition * local_view = new ScreenTransition(MSG_SCREEN_LEVEL_TITLE(), MSG_SCREEN_LEVEL_TEXT0(), MSG_SCREEN_LEVEL_BOX0(), action_homing);
+		ScreenTransition * local_view = new ScreenTransition(MSG_SCREEN_LEVEL_HOMING_TITLE(), MSG_SCREEN_LEVEL_HOMING_TEXT(), MSG_PLEASE_WAIT(), action_homing);
 		local_view->add(screen_level1);
 		return local_view;
 	}
 
 	static ScreenDialog<void> * make_screen_level1()
 	{
-		ScreenDialog<void> * local_view = new ScreenDialog<void>(MSG_SCREEN_LEVEL_TITLE(), MSG_SCREEN_LEVEL_TEXT1(), MSG_SCREEN_LEVEL_BOX1(), action_level_plate);
+		ScreenDialog<void> * local_view = new ScreenDialog<void>(MSG_SCREEN_LEVEL1_TITLE(), MSG_SCREEN_LEVEL1_TEXT(), MSG_PUSH_TO_CONTINUE(), action_level_plate);
 		local_view->add(screen_level2);
 		return local_view;
 	}
 
 	static ScreenDialog<void> * make_screen_level2()
 	{
-		ScreenDialog<void> * local_view = new ScreenDialog<void>(MSG_SCREEN_LEVEL_TITLE(), MSG_SCREEN_LEVEL_TEXT2(), MSG_SCREEN_LEVEL_BOX2(), action_level_plate);
+		ScreenDialog<void> * local_view = new ScreenDialog<void>(MSG_SCREEN_LEVEL2_TITLE(), MSG_SCREEN_LEVEL2_TEXT(), MSG_PUSH_TO_CONTINUE(), action_level_plate);
 		local_view->add(screen_level3);
 		return local_view;
 	}
 
 	static ScreenDialog<void> * make_screen_level3()
 	{
-		ScreenDialog<void> * local_view = new ScreenDialog<void>(MSG_SCREEN_LEVEL_TITLE(), MSG_SCREEN_LEVEL_TEXT3(), MSG_SCREEN_LEVEL_BOX3(), action_level_plate);
+		ScreenDialog<void> * local_view = new ScreenDialog<void>(MSG_SCREEN_LEVEL3_TITLE(), MSG_SCREEN_LEVEL3_TEXT(), MSG_PUSH_TO_CONTINUE(), action_level_plate);
 		local_view->add(screen_level4);
 		return local_view;
 	}
 
 	static ScreenAction<void> * make_screen_level4()
 	{
-		ScreenAction<void> * local_view = new ScreenAction<void>(MSG_SCREEN_AUTOHOME(), action_level_plate);
+		ScreenAction<void> * local_view = new ScreenAction<void>(NULL, action_level_plate);
 		local_view->add(screen_level_confirm);
 		return local_view;
 	}
@@ -300,7 +300,7 @@ namespace screen
 		Icon * icon_retry = new Icon(icon_size, bits_retry_normal, bits_retry_focused, MSG_ICON_RETRY());
       Icon * icon_ok = new Icon(icon_size, bits_ok_normal, bits_ok_focused, MSG_ICON_OK2());
 
-		ScreenMenu * local_view = new ScreenMenu(MSG_SCREEN_LEVEL_TITLE(), MSG_SCREEN_LEVEL_CONFIRM());
+		ScreenMenu * local_view = new ScreenMenu(MSG_SCREEN_LEVEL_CONFIRM_TITLE(), MSG_SCREEN_LEVEL_CONFIRM_TEXT());
 		local_view->add(screen_level1);
 		local_view->icon(icon_retry);
 		local_view->add(screen_main);
@@ -711,7 +711,7 @@ namespace screen
 
 	static ScreenTransition * make_screen_change_pausing()
 	{
-		ScreenTransition * local_view = new ScreenTransition(MSG_SCREEN_CHANGE_TITLE(), MSG_SCREEN_UNLOADING_TEXT(), MSG_SCREEN_LEVEL_BOX0(), PrintManager::pausePrint);
+		ScreenTransition * local_view = new ScreenTransition(MSG_SCREEN_CHANGE_TITLE(), MSG_SCREEN_UNLOADING_TEXT(), MSG_PUSH_TO_CONTINUE(), PrintManager::pausePrint);
 		local_view->add(screen_change_selector);
 		return local_view;
 	}
@@ -746,7 +746,7 @@ namespace screen
 
 	static ScreenTransition * make_screen_change_unloading()
 	{
-		ScreenTransition * local_view = new ScreenTransition(MSG_SCREEN_CHANGE_TITLE(), MSG_SCREEN_UNLOADING_TEXT(), MSG_SCREEN_LEVEL_BOX0(), action_filament_unload);
+		ScreenTransition * local_view = new ScreenTransition(MSG_SCREEN_CHANGE_TITLE(), MSG_SCREEN_UNLOADING_TEXT(), MSG_PUSH_TO_CONTINUE(), action_filament_unload);
 		local_view->add(screen_change_insert_info);
 		return local_view;
 	}
@@ -760,7 +760,7 @@ namespace screen
 
 	static ScreenTransition * make_screen_change_loading()
 	{
-		ScreenTransition * local_view = new ScreenTransition(MSG_SCREEN_CHANGE_TITLE(), MSG_SCREEN_LOADING_TEXT(), MSG_SCREEN_LEVEL_BOX0(), action_filament_load);
+		ScreenTransition * local_view = new ScreenTransition(MSG_SCREEN_CHANGE_TITLE(), MSG_SCREEN_LOADING_TEXT(), MSG_PUSH_TO_CONTINUE(), action_filament_load);
 		local_view->add(screen_change_confirm_second);
 		return local_view;
 	}
