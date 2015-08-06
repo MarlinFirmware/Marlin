@@ -552,7 +552,7 @@ namespace screen
 
 	static ScreenAnimation<float> * make_screen_heating_main()
 	{
-		ScreenAnimation<float> * local_view = new ScreenAnimation<float>(MSG_SCREEN_HEATING_MAIN_TITLE(), MSG_SCREEN_HEATING_MAIN_BOX(), screen::ScreenAnimation<float>::EQUAL, TemperatureManager::single::instance().getTargetTemperature(), &TemperatureManager::single::instance());
+		ScreenAnimation<float> * local_view = new ScreenAnimation<float>(MSG_SCREEN_TEMP_HEATING_TITLE(), MSG_PUSH_TO_CONTINUE(), screen::ScreenAnimation<float>::EQUAL, TemperatureManager::single::instance().getTargetTemperature(), &TemperatureManager::single::instance());
 		local_view->add(screen_main);
 		local_view->add(screen_main);
 		return local_view;
@@ -560,14 +560,14 @@ namespace screen
 
 	static ScreenAction<void> * make_screen_autolevel()
 	{
-		ScreenAction<void> * local_view = new ScreenAction<void>(MSG_SCREEN_AUTOLEVEL(), AutoLevelManager::setState); 
+		ScreenAction<void> * local_view = new ScreenAction<void>(NULL, AutoLevelManager::setState); 
 		local_view->add(screen_settings);
 		return local_view;
 	}
 
 	static ScreenAction<void> * make_screen_light()
 	{
-		ScreenAction<void> * local_view = new ScreenAction<void>(MSG_SCREEN_LIGHT(), LightManager::setState);
+		ScreenAction<void> * local_view = new ScreenAction<void>(NULL, LightManager::setState);
 		local_view->add(screen_settings);
 		return local_view;
 	}

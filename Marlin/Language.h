@@ -129,6 +129,8 @@ enum class Label
 	SCREEN_MOVE_Z_10MM_TITLE,
 	SCREEN_MOVE_E_01MM_TITLE,
 	SCREEN_MOVE_E_1MM_TITLE,
+	SCREEN_TEMP_TITLE,
+	SCREEN_TEMP_HEATING_TITLE,
 
 	SCREEN_PRINT_PRINTING,
 	SCREEN_PRINT_TITLE,
@@ -138,9 +140,6 @@ enum class Label
 	SCREEN_PRINT_PAUSED,
 	SCREEN_PRINT_PAUSING,
 	SCREEN_PRINT_STOPPED,
-	SCREEN_TEMP_TITLE,
-	SCREEN_LIGHT,
-	SCREEN_AUTOLEVEL,
 	SCREEN_PRINT,
 	SCREEN_INFO,
 	SCREEN_INFO_TEXT,
@@ -165,8 +164,6 @@ enum class Label
 	SCREEN_CHANGE_INSERT,
 	SCREEN_CHANGE_RETRY,
 	SCREEN_CHANGE_PAUSING,
-	SCREEN_HEATING_MAIN_TITLE,
-	SCREEN_HEATING_MAIN_BOX,
 	SCREEN_SPEED,
 	SCREEN_SERIAL_TITLE,
 	ICON_SD_NOSD,
@@ -276,6 +273,8 @@ extern const char * MSG_SCREEN_MOVE_Z_1MM_TITLE();
 extern const char * MSG_SCREEN_MOVE_Z_10MM_TITLE();
 extern const char * MSG_SCREEN_MOVE_E_01MM_TITLE();
 extern const char * MSG_SCREEN_MOVE_E_1MM_TITLE();
+extern const char * MSG_SCREEN_TEMP_TITLE();
+extern const char * MSG_SCREEN_TEMP_HEATING_TITLE();
 
 extern const char * MSG_SCREEN_PRINT_PRINTING();
 extern const char * MSG_SCREEN_PRINT_TITLE();
@@ -285,9 +284,6 @@ extern const char * MSG_SCREEN_PRINT_PAUSE();
 extern const char * MSG_SCREEN_PRINT_PAUSED();
 extern const char * MSG_SCREEN_PRINT_PAUSING();
 extern const char * MSG_SCREEN_PRINT_STOPPED();
-extern const char * MSG_SCREEN_TEMP_TITLE();
-extern const char * MSG_SCREEN_LIGHT();
-extern const char * MSG_SCREEN_AUTOLEVEL();
 extern const char * MSG_SCREEN_PRINT();
 extern const char * MSG_SCREEN_INFO();
 extern const char * MSG_SCREEN_INFO_TEXT();
@@ -312,8 +308,6 @@ extern const char * MSG_SCREEN_CHANGE_PULLOUT();
 extern const char * MSG_SCREEN_CHANGE_INSERT();
 extern const char * MSG_SCREEN_CHANGE_RETRY();
 extern const char * MSG_SCREEN_CHANGE_PAUSING();
-extern const char * MSG_SCREEN_HEATING_MAIN_TITLE();
-extern const char * MSG_SCREEN_HEATING_MAIN_BOX();
 extern const char * MSG_SCREEN_SPEED();
 extern const char * MSG_SCREEN_SERIAL_TITLE();
 extern const char * MSG_ICON_SD_NOSD();
