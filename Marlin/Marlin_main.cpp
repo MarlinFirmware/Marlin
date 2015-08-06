@@ -1481,7 +1481,8 @@ void process_commands()
   unsigned long codenum; //throw away variable
   char *starpos = NULL;
 
-  if(code_seen('G') && strchr(cmdbuffer[bufindw], 'G') == 0)
+  char *cmd_code = strchr(cmdbuffer[bufindw], 'G');
+  if(code_seen('G') && *cmd_code == cmdbuffer[bufindw][0])
   {
     switch((int)code_value())
     {
