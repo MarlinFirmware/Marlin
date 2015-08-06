@@ -547,6 +547,10 @@ const bool Z_PROBE_ENDSTOP_INVERTING = true; // set to true to invert the logic 
 #define ABS_PREHEAT_HPB_TEMP 100
 #define ABS_PREHEAT_FAN_SPEED 255   // Insert Value between 0 and 255
 
+// Extrusion control on pause/resume. Distances in mm.
+#define RETRACT_ON_PAUSE 2.2
+#define EXTRUDE_ON_RESUME 2
+
 //==============================LCD and SD support=============================
 
 // Character based displays can have different extended charsets. If you see strange or missing characters on yours - try an other definition below.

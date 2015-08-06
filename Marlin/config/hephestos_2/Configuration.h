@@ -449,6 +449,10 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define ABS_PREHEAT_HPB_TEMP 100
 #define ABS_PREHEAT_FAN_SPEED 255   // Insert Value between 0 and 255
 
+// Extrusion control on pause/resume. Distances in mm.
+#define RETRACT_ON_PAUSE 2.2
+#define EXTRUDE_ON_RESUME 2
+
 //LCD and SD support
 //#define ULTRA_LCD  //general LCD support, also 16x2
 #define DOGLCD  // Support for SPI LCD 128x64 (Controller ST7565R graphic Display Family)
