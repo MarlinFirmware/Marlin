@@ -2565,7 +2565,7 @@ inline void gcode_G28() {
       #endif // !DELTA
 
       int probePointCounter = 0;
-      bool zig = true;
+      bool zig = (auto_bed_leveling_grid_points & 1) ? true : false; //always end at [RIGHT_PROBE_BED_POSITION, BACK_PROBE_BED_POSITION]
 
       for (int yCount = 0; yCount < auto_bed_leveling_grid_points; yCount++) {
         double yProbe = front_probe_bed_position + yGridSpacing * yCount;
