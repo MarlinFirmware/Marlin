@@ -107,7 +107,7 @@ namespace screen
 		}
 
 		//Print text label
-		if(text != NULL && strlen_P(text) > 0)
+		if ( (text != NULL) && (strlen_P(text) > 0) )
 		{
 			setPrintPos( (screen_width - strlen_P(text) * max_font_width) / 2, ((screen_height - 1) - (max_font_height - 1)));
 			print_P(text);
@@ -395,16 +395,22 @@ namespace screen
 
 	void GuiPainter::print(const char * text)
 	{
-		m_impl.print(text);
+		if ( (text != NULL) && (strlen_P(text) > 0) )
+		{
+			m_impl.print(text);
+		}
 	}
 
 	void GuiPainter::print_P(const char * text)
 	{
-		char c;
-		while ((c = pgm_read_byte(text)) != '\0')
+		if ( (text != NULL) && (strlen_P(text) > 0) )
 		{
-			m_impl.print(c);
-			text++;
+			char c;
+			while ((c = pgm_read_byte(text)) != '\0')
+			{
+				m_impl.print(c);
+				text++;
+			}
 		}
 	}
 
