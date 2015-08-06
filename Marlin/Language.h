@@ -64,95 +64,74 @@ enum class Label
 	SCREEN_EMERGENCY_TITLE,
 	SCREEN_EMERGENCY_TEXT,
 	SCREEN_EMERGENCY_BOX,
-	NOSD,
-	SD,
-	FILAMENT_UNLOAD,
-	FILAMENT_LOAD,
-	LEVELING,
-	HOMING,
-	SETTINGS,
-	STEPPERS,
-	STEPPERS_OFF,
-	MOVEAXIS,
-	TEMPERATURE,
-	LIGHTLED_DISABLE,
-	LIGHTLED,
-	INFO,
-	PLAY,
-	PAUSE,
-	STOP,
-	CHANGE_FILAMENT,
-	CHANGE_SPEED,
-	BACK,
-	RETRY,
-	OK2,
-	MOVE_X,
-	MOVE_Y,
-	MOVE_Z,
-	MOVE_E,
-	AUTOLEVEL,
-	AUTOLEVEL_DISABLE,
-	OFFSET,
-	SCREEN_LOGO,
-	SCREEN_LOGO_TEXT,
-	SCREEN_LOGO_BOX,
-	SCREEN_SD_LIST,
-	SCREEN_SD_CONFIRM,
-	SCREEN_SD_TITLE,
+	SCREEN_SD_LIST_TITLE,
+	SCREEN_SD_LIST_CONFIRM,
 	SCREEN_SD_TEXT,
 	SCREEN_SD_WAIT,
 	SCREEN_SD_LIST_BACK,
 	SCREEN_SD_LIST_PREV,
-	SCREEN_UNLOAD_TITLE,
-	SCREEN_UNLOAD_TEXT1,
-	SCREEN_UNLOAD_TEXT2,
-	SCREEN_UNLOAD_WAIT,
-	SCREEN_UNLOAD_CONTINUE,
-	SCREEN_UNLOAD_PULL,
-	SCREEN_UNLOAD_CONFIRM,
+	SCREEN_UNLOAD_INIT_TITLE,
+	SCREEN_UNLOAD_INIT_TEXT,
+	SCREEN_UNLOAD_SELECT_TITLE,
+	SCREEN_UNLOAD_HEATING_TITLE,
+	SCREEN_UNLOAD_INFO_TITLE,
+	SCREEN_UNLOAD_INFO_TEXT,
+	SCREEN_UNLOADING_TITLE,
 	SCREEN_UNLOADING_TEXT,
-	SCREEN_LOAD_TITLE,
-	SCREEN_LOAD_TEXT1,
-	SCREEN_LOAD_TEXT2,
-	SCREEN_LOAD_WAIT,
-	SCREEN_LOAD_CONTINUE,
-	SCREEN_LOAD_PRESS,
-	SCREEN_LOAD_CONFIRM,
+	SCREEN_UNLOAD_CONFIRM_TITLE,
+	SCREEN_UNLOAD_CONFIRM_TEXT,
+	SCREEN_LOAD_INIT_TITLE,
+	SCREEN_LOAD_INIT_TEXT,
+	SCREEN_LOAD_SELECT_TITLE,
+	SCREEN_LOAD_HEATING_TITLE,
+	SCREEN_LOAD_INFO_TITLE,
+	SCREEN_LOAD_INFO_TEXT,
+	SCREEN_LOADING_TITLE,
 	SCREEN_LOADING_TEXT,
-	SCREEN_LEVEL_TITLE,
-	SCREEN_LEVEL_TEXT,
-	SCREEN_LEVEL_WAIT,
-	SCREEN_LEVEL_CONTINUE,
-	SCREEN_LEVEL_TEXT0,
-	SCREEN_LEVEL_TEXT1,
-	SCREEN_LEVEL_TEXT2,
-	SCREEN_LEVEL_TEXT3,
-	SCREEN_LEVEL_TEXT4,
-	SCREEN_LEVEL_BOX0,
-	SCREEN_LEVEL_BOX1,
-	SCREEN_LEVEL_BOX2,
-	SCREEN_LEVEL_BOX3,
-	SCREEN_LEVEL_BOX4,
-	SCREEN_LEVEL_CONFIRM,
-	SCREEN_AUTOHOME,
+	SCREEN_LOAD_CONFIRM_TITLE,
+	SCREEN_LOAD_CONFIRM_TEXT,
+	SCREEN_LEVEL_INIT_TITLE,
+	SCREEN_LEVEL_INIT_TEXT,
+	SCREEN_LEVEL_COOLING_TITLE,
+	SCREEN_LEVEL_HOMING_TITLE,
+	SCREEN_LEVEL_HOMING_TEXT,
+	SCREEN_LEVEL1_TITLE,
+	SCREEN_LEVEL1_TEXT,
+	SCREEN_LEVEL2_TITLE,
+	SCREEN_LEVEL2_TEXT,
+	SCREEN_LEVEL3_TITLE,
+	SCREEN_LEVEL3_TEXT,
+	SCREEN_LEVEL_CONFIRM_TITLE,
+	SCREEN_LEVEL_CONFIRM_TEXT,
 	SCREEN_AUTOHOME_TITLE,
 	SCREEN_AUTOHOME_TEXT,
-	SCREEN_AUTOHOME_WAIT,
-	SCREEN_SETTINGS,
+	SCREEN_SETTINGS_TITLE,
 	SCREEN_SETTINGS_TEXT,
-	SCREEN_STEPPER,
 	SCREEN_MOVE_TITLE,
 	SCREEN_MOVE_TEXT,
-	SCREEN_MOVE_X,
-	SCREEN_MOVE_Y,
-	SCREEN_MOVE_Z,
-	SCREEN_MOVE_E,
-	SCREEN_MOVE_2MOVE,
-	SCREEN_MOVE_01MM,
-	SCREEN_MOVE_1MM,
-	SCREEN_MOVE_10MM,
-	SCREEN_MOVE_HEAT_CONFIRM,
-	SCREEN_MOVE_BOX0,
+	SCREEN_MOVE_CONFIRM_TITLE,
+	SCREEN_MOVE_CONFIRM_TEXT,
+	SCREEN_MOVE_HEATING_TITLE,
+	SCREEN_MOVE_X_TITLE,
+	SCREEN_MOVE_X_TEXT,
+	SCREEN_MOVE_Y_TITLE,
+	SCREEN_MOVE_Y_TEXT,
+	SCREEN_MOVE_Z_TITLE,
+	SCREEN_MOVE_Z_TEXT,
+	SCREEN_MOVE_E_TITLE,
+	SCREEN_MOVE_E_TEXT,
+	SCREEN_MOVE_X_01MM_TITLE,
+	SCREEN_MOVE_X_1MM_TITLE,
+	SCREEN_MOVE_X_10MM_TITLE,
+	SCREEN_MOVE_Y_01MM_TITLE,
+	SCREEN_MOVE_Y_1MM_TITLE,
+	SCREEN_MOVE_Y_10MM_TITLE,
+	SCREEN_MOVE_Z_01MM_TITLE,
+	SCREEN_MOVE_Z_1MM_TITLE,
+	SCREEN_MOVE_Z_10MM_TITLE,
+	SCREEN_MOVE_E_01MM_TITLE,
+	SCREEN_MOVE_E_1MM_TITLE,
+
 	SCREEN_BACK2MAIN,
 	SCREEN_PRINT_PRINTING,
 	SCREEN_PRINT_TITLE,
@@ -192,115 +171,118 @@ enum class Label
 	SCREEN_HEATING_MAIN_TITLE,
 	SCREEN_HEATING_MAIN_BOX,
 	SCREEN_SPEED,
+	SCREEN_SERIAL_TITLE,
+	ICON_SD_NOSD,
+	ICON_SD_SD,
+	ICON_FILAMENT_UNLOAD,
+	ICON_FILAMENT_LOAD,
+	ICON_LEVELING,
+	ICON_HOMING,
+	ICON_SETTINGS,
+	ICON_STEPPERS_ON,
+	ICON_STEPPERS_OFF,
+	ICON_MOVEAXIS,
+	ICON_TEMPERATURE,
+	ICON_LIGHTLED_DISABLE,
+	ICON_LIGHTLED,
+	ICON_INFO,
+	ICON_PLAY,
+	ICON_PAUSE,
+	ICON_STOP,
+	ICON_CHANGE_FILAMENT,
+	ICON_CHANGE_SPEED,
+	ICON_BACK,
+	ICON_RETRY,
+	ICON_OK2,
+	ICON_MOVE_X,
+	ICON_MOVE_Y,
+	ICON_MOVE_Z,
+	ICON_MOVE_E,
+	ICON_MOVE_10MM,
+	ICON_MOVE_1MM,
+	ICON_MOVE_01MM,
+	ICON_AUTOLEVEL,
+	ICON_AUTOLEVEL_DISABLE,
+	ICON_OFFSET,
 	SELECTOR_BOX,
-	OK1,
-	SCREEN_SERIAL_TITLE
+	PUSH_TO_CONFIRM,
+	PUSH_TO_CONTINUE,
+	PUSH_TO_START,
+	PLEASE_WAIT,
+	EMPTY
 };
 
 extern const char * MSG_SCREEN_EMERGENCY_TITLE();
 extern const char * MSG_SCREEN_EMERGENCY_TEXT();
 extern const char * MSG_SCREEN_EMERGENCY_BOX();
-
-extern const char * MSG_NOSD();
-extern const char * MSG_SD();
-extern const char * MSG_FILAMENT_UNLOAD();
-extern const char * MSG_FILAMENT_LOAD();
-extern const char * MSG_LEVELING();
-extern const char * MSG_HOMING();
-extern const char * MSG_SETTINGS();
-extern const char * MSG_STEPPERS();
-extern const char * MSG_STEPPERS_OFF();
-extern const char * MSG_MOVEAXIS();
-extern const char * MSG_TEMPERATURE();
-extern const char * MSG_LIGHTLED_DISABLE();
-extern const char * MSG_LIGHTLED();
-extern const char * MSG_INFO();
-extern const char * MSG_PLAY();
-extern const char * MSG_PAUSE();
-extern const char * MSG_STOP();
-extern const char * MSG_CHANGE_FILAMENT();
-extern const char * MSG_CHANGE_SPEED();
-extern const char * MSG_BACK();
-extern const char * MSG_RETRY();
-extern const char * MSG_OK2();
-extern const char * MSG_MOVE_X();
-extern const char * MSG_MOVE_Y();
-extern const char * MSG_MOVE_Z();
-extern const char * MSG_MOVE_E();
-extern const char * MSG_AUTOLEVEL();
-extern const char * MSG_AUTOLEVEL_DISABLE();
-extern const char * MSG_OFFSET();
-
-extern const char * MSG_SCREEN_LOGO();
-extern const char * MSG_SCREEN_LOGO_TEXT();
-extern const char * MSG_SCREEN_LOGO_BOX();
-
-extern const char * MSG_SCREEN_SD_LIST();
-extern const char * MSG_SCREEN_SD_CONFIRM();
-extern const char * MSG_SCREEN_SD_TITLE();
+extern const char * MSG_SCREEN_SD_LIST_TITLE();
+extern const char * MSG_SCREEN_SD_LIST_CONFIRM();
 extern const char * MSG_SCREEN_SD_TEXT();
 extern const char * MSG_SCREEN_SD_WAIT();
 extern const char * MSG_SCREEN_SD_LIST_BACK();
 extern const char * MSG_SCREEN_SD_LIST_PREV();
-
-extern const char * MSG_SCREEN_UNLOAD_TITLE();
-extern const char * MSG_SCREEN_UNLOAD_TEXT1();
-extern const char * MSG_SCREEN_UNLOAD_TEXT2();
-extern const char * MSG_SCREEN_UNLOAD_WAIT();
-extern const char * MSG_SCREEN_UNLOAD_CONTINUE();
-extern const char * MSG_SCREEN_UNLOAD_PULL();
-extern const char * MSG_SCREEN_UNLOAD_CONFIRM();
+extern const char * MSG_SCREEN_UNLOAD_INIT_TITLE();
+extern const char * MSG_SCREEN_UNLOAD_INIT_TEXT();
+extern const char * MSG_SCREEN_UNLOAD_SELECT_TITLE();
+extern const char * MSG_SCREEN_UNLOAD_HEATING_TITLE();
+extern const char * MSG_SCREEN_UNLOAD_INFO_TITLE();
+extern const char * MSG_SCREEN_UNLOAD_INFO_TEXT();
+extern const char * MSG_SCREEN_UNLOADING_TITLE();
 extern const char * MSG_SCREEN_UNLOADING_TEXT();
-
-extern const char * MSG_SCREEN_LOAD_TITLE();
-extern const char * MSG_SCREEN_LOAD_TEXT1();
-extern const char * MSG_SCREEN_LOAD_TEXT2();
-extern const char * MSG_SCREEN_LOAD_WAIT();
-extern const char * MSG_SCREEN_LOAD_CONTINUE();
-extern const char * MSG_SCREEN_LOAD_PRESS();
-extern const char * MSG_SCREEN_LOAD_CONFIRM();
+extern const char * MSG_SCREEN_UNLOAD_CONFIRM_TITLE();
+extern const char * MSG_SCREEN_UNLOAD_CONFIRM_TEXT();
+extern const char * MSG_SCREEN_LOAD_INIT_TITLE();
+extern const char * MSG_SCREEN_LOAD_INIT_TEXT();
+extern const char * MSG_SCREEN_LOAD_SELECT_TITLE();
+extern const char * MSG_SCREEN_LOAD_HEATING_TITLE();
+extern const char * MSG_SCREEN_LOAD_INFO_TITLE();
+extern const char * MSG_SCREEN_LOAD_INFO_TEXT();
+extern const char * MSG_SCREEN_LOADING_TITLE();
 extern const char * MSG_SCREEN_LOADING_TEXT();
-
-extern const char * MSG_SCREEN_LEVEL_TITLE();
-extern const char * MSG_SCREEN_LEVEL_TEXT();
-extern const char * MSG_SCREEN_LEVEL_WAIT();
-extern const char * MSG_SCREEN_LEVEL_CONTINUE();
-extern const char * MSG_SCREEN_LEVEL_TEXT0();
-extern const char * MSG_SCREEN_LEVEL_TEXT1();
-extern const char * MSG_SCREEN_LEVEL_TEXT2();
-extern const char * MSG_SCREEN_LEVEL_TEXT3();
-extern const char * MSG_SCREEN_LEVEL_TEXT4();
-extern const char * MSG_SCREEN_LEVEL_BOX0();
-extern const char * MSG_SCREEN_LEVEL_BOX1();
-extern const char * MSG_SCREEN_LEVEL_BOX2();
-extern const char * MSG_SCREEN_LEVEL_BOX3();
-extern const char * MSG_SCREEN_LEVEL_BOX4();
-extern const char * MSG_SCREEN_LEVEL_CONFIRM();
-
-extern const char * MSG_SCREEN_AUTOHOME();
+extern const char * MSG_SCREEN_LOAD_CONFIRM_TITLE();
+extern const char * MSG_SCREEN_LOAD_CONFIRM_TEXT();
+extern const char * MSG_SCREEN_LEVEL_INIT_TITLE();
+extern const char * MSG_SCREEN_LEVEL_INIT_TEXT();
+extern const char * MSG_SCREEN_LEVEL_COOLING_TITLE();
+extern const char * MSG_SCREEN_LEVEL_HOMING_TITLE();
+extern const char * MSG_SCREEN_LEVEL_HOMING_TEXT();
+extern const char * MSG_SCREEN_LEVEL1_TITLE();
+extern const char * MSG_SCREEN_LEVEL1_TEXT();
+extern const char * MSG_SCREEN_LEVEL2_TITLE();
+extern const char * MSG_SCREEN_LEVEL2_TEXT();
+extern const char * MSG_SCREEN_LEVEL3_TITLE();
+extern const char * MSG_SCREEN_LEVEL3_TEXT();
+extern const char * MSG_SCREEN_LEVEL_CONFIRM_TITLE();
+extern const char * MSG_SCREEN_LEVEL_CONFIRM_TEXT();
 extern const char * MSG_SCREEN_AUTOHOME_TITLE();
 extern const char * MSG_SCREEN_AUTOHOME_TEXT();
-extern const char * MSG_SCREEN_AUTOHOME_WAIT();
-
-extern const char * MSG_SCREEN_SETTINGS();
+extern const char * MSG_SCREEN_SETTINGS_TITLE();
 extern const char * MSG_SCREEN_SETTINGS_TEXT();
-extern const char * MSG_SCREEN_STEPPER();
-
 extern const char * MSG_SCREEN_MOVE_TITLE();
 extern const char * MSG_SCREEN_MOVE_TEXT();
-extern const char * MSG_SCREEN_MOVE_X();
-extern const char * MSG_SCREEN_MOVE_Y();
-extern const char * MSG_SCREEN_MOVE_Z();
-extern const char * MSG_SCREEN_MOVE_E();
-extern const char * MSG_SCREEN_MOVE_2MOVE();
-extern const char * MSG_SCREEN_MOVE_01MM();
-extern const char * MSG_SCREEN_MOVE_1MM();
-extern const char * MSG_SCREEN_MOVE_10MM();
-extern const char * MSG_SCREEN_MOVE_HEAT_CONFIRM();
-extern const char * MSG_SCREEN_MOVE_BOX0();
-
+extern const char * MSG_SCREEN_MOVE_CONFIRM_TITLE();
+extern const char * MSG_SCREEN_MOVE_CONFIRM_TEXT();
+extern const char * MSG_SCREEN_MOVE_HEATING_TITLE();
+extern const char * MSG_SCREEN_MOVE_X_TITLE();
+extern const char * MSG_SCREEN_MOVE_X_TEXT();
+extern const char * MSG_SCREEN_MOVE_Y_TITLE();
+extern const char * MSG_SCREEN_MOVE_Y_TEXT();
+extern const char * MSG_SCREEN_MOVE_Z_TITLE();
+extern const char * MSG_SCREEN_MOVE_Z_TEXT();
+extern const char * MSG_SCREEN_MOVE_E_TITLE();
+extern const char * MSG_SCREEN_MOVE_E_TEXT();
+extern const char * MSG_SCREEN_MOVE_X_01MM_TITLE();
+extern const char * MSG_SCREEN_MOVE_X_1MM_TITLE();
+extern const char * MSG_SCREEN_MOVE_X_10MM_TITLE();
+extern const char * MSG_SCREEN_MOVE_Y_01MM_TITLE();
+extern const char * MSG_SCREEN_MOVE_Y_1MM_TITLE();
+extern const char * MSG_SCREEN_MOVE_Y_10MM_TITLE();
+extern const char * MSG_SCREEN_MOVE_Z_01MM_TITLE();
+extern const char * MSG_SCREEN_MOVE_Z_1MM_TITLE();
+extern const char * MSG_SCREEN_MOVE_Z_10MM_TITLE();
+extern const char * MSG_SCREEN_MOVE_E_01MM_TITLE();
+extern const char * MSG_SCREEN_MOVE_E_1MM_TITLE();
 extern const char * MSG_SCREEN_BACK2MAIN();
-
 extern const char * MSG_SCREEN_PRINT_PRINTING();
 extern const char * MSG_SCREEN_PRINT_TITLE();
 extern const char * MSG_SCREEN_PRINT_COMPLETED();
@@ -309,7 +291,6 @@ extern const char * MSG_SCREEN_PRINT_PAUSE();
 extern const char * MSG_SCREEN_PRINT_PAUSED();
 extern const char * MSG_SCREEN_PRINT_PAUSING();
 extern const char * MSG_SCREEN_PRINT_STOPPED();
-
 extern const char * MSG_SCREEN_TEMP_TITLE();
 extern const char * MSG_SCREEN_LIGHT();
 extern const char * MSG_SCREEN_AUTOLEVEL();
@@ -317,7 +298,6 @@ extern const char * MSG_SCREEN_PRINT();
 extern const char * MSG_SCREEN_INFO();
 extern const char * MSG_SCREEN_INFO_TEXT();
 extern const char * MSG_SCREEN_INFO_BOX();
-
 extern const char * MSG_SCREEN_OFFSET_TITLE();
 extern const char * MSG_SCREEN_OFFSET_TEXT();
 extern const char * MSG_SCREEN_OFFSET_DIALOG_TEXT();
@@ -327,11 +307,9 @@ extern const char * MSG_SCREEN_OFFSET_WAIT();
 extern const char * MSG_SCREEN_OFFSET_WAIT_BOX();
 extern const char * MSG_SCREEN_OFFSET_HOME_TEXT();
 extern const char * MSG_SCREEN_OFFSET_PLANE_TEXT();
-
 extern const char * MSG_SCREEN_STOP_CONFIRM();
 extern const char * MSG_SCREEN_STOP_BACK();
 extern const char * MSG_SCREEN_STOP_OK();
-
 extern const char * MSG_SCREEN_CHANGE_TITLE();
 extern const char * MSG_SCREEN_CHANGE_BOX();
 extern const char * MSG_SCREEN_CHANGE_CONFIRM();
@@ -340,13 +318,47 @@ extern const char * MSG_SCREEN_CHANGE_PULLOUT();
 extern const char * MSG_SCREEN_CHANGE_INSERT();
 extern const char * MSG_SCREEN_CHANGE_RETRY();
 extern const char * MSG_SCREEN_CHANGE_PAUSING();
-
 extern const char * MSG_SCREEN_HEATING_MAIN_TITLE();
 extern const char * MSG_SCREEN_HEATING_MAIN_BOX();
-
 extern const char * MSG_SCREEN_SPEED();
-extern const char * MSG_SELECTOR_BOX();
-extern const char * MSG_OK1();
-
 extern const char * MSG_SCREEN_SERIAL_TITLE();
+extern const char * MSG_ICON_SD_NOSD();
+extern const char * MSG_ICON_SD_SD();
+extern const char * MSG_ICON_FILAMENT_UNLOAD();
+extern const char * MSG_ICON_FILAMENT_LOAD();
+extern const char * MSG_ICON_LEVELING();
+extern const char * MSG_ICON_HOMING();
+extern const char * MSG_ICON_SETTINGS();
+extern const char * MSG_ICON_STEPPERS();
+extern const char * MSG_ICON_STEPPERS_OFF();
+extern const char * MSG_ICON_MOVEAXIS();
+extern const char * MSG_ICON_TEMPERATURE();
+extern const char * MSG_ICON_LIGHTLED_DISABLE();
+extern const char * MSG_ICON_LIGHTLED();
+extern const char * MSG_ICON_INFO();
+extern const char * MSG_ICON_PLAY();
+extern const char * MSG_ICON_PAUSE();
+extern const char * MSG_ICON_STOP();
+extern const char * MSG_ICON_CHANGE_FILAMENT();
+extern const char * MSG_ICON_CHANGE_SPEED();
+extern const char * MSG_ICON_BACK();
+extern const char * MSG_ICON_RETRY();
+extern const char * MSG_ICON_OK2();
+extern const char * MSG_ICON_MOVE_X();
+extern const char * MSG_ICON_MOVE_Y();
+extern const char * MSG_ICON_MOVE_Z();
+extern const char * MSG_ICON_MOVE_E();
+extern const char * MSG_ICON_MOVE_10MM();
+extern const char * MSG_ICON_MOVE_1MM();
+extern const char * MSG_ICON_MOVE_01MM();
+extern const char * MSG_ICON_AUTOLEVEL();
+extern const char * MSG_ICON_AUTOLEVEL_DISABLE();
+extern const char * MSG_ICON_OFFSET();
+extern const char * MSG_SELECTOR_BOX();
+extern const char * MSG_PUSH_TO_CONFIRM();
+extern const char * MSG_PUSH_TO_CONTINUE();
+extern const char * MSG_PUSH_TO_START();
+extern const char * MSG_PLEASE_WAIT();
+extern const char * MSG_EMPTY();
+
 #endif // ifndef LANGUAGE_H

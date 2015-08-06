@@ -14,7 +14,6 @@ namespace screen
 		screen_SD_list,
 		screen_SD_confirm,
 		screen_SD_OK,
-		screen_SD_back,
 		screen_unload_init,
 		screen_unload_select,
 		screen_unload_heating,

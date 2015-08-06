@@ -90,7 +90,7 @@ namespace screen
 				strcpy_P(m_message, MSG_SCREEN_AUTOLEVEL());
 				break;
 			case HEATING:
-				strcpy_P(m_message, MSG_SCREEN_UNLOAD_WAIT());
+				strcpy_P(m_message, MSG_PLEASE_WAIT());
 				break;
 			default:
 			break;

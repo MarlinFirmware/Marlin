@@ -41,7 +41,7 @@ namespace screen
 		class ScreenSelector : public Screen , public Functor<R, Args...>
 	{
 		public:
-			ScreenSelector(const char * title, uint16_t min, uint16_t max, uint16_t scale, uint16_t dflt, typename Functor<R, Args...>::FuncPtr fptr = do_nothing);
+			ScreenSelector(const char * title, const char * box, uint16_t min, uint16_t max, uint16_t scale, uint16_t dflt, typename Functor<R, Args...>::FuncPtr fptr = do_nothing);
 			virtual ~ScreenSelector();
 
 			void init(uint16_t index = 0);
@@ -57,11 +57,13 @@ namespace screen
 			uint16_t m_maximum_value;
 			uint16_t m_scale;
 			uint16_t m_default;
+			const char * m_box;
 	};
 
 	template <typename R, typename... Args>
-		ScreenSelector<R, Args...>::ScreenSelector(const char * title, uint16_t min, uint16_t max, uint16_t scale, uint16_t dflt, typename Functor<R, Args...>::FuncPtr fptr)
+		ScreenSelector<R, Args...>::ScreenSelector(const char * title, const char * box, uint16_t min, uint16_t max, uint16_t scale, uint16_t dflt, typename Functor<R, Args...>::FuncPtr fptr)
 		: Screen(title, SELECTOR)
+		, m_box(box)
 		, Functor<R, Args...>(fptr)
 		, m_minimum_value(min)
 		, m_maximum_value(max)
@@ -122,7 +124,7 @@ namespace screen
 			do
 			{
 				painter.title(m_title);
-				painter.box(MSG_SELECTOR_BOX());
+				painter.box(m_box);
 
 				uint8_t x_init = painter.coordinateXInit();
 				uint8_t x_end = painter.coordinateXEnd();
