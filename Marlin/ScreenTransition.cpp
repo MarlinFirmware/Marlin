@@ -84,10 +84,8 @@ namespace screen
 		switch(m_printing_status)
 		{
 			case HOMING:
-				strcpy_P(m_message, MSG_SCREEN_AUTOHOME_TEXT());
-				break;
 			case LEVELING:
-				strcpy_P(m_message, MSG_SCREEN_AUTOLEVEL());
+				strcpy_P(m_message, MSG_SCREEN_AUTOHOME_TEXT());
 				break;
 			case HEATING:
 				strcpy_P(m_message, MSG_PLEASE_WAIT());

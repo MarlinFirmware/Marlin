@@ -120,7 +120,7 @@ namespace screen
 
 	static ScreenTransition * make_screen_SD_OK()
 	{
-		ScreenTransition * local_view = new ScreenTransition(MSG_SCREEN_SD_LIST_TITLE(), MSG_SCREEN_SD_TEXT(), MSG_SCREEN_SD_WAIT(), PrintManager::startPrint, &PrintManager::single::instance());
+		ScreenTransition * local_view = new ScreenTransition(MSG_SCREEN_SD_LIST_TITLE(), NULL, MSG_PLEASE_WAIT(), PrintManager::startPrint, &PrintManager::single::instance());
 		local_view->add(screen_print_heating);
 		return local_view;
 	}
