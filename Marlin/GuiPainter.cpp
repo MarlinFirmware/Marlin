@@ -395,7 +395,7 @@ namespace screen
 
 	void GuiPainter::print(const char * text)
 	{
-		if ( (text != NULL) && (strlen_P(text) > 0) )
+		if ( (text != NULL) && (strlen(text) > 0) )
 		{
 			m_impl.print(text);
 		}
