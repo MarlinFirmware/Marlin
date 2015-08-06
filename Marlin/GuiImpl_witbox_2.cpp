@@ -255,7 +255,7 @@ namespace screen
 
 	static ScreenAnimation<float> * make_screen_level_animation()
 	{
-		ScreenAnimation<float> * local_view = new ScreenAnimation<float>(MSG_SCREEN_LEVEL_COOLING_TITLE(), MSG_PLEASE_WAIT(), screen::ScreenAnimation<float>::LESS_OR_EQUAL, 70, &TemperatureManager::single::instance());
+		ScreenAnimation<float> * local_view = new ScreenAnimation<float>(MSG_SCREEN_LEVEL_HEATING_TITLE(), MSG_PLEASE_WAIT(), screen::ScreenAnimation<float>::LESS_OR_EQUAL, 70, &TemperatureManager::single::instance());
 		local_view->add(screen_level_homing);
 		return local_view;
 	}
