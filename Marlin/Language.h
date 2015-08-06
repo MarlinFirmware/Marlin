@@ -130,7 +130,6 @@ enum class Label
 	SCREEN_MOVE_E_01MM_TITLE,
 	SCREEN_MOVE_E_1MM_TITLE,
 
-	SCREEN_BACK2MAIN,
 	SCREEN_PRINT_PRINTING,
 	SCREEN_PRINT_TITLE,
 	SCREEN_PRINT_COMPLETED,
@@ -277,7 +276,7 @@ extern const char * MSG_SCREEN_MOVE_Z_1MM_TITLE();
 extern const char * MSG_SCREEN_MOVE_Z_10MM_TITLE();
 extern const char * MSG_SCREEN_MOVE_E_01MM_TITLE();
 extern const char * MSG_SCREEN_MOVE_E_1MM_TITLE();
-extern const char * MSG_SCREEN_BACK2MAIN();
+
 extern const char * MSG_SCREEN_PRINT_PRINTING();
 extern const char * MSG_SCREEN_PRINT_TITLE();
 extern const char * MSG_SCREEN_PRINT_COMPLETED();

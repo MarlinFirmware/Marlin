@@ -72,7 +72,6 @@ const char PT_SCREEN_MOVE_Z_10MM_TITLE[] PROGMEM    = "Axis Z / 10mm";
 const char PT_SCREEN_MOVE_E_01MM_TITLE[] PROGMEM    = "Extruder / 0.1mm";
 const char PT_SCREEN_MOVE_E_1MM_TITLE[] PROGMEM     = "Extruder / 1mm";
 
-const char PT_SCREEN_BACK2MAIN[] PROGMEM            = "Back";
 const char PT_SCREEN_PRINT_PRINTING[] PROGMEM       = "Printing";
 const char PT_SCREEN_PRINT_TITLE[] PROGMEM          = "Print finished";
 const char PT_SCREEN_PRINT_COMPLETED[] PROGMEM      = "Remove the piece from the plate";
