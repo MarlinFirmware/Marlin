@@ -27,7 +27,7 @@ namespace screen
 		screen_loading,
 		screen_load_confirm,
 		screen_level_init,
-		screen_level_cooling,
+		screen_level_heating,
 		screen_level_animation,
 		screen_level_homing,
 		screen_level1,

@@ -241,21 +241,21 @@ namespace screen
 		ScreenMenu * local_view = new ScreenMenu(MSG_SCREEN_LEVEL_INIT_TITLE(), MSG_SCREEN_LEVEL_INIT_TEXT());
 		local_view->add(screen_main);
 		local_view->icon(icon_back);
-		local_view->add(screen_level_cooling);
+		local_view->add(screen_level_heating);
 		local_view->icon(icon_ok);
 		return local_view;
 	}
 
-	static ScreenAction<void> * make_screen_level_cooling()
+	static ScreenAction<void> * make_screen_level_heating()
 	{
-		ScreenAction<void> * local_view = new ScreenAction<void>(NULL, action_cooldown);
+		ScreenAction<void> * local_view = new ScreenAction<void>(NULL, action_preheat);
 		local_view->add(screen_level_animation);
 		return local_view;
 	}
 
 	static ScreenAnimation<float> * make_screen_level_animation()
 	{
-		ScreenAnimation<float> * local_view = new ScreenAnimation<float>(MSG_SCREEN_LEVEL_HEATING_TITLE(), MSG_PLEASE_WAIT(), screen::ScreenAnimation<float>::LESS_OR_EQUAL, 70, &TemperatureManager::single::instance());
+		ScreenAnimation<float> * local_view = new ScreenAnimation<float>(MSG_SCREEN_LEVEL_HEATING_TITLE(), MSG_PLEASE_WAIT(), screen::ScreenAnimation<float>::GREATER_OR_EQUAL, PREHEAT_HOTEND_TEMP, &TemperatureManager::single::instance());
 		local_view->add(screen_level_homing);
 		return local_view;
 	}
@@ -889,8 +889,8 @@ namespace screen
 			case screen_level_init:
 				new_view = make_screen_level_init();
 				break;
-			case screen_level_cooling:
-				new_view = make_screen_level_cooling();
+			case screen_level_heating:
+				new_view = make_screen_level_heating();
 				break;
 			case screen_level_animation:
 				new_view = make_screen_level_animation();
