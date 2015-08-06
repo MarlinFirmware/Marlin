@@ -95,6 +95,17 @@
 //=============================Mechanical Settings===========================
 //===========================================================================
 
+// Rest Position
+#define POSITION_REST_X 200.0
+#define POSITION_REST_Y 200.0
+#define POSITION_REST_Z  15.0
+
+// Load/Unload Filament Position
+#define POSITION_FILAMENT_X 200.0
+#define POSITION_FILAMENT_Y  30.0
+#define POSITION_FILAMENT_Z  75.0
+
+
 // @section homing
 
 //#define ENDSTOPS_ONLY_FOR_HOMING // If defined the endstops will only be used for homing
