@@ -131,6 +131,7 @@ enum class Label
 	SCREEN_MOVE_E_1MM_TITLE,
 	SCREEN_TEMP_TITLE,
 	SCREEN_TEMP_HEATING_TITLE,
+	SCREEN_INFO_TITLE,
 
 	SCREEN_PRINT_PRINTING,
 	SCREEN_PRINT_TITLE,
@@ -141,9 +142,6 @@ enum class Label
 	SCREEN_PRINT_PAUSING,
 	SCREEN_PRINT_STOPPED,
 	SCREEN_PRINT,
-	SCREEN_INFO,
-	SCREEN_INFO_TEXT,
-	SCREEN_INFO_BOX,
 	SCREEN_OFFSET_TITLE,
 	SCREEN_OFFSET_TEXT,
 	SCREEN_OFFSET_DIALOG_TEXT,
@@ -202,6 +200,7 @@ enum class Label
 	PUSH_TO_CONFIRM,
 	PUSH_TO_CONTINUE,
 	PUSH_TO_START,
+	PUSH_TO_BACK,
 	PLEASE_WAIT,
 };
 
@@ -275,6 +274,7 @@ extern const char * MSG_SCREEN_MOVE_E_01MM_TITLE();
 extern const char * MSG_SCREEN_MOVE_E_1MM_TITLE();
 extern const char * MSG_SCREEN_TEMP_TITLE();
 extern const char * MSG_SCREEN_TEMP_HEATING_TITLE();
+extern const char * MSG_SCREEN_INFO_TITLE();
 
 extern const char * MSG_SCREEN_PRINT_PRINTING();
 extern const char * MSG_SCREEN_PRINT_TITLE();
@@ -285,9 +285,6 @@ extern const char * MSG_SCREEN_PRINT_PAUSED();
 extern const char * MSG_SCREEN_PRINT_PAUSING();
 extern const char * MSG_SCREEN_PRINT_STOPPED();
 extern const char * MSG_SCREEN_PRINT();
-extern const char * MSG_SCREEN_INFO();
-extern const char * MSG_SCREEN_INFO_TEXT();
-extern const char * MSG_SCREEN_INFO_BOX();
 extern const char * MSG_SCREEN_OFFSET_TITLE();
 extern const char * MSG_SCREEN_OFFSET_TEXT();
 extern const char * MSG_SCREEN_OFFSET_DIALOG_TEXT();
@@ -346,6 +343,7 @@ extern const char * MSG_SELECTOR_BOX();
 extern const char * MSG_PUSH_TO_CONFIRM();
 extern const char * MSG_PUSH_TO_CONTINUE();
 extern const char * MSG_PUSH_TO_START();
+extern const char * MSG_PUSH_TO_BACK();
 extern const char * MSG_PLEASE_WAIT();
 
 #endif // ifndef LANGUAGE_H

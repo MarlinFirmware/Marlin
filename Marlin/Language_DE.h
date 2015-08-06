@@ -73,6 +73,7 @@ const char DE_SCREEN_MOVE_E_01MM_TITLE[] PROGMEM    = "Extruder / 0.1mm";
 const char DE_SCREEN_MOVE_E_1MM_TITLE[] PROGMEM     = "Extruder / 1mm";
 const char DE_SCREEN_TEMP_TITLE[] PROGMEM           = "Temperature";
 const char DE_SCREEN_TEMP_HEATING_TITLE[] PROGMEM   = "Temperature";
+const char DE_SCREEN_INFO_TITLE[] PROGMEM           = "Version";
 
 const char DE_SCREEN_PRINT_PRINTING[] PROGMEM       = "Printing";
 const char DE_SCREEN_PRINT_TITLE[] PROGMEM          = "Print finished";
@@ -83,9 +84,6 @@ const char DE_SCREEN_PRINT_PAUSED[] PROGMEM         = "Paused";
 const char DE_SCREEN_PRINT_PAUSING[] PROGMEM        = "Pausing...";
 const char DE_SCREEN_PRINT_STOPPED[] PROGMEM        = "Stopped";
 const char DE_SCREEN_PRINT[] PROGMEM                = "Confirm";
-const char DE_SCREEN_INFO[] PROGMEM                 = "FW info";
-const char DE_SCREEN_INFO_TEXT[] PROGMEM            = "FW info";
-const char DE_SCREEN_INFO_BOX[] PROGMEM             = "Push to continue";
 const char DE_SCREEN_OFFSET_TITLE[] PROGMEM         = "Offset";
 const char DE_SCREEN_OFFSET_TEXT[] PROGMEM          = "Adjust offset?";
 const char DE_SCREEN_OFFSET_DIALOG_TEXT[] PROGMEM   = "Adjust the distance between the extruder & plate";
@@ -144,6 +142,7 @@ const char DE_SELECTOR_BOX[] PROGMEM                = "Select a value";
 const char DE_PUSH_TO_CONFIRM[] PROGMEM             = "Push to confirm";
 const char DE_PUSH_TO_CONTINUE[] PROGMEM            = "Push to continue";
 const char DE_PUSH_TO_START[] PROGMEM               = "Push to start";
+const char DE_PUSH_TO_BACK[] PROGMEM                = "Push to go back";
 const char DE_PLEASE_WAIT[] PROGMEM                 = "Please wait";
 
 #endif //LANGUAGE_DE_H

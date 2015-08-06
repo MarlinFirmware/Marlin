@@ -73,6 +73,7 @@ const char ES_SCREEN_MOVE_E_01MM_TITLE[] PROGMEM    = "Extrusor / 0.1mm";
 const char ES_SCREEN_MOVE_E_1MM_TITLE[] PROGMEM     = "Extrusor / 1mm";
 const char ES_SCREEN_TEMP_TITLE[] PROGMEM           = "Temperatura";
 const char ES_SCREEN_TEMP_HEATING_TITLE[] PROGMEM   = "Temperatura";
+const char ES_SCREEN_INFO_TITLE[] PROGMEM           = "Version";
 
 const char ES_SCREEN_PRINT_PRINTING[] PROGMEM       = "Imprimiendo";
 const char ES_SCREEN_PRINT_TITLE[] PROGMEM          = "Impresion finalizada";
@@ -83,9 +84,6 @@ const char ES_SCREEN_PRINT_PAUSED[] PROGMEM         = "En pausa";
 const char ES_SCREEN_PRINT_PAUSING[] PROGMEM        = "Pausando...";
 const char ES_SCREEN_PRINT_STOPPED[] PROGMEM        = "Parada";
 const char ES_SCREEN_PRINT[] PROGMEM                = "Confirmar";
-const char ES_SCREEN_INFO[] PROGMEM                 = "FW info";
-const char ES_SCREEN_INFO_TEXT[] PROGMEM            = "FW info";
-const char ES_SCREEN_INFO_BOX[] PROGMEM             = "Pulsa para continuar";
 const char ES_SCREEN_OFFSET_TITLE[] PROGMEM         = "Ajustar offset";
 const char ES_SCREEN_OFFSET_TEXT[] PROGMEM          = "Ajustar offset?";
 const char ES_SCREEN_OFFSET_DIALOG_TEXT[] PROGMEM   = "Pulsa y luego gira el boton hasta que el extrusor toque la base";
@@ -144,6 +142,7 @@ const char ES_SELECTOR_BOX[] PROGMEM                = "Selecciona valor";
 const char ES_PUSH_TO_CONFIRM[] PROGMEM             = "Pulsa para confirmar";
 const char ES_PUSH_TO_CONTINUE[] PROGMEM            = "Pulsa para continuar";
 const char ES_PUSH_TO_START[] PROGMEM               = "Pulsa para comenzar";
+const char ES_PUSH_TO_BACK[] PROGMEM                = "Pulsa para volver";
 const char ES_PLEASE_WAIT[] PROGMEM                 = "Por favor, espera";
 
 #endif //LANGUAGE_ES_H

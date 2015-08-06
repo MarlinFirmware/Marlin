@@ -574,7 +574,7 @@ namespace screen
 
 	static ScreenAbout * make_screen_info()
 	{
-		ScreenAbout * local_view = new ScreenAbout(MSG_SCREEN_INFO(), MSG_SCREEN_INFO_TEXT(), MSG_SCREEN_INFO_BOX(), bits_logo_about);
+		ScreenAbout * local_view = new ScreenAbout(MSG_SCREEN_INFO_TITLE(), NULL, MSG_PUSH_TO_BACK(), bits_logo_about);
 		local_view->add(screen_settings);
 		return local_view;
 	}
