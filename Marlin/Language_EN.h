@@ -74,7 +74,6 @@ const char EN_SCREEN_MOVE_Z_10MM_TITLE[] PROGMEM    = "Axis Z / 10mm";
 const char EN_SCREEN_MOVE_E_01MM_TITLE[] PROGMEM    = "Extruder / 0.1mm";
 const char EN_SCREEN_MOVE_E_1MM_TITLE[] PROGMEM     = "Extruder / 1mm";
 
-const char EN_SCREEN_BACK2MAIN[] PROGMEM            = "Back";
 const char EN_SCREEN_PRINT_PRINTING[] PROGMEM       = "Printing";
 const char EN_SCREEN_PRINT_TITLE[] PROGMEM          = "Print finished";
 const char EN_SCREEN_PRINT_COMPLETED[] PROGMEM      = "Remove the piece from the plate";
@@ -151,6 +150,5 @@ const char EN_PUSH_TO_CONFIRM[] PROGMEM             = "Push to confirm";
 const char EN_PUSH_TO_CONTINUE[] PROGMEM            = "Push to continue";
 const char EN_PUSH_TO_START[] PROGMEM               = "Push to start";
 const char EN_PLEASE_WAIT[] PROGMEM                 = "Please wait";
-const char EN_EMPTY[] PROGMEM                       = "";
 
 #endif //LANGUAGE_EN_H

@@ -107,8 +107,11 @@ namespace screen
 		}
 
 		//Print text label
-		setPrintPos( (screen_width - strlen_P(text) * max_font_width) / 2, ((screen_height - 1) - (max_font_height - 1)));
-		print_P(text);
+		if(text != NULL && strlen_P(text) > 0)
+		{
+			setPrintPos( (screen_width - strlen_P(text) * max_font_width) / 2, ((screen_height - 1) - (max_font_height - 1)));
+			print_P(text);
+		}
 
 		coordinateYEnd(51);
 		setColorIndex(save_color_index);
