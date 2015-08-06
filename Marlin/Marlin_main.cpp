@@ -1701,9 +1701,19 @@ void process_commands()
       card.openFile(strchr_pointer + 4,true);
       break;
     case 24: //M24 - Start SD print
+#ifdef DOGLCD
+      if(PrintManager::single::instance().state() == HEATING)
+      {
+        card.startFileprint();
+        starttime=millis();
+        feedmultiply = 100;
+        PrintManager::single::instance().state(PRINTING);
+      }
+#else
       card.startFileprint();
       starttime=millis();
-			feedmultiply = 100;
+      feedmultiply = 100;
+#endif
       break;
     case 25: //M25 - Pause SD print
 				target[X_AXIS]=current_position[X_AXIS];

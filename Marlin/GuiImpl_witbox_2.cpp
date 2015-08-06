@@ -118,10 +118,10 @@ namespace screen
 		return local_view;
 	}
 
-	static ScreenAction<void> * make_screen_SD_OK()
+	static ScreenTransition * make_screen_SD_OK()
 	{
-		ScreenAction<void> * local_view = new ScreenAction<void>(NULL, PrintManager::startPrint);
-		local_view->add(screen_print);
+		ScreenTransition * local_view = new ScreenTransition(MSG_SCREEN_SD_LIST_TITLE(), MSG_SCREEN_SD_TEXT(), MSG_SCREEN_SD_WAIT(), PrintManager::startPrint, &PrintManager::single::instance());
+		local_view->add(screen_print_heating);
 		return local_view;
 	}
 
@@ -140,7 +140,7 @@ namespace screen
 
 	static ScreenSelector<void, uint16_t> * make_screen_unload_select()
 	{
-		ScreenSelector<void, uint16_t> * local_view = new ScreenSelector<void, uint16_t>(MSG_SCREEN_UNLOAD_SELECT_TITLE(), MSG_PUSH_TO_CONFIRM(), 170, 230, 1, default_temp_change_filament, action_set_temperature);
+		ScreenSelector<void, uint16_t> * local_view = new ScreenSelector<void, uint16_t>(MSG_SCREEN_UNLOAD_SELECT_TITLE(), MSG_PUSH_TO_CONFIRM(), min_temp_operation, max_temp_operation, 1, default_temp_change_filament, action_set_temperature);
 		local_view->add(screen_unload_heating);
 		return local_view;
 	}
@@ -194,7 +194,7 @@ namespace screen
 
 	static ScreenSelector<void, uint16_t> * make_screen_load_select()
 	{
-		ScreenSelector<void, uint16_t> * local_view  = new ScreenSelector<void, uint16_t>(MSG_SCREEN_LOAD_SELECT_TITLE(), MSG_PUSH_TO_CONFIRM(), 170, 230, 1, default_temp_change_filament, action_set_temperature);
+		ScreenSelector<void, uint16_t> * local_view  = new ScreenSelector<void, uint16_t>(MSG_SCREEN_LOAD_SELECT_TITLE(), MSG_PUSH_TO_CONFIRM(), min_temp_operation, max_temp_operation, 1, default_temp_change_filament, action_set_temperature);
 		local_view->add(screen_load_heating);
 		return local_view;
 	}
@@ -545,7 +545,7 @@ namespace screen
 
 	static ScreenSelector<void, uint16_t> * make_screen_temperature_main()
 	{
-		ScreenSelector<void, uint16_t> * local_view = new ScreenSelector<void, uint16_t>(MSG_SCREEN_TEMP_TITLE(), MSG_PUSH_TO_CONFIRM(), 0, 250, 10, default_temp_change_filament, action_set_temperature);
+		ScreenSelector<void, uint16_t> * local_view = new ScreenSelector<void, uint16_t>(MSG_SCREEN_TEMP_TITLE(), MSG_PUSH_TO_CONFIRM(), 0, max_temp_operation, 10, default_temp_change_filament, action_set_temperature);
 		local_view->add(screen_heating_main);
 		return local_view;
 	}
@@ -662,6 +662,13 @@ namespace screen
 		return local_view;
 	}
 
+	static ScreenAnimation<float> * make_screen_print_heating()
+	{
+		ScreenAnimation<float> * local_view = new ScreenAnimation<float>(MSG_SCREEN_SD_LIST_TITLE(), MSG_PLEASE_WAIT(), screen::ScreenAnimation<float>::GREATER_OR_EQUAL, TemperatureManager::single::instance().getTargetTemperature(), &TemperatureManager::single::instance());
+		local_view->add(screen_print);
+		return local_view;
+	}
+
 	static ScreenDialog<void> * make_screen_print_complete()
 	{
 		ScreenComplete * local_view = new ScreenComplete(MSG_SCREEN_PRINT_TITLE(), MSG_SCREEN_PRINT_COMPLETED(), MSG_SCREEN_PRINT_COMPLETED_BOX(), PrintManager::printingTime());
@@ -718,7 +725,7 @@ namespace screen
 
 	static ScreenSelector<void, uint16_t> * make_screen_change_selector()
 	{
-		ScreenSelector<void, uint16_t> * local_view = new ScreenSelector<void, uint16_t>(MSG_SCREEN_TEMP_TITLE(), MSG_PUSH_TO_CONFIRM(), 170, 250, 1, default_temp_change_filament, action_set_temperature);
+		ScreenSelector<void, uint16_t> * local_view = new ScreenSelector<void, uint16_t>(MSG_SCREEN_TEMP_TITLE(), MSG_PUSH_TO_CONFIRM(), min_temp_operation, max_temp_operation, 1, default_temp_change_filament, action_set_temperature);
 		local_view->add(screen_change_animation);
 		return local_view;
 	}
@@ -794,7 +801,7 @@ namespace screen
 
    static ScreenSelector<void, uint16_t> * make_screen_temperature_print()
 	{
-		ScreenSelector<void, uint16_t> * local_view = new ScreenSelector<void, uint16_t>(MSG_SCREEN_TEMP_TITLE(), MSG_PUSH_TO_CONFIRM(), 170, 230, 1, TemperatureManager::single::instance().getTargetTemperature(), action_set_temperature);
+		ScreenSelector<void, uint16_t> * local_view = new ScreenSelector<void, uint16_t>(MSG_SCREEN_TEMP_TITLE(), MSG_PUSH_TO_CONFIRM(), min_temp_operation, max_temp_operation, 1, TemperatureManager::single::instance().getTargetTemperature(), action_set_temperature);
 		local_view->add(screen_print);
 		return local_view;
 	}
@@ -988,6 +995,10 @@ namespace screen
 			case screen_heating_main:
 				new_view = make_screen_heating_main();
 				break;
+			case screen_print_heating:
+				new_view = make_screen_print_heating();
+				break;
+
 			// Autolevel
 			case screen_autolevel:
 				new_view = make_screen_autolevel();

@@ -12,6 +12,7 @@
 #include "TemperatureManager.h"
 #include "OffsetManager.h"
 #include "AutoLevelManager.h"
+#include "PrintManager.h"
 
 bool raised = false;
 extern bool home_all_axis;
@@ -106,7 +107,7 @@ void action_filament_load()
 
 	}
 
-	current_position[E_AXIS] += 100.0;
+	current_position[E_AXIS] += 140.0;
 	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS], 300/60, active_extruder);
 	st_synchronize();
 	current_position[E_AXIS] = lastpos[E_AXIS];
@@ -670,15 +671,29 @@ void action_start_print()
 	TemperatureManager::single::instance().setTargetTemperature(200);
 	fanSpeed = PREHEAT_FAN_SPEED;
 	sprintf_P(cmd, PSTR("M23 %s"), card.filename);
-	enquecommand_P(PSTR("G28"));
+
+#ifdef DOGLCD
+	PrintManager::single::instance().state(HOMING);
+#endif // DOGLCD
+	action_homing();
+
 	if (bed_leveling == true || (bed_leveling == false && AutoLevelManager::single::instance().state() == true))
 	{
-		enquecommand_P(PSTR("G29"));
+#ifdef DOGLCD
+		PrintManager::single::instance().state(LEVELING);
+#endif //DOGLCD
+		action_get_plane();
 	}
 	enquecommand_P(PSTR("G1 Z10"));
+
 	for(c = &cmd[4]; *c; c++)
 	*c = tolower(*c);
 	enquecommand(cmd);
+
+#ifdef DOGLCD
+	PrintManager::single::instance().state(HEATING);
+#endif //DOGLCD
+
 	enquecommand_P(PSTR("M24"));
 }
 
