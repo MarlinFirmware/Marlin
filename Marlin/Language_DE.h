@@ -149,6 +149,5 @@ const char DE_PUSH_TO_CONFIRM[] PROGMEM             = "Push to confirm";
 const char DE_PUSH_TO_CONTINUE[] PROGMEM            = "Push to continue";
 const char DE_PUSH_TO_START[] PROGMEM               = "Push to start";
 const char DE_PLEASE_WAIT[] PROGMEM                 = "Please wait";
-const char DE_EMPTY[] PROGMEM                       = "";
 
 #endif //LANGUAGE_DE_H

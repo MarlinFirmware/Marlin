@@ -149,6 +149,5 @@ const char EN_PUSH_TO_CONFIRM[] PROGMEM             = "Push to confirm";
 const char EN_PUSH_TO_CONTINUE[] PROGMEM            = "Push to continue";
 const char EN_PUSH_TO_START[] PROGMEM               = "Push to start";
 const char EN_PLEASE_WAIT[] PROGMEM                 = "Please wait";
-const char EN_EMPTY[] PROGMEM                       = "";
 
 #endif //LANGUAGE_EN_H
