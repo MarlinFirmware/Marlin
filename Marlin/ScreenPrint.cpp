@@ -60,12 +60,6 @@ namespace screen
 	void ScreenPrint::draw()
 	{
 		PrintManager::updateTime();
-		if ( (m_printed_time.hours !=  PrintManager::printingTime().hours) ||
-			(m_printed_time.minutes != PrintManager::printingTime().minutes) )
-		{
-			m_printed_time = PrintManager::printingTime();
-			m_needs_drawing = true;
-		}
 
 		uint8_t percent_done = card.percentDone();
 		if (m_percent_done != percent_done)
@@ -110,7 +104,7 @@ namespace screen
 			painter.firstPage();
 			do
 			{
-				//Paint title on top of screen
+				// Paint title on top of screen
 				painter.title(m_title);
 
 				painter.setColorIndex(1);
@@ -124,9 +118,9 @@ namespace screen
 				painter.print(t_target);
 				painter.print("\xb0");
 
-				//Status widget
-				painter.printingStatus(m_percent_done, m_printed_time.hours, m_printed_time.minutes);
-				//Paint selection box on bottom of screen
+				// Draw status progress bar
+				painter.printingStatus(m_percent_done);
+
 				if ( m_index != (m_num_items -1) && m_index != 0)
 				{
 					painter.box((m_icons[m_index])->text(), BOTH);
@@ -139,19 +133,20 @@ namespace screen
 				{
 					painter.box((m_icons[m_index])->text(), RIGHT);
 				}
-				//Icon grid
-				uint8_t x_init = painter.coordinateXInit();
-				uint8_t y_init = painter.coordinateYInit() + 5;
-				uint8_t x_end = painter.coordinateXEnd();
-				uint8_t y_end = painter.coordinateYEnd();
-				for (unsigned int i = 0;i <= m_num_items -1; ++i)
-				{
-					int col = i % 5;
-					int row = i / 5;
-					int row_t = (m_num_items-1) / 5;
 
-					int x = (x_end + x_init)/2 - (m_num_items*(icon_width+2)/(1+row_t)-2)/2 +col*(icon_width+2);
-					int y = (y_end+y_init)/(2*(1+row_t)) + row_t - (icon_height/2) + ((icon_height+3)*row);
+				// Draw icon grid
+				Area icons_area(0, 31, 127, 54);
+				painter.setWorkingArea(icons_area);
+
+				uint8_t x_init = icons_area.x_init;
+				uint8_t y_init = icons_area.y_init;
+				uint8_t x_end = icons_area.x_end;
+				uint8_t y_end = icons_area.y_end;
+
+				for (unsigned int i = 0; i < m_num_items; i++)
+				{
+					int x = x_init + (icons_area.width() / 2) - ((m_num_items * (icon_width + 2) - 2) / 2) + (i * (icon_width + 2));
+					int y = y_init;
 
 					if (i == m_index)
 					{
