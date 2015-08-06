@@ -2582,13 +2582,7 @@ inline void gcode_G28() {
           xInc = -1;
         }
 
-        #if DISABLED(DELTA)
-          // If do_topography_map is set then don't zig-zag. Just scan in one direction.
-          // This gets the probe points in more readable order.
-          if (!do_topography_map) zig = !zig;
-        #else
-          zig = !zig;
-        #endif
+        zig = !zig;
 
         for (int xCount = xStart; xCount != xStop; xCount += xInc) {
           double xProbe = left_probe_bed_position + xGridSpacing * xCount;
