@@ -1,0 +1,121 @@
+#Marlin Doc
+
+#####EZ3-India
+
+#Files
+
+## BlinkM.cpp & BlinkM.h
+>+ [BlinkM](http://thingm.com/products/blinkm/) is a “Smart LED”,programmable full-color RGB LED. Designed to allow the easy addition of dynamic indicators, displays, and lighting
+
+## boards.h
+>+ Contains the full list of boards supported by Marlin. Set MOTHERBOARD to one of the boards listed here
++ Adoptable to any arduino based electronics through pin-mapping
+
+## cardreader.cpp & cardreader.h
+>+ Helps with various file management operations, path traversal from the SD card
++ Updates status flags concerned with the printing cycle
+
+## Configuration.h
+>+ The most basic settings are here, select your board type, temperature sensor type, axis scaling, and endstop configuration
+
+## Configuration_adv.h
+>+ Advanced settings for experienced users, things like thermal, mechanical settings and some additional experimental features can be enabled here
+
+## ConfigurationStore.cpp & ConfigurationStore.h
+>+ Contains functions to help in EEPROM r/w
++ Stores and retreives important setting variables from EEPROM as a fail safe mechanism
+
+## digipot_mcp4451.cpp
+>+ Adds support for The Digital Potentiometer, Eliminates the need to turning tiny knobs on your motor drivers to calibrate the current to the motors, Set the current directly in your firmware. This will allow for fine-tuning of the current and minimize the motor noise, motor heat and the risk of missing steps
+
+## dogm_font_data_marlin.h
+>+ Declares two [u8glib](https://code.google.com/p/u8glib/) fonts used by the [128x64 Dot matrix LCD](http://reprap.org/wiki/RepRapDiscount_Full_Graphic_Smart_Controller)
+
+## dogm_lcd_implementation.h
+>+ Implementation of the LCD display routines for a [128x64 Dot matrix LCD](http://reprap.org/wiki/RepRapDiscount_Full_Graphic_Smart_Controller) graphic display.
++ On-screen Element's positioning and dynamic update of printer status
+
+## DOGMbitmaps.h
+>+ [C++ Byte Arrays](http://manytools.org/hacker-tools/image-to-byte-array/) representing dot graphics (welcome screen,extruders,fan)
+
+## fastio.h
+>+ [Stringification](http://bruceblinn.com/linuxinfo/Stringification.html) of parameter to functions, stringification is used for situations where the parameter needs to be used both within a string literal and as is
+
+## language.h*
+>+ Language support for many languages around the world, String messages are #defined here
+
+## LiquidCrystalRus.cpp & LiquidCrystalRus.h
+>+ Russian letters? more on this soon.......
+
+## Makefile
+>+ This makefile allows you to build sketches from the command line without the Arduino environment (or Java). Detailed instructions are inside this file
+
+## Marlin.h
+>+ Contains variable properties based on the Configuration of the printer
++ Serial Communication for sending various key-value pairs
++ Decides the printer kinematics and calculates variables for the 3-Axis and the extruders, currently supports
+  + [DELTA](http://reprap.org/wiki/Delta)
+  + [COREXY](http://corexy.com/theory.html)
+  + [SCARA](http://reprap.org/wiki/Category:Scara)
++ Queuing commands
+
+## Marlin.ino & Marlin.ino
+>+ Use this file to help the Arduino IDE find which Arduino libraries are needed and to keep documentation on GCode
+
+## Marlin_main.cpp
+>+ Marlin's Main loop
++ Manages core routines of the printer
++ Fetches commands from the buffer
++ GCODES are all listed here as "Switch(int) Case:int"
++ auto-bed leveling, filament-sensor and other features
+
+## MarlinSerial.cpp & MarlinSerial.h
+>+ [The Wiring Serial Library](http://wiring.org.co/reference/libraries/Serial/index.html) allows for easily reading and writing data to and from external machines. It allows two machines to communicate and gives the flexibility to make the  microcontroller devices and use them as the input or output
+
+## motion_control.cpp & motion_control.h
+>+ High level interface for issuing motion commands,
+Part of [Grbl](https://github.com/grbl/grbl)
+>+ Slic3r can find curves that, although broken into segments, were meant to describe an arc. Marlin is able to print those arcs. The advantage is that the firmware can choose the resolution, and can perform the arc with nearly constant velocity, resulting in a nice finish. Also, less serial communication is needed
+
+## pins.h
+>+ Contains all pin definitions that connects the software to the physical pins on the electronics board
+
+## planner.cpp & planner.h
+>+ Buffers movement commands and manages the acceleration profile plan
+Part of [Grbl](https://github.com/grbl/grbl)
+
+## qr_solve.cpp & qr_solve.h
+>+ [QR Solve](https://github.com/johannesgerer/jburkardt-f77/tree/master/qr_solve) is a library which computes a least squares solution of a linear system of the form A*x=b.
+
+## Sd2Card.cpp, Sd2Card.h, Sd2PinMap.h, SdInfo.h
+>+ [SD library from adafruit](https://github.com/adafruit/SD) aims to expose a subset of SD card functionality in the
+form of a higher level "wrapper" object.
+>+ The communication between the microcontroller and the SD card using Serial Pheripheral Interface (SPI)
+
+## SdBaseFile.h, SdFatConfig.h, SdVolume.h...
+>+ [SdFat](https://github.com/greiman/SdFat) is a major rewrite of core FAT code
+
+## Servo.cpp & Servo.h
+>+ Servo library for manipulating servo motors connected to Arduino pins.
+
+## speed_lookuptable.h
+>+ Python script generated stepper delay lookup table for Marlin firmware, stored on the flash memory
+
+## stepper.cpp & stepper.h
+>+ stepper motor driver: executes motion plans of planner.c using the stepper motors
+Part of [Grbl](https://github.com/grbl/grbl)
+
+## temperature.cpp & temperature.h
+>+ Manages temparature of bed and extruders
+
+## thermistortables.h
+>+ Python script generated lookup to temperature values for use in a microcontroller based on [Steinhart-Hart equation](http://en.wikipedia.org/wiki/Steinhart-Hart_equation)
+
+ ## ultralcd.cpp & ultralcd.h
+>+ Manages menu items and their functions for the LCD
+
+## vector_3.cpp & vector_3.h
+>+ Code for very simple vector and matrix classes, implements the features needed to get the bed leveling math working
+
+## watchdog.cpp & watchdog.h
+>+ watchdog timer implementation for the marlin firmware

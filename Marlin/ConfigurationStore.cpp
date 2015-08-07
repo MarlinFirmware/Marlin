@@ -151,6 +151,13 @@ int incrementtnp() {
   return itnp;
 }
 
+int return_tnp() {
+  int i=100;
+  int Rtnp;
+  EEPROM_READ_VAR(i,Rtnp);
+  return Rtnp;
+}
+
 void showtotalprints() {
   int i=100;
   EEPROM_READ_VAR(i,tnp);

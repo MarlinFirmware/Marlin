@@ -317,7 +317,7 @@ static void lcd_return_to_status() { lcd_goto_menu(lcd_status_screen, 0, false);
 
 static void lcd_sdcard_pause() { card.pauseSDPrint(); }
 
-static void lcd_sdcard_resume() { 
+static void lcd_sdcard_resume() {
 	//EZ-Maker addition
 	if (prePauseTemp != -1)
 	{
@@ -360,7 +360,7 @@ static void lcd_main_menu()
         }else{
             MENU_ITEM(submenu, MSG_CARD_MENU, lcd_sdcard_menu);
 		////SD card menu start
-		
+
 		#if SDCARDDETECT < 1
 		            MENU_ITEM(gcode, MSG_CNG_SDCARD, PSTR("M21"));  // SD-card changed by user
 		#endif
@@ -372,14 +372,14 @@ static void lcd_main_menu()
 		#endif
 		    }
 		#endif
-	   
+
 	   ////SD card menu end
-    
+
     if (movesplanned() || IS_SD_PRINTING)
     {
         MENU_ITEM(submenu, MSG_TUNE, lcd_tune_menu);
         MENU_ITEM(function, MSG_FILAMENTCHANGE, lcd_filament_change_print);
-        
+
     }else{
         MENU_ITEM(submenu, MSG_PREPARE, lcd_prepare_menu);
         //EZ-Maker changes
@@ -728,6 +728,15 @@ static void _lcd_move(const char *name, int axis, int min, int max) {
 static void lcd_move_x() { _lcd_move(PSTR("X"), X_AXIS, X_MIN_POS, X_MAX_POS); }
 static void lcd_move_y() { _lcd_move(PSTR("Y"), Y_AXIS, Y_MIN_POS, Y_MAX_POS); }
 static void lcd_move_z() { _lcd_move(PSTR("Z"), Z_AXIS, Z_MIN_POS, Z_MAX_POS); }
+//EZ-MAKER
+void show_prints() {
+  int rttnp = return_tnp();
+  lcd_implementation_drawedit(PSTR("Prints"), itostr3(rttnp));
+
+  if (LCD_CLICKED) lcd_goto_menu(lcd_main_menu);
+
+}
+
 
 static void lcd_move_e()
 {
@@ -811,6 +820,8 @@ static void lcd_control_menu()
     MENU_ITEM(function, MSG_LOAD_EPROM, Config_RetrieveSettings);
 #endif
     MENU_ITEM(function, MSG_RESTORE_FAILSAFE, Config_ResetDefault);
+    //EZ-MAKER
+    MENU_ITEM(submenu, "Show Total Prints", show_prints);
     END_MENU();
 }
 
@@ -1586,7 +1597,7 @@ char *ftostr43(const float &x)
 char *ftostr12ns(const float &x)
 {
   long xx=x*100;
-  
+
   xx=abs(xx);
   conv[0]=(xx/100)%10+'0';
   conv[1]='.';
@@ -1773,4 +1784,3 @@ void copy_and_scalePID_d()
 }
 
 #endif //ULTRA_LCD
-
