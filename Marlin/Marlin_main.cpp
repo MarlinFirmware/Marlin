@@ -69,6 +69,8 @@
 #endif
 
 #include "AutoLevelManager.h"
+
+#include "Action.h"
 #include "GuiAction.h"
 
 // look here for descriptions of G-codes: http://linuxcnc.org/handbook/gcode/g-code.html
