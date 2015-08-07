@@ -5083,7 +5083,7 @@ inline void gcode_M907() {
 inline void gcode_M999() {
   Running = true;
   lcd_reset_alert_level();
-  gcode_LastN = Stopped_gcode_LastN;
+  // gcode_LastN = Stopped_gcode_LastN;
   FlushSerialRequestResend();
 }
 
