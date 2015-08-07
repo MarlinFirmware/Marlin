@@ -85,19 +85,15 @@ const char PL_SCREEN_OFFSET_INFO_TEXT[] PROGMEM     = "Rotate the button until t
 const char PL_SCREEN_OFFSET_SET_TITLE[] PROGMEM     = "Adjust offset";
 const char PL_SCREEN_OFFSET_FINISH_TITLE[] PROGMEM  = "Finished?";
 const char PL_SCREEN_OFFSET_FINISH_TEXT[] PROGMEM   = "All OK?";
-
+const char PL_SCREEN_PRINT_HEATING_TITLE[] PROGMEM  = "Temperature";
 const char PL_SCREEN_PRINT_PRINTING[] PROGMEM       = "Printing";
-const char PL_SCREEN_PRINT_TITLE[] PROGMEM          = "Print finished";
-const char PL_SCREEN_PRINT_COMPLETED[] PROGMEM      = "Remove the piece from the plate";
-const char PL_SCREEN_PRINT_COMPLETED_BOX[] PROGMEM  = "Push to continue";
 const char PL_SCREEN_PRINT_PAUSE[] PROGMEM          = "Pause";
 const char PL_SCREEN_PRINT_PAUSED[] PROGMEM         = "Paused";
 const char PL_SCREEN_PRINT_PAUSING[] PROGMEM        = "Pausing...";
-const char PL_SCREEN_PRINT_STOPPED[] PROGMEM        = "Stopped";
-const char PL_SCREEN_PRINT[] PROGMEM                = "Confirm";
-const char PL_SCREEN_STOP_CONFIRM[] PROGMEM         = "Stop";
-const char PL_SCREEN_STOP_BACK[] PROGMEM            = "Back";
-const char PL_SCREEN_STOP_OK[] PROGMEM              = "Confirm";
+const char PL_SCREEN_PRINT_COMPLETE_TITLE[] PROGMEM = "Print completed";
+const char PL_SCREEN_PRINT_COMPLETE_TEXT[] PROGMEM  = "Remove the print from the plate";
+const char PL_SCREEN_STOP_CONFIRM_TITLE[] PROGMEM   = "Stop";
+
 const char PL_SCREEN_CHANGE_TITLE[] PROGMEM         = "Change filament";
 const char PL_SCREEN_CHANGE_BOX[] PROGMEM           = "Push to continue";
 const char PL_SCREEN_CHANGE_CONFIRM[] PROGMEM       = "Change filament";

@@ -664,14 +664,14 @@ namespace screen
 
 	static ScreenAnimation<float> * make_screen_print_heating()
 	{
-		ScreenAnimation<float> * local_view = new ScreenAnimation<float>(MSG_SCREEN_SD_LIST_TITLE(), MSG_PLEASE_WAIT(), screen::ScreenAnimation<float>::GREATER_OR_EQUAL, TemperatureManager::single::instance().getTargetTemperature(), &TemperatureManager::single::instance());
+		ScreenAnimation<float> * local_view = new ScreenAnimation<float>(MSG_SCREEN_PRINT_HEATING_TITLE(), MSG_PLEASE_WAIT(), screen::ScreenAnimation<float>::GREATER_OR_EQUAL, TemperatureManager::single::instance().getTargetTemperature(), &TemperatureManager::single::instance());
 		local_view->add(screen_print);
 		return local_view;
 	}
 
 	static ScreenDialog<void> * make_screen_print_complete()
 	{
-		ScreenComplete * local_view = new ScreenComplete(MSG_SCREEN_PRINT_TITLE(), MSG_SCREEN_PRINT_COMPLETED(), MSG_SCREEN_PRINT_COMPLETED_BOX(), PrintManager::printingTime());
+		ScreenComplete * local_view = new ScreenComplete(MSG_SCREEN_PRINT_COMPLETE_TITLE(), MSG_SCREEN_PRINT_COMPLETE_TEXT(), MSG_PUSH_TO_CONTINUE(), PrintManager::printingTime());
 		local_view->add(screen_main);
 		return local_view;
 	}
@@ -688,7 +688,7 @@ namespace screen
 		Icon * icon_back = new Icon(icon_size, bits_back_normal, bits_back_focused, MSG_ICON_BACK());
       Icon * icon_ok = new Icon(icon_size, bits_ok_normal, bits_ok_focused, MSG_ICON_OK2());
 
-		ScreenFile * local_view = new ScreenFile(MSG_SCREEN_STOP_CONFIRM());
+		ScreenFile * local_view = new ScreenFile(MSG_SCREEN_STOP_CONFIRM_TITLE());
 		local_view->add(screen_print);
 		local_view->icon(icon_back);
 		local_view->add(screen_stop_OK);
@@ -698,7 +698,7 @@ namespace screen
 
 	static ScreenAction<void> * make_screen_stop_OK()
 	{
-		ScreenAction<void> * local_view = new ScreenAction<void>(MSG_SCREEN_STOP_OK(), PrintManager::stopPrint);
+		ScreenAction<void> * local_view = new ScreenAction<void>(NULL, PrintManager::stopPrint);
 		local_view->add(screen_main);
 		return local_view;
 	}
