@@ -58,27 +58,25 @@ void action_filament_unload()
 	current_position[X_AXIS] = update_position.x;
 	current_position[Y_AXIS] = update_position.y;
 	current_position[Z_AXIS] = update_position.z;
-	plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
 
-	if (current_position[Z_AXIS] < (Z_MIN_POS+30) && change_filament == false)
+	if ((change_filament == false) || (current_position[Z_AXIS] < POSITION_FILAMENT_Z))
 	{
-		#ifdef DISABLE_MAX_ENDSTOPS
-			current_position[Z_AXIS] += 10;
-			plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS], 300/60, active_extruder);
-			st_synchronize();
-		#else
-			current_position[Z_AXIS] += 30;
-			plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS], 300/60, active_extruder);
-			st_synchronize();
-		#endif
-
+		current_position[Z_AXIS] = POSITION_FILAMENT_Z;
+		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS], 60, active_extruder);
+		st_synchronize();
 	}
+
+	current_position[X_AXIS] = POSITION_FILAMENT_X;
+	current_position[Y_AXIS] = POSITION_FILAMENT_Y;
+	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS], 100, active_extruder);
+	st_synchronize();
+
 	current_position[E_AXIS] += 50.0;
-	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS], 300/60, active_extruder);
+	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS], 5, active_extruder);
 	st_synchronize();
 
 	current_position[E_AXIS] -= 60.0;
-	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS], 300/60, active_extruder);
+	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS], 5, active_extruder);
 	st_synchronize();
 }
 
@@ -89,28 +87,22 @@ void action_filament_load()
 	current_position[X_AXIS] = update_position.x;
 	current_position[Y_AXIS] = update_position.y;
 	current_position[Z_AXIS] = update_position.z;
-	plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
 
-	if (current_position[Z_AXIS] < (Z_MIN_POS+30) && change_filament == false)
+	if ((change_filament == false) || (current_position[Z_AXIS] < POSITION_FILAMENT_Z))
 	{
-		#ifdef DISABLE_MAX_ENDSTOPS
-			current_position[Z_AXIS] += 10;
-			plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS], 300/60, active_extruder);
-			st_synchronize();
-		#else
-			current_position[Z_AXIS] += 30;
-			plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS], 300/60, active_extruder);
-			st_synchronize();
-		#endif
-
+		current_position[Z_AXIS] = POSITION_FILAMENT_Z;
+		plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS], 60, active_extruder);
+		st_synchronize();
 	}
 
-	current_position[E_AXIS] += 140.0;
-	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS], 300/60, active_extruder);
+	current_position[X_AXIS] = POSITION_FILAMENT_X;
+	current_position[Y_AXIS] = POSITION_FILAMENT_Y;
+	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS], 100, active_extruder);
 	st_synchronize();
-	current_position[E_AXIS] = lastpos[E_AXIS];
 
-	plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
+	current_position[E_AXIS] += 140.0;
+	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS], 5, active_extruder);
+	st_synchronize();
 }
 
 void action_level_plate()
@@ -592,10 +584,10 @@ void action_resume_print()
 {
 	lcd_disable_button();
 
-	plan_buffer_line(lastpos[X_AXIS], lastpos[Y_AXIS], current_position[Z_AXIS], lastpos[E_AXIS], feedrate/60, active_extruder); //move xy back
-	plan_buffer_line(lastpos[X_AXIS], lastpos[Y_AXIS], lastpos[Z_AXIS], lastpos[E_AXIS], feedrate/60, active_extruder); //move z back
+	plan_buffer_line(lastpos[X_AXIS], lastpos[Y_AXIS], current_position[Z_AXIS], lastpos[E_AXIS], 100, active_extruder); //move xy back
+	plan_buffer_line(lastpos[X_AXIS], lastpos[Y_AXIS], lastpos[Z_AXIS], lastpos[E_AXIS], 60, active_extruder); //move z back
 	lastpos[E_AXIS] += EXTRUDE_ON_RESUME;
-	plan_buffer_line(lastpos[X_AXIS], lastpos[Y_AXIS], lastpos[Z_AXIS], lastpos[E_AXIS], feedrate/30, active_extruder); //extrude on resume
+	plan_buffer_line(lastpos[X_AXIS], lastpos[Y_AXIS], lastpos[Z_AXIS], lastpos[E_AXIS], 10, active_extruder); //extrude on resume
 	st_synchronize();
 
 	vector_3 update_position = plan_get_position();
