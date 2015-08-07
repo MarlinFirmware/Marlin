@@ -28,6 +28,7 @@
 #include "ScreenSplash.h"
 #include "OffsetManager.h"
 #include "StorageManager.h"
+#include "LightManager.h"
 
 namespace screen
 {
@@ -36,6 +37,8 @@ namespace screen
 		, m_num_item_added(0)
 	{
 		m_destroy_time = millis() + timeout;
+
+		LightManager::single::instance().state();
 	}
 
 	ScreenSplash::~ScreenSplash()
