@@ -695,5 +695,6 @@ void action_save_offset()
 	{
 		OffsetManager::single::instance().offsetOnEEPROM();
 	}
-	do_blocking_move_to(0, current_position[Y_AXIS], 50);
+
+	action_move_to_rest();
 }
