@@ -39,7 +39,12 @@ namespace screen
 		, m_box(box)
 		, m_printing_status(PRINTING)
 	{
-		strcpy_P(m_message, message);
+		memset(m_message, 0, sizeof(m_message));
+
+		if( (message != NULL) && (strlen(message) > 0) )
+		{
+			strcpy_P(m_message, message);
+		}
 	}
 
 	ScreenTransition::~ScreenTransition()
