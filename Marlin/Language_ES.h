@@ -85,19 +85,15 @@ const char ES_SCREEN_OFFSET_INFO_TEXT[] PROGMEM     = "Rota el boton hasta que e
 const char ES_SCREEN_OFFSET_SET_TITLE[] PROGMEM     = "Ajustar offset";
 const char ES_SCREEN_OFFSET_FINISH_TITLE[] PROGMEM  = "Finalizado";
 const char ES_SCREEN_OFFSET_FINISH_TEXT[] PROGMEM   = "Todo correcto?";
-
+const char ES_SCREEN_PRINT_HEATING_TITLE[] PROGMEM  = "Temperatura";
 const char ES_SCREEN_PRINT_PRINTING[] PROGMEM       = "Imprimiendo";
-const char ES_SCREEN_PRINT_TITLE[] PROGMEM          = "Impresion finalizada";
-const char ES_SCREEN_PRINT_COMPLETED[] PROGMEM      = "Retire la pieza del plato";
-const char ES_SCREEN_PRINT_COMPLETED_BOX[] PROGMEM  = "Pulsa para continuar";
 const char ES_SCREEN_PRINT_PAUSE[] PROGMEM          = "Pausa";
 const char ES_SCREEN_PRINT_PAUSED[] PROGMEM         = "En pausa";
 const char ES_SCREEN_PRINT_PAUSING[] PROGMEM        = "Pausando...";
-const char ES_SCREEN_PRINT_STOPPED[] PROGMEM        = "Parada";
-const char ES_SCREEN_PRINT[] PROGMEM                = "Confirmar";
-const char ES_SCREEN_STOP_CONFIRM[] PROGMEM         = "Detener";
-const char ES_SCREEN_STOP_BACK[] PROGMEM            = "Volver";
-const char ES_SCREEN_STOP_OK[] PROGMEM              = "Confirmar";
+const char ES_SCREEN_PRINT_COMPLETE_TITLE[] PROGMEM = "Impresion finalizada";
+const char ES_SCREEN_PRINT_COMPLETE_TEXT[] PROGMEM  = "Retire la pieza del plato";
+const char ES_SCREEN_STOP_CONFIRM_TITLE[] PROGMEM   = "Detener";
+
 const char ES_SCREEN_CHANGE_TITLE[] PROGMEM         = "Cambiar filamento";
 const char ES_SCREEN_CHANGE_BOX[] PROGMEM           = "Pulsa para continuar";
 const char ES_SCREEN_CHANGE_CONFIRM[] PROGMEM       = "Cambiar filamento";
