@@ -2616,12 +2616,13 @@ inline void gcode_G28() {
             eqnAMatrix[probePointCounter + 0 * abl2] = xProbe;
             eqnAMatrix[probePointCounter + 1 * abl2] = yProbe;
             eqnAMatrix[probePointCounter + 2 * abl2] = 1;
+            indexIntoAB[xCount][yCount] = probePointCounter;
           #else
             bed_level[xCount][yCount] = measured_z + z_offset;
           #endif
 
-          indexIntoAB[xCount][yCount] = probePointCounter++;
-
+          probePointCounter++;
+  
           idle();
 
         } //xProbe
