@@ -310,7 +310,7 @@ namespace screen
 
 	static ScreenTransition * make_screen_autohome()
 	{
-		ScreenTransition * local_view = new ScreenTransition(MSG_SCREEN_AUTOHOME_TITLE(), MSG_SCREEN_AUTOHOME_TEXT(), MSG_PLEASE_WAIT(), gui_action_homing);
+		ScreenTransition * local_view = new ScreenTransition(MSG_SCREEN_AUTOHOME_HOMING_TITLE(), MSG_SCREEN_AUTOHOME_HOMING_TEXT(), MSG_PLEASE_WAIT(), gui_action_homing);
 		local_view->add(screen_main);
 		return local_view;
 	}
