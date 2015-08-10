@@ -78,6 +78,9 @@ void action_filament_unload()
 	current_position[E_AXIS] -= 60.0;
 	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS], 5, active_extruder);
 	st_synchronize();
+
+	current_position[E_AXIS] = lastpos[E_AXIS];
+	plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
 }
 
 void action_filament_load()
@@ -103,6 +106,9 @@ void action_filament_load()
 	current_position[E_AXIS] += 140.0;
 	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS], 5, active_extruder);
 	st_synchronize();
+
+	current_position[E_AXIS] = lastpos[E_AXIS];
+	plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
 }
 
 void action_level_plate()
