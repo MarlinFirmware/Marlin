@@ -41,7 +41,7 @@ namespace screen
 	{
 		memset(m_message, 0, sizeof(m_message));
 
-		if( (message != NULL) && (strlen(message) > 0) )
+		if( (message != NULL) && (strlen_P(message) > 0) )
 		{
 			strcpy_P(m_message, message);
 		}
