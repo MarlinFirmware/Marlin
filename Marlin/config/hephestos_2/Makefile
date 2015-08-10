@@ -37,7 +37,7 @@
 # from the commandline with "make HARDWARE_MOTHERBOARD=71" for example
 
 # This defined the board you are compiling for (see Configuration.h for the options)
-HARDWARE_MOTHERBOARD ?= 40
+HARDWARE_MOTHERBOARD ?= 43
 
 # Arduino source install directory, and version number
 ARDUINO_INSTALL_DIR  ?= ${ARDUINO}
@@ -129,7 +129,7 @@ CXXSRC = WMath.cpp WString.cpp Print.cpp Marlin_main.cpp	\
 	stepper.cpp temperature.cpp cardreader.cpp ConfigurationStore.cpp \
 	watchdog.cpp SPI.cpp Tone.cpp digipot_mcp4451.cpp \
 	vector_3.cpp qr_solve.cpp abi.cpp
-CXXSRC += new.cpp HelpersC++.cpp GuiManager.cpp GuiPainter.cpp GuiAction.cpp GuiImpl_witbox_2.cpp Icon.cpp \
+CXXSRC += new.cpp HelpersC++.cpp Action.cpp GuiManager.cpp GuiPainter.cpp GuiAction.cpp GuiImpl_witbox_2.cpp Icon.cpp \
 	Screen.cpp ScreenAbout.cpp ScreenComplete.cpp ScreenEmergency.cpp ScreenFile.cpp ScreenList.cpp ScreenMenu.cpp ScreenPrint.cpp ScreenSplash.cpp ScreenTransition.cpp ScreenSerial.cpp \
 	Stepper.cpp Language.cpp \
 	AutoLevelManager.cpp LightManager.cpp OffsetManager.cpp PrintManager.cpp SDManager.cpp SteppersManager.cpp StorageManager.cpp TemperatureManager.cpp ViewManager.cpp \

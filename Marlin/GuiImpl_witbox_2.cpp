@@ -310,7 +310,7 @@ namespace screen
 
 	static ScreenTransition * make_screen_autohome()
 	{
-		ScreenTransition * local_view = new ScreenTransition(MSG_SCREEN_AUTOHOME_TITLE(), MSG_SCREEN_AUTOHOME_TEXT(), MSG_PLEASE_WAIT(), action_homing);
+		ScreenTransition * local_view = new ScreenTransition(MSG_SCREEN_AUTOHOME_TITLE(), MSG_SCREEN_AUTOHOME_TEXT(), MSG_PLEASE_WAIT(), gui_action_homing);
 		local_view->add(screen_main);
 		return local_view;
 	}
@@ -584,7 +584,7 @@ namespace screen
 		Icon * icon_back = new Icon(icon_size, bits_back_normal, bits_back_focused, MSG_ICON_BACK());
       Icon * icon_ok = new Icon(icon_size, bits_ok_normal, bits_ok_focused, MSG_ICON_OK2());
 
-		ScreenMenu * local_view = new ScreenMenu(MSG_SCREEN_OFFSET_TITLE(), MSG_SCREEN_OFFSET_TEXT());
+		ScreenMenu * local_view = new ScreenMenu(MSG_SCREEN_OFFSET_INIT_TITLE(), MSG_SCREEN_OFFSET_INIT_TEXT());
 		local_view->add(screen_settings);
 		local_view->icon(icon_back);
 		local_view->add(screen_offset_home);
@@ -594,35 +594,35 @@ namespace screen
 
 	static ScreenTransition * make_screen_offset_home()
 	{
-		ScreenTransition * local_view = new ScreenTransition(MSG_SCREEN_OFFSET_TITLE(), MSG_SCREEN_OFFSET_HOME_TEXT(), MSG_SCREEN_OFFSET_WAIT(), action_offset_homing);
+		ScreenTransition * local_view = new ScreenTransition(MSG_SCREEN_OFFSET_HOME_TITLE(), MSG_SCREEN_OFFSET_HOME_TEXT(), MSG_PLEASE_WAIT(), action_offset_homing);
 		local_view->add(screen_offset_calculate);
 		return local_view;
 	}
 
 	static ScreenTransition * make_screen_offset_calculate()
 	{
-		ScreenTransition * local_view = new ScreenTransition(MSG_SCREEN_OFFSET_TITLE(), MSG_SCREEN_OFFSET_PLANE_TEXT(), MSG_SCREEN_OFFSET_WAIT(), action_offset);
+		ScreenTransition * local_view = new ScreenTransition(MSG_SCREEN_OFFSET_PLANE_TITLE(), MSG_SCREEN_OFFSET_PLANE_TEXT(), MSG_PLEASE_WAIT(), action_offset);
 		local_view->add(screen_offset_info);
 		return local_view;
 	}
 
 	static ScreenDialog<void> * make_screen_offset_info()
 	{
-		ScreenDialog<void> * local_view = new ScreenDialog<void>(MSG_SCREEN_OFFSET_TITLE(), MSG_SCREEN_OFFSET_DIALOG_TEXT(), MSG_SCREEN_OFFSET_DIALOG_BOX(), do_nothing);
+		ScreenDialog<void> * local_view = new ScreenDialog<void>(MSG_SCREEN_OFFSET_INFO_TITLE(), MSG_SCREEN_OFFSET_INFO_TEXT(), MSG_PUSH_TO_CONTINUE(), do_nothing);
 		local_view->add(screen_offset_set);
 		return local_view;
 	}
 
 	static ScreenDynamicAxis<float> * make_screen_offset_set()
 	{
-		ScreenDynamicAxis<float> * local_view = new ScreenDynamicAxis<float>(MSG_SCREEN_OFFSET_TITLE(), Z_AXIS, 0.0, 4.0, 0.02, action_set_offset);
+		ScreenDynamicAxis<float> * local_view = new ScreenDynamicAxis<float>(MSG_SCREEN_OFFSET_SET_TITLE(), Z_AXIS, 0.0, 4.0, 0.02, action_set_offset);
 		local_view->add(screen_offset_save);
 		return local_view;
 	}
 
 	static ScreenAction<void> * make_screen_offset_save()
 	{
-		ScreenAction<void> * local_view = new ScreenAction<void>(MSG_SCREEN_OFFSET_TITLE(), action_save_offset);
+		ScreenAction<void> * local_view = new ScreenAction<void>(NULL, action_save_offset);
 		local_view->add(screen_offset_finish);
 		return local_view;
 	}
@@ -632,7 +632,7 @@ namespace screen
 		Icon * icon_back = new Icon(icon_size, bits_back_normal, bits_back_focused, MSG_ICON_BACK());
       Icon * icon_ok = new Icon(icon_size, bits_ok_normal, bits_ok_focused, MSG_ICON_OK2());
 
-		ScreenMenu * local_view = new ScreenMenu(MSG_SCREEN_OFFSET_TITLE(), MSG_SCREEN_OFFSET_FINISH());
+		ScreenMenu * local_view = new ScreenMenu(MSG_SCREEN_OFFSET_FINISH_TITLE(), MSG_SCREEN_OFFSET_FINISH_TEXT());
 		local_view->add(screen_offset_home);
 		local_view->icon(icon_back);
 		local_view->add(screen_main);
@@ -664,14 +664,14 @@ namespace screen
 
 	static ScreenAnimation<float> * make_screen_print_heating()
 	{
-		ScreenAnimation<float> * local_view = new ScreenAnimation<float>(MSG_SCREEN_SD_LIST_TITLE(), MSG_PLEASE_WAIT(), screen::ScreenAnimation<float>::GREATER_OR_EQUAL, TemperatureManager::single::instance().getTargetTemperature(), &TemperatureManager::single::instance());
+		ScreenAnimation<float> * local_view = new ScreenAnimation<float>(MSG_SCREEN_PRINT_HEATING_TITLE(), MSG_PLEASE_WAIT(), screen::ScreenAnimation<float>::GREATER_OR_EQUAL, TemperatureManager::single::instance().getTargetTemperature(), &TemperatureManager::single::instance());
 		local_view->add(screen_print);
 		return local_view;
 	}
 
 	static ScreenDialog<void> * make_screen_print_complete()
 	{
-		ScreenComplete * local_view = new ScreenComplete(MSG_SCREEN_PRINT_TITLE(), MSG_SCREEN_PRINT_COMPLETED(), MSG_SCREEN_PRINT_COMPLETED_BOX(), PrintManager::printingTime());
+		ScreenComplete * local_view = new ScreenComplete(MSG_SCREEN_PRINT_COMPLETE_TITLE(), MSG_SCREEN_PRINT_COMPLETE_TEXT(), MSG_PUSH_TO_CONTINUE(), PrintManager::printingTime());
 		local_view->add(screen_main);
 		return local_view;
 	}
@@ -688,7 +688,7 @@ namespace screen
 		Icon * icon_back = new Icon(icon_size, bits_back_normal, bits_back_focused, MSG_ICON_BACK());
       Icon * icon_ok = new Icon(icon_size, bits_ok_normal, bits_ok_focused, MSG_ICON_OK2());
 
-		ScreenFile * local_view = new ScreenFile(MSG_SCREEN_STOP_CONFIRM());
+		ScreenFile * local_view = new ScreenFile(MSG_SCREEN_STOP_CONFIRM_TITLE());
 		local_view->add(screen_print);
 		local_view->icon(icon_back);
 		local_view->add(screen_stop_OK);
@@ -698,7 +698,7 @@ namespace screen
 
 	static ScreenAction<void> * make_screen_stop_OK()
 	{
-		ScreenAction<void> * local_view = new ScreenAction<void>(MSG_SCREEN_STOP_OK(), PrintManager::stopPrint);
+		ScreenAction<void> * local_view = new ScreenAction<void>(NULL, PrintManager::stopPrint);
 		local_view->add(screen_main);
 		return local_view;
 	}
