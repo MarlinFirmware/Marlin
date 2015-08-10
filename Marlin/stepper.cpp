@@ -430,7 +430,7 @@ inline void update_endstops() {
               #if HAS_Z2_MAX
                 SET_ENDSTOP_BIT(Z2, MAX);
               #else
-                COPY_BIT(current_endstop_bits, Z_MAX, Z2_MAX)
+                COPY_BIT(current_endstop_bits, Z_MAX, Z2_MAX);
               #endif
 
             byte z_test = TEST_ENDSTOP(Z_MAX) << 0 + TEST_ENDSTOP(Z2_MAX) << 1; // bit 0 for Z, bit 1 for Z2
