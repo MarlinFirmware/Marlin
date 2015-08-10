@@ -133,37 +133,37 @@
      * Require a Z Min pin
      */
     #if Z_MIN_PIN == -1
-      #if Z_PROBE_PIN == -1 || (DISABLED(Z_PROBE_ENDSTOP) || ENABLED(DISABLE_Z_PROBE_ENDSTOP)) // It's possible for someone to set a pin for the Z Probe, but not enable it.
-        #if ENABLED(Z_PROBE_REPEATABILITY_TEST)
-          #error You must have a Z_MIN or Z_PROBE endstop to enable Z_PROBE_REPEATABILITY_TEST.
+      #if Z_MIN_PROBE_PIN == -1 || (DISABLED(Z_MIN_PROBE_ENDSTOP) || ENABLED(DISABLE_Z_MIN_PROBE_ENDSTOP)) // It's possible for someone to set a pin for the Z Probe, but not enable it.
+        #if ENABLED(Z_MIN_PROBE_REPEATABILITY_TEST)
+          #error You must have a Z_MIN or Z_PROBE endstop to enable Z_MIN_PROBE_REPEATABILITY_TEST.
         #else
-          #error ENABLE_AUTO_BED_LEVELING requires a Z_MIN or Z_PROBE endstop. Z_MIN_PIN or Z_PROBE_PIN must point to a valid hardware pin.
+          #error ENABLE_AUTO_BED_LEVELING requires a Z_MIN or Z_PROBE endstop. Z_MIN_PIN or Z_MIN_PROBE_PIN must point to a valid hardware pin.
         #endif
       #endif
     #endif
 
     /**
-     * Require a Z Probe Pin if Z_PROBE_ENDSTOP is enabled.
+     * Require a Z Probe Pin if Z_MIN_PROBE_ENDSTOP is enabled.
      */
-    #if ENABLED(Z_PROBE_ENDSTOP)
+    #if ENABLED(Z_MIN_PROBE_ENDSTOP)
       #if !PIN_EXISTS(Z_PROBE)
-        #error You must have a Z_PROBE_PIN defined in your pins_XXXX.h file if you enable Z_PROBE_ENDSTOP.
+        #error You must have a Z_MIN_PROBE_PIN defined in your pins_XXXX.h file if you enable Z_MIN_PROBE_ENDSTOP.
       #endif
-      #if Z_PROBE_PIN == -1
-        #error You must set Z_PROBE_PIN to a valid pin if you enable Z_PROBE_ENDSTOP.
+      #if Z_MIN_PROBE_PIN == -1
+        #error You must set Z_MIN_PROBE_PIN to a valid pin if you enable Z_MIN_PROBE_ENDSTOP.
       #endif
 // Forcing Servo definitions can break some hall effect sensor setups. Leaving these here for further comment.
 //      #ifndef NUM_SERVOS
-//        #error You must have NUM_SERVOS defined and there must be at least 1 configured to use Z_PROBE_ENDSTOP.
+//        #error You must have NUM_SERVOS defined and there must be at least 1 configured to use Z_MIN_PROBE_ENDSTOP.
 //      #endif
 //      #if defined(NUM_SERVOS) && NUM_SERVOS < 1
-//        #error You must have at least 1 servo defined for NUM_SERVOS to use Z_PROBE_ENDSTOP.
+//        #error You must have at least 1 servo defined for NUM_SERVOS to use Z_MIN_PROBE_ENDSTOP.
 //      #endif
 //      #if Z_ENDSTOP_SERVO_NR < 0
-//        #error You must have Z_ENDSTOP_SERVO_NR set to at least 0 or above to use Z_PROBE_ENDSTOP.
+//        #error You must have Z_ENDSTOP_SERVO_NR set to at least 0 or above to use Z_MIN_PROBE_ENDSTOP.
 //      #endif
 //      #ifndef SERVO_ENDSTOP_ANGLES
-//        #error You must have SERVO_ENDSTOP_ANGLES defined for Z Extend and Retract to use Z_PROBE_ENDSTOP.
+//        #error You must have SERVO_ENDSTOP_ANGLES defined for Z Extend and Retract to use Z_MIN_PROBE_ENDSTOP.
 //      #endif
     #endif
     /**
@@ -231,8 +231,8 @@
         #error You cannot use Z_PROBE_SLED with DELTA.
       #endif
 
-      #if ENABLED(Z_PROBE_REPEATABILITY_TEST)
-        #error Z_PROBE_REPEATABILITY_TEST is not supported with DELTA yet.
+      #if ENABLED(Z_MIN_PROBE_REPEATABILITY_TEST)
+        #error Z_MIN_PROBE_REPEATABILITY_TEST is not supported with DELTA yet.
       #endif
 
     #endif
