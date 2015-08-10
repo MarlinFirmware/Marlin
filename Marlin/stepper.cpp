@@ -263,7 +263,7 @@ void checkHitEndstops() {
       SERIAL_ECHOPAIR(" Z:", (float)endstops_trigsteps[Z_AXIS] / axis_steps_per_unit[Z_AXIS]);
       LCD_MESSAGEPGM(MSG_ENDSTOPS_HIT "Z");
     }
-    #if ENABLED(Z_PROBE_ENDSTOP)
+    #if ENABLED(Z_MIN_PROBE_ENDSTOP)
       if (endstop_hit_bits & BIT(Z_PROBE)) {
         SERIAL_ECHOPAIR(" Z_PROBE:", (float)endstops_trigsteps[Z_AXIS] / axis_steps_per_unit[Z_AXIS]);
         LCD_MESSAGEPGM(MSG_ENDSTOPS_HIT "ZP");
@@ -411,7 +411,7 @@ inline void update_endstops() {
           #endif // !Z_DUAL_ENDSTOPS
         #endif // Z_MIN_PIN
 
-        #if ENABLED(Z_PROBE_ENDSTOP)
+        #if ENABLED(Z_MIN_PROBE_ENDSTOP)
           UPDATE_ENDSTOP(Z, PROBE);
 
           if (TEST_ENDSTOP(Z_PROBE))
@@ -448,16 +448,6 @@ inline void update_endstops() {
 
           #endif // !Z_DUAL_ENDSTOPS
         #endif // Z_MAX_PIN
-        
-        #if ENABLED(Z_PROBE_ENDSTOP)
-          UPDATE_ENDSTOP(Z, PROBE);
-          
-          if (TEST_ENDSTOP(Z_PROBE))
-          {
-            endstops_trigsteps[Z_AXIS] = count_position[Z_AXIS];
-            endstop_hit_bits |= BIT(Z_PROBE);
-          }
-        #endif
       }
   #if ENABLED(COREXZ)
     }
@@ -981,10 +971,10 @@ void st_init() {
     #endif
   #endif
 
-  #if HAS_Z_PROBE && ENABLED(Z_PROBE_ENDSTOP) // Check for Z_PROBE_ENDSTOP so we don't pull a pin high unless it's to be used.
-    SET_INPUT(Z_PROBE_PIN);
+  #if HAS_Z_PROBE && ENABLED(Z_MIN_PROBE_ENDSTOP) // Check for Z_MIN_PROBE_ENDSTOP so we don't pull a pin high unless it's to be used.
+    SET_INPUT(Z_MIN_PROBE_PIN);
     #if ENABLED(ENDSTOPPULLUP_ZPROBE)
-      WRITE(Z_PROBE_PIN,HIGH);
+      WRITE(Z_MIN_PROBE_PIN,HIGH);
     #endif
   #endif
 

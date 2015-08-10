@@ -4,8 +4,8 @@
 
 #include "pins_RAMPS_13.h"
 
-#if ENABLED(Z_PROBE_ENDSTOP)
-  #define Z_PROBE_PIN      19
+#if ENABLED(Z_MIN_PROBE_ENDSTOP)
+  #define Z_MIN_PROBE_PIN  19
 #endif
 
 #undef HEATER_0_PIN

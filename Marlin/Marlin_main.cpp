@@ -1330,8 +1330,8 @@ static void setup_for_endstop_move() {
       feedrate = Z_PROBE_ALLEN_KEY_DEPLOY_1_FEEDRATE;
 
       // If endstop is already false, the probe is deployed
-      #if ENABLED(Z_PROBE_ENDSTOP)
-        bool z_probe_endstop = (READ(Z_PROBE_PIN) != Z_PROBE_ENDSTOP_INVERTING);
+      #if ENABLED(Z_MIN_PROBE_ENDSTOP)
+        bool z_probe_endstop = (READ(Z_MIN_PROBE_PIN) != Z_MIN_PROBE_ENDSTOP_INVERTING);
         if (z_probe_endstop)
       #else
         bool z_min_endstop = (READ(Z_MIN_PIN) != Z_MIN_ENDSTOP_INVERTING);
@@ -1389,8 +1389,8 @@ static void setup_for_endstop_move() {
 
       st_synchronize();
 
-      #if ENABLED(Z_PROBE_ENDSTOP)
-        z_probe_endstop = (READ(Z_PROBE_PIN) != Z_PROBE_ENDSTOP_INVERTING);
+      #if ENABLED(Z_MIN_PROBE_ENDSTOP)
+        z_probe_endstop = (READ(Z_MIN_PROBE_PIN) != Z_MIN_PROBE_ENDSTOP_INVERTING);
         if (z_probe_endstop)
       #else
         z_min_endstop = (READ(Z_MIN_PIN) != Z_MIN_ENDSTOP_INVERTING);
@@ -1477,8 +1477,8 @@ static void setup_for_endstop_move() {
       
       st_synchronize();
 
-      #if ENABLED(Z_PROBE_ENDSTOP)
-        bool z_probe_endstop = (READ(Z_PROBE_PIN) != Z_PROBE_ENDSTOP_INVERTING);
+      #if ENABLED(Z_MIN_PROBE_ENDSTOP)
+        bool z_probe_endstop = (READ(Z_MIN_PROBE_PIN) != Z_MIN_PROBE_ENDSTOP_INVERTING);
         if (!z_probe_endstop)
       #else
         bool z_min_endstop = (READ(Z_MIN_PIN) != Z_MIN_ENDSTOP_INVERTING);
@@ -3100,12 +3100,12 @@ inline void gcode_M42() {
   } // code_seen('S')
 }
 
-#if ENABLED(ENABLE_AUTO_BED_LEVELING) && ENABLED(Z_PROBE_REPEATABILITY_TEST)
+#if ENABLED(ENABLE_AUTO_BED_LEVELING) && ENABLED(Z_MIN_PROBE_REPEATABILITY_TEST)
 
-  // This is redundant since the SanityCheck.h already checks for a valid Z_PROBE_PIN, but here for clarity.
-  #if ENABLED(Z_PROBE_ENDSTOP)
+  // This is redundant since the SanityCheck.h already checks for a valid Z_MIN_PROBE_PIN, but here for clarity.
+  #if ENABLED(Z_MIN_PROBE_ENDSTOP)
     #if !HAS_Z_PROBE
-      #error You must define Z_PROBE_PIN to enable Z-Probe repeatability calculation.
+      #error You must define Z_MIN_PROBE_PIN to enable Z-Probe repeatability calculation.
     #endif
   #elif !HAS_Z_MIN
     #error You must define Z_MIN_PIN to enable Z-Probe repeatability calculation.
@@ -3350,7 +3350,7 @@ inline void gcode_M42() {
     SERIAL_EOL; SERIAL_EOL;
   }
 
-#endif // ENABLE_AUTO_BED_LEVELING && Z_PROBE_REPEATABILITY_TEST
+#endif // ENABLE_AUTO_BED_LEVELING && Z_MIN_PROBE_REPEATABILITY_TEST
 
 /**
  * M104: Set hot end temperature
@@ -3902,7 +3902,7 @@ inline void gcode_M119() {
   #endif
   #if HAS_Z_PROBE
     SERIAL_PROTOCOLPGM(MSG_Z_PROBE);
-    SERIAL_PROTOCOLLN(((READ(Z_PROBE_PIN)^Z_PROBE_ENDSTOP_INVERTING)?MSG_ENDSTOP_HIT:MSG_ENDSTOP_OPEN));
+    SERIAL_PROTOCOLLN(((READ(Z_MIN_PROBE_PIN)^Z_MIN_PROBE_ENDSTOP_INVERTING)?MSG_ENDSTOP_HIT:MSG_ENDSTOP_OPEN));
   #endif
 }
 
@@ -5371,11 +5371,11 @@ void process_next_command() {
         gcode_M42();
         break;
 
-      #if ENABLED(ENABLE_AUTO_BED_LEVELING) && ENABLED(Z_PROBE_REPEATABILITY_TEST)
+      #if ENABLED(ENABLE_AUTO_BED_LEVELING) && ENABLED(Z_MIN_PROBE_REPEATABILITY_TEST)
         case 48: // M48 Z-Probe repeatability
           gcode_M48();
           break;
-      #endif // ENABLE_AUTO_BED_LEVELING && Z_PROBE_REPEATABILITY_TEST
+      #endif // ENABLE_AUTO_BED_LEVELING && Z_MIN_PROBE_REPEATABILITY_TEST
 
       #if ENABLED(M100_FREE_MEMORY_WATCHER)
         case 100:
