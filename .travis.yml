@@ -38,6 +38,7 @@ script:
   # backup configuration.h
   - cp Marlin/Configuration.h Marlin/Configuration.h.backup
   - cp Marlin/Configuration_adv.h Marlin/Configuration_adv.h.backup
+  - cp Marlin/pins_RAMPS_13.h Marlin/pins_RAMPS_13.h.backup
   # add sensor for bed
   - sed -i 's/#define TEMP_SENSOR_BED 0/#define TEMP_SENSOR_BED 1/g' Marlin/Configuration.h
   - rm -rf .build/
@@ -159,6 +160,17 @@ script:
   - sed -i 's/\/\/#define COREXZ/#define COREXZ/g' Marlin/Configuration.h
   - rm -rf .build/
   - DISPLAY=:1.0 ~/bin/arduino --verify --board marlin:avr:mega  Marlin/Marlin.ino
+  # Enable Z_DUAL_STEPPER_DRIVERS, Z_DUAL_ENDSTOPS
+  - cp Marlin/Configuration.h.backup Marlin/Configuration.h
+  - sed -i 's/\/\/#define Z_DUAL_STEPPER_DRIVERS/#define Z_DUAL_STEPPER_DRIVERS/g' Marlin/Configuration_adv.h
+  - sed -i 's/\ \ \/\/\ \#define Z_DUAL_ENDSTOPS/#define Z_DUAL_ENDSTOPS/g' Marlin/Configuration_adv.h
+  - sed -i 's/#define X_MAX_PIN           2/#define X_MAX_PIN          -1/g' Marlin/pins_RAMPS_13.h
+  - sed -i 's/\ \ \ \ \#define Z2_MAX_PIN 36/#define Z2_MAX_PIN  2/g' Marlin/Configuration_adv.h
+  - rm -rf .build/
+  - DISPLAY=:1.0 ~/bin/arduino --verify --board marlin:avr:mega  Marlin/Marlin.ino
+  - cp Marlin/Configuration.h.backup Marlin/Configuration.h
+  - cp Marlin/Configuration_adv.h.backup Marlin/Configuration_adv.h
+  - cp Marlin/pins_RAMPS_13.h.backup Marlin/pins_RAMPS_13.h
   ######## Example Configurations ##############
   # Delta Config (generic)
   - cp Marlin/example_configurations/delta/generic/Configuration* Marlin/
