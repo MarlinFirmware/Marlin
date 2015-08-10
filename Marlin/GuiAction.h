@@ -3,6 +3,8 @@
 
 #include <stdint.h>
 
+#include "Action.h"
+
 extern void action_set_temperature(uint16_t degrees);
 extern void action_preheat();
 extern void action_cooldown();
@@ -12,10 +14,11 @@ extern void action_filament_load();
 
 extern void action_level_plate();
 
-extern void action_homing();
+extern void gui_action_homing();
 extern void action_get_plane();
 
 extern void action_move_axis_to(uint8_t axis, float position);
+extern void action_move_to_rest();
 
 extern void action_start_print();
 extern void action_stop_print();
