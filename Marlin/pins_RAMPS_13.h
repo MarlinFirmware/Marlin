@@ -66,7 +66,7 @@
 #define SDSS               53
 #define LED_PIN            13
 
-#if MB(RAMPS_13_EEB) && ENABLED(FILAMENT_SENSOR)  // FMM added for Filament Extruder
+#if ENABLED(FILAMENT_SENSOR)  // FMM added for Filament Extruder
   // define analog pin for the filament width sensor input
   // Use the RAMPS 1.4 Analog input 5 on the AUX2 connector
   #define FILWIDTH_PIN      5
