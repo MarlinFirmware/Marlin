@@ -107,7 +107,7 @@ namespace screen
 		do
 		{
 			painter.title(m_title);
-			painter.box(MSG_SELECTOR_BOX());
+			painter.box(MSG_PUSH_TO_CONTINUE());
 
 			uint8_t x_init = painter.coordinateXInit();
 			uint8_t x_end = painter.coordinateXEnd();

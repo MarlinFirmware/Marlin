@@ -161,7 +161,7 @@ namespace screen
 
 	static ScreenTransition * make_screen_unloading()
 	{
-		ScreenTransition * local_view = new ScreenTransition(MSG_SCREEN_UNLOADING_TITLE(), MSG_SCREEN_UNLOADING_TEXT(), NULL, action_filament_unload);
+		ScreenTransition * local_view = new ScreenTransition(MSG_SCREEN_UNLOADING_TITLE(), MSG_SCREEN_UNLOADING_TEXT(), MSG_PLEASE_WAIT(), action_filament_unload);
 		local_view->add(screen_unload_confirm);
 		return local_view;
 	}
@@ -184,7 +184,7 @@ namespace screen
 		Icon * icon_back = new Icon(icon_size, bits_back_normal, bits_back_focused, MSG_ICON_BACK());
       Icon * icon_ok = new Icon(icon_size, bits_ok_normal, bits_ok_focused, MSG_ICON_OK2());
 
-		ScreenMenu * local_view = new ScreenMenu(MSG_SCREEN_LOAD_INIT_TITLE(), MSG_SCREEN_LOAD_INIT_TITLE());
+		ScreenMenu * local_view = new ScreenMenu(MSG_SCREEN_LOAD_INIT_TITLE(), MSG_SCREEN_LOAD_INIT_TEXT());
 		local_view->add(screen_main);
 		local_view->icon(icon_back);
 		local_view->add(screen_load_select);
@@ -215,7 +215,7 @@ namespace screen
 
 	static ScreenTransition * make_screen_loading()
 	{
-		ScreenTransition * local_view = new ScreenTransition(MSG_SCREEN_LOADING_TITLE(), MSG_SCREEN_LOADING_TEXT(), NULL, action_filament_load);
+		ScreenTransition * local_view = new ScreenTransition(MSG_SCREEN_LOADING_TITLE(), MSG_SCREEN_LOADING_TEXT(), MSG_PLEASE_WAIT(), action_filament_load);
 		local_view->add(screen_load_confirm);
 		return local_view;
 	}
@@ -787,7 +787,7 @@ namespace screen
 
    static ScreenDynamicFeedrate<uint16_t> * make_screen_speed()
 	{
-		ScreenDynamicFeedrate<uint16_t> * local_view = new ScreenDynamicFeedrate<uint16_t>(MSG_SCREEN_SPEED(), 10, 400, 10, action_set_feedrate_multiply);
+		ScreenDynamicFeedrate<uint16_t> * local_view = new ScreenDynamicFeedrate<uint16_t>(MSG_SCREEN_SPEED_TITLE(), 10, 400, 10, action_set_feedrate_multiply);
 		local_view->add(screen_print);
 		return local_view;
 	}

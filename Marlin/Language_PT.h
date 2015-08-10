@@ -109,8 +109,7 @@ const char PT_SCREEN_CHANGE_LOAD_TITLE[] PROGMEM    = "Insert filament";
 const char PT_SCREEN_CHANGE_LOAD_TEXT[] PROGMEM     = "Insert the filament...";
 const char PT_SCREEN_CHANGE_CONFIRM_TITLE[] PROGMEM = "Finished";
 const char PT_SCREEN_CHANGE_CONFIRM_TEXT[] PROGMEM  = "All OK?";
-
-const char PT_SCREEN_SPEED[] PROGMEM                = "Change speed";
+const char PT_SCREEN_SPEED_TITLE[] PROGMEM          = "Change speed";
 const char PT_SCREEN_SERIAL_TITLE[] PROGMEM         = "Serial control";
 const char PT_ICON_SD_NOSD[] PROGMEM                = "Insert SD card";
 const char PT_ICON_SD_SD[] PROGMEM                  = "SD card";
@@ -144,7 +143,6 @@ const char PT_ICON_MOVE_01MM[] PROGMEM              = "Move 0.1mm";
 const char PT_ICON_AUTOLEVEL[] PROGMEM              = "Autolevel: On";
 const char PT_ICON_AUTOLEVEL_DISABLE[] PROGMEM      = "Autolevel: Off";
 const char PT_ICON_OFFSET[] PROGMEM                 = "Offset";
-const char PT_SELECTOR_BOX[] PROGMEM                = "Select a value";
 const char PT_PUSH_TO_CONFIRM[] PROGMEM             = "Push to confirm";
 const char PT_PUSH_TO_CONTINUE[] PROGMEM            = "Push to continue";
 const char PT_PUSH_TO_START[] PROGMEM               = "Push to start";

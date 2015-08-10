@@ -167,8 +167,7 @@ enum class Label
 	SCREEN_CHANGE_LOAD_TEXT,
 	SCREEN_CHANGE_CONFIRM_TITLE,
 	SCREEN_CHANGE_CONFIRM_TEXT,
-
-	SCREEN_SPEED,
+	SCREEN_SPEED_TITLE,
 	SCREEN_SERIAL_TITLE,
 	ICON_SD_NOSD,
 	ICON_SD_SD,
@@ -202,7 +201,6 @@ enum class Label
 	ICON_AUTOLEVEL,
 	ICON_AUTOLEVEL_DISABLE,
 	ICON_OFFSET,
-	SELECTOR_BOX,
 	PUSH_TO_CONFIRM,
 	PUSH_TO_CONTINUE,
 	PUSH_TO_START,
@@ -316,8 +314,7 @@ extern const char * MSG_SCREEN_CHANGE_LOAD_TITLE();
 extern const char * MSG_SCREEN_CHANGE_LOAD_TEXT();
 extern const char * MSG_SCREEN_CHANGE_CONFIRM_TITLE();
 extern const char * MSG_SCREEN_CHANGE_CONFIRM_TEXT();
-
-extern const char * MSG_SCREEN_SPEED();
+extern const char * MSG_SCREEN_SPEED_TITLE();
 extern const char * MSG_SCREEN_SERIAL_TITLE();
 extern const char * MSG_ICON_SD_NOSD();
 extern const char * MSG_ICON_SD_SD();
@@ -351,7 +348,6 @@ extern const char * MSG_ICON_MOVE_01MM();
 extern const char * MSG_ICON_AUTOLEVEL();
 extern const char * MSG_ICON_AUTOLEVEL_DISABLE();
 extern const char * MSG_ICON_OFFSET();
-extern const char * MSG_SELECTOR_BOX();
 extern const char * MSG_PUSH_TO_CONFIRM();
 extern const char * MSG_PUSH_TO_CONTINUE();
 extern const char * MSG_PUSH_TO_START();
