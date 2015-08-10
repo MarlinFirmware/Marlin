@@ -84,7 +84,7 @@ namespace screen
 		local_view->icon(icon_filament_load);
 		local_view->add(screen_level_init);
 		local_view->icon(icon_leveling);
-		local_view->add(screen_autohome);
+		local_view->add(screen_autohome_init);
 		local_view->icon(icon_homing);
 		local_view->add(screen_settings);
 		local_view->icon(icon_settings);
@@ -308,7 +308,35 @@ namespace screen
 		return local_view;
 	}
 
-	static ScreenTransition * make_screen_autohome()
+	static ScreenMenu * make_screen_autohome_init()
+	{
+		Icon * icon_back = new Icon(icon_size, bits_back_normal, bits_back_focused, MSG_ICON_BACK());
+		Icon * icon_ok = new Icon(icon_size, bits_ok_normal, bits_ok_focused, MSG_ICON_OK2());
+
+		ScreenMenu * local_view = new ScreenMenu(MSG_SCREEN_AUTOHOME_INIT_TITLE(), MSG_SCREEN_AUTOHOME_INIT_TEXT());
+		local_view->add(screen_main);
+		local_view->icon(icon_back);
+		local_view->add(screen_autohome_heating);
+		local_view->icon(icon_ok);
+		return local_view;
+	}
+
+	static ScreenAction<void> * make_screen_autohome_heating()
+	{
+		ScreenAction<void> * local_view = new ScreenAction<void>(NULL, action_preheat);
+		local_view->add(screen_autohome_animation);
+		return local_view;
+	}
+
+	static ScreenAnimation<float> * make_screen_autohome_animation()
+	{
+		ScreenAnimation<float> * local_view = new ScreenAnimation<float>(MSG_SCREEN_AUTOHOME_HEATING_TITLE(), MSG_PLEASE_WAIT(), screen::ScreenAnimation<float>::GREATER_OR_EQUAL, PREHEAT_HOTEND_TEMP, &TemperatureManager::single::instance());
+		local_view->add(screen_autohome_homing);
+		return local_view;
+	}
+
+
+	static ScreenTransition * make_screen_autohome_homing()
 	{
 		ScreenTransition * local_view = new ScreenTransition(MSG_SCREEN_AUTOHOME_HOMING_TITLE(), MSG_SCREEN_AUTOHOME_HOMING_TEXT(), MSG_PLEASE_WAIT(), gui_action_homing);
 		local_view->add(screen_main);
@@ -915,8 +943,20 @@ namespace screen
 				break;
 
 			// Auto home
-			case screen_autohome:
-				new_view = make_screen_autohome();
+			case screen_autohome_init:
+				new_view = make_screen_autohome_init();
+				break;
+
+			case screen_autohome_heating:
+				new_view = make_screen_autohome_heating();
+				break;
+
+			case screen_autohome_animation:
+				new_view = make_screen_autohome_animation();
+				break;
+
+			case screen_autohome_homing:
+				new_view = make_screen_autohome_homing();
 				break;
 
 			// Settings
