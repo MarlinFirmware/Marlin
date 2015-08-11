@@ -1594,6 +1594,16 @@ static void setup_for_endstop_move() {
 
   #endif // DELTA
 
+  #if HAS_SERVO_ENDSTOPS && DISABLED(Z_PROBE_SLED)
+
+    void raise_z_for_servo() {
+      float zpos = current_position[Z_AXIS], z_dest = Z_RAISE_BEFORE_PROBING;
+      z_dest += axis_known_position[Z_AXIS] ? zprobe_zoffset : zpos;
+      if (zpos < z_dest) do_blocking_move_to_z(z_dest); // also updates current_position
+    }
+
+  #endif
+
 #endif // ENABLE_AUTO_BED_LEVELING
 
 
@@ -2796,10 +2806,17 @@ inline void gcode_G28() {
 
   #if DISABLED(Z_PROBE_SLED)
 
+    /**
+     * G30: Do a single Z probe at the current XY
+     */
     inline void gcode_G30() {
+      #if HAS_SERVO_ENDSTOPS
+        raise_z_for_servo();
+      #endif
       deploy_z_probe(); // Engage Z Servo endstop if available
+
       st_synchronize();
-      // TODO: make sure the bed_level_rotation_matrix is identity or the planner will get set incorectly
+      // TODO: clear the leveling matrix or the planner will be set incorrectly
       setup_for_endstop_move();
 
       feedrate = homing_feedrate[Z_AXIS];
@@ -2814,7 +2831,11 @@ inline void gcode_G28() {
       SERIAL_EOL;
 
       clean_up_after_endstop_move();
-      stow_z_probe(); // Retract Z Servo endstop if available
+
+      #if HAS_SERVO_ENDSTOPS
+        raise_z_for_servo();
+      #endif
+      stow_z_probe(false); // Retract Z Servo endstop if available
     }
 
   #endif //!Z_PROBE_SLED
@@ -4566,14 +4587,6 @@ inline void gcode_M303() {
 inline void gcode_M400() { st_synchronize(); }
 
 #if ENABLED(ENABLE_AUTO_BED_LEVELING) && DISABLED(Z_PROBE_SLED) && (HAS_SERVO_ENDSTOPS || ENABLED(Z_PROBE_ALLEN_KEY))
-
-  #if HAS_SERVO_ENDSTOPS
-    void raise_z_for_servo() {
-      float zpos = current_position[Z_AXIS], z_dest = Z_RAISE_BEFORE_HOMING;
-      z_dest += axis_known_position[Z_AXIS] ? zprobe_zoffset : zpos;
-      if (zpos < z_dest) do_blocking_move_to_z(z_dest); // also updates current_position
-    }
-  #endif
 
   /**
    * M401: Engage Z Servo endstop if available
