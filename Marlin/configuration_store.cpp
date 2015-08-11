@@ -168,7 +168,7 @@ void Config_StoreSettings()  {
     EEPROM_WRITE_VAR(i, mesh_num_x);
     EEPROM_WRITE_VAR(i, mesh_num_y);
     dummy = 0.0f;
-    for (int q=0; q<mesh_num_x*mesh_num_y; q++) EEPROM_WRITE_VAR(i, dummy);
+    for (uint q=0; q<mesh_num_x*mesh_num_y; q++) EEPROM_WRITE_VAR(i, dummy);
   #endif // MESH_BED_LEVELING
 
   #if DISABLED(ENABLE_AUTO_BED_LEVELING)
@@ -470,7 +470,7 @@ void Config_ResetDefault() {
   float tmp1[] = DEFAULT_AXIS_STEPS_PER_UNIT;
   float tmp2[] = DEFAULT_MAX_FEEDRATE;
   long tmp3[] = DEFAULT_MAX_ACCELERATION;
-  for (uint16_t i = 0; i < NUM_AXIS; i++) {
+  for (uint8_t i = 0; i < NUM_AXIS; i++) {
     axis_steps_per_unit[i] = tmp1[i];
     max_feedrate[i] = tmp2[i];
     max_acceleration_units_per_sq_second[i] = tmp3[i];
@@ -565,7 +565,7 @@ void Config_ResetDefault() {
   #endif
 
   volumetric_enabled = false;
-  for (int q=0; q<COUNT(filament_size); q++)
+  for (uint8_t q=0; q<COUNT(filament_size); q++)
     filament_size[q] = DEFAULT_NOMINAL_FILAMENT_DIA;
   calculate_volumetric_multipliers();
 
