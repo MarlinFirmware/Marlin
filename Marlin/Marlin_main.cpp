@@ -2561,10 +2561,11 @@ inline void gcode_G28() {
         double eqnAMatrix[abl2 * 3], // "A" matrix of the linear system of equations
                eqnBVector[abl2],     // "B" vector of Z points
                mean = 0.0;
+        int8_t indexIntoAB[auto_bed_leveling_grid_points][auto_bed_leveling_grid_points];
       #endif // !DELTA
 
       int probePointCounter = 0;
-      bool zig = true;
+      bool zig = (auto_bed_leveling_grid_points & 1) ? true : false; //always end at [RIGHT_PROBE_BED_POSITION, BACK_PROBE_BED_POSITION]
 
       for (int yCount = 0; yCount < auto_bed_leveling_grid_points; yCount++) {
         double yProbe = front_probe_bed_position + yGridSpacing * yCount;
@@ -2581,13 +2582,7 @@ inline void gcode_G28() {
           xInc = -1;
         }
 
-        #if DISABLED(DELTA)
-          // If do_topography_map is set then don't zig-zag. Just scan in one direction.
-          // This gets the probe points in more readable order.
-          if (!do_topography_map) zig = !zig;
-        #else
-          zig = !zig;
-        #endif
+        zig = !zig;
 
         for (int xCount = xStart; xCount != xStop; xCount += xInc) {
           double xProbe = left_probe_bed_position + xGridSpacing * xCount;
@@ -2621,12 +2616,13 @@ inline void gcode_G28() {
             eqnAMatrix[probePointCounter + 0 * abl2] = xProbe;
             eqnAMatrix[probePointCounter + 1 * abl2] = yProbe;
             eqnAMatrix[probePointCounter + 2 * abl2] = 1;
+            indexIntoAB[xCount][yCount] = probePointCounter;
           #else
             bed_level[xCount][yCount] = measured_z + z_offset;
           #endif
 
           probePointCounter++;
-
+  
           idle();
 
         } //xProbe
@@ -2679,7 +2675,7 @@ inline void gcode_G28() {
 
           for (int yy = auto_bed_leveling_grid_points - 1; yy >= 0; yy--) {
             for (int xx = 0; xx < auto_bed_leveling_grid_points; xx++) {
-              int ind = yy * auto_bed_leveling_grid_points + xx;
+              int ind = indexIntoAB[xx][yy];
               float diff = eqnBVector[ind] - mean;
 
               float x_tmp = eqnAMatrix[ind + 0 * abl2],
@@ -2705,7 +2701,7 @@ inline void gcode_G28() {
 
             for (int yy = auto_bed_leveling_grid_points - 1; yy >= 0; yy--) {
               for (int xx = 0; xx < auto_bed_leveling_grid_points; xx++) {
-                int ind = yy * auto_bed_leveling_grid_points + xx;
+                int ind = indexIntoAB[xx][yy];
                 float x_tmp = eqnAMatrix[ind + 0 * abl2],
                   y_tmp = eqnAMatrix[ind + 1 * abl2],
                   z_tmp = 0;
