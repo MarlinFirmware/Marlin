@@ -20,6 +20,10 @@ class SDManager : public Subject<SDState_t>
 		SDManager();
 
 		static void updateSDStatus();
+		SDState_t getSDStatus();
+
+		bool getSDInit();
+		void setSDInit(bool init);
 
 		void notify();
 
@@ -29,6 +33,7 @@ class SDManager : public Subject<SDState_t>
 
 	private:
 		SDState_t m_state;
+		bool m_init;
 };
 
 #endif //SD_MANAGER_H
