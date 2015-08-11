@@ -168,7 +168,7 @@ void Config_StoreSettings()  {
     EEPROM_WRITE_VAR(i, mesh_num_x);
     EEPROM_WRITE_VAR(i, mesh_num_y);
     dummy = 0.0f;
-    for (uint q=0; q<mesh_num_x*mesh_num_y; q++) EEPROM_WRITE_VAR(i, dummy);
+    for (uint8_t q=0; q<mesh_num_x*mesh_num_y; q++) EEPROM_WRITE_VAR(i, dummy);
   #endif // MESH_BED_LEVELING
 
   #if DISABLED(ENABLE_AUTO_BED_LEVELING)
