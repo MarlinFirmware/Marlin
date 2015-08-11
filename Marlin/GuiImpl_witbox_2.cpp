@@ -301,7 +301,7 @@ namespace screen
       Icon * icon_ok = new Icon(icon_size, bits_ok_normal, bits_ok_focused, MSG_ICON_OK2());
 
 		ScreenMenu * local_view = new ScreenMenu(MSG_SCREEN_LEVEL_CONFIRM_TITLE(), MSG_SCREEN_LEVEL_CONFIRM_TEXT());
-		local_view->add(screen_level1);
+		local_view->add(screen_level_homing);
 		local_view->icon(icon_retry);
 		local_view->add(screen_main);
 		local_view->icon(icon_ok);
