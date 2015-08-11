@@ -457,10 +457,9 @@ void action_move_axis_to(uint8_t axis, float position)
 void action_move_to_rest()
 {
 	st_synchronize();
-	vector_3 update_position = plan_get_position();
-	current_position[X_AXIS] = update_position.x;
-	current_position[Y_AXIS] = update_position.y;
-	current_position[Z_AXIS] = update_position.z;
+	current_position[X_AXIS] = plan_get_axis_position(X_AXIS);
+	current_position[Y_AXIS] = plan_get_axis_position(Y_AXIS);
+	current_position[Z_AXIS] = plan_get_axis_position(Z_AXIS);
 
 	if (current_position[Z_AXIS] < 20)
 	{
