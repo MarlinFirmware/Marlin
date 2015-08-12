@@ -172,6 +172,13 @@ enum class Label
 	SCREEN_CHANGE_CONFIRM_TEXT,
 	SCREEN_SPEED_TITLE,
 	SCREEN_SERIAL_TITLE,
+	SCREEN_WIZARD_TITLE,
+	SCREEN_WIZARD_SELECT,
+	SCREEN_WIZARD_TEXT1,
+	SCREEN_WIZARD_TEXT2,
+	SCREEN_WIZARD_TEXT3,
+	SCREEN_WIZARD_TEXT4,
+	SCREEN_WIZARD_TEXT5,
 	ICON_SD_NOSD,
 	ICON_SD_SD,
 	ICON_FILAMENT_UNLOAD,
@@ -322,6 +329,13 @@ extern const char * MSG_SCREEN_CHANGE_CONFIRM_TITLE();
 extern const char * MSG_SCREEN_CHANGE_CONFIRM_TEXT();
 extern const char * MSG_SCREEN_SPEED_TITLE();
 extern const char * MSG_SCREEN_SERIAL_TITLE();
+extern const char * MSG_SCREEN_WIZARD_TITLE();
+extern const char * MSG_SCREEN_WIZARD_SELECT();
+extern const char * MSG_SCREEN_WIZARD_TEXT1();
+extern const char * MSG_SCREEN_WIZARD_TEXT2();
+extern const char * MSG_SCREEN_WIZARD_TEXT3();
+extern const char * MSG_SCREEN_WIZARD_TEXT4();
+extern const char * MSG_SCREEN_WIZARD_TEXT5();
 extern const char * MSG_ICON_SD_NOSD();
 extern const char * MSG_ICON_SD_SD();
 extern const char * MSG_ICON_FILAMENT_UNLOAD();
