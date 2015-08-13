@@ -116,6 +116,7 @@ const char IT_SCREEN_SPEED_TITLE[] PROGMEM              = "Change speed";
 const char IT_SCREEN_SERIAL_TITLE[] PROGMEM             = "Serial control";
 const char IT_SCREEN_WIZARD_TITLE[] PROGMEM             = "Wizard";
 const char IT_SCREEN_WIZARD_SELECT[] PROGMEM            = "Select language";
+const char IT_SCREEN_WIZARD_LANGUAGE[] PROGMEM          = "Italian";
 const char IT_SCREEN_WIZARD_TEXT1[] PROGMEM             = "Welcome! To start we are going to prepare the printer";
 const char IT_SCREEN_WIZARD_TEXT2[] PROGMEM             = "Let us start adjusting the offset to level the plate";
 const char IT_SCREEN_WIZARD_TEXT3[] PROGMEM             = "Now, we are going to level the plate";

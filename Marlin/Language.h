@@ -174,6 +174,7 @@ enum class Label
 	SCREEN_SERIAL_TITLE,
 	SCREEN_WIZARD_TITLE,
 	SCREEN_WIZARD_SELECT,
+	SCREEN_WIZARD_LANGUAGE,
 	SCREEN_WIZARD_TEXT1,
 	SCREEN_WIZARD_TEXT2,
 	SCREEN_WIZARD_TEXT3,
@@ -331,6 +332,7 @@ extern const char * MSG_SCREEN_SPEED_TITLE();
 extern const char * MSG_SCREEN_SERIAL_TITLE();
 extern const char * MSG_SCREEN_WIZARD_TITLE();
 extern const char * MSG_SCREEN_WIZARD_SELECT();
+extern const char * MSG_SCREEN_WIZARD_LANGUAGE();
 extern const char * MSG_SCREEN_WIZARD_TEXT1();
 extern const char * MSG_SCREEN_WIZARD_TEXT2();
 extern const char * MSG_SCREEN_WIZARD_TEXT3();
