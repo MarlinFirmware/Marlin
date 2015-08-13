@@ -4786,18 +4786,19 @@ inline void gcode_M503() {
 #ifdef CUSTOM_M_CODE_SET_Z_PROBE_OFFSET
 
   inline void gcode_SET_Z_PROBE_OFFSET() {
-    float value;
+
+    SERIAL_ECHO_START;
+    SERIAL_ECHOPGM(MSG_ZPROBE_ZOFFSET);
+    SERIAL_CHAR(' ');
+
     if (code_seen('Z')) {
-      value = code_value();
+      float value = code_value();
       if (Z_PROBE_OFFSET_RANGE_MIN <= value && value <= Z_PROBE_OFFSET_RANGE_MAX) {
         zprobe_zoffset = value;
-        SERIAL_ECHO_START;
-        SERIAL_ECHOLNPGM(MSG_ZPROBE_ZOFFSET " " MSG_OK);
+        SERIAL_ECHOLNPGM(MSG_OK);
         SERIAL_EOL;
       }
       else {
-        SERIAL_ECHO_START;
-        SERIAL_ECHOPGM(MSG_ZPROBE_ZOFFSET);
         SERIAL_ECHOPGM(MSG_Z_MIN);
         SERIAL_ECHO(Z_PROBE_OFFSET_RANGE_MIN);
         SERIAL_ECHOPGM(MSG_Z_MAX);
@@ -4806,9 +4807,7 @@ inline void gcode_M503() {
       }
     }
     else {
-      SERIAL_ECHO_START;
-      SERIAL_ECHOPGM(MSG_ZPROBE_ZOFFSET " : ");
-      SERIAL_ECHO(zprobe_zoffset);
+      SERIAL_ECHOPAIR(": ", zprobe_zoffset);
       SERIAL_EOL;
     }
   }
