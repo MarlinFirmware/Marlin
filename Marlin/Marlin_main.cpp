@@ -1098,11 +1098,11 @@ static void set_axis_is_at_home(AxisEnum axis) {
     else
       current_position[axis] = base_home_pos(axis)
       #ifndef BABYSTEP_OFFSET
-        + home_offset[axis]
+        + home_offset[axis];
+        min_pos[axis] = base_min_pos(axis) + home_offset[axis];
+        max_pos[axis] = base_max_pos(axis) + home_offset[axis]
       #endif
       ;
-    min_pos[axis] = base_min_pos(axis) + home_offset[axis];
-    max_pos[axis] = base_max_pos(axis) + home_offset[axis];
 
     #if ENABLED(ENABLE_AUTO_BED_LEVELING) && Z_HOME_DIR < 0
       if (axis == Z_AXIS) current_position[Z_AXIS] -= zprobe_zoffset;
@@ -1793,13 +1793,13 @@ static void homeaxis(AxisEnum axis) {
       #endif
     }
 
-    #ifdef BABYSTEPPING
+    #if ENABLED(BABYSTEPPING)
       if(axis == Z_AXIS)
       {
         baby_max_endstop[axis] = Z_BABY_DEFAULT_MAX_POS;
         baby_min_endstop[axis] = Z_BABY_DEFAULT_MIN_POS;
       }
-      #ifdef BABYSTEP_XY
+      #if ENABLED(BABYSTEP_XY)
         else if(axis == X_AXIS)
         {
           baby_max_endstop[axis] = X_BABY_DEFAULT_MAX_POS;
@@ -1977,11 +1977,11 @@ inline void gcode_G4() {
   while (millis() < codenum) idle();
 }
 
-#ifdef BABYSTEPPING
+#if ENABLED(BABYSTEPPING)
   inline void gcode_G5() {
     int8_t axis[3] = { -1, -1, -1 };
     const uint8_t axis_order[] = { Z_AXIS
-    #ifdef BABYSTEP_XY
+    #if ENABLED(BABYSTEP_XY)
       , X_AXIS, Y_AXIS // in the order: Z, X, then Y
     #endif //BABYSTEP_XY
       };
@@ -2032,7 +2032,7 @@ inline void gcode_G4() {
         baby_min_endstop[axis[i]] = current_position[axis[i]];
         baby_max_endstop[axis[i]] += baby_min_endstop[axis[i]];
       }
-      #ifdef BABYSTEP_OFFSET
+      #if ENABLED(BABYSTEP_OFFSET)
         if(axis[i] == Z_AXIS) // will move to the given (EEPROM saved) babystepped Z height offset when homing but not recognize it
           home_offset[axis[i]] = Z_BABY_DEFAULT_MIN_POS - baby_min_endstop[axis[i]];
       #endif //BABYSTEP_OFFSET
@@ -2350,7 +2350,7 @@ inline void gcode_G28() {
   feedrate_multiplier = saved_feedrate_multiplier;
   refresh_cmd_timeout();
   endstops_hit_on_purpose(); // clear endstop hit flags
-  #ifdef BABYSTEP_OFFSET
+  #if ENABLED(BABYSTEP_OFFSET)
     baby_max_endstop[Z_AXIS] -= home_offset[Z_AXIS];
     baby_min_endstop[Z_AXIS] -= home_offset[Z_AXIS];
     babystepsTodo[Z_AXIS] += home_offset[Z_AXIS]*axis_steps_per_unit[Z_AXIS];
@@ -5370,7 +5370,7 @@ void process_next_command() {
         gcode_G4();
         break;
 
-      #ifdef BABYSTEPPING
+      #if ENABLED(BABYSTEPPING)
         case 5:
           gcode_G5();
           break;
@@ -5908,7 +5908,9 @@ void clamp_to_software_endstops(float target[3]) {
     float negative_z_offset = 0;
     #if ENABLED(ENABLE_AUTO_BED_LEVELING)
       if (zprobe_zoffset < 0) negative_z_offset += zprobe_zoffset;
-      if (home_offset[Z_AXIS] < 0) negative_z_offset += home_offset[Z_AXIS];
+      #ifndef BABYSTEP_OFFSET
+        if (home_offset[Z_AXIS] < 0) negative_z_offset += home_offset[Z_AXIS];
+      #endif
     #endif
     NOLESS(target[Z_AXIS], min_pos[Z_AXIS] + negative_z_offset);
   }
