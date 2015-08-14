@@ -179,7 +179,6 @@ enum class Label
 	SCREEN_WIZARD_TEXT2,
 	SCREEN_WIZARD_TEXT3,
 	SCREEN_WIZARD_TEXT4,
-	SCREEN_WIZARD_TEXT5,
 	ICON_SD_NOSD,
 	ICON_SD_SD,
 	ICON_FILAMENT_UNLOAD,
@@ -216,6 +215,7 @@ enum class Label
 	PUSH_TO_CONTINUE,
 	PUSH_TO_START,
 	PUSH_TO_BACK,
+	PUSH_TO_FINISH,
 	PLEASE_WAIT,
 };
 
@@ -337,7 +337,6 @@ extern const char * MSG_SCREEN_WIZARD_TEXT1();
 extern const char * MSG_SCREEN_WIZARD_TEXT2();
 extern const char * MSG_SCREEN_WIZARD_TEXT3();
 extern const char * MSG_SCREEN_WIZARD_TEXT4();
-extern const char * MSG_SCREEN_WIZARD_TEXT5();
 extern const char * MSG_ICON_SD_NOSD();
 extern const char * MSG_ICON_SD_SD();
 extern const char * MSG_ICON_FILAMENT_UNLOAD();
@@ -374,6 +373,7 @@ extern const char * MSG_PUSH_TO_CONFIRM();
 extern const char * MSG_PUSH_TO_CONTINUE();
 extern const char * MSG_PUSH_TO_START();
 extern const char * MSG_PUSH_TO_BACK();
+extern const char * MSG_PUSH_TO_FINISH();
 extern const char * MSG_PLEASE_WAIT();
 
 #endif // ifndef LANGUAGE_H
