@@ -1064,9 +1064,6 @@ static void lcd_control_motion_menu() {
   MENU_ITEM_EDIT(float52, MSG_YSTEPS, &axis_steps_per_unit[Y_AXIS], 5, 9999);
   MENU_ITEM_EDIT(float51, MSG_ZSTEPS, &axis_steps_per_unit[Z_AXIS], 5, 9999);
   MENU_ITEM_EDIT(float51, MSG_ESTEPS, &axis_steps_per_unit[E_AXIS], 5, 9999);
-<<<<<<< HEAD
-  #if ENABLED(ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED)
-=======
   #if EXTRUDERS > 1
     MENU_ITEM_EDIT(float52, MSG_X1OFFSET, &extruder_offset[X_AXIS][1], -200, 200);
     MENU_ITEM_EDIT(float52, MSG_Y1OFFSET, &extruder_offset[Y_AXIS][1], -200, 200);
@@ -1079,8 +1076,7 @@ static void lcd_control_motion_menu() {
     MENU_ITEM_EDIT(float52, MSG_X3OFFSET, &extruder_offset[X_AXIS][3], -200, 200);
     MENU_ITEM_EDIT(float52, MSG_Y3OFFSET, &extruder_offset[Y_AXIS][3], -200, 200);
   #endif // EXTRUDERS > 3
-  #ifdef ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED
->>>>>>> Initial Extruder Offsets LCD and EEPROM
+  #if ENABLED(ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED)
     MENU_ITEM_EDIT(bool, MSG_ENDSTOP_ABORT, &abort_on_endstop_hit);
   #endif
   #if ENABLED(SCARA)
