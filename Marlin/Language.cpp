@@ -1,7 +1,7 @@
 #include "Language.h"
 #include "StorageManager.h"
 
-Language LANG = static_cast<Language>(eeprom::StorageManager::getLanguage());
+Language LANG = Language::ES;
 
 TR(SCREEN_EMERGENCY_TITLE)
 TR(SCREEN_EMERGENCY_TEXT)
