@@ -23,6 +23,7 @@
 #include "ScreenComplete.h"
 #include "ScreenEmergency.h"
 #include "ScreenSerial.h"
+#include "ScreenLanguage.h"
 
 #include "AutoLevelManager.h"
 #include "LightManager.h"
@@ -52,8 +53,91 @@ namespace screen
 	{
 		ScreenSplash * local_view = new ScreenSplash(2000);
 		local_view->add(screen_main);
-		local_view->add(screen_offset_home);
+		local_view->add(screen_wizard_language);
 		local_view->add(screen_emergency);
+		return local_view;
+	}
+
+	static ScreenLanguage * make_screen_wizard_language()
+	{
+		ScreenLanguage * local_view = new ScreenLanguage(NULL, Language::ES);
+		local_view->add(screen_wizard_step1);
+		return local_view;
+	}
+
+	static ScreenDialog<void> * make_screen_wizard_step1()
+	{
+		ScreenDialog<void> * local_view = new ScreenDialog<void>(MSG_SCREEN_WIZARD_TITLE(), MSG_SCREEN_WIZARD_TEXT1(), MSG_PUSH_TO_CONTINUE(), do_nothing);
+		local_view->add(screen_wizard_step2);
+		return local_view;
+	}
+
+	static ScreenDialog<void> * make_screen_wizard_step2()
+	{
+		ScreenDialog<void> * local_view = new ScreenDialog<void>(MSG_SCREEN_WIZARD_TITLE(), MSG_SCREEN_WIZARD_TEXT2(), MSG_PUSH_TO_CONTINUE(), do_nothing);
+		local_view->add(screen_wizard_offset_home);
+		return local_view;
+	}
+
+	static ScreenTransition * make_screen_wizard_offset_home()
+	{
+		ScreenTransition * local_view = new ScreenTransition(MSG_SCREEN_OFFSET_HOME_TITLE(), MSG_SCREEN_OFFSET_HOME_TEXT(), MSG_PLEASE_WAIT(), action_offset_homing);
+		local_view->add(screen_wizard_offset_calculate);
+		return local_view;
+	}
+
+	static ScreenTransition * make_screen_wizard_offset_calculate()
+	{
+		ScreenTransition * local_view = new ScreenTransition(MSG_SCREEN_OFFSET_PLANE_TITLE(), MSG_SCREEN_OFFSET_PLANE_TEXT(), MSG_PLEASE_WAIT(), action_offset);
+		local_view->add(screen_wizard_offset_info);
+		return local_view;
+	}
+
+	static ScreenDialog<void> * make_screen_wizard_offset_info()
+	{
+		ScreenDialog<void> * local_view = new ScreenDialog<void>(MSG_SCREEN_OFFSET_INFO_TITLE(), MSG_SCREEN_OFFSET_INFO_TEXT(), MSG_PUSH_TO_CONTINUE(), do_nothing);
+		local_view->add(screen_wizard_offset_set);
+		return local_view;
+	}
+
+	static ScreenDynamicAxis<float> * make_screen_wizard_offset_set()
+	{
+		ScreenDynamicAxis<float> * local_view = new ScreenDynamicAxis<float>(MSG_SCREEN_OFFSET_SET_TITLE(), Z_AXIS, 0.0, 4.0, 0.02, action_set_offset);
+		local_view->add(screen_wizard_offset_save);
+		return local_view;
+	}
+
+	static ScreenAction<void> * make_screen_wizard_offset_save()
+	{
+		ScreenAction<void> * local_view = new ScreenAction<void>(NULL, action_save_offset);
+		local_view->add(screen_wizard_offset_finish);
+		return local_view;
+	}
+
+	static ScreenMenu * make_screen_wizard_offset_finish()
+	{
+		Icon * icon_back = new Icon(icon_size, bits_back_normal, bits_back_focused, MSG_ICON_BACK());
+      Icon * icon_ok = new Icon(icon_size, bits_ok_normal, bits_ok_focused, MSG_ICON_OK2());
+
+		ScreenMenu * local_view = new ScreenMenu(MSG_SCREEN_OFFSET_FINISH_TITLE(), MSG_SCREEN_OFFSET_FINISH_TEXT());
+		local_view->add(screen_wizard_offset_home);
+		local_view->icon(icon_back);
+		local_view->add(screen_wizard_step3);
+		local_view->icon(icon_ok);
+		return local_view;
+	}
+
+	static ScreenDialog<void> * make_screen_wizard_step3()
+	{
+		ScreenDialog<void> * local_view = new ScreenDialog<void>(MSG_SCREEN_WIZARD_TITLE(), MSG_SCREEN_WIZARD_TEXT3(), MSG_PUSH_TO_CONTINUE(), do_nothing);
+		local_view->add(screen_wizard_step4);
+		return local_view;
+	}
+
+	static ScreenDialog<void> * make_screen_wizard_step4()
+	{
+		ScreenDialog<void> * local_view = new ScreenDialog<void>(MSG_SCREEN_WIZARD_TITLE(), MSG_SCREEN_WIZARD_TEXT4(), MSG_PUSH_TO_FINISH(), do_nothing);
+		local_view->add(screen_main);
 		return local_view;
 	}
 
@@ -815,6 +899,41 @@ namespace screen
 			// Splash
 			case screen_splash:
 				new_view = make_screen_splash();
+				break;
+			
+			//Initial wizard
+			case screen_wizard_language:
+				new_view = make_screen_wizard_language();
+				break;
+			case screen_wizard_step1:
+				new_view = make_screen_wizard_step1();
+				break;
+			case screen_wizard_step2:
+				new_view = make_screen_wizard_step2();
+				break;
+			case screen_wizard_offset_home:
+				new_view = make_screen_wizard_offset_home();
+				break;
+			case screen_wizard_offset_calculate:
+				new_view = make_screen_wizard_offset_calculate();
+				break;
+			case screen_wizard_offset_info:
+				new_view = make_screen_wizard_offset_info();
+				break;
+			case screen_wizard_offset_set:
+				new_view = make_screen_wizard_offset_set();
+				break;
+			case screen_wizard_offset_save:
+				new_view = make_screen_wizard_offset_save();
+				break;
+			case screen_wizard_offset_finish:
+				new_view = make_screen_wizard_offset_finish();
+				break;
+			case screen_wizard_step3:
+				new_view = make_screen_wizard_step3();
+				break;
+			case screen_wizard_step4:
+				new_view = make_screen_wizard_step4();
 				break;
 
 			// Emergency stop
