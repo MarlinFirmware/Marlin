@@ -1076,7 +1076,11 @@ static void lcd_control_motion_menu() {
     MENU_ITEM_EDIT(float52, MSG_X3OFFSET, &extruder_offset[X_AXIS][3], -200, 200);
     MENU_ITEM_EDIT(float52, MSG_Y3OFFSET, &extruder_offset[Y_AXIS][3], -200, 200);
   #endif // EXTRUDERS > 3
+<<<<<<< HEAD
   #if ENABLED(ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED)
+=======
+  #ifdef ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED
+>>>>>>> 4d07fcc616a636c221aef11d215d76231407ff11
     MENU_ITEM_EDIT(bool, MSG_ENDSTOP_ABORT, &abort_on_endstop_hit);
   #endif
   #if ENABLED(SCARA)

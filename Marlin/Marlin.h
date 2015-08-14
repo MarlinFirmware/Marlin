@@ -257,7 +257,10 @@ extern bool axis_known_position[3]; // axis[n].is_known
 #if EXTRUDERS > 1
   extern float extruder_offset[2][EXTRUDERS];
 #endif
+<<<<<<< HEAD
 
+=======
+>>>>>>> 4d07fcc616a636c221aef11d215d76231407ff11
 
 #if ENABLED(DELTA) || ENABLED(SCARA)
   void calculate_delta(float cartesian[3]);
