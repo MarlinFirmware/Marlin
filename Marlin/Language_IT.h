@@ -119,9 +119,8 @@ const char IT_SCREEN_WIZARD_SELECT[] PROGMEM            = "Select language";
 const char IT_SCREEN_WIZARD_LANGUAGE[] PROGMEM          = "Italian";
 const char IT_SCREEN_WIZARD_TEXT1[] PROGMEM             = "Welcome! To start we are going to prepare the printer";
 const char IT_SCREEN_WIZARD_TEXT2[] PROGMEM             = "Let us start adjusting the offset to level the plate";
-const char IT_SCREEN_WIZARD_TEXT3[] PROGMEM             = "Now, we are going to level the plate";
-const char IT_SCREEN_WIZARD_TEXT4[] PROGMEM             = "Finally we are going to load the filament";
-const char IT_SCREEN_WIZARD_TEXT5[] PROGMEM             = "Keep in mind have the nozzle and the plate clean";
+const char IT_SCREEN_WIZARD_TEXT3[] PROGMEM             = "Remember to keep the nozzle and plate clean";
+const char IT_SCREEN_WIZARD_TEXT4[] PROGMEM             = "Enjoy your " MACHINE_NAME "! If you can imagine it you can do it";
 const char IT_ICON_SD_NOSD[] PROGMEM                    = "Insert SD card";
 const char IT_ICON_SD_SD[] PROGMEM                      = "Print from SD card";
 const char IT_ICON_FILAMENT_UNLOAD[] PROGMEM            = "Unload filament";
@@ -158,6 +157,7 @@ const char IT_PUSH_TO_CONFIRM[] PROGMEM                 = "Push to confirm";
 const char IT_PUSH_TO_CONTINUE[] PROGMEM                = "Push to continue";
 const char IT_PUSH_TO_START[] PROGMEM                   = "Push to start";
 const char IT_PUSH_TO_BACK[] PROGMEM                    = "Push to go back";
+const char IT_PUSH_TO_FINISH[] PROGMEM                  = "Push to finish";
 const char IT_PLEASE_WAIT[] PROGMEM                     = "Please wait";
 
 #endif //LANGUAGE_IT_H
