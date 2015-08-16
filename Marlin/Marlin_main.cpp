@@ -2669,7 +2669,6 @@ inline void gcode_G28() {
         }
 
         if (!dryrun) set_bed_level_equation_lsq(plane_equation_coefficients);
-        free(plane_equation_coefficients);
 
         // Show the Topography map if enabled
         if (do_topography_map) {
