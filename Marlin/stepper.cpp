@@ -1185,6 +1185,9 @@ void digitalPotWrite(int address, int value) {
     SPI.transfer(value);
     digitalWrite(DIGIPOTSS_PIN,HIGH); // take the SS pin high to de-select the chip:
     //delay(10);
+  #else
+    UNUSED(address);
+    UNUSED(value);
   #endif
 }
 
@@ -1216,14 +1219,16 @@ void digipot_current(uint8_t driver, int current) {
   #if HAS_DIGIPOTSS
     const uint8_t digipot_ch[] = DIGIPOT_CHANNELS;
     digitalPotWrite(digipot_ch[driver], current);
-  #endif
-  #ifdef MOTOR_CURRENT_PWM_XY_PIN
+  #elif defined(MOTOR_CURRENT_PWM_XY_PIN)
     switch(driver) {
       case 0: analogWrite(MOTOR_CURRENT_PWM_XY_PIN, 255L * current / MOTOR_CURRENT_PWM_RANGE); break;
       case 1: analogWrite(MOTOR_CURRENT_PWM_Z_PIN, 255L * current / MOTOR_CURRENT_PWM_RANGE); break;
       case 2: analogWrite(MOTOR_CURRENT_PWM_E_PIN, 255L * current / MOTOR_CURRENT_PWM_RANGE); break;
     }
-  #endif
+  #else
+    UNUSED(driver);
+    UNUSED(current);
+#endif
 }
 
 void microstep_init() {

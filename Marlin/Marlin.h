@@ -5,6 +5,10 @@
 #define MARLIN_H
 
 #define  FORCE_INLINE __attribute__((always_inline)) inline
+/**
+ * Compiler warning on unused varable.
+ */
+#define UNUSED(x) (void) (x)
 
 #include <math.h>
 #include <stdio.h>

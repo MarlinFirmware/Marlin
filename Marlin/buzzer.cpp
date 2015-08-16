@@ -1,8 +1,8 @@
 #include "Marlin.h"
-#include "buzzer.h"
-#include "ultralcd.h"
-
 #if HAS_BUZZER
+  #include "buzzer.h"
+  #include "ultralcd.h"
+
   void buzz(long duration, uint16_t freq) {
     if (freq > 0) {
       #if ENABLED(LCD_USE_I2C_BUZZER)
