@@ -426,7 +426,8 @@ static void lcd_main_menu() {
       else {
         #ifdef RESUME_FEATURE
           MENU_ITEM(submenu, MSG_CARD_MENU, lcd_sdcard_print_menu);
-          MENU_ITEM(submenu, MSG_CARD_RESUME_MENU, lcd_sdcard_resume_menu);
+          if(current_position[Z_AXIS] > 0)
+            MENU_ITEM(submenu, MSG_CARD_RESUME_MENU, lcd_sdcard_resume_menu);
         #endif //RESUME_FEATURE
         #if !PIN_EXISTS(SD_DETECT)
           MENU_ITEM(gcode, MSG_CNG_SDCARD, PSTR("M21"));  // SD-card changed by user

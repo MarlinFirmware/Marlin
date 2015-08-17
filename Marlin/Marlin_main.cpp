@@ -2949,11 +2949,15 @@ inline void gcode_M17() {
       enqueuecommands_P(PSTR("M114")); // tell the host where it is
     }
 
-    planner_disabled_below_z = current_position[Z_AXIS];
+    if (current_position[Z_AXIS] > 0) {
+      planner_disabled_below_z = current_position[Z_AXIS];
 
-    SERIAL_PROTOCOLPGM("Resume from Z = ");
-    SERIAL_PROTOCOL(planner_disabled_below_z);
-    SERIAL_PROTOCOLPGM(" mm\n");
+      SERIAL_PROTOCOLPGM("Resume from Z = ");
+      SERIAL_PROTOCOL(planner_disabled_below_z);
+      SERIAL_PROTOCOLPGM(" mm\n");
+    }
+    else
+      SERIAL_PROTOCOLPGM("Error: Resume from Z <= 0\n");
   }
 #endif //RESUME_FEATURE
 
