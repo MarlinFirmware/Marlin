@@ -565,10 +565,10 @@ float junction_deviation = 0.1;
 // Add a new linear movement to the buffer. steps[X_AXIS], _y and _z is the absolute position in 
 // mm. Microseconds specify how many microseconds the move should take to perform. To aid acceleration
 // calculation the caller must also provide the physical length of the line in millimeters.
-#if defined(ENABLE_AUTO_BED_LEVELING) || defined(MESH_BED_LEVELING)
-  void plan_buffer_line(float x, float y, float z, const float &e, float feed_rate, const uint8_t &extruder)
+#if ENABLED(ENABLE_AUTO_BED_LEVELING) || ENABLED(MESH_BED_LEVELING)
+  void plan_buffer_line(float x, float y, float z, const float &e, float feed_rate, const uint8_t extruder)
 #else
-  void plan_buffer_line(const float &x, const float &y, const float &z, const float &e, float feed_rate, const uint8_t &extruder)
+  void plan_buffer_line(const float &x, const float &y, const float &z, const float &e, float feed_rate, const uint8_t extruder)
 #endif  // ENABLE_AUTO_BED_LEVELING
 {
   #ifdef RESUME_FEATURE
