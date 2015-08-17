@@ -42,7 +42,7 @@
  attached()  - Returns true if there is a servo attached.
  detach()    - Stops an attached servos from pulsing its i/o pin.
 
- */
+*/
 #include "Configuration.h" 
 
 #if HAS_SERVOS
@@ -312,19 +312,6 @@ void Servo::move(int value) {
       this->detach();
     #endif
   }
-}
-
-uint8_t Servo::move(int pin, int value) {
-  uint8_t ret;
-  ret = this->attach(pin);
-  if (ret) {
-    this->write(value);
-    #ifdef DEACTIVATE_SERVOS_AFTER_MOVE && (SERVO_DEACTIVATION_DELAY > 0)
-      delay(SERVO_DEACTIVATION_DELAY);
-      this->detach();
-    #endif
-  }
-  return ret;
 }
 
 #endif
