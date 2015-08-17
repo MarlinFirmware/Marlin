@@ -2956,6 +2956,8 @@ inline void gcode_M17() {
   }
 #endif //RESUME_FEATURE
 
+#if ENABLED(SDSUPPORT)
+
   /**
    * M20: List SD card to serial output
    */
@@ -2964,8 +2966,6 @@ inline void gcode_M17() {
     card.ls();
     SERIAL_PROTOCOLLNPGM(MSG_END_FILE_LIST);
   }
-
-#if ENABLED(SDSUPPORT)
 
   /**
    * M21: Init SD Card
@@ -5388,6 +5388,8 @@ void process_next_command() {
         case 19: // M19 - resume Z
           gcode_M19(); break;
       #endif //RESUME_FEATURE
+
+    #if ENABLED(SDSUPPORT)
 
         case 20: // M20 - list SD card
           gcode_M20(); break;
