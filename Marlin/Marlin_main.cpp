@@ -2965,6 +2965,8 @@ inline void gcode_M17() {
     SERIAL_PROTOCOLLNPGM(MSG_END_FILE_LIST);
   }
 
+#if ENABLED(SDSUPPORT)
+
   /**
    * M21: Init SD Card
    */
