@@ -414,6 +414,7 @@ bool target_direction;
 
 #ifdef RESUME_FEATURE
   extern float planner_disabled_below_z;
+  extern bool layer_reached;
 #endif //RESUME_FEATURE
 
 //===========================================================================
@@ -5151,105 +5152,111 @@ inline void gcode_M999() {
  *   F[mm/min] Set the movement feedrate
  */
 inline void gcode_T(uint8_t tmp_extruder) {
-  if (tmp_extruder >= EXTRUDERS) {
-    SERIAL_ECHO_START;
-    SERIAL_CHAR('T');
-    SERIAL_PROTOCOL_F(tmp_extruder,DEC);
-    SERIAL_ECHOLN(MSG_INVALID_EXTRUDER);
-  }
-  else {
-    target_extruder = tmp_extruder;
-
-    #if EXTRUDERS > 1
-      bool make_move = false;
-    #endif
-
-    if (code_seen('F')) {
+#ifdef RESUME_FEATURE
+  if (!planner_disabled_below_z || layer_reached) {
+#endif
+    if (tmp_extruder >= EXTRUDERS) {
+      SERIAL_ECHO_START;
+      SERIAL_CHAR('T');
+      SERIAL_PROTOCOL_F(tmp_extruder,DEC);
+      SERIAL_ECHOLN(MSG_INVALID_EXTRUDER);
+    }
+    else {
+      target_extruder = tmp_extruder;
 
       #if EXTRUDERS > 1
-        make_move = true;
+        bool make_move = false;
       #endif
 
-      float next_feedrate = code_value();
-      if (next_feedrate > 0.0) feedrate = next_feedrate;
-    }
-    #if EXTRUDERS > 1
-      if (tmp_extruder != active_extruder) {
-        // Save current position to return to after applying extruder offset
-        set_destination_to_current();
-        #if ENABLED(DUAL_X_CARRIAGE)
-          if (dual_x_carriage_mode == DXC_AUTO_PARK_MODE && IsRunning() &&
-                (delayed_move_time != 0 || current_position[X_AXIS] != x_home_pos(active_extruder))) {
-            // Park old head: 1) raise 2) move to park position 3) lower
-            plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS] + TOOLCHANGE_PARK_ZLIFT,
-                  current_position[E_AXIS], max_feedrate[Z_AXIS], active_extruder);
-            plan_buffer_line(x_home_pos(active_extruder), current_position[Y_AXIS], current_position[Z_AXIS] + TOOLCHANGE_PARK_ZLIFT,
-                  current_position[E_AXIS], max_feedrate[X_AXIS], active_extruder);
-            plan_buffer_line(x_home_pos(active_extruder), current_position[Y_AXIS], current_position[Z_AXIS],
-                  current_position[E_AXIS], max_feedrate[Z_AXIS], active_extruder);
-            st_synchronize();
-          }
+      if (code_seen('F')) {
 
-          // apply Y & Z extruder offset (x offset is already used in determining home pos)
-          current_position[Y_AXIS] = current_position[Y_AXIS] -
-                       extruder_offset[Y_AXIS][active_extruder] +
-                       extruder_offset[Y_AXIS][tmp_extruder];
-          current_position[Z_AXIS] = current_position[Z_AXIS] -
-                       extruder_offset[Z_AXIS][active_extruder] +
-                       extruder_offset[Z_AXIS][tmp_extruder];
-
-          active_extruder = tmp_extruder;
-
-          // This function resets the max/min values - the current position may be overwritten below.
-          set_axis_is_at_home(X_AXIS);
-
-          if (dual_x_carriage_mode == DXC_FULL_CONTROL_MODE) {
-            current_position[X_AXIS] = inactive_extruder_x_pos;
-            inactive_extruder_x_pos = destination[X_AXIS];
-          }
-          else if (dual_x_carriage_mode == DXC_DUPLICATION_MODE) {
-            active_extruder_parked = (active_extruder == 0); // this triggers the second extruder to move into the duplication position
-            if (active_extruder == 0 || active_extruder_parked)
-              current_position[X_AXIS] = inactive_extruder_x_pos;
-            else
-              current_position[X_AXIS] = destination[X_AXIS] + duplicate_extruder_x_offset;
-            inactive_extruder_x_pos = destination[X_AXIS];
-            extruder_duplication_enabled = false;
-          }
-          else {
-            // record raised toolhead position for use by unpark
-            memcpy(raised_parked_position, current_position, sizeof(raised_parked_position));
-            raised_parked_position[Z_AXIS] += TOOLCHANGE_UNPARK_ZLIFT;
-            active_extruder_parked = true;
-            delayed_move_time = 0;
-          }
-        #else // !DUAL_X_CARRIAGE
-          // Offset extruder (only by XY)
-          for (int i=X_AXIS; i<=Y_AXIS; i++)
-            current_position[i] += extruder_offset[i][tmp_extruder] - extruder_offset[i][active_extruder];
-          // Set the new active extruder and position
-          active_extruder = tmp_extruder;
-        #endif // !DUAL_X_CARRIAGE
-        #if ENABLED(DELTA)
-          sync_plan_position_delta();
-        #else
-          sync_plan_position();
+        #if EXTRUDERS > 1
+          make_move = true;
         #endif
-        // Move to the old position if 'F' was in the parameters
-        if (make_move && IsRunning()) prepare_move();
+
+        float next_feedrate = code_value();
+        if (next_feedrate > 0.0) feedrate = next_feedrate;
       }
+      #if EXTRUDERS > 1
+        if (tmp_extruder != active_extruder) {
+          // Save current position to return to after applying extruder offset
+          set_destination_to_current();
+          #if ENABLED(DUAL_X_CARRIAGE)
+            if (dual_x_carriage_mode == DXC_AUTO_PARK_MODE && IsRunning() &&
+                  (delayed_move_time != 0 || current_position[X_AXIS] != x_home_pos(active_extruder))) {
+              // Park old head: 1) raise 2) move to park position 3) lower
+              plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS] + TOOLCHANGE_PARK_ZLIFT,
+                    current_position[E_AXIS], max_feedrate[Z_AXIS], active_extruder);
+              plan_buffer_line(x_home_pos(active_extruder), current_position[Y_AXIS], current_position[Z_AXIS] + TOOLCHANGE_PARK_ZLIFT,
+                    current_position[E_AXIS], max_feedrate[X_AXIS], active_extruder);
+              plan_buffer_line(x_home_pos(active_extruder), current_position[Y_AXIS], current_position[Z_AXIS],
+                    current_position[E_AXIS], max_feedrate[Z_AXIS], active_extruder);
+              st_synchronize();
+            }
 
-      #if ENABLED(EXT_SOLENOID)
-        st_synchronize();
-        disable_all_solenoids();
-        enable_solenoid_on_active_extruder();
-      #endif // EXT_SOLENOID
+            // apply Y & Z extruder offset (x offset is already used in determining home pos)
+            current_position[Y_AXIS] = current_position[Y_AXIS] -
+                         extruder_offset[Y_AXIS][active_extruder] +
+                         extruder_offset[Y_AXIS][tmp_extruder];
+            current_position[Z_AXIS] = current_position[Z_AXIS] -
+                         extruder_offset[Z_AXIS][active_extruder] +
+                         extruder_offset[Z_AXIS][tmp_extruder];
 
-    #endif // EXTRUDERS > 1
-    SERIAL_ECHO_START;
-    SERIAL_ECHO(MSG_ACTIVE_EXTRUDER);
-    SERIAL_PROTOCOLLN((int)active_extruder);
+            active_extruder = tmp_extruder;
+
+            // This function resets the max/min values - the current position may be overwritten below.
+            set_axis_is_at_home(X_AXIS);
+
+            if (dual_x_carriage_mode == DXC_FULL_CONTROL_MODE) {
+              current_position[X_AXIS] = inactive_extruder_x_pos;
+              inactive_extruder_x_pos = destination[X_AXIS];
+            }
+            else if (dual_x_carriage_mode == DXC_DUPLICATION_MODE) {
+              active_extruder_parked = (active_extruder == 0); // this triggers the second extruder to move into the duplication position
+              if (active_extruder == 0 || active_extruder_parked)
+                current_position[X_AXIS] = inactive_extruder_x_pos;
+              else
+                current_position[X_AXIS] = destination[X_AXIS] + duplicate_extruder_x_offset;
+              inactive_extruder_x_pos = destination[X_AXIS];
+              extruder_duplication_enabled = false;
+            }
+            else {
+              // record raised toolhead position for use by unpark
+              memcpy(raised_parked_position, current_position, sizeof(raised_parked_position));
+              raised_parked_position[Z_AXIS] += TOOLCHANGE_UNPARK_ZLIFT;
+              active_extruder_parked = true;
+              delayed_move_time = 0;
+            }
+          #else // !DUAL_X_CARRIAGE
+            // Offset extruder (only by XY)
+            for (int i=X_AXIS; i<=Y_AXIS; i++)
+              current_position[i] += extruder_offset[i][tmp_extruder] - extruder_offset[i][active_extruder];
+            // Set the new active extruder and position
+            active_extruder = tmp_extruder;
+          #endif // !DUAL_X_CARRIAGE
+          #if ENABLED(DELTA)
+            sync_plan_position_delta();
+          #else
+            sync_plan_position();
+          #endif
+          // Move to the old position if 'F' was in the parameters
+          if (make_move && IsRunning()) prepare_move();
+        }
+
+        #if ENABLED(EXT_SOLENOID)
+          st_synchronize();
+          disable_all_solenoids();
+          enable_solenoid_on_active_extruder();
+        #endif // EXT_SOLENOID
+
+      #endif // EXTRUDERS > 1
+      SERIAL_ECHO_START;
+      SERIAL_ECHO(MSG_ACTIVE_EXTRUDER);
+      SERIAL_PROTOCOLLN((int)active_extruder);
+    }
+#ifdef RESUME_FEATURE
   }
+#endif
 }
 
 /**
