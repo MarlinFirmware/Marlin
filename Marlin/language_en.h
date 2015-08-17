@@ -159,14 +159,9 @@
 #ifndef MSG_FLOW
 #define MSG_FLOW                            "Flow"
 #endif
-<<<<<<< HEAD
-<<<<<<< HEAD
 #ifndef MSG_LAYER
 #define MSG_LAYER                           "Layer"
 #endif
-=======
-<<<<<<< HEAD
-=======
 #ifndef MSG_F0
 #define MSG_F0                              " 0"
 #endif
@@ -179,16 +174,6 @@
 #ifndef MSG_F3
 #define MSG_F3                              " 3"
 #endif
-#ifndef MSG_LAYER
-#define MSG_LAYER                           "Layer"
-#endif
->>>>>>> Initial M19 Z Resume From Z and Layer Counting
->>>>>>> Initial M19 Z Resume From Z and Layer Counting
-=======
-#ifndef MSG_LAYER
-#define MSG_LAYER                           "Layer"
-#endif
->>>>>>> Need to include thinkyhead's changes from f18f689c01e822e77aac498f9f7b8ec685538228 in using MSG_N# instead of MSG_F#.
 #ifndef MSG_CONTROL
 #define MSG_CONTROL                         "Control"
 #endif

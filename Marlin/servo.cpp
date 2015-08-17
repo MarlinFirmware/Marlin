@@ -35,18 +35,8 @@
 
  write()     - Sets the servo angle in degrees.  (invalid angle that is valid as pulse in microseconds is treated as microseconds)
  writeMicroseconds() - Sets the servo pulse width in microseconds
-<<<<<<< HEAD
-<<<<<<< HEAD
  move(pin, angle) - Sequence of attach(pin), write(angle).
                     With DEACTIVATE_SERVOS_AFTER_MOVE it waits SERVO_DEACTIVATION_DELAY and detaches.
-=======
- move(pin, angel) - Sequence of attach(pin), write(angel),
-                    if DEACTIVATE_SERVOS_AFTER_MOVE is defined waits SERVO_DEACTIVATION_DELAY, than detaches.
->>>>>>> Add Servo::move() to servo.cpp
-=======
- move(pin, angel) - Sequence of attach(pin), write(angel).
-                    With DEACTIVATE_SERVOS_AFTER_MOVE it waits SERVO_DEACTIVATION_DELAY and detaches.
->>>>>>> Update configs for new servo deactivation
  read()      - Gets the last written servo pulse width as an angle between 0 and 180.
  readMicroseconds()   - Gets the last written servo pulse width in microseconds. (was read_us() in first release)
  attached()  - Returns true if there is a servo attached.
@@ -113,7 +103,6 @@ static inline void handle_interrupts(timer16_Sequence_t timer, volatile uint16_t
 #ifndef WIRING // Wiring pre-defines signal handlers so don't define any if compiling for the Wiring platform
 
   // Interrupt handlers for Arduino
-<<<<<<< HEAD
   #if ENABLED(_useTimer1)
     SIGNAL (TIMER1_COMPA_vect) { handle_interrupts(_timer1, &TCNT1, &OCR1A); }
   #endif
@@ -127,38 +116,16 @@ static inline void handle_interrupts(timer16_Sequence_t timer, volatile uint16_t
   #endif
 
   #if ENABLED(_useTimer5)
-=======
-  #ifdef _useTimer1
-    SIGNAL (TIMER1_COMPA_vect) { handle_interrupts(_timer1, &TCNT1, &OCR1A); }
-  #endif
-
-  #ifdef _useTimer3
-    SIGNAL (TIMER3_COMPA_vect) { handle_interrupts(_timer3, &TCNT3, &OCR3A); }
-  #endif
-
-  #ifdef _useTimer4
-    SIGNAL (TIMER4_COMPA_vect) { handle_interrupts(_timer4, &TCNT4, &OCR4A); }
-  #endif
-
-  #ifdef _useTimer5
->>>>>>> Cleanup of comments & spacing
     SIGNAL (TIMER5_COMPA_vect) { handle_interrupts(_timer5, &TCNT5, &OCR5A); }
   #endif
 
 #else //!WIRING
 
   // Interrupt handlers for Wiring
-<<<<<<< HEAD
   #if ENABLED(_useTimer1)
     void Timer1Service() { handle_interrupts(_timer1, &TCNT1, &OCR1A); }
   #endif
   #if ENABLED(_useTimer3)
-=======
-  #ifdef _useTimer1
-    void Timer1Service() { handle_interrupts(_timer1, &TCNT1, &OCR1A); }
-  #endif
-  #ifdef _useTimer3
->>>>>>> Cleanup of comments & spacing
     void Timer3Service() { handle_interrupts(_timer3, &TCNT3, &OCR3A); }
   #endif
 
@@ -166,11 +133,7 @@ static inline void handle_interrupts(timer16_Sequence_t timer, volatile uint16_t
 
 
 static void initISR(timer16_Sequence_t timer) {
-<<<<<<< HEAD
   #if ENABLED(_useTimer1)
-=======
-  #ifdef _useTimer1
->>>>>>> Cleanup of comments & spacing
     if (timer == _timer1) {
       TCCR1A = 0;             // normal counting mode
       TCCR1B = _BV(CS11);     // set prescaler of 8
@@ -189,11 +152,7 @@ static void initISR(timer16_Sequence_t timer) {
     }
   #endif
 
-<<<<<<< HEAD
   #if ENABLED(_useTimer3)
-=======
-  #ifdef _useTimer3
->>>>>>> Cleanup of comments & spacing
     if (timer == _timer3) {
       TCCR3A = 0;             // normal counting mode
       TCCR3B = _BV(CS31);     // set prescaler of 8
@@ -211,11 +170,7 @@ static void initISR(timer16_Sequence_t timer) {
     }
   #endif
 
-<<<<<<< HEAD
   #if ENABLED(_useTimer4)
-=======
-  #ifdef _useTimer4
->>>>>>> Cleanup of comments & spacing
     if (timer == _timer4) {
       TCCR4A = 0;             // normal counting mode
       TCCR4B = _BV(CS41);     // set prescaler of 8
@@ -225,11 +180,7 @@ static void initISR(timer16_Sequence_t timer) {
     }
   #endif
 
-<<<<<<< HEAD
   #if ENABLED(_useTimer5)
-=======
-  #ifdef _useTimer5
->>>>>>> Cleanup of comments & spacing
     if (timer == _timer5) {
       TCCR5A = 0;             // normal counting mode
       TCCR5B = _BV(CS51);     // set prescaler of 8
@@ -291,7 +242,6 @@ int8_t Servo::attach(int pin) {
   return this->attach(pin, MIN_PULSE_WIDTH, MAX_PULSE_WIDTH);
 }
 
-<<<<<<< HEAD
 int8_t Servo::attach(int pin, int min, int max) {
 
   if (this->servoIndex >= MAX_SERVOS) return -1;
@@ -308,21 +258,6 @@ int8_t Servo::attach(int pin, int min, int max) {
   if (!isTimerActive(timer)) initISR(timer);
   servo_info[this->servoIndex].Pin.isActive = true;  // this must be set after the check for isTimerActive
 
-=======
-uint8_t Servo::attach(int pin, int min, int max) {
-  if (this->servoIndex < MAX_SERVOS ) {
-    if(pin > 0)
-      servos[this->servoIndex].Pin.nbr = pin;
-    pinMode(servos[this->servoIndex].Pin.nbr, OUTPUT); // set servo pin to output
-    // todo min/max check: abs(min - MIN_PULSE_WIDTH) /4 < 128
-    this->min = (MIN_PULSE_WIDTH - min) / 4; //resolution of min/max is 4 uS
-    this->max = (MAX_PULSE_WIDTH - max) / 4;
-    // initialize the timer if it has not already been initialized
-    timer16_Sequence_t timer = SERVO_INDEX_TO_TIMER(servoIndex);
-    if (!isTimerActive(timer)) initISR(timer);
-    servos[this->servoIndex].Pin.isActive = true;  // this must be set after the check for isTimerActive
-  }
->>>>>>> Remove the additional pin variable in Servo.cpp
   return this->servoIndex;
 }
 

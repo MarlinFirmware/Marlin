@@ -51,11 +51,7 @@ typedef unsigned long millis_t;
 #include "WString.h"
 
 #ifdef USBCON
-<<<<<<< HEAD
   #if ENABLED(BTENABLED)
-=======
-  #ifdef BTENABLED
->>>>>>> Compiler defines USBCON for USB devices
     #define MYSERIAL bt
   #else
     #define MYSERIAL Serial
@@ -258,8 +254,6 @@ extern float home_offset[3]; // axis[n].home_offset
 extern float min_pos[3]; // axis[n].min_pos
 extern float max_pos[3]; // axis[n].max_pos
 extern bool axis_known_position[3]; // axis[n].is_known
-<<<<<<< HEAD
-<<<<<<< HEAD
 #ifdef RESUME_FEATURE
   extern float planner_disabled_below_z;
 #endif
@@ -268,79 +262,26 @@ extern bool axis_known_position[3]; // axis[n].is_known
   extern unsigned short current_layer; // estimated current layer number
 #endif //TRACK_LAYER
 
-<<<<<<< HEAD
-=======
-=======
-extern float home_offset[3];
-=======
->>>>>>> Resolving more conflicts.
-#ifdef RESUME_FEATURE
-  extern float planner_disabled_below_z;
-#endif
-#ifdef TRACK_LAYER
-  extern float last_layer_z;
-  extern unsigned short current_layer; // estimated current layer number
-#endif //TRACK_LAYER
-
-<<<<<<< HEAD
->>>>>>> Initial M19 Z Resume From Z and Layer Counting
-#ifdef DELTA
-  extern float endstop_adj[3];
-  extern float delta_radius;
-  extern float delta_diagonal_rod;
-  extern float delta_segments_per_second;
-  void recalc_delta_settings(float radius, float diagonal_rod);
-#elif defined(Z_DUAL_ENDSTOPS)
-  extern float z_endstop_adj;
-#endif
->>>>>>> Initial M19 Z Resume From Z and Layer Counting
-
-<<<<<<< HEAD
 #if ENABLED(DELTA) || ENABLED(SCARA)
   void calculate_delta(float cartesian[3]);
   #if ENABLED(DELTA)
     extern float delta[3];
-=======
-=======
->>>>>>> Resolving more conflicts.
-=======
->>>>>>> Resolving more conflicts.
-#if defined(DELTA) || defined(SCARA)
-  void calculate_delta(float cartesian[3]);
-  #ifdef DELTA
-<<<<<<< HEAD
->>>>>>> Cleanup and dev notes in Marlin.h
-=======
-    extern float delta[3];
->>>>>>> Define extern delta only for delta
     extern float endstop_adj[3]; // axis[n].endstop_adj
     extern float delta_radius;
     extern float delta_diagonal_rod;
     extern float delta_segments_per_second;
     void recalc_delta_settings(float radius, float diagonal_rod);
-<<<<<<< HEAD
     #if ENABLED(ENABLE_AUTO_BED_LEVELING)
       extern int delta_grid_spacing[2];
       void adjust_delta(float cartesian[3]);
     #endif
   #elif ENABLED(SCARA)
-=======
-    #ifdef ENABLE_AUTO_BED_LEVELING
-      extern int delta_grid_spacing[2];
-      void adjust_delta(float cartesian[3]);
-    #endif
-  #elif defined(SCARA)
->>>>>>> Cleanup and dev notes in Marlin.h
     extern float axis_scaling[3];  // Build size scaling
     void calculate_SCARA_forward_Transform(float f_scara[3]);
   #endif
 #endif
 
-<<<<<<< HEAD
 #if ENABLED(Z_DUAL_ENDSTOPS)
-=======
-#ifdef Z_DUAL_ENDSTOPS
->>>>>>> Cleanup and dev notes in Marlin.h
   extern float z_endstop_adj;
 #endif
 

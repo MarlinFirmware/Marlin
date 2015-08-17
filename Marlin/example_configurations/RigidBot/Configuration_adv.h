@@ -9,11 +9,7 @@
 //=============================Thermal Settings  ============================
 //===========================================================================
 
-<<<<<<< HEAD
-#if ENABLED(BED_LIMIT_SWITCHING)
-=======
 #ifdef BED_LIMIT_SWITCHING
->>>>>>> RIGIDBOARD / RIGIDPANEL
   #define BED_HYSTERESIS 2 //only disable heating if T>target+BED_HYSTERESIS and enable heating if T>target-BED_HYSTERESIS
 #endif
 #define BED_CHECK_INTERVAL 5000 //ms between checks in bang-bang control
@@ -21,11 +17,7 @@
 /**
  * Thermal Protection parameters
  */
-<<<<<<< HEAD
-#if ENABLED(THERMAL_PROTECTION_HOTENDS)
-=======
 #ifdef THERMAL_PROTECTION_HOTENDS
->>>>>>> RIGIDBOARD / RIGIDPANEL
   #define THERMAL_PROTECTION_PERIOD 40        // Seconds
   #define THERMAL_PROTECTION_HYSTERESIS 4     // Degrees Celsius
 
@@ -39,28 +31,16 @@
   #define WATCH_TEMP_INCREASE 4               // Degrees Celsius
 #endif
 
-<<<<<<< HEAD
-#if ENABLED(THERMAL_PROTECTION_BED)
-=======
 #ifdef THERMAL_PROTECTION_BED
->>>>>>> RIGIDBOARD / RIGIDPANEL
   #define THERMAL_PROTECTION_BED_PERIOD 20    // Seconds
   #define THERMAL_PROTECTION_BED_HYSTERESIS 2 // Degrees Celsius
 #endif
 
-<<<<<<< HEAD
-#if ENABLED(PIDTEMP)
-  // this adds an experimental additional term to the heating power, proportional to the extrusion speed.
-  // if Kc is chosen well, the additional required power due to increased melting should be compensated.
-  #define PID_ADD_EXTRUSION_RATE
-  #if ENABLED(PID_ADD_EXTRUSION_RATE)
-=======
 #ifdef PIDTEMP
   // this adds an experimental additional term to the heating power, proportional to the extrusion speed.
   // if Kc is chosen well, the additional required power due to increased melting should be compensated.
   #define PID_ADD_EXTRUSION_RATE
   #ifdef PID_ADD_EXTRUSION_RATE
->>>>>>> RIGIDBOARD / RIGIDPANEL
     #define  DEFAULT_Kc (1) //heating power=Kc*(e_speed)
   #endif
 #endif
@@ -76,11 +56,7 @@
  * On an Ultimaker, some initial testing worked with M109 S215 B260 F1 in the start.gcode
  */
 #define AUTOTEMP
-<<<<<<< HEAD
-#if ENABLED(AUTOTEMP)
-=======
 #ifdef AUTOTEMP
->>>>>>> RIGIDBOARD / RIGIDPANEL
   #define AUTOTEMP_OLDWEIGHT 0.98
 #endif
 
@@ -109,15 +85,7 @@
 //This is for controlling a fan to cool down the stepper drivers
 //it will turn on when any driver is enabled
 //and turn off after the set amount of seconds from last driver being disabled again
-<<<<<<< HEAD
-<<<<<<< HEAD
 #define CONTROLLERFAN_PIN 4 //Pin used for the fan to cool motherboard (-1 to disable) // RigidBot: Fans/Water Pump to cool the hotend cool side.
-=======
-#define CONTROLLERFAN_PIN -1 //Pin used for the fan to cool controller (-1 to disable)
->>>>>>> RIGIDBOARD / RIGIDPANEL
-=======
-#define CONTROLLERFAN_PIN 4 //Pin used for the fan to cool motherboard (-1 to disable) // RigidBot: Fans/Water Pump to cool the hotend cool side.
->>>>>>> RigidBot CONTROLLERFAN_PIN in Configuration_adv.h
 #define CONTROLLERFAN_SECS 60 //How many seconds, after all motors were disabled, the fan should run
 #define CONTROLLERFAN_SPEED 255  // == full speed
 
@@ -165,11 +133,7 @@
 // On a RAMPS (or other 5 driver) motherboard, using this feature will limit you to using 1 extruder.
 //#define Z_DUAL_STEPPER_DRIVERS
 
-<<<<<<< HEAD
-#if ENABLED(Z_DUAL_STEPPER_DRIVERS)
-=======
 #ifdef Z_DUAL_STEPPER_DRIVERS
->>>>>>> RIGIDBOARD / RIGIDPANEL
 
   // Z_DUAL_ENDSTOPS is a feature to enable the use of 2 endstops for both Z steppers - Let's call them Z stepper and Z2 stepper.
   // That way the machine is capable to align the bed during home, since both Z steppers are homed. 
@@ -186,11 +150,7 @@
 
   // #define Z_DUAL_ENDSTOPS
 
-<<<<<<< HEAD
-  #if ENABLED(Z_DUAL_ENDSTOPS)
-=======
   #ifdef Z_DUAL_ENDSTOPS
->>>>>>> RIGIDBOARD / RIGIDPANEL
     #define Z2_MAX_PIN 36                     //Endstop used for Z2 axis. In this case I'm using XMAX in a Rumba Board (pin 36)
     const bool Z2_MAX_ENDSTOP_INVERTING = false;
     #define DISABLE_XMAX_ENDSTOP              //Better to disable the XMAX to avoid conflict. Just rename "XMAX_ENDSTOP" by the endstop you are using for Z2 axis.
@@ -209,11 +169,7 @@
 // prevents hot-end ooze contaminating the print. It also reduces the weight of each x-carriage
 // allowing faster printing speeds.
 //#define DUAL_X_CARRIAGE
-<<<<<<< HEAD
-#if ENABLED(DUAL_X_CARRIAGE)
-=======
 #ifdef DUAL_X_CARRIAGE
->>>>>>> RIGIDBOARD / RIGIDPANEL
   // Configuration for second X-carriage
   // Note: the first x-carriage is defined as the x-carriage which homes to the minimum endstop;
   // the second x-carriage always homes to the maximum endstop.
@@ -284,11 +240,7 @@
 
 // @section lcd
 
-<<<<<<< HEAD
-#if ENABLED(ULTIPANEL)
-=======
 #ifdef ULTIPANEL
->>>>>>> RIGIDBOARD / RIGIDPANEL
   #define MANUAL_FEEDRATE {50*60, 50*60, 4*60, 60} // Feedrates for manual moves along X, Y, Z, E from panel
   #define ULTIPANEL_FEEDMULTIPLY  // Comment to disable setting feedrate multiplier via encoder
 #endif
@@ -337,16 +289,6 @@
 
 // @section lcd
 
-<<<<<<< HEAD
-#if ENABLED(SDSUPPORT)
-
-  // If you are using a RAMPS board or cheap E-bay purchased boards that do not detect when an SD card is inserted
-  // You can get round this by connecting a push button or single throw switch to the pin defined as SD_DETECT_PIN
-  // in the pins.h file.  When using a push button pulling the pin to ground this will need inverted.  This setting should
-  // be commented out otherwise
-  #ifndef ELB_FULL_GRAPHIC_CONTROLLER
-    #define SD_DETECT_INVERTED
-=======
 #ifdef SDSUPPORT
 
   // If you are using a RAMPS board or cheap E-bay purchased boards that do not detect when an SD card is inserted
@@ -355,7 +297,6 @@
   // be commented out otherwise
   #ifndef ELB_FULL_GRAPHIC_CONTROLLER
     #define SDCARDDETECTINVERTED
->>>>>>> RIGIDBOARD / RIGIDPANEL
   #endif
 
   #define SD_FINISHED_STEPPERRELEASE true  //if sd support and the file is finished: disable steppers?
@@ -369,11 +310,7 @@
   // Show a progress bar on HD44780 LCDs for SD printing
   //#define LCD_PROGRESS_BAR
 
-<<<<<<< HEAD
-  #if ENABLED(LCD_PROGRESS_BAR)
-=======
   #ifdef LCD_PROGRESS_BAR
->>>>>>> RIGIDBOARD / RIGIDPANEL
     // Amount of time (ms) to show the bar
     #define PROGRESS_BAR_BAR_TIME 2000
     // Amount of time (ms) to show the status message
@@ -387,23 +324,10 @@
   // This allows hosts to request long names for files and folders with M33
   //#define LONG_FILENAME_HOST_SUPPORT
 
-<<<<<<< HEAD
-  // This option allows you to abort SD printing when any endstop is triggered.
-  // This feature must be enabled with "M540 S1" or from the LCD menu.
-  // To have any effect, endstops must be enabled during SD printing.
-  // With ENDSTOPS_ONLY_FOR_HOMING you must send "M120" to enable endstops.
-  //#define ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED
-
-#endif // SDSUPPORT
-
-// for dogm lcd displays you can choose some additional fonts:
-#if ENABLED(DOGLCD)
-=======
 #endif // SDSUPPORT
 
 // for dogm lcd displays you can choose some additional fonts:
 #ifdef DOGLCD
->>>>>>> RIGIDBOARD / RIGIDPANEL
   // save 3120 bytes of PROGMEM by commenting out #define USE_BIG_EDIT_FONT
   // we don't have a big font for Cyrillic, Kana
   //#define USE_BIG_EDIT_FONT
@@ -418,34 +342,23 @@
 // The hardware watchdog should reset the microcontroller disabling all outputs, in case the firmware gets stuck and doesn't do temperature regulation.
 //#define USE_WATCHDOG
 
-<<<<<<< HEAD
-#if ENABLED(USE_WATCHDOG)
-=======
 #ifdef USE_WATCHDOG
->>>>>>> RIGIDBOARD / RIGIDPANEL
 // If you have a watchdog reboot in an ArduinoMega2560 then the device will hang forever, as a watchdog reset will leave the watchdog on.
 // The "WATCHDOG_RESET_MANUAL" goes around this by not using the hardware reset.
 //  However, THIS FEATURE IS UNSAFE!, as it will only work if interrupts are disabled. And the code could hang in an interrupt routine with interrupts disabled.
 //#define WATCHDOG_RESET_MANUAL
 #endif
 
-<<<<<<< HEAD
-=======
 // Enable the option to stop SD printing when hitting and endstops, needs to be enabled from the LCD menu when this option is enabled.
 //#define ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED
 
->>>>>>> RIGIDBOARD / RIGIDPANEL
 // @section lcd
 
 // Babystepping enables the user to control the axis in tiny amounts, independently from the normal printing process
 // it can e.g. be used to change z-positions in the print startup phase in real-time
 // does not respect endstops!
 //#define BABYSTEPPING
-<<<<<<< HEAD
-#if ENABLED(BABYSTEPPING)
-=======
 #ifdef BABYSTEPPING
->>>>>>> RIGIDBOARD / RIGIDPANEL
   #define BABYSTEP_XY  //not only z, but also XY in the menu. more clutter, more functions
   #define BABYSTEP_INVERT_Z false  //true for inverse movements in Z
   #define BABYSTEP_Z_MULTIPLICATOR 2 //faster z movements
@@ -462,11 +375,7 @@
 // so: v ^ 2 is proportional to number of steps we advance the extruder
 //#define ADVANCE
 
-<<<<<<< HEAD
-#if ENABLED(ADVANCE)
-=======
 #ifdef ADVANCE
->>>>>>> RIGIDBOARD / RIGIDPANEL
   #define EXTRUDER_ADVANCE_K .0
   #define D_FILAMENT 1.75
   #define STEPS_MM_E 836
@@ -493,11 +402,7 @@ const unsigned int dropsegments=5; //everything with less than this number of st
 
 // The number of linear motions that can be in the plan at any give time.
 // THE BLOCK_BUFFER_SIZE NEEDS TO BE A POWER OF 2, i.g. 8,16,32 because shifts and ors are used to do the ring-buffering.
-<<<<<<< HEAD
-#if ENABLED(SDSUPPORT)
-=======
 #ifdef SDSUPPORT
->>>>>>> RIGIDBOARD / RIGIDPANEL
   #define BLOCK_BUFFER_SIZE 16   // SD,LCD,Buttons take more memory, block buffer needs to be smaller
 #else
   #define BLOCK_BUFFER_SIZE 16 // maximize block buffer
@@ -527,11 +432,7 @@ const unsigned int dropsegments=5; //everything with less than this number of st
 // the moves are than replaced by the firmware controlled ones.
 
 // #define FWRETRACT  //ONLY PARTIALLY TESTED
-<<<<<<< HEAD
-#if ENABLED(FWRETRACT)
-=======
 #ifdef FWRETRACT
->>>>>>> RIGIDBOARD / RIGIDPANEL
   #define MIN_RETRACT 0.1                //minimum extruded mm to accept a automatic gcode retraction attempt
   #define RETRACT_LENGTH 3               //default retract length (positive mm)
   #define RETRACT_LENGTH_SWAP 13         //default swap retract length (positive mm), for extruder change
@@ -543,15 +444,9 @@ const unsigned int dropsegments=5; //everything with less than this number of st
 #endif
 
 // Add support for experimental filament exchange support M600; requires display
-<<<<<<< HEAD
-#if ENABLED(ULTIPANEL)
-  //#define FILAMENTCHANGEENABLE
-  #if ENABLED(FILAMENTCHANGEENABLE)
-=======
 #ifdef ULTIPANEL
   //#define FILAMENTCHANGEENABLE
   #ifdef FILAMENTCHANGEENABLE
->>>>>>> RIGIDBOARD / RIGIDPANEL
     #define FILAMENTCHANGE_XPOS 3
     #define FILAMENTCHANGE_YPOS 3
     #define FILAMENTCHANGE_ZADD 10
@@ -571,11 +466,7 @@ const unsigned int dropsegments=5; //everything with less than this number of st
 // @section tmc
 
 //#define HAVE_TMCDRIVER
-<<<<<<< HEAD
-#if ENABLED(HAVE_TMCDRIVER)
-=======
 #ifdef HAVE_TMCDRIVER
->>>>>>> RIGIDBOARD / RIGIDPANEL
 
 //  #define X_IS_TMC
   #define X_MAX_CURRENT 1000  //in mA
@@ -637,11 +528,7 @@ const unsigned int dropsegments=5; //everything with less than this number of st
 // @section l6470
 
 //#define HAVE_L6470DRIVER
-<<<<<<< HEAD
-#if ENABLED(HAVE_L6470DRIVER)
-=======
 #ifdef HAVE_L6470DRIVER
->>>>>>> RIGIDBOARD / RIGIDPANEL
 
 //  #define X_IS_L6470
   #define X_MICROSTEPS 16     //number of microsteps
@@ -711,8 +598,4 @@ const unsigned int dropsegments=5; //everything with less than this number of st
 #include "Conditionals.h"
 #include "SanityCheck.h"
 
-<<<<<<< HEAD
 #endif //CONFIGURATION_ADV_H
-=======
-#endif //CONFIGURATION_ADV_H
->>>>>>> RIGIDBOARD / RIGIDPANEL

@@ -36,13 +36,9 @@
   #endif
 #endif // ENABLE_AUTO_BED_LEVELING
 
-<<<<<<< HEAD
-#if ENABLED(MESH_BED_LEVELING)
-=======
 #define SERVO_LEVELING (defined(ENABLE_AUTO_BED_LEVELING) && defined(DEACTIVATE_SERVOS_AFTER_MOVE))
 
 #ifdef MESH_BED_LEVELING
->>>>>>> Activate the new servo.move() function
   #include "mesh_bed_leveling.h"
 #endif
 
@@ -591,13 +587,8 @@ void servo_init() {
   // Set position of Servo Endstops that are defined
   #if HAS_SERVO_ENDSTOPS
     for (int i = 0; i < 3; i++)
-<<<<<<< HEAD
       if (servo_endstop_id[i] >= 0)
         servo[servo_endstop_id[i]].move(servo_endstop_angle[i][1]);
-=======
-      if (servo_endstops[i] >= 0)
-        servo[servo_endstops[i]].move(0, servo_endstop_angles[i * 2 + 1]);
->>>>>>> Activate the new servo.move() function
   #endif
 
 }
@@ -699,11 +690,7 @@ void setup() {
     enableStepperDrivers();
   #endif
 
-<<<<<<< HEAD
   #if ENABLED(DIGIPOT_I2C)
-=======
-  #ifdef DIGIPOT_I2C
->>>>>>> Add STEPPER_RESET_PIN support
     digipot_i2c_init();
   #endif
 
@@ -946,19 +933,9 @@ void get_command() {
           lcd_setstatus(time, true);
           card.printingHasFinished();
           card.checkautostart(true);
-<<<<<<< HEAD
-<<<<<<< HEAD
           #ifdef RESUME_FEATURE
             planner_disabled_below_z = 0;
           #endif //RESUME_FEATURE
-=======
-          planner_disabled_below_z = 0;
->>>>>>> Initial M19 Z Resume From Z and Layer Counting
-=======
-          #ifdef RESUME_FEATURE
-            planner_disabled_below_z = 0;
-          #endif //RESUME_FEATURE
->>>>>>> Created the macros RESUME_FEATURE and TRACK_LAYER and wrapped everything with them.
         }
         if (serial_char == '#') stop_buffering = true;
 
@@ -1358,14 +1335,7 @@ static void setup_for_endstop_move() {
     #if HAS_SERVO_ENDSTOPS
 
       // Engage Z Servo endstop if enabled
-<<<<<<< HEAD
       if (servo_endstop_id[Z_AXIS] >= 0) servo[servo_endstop_id[Z_AXIS]].move(servo_endstop_angle[Z_AXIS][0]);
-=======
-      if (servo_endstops[Z_AXIS] >= 0) {
-        Servo *srv = &servo[servo_endstops[Z_AXIS]];
-        srv->move(0, servo_endstop_angles[Z_AXIS * 2]);
-      }
->>>>>>> Activate the new servo.move() function
 
     #elif ENABLED(Z_PROBE_ALLEN_KEY)
       feedrate = Z_PROBE_ALLEN_KEY_DEPLOY_1_FEEDRATE;
@@ -1465,12 +1435,7 @@ static void setup_for_endstop_move() {
         #endif
 
         // Change the Z servo angle
-<<<<<<< HEAD
         servo[servo_endstop_id[Z_AXIS]].move(servo_endstop_angle[Z_AXIS][1]);
-=======
-        Servo *srv = &servo[servo_endstops[Z_AXIS]];
-        srv->move(0, servo_endstop_angles[Z_AXIS * 2 + 1]);
->>>>>>> Activate the new servo.move() function
       }
 
     #elif ENABLED(Z_PROBE_ALLEN_KEY)
@@ -1721,19 +1686,10 @@ static void homeaxis(AxisEnum axis) {
 
     #endif
 
-<<<<<<< HEAD
     #if HAS_SERVO_ENDSTOPS
       // Engage Servo endstop if enabled
       if (axis != Z_AXIS && servo_endstop_id[axis] >= 0)
         servo[servo_endstop_id[axis]].move(servo_endstop_angle[axis][0]);
-=======
-    #ifdef SERVO_ENDSTOPS
-      if (axis != Z_AXIS) {
-        // Engage Servo endstop if enabled
-        if (servo_endstops[axis] > -1)
-          servo[servo_endstops[axis]].move(0, servo_endstop_angles[axis * 2]);
-      }
->>>>>>> Activate the new servo.move() function
     #endif
 
     // Set a flag for Z motor locking
@@ -1832,28 +1788,12 @@ static void homeaxis(AxisEnum axis) {
     #endif
 
     {
-<<<<<<< HEAD
       #if HAS_SERVO_ENDSTOPS
-=======
-      #ifdef SERVO_ENDSTOPS
->>>>>>> Move braces in homeaxis to prevent a hanging else
         // Retract Servo endstop if enabled
-<<<<<<< HEAD
         if (servo_endstop_id[axis] >= 0)
           servo[servo_endstop_id[axis]].move(servo_endstop_angle[axis][1]);
       #endif
     }
-=======
-        if (servo_endstops[axis] > -1)
-          servo[servo_endstops[axis]].move(0, servo_endstop_angles[axis * 2 + 1]);
-<<<<<<< HEAD
-      }
-    #endif
->>>>>>> Activate the new servo.move() function
-=======
-      #endif
-    }
->>>>>>> Move braces in homeaxis to prevent a hanging else
 
   }
 }
@@ -2057,20 +1997,9 @@ inline void gcode_G4() {
  */
 inline void gcode_G28() {
 
-<<<<<<< HEAD
-<<<<<<< HEAD
   #ifdef RESUME_FEATURE
     if (planner_disabled_below_z) return; // Disable homing if resuming print
   #endif //RESUME_FEATURE
-=======
-  if (planner_disabled_below_z) return; // Disable homing if resuming print
-
->>>>>>> Initial M19 Z Resume From Z and Layer Counting
-=======
-  #ifdef RESUME_FEATURE
-    if (planner_disabled_below_z) return; // Disable homing if resuming print
-  #endif //RESUME_FEATURE
->>>>>>> Created the macros RESUME_FEATURE and TRACK_LAYER and wrapped everything with them.
   // Wait for planner moves to finish!
   st_synchronize();
 
@@ -2329,21 +2258,10 @@ inline void gcode_G28() {
     }
   #endif
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> Created the macros RESUME_FEATURE and TRACK_LAYER and wrapped everything with them.
   #ifdef TRACK_LAYER
     current_layer = 0;
     last_layer_z = 0;
   #endif //TRACK_LAYER
-<<<<<<< HEAD
-=======
-  current_layer = 0;
-  last_layer_z = 0;
->>>>>>> Initial M19 Z Resume From Z and Layer Counting
-=======
->>>>>>> Created the macros RESUME_FEATURE and TRACK_LAYER and wrapped everything with them.
   feedrate = saved_feedrate;
   feedrate_multiplier = saved_feedrate_multiplier;
   refresh_cmd_timeout();
@@ -2375,24 +2293,9 @@ inline void gcode_G28() {
    */
   inline void gcode_G29() {
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
     #ifdef RESUME_FEATURE
       if (planner_disabled_below_z) return; // Disable probing if resuming print
     #endif
-=======
-    if (planner_disabled_below_z) break; // Disable probing if resuming print
-=======
-    if (planner_disabled_below_z) return; // Disable probing if resuming print
->>>>>>> Should be return not break.
-
->>>>>>> Initial M19 Z Resume From Z and Layer Counting
-=======
-    #ifdef RESUME_FEATURE
-      if (planner_disabled_below_z) return; // Disable probing if resuming print
-    #endif
->>>>>>> Created the macros RESUME_FEATURE and TRACK_LAYER and wrapped everything with them.
     static int probe_point = -1;
     MeshLevelingState state = code_seen('S') ? (MeshLevelingState)code_value_short() : MeshReport;
     if (state < 0 || state > 3) {
@@ -2554,21 +2457,9 @@ inline void gcode_G28() {
    *
    */
   inline void gcode_G29() {
-<<<<<<< HEAD
-<<<<<<< HEAD
     #ifdef RESUME_FEATURE
       if (planner_disabled_below_z) return; // Disable probing if resuming print
     #endif
-=======
-
-    if (planner_disabled_below_z) return; // Disable probing if resuming print
-
->>>>>>> Initial M19 Z Resume From Z and Layer Counting
-=======
-    #ifdef RESUME_FEATURE
-      if (planner_disabled_below_z) return; // Disable probing if resuming print
-    #endif
->>>>>>> Created the macros RESUME_FEATURE and TRACK_LAYER and wrapped everything with them.
     // Don't allow auto-leveling without homing first
     if (!axis_known_position[X_AXIS] || !axis_known_position[Y_AXIS]) {
       LCD_MESSAGEPGM(MSG_POSITION_UNKNOWN);
@@ -2588,11 +2479,7 @@ inline void gcode_G28() {
 
     #if ENABLED(AUTO_BED_LEVELING_GRID)
 
-<<<<<<< HEAD
       #if DISABLED(DELTA)
-=======
-      #ifndef DELTA
->>>>>>> Call code_seen only once per parameter
         bool do_topography_map = verbose_level > 2 || code_seen('T');
       #endif
 
@@ -2815,23 +2702,13 @@ inline void gcode_G28() {
           SERIAL_PROTOCOLPGM("|...Front...|\n");
           SERIAL_PROTOCOLPGM("+-----------+\n");
 
-<<<<<<< HEAD
-<<<<<<< HEAD
           float min_diff = 999;
-=======
-	  float min_diff = 999;
->>>>>>> Add calculation of difference between auto-correct bed level plane, and measured topo map.
-=======
-          float min_diff = 999;
->>>>>>> Corrected Bed Height vs. Bed Topology for verbosity > 3
 
           for (int yy = auto_bed_leveling_grid_points - 1; yy >= 0; yy--) {
             for (int xx = 0; xx < auto_bed_leveling_grid_points; xx++) {
               int ind = yy * auto_bed_leveling_grid_points + xx;
               float diff = eqnBVector[ind] - mean;
 
-<<<<<<< HEAD
-<<<<<<< HEAD
               float x_tmp = eqnAMatrix[ind + 0 * abl2],
                 y_tmp = eqnAMatrix[ind + 1 * abl2],
                 z_tmp = 0;
@@ -2839,22 +2716,6 @@ inline void gcode_G28() {
               apply_rotation_xyz(plan_bed_level_matrix,x_tmp,y_tmp,z_tmp);
 
               if (eqnBVector[ind] - z_tmp < min_diff)
-=======
-	      float x_tmp = eqnAMatrix[ind + 0 * abl2],
-=======
-              float x_tmp = eqnAMatrix[ind + 0 * abl2],
->>>>>>> Corrected Bed Height vs. Bed Topology for verbosity > 3
-                y_tmp = eqnAMatrix[ind + 1 * abl2],
-                z_tmp = 0;
-
-              apply_rotation_xyz(plan_bed_level_matrix,x_tmp,y_tmp,z_tmp);
-
-<<<<<<< HEAD
-	      if (eqnBVector[ind] - z_tmp < min_diff)
->>>>>>> Add calculation of difference between auto-correct bed level plane, and measured topo map.
-=======
-              if (eqnBVector[ind] - z_tmp < min_diff)
->>>>>>> Corrected Bed Height vs. Bed Topology for verbosity > 3
                 min_diff = eqnBVector[ind] - z_tmp;
 
               if (diff >= 0.0)
@@ -2866,10 +2727,6 @@ inline void gcode_G28() {
             SERIAL_EOL;
           } // yy
           SERIAL_EOL;
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> Corrected Bed Height vs. Bed Topology for verbosity > 3
           if (verbose_level > 3) {
             SERIAL_PROTOCOLPGM(" \nCorrected Bed Height vs. Bed Topology: \n");
 
@@ -2892,41 +2749,9 @@ inline void gcode_G28() {
               } // xx
               SERIAL_EOL;
             } // yy
-<<<<<<< HEAD
             SERIAL_EOL;
           }
         } //do_topography_map
-=======
-
-	  SERIAL_PROTOCOLPGM(" \nCorrected Bed Height vs. Bed Topology: \n");
-
-          for (int yy = auto_bed_leveling_grid_points - 1; yy >= 0; yy--) {
-            for (int xx = 0; xx < auto_bed_leveling_grid_points; xx++) {
-              int ind = yy * auto_bed_leveling_grid_points + xx;
-              float x_tmp = eqnAMatrix[ind + 0 * abl2],
-                y_tmp = eqnAMatrix[ind + 1 * abl2],
-                z_tmp = 0;
-
-              apply_rotation_xyz(plan_bed_level_matrix,x_tmp,y_tmp,z_tmp);
-
-              float diff = eqnBVector[ind] - z_tmp - min_diff;
-              if (diff >= 0.0)
-                SERIAL_PROTOCOLPGM(" +");
-              // Include + for column alignment
-              else
-                SERIAL_PROTOCOLCHAR(' ');
-              SERIAL_PROTOCOL_F(diff, 5);
-            } // xx
-=======
->>>>>>> Corrected Bed Height vs. Bed Topology for verbosity > 3
-            SERIAL_EOL;
-          }
-        } //do_topography_map
-<<<<<<< HEAD
-
->>>>>>> Add calculation of difference between auto-correct bed level plane, and measured topo map.
-=======
->>>>>>> Corrected Bed Height vs. Bed Topology for verbosity > 3
       #endif //!DELTA
 
     #else // !AUTO_BED_LEVELING_GRID
@@ -2958,15 +2783,9 @@ inline void gcode_G28() {
         float x_tmp = current_position[X_AXIS] + X_PROBE_OFFSET_FROM_EXTRUDER,
               y_tmp = current_position[Y_AXIS] + Y_PROBE_OFFSET_FROM_EXTRUDER,
               z_tmp = current_position[Z_AXIS],
-<<<<<<< HEAD
               real_z = st_get_position_mm(Z_AXIS);  //get the real Z (since plan_get_position is now correcting the plane)
-=======
-              real_z = st_get_position_mm(Z_AXIS);  //get the real Z (since the auto bed leveling is already correcting the plane)
->>>>>>> Use st_get_position_mm where possible
 
         apply_rotation_xyz(plan_bed_level_matrix, x_tmp, y_tmp, z_tmp); // Apply the correction sending the probe offset
-<<<<<<< HEAD
-<<<<<<< HEAD
 
         // Get the current Z position and send it to the planner.
         //
@@ -2990,14 +2809,6 @@ inline void gcode_G28() {
           #endif
           ;
         // current_position[Z_AXIS] += home_offset[Z_AXIS]; // The probe determines Z=0, not "Z home"
-=======
-        //line below controls z probe offset, zprobe_zoffset is the actual offset that can be modified via m851
-        current_position[Z_AXIS] = z_tmp - real_z + zprobe_zoffset;                     // The difference is added to current position and sent to planner.
->>>>>>> z-probe offset fix
-=======
-        //line below controls z probe offset, zprobe_zoffset is the actual offset that can be modified via m851 or is read from EEPROM
-        current_position[Z_AXIS] = z_tmp - real_z - zprobe_zoffset; // The difference is added to current position and sent to planner.
->>>>>>> Correct the sign of zprobe_zoffset for G29
         sync_plan_position();
       }
     #endif // !DELTA
@@ -3128,25 +2939,6 @@ inline void gcode_M17() {
   enable_all_steppers();
 }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-#if ENABLED(SDSUPPORT)
-=======
-=======
->>>>>>> Initial M19 Z Resume From Z and Layer Counting
-inline void gcode_M19() {
-  if(code_seen('Z'))
-  {
-    gcode_get_destination(); // For Z
-    prepare_move();
-    enqueuecommands_P(PSTR("M114")); // tell the host where it is
-  }
-<<<<<<< HEAD
-=======
-=======
->>>>>>> Created the macros RESUME_FEATURE and TRACK_LAYER and wrapped everything with them.
 #ifdef RESUME_FEATURE
   inline void gcode_M19() {
     if(code_seen('Z'))
@@ -3155,8 +2947,6 @@ inline void gcode_M19() {
       prepare_move();
       enqueuecommands_P(PSTR("M114")); // tell the host where it is
     }
-<<<<<<< HEAD
->>>>>>> Created the macros RESUME_FEATURE and TRACK_LAYER and wrapped everything with them.
 
     planner_disabled_below_z = current_position[Z_AXIS];
 
@@ -3165,28 +2955,6 @@ inline void gcode_M19() {
     SERIAL_PROTOCOLPGM(" mm\n");
   }
 #endif //RESUME_FEATURE
-=======
-=======
->>>>>>> Created the macros RESUME_FEATURE and TRACK_LAYER and wrapped everything with them.
-
-    planner_disabled_below_z = current_position[Z_AXIS];
-
-<<<<<<< HEAD
-  SERIAL_PROTOCOLPGM("Resume from Z = ");
-  SERIAL_PROTOCOL(planner_disabled_below_z);
-  SERIAL_PROTOCOLPGM(" mm\n");
-}
->>>>>>> Initial M19 Z Resume From Z and Layer Counting
-=======
-    SERIAL_PROTOCOLPGM("Resume from Z = ");
-    SERIAL_PROTOCOL(planner_disabled_below_z);
-    SERIAL_PROTOCOLPGM(" mm\n");
-  }
-#endif //RESUME_FEATURE
->>>>>>> Created the macros RESUME_FEATURE and TRACK_LAYER and wrapped everything with them.
-
-#ifdef SDSUPPORT
->>>>>>> Initial M19 Z Resume From Z and Layer Counting
 
   /**
    * M20: List SD card to serial output
@@ -3223,21 +2991,10 @@ inline void gcode_M19() {
    */
   inline void gcode_M24() {
     card.startFileprint();
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> Created the macros RESUME_FEATURE and TRACK_LAYER and wrapped everything with them.
     #ifdef TRACK_LAYER
       current_layer = 0;
       last_layer_z = 0;
     #endif //TRACK_LAYER
-<<<<<<< HEAD
-=======
-    current_layer = 0;
-    last_layer_z = 0;
->>>>>>> Initial M19 Z Resume From Z and Layer Counting
-=======
->>>>>>> Created the macros RESUME_FEATURE and TRACK_LAYER and wrapped everything with them.
     print_job_start_ms = millis();
   }
 
@@ -4123,23 +3880,11 @@ inline void gcode_M114() {
   SERIAL_PROTOCOLPGM(" Z:");
   SERIAL_PROTOCOL(st_get_position_mm(Z_AXIS));
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> Created the macros RESUME_FEATURE and TRACK_LAYER and wrapped everything with them.
   #ifdef TRACK_LAYER
     SERIAL_PROTOCOLPGM("  Layer:");
     SERIAL_PROTOCOL(current_layer);
     SERIAL_PROTOCOLLN("");
   #endif //TRACK_LAYER
-<<<<<<< HEAD
-=======
-  SERIAL_PROTOCOLPGM("  Layer:");
-  SERIAL_PROTOCOL(current_layer);
-  SERIAL_PROTOCOLLN("");
->>>>>>> Initial M19 Z Resume From Z and Layer Counting
-=======
->>>>>>> Created the macros RESUME_FEATURE and TRACK_LAYER and wrapped everything with them.
 
   SERIAL_EOL;
 
@@ -4577,15 +4322,8 @@ inline void gcode_M226() {
     int servo_position = 0;
     if (code_seen('S')) {
       servo_position = code_value_short();
-<<<<<<< HEAD
       if (servo_index >= 0 && servo_index < NUM_SERVOS) 
         servo[servo_index].move(servo_position);
-=======
-      if (servo_index >= 0 && servo_index < NUM_SERVOS) {
-        Servo *srv = &servo[servo_index];
-        srv->move(0, servo_position);
-      }
->>>>>>> Activate the new servo.move() function
       else {
         SERIAL_ECHO_START;
         SERIAL_ECHO("Servo ");
@@ -5644,32 +5382,10 @@ void process_next_command() {
         gcode_M17();
         break;
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-<<<<<<< HEAD
-      #if ENABLED(SDSUPPORT)
-=======
-      case 19: // M19 - resume Z
-        gcode_M19(); break;
-=======
-=======
->>>>>>> Created the macros RESUME_FEATURE and TRACK_LAYER and wrapped everything with them.
       #ifdef RESUME_FEATURE
         case 19: // M19 - resume Z
           gcode_M19(); break;
       #endif //RESUME_FEATURE
-<<<<<<< HEAD
->>>>>>> Created the macros RESUME_FEATURE and TRACK_LAYER and wrapped everything with them.
-=======
-      case 19: // M19 - resume Z
-        gcode_M19(); break;
->>>>>>> Initial M19 Z Resume From Z and Layer Counting
-=======
->>>>>>> Created the macros RESUME_FEATURE and TRACK_LAYER and wrapped everything with them.
-
-      #ifdef SDSUPPORT
->>>>>>> Initial M19 Z Resume From Z and Layer Counting
 
         case 20: // M20 - list SD card
           gcode_M20(); break;
@@ -6136,11 +5852,7 @@ void clamp_to_software_endstops(float target[3]) {
     NOLESS(target[Y_AXIS], min_pos[Y_AXIS]);
     
     float negative_z_offset = 0;
-<<<<<<< HEAD
     #if ENABLED(ENABLE_AUTO_BED_LEVELING)
-=======
-    #ifdef ENABLE_AUTO_BED_LEVELING
->>>>>>> Z-height fix V2b
       if (zprobe_zoffset < 0) negative_z_offset += zprobe_zoffset;
       if (home_offset[Z_AXIS] < 0) negative_z_offset += home_offset[Z_AXIS];
     #endif
