@@ -28,6 +28,10 @@ namespace eeprom
 			static void disableScreenSerial();
 			static uint8_t getScreenSerialState();
 
+			static void setLanguage(uint8_t language);
+			static uint8_t getLanguage();
+
+
 		private:
 			uint8_t readByte(uint8_t* address);
 			void writeByte(uint8_t* address, uint8_t data);
