@@ -74,14 +74,14 @@ static unsigned short step_loops_nominal;
 
 volatile long endstops_trigsteps[3] = { 0 };
 volatile long endstops_stepsTotal, endstops_stepsDone;
-static volatile char endstop_hit_bits = 0; // use X_MIN, Y_MIN, Z_MIN and Z_PROBE as BIT value
+static volatile char endstop_hit_bits = 0; // use X_MIN, Y_MIN, Z_MIN and Z_MIN_PROBE as BIT value
 
 #if DISABLED(Z_DUAL_ENDSTOPS)
   static byte
 #else
   static uint16_t
 #endif
-  old_endstop_bits = 0; // use X_MIN, X_MAX... Z_MAX, Z_PROBE, Z2_MIN, Z2_MAX
+  old_endstop_bits = 0; // use X_MIN, X_MAX... Z_MAX, Z_MIN_PROBE, Z2_MIN, Z2_MAX
 
 #if ENABLED(ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED)
   bool abort_on_endstop_hit = false;
@@ -264,8 +264,8 @@ void checkHitEndstops() {
       LCD_MESSAGEPGM(MSG_ENDSTOPS_HIT "Z");
     }
     #if ENABLED(Z_MIN_PROBE_ENDSTOP)
-      if (endstop_hit_bits & BIT(Z_PROBE)) {
-        SERIAL_ECHOPAIR(" Z_PROBE:", (float)endstops_trigsteps[Z_AXIS] / axis_steps_per_unit[Z_AXIS]);
+      if (endstop_hit_bits & BIT(Z_MIN_PROBE)) {
+        SERIAL_ECHOPAIR(" Z_MIN_PROBE:", (float)endstops_trigsteps[Z_AXIS] / axis_steps_per_unit[Z_AXIS]);
         LCD_MESSAGEPGM(MSG_ENDSTOPS_HIT "ZP");
       }
     #endif
@@ -412,12 +412,12 @@ inline void update_endstops() {
         #endif // Z_MIN_PIN
 
         #if ENABLED(Z_MIN_PROBE_ENDSTOP)
-          UPDATE_ENDSTOP(Z, PROBE);
+          UPDATE_ENDSTOP(Z, MIN_PROBE);
 
-          if (TEST_ENDSTOP(Z_PROBE))
+          if (TEST_ENDSTOP(Z_MIN_PROBE))
           {
             endstops_trigsteps[Z_AXIS] = count_position[Z_AXIS];
-            endstop_hit_bits |= BIT(Z_PROBE);
+            endstop_hit_bits |= BIT(Z_MIN_PROBE);
           }
         #endif
       }
@@ -973,7 +973,7 @@ void st_init() {
 
   #if HAS_Z_PROBE && ENABLED(Z_MIN_PROBE_ENDSTOP) // Check for Z_MIN_PROBE_ENDSTOP so we don't pull a pin high unless it's to be used.
     SET_INPUT(Z_MIN_PROBE_PIN);
-    #if ENABLED(ENDSTOPPULLUP_ZPROBE)
+    #if ENABLED(ENDSTOPPULLUP_ZMIN_PROBE)
       WRITE(Z_MIN_PROBE_PIN,HIGH);
     #endif
   #endif

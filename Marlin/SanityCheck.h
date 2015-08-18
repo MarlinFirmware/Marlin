@@ -132,8 +132,8 @@
     /**
      * Require a Z Min pin
      */
-    #if Z_MIN_PIN == -1
-      #if Z_MIN_PROBE_PIN == -1 || (DISABLED(Z_MIN_PROBE_ENDSTOP) || ENABLED(DISABLE_Z_MIN_PROBE_ENDSTOP)) // It's possible for someone to set a pin for the Z Probe, but not enable it.
+    #if !PIN_EXISTS(Z_MIN)
+      #if !PIN_EXISTS(Z_MIN_PROBE) || (DISABLED(Z_MIN_PROBE_ENDSTOP) || ENABLED(DISABLE_Z_MIN_PROBE_ENDSTOP)) // It's possible for someone to set a pin for the Z Probe, but not enable it.
         #if ENABLED(Z_MIN_PROBE_REPEATABILITY_TEST)
           #error You must have a Z_MIN or Z_PROBE endstop to enable Z_MIN_PROBE_REPEATABILITY_TEST.
         #else
@@ -146,10 +146,10 @@
      * Require a Z Probe Pin if Z_MIN_PROBE_ENDSTOP is enabled.
      */
     #if ENABLED(Z_MIN_PROBE_ENDSTOP)
-      #if !PIN_EXISTS(Z_PROBE)
+      #ifndef Z_MIN_PROBE_PIN
         #error You must have a Z_MIN_PROBE_PIN defined in your pins_XXXX.h file if you enable Z_MIN_PROBE_ENDSTOP.
       #endif
-      #if Z_MIN_PROBE_PIN == -1
+      #if !PIN_EXISTS(Z_MIN_PROBE)
         #error You must set Z_MIN_PROBE_PIN to a valid pin if you enable Z_MIN_PROBE_ENDSTOP.
       #endif
 // Forcing Servo definitions can break some hall effect sensor setups. Leaving these here for further comment.
