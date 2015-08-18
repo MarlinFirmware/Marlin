@@ -335,7 +335,7 @@ Here are some standard links for getting your machine calibrated:
    #define ENDSTOPPULLUP_XMIN  // open pin, inverted
    #define ENDSTOPPULLUP_YMIN  // open pin, inverted
   // #define ENDSTOPPULLUP_ZMIN
-  // #define ENDSTOPPULLUP_ZPROBE
+  // #define ENDSTOPPULLUP_ZMIN_PROBE
 #endif
 
 // Mechanical endstop with COM to ground and NC to Signal uses "false" here (most common setup).

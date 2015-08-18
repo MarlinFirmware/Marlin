@@ -27,6 +27,12 @@
 #define Z_ENABLE_PIN       62
 #define Z_MIN_PIN          33
 #define Z_MAX_PIN          32
+#define Z_MIN_PROBE_PIN    -1
+
+#if ENABLED(Z_MIN_PROBE_ENDSTOP)
+  // Define a pin to use as the signal pin on Arduino for the Z probe endstop.
+  #define Z_MIN_PROBE_PIN  33
+#endif
 
 #define E0_STEP_PIN        23
 #define E0_DIR_PIN         22
