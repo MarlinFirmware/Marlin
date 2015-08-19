@@ -18,6 +18,8 @@ namespace screen
 			void setLastFocus(uint16_t last_focus);
 			ScreenIndex_t const & getViewIndex() const;
 
+			void displayRefresh();
+
 		protected:
 			ViewManager();
 			~ViewManager();
