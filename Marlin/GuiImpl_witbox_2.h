@@ -62,6 +62,7 @@ namespace screen
 		screen_autolevel,
 		screen_light,
 		screen_info,
+		screen_settings_language,
 		screen_offset,
 		screen_offset_home,
 		screen_offset_calculate,

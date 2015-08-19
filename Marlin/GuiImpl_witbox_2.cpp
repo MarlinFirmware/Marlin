@@ -6,6 +6,11 @@
 #include "IconWidget.h"
 #include "IconStatus.h"
 
+#include "Option.h"
+#include "OptionToggle.h"
+#include "OptionLaunch.h"
+#include "OptionSelector.h"
+
 #include "Screen.h"
 #include "ScreenMenu.h"
 #include "ScreenList.h"
@@ -23,6 +28,8 @@
 #include "ScreenComplete.h"
 #include "ScreenEmergency.h"
 #include "ScreenSerial.h"
+#include "ScreenSetting.h"
+#include "ScreenLanguage.h"
 
 #include "AutoLevelManager.h"
 #include "LightManager.h"
@@ -41,7 +48,7 @@ namespace screen
 
 	Size icon_size = Size(icon_width, icon_height);
 	Size widget_size = Size(widget_width, widget_height);
-
+	option::Size option_size = option::Size(10,10);
 
 
 	///////////////////////////////
@@ -107,7 +114,7 @@ namespace screen
 
 	static ScreenFile * make_screen_SD_confirm()
 	{
-		Icon * icon_back = new Icon(icon_size, bits_back_normal, bits_back_focused, MSG_ICON_BACK());
+		Icon * icon_back = new Icon(icon_size, bits_back_normal, bits_back_focused, MSG_BACK());
 		Icon * icon_ok = new Icon(icon_size, bits_ok_normal, bits_ok_focused, MSG_ICON_OK2());
 
 		ScreenFile * local_view = new ScreenFile(MSG_SCREEN_SD_LIST_CONFIRM());
@@ -127,7 +134,7 @@ namespace screen
 
 	static ScreenMenu * make_screen_unload_init()
 	{
-		Icon * icon_back = new Icon(icon_size, bits_back_normal, bits_back_focused, MSG_ICON_BACK());
+		Icon * icon_back = new Icon(icon_size, bits_back_normal, bits_back_focused, MSG_BACK());
       Icon * icon_ok = new Icon(icon_size, bits_ok_normal, bits_ok_focused, MSG_ICON_OK2());
 
 		ScreenMenu * local_view = new ScreenMenu(MSG_SCREEN_UNLOAD_INIT_TITLE(), MSG_SCREEN_UNLOAD_INIT_TEXT());
@@ -181,7 +188,7 @@ namespace screen
 
 	static ScreenMenu * make_screen_load_init()
 	{
-		Icon * icon_back = new Icon(icon_size, bits_back_normal, bits_back_focused, MSG_ICON_BACK());
+		Icon * icon_back = new Icon(icon_size, bits_back_normal, bits_back_focused, MSG_BACK());
       Icon * icon_ok = new Icon(icon_size, bits_ok_normal, bits_ok_focused, MSG_ICON_OK2());
 
 		ScreenMenu * local_view = new ScreenMenu(MSG_SCREEN_LOAD_INIT_TITLE(), MSG_SCREEN_LOAD_INIT_TEXT());
@@ -235,7 +242,7 @@ namespace screen
 
 	static ScreenMenu * make_screen_level_init()
 	{
-		Icon * icon_back = new Icon(icon_size, bits_back_normal, bits_back_focused, MSG_ICON_BACK());
+		Icon * icon_back = new Icon(icon_size, bits_back_normal, bits_back_focused, MSG_BACK());
       Icon * icon_ok = new Icon(icon_size, bits_ok_normal, bits_ok_focused, MSG_ICON_OK2());
 
 		ScreenMenu * local_view = new ScreenMenu(MSG_SCREEN_LEVEL_INIT_TITLE(), MSG_SCREEN_LEVEL_INIT_TEXT());
@@ -315,25 +322,26 @@ namespace screen
 		return local_view;
 	}
 
-	static ScreenMenu * make_screen_settings()
+	static ScreenSetting * make_screen_settings()
 	{
-		Icon * icon_back = new Icon(icon_size, bits_back_normal, bits_back_focused, MSG_ICON_BACK());
-		Icon * icon_offset = new Icon(icon_size, bits_offset_normal, bits_offset_focused, MSG_ICON_OFFSET());
-		IconStatus<bool> * icon_autolevel = new IconStatus<bool>(icon_size, bits_autolevel_disable_normal, bits_autolevel_disable_focused, bits_autolevel_normal, bits_autolevel_focused, MSG_ICON_AUTOLEVEL_DISABLE(), MSG_ICON_AUTOLEVEL(), &AutoLevelManager::single::instance());
-		IconStatus<bool> * icon_lightled = new IconStatus<bool>(icon_size, bits_lightled_disable_normal, bits_lightled_disable_focused, bits_lightled_normal, bits_lightled_focused, MSG_ICON_LIGHTLED_DISABLE(), MSG_ICON_LIGHTLED(), &LightManager::single::instance());
-		Icon * icon_info = new Icon(icon_size, bits_info_normal,              bits_info_focused,              MSG_ICON_INFO());
+		OptionLaunch * option_back        = new OptionLaunch(option_size, MSG_BACK());
+		option_back->add(screen_main);
+		OptionToggle * option_autolevel   = new OptionToggle(option_size, MSG_OPTION_AUTOLEVEL(), AutoLevelManager::setState, &AutoLevelManager::single::instance());
+		OptionToggle * option_led         = new OptionToggle(option_size, MSG_OPTION_LIGHTLED(), LightManager::setState, &LightManager::single::instance());
+		OptionLaunch * option_offset      = new OptionLaunch(option_size, MSG_OPTION_OFFSET());
+		option_offset->add(screen_offset);
+		OptionLaunch * option_about       = new OptionLaunch(option_size, MSG_OPTION_INFO());
+		option_about->add(screen_info);
+		OptionSelector * option_language  = new OptionSelector(option_size, MSG_OPTION_LANGUAGE());
+		option_language->add(screen_settings_language);
 
-		ScreenMenu * local_view = new ScreenMenu(MSG_SCREEN_SETTINGS_TITLE(), MSG_SCREEN_SETTINGS_TEXT());
-		local_view->add(screen_main);
-		local_view->icon(icon_back);
-		local_view->add(screen_offset);
-		local_view->icon(icon_offset);
-		local_view->add(screen_autolevel);
-		local_view->icon(icon_autolevel);
-		local_view->add(screen_light);
-		local_view->icon(icon_lightled);
-		local_view->add(screen_info);
-		local_view->icon(icon_info);
+		ScreenSetting * local_view = new ScreenSetting(MSG_SCREEN_SETTINGS_TITLE());
+		local_view->add(option_back);
+		local_view->add(option_autolevel);
+		local_view->add(option_led);
+		local_view->add(option_offset);
+		local_view->add(option_language);
+		local_view->add(option_about);
 		return local_view;
 	}
 
@@ -346,7 +354,7 @@ namespace screen
 
 	static ScreenMenu * make_screen_move()
 	{
-		Icon * icon_back = new Icon(icon_size, bits_back_normal, bits_back_focused, MSG_ICON_BACK());
+		Icon * icon_back = new Icon(icon_size, bits_back_normal, bits_back_focused, MSG_BACK());
 		Icon * icon_move_x = new Icon(icon_size, bits_x_axis_normal, bits_x_axis_focused, MSG_ICON_MOVE_X());
 		Icon * icon_move_y = new Icon(icon_size, bits_y_axis_normal, bits_y_axis_focused, MSG_ICON_MOVE_Y());
 		Icon * icon_move_z = new Icon(icon_size, bits_z_axis_normal, bits_z_axis_focused, MSG_ICON_MOVE_Z());
@@ -368,7 +376,7 @@ namespace screen
 
 	static ScreenMenu * make_screen_move_heat_confirm()
 	{
-		Icon * icon_back = new Icon(icon_size, bits_back_normal, bits_back_focused, MSG_ICON_BACK());
+		Icon * icon_back = new Icon(icon_size, bits_back_normal, bits_back_focused, MSG_BACK());
       Icon * icon_ok = new Icon(icon_size, bits_ok_normal, bits_ok_focused, MSG_ICON_OK2());
 
 		ScreenMenu * local_view = new ScreenMenu(MSG_SCREEN_MOVE_CONFIRM_TITLE(), MSG_SCREEN_MOVE_CONFIRM_TEXT());
@@ -395,7 +403,7 @@ namespace screen
 
 	static ScreenMenu * make_screen_move_x()
 	{
-		Icon * icon_back = new Icon(icon_size, bits_back_normal, bits_back_focused, MSG_ICON_BACK());
+		Icon * icon_back = new Icon(icon_size, bits_back_normal, bits_back_focused, MSG_BACK());
 		Icon * icon_move_10mm = new Icon(icon_size, bits_10mm_normal, bits_10mm_focused, MSG_ICON_MOVE_10MM());
 		Icon * icon_move_1mm = new Icon(icon_size, bits_1mm_normal, bits_1mm_focused, MSG_ICON_MOVE_1MM());
 		Icon * icon_move_01mm = new Icon(icon_size, bits_01mm_normal, bits_01mm_focused, MSG_ICON_MOVE_01MM());
@@ -414,7 +422,7 @@ namespace screen
 
 	static ScreenMenu * make_screen_move_y()
 	{
-		Icon * icon_back = new Icon(icon_size, bits_back_normal, bits_back_focused, MSG_ICON_BACK());
+		Icon * icon_back = new Icon(icon_size, bits_back_normal, bits_back_focused, MSG_BACK());
 		Icon * icon_move_10mm = new Icon(icon_size, bits_10mm_normal, bits_10mm_focused, MSG_ICON_MOVE_10MM());
 		Icon * icon_move_1mm = new Icon(icon_size, bits_1mm_normal, bits_1mm_focused, MSG_ICON_MOVE_1MM());
 		Icon * icon_move_01mm = new Icon(icon_size, bits_01mm_normal, bits_01mm_focused, MSG_ICON_MOVE_01MM());
@@ -433,7 +441,7 @@ namespace screen
 
 	static ScreenMenu * make_screen_move_z()
 	{
-		Icon * icon_back = new Icon(icon_size, bits_back_normal, bits_back_focused, MSG_ICON_BACK());
+		Icon * icon_back = new Icon(icon_size, bits_back_normal, bits_back_focused, MSG_BACK());
 		Icon * icon_move_10mm = new Icon(icon_size, bits_10mm_normal, bits_10mm_focused, MSG_ICON_MOVE_10MM());
 		Icon * icon_move_1mm = new Icon(icon_size, bits_1mm_normal, bits_1mm_focused, MSG_ICON_MOVE_1MM());
 		Icon * icon_move_01mm = new Icon(icon_size, bits_01mm_normal, bits_01mm_focused, MSG_ICON_MOVE_01MM());
@@ -452,7 +460,7 @@ namespace screen
 
 	static ScreenMenu * make_screen_move_e()
 	{
-		Icon * icon_back = new Icon(icon_size, bits_back_normal, bits_back_focused, MSG_ICON_BACK());
+		Icon * icon_back = new Icon(icon_size, bits_back_normal, bits_back_focused, MSG_BACK());
 		Icon * icon_move_1mm = new Icon(icon_size, bits_1mm_normal, bits_1mm_focused, MSG_ICON_MOVE_1MM());
 		Icon * icon_move_01mm = new Icon(icon_size, bits_01mm_normal, bits_01mm_focused, MSG_ICON_MOVE_01MM());
 
@@ -579,9 +587,16 @@ namespace screen
 		return local_view;
 	}
 
+	static ScreenLanguage * make_screen_settings_language()
+	{
+		ScreenLanguage * local_view = new ScreenLanguage(NULL, Language::ES);
+		local_view->add(screen_settings);
+		return local_view;
+	}
+
 	static ScreenMenu * make_screen_offset()
 	{
-		Icon * icon_back = new Icon(icon_size, bits_back_normal, bits_back_focused, MSG_ICON_BACK());
+		Icon * icon_back = new Icon(icon_size, bits_back_normal, bits_back_focused, MSG_BACK());
       Icon * icon_ok = new Icon(icon_size, bits_ok_normal, bits_ok_focused, MSG_ICON_OK2());
 
 		ScreenMenu * local_view = new ScreenMenu(MSG_SCREEN_OFFSET_INIT_TITLE(), MSG_SCREEN_OFFSET_INIT_TEXT());
@@ -629,7 +644,7 @@ namespace screen
 
 	static ScreenMenu * make_screen_offset_finish()
 	{
-		Icon * icon_back = new Icon(icon_size, bits_back_normal, bits_back_focused, MSG_ICON_BACK());
+		Icon * icon_back = new Icon(icon_size, bits_back_normal, bits_back_focused, MSG_BACK());
       Icon * icon_ok = new Icon(icon_size, bits_ok_normal, bits_ok_focused, MSG_ICON_OK2());
 
 		ScreenMenu * local_view = new ScreenMenu(MSG_SCREEN_OFFSET_FINISH_TITLE(), MSG_SCREEN_OFFSET_FINISH_TEXT());
@@ -685,7 +700,7 @@ namespace screen
 
 	static ScreenFile * make_screen_stop_confirm()
 	{
-		Icon * icon_back = new Icon(icon_size, bits_back_normal, bits_back_focused, MSG_ICON_BACK());
+		Icon * icon_back = new Icon(icon_size, bits_back_normal, bits_back_focused, MSG_BACK());
       Icon * icon_ok = new Icon(icon_size, bits_ok_normal, bits_ok_focused, MSG_ICON_OK2());
 
 		ScreenFile * local_view = new ScreenFile(MSG_SCREEN_STOP_CONFIRM_TITLE());
@@ -705,7 +720,7 @@ namespace screen
 
 	static ScreenMenu * make_screen_change_init()
 	{
-		Icon * icon_back = new Icon(icon_size, bits_back_normal, bits_back_focused, MSG_ICON_BACK());
+		Icon * icon_back = new Icon(icon_size, bits_back_normal, bits_back_focused, MSG_BACK());
       Icon * icon_ok = new Icon(icon_size, bits_ok_normal, bits_ok_focused, MSG_ICON_OK2());
 
 		ScreenMenu * local_view = new ScreenMenu(MSG_SCREEN_CHANGE_INIT_TITLE(), MSG_SCREEN_CHANGE_INIT_TEXT());
@@ -1006,7 +1021,12 @@ namespace screen
 			case screen_info:
 				new_view = make_screen_info();
 				break;
-	
+
+			//Language
+			case screen_settings_language:
+				new_view = make_screen_settings_language();
+				break;
+
 			// Offset
 			case screen_offset:
 				new_view = make_screen_offset();
