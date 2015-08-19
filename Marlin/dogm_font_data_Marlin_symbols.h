@@ -9,7 +9,7 @@
   X Font      ascent = 0 descent= 0
   Max Font    ascent = 8 descent=-2
 */
-#include <utility/u8g.h>
+#include <U8glib.h>
 const u8g_fntpgm_uint8_t Marlin_symbols[140] U8G_SECTION(".progmem.Marlin_symbols") = {
   0,6,9,0,254,0,0,0,0,0,1,9,0,8,254,0,
   0,5,8,8,6,0,0,64,240,200,136,136,152,120,16,5,
