@@ -49,3 +49,9 @@ void TemperatureManager::notify()
 		this->m_observer->update(m_current_temperature);
 	}
 }
+
+void TemperatureManager::manageControl()
+{
+	m_control_input = getTargetTemperature();
+
+}
