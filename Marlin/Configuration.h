@@ -341,9 +341,9 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 //#define DISABLE_MAX_ENDSTOPS
 //#define DISABLE_MIN_ENDSTOPS
 
-// If you want to enable the Z Probe pin, but disable its use, uncomment the line below.
-// This only affects a Z Probe Endstop if you have separate Z min endstop as well and have
-// activated Z_MIN_PROBE_ENDSTOP below. If you are using the Z Min endstop on your Z Probe,
+// If you want to enable the Z probe pin, but disable its use, uncomment the line below.
+// This only affects a Z probe endstop if you have separate Z min endstop as well and have
+// activated Z_MIN_PROBE_ENDSTOP below. If you are using the Z Min endstop on your Z probe,
 // this has no effect.
 //#define DISABLE_Z_MIN_PROBE_ENDSTOP
 
@@ -419,11 +419,11 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 //=========================== Manual Bed Leveling ===========================
 //===========================================================================
 
-// #define MANUAL_BED_LEVELING  // Add display menu option for bed leveling
-// #define MESH_BED_LEVELING    // Enable mesh bed leveling
+// #define MANUAL_BED_LEVELING  // Add display menu option for bed leveling.
+// #define MESH_BED_LEVELING    // Enable mesh bed leveling.
 
 #if ENABLED(MANUAL_BED_LEVELING)
-  #define MBL_Z_STEP 0.025  // Step size while manually probing Z axis
+  #define MBL_Z_STEP 0.025  // Step size while manually probing Z axis.
 #endif  // MANUAL_BED_LEVELING
 
 #if ENABLED(MESH_BED_LEVELING)
@@ -431,9 +431,9 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
   #define MESH_MAX_X (X_MAX_POS - MESH_MIN_X)
   #define MESH_MIN_Y 10
   #define MESH_MAX_Y (Y_MAX_POS - MESH_MIN_Y)
-  #define MESH_NUM_X_POINTS 3  // Don't use more than 7 points per axis, implementation limited
+  #define MESH_NUM_X_POINTS 3  // Don't use more than 7 points per axis, implementation limited.
   #define MESH_NUM_Y_POINTS 3
-  #define MESH_HOME_SEARCH_Z 4  // Z after Home, bed somewhere below but above 0.0
+  #define MESH_HOME_SEARCH_Z 4  // Z after Home, bed somewhere below but above 0.0.
 #endif  // MESH_BED_LEVELING
 
 //===========================================================================
@@ -442,12 +442,12 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 
 // @section bedlevel
 
-//#define ENABLE_AUTO_BED_LEVELING // Delete the comment to enable (remove // at the start of the line)
-#define Z_MIN_PROBE_REPEATABILITY_TEST  // If not commented out, Z-Probe Repeatability test will be included if Auto Bed Leveling is Enabled.
+//#define ENABLE_AUTO_BED_LEVELING // Delete the comment to enable (remove // at the start of the line).
+#define Z_MIN_PROBE_REPEATABILITY_TEST  // If not commented out, Z probe repeatability test will be included if auto bed leveling is enabled.
 
 #if ENABLED(ENABLE_AUTO_BED_LEVELING)
 
-  // There are 2 different ways to specify probing locations
+  // There are 2 different ways to specify probing locations:
   //
   // - "grid" mode
   //   Probe several points in a rectangular grid.
@@ -458,8 +458,8 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
   //   Probe 3 arbitrary points on the bed (that aren't colinear)
   //   You specify the XY coordinates of all 3 points.
 
-  // Enable this to sample the bed in a grid (least squares solution)
-  // Note: this feature generates 10KB extra code size
+  // Enable this to sample the bed in a grid (least squares solution).
+  // Note: this feature generates 10KB extra code size.
   #define AUTO_BED_LEVELING_GRID
 
   #if ENABLED(AUTO_BED_LEVELING_GRID)
@@ -469,16 +469,16 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
     #define FRONT_PROBE_BED_POSITION 20
     #define BACK_PROBE_BED_POSITION 170
 
-    #define MIN_PROBE_EDGE 10 // The probe square sides can be no smaller than this
+    #define MIN_PROBE_EDGE 10 // The Z probe minimum square sides can be no smaller than this.
 
-    // Set the number of grid points per dimension
-    // You probably don't need more than 3 (squared=9)
+    // Set the number of grid points per dimension.
+    // You probably don't need more than 3 (squared=9).
     #define AUTO_BED_LEVELING_GRID_POINTS 2
 
   #else  // !AUTO_BED_LEVELING_GRID
 
-      // Arbitrary points to probe. A simple cross-product
-      // is used to estimate the plane of the bed.
+      // Arbitrary points to probe.
+      // A simple cross-product is used to estimate the plane of the bed.
       #define ABL_PROBE_PT_1_X 15
       #define ABL_PROBE_PT_1_Y 180
       #define ABL_PROBE_PT_2_X 15
@@ -488,56 +488,73 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 
   #endif // AUTO_BED_LEVELING_GRID
 
-  // Offsets to the probe relative to the extruder tip (Hotend - Probe)
-  // X and Y offsets must be integers
-  #define X_PROBE_OFFSET_FROM_EXTRUDER -25     // Probe on: -left  +right
-  #define Y_PROBE_OFFSET_FROM_EXTRUDER -29     // Probe on: -front +behind
-  #define Z_PROBE_OFFSET_FROM_EXTRUDER -12.35  // -below (always!)
+  // Offsets to the Z probe relative to the nozzle tip.
+  // X and Y offsets must be integers.
+  #define X_PROBE_OFFSET_FROM_EXTRUDER -25     // Z probe to nozzle X offset: -left  +right
+  #define Y_PROBE_OFFSET_FROM_EXTRUDER -29     // Z probe to nozzle Y offset: -front +behind
+  #define Z_PROBE_OFFSET_FROM_EXTRUDER -12.35  // Z probe to nozzle Z offset: -below (always!)
 
-  #define Z_RAISE_BEFORE_HOMING 4       // (in mm) Raise Z before homing (G28) for Probe Clearance.
-                                        // Be sure you have this distance over your Z_MAX_POS in case
+  #define Z_RAISE_BEFORE_HOMING 4       // (in mm) Raise Z axis before homing (G28) for Z probe clearance.
+                                        // Be sure you have this distance over your Z_MAX_POS in case.
 
-  #define XY_TRAVEL_SPEED 8000         // X and Y axis travel speed between probes, in mm/min
+  #define XY_TRAVEL_SPEED 8000         // X and Y axis travel speed between probes, in mm/min.
 
-  #define Z_RAISE_BEFORE_PROBING 15   //How much the extruder will be raised before traveling to the first probing point.
-  #define Z_RAISE_BETWEEN_PROBINGS 5  //How much the extruder will be raised when traveling from between next probing points
-  #define Z_RAISE_AFTER_PROBING 15    //How much the extruder will be raised after the last probing point.
+  #define Z_RAISE_BEFORE_PROBING 15   // How much the Z axis will be raised before traveling to the first probing point.
+  #define Z_RAISE_BETWEEN_PROBINGS 5  // How much the Z axis will be raised when traveling from between next probing points.
+  #define Z_RAISE_AFTER_PROBING 15    // How much the Z axis will be raised after the last probing point.
 
-//   #define Z_PROBE_END_SCRIPT "G1 Z10 F12000\nG1 X15 Y330\nG1 Z0.5\nG1 Z10" //These commands will be executed in the end of G29 routine.
-                                                                            //Useful to retract a deployable probe.
+//   #define Z_PROBE_END_SCRIPT "G1 Z10 F12000\nG1 X15 Y330\nG1 Z0.5\nG1 Z10" // These commands will be executed in the end of G29 routine.
+                                                                            // Useful to retract a deployable Z probe.
 
-  //#define Z_PROBE_SLED // turn on if you have a z-probe mounted on a sled like those designed by Charles Bell
-  //#define SLED_DOCKING_OFFSET 5 // the extra distance the X axis must travel to pickup the sled. 0 should be fine but you can push it further if you'd like.
+  //#define Z_PROBE_SLED // Turn on if you have a Z probe mounted on a sled like those designed by Charles Bell.
+  //#define SLED_DOCKING_OFFSET 5 // The extra distance the X axis must travel to pickup the sled. 0 should be fine but you can push it further if you'd like.
 
-//If you have enabled the Bed Auto Leveling and are using the same Z Probe for Z Homing,
-//it is highly recommended you let this Z_SAFE_HOMING enabled!!!
+// If you have enabled the bed auto leveling and are using the same Z probe for Z homing,
+// it is highly recommended you let this Z_SAFE_HOMING enabled!!!
 
-  #define Z_SAFE_HOMING   // This feature is meant to avoid Z homing with probe outside the bed area.
+  #define Z_SAFE_HOMING   // This feature is meant to avoid Z homing with Z probe outside the bed area.
                           // When defined, it will:
-                          // - Allow Z homing only after X and Y homing AND stepper drivers still enabled
-                          // - If stepper drivers timeout, it will need X and Y homing again before Z homing
-                          // - Position the probe in a defined XY point before Z Homing when homing all axis (G28)
-                          // - Block Z homing only when the probe is outside bed area.
+                          // - Allow Z homing only after X and Y homing AND stepper drivers still enabled.
+                          // - If stepper drivers timeout, it will need X and Y homing again before Z homing.
+                          // - Position the Z probe in a defined XY point before Z Homing when homing all axis (G28).
+                          // - Block Z homing only when the Z probe is outside bed area.
 
   #if ENABLED(Z_SAFE_HOMING)
 
-    #define Z_SAFE_HOMING_X_POINT ((X_MIN_POS + X_MAX_POS) / 2)    // X point for Z homing when homing all axis (G28)
-    #define Z_SAFE_HOMING_Y_POINT ((Y_MIN_POS + Y_MAX_POS) / 2)    // Y point for Z homing when homing all axis (G28)
+    #define Z_SAFE_HOMING_X_POINT ((X_MIN_POS + X_MAX_POS) / 2)    // X point for Z homing when homing all axis (G28).
+    #define Z_SAFE_HOMING_Y_POINT ((Y_MIN_POS + Y_MAX_POS) / 2)    // Y point for Z homing when homing all axis (G28).
 
   #endif
 
-  // Support for a dedicated Z PROBE endstop separate from the Z MIN endstop.
-  // If you would like to use both a Z PROBE and a Z MIN endstop together , uncomment #define Z_MIN_PROBE_ENDSTOP and read the instructions below.
-  // If you want to still use the Z min endstop for homing, disable Z_SAFE_HOMING above. Eg; to park the head outside the bed area when homing with G28.
-  // WARNING: The Z MIN endstop will need to set properly as it would without a Z PROBE to prevent head crashes and premature stopping during a print.
-  // To use a separate Z PROBE endstop, you must have a Z_MIN_PROBE_PIN defined in the pins.h file for your control board.
-  // If you are using a servo based Z PROBE, you will need to enable NUM_SERVOS, Z_ENDSTOP_SERVO_NR and SERVO_ENDSTOP_ANGLES in the R/C Servo below.
-  // RAMPS 1.3/1.4 boards may be able to use the 5V, Ground and the D32 pin in the Aux 4 section of the RAMPS board. Use 5V for powered sensors, otherwise connect to ground and D32
-  // for normally closed configuration and 5V and D32 for normally open configurations. Normally closed configuration is advised and assumed.
-  // The D32 pin in Aux 4 on RAMPS maps to the Arduino D32 pin. Z_MIN_PROBE_PIN is setting the pin to use on the Arduino. Since the D32 pin on the RAMPS maps to D32 on Arduino, this works.
-  // D32 is currently selected in the RAMPS 1.3/1.4 pin file. All other boards will need changes to the respective pins_XXXXX.h file.
-  // WARNING: Setting the wrong pin may have unexpected and potentially disastrous outcomes. Use with caution and do your homework.
-
+  // Support for a dedicated Z probe endstop separate from the Z min endstop.
+  // If you would like to use both a Z probe and a Z min endstop together,
+  // uncomment #define Z_MIN_PROBE_ENDSTOP and read the instructions below.
+  // If you still want to use the Z min endstop for homing, disable Z_SAFE_HOMING above.
+  // Example: To park the head outside the bed area when homing with G28.
+  //
+  // WARNING:
+  // The Z min endstop will need to set properly as it would without a Z probe
+  // to prevent head crashes and premature stopping during a print.
+  //
+  // To use a separate Z probe endstop, you must have a Z_MIN_PROBE_PIN
+  // defined in the pins_XXXXX.h file for your control board.
+  // If you are using a servo based Z probe, you will need to enable NUM_SERVOS,
+  // Z_ENDSTOP_SERVO_NR and SERVO_ENDSTOP_ANGLES in the R/C SERVO support below.
+  // RAMPS 1.3/1.4 boards may be able to use the 5V, Ground and the D32 pin
+  // in the Aux 4 section of the RAMPS board. Use 5V for powered sensors,
+  // otherwise connect to ground and D32 for normally closed configuration
+  // and 5V and D32 for normally open configurations.
+  // Normally closed configuration is advised and assumed.
+  // The D32 pin in Aux 4 on RAMPS maps to the Arduino D32 pin.
+  // Z_MIN_PROBE_PIN is setting the pin to use on the Arduino.
+  // Since the D32 pin on the RAMPS maps to D32 on Arduino, this works.
+  // D32 is currently selected in the RAMPS 1.3/1.4 pin file.
+  // All other boards will need changes to the respective pins_XXXXX.h file.
+  //
+  // WARNING:
+  // Setting the wrong pin may have unexpected and potentially disastrous outcomes.
+  // Use with caution and do your homework.
+  //
   //#define Z_MIN_PROBE_ENDSTOP
 
 #endif // ENABLE_AUTO_BED_LEVELING
@@ -785,7 +802,7 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 // Servo Endstops
 //
 // This allows for servo actuated endstops, primary usage is for the Z Axis to eliminate calibration or bed height changes.
-// Use M851 to set the z-probe vertical offset from the nozzle. Store that setting with M500.
+// Use M851 to set the Z probe vertical offset from the nozzle. Store that setting with M500.
 //
 //#define X_ENDSTOP_SERVO_NR 1
 //#define Y_ENDSTOP_SERVO_NR 2
