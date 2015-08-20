@@ -743,7 +743,15 @@ static void _lcd_move(const char *name, AxisEnum axis, int min, int max) {
 static void lcd_move_x() { _lcd_move(PSTR(MSG_MOVE_X), X_AXIS, X_MIN_POS, X_MAX_POS); }
 static void lcd_move_y() { _lcd_move(PSTR(MSG_MOVE_Y), Y_AXIS, Y_MIN_POS, Y_MAX_POS); }
 static void lcd_move_z() { _lcd_move(PSTR(MSG_MOVE_Z), Z_AXIS, Z_MIN_POS, Z_MAX_POS); }
-static void lcd_move_e() {
+static void lcd_move_e(
+#if EXTRUDERS > 1
+  uint8_t e = 0
+#endif
+) {
+  #if EXTRUDERS > 1
+    unsigned short original_active_extruder = active_extruder;
+    active_extruder = e;
+  #endif
   if (encoderPosition != 0) {
     current_position[E_AXIS] += float((int)encoderPosition) * move_menu_scale;
     encoderPosition = 0;
@@ -752,7 +760,20 @@ static void lcd_move_e() {
   }
   if (lcdDrawUpdate) lcd_implementation_drawedit(PSTR(MSG_MOVE_E), ftostr31(current_position[E_AXIS]));
   if (LCD_CLICKED) lcd_goto_menu(lcd_move_menu_axis);
+  #if EXTRUDERS > 1
+    active_extruder = original_active_extruder;
+  #endif
 }
+
+#if EXTRUDERS > 1
+  static void lcd_move_e1() { lcd_move_e(1) }
+  #if EXTRUDERS > 2
+    static void lcd_move_e2() { lcd_move_e(2) }
+    #if EXTRUDERS > 3
+      static void lcd_move_e3() { lcd_move_e(3) }
+    #endif
+  #endif
+#endif // EXTRUDERS > 1
 
 /**
  *
@@ -768,6 +789,15 @@ static void lcd_move_menu_axis() {
   if (move_menu_scale < 10.0) {
     MENU_ITEM(submenu, MSG_MOVE_Z, lcd_move_z);
     MENU_ITEM(submenu, MSG_MOVE_E, lcd_move_e);
+    #if EXTRUDERS > 1
+      MENU_ITEM(submenu, MSG_MOVE_E1, lcd_move_e1);
+      #if EXTRUDERS > 2
+        MENU_ITEM(submenu, MSG_MOVE_E2, lcd_move_e2);
+        #if EXTRUDERS > 3
+          MENU_ITEM(submenu, MSG_MOVE_E3, lcd_move_e3);
+        #endif
+      #endif
+    #endif // EXTRUDERS > 1
   }
   END_MENU();
 }
