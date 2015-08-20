@@ -5,6 +5,8 @@ TemperatureManager::TemperatureManager()
 	: Subject<float>()
 	, m_current_temperature(0)
 	, m_target_temperature(0)
+	, m_control_input(0)
+	, m_control_output(0)
 {
 #ifdef FAN_BOX_PIN
 	pinMode(FAN_BOX_PIN, OUTPUT);
@@ -50,8 +52,9 @@ void TemperatureManager::notify()
 	}
 }
 
-void TemperatureManager::manageControl()
+float TemperatureManager::manageControl()
 {
 	m_control_input = getTargetTemperature();
 
+	return m_control_output;
 }

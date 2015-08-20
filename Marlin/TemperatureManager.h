@@ -21,7 +21,7 @@ class TemperatureManager : public Subject<float>
 		void notify();
 
 	private:
-		void manageControl();
+		float manageControl();
 
 	private:
 		float m_current_temperature;
