@@ -52,9 +52,20 @@ void TemperatureManager::notify()
 	}
 }
 
-float TemperatureManager::manageControl()
+float TemperatureManager::manageControl(float kp, float ki)
 {
+	float pTerm;
+	float iTerm;
+	float error;
+	float temp_i;
 	m_control_input = getTargetTemperature();
+	
+	error = m_control_input - m_target_temperature;
+	pTerm = kp * error;
+	temp_i += error;
+	iTerm = ki * temp_i;
+	m_control_output = pTerm + iTerm;
+
 
 	return m_control_output;
 }

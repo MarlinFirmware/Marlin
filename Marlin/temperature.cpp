@@ -479,7 +479,7 @@ void checkExtruderAutoFans()
 void manage_heater()
 {
   #ifdef DOGLCD
-    float pid_output = TemperatureManager::single::instance().manageControl();
+    float pid_output = TemperatureManager::single::instance().manageControl(Kp, Ki);
   #else
     float pid_input;
     float pid_output;
