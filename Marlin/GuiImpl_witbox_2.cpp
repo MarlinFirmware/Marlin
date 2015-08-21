@@ -133,8 +133,15 @@ namespace screen
 		ScreenMenu * local_view = new ScreenMenu(MSG_SCREEN_UNLOAD_INIT_TITLE(), MSG_SCREEN_UNLOAD_INIT_TEXT());
 		local_view->add(screen_main);
 		local_view->icon(icon_back);
-		local_view->add(screen_unload_select);
+		local_view->add(screen_unload_home);
 		local_view->icon(icon_ok);
+		return local_view;
+	}
+
+	static ScreenTransition * make_screen_unload_home()
+	{
+		ScreenTransition * local_view = new ScreenTransition(MSG_SCREEN_UNLOAD_HOME_TITLE(), MSG_SCREEN_UNLOAD_HOME_TEXT(), MSG_PLEASE_WAIT(), gui_action_homing);
+		local_view->add(screen_unload_select);
 		return local_view;
 	}
 
@@ -174,8 +181,15 @@ namespace screen
 		ScreenMenu * local_view = new ScreenMenu(MSG_SCREEN_UNLOAD_CONFIRM_TITLE(), MSG_SCREEN_UNLOAD_CONFIRM_TEXT());
 		local_view->add(screen_unload_info);
 		local_view->icon(icon_retry);
-		local_view->add(screen_main);
+		local_view->add(screen_unload_rest);
 		local_view->icon(icon_ok);
+		return local_view;
+	}
+
+	static ScreenAction<void> * make_screen_unload_rest()
+	{
+		ScreenAction<void> * local_view = new ScreenAction<void>(NULL, action_move_to_rest);
+		local_view->add(screen_main);
 		return local_view;
 	}
 
@@ -187,8 +201,15 @@ namespace screen
 		ScreenMenu * local_view = new ScreenMenu(MSG_SCREEN_LOAD_INIT_TITLE(), MSG_SCREEN_LOAD_INIT_TITLE());
 		local_view->add(screen_main);
 		local_view->icon(icon_back);
-		local_view->add(screen_load_select);
+		local_view->add(screen_load_home);
 		local_view->icon(icon_ok);
+		return local_view;
+	}
+
+	static ScreenTransition * make_screen_load_home()
+	{
+		ScreenTransition * local_view = new ScreenTransition(MSG_SCREEN_LOAD_HOME_TITLE(), MSG_SCREEN_LOAD_HOME_TEXT(), MSG_PLEASE_WAIT(), gui_action_homing);
+		local_view->add(screen_load_select);
 		return local_view;
 	}
 
@@ -228,8 +249,15 @@ namespace screen
 		ScreenMenu * local_view = new ScreenMenu(MSG_SCREEN_LOAD_CONFIRM_TITLE(), MSG_SCREEN_LOAD_CONFIRM_TEXT());
 		local_view->add(screen_load_info);
 		local_view->icon(icon_retry);
-		local_view->add(screen_main);
+		local_view->add(screen_load_rest);
 		local_view->icon(icon_ok);
+		return local_view;
+	}
+
+	static ScreenAction<void> * make_screen_load_rest()
+	{
+		ScreenAction<void> * local_view = new ScreenAction<void>(NULL, action_move_to_rest);
+		local_view->add(screen_main);
 		return local_view;
 	}
 
@@ -849,6 +877,9 @@ namespace screen
 			case screen_unload_init:
 				new_view = make_screen_unload_init();
 				break;
+			case screen_unload_home:
+				new_view = make_screen_unload_home();
+				break;
 			case screen_unload_select:
 				new_view = make_screen_unload_select();
 				break;
@@ -864,10 +895,16 @@ namespace screen
 			case screen_unload_confirm:
 				new_view = make_screen_unload_confirm();
 				break;
+			case screen_unload_rest:
+				new_view = make_screen_unload_rest();
+				break;
 
 			// Load filament
 			case screen_load_init:
 				new_view = make_screen_load_init();
+				break;
+			case screen_load_home:
+				new_view = make_screen_load_home();
 				break;
 			case screen_load_select:
 				new_view = make_screen_load_select();
@@ -883,6 +920,9 @@ namespace screen
 				break;
 			case screen_load_confirm:
 				new_view = make_screen_load_confirm();
+				break;
+			case screen_load_rest:
+				new_view = make_screen_load_rest();
 				break;
 
 			// Level plate
