@@ -108,7 +108,7 @@
 // The minimal temperature defines the temperature below which the heater will not be enabled It is used
 // to check that the wiring to the thermistor is not broken.
 // Otherwise this would lead to the heater being powered on all the time.
-#define HEATER_0_MINTEMP 5
+#define HEATER_0_MINTEMP 30
 #define HEATER_1_MINTEMP 5
 #define HEATER_2_MINTEMP 5
 #define BED_MINTEMP 5
@@ -151,9 +151,15 @@
 //#define  DEFAULT_Kd 66.47
 
 // - MK4
-#define  DEFAULT_Kp 5.72
-#define  DEFAULT_Ki 0.19
-#define  DEFAULT_Kd 0
+//#define  DEFAULT_Kp 5.72
+//#define  DEFAULT_Ki 0.19
+//#define  DEFAULT_Kd 0
+
+// - Original-DDG (PI back-calculation parameters)
+#define DEFAULT_Kp 10
+#define DEFAULT_Ki 0.53
+#define DEFAULT_Kd 0
+#define DEFAULT_Kb 10
 
 #endif // PIDTEMP
 
