@@ -52,20 +52,42 @@ void TemperatureManager::notify()
 	}
 }
 
-float TemperatureManager::manageControl(float kp, float ki)
+float TemperatureManager::manageControl(float kp, float ki, float kb)
 {
-	float pTerm;
-	float iTerm;
-	float error;
-	float temp_i;
-	m_control_input = getTargetTemperature();
-	
-	error = m_control_input - m_target_temperature;
-	pTerm = kp * error;
-	temp_i += error;
-	iTerm = ki * temp_i;
-	m_control_output = pTerm + iTerm;
+	float pTerm = 0;
+	float iTerm = 0;
+	static float bTerm = 0;
+	float error = 0;
+	static float control_output_temp = 0;
+	static float temp_i = 0;
 
+	m_control_input = constrain (getTargetTemperature(), 0, HEATER_0_MAXTEMP)
+
+	if (m_control_input <= HEATER_0_MINTEMP)
+	{
+		m_control_output = 0;
+		iTerm = 0;
+	} 
+	else
+	{
+		error = m_control_input - m_current_temperature;
+
+		pTerm = kp * error;
+		temp_i += error;
+		iTerm = (ki + bTerm) * temp_i;
+		control_output_temp = pTerm + iTerm;
+		
+		if ( control_output_temp >= PID_MAX )
+		{
+			m_control_output = PID_MAX;		
+		}
+		else if ( m_control_output < 0 )
+		{
+			m_control_output = 0;
+		}
+
+		bTerm = kb * ( control_output_temp - m_control_output );
+	}
 
 	return m_control_output;
 }

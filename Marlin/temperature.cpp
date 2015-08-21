@@ -149,6 +149,7 @@ static volatile bool temp_meas_ready = false;
   float Kp = DEFAULT_Kp;
   float Ki = DEFAULT_Ki * PID_dT;
   float Kd = DEFAULT_Kd / PID_dT;
+  float Kb = DEFAULT_Kb * PID_dT;
   #ifdef PID_ADD_EXTRUSION_RATE
     float Kc = DEFAULT_Kc;
   #endif // PID_ADD_EXTRUSION_RATE
@@ -479,7 +480,9 @@ void checkExtruderAutoFans()
 void manage_heater()
 {
   #ifdef DOGLCD
-    float pid_output = TemperatureManager::single::instance().manageControl(Kp, Ki);
+    updateTemperaturesFromRawValues();
+    float pid_output = TemperatureManager::single::instance().manageControl(Kp, Ki, Kb);
+    SERIAL_ECHOLN(pid_output);
   #else
     float pid_input;
     float pid_output;
