@@ -61,7 +61,7 @@ float TemperatureManager::manageControl(float kp, float ki, float kb)
 	static float control_output_temp = 0;
 	static float temp_i = 0;
 
-	m_control_input = constrain (getTargetTemperature(), 0, HEATER_0_MAXTEMP)
+	m_control_input = constrain (getTargetTemperature(), 0, HEATER_0_MAXTEMP);
 
 	if (m_control_input <= HEATER_0_MINTEMP)
 	{
