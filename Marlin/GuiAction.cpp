@@ -78,6 +78,9 @@ void action_filament_unload()
 	current_position[E_AXIS] -= 60.0;
 	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS], 5, active_extruder);
 	st_synchronize();
+
+	current_position[E_AXIS] = lastpos[E_AXIS];
+	plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
 }
 
 void action_filament_load()
@@ -103,6 +106,9 @@ void action_filament_load()
 	current_position[E_AXIS] += 140.0;
 	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS],current_position[E_AXIS], 5, active_extruder);
 	st_synchronize();
+
+	current_position[E_AXIS] = lastpos[E_AXIS];
+	plan_set_position(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS]);
 }
 
 void action_level_plate()
@@ -129,14 +135,14 @@ void action_level_plate()
 
 			plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], manual_feedrate[X_AXIS] / 60, active_extruder);
 
-			target[Z_AXIS] += 10;
+			target[Z_AXIS] = 10;
 			plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], manual_feedrate[X_AXIS] / 60, active_extruder);
 
 			target[X_AXIS] = ABL_PROBE_PT_1_X;
 			target[Y_AXIS] = ABL_PROBE_PT_1_Y;
 			plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], manual_feedrate[X_AXIS] / 60, active_extruder);
 
-			target[Z_AXIS] -= 10;
+			target[Z_AXIS] = 0 + OffsetManager::single::instance().offset();
 			plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], manual_feedrate[X_AXIS] / 60, active_extruder);
 			st_synchronize();
 
@@ -154,14 +160,14 @@ void action_level_plate()
 
 			plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], manual_feedrate[X_AXIS] / 60, active_extruder);
 
-			target[Z_AXIS] += 10;
+			target[Z_AXIS] = 10;
 			plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], manual_feedrate[X_AXIS] / 60, active_extruder);
 
 			target[X_AXIS] = ABL_PROBE_PT_2_X;
 			target[Y_AXIS] = ABL_PROBE_PT_2_Y;
 			plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], manual_feedrate[X_AXIS] / 60, active_extruder);
 
-			target[Z_AXIS] -= 10;
+			target[Z_AXIS] = 0 + OffsetManager::single::instance().offset();
 			plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], manual_feedrate[X_AXIS] / 60, active_extruder);
 			st_synchronize();
 
@@ -179,14 +185,14 @@ void action_level_plate()
 
 			plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], manual_feedrate[X_AXIS] / 60, active_extruder);
 
-			target[Z_AXIS] += 10;
+			target[Z_AXIS] = 10;
 			plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], manual_feedrate[X_AXIS] / 60, active_extruder);
 
 			target[X_AXIS] = ABL_PROBE_PT_3_X;
 			target[Y_AXIS] = ABL_PROBE_PT_3_Y;
 			plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], manual_feedrate[X_AXIS] / 60, active_extruder);
 
-			target[Z_AXIS] -= 10;
+			target[Z_AXIS] = 0 + OffsetManager::single::instance().offset();
 			plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], manual_feedrate[X_AXIS] / 60, active_extruder);
 			st_synchronize();
 
@@ -205,14 +211,14 @@ void action_level_plate()
 
 				plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], manual_feedrate[X_AXIS] / 60, active_extruder);
 
-				target[Z_AXIS] += 10;
+				target[Z_AXIS] = 10;
 				plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], manual_feedrate[X_AXIS] / 60, active_extruder);
 
 				target[X_AXIS] = ABL_PROBE_PT_4_X;
 				target[Y_AXIS] = ABL_PROBE_PT_4_Y;
 				plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], manual_feedrate[X_AXIS] / 60, active_extruder);
 
-				target[Z_AXIS] -= 10;
+				target[Z_AXIS] = 0 + OffsetManager::single::instance().offset();;
 				plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], manual_feedrate[X_AXIS] / 60, active_extruder);
 				st_synchronize();
 
