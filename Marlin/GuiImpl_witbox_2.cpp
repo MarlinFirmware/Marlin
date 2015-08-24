@@ -133,8 +133,22 @@ namespace screen
 		ScreenMenu * local_view = new ScreenMenu(MSG_SCREEN_UNLOAD_INIT_TITLE(), MSG_SCREEN_UNLOAD_INIT_TEXT());
 		local_view->add(screen_main);
 		local_view->icon(icon_back);
-		local_view->add(screen_unload_home);
+		local_view->add(screen_unload_preheat);
 		local_view->icon(icon_ok);
+		return local_view;
+	}
+
+	static ScreenAction<void> * make_screen_unload_preheat()
+	{
+		ScreenAction<void> * local_view = new ScreenAction<void>(NULL, action_preheat);
+		local_view->add(screen_unload_preheating);
+		return local_view;
+	}
+
+	static ScreenAnimation<float> * make_screen_unload_preheating()
+	{
+		ScreenAnimation<float> * local_view = new ScreenAnimation<float>(MSG_SCREEN_UNLOAD_HEATING_TITLE(), MSG_PLEASE_WAIT(), screen::ScreenAnimation<float>::GREATER_OR_EQUAL, TemperatureManager::single::instance().getTargetTemperature(), &TemperatureManager::single::instance());
+		local_view->add(screen_unload_home);
 		return local_view;
 	}
 
@@ -201,8 +215,22 @@ namespace screen
 		ScreenMenu * local_view = new ScreenMenu(MSG_SCREEN_LOAD_INIT_TITLE(), MSG_SCREEN_LOAD_INIT_TITLE());
 		local_view->add(screen_main);
 		local_view->icon(icon_back);
-		local_view->add(screen_load_home);
+		local_view->add(screen_load_preheat);
 		local_view->icon(icon_ok);
+		return local_view;
+	}
+
+	static ScreenAction<void> * make_screen_load_preheat()
+	{
+		ScreenAction<void> * local_view = new ScreenAction<void>(NULL, action_preheat);
+		local_view->add(screen_load_preheating);
+		return local_view;
+	}
+
+	static ScreenAnimation<float> * make_screen_load_preheating()
+	{
+		ScreenAnimation<float> * local_view = new ScreenAnimation<float>(MSG_SCREEN_LOAD_HEATING_TITLE(), MSG_PLEASE_WAIT(), screen::ScreenAnimation<float>::GREATER_OR_EQUAL, TemperatureManager::single::instance().getTargetTemperature(), &TemperatureManager::single::instance());
+		local_view->add(screen_load_home);
 		return local_view;
 	}
 
@@ -269,21 +297,21 @@ namespace screen
 		ScreenMenu * local_view = new ScreenMenu(MSG_SCREEN_LEVEL_INIT_TITLE(), MSG_SCREEN_LEVEL_INIT_TEXT());
 		local_view->add(screen_main);
 		local_view->icon(icon_back);
-		local_view->add(screen_level_heating);
+		local_view->add(screen_level_preheat);
 		local_view->icon(icon_ok);
 		return local_view;
 	}
 
-	static ScreenAction<void> * make_screen_level_heating()
+	static ScreenAction<void> * make_screen_level_preheat()
 	{
 		ScreenAction<void> * local_view = new ScreenAction<void>(NULL, action_preheat);
-		local_view->add(screen_level_animation);
+		local_view->add(screen_level_preheating);
 		return local_view;
 	}
 
-	static ScreenAnimation<float> * make_screen_level_animation()
+	static ScreenAnimation<float> * make_screen_level_preheating()
 	{
-		ScreenAnimation<float> * local_view = new ScreenAnimation<float>(MSG_SCREEN_LEVEL_HEATING_TITLE(), MSG_PLEASE_WAIT(), screen::ScreenAnimation<float>::GREATER_OR_EQUAL, PREHEAT_HOTEND_TEMP, &TemperatureManager::single::instance());
+		ScreenAnimation<float> * local_view = new ScreenAnimation<float>(MSG_SCREEN_LEVEL_PREHEATING_TITLE(), MSG_PLEASE_WAIT(), screen::ScreenAnimation<float>::GREATER_OR_EQUAL, PREHEAT_HOTEND_TEMP, &TemperatureManager::single::instance());
 		local_view->add(screen_level_homing);
 		return local_view;
 	}
@@ -643,8 +671,22 @@ namespace screen
 		ScreenMenu * local_view = new ScreenMenu(MSG_SCREEN_OFFSET_INIT_TITLE(), MSG_SCREEN_OFFSET_INIT_TEXT());
 		local_view->add(screen_settings);
 		local_view->icon(icon_back);
-		local_view->add(screen_offset_home);
+		local_view->add(screen_offset_preheat);
 		local_view->icon(icon_ok);
+		return local_view;
+	}
+
+	static ScreenAction<void> * make_screen_offset_preheat()
+	{
+		ScreenAction<void> * local_view = new ScreenAction<void>(NULL, action_preheat);
+		local_view->add(screen_offset_preheating);
+		return local_view;
+	}
+
+	static ScreenAnimation<float> * make_screen_offset_preheating()
+	{
+		ScreenAnimation<float> * local_view = new ScreenAnimation<float>(MSG_SCREEN_OFFSET_PREHEATING_TITLE(), MSG_PLEASE_WAIT(), screen::ScreenAnimation<float>::GREATER_OR_EQUAL, TemperatureManager::single::instance().getTargetTemperature(), &TemperatureManager::single::instance());
+		local_view->add(screen_offset_home);
 		return local_view;
 	}
 
@@ -905,6 +947,12 @@ namespace screen
 			case screen_unload_init:
 				new_view = make_screen_unload_init();
 				break;
+			case screen_unload_preheat:
+				new_view = make_screen_unload_preheat();
+				break;
+			case screen_unload_preheating:
+				new_view = make_screen_unload_preheating();
+				break;
 			case screen_unload_home:
 				new_view = make_screen_unload_home();
 				break;
@@ -930,6 +978,12 @@ namespace screen
 			// Load filament
 			case screen_load_init:
 				new_view = make_screen_load_init();
+				break;
+			case screen_load_preheat:
+				new_view = make_screen_load_preheat();
+				break;
+			case screen_load_preheating:
+				new_view = make_screen_load_preheating();
 				break;
 			case screen_load_home:
 				new_view = make_screen_load_home();
@@ -957,11 +1011,11 @@ namespace screen
 			case screen_level_init:
 				new_view = make_screen_level_init();
 				break;
-			case screen_level_heating:
-				new_view = make_screen_level_heating();
+			case screen_level_preheat:
+				new_view = make_screen_level_preheat();
 				break;
-			case screen_level_animation:
-				new_view = make_screen_level_animation();
+			case screen_level_preheating:
+				new_view = make_screen_level_preheating();
 				break;
 			case screen_level_homing:
 				new_view = make_screen_level_homing();
@@ -1097,6 +1151,12 @@ namespace screen
 			// Offset
 			case screen_offset:
 				new_view = make_screen_offset();
+				break;
+			case screen_offset_preheat:
+				new_view = make_screen_offset_preheat();
+				break;
+			case screen_offset_preheating:
+				new_view = make_screen_offset_preheating();
 				break;
 			case screen_offset_home:
 				new_view = make_screen_offset_home();
