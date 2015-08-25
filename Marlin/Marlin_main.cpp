@@ -854,6 +854,10 @@ void get_command()
         }
         gcode_LastN = gcode_N;
         //if no errors, continue parsing
+
+        char *startchar = strchr(cmdbuffer[bufindw], ' ') + 1;
+        strcpy(cmdbuffer[bufindw], startchar);
+
       }
       else  // if we don't receive 'N' but still see '*'
       {
@@ -866,7 +870,7 @@ void get_command()
           return;
         }
       }
-      if(strchr(cmdbuffer[bufindw], 'G') == 0){
+      if(strchr(cmdbuffer[bufindw], 'G') != NULL){
         strchr_pointer = strchr(cmdbuffer[bufindw], 'G');
         switch((int)((strtod(strchr_pointer + 1, NULL)))){
         case 0:
@@ -1481,8 +1485,8 @@ void process_commands()
   unsigned long codenum; //throw away variable
   char *starpos = NULL;
 
-  char *cmd_code = strchr(cmdbuffer[bufindw], 'G');
-  if(code_seen('G') && *cmd_code == cmdbuffer[bufindw][0])
+  char *cmd_code = strchr(cmdbuffer[bufindr], 'G');
+  if(code_seen('G') && *cmd_code == cmdbuffer[bufindr][0])
   {
     switch((int)code_value())
     {
