@@ -24,8 +24,6 @@ class TemperatureManager : public Subject<float>
 	private:
 		float m_current_temperature;
 		uint16_t m_target_temperature;
-		float m_control_input;
-		float m_control_output;
 };
 
 #endif //TEMPERATURE_MANAGER_H
