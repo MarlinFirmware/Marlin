@@ -69,6 +69,8 @@
 #endif
 
 #include "AutoLevelManager.h"
+
+#include "Action.h"
 #include "GuiAction.h"
 
 // look here for descriptions of G-codes: http://linuxcnc.org/handbook/gcode/g-code.html
@@ -1706,35 +1708,40 @@ void process_commands()
       card.openFile(strchr_pointer + 4,true);
       break;
     case 24: //M24 - Start SD print
+#ifdef DOGLCD
+      if(PrintManager::single::instance().state() == HEATING)
+      {
+        card.startFileprint();
+        starttime=millis();
+        feedmultiply = 100;
+        PrintManager::single::instance().state(PRINTING);
+      }
+#else
       card.startFileprint();
       starttime=millis();
-			feedmultiply = 100;
+      feedmultiply = 100;
+#endif
       break;
     case 25: //M25 - Pause SD print
-				target[X_AXIS]=current_position[X_AXIS];
-				target[Y_AXIS]=current_position[Y_AXIS];
-				target[Z_AXIS]=current_position[Z_AXIS];
-				target[E_AXIS]=current_position[E_AXIS];
-      
-				lastpos[X_AXIS]=current_position[X_AXIS];
-				lastpos[Y_AXIS]=current_position[Y_AXIS];
-				lastpos[Z_AXIS]=current_position[Z_AXIS];
-				lastpos[E_AXIS]=current_position[E_AXIS];
+        current_position[X_AXIS] = st_get_position_mm(X_AXIS);
+        current_position[Y_AXIS] = st_get_position_mm(Y_AXIS);
+        current_position[Z_AXIS] = st_get_position_mm(Z_AXIS);
+        current_position[E_AXIS] = st_get_position_mm(E_AXIS);
 
-				plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], feedrate/60, active_extruder);
+        lastpos[X_AXIS] = current_position[X_AXIS];
+        lastpos[Y_AXIS] = current_position[Y_AXIS];
+        lastpos[Z_AXIS] = current_position[Z_AXIS];
+        lastpos[E_AXIS] = current_position[E_AXIS];
 
-				target[Z_AXIS]+= FILAMENTCHANGE_ZADD;
-				plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], feedrate/60, active_extruder);
+				current_position[E_AXIS]-= RETRACT_ON_PAUSE;
+				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 10, active_extruder);
 
-				#if X_MAX_POS < 250
-					target[X_AXIS]= 0 ;
-					target[Y_AXIS]= 150 ;
-				#else
-					target[X_AXIS]= X_MAX_POS - 5 ;
-					target[Y_AXIS]= Y_MAX_POS - 5 ;
-				#endif
+				current_position[Z_AXIS]+= FILAMENTCHANGE_ZADD;
+				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 60, active_extruder);
 
-				plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], feedrate/60, active_extruder);
+        current_position[X_AXIS] = POSITION_REST_X;
+				current_position[Y_AXIS] = POSITION_REST_Y;
+        plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 100, active_extruder);
 
         st_synchronize();
 
@@ -1746,7 +1753,7 @@ void process_commands()
   			while(!LCD_CLICKED){
 					lcd_update();
 					manage_heater();
-					plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS],current_position[E_AXIS], 300/60, active_extruder);
+					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 5, active_extruder);
 					st_synchronize();
 				}
       
@@ -1754,10 +1761,13 @@ void process_commands()
 				LCD_MESSAGEPGM(MSG_PRINTING);
 				lcd_update();
 
-				plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS], target[E_AXIS], feedrate/60, active_extruder); //should do nothing
-				plan_buffer_line(lastpos[X_AXIS], lastpos[Y_AXIS], target[Z_AXIS], target[E_AXIS], feedrate/60, active_extruder); //move xy back
-				plan_buffer_line(lastpos[X_AXIS], lastpos[Y_AXIS], lastpos[Z_AXIS], target[E_AXIS], feedrate/60, active_extruder); //move z back
-				plan_buffer_line(lastpos[X_AXIS], lastpos[Y_AXIS], lastpos[Z_AXIS], lastpos[E_AXIS], feedrate/60, active_extruder); //final untretract
+				plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 5, active_extruder); //should do nothing
+				plan_buffer_line(lastpos[X_AXIS], lastpos[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 100, active_extruder); //move xy back
+				plan_buffer_line(lastpos[X_AXIS], lastpos[Y_AXIS], lastpos[Z_AXIS], current_position[E_AXIS], 60, active_extruder); //move z back
+
+				current_position[E_AXIS] += EXTRUDE_ON_RESUME;
+				plan_buffer_line(lastpos[X_AXIS], lastpos[Y_AXIS], lastpos[Z_AXIS], current_position[E_AXIS], 10, active_extruder); //extrude on resume
+
 				st_synchronize();
 
 

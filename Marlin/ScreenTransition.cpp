@@ -28,6 +28,7 @@
 #include "ScreenTransition.h"
 
 #include "GuiManager.h"
+#include "Language.h"
 
 namespace screen
 {
@@ -35,10 +36,16 @@ namespace screen
 		: Screen(title, DIALOG)
 		, Functor<void>(fptr)
 		, Observer<PrinterState_t>(model)
-		, m_message(message)
 		, m_box(box)
 		, m_printing_status(PRINTING)
-	{ }
+	{
+		memset(m_message, 0, sizeof(m_message));
+
+		if( (message != NULL) && (strlen_P(message) > 0) )
+		{
+			strcpy_P(m_message, message);
+		}
+	}
 
 	ScreenTransition::~ScreenTransition()
 	{ }
@@ -48,6 +55,7 @@ namespace screen
 		lcd_disable_button();
 		draw();
 		this->action();
+
 		if (this->m_model == 0)
 		{
 			lcd_enable_button();
@@ -65,10 +73,10 @@ namespace screen
 
 			Area text_area(0, 14, 127, 54);
 			painter.setWorkingArea(text_area);
-			painter.multiText_P(m_message);
+			painter.multiText(m_message);
 		} while ( painter.nextPage() );
 
-		if (this->m_model != 0 && m_printing_status == PAUSED)
+		if (this->m_model != 0 && m_printing_status == PAUSED || m_printing_status == HEATING)
 		{
 			lcd_enable_button();
 			ViewManager::getInstance().activeView(m_next_screen);
@@ -77,5 +85,18 @@ namespace screen
 	void ScreenTransition::update(PrinterState_t value)
 	{
 		m_printing_status = value;
+
+		switch(m_printing_status)
+		{
+			case HOMING:
+			case LEVELING:
+				strcpy_P(m_message, MSG_SCREEN_AUTOHOME_TEXT());
+				break;
+			case HEATING:
+				strcpy_P(m_message, MSG_PLEASE_WAIT());
+				break;
+			default:
+			break;
+		}
 	}
 }

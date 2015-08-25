@@ -14,7 +14,6 @@ namespace screen
 		screen_SD_list,
 		screen_SD_confirm,
 		screen_SD_OK,
-		screen_SD_back,
 		screen_unload_init,
 		screen_unload_select,
 		screen_unload_heating,
@@ -70,6 +69,7 @@ namespace screen
 		screen_offset_set,
 		screen_offset_finish,
 		screen_offset_save,
+		screen_print_heating,
 		screen_print,
 		screen_print_complete,
 		screen_play_pause,
@@ -105,10 +105,8 @@ namespace screen
 	const static uint8_t box_width = 128;
 	const static uint8_t box_height = 9;
 
-
 	// Menu constants
 	const static uint8_t max_items = 10;
-	const static uint8_t max_list = 100;
 
 	// Font constants
 	const static uint8_t max_font_width = 6;
@@ -116,7 +114,7 @@ namespace screen
 
 	// Temperature parameters
 	const static uint8_t default_temp_change_filament = 220;
+	const static uint8_t min_temp_operation = 170;
+	const static uint8_t max_temp_operation = 250;
 }
-
 #endif //GUI_IMPL_WITBOX_2_H
-

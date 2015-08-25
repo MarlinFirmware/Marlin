@@ -107,49 +107,58 @@ namespace screen
 		}
 
 		//Print text label
-		setPrintPos( (screen_width - strlen_P(text) * max_font_width) / 2, ((screen_height - 1) - (max_font_height - 1)));
-		print_P(text);
+		if ( (text != NULL) && (strlen_P(text) > 0) )
+		{
+			setPrintPos( (screen_width - strlen_P(text) * max_font_width) / 2, ((screen_height - 1) - (max_font_height - 1)));
+			print_P(text);
+		}
 
 		coordinateYEnd(51);
 		setColorIndex(save_color_index);
 	}
 
-	void GuiPainter::printingStatus(const uint8_t percentage, const uint8_t hour, const uint8_t minute)
+	void GuiPainter::printingStatus(const uint8_t percentage)
 	{
-		uint8_t x_init = coordinateXInit();
-		uint8_t y_init = coordinateYInit() + 5;
-		uint8_t x_end = coordinateXEnd();
-		m_impl.drawXBMP(x_init, y_init, little_icon_width, little_icon_height, bits_sd_small);
+		Area save_working_area = m_working_area;
+		uint8_t save_color_index = m_impl.getColorIndex();
+
+		Area status_area(0, 19, 127, 25);
+		setWorkingArea(status_area);
 		setColorIndex(1);
 		setFont(u8g_font_6x9);
-		setPrintPos(x_init + 7, y_init);
-		print(itostr3left(percentage));
+
+		// Draw SD small icon
+		drawBitmap(m_working_area.x_init, m_working_area.y_init, little_icon_width, little_icon_height, bits_sd_small);
+
+		// Draw the percentage done
+		m_working_area.x_init += little_icon_width + 4;
+		char s_percentage[4] = { 0 };
+		strcpy(s_percentage, itostr3left(percentage));
+		setPrintPos(m_working_area.x_init, m_working_area.y_init);
+		print(s_percentage);
 		print("%");
-		coordinateXInit(x_init + (strlen(itostr3left(percentage))+strlen("%"))*6 + 7+1);
-		x_init = coordinateXInit();
 
-		//Print the elapsed time on the right of the progress bar
-		setColorIndex(1);
-		setFont(u8g_font_6x9);
-		uint8_t x = x_end - (strlen(itostr2(hour)) + strlen(":") + strlen(itostr2(minute))) * 6;
-		setPrintPos(x, y_init);
-		print(itostr2(hour));
-		print(":");
-		print(itostr2(minute));
+		// Draw the progress bar
+		m_working_area.x_init += (strlen(s_percentage) + 1) * max_font_width + 1;
+		m_working_area.y_init += 1;
+		m_impl.drawBox(m_working_area.x_init, m_working_area.y_init, m_working_area.width(), m_working_area.height());
 
-		coordinateXEnd(x-2);
-		x_end = coordinateXEnd();
-
-		setColorIndex(1);
-		m_impl.drawBox(x_init, y_init + 1,x_end-x_init,  6);
 		setColorIndex(0);
-		m_impl.drawBox(x_init + 1, y_init + 2,x_end-x_init -2, 4);
-		setColorIndex(1);
-		m_impl.drawBox(x_init + 2, y_init + 3,(x_end-x_init - 4) * percentage/100, 2);
+		m_working_area.x_init += 1;
+		m_working_area.x_end -= 1;
+		m_working_area.y_init += 1;
+		m_working_area.y_end -= 1;
+		m_impl.drawBox(m_working_area.x_init, m_working_area.y_init, m_working_area.width(), m_working_area.height());
 
-		coordinateXInit(0);
-		coordinateXEnd(screen_width);
-		coordinateYInit(y_init + 9);
+		setColorIndex(1);
+		m_working_area.x_init += 1;
+		m_working_area.x_end -= 1;
+		m_working_area.y_init += 1;
+		m_working_area.y_end -= 1;
+		m_impl.drawBox(m_working_area.x_init, m_working_area.y_init, m_working_area.width() * percentage / 100, m_working_area.height());
+
+		setWorkingArea(save_working_area);
+		setColorIndex(save_color_index);
 	}
 
 	void GuiPainter::text(const char * msg)
@@ -176,7 +185,7 @@ namespace screen
 
 	void GuiPainter::multiText(const char * msg)
 	{
-		if ( (msg != NULL) && (strlen_P(msg) > 0) )
+		if ( (msg != NULL) && (strlen(msg) > 0) )
 		{
 			Area save_working_area = m_working_area;
 
@@ -386,16 +395,22 @@ namespace screen
 
 	void GuiPainter::print(const char * text)
 	{
-		m_impl.print(text);
+		if ( (text != NULL) && (strlen(text) > 0) )
+		{
+			m_impl.print(text);
+		}
 	}
 
 	void GuiPainter::print_P(const char * text)
 	{
-		char c;
-		while ((c = pgm_read_byte(text)) != '\0')
+		if ( (text != NULL) && (strlen_P(text) > 0) )
 		{
-			m_impl.print(c);
-			text++;
+			char c;
+			while ((c = pgm_read_byte(text)) != '\0')
+			{
+				m_impl.print(c);
+				text++;
+			}
 		}
 	}
 

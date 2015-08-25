@@ -12,7 +12,7 @@
 #define FIRMWARE_URL "http://www.bq.com/gb/support/prusa"
 #define SOURCE_CODE_URL "http://github.com/bq/Marlin"
 #define FIRMWARE_VER "2.0.0"
-#define BUILD_VER ""
+#define BUILD_VER "BETA 2"
 
 #define STRING_VERSION_CONFIG_H __DATE__ " " __TIME__ // build date and time
 
@@ -91,7 +91,7 @@
 // 147 is Pt100 with 4k7 pullup
 // 110 is Pt100 with 1k pullup (non standard)
 
-#define TEMP_SENSOR_0 1
+#define TEMP_SENSOR_0 99
 #define TEMP_SENSOR_1 0
 #define TEMP_SENSOR_2 0
 #define TEMP_SENSOR_BED 0
@@ -278,11 +278,11 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define max_software_endstops true  // If true, axis won't move to coordinates greater than the defined lengths below.
 
 // Travel limits after homing
-#define X_MAX_POS 220 //Temp
+#define X_MAX_POS 210
 #define X_MIN_POS 0
 #define Y_MAX_POS 297
 #define Y_MIN_POS 0
-#define Z_MAX_POS 210
+#define Z_MAX_POS 220
 #define Z_MIN_POS 0
 
 #define X_MAX_LENGTH (X_MAX_POS - X_MIN_POS)
@@ -334,12 +334,12 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
     // with no grid, just probe 3 arbitrary points.  A simple cross-product
     // is used to esimate the plane of the print bed
 
-      #define ABL_PROBE_PT_1_X X_MIN_POS + 30 + X_PROBE_OFFSET_FROM_EXTRUDER
-      #define ABL_PROBE_PT_1_Y Y_MIN_POS + 30 + Y_PROBE_OFFSET_FROM_EXTRUDER
-      #define ABL_PROBE_PT_2_X X_MAX_POS - 30 + X_PROBE_OFFSET_FROM_EXTRUDER 
-      #define ABL_PROBE_PT_2_Y Y_MIN_POS + 30 + Y_PROBE_OFFSET_FROM_EXTRUDER
+      #define ABL_PROBE_PT_1_X X_MIN_POS + 40 + X_PROBE_OFFSET_FROM_EXTRUDER
+      #define ABL_PROBE_PT_1_Y Y_MIN_POS + 40 + Y_PROBE_OFFSET_FROM_EXTRUDER
+      #define ABL_PROBE_PT_2_X X_MAX_POS - 40 + X_PROBE_OFFSET_FROM_EXTRUDER 
+      #define ABL_PROBE_PT_2_Y Y_MIN_POS + 40 + Y_PROBE_OFFSET_FROM_EXTRUDER
       #define ABL_PROBE_PT_3_X (X_MAX_POS+X_MIN_POS)/2 + X_PROBE_OFFSET_FROM_EXTRUDER
-      #define ABL_PROBE_PT_3_Y Y_MAX_POS - 30 + Y_PROBE_OFFSET_FROM_EXTRUDER
+      #define ABL_PROBE_PT_3_Y Y_MAX_POS - 40 + Y_PROBE_OFFSET_FROM_EXTRUDER
 
   #endif // AUTO_BED_LEVELING_GRID
 
@@ -350,8 +350,8 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 
 
   // these are the offsets to the probe relative to the extruder tip (Hotend - Probe)
-  #define X_PROBE_OFFSET_FROM_EXTRUDER -21
-  #define Y_PROBE_OFFSET_FROM_EXTRUDER 16.8
+  #define X_PROBE_OFFSET_FROM_EXTRUDER -34.4
+  #define Y_PROBE_OFFSET_FROM_EXTRUDER -14.75
   #define Z_PROBE_OFFSET_FROM_EXTRUDER 0
 
   //If defined, the Probe servo will be turned on only during movement and then turned off to avoid jerk
@@ -448,6 +448,10 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 #define ABS_PREHEAT_HOTEND_TEMP 220
 #define ABS_PREHEAT_HPB_TEMP 100
 #define ABS_PREHEAT_FAN_SPEED 255   // Insert Value between 0 and 255
+
+// Extrusion control on pause/resume. Distances in mm.
+#define RETRACT_ON_PAUSE 2.2
+#define EXTRUDE_ON_RESUME 2
 
 //LCD and SD support
 //#define ULTRA_LCD  //general LCD support, also 16x2
