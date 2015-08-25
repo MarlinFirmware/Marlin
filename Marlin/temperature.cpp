@@ -149,6 +149,7 @@ static volatile bool temp_meas_ready = false;
   float Kp = DEFAULT_Kp;
   float Ki = DEFAULT_Ki * PID_dT;
   float Kd = DEFAULT_Kd / PID_dT;
+  float Kb = DEFAULT_Kb * PID_dT;
   #ifdef PID_ADD_EXTRUSION_RATE
     float Kc = DEFAULT_Kc;
   #endif // PID_ADD_EXTRUSION_RATE
@@ -485,7 +486,8 @@ void manage_heater()
     return; 
 
   updateTemperaturesFromRawValues();
-
+  SERIAL_ECHO("current_temperature: ");
+    SERIAL_ECHOLN(current_temperature[0]);
   #ifdef HEATER_0_USES_MAX6675
     if (current_temperature[0] > 1023 || current_temperature[0] > HEATER_0_MAXTEMP) {
       max_temp_error(0);
@@ -506,6 +508,9 @@ void manage_heater()
     pid_input = current_temperature[e];
 
     #ifndef PID_OPENLOOP
+      #ifdef DOGLCD
+        pid_output = TemperatureManager::single::instance().manageControl(Kp, Ki, Kb);
+      #else //DOGLCD
         pid_error[e] = target_temperature[e] - pid_input;
         if(pid_error[e] > PID_FUNCTIONAL_RANGE) {
           pid_output = BANG_MAX;
@@ -538,6 +543,7 @@ void manage_heater()
           }
         }
         temp_dState[e] = pid_input;
+      #endif //DOGLCD
     #else 
           pid_output = constrain(target_temperature[e], 0, PID_MAX);
     #endif //PID_OPENLOOP
@@ -1276,6 +1282,8 @@ void max_temp_error(uint8_t e) {
 
 void min_temp_error(uint8_t e) {
   disable_heater();
+  SERIAL_ECHO("error: ");
+  SERIAL_ECHOLN((int)e);
   if(IsStopped() == false) {
     SERIAL_ERROR_START;
     SERIAL_ERRORLN((int)e);
@@ -1929,6 +1937,7 @@ ISR(TIMER0_COMPB_vect)
     if(current_temperature_raw[0] <= minttemp_raw[0]) {
 #endif
 #ifndef HEATER_0_USES_MAX6675
+      SERIAL_ECHOLN("ERROR");
         min_temp_error(0);
 #endif
     }
