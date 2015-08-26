@@ -28,7 +28,7 @@
 //#define STRING_VERSION "1.0.2"
 
 #define STRING_VERSION_CONFIG_H __DATE__ " " __TIME__ // build date and time
-#define STRING_CONFIG_H_AUTHOR "(none, default config)" // Who made the changes.
+#define STRING_CONFIG_H_AUTHOR "(Buba,  config v0.1)" // Who made the changes.
 
 // SERIAL_PORT selects which serial port should be used for communication with the host.
 // This allows the connection of wireless adapters (for instance) to non-default port pins.
@@ -44,7 +44,7 @@
 // The following define selects which electronics board you have.
 // Please choose the name from boards.h that matches your setup
 #ifndef MOTHERBOARD
-  #define MOTHERBOARD BOARD_ULTIMAKER
+  #define MOTHERBOARD 33
 #endif
 
 // Define this to set a custom name for your generic Mendel,
@@ -92,7 +92,8 @@
 // 13 is 100k Hisens 3950  1% up to 300°C for hotend "Simple ONE " & "Hotend "All In ONE" 
 // 20 is the PT100 circuit found in the Ultimainboard V2.x
 // 60 is 100k Maker's Tool Works Kapton Bed Thermistor beta=3950
-//
+//65 es una que teniamos en lugar de la primera
+//66 es la calculada con valores que pillamos (no se aleja de la 1 de esta version!)
 //    1k ohm pullup tables - This is not normal, you would have to have changed out your 4.7k for 1k
 //                          (but gives greater accuracy and more stable PID)
 // 51 is 100k thermistor - EPCOS (1k pullup)
@@ -104,10 +105,10 @@
 // 147 is Pt100 with 4k7 pullup
 // 110 is Pt100 with 1k pullup (non standard)
 
-#define TEMP_SENSOR_0 -1
-#define TEMP_SENSOR_1 -1
+#define TEMP_SENSOR_0 65 //probaremos estas a ver (acrodarse del pid)
+#define TEMP_SENSOR_1 0
 #define TEMP_SENSOR_2 0
-#define TEMP_SENSOR_BED 0
+#define TEMP_SENSOR_BED 65
 
 // This makes temp sensor 1 a redundant sensor for sensor 0. If the temperatures difference between these sensors is to high the print will be aborted.
 //#define TEMP_SENSOR_1_AS_REDUNDANT
@@ -121,18 +122,18 @@
 // The minimal temperature defines the temperature below which the heater will not be enabled It is used
 // to check that the wiring to the thermistor is not broken.
 // Otherwise this would lead to the heater being powered on all the time.
-#define HEATER_0_MINTEMP 5
-#define HEATER_1_MINTEMP 5
-#define HEATER_2_MINTEMP 5
-#define BED_MINTEMP 5
+#define HEATER_0_MINTEMP 0  //originalemte todos a 5
+#define HEATER_1_MINTEMP 0
+#define HEATER_2_MINTEMP 0
+#define BED_MINTEMP 0
 
 // When temperature exceeds max temp, your heater will be switched off.
 // This feature exists to protect your hotend from overheating accidentally, but *NOT* from thermistor short/failure!
 // You should use MINTEMP for thermistor short/failure protection.
-#define HEATER_0_MAXTEMP 275
+#define HEATER_0_MAXTEMP 230 //en el nuestro era 230
 #define HEATER_1_MAXTEMP 275
 #define HEATER_2_MAXTEMP 275
-#define BED_MAXTEMP 150
+#define BED_MAXTEMP  150 //en el nuestro era 120
 
 // If your bed has low resistance e.g. .6 ohm and throws the fuse you can duty cycle it to reduce the
 // average current. The value should be an integer and the heat bed will be turned on for 1 interval of
@@ -143,7 +144,7 @@
 //#define EXTRUDER_WATTS (12.0*12.0/6.7) //  P=I^2/R
 //#define BED_WATTS (12.0*12.0/1.1)      // P=I^2/R
 
-// PID settings:
+// PID settings: esto igual hay que cambiarlo
 // Comment the following line to disable PID and enable bang-bang.
 #define PIDTEMP
 #define BANG_MAX 255 // limits current to nozzle while in bang-bang mode; 255=full current
@@ -159,7 +160,8 @@
   #define PID_dT ((OVERSAMPLENR * 10.0)/(F_CPU / 64.0 / 256.0)) //sampling period of the temperature routine
 
 // If you are using a pre-configured hotend then you can use one of the value sets by uncommenting it
-// Ultimaker
+// Ultimaker dejaes estas pero creo que aqui hay lio, creo que maneja cambios de temp
+// se puede usar el codigo M303 para sacar los valores con el extrusor frio http://reprap.org/wiki/PID_Tuning
     #define  DEFAULT_Kp 22.2
     #define  DEFAULT_Ki 1.08
     #define  DEFAULT_Kd 114
@@ -313,11 +315,12 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 // Disables axis when it's not being used.
 #define DISABLE_X false
 #define DISABLE_Y false
-#define DISABLE_Z false
+#define DISABLE_Z true //en el nustro estaba a true pq , en default falso?
 #define DISABLE_E false // For all extruders
 #define DISABLE_INACTIVE_EXTRUDER true //disable only inactive extruders and keep active extruder enabled
 
-#define INVERT_X_DIR true    // for Mendel set to false, for Orca set to true
+//creo que que aqui guriramos algun cable
+#define INVERT_X_DIR false    // for Mendel set to false, for Orca set to true 
 #define INVERT_Y_DIR false    // for Mendel set to true, for Orca set to false
 #define INVERT_Z_DIR true     // for Mendel set to false, for Orca set to true
 #define INVERT_E0_DIR false   // for direct drive extruder v9 set to true, for geared extruder set to false
@@ -538,7 +541,7 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
 //#define SD_CHECK_AND_RETRY // Use CRC checks and retries on the SD communication
 //#define ENCODER_PULSES_PER_STEP 1 // Increase if you have a high resolution encoder
 //#define ENCODER_STEPS_PER_MENU_ITEM 5 // Set according to ENCODER_PULSES_PER_STEP or your liking
-//#define ULTIMAKERCONTROLLER //as available from the Ultimaker online store.
+#define ULTIMAKERCONTROLLER //as available from the Ultimaker online store.
 //#define ULTIPANEL  //the UltiPanel as on Thingiverse
 //#define LCD_FEEDBACK_FREQUENCY_HZ 1000	// this is the tone frequency the buzzer plays when on UI feedback. ie Screen Click
 //#define LCD_FEEDBACK_FREQUENCY_DURATION_MS 100 // the duration the buzzer plays the UI feedback sound. ie Screen Click
