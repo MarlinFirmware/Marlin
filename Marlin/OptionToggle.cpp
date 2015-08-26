@@ -36,8 +36,9 @@ namespace screen
 		: Option(size, text)
 		, Functor<void>(fptr)
 		, Observer<bool>(model)
-		, m_state(OFF)
-	{ }
+	{
+		m_model->notify();
+	}
 
 	OptionToggle::~OptionToggle()
 	{ }
