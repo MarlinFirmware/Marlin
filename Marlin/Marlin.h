@@ -170,6 +170,7 @@ void manage_inactivity(bool ignore_stepper_queue=false);
   #define disable_e2() /* nothing */
 #endif
 
+#define NUM_AXIS 4
 
 enum AxisEnum {X_AXIS=0, Y_AXIS=1, Z_AXIS=2, E_AXIS=3, X_HEAD=4, Y_HEAD=5};
 
