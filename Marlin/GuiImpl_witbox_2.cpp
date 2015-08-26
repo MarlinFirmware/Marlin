@@ -774,6 +774,13 @@ namespace screen
 		return local_view;
 	}
 
+	static ScreenAction<void> * make_screen_print_action_complete()
+	{
+		ScreenAction<void> * local_view = new ScreenAction<void>(NULL, action_stop_print);
+		local_view->add(screen_print_complete);
+		return local_view;
+	}
+
 	static ScreenDialog<void> * make_screen_print_complete()
 	{
 		ScreenComplete * local_view = new ScreenComplete(MSG_SCREEN_PRINT_COMPLETE_TITLE(), MSG_SCREEN_PRINT_COMPLETE_TEXT(), MSG_PUSH_TO_CONTINUE(), PrintManager::printingTime());
@@ -1190,6 +1197,9 @@ namespace screen
 				break;
 			case screen_print:
 				new_view = make_screen_print();
+				break;
+			case screen_print_action_complete:
+				new_view = make_screen_print_action_complete();
 				break;
 			case screen_print_complete:
 				new_view = make_screen_print_complete();

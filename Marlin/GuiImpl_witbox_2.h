@@ -85,6 +85,7 @@ namespace screen
 		screen_print_preheating,
 		screen_print_prepare,
 		screen_print,
+		screen_print_action_complete,
 		screen_print_complete,
 		screen_play_pause,
 		screen_stop_confirm,
