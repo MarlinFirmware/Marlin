@@ -22,7 +22,7 @@ typedef enum
 	STOPPED,
 	HOMING,
 	LEVELING,
-	HEATING,
+	READY,
 	NUM_PRINTER_STATES
 } PrinterState_t;
 

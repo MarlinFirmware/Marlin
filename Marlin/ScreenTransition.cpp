@@ -76,7 +76,7 @@ namespace screen
 			painter.multiText(m_message);
 		} while ( painter.nextPage() );
 
-		if (this->m_model != 0 && m_printing_status == PAUSED || m_printing_status == HEATING)
+		if (this->m_model != 0 && m_printing_status == PAUSED || m_printing_status == READY)
 		{
 			lcd_enable_button();
 			ViewManager::getInstance().activeView(m_next_screen);
@@ -92,7 +92,7 @@ namespace screen
 			case LEVELING:
 				strcpy_P(m_message, MSG_SCREEN_AUTOHOME_HOMING_TEXT());
 				break;
-			case HEATING:
+			case READY:
 				strcpy_P(m_message, MSG_PLEASE_WAIT());
 				break;
 			default:

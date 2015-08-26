@@ -113,15 +113,8 @@ namespace screen
 		ScreenFile * local_view = new ScreenFile(MSG_SCREEN_SD_LIST_CONFIRM());
 		local_view->add(screen_SD_list);
 		local_view->icon(icon_back);
-		local_view->add(screen_SD_OK);
+		local_view->add(screen_print_preheat);
 		local_view->icon(icon_ok);
-		return local_view;
-	}
-
-	static ScreenTransition * make_screen_SD_OK()
-	{
-		ScreenTransition * local_view = new ScreenTransition(MSG_SCREEN_SD_LIST_TITLE(), NULL, MSG_PLEASE_WAIT(), PrintManager::startPrint, &PrintManager::single::instance());
-		local_view->add(screen_print_heating);
 		return local_view;
 	}
 
@@ -738,6 +731,27 @@ namespace screen
 		return local_view;
 	}
 
+	static ScreenAction<void> * make_screen_print_preheat()
+	{
+		ScreenAction<void> * local_view = new ScreenAction<void>(NULL, action_preheat);
+		local_view->add(screen_print_preheating);
+		return local_view;
+	}
+
+	static ScreenAnimation<float> * make_screen_print_preheating()
+	{
+		ScreenAnimation<float> * local_view = new ScreenAnimation<float>(MSG_SCREEN_PRINT_HEATING_TITLE(), MSG_PLEASE_WAIT(), screen::ScreenAnimation<float>::GREATER_OR_EQUAL, TemperatureManager::single::instance().getTargetTemperature(), &TemperatureManager::single::instance());
+		local_view->add(screen_print_prepare);
+		return local_view;
+	}
+
+	static ScreenTransition * make_screen_print_prepare()
+	{
+		ScreenTransition * local_view = new ScreenTransition(MSG_SCREEN_SD_LIST_TITLE(), NULL, MSG_PLEASE_WAIT(), PrintManager::startPrint, &PrintManager::single::instance());
+		local_view->add(screen_print);
+		return local_view;
+	}
+
 	static ScreenPrint * make_screen_print()
 	{
 		IconStatus<PrinterState_t> * icon_play_pause = new IconStatus<PrinterState_t>(icon_size, bits_pause_normal, bits_pause_focused, bits_play_normal, bits_play_focused, MSG_ICON_PAUSE(), MSG_ICON_PLAY(), &PrintManager::single::instance());
@@ -757,13 +771,6 @@ namespace screen
 		local_view->icon(icon_change_speed);
 		local_view->add(screen_temperature_print);
 		local_view->icon(icon_temperature);
-		return local_view;
-	}
-
-	static ScreenAnimation<float> * make_screen_print_heating()
-	{
-		ScreenAnimation<float> * local_view = new ScreenAnimation<float>(MSG_SCREEN_PRINT_HEATING_TITLE(), MSG_PLEASE_WAIT(), screen::ScreenAnimation<float>::GREATER_OR_EQUAL, TemperatureManager::single::instance().getTargetTemperature(), &TemperatureManager::single::instance());
-		local_view->add(screen_print);
 		return local_view;
 	}
 
@@ -938,9 +945,6 @@ namespace screen
 				break;
 			case screen_SD_confirm:
 				new_view = make_screen_SD_confirm();
-				break;
-			case screen_SD_OK:
-				new_view = make_screen_SD_OK();
 				break;
 
 			// Unload filament
@@ -1129,9 +1133,6 @@ namespace screen
 			case screen_heating_main:
 				new_view = make_screen_heating_main();
 				break;
-			case screen_print_heating:
-				new_view = make_screen_print_heating();
-				break;
 
 			// Autolevel
 			case screen_autolevel:
@@ -1178,6 +1179,15 @@ namespace screen
 				break;
 
 			// Print menu and control
+			case screen_print_preheat:
+				new_view = make_screen_print_preheat();
+				break;
+			case screen_print_preheating:
+				new_view = make_screen_print_preheating();
+				break;
+			case screen_print_prepare:
+				new_view = make_screen_print_prepare();
+				break;
 			case screen_print:
 				new_view = make_screen_print();
 				break;
