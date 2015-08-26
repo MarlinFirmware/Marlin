@@ -56,12 +56,12 @@ namespace screen
 		switch(m_state)
 		{
 			case ON:
-				painter.setPrintPos(draw_area.x_end - 7*6, draw_area.y_init);
-				painter.print("< On  >");
+				painter.setPrintPos(draw_area.x_end - 4*6, draw_area.y_init);
+				painter.print("[On]");
 				break;
 			case OFF:
-				painter.setPrintPos(draw_area.x_end - 7*6, draw_area.y_init);
-				painter.print("< Off >");
+				painter.setPrintPos(draw_area.x_end - 5*6, draw_area.y_init);
+				painter.print("[Off]");
 				break;
 			default:
 				break;
