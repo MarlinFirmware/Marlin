@@ -9,7 +9,6 @@
 #include "Option.h"
 #include "OptionToggle.h"
 #include "OptionLaunch.h"
-#include "OptionSelector.h"
 
 #include "Screen.h"
 #include "ScreenMenu.h"
@@ -332,7 +331,7 @@ namespace screen
 		option_offset->add(screen_offset);
 		OptionLaunch * option_about       = new OptionLaunch(option_size, MSG_OPTION_INFO());
 		option_about->add(screen_info);
-		OptionSelector * option_language  = new OptionSelector(option_size, MSG_OPTION_LANGUAGE());
+		OptionLaunch * option_language    = new OptionLaunch(option_size, MSG_OPTION_LANGUAGE());
 		option_language->add(screen_settings_language);
 
 		ScreenSetting * local_view = new ScreenSetting(MSG_SCREEN_SETTINGS_TITLE());
