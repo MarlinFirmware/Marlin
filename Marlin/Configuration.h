@@ -105,10 +105,10 @@
 // 147 is Pt100 with 4k7 pullup
 // 110 is Pt100 with 1k pullup (non standard)
 
-#define TEMP_SENSOR_0 66 //probaremos estas a ver (acrodarse del pid)
+#define TEMP_SENSOR_0 65 //probaremos estas a ver (acrodarse del pid)
 #define TEMP_SENSOR_1 0
 #define TEMP_SENSOR_2 0
-#define TEMP_SENSOR_BED 66
+#define TEMP_SENSOR_BED 65
 
 // This makes temp sensor 1 a redundant sensor for sensor 0. If the temperatures difference between these sensors is to high the print will be aborted.
 //#define TEMP_SENSOR_1_AS_REDUNDANT
@@ -122,10 +122,10 @@
 // The minimal temperature defines the temperature below which the heater will not be enabled It is used
 // to check that the wiring to the thermistor is not broken.
 // Otherwise this would lead to the heater being powered on all the time.
-#define HEATER_0_MINTEMP 1  //originalemte todos a 5
+#define HEATER_0_MINTEMP 0  //originalemte todos a 5
 #define HEATER_1_MINTEMP 0
 #define HEATER_2_MINTEMP 0
-#define BED_MINTEMP 1
+#define BED_MINTEMP 0
 
 // When temperature exceeds max temp, your heater will be switched off.
 // This feature exists to protect your hotend from overheating accidentally, but *NOT* from thermistor short/failure!
