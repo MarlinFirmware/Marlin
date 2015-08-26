@@ -513,6 +513,10 @@ void flush_commands()
 {
    bufindr = bufindw;
    buflen = 0;
+   for (int i=0; i<BUFSIZE; i++)
+   {
+    memset(cmdbuffer[i], 0,MAX_CMD_SIZE);
+   }
 }
 
 void setup_killpin()
