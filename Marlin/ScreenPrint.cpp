@@ -62,9 +62,10 @@ namespace screen
 		PrintManager::updateTime();
 
 		uint8_t percent_done = card.percentDone();
-		if (m_percent_done != percent_done)
+		if (m_percent_done < percent_done)
 		{
 			m_percent_done = percent_done;
+
 			m_needs_drawing = true;
 		}
 

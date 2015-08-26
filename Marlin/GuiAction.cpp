@@ -539,14 +539,13 @@ void action_stop_print()
 
 	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], manual_feedrate[X_AXIS] / 60, active_extruder);
 
+	current_position[X_AXIS] = POSITION_REST_X;
+	current_position[Y_AXIS] = POSITION_REST_Y;
+
 #if X_MAX_POS < 250
-	current_position[X_AXIS] = X_MIN_POS;
-	current_position[Y_AXIS] = 150;
 	current_position[Z_AXIS] += 20;
 #else // X_MAX_POS < 250
-	current_position[X_AXIS] = X_MAX_POS - 15;
-	current_position[Y_AXIS] = Y_MAX_POS - 15;
-	current_position[Z_AXIS] = Z_MAX_POS - 15;
+	current_position[Z_AXIS] = Z_MAX_POS;
 #endif // X_MAX_POS < 250
 
 	if (current_position[Z_AXIS] > Z_MAX_POS)
@@ -600,11 +599,6 @@ void action_resume_print()
 	lcd_enable_button();
 	stop_buffer = false;
 	change_filament = false;
-}
-
-void action_finish_print()
-{
-	flush_commands();
 }
 
 void action_set_feedrate_multiply(uint16_t value)
