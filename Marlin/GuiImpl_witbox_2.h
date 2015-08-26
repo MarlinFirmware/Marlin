@@ -71,6 +71,7 @@ namespace screen
 		screen_offset_save,
 		screen_print_heating,
 		screen_print,
+		screen_print_action_complete,
 		screen_print_complete,
 		screen_play_pause,
 		screen_stop_confirm,

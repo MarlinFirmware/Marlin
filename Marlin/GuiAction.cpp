@@ -602,6 +602,11 @@ void action_resume_print()
 	change_filament = false;
 }
 
+void action_finish_print()
+{
+	flush_commands();
+}
+
 void action_set_feedrate_multiply(uint16_t value)
 {
 	feedmultiply = value;
