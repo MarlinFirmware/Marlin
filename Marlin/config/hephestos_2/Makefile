@@ -130,7 +130,7 @@ CXXSRC = WMath.cpp WString.cpp Print.cpp Marlin_main.cpp	\
 	watchdog.cpp SPI.cpp Tone.cpp digipot_mcp4451.cpp \
 	vector_3.cpp qr_solve.cpp abi.cpp
 CXXSRC += new.cpp HelpersC++.cpp Action.cpp GuiManager.cpp GuiPainter.cpp GuiAction.cpp GuiImpl_witbox_2.cpp Icon.cpp \
-	Screen.cpp ScreenAbout.cpp ScreenComplete.cpp ScreenEmergency.cpp ScreenFile.cpp ScreenList.cpp ScreenMenu.cpp ScreenPrint.cpp ScreenSplash.cpp ScreenTransition.cpp ScreenSerial.cpp \
+	Screen.cpp ScreenAbout.cpp ScreenComplete.cpp ScreenEmergency.cpp ScreenFile.cpp ScreenList.cpp ScreenMenu.cpp ScreenPrint.cpp ScreenSplash.cpp ScreenTransition.cpp ScreenSerial.cpp ScrenSwitch.cpp \
 	Stepper.cpp Language.cpp \
 	AutoLevelManager.cpp LightManager.cpp OffsetManager.cpp PrintManager.cpp SDManager.cpp SteppersManager.cpp StorageManager.cpp TemperatureManager.cpp ViewManager.cpp \
 	ultralcd_st7920_u8glib_rrd.cpp
