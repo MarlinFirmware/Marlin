@@ -195,5 +195,6 @@ void action_homing()
 
 	previous_millis_cmd = millis();
 
+	PrintManager::knownPosition(true);
 	lcd_enable_button();
 }
