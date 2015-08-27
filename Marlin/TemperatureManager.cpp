@@ -53,17 +53,18 @@ void TemperatureManager::notify()
 float TemperatureManager::manageControl(float kp, float ki, float kb)
 {
 	float pTerm = 0;
-	float iTerm = 0;
+	static float iTerm = 0;
 	static float bTerm = 0;
 	float error = 0;
 	uint16_t control_input = 0;
 	float control_output = 0;
 	float control_output_temp = 0;
-	static float temp_i = 0;
+
+	static uint32_t prev_millis = millis();
+	static uint16_t max_time = 0;
+
 
 	control_input = constrain (getTargetTemperature(), 0, HEATER_0_MAXTEMP);
-	SERIAL_ECHO("PID_INPUT: ");
-	SERIAL_ECHOLN(control_input);
 
 	if (control_input <= HEATER_0_MINTEMP)
 	{
@@ -73,24 +74,48 @@ float TemperatureManager::manageControl(float kp, float ki, float kb)
 	else
 	{
 		error = control_input - m_current_temperature;
-
 		pTerm = kp * error;
-		temp_i += error;
-		iTerm = (ki + bTerm) * temp_i;
+		iTerm += error * ki + bTerm;
 		control_output_temp = pTerm + iTerm;
 		
 		if ( control_output_temp >= PID_MAX )
 		{
 			control_output = PID_MAX;		
 		}
-		else if ( control_output < 0 )
+		else if ( control_output_temp <= 0 )
 		{
 			control_output = 0;
 		}
+		else
+		{
+			control_output = control_output_temp;
+		}
 
-		bTerm = kb * ( control_output_temp - control_output );
+		bTerm = kb * ( control_output - control_output_temp );
 	}
+	/*SERIAL_ECHO("PID_INPUT: ");
+	SERIAL_ECHOLN(control_input);
 	SERIAL_ECHO("PID_OUTPUT: ");
 	SERIAL_ECHOLN(control_output);
+	SERIAL_ECHO("Error: ");
+	SERIAL_ECHOLN(error);
+	SERIAL_ECHO("P_term: ");
+	SERIAL_ECHOLN(pTerm);
+	SERIAL_ECHO("I_term: ");
+	SERIAL_ECHOLN(iTerm);
+	SERIAL_ECHO("Ki*error: ");
+	SERIAL_ECHOLN(Ki*error);
+	SERIAL_ECHO("B_term: ");
+	SERIAL_ECHOLN(bTerm);*/
+	/*uint32_t time = millis() - prev_millis;
+	prev_millis += time;
+	if (time > max_time)
+	{
+		max_time = time;
+	}
+	SERIAL_ECHOLN("max_time: ");
+	SERIAL_ECHOLN(max_time);	
+	SERIAL_ECHOLN(" ");	*/
+
 	return control_output;
 }
