@@ -43,7 +43,7 @@ void action_set_temperature(uint16_t degrees)
 
 void action_preheat()
 {
-	TemperatureManager::single::instance().setTargetTemperature(PLA_PREHEAT_HOTEND_TEMP);
+	TemperatureManager::single::instance().setTargetTemperature(PREHEAT_HOTEND_TEMP);
 }
 
 void action_cooldown()
@@ -497,7 +497,6 @@ void action_start_print()
 			return;
 		}
 	}
-	TemperatureManager::single::instance().setTargetTemperature(200);
 	fanSpeed = PREHEAT_FAN_SPEED;
 	sprintf_P(cmd, PSTR("M23 %s"), card.filename);
 
@@ -520,7 +519,7 @@ void action_start_print()
 	enquecommand(cmd);
 
 #ifdef DOGLCD
-	PrintManager::single::instance().state(HEATING);
+		PrintManager::single::instance().state(READY);
 #endif //DOGLCD
 
 	enquecommand_P(PSTR("M24"));

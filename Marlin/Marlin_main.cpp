@@ -1708,7 +1708,7 @@ void process_commands()
       break;
     case 24: //M24 - Start SD print
 #ifdef DOGLCD
-      if(PrintManager::single::instance().state() == HEATING)
+      if(PrintManager::single::instance().state() == READY)
       {
         card.startFileprint();
         starttime=millis();

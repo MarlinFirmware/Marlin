@@ -22,7 +22,7 @@ typedef enum
 	STOPPED,
 	HOMING,
 	LEVELING,
-	HEATING,
+	READY,
 	NUM_PRINTER_STATES
 } PrinterState_t;
 
@@ -35,32 +35,34 @@ class PrintManager : public Subject<PrinterState_t>
 		PrintManager();
 
 		PrinterState_t state();
+		void state(PrinterState_t state);
 
-		static Time_t printingTime();
+		bool getKnownPosition();
+		void setKnownPosition(bool state);
+
+		void notify();
 
 		static void startPrint();
 		static void stopPrint();
 		static void pausePrint();
 		static void resumePrint();
-		static void endPrint();
-
 		static void togglePause();
+		static void endPrint();
 
 		static void startTime();
 		static void updateTime();
+		static Time_t printingTime();
 
-		static bool knownPosition() { return false; }
-
-		void notify();
-
-
-		void state(PrinterState_t state);
+		static bool knownPosition();
+		static void knownPosition(bool state);
 
 	private:
 		PrinterState_t m_state;
 
 		Time_t m_printing_time;
 		uint32_t m_printing_time_raw;
+
+		bool m_known_position;
 };
 
 #endif //PRINT_MANAGER_H
