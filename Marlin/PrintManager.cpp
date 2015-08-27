@@ -5,7 +5,37 @@
 
 PrintManager::PrintManager()
 	: m_state(STOPPED)
+	, m_known_position(false)
 { }
+
+void PrintManager::state(PrinterState_t state)
+{
+	m_state = state;
+	notify();
+}
+
+PrinterState_t PrintManager::state()
+{
+	return m_state;
+}
+
+bool PrintManager::getKnownPosition()
+{
+	return m_known_position;
+}
+
+void PrintManager::setKnownPosition(bool state)
+{
+	m_known_position = state;
+}
+
+void PrintManager::notify()
+{
+	if (this->m_observer != 0)
+	{
+		this->m_observer->update(m_state);
+	}
+}
 
 void PrintManager::startPrint()
 {
@@ -77,25 +107,6 @@ void PrintManager::togglePause()
 	return;
 }
 
-void PrintManager::state(PrinterState_t state)
-{
-	m_state = state;
-	notify();
-}
-
-PrinterState_t PrintManager::state()
-{
-	return m_state;
-}
-
-void PrintManager::notify()
-{
-	if (this->m_observer != 0)
-	{
-		this->m_observer->update(m_state);
-	}
-}
-
 Time_t PrintManager::printingTime()
 {
 	return PrintManager::single::instance().m_printing_time;
@@ -146,4 +157,14 @@ void PrintManager::updateTime()
 	{
 		PrintManager::single::instance().m_printing_time_raw = millis();
 	}
+}
+
+bool PrintManager::knownPosition()
+{
+	return PrintManager::single::instance().getKnownPosition();
+}
+
+void PrintManager::knownPosition(bool state)
+{
+	PrintManager::single::instance().setKnownPosition(state);
 }
