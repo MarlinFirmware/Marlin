@@ -23,6 +23,7 @@
 #include "ScreenComplete.h"
 #include "ScreenEmergency.h"
 #include "ScreenSerial.h"
+#include "ScreenSwitch.h"
 
 #include "AutoLevelManager.h"
 #include "LightManager.h"
@@ -126,29 +127,8 @@ namespace screen
 		ScreenMenu * local_view = new ScreenMenu(MSG_SCREEN_UNLOAD_INIT_TITLE(), MSG_SCREEN_UNLOAD_INIT_TEXT());
 		local_view->add(screen_main);
 		local_view->icon(icon_back);
-		local_view->add(screen_unload_preheat);
-		local_view->icon(icon_ok);
-		return local_view;
-	}
-
-	static ScreenAction<void> * make_screen_unload_preheat()
-	{
-		ScreenAction<void> * local_view = new ScreenAction<void>(NULL, action_preheat);
-		local_view->add(screen_unload_preheating);
-		return local_view;
-	}
-
-	static ScreenAnimation<float> * make_screen_unload_preheating()
-	{
-		ScreenAnimation<float> * local_view = new ScreenAnimation<float>(MSG_SCREEN_UNLOAD_HEATING_TITLE(), MSG_PLEASE_WAIT(), screen::ScreenAnimation<float>::GREATER_OR_EQUAL, TemperatureManager::single::instance().getTargetTemperature(), &TemperatureManager::single::instance());
-		local_view->add(screen_unload_home);
-		return local_view;
-	}
-
-	static ScreenTransition * make_screen_unload_home()
-	{
-		ScreenTransition * local_view = new ScreenTransition(MSG_SCREEN_UNLOAD_HOME_TITLE(), MSG_SCREEN_UNLOAD_HOME_TEXT(), MSG_PLEASE_WAIT(), gui_action_homing);
 		local_view->add(screen_unload_select);
+		local_view->icon(icon_ok);
 		return local_view;
 	}
 
@@ -162,6 +142,21 @@ namespace screen
 	static ScreenAnimation<float> * make_screen_unload_heating()
 	{
 		ScreenAnimation<float> * local_view = new ScreenAnimation<float>(MSG_SCREEN_UNLOAD_HEATING_TITLE(), MSG_PLEASE_WAIT(), screen::ScreenAnimation<float>::GREATER_OR_EQUAL, TemperatureManager::single::instance().getTargetTemperature(), &TemperatureManager::single::instance());
+		local_view->add(screen_unload_switch);
+		return local_view;
+	}
+
+	static ScreenSwitch * make_screen_unload_switch()
+	{
+		ScreenSwitch * local_view = new ScreenSwitch(NULL, PrintManager::knownPosition);
+		local_view->add(screen_unload_info);
+		local_view->add(screen_unload_home);
+		return local_view;
+	}
+
+	static ScreenTransition * make_screen_unload_home()
+	{
+		ScreenTransition * local_view = new ScreenTransition(MSG_SCREEN_UNLOAD_HOME_TITLE(), MSG_SCREEN_UNLOAD_HOME_TEXT(), MSG_PLEASE_WAIT(), gui_action_homing);
 		local_view->add(screen_unload_info);
 		return local_view;
 	}
@@ -208,29 +203,8 @@ namespace screen
 		ScreenMenu * local_view = new ScreenMenu(MSG_SCREEN_LOAD_INIT_TITLE(), MSG_SCREEN_LOAD_INIT_TITLE());
 		local_view->add(screen_main);
 		local_view->icon(icon_back);
-		local_view->add(screen_load_preheat);
-		local_view->icon(icon_ok);
-		return local_view;
-	}
-
-	static ScreenAction<void> * make_screen_load_preheat()
-	{
-		ScreenAction<void> * local_view = new ScreenAction<void>(NULL, action_preheat);
-		local_view->add(screen_load_preheating);
-		return local_view;
-	}
-
-	static ScreenAnimation<float> * make_screen_load_preheating()
-	{
-		ScreenAnimation<float> * local_view = new ScreenAnimation<float>(MSG_SCREEN_LOAD_HEATING_TITLE(), MSG_PLEASE_WAIT(), screen::ScreenAnimation<float>::GREATER_OR_EQUAL, TemperatureManager::single::instance().getTargetTemperature(), &TemperatureManager::single::instance());
-		local_view->add(screen_load_home);
-		return local_view;
-	}
-
-	static ScreenTransition * make_screen_load_home()
-	{
-		ScreenTransition * local_view = new ScreenTransition(MSG_SCREEN_LOAD_HOME_TITLE(), MSG_SCREEN_LOAD_HOME_TEXT(), MSG_PLEASE_WAIT(), gui_action_homing);
 		local_view->add(screen_load_select);
+		local_view->icon(icon_ok);
 		return local_view;
 	}
 
@@ -244,6 +218,21 @@ namespace screen
 	static ScreenAnimation<float> * make_screen_load_heating()
 	{
 		ScreenAnimation<float> * local_view = new ScreenAnimation<float>(MSG_SCREEN_LOAD_HEATING_TITLE(), MSG_PLEASE_WAIT(), screen::ScreenAnimation<float>::GREATER_OR_EQUAL, TemperatureManager::single::instance().getTargetTemperature(), &TemperatureManager::single::instance());
+		local_view->add(screen_load_switch);
+		return local_view;
+	}
+
+	static ScreenSwitch * make_screen_load_switch()
+	{
+		ScreenSwitch * local_view = new ScreenSwitch(NULL, PrintManager::knownPosition);
+		local_view->add(screen_load_info);
+		local_view->add(screen_load_home);
+		return local_view;
+	}
+
+	static ScreenTransition * make_screen_load_home()
+	{
+		ScreenTransition * local_view = new ScreenTransition(MSG_SCREEN_LOAD_HOME_TITLE(), MSG_SCREEN_LOAD_HOME_TEXT(), MSG_PLEASE_WAIT(), gui_action_homing);
 		local_view->add(screen_load_info);
 		return local_view;
 	}
@@ -305,6 +294,14 @@ namespace screen
 	static ScreenAnimation<float> * make_screen_level_preheating()
 	{
 		ScreenAnimation<float> * local_view = new ScreenAnimation<float>(MSG_SCREEN_LEVEL_PREHEATING_TITLE(), MSG_PLEASE_WAIT(), screen::ScreenAnimation<float>::GREATER_OR_EQUAL, PREHEAT_HOTEND_TEMP, &TemperatureManager::single::instance());
+		local_view->add(screen_level_switch);
+		return local_view;
+	}
+
+	static ScreenSwitch * make_screen_level_switch()
+	{
+		ScreenSwitch * local_view = new ScreenSwitch(NULL, PrintManager::knownPosition);
+		local_view->add(screen_level1);
 		local_view->add(screen_level_homing);
 		return local_view;
 	}
@@ -958,20 +955,17 @@ namespace screen
 			case screen_unload_init:
 				new_view = make_screen_unload_init();
 				break;
-			case screen_unload_preheat:
-				new_view = make_screen_unload_preheat();
-				break;
-			case screen_unload_preheating:
-				new_view = make_screen_unload_preheating();
-				break;
-			case screen_unload_home:
-				new_view = make_screen_unload_home();
-				break;
 			case screen_unload_select:
 				new_view = make_screen_unload_select();
 				break;
 			case screen_unload_heating:
 				new_view = make_screen_unload_heating();
+				break;
+			case screen_unload_switch:
+				new_view = make_screen_unload_switch();
+				break;
+			case screen_unload_home:
+				new_view = make_screen_unload_home();
 				break;
 			case screen_unload_info:
 				new_view = make_screen_unload_info();
@@ -990,20 +984,17 @@ namespace screen
 			case screen_load_init:
 				new_view = make_screen_load_init();
 				break;
-			case screen_load_preheat:
-				new_view = make_screen_load_preheat();
-				break;
-			case screen_load_preheating:
-				new_view = make_screen_load_preheating();
-				break;
-			case screen_load_home:
-				new_view = make_screen_load_home();
-				break;
 			case screen_load_select:
 				new_view = make_screen_load_select();
 				break;
 			case screen_load_heating:
 				new_view = make_screen_load_heating();
+				break;
+			case screen_load_switch:
+				new_view = make_screen_load_switch();
+				break;
+			case screen_load_home:
+				new_view = make_screen_load_home();
 				break;
 			case screen_load_info:
 				new_view = make_screen_load_info();
@@ -1027,6 +1018,9 @@ namespace screen
 				break;
 			case screen_level_preheating:
 				new_view = make_screen_level_preheating();
+				break;
+			case screen_level_switch:
+				new_view = make_screen_level_switch();
 				break;
 			case screen_level_homing:
 				new_view = make_screen_level_homing();
@@ -1172,16 +1166,16 @@ namespace screen
 			case screen_offset_calculate:
 				new_view = make_screen_offset_calculate();
 				break;
-      	case screen_offset_info:
+      		case screen_offset_info:
 				new_view = make_screen_offset_info();
 				break;
-      	case screen_offset_set:
+      		case screen_offset_set:
 				new_view = make_screen_offset_set();
 				break;
-      	case screen_offset_finish:
+      		case screen_offset_finish:
 				new_view = make_screen_offset_finish();
 				break;
-      	case screen_offset_save:
+      		case screen_offset_save:
 				new_view = make_screen_offset_save();
 				break;
 
