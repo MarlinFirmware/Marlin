@@ -57,7 +57,6 @@
 
   #elif ENABLED(DISPLAY_CHARSET_HD44780_WESTERN)
     #if ENABLED(MAPPER_C2C3)
-    :
       const PROGMEM uint8_t utf_recode[] =
            { // 0    1    2    3    4    5    6    7    8    9    a    b    c    d    e    f   This is relative complete.
              0x20,0xa1,0xa2,0xa3,0xa4,0xa5,0xa6,0xa7,0x22,0xa9,0xaa,0xab,0x3f,0x3f,0xae,0x3f,  // c2a ¡¢£¤¥¦§¨©ª«¬­®¯
