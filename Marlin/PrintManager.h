@@ -32,22 +32,6 @@ class PrintManager : public Subject<PrinterState_t>
 		typedef Singleton<PrintManager> single;
 
 	public:
-		static void startPrint();
-		static void stopPrint();
-		static void pausePrint();
-		static void resumePrint();
-		static void endPrint();
-
-		static void togglePause();
-
-		static void startTime();
-		static void updateTime();
-		static Time_t printingTime();
-
-		static bool knownPosition();
-		static void knownPosition(bool state);
-
-
 		PrintManager();
 
 		PrinterState_t state();
@@ -57,6 +41,20 @@ class PrintManager : public Subject<PrinterState_t>
 		void setKnownPosition(bool state);
 
 		void notify();
+
+		static void startPrint();
+		static void stopPrint();
+		static void pausePrint();
+		static void resumePrint();
+		static void togglePause();
+		static void endPrint();
+
+		static void startTime();
+		static void updateTime();
+		static Time_t printingTime();
+
+		static bool knownPosition();
+		static void knownPosition(bool state);
 
 	private:
 		PrinterState_t m_state;
