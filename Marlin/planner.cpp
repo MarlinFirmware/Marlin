@@ -553,8 +553,7 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
   {
     next_buffer_head = next_block_index(block_buffer_head);
 
-    manage_heater(); 
-    manage_inactivity(); 
+    manage_heater();
     lcd_update();
 
 #ifdef DOGLCD

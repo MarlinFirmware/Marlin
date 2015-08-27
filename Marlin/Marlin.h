@@ -111,8 +111,6 @@ void get_command();
 void process_commands();
 void flush_commands();
 
-void manage_inactivity(bool ignore_stepper_queue=false);
-
 #include "SteppersManager.h"
 
 #if defined(DUAL_X_CARRIAGE) && defined(X_ENABLE_PIN) && X_ENABLE_PIN > -1 \

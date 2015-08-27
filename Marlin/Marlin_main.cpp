@@ -783,7 +783,6 @@ void loop()
   }
   //check heater every n milliseconds
   manage_heater();
-  manage_inactivity();
   checkHitEndstops();
   lcd_update();
   PrintManager::updateInactivity();
@@ -1537,7 +1536,6 @@ void process_commands()
       previous_millis_cmd = millis();
       while(millis() < codenum) {
         manage_heater();
-        manage_inactivity();
       }
       break;
       #ifdef FWRETRACT
@@ -2322,7 +2320,6 @@ Sigma_Exit:
             codenum = millis();
           }
           manage_heater();
-          manage_inactivity();
           lcd_update();
         #ifdef TEMP_RESIDENCY_TIME
             /* start/restart the TEMP_RESIDENCY_TIME timer whenever we reach target temp for the first time
@@ -2377,7 +2374,6 @@ Sigma_Exit:
             codenum = millis();
           }
           manage_heater();
-          manage_inactivity();
           lcd_update();
         }
         LCD_MESSAGEPGM(MSG_BED_HEATING_DONE);
@@ -2909,7 +2905,6 @@ Sigma_Exit:
 
             while(digitalRead(pin_number) != target){
               manage_heater();
-              manage_inactivity();
             }
           }
         }
@@ -3750,7 +3745,6 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
     			lcd_clear_triggered_flags();
   				while(!LCD_CLICKED) {
   	  				manage_heater();
-  	  				manage_inactivity();
   				}
   				
           //point 3
@@ -3761,7 +3755,6 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
     			lcd_clear_triggered_flags();
   	 			while(!LCD_CLICKED) {
   	  				manage_heater();
-  	  				manage_inactivity();
   				}
 
           //3 or 4 points based on the printer
@@ -3773,7 +3766,6 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
             lcd_clear_triggered_flags();
             while(!LCD_CLICKED){
                 manage_heater();
-                manage_inactivity();
             }
           #else
             lcd_wizard_set_page(4);
@@ -3783,7 +3775,6 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
             lcd_clear_triggered_flags();
             while(!LCD_CLICKED){
                 manage_heater();
-                manage_inactivity();
             }
 
             lcd_wizard_set_page(5);
@@ -3793,7 +3784,6 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
             lcd_clear_triggered_flags();
             while(!LCD_CLICKED){
                 manage_heater();
-                manage_inactivity();
             }
           #endif
 
@@ -4457,128 +4447,6 @@ void handle_status_leds(void) {
   }
 }
 #endif
-
-void manage_inactivity(bool ignore_stepper_queue/*=false*/) //default argument set in Marlin.h
-{
-	
-#if defined(KILL_PIN) && KILL_PIN > -1
-	static int killCount = 0;   // make the inactivity button a bit less responsive
-   const int KILL_DELAY = 10000;
-#endif
-
-#if defined(HOME_PIN) && HOME_PIN > -1
-   static int homeDebounceCount = 0;   // poor man's debouncing count
-   const int HOME_DEBOUNCE_DELAY = 10000;
-#endif
-   
-   
-
-  if( (millis() - previous_millis_cmd) >  max_inactive_time )
-    if(max_inactive_time)
-      kill();
-  // if(stepper_inactive_time)  {
-  //   if( (millis() - previous_millis_cmd) >  stepper_inactive_time )
-  //   {
-  //     if(blocks_queued() == false && ignore_stepper_queue == false) {
-  //       disable_x();
-  //       disable_y();
-  //       disable_z();
-  //       disable_e0();
-  //       disable_e1();
-  //       disable_e2();
-  //     }
-  //   }
-  // }
-  
-  #ifdef CHDK //Check if pin should be set to LOW after M240 set it to HIGH
-    if (chdkActive && (millis() - chdkHigh > CHDK_DELAY))
-    {
-      chdkActive = false;
-      WRITE(CHDK, LOW);
-    }
-  #endif
-  
-  #if defined(KILL_PIN) && KILL_PIN > -1
-    
-    // Check if the kill button was pressed and wait just in case it was an accidental
-    // key kill key press
-    // -------------------------------------------------------------------------------
-    if( 0 == READ(KILL_PIN) )
-    {
-       killCount++;
-    }
-    else if (killCount > 0)
-    {
-       killCount--;
-    }
-    // Exceeded threshold and we can confirm that it was not accidental
-    // KILL the machine
-    // ----------------------------------------------------------------
-    if ( killCount >= KILL_DELAY)
-    {
-       kill();
-    }
-  #endif
-
-#if defined(HOME_PIN) && HOME_PIN > -1
-    // Check to see if we have to home, use poor man's debouncer
-    // ---------------------------------------------------------
-    if ( 0 == READ(HOME_PIN) )
-    {
-       if (homeDebounceCount == 0)
-       {
-          enquecommand_P((PSTR("G28")));
-          homeDebounceCount++;
-          LCD_ALERTMESSAGEPGM(MSG_AUTO_HOME);
-       }
-       else if (homeDebounceCount < HOME_DEBOUNCE_DELAY)
-       {
-          homeDebounceCount++;
-       }
-       else
-       {
-          homeDebounceCount = 0;
-       }
-    }
-#endif
-    
-  #if defined(CONTROLLERFAN_PIN) && CONTROLLERFAN_PIN > -1
-    controllerFan(); //Check if fan should be turned on to cool stepper drivers down
-  #endif
-  #ifdef EXTRUDER_RUNOUT_PREVENT
-    if( (millis() - previous_millis_cmd) >  EXTRUDER_RUNOUT_SECONDS*1000 )
-    if(degHotend(active_extruder)>EXTRUDER_RUNOUT_MINTEMP)
-    {
-     bool oldstatus=READ(E0_ENABLE_PIN);
-     enable_e0();
-     float oldepos=current_position[E_AXIS];
-     float oldedes=destination[E_AXIS];
-     plan_buffer_line(destination[X_AXIS], destination[Y_AXIS], destination[Z_AXIS],
-                      destination[E_AXIS]+EXTRUDER_RUNOUT_EXTRUDE*EXTRUDER_RUNOUT_ESTEPS/axis_steps_per_unit[E_AXIS],
-                      EXTRUDER_RUNOUT_SPEED/60.*EXTRUDER_RUNOUT_ESTEPS/axis_steps_per_unit[E_AXIS], active_extruder);
-     current_position[E_AXIS]=oldepos;
-     destination[E_AXIS]=oldedes;
-     plan_set_e_position(oldepos);
-     previous_millis_cmd=millis();
-     st_synchronize();
-     WRITE(E0_ENABLE_PIN,oldstatus);
-    }
-  #endif
-  #if defined(DUAL_X_CARRIAGE)
-    // handle delayed move timeout
-    if (delayed_move_time != 0 && (millis() - delayed_move_time) > 1000 && Stopped == false)
-    {
-      // travel moves have been received so enact them
-      delayed_move_time = 0xFFFFFFFFUL; // force moves to be done
-      memcpy(destination,current_position,sizeof(destination));
-      prepare_move();
-    }
-  #endif
-  #ifdef TEMP_STAT_LEDS
-      handle_status_leds();
-  #endif
-  check_axes_activity();
-}
 
 void kill()
 {
