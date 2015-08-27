@@ -49,6 +49,8 @@ class PrintManager : public Subject<PrinterState_t>
 		static void startTime();
 		static void updateTime();
 
+		static bool knownPosition() { return false; }
+
 		void notify();
 
 
