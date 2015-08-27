@@ -4476,19 +4476,19 @@ void manage_inactivity(bool ignore_stepper_queue/*=false*/) //default argument s
   if( (millis() - previous_millis_cmd) >  max_inactive_time )
     if(max_inactive_time)
       kill();
-  if(stepper_inactive_time)  {
-    if( (millis() - previous_millis_cmd) >  stepper_inactive_time )
-    {
-      if(blocks_queued() == false && ignore_stepper_queue == false) {
-        disable_x();
-        disable_y();
-        disable_z();
-        disable_e0();
-        disable_e1();
-        disable_e2();
-      }
-    }
-  }
+  // if(stepper_inactive_time)  {
+  //   if( (millis() - previous_millis_cmd) >  stepper_inactive_time )
+  //   {
+  //     if(blocks_queued() == false && ignore_stepper_queue == false) {
+  //       disable_x();
+  //       disable_y();
+  //       disable_z();
+  //       disable_e0();
+  //       disable_e1();
+  //       disable_e2();
+  //     }
+  //   }
+  // }
   
   #ifdef CHDK //Check if pin should be set to LOW after M240 set it to HIGH
     if (chdkActive && (millis() - chdkHigh > CHDK_DELAY))

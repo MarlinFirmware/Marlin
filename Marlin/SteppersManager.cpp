@@ -22,6 +22,7 @@ void SteppersManager::disableAllSteppers()
 		{
 			SteppersManager::single::instance().m_steppers[i].disable();
 		}
+		PrintManager::knownPosition(false);
 		SteppersManager::single::instance().m_steppers_disabled = true;
 		SteppersManager::single::instance().notify();
 	}
