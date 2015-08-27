@@ -786,6 +786,7 @@ void loop()
   manage_inactivity();
   checkHitEndstops();
   lcd_update();
+  PrintManager::updateInactivity();
 }
 
 void get_command()

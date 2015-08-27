@@ -3,6 +3,11 @@
 #include "Arduino.h"
 #include "GuiAction.h"
 
+#include "TemperatureManager.h"
+#include "SteppersManager.h"
+
+#define INACTIVITY_TIME_MINUTES 10
+
 PrintManager::PrintManager()
 	: m_state(STOPPED)
 	, m_known_position(false)
@@ -17,6 +22,25 @@ void PrintManager::state(PrinterState_t state)
 PrinterState_t PrintManager::state()
 {
 	return m_state;
+}
+
+uint32_t PrintManager::getInactivityTime()
+{
+	return m_inactivity_time;
+}
+
+bool PrintManager::getInactivityFlag()
+{
+	return m_inactivity_flag;
+}
+
+void PrintManager::resetInactivityTime()
+{
+	m_inactivity_time = millis() + 60000 * INACTIVITY_TIME_MINUTES;
+}
+void PrintManager::setInactivityFlag(bool state)
+{
+	m_inactivity_flag = state;
 }
 
 bool PrintManager::getKnownPosition()
@@ -157,6 +181,31 @@ void PrintManager::updateTime()
 	{
 		PrintManager::single::instance().m_printing_time_raw = millis();
 	}
+}
+
+void PrintManager::resetInactivity()
+{
+	PrintManager::single::instance().resetInactivityTime();
+	PrintManager::single::instance().setInactivityFlag(false);
+}
+
+void PrintManager::updateInactivity()
+{
+	if ( (PrintManager::single::instance().getInactivityFlag() == false)
+		&& (PrintManager::single::instance().state() == STOPPED) )
+	{
+		if (millis() > PrintManager::single::instance().getInactivityTime())
+		{
+			PrintManager::single::instance().setInactivityFlag(true);
+			PrintManager::single::instance().inactivityTriggered();
+		}
+	}
+}
+
+void PrintManager::inactivityTriggered()
+{
+	TemperatureManager::single::instance().setTargetTemperature(0);
+	SteppersManager::disableAllSteppers();
 }
 
 bool PrintManager::knownPosition()
