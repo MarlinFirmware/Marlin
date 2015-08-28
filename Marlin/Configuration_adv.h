@@ -157,8 +157,10 @@
 // Same again but for Y Axis.
 //#define Y_DUAL_STEPPER_DRIVERS
 
-// Define if the two Y drives need to rotate in opposite directions
-#define INVERT_Y2_VS_Y_DIR true
+#if ENABLED(Y_DUAL_STEPPER_DRIVERS)
+  // Define if the two Y drives need to rotate in opposite directions
+  #define INVERT_Y2_VS_Y_DIR true
+#endif
 
 // Enable this for dual x-carriage printers.
 // A dual x-carriage design has the advantage that the inactive extruder can be parked which
