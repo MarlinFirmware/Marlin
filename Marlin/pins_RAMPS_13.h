@@ -42,18 +42,6 @@
 #define Z_MAX_PIN          19
 #define Z_MIN_PROBE_PIN    -1
 
-#define Y2_STEP_PIN        36
-#define Y2_DIR_PIN         34
-#define Y2_ENABLE_PIN      30
-
-#undef Z2_STEP_PIN
-#undef Z2_DIR_PIN
-#undef Z2_ENABLE_PIN
-
-#define Z2_STEP_PIN        36
-#define Z2_DIR_PIN         34
-#define Z2_ENABLE_PIN      30
-
 #define E0_STEP_PIN        26
 #define E0_DIR_PIN         28
 #define E0_ENABLE_PIN      24

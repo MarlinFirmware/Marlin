@@ -227,6 +227,18 @@
   #define Z_MIN_PIN          -1
 #endif
 
+#ifndef Y2_STEP_PIN
+  #define Y2_STEP_PIN      E1_STEP_PIN
+  #define Y2_DIR_PIN       E1_DIR_PIN
+  #define Y2_ENABLE_PIN    E1_ENABLE_PIN
+#endif
+
+#ifndef Z2_STEP_PIN
+  #define Z2_STEP_PIN      E1_STEP_PIN
+  #define Z2_DIR_PIN       E1_DIR_PIN
+  #define Z2_ENABLE_PIN    E1_ENABLE_PIN
+#endif
+
 #define SENSITIVE_PINS { 0, 1, \
                         X_STEP_PIN, X_DIR_PIN, X_ENABLE_PIN, X_MIN_PIN, X_MAX_PIN, \
                         Y_STEP_PIN, Y_DIR_PIN, Y_ENABLE_PIN, Y_MIN_PIN, Y_MAX_PIN, \
