@@ -799,6 +799,7 @@ void get_command()
 			serial_mode = true;
 			if (screen::ViewManager::getInstance().getViewIndex() != screen::screen_serial)
 			{
+				PrintManager::single::instance().state(SERIAL_CONTROL);
 				screen::ViewManager::getInstance().activeView(screen::screen_serial);
 		 	}
 	 	}
