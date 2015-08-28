@@ -90,6 +90,7 @@ namespace screen
 		screen_speed,
 		screen_temperature_print,
 		screen_serial,
+		screen_inactivity,
 		screen_none,
 	} ScreenIndex_t;
 

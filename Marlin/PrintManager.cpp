@@ -5,12 +5,15 @@
 
 #include "TemperatureManager.h"
 #include "SteppersManager.h"
+#include "ViewManager.h"
 
 #define INACTIVITY_TIME_MINUTES 10
 
 PrintManager::PrintManager()
 	: m_state(STOPPED)
 	, m_known_position(false)
+	, m_inactivity_time(0)
+	, m_inactivity_flag(true)
 { }
 
 void PrintManager::state(PrinterState_t state)
@@ -206,6 +209,8 @@ void PrintManager::inactivityTriggered()
 {
 	TemperatureManager::single::instance().setTargetTemperature(0);
 	SteppersManager::disableAllSteppers();
+
+	screen::ViewManager::getInstance().activeView(screen::screen_inactivity);
 }
 
 bool PrintManager::knownPosition()

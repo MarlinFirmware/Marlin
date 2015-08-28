@@ -23,6 +23,7 @@
 #include "ScreenComplete.h"
 #include "ScreenEmergency.h"
 #include "ScreenSerial.h"
+#include "ScreenInactivity.h"
 
 #include "AutoLevelManager.h"
 #include "LightManager.h"
@@ -819,6 +820,13 @@ namespace screen
 		return local_view;
 	}
 
+	static ScreenInactivity * make_screen_inactivity()
+	{
+		ScreenInactivity * local_view = new ScreenInactivity(NULL, MSG_PUSH_TO_BACK(), TemperatureManager::single::instance().getTargetTemperature(), &TemperatureManager::single::instance());
+		local_view->add(screen_main);
+		return local_view;
+	}
+
 	Screen * new_view;
 
 	// Build the UI
@@ -1112,6 +1120,11 @@ namespace screen
 			// Serial screen
 			case screen_serial:
 				new_view = make_screen_serial();
+				break;
+
+			// Inactivity screen
+			case screen_inactivity:
+				new_view = make_screen_inactivity();
 				break;
 		}
 		return new_view; 
