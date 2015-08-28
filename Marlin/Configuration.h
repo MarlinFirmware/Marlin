@@ -442,10 +442,11 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 
 // @section bedlevel
 
-//#define ENABLE_AUTO_BED_LEVELING // Delete the comment to enable (remove // at the start of the line).
-#define Z_MIN_PROBE_REPEATABILITY_TEST  // If not commented out, Z probe repeatability test will be included if auto bed leveling is enabled.
+//#define AUTO_BED_LEVELING_FEATURE // Delete the comment to enable (remove // at the start of the line)
+//#define DEBUG_LEVELING_FEATURE
+#define Z_MIN_PROBE_REPEATABILITY_TEST  // If not commented out, Z-Probe Repeatability test will be included if Auto Bed Leveling is Enabled.
 
-#if ENABLED(ENABLE_AUTO_BED_LEVELING)
+#if ENABLED(AUTO_BED_LEVELING_FEATURE)
 
   // There are 2 different ways to specify probing locations:
   //
@@ -509,8 +510,9 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
   //#define Z_PROBE_SLED // Turn on if you have a Z probe mounted on a sled like those designed by Charles Bell.
   //#define SLED_DOCKING_OFFSET 5 // The extra distance the X axis must travel to pickup the sled. 0 should be fine but you can push it further if you'd like.
 
-// If you have enabled the bed auto leveling and are using the same Z probe for Z homing,
-// it is highly recommended you let this Z_SAFE_HOMING enabled!!!
+
+  //If you have enabled the Bed Auto Leveling and are using the same Z Probe for Z Homing,
+  //it is highly recommended you let this Z_SAFE_HOMING enabled!!!
 
   #define Z_SAFE_HOMING   // This feature is meant to avoid Z homing with Z probe outside the bed area.
                           // When defined, it will:
@@ -557,7 +559,7 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
   //
   //#define Z_MIN_PROBE_ENDSTOP
 
-#endif // ENABLE_AUTO_BED_LEVELING
+#endif // AUTO_BED_LEVELING_FEATURE
 
 
 // @section homing
@@ -608,7 +610,7 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the l
 // Custom M code points
 #define CUSTOM_M_CODES
 #if ENABLED(CUSTOM_M_CODES)
-  #if ENABLED(ENABLE_AUTO_BED_LEVELING)
+  #if ENABLED(AUTO_BED_LEVELING_FEATURE)
     #define CUSTOM_M_CODE_SET_Z_PROBE_OFFSET 851
     #define Z_PROBE_OFFSET_RANGE_MIN -20
     #define Z_PROBE_OFFSET_RANGE_MAX 20
