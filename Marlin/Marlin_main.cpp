@@ -1265,9 +1265,9 @@ static void setup_for_endstop_move() {
       long start_steps = st_get_position(Z_AXIS);
 
       #if ENABLED(DEBUG_LEVELING_FEATURE)
-      if (marlin_debug_flags & DEBUG_LEVELING) {
-        SERIAL_ECHOLNPGM("run_z_probe (DELTA) 1");
-      }
+        if (marlin_debug_flags & DEBUG_LEVELING) {
+          SERIAL_ECHOLNPGM("run_z_probe (DELTA) 1");
+        }
       #endif
 
       // move down slowly until you find the bed
@@ -4009,12 +4009,13 @@ inline void gcode_M111() {
     SERIAL_ECHOLNPGM(MSG_DEBUG_DRYRUN);
     disable_all_heaters();
   }
-#if ENABLED(DEBUG_LEVELING_FEATURE)
-  if (marlin_debug_flags & DEBUG_LEVELING) {
-    SERIAL_ECHO_START;
-    SERIAL_ECHOLNPGM(MSG_DEBUG_LEVELING);
-  }
-#endif
+
+  #if ENABLED(DEBUG_LEVELING_FEATURE)
+    if (marlin_debug_flags & DEBUG_LEVELING) {
+      SERIAL_ECHO_START;
+      SERIAL_ECHOLNPGM(MSG_DEBUG_LEVELING);
+    }
+  #endif
 }
 
 /**
