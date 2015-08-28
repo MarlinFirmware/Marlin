@@ -142,5 +142,7 @@ const char PT_PUSH_TO_CONTINUE[] PROGMEM            = "Push to continue";
 const char PT_PUSH_TO_START[] PROGMEM               = "Push to start";
 const char PT_PUSH_TO_BACK[] PROGMEM                = "Push to go back";
 const char PT_PLEASE_WAIT[] PROGMEM                 = "Please wait";
+const char PT_MODE[] PROGMEM                        = "Mode";
+const char PT_INACTIVE[] PROGMEM                    = "inactive";
 
 #endif //LANGUAGE_PT_H

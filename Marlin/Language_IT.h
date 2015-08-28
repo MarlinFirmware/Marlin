@@ -142,5 +142,7 @@ const char IT_PUSH_TO_CONTINUE[] PROGMEM            = "Push to continue";
 const char IT_PUSH_TO_START[] PROGMEM               = "Push to start";
 const char IT_PUSH_TO_BACK[] PROGMEM                = "Push to go back";
 const char IT_PLEASE_WAIT[] PROGMEM                 = "Please wait";
+const char IT_MODE[] PROGMEM                        = "Mode";
+const char IT_INACTIVE[] PROGMEM                    = "inactive";
 
 #endif //LANGUAGE_IT_H

@@ -142,5 +142,7 @@ const char ES_PUSH_TO_CONTINUE[] PROGMEM            = "Pulsa para continuar";
 const char ES_PUSH_TO_START[] PROGMEM               = "Pulsa para comenzar";
 const char ES_PUSH_TO_BACK[] PROGMEM                = "Pulsa para volver";
 const char ES_PLEASE_WAIT[] PROGMEM                 = "Por favor, espera";
+const char ES_MODE[] PROGMEM                        = "Modo";
+const char ES_INACTIVE[] PROGMEM                    = "inactivo";
 
 #endif //LANGUAGE_ES_H

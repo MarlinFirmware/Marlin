@@ -142,5 +142,7 @@ const char PL_PUSH_TO_CONTINUE[] PROGMEM            = "Push to continue";
 const char PL_PUSH_TO_START[] PROGMEM               = "Push to start";
 const char PL_PUSH_TO_BACK[] PROGMEM                = "Push to go back";
 const char PL_PLEASE_WAIT[] PROGMEM                 = "Please wait";
+const char PL_MODE[] PROGMEM                        = "Mode";
+const char PL_INACTIVE[] PROGMEM                    = "inactive";
 
 #endif //LANGUAGE_PL_H

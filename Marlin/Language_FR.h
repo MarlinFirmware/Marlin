@@ -142,5 +142,7 @@ const char FR_PUSH_TO_CONTINUE[] PROGMEM            = "Push to continue";
 const char FR_PUSH_TO_START[] PROGMEM               = "Push to start";
 const char FR_PUSH_TO_BACK[] PROGMEM                = "Push to go back";
 const char FR_PLEASE_WAIT[] PROGMEM                 = "Please wait";
+const char FR_MODE[] PROGMEM                        = "Mode";
+const char FR_INACTIVE[] PROGMEM                    = "inactive";
 
 #endif //LANGUAGE_FR_H

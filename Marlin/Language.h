@@ -200,6 +200,8 @@ enum class Label
 	PUSH_TO_START,
 	PUSH_TO_BACK,
 	PLEASE_WAIT,
+	MODE,
+	INACTIVE,
 };
 
 extern const char * MSG_SCREEN_EMERGENCY_TITLE();
@@ -341,5 +343,7 @@ extern const char * MSG_PUSH_TO_CONTINUE();
 extern const char * MSG_PUSH_TO_START();
 extern const char * MSG_PUSH_TO_BACK();
 extern const char * MSG_PLEASE_WAIT();
+extern const char * MSG_MODE();
+extern const char * MSG_INACTIVE();
 
 #endif // ifndef LANGUAGE_H

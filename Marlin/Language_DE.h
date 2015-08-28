@@ -142,5 +142,7 @@ const char DE_PUSH_TO_CONTINUE[] PROGMEM            = "Push to continue";
 const char DE_PUSH_TO_START[] PROGMEM               = "Push to start";
 const char DE_PUSH_TO_BACK[] PROGMEM                = "Push to go back";
 const char DE_PLEASE_WAIT[] PROGMEM                 = "Please wait";
+const char DE_MODE[] PROGMEM                        = "Mode";
+const char DE_INACTIVE[] PROGMEM                    = "inactive";
 
 #endif //LANGUAGE_DE_H
