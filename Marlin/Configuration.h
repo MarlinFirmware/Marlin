@@ -655,7 +655,7 @@ const bool Z_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the logic
 
 #define ABS_PREHEAT_HOTEND_TEMP 210
 #define ABS_PREHEAT_HPB_TEMP 90
-#define ABS_PREHEAT_FAN_SPEED 0   // Insert Value between 0 and 255
+#define ABS_PREHEAT_FAN_SPEED 128   // Insert Value between 0 and 255
 
 //==============================LCD and SD support=============================
 // @section lcd
@@ -701,6 +701,15 @@ const bool Z_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the logic
 // The RepRapDiscount Smart Controller (white PCB)
 // http://reprap.org/wiki/RepRapDiscount_Smart_Controller
 #define REPRAP_DISCOUNT_SMART_CONTROLLER
+#ifdef REPRAP_DISCOUNT_SMART_CONTROLLER
+// what happened to these?
+#define ULTIPANEL
+#define NEWPANEL
+#define ULTRA_LCD
+#define LCD_WIDTH 20
+#define LCD_HEIGHT 4
+#define SDSUPPORT
+#endif
 
 // The GADGETS3D G3D LCD/SD Controller (blue PCB)
 // http://reprap.org/wiki/RAMPS_1.3/1.4_GADGETS3D_Shield_with_Panel
