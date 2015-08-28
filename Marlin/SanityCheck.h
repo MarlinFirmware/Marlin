@@ -116,8 +116,8 @@
     #if ENABLED(DELTA)
       #error MESH_BED_LEVELING does not yet support DELTA printers.
     #endif
-    #if ENABLED(ENABLE_AUTO_BED_LEVELING)
-      #error Select ENABLE_AUTO_BED_LEVELING or MESH_BED_LEVELING, not both.
+    #if ENABLED(AUTO_BED_LEVELING_FEATURE)
+      #error Select AUTO_BED_LEVELING_FEATURE or MESH_BED_LEVELING, not both.
     #endif
     #if MESH_NUM_X_POINTS > 7 || MESH_NUM_Y_POINTS > 7
       #error MESH_NUM_X_POINTS and MESH_NUM_Y_POINTS need to be less than 8.
@@ -127,7 +127,7 @@
   /**
    * Auto Bed Leveling
    */
-  #if ENABLED(ENABLE_AUTO_BED_LEVELING)
+  #if ENABLED(AUTO_BED_LEVELING_FEATURE)
 
     /**
      * Require a Z min pin
@@ -137,7 +137,7 @@
         #if ENABLED(Z_MIN_PROBE_REPEATABILITY_TEST)
           #error You must have a Z min or Z probe endstop to enable Z_MIN_PROBE_REPEATABILITY_TEST.
         #else
-          #error ENABLE_AUTO_BED_LEVELING requires a Z min or Z probe endstop. Z_MIN_PIN or Z_MIN_PROBE_PIN must point to a valid hardware pin.
+          #error AUTO_BED_LEVELING_FEATURE requires a Z_MIN or Z_PROBE endstop. Z_MIN_PIN or Z_MIN_PROBE_PIN must point to a valid hardware pin.
         #endif
       #endif
     #endif
@@ -207,7 +207,7 @@
 
     #endif // !AUTO_BED_LEVELING_GRID
 
-  #endif // ENABLE_AUTO_BED_LEVELING
+  #endif // AUTO_BED_LEVELING_FEATURE
 
   /**
    * ULTIPANEL encoder
@@ -221,7 +221,7 @@
    */
   #if ENABLED(DELTA)
 
-    #if ENABLED(ENABLE_AUTO_BED_LEVELING)
+    #if ENABLED(AUTO_BED_LEVELING_FEATURE)
 
       #if DISABLED(AUTO_BED_LEVELING_GRID)
         #error Only AUTO_BED_LEVELING_GRID is supported with DELTA.
@@ -362,6 +362,8 @@
     #error CUSTOM_MENDEL_NAME is now CUSTOM_MACHINE_NAME. Please update your configuration.
   #elif defined(HAS_AUTOMATIC_VERSIONING)
     #error HAS_AUTOMATIC_VERSIONING deprecated - use USE_AUTOMATIC_VERSIONING instead
+  #elif defined(ENABLE_AUTO_BED_LEVELING)
+    #error ENABLE_AUTO_BED_LEVELING deprecated - use AUTO_BED_LEVELING_FEATURE instead
   #endif
 
 #endif //SANITYCHECK_H
