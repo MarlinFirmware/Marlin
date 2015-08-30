@@ -370,11 +370,36 @@ const bool Z_MAX_ENDSTOP_INVERTING = true; // set to true to invert the logic of
   // Note: this feature occupies 10'206 byte
   #ifdef AUTO_BED_LEVELING_GRID
 
-    // set the rectangle in which to probe
-    #define LEFT_PROBE_BED_POSITION 15
-    #define RIGHT_PROBE_BED_POSITION 170
-    #define BACK_PROBE_BED_POSITION 180
-    #define FRONT_PROBE_BED_POSITION 20
+/*
+                   BACK
+         |||||||||||||||||||Y||||||||
+         |||||||||||||||||||Y||||||||
+         ||||||||----------(B)XXXXXXX
+         ||||||||           |||||||||
+ LEFT    |||||||| Probing   ||||||||| RIGHT
+         |||||||| rectangle |||||||||
+         XXXXX(A)-----------|||||||||
+         ||||||Y|||||||||||||||||||||
+         ||||||Y|||||||||||||||||||||
+                   FRONT
+Edit By Nader Al Khatib Fab Lab Frosinone officine giardino                                                                              
+*/
+
+
+// set the rectangle in which to probe
+#define POS_A_X 40
+#define POS_A_Y 0
+#define POS_B_X 190
+#define POS_B_Y 150
+//
+
+
+
+ #define LEFT_PROBE_BED_POSITION  (POS_A_X+X_PROBE_OFFSET_FROM_EXTRUDER)
+ #define FRONT_PROBE_BED_POSITION (POS_A_Y+Y_PROBE_OFFSET_FROM_EXTRUDER)
+ 
+ #define RIGHT_PROBE_BED_POSITION (POS_B_X+X_PROBE_OFFSET_FROM_EXTRUDER)
+ #define BACK_PROBE_BED_POSITION  (POS_B_Y+Y_PROBE_OFFSET_FROM_EXTRUDER)
 
      // set the number of grid points per dimension
      // I wouldn't see a reason to go above 3 (=9 probing points on the bed)
