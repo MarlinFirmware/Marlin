@@ -34,7 +34,9 @@ namespace screen
 	ScreenSwitch::ScreenSwitch(const char * title, Functor<bool>::FuncPtr fptr)
 		: ScreenAction<bool>(title, fptr)
 		, m_num_items(0)
-	{ }
+	{
+		m_type = SWITCH;
+	}
 
 	ScreenSwitch::~ScreenSwitch()
 	{ }
