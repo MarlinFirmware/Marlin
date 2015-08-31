@@ -37,6 +37,8 @@ namespace screen
 		screen_level_confirm,
 		screen_autohome,
 		screen_settings,
+		screen_move_switch,
+		screen_move_info,
 		screen_move,
 		screen_move_x,
 		screen_move_y,
