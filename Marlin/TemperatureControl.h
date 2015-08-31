@@ -13,9 +13,18 @@ class TemperatureControl
 	public:
 		TemperatureControl();
 
-		float manageControl(float kp, float ki, float kb);
+		void manageControl();
+
+	public:
+		float m_control_output;
 
 	private:
+		float m_current_temperature;
+		uint16_t m_target_temperature;	
+		float m_kp;
+		float m_ki;
+		float m_kb;	
+		float m_control_output;
 
 };
 
