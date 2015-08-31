@@ -34,7 +34,9 @@ namespace screen
 	ScreenSwitch::ScreenSwitch(const char * title, Functor<bool>::FuncPtr fptr)
 		: ScreenAction<bool>(title, fptr)
 		, m_num_items(0)
-	{ }
+	{
+		m_type = SWITCH;
+	}
 
 	ScreenSwitch::~ScreenSwitch()
 	{ }
@@ -43,10 +45,14 @@ namespace screen
 	{
 		if( this->action() == true )
 		{
+			SERIAL_ECHOLN("ONE WAY");
+
 			ViewManager::getInstance().activeView(m_items[0]);
 		}
 		else
 		{
+			SERIAL_ECHOLN("OTHER WAY");
+
 			ViewManager::getInstance().activeView(m_items[1]);
 		}
 		
