@@ -1,12 +1,17 @@
-#include "TemperatureManager.h"
-#include "temperature.h"
-#include "TemperatureControl.h"
+#include "TemperatureManager.h" 
+#include "Configuration.h"
+
+#ifdef DOGLCD
+	#include "TemperatureControl.h"
+#else
+	#include "temperature.h"
+#endif
 
 TemperatureManager::TemperatureManager()
 	: Subject<float>()
 	, m_current_temperature(0)
-	, m_target_temperature(0)
 {
+	setTargetTemperature(0);
 #ifdef FAN_BOX_PIN
 	pinMode(FAN_BOX_PIN, OUTPUT);
 	digitalWrite(FAN_BOX_PIN, HIGH);
@@ -34,13 +39,20 @@ uint16_t TemperatureManager::getCurrentTemperature()
 
 void TemperatureManager::setTargetTemperature(uint16_t target)
 {
-	m_target_temperature = target;
-	target_temperature[0] = m_target_temperature;
+	#ifdef DOGLCD
+		m_control->setTargetControl(target);
+	#else
+		target_temperature[0] = target;
+	#endif
 }
 
 uint16_t TemperatureManager::getTargetTemperature()
 {
-	return m_target_temperature;
+	#ifdef DOGLCD
+		return m_control->getTargetControl();
+	#else
+		return target_temperature[0];
+	#endif
 }
 
 void TemperatureManager::notify()

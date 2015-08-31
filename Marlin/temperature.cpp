@@ -33,6 +33,7 @@
 #include "ultralcd.h"
 #include "temperature.h"
 #include "watchdog.h"
+#include "TemperatureManager.h"
 
 #include "Sd2PinMap.h"
 
@@ -146,7 +147,6 @@ static volatile bool temp_meas_ready = false;
   float Kp = DEFAULT_Kp;
   float Ki = DEFAULT_Ki * PID_dT;
   float Kd = DEFAULT_Kd / PID_dT;
-  float Kb = DEFAULT_Kb * PID_dT;
   #ifdef PID_ADD_EXTRUSION_RATE
     float Kc = DEFAULT_Kc;
   #endif // PID_ADD_EXTRUSION_RATE

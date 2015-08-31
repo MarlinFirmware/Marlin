@@ -6,6 +6,8 @@
 #include "Singleton.h"
 #include "Subject.h"
 
+class TemperatureControl;
+
 class TemperatureManager : public Subject<float>
 {
 	public:
@@ -22,7 +24,7 @@ class TemperatureManager : public Subject<float>
 
 	private:
 		float m_current_temperature;
-		uint16_t m_target_temperature;
+		TemperatureControl * m_control;
 };
 
 #endif //TEMPERATURE_MANAGER_H

@@ -1,12 +1,27 @@
 #include "TemperatureControl.h"
-#include "temperature.h"
+#include "Configuration.h"
 
 TemperatureControl::TemperatureControl()
+	: m_current_temperature(0)
+	, m_target_temperature(0)
+	, m_control_output(0)
 {
 	m_kp = DEFAULT_Kp; 
 	m_ki = DEFAULT_Ki * PID_dT;
 	m_kb = DEFAULT_Kb * PID_dT;
-	m_control_output = 0;
+}
+
+TemperatureControl::~TemperatureControl()
+{ }
+
+void TemperatureControl::setTargetControl(uint16_t target)
+{
+	m_target_temperature = target;
+}
+
+uint16_t TemperatureControl::getTargetControl()
+{
+	return m_target_temperature;
 }
 
 void TemperatureControl::manageControl()
@@ -22,7 +37,7 @@ void TemperatureControl::manageControl()
 	static uint16_t max_time = 0;
 
 
-	control_input = constrain (getTargetTemperature(), 0, HEATER_0_MAXTEMP);
+	control_input = constrain (m_target_temperature, 0, HEATER_0_MAXTEMP);
 
 	if (control_input <= HEATER_0_MINTEMP)
 	{
@@ -32,8 +47,8 @@ void TemperatureControl::manageControl()
 	else
 	{
 		error = control_input - m_current_temperature;
-		pTerm = kp * error;
-		iTerm += error * ki + bTerm;
+		pTerm = m_kp * error;
+		iTerm += error * m_ki + bTerm;
 		control_output_temp = pTerm + iTerm;
 		
 		if ( control_output_temp >= PID_MAX )
@@ -49,7 +64,7 @@ void TemperatureControl::manageControl()
 			m_control_output = control_output_temp;
 		}
 
-		bTerm = kb * ( m_control_output - control_output_temp );
+		bTerm = m_kb * ( m_control_output - control_output_temp );
 	}
 	/*SERIAL_ECHO("PID_INPUT: ");
 	SERIAL_ECHOLN(control_input);
@@ -61,7 +76,7 @@ void TemperatureControl::manageControl()
 	SERIAL_ECHOLN(pTerm);
 	SERIAL_ECHO("I_term: ");
 	SERIAL_ECHOLN(iTerm);
-	SERIAL_ECHO("Ki*error: ");
+	SERIAL_ECHO("m_ki*error: ");
 	SERIAL_ECHOLN(Ki*error);
 	SERIAL_ECHO("B_term: ");
 	SERIAL_ECHOLN(bTerm);*/
@@ -74,6 +89,4 @@ void TemperatureControl::manageControl()
 	SERIAL_ECHOLN("max_time: ");
 	SERIAL_ECHOLN(max_time);	
 	SERIAL_ECHOLN(" ");	*/
-
-	return m_control_output;
 }

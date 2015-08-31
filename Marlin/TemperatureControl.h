@@ -3,16 +3,14 @@
 
 #include <stdint.h>
 
-#include "Singleton.h"
-
 class TemperatureControl 
 {
 	public:
-		typedef Singleton<TemperatureControl> single;
-
-	public:
 		TemperatureControl();
+		~TemperatureControl();
 
+		void setTargetControl(uint16_t target);
+		uint16_t getTargetControl();
 		void manageControl();
 
 	public:
@@ -24,7 +22,6 @@ class TemperatureControl
 		float m_kp;
 		float m_ki;
 		float m_kb;	
-		float m_control_output;
 
 };
 
