@@ -14,7 +14,7 @@
  *
  */
 
-#define EEPROM_VERSION "V20"
+#define EEPROM_VERSION "V21"
 
 /**
  * V19 EEPROM Layout:
@@ -60,6 +60,7 @@
  *  M301 E1 PIDC  Kp[1], Ki[1], Kd[1], Kc[1]
  *  M301 E2 PIDC  Kp[2], Ki[2], Kd[2], Kc[2]
  *  M301 E3 PIDC  Kp[3], Ki[3], Kd[3], Kc[3]
+ *  M301 L        lpq_len
  *
  * PIDTEMPBED:
  *  M304 PID  bedKp, bedKi, bedKd
@@ -227,6 +228,11 @@ void Config_StoreSettings()  {
 
   } // Extruders Loop
 
+  #if DISABLED(PID_ADD_EXTRUSION_RATE)
+    int lpq_len = 20;
+  #endif
+  EEPROM_WRITE_VAR(i, lpq_len);
+
   #if DISABLED(PIDTEMPBED)
     float bedKp = DUMMY_PID_VALUE, bedKi = DUMMY_PID_VALUE, bedKd = DUMMY_PID_VALUE;
   #endif
@@ -393,6 +399,11 @@ void Config_RetrieveSettings() {
       for (int q=16; q--;) EEPROM_READ_VAR(i, dummy);  // 4x Kp, Ki, Kd, Kc
     #endif // !PIDTEMP
 
+    #if DISABLED(PID_ADD_EXTRUSION_RATE)
+      int lpq_len;
+    #endif
+    EEPROM_READ_VAR(i, lpq_len);
+
     #if DISABLED(PIDTEMPBED)
       float bedKp, bedKi, bedKd;
     #endif
@@ -539,6 +550,9 @@ void Config_ResetDefault() {
         PID_PARAM(Kc, e) = DEFAULT_Kc;
       #endif
     }
+    #if ENABLED(PID_ADD_EXTRUSION_RATE)
+      lpq_len = 20; // default last-position-queue size
+    #endif
     // call updatePID (similar to when we have processed M301)
     updatePID();
   #endif // PIDTEMP
@@ -744,7 +758,8 @@ void Config_PrintSettings(bool forReplay) {
             SERIAL_ECHOPAIR(" D", unscalePID_d(PID_PARAM(Kd, i)));
             #if ENABLED(PID_ADD_EXTRUSION_RATE)
               SERIAL_ECHOPAIR(" C", PID_PARAM(Kc, i));
-            #endif      
+              if (i == 0) SERIAL_ECHOPAIR(" L", lpq_len);
+            #endif
             SERIAL_EOL;
           }
         }
@@ -758,7 +773,8 @@ void Config_PrintSettings(bool forReplay) {
         SERIAL_ECHOPAIR(" D", unscalePID_d(PID_PARAM(Kd, 0)));
         #if ENABLED(PID_ADD_EXTRUSION_RATE)
           SERIAL_ECHOPAIR(" C", PID_PARAM(Kc, 0));
-        #endif      
+          SERIAL_ECHOPAIR(" L", lpq_len);
+        #endif
         SERIAL_EOL;
       }
     #endif // PIDTEMP

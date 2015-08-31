@@ -99,6 +99,12 @@ static volatile bool temp_meas_ready = false;
   static float pTerm[EXTRUDERS];
   static float iTerm[EXTRUDERS];
   static float dTerm[EXTRUDERS];
+  #if ENABLED(PID_ADD_EXTRUSION_RATE)
+    static float cTerm[EXTRUDERS];
+    static long last_position[EXTRUDERS];
+    static long lpq[LPQ_MAX_LEN];
+    static int lpq_ptr = 0;
+  #endif
   //int output;
   static float pid_error[EXTRUDERS];
   static float temp_iState_min[EXTRUDERS];
@@ -357,6 +363,9 @@ void updatePID() {
   #if ENABLED(PIDTEMP)
     for (int e = 0; e < EXTRUDERS; e++) {
       temp_iState_max[e] = PID_INTEGRAL_DRIVE_MAX / PID_PARAM(Ki,e);
+      #if ENABLED(PID_ADD_EXTRUSION_RATE)
+        last_position[e] = 0;
+      #endif
     }
   #endif
   #if ENABLED(PIDTEMPBED)
@@ -497,6 +506,23 @@ float get_pid_output(int e) {
         iTerm[e] = PID_PARAM(Ki,e) * temp_iState[e];
 
         pid_output = pTerm[e] + iTerm[e] - dTerm[e];
+
+        #if ENABLED(PID_ADD_EXTRUSION_RATE)
+          cTerm[e] = 0;
+          if (e == active_extruder) {
+            long e_position = st_get_position(E_AXIS);
+            if (e_position > last_position[e]) {
+              lpq[lpq_ptr++] = e_position - last_position[e];
+              last_position[e] = e_position;
+            } else {
+              lpq[lpq_ptr++] = 0;
+            }
+            if (lpq_ptr >= lpq_len) lpq_ptr = 0;
+            cTerm[e] = (lpq[lpq_ptr] / axis_steps_per_unit[E_AXIS]) * Kc;
+            pid_output += cTerm[e];
+          }
+        #endif //PID_ADD_EXTRUSION_RATE
+
         if (pid_output > PID_MAX) {
           if (pid_error[e] > 0) temp_iState[e] -= pid_error[e]; // conditional un-integration
           pid_output = PID_MAX;
@@ -512,18 +538,16 @@ float get_pid_output(int e) {
 
     #if ENABLED(PID_DEBUG)
       SERIAL_ECHO_START;
-      SERIAL_ECHO(MSG_PID_DEBUG);
-      SERIAL_ECHO(e);
-      SERIAL_ECHO(MSG_PID_DEBUG_INPUT);
-      SERIAL_ECHO(current_temperature[e]);
-      SERIAL_ECHO(MSG_PID_DEBUG_OUTPUT);
-      SERIAL_ECHO(pid_output);
-      SERIAL_ECHO(MSG_PID_DEBUG_PTERM);
-      SERIAL_ECHO(pTerm[e]);
-      SERIAL_ECHO(MSG_PID_DEBUG_ITERM);
-      SERIAL_ECHO(iTerm[e]);
-      SERIAL_ECHO(MSG_PID_DEBUG_DTERM);
-      SERIAL_ECHOLN(dTerm[e]);
+      SERIAL_ECHOPAIR(MSG_PID_DEBUG, e);
+      SERIAL_ECHOPAIR(MSG_PID_DEBUG_INPUT, current_temperature[e]);
+      SERIAL_ECHOPAIR(MSG_PID_DEBUG_OUTPUT, pid_output);
+      SERIAL_ECHOPAIR(MSG_PID_DEBUG_PTERM, pTerm[e]);
+      SERIAL_ECHOPAIR(MSG_PID_DEBUG_ITERM, iTerm[e]);
+      SERIAL_ECHOPAIR(MSG_PID_DEBUG_DTERM, dTerm[e]);
+      #if ENABLED(PID_ADD_EXTRUSION_RATE)
+        SERIAL_ECHOPAIR(MSG_PID_DEBUG_CTERM, cTerm[e]);
+      #endif
+      SERIAL_EOL;
     #endif //PID_DEBUG
 
   #else /* PID off */
@@ -837,6 +861,9 @@ void tp_init() {
     #if ENABLED(PIDTEMP)
       temp_iState_min[e] = 0.0;
       temp_iState_max[e] = PID_INTEGRAL_DRIVE_MAX / PID_PARAM(Ki,e);
+      #if ENABLED(PID_ADD_EXTRUSION_RATE)
+        last_position[e] = 0;
+      #endif
     #endif //PIDTEMP
     #if ENABLED(PIDTEMPBED)
       temp_iState_min_bed = 0.0;
