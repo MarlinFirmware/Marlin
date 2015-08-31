@@ -34,9 +34,6 @@
 #include "temperature.h"
 #include "watchdog.h"
 
-#ifdef DOGLCD
-#include "TemperatureManager.h"
-#endif
 #include "Sd2PinMap.h"
 
 
@@ -508,9 +505,6 @@ void manage_heater()
     pid_input = current_temperature[e];
 
     #ifndef PID_OPENLOOP
-      #ifdef DOGLCD
-        pid_output = TemperatureManager::single::instance().manageControl(Kp, Ki, Kb);
-      #else //DOGLCD
         pid_error[e] = target_temperature[e] - pid_input;
         if(pid_error[e] > PID_FUNCTIONAL_RANGE) {
           pid_output = BANG_MAX;
@@ -543,7 +537,6 @@ void manage_heater()
           }
         }
         temp_dState[e] = pid_input;
-      #endif //DOGLCD
     #else 
           pid_output = constrain(target_temperature[e], 0, PID_MAX);
     #endif //PID_OPENLOOP
@@ -818,9 +811,7 @@ static void updateTemperaturesFromRawValues()
         current_temperature[e] = analog2temp(current_temperature_raw[e], e);
     }
 
-#ifdef DOGLCD
     TemperatureManager::single::instance().updateCurrentTemperature(current_temperature[0]);
-#endif
 
     current_temperature_bed = analog2tempBed(current_temperature_bed_raw);
     #ifdef TEMP_SENSOR_1_AS_REDUNDANT
@@ -839,23 +830,14 @@ static void updateTemperaturesFromRawValues()
 
 void setTargetHotend(const float &celsius, uint8_t extruder)
 {
-#ifdef DOGLCD
   if (extruder == 0)
   {
     TemperatureManager::single::instance().setTargetTemperature((uint16_t) celsius);
   }
   else
-#endif
   {
     target_temperature[extruder] = celsius;
   }
-
-#ifdef WITBOX_CE
-  if (celsius > 0)
-    OCR3BL = 204;   // Fan speed set to the 80% (100% = 255)
-  else
-    OCR3BL = 0;     // Stop the fan
-#endif // WITBOX_CE
 };
 
 
@@ -1218,10 +1200,6 @@ void thermal_runaway_protection(int *state, unsigned long *timer, float temperat
 
 void disable_heater()
 {
-#ifdef DOGLCD
-  TemperatureManager::single::instance().setTargetTemperature(0);
-#endif
-
   for(int i=0;i<EXTRUDERS;i++)
     setTargetHotend(0,i);
   setTargetBed(0);

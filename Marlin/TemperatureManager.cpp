@@ -1,5 +1,6 @@
 #include "TemperatureManager.h"
 #include "temperature.h"
+#include "TemperatureControl.h"
 
 TemperatureManager::TemperatureManager()
 	: Subject<float>()
