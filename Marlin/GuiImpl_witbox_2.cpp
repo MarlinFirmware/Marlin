@@ -892,7 +892,7 @@ namespace screen
 
 	static ScreenSerial * make_screen_serial()
 	{
-		ScreenSerial * local_view = new ScreenSerial(MSG_SCREEN_SERIAL_TITLE());
+		ScreenSerial * local_view = new ScreenSerial(MSG_SCREEN_SERIAL_TITLE(), NULL);
 		return local_view;
 	}
 
