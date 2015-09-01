@@ -9,6 +9,17 @@ namespace screen
 	typedef enum
 	{
 		screen_splash = 0,
+		screen_wizard_language,
+		screen_wizard_step1,
+		screen_wizard_step2,
+		screen_wizard_offset_home,
+		screen_wizard_offset_calculate,
+		screen_wizard_offset_info,
+		screen_wizard_offset_set,
+		screen_wizard_offset_save,
+		screen_wizard_offset_finish,
+		screen_wizard_step3,
+		screen_wizard_step4,
 		screen_emergency,
 		screen_main,
 		screen_SD_list,

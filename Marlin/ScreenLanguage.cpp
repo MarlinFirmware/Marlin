@@ -33,7 +33,7 @@ namespace screen
 	ScreenLanguage::ScreenLanguage(const char * title, Language dflt)
 		: Screen(title, SELECTOR)
 		, m_default(dflt)
-		, m_language(0)
+		, m_language((uint8_t)dflt)
 	{ }
 
 	ScreenLanguage::~ScreenLanguage()
@@ -56,31 +56,22 @@ namespace screen
 
 	void ScreenLanguage::left()
 	{
-		if (m_language != m_min)
+		if (m_language > m_min)
 		{
-			m_language--;
+			--m_language;
+			LANG = static_cast<Language>(m_language);
 			m_needs_drawing = true;
-		}
-
-		if (m_language < m_min)
-		{
-			m_language = m_min;
 		}
 	}
 
 	void ScreenLanguage::right()
 	{
-		if (m_language != m_max)
+		if (m_language < m_max)
 		{
-			m_language++;
+			++m_language;
+			LANG = static_cast<Language>(m_language);
 			m_needs_drawing = true;
 		}
-
-		if (m_language > m_max)
-		{
-			m_language = m_max;
-		}
-
 	}
 
 	void ScreenLanguage::draw()
@@ -92,7 +83,7 @@ namespace screen
 			painter.firstPage();
 			do
 			{
-				painter.title(m_title);
+				painter.title(MSG_SCREEN_WIZARD_SELECT());
 				painter.box(MSG_PUSH_TO_CONFIRM());
 
 				uint8_t x_init = painter.coordinateXInit();
@@ -109,31 +100,24 @@ namespace screen
 				switch(m_language)
 				{
 					case 0:
-						LANG = Language::EN;
 						strcpy_P(value, MSG_SCREEN_WIZARD_LANGUAGE());
 						break;
 					case 1:
-						LANG = Language::ES;
 						strcpy_P(value, MSG_SCREEN_WIZARD_LANGUAGE());
 						break;
 					case 2:
-						LANG = Language::DE;
 						strcpy_P(value, MSG_SCREEN_WIZARD_LANGUAGE());
 						break;
 					case 3:
-						LANG = Language::FR;
 						strcpy_P(value, MSG_SCREEN_WIZARD_LANGUAGE());
 						break;
 					case 4:
-						LANG = Language::PT;
 						strcpy_P(value, MSG_SCREEN_WIZARD_LANGUAGE());
 						break;
 					case 5:
-						LANG = Language::IT;
 						strcpy_P(value, MSG_SCREEN_WIZARD_LANGUAGE());
 						break;
 					case 6:
-						LANG = Language::PL;
 						strcpy_P(value, MSG_SCREEN_WIZARD_LANGUAGE());
 						break;
 				}
@@ -154,12 +138,8 @@ namespace screen
 					strcat(info, " >");
 				}
 				
-				Area info_area(0, ((y_end + y_init)/2 - 9/2 - 2), 128, 9);
+				Area info_area(0, ((y_end + y_init)/2 - 9/2), 128, 9);
 				painter.setWorkingArea(info_area);
-				painter.text_P(MSG_SCREEN_WIZARD_SELECT());
-
-				Area select_area(0, ((y_end + y_init)/2 + 9/2 + 2), 128, 9);
-				painter.setWorkingArea(select_area);
 				painter.text(info);
 
 			} while( painter.nextPage() );

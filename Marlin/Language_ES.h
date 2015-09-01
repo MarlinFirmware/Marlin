@@ -119,9 +119,8 @@ const char ES_SCREEN_WIZARD_SELECT[] PROGMEM            = "Selecciona idioma";
 const char ES_SCREEN_WIZARD_LANGUAGE[] PROGMEM          = "Español";
 const char ES_SCREEN_WIZARD_TEXT1[] PROGMEM             = "Bienvenido! Vamos a empezar preparando la impesora";
 const char ES_SCREEN_WIZARD_TEXT2[] PROGMEM             = "Comencemos ajustando el offset para el nivelado del plato";
-const char ES_SCREEN_WIZARD_TEXT3[] PROGMEM             = "Ahora, vamos a nivelar el plato";
-const char ES_SCREEN_WIZARD_TEXT4[] PROGMEM             = "Por ultimo vamos a cargar el filamento";
-const char ES_SCREEN_WIZARD_TEXT5[] PROGMEM             = "Recuerda mantener el extrusor y la base libre de residuos";
+const char ES_SCREEN_WIZARD_TEXT3[] PROGMEM             = "Recuerda mantener el extrusor y la base libre de residuos";
+const char ES_SCREEN_WIZARD_TEXT4[] PROGMEM             = "Disfruta de tu  " MACHINE_NAME "! Si puedes imaginarlo puedes hacerlo";
 const char ES_ICON_SD_NOSD[] PROGMEM                    = "Inserta tarjeta SD";
 const char ES_ICON_SD_SD[] PROGMEM                      = "Imprimir desde SD";
 const char ES_ICON_FILAMENT_UNLOAD[] PROGMEM            = "Retirar filamento";
@@ -158,6 +157,7 @@ const char ES_PUSH_TO_CONFIRM[] PROGMEM                 = "Pulsa para confirmar"
 const char ES_PUSH_TO_CONTINUE[] PROGMEM                = "Pulsa para continuar";
 const char ES_PUSH_TO_START[] PROGMEM                   = "Pulsa para comenzar";
 const char ES_PUSH_TO_BACK[] PROGMEM                    = "Pulsa para volver";
+const char ES_PUSH_TO_FINISH[] PROGMEM                  = "Pulsa para finalizar";
 const char ES_PLEASE_WAIT[] PROGMEM                     = "Por favor, espera";
 
 #endif //LANGUAGE_ES_H
