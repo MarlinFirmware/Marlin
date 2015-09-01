@@ -55,6 +55,7 @@
 #include "planner.h"
 #include "stepper.h"
 #include "temperature.h"
+#include "TemperatureManager.h"
 #include "ultralcd.h"
 #include "Serial.h"
 
@@ -553,7 +554,7 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
   {
     next_buffer_head = next_block_index(block_buffer_head);
 
-    manage_heater(); 
+    TemperatureManager::single::instance().manageTemperatureControl(); 
     manage_inactivity(); 
     lcd_update();
 

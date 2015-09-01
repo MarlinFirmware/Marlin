@@ -11,7 +11,7 @@ TemperatureManager::TemperatureManager()
 	: Subject<float>()
 	, m_current_temperature(0)
 {
-	setTargetTemperature(0);
+setTargetTemperature(0);
 #ifdef FAN_BOX_PIN
 	pinMode(FAN_BOX_PIN, OUTPUT);
 	digitalWrite(FAN_BOX_PIN, HIGH);
@@ -61,4 +61,13 @@ void TemperatureManager::notify()
 	{
 		this->m_observer->update(m_current_temperature);
 	}
+}
+
+void TemperatureManager::manageTemperatureControl()
+{
+	#ifdef DOGLCD
+		m_control->manageControl();
+	#else
+		manage_heater();
+	#endif
 }

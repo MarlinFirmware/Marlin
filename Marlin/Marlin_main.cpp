@@ -36,10 +36,10 @@
 
 #include "planner.h"
 #include "stepper.h"
-#include "temperature.h"
 #include "motion_control.h"
 #include "cardreader.h"
 #include "watchdog.h"
+#include "temperature.h"
 #include "ConfigurationStore.h"
 #include "Serial.h"
 #include "pins_arduino.h"
@@ -68,6 +68,7 @@
   #include "ultralcd.h"
 #endif
 
+#include "TemperatureManager.h"
 #include "AutoLevelManager.h"
 
 #include "Action.h"
@@ -782,7 +783,7 @@ void loop()
     bufindr = (bufindr + 1)%BUFSIZE;
   }
   //check heater every n milliseconds
-  manage_heater();
+  TemperatureManager::single::instance().manageTemperatureControl();
   manage_inactivity();
   checkHitEndstops();
   lcd_update();
@@ -1535,7 +1536,7 @@ void process_commands()
       codenum += millis();  // keep track of when we started waiting
       previous_millis_cmd = millis();
       while(millis() < codenum) {
-        manage_heater();
+        TemperatureManager::single::instance().manageTemperatureControl();
         manage_inactivity();
       }
       break;
@@ -1659,13 +1660,13 @@ void process_commands()
         codenum += millis();  // keep track of when we started waiting
 					lcd_enable_button();
 					while(millis()  < codenum && !LCD_CLICKED) {
-          manage_heater();
+          TemperatureManager::single::instance().manageTemperatureControl();
         }
 					lcd_disable_button();
       }else{
 					lcd_enable_button();
 					while(!LCD_CLICKED){
-          manage_heater();
+          TemperatureManager::single::instance().manageTemperatureControl();
         }
 					lcd_disable_button();
       }
@@ -1751,7 +1752,7 @@ void process_commands()
 #ifndef DOGLCD
   			while(!LCD_CLICKED){
 					lcd_update();
-					manage_heater();
+					TemperatureManager::single::instance().manageTemperatureControl();
 					plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], 5, active_extruder);
 					st_synchronize();
 				}
@@ -2320,7 +2321,7 @@ Sigma_Exit:
             #endif
             codenum = millis();
           }
-          manage_heater();
+          TemperatureManager::single::instance().manageTemperatureControl();
           manage_inactivity();
           lcd_update();
         #ifdef TEMP_RESIDENCY_TIME
@@ -2375,7 +2376,7 @@ Sigma_Exit:
             SERIAL_PROTOCOLLN("");
             codenum = millis();
           }
-          manage_heater();
+          TemperatureManager::single::instance().manageTemperatureControl();
           manage_inactivity();
           lcd_update();
         }
@@ -2907,7 +2908,7 @@ Sigma_Exit:
             }
 
             while(digitalRead(pin_number) != target){
-              manage_heater();
+              TemperatureManager::single::instance().manageTemperatureControl();
               manage_inactivity();
             }
           }
@@ -3429,7 +3430,7 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
 
   			lcd_clear_triggered_flags();
   			while (!LCD_CLICKED){
-  			 manage_heater();
+  			 TemperatureManager::single::instance().manageTemperatureControl();
         }
 
   			lcd_wizard_set_page(1);
@@ -3470,7 +3471,7 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
 
   			lcd_clear_triggered_flags();
   			while (!LCD_CLICKED){
-          manage_heater();
+          TemperatureManager::single::instance().manageTemperatureControl();
   			}
 
   			lcd_wizard_set_page(3);
@@ -3479,7 +3480,7 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
 
   			lcd_clear_triggered_flags();
   			while (!LCD_CLICKED) {
-    			manage_heater();
+    			TemperatureManager::single::instance().manageTemperatureControl();
     			current_position[E_AXIS]+=0.04;
     			plan_buffer_line(target[X_AXIS], target[Y_AXIS], target[Z_AXIS],current_position[E_AXIS], feedrate/60, active_extruder);
     			st_synchronize();
@@ -3569,7 +3570,7 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
 
     			lcd_clear_triggered_flags();
   				while(!LCD_CLICKED) {
-      				manage_heater();
+      				TemperatureManager::single::instance().manageTemperatureControl();
     			}
 
           //point 1
@@ -3738,7 +3739,7 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
           action_level_plate();
     			lcd_clear_triggered_flags();
     			while(!LCD_CLICKED) {          
-      				manage_heater();
+      				TemperatureManager::single::instance().manageTemperatureControl();
     			}
 
           //point 2
@@ -3748,7 +3749,7 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
           action_level_plate();
     			lcd_clear_triggered_flags();
   				while(!LCD_CLICKED) {
-  	  				manage_heater();
+  	  				TemperatureManager::single::instance().manageTemperatureControl();
   	  				manage_inactivity();
   				}
   				
@@ -3759,7 +3760,7 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
           action_level_plate();
     			lcd_clear_triggered_flags();
   	 			while(!LCD_CLICKED) {
-  	  				manage_heater();
+  	  				TemperatureManager::single::instance().manageTemperatureControl();
   	  				manage_inactivity();
   				}
 
@@ -3771,7 +3772,7 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
             action_level_plate();
             lcd_clear_triggered_flags();
             while(!LCD_CLICKED){
-                manage_heater();
+                TemperatureManager::single::instance().manageTemperatureControl();
                 manage_inactivity();
             }
           #else
@@ -3781,7 +3782,7 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
             action_level_plate();
             lcd_clear_triggered_flags();
             while(!LCD_CLICKED){
-                manage_heater();
+                TemperatureManager::single::instance().manageTemperatureControl();;
                 manage_inactivity();
             }
 
@@ -3791,7 +3792,7 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
             action_level_plate();
             lcd_clear_triggered_flags();
             while(!LCD_CLICKED){
-                manage_heater();
+                TemperatureManager::single::instance().manageTemperatureControl();
                 manage_inactivity();
             }
           #endif
