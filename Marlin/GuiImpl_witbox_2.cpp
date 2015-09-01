@@ -183,7 +183,7 @@ namespace screen
 
 	static ScreenList * make_screen_SD_list()
 	{
-		ScreenList * local_view = new ScreenList(MSG_SCREEN_SD_LIST_TITLE());
+		ScreenList * local_view = new ScreenList(MSG_SCREEN_SD_LIST_TITLE(), &SDManager::single::instance());
 		local_view->add(screen_main);
 		local_view->add(screen_SD_confirm);
 		return local_view;
