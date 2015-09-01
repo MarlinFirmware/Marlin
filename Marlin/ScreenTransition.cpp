@@ -90,7 +90,7 @@ namespace screen
 		{
 			case HOMING:
 			case LEVELING:
-				strcpy_P(m_message, MSG_SCREEN_AUTOHOME_TEXT());
+				strcpy_P(m_message, MSG_SCREEN_AUTOHOME_HOMING_TEXT());
 				break;
 			case HEATING:
 				strcpy_P(m_message, MSG_PLEASE_WAIT());
