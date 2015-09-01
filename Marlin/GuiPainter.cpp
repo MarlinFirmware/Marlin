@@ -185,7 +185,7 @@ namespace screen
 
 	void GuiPainter::multiText(const char * msg)
 	{
-		if ( (msg != NULL) && (strlen_P(msg) > 0) )
+		if ( (msg != NULL) && (strlen(msg) > 0) )
 		{
 			Area save_working_area = m_working_area;
 
