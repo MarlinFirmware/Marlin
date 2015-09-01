@@ -1,12 +1,6 @@
 #ifndef LANGUAGE_H
 #define LANGUAGE_H
 
-#define MACHINE_NAME "Witbox"
-#define FIRMWARE_URL "http://www.bq.com/gb/support/witbox"
-#define SOURCE_CODE_URL "http://github.com/bq/Marlin"
-#define FIRMWARE_VER "2.0.0"
-#define BUILD_VER ""
-
 #ifndef LANGUAGE_CHOICE
        #define LANGUAGE_CHOICE 1  // Pick your language from the list above
 #endif
