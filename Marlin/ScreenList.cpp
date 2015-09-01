@@ -29,48 +29,15 @@
 #include "cardreader.h"
 #include "Language.h"
 
-State_t state;
-Event_t event;
-
-State_func_t * const state_table[NUM_STATES] =
-{
-	do_state_prepare,
-	do_state_paint
-};
-
-State_t run_state(State_t current_state, Event_t event)
-{
-	return state_table[current_state](event);
-};
-
-State_t do_state_prepare(Event_t event)
-{
-	if (event == EVENT_PREPARED)
-		return STATE_PAINT;
-
-	return STATE_PREPARE;
-}
-
-State_t do_state_paint(Event_t event)
-{
-	if (event == EVENT_KEYPRESS)
-		return STATE_PREPARE;
-
-	if (event == EVENT_SDCHANGED)
-		return STATE_PREPARE;
-
-	return STATE_PAINT;
-}
-
-
 namespace screen
 {
 	uint8_t ScreenList::directory_index = 0;
 	uint8_t ScreenList::directory_array[10] = { 0 };
 	bool ScreenList::from_updir = false;
 
-	ScreenList::ScreenList(const char * title)
+	ScreenList::ScreenList(const char * title, Subject<SDState_t> * model)
 		: Screen(title, LIST)
+		, Observer<SDState_t>(model)
 		, m_index(0)
 		, m_icon_index(0)
 		, m_num_list(0)
@@ -78,11 +45,84 @@ namespace screen
 	{
 		memset(m_directory, 0, sizeof(m_directory));
 		m_directory_is_root = false;
-		state = STATE_PREPARE;
 	}
 
 	ScreenList::~ScreenList()
 	{ }
+
+	void ScreenList::init(uint16_t index)
+	{
+		if(SDManager::single::instance().getSDStatus() == SD_IS_NOT_INSERTED)
+		{
+			card.release();
+
+			m_num_list = 1;
+			m_index = 0;
+			m_directory_is_root = true;
+			m_scroll_size = 47;
+
+			ViewManager::getInstance().activeView(m_back_screen);
+		}
+		else
+		{
+			if(!SDManager::single::instance().getSDInit())
+			{
+				card.initsd();
+				SDManager::single::instance().setSDInit(true);
+			}
+
+			m_num_list = card.getnrfilenames();
+			m_index = 0;
+
+			card.getWorkDirName();
+			strncpy(m_directory, card.filename, 19);
+			m_directory[19] = '\0';
+
+			if (card.filename[0] != '/')
+			{
+				if(from_updir)
+				{
+					if(directory_index > 0)
+					{
+						char prev_folder[20];
+						strncpy(prev_folder, card.filename, 19);
+						card.updir();
+						card.getfilename(directory_array[directory_index-1]-1);
+						if ( (card.longFilename != NULL) && (strlen(card.longFilename) > 0) )
+						{
+							strncpy(m_directory, card.longFilename, sizeof(m_directory));
+						}
+						else
+						{
+							strncpy(m_directory, card.filename, sizeof(m_directory));
+						}
+						card.chdir(prev_folder);
+						painter.print(m_directory);
+						from_updir = false;
+					}
+				}
+				else
+				{
+					if ( (card.folderName != NULL) && (strlen(card.folderName) > 0) )
+					{
+						strncpy(m_directory, card.folderName, 19);
+					}
+					else
+					{
+						strncpy(m_directory, card.filename, 19);
+					}
+				}
+				m_directory_is_root = false;
+			}
+			else
+			{
+				m_directory_is_root = true;
+			}
+
+			m_num_list++;
+			m_scroll_size = (float) 47 / m_num_list;
+		}
+	}
 
 	void ScreenList::left()
 	{
@@ -110,75 +150,6 @@ namespace screen
 
 	void ScreenList::draw()
 	{
-		// Check if the SD card has been inserted/removed.
-		updateSdcardStatus();
-
-		if (state == STATE_PREPARE)
-		{
-			if (m_sdcard_inserted == true)
-			{
-				m_num_list = card.getnrfilenames();
-				m_index = 0;
-
-				card.getWorkDirName();
-				strncpy(m_directory, card.filename, 19);
-				m_directory[19] = '\0';
-
-				if (card.filename[0] != '/')
-				{
-					if(from_updir)
-					{
-						if(directory_index > 0)
-						{
-							char prev_folder[20];
-							strncpy(prev_folder, card.filename, 19);
-							card.updir();
-							card.getfilename(directory_array[directory_index-1]-1);
-							if ( (card.longFilename != NULL) && (strlen(card.longFilename) > 0) )
-							{
-								strncpy(m_directory, card.longFilename, sizeof(m_directory));
-							}
-							else
-							{
-								strncpy(m_directory, card.filename, sizeof(m_directory));
-							}
-							card.chdir(prev_folder);
-							painter.print(m_directory);
-							from_updir = false;
-						}
-					}
-					else
-					{
-						if ( (card.folderName != NULL) && (strlen(card.folderName) > 0) )
-						{
-							strncpy(m_directory, card.folderName, 19);
-						}
-						else
-						{
-							strncpy(m_directory, card.filename, 19);
-						}
-					}
-					m_directory_is_root = false;
-				}
-				else
-				{
-					m_directory_is_root = true;
-				}
-
-				m_num_list++;
-
-				m_scroll_size = (float) 47 / m_num_list;
-			}
-			else
-			{
-				m_num_list = 1;
-				m_index = 0;
-				m_directory_is_root = true;
-				m_scroll_size = 47;
-			}
-			state = run_state(state, EVENT_PREPARED);
-		}
-
 		painter.firstPage();
 		do
 		{
@@ -299,8 +270,6 @@ namespace screen
 
 	void ScreenList::press()
 	{
-		state = run_state(state, EVENT_KEYPRESS);
-
 		if (m_index == 0)
 		{
 			if (m_directory_is_root == true)
@@ -351,21 +320,12 @@ namespace screen
 		m_num_item_added++;
 	}
 
-	void ScreenList::updateSdcardStatus()
+	void ScreenList::update(SDState_t state)
 	{
-		if (m_sdcard_inserted != IS_SD_INSERTED)
+		if(state == SD_IS_NOT_INSERTED)
 		{
-			m_sdcard_inserted = IS_SD_INSERTED;
-
-			if (m_sdcard_inserted)
-			{
-				card.initsd();
-			}
-			else
-			{
-				card.release();
-			}
-			state = run_state(state, EVENT_SDCHANGED);
+			card.release();
+			ViewManager::getInstance().activeView(m_back_screen);
 		}
 	}
 }
