@@ -199,7 +199,7 @@ namespace screen
 		Icon * icon_back = new Icon(icon_size, bits_back_normal, bits_back_focused, MSG_BACK());
 		Icon * icon_ok = new Icon(icon_size, bits_ok_normal, bits_ok_focused, MSG_ICON_OK2());
 
-		ScreenFile * local_view = new ScreenFile(MSG_SCREEN_SD_LIST_CONFIRM());
+		ScreenFile * local_view = new ScreenFile(MSG_SCREEN_SD_LIST_CONFIRM(), &SDManager::single::instance());
 		local_view->add(screen_SD_list);
 		local_view->icon(icon_back);
 		local_view->add(screen_SD_OK);

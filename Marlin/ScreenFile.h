@@ -31,16 +31,20 @@
 #include <stdint.h>
 
 #include "ScreenMenu.h"
+#include "SDManager.h"
 
 namespace screen
 {
-	class ScreenFile : public ScreenMenu
+	class ScreenFile : public ScreenMenu , public Observer<SDState_t>
 	{
 		public:
-			ScreenFile(const char * title = 0);
+			ScreenFile(const char * title = 0, Subject<SDState_t> * model = 0);
 			virtual ~ScreenFile();
 
-			virtual void draw();
+			void draw();
+
+		private:
+			void update(SDState_t state);
 	};
 }
 #endif //SCREEN_FILE_H

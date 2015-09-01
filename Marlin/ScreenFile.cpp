@@ -28,11 +28,13 @@
 #include "ScreenFile.h"
 
 #include "cardreader.h"
+#include "GuiImpl_witbox_2.h"
 
 namespace screen
 {
-	ScreenFile::ScreenFile(const char * title)
+	ScreenFile::ScreenFile(const char * title , Subject<SDState_t> * model)
 		: ScreenMenu(title)
+		, Observer<SDState_t>(model)
 	{ }
 
 	ScreenFile::~ScreenFile()
@@ -158,6 +160,15 @@ namespace screen
 					}
 				}
 			} while( painter.nextPage() );
+		}
+	}
+
+	void ScreenFile::update(SDState_t state)
+	{
+		if(state == SD_IS_NOT_INSERTED)
+		{
+			card.release();
+			ViewManager::getInstance().activeView(screen_main);
 		}
 	}
 }
