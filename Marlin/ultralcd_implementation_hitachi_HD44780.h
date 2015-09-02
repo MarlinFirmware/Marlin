@@ -6,6 +6,8 @@
 * When selecting the Russian language, a slightly different LCD implementation is used to handle UTF8 characters.
 **/
 
+//  static int counts = 0;
+
 #ifndef REPRAPWORLD_KEYPAD
 extern volatile uint8_t buttons;  //the last checked buttons in a bit array.
 #else
@@ -525,11 +527,10 @@ static void lcd_implementation_status_screen()
     lcd.print('%');
 #  endif//SDSUPPORT
 # else//LCD_WIDTH > 19
-#  if EXTRUDERS > 1 && TEMP_SENSOR_BED != 0
+  #if EXTRUDERS > 1 && TEMP_SENSOR_BED != 0
     //If we both have a 2nd extruder and a heated bed, show the heated bed temp on the 2nd line on the left, as the first line is filled with extruder temps
     tHotend=int(degBed() + 0.5);
     tTarget=int(degTargetBed() + 0.5);
-
     lcd.setCursor(0, 1);
     lcd.print(LCD_STR_BEDTEMP[0]);
     lcd.print(itostr3(tHotend));
@@ -538,17 +539,26 @@ static void lcd_implementation_status_screen()
     lcd_printPGM(PSTR(LCD_STR_DEGREE " "));
     if (tTarget < 10)
         lcd.print(' ');
-#  else
+  #else
+  //counts++;
     lcd.setCursor(0,1);
-    lcd.print('X');
-    lcd.print(ftostr3(current_position[X_AXIS]));
-    lcd_printPGM(PSTR(" Y"));
-    lcd.print(ftostr3(current_position[Y_AXIS]));
-#  endif//EXTRUDERS > 1 || TEMP_SENSOR_BED != 0
+    lcd.print("X ");  
+
+    if(READ(X_MIN_PIN) != X_MIN_ENDSTOP_INVERTING) lcd.print("HIT");
+    else lcd.print(ftostr3(current_position[X_AXIS]));    
+    
+    lcd.print(" Y ");
+
+    if((READ(Y_MIN_PIN) != Y_MIN_ENDSTOP_INVERTING)) lcd.print("HIT");
+    else lcd.print(ftostr3(current_position[Y_AXIS]));    
+    
+  #endif//EXTRUDERS > 1 || TEMP_SENSOR_BED != 0
+
 # endif//LCD_WIDTH > 19
     lcd.setCursor(LCD_WIDTH - 8, 1);
-    lcd.print('Z');
-    lcd.print(ftostr32sp(current_position[Z_AXIS] + 0.00001));
+    lcd.print("Z ");
+    if((READ(Z_MIN_PIN) != Z_MIN_ENDSTOP_INVERTING)) lcd.print("HIT");
+    else lcd.print(ftostr32sp(current_position[Z_AXIS] + 0.00001));
 #endif//LCD_HEIGHT > 2
 
 #if LCD_HEIGHT > 3

@@ -47,6 +47,8 @@
 
 #include <inttypes.h>
 
+#define KEEP_SERVO_PIN_ASSIGNMENT 0 /* for when calling ::attach when you dont want to reassign the pin number */
+
 /*
  * Defines for 16 bit timers used with  Servo library
  *

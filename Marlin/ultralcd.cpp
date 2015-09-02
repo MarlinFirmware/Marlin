@@ -603,6 +603,28 @@ void lcd_cooldown()
     lcd_return_to_status();
 }
 
+char msg[20];
+
+#ifdef MANUAL_BED_LEVELING
+static void lcd_bedleveling_submenu()
+{
+   //   char cmd[30];
+ //   char* c;
+//    sprintf_P(cmd, PSTR("Extend %d"),servo_endstop_angles[Z_AXIS * 2 + 0]) );
+
+//   strcpy(msg,"Extend Z probe (");   
+//   strcat(msg,itostr3();
+//   strcat(msg,")");
+  
+  START_MENU();
+  MENU_ITEM(back,MSG_PREPARE,lcd_prepare_menu);
+  MENU_ITEM(gcode,MSG_MANUAL_BEDLEVEL, PSTR("G29"));
+  MENU_ITEM(gcode,MSG_EXTEND_Z_PROBE,PSTR("M401"));
+  MENU_ITEM(gcode,MSG_RETRACT_Z_PROBE,PSTR("M402"));
+  END_MENU();  
+}
+#endif
+
 static void lcd_prepare_menu()
 {
     START_MENU();
@@ -615,9 +637,12 @@ static void lcd_prepare_menu()
     MENU_ITEM(gcode, MSG_DISABLE_STEPPERS, PSTR("M84"));
     MENU_ITEM(gcode, MSG_AUTO_HOME, PSTR("G28"));
     MENU_ITEM(function, MSG_SET_HOME_OFFSETS, lcd_set_home_offsets);
-    //MENU_ITEM(gcode, MSG_SET_ORIGIN, PSTR("G92 X0 Y0 Z0"));
+    #ifdef MANUAL_BED_LEVELING
+    MENU_ITEM(submenu,"Bed Leveling...",lcd_bedleveling_submenu);    
+    #endif
+
 #if TEMP_SENSOR_0 != 0
-  #if TEMP_SENSOR_1 != 0 || TEMP_SENSOR_2 != 0 || TEMP_SENSOR_BED != 0
+  #if TEMP_SENSOR_1 != 0 || TEMP_SENSOR_2 != 0
     MENU_ITEM(submenu, MSG_PREHEAT_PLA, lcd_preheat_pla_menu);
     MENU_ITEM(submenu, MSG_PREHEAT_ABS, lcd_preheat_abs_menu);
   #else
@@ -625,6 +650,7 @@ static void lcd_prepare_menu()
     MENU_ITEM(function, MSG_PREHEAT_ABS, lcd_preheat_abs0);
   #endif
 #endif
+
     MENU_ITEM(function, MSG_COOLDOWN, lcd_cooldown);
 #if PS_ON_PIN > -1
     if (powersupply)

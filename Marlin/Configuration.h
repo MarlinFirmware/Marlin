@@ -1,6 +1,5 @@
 #ifndef CONFIGURATION_H
 #define CONFIGURATION_H
-
 #include "boards.h"
 
 //===========================================================================
@@ -36,27 +35,22 @@ Here are some standard links for getting your machine calibrated:
 //
 
 // @section info
-#define WILSON_TYPE
-
-#define NUM_AXIS 4
+#define WILSON_TYPE           // comment this out if not wilson
+//#define WILSON_II_TYPE        // comment this out if not wilson ii
+//#define MY_BEDLEVELING_DEFAULTS // comment this out to strip out all the bed leveling stuff
 
 // User-specified version info of this build to display in [Pronterface, etc] terminal window during
 // startup. Implementation of an idea by Prof Braino to inform user that any changes made to this
 // build by the user have been successfully uploaded into firmware.
 #define STRING_VERSION "1.0.3 dev"
 #define STRING_VERSION_CONFIG_H __DATE__ " " __TIME__ // build date and time
-#define STRING_CONFIG_H_AUTHOR "(none, default config)" // Who made the changes.
-#define STRING_SPLASH_LINE1 "v" STRING_VERSION // will be shown during bootup in line 1
-//#define STRING_SPLASH_LINE2 STRING_VERSION_CONFIG_H // will be shown during bootup in line2
-
-// @section machine
+#define STRING_CONFIG_H_AUTHOR "(mrice, default config)" // Who made the changes.
 
 // SERIAL_PORT selects which serial port should be used for communication with the host.
 // This allows the connection of wireless adapters (for instance) to non-default port pins.
 // Serial port 0 is still used by the Arduino bootloader regardless of this setting.
 // :[0,1,2,3,4,5,6,7]
 #define SERIAL_PORT 0
-
 
 // This determines the communication speed of the printer
 // :[2400,9600,19200,38400,57600,115200,250000]
@@ -73,7 +67,7 @@ Here are some standard links for getting your machine calibrated:
 
 // Optional custom name for your RepStrap or other custom machine
 // Displayed in the LCD "Ready" message
-#define CUSTOM_MACHINE_NAME "Wilson"
+#define CUSTOM_MACHINE_NAME "Wilson II"
 
 // Define this to set a unique identifier for this printer, (Used by some programs to differentiate between machines)
 // You can use an online service to generate a random UUID. (eg http://www.uuidgenerator.net/version4)
@@ -90,16 +84,14 @@ Here are some standard links for getting your machine calibrated:
 //#define EXTRUDER_OFFSET_Y {0.0, 5.00}  // (in mm) for each extruder, offset of the hotend on the Y axis
 
 //// The following define selects which power supply you have. Please choose the one that matches your setup
+// 0 = other (don't have power supply enable from arduino)
 // 1 = ATX
 // 2 = X-Box 360 203Watts (the blue wire connected to PS_ON and the red wire to VCC)
 // :{1:'ATX',2:'X-Box 360'}
-
-#define POWER_SUPPLY 1
+#define POWER_SUPPLY 0
 
 // Define this to have the electronics keep the power supply off on startup. If you don't know what this is leave it.
 // #define PS_DEFAULT_OFF
-
-// @section temperature
 
 //===========================================================================
 //============================= Thermal Settings ============================
@@ -272,7 +264,6 @@ Here are some standard links for getting your machine calibrated:
 #define PREVENT_LENGTHY_EXTRUDE
 
 #define EXTRUDE_MINTEMP 170
-#define EXTRUDE_MAXLENGTH (X_MAX_LENGTH+Y_MAX_LENGTH) //prevent extrusion of very large distances.
 
 //===========================================================================
 //============================= Thermal Runaway Protection ==================
@@ -329,16 +320,13 @@ your extruder heater takes 2 minutes to hit the target on heating.
 // @section homing
 
 // coarse Endstop Settings
-#define ENDSTOPPULLUPS // Comment this out (using // at the start of the line) to disable the endstop pullup resistors
+#define ENDSTOPPULLUPS // Yes, we want endstop pullups, so that when the switch is pushed and goes high-impedance, the pullup resistor will pull the pin high.
 
 #ifndef ENDSTOPPULLUPS
-  // fine endstop settings: Individual pullups. will be ignored if ENDSTOPPULLUPS is defined
+  // fine endstop settings: for weird situations
   // #define ENDSTOPPULLUP_XMAX
   // #define ENDSTOPPULLUP_YMAX
   // #define ENDSTOPPULLUP_ZMAX
-  // #define ENDSTOPPULLUP_XMIN
-  // #define ENDSTOPPULLUP_YMIN
-  // #define ENDSTOPPULLUP_ZMIN
   // #define ENDSTOPPULLUP_ZPROBE
 #endif
 
@@ -353,9 +341,8 @@ const bool Z_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the logic
 #define DISABLE_MAX_ENDSTOPS
 //#define DISABLE_MIN_ENDSTOPS
 
-// @section machine
 // If you want to enable the Z Probe pin, but disable its use, uncomment the line below.
-  // This only affects a Z Probe Endstop if you have separate Z min endstop as well and have
+// This only affects a Z Probe Endstop if you have separate Z min endstop as well and have
 // activated Z_PROBE_ENDSTOP below. If you are using the Z Min endstop on your Z Probe,
 // this has no effect.
 //#define DISABLE_Z_PROBE_ENDSTOP
@@ -372,28 +359,19 @@ const bool Z_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the logic
 #define DISABLE_X false
 #define DISABLE_Y false
 #define DISABLE_Z false
-
-// @section extruder
-
 #define DISABLE_E false // For all extruders
 #define DISABLE_INACTIVE_EXTRUDER true //disable only inactive extruders and keep active extruder enabled
-
-// @section machine
 
 // Invert the stepper direction. Change (or reverse the motor connector) if an axis goes the wrong way.
 #define INVERT_X_DIR false
 #define INVERT_Y_DIR false
 #define INVERT_Z_DIR true
 
-// @section extruder
-
 // For direct drive extruder v9 set to true, for geared extruder set to false.
 #define INVERT_E0_DIR true
 #define INVERT_E1_DIR false
 #define INVERT_E2_DIR false
 #define INVERT_E3_DIR false
-
-// @section homing
 
 // ENDSTOP SETTINGS:
 // Sets direction of endstops when homing; 1=MAX, -1=MIN
@@ -411,13 +389,9 @@ const bool Z_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the logic
 #define X_MIN_POS 0
 #define Y_MIN_POS 0
 #define Z_MIN_POS 0
-#define X_MAX_POS 210
-#define Y_MAX_POS 310
-#define Z_MAX_POS 200
-
-#define X_MAX_LENGTH (X_MAX_POS - X_MIN_POS)
-#define Y_MAX_LENGTH (Y_MAX_POS - Y_MIN_POS)
-#define Z_MAX_LENGTH (Z_MAX_POS - Z_MIN_POS)
+#define X_MAX_POS 200
+#define Y_MAX_POS 300
+#define Z_MAX_POS 195
 
 //===========================================================================
 //============================= Filament Runout Sensor ======================
@@ -433,7 +407,10 @@ const bool Z_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the logic
 //============================ Mesh Bed Leveling ============================
 //===========================================================================
 
-// #define MANUAL_BED_LEVELING  // Add display menu option for bed leveling
+#ifdef MY_BEDLEVELING_DEFAULTS
+ #define MANUAL_BED_LEVELING  // Add display menu option for bed leveling
+#endif
+ 
 // #define MESH_BED_LEVELING    // Enable mesh bed leveling
 
 #ifdef MANUAL_BED_LEVELING
@@ -455,8 +432,10 @@ const bool Z_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the logic
 //===========================================================================
 
 // @section bedlevel
+#ifdef MY_BEDLEVELING_DEFAULTS
+#define ENABLE_AUTO_BED_LEVELING // Delete the comment to enable (remove // at the start of the line)
+#endif
 
-//#define ENABLE_AUTO_BED_LEVELING // Delete the comment to enable (remove // at the start of the line)
 #define Z_PROBE_REPEATABILITY_TEST  // If not commented out, Z-Probe Repeatability test will be included if Auto Bed Leveling is Enabled.
 
 #ifdef ENABLE_AUTO_BED_LEVELING
@@ -506,7 +485,7 @@ const bool Z_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the logic
   // X and Y offsets must be integers
   #define X_PROBE_OFFSET_FROM_EXTRUDER -54     // Probe on: -left  +right
   #define Y_PROBE_OFFSET_FROM_EXTRUDER -7     // Probe on: -front +behind
-  #define Z_PROBE_OFFSET_FROM_EXTRUDER -7.7  // -below (always!) // mrice: for jhead use -18
+  #define Z_PROBE_OFFSET_FROM_EXTRUDER -7.7  // -below (always!) // mrice: for jhead use -18 for e3dlite use -7.7
 
   #define Z_RAISE_BEFORE_HOMING 10       // (in mm) Raise Z before homing (G28) for Probe Clearance.
                                         // Be sure you have this distance over your Z_MAX_POS in case
@@ -514,9 +493,10 @@ const bool Z_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the logic
   #define XY_TRAVEL_SPEED (100*60)         // X and Y axis travel speed between probes, in mm/min
 
   #define Z_RAISE_BEFORE_PROBING 15   //How much the extruder will be raised before traveling to the first probing point.
-  #define Z_RAISE_BETWEEN_PROBINGS 5  //How much the extruder will be raised when traveling from between next probing points
-  #define Z_RAISE_AFTER_PROBING 5    //How much the extruder will be raised after the last probing point.
-
+  #define Z_RAISE_BETWEEN_PROBINGS 15  //How much the extruder will be raised when traveling from between next probing points
+  #define Z_RAISE_AFTER_PROBING 15    //How much the extruder will be raised after the last probing point.
+  #define NO_RETRACT_BETWEEN_PROBINGS
+  
 //   #define Z_PROBE_END_SCRIPT "G1 Z10 F12000\nG1 X15 Y330\nG1 Z0.5\nG1 Z10" //These commands will be executed in the end of G29 routine.
                                                                             //Useful to retract a deployable probe.
                                                                            
@@ -527,8 +507,7 @@ const bool Z_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the logic
   //The value is the delay to turn the servo off after powered on - depends on the servo speed; 300ms is good value, but you can try lower it.
   // You MUST HAVE the SERVO_ENDSTOPS defined to use here a value higher than zero otherwise your code will not compile.
 
-//  #define PROBE_SERVO_DEACTIVATION_DELAY 300
-
+  #define PROBE_SERVO_DEACTIVATION_DELAY 300 /* milliseconds */
 
 //If you have enabled the Bed Auto Leveling and are using the same Z Probe for Z Homing,
 //it is highly recommended you let this Z_SAFE_HOMING enabled!!!
@@ -539,13 +518,6 @@ const bool Z_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the logic
                           // - If stepper drivers timeout, it will need X and Y homing again before Z homing
                           // - Position the probe in a defined XY point before Z Homing when homing all axis (G28)
                           // - Block Z homing only when the probe is outside bed area.
-
-  #ifdef Z_SAFE_HOMING
-
-    #define Z_SAFE_HOMING_X_POINT (X_MAX_LENGTH/2)    // X point for Z homing when homing all axis (G28)
-    #define Z_SAFE_HOMING_Y_POINT (Y_MAX_LENGTH/2)    // Y point for Z homing when homing all axis (G28)
-
-  #endif
 
   // Support for a dedicated Z PROBE endstop separate from the Z MIN endstop.
   // If you would like to use both a Z PROBE and a Z MIN endstop together or just a Z PROBE with a custom pin, uncomment #define Z_PROBE_ENDSTOP and read the instructions below.
@@ -587,19 +559,22 @@ const bool Z_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the logic
 
 // default settings
 #ifdef WILSON_TYPE
-#define HOMING_FEEDRATE {100*60, 100*60, 3*60, 0}  // set the homing speeds (mm/min)
-#define DEFAULT_AXIS_STEPS_PER_UNIT   {80,80,4000,105}  // default steps per unit for Wilson 
-#define DEFAULT_MAX_FEEDRATE          {100, 100, 3, 25}    // (mm/sec)
+ #define HOMING_FEEDRATE               {50*60, 50*60, 3*60, 0}  // set the homing speeds (mm/min)
+ #define DEFAULT_AXIS_STEPS_PER_UNIT   {80,80,4000,105}  // default steps per unit for Wilson 
+ #define DEFAULT_MAX_FEEDRATE          {100, 100, 3, 25}    // (mm/sec)
+ #define MANUAL_FEEDRATE               {50*60, 50*60, 4*60, 60}  // set the speeds for manual moves (mm/min) from panel
 #else
-#ifdef WILSON_II_TYPE
-#define HOMING_FEEDRATE {100*60, 100*60, 6*60, 0}  // set the homing speeds (mm/min)
-#define DEFAULT_AXIS_STEPS_PER_UNIT   {80,80,400,105}  // default steps per unit for Wilson II
-#define DEFAULT_MAX_FEEDRATE          {100, 100, 6, 25}    // (mm/sec)
-#else
-#define HOMING_FEEDRATE {100*60, 100*60, 4*60, 0}  // set the homing speeds (mm/min)
-#define DEFAULT_AXIS_STEPS_PER_UNIT   {80,80,4000,105}  // default steps 
-#define DEFAULT_MAX_FEEDRATE          {100, 100, 3, 25}    // (mm/sec)
-#endif
+ #ifdef WILSON_II_TYPE
+  #define HOMING_FEEDRATE              {50*60, 50*60, 6*60, 0}  // set the homing speeds (mm/min)
+  #define DEFAULT_AXIS_STEPS_PER_UNIT  {80,80,400,105}  // default steps per unit for Wilson II
+  #define DEFAULT_MAX_FEEDRATE         {120, 120, 6, 25}    // (mm/sec)
+  #define MANUAL_FEEDRATE              {50*60, 50*60, 4*60, 60}  // set the speeds for manual moves (mm/min) from panel
+ #else
+  #define HOMING_FEEDRATE              {100*60, 100*60, 4*60, 0}  // set the homing speeds (mm/min)
+  #define DEFAULT_AXIS_STEPS_PER_UNIT  {80,80,4000,105}  // default steps 
+  #define DEFAULT_MAX_FEEDRATE         {100, 100, 3, 25}    // (mm/sec)
+  #define MANUAL_FEEDRATE              {50*60, 50*60, 4*60, 60}  // set the speeds for manual moves (mm/min) from panel
+ #endif
 #endif
 
 #define DEFAULT_MAX_ACCELERATION      {3000,3000,100,10000}    // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for Skeinforge 40+, for older versions raise them a lot.
@@ -701,15 +676,6 @@ const bool Z_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the logic
 // The RepRapDiscount Smart Controller (white PCB)
 // http://reprap.org/wiki/RepRapDiscount_Smart_Controller
 #define REPRAP_DISCOUNT_SMART_CONTROLLER
-#ifdef REPRAP_DISCOUNT_SMART_CONTROLLER
-// what happened to these?
-#define ULTIPANEL
-#define NEWPANEL
-#define ULTRA_LCD
-#define LCD_WIDTH 20
-#define LCD_HEIGHT 4
-#define SDSUPPORT
-#endif
 
 // The GADGETS3D G3D LCD/SD Controller (blue PCB)
 // http://reprap.org/wiki/RAMPS_1.3/1.4_GADGETS3D_Shield_with_Panel
@@ -796,15 +762,19 @@ const bool Z_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the logic
 // leaving it undefined or defining as 0 will disable the servo subsystem
 // If unsure, leave commented / disabled
 //
-//#define NUM_SERVOS 3 // Servo index starts with 0 for M280 command
+#ifdef MY_BEDLEVELING_DEFAULTS
+
+#define NUM_SERVOS 3 // Servo index starts with 0 for M280 command
 
 // Servo Endstops
 //
 // This allows for servo actuated endstops, primary usage is for the Z Axis to eliminate calibration or bed height changes.
 // Use M851 to set the z-probe vertical offset from the nozzle. Store that setting with M500.
 //
-//#define SERVO_ENDSTOPS {-1, -1, 0} // Servo index for X, Y, Z. Disable with -1
-//#define SERVO_ENDSTOP_ANGLES {0,0, 0,0, 80,170} // X,Y,Z Axis Extend and Retract angles
+#define SERVO_ENDSTOPS {-1, -1, 2} // Servo index for X, Y, Z. Disable with -1
+#define SERVO_ENDSTOP_ANGLES {0,0, 0,0, 0,90} // X,Y,Z Axis Extend and Retract angles
+
+#endif
 
 /**********************************************************************\
  * Support for a filament diameter sensor
@@ -833,9 +803,6 @@ const bool Z_PROBE_ENDSTOP_INVERTING = false; // set to true to invert the logic
 
 //When using an LCD, uncomment the line below to display the Filament sensor data on the last line instead of status.  Status will appear for 5 sec.
 //#define FILAMENT_LCD_DISPLAY
-
-#include "Configuration_adv.h"
-#include "thermistortables.h"
 
 #endif //CONFIGURATION_H
 

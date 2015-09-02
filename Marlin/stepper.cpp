@@ -33,7 +33,6 @@
 #include <SPI.h>
 #endif
 
-
 //===========================================================================
 //=============================public variables  ============================
 //===========================================================================
@@ -172,26 +171,34 @@ asm volatile ( \
 
 void checkHitEndstops()
 {
- if( endstop_x_hit || endstop_y_hit || endstop_z_hit) {
+  if( endstop_x_hit || endstop_y_hit || endstop_z_hit) 
+  {
    SERIAL_ECHO_START;
    SERIAL_ECHOPGM(MSG_ENDSTOPS_HIT);
-   if(endstop_x_hit) {
+   if(endstop_x_hit) 
+   {
      SERIAL_ECHOPAIR(" X:",(float)endstops_trigsteps[X_AXIS]/axis_steps_per_unit[X_AXIS]);
-     LCD_MESSAGEPGM(MSG_ENDSTOPS_HIT "X");
+     //LCD_MESSAGEPGM(MSG_ENDSTOPS_HIT "X");
    }
-   if(endstop_y_hit) {
+   
+   if(endstop_y_hit) 
+   {
      SERIAL_ECHOPAIR(" Y:",(float)endstops_trigsteps[Y_AXIS]/axis_steps_per_unit[Y_AXIS]);
-     LCD_MESSAGEPGM(MSG_ENDSTOPS_HIT "Y");
+     //LCD_MESSAGEPGM(MSG_ENDSTOPS_HIT "Y");
    }
-   if(endstop_z_hit) {
+   
+   if(endstop_z_hit) 
+   {
      SERIAL_ECHOPAIR(" Z:",(float)endstops_trigsteps[Z_AXIS]/axis_steps_per_unit[Z_AXIS]);
-     LCD_MESSAGEPGM(MSG_ENDSTOPS_HIT "Z");
+     //LCD_MESSAGEPGM(MSG_ENDSTOPS_HIT "Z");
    }
+   
    SERIAL_ECHOLN("");
    endstop_x_hit=false;
    endstop_y_hit=false;
    endstop_z_hit=false;
-#if defined(ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED) && defined(SDSUPPORT)
+   
+   #if defined(ABORT_ON_ENDSTOP_HIT_FEATURE_ENABLED) && defined(SDSUPPORT)
    if (abort_on_endstop_hit)
    {
      card.sdprinting = false;
@@ -201,8 +208,8 @@ void checkHitEndstops()
      setTargetHotend1(0);
      setTargetHotend2(0);
    }
-#endif
- }
+   #endif
+  }
 }
 
 void endstops_hit_on_purpose()
@@ -424,6 +431,7 @@ ISR(TIMER1_COMPA_vect)
               endstop_x_hit=true;
               step_events_completed = current_block->step_event_count;
             }
+           
             old_x_min_endstop = x_min_endstop;
           #endif
         }
@@ -895,7 +903,6 @@ void st_init()
   #endif
 
   //endstops and pullups
-
   #if defined(X_MIN_PIN) && X_MIN_PIN > -1
     SET_INPUT(X_MIN_PIN);
     #ifdef ENDSTOPPULLUP_XMIN

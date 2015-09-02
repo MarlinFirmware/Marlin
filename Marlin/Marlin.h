@@ -17,10 +17,45 @@
 #include <avr/eeprom.h>
 #include <avr/interrupt.h>
 
-
 #include "fastio.h"
 #include "Configuration.h"
+
+#ifdef REPRAP_DISCOUNT_SMART_CONTROLLER // this requires these:
+ #define ULTIPANEL
+ #define NEWPANEL
+ #define ULTRA_LCD
+ #define LCD_WIDTH 20
+ #define LCD_HEIGHT 4
+ #define SDSUPPORT
+#endif
+
+#ifdef ENDSTOPPULLUPS // this implies these:
+ #define ENDSTOPPULLUP_XMIN           
+ #define ENDSTOPPULLUP_YMIN
+ #define ENDSTOPPULLUP_ZMIN
+#endif
+
+#define X_MAX_LENGTH (X_MAX_POS - X_MIN_POS)
+#define Y_MAX_LENGTH (Y_MAX_POS - Y_MIN_POS)
+#define Z_MAX_LENGTH (Z_MAX_POS - Z_MIN_POS)
+#define EXTRUDE_MAXLENGTH (X_MAX_LENGTH+Y_MAX_LENGTH) //prevent extrusion of very large distances.
+
+#ifdef Z_SAFE_HOMING
+ #define Z_SAFE_HOMING_X_POINT (X_MAX_LENGTH/2)    // X point for Z homing when homing all axis (G28)
+ #define Z_SAFE_HOMING_Y_POINT (Y_MAX_LENGTH/2)    // Y point for Z homing when homing all axis (G28)
+#endif
+
+#ifndef NUM_SERVOS
+#define NUM_SERVOS 0
+#endif
+
+#include "Configuration_adv.h"
+#include "thermistortables.h"
 #include "pins.h"
+
+#if (POWER_SUPPLY<1)
+#define PS_ON_PIN -1
+#endif
 
 #ifndef AT90USB
 #define  HardwareSerial_h // trick to disable the standard HWserial
@@ -36,6 +71,7 @@
 #ifndef analogInputToDigitalPin
 # define analogInputToDigitalPin(p) ((p) + A0)
 #endif
+
 
 #ifdef AT90USB
 #include "HardwareSerial.h"
@@ -108,8 +144,7 @@ void process_commands();
 
 void manage_inactivity(bool ignore_stepper_queue=false);
 
-#if defined(DUAL_X_CARRIAGE) && defined(X_ENABLE_PIN) && X_ENABLE_PIN > -1 \
-    && defined(X2_ENABLE_PIN) && X2_ENABLE_PIN > -1
+#if defined(DUAL_X_CARRIAGE) && defined(X_ENABLE_PIN) && X_ENABLE_PIN > -1 && defined(X2_ENABLE_PIN) && X2_ENABLE_PIN > -1
   #define  enable_x() do { WRITE(X_ENABLE_PIN, X_ENABLE_ON); WRITE(X2_ENABLE_PIN, X_ENABLE_ON); } while (0)
   #define disable_x() do { WRITE(X_ENABLE_PIN,!X_ENABLE_ON); WRITE(X2_ENABLE_PIN,!X_ENABLE_ON); axis_known_position[X_AXIS] = false; } while (0)
 #elif defined(X_ENABLE_PIN) && X_ENABLE_PIN > -1
