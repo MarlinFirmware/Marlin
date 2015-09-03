@@ -1054,6 +1054,9 @@ void st_synchronize()
 {
     while( blocks_queued()) {
     manage_heater();
+#ifndef DOGLCD
+        manage_inactivity();
+#endif //DOGCLD
     lcd_update();
   }
 }
