@@ -96,14 +96,14 @@
 //===========================================================================
 
 // Rest Position
-#define POSITION_REST_X 200.0
+#define POSITION_REST_X 0.0
 #define POSITION_REST_Y 300.0
 #define POSITION_REST_Z  15.0
 
 // Load/Unload Filament Position
-#define POSITION_FILAMENT_X 180.0
-#define POSITION_FILAMENT_Y  35.0
-#define POSITION_FILAMENT_Z  75.0
+#define POSITION_FILAMENT_X 85.0
+#define POSITION_FILAMENT_Y  20.0
+#define POSITION_FILAMENT_Z  60.0
 
 
 // @section homing
