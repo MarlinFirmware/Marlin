@@ -108,6 +108,8 @@ enum class Label
 	SCREEN_AUTOHOME_HOMING_TEXT,
 	SCREEN_SETTINGS_TITLE,
 	SCREEN_SETTINGS_TEXT,
+	SCREEN_MOVE_INFO_TITLE,
+	SCREEN_MOVE_INFO_TEXT,
 	SCREEN_MOVE_TITLE,
 	SCREEN_MOVE_TEXT,
 	SCREEN_MOVE_CONFIRM_TITLE,
@@ -216,6 +218,8 @@ enum class Label
 	PUSH_TO_FINISH,
 	PLEASE_WAIT,
 	BACK,
+	MODE,
+	INACTIVE,
 };
 
 extern const char * MSG_SCREEN_EMERGENCY_TITLE();
@@ -265,6 +269,8 @@ extern const char * MSG_SCREEN_AUTOHOME_HOMING_TITLE();
 extern const char * MSG_SCREEN_AUTOHOME_HOMING_TEXT();
 extern const char * MSG_SCREEN_SETTINGS_TITLE();
 extern const char * MSG_SCREEN_SETTINGS_TEXT();
+extern const char * MSG_SCREEN_MOVE_INFO_TITLE();
+extern const char * MSG_SCREEN_MOVE_INFO_TEXT();
 extern const char * MSG_SCREEN_MOVE_TITLE();
 extern const char * MSG_SCREEN_MOVE_TEXT();
 extern const char * MSG_SCREEN_MOVE_CONFIRM_TITLE();
@@ -373,5 +379,7 @@ extern const char * MSG_PUSH_TO_BACK();
 extern const char * MSG_PUSH_TO_FINISH();
 extern const char * MSG_PLEASE_WAIT();
 extern const char * MSG_BACK();
+extern const char * MSG_MODE();
+extern const char * MSG_INACTIVE();
 
 #endif // ifndef LANGUAGE_H

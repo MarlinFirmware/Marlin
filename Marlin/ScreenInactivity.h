@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
-/// \file ScreenSwitch.cpp
+/// \file ScreenInactivity.h
 ///
 /// \author Ivan Galvez Junquera
 ///         Ruy Garcia
 ///         Victor Andueza 
 ///         Joaquin Herrero
 ///
-/// \brief Implementation of switch-type screens.
+/// \brief Definition of inactivity-type screens.
 ///
 /// Copyright (c) 2015 BQ - Mundo Reader S.L.
 /// http://www.bq.com
@@ -25,41 +25,37 @@
 /// DEALINGS IN THE SOFTWARE.
 ///////////////////////////////////////////////////////////////////////////////
 
-#include "ScreenSwitch.h"
+#ifndef SCREEN_INACTIVITY_H
+#define SCREEN_INACTIVITY_H
+
+#include "ScreenAnimation.h"
 
 #include "GuiManager.h"
+#include "TemperatureManager.h"
+#include "ViewManager.h"
 
 namespace screen
 {
-	ScreenSwitch::ScreenSwitch(const char * title, Functor<bool>::FuncPtr fptr)
-		: ScreenAction<bool>(title, fptr)
-		, m_num_items(0)
+	class ScreenInactivity : public ScreenAnimation<float>
 	{
-		m_type = SWITCH;
-	}
+		public:
+			ScreenInactivity(const char * title, const char * text, uint16_t target, Subject<float> * model = 0);
+			virtual ~ScreenInactivity();
 
-	ScreenSwitch::~ScreenSwitch()
-	{ }
+			void init(uint16_t index = 0);
 
-	void ScreenSwitch::init(uint16_t index)
-	{
-		if( this->action() == true )
-		{
-			ViewManager::getInstance().activeView(m_items[0]);
-		}
-		else
-		{
-			ViewManager::getInstance().activeView(m_items[1]);
-		}
-		
-	}
+			void draw();
+			void press();
 
-	void ScreenSwitch::add(ScreenIndex_t const & component)
-	{
-		if (m_num_items < m_max_items)
-		{
-			m_items[m_num_items] = component;
-			++m_num_items;
-		}
-	}
+			void add(ScreenIndex_t const & component);
+			void update(float value);
+
+			void left();
+			void right();
+
+		private:
+			bool isConditionMeet();
+	};
 }
+
+#endif //SCREEN_INACTIVITY_H

@@ -48,6 +48,8 @@ namespace screen
 		screen_level_confirm,
 		screen_autohome,
 		screen_settings,
+		screen_move_switch,
+		screen_move_info,
 		screen_move,
 		screen_move_x,
 		screen_move_y,
@@ -101,6 +103,7 @@ namespace screen
 		screen_speed,
 		screen_temperature_print,
 		screen_serial,
+		screen_inactivity,
 		screen_none,
 	} ScreenIndex_t;
 

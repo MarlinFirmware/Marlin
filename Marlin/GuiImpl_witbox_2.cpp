@@ -27,6 +27,8 @@
 #include "ScreenComplete.h"
 #include "ScreenEmergency.h"
 #include "ScreenSerial.h"
+#include "ScreenInactivity.h"
+#include "ScreenSwitch.h"
 #include "ScreenSetting.h"
 #include "ScreenLanguage.h"
 
@@ -177,7 +179,7 @@ namespace screen
 		local_view->icon(icon_homing);
 		local_view->add(screen_settings);
 		local_view->icon(icon_settings);
-		local_view->add(screen_move);
+		local_view->add(screen_move_switch);
 		local_view->icon(icon_moveaxis);
 		local_view->add(screen_stepper);
 		local_view->icon(icon_steppers);
@@ -430,6 +432,21 @@ namespace screen
 	static ScreenAction<void> * make_screen_stepper()
 	{
 		ScreenAction<void> * local_view = new ScreenAction<void>(NULL, SteppersManager::disableAllSteppers);
+		local_view->add(screen_main);
+		return local_view;
+	}
+
+	static ScreenSwitch * make_screen_move_switch()
+	{
+		ScreenSwitch * local_view = new ScreenSwitch(NULL, PrintManager::knownPosition);
+		local_view->add(screen_move);
+		local_view->add(screen_move_info);
+		return local_view;
+	}
+
+	static ScreenDialog<void> * make_screen_move_info()
+	{
+		ScreenDialog<void> * local_view = new ScreenDialog<void>(MSG_SCREEN_MOVE_INFO_TITLE(), MSG_SCREEN_MOVE_INFO_TEXT(), MSG_PUSH_TO_BACK(), do_nothing);
 		local_view->add(screen_main);
 		return local_view;
 	}
@@ -909,6 +926,13 @@ namespace screen
 		return local_view;
 	}
 
+	static ScreenInactivity * make_screen_inactivity()
+	{
+		ScreenInactivity * local_view = new ScreenInactivity(NULL, MSG_PUSH_TO_BACK(), TemperatureManager::single::instance().getTargetTemperature(), &TemperatureManager::single::instance());
+		local_view->add(screen_main);
+		return local_view;
+	}
+
 	Screen * new_view;
 
 	// Build the UI
@@ -1057,6 +1081,12 @@ namespace screen
 				break;
 
 			// Move Axis
+			case screen_move_switch:
+				new_view = make_screen_move_switch();
+				break;
+			case screen_move_info:
+				new_view = make_screen_move_info();
+				break;
 			case screen_move:
 				new_view = make_screen_move();
 				break;
@@ -1239,6 +1269,11 @@ namespace screen
 			// Serial screen
 			case screen_serial:
 				new_view = make_screen_serial();
+				break;
+
+			// Inactivity screen
+			case screen_inactivity:
+				new_view = make_screen_inactivity();
 				break;
 		}
 		return new_view; 

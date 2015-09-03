@@ -63,7 +63,7 @@ namespace screen
 		private:
 			bool isConditionMeet();
 
-		private:
+		protected:
 			const char * m_text;
 
 			uint16_t m_target;

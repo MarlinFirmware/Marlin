@@ -50,6 +50,8 @@ const char DE_SCREEN_AUTOHOME_HOMING_TITLE[] PROGMEM    = "Home";
 const char DE_SCREEN_AUTOHOME_HOMING_TEXT[] PROGMEM     = "Adjusting position";
 const char DE_SCREEN_SETTINGS_TITLE[] PROGMEM           = "Settings";
 const char DE_SCREEN_SETTINGS_TEXT[] PROGMEM            = "Choose an option";
+const char DE_SCREEN_MOVE_INFO_TITLE[] PROGMEM      = "Move axis";
+const char DE_SCREEN_MOVE_INFO_TEXT[] PROGMEM       = "Position unknown, do an action before continue";
 const char DE_SCREEN_MOVE_TITLE[] PROGMEM               = "Move axis";
 const char DE_SCREEN_MOVE_TEXT[] PROGMEM                = "Select an option";
 const char DE_SCREEN_MOVE_CONFIRM_TITLE[] PROGMEM       = "Extruder / Move mm";
@@ -158,5 +160,7 @@ const char DE_PUSH_TO_BACK[] PROGMEM                    = "Push to go back";
 const char DE_PUSH_TO_FINISH[] PROGMEM                  = "Push to finish";
 const char DE_PLEASE_WAIT[] PROGMEM                     = "Please wait";                   
 const char DE_BACK[] PROGMEM                            = "Back";
+const char DE_MODE[] PROGMEM                        = "Mode";
+const char DE_INACTIVE[] PROGMEM                    = "inactive";
 
 #endif //LANGUAGE_DE_H

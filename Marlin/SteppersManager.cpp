@@ -6,7 +6,7 @@
 
 SteppersManager::SteppersManager()
 	: Subject<bool>()
-	, m_steppers_disabled(false)
+	, m_steppers_disabled(true)
 {
 	m_steppers[AXIS_X] = Stepper(X_ENABLE_PIN, X_ENABLE_ON);
 	m_steppers[AXIS_Y] = Stepper(Y_ENABLE_PIN, Y_ENABLE_ON);

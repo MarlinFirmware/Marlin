@@ -50,6 +50,8 @@ const char EN_SCREEN_AUTOHOME_HOMING_TITLE[] PROGMEM    = "Home";
 const char EN_SCREEN_AUTOHOME_HOMING_TEXT[] PROGMEM     = "Adjusting position";
 const char EN_SCREEN_SETTINGS_TITLE[] PROGMEM           = "Settings";
 const char EN_SCREEN_SETTINGS_TEXT[] PROGMEM            = "Choose an option";
+const char EN_SCREEN_MOVE_INFO_TITLE[] PROGMEM      = "Move axis";
+const char EN_SCREEN_MOVE_INFO_TEXT[] PROGMEM       = "Position unknown, do an action before continue";
 const char EN_SCREEN_MOVE_TITLE[] PROGMEM               = "Move axis";
 const char EN_SCREEN_MOVE_TEXT[] PROGMEM                = "Select an option";
 const char EN_SCREEN_MOVE_CONFIRM_TITLE[] PROGMEM       = "Extruder / Move mm";
@@ -158,5 +160,7 @@ const char EN_PUSH_TO_BACK[] PROGMEM                    = "Push to go back";
 const char EN_PUSH_TO_FINISH[] PROGMEM                  = "Push to finish";
 const char EN_PLEASE_WAIT[] PROGMEM                     = "Please wait";                   
 const char EN_BACK[] PROGMEM                            = "Back";
+const char EN_MODE[] PROGMEM                        = "Mode";
+const char EN_INACTIVE[] PROGMEM                    = "inactive";
 
 #endif //LANGUAGE_EN_H

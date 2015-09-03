@@ -23,6 +23,7 @@ typedef enum
 	HOMING,
 	LEVELING,
 	HEATING,
+	SERIAL_CONTROL,
 	NUM_PRINTER_STATES
 } PrinterState_t;
 
