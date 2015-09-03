@@ -186,19 +186,15 @@ enum class Label
 	ICON_LEVELING,
 	ICON_HOMING,
 	ICON_SETTINGS,
-	ICON_STEPPERS_ON,
+	ICON_STEPPERS,
 	ICON_STEPPERS_OFF,
 	ICON_MOVEAXIS,
 	ICON_TEMPERATURE,
-	ICON_LIGHTLED_DISABLE,
-	ICON_LIGHTLED,
-	ICON_INFO,
 	ICON_PLAY,
 	ICON_PAUSE,
 	ICON_STOP,
 	ICON_CHANGE_FILAMENT,
 	ICON_CHANGE_SPEED,
-	ICON_BACK,
 	ICON_RETRY,
 	ICON_OK2,
 	ICON_MOVE_X,
@@ -208,15 +204,18 @@ enum class Label
 	ICON_MOVE_10MM,
 	ICON_MOVE_1MM,
 	ICON_MOVE_01MM,
-	ICON_AUTOLEVEL,
-	ICON_AUTOLEVEL_DISABLE,
-	ICON_OFFSET,
+	OPTION_LIGHTLED,
+	OPTION_INFO,
+	OPTION_AUTOLEVEL,
+	OPTION_OFFSET,
+	OPTION_LANGUAGE,
 	PUSH_TO_CONFIRM,
 	PUSH_TO_CONTINUE,
 	PUSH_TO_START,
 	PUSH_TO_BACK,
 	PUSH_TO_FINISH,
 	PLEASE_WAIT,
+	BACK,
 };
 
 extern const char * MSG_SCREEN_EMERGENCY_TITLE();
@@ -348,15 +347,11 @@ extern const char * MSG_ICON_STEPPERS();
 extern const char * MSG_ICON_STEPPERS_OFF();
 extern const char * MSG_ICON_MOVEAXIS();
 extern const char * MSG_ICON_TEMPERATURE();
-extern const char * MSG_ICON_LIGHTLED_DISABLE();
-extern const char * MSG_ICON_LIGHTLED();
-extern const char * MSG_ICON_INFO();
 extern const char * MSG_ICON_PLAY();
 extern const char * MSG_ICON_PAUSE();
 extern const char * MSG_ICON_STOP();
 extern const char * MSG_ICON_CHANGE_FILAMENT();
 extern const char * MSG_ICON_CHANGE_SPEED();
-extern const char * MSG_ICON_BACK();
 extern const char * MSG_ICON_RETRY();
 extern const char * MSG_ICON_OK2();
 extern const char * MSG_ICON_MOVE_X();
@@ -366,14 +361,17 @@ extern const char * MSG_ICON_MOVE_E();
 extern const char * MSG_ICON_MOVE_10MM();
 extern const char * MSG_ICON_MOVE_1MM();
 extern const char * MSG_ICON_MOVE_01MM();
-extern const char * MSG_ICON_AUTOLEVEL();
-extern const char * MSG_ICON_AUTOLEVEL_DISABLE();
-extern const char * MSG_ICON_OFFSET();
+extern const char * MSG_OPTION_LIGHTLED();
+extern const char * MSG_OPTION_INFO();
+extern const char * MSG_OPTION_AUTOLEVEL();
+extern const char * MSG_OPTION_OFFSET();
+extern const char * MSG_OPTION_LANGUAGE();
 extern const char * MSG_PUSH_TO_CONFIRM();
 extern const char * MSG_PUSH_TO_CONTINUE();
 extern const char * MSG_PUSH_TO_START();
 extern const char * MSG_PUSH_TO_BACK();
 extern const char * MSG_PUSH_TO_FINISH();
 extern const char * MSG_PLEASE_WAIT();
+extern const char * MSG_BACK();
 
 #endif // ifndef LANGUAGE_H

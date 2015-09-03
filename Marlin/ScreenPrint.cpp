@@ -62,9 +62,10 @@ namespace screen
 		PrintManager::updateTime();
 
 		uint8_t percent_done = card.percentDone();
-		if (m_percent_done != percent_done)
+		if (m_percent_done < percent_done)
 		{
 			m_percent_done = percent_done;
+
 			m_needs_drawing = true;
 		}
 
@@ -162,7 +163,7 @@ namespace screen
 
 		if (PrintManager::single::instance().state() == STOPPED)
 		{
-			ViewManager::getInstance().activeView(screen_print_complete);
+			ViewManager::getInstance().activeView(screen_print_action_complete);
 		}
 	}
 

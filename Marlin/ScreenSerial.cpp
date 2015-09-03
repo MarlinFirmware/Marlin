@@ -36,7 +36,12 @@ namespace screen
 	ScreenSerial::ScreenSerial(const char * title, const char * text)
 		: Screen(title, MENU)
 	{
-		strncpy(m_text, text, sizeof(m_text));
+		memset(m_text, 0, sizeof(m_text));
+
+		if( (text != NULL) && (strlen_P(text) > 0) )
+		{
+			strncpy(m_text, text, sizeof(m_text));
+		}
 	}
 
 	ScreenSerial::~ScreenSerial()
@@ -67,26 +72,36 @@ namespace screen
 			do
 			{
 				painter.setColorIndex(1);
-				painter.drawBox(0,0,128,64);
-				painter.setColorIndex(0);
-				painter.drawBox(5,5,118,54);
+				//Paint title on top of screen
+				painter.title(MSG_SCREEN_SERIAL_TITLE());
+
+				//Paint bitmap on the left
+				uint8_t x_init = painter.coordinateXInit();
+				uint8_t y_init = painter.coordinateYInit();
+				uint8_t x_end = painter.coordinateXEnd();
+				uint8_t y_end = painter.coordinateYEnd();
+				uint8_t x_offset = 6;
+				uint8_t y_offset = 4;
 				painter.setColorIndex(1);
-				painter.drawBox(5,22,118,3);
+				painter.drawBitmap(x_init + x_offset, y_init + y_offset, serial_width, serial_height, bits_serial);
 
-				Area title_area(5,10,118,22);
-				painter.setWorkingArea(title_area);
-				painter.text_P(MSG_SCREEN_SERIAL_TITLE());
-
-				Area text_area(5, 25, 118, 59);
+				//Print state
+				Area text_area(x_init + x_offset + serial_width, y_init, 127, 63);
 				painter.setWorkingArea(text_area);
+				SERIAL_ECHOLN(m_text);
 				painter.multiText(m_text);
+
 			} while( painter.nextPage() );
 		}
 	}
 
 	void ScreenSerial::text(const char * text)
 	{
-		strncpy(m_text, text, sizeof(m_text));
+		if( (text != NULL) && (strlen(text) > 0) )
+		{
+			strncpy(m_text, text, sizeof(m_text));
+		}
+
 		m_needs_drawing = true;
 	}
 }

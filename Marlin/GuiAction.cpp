@@ -457,10 +457,9 @@ void action_move_axis_to(uint8_t axis, float position)
 void action_move_to_rest()
 {
 	st_synchronize();
-	vector_3 update_position = plan_get_position();
-	current_position[X_AXIS] = update_position.x;
-	current_position[Y_AXIS] = update_position.y;
-	current_position[Z_AXIS] = update_position.z;
+	current_position[X_AXIS] = plan_get_axis_position(X_AXIS);
+	current_position[Y_AXIS] = plan_get_axis_position(Y_AXIS);
+	current_position[Z_AXIS] = plan_get_axis_position(Z_AXIS);
 
 	if (current_position[Z_AXIS] < 20)
 	{
@@ -540,14 +539,13 @@ void action_stop_print()
 
 	plan_buffer_line(current_position[X_AXIS], current_position[Y_AXIS], current_position[Z_AXIS], current_position[E_AXIS], manual_feedrate[X_AXIS] / 60, active_extruder);
 
+	current_position[X_AXIS] = POSITION_REST_X;
+	current_position[Y_AXIS] = POSITION_REST_Y;
+
 #if X_MAX_POS < 250
-	current_position[X_AXIS] = X_MIN_POS;
-	current_position[Y_AXIS] = 150;
 	current_position[Z_AXIS] += 20;
 #else // X_MAX_POS < 250
-	current_position[X_AXIS] = X_MAX_POS - 15;
-	current_position[Y_AXIS] = Y_MAX_POS - 15;
-	current_position[Z_AXIS] = Z_MAX_POS - 15;
+	current_position[Z_AXIS] = Z_MAX_POS;
 #endif // X_MAX_POS < 250
 
 	if (current_position[Z_AXIS] > Z_MAX_POS)

@@ -51,6 +51,11 @@ namespace screen
 		return m_index;
 	}
 
+	void ViewManager::displayRefresh()
+	{
+		m_active_view->m_needs_drawing = true;
+	}
+
 	ViewManager::ViewManager()
 		: m_active_view(NULL)
 		, m_last_focus(0)
