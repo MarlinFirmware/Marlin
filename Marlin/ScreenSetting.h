@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
-/// \file ScreenList.h
+/// \file ScreenSetting.h
 ///
 /// \author Ivan Galvez Junquera
 ///         Ruy Garcia
 ///         Victor Andueza 
 ///         Joaquin Herrero
 ///
-/// \brief Definition of SD screen list class.
+/// \brief Definition of Setting screen class.
 ///
 /// Copyright (c) 2015 BQ - Mundo Reader S.L.
 /// http://www.bq.com
@@ -25,50 +25,38 @@
 /// DEALINGS IN THE SOFTWARE.
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef SCREEN_LIST_H
-#define SCREEN_LIST_H
+#ifndef SCREEN_SETTING_H
+#define SCREEN_SETTING_H
 
 #include <stdint.h>
 
 #include "Screen.h"
-#include "SDManager.h"
+#include "Option.h"
 
 namespace screen
 {
-	class ScreenList : public Screen , public Observer<SDState_t>
+	class ScreenSetting : public Screen
 	{
 		public:
-			ScreenList(const char * title, Subject<SDState_t> * model);
-			virtual ~ScreenList();
+			ScreenSetting(const char * title);
+			virtual ~ScreenSetting();
 
 			void left();
 			void right();
 			void draw();
 			void press();
-			void add(ScreenIndex_t const & view);
+			void add(Option * view);
 			void init(uint16_t index = 0);
 
 		private:
-			//void updateSdcardStatus();
-			void update(SDState_t state);
-
-		public:
-			static uint8_t directory_index;
-			static uint8_t directory_array[10];
-			static bool from_updir;
-
-		private:
 			uint16_t m_index;
-			uint16_t m_num_list;
-			uint8_t m_icon_index;
 
-			ScreenIndex_t m_back_screen;
-			uint8_t m_num_item_added;
-
-			char m_directory[20];
-			bool m_directory_is_root;
+			static const uint16_t m_max_items = 10;
+			Option * m_item[m_max_items];
+			uint8_t m_num_items;
 
 			float m_scroll_size;
+
 	};
 }
-#endif //SCREEN_LIST_H
+#endif //SCREEN_SETTING_H

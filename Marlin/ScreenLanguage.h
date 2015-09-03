@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
-/// \file ScreenList.h
+/// \file ScreenLanguage.h
 ///
 /// \author Ivan Galvez Junquera
 ///         Ruy Garcia
 ///         Victor Andueza 
 ///         Joaquin Herrero
 ///
-/// \brief Definition of SD screen list class.
+/// \brief Definition of language screen.
 ///
 /// Copyright (c) 2015 BQ - Mundo Reader S.L.
 /// http://www.bq.com
@@ -25,50 +25,35 @@
 /// DEALINGS IN THE SOFTWARE.
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef SCREEN_LIST_H
-#define SCREEN_LIST_H
+#ifndef SCREEN_LANGUAGE_H
+#define SCREEN_LANGUAGE_H
 
 #include <stdint.h>
 
 #include "Screen.h"
-#include "SDManager.h"
+
+#include "Language.h"
 
 namespace screen
 {
-	class ScreenList : public Screen , public Observer<SDState_t>
+	class ScreenLanguage : public Screen
 	{
 		public:
-			ScreenList(const char * title, Subject<SDState_t> * model);
-			virtual ~ScreenList();
+			ScreenLanguage(const char * title, Language dflt);
+			virtual ~ScreenLanguage();
+
+			void init(uint16_t index = 0);
 
 			void left();
 			void right();
 			void draw();
 			void press();
-			void add(ScreenIndex_t const & view);
-			void init(uint16_t index = 0);
 
 		private:
-			//void updateSdcardStatus();
-			void update(SDState_t state);
-
-		public:
-			static uint8_t directory_index;
-			static uint8_t directory_array[10];
-			static bool from_updir;
-
-		private:
-			uint16_t m_index;
-			uint16_t m_num_list;
-			uint8_t m_icon_index;
-
-			ScreenIndex_t m_back_screen;
-			uint8_t m_num_item_added;
-
-			char m_directory[20];
-			bool m_directory_is_root;
-
-			float m_scroll_size;
+			const Language m_default;
+			uint8_t m_language;
+			const uint8_t m_min = 0;
+			const uint8_t m_max = 6;
 	};
 }
-#endif //SCREEN_LIST_H
+#endif //SCREEN_LANGUAGE_H
