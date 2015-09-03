@@ -49,6 +49,7 @@ namespace screen
 				DIALOG,
 				LIST,
 				SELECTOR,
+				SWITCH,
 				NUM_SCREEN_TYPES,
 			} ScreenType_t;
 
@@ -67,11 +68,13 @@ namespace screen
 			virtual void add(ScreenIndex_t const & view);
 			virtual void text(const char * text) {};
 
+		public:
+			bool m_needs_drawing;
+
 		protected:
 			ScreenType_t m_type;
 			const char * m_title;
 			ScreenIndex_t m_next_screen;
-			bool m_needs_drawing;
 	};
 }
 #endif //SCREEN_H

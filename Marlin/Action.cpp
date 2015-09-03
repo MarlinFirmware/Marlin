@@ -194,7 +194,8 @@ void action_homing()
 	endstops_hit_on_purpose();
 
 	previous_millis_cmd = millis();
-
+#ifdef DOGLCD
 	PrintManager::knownPosition(true);
+#endif //DOGLCD
 	lcd_enable_button();
 }

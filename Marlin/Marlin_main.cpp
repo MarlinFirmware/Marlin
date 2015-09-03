@@ -783,9 +783,14 @@ void loop()
   }
   //check heater every n milliseconds
   manage_heater();
-  manage_inactivity();
   checkHitEndstops();
   lcd_update();
+#ifndef DOGLCD
+  manage_inactivity();
+#else
+  PrintManager::updateInactivity();
+#endif //DOGCLD
+
 }
 
 void get_command()
@@ -799,6 +804,7 @@ void get_command()
 			serial_mode = true;
 			if (screen::ViewManager::getInstance().getViewIndex() != screen::screen_serial)
 			{
+				PrintManager::single::instance().state(SERIAL_CONTROL);
 				screen::ViewManager::getInstance().activeView(screen::screen_serial);
 		 	}
 	 	}
@@ -834,20 +840,23 @@ void get_command()
 
         if(strchr(cmdbuffer[bufindw], '*') != NULL)
         {
-          byte checksum = 0;
-          byte count = 0;
-          while(cmdbuffer[bufindw][count] != '*') checksum = checksum^cmdbuffer[bufindw][count++];
-          strchr_pointer = strchr(cmdbuffer[bufindw], '*');
+          if(strchr(cmdbuffer[bufindw], 'M117') == NULL)
+          {
+            byte checksum = 0;
+            byte count = 0;
+            while(cmdbuffer[bufindw][count] != '*') checksum = checksum^cmdbuffer[bufindw][count++];
+            strchr_pointer = strchr(cmdbuffer[bufindw], '*');
 
-          if( (int)(strtod(strchr_pointer + 1, NULL)) != checksum) {
+            if( (int)(strtod(strchr_pointer + 1, NULL)) != checksum) {
             SERIAL_ERROR_START;
             SERIAL_ERRORPGM(MSG_ERR_CHECKSUM_MISMATCH);
             SERIAL_ERRORLN(gcode_LastN);
             FlushSerialRequestResend();
             serial_count = 0;
             return;
+            }
+            //if no errors, continue parsing
           }
-          //if no errors, continue parsing
         }
         else
         {
@@ -860,19 +869,26 @@ void get_command()
         }
         gcode_LastN = gcode_N;
         //if no errors, continue parsing
+
+        char *startchar = strchr(cmdbuffer[bufindw], ' ') + 1;
+        strcpy(cmdbuffer[bufindw], startchar);
+
       }
       else  // if we don't receive 'N' but still see '*'
       {
-        if((strchr(cmdbuffer[bufindw], '*') != NULL))
+        if(strchr(cmdbuffer[bufindw], 'M117') == NULL)
         {
-          SERIAL_ERROR_START;
-          SERIAL_ERRORPGM(MSG_ERR_NO_LINENUMBER_WITH_CHECKSUM);
-          SERIAL_ERRORLN(gcode_LastN);
-          serial_count = 0;
-          return;
+          if((strchr(cmdbuffer[bufindw], '*') != NULL))
+          {
+            SERIAL_ERROR_START;
+            SERIAL_ERRORPGM(MSG_ERR_NO_LINENUMBER_WITH_CHECKSUM);
+            SERIAL_ERRORLN(gcode_LastN);
+            serial_count = 0;
+            return;
+          }
         }
       }
-      if((strchr(cmdbuffer[bufindw], 'G') != NULL)){
+      if(strchr(cmdbuffer[bufindw], 'G') != NULL){
         strchr_pointer = strchr(cmdbuffer[bufindw], 'G');
         switch((int)((strtod(strchr_pointer + 1, NULL)))){
         case 0:
@@ -1487,7 +1503,8 @@ void process_commands()
   unsigned long codenum; //throw away variable
   char *starpos = NULL;
 
-  if(code_seen('G'))
+  char *cmd_code = strchr(cmdbuffer[bufindr], 'G');
+  if(code_seen('G') && *cmd_code == cmdbuffer[bufindr][0])
   {
     switch((int)code_value())
     {
@@ -1536,7 +1553,9 @@ void process_commands()
       previous_millis_cmd = millis();
       while(millis() < codenum) {
         manage_heater();
+#ifndef DOGLCD
         manage_inactivity();
+#endif //DOGLCD
       }
       break;
       #ifdef FWRETRACT
@@ -2321,7 +2340,9 @@ Sigma_Exit:
             codenum = millis();
           }
           manage_heater();
+#ifndef DOGLCD
           manage_inactivity();
+#endif //DOGLCD
           lcd_update();
         #ifdef TEMP_RESIDENCY_TIME
             /* start/restart the TEMP_RESIDENCY_TIME timer whenever we reach target temp for the first time
@@ -2376,7 +2397,9 @@ Sigma_Exit:
             codenum = millis();
           }
           manage_heater();
+#ifndef DOGLCD
           manage_inactivity();
+#endif //DOGLCD
           lcd_update();
         }
         LCD_MESSAGEPGM(MSG_BED_HEATING_DONE);
@@ -2908,7 +2931,9 @@ Sigma_Exit:
 
             while(digitalRead(pin_number) != target){
               manage_heater();
+#ifndef DOGLCD
               manage_inactivity();
+#endif //DOGLCD
             }
           }
         }
@@ -3739,6 +3764,9 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
     			lcd_clear_triggered_flags();
     			while(!LCD_CLICKED) {          
       				manage_heater();
+#ifndef DOGLCD
+              manage_inactivity();
+#endif //DOGLCD
     			}
 
           //point 2
@@ -3749,7 +3777,9 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
     			lcd_clear_triggered_flags();
   				while(!LCD_CLICKED) {
   	  				manage_heater();
-  	  				manage_inactivity();
+#ifndef DOGLCD
+              manage_inactivity();
+#endif //DOGLCD
   				}
   				
           //point 3
@@ -3760,7 +3790,9 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
     			lcd_clear_triggered_flags();
   	 			while(!LCD_CLICKED) {
   	  				manage_heater();
-  	  				manage_inactivity();
+#ifndef DOGLCD
+              manage_inactivity();
+#endif //DOGLCD
   				}
 
           //3 or 4 points based on the printer
@@ -3772,7 +3804,9 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
             lcd_clear_triggered_flags();
             while(!LCD_CLICKED){
                 manage_heater();
+#ifndef DOGLCD
                 manage_inactivity();
+#endif //DOGLCD
             }
           #else
             lcd_wizard_set_page(4);
@@ -3782,7 +3816,9 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
             lcd_clear_triggered_flags();
             while(!LCD_CLICKED){
                 manage_heater();
+#ifndef DOGLCD
                 manage_inactivity();
+#endif //DOGLCD
             }
 
             lcd_wizard_set_page(5);
@@ -3792,7 +3828,9 @@ case 404:  //M404 Enter the nominal filament width (3mm, 1.75mm ) N<3.0> or disp
             lcd_clear_triggered_flags();
             while(!LCD_CLICKED){
                 manage_heater();
+#ifndef DOGLCD
                 manage_inactivity();
+#endif //DOGLCD
             }
           #endif
 
@@ -4459,9 +4497,9 @@ void handle_status_leds(void) {
 
 void manage_inactivity(bool ignore_stepper_queue/*=false*/) //default argument set in Marlin.h
 {
-	
+  
 #if defined(KILL_PIN) && KILL_PIN > -1
-	static int killCount = 0;   // make the inactivity button a bit less responsive
+  static int killCount = 0;   // make the inactivity button a bit less responsive
    const int KILL_DELAY = 10000;
 #endif
 

@@ -28,11 +28,13 @@
 #include "ScreenFile.h"
 
 #include "cardreader.h"
+#include "GuiImpl_witbox_2.h"
 
 namespace screen
 {
-	ScreenFile::ScreenFile(const char * title)
+	ScreenFile::ScreenFile(const char * title , Subject<SDState_t> * model)
 		: ScreenMenu(title)
+		, Observer<SDState_t>(model)
 	{ }
 
 	ScreenFile::~ScreenFile()
@@ -89,70 +91,84 @@ namespace screen
 		Area text_area(0, 18, 127, 30);
 		Area icons_area(0, 31, 127, 52);
 
-		//Start painting sequence
-		painter.firstPage();
-		do
+		if(m_needs_drawing)
 		{
-			total_width_0 = aux_width_0;
-			total_width_1 = aux_width_1;
-			int aux2_width_0 = 0;
-			int aux2_width_1 = 0;
+			m_needs_drawing = false;
 
-			//Paint title on top of screen
-			painter.title(m_title);
-			//Paint selection box on bottom of screen
-			if ( m_index != (m_num_items -1) && m_index != 0)
+			//Start painting sequence
+			painter.firstPage();
+			do
 			{
-				painter.box((m_icons[m_index])->text(), BOTH);
-			}
-			else if(m_index == (m_num_items -1))
-			{
-				painter.box((m_icons[m_index])->text(), LEFT);
-			}
-			else if (m_index == 0)
-			{
-				painter.box((m_icons[m_index])->text(), RIGHT);
-			}
+				total_width_0 = aux_width_0;
+				total_width_1 = aux_width_1;
+				int aux2_width_0 = 0;
+				int aux2_width_1 = 0;
 
-			//Paint text on the screen
-			painter.setWorkingArea(text_area);
-			painter.text(text);
-
-			//Icon grid
-			uint8_t x_init = icons_area.x_init;
-			uint8_t y_init = icons_area.y_init;
-			uint8_t x_end = icons_area.x_end;
-			uint8_t y_end = icons_area.y_end;
-
-			for (unsigned int i = 0; i < m_num_icons; i++)
-			{
-				uint8_t row = i / items_per_row_0;
-				uint8_t x = 0;
-				uint8_t y = 0;
-
-				if (i < items_per_row_0)
+				//Paint title on top of screen
+				painter.title(m_title);
+				//Paint selection box on bottom of screen
+				if ( m_index != (m_num_items -1) && m_index != 0)
 				{
-					x = x_init + (icons_area.width() / 2) - (total_width_0 / 2) + aux2_width_0;
-					y = y_init + (icons_area.height() / 2) - ((num_rows - 1) * (m_icons[i]->height() + 5) + m_icons[i]->height()) / 2;
-					aux2_width_0 += m_icons[i]->width() + 2;
+					painter.box((m_icons[m_index])->text(), BOTH);
 				}
-				else
+				else if(m_index == (m_num_items -1))
 				{
-					x = x_init + (icons_area.width() / 2) - (total_width_1 / 2) + aux2_width_1;
-					y = y_init + (icons_area.height() / 2) - ((num_rows - 1) * (m_icons[i]->height() + 5) + m_icons[i]->height()) / 2 + (m_icons[i]->height() + 5);
-					aux2_width_1 += m_icons[i]->width() + 2;
+					painter.box((m_icons[m_index])->text(), LEFT);
+				}
+				else if (m_index == 0)
+				{
+					painter.box((m_icons[m_index])->text(), RIGHT);
 				}
 
-				//Choosing bitmap state
-				if (i == m_index)
+				//Paint text on the screen
+				painter.setWorkingArea(text_area);
+				painter.text(text);
+
+				//Icon grid
+				uint8_t x_init = icons_area.x_init;
+				uint8_t y_init = icons_area.y_init;
+				uint8_t x_end = icons_area.x_end;
+				uint8_t y_end = icons_area.y_end;
+
+				for (unsigned int i = 0; i < m_num_icons; i++)
 				{
-					m_icons[i]->draw(x,y, true);
+					uint8_t row = i / items_per_row_0;
+					uint8_t x = 0;
+					uint8_t y = 0;
+
+					if (i < items_per_row_0)
+					{
+						x = x_init + (icons_area.width() / 2) - (total_width_0 / 2) + aux2_width_0;
+						y = y_init + (icons_area.height() / 2) - ((num_rows - 1) * (m_icons[i]->height() + 5) + m_icons[i]->height()) / 2;
+						aux2_width_0 += m_icons[i]->width() + 2;
+					}
+					else
+					{
+						x = x_init + (icons_area.width() / 2) - (total_width_1 / 2) + aux2_width_1;
+						y = y_init + (icons_area.height() / 2) - ((num_rows - 1) * (m_icons[i]->height() + 5) + m_icons[i]->height()) / 2 + (m_icons[i]->height() + 5);
+						aux2_width_1 += m_icons[i]->width() + 2;
+					}
+
+					//Choosing bitmap state
+					if (i == m_index)
+					{
+						m_icons[i]->draw(x,y, true);
+					}
+					else
+					{
+						m_icons[i]->draw(x,y);
+					}
 				}
-				else
-				{
-					m_icons[i]->draw(x,y);
-				}
-			}
-		} while( painter.nextPage() );
+			} while( painter.nextPage() );
+		}
+	}
+
+	void ScreenFile::update(SDState_t state)
+	{
+		if(state == SD_IS_NOT_INSERTED)
+		{
+			card.release();
+			ViewManager::getInstance().activeView(screen_main);
+		}
 	}
 }

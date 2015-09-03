@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
-/// \file ScreenFile.h
+/// \file ScreenLanguage.h
 ///
 /// \author Ivan Galvez Junquera
 ///         Ruy Garcia
 ///         Victor Andueza 
 ///         Joaquin Herrero
 ///
-/// \brief Definition of file confirmation screen.
+/// \brief Definition of language screen.
 ///
 /// Copyright (c) 2015 BQ - Mundo Reader S.L.
 /// http://www.bq.com
@@ -25,26 +25,35 @@
 /// DEALINGS IN THE SOFTWARE.
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef SCREEN_FILE_H
-#define SCREEN_FILE_H
+#ifndef SCREEN_LANGUAGE_H
+#define SCREEN_LANGUAGE_H
 
 #include <stdint.h>
 
-#include "ScreenMenu.h"
-#include "SDManager.h"
+#include "Screen.h"
+
+#include "Language.h"
 
 namespace screen
 {
-	class ScreenFile : public ScreenMenu , public Observer<SDState_t>
+	class ScreenLanguage : public Screen
 	{
 		public:
-			ScreenFile(const char * title = 0, Subject<SDState_t> * model = 0);
-			virtual ~ScreenFile();
+			ScreenLanguage(const char * title, Language dflt);
+			virtual ~ScreenLanguage();
 
+			void init(uint16_t index = 0);
+
+			void left();
+			void right();
 			void draw();
+			void press();
 
 		private:
-			void update(SDState_t state);
+			const Language m_default;
+			uint8_t m_language;
+			const uint8_t m_min = 0;
+			const uint8_t m_max = 6;
 	};
 }
-#endif //SCREEN_FILE_H
+#endif //SCREEN_LANGUAGE_H

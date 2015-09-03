@@ -13,6 +13,7 @@
 #include "GuiBitmaps_witbox_2.h"
 #include "GuiAction.h"
 
+#include "PrintManager.h"
 #include "StorageManager.h"
 #include "SDManager.h"
 #include "ViewManager.h"
@@ -192,7 +193,8 @@ static void lcd_update_button()
     bool button_pressed = ((button_input & EN_C) && (button_input_last & EN_C));
 
     if (button_pressed == true) {
-        button_pressed_count++;        
+        button_pressed_count++;
+        PrintManager::resetInactivity();
     } else { 
         button_pressed_count = 0;
     }
@@ -227,67 +229,71 @@ static void lcd_update_encoder()
     encoder_input = lcd_implementation_update_buttons();
 
     // Process rotatory encoder events if they are not disabled 
-    if (encoder_input != encoder_input_last && encoder_input_blocked == false) {
-        prev_encoder_position = encoder_position;
-        switch (encoder_input & (EN_A | EN_B)) {
-        case encrot0:
-            if ( (encoder_input_last & (EN_A | EN_B)) == encrot3 )
-            {
-                encoder_position++;
-            }
-            else if ( (encoder_input_last & (EN_A | EN_B)) == encrot1 )
-            {
-                encoder_position--;
-            }
-            break;
-        
-        case encrot1:
-            if ( (encoder_input_last & (EN_A | EN_B)) == encrot0 )
-            {
-                encoder_position++;
-            }
-            else if ( (encoder_input_last & (EN_A | EN_B)) == encrot2 )
-            {
-                encoder_position--;
-            }
-            break;
-        
-        case encrot2:
-            if ( (encoder_input_last & (EN_A | EN_B)) == encrot1 )
-            {
-                encoder_position++;
-            }
-            else if ( (encoder_input_last & (EN_A | EN_B)) == encrot3 )
-            {
-                encoder_position--;
-            }
-            break;
-        
-        case encrot3:
-            if ( (encoder_input_last & (EN_A | EN_B)) == encrot2 )
-            {
-                encoder_position++;
-            }
-            else if ( (encoder_input_last & (EN_A | EN_B)) == encrot0 )
-            {
-                encoder_position--;
-            }
-            break;
-        }
+    if (encoder_input != encoder_input_last)
+    {
+        PrintManager::resetInactivity();
+        if (encoder_input_blocked == false) {
+            prev_encoder_position = encoder_position;
+            switch (encoder_input & (EN_A | EN_B)) {
+            case encrot0:
+                if ( (encoder_input_last & (EN_A | EN_B)) == encrot3 )
+                {
+                    encoder_position++;
+                }
+                else if ( (encoder_input_last & (EN_A | EN_B)) == encrot1 )
+                {
+                    encoder_position--;
+                }
+                break;
 
-        // Check if the menu item must be change
-        if (encoder_position/ENCODER_STEPS_PER_MENU_ITEM >= 1)
-        {
-            encoder_right_triggered++;
-            encoder_position = 0;
-        }
-        else if (encoder_position/ENCODER_STEPS_PER_MENU_ITEM<=-1)
-        {
-            encoder_left_triggered++;
-            encoder_position = 0;
-        }
+            case encrot1:
+                if ( (encoder_input_last & (EN_A | EN_B)) == encrot0 )
+                {
+                    encoder_position++;
+                }
+                else if ( (encoder_input_last & (EN_A | EN_B)) == encrot2 )
+                {
+                    encoder_position--;
+                }
+                break;
 
-        encoder_input_updated = true;
+            case encrot2:
+                if ( (encoder_input_last & (EN_A | EN_B)) == encrot1 )
+                {
+                    encoder_position++;
+                }
+                else if ( (encoder_input_last & (EN_A | EN_B)) == encrot3 )
+                {
+                    encoder_position--;
+                }
+                break;
+
+            case encrot3:
+                if ( (encoder_input_last & (EN_A | EN_B)) == encrot2 )
+                {
+                    encoder_position++;
+                }
+                else if ( (encoder_input_last & (EN_A | EN_B)) == encrot0 )
+                {
+                    encoder_position--;
+                }
+                break;
+            }
+
+            // Check if the menu item must be change
+            if (encoder_position/ENCODER_STEPS_PER_MENU_ITEM >= 1)
+            {
+                encoder_right_triggered++;
+                encoder_position = 0;
+            }
+            else if (encoder_position/ENCODER_STEPS_PER_MENU_ITEM<=-1)
+            {
+                encoder_left_triggered++;
+                encoder_position = 0;
+            }
+
+            encoder_input_updated = true;
+        }
     }
 
     // Update the phases

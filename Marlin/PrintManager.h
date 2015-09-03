@@ -23,6 +23,7 @@ typedef enum
 	HOMING,
 	LEVELING,
 	READY,
+	SERIAL_CONTROL,
 	NUM_PRINTER_STATES
 } PrinterState_t;
 
@@ -36,6 +37,11 @@ class PrintManager : public Subject<PrinterState_t>
 
 		PrinterState_t state();
 		void state(PrinterState_t state);
+
+		uint32_t getInactivityTime();
+		void resetInactivityTime();
+		bool getInactivityFlag();
+		void setInactivityFlag(bool state);
 
 		bool getKnownPosition();
 		void setKnownPosition(bool state);
@@ -53,14 +59,23 @@ class PrintManager : public Subject<PrinterState_t>
 		static void updateTime();
 		static Time_t printingTime();
 
+		static void resetInactivity();
+		static void updateInactivity();
+
 		static bool knownPosition();
 		static void knownPosition(bool state);
+
+	private:
+		void inactivityTriggered();
 
 	private:
 		PrinterState_t m_state;
 
 		Time_t m_printing_time;
 		uint32_t m_printing_time_raw;
+
+		uint32_t m_inactivity_time;
+		bool m_inactivity_flag;
 
 		bool m_known_position;
 };

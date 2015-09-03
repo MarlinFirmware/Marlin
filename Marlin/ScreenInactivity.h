@@ -1,12 +1,12 @@
 ///////////////////////////////////////////////////////////////////////////////
-/// \file ScreenFile.h
+/// \file ScreenInactivity.h
 ///
 /// \author Ivan Galvez Junquera
 ///         Ruy Garcia
 ///         Victor Andueza 
 ///         Joaquin Herrero
 ///
-/// \brief Definition of file confirmation screen.
+/// \brief Definition of inactivity-type screens.
 ///
 /// Copyright (c) 2015 BQ - Mundo Reader S.L.
 /// http://www.bq.com
@@ -25,26 +25,37 @@
 /// DEALINGS IN THE SOFTWARE.
 ///////////////////////////////////////////////////////////////////////////////
 
-#ifndef SCREEN_FILE_H
-#define SCREEN_FILE_H
+#ifndef SCREEN_INACTIVITY_H
+#define SCREEN_INACTIVITY_H
 
-#include <stdint.h>
+#include "ScreenAnimation.h"
 
-#include "ScreenMenu.h"
-#include "SDManager.h"
+#include "GuiManager.h"
+#include "TemperatureManager.h"
+#include "ViewManager.h"
 
 namespace screen
 {
-	class ScreenFile : public ScreenMenu , public Observer<SDState_t>
+	class ScreenInactivity : public ScreenAnimation<float>
 	{
 		public:
-			ScreenFile(const char * title = 0, Subject<SDState_t> * model = 0);
-			virtual ~ScreenFile();
+			ScreenInactivity(const char * title, const char * text, uint16_t target, Subject<float> * model = 0);
+			virtual ~ScreenInactivity();
+
+			void init(uint16_t index = 0);
 
 			void draw();
+			void press();
+
+			void add(ScreenIndex_t const & component);
+			void update(float value);
+
+			void left();
+			void right();
 
 		private:
-			void update(SDState_t state);
+			bool isConditionMeet();
 	};
 }
-#endif //SCREEN_FILE_H
+
+#endif //SCREEN_INACTIVITY_H

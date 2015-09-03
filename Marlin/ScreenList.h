@@ -31,39 +31,14 @@
 #include <stdint.h>
 
 #include "Screen.h"
-
-typedef enum
-{
-	STATE_PREPARE = 0,
-	STATE_PAINT,
-	NUM_STATES,
-} State_t;
-
-typedef enum
-{
-	EVENT_PREPARED,
-	EVENT_KEYPRESS,
-	EVENT_SDCHANGED
-} Event_t;
-
-typedef State_t State_func_t(Event_t event);
-
-// State functions
-State_t do_state_prepare(Event_t event);
-State_t do_state_paint(Event_t event);
-
-// State table
-extern State_func_t * const state_table[NUM_STATES];
-
-// State runner
-State_t run_state(State_t current_state, Event_t event);
+#include "SDManager.h"
 
 namespace screen
 {
-	class ScreenList : public Screen
+	class ScreenList : public Screen , public Observer<SDState_t>
 	{
 		public:
-			ScreenList(const char * title);
+			ScreenList(const char * title, Subject<SDState_t> * model);
 			virtual ~ScreenList();
 
 			void left();
@@ -71,9 +46,11 @@ namespace screen
 			void draw();
 			void press();
 			void add(ScreenIndex_t const & view);
+			void init(uint16_t index = 0);
 
 		private:
-			void updateSdcardStatus();
+			//void updateSdcardStatus();
+			void update(SDState_t state);
 
 		public:
 			static uint8_t directory_index;
@@ -87,8 +64,6 @@ namespace screen
 
 			ScreenIndex_t m_back_screen;
 			uint8_t m_num_item_added;
-
-			bool m_sdcard_inserted;
 
 			char m_directory[20];
 			bool m_directory_is_root;

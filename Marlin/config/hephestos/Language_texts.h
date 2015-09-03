@@ -5,12 +5,6 @@
        #define LANGUAGE_CHOICE 1  // Pick your language from the list above
 #endif
 
-#define MACHINE_NAME "Hephestos"
-#define FIRMWARE_URL "http://www.bq.com/gb/support/prusa"
-#define SOURCE_CODE_URL "http://github.com/bq/Marlin"
-#define FIRMWARE_VER "2.0.0"
-#define BUILD_VER ""
-
 // LCD Menu Messages
 #if LANGUAGE_CHOICE == 1
 	#define WELCOME_MSG MACHINE_NAME         " ready"
