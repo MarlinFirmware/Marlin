@@ -483,16 +483,16 @@ void check_axes_activity()
       block_index = (block_index+1) & (BLOCK_BUFFER_SIZE - 1);
     }
   }
-  if((DISABLE_X) && (x_active == 0)) disable_x();
-  if((DISABLE_Y) && (y_active == 0)) disable_y();
-  if((DISABLE_Z) && (z_active == 0)) disable_z();
-  if((DISABLE_E) && (e_active == 0))
-  {
-    disable_e0();
-    disable_e1();
-    disable_e2(); 
-    disable_e3();
-  }
+  // if((DISABLE_X) && (x_active == 0)) disable_x();
+  // if((DISABLE_Y) && (y_active == 0)) disable_y();
+  // if((DISABLE_Z) && (z_active == 0)) disable_z();
+  // if((DISABLE_E) && (e_active == 0))
+  // {
+  //   disable_e0();
+  //   disable_e1();
+  //   disable_e2();
+  //   disable_e3();
+  // }
 #if defined(FAN_PIN) && FAN_PIN > -1
   #ifdef FAN_KICKSTART_TIME
     static unsigned long fan_kick_end;
@@ -553,8 +553,7 @@ void plan_buffer_line(const float &x, const float &y, const float &z, const floa
   {
     next_buffer_head = next_block_index(block_buffer_head);
 
-    manage_heater(); 
-    manage_inactivity(); 
+    manage_heater();
     lcd_update();
 
 #ifdef DOGLCD
