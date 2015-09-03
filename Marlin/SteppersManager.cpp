@@ -1,6 +1,7 @@
 #include <stdint.h>
 
 #include "SteppersManager.h"
+#include "PrintManager.h"
 #include "Configuration.h"
 
 SteppersManager::SteppersManager()
@@ -50,6 +51,7 @@ void SteppersManager::disableStepper(Stepper_t stepper)
 				m_steppers_disabled = false;
 			}
 		}
+		PrintManager::knownPosition(false);
 		notify();
 	}
 }
