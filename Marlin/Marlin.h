@@ -260,23 +260,40 @@ extern float min_pos[3]; // axis[n].min_pos
 extern float max_pos[3]; // axis[n].max_pos
 extern bool axis_known_position[3]; // axis[n].is_known
 
-#if ENABLED(DELTA) || ENABLED(SCARA)
-  void calculate_delta(float cartesian[3]);
-  #if ENABLED(DELTA)
-    extern float delta[3];
-    extern float endstop_adj[3]; // axis[n].endstop_adj
-    extern float delta_radius;
-    extern float delta_diagonal_rod;
-    extern float delta_segments_per_second;
-    void recalc_delta_settings(float radius, float diagonal_rod);
-    #if ENABLED(AUTO_BED_LEVELING_FEATURE)
-      extern int delta_grid_spacing[2];
-      void adjust_delta(float cartesian[3]);
-    #endif
-  #elif ENABLED(SCARA)
-    extern float axis_scaling[3];  // Build size scaling
-    void calculate_SCARA_forward_Transform(float f_scara[3]);
+#if ENABLED(DELTA)
+  extern float delta[3];
+  extern float endstop_adj[3]; // axis[n].endstop_adj
+  extern float delta_radius;
+  #ifndef DELTA_RADIUS_TRIM_TOWER_1
+    #define DELTA_RADIUS_TRIM_TOWER_1 0.0
   #endif
+  #ifndef DELTA_RADIUS_TRIM_TOWER_2
+    #define DELTA_RADIUS_TRIM_TOWER_2 0.0
+  #endif
+  #ifndef DELTA_RADIUS_TRIM_TOWER_3
+    #define DELTA_RADIUS_TRIM_TOWER_3 0.0
+  #endif
+  extern float delta_diagonal_rod;
+  #ifndef DELTA_DIAGONAL_ROD_TRIM_TOWER_1
+    #define DELTA_DIAGONAL_ROD_TRIM_TOWER_1 0.0
+  #endif
+  #ifndef DELTA_DIAGONAL_ROD_TRIM_TOWER_2
+    #define DELTA_DIAGONAL_ROD_TRIM_TOWER_2 0.0
+  #endif
+  #ifndef DELTA_DIAGONAL_ROD_TRIM_TOWER_3
+    #define DELTA_DIAGONAL_ROD_TRIM_TOWER_3 0.0
+  #endif
+  extern float delta_segments_per_second;
+  void calculate_delta(float cartesian[3]);
+  void recalc_delta_settings(float radius, float diagonal_rod);
+  #if ENABLED(AUTO_BED_LEVELING_FEATURE)
+    extern int delta_grid_spacing[2];
+    void adjust_delta(float cartesian[3]);
+  #endif
+#elif ENABLED(SCARA)
+  extern float axis_scaling[3];  // Build size scaling
+  void calculate_delta(float cartesian[3]);
+  void calculate_SCARA_forward_Transform(float f_scara[3]);
 #endif
 
 #if ENABLED(Z_DUAL_ENDSTOPS)
