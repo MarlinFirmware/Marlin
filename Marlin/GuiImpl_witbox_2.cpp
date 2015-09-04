@@ -175,7 +175,7 @@ namespace screen
 		local_view->icon(icon_filament_load);
 		local_view->add(screen_level_init);
 		local_view->icon(icon_leveling);
-		local_view->add(screen_autohome_init);
+		local_view->add(screen_autohome_heating);
 		local_view->icon(icon_homing);
 		local_view->add(screen_settings);
 		local_view->icon(icon_settings);
@@ -440,19 +440,6 @@ namespace screen
 		local_view->add(screen_level_homing);
 		local_view->icon(icon_retry);
 		local_view->add(screen_main);
-		local_view->icon(icon_ok);
-		return local_view;
-	}
-
-	static ScreenMenu * make_screen_autohome_init()
-	{
-		Icon * icon_back = new Icon(icon_size, bits_back_normal, bits_back_focused, MSG_BACK());
-		Icon * icon_ok = new Icon(icon_size, bits_ok_normal, bits_ok_focused, MSG_ICON_OK2());
-
-		ScreenMenu * local_view = new ScreenMenu(MSG_SCREEN_AUTOHOME_INIT_TITLE(), MSG_SCREEN_AUTOHOME_INIT_TEXT());
-		local_view->add(screen_main);
-		local_view->icon(icon_back);
-		local_view->add(screen_autohome_heating);
 		local_view->icon(icon_ok);
 		return local_view;
 	}
@@ -1190,10 +1177,6 @@ namespace screen
 				break;
 
 			// Auto home
-			case screen_autohome_init:
-				new_view = make_screen_autohome_init();
-				break;
-
 			case screen_autohome_heating:
 				new_view = make_screen_autohome_heating();
 				break;
